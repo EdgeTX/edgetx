@@ -143,10 +143,6 @@
         <translation>Kanalordning</translation>
     </message>
     <message>
-        <source>Menu Language</source>
-        <translation>Språkinställning</translation>
-    </message>
-    <message>
         <source>Default Stick Mode</source>
         <translation>Spaktilldelning</translation>
     </message>
@@ -519,10 +515,6 @@ Mode 4:
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Detta val behåller hanteringen från äldre OpenTX versioner, där tomma modellrader behålls när en modell flyttas eller raderas.&lt;/p&gt;&lt;p&gt;När detta val avmarkeras flyttas de andra modellerna så att den tomma modellens plats ersätts och inte lämnas kvar tom.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove empty model slots when deleting models (only applies for radios w/out categories)</source>
-        <translation>Ta bort tomma modellrader när modeller raderas (gäller endast sändare utan kategorier)</translation>
-    </message>
-    <message>
         <source>Debug Output Logging</source>
         <translation>Loggning av utdata för felsökning</translation>
     </message>
@@ -694,6 +686,14 @@ Mode 4:
         <source>Disable &apos;Cannot open joystick, joystick disabled&apos; warning</source>
         <translation>Inaktivera varningen &apos;Ingen joystick kan hittas, joystick inkativerad&apos;</translation>
     </message>
+    <message>
+        <source>Language</source>
+        <translation>Språk</translation>
+    </message>
+    <message>
+        <source>Remove empty model slots when deleting models (only applies for radios w/out labels)</source>
+        <translation>Ta bort tomma modellrader när modeller raderas (gäller endast sändare utan etiketter)</translation>
+    </message>
 </context>
 <context>
     <name>BinEepromFormat</name>
@@ -858,7 +858,7 @@ Mode 4:
     </message>
     <message>
         <source>6P</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>L1</source>
@@ -1811,6 +1811,10 @@ Vill du hämta inställningarna från en fil?</translation>
     <message>
         <source>%1s</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>På</translation>
     </message>
 </context>
 <context>
@@ -2918,10 +2922,6 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <translation>Stöd för intern MULTI-modul</translation>
     </message>
     <message>
-        <source>Support hardware mod: R9M ACCESS</source>
-        <translation type="vanished">Stöd för hårdvarumodifiering: R9M ACCESS</translation>
-    </message>
-    <message>
         <source>FrSky Taranis X9D+</source>
         <translation></translation>
     </message>
@@ -3047,6 +3047,10 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     </message>
     <message>
         <source>Radiomaster Boxer</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Jumper T-Lite (F4 MCU)</source>
         <translation></translation>
     </message>
 </context>
@@ -4358,10 +4362,6 @@ p, li { white-space: pre-wrap; }
         <translation>Inaktivitetstimer</translation>
     </message>
     <message>
-        <source>Show splash screen on startup</source>
-        <translation type="vanished">Visa startbild vid start av radion</translation>
-    </message>
-    <message>
         <source>---</source>
         <translation></translation>
     </message>
@@ -4850,6 +4850,10 @@ att fungera. Detta går inte att ändra från radion.
         <source>Japanese</source>
         <translation>Japanska</translation>
     </message>
+    <message>
+        <source>Hebrew</source>
+        <translation>Hebreiska</translation>
+    </message>
 </context>
 <context>
     <name>GyroPage</name>
@@ -4899,14 +4903,6 @@ att fungera. Detta går inte att ändra från radion.
     <message>
         <source>Device Name:</source>
         <translation>Enhetsnamn:</translation>
-    </message>
-    <message>
-        <source>Antenna</source>
-        <translation type="vanished">Antenn</translation>
-    </message>
-    <message>
-        <source>Internal module</source>
-        <translation type="vanished">Intern modul</translation>
     </message>
     <message>
         <source>Sample Mode</source>
@@ -6461,18 +6457,6 @@ Vill du spara ändringarna?</translation>
     <message>
         <source>Do you want to continue?</source>
         <translation>Vill du fortsätta?</translation>
-    </message>
-    <message>
-        <source>Don&apos;t show this message again</source>
-        <translation type="vanished">Visa inte detta meddelande igen</translation>
-    </message>
-    <message>
-        <source>Saved models and settings to radio</source>
-        <translation type="vanished">Modeller och inställningar har sparats till radion</translation>
-    </message>
-    <message>
-        <source>Error saving models and settings to radio!</source>
-        <translation type="vanished">Fel uppstod när modeller och inställningar sparades till radion!</translation>
     </message>
     <message>
         <source>Select a model template file</source>
@@ -8038,6 +8022,14 @@ p, li { white-space: pre-wrap; }
         <source>Lemon-Rx DSMP</source>
         <translation></translation>
     </message>
+    <message>
+        <source>No Telemetry</source>
+        <translation>Ingen telemetri</translation>
+    </message>
+    <message>
+        <source>MLink</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>ModulePanel</name>
@@ -8054,24 +8046,8 @@ p, li { white-space: pre-wrap; }
         <translation>Inga pulser</translation>
     </message>
     <message>
-        <source>Ask</source>
-        <translation type="vanished">Fråga</translation>
-    </message>
-    <message>
-        <source>Internal</source>
-        <translation type="vanished">Intern</translation>
-    </message>
-    <message>
-        <source>Internal + External</source>
-        <translation type="vanished">Intern + Extern</translation>
-    </message>
-    <message>
-        <source>External</source>
-        <translation type="vanished">Extern</translation>
-    </message>
-    <message>
         <source>Bind on channel</source>
-        <translation>Parkoppla (bind) via kanal</translation>
+        <translation>Parkoppla (bind) på kanal</translation>
     </message>
     <message>
         <source>Warning: The internal module protocol &lt;b&gt;%1&lt;/b&gt; is incompatible with the hardware internal module &lt;b&gt;%2&lt;/b&gt; and has been set to &lt;b&gt;OFF&lt;/b&gt;!</source>
@@ -8423,6 +8399,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Enabled</source>
         <translation>Aktiverad</translation>
+    </message>
+    <message>
+        <source>Show Instance IDs</source>
+        <translation>Visa instans-IDn</translation>
     </message>
 </context>
 <context>
@@ -9833,10 +9813,6 @@ Gasen reverseras om alternativet väljs. Tomgång ligger då uppåt. Trim och ga
 <context>
     <name>SimulatorMain</name>
     <message>
-        <source>OpenTx Simulator</source>
-        <translation>EdgeTX simulator</translation>
-    </message>
-    <message>
         <source>Available profiles:</source>
         <translation>Tillgängliga profiler:</translation>
     </message>
@@ -9875,10 +9851,6 @@ Gasen reverseras om alternativet väljs. Tomgång ligger då uppåt. Trim och ga
     <message>
         <source>path</source>
         <translation>sökväg</translation>
-    </message>
-    <message>
-        <source>Data source type to use (applicable to Horus only). One of:</source>
-        <translation>Typ av datakälla (gäller endast Horus-liknande radior). En av:</translation>
     </message>
     <message>
         <source>type</source>
@@ -9925,14 +9897,22 @@ Profile ID: [%1]; Radio ID: [%2]</source>
 Profil-ID: [%1]; Radio-ID [%2]</translation>
     </message>
     <message>
-        <source>Uknown error during Simulator startup.</source>
-        <translation>Okänt fel vid uppstart av simulatorn.</translation>
-    </message>
-    <message>
         <source>Radio data (.bin/.eeprom/.etx) image file to use OR data folder path (for Horus-style radios).
 NOTE: any existing EEPROM data incompatible with the selected radio type may be overwritten!</source>
         <translation>Radiodatafil (.bin/.eeprom/.etx) att använda ELLER sökväg till datakatalogen (för sändare av Horus-typ).
 OBS! All befintlig EEPROM-data som är inkompatibel med vald radiotyp kan komms att skrivas över!</translation>
+    </message>
+    <message>
+        <source>EdgeTx Simulator</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Data source type to use. One of:</source>
+        <translation>Typ av datakälla att använda. En av:</translation>
+    </message>
+    <message>
+        <source>Unknown error during Simulator startup.</source>
+        <translation>Okänt fel vid uppstart av simulatorn.</translation>
     </message>
 </context>
 <context>
@@ -10108,7 +10088,7 @@ OBS! All befintlig EEPROM-data som är inkompatibel med vald radiotyp kan komms 
     <message>
         <source>&lt;tr&gt;&lt;th&gt;Key/Mouse&lt;/th&gt;&lt;th&gt;Action&lt;/th&gt;&lt;/tr&gt;</source>
         <comment>note: must match html layout of each table row (keyTemplate).</comment>
-        <translation>&lt;tr&gt;&lt;th&gt;Knapp/Mus&lt;/th&gt;&lt;th&gt;Verkställ&lt;/th&gt;&lt;/tr&gt;</translation>
+        <translation>&lt;tr&gt;&lt;th&gt;Knapp/Mus&lt;/th&gt;&lt;th&gt;Funktion&lt;/th&gt;&lt;/tr&gt;</translation>
     </message>
     <message>
         <source>&lt;tr&gt;&lt;td&gt;&lt;kbd&gt;%1&lt;/kbd&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
@@ -10157,12 +10137,6 @@ Radiotypen som angetts i vald profil används som förval.</translation>
     <message>
         <source>SD Image Path:</source>
         <translation>Sökväg till SD-kortet:</translation>
-    </message>
-    <message>
-        <source>Radio data (.bin/.eeprom/.otx) image file to use. A new file with a default image will be created if necessary.&lt;br /&gt;
-&lt;b&gt;NOTE&lt;/b&gt;: any existing EEPROM data incompatible with the selected radio type may be overwritten!</source>
-        <translation>Radiodatafil (.bin/.eeprom/.otx/.etx) att använda. En ny fil med förvald bild skapas om så behövs.&lt;br /&gt;
-OBS! Befintlig EEPROM-data som inte är kompatibel med vald radiotyp kan komma att skrivas över!</translation>
     </message>
     <message>
         <source>Select data file...</source>
@@ -10227,6 +10201,16 @@ Förvalt värde är konfigurerat i den valda radioprofieln.</translation>
     <message>
         <source>EdgeTX Simulator - Startup Options</source>
         <translation>EdgeTX simulator - Startalternativ</translation>
+    </message>
+    <message>
+        <source>Radio data (.etx) settings file to use. A new file with default settings will be created if necessary.&lt;br /&gt;
+&lt;b&gt;NOTE&lt;/b&gt;: any existing data incompatible with the selected radio type may be overwritten!</source>
+        <translation>Radiodatafil (.etx) att använda. En ny fil med förvalda inställningar skapas om så behövs.&lt;br /&gt;
+&lt;b&gt;OBS!&lt;b&gt; Befintlig data som inte är kompatibel med vald radiotyp kan komma att skrivas över!</translation>
+    </message>
+    <message>
+        <source>Simulator:</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -10714,6 +10698,10 @@ För många fel - ger upp.</translation>
     <message>
         <source>Source</source>
         <translation>Källa</translation>
+    </message>
+    <message>
+        <source>Show Instance IDs</source>
+        <translation>Visa instans-IDn</translation>
     </message>
 </context>
 <context>
@@ -11660,28 +11648,12 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
         <translation>Uppdatering av %1 lyckades</translation>
     </message>
     <message>
-        <source>Update Interface</source>
-        <translation type="vanished">Uppdateringsinterface</translation>
-    </message>
-    <message>
-        <source>Unable to download release meta data</source>
-        <translation type="vanished">Kunde inte ladda ner metadata för versionen</translation>
-    </message>
-    <message>
         <source>%1 directory not configured in application settings!</source>
         <translation>Katalog för %1 inte konfigurerad i programinställningarna!</translation>
     </message>
     <message>
         <source>Failed to create %1 directory %2!</source>
         <translation>Kunde inte skapa %1 katalog %2!</translation>
-    </message>
-    <message>
-        <source>Invalid URL: %1</source>
-        <translation type="vanished">Ogiltig URL: %1</translation>
-    </message>
-    <message>
-        <source>Network error has occurred. Error code: %1</source>
-        <translation type="vanished">Ett nätverksfel har inträffat. Felkod: %1</translation>
     </message>
     <message>
         <source>Unable to set processing flags for asset %1</source>
@@ -11694,26 +11666,6 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     <message>
         <source>Unable to set copy filter for asset %1</source>
         <translation>Kunde inte sätta kopieringsfilter för tillgång %1</translation>
-    </message>
-    <message>
-        <source>Downloading: %1</source>
-        <translation type="vanished">Laddar ner: %1</translation>
-    </message>
-    <message>
-        <source>Download: %1</source>
-        <translation type="vanished">Nerladdning: %1</translation>
-    </message>
-    <message>
-        <source>File exists: %1</source>
-        <translation type="vanished">Filen finns redan: %1</translation>
-    </message>
-    <message>
-        <source>File %1 exists. Download again?</source>
-        <translation type="vanished">Fil %1 finns redan. Ladda ner igen?</translation>
-    </message>
-    <message>
-        <source>Failed to create directory %1!</source>
-        <translation type="vanished">Kunde inte skapa katalog%1!</translation>
     </message>
     <message>
         <source>Decompressing %1</source>
@@ -11840,32 +11792,6 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
         <translation>Spara versionsinställningarna</translation>
     </message>
     <message>
-        <source>Unable to open the download file %1 for writing.
-Error: %2</source>
-        <translation type="vanished">Kunde inte öppna nerladdningsfil %1 för skrivning.
-Fel: %2</translation>
-    </message>
-    <message>
-        <source>Unable to download %1.
-Error:%2
-%3</source>
-        <translation type="vanished">Kunde inte ladda ner %1.
-Fel:%2
-%3</translation>
-    </message>
-    <message>
-        <source>Unable to convert downloaded data to json format.
-Error:%1
-%2</source>
-        <translation type="vanished">Kunde inte konvertera nerladdad data till json-format.
-Fel:%1
-%2</translation>
-    </message>
-    <message>
-        <source>Asset filter: %1</source>
-        <translation type="vanished">Filter för tillgångar: %1</translation>
-    </message>
-    <message>
         <source>No assets found in release &apos;%1&apos; using filter &apos;%2&apos;</source>
         <translation>Inga tillgångar hittades för version &apos;%1&apos; med filter &apos;%2&apos;</translation>
     </message>
@@ -11888,10 +11814,6 @@ Fel:%1
     <message>
         <source>unknown</source>
         <translation>okänd</translation>
-    </message>
-    <message>
-        <source>Unable to download release assets information</source>
-        <translation type="vanished">Kunde inte ladda ner information om versionens tillgångar</translation>
     </message>
     <message>
         <source>Copy filter pattern: %1</source>
@@ -12058,10 +11980,6 @@ Fel:%1
         <translation>Innehåller</translation>
     </message>
     <message>
-        <source>Expression</source>
-        <translation type="vanished">Uttryck</translation>
-    </message>
-    <message>
         <source>Pattern</source>
         <translation>Mönster</translation>
     </message>
@@ -12075,10 +11993,6 @@ Fel:%1
     <message>
         <source>Flagging assets</source>
         <translation>Flaggar tillgångar</translation>
-    </message>
-    <message>
-        <source>Radio flavour %1 not listed in %2</source>
-        <translation type="vanished">Radiovariant %1 finns inte listad i %2</translation>
     </message>
     <message>
         <source>Unable to retrieve asset &apos;%1&apos; from release &apos;%2&apos;</source>
@@ -12102,18 +12016,6 @@ Fel:%1
     <message>
         <source>Processing available sounds</source>
         <translation>Bearbetar tillgängliga ljud</translation>
-    </message>
-    <message>
-        <source>Asset not found in release &apos;%1&apos; using filter pattern &apos;%2&apos;</source>
-        <translation type="vanished">Inga tillgångar hittades för version &apos;%1&apos; med filtermönster &apos;%2&apos;</translation>
-    </message>
-    <message>
-        <source>%1 assets found when %2 expected in release &apos;%3&apos; using filter pattern &apos;%4&apos;</source>
-        <translation type="vanished">%1 av %2 förväntade tillgångar hittades för version &apos;%3&apos;, med filtermönster &apos;%4&apos;</translation>
-    </message>
-    <message>
-        <source>Language %1 not listed in %2</source>
-        <translation type="vanished">Språk &apos;%1&apos; saknas i %2</translation>
     </message>
     <message>
         <source>Choose Language Packs</source>
@@ -12602,7 +12504,7 @@ Bearbeta nu?</translation>
     </message>
     <message>
         <source>Has your helicopter got a flybar?</source>
-        <translation>Har din helikopter en`Flybar´?</translation>
+        <translation>Har din helikopter en flybar?</translation>
     </message>
     <message>
         <source>Select the controls for your helicopter</source>
@@ -12802,38 +12704,6 @@ m2560 för v4.1-kort</translation>
         <translation>Konfigurera joystick</translation>
     </message>
     <message>
-        <source>Ch2</source>
-        <translation type="vanished">Ka2</translation>
-    </message>
-    <message>
-        <source>Ch1</source>
-        <translation type="vanished">Ka1</translation>
-    </message>
-    <message>
-        <source>Ch4</source>
-        <translation type="vanished">Ka4</translation>
-    </message>
-    <message>
-        <source>Ch6</source>
-        <translation type="vanished">Ka6</translation>
-    </message>
-    <message>
-        <source>Ch3</source>
-        <translation type="vanished">Ka3</translation>
-    </message>
-    <message>
-        <source>Ch5</source>
-        <translation type="vanished">Ka5</translation>
-    </message>
-    <message>
-        <source>Ch7</source>
-        <translation type="vanished">Ka7</translation>
-    </message>
-    <message>
-        <source>Ch8</source>
-        <translation type="vanished">Ka8</translation>
-    </message>
-    <message>
         <source>Instructions</source>
         <translation>Instruktioner</translation>
     </message>
@@ -12868,14 +12738,6 @@ m2560 för v4.1-kort</translation>
     <message>
         <source>Not Assigned</source>
         <translation>Ej tilldelad</translation>
-    </message>
-    <message>
-        <source> Stick</source>
-        <translation type="vanished"> Spak</translation>
-    </message>
-    <message>
-        <source>Knob/Slider %1</source>
-        <translation type="vanished">Vred/Reglage %1</translation>
     </message>
     <message>
         <source>No joysticks found</source>
