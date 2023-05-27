@@ -88,9 +88,3 @@ void TextEdit::onClicked()
 {
   TextKeyboard::show(this);
 }
-
-void TextEdit::onFocusLost()
-{
-  changeEnd();
-  FormField::onFocusLost();
-}

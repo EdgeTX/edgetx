@@ -29,7 +29,7 @@ static const lv_coord_t default_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_L
 static const lv_coord_t default_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 CurveDataEdit::CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index) :
-  Window(parent, rect, FORM_FORWARD_FOCUS),
+  Window(parent, rect),
   index(index)
 {
   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY3), 0);

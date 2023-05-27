@@ -75,7 +75,7 @@ void SetupWidgetsPageSlot::paint(BitmapBuffer* dc)
 }
 
 SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :
-    FormWindow(ViewMain::instance(), {0, 0, 0, 0}, FORM_FORWARD_FOCUS),
+    FormWindow(ViewMain::instance(), rect_t{}),
     customScreenIdx(customScreenIdx)
 {
   Layer::push(this);
@@ -103,7 +103,7 @@ SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :
         this->deleteLater();
         return 1;
       },
-      NO_FOCUS | FORM_NO_BORDER,
+      NO_FOCUS,
       0, window_create);
 #endif
 }

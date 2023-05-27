@@ -33,7 +33,7 @@ PageHeader::PageHeader(Page * parent, uint8_t icon):
              [=]() -> uint8_t {
                parent->onCancel();
                return 0;
-             }, NO_FOCUS | FORM_NO_BORDER);
+             }, NO_FOCUS);
 #endif
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
@@ -68,7 +68,7 @@ static constexpr rect_t _get_body_rect()
 Page::Page(unsigned icon):
   Window(Layer::back(), {0, 0, LCD_W, LCD_H}, OPAQUE),
   header(this, icon),
-  body(this, _get_body_rect(), FORM_FORWARD_FOCUS)
+  body(this, _get_body_rect())
 {
   Layer::push(this);
 

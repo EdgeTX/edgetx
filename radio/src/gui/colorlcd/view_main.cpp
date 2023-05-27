@@ -66,7 +66,7 @@ static void tile_view_scroll(lv_event_t* e)
 ViewMain * ViewMain::_instance = nullptr;
 
 ViewMain::ViewMain():
-  Window(MainWindow::instance(), MainWindow::instance()->getRect(), NO_SCROLLBAR | OPAQUE)
+  Window(MainWindow::instance(), MainWindow::instance()->getRect(), OPAQUE)
 {
   Layer::push(this);
 

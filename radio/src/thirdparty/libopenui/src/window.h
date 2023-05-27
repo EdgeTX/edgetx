@@ -42,25 +42,18 @@ typedef uint32_t WindowFlags;
   #undef TRANSPARENT
 #endif
 
-constexpr int INFINITE_HEIGHT = INT32_MAX;
-
 constexpr WindowFlags OPAQUE =                1u << 0u;
 constexpr WindowFlags TRANSPARENT =           1u << 1u;
-constexpr WindowFlags NO_SCROLLBAR =          1u << 2u;
-constexpr WindowFlags NO_FOCUS =              1u << 3u;
-constexpr WindowFlags FORWARD_SCROLL =        1u << 4u;
-constexpr WindowFlags REFRESH_ALWAYS =        1u << 5u;
-constexpr WindowFlags PAINT_CHILDREN_FIRST =  1u << 6u;
-constexpr WindowFlags PUSH_FRONT =  1u << 7u;
-constexpr WindowFlags WINDOW_FLAGS_LAST =  PUSH_FRONT;
+constexpr WindowFlags NO_FOCUS =              1u << 2u;
+constexpr WindowFlags REFRESH_ALWAYS =        1u << 3u;
+constexpr WindowFlags WINDOW_FLAGS_LAST =  REFRESH_ALWAYS;
 
 typedef lv_obj_t *(*LvglCreate)(lv_obj_t *);
 extern "C" void window_event_cb(lv_event_t * e);
 
 class Window
 {
-  friend class GridLayout;
-  friend void window_event_cb(lv_event_t * e);
+    friend void window_event_cb(lv_event_t * e);
 
   public:
     Window(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
@@ -79,11 +72,6 @@ class Window
 
     Window *getParent() const { return parent; }
 
-    bool isChild(Window *window) const
-    {
-      return window == this || (parent && parent->isChild(window));
-    }
-
     Window *getFullScreenWindow();
 
     WindowFlags getWindowFlags() const { return windowFlags; }
@@ -97,8 +85,6 @@ class Window
 
     typedef std::function<void(bool)> FocusHandler;
     void setFocusHandler(FocusHandler h) { focusHandler = std::move(h); }
-
-    const std::list<Window *> getChildren() { return children; }
 
     void clear();
     virtual void deleteLater(bool detach = true, bool trash = true);
@@ -183,21 +169,9 @@ class Window
     void padRow(coord_t pad);
     void padColumn(coord_t pad);
 
-    bool isChildVisible(const Window * window) const;
-    bool isChildFullSize(const Window * window) const;
-
-    bool isVisible() const
-    {
-      return parent && parent->isChildVisible(this);
-    }
-
     virtual void onEvent(event_t event);
     virtual void onClicked();
     virtual void onCancel();
-
-    coord_t adjustHeight();
-
-    void moveWindowsTop(coord_t y, coord_t delta);
 
     virtual void updateSize();
 
@@ -252,19 +226,5 @@ class Window
     void removeChild(Window * window);
 
     virtual void invalidate(const rect_t & rect);
-
-    void fullPaint(BitmapBuffer * dc);
-    void paintChildren(BitmapBuffer * dc, std::list<Window *>::iterator it);
-
-    virtual void onFocusLost()
-    {
-      TRACE_WINDOWS("%s onFocusLost()", getWindowDebugString().c_str());
-      if (focusHandler) {
-        focusHandler(false);
-      }
-      invalidate();
-    }
-
-    bool hasOpaqueRect(const rect_t & testRect) const;
 };
 

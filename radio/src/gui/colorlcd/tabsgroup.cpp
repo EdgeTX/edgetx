@@ -66,7 +66,7 @@ TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
           parent->deleteLater();
           return 1;
         },
-        NO_FOCUS | FORM_NO_BORDER,
+        NO_FOCUS,
         0, window_create),
 #endif
     icon(icon),
@@ -140,7 +140,7 @@ TabsGroup* TabsGroup::activeTabsGroup = nullptr;
 TabsGroup::TabsGroup(uint8_t icon):
   Window(Layer::back(), { 0, 0, LCD_W, LCD_H }, OPAQUE),
   header(this, icon),
-  body(this, _get_body_rect(), NO_FOCUS | FORM_FORWARD_FOCUS)
+  body(this, _get_body_rect(), NO_FOCUS)
 {
   Layer::push(this);
 
