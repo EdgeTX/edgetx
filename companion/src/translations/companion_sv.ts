@@ -3913,6 +3913,65 @@ Dessa inställningar gäller för alla modeller.</translation>
         <source>Wrong data in profile, Switch/pot config not retrieved</source>
         <translation>Fel data i profilen, brytar-/pot.inställningar lästes inte in</translation>
     </message>
+    <message>
+        <source>Enabled Features</source>
+        <translation>Aktiverade funktioner</translation>
+    </message>
+</context>
+<context>
+    <name>GeneralOptionsPanel</name>
+    <message>
+        <source>Radio Menus</source>
+        <translation>Radiomenyer</translation>
+    </message>
+    <message>
+        <source>Themes</source>
+        <translation>Teman</translation>
+    </message>
+    <message>
+        <source>Global Functions</source>
+        <translation>Globala funktioner</translation>
+    </message>
+    <message>
+        <source>Trainer</source>
+        <translation>Lärare</translation>
+    </message>
+    <message>
+        <source>Model Menus</source>
+        <translation>Modellmenyer</translation>
+    </message>
+    <message>
+        <source>Heli</source>
+        <translation>Heli</translation>
+    </message>
+    <message>
+        <source>Flight Modes</source>
+        <translation>Flyglägen</translation>
+    </message>
+    <message>
+        <source>Curves</source>
+        <translation>Kurvor</translation>
+    </message>
+    <message>
+        <source>Global Variables</source>
+        <translation>Globala variabler</translation>
+    </message>
+    <message>
+        <source>Logical Switches</source>
+        <translation>Logiska brytare</translation>
+    </message>
+    <message>
+        <source>Special Functions</source>
+        <translation>Specialfunktioner</translation>
+    </message>
+    <message>
+        <source>Custom Mix Scripts</source>
+        <translation>Anpassade mixerskript</translation>
+    </message>
+    <message>
+        <source>Telemetry</source>
+        <translation>Telemetri</translation>
+    </message>
 </context>
 <context>
     <name>GeneralSettings</name>
@@ -7152,6 +7211,77 @@ p, li { white-space: pre-wrap; }
         <source>Custom Screens</source>
         <translation>Anpassade skärmar</translation>
     </message>
+    <message>
+        <source>Enabled Features</source>
+        <translation>Aktiverade funktioner</translation>
+    </message>
+</context>
+<context>
+    <name>ModelOptionsPanel</name>
+    <message>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Av</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>På</translation>
+    </message>
+    <message>
+        <source>Radio Menus</source>
+        <translation>Radiomenyer</translation>
+    </message>
+    <message>
+        <source>Themes</source>
+        <translation>Teman</translation>
+    </message>
+    <message>
+        <source>Global Functions</source>
+        <translation>Globala funktioner</translation>
+    </message>
+    <message>
+        <source>Trainer</source>
+        <translation>Lärare</translation>
+    </message>
+    <message>
+        <source>Model Menus</source>
+        <translation>Modellmenyer</translation>
+    </message>
+    <message>
+        <source>Heli</source>
+        <translation>Heli</translation>
+    </message>
+    <message>
+        <source>Flight Modes</source>
+        <translation>Flyglägen</translation>
+    </message>
+    <message>
+        <source>Curves</source>
+        <translation>Kurvor</translation>
+    </message>
+    <message>
+        <source>Global Variables</source>
+        <translation>Globala variabler</translation>
+    </message>
+    <message>
+        <source>Logical Switches</source>
+        <translation>Logiska brytare</translation>
+    </message>
+    <message>
+        <source>Special Functions</source>
+        <translation>Specialfunktioner</translation>
+    </message>
+    <message>
+        <source>Custom Mix Scripts</source>
+        <translation>Anpassade mixerskript</translation>
+    </message>
+    <message>
+        <source>Telemetry</source>
+        <translation>Telemetri</translation>
+    </message>
 </context>
 <context>
     <name>ModelPrinter</name>
@@ -7718,10 +7848,6 @@ p, li { white-space: pre-wrap; }
         <translation>Alternativ värde</translation>
     </message>
     <message>
-        <source>Low Power</source>
-        <translation>Låg effekt</translation>
-    </message>
-    <message>
         <source>Multi Radio Protocol</source>
         <translation>Multiradioprotokoll</translation>
     </message>
@@ -7806,6 +7932,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Option combo</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Low power mode</source>
+        <translation>Lågeffektläge</translation>
     </message>
 </context>
 <context>
@@ -8409,47 +8539,47 @@ p, li { white-space: pre-wrap; }
     <name>Multiprotocols</name>
     <message>
         <source>Subtype</source>
-        <translation>Variant</translation>
+        <translation type="vanished">Variant</translation>
     </message>
     <message>
         <source>Video TX frequency</source>
-        <translation>Video TX-frekvens</translation>
+        <translation type="vanished">Video TX-frekvens</translation>
     </message>
     <message>
         <source>Telemetry</source>
-        <translation>Telemetri</translation>
+        <translation type="vanished">Telemetri</translation>
     </message>
     <message>
         <source>Servo output frequency</source>
-        <translation>Utdatafrekvens för servo</translation>
+        <translation type="vanished">Utdatafrekvens för servo</translation>
     </message>
     <message>
         <source>Option value</source>
-        <translation>Alternativ värde</translation>
+        <translation type="vanished">Alternativ värde</translation>
     </message>
     <message>
         <source>DEFAULT</source>
-        <translation>FÖRVAL</translation>
+        <translation type="vanished">FÖRVAL</translation>
     </message>
     <message>
         <source>CC2500 frequency fine tune</source>
-        <translation>Finjustering av CC2500 frekvens</translation>
+        <translation type="vanished">Finjustering av CC2500 frekvens</translation>
     </message>
     <message>
         <source>Fixed ID value</source>
-        <translation>Fast ID-värde</translation>
+        <translation type="vanished">Fast ID-värde</translation>
     </message>
     <message>
         <source>RF power</source>
-        <translation>RF effekt</translation>
+        <translation type="vanished">RF effekt</translation>
     </message>
     <message>
         <source>Enable Max Throw</source>
-        <translation>Aktivera max utslag</translation>
+        <translation type="vanished">Aktivera max utslag</translation>
     </message>
     <message>
         <source>RF Channel Number</source>
-        <translation>RF kanalnummer</translation>
+        <translation type="vanished">RF kanalnummer</translation>
     </message>
     <message>
         <source>Servo update rate</source>
