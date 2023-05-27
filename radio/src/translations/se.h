@@ -1329,8 +1329,6 @@
 #define TR_SERIAL_BUS                   "Seriell buss"
 #define TR_SYNC                         "Synk"
 
-//#define TR_ENABLED_FEATURES             "Aktiverade funktioner"
-#define TR_VIEW_OPTIONS                 "Aktiverade funktioner"
+#define TR_ENABLED_FEATURES             "Aktiverade funktioner"
 #define TR_RADIO_MENU_TABS              "Radiomenyflikar"
 #define TR_MODEL_MENU_TABS              "Modellmenyflikar"
-
