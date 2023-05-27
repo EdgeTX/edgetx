@@ -474,7 +474,7 @@ if(NOT PCB STREQUAL PCBXLITE)
 endif()
 
 if(ENABLE_SERIAL_PASSTHROUGH)
-  set(CLI ON CACHE BOOL "Enable CLI")
+  add_definitions(-DCLI)
 endif()
 
 if(INTERNAL_MODULE_SERIAL)
