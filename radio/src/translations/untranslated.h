@@ -246,7 +246,8 @@
 #define STR_SENSOR_GATE_TIME                 "GteT"
 #define STR_SENSOR_ESC_VOLTAGE               "EscV"
 #define STR_SENSOR_ESC_CURRENT               "EscA"
-#define STR_SENSOR_ESC_RPM                   "EscR"
+#define STR_SENSOR_ESC_RPM                   "EscR"   //FrSky name
+#define STR_SENSOR_ESC_RPM2                  "Erpm"   //Spektrum name
 #define STR_SENSOR_ESC_CONSUMPTION           "EscC"
 #define STR_SENSOR_ESC_TEMP                  "EscT"
 #define STR_SENSOR_SD1_CHANNEL               "Chan"
