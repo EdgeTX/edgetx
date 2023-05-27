@@ -30,7 +30,7 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(3),
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 SerialConfigWindow::SerialConfigWindow(Window *parent, const rect_t &rect) :
-    FormWindow(parent, rect, FORWARD_SCROLL)
+    FormWindow(parent, rect)
 {
   setFlexLayout();
   FlexGridLayout grid(col_dsc, row_dsc, 2);

@@ -22,7 +22,7 @@
 #include "select_fab_carousel.h"
 
 SelectFabCarousel::SelectFabCarousel(Window* parent) :
-    FormWindow(parent, {}, FORM_FORWARD_FOCUS | NO_SCROLLBAR)
+    FormWindow(parent, {})
 {
   setFlexLayout(LV_FLEX_FLOW_ROW_WRAP);
 

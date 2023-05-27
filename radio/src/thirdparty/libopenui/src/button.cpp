@@ -53,10 +53,7 @@ void Button::check(bool checked)
 
 bool Button::checked() const
 {
-  if (windowFlags & BUTTON_CHECKED_ON_FOCUS)
-    return hasFocus();
-  else
-    return windowFlags & BUTTON_CHECKED;
+  return windowFlags & BUTTON_CHECKED;
 }
 
 void Button::onPress()

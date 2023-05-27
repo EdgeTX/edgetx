@@ -29,8 +29,7 @@ class GhostModuleConfigWindow: public Window
 {
   public:
     GhostModuleConfigWindow(Window * parent, const rect_t & rect) :
-    Window(parent, rect, FORWARD_SCROLL // | FORM_FORWARD_FOCUS
-           | REFRESH_ALWAYS)
+    Window(parent, rect, REFRESH_ALWAYS)
     {
       // setFocus(SET_FOCUS_DEFAULT);
     }

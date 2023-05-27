@@ -269,7 +269,7 @@ void ScreenSetupPage::build(FormWindow * window)
   lv_group_focus_obj(btn->getLvObj());
 
   line = window->newLine();
-  layoutOptions = new FormWindow(line, rect_t{}, FORWARD_SCROLL | FORM_FORWARD_FOCUS);
+  layoutOptions = new FormWindow(line, rect_t{});
   buildLayoutOptions();
 
   // Prevent removing the last page

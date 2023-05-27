@@ -55,7 +55,7 @@ void MenuToolbarButton::paint(BitmapBuffer * dc)
 }
 
 MenuToolbar::MenuToolbar(Choice* choice, Menu* menu) :
-    Window(menu, MENUS_TOOLBAR_RECT, NO_SCROLLBAR|OPAQUE),
+    Window(menu, MENUS_TOOLBAR_RECT, OPAQUE),
     choice(choice),
     menu(menu),
     group(lv_group_create())

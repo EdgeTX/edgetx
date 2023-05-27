@@ -24,7 +24,7 @@ class TableField : public Window
 {
  public:
   TableField(Window* parent, const rect_t& rect,
-             WindowFlags windowFlags = OPAQUE | FORM_NO_BORDER);
+             WindowFlags windowFlags = OPAQUE);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "Table"; }
