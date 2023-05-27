@@ -769,6 +769,7 @@
 #define TR_SD_INFO                      "Information"
 #define TR_NA                           "N/A"
 #define TR_HARDWARE                     "HÅRDVARA"
+#define TR_FORMATTING                   "Formaterar..."
 #define TR_TEMP_CALIB                   "Temp. kalib."
 #define TR_TIME                         "Tid"
 #define TR_BAUDRATE                     "Baudrate"
@@ -1328,6 +1329,8 @@
 #define TR_SERIAL_BUS                   "Seriell buss"
 #define TR_SYNC                         "Synk"
 
-#define TR_ENABLED_FEATURES             "Aktiverade funktioner"
+//#define TR_ENABLED_FEATURES             "Aktiverade funktioner"
+#define TR_VIEW_OPTIONS                 "Aktiverade funktioner"
 #define TR_RADIO_MENU_TABS              "Radiomenyflikar"
 #define TR_MODEL_MENU_TABS              "Modellmenyflikar"
+
