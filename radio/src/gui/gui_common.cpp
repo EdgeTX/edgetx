@@ -219,7 +219,7 @@ bool isSourceAvailable(int source)
   if (source >= MIXSRC_FIRST_HELI && source <= MIXSRC_LAST_HELI)
     return false;
 #else
-  if (!modelHeliEnabled() && source >= MIXSRC_CYC1 && source <= MIXSRC_CYC3)
+  if (!modelHeliEnabled() && source >= MIXSRC_FIRST_HELI && source <= MIXSRC_LAST_HELI)
     return false;
 #endif
 
@@ -240,10 +240,10 @@ bool isSourceAvailable(int source)
   }
 
 #if !defined(GVARS)
-  if (source >= MIXSRC_GVAR1 && source <= MIXSRC_LAST_GVAR)
+  if (source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR)
     return false;
 #else
-  if (!modelGVEnabled() && source >= MIXSRC_GVAR1 && source <= MIXSRC_LAST_GVAR)
+  if (!modelGVEnabled() && source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR)
     return false;
 #endif
 
