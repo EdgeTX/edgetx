@@ -99,16 +99,6 @@ void ViewMainDecoration::setFlightModeVisible(bool visible)
   }
 }
 
-void ViewMainDecoration::setFlightModeColor()
-{
-  // Hack to fix flight mode color on main view
-  // Required because theme is loaded after the main view has been created
-  if (flightMode) {
-    lv_obj_set_style_text_color(flightMode->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY1), 0);
-    flightMode->invalidate();
-  }
-}
-
 rect_t ViewMainDecoration::getMainZone() const
 {
   // update layout first
@@ -187,22 +177,10 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
 void ViewMainDecoration::createTrims(Window* ml, Window* mr, Window* bl, Window* br)
 {
   // Trim order TRIM_LH, TRIM_LV, TRIM_RV, TRIM_RH
-
-  Window* tr = new MainViewHorizontalTrim(bl, TRIMS_LH);
-  tr->updateSize();
-  trims[TRIMS_LH] = tr;
-
-  tr = new MainViewHorizontalTrim(br, TRIMS_RH);
-  tr->updateSize();
-  trims[TRIMS_RH] = tr;
-
-  tr = new MainViewVerticalTrim(ml, TRIMS_LV);
-  tr->updateSize();
-  trims[TRIMS_LV] = tr;
-  
-  tr = new MainViewVerticalTrim(mr, TRIMS_RV);
-  tr->updateSize();
-  trims[TRIMS_RV] = tr;
+  trims[TRIMS_LH] = new MainViewHorizontalTrim(bl, TRIMS_LH);
+  trims[TRIMS_RH] = new MainViewHorizontalTrim(br, TRIMS_RH);
+  trims[TRIMS_LV] = new MainViewVerticalTrim(ml, TRIMS_LV);
+  trims[TRIMS_RV] = new MainViewVerticalTrim(mr, TRIMS_RV);
 }
 
 void ViewMainDecoration::createFlightMode(Window* bc)

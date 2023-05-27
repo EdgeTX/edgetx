@@ -83,14 +83,6 @@ void Layout::setFlightModeVisible(bool visible)
   decoration->setFlightModeVisible(visible);
 }
 
-void Layout::updateFromTheme()
-{
-  // Hack to fix flight mode color on main view
-  // Required because theme is loaded after the main view has been created
-  if (decoration)
-    decoration->setFlightModeColor();
-}
-
 void Layout::adjustLayout()
 {
   // Check if deco setting are still up-to-date

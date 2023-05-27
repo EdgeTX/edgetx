@@ -26,7 +26,9 @@ DialogWindowContent::DialogWindowContent(Dialog* parent, const rect_t& rect) :
     form(this, rect_t{})
 {
   form.setFlexLayout();
+  lv_obj_set_style_max_height(form.getLvObj(), LCD_H * 0.8, 0);
   lv_obj_set_style_pad_all(form.getLvObj(), lv_dpx(8), 0);
+  lv_obj_set_scrollbar_mode(form.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 }
 
 void DialogWindowContent::setTitle(const std::string& text)

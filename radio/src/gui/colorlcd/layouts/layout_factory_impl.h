@@ -107,9 +107,6 @@ class Layout: public LayoutBase
     void setSlidersVisible(bool visible);
     void setFlightModeVisible(bool visible);
 
-    // Update from theme settings
-    void updateFromTheme() override;
-
     // Updates settings for trims, sliders, pots, etc...
     void adjustLayout() override;
 
