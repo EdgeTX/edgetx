@@ -65,6 +65,16 @@ class MixerTest : public OpenTxTest {};
       } \
     } while (0)
 
+#define MIXSRC_Ele     (MIXSRC_FIRST_STICK + 1)
+#define MIXSRC_Ail     (MIXSRC_FIRST_STICK + 3)
+
+#define MIXSRC_TrimEle (MIXSRC_FIRST_TRIM + 1)
+#define MIXSRC_TrimThr (MIXSRC_FIRST_TRIM + 2)
+
+#define MIXSRC_CYC1    (MIXSRC_FIRST_HELI)
+#define MIXSRC_CYC2    (MIXSRC_FIRST_HELI + 1)
+#define MIXSRC_CYC3    (MIXSRC_FIRST_HELI + 2)
+
 TEST_F(TrimsTest, throttleTrim)
 {
   g_model.thrTrim = 1;
@@ -722,7 +732,9 @@ TEST(Heli, BasicTest)
   g_model.mixData[2].mltpx = MLTPX_ADD;
   g_model.mixData[2].srcRaw = MIXSRC_CYC3;
   g_model.mixData[2].weight = 100;
+  anaSetFiltered(THR_STICK, 0);
   anaSetFiltered(ELE_STICK, 1024);
+  anaSetFiltered(AIL_STICK, 0);
   evalFlightModeMixes(e_perout_mode_normal, 0);
   EXPECT_EQ(chans[0], -CHANNEL_MAX);
   EXPECT_EQ(chans[1], CHANNEL_MAX/2);
@@ -756,7 +768,9 @@ TEST(Heli, Mode2Test)
   g_model.mixData[2].mltpx = MLTPX_ADD;
   g_model.mixData[2].srcRaw = MIXSRC_CYC3;
   g_model.mixData[2].weight = 100;
+  anaSetFiltered(THR_STICK, 0);
   anaSetFiltered(ELE_STICK, 1024);
+  anaSetFiltered(AIL_STICK, 0);
   evalFlightModeMixes(e_perout_mode_normal, 0);
   EXPECT_EQ(chans[0], -CHANNEL_MAX);
   EXPECT_EQ(chans[1], CHANNEL_MAX/2);
