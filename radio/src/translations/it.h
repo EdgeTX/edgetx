@@ -1284,7 +1284,7 @@
 #define TR_ANALOG_SERVO                "Servo 50HZ"
 #define TR_SIGNAL_OUTPUT               "Segnale d'uscita"
 #define TR_SERIAL_BUS                  "Bus seriale"
-#define TR_SYNC                        "Sync"
+#define TR_SYNC                        "Sincronismo"
 
 #define TR_ENABLED_FEATURES       "Enabled Features"
 #define TR_RADIO_MENU_TABS        "Radio Menu Tabs"
