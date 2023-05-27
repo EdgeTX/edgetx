@@ -64,7 +64,7 @@ SWITCH_CONFIG = {
         "SG": { "default": "3POS" },
         "SH": { "default": "TOGGLE" }
     },
-    "tlite": {
+    "tlite,tlitef4": {
         # left side
         "SA": { "default": "3POS",   "display": [ 0, 0 ] },
         "SC": { "default": "3POS",   "display": [ 0, 1 ] },
