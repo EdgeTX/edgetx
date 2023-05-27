@@ -34,6 +34,8 @@ struct HWInputEdit : public RadioTextEdit {
 
 static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                          LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_three_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(2),
+                                         LV_GRID_TEMPLATE_LAST};
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
@@ -61,7 +63,7 @@ HWSticks::HWSticks(Window* parent) : FormWindow(parent, rect_t{})
 
 HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
 {
-  FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_three_dsc, row_dsc, 2);
   setFlexLayout();
 
   for (int i = 0; i < NUM_POTS; i++) {
@@ -73,15 +75,9 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
     new StaticText(line, rect_t{}, STR_VSRCRAW[i + NUM_STICKS + 1], 0,
                    COLOR_THEME_PRIMARY1);
 
-    auto box = new FormWindow(line, rect_t{});
-    box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
-
-    auto box_obj = box->getLvObj();
-    lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
-
-    new HWInputEdit(box, g_eeGeneral.anaNames[i + NUM_STICKS], LEN_ANA_NAME);
+    new HWInputEdit(line, g_eeGeneral.anaNames[i + NUM_STICKS], LEN_ANA_NAME);
     new Choice(
-        box, rect_t{}, STR_POTTYPES, POT_NONE, POT_WITHOUT_DETENT,
+        line, rect_t{}, STR_POTTYPES, POT_NONE, POT_WITHOUT_DETENT,
         [=]() -> int {
           return bfGet<uint32_t>(g_eeGeneral.potsConfig, 2 * i, 2);
         },
@@ -95,7 +91,7 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
 
 HWSliders::HWSliders(Window* parent) : FormWindow(parent, rect_t{})
 {
-  FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_three_dsc, row_dsc, 2);
   setFlexLayout();
 
 #if (NUM_SLIDERS > 0)
@@ -106,15 +102,9 @@ HWSliders::HWSliders(Window* parent) : FormWindow(parent, rect_t{})
     new StaticText(line, rect_t{}, STR_VSRCRAW[idx + 1], 0,
                    COLOR_THEME_PRIMARY1);
 
-    auto box = new FormWindow(line, rect_t{});
-    box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
-
-    auto box_obj = box->getLvObj();
-    lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
-
-    new HWInputEdit(box, g_eeGeneral.anaNames[idx], LEN_ANA_NAME);
+    new HWInputEdit(line, g_eeGeneral.anaNames[idx], LEN_ANA_NAME);
     new Choice(
-        box, rect_t{}, STR_SLIDERTYPES, SLIDER_NONE, SLIDER_WITH_DETENT,
+        line, rect_t{}, STR_SLIDERTYPES, SLIDER_NONE, SLIDER_WITH_DETENT,
         [=]() -> int {
           uint8_t mask = (0x01 << i);
           return (g_eeGeneral.slidersConfig & mask) >> i;
@@ -182,22 +172,16 @@ class SwitchDynamicLabel : public StaticText
 
 HWSwitches::HWSwitches(Window* parent) : FormWindow(parent, rect_t{})
 {
-  FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_three_dsc, row_dsc, 2);
   setFlexLayout();
 
   for (int i = 0; i < NUM_SWITCHES; i++) {
     auto line = newLine(&grid);
     new SwitchDynamicLabel(line, i);
 
-    auto box = new FormWindow(line, rect_t{});
-    box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
-
-    auto box_obj = box->getLvObj();
-    lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
-
-    new HWInputEdit(box, g_eeGeneral.switchNames[i], LEN_SWITCH_NAME);
+    new HWInputEdit(line, g_eeGeneral.switchNames[i], LEN_SWITCH_NAME);
     new Choice(
-        box, rect_t{}, STR_SWTYPES, SWITCH_NONE, SWITCH_TYPE_MAX(i),
+        line, rect_t{}, STR_SWTYPES, SWITCH_NONE, SWITCH_TYPE_MAX(i),
         [=]() -> int { return SWITCH_CONFIG(i); },
         [=](int newValue) {
           swconfig_t mask = (swconfig_t)0x03 << (2 * i);
