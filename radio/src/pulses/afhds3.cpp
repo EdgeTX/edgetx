@@ -40,6 +40,9 @@
 
 #define FAILSAFE_HOLD_VALUE         0x8000
 #define FAILSAFE_NOPULSES_VALUE     0x8001
+
+#define MAX_NO_OF_MODELS            20
+
 //get channel value outside of afhds3 namespace
 int32_t getChannelValue(uint8_t channel);
 void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t type);
@@ -114,18 +117,18 @@ enum MODULE_READY_E {
 };
 
 enum ModuleState {
-  STATE_NOT_READY = 0x00,  // virtual
+  STATE_NOT_READY = 0x00,     // virtual, module not ready
   STATE_HW_ERROR = 0x01,
   STATE_BINDING = 0x02,
-  STATE_SYNC_RUNNING = 0x03,
-  STATE_SYNC_DONE = 0x04,
-  STATE_STANDBY = 0x05,
+  STATE_SYNC_RUNNING = 0x03,  // sync state, ready to sync settings, receiver not connected
+  STATE_SYNC_DONE = 0x04,     // sync state, ready to sync settings, receiver connected
+  STATE_STANDBY = 0x05,       // standby state, ready to update modelID, and switch to RUN mode
   STATE_UPDATING_WAIT = 0x06,
   STATE_UPDATING_MOD = 0x07,
   STATE_UPDATING_RX = 0x08,
   STATE_UPDATING_RX_FAILED = 0x09,
   STATE_RF_TESTING = 0x0a,
-  STATE_READY = 0x0b,  // virtual
+  STATE_READY = 0x0b,         // virtual, module ready awaiting to query module state
   STATE_HW_TEST = 0xff,
 };
 
@@ -272,7 +275,7 @@ class ProtoState
 
     bool syncSettings();
 
-    void requestInfoAndRun(bool send = false);
+  //  void requestInfoAndRun(bool send = false);
 
     uint8_t setFailSafe(int16_t* target, uint8_t rfchannelcount=AFHDS3_MAX_CHANNELS);
 
@@ -297,8 +300,8 @@ class ProtoState
      */
     ModuleState state;
 
-    bool modelIDSet;
-    bool modelcfgGet;
+    //bool modelIDSet;
+    //bool modelcfgGet;
     uint8_t modelID;
     uint32_t cmd_flg;
     /**
@@ -349,7 +352,7 @@ static const COMMAND periodicRequestCommands[] =
 {
   COMMAND::MODULE_STATE,
   // COMMAND::MODULE_GET_CONFIG,
-  COMMAND::VIRTUAL_FAILSAFE
+  COMMAND::VIRTUAL_FAILSAFE // One way failsafe
 };
 
 //Static collection of afhds3 object instances by module
@@ -413,11 +416,8 @@ void ProtoState::setupFrame()
     return;
   }
 
-  // process backlog
+  // Process backlog, not check states
   if (trsp.processQueue()) return;
-
-  // config should be loaded already
-  if (syncSettings()) { return; }
 
   ::ModuleSettingsMode moduleMode = getModuleMode(module_index);
 
@@ -440,51 +440,54 @@ void ProtoState::setupFrame()
   }
   else if (moduleMode == ::ModuleSettingsMode::MODULE_MODE_NORMAL) {
 
-    // if module is ready but not started
+    // If module is ready but not started
     if (this->state == ModuleState::STATE_READY) {
       trsp.putFrame(MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
       return;
     }
 
-    if (!modelIDSet) {
+    // ModelID change detection, if changed => STATE_STANDBY => Set ModelID => RUN mode => STATE_SYNC_XXX
+    uint8_t newModelID = g_model.header.modelId[module_index] % MAX_NO_OF_MODELS;  // Rotate the model ID when exceed no. of stored models
+    if (modelID != newModelID)
+    {
       if (this->state != ModuleState::STATE_STANDBY) {
+        TRACE("AFHDS3 [Model ID Changed] Switch to STATE_STANDBY");
         auto mode = (uint8_t)MODULE_MODE_E::STANDBY;
         trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
         return;
       } else {
-        modelIDSet = true;
-        modelID = g_model.header.modelId[module_index];
+        TRACE("AFHDS3 [Model ID Changed] Set ModelID to %d", newModelID);
+        modelID = newModelID;
         trsp.putFrame(COMMAND::MODEL_ID, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
-                       &g_model.header.modelId[module_index], 1);
+                       &modelID, 1);
         return;
       }
-    } else if (modelID != g_model.header.modelId[module_index]) {
-      modelIDSet = false;
-      auto mode = (uint8_t)MODULE_MODE_E::STANDBY;
-      trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
-      return;
     }
 
-    if (this->state == ModuleState::STATE_STANDBY) {
+    // If standby or exit bind =>  RUN mode => STATE_SYNC_XXX
+    if (this->state == ModuleState::STATE_STANDBY || this->state == ModuleState::STATE_BINDING) {
       cmdCount = 0;
-      requestInfoAndRun(true);
-      return;
-    }
-
-    // exit bind
-    if (this->state == STATE_BINDING) {
-      TRACE("AFHDS3 [EXIT BIND]");
-      modelcfgGet = true;
+//      requestInfoAndRun(true);
       auto mode = (uint8_t)MODULE_MODE_E::RUN;
       trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
       return;
     }
+
+    // Exit bind
+/*    if (this->state == STATE_BINDING) {
+      TRACE("AFHDS3 [EXIT BIND]");
+//      modelcfgGet = true;
+      auto mode = (uint8_t)MODULE_MODE_E::RUN;
+      trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
+      trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
+      return;
+    } */
   }
 
-  if (modelcfgGet){
+/*  if (modelcfgGet) {
     trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
     return;
-  }
+  }*/
 
   if (cmdCount++ >= 150) {
 
@@ -507,13 +510,14 @@ void ProtoState::setupFrame()
                    AFHDS3_MAX_CHANNELS * 2 + 2);
           return;
       }
+      // TODO: should be moved to command based settings sync
       else if( isConnected() ){
           uint8_t data[AFHDS3_MAX_CHANNELS*2 + 3] = { (uint8_t)(RX_CMD_FAILSAFE_VALUE&0xFF), (uint8_t)((RX_CMD_FAILSAFE_VALUE>>8)&0xFF), (uint8_t)(2*len)};
           int16_t failSafe[18];
           setFailSafe(&failSafe[0], len);
           std::memcpy( &data[3], failSafe, 2*len );
           trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, 2*len+3);
-          return;
+
       }
     } else {
       trsp.putFrame(cmd, FRAME_TYPE::REQUEST_GET_DATA);
@@ -522,12 +526,17 @@ void ProtoState::setupFrame()
   }
 
   if (isConnected()) {
+    // Sync config, with commands
+    if (syncSettings()) { return; }
+
+    // Send channels data
     sendChannelsData();
   } else {
     //default frame - request state
     trsp.putFrame(MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
   }
 }
+
 
 void ProtoState::init(uint8_t moduleIndex, void* buffer,
                       etx_module_state_t* mod_st, uint8_t fAddr)
@@ -538,7 +547,8 @@ void ProtoState::init(uint8_t moduleIndex, void* buffer,
   //clear local vars because it is member of union
   moduleData = &g_model.moduleData[module_index];
   state = ModuleState::STATE_NOT_READY;
-  modelIDSet = false;
+  modelID = 0xff;  // Valid range 0-19
+//  modelIDSet = false;
   clearFrameData();
 }
 
@@ -565,6 +575,7 @@ void ProtoState::setState(ModuleState state)
   if (state == this->state) {
     return;
   }
+
   uint8_t oldState = this->state;
   this->state = state;
   if (oldState == ModuleState::STATE_BINDING) {
@@ -573,8 +584,14 @@ void ProtoState::setState(ModuleState state)
   if (state == ModuleState::STATE_NOT_READY) {
     trsp.clear();
   }
+  else if (state == ModuleState::STATE_SYNC_RUNNING || state == ModuleState::STATE_SYNC_DONE)
+  {
+    // Need get config when switched to STATE_SYNC_XXX
+    trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
+  }
 }
 
+/*
 void ProtoState::requestInfoAndRun(bool send)
 {
   // set model ID
@@ -586,7 +603,7 @@ void ProtoState::requestInfoAndRun(bool send)
                (uint8_t)MODULE_MODE_E::RUN);
 
   if (send) { trsp.processQueue(); }
-}
+}*/
 
 void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
 {
@@ -604,13 +621,15 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
         }
         break;
       case COMMAND::MODULE_GET_CONFIG: {
-        modelcfgGet = false;
+//        modelcfgGet = false;
+        TRACE("AFHDS3 [MODULE_GET_CONFIG]");
         size_t len = min<size_t>(sizeof(cfg.buffer), rxBufferCount);
         std::memcpy((void*) cfg.buffer, &responseFrame->value, len);
         moduleData->afhds3.emi = cfg.v0.EMIStandard;
         moduleData->afhds3.telemetry = cfg.v0.IsTwoWay;
         moduleData->afhds3.phyMode = cfg.v0.PhyMode;
         cfg.others.ExternalBusType = cfg.v0.ExternalBusType;
+        TRACE("PhyMode %d, emi %d", moduleData->afhds3.phyMode, moduleData->afhds3.emi);
         SET_DIRTY();
         cfg.others.lastUpdated = get_tmr10ms();
       } break;
@@ -621,15 +640,17 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
               version.bootloaderVersion, version.firmwareVersion);
         break;
       case COMMAND::MODULE_STATE:
-        TRACE("AFHDS3 [MODULE_STATE] %02X", responseFrame->value);
+//        TRACE("AFHDS3 [MODULE_STATE] %02X", responseFrame->value);
         setState((ModuleState)responseFrame->value);
         if(STATE_SYNC_DONE == (ModuleState)responseFrame->value){
           if(this->cmd_flg & 0x04)
           {
             this->cmd_flg &= ~0x04;
             this->cmd_flg |= 0x02;
+
+            // Get module version information when connected
             trsp.enqueue(COMMAND::MODULE_VERSION, FRAME_TYPE::REQUEST_GET_DATA);
-            modelcfgGet = true;
+//            modelcfgGet = true;
             cfg.others.isConnected = true;
             cfg.others.lastUpdated = get_tmr10ms();
           }
@@ -654,8 +675,12 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
         TRACE("AFHDS3 [MODULE_SET_CONFIG], %02X", responseFrame->value);
         break;
       case COMMAND::MODEL_ID:
+        TRACE("AFHDS3 [MODEL_ID]");
         if (responseFrame->value == CMD_RESULT::SUCCESS) {
-          modelcfgGet = true;
+        TRACE("Enqueue get config");
+//          trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
+//          trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
+//          modelcfgGet = true;
         }
         break;
       case COMMAND::TELEMETRY_DATA:
@@ -685,16 +710,16 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
         uint8_t result  = *data++;
         switch (cmd_code)
         {
-        case  RX_CMD_GET_VERSION :
-          if(RX_CMDRESULT::RXSUCCESS==result)
-          {
-            if(14==*data++)
+          case RX_CMD_GET_VERSION :
+            if(RX_CMDRESULT::RXSUCCESS==result)
             {
-              this->cmd_flg &= ~0x02;
-              std::memcpy((void*) &rx_version, data, sizeof(rx_version));
-              this->cmd_flg |= 0x08;
-            }
-          }break;
+              if(14==*data++)
+              {
+                this->cmd_flg &= ~0x02;
+                std::memcpy((void*) &rx_version, data, sizeof(rx_version));
+                this->cmd_flg |= 0x08;
+              }
+            }break;
           case RX_CMD_BUS_TYPE_V0:
             if(RX_CMDRESULT::RXSUCCESS==result)
             {
@@ -733,9 +758,11 @@ inline bool isPWM(uint8_t mode)
 
 bool ProtoState::syncSettings()
 {
-if (this->state != ModuleState::STATE_SYNC_DONE) {
-    return false;
+  if (!isConnected())
+  {
+    return false;  // Only sync settings when receiver is connected
   }
+
   if(this->cmd_flg&0x02)
   {
     uint8_t data[] = { (uint8_t)(RX_CMD_GET_VERSION&0xFF), (uint8_t)((RX_CMD_GET_VERSION>>8)&0xFF), 0x00 };
