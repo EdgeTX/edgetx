@@ -19,7 +19,20 @@
 #pragma once
 
 #include "libopenui_types.h"
-#include "libopenui_compat.h"
+
+enum FontIndex
+{
+  FONT_STD_INDEX,
+  FONT_BOLD_INDEX,
+  FONT_XXS_INDEX,
+  FONT_XS_INDEX,
+  FONT_L_INDEX,
+  FONT_XL_INDEX,
+  FONT_XXL_INDEX,
+
+  // this one MUST be last
+  FONTS_COUNT
+};
 
 /* obsolete flags */
 #define BLINK                          0

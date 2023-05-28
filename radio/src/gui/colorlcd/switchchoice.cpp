@@ -22,7 +22,6 @@
 
 #include "dataconstants.h"
 #include "draw_functions.h"
-#include "libopenui_config.h"
 #include "menu.h"
 #include "menutoolbar.h"
 #include "opentx.h"

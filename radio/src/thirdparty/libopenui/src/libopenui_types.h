@@ -22,6 +22,8 @@
 
 typedef int coord_t;
 
+typedef uint16_t pixel_t;
+
 struct point_t
 {
   coord_t x;

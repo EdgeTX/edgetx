@@ -29,7 +29,6 @@
 #include "bitmapbuffer.h"
 #include "libopenui_defines.h"
 #include "libopenui_helpers.h"
-#include "libopenui_config.h"
 
 #include "widgets/etx_obj_create.h"
 

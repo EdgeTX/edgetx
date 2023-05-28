@@ -20,7 +20,6 @@
  */
 
 #include "opentx_types.h"
-#include "libopenui_config.h"
 #include "lcd.h"
 
 static volatile uint8_t _frame_addr_reloaded = 0;

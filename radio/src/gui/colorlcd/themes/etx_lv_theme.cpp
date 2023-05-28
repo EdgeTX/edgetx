@@ -61,6 +61,7 @@ typedef struct {
   lv_style_t bg_color_focus;
   lv_style_t bg_color_focus_light;
   lv_style_t bg_color_edit;
+  lv_style_t bg_color_transparent;
   lv_style_t pressed;
   lv_style_t disabled;
   lv_style_t focus_border;
@@ -230,6 +231,10 @@ static void style_init(void)
     // Edit color background
     lv_style_init(&styles.bg_color_edit);
     lv_style_set_bg_opa(&styles.bg_color_edit, LV_OPA_COVER);
+
+    // Transparent color background
+    lv_style_init(&styles.bg_color_transparent);
+    lv_style_set_bg_opa(&styles.bg_color_transparent, LV_OPA_TRANSP);
 
     // Checkbox and slider knob rounding
     lv_style_init(&styles.circle);
@@ -573,6 +578,15 @@ lv_obj_t* window_create(lv_obj_t* parent)
 
   lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
   lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
+
+  return obj;
+}
+
+lv_obj_t* etx_form_window_create(lv_obj_t* parent)
+{
+  lv_obj_t* obj = window_create(parent);
+
+  lv_obj_add_style(obj, &styles.bg_color_transparent, LV_PART_MAIN);
 
   return obj;
 }

@@ -24,6 +24,7 @@
 #include <lvgl/lvgl.h>
 
 lv_obj_t* window_create(lv_obj_t* parent);
+lv_obj_t* etx_form_window_create(lv_obj_t* parent);
 
 lv_obj_t* etx_text_edit_create(lv_obj_t* parent);
 lv_obj_t* etx_number_edit_create(lv_obj_t* parent);
