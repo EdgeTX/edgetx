@@ -80,6 +80,29 @@ enum eSES_NewPortType {
   SES_NPT_NONE=0xFF
 };
 
+enum DirtyConfig {
+  DC_RX_CMD_TX_PWR,
+  DC_RX_CMD_FAILSAFE_VALUE,
+  DC_RX_CMD_FAILSAFE_TIME,
+  DC_RX_CMD_RSSI_CHANNEL_SETUP,
+  DC_RX_CMD_RANGE,
+  DC_RX_CMD_GET_CAPABILITIES,
+  DC_RX_CMD_OUT_PWM_PPM_MODE,
+  DC_RX_CMD_FREQUENCY_V0,
+  DC_RX_CMD_PORT_TYPE_V1,
+  DC_RX_CMD_FREQUENCY_V1,
+  DC_RX_CMD_FREQUENCY_V1_2,
+  DC_RX_CMD_BUS_TYPE_V0,
+  DC_RX_CMD_IBUS_SETUP,
+  DC_RX_CMD_IBUS_DIRECTION,
+  DC_RX_CMD_BUS_FAILSAFE,
+  DC_RX_CMD_GET_VERSION
+};
+
+#define SET_AND_SYNC(cfg, value, dirtyCmd)  [=](int32_t newValue) { value = newValue; cfg->others.dirtyFlag |= (uint32_t) 1 << dirtyCmd; }
+#define GET_SET_AND_SYNC(cfg, value, dirtyCmd)  GET_DEFAULT(value), SET_AND_SYNC(cfg, value, dirtyCmd)
+#define DIRTY_CMD(cfg, dirtyCmd) cfg->others.dirtyFlag |= (uint32_t) 1 << dirtyCmd;
+
 PACK(struct sSES_PWMFrequenciesAPPV1 {
   // One unsigned short per
   // channel, From 50 to 400Hz,
@@ -108,7 +131,8 @@ PACK(struct sDATA_Others {
   uint8_t buffer[sizeof(sDATA_ConfigV1)];
   uint8_t ExternalBusType;  // eEB_BusType
   tmr10ms_t lastUpdated;    // last updated time
-  bool isConnected;
+  bool isConnected;         // specify if receiver is connected
+  uint32_t dirtyFlag;       // mapped to commands that need to be issued to sync settings
 });
 
 union Config_u

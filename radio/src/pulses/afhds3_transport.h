@@ -54,10 +54,11 @@ enum COMMAND : uint8_t {
   UNDEFINED = 0xFF
 };
 
-#define RX_CMD_RANGE                    ( 0x7013 )
+#define RX_CMD_TX_PWR                   ( 0x2013 )
 #define RX_CMD_FAILSAFE_VALUE           ( 0x6011 )
 #define RX_CMD_FAILSAFE_TIME            ( 0x6012 )
 #define RX_CMD_RSSI_CHANNEL_SETUP       ( 0x602B )
+#define RX_CMD_RANGE                    ( 0x7013 )
 #define RX_CMD_GET_CAPABILITIES         ( 0x7015 )
 #define RX_CMD_OUT_PWM_PPM_MODE         ( 0x7016 )   //PWM or PPM
 #define RX_CMD_FREQUENCY_V0             ( 0x7017 )
