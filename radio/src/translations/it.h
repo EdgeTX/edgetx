@@ -1280,13 +1280,13 @@
 #define TR_VUSBJOYSTICK_CIRC_COUTOUT   "Nessuno","X-Y, Z-rX","X-Y, rX-rY"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "Applica modifiche"
 
-#define TR_DIGITAL_SERVO               "Servo333HZ"
+#define TR_DIGITAL_SERVO               "Servo 333HZ"
 #define TR_ANALOG_SERVO                "Servo 50HZ"
 #define TR_SIGNAL_OUTPUT               "Segnale d'uscita"
 #define TR_SERIAL_BUS                  "Bus seriale"
 #define TR_SYNC                        "Sincronismo"
 
-#define TR_ENABLED_FEATURES       "Enabled Features"
-#define TR_RADIO_MENU_TABS        "Radio Menu Tabs"
-#define TR_MODEL_MENU_TABS        "Model Menu Tabs"
+#define TR_ENABLED_FEATURES            "Funzionalità abilitate"
+#define TR_RADIO_MENU_TABS             "Schede del Menu Radio"
+#define TR_MODEL_MENU_TABS             "Schede del Menu Modello"
 
