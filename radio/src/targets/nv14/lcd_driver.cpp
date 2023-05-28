@@ -20,8 +20,6 @@
  */
 
 #include "opentx_types.h"
-#include "libopenui_config.h"
-
 #include "lcd.h"
 #include "lcd_driver.h"
 

@@ -19,22 +19,10 @@
 #include "textedit.h"
 #include "font.h"
 
-#if !defined(STR_EDIT)
-#define STR_EDIT "Edit"
-#endif
-
-#if !defined(STR_CLEAR)
-#define STR_CLEAR "Clear"
-#endif
-
 #include "keyboard_text.h"
 
 #if defined(HARDWARE_KEYS)
 #include "menu.h"
-#endif
-
-#if defined(CLIPBOARD)
-#include "clipboard.h"
 #endif
 
 TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,

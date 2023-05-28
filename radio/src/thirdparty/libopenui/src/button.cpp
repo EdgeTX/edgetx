@@ -16,7 +16,6 @@
  * GNU General Public License for more details.
  */
 
-#include "libopenui_config.h"
 #include "button.h"
 #include "font.h"
 #include "theme.h"

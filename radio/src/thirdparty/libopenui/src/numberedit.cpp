@@ -39,9 +39,11 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
                        std::function<int()> getValue,
                        std::function<void(int)> setValue,
                        WindowFlags windowFlags, LcdFlags textFlags) :
-    BaseNumberEdit(parent, rect, vmin, vmax, std::move(getValue),
-                   std::move(setValue), windowFlags, textFlags,
-                   etx_number_edit_create)
+        FormField(parent, rect, windowFlags, textFlags, etx_number_edit_create),
+        vmin(vmin),
+        vmax(vmax),
+        _getValue(std::move(getValue)),
+        _setValue(std::move(setValue))
 {
   // Allow encoder acceleration
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);

@@ -37,17 +37,10 @@ class FormField : public Window
       changeHandler = std::move(handler);
     }
 
-    void setBackgroundHandler(std::function<uint32_t(FormField *field)> handler)
-    {
-      backgroundHandler = std::move(handler);
-    }
-
     inline bool isEditMode() const { return editMode; }
     virtual void setEditMode(bool newEditMode);
 
-    bool isEnabled() const;
     void enable(bool value = true);
-    void disable() { enable(false); }
 
     void onClicked() override;
     void onCancel() override;
@@ -56,7 +49,6 @@ class FormField : public Window
     bool editMode = false;
     bool enabled = true;
     std::function<void()> changeHandler = nullptr;
-    std::function<uint32_t(FormField *)> backgroundHandler = nullptr;
 };
 
 class FormWindow : public Window
@@ -77,8 +69,7 @@ class FormWindow : public Window
         void construct();
     };
 
-    FormWindow(Window *parent, const rect_t &rect, WindowFlags windowflags = 0,
-              LvglCreate objConstruct = nullptr);
+    FormWindow(Window *parent, const rect_t &rect, WindowFlags windowflags = 0);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override { return "FormWindow"; }

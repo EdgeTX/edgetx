@@ -18,7 +18,6 @@
 
 #include "form.h"
 #include "bitmapbuffer.h"
-#include "libopenui_config.h"
 
 FormField::FormField(Window* parent, const rect_t& rect,
                      WindowFlags windowFlags, LcdFlags textFlags,
@@ -54,11 +53,6 @@ void FormField::enable(bool value)
   }
 }
 
-bool FormField::isEnabled() const
-{
-  return !lv_obj_has_state(lvobj, LV_STATE_DISABLED);
-}
-
 void FormField::onClicked()
 {
   lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
@@ -92,7 +86,7 @@ FormWindow::Line::Line(Window* parent, FlexGridLayout* layout) :
 
 void FormWindow::Line::construct()
 {
-  // forward scroll and focus
+  // Focus
   windowFlags |=  NO_FOCUS;
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
@@ -120,10 +114,9 @@ void FormWindow::Line::addChild(Window* window)
 }
 
 FormWindow::FormWindow(Window* parent, const rect_t& rect,
-                     WindowFlags windowflags, LvglCreate objConstruct) :
-   Window(parent, rect, windowflags, 0, objConstruct)
+                     WindowFlags windowflags) :
+   Window(parent, rect, windowflags, 0, etx_form_window_create)
 {
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_TRANSP, LV_PART_MAIN);
 }
 
 void FormWindow::setFlexLayout(lv_flex_flow_t flow, lv_coord_t padding)

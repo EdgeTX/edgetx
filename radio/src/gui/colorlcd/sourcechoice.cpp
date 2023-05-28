@@ -19,7 +19,6 @@
  * GNU General Public License for more details.
  */
 
-#include "libopenui_config.h"
 #include "sourcechoice.h"
 #include "menutoolbar.h"
 #include "menu.h"
