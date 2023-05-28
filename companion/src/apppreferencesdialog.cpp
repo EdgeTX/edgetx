@@ -153,6 +153,7 @@ void AppPreferencesDialog::accept()
   }
 
   profile.defaultInternalModule(ui->defaultInternalModuleCB->currentData().toInt());
+  profile.externalModuleSize(ui->externalModuleSizeCB->currentData().toInt());
   profile.channelOrder(ui->channelorderCB->currentIndex());
   profile.defaultMode(ui->stickmodeCB->currentIndex());
   profile.renameFwFiles(ui->renameFirmware->isChecked());
@@ -300,6 +301,8 @@ void AppPreferencesDialog::initSettings()
   //  Profile Tab Inits
   ui->defaultInternalModuleCB->setModel(ModuleData::internalModuleItemModel());
   ui->defaultInternalModuleCB->setCurrentIndex(ui->defaultInternalModuleCB->findData(profile.defaultInternalModule()));
+  ui->externalModuleSizeCB->setModel(Boards::externalModuleSizeItemModel());
+  ui->externalModuleSizeCB->setCurrentIndex(ui->externalModuleSizeCB->findData(profile.externalModuleSize()));
   ui->channelorderCB->setCurrentIndex(profile.channelOrder());
   ui->stickmodeCB->setCurrentIndex(profile.defaultMode());
   ui->renameFirmware->setChecked(profile.renameFwFiles());
@@ -682,6 +685,10 @@ void AppPreferencesDialog::onBaseFirmwareChanged()
   profile.defaultInternalModule(Boards::getDefaultInternalModules(newfw->getBoard()));
   ui->defaultInternalModuleCB->setModel(ModuleData::internalModuleItemModel(newfw->getBoard()));
   ui->defaultInternalModuleCB->setCurrentIndex(ui->defaultInternalModuleCB->findData(profile.defaultInternalModule()));
+
+  profile.externalModuleSize(Boards::getDefaultExternalModuleSize(newfw->getBoard()));
+  ui->externalModuleSizeCB->setModel(Boards::externalModuleSizeItemModel());
+  ui->externalModuleSizeCB->setCurrentIndex(ui->externalModuleSizeCB->findData(profile.externalModuleSize()));
 }
 
 Firmware *AppPreferencesDialog::getBaseFirmware() const
