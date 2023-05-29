@@ -1047,12 +1047,17 @@ bool isTrainerModeAvailable(int mode)
 
 #if defined(TRAINER_MODULE_CPPM) || defined(TRAINER_MODULE_SBUS)
   if (IS_EXTERNAL_MODULE_ENABLED() &&
+#if defined(MANUFACTURER_FRSKY) && defined(MULTIMODULE) && defined(HARDWARE_EXTERNAL_MODULE)
+      (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) ||
+      (mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE && !isModuleMultimodule(EXTERNAL_MODULE)))
+#else
       (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE ||
        mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE))
+#endif
     return false;
 #endif
 
-#if !defined(MULTIMODULE) || !defined(HARDWARE_INTERNAL_MODULE) || !defined(HARDWARE_EXTERNAL_MODULE)
+#if !defined(MULTIMODULE) || !defined(HARDWARE_INTERNAL_MODULE) || !defined(HARDWARE_EXTERNAL_MODULE) || defined(MANUFACTURER_FRSKY)
   if (mode == TRAINER_MODE_MULTI)
     return false;
 #else
