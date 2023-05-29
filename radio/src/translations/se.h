@@ -444,6 +444,8 @@
 #define TR_MEMORYWARNING                "Lite minne"
 #define TR_ALARMWARNING                 "Ljud av"
 #define TR_RSSI_SHUTDOWN_ALARM          TR("RSSI avstängn.", "Kolla RSSI vid avstängning")
+#define TR_CUSTOM_ALARM_TITLE           "Anpassad larmrubrik"
+#define TR_CUSTOM_ALARM                 "Anpassat larmmeddelande..."
 #define TR_MODEL_STILL_POWERED          TR("Modell på","Modell fortfarande på")
 #define TR_USB_STILL_CONNECTED          "USB fortfarande ansluten"
 #define TR_MODEL_SHUTDOWN               "Stänga av?"
