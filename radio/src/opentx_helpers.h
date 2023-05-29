@@ -22,6 +22,7 @@
 #pragma once
 
 #include <string>
+#include <cstring>
 
 template<class T>
 inline T sgn(T a)
