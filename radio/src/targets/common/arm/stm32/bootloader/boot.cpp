@@ -421,16 +421,11 @@ int  bootloaderMain()
       if (state == ST_START) {
 
         bootloaderDrawScreen(state, vpos);
-#if defined(PCBPL18)
-        if (event == EVT_KEY_FIRST(KEY_PGDN)) {
-#else
         if (IS_NEXT_EVENT(event)) {
-#endif
           if (vpos < bootloaderGetMenuItemCount(MAIN_MENU_LEN) - 1) { vpos++; }
           continue;
         }
         else if (IS_PREVIOUS_EVENT(event)) {
-#endif
           if (vpos > 0) { vpos--; }
           continue;
         }
@@ -538,11 +533,7 @@ int  bootloaderMain()
         if (nameCount < limit) {
           limit = nameCount;
         }
-#if defined(PCBPL18)
-        if (event == EVT_KEY_REPT(KEY_PGDN) || event == EVT_KEY_FIRST(KEY_PGUP)) {
-#else
         if (IS_NEXT_EVENT(event)) {
-#endif
           if (vpos < limit - 1) {
             vpos += 1;
           }
@@ -554,7 +545,6 @@ int  bootloaderMain()
           }
         }
         else if (IS_PREVIOUS_EVENT(event)) {
-#endif
         if (vpos > 0) {
             vpos -= 1;
           }

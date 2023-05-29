@@ -45,6 +45,19 @@ enum PhysicalTrims
     TR8R
 };
 
+bool trimsAsButtons = false;
+
+void setTrimsAsButtons(bool val) { trimsAsButtons = val; }
+
+bool getTrimsAsButtons()
+{
+  bool lua = false;
+#if defined(LUA)
+  lua = isLuaStandaloneRunning();
+#endif
+  return (trimsAsButtons || lua);
+}
+
 uint32_t readKeyMatrix()
 {
     // This function avoids concurrent matrix agitation
@@ -125,18 +138,12 @@ uint32_t readKeyMatrix()
 uint32_t readKeys()
 {
   uint32_t result = 0;
-  bool getKeys = true;
-
-/*
-#if defined(LUA)
-  if (!isLuaStandaloneRunning()) {
-    getKeys = false;
-  }
-#endif
-*/
-
   uint32_t mkeys = readKeyMatrix();
-  if (getKeys) {
+
+#ifndef BOOT
+  if (getTrimsAsButtons()) {
+#endif
+
     if (~TRIMS_GPIO_REG_TR1U & TRIMS_GPIO_PIN_TR1U)
       result |= 1 << KEY_RADIO;
     if (~TRIMS_GPIO_REG_TR1D & TRIMS_GPIO_PIN_TR1D)
@@ -144,9 +151,15 @@ uint32_t readKeys()
     if (~TRIMS_GPIO_REG_TR2U & TRIMS_GPIO_PIN_TR2U)
       result |= 1 << KEY_TELEM;
 
-    if (mkeys & (1 << TR3U)) result |= 1 << KEY_PGUP;
-    if (mkeys & (1 << TR3D)) result |= 1 << KEY_PGDN;
+    if (mkeys & (1 << TR3U)) result |= 1 << KEY_UP;
+    if (mkeys & (1 << TR3D)) result |= 1 << KEY_DOWN;
+    if (mkeys & (1 << TR5U)) result |= 1 << KEY_PGUP;
+    if (mkeys & (1 << TR5D)) result |= 1 << KEY_PGDN;
+    if (mkeys & (1 << TR7L)) result |= 1 << KEY_LEFT;
+    if (mkeys & (1 << TR7R)) result |= 1 << KEY_RIGHT;
+#ifndef BOOT
   }
+#endif
 
   // Enter and Exit are always supported
   if (mkeys & (1 << TR4D)) result |= 1 << KEY_ENTER;
@@ -158,14 +171,8 @@ uint32_t readKeys()
 uint32_t readTrims()
 {
   uint32_t result = 0;
+  if(getTrimsAsButtons()) return result;
 
-  bool getTrim = true;
-#if defined(LUA)
-  if (isLuaStandaloneRunning()) {
-    getTrim = false;
-  }
-#endif
-  if(!getTrim) return result;
   /* The output bit-order has to be:
       0 LHL  TR7L (Left equals down)
       1 LHR  TR7R
@@ -222,7 +229,7 @@ bool keyDown()
 }
 
 /* TODO common to ARM */
-void readKeysAndTrims()
+/*void readKeysAndTrims()
 {
   int i;
 
@@ -236,14 +243,14 @@ void readKeysAndTrims()
 
   for (i = 1; i <= 1 << (TRM_LAST-TRM_BASE); i <<= 1) {
     keys[index++].input(trims & i);
-  }
+  }*/
 /*
   if ((in || trims) && (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
     // on keypress turn the light on
     resetBacklightTimeout();
   }
   */
-}
+//}
 
 #if !defined(BOOT)
 uint32_t switchState(uint8_t index)
