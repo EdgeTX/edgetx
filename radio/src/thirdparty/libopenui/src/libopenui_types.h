@@ -18,22 +18,9 @@
 
 #pragma once
 
-#include <cinttypes>
-
-typedef int coord_t;
+#include "opentx_types.h"
 
 typedef uint16_t pixel_t;
-
-struct point_t
-{
-  coord_t x;
-  coord_t y;
-
-  bool operator != (const point_t & b) const
-  {
-    return x != b.x || y != b.y;
-  }
-};
 
 struct rect_t
 {
@@ -71,6 +58,3 @@ struct rect_t
 };
 
 static const rect_t nullRect = {0, 0, 0, 0};
-
-typedef uint32_t LcdFlags;
-typedef uint16_t event_t;

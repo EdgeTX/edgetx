@@ -68,10 +68,6 @@ constexpr uint32_t USB_X =                         LCD_W - 98;
 constexpr uint32_t LOG_X =                         LCD_W - 98;
 constexpr uint32_t GPS_X =                         LCD_W - 148;
 
-constexpr uint32_t MENUS_TOOLBAR_BUTTON_WIDTH =    30;
-constexpr uint32_t MENUS_TOOLBAR_BUTTON_PADDING =  3;
-constexpr rect_t MENUS_TOOLBAR_RECT =              { 100, 51, 30, 209 };
-
 constexpr uint32_t ALERT_FRAME_TOP =               70;
 constexpr uint32_t ALERT_FRAME_HEIGHT =            (LCD_H - 2 * ALERT_FRAME_TOP);
 constexpr uint32_t ALERT_BITMAP_TOP =              ALERT_FRAME_TOP + 15;
@@ -91,5 +87,9 @@ constexpr coord_t MENUS_WIDTH = 200;
 constexpr coord_t POPUP_HEADER_HEIGHT = 30;
 constexpr coord_t MENUS_MAX_HEIGHT = LCD_H * 0.9;
 constexpr coord_t MODEL_SELECT_FOOTER_HEIGHT = 24;
+
+constexpr uint32_t MENUS_TOOLBAR_BUTTON_WIDTH =    30;
+constexpr uint32_t MENUS_TOOLBAR_BUTTON_PADDING =  3;
+constexpr rect_t MENUS_TOOLBAR_RECT =              { 100, 51, 30, 209 };
 
 #define ROTARY_ENCODER_SPEED() rotencSpeed

@@ -25,7 +25,6 @@
 #include <inttypes.h>
 #include "board.h"
 #include "opentx_types.h"
-#include "libopenui/src/libopenui_types.h"
 
 constexpr event_t EVT_REFRESH =        0x1000;
 constexpr event_t EVT_ENTRY =          0x1001;
