@@ -41,6 +41,7 @@ class FormField : public Window
     virtual void setEditMode(bool newEditMode);
 
     void enable(bool value = true);
+    void disable() { enable(false); }
 
     void onClicked() override;
     void onCancel() override;
