@@ -19,7 +19,6 @@
 #pragma once
 
 #include <inttypes.h>
-#include "libopenui_config.h"
 
 void lcdNextLayer();
 uint16_t* lcdGetScratchBuffer();

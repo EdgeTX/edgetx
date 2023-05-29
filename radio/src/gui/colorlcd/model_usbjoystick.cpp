@@ -23,7 +23,6 @@
 #include "usb_joystick.h"
 #include "channel_bar.h"
 #include "button_matrix.h"
-// #include "lvgl_widgets/input_mix_line.h"
 
 #include "opentx.h"
 

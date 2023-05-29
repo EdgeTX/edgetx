@@ -23,7 +23,6 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "switches.h"
-// #include "lvgl_widgets/input_mix_line.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
