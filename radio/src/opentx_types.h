@@ -19,10 +19,25 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _OPENTX_TYPES_H_
-#define _OPENTX_TYPES_H_
+#pragma once
 
-#include "thirdparty/libopenui/src/libopenui_types.h"
+#include <cinttypes>
+
+typedef int coord_t;
+
+struct point_t
+{
+  coord_t x;
+  coord_t y;
+
+  bool operator != (const point_t & b) const
+  {
+    return x != b.x || y != b.y;
+  }
+};
+
+typedef uint32_t LcdFlags;
+typedef uint16_t event_t;
 
 typedef uint32_t tmr10ms_t;
 typedef int32_t getvalue_t;
@@ -51,5 +66,3 @@ typedef uint64_t swarnstate_t;
   // pot warning enabled: 1 bit per pot
   typedef uint8_t potwarnen_t;
 #endif
-
-#endif // _OPENTX_TYPES_H_
