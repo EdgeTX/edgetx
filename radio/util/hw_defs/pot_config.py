@@ -117,6 +117,9 @@ POT_CONFIG = {
         "P1": { "default": "WITHOUT_DETENT" },
         "P2": { "default": "WITHOUT_DETENT" }
     },
+    "pocket": {
+        "P1": { "default": "WITHOUT_DETENT" }
+    },
 }
 
 def pot_cfg_by_target(target, name):

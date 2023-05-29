@@ -308,6 +308,30 @@ LEGACY_NAMES = [
         }
     },
     {
+        "targets": {"pocket"},
+        "inputs": {
+            "LH": {
+                "yaml": "Rud"
+            },
+            "LV": {
+                "yaml": "Ele"
+            },
+            "RV": {
+                "yaml": "Thr"
+            },
+            "RH": {
+                "yaml": "Ail"
+            },
+            "P1": {
+                "yaml": "POT1",
+                "lua": "sf",
+                "label": "SF",
+                "short_label": "1",
+                "description": "Potentiometer 1"
+            }
+        }
+    },
+    {
         "targets": {"x9lite","x9lites"},
         "inputs": {
             "LH": {
