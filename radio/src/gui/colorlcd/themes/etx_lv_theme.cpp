@@ -73,6 +73,7 @@ typedef struct {
   lv_style_t anim_fast;
   lv_style_t font_std;
   lv_style_t font_bold;
+  lv_style_t text_align_right;
 
   // Slider parts
   lv_style_t slider_main;
@@ -317,44 +318,70 @@ static void style_init(void)
     lv_style_set_text_font(&styles.font_std, getFont(FONT(STD)));
     lv_style_init(&styles.font_bold);
     lv_style_set_text_font(&styles.font_bold, getFont(FONT(BOLD)));
+
+    // Text align
+    lv_style_init(&styles.text_align_right);
+    lv_style_set_text_align(&styles.text_align_right, LV_TEXT_ALIGN_RIGHT);
   }
 
   // Always update colors in case theme changes
+
   lv_style_set_bg_color(&styles.scrollbar, lv_palette_main(LV_PALETTE_GREY));
+
   lv_style_set_bg_color(&styles.keyboard, makeLvColor(COLOR_THEME_SECONDARY3));
+
   lv_style_set_border_color(&styles.border, makeLvColor(COLOR_THEME_SECONDARY2));
+
   lv_style_set_bg_color(&styles.btn, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_text_color(&styles.btn, makeLvColor(COLOR_THEME_SECONDARY1));
+
   lv_style_set_bg_color(&styles.line_btn, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_text_color(&styles.line_btn, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_border_color(&styles.line_btn, makeLvColor(COLOR_THEME_SECONDARY2));
+
   lv_style_set_bg_color(&styles.field, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_border_color(&styles.field, makeLvColor(COLOR_THEME_SECONDARY2));
   lv_style_set_text_color(&styles.field, makeLvColor(COLOR_THEME_SECONDARY1));
+
   lv_style_set_border_color(&styles.focus_border, makeLvColor(COLOR_THEME_FOCUS));
+
   lv_style_set_bg_color(&styles.bg_color_grey, makeLvColor(COLOR_THEME_DISABLED));
+
   lv_style_set_bg_color(&styles.bg_color_white, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_text_color(&styles.bg_color_white, makeLvColor(COLOR_THEME_PRIMARY1));
+
   lv_style_set_bg_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_ACTIVE));
   lv_style_set_text_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_PRIMARY1));
-  lv_style_set_bg_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_ACTIVE));
+
   lv_style_set_bg_color(&styles.bg_color_mix_active, makeLvColor(COLOR_THEME_SECONDARY3));
+
+  lv_style_set_bg_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_FOCUS));
   lv_style_set_text_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_PRIMARY2));
+
   lv_style_set_bg_color(&styles.bg_color_focus_light, makeLvColor(COLOR_THEME_FOCUS));
+
   lv_style_set_bg_color(&styles.bg_color_edit, makeLvColor(COLOR_THEME_EDIT));
   lv_style_set_text_color(&styles.bg_color_edit, makeLvColor(COLOR_THEME_PRIMARY2));
+
   lv_style_set_bg_color(&styles.slider_main, makeLvColor(COLOR_THEME_SECONDARY1));
+
   lv_style_set_bg_color(&styles.slider_knob, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_border_color(&styles.slider_knob, makeLvColor(COLOR_THEME_SECONDARY1));
+
   lv_style_set_bg_color(&styles.choice_main, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_border_color(&styles.choice_main, makeLvColor(COLOR_THEME_SECONDARY2));
   lv_style_set_text_color(&styles.choice_main, makeLvColor(COLOR_THEME_SECONDARY1));
+
   lv_style_set_bg_color(&styles.switch_knob, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_border_color(&styles.switch_knob, makeLvColor(COLOR_THEME_SECONDARY1));
+
   lv_style_set_border_color(&styles.table_cell, makeLvColor(COLOR_THEME_SECONDARY2));
+
   lv_style_set_bg_color(&styles.modal_content, makeLvColor(COLOR_THEME_SECONDARY3));
+
   lv_style_set_bg_color(&styles.modal_title, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_text_color(&styles.modal_title, makeLvColor(COLOR_THEME_PRIMARY2));
+
   lv_style_set_bg_color(&styles.progress_main, makeLvColor(COLOR_THEME_SECONDARY2));
   lv_style_set_bg_color(&styles.progress_indicator, makeLvColor(COLOR_THEME_SECONDARY1));
 }
@@ -387,13 +414,166 @@ lv_theme_t *etx_lv_theme_init(lv_disp_t *disp, lv_color_t color_primary,
  *   Custom object creation
  **********************/
 
+// Event handler forward references
 static void field_edit_event(const lv_obj_class_t* class_p, lv_event_t* e);
 static void window_base_event(const lv_obj_class_t* class_p, lv_event_t* e);
 static void table_event(const lv_obj_class_t * class_p, lv_event_t * e);
 
+// Object constructors
+extern "C" {
+
+void input_mix_line_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  lv_obj_add_style(obj, &styles.line_btn, 0);
+  lv_obj_add_style(obj, &styles.rounded, 0);
+  lv_obj_add_style(obj, &styles.pad_tiny, 0);
+  lv_obj_add_style(obj, &styles.font_std, 0);
+  lv_obj_add_style(obj, &styles.bg_color_mix_active, LV_STATE_CHECKED);
+  lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);
+}
+
+void input_mix_group_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  lv_obj_add_style(obj, &styles.line_btn, 0);
+  lv_obj_add_style(obj, &styles.rounded, 0);
+  lv_obj_add_style(obj, &styles.pad_tiny, 0);
+  lv_obj_add_style(obj, &styles.font_bold, 0);
+}
+
+void field_edit_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  lv_obj_add_style(obj, &styles.field, 0);
+  lv_obj_add_style(obj, &styles.rounded, 0);
+  lv_obj_add_style(obj, &styles.bg_color_focus, LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles.bg_color_edit, LV_STATE_EDITED);
+
+  lv_obj_add_style(obj, &styles.field_cursor, LV_PART_CURSOR);
+  lv_obj_add_style(obj, &styles.edit_cursor, LV_PART_CURSOR | LV_STATE_EDITED);
+
+  lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
+  lv_textarea_set_password_mode(obj, false);
+  lv_textarea_set_one_line(obj, true);
+}
+
+void number_edit_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  field_edit_constructor(class_p, obj);
+  lv_obj_add_style(obj, &styles.text_align_right, 0);
+}
+
+void window_base_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
+  lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
+}
+
+void form_window_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  window_base_constructor(class_p, obj);
+  lv_obj_add_style(obj, &styles.bg_color_transparent, LV_PART_MAIN);
+}
+
+void table_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  lv_obj_add_style(obj, &styles.pad_zero, 0);
+  lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
+  lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
+  lv_obj_add_style(obj, &styles.bg_color_white, LV_PART_ITEMS);
+  lv_obj_add_style(obj, &styles.table_cell, LV_PART_ITEMS);
+  lv_obj_add_style(obj, &styles.pad_small, LV_PART_ITEMS);
+  lv_obj_add_style(obj, &styles.pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
+  lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_ITEMS | LV_STATE_EDITED);
+}
+
+void etx_keyboard_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  lv_obj_add_style(obj, &styles.keyboard, 0);
+  lv_obj_add_style(obj, &styles.pad_tiny, 0);
+  lv_obj_add_style(obj, &styles.btn, LV_PART_ITEMS);
+  lv_obj_add_style(obj, &styles.rounded, 0);
+  lv_obj_add_style(obj, &styles.disabled, LV_PART_ITEMS | LV_STATE_DISABLED);
+  lv_obj_add_style(obj, &styles.bg_color_white, LV_PART_ITEMS);
+  lv_obj_add_style(obj, &styles.keyboard_btn_bg, LV_PART_ITEMS);
+  lv_obj_add_style(obj, &styles.pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
+  lv_obj_add_style(obj, &styles.bg_color_active, LV_PART_ITEMS | LV_STATE_CHECKED);
+  lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_ITEMS | LV_STATE_FOCUS_KEY);
+  lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_ITEMS | LV_STATE_EDITED);
+}
+
+void etx_switch_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  lv_obj_add_style(obj, &styles.bg_color_grey, 0);
+  lv_obj_add_style(obj, &styles.border, 0);
+  lv_obj_add_style(obj, &styles.border, LV_PART_INDICATOR);
+  lv_obj_add_style(obj, &styles.circle, 0);
+  lv_obj_add_style(obj, &styles.circle, LV_PART_INDICATOR);
+  lv_obj_add_style(obj, &styles.circle, LV_PART_KNOB);
+  lv_obj_add_style(obj, &styles.anim_fast, 0);
+  lv_obj_add_style(obj, &styles.disabled, LV_STATE_DISABLED);
+  lv_obj_add_style(obj, &styles.disabled, LV_PART_INDICATOR | LV_STATE_DISABLED);
+  lv_obj_add_style(obj, &styles.disabled, LV_PART_KNOB | LV_STATE_DISABLED);
+  lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles.focus_border, LV_PART_INDICATOR | LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles.bg_color_active, LV_PART_INDICATOR | LV_STATE_CHECKED);
+  lv_obj_add_style(obj, &styles.switch_knob, LV_PART_KNOB);
+}
+
+void etx_slider_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  lv_obj_add_style(obj, &styles.slider_main, LV_PART_MAIN);
+  lv_obj_add_style(obj, &styles.slider_knob, LV_PART_KNOB);
+  lv_obj_add_style(obj, &styles.circle, LV_PART_MAIN);
+  lv_obj_add_style(obj, &styles.circle, LV_PART_KNOB);
+  lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_EDITED);
+}
+
+void etx_btnmatrix_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  // main
+  lv_obj_add_style(obj, &styles.rounded, 0);
+  // items
+  lv_obj_add_style(obj, &styles.btn, LV_PART_ITEMS);
+  lv_obj_add_style(obj, &styles.rounded, LV_PART_ITEMS);
+  lv_obj_add_style(obj, &styles.disabled, LV_PART_ITEMS | LV_STATE_DISABLED);
+  lv_obj_add_style(obj, &styles.pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
+  lv_obj_add_style(obj, &styles.bg_color_active, LV_PART_ITEMS | LV_STATE_CHECKED);
+  lv_obj_add_style(obj, &styles.focus_border, LV_PART_ITEMS | LV_STATE_EDITED);
+  lv_obj_add_style(obj, &styles.bg_color_focus_light, LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles.bg_color_focus_light, LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_EDITED);
+}
+
+void etx_button_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  lv_obj_add_style(obj, &styles.btn, 0);
+  lv_obj_add_style(obj, &styles.border, 0);
+  lv_obj_add_style(obj, &styles.rounded, 0);
+  lv_obj_add_style(obj, &styles.bg_color_active, LV_STATE_CHECKED);
+  lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles.disabled, LV_STATE_DISABLED);
+}
+
+void etx_choice_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  lv_obj_add_style(obj, &styles.choice_main, 0);
+  lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles.rounded, 0);
+}
+
+void etx_bar_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  lv_obj_add_style(obj, &styles.progress_main, LV_PART_MAIN);
+  lv_obj_add_style(obj, &styles.progress_indicator, LV_PART_INDICATOR);
+  lv_obj_add_style(obj, &styles.rounded, LV_PART_MAIN);
+  lv_obj_add_style(obj, &styles.rounded, LV_PART_INDICATOR);
+}
+
+}
+
+// Object classes
 const lv_obj_class_t input_mix_line_class = {
     .base_class = &lv_btn_class,
-    .constructor_cb = nullptr,
+    .constructor_cb = input_mix_line_constructor,
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
@@ -406,7 +586,7 @@ const lv_obj_class_t input_mix_line_class = {
 
 const lv_obj_class_t input_mix_group_class = {
     .base_class = &lv_obj_class,
-    .constructor_cb = nullptr,
+    .constructor_cb = input_mix_group_constructor,
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
@@ -419,7 +599,20 @@ const lv_obj_class_t input_mix_group_class = {
 
 const lv_obj_class_t field_edit_class = {
     .base_class = &lv_textarea_class,
-    .constructor_cb = nullptr,
+    .constructor_cb = field_edit_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = field_edit_event,
+    .width_def = LV_DPI_DEF,
+    .height_def = 32,
+    .editable = LV_OBJ_CLASS_EDITABLE_TRUE,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
+    .instance_size = sizeof(lv_textarea_t)
+};
+
+const lv_obj_class_t number_edit_class = {
+    .base_class = &lv_textarea_class,
+    .constructor_cb = number_edit_constructor,
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = field_edit_event,
@@ -432,7 +625,7 @@ const lv_obj_class_t field_edit_class = {
 
 const lv_obj_class_t window_base_class = {
     .base_class = &lv_obj_class,
-    .constructor_cb = nullptr,
+    .constructor_cb = window_base_constructor,
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = window_base_event,
@@ -443,9 +636,22 @@ const lv_obj_class_t window_base_class = {
     .instance_size = sizeof(lv_obj_t)
 };
 
+const lv_obj_class_t form_window_class = {
+    .base_class = &window_base_class,
+    .constructor_cb = form_window_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = LV_DPI_DEF,
+    .height_def = LV_DPI_DEF,
+    .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_FALSE,
+    .instance_size = sizeof(lv_obj_t)
+};
+
 const lv_obj_class_t table_class  = {
     .base_class = &lv_table_class,
-    .constructor_cb = nullptr,
+    .constructor_cb = table_constructor,
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = table_event,
@@ -456,9 +662,22 @@ const lv_obj_class_t table_class  = {
     .instance_size = sizeof(lv_table_t),
 };
 
+const lv_obj_class_t etx_keyboard_class = {
+    .base_class = &lv_keyboard_class,
+    .constructor_cb = etx_keyboard_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = 0,
+    .height_def = 0,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
+    .instance_size = sizeof(lv_keyboard_t),
+};
+
 const lv_obj_class_t etx_switch_class = {
     .base_class = &lv_switch_class,
-    .constructor_cb = nullptr,
+    .constructor_cb = etx_switch_constructor,
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
@@ -469,9 +688,35 @@ const lv_obj_class_t etx_switch_class = {
     .instance_size = sizeof(lv_switch_t),
 };
 
+const lv_obj_class_t etx_slider_class = {
+    .base_class = &lv_slider_class,
+    .constructor_cb = etx_slider_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = 0,
+    .height_def = 0,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
+    .instance_size = sizeof(lv_slider_t),
+};
+
+const lv_obj_class_t etx_btnmatrix_class = {
+    .base_class = &lv_btnmatrix_class,
+    .constructor_cb = etx_btnmatrix_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = 0,
+    .height_def = 0,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
+    .instance_size = sizeof(lv_btnmatrix_t),
+};
+
 const lv_obj_class_t etx_button_class = {
     .base_class = &lv_btn_class,
-    .constructor_cb = nullptr,
+    .constructor_cb = etx_button_constructor,
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
@@ -482,9 +727,22 @@ const lv_obj_class_t etx_button_class = {
     .instance_size = sizeof(lv_btn_t),
 };
 
+const lv_obj_class_t etx_vbutton_class = {
+    .base_class = &lv_btn_class,
+    .constructor_cb = etx_button_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = LV_SIZE_CONTENT,
+    .height_def = LV_SIZE_CONTENT,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
+    .instance_size = sizeof(lv_btn_t),
+};
+
 const lv_obj_class_t etx_choice_class = {
     .base_class = &lv_obj_class,
-    .constructor_cb = nullptr,
+    .constructor_cb = etx_choice_constructor,
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
@@ -497,7 +755,7 @@ const lv_obj_class_t etx_choice_class = {
 
 const lv_obj_class_t etx_bar_class = {
     .base_class = &lv_bar_class,
-    .constructor_cb = nullptr,
+    .constructor_cb = etx_bar_constructor,
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
@@ -508,67 +766,11 @@ const lv_obj_class_t etx_bar_class = {
     .instance_size = sizeof(lv_bar_t),
 };
 
-lv_obj_t* input_mix_line_create(lv_obj_t* parent)
-{
-  lv_obj_t * obj = lv_obj_class_create_obj(&input_mix_line_class, parent);
-  lv_obj_class_init_obj(obj);
-
-  lv_obj_add_style(obj, &styles.line_btn, 0);
-  lv_obj_add_style(obj, &styles.rounded, 0);
-  lv_obj_add_style(obj, &styles.pad_tiny, 0);
-  lv_obj_add_style(obj, &styles.font_std, 0);
-  lv_obj_add_style(obj, &styles.bg_color_mix_active, LV_STATE_CHECKED);
-  lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);
-
-  return obj;
-}
-
-lv_obj_t* input_mix_group_create(lv_obj_t* parent)
-{
-  lv_obj_t * obj = lv_obj_class_create_obj(&input_mix_group_class, parent);
-  lv_obj_class_init_obj(obj);
-
-  lv_obj_add_style(obj, &styles.line_btn, 0);
-  lv_obj_add_style(obj, &styles.rounded, 0);
-  lv_obj_add_style(obj, &styles.pad_tiny, 0);
-  lv_obj_add_style(obj, &styles.font_bold, 0);
-
-  return obj;
-}
-
+// Event handlers
 static void field_edit_event(const lv_obj_class_t* class_p, lv_event_t* e)
 {
   /* Call the ancestor's event handler */
   lv_obj_event_base(&field_edit_class, e);
-}
-
-lv_obj_t* etx_text_edit_create(lv_obj_t* parent)
-{
-  lv_obj_t* obj = lv_obj_class_create_obj(&field_edit_class, parent);
-  lv_obj_class_init_obj(obj);
-
-  lv_obj_add_style(obj, &styles.field, 0);
-  lv_obj_add_style(obj, &styles.rounded, 0);
-  lv_obj_add_style(obj, &styles.bg_color_focus, LV_STATE_FOCUSED);
-  lv_obj_add_style(obj, &styles.bg_color_edit, LV_STATE_EDITED);
-
-  lv_obj_add_style(obj, &styles.field_cursor, LV_PART_CURSOR);
-  lv_obj_add_style(obj, &styles.edit_cursor, LV_PART_CURSOR | LV_STATE_EDITED);
-
-  lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
-  lv_textarea_set_password_mode(obj, false);
-  lv_textarea_set_one_line(obj, true);
-
-  return obj;
-}
-
-lv_obj_t* etx_number_edit_create(lv_obj_t* parent)
-{
-  lv_obj_t* obj = etx_text_edit_create(parent);
-
-  lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_RIGHT, 0);
-
-  return obj;
 }
 
 extern "C" void window_event_cb(lv_event_t * e);
@@ -580,26 +782,6 @@ static void window_base_event(const lv_obj_class_t* class_p, lv_event_t* e)
   if (res != LV_RES_OK) return;
 
   window_event_cb(e);
-}
-
-lv_obj_t* window_create(lv_obj_t* parent)
-{
-  lv_obj_t* obj = lv_obj_class_create_obj(&window_base_class, parent);
-  lv_obj_class_init_obj(obj);
-
-  lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
-  lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
-
-  return obj;
-}
-
-lv_obj_t* etx_form_window_create(lv_obj_t* parent)
-{
-  lv_obj_t* obj = window_create(parent);
-
-  lv_obj_add_style(obj, &styles.bg_color_transparent, LV_PART_MAIN);
-
-  return obj;
 }
 
 static void table_event(const lv_obj_class_t * class_p, lv_event_t * e)
@@ -626,143 +808,90 @@ static void table_event(const lv_obj_class_t * class_p, lv_event_t * e)
   }
 }
 
-lv_obj_t * etx_table_create(lv_obj_t * parent)
+// Object creators
+static lv_obj_t* etx_create(const lv_obj_class_t* class_p, lv_obj_t* parent)
 {
-  lv_obj_t * obj = lv_obj_class_create_obj(&table_class, parent);
+  lv_obj_t * obj = lv_obj_class_create_obj(class_p, parent);
   lv_obj_class_init_obj(obj);
 
-  lv_obj_add_style(obj, &styles.pad_zero, 0);
-  lv_obj_add_style(obj, &styles.scrollbar, LV_PART_SCROLLBAR);
-  lv_obj_add_style(obj, &styles.scrollbar_scrolled, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
-  lv_obj_add_style(obj, &styles.bg_color_white, LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles.table_cell, LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles.pad_small, LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles.pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
-  lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_ITEMS | LV_STATE_EDITED);
-
   return obj;
+}
+
+lv_obj_t* input_mix_line_create(lv_obj_t* parent)
+{
+  return etx_create(&input_mix_line_class, parent);
+}
+
+lv_obj_t* input_mix_group_create(lv_obj_t* parent)
+{
+  return etx_create(&input_mix_group_class, parent);
+}
+
+lv_obj_t* etx_text_edit_create(lv_obj_t* parent)
+{
+  return etx_create(&field_edit_class, parent);
+}
+
+lv_obj_t* etx_number_edit_create(lv_obj_t* parent)
+{
+  return etx_create(&number_edit_class, parent);
+}
+
+lv_obj_t* window_create(lv_obj_t* parent)
+{
+  return etx_create(&window_base_class, parent);
+}
+
+lv_obj_t* etx_form_window_create(lv_obj_t* parent)
+{
+  return etx_create(&form_window_class, parent);
+}
+
+lv_obj_t * etx_table_create(lv_obj_t * parent)
+{
+  return etx_create(&table_class, parent);
 }
 
 lv_obj_t* etx_keyboard_create(lv_obj_t* parent)
 {
-  lv_obj_t * obj = lv_obj_class_create_obj(&lv_keyboard_class, parent);
-  lv_obj_class_init_obj(obj);
-
-  lv_obj_add_style(obj, &styles.keyboard, 0);
-  lv_obj_add_style(obj, &styles.pad_tiny, 0);
-  lv_obj_add_style(obj, &styles.btn, LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles.rounded, 0);
-  lv_obj_add_style(obj, &styles.disabled, LV_PART_ITEMS | LV_STATE_DISABLED);
-  lv_obj_add_style(obj, &styles.bg_color_white, LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles.keyboard_btn_bg, LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles.pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
-  lv_obj_add_style(obj, &styles.bg_color_active, LV_PART_ITEMS | LV_STATE_CHECKED);
-  lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_ITEMS | LV_STATE_FOCUS_KEY);
-  lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_ITEMS | LV_STATE_EDITED);
-
-  return obj;
+  return etx_create(&etx_keyboard_class, parent);
 }
 
 lv_obj_t* etx_switch_create(lv_obj_t* parent)
 {
-  lv_obj_t * obj = lv_obj_class_create_obj(&etx_switch_class, parent);
-  lv_obj_class_init_obj(obj);
-
-  lv_obj_add_style(obj, &styles.bg_color_grey, 0);
-  lv_obj_add_style(obj, &styles.border, 0);
-  lv_obj_add_style(obj, &styles.border, LV_PART_INDICATOR);
-  lv_obj_add_style(obj, &styles.circle, 0);
-  lv_obj_add_style(obj, &styles.circle, LV_PART_INDICATOR);
-  lv_obj_add_style(obj, &styles.circle, LV_PART_KNOB);
-  lv_obj_add_style(obj, &styles.anim_fast, 0);
-  lv_obj_add_style(obj, &styles.disabled, LV_STATE_DISABLED);
-  lv_obj_add_style(obj, &styles.disabled, LV_PART_INDICATOR | LV_STATE_DISABLED);
-  lv_obj_add_style(obj, &styles.disabled, LV_PART_KNOB | LV_STATE_DISABLED);
-  lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);
-  lv_obj_add_style(obj, &styles.focus_border, LV_PART_INDICATOR | LV_STATE_FOCUSED);
-  lv_obj_add_style(obj, &styles.bg_color_active, LV_PART_INDICATOR | LV_STATE_CHECKED);
-  lv_obj_add_style(obj, &styles.switch_knob, LV_PART_KNOB);
-
-  return obj;
+  return etx_create(&etx_switch_class, parent);
 }
 
 lv_obj_t* etx_slider_create(lv_obj_t* parent)
 {
-  lv_obj_t * obj = lv_obj_class_create_obj(&lv_slider_class, parent);
-  lv_obj_class_init_obj(obj);
-
-  lv_obj_add_style(obj, &styles.slider_main, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles.slider_knob, LV_PART_KNOB);
-  lv_obj_add_style(obj, &styles.circle, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles.circle, LV_PART_KNOB);
-  lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_EDITED);
-
-  return obj;
+  return etx_create(&etx_slider_class, parent);
 }
 
 lv_obj_t* etx_btnmatrix_create(lv_obj_t* parent)
 {
-  lv_obj_t * obj = lv_obj_class_create_obj(&lv_btnmatrix_class, parent);
-  lv_obj_class_init_obj(obj);
-
-  // main
-  lv_obj_add_style(obj, &styles.rounded, 0);
-  // items
-  lv_obj_add_style(obj, &styles.btn, LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles.rounded, LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles.disabled, LV_PART_ITEMS | LV_STATE_DISABLED);
-  lv_obj_add_style(obj, &styles.pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
-  lv_obj_add_style(obj, &styles.bg_color_active, LV_PART_ITEMS | LV_STATE_CHECKED);
-  lv_obj_add_style(obj, &styles.focus_border, LV_PART_ITEMS | LV_STATE_EDITED);
-  lv_obj_add_style(obj, &styles.bg_color_focus_light, LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_add_style(obj, &styles.bg_color_focus_light, LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_EDITED);
-
-  return obj;
+  return etx_create(&lv_btnmatrix_class, parent);
 }
 
 // Fixed height (32)
 lv_obj_t* etx_button_create(lv_obj_t* parent)
 {
-  lv_obj_t * obj = lv_obj_class_create_obj(&etx_button_class, parent);
-  lv_obj_class_init_obj(obj);
-
-  lv_obj_add_style(obj, &styles.btn, 0);
-  lv_obj_add_style(obj, &styles.border, 0);
-  lv_obj_add_style(obj, &styles.rounded, 0);
-  lv_obj_add_style(obj, &styles.bg_color_active, LV_STATE_CHECKED);
-  lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);
-  lv_obj_add_style(obj, &styles.disabled, LV_STATE_DISABLED);
-
-  return obj;
+  return etx_create(&etx_button_class, parent);
 }
 
 // Variable height
 lv_obj_t* etx_vbutton_create(lv_obj_t* parent)
 {
-  lv_obj_t * obj = lv_obj_class_create_obj(&lv_btn_class, parent);
-  lv_obj_class_init_obj(obj);
-
-  lv_obj_add_style(obj, &styles.btn, 0);
-  lv_obj_add_style(obj, &styles.border, 0);
-  lv_obj_add_style(obj, &styles.rounded, 0);
-  lv_obj_add_style(obj, &styles.bg_color_active, LV_STATE_CHECKED);
-  lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);
-  lv_obj_add_style(obj, &styles.disabled, LV_STATE_DISABLED);
-
-  return obj;
+  return etx_create(&etx_vbutton_class, parent);
 }
 
 lv_obj_t* etx_choice_create(lv_obj_t* parent)
 {
-  lv_obj_t* obj = lv_obj_class_create_obj(&etx_choice_class, parent);
-  lv_obj_class_init_obj(obj);
+  return etx_create(&etx_choice_class, parent);
+}
 
-  lv_obj_add_style(obj, &styles.choice_main, 0);
-  lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_add_style(obj, &styles.rounded, 0);
-
-  return obj;
+lv_obj_t* etx_bar_create(lv_obj_t* parent)
+{
+  return etx_create(&etx_bar_class, parent);
 }
 
 lv_obj_t* etx_modal_create(lv_obj_t* parent)
@@ -788,19 +917,6 @@ lv_obj_t* etx_modal_title_create(lv_obj_t* parent)
   lv_obj_t* obj = lv_label_create(parent);
 
   lv_obj_add_style(obj, &styles.modal_title, 0);
-
-  return obj;
-}
-
-lv_obj_t* etx_bar_create(lv_obj_t* parent)
-{
-  lv_obj_t* obj = lv_obj_class_create_obj(&etx_bar_class, parent);
-  lv_obj_class_init_obj(obj);
-
-  lv_obj_add_style(obj, &styles.progress_main, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles.progress_indicator, LV_PART_INDICATOR);
-  lv_obj_add_style(obj, &styles.rounded, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles.rounded, LV_PART_INDICATOR);
 
   return obj;
 }
