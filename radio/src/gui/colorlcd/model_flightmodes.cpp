@@ -22,7 +22,6 @@
 #include "model_flightmodes.h"
 #include "opentx.h"
 #include "libopenui.h"
-#include "hal/key_driver.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 

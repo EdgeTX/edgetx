@@ -26,8 +26,6 @@
 #include "../colors.h"
 #include "font.h"
 
-#include "libopenui_config.h"
-
 extern lv_color_t makeLvColor(uint32_t colorFlags);
 
 /*********************
@@ -62,6 +60,7 @@ typedef struct {
   lv_style_t bg_color_focus_light;
   lv_style_t bg_color_edit;
   lv_style_t bg_color_transparent;
+  lv_style_t bg_color_mix_active;
   lv_style_t pressed;
   lv_style_t disabled;
   lv_style_t focus_border;
@@ -72,6 +71,8 @@ typedef struct {
   lv_style_t rounded;
   lv_style_t border;
   lv_style_t anim_fast;
+  lv_style_t font_std;
+  lv_style_t font_bold;
 
   // Slider parts
   lv_style_t slider_main;
@@ -222,6 +223,10 @@ static void style_init(void)
     lv_style_init(&styles.bg_color_active);
     lv_style_set_bg_opa(&styles.bg_color_active, LV_OPA_COVER);
 
+    // Active color mix line background
+    lv_style_init(&styles.bg_color_mix_active);
+    lv_style_set_bg_opa(&styles.bg_color_mix_active, LV_OPA_COVER);
+
     // Focus color background
     lv_style_init(&styles.bg_color_focus);
     lv_style_set_bg_opa(&styles.bg_color_focus, LV_OPA_COVER);
@@ -306,6 +311,12 @@ static void style_init(void)
     lv_style_set_bg_opa(&styles.progress_main, LV_OPA_COVER);
     lv_style_init(&styles.progress_indicator);
     lv_style_set_bg_opa(&styles.progress_indicator, LV_OPA_COVER);
+
+    // Fonts
+    lv_style_init(&styles.font_std);
+    lv_style_set_text_font(&styles.font_std, getFont(FONT(STD)));
+    lv_style_init(&styles.font_bold);
+    lv_style_set_text_font(&styles.font_bold, getFont(FONT(BOLD)));
   }
 
   // Always update colors in case theme changes
@@ -315,6 +326,7 @@ static void style_init(void)
   lv_style_set_bg_color(&styles.btn, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_text_color(&styles.btn, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_bg_color(&styles.line_btn, makeLvColor(COLOR_THEME_PRIMARY2));
+  lv_style_set_text_color(&styles.line_btn, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_border_color(&styles.line_btn, makeLvColor(COLOR_THEME_SECONDARY2));
   lv_style_set_bg_color(&styles.field, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_border_color(&styles.field, makeLvColor(COLOR_THEME_SECONDARY2));
@@ -325,7 +337,8 @@ static void style_init(void)
   lv_style_set_text_color(&styles.bg_color_white, makeLvColor(COLOR_THEME_PRIMARY1));
   lv_style_set_bg_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_ACTIVE));
   lv_style_set_text_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_PRIMARY1));
-  lv_style_set_bg_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_FOCUS));
+  lv_style_set_bg_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_ACTIVE));
+  lv_style_set_bg_color(&styles.bg_color_mix_active, makeLvColor(COLOR_THEME_SECONDARY3));
   lv_style_set_text_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_PRIMARY2));
   lv_style_set_bg_color(&styles.bg_color_focus_light, makeLvColor(COLOR_THEME_FOCUS));
   lv_style_set_bg_color(&styles.bg_color_edit, makeLvColor(COLOR_THEME_EDIT));
@@ -503,10 +516,9 @@ lv_obj_t* input_mix_line_create(lv_obj_t* parent)
   lv_obj_add_style(obj, &styles.line_btn, 0);
   lv_obj_add_style(obj, &styles.rounded, 0);
   lv_obj_add_style(obj, &styles.pad_tiny, 0);
-  lv_obj_set_style_bg_color(obj, makeLvColor(COLOR_THEME_SECONDARY3), LV_STATE_CHECKED);
+  lv_obj_add_style(obj, &styles.font_std, 0);
+  lv_obj_add_style(obj, &styles.bg_color_mix_active, LV_STATE_CHECKED);
   lv_obj_add_style(obj, &styles.focus_border, LV_STATE_FOCUSED);
-  lv_obj_set_style_text_color(obj, makeLvColor(COLOR_THEME_SECONDARY1), 0);
-  lv_obj_set_style_text_font(obj, getFont(FONT(STD)), 0);
 
   return obj;
 }
@@ -519,8 +531,7 @@ lv_obj_t* input_mix_group_create(lv_obj_t* parent)
   lv_obj_add_style(obj, &styles.line_btn, 0);
   lv_obj_add_style(obj, &styles.rounded, 0);
   lv_obj_add_style(obj, &styles.pad_tiny, 0);
-  lv_obj_set_style_text_color(obj, makeLvColor(COLOR_THEME_SECONDARY1), 0);
-  lv_obj_set_style_text_font(obj, getFont(FONT(BOLD)), 0);
+  lv_obj_add_style(obj, &styles.font_bold, 0);
 
   return obj;
 }
