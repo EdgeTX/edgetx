@@ -102,6 +102,7 @@ const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_NONE, "NONE"  },
   {  MIXSRC_TILT_X, "TILT_X"  },
   {  MIXSRC_TILT_Y, "TILT_Y"  },
+  {  MIXSRC_MIN, "MIN"  },
   {  MIXSRC_MAX, "MAX"  },
   {  MIXSRC_TrimRud, "TrimRud"  },
   {  MIXSRC_TrimEle, "TrimEle"  },

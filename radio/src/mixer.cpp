@@ -361,6 +361,9 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
   }
 #endif
 
+  else if (i == MIXSRC_MIN) {
+    return -1024;
+  }
   else if (i == MIXSRC_MAX) {
     return RESX;
   }

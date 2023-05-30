@@ -11342,8 +11342,13 @@ E</translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="190"/>
+        <source>MIN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/rawsource.cpp" line="193"/>
         <source>MAX</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="203"/>

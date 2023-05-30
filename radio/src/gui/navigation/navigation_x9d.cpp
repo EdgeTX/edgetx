@@ -159,6 +159,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
 #endif
       if (i_min <= MIXSRC_FIRST_STICK && i_max >= MIXSRC_FIRST_STICK)      POPUP_MENU_ADD_ITEM(STR_MENU_STICKS);
       if (i_min <= MIXSRC_FIRST_POT && i_max >= MIXSRC_FIRST_POT)          POPUP_MENU_ADD_ITEM(STR_MENU_POTS);
+      if (i_min <= MIXSRC_MIN && i_max >= MIXSRC_MIN)                      POPUP_MENU_ADD_ITEM(STR_MENU_MIN);
       if (i_min <= MIXSRC_MAX && i_max >= MIXSRC_MAX)                      POPUP_MENU_ADD_ITEM(STR_MENU_MAX);
 #if defined(HELI)
       if (modelHeliEnabled())
@@ -186,7 +187,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
     }
     if (checkIncDecSelection != 0) {
       newval = checkIncDecSelection;
-      if (checkIncDecSelection != MIXSRC_MAX)
+      if (checkIncDecSelection != MIXSRC_MIN && checkIncDecSelection != MIXSRC_MAX)
         s_editMode = EDIT_MODIFY_FIELD;
       checkIncDecSelection = 0;
     }

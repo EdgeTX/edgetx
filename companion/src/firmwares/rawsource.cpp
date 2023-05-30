@@ -186,6 +186,9 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
     case SOURCE_TYPE_ROTARY_ENCODER:
       return CHECK_IN_ARRAY(rotary, index);
 
+    case SOURCE_TYPE_MIN:
+      return tr("MIN");
+
     case SOURCE_TYPE_MAX:
       return tr("MAX");
 

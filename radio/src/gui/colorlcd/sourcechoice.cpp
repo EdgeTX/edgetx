@@ -42,7 +42,7 @@ class SourceChoiceMenuToolbar : public MenuToolbar
 #endif
       addButton(STR_CHAR_STICK, MIXSRC_FIRST_STICK, MIXSRC_LAST_STICK);
       addButton(STR_CHAR_POT, MIXSRC_FIRST_POT, MIXSRC_LAST_POT);
-      addButton(STR_CHAR_FUNCTION, MIXSRC_MAX, MIXSRC_MAX);
+      addButton(STR_CHAR_FUNCTION, MIXSRC_MIN, MIXSRC_MAX);
 #if defined(HELI)
       if (modelHeliEnabled())
         addButton(STR_CHAR_CYC, MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI);
