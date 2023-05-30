@@ -908,9 +908,13 @@ bool isExternalModuleAvailable(int moduleType)
 #if defined(HARDWARE_INTERNAL_MODULE)
   if (areModulesConflicting(g_model.moduleData[INTERNAL_MODULE].type, moduleType))
     return false;
-
+#if defined(MANUFACTURER_FRSKY) && defined(MULTIMODULE) && defined(HARDWARE_EXTERNAL_MODULE)
+  if ((isTrainerUsingModuleBay() && !isModuleMultimodule(EXTERNAL_MODULE)) || (isModuleUsingSport(EXTERNAL_MODULE, moduleType) && isModuleUsingSport(INTERNAL_MODULE, g_model.moduleData[INTERNAL_MODULE].type)))
+    return false;
+#else
   if (isTrainerUsingModuleBay() || (isModuleUsingSport(EXTERNAL_MODULE, moduleType) && isModuleUsingSport(INTERNAL_MODULE, g_model.moduleData[INTERNAL_MODULE].type)))
     return false;
+#endif
 #endif
 
 #if !defined(PPM)
@@ -1048,8 +1052,8 @@ bool isTrainerModeAvailable(int mode)
 #if defined(TRAINER_MODULE_CPPM) || defined(TRAINER_MODULE_SBUS)
   if (IS_EXTERNAL_MODULE_ENABLED() &&
 #if defined(MANUFACTURER_FRSKY) && defined(MULTIMODULE) && defined(HARDWARE_EXTERNAL_MODULE)
-      (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) ||
-      (mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE && !isModuleMultimodule(EXTERNAL_MODULE)))
+      ((mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) ||
+      (mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE && !isModuleMultimodule(EXTERNAL_MODULE))))
 #else
       (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE ||
        mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE))
