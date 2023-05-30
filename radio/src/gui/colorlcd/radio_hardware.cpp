@@ -113,7 +113,7 @@ void RadioHardwarePage::build(FormWindow * window)
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
   lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
   lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
-  new CheckBox(box, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableRtcWarning ));
+  new ToggleSwitch(box, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableRtcWarning ));
 
   // RTC Batt display
   new StaticText(box, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
@@ -124,7 +124,7 @@ void RadioHardwarePage::build(FormWindow * window)
   // ADC filter
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
+  new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
 
 #if defined(AUDIO_MUTE_GPIO)
   // Mute audio

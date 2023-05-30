@@ -108,7 +108,7 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
   // Timer minute beep
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_MINUTEBEEP, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(p_timer->minuteBeep));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(p_timer->minuteBeep));
 
   // Timer countdown
   line = form->newLine(&grid);

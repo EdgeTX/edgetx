@@ -483,7 +483,7 @@ void ModuleWindow::updateModule()
   if (isModuleGhost(moduleIdx)) {
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, "Raw 12 bits", 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->ghost.raw12bits));
+    new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(md->ghost.raw12bits));
   }
 
   updateSubType();

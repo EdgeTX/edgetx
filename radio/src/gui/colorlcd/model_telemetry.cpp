@@ -695,19 +695,19 @@ class SensorEditWindow : public Page {
 
       paramLines[P_AUTOOFFSET] = form->newLine(&grid);
       new StaticText(paramLines[P_AUTOOFFSET], rect_t{}, STR_AUTOOFFSET, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(paramLines[P_AUTOOFFSET], rect_t{}, GET_SET_DEFAULT(sensor->autoOffset));
+      new ToggleSwitch(paramLines[P_AUTOOFFSET], rect_t{}, GET_SET_DEFAULT(sensor->autoOffset));
 
       paramLines[P_ONLYPOS] = form->newLine(&grid);
       new StaticText(paramLines[P_ONLYPOS], rect_t{}, STR_ONLYPOSITIVE, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(paramLines[P_ONLYPOS], rect_t{}, GET_SET_DEFAULT(sensor->onlyPositive));
+      new ToggleSwitch(paramLines[P_ONLYPOS], rect_t{}, GET_SET_DEFAULT(sensor->onlyPositive));
 
       paramLines[P_FILTER] = form->newLine(&grid);
       new StaticText(paramLines[P_FILTER], rect_t{}, STR_FILTER, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(paramLines[P_FILTER], rect_t{}, GET_SET_DEFAULT(sensor->filter));
+      new ToggleSwitch(paramLines[P_FILTER], rect_t{}, GET_SET_DEFAULT(sensor->filter));
 
       paramLines[P_PERSISTENT] = form->newLine(&grid);
       new StaticText(paramLines[P_PERSISTENT], rect_t{}, STR_PERSISTENT, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(paramLines[P_PERSISTENT], rect_t{}, GET_DEFAULT(sensor->persistent), [=](int32_t newValue) {
+      new ToggleSwitch(paramLines[P_PERSISTENT], rect_t{}, GET_DEFAULT(sensor->persistent), [=](int32_t newValue) {
         sensor->persistent = newValue;
         if (!sensor->persistent)
           sensor->persistentValue = 0;
@@ -717,7 +717,7 @@ class SensorEditWindow : public Page {
       // Logs
       line = form->newLine(&grid);
       new StaticText(line, rect_t{}, STR_LOGS, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_DEFAULT(sensor->logs), [=](int32_t newValue) {
+      new ToggleSwitch(line, rect_t{}, GET_DEFAULT(sensor->logs), [=](int32_t newValue) {
         sensor->logs = newValue;
         logsClose();
         SET_DIRTY();
@@ -911,13 +911,13 @@ void ModelTelemetryPage::build(FormWindow * window)
   line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_SHOW_INSTANCE_ID, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.showInstanceIds));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.showInstanceIds));
 
   // Ignore instance button
   line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_IGNORE_INSTANCE, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.ignoreSensorIds));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.ignoreSensorIds));
 
   // RX stat
   new Subtitle(window, getRxStatLabels()->label);
@@ -935,7 +935,7 @@ void ModelTelemetryPage::build(FormWindow * window)
   line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_DISABLE_ALARM, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.disableTelemetryWarning));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.disableTelemetryWarning));
 
   // Vario
   new Subtitle(window, STR_VARIO);

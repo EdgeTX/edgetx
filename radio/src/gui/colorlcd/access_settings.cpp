@@ -522,7 +522,7 @@ void ModuleOptions::update()
 
       line = form->newLine(&grid);
       new StaticText(line, rect_t{}, STR_EXT_ANTENNA, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{},
+      new ToggleSwitch(line, rect_t{},
                    []() {
                      const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
                      return hwSettings.moduleSettings.externalAntenna;
@@ -750,7 +750,7 @@ void RxOptions::update()
   // PWM rate
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, isModuleR9MAccess(moduleIdx) ? "6.67ms PWM" : "7ms PWM");
-  new CheckBox(
+  new ToggleSwitch(
       line, rect_t{},
       []() {
         auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
@@ -764,7 +764,7 @@ void RxOptions::update()
   // telemetry disabled
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_TELEMETRY_DISABLED);
-  auto tele25mw = new CheckBox(
+  auto tele25mw = new ToggleSwitch(
         line, rect_t{},
         []() {
           auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
@@ -785,7 +785,7 @@ void RxOptions::update()
     // telemetry 25 mW
     line = form->newLine(&grid);
     new StaticText(line, rect_t{}, "25mw Tele");
-    new CheckBox(
+    new ToggleSwitch(
         line, rect_t{},
         []() {
           auto& hwSettings = getPXX2HardwareAndSettingsBuffer();

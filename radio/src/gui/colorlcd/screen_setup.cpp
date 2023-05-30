@@ -317,7 +317,7 @@ void ScreenSetupPage::buildLayoutOptions()
     // Option value
     switch (option->type) {
       case ZoneOption::Bool:
-        new CheckBox(line, rect_t{}, GET_SET_DEFAULT(value->boolValue));
+        new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(value->boolValue));
         break;
 
       case ZoneOption::Color:

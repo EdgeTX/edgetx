@@ -90,11 +90,11 @@ class ThemedStaticText : public StaticText
     LcdColorIndex _colorIndex;
 };
 
-class ThemedCheckBox : public CheckBox
+class ThemedCheckBox : public ToggleSwitch
 {
  public:
   ThemedCheckBox(Window *parent, rect_t rect, bool checked) :
-      CheckBox(parent, rect, [=]() { return checked; }, [](uint8_t value) {}, NO_FOCUS),
+      ToggleSwitch(parent, rect, [=]() { return checked; }, [](uint8_t value) {}, NO_FOCUS),
       checked(checked)
   {
     enable(false);
@@ -112,7 +112,7 @@ class ThemedCheckBox : public CheckBox
   void paint(BitmapBuffer *dc) override
   {
     colorMaintainer.applyColorValues();
-    CheckBox::paint(dc);
+    ToggleSwitch::paint(dc);
     colorMaintainer.restoreColorValues();
   }
 
@@ -336,7 +336,7 @@ class PreviewWindow : public FormWindow
 
  protected:
   std::vector<ColorEntry> _colorList;
-  CheckBox *checkBox;
+  ToggleSwitch *checkBox;
   tmr10ms_t ticks;
 };
 

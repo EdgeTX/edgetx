@@ -22,8 +22,6 @@
 #include "afhds3_options.h"
 #include "opentx.h"
 
-//#include "checkbox.h"
-
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
@@ -183,7 +181,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
     temp_str += " ";
     temp_str += STR_SYNC;
     new StaticText(line, rect_t{}, temp_str);
-    new CheckBox(line, rect_t{}, GET_SET_AND_SYNC(cfg, vCfg->PWMFrequency.Synchronized,
+    new ToggleSwitch(line, rect_t{}, GET_SET_AND_SYNC(cfg, vCfg->PWMFrequency.Synchronized,
                  afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V0));
     line = form->newLine(&grid);
 
@@ -212,7 +210,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
       temp_str += " ";
       temp_str += STR_SYNC;
       new StaticText(line, rect_t{}, temp_str);
-      new CheckBox(
+      new ToggleSwitch(
           line, rect_t{}, GET_DEFAULT((vCfg->PWMFrequenciesV1.Synchronized&1<<i)>>i),
           [=](uint8_t newVal) {
             vCfg->PWMFrequenciesV1.Synchronized &= ~(1<<i);

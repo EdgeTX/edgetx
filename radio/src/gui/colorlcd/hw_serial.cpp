@@ -64,7 +64,7 @@ SerialConfigWindow::SerialConfigWindow(Window *parent, const rect_t &rect) :
     if (port->set_pwr != nullptr) {
       new StaticText(box, rect_t{}, STR_AUX_SERIAL_PORT_POWER, 0,
                      COLOR_THEME_PRIMARY1);
-      new CheckBox(
+      new ToggleSwitch(
           box, rect_t{}, [=] { return serialGetPower(port_nr); },
           [=](int8_t newValue) {
             serialSetPower(port_nr, (bool)newValue);

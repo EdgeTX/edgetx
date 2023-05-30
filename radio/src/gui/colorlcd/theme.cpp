@@ -22,9 +22,6 @@
 #include "opentx.h"
 #include "libopenui.h"
 
-//#include "checkbox.h"
-//#include "modal_window.h"
-
 extern EdgeTxTheme * defaultTheme;
 const BitmapBuffer * EdgeTxTheme::error = nullptr;
 const BitmapBuffer * EdgeTxTheme::busy = nullptr;

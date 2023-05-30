@@ -514,7 +514,7 @@ class GVarEditWindow : public Page
       }
 
       if (flightMode > 0) {
-        auto cb = new CheckBox(
+        auto cb = new ToggleSwitch(
             line, rect_t{}, [=] { return fmData->gvars[index] <= GVAR_MAX; },
             [=](uint8_t checked) {
               fmData->gvars[index] = checked ? 0 : GVAR_MAX + 1;

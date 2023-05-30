@@ -182,7 +182,7 @@ void OutputEditWindow::buildBody(FormWindow* form)
   // Direction
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_INVERTED, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_DEFAULT(output->revert),
+  new ToggleSwitch(line, rect_t{}, GET_DEFAULT(output->revert),
                [output, this](uint8_t newValue) {
                  output->revert = newValue;
                  SET_DIRTY();

@@ -65,7 +65,7 @@ ThrottleParams::ThrottleParams() : Page(ICON_MODEL_SETUP)
   // Throttle reversed
   auto line = body.newLine(&grid);
   new StaticText(line, rect_t{}, STR_THROTTLEREVERSE, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.throttleReversed));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.throttleReversed));
 
   // Throttle source
   line = body.newLine(&grid);
@@ -78,7 +78,7 @@ ThrottleParams::ThrottleParams() : Page(ICON_MODEL_SETUP)
   // Throttle trim
   line = body.newLine(&grid);
   new StaticText(line, rect_t{}, STR_TTRIM, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.thrTrim));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.thrTrim));
 
   // Throttle trim source
   line = body.newLine(&grid);

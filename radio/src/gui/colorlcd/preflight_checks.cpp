@@ -46,7 +46,7 @@ static void cb_changed(lv_event_t* e)
   }
 }
 
-static void make_conditional(Window* w, CheckBox* cb)
+static void make_conditional(Window* w, ToggleSwitch* cb)
 {
   lv_obj_t* w_obj = w->getLvObj();
   if (!cb->getValue()) { lv_obj_add_flag(w_obj, LV_OBJ_FLAG_HIDDEN); }
@@ -118,12 +118,12 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   // Display checklist
   auto line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_CHECKLIST, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.displayChecklist));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.displayChecklist));
 
   // Throttle warning
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);
-  auto tw = new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_model.disableThrottleWarning));
+  auto tw = new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_model.disableThrottleWarning));
 
   // Custom Throttle warning (conditional on previous field)
   line = form->newLine(&grid);
@@ -134,7 +134,7 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   lv_obj_set_layout(box->getLvObj(), LV_LAYOUT_FLEX);
   box->setWidth(LCD_W /2 - 15);
 
-  auto cst_tw = new CheckBox(
+  auto cst_tw = new ToggleSwitch(
       box, rect_t{}, GET_SET_DEFAULT(g_model.enableCustomThrottleWarning));
 
   // Custom Throttle warning value

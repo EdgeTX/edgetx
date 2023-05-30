@@ -419,14 +419,14 @@ class AlarmsPage : public SubPage {
 
       // Alarms warning
       new StaticText(line, rect_t{}, STR_ALARMWARNING, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{},
+      new ToggleSwitch(line, rect_t{},
                    GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
       line = body.newLine(&grid);
 
       // RSSI shutdown alarm
       new StaticText(line, rect_t{}, STR_RSSI_SHUTDOWN_ALARM, 0,
                      COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{},
+      new ToggleSwitch(line, rect_t{},
                    GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
       line = body.newLine(&grid);
     }
@@ -500,13 +500,13 @@ class BacklightPage : public SubPage {
   #if defined(KEYS_BACKLIGHT_GPIO)
       // Keys backlight
       new StaticText(line, rect_t{}, STR_KEYS_BACKLIGHT, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
+      new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
       line = body.newLine(&grid);
   #endif
 
       // Flash beep
       new StaticText(line, rect_t{}, STR_ALARM, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.alarmsFlash));
+      new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.alarmsFlash));
       line = body.newLine(&grid);
 
       updateBacklightControls();
@@ -575,7 +575,7 @@ class GpsPage : public SubPage {
 
       // Adjust RTC (from telemetry)
       new StaticText(line, rect_t{}, STR_ADJUST_RTC, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.adjustRTC));
+      new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.adjustRTC));
       line = body.newLine(&grid);
 
       // GPS format
@@ -612,17 +612,17 @@ class ViewOptionsPage : public Page
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_THEME_EDITOR, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled));
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled));
 
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUSPECIALFUNCS, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioGFDisabled));
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioGFDisabled));
 
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUTRAINER, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioTrainerDisabled));
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioTrainerDisabled));
 
       line = form->newLine(&grid);
       new StaticText(line, rect_t{}, STR_MODEL_MENU_TABS, 0, COLOR_THEME_PRIMARY1);
@@ -631,49 +631,49 @@ class ViewOptionsPage : public Page
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUHELISETUP, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelHeliDisabled));
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelHeliDisabled));
 #endif
 
 #if defined(FLIGHT_MODES)
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUFLIGHTMODES, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelFMDisabled));
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelFMDisabled));
 #endif
 
 #if defined(GVARS)
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelGVDisabled));
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelGVDisabled));
 #endif
 
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUCURVES, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled));
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled));
 
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENULOGICALSWITCHES, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelLSDisabled));
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelLSDisabled));
 
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUCUSTOMFUNC, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelSFDisabled));
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelSFDisabled));
 
 #if defined(LUA_MODEL_SCRIPTS)
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUCUSTOMSCRIPTS, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelCustomScriptsDisabled));
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelCustomScriptsDisabled));
 #endif
 
       line = form->newLine(&grid);
       line->padLeft(10);
       new StaticText(line, rect_t{}, STR_MENUTELEMETRY, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelTelemetryDisabled));
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelTelemetryDisabled));
     }
 };
 
@@ -850,5 +850,5 @@ void RadioSetupPage::build(FormWindow * window)
   // Model quick select
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_MODEL_QUICK_SELECT, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.modelQuickSelect));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.modelQuickSelect));
 }

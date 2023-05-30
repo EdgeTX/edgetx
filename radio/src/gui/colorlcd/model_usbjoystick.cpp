@@ -307,7 +307,7 @@ class USBChannelEditWindow : public Page
 #endif
 
       new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_INVERSION, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_DEFAULT(cch->inversion));
+      new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(cch->inversion));
 
       line = form->newLine(&grid);
       m_btnModeFrame = new FormWindow(line, rect_t{});

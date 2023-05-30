@@ -328,7 +328,7 @@ class SpecialFunctionEditPage : public Page
     if (HAS_ENABLE_PARAM(func)) {
       line = specialFunctionOneWindow->newLine(&grid);
       new StaticText(line, rect_t{}, STR_ENABLE, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{},
+      new ToggleSwitch(line, rect_t{},
                    GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
     } else if (HAS_REPEAT_PARAM(func)) {  // !1x 1x 1s 2s 3s ...
       line = specialFunctionOneWindow->newLine(&grid);

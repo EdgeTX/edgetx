@@ -65,7 +65,7 @@ TrimsSetup::TrimsSetup() : Page(ICON_MODEL_SETUP)
   // Extended trims
   line = body.newLine(&grid);
   new StaticText(line, rect_t{}, STR_ETRIMS, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.extendedTrims));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.extendedTrims));
 
   // Display trims
   // TODO: move to "Screen setup" ?

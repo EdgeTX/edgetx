@@ -87,7 +87,7 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
         break;
 
       case ZoneOption::Bool:
-        new CheckBox(
+        new ToggleSwitch(
             line, rect_t{},
             [=]() -> uint8_t {
               return (uint8_t)widget->getOptionValue(optIdx)->boolValue;

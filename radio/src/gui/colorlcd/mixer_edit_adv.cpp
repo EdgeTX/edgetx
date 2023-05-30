@@ -77,7 +77,7 @@ void MixEditAdvanced::buildBody(FormWindow* form)
   // Trim
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_TRIM, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_INVERTED(mix->carryTrim));
+  new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(mix->carryTrim));
 
   // Warning
   new StaticText(line, rect_t{}, STR_MIXWARNING, 0, COLOR_THEME_PRIMARY1);
