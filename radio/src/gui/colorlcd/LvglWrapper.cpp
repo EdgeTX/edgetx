@@ -276,12 +276,10 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   }
 }
 
-// libopenui_depends.h
 int8_t rotaryEncoderGetAccel() { return _rotary_enc_accel; }
 
 #else // !defined(ROTARY_ENCODER_NAVIGATION)
 
-// libopenui_depends.h
 int8_t rotaryEncoderGetAccel() { return 0; }
 
 #endif // defined(ROTARY_ENCODER_NAVIGATION)

@@ -55,4 +55,7 @@ class LvglWrapper
   static void runNested();
 };
 
+// multiplication factor between 0 and 25
+int8_t rotaryEncoderGetAccel();
+
 #endif // _LVGLWRAPPER_H_

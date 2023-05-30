@@ -23,7 +23,6 @@
 #include <string.h>
 #include "libopenui_types.h"
 #include "libopenui_defines.h"
-#include "libopenui_depends.h"
 #include "opentx_helpers.h"
 #include "debug.h"
 

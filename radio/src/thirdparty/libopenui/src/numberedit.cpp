@@ -18,6 +18,7 @@
 
 #include "numberedit.h"
 #include "keyboard_number.h"
+#include "audio.h"
 
 static void numberedit_cb(lv_event_t* e)
 {
