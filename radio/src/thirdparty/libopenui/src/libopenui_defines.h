@@ -22,7 +22,7 @@
 #include "board.h"
 #include "colors.h"
 #include "keys.h"
-#include "libopenui_types.h"
+#include "opentx_types.h"
 
 enum FontIndex
 {

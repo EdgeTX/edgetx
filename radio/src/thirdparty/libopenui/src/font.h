@@ -19,7 +19,7 @@
 #pragma once
 
 #include <lvgl/lvgl.h>
-#include "libopenui_types.h"
+#include "opentx_types.h"
 
 const lv_font_t* getFont(LcdFlags flags);
 uint8_t getFontHeight(LcdFlags flags);
