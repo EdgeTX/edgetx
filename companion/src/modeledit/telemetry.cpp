@@ -524,11 +524,16 @@ void TelemetryPanel::setup()
   ui->rssiAlarmCriticalSB->setRange(0, 127);
   ui->rssiAlarmCriticalSB->setValue(model->rssiAlarms.critical);
 
+  // fix #2552: remove rssiSource selection
+  /*
   ui->rssiSourceLabel->show();
   ui->rssiSourceLabel->setText(tr("Source"));
   ui->rssiSourceCB->setModel(panelFilteredItemModels->getItemModel(FIM_RSSISOURCE));
   ui->rssiSourceCB->setField(model->rssiSource, this);
   ui->rssiSourceCB->show();
+  */
+  ui->rssiSourceLabel->hide();
+  ui->rssiSourceCB->hide();
 
   ui->rssiAlarmWarningCB->hide();
   ui->rssiAlarmCriticalCB->hide();

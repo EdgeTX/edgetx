@@ -147,6 +147,13 @@ void postModelLoad(bool alarms)
     storageDirty(EE_MODEL);
   }
 
+// fix #2552: reset rssiSource to default none (= 0)
+if(g_model.rssiSource) {
+  g_model.rssiSource = 0;
+
+  storageDirty(EE_MODEL);  
+}
+
 #if defined(PXX2)
   if (is_memclear(g_model.modelRegistrationID, PXX2_LEN_REGISTRATION_ID)) {
     memcpy(g_model.modelRegistrationID, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);

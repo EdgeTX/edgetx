@@ -24,7 +24,7 @@
 enum MenuModelTelemetryFrskyItems {
   ITEM_TELEMETRY_PROTOCOL_TYPE,
   ITEM_TELEMETRY_RSSI_LABEL,
-  ITEM_TELEMETRY_RSSI_SOURCE,
+  //ITEM_TELEMETRY_RSSI_SOURCE,         // fix #2552: remove rssiSource selection
   ITEM_TELEMETRY_RSSI_ALARM1,
   ITEM_TELEMETRY_RSSI_ALARM2,
   ITEM_TELEMETRY_DISABLE_ALARMS,
@@ -231,6 +231,8 @@ void menuModelTelemetry(event_t event)
         lcdDrawTextAlignedLeft(y, getRxStatLabels()->label);
         break;
 
+      // fix #2552: remove rssiSource selection
+      /*
       case ITEM_TELEMETRY_RSSI_SOURCE: {
         lcdDrawTextAlignedLeft(y, INDENT TR_SOURCE);
         if (g_model.rssiSource) {
@@ -247,6 +249,7 @@ void menuModelTelemetry(event_t event)
         }
         break;
       }
+      */
 
       case ITEM_TELEMETRY_RSSI_ALARM1:
       case ITEM_TELEMETRY_RSSI_ALARM2:
