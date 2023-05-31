@@ -788,6 +788,12 @@ inline void setDefaultPpmFrameLength(uint8_t moduleIdx)
       4 * max<int>(0, g_model.moduleData[moduleIdx].channelsCount);
 }
 
+inline void setDefaultPpmFrameLengthTrainer()
+{
+  g_model.trainerData.frameLength =
+      4 * max<int>(0, g_model.trainerData.channelsCount);
+}
+
 inline void resetAccessAuthenticationCount()
 {
   // the module will reset on mode switch, we need to reset the authentication counter

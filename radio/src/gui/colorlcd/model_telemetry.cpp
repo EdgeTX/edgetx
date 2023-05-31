@@ -827,6 +827,13 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
     else
       lv_group_focus_obj(discover->getLvObj());
   }
+  
+  uint8_t sensorsCount = getTelemetrySensorsCount();
+  if (sensorsCount > 0) {
+    lv_obj_clear_flag(deleteAll->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  } else {
+    lv_obj_add_flag(deleteAll->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  }
 }
 
 void ModelTelemetryPage::build(FormWindow * window)
@@ -873,13 +880,11 @@ void ModelTelemetryPage::build(FormWindow * window)
                  });
   lv_obj_set_grid_cell(b->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-  uint8_t sensorsCount = getTelemetrySensorsCount();
-  if (sensorsCount > 0) {
 #if TWOCOLBUTTONS
-    line = window->newLine(&grid4);
+  line = window->newLine(&grid4);
 #endif
-    // Delete all sensors button
-    b = new TextButton(line, rect_t{}, STR_DELETE_ALL_SENSORS,
+  // Delete all sensors button
+  deleteAll = new TextButton(line, rect_t{}, STR_DELETE_ALL_SENSORS,
                    [=]() -> uint8_t {
                        new ConfirmDialog(window, STR_DELETE_ALL_SENSORS, STR_CONFIRMDELETE, [=]() {
                            for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
@@ -889,12 +894,11 @@ void ModelTelemetryPage::build(FormWindow * window)
                        return 0;
                    });
 #if TWOCOLBUTTONS
-    b->setWidth((LCD_W - 16) / 2);
-    lv_obj_set_grid_cell(b->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 2, LV_GRID_ALIGN_CENTER, 0, 1);
+  deleteAll->setWidth((LCD_W - 16) / 2);
+  lv_obj_set_grid_cell(deleteAll->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 2, LV_GRID_ALIGN_CENTER, 0, 1);
 #else
-    lv_obj_set_grid_cell(b->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  lv_obj_set_grid_cell(deleteAll->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 #endif
-  }
 
   FlexGridLayout grid(col_dsc, row_dsc, 2);
 

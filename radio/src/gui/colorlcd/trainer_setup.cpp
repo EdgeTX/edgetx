@@ -134,7 +134,10 @@ void TrainerModuleWindow::update()
     // PPM frame
     line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_PPMFRAME, 0, COLOR_THEME_PRIMARY1);
-    new PpmFrameSettings<TrainerModuleData>(line, grid, td);
+    auto obj = new PpmFrameSettings<TrainerModuleData>(line, td);
+  
+    // copy pointer to frame len edit object to channel range
+    chRange->setPpmFrameLenEditObject(obj->getPpmFrameLenEditObject());
   }
 }
 

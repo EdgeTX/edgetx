@@ -37,6 +37,7 @@ class ModelTelemetryPage: public PageTab {
     FormWindow* window = nullptr;
     FormWindow* sensorWindow = nullptr;
     TextButton* discover = nullptr;
+    TextButton* deleteAll = nullptr;
 
     void editSensor(FormWindow * window, uint8_t index);
     void rebuild(FormWindow * window, int8_t focusSensorIndex=-1);

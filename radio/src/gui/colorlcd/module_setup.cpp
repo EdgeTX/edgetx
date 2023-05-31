@@ -242,7 +242,13 @@ void ModuleWindow::updateModule()
 
   // PPM modules
   if (isModulePPM(moduleIdx)) {
-    new PpmSettings(this, grid, moduleIdx);
+    // PPM frame
+    auto line = newLine(&grid);
+    new StaticText(line, rect_t{}, STR_PPMFRAME, 0, COLOR_THEME_PRIMARY1);
+    auto obj = new PpmFrameSettings<PpmModule>(line, &md->ppm);
+  
+    // copy pointer to frame len edit object to channel range
+    chRange->setPpmFrameLenEditObject(obj->getPpmFrameLenEditObject());
   }
 
   // Generic module parameters
