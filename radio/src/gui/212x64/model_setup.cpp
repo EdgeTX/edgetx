@@ -1376,6 +1376,8 @@ void menuModelSetup(event_t event)
               break;
             case 1:
               CHECK_INCDEC_MODELVAR(event, g_model.trainerData.channelsCount, -4, min<int8_t>(MAX_TRAINER_CHANNELS_M8, 32-8-g_model.trainerData.channelsStart));
+              if (checkIncDec_Ret)
+                setDefaultPpmFrameLengthTrainer();
               break;
           }
         }
