@@ -99,6 +99,16 @@ void ViewMainDecoration::setFlightModeVisible(bool visible)
   }
 }
 
+void ViewMainDecoration::updateFromTheme()
+{
+  // Hack to fix flight mode color on main view
+  // Required because theme is loaded after the main view has been created
+  if (flightMode) {
+    lv_obj_set_style_text_color(flightMode->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY1), 0);
+    flightMode->invalidate();
+  }
+}
+
 rect_t ViewMainDecoration::getMainZone() const
 {
   // update layout first
