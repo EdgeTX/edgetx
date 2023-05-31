@@ -1259,7 +1259,7 @@
 #define TR_DESCRIPTION                  "Beskrivning"
 #define TR_SAVE                         "Spara"
 #define TR_CANCEL                       "Avbryt"
-#define TR_EDIT_THEME                   "ÄNDRA TEMA"
+#define TR_EDIT_THEME                   "REDIGERA TEMA"
 #define TR_DETAILS                      "Detaljer"
 #define TR_THEME_EDITOR                 "TEMAN"
 
