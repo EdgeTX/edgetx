@@ -43,18 +43,23 @@ IMPL_LZ4_BITMAP(LBM_CURVE_POINT);
 IMPL_LZ4_BITMAP(LBM_CURVE_POINT_CENTER);
 IMPL_LZ4_BITMAP(LBM_CURVE_COORD_SHADOW);
 
-Curve::Curve(Window * parent, const rect_t & rect, std::function<int(int)> function, std::function<int()> position, std::function<int()> selected):
-      Window(parent, rect, OPAQUE),
-      base(rect_t{0, 0, rect.w, rect.h}, function),
-      function(std::move(function)),
-      position(std::move(position)),
-      selected(std::move(selected))
+// Base curve rendering class to 'paint' the background and curve.
+CurveRenderer::CurveRenderer(const rect_t & rect, std::function<int(int)> function):
+                             rect(rect),
+                             function(std::move(function))
 {
 }
 
-void Curve::drawBackground(BitmapBuffer * dc)
+coord_t CurveRenderer::getPointY(int y) const
 {
-  dc->clear(COLOR_THEME_PRIMARY2);
+  return dy + limit<coord_t>(0,
+                             dh / 2 - divRoundClosest(y * dh / 2, RESX),
+                             dh - 1);
+}
+
+void CurveRenderer::drawBackground(BitmapBuffer * dc)
+{
+  dc->drawSolidFilledRect(rect.x, rect.y, rect.w, rect.h, COLOR_THEME_PRIMARY2);
 
   // Axis
   dc->drawSolidHorizontalLine(dx, dy+dh/2, dw, COLOR_THEME_SECONDARY2);
@@ -68,6 +73,49 @@ void Curve::drawBackground(BitmapBuffer * dc)
 
   // Outside border
   dc->drawSolidRect(dx, dy, dw, dh, 1, COLOR_THEME_SECONDARY2);
+}
+
+void CurveRenderer::drawCurve(BitmapBuffer * dc)
+{
+  auto prev = (coord_t) -1;
+
+  for (int x = 0; x < dw; x++) {
+    coord_t y = getPointY(function(divRoundClosest((x - dw / 2) * RESX, dw / 2)));
+    if (prev >= 0) {
+      if (prev < y) {
+        for (int tmp = prev; tmp <= y; tmp++) {
+          dc->drawBitmapPattern(dx + x - 2, tmp - 2, LBM_POINT, COLOR_THEME_SECONDARY1);
+        }
+      }
+      else {
+        for (int tmp = y; tmp <= prev; tmp++) {
+          dc->drawBitmapPattern(dx + x - 2, tmp - 2, LBM_POINT, COLOR_THEME_SECONDARY1);
+        }
+      }
+    }
+    prev = y;
+  }
+}
+
+void CurveRenderer::paint(BitmapBuffer * dc, uint8_t ofst)
+{
+  dx = rect.x + 2 + ofst;
+  dy = rect.y + 2 + ofst;
+  dw = rect.w - 4 - ofst * 2;
+  dh = rect.h - 4 - ofst * 2;
+
+  drawBackground(dc);
+  drawCurve(dc);
+}
+
+Curve::Curve(Window * parent, const rect_t & rect, std::function<int(int)> function, std::function<int()> position, std::function<int()> selected):
+      Window(parent, rect, OPAQUE),
+      base(rect_t{0, 0, rect.w, rect.h}, function),
+      function(std::move(function)),
+      position(std::move(position)),
+      selected(std::move(selected)),
+      base(rect_t{0, 0, rect.w, rect.h}, function)
+{
 }
 
 coord_t Curve::getPointX(int x) const
