@@ -1153,7 +1153,7 @@
 #define TR_TELEMETRYFULL               TR("All slots full!", "All telemetry slots full!")
 #define TR_INVERTED_SERIAL             INDENT "היפוך"
 #define TR_IGNORE_INSTANCE             TR(INDENT "No inst.", INDENT "Ignore instances")
-#define TR_SHOW_INSTANCE_ID            "Show instance ID"
+#define TR_SHOW_INSTANCE_ID            "הצג מזהה"
 #define TR_DISCOVER_SENSORS            "גלה הכל"
 #define TR_STOP_DISCOVER_SENSORS       "עצור"
 #define TR_DELETE_ALL_SENSORS          "מחק הכל"
