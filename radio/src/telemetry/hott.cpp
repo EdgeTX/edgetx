@@ -557,9 +557,7 @@ void processHottPacket(const uint8_t * packet)
 
           // GPS latitude
           min.value = (int16_t) (packet[11] + (packet[12] << 8));
-          if (packet[10] == 1) {
-            min.isNegative = true;
-          }
+          min.isNegative = (packet[10] == 1);
           break;
 
         case HOTT_PAGE_02:
