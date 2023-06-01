@@ -71,130 +71,150 @@ bool adcRead()
   return true;
 }
 
-#define XPOT_DELTA 10
-#define XPOT_DELAY 10 /* cycles */
-
-void adcCalibMinMax()
-{
-  // get low and high vals for sticks and pots
-  for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
-
-    int16_t vt = anaIn(i);
-    auto& calib = reusableBuffer.calib.inputs[i];
-    calib.input.loVal = min(vt, calib.input.loVal);
-    calib.input.hiVal = max(vt, calib.input.hiVal);
-
-    if (i >= MAX_STICKS) {
-      uint8_t idx = i - MAX_STICKS;
-      if (IS_POT_WITHOUT_DETENT(idx)) {
-        calib.input.midVal = (calib.input.hiVal + calib.input.loVal) / 2;
-      } else if (IS_POT_MULTIPOS(idx)) {
-        auto& xpot = calib.xpot;
-        int count = xpot.stepsCount;
-        if (count <= XPOTS_MULTIPOS_COUNT) {
-          // use raw analog value for multipos calibraton,
-          // anaIn() already has multipos decoded value
-          vt = getAnalogValue(i) >> 1;
-          if (xpot.lastCount == 0 || vt < xpot.lastPosition - XPOT_DELTA ||
-              vt > xpot.lastPosition + XPOT_DELTA) {
-            xpot.lastPosition = vt;
-            xpot.lastCount = 1;
-          } else {
-            if (xpot.lastCount < 255) xpot.lastCount++;
-          }
-          if (xpot.lastCount == XPOT_DELAY) {
-            int16_t position = xpot.lastPosition;
-            bool found = false;
-            for (int j = 0; j < count; j++) {
-              int16_t step = xpot.steps[j];
-              if (position >= step - XPOT_DELTA &&
-                  position <= step + XPOT_DELTA) {
-                found = true;
-                break;
-              }
-            }
-            if (!found) {
-              if (count < XPOTS_MULTIPOS_COUNT) {
-                xpot.steps[count] = position;
-              }
-              xpot.stepsCount += 1;
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
 void adcCalibSetMidPoint()
 {
-  for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
+  uint8_t max_inputs = adcGetMaxCalibratedInputs();
+  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
+
+  for (uint8_t i = 0; i < max_inputs; i++) {
+
     auto& calib = reusableBuffer.calib.inputs[i];
-    if (i < MAX_STICKS || !IS_POT_MULTIPOS(i - MAX_STICKS)) {
+    if (i < pot_offset || !IS_POT_MULTIPOS(i - pot_offset)) {
       calib.input.loVal = 15000;
       calib.input.hiVal = -15000;
       calib.input.midVal = getAnalogValue(i) >> 1;
     } else {
       calib.xpot.stepsCount = 0;
       calib.xpot.lastCount = 0;
+      memclear(calib.xpot.steps, sizeof(calib.xpot.steps));
     }
+  }
+}
+
+#define XPOT_DELTA 10
+#define XPOT_DELAY 10 /* cycles */
+
+#define XPOT_CALIB_SHIFT 5
+
+static void writeAnalogCalib(uint8_t input, int16_t low, int16_t mid, int16_t high)
+{
+  auto& calib = g_eeGeneral.calib[input];
+  calib.mid = mid;
+
+  int16_t v = mid - low;
+  calib.spanNeg = v - v / STICK_TOLERANCE;
+
+  v = high - mid;
+  calib.spanPos = v - v / STICK_TOLERANCE;
+}
+
+static void writeXPotCalib(uint8_t input, int16_t* steps, uint8_t n_steps)
+{
+  if (n_steps < 1) return;
+
+  StepsCalibData* calib = (StepsCalibData*)&g_eeGeneral.calib[input];
+  calib->count = n_steps - 1;
+
+  for (int i = 0; i < calib->count; i++) {
+    calib->steps[i] = (steps[i + 1] + steps[i]) >> XPOT_CALIB_SHIFT;
   }
 }
 
 void adcCalibSetMinMax()
 {
-  for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
-    auto& calib = reusableBuffer.calib.inputs[i];        
-    if (abs(calib.input.loVal - calib.input.hiVal) > 50) {
-      g_eeGeneral.calib[i].mid = calib.input.midVal;
-      int16_t v = calib.input.midVal - calib.input.loVal;
-      g_eeGeneral.calib[i].spanNeg = v - v / STICK_TOLERANCE;
-      v = calib.input.hiVal - calib.input.midVal;
-      g_eeGeneral.calib[i].spanPos = v - v / STICK_TOLERANCE;
+  // get low and high vals for sticks and pots
+  uint8_t max_input = adcGetMaxCalibratedInputs();
+  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
+
+  for (uint8_t i = 0; i < max_input; i++) {
+
+    auto& calib = reusableBuffer.calib.inputs[i];
+
+    if (i < pot_offset || !IS_POT_MULTIPOS(i - pot_offset)) {
+      int16_t vt = anaIn(i);
+      calib.input.loVal = min(vt, calib.input.loVal);
+      calib.input.hiVal = max(vt, calib.input.hiVal);
+
+      if (i >= pot_offset && IS_POT_WITHOUT_DETENT(i - pot_offset)) {
+        calib.input.midVal = (calib.input.hiVal + calib.input.loVal) / 2;
+      }
+
+      // in case we enough input movement, store the result
+      if (abs(calib.input.loVal - calib.input.hiVal) > 50) {
+	writeAnalogCalib(i, calib.input.loVal, calib.input.midVal, calib.input.hiVal);
+      }
+    } else {
+      auto& xpot = calib.xpot;
+      int count = xpot.stepsCount;
+      if (count <= XPOTS_MULTIPOS_COUNT) {
+        // use raw analog value for multipos calibraton,
+        // anaIn() already has multipos decoded value
+        int16_t vt = getAnalogValue(i) >> 1;
+        if (xpot.lastCount == 0 || vt < xpot.lastPosition - XPOT_DELTA ||
+            vt > xpot.lastPosition + XPOT_DELTA) {
+          xpot.lastPosition = vt;
+          xpot.lastCount = 1;
+        } else {
+          if (xpot.lastCount < 255) xpot.lastCount++;
+        }
+        if (xpot.lastCount == XPOT_DELAY) {
+          int16_t position = xpot.lastPosition;
+          bool found = false;
+          for (int j = 0; j < count; j++) {
+            int16_t step = xpot.steps[j];
+            if (position >= step - XPOT_DELTA &&
+                position <= step + XPOT_DELTA) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            if (count < XPOTS_MULTIPOS_COUNT) {
+              int j = 0;
+              for (; j < count; j++) {
+                if (position < xpot.steps[j]) {
+                  memmove(&xpot.steps[j + 1], &xpot.steps[j],
+                          (count - j) * sizeof(int16_t));
+                  break;
+                }
+              }
+              xpot.steps[j] = position;
+            }
+
+            xpot.stepsCount = ++count;
+	    writeXPotCalib(i, xpot.steps, count);
+          }
+        }
+      }
     }
   }
 }
 
-void adcCalibSetXPot()
+static void disableUncalibratedXPots()
 {
-  for (uint8_t i = MAX_STICKS; i < MAX_ANALOG_INPUTS; i++) {
-    int idx = i - MAX_STICKS;
-    if (!IS_POT_MULTIPOS(idx)) continue;
+  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
+  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_POT);
 
-    auto& xpot = reusableBuffer.calib.inputs[i].xpot;
-    int count = xpot.stepsCount;
-    if (count > 1 && count <= XPOTS_MULTIPOS_COUNT) {
-      for (int j = 0; j < count; j++) {
-        for (int k = j + 1; k < count; k++) {
-          if (xpot.steps[k] < xpot.steps[j]) {
-            SWAP(xpot.steps[j], xpot.steps[k]);
-          }
-        }
+  for (uint8_t i = 0; i < max_pots; i++) {
+    if (IS_POT_MULTIPOS(i)) {
+      StepsCalibData* calib = (StepsCalibData*)&g_eeGeneral.calib[i + pot_offset];
+      if(!IS_MULTIPOS_CALIBRATED(calib)) {
+        // not enough config points
+        //
+        // TODO: a way to provide to 6POS default calibration values
+        //
+        // -> check if there is a board supplied default calibration
+        // -> if not, just disable the input
+        //
+        g_eeGeneral.potsConfig &= POT_CONFIG_DISABLE_MASK(i);
       }
-      StepsCalibData* calib = (StepsCalibData*)&g_eeGeneral.calib[i];
-      calib->count = count - 1;
-      for (int j = 0; j < calib->count; j++) {
-        calib->steps[j] = (xpot.steps[j + 1] + xpot.steps[j]) >> 5;
-      }
-    } else {
-      // TODO: a way to provide to 6POS default calibration values
-      //
-      // // load 6pos calib with factory data if 6 pos was not manually calibrated
-      // constexpr int16_t factoryValues[]= {0x5,0xd,0x16,0x1f,0x28};
-      // StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[POT3];
-      // calib->count = 5;
-      // for (int j=0; j<calib->count ; j++) {
-      //   calib->steps[j] = factoryValues[j];
-      // }
-
-      // not enough config points -> disable
-      g_eeGeneral.potsConfig &= POT_CONFIG_DISABLE_MASK(idx);
     }
   }
 }
 
 void adcCalibStore()
 {
+  disableUncalibratedXPots();
   g_eeGeneral.chkSum = evalChkSum();
   storageDirty(EE_GENERAL);
 }
@@ -291,6 +311,7 @@ uint16_t getBatteryVoltage()
 void getADC()
 {
   uint8_t max_analogs = adcGetMaxInputs(ADC_INPUT_ALL);
+  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
 
 #if defined(JITTER_MEASURE)
   if (JITTER_MEASURE_ACTIVE() && jitterResetTime < get_tmr10ms()) {
@@ -381,11 +402,11 @@ void getADC()
 
     #define ANAFILT_MAX    (2 * RESX * JITTER_ALPHA * ANALOG_MULTIPLIER - 1)
     StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[x];
-    if (IS_POT_MULTIPOS(x) && IS_MULTIPOS_CALIBRATED(calib)) {
+    if (IS_POT_MULTIPOS(x - pot_offset) && IS_MULTIPOS_CALIBRATED(calib)) {
       // TODO: consider adding another low pass filter to eliminate multipos switching glitches
       uint8_t vShifted = ANA_FILT(x) >> 4;
       s_anaFilt[x] = ANAFILT_MAX;
-      for (uint32_t i=0; i<calib->count; i++) {
+      for (uint32_t i = 0; i < calib->count; i++) {
         if (vShifted < calib->steps[i]) {
           s_anaFilt[x] = (i * ANAFILT_MAX) / calib->count;
           break;
@@ -411,6 +432,12 @@ uint8_t adcGetInputOffset(uint8_t type)
 {
   if (type > ADC_INPUT_ALL) return 0;
   return _hal_adc_inputs[type].offset;
+}
+
+uint8_t adcGetMaxCalibratedInputs()
+{
+  // ADC_INPUT_MAIN + ADC_INPUT_POT + ADC_INPUT_AXIS
+  return adcGetInputOffset(ADC_INPUT_VBAT);
 }
 
 uint16_t adcGetInputValue(uint8_t type, uint8_t idx)

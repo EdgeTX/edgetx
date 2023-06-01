@@ -106,15 +106,11 @@ void RadioCalibrationPage::checkEvents()
 {
   Page::checkEvents();
 
-  // Get min / max values
-  adcCalibMinMax();
-
   if (menuCalibrationState == CALIB_SET_MIDPOINT) {
     adcCalibSetMidPoint();
   }
   else if (menuCalibrationState == CALIB_MOVE_STICKS) {
     adcCalibSetMinMax();
-    adcCalibSetXPot();
   }
 }
 
