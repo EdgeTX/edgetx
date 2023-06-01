@@ -27,8 +27,6 @@
 
 void menuCommonCalib(event_t event)
 {
-  adcCalibMinMax();
-
   // make sure we don't scroll while calibrating
   menuCalibrationState = reusableBuffer.calib.state;
 
@@ -66,7 +64,6 @@ void menuCommonCalib(event_t event)
       break;
 
     case CALIB_STORE:
-      adcCalibSetXPot();
       adcCalibStore();
       reusableBuffer.calib.state = CALIB_FINISHED;
       break;

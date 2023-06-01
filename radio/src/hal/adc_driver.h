@@ -90,11 +90,15 @@ uint16_t getAnalogValue(uint8_t index);
 void setAnalogValue(uint8_t index, uint16_t value);
 uint16_t* getAnalogValues();
 
-// Run calibration steps
-void adcCalibMinMax();
+// Run calibration steps:
+
+// Set mid-points and reset min/max in temporary buffer
 void adcCalibSetMidPoint();
+
+// Adjust min/max into calibration data
 void adcCalibSetMinMax();
-void adcCalibSetXPot();
+
+// Finalise calibration data and persist in storage
 void adcCalibStore();
 
 #if defined(JITTER_MEASURE)
@@ -119,6 +123,8 @@ potconfig_t adcGetDefaultPotsConfig();
 
 uint8_t adcGetMaxInputs(uint8_t type);
 uint8_t adcGetInputOffset(uint8_t type);
+
+uint8_t adcGetMaxCalibratedInputs();
 
 uint16_t adcGetInputValue(uint8_t type, uint8_t idx);
 const char* adcGetInputName(uint8_t type, uint8_t idx);
