@@ -400,7 +400,11 @@ enum PotsWarnMode {
 #define MAX_CALIB_ANALOG_INPUTS (MAX_STICKS + MAX_POTS + MAX_AXIS)
 
 #define MAX_SWITCHES      20
+#if defined(RADIO_T20)
+#define MAX_TRIMS         8
+#else
 #define MAX_TRIMS         6
+#endif
 
 #define MAX_XPOTS_POSITIONS (MAX_POTS * XPOTS_MULTIPOS_COUNT)
 

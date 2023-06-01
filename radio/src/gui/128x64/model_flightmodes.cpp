@@ -37,7 +37,7 @@ enum MenuModelFlightModeItems {
   ITEM_MODEL_FLIGHT_MODE_NAME,
   ITEM_MODEL_FLIGHT_MODE_SWITCH,
   ITEM_MODEL_FLIGHT_MODE_TRIMS,
-#if defined(TRIMS_GPIO_REG_T5L)
+#if defined(TRIMS_GPIO_REG_T5L) || defined(TRIMS_GPIO_REG_LSD)
   ITEM_MODEL_FLIGHT_MODE_TRIMS2,
 #endif
   ITEM_MODEL_FLIGHT_MODE_FADE_IN,
@@ -71,7 +71,7 @@ void menuModelFlightModeOne(event_t event)
 
 #if defined(GVARS) && !defined(GVARS_IN_CURVES_SCREEN)
 
-#if defined(TRIMS_GPIO_REG_T5L)
+#if defined(TRIMS_GPIO_REG_T5L) || defined(TRIMS_GPIO_REG_LSD)
   #define VERTICAL_SHIFT  (ITEM_MODEL_FLIGHT_MODE_FADE_IN-ITEM_MODEL_FLIGHT_MODE_TRIMS2)
   static const uint8_t mstate_tab_fm1[]  = {0, 3, (uint8_t)(keysGetMaxTrims() - 5), 0, 0, (uint8_t)-1, 1, 1, 1, 1, 1, 1};
 #else
@@ -132,7 +132,7 @@ void menuModelFlightModeOne(event_t event)
         }
         break;
 
-#if defined(TRIMS_GPIO_REG_T5L)
+#if defined(TRIMS_GPIO_REG_T5L) || defined(TRIMS_GPIO_REG_LSD)
       case ITEM_MODEL_FLIGHT_MODE_TRIMS2:
         {
           auto trims = keysGetMaxTrims() - 4;

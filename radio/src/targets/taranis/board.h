@@ -91,7 +91,11 @@ void sdMount();
 void sdDone();
 void sdPoll10ms();
 uint32_t sdMounted();
+#if defined(SD_PRESENT_GPIO)
 #define SD_CARD_PRESENT()               ((SD_PRESENT_GPIO->IDR & SD_PRESENT_GPIO_PIN) == 0)
+#else
+#define SD_CARD_PRESENT()               (true)
+#endif
 #endif
 
 // Flash Write driver
@@ -189,7 +193,7 @@ extern HardwareOptions hardwareOptions;
   #define BATTERY_WARN                  87 // 8.7V
   #define BATTERY_MIN                   85 // 8.5V
   #define BATTERY_MAX                   115 // 11.5V
-#elif defined(PCBXLITE)
+#elif defined(PCBXLITE) || defined(RADIO_T20)
   // 2 x Li-Ion
   #define BATTERY_WARN                  66 // 6.6V
   #define BATTERY_MIN                   67 // 6.7V
@@ -296,6 +300,10 @@ uint8_t isBacklightEnabled();
   #define USB_NAME                     "Jumper TPro V2"
   #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'T', '-', 'P', 'R', 'O', ' ', 'V', '2'  /* 8 Bytes */
+#elif defined(RADIO_T20)
+  #define USB_NAME                     "Jumper T20"
+  #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'T', '-', '2', '0', ' ', ' ', ' ', ' '  /* 8 Bytes */
 #elif defined(RADIO_COMMANDO8)
   #define USB_NAME                     "iFlight Commando 8"
   #define USB_MANUFACTURER             'i', 'F', 'l', 'i', 'g', 'h', 't', '-'  /* 8 bytes */

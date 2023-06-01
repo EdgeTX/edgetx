@@ -214,6 +214,7 @@ void release_spi (void)
 {
   SD_DESELECT();
   rcvr_spi();
+  delay_us(100);
 }
 
 #ifdef SD_USE_DMA
@@ -315,13 +316,15 @@ void power_on (void)
   volatile BYTE dummyread;
     
   card_power(1);
-    
+
+#if defined(SD_PRESENT_GPIO)
   GPIO_InitStructure.GPIO_Pin = SD_PRESENT_GPIO_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
   GPIO_Init(SD_PRESENT_GPIO, &GPIO_InitStructure);
+#endif
 
   for (uint32_t Timer = 25000; Timer>0;Timer--);  /* Wait for 250ms */
 

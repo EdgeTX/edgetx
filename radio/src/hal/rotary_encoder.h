@@ -27,7 +27,11 @@
 #define ROTENC_MIDSPEED   5
 #define ROTENC_HIGHSPEED 50
 
+#if defined(RADIO_T20)
+#define ROTARY_ENCODER_GRANULARITY 4
+#else
 #define ROTARY_ENCODER_GRANULARITY 2
+#endif
 
 typedef int32_t rotenc_t;
 

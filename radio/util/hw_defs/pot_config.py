@@ -13,6 +13,14 @@ POT_CONFIG = {
         "P1": { "default": "WITH_DETENT" },
         "P2": { "default": "WITH_DETENT" }
     },
+    "t20": {
+        "P1":  { "default": "WITH_DETENT" },
+        "P2":  { "default": "WITH_DETENT" },
+        "SL1": { "default": "SLIDER_WITH_DETENT" },
+        "SL2": { "default": "SLIDER_WITH_DETENT" },
+        "SL3": { "default": "SLIDER_WITH_DETENT" },
+        "SL4": { "default": "SLIDER_WITH_DETENT" },
+    },
     "t12": {
         "P1": { "default": "WITHOUT_DETENT" },
         "P2": { "default": "WITHOUT_DETENT" }

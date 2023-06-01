@@ -103,6 +103,9 @@ do
         tlitef4)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITEF4"
             ;;
+        t20)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20"
+            ;;
         xlite)
             BUILD_OPTIONS+="-DPCB=XLITE"
             ;;
