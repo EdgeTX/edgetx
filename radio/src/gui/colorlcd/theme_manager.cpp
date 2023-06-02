@@ -433,6 +433,12 @@ bool ThemePersistance::createNewTheme(std::string name, ThemeFile &theme)
   s = strAppend(s, "/", FF_MAX_LFN - (s - fullPath));
   s = strAppend(s, name.c_str(), FF_MAX_LFN - (s - fullPath));
 
+  if (!isFileAvailable(THEMES_PATH))
+  {
+    FRESULT result = f_mkdir(THEMES_PATH);
+    if (result != FR_OK) return false;
+  }
+
   FRESULT result = f_mkdir(fullPath);
   if (result != FR_OK) return false;
   s = strAppend(s, "/", FF_MAX_LFN - (s - fullPath));
