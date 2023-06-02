@@ -453,7 +453,7 @@ void processHottPacket(const uint8_t * packet)
   const HottSensor *sensor;
   int32_t value;
   static uint8_t prev_page = 0, prev_value = 0;
-  static HottGPSMinutes min = {};
+  static HottGPSMinutes min = { 0, 0, 0 };
   int16_t deg = 0, sec = 0;
 
   // Set RX Event (HoTT warnings) 
