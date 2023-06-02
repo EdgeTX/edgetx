@@ -24,7 +24,7 @@
 MainWindow * MainWindow::_instance = nullptr;
 
 MainWindow::MainWindow() :
-    Window(nullptr, {0, 0, LCD_W, LCD_H}, OPAQUE), invalidatedRect(rect)
+    Window(nullptr, {0, 0, LCD_W, LCD_H}, OPAQUE)
 {
 }
 
@@ -34,20 +34,6 @@ void MainWindow::emptyTrash()
     delete window;
   }
   trash.clear();
-}
-
-void MainWindow::invalidate(const rect_t& rect)
-{
-  if (invalidatedRect.w) {
-    auto left = limit<coord_t>(0, rect.left(), invalidatedRect.left());
-    auto right = limit<coord_t>(invalidatedRect.right(), rect.right(), LCD_W);
-    auto top = limit<coord_t>(0, rect.top(), invalidatedRect.top());
-    auto bottom =
-        limit<coord_t>(rect.bottom(), invalidatedRect.bottom(), LCD_H);
-    invalidatedRect = {left, top, right - left, bottom - top};
-  } else {
-    invalidatedRect = rect;
-  }
 }
 
 void MainWindow::run(bool trash)
