@@ -2446,7 +2446,7 @@
   #define AUDIO_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_DMA1)
   #define AUDIO_MUTE_GPIO               GPIOE
   #define AUDIO_MUTE_GPIO_PIN           GPIO_Pin_12  // PE.12
-  #define AUDIO_MUTE_DELAY              150  // ms
+  #define AUDIO_MUTE_DELAY              500  // ms
 #if defined(RADIO_TLITE) || defined(RADIO_TPRO) || defined(RADIO_LR3PRO)
   #define AUDIO_UNMUTE_DELAY            250  // ms
 #else
