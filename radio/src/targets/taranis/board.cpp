@@ -307,7 +307,7 @@ void boardOff()
   }
 #endif
 
-#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2)
+#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)
   lcdInit(); 
 #endif
 
