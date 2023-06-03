@@ -200,13 +200,13 @@ static void disableUncalibratedXPots()
       StepsCalibData* calib = (StepsCalibData*)&g_eeGeneral.calib[i + pot_offset];
       if(!IS_MULTIPOS_CALIBRATED(calib)) {
         // not enough config points
-        //
-        // TODO: a way to provide to 6POS default calibration values
-        //
-        // -> check if there is a board supplied default calibration
-        // -> if not, just disable the input
-        //
+#if defined(XPOS_CALIB_DEFAULT)
+        size_t index = 0;
+        calib->count = XPOTS_MULTIPOS_COUNT - 1;
+        for (const auto &value : XPOS_CALIB_DEFAULT) calib->steps[index++] = value;
+#else
         g_eeGeneral.potsConfig &= POT_CONFIG_DISABLE_MASK(i);
+#endif
       }
     }
   }
