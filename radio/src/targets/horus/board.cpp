@@ -123,6 +123,10 @@ void boardInit()
   }
 #endif
 
+#if defined(RADIO_TX16S)
+  FLASH_PrefetchBufferCmd(DISABLE);
+#endif
+
   pwrInit();
   boardInitModulePorts();
 
