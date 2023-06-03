@@ -70,6 +70,10 @@ void boardInit()
   board_set_bor_level();
 #endif
 
+#if defined(RADIO_TX16S)
+  FLASH_PrefetchBufferCmd(DISABLE);
+#endif
+
   pwrInit();
 
 #if defined(FUNCTION_SWITCHES) && !defined(DEBUG_SEGGER_RTT)

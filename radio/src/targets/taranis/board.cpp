@@ -79,6 +79,7 @@ void boardInit()
 #if defined(MANUFACTURER_RADIOMASTER) && defined(STM32F407xx)
   void board_set_bor_level();
   board_set_bor_level();
+  FLASH_PrefetchBufferCmd(DISABLE);
 #endif
 
   board_trainer_init();
