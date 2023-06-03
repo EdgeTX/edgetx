@@ -174,6 +174,11 @@ void SDRAM_Init();
 #define NUM_FUNCTIONS_SWITCHES        0
 #endif
 
+// POTS and SLIDERS default configuration
+#if defined(RADIO_TX16S)
+#define XPOS_CALIB_DEFAULT  {0x3, 0xc, 0x15, 0x1e, 0x26}
+#endif
+
 // Trims driver
 #define NUM_TRIMS                               6
 #define NUM_TRIMS_KEYS                          (NUM_TRIMS * 2)

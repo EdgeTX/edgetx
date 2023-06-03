@@ -137,6 +137,11 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
   #define TRAINER_CONNECTED()           true
 #endif
 
+// POTS and SLIDERS default configuration
+#if defined(RADIO_BOXER)
+#define XPOS_CALIB_DEFAULT  {0x5, 0xd, 0x16, 0x1f, 0x28}
+#endif
+
 #if defined(FUNCTION_SWITCHES)
 
 #define NUM_FUNCTIONS_SWITCHES 6
