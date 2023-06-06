@@ -1280,7 +1280,7 @@
 #define TR_SAVE                         "Spara"
 #define TR_CANCEL                       "Avbryt"
 #define TR_EDIT_THEME                   "REDIGERA TEMA"
-#define TR_DETAILS                      "Detaljer"
+#define TR_DETAILS                      "Temainformation"
 #define TR_THEME_EDITOR                 "TEMAN"
 
 // Main menu
