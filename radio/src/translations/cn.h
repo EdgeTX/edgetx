@@ -1152,7 +1152,7 @@
 #define TR_TELEMETRYFULL               TR("项目已满!", "回传项目已满!")
 #define TR_INVERTED_SERIAL             INDENT "反向"
 #define TR_IGNORE_INSTANCE             TR(INDENT "忽略ID", INDENT "忽略ID鉴别")
-#define TR_SHOW_INSTANCE_ID            "Show instance ID"
+#define TR_SHOW_INSTANCE_ID            "显示实例ID"
 #define TR_DISCOVER_SENSORS            "扫描新的回传项目"
 #define TR_STOP_DISCOVER_SENSORS       "停止扫描"
 #define TR_DELETE_ALL_SENSORS          "删除所有回传项目"
@@ -1277,7 +1277,7 @@
 #define TR_USBJOYSTICK_CH_BTNNUM       "按钮编号."
 #define TR_USBJOYSTICK_BTN_COLLISION   "!按钮编号冲突!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!轴冲突!"
-#define TR_USBJOYSTICK_CIRC_COUTOUT    TR("圆形切口", "圆形切口")
+#define TR_USBJOYSTICK_CIRC_COUTOUT    TR("圆口行程", "圆口行程")
 #define TR_VUSBJOYSTICK_CIRC_COUTOUT   "禁用","X-Y, Z-旋转X","X-Y, 旋转X-旋转Y"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "应用更改"
 
@@ -1287,6 +1287,6 @@
 #define TR_SERIAL_BUS             "串行总线"
 #define TR_SYNC                   "同步"
 
-#define TR_ENABLED_FEATURES       "Enabled Features"
-#define TR_RADIO_MENU_TABS        "Radio Menu Tabs"
-#define TR_MODEL_MENU_TABS        "Model Menu Tabs"
+#define TR_ENABLED_FEATURES       "启用的功能"
+#define TR_RADIO_MENU_TABS        "系统功能选项卡"
+#define TR_MODEL_MENU_TABS        "模型功能选项卡"
