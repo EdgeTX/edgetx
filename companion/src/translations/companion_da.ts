@@ -692,7 +692,7 @@ Mode 4:
     </message>
     <message>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprog</translation>
     </message>
 </context>
 <context>
@@ -3915,62 +3915,62 @@ Disse indstillinger gælder for alle modeller.</translation>
     </message>
     <message>
         <source>Enabled Features</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiverede funktioner</translation>
     </message>
 </context>
 <context>
     <name>GeneralOptionsPanel</name>
     <message>
         <source>Radio Menus</source>
-        <translation type="unfinished"></translation>
+        <translation>Radio menu</translation>
     </message>
     <message>
         <source>Themes</source>
-        <translation type="unfinished">Tema</translation>
+        <translation>Tema</translation>
     </message>
     <message>
         <source>Global Functions</source>
-        <translation type="unfinished">Globale funktioner</translation>
+        <translation>Globale funktioner</translation>
     </message>
     <message>
         <source>Trainer</source>
-        <translation type="unfinished">Træner</translation>
+        <translation>Træner</translation>
     </message>
     <message>
         <source>Model Menus</source>
-        <translation type="unfinished"></translation>
+        <translation>Model menu</translation>
     </message>
     <message>
         <source>Heli</source>
-        <translation type="unfinished">Heli</translation>
+        <translation>Heli</translation>
     </message>
     <message>
         <source>Flight Modes</source>
-        <translation type="unfinished">Flyve tilstand</translation>
+        <translation>Flyve tilstand</translation>
     </message>
     <message>
         <source>Curves</source>
-        <translation type="unfinished">Kurver</translation>
+        <translation>Kurver</translation>
     </message>
     <message>
         <source>Global Variables</source>
-        <translation type="unfinished"></translation>
+        <translation>Globale variable</translation>
     </message>
     <message>
         <source>Logical Switches</source>
-        <translation type="unfinished">Logiske funktioner</translation>
+        <translation>Logiske funktioner</translation>
     </message>
     <message>
         <source>Special Functions</source>
-        <translation type="unfinished">Specialfunktioner</translation>
+        <translation>Specialfunktioner</translation>
     </message>
     <message>
         <source>Custom Mix Scripts</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilpassede mix scripts</translation>
     </message>
     <message>
         <source>Telemetry</source>
-        <translation type="unfinished">Telemetri</translation>
+        <translation>Telemetri</translation>
     </message>
 </context>
 <context>
@@ -4911,7 +4911,7 @@ Er du sikker?</translation>
     </message>
     <message>
         <source>Hebrew</source>
-        <translation type="unfinished"></translation>
+        <translation>Hebraisk</translation>
     </message>
 </context>
 <context>
@@ -7212,74 +7212,74 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Enabled Features</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiverede funktioner</translation>
     </message>
 </context>
 <context>
     <name>ModelOptionsPanel</name>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Global</translation>
+        <translation>Global</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">Fra</translation>
+        <translation>Fra</translation>
     </message>
     <message>
         <source>On</source>
-        <translation type="unfinished">Til</translation>
+        <translation>Til</translation>
     </message>
     <message>
         <source>Radio Menus</source>
-        <translation type="unfinished"></translation>
+        <translation>Ragio menu</translation>
     </message>
     <message>
         <source>Themes</source>
-        <translation type="unfinished">Tema</translation>
+        <translation>Tema</translation>
     </message>
     <message>
         <source>Global Functions</source>
-        <translation type="unfinished">Globale funktioner</translation>
+        <translation>Globale funktioner</translation>
     </message>
     <message>
         <source>Trainer</source>
-        <translation type="unfinished">Træner</translation>
+        <translation>Træner</translation>
     </message>
     <message>
         <source>Model Menus</source>
-        <translation type="unfinished"></translation>
+        <translation>Model menu</translation>
     </message>
     <message>
         <source>Heli</source>
-        <translation type="unfinished">Heli</translation>
+        <translation>Heli</translation>
     </message>
     <message>
         <source>Flight Modes</source>
-        <translation type="unfinished">Flyve tilstand</translation>
+        <translation>Flyve tilstand</translation>
     </message>
     <message>
         <source>Curves</source>
-        <translation type="unfinished">Kurver</translation>
+        <translation>Kurver</translation>
     </message>
     <message>
         <source>Global Variables</source>
-        <translation type="unfinished"></translation>
+        <translation>Globale variable</translation>
     </message>
     <message>
         <source>Logical Switches</source>
-        <translation type="unfinished">Logiske funktioner</translation>
+        <translation>Logiske funktioner</translation>
     </message>
     <message>
         <source>Special Functions</source>
-        <translation type="unfinished">Specialfunktioner</translation>
+        <translation>Specialfunktioner</translation>
     </message>
     <message>
         <source>Custom Mix Scripts</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilpassede mix scripts</translation>
     </message>
     <message>
         <source>Telemetry</source>
-        <translation type="unfinished">Telemetri</translation>
+        <translation>Telemetri</translation>
     </message>
 </context>
 <context>
@@ -7934,7 +7934,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Low power mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Lille strømforbrug</translation>
     </message>
 </context>
 <context>
@@ -8153,11 +8153,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>No Telemetry</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen telemetri</translation>
     </message>
     <message>
         <source>MLink</source>
-        <translation type="unfinished"></translation>
+        <translation>MLink</translation>
     </message>
 </context>
 <context>
