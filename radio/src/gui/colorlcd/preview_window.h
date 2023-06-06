@@ -179,12 +179,14 @@ class ThemedButton : public TextButton
 class ThemedTextEdit : public TextEdit
 {
   public:
-    ThemedTextEdit(Window *parent, const rect_t &rect, char *text, 
+    ThemedTextEdit(Window *parent, const rect_t &rect, const char *text, 
                    int colorBackgroundIndex, int colorTextIndex) :
-      TextEdit(parent, rect, text, strlen(text), NO_FOCUS),
+      TextEdit(parent, rect, editText, strlen(text), NO_FOCUS),
       _colorBackgroundIndex(colorBackgroundIndex),
       _colorTextIndex(colorTextIndex)
     {
+      strcpy(editText, text);
+      update();
     }
 
     void paint(BitmapBuffer *dc) override
@@ -192,7 +194,7 @@ class ThemedTextEdit : public TextEdit
       colorMaintainer.applyColorValues();
       lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR(_colorBackgroundIndex)), LV_PART_MAIN);
       lv_obj_set_style_text_color(lvobj, lv_color_white(), LV_PART_MAIN);
-      FormField::paint(dc);
+      TextEdit::paint(dc);
       colorMaintainer.restoreColorValues();
     }
 
@@ -213,10 +215,8 @@ class ThemedTextEdit : public TextEdit
   protected:
     int _colorBackgroundIndex;
     int _colorTextIndex;
+    char editText[50];
 };
-
-static char XSTR_THEME_EDIT[] = "Edit";
-static char XSTR_THEME_FOCUS[] = "Focus";
 
 // display controls using the appropriate theme.
 class PreviewWindow : public FormGroup
@@ -226,6 +226,7 @@ class PreviewWindow : public FormGroup
                 std::vector<ColorEntry> colorList) :
       FormGroup(window, rect, NO_FOCUS), _colorList(colorList)
   {
+
     // reset default group to avoid focus
     lv_group_t* def_group = lv_group_get_default();
     lv_group_set_default(nullptr);
@@ -240,16 +241,10 @@ class PreviewWindow : public FormGroup
     new ThemedStaticText(this, {5, 115, 100, LINE_HEIGHT}, STR_THEME_WARNING, COLOR_THEME_WARNING_INDEX);
     new ThemedStaticText(this, {5, 140, 100, LINE_HEIGHT}, STR_THEME_DISABLED, COLOR_THEME_DISABLED_INDEX);
 
-    new ThemedTextEdit(this, {5, 160, 100, LINE_HEIGHT + 1}, XSTR_THEME_EDIT, 
+    new ThemedTextEdit(this, {5, 160, 100, LINE_HEIGHT + 1}, STR_THEME_EDIT, 
                        COLOR_THEME_EDIT_INDEX, COLOR_THEME_PRIMARY2_INDEX);
-//    static char EditText[] = "Edit";
-//    new ThemedTextEdit(this, {5, 160, 100, LINE_HEIGHT + 1}, EditText, 
-//                       COLOR_THEME_EDIT_INDEX, COLOR_THEME_PRIMARY2_INDEX);
-    new ThemedTextEdit(this, {110, 160, 100, LINE_HEIGHT + 1}, XSTR_THEME_FOCUS, 
+    new ThemedTextEdit(this, {110, 160, 100, LINE_HEIGHT + 1}, STR_THEME_FOCUS, 
                        COLOR_THEME_FOCUS_INDEX, COLOR_THEME_PRIMARY2_INDEX);
-//    static char FocusText[] = "Focus";
-//    new ThemedTextEdit(this, {110, 160, 100, LINE_HEIGHT + 1}, FocusText, 
-//                       COLOR_THEME_FOCUS_INDEX, COLOR_THEME_PRIMARY2_INDEX);
     ticks = 0;
 
     lv_group_set_default(def_group);
