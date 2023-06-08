@@ -54,14 +54,16 @@ MPMProtoOption::MPMProtoOption(FormGroup* form, FlexGridLayout *layout) :
   if (layout) layout->resetPos();
   label = new StaticText(this, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
 
-  auto box = new FormGroup(this, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW);
+  auto box = new FormWindow(this, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, 4);
+  box->setWidth((LCD_W - 20) * 2 / 3);
 
   choice = new Choice(box, rect_t{}, 0, 0, nullptr);
   edit = new NumberEdit(box, rect_t{}, 0, 0, nullptr);
   cb = new CheckBox(box, rect_t{}, nullptr, nullptr);
   rssi = new DynamicNumber<uint16_t>(
       box, rect_t{}, [] { return (uint16_t)TELEMETRY_RSSI(); }, 0, getRxStatLabels()->label, getRxStatLabels()->unit);
+  rssi->padTop(5);
 }
 
 void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md, uint8_t moduleIdx)
