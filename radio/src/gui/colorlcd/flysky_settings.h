@@ -52,6 +52,7 @@ class FlySkySettings : public FormGroup, public ModuleOptions
   FormGroup* afhds3TypeForm = nullptr;
   Choice *afhds3PhyMode = nullptr;
   Choice *afhds3Emi = nullptr;
+  Choice *afhds3RfPower = nullptr;
   void hideAFHDS3Options();
   void showAFHDS3Options();
 #endif  

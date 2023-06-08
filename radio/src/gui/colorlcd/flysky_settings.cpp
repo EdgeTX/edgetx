@@ -145,13 +145,19 @@ FlySkySettings::FlySkySettings(Window* parent, const FlexGridLayout& g,
              GET_SET_DEFAULT(md->afhds3.emi));
   lv_obj_set_style_bg_color(afhds3Emi->getLvObj(), makeLvColor(COLOR_THEME_DISABLED), LV_PART_MAIN | LV_STATE_DISABLED);
 
-  uint8_t module = moduleIdx;
   new TextButton(afhds3TypeForm, rect_t{}, STR_MODULE_OPTIONS,
                  [=]() {
-                     afhds3::applyModelConfig(module);
-                     new AFHDS3_Options(module);
+                     afhds3::applyModelConfig(moduleIdx);
+                     new AFHDS3_Options(moduleIdx);
                      return 0;
                  });
+
+  line = newLine(&grid);
+  uint8_t max = moduleIdx == INTERNAL_MODULE ? AFHDS3_IRM301_POWER_MAX : AFHDS3_FRM303_POWER_MAX;
+  auto cfg = afhds3::getConfig(moduleIdx);
+  new StaticText(line, rect_t{}, STR_MULTI_RFPOWER);
+  afhds3RfPower = new Choice(line, rect_t{}, STR_AFHDS3_POWERS, 0, max,
+                   GET_SET_AND_SYNC(cfg, md->afhds3.rfPower, afhds3::DirtyConfig::DC_RX_CMD_TX_PWR));
 
   hideAFHDS3Options();
 #endif
@@ -204,6 +210,7 @@ void FlySkySettings::showAFHDS3Options()
   lv_event_send(afhds3StatusText->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   lv_event_send(afhds3PhyMode->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   lv_event_send(afhds3Emi->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+  lv_event_send(afhds3RfPower->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);  
   if (afhds3::getConfig(moduleIdx)->others.isConnected)
   {
     lv_obj_add_state(afhds3PhyMode->getLvObj(), LV_STATE_DISABLED);

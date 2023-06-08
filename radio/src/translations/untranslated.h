@@ -147,7 +147,7 @@
 #define TR_MULTI_WBUS_MODE             "WBUS","PPM"
 
 #define TR_AFHDS3_PROTOCOLS            "PWM/IBUS","PWM/SBUS","PPM/IBUS","PPM/SBUS"
-#define TR_AFHDS3_POWERS               "25 mW","100 mW","500 mW","1 W","2 W"
+#define TR_AFHDS3_POWERS               "25mW","50mW","100mW","250mW","500mW","1W","2W"
 #define TR_FLYSKY_PULSE_PROTO          "PWM","PPM"
 #define TR_FLYSKY_SERIAL_PROTO         "iBUS","SBUS"
 #define TR_PPM_POL                     "-","+"
