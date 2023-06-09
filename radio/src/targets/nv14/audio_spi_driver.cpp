@@ -79,6 +79,11 @@
 
 #define READ_DREQ()                    (GPIO_ReadInputDataBit(AUDIO_DREQ_GPIO, AUDIO_DREQ_GPIO_PIN))
 
+#define AUDIO_OFF_TIMEOUT 5
+
+static tmr10ms_t lastHasAudioBufferTime = 0;
+static bool isAudioOn = false;
+
 void audioSpiInit(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -362,11 +367,13 @@ void audioSendRiffHeader()
 void audioOn()
 {
   GPIO_SetBits(AUDIO_SHUTDOWN_GPIO, AUDIO_SHUTDOWN_GPIO_PIN);
+  isAudioOn = true;
 }
 
 void audioOff()
 {
   GPIO_ResetBits(AUDIO_SHUTDOWN_GPIO, AUDIO_SHUTDOWN_GPIO_PIN);
+  isAudioOn = false;
 }
 
 void audioShutdownInit()
@@ -427,6 +434,11 @@ void audioConsumeCurrentBuffer()
   }
 
   if (currentBuffer) {
+    if (!isAudioOn) {
+      audioOn();
+      TRACE("Audio On");
+    }
+    lastHasAudioBufferTime = get_tmr10ms();
     uint32_t written = audioSpiWriteData(currentBuffer, currentSize);
     currentBuffer += written;
     currentSize -= written;
@@ -434,6 +446,13 @@ void audioConsumeCurrentBuffer()
       audioQueue.buffersFifo.freeNextFilledBuffer();
       currentBuffer = nullptr;
       currentSize = 0;
+    }
+  }
+  else if (isAudioOn) {
+    if (get_tmr10ms() - lastHasAudioBufferTime > AUDIO_OFF_TIMEOUT)
+    {
+      audioOff();
+      TRACE("Audio Off");
     }
   }
 }
