@@ -2192,7 +2192,7 @@ void menuModelSetup(event_t event)
 #endif
 
       case ITEM_VIEW_OPTIONS_LABEL:
-        expandState.viewOpt = expandableSection(y, STR_VIEW_OPTIONS, expandState.viewOpt, attr, event);
+        expandState.viewOpt = expandableSection(y, STR_ENABLED_FEATURES, expandState.viewOpt, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_RADIO_TAB:
         lcdDrawText(INDENT_WIDTH-2, y, TR_RADIO_MENU_TABS);
