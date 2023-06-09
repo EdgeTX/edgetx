@@ -214,7 +214,9 @@ void FlySkySettings::showAFHDS3Options()
   lv_event_send(afhds3StatusText->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   lv_event_send(afhds3PhyMode->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   lv_event_send(afhds3Emi->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
-  lv_event_send(afhds3RfPower->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);  
+  if (moduleIdx == EXTERNAL_MODULE) {
+    lv_event_send(afhds3RfPower->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);  
+  }
   if (afhds3::getConfig(moduleIdx)->others.isConnected)
   {
     lv_obj_add_state(afhds3PhyMode->getLvObj(), LV_STATE_DISABLED);
