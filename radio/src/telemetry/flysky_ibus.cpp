@@ -58,6 +58,8 @@ enum
   SENSOR_TYPE_RF_MODULE = 0x56,           // Ext flysky rf module sensor(voltage and temperature)
   SENSOR_TYPE_RF_MODULE_TEMP = 0x1056,    // virtual
   SENSOR_TYPE_RF_MODULE_VOL = 0x2056,     // virtual
+  SENSOR_TYPE_RF_MODULE_POWER = 0x3056,   // virtual
+//  SENSOR_TYPE_RF_MODULE_RAW =   0x4056,   // virtual
 
   SENSOR_TYPE_TX_V = 0x7F,                // TX Voltage
 
@@ -156,6 +158,8 @@ const FlySkySensor flySkySensors[] = {
   { SENSOR_TYPE_ALT,                 STR_SENSOR_ALT,            UNIT_METERS,            2 },
   { SENSOR_TYPE_RF_MODULE_TEMP,      STR_SENSOR_TEMP2,          UNIT_CELSIUS,           0 },  // 1 bytes temperature
   { SENSOR_TYPE_RF_MODULE_VOL,       STR_SENSOR_TXV,            UNIT_VOLTS,             2 },  // 2 bytes voltage
+  { SENSOR_TYPE_RF_MODULE_POWER,     STR_SENSOR_TX_POWER,       UNIT_DBM,               0 },  // 2 bytes DBM
+//  { SENSOR_TYPE_RF_MODULE_RAW,       STR_SENSOR_TX_POWER,       UNIT_RAW,               0 },  // 2 bytes DBM
   { SENSOR_TYPE_TX_V,                STR_SENSOR_TXV,            UNIT_VOLTS,             2 },  // TX Voltage
   { SENSOR_TYPE_RX_SNR,              STR_SENSOR_RX_SNR,         UNIT_DB,                0 },  // RX SNR
   { SENSOR_TYPE_RX_NOISE,            STR_SENSOR_RX_NOISE,       UNIT_DBM,               0 },  // RX Noise
@@ -232,8 +236,13 @@ void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t len )
     {
       uint8_t data1[] = { (uint8_t)(SENSOR_TYPE_RF_MODULE_TEMP>>8), (uint8_t)SENSOR_TYPE_RF_MODULE_TEMP, id, packet[3] };
       uint8_t data2[] = { (uint8_t)(SENSOR_TYPE_RF_MODULE_VOL>>8), (uint8_t)SENSOR_TYPE_RF_MODULE_VOL, id, packet[4], packet[5] };
+      uint8_t data3[] = { (uint8_t)(SENSOR_TYPE_RF_MODULE_POWER>>8), (uint8_t)SENSOR_TYPE_RF_MODULE_POWER, id, packet[8], packet[9] };
+//      uint8_t data4[] = { (uint8_t)(SENSOR_TYPE_RF_MODULE_RAW>>8), (uint8_t)SENSOR_TYPE_RF_MODULE_RAW, id, packet[6] & 0x07};
+
       processFlySkyAFHDS3Sensor(data1, 1 );
       processFlySkyAFHDS3Sensor(data2, 2 );
+      processFlySkyAFHDS3Sensor(data3, 2 );
+//      processFlySkyAFHDS3Sensor(data4, 1 );
       return;
     }
     else
@@ -243,7 +252,7 @@ void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t len )
   if (SENSOR_TYPE_RX_NOISE == type || SENSOR_TYPE_RX_RSSI == type)
   {
     value  = -value;
-  }
+  }  
 
   if ( (SENSOR_TYPE_EXT_VOL == type) )
   {
@@ -252,7 +261,7 @@ void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t len )
       type = SENSOR_TYPE_BVD;
     }
   }
-  else if(SENSOR_TYPE_RX_RSSI == type || SENSOR_TYPE_RX_NOISE == type || SENSOR_TYPE_RX_SNR == type)
+  else if(SENSOR_TYPE_RX_RSSI == type || SENSOR_TYPE_RX_NOISE == type || SENSOR_TYPE_RX_SNR == type || SENSOR_TYPE_RF_MODULE_POWER == type)
   {
     if( value>=0 )
       value = (value+2)/4;
@@ -278,7 +287,7 @@ void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t len )
 
   if(SENSOR_TYPE_TEMPERATURE == type)
   {
-    value -= 400;// Temperature sensors have 40 degree offset
+    value -= 400; // Temperature sensors have 40 degree offset
   }
 
   for (const FlySkySensor * sensor = flySkySensors; sensor->type; sensor++)
