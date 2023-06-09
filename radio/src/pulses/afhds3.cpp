@@ -358,7 +358,7 @@ static const COMMAND periodicRequestCommands[] =
   COMMAND::VIRTUAL_FAILSAFE // One way failsafe
 };
 
-static const uint8_t AFHDS3_POWER[] = {56, 68, 80, 96, 108, 120, 132};
+static const uint16_t AFHDS3_POWER[] = {56, 68, 80, 96, 108, 120, 132};
 
 //Static collection of afhds3 object instances by module
 static ProtoState protoState[MAX_MODULES];
@@ -854,7 +854,8 @@ bool ProtoState::syncSettings()
   if (checkDirtyFlag(DC_RX_CMD_TX_PWR))  
   {
     TRACE("AFHDS3 [RX_CMD_TX_PWR] %d", AFHDS3_POWER[moduleData->afhds3.rfPower] / 4);
-    uint8_t data[] = { (uint8_t)(RX_CMD_TX_PWR&0xFF), (uint8_t)((RX_CMD_TX_PWR>>8)&0xFF), 1, AFHDS3_POWER[moduleData->afhds3.rfPower] };
+    uint8_t data[] = { (uint8_t)(RX_CMD_TX_PWR&0xFF), (uint8_t)((RX_CMD_TX_PWR>>8)&0xFF), 2,
+                       (uint8_t)(AFHDS3_POWER[moduleData->afhds3.rfPower]&0xFF),  (uint8_t)((AFHDS3_POWER[moduleData->afhds3.rfPower]>>8)&0xFF)};
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     clearDirtyFlag(DC_RX_CMD_TX_PWR);
     return true;
