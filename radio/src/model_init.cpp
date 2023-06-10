@@ -125,9 +125,14 @@ void applyDefaultTemplate()
       g_model.switchWarningState |= (1 << (3 * i));
     }
   }
+#else
+  // enable switch warnings
+  for (int i = 0; i < MAX_SWITCHES; i++) {
+    if (SWITCH_WARNING_ALLOWED(i))
+      g_model.switchWarningState |= (1 << (3 * i));
+  }
 #endif
 
-  // TODO: what about switch warnings in non-color LCD radios?
 }
 
 
