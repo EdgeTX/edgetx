@@ -462,6 +462,35 @@
 #define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
 #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
 
+// Internal Module
+#define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_DMA1)
+#define INTMODULE_PWR_GPIO              GPIOH
+#define INTMODULE_PWR_GPIO_PIN          GPIO_Pin_9  // PH.09
+#define INTMODULE_GPIO                  GPIOF
+#define INTMODULE_TX_GPIO_PIN           LL_GPIO_PIN_7  // PF.07
+#define INTMODULE_RX_GPIO_PIN           LL_GPIO_PIN_6  // PF.06
+#define INTMODULE_USART                 UART7
+#define INTMODULE_GPIO_AF               GPIO_AF_UART7
+#define INTMODULE_GPIO_AF_LL            LL_GPIO_AF_8
+#define INTMODULE_USART_IRQn            UART7_IRQn
+#define INTMODULE_USART_IRQHandler      UART7_IRQHandler
+#define INTMODULE_DMA                   DMA1
+#define INTMODULE_DMA_STREAM            LL_DMA_STREAM_1
+#define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream1_IRQn
+#define INTMODULE_DMA_FLAG_TC           DMA_IT_TCIF1
+#define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_5
+
+#define INTMODULE_RX_DMA                DMA1
+#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_3
+#define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
+// #define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
+// #define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream_IRQHandler
+
+#define INTMODULE_TIMER                 TIM3
+#define INTMODULE_TIMER_IRQn            TIM3_IRQn
+#define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
+#define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
+
 // External Module
 #define EXTMODULE
 #define EXTMODULE_PULSES
