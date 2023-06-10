@@ -25,6 +25,7 @@
 #include "datastructs.h"
 #include "libopenui/src/bitfield.h"
 #include "storage/yaml/yaml_defs.h"
+#include "hal/switch_driver.h"
 
 #if defined(SDCARD_YAML)
   #define EEPROM_VER           221
