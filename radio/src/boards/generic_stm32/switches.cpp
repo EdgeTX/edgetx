@@ -88,6 +88,7 @@ uint8_t switchGetMaxFctSwitches()
 uint32_t switchState(uint8_t pos_idx)
 {
   auto d = div(pos_idx, 3);
+  if (d.quot >= n_total_switches) return 0;
   return stm32_switch_get_state(&_switch_defs[d.quot], (SwitchHwPos)d.rem);
 }
 

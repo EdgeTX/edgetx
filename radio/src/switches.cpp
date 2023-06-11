@@ -280,7 +280,7 @@ static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
     break;
 
   case SWITCH_HW_MID:
-    if (startup || SWITCH_POSITION(index) ||
+    if (startup || SWITCH_POSITION(index + 1) ||
         g_eeGeneral.switchesDelay == SWITCHES_DELAY_NONE ||
         (switchesMidposStart[idx] &&
          (tmr10ms_t)(get_tmr10ms() - switchesMidposStart[idx]) >
@@ -308,6 +308,7 @@ void getSwitchesPosition(bool startup)
 {
   uint64_t newPos = 0;
   for (unsigned i = 0; i < switchGetMaxSwitches(); i++) {
+    if (!SWITCH_EXISTS(i)) continue;
     newPos |= checkSwitchPosition(i, startup);
   }
   
@@ -570,8 +571,14 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
     if (cs_idx < max_reg_pos) {
       if (flags & GETSWITCH_MIDPOS_DELAY)
         result = SWITCH_POSITION(cs_idx);
-      else
-        result = switchState(cs_idx);
+      else {
+        div_t qr = div(cs_idx, 3);
+        if (SWITCH_EXISTS(qr.quot)) {
+          result = switchState(cs_idx);
+        } else {
+          result = false;
+        }
+      }
     }
 #if defined(FUNCTION_SWITCHES)
     else if (cs_idx - max_reg_pos < switchGetMaxFctSwitches() * 3) {
