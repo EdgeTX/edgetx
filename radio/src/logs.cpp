@@ -102,15 +102,10 @@ void initLoggingTimer() {                                       // called cyclic
 
 void writeHeader();
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
-  int getSwitchState(uint8_t swtch) {
-    int value = getValue(MIXSRC_FIRST_SWITCH + swtch);
-    return (value == 0) ? 0 : (value < 0) ? -1 : +1;
-  }
-#else
-  #define GET_2POS_STATE(sw) (switchState(SW_ ## sw) ? -1 : 1)
-  #define GET_3POS_STATE(sw) (switchState(SW_ ## sw ## 0) ? -1 : (switchState(SW_ ## sw ## 2) ? 1 : 0))
-#endif
+int getSwitchState(uint8_t swtch) {
+  int value = getValue(MIXSRC_FIRST_SWITCH + swtch);
+  return (value == 0) ? 0 : (value < 0) ? -1 : +1;
+}
 
 void logsInit()
 {
