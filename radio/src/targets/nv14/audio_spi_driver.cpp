@@ -81,9 +81,6 @@
 
 #define AUDIO_OFF_TIMEOUT 5
 
-static tmr10ms_t lastHasAudioBufferTime = 0;
-static bool isAudioOn = false;
-
 void audioSpiInit(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -362,38 +359,84 @@ void audioSendRiffHeader()
   audioSpiWriteBuffer(RiffHeader, sizeof(RiffHeader));
 }
 
-#if defined(PCBX12S) || defined(PCBNV14)
-
-void audioOn()
+#if defined(AUDIO_MUTE_GPIO_PIN)
+static inline void setMutePin(bool enabled)
 {
-  GPIO_SetBits(AUDIO_SHUTDOWN_GPIO, AUDIO_SHUTDOWN_GPIO_PIN);
-  isAudioOn = true;
+  if (enabled) {
+#if defined(INVERTED_MUTE_PIN)
+    GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#else
+    GPIO_SetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#endif
+  } else {
+#if defined(INVERTED_MUTE_PIN)
+    GPIO_SetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#else
+    GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#endif
+  }
 }
 
-void audioOff()
+static inline bool getMutePin(void)
 {
-  GPIO_ResetBits(AUDIO_SHUTDOWN_GPIO, AUDIO_SHUTDOWN_GPIO_PIN);
-  isAudioOn = false;
+#if defined(INVERTED_MUTE_PIN)
+  return !GPIO_ReadOutputDataBit(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#else
+  return GPIO_ReadOutputDataBit(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+#endif  
 }
 
-void audioShutdownInit()
+void audioMute()
+{
+#if defined(AUDIO_UNMUTE_DELAY)
+  tmr10ms_t now = get_tmr10ms();
+  if (!audioQueue.lastAudioPlayTime) {
+    // we start the mute delay now
+    audioQueue.lastAudioPlayTime = now;
+  }
+  else if (now - audioQueue.lastAudioPlayTime > AUDIO_MUTE_DELAY / 10) {
+    // delay expired, we may mute
+  setMutePin(true);
+  }
+#else
+  // mute
+  setMutePin(true);
+#endif
+}
+
+void audioUnmute()
+{
+#if defined(AUDIO_UNMUTE_DELAY)
+  // if muted
+  if (getMutePin()) {
+    // ..un-mute
+    setMutePin(false);
+    RTOS_WAIT_MS(AUDIO_UNMUTE_DELAY);
+  }
+  // reset the mute delay
+  audioQueue.lastAudioPlayTime = 0;
+#else
+  setMutePin(false);
+#endif
+}
+
+void audioMuteInit()
 {
   GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = AUDIO_SHUTDOWN_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Pin = AUDIO_MUTE_GPIO_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(AUDIO_SHUTDOWN_GPIO, &GPIO_InitStructure);
-  GPIO_ResetBits(AUDIO_SHUTDOWN_GPIO, AUDIO_SHUTDOWN_GPIO_PIN);
+  GPIO_Init(AUDIO_MUTE_GPIO, &GPIO_InitStructure);
+  GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
 }
 #endif
 
 void audioInit()
 {
 #if defined(PCBX12S) || defined(PCBNV14)
-  audioShutdownInit();
-  // TODO X10 code missing
+  audioMuteInit();
 #endif
 
   audioSpiInit();
@@ -434,11 +477,9 @@ void audioConsumeCurrentBuffer()
   }
 
   if (currentBuffer) {
-    if (!isAudioOn) {
-      audioOn();
-      TRACE("Audio On");
-    }
-    lastHasAudioBufferTime = get_tmr10ms();
+#if defined(AUDIO_MUTE_GPIO_PIN)
+      audioUnmute();
+#endif
     uint32_t written = audioSpiWriteData(currentBuffer, currentSize);
     currentBuffer += written;
     currentSize -= written;
@@ -448,13 +489,11 @@ void audioConsumeCurrentBuffer()
       currentSize = 0;
     }
   }
-  else if (isAudioOn) {
-    if (get_tmr10ms() - lastHasAudioBufferTime > AUDIO_OFF_TIMEOUT)
-    {
-      audioOff();
-      TRACE("Audio Off");
+#if defined(AUDIO_MUTE_GPIO_PIN)
+    else {
+      audioMute();
     }
-  }
+#endif
 }
 
 // adjust this value for a volume level just above the silence
