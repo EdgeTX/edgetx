@@ -126,7 +126,6 @@ enum
 
   AFHDS3_FRM_TEMP           = 0x57,    //virtual
   AFHDS3_FRM_EXT_V          = 0x58,    //virtual
-  AFHDS2A_ID_PRES = 0x41,    // Pressure
 
   AFHDS2A_ID_TX_V = 0x7F,    // TX Voltage
 
@@ -398,8 +397,8 @@ void processFlySkyPacket(const uint8_t * packet)
   setFlyskyTelemetryValue(AFHDS2A_ID_TX_RSSI, 0, packet[0], UNIT_RAW, 0);
 
   const uint8_t * buffer = packet + 1;
-  int sesnor = 0;
-  while (sesnor++ < 7) {
+  int sensor = 0;
+  while (sensor++ < 7) {
     if (*buffer == SENSOR_TYPE_END) break;
     processFlySkySensor(buffer, 0xAA);
     buffer += 4;
