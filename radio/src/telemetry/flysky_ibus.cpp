@@ -331,7 +331,7 @@ void processFlySkySensor(const uint8_t * packet, uint8_t type)
     telemetryData.rssi.set(value);
     if(value>0) telemetryStreaming = TELEMETRY_TIMEOUT10ms;
   }
-  else if (id == AFHDS2A_ID_PRES && value) {
+  else if (id == SENSOR_TYPE_PRES && value) {
     // Extract temperature to a new sensor
     setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_IBUS, id | 0x100, 0, instance, ((value >> 19) - 400), UNIT_CELSIUS, 1);
     // Extract alt to a new sensor
