@@ -345,6 +345,7 @@
 #define AUDIO_MUTE_GPIO_PIN           GPIO_Pin_8  // PH.08 audio amp control pin
 #define AUDIO_UNMUTE_DELAY            120  // ms
 #define AUDIO_MUTE_DELAY              500  // ms
+#define INVERTED_MUTE_PIN
 
 // I2C Bus
 #define I2C_B1                        I2C1
