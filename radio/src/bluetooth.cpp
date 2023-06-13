@@ -268,7 +268,7 @@ void Bluetooth::sendTrainer()
     pushByte(((channelValue1 & 0x0f00) >> 4) + ((channelValue2 & 0x00f0) >> 4));
     pushByte(((channelValue2 & 0x000f) << 4) + ((channelValue2 & 0x0f00) >> 8));
   }
-  buffer[bufferIndex++] = crc;
+  buffer[bufferIndex++] = pushByte(crc);
   buffer[bufferIndex++] = START_STOP; // end byte
 
   write(buffer, bufferIndex);
@@ -293,7 +293,7 @@ void Bluetooth::forwardTelemetry(const uint8_t * packet)
   for (uint8_t i=0; i<sizeof(SportTelemetryPacket); i++) {
     pushByte(packet[i]);
   }
-  buffer[bufferIndex++] = crc;
+  buffer[bufferIndex++] = pushbyte(crc);
   buffer[bufferIndex++] = START_STOP; // end byte
 
   if (bufferIndex >= 2*FRSKY_SPORT_PACKET_SIZE) {
