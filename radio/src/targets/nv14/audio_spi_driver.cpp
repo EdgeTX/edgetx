@@ -79,8 +79,6 @@
 
 #define READ_DREQ()                    (GPIO_ReadInputDataBit(AUDIO_DREQ_GPIO, AUDIO_DREQ_GPIO_PIN))
 
-#define AUDIO_OFF_TIMEOUT 5
-
 void audioSpiInit(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -383,7 +381,7 @@ static inline bool getMutePin(void)
   return !GPIO_ReadOutputDataBit(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
 #else
   return GPIO_ReadOutputDataBit(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-#endif  
+#endif
 }
 
 void audioMute()
@@ -393,10 +391,9 @@ void audioMute()
   if (!audioQueue.lastAudioPlayTime) {
     // we start the mute delay now
     audioQueue.lastAudioPlayTime = now;
-  }
-  else if (now - audioQueue.lastAudioPlayTime > AUDIO_MUTE_DELAY / 10) {
+  } else if (now - audioQueue.lastAudioPlayTime > AUDIO_MUTE_DELAY / 10) {
     // delay expired, we may mute
-  setMutePin(true);
+    setMutePin(true);
   }
 #else
   // mute
@@ -478,7 +475,7 @@ void audioConsumeCurrentBuffer()
 
   if (currentBuffer) {
 #if defined(AUDIO_MUTE_GPIO_PIN)
-      audioUnmute();
+    audioUnmute();
 #endif
     uint32_t written = audioSpiWriteData(currentBuffer, currentSize);
     currentBuffer += written;
@@ -490,9 +487,9 @@ void audioConsumeCurrentBuffer()
     }
   }
 #if defined(AUDIO_MUTE_GPIO_PIN)
-    else {
-      audioMute();
-    }
+  else {
+    audioMute();
+  }
 #endif
 }
 
@@ -508,7 +505,7 @@ void setScaledVolume(uint8_t volume)
   }
   // maximum volume is 0x00 and total silence is 0xFE
   if (volume == 0) {
-    setVolume(0xFE);  // silence  
+    setVolume(0xFE);  // silence
   }
   else {
     uint32_t vol = (VOLUME_MIN_DB * 2) - ((uint32_t)volume * (VOLUME_MIN_DB * 2)) / VOLUME_LEVEL_MAX;
