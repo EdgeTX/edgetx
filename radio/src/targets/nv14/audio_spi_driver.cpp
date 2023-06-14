@@ -435,7 +435,7 @@ void audioMuteInit()
 
 void audioInit()
 {
-#if defined(PCBX12S) || defined(PCBNV14)
+#if defined(AUDIO_MUTE_GPIO_PIN)
   audioMuteInit();
 #endif
 
