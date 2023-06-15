@@ -496,8 +496,8 @@
 #define TR_HEARTBEAT_LABEL             "Heartbeat"
 #define TR_LUA_SCRIPTS_LABEL           "Lua scripts"
 #define TR_FREE_MEM_LABEL              "Free mem"
-#define TR_DURATION_MS             TR("[D]","Duration(ms): ")
-#define TR_INTERVAL_MS             TR("[I]","Interval(ms): ")
+#define TR_DURATION_MS             TR("[D]","Dauer(ms): ")
+#define TR_INTERVAL_MS             TR("[I]","Intervall(ms): ")
 #define TR_MEM_USED_SCRIPT         "Script(B): "
 #define TR_MEM_USED_WIDGET         "Widget(B): "
 #define TR_MEM_USED_EXTRA          "Extra(B): "
@@ -507,7 +507,7 @@
 #define TR_GPS_FIX_NO                  "Fix: No"
 #define TR_GPS_SATS                    "Sats: "
 #define TR_GPS_HDOP                    "Hdop: "
-#define TR_STACK_MENU                  "Menu: "
+#define TR_STACK_MENU                  "Menü: "
 #define TR_TIMER_LABEL                 "Timer"
 #define TR_THROTTLE_PERCENT_LABEL      "Gas %"
 #define TR_BATT_LABEL                  "Battery"
@@ -1155,7 +1155,7 @@
 #define TR_TELEMETRYFULL               TR("Telem voll!", "Telemetriezeilen voll!")
 #define TR_INVERTED_SERIAL             INDENT "Invert."
 #define TR_IGNORE_INSTANCE             TR(INDENT "No Inst.", INDENT "Ignor. Instanzen")
-#define TR_SHOW_INSTANCE_ID            "Show instance ID"
+#define TR_SHOW_INSTANCE_ID            "zeige Instanz ID"
 #define TR_DISCOVER_SENSORS            "Start Sensorsuche"
 #define TR_STOP_DISCOVER_SENSORS       "Stop Sensorsuche"
 #define TR_DELETE_ALL_SENSORS          "Lösche alle Sensoren"
@@ -1257,37 +1257,37 @@
 #define TR_VOICE_HEBREW                "Hebräisch"
 
 #define TR_USBJOYSTICK_LABEL           "USB Joystick"
-#define TR_USBJOYSTICK_EXTMODE         "Mode"
-#define TR_VUSBJOYSTICK_EXTMODE        "Classic","Advanced"
-#define TR_USBJOYSTICK_SETTINGS        "Channel Settings"
-#define TR_USBJOYSTICK_IF_MODE         TR("If. mode","Interface mode")
-#define TR_VUSBJOYSTICK_IF_MODE        "Joystick","Gamepad","MultiAxis"
-#define TR_USBJOYSTICK_CH_MODE         "Mode"
-#define TR_VUSBJOYSTICK_CH_MODE        "None","Btn","Axis","Sim"
+#define TR_USBJOYSTICK_EXTMODE         "Modus"
+#define TR_VUSBJOYSTICK_EXTMODE        "Klassisch","Erweitert"
+#define TR_USBJOYSTICK_SETTINGS        "Kanal Einstellungen"
+#define TR_USBJOYSTICK_IF_MODE         TR("If.Modus","Interface Modus")
+#define TR_VUSBJOYSTICK_IF_MODE        "Joystick","Gamepad","MultiAchsen"
+#define TR_USBJOYSTICK_CH_MODE         "Modus"
+#define TR_VUSBJOYSTICK_CH_MODE        "Kein","Tasten","Achse","Sim"
 #define TR_VUSBJOYSTICK_CH_MODE_S      "-","B","A","S"
-#define TR_USBJOYSTICK_CH_BTNMODE      "Button Mode"
-#define TR_VUSBJOYSTICK_CH_BTNMODE     "Normal","Pulse","SWEmu","Delta","Companion"
-#define TR_VUSBJOYSTICK_CH_BTNMODE_S   TR("Norm","Normal"),TR("Puls","Pulse"),TR("SWEm","SWEmul"),TR("Delt","Delta"),TR("CPN","Companion")
-#define TR_USBJOYSTICK_CH_SWPOS        "Positions"
-#define TR_VUSBJOYSTICK_CH_SWPOS       "Push","2POS","3POS","4POS","5POS","6POS","7POS","8POS"
-#define TR_USBJOYSTICK_CH_AXIS         "Axis"
-#define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","rotX","rotY","rotZ","Slider","Dial","Wheel"
-#define TR_USBJOYSTICK_CH_SIM          "Sim axis"
-#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr"
-#define TR_USBJOYSTICK_CH_INVERSION    "Inversion"
-#define TR_USBJOYSTICK_CH_BTNNUM       "Button no."
-#define TR_USBJOYSTICK_BTN_COLLISION   "!Button no. collision!"
-#define TR_USBJOYSTICK_AXIS_COLLISION  "!Axis collision!"
+#define TR_USBJOYSTICK_CH_BTNMODE      "Tasten Modus"
+#define TR_VUSBJOYSTICK_CH_BTNMODE     "Normal","Puls","SWEmu","Delta","Companion"
+#define TR_VUSBJOYSTICK_CH_BTNMODE_S   TR("Norm","Normal"),TR("Puls","Puls"),TR("SWEm","SWEmul"),TR("Delt","Delta"),TR("CPN","Companion")
+#define TR_USBJOYSTICK_CH_SWPOS        "Positionen"
+#define TR_VUSBJOYSTICK_CH_SWPOS       "Drücken","2POS","3POS","4POS","5POS","6POS","7POS","8POS"
+#define TR_USBJOYSTICK_CH_AXIS         "Achse"
+#define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","rotX","rotY","rotZ","Schieber","Dial","Rad"
+#define TR_USBJOYSTICK_CH_SIM          "Sim Achse"
+#define TR_VUSBJOYSTICK_CH_SIM         "Que","Höh","Sei","Gas"
+#define TR_USBJOYSTICK_CH_INVERSION    "Invers"
+#define TR_USBJOYSTICK_CH_BTNNUM       "Tastennr."
+#define TR_USBJOYSTICK_BTN_COLLISION   "!Tastennr. Kollision!"
+#define TR_USBJOYSTICK_AXIS_COLLISION  "!Achsen Kollision!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Circ. cut", "Circular cutout")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "None","X-Y, Z-rX","X-Y, rX-rY"
-#define TR_USBJOYSTICK_APPLY_CHANGES   "Apply changes"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "kein","X-Y, Z-rX","X-Y, rX-rY"
+#define TR_USBJOYSTICK_APPLY_CHANGES   "Änd. übernehmen"
 
 #define TR_DIGITAL_SERVO          "Servo333HZ"
 #define TR_ANALOG_SERVO           "Servo 50HZ"
-#define TR_SIGNAL_OUTPUT          "Signal output"
-#define TR_SERIAL_BUS             "Serial bus"
+#define TR_SIGNAL_OUTPUT          "Signal Ausgang"
+#define TR_SERIAL_BUS             "Serialbus"
 #define TR_SYNC                   "Sync"
 
-#define TR_VIEW_OPTIONS           "Enabled Features"
-#define TR_RADIO_MENU_TABS        "Radio Menu Tabs"
-#define TR_MODEL_MENU_TABS        "Model Menu Tabs"
+#define TR_ENABLED_FEATURES       "Menüpunkte"
+#define TR_RADIO_MENU_TABS        "Sender Menüpunkte"
+#define TR_MODEL_MENU_TABS        "Modell Menüpunkte"

@@ -140,7 +140,9 @@ static void sbusSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
   auto drv_ctx = modulePortGetCtx(mod_st->tx);
 
   // TODO: check if the port has an inverter and use it instead 
-  drv->setPolarity(drv_ctx, GET_SBUS_POLARITY(module));
+  if(drv->setPolarity)
+    drv->setPolarity(drv_ctx, GET_SBUS_POLARITY(module));
+    
   drv->sendBuffer(drv_ctx, buffer, p_data - buffer);
 
   // SBUS_PERIOD is not a constant! It can be set from UI

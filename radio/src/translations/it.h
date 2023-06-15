@@ -1154,7 +1154,7 @@
 #define TR_TELEMETRYFULL                "Tutti gli slot sono pieni!"
 #define TR_INVERTED_SERIAL              INDENT "Invert."
 #define TR_IGNORE_INSTANCE              TR(INDENT "No inst.", INDENT "Ignora instanza")
-#define TR_SHOW_INSTANCE_ID             "Show instance ID"
+#define TR_SHOW_INSTANCE_ID             "Mostra ID dell'istanza"
 #define TR_DISCOVER_SENSORS             "Cerca nuovi sensori"
 #define TR_STOP_DISCOVER_SENSORS        "Ferma ricerca"
 #define TR_DELETE_ALL_SENSORS           "Elimina tutti i sensori"
@@ -1280,13 +1280,13 @@
 #define TR_VUSBJOYSTICK_CIRC_COUTOUT   "Nessuno","X-Y, Z-rX","X-Y, rX-rY"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "Applica modifiche"
 
-#define TR_DIGITAL_SERVO               "Servo333HZ"
+#define TR_DIGITAL_SERVO               "Servo 333HZ"
 #define TR_ANALOG_SERVO                "Servo 50HZ"
 #define TR_SIGNAL_OUTPUT               "Segnale d'uscita"
 #define TR_SERIAL_BUS                  "Bus seriale"
-#define TR_SYNC                        "Sync"
+#define TR_SYNC                        "Sincronismo"
 
-#define TR_VIEW_OPTIONS           "Enabled Features"
-#define TR_RADIO_MENU_TABS        "Radio Menu Tabs"
-#define TR_MODEL_MENU_TABS        "Model Menu Tabs"
+#define TR_ENABLED_FEATURES            "Funzionalità abilitate"
+#define TR_RADIO_MENU_TABS             "Schede del Menu Radio"
+#define TR_MODEL_MENU_TABS             "Schede del Menu Modello"
 

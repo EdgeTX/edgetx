@@ -1302,6 +1302,6 @@
 #define TR_SERIAL_BUS             "Seriel bus"
 #define TR_SYNC                   "Synk"
 
-#define TR_VIEW_OPTIONS           "Enabled Features"
-#define TR_RADIO_MENU_TABS        "Radio Menu Tabs"
-#define TR_MODEL_MENU_TABS        "Model Menu Tabs"
+#define TR_ENABLED_FEATURES       "Aktiverede funktioner"
+#define TR_RADIO_MENU_TABS        "Radio menu tab"
+#define TR_MODEL_MENU_TABS        "Model menu tab"

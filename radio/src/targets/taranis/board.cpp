@@ -307,7 +307,7 @@ void boardOff()
   }
 #endif
 
-#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2)
+#if defined(MANUFACTURER_RADIOMASTER) && defined(STM32F407xx)
   lcdInit(); 
 #endif
 
