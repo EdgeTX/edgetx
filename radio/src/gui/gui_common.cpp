@@ -476,6 +476,14 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
   return true;
 }
 
+bool hasSportPower() {
+  auto mod_desc = modulePortGetModuleDescription(SPORT_MODULE);
+  if (mod_desc && mod_desc->set_pwr) {
+    return true;
+  }
+  return false;
+}
+
 bool isSwitchAvailableInLogicalSwitches(int swtch)
 {
   return isSwitchAvailable(swtch, LogicalSwitchesContext);
@@ -1123,6 +1131,7 @@ int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable)
   }
   return retval;
 }
+
 #if defined(MULTIMODULE)
 
 const uint8_t getMaxMultiOptions()
