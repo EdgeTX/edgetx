@@ -322,8 +322,6 @@
 // Audio
 #define AUDIO_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOH)
 #define AUDIO_RCC_APB2Periph          RCC_APB2Periph_SPI1
-#define AUDIO_SHUTDOWN_GPIO           GPIOH
-#define AUDIO_SHUTDOWN_GPIO_PIN       GPIO_Pin_8  // PH.08 audio amp control pin
 #define AUDIO_XDCS_GPIO               GPIOH
 #define AUDIO_XDCS_GPIO_PIN           GPIO_Pin_14  // PH.14
 #define AUDIO_CS_GPIO                 GPIOH
@@ -343,6 +341,11 @@
 #define AUDIO_SPI_MOSI_GPIO           GPIOB
 #define AUDIO_SPI_MOSI_GPIO_PIN       GPIO_Pin_5  // PB.05
 #define AUDIO_SPI_MOSI_GPIO_PinSource GPIO_PinSource5
+#define AUDIO_MUTE_GPIO               GPIOH
+#define AUDIO_MUTE_GPIO_PIN           GPIO_Pin_8  // PH.08 audio amp control pin
+#define AUDIO_UNMUTE_DELAY            120  // ms
+#define AUDIO_MUTE_DELAY              500  // ms
+#define INVERTED_MUTE_PIN
 
 // I2C Bus
 #define I2C_B1                        I2C1
