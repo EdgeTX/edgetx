@@ -1255,7 +1255,7 @@
 #define TR_GREEN                        "Grön"
 #define TR_COLOR_PICKER                 "Färgväljare"
 #define TR_EDIT_THEME_DETAILS           "Ändra temainformation"
-#define TR_THEME_COLOR_DEFAULT          "FÖRVALD"
+#define TR_THEME_COLOR_DEFAULT          "DEFAULT"
 #define TR_THEME_COLOR_PRIMARY1         "PRIMÄR1"
 #define TR_THEME_COLOR_PRIMARY2         "PRIMÄR2"
 #define TR_THEME_COLOR_PRIMARY3         "PRIMÄR3"
