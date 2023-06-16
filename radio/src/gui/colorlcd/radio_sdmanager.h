@@ -39,6 +39,9 @@ class RadioSdManagerPage : public PageTab
   void fileAction(const char* path, const char* name, const char* fullpath);
   
   void BootloaderUpdate(const char* fn);
+#if defined(BLUETOOTH)
+  void BluetoothFirmwareUpdate(const char* fn);
+#endif
   void FrSkyFirmwareUpdate(const char* fn, ModuleIndex module);
   void MultiFirmwareUpdate(const char* fn, ModuleIndex module,
                            MultiModuleType type);
