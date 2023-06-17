@@ -112,10 +112,9 @@
 
 // Index of all switches / trims
 #define KEYS_RCC_AHB1Periph             (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOJ)
-#define KEYS_GPIOB_PINS                 (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_14)
-#define KEYS_GPIOC_PINS                 (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_13 ) /* PC8 allocated to SDIO D0, is not required to sample SWA ! */
+#define KEYS_GPIOB_PINS                 (GPIO_Pin_15)
+#define KEYS_GPIOC_PINS                 (GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_13 ) // PC8 allocated to SDIO D0, is not required to sample SWA !
 #define KEYS_GPIOD_PINS                 (GPIO_Pin_7)
-#define KEYS_GPIOF_PINS                 (GPIO_Pin_10)
 #define KEYS_GPIOH_PINS                 (GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11)
 #define KEYS_GPIOJ_PINS                 (GPIO_Pin_12)
 #define KEYS_OUT_GPIOG_PINS             (GPIO_Pin_2 | GPIO_Pin_10 | GPIO_Pin_11)
@@ -464,8 +463,8 @@
 
 // Internal Module
 #define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_DMA1)
-#define INTMODULE_PWR_GPIO              GPIOH
-#define INTMODULE_PWR_GPIO_PIN          GPIO_Pin_9  // PH.09
+#define INTMODULE_PWR_GPIO              GPIOI
+#define INTMODULE_PWR_GPIO_PIN          GPIO_Pin_0  // PI.00
 #define INTMODULE_GPIO                  GPIOF
 #define INTMODULE_TX_GPIO_PIN           LL_GPIO_PIN_7  // PF.07
 #define INTMODULE_RX_GPIO_PIN           LL_GPIO_PIN_6  // PF.06

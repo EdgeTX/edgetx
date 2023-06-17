@@ -317,9 +317,6 @@ void keysInit()
   GPIO_InitStructure.GPIO_Pin = KEYS_GPIOD_PINS;
   GPIO_Init(GPIOD, &GPIO_InitStructure);
 
-  GPIO_InitStructure.GPIO_Pin = KEYS_GPIOF_PINS;
-  GPIO_Init(GPIOF, &GPIO_InitStructure);
-
   GPIO_InitStructure.GPIO_Pin = KEYS_GPIOH_PINS;
   GPIO_Init(GPIOH, &GPIO_InitStructure);
 
