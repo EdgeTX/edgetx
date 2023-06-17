@@ -179,12 +179,14 @@ class ThemedButton : public TextButton
 class ThemedTextEdit : public TextEdit
 {
   public:
-    ThemedTextEdit(Window *parent, const rect_t &rect, char *text, 
+    ThemedTextEdit(Window *parent, const rect_t &rect, const char *text, 
                    int colorBackgroundIndex, int colorTextIndex) :
-      TextEdit(parent, rect, text, strlen(text), NO_FOCUS),
+      TextEdit(parent, rect, editText, strlen(text), NO_FOCUS),
       _colorBackgroundIndex(colorBackgroundIndex),
       _colorTextIndex(colorTextIndex)
     {
+      strcpy(editText, text);
+      update();
     }
 
     void paint(BitmapBuffer *dc) override
@@ -192,7 +194,7 @@ class ThemedTextEdit : public TextEdit
       colorMaintainer.applyColorValues();
       lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR(_colorBackgroundIndex)), LV_PART_MAIN);
       lv_obj_set_style_text_color(lvobj, lv_color_white(), LV_PART_MAIN);
-      FormField::paint(dc);
+      TextEdit::paint(dc);
       colorMaintainer.restoreColorValues();
     }
 
@@ -213,8 +215,8 @@ class ThemedTextEdit : public TextEdit
   protected:
     int _colorBackgroundIndex;
     int _colorTextIndex;
+    char editText[50];
 };
-
 
 // display controls using the appropriate theme.
 class PreviewWindow : public FormGroup
@@ -224,25 +226,24 @@ class PreviewWindow : public FormGroup
                 std::vector<ColorEntry> colorList) :
       FormGroup(window, rect, NO_FOCUS), _colorList(colorList)
   {
+
     // reset default group to avoid focus
     lv_group_t* def_group = lv_group_get_default();
     lv_group_set_default(nullptr);
 
-    new ThemedStaticText(this, {5, 40, 100, LINE_HEIGHT}, "Checkbox", COLOR_THEME_PRIMARY1_INDEX);
+    new ThemedStaticText(this, {5, 40, 100, LINE_HEIGHT}, STR_THEME_CHECKBOX, COLOR_THEME_PRIMARY1_INDEX);
     new ThemedCheckBox(this, {100 + 15, 40, 20, LINE_HEIGHT}, true);
     new ThemedCheckBox(this, {140 + 15, 40, 20, LINE_HEIGHT}, false);
-    new ThemedButton(this, {190, 40, 100, LINE_HEIGHT + 10}, "Active", true, BUTTON_CHECKED, COLOR_THEME_PRIMARY1_INDEX);
-    new ThemedButton(this, {190, 75, 100, LINE_HEIGHT + 10}, "Regular", false, 0, COLOR_THEME_PRIMARY1_INDEX);
+    new ThemedButton(this, {190, 40, 100, LINE_HEIGHT + 10}, STR_THEME_ACTIVE, true, BUTTON_CHECKED, COLOR_THEME_PRIMARY1_INDEX);
+    new ThemedButton(this, {190, 75, 100, LINE_HEIGHT + 10}, STR_THEME_REGULAR, false, 0, COLOR_THEME_PRIMARY1_INDEX);
     new ThemedMainViewHorizontalTrim(this, {5, 65, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
     new ThemedMainViewHorizontalSlider(this, {5, 87, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
-    new ThemedStaticText(this, {5, 115, 100, LINE_HEIGHT}, "Warning Text", COLOR_THEME_WARNING_INDEX);
-    new ThemedStaticText(this, {5, 140, 100, LINE_HEIGHT}, "Disabled Text", COLOR_THEME_DISABLED_INDEX);
+    new ThemedStaticText(this, {5, 115, 100, LINE_HEIGHT}, STR_THEME_WARNING, COLOR_THEME_WARNING_INDEX);
+    new ThemedStaticText(this, {5, 140, 100, LINE_HEIGHT}, STR_THEME_DISABLED, COLOR_THEME_DISABLED_INDEX);
 
-    static char EditText[] = "Edit";
-    new ThemedTextEdit(this, {5, 160, 100, LINE_HEIGHT + 1}, EditText, 
+    new ThemedTextEdit(this, {5, 160, 100, LINE_HEIGHT + 1}, STR_THEME_EDIT, 
                        COLOR_THEME_EDIT_INDEX, COLOR_THEME_PRIMARY2_INDEX);
-    static char FocusText[] = "Focus";
-    new ThemedTextEdit(this, {110, 160, 100, LINE_HEIGHT + 1}, FocusText, 
+    new ThemedTextEdit(this, {110, 160, 100, LINE_HEIGHT + 1}, STR_THEME_FOCUS, 
                        COLOR_THEME_FOCUS_INDEX, COLOR_THEME_PRIMARY2_INDEX);
     ticks = 0;
 
