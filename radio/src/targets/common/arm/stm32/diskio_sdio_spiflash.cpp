@@ -51,6 +51,7 @@ size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
 size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size);
 uint16_t flashSpiGetPageSize();
 size_t flashSpiGetSize();
+uint32_t flashSpiGetBlockCount();
 
 int flashSpiErase(size_t address);
 int flashSpiBlockErase(size_t address);
@@ -106,11 +107,16 @@ DSTATUS disk_initialize (
     if(!tjftl_detect(flashRead, nullptr))
       flashSpiEraseAll();
 
-    size_t flashSize = flashSpiGetSize();
-    // tjftl requires at least 10 free blocks after garbage collection.  Give it 16 free blocks.
-    // To ensure a working tjftl the fuilesystem must be at least 10 blocks smaller than the flash memory.
-    // the block and sector sizes used by tjftl are fixed. A block has 32k bytes and a sector has 512 bytes
-    tjftl = tjftl_init(flashRead, flashErase, flashWrite, nullptr, flashSize, (flashSize - 32768 * 16)/512, 0);
+    int flashSize = flashSpiGetSize();
+    int flashSizeMB = flashSize  / 1024 / 1024;
+    int blockCount = flashSpiGetBlockCount();
+    
+    // tjftl requires 1/64 overhead and some blocks for GC (at least 10)
+    // However, if give it more GC blocks, it can help to reduce wearing level and improve performance
+    // Simulation is done to give a balanace between wearing and overhead
+    int overheadBlockCount = blockCount / 64 + (flashSizeMB >= 32 ? flashSizeMB * 2 : 32);
+
+    tjftl = tjftl_init(flashRead, flashErase, flashWrite, nullptr, flashSize, (flashSize - overheadBlockCount * 32768)/512, 0);
 
     if(tjftl == nullptr)
       stat |= STA_NOINIT;
