@@ -169,6 +169,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 
   node["backlightMode"] = backlightModeLut << std::abs(rhs.backlightMode);
   node["trainer"] = rhs.trainer;
+  node["PPM_Multiplier"] = rhs.PPM_Multiplier;
   node["view"] = rhs.view;
   node["fai"] = (int)rhs.fai;
   node["disableMemoryWarning"] = (int)rhs.disableMemoryWarning;
@@ -375,6 +376,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   node["backlightMode"] >> backlightModeLut >> rhs.backlightMode;
   node["trainer"] >> rhs.trainer;
+  node["PPM_Multiplier"] >> rhs.PPM_Multiplier;
   node["view"] >> rhs.view;
   node["fai"] >> rhs.fai;
   node["disableMemoryWarning"] >> rhs.disableMemoryWarning;
