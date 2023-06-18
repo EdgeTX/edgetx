@@ -124,6 +124,8 @@ enum SpektrumDataType : uint8_t {
   uint8bcd,
   uint16bcd,
   uint32bcd,
+  int16le,
+  int32le,
   uint16le,
   uint32le,
   custom
@@ -252,12 +254,12 @@ const SpektrumSensor spektrumSensors[] = {
   // The difference with sensor 0x18 (RX capacity monitor) is the consumption magnitude. 
   // RX (0x18) is up to 3.2A, and flight pack is up to 32A (x 10 or 1 decimal place)
   // Right now they have the same sensor name... could this sensors (0x18 and 0x34) be used at the same time? 
-  {I2C_FP_BATT,       0,  int16,     STR_SENSOR_BATT1_CURRENT,     UNIT_AMPS,     1}, // Instantaneous current, 0.1A (0-3276.6A)
-  {I2C_FP_BATT,       2,  int16,     STR_SENSOR_BATT1_CONSUMPTION, UNIT_MAH,      0}, // Integrated mAh used, 1mAh (0-32.766Ah)
-  {I2C_FP_BATT,       4,  uint16,    STR_SENSOR_BATT1_TEMP,        UNIT_CELSIUS,  1}, // Temperature, 0.1C (0-150C)
-  {I2C_FP_BATT,       6,  int16,     STR_SENSOR_BATT2_CURRENT,     UNIT_AMPS,     1}, // Instantaneous current, 0.1A (0-3276.6A)
-  {I2C_FP_BATT,       8,  int16,     STR_SENSOR_BATT2_CONSUMPTION, UNIT_MAH,      0}, // Integrated mAh used, 1mAh (0-32.766Ah)
-  {I2C_FP_BATT,      10,  uint16,    STR_SENSOR_BATT2_TEMP,        UNIT_CELSIUS,  1}, // Temperature, 0.1C (0-150C)
+  {I2C_FP_BATT,       0,  int16le,     STR_SENSOR_BATT1_CURRENT,     UNIT_AMPS,     1}, // Instantaneous current, 0.1A (0-3276.6A)
+  {I2C_FP_BATT,       2,  int16le,     STR_SENSOR_BATT1_CONSUMPTION, UNIT_MAH,      0}, // Integrated mAh used, 1mAh (0-32.766Ah)
+  {I2C_FP_BATT,       4,  int16le,     STR_SENSOR_BATT1_TEMP,        UNIT_CELSIUS,  1}, // Temperature, 0.1C (0-150C)
+  {I2C_FP_BATT,       6,  int16le,     STR_SENSOR_BATT2_CURRENT,     UNIT_AMPS,     1}, // Instantaneous current, 0.1A (0-3276.6A)
+  {I2C_FP_BATT,       8,  int16le,     STR_SENSOR_BATT2_CONSUMPTION, UNIT_MAH,      0}, // Integrated mAh used, 1mAh (0-32.766Ah)
+  {I2C_FP_BATT,      10,  int16le,     STR_SENSOR_BATT2_TEMP,        UNIT_CELSIUS,  1}, // Temperature, 0.1C (0-150C)
 
   // Tank pressure + custom input bits (ignore for now)
 //{0x38,              0,  uint16,    STR_SENSOR_STATUS_BITS,      UNIT_BITFIELD,  0},
@@ -401,8 +403,12 @@ static int32_t spektrumGetValue(const uint8_t *packet, int startByte, SpektrumDa
       return bcdToInt8(*(uint8_t *)data);
     case uint32bcd:
       return bcdToInt32(*(uint32_t *)data);
+    case int16le:
+      return (int16_t) ((int16_t) (data[0] + (data[1] << 8)));
     case uint16le:
-      return (int16_t) ((uint16_t) (data[0] + (data[1] << 8)));
+      return (uint16_t) ((uint16_t) (data[0] + (data[1] << 8)));
+    case int32le:
+      return ((int32_t) (data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24)));
     case uint32le:
       return ((uint32_t) (data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24)));
     default:
@@ -416,12 +422,16 @@ static bool isSpektrumValidValue(int32_t value, const SpektrumDataType type)
     case uint8:              
       return value != 0xff; 
     case uint16:
+    case uint16le:
       return value != 0xffff;
     case int16:
+    case int16le:
       return value != 0x7fff;
     case int32:
+    case int32le:
       return value != 0x7fffffff;
     case uint32:
+    case uint32le:
       return ((uint32_t) value) != 0xffffffff;
     default:
       return true;
@@ -1017,26 +1027,26 @@ static uint8_t replaceForTestingPackage(const uint8_t *packet)
     return i2cAddress;
   }
 
-  // *********** GPS LOC *********************************
+  // *********** GPS LOC (BCD) ******************************
   // Example 0x16:          0  1    2  3  4  5    6  7  8  9    10 11   12   13
   //                16 00 | 97 00 | 54 71 12 28 | 40 80 09 82 | 85 14 | 13 | B9
   //                Alt: 009.7, LAT: 28o 12'7154, LON: -82 09 8040 Course: 148.5, HDOP 1.3 Flags= B9
   const char test16data[] = {0x16, 0x00, 0x97, 0x00, 0x54, 0x71, 0x12, 0x28,
                              0x40, 0x80, 0x09, 0x82, 0x85, 0x14, 0x13, 0xB9};
 
-  // *********** GPS STAT *********************************
+  // *********** GPS STAT (BCD) *****************************
   // Example 0x17:          0  1    2  3  4  5    6    7
   //                17 00 | 25 00 | 00 28 18 21 | 06 | 00    
   //                Spd:002.5k, TimeUTC:21:18:28.00, Sats: 06, AltH=00
   const char test17data[] = {0x17, 0x00, 0x25, 0x00, 0x00,
                              0x28, 0x18, 0x21, 0x06, 0x00};
 
-  // *********** Dual Flight pack monitor *********************************
+  // *********** Dual Flight pack monitor (Little-Endian)***************
   // Example 0x34:          0  1    2  3    4  5    6  7    8  9    10 11 
-  //                34 00 | 00 2F | 09 30 | 01 85 | 00 2B | 0A 07 | 01 81 
+  //                34 00 | 2F 00 | 30 09 | 85 01 | 2B 00 | 07 0A | 81 01 
   //                B1: 004.7A, 2352mAh, 38.9C   B2: 004.3A, 2567mAh, 38.5C  
-  const char test34data[] = {0x34, 0x00, 0x00, 0x2F, 0x09, 0x30, 0x01, 0x85, 
-                                         0x00, 0x2B, 0x0A, 0x07, 0x01, 0x81 };
+  const char test34data[] = {0x34, 0x00, 0x2F, 0x00, 0x30, 0x09, 0x85, 0x01, 
+                                         0x2B, 0x00, 0x07, 0x0A, 0x81, 0x01 };
 
   switch (testStep) {
     case 0:
