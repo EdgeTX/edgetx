@@ -226,7 +226,13 @@ static int luaModelSetModule(lua_State *L)
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
       luaL_checktype(L, -2, LUA_TSTRING); // key is string
       const char * key = luaL_checkstring(L, -2);
-      if (!strcmp(key, "subType")) {
+      if (!strcmp(key, "Type")) {
+        uint8_t newtype = luaL_checkinteger(L, -1);
+        if (newtype != module.type) {
+          setModuleType(idx, newtype);
+        }
+      }
+      else if (!strcmp(key, "subType")) {
         module.subType = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "modelId")) {
