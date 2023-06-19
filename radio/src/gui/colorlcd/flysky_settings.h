@@ -49,7 +49,7 @@ class FlySkySettings : public FormWindow, public ModuleOptions
   Window* afhds3StatusLabel = nullptr;
   Window* afhds3StatusText = nullptr;
   Window* afhds3TypeLabel = nullptr;
-  FormGroup* afhds3TypeForm = nullptr;
+  FormWindow* afhds3TypeForm = nullptr;
   Choice *afhds3PhyMode = nullptr;
   Choice *afhds3Emi = nullptr;
   Choice *afhds3RfPower = nullptr;

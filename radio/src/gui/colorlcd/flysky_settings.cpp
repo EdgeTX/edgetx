@@ -90,7 +90,7 @@ FlySkySettings::FlySkySettings(Window* parent, const FlexGridLayout& g,
 {
   setFlexLayout();
 
-  FormGroup::Line* line;
+  FormWindow::Line* line;
 
 #if defined(AFHDS2)
   // RX options:
@@ -132,7 +132,7 @@ FlySkySettings::FlySkySettings(Window* parent, const FlexGridLayout& g,
   line = newLine(&grid);
   afhds3TypeLabel = new StaticText(line, rect_t{}, STR_TYPE, 0, COLOR_THEME_PRIMARY1);
 
-  afhds3TypeForm = new FormGroup(line, rect_t{});
+  afhds3TypeForm = new FormWindow(line, rect_t{});
   afhds3TypeForm->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP);
   lv_obj_set_style_grid_cell_x_align(afhds3TypeForm->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
@@ -234,7 +234,7 @@ void FlySkySettings::checkEvents() {
   if (afhds3::getConfig(moduleIdx)->others.lastUpdated > lastRefresh) {
     update();
   }
-  FormGroup::checkEvents();
+  FormWindow::checkEvents();
 }
 
 void FlySkySettings::update()
