@@ -192,7 +192,8 @@ class SpecialFunctionEditPage : public Page
             [=](std::string newValue) {
               strncpy(cfn->play.name, newValue.c_str(), sizeof(cfn->play.name));
               SET_DIRTY();
-              LUA_LOAD_MODEL_SCRIPTS();
+              if (func == FUNC_PLAY_SCRIPT)
+                LUA_LOAD_MODEL_SCRIPTS();
             },
             true);  // strip extension
         break;
