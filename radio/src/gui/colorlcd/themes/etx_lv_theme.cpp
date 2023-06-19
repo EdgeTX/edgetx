@@ -869,7 +869,7 @@ lv_obj_t* etx_slider_create(lv_obj_t* parent)
 
 lv_obj_t* etx_btnmatrix_create(lv_obj_t* parent)
 {
-  return etx_create(&lv_btnmatrix_class, parent);
+  return etx_create(&etx_btnmatrix_class, parent);
 }
 
 // Fixed height (32)
