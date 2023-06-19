@@ -514,6 +514,7 @@ PACK(struct ModuleData {
       uint8_t telemetry:1;
       uint8_t phyMode:3;
       uint8_t reserved:2;
+      uint8_t rfPower;
     } afhds3);
     NOBACKUP(struct {
       uint8_t raw12bits:1;
