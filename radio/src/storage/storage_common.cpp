@@ -139,6 +139,7 @@ static void sortMixerLines()
 
 void postModelLoad(bool alarms)
 {
+#if defined(COLORLCD)
   // Load 'date time' widget if slot is empty
   if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName[0] == 0) {
     strcpy(g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName, "Date Time");
@@ -157,6 +158,7 @@ void postModelLoad(bool alarms)
     strcpy(g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName, "Internal GPS");
     storageDirty(EE_MODEL);
   }
+#endif
 #endif
 
   // Convert 'noGlobalFunctions' to 'radioGFDisabled'
