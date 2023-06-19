@@ -66,12 +66,7 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(FormWindow* parent,
 
 void SetupWidgetsPageSlot::paint(BitmapBuffer* dc)
 {
-  if (hasFocus()) {
-    dc->drawRect(0, 0, width() - 1, height() - 1, 2, STASHED,
-                 COLOR_THEME_FOCUS);
-  } else {
-    dc->drawSolidRect(0, 0, width() - 1, height() - 1, 2, COLOR_THEME_PRIMARY3);
-  }
+  dc->drawRect(0, 0, width(), height(), 2, hasFocus() ? STASHED : SOLID, COLOR_THEME_FOCUS);
 }
 
 SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :

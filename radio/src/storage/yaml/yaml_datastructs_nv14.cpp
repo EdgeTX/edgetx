@@ -287,7 +287,7 @@ static const struct YamlNode struct_ZoneOptionValueTyped[] = {
   YAML_UNION("value", 64, union_ZoneOptionValue_elmts, select_zov),
   YAML_END
 };
-static const struct YamlNode struct_OpenTxTheme__PersistentData[] = {
+static const struct YamlNode struct_EdgeTxTheme__PersistentData[] = {
   YAML_ARRAY("options", 96, 5, struct_ZoneOptionValueTyped, NULL),
   YAML_END
 };
@@ -373,7 +373,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "blOffBright", 7 ),
   YAML_STRING("bluetoothName", 10),
   YAML_STRING("themeName", 8),
-  YAML_STRUCT("themeData", 480, struct_OpenTxTheme__PersistentData, NULL),
+  YAML_STRUCT("themeData", 480, struct_EdgeTxTheme__PersistentData, NULL),
   YAML_STRING("ownerRegistrationID", 8),
   YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
   YAML_UNSIGNED( "rotEncMode", 2 ),
@@ -785,7 +785,7 @@ static const struct YamlNode struct_CustomScreenData[] = {
   YAML_END
 };
 static const struct YamlNode struct_TopBarPersistentData[] = {
-  YAML_ARRAY("zones", 576, 2, struct_ZonePersistentData, NULL),
+  YAML_ARRAY("zones", 576, 4, struct_ZonePersistentData, NULL),
   YAML_ARRAY("options", 96, 1, struct_ZoneOptionValueTyped, NULL),
   YAML_END
 };
@@ -849,7 +849,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("potsWarnPosition", 8, 16, struct_signed_8, NULL),
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
   YAML_ARRAY("screenData", 6816, 10, struct_CustomScreenData, NULL),
-  YAML_STRUCT("topbarData", 1248, struct_TopBarPersistentData, NULL),
+  YAML_STRUCT("topbarData", 2400, struct_TopBarPersistentData, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),
   YAML_UNSIGNED( "usbJoystickExtMode", 1 ),
