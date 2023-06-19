@@ -48,6 +48,20 @@
 //      ghost:
 //        raw12bits: 0
 
+// FRM303 (as of PR3501)
+// type: TYPE_FLYSKY
+// subType: AFHDS3
+// channelsStart: 0
+// channelsCount: 18
+// failsafeMode: NOT_SET
+// mod: 
+//     afhds3: 
+//       emi: 2
+//       telemetry: 1
+//       phyMode: 2
+//       reserved: 0
+//       rfPower: 1
+
 static const YamlLookupTable protocolLut = {
   {  PULSES_OFF, "TYPE_NONE"  },
   {  PULSES_PPM, "TYPE_PPM"  },
@@ -95,6 +109,11 @@ static const YamlLookupTable dsmLut = {
   { 0, "LP45" },
   { 1, "DSM2" },
   { 2, "DSMX" },
+};
+
+static const YamlLookupTable afhdsLut = {
+  { 0, "AFHDS3" },
+  { 1, "AFHDS2A" } // could be complete nonsense, CHECK IT!
 };
 
 static const YamlLookupTable failsafeLut = {
@@ -156,6 +175,10 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
       st_str += std::to_string(subType);
       node["subType"] = st_str;
     } break;
+    case PULSES_AFHDS3: {
+      node["subType"] = LookupValue(afhdsLut, subtype);
+      break;
+    }
   }
 
   node["channelsStart"] = rhs.channelsStart;
@@ -223,7 +246,17 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
         dsmp["flags"] = rhs.dsmp.flags;
         mod["dsmp"] = dsmp;
     } break;
-    // TODO: afhds3, flysky
+    // TODO: flysky
+    // TODO: afhds3
+    case PULSES_AFHDS3: {
+      Node afhds3;
+      afhds3["emi"] = rhs.afhds3.emi;
+      afhds3["telemetry"] = rhs.afhds3.telemetry;
+      afhds3["phyMode"] = rhs.afhds3.phyMode;
+      afhds3["reserved"] = rhs.afhds3.reserved;
+      afhds3["rfPower"] = rhs.afhds3.rfPower;
+      mod["afhds3"] = afhds3;
+    } break;
     default: {
         Node ppm;
         ppm["delay"] = exportPpmDelay(rhs.ppm.delay);
@@ -348,9 +381,15 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           Node dsmp = mod["dsmp"];
           dsmp["flags"] >> rhs.dsmp.flags;
       } else if (mod["flysky"]) {
-          //TODO
+        // TODO: flysky
       } else if (mod["afhds3"]) {
-          //TODO
+        // TODO: afhds3
+        Node afhds3 = mod["afhds3"];
+        afhds3["emi"] >> rhs.afhds3.emi;
+        afhds3["telemetry"] >> rhs.afhds3.telemetry;
+        afhds3["phyMode"] >> rhs.afhds3.phyMode;
+        afhds3["reserved"] >> rhs.afhds3.reserved;
+        afhds3["rfPower"] >> rhs.afhds3.rfPower;
       }
   }
 

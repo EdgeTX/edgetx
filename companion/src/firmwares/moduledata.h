@@ -140,6 +140,10 @@ class ModuleData {
     struct Afhds3 {
       unsigned int rxFreq;
       unsigned int rfPower;
+      unsigned int emi;
+      unsigned int telemetry;
+      unsigned int phyMode;
+      unsigned int reserved;
     } afhds3;
 
     struct PXX {
