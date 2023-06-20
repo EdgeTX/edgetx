@@ -694,14 +694,14 @@
 #endif
 
 #if defined(RADIO_FAMILY_T16)
+#if defined(RADIO_TX16S)
+  #define AUDIO_UNMUTE_DELAY            150  // ms
+#else
   #define AUDIO_UNMUTE_DELAY            120  // ms
+#endif
   #define AUDIO_MUTE_DELAY              500  // ms
 #endif
 
-#if defined(RADIO_TX16S)
-// Only slight noise with 868MHz > 1W, if complaints later remove and set AUDIO_UNMUTE_DELAY to 150
-  #undef AUDIO_MUTE_GPIO_PIN
-#endif
 
 // Touch
 #if defined(HARDWARE_TOUCH)
