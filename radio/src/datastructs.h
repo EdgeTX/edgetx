@@ -123,23 +123,23 @@ static inline void check_struct()
   CHKSIZE(RadioData, 862);
   CHKSIZE(ModelData, 6220);
 #elif defined(RADIO_TPRO)
-  CHKSIZE(RadioData, 845);
+  CHKSIZE(RadioData, 846);
   CHKSIZE(ModelData, 6245);
 #elif defined(RADIO_BOXER)
-  CHKSIZE(RadioData, 877);
+  CHKSIZE(RadioData, 878);
   CHKSIZE(ModelData, 6221);
 #elif defined(PCBX7)
-  CHKSIZE(RadioData, 868);
+  CHKSIZE(RadioData, 869);
   CHKSIZE(ModelData, 6220);
 #elif defined(PCBX9E)
-  CHKSIZE(RadioData, 958);
+  CHKSIZE(RadioData, 959);
   CHKSIZE(ModelData, 6672);
 #elif defined(PCBX9D) || defined(PCBX9DP)
-  CHKSIZE(RadioData, 900);
+  CHKSIZE(RadioData, 901);
   CHKSIZE(ModelData, 6664);
 #elif defined(PCBHORUS)
   #if defined(PCBX10)
-    CHKSIZE(RadioData, 952);
+    CHKSIZE(RadioData, 953);
     CHKSIZE(ModelData, 15454);
   #else
     CHKSIZE(RadioData, 934);

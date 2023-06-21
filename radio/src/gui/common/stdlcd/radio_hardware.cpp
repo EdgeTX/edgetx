@@ -104,6 +104,10 @@ enum {
   ITEM_RADIO_HARDWARE_CAPACITY_CALIB,
 #endif
 
+#if defined(AUDIO_MUTE_GPIO)
+  ITEM_RADIO_HARDWARE_AUDIO_MUTE,
+#endif
+
 #if !defined(PCBX9D) && !defined(PCBX9DP) && !defined(PCBX9E)
   ITEM_RADIO_HARDWARE_LABEL_INTERNAL_MODULE,
   ITEM_RADIO_HARDWARE_INTERNAL_MODULE_TYPE,
@@ -238,6 +242,12 @@ enum {
   #define TX_CAPACITY_MEASUREMENT_ROWS
 #endif
 
+#if defined(AUDIO_MUTE_GPIO)
+  #define AUDIO_MUTE_ROW             0,
+#else
+  #define AUDIO_MUTE_ROW
+#endif
+
 #if !defined(PCBX9D) && !defined(PCBX9DP) && !defined(PCBX9E)
   #define INTERNAL_MODULE_ROWS \
     LABEL(InternalModule), 0,  \
@@ -314,6 +324,7 @@ void menuRadioHardware(event_t event)
     0 /* battery calib */,
     RTC_ROW
     TX_CAPACITY_MEASUREMENT_ROWS
+    AUDIO_MUTE_ROW
     INTERNAL_MODULE_ROWS
     SERIAL_SAMPLE_MODE_ROWS
     BLUETOOTH_ROWS
@@ -519,6 +530,12 @@ void menuRadioHardware(event_t event)
         if (attr) {
           CHECK_INCDEC_GENVAR(event, g_eeGeneral.txCurrentCalibration, -49, 49);
         }
+        break;
+#endif
+
+#if defined(AUDIO_MUTE_GPIO)
+      case ITEM_RADIO_HARDWARE_AUDIO_MUTE:
+        editCheckBox(g_eeGeneral.audioMuteEnable, HW_SETTINGS_COLUMN2, y, STR_AUDIO_MUTE, attr, event);
         break;
 #endif
 

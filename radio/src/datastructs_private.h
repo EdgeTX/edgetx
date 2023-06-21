@@ -940,6 +940,8 @@ PACK(struct RadioData {
   NOBACKUP(int8_t   varioPitch CUST(r_vPitch,w_vPitch));
   NOBACKUP(int8_t   varioRange CUST(r_vPitch,w_vPitch));
   NOBACKUP(int8_t   varioRepeat);
+  NOBACKUP(uint8_t  audioMuteEnable:1);
+
   CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
 
   CUST_ATTR(auxSerialMode, r_serialMode, nullptr);
