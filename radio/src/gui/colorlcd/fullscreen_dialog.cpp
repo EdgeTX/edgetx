@@ -175,6 +175,14 @@ void FullScreenDialog::deleteLater(bool detach, bool trash)
   }
 }
 
+void FullScreenDialog::setMessage(std::string text)
+{
+  if(!loaded)
+    init();
+
+  messageLabel->setText(text);
+}
+
 static void run_ui_manually()
 {
   checkBacklight();
