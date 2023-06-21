@@ -129,13 +129,17 @@ static inline void check_struct()
   CHKSIZE(RadioData, 878);
   CHKSIZE(ModelData, 6221);
 #elif defined(PCBX7)
+#if defined(AUDIO_MUTE_GPIO)
   CHKSIZE(RadioData, 869);
+#else
+  CHKSIZE(RadioData, 868);
+#endif
   CHKSIZE(ModelData, 6220);
 #elif defined(PCBX9E)
-  CHKSIZE(RadioData, 959);
+  CHKSIZE(RadioData, 958);
   CHKSIZE(ModelData, 6672);
 #elif defined(PCBX9D) || defined(PCBX9DP)
-  CHKSIZE(RadioData, 901);
+  CHKSIZE(RadioData, 900);
   CHKSIZE(ModelData, 6664);
 #elif defined(PCBHORUS)
   #if defined(PCBX10)
