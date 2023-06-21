@@ -139,7 +139,6 @@ void audioMute()
 
 void audioUnmute()
 {
-  if(!g_eeGeneral.audioMuteEnable) return;
 #if defined(AUDIO_UNMUTE_DELAY)
   // if muted
   if (getMutePin()) {
