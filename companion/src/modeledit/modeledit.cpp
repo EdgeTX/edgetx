@@ -66,7 +66,6 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
   sharedItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncAction);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncResetParam);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_TeleSource);
-  sharedItemModels->addItemModel(AbstractItemModel::IMID_RssiSource);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_CurveRefType);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_CurveRefFunc);
 
