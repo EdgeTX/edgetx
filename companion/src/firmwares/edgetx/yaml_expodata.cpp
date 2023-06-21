@@ -36,7 +36,7 @@ Node convert<ExpoData>::encode(const ExpoData& rhs)
   node["swtch"] = rhs.swtch;
   node["flightModes"] = YamlWriteFlightModes(rhs.flightModes);
   node["weight"] = YamlWriteMixWeight(rhs.weight);
-  node["offset"] = rhs.offset;  // YamlWriteMixWeight
+  node["offset"] = YamlWriteMixWeight(rhs.offset);
   node["curve"] = rhs.curve;
   node["trimSource"] = rhs.carryTrim; // temporary for 2.8.1, trimSource in 2.9
   node["name"] = rhs.name;
