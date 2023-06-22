@@ -29,6 +29,9 @@
 #include <QFileDialog>
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QTimer>
 
 using namespace Simulator;
 
@@ -96,6 +99,14 @@ SimulatorStartupDialog::SimulatorStartupDialog(SimulatorOptions * options, int *
   QObject::connect(ui->btnSelectDataFile, &QToolButton::clicked, this, &SimulatorStartupDialog::onDataFileSelect);
   QObject::connect(ui->btnSelectDataFolder, &QToolButton::clicked, this, &SimulatorStartupDialog::onDataFolderSelect);
   QObject::connect(ui->btnSelectSdPath, &QToolButton::clicked, this, &SimulatorStartupDialog::onSdPathSelect);
+
+  if (ui->radioProfile->count() < 1) {
+    // give Startup dialog time to display so this error message can overlay it
+    QTimer::singleShot(250, [=] {
+      QMessageBox::critical(this, CPN_STR_APP_NAME, tr("No radio profiles have been found. Use Companion to create."));
+      ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    });
+  }
 
 }
 
