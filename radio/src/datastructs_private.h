@@ -940,9 +940,6 @@ PACK(struct RadioData {
   NOBACKUP(int8_t   varioPitch CUST(r_vPitch,w_vPitch));
   NOBACKUP(int8_t   varioRange CUST(r_vPitch,w_vPitch));
   NOBACKUP(int8_t   varioRepeat);
-#if defined(AUDIO_MUTE_GPIO)
-  NOBACKUP(uint8_t  audioMuteEnable:1);
-#endif
 
   CustomFunctionData customFn[MAX_SPECIAL_FUNCTIONS] FUNC(cfn_is_active);
 
@@ -966,7 +963,12 @@ PACK(struct RadioData {
 #else
   NOBACKUP(uint8_t  stickDeadZoneSpare:3 SKIP);
 #endif
+
+#if defined(AUDIO_MUTE_GPIO)
+  NOBACKUP(uint8_t  audioMuteEnable:1);
+#else
   NOBACKUP(uint8_t  spare4:1 SKIP);
+#endif
 
 #if defined(IMU)
   NOBACKUP(int8_t imuMax);

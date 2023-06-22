@@ -123,17 +123,13 @@ static inline void check_struct()
   CHKSIZE(RadioData, 862);
   CHKSIZE(ModelData, 6220);
 #elif defined(RADIO_TPRO)
-  CHKSIZE(RadioData, 846);
+  CHKSIZE(RadioData, 845);
   CHKSIZE(ModelData, 6245);
 #elif defined(RADIO_BOXER)
-  CHKSIZE(RadioData, 878);
+  CHKSIZE(RadioData, 877);
   CHKSIZE(ModelData, 6221);
 #elif defined(PCBX7)
-#if defined(AUDIO_MUTE_GPIO)
-  CHKSIZE(RadioData, 869);
-#else
   CHKSIZE(RadioData, 868);
-#endif
   CHKSIZE(ModelData, 6220);
 #elif defined(PCBX9E)
   CHKSIZE(RadioData, 958);
@@ -143,14 +139,14 @@ static inline void check_struct()
   CHKSIZE(ModelData, 6664);
 #elif defined(PCBHORUS)
   #if defined(PCBX10)
-    CHKSIZE(RadioData, 953);
+    CHKSIZE(RadioData, 952);
     CHKSIZE(ModelData, 15454);
   #else
     CHKSIZE(RadioData, 934);
     CHKSIZE(ModelData, 15452);
   #endif
 #elif defined(PCBNV14)
-  CHKSIZE(RadioData, 881);
+  CHKSIZE(RadioData, 880);
   CHKSIZE(ModelData, 15268);
 #endif
 
