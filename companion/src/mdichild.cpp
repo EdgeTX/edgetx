@@ -77,7 +77,6 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   ui->modelsList->setDragDropMode(QAbstractItemView::DragDrop);
   ui->modelsList->setStyle(new ItemViewProxyStyle(ui->modelsList->style()));
   ui->modelsList->setStyleSheet("QTreeView::item {margin: 2px 0;}");  // a little more space for our drop indicators
-  ui->modelsList->setSortingEnabled(true);
 
   ui->lstLabels->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -568,9 +567,18 @@ void MdiChild::initModelsList()
   ui->modelsList->setIndentation(0);
 
   refresh();
-  ui->modelsList->header()->setSortIndicator(0, Qt::AscendingOrder);
   modelsListProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-  modelsListProxyModel->sort(0);
+
+  connect(ui->modelsList->header(), &QHeaderView::sectionDoubleClicked, [=] (int logicalIndex) {
+    if (ui->modelsList->header()->isSortIndicatorShown()) {
+      ui->modelsList->sortByColumn(-1, Qt::AscendingOrder); // turn off sort indicator shown and return proxy model to its unsorted order
+      ui->modelsList->setSortingEnabled(false);             // disable clicking a column to sort
+    }
+    else {
+      ui->modelsList->setSortingEnabled(true); // enable sorting by clicking a column
+      ui->modelsList->sortByColumn(logicalIndex, Qt::AscendingOrder);
+    }
+  });
 
   if (firmware->getCapability(Capability::HasModelLabels)) {
     ui->modelsList->header()->resizeSection(0, ui->modelsList->header()->sectionSize(0) * 1.5); // pad out model names
