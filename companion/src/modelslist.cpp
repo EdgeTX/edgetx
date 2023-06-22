@@ -22,7 +22,7 @@
 
 ModelListItem::ModelListItem(const QVector<QVariant> & itemData):
   itemData(itemData),
-  parentItem(NULL),
+  parentItem(nullptr),
   modelIndex(-1),
   flags(0),
   highlightRX(false)
@@ -609,7 +609,7 @@ void ModelsListModel::refresh()
   for (unsigned i = 0; i < radioData->models.size(); i++) {
     ModelData & model = radioData->models[i];
     int currentColumn = 0;
-    ModelListItem * current = NULL;
+    ModelListItem * current = nullptr;
 
     model.modelIndex = i;
 
@@ -676,6 +676,15 @@ bool ModelsListModel::isModelIdUnique(unsigned modelIdx, unsigned module, unsign
       }
     }
   }
+  return true;
+}
+
+/*
+  ModelsListProxyModel
+*/
+
+bool ModelsListProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const
+{
   return true;
 }
 

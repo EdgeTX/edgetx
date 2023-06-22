@@ -8,7 +8,20 @@
 
 #include <QtCore>
 
+// identiying names of static abstract item models
+constexpr char AIM_RADIO_MODEL_SORT_ORDER[]        {"radio.modelsortorder"};
+
 class RadioDataConversionState;
+class AbstractStaticItemModel;
+
+enum MODEL_SORT_ORDER{
+  MSO_NO_SORT,
+  MSO_NAME_ASC,
+  MSO_NAME_DES,
+  MSO_DATE_ASC,
+  MSO_DATE_DES,
+  MSO_SORT_COUNT
+};
 
 class RadioData {
   Q_DECLARE_TR_FUNCTIONS(RadioData)
@@ -51,6 +64,9 @@ class RadioData {
     void setCurrentModel(unsigned int index);
     void fixModelFilenames();
     QString getNextModelFilename();
+
+    static QString modelSortOrderToString(int value);
+    static AbstractStaticItemModel * modelSortOrderItemModel();
 
     // leave here until all calls repointed
     static QString getElementName(const QString & prefix, unsigned int index, const char * name = 0, bool padding = false)
