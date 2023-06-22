@@ -247,6 +247,7 @@ class GeneralSettings {
     unsigned int countryCode;
     bool noJitterFilter;
     bool rtcCheckDisable;
+    bool muteIfNoSound;
     bool keysBacklight;
     unsigned int rotEncMode;
     unsigned int imperial;

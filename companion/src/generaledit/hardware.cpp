@@ -174,6 +174,14 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
+  if (true) {
+    addLabel(tr("Mute if no sound"));
+    AutoCheckBox *muteIfNoSound = new AutoCheckBox(this);
+    muteIfNoSound->setField(generalSettings.muteIfNoSound, this, false);
+    params->append(muteIfNoSound);
+    addParams();
+  }
+
   if (firmware->getCapability(HasBluetooth)) {
     addLabel(tr("Bluetooth"));
 
