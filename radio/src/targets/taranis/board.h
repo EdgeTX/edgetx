@@ -260,6 +260,7 @@ enum EnumSwitches
   SW_SK,
   SW_SL,
   SW_SM,
+  SW_SN,
   SW_SO,
   SW_SP,
   SW_SQ,
