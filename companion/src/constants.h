@@ -51,6 +51,7 @@
 #define CPN_MAX_SPACEMOUSE             6
 
 #define CPN_STR_APP_NAME               QCoreApplication::translate("Companion", "EdgeTX Companion")
+#define CPN_STR_SIMU_NAME              QCoreApplication::translate("Companion", "EdgeTX Simulator")
 #define CPN_STR_TTL_INFO               QCoreApplication::translate("Companion", "Information")        // shared Title Case words, eg. for a window title or section heading
 #define CPN_STR_TTL_WARNING            QCoreApplication::translate("Companion", "Warning")
 #define CPN_STR_TTL_ERROR              QCoreApplication::translate("Companion", "Error")

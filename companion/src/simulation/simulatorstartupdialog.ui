@@ -35,7 +35,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Simulator Startup Options:</string>
+      <string>Simulator Startup Options</string>
      </property>
      <layout class="QFormLayout" name="layout_options">
       <property name="sizeConstraint">
