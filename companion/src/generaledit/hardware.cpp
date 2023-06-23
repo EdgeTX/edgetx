@@ -174,7 +174,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  if (true) {
+  if (Boards::getCapability(board, Board::HasAudioMuteGPIO)) {
     addLabel(tr("Mute if no sound"));
     AutoCheckBox *muteIfNoSound = new AutoCheckBox(this);
     muteIfNoSound->setField(generalSettings.muteIfNoSound, this, false);
