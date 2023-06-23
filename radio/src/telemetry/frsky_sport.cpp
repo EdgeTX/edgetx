@@ -277,15 +277,8 @@ void sportProcessTelemetryPacketWithoutCrc(uint8_t module, uint8_t origin, const
         // in this case we don't want to update telemetryData.rssi
         return;
       }
-      if (g_model.rssiSource) {
-        TelemetrySensor * sensor = &g_model.telemetrySensors[g_model.rssiSource - 1];
-        if (sensor->isSameInstance(PROTOCOL_TELEMETRY_FRSKY_SPORT, instance)) {
-          telemetryData.rssi.set(data);
-        }
-      }
-      else {
-        telemetryData.rssi.set(data);
-      }
+      
+      telemetryData.rssi.set(data);
     }
     else if (dataId == VALID_FRAME_RATE_ID) {
       data = 100 - SPORT_DATA_U8(packet);
