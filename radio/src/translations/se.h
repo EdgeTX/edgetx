@@ -1089,8 +1089,7 @@
 #endif
 
 // Bootloader common
-#define TR_BL_USB_CONNECT_BOOT          CENTER "\011USB ansluten"
-#define TR_BL_USB_CONNECTED             "USB ansluten"
+#define TR_BL_USB_CONNECTED             CENTER "\011USB ansluten"
 #define TR_BL_USB_PLUGIN                "Eller anslut med en USB-kabel"
 #define TR_BL_USB_MASS_STORE            "foer masslagring"
 #define TR_BL_USB_PLUGIN_MASS_STORE     "Eller anslut med en USB-kabel foer masslagring"

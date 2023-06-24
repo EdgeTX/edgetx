@@ -1058,8 +1058,7 @@
 #endif
 
 // Bootloader common - Ascii only
-#define TR_BL_USB_CONNECT_BOOT        CENTER "\011USB forbundet"
-#define TR_BL_USB_CONNECTED           "USB forbundet"
+#define TR_BL_USB_CONNECTED           CENTER "\011USB forbundet"
 #define TR_BL_USB_PLUGIN              "eller brug USB kabel"
 #define TR_BL_USB_MASS_STORE          "for USB disk"
 #define TR_BL_USB_PLUGIN_MASS_STORE   "eller brug USB kabel for USB disk"
