@@ -535,7 +535,7 @@ void menuRadioHardware(event_t event)
 
 #if defined(AUDIO_MUTE_GPIO)
       case ITEM_RADIO_HARDWARE_AUDIO_MUTE:
-        editCheckBox(g_eeGeneral.audioMuteEnable, HW_SETTINGS_COLUMN2, y, STR_AUDIO_MUTE, attr, event);
+        g_eeGeneral.audioMuteEnable = editCheckBox(g_eeGeneral.audioMuteEnable, HW_SETTINGS_COLUMN2, y, STR_AUDIO_MUTE, attr, event);
         break;
 #endif
 
