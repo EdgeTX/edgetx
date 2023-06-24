@@ -400,7 +400,7 @@ void getADC()
     }
 #endif
 
-    #define ANAFILT_MAX    (2 * RESX * JITTER_ALPHA * ANALOG_MULTIPLIER - 1)
+    #define ANAFILT_MAX    (2 * RESX * JITTER_ALPHA * ANALOG_MULTIPLIER)
     StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[x];
     if (IS_POT_MULTIPOS(x - pot_offset) && IS_MULTIPOS_CALIBRATED(calib)) {
       // TODO: consider adding another low pass filter to eliminate multipos switching glitches
@@ -408,7 +408,7 @@ void getADC()
       s_anaFilt[x] = ANAFILT_MAX;
       for (uint32_t i = 0; i < calib->count; i++) {
         if (vShifted < calib->steps[i]) {
-          s_anaFilt[x] = (i * ANAFILT_MAX) / calib->count;
+          s_anaFilt[x] = (i * (ANAFILT_MAX + JITTER_ALPHA * ANALOG_MULTIPLIER)) / calib->count;
           break;
         }
       }
