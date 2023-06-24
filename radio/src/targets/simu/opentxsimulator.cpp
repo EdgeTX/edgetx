@@ -122,12 +122,12 @@ void OpenTxSimulator::init()
   QMutexLocker lckr(&m_mtxSimuMain);
   memset(g_anas, 0, sizeof(g_anas));
 
+  simuInit();
+
   if (adcGetMaxInputs(ADC_INPUT_RTC_BAT) > 0) {
     auto idx = adcGetInputOffset(ADC_INPUT_RTC_BAT);
     setAnalogValue(idx, 800);
   }
-
-  simuInit();
 }
 
 void OpenTxSimulator::start(const char * filename, bool tests)
