@@ -1057,7 +1057,11 @@
 #endif
 
 // Bootloader common (Poznamka: nutne pouziti textu bez diakritiky - omezeni velikosti pameti bootloader!)
+#if defined(COLORLCD)
+#define TR_BL_USB_CONNECTED           "USB pripojeno"
+#else
 #define TR_BL_USB_CONNECTED           CENTER "\011USB pripojeno"
+#endif
 #define TR_BL_USB_PLUGIN              "nebo pripojte USB kabel"
 #define TR_BL_USB_MASS_STORE          "pro pouziti uloziste"
 #define TR_BL_USB_PLUGIN_MASS_STORE   "nebo pripojte USB kabel pro pouziti uloziste"

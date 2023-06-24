@@ -1041,7 +1041,11 @@
 #endif
 
 // Bootloader common - Ascii only
-#define TR_BL_USB_CONNECTED        CENTER "\011USB verbunden"
+#if defined(COLORLCD)
+#define TR_BL_USB_CONNECTED           "USB verbunden"
+#else
+#define TR_BL_USB_CONNECTED           CENTER "\011USB verbunden"
+#endif
 #define TR_BL_USB_PLUGIN              "Oder schließen Sie ein USB-Kabel"
 #define TR_BL_USB_MASS_STORE          "für den SD-Speicher an"
 #define TR_BL_USB_PLUGIN_MASS_STORE   "Oder schließen Sie ein USB-Kabel für den SD-Speicher an"

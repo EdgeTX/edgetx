@@ -1072,7 +1072,11 @@
 #endif
 
 // Bootloader common - Ascii only
+#if defined(COLORLCD)
+#define TR_BL_USB_CONNECTED           "USB Connecte"
+#else
 #define TR_BL_USB_CONNECTED           CENTER "\011USB Connecte"
+#endif
 #define TR_BL_USB_PLUGIN              "ou branchez cable USB"
 #define TR_BL_USB_MASS_STORE          "pour stockage de masse"
 #define TR_BL_USB_PLUGIN_MASS_STORE   "ou branchez cable USB pour stockage de masse"

@@ -1089,7 +1089,11 @@
 #endif
 
 // Bootloader common
+#if defined(COLORLCD)
+#define TR_BL_USB_CONNECTED             "USB ansluten"
+#else
 #define TR_BL_USB_CONNECTED             CENTER "\011USB ansluten"
+#endif
 #define TR_BL_USB_PLUGIN                "Eller anslut med en USB-kabel"
 #define TR_BL_USB_MASS_STORE            "foer masslagring"
 #define TR_BL_USB_PLUGIN_MASS_STORE     "Eller anslut med en USB-kabel foer masslagring"

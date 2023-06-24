@@ -1053,7 +1053,11 @@
 #endif
 
 // Bootloader common - Ascii only
+#if defined(COLORLCD)
+#define TR_BL_USB_CONNECTED           "USB polaczone"
+#else
 #define TR_BL_USB_CONNECTED           CENTER "\011USB polaczone"
+#endif
 #define TR_BL_USB_PLUGIN              "lub podlacz kabel USB"
 #define TR_BL_USB_MASS_STORE          "dla trybu danych"
 #define TR_BL_USB_PLUGIN_MASS_STORE   "lub podlacz kabel USB dla trybu danych"

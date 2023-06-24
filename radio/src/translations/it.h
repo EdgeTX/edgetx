@@ -1055,7 +1055,11 @@
 #endif
 
 // Bootloader common
+#if defined(COLORLCD)
+#define TR_BL_USB_CONNECTED           "USB Connessa"
+#else
 #define TR_BL_USB_CONNECTED           CENTER "\011USB Connessa"
+#endif
 #define TR_BL_USB_PLUGIN              "O connetti il cavo USB"
 #define TR_BL_USB_MASS_STORE          "per memoria di massa"
 #define TR_BL_USB_PLUGIN_MASS_STORE   "O connetti il cavo USB per memoria di massa"
