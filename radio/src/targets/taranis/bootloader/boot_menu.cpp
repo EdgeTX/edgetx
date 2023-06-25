@@ -69,10 +69,10 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
 
     lcdDrawText(LCD_W / 2, 5 * FH + FH / 2, TR_BL_OR_PLUGIN_USB_CABLE, CENTERED);
 
-    // Remove "opentx-" from string
     const char * vers = getFirmwareVersion();
 #if LCD_W < 212
-    if (strncmp(vers, "opentx-", 7) == 0)
+    // Remove "edgetx-" from string
+    if (strncmp(vers, "edgetx-", 7) == 0)
       vers += 7;
 #endif
     lcdDrawCenteredText(7 * FH, vers);
@@ -101,8 +101,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
       if (memoryType == MEM_FLASH) {
         const char * vers = getFirmwareVersion((const char *)Block_buffer);
 #if LCD_W < 212
-        // Remove "opentx-" from string
-        if (strncmp(vers, "opentx-", 7) == 0)
+        // Remove "edgetx-" from string
+        if (strncmp(vers, "edgetx-", 7) == 0)
           vers += 7;
 #endif
         bootloaderDrawMsg(INDENT_WIDTH, vers, 0, false);
