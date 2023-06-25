@@ -1057,11 +1057,7 @@
 #endif
 
 // Bootloader common (Poznamka: nutne pouziti textu bez diakritiky - omezeni velikosti pameti bootloader!)
-#if defined(COLORLCD)
 #define TR_BL_USB_CONNECTED           "USB pripojeno"
-#else
-#define TR_BL_USB_CONNECTED           CENTER "\011USB pripojeno"
-#endif
 #define TR_BL_USB_PLUGIN              "nebo pripojte USB kabel"
 #define TR_BL_USB_MASS_STORE          "pro pouziti uloziste"
 #define TR_BL_USB_PLUGIN_MASS_STORE   "nebo pripojte USB kabel pro pouziti uloziste"
@@ -1072,6 +1068,8 @@
 #define TR_BL_EXIT                    "Ukoncit"
 #define TR_BL_DIR_MISSING             " Adresar chybi"
 #define TR_BL_DIR_EMPTY               " Adresar je prazdny"
+#define TR_BL_WRITING_FW              "Nahravani firmware ..."
+#define TR_BL_WRITING_COMPL           "Nahravani dokonceno"
 
 #if LCD_W >= 480
   #define TR_BL_INVALID_FIRMWARE       "Neplatny soubor s firmwarem"
@@ -1090,23 +1088,17 @@
 #if defined(PCBTARANIS)
    // Bootloader Taranis specific - Ascii only
   #define TR_BL_RESTORE_EEPROM        "Obnovit EEPROM"
-  #define TR_BL_WRITING_FW            CENTER "\015Nahravani..."
-  #define TR_BL_WRITING_COMPL         CENTER "\007Nahravani dokonceno"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Stisknete tlacitko napajeni."
     #define TR_BL_FLASH_EXIT          "Ukoncit rezim nahravani."
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific - Ascii only
-  #define TR_BL_WRITING_FW            "Nahravani firmware ..."
-  #define TR_BL_WRITING_COMPL         "Nahravani dokonceno"
   #define TR_BL_SELECT_KEY            "[ENT] pro vybrani souboru"
   #define TR_BL_FLASH_KEY             "Drzet dlouze [ENT] pro nahrani"
   #define TR_BL_EXIT_KEY              "[RTN] pro ukonceni"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific - Ascii only
-  #define TR_BL_WRITING_FW            "Nahravani firmware ..."
-  #define TR_BL_WRITING_COMPL         "Nahravani dokonceno"
   #define TR_BL_RF_USB_ACCESS         "RF USB pristup"
   #define TR_BL_CURRENT_FW            "Aktualni firmware:"
   #define TR_BL_SELECT_KEY            "[R TRIM] pro vybrani souboru"

@@ -1041,11 +1041,7 @@
 #endif
 
 // Bootloader common - Ascii only
-#if defined(COLORLCD)
 #define TR_BL_USB_CONNECTED           "USB verbunden"
-#else
-#define TR_BL_USB_CONNECTED           CENTER "\011USB verbunden"
-#endif
 #define TR_BL_USB_PLUGIN              "Oder schließen Sie ein USB-Kabel"
 #define TR_BL_USB_MASS_STORE          "für den SD-Speicher an"
 #define TR_BL_USB_PLUGIN_MASS_STORE   "Oder schließen Sie ein USB-Kabel für den SD-Speicher an"
@@ -1056,6 +1052,8 @@
 #define TR_BL_EXIT                    "Beenden"
 #define TR_BL_DIR_MISSING             " Verzeichnis fehlt"
 #define TR_BL_DIR_EMPTY               " Verzeichnis leer"
+#define TR_BL_WRITING_FW              "Schreibe..."
+#define TR_BL_WRITING_COMPL           "Schreiben abgeschlossen"
 
 #if LCD_W >= 480
   #define TR_BL_INVALID_FIRMWARE       "Keine gültige Firmwaredatei"
@@ -1074,23 +1072,17 @@
 #if defined(PCBTARANIS)
    // Bootloader Taranis specific - Ascii only
   #define TR_BL_RESTORE_EEPROM        "EEPROM wiederherstellen"
-  #define TR_BL_WRITING_FW            CENTER "\015Schreibe..."
-  #define TR_BL_WRITING_COMPL         CENTER "\007Schreiben abgeschlossen"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Drücke den Power Knopf."
     #define TR_BL_FLASH_EXIT          "Verlasse den Flashmodus."
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific - Ascii only
-  #define TR_BL_WRITING_FW            "Schreibe Firmware ..."
-  #define TR_BL_WRITING_COMPL         "Schreiben abgeschlossen"
   #define TR_BL_SELECT_KEY            "[ENT] um Datei auszuwählen"
   #define TR_BL_FLASH_KEY             "Halte [ENT] gedrückt, zum schreiben"
   #define TR_BL_EXIT_KEY              "[RTN] zum beenden"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific - Ascii only
-  #define TR_BL_WRITING_FW            "Schreibe Firmware ..."
-  #define TR_BL_WRITING_COMPL         "Schreiben abgeschlossen"
   #define TR_BL_RF_USB_ACCESS         "RF USB Zugriff"
   #define TR_BL_CURRENT_FW            "Aktuelle Firmware:"
   #define TR_BL_SELECT_KEY            "[R TRIM] um Datei auszuwählen"
