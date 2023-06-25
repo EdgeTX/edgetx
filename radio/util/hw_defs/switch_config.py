@@ -26,6 +26,16 @@ SWITCH_CONFIG = {
         "SB": { "default": "2POS",   "display": [ 1, 0 ] },
         "SD": { "default": "2POS",   "display": [ 1, 1 ] }
     },
+    "nv14": {
+        "SA": { "default": "2POS"   },
+        "SB": { "default": "3POS"   },
+        "SC": { "default": "TOGGLE" },
+        "SD": { "default": "2POS"   },
+        "SE": { "default": "TOGGLE" },
+        "SF": { "default": "3POS"   },
+        "SG": { "default": "3POS"   },
+        "SH": { "default": "TOGGLE" }
+    },
     "t8": {
         # left side
         "SA": { "default": "2POS",   "display": [ 0, 0 ] },
