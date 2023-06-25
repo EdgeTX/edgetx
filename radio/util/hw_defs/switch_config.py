@@ -257,7 +257,21 @@ SWITCH_CONFIG = {
         "SE": { "default": "3POS" },
         "SF": { "default": "2POS" },
         "SG": { "default": "3POS" },
-        "SH": { "default": "TOGGLE" }
+        "SH": { "default": "TOGGLE" },
+        "SI": { "default": "NONE"},
+        "SJ": { "default": "NONE"}
+    },
+    "x12s": {
+        "SA": { "default": "3POS" },
+        "SB": { "default": "3POS" },
+        "SC": { "default": "3POS" },
+        "SD": { "default": "3POS" },
+        "SE": { "default": "3POS" },
+        "SF": { "default": "2POS" },
+        "SG": { "default": "3POS" },
+        "SH": { "default": "TOGGLE" },
+        "SI": { "default": "NONE"},
+        "SJ": { "default": "NONE"}
     },
     "x10express": {
         "SA": { "default": "3POS" },
