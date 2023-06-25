@@ -50,9 +50,9 @@ SimulatedUIWidgetX9::SimulatedUIWidgetX9(SimulatorInterface *simulator, QWidget 
   act = new RadioUiAction(1, QList<int>() << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
   addRadioWidget(ui->leftbuttons->addArea(btn, "X9D/x9l3.png", act));
 
-  m_scrollUpAction = new RadioUiAction(4, QList<int>() << Qt::Key_Plus << Qt::Key_Equal << Qt::Key_Left,
+  m_scrollUpAction = new RadioUiAction(10, QList<int>() << Qt::Key_Plus << Qt::Key_Equal << Qt::Key_Left,
                                       SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_PLS);
-  m_scrollDnAction = new RadioUiAction(5, QList<int>() << Qt::Key_Minus << Qt::Key_Right,
+  m_scrollDnAction = new RadioUiAction(11, QList<int>() << Qt::Key_Minus << Qt::Key_Right,
                                       SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_MIN);
 
   // right side
