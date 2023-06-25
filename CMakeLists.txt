@@ -5,7 +5,7 @@ project(EdgeTX)
 set(VERSION_MAJOR "2")
 set(VERSION_MINOR "9")
 set(VERSION_REVISION "0")
-set(CODENAME "dev")
+set(CODENAME "Providence")
 
 if(MINGW OR WIN32)
   set(CMAKE_OBJECT_PATH_MAX 200)
