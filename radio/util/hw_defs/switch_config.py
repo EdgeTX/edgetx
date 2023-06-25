@@ -64,7 +64,15 @@ SWITCH_CONFIG = {
         "SG": { "default": "3POS" },
         "SH": { "default": "TOGGLE" }
     },
-    "tlite,tlitef4": {
+    "tlite": {
+        # left side
+        "SA": { "default": "3POS",   "display": [ 0, 0 ] },
+        "SC": { "default": "3POS",   "display": [ 0, 1 ] },
+        # right side
+        "SB": { "default": "2POS",   "display": [ 1, 0 ] },
+        "SD": { "default": "2POS",   "display": [ 1, 1 ] }
+    },
+    "tlitef4": {
         # left side
         "SA": { "default": "3POS",   "display": [ 0, 0 ] },
         "SC": { "default": "3POS",   "display": [ 0, 1 ] },
@@ -144,7 +152,7 @@ SWITCH_CONFIG = {
         "SG": { "default": "3POS",   "display": [ 2, 2 ] },
         "SH": { "default": "TOGGLE", "display": [ 2, 3 ] }
     },
-    "x9dp": {
+    "x9d+": {
         # left side
         "SA": { "default": "3POS",   "display": [ 0, 0 ] },
         "SB": { "default": "3POS",   "display": [ 0, 1 ] },
@@ -156,7 +164,7 @@ SWITCH_CONFIG = {
         "SG": { "default": "3POS",   "display": [ 2, 2 ] },
         "SH": { "default": "TOGGLE", "display": [ 2, 3 ] }
     },
-    "x9dp2019": {
+    "x9d+2019": {
         # left side
         "SA": { "default": "3POS",   "display": [ 0, 0 ] },
         "SB": { "default": "3POS",   "display": [ 0, 1 ] },
