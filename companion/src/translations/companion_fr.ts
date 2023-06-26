@@ -6247,6 +6247,11 @@ Cette fonction ne peut pas être désactivée sur la radio.
         <translation type="unfinished">Filtre ADC</translation>
     </message>
     <message>
+        <location filename="../generaledit/hardware.cpp" line="178"/>
+        <source>Mute if no sound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../generaledit/hardware.cpp" line="198"/>
         <source>Internal RF</source>
         <translation type="unfinished"></translation>
