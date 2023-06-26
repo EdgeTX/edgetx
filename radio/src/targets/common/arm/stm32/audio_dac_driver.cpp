@@ -120,6 +120,7 @@ void dacInit()
 #if defined(AUDIO_MUTE_GPIO_PIN)
 void audioMute()
 {
+  if(!g_eeGeneral.audioMuteEnable) return;
 #if defined(AUDIO_UNMUTE_DELAY)
   tmr10ms_t now = get_tmr10ms();
   if (!audioQueue.lastAudioPlayTime) {
