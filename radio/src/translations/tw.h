@@ -1108,6 +1108,7 @@
 #define TR_MENU_DISPLAY                "顯示"
 #define TR_MENU_OTHER                  "其它"
 #define TR_MENU_INVERT                 "反向"
+#define TR_AUDIO_MUTE                  TR("Audio mute","Mute if no sound")
 #define TR_JITTER_FILTER               "類比輸入濾波"
 #define TR_DEAD_ZONE                   "死區"
 #define TR_RTC_CHECK                   TR("檢查時間電池", "檢查時間驅動電池電壓")

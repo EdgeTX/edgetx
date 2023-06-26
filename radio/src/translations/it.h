@@ -1110,6 +1110,7 @@
 #define TR_MENU_DISPLAY                 "DISPLAY"
 #define TR_MENU_OTHER                   "Altro"
 #define TR_MENU_INVERT                  "Inverti"
+#define TR_AUDIO_MUTE                  TR("Audio mute","Mute if no sound")
 #define TR_JITTER_FILTER                "Filtro ADC"
 #define TR_DEAD_ZONE                    "Zona morta"
 #define TR_RTC_CHECK                    TR("Controllo RTC", "Controllo volt. RTC")

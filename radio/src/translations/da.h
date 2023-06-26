@@ -1124,6 +1124,7 @@
 #define TR_MENU_DISPLAY                "DISPLAY"
 #define TR_MENU_OTHER                  "Andet"
 #define TR_MENU_INVERT                 "Invers"
+#define TR_AUDIO_MUTE                  TR("Audio mute","Mute if no sound")
 #define TR_JITTER_FILTER               "ADC filter"
 #define TR_DEAD_ZONE                   "Dødt område"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC spænding")
