@@ -839,7 +839,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
              && val[0] == 'T' && val[1] == 'R'
              && val[2] >= '1' && val[2] <= '9') {
 
-      ival = SWSRC_FIRST_TRIM + yaml_str2int(val + 2, val_len - 3) * 2;
+      ival = SWSRC_FIRST_TRIM + (yaml_str2int(val + 2, val_len - 3)- 1) * 2;
       if (val[val_len - 1] == '+') ival++;
 
     }
@@ -911,7 +911,7 @@ static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
       auto trim = (sval - SWSRC_FIRST_TRIM) / 2;
       str = yaml_unsigned2str(trim + 1);
       wf(opaque, str, strlen(str));
-      return wf(opaque, sval & 1 ? "+" : "-", 1);
+      return wf(opaque, sval & 1 ? "-" : "+", 1);
         
     } else if (sval <= SWSRC_LAST_LOGICAL_SWITCH) {
 
