@@ -156,6 +156,7 @@ namespace Board {
     HasSDCard,
     HasInternalModuleSupport,
     HasExternalModuleSupport,
+    HasAudioMuteGPIO,
     SportMaxBaudRate
   };
 

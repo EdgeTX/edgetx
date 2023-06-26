@@ -6180,6 +6180,11 @@ Sind Sie sicher?</translation>
         <translation type="unfinished">ADC-Filter</translation>
     </message>
     <message>
+        <location filename="../generaledit/hardware.cpp" line="178"/>
+        <source>Mute if no sound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../generaledit/hardware.cpp" line="198"/>
         <source>Internal RF</source>
         <translation type="unfinished"></translation>
