@@ -4983,6 +4983,11 @@ Er du sikker?</translation>
         <source>ADC Filter</source>
         <translation>ADC-filter</translation>
     </message>
+    <message>   
+        <location filename="../generaledit/hardware.cpp" line="178"/>
+        <source>Mute if no sound</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>S.Port Power</source>
         <translation>S.Port spænding</translation>
