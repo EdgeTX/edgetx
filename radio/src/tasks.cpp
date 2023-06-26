@@ -64,7 +64,7 @@ TASK_FUNCTION(menusTask)
 
 #if defined(SPLASH) && !defined(STARTUP_ANIMATION)
   if (waitSplash){
-    extern bool inputsMoved();
+    extern bool inactivityCheckInputs();
     extern void checkSpeakerVolume();
 
 #if defined(SIMU)
@@ -78,7 +78,7 @@ TASK_FUNCTION(menusTask)
       checkBacklight();
       RTOS_WAIT_TICKS(10);
       auto evt = getEvent();
-      if (evt || inputsMoved()) {
+      if (evt || inactivityCheckInputs()) {
         if (evt)
           killEvents(evt);
         break;
