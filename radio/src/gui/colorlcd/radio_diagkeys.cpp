@@ -53,6 +53,17 @@ class RadioKeyDiagsWindow : public Window
       invalidate();
     }
 
+    void displayTrimState(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t trim)
+    {
+      uint8_t t = keysGetTrimState(trim);
+      // TODO use drawChar when done
+      char status[2];
+      status[0] = t + '0';
+      status[1] = '\0';
+      // TODO INVERS?
+      dc->drawText(x, y, status, COLOR_THEME_PRIMARY1);
+    }
+
     void displayKeyState(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t key)
     {
       uint8_t t = keysGetState(key);
@@ -128,7 +139,7 @@ class RadioKeyDiagsWindow : public Window
           dc->drawText(TRIM_COLUMN, y, "T", COLOR_THEME_PRIMARY1);
           dc->drawNumber(TRIM_COLUMN + 10, y, i / 2 + 1, COLOR_THEME_PRIMARY1);
         }
-        // displayKeyState(dc, i & 1 ? TRIM_PLUS_COLUMN : TRIM_MINUS_COLUMN, y, TRM_BASE + trimMap[i]);
+        displayTrimState(dc, i & 1 ? TRIM_PLUS_COLUMN : TRIM_MINUS_COLUMN, y, trimMap[i]);
       }
     };
 
