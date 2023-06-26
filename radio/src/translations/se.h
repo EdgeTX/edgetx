@@ -69,7 +69,6 @@
 #define TR_JACK_MODES                   "Fråga","Audio","Lärare"
 #define TR_TELEMETRY_PROTOCOLS          "FrSky S.Port","FrSky D","FrSky D (sladd)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 #define TR_SBUS_INVERSION_VALUES        "normal","ej inverterad"
-#define TR_MULTI_TELEMETRY_MODE         "Av","På","Av+Aux","På+Aux"
 #define TR_MULTI_CUSTOM                 "Anpassad"
 #define TR_VTRIMINC                     TR("Expo","Exponentiell"),TR("xFin","Extra fin"),"Fin","Medium","Grov"
 #define TR_VDISPLAYTRIMS                "Nej","Ändring","Ja"
@@ -79,28 +78,10 @@
 
 #define TR_ADCFILTERVALUES              "Global","Av","På"
 
-#if defined(PCBX10)
-  #define TR_RETA123                    "R","H","G","S","1","3","2","4","5","6","7","V","H"
-#elif defined(PCBHORUS)
-  #define TR_RETA123                    "R","H","G","S","1","3","2","4","5","V","H"
-#elif defined(PCBX9E)
-  #define TR_RETA123                    "R","H","G","S","1","2","3","4","V","H","V","H"
-#elif defined(PCBTARANIS)
-  #define TR_RETA123                    "R","H","G","S","1","2","3","V","H"
-#else
-  #define TR_RETA123                    "R","H","G","S","1","2","3"
-#endif
-
-#define TR_VCURVETYPE                   "Diff","Expo","Funk","Egen"
+#define TR_VCURVETYPE                   "Diff","Expo","Funk","Egen"                                  
 #define TR_VCURVEFUNC                   "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                       "Addera","Multiplicera","Ersätt"
 #define TR_VMLTPX2                      "+=","*=",":="
-
-#if defined(PCBHORUS)
-  #define TR_VMIXTRIMS                  "Av","På","Rod","Hjd","Gas","Ske","T5","T6"
-#else
-  #define TR_VMIXTRIMS                  "Av","På","Rod","Hjd","Gas","Ske"
-#endif
 
 #if LCD_W >= 212
   #define TR_CSWTIMER                   "Timer"
@@ -119,73 +100,35 @@
 
 #define TR_TEXT_SIZE                    "Std","XS","S","M","L"
 
-#if defined(VARIO)
-  #define TR_VVARIO                     "Vario"
-#else
-  #define TR_VVARIO                     "[Vario]"
-#endif
-
-#if defined(AUDIO)
-  #define TR_SOUND                      "Spela ljud"
-#else
-  #define TR_SOUND                      "Pip"
-#endif
-
-#if defined(HAPTIC)
-  #define TR_HAPTIC                     "Haptisk"
-#else
-  #define TR_HAPTIC                     "[Haptisk]"
-#endif
-
-#if defined(VOICE)
-  #define TR_PLAY_TRACK                 "Spela upp"
-  #define TR_PLAY_VALUE                 "Säg värdet"
-#else
-  #define TR_PLAY_TRACK                 "[Sp. upp]"
-  #define TR_PLAY_VALUE                 "[Sp. värde]"
-#endif
-
-#define TR_SF_BG_MUSIC                  "Musik","Pausa musik"
-
-#if defined(SDCARD)
-  #define TR_SDCLOGS                    "Logga data"
-#else
-  #define TR_SDCLOGS                    "[Logga data]"
-#endif
-
-#ifdef GVARS
-  #define TR_ADJUST_GVAR                "Justera"
-#else
-  #define TR_ADJUST_GVAR                "[Just. GV]"
-#endif
-
-#if defined(LUA)
-  #define TR_SF_PLAY_SCRIPT             "Lua-skript"
-#else
-  #define TR_SF_PLAY_SCRIPT             "[Lua]"
-#endif
-
-#if defined(DEBUG)
-  #define TR_SF_TEST                    "Test"
-#else
-  #define TR_SF_TEST
-#endif
-
-#if defined(OVERRIDE_CHANNEL_FUNCTION) && LCD_W >= 212
-  #define TR_SF_SAFETY                  "Lås "
-#elif defined(OVERRIDE_CHANNEL_FUNCTION)
-  #define TR_SF_SAFETY                  "Lås "
-#else
-  #define TR_SF_SAFETY                  "---"
-#endif
+#define TR_SF_TRAINER                   "Lärare"
+#define TR_SF_INST_TRIM                 "Spara trimmar"
+#define TR_SF_RESET                     "Återställ"
+#define TR_SF_SET_TIMER                 "Sätt"
+#define TR_SF_VOLUME                    "Volym"
+#define TR_SF_FAILSAFE                  "Sätt failsafe"
+#define TR_SF_RANGE_CHECK               "Räckviddstest"
+#define TR_SF_MOD_BIND                  "Bind modul"
+ 
+#define TR_SOUND                        "Spela ljud"
+#define TR_PLAY_TRACK                   "Spela upp"
+#define TR_PLAY_VALUE                   "Säg värdet"
+#define TR_SF_HAPTIC                    "Haptisk"
+#define TR_SF_PLAY_SCRIPT               "Lua-skript"
+#define TR_SF_BG_MUSIC                  "Musik"
+#define TR_SF_BG_MUSIC_PAUSE            "Pausa Musik"
+#define TR_SF_LOGS                      "Logga data"
+#define TR_ADJUST_GVAR                  "Justera"
+#define TR_SF_BACKLIGHT                 "Belysning"
+#define TR_SF_VARIO                     "Vario"
+#define TR_SF_TEST                      "Test"
+#define TR_SF_SAFETY                    "Lås"
 
 #define TR_SF_SCREENSHOT                "Skärmbild"
+#define TR_SF_TEST                      "Test"
 #define TR_SF_RACING_MODE               "Tävlingsläge"
 #define TR_SF_DISABLE_TOUCH             "Ej pekskärm"
 #define TR_SF_SET_SCREEN                "Sätt huvudskärm"
 #define TR_SF_RESERVE                   "[reserv]"
-
-#define TR_VFSWFUNC                     TR_SF_SAFETY,"Lärare","Spara trimmar","Återställ","Sätt ",TR_ADJUST_GVAR,"Volym","Sätt failsafe","Räckviddstest","Bind modul",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE, TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Belysning",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM              TR("Telm","Telemetri")
 
@@ -221,38 +164,8 @@
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
-#define TR_STICKS_VSRCRAW              STR_CHAR_STICK "Rod", STR_CHAR_STICK "Hjd", STR_CHAR_STICK "Gas", STR_CHAR_STICK "Ske"
-
-#if defined(PCBHORUS)
-  #define TR_TRIMS_VSRCRAW             STR_CHAR_TRIM "Rod",STR_CHAR_TRIM "Hjd",STR_CHAR_TRIM "Gas",STR_CHAR_TRIM "Ske",STR_CHAR_TRIM "T5",STR_CHAR_TRIM "T6"
-#else
-  #define TR_TRIMS_VSRCRAW             TR("TrmR",STR_CHAR_TRIM "Rod"),TR("TrmH",STR_CHAR_TRIM "Hjd"),TR("TrmG",STR_CHAR_TRIM "Gas"),TR("TrmS",STR_CHAR_TRIM "Ske")
-#endif
-
-#if defined(PCBHORUS)
-  #define TR_TRIMS_SWITCHES            STR_CHAR_TRIM "Rv",STR_CHAR_TRIM "Rh",STR_CHAR_TRIM "Hn",STR_CHAR_TRIM "Hu",STR_CHAR_TRIM "Gn",STR_CHAR_TRIM "Gu", STR_CHAR_TRIM "Sv",STR_CHAR_TRIM "Sh",STR_CHAR_TRIM "5d",STR_CHAR_TRIM "5u",STR_CHAR_TRIM "6d",STR_CHAR_TRIM "6u"
-#else
-  #define TRIM_SWITCH_CHAR             TR("t",STR_CHAR_TRIM)
-  #define TR_TRIMS_SWITCHES            TR("tRv",STR_CHAR_TRIM "Rv"),TR("tRh",STR_CHAR_TRIM "Rh"),TR("tHn",STR_CHAR_TRIM "Hn"),TR("tHu",STR_CHAR_TRIM "Hu"),TR("tGn", STR_CHAR_TRIM "Gn"),TR("tGu",STR_CHAR_TRIM "Gu"),TR("tSv",STR_CHAR_TRIM "Sv"),TR("tSh",STR_CHAR_TRIM "Sh")
-#endif
-
-#if defined(PCBHORUS) || defined(PCBNV14)
-  #define TR_VKEYS                     "PGUP","PGDN","ENTER","MDL","RTN","TELE","SYS"
-#elif defined(PCBXLITE)
-  #define TR_VKEYS                     "Skift","Avbr.","Enter","Ner","Upp","Höger","Vnstr"
-#elif defined(RADIO_FAMILY_JUMPER_T12)
-  #define TR_VKEYS                     "Avbryt","Enter","Ner","Upp","Höger","Vänster"
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
-  #define TR_VKEYS                     "Avbryt","Enter","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UPP","NER"
-#elif defined(RADIO_ZORRO) || defined(RADIO_BOXER)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(PCBTARANIS)
-  #define TR_VKEYS                     "Meny","Avbryt","Enter","Sida","Plus","Minus"
-#else
-  #define TR_VKEYS                     "Meny","Avbryt","Ner","Upp","Höger","Vänster"
-#endif
+#define TR_STICK_NAMES                 "Rod", "Hjd", "Gas", "Ske"
+#define TR_SURFACE_NAMES               "Rod", "Gas"
 
 #if defined(PCBNV14)
 #define  TR_RFPOWER_AFHDS2             "Default","Hög"
@@ -282,8 +195,11 @@
   #define TR_CYC_VSRCRAW                "[C1]","[C2]","[C3]"
 #endif
 
-#define TR_RESERVE_VSRCRAW              "[--]"
-#define TR_EXTRA_VSRCRAW                "Batt","Tid","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Tmr1","Tmr2","Tmr3"
+
+#define TR_SRC_BATT                    "Batt"
+#define TR_SRC_TIME                    "Time"
+#define TR_SRC_GPS                     "GPS"
+#define TR_SRC_TIMER                   "Tmr"
 
 #define TR_VTMRMODES                    "Av","På","Strt","GAs","GA%","GAt"
 #define TR_VTRAINER_MASTER_OFF          "AV"
@@ -562,6 +478,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB     "KALIBRERADE ANALOGA"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RÅA ANALOGA (5Hz)"
 #define TR_MENUCALIBRATION              "KALIBRERING"
+#define TR_MENU_FSWITCH                 "FUNKTIONSBRYTARE"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS              "[Spara trimvärden]"
 #else
@@ -774,7 +691,7 @@
 #define TR_TIME                         "Tid"
 #define TR_BAUDRATE                     "Baudrate"
 #define TR_MAXBAUDRATE                  "Max bauds"
-#define TR_SAMPLE_MODE                  TR("Sample mod.", "Sample Mode")
+#define TR_SAMPLE_MODE                  TR("Sampling","Samplingstyp")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
 #define TR_LOADING                      "Laddar..."
 #define TR_DELETE_THEME                 "Radera tema?"
@@ -942,6 +859,7 @@
 #define TR_DEBUG                        "Debug"
 #define TR_KEYS_BTN                     BUTTON(TR("Bryt.","Brytare"))
 #define TR_ANALOGS_BTN                  BUTTON(TR("Ana.","Analoga"))
+#define TR_FS_BTN                       BUTTON(TR("Funk.bryt.", "Funktionsbrytare"))
 #define TR_TOUCH_NOTFOUND               "Pekskärm hittas ej"
 #define TR_TOUCH_EXIT                   "Peka på skärmen för att avsluta"
 #define TR_SET                          BUTTON(TR("Def", "Ställ in"))
@@ -973,7 +891,7 @@
 #define TR_AFHDS3_ONE_TO_MANY           "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER          TR("Act. pow", "Actual power")
 #define TR_AFHDS3_POWER_SOURCE          "Strömkälla"
-#define TR_ANTENNACONFIRM1              "EXT. ANTENN"
+#define TR_ANTENNACONFIRM1              "EXTERN ANTENN"
 
 #if defined(PCBX12S)
   #define TR_ANTENNA_MODES              "Intern","Fråga","Per modell","Intern + Extern"
@@ -983,7 +901,7 @@
 
 #define TR_USE_INTERNAL_ANTENNA         TR("Anv int. antenn", "Använd intern antenn")
 #define TR_USE_EXTERNAL_ANTENNA         TR("Anv ext. antenn", "Använd extern antenn")
-#define TR_ANTENNACONFIRM2              TR("Kontr. antenn", "Kontrollera att antennen är installerad!")
+#define TR_ANTENNACONFIRM2              TR("Kontroll. antennen", "Kontrollera att antennen är installerad!")
 #define TR_MODULE_PROTOCOL_FLEX_WARN_LINE1        "Kräver inte"
 #define TR_MODULE_PROTOCOL_FCC_WARN_LINE1         "Kräver FCC"
 #define TR_MODULE_PROTOCOL_EU_WARN_LINE1          "Kräver EU"
@@ -1090,7 +1008,6 @@
 #endif
 
 // Bootloader common
-#define TR_BL_USB_CONNECT_BOOT          CENTER "\011USB ansluten"
 #define TR_BL_USB_CONNECTED             "USB ansluten"
 #define TR_BL_USB_PLUGIN                "Eller anslut med en USB-kabel"
 #define TR_BL_USB_MASS_STORE            "foer masslagring"
@@ -1102,6 +1019,8 @@
 #define TR_BL_EXIT                      "Avsluta"
 #define TR_BL_DIR_MISSING               " Katalogen saknas"
 #define TR_BL_DIR_EMPTY                 " Katalogen aer tom"
+#define TR_BL_WRITING_FW                "Skriver firmware ..."
+#define TR_BL_WRITING_COMPL             "Skrivning klar"
 
 #if LCD_W >= 480
   #define TR_BL_INVALID_FIRMWARE        "Inte en giltig firmwarefil"
@@ -1120,23 +1039,17 @@
 #if defined(PCBTARANIS)
    // Bootloader Taranis specific
   #define TR_BL_RESTORE_EEPROM          "Aaterställ EEPROM"
-  #define TR_BL_WRITING_FW              CENTER "\015Skriver..."
-  #define TR_BL_WRITING_COMPL           CENTER "\007Skrivning klar"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY             "Tryck paa startknappen."
     #define TR_BL_FLASH_EXIT            "Avsluta flashningsläget."
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific
-  #define TR_BL_WRITING_FW              "Skriver firmware ..."
-  #define TR_BL_WRITING_COMPL           "Skrivning klar"
   #define TR_BL_SELECT_KEY              "[ENT] för att vaelja fil"
   #define TR_BL_FLASH_KEY               "Tryck [ENT] foer att flasha"
   #define TR_BL_EXIT_KEY                "[RTN] foer att avbryta"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific
-  #define TR_BL_WRITING_FW              "Skriver firmware ..."
-  #define TR_BL_WRITING_COMPL           "Skrivning klar"
   #define TR_BL_RF_USB_ACCESS           "RF USB access"
   #define TR_BL_CURRENT_FW              "Nuvarande firmware:"
   #define TR_BL_SELECT_KEY              "[R TRIM] foer att vaelja fil"
