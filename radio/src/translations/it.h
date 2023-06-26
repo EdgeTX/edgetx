@@ -973,7 +973,6 @@
 #endif
 
 // Bootloader common
-#define TR_BL_USB_CONNECT_BOOT        CENTER "\011USB Connessa"
 #define TR_BL_USB_CONNECTED           "USB Connessa"
 #define TR_BL_USB_PLUGIN              "O connetti il cavo USB"
 #define TR_BL_USB_MASS_STORE          "per memoria di massa"
@@ -985,6 +984,8 @@
 #define TR_BL_EXIT                    "Esci"
 #define TR_BL_DIR_MISSING             " Cartella non trovata"
 #define TR_BL_DIR_EMPTY               " Cartella vuota"
+#define TR_BL_WRITING_FW              "Scrittura Firmware..."
+#define TR_BL_WRITING_COMPL           "Scrittura completata"
 
 #if LCD_W >= 480
   #define TR_BL_INVALID_FIRMWARE       "Firmware non valido"
@@ -1003,23 +1004,17 @@
 #if defined(PCBTARANIS)
    // Bootloader Taranis specific
   #define TR_BL_RESTORE_EEPROM        "Ripristino EEPROM"
-  #define TR_BL_WRITING_FW            CENTER "\015Scrittura..."
-  #define TR_BL_WRITING_COMPL         CENTER "\007Scrittura completata"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Premi il bottone d'accensione"
     #define TR_BL_FLASH_EXIT          "Esci dal modo scrittura."
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific
-  #define TR_BL_WRITING_FW            "Scrittura Firmware..."
-  #define TR_BL_WRITING_COMPL         "Scrittura completata"
   #define TR_BL_SELECT_KEY            "[ENT] per scegliere il file"
   #define TR_BL_FLASH_KEY             "Tenere premuto [ENT] per scrivere"
   #define TR_BL_EXIT_KEY              "[RTN] per uscire"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific
-  #define TR_BL_WRITING_FW            "Scrittura Firmware..."
-  #define TR_BL_WRITING_COMPL         "Scrittura completata"
   #define TR_BL_RF_USB_ACCESS         "RF Accesso USB"
   #define TR_BL_CURRENT_FW            "Firmware corrente:"
   #define TR_BL_SELECT_KEY            "[R TRIM] per scegliere il file"
