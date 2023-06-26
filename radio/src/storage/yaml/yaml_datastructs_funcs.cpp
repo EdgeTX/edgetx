@@ -609,7 +609,7 @@ static bool _write_analog_name(uint8_t type, void* user, uint8_t* data,
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
 
-  const char* name = analogGetCustomLabel(ADC_INPUT_MAIN, idx);
+  const char* name = analogGetCustomLabel(type, idx);
   if (!wf(opaque, "\"", 1)) return false;
   if (!wf(opaque, name, strlen(name))) return false;
   return wf(opaque, "\"", 1);
