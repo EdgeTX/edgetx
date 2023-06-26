@@ -223,12 +223,6 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
                val[3] <= '3') {
 
       return MIXSRC_FIRST_HELI + (val[3] - '1');
-
-    } else if (val_len > 1 &&
-               val[0] == 'T' &&
-               val[1] >= '1' &&
-               val[1] <= '9') {
-      return yaml_str2uint(val + 1, val_len - 1) + MIXSRC_FIRST_TRIM - 1;
     }
 
     auto idx = analogLookupCanonicalIdx(ADC_INPUT_MAIN, val, val_len);
@@ -309,11 +303,6 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
              && val <= MIXSRC_LAST_HELI) {
         if (!wf(opaque, "CYC", 3)) return false;
         str = yaml_unsigned2str(val - MIXSRC_FIRST_HELI + 1);
-    }
-    else if (val >= MIXSRC_FIRST_TRIM
-             && val <= MIXSRC_LAST_TRIM) {
-        if (!wf(opaque, "T", 1)) return false;
-        str = yaml_unsigned2str(val - MIXSRC_FIRST_TRIM + 1);
     }
     else if (val >= MIXSRC_FIRST_SWITCH
              && val <= MIXSRC_LAST_SWITCH) {
@@ -799,6 +788,16 @@ static const struct YamlNode struct_potConfig[] = {
 
 extern const struct YamlIdStr enum_SwitchSources[];
 
+// Trim switch names
+static const char* trimSwitchNames[] = {
+  "TrimRudLeft", "TrimRudRight",
+  "TrimEleDown", "TrimEleUp",
+  "TrimThrDown", "TrimThrUp",
+  "TrimAilLeft", "TrimAilRight",
+  "TrimT5Down", "TrimT5Up",
+  "TrimT6Down", "TrimT6Up"
+};
+
 static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_len)
 {
     int32_t ival=0;
@@ -835,33 +834,14 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
       ival = (val[2] - '0') * XPOTS_MULTIPOS_COUNT + (val[3] - '0')
         + SWSRC_FIRST_MULTIPOS_SWITCH;
     }
-    else if (val_len > 5
-             && val[0] == 'T' && val[1] == 'r' && val[2] == 'i' && val[3] == 'm') {
+    else if (val_len > 4 && (strncmp(val, trimSwitchNames[0], 4) == 0)) {
 
-      // Old Trim names
-      static const char* oldTrimNames[] = {
-        "TrimRudLeft", "TrimRudRight", "TrimEleDown", "TrimEleUp", "TrimThrDown", "TrimThrUp", "TrimAilLeft", "TrimAilRight",
-        "TrimT5Down", "TrimT5Up", "TrimT6Down", "TrimT6Up"
-      };
-
-      int i;
-      for (i = 0; i < sizeof(oldTrimNames)/sizeof(const char*); i += 1) {
-        if (strncmp(val, oldTrimNames[i], val_len) == 0)
+      for (int i = 0; i < sizeof(trimSwitchNames)/sizeof(const char*); i += 1) {
+        if (strncmp(val, trimSwitchNames[i], val_len) == 0) {
+          ival = SWSRC_FIRST_TRIM + i;
           break;
+        }
       }
-
-      if (i < sizeof(oldTrimNames)/sizeof(const char*)) {
-        ival = SWSRC_FIRST_TRIM + i;
-      }
-
-    }
-    else if (val_len > 3
-             && val[0] == 'T' && val[1] == 'R'
-             && val[2] >= '1' && val[2] <= '9') {
-
-      ival = SWSRC_FIRST_TRIM + (yaml_str2int(val + 2, val_len - 3) - 1) * 2;
-      if (val[val_len - 1] == '+') ival++;
-
     }
     else if (val_len >= 2
              && val[0] == 'L'
@@ -926,12 +906,9 @@ static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
       return wf(opaque,str, strlen(str));
 
     } else if (sval <= SWSRC_LAST_TRIM) {
-      
-      wf(opaque, "TR", 2);
-      auto trim = (sval - SWSRC_FIRST_TRIM) / 2;
-      str = yaml_unsigned2str(trim + 1);
-      wf(opaque, str, strlen(str));
-      return wf(opaque, sval & 1 ? "-" : "+", 1);
+
+      auto trim = trimSwitchNames[sval - SWSRC_FIRST_TRIM];
+      return wf(opaque, trim, strlen(trim));
         
     } else if (sval <= SWSRC_LAST_LOGICAL_SWITCH) {
 
