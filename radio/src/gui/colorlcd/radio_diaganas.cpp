@@ -74,6 +74,7 @@ class AnaViewWindow: public FormWindow {
         + adcGetMaxInputs(ADC_INPUT_POT);
 
       for (uint8_t i = 0; i < max_inputs; i++) {
+        if (i > adcGetMaxInputs(ADC_INPUT_MAIN) && !IS_POT_AVAILABLE(i - adcGetMaxInputs(ADC_INPUT_MAIN))) continue;
 #if LCD_W > LCD_H
         if ((i & 1) == 0)
           line = newLine(grid);
