@@ -1246,6 +1246,10 @@ Vill du hämta inställningarna från en fil?</translation>
         <source>&lt;p&gt;&lt;b&gt;Thank you for upgrading to EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;This is a major upgrade that adds and modifies a lot of things, so please make sure that you read release notes carefully  to learn about the changes, and thoroughly check each of your models for proper function.&lt;/p&gt;&lt;p&gt;Please visit &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; for release notes and other documentation.&lt;/p&gt;- The EdgeTX Team.</source>
         <translation>&lt;p&gt;&lt;b&gt;Tack för att du uppgraderar till EdgeTX %1.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Detta är en omfattande uppdatering som lägger till och ändrar många saker, så missa inte att läsa uppdateringsdokumentationen och kontrollera ordentligt att alla modeller fungerar som avsett.&lt;/p&gt;&lt;p&gt;Besök gärna &lt;a href=&apos;https://edgetx.org&apos;&gt;edgetx.org&lt;/a&gt; för information om uppdateringen och för annan dokumentation.&lt;/p&gt;-  EdgeTX-teamet.</translation>
     </message>
+    <message>
+        <source>EdgeTX Simulator</source>
+        <translation>EdgeTX simulator</translation>
+    </message>
 </context>
 <context>
     <name>CompareDialog</name>
@@ -6637,6 +6641,10 @@ Vill du spara ändringarna?</translation>
         <source>Error writing models and settings to radio!</source>
         <translation>Fel vid skrivning av modeller och inställningar till radion!</translation>
     </message>
+    <message>
+        <source>Radio Models Order</source>
+        <translation>Radiomodellordning</translation>
+    </message>
 </context>
 <context>
     <name>MinizInterface</name>
@@ -8570,18 +8578,6 @@ p, li { white-space: pre-wrap; }
         <translation type="vanished">Fast ID-värde</translation>
     </message>
     <message>
-        <source>RF power</source>
-        <translation type="vanished">RF effekt</translation>
-    </message>
-    <message>
-        <source>Enable Max Throw</source>
-        <translation type="vanished">Aktivera max utslag</translation>
-    </message>
-    <message>
-        <source>RF Channel Number</source>
-        <translation type="vanished">RF kanalnummer</translation>
-    </message>
-    <message>
         <source>Servo update rate</source>
         <translation>Servouppdateringsfrekvens</translation>
     </message>
@@ -8764,6 +8760,18 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Favorites</source>
         <translation>Favoriter</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Ingen</translation>
+    </message>
+    <message>
+        <source>Name %1</source>
+        <translation>Namn %1</translation>
+    </message>
+    <message>
+        <source>Last Opened %1</source>
+        <translation>Senast öppnad %1</translation>
     </message>
 </context>
 <context>
@@ -10230,7 +10238,7 @@ OBS! All befintlig EEPROM-data som är inkompatibel med vald radiotyp kan komms 
     <name>SimulatorStartupDialog</name>
     <message>
         <source>Simulator Startup Options:</source>
-        <translation>Startalternativ för simulatorn:</translation>
+        <translation type="vanished">Startalternativ för simulatorn:</translation>
     </message>
     <message>
         <source>Radio Profile:</source>
@@ -10341,6 +10349,18 @@ Förvalt värde är konfigurerat i den valda radioprofieln.</translation>
     <message>
         <source>Simulator:</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Simulator Startup Options</source>
+        <translation>Simulatorns startalternativ</translation>
+    </message>
+    <message>
+        <source>Startup Options</source>
+        <translation>Startalternativ</translation>
+    </message>
+    <message>
+        <source>No radio profiles have been found. Use %1 to create.</source>
+        <translation>Inga radioprofiler hittade. Använd %1 för att skapa.</translation>
     </message>
 </context>
 <context>
@@ -10827,7 +10847,7 @@ För många fel - ger upp.</translation>
     </message>
     <message>
         <source>Source</source>
-        <translation>Källa</translation>
+        <translation type="vanished">Källa</translation>
     </message>
     <message>
         <source>Show Instance IDs</source>
@@ -10979,7 +10999,7 @@ För många fel - ger upp.</translation>
     </message>
     <message>
         <source>Source</source>
-        <translation>Källa</translation>
+        <translation type="vanished">Källa</translation>
     </message>
     <message>
         <source>Delete Sensor. Are you sure?</source>
