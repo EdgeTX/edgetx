@@ -835,11 +835,20 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
       ival = (val[2] - '0') * XPOTS_MULTIPOS_COUNT + (val[3] - '0')
         + SWSRC_FIRST_MULTIPOS_SWITCH;
     }
+    else if (val_len > 6
+             && val[0] == 'T' && val[1] == 'r' && val[2] == 'i' && val[3] == 'm' && val[4] == 'T'
+             && val[5] >= '1' && val[5] <= '9') {
+
+      // Old Trim names
+      ival = SWSRC_FIRST_TRIM + (yaml_str2int(val + 5, val_len - 6) - 1) * 2;
+      if (val[val_len - 1] == 'p') ival++; // Check for TrimTxUp
+
+    }
     else if (val_len > 3
              && val[0] == 'T' && val[1] == 'R'
              && val[2] >= '1' && val[2] <= '9') {
 
-      ival = SWSRC_FIRST_TRIM + (yaml_str2int(val + 2, val_len - 3)- 1) * 2;
+      ival = SWSRC_FIRST_TRIM + (yaml_str2int(val + 2, val_len - 3) - 1) * 2;
       if (val[val_len - 1] == '+') ival++;
 
     }
