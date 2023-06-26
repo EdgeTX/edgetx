@@ -1058,7 +1058,6 @@
 #endif
 
 // Bootloader common - Ascii only
-#define TR_BL_USB_CONNECT_BOOT        CENTER "\011USB forbundet"
 #define TR_BL_USB_CONNECTED           "USB forbundet"
 #define TR_BL_USB_PLUGIN              "eller brug USB kabel"
 #define TR_BL_USB_MASS_STORE          "for USB disk"
@@ -1070,6 +1069,8 @@
 #define TR_BL_EXIT                    "Forlad"
 #define TR_BL_DIR_MISSING             " Katalog mangler"
 #define TR_BL_DIR_EMPTY               " Katalog er tomt"
+#define TR_BL_WRITING_FW              "Installerer..."
+#define TR_BL_WRITING_COMPL           "Installation slut"
 
 #if LCD_W >= 480
   #define TR_BL_INVALID_FIRMWARE       "Ikke en installationsfil!"
@@ -1088,23 +1089,17 @@
 #if defined(PCBTARANIS)
    // Bootloader Taranis specific - Ascii only
   #define TR_BL_RESTORE_EEPROM        "Genskab EEPROM"
-  #define TR_BL_WRITING_FW            CENTER "\015Installerer..."
-  #define TR_BL_WRITING_COMPL         CENTER "\007Installation slut"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Tryk power knap."
     #define TR_BL_FLASH_EXIT          "Forlad installation tilstand."
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific - Ascii only
-  #define TR_BL_WRITING_FW            "Installerer firmware ..."
-  #define TR_BL_WRITING_COMPL         "Installation slut"
   #define TR_BL_SELECT_KEY            "[ENT] for at bruge fil"
   #define TR_BL_FLASH_KEY             "[ENT] lang tid for at starte"
   #define TR_BL_EXIT_KEY              "[RTN] for at forlade"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific - Ascii only
-  #define TR_BL_WRITING_FW            "Installerer firmware ..."
-  #define TR_BL_WRITING_COMPL         "Installation slut"
   #define TR_BL_RF_USB_ACCESS         "RF USB adgang"
   #define TR_BL_CURRENT_FW            "Firmware version:"
   #define TR_BL_SELECT_KEY            "[R TRIM] for at bruge fil"

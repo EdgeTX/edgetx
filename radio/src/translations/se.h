@@ -1089,7 +1089,6 @@
 #endif
 
 // Bootloader common
-#define TR_BL_USB_CONNECT_BOOT          CENTER "\011USB ansluten"
 #define TR_BL_USB_CONNECTED             "USB ansluten"
 #define TR_BL_USB_PLUGIN                "Eller anslut med en USB-kabel"
 #define TR_BL_USB_MASS_STORE            "foer masslagring"
@@ -1101,6 +1100,8 @@
 #define TR_BL_EXIT                      "Avsluta"
 #define TR_BL_DIR_MISSING               " Katalogen saknas"
 #define TR_BL_DIR_EMPTY                 " Katalogen aer tom"
+#define TR_BL_WRITING_FW                "Skriver firmware ..."
+#define TR_BL_WRITING_COMPL             "Skrivning klar"
 
 #if LCD_W >= 480
   #define TR_BL_INVALID_FIRMWARE        "Inte en giltig firmwarefil"
@@ -1119,23 +1120,17 @@
 #if defined(PCBTARANIS)
    // Bootloader Taranis specific
   #define TR_BL_RESTORE_EEPROM          "Aaterställ EEPROM"
-  #define TR_BL_WRITING_FW              CENTER "\015Skriver..."
-  #define TR_BL_WRITING_COMPL           CENTER "\007Skrivning klar"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY             "Tryck paa startknappen."
     #define TR_BL_FLASH_EXIT            "Avsluta flashningsläget."
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific
-  #define TR_BL_WRITING_FW              "Skriver firmware ..."
-  #define TR_BL_WRITING_COMPL           "Skrivning klar"
   #define TR_BL_SELECT_KEY              "[ENT] för att vaelja fil"
   #define TR_BL_FLASH_KEY               "Tryck [ENT] foer att flasha"
   #define TR_BL_EXIT_KEY                "[RTN] foer att avbryta"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific
-  #define TR_BL_WRITING_FW              "Skriver firmware ..."
-  #define TR_BL_WRITING_COMPL           "Skrivning klar"
   #define TR_BL_RF_USB_ACCESS           "RF USB access"
   #define TR_BL_CURRENT_FW              "Nuvarande firmware:"
   #define TR_BL_SELECT_KEY              "[R TRIM] foer att vaelja fil"
