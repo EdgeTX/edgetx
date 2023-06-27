@@ -223,6 +223,12 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
                val[3] <= '3') {
 
       return MIXSRC_FIRST_HELI + (val[3] - '1');
+
+    } else if (val_len > 1 &&
+               val[0] == 'T' &&
+               val[1] >= '1' &&
+               val[1] <= '9') {
+      return yaml_str2uint(val + 1, val_len - 1) + MIXSRC_FIRST_TRIM - 1;
     }
 
     auto idx = analogLookupCanonicalIdx(ADC_INPUT_MAIN, val, val_len);
@@ -833,6 +839,13 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
 
       ival = (val[2] - '0') * XPOTS_MULTIPOS_COUNT + (val[3] - '0')
         + SWSRC_FIRST_MULTIPOS_SWITCH;
+    }
+    else if (val_len > 3
+             && val[0] == 'T' && val[1] == 'R'
+             && val[2] >= '1' && val[2] <= '9') {
+
+      ival = SWSRC_FIRST_TRIM + (yaml_str2int(val + 2, val_len - 3) - 1) * 2;
+      if (val[val_len - 1] == '+') ival++;
     }
     else if (val_len > 4 && (strncmp(val, trimSwitchNames[0], 4) == 0)) {
 
