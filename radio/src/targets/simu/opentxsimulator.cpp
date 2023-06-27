@@ -50,7 +50,7 @@ QVector<QIODevice *> OpenTxSimulator::tracebackDevices;
 
 uint16_t simu_get_analog(uint8_t idx)
 {
-  return g_anas[idx];
+  return (g_anas[idx] * 2) + 2048;
 }
 
 void firmwareTraceCb(const char * text)
