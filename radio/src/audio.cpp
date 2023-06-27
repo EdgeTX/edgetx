@@ -287,16 +287,16 @@ void referenceSystemAudioFiles()
   if (res == VfsError::OK) {
     for (;;) {
       res = dir.read(fno);                   /* Read a directory item */
-      std::string fname = fno.getName();
-      if (res != VfsError::OK || fname.length() == 0) break;  /* Break on error or end of dir */
-      uint8_t len = fname.length();
+      const char *name = fno.getName();
+      if (res != VfsError::OK || name[0] == 0) break;  /* Break on error or end of dir */
+      uint8_t len = strlen(name);
 
       // Eliminates directories / non wav files
-      if (len < 5 || strcasecmp(fname.c_str()+len-4, SOUNDS_EXT) || (fno.getType() == VfsType::DIR)) continue;
+      if (len < 5 || strcasecmp(name+len-4, SOUNDS_EXT) || (fno.getType() == VfsType::DIR)) continue;
 
       for (int i=0; i<AU_SPECIAL_SOUND_FIRST; i++) {
         getSystemAudioFile(path, i);
-        if (fname != filename) {
+        if (!strcasecmp(filename, name)) {
           sdAvailableSystemAudioFiles.setBit(i);
           break;
         }
@@ -389,21 +389,21 @@ void referenceModelAudioFiles()
   if (res == VfsError::OK) {
     for (;;) {
       res = dir.read(fno);                   /* Read a directory item */
-      std::string name = fno.getName();
-      if (res != VfsError::OK || name.length() == 0) break;  /* Break on error or end of dir */
-      uint8_t len = name.length();
+      const char *name = fno.getName();
+      if (res != VfsError::OK || name[0] == 0) break;  /* Break on error or end of dir */
+      uint8_t len = strlen(name);
       bool found = false;
 
       // Eliminates directories / non wav files
-      if (len < 5 || strcasecmp(name.c_str()+len-4, SOUNDS_EXT) || (fno.getType() == VfsType::DIR)) continue;
-      TRACE("referenceModelAudioFiles(): using file: %s", name.c_str());
+      if (len < 5 || strcasecmp(name+len-4, SOUNDS_EXT) || (fno.getType() == VfsType::DIR)) continue;
+      TRACE("referenceModelAudioFiles(): using file: %s", name);
 
       // Flight modes Audio Files <flightmodename>-[on|off].wav
       for (int i=0; i<MAX_FLIGHT_MODES && !found; i++) {
         for (int event=0; event<2; event++) {
           getFlightmodeAudioFile(path, i, event);
           // TRACE("referenceModelAudioFiles(): searching for %s in %s", filename, fno.fname);
-          if (name == filename) {
+          if (!strcasecmp(filename, name)) {
             sdAvailableFlightmodeAudioFiles.setBit(INDEX_PHASE_AUDIO_FILE(i, event));
             found = true;
             TRACE("\tfound: %s", filename);
@@ -416,7 +416,7 @@ void referenceModelAudioFiles()
       for (unsigned i = 0; i <= MAX_SWITCH_POSITIONS && !found; i++) {
         getSwitchAudioFile(path, i);
         // TRACE("referenceModelAudioFiles(): searching for %s in %s (%d)", path, fno.fname, i);
-        if (name == filename) {
+        if (!strcasecmp(filename, name)) {
           sdAvailableSwitchAudioFiles.setBit(i);
           found = true;
           TRACE("\tfound: %s", filename);
@@ -428,7 +428,7 @@ void referenceModelAudioFiles()
         for (int event=0; event<2; event++) {
           getLogicalSwitchAudioFile(path, i, event);
           // TRACE("referenceModelAudioFiles(): searching for %s in %s", filename, fno.fname);
-          if (name == filename) {
+          if (!strcasecmp(filename, name)) {
             sdAvailableLogicalSwitchAudioFiles.setBit(INDEX_LOGICAL_SWITCH_AUDIO_FILE(i, event));
             found = true;
             TRACE("\tfound: %s", filename);

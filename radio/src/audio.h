@@ -69,7 +69,7 @@ template <unsigned int NUM_BITS> class BitField
 #define INDEX_PHASE_AUDIO_FILE(index, event)          (2*(index)+(event))
 
 // max length (example: /SOUNDS/fr/123456789012/1234567890-off.wav)
-constexpr uint8_t AUDIO_MODEL_FILENAME_MAXLEN = (sizeof("/SOUNDS/fr/") - 1) + LEN_MODEL_NAME + 1 + LEN_FLIGHT_MODE_NAME + (sizeof("-off.wav") - 1);
+constexpr uint8_t AUDIO_MODEL_FILENAME_MAXLEN = (sizeof(INTERNAL_ST_PATH) - 1) + (sizeof("/SOUNDS/fr/") - 1) + LEN_MODEL_NAME + 1 + LEN_FLIGHT_MODE_NAME + (sizeof("-off.wav") - 1);
 constexpr uint8_t AUDIO_LUA_FILENAME_MAXLEN = 42; // Some scripts use long audio paths, even on 128x64 boards
 constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MODEL_FILENAME_MAXLEN ? AUDIO_LUA_FILENAME_MAXLEN : AUDIO_MODEL_FILENAME_MAXLEN);
 
