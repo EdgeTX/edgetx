@@ -1105,6 +1105,10 @@ inline bool IS_TXBATT_WARNING()
   return g_vbat100mV <= g_eeGeneral.vBatWarn;
 }
 
+inline bool IS_SDCARD_FULL() {
+  return sdGetFreeSectors() < ((50 *1024*1024) / BLOCK_SIZE); // 50MB safety margin
+}
+
 enum TelemetryViews {
   TELEMETRY_CUSTOM_SCREEN_1,
   TELEMETRY_CUSTOM_SCREEN_2,
