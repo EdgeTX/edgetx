@@ -272,7 +272,7 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
   uint8_t btn_id = 0;
   for (uint16_t i = 0; i < MAX_POTS; i++) {
     if (IS_POT_AVAILABLE(i)) {
-      setTextWithColor(btn_id);
+      setTextAndState(btn_id);
       btn_id++;
     }
   }
@@ -290,7 +290,7 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
 
 void PotWarnMatrix::setTextAndState(uint8_t btn_id)
 {
-  setText(btn_id, STR_VSRCRAW[pot_idx[btn_id] + POT_FIRST + 1]);
+  setText(btn_id, getPotLabel(pot_idx[btn_id]));
   setChecked(btn_id);
 }
 
@@ -340,7 +340,7 @@ CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
   for (uint8_t i = 0; i < max_analogs; i++) {
     if (i < max_sticks || (IS_POT_SLIDER_AVAILABLE(i - max_sticks) &&
                            !IS_POT_MULTIPOS(i - max_sticks))) {
-      setTextWithColor(btn_id);
+      setTextAndState(btn_id);
       btn_id++;
     }
   }
