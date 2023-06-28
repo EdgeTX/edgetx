@@ -50,6 +50,9 @@ QVector<QIODevice *> OpenTxSimulator::tracebackDevices;
 
 uint16_t simu_get_analog(uint8_t idx)
 {
+  // 6POS simu mechanism use a different scale, so needs specific offset
+  if (IS_POT_MULTIPOS(idx - adcGetInputOffset(ADC_INPUT_POT)))
+      return (g_anas[idx] * 2);
   return (g_anas[idx] * 2) + 2048;
 }
 
