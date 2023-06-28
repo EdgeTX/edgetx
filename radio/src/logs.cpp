@@ -123,7 +123,7 @@ const char * logsOpen()
   if (!sdMounted())
     return STR_NO_SDCARD;
 
-  if (sdGetFreeSectors() == 0)
+  if (IS_SDCARD_FULL())
     return STR_SDCARD_FULL;
 
   // check and create folder here
@@ -290,7 +290,7 @@ void logsWrite()
         if (result) {
           if (result != error_displayed) {
             error_displayed = result;
-            POPUP_WARNING(result);
+            POPUP_WARNING_ON_UI_TASK(result);
           }
           return;
         }
@@ -382,7 +382,7 @@ void logsWrite()
 
       if (result<0 && !error_displayed) {
         error_displayed = STR_SDCARD_ERROR;
-        POPUP_WARNING(STR_SDCARD_ERROR);
+        POPUP_WARNING_ON_UI_TASK(STR_SDCARD_ERROR);
         logsClose();
       }
     }
