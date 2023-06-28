@@ -236,15 +236,22 @@ void OpenTxSimulator::setTrainerInput(unsigned int inputNumber, int16_t value)
 
 void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
 {
-  //qDebug() << type << index << value << this->thread();
+  qDebug() << type << index << value << this->thread();
   switch (type) {
     case INPUT_SRC_ANALOG :
     case INPUT_SRC_STICK :
       setAnalogValue(index, value);
       break;
     case INPUT_SRC_KNOB :
-    case INPUT_SRC_SLIDER :
       setAnalogValue(index + adcGetInputOffset(ADC_INPUT_POT), value);
+      break;
+    case INPUT_SRC_SLIDER :
+      // TODO redo this when Companion refactored to use radio json adc files
+      //setAnalogValue(index + adcGetInputOffset(ADC_INPUT_POT), value);
+      static const int slideroffset = adcGetInputIdx("SL1", 3);
+      //qDebug() << "SL1:" << slideroffset;
+      if (slideroffset >= 0)
+        setAnalogValue(index + slideroffset, value);
       break;
     case INPUT_SRC_TXVIN :
       if (adcGetMaxInputs(ADC_INPUT_VBAT) > 0) {
