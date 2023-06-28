@@ -739,16 +739,16 @@ class SwitchDialog : public ModalWindow
 
     void onEvent(event_t event) override
     {
-      if (event == EVT_KEY_BREAK(KEY_PGDN)) {
+      if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
         filterSection += 1;
         if (filterSection >= maxSection)
           filterSection = -1;
         applyFilter(filterSection);
       }
 #if defined(KEYS_GPIO_REG_PGUP)
-      else if (event == EVT_KEY_BREAK(KEY_PGUP)) {
+      else if (event == EVT_KEY_BREAK(KEY_PAGEUP)) {
 #else
-      else if (event == EVT_KEY_LONG(KEY_PGDN)) {
+      else if (event == EVT_KEY_LONG(KEY_PAGEDN)) {
         killEvents(event);
 #endif
         actionSel -= 1;
