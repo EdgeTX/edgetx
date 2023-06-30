@@ -130,7 +130,7 @@ void RadioHardwarePage::build(FormWindow * window)
   // Mute audio
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_AUDIO_MUTE, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.audioMuteEnable));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.audioMuteEnable));
 #endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)
