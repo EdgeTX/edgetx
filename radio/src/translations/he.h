@@ -1185,6 +1185,7 @@
 #define TR_MENU_DISPLAY                "DISPLAY"
 #define TR_MENU_OTHER                  "Other"
 #define TR_MENU_INVERT                 "Invert"
+#define TR_AUDIO_MUTE                  TR("השתקת קול","השתק כאשר אין סאונד")
 #define TR_JITTER_FILTER               "ADC filter"
 #define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC voltage")
