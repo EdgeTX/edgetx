@@ -1248,7 +1248,7 @@ Vill du hämta inställningarna från en fil?</translation>
     </message>
     <message>
         <source>EdgeTX Simulator</source>
-        <translation>EdgeTX simulator</translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -8578,6 +8578,18 @@ p, li { white-space: pre-wrap; }
         <translation type="vanished">Fast ID-värde</translation>
     </message>
     <message>
+        <source>RF power</source>
+        <translation type="vanished">RF effekt</translation>
+    </message>
+    <message>
+        <source>Enable Max Throw</source>
+        <translation type="vanished">Aktivera max utslag</translation>
+    </message>
+    <message>
+        <source>RF Channel Number</source>
+        <translation type="vanished">RF kanalnummer</translation>
+    </message>
+    <message>
         <source>Servo update rate</source>
         <translation>Servouppdateringsfrekvens</translation>
     </message>
@@ -10352,7 +10364,7 @@ Förvalt värde är konfigurerat i den valda radioprofieln.</translation>
     </message>
     <message>
         <source>Simulator Startup Options</source>
-        <translation>Simulatorns startalternativ</translation>
+        <translation>Startalternativ för simulatorn</translation>
     </message>
     <message>
         <source>Startup Options</source>
@@ -10360,7 +10372,7 @@ Förvalt värde är konfigurerat i den valda radioprofieln.</translation>
     </message>
     <message>
         <source>No radio profiles have been found. Use %1 to create.</source>
-        <translation>Inga radioprofiler hittade. Använd %1 för att skapa.</translation>
+        <translation>Ingen radioprofil hittades. Använd %1 för att skapa.</translation>
     </message>
 </context>
 <context>
