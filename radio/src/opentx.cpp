@@ -935,7 +935,7 @@ void checkTrims()
 #else
     phase = getTrimFlightMode(mixerCurrentFlightMode, idx);
     before = getTrimValue(phase, idx);
-    thro = (idx==THR_STICK && g_model.thrTrim);
+    thro = (idx==inputMappingConvertMode(inputMappingGetThrottle()) && g_model.thrTrim);
 #endif
     int8_t trimInc = g_model.trimInc + 1;
     int8_t v = (trimInc==-1) ? min(32, abs(before)/4+1) : (1 << trimInc); // TODO flash saving if (trimInc < 0)
@@ -1219,7 +1219,7 @@ void instantTrim()
 
   auto controls = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (uint8_t stick = 0; stick < controls; stick++) {
-    if (stick != THR_STICK) { // don't instant trim the throttle stick
+    if (stick != inputMappingConvertMode(inputMappingGetThrottle())) { // don't instant trim the throttle stick
       bool addTrim = false;
       int16_t delta = 0;
       uint8_t trimFlightMode = getTrimFlightMode(mixerCurrentFlightMode, stick);
