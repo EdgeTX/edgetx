@@ -123,9 +123,6 @@ const char * logsOpen()
   if (!sdMounted())
     return STR_NO_SDCARD;
 
-  if (IS_SDCARD_FULL())
-    return STR_SDCARD_FULL;
-
   // check and create folder here
   strcpy(filename, STR_LOGS_PATH);
   const char * error = sdCheckAndCreateDirectory(filename);
@@ -191,9 +188,7 @@ void logsClose()
     }
     lastLogTime = 0;
   }
-  #if !defined(SIMU)
-  loggingTimerStop();
-  #endif
+
 }
 
 void writeHeader()
@@ -285,8 +280,16 @@ void logsWrite()
     {
     #endif
 
+      static int lines = 0;
+      lines++; if(lines > 30) lines = 30;
+      bool sdCardFull = IS_SDCARD_FULL() || lines == 30;
+      //bool sdCardFull = IS_SDCARD_FULL();
+
+      // check if file needs to be opened
       if (!g_oLogFile.obj.fs) {
-        const char * result = logsOpen();
+        const char *result = sdCardFull ? STR_SDCARD_FULL_EXT : logsOpen();
+
+        // SD card is full or file open failed
         if (result) {
           if (result != error_displayed) {
             error_displayed = result;
@@ -295,6 +298,15 @@ void logsWrite()
           return;
         }
       }
+
+      // check at every write cycle
+      if (sdCardFull) {
+        logsClose();  // timer is still running and code above will try to
+                      // open the file again but will fail with error
+                      // which will trigger the warning popup
+        return;
+      }
+
 
 #if defined(RTCLOCK)
       {
@@ -389,8 +401,10 @@ void logsWrite()
   }
   else {
     error_displayed = nullptr;
-    if (g_oLogFile.obj.fs) {
-      logsClose();
-    }
+    logsClose();
+    
+    #if !defined(SIMU)
+    loggingTimerStop();
+    #endif
   }
 }

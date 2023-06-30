@@ -685,6 +685,7 @@
 #define TR_SPECTRUM_ANALYSER_EXT       "Spektální an. (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spektální an. (INT)"
 #define TR_SDCARD_FULL                 "Plná SD karta"
+#define TR_SDCARD_FULL_EXT             "SD card full\nLogs and Screenshots disabled"
 #define TR_NEEDS_FILE                  "Vyžadován soubor"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"

@@ -57,8 +57,8 @@ const char * writeScreenshot()
   char filename[42]; // /SCREENSHOTS/screen-2013-01-01-123540.bmp
 
   if (IS_SDCARD_FULL()) {
-    POPUP_WARNING(STR_SDCARD_FULL);
-    return STR_SDCARD_FULL;
+    POPUP_WARNING(STR_SDCARD_FULL_EXT);
+    return STR_SDCARD_FULL_EXT;
   }
 
   // check and create folder here

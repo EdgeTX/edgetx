@@ -683,6 +683,7 @@
 #define TR_SPECTRUM_ANALYSER_EXT       "頻譜儀 (外置)"
 #define TR_SPECTRUM_ANALYSER_INT       "頻譜儀 (內置)"
 #define TR_SDCARD_FULL                 "存儲卡已滿"
+#define TR_SDCARD_FULL_EXT             "SD card full\nLogs and Screenshots disabled"
 #define TR_NEEDS_FILE                  "需要文件名包含"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"

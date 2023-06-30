@@ -690,6 +690,7 @@
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
 #define TR_SDCARD_FULL                 "SD kort fuldt"
+#define TR_SDCARD_FULL_EXT             "SD card full\nLogs and Screenshots disabled"
 #define TR_NEEDS_FILE                  "MANGLER FIL"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
