@@ -239,7 +239,7 @@ void OpenTxSimulator::setTrainerInput(unsigned int inputNumber, int16_t value)
 
 void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
 {
-  qDebug() << type << index << value << this->thread();
+  //qDebug() << type << index << value << this->thread();
   switch (type) {
     case INPUT_SRC_ANALOG :
     case INPUT_SRC_STICK :
