@@ -100,28 +100,28 @@
 
 #define TR_TEXT_SIZE                    "Std","XS","S","M","L"
 
-#define TR_SF_TRAINER                   "Lärare"
-#define TR_SF_INST_TRIM                 "Spara trimmar"
-#define TR_SF_RESET                     "Återställ"
-#define TR_SF_SET_TIMER                 "Sätt"
-#define TR_SF_VOLUME                    "Volym"
-#define TR_SF_FAILSAFE                  "Sätt failsafe"
-#define TR_SF_RANGE_CHECK               "Räckviddstest"
-#define TR_SF_MOD_BIND                  "Bind modul"
+#define TR_SF_TRAINER                  "Lärare"
+#define TR_SF_INST_TRIM                "Spara trimmar"
+#define TR_SF_RESET                    "Återställ"
+#define TR_SF_SET_TIMER                "Sätt"
+#define TR_SF_VOLUME                   "Volym"
+#define TR_SF_FAILSAFE                 "Sätt failsafe"
+#define TR_SF_RANGE_CHECK              "Range check"
+#define TR_SF_MOD_BIND                 "Bind modul"
  
-#define TR_SOUND                        "Spela ljud"
-#define TR_PLAY_TRACK                   "Spela upp"
-#define TR_PLAY_VALUE                   "Säg värdet"
-#define TR_SF_HAPTIC                    "Haptisk"
-#define TR_SF_PLAY_SCRIPT               "Lua-skript"
-#define TR_SF_BG_MUSIC                  "Musik"
-#define TR_SF_BG_MUSIC_PAUSE            "Pausa Musik"
-#define TR_SF_LOGS                      "Logga data"
-#define TR_ADJUST_GVAR                  "Justera"
-#define TR_SF_BACKLIGHT                 "Belysning"
-#define TR_SF_VARIO                     "Vario"
-#define TR_SF_TEST                      "Test"
-#define TR_SF_SAFETY                    "Lås"
+#define TR_SOUND                       "Spela ljud"
+#define TR_PLAY_TRACK                  "Spela upp"
+#define TR_PLAY_VALUE                  "Säg värdet"
+#define TR_SF_HAPTIC                   "Haptisk"
+#define TR_SF_PLAY_SCRIPT              "Lua-skript"
+#define TR_SF_BG_MUSIC                 "Musik"
+#define TR_SF_BG_MUSIC_PAUSE           "Pausa Musik"
+#define TR_SF_LOGS                     "Logga data"
+#define TR_ADJUST_GVAR                 "Justera"
+#define TR_SF_BACKLIGHT                "Belysning"
+#define TR_SF_VARIO                    "Vario"
+#define TR_SF_TEST                     "Test"
+#define TR_SF_SAFETY                   "Lås"
 
 #define TR_SF_SCREENSHOT                "Skärmbild"
 #define TR_SF_TEST                      "Test"
@@ -478,7 +478,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB     "KALIBRERADE ANALOGA"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RÅA ANALOGA (5Hz)"
 #define TR_MENUCALIBRATION              "KALIBRERING"
-#define TR_MENU_FSWITCH                 "FUNKTIONSBRYTARE"
+#define TR_MENU_FSWITCH                 "FUNCTION SWITCHES"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS              "[Spara trimvärden]"
 #else
@@ -691,7 +691,7 @@
 #define TR_TIME                         "Tid"
 #define TR_BAUDRATE                     "Baudrate"
 #define TR_MAXBAUDRATE                  "Max bauds"
-#define TR_SAMPLE_MODE                  TR("Sampling","Samplingstyp")
+#define TR_SAMPLE_MODE                  TR("Sampling","Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"
 #define TR_LOADING                      "Laddar..."
 #define TR_DELETE_THEME                 "Radera tema?"
@@ -859,7 +859,7 @@
 #define TR_DEBUG                        "Debug"
 #define TR_KEYS_BTN                     BUTTON(TR("Bryt.","Brytare"))
 #define TR_ANALOGS_BTN                  BUTTON(TR("Ana.","Analoga"))
-#define TR_FS_BTN                       BUTTON(TR("Funk.bryt.", "Funktionsbrytare"))
+#define TR_FS_BTN                       BUTTON(TR("F. Switches", "Function switches"))
 #define TR_TOUCH_NOTFOUND               "Pekskärm hittas ej"
 #define TR_TOUCH_EXIT                   "Peka på skärmen för att avsluta"
 #define TR_SET                          BUTTON(TR("Def", "Ställ in"))
@@ -891,7 +891,7 @@
 #define TR_AFHDS3_ONE_TO_MANY           "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER          TR("Act. pow", "Actual power")
 #define TR_AFHDS3_POWER_SOURCE          "Strömkälla"
-#define TR_ANTENNACONFIRM1              "EXTERN ANTENN"
+#define TR_ANTENNACONFIRM1              "EXT. ANTENN"
 
 #if defined(PCBX12S)
   #define TR_ANTENNA_MODES              "Intern","Fråga","Per modell","Intern + Extern"
@@ -901,7 +901,7 @@
 
 #define TR_USE_INTERNAL_ANTENNA         TR("Anv int. antenn", "Använd intern antenn")
 #define TR_USE_EXTERNAL_ANTENNA         TR("Anv ext. antenn", "Använd extern antenn")
-#define TR_ANTENNACONFIRM2              TR("Kontroll. antennen", "Kontrollera att antennen är installerad!")
+#define TR_ANTENNACONFIRM2              TR("Kontr. antenn", "Kontrollera att antennen är installerad!")
 #define TR_MODULE_PROTOCOL_FLEX_WARN_LINE1        "Kräver inte"
 #define TR_MODULE_PROTOCOL_FCC_WARN_LINE1         "Kräver FCC"
 #define TR_MODULE_PROTOCOL_EU_WARN_LINE1          "Kräver EU"
@@ -1146,6 +1146,7 @@
 #define TR_MENU_DISPLAY                 "DISPLAY"
 #define TR_MENU_OTHER                   "Övrigt"
 #define TR_MENU_INVERT                  "Invertera"
+#define TR_AUDIO_MUTE                   TR("Audio av","Audio av om inget ljud")
 #define TR_JITTER_FILTER                "ADC-filter"
 #define TR_DEAD_ZONE                    "Dödläge"
 #define TR_RTC_CHECK                    TR("Kolla RTC", "Kolla RTC-batteriet")
@@ -1265,3 +1266,4 @@
 #define TR_ENABLED_FEATURES             "Aktiverade funktioner"
 #define TR_RADIO_MENU_TABS              "Radiomenyflikar"
 #define TR_MODEL_MENU_TABS              "Modellmenyflikar"
+
