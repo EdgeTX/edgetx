@@ -4986,7 +4986,7 @@ Er du sikker?</translation>
     <message>   
         <location filename="../generaledit/hardware.cpp" line="178"/>
         <source>Mute if no sound</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio fra, hvis der ikke gives lyd</translation>
     </message>
     <message>
         <source>S.Port Power</source>
