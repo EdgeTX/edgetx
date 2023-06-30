@@ -6199,7 +6199,7 @@ Are you sure ?</source>
     <message>
         <location filename="../generaledit/hardware.cpp" line="178"/>
         <source>Mute if no sound</source>
-        <translation type="unfinished"></translation>
+        <translation>Ztlumení, pokud není slyšet zvuk</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="198"/>

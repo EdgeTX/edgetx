@@ -6249,7 +6249,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../generaledit/hardware.cpp" line="178"/>
         <source>Mute if no sound</source>
-        <translation type="unfinished"></translation>
+        <translation>Muet si pas de son</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="198"/>

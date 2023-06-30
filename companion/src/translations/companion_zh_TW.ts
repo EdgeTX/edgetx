@@ -6296,7 +6296,7 @@ Are you sure ?</source>
     <message>
         <location filename="../generaledit/hardware.cpp" line="178"/>
         <source>Mute if no sound</source>
-        <translation type="unfinished"></translation>
+        <translation>音頻停播時自動靜音</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="198"/>
