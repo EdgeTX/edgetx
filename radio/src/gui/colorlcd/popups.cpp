@@ -63,10 +63,8 @@ void POPUP_INFORMATION(const char * message)
   _run_popup_dialog("Message", message);
 }
 
-void POPUP_WARNING(const char * message, const char * info, bool waitForClose)
+void POPUP_WARNING(const char * message, const char * info)
 {
-  (void)waitForClose;
-  
   _run_popup_dialog("Warning", message, info);
 }
 

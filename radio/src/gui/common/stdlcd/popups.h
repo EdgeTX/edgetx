@@ -105,8 +105,10 @@ enum
     popupFunc = runPopupWarning;
   }
 
-  inline void POPUP_WARNING(const char * message, const char * info = nullptr)
+  inline void POPUP_WARNING(const char * message, const char * info = nullptr, bool waitForClose = true)
   {
+    (void)waitForClose;
+
     warningText = message;
     warningInfoText = info;
     warningInfoLength = info ? strlen(info) : 0;
