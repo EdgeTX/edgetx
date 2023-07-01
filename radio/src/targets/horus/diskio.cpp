@@ -177,7 +177,7 @@ DRESULT __disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
 
   if ((DWORD)buff < 0x20000000 || ((DWORD)buff & 3)) {
     // buffer is not aligned, use scratch buffer that is aligned
-    TRACE("disk_read bad alignment (%p)", buff);
+    //TRACE("disk_read bad alignment (%p)", buff);
     while (count--) {
       res = disk_read_dma(drv, (BYTE *)scratch, sector++, 1);
       if (res != RES_OK) break;

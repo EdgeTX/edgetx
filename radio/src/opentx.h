@@ -1105,6 +1105,10 @@ inline getvalue_t convertTelemValue(source_t channel, ls_telemetry_value_t value
   return convert16bitsTelemValue(channel, value);
 }
 
+inline bool IS_SDCARD_FULL() {
+  return sdGetFreeSectors() < ((50 *1024*1024) / BLOCK_SIZE); // 50MB safety margin
+}
+
 extern uint8_t g_vbat100mV;
 
 inline uint8_t GET_TXBATT_BARS(uint8_t barsMax)

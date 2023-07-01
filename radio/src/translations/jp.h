@@ -698,6 +698,7 @@
 #define TR_SPECTRUM_ANALYSER_EXT       "スペクトラム (外部)"
 #define TR_SPECTRUM_ANALYSER_INT       "スペクトラム (内部)"
 #define TR_SDCARD_FULL                 "SDカード空き容量なし"
+#define TR_SDCARD_FULL_EXT             "SD card full\nLogs and Screenshots disabled"
 #define TR_NEEDS_FILE                  "を含むファイルが必要です"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
