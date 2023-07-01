@@ -340,28 +340,28 @@ LEGACY_NAMES = [
                 "yaml": "SLIDER1",
                 "lua": "s3",
                 "label": "S3",
-                "short_label": "S4",
+                "short_label": "3",
                 "description": "Potentiometer 3"
             },
             "SL2": {
                 "yaml": "SLIDER2",
                 "lua": "s4",
                 "label": "S4",
-                "short_label": "S4",
+                "short_label": "4",
                 "description": "Potentiometer 4"
             },
             "SL3": {
                 "yaml": "SLIDER3",
                 "lua": "sl",
                 "label": "SL",
-                "short_label": "SL",
+                "short_label": "L",
                 "description": "Right finger slider"
             },
             "SL4": {
                 "yaml": "SLIDER4",
                 "lua": "sr",
                 "label": "SR",
-                "short_label": "SR",
+                "short_label": "R",
                 "description": "Right finger slider"
             }
         }

@@ -1092,7 +1092,7 @@ void menuModelSetup(event_t event)
           LcdFlags flags = 0;
           if ((menuHorizontalPosition == i) && attr)
             flags = BLINK | INVERS;
-          else if (ANALOG_CENTER_BEEP(x) || (attr && CURSOR_ON_LINE()))
+          else if (ANALOG_CENTER_BEEP(i) || (attr && CURSOR_ON_LINE()))
             flags = INVERS;
           lcdDrawText(x, y, getAnalogShortLabel(i), flags);
         }
