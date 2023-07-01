@@ -65,6 +65,13 @@
 #define CASE_BACKLIGHT(x)
 #endif
 
+#if defined(OLED_SCREEN)
+#define CASE_CONTRAST(x)
+#else
+#define CASE_CONTRAST(x) x,
+#endif
+
+
 #if defined(LUA)
   #define CASE_LUA(x) x,
 #else

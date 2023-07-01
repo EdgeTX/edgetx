@@ -330,6 +330,10 @@ void generalDefault()
   g_eeGeneral.pwrOffSpeed = 2;
 #endif
 
+#if defined(RADIO_TPROV2)
+  g_eeGeneral.rotEncMode = ROTARY_ENCODER_MODE_INVERT_BOTH;
+#endif
+
   g_eeGeneral.chkSum = 0xFFFF;
 }
 

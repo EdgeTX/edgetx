@@ -292,6 +292,10 @@ uint8_t isBacklightEnabled();
   #define USB_NAME                     "Jumper TPro"
   #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'T', '-', 'P', 'R', 'O', ' ', ' ', ' '  /* 8 Bytes */
+#elif defined(RADIO_TPROV2)
+  #define USB_NAME                     "Jumper TPro V2"
+  #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'T', '-', 'P', 'R', 'O', ' ', 'V', '2'  /* 8 Bytes */
 #elif defined(RADIO_COMMANDO8)
   #define USB_NAME                     "iFlight Commando 8"
   #define USB_MANUFACTURER             'i', 'F', 'l', 'i', 'g', 'h', 't', '-'  /* 8 bytes */
@@ -388,16 +392,24 @@ void ledBlue();
 #define LCD_H                           64
 #define LCD_DEPTH                       1
 #define IS_LCD_RESET_NEEDED()           true
+#if defined(OLED_SCREEN)
+#define LCD_CONTRAST_MIN                5
+#define LCD_CONTRAST_MAX                255
+#else
 #define LCD_CONTRAST_MIN                10
 #define LCD_CONTRAST_MAX                30
-#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO) || defined(RADIO_BOXER)
+#endif
+
+#if defined(OLED_SCREEN)
+  #define LCD_CONTRAST_DEFAULT          255 // full brightness
+#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO) || defined(RADIO_BOXER)
   #define LCD_CONTRAST_DEFAULT          20
 #elif defined(RADIO_TPRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TPRO) || defined(RADIO_COMMANDO8)
   #define LCD_CONTRAST_DEFAULT          25
 #else
   #define LCD_CONTRAST_DEFAULT          15
 #endif
-#if defined(RADIO_LR3PRO)
+#if defined(OLED_SCREEN)
   // add offset 2px because driver (SH1106) of the 1.3 OLED is for a 132 display
   #define LCD_W_OFFSET                  0x02
 #endif
@@ -465,6 +477,8 @@ void setTopBatteryValue(uint32_t volts);
 
 #if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)
   #define VOLTAGE_DROP 45
+#elif defined(RADIO_TPROV2)
+  #define VOLTAGE_DROP 60
 #else
   #define VOLTAGE_DROP 20
 #endif
