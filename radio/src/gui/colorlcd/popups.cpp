@@ -82,8 +82,12 @@ void show_ui_popup()
   }
 }
 
-void POPUP_WARNING_ON_UI_TASK(const char * message, const char * info)
+void POPUP_WARNING_ON_UI_TASK(const char * message, const char * info, bool waitForClose)
 {
+  // if already in a popup, and we don't want to wait, ignore call
+  if (!waitForClose && ui_popup_active)
+    return;
+
   // Wait in case already in popup.
   while (ui_popup_active) {
     RTOS_WAIT_MS(20);
@@ -92,8 +96,11 @@ void POPUP_WARNING_ON_UI_TASK(const char * message, const char * info)
   ui_popup_msg = message;
   ui_popup_info = info;
   ui_popup_active = true;
+
   // Wait until closed
-  while (ui_popup_active) {
-    RTOS_WAIT_MS(20);
+  if (waitForClose) {
+    while (ui_popup_active) {
+      RTOS_WAIT_MS(20);
+    }
   }
 }
