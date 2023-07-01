@@ -173,10 +173,11 @@
 #define TR_SF_SCREENSHOT               "Skærm klip"
 #define TR_SF_RACING_MODE              "Ræs tilstand"
 #define TR_SF_DISABLE_TOUCH            "Ikke berøringsaktiv"
+#define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
 #define TR_SF_SET_SCREEN               "Vælg hoved skærm"
 #define TR_SF_RESERVE                  "[reserve]"
 
-#define TR_VFSWFUNC                    TR_SF_SAFETY,"Træner","Inst. Trim","Nulstil","Sæt",TR_ADJUST_GVAR,"Lydstyrke","SetFejlsikr","AfstandCheck","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Baggrundslys",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
+#define TR_VFSWFUNC                    TR_SF_SAFETY,"Træner","Inst. Trim","Nulstil","Sæt",TR_ADJUST_GVAR,"Lydstyrke","SetFejlsikr","AfstandCheck","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Baggrundslys",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN, TR_SF_DISABLE_AUDIO_AMP TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetri")
 
