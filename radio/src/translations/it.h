@@ -839,6 +839,7 @@
 #define TR_DEBUG                        "Debug"
 #define TR_KEYS_BTN                     BUTTON(TR("SW", "Tasti"))
 #define TR_ANALOGS_BTN                  BUTTON("Analogici")
+#define TR_FS_BTN                       BUTTON(TR("Fun. Inter.", "Funzione interruttori"))
 #define TR_TOUCH_NOTFOUND               "Schermo touch non trovato"
 #define TR_TOUCH_EXIT                   "Tocca lo schermo per uscire"
 #define TR_SET                          BUTTON("Set")
