@@ -919,6 +919,7 @@
 #define TR_DEBUG                       "איבחון"
 #define TR_KEYS_BTN                    BUTTON("בדיקת מתגים")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "בדיקת אנלוגיות"))
+#define TR_FS_BTN                      BUTTON(TR("F. Switches", "Function switches"))
 #define TR_TOUCH_NOTFOUND              "!מסך זה אינו מסך מגע"
 #define TR_TOUCH_EXIT                  "גע במסך כדי לצאת"
 #define TR_SET                         BUTTON("הגדר")
