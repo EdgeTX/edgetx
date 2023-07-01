@@ -6230,6 +6230,11 @@ Are you sure ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../generaledit/hardware.cpp" line="178"/>
+        <source>Mute if no sound</source>
+        <translation>Muto senza suono</translation>
+    </message>
+    <message>
         <location filename="../generaledit/hardware.cpp" line="198"/>
         <source>Internal RF</source>
         <translation type="unfinished"></translation>

@@ -6232,6 +6232,11 @@ Are you sure ?</source>
         <translation type="unfinished">ADCフィルター</translation>
     </message>
     <message>
+        <location filename="../generaledit/hardware.cpp" line="178"/>
+        <source>Mute if no sound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../generaledit/hardware.cpp" line="198"/>
         <source>Internal RF</source>
         <translation type="unfinished"></translation>
