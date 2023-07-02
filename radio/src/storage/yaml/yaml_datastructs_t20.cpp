@@ -343,7 +343,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "rotEncMode", 2 ),
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_PADDING( 3 ),
-  YAML_PADDING( 1 ),
+  YAML_UNSIGNED( "audioMuteEnable", 1 ),
   YAML_UNSIGNED( "radioGFDisabled", 1 ),
   YAML_UNSIGNED( "radioTrainerDisabled", 1 ),
   YAML_UNSIGNED( "modelHeliDisabled", 1 ),
@@ -579,6 +579,7 @@ static const struct YamlNode struct_anonymous_10[] = {
   YAML_UNSIGNED( "telemetry", 1 ),
   YAML_UNSIGNED( "phyMode", 3 ),
   YAML_UNSIGNED( "reserved", 2 ),
+  YAML_UNSIGNED( "rfPower", 8 ),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_11[] = {
@@ -603,7 +604,7 @@ static const struct YamlNode union_anonymous_4_elmts[] = {
   YAML_STRUCT("sbus", 16, struct_anonymous_7, NULL),
   YAML_STRUCT("pxx2", 200, struct_anonymous_8, NULL),
   YAML_STRUCT("flysky", 56, struct_anonymous_9, NULL),
-  YAML_STRUCT("afhds3", 8, struct_anonymous_10, NULL),
+  YAML_STRUCT("afhds3", 16, struct_anonymous_10, NULL),
   YAML_STRUCT("ghost", 8, struct_anonymous_11, NULL),
   YAML_STRUCT("crsf", 8, struct_anonymous_12, NULL),
   YAML_STRUCT("dsmp", 8, struct_anonymous_13, NULL),
