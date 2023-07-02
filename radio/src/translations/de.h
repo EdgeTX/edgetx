@@ -270,6 +270,7 @@
 #define TR_WARN_5VOLTS                 "Warnung: Ausgangspegel ist 5 Volt"
 #define TR_MS                 		     "ms"
 #define TR_SWITCH                      TR("Schalt.", "Schalter")
+#define TR_FUNCTION_SWITCHES           "Function switches"
 #define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "Trimmer"
 #define TR_FADEIN                      "Langs. Ein"

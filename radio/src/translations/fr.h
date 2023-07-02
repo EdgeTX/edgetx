@@ -277,6 +277,7 @@
 #define TR_WARN_5VOLTS                 "Attention: niveau de sortie 5 volts"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      TR("Inter", "Interrupteur")
+#define TR_FUNCTION_SWITCHES           "Function switches"
 #define TR_SF_SWITCH                   "Interrupteur"
 #define TR_TRIMS                       "Trims"
 #define TR_FADEIN                      "Fondu ON"

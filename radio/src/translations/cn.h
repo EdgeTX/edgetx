@@ -260,6 +260,7 @@
 #define TR_WARN_5VOLTS                 "注意输出电平为5V"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "开关"
+#define TR_FUNCTION_SWITCHES           "Function switches"
 #define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "微调"
 #define TR_FADEIN                      "渐入"

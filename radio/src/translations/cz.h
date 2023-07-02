@@ -275,6 +275,7 @@
 #define TR_WARN_5VOLTS                 "Varování: výstupní úroveň je 5 voltů"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Spínač"
+#define TR_FUNCTION_SWITCHES           "Function switches"
 #define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "Trimy"
 #define TR_FADEIN                      "Přechod Zap"

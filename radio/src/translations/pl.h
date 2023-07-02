@@ -267,6 +267,7 @@
 #define TR_WARN_5VOLTS                 "Uwaga: output level is 5 volts"
 #define TR_MS                  "ms"
 #define TR_SWITCH              "Przełą"
+#define TR_FUNCTION_SWITCHES           "Function switches"
 #define TR_SF_SWITCH           "Trigger"
 #define TR_TRIMS               "Trymy"
 #define TR_FADEIN              "Pojawia"

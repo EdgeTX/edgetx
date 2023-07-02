@@ -273,6 +273,7 @@
 #define TR_WARN_5VOLTS                 "Advarsel: udgang niveau er 5 volts"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Kontakt"
+#define TR_FUNCTION_SWITCHES           "Function switches"
 #define TR_SF_SWITCH                   "Udløser"
 #define TR_TRIMS                       "Trim"
 #define TR_FADEIN                      "Tone ind"

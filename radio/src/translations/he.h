@@ -350,6 +350,7 @@
 #define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "מתג"
+#define TR_FUNCTION_SWITCHES           "Function switches"
 #define TR_SF_SWITCH                   "הדק"
 #define TR_TRIMS                       "קיזוזים"
 #define TR_FADEIN                      "Fade in"

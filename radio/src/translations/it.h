@@ -269,6 +269,7 @@
 #define TR_WARN_5VOLTS                  "Attenzione: il livello d'uscita è 5 Volts"
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Inter."
+#define TR_FUNCTION_SWITCHES           "Function switches"
 #define TR_SF_SWITCH                    "Trigger"
 #define TR_TRIMS                        "Trims"
 #define TR_FADEIN                       "Diss.In"

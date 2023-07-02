@@ -288,6 +288,7 @@ extern const char STR_PPMFRAME[];
 extern const char STR_REFRESHRATE[];
 extern const char STR_MS[];
 extern const char STR_SWITCH[];
+extern const char STR_FUNCTION_SWITCHES[];
 extern const char STR_ADJUST_GVAR[];
 extern const char STR_PLAY_TRACK[];
 extern const char STR_PLAY_VALUE[];

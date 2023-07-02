@@ -266,6 +266,7 @@
 #define TR_WARN_5VOLTS                 "警告: 出力レベル 5V"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "スイッチ"
+#define TR_FUNCTION_SWITCHES           "Function switches"
 #define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "トリム"
 #define TR_FADEIN                      "フェードイン"
