@@ -24,6 +24,8 @@
 #include "hal/switch_driver.h"
 #include "hal/rotary_encoder.h"
 
+#include "sticks_pwm_driver.h"
+
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
@@ -37,10 +39,6 @@
 #include "debug.h"
 
 #include <string.h>
-
-#if defined(PWM_STICKS)
-  #include "sticks_pwm_driver.h"
-#endif
 
 #if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
   #include "flysky_gimbal_driver.h"

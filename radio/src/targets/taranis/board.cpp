@@ -21,16 +21,15 @@
 
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
+#include "hal/module_port.h"
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
+#include "boards/generic_stm32/analog_inputs.h"
 
 #include "debug.h"
 #include "rtc.h"
-
-#include "hal/adc_driver.h"
-#include "hal/module_port.h"
 
 #include "../common/arm/stm32/timers_driver.h"
 
@@ -45,10 +44,6 @@
 
 #if defined(BLUETOOTH)
   #include "bluetooth_driver.h"
-#endif
-
-#if defined(PWM_STICKS)
-  #include "sticks_pwm_driver.h"
 #endif
 
 #if defined(__cplusplus)
@@ -69,9 +64,6 @@ bool UNEXPECTED_SHUTDOWN()
 #endif
 
 HardwareOptions hardwareOptions;
-
-// adc_driver.cpp
-extern const etx_hal_adc_driver_t _adc_driver;
 
 void watchdogInit(unsigned int duration)
 {

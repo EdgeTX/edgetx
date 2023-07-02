@@ -26,7 +26,6 @@
 
 
 struct stm32_adc_input_t {
-  const char*   name;
   GPIO_TypeDef* GPIOx;
   uint32_t      GPIO_Pin;
   uint32_t      ADC_Channel;
