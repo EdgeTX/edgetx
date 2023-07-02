@@ -78,7 +78,7 @@ uint8_t   potsPos[MAX_POTS];
    ((sw) % XPOTS_MULTIPOS_COUNT))
 
 #if defined(FUNCTION_SWITCHES)
-// Function switches
+// Customizable switches
 // 
 // Non pushed : SWSRC_Sx0 = -1024 = Sx(up) = state 0
 // Pushed : SWSRC_Sx2 = +1024 = Sx(down) = state 1

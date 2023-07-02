@@ -269,7 +269,7 @@
 #define TR_WARN_5VOLTS                  "Attenzione: il livello d'uscita è 5 Volts"
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Inter."
-#define TR_FUNCTION_SWITCHES           "Function switches"
+#define TR_FUNCTION_SWITCHES           "Customizable switches"
 #define TR_SF_SWITCH                    "Trigger"
 #define TR_TRIMS                        "Trims"
 #define TR_FADEIN                       "Diss.In"
@@ -455,7 +455,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB     "ANALOGICI CALIBRATI"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "ANALOGICI RAW (5 Hz)"
 #define TR_MENUCALIBRATION              "CALIBRAZIONE"
-#define TR_MENU_FSWITCH                 "FUNCTION SWITCHES"
+#define TR_MENU_FSWITCH                 "CUSTOMIZABLE SWITCHES"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS              "Trims => Subtrims"
 #else

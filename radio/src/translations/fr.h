@@ -277,7 +277,7 @@
 #define TR_WARN_5VOLTS                 "Attention: niveau de sortie 5 volts"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      TR("Inter", "Interrupteur")
-#define TR_FUNCTION_SWITCHES           "Function switches"
+#define TR_FUNCTION_SWITCHES           "Customizable switches"
 #define TR_SF_SWITCH                   "Interrupteur"
 #define TR_TRIMS                       "Trims"
 #define TR_FADEIN                      "Fondu ON"
@@ -465,7 +465,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB    "ANALOG. CALIBRÉS"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGS (5 Hz)"
 #define TR_MENUCALIBRATION             "CALIBRATION"
-#define TR_MENU_FSWITCH                "FUNCTION SWITCHES"
+#define TR_MENU_FSWITCH                "CUSTOMIZABLE SWITCHES"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "Trims => Subtrims"
 #else
@@ -844,7 +844,7 @@
 #define TR_DEBUG                       "Debug"
 #define TR_KEYS_BTN                    BUTTON(TR("Btns","Inters"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "Analogs"))
-#define TR_FS_BTN                      BUTTON(TR("F. Switches", "Function switches"))
+#define TR_FS_BTN                      BUTTON(TR("Custom sw", "Customizable switches"))
 #define TR_TOUCH_NOTFOUND              "Écran tactile non trouvé"
 #define TR_TOUCH_EXIT                  "Toucher écran pour quitter"
 #define TR_SET                         BUTTON("Déf")

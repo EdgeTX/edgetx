@@ -273,7 +273,7 @@
 #define TR_WARN_5VOLTS                 "Advarsel: udgang niveau er 5 volts"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Kontakt"
-#define TR_FUNCTION_SWITCHES           "Function switches"
+#define TR_FUNCTION_SWITCHES           "Customizable switches"
 #define TR_SF_SWITCH                   "Udløser"
 #define TR_TRIMS                       "Trim"
 #define TR_FADEIN                      "Tone ind"
@@ -461,7 +461,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB    "KALIBRERET ANALOGE"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RÅ ANALOGE (5 Hz)"
 #define TR_MENUCALIBRATION             "KALIBRIERING"
-#define TR_MENU_FSWITCH                "FUNCTION SWITCHES"
+#define TR_MENU_FSWITCH                "CUSTOMIZABLE SWITCHES"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "Trim => Subtrim"
 #else
@@ -846,7 +846,7 @@
 #define TR_DEBUG                       "Fejlfind"
 #define TR_KEYS_BTN                    BUTTON("Taster")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analo", "Analoge"))
-#define TR_FS_BTN                      BUTTON(TR("F. Switches", "Function switches"))
+#define TR_FS_BTN                      BUTTON(TR("Custom sw", "Customizable switches"))
 #define TR_TOUCH_NOTFOUND              "Tryk skærm ikke fundet"
 #define TR_TOUCH_EXIT                  "Tryk på skærm for at forlade"
 #define TR_SET                         BUTTON("Set")
