@@ -40,22 +40,22 @@ SimulatedUIWidget9X::SimulatedUIWidget9X(SimulatorInterface * simulator, QWidget
   int x = 68, y = 91, oR = 63;
 
   polygon << QPoint(x, y) << polyArc(x, y, oR, -45, 45);
-  act = new RadioUiAction(3, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP % (hasRotEnc ? QString("") :  "|" % SIMU_STR_HLP_MOUSE_UP), SIMU_STR_HLP_ACT_UP);
+  act = new RadioUiAction(10, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP % (hasRotEnc ? QString("") :  "|" % SIMU_STR_HLP_MOUSE_UP), SIMU_STR_HLP_ACT_UP);
   addRadioWidget(ui->leftbuttons->addArea(polygon, "9X/9xcursup.png", act));
 
   polygon.clear();
   polygon << QPoint(x, y) << polyArc(x, y, oR, 135, 225);
-  act = new RadioUiAction(2, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN % (hasRotEnc ? QString("") :  "|" % SIMU_STR_HLP_MOUSE_DN), SIMU_STR_HLP_ACT_DN);
+  act = new RadioUiAction(11, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN % (hasRotEnc ? QString("") :  "|" % SIMU_STR_HLP_MOUSE_DN), SIMU_STR_HLP_ACT_DN);
   addRadioWidget(ui->leftbuttons->addArea(polygon, "9X/9xcursdown.png", act));
 
   polygon.clear();
   polygon << QPoint(x, y) << polyArc(x, y, oR, 45, 135);
-  act = new RadioUiAction(4, QList<int>() << Qt::Key_Right << Qt::Key_Minus, SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN);
+  act = new RadioUiAction(11, QList<int>() << Qt::Key_Right << Qt::Key_Minus, SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN);
   addRadioWidget(ui->leftbuttons->addArea(polygon, "9X/9xcursmin.png", act));
 
   polygon.clear();
   polygon << QPoint(x, y) << polyArc(x, y, oR, 225, 315);
-  act = new RadioUiAction(5, QList<int>() << Qt::Key_Left << Qt::Key_Plus << Qt::Key_Equal, SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS);
+  act = new RadioUiAction(10, QList<int>() << Qt::Key_Left << Qt::Key_Plus << Qt::Key_Equal, SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS);
   addRadioWidget(ui->leftbuttons->addArea(polygon, "9X/9xcursplus.png", act));
 
   act = new RadioUiAction(0, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEY_ENTER, SIMU_STR_HLP_ACT_MENU);

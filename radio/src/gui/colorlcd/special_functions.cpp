@@ -25,6 +25,9 @@
 #include "view_main.h"
 #include "lvgl_widgets/input_mix_line.h"
 
+#include "hal/adc_driver.h"
+#include "strhelpers.h"
+
 #define SET_DIRTY()     storageDirty(functions == g_model.customFn ? EE_MODEL : EE_GENERAL)
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
@@ -125,17 +128,16 @@ class SpecialFunctionEditPage : public Page
 
       case FUNC_TRAINER: {
         new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-        auto choice =
-            new Choice(line, rect_t{}, 0,
-                       NUM_STICKS + 1, GET_SET_DEFAULT(CFN_CH_INDEX(cfn)));
+        auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
+        auto choice = new Choice(line, rect_t{}, 0, max_sticks + 1,
+                                 GET_SET_DEFAULT(CFN_CH_INDEX(cfn)));
         choice->setTextHandler([=](int32_t value) {
           if (value == 0)
             return std::string(STR_STICKS);
-          else if (value == NUM_STICKS + 1)
+          else if (value == MAX_STICKS + 1)
             return std::string(STR_CHANS);
-          else
-            return TEXT_AT_INDEX(STR_VSRCRAW, value);
-          ;
+
+          return std::string(getMainControlLabel(value));
         });
         break;
       }
@@ -192,7 +194,8 @@ class SpecialFunctionEditPage : public Page
             [=](std::string newValue) {
               strncpy(cfn->play.name, newValue.c_str(), sizeof(cfn->play.name));
               SET_DIRTY();
-              LUA_LOAD_MODEL_SCRIPTS();
+              if (func == FUNC_PLAY_SCRIPT)
+                LUA_LOAD_MODEL_SCRIPTS();
             },
             true);  // strip extension
         break;
@@ -397,9 +400,11 @@ class SpecialFunctionEditPage : public Page
     line = form->newLine(&grid);
     new StaticText(line, rect_t{}, STR_FUNC, 0, COLOR_THEME_PRIMARY1);
     auto functionChoice =
-        new Choice(line, rect_t{}, STR_VFSWFUNC,
-                   0, FUNC_MAX - 1,
+        new Choice(line, rect_t{}, 0, FUNC_MAX - 1,
                    GET_DEFAULT(CFN_FUNC(cfn)));
+    functionChoice->setTextHandler([=](int val) {
+      return funcGetLabel(val);
+    });
     functionChoice->setSetValueHandler([=](int32_t newValue) {
       CFN_FUNC(cfn) = newValue;
       CFN_RESET(cfn);
@@ -559,22 +564,22 @@ class SpecialFunctionButton : public Button
     lv_label_set_text(sfName, s);
     lv_label_set_text(sfSwitch, getSwitchPositionName(CFN_SWITCH(cfn)));
 
-    strcpy(s, STR_VFSWFUNC[func]);
+    strcpy(s, funcGetLabel(func));
     strcat(s, " - ");
 
     switch (func) {
       case FUNC_OVERRIDE_CHANNEL:
-        sprintf(s+strlen(s), "%s = %s", getSourceString(MIXSRC_CH1 + CFN_CH_INDEX(cfn)), formatNumberAsString(CFN_PARAM(cfn)).c_str());
+        sprintf(s+strlen(s), "%s = %s", getSourceString(MIXSRC_FIRST_CH + CFN_CH_INDEX(cfn)), formatNumberAsString(CFN_PARAM(cfn)).c_str());
         break;
 
       case FUNC_TRAINER: {
         int16_t value = CFN_CH_INDEX(cfn);
         if (value == 0)
           strcat(s, STR_STICKS);
-        else if (value == NUM_STICKS + 1)
+        else if (value == MAX_STICKS + 1)
           strcat(s, STR_CHANS);
         else
-          strcat(s, STR_VSRCRAW[value]);
+          strcat(s, getMainControlLabel(value - 1));
         break;
       }
 
@@ -645,7 +650,7 @@ class SpecialFunctionButton : public Button
         break;
         
       default:
-        strcpy(s, STR_VFSWFUNC[func]);
+        strcpy(s, funcGetLabel(func));
         break;
     }
 

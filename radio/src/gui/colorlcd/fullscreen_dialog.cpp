@@ -25,6 +25,8 @@
 #include "opentx.h"
 #include "libopenui.h"
 
+#include "watchdog_driver.h"
+
 static Window* _get_parent()
 {
   Window* p = Layer::back();
@@ -45,6 +47,9 @@ FullScreenDialog::FullScreenDialog(
   Layer::push(this);
 
   bringToTop();
+
+  init();
+
   lv_obj_add_event_cb(lvobj, FullScreenDialog::long_pressed, LV_EVENT_LONG_PRESSED, nullptr);
 }
 
@@ -105,8 +110,6 @@ void FullScreenDialog::init()
 
 void FullScreenDialog::paint(BitmapBuffer * dc)
 {
-  init();
-
   OpenTxTheme::instance()->drawBackground(dc);
 
   dc->drawFilledRect(0, ALERT_FRAME_TOP, LCD_W, ALERT_FRAME_HEIGHT, SOLID,
@@ -173,6 +176,11 @@ void FullScreenDialog::deleteLater(bool detach, bool trash)
     Layer::pop(this);
     Window::deleteLater(detach, trash);
   }
+}
+
+void FullScreenDialog::setMessage(std::string text)
+{
+  messageLabel->setText(text);
 }
 
 static void run_ui_manually()

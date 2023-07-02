@@ -138,6 +138,3 @@ constexpr LcdFlags TABLE_BODY_FONT = FONT(STD);
 
 constexpr int CJK_FIRST_LETTER_INDEX = 128 - 32 + 21;
 constexpr coord_t CHAR_SPACING = 0;
-
-// Disable rotary encoder, as the NV14 does not have one
-#define ROTARY_ENCODER_SPEED() 0

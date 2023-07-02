@@ -30,6 +30,7 @@
 #include "globals.h"
 #include "serial.h"
 #include "usb_joystick.h"
+#include "input_mapping.h"
 
 #if defined(PCBTARANIS)
   #define N_TARANIS_FIELD(x)
@@ -78,8 +79,8 @@ PACK(struct MixData {
   uint16_t mixWarn:2;       // mixer warning
   uint16_t mltpx:2 ENUM(MixerMultiplex);
   uint16_t spare:1 SKIP;
-  int32_t  offset:14 CUST(in_read_weight,in_write_weight);
-  int32_t  swtch:9 CUST(r_swtchSrc,w_swtchSrc);
+  int32_t  offset:13 CUST(in_read_weight,in_write_weight);
+  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
   uint32_t flightModes:9 CUST(r_flightModes, w_flightModes);
   CurveRef curve;
   uint8_t  delayUp;
@@ -100,10 +101,9 @@ PACK(struct ExpoData {
   int16_t  trimSource:6;
   uint16_t srcRaw:10 ENUM(MixSources) CUST(r_mixSrcRaw,w_mixSrcRaw);
   uint32_t chn:5;
-  int32_t  swtch:9 CUST(r_swtchSrc,w_swtchSrc);
+  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
   uint32_t flightModes:9 CUST(r_flightModes, w_flightModes);
   int32_t  weight:8 CUST(in_read_weight,in_write_weight);
-  int32_t  spare:1 SKIP;
   NOBACKUP(char name[LEN_EXPOMIX_NAME]);
   int8_t   offset CUST(in_read_weight,in_write_weight);
   CurveRef curve;
@@ -134,9 +134,9 @@ PACK(struct LogicalSwitchData {
   CUST_ATTR(def,r_logicSw,w_logicSw);
   int32_t  v1:10 SKIP;
   int32_t  v3:10 SKIP;
-  int32_t  andsw:9 CUST(r_swtchSrc,w_swtchSrc); // TODO rename to xswtch
+  int32_t  andsw:10 CUST(r_swtchSrc,w_swtchSrc); // TODO rename to xswtch
   uint32_t andswtype:1 SKIP;  // TODO rename to xswtchType (AND / OR)
-  uint32_t spare:2 SKIP; // anything else needed?
+  uint32_t spare:1 SKIP; // anything else needed?
   int16_t  v2 SKIP;
   uint8_t  delay;
   uint8_t  duration;
@@ -154,8 +154,8 @@ PACK(struct LogicalSwitchData {
 #endif
 
 PACK(struct CustomFunctionData {
-  int16_t  swtch:9 CUST(r_swtchSrc,w_swtchSrc);
-  uint16_t func:7 ENUM(Functions);
+  int16_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
+  uint16_t func:6 ENUM(Functions); // TODO: 6 bits for Functions?
   CUST_ATTR(def,r_customFn,w_customFn);
   PACK(union {
     NOBACKUP(PACK(struct {
@@ -192,10 +192,11 @@ PACK(struct trim_t {
 });
 
 PACK(struct FlightModeData {
-  trim_t trim[NUM_TRIMS];
+  trim_t trim[MAX_TRIMS];
   NOBACKUP(char name[LEN_FLIGHT_MODE_NAME]);
-  int16_t swtch:9 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc); // swtch of phase[0] is not used
-  int16_t spare:7 SKIP;
+  // swtch of phase[0] is not used
+  int16_t swtch:10 ENUM(SwitchSources) CUST(r_swtchSrc,w_swtchSrc);
+  int16_t spare:6 SKIP;
   uint8_t fadeIn;
   uint8_t fadeOut;
   gvar_t gvars[MAX_GVARS] FUNC(gvar_is_active);
@@ -514,6 +515,7 @@ PACK(struct ModuleData {
       uint8_t telemetry:1;
       uint8_t phyMode:3;
       uint8_t reserved:2;
+      uint8_t rfPower;
     } afhds3);
     NOBACKUP(struct {
       uint8_t raw12bits:1;
@@ -554,19 +556,20 @@ PACK(struct ModelHeader {
 #endif
 });
 
-#if defined(COLORLCD)
-typedef uint32_t swconfig_t;
-typedef uint32_t swarnstate_t;
-#elif defined(PCBX9E)
-typedef uint64_t swconfig_t;
-typedef uint64_t swarnstate_t;
-#elif defined(PCBX9D) || defined(PCBX9DP)
-typedef uint32_t swconfig_t;
-typedef uint32_t swarnstate_t;
-#else
-typedef uint16_t swconfig_t;
-typedef uint32_t swarnstate_t;
-#endif
+// 2 bits per switch, max 32 switches
+static_assert(sizeof(swconfig_t) >= (MAX_SWITCHES * 2 + 7) / 8,
+              "MAX_SWITCHES must fit swconfig_t");
+
+static_assert(sizeof(swarnstate_t) >= (MAX_SWITCHES * 2 + 7) / 8,
+              "MAX_SWITCHES must fit swarnstate_t");
+
+// pot config: 4 bits per pot
+static_assert(sizeof(potconfig_t) * 8 >= ((MAX_POTS - 1) / 4) + 1,
+              "MAX_POTS must fit potconfig_t");
+
+// pot warning enabled: 1 bit per pot
+static_assert(sizeof(potwarnen_t) * 8 >= MAX_POTS,
+              "MAX_POTS must fit potwarnen_t");
 
 #if defined(COLORLCD) && defined(BACKUP)
 #define CUSTOM_SCREENS_DATA
@@ -605,7 +608,7 @@ PACK(struct CustomScreenData {
   #define SCRIPT_DATA
 #endif
 
-#if defined(FUNCTION_SWITCHES) && NUM_FUNCTIONS_SWITCHES < 8
+#if defined(FUNCTION_SWITCHES)
   #define FUNCTION_SWITCHS_FIELDS \
     uint16_t functionSwitchConfig;  \
     uint16_t functionSwitchGroup; \
@@ -718,8 +721,8 @@ PACK(struct ModelData {
   SCRIPT_DATA
 
   NOBACKUP(char inputNames[MAX_INPUTS][LEN_INPUT_NAME]);
-  NOBACKUP(uint16_t potsWarnEnabled);
-  NOBACKUP(int8_t potsWarnPosition[STORAGE_NUM_POTS+STORAGE_NUM_SLIDERS]);
+  NOBACKUP(potwarnen_t potsWarnEnabled);
+  NOBACKUP(int8_t potsWarnPosition[MAX_POTS]);
 
   NOBACKUP(TelemetrySensor telemetrySensors[MAX_TELEMETRY_SENSORS];)
 
@@ -733,30 +736,26 @@ PACK(struct ModelData {
 
   uint8_t getThrottleStickTrimSource() const
   {
-    // The order here is TERA, so that 0 (default) means Throttle
-    switch (thrTrimSw) {
-      case 0:
-        return MIXSRC_TrimThr;
-      case 2:
-        return MIXSRC_TrimRud;
-      default:
-        return thrTrimSw + MIXSRC_FIRST_TRIM;
+    // Makes Throttle the default (=0)
+    auto thr = inputMappingGetThrottle();
+    if (thrTrimSw == 0) {
+      return MIXSRC_FIRST_TRIM + thr;
+    } else if (thrTrimSw == thr) {
+      return MIXSRC_FIRST_TRIM;
+    } else {
+      return MIXSRC_FIRST_TRIM + thrTrimSw;
     }
   }
 
   void setThrottleStickTrimSource(int16_t src)
   {
-    // The order here is TERA, so that 0 (default) means Throttle
-    switch (src) {
-      case MIXSRC_TrimThr:
-        thrTrimSw = 0;
-        break;
-      case MIXSRC_TrimRud:
-        thrTrimSw = 2;
-        break;
-      default:
-        thrTrimSw = src - MIXSRC_FIRST_TRIM;
-        break;
+    auto thr = inputMappingGetThrottle();
+    if (src == MIXSRC_FIRST_TRIM + thr) {
+      thrTrimSw = 0;
+    } else if (src == MIXSRC_FIRST_TRIM) {
+      thrTrimSw = thr;
+    } else {
+      thrTrimSw = src - MIXSRC_FIRST_TRIM;
     }
   }
 
@@ -819,12 +818,6 @@ PACK(struct TrainerData {
 
 #if defined(COLORLCD)
   #define EXTRA_GENERAL_FIELDS \
-    CUST_ARRAY(sticksConfig, struct_sticksConfig, stick_name_valid); \
-    swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr);       \
-    uint16_t potsConfig ARRAY(2,struct_potConfig,nullptr); /* two bits per pot */ \
-    uint8_t slidersConfig ARRAY(1,struct_sliderConfig,nullptr); /* 1 bit per slider */ \
-    NOBACKUP(char switchNames[STORAGE_NUM_SWITCHES][LEN_SWITCH_NAME] SKIP); \
-    NOBACKUP(char anaNames[NUM_STICKS + STORAGE_NUM_POTS + STORAGE_NUM_SLIDERS][LEN_ANA_NAME] SKIP); \
     NOBACKUP(char currModelFilename[LEN_MODEL_FILENAME+1]); \
     NOBACKUP(uint8_t modelQuickSelect:1); \
     NOBACKUP(uint8_t blOffBright:7); \
@@ -838,14 +831,7 @@ PACK(struct TrainerData {
     #define BLUETOOTH_FIELDS
   #endif
   #define EXTRA_GENERAL_FIELDS \
-    uint8_t  slidersConfig:4 ARRAY(1,struct_sliderConfig,nullptr); \
-    uint8_t  spare5:4 SKIP; \
-    uint8_t  potsConfig ARRAY(2,struct_potConfig,nullptr); /* two bits per pot */\
     uint8_t  backlightColor; \
-    CUST_ARRAY(sticksConfig, struct_sticksConfig, stick_name_valid); \
-    swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr); \
-    char switchNames[STORAGE_NUM_SWITCHES - NUM_FUNCTIONS_SWITCHES][LEN_SWITCH_NAME] SKIP; \
-    char anaNames[NUM_STICKS+STORAGE_NUM_POTS+STORAGE_NUM_SLIDERS][LEN_ANA_NAME] SKIP; \
     BLUETOOTH_FIELDS
 #endif
 
@@ -872,7 +858,7 @@ PACK(struct RadioData {
   NOBACKUP(int8_t spare0:7 SKIP);
   CUST_ATTR(semver,nullptr,w_semver);
   CUST_ATTR(board,nullptr,w_board);
-  CalibData calib[NUM_STICKS + STORAGE_NUM_POTS + STORAGE_NUM_SLIDERS + STORAGE_NUM_MOUSE_ANALOGS] NO_IDX;
+  CalibData calib[MAX_CALIB_ANALOG_INPUTS] NO_IDX;
   NOBACKUP(uint16_t chkSum SKIP);
   N_HORUS_FIELD(int8_t currModel);
   N_HORUS_FIELD(uint8_t contrast);
@@ -882,7 +868,7 @@ PACK(struct RadioData {
   int8_t antennaMode:2 ENUM(AntennaModes);
   uint8_t disableRtcWarning:1;
   uint8_t keysBacklight:1;
-  NOBACKUP(uint8_t spare1:1 SKIP);
+  uint8_t spare1:1 SKIP;
   uint8_t internalModule ENUM(ModuleType);
   NOBACKUP(TrainerData trainer);
   NOBACKUP(uint8_t view);            // index of view in main screen
@@ -945,6 +931,11 @@ PACK(struct RadioData {
   CUST_ATTR(aux2SerialMode, r_serialMode, nullptr);
   NOBACKUP(uint32_t serialPort ARRAY(SERIAL_CONF_BITS_PER_PORT,struct_serialConfig,nullptr));
 
+  CUST_ARRAY(sticksConfig, struct_stickConfig, MAX_STICKS, stick_name_valid);
+  CUST_ARRAY(slidersConfig, struct_sliderConfig, MAX_POTS, nullptr);
+  potconfig_t potsConfig ARRAY(4,struct_potConfig,nullptr);
+  swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr);
+
   EXTRA_GENERAL_FIELDS
 
   THEME_DATA
@@ -961,7 +952,8 @@ PACK(struct RadioData {
 #else
   NOBACKUP(uint8_t  stickDeadZoneSpare:3 SKIP);
 #endif
-  NOBACKUP(uint8_t  spare4:1 SKIP);
+
+  NOBACKUP(uint8_t  audioMuteEnable:1);
 
 #if defined(IMU)
   NOBACKUP(int8_t imuMax);

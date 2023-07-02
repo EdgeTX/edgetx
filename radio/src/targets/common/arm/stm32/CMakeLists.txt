@@ -41,6 +41,10 @@ set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/stm32_serial_driver.cpp
   ../common/arm/stm32/stm32_softserial_driver.cpp
   ../common/arm/stm32/module_timer_driver.cpp
+  ../common/arm/stm32/stm32_switch_driver.cpp
+  ../common/arm/stm32/stm32_adc.cpp
+  ../common/arm/stm32/stm32_gpio_driver.cpp
+  ../common/arm/stm32/mixer_scheduler_driver.cpp
   )
 
 if(IMU)

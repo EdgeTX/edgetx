@@ -20,6 +20,8 @@
  */
 
 #include "opentx.h"
+#include "hal/adc_driver.h"
+#include "input_mapping.h"
 
 #if LCD_W >= 212
   #define TRAINER_CALIB_COLUMN_WIDTH (6 * FW)
@@ -48,11 +50,13 @@ void menuRadioTrainer(event_t event)
 
   y = MENU_HEADER_HEIGHT + 1 + FH;
 
-  for (uint8_t i=HEADER_LINE; i<HEADER_LINE+NUM_STICKS; i++) {
-    uint8_t chan = channelOrder(i+1-HEADER_LINE);
-    TrainerMix * td = &g_eeGeneral.trainer.mix[chan-1];
+  auto controls = adcGetMaxInputs(ADC_INPUT_MAIN);
+  for (uint8_t i = HEADER_LINE; i < HEADER_LINE + controls; i++) {
+    uint8_t chan = inputMappingChannelOrder(i - HEADER_LINE);
+    TrainerMix * td = &g_eeGeneral.trainer.mix[chan];
 
-    drawSource(0, y, MIXSRC_Rud-1+chan, (menuVerticalPosition==i && CURSOR_ON_LINE()) ? INVERS : 0);
+    drawSource(0, y, MIXSRC_FIRST_STICK + chan,
+               (menuVerticalPosition==i && CURSOR_ON_LINE()) ? INVERS : 0);
 
     for (uint8_t j=0; j<3; j++) {
 

@@ -21,6 +21,7 @@
 #include "radiodata.h"
 #include "radiodataconversionstate.h"
 #include "eeprominterface.h"
+#include "compounditemmodels.h"
 
 RadioData::RadioData() :
   sortOrder(0)
@@ -308,3 +309,37 @@ QString RadioData::unEscapeCSV(QString str)
   str.replace("//","/");
   return str;
 }
+
+//  static
+QString RadioData::modelSortOrderToString(int value)
+{
+  switch(value) {
+    case MSO_NO_SORT:
+      return tr("None");
+    case MSO_NAME_ASC:
+      return tr("Name %1").arg(CPN_STR_SW_INDICATOR_UP);
+    case MSO_NAME_DES:
+      return tr("Name %1").arg(CPN_STR_SW_INDICATOR_DN);
+    case MSO_DATE_ASC:
+      return tr("Last Opened %1").arg(CPN_STR_SW_INDICATOR_UP);
+    case MSO_DATE_DES:
+      return tr("Last Opened %1").arg(CPN_STR_SW_INDICATOR_DN);
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * RadioData::modelSortOrderItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("radio.modelsortorder");
+
+  for (int i = 0; i < MSO_SORT_COUNT; i++) {
+    mdl->appendToItemList(modelSortOrderToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+

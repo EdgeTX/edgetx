@@ -226,7 +226,13 @@ static int luaModelSetModule(lua_State *L)
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
       luaL_checktype(L, -2, LUA_TSTRING); // key is string
       const char * key = luaL_checkstring(L, -2);
-      if (!strcmp(key, "subType")) {
+      if (!strcmp(key, "Type")) {
+        uint8_t newtype = luaL_checkinteger(L, -1);
+        if (newtype != module.type) {
+          setModuleType(idx, newtype);
+        }
+      }
+      else if (!strcmp(key, "subType")) {
         module.subType = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "modelId")) {
@@ -482,7 +488,7 @@ static int luaModelGetFlightMode(lua_State * L)
     lua_pushtableinteger(L, "fadeOut", fm->fadeOut);
     lua_pushstring(L, "trimsValues");
     lua_newtable(L);
-    for (uint8_t i = 0; i < NUM_TRIMS; i++) {
+    for (uint8_t i = 0; i < MAX_TRIMS; i++) {
       lua_pushinteger(L, i + 1);
       lua_pushinteger(L, fm->trim[i].value);
       lua_settable(L, -3);
@@ -490,7 +496,7 @@ static int luaModelGetFlightMode(lua_State * L)
     lua_settable(L, -3);
     lua_pushstring(L, "trimsModes");
     lua_newtable(L);
-    for (uint8_t i = 0; i < NUM_TRIMS; i++) {
+    for (uint8_t i = 0; i < MAX_TRIMS; i++) {
       lua_pushinteger(L, i + 1);
       lua_pushinteger(L, fm->trim[i].mode);
       lua_settable(L, -3);
@@ -544,13 +550,13 @@ static int luaModelSetFlightMode(lua_State * L)
       luaL_checktype(L, -1, LUA_TTABLE);
       for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
         int idx = luaL_checkinteger(L, -2) - 1; // key is integer
-        if (idx < 0 || idx >= NUM_TRIMS) continue;
+        if (idx < 0 || idx >= MAX_TRIMS) continue;
         int16_t val = luaL_checkinteger(L, -1);
         if (g_model.extendedTrims)
           val = limit<int16_t>(val, TRIM_EXTENDED_MIN, TRIM_EXTENDED_MAX);
         else
           val = limit<int16_t>(val, TRIM_MIN, TRIM_MAX);
-        if (idx < NUM_TRIMS)
+        if (idx < MAX_TRIMS)
           fm->trim[idx].value = val;
       }
     }
@@ -558,9 +564,9 @@ static int luaModelSetFlightMode(lua_State * L)
       luaL_checktype(L, -1, LUA_TTABLE);
       for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
         int idx = luaL_checkinteger(L, -2) - 1; // key is integer
-        if (idx < 0 || idx >= NUM_TRIMS) continue;
+        if (idx < 0 || idx >= MAX_TRIMS) continue;
         uint16_t val = luaL_checkinteger(L, -1);
-        if (idx < NUM_TRIMS)
+        if (idx < MAX_TRIMS)
           fm->trim[idx].mode = (val & 0x1F);
       }
     }

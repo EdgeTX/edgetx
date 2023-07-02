@@ -68,7 +68,7 @@ jobs:
           setup-python: 'false'
 
       - name: Install dependencies
-        run: python3 -m pip install --upgrade pip Pillow lz4 clang
+        run: python3 -m pip install --upgrade pip Pillow lz4 clang jinja2
 
       - name: Patch GitHub macOS build
         run: brew install pkg-config

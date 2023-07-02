@@ -169,6 +169,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 
   node["backlightMode"] = backlightModeLut << std::abs(rhs.backlightMode);
   node["trainer"] = rhs.trainer;
+  node["PPM_Multiplier"] = rhs.PPM_Multiplier;
   node["view"] = rhs.view;
   node["fai"] = (int)rhs.fai;
   node["disableMemoryWarning"] = (int)rhs.disableMemoryWarning;
@@ -209,6 +210,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["countryCode"] = rhs.countryCode;
   node["noJitterFilter"] = (int)rhs.noJitterFilter;
   node["disableRtcWarning"] = (int)rhs.rtcCheckDisable;  // TODO: verify
+  node["audioMuteEnable"] = (int)rhs.muteIfNoSound;
   node["keysBacklight"] = (int)rhs.keysBacklight;
   node["rotEncMode"] = (int)rhs.rotEncMode;
   node["imperial"] = rhs.imperial;
@@ -375,6 +377,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   node["backlightMode"] >> backlightModeLut >> rhs.backlightMode;
   node["trainer"] >> rhs.trainer;
+  node["PPM_Multiplier"] >> rhs.PPM_Multiplier;
   node["view"] >> rhs.view;
   node["fai"] >> rhs.fai;
   node["disableMemoryWarning"] >> rhs.disableMemoryWarning;
@@ -426,6 +429,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["jitterFilter"] >> rhs.noJitterFilter;   // PR1363 : read old name and
   node["noJitterFilter"] >> rhs.noJitterFilter; // new, but don't write old
   node["disableRtcWarning"] >> rhs.rtcCheckDisable;  // TODO: verify
+  node["audioMuteEnable"] >> rhs.muteIfNoSound;
   node["keysBacklight"] >> rhs.keysBacklight;
   node["rotEncDirection"] >> rhs.rotEncMode;    // PR2045: read old name and
   node["rotEncMode"] >> rhs.rotEncMode;         // new, but don't write old

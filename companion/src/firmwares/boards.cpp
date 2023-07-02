@@ -561,6 +561,11 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case HasExternalModuleSupport:
       return (IS_STM32(board) && !IS_RADIOMASTER_T8(board));
 
+    case HasAudioMuteGPIO:
+      // All color lcd (including NV14) except Horus X12S
+      // TX12, TX12MK2, ZORRO, BOXER, T8, TLITE, TPRO, LR3PRO, COMMANDO8
+      return (IS_FAMILY_HORUS_OR_T16(board) && !IS_HORUS_X12S(board)) || IS_FAMILY_T12(board);
+
     case SportMaxBaudRate:
       if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_TARANIS_X7_ACCESS(board) ||
          (IS_TARANIS(board) && !IS_TARANIS_XLITE(board) && !IS_TARANIS_X7(board) && !IS_TARANIS_X9LITE(board)))

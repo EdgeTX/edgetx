@@ -25,6 +25,7 @@
 #include "lua_api.h"
 #include "lua_event.h"
 #include "draw_functions.h"
+#include "touch.h"
 
 #define MAX_INSTRUCTIONS       (20000/100)
 
@@ -174,9 +175,9 @@ void LuaEventHandler::onEvent(event_t event)
   if (event == EVT_KEY_LONG(KEY_EXIT)) {
     killEvents(KEY_EXIT);
   }
-#if !defined(KEYS_GPIO_REG_PGUP)
-  else if (event == EVT_KEY_LONG(KEY_PGDN)) {
-    killEvents(KEY_PGDN);
+#if !defined(KEYS_GPIO_REG_PAGEUP)
+  else if (event == EVT_KEY_LONG(KEY_PAGEDN)) {
+    killEvents(KEY_PAGEDN);
   }
 #endif
   luaPushEvent(event);

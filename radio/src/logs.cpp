@@ -22,6 +22,11 @@
 #include "opentx.h"
 #include "ff.h"
 
+#include "analogs.h"
+#include "switches.h"
+#include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
+
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #endif
@@ -97,15 +102,10 @@ void initLoggingTimer() {                                       // called cyclic
 
 void writeHeader();
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
-  int getSwitchState(uint8_t swtch) {
-    int value = getValue(MIXSRC_FIRST_SWITCH + swtch);
-    return (value == 0) ? 0 : (value < 0) ? -1 : +1;
-  }
-#else
-  #define GET_2POS_STATE(sw) (switchState(SW_ ## sw) ? -1 : 1)
-  #define GET_3POS_STATE(sw) (switchState(SW_ ## sw ## 0) ? -1 : (switchState(SW_ ## sw ## 2) ? 1 : 0))
-#endif
+int getSwitchState(uint8_t swtch) {
+  int value = getValue(MIXSRC_FIRST_SWITCH + swtch);
+  return (value == 0) ? 0 : (value < 0) ? -1 : +1;
+}
 
 void logsInit()
 {
@@ -225,23 +225,26 @@ void writeHeader()
     }
   }
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
-  for (uint8_t i=1; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS+1; i++) {
-    const char * p = STR_VSRCRAW[i] + 2;
-    size_t len = strlen(p);
-    for (uint8_t j=0; j<len; ++j) {
-      if (!*p) break;
-      f_putc(*p, &g_oLogFile);
-      ++p;
-    }
+  auto n_inputs = adcGetMaxInputs(ADC_INPUT_MAIN);
+  for (uint8_t i = 0; i < n_inputs; i++) {
+    const char* p = analogGetCanonicalName(ADC_INPUT_MAIN, i);
+    while (*p) { f_putc(*(p++), &g_oLogFile); }
     f_putc(',', &g_oLogFile);
   }
 
-  for (uint8_t i=0; i<NUM_SWITCHES; i++) {
+  n_inputs = adcGetMaxInputs(ADC_INPUT_POT);
+  for (uint8_t i = 0; i < n_inputs; i++) {
+    if (!IS_POT_AVAILABLE(i)) continue;
+    const char* p = analogGetCanonicalName(ADC_INPUT_POT, i);
+    while (*p) { f_putc(*(p++), &g_oLogFile); }
+    f_putc(',', &g_oLogFile);
+  }
+
+  for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
     if (SWITCH_EXISTS(i)) {
       char s[LEN_SWITCH_NAME + 2];
       char * temp;
-      temp = getSwitchName(s, SWSRC_FIRST_SWITCH + i * 3);
+      temp = getSwitchName(s, i);
       *temp++ = ',';
       *temp = '\0';
       f_puts(s, &g_oLogFile);
@@ -252,9 +255,6 @@ void writeHeader()
   for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
     f_printf(&g_oLogFile, "CH%d(us),", channel+1);
   }
-#else
-  f_puts("Rud,Ele,Thr,Ail,P1,P2,P3,THR,RUD,ELE,3POS,AIL,GEA,TRN,", &g_oLogFile);
-#endif
 
   f_puts("TxBat(V)\n", &g_oLogFile);
 }
@@ -351,31 +351,32 @@ void logsWrite()
         }
       }
 
-      for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
-        f_printf(&g_oLogFile, "%d,", calibratedAnalogs[i]);
+      auto n_inputs = adcGetMaxInputs(ADC_INPUT_MAIN);
+      auto offset = adcGetInputOffset(ADC_INPUT_MAIN);
+
+      for (uint8_t i = 0; i < n_inputs; i++) {
+        f_printf(&g_oLogFile, "%d,", calibratedAnalogs[offset + i]);
       }
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
-      for (uint8_t i=0; i<NUM_SWITCHES; i++) {
+      n_inputs = adcGetMaxInputs(ADC_INPUT_POT);
+      offset = adcGetInputOffset(ADC_INPUT_POT);
+
+      for (uint8_t i = 0; i < n_inputs; i++) {
+        if (IS_POT_AVAILABLE(i))
+          f_printf(&g_oLogFile, "%d,", calibratedAnalogs[offset + i]);
+      }
+
+      for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
         if (SWITCH_EXISTS(i)) {
           f_printf(&g_oLogFile, "%d,", getSwitchState(i));
         }
       }
-      f_printf(&g_oLogFile, "0x%08X%08X,", getLogicalSwitchesStates(32), getLogicalSwitchesStates(0));
+      f_printf(&g_oLogFile, "0x%08X%08X,", getLogicalSwitchesStates(32),
+               getLogicalSwitchesStates(0));
 
       for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
         f_printf(&g_oLogFile, "%d,", PPM_CENTER+channelOutputs[channel]/2); // in us
       }
-#else
-      f_printf(&g_oLogFile, "%d,%d,%d,%d,%d,%d,%d,",
-          GET_2POS_STATE(THR),
-          GET_2POS_STATE(RUD),
-          GET_2POS_STATE(ELE),
-          GET_3POS_STATE(ID),
-          GET_2POS_STATE(AIL),
-          GET_2POS_STATE(GEA),
-          GET_2POS_STATE(TRN));
-#endif
 
       div_t qr = div(g_vbat100mV, 10);
       int result = f_printf(&g_oLogFile, "%d.%d\n", abs(qr.quot), abs(qr.rem));

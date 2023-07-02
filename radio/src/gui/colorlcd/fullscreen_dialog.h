@@ -48,11 +48,7 @@ class FullScreenDialog : public Window
     }
 #endif
 
-    void setMessage(std::string text)
-    {
-      message = std::move(text);
-      invalidate();
-    }
+    void setMessage(std::string text);
 
     void paint(BitmapBuffer * dc) override;
 

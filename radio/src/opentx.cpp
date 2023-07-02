@@ -22,7 +22,13 @@
 #include "opentx.h"
 #include "io/frsky_firmware_update.h"
 #include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
 #include "timers_driver.h"
+#include "watchdog_driver.h"
+
+#include "switches.h"
+#include "inactivity_timer.h"
+#include "input_mapping.h"
 
 #include "tasks.h"
 #include "tasks/mixer_task.h"
@@ -66,35 +72,6 @@ uint8_t* MSC_BOT_Data = reusableBuffer.MSC_BOT_Data;
 uint8_t latencyToggleSwitch = 0;
 #endif
 
-const uint8_t bchout_ar[]  = {
-    0x1B, 0x1E, 0x27, 0x2D, 0x36, 0x39,
-    0x4B, 0x4E, 0x63, 0x6C, 0x72, 0x78,
-    0x87, 0x8D, 0x93, 0x9C, 0xB1, 0xB4,
-    0xC6, 0xC9, 0xD2, 0xD8, 0xE1, 0xE4 };
-
-uint8_t channelOrder(uint8_t setup, uint8_t x)
-{
-  if (setup >= sizeof(bchout_ar)) return x;
-  return ((*(bchout_ar + setup) >> (6 - (x - 1) * 2)) & 3) + 1;
-}
-
-uint8_t channelOrder(uint8_t x)
-{
-  return channelOrder(g_eeGeneral.templateSetup, x);
-}
-
-/*
-mode1 rud ele thr ail
-mode2 rud thr ele ail
-mode3 ail ele thr rud
-mode4 ail thr ele rud
-*/
-const uint8_t modn12x3[]  = {
-    0, 1, 2, 3,
-    0, 2, 1, 3,
-    3, 1, 2, 0,
-    3, 2, 1, 0 };
-
 volatile uint8_t rtc_count = 0;
 
 #if defined(DEBUG_LATENCY)
@@ -116,33 +93,6 @@ void toggleLatencySwitch()
 }
 #endif
 
-static void readKeysAndTrims()
-{
-  uint32_t i;
-
-  uint8_t index = 0;
-  uint32_t keys_input = readKeys();
-  for (i = 0; i < TRM_BASE; i++) {
-    keys[index++].input(keys_input & (1 << i));
-  }
-
-  uint32_t trims_input = readTrims();
-  for (i = 1; i <= 1 << (TRM_LAST-TRM_BASE); i <<= 1) {
-    keys[index++].input(trims_input & i);
-  }
-
-#if defined(PWR_BUTTON_PRESS)
-  if ((keys_input || trims_input || pwrPressed()) &&
-      (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
-#else
-  if ((keys_input || trims_input) &&
-      (g_eeGeneral.backlightMode & e_backlight_mode_keys)) {
-#endif
-    // on keypress turn the light on
-    resetBacklightTimeout();
-  }
-}
-
 void checkValidMCU(void)
 {
 #if !defined(SIMU)
@@ -155,6 +105,8 @@ void checkValidMCU(void)
   #define TARGET_IDCODE   0x413
 #elif defined(STM32F429xx)
   #define TARGET_IDCODE   0x419
+#elif defined(STM32F413xx)
+  #define TARGET_IDCODE   0x463
 #else
   // Ensure new radio get registered :)
   #define TARGET_IDCODE   0x0
@@ -202,54 +154,17 @@ void per10ms()
   }
 #endif
 
-  // TODO: to board...
-  readKeysAndTrims();
+  if (keysPollingCycle()) {
+    inactivityTimerReset(ActivitySource::Keys);
+  }
 
 #if defined(FUNCTION_SWITCHES)
   evalFunctionSwitches();
 #endif
 
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(LIBOPENUI)
-  if (IS_ROTARY_ENCODER_NAVIGATION_ENABLE()) {
-    static rotenc_t rePreviousValue;
-    static bool cw = false;
-    rotenc_t reNewValue = (ROTARY_ENCODER_NAVIGATION_VALUE / ROTARY_ENCODER_GRANULARITY);
-    rotenc_t scrollRE = reNewValue - rePreviousValue;
-    if (scrollRE) {
-      static uint32_t lastEvent;
-      rePreviousValue = reNewValue;
-
-      bool new_cw = (scrollRE < 0) ? false : true;
-      if ((g_tmr10ms - lastEvent >= 10) || (cw == new_cw)) { // 100ms
-
-        pushEvent(new_cw ? EVT_ROTARY_RIGHT : EVT_ROTARY_LEFT);
-
-        // rotary encoder navigation speed (acceleration) detection/calculation
-        static uint32_t delay = 2*ROTENC_DELAY_MIDSPEED;
-
-        if (new_cw == cw) {
-          // Modified moving average filter used for smoother change of speed
-          delay = (((g_tmr10ms - lastEvent) << 3) + delay) >> 1;
-        }
-        else {
-          delay = 2*ROTENC_DELAY_MIDSPEED;
-        }
-
-        if (delay < ROTENC_DELAY_HIGHSPEED)
-          rotencSpeed = ROTENC_HIGHSPEED;
-        else if (delay < ROTENC_DELAY_MIDSPEED)
-          rotencSpeed = ROTENC_MIDSPEED;
-        else
-          rotencSpeed = ROTENC_LOWSPEED;
-        cw = new_cw;
-        lastEvent = g_tmr10ms;
-      }
-
-      if (g_eeGeneral.backlightMode & e_backlight_mode_keys) {
-        resetBacklightTimeout();
-      }
-      inactivity.counter = 0;
-    }
+  if (rotaryEncoderPollingCycle()) {
+    inactivityTimerReset(ActivitySource::Keys);
   }
 #endif
 
@@ -343,17 +258,8 @@ void generalDefault()
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
 #endif
 
-#if defined(DEFAULT_POTS_CONFIG)
-  g_eeGeneral.potsConfig = DEFAULT_POTS_CONFIG;
-#endif
-
-#if defined(DEFAULT_SWITCH_CONFIG)
-  g_eeGeneral.switchConfig = DEFAULT_SWITCH_CONFIG;
-#endif
-
-#if defined(DEFAULT_SLIDERS_CONFIG)
-  g_eeGeneral.slidersConfig = DEFAULT_SLIDERS_CONFIG;
-#endif
+  g_eeGeneral.potsConfig = adcGetDefaultPotsConfig();
+  g_eeGeneral.switchConfig = switchGetDefaultConfig();
 
 #if defined(STICK_DEAD_ZONE)
   g_eeGeneral.stickDeadZone = DEFAULT_STICK_DEADZONE;
@@ -367,11 +273,14 @@ void generalDefault()
   if (BATTERY_MAX != 120)
     g_eeGeneral.vBatMax = BATTERY_MAX - 120;
 
-#if defined(DEFAULT_MODE)
+#if defined(SURFACE_RADIO)
+  g_eeGeneral.stickMode = 0;
+  g_eeGeneral.templateSetup = 0;
+#elif defined(DEFAULT_MODE)
   g_eeGeneral.stickMode = DEFAULT_MODE - 1;
+  g_eeGeneral.templateSetup = DEFAULT_TEMPLATE_SETUP;
 #endif
 
-  g_eeGeneral.templateSetup = DEFAULT_TEMPLATE_SETUP;
 
   g_eeGeneral.backlightMode = e_backlight_mode_all;
   g_eeGeneral.lightAutoOff = 2;
@@ -382,9 +291,10 @@ void generalDefault()
   g_eeGeneral.wavVolume = 2;
   g_eeGeneral.backgroundVolume = 1;
 
-  for (int i=0; i<NUM_STICKS; ++i) {
+  auto controls = adcGetMaxInputs(ADC_INPUT_MAIN);
+  for (int i = 0; i < controls; ++i) {
     g_eeGeneral.trainer.mix[i].mode = 2;
-    g_eeGeneral.trainer.mix[i].srcChn = channelOrder(i+1) - 1;
+    g_eeGeneral.trainer.mix[i].srcChn = inputMappingChannelOrder(i);
     g_eeGeneral.trainer.mix[i].studWeight = 100;
   }
 
@@ -418,6 +328,10 @@ void generalDefault()
   g_eeGeneral.splashMode = 3;
   g_eeGeneral.pwrOnSpeed = 2;
   g_eeGeneral.pwrOffSpeed = 2;
+#endif
+
+#if defined(RADIO_TPROV2)
+  g_eeGeneral.rotEncMode = ROTARY_ENCODER_MODE_INVERT_BOTH;
 #endif
 
   g_eeGeneral.chkSum = 0xFFFF;
@@ -456,21 +370,33 @@ int8_t getMovedSource(uint8_t min)
 
   static int16_t inputsStates[MAX_INPUTS];
   if (min <= MIXSRC_FIRST_INPUT) {
-    for (uint8_t i=0; i<MAX_INPUTS; i++) {
+    for (uint8_t i = 0; i < MAX_INPUTS; i++) {
       if (abs(anas[i] - inputsStates[i]) > MULTIPOS_STEP_SIZE) {
         if (!isInputRecursive(i)) {
-          result = MIXSRC_FIRST_INPUT+i;
+          result = MIXSRC_FIRST_INPUT + i;
           break;
         }
       }
     }
   }
 
-  static int16_t sourcesStates[NUM_STICKS+NUM_POTS+NUM_SLIDERS+NUM_MOUSE_ANALOGS];
+  static int16_t sourcesStates[MAX_ANALOG_INPUTS];
   if (result == 0) {
-    for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
+    for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
       if (abs(calibratedAnalogs[i] - sourcesStates[i]) > MULTIPOS_STEP_SIZE) {
-        result = MIXSRC_Rud+i;
+        auto offset = adcGetInputOffset(ADC_INPUT_POT);
+        if (i >= offset) {
+          result = MIXSRC_FIRST_POT + i - offset;
+          break;
+        }
+#if MAX_AXIS > 0
+        offset = adcGetInputOffset(ADC_INPUT_AXIS);
+        if (i >= offset) {
+          result = MIXSRC_FIRST_AXIS + i - offset;
+          break;
+        }
+#endif
+        result = MIXSRC_FIRST_STICK + inputMappingConvertMode(i);
         break;
       }
     }
@@ -567,34 +493,6 @@ ls_telemetry_value_t maxTelemValue(source_t channel)
   return 30000;
 }
 
-#define INAC_STICKS_SHIFT   6
-#define INAC_SWITCHES_SHIFT 8
-bool inputsMoved()
-{
-  uint8_t sum = 0;
-  for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++)
-    sum += anaIn(i) >> INAC_STICKS_SHIFT;
-  for (uint8_t i=0; i<NUM_SWITCHES; i++)
-    sum += getValue(MIXSRC_FIRST_SWITCH+i) >> INAC_SWITCHES_SHIFT;
-#if defined(IMU)
-  for (uint8_t i=0; i<2; i++)
-    sum += getValue(MIXSRC_TILT_X+i) >> INAC_STICKS_SHIFT;
-#endif
-
-#if defined(SPACEMOUSE)
-  for (uint8_t i=0; i<(MIXSRC_LAST_SPACEMOUSE - MIXSRC_FIRST_SPACEMOUSE); i++)
-    sum += get_spacemouse_value(i) >> INAC_STICKS_SHIFT;
-#endif
-
-  if (abs((int8_t)(sum-inactivity.sum)) > 1) {
-    inactivity.sum = sum;
-    return true;
-  }
-  else {
-    return false;
-  }
-}
-
 void checkBacklight()
 {
   static uint8_t tmr10ms ;
@@ -602,11 +500,8 @@ void checkBacklight()
   uint8_t x = g_blinkTmr10ms;
   if (tmr10ms != x) {
     tmr10ms = x;
-    if (inputsMoved()) {
-      inactivity.counter = 0;
-      if (g_eeGeneral.backlightMode & e_backlight_mode_sticks) {
-        resetBacklightTimeout();
-      }
+    if (inactivityCheckInputs()) {
+      inactivityTimerReset(ActivitySource::MainControls);
     }
 
     if (requiredBacklightBright == BACKLIGHT_FORCED_ON) {
@@ -661,7 +556,7 @@ void doSplash()
 
     getADC(); // init ADC array
 
-    inputsMoved();
+    inactivityCheckInputs();
 
     tmr10ms_t tgtime = get_tmr10ms() + SPLASH_TIMEOUT;
 
@@ -670,7 +565,7 @@ void doSplash()
 
       getADC();
 
-      if (getEvent() || inputsMoved())
+      if (getEvent() || inactivityCheckInputs())
         return;
 
 #if defined(PWR_BUTTON_PRESS)
@@ -791,9 +686,9 @@ void checkAll()
     uint32_t keys = readKeys();
 
     std::string strKeys;
-    for (int i = 0; i < (int)TRM_BASE; i++) {
+    for (int i = 0; i < (int)MAX_KEYS; i++) {
       if (keys & (1 << i)) {
-        strKeys += std::string(STR_VKEYS[i]);
+        strKeys += std::string(keysGetLabel(EnumKeys(i)));
       }
     }
 
@@ -844,26 +739,35 @@ bool isThrottleWarningAlertNeeded()
     return false;
   }
 
-  // throttle channel is either the stick according stick mode (already handled in evalInputs)
-  // or P1 to P3;
-  // in case an output channel is choosen as throttle source (thrTraceSrc>NUM_POTS+NUM_SLIDERS) we assume the throttle stick is the input
-  // no other information available at the moment, and good enough to my option (otherwise too much exceptions...)
-  uint8_t thrchn = ((g_model.thrTraceSrc==0) || (g_model.thrTraceSrc>NUM_POTS+NUM_SLIDERS)) ? THR_STICK : g_model.thrTraceSrc+NUM_STICKS-1;
+  uint8_t thr_src = throttleSource2Source(g_model.thrTraceSrc);
+
+  // in case an output channel is choosen as throttle source
+  // we assume the throttle stick is the input (no computed channels yet)
+  if (thr_src >= MIXSRC_FIRST_CH) {
+    thr_src = throttleSource2Source(0);
+  }
 
   if (!mixerTaskRunning()) getADC();
   evalInputs(e_perout_mode_notrainer); // let do evalInputs do the job
 
-  int16_t v = calibratedAnalogs[thrchn];
-  if (g_model.thrTraceSrc && g_model.throttleReversed) { // TODO : proper review of THR source definition and handling
+  int16_t v = getValue(thr_src);
+
+  // TODO: this looks fishy....
+  if (g_model.thrTraceSrc && g_model.throttleReversed) {
     v = -v;
   }
 
   if (g_model.enableCustomThrottleWarning) {
-    int16_t idleValue = (int32_t)RESX * (int32_t)g_model.customThrottleWarningPosition / (int32_t)100;
+    int16_t idleValue = (int32_t)RESX *
+                        (int32_t)g_model.customThrottleWarningPosition /
+                        (int32_t)100;
     return abs(v - idleValue) > THRCHK_DEADBAND;
-  }
-  else {
+  } else {
+#if defined(SURFACE_RADIO) // surface radio, stick centered
+    return v > THRCHK_DEADBAND;
+#else
     return v > THRCHK_DEADBAND - RESX;
+#endif
   }
 }
 
@@ -999,22 +903,21 @@ void alert(const char * title, const char * msg , uint8_t sound)
 }
 
 #if defined(GVARS)
-#if NUM_TRIMS == 6
-  int8_t trimGvar[NUM_TRIMS] = { -1, -1, -1, -1, -1, -1 };
-#elif NUM_TRIMS == 4
-  int8_t trimGvar[NUM_TRIMS] = { -1, -1, -1, -1 };
-#elif NUM_TRIMS == 2
-  int8_t trimGvar[NUM_TRIMS] = { -1, -1 };
+#if MAX_TRIMS == 6
+  int8_t trimGvar[MAX_TRIMS] = { -1, -1, -1, -1, -1, -1 };
+#elif MAX_TRIMS == 4
+  int8_t trimGvar[MAX_TRIMS] = { -1, -1, -1, -1 };
+#elif MAX_TRIMS == 2
+  int8_t trimGvar[MAX_TRIMS] = { -1, -1 };
 #endif
 #endif
 
 void checkTrims()
 {
-  event_t event = getEvent(true);
+  event_t event = getTrimEvent();
   if (event && !IS_KEY_BREAK(event)) {
-    int8_t k = EVT_KEY_MASK(event) - TRM_BASE;
-    // LH_DWN LH_UP LV_DWN LV_UP RV_DWN RV_UP RH_DWN RH_UP
-    uint8_t idx = CONVERT_MODE_TRIMS((uint8_t)k/2);
+    int8_t k = EVT_KEY_MASK(event);
+    uint8_t idx = inputMappingConvertMode(uint8_t(k / 2));
     uint8_t phase;
     int before;
     bool thro;
@@ -1051,7 +954,7 @@ void checkTrims()
       after = 0;
       beepTrim = true;
       AUDIO_TRIM_MIDDLE();
-      pauseEvents(event);
+      pauseTrimEvents(event);
     }
 
 #if defined(GVARS)
@@ -1063,13 +966,13 @@ void checkTrims()
         after = vmin;
         beepTrim = false;
         AUDIO_TRIM_MIN();
-        killEvents(event);
+        killTrimEvents(event);
       }
       else if (after > vmax) {
         after = vmax;
         beepTrim = false;
         AUDIO_TRIM_MAX();
-        killEvents(event);
+        killTrimEvents(event);
       }
 
       SET_GVAR_VALUE(gvar, phase, after);
@@ -1085,12 +988,12 @@ void checkTrims()
       if (before >= tMin && after <= tMin) {
         beepTrim = false;
         AUDIO_TRIM_MIN();
-        killEvents(event);
+        killTrimEvents(event);
       }
       else if (before <= tMax && after >= tMax) {
         beepTrim = false;
         AUDIO_TRIM_MAX();
-        killEvents(event);
+        killTrimEvents(event);
       }
 
       // If the new value is outside the limit, set it to the limit. This could have
@@ -1318,7 +1221,8 @@ void instantTrim()
 
   evalInputs(e_perout_mode_notrainer);
 
-  for (uint8_t stick = 0; stick < NUM_STICKS; stick++) {
+  auto controls = adcGetMaxInputs(ADC_INPUT_MAIN);
+  for (uint8_t stick = 0; stick < controls; stick++) {
     if (stick != THR_STICK) { // don't instant trim the throttle stick
       bool addTrim = false;
       int16_t delta = 0;
@@ -1479,7 +1383,7 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
   }
 
   // reset all trims, except throttle (if throttle trim)
-  for (uint8_t i=0; i<NUM_TRIMS; i++) {
+  for (uint8_t i=0; i<MAX_TRIMS; i++) {
     auto thrStick = g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM;
     if (i != thrStick || !g_model.thrTrim) {
       int16_t original_trim = getTrimValue(mixerCurrentFlightMode, i);
@@ -1496,10 +1400,6 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
   storageDirty(EE_MODEL);
   AUDIO_WARNING2();
 }
-
-#if defined(ROTARY_ENCODER_NAVIGATION)
-uint8_t rotencSpeed = ROTENC_LOWSPEED;
-#endif
 
 void opentxInit()
 {
@@ -1770,9 +1670,7 @@ uint32_t pwrCheck()
     return e_power_off;
   }
   else if (pwrPressed()) {
-    if (g_eeGeneral.backlightMode == e_backlight_mode_keys ||
-        g_eeGeneral.backlightMode == e_backlight_mode_all)
-      resetBacklightTimeout();
+    inactivityTimerReset(ActivitySource::Keys);
 
     if (TELEMETRY_STREAMING()) {
       message = STR_MODEL_STILL_POWERED;
@@ -1787,7 +1685,6 @@ uint32_t pwrCheck()
       }
     }
     else {
-      inactivity.counter = 0;
       if (g_eeGeneral.backlightMode != e_backlight_mode_off) {
         BACKLIGHT_ENABLE();
       }
@@ -1818,7 +1715,7 @@ uint32_t pwrCheck()
             msg_len = sizeof(TR_USB_STILL_CONNECTED);
           }
 
-          event_t evt = getEvent(false);
+          event_t evt = getEvent();
           SET_WARNING_INFO(msg, msg_len, 0);
           DISPLAY_WARNING(evt);
           LED_ERROR_BEGIN();

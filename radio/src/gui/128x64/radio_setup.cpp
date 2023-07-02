@@ -23,6 +23,8 @@
 
 #include "opentx.h"
 #include "tasks/mixer_task.h"
+#include "hal/adc_driver.h"
+#include "input_mapping.h"
 
 const unsigned char sticks[]  = {
 #include "sticks.lbm"
@@ -46,6 +48,12 @@ const unsigned char sticks[]  = {
   #define CASE_BATTGRAPH(x) x,
 #else
   #define CASE_BATTGRAPH(x)
+#endif
+
+#if !defined(SURFACE_RTADIO)
+#define CASE_TX_MODE(x) x,
+#else
+#define CASE_TX_MODE(x)
 #endif
 
 enum {
@@ -104,8 +112,10 @@ enum {
   CASE_JACK_DETECT(ITEM_RADIO_SETUP_JACK_MODE)
   ITEM_RADIO_SETUP_RX_CHANNEL_ORD,
   CASE_ROTARY_ENCODER(ITEM_RADIO_SETUP_ROTARY_ENC_MODE)
+#if !defined(SURFACE_RADIO)
   ITEM_RADIO_SETUP_STICK_MODE_LABELS,
   ITEM_RADIO_SETUP_STICK_MODE,
+#endif
   ITEM_VIEW_OPTIONS_LABEL,
   ITEM_VIEW_OPTIONS_RADIO_TAB,
   ITEM_VIEW_OPTIONS_GF,
@@ -121,12 +131,6 @@ enum {
   ITEM_RADIO_SETUP_MAX
 };
 
-#if defined(FRSKY_STICKS) && !defined(PCBTARANIS)
-  #define COL_TX_MODE 0
-#else
-  #define COL_TX_MODE LABEL(TX_MODE)
-#endif
-
 uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
 {
   lcdDrawText(INDENT_WIDTH, y, title);
@@ -139,9 +143,11 @@ void menuRadioSetup(event_t event)
   struct gtm t;
   gettime(&t);
 
-  if ((menuVerticalPosition==ITEM_RADIO_SETUP_DATE+HEADER_LINE || menuVerticalPosition==ITEM_RADIO_SETUP_TIME+HEADER_LINE) &&
-      (s_editMode>0) &&
-      (event==EVT_KEY_FIRST(KEY_ENTER) || event==EVT_KEY_FIRST(KEY_EXIT) || IS_ROTARY_BREAK(event) || IS_ROTARY_LONG(event))) {
+  if ((menuVerticalPosition == ITEM_RADIO_SETUP_DATE + HEADER_LINE ||
+       menuVerticalPosition == ITEM_RADIO_SETUP_TIME + HEADER_LINE) &&
+      (s_editMode > 0) &&
+      (event == EVT_KEY_FIRST(KEY_ENTER) || event == EVT_KEY_LONG(KEY_ENTER) ||
+       event == EVT_KEY_FIRST(KEY_EXIT))) {
     // set the date and time into RTC chip
     rtcSetTime(&t);
   }
@@ -198,7 +204,9 @@ void menuRadioSetup(event_t event)
     0, // USB mode
     CASE_JACK_DETECT(0) // Jack mode
     CASE_ROTARY_ENCODER(0)
-    0, COL_TX_MODE, 0,
+    0,
+    CASE_TX_MODE(LABEL(TX_MODE))
+    CASE_TX_MODE(0)
     LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) 0, 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
     1/*to force edit mode*/});
 
@@ -661,31 +669,47 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_RX_CHANNEL_ORD:
         lcdDrawTextAlignedLeft(y, STR_DEF_CHAN_ORD); // RAET->AETR
-        for (uint8_t i=1; i<=4; i++) {
-          putsChnLetter(RADIO_SETUP_2ND_COLUMN - FW + i*FW, y, channelOrder(i), attr);
+        {
+          for (uint8_t i = 0; i < adcGetMaxInputs(ADC_INPUT_MAIN); i++) {
+            putsChnLetter(RADIO_SETUP_2ND_COLUMN + i*FW, y, inputMappingChannelOrder(i), attr);
+          }
+          if (attr) {
+            auto max_order = inputMappingGetMaxChannelOrder() - 1;
+            CHECK_INCDEC_GENVAR(event, g_eeGeneral.templateSetup, 0, max_order);
+          }
         }
-        if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.templateSetup, 0, 23);
         break;
 
+#if !defined(SURFACE_RADIO)
       case ITEM_RADIO_SETUP_STICK_MODE_LABELS:
         lcdDrawTextAlignedLeft(y, STR_MODE);
         for (uint8_t i=0; i<4; i++) {
           lcdDraw1bitBitmap(5*FW+i*(4*FW+2), y, sticks, i, 0);
-#if defined(FRSKY_STICKS) && !defined(PCBTARANIS)
-          if (g_eeGeneral.stickReverse & (1<<i)) {
-            lcdDrawFilledRect(5*FW+i*(4*FW+2), y, 3*FW, FH-1);
-          }
-#endif
         }
-#if defined(FRSKY_STICKS) && !defined(PCBTARANIS)
-        if (attr) {
-          s_editMode = 0;
-          CHECK_INCDEC_GENVAR(event, g_eeGeneral.stickReverse, 0, 15);
-          lcdDrawRect(5*FW-1, y-1, 16*FW+2, 9);
-        }
-#endif
         break;
 
+      case ITEM_RADIO_SETUP_STICK_MODE:
+        lcdDrawChar(2*FW, y, '1'+reusableBuffer.generalSettings.stickMode, attr);
+        {
+          auto controls = adcGetMaxInputs(ADC_INPUT_MAIN);
+          auto mode = reusableBuffer.generalSettings.stickMode;
+          for (uint8_t i = 0; i < controls; i++) {
+            source_t src = MIXSRC_FIRST_STICK + inputMappingConvertMode(mode, i);
+            drawSource((5 * FW - 3) + i * (4 * FW + 2), y, src, 0);
+          }
+        }
+        if (attr && s_editMode > 0) {
+          CHECK_INCDEC_GENVAR(event, reusableBuffer.generalSettings.stickMode, 0, 3);
+        } else if (reusableBuffer.generalSettings.stickMode !=
+                   g_eeGeneral.stickMode) {
+          mixerTaskStop();
+          g_eeGeneral.stickMode = reusableBuffer.generalSettings.stickMode;
+          checkThrottleStick();
+          mixerTaskStart();
+          waitKeysReleased();
+        }
+        break;
+#endif
 #if defined(ROTARY_ENCODER_NAVIGATION)
       case ITEM_RADIO_SETUP_ROTARY_ENC_MODE:
         lcdDrawTextAlignedLeft(y, STR_ROTARY_ENC_MODE);
@@ -704,23 +728,6 @@ void menuRadioSetup(event_t event)
         }
         break;
 #endif
-
-      case ITEM_RADIO_SETUP_STICK_MODE:
-        lcdDrawChar(2*FW, y, '1'+reusableBuffer.generalSettings.stickMode, attr);
-        for (uint8_t i=0; i<NUM_STICKS; i++) {
-          drawSource((5*FW-3)+i*(4*FW+2), y, MIXSRC_Rud + *(modn12x3 + 4*reusableBuffer.generalSettings.stickMode + i), 0);
-        }
-        if (attr && s_editMode>0) {
-          CHECK_INCDEC_GENVAR(event, reusableBuffer.generalSettings.stickMode, 0, 3);
-        }
-        else if (reusableBuffer.generalSettings.stickMode != g_eeGeneral.stickMode) {
-          mixerTaskStop();
-          g_eeGeneral.stickMode = reusableBuffer.generalSettings.stickMode;
-          checkThrottleStick();
-          mixerTaskStart();
-          waitKeysReleased();
-        }
-        break;
 
       case ITEM_VIEW_OPTIONS_LABEL:
         lcdDrawTextAlignedLeft(y, STR_ENABLED_FEATURES);

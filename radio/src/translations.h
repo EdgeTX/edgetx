@@ -146,7 +146,6 @@ extern const char* const STR_POTTYPES[];
 extern const char* const STR_SLIDERTYPES[];
 extern const char* const STR_VTRIMINC[];
 extern const char* const STR_VDISPLAYTRIMS[];
-extern const char* const STR_RETA123[];
 
 extern const char* const STR_TIMER_DIR[];
 
@@ -155,9 +154,7 @@ extern const char* const STR_VCURVETYPE[];
 extern const char* const STR_VCURVEFUNC[];
 extern const char* const STR_VMLTPX[];
 extern const char* const STR_VMLTPX2[];
-extern const char* const STR_VMIXTRIMS[];
 extern const char* const STR_VCSWFUNC[];
-extern const char* const STR_VFSWFUNC[];
 extern const char* const STR_VFSWRESET[];
 extern const char* const STR_FUNCSOUNDS[];
 extern const char* const STR_VTELEMUNIT[];
@@ -165,9 +162,16 @@ extern const char* const STR_GPSFORMAT[];
 extern const char* const STR_VTELEMSCREENTYPE[];
 extern const char* const STR_VSWASHTYPE[];
 
-extern const char* const STR_VKEYS[];
-extern const char* const STR_VSWITCHES[];
-extern const char* const STR_VSRCRAW[];
+extern const char* const STR_STICK_NAMES[];
+extern const char* const STR_ON_ONE_SWITCHES[];
+extern const char* const STR_SURFACE_NAMES[];
+#if defined(IMU)
+extern const char* const STR_IMU_VSRCRAW[];
+#endif
+#if defined(PCBHORUS)
+extern const char* const STR_SM_VSRCRAW[];
+#endif
+extern const char* const STR_CYC_VSRCRAW[];
 
 extern const char* const STR_ROTARY_ENC_OPT[];
 
@@ -246,6 +250,7 @@ extern const char* const STR_BLUETOOTH_MODES[];
 
 #define NO_INDENT(x) (x) + LEN_INDENT
 
+extern const char STR_EMPTY[];
 extern const char STR_POPUPS_ENTER_EXIT[];
 extern const char STR_OK[];
 extern const char STR_EXIT[];
@@ -283,7 +288,32 @@ extern const char STR_PPMFRAME[];
 extern const char STR_REFRESHRATE[];
 extern const char STR_MS[];
 extern const char STR_SWITCH[];
+extern const char STR_ADJUST_GVAR[];
+extern const char STR_PLAY_TRACK[];
+extern const char STR_PLAY_VALUE[];
+extern const char STR_SOUND[];
+extern const char STR_SF_BACKLIGHT[];
+extern const char STR_SF_BG_MUSIC[];
+extern const char STR_SF_BG_MUSIC_PAUSE[];
+extern const char STR_SF_DISABLE_TOUCH[];
+extern const char STR_SF_FAILSAFE[];
+extern const char STR_SF_HAPTIC[];
+extern const char STR_SF_INST_TRIM[];
+extern const char STR_SF_LOGS[];
+extern const char STR_SF_MOD_BIND[];
+extern const char STR_SF_PLAY_SCRIPT[];
+extern const char STR_SF_RANGE_CHECK[];
+extern const char STR_SF_RESET[];
+extern const char STR_SF_SET_TIMER[];
+extern const char STR_SF_SAFETY[];
+extern const char STR_SF_SET_SCREEN[];
 extern const char STR_SF_SWITCH[];
+extern const char STR_SF_TRAINER[];
+extern const char STR_SF_VARIO[];
+extern const char STR_SF_VOLUME[];
+extern const char STR_SF_RACING_MODE[];
+extern const char STR_SF_SCREENSHOT[];
+extern const char STR_SF_TEST[];
 extern const char STR_TRIMS[];
 extern const char STR_MIRROR[];
 extern const char STR_FADEIN[];
@@ -467,6 +497,7 @@ extern const char STR_MENUMODELSEL[];
 extern const char STR_MENU_MODEL_SETUP[];
 extern const char STR_MENUFLIGHTMODE[];
 extern const char STR_MENUFLIGHTMODES[];
+extern const char STR_MENU_FSWITCH[];
 extern const char STR_MENUHELISETUP[];
 extern const char STR_MENUINPUTS[];
 extern const char STR_MENULIMITS[];
@@ -615,6 +646,7 @@ extern const char STR_RESET_BTN[];
 extern const char STR_DEBUG[];
 extern const char STR_KEYS_BTN[];
 extern const char STR_ANALOGS_BTN[];
+extern const char STR_FS_BTN[];
 extern const char STR_TOUCH_NOTFOUND[];
 extern const char STR_TOUCH_EXIT[];
 extern const char STR_CALIBRATION[];
@@ -1085,6 +1117,7 @@ extern const char STR_MENU_TELEMETRY[];
 extern const char STR_MENU_DISPLAY[];
 extern const char STR_MENU_OTHER[];
 extern const char STR_MENU_INVERT[];
+extern const char STR_AUDIO_MUTE[];
 extern const char STR_JITTER_FILTER[];
 extern const char STR_DEAD_ZONE[];
 extern const char STR_RTC_CHECK[];
@@ -1100,6 +1133,12 @@ extern const char STR_ABOUTUS[];
 extern const char STR_AUTH_FAILURE[];
 extern const char STR_PROTOCOL[];
 extern const char STR_RACING_MODE[];
+
+extern const char STR_SRC_BATT[];
+extern const char STR_SRC_TIME[];
+extern const char STR_SRC_GPS[];
+extern const char STR_SRC_TIMER[];
+extern const char STR_FUNC_SW[];
 
 #if defined(COLORLCD)
 extern const char STR_SELECT_TEMPLATE[];
@@ -1120,6 +1159,26 @@ extern const char STR_BLUE[];
 extern const char STR_GREEN[];
 extern const char STR_COLOR_PICKER[];
 extern const char STR_EDIT_THEME_DETAILS[];
+extern const char STR_THEME_COLOR_DEFAULT[];
+extern const char STR_THEME_COLOR_PRIMARY1[];
+extern const char STR_THEME_COLOR_PRIMARY2[];
+extern const char STR_THEME_COLOR_PRIMARY3[];
+extern const char STR_THEME_COLOR_SECONDARY1[];
+extern const char STR_THEME_COLOR_SECONDARY2[];
+extern const char STR_THEME_COLOR_SECONDARY3[];
+extern const char STR_THEME_COLOR_FOCUS[];
+extern const char STR_THEME_COLOR_EDIT[];
+extern const char STR_THEME_COLOR_ACTIVE[];
+extern const char STR_THEME_COLOR_WARNING[];
+extern const char STR_THEME_COLOR_DISABLED[];
+extern const char STR_THEME_COLOR_CUSTOM[];
+extern const char STR_THEME_CHECKBOX[];
+extern const char STR_THEME_ACTIVE[];
+extern const char STR_THEME_REGULAR[];
+extern const char STR_THEME_WARNING[];
+extern const char STR_THEME_DISABLED[];
+extern const char STR_THEME_EDIT[];
+extern const char STR_THEME_FOCUS[];
 extern const char STR_AUTHOR[];
 extern const char STR_DESCRIPTION[];
 extern const char STR_SAVE[];

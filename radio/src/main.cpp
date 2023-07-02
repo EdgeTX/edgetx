@@ -401,7 +401,8 @@ bool handleGui(event_t event) {
   bool refreshNeeded;
 #if defined(LUA)
   refreshNeeded = luaTask(event, true);
-  if (menuHandlers[menuLevel] == menuViewTelemetry && TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_SCRIPT) {
+  if (menuHandlers[menuLevel] == menuViewTelemetry &&
+      TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_SCRIPT) {
       menuHandlers[menuLevel](event);
   }
   else if (scriptInternalData[0].reference != SCRIPT_STANDALONE)
@@ -525,7 +526,7 @@ void perMain()
   checkBacklight();
 
 #if !defined(LIBOPENUI)
-  event_t evt = getEvent(false);
+  event_t evt = getEvent();
 #endif
 
 #if defined(RTC_BACKUP_RAM)

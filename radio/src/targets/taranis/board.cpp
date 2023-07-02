@@ -19,6 +19,9 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
+
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
@@ -28,7 +31,6 @@
 
 #include "hal/adc_driver.h"
 #include "hal/module_port.h"
-#include "stm32_hal_adc.h"
 
 #include "../common/arm/stm32/timers_driver.h"
 
@@ -45,6 +47,10 @@
   #include "bluetooth_driver.h"
 #endif
 
+#if defined(PWM_STICKS)
+  #include "sticks_pwm_driver.h"
+#endif
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -54,11 +60,18 @@ extern "C" {
 }
 #endif
 
-#if defined(FLYSKY_GIMBAL)
-  #include "flysky_gimbal_driver.h"
+#if !defined(BOOT)
+bool UNEXPECTED_SHUTDOWN()
+{
+  return WAS_RESET_BY_WATCHDOG()
+    || g_eeGeneral.unexpectedShutdown;
+}
 #endif
 
 HardwareOptions hardwareOptions;
+
+// adc_driver.cpp
+extern const etx_hal_adc_driver_t _adc_driver;
 
 void watchdogInit(unsigned int duration)
 {
@@ -72,7 +85,7 @@ void watchdogInit(unsigned int duration)
 
 #if !defined(BOOT)
 
-#if defined(RADIO_TPRO)
+#if defined(FUNCTION_SWITCHES)
 #include "storage/storage.h"
 #endif
 
@@ -85,9 +98,6 @@ void boardInit()
                          AUDIO_RCC_AHB1Periph |
                          BACKLIGHT_RCC_AHB1Periph |
                          ADC_RCC_AHB1Periph |
-#if defined(FLYSKY_GIMBAL)
-                         FLYSKY_HALL_RCC_AHB1Periph |
-#endif
                          SD_RCC_AHB1Periph |
                          HAPTIC_RCC_AHB1Periph |
                          INTMODULE_RCC_AHB1Periph |
@@ -104,9 +114,6 @@ void boardInit()
                          LCD_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
                          ADC_RCC_APB1Periph |
-#if defined(FLYSKY_GIMBAL)
-                         FLYSKY_HALL_RCC_APB1Periph |
-#endif
                          BACKLIGHT_RCC_APB1Periph |
                          HAPTIC_RCC_APB1Periph |
                          INTERRUPT_xMS_RCC_APB1Periph |
@@ -161,9 +168,7 @@ void boardInit()
 
 #if defined(STATUS_LEDS)
   ledInit();
-#if defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TLITE) || \
-    defined(RADIO_TPRO) || defined(RADIO_TX12) || defined(RADIO_TX12MK2) ||  \
-    defined(RADIO_ZORRO) || defined(RADIO_BOXER)
+#if defined(MANUFACTURER_RADIOMASTER) || defined(MANUFACTURER_JUMPER) || defined(RADIO_COMMANDO8)
   ledBlue();
 #else
   ledGreen();
@@ -171,7 +176,7 @@ void boardInit()
 #endif
 
 // Support for FS Led to indicate battery charge level
-#if defined(RADIO_TPRO)
+#if defined(FUNCTION_SWITCHES)
   // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();
   // prime debounce state...
@@ -179,16 +184,15 @@ void boardInit()
 
    if (usbPlugged()) {
      delaysInit();
-     adcInit(&stm32_hal_adc_driver);
+     adcInit(&_adc_driver);
      getADC();
      pwrOn(); // required to get bat adc reads
-     storageReadRadioSettings(false);  // Needed for bat calibration
      INTERNAL_MODULE_OFF();
      EXTERNAL_MODULE_OFF();
-    
+
      while (usbPlugged()) {
        // Let it charge ...
-       getADC();
+       getADC(); // Warning: the value read does not include VBAT calibration
        delay_ms(20);
        if (getBatteryVoltage() >= 660)
          fsLedOn(0);
@@ -208,6 +212,7 @@ void boardInit()
 #endif
 
   keysInit();
+  switchInit();
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotaryEncoderInit();
@@ -215,22 +220,13 @@ void boardInit()
 
   delaysInit();
 
-#if NUM_PWMSTICKS > 0
-  sticksPwmInit();
-  delay_ms(20);
-  if (pwm_interrupt_count < 32) {
-    hardwareOptions.sticksPwmDisabled = true;
-  }
+#if defined(PWM_STICKS)
+  sticksPwmDetect();
 #endif
 
-#if defined(FLYSKY_GIMBAL)
-  globalData.flyskygimbals = flysky_gimbal_init();
-#else
-  globalData.flyskygimbals = false;
-#endif
+  if (!adcInit(&_adc_driver))
+    TRACE("adcInit failed");
 
-  if (!adcInit(&stm32_hal_adc_driver))
-      TRACE("adcInit failed");
   lcdInit(); // delaysInit() must be called before
   audioInit();
   init2MhzTimer();
@@ -277,7 +273,7 @@ void boardInit()
 
   initHeadphoneTrainerSwitch();
 
-#if defined(RTCLOCK) && !defined(COPROCESSOR)
+#if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
 

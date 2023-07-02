@@ -230,7 +230,7 @@ class LogicalSwitchDisplayButton : public TextButton
 
   void checkEvents() override
   {
-    bool newvalue = getSwitch(SWSRC_SW1 + index);
+    bool newvalue = getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + index);
     if (value != newvalue) {
       if (newvalue) {
         lv_obj_add_state(lvobj, LV_STATE_CHECKED);

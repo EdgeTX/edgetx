@@ -19,12 +19,15 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/adc_driver.h"
+#include "hal/trainer_driver.h"
+#include "hal/switch_driver.h"
+#include "hal/rotary_encoder.h"
+
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
-
-#include "hal/adc_driver.h"
-#include "hal/trainer_driver.h"
+#include "boards/generic_stm32/analog_inputs.h"
 
 #include "timers_driver.h"
 #include "dataconstants.h"
@@ -35,17 +38,40 @@
 
 #include <string.h>
 
-#if !defined(PCBX12S)
-  #include "stm32_hal_adc.h"
-  #define ADC_DRIVER stm32_hal_adc_driver
-#else
-  #include "x12s_adc_driver.h"
-  #define ADC_DRIVER x12s_adc_driver
+#if defined(PWM_STICKS)
+  #include "sticks_pwm_driver.h"
 #endif
 
-#if defined(FLYSKY_GIMBAL)
+#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
   #include "flysky_gimbal_driver.h"
 #endif
+
+enum PowerReason {
+  SHUTDOWN_REQUEST = 0xDEADBEEF,
+  SOFTRESET_REQUEST = 0xCAFEDEAD,
+};
+
+constexpr uint32_t POWER_REASON_SIGNATURE = 0x0178746F;
+
+bool UNEXPECTED_SHUTDOWN()
+{
+#if defined(SIMU) || defined(NO_UNEXPECTED_SHUTDOWN)
+  return false;
+#else
+  if (WAS_RESET_BY_WATCHDOG())
+    return true;
+  else if (WAS_RESET_BY_SOFTWARE())
+    return RTC->BKP0R != SOFTRESET_REQUEST;
+  else
+    return RTC->BKP1R == POWER_REASON_SIGNATURE && RTC->BKP0R != SHUTDOWN_REQUEST;
+#endif
+}
+
+void SET_POWER_REASON(uint32_t value)
+{
+  RTC->BKP0R = value;
+  RTC->BKP1R = POWER_REASON_SIGNATURE;
+}
 
 HardwareOptions hardwareOptions;
 bool boardBacklightOn = false;
@@ -75,7 +101,7 @@ void boardInit()
                          AUDIO_RCC_AHB1Periph |
                          KEYS_RCC_AHB1Periph |
                          ADC_RCC_AHB1Periph |
-#if defined(FLYSKY_GIMBAL)
+#if defined(RADIO_FAMILY_T16)
                          FLYSKY_HALL_RCC_AHB1Periph |
 #endif
                          AUX_SERIAL_RCC_AHB1Periph |
@@ -95,7 +121,7 @@ void boardInit()
                          ADC_RCC_APB1Periph |
                          TIMER_2MHz_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
-#if defined(FLYSKY_GIMBAL)
+#if defined(RADIO_FAMILY_T16)
                          FLYSKY_HALL_RCC_APB1Periph |
 #endif
                          TELEMETRY_RCC_APB1Periph |
@@ -148,23 +174,18 @@ void boardInit()
   audioInit();
 
   keysInit();
+  switchInit();
   rotaryEncoderInit();
 
-#if NUM_PWMSTICKS > 0
-  sticksPwmInit();
-  delay_ms(20);
-  if (pwm_interrupt_count < 32) {
-    hardwareOptions.sticksPwmDisabled = true;
-  }
+#if defined(PWM_STICKS)
+  sticksPwmDetect();
+#endif
+  
+#if defined(RADIO_FAMILY_T16)
+  flysky_gimbal_init();
 #endif
 
-#if defined(FLYSKY_GIMBAL)
-  globalData.flyskygimbals = flysky_gimbal_init();
-#else
-  globalData.flyskygimbals = false;
-#endif
-
-  if (!adcInit(&ADC_DRIVER))
+  if (!adcInit(&_adc_driver))
     TRACE("adcInit failed");
 
   init2MhzTimer();
@@ -188,7 +209,7 @@ void boardInit()
   usbChargerInit();
 #endif
 
-#if defined(RTCLOCK) && !defined(COPROCESSOR)
+#if defined(RTCLOCK)
   ledRed();
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
@@ -197,8 +218,11 @@ void boardInit()
 }
 #endif
 
+extern void rtcDisableBackupReg();
+
 void boardOff()
 {
+  ledOff();
   backlightEnable(0);
 
   while (pwrPressed()) {
@@ -222,11 +246,7 @@ void boardOff()
   // Shutdown the Haptic
   hapticDone();
 
-#if defined(RTC_BACKUP_RAM)
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_BKPSRAM, DISABLE);
-  PWR_BackupRegulatorCmd(DISABLE);
-#endif
-
+  rtcDisableBackupReg();
   RTC->BKP0R = SHUTDOWN_REQUEST;
 
   pwrOff();

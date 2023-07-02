@@ -29,7 +29,9 @@
 #include "multi_firmware_update.h"
 #include "stk500.h"
 #include "debug.h"
+
 #include "timers_driver.h"
+#include "watchdog_driver.h"
 
 #include <memory>
 
@@ -96,7 +98,7 @@ bool MultiFirmwareUpdateDriver::init()
     params.polarity = ETX_Pol_Inverted;
     mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_UART, &params);
     if (!mod_st) {
-      params.polarity = ETX_Pol_Normal;
+      params.polarity = ETX_Pol_Inverted;
       mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SOFT_INV, &params);
       if (!mod_st) return false;
     }
@@ -104,7 +106,7 @@ bool MultiFirmwareUpdateDriver::init()
     params.direction = ETX_Dir_RX;
     params.polarity = ETX_Pol_Inverted;
     if (!modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT, &params)) {
-      params.polarity = ETX_Pol_Normal;
+      params.polarity = ETX_Pol_Inverted;
       if (!modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT_INV, &params)) {
         modulePortDeInit(mod_st);
         return false;
@@ -161,11 +163,9 @@ void MultiFirmwareUpdateDriver::deinit()
 
 bool MultiFirmwareUpdateDriver::getRxByte(uint8_t & byte) const
 {
-  uint16_t time;
-
-  time = getTmr2MHz();
-  while ((uint16_t) (getTmr2MHz() - time) < 25000) {  // 12.5mS
-
+  uint32_t time = RTOS_GET_MS();
+  
+  while ((RTOS_GET_MS() - time) < 100) {              // 100ms
     if (getByte(byte)) {
 #if defined(DEBUG_EXT_MODULE_FLASH)
       TRACE("[RX] 0x%X", byte);

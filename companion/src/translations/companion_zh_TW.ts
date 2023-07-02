@@ -6294,6 +6294,11 @@ Are you sure ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../generaledit/hardware.cpp" line="178"/>
+        <source>Mute if no sound</source>
+        <translation>音頻停播時自動靜音</translation>
+    </message>
+    <message>
         <location filename="../generaledit/hardware.cpp" line="198"/>
         <source>Internal RF</source>
         <translation type="unfinished"></translation>

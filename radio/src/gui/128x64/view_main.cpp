@@ -20,6 +20,11 @@
  */
 
 #include "opentx.h"
+#include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
+
+#include "switches.h"
+#include "input_mapping.h"
 
 #define BIGSIZE       DBLSIZE
 #if defined (PCBTARANIS)
@@ -76,38 +81,58 @@ void drawExternalAntennaAndRSSI()
 
 void drawPotsBars()
 {
-  // Optimization by Mike Blandford
-  for (uint8_t x = LCD_W / 2 - (NUM_POTS + NUM_SLIDERS - 1) * 5 / 2 - 1, i = NUM_STICKS; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; x += 5, i++) {
+  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  uint8_t offset = adcGetInputOffset(ADC_INPUT_POT);
+  uint8_t configured_pots = 0;
+
+  for (uint8_t i = 0; i < max_pots; i++) {
     if (IS_POT_SLIDER_AVAILABLE(i)) {
-      uint8_t len = ((calibratedAnalogs[i] + RESX) * BAR_HEIGHT / (RESX * 2)) + 1l;  // calculate once per loop
-      V_BAR(x, LCD_H - 8, len);
+      configured_pots ++;
+    }
+  }
+
+  uint8_t lines = configured_pots > 3 ? 2 : 1;
+  uint8_t cols =  configured_pots > 4 ? 3 : configured_pots % 2 ? 3 : 2;
+  coord_t xstart =  LCD_W / 2 - (cols % 2 ? 5 : 3);
+
+  for (uint8_t i = 0; i < max_pots; i++) {
+    if (IS_POT_SLIDER_AVAILABLE(i)) {
+      coord_t x = xstart + (i % cols) * 5;
+      coord_t y = lines == 1 ? (LCD_H - 8) : i >= cols ? (LCD_H - 8) : (LCD_H - 8 - BAR_HEIGHT / 2);
+      auto v = calibratedAnalogs[offset + i] + RESX;
+      uint8_t len = (v * BAR_HEIGHT / (RESX * 2 * lines)) + 1l;
+      V_BAR(x, y, len);
     }
   }
 }
 
 void doMainScreenGraphics()
 {
-  int16_t calibStickVert = calibratedAnalogs[CONVERT_MODE(1)];
-  if (g_model.throttleReversed && CONVERT_MODE(1) == THR_STICK)
+#if defined(SURFACE_RADIO)
+  drawWheel(LBOX_CENTERX, calibratedAnalogs[ADC_MAIN_ST]);
+  drawThrottle(RBOX_CENTERX, calibratedAnalogs[ADC_MAIN_TH]);
+#else
+  int16_t calibStickVert = calibratedAnalogs[ADC_MAIN_LV];
+  if (g_model.throttleReversed && inputMappingConvertMode(ADC_MAIN_LV) == THR_STICK)
     calibStickVert = -calibStickVert;
-  drawStick(LBOX_CENTERX, calibratedAnalogs[CONVERT_MODE(0)], calibStickVert);
+  drawStick(LBOX_CENTERX, calibratedAnalogs[ADC_MAIN_LH], calibStickVert);
 
-  calibStickVert = calibratedAnalogs[CONVERT_MODE(2)];
-  if (g_model.throttleReversed && CONVERT_MODE(2) == THR_STICK)
+  calibStickVert = calibratedAnalogs[ADC_MAIN_RV];
+  if (g_model.throttleReversed && inputMappingConvertMode(ADC_MAIN_RV) == THR_STICK)
     calibStickVert = -calibStickVert;
-  drawStick(RBOX_CENTERX, calibratedAnalogs[CONVERT_MODE(3)], calibStickVert);
-#if defined(HARDWARE_POT1)
-  drawPotsBars();
+  drawStick(RBOX_CENTERX, calibratedAnalogs[ADC_MAIN_RH], calibStickVert);
 #endif
+
+  drawPotsBars();
 }
 
 void displayTrims(uint8_t phase)
 {
-  for (uint8_t i = 0; i < 4; i++) {
-    static coord_t x[4] = {TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X};
-    static uint8_t vert[4] = {0, 1, 1, 0};
+  for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
+    static coord_t x[] = {TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X, TRIM_LH_X, TRIM_LV_X, TRIM_RH_X, TRIM_RV_X};
+    static uint8_t vert[] = {0, 1, 1, 0, 0, 1, 0, 1};
     coord_t xm, ym;
-    uint8_t stickIndex = CONVERT_MODE(i);
+    uint8_t stickIndex = inputMappingConvertMode(i);
     xm = x[stickIndex];
     uint8_t att = ROUND;
     int16_t val = getTrimValue(phase, i);
@@ -132,51 +157,91 @@ void displayTrims(uint8_t phase)
 
     if (vert[i]) {
       ym = 31;
-      lcdDrawSolidVerticalLine(xm, ym - TRIM_LEN, TRIM_LEN * 2 + 1);
-      if (i != 2 || !g_model.thrTrim) {
-        lcdDrawSolidVerticalLine(xm - 1, ym - 1, 3);
-        lcdDrawSolidVerticalLine(xm + 1, ym - 1, 3);
+      if (!getPixel(xm, ym))
+        lcdDrawSolidVerticalLine(xm, ym - TRIM_LEN, TRIM_LEN * 2 + 1);
+      if (keysGetMaxTrims() <= 4) {
+        if (i != 2 || !g_model.thrTrim) {
+          lcdDrawSolidVerticalLine(xm - 1, ym - 1, 3);
+          lcdDrawSolidVerticalLine(xm + 1, ym - 1, 3);
+        }
+        ym -= val;
+        lcdDrawFilledRect(xm - 3, ym - 3, 7, 7, SOLID, att | ERASE);
+        if (dir >= 0) {
+          lcdDrawSolidHorizontalLine(xm - 1, ym - 1, 3);
+        }
+        if (dir <= 0) {
+          lcdDrawSolidHorizontalLine(xm - 1, ym + 1, 3);
+        }
+        if (exttrim) {
+          lcdDrawSolidHorizontalLine(xm - 1, ym, 3);
+        }
+        if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && dir != 0) {
+          if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS ||
+              (trimsDisplayTimer > 0 && (trimsDisplayMask & (1 << i)))) {
+            lcdDrawNumber(dir > 0 ? 12 : 40, xm - 2, -abs(dir),
+                          TINSIZE | VERTICAL);
+          }
+        }
+        lcdDrawSquare(xm - 3, ym - 3, 7, att);
       }
-      ym -= val;
-      lcdDrawFilledRect(xm - 3, ym - 3, 7, 7, SOLID, att | ERASE);
-      if (dir >= 0) {
-        lcdDrawSolidHorizontalLine(xm - 1, ym - 1, 3);
-      }
-      if (dir <= 0) {
-        lcdDrawSolidHorizontalLine(xm - 1, ym + 1, 3);
-      }
-      if (exttrim) {
-        lcdDrawSolidHorizontalLine(xm - 1, ym, 3);
-      }
-      if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && dir != 0) {
-        if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS || (trimsDisplayTimer > 0 && (trimsDisplayMask & (1 << i)))) {
-          lcdDrawNumber(dir > 0 ? 12 : 40, xm - 2, -abs(dir), TINSIZE | VERTICAL);
+      else {
+        ym -= val;
+        if ((i > 4 && xm < LCD_W / 2) || (i < 4 && xm > LCD_W / 2) ) {
+          lcdDrawSolidVerticalLine(xm - 1, ym, 1);
+          lcdDrawSolidVerticalLine(xm - 2, ym - 1, 3);
+          lcdDrawSolidVerticalLine(xm - 3, ym - 2, 5);
+        }
+        else {
+          lcdDrawSolidVerticalLine(xm + 1, ym, 1);
+          lcdDrawSolidVerticalLine(xm + 2, ym - 1, 3);
+          lcdDrawSolidVerticalLine(xm + 3, ym - 2, 5);
         }
       }
     }
     else {
       ym = 60;
-      lcdDrawSolidHorizontalLine(xm - TRIM_LEN, ym, TRIM_LEN * 2 + 1);
-      lcdDrawSolidHorizontalLine(xm - 1, ym - 1, 3);
-      lcdDrawSolidHorizontalLine(xm - 1, ym + 1, 3);
-      xm += val;
-      lcdDrawFilledRect(xm - 3, ym - 3, 7, 7, SOLID, att | ERASE);
-      if (dir >= 0) {
-        lcdDrawSolidVerticalLine(xm + 1, ym - 1, 3);
+      if (!getPixel(xm, ym))
+        lcdDrawSolidHorizontalLine(xm - TRIM_LEN, ym, TRIM_LEN * 2 + 1);
+      if (keysGetMaxTrims() <= 4) {
+        lcdDrawSolidHorizontalLine(xm - 1, ym - 1, 3);
+        lcdDrawSolidHorizontalLine(xm - 1, ym + 1, 3);
+        xm += val;
+        lcdDrawFilledRect(xm - 3, ym - 3, 7, 7, SOLID, att | ERASE);
+        if (dir >= 0) {
+          lcdDrawSolidVerticalLine(xm + 1, ym - 1, 3);
+        }
+        if (dir <= 0) {
+          lcdDrawSolidVerticalLine(xm - 1, ym - 1, 3);
+        }
+        if (exttrim) {
+          lcdDrawSolidVerticalLine(xm, ym - 1, 3);
+        }
+        if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && dir != 0) {
+          if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS ||
+              (trimsDisplayTimer > 0 && (trimsDisplayMask & (1 << i)))) {
+            lcdDrawNumber(
+                (stickIndex == 0 ? (dir > 0 ? TRIM_LH_POS : TRIM_LH_NEG)
+                                 : (dir > 0 ? TRIM_RH_POS : TRIM_RH_NEG)),
+                ym - 2, -abs(dir), TINSIZE);
+          }
+        }
+        lcdDrawSquare(xm - 3, ym - 3, 7, att);
       }
-      if (dir <= 0) {
-        lcdDrawSolidVerticalLine(xm - 1, ym - 1, 3);
-      }
-      if (exttrim) {
-        lcdDrawSolidVerticalLine(xm, ym - 1, 3);
-      }
-      if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && dir != 0) {
-        if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS || (trimsDisplayTimer > 0 && (trimsDisplayMask & (1 << i)))) {
-          lcdDrawNumber((stickIndex == 0 ? (dir > 0 ? TRIM_LH_POS : TRIM_LH_NEG) : (dir > 0 ? TRIM_RH_POS : TRIM_RH_NEG)), ym - 2, -abs(dir), TINSIZE);
+      else {
+        xm += val;
+        if (i > 3) {
+          lcdDrawSolidHorizontalLine(xm, ym + 1, 1);
+          lcdDrawSolidHorizontalLine(xm - 1, ym + 2, 3);
+          lcdDrawSolidHorizontalLine(xm - 2, ym + 3, 5);
+        }
+        else {
+          lcdDrawSolidHorizontalLine(xm, ym - 1, 1);
+          lcdDrawSolidHorizontalLine(xm - 1, ym - 2, 3);
+          lcdDrawSolidHorizontalLine(xm - 2, ym - 3, 5);
         }
       }
     }
-    lcdDrawSquare(xm - 3, ym - 3, 7, att);
+
   }
 }
 
@@ -489,66 +554,48 @@ void menuMainView(event_t event)
       if (view == VIEW_INPUTS) {
         // Sticks + Pots
         doMainScreenGraphics();
-
+        
         // Switches
-#if defined(PCBX9LITES)
-        static const uint8_t x[NUM_SWITCHES-2] = {2*FW-2, 2*FW-2, 17*FW+1, 2*FW-2, 17*FW+1};
-        static const uint8_t y[NUM_SWITCHES-2] = {4*FH+1, 5*FH+1, 5*FH+1, 6*FH+1, 6*FH+1};
-        for (int i=0; i<NUM_SWITCHES - 2; ++i) {
+        // -> 2 columns: one for each side
+        // -> 4 slots on each side (3 normal / 1 small)
+        uint8_t switches = switchGetMaxSwitches();
+        uint8_t configured_switches = 0;
+
+        for (uint8_t i = 0; i < switches; i++) {
           if (SWITCH_EXISTS(i)) {
-            getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-            getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-            drawSwitch(x[i], y[i], sw, 0, false);
+            configured_switches ++;
           }
         }
-        drawSmallSwitch(29, 5*FH+1, 4, SW_SF);
-        drawSmallSwitch(16*FW+1, 5*FH+1, 4, SW_SG);
-#elif defined(PCBX9LITE)
-        static const uint8_t x[NUM_SWITCHES] = {2 * FW - 2, 2 * FW - 2, 16 * FW + 1, 2 * FW - 2, 16 * FW + 1};
-        static const uint8_t y[NUM_SWITCHES] = {4 * FH + 1, 5 * FH + 1, 5 * FH + 1, 6 * FH + 1, 6 * FH + 1};
-        for (int i = 0; i < NUM_SWITCHES; ++i) {
-          if (SWITCH_EXISTS(i)) {
-            getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-            getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-            drawSwitch(x[i], y[i], sw, 0, false);
-          }
-        }
-#elif defined(PCBXLITES)
-        static const uint8_t x[NUM_SWITCHES] = {2*FW-2, 16*FW+1, 2*FW-2, 16*FW+1, 2*FW-2, 16*FW+1};
-        static const uint8_t y[NUM_SWITCHES] = {4*FH+1, 4*FH+1, 6*FH+1, 6*FH+1, 5*FH+1, 5*FH+1};
-        for (int i=0; i<NUM_SWITCHES; ++i) {
-          if (SWITCH_EXISTS(i)) {
-            getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-            getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-            drawSwitch(x[i], y[i], sw, 0, false);
-          }
-        }
-#elif defined(PCBTARANIS)
-        uint8_t switches = min(NUM_SWITCHES- NUM_FUNCTIONS_SWITCHES, 6);
-        for (int i = 0; i < switches; ++i) {
-          if (SWITCH_EXISTS(i)) {
-            uint8_t x = 2 * FW - 2, y = 4 * FH + i * FH + 1;
-            if (i >= switches / 2) {
-              x = 16 * FW + 1;
-              y -= (switches / 2) * FH;
+
+        if (configured_switches < 9) {
+          for (int i = 0; i < switches; ++i) {
+            if (SWITCH_EXISTS(i)) {
+              auto switch_display = switchGetDisplayPosition(i);
+              if (switch_display.row >= 3) {
+                drawSmallSwitch(switch_display.col == 0 ? 28 : 16 * FW + 1,
+                                5 * FH + 1, 4, i);
+              }
+              else {
+                coord_t x = switch_display.col == 0 ? 2 * FW - 2 : 16 * FW + 7;
+                coord_t y = 33 + switch_display.row * FH;
+                getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
+                getvalue_t sw =
+                    ((val < 0) ? 3 * i + 1
+                               : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
+                drawSwitch(x, y, sw, 0, false);
+              }
             }
-            getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-            getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-            drawSwitch(x, y, sw, 0, false);
           }
         }
-#else
-        // The ID0 3-POS switch is merged with the TRN switch
-        for (uint8_t i = SWSRC_THR; i <= SWSRC_TRN; i++) {
-          int8_t sw = (i == SWSRC_TRN ? (switchState(SW_ID0) ? SWSRC_ID0 : (switchState(SW_ID1) ? SWSRC_ID1 : SWSRC_ID2)) : i);
-          uint8_t x = 2 * FW - 2, y = i * FH + 1;
-          if (i >= SWSRC_AIL) {
-            x = 17 * FW - 1;
-            y -= 3 * FH;
+        else {
+          for (int i = 0; i < switches; ++i) {
+            if (SWITCH_EXISTS(i)) {
+              auto switch_display = switchGetDisplayPosition(i);
+              coord_t x = (switch_display.col == 0 ? 8 : 96) + switch_display.row * 5;
+              drawSmallSwitch(x, 5 * FH + 1, 4, i);
+            }
           }
-          drawSwitch(x, y, sw, getSwitch(i) ? INVERS : 0, false);
         }
-#endif
       }
       else {
         // Logical Switches
@@ -556,7 +603,7 @@ void menuMainView(event_t event)
         uint8_t y = LCD_H - 20;
         for (uint8_t line = 0; line < 2; line++) {
           for (uint8_t column = 0; column < MAX_LOGICAL_SWITCHES / 2; column++) {
-            int8_t len = getSwitch(SWSRC_SW1 + index) ? 10 : 1;
+            int8_t len = getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + index) ? 10 : 1;
             uint8_t x = (16 + 3 * column);
             lcdDrawSolidVerticalLine(x - 1, y - len, len);
             lcdDrawSolidVerticalLine(x, y - len, len);

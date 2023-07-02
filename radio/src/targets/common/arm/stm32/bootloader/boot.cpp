@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
+
 #if defined(BLUETOOTH)
   #include "bluetooth_driver.h"
   #include "stm32_serial_driver.h"
@@ -29,8 +31,12 @@
 #include "bin_files.h"
 #include "dataconstants.h"
 #include "lcd.h"
-#include "keys.h"
+// #include "keys.h"
 #include "debug.h"
+
+#include "watchdog_driver.h"
+
+#include "hal/rotary_encoder.h"
 
 #if defined(DEBUG_SEGGER_RTT)
   #include "thirdparty/Segger_RTT/RTT/SEGGER_RTT.h"
@@ -67,9 +73,10 @@ const uint8_t bootloaderVersion[] __attribute__ ((section(".version"), used)) =
   {'B', 'O', 'O', 'T', '1', '0'};
 #endif
 
-#if defined(DEBUG) && !defined(SIMU)
+#define SOFTRESET_REQUEST 0xCAFEDEAD
+  
 volatile tmr10ms_t g_tmr10ms;
-#endif
+volatile uint8_t tenms = 1;
 
 uint32_t firmwareSize;
 uint32_t firmwareAddress = FIRMWARE_ADDRESS;
@@ -80,7 +87,6 @@ uint32_t eepromAddress = 0;
 uint32_t eepromWritten = 0;
 #endif
 
-volatile uint8_t tenms = 1;
 FlashCheckRes valid;
 MemoryType memoryType;
 uint32_t unlocked = 0;
@@ -88,26 +94,18 @@ uint32_t unlocked = 0;
 void interrupt10ms()
 {
   tenms |= 1u; // 10 mS has passed
-
-#if defined(DEBUG)
   g_tmr10ms++;
-#endif
 
-  uint8_t index = 0;
-  uint32_t in = readKeys();
-
-  for (int i = 0; i < TRM_BASE; i++) {
-    keys[index++].input(in & (1 << i));
-  }
+  keysPollingCycle();
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
   static rotenc_t rePreviousValue;
 
-  rotenc_t reNewValue = (rotencValue / ROTARY_ENCODER_GRANULARITY);
+  rotenc_t reNewValue = rotaryEncoderGetValue();
   int8_t scrollRE = reNewValue - rePreviousValue;
   if (scrollRE) {
     rePreviousValue = reNewValue;
-    pushEvent(scrollRE < 0 ? EVT_KEY_FIRST(KEY_UP) : EVT_KEY_FIRST(KEY_DOWN));
+    pushEvent(scrollRE < 0 ? EVT_ROTARY_LEFT : EVT_ROTARY_RIGHT);
   }
 #endif
 }
@@ -265,7 +263,7 @@ void bootloaderInitApp()
 
 #if (defined(RADIO_T8) || defined(RADIO_COMMANDO8)) && !defined(RADIOMASTER_RELEASE)
   // Bind button not pressed
-  if ((~KEYS_GPIO_REG_BIND & KEYS_GPIO_PIN_BIND) == false) {
+  if ((~(KEYS_GPIO_REG_BIND->IDR) & KEYS_GPIO_PIN_BIND) == false) {
 #else
   // LHR & RHL trims not pressed simultanously
   if (readTrims() != BOOTLOADER_KEYS) {
@@ -374,11 +372,11 @@ int  bootloaderMain()
 
         bootloaderDrawScreen(state, vpos);
 
-        if (event == EVT_KEY_FIRST(KEY_DOWN)) {
+        if (IS_NEXT_EVENT(event)) {
           if (vpos < bootloaderGetMenuItemCount(MAIN_MENU_LEN) - 1) { vpos++; }
           continue;
         }
-        else if (event == EVT_KEY_FIRST(KEY_UP)) {
+        else if (IS_PREVIOUS_EVENT(event)) {
           if (vpos > 0) { vpos--; }
           continue;
         }
@@ -435,7 +433,7 @@ int  bootloaderMain()
           limit = nameCount;
         }
 
-        if (event == EVT_KEY_REPT(KEY_DOWN) || event == EVT_KEY_FIRST(KEY_DOWN)) {
+        if (IS_NEXT_EVENT(event)) {
           if (vpos < limit - 1) {
             vpos += 1;
           }
@@ -446,7 +444,7 @@ int  bootloaderMain()
             }
           }
         }
-        else if (event == EVT_KEY_REPT(KEY_UP) || event == EVT_KEY_FIRST(KEY_UP)) {
+        else if (IS_PREVIOUS_EVENT(event)) {
           if (vpos > 0) {
             vpos -= 1;
           }

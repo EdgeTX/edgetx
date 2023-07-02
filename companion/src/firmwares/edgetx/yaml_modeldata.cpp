@@ -1154,7 +1154,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   if (node["rssiSource"]) {
     YamlTelemSource rssiSource;
     node["rssiSource"] >> rssiSource;
-    rhs.rssiSource = rssiSource.src;
+    rhs.rssiSource = 0; //fix #2552 write rssiSource as none
   }
 
   if (node["voltsSource"]) {

@@ -147,6 +147,13 @@ void postModelLoad(bool alarms)
     storageDirty(EE_MODEL);
   }
 
+// fix #2552: reset rssiSource to default none (= 0)
+if(g_model.rssiSource) {
+  g_model.rssiSource = 0;
+
+  storageDirty(EE_MODEL);  
+}
+
 #if defined(PXX2)
   if (is_memclear(g_model.modelRegistrationID, PXX2_LEN_REGISTRATION_ID)) {
     memcpy(g_model.modelRegistrationID, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
@@ -240,7 +247,7 @@ void storageFlushCurrentModel()
   }
 
   if (g_model.potsWarnMode == POTS_WARN_AUTO) {
-    for (int i=0; i<NUM_POTS+NUM_SLIDERS; i++) {
+    for (int i=0; i<MAX_POTS; i++) {
       if (g_model.potsWarnEnabled & (1 << i)) {
         SAVE_POT_POSITION(i);
       }

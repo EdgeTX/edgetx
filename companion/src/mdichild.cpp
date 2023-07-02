@@ -41,19 +41,20 @@
 MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   QWidget(parent, f),
   ui(new Ui::MdiChild),
-  modelsListModel(NULL),
-  labelsListModel(NULL),
+  modelsListModel(nullptr),
+  labelsListModel(nullptr),
+  modelsListProxyModel(nullptr),
   parentWindow(parentWin),
-  radioToolbar(NULL),
-  modelsToolbar(NULL),
-  labelsToolbar(NULL),
-  lblLabels(NULL),
-
+  radioToolbar(nullptr),
+  modelsToolbar(nullptr),
+  labelsToolbar(nullptr),
+  lblLabels(nullptr),
   firmware(getCurrentFirmware()),
   lastSelectedModel(-1),
   isUntitled(true),
   forceCloseFlag(false),
-  stateDataVersion(1)
+  stateDataVersion(1),
+  cboModelSortOrder(nullptr)
 {
   ui->setupUi(this);
   setWindowIcon(CompanionIcon("open.png"));
@@ -76,6 +77,7 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   ui->modelsList->setDragDropMode(QAbstractItemView::DragDrop);
   ui->modelsList->setStyle(new ItemViewProxyStyle(ui->modelsList->style()));
   ui->modelsList->setStyleSheet("QTreeView::item {margin: 2px 0;}");  // a little more space for our drop indicators
+
   ui->lstLabels->setContextMenuPolicy(Qt::CustomContextMenu);
 
   retranslateUi();
@@ -117,6 +119,7 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
 
 MdiChild::~MdiChild()
 {
+  delete modelSortOrderItemModel;
   delete ui;
 }
 
@@ -191,7 +194,7 @@ QAction * MdiChild::addAct(Actions actId, const QString & icon, const char * slo
     newAction->setIcon(CompanionIcon(icon));
   if (!shortcut.isEmpty())
     newAction->setShortcut(shortcut);
-  if (slotObj == NULL)
+  if (slotObj == nullptr)
     slotObj = this;
   if (slot)
     connect(newAction, SIGNAL(triggered()), slotObj, slot);
@@ -206,7 +209,7 @@ void MdiChild::setupNavigation()
       act->deleteLater();
   }
   action.clear();
-  action.fill(NULL, ACT_ENUM_END);
+  action.fill(nullptr, ACT_ENUM_END);
 
   addAct(ACT_GEN_EDT, "edit.png",     SLOT(generalEdit()),          tr("Alt+Shift+E"));
   addAct(ACT_GEN_CPY, "copy.png",     SLOT(copyGeneralSettings()),  tr("Ctrl+Alt+C"));
@@ -284,6 +287,18 @@ void MdiChild::setupNavigation()
   if ((btn = qobject_cast<QToolButton *>(radioToolbar->widgetForAction(action[ACT_GEN_SIM])))) {
     btn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
   }
+
+  if (cboModelSortOrder)
+    cboModelSortOrder->deleteLater();
+  cboModelSortOrder = new QComboBox(this);
+  modelSortOrderItemModel = RadioData::modelSortOrderItemModel();
+  cboModelSortOrder->setModel(modelSortOrderItemModel);
+  connect(cboModelSortOrder, QOverload<int>::of(&QComboBox::currentIndexChanged), [=] (int index) {
+    radioData.sortOrder = index;
+    setModified();
+  });
+  action.replace(ACT_GEN_SRT, radioToolbar->addWidget(cboModelSortOrder));
+
   // add spacer to right-align the buttons
   QWidget * sp = new QWidget(this);
   sp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -328,7 +343,14 @@ void MdiChild::updateNavigation()
   labelsToolbar->setVisible(hasLabels);
   ui->lstLabels->setVisible(hasLabels);
   lblLabels->setVisible(hasLabels);
+
   action[ACT_GEN_PST]->setEnabled(hasClipboardData(1));
+  if (hasLabels) {
+    cboModelSortOrder->blockSignals(true);
+    cboModelSortOrder->setCurrentIndex(radioData.sortOrder);
+    cboModelSortOrder->blockSignals(false);
+  }
+  action[ACT_GEN_SRT]->setVisible(hasLabels);
 
   action[ACT_MDL_CUT]->setEnabled(modelsSelected);
   action[ACT_MDL_CUT]->setText(tr("Cut") % (modelsSelected ? sp % modelsRemvTxt : ns));
@@ -355,6 +377,7 @@ void MdiChild::retranslateUi()
   action[ACT_GEN_CPY]->setText(tr("Copy Radio Settings"));
   action[ACT_GEN_PST]->setText(tr("Paste Radio Settings"));
   action[ACT_GEN_SIM]->setText(tr("Simulate Radio"));
+  cboModelSortOrder->setToolTip(tr("Radio Models Order"));
 
   action[ACT_ITM_EDT]->setText(tr("Edit Model"));
   action[ACT_ITM_DEL]->setText(tr("Delete"));
@@ -437,17 +460,17 @@ QAction * MdiChild::getAction(const MdiChild::Actions type)
   if (type < ACT_ENUM_END)
     return action[type];
   else
-    return NULL;
+    return nullptr;
 }
 
 void MdiChild::showModelsListContextMenu(const QPoint & pos)
 {
-  QModelIndex modelIndex = ui->modelsList->indexAt(pos);
+  QModelIndex viewIndex = ui->modelsList->indexAt(pos);
   QMenu contextMenu;
 
   updateNavigation();
 
-  if (modelsListModel->isModelType(modelIndex)) {
+  if (modelsListModel->isModelType(getDataIndex(viewIndex))) {
     contextMenu.addActions(getEditActions());
     if (countSelectedModels() == 1) {
       contextMenu.addSeparator();
@@ -507,6 +530,11 @@ void MdiChild::adjustToolbarLayout()
 
 void MdiChild::initModelsList()
 {
+  if (modelsListProxyModel)
+    delete modelsListProxyModel;
+
+  modelsListProxyModel = new ModelsListProxyModel();
+
   if (modelsListModel)
     delete modelsListModel;
 
@@ -516,12 +544,15 @@ void MdiChild::initModelsList()
   connect(modelsListModel, &ModelsListModel::refreshRequested, this, &MdiChild::refresh);
   connect(modelsListModel, &QAbstractItemModel::dataChanged, this, &MdiChild::onDataChanged);
 
-  ui->modelsList->setModel(modelsListModel);
+  modelsListProxyModel->setSourceModel(modelsListModel);
+
+  ui->modelsList->setModel(modelsListProxyModel);
   ui->modelsList->selectionModel()->currentIndex().row();
 
   // Labels Editor + Model
-  if(labelsListModel)
+  if (labelsListModel)
     delete labelsListModel;
+
   labelsListModel = new LabelsModel(ui->modelsList->selectionModel(),
                                     &radioData, this);
   connect(labelsListModel, &LabelsModel::modelChanged, this, &MdiChild::modelLabelsChanged);
@@ -531,9 +562,23 @@ void MdiChild::initModelsList()
   ui->lstLabels->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
   ui->lstLabels->setItemDelegate(new LabelEditTextDelegate);
 
+  modelsListProxyModel->setFilter(labelsListModel); // TODO Used for filters when developed
+
   ui->modelsList->setIndentation(0);
 
   refresh();
+  modelsListProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+
+  connect(ui->modelsList->header(), &QHeaderView::sectionDoubleClicked, [=] (int logicalIndex) {
+    if (ui->modelsList->header()->isSortIndicatorShown()) {
+      ui->modelsList->sortByColumn(-1, Qt::AscendingOrder); // turn off sort indicator shown and return proxy model to its unsorted order
+      ui->modelsList->setSortingEnabled(false);             // disable clicking a column to sort
+    }
+    else {
+      ui->modelsList->setSortingEnabled(true); // enable sorting by clicking a column
+      ui->modelsList->sortByColumn(logicalIndex, Qt::AscendingOrder);
+    }
+  });
 
   if (firmware->getCapability(Capability::HasModelLabels)) {
     ui->modelsList->header()->resizeSection(0, ui->modelsList->header()->sectionSize(0) * 1.5); // pad out model names
@@ -546,11 +591,10 @@ void MdiChild::initModelsList()
 
 void MdiChild::refresh()
 {
-  bool expand = true; // TODO: restore user-preferred state
   clearCutList();
   modelsListModel->refresh();
-  if (expand)
-    ui->modelsList->expandAll();
+  modelsListProxyModel->invalidate(); // force view refresh
+  ui->modelsList->expandAll();
   if (lastSelectedModel > -1) {
     setSelectedModel(lastSelectedModel);
     lastSelectedModel = -1;
@@ -561,8 +605,9 @@ void MdiChild::refresh()
 
 void MdiChild::onItemActivated(const QModelIndex index)
 {
-  if (modelsListModel->isModelType(index)) {
-    int mIdx = modelsListModel->getModelIndex(index);
+  QModelIndex srcIdx = getDataIndex(index);
+  if (modelsListModel->isModelType(srcIdx)) {
+    int mIdx = modelsListModel->getModelIndex(srcIdx);
     if (mIdx < 0 || mIdx >= (int)radioData.models.size())
       return;
     if (radioData.models[mIdx].isEmpty())
@@ -593,7 +638,7 @@ void MdiChild::onDataChanged(const QModelIndex & index)
 
 QModelIndex MdiChild::getCurrentIndex() const
 {
-  return ui->modelsList->selectionModel()->currentIndex();
+  return getDataIndex(ui->modelsList->selectionModel()->currentIndex());
 }
 
 int MdiChild::getCurrentModel() const
@@ -601,12 +646,24 @@ int MdiChild::getCurrentModel() const
   return modelsListModel->getModelIndex(getCurrentIndex());
 }
 
+QModelIndex MdiChild::getDataIndex(QModelIndex viewIndex) const
+{
+  return modelsListProxyModel->mapToSource(viewIndex);
+}
+
+int MdiChild::getDataModel(QModelIndex viewIndex) const
+{
+  return modelsListModel->getModelIndex(getDataIndex(viewIndex));
+}
+
 int MdiChild::countSelectedModels() const
 {
   int ret = 0;
 
-  foreach (QModelIndex index, ui->modelsList->selectionModel()->selectedRows()) {
-    if (index.isValid() && modelsListModel->isModelType(index) && !radioData.models.at(modelsListModel->getModelIndex(index)).isEmpty())
+  foreach (QModelIndex viewIndex, ui->modelsList->selectionModel()->selectedRows()) {
+    QModelIndex index = getDataIndex(viewIndex);
+    if (index.isValid() && modelsListModel->isModelType(index) &&
+        !radioData.models.at(modelsListModel->getModelIndex(index)).isEmpty())
       ++ret;
   }
   return ret;
@@ -621,8 +678,9 @@ bool MdiChild::setSelectedModel(const int modelIndex)
 {
   QModelIndex idx = modelsListModel->getIndexForModel(modelIndex);
   if (idx.isValid()) {
-    ui->modelsList->scrollTo(idx);
-    ui->modelsList->setCurrentIndex(idx);
+    QModelIndex viewIdx = modelsListProxyModel->mapFromSource(idx);
+    ui->modelsList->scrollTo(viewIdx);
+    ui->modelsList->setCurrentIndex(viewIdx);
     return true;
   }
   return false;
@@ -631,7 +689,8 @@ bool MdiChild::setSelectedModel(const int modelIndex)
 QVector<int> MdiChild::getSelectedModels() const
 {
   QVector<int> models;
-  foreach (QModelIndex index, ui->modelsList->selectionModel()->selectedRows()) {
+  foreach (QModelIndex viewIndex, ui->modelsList->selectionModel()->selectedRows()) {
+    QModelIndex index = getDataIndex(viewIndex);
     if (index.isValid() && modelsListModel->isModelType(index))
       models.append(modelsListModel->getModelIndex(index));
   }
@@ -957,7 +1016,7 @@ void MdiChild::pasteGeneralData(const QMimeData * mimeData)
   GeneralSettings gs;
   bool hasGenSettings = false;
 
-  if (!ModelsListModel::decodeMimeData(mimeData, NULL, &gs, &hasGenSettings))
+  if (!ModelsListModel::decodeMimeData(mimeData, nullptr, &gs, &hasGenSettings))
     return;
 
   if (hasGenSettings && askQuestion(tr("Do you want to overwrite radio general settings?")) == QMessageBox::Yes) {
@@ -999,7 +1058,8 @@ void MdiChild::pasteGeneralSettings()
 
 void MdiChild::copy()
 {
-  QMimeData * mimeData = modelsListModel->getModelsMimeData(ui->modelsList->selectionModel()->selectedRows());
+  QModelIndexList indexes = modelsListProxyModel->mapSelectionToSource(ui->modelsList->selectionModel()->selection()).indexes();
+  QMimeData * mimeData = modelsListModel->getModelsMimeData(indexes);
   modelsListModel->getHeaderMimeData(mimeData);
   QApplication::clipboard()->setMimeData(mimeData, QClipboard::Clipboard);
   clearCutList();  // clear the list by default, populate afterwards, eg. in cut().
@@ -1009,7 +1069,8 @@ void MdiChild::cut()
 {
   copy();
   cutModels = getSelectedModels();
-  modelsListModel->markItemsForCut(ui->modelsList->selectionModel()->selectedIndexes());
+  QModelIndexList indexes = modelsListProxyModel->mapSelectionToSource(ui->modelsList->selectionModel()->selection()).indexes();
+  modelsListModel->markItemsForCut(indexes);
 }
 
 void MdiChild::removeModelFromCutList(const int modelIndex)
@@ -1151,7 +1212,7 @@ void MdiChild::openModelEditWindow(int row)
 void MdiChild::print(int model, const QString & filename)
 {
   // TODO
-  PrintDialog * pd = NULL;
+  PrintDialog * pd = nullptr;
 
   if (model>=0 && !filename.isEmpty()) {
     pd = new PrintDialog(this, firmware, radioData.generalSettings, radioData.models[model], filename);
@@ -1171,6 +1232,7 @@ void MdiChild::setDefault()
   int row = getCurrentModel();
   if (!radioData.models[row].isEmpty() && radioData.generalSettings.currModelIndex != (unsigned)row) {
     radioData.setCurrentModel(row);
+    refresh();
   }
 }
 
@@ -1370,7 +1432,7 @@ bool MdiChild::convertStorage(Board::Type from, Board::Type to, bool newFile)
   isUntitled = true;
 
   if (cstate.hasLogEntries(RadioDataConversionState::EVT_INF)) {
-    auto * msgBox = new QDialog(Q_NULLPTR, Qt::Dialog | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint);
+    auto * msgBox = new QDialog(nullptr, Qt::Dialog | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint);
 
     auto * tv = new ExportableTableView(msgBox);
     tv->setSortingEnabled(true);

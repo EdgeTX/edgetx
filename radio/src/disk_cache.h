@@ -23,7 +23,6 @@
 #define _DISK_CACHE_H_
 
 #include "diskio.h"
-#include "sdio_sd.h"
 
 // tunable parameters
 #define DISK_CACHE_BLOCKS_NUM      32   // no cache blocks

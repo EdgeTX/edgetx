@@ -21,7 +21,13 @@
 
 #include "opentx_types.h"
 #include "libopenui_config.h"
+
 #include "lcd.h"
+#include "lcd_driver.h"
+
+// StdPeriph
+#include "stm32f4xx_ltdc.h"
+#include "stm32f4xx_dma2d.h"
 
 static volatile uint8_t _frame_addr_reloaded = 0;
 

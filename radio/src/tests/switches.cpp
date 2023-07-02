@@ -32,6 +32,9 @@ void setLogicalSwitch(int index, uint16_t _func, int16_t _v1, int16_t _v2, int16
   g_model.logicalSw[index].andsw = _andsw;
 }
 
+#define SWSRC_SW1 (SWSRC_FIRST_LOGICAL_SWITCH)
+#define SWSRC_SW2 (SWSRC_FIRST_LOGICAL_SWITCH + 1)
+
 #if defined(PCBTARANIS)
 TEST(getSwitch, OldTypeStickyCSW)
 {
@@ -39,7 +42,7 @@ TEST(getSwitch, OldTypeStickyCSW)
   MODEL_RESET();
   MIXER_RESET();
 
-  setLogicalSwitch(0, LS_FUNC_AND, SWSRC_SA0, SWSRC_NONE);
+  setLogicalSwitch(0, LS_FUNC_AND, SWSRC_FIRST_SWITCH, SWSRC_NONE);
   setLogicalSwitch(1, LS_FUNC_OR, SWSRC_SW1, SWSRC_SW2);
 
   simuSetSwitch(0, 0);
@@ -81,8 +84,8 @@ TEST(getSwitch, inputWithTrim)
   setModelDefaults();
   MIXER_RESET();
 
-  // g_model.logicalSw[0] = { LS_FUNC_VPOS, MIXSRC_FIRST_INPUT, 0, 0 };
   setLogicalSwitch(0, LS_FUNC_VPOS, MIXSRC_FIRST_INPUT, 0, 0);
+  anaSetFiltered(0, 0);
 
   evalMixes(1);
   evalLogicalSwitches();
@@ -133,9 +136,13 @@ TEST(evalLogicalSwitches, playFile)
 }
 #endif
 
-#if defined(PCBTARANIS) && NUM_SWITCHES >= 8 && !defined(PCBX7)
+#define SWSRC_SA2 (SWSRC_FIRST_SWITCH + 2)
+#define SWSRC_SF2 (SWSRC_FIRST_SWITCH + 5 * 3 + 2)
+
 TEST(getSwitch, edgeInstant)
 {
+  if (switchGetMaxSwitches() < 6) return;
+  
   MODEL_RESET();
   MIXER_RESET();
   // LS1 setup: EDGE SFup  (0:instant)
@@ -253,6 +260,8 @@ TEST(getSwitch, edgeInstant)
 
 TEST(getSwitch, edgeRelease)
 {
+  if (switchGetMaxSwitches() < 6) return;
+
   MODEL_RESET();
   MIXER_RESET();
   // test for issue #2728
@@ -309,4 +318,3 @@ TEST(getSwitch, edgeRelease)
   EXPECT_EQ(getSwitch(SWSRC_SW2), false);
 
 }
-#endif // defined(PCBTARANIS)

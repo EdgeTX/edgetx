@@ -62,7 +62,6 @@
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 
 #define TR_SBUS_INVERSION_VALUES       "normal","not inverted"
-#define TR_MULTI_TELEMETRY_MODE        "Off","On","Off+Aux","On+Aux"
 #define TR_MULTI_CUSTOM                "עיצוב מיוחד"
 #define TR_VTRIMINC                    TR("Expo","הולך ומתעצם"),TR("ExFine","זז ב-1"),"זז ב-2","זז ב-3","זז ב-6"
 #define TR_VDISPLAYTRIMS               "אל תציג","הצג שינוי בלבד","הצג"
@@ -920,6 +919,7 @@
 #define TR_DEBUG                       "איבחון"
 #define TR_KEYS_BTN                    BUTTON("בדיקת מתגים")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "בדיקת אנלוגיות"))
+#define TR_FS_BTN                      BUTTON(TR("F. Switches", "Function switches"))
 #define TR_TOUCH_NOTFOUND              "!מסך זה אינו מסך מגע"
 #define TR_TOUCH_EXIT                  "גע במסך כדי לצאת"
 #define TR_SET                         BUTTON("הגדר")
@@ -1054,7 +1054,6 @@
 #endif
 
 // Bootloader common - Ascii only
-#define TR_BL_USB_CONNECT_BOOT        CENTER "\011חיבור חוטי חובר"
 #define TR_BL_USB_CONNECTED           "חיבור חוטי חובר"
 #define TR_BL_USB_PLUGIN              "Or plug in a USB cable"
 #define TR_BL_USB_MASS_STORE          "for mass storage"
@@ -1066,6 +1065,8 @@
 #define TR_BL_EXIT                    "יציאה"
 #define TR_BL_DIR_MISSING             " ארכיון חסר"
 #define TR_BL_DIR_EMPTY               " ארכיון ריק"
+#define TR_BL_WRITING_FW              "... כותב תוכנה"
+#define TR_BL_WRITING_COMPL           "כתיבה הושלמה"
 
 #if LCD_W >= 480
   #define TR_BL_INVALID_FIRMWARE       "Not a valid firmware file"
@@ -1084,23 +1085,17 @@
 #if defined(PCBTARANIS)
    // Bootloader Taranis specific - Ascii only
   #define TR_BL_RESTORE_EEPROM        "Restore EEPROM"
-  #define TR_BL_WRITING_FW            CENTER "\015...ממתין"
-  #define TR_BL_WRITING_COMPL         CENTER "\007כתיבה הושלמה"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "לחץ על כפתור ההפעלה"
     #define TR_BL_FLASH_EXIT          "Exit the flashing mode."
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific - Ascii only
-  #define TR_BL_WRITING_FW            "... כותב תוכנה"
-  #define TR_BL_WRITING_COMPL         "כתיבה הושלמה"
   #define TR_BL_SELECT_KEY            "[ENT] לבחירת קובץ"
   #define TR_BL_FLASH_KEY             "Hold [ENT] long to flash"
   #define TR_BL_EXIT_KEY              "[RTN] ליציאה"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific - Ascii only
-  #define TR_BL_WRITING_FW            "Writing Firmware ..."
-  #define TR_BL_WRITING_COMPL         "Writing Completed"
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_CURRENT_FW            "Current Firmware:"
   #define TR_BL_SELECT_KEY            "[R TRIM] to select file"
@@ -1191,6 +1186,7 @@
 #define TR_MENU_DISPLAY                "DISPLAY"
 #define TR_MENU_OTHER                  "Other"
 #define TR_MENU_INVERT                 "Invert"
+#define TR_AUDIO_MUTE                  TR("השתקת קול","השתק כאשר אין סאונד")
 #define TR_JITTER_FILTER               "ADC filter"
 #define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC voltage")

@@ -21,7 +21,10 @@
 #pragma once
 
 #include "eeprominterface.h"
+#include "labels.h"
+
 #include <QAbstractItemModel>
+#include <QSortFilterProxyModel>
 #include <QMimeData>
 #include <QUuid>
 
@@ -82,32 +85,32 @@ class ModelsListModel : public QAbstractItemModel
     ModelsListModel(RadioData * radioData, QObject *parent = 0);
     virtual ~ModelsListModel();
 
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
-    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) Q_DECL_OVERRIDE;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
-    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
-    virtual QModelIndex parent(const QModelIndex &index) const Q_DECL_OVERRIDE;
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
+    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    virtual QModelIndex parent(const QModelIndex &index) const override;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
-    virtual bool removeRows(int position, int rows, const QModelIndex &parent = QModelIndex()) Q_DECL_OVERRIDE;
-    //virtual bool insertRows(int row, int count, const QModelIndex & parent) Q_DECL_OVERRIDE;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    virtual bool removeRows(int position, int rows, const QModelIndex &parent = QModelIndex()) override;
+    //virtual bool insertRows(int row, int count, const QModelIndex & parent) override;
 
-    virtual QStringList mimeTypes() const Q_DECL_OVERRIDE;
-    virtual Qt::DropActions supportedDropActions() const Q_DECL_OVERRIDE;
-    virtual Qt::DropActions supportedDragActions() const Q_DECL_OVERRIDE;
-    virtual QMimeData * mimeData(const QModelIndexList & indexes) const Q_DECL_OVERRIDE;
-    virtual bool canDropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) const Q_DECL_OVERRIDE;
-    virtual bool dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) Q_DECL_OVERRIDE;
+    virtual QStringList mimeTypes() const override;
+    virtual Qt::DropActions supportedDropActions() const override;
+    virtual Qt::DropActions supportedDragActions() const override;
+    virtual QMimeData * mimeData(const QModelIndexList & indexes) const override;
+    virtual bool canDropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) const override;
+    virtual bool dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) override;
 
     void encodeModelsData(const QModelIndexList & indexes, QByteArray * data) const;
     void encodeGeneralData(QByteArray * data) const;
     void encodeHeaderData(QByteArray * data) const;
-    QMimeData * getModelsMimeData(const QModelIndexList & indexes, QMimeData * mimeData = NULL) const;
-    QMimeData * getGeneralMimeData(QMimeData * mimeData = NULL) const;
-    QMimeData * getHeaderMimeData(QMimeData * mimeData = NULL) const;
+    QMimeData * getModelsMimeData(const QModelIndexList & indexes, QMimeData * mimeData = nullptr) const;
+    QMimeData * getGeneralMimeData(QMimeData * mimeData = nullptr) const;
+    QMimeData * getHeaderMimeData(QMimeData * mimeData = nullptr) const;
     QUuid getMimeDataSourceId(const QMimeData * mimeData) const;
     bool hasSupportedMimeData(const QMimeData * mimeData) const;
     bool hasModelsMimeData(const QMimeData * mimeData) const;
@@ -116,7 +119,7 @@ class ModelsListModel : public QAbstractItemModel
     bool hasOwnMimeData(const QMimeData * mimeData) const;
 
     static bool decodeHeaderData(const QMimeData * mimeData, MimeHeaderData * header);
-    static bool decodeMimeData(const QMimeData * mimeData, QVector<ModelData> * models = NULL, GeneralSettings * gs = NULL, bool * hasGenSet = NULL);
+    static bool decodeMimeData(const QMimeData * mimeData, QVector<ModelData> * models = nullptr, GeneralSettings * gs = nullptr, bool * hasGenSet = nullptr);
     static int countModelsInMimeData(const QMimeData * mimeData);
 
     QModelIndex getIndexForModel(const int modelIndex, QModelIndex parent = QModelIndex());
@@ -146,4 +149,22 @@ class ModelsListModel : public QAbstractItemModel
     RadioData * radioData;
     MimeHeaderData mimeHeaderData;
     bool hasLabels;
+};
+
+class ModelsListProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+  public:
+    ModelsListProxyModel() {}
+    virtual ~ModelsListProxyModel() {}
+
+  public slots:
+    void setFilter(LabelsModel* labels) { m_labels = labels; }
+
+  protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const override;
+
+  private:
+    LabelsModel* m_labels;
 };

@@ -74,26 +74,10 @@
 
 #define TR_ADCFILTERVALUES              "Globali","Off","On"
 
-#if defined(PCBX10)
-  #define TR_RETA123                    "D","E","M","A","1","3","2","4","5","6","7","S","D"
-#elif defined(PCBHORUS)
-  #define TR_RETA123                    "D","E","M","A","1","3","2","4","5","S","D"
-#elif defined(PCBX9E)
-  #define TR_RETA123                    "D","E","M","A","1","2","3","4","S","D","S","D"
-#elif defined(PCBTARANIS)
-  #define TR_RETA123                    "D","E","M","A","1","2","3","S","D"
-#else
-  #define TR_RETA123                    "D","E","M","A","1","2","3"
-#endif
 #define TR_VCURVETYPE                   "Diff","Espo","Funz","Pers"
 #define TR_VCURVEFUNC                   "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                       "Add.","Molt.","Sost."
 #define TR_VMLTPX2                      "+=","*=",":="
-#if defined(PCBHORUS)
-  #define TR_VMIXTRIMS                  "OFF","ON","Dir","Ele","Mot","Ale","T5","T6"
-#else
-  #define TR_VMIXTRIMS                  "OFF","ON","Dir","Ele","Mot","Ale"
-#endif
 
 #if LCD_W >= 212
   #define TR_CSWTIMER                  "Timer"
@@ -110,73 +94,34 @@
 #define TR_CSWEQUAL                 "a=x"
 #define TR_VCSWFUNC                 "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
-#if defined(VARIO)
-  #define TR_VVARIO                     "Vario"
-#else
-  #define TR_VVARIO                     "[Vario]"
-#endif
+#define TR_SF_TRAINER                  "Maestro"
+#define TR_SF_INST_TRIM                "Inst. Trim"
+#define TR_SF_RESET                    "Azzera"
+#define TR_SF_SET_TIMER                "Set"
+#define TR_SF_VOLUME                   "Volume"
+#define TR_SF_FAILSAFE                 "SetFailsafe"
+#define TR_SF_RANGE_CHECK              "RangeCheck"
+#define TR_SF_MOD_BIND                 "BindModulo"
+ 
+#define TR_SOUND                       "Suona"
+#define TR_PLAY_TRACK                  "Suona Traccia"
+#define TR_PLAY_VALUE                  TR("LeggiVal","Leggi Valore")
+#define TR_SF_HAPTIC                   "Vibrazione"
+#define TR_SF_PLAY_SCRIPT              "Script Lua"
+#define TR_SF_BG_MUSIC                 "Musica Sf"
+#define TR_SF_BG_MUSIC_PAUSE           "Musica Sf ||"
+#define TR_SF_LOGS                     "Logs SDCard"
+#define TR_ADJUST_GVAR                 "Regola"
+#define TR_SF_BACKLIGHT                "Retroillum."
+#define TR_SF_VARIO                    "Vario"
+#define TR_SF_TEST                     "Test"
+#define TR_SF_SAFETY                   "Blocco"
 
-#if defined(AUDIO)
-  #define TR_SOUND                      "Suona"
-#else
-  #define TR_SOUND                      "Beep"
-#endif
-
-#if defined(HAPTIC)
-  #define TR_HAPTIC                     "Vibrazione"
-#else
-  #define TR_HAPTIC                     "[Vibrazione]"
-#endif
-
-#if defined(VOICE)
-    #define TR_PLAY_TRACK               "Suona Traccia"
-  #define TR_PLAY_VALUE                 TR("LeggiVal", "Leggi Valore")
-#else
-  #define TR_PLAY_TRACK                 "[Brano]"
-  #define TR_PLAY_VALUE                 "[LeggiValore]"
-#endif
-
-#define TR_SF_BG_MUSIC                 "Musica Sf","Musica Sf ||"
-
-#if defined(SDCARD)
-  #define TR_SDCLOGS                    "Logs SDCard"
-#else
-  #define TR_SDCLOGS                    "[Logs SDCard]"
-#endif
-
-#if defined(GVARS)
-  #define TR_ADJUST_GVAR                "Regola"
-#else
-  #define TR_ADJUST_GVAR                "[RegolaVG]"
-#endif
-
-#if defined(LUA)
-  #define TR_SF_PLAY_SCRIPT            "Script Lua"
-#else
-  #define TR_SF_PLAY_SCRIPT            "[Lua]"
-#endif
-
-#if defined(DEBUG)
-  #define TR_SF_TEST                   ,"Test"
-#else
-  #define TR_SF_TEST
-#endif
-
-#if defined(OVERRIDE_CHANNEL_FUNCTION) && LCD_W >= 212
-  #define TR_SF_SAFETY                 "Blocco"
-#elif defined(OVERRIDE_CHANNEL_FUNCTION)
-  #define TR_SF_SAFETY                 "Blocco"
-#else
-  #define TR_SF_SAFETY                 "---"
-#endif
-
-#define TR_SF_SCREENSHOT                 "Screenshot"
-#define TR_SF_RACING_MODE                "Modo Racing"
-#define TR_SF_DISABLE_TOUCH              "No Touch"
-#define TR_SF_SET_SCREEN                 "Setta Schermo"
-#define TR_SF_RESERVE                    "[riserva]"
-
-#define TR_VFSWFUNC                      TR_SF_SAFETY,"Maestro","Trim Instant.","Azzera","Set",TR_ADJUST_GVAR,"Volume","SettaFailsafe","RangeCheck","BindModulo",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Retroillum.",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
+#define TR_SF_SCREENSHOT               "Screenshot"
+#define TR_SF_TEST                     "Test"
+#define TR_SF_RACING_MODE              "Modo Racing"
+#define TR_SF_DISABLE_TOUCH            "No Touch"
+#define TR_SF_SET_SCREEN               "Setta Schermo Princ."
 
 #define TR_FSW_RESET_TELEM               TR("Telm", "Telemetria")
 
@@ -207,38 +152,8 @@
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
-#define TR_STICKS_VSRCRAW               STR_CHAR_STICK "Dir", STR_CHAR_STICK "Ele", STR_CHAR_STICK "Mot", STR_CHAR_STICK "Ale"
-
-#if defined(PCBHORUS)
-  #define TR_TRIMS_VSRCRAW              STR_CHAR_TRIM "Dir", STR_CHAR_TRIM "Ele", STR_CHAR_TRIM "Mot", STR_CHAR_TRIM "Ale", STR_CHAR_TRIM "T5",  STR_CHAR_TRIM "T6"
-#else
-  #define TR_TRIMS_VSRCRAW              STR_CHAR_TRIM "Dir", STR_CHAR_TRIM "Ele", STR_CHAR_TRIM "Mot", STR_CHAR_TRIM "Ale"
-#endif
-
-#if defined(PCBHORUS)
-  #define TR_TRIMS_SWITCHES             STR_CHAR_TRIM "Rl",  STR_CHAR_TRIM "Rr", STR_CHAR_TRIM "Ed", STR_CHAR_TRIM "Eu", STR_CHAR_TRIM "Td", STR_CHAR_TRIM "Tu", STR_CHAR_TRIM "Al", STR_CHAR_TRIM "Ar", STR_CHAR_TRIM "5d", STR_CHAR_TRIM "5u", STR_CHAR_TRIM "6d", STR_CHAR_TRIM "6u"
-#else
-  #define TRIM_SWITCH_CHAR              TR("t",STR_CHAR_TRIM)
-  #define TR_TRIMS_SWITCHES             TRIM_SWITCH_CHAR "Rl", TRIM_SWITCH_CHAR "Rr", TRIM_SWITCH_CHAR "Ed", TRIM_SWITCH_CHAR "Eu", TRIM_SWITCH_CHAR "Td", TRIM_SWITCH_CHAR "Tu", TRIM_SWITCH_CHAR "Al",  TRIM_SWITCH_CHAR "Ar"
-#endif
-
-#if defined(PCBHORUS) || defined(PCBNV14)
-  #define TR_VKEYS                     "PGUP","PGDN","ENTER","MDL","RTN","TELE","SYS"
-#elif defined(PCBXLITE)
-  #define TR_VKEYS                     "Shift","Exit","Enter","Down","Up","Right","Left"
-#elif defined(RADIO_FAMILY_JUMPER_T12)
-  #define TR_VKEYS                     "Exit","Enter","Down","Up","Right","Left"
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
-  #define TR_VKEYS                     "Exit","Enter","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UP","DOWN"
-#elif defined(RADIO_ZORRO) || defined(RADIO_BOXER)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(PCBTARANIS)
-  #define TR_VKEYS                     "Menu","Exit","Enter","Page","Plus","Minus"
-#else
-  #define TR_VKEYS                     "Menu","Exit","Down","Up","Right","Left"
-#endif
+#define TR_STICK_NAMES                 "Dir", "Ele", "Mot", "Ale"
+#define TR_SURFACE_NAMES               "Dir", "Mot"
 
 #if defined(PCBNV14)
 #define  TR_RFPOWER_AFHDS2             "Default","Alto"
@@ -267,8 +182,10 @@
   #define TR_CYC_VSRCRAW                "[C1]","[C2]","[C3]"
 #endif
 
-#define TR_RESERVE_VSRCRAW              "[--]"
-#define TR_EXTRA_VSRCRAW                "Batt","Time","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Tmr1","Tmr2","Tmr3"
+#define TR_SRC_BATT                     "Batt"
+#define TR_SRC_TIME                     "Time"
+#define TR_SRC_GPS                      "GPS"
+#define TR_SRC_TIMER                    "Tmr"
 
 #define TR_VTMRMODES                      "OFF","ABS","Strt","MOs","MO%","MOt"
 #define TR_VTRAINER_MASTER_OFF            "OFF"
@@ -537,6 +454,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB     "ANALOGICI CALIBRATI"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "ANALOGICI RAW (5 Hz)"
 #define TR_MENUCALIBRATION              "CALIBRAZIONE"
+#define TR_MENU_FSWITCH                 "FUNCTION SWITCHES"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS              "Trims => Subtrims"
 #else
@@ -921,6 +839,7 @@
 #define TR_DEBUG                        "Debug"
 #define TR_KEYS_BTN                     BUTTON(TR("SW", "Tasti"))
 #define TR_ANALOGS_BTN                  BUTTON("Analogici")
+#define TR_FS_BTN                       BUTTON(TR("Fun. Inter.", "Funzione interruttori"))
 #define TR_TOUCH_NOTFOUND               "Schermo touch non trovato"
 #define TR_TOUCH_EXIT                   "Tocca lo schermo per uscire"
 #define TR_SET                          BUTTON("Set")
@@ -1055,7 +974,6 @@
 #endif
 
 // Bootloader common
-#define TR_BL_USB_CONNECT_BOOT        CENTER "\011USB Connessa"
 #define TR_BL_USB_CONNECTED           "USB Connessa"
 #define TR_BL_USB_PLUGIN              "O connetti il cavo USB"
 #define TR_BL_USB_MASS_STORE          "per memoria di massa"
@@ -1067,6 +985,8 @@
 #define TR_BL_EXIT                    "Esci"
 #define TR_BL_DIR_MISSING             " Cartella non trovata"
 #define TR_BL_DIR_EMPTY               " Cartella vuota"
+#define TR_BL_WRITING_FW              "Scrittura Firmware..."
+#define TR_BL_WRITING_COMPL           "Scrittura completata"
 
 #if LCD_W >= 480
   #define TR_BL_INVALID_FIRMWARE       "Firmware non valido"
@@ -1085,23 +1005,17 @@
 #if defined(PCBTARANIS)
    // Bootloader Taranis specific
   #define TR_BL_RESTORE_EEPROM        "Ripristino EEPROM"
-  #define TR_BL_WRITING_FW            CENTER "\015Scrittura..."
-  #define TR_BL_WRITING_COMPL         CENTER "\007Scrittura completata"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Premi il bottone d'accensione"
     #define TR_BL_FLASH_EXIT          "Esci dal modo scrittura."
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific
-  #define TR_BL_WRITING_FW            "Scrittura Firmware..."
-  #define TR_BL_WRITING_COMPL         "Scrittura completata"
   #define TR_BL_SELECT_KEY            "[ENT] per scegliere il file"
   #define TR_BL_FLASH_KEY             "Tenere premuto [ENT] per scrivere"
   #define TR_BL_EXIT_KEY              "[RTN] per uscire"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific
-  #define TR_BL_WRITING_FW            "Scrittura Firmware..."
-  #define TR_BL_WRITING_COMPL         "Scrittura completata"
   #define TR_BL_RF_USB_ACCESS         "RF Accesso USB"
   #define TR_BL_CURRENT_FW            "Firmware corrente:"
   #define TR_BL_SELECT_KEY            "[R TRIM] per scegliere il file"
@@ -1192,6 +1106,7 @@
 #define TR_MENU_DISPLAY                 "DISPLAY"
 #define TR_MENU_OTHER                   "Altro"
 #define TR_MENU_INVERT                  "Inverti"
+#define TR_AUDIO_MUTE                   TR("Audio muto","Muto senza suono")
 #define TR_JITTER_FILTER                "Filtro ADC"
 #define TR_DEAD_ZONE                    "Zona morta"
 #define TR_RTC_CHECK                    TR("Controllo RTC", "Controllo volt. RTC")

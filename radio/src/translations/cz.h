@@ -72,27 +72,13 @@
 
 #define TR_ADCFILTERVALUES             "Globální","Vyp","Zap",
 
-#if defined(PCBX10)
-  #define TR_RETA123                   "S","V","P","K","1","3","2","4","5","6","7","L","R"
-#elif defined(PCBHORUS)
-  #define TR_RETA123                   "S","V","P","K","1","3","2","4","5","L","R"
-#elif defined(PCBX9E)
-  #define TR_RETA123                   "S","V","P","K","1","2","3","4","L","R","L","R"
-#elif defined(PCBTARANIS)
-  #define TR_RETA123                   "S","V","P","K","1","2","3","L","R"
-#else
-  #define TR_RETA123                   "S","V","P","K","1","2","3"
-#endif
 #define TR_VCURVETYPE                  "Diff","Expo","Funk","Vlas"
-
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                      "Sečíst","Násobit","Zaměnit"
 #define TR_VMLTPX2                     "+=","*=",":="
 
 #if defined(PCBHORUS)
-  #define TR_VMIXTRIMS                 "VYP","ZAP","Směr","Výšk","Plyn","Křid","T5","T6"
 #else
-  #define TR_VMIXTRIMS                 "VYP","ZAP","Směr","Výšk","Plyn","Křid"
 #endif
 
 #if LCD_W >= 212
@@ -112,71 +98,34 @@
 
 #define TR_TEXT_SIZE                   "Standard","Nejmenší","Malé","Střední","Dvojité"
 
-#if defined(VARIO)
-  #define TR_VVARIO                    "Vario"
-#else
-  #define TR_VVARIO                    "[Vario]"
-#endif
+#define TR_SF_TRAINER                  "Trenér"
+#define TR_SF_INST_TRIM                "Insta-Trim"
+#define TR_SF_RESET                    "Reset"
+#define TR_SF_SET_TIMER                "Změna"
+#define TR_SF_VOLUME                   "Hlasitost"
+#define TR_SF_FAILSAFE                 "Nastavit Failsafe"
+#define TR_SF_RANGE_CHECK              "Kontrola dosahu"
+#define TR_SF_MOD_BIND                 "ModuleBind"
 
-#if defined(AUDIO)
-  #define TR_SOUND                     TR3("\221\222Zvuk", "\221\222Zvuk", "Hrát zvuk")
-#else
-  #define TR_SOUND                     "Pípnout"
-#endif
-
-#if defined(HAPTIC)
-  #define TR_HAPTIC                    "Vibrovat"
-#else
-  #define TR_HAPTIC                    "[Vibrovat]"
-#endif
-
-#if defined(VOICE)
-  #define TR_PLAY_TRACK              TR3("\221\222Stopa", "\221\222Stopa", "Přehrát wav")
-  #define TR_PLAY_VALUE                TR3("\221\222Hlásit ", "\221\222Hlásit ", "Hlásit stav")
-#else
-  #define TR_PLAY_TRACK                "[\221\222Stopa]"
-  #define TR_PLAY_VALUE                "[\221\222Hlásit]"
-#endif
-
-#define TR_SF_BG_MUSIC                 TR3("\221\222Hudba","\221\222Hudba","Hudba"),TR3("\221\222Hudba ||","\221\222Hudba ||","Hudba pauza")
-
-#if defined(SDCARD)
-  #define TR_SDCLOGS                   "Loguj na SD"
-#else
-  #define TR_SDCLOGS                   "[Logování]"
-#endif
-
-#ifdef GVARS
-  #define TR_ADJUST_GVAR               "Nastav"
-#else
-  #define TR_ADJUST_GVAR               "[Nastav GP]"
-#endif
-
-#if defined(LUA)
-  #define TR_SF_PLAY_SCRIPT            "Lua Skript"
-#else
-  #define TR_SF_PLAY_SCRIPT            "[Lua]"
-#endif
-
-#if defined(DEBUG)
-  #define TR_SF_TEST                   "Test"
-#else
-  #define TR_SF_TEST
-#endif
-
-#if defined(OVERRIDE_CHANNEL_FUNCTION)
-  #define TR_SF_SAFETY                 "Zámek"
-#else
-  #define TR_SF_SAFETY                 "---"
-#endif
+#define TR_SOUND                       TR3("\221\222Zvuk", "\221\222Zvuk", "Hrát zvuk")
+#define TR_PLAY_TRACK                  TR3("\221\222Stopa", "\221\222Stopa", "Přehrát wav")
+#define TR_PLAY_VALUE                  TR3("\221\222Hlásit ", "\221\222Hlásit ", "Hlásit stav")
+#define TR_SF_HAPTIC                   "Vibrovat"
+#define TR_SF_PLAY_SCRIPT              "Lua Skript"
+#define TR_SF_BG_MUSIC                 TR3("\221\222Hudba","\221\222Hudba","Hudba")
+#define TR_SF_BG_MUSIC_PAUSE           TR3("\221\222Hudba ||","\221\222Hudba ||","Hudba pauza")
+#define TR_SF_LOGS                     "Loguj na SD"
+#define TR_ADJUST_GVAR                 "Nastav"
+#define TR_SF_BACKLIGHT                "Podsvětlení"
+#define TR_SF_VARIO                    "Vario"
+#define TR_SF_SAFETY                   "Zámek"
+#define TR_SF_TEST                     "Test"
 
 #define TR_SF_SCREENSHOT               "Snímek LCD"
+#define TR_SF_TEST                     "Test"
 #define TR_SF_RACING_MODE              "Závodní režim"
 #define TR_SF_DISABLE_TOUCH            "Deaktivace dotyku"
 #define TR_SF_SET_SCREEN               "Vybrat hlavní obrazovku"
-#define TR_SF_RESERVE                  "[rezerva]"
-
-#define TR_VFSWFUNC                    TR_SF_SAFETY,"Trenér","Insta-Trim","Reset","Změna",TR_ADJUST_GVAR,"Hlasitost","Nastavit Failsafe","Kontrola dosahu","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Podsvětlení",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM             TR("Telm","Telemetrie")
 
@@ -206,37 +155,8 @@
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
-#define TR_STICKS_VSRCRAW              STR_CHAR_STICK "Smě", STR_CHAR_STICK "Výš", STR_CHAR_STICK "Pln", STR_CHAR_STICK "Kři"
-
-#if defined(PCBHORUS)
-  #define TR_TRIMS_VSRCRAW             STR_CHAR_TRIM "Smě", STR_CHAR_TRIM "Výš", STR_CHAR_TRIM "Pln", STR_CHAR_TRIM "Kři", STR_CHAR_TRIM "T5", STR_CHAR_TRIM "T6"
-#else
-  #define TR_TRIMS_VSRCRAW             STR_CHAR_TRIM "Smě", STR_CHAR_TRIM "Výš", STR_CHAR_TRIM "Pln", STR_CHAR_TRIM "Kři"
-#endif
-
-#if defined(PCBHORUS)
-  #define TR_TRIMS_SWITCHES            STR_CHAR_TRIM "Sl", STR_CHAR_TRIM "Sp", STR_CHAR_TRIM "Vd", STR_CHAR_TRIM "Vn", STR_CHAR_TRIM "Pd", STR_CHAR_TRIM "Pn", STR_CHAR_TRIM "Kl", STR_CHAR_TRIM "Kp", STR_CHAR_TRIM "5d", STR_CHAR_TRIM "5n", STR_CHAR_TRIM "6d", STR_CHAR_TRIM "6n"
-#else
-  #define TR_TRIMS_SWITCHES            TR("tSl",STR_CHAR_TRIM "Sl"),TR("tSp",STR_CHAR_TRIM "Sp"),TR("tVd",STR_CHAR_TRIM "Vd"),TR("tVn",STR_CHAR_TRIM "Vn"),TR("tPd",STR_CHAR_TRIM "Pd"),TR("tPn",STR_CHAR_TRIM "Pn"),TR("tKl",STR_CHAR_TRIM "Kl"),TR("tKp",STR_CHAR_TRIM "Kp")
-#endif
-
-#if defined(PCBHORUS) || defined(PCBNV14)
-  #define TR_VKEYS                     "PGUP","PGDN","ENTER","MDL","RTN","TELE","SYS"
-#elif defined(PCBXLITE)
-  #define TR_VKEYS                     "Shift","Exit","Enter","Down","Up","Right","Left"
-#elif defined(RADIO_FAMILY_JUMPER_T12)
-  #define TR_VKEYS                     "Exit","Enter","Down","Up","Right","Left"
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
-  #define TR_VKEYS                     "Exit","Enter","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UP","DOWN"
-#elif defined(RADIO_ZORRO) || defined(RADIO_BOXER)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(PCBTARANIS)
-  #define TR_VKEYS                     "Menu","Exit","Enter","Page","Plus","Minus"
-#else
-  #define TR_VKEYS                     "Menu","Exit","Down","Up","Right","Left"
-#endif
+#define TR_STICK_NAMES                 "Smě", "Výš", "Pln", "Kři"
+#define TR_SURFACE_NAMES               "Smě", "Pln"
 
 #if defined(PCBNV14)
 #define  TR_RFPOWER_AFHDS2             "Defaultní","Vysoký"
@@ -265,8 +185,11 @@
   #define TR_CYC_VSRCRAW               "[C1]","[C2]","[C3]"
 #endif
 
-#define TR_RESERVE_VSRCRAW             "[--]"
-#define TR_EXTRA_VSRCRAW               "Bat.","Čas","GPS",TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,TR_RESERVE_VSRCRAW,"Čas1","Čas2","Čas3"
+
+#define TR_SRC_BATT                    "Bat."
+#define TR_SRC_TIME                    "Čas"
+#define TR_SRC_GPS                     "GPS"
+#define TR_SRC_TIMER                   "Čas"
 
 #define TR_VTMRMODES                   "VYP","ZAP","Strt","Pln>","Pln%","Pln*"
 #define TR_VTRAINER_MASTER_OFF         "OFF"
@@ -539,6 +462,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB    "KALIBROVAT ANALOGY"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGY (5 Hz)"
 #define TR_MENUCALIBRATION             "KALIBRACE"
+#define TR_MENU_FSWITCH                "FUNCTION SWITCHES"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "Trimy => Subtrimy"
 #else
@@ -917,6 +841,7 @@
 #define TR_DEBUG                       "Debug"
 #define TR_KEYS_BTN                    BUTTON(TR("SW","Přepínače"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogy"))
+#define TR_FS_BTN                      BUTTON(TR("F. Switches", "Function switches"))
 #define TR_TOUCH_NOTFOUND              "Dotyková obrazovka nenalezena"
 #define TR_TOUCH_EXIT                  "Dotkněte se obrazovky pro ukončení"
 #define TR_SET                         BUTTON("Nast")
@@ -1057,7 +982,6 @@
 #endif
 
 // Bootloader common (Poznamka: nutne pouziti textu bez diakritiky - omezeni velikosti pameti bootloader!)
-#define TR_BL_USB_CONNECT_BOOT        CENTER "\011USB pripojeno"
 #define TR_BL_USB_CONNECTED           "USB pripojeno"
 #define TR_BL_USB_PLUGIN              "nebo pripojte USB kabel"
 #define TR_BL_USB_MASS_STORE          "pro pouziti uloziste"
@@ -1069,6 +993,8 @@
 #define TR_BL_EXIT                    "Ukoncit"
 #define TR_BL_DIR_MISSING             " Adresar chybi"
 #define TR_BL_DIR_EMPTY               " Adresar je prazdny"
+#define TR_BL_WRITING_FW              "Nahravani firmware ..."
+#define TR_BL_WRITING_COMPL           "Nahravani dokonceno"
 
 #if LCD_W >= 480
   #define TR_BL_INVALID_FIRMWARE       "Neplatny soubor s firmwarem"
@@ -1087,23 +1013,17 @@
 #if defined(PCBTARANIS)
    // Bootloader Taranis specific - Ascii only
   #define TR_BL_RESTORE_EEPROM        "Obnovit EEPROM"
-  #define TR_BL_WRITING_FW            CENTER "\015Nahravani..."
-  #define TR_BL_WRITING_COMPL         CENTER "\007Nahravani dokonceno"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Stisknete tlacitko napajeni."
     #define TR_BL_FLASH_EXIT          "Ukoncit rezim nahravani."
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific - Ascii only
-  #define TR_BL_WRITING_FW            "Nahravani firmware ..."
-  #define TR_BL_WRITING_COMPL         "Nahravani dokonceno"
   #define TR_BL_SELECT_KEY            "[ENT] pro vybrani souboru"
   #define TR_BL_FLASH_KEY             "Drzet dlouze [ENT] pro nahrani"
   #define TR_BL_EXIT_KEY              "[RTN] pro ukonceni"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific - Ascii only
-  #define TR_BL_WRITING_FW            "Nahravani firmware ..."
-  #define TR_BL_WRITING_COMPL         "Nahravani dokonceno"
   #define TR_BL_RF_USB_ACCESS         "RF USB pristup"
   #define TR_BL_CURRENT_FW            "Aktualni firmware:"
   #define TR_BL_SELECT_KEY            "[R TRIM] pro vybrani souboru"
@@ -1195,6 +1115,7 @@
 #define TR_MENU_DISPLAY                "DISPLAY"
 #define TR_MENU_OTHER                  "Ostatní"
 #define TR_MENU_INVERT                 "Invertovat"
+#define TR_AUDIO_MUTE                  TR("Ztlumení zvuku","Ztlumení, pokud není slyšet zvuk")
 #define TR_JITTER_FILTER               "ADC Filtr"
 #define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Kontr RTC", "Hlídat RTC napětí")

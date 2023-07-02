@@ -30,15 +30,11 @@ enum SwitchConfig {
 };
 
 enum PotConfig {
-  POT_NONE,
+  POT_NONE=0,
   POT_WITH_DETENT,
   POT_MULTIPOS_SWITCH,
-  POT_WITHOUT_DETENT
-};
-
-enum SliderConfig {
-  SLIDER_NONE,
-  SLIDER_WITH_DETENT,
+  POT_WITHOUT_DETENT,
+  POT_SLIDER_WITH_DETENT,
 };
 
 enum fsStartPositionType {

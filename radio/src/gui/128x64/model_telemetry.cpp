@@ -24,7 +24,6 @@
 enum MenuModelTelemetryFrskyItems {
   ITEM_TELEMETRY_PROTOCOL_TYPE,
   ITEM_TELEMETRY_RSSI_LABEL,
-  ITEM_TELEMETRY_RSSI_SOURCE,
   ITEM_TELEMETRY_RSSI_ALARM1,
   ITEM_TELEMETRY_RSSI_ALARM2,
   ITEM_TELEMETRY_DISABLE_ALARMS,
@@ -52,7 +51,7 @@ enum MenuModelTelemetryFrskyItems {
 
 #define TELEM_COL3                   (17 * FW)
 
-#define RSSI_ROWS                     LABEL(RSSI), 0, 0, 0, 0,
+#define RSSI_ROWS                     LABEL(RSSI), 0, 0, 0,
 #define SENSOR_ROWS(x)                (isTelemetryFieldAvailable(x) ? (uint8_t)0 : HIDDEN_ROW)
 #define SENSORS_ROWS                  LABEL(Sensors), SENSOR_ROWS(0), SENSOR_ROWS(1), SENSOR_ROWS(2), SENSOR_ROWS(3), SENSOR_ROWS(4), SENSOR_ROWS(5), SENSOR_ROWS(6), SENSOR_ROWS(7), SENSOR_ROWS(8), SENSOR_ROWS(9), SENSOR_ROWS(10), SENSOR_ROWS(11), SENSOR_ROWS(12), SENSOR_ROWS(13), SENSOR_ROWS(14), SENSOR_ROWS(15), SENSOR_ROWS(16), SENSOR_ROWS(17), SENSOR_ROWS(18), SENSOR_ROWS(19), SENSOR_ROWS(20), SENSOR_ROWS(21), SENSOR_ROWS(22), SENSOR_ROWS(23), SENSOR_ROWS(24), SENSOR_ROWS(25), SENSOR_ROWS(26), SENSOR_ROWS(27), SENSOR_ROWS(28), SENSOR_ROWS(29), SENSOR_ROWS(30), SENSOR_ROWS(31), SENSOR_ROWS(32), SENSOR_ROWS(33), SENSOR_ROWS(34), SENSOR_ROWS(35), SENSOR_ROWS(36), SENSOR_ROWS(37), SENSOR_ROWS(38), SENSOR_ROWS(39), 0, 0, 0, 0,
 #if defined(VARIO)
@@ -230,23 +229,6 @@ void menuModelTelemetry(event_t event)
       case ITEM_TELEMETRY_RSSI_LABEL:
         lcdDrawTextAlignedLeft(y, getRxStatLabels()->label);
         break;
-
-      case ITEM_TELEMETRY_RSSI_SOURCE: {
-        lcdDrawTextAlignedLeft(y, INDENT TR_SOURCE);
-        if (g_model.rssiSource) {
-          drawSource(TELEM_COL2, y, MIXSRC_FIRST_TELEM + 3 * (g_model.rssiSource - 1), attr);
-          TelemetrySensor * sensor = &g_model.telemetrySensors[g_model.rssiSource - 1];
-          lcdDrawText(lcdNextPos, y, " ", attr);
-          drawReceiverName(lcdNextPos, y, sensor->frskyInstance.rxIndex >> 2, sensor->frskyInstance.rxIndex & 0x03, attr);
-        }
-        else {
-          lcdDrawText(TELEM_COL2, y, STR_DEFAULT, attr);
-        }
-        if (attr) {
-          g_model.rssiSource = checkIncDec(event, g_model.rssiSource, 0, MAX_TELEMETRY_SENSORS, EE_MODEL | NO_INCDEC_MARKS, isRssiSensorAvailable);
-        }
-        break;
-      }
 
       case ITEM_TELEMETRY_RSSI_ALARM1:
       case ITEM_TELEMETRY_RSSI_ALARM2:

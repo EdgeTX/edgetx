@@ -48,6 +48,11 @@ RadioHardwarePage::RadioHardwarePage():
 {
 }
 
+void RadioHardwarePage::checkEvents()
+{
+  enableVBatBridge();
+}
+
 void RadioHardwarePage::build(FormWindow * window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
@@ -121,6 +126,13 @@ void RadioHardwarePage::build(FormWindow * window)
   new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
 
+#if defined(AUDIO_MUTE_GPIO)
+  // Mute audio
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_AUDIO_MUTE, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.audioMuteEnable));
+#endif
+
 #if defined(HARDWARE_INTERNAL_MODULE)
   new Subtitle(window, rect_t{}, STR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
   auto intMod = new InternalModuleWindow(window);
@@ -163,15 +175,9 @@ void RadioHardwarePage::build(FormWindow * window)
   auto btn = makeHWInputButton<HWSticks>(box, STR_STICKS);
   lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
 
-  // Pots
+  // Pots & Sliders
   btn = makeHWInputButton<HWPots>(box, STR_POTS);
   lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
-
-  // Sliders
-#if (NUM_SLIDERS > 0)
-  btn = makeHWInputButton<HWSliders>(box, STR_SLIDERS);
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
-#endif
 
   // Switches
   btn = makeHWInputButton<HWSwitches>(box, STR_SWITCHES);

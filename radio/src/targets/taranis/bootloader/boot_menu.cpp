@@ -69,17 +69,17 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
 
     lcdDrawText(LCD_W / 2, 5 * FH + FH / 2, TR_BL_OR_PLUGIN_USB_CABLE, CENTERED);
 
-    // Remove "opentx-" from string
     const char * vers = getFirmwareVersion();
 #if LCD_W < 212
-    if (strncmp(vers, "opentx-", 7) == 0)
+    // Remove "edgetx-" from string
+    if (strncmp(vers, "edgetx-", 7) == 0)
       vers += 7;
 #endif
-    lcdDrawText(LCD_W / 2, 7 * FH, vers, CENTERED);
+    lcdDrawCenteredText(7 * FH, vers);
     lcdInvertLine(7);
   }
   else if (st == ST_USB) {
-    lcdDrawTextAlignedLeft(4 * FH, TR_BL_USB_CONNECTED);
+    lcdDrawCenteredText(4 * FH, TR_BL_USB_CONNECTED);
   }
   else if (st == ST_DIR_CHECK) {
     if (opt == FR_NO_PATH) {
@@ -101,8 +101,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
       if (memoryType == MEM_FLASH) {
         const char * vers = getFirmwareVersion((const char *)Block_buffer);
 #if LCD_W < 212
-        // Remove "opentx-" from string
-        if (strncmp(vers, "opentx-", 7) == 0)
+        // Remove "edgetx-" from string
+        if (strncmp(vers, "edgetx-", 7) == 0)
           vers += 7;
 #endif
         bootloaderDrawMsg(INDENT_WIDTH, vers, 0, false);
@@ -111,7 +111,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
     }
   }
   else if (st == ST_FLASHING) {
-    lcdDrawTextAlignedLeft(4 * FH, TR_BL_WRITING_FW);
+    lcdDrawCenteredText(4 * FH, TR_BL_WRITING_FW);
 
     lcdDrawRect(3, 6 * FH + 4, (LCD_W - 8), 7);
     lcdDrawSolidHorizontalLine(5, 6 * FH + 6, (LCD_W - 12) * opt / 100, FORCE);
@@ -119,7 +119,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
     lcdDrawSolidHorizontalLine(5, 6 * FH + 8, (LCD_W - 12) * opt / 100, FORCE);
   }
   else if (st == ST_FLASH_DONE) {
-    lcdDrawTextAlignedLeft(4 * FH, TR_BL_WRITING_COMPL);
+    lcdDrawCenteredText(4 * FH, TR_BL_WRITING_COMPL);
   }
 }
 

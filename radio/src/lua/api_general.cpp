@@ -28,59 +28,15 @@
 #include "lua_api.h"
 #include "api_filesystem.h"
 #include "hal/module_port.h"
+#include "hal/adc_driver.h"
+#include "hal/rotary_encoder.h"
+#include "switches.h"
+#include "input_mapping.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
   #include "api_colorlcd.h"
   #include "standalone_lua.h"
-#endif
-
-#if defined(PCBX12S)
-  #include "lua_exports_x12s.inc"   // this line must be after lua headers
-#elif defined(RADIO_FAMILY_T16)
-  #include "lua_exports_t16.inc"
-#elif defined(PCBX10)
-  #include "lua_exports_x10.inc"
-#elif defined(PCBX9E)
-  #include "lua_exports_x9e.inc"
-#elif defined(RADIO_X7ACCESS)
-  #include "lua_exports_x7access.inc"
-#elif defined(RADIO_X7)
-  #include "lua_exports_x7.inc"
-#elif defined(RADIO_T12)
-  #include "lua_exports_t12.inc"
-#elif defined(RADIO_TLITE)
-  #include "lua_exports_tlite.inc"
-#elif defined(RADIO_TPRO)
-  #include "lua_exports_tpro.inc"
-#elif defined(RADIO_TX12)
-  #include "lua_exports_tx12.inc"
-#elif defined(RADIO_TX12MK2)
-  #include "lua_exports_tx12mk2.inc"
-#elif defined(RADIO_LR3PRO)
-  #include "lua_exports_lr3pro.inc"
-#elif defined(RADIO_BOXER)
-  #include "lua_exports_boxer.inc"
-#elif defined(RADIO_ZORRO)
-  #include "lua_exports_zorro.inc"
-#elif defined(RADIO_T8)
-  #include "lua_exports_t8.inc"
-#elif defined(RADIO_COMMANDO8)
-  #include "lua_exports_commando8.inc"
-#elif defined(PCBX9LITES)
-  #include "lua_exports_x9lites.inc"
-#elif defined(PCBX9LITE)
-  #include "lua_exports_x9lite.inc"
-#elif defined(PCBXLITES)
-  #include "lua_exports_xlites.inc"
-#elif defined(PCBXLITE)
-  #include "lua_exports_xlite.inc"
-#elif defined(RADIO_X9DP2019)
-  #include "lua_exports_x9d+2019.inc"
-#elif defined(PCBTARANIS)
-  #include "lua_exports_x9d.inc"
-#elif defined(PCBNV14)
-  #include "lua_exports_nv14.inc"
 #endif
 
 #include "telemetry/frsky.h"
@@ -401,30 +357,126 @@ void luaGetValueAndPush(lua_State* L, int src)
   }
 }
 
-/**
-  Return field data for a given field name
-*/
-bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
+struct LuaSingleField {
+  uint16_t id;
+  const char* name;
+  const char* desc;
+};
+
+const LuaSingleField luaSingleFields[] = {
+    {MIXSRC_FIRST_STICK,     "rud", "Rudder"},
+    {MIXSRC_FIRST_STICK + 1, "ele", "Elevator"},
+    {MIXSRC_FIRST_STICK + 2, "thr", "Throttle"},
+    {MIXSRC_FIRST_STICK + 3, "ail", "Aileron"},
+
+#if defined(IMU)
+    {MIXSRC_TILT_X, "tiltx", "Tilt X"},
+    {MIXSRC_TILT_Y, "tilty", "Tilt Y"},
+#endif
+
+#if defined(PCBHORUS)
+    {MIXSRC_SPACEMOUSE_A, "sma", "SpaceMouse A"},
+    {MIXSRC_SPACEMOUSE_B, "smb", "SpaceMouse B"},
+    {MIXSRC_SPACEMOUSE_C, "smc", "SpaceMouse C"},
+    {MIXSRC_SPACEMOUSE_D, "smd", "SpaceMouse D"},
+    {MIXSRC_SPACEMOUSE_E, "sme", "SpaceMouse E"},
+    {MIXSRC_SPACEMOUSE_F, "smf", "SpaceMouse F"},
+#endif
+    
+    {MIXSRC_MAX, "max", "MAX"},
+
+    {MIXSRC_TrimRud, "trim-rud", "Rudder trim"},
+    {MIXSRC_TrimEle, "trim-ele", "Elevator trim"},
+    {MIXSRC_TrimThr, "trim-thr", "Throttle trim"},
+    {MIXSRC_TrimAil, "trim-ail", "Aileron trim"},
+
+#if MAX_TRIMS > 4
+    {MIXSRC_TrimT5, "trim-t5", "Aux trim T5"},
+    {MIXSRC_TrimT6, "trim-t6", "Aux trim T6"},
+#endif
+
+    {MIXSRC_TX_VOLTAGE, "tx-voltage", "Transmitter battery voltage [volts]"},
+    {MIXSRC_TX_TIME, "clock", "RTC clock [minutes from midnight]"},
+};
+
+// Legacy input names
+// TODO: move to some HAL/driver functions
+#include "lua_inputs.inc"
+
+struct LuaMultipleField {
+  uint16_t id;
+  const char* name;
+  const char* desc;
+  uint8_t count;
+};
+
+// The list of Lua fields that have a range of values
+const LuaMultipleField luaMultipleFields[] = {
+    {MIXSRC_FIRST_INPUT, "input", "Input [I%d]", MAX_INPUTS},
+    {MIXSRC_FIRST_LUA, "lua", "Lua mix output %d", MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS},
+    {MIXSRC_FIRST_LOGICAL_SWITCH, "ls", "Logical switch L%d", MAX_LOGICAL_SWITCHES},
+    {MIXSRC_FIRST_TRAINER, "trn", "Trainer input %d", MAX_TRAINER_CHANNELS},
+    {MIXSRC_FIRST_CH, "ch", "Channel CH%d", MAX_OUTPUT_CHANNELS},
+    {MIXSRC_FIRST_GVAR, "gvar", "Global variable %d", MAX_GVARS},
+    {MIXSRC_FIRST_TELEM, "telem", "Telemetry sensor %d", MAX_TELEMETRY_SENSORS},
+    {MIXSRC_FIRST_TIMER, "timer", "Timer %d value [seconds]", MAX_TIMERS},
+    {MIXSRC_FIRST_HELI, "cyc", "Cyclic %d", 3},
+};
+
+static bool _searchSingleFields(const char* name, LuaField& field,
+                                unsigned int flags,
+                                const LuaSingleField* fields, size_t n_fields)
 {
-  strncpy(field.name, name, sizeof(field.name) - 1);
-  field.name[sizeof(field.name) - 1] = '\0';
-  // TODO better search method (binary lookup)
-  for (unsigned int n=0; n<DIM(luaSingleFields); ++n) {
-    if (!strcmp(name, luaSingleFields[n].name)) {
-      field.id = luaSingleFields[n].id;
+  for (unsigned int n = 0; n < n_fields; ++n) {
+    if (!strcmp(name, fields[n].name)) {
+      field.id = fields[n].id;
       if (flags & FIND_FIELD_DESC) {
-        strncpy(field.desc, luaSingleFields[n].desc, sizeof(field.desc)-1);
-        field.desc[sizeof(field.desc)-1] = '\0';
-      }
-      else {
+        strncpy(field.desc, fields[n].desc, sizeof(field.desc) - 1);
+        field.desc[sizeof(field.desc) - 1] = '\0';
+      } else {
         field.desc[0] = '\0';
       }
       return true;
     }
   }
 
+  return false;
+}
+
+/**
+  Return field data for a given field name
+*/
+bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
+{
+  auto len = strlen(name);
+  strncpy(field.name, name, sizeof(field.name) - 1);
+  field.name[sizeof(field.name) - 1] = '\0';
+
+  // hardware specific inputs
+  if (_searchSingleFields(name, field, flags, _lua_inputs, DIM(_lua_inputs)))
+    return true;
+  
+  // well known single fields
+  if (_searchSingleFields(name, field, flags, luaSingleFields, DIM(luaSingleFields)))
+    return true;
+
+  // check switches from 'sa' to 'sz'
+  if (len == 2 && name[0] == 's' && name[1] >= 'a' && name[1] <= 'z') {
+    auto c = name[1] - 'a' + 'A';
+    auto sw_idx = switchLookupIdx(c);
+    if (sw_idx >= 0) {
+      field.id = MIXSRC_FIRST_SWITCH + sw_idx;
+      if (flags & FIND_FIELD_DESC) {
+        snprintf(field.desc, sizeof(field.desc)-1, "Switch %c", c);
+        field.desc[sizeof(field.desc)-1] = '\0';
+      } else {
+        field.desc[0] = '\0';
+      }
+      return true;
+    }
+  }
+  
   // search in multiples
-  unsigned int len = strlen(name);
   for (unsigned int n=0; n<DIM(luaMultipleFields); ++n) {
     const char * fieldName = luaMultipleFields[n].name;
     unsigned int fieldLen = strlen(fieldName);
@@ -811,17 +863,13 @@ static int luaGetSourceValue(lua_State * L)
 Return rotary encoder current speed
 
 @retval number in list: ROTENC_LOWSPEED, ROTENC_MIDSPEED, ROTENC_HIGHSPEED
-        return 0 on radio without rotary encoder
+        returns ROTENC_LOWSPEED on radio without rotary encoder
 
 @status current Introduced in 2.3.10
 */
 static int luaGetRotEncSpeed(lua_State * L)
 {
-#if defined(ROTARY_ENCODER_NAVIGATION)
-  lua_pushunsigned(L, rotencSpeed);
-#else
-  lua_pushunsigned(L, 0);
-#endif
+  lua_pushunsigned(L, max(rotaryEncoderGetAccel(), (int8_t)1));
   return 1;
 }
 
@@ -1519,6 +1567,15 @@ Stops key state machine. See [Key Events](../key_events.md) for the detailed des
 */
 static int luaKillEvents(lua_State * L)
 {
+#if defined(KEYS_GPIO_REG_PAGE)
+  #define IS_MASKABLE(key)                                      \
+    ((key) != KEY_EXIT && (key) != KEY_ENTER &&                 \
+     ((scriptInternalData[0].reference == SCRIPT_STANDALONE) || \
+      (key) != KEY_PAGE))
+#else
+  #define IS_MASKABLE(key) ((key) != KEY_EXIT && (key) != KEY_ENTER)
+#endif
+
   event_t key = EVT_KEY_MASK(luaL_checkinteger(L, 1));
   // prevent killing maskable keys (only in telemetry scripts)
   // TODO add which type of script is running before lua_resume()
@@ -1782,7 +1839,7 @@ Get stick that is assigned to a channel. See Default Channel Order in General Se
 static int luaDefaultStick(lua_State * L)
 {
   uint8_t channel = luaL_checkinteger(L, 1);
-  lua_pushinteger(L, channelOrder(channel+1)-1);
+  lua_pushinteger(L, inputMappingChannelOrder(channel));
   return 1;
 }
 
@@ -1866,10 +1923,10 @@ Get channel assigned to stick. See Default Channel Order in General Settings
 static int luaDefaultChannel(lua_State * L)
 {
   uint8_t stick = luaL_checkinteger(L, 1);
-  for (int i=1; i<=4; i++) {
-    int tmp = channelOrder(i) - 1;
+  for (int i = 0; i < adcGetMaxInputs(ADC_INPUT_MAIN); i++) {
+    int tmp = inputMappingChannelOrder(i);
     if (tmp == stick) {
-      lua_pushinteger(L, i-1);
+      lua_pushinteger(L, i);
       return 1;
     }
   }
@@ -2838,25 +2895,26 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( REPLACE, MLTPX_REPL )
   LROT_NUMENTRY( MIXSRC_MAX, MIXSRC_MAX )
   LROT_NUMENTRY( MIXSRC_FIRST_INPUT, MIXSRC_FIRST_INPUT )
-  LROT_NUMENTRY( MIXSRC_Rud, MIXSRC_Rud )
-  LROT_NUMENTRY( MIXSRC_Ele, MIXSRC_Ele )
-  LROT_NUMENTRY( MIXSRC_Thr, MIXSRC_Thr )
-  LROT_NUMENTRY( MIXSRC_Ail, MIXSRC_Ail )
-  LROT_NUMENTRY( MIXSRC_SA, MIXSRC_SA )
-  LROT_NUMENTRY( MIXSRC_SB, MIXSRC_SB )
-  LROT_NUMENTRY( MIXSRC_SC, MIXSRC_SC )
-  LROT_NUMENTRY( MIXSRC_SD, MIXSRC_SD )
-#if !defined(PCBX7) && !defined(PCBXLITE) && !defined(PCBX9LITE)
-  LROT_NUMENTRY( MIXSRC_SE, MIXSRC_SE )
-  LROT_NUMENTRY( MIXSRC_SG, MIXSRC_SG )
-#endif
-#if defined(HARDWARE_SWITCH_F)
-  LROT_NUMENTRY( MIXSRC_SF, MIXSRC_SF )
-#endif
-#if defined(HARDWARE_SWITCH_H)
-  LROT_NUMENTRY( MIXSRC_SH, MIXSRC_SH )
-#endif
-  LROT_NUMENTRY( MIXSRC_CH1, MIXSRC_CH1 )
+  LROT_NUMENTRY( MIXSRC_Rud, MIXSRC_FIRST_STICK )
+  LROT_NUMENTRY( MIXSRC_Ele, MIXSRC_FIRST_STICK + 1 )
+  LROT_NUMENTRY( MIXSRC_Thr, MIXSRC_FIRST_STICK + 2 )
+  LROT_NUMENTRY( MIXSRC_Ail, MIXSRC_FIRST_STICK + 3 )
+// TODO: LUA switch names
+//   LROT_NUMENTRY( MIXSRC_SA, MIXSRC_SA )
+//   LROT_NUMENTRY( MIXSRC_SB, MIXSRC_SB )
+//   LROT_NUMENTRY( MIXSRC_SC, MIXSRC_SC )
+//   LROT_NUMENTRY( MIXSRC_SD, MIXSRC_SD )
+// #if !defined(PCBX7) && !defined(PCBXLITE) && !defined(PCBX9LITE)
+//   LROT_NUMENTRY( MIXSRC_SE, MIXSRC_SE )
+//   LROT_NUMENTRY( MIXSRC_SG, MIXSRC_SG )
+// #endif
+// #if defined(HARDWARE_SWITCH_F)
+//   LROT_NUMENTRY( MIXSRC_SF, MIXSRC_SF )
+// #endif
+// #if defined(HARDWARE_SWITCH_H)
+//   LROT_NUMENTRY( MIXSRC_SH, MIXSRC_SH )
+// #endif
+  LROT_NUMENTRY( MIXSRC_CH1, MIXSRC_FIRST_CH )
   LROT_NUMENTRY( SWSRC_LAST, SWSRC_LAST_LOGICAL_SWITCH )
   LROT_NUMENTRY( SWITCH_COUNT, SWSRC_COUNT )
   LROT_NUMENTRY( MAX_SENSORS, MAX_TELEMETRY_SENSORS )
@@ -3048,15 +3106,15 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( EVT_VIRTUAL_ENTER_LONG, EVT_KEY_LONG(KEY_ENTER) )
   LROT_NUMENTRY( EVT_VIRTUAL_EXIT, EVT_KEY_BREAK(KEY_EXIT) )
 #elif defined(COLORLCD)
-#if defined(KEYS_GPIO_REG_PGUP)
-  LROT_NUMENTRY( EVT_VIRTUAL_PREV_PAGE, EVT_KEY_BREAK(KEY_PGUP) )
-  LROT_NUMENTRY( EVT_VIRTUAL_NEXT_PAGE, EVT_KEY_BREAK(KEY_PGDN) )
+#if defined(KEYS_GPIO_REG_PAGEUP)
+  LROT_NUMENTRY( EVT_VIRTUAL_PREV_PAGE, EVT_KEY_BREAK(KEY_PAGEUP) )
+  LROT_NUMENTRY( EVT_VIRTUAL_NEXT_PAGE, EVT_KEY_BREAK(KEY_PAGEDN) )
 #elif defined(PCBNV14)
   LROT_NUMENTRY( EVT_VIRTUAL_PREV_PAGE, EVT_KEY_BREAK(KEY_LEFT) )
   LROT_NUMENTRY( EVT_VIRTUAL_NEXT_PAGE, EVT_KEY_BREAK(KEY_RIGHT) )
 #else
-  LROT_NUMENTRY( EVT_VIRTUAL_PREV_PAGE, EVT_KEY_LONG(KEY_PGDN) )
-  LROT_NUMENTRY( EVT_VIRTUAL_NEXT_PAGE, EVT_KEY_BREAK(KEY_PGDN) )
+  LROT_NUMENTRY( EVT_VIRTUAL_PREV_PAGE, EVT_KEY_LONG(KEY_PAGEDN) )
+  LROT_NUMENTRY( EVT_VIRTUAL_NEXT_PAGE, EVT_KEY_BREAK(KEY_PAGEDN) )
 #endif
   LROT_NUMENTRY( EVT_VIRTUAL_MENU, EVT_KEY_BREAK(KEY_MODEL) )
   LROT_NUMENTRY( EVT_VIRTUAL_MENU_LONG, EVT_KEY_LONG(KEY_MODEL) )
@@ -3076,7 +3134,7 @@ LROT_BEGIN(etxcst, NULL, 0)
 #endif
 
 #if defined(KEYS_GPIO_REG_RIGHT) && defined(COLORLCD)
-  KEY_EVENTS(TELEM, KEY_TELEM)
+  KEY_EVENTS(TELEM, KEY_TELE)
 #elif defined(KEYS_GPIO_REG_RIGHT)
   KEY_EVENTS(RIGHT, KEY_RIGHT)
 #endif
@@ -3088,23 +3146,23 @@ LROT_BEGIN(etxcst, NULL, 0)
 #endif
 
 #if defined(KEYS_GPIO_REG_LEFT) && defined(COLORLCD)
-  KEY_EVENTS(SYS, KEY_RADIO)
+  KEY_EVENTS(SYS, KEY_SYS)
 #elif defined(KEYS_GPIO_REG_LEFT)
   KEY_EVENTS(LEFT, KEY_LEFT)
 #endif
 
 #if defined(KEYS_GPIO_REG_DOWN) && defined(COLORLCD)
   LROT_NUMENTRY( EVT_RTN_FIRST, EVT_KEY_BREAK(KEY_EXIT) )
-#else
+#elif defined(KEYS_GPIO_REG_DOWN)
   KEY_EVENTS(DOWN, KEY_DOWN)
 #endif
 
-#if defined(KEYS_GPIO_REG_PGUP)
-  KEY_EVENTS(PAGEUP, KEY_PGUP)
+#if defined(KEYS_GPIO_REG_PAGEUP)
+  KEY_EVENTS(PAGEUP, KEY_PAGEUP)
 #endif
 
-#if defined(KEYS_GPIO_REG_PGDN)
-  KEY_EVENTS(PAGEDN, KEY_PGDN)
+#if defined(KEYS_GPIO_REG_PAGEDN)
+  KEY_EVENTS(PAGEDN, KEY_PAGEDN)
 #endif
 
 #if defined(KEYS_GPIO_REG_PAGE)

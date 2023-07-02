@@ -53,6 +53,7 @@ class MdiChild : public QWidget
       ACT_GEN_CPY,
       ACT_GEN_PST,
       ACT_GEN_SIM,
+      ACT_GEN_SRT,  // model sort order
       ACT_ITM_EDT,
       ACT_ITM_DEL,
       ACT_LBL_ADD,
@@ -76,7 +77,7 @@ class MdiChild : public QWidget
       ACT_ENUM_END
     };
 
-    MdiChild(QWidget *parent = Q_NULLPTR, QWidget * parentWin = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
+    MdiChild(QWidget *parent = nullptr, QWidget * parentWin = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~MdiChild();
 
     QString currentFile() const;
@@ -165,10 +166,12 @@ class MdiChild : public QWidget
     void pasteGeneralData(const QMimeData * mimeData);
 
   private:
-    QAction *addAct(Actions actId, const QString & icon, const char * slot = 0, const QKeySequence & shortcut = 0, QObject * slotObj = NULL);
+    QAction *addAct(Actions actId, const QString & icon, const char * slot = 0, const QKeySequence & shortcut = 0, QObject * slotObj = nullptr);
 
     QModelIndex getCurrentIndex() const;
     int getCurrentModel() const;
+    QModelIndex getDataIndex(QModelIndex viewIndex) const;
+    int getDataModel(QModelIndex viewIndex) const;
     int countSelectedModels() const;
     bool hasSelectedModel();
     bool setSelectedModel(const int modelIndex);
@@ -204,6 +207,7 @@ class MdiChild : public QWidget
     Ui::MdiChild * ui;
     ModelsListModel * modelsListModel;
     LabelsModel * labelsListModel;
+    ModelsListProxyModel * modelsListProxyModel;
     QWidget * parentWindow;
 
     QString curFile;
@@ -222,6 +226,8 @@ class MdiChild : public QWidget
     bool showLabelToolbar;
     bool forceCloseFlag;
     const quint16 stateDataVersion;
+    AbstractStaticItemModel* modelSortOrderItemModel;
+    QComboBox* cboModelSortOrder;
 };
 
 // This will draw the drop indicator across all columns of a model View (vs. in just one column), and lets us make the indicator more obvious.
