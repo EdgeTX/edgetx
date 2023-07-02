@@ -39,6 +39,8 @@
 
 #include <string>
 
+SemanticVersion version;  // used for data conversions
+
 static const YamlLookupTable timerModeLut = {
     {TimerData::TIMERMODE_OFF, "OFF"},
     {TimerData::TIMERMODE_ON, "ON"},
@@ -146,17 +148,41 @@ struct YamlThrTrace {
   }
 };
 
+//  EdgeTX 2.9.0 ADC refactor changed order of pots and sliders that affected interpretation of model warnings
+//  This conversion needs to be revisited when Companion is refactored to use ADC radio defns
+//  Make ADC orders backwards compatible
+
+//  the values below are based on radio\src\util\hw_defns\pots_config.py
+
+int adcPotsBeforeSliders()
+{
+  auto board = getCurrentBoard();
+
+  if (version >= SemanticVersion("2.9.0")) {
+    if (IS_TARANIS_X9(board) || IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || IS_RADIOMASTER_BOXER(board))
+      return 3;
+    else if (IS_TARANIS_X9LITE(board))
+      return 1;
+    else if (IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board))
+      return 0;
+    else
+      return 2;
+  }
+  else {
+    return Boards::getCapability(board, Board::Pots);
+  }
+}
+
 struct YamlPotsWarnEnabled {
   unsigned int value;
-  const int cnt = CPN_MAX_POTS + CPN_MAX_SLIDERS; //  must not exceed 16 as radio stores in uint16_t
 
-  #define MAXPOTWARNINGS  (CPN_MAX_POTS + CPN_MAX_SLIDERS)
-
-  #if MAXPOTWARNINGS > 16
-  #error Not enough space for pot and slider warnings
-  #endif
-
-  #undef MAXPOTWARNINGS
+  const Board::Type board = getCurrentBoard();
+  //  modeldata potwarnen_t potsWarnEnabled
+  const int maxradio = 8 * (int)(Boards::getCapability(board, Board::HasColorLcd) ? sizeof(uint16_t) : sizeof(uint8_t));
+  const int maxcpn = CPN_MAX_POTS + CPN_MAX_SLIDERS;
+  const int slidersStart = adcPotsBeforeSliders();
+  const int numpots = Boards::getCapability(board, Board::Pots);
+  const int offset = numpots - slidersStart;
 
   YamlPotsWarnEnabled() = default;
 
@@ -164,18 +190,90 @@ struct YamlPotsWarnEnabled {
   {
     value = 0;
 
-    for (int i = 0; i < cnt; i++) {
-      value |= (*(potsWarnEnabled + i)) << i;
+    int idx = 0;
+
+    for (int i = 0; i < maxcpn; i++) {
+      if (i < slidersStart)
+        idx = i;
+      else if (i >= numpots)
+        idx = i - offset;
+      else
+        continue;
+      if (idx >= 0 && idx < maxradio) {
+        value |= (*(potsWarnEnabled + i)) << idx;
+        //qDebug() << "i:" << i << "idx:" << idx << "value:" << *(potsWarnEnabled + i);
+      }
     }
   }
 
   void toCpn(bool * potsWarnEnabled)
   {
-    memset(potsWarnEnabled, 0, sizeof(bool) * cnt);
+    memset(potsWarnEnabled, 0, sizeof(bool) * maxcpn);
 
-    for (int i = 0; i < cnt; i++) {
-      *(potsWarnEnabled + i) = (bool)((value >> i) & 1);
+    int idx = 0;
+
+    for (int i = 0; i < maxradio; i++) {
+      if (i >= slidersStart)
+        idx = i + offset;
+      else
+        idx = i;
+      if (idx >= 0 && idx <= maxcpn) {
+        *(potsWarnEnabled + idx) = (bool)((value >> i) & 1);
+        //qDebug() << "i:" << i << "idx:" << idx << "value:" << (bool)((value >> i) & 1);
+      }
     }
+  }
+};
+
+struct YamlBeepANACenter {
+  unsigned int value;
+
+  const Board::Type board = getCurrentBoard();
+  //  modeldata BeepANACenter beepANACenter
+  const int maxradio = 8 * (int)sizeof(uint16_t);
+  const int numstickspots = CPN_MAX_STICKS + Boards::getCapability(board, Board::Pots);
+  const int maxcpn = numstickspots + getBoardCapability(board, Board::Sliders);
+  const int slidersStart = CPN_MAX_STICKS + adcPotsBeforeSliders();
+  const int offset = numstickspots - slidersStart;
+
+  YamlBeepANACenter() = default;
+
+  YamlBeepANACenter(unsigned int beepANACenter)
+  {
+    value = 0;
+    int idx = 0;
+
+    for (int i = 0; i < maxcpn; i++) {
+      if (i < slidersStart)
+        idx = i;
+      else if (i >= numstickspots)
+        idx = i - offset;
+      else
+        continue;
+      if (idx >= 0 && idx < maxradio) {
+        Helpers::setBitmappedValue(value, Helpers::getBitmappedValue(beepANACenter, i), idx);
+        //qDebug() << "i:" << i << "bit:" << Helpers::getBitmappedValue(beepANACenter, i) << "idx:" << idx << "value:" << value;
+      }
+    }
+  }
+
+  unsigned int toCpn()
+  {
+    unsigned int beepANACenter = 0;
+    int idx = 0;
+
+    for (int i = 0; i < maxradio; i++) {
+      if (i >= slidersStart)
+        idx = i + offset;
+      else
+        idx = i;
+      if (idx >= 0 && idx < maxcpn) {
+        Helpers::setBitmappedValue(beepANACenter, Helpers::getBitmappedValue(value, i), idx);
+        //qDebug() << "i:" << i << "bit:" << Helpers::getBitmappedValue(value, i) << "idx:" << idx << "beepANACenter:" << beepANACenter;
+      }
+    }
+
+    return beepANACenter;
   }
 };
 
@@ -779,6 +877,8 @@ struct convert<FrSkyScreenData> {
 
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
+  version = SemanticVersion(VERSION);
+
   Node node;
   auto board = getCurrentBoard();
 
@@ -817,7 +917,8 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["disableThrottleWarning"] = (int)rhs.disableThrottleWarning;
   node["enableCustomThrottleWarning"] = (int)rhs.enableCustomThrottleWarning;
   node["customThrottleWarningPosition"] = (int)rhs.customThrottleWarningPosition;
-  node["beepANACenter"] = rhs.beepANACenter;
+  YamlBeepANACenter beepCenter(rhs.beepANACenter);
+  node["beepANACenter"] = beepCenter.value;
   node["extendedLimits"] = (int)rhs.extendedLimits;
   node["extendedTrims"] = (int)rhs.extendedTrims;
   node["throttleReversed"] = (int)rhs.throttleReversed;
@@ -1053,7 +1154,23 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   unsigned int modelIds[CPN_MAX_MODULES];
   memset(modelIds, 0, sizeof(modelIds));
 
-  node["semver"] >> rhs.semver;
+  version = SemanticVersion();
+
+  if (node["semver"]) {
+    node["semver"] >> rhs.semver;
+    if (SemanticVersion().isValid(rhs.semver)) {
+      version = SemanticVersion(QString(rhs.semver));
+    }
+    else {
+      qDebug() << "Invalid settings version:" << rhs.semver;
+      memset(rhs.semver, 0, sizeof(rhs.semver));
+    }
+  }
+
+  qDebug() << "Settings version:" << version.toString();
+
+  if (version > SemanticVersion(VERSION))
+    qDebug() << "Warning: version not supported by Companion!";
 
   if (node["header"]) {
     const auto& header = node["header"];
@@ -1080,7 +1197,9 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["disableThrottleWarning"] >> rhs.disableThrottleWarning;
   node["enableCustomThrottleWarning"] >> rhs.enableCustomThrottleWarning;
   node["customThrottleWarningPosition"] >> rhs.customThrottleWarningPosition;
-  node["beepANACenter"] >> rhs.beepANACenter;
+  YamlBeepANACenter beepCenter;
+  node["beepANACenter"] >> beepCenter.value;
+  rhs.beepANACenter = beepCenter.toCpn();
   node["extendedLimits"] >> rhs.extendedLimits;
   node["extendedTrims"] >> rhs.extendedTrims;
   node["throttleReversed"] >> rhs.throttleReversed;
@@ -1252,7 +1371,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   //  preferably perform conversions here to avoid cluttering the field decodes
 
-  if (SemanticVersion(QString(rhs.semver)) < SemanticVersion("2.8.0")) {
+  if (version < SemanticVersion("2.8.0")) {
     //  Cells 7 and 8 introduced requiring Highest and Delta to be shifted + 2
     for (int i = 0; i < CPN_MAX_SENSORS; i++) {
       SensorData &sd = rhs.sensorData[i];
