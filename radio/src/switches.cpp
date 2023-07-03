@@ -352,7 +352,7 @@ getvalue_t getValueForLogicalSwitch(mixsrc_t i)
     int8_t trimIdx = virtualInputsTrims[i-MIXSRC_FIRST_INPUT];
     if (trimIdx >= 0) {
       int16_t trim = trims[trimIdx];
-      if (trimIdx == THR_STICK && g_model.throttleReversed)
+      if (trimIdx == inputMappingConvertMode(inputMappingGetThrottle()) && g_model.throttleReversed)
         result -= trim;
       else
         result += trim;

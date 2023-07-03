@@ -527,7 +527,7 @@ void evalInputs(uint8_t mode)
 #if defined(STICK_DEAD_ZONE)
     // dead zone invented by FlySky in my opinion it should goes into ADC
     // float calculations are not efficient
-    if (g_eeGeneral.stickDeadZone && ch != THR_STICK) {
+    if (g_eeGeneral.stickDeadZone && ch != inputMappingConvertMode(inputMappingGetThrottle())) {
       if (v > P_OFFSET) {
         // y=ax+b
         v = (int)((aParam * (float)v) - bParam);
@@ -540,7 +540,7 @@ void evalInputs(uint8_t mode)
     }
 #endif
 
-    if (g_model.throttleReversed && ch==THR_STICK) {
+    if (g_model.throttleReversed && ch==inputMappingConvertMode(inputMappingGetThrottle())) {
       v = -v;
     }
 
@@ -1174,7 +1174,7 @@ void doMixerPeriodicUpdates()
         val=0;  // prevent val be negative, which would corrupt throttle trace and timers; could occur if safetyswitch is smaller than limits
     }
     else {
-      val = RESX + calibratedAnalogs[g_model.thrTraceSrc == 0 ? THR_STICK : g_model.thrTraceSrc + MAX_STICKS - 1];
+      val = RESX + calibratedAnalogs[g_model.thrTraceSrc == 0 ? inputMappingConvertMode(inputMappingGetThrottle()) : g_model.thrTraceSrc + MAX_STICKS - 1];
     }
 
     val >>= (RESX_SHIFT-6); // calibrate it (resolution increased by factor 4)
