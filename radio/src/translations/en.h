@@ -1172,24 +1172,25 @@
 // End Main menu
 
 // Voice in native language
-#define TR_VOICE_ENGLISH                "English"
+#define TR_VOICE_CANTONESE              "Cantonese"
 #define TR_VOICE_CHINESE                "Chinese"
 #define TR_VOICE_CZECH                  "Czech"
 #define TR_VOICE_DANISH                 "Danish"
 #define TR_VOICE_DEUTSCH                "German"
 #define TR_VOICE_DUTCH                  "Dutch"
+#define TR_VOICE_ENGLISH                "English"
 #define TR_VOICE_ESPANOL                "Spanish"
 #define TR_VOICE_FRANCAIS               "French"
+#define TR_VOICE_HEBREW                 "Hebrew"
 #define TR_VOICE_HUNGARIAN              "Hungarian"
 #define TR_VOICE_ITALIANO               "Italian"
+#define TR_VOICE_JAPANESE               "Japanese"
 #define TR_VOICE_POLISH                 "Polish"
 #define TR_VOICE_PORTUGUES              "Portuguese"
 #define TR_VOICE_RUSSIAN                "Russian"
 #define TR_VOICE_SLOVAK                 "Slovak"
 #define TR_VOICE_SWEDISH                "Swedish"
 #define TR_VOICE_TAIWANESE              "Taiwanese"
-#define TR_VOICE_JAPANESE               "Japanese"
-#define TR_VOICE_HEBREW                 "Hebrew"
 
 #define TR_USBJOYSTICK_LABEL           "USB Joystick"
 #define TR_USBJOYSTICK_EXTMODE         "Mode"
