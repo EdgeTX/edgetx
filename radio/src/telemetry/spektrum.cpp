@@ -562,7 +562,7 @@ void processSpektrumPacket(const uint8_t *packet)
     return; // Not a sensor
   }
 
-#if defined(LUA)
+#if defined(LUA) && defined(MULTIMODULE)
     // Generic way for LUA Script to request ANY Specktrum Telemety Raw Data
     // this can be used for TextGen or any other telemetry message
 
@@ -775,7 +775,9 @@ void processDSMBindPacket(uint8_t module, const uint8_t *packet)
     moduleState[module].mode = MODULE_MODE_NORMAL;
     restartModuleAsync(module, 50); // ~200ms
     
-  } else if (g_model.moduleData[module].type == MODULE_TYPE_MULTIMODULE &&
+  }
+#if defined(MULTIMODULE)
+  else if (g_model.moduleData[module].type == MODULE_TYPE_MULTIMODULE &&
              g_model.moduleData[module].multi.rfProtocol ==
              MODULE_SUBTYPE_MULTI_DSM2 &&
              g_model.moduleData[module].subType == MM_RF_DSM2_SUBTYPE_AUTO) {
@@ -817,7 +819,7 @@ void processDSMBindPacket(uint8_t module, const uint8_t *packet)
 
     storageDirty(EE_MODEL);
   }
-
+#endif
   debugval = packet[7] << 24 | packet[6] << 16 | packet[5] << 8 | packet[4];
 
   /* log the bind packet as telemetry for quick debugging */

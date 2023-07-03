@@ -172,6 +172,7 @@ inline uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
   if (!IS_MODULE_ENABLED(moduleIdx)) {
     return HIDDEN_ROW;
   }
+#if defined(MULTIMODULE)
   else if (isModuleMultimodule(moduleIdx)) {
     if (IS_RX_MULTI(moduleIdx))
       return HIDDEN_ROW;
@@ -179,7 +180,9 @@ inline uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
       return 1;
     else
       return 0;
-  } else if (isModuleDSM2(moduleIdx) || isModuleCrossfire(moduleIdx) ||
+  }
+#endif
+  else if (isModuleDSM2(moduleIdx) || isModuleCrossfire(moduleIdx) ||
              isModuleGhost(moduleIdx) || isModuleSBUS(moduleIdx) ||
              isModuleDSMP(moduleIdx)) {
     // fixed number of channels
