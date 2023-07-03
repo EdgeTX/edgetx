@@ -153,7 +153,7 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   if (adcGetMaxInputs(ADC_INPUT_POT) > 0) {
     line = form->newLine(&grid);
     new StaticText(line, rect_t{}, STR_POTWARNINGSTATE, 0, COLOR_THEME_PRIMARY1);
-    auto pots_wm = new Choice(line, rect_t{}, {STR_PREFLIGHT_POTSLIDER_CHECK}, 0, 2,
+    auto pots_wm = new Choice(line, rect_t{}, STR_PREFLIGHT_POTSLIDER_CHECK, 0, 2,
                               GET_SET_DEFAULT(g_model.potsWarnMode));
 
     // Pot warnings
@@ -262,7 +262,7 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
 {
   // Setup button layout & texts
   uint8_t btn_cnt = 0;
-  for (uint8_t i = 0; i <= MAX_POTS; i++) {
+  for (uint8_t i = 0; i < MAX_POTS; i++) {
     if (IS_POT_AVAILABLE(i)) {
       pot_idx[btn_cnt] = i;
       btn_cnt++;
@@ -273,7 +273,7 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
   update();
 
   uint8_t btn_id = 0;
-  for (uint16_t i = 0; i <= MAX_POTS; i++) {
+  for (uint16_t i = 0; i < MAX_POTS; i++) {
     if (IS_POT_AVAILABLE(i)) {
       lv_btnmatrix_set_btn_ctrl(lvobj, btn_id, LV_BTNMATRIX_CTRL_RECOLOR);
       setTextWithColor(btn_id);
@@ -376,10 +376,17 @@ CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
 
 void CenterBeepsMatrix::setTextWithColor(uint8_t btn_id)
 {
-  setText(btn_id, makeRecolor(getAnalogShortLabel(ana_idx[btn_id]),
-                              isActive(btn_id) ? COLOR_THEME_PRIMARY1
-                                               : COLOR_THEME_SECONDARY1)
-                      .c_str());
+  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
+  if (ana_idx[btn_id] < max_sticks)
+    setText(btn_id, makeRecolor(getAnalogShortLabel(ana_idx[btn_id]),
+                                isActive(btn_id) ? COLOR_THEME_PRIMARY1
+                                                 : COLOR_THEME_SECONDARY1)
+                        .c_str());
+  else
+    setText(btn_id, makeRecolor(getAnalogLabel(ADC_INPUT_POT, ana_idx[btn_id] - max_sticks),
+                                isActive(btn_id) ? COLOR_THEME_PRIMARY1
+                                                 : COLOR_THEME_SECONDARY1)
+                        .c_str());
 }
 
 void CenterBeepsMatrix::onPress(uint8_t btn_id)
