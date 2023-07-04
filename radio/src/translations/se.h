@@ -284,7 +284,7 @@
 #define TR_WARN_5VOLTS                  "VARNING: Spänning ut är 5 volt"
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Brytare"
-#define TR_FUNCTION_SWITCHES           "Customizable switches"
+#define TR_FUNCTION_SWITCHES            "Anpassningsbara brytare"
 #define TR_SF_SWITCH                    "Trigger"
 #define TR_TRIMS                        "Trimmar"
 #define TR_FADEIN                       "Tona in"
@@ -479,7 +479,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB     "KALIBRERADE ANALOGA"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RÅA ANALOGA (5Hz)"
 #define TR_MENUCALIBRATION              "KALIBRERING"
-#define TR_MENU_FSWITCH                 "CUSTOMIZABLE SWITCHES"
+#define TR_MENU_FSWITCH                 "ANPASSNINGSBARA BRYTARE"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS              "[Spara trimvärden]"
 #else
@@ -860,7 +860,7 @@
 #define TR_DEBUG                        "Debug"
 #define TR_KEYS_BTN                     BUTTON(TR("Bryt.","Brytare"))
 #define TR_ANALOGS_BTN                  BUTTON(TR("Ana.","Analoga"))
-#define TR_FS_BTN                       BUTTON(TR("Custom sw", "Customizable switches"))
+#define TR_FS_BTN                       BUTTON(TR("Anpassad sw", "Anpassningsbara brytare"))
 #define TR_TOUCH_NOTFOUND               "Pekskärm hittas ej"
 #define TR_TOUCH_EXIT                   "Peka på skärmen för att avsluta"
 #define TR_SET                          BUTTON(TR("Def", "Ställ in"))
