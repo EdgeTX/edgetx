@@ -619,7 +619,7 @@
 #define TR_MODULE_OPTIONS               "Modulalternativ"
 #define TR_POWER                        "Power"
 #define TR_NO_TX_OPTIONS                "Inga TX-alternativ"
-#define TR_RTC_BATT                     TR(("RTC batt.","RTC batteri")
+#define TR_RTC_BATT                     TR("RTC batt.","RTC batteri")
 #define TR_POWER_METER_EXT              "Power Meter (EXT)"
 #define TR_POWER_METER_INT              "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT        "Spektrum (EXT)"
