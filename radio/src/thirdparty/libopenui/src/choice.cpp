@@ -89,7 +89,8 @@ Choice::Choice(Window* parent, const rect_t& rect, int vmin, int vmax,
     vmin(vmin),
     vmax(vmax),
     _getValue(std::move(_getValue)),
-    _setValue(std::move(_setValue))
+    _setValue(std::move(_setValue)),
+    longPressData({})
 {
   lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
@@ -101,7 +102,8 @@ Choice::Choice(Window* parent, const rect_t& rect, const char* const values[],
     vmin(vmin),
     vmax(vmax),
     _getValue(std::move(_getValue)),
-    _setValue(std::move(_setValue))
+    _setValue(std::move(_setValue)),
+    longPressData({})
 {
   setValues(values);
   lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
@@ -116,7 +118,8 @@ Choice::Choice(Window* parent, const rect_t& rect,
     vmin(vmin),
     vmax(vmax),
     _getValue(std::move(_getValue)),
-    _setValue(std::move(_setValue))
+    _setValue(std::move(_setValue)),
+    longPressData({})
 {
   lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
@@ -128,7 +131,8 @@ Choice::Choice(Window* parent, const rect_t& rect, const char* values, int vmin,
     vmin(vmin),
     vmax(vmax),
     _getValue(std::move(_getValue)),
-    _setValue(std::move(_setValue))
+    _setValue(std::move(_setValue)),
+    longPressData({})
 {
   if (values) {
     uint8_t len = values[0];
