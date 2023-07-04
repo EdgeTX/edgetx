@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "opentx.h"
 #include "popups.h"
 #include "libopenui.h"
 #include "pwr.h"
@@ -28,10 +29,12 @@ static void _run_popup_dialog(const char* title, const char* msg,
 {
   bool running = true;
 
+  resetBacklightTimeout();
+
   // reset input devices to avoid
   // RELEASED/CLICKED to be called in a loop
   lv_indev_reset(nullptr, nullptr);
-  
+
   auto md = new MessageDialog(MainWindow::instance(), title, msg);
   md->setCloseHandler([&]() { running = false; });
   if (info) {
@@ -51,6 +54,8 @@ static void _run_popup_dialog(const char* title, const char* msg,
       RTOS_WAIT_MS(1);
       continue;
     } 
+
+    checkBacklight();
     WDG_RESET();
     MainWindow::instance()->run();
     LvglWrapper::runNested();
