@@ -70,6 +70,15 @@ bool GeneralSettings::isSliderAvailable(int index) const
   return sliderConfig[index] != Board::SLIDER_NONE;
 }
 
+bool GeneralSettings::isMultiPosPot(int index) const
+{
+  if (isPotAvailable(index)) {
+    if (potConfig[index] == Board::POT_MULTIPOS_SWITCH)
+      return true;
+  }
+  return false;
+}
+
 void GeneralSettings::clear()
 {
   memset(reinterpret_cast<void *>(this), 0, sizeof(GeneralSettings));
