@@ -148,7 +148,7 @@ struct YamlThrTrace {
   }
 };
 
-//  EdgeTX 2.9.0 ADC refactor changed order of pots and sliders that affected interpretation of model warnings
+//  EdgeTX 2.10.0 ADC refactor changed order of pots and sliders that affected interpretation of model warnings
 //  This conversion needs to be revisited when Companion is refactored to use ADC radio defns
 //  Make ADC orders backwards compatible
 
@@ -158,7 +158,7 @@ int adcPotsBeforeSliders()
 {
   auto board = getCurrentBoard();
 
-  if (version >= SemanticVersion("2.9.0")) {
+  if (version >= SemanticVersion("2.10.0")) {
     if (IS_TARANIS_X9(board) || IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || IS_RADIOMASTER_BOXER(board))
       return 3;
     else if (IS_TARANIS_X9LITE(board))
