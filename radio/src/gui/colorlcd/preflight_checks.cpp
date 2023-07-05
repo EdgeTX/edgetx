@@ -134,6 +134,7 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   new StaticText(line, rect_t{}, STR_CUSTOM_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);
   auto box = new FormGroup::Line(line, window_create(line->getLvObj()));
   lv_obj_set_layout(box->getLvObj(), LV_LAYOUT_FLEX);
+  box->setWidth(LCD_W /2 - 15);
 
   auto cst_tw = new CheckBox(
       box, rect_t{}, GET_SET_DEFAULT(g_model.enableCustomThrottleWarning));
