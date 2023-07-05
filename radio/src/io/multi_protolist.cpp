@@ -233,6 +233,12 @@ bool MultiRfProtocols::triggerScan()
       scanTimer->timer = xTimerCreateStatic(
           "MPM", MULTI_PROTOLIST_START_TIMEOUT / RTOS_MS_PER_TICK, pdTRUE,
           (void*)moduleIdx, MultiRfProtocols::timerCb, &scanTimer->timerBuffer);
+    } else {
+      if (xTimerChangePeriod(scanTimer->timer,
+          MULTI_PROTOLIST_START_TIMEOUT / RTOS_MS_PER_TICK,
+          0) != pdPASS) {
+          /* The timer period could not be reset. */
+      }
     }
 
     if (scanTimer->timer) {
