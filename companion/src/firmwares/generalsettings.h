@@ -305,6 +305,7 @@ class GeneralSettings {
     bool switchSourceAllowedTaranis(int index) const;
     bool isPotAvailable(int index) const;
     bool isSliderAvailable(int index) const;
+    bool isMultiPosPot(int index) const;
     QString antennaModeToString() const;
     QString bluetoothModeToString() const;
     QString serialPortModeToString(int port_nr) const;
