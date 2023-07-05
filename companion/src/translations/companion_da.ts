@@ -1799,7 +1799,7 @@ Vil du indlæse indstillinger fra en fil?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="129"/>
         <source>Audio Amp Off</source>
-        <translation type="unfinished">Sluk audio amplifier</translation>
+        <translation>Sluk audio amplifier</translation>
     </message>
     <message>
         <source>Value</source>

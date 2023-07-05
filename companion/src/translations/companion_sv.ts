@@ -1799,7 +1799,7 @@ Vill du hämta inställningarna från en fil?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="129"/>
         <source>Audio Amp Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Audioförstärkare av</translation>
     </message>
     <message>
         <source>Value</source>
