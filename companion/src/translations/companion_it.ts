@@ -2060,7 +2060,7 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="129"/>
         <source>Audio Amp Off</source>
-        <translation type="unfinished">Amplificatore audio off</translation>
+        <translation>Amplificatore audio off</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="216"/>

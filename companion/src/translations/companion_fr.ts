@@ -2082,7 +2082,7 @@ Voulez-vous importer les paramètres depuis un fichier?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="129"/>
         <source>Audio Amp Off</source>
-        <translation type="unfinished">Désact. Ampli Audio</translation>
+        <translation>Désact. Ampli Audio</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="216"/>
