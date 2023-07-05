@@ -360,9 +360,9 @@ void CenterBeepsMatrix::setTextAndState(uint8_t btn_id)
 {
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   if (ana_idx[btn_id] < max_sticks)
-    setTextAndColor(btn_id, getAnalogShortLabel(ana_idx[btn_id]));
+    setText(btn_id, getAnalogShortLabel(ana_idx[btn_id]));
   else
-    setTextAndColor(btn_id, getAnalogLabel(ADC_INPUT_POT, ana_idx[btn_id] - max_sticks));
+    setText(btn_id, getAnalogLabel(ADC_INPUT_POT, ana_idx[btn_id] - max_sticks));
   setChecked(btn_id);
 }
 
