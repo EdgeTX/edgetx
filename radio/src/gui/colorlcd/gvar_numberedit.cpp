@@ -92,6 +92,7 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
 
 void GVarNumberEdit::switchGVarMode()
 {
+#if defined(GVARS)
   if (modelGVEnabled()) {
     int32_t value = getValue();
     setValue(
@@ -106,6 +107,7 @@ void GVarNumberEdit::switchGVarMode()
     // update field type based on value
     update();
   }
+#endif
 }
 
 void GVarNumberEdit::setSuffix(std::string value)
