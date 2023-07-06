@@ -3646,8 +3646,8 @@ Du anvender aktuelt:
         <translation>Formular</translation>
     </message>
     <message>
-        <source>Function Switches</source>
-        <translation>Funktion kontakt</translation>
+        <source>Customizable Switches</source>
+        <translation>Kontakter der kan tilpasses</translation>
     </message>
     <message>
         <source>Type</source>
@@ -8503,8 +8503,8 @@ p, li { white-space: pre-wrap; }
         <translation>Start</translation>
     </message>
     <message>
-        <source>Function Switches</source>
-        <translation>Funktion kontakt</translation>
+        <source>Customizable Switches</source>
+        <translation>Kontakter der kan tilpasses</translation>
     </message>
     <message>
         <source>Switch %1</source>

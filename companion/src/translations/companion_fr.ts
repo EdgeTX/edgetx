@@ -4612,8 +4612,8 @@ Vous utilisez actuellement:
     </message>
     <message>
         <location filename="../modeledit/setup_function_switches.ui" line="47"/>
-        <source>Function Switches</source>
-        <translation type="unfinished"></translation>
+        <source>Customizable Switches</source>
+        <translation>Inters paramétrables</translation>
     </message>
     <message>
         <location filename="../modeledit/setup_function_switches.ui" line="69"/>
@@ -10717,8 +10717,8 @@ Mixage actif par défaut si non-renseigné.</translation>
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="968"/>
-        <source>Function Switches</source>
-        <translation type="unfinished"></translation>
+        <source>Customizable Switches</source>
+        <translation>Inters paramétrables</translation>
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="970"/>

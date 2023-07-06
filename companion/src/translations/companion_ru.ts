@@ -4596,7 +4596,7 @@ You are currently using:
     </message>
     <message>
         <location filename="../modeledit/setup_function_switches.ui" line="47"/>
-        <source>Function Switches</source>
+        <source>Customizable Switches</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10478,7 +10478,7 @@ This determines how mixer values are added.
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="968"/>
-        <source>Function Switches</source>
+        <source>Customizable Switches</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
