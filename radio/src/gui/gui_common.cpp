@@ -1200,6 +1200,7 @@ const char * getMultiOptionTitle(uint8_t moduleIdx)
 }
 #endif
 
+#if !defined(COLORLCD)
 uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
 {
   lcdDrawTextAlignedLeft(y, title);
@@ -1210,3 +1211,4 @@ uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t a
   }
   return value;
 }
+#endif
