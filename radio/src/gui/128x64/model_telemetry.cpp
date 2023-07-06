@@ -140,7 +140,7 @@ void menuModelTelemetry(event_t event)
         }
       }
     }
-    TRACE("menuVerticalOffset:%d  sub:%d",menuVerticalOffset, sub);
+
     LcdFlags blink = ((s_editMode>0) ? BLINK|INVERS : INVERS);
     LcdFlags attr = (sub == k ? blink : 0);
 
