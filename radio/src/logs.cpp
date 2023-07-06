@@ -278,10 +278,7 @@ void logsWrite()
     {
     #endif
 
-      static int lines = 0;
-      lines++; if(lines > 30) lines = 30;
-      bool sdCardFull = IS_SDCARD_FULL() || lines == 30;
-      //bool sdCardFull = IS_SDCARD_FULL();
+      bool sdCardFull = IS_SDCARD_FULL();
 
       // check if file needs to be opened
       if (!g_oLogFile.obj.fs) {
