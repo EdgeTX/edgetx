@@ -860,7 +860,7 @@
 #define TR_DEBUG                        "Debug"
 #define TR_KEYS_BTN                     BUTTON(TR("Bryt.","Brytare"))
 #define TR_ANALOGS_BTN                  BUTTON(TR("Ana.","Analoga"))
-#define TR_FS_BTN                       BUTTON(TR("Anpassad sw", "Anpassningsbara brytare"))
+#define TR_FS_BTN                       BUTTON(TR("Anp. bryt.", TR_FUNCTION_SWITCHES))
 #define TR_TOUCH_NOTFOUND               "Pekskärm hittas ej"
 #define TR_TOUCH_EXIT                   "Peka på skärmen för att avsluta"
 #define TR_SET                          BUTTON(TR("Def", "Ställ in"))
