@@ -614,6 +614,7 @@ static int luaModelGetInput(lua_State *L)
     lua_pushtablenstring(L, "name", expo->name);
     lua_pushtablenstring(L, "inputName", g_model.inputNames[chn]);
     lua_pushtableinteger(L, "source", expo->srcRaw);
+    lua_pushtableinteger(L, "scale", expo->scale);
     lua_pushtableinteger(L, "weight", expo->weight);
     lua_pushtableinteger(L, "offset", expo->offset);
     lua_pushtableinteger(L, "switch", expo->swtch);
@@ -672,6 +673,9 @@ static int luaModelInsertInput(lua_State *L)
       }
       else if (!strcmp(key, "source")) {
         expo->srcRaw = luaL_checkinteger(L, -1);
+      }
+      else if (!strcmp(key, "scale")) {
+        expo->scale = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "weight")) {
         expo->weight = luaL_checkinteger(L, -1);
