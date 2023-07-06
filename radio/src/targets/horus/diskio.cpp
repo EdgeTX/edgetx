@@ -220,7 +220,7 @@ DRESULT __disk_write(
     return(RES_NOTRDY);
 
   if ((DWORD)buff < 0x20000000 || ((DWORD)buff & 3)) {
-    TRACE("disk_write bad alignment (%p)", buff);
+    //TRACE("disk_write bad alignment (%p)", buff);
     while(count--) {
       memcpy(scratch, buff, BLOCK_SIZE);
 
