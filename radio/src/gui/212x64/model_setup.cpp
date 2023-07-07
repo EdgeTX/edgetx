@@ -490,17 +490,6 @@ uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr,
   return rv;
 }
 
-uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
-{
-  lcdDrawTextAlignedLeft(y, title);
-  lcdDrawText(200, y, value ? STR_CHAR_UP : STR_CHAR_DOWN, attr);
-  if (attr && (event == EVT_KEY_BREAK(KEY_ENTER))) {
-    value = !value;
-    s_editMode = 0;
-  }
-  return value;
-}
-
 void menuModelSetup(event_t event)
 {
   horzpos_t l_posHorz = menuHorizontalPosition;

@@ -372,4 +372,6 @@ const char *getMultiOptionTitle(uint8_t moduleIdx);
 
 const char * writeScreenshot();
 
+uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event);
+
 #endif // _GUI_COMMON_H_
