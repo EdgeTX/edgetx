@@ -1068,7 +1068,7 @@ void evalMixes(uint8_t tick10ms)
   // must be done before limits because of the applyLimit function: it checks for safety switches which would be not initialized otherwise
   if (tick10ms) {
     requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
-    requiredBacklightBright = g_eeGeneral.backlightBright;
+    requiredBacklightBright = g_eeGeneral.getBrightness();
 
     if (radioGFEnabled()) {
       evalFunctions(g_eeGeneral.customFn, globalFunctionsContext);

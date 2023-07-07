@@ -974,6 +974,15 @@ PACK(struct RadioData {
   uint8_t modelSFDisabled:1;
   uint8_t modelCustomScriptsDisabled:1;
   uint8_t modelTelemetryDisabled:1;
+
+  NOBACKUP(uint8_t getBrightness() const
+  {
+#if defined(OLED_SCREEN)
+    return contrast;
+#else
+    return backlightBright;
+#endif
+  });
 });
 
 #undef SWITCHES_WARNING_DATA
