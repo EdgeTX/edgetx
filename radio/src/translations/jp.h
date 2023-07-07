@@ -266,6 +266,7 @@
 #define TR_WARN_5VOLTS                 "警告: 出力レベル 5V"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "スイッチ"
+#define TR_FUNCTION_SWITCHES           "Customizable switches"
 #define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "トリム"
 #define TR_FADEIN                      "フェードイン"
@@ -451,7 +452,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB    "アナログ キャリブレーション"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW アナログ (5 Hz)"
 #define TR_MENUCALIBRATION             "キャリブレーション"
-#define TR_MENU_FSWITCH                "FUNCTION SWITCHES"
+#define TR_MENU_FSWITCH                "CUSTOMIZABLE SWITCHES"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "トリム => サブトリム"
 #else
@@ -836,7 +837,7 @@
 #define TR_DEBUG                       "デバッグ"
 #define TR_KEYS_BTN                    BUTTON("キー")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "アナログ"))
-#define TR_FS_BTN                      BUTTON(TR("F. Switches", "Function switches"))
+#define TR_FS_BTN                      BUTTON(TR("Custom sw", "Customizable switches"))
 #define TR_TOUCH_NOTFOUND              "タッチパネルは見つかりませんでした"
 #define TR_TOUCH_EXIT                  "画面をタップして終了します"
 #define TR_SET                         BUTTON("設定")

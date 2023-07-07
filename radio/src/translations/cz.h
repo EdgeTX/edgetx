@@ -275,6 +275,7 @@
 #define TR_WARN_5VOLTS                 "Varování: výstupní úroveň je 5 voltů"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Spínač"
+#define TR_FUNCTION_SWITCHES           "Nastavitelné přepínače"
 #define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "Trimy"
 #define TR_FADEIN                      "Přechod Zap"
@@ -461,8 +462,8 @@
 #define TR_MENU_RADIO_ANALOGS          "ANALOGY"
 #define TR_MENU_RADIO_ANALOGS_CALIB    "KALIBROVAT ANALOGY"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGY (5 Hz)"
-#define TR_MENUCALIBRATION             "KALIBRACE"
-#define TR_MENU_FSWITCH                "FUNCTION SWITCHES"
+#define TR_MENUCALIBRATION              "KALIBRACE"
+#define TR_MENU_FSWITCH                 "NASTAVITELNÉ PŘEPÍNAČE"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "Trimy => Subtrimy"
 #else
@@ -841,7 +842,7 @@
 #define TR_DEBUG                       "Debug"
 #define TR_KEYS_BTN                    BUTTON(TR("SW","Přepínače"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogy"))
-#define TR_FS_BTN                      BUTTON(TR("F. Switches", "Function switches"))
+#define TR_FS_BTN                      BUTTON(TR("Vlastní Sw", TR_FUNCTION_SWITCHES))
 #define TR_TOUCH_NOTFOUND              "Dotyková obrazovka nenalezena"
 #define TR_TOUCH_EXIT                  "Dotkněte se obrazovky pro ukončení"
 #define TR_SET                         BUTTON("Nast")

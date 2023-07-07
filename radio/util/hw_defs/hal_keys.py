@@ -21,13 +21,15 @@ TRIMS = [
     { "name": "T4", "dec": "RHL", "inc": "RHR", "input": "RH" },
     { "name": "T5", "dec": "LSD", "inc": "LSU" },
     { "name": "T6", "dec": "RSD", "inc": "RSU" },
+    { "name": "T7", "dec": "T7L", "inc": "T7R" },
+    { "name": "T8", "dec": "T8D", "inc": "T8U" },
     # Surface
     { "name": "T1", "dec": "T1L", "inc": "T1R", "input": "ST" },
     { "name": "T2", "dec": "T2L", "inc": "T2R", "input": "TH" },
     { "name": "T3", "dec": "T3L", "inc": "T3R"},
     { "name": "T4", "dec": "T4L", "inc": "T4R"},
     { "name": "T5", "dec": "T5L", "inc": "T5R" },
-    { "name": "T6", "dec": "T6L", "inc": "T6R" },
+    { "name": "T6", "dec": "T6D", "inc": "T6U" },
 ]
 
 KEYS = [

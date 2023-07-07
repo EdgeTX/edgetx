@@ -267,6 +267,7 @@
 #define TR_WARN_5VOLTS                 "Uwaga: output level is 5 volts"
 #define TR_MS                  "ms"
 #define TR_SWITCH              "Przełą"
+#define TR_FUNCTION_SWITCHES   "Ustawiane przełączniki"
 #define TR_SF_SWITCH           "Trigger"
 #define TR_TRIMS               "Trymy"
 #define TR_FADEIN              "Pojawia"
@@ -450,8 +451,8 @@
 #define TR_MENU_RADIO_ANALOGS             TR("WE-ANA","WEJŚCIA ANALOG.")
 #define TR_MENU_RADIO_ANALOGS_CALIB       "CALIBRATED ANALOGS"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS   "RAW ANALOGS (5 Hz)"
-#define TR_MENUCALIBRATION     "KALIBRACJA"
-#define TR_MENU_FSWITCH        "FUNCTION SWITCHES"
+#define TR_MENUCALIBRATION                "KALIBRACJA"
+#define TR_MENU_FSWITCH                   "USTAWIANE PRZEŁĄCZNIKI"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS     "Trymery => Subtrimy"
 #else
@@ -831,7 +832,7 @@
 #define TR_DEBUG                       "Debug"
 #define TR_KEYS_BTN                BUTTON(TR("SW","Switches"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogi"))
-#define TR_FS_BTN                      BUTTON(TR("F. Switches", "Function switches"))
+#define TR_FS_BTN                      BUTTON(TR("Ust. łącz.", TR_FUNCTION_SWITCHES ))
 #define TR_TOUCH_NOTFOUND              "Touch hardware not found"
 #define TR_TOUCH_EXIT                  "Touch screen to exit"
 #define TR_SET                 "[Set]"

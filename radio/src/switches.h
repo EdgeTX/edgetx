@@ -60,21 +60,21 @@ uint8_t getXPotPosition(uint8_t idx);
 div_t switchInfo(int switchPosition);
 
 // Lookup switch index by letter ('A' to 'Z')
-// note: no function switches
+// note: no customizable switches
 int switchLookupIdx(char c);
 
 // Lookup switch index by name ('SA' to 'SZ')
-// note: no function switches
+// note: no customizable switches
 int switchLookupIdx(const char* name, size_t len);
 
 // Get switch letter ('A' to 'Z')
-// note: no function switches
+// note: no customizable switches
 char switchGetLetter(uint8_t idx);
 
-// note: no function switches
+// note: no customizable switches
 const char* switchGetCanonicalName(uint8_t idx);
 
-// function switches supported
+// customizable switches supported
 void switchSetCustomName(uint8_t idx, const char* str, size_t len);
 const char* switchGetCustomName(uint8_t idx);
 bool switchHasCustomName(uint8_t idx);

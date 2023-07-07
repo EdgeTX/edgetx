@@ -4598,8 +4598,8 @@ state attualmente utilizzando:
     </message>
     <message>
         <location filename="../modeledit/setup_function_switches.ui" line="47"/>
-        <source>Function Switches</source>
-        <translation type="unfinished"></translation>
+        <source>Customizable Switches</source>
+        <translation>Interruttori personalizzabili</translation>
     </message>
     <message>
         <location filename="../modeledit/setup_function_switches.ui" line="69"/>
@@ -10517,8 +10517,8 @@ Determina come il valore viene aggiunto alla miscelazione.
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="968"/>
-        <source>Function Switches</source>
-        <translation type="unfinished"></translation>
+        <source>Customizable Switches</source>
+        <translation>Interruttori personalizzabili</translation>
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="970"/>

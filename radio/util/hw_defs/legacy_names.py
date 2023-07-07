@@ -294,6 +294,65 @@ LEGACY_NAMES = [
         }
     },
     {
+        "targets": {"t20"},
+        "inputs": {
+            "LH": {
+                "yaml": "Rud"
+            },
+            "LV": {
+                "yaml": "Ele"
+            },
+            "RV": {
+                "yaml": "Thr"
+            },
+            "RH": {
+                "yaml": "Ail"
+            },
+            "P1": {
+                "yaml": "POT1",
+                "lua": "s1",
+                "label": "S1",
+                "short_label": "1",
+                "description": "Potentiometer 1"
+            },
+            "P2": {
+                "yaml": "POT2",
+                "lua": "s2",
+                "label": "S2",
+                "short_label": "2",
+                "description": "Potentiometer 2"
+            },
+            "SL1": {
+                "yaml": "SLIDER1",
+                "lua": "s3",
+                "label": "S3",
+                "short_label": "3",
+                "description": "Potentiometer 3"
+            },
+            "SL2": {
+                "yaml": "SLIDER2",
+                "lua": "s4",
+                "label": "S4",
+                "short_label": "4",
+                "description": "Potentiometer 4"
+            },
+            "SL3": {
+                "yaml": "SLIDER3",
+                "lua": "sl",
+                "label": "SL",
+                "short_label": "L",
+                "description": "Right finger slider"
+            },
+            "SL4": {
+                "yaml": "SLIDER4",
+                "lua": "sr",
+                "label": "SR",
+                "short_label": "R",
+                "description": "Right finger slider"
+            }
+        }
+    },
+    {
         "targets": {"x9lite","x9lites"},
         "inputs": {
             "LH": {

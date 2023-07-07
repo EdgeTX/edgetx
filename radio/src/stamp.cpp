@@ -46,14 +46,6 @@
 #define DISPLAY_VERSION
 #endif
 
-#if defined(RADIO_TLITE)
-#if defined(STM32F407xx)
-  #define CPU_NAME  "-F4"
-#else
-  #define CPU_NAME  "-F2"
-#endif
-#endif
-
 #if defined(COLORLCD)
   const char fw_stamp[]     = "FW" TAB ": edgetx-" FLAVOUR;
   #if defined(RADIOMASTER_RELEASE) || defined(JUMPER_RELEASE)

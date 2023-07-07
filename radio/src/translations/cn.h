@@ -260,6 +260,7 @@
 #define TR_WARN_5VOLTS                 "注意输出电平为5V"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "开关"
+#define TR_FUNCTION_SWITCHES           "可自定义开关"
 #define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "微调"
 #define TR_FADEIN                      "渐入"
@@ -446,7 +447,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB     "已校准的模拟值"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "原始模拟值 (5 Hz)"
 #define TR_MENUCALIBRATION             "校准"
-#define TR_MENU_FSWITCH                "FUNCTION SWITCHES"
+#define TR_MENU_FSWITCH                "可自定义开关"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "将当前微调量保存至中点"
 #else
@@ -831,7 +832,7 @@
 #define TR_DEBUG                       "调试"
 #define TR_KEYS_BTN                    BUTTON("按键")
 #define TR_ANALOGS_BTN                 BUTTON(TR("模拟", "模拟量"))
-#define TR_FS_BTN                      BUTTON(TR("F. Switches", "Function switches"))
+#define TR_FS_BTN                      BUTTON(TR("自定义开关", TR_FUNCTION_SWITCHES))
 #define TR_TOUCH_NOTFOUND              "未找到触摸硬件"
 #define TR_TOUCH_EXIT                  "点击屏幕退出"
 #define TR_SET                         BUTTON("设置")

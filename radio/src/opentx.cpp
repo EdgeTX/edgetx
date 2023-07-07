@@ -903,7 +903,9 @@ void alert(const char * title, const char * msg , uint8_t sound)
 }
 
 #if defined(GVARS)
-#if MAX_TRIMS == 6
+#if MAX_TRIMS == 8
+int8_t trimGvar[MAX_TRIMS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+#elif MAX_TRIMS == 6
   int8_t trimGvar[MAX_TRIMS] = { -1, -1, -1, -1, -1, -1 };
 #elif MAX_TRIMS == 4
   int8_t trimGvar[MAX_TRIMS] = { -1, -1, -1, -1 };
