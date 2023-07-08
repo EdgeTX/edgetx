@@ -216,7 +216,7 @@
 #define TR_VFORMULAS                    "Addera",TR("Medel","Medelvärde"),TR("Min","Minimum"),TR("Max","Maximum"),TR("Multipl.","Multiplicera"),"Summera","Cell",TR("Förbrukn.","Förbrukning"),"Avstånd"
 #define TR_VPREC                        "0.--","0.0","0.00"
 #define TR_VCELLINDEX                   "Lägsta","1","2","3","4","5","6","7","8","Högsta","Skillnad"
-#define TR_SUBTRIMMODES                 STR_CHAR_DELTA " (endast center)","= (symmetrisk)"
+#define TR_SUBTRIMMODES                 STR_CHAR_DELTA " (Bara center)","= (Symmetriskt)"
 #define TR_TIMER_DIR                    TR("Återst.", "Visa återstående"), TR("Förbrukad", "Visa förbrukad")
 
 #if defined(COLORLCD)
@@ -1196,7 +1196,7 @@
 #define TR_SAVE                         "Spara"
 #define TR_CANCEL                       "Avbryt"
 #define TR_EDIT_THEME                   "REDIGERA TEMA"
-#define TR_DETAILS                      "Temainformation"
+#define TR_DETAILS                      "Detaljer"
 #define TR_THEME_EDITOR                 "TEMAN"
 
 // Main menu
