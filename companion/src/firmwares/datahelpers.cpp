@@ -91,3 +91,11 @@ std::string DataHelpers::getStringTagMappingTag(const StringTagMappingTable& lut
 
   return std::string();
 }
+
+int DataHelpers::getStringTagMappingSeq(const StringTagMappingTable& lut, unsigned int index)
+{
+  if (index < lut.size())
+    return lut[index].seq;
+
+  return -1;
+}

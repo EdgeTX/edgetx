@@ -20,6 +20,9 @@
 
 #include "yaml_ops.h"
 
+SemanticVersion radioSettingsVersion;
+SemanticVersion modelSettingsVersion;
+
 YAML::Node operator >> (const YAML::Node& node, const YamlLookupTable& lut)
 {
   if (node && node.IsScalar()) {
@@ -32,7 +35,7 @@ YAML::Node operator >> (const YAML::Node& node, const YamlLookupTable& lut)
 
     if (it != lut.end()) {
       return YAML::Node(it->first);
-    }  
+    }
     return YAML::Node();
   }
 
@@ -63,7 +66,7 @@ std::string LookupValue(const YamlLookupTable& lut, const int& value)
         if (elmt.first == value) return true;
         return false;
       });
-  
+
   if (it != lut.end()) {
     return it->second;
   }

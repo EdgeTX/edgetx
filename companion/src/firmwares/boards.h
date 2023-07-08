@@ -26,6 +26,7 @@
 #include <QString>
 
 class AbstractStaticItemModel;
+class SemanticVersion;
 
 // identiying names of static abstract item models
 constexpr char AIM_BOARDS_POT_TYPE[]        {"boards.pottype"};
@@ -214,7 +215,7 @@ class Boards
     static StringTagMappingTable getSwitchesLookupTable(Board::Type board);
     static int getCapability(Board::Type board, Board::Capability capability);
     static QString getAxisName(int index);
-    static StringTagMappingTable getAnalogNamesLookupTable(Board::Type board);
+    static StringTagMappingTable getAnalogNamesLookupTable(Board::Type board, const QString strVersion = "0.0.0");
     static QString getAnalogInputName(Board::Type board, int index);
     static bool isBoardCompatible(Board::Type board1, Board::Type board2);
     static QString getBoardName(Board::Type board);
@@ -229,6 +230,9 @@ class Boards
     static StringTagMappingTable getTrimSourcesLookupTable(Board::Type board);
     static QList<int> getSupportedInternalModules(Board::Type board);
     static int getDefaultInternalModules(Board::Type board);
+
+    // TODO replace when refactored to support json defns
+    static int adcPotsBeforeSliders(Board::Type board, SemanticVersion version);
 
   protected:
 

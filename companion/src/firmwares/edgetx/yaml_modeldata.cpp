@@ -39,8 +39,6 @@
 
 #include <string>
 
-SemanticVersion version;  // used for data conversions
-
 static const YamlLookupTable timerModeLut = {
     {TimerData::TIMERMODE_OFF, "OFF"},
     {TimerData::TIMERMODE_ON, "ON"},
@@ -148,31 +146,6 @@ struct YamlThrTrace {
   }
 };
 
-//  EdgeTX 2.10.0 ADC refactor changed order of pots and sliders that affected interpretation of model warnings
-//  This conversion needs to be revisited when Companion is refactored to use ADC radio defns
-//  Make ADC orders backwards compatible
-
-//  the values below are based on radio\src\util\hw_defns\pots_config.py
-
-int adcPotsBeforeSliders()
-{
-  auto board = getCurrentBoard();
-
-  if (version >= SemanticVersion("2.10.0")) {
-    if (IS_TARANIS_X9(board) || IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || IS_RADIOMASTER_BOXER(board))
-      return 3;
-    else if (IS_TARANIS_X9LITE(board))
-      return 1;
-    else if (IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board))
-      return 0;
-    else
-      return 2;
-  }
-  else {
-    return Boards::getCapability(board, Board::Pots);
-  }
-}
-
 struct YamlPotsWarnEnabled {
   unsigned int value;
 
@@ -180,7 +153,7 @@ struct YamlPotsWarnEnabled {
   //  modeldata potwarnen_t potsWarnEnabled
   const int maxradio = 8 * (int)(Boards::getCapability(board, Board::HasColorLcd) ? sizeof(uint16_t) : sizeof(uint8_t));
   const int maxcpn = CPN_MAX_POTS + CPN_MAX_SLIDERS;
-  const int slidersStart = adcPotsBeforeSliders();
+  const int slidersStart = Boards::adcPotsBeforeSliders(board, modelSettingsVersion);
   const int numpots = Boards::getCapability(board, Board::Pots);
   const int offset = numpots - slidersStart;
 
@@ -233,7 +206,7 @@ struct YamlBeepANACenter {
   const int maxradio = 8 * (int)sizeof(uint16_t);
   const int numstickspots = CPN_MAX_STICKS + Boards::getCapability(board, Board::Pots);
   const int maxcpn = numstickspots + getBoardCapability(board, Board::Sliders);
-  const int slidersStart = CPN_MAX_STICKS + adcPotsBeforeSliders();
+  const int slidersStart = CPN_MAX_STICKS + Boards::adcPotsBeforeSliders(board, modelSettingsVersion);
   const int offset = numstickspots - slidersStart;
 
   YamlBeepANACenter() = default;
@@ -877,8 +850,6 @@ struct convert<FrSkyScreenData> {
 
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
-  version = SemanticVersion(VERSION);
-
   Node node;
   auto board = getCurrentBoard();
 
@@ -1154,12 +1125,12 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   unsigned int modelIds[CPN_MAX_MODULES];
   memset(modelIds, 0, sizeof(modelIds));
 
-  version = SemanticVersion();
+  modelSettingsVersion = SemanticVersion();
 
   if (node["semver"]) {
     node["semver"] >> rhs.semver;
     if (SemanticVersion().isValid(rhs.semver)) {
-      version = SemanticVersion(QString(rhs.semver));
+      modelSettingsVersion = SemanticVersion(QString(rhs.semver));
     }
     else {
       qDebug() << "Invalid settings version:" << rhs.semver;
@@ -1167,9 +1138,9 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     }
   }
 
-  qDebug() << "Settings version:" << version.toString();
+  qDebug() << "Settings version:" << modelSettingsVersion.toString();
 
-  if (version > SemanticVersion(VERSION))
+  if (modelSettingsVersion > SemanticVersion(VERSION))
     qDebug() << "Warning: version not supported by Companion!";
 
   if (node["header"]) {
@@ -1371,7 +1342,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   //  preferably perform conversions here to avoid cluttering the field decodes
 
-  if (version < SemanticVersion("2.8.0")) {
+  if (modelSettingsVersion < SemanticVersion("2.8.0")) {
     //  Cells 7 and 8 introduced requiring Highest and Delta to be shifted + 2
     for (int i = 0; i < CPN_MAX_SENSORS; i++) {
       SensorData &sd = rhs.sensorData[i];
