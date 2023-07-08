@@ -60,7 +60,6 @@
 #define TR_COUNTRY_CODES               TR("US","USA"),TR("JP","Japon"),TR("Europe","EU")
 #define TR_USBMODES                    TR("Popup","Demander"),TR("Joyst","Joystick"),TR("SDCard","Stockage"),"Série"
 #define TR_JACK_MODES                  "Demander","Audio","Écolage"
-#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (câble)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Télémetrie"
 
 #define TR_SBUS_INVERSION_VALUES       "normal","non inversé"
 #define TR_MULTI_CUSTOM                "Perso"

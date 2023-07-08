@@ -56,7 +56,6 @@
 #define TR_COUNTRY_CODES               "美国","日本","欧洲"
 #define TR_USBMODES                    "询问","游戏柄","U盘","串行"
 #define TR_JACK_MODES                  "询问","音频","教练"
-#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 
 #define TR_SBUS_INVERSION_VALUES       "normal","not inverted"
 #define TR_MULTI_CUSTOM                "自定义"

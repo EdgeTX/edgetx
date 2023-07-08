@@ -96,7 +96,6 @@ bool isExternalModuleAvailable(int moduleType);
 bool isInternalModuleAvailable(int moduleType);
 bool isInternalModuleSupported(int moduleType);
 bool isRfProtocolAvailable(int protocol);
-bool isTelemetryProtocolAvailable(int protocol);
 bool isTrainerModeAvailable(int mode);
 bool isAssignableFunctionAvailable(int function, CustomFunctionData * functions);
 

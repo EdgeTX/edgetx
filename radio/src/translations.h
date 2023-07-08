@@ -195,7 +195,6 @@ extern const char* const STR_R9M_FCC_POWER_VALUES[];
 extern const char* const STR_R9M_LBT_POWER_VALUES[];
 extern const char* const STR_R9M_LITE_FCC_POWER_VALUES[];
 extern const char* const STR_R9M_LITE_LBT_POWER_VALUES[];
-extern const char* const STR_TELEMETRY_PROTOCOLS[];
 extern const char* const STR_XJT_ACCST_RF_PROTOCOLS[];
 extern const char* const STR_ISRM_RF_PROTOCOLS[];
 extern const char* const STR_R9M_PXX2_RF_PROTOCOLS[];
