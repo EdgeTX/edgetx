@@ -1541,7 +1541,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     connect(checkbox, SIGNAL(toggled(bool)), this, SLOT(onBeepCenterToggled(bool)));
     centerBeepCheckboxes << checkbox;
     if (IS_HORUS_OR_TARANIS(board)) {
-      if (src.isPot(&genAryIdx) && !generalSettings.isPotAvailable(genAryIdx)) {
+      if (src.isPot(&genAryIdx) && (!generalSettings.isPotAvailable(genAryIdx) || generalSettings.isMultiPosPot(genAryIdx))) {
         checkbox->hide();
       }
       else if (src.isSlider(&genAryIdx) && !generalSettings.isSliderAvailable(genAryIdx)) {

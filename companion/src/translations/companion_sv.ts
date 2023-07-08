@@ -3650,8 +3650,8 @@ Du använder för närvarande:
         <translation>Formulär</translation>
     </message>
     <message>
-        <source>Function Switches</source>
-        <translation>Funktionsbrytare</translation>
+        <source>Customizable Switches</source>
+        <translation>Anpassningsbara brytare</translation>
     </message>
     <message>
         <source>Type</source>
@@ -8512,8 +8512,8 @@ p, li { white-space: pre-wrap; }
         <translation>Start</translation>
     </message>
     <message>
-        <source>Function Switches</source>
-        <translation>Funktionsbrytare</translation>
+        <source>Customizable Switches</source>
+        <translation>Anpassningsbara brytare</translation>
     </message>
     <message>
         <source>Switch %1</source>

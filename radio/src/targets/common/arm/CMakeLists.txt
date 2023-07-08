@@ -181,6 +181,7 @@ endif()
 
 if(PPM)
   add_definitions(-DPPM)
+  set(SRC ${SRC} telemetry/mlink.cpp)
 endif()
 
 if(DSM2)
@@ -224,6 +225,7 @@ if(MULTIMODULE)
   add_definitions(-DMULTIMODULE)
   set(SRC ${SRC} pulses/multi.cpp telemetry/hitec.cpp telemetry/hott.cpp telemetry/mlink.cpp telemetry/multi.cpp io/multi_firmware_update.cpp)
 endif()
+
 if(MULTIMODULE OR AFHDS3)
   set(SRC ${SRC} telemetry/flysky_ibus.cpp)
 endif()

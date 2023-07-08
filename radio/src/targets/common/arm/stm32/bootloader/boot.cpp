@@ -48,6 +48,10 @@
   #define BOOTLOADER_KEYS                 0x42
 #endif
 
+#if defined(RADIO_T20)
+  #define SECONDARY_BOOTLOADER_KEYS       0x1200
+#endif
+
 #define APP_START_ADDRESS               (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
 
 #if defined(EEPROM)
@@ -266,7 +270,11 @@ void bootloaderInitApp()
   if ((~(KEYS_GPIO_REG_BIND->IDR) & KEYS_GPIO_PIN_BIND) == false) {
 #else
   // LHR & RHL trims not pressed simultanously
+#if defined(SECONDARY_BOOTLOADER_KEYS)
+  if (readTrims() != BOOTLOADER_KEYS && readTrims() != SECONDARY_BOOTLOADER_KEYS) {
+#else
   if (readTrims() != BOOTLOADER_KEYS) {
+#endif
 #endif
     // Start main application
     jumpTo(APP_START_ADDRESS);

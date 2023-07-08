@@ -309,6 +309,11 @@ enum TelemetryUnit {
   UNIT_KM,
   UNIT_DBM,
   UNIT_MAX = UNIT_DBM,
+  UNIT_SPARE6,
+  UNIT_SPARE7,
+  UNIT_SPARE8,
+  UNIT_SPARE9,
+  UNIT_SPARE10,
   UNIT_HOURS,
   UNIT_MINUTES,
   UNIT_SECONDS,
@@ -400,7 +405,11 @@ enum PotsWarnMode {
 #define MAX_CALIB_ANALOG_INPUTS (MAX_STICKS + MAX_POTS + MAX_AXIS)
 
 #define MAX_SWITCHES      20
+#if defined(RADIO_T20)
+#define MAX_TRIMS         8
+#else
 #define MAX_TRIMS         6
+#endif
 
 #define MAX_XPOTS_POSITIONS (MAX_POTS * XPOTS_MULTIPOS_COUNT)
 

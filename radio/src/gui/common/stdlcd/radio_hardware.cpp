@@ -485,7 +485,7 @@ void menuRadioHardware(event_t event)
           // draw hw name
           LcdFlags flags = menuHorizontalPosition < 0 ? attr : 0;
           lcdDrawText(INDENT_WIDTH, y, STR_CHAR_POT, flags);
-          lcdDrawText(lcdNextPos, y, adcGetInputName(ADC_INPUT_POT, idx), flags);
+          lcdDrawText(lcdNextPos, y, adcGetInputLabel(ADC_INPUT_POT, idx), flags);
 
           // draw custom name
           if (analogHasCustomLabel(ADC_INPUT_POT, idx) ||

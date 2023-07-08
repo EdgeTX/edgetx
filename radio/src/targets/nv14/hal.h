@@ -105,6 +105,9 @@
 #define KEYS_GPIOH_PINS                 (GPIO_Pin_2 | GPIO_Pin_7)
 #define KEYS_GPIOJ_PINS                 (GPIO_Pin_0 | GPIO_Pin_12)
 
+#define KEYS_GPIO_ACTIVE_HIGH
+#define TRIMS_GPIO_ACTIVE_HIGH
+
 // ADC
 #define ADC_RCC_AHB1Periph              (RCC_AHB1Periph_DMA2)
 #define ADC_RCC_APB2Periph              0

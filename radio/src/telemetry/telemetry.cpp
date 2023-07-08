@@ -50,6 +50,9 @@
   #include "hitec.h"
   #include "hott.h"
   #include "multi.h"
+#endif
+
+#if  defined(MULTIMODULE) || defined(PPM)
   #include "mlink.h"
 #endif
 
@@ -110,6 +113,7 @@ rxStatStruct *getRxStatLabels() {
   uint8_t moduleType = g_model.moduleData[moduleToUse].type;
 
   switch(moduleType) {
+#if defined(MULTIMODULE)
     case MODULE_TYPE_MULTIMODULE: {
         uint8_t multiProtocol = g_model.moduleData[moduleToUse].multi.rfProtocol;
 
@@ -121,7 +125,7 @@ rxStatStruct *getRxStatLabels() {
         }
       }
       break;
-    
+#endif
     case MODULE_TYPE_PPM:
       if(moduleState[moduleToUse].protocol == PROTOCOL_CHANNELS_PPM_MLINK) {
         rxStat.label = STR_RXSTAT_LABEL_RQLY;

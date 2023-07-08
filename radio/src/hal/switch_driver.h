@@ -53,7 +53,7 @@ uint8_t getSwitchCount();
 // returns the highest row for a specified column
 uint8_t switchGetMaxRow(uint8_t col);
 
-// returns the maximum number of function switches supported in hardware
+// returns the maximum number of customizable switches supported in hardware
 uint8_t switchGetMaxFctSwitches();
 
 struct switch_display_pos_t {
@@ -63,10 +63,10 @@ struct switch_display_pos_t {
 
 switch_display_pos_t switchGetDisplayPosition(uint8_t idx);
 
-// The functions bellow support regular as well as function switches.
+// The functions bellow support regular as well as customizable switches.
 //
 // Regular switches are indexed from `0` to `switchGetMaxSwitches() - 1`
-// Function switches are indexed above the previous range.
+// Customizable switches are indexed above the previous range.
 //
 // The total number of switches (and max index + 1) is:
 //   switchGetMaxSwitches() + switchGetMaxFctSwitches()

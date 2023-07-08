@@ -172,6 +172,7 @@ inline uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
   if (!IS_MODULE_ENABLED(moduleIdx)) {
     return HIDDEN_ROW;
   }
+#if defined(MULTIMODULE)
   else if (isModuleMultimodule(moduleIdx)) {
     if (IS_RX_MULTI(moduleIdx))
       return HIDDEN_ROW;
@@ -179,7 +180,9 @@ inline uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
       return 1;
     else
       return 0;
-  } else if (isModuleDSM2(moduleIdx) || isModuleCrossfire(moduleIdx) ||
+  }
+#endif
+  else if (isModuleDSM2(moduleIdx) || isModuleCrossfire(moduleIdx) ||
              isModuleGhost(moduleIdx) || isModuleSBUS(moduleIdx) ||
              isModuleDSMP(moduleIdx)) {
     // fixed number of channels
@@ -367,5 +370,7 @@ const char * getMultiOptionTitleStatic(uint8_t moduleIdx);
 const char *getMultiOptionTitle(uint8_t moduleIdx);
 
 const char * writeScreenshot();
+
+uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event);
 
 #endif // _GUI_COMMON_H_

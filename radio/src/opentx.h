@@ -300,7 +300,7 @@ void memswap(void * a, void * b, uint8_t size);
 #include "pulses/pulses.h"
 #include "pulses/modules_helpers.h"
 
-#define MASK_CFN_TYPE  uint64_t  // current max = 64 function switches
+#define MASK_CFN_TYPE  uint64_t  // current max = 64 customizable switches
 #define MASK_FUNC_TYPE uint32_t  // current max = 32 functions
 
 struct CustomFunctionsContext {
