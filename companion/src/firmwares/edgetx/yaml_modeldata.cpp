@@ -177,7 +177,6 @@ struct YamlPotsWarnEnabled {
   unsigned int value;
 
   const Board::Type board = getCurrentBoard();
-  //  modeldata potwarnen_t potsWarnEnabled
   const int maxradio = 8 * (int)(Boards::getCapability(board, Board::HasColorLcd) ? sizeof(uint16_t) : sizeof(uint8_t));
   const int maxcpn = CPN_MAX_POTS + CPN_MAX_SLIDERS;
   const int slidersStart = adcPotsBeforeSliders();
@@ -229,7 +228,6 @@ struct YamlBeepANACenter {
   unsigned int value;
 
   const Board::Type board = getCurrentBoard();
-  //  modeldata BeepANACenter beepANACenter
   const int maxradio = 8 * (int)sizeof(uint16_t);
   const int numstickspots = CPN_MAX_STICKS + Boards::getCapability(board, Board::Pots);
   const int maxcpn = numstickspots + getBoardCapability(board, Board::Sliders);

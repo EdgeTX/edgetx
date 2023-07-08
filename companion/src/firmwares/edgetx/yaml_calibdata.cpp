@@ -21,7 +21,10 @@
 #include "yaml_calibdata.h"
 #include "eeprominterface.h"
 
-YamlCalibData::YamlCalibData() { memset(calib, 0, sizeof(calib)); }
+YamlCalibData::YamlCalibData()
+{
+  memset(calib, 0, sizeof(calib));
+}
 
 YamlCalibData::YamlCalibData(const int* calibMid, const int* calibSpanNeg,
                              const int* calibSpanPos)
