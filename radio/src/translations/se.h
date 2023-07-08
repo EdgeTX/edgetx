@@ -938,7 +938,7 @@
 #define TR_CHECKLIST                    TR(INDENT "Checklista", INDENT "Visa checklista")
 #define TR_AUX_SERIAL_MODE              "Serieport"
 #define TR_AUX2_SERIAL_MODE             "Serieport 2"
-#define TR_AUX_SERIAL_PORT_POWER        "Strömkälla"
+#define TR_AUX_SERIAL_PORT_POWER        "Ström på"
 #define TR_SCRIPT                       "Programkod"
 #define TR_INPUTS                       "Inputs"
 #define TR_OUTPUTS                      "Outputs"
