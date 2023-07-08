@@ -21,8 +21,6 @@
 #include "yaml_calibdata.h"
 #include "eeprominterface.h"
 
-//extern SemanticVersion radioSettingsVersion;
-
 YamlCalibData::YamlCalibData()
 {
   memset(calib, 0, sizeof(calib));
