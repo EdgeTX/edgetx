@@ -98,6 +98,28 @@ static uint32_t setupPulsesPPMModule(uint8_t module, pulse_duration_t*& data)
   return data - start;
 }
 
+static void (*_processTelemetryData)(uint8_t module, uint8_t data, uint8_t* buffer, uint8_t* len);
+
+static etx_serial_init ppmMLinkSerialParams = {
+  .baudrate = PPM_MSB_BAUDRATE,
+  .encoding = ETX_Encoding_8N1,
+  .direction = ETX_Dir_RX,
+  .polarity = ETX_Pol_Inverted,
+};
+
+static bool ppmInitMLinkTelemetry(uint8_t module)
+{
+  if (modulePortInitSerial(module, ETX_MOD_PORT_UART, &ppmMLinkSerialParams) != nullptr) {
+    return true;
+  }
+
+  if (modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &ppmMLinkSerialParams) != nullptr) {
+    return true;
+  }
+
+  return false;
+}
+
 static void* ppmInit(uint8_t module)
 {
 #if defined(HARDWARE_INTERNAL_MODULE)
@@ -116,6 +138,19 @@ static void* ppmInit(uint8_t module)
   if (!mod_st) return nullptr;
 
   mixerSchedulerSetPeriod(module, PPM_PERIOD(module));
+
+  switch (g_model.moduleData[module].subType) {
+    case PPM_PROTO_TLM_MLINK:
+      if (ppmInitMLinkTelemetry(module)) {
+        _processTelemetryData = processExternalMLinkSerialData;
+      }
+      break;
+
+    default:
+      _processTelemetryData = nullptr;
+      break;
+  }
+
   return (void*)mod_st;  
 }
 
@@ -123,6 +158,7 @@ static void ppmDeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
   modulePortDeInit(mod_st);
+  _processTelemetryData = nullptr;
 }
 
 static void ppmSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
@@ -153,44 +189,19 @@ static void ppmSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t
   mixerSchedulerSetPeriod(module, PPM_PERIOD(module));
 }
 
+static void ppmProcessTelemetryData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len) {
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  if (_processTelemetryData) {
+    _processTelemetryData(module, data, buffer, len);
+  }
+}
+
 const etx_proto_driver_t PpmDriver = {
   .protocol = PROTOCOL_CHANNELS_PPM,
   .init = ppmInit,
   .deinit = ppmDeInit,
   .sendPulses = ppmSendPulses,
-  .processData = nullptr,
+  .processData = ppmProcessTelemetryData,
 };
-
-//
-// additions for PPM with external MLink Module telemetry
-//
-
-static void* ppmMLinkInit(uint8_t module);
-
-const etx_proto_driver_t PpmDriverMLink = {
-  .protocol = PROTOCOL_CHANNELS_PPM_MLINK,
-  .init = ppmMLinkInit,
-  .deinit = ppmDeInit,
-  .sendPulses = ppmSendPulses,
-  .processData = processExternalMLinkSerialData,
-};
-
-static etx_serial_init ppmMLinkSerialParams = {
-  .baudrate = PPM_MSB_BAUDRATE,
-  .encoding = ETX_Encoding_8N1,
-  .direction = ETX_Dir_RX,
-  .polarity = ETX_Pol_Inverted,
-};
-
-static void* ppmMLinkInit(uint8_t module) {
-  etx_module_state_t *mod_st = (etx_module_state_t *)ppmInit(module);
-  
-  if (!mod_st) 
-    return nullptr;
-
-  if (!modulePortInitSerial(module, ETX_MOD_PORT_UART, &ppmMLinkSerialParams)) {
-      modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &ppmMLinkSerialParams);
-  }
-
-  return (void*)mod_st;
-}
