@@ -770,7 +770,8 @@ bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType)
     case MODULE_TYPE_ISRM_PXX2:
     case MODULE_TYPE_R9M_LITE_PXX2:
     case MODULE_TYPE_R9M_LITE_PRO_PXX2:
-    case MODULE_TYPE_FLYSKY:
+    case MODULE_TYPE_FLYSKY_AFHDS2A:
+    case MODULE_TYPE_FLYSKY_AFHDS3:
       return false;
 
     case MODULE_TYPE_XJT_PXX1:
@@ -820,8 +821,11 @@ bool isInternalModuleSupported(int moduleType)
 #if defined(INTERNAL_MODULE_PPM)
   case MODULE_TYPE_PPM: return true;
 #endif
-#if defined(INTERNAL_MODULE_AFHDS2A) || defined(INTERNAL_MODULE_AFHDS3)
-  case MODULE_TYPE_FLYSKY: return true;
+#if defined(INTERNAL_MODULE_AFHDS2A)
+  case MODULE_TYPE_FLYSKY_AFHDS2A: return true;
+#endif
+#if defined(INTERNAL_MODULE_AFHDS3)
+  case MODULE_TYPE_FLYSKY_AFHDS3: return true;
 #endif
   }
   return false;
@@ -960,7 +964,17 @@ bool isExternalModuleAvailable(int moduleType)
 #endif
 
 #if !defined(AFHDS3)
-  if (moduleType == MODULE_TYPE_FLYSKY)
+  if (moduleType == MODULE_TYPE_FLYSKY_AFHDS3)
+    return false;
+#endif
+
+#if !defined(AFHDS2)
+  if (moduleType == MODULE_TYPE_FLYSKY_AFHDS2A)
+    return false;
+#endif
+  
+#if !defined(AFHDS3)
+  if (moduleType == MODULE_TYPE_FLYSKY_AFHDS3)
     return false;
 #endif
 
