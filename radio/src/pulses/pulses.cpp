@@ -297,25 +297,7 @@ uint8_t getRequiredProtocol(uint8_t module)
 
 #if defined(DSM2)
     case MODULE_TYPE_DSM2:
-      protocol = limit<uint8_t>(
-          PROTOCOL_CHANNELS_DSM2_LP45,
-          PROTOCOL_CHANNELS_DSM2_LP45 + g_model.moduleData[module].subType,
-          PROTOCOL_CHANNELS_DSM2_DSMX);
-      // The module is set to OFF during one second before BIND start
-      // TODO: move this to DSM2 driver...
-      {
-        static tmr10ms_t bindStartTime = 0;
-        if (moduleState[module].mode == MODULE_MODE_BIND) {
-          if (bindStartTime == 0) bindStartTime = get_tmr10ms();
-          if ((tmr10ms_t)(get_tmr10ms() - bindStartTime) < 100) {
-            protocol = PROTOCOL_CHANNELS_NONE;
-            break;
-          }
-        }
-        else {
-          bindStartTime = 0;
-        }
-      }
+      protocol = PROTOCOL_CHANNELS_DSM2;
       break;
 #endif
 
@@ -428,9 +410,7 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
 #endif
 
 #if defined(DSM2)
-    case PROTOCOL_CHANNELS_DSM2_LP45:
-    case PROTOCOL_CHANNELS_DSM2_DSM2:
-    case PROTOCOL_CHANNELS_DSM2_DSMX:
+    case PROTOCOL_CHANNELS_DSM2:
       _init_module(module, &DSM2Driver);
       break;
 #endif

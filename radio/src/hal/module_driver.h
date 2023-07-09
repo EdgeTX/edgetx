@@ -28,9 +28,7 @@ enum ChannelsProtocols {
   PROTOCOL_CHANNELS_NONE,
   PROTOCOL_CHANNELS_PPM,
   PROTOCOL_CHANNELS_PXX1,
-  PROTOCOL_CHANNELS_DSM2_LP45,
-  PROTOCOL_CHANNELS_DSM2_DSM2,
-  PROTOCOL_CHANNELS_DSM2_DSMX,
+  PROTOCOL_CHANNELS_DSM2,
   PROTOCOL_CHANNELS_CROSSFIRE,
   PROTOCOL_CHANNELS_MULTIMODULE,
   PROTOCOL_CHANNELS_SBUS,
@@ -60,4 +58,7 @@ struct etx_proto_driver_t {
 
     // Some module settings may have been modified
     void (*onConfigChange)(void* ctx);
+
+    // Module state mode has been modified
+    // void (*onModeChange)(void* ctx, uint8_t old_mode, uint8_t new_mode);
 };
