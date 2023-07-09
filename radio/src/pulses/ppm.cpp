@@ -121,20 +121,9 @@ static bool ppmInitMLinkTelemetry(uint8_t module)
   return false;
 }
 
-static ppm_telemetry_fct_t _get_telemetry_fct(uint8_t module)
+static void _init_telemetry(uint8_t module, uint8_t telemetry_type)
 {
-  switch (g_model.moduleData[module].subType) {
-    case PPM_PROTO_TLM_MLINK:
-      return processExternalMLinkSerialData;
-
-    default:
-      return nullptr;
-  }  
-}
-
-static ppm_telemetry_fct_t _init_telemetry(uint8_t module)
-{
-  switch (g_model.moduleData[module].subType) {
+  switch (telemetry_type) {
     case PPM_PROTO_TLM_MLINK:
       if (ppmInitMLinkTelemetry(module)) {
         _processTelemetryData = processExternalMLinkSerialData;
@@ -144,7 +133,7 @@ static ppm_telemetry_fct_t _init_telemetry(uint8_t module)
     default:
       _processTelemetryData = nullptr;
       break;
-  }  
+  }
 }
 
 static void* ppmInit(uint8_t module)
@@ -166,7 +155,10 @@ static void* ppmInit(uint8_t module)
 
   mixerSchedulerSetPeriod(module, PPM_PERIOD(module));
 
-  _init_telemetry(module);
+  uint8_t telemetry_type = g_model.moduleData[module].subType;
+  mod_st->user_data = (void*)(uintptr_t)telemetry_type;
+
+  _init_telemetry(module, telemetry_type);
   return (void*)mod_st;  
 }
 
@@ -219,7 +211,8 @@ static void ppmOnConfigChange(void* ctx)
   auto mod_st = (etx_module_state_t*)ctx;
   auto module = modulePortGetModule(mod_st);
 
-  if (_get_telemetry_fct(module) != _processTelemetryData) {
+  uint8_t telemetry_type = (uint8_t)(uintptr_t)mod_st->user_data;
+  if (telemetry_type != g_model.moduleData[module].subType) {
     // restart during next mixer cycle
     restartModuleAsync(module, 0);
   }
