@@ -506,9 +506,10 @@ static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
     case MODULE_TYPE_R9M_LITE_PRO_PXX2:
     case MODULE_TYPE_XJT_LITE_PXX2:
       return 5;
-    case MODULE_TYPE_FLYSKY:
-      if (mod_data->subType == FLYSKY_SUBTYPE_AFHDS2A) return 6;
-      if (mod_data->subType == FLYSKY_SUBTYPE_AFHDS3) return 7;
+    case MODULE_TYPE_FLYSKY_AFHDS2A:
+      return 6;
+    case MODULE_TYPE_FLYSKY_AFHDS3:
+      return 7;
       break;
     case MODULE_TYPE_GHOST:
       return 8;
@@ -1863,6 +1864,28 @@ static bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf,
   return w_mixSrcRaw(nullptr, src, wf, opaque);
 }
 
+extern const struct YamlIdStr enum_ModuleType[];
+
+static const struct YamlIdStr enum_old_ModuleType[] = {
+  { MODULE_TYPE_FLYSKY_AFHDS2A, "TYPE_FLYSKY" },
+  { 0, NULL  }
+};
+
+static uint32_t r_moduleType(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  uint32_t type = yaml_parse_enum(enum_ModuleType, val, val_len);
+  if (!type && val_len > 0) {
+    type = yaml_parse_enum(enum_old_ModuleType, val, val_len);
+  }
+  return type;
+}
+
+bool w_moduleType(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+  const char* str = yaml_output_enum(val, enum_ModuleType);
+  return str ? wf(opaque, str, strlen(str)) : true;
+}
+
 static const struct YamlIdStr enum_XJT_Subtypes[] = {
   { MODULE_SUBTYPE_PXX1_ACCST_D16, "D16" },
   { MODULE_SUBTYPE_PXX1_ACCST_D8, "D8" },
@@ -1887,9 +1910,11 @@ static const struct YamlIdStr enum_R9M_Subtypes[] = {
   { 0, NULL  }
 };
 
+enum ModuleSubtypeFlysky { FLYSKY_SUBTYPE_AFHDS3 = 0, FLYSKY_SUBTYPE_AFHDS2A };
+
 static const struct YamlIdStr enum_FLYSKY_Subtypes[] = {
-  { FLYSKY_SUBTYPE_AFHDS3, "AFHDS3" },
   { FLYSKY_SUBTYPE_AFHDS2A, "AFHDS2A" },
+  { FLYSKY_SUBTYPE_AFHDS3, "AFHDS3" },
   { 0, NULL  }
 };
 
@@ -1919,8 +1944,10 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     md->subType = yaml_parse_enum(enum_ISRM_Subtypes, val, val_len);
   } else if (isModuleTypeR9MNonAccess(md->type)) {
     md->subType = yaml_parse_enum(enum_R9M_Subtypes, val, val_len);
-  } else if (md->type == MODULE_TYPE_FLYSKY) {
-    md->subType = yaml_parse_enum(enum_FLYSKY_Subtypes, val, val_len);
+  } else if (md->type == MODULE_TYPE_FLYSKY_AFHDS2A) {
+    // Flysky sub-types have been converted into separate module types
+    auto sub_type = yaml_parse_enum(enum_FLYSKY_Subtypes, val, val_len);
+    md->type += sub_type;
   } else if (md->type == MODULE_TYPE_MULTIMODULE) {
 #if defined(MULTIMODULE)
     // Read type/subType by the book (see MPM documentation)
@@ -1977,8 +2004,6 @@ static bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     str = yaml_output_enum(val, enum_ISRM_Subtypes);
   } else if (md->type == MODULE_TYPE_R9M_PXX1 || md->type == MODULE_TYPE_R9M_LITE_PXX1) {
     str = yaml_output_enum(val, enum_R9M_Subtypes);
-  } else if (md->type == MODULE_TYPE_FLYSKY) {
-    str = yaml_output_enum(val, enum_FLYSKY_Subtypes);
   } else if (md->type == MODULE_TYPE_MULTIMODULE) {
 #if defined(MULTIMODULE)
     // Use type/subType by the book (see MPM documentation)

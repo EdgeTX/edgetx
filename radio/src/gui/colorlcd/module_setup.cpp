@@ -626,33 +626,6 @@ void ModuleSubTypeChoice::update()
     setTextHandler(nullptr);
   }
 #endif
-#if defined(AFHDS2) || defined(AFHDS3)
-  else if (isModuleFlySky(moduleIdx)) {
-    setMin(0);
-    setMax(FLYSKY_SUBTYPE_AFHDS2A);
-    setValues(STR_FLYSKY_PROTOCOLS);
-    setGetValueHandler(GET_DEFAULT(md->subType));
-    setSetValueHandler(SET_DEFAULT(md->subType));
-
-#if defined(PCBNV14) && !defined(SIMU)
-    if (moduleIdx == INTERNAL_MODULE) {
-      if (hardwareOptions.pcbrev == PCBREV_NV14) {
-        md->subType = FLYSKY_SUBTYPE_AFHDS2A;
-        setAvailableHandler([](int v) { return v == FLYSKY_SUBTYPE_AFHDS2A; });
-      } else {
-        md->subType = FLYSKY_SUBTYPE_AFHDS3;
-        setAvailableHandler([](int v) { return v == FLYSKY_SUBTYPE_AFHDS3; });
-      }
-    }
-#elif !defined(SIMU)
-    md->subType = FLYSKY_SUBTYPE_AFHDS3;
-    setAvailableHandler([](int v) { return v == FLYSKY_SUBTYPE_AFHDS3; });
-#else
-    setAvailableHandler(nullptr);
-#endif
-    setTextHandler(nullptr);
-  }
-#endif
 #if defined(MULTIMODULE)
   else if (isModuleMultimodule(moduleIdx)) {
     setMin(0);
