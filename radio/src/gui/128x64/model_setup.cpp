@@ -585,8 +585,10 @@ void menuModelSetup(event_t event)
 
     0,   // Preflight section
       PREFLIGHT_ROW(0), // Checklist
+      PREFLIGHT_ROW(0), // Checklist interactive
       PREFLIGHT_ROW(0), // Throttle warning
       PREFLIGHT_ROW(0), // Custom position for throttle warning enable
+      PREFLIGHT_ROW(0), // Custom position for throttle warning value
       WARN_ROWS
 
     uint8_t(NAVIGATION_LINE_BY_LINE | (adcGetInputOffset(ADC_INPUT_POT + 1) - 1)), // Center beeps
