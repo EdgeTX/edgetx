@@ -139,19 +139,18 @@ rxStatStruct *getRxStatLabels() {
       rxStat.unit  = STR_RXSTAT_UNIT_PERCENT;
       break;
 
-    case MODULE_TYPE_FLYSKY:
-      #if defined (PCBNV14)
+#if defined (PCBNV14) && defined(AFHDS2)
+    case MODULE_TYPE_FLYSKY_AFHDS2A:
         extern uint32_t NV14internalModuleFwVersion;
 
         if(moduleToUse == INTERNAL_MODULE) {
-          if(g_model.moduleData[INTERNAL_MODULE].subType == FLYSKY_SUBTYPE_AFHDS2A && 
-             NV14internalModuleFwVersion >= 0x1000E) {
+          if(NV14internalModuleFwVersion >= 0x1000E) {
             rxStat.label = STR_RXSTAT_LABEL_SIGNAL;
             rxStat.unit  = STR_RXSTAT_UNIT_NOUNIT ;
           }
         }
-      #endif      
       break;
+#endif      
   }
 
   return &rxStat;

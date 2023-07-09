@@ -33,7 +33,7 @@
 #include "telemetry/multi.h"
 #endif
 
-#if defined(PCBNV14)
+#if defined(PCBNV14) && defined(AFHDS2)
 extern uint32_t NV14internalModuleFwVersion;
 #endif
 
@@ -400,20 +400,19 @@ inline bool isModuleSBUS(uint8_t moduleIdx)
 
 inline bool isModuleFlySky(uint8_t idx)
 {
-  return
-    (g_model.moduleData[idx].type == MODULE_TYPE_FLYSKY);
+  auto type = g_model.moduleData[idx].type;
+  return (type == MODULE_TYPE_FLYSKY_AFHDS2A ||
+	  type == MODULE_TYPE_FLYSKY_AFHDS3);
 }
 
 inline bool isModuleAFHDS2A(uint8_t idx)
 {
-  return isModuleFlySky(idx)
-    && (g_model.moduleData[idx].subType == FLYSKY_SUBTYPE_AFHDS2A);
+  return (g_model.moduleData[idx].type == MODULE_TYPE_FLYSKY_AFHDS2A);
 }
 
 inline bool isModuleAFHDS3(uint8_t idx)
 {
-  return isModuleFlySky(idx)
-    && (g_model.moduleData[idx].subType == FLYSKY_SUBTYPE_AFHDS3);
+  return (g_model.moduleData[idx].type == MODULE_TYPE_FLYSKY_AFHDS3);
 }
 
 inline bool isModuleDSMP(uint8_t idx)
@@ -439,7 +438,8 @@ static const int8_t maxChannelsModules_M8[] = {
   0, // MODULE_TYPE_R9M_LITE_PRO_PXX2: index NOT USED
   8, // MODULE_TYPE_SBUS
   0, // MODULE_TYPE_XJT_LITE_PXX2: index NOT USED
-  6, // MODULE_TYPE_FLYSKY: 14 channels for AFHDS2A, AFHDS3 special cased
+  6, // MODULE_TYPE_FLYSKY_AFHDS2A: 14 channels
+  10,// MODULE_TYPE_FLYSKY_AFHDS3: 18 channels
   4, // MODULE_TYPE_LEMON_DSMP: 12 channels for DSMX
 };
 
@@ -484,8 +484,6 @@ inline int8_t maxModuleChannels_M8(uint8_t moduleIdx)
     } else {
       return 8;  // always 16 channels in FCC / FLEX
     }
-  } else if (isModuleAFHDS3(moduleIdx)) {
-    return 10;
   } else if (isModuleMultimoduleDSM2(moduleIdx)) {
     return 4;  // 12 channels
   } else if (isModuleDSMP(moduleIdx) &&
@@ -641,7 +639,7 @@ inline bool isModuleBindRangeAvailable(uint8_t moduleIdx)
 
 inline uint32_t getNV14RfFwVersion()
 {
-#if defined(PCBNV14)
+#if defined(PCBNV14) && defined(AFHDS2)
   return  NV14internalModuleFwVersion;
 #else
   return 0;
@@ -651,11 +649,11 @@ inline uint32_t getNV14RfFwVersion()
 inline bool isModuleRangeAvailable(uint8_t moduleIdx)
 {
   bool ret = isModuleBindRangeAvailable(moduleIdx) && !IS_RX_MULTI(moduleIdx);
-#if defined(PCBNV14)
+#if defined(PCBNV14) && defined(AFHDS2)
   ret = ret &&
-        (!isModuleFlySky(moduleIdx) || NV14internalModuleFwVersion >= 0x1000E);
-#else
-  ret = ret && (!isModuleFlySky(moduleIdx));
+        (!isModuleAFHDS2A(moduleIdx) || NV14internalModuleFwVersion >= 0x1000E);
+#elif defined(AFHDS3)
+  ret = ret && (!isModuleAFHDS3(moduleIdx));
 #endif
   return ret;
 }
@@ -805,21 +803,25 @@ inline void resetAccessAuthenticationCount()
   globalData.authenticationCount = 0;
 }
 
-inline void resetAfhdsOptions(uint8_t moduleIdx)
+inline void resetAfhds3Options(uint8_t moduleIdx)
 {
 #if defined(AFHDS3)
   auto & data = g_model.moduleData[moduleIdx];
-  data.subType = FLYSKY_SUBTYPE_AFHDS3;
+  data.subType = 0;
   data.afhds3.emi = 2; // FCC
   data.afhds3.telemetry = 1;
   data.afhds3.phyMode = 0;
-#elif defined(AFHDS2)
-  auto & data = g_model.moduleData[moduleIdx];
-  data.subType = FLYSKY_SUBTYPE_AFHDS2A;
-  data.flysky.setDefault();
 #endif
 }
 
+inline void resetAfhds2AOptions(uint8_t moduleIdx)
+{
+#if defined(AFHDS2)
+  auto & data = g_model.moduleData[moduleIdx];
+  data.subType = 0;
+  data.flysky.setDefault();
+#endif
+}
 
 inline void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
 {
@@ -831,8 +833,11 @@ inline void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
     moduleData.sbus.refreshRate = -31;
   else if (moduleData.type == MODULE_TYPE_PPM)
     setDefaultPpmFrameLength(moduleIdx);
-  else if (moduleData.type == MODULE_TYPE_FLYSKY) {
-    resetAfhdsOptions(moduleIdx);
+  else if (moduleData.type == MODULE_TYPE_FLYSKY_AFHDS2A) {
+    resetAfhds2AOptions(moduleIdx);
+  }
+  else if (moduleData.type == MODULE_TYPE_FLYSKY_AFHDS3) {
+    resetAfhds3Options(moduleIdx);
   }
   else
     resetAccessAuthenticationCount();

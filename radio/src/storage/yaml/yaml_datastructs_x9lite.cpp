@@ -35,7 +35,8 @@ const struct YamlIdStr enum_ModuleType[] = {
   {  MODULE_TYPE_R9M_LITE_PRO_PXX2, "TYPE_R9M_LITE_PRO_PXX2"  },
   {  MODULE_TYPE_SBUS, "TYPE_SBUS"  },
   {  MODULE_TYPE_XJT_LITE_PXX2, "TYPE_XJT_LITE_PXX2"  },
-  {  MODULE_TYPE_FLYSKY, "TYPE_FLYSKY"  },
+  {  MODULE_TYPE_FLYSKY_AFHDS2A, "TYPE_FLYSKY_AFHDS2A"  },
+  {  MODULE_TYPE_FLYSKY_AFHDS3, "TYPE_FLYSKY_AFHDS3"  },
   {  MODULE_TYPE_LEMON_DSMP, "TYPE_LEMON_DSMP"  },
   {  0, NULL  }
 };
@@ -614,7 +615,7 @@ static const struct YamlNode union_anonymous_4_elmts[] = {
 };
 static const struct YamlNode struct_ModuleData[] = {
   YAML_IDX,
-  YAML_ENUM("type", 8, enum_ModuleType),
+  YAML_UNSIGNED_CUST( "type", 8, r_moduleType, w_moduleType ),
   YAML_CUSTOM("subType",r_modSubtype,w_modSubtype),
   YAML_UNSIGNED( "channelsStart", 8 ),
   YAML_SIGNED_CUST( "channelsCount", 8, r_channelsCount, w_channelsCount ),
