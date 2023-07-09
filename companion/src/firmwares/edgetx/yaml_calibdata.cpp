@@ -70,10 +70,21 @@ bool convert<CalibData>::decode(const Node& node, CalibData& rhs)
 Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 {
   Node node;
-  int idx = 0;
-  const auto* calibIdxLut = getCurrentFirmware()->getAnalogIndexNamesLookupTable();
-  for (const auto& kv : *calibIdxLut) {
-    node[kv.tag] = rhs.calib[idx++];
+  auto fw = getCurrentFirmware();
+  auto board = fw->getBoard();
+  const auto* calibIdxLut = fw->getAnalogIndexNamesLookupTableADC();
+  const int calibs = Boards::getCapability(board, Board::Sticks) +
+                     Boards::getCapability(board, Board::Pots) +
+                     Boards::getCapability(board, Board::Sliders);
+  for (int i = 0; i < calibs; i++) {
+    for (int j = 0; j < (int)calibIdxLut->size(); j++) {
+      int seq = getCurrentFirmware()->getAnalogInputSeqADC(j);
+      if (seq == i) {
+        std::string tag = getCurrentFirmware()->getAnalogInputTagADC(j);
+        node[tag] = rhs.calib[j];
+        break;
+      }
+    }
   }
   return node;
 }
