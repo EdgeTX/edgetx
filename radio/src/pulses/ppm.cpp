@@ -98,7 +98,8 @@ static uint32_t setupPulsesPPMModule(uint8_t module, pulse_duration_t*& data)
   return data - start;
 }
 
-static void (*_processTelemetryData)(uint8_t module, uint8_t data, uint8_t* buffer, uint8_t* len);
+typedef void (*ppm_telemetry_fct_t)(uint8_t module, uint8_t data, uint8_t* buffer, uint8_t* len);
+static ppm_telemetry_fct_t _processTelemetryData;
 
 static etx_serial_init ppmMLinkSerialParams = {
   .baudrate = PPM_MSB_BAUDRATE,
@@ -120,6 +121,32 @@ static bool ppmInitMLinkTelemetry(uint8_t module)
   return false;
 }
 
+static ppm_telemetry_fct_t _get_telemetry_fct(uint8_t module)
+{
+  switch (g_model.moduleData[module].subType) {
+    case PPM_PROTO_TLM_MLINK:
+      return processExternalMLinkSerialData;
+
+    default:
+      return nullptr;
+  }  
+}
+
+static ppm_telemetry_fct_t _init_telemetry(uint8_t module)
+{
+  switch (g_model.moduleData[module].subType) {
+    case PPM_PROTO_TLM_MLINK:
+      if (ppmInitMLinkTelemetry(module)) {
+        _processTelemetryData = processExternalMLinkSerialData;
+      }
+      break;
+
+    default:
+      _processTelemetryData = nullptr;
+      break;
+  }  
+}
+
 static void* ppmInit(uint8_t module)
 {
 #if defined(HARDWARE_INTERNAL_MODULE)
@@ -139,18 +166,7 @@ static void* ppmInit(uint8_t module)
 
   mixerSchedulerSetPeriod(module, PPM_PERIOD(module));
 
-  switch (g_model.moduleData[module].subType) {
-    case PPM_PROTO_TLM_MLINK:
-      if (ppmInitMLinkTelemetry(module)) {
-        _processTelemetryData = processExternalMLinkSerialData;
-      }
-      break;
-
-    default:
-      _processTelemetryData = nullptr;
-      break;
-  }
-
+  _init_telemetry(module);
   return (void*)mod_st;  
 }
 
@@ -198,10 +214,22 @@ static void ppmProcessTelemetryData(void* ctx, uint8_t data, uint8_t* buffer, ui
   }
 }
 
+static void ppmOnConfigChange(void* ctx)
+{
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  if (_get_telemetry_fct(module) != _processTelemetryData) {
+    // restart during next mixer cycle
+    restartModuleAsync(module, 0);
+  }
+}
+
 const etx_proto_driver_t PpmDriver = {
   .protocol = PROTOCOL_CHANNELS_PPM,
   .init = ppmInit,
   .deinit = ppmDeInit,
   .sendPulses = ppmSendPulses,
   .processData = ppmProcessTelemetryData,
+  .onConfigChange = ppmOnConfigChange,
 };

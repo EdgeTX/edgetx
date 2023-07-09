@@ -775,8 +775,7 @@ void processDSMBindPacket(uint8_t module, const uint8_t *packet)
     storageDirty(EE_MODEL);
 
     moduleState[module].mode = MODULE_MODE_NORMAL;
-    restartModuleAsync(module, 50); // ~200ms
-    
+    restartModuleAsync(module, 50); // ~500ms
   }
 #if defined(MULTIMODULE)
   else if (g_model.moduleData[module].type == MODULE_TYPE_MULTIMODULE &&

@@ -57,4 +57,7 @@ struct etx_proto_driver_t {
 
     // Process input data byte (telemetry)
     void (*processData)(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len);
+
+    // Some module settings may have been modified
+    void (*onConfigChange)(void* ctx);
 };

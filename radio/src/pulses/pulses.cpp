@@ -147,6 +147,11 @@ bool restartModuleAsync(uint8_t module, uint8_t cnt_delay)
 #endif
 }
 
+void pulsesModuleSettingsUpdate(uint8_t module)
+{
+  moduleState[module].settings_updated = 1;
+}
+
 // TODO: this should be moved to PXX2 territory!
 #if defined(PXX2)
 // use only for PXX
@@ -509,13 +514,15 @@ void pulsesStopModule(uint8_t module)
 
 static bool _handle_async_restart(uint8_t module)
 {
-  if (moduleState[module].forced_off) {
-    if (--moduleState[module].counter > 0) {
+  auto& state = moduleState[module];
+  if (state.forced_off) {
+    if (state.counter > 0) {
       _deinit_module(module);
-      moduleState[module].protocol = PROTOCOL_CHANNELS_NONE;
+      state.protocol = PROTOCOL_CHANNELS_NONE;
+      --state.counter;
       return true;
     } else {
-      moduleState[module].forced_off = 0;
+      state.forced_off = 0;
     }
   }
   return false;
@@ -527,9 +534,8 @@ void pulsesSendNextFrame(uint8_t module)
 
   uint8_t protocol = getRequiredProtocol(module);
 
-  if (moduleState[module].protocol != protocol ||
-      moduleState[module].forced_off) {
-    // TODO: error checking!
+  auto& state = moduleState[module];
+  if (state.protocol != protocol || state.forced_off) {
 
     if (_telemetryIsPolling) {
       // In case the telemetry timer is currently polling the port,
@@ -543,16 +549,24 @@ void pulsesSendNextFrame(uint8_t module)
     pulsesEnableModule(module, protocol);
     moduleState[module].protocol = protocol;
     return;
+
   }
 
   auto mod = &(_module_drivers[module]);
   if (mod->drv) {
+
+    auto drv = mod->drv;
+    auto ctx = mod->ctx;
+
+    if (state.settings_updated) {
+      if (drv->onConfigChange) drv->onConfigChange(ctx);
+      state.settings_updated = 0;
+    }
+    
     uint8_t channelStart = g_model.moduleData[module].channelsStart;
     int16_t* channels = &channelOutputs[channelStart];
     uint8_t nChannels = 16; // TODO: MAX_CHANNELS - channelsStart
 
-    auto drv = mod->drv;
-    auto ctx = mod->ctx;
     auto buffer = _module_buffers[module]._buffer;
     drv->sendPulses(ctx, buffer, channels, nChannels);
   }
