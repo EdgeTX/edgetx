@@ -1949,6 +1949,58 @@ static int luaFlushAudio(lua_State * L)
 }
 
 /*luadoc
+@function audioQueueIsEmpty()
+
+checks if audio queue is empty
+
+@retval false/true
+
+@status experimental
+*/
+static int luaAudioQueueIsEmpty(lua_State * L)
+{
+  lua_pushboolean(L, audioQueue.isEmpty());
+  return 1;
+}
+
+/*luadoc
+@function volumeSet(volume)
+
+starts overriding volume settings with value volume
+
+@param volume (number) volume (0..VOLUME_LEVEL_MAX)
+*/
+static int luaVolumeSet(lua_State * L)
+{
+  uint8_t volume = luaL_checkinteger(L, 1);
+  
+  if(volume > VOLUME_LEVEL_MAX)   // VOLUME_LEVEL_MAX is defined as 23 in board.h
+    volume = VOLUME_LEVEL_MAX;
+
+  luaSpeakerVolumeOn = true;
+
+  currentSpeakerVolume = requiredSpeakerVolume = volume;
+#if !defined(SOFTWARE_VOLUME)
+  setScaledVolume(volume);
+#endif
+
+  return 0;
+}
+
+/*luadoc
+@function volumeSetClear()
+
+stops overriding volume settings
+
+@param volume (number) volume (0..23)
+*/
+static int luaVolumeSetClear(lua_State * L)
+{
+  luaSpeakerVolumeOn = false;
+  return 0;
+}
+
+/*luadoc
 @function getRSSI()
 
 Get RSSI value as well as low and critical RSSI alarm levels (in dB)
@@ -2805,6 +2857,9 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( playTone, luaPlayTone )
   LROT_FUNCENTRY( playHaptic, luaPlayHaptic )
   LROT_FUNCENTRY( flushAudio, luaFlushAudio )
+  LROT_FUNCENTRY( audioQueueIsEmpty, luaAudioQueueIsEmpty )
+  LROT_FUNCENTRY( volumeSet, luaVolumeSet )
+  LROT_FUNCENTRY( volumeSetClear, luaVolumeSetClear )
 #if defined(ENABLE_LUA_POPUP_INPUT)
   LROT_FUNCENTRY( popupInput, luaPopupInput )
 #endif
