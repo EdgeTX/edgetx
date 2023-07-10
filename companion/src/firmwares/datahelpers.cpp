@@ -99,3 +99,18 @@ int DataHelpers::getStringTagMappingSeq(const StringTagMappingTable& lut, unsign
 
   return -1;
 }
+
+std::string DataHelpers::getStringSeqMappingTag(const StringTagMappingTable& lut, unsigned int seq)
+{
+  const auto it =
+    find_if(lut.begin(), lut.end(), [=](const StringTagMapping& elmt) {
+      if (elmt.seq == seq) return true;
+      return false;
+    });
+
+  if (it != lut.end()) {
+    return it->tag;
+  }
+
+  return std::string();
+}
