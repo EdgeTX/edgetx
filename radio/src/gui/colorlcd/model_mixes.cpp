@@ -523,6 +523,27 @@ void ModelMixesPage::build(FormWindow * window)
   form = new FormWindow(window, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
+  auto box = new FormWindow(window, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+  box->padLeft(lv_dpx(8));
+
+  auto box_obj = box->getLvObj();
+  lv_obj_set_width(box_obj, lv_pct(100));
+  lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
+
+  new StaticText(box, rect_t{}, STR_SHOW_MIXER_MONITORS, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(
+      box, rect_t{}, [=]() { return showMonitors; },
+      [=](uint8_t val) { enableMonitors(val); });
+
+  auto btn = new TextButton(window, rect_t{}, LV_SYMBOL_PLUS, [=]() {
+    newMix();
+    return 0;
+  });
+  auto btn_obj = btn->getLvObj();
+  lv_obj_set_width(btn_obj, lv_pct(100));
+  lv_group_focus_obj(btn_obj);
+
   groups.clear();
   lines.clear();
 
@@ -547,26 +568,6 @@ void ModelMixesPage::build(FormWindow * window)
       }
     }
   }
-
-  auto box = new FormGroup(window, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
-  box->padLeft(lv_dpx(8));
-
-  auto box_obj = box->getLvObj();
-  lv_obj_set_width(box_obj, lv_pct(100));
-  lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
-
-  new StaticText(box, rect_t{}, STR_SHOW_MIXER_MONITORS, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(
-      box, rect_t{}, [=]() { return showMonitors; },
-      [=](uint8_t val) { enableMonitors(val); });
-
-  auto btn = new TextButton(window, rect_t{}, LV_SYMBOL_PLUS, [=]() {
-    newMix();
-    return 0;
-  });
-  auto btn_obj = btn->getLvObj();
-  lv_obj_set_width(btn_obj, lv_pct(100));
 }
 
 void ModelMixesPage::enableMonitors(bool enabled)
