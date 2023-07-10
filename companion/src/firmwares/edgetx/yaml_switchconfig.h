@@ -88,7 +88,7 @@ struct YamlPotLookup {
   static std::string idx2name(unsigned int idx);
 };
 extern const YamlLookupTable potConfigLut;
-typedef YamlKnobConfig<CPN_MAX_POTS, YamlPotLookup, potConfigLut> YamlPotConfig;
+typedef YamlKnobConfig<CPN_MAX_POTS + CPN_MAX_SLIDERS, YamlPotLookup, potConfigLut> YamlPotConfig;
 
 // S1:
 //    type: with_detent
