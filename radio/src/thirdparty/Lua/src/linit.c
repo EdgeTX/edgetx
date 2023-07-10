@@ -109,12 +109,8 @@ LROT_BEGIN(lua_libs, NULL, 0)
   LROT_FUNCENTRY( io,        luaopen_io )
   LROT_FUNCENTRY( dir,       luaopen_etxdir )
   LROT_FUNCENTRY( bitmap_mt, luaopen_bitmap )
-#if defined(LUA_ENABLE_LOADLIB)
   LROT_FUNCENTRY( package,   luaopen_package )
-#endif
-#if defined(LUA_ENABLE_STRLIB_MT)
   LROT_FUNCENTRY( string,    luaopen_string )
-#endif
 LROT_END(lua_libs, NULL, 0)
 
 
