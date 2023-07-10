@@ -547,6 +547,7 @@ void ModelMixesPage::build(FormWindow * window)
   groups.clear();
   lines.clear();
 
+  bool focusSet = false;
   uint8_t index = 0;
   MixData* line = g_model.mixData;
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
@@ -561,7 +562,11 @@ void ModelMixesPage::build(FormWindow * window)
       groups.emplace_back(group);
       while (index < MAX_MIXERS && (line->destCh == ch) && !skip_mix) {
         // one button per input line
-        createLineButton(group, index);
+        auto btn = createLineButton(group, index);
+        if (!focusSet) {
+          focusSet = true;
+          lv_group_focus_obj(btn->getLvObj());
+        }
         ++index;
         ++line;
         skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
