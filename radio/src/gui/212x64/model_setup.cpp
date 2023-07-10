@@ -529,8 +529,10 @@ void menuModelSetup(event_t event)
 
     0,   // Preflight section
       PREFLIGHT_ROW(0), // Checklist
+      PREFLIGHT_ROW(0), // Checklist interactive
       PREFLIGHT_ROW(0), // Throttle warning
       PREFLIGHT_ROW(0), // Custom position for throttle warning enable
+      PREFLIGHT_ROW(0), // Custom position for throttle warning value
       SW_WARN_ROWS, // Switch warning
       POT_WARN_ROWS, // Pot warning
 

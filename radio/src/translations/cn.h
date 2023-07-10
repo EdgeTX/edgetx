@@ -900,7 +900,7 @@
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "关闭","开启","自动"
 #define TR_PREFLIGHT                   "初始位置检查"
 #define TR_CHECKLIST                   TR(INDENT "显示列表", INDENT "显示列表")
-#define TR_CHECKLIST_INTERACTIVE       TR(INDENT "C-Interact", INDENT "Interactive checklist")
+#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "C-Interact", INDENT "Interact. checklist", INDENT "Interactive checklist")
 #define TR_AUX_SERIAL_MODE             "串口"
 #define TR_AUX2_SERIAL_MODE            "串口 2"
 #define TR_AUX_SERIAL_PORT_POWER       "串口供电"
