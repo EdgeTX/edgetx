@@ -513,7 +513,6 @@ void ProtoState::setupFrame()
           trsp.putFrame(COMMAND::CHANNELS_FAILSAFE_DATA,
                    FRAME_TYPE::REQUEST_SET_NO_RESP, (uint8_t*)failSafe,
                    AFHDS3_MAX_CHANNELS * 2 + 2);
-          return;
       }
       else if( isConnected() ){
           uint8_t data[AFHDS3_MAX_CHANNELS*2 + 3] = { (uint8_t)(RX_CMD_FAILSAFE_VALUE&0xFF), (uint8_t)((RX_CMD_FAILSAFE_VALUE>>8)&0xFF), (uint8_t)(2*len)};
@@ -524,8 +523,8 @@ void ProtoState::setupFrame()
       }
     } else {
       trsp.putFrame(cmd, FRAME_TYPE::REQUEST_GET_DATA);
-      return;
     }
+    return;
   }
 
   if (isConnected()) {
@@ -755,6 +754,7 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
             } break;
           case RX_CMD_IBUS_DIRECTION:
             if(RX_CMDRESULT::RXSUCCESS==*data++) {
+              clearDirtyFlag(DC_RX_CMD_IBUS_DIRECTION);
               this->cmd_flg &= ~0x10;
               if( 0==cfg->version && 2==cfg->v0.ExternalBusType)
                 this->cmd_flg |= 0x20;
@@ -827,14 +827,14 @@ bool ProtoState::syncSettings()
     }
     else if( 2==receiver_type(rx_version.ProductNumber) )
     {
-      if(this->cmd_flg&0x08)
+      if(this->cmd_flg&0x08)//IBUS
       {
         uint8_t data[] = { (uint8_t)(RX_CMD_BUS_TYPE_V0&0xFF), (uint8_t)((RX_CMD_BUS_TYPE_V0>>8)&0xFF), 0x1, 0 };
         trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
         this->cmd_flg |= 0x10;
         return true;
       }
-      else if((this->cmd_flg&0x10))
+      else if((this->cmd_flg&0x10))//IBUS-IN IBUS-OUT
       {
         if(busdir>=2) busdir = 0; //IBUSOUT
         uint8_t data1[] = { (uint8_t)(RX_CMD_IBUS_DIRECTION&0xFF), (uint8_t)((RX_CMD_IBUS_DIRECTION>>8)&0xFF), 0x1, busdir };
@@ -851,7 +851,7 @@ bool ProtoState::syncSettings()
   }
 
   // Sync settings when dirty flag is set
-  if (checkDirtyFlag(DC_RX_CMD_TX_PWR))  
+  if (checkDirtyFlag(DC_RX_CMD_TX_PWR))
   {
     TRACE("AFHDS3 [RX_CMD_TX_PWR] %d", AFHDS3_POWER[moduleData->afhds3.rfPower] / 4);
     uint8_t data[] = { (uint8_t)(RX_CMD_TX_PWR&0xFF), (uint8_t)((RX_CMD_TX_PWR>>8)&0xFF), 2,
@@ -860,7 +860,7 @@ bool ProtoState::syncSettings()
     clearDirtyFlag(DC_RX_CMD_TX_PWR);
     return true;
   }
-  if (checkDirtyFlag(DC_RX_CMD_RSSI_CHANNEL_SETUP))  
+  if (checkDirtyFlag(DC_RX_CMD_RSSI_CHANNEL_SETUP))
   {
     TRACE("AFHDS3 [RX_CMD_RSSI_CHANNEL_SETUP]");
     uint8_t data[] = { (uint8_t)(RX_CMD_RSSI_CHANNEL_SETUP&0xFF), (uint8_t)((RX_CMD_RSSI_CHANNEL_SETUP>>8)&0xFF), 1, cfg->v1.SignalStrengthRCChannelNb };
@@ -874,15 +874,16 @@ bool ProtoState::syncSettings()
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     return true;
   }
-  if (checkDirtyFlag(DC_RX_CMD_FREQUENCY_V0))  
+  if (checkDirtyFlag(DC_RX_CMD_FREQUENCY_V0))
   {
     TRACE("AFHDS3 [RX_CMD_FREQUENCY_V0]");
+    uint16_t Frequency = ((cfg->v0.PWMFrequency.Synchronized<<15)| cfg->v0.PWMFrequency.Frequency);
     uint8_t data[] = { (uint8_t)(RX_CMD_FREQUENCY_V0&0xFF), (uint8_t)((RX_CMD_FREQUENCY_V0>>8)&0xFF), 2,
-                        (uint8_t)(cfg->v0.PWMFrequency.Frequency&0xFF), (uint8_t)((cfg->v0.PWMFrequency.Frequency>>8)&0xFF) };
+                        (uint8_t)(Frequency&0xFF), (uint8_t)((Frequency>>8)&0xFF) };
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     return true;
   }
-  if (checkDirtyFlag(DC_RX_CMD_PORT_TYPE_V1))  
+  if (checkDirtyFlag(DC_RX_CMD_PORT_TYPE_V1))
   {
     TRACE("AFHDS3 [RX_CMD_PORT_TYPE_V1]");
     uint8_t data[] = { (uint8_t)(RX_CMD_PORT_TYPE_V1&0xFF), (uint8_t)((RX_CMD_PORT_TYPE_V1>>8)&0xFF), 4, 0, 0, 0, 0 };
@@ -890,33 +891,54 @@ bool ProtoState::syncSettings()
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     return true;
   }
-  if (checkDirtyFlag(DC_RX_CMD_FREQUENCY_V1))  
+  if (checkDirtyFlag(DC_RX_CMD_FREQUENCY_V1))
   {
     TRACE("AFHDS3 [RX_CMD_FREQUENCY_V1]");
     uint8_t data[32 + 3 + 3] = { (uint8_t)(RX_CMD_FREQUENCY_V1&0xFF), (uint8_t)((RX_CMD_FREQUENCY_V1>>8)&0xFF), 32+3};
     data[3] = 0;
     std::memcpy(&data[4], &cfg->v1.PWMFrequenciesV1.PWMFrequencies[0], 32);
     data[36] = cfg->v1.PWMFrequenciesV1.Synchronized & 0xff;
-    data[37] = (cfg->v1.PWMFrequenciesV1.Synchronized>>8) & 0xff;    
+    data[37] = (cfg->v1.PWMFrequenciesV1.Synchronized>>8) & 0xff;
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     DIRTY_CMD(cfg, DC_RX_CMD_FREQUENCY_V1_2);
     return true;
   }
-  if (checkDirtyFlag(DC_RX_CMD_FREQUENCY_V1_2))  
+  if (checkDirtyFlag(DC_RX_CMD_FREQUENCY_V1_2))
   {
     TRACE("AFHDS3 [RX_CMD_FREQUENCY_V1_2]");
     uint8_t data[32 + 3 + 3] = { (uint8_t)(RX_CMD_FREQUENCY_V1_2&0xFF), (uint8_t)((RX_CMD_FREQUENCY_V1_2>>8)&0xFF), 32+3};
     data[3] = 1;
     std::memcpy(&data[4], &cfg->v1.PWMFrequenciesV1.PWMFrequencies[16], 32);
     data[36] = (cfg->v1.PWMFrequenciesV1.Synchronized>>16) & 0xff;
-    data[37] = (cfg->v1.PWMFrequenciesV1.Synchronized>>24) & 0xff;    
+    data[37] = (cfg->v1.PWMFrequenciesV1.Synchronized>>24) & 0xff;
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     return true;
   }
-  if (checkDirtyFlag(DC_RX_CMD_BUS_TYPE_V0))  
+  if (checkDirtyFlag(DC_RX_CMD_BUS_TYPE_V0))
   {
     TRACE("AFHDS3 [RX_CMD_BUS_TYPE_V0]");
-    uint8_t data[] = { (uint8_t)(RX_CMD_BUS_TYPE_V0&0xFF), (uint8_t)((RX_CMD_BUS_TYPE_V0>>8)&0xFF), 1, cfg->others.ExternalBusType };
+    if(1>=cfg->others.ExternalBusType) //IBUS1
+    {
+      uint8_t data[] = { (uint8_t)(RX_CMD_BUS_TYPE_V0&0xFF), (uint8_t)((RX_CMD_BUS_TYPE_V0>>8)&0xFF), 1, 0 };
+      trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
+      if( 1==receiver_type(rx_version.ProductNumber))
+      {
+          cfg->others.ExternalBusType = 0;//These RXs only support iBUS-OUT
+      }
+      cfg->others.iBusType = cfg->others.ExternalBusType;
+      cfg->others.dirtyFlag |= (uint32_t)1<<DC_RX_CMD_IBUS_DIRECTION;
+    }
+    else if(2==cfg->others.ExternalBusType)//SBUS
+    {
+      uint8_t data[] = { (uint8_t)(RX_CMD_BUS_TYPE_V0&0xFF), (uint8_t)((RX_CMD_BUS_TYPE_V0>>8)&0xFF), 1, cfg->others.ExternalBusType };
+      trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
+    }
+    return true;
+  }
+  if (checkDirtyFlag(DC_RX_CMD_IBUS_DIRECTION))
+  {
+    TRACE("AFHDS3 [RX_CMD_IBUS_DIRECTION]");
+    uint8_t data[] = { (uint8_t)(RX_CMD_IBUS_DIRECTION&0xFF), (uint8_t)((RX_CMD_IBUS_DIRECTION>>8)&0xFF), 1, cfg->others.iBusType };
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     return true;
   }

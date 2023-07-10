@@ -129,7 +129,8 @@ PACK(struct sDATA_ConfigV1 {
 
 PACK(struct sDATA_Others {
   uint8_t buffer[sizeof(sDATA_ConfigV1)];
-  uint8_t ExternalBusType;  // eEB_BusType
+  uint8_t ExternalBusType;  // eEB_BusType IBUS1:0;IBUS2:1(Not supported yet);SBUS:2
+  uint8_t iBusType;  //IBUS-OUT:0; IBUS-IN:1
   tmr10ms_t lastUpdated;    // last updated time
   bool isConnected;         // specify if receiver is connected
   uint32_t dirtyFlag;       // mapped to commands that need to be issued to sync settings
