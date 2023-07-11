@@ -447,9 +447,18 @@ void ModelInputsPage::build(FormWindow *window)
   form = new FormWindow(window, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
+  auto btn = new TextButton(window, rect_t{}, LV_SYMBOL_PLUS, [=]() {
+    newInput();
+    return 0;
+  });
+  auto btn_obj = btn->getLvObj();
+  lv_obj_set_width(btn_obj, lv_pct(100));
+  lv_group_focus_obj(btn_obj);
+
   groups.clear();
   lines.clear();
 
+  bool focusSet = false;
   uint8_t index = 0;
   ExpoData* line = g_model.expoData;
   for (uint8_t input = 0; input < MAX_INPUTS; input++) {
@@ -462,7 +471,11 @@ void ModelInputsPage::build(FormWindow *window)
       groups.emplace_back(group);
       while (index < MAX_EXPOS && line->chn == input && EXPO_VALID(line)) {
         // one button per input line
-        createLineButton(group, index);
+        auto btn = createLineButton(group, index);
+        if (!focusSet) {
+          focusSet = true;
+          lv_group_focus_obj(btn->getLvObj());
+        }
         ++index;
         ++line;
       }
@@ -473,12 +486,5 @@ void ModelInputsPage::build(FormWindow *window)
       break;
     }
   }
-
-  auto btn = new TextButton(window, rect_t{}, LV_SYMBOL_PLUS, [=]() {
-    newInput();
-    return 0;
-  });
-  auto btn_obj = btn->getLvObj();
-  lv_obj_set_width(btn_obj, lv_pct(100));
 }
 

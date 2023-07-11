@@ -409,28 +409,7 @@ void ModelMixesPage::build(FormWindow * window)
   form = new FormWindow(window, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
-  groups.clear();
-  lines.clear();
-
-  uint8_t index = 0;
-  MixData* line = g_model.mixData;
-  for (uint8_t ch = 0; (ch < MAX_OUTPUT_CHANNELS) && (index < MAX_MIXERS); ch++) {
-
-    if (line->destCh == ch) {
-
-      // one group for the complete mixer channel
-      auto group = createGroup(form, MIXSRC_CH1 + ch);
-      groups.emplace_back(group);
-      while (index < MAX_MIXERS && (line->destCh == ch)) {
-        // one button per input line
-        createLineButton(group, index);
-        ++index;
-        ++line;
-      }
-    }
-  }
-
-  auto box = new FormGroup(window, rect_t{});
+  auto box = new FormWindow(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
   box->padLeft(lv_dpx(8));
 
@@ -449,6 +428,33 @@ void ModelMixesPage::build(FormWindow * window)
   });
   auto btn_obj = btn->getLvObj();
   lv_obj_set_width(btn_obj, lv_pct(100));
+  lv_group_focus_obj(btn_obj);
+
+  groups.clear();
+  lines.clear();
+
+  bool focusSet = false;
+  uint8_t index = 0;
+  MixData* line = g_model.mixData;
+  for (uint8_t ch = 0; (ch < MAX_OUTPUT_CHANNELS) && (index < MAX_MIXERS); ch++) {
+
+    if (line->destCh == ch) {
+
+      // one group for the complete mixer channel
+      auto group = createGroup(form, MIXSRC_CH1 + ch);
+      groups.emplace_back(group);
+      while (index < MAX_MIXERS && (line->destCh == ch)) {
+        // one button per input line
+        auto btn = createLineButton(group, index);
+        if (!focusSet) {
+          focusSet = true;
+          lv_group_focus_obj(btn->getLvObj());
+        }
+        ++index;
+        ++line;
+      }
+    }
+  }
 }
 
 void ModelMixesPage::enableMonitors(bool enabled)
