@@ -105,6 +105,7 @@ void checkValidMCU(void)
 
 #if defined(STM32F205xx)
   #define TARGET_IDCODE   0x411
+  // Tlite ELRS have a CKS F4 run as an F2 (F4 firmware won't run on those)
 #elif defined(STM32F407xx)
   #define TARGET_IDCODE   0x413
 #elif defined(STM32F429xx)
