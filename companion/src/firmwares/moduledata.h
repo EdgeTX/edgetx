@@ -47,7 +47,8 @@ enum ModuleType {
   MODULE_TYPE_R9M_LITE_PRO_PXX2,
   MODULE_TYPE_SBUS,
   MODULE_TYPE_XJT_LITE_PXX2,
-  MODULE_TYPE_FLYSKY, //no more protocols possible because of 4 bits value
+  MODULE_TYPE_FLYSKY_AFHDS2A,
+  MODULE_TYPE_FLYSKY_AFHDS3,
   MODULE_TYPE_LEMON_DSMP,
   MODULE_TYPE_COUNT,
   MODULE_TYPE_MAX = MODULE_TYPE_COUNT - 1
@@ -83,7 +84,8 @@ enum PulsesProtocol {
   PULSES_XJT_LITE_X16,
   PULSES_XJT_LITE_D8,
   PULSES_XJT_LITE_LR12,
-  PULSES_AFHDS3,
+  PULSES_FLYSKY_AFHDS2A,
+  PULSES_FLYSKY_AFHDS3,
   PULSES_GHOST,
   PULSES_LEMON_DSMP,
   PULSES_PROTOCOL_LAST
@@ -137,13 +139,29 @@ class ModuleData {
       int optionValue;
     } multi;
 
-    struct Afhds3 {
-      unsigned int rxFreq;
+    struct Flysky {
+      unsigned int rxId[4];
+      unsigned int mode;
       unsigned int rfPower;
+      unsigned int reserved;
+      unsigned int rxFreq[2];
+
+      void setDefault() {
+        rxId[0] = rxId[1] = rxId[2] = rxId[3] = 0;
+        mode = 3;
+        rfPower = 0;
+        rxFreq[0] = 50;
+        rxFreq[1] = 0;
+      }
+    } flysky;
+
+    struct Afhds3 {
+      unsigned int rxFreq;  // depreciated - used for binary import
       unsigned int emi;
       unsigned int telemetry;
       unsigned int phyMode;
       unsigned int reserved;
+      unsigned int rfPower;
     } afhds3;
 
     struct PXX {
