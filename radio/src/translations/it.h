@@ -686,11 +686,11 @@
 #define TR_POWER_METER_INT              "Meter Potenza (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT        "Spettro (EST)"
 #define TR_SPECTRUM_ANALYSER_INT        "Spettro (INT)"
-#define TR_SDCARD_FULL                  "SDCard Piena"
+#define TR_SDCARD_FULL                  "SDCard piena"
 #if defined(COLORLCD)
-#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogs and Screenshots disabled"
+#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\nLogs e Screenshots disattivati"
 #else
-#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Logs and " LCDW_128_480_LINEBREAK "Screenshots disabled"
+#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\036Logs e " LCDW_128_480_LINEBREAK "Screenshots disattivati"
 #endif
 #define TR_NEEDS_FILE                   "RICHIEDE FILE"
 #define TR_EXT_MULTI_SPEC               "opentx-inv"

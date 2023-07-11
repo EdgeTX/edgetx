@@ -684,11 +684,11 @@
 #define TR_POWER_METER_INT             "Měřič výkonu (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spektální an. (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spektální an. (INT)"
-#define TR_SDCARD_FULL                 "Plná SD karta"
+#define TR_SDCARD_FULL                 "Plná karta SD"
 #if defined(COLORLCD)
-#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogs and Screenshots disabled"
+#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\nLogování dat a snímky obrazovky vypnuty"
 #else
-#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Logs and " LCDW_128_480_LINEBREAK "Screenshots disabled"
+#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\036Logy a " LCDW_128_480_LINEBREAK " Snímky obrazovky vypnuty"
 #endif
 #define TR_NEEDS_FILE                  "Vyžadován soubor"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"

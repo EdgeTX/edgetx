@@ -691,11 +691,11 @@
 #define TR_POWER_METER_INT             "Puissancemètre (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       TR("Spectre (EXT)", "Analyseur Spectre (EXT)")
 #define TR_SPECTRUM_ANALYSER_INT       TR("Spectre (INT)", "Analyseur Spectre (INT)")
-#define TR_SDCARD_FULL                 "Carte SD pleine"
+#define TR_SDCARD_FULL                 "SD carte pleine"
 #if defined(COLORLCD)
-#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogs and Screenshots disabled"
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nJournaux et Impr. écran désactivé"
 #else
-#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Logs and " LCDW_128_480_LINEBREAK "Screenshots disabled"
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Journaux et" LCDW_128_480_LINEBREAK "Impr. écran désactivé"
 #endif
 #define TR_NEEDS_FILE                  "FICHIER EXIGE"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
