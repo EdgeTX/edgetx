@@ -247,9 +247,15 @@ bool isBacklightEnabled();
 #if !defined(SIMU)
 void usbJoystickUpdate();
 #endif
-#define USB_NAME                        "FlySky NV14"
-#define USB_MANUFACTURER                'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */
+#if (PCBREV == EL18)
+#define USB_NAME                        "Flysky EL18"
+#define USB_MANUFACTURER                'F', 'l', 'y', 's', 'k', 'y', ' ', ' '  /* 8 bytes */
+#define USB_PRODUCT                     'E', 'L', '1', '8', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#else
+#define USB_NAME                        "Flysky NV14"
+#define USB_MANUFACTURER                'F', 'l', 'y', 's', 'k', 'y', ' ', ' '  /* 8 bytes */
 #define USB_PRODUCT                     'N', 'V', '1', '4', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#endif
 
 #if defined(__cplusplus) && !defined(SIMU)
 }

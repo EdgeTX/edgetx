@@ -1,7 +1,7 @@
 {
     "targets": [
         ["BETAFPV LiteRadio 3 Pro", "lr3pro-"],
-        ["Flysky EL18", "nv14-"],
+        ["Flysky EL18", "el14-"],
         ["Flysky NV14", "nv14-"],
         ["FrSky Horus X10", "x10-"],
         ["FrSky Horus X10 Access", "x10-access-"],
