@@ -227,10 +227,15 @@ QString ModelPrinter::printModule(int idx)
           str << printLabelValue(tr("Sub Type"), module.subTypeToString());
           str << printLabelValue(tr("RF Output Power"), module.powerValueToString(firmware));
         }
-        if (module.protocol == PULSES_AFHDS3) {
-          str << printLabelValue(tr("Output Type"), module.subTypeToString());
-          str << printLabelValue(tr("RF Output Power"), module.powerValueToString(firmware));
-          str << printLabelValue(tr("RX Output Frequency"), QString("%1Hz").arg(module.afhds3.rxFreq));
+        // TODO
+        if (module.protocol == PULSES_FLYSKY_AFHDS2A) {
+          //str << printLabelValue(tr("RF Output Power"), module.powerValueToString(firmware));
+          //str << printLabelValue(tr("RX Output Frequency"), QString("%1Hz").arg(module.flysky.rxFreq));
+        }
+        // TODO
+        if (module.protocol == PULSES_FLYSKY_AFHDS3) {
+          //str << printLabelValue(tr("RF Output Power"), module.powerValueToString(firmware));
+          //str << printLabelValue(tr("RX Output Frequency"), QString("%1Hz").arg(module.afhds3.rxFreq));
         }
         if (module.protocol == PULSES_GHOST) {
           str << printLabelValue(tr("Raw 12 bits"), printBoolean(module.ghost.raw12bits, BOOLEAN_YN));
