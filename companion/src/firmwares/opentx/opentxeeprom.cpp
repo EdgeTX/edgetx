@@ -2228,7 +2228,7 @@ class ModuleUnionField: public UnionField<unsigned int> {
       }
 
       bool select(const unsigned int& attr) const override {
-        return attr == PULSES_AFHDS3;
+        return attr == PULSES_FLYSKY_AFHDS3;
       }
 
       void beforeExport() override {}
