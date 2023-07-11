@@ -236,8 +236,12 @@ class ViewChecklistWindow : public ViewTextWindow
         ViewTextWindow::onCancel();
     }
 
-    void updateCheckboxes(lv_obj_t* parent)
+  protected:
+    TextButton* closeButton = nullptr;
+
+    void updateCheckboxes()
     {
+      lv_obj_t* parent = body.getLvObj();
       int children = lv_obj_get_child_cnt(parent);
       bool lastState = true;
 
@@ -267,9 +271,6 @@ class ViewChecklistWindow : public ViewTextWindow
 
       setCloseState();
     }
-
-  protected:
-    TextButton* closeButton = nullptr;
 
     bool allChecked()
     {
@@ -310,6 +311,14 @@ class ViewChecklistWindow : public ViewTextWindow
 #endif
     }
 
+    static void checkbox_event_handler(lv_event_t* e)
+    {
+      lv_obj_t* target = lv_event_get_target(e);
+      ViewChecklistWindow* vtw = (ViewChecklistWindow*)lv_obj_get_user_data(target);
+
+      if (vtw) vtw->updateCheckboxes();
+    }
+
     void buildBody(Window* window) override
     {
       if (openFile()) {
@@ -321,19 +330,14 @@ class ViewChecklistWindow : public ViewTextWindow
         // prevents resetting the group's edit mode
         lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
-        auto g = lv_group_get_default();
-
-        lv_obj_set_style_pad_all(obj, 3, LV_PART_MAIN);
-        lv_obj_set_style_pad_row(obj, 0, LV_PART_MAIN);
-        lv_obj_set_style_pad_column(obj, 0, LV_PART_MAIN);
-
         lv_obj_set_layout(obj, LV_LAYOUT_FLEX);
         lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_COLUMN);
+        lv_obj_set_style_pad_all(obj, 3, LV_PART_MAIN);
+        lv_obj_set_style_pad_row(obj, 0, LV_PART_MAIN);
 
-        lv_obj_t* cb;
+        auto g = lv_group_get_default();
 
         size_t cur = 0;
-        bool first = true;
 
         for(int i=0; i<bufSize; ++i)
         {
@@ -345,10 +349,9 @@ class ViewChecklistWindow : public ViewTextWindow
             lv_obj_t* row = lv_obj_create(obj);
             lv_obj_set_layout(row, LV_LAYOUT_FLEX);
             lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
-            lv_obj_set_width(row, lv_obj_get_content_width(obj));
+            lv_obj_set_width(row, lv_pct(100));
             lv_obj_set_height(row, LV_SIZE_CONTENT);
             lv_obj_set_style_pad_all(row, 3, 0);
-            lv_obj_set_style_pad_row(row, 0, 0);
             lv_obj_set_style_pad_column(row, 6, 0);
             lv_obj_set_flex_align(row, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_EVENLY);
 
@@ -358,55 +361,33 @@ class ViewChecklistWindow : public ViewTextWindow
               cur++;
               w -= 36;
 
-              cb = lv_checkbox_create(row);
+              auto cb = lv_checkbox_create(row);
               lv_checkbox_set_text_static(cb, "");
               lv_obj_set_width(cb, 25);
               lv_obj_set_height(cb, 25);
 
               lv_group_add_obj(g, cb);
 
-              lv_obj_add_event_cb(cb, checkbox_event_handler,
-                                  LV_EVENT_VALUE_CHANGED, this);
-              lv_obj_add_flag(cb, LV_OBJ_FLAG_EVENT_BUBBLE);
+              lv_obj_add_event_cb(cb, ViewChecklistWindow::checkbox_event_handler, LV_EVENT_VALUE_CHANGED, this);
               lv_obj_set_user_data(cb, this);
-
-              if (first)
-              {
-                first = false;
-                lv_group_focus_obj(cb);
-              } else {
-                lv_obj_add_state(cb, LV_STATE_DISABLED);
-              }
             }
 
-            cb = lv_label_create(row);
-            lv_obj_set_width(cb, w);
-            lv_label_set_long_mode(cb, LV_LABEL_LONG_WRAP);
-            lv_label_set_text_static(cb, &buffer[cur]);
+            auto lbl = lv_label_create(row);
+            lv_obj_set_width(lbl, w);
+            lv_label_set_long_mode(lbl, LV_LABEL_LONG_WRAP);
+            lv_label_set_text_static(lbl, &buffer[cur]);
 
             cur = i + 1;
           }
         }
 
-        if (openFromEnd)
-          lv_obj_scroll_to_y(obj, LV_COORD_MAX, LV_ANIM_OFF);
-        else
-          lv_obj_scroll_to_y(obj, 0, LV_ANIM_OFF);
-
         closeButton = new TextButton(window, rect_t{}, STR_EXIT, [=]() -> int8_t { this->onCancel(); return 0; });
         closeButton->setWidth(lv_pct(100));
-        setCloseState();
+
+        updateCheckboxes();
       }
     }
 };
-
-static void checkbox_event_handler(lv_event_t* e)
-{
-  lv_obj_t* target = lv_event_get_target(e);
-  ViewChecklistWindow* vtw = (ViewChecklistWindow*)lv_obj_get_user_data(target);
-
-  if (vtw) vtw->updateCheckboxes(lv_obj_get_parent(lv_obj_get_parent(target)));
-}
 
 static void replaceSpaceWithUnderscore(std::string &name)
 {
