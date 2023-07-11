@@ -98,13 +98,6 @@
 
 // Index of all switches / trims
 #define KEYS_RCC_AHB1Periph             (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOJ)
-#define KEYS_GPIOB_PINS                 (GPIO_Pin_15)
-#define KEYS_GPIOC_PINS                 (GPIO_Pin_13)
-#define KEYS_GPIOD_PINS                 (GPIO_Pin_7)
-#define KEYS_GPIOG_PINS                 (GPIO_Pin_2 | GPIO_Pin_10 | GPIO_Pin_11)
-#define KEYS_GPIOH_PINS                 (GPIO_Pin_2 | GPIO_Pin_7)
-#define KEYS_GPIOJ_PINS                 (GPIO_Pin_0 | GPIO_Pin_12)
-
 #define KEYS_GPIO_ACTIVE_HIGH
 #define TRIMS_GPIO_ACTIVE_HIGH
 
