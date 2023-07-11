@@ -95,7 +95,7 @@ void toggleLatencySwitch()
 
 void checkValidMCU(void)
 {
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(BOOT)
   // Checks the radio MCU type matches intended firmware type
   uint32_t idcode = DBGMCU->IDCODE & 0xFFF;
 
