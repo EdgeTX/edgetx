@@ -24,13 +24,6 @@
 
 #if defined(AFHDS3)
 #include "afhds3_options.h"
-#endif
-
-#include "pulses/flysky.h"
-#include "pulses/afhds3.h"
-#include "pulses/afhds3_config.h"
-
-#define SET_DIRTY() storageDirty(EE_MODEL)
 
 static const char* _afhds3_region[] = { "CE", "FCC" };
 
@@ -43,6 +36,13 @@ static const char* _afhds3_phy_mode[] = {
   "Fast 8ch",
   "Lora 12ch",
 };
+#endif
+
+#include "pulses/flysky.h"
+#include "pulses/afhds3.h"
+#include "pulses/afhds3_config.h"
+
+#define SET_DIRTY() storageDirty(EE_MODEL)
 
 class FSProtoOpts : public FormGroup
 {
@@ -231,9 +231,11 @@ void FlySkySettings::showAFHDS3Options()
 #endif
 
 void FlySkySettings::checkEvents() {
+#if defined(AFHDS3)
   if (afhds3::getConfig(moduleIdx)->others.lastUpdated > lastRefresh) {
     update();
   }
+#endif
   FormGroup::checkEvents();
 }
 
