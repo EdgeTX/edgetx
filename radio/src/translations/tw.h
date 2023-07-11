@@ -685,11 +685,11 @@
 #define TR_POWER_METER_INT             "功率計 (內置)"
 #define TR_SPECTRUM_ANALYSER_EXT       "頻譜儀 (外置)"
 #define TR_SPECTRUM_ANALYSER_INT       "頻譜儀 (內置)"
-#define TR_SDCARD_FULL                 "存儲卡已滿"
+#define TR_SDCARD_FULL                 "SD卡已滿"
 #if defined(COLORLCD)
-#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogs and Screenshots disabled"
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\n日誌和截屏功能將被禁用"
 #else
-#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Logs and " LCDW_128_480_LINEBREAK "Screenshots disabled"
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036日誌和 " LCDW_128_480_LINEBREAK "截屏功能將被禁用"
 #endif
 #define TR_NEEDS_FILE                  "需要文件名包含"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
