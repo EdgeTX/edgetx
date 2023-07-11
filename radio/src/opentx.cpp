@@ -99,6 +99,10 @@ void checkValidMCU(void)
   // Checks the radio MCU type matches intended firmware type
   uint32_t idcode = DBGMCU->IDCODE & 0xFFF;
 
+#if defined(RADIO_TLITE)
+  #define TARGET_IDCODE_SECONDARY   0x413
+#endif
+
 #if defined(STM32F205xx)
   #define TARGET_IDCODE   0x411
 #elif defined(STM32F407xx)
@@ -112,9 +116,15 @@ void checkValidMCU(void)
   #define TARGET_IDCODE   0x0
 #endif
 
+#if defined(TARGET_IDCODE_SECONDARY)
+  if(idcode != TARGET_IDCODE && idcode != TARGET_IDCODE_SECONDARY) {
+    runFatalErrorScreen("Wrong MCU");
+  }
+#else
   if(idcode != TARGET_IDCODE) {
     runFatalErrorScreen("Wrong MCU");
   }
+#endif
 #endif
 }
 
