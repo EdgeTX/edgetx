@@ -276,9 +276,6 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
 #endif
 
           case FUNC_VOLUME: {
-            if(!luaSpeakerVolumeOn)
-              break;
-            
             getvalue_t raw = getValue(CFN_PARAM(cfn));
             // only set volume if input changed more than hysteresis
             if (abs(requiredSpeakerVolumeRawLast - raw) > VOLUME_HYSTERESIS) {

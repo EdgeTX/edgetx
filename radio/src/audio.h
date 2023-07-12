@@ -91,6 +91,8 @@ constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MOD
 #define BEEP_MAX_FREQ                  (15000)
 #define BEEP_DEFAULT_FREQ              (2250)
 
+#define USE_SETTINGS_VOLUME            (127)
+
 #if defined(AUDIO_DUAL_BUFFER)
 enum AudioBufferState
 {
@@ -156,6 +158,7 @@ struct AudioFragment {
   uint8_t type;
   uint8_t id;
   uint8_t repeat;
+  int8_t _volume;
   union {
     Tone tone;
     char file[AUDIO_FILENAME_MAXLEN+1];
@@ -163,17 +166,19 @@ struct AudioFragment {
 
   AudioFragment() { clear(); };
 
-  AudioFragment(uint16_t freq, uint16_t duration, uint16_t pause, uint8_t repeat, int8_t freqIncr, bool reset, uint8_t id=0):
+  AudioFragment(uint16_t freq, uint16_t duration, uint16_t pause, uint8_t repeat, int8_t freqIncr, bool reset, int8_t _volume, uint8_t id=0 ):
     type(FRAGMENT_TONE),
     id(id),
     repeat(repeat),
+    _volume(_volume),
     tone(freq, duration, pause, freqIncr, reset)
   {};
 
-  AudioFragment(const char * filename, uint8_t repeat, uint8_t id=0):
+  AudioFragment(const char * filename, uint8_t repeat, int8_t _volume, uint8_t id = 0):
     type(FRAGMENT_FILE),
     id(id),
-    repeat(repeat)
+    repeat(repeat),
+    _volume(_volume)
   {
     strcpy(file, filename);
   }
@@ -181,6 +186,8 @@ struct AudioFragment {
   void clear()
   {
     memset(reinterpret_cast<void*>(this), 0, sizeof(AudioFragment));
+
+    this->_volume = USE_SETTINGS_VOLUME;
   }
 };
 
@@ -190,6 +197,8 @@ class ToneContext {
     inline void clear()
     {
       memset(reinterpret_cast<void*>(this), 0, sizeof(ToneContext));
+
+      fragment._volume = USE_SETTINGS_VOLUME;
     }
 
     bool isFree() const
@@ -199,9 +208,9 @@ class ToneContext {
 
     int mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade);
 
-    void setFragment(uint16_t freq, uint16_t duration, uint16_t pause, uint8_t repeat, int8_t freqIncr, bool reset, uint8_t id=0)
+    void setFragment(uint16_t freq, uint16_t duration, uint16_t pause, uint8_t repeat, int8_t freqIncr, bool reset, int8_t _volume, uint8_t id = 0)
     {
-      fragment = AudioFragment(freq, duration, pause, repeat, freqIncr, reset, id);
+      fragment = AudioFragment(freq, duration, pause, repeat, freqIncr, reset, _volume, id);
     }
 
   private:
@@ -226,9 +235,9 @@ class WavContext {
     int mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade);
     bool hasPromptId(uint8_t id) const { return fragment.id == id; };
 
-    void setFragment(const char * filename, uint8_t repeat, uint8_t id)
+    void setFragment(const char * filename, uint8_t repeat, int8_t _volume, uint8_t id)
     {
-      fragment = AudioFragment(filename, repeat, id);
+      fragment = AudioFragment(filename, repeat, id, _volume);
     }
 
     void stop(uint8_t id)
@@ -294,7 +303,6 @@ class MixedContext {
       ToneContext tone;
       WavContext wav;
     };
-
 };
 
 class AudioBufferFifo {
@@ -506,8 +514,8 @@ class AudioQueue {
   public:
     AudioQueue();
     void start() { _started = true; };
-    void playTone(uint16_t freq, uint16_t len, uint16_t pause=0, uint8_t flags=0, int8_t freqIncr=0);
-    void playFile(const char *filename, uint8_t flags=0, uint8_t id=0);
+    void playTone(uint16_t freq, uint16_t len, uint16_t pause=0, uint8_t flags=0, int8_t freqIncr=0, int8_t _volume = USE_SETTINGS_VOLUME);
+    void playFile(const char *filename, uint8_t flags=0, uint8_t id=0, int8_t _volume = USE_SETTINGS_VOLUME);
     void stopPlay(uint8_t id);
     void stopAll();
     void flush();

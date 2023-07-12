@@ -53,7 +53,6 @@ extern uint32_t maxMixerDuration;
 
 extern uint8_t requiredSpeakerVolume;
 extern uint8_t requiredBacklightBright;
-extern bool luaSpeakerVolumeOn;
 
 enum MainRequest {
   REQUEST_SCREENSHOT,

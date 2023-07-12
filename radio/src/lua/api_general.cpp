@@ -1429,21 +1429,38 @@ Play a file from the SD card
 Introduced in 2.1.0: If you use a relative path, the current language is appended
 to the path (example: for English language: `/SOUNDS/en` is appended)
 
-@status current Introduced in 2.0.0, changed in 2.1.0
+@param volume (number):
+ - (-2..2) override radio setting Wav volumne for the duration of file
+ - 127 or omitting parameter uses radio setting Wav volume
+
+@retval none 
+
+@status current Introduced in 2.0.0, changed in 2.1.0, changed in 2.10
+
+// targets: BW, COLOR
+//
+// LUADOC TODO:
+//  - Add  USE_SYSTEMSETTINGS (value 127) constant to CONSTANTS section
+//
+//  EXAMPLES:
+// https://github.com/EdgeTX/edgetx/pull/3784
+
 */
 static int luaPlayFile(lua_State * L)
 {
   const char * filename = luaL_checkstring(L, 1);
+  const int volume = luaL_optinteger(L, 2, 127);
+
   if (filename[0] != '/') {
     // relative sound file path - use current language dir for absolute path
     char file[AUDIO_FILENAME_MAXLEN+1];
     char * str = getAudioPath(file);
     strncpy(str, filename, AUDIO_FILENAME_MAXLEN - (str-file));
     file[AUDIO_FILENAME_MAXLEN] = 0;
-    PLAY_FILE(file, 0, 0);
+    audioQueue.playFile(file, 0, 0, volume);
   }
   else {
-    PLAY_FILE(filename, 0, 0);
+    audioQueue.playFile(filename, 0, 0, volume);
   }
   return 0;
 }
@@ -1496,7 +1513,7 @@ static int luaPlayDuration(lua_State * L)
 }
 
 /*luadoc
-@function playTone(frequency, duration, pause [, flags [, freqIncr]])
+@function playTone(frequency, duration, pause [, flags [, freqIncr [, volume]]])
 
 Play a tone
 
@@ -1515,7 +1532,22 @@ Play a tone
 negative number decreases it. The frequency changes every 10 milliseconds, the change is `freqIncr * 10Hz`.
 The valid range is from -127 to 127.
 
-@status current Introduced in 2.1.0
+@param volume (number):
+ - (-2..2) override radio setting Beep volumne for the duration of file
+ - 127 or omitting parameter uses radio setting Beep volume
+
+@retval none 
+
+@status current Introduced in 2.0.0, changed in 2.1.0, changed in 2.10
+
+// targets: BW, COLOR
+//
+// LUADOC TODO:
+//  - Add  USE_SYSTEMSETTINGS (value 127) constant to CONSTANTS section
+//
+//  EXAMPLES:
+// https://github.com/EdgeTX/edgetx/pull/3784
+
 */
 static int luaPlayTone(lua_State * L)
 {
@@ -1524,7 +1556,9 @@ static int luaPlayTone(lua_State * L)
   int pause = luaL_checkinteger(L, 3);
   int flags = luaL_optinteger(L, 4, 0);
   int freqIncr = luaL_optinteger(L, 5, 0);
-  audioQueue.playTone(frequency, length, pause, flags, freqIncr);
+  int volume = luaL_optinteger(L, 6, 127);
+
+  audioQueue.playTone(frequency, length, pause, flags, freqIncr, volume);
   return 0;
 }
 
@@ -1945,58 +1979,6 @@ flushes audio queue
 static int luaFlushAudio(lua_State * L)
 {
   audioQueue.flush();
-  return 0;
-}
-
-/*luadoc
-@function audioQueueIsEmpty()
-
-checks if audio queue is empty
-
-@retval false/true
-
-@status experimental
-*/
-static int luaAudioQueueIsEmpty(lua_State * L)
-{
-  lua_pushboolean(L, audioQueue.isEmpty());
-  return 1;
-}
-
-/*luadoc
-@function volumeSet(volume)
-
-starts overriding volume settings with value volume
-
-@param volume (number) volume (0..VOLUME_LEVEL_MAX)
-*/
-static int luaVolumeSet(lua_State * L)
-{
-  uint8_t volume = luaL_checkinteger(L, 1);
-  
-  if(volume > VOLUME_LEVEL_MAX)   // VOLUME_LEVEL_MAX is defined as 23 in board.h
-    volume = VOLUME_LEVEL_MAX;
-
-  luaSpeakerVolumeOn = true;
-
-  currentSpeakerVolume = requiredSpeakerVolume = volume;
-#if !defined(SOFTWARE_VOLUME)
-  setScaledVolume(volume);
-#endif
-
-  return 0;
-}
-
-/*luadoc
-@function volumeSetClear()
-
-stops overriding volume settings
-
-@param volume (number) volume (0..23)
-*/
-static int luaVolumeSetClear(lua_State * L)
-{
-  luaSpeakerVolumeOn = false;
   return 0;
 }
 
@@ -2857,9 +2839,6 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( playTone, luaPlayTone )
   LROT_FUNCENTRY( playHaptic, luaPlayHaptic )
   LROT_FUNCENTRY( flushAudio, luaFlushAudio )
-  LROT_FUNCENTRY( audioQueueIsEmpty, luaAudioQueueIsEmpty )
-  LROT_FUNCENTRY( volumeSet, luaVolumeSet )
-  LROT_FUNCENTRY( volumeSetClear, luaVolumeSetClear )
 #if defined(ENABLE_LUA_POPUP_INPUT)
   LROT_FUNCENTRY( popupInput, luaPopupInput )
 #endif
