@@ -33,6 +33,10 @@
 #include "tasks.h"
 #include "tasks/mixer_task.h"
 
+#if defined(BLUETOOTH)
+  #include "bluetooth_driver.h"
+#endif
+
 #if defined(LIBOPENUI)
   #include "libopenui.h"
   // #include "shutdown_animation.h"
@@ -95,9 +99,14 @@ void toggleLatencySwitch()
 
 void checkValidMCU(void)
 {
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(BOOT)
   // Checks the radio MCU type matches intended firmware type
   uint32_t idcode = DBGMCU->IDCODE & 0xFFF;
+
+#if defined(RADIO_TLITE)
+  #define TARGET_IDCODE_SECONDARY   0x413
+  // Tlite ELRS have a CKS F4 run as an F2 (F4 firmware won't run on those)
+#endif
 
 #if defined(STM32F205xx)
   #define TARGET_IDCODE   0x411
@@ -112,9 +121,15 @@ void checkValidMCU(void)
   #define TARGET_IDCODE   0x0
 #endif
 
+#if defined(TARGET_IDCODE_SECONDARY)
+  if(idcode != TARGET_IDCODE && idcode != TARGET_IDCODE_SECONDARY) {
+    runFatalErrorScreen("Wrong MCU");
+  }
+#else
   if(idcode != TARGET_IDCODE) {
     runFatalErrorScreen("Wrong MCU");
   }
+#endif
 #endif
 }
 
@@ -1078,6 +1093,12 @@ void opentxStart(const uint8_t startOptions = OPENTX_START_DEFAULT_ARGS)
 
   uint8_t calibration_needed = !(startOptions & OPENTX_START_NO_CALIBRATION) && (g_eeGeneral.chkSum != evalChkSum());
 
+#if defined(BLUETOOTH_PROBE)
+  extern volatile uint8_t btChipPresent;
+  auto oldBtMode = g_eeGeneral.bluetoothMode;
+  g_eeGeneral.bluetoothMode = BLUETOOTH_TELEMETRY;
+#endif
+
 #if defined(GUI)
   if (!calibration_needed && !(startOptions & OPENTX_START_NO_SPLASH)) {
     AUDIO_HELLO();
@@ -1113,6 +1134,12 @@ void opentxStart(const uint8_t startOptions = OPENTX_START_DEFAULT_ARGS)
     checkAll();
     PLAY_MODEL_NAME();
   }
+#endif
+
+#if defined(BLUETOOTH_PROBE)
+  if (bluetooth.localAddr[0] != '\0')
+    btChipPresent = 1;
+  g_eeGeneral.bluetoothMode = oldBtMode;
 #endif
 }
 
