@@ -179,6 +179,7 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uin
     NVIC_DisableIRQ(usart->IRQn);
   }
 
+  stm32_dma_enable_clock(usart->rxDMA);
   LL_DMA_DeInit(usart->rxDMA, usart->rxDMA_Stream);
 
   LL_DMA_InitTypeDef dmaInit;
@@ -346,6 +347,7 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
   _half_duplex_output(usart);
 
   if (usart->txDMA) {
+    stm32_dma_enable_clock(usart->txDMA);
     LL_DMA_DeInit(usart->txDMA, usart->txDMA_Stream);
 
     LL_DMA_InitTypeDef dmaInit;

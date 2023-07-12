@@ -122,7 +122,6 @@ void delay_self(int count)
                                AUDIO_RCC_AHB1Periph |\
                                HAPTIC_RCC_AHB1Periph |\
                                INTMODULE_RCC_AHB1Periph |\
-                               FLYSKY_HALL_RCC_AHB1Periph |\
                                EXTMODULE_RCC_AHB1Periph\
                               )
 #define RCC_AHB3PeriphMinimum (SDRAM_RCC_AHB3Periph)
@@ -133,7 +132,6 @@ void delay_self(int count)
                               )
 
 #define RCC_APB1PeriphOther   (TELEMETRY_RCC_APB1Periph |\
-                               FLYSKY_HALL_RCC_APB1Periph |\
                                MIXER_SCHEDULER_TIMER_RCC_APB1Periph \
                               )
 #define RCC_APB2PeriphMinimum (LCD_RCC_APB2Periph)

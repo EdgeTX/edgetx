@@ -111,9 +111,6 @@ void boardInit()
                          INTERRUPT_xMS_RCC_APB1Periph |
                          TIMER_2MHz_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
-#if defined(RADIO_FAMILY_T16)
-                         FLYSKY_HALL_RCC_APB1Periph |
-#endif
                          TELEMETRY_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
                          MIXER_SCHEDULER_TIMER_RCC_APB1Periph |
