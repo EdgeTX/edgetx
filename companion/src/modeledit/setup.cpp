@@ -988,10 +988,11 @@ void ModulePanel::onSubTypeChanged()
 }
 
 void ModulePanel::onRfFreqChanged(int freq) {
-  if (module.afhds3.rxFreq != (unsigned int)freq) {
-    module.afhds3.rxFreq = (unsigned int)freq;
-    emit modified();
-  }
+  //  TODO fix for AFHDS2A
+  //if (module.afhds3.rxFreq != (unsigned int)freq) {
+  //  module.afhds3.rxFreq = (unsigned int)freq;
+  //  emit modified();
+  //}
 }
 
 void ModulePanel::on_disableTelem_stateChanged(int state)
