@@ -97,7 +97,6 @@ void boardInit()
                          KEYS_BACKLIGHT_RCC_AHB1Periph |
                          SD_RCC_AHB1Periph |
                          AUDIO_RCC_AHB1Periph |
-                         KEYS_RCC_AHB1Periph |
                          ADC_RCC_AHB1Periph |
 #if defined(RADIO_FAMILY_T16)
                          FLYSKY_HALL_RCC_AHB1Periph |

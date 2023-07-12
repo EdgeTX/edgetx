@@ -117,7 +117,6 @@ void delay_self(int count)
 #define RCC_AHB1PeriphOther   (SD_RCC_AHB1Periph |\
                                AUDIO_RCC_AHB1Periph |\
                                MONITOR_RCC_AHB1Periph |\
-                               KEYS_RCC_AHB1Periph |\
                                ADC_RCC_AHB1Periph |\
                                AUX_SERIAL_RCC_AHB1Periph |\
                                TELEMETRY_RCC_AHB1Periph |\

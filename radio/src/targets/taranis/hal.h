@@ -1228,14 +1228,6 @@
   #define SWITCHES_GPIO_PIN_R_L         LL_GPIO_PIN_0  // PE.00
 #endif
 
-#if defined(PCBX9E) || defined(RADIO_T20) || defined(RADIO_TPRO) || defined(RADIO_TPROV2)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOG)
-#elif defined(PCBXLITES) || defined(PCBXLITE)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOE)
-#else
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE)
-#endif
-
 // ADC
 #if !defined(RADIO_T20)
   #define ADC_MAIN                      ADC1

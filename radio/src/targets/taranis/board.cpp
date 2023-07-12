@@ -85,7 +85,6 @@ void boardInit()
 {
   RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph |
                          PCBREV_RCC_AHB1Periph |
-                         KEYS_RCC_AHB1Periph |
                          LCD_RCC_AHB1Periph |
                          AUDIO_RCC_AHB1Periph |
                          BACKLIGHT_RCC_AHB1Periph |

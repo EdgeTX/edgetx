@@ -31,7 +31,6 @@
 #define TELEMETRY_EXTI_PRIO             0 // required for soft serial
 
 // Keys
-#define KEYS_RCC_AHB1Periph             (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOJ)
 #if defined(PCBX12S)
   #define KEYS_GPIO_REG_PAGEUP          GPIOC
   #define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_13 // PC.13

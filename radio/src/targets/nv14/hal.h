@@ -97,7 +97,6 @@
 #define STORAGE_SWITCH_H
 
 // Index of all switches / trims
-#define KEYS_RCC_AHB1Periph             (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOJ)
 #define KEYS_GPIO_ACTIVE_HIGH
 #define TRIMS_GPIO_ACTIVE_HIGH
 
