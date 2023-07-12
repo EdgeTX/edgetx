@@ -156,7 +156,6 @@ class ModuleData {
     } flysky;
 
     struct Afhds3 {
-      unsigned int rxFreq;  // depreciated - used for binary import
       unsigned int emi;
       unsigned int telemetry;
       unsigned int phyMode;
