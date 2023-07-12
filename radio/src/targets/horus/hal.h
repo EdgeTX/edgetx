@@ -447,7 +447,6 @@
 
 // Serial Port (DEBUG)
 #if defined(AUX_SERIAL)
-  #define AUX_SERIAL_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_DMA1)
   #define AUX_SERIAL_GPIO                     GPIOB
   #define AUX_SERIAL_GPIO_PIN_TX              GPIO_Pin_10 // PB.10
   #define AUX_SERIAL_GPIO_PIN_RX              GPIO_Pin_11 // PB.11
@@ -470,8 +469,6 @@
     #define AUX_SERIAL_PWR_GPIO                 GPIOA
     #define AUX_SERIAL_PWR_GPIO_PIN             GPIO_Pin_15  // PA.15
   #endif
-#else
-  #define AUX_SERIAL_RCC_AHB1Periph           0
 #endif
 
 #if defined(AUX2_SERIAL)

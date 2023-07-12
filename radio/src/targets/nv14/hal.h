@@ -193,7 +193,6 @@
 
 // Serial Port (DEBUG)
 // We will temporarily used the PPM and the HEARTBEAT PINS
-#define AUX_SERIAL_RCC_AHB1Periph       (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOE)
 #define AUX_SERIAL_GPIO                 GPIOC
 #define AUX_SERIAL_GPIO_PIN_TX          GPIO_Pin_6  // PC.06
 #define AUX_SERIAL_GPIO_PIN_RX          GPIO_Pin_7  // PC.07

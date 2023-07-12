@@ -118,7 +118,6 @@ void delay_self(int count)
                                AUDIO_RCC_AHB1Periph |\
                                MONITOR_RCC_AHB1Periph |\
                                ADC_RCC_AHB1Periph |\
-                               AUX_SERIAL_RCC_AHB1Periph |\
                                TELEMETRY_RCC_AHB1Periph |\
                                TRAINER_RCC_AHB1Periph |\
                                AUDIO_RCC_AHB1Periph |\

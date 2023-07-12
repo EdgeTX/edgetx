@@ -221,8 +221,6 @@ void bootloaderInitApp()
 {
   RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph |
                              LCD_RCC_AHB1Periph | BACKLIGHT_RCC_AHB1Periph |
-                             AUX_SERIAL_RCC_AHB1Periph |
-                             AUX2_SERIAL_RCC_AHB1Periph |
                              KEYS_BACKLIGHT_RCC_AHB1Periph | SD_RCC_AHB1Periph,
                          ENABLE);
 

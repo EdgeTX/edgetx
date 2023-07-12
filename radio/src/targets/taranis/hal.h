@@ -2119,10 +2119,8 @@
 
 // Serial Port
 #if (defined(PCBX7) && !defined(RADIO_ZORRO) && !defined(RADIO_TX12MK2)) && !defined(RADIO_BOXER) || defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019)
-  #define AUX_SERIAL_RCC_AHB1Periph         0
 #else
   #define HARDWARE_TRAINER_AUX_SERIAL
-  #define AUX_SERIAL_RCC_AHB1Periph         (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_DMA1)
   #define AUX_SERIAL_GPIO                   GPIOB
   #define AUX_SERIAL_GPIO_PIN_TX            GPIO_Pin_10 // PB.10
   #define AUX_SERIAL_GPIO_PIN_RX            GPIO_Pin_11 // PB.11

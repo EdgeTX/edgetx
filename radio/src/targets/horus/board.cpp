@@ -101,8 +101,6 @@ void boardInit()
 #if defined(RADIO_FAMILY_T16)
                          FLYSKY_HALL_RCC_AHB1Periph |
 #endif
-                         AUX_SERIAL_RCC_AHB1Periph |
-                         AUX2_SERIAL_RCC_AHB1Periph |
                          TELEMETRY_RCC_AHB1Periph |
                          TRAINER_RCC_AHB1Periph |
                          BT_RCC_AHB1Periph |
