@@ -20,6 +20,7 @@
  */
 
 #include "stm32_usart_driver.h"
+#include "stm32_gpio_driver.h"
 #include "stm32_dma.h"
 
 #include <string.h>
@@ -224,7 +225,6 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   enable_usart_clock(usart->USARTx);
   LL_USART_DeInit(usart->USARTx);
 
-  // TODO: enable GPIO clock
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
 
@@ -234,6 +234,8 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   pinInit.Pull = LL_GPIO_PULL_UP;
   pinInit.Alternate = _get_usart_af(usart->USARTx);
+
+  stm32_gpio_enable_clock(usart->GPIOx);
   LL_GPIO_Init(usart->GPIOx, &pinInit);
   
   LL_USART_InitTypeDef usartInit;
