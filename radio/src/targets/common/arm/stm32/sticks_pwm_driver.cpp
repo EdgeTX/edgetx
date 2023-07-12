@@ -20,6 +20,8 @@
  */
 
 #include "sticks_pwm_driver.h"
+#include "stm32_gpio_driver.h"
+#include "stm32_timer.h"
 #include "hal/adc_driver.h"
 #include "stm32_hal_ll.h"
 #include "delays_driver.h"
@@ -30,6 +32,8 @@ static volatile uint32_t _pwm_interrupt_count;
 
 static void sticks_pwm_init(const stick_pwm_timer_t* tim)
 {
+  stm32_gpio_enable_clock(tim->GPIOx);
+
   LL_GPIO_InitTypeDef pinInit;
   pinInit.Pin = tim->GPIO_Pin;
   pinInit.Alternate = tim->GPIO_Alternate;
@@ -40,6 +44,8 @@ static void sticks_pwm_init(const stick_pwm_timer_t* tim)
   LL_GPIO_Init(tim->GPIOx, &pinInit);
 
   auto TIMx = tim->TIMx;
+
+  stm32_timer_enable_clock(TIMx);
   TIMx->CR1 &= ~TIM_CR1_CEN; // Stop timer
   TIMx->PSC = 80;
   TIMx->ARR = 0xffff;
@@ -60,6 +66,7 @@ static void sticks_pwm_deinit(const stick_pwm_timer_t* tim)
   // Stop timer
   auto TIMx = tim->TIMx;
   TIMx->CR1 &= ~TIM_CR1_CEN;
+  stm32_timer_disable_clock(TIMx);
 
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);

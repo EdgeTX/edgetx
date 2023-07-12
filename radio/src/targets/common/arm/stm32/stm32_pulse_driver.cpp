@@ -20,6 +20,7 @@
  */
 
 #include "stm32_pulse_driver.h"
+#include "stm32_timer.h"
 #include "stm32_dma.h"
 
 #include "definitions.h"
@@ -33,21 +34,6 @@
 // TODO:
 // - DMA IRQ prio configurable (now 7)
 // - Timer IRQ prio configurable (now 7)
-
-static void enable_tim_clock(TIM_TypeDef* TIMx)
-{
-  if (TIMx == TIM1) {
-    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM1);
-  } else if (TIMx == TIM2) {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
-  } else if (TIMx == TIM3) {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM3);
-  } else if (TIMx == TIM4) {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
-  } else if (TIMx == TIM8) {
-    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM8);
-  }
-}
 
 void stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
 {
@@ -72,7 +58,7 @@ void stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
   timInit.Prescaler = __LL_TIM_CALC_PSC(tim->TIM_Freq, freq);
   timInit.Autoreload = STM32_DEFAULT_TIMER_AUTORELOAD;
 
-  enable_tim_clock(tim->TIMx);
+  stm32_timer_enable_clock(tim->TIMx);
   LL_TIM_Init(tim->TIMx, &timInit);
 
   if (tim->DMAx) {
@@ -84,21 +70,6 @@ void stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
   // Enable timer IRQ
   NVIC_EnableIRQ(tim->TIM_IRQn);
   NVIC_SetPriority(tim->TIM_IRQn, 7);
-}
-
-static void disable_tim_clock(TIM_TypeDef* TIMx)
-{
-  if (TIMx == TIM1) {
-    LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM1);
-  } else if (TIMx == TIM2) {
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM2);
-  } else if (TIMx == TIM3) {
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM3);
-  } else if (TIMx == TIM4) {
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM4);
-  } else if (TIMx == TIM8) {
-    LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM8);
-  }
 }
 
 void stm32_pulse_deinit(const stm32_pulse_timer_t* tim)
@@ -118,7 +89,7 @@ void stm32_pulse_deinit(const stm32_pulse_timer_t* tim)
   }
 
   LL_TIM_DeInit(tim->TIMx);
-  disable_tim_clock(tim->TIMx);
+  stm32_timer_disable_clock(tim->TIMx);
 
   // Reconfigure pin as input
   LL_GPIO_InitTypeDef pinInit;
