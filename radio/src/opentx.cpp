@@ -33,6 +33,10 @@
 #include "tasks.h"
 #include "tasks/mixer_task.h"
 
+#if defined(BLUETOOTH)
+  #include "bluetooth_driver.h"
+#endif
+
 #if defined(LIBOPENUI)
   #include "libopenui.h"
   // #include "shutdown_animation.h"
@@ -1078,6 +1082,12 @@ void opentxStart(const uint8_t startOptions = OPENTX_START_DEFAULT_ARGS)
 
   uint8_t calibration_needed = !(startOptions & OPENTX_START_NO_CALIBRATION) && (g_eeGeneral.chkSum != evalChkSum());
 
+#if defined(BLUETOOTH_PROBE)
+  extern volatile uint8_t btChipPresent;
+  auto oldBtMode = g_eeGeneral.bluetoothMode;
+  g_eeGeneral.bluetoothMode = BLUETOOTH_TELEMETRY;
+#endif
+
 #if defined(GUI)
   if (!calibration_needed && !(startOptions & OPENTX_START_NO_SPLASH)) {
     AUDIO_HELLO();
@@ -1113,6 +1123,12 @@ void opentxStart(const uint8_t startOptions = OPENTX_START_DEFAULT_ARGS)
     checkAll();
     PLAY_MODEL_NAME();
   }
+#endif
+
+#if defined(BLUETOOTH_PROBE)
+  if (bluetooth.localAddr[0] != '\0')
+    btChipPresent = 1;
+  g_eeGeneral.bluetoothMode = oldBtMode;
 #endif
 }
 

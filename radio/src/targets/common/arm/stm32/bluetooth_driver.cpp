@@ -107,50 +107,6 @@ void bluetoothDisable()
   }
 }
 
-// @Cliff
-// ISR is handled by the serial driver,
-// however, it is unclear at this point
-// how the detection should be implemented.
-// Maybe setting a temporary callback on
-// the interface, or trying to pull some data.
-//
-// Also, it is quite unclear why we would need
-// to disable sending when the TX buffer is exahausted.
-// The serial driver does take care of that but does not
-// set any particular piece of state that could be queried
-// to deduct the state of this TX buffer.
-#if _OBSOLETE_
-extern "C" void BT_USART_IRQHandler(void)
-{
-  DEBUG_INTERRUPT(INT_BLUETOOTH);
-  if (USART_GetITStatus(BT_USART, USART_IT_RXNE) != RESET) {
-    USART_ClearITPendingBit(BT_USART, USART_IT_RXNE);
-    uint8_t byte = USART_ReceiveData(BT_USART);
-    btRxFifo.push(byte);
-#if defined(BLUETOOTH_PROBE)
-    if (!btChipPresent) {
-      // This is to differentiate X7 and X7S and X-Lite with/without BT
-      btChipPresent = 1;
-      bluetoothDisable();
-    }
-#endif
-  }
-
-  if (USART_GetITStatus(BT_USART, USART_IT_TXE) != RESET) {
-    uint8_t byte;
-    bool result = btTxFifo.pop(byte);
-    if (result) {
-      USART_SendData(BT_USART, byte);
-    }
-    else {
-      USART_ITConfig(BT_USART, USART_IT_TXE, DISABLE);
-      // => BLUETOOTH_WRITE_IDLE
-      bluetoothWriteState = BLUETOOTH_WRITE_DONE;
-    }
-  }
-}
-#endif
-
 void bluetoothWrite(const void* buffer, uint32_t len)
 {
   if (!_bt_usart_ctx) return;
