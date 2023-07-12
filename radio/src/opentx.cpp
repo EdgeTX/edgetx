@@ -99,9 +99,14 @@ void toggleLatencySwitch()
 
 void checkValidMCU(void)
 {
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(BOOT)
   // Checks the radio MCU type matches intended firmware type
   uint32_t idcode = DBGMCU->IDCODE & 0xFFF;
+
+#if defined(RADIO_TLITE)
+  #define TARGET_IDCODE_SECONDARY   0x413
+  // Tlite ELRS have a CKS F4 run as an F2 (F4 firmware won't run on those)
+#endif
 
 #if defined(STM32F205xx)
   #define TARGET_IDCODE   0x411
@@ -116,9 +121,15 @@ void checkValidMCU(void)
   #define TARGET_IDCODE   0x0
 #endif
 
+#if defined(TARGET_IDCODE_SECONDARY)
+  if(idcode != TARGET_IDCODE && idcode != TARGET_IDCODE_SECONDARY) {
+    runFatalErrorScreen("Wrong MCU");
+  }
+#else
   if(idcode != TARGET_IDCODE) {
     runFatalErrorScreen("Wrong MCU");
   }
+#endif
 #endif
 }
 
