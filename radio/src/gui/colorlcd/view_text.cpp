@@ -238,35 +238,25 @@ class ViewChecklistWindow : public ViewTextWindow
 
   protected:
     TextButton* closeButton = nullptr;
+    std::list<lv_obj_t*> checkBoxes;
 
     void updateCheckboxes()
     {
-      lv_obj_t* parent = body.getLvObj();
-      int children = lv_obj_get_child_cnt(parent);
       bool lastState = true;
 
-      for(int child = 0; child < children; child++)
-      {
-        lv_obj_t* chld = lv_obj_get_child(lv_obj_get_child(parent, child), 0);
-        if(!chld)
-          continue;
-        if(!lv_obj_check_type(chld, &lv_checkbox_class))
-          continue;
-        if(lv_obj_get_state(chld) & LV_STATE_USER_1)
-          continue;
-
-        bool state = lv_obj_get_state(chld) & LV_STATE_CHECKED;
-        if(lastState)
+      for (auto it = checkBoxes.cbegin(); it != checkBoxes.cend(); ++it) {
+        auto cb = *it;
+        if (lastState)
         {
-          lv_obj_clear_state(chld, LV_STATE_DISABLED);
-          if(!state)
-            lv_group_focus_obj(chld);
+          lv_obj_clear_state(cb, LV_STATE_DISABLED);
+          if (!(lv_obj_get_state(cb) & LV_STATE_CHECKED))
+            lv_group_focus_obj(cb);
         } else {
-          lv_obj_add_state(chld, LV_STATE_DISABLED);
-          lv_obj_clear_state(chld, LV_STATE_CHECKED);
+          lv_obj_add_state(cb, LV_STATE_DISABLED);
+          lv_obj_clear_state(cb, LV_STATE_CHECKED);
         }
 
-        lastState = lv_obj_get_state(chld) & LV_STATE_CHECKED;
+        lastState = lv_obj_get_state(cb) & LV_STATE_CHECKED;
       }
 
       setCloseState();
@@ -274,22 +264,12 @@ class ViewChecklistWindow : public ViewTextWindow
 
     bool allChecked()
     {
-      lv_obj_t* parent = body.getLvObj();
-      int children = lv_obj_get_child_cnt(parent);
-
-      for(int child = 0; child < children; child++)
-      {
-        lv_obj_t* chld = lv_obj_get_child(lv_obj_get_child(parent, child), 0);
-        if(!chld)
-          continue;
-        if(!lv_obj_check_type(chld, &lv_checkbox_class))
-          continue;
-        if(lv_obj_get_state(chld) & LV_STATE_USER_1)
-          continue;
-
-        if(!(lv_obj_get_state(chld) & LV_STATE_CHECKED))
+      for (auto it = checkBoxes.cbegin(); it != checkBoxes.cend(); ++it) {
+        auto cb = *it;
+        if (!(lv_obj_get_state(cb) & LV_STATE_CHECKED))
           return false;
       }
+
       return true;
     }
 
@@ -337,6 +317,8 @@ class ViewChecklistWindow : public ViewTextWindow
 
         auto g = lv_group_get_default();
 
+        checkBoxes.clear();
+
         size_t cur = 0;
 
         for(int i=0; i<bufSize; ++i)
@@ -370,6 +352,8 @@ class ViewChecklistWindow : public ViewTextWindow
 
               lv_obj_add_event_cb(cb, ViewChecklistWindow::checkbox_event_handler, LV_EVENT_VALUE_CHANGED, this);
               lv_obj_set_user_data(cb, this);
+
+              checkBoxes.push_back(cb);
             }
 
             auto lbl = lv_label_create(row);
