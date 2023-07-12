@@ -814,6 +814,9 @@ void ModulePanel::onProtocolChanged(int index)
         ui->telemetryBaudrate->setCurrentIndex(1);
       }
     }
+    else if (module.protocol == PULSES_FLYSKY_AFHDS2A) {
+      module.flysky.setDefault();
+    }
 
     emit updateItemModels();
     emit modified();
