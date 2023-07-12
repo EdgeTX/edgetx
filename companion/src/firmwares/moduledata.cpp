@@ -91,8 +91,9 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
           case PULSES_CROSSFIRE:
             return fw->getCapability(HasIntModuleCRSF) || fw->getCapability(HasIntModuleELRS);
           case PULSES_FLYSKY_AFHDS2A:
+            return IS_FLYSKY_NV14(board);
           case PULSES_FLYSKY_AFHDS3:
-            return fw->getCapability(HasIntModuleFlySky);
+            //return IS_FLYSKY_EL18(board);
           default:
             return false;
         }
@@ -453,7 +454,7 @@ int ModuleData::getTypeFromProtocol(unsigned int protocol)
                           { PULSES_XJT_LITE_LR12,       MODULE_TYPE_XJT_LITE_PXX2 },
 
                           { PULSES_FLYSKY_AFHDS2A,      MODULE_TYPE_FLYSKY_AFHDS2A },
-                          { PULSES_FLYSKY_AFHDS3,       MODULE_TYPE_FLYSKY_AFHDS2A },
+                          { PULSES_FLYSKY_AFHDS3,       MODULE_TYPE_FLYSKY_AFHDS3 },
 
                           { PULSES_LEMON_DSMP,          MODULE_TYPE_LEMON_DSMP },
                       };
