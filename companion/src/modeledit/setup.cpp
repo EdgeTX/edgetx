@@ -529,12 +529,10 @@ void ModulePanel::update()
           mask |= MASK_CHANNELMAP;
         break;
       case PULSES_FLYSKY_AFHDS2A:
-        module.channelsCount = 18;
         mask |= MASK_CHANNELS_RANGE| MASK_CHANNELS_COUNT | MASK_FAILSAFES;
         mask |= MASK_RX_FREQ | MASK_RF_POWER;
         break;
       case PULSES_FLYSKY_AFHDS3:
-        module.channelsCount = 18;
         mask |= MASK_CHANNELS_RANGE| MASK_CHANNELS_COUNT | MASK_FAILSAFES;
         mask |= MASK_RF_POWER;
         break;
