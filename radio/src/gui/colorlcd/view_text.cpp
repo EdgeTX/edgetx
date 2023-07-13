@@ -276,10 +276,10 @@ class ViewChecklistWindow : public ViewTextWindow
     void setCloseState()
     {
       if (allChecked()) {
-        lv_obj_clear_flag(closeButton->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_state(closeButton->getLvObj(), LV_STATE_DISABLED);
         lv_group_focus_obj(closeButton->getLvObj());
       } else {
-        lv_obj_add_flag(closeButton->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_state(closeButton->getLvObj(), LV_STATE_DISABLED);
       }
     }
 
@@ -341,7 +341,9 @@ class ViewChecklistWindow : public ViewTextWindow
 
             if (buffer[cur] == '=') {
               cur++;
-              w -= 36;
+              w -= 46;
+
+              lv_obj_set_style_pad_left(row, 10, 0);
 
               auto cb = lv_checkbox_create(row);
               lv_checkbox_set_text_static(cb, "");
@@ -365,7 +367,10 @@ class ViewChecklistWindow : public ViewTextWindow
           }
         }
 
-        closeButton = new TextButton(window, rect_t{}, STR_EXIT, [=]() -> int8_t { this->onCancel(); return 0; });
+        auto box = new FormWindow(window, rect_t{0, 0, lv_pct(100), LV_SIZE_CONTENT});
+        box->padAll(8);
+
+        closeButton = new TextButton(box, rect_t{}, STR_EXIT, [=]() -> int8_t { this->onCancel(); return 0; });
         closeButton->setWidth(lv_pct(100));
 
         updateCheckboxes();
