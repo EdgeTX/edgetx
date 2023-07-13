@@ -120,7 +120,7 @@ class ModuleData {
     unsigned int subType;
     bool         invertedSerial;
     unsigned int channelsStart;
-    int          channelsCount; // 0=8 channels
+    int          channelsCount;
     unsigned int failsafeMode;
 
     struct PPM {

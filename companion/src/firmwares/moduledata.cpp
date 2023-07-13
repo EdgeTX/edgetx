@@ -400,6 +400,7 @@ int ModuleData::getMaxChannelCount()
         return 16;
       break;
     case PULSES_FLYSKY_AFHDS2A:
+      return 14;
     case PULSES_FLYSKY_AFHDS3:
       return 18;
     case PULSES_LEMON_DSMP:
