@@ -802,7 +802,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
              IS_IFLIGHT_COMMANDO8(board) || IS_RADIOMASTER_BOXER(board);
     case HasIntModuleFlySky:
       return  id.contains("afhds2a") || id.contains("afhds3") ||
-              IS_FLYSKY_NV14(board) // || IS_FLYSKY_EL18(board);
+              IS_FLYSKY_NV14(board) /* || IS_FLYSKY_EL18(board) */ ;
     default:
       return 0;
   }
