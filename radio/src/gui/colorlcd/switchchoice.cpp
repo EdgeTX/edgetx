@@ -276,9 +276,6 @@ class SwitchMatrix : public Window
 
       if (isSwitches) {
         btnsCnt = rows;
-#if NUM_XPOTS > 0
-        btnsCnt += 1;
-#endif
       } else {
         if (rows <= MAX_ROWS)
           btnsCnt = 1;
@@ -299,19 +296,13 @@ class SwitchMatrix : public Window
             n += 1;
           }
         }
-#if NUM_XPOTS > 0
-        // Add multi-position switch
-        int r = (buttonCount(SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH) + cols - 1) / cols;
-        btns[n] = new SwitchButtons(form, SWSRC_FIRST_MULTIPOS_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, m_getValue, m_setValue, m_isValueAvailable, invert, cols, r, r * cols, false);
-        lv_obj_add_event_cb(btns[n]->getLvObj(), longPressHandler, LV_EVENT_LONG_PRESSED, this);
-#endif
       } else {
         if (btnsCnt == 1) {
           btns[0] = new SwitchButtons(form, firstIdx, lastIdx, m_getValue, m_setValue, m_isValueAvailable, invert, cols, rows, btn_cnt, false);
           lv_obj_add_event_cb(btns[0]->getLvObj(), longPressHandler, LV_EVENT_LONG_PRESSED, this);
         } else {
-          int sw = firstIdx;
-          for (int i = 0; i <= rows; i += 1) {
+          for (int i = 0; i < rows; i += 1) {
+            int sw = firstIdx + cols * i;
             int lw = sw + cols - 1;
             if (lw > lastIdx) lw = lastIdx;
             btns[i] = new SwitchButtons(form, sw, lw, m_getValue, m_setValue, m_isValueAvailable, invert, cols, 1, cols, false);
@@ -531,7 +522,7 @@ class SwitchDialog : public ModalWindow
 
       // Switch sections
       maxSection = 0;
-      addSection(switchesForm, STR_MENU_SWITCHES, SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH, maxSection);
+      addSection(switchesForm, STR_MENU_SWITCHES, SWSRC_FIRST_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, maxSection);
       maxSection += 1;
 
       if (vmax >= SWSRC_FIRST_TRIM) {
