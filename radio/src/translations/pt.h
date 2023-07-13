@@ -467,7 +467,7 @@
 // Alignment
 
 #if defined(PPM_CENTER_ADJUSTABLE) || defined(PPM_LIMITS_SYMETRICAL) // The right menu titles for the gurus ...
-  #define TR_MENUINPUTS          "STICKS"
+  #define TR_MENUINPUTS          "ENTRADAS"
   #define TR_MENULIMITS          "SAIDAS"
 #else
   #define TR_MENUINPUTS          "DR/EXPO"
