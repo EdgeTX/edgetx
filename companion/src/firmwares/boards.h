@@ -433,7 +433,7 @@ inline bool IS_FAMILY_HORUS(Board::Type board)
 
 inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
 {
-  return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board)/*generally*/;
+  return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board)/*generally*/ || IS_FLYSKY_EL18(board)/*generally*/;
 }
 
 inline bool IS_HORUS_OR_TARANIS(Board::Type board)
@@ -443,7 +443,7 @@ inline bool IS_HORUS_OR_TARANIS(Board::Type board)
 
 inline bool IS_STM32(Board::Type board)
 {
-  return IS_TARANIS(board) || IS_FAMILY_HORUS_OR_T16(board) || IS_FLYSKY_NV14(board);
+  return IS_TARANIS(board) || IS_FAMILY_HORUS_OR_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board);
 }
 
 inline bool IS_ARM(Board::Type board)
