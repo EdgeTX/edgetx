@@ -85,18 +85,15 @@ void boardInit()
 {
   RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph |
                          PCBREV_RCC_AHB1Periph |
-                         KEYS_RCC_AHB1Periph |
                          LCD_RCC_AHB1Periph |
                          AUDIO_RCC_AHB1Periph |
                          BACKLIGHT_RCC_AHB1Periph |
-                         ADC_RCC_AHB1Periph |
                          SD_RCC_AHB1Periph |
                          HAPTIC_RCC_AHB1Periph |
                          INTMODULE_RCC_AHB1Periph |
                          EXTMODULE_RCC_AHB1Periph |
                          TELEMETRY_RCC_AHB1Periph |
                          SPORT_UPDATE_RCC_AHB1Periph |
-                         AUX_SERIAL_RCC_AHB1Periph |
                          TRAINER_RCC_AHB1Periph |
                          BT_RCC_AHB1Periph |
                          USB_CHARGER_RCC_AHB1Periph,
@@ -105,7 +102,6 @@ void boardInit()
   RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph |
                          LCD_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
-                         ADC_RCC_APB1Periph |
                          BACKLIGHT_RCC_APB1Periph |
                          HAPTIC_RCC_APB1Periph |
                          INTERRUPT_xMS_RCC_APB1Periph |
@@ -118,7 +114,6 @@ void boardInit()
 
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG |
                          BACKLIGHT_RCC_APB2Periph |
-                         ADC_RCC_APB2Periph |
                          HAPTIC_RCC_APB2Periph |
                          BT_RCC_APB2Periph |
                          TELEMETRY_RCC_APB2Periph,

@@ -1228,149 +1228,6 @@
   #define SWITCHES_GPIO_PIN_R_L         LL_GPIO_PIN_0  // PE.00
 #endif
 
-#if defined(PCBX9E)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA|RCC_AHB1Periph_GPIOB|RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOD|RCC_AHB1Periph_GPIOE|RCC_AHB1Periph_GPIOF|RCC_AHB1Periph_GPIOG)
-  #define KEYS_GPIOA_PINS               (SWITCHES_GPIO_PIN_M_L)
-  #define KEYS_GPIOB_PINS               (SWITCHES_GPIO_PIN_N_H | SWITCHES_GPIO_PIN_N_L | SWITCHES_GPIO_PIN_R_H)
-  #define KEYS_GPIOC_PINS               (TRIMS_GPIO_PIN_RVD | TRIMS_GPIO_PIN_RVU | TRIMS_GPIO_PIN_RHL | TRIMS_GPIO_PIN_RHR)
-  #define KEYS_GPIOD_PINS               (KEYS_GPIO_PIN_MENU | KEYS_GPIO_PIN_EXIT | KEYS_GPIO_PIN_PAGE | SWITCHES_GPIO_PIN_A_H | SWITCHES_GPIO_PIN_A_L | ROTARY_ENCODER_GPIO_PIN_A | ROTARY_ENCODER_GPIO_PIN_B)
-  #define KEYS_GPIOE_PINS               (TRIMS_GPIO_PIN_LVU | TRIMS_GPIO_PIN_LVD | SWITCHES_GPIO_PIN_D_H | SWITCHES_GPIO_PIN_D_L| SWITCHES_GPIO_PIN_E_H | SWITCHES_GPIO_PIN_E_L | SWITCHES_GPIO_PIN_F | SWITCHES_GPIO_PIN_I_L | SWITCHES_GPIO_PIN_L_H | SWITCHES_GPIO_PIN_L_L | SWITCHES_GPIO_PIN_M_H | SWITCHES_GPIO_PIN_O_L | SWITCHES_GPIO_PIN_R_L)
-  #define KEYS_GPIOF_PINS               (KEYS_GPIO_PIN_ENTER | SWITCHES_GPIO_PIN_C_H | SWITCHES_GPIO_PIN_C_L | SWITCHES_GPIO_PIN_G_H | SWITCHES_GPIO_PIN_G_L | SWITCHES_GPIO_PIN_H | SWITCHES_GPIO_PIN_I_H | SWITCHES_GPIO_PIN_O_H | SWITCHES_GPIO_PIN_P_H | SWITCHES_GPIO_PIN_P_L | SWITCHES_GPIO_PIN_Q_H | SWITCHES_GPIO_PIN_Q_L)
-  #define KEYS_GPIOG_PINS               (TRIMS_GPIO_PIN_LHL | TRIMS_GPIO_PIN_LHR| SWITCHES_GPIO_PIN_B_H | SWITCHES_GPIO_PIN_B_L | SWITCHES_GPIO_PIN_J_H | SWITCHES_GPIO_PIN_J_L | SWITCHES_GPIO_PIN_K_H | SWITCHES_GPIO_PIN_K_L)
-#elif defined(RADIO_X9DP2019)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               (GPIO_Pin_5)
-  #define KEYS_GPIOB_PINS               (GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5)
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_13)
-  #define KEYS_GPIOD_PINS               (GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_7 | GPIO_Pin_10 | GPIO_Pin_14)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15)
-#elif defined(PCBX9DP)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA|RCC_AHB1Periph_GPIOB|RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOD|RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               (SWITCHES_GPIO_PIN_C_L)
-  #define KEYS_GPIOB_PINS               (SWITCHES_GPIO_PIN_E_L | SWITCHES_GPIO_PIN_E_H | SWITCHES_GPIO_PIN_A_H)
-  #define KEYS_GPIOC_PINS               (TRIMS_GPIO_PIN_RVD | TRIMS_GPIO_PIN_RVU | TRIMS_GPIO_PIN_RHL | TRIMS_GPIO_PIN_RHR)
-  #define KEYS_GPIOD_PINS               (KEYS_GPIO_PIN_MENU | KEYS_GPIO_PIN_EXIT | KEYS_GPIO_PIN_PAGE | SWITCHES_GPIO_PIN_H)
-  #define KEYS_GPIOE_PINS               (KEYS_GPIO_PIN_PLUS | KEYS_GPIO_PIN_ENTER | KEYS_GPIO_PIN_MINUS | TRIMS_GPIO_PIN_LHR | TRIMS_GPIO_PIN_LHL | TRIMS_GPIO_PIN_LVD | TRIMS_GPIO_PIN_LVU | SWITCHES_GPIO_PIN_F | SWITCHES_GPIO_PIN_A_L | SWITCHES_GPIO_PIN_B_H | SWITCHES_GPIO_PIN_B_L | SWITCHES_GPIO_PIN_C_H | SWITCHES_GPIO_PIN_D_H | SWITCHES_GPIO_PIN_D_L | SWITCHES_GPIO_PIN_G_H | SWITCHES_GPIO_PIN_G_L)
-#elif defined(PCBXLITES)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               (GPIO_Pin_5 | GPIO_Pin_6)
-  #define KEYS_GPIOB_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4 | GPIO_Pin_5)
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_5 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14)
-#elif defined(PCBXLITE)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               (GPIO_Pin_5 | GPIO_Pin_6)
-  #define KEYS_GPIOB_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4 | GPIO_Pin_5)
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_4 | GPIO_Pin_5)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14)
-#elif defined(RADIO_TPROV2)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOG)
-  #define KEYS_GPIOA_PINS               (GPIO_Pin_5)
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3)
-  #define KEYS_GPIOD_PINS               (GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_7 | GPIO_Pin_11 | GPIO_Pin_14 | GPIO_Pin_15)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_9  | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15)
-  #define KEYS_GPIOG_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7)
-#elif defined(RADIO_TPRO)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOG)
-  #define KEYS_GPIOA_PINS               (GPIO_Pin_5)
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3)
-  #define KEYS_GPIOD_PINS               (GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_7 | GPIO_Pin_11 | GPIO_Pin_14 | GPIO_Pin_15)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_9  | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15)
-  #define KEYS_GPIOG_PINS               (GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7)
-#elif defined(RADIO_T20)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOG)
-  #define KEYS_GPIOA_PINS               ()
-  #define KEYS_GPIOB_PINS               (SWITCHES_GPIO_PIN_F | TRIMS_GPIO_PIN_T7L | TRIMS_GPIO_PIN_T8U)
-  #define KEYS_GPIOC_PINS               (SWITCHES_GPIO_PIN_C)
-  #define KEYS_GPIOD_PINS               (KEYS_GPIO_PIN_PAGE | KEYS_GPIO_PIN_MENU | KEYS_GPIO_PIN_EXIT | TRIMS_GPIO_PIN_LHL | TRIMS_GPIO_PIN_LVU | SWITCHES_GPIO_PIN_A_L | SWITCHES_GPIO_PIN_A_H | SWITCHES_GPIO_PIN_G | TRIMS_GPIO_PIN_RSD)
-  #define KEYS_GPIOE_PINS               (KEYS_GPIO_PIN_ENTER | TRIMS_GPIO_PIN_RHL | TRIMS_GPIO_PIN_RVU | SWITCHES_GPIO_PIN_B_L | SWITCHES_GPIO_PIN_B_H | SWITCHES_GPIO_PIN_D | SWITCHES_GPIO_PIN_E | SWITCHES_GPIO_PIN_K | SWITCHES_GPIO_PIN_L | SWITCHES_GPIO_PIN_M | SWITCHES_GPIO_PIN_N | SWITCHES_GPIO_PIN_O | SWITCHES_GPIO_PIN_P)
-  #define KEYS_GPIOF_PINS               (TRIMS_GPIO_PIN_RVD | TRIMS_GPIO_PIN_RHR | SWITCHES_GPIO_PIN_H)
-  #define KEYS_GPIOG_PINS               (TRIMS_GPIO_PIN_LHR | TRIMS_GPIO_PIN_LVD | SWITCHES_GPIO_PIN_I | SWITCHES_GPIO_PIN_J | TRIMS_GPIO_PIN_LSD | TRIMS_GPIO_PIN_LSU | TRIMS_GPIO_PIN_RSU | TRIMS_GPIO_PIN_T7R | TRIMS_GPIO_PIN_T8D)
-#elif defined(RADIO_FAMILY_JUMPER_T12)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE)
-#if !defined(RADIO_TLITE)
-  #define KEYS_GPIOA_PINS               GPIO_Pin_5
-#endif
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3)
-  #define KEYS_GPIOD_PINS               (GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_7 | GPIO_Pin_11 | GPIO_Pin_14 | GPIO_Pin_15)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_9  | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15)
-#elif defined(RADIO_ZORRO)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA|RCC_AHB1Periph_GPIOB|RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOD|RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               (KEYS_GPIO_PIN_ENTER | SWITCHES_GPIO_PIN_B_H)
-  #define KEYS_GPIOB_PINS               (KEYS_GPIO_PIN_SYS)
-  #define KEYS_GPIOC_PINS               (KEYS_GPIO_PIN_EXIT | TRIMS_GPIO_PIN_LHR | TRIMS_GPIO_PIN_RVD | TRIMS_GPIO_PIN_RVU | SWITCHES_GPIO_PIN_A)
-  #define KEYS_GPIOD_PINS               (KEYS_GPIO_PIN_PAGEUP | KEYS_GPIO_PIN_PAGEDN | KEYS_GPIO_PIN_TELE | TRIMS_GPIO_PIN_LHL |SWITCHES_GPIO_PIN_C_H | SWITCHES_GPIO_PIN_H)
-  #define KEYS_GPIOE_PINS               (KEYS_GPIO_PIN_MDL | TRIMS_GPIO_PIN_LVD | TRIMS_GPIO_PIN_LVU | TRIMS_GPIO_PIN_RHL | TRIMS_GPIO_PIN_RHR | SWITCHES_GPIO_PIN_B_L | SWITCHES_GPIO_PIN_C_L | SWITCHES_GPIO_PIN_D | SWITCHES_GPIO_PIN_E | SWITCHES_GPIO_PIN_F | SWITCHES_GPIO_PIN_G | ROTARY_ENCODER_GPIO_PIN_A | ROTARY_ENCODER_GPIO_PIN_B)
-#elif defined(RADIO_TX12)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA|RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               (GPIO_Pin_13 | GPIO_Pin_5)
-  #define KEYS_GPIOB_PINS               (GPIO_Pin_3 | GPIO_Pin_4)
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3|GPIO_Pin_13)
-  #define KEYS_GPIOD_PINS               (GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_7 | GPIO_Pin_11 | GPIO_Pin_14 | GPIO_Pin_15)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 |GPIO_Pin_8| GPIO_Pin_9  | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15)
-#elif defined(RADIO_TX12MK2)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA|RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               (GPIO_Pin_10 | GPIO_Pin_5)
-  #define KEYS_GPIOB_PINS               (GPIO_Pin_4)
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_5 | GPIO_Pin_13)
-  #define KEYS_GPIOD_PINS               (GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_7 | GPIO_Pin_11 | GPIO_Pin_14 | GPIO_Pin_15)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9  | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_14 | GPIO_Pin_15)
-#elif defined(RADIO_BOXER)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA|RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               (GPIO_Pin_10)
-  #define KEYS_GPIOB_PINS               (GPIO_Pin_4)
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_5 | GPIO_Pin_13)
-  #define KEYS_GPIOD_PINS               (GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_7 | GPIO_Pin_11 | GPIO_Pin_14 | GPIO_Pin_15)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9  | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_14 | GPIO_Pin_15)
-#elif defined(RADIO_T8)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               (KEYS_GPIO_PIN_ENTER | KEYS_GPIO_PIN_BIND)
-  #define KEYS_GPIOB_PINS               (KEYS_GPIO_PIN_EXIT | KEYS_GPIO_PIN_SYS)
-  #define KEYS_GPIOC_PINS               (TRIMS_GPIO_PIN_LHR | TRIMS_GPIO_PIN_RVU | TRIMS_GPIO_PIN_RVD)
-  #define KEYS_GPIOD_PINS               (KEYS_GPIO_PIN_PAGEUP | KEYS_GPIO_PIN_PAGEDN | SWITCHES_GPIO_PIN_D | TRIMS_GPIO_PIN_LHL)
-  #define KEYS_GPIOE_PINS               (SWITCHES_GPIO_PIN_C_H | SWITCHES_GPIO_PIN_C_L | TRIMS_GPIO_PIN_RHL | TRIMS_GPIO_PIN_RHR | TRIMS_GPIO_PIN_LVU | TRIMS_GPIO_PIN_LVD | SWITCHES_GPIO_PIN_B_L | KEYS_GPIO_PIN_PLUS  | KEYS_GPIO_PIN_MINUS | KEYS_GPIO_PIN_MDL | SWITCHES_GPIO_PIN_B_H | SWITCHES_GPIO_PIN_A)
-#elif defined(RADIO_COMMANDO8)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               (SWITCHES_GPIO_PIN_D |SWITCHES_GPIO_PIN_C_H)
-  #define KEYS_GPIOB_PINS               (0)
-  #define KEYS_GPIOC_PINS               (SWITCHES_GPIO_PIN_C_L | TRIMS_GPIO_PIN_LHR | TRIMS_GPIO_PIN_RVU | TRIMS_GPIO_PIN_RVD)
-  #define KEYS_GPIOD_PINS               (KEYS_GPIO_PIN_EXIT | KEYS_GPIO_PIN_MDL |KEYS_GPIO_PIN_SYS| TRIMS_GPIO_PIN_LHL|KEYS_GPIO_PIN_BIND)
-  #define KEYS_GPIOE_PINS               (KEYS_GPIO_PIN_ENTER | KEYS_GPIO_PIN_PAGEUP | KEYS_GPIO_PIN_PAGEDN | TRIMS_GPIO_PIN_RHL | TRIMS_GPIO_PIN_RHR | TRIMS_GPIO_PIN_LVU | TRIMS_GPIO_PIN_LVD | SWITCHES_GPIO_PIN_B_L | KEYS_GPIO_PIN_PLUS  | KEYS_GPIO_PIN_MINUS | SWITCHES_GPIO_PIN_B_H | SWITCHES_GPIO_PIN_A)
-#elif defined(RADIO_X7ACCESS)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               GPIO_Pin_5
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_13)
-  #define KEYS_GPIOD_PINS               (GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_7 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_14 | GPIO_Pin_15)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15)
-#elif defined(RADIO_X7)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               GPIO_Pin_5
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_13)
-  #define KEYS_GPIOD_PINS               (GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_7 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_14 | GPIO_Pin_15)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15)
-#elif defined(PCBX9LITES)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               (GPIO_Pin_5)
-  #define KEYS_GPIOB_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4 | GPIO_Pin_5)
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_13)
-  #define KEYS_GPIOD_PINS               (GPIO_Pin_8 | GPIO_Pin_9)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14)
-#elif defined(PCBX9LITE)
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               (GPIO_Pin_5)
-  #define KEYS_GPIOB_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4 | GPIO_Pin_5)
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_13)
-  #define KEYS_GPIOD_PINS               (GPIO_Pin_8 | GPIO_Pin_9)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14)
-#else
-  #define KEYS_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA|RCC_AHB1Periph_GPIOB|RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOD|RCC_AHB1Periph_GPIOE)
-  #define KEYS_GPIOA_PINS               (SWITCHES_GPIO_PIN_C_L)
-  #define KEYS_GPIOB_PINS               (SWITCHES_GPIO_PIN_E_L | SWITCHES_GPIO_PIN_E_H | SWITCHES_GPIO_PIN_A_H | SWITCHES_GPIO_PIN_D_L)
-  #define KEYS_GPIOC_PINS               (TRIMS_GPIO_PIN_RVD | TRIMS_GPIO_PIN_RVU | TRIMS_GPIO_PIN_RHL | TRIMS_GPIO_PIN_RHR)
-  #define KEYS_GPIOD_PINS               (KEYS_GPIO_PIN_MENU | KEYS_GPIO_PIN_EXIT | KEYS_GPIO_PIN_PAGE)
-  #define KEYS_GPIOE_PINS               (KEYS_GPIO_PIN_PLUS | KEYS_GPIO_PIN_ENTER | KEYS_GPIO_PIN_MINUS | TRIMS_GPIO_PIN_LHR | TRIMS_GPIO_PIN_LHL | TRIMS_GPIO_PIN_LVD | TRIMS_GPIO_PIN_LVU | SWITCHES_GPIO_PIN_F | SWITCHES_GPIO_PIN_A_L | SWITCHES_GPIO_PIN_B_H | SWITCHES_GPIO_PIN_B_L | SWITCHES_GPIO_PIN_C_H | SWITCHES_GPIO_PIN_D_H | SWITCHES_GPIO_PIN_G_H | SWITCHES_GPIO_PIN_G_L | SWITCHES_GPIO_PIN_H)
-#endif
-
 // ADC
 #if !defined(RADIO_T20)
   #define ADC_MAIN                      ADC1
@@ -1389,9 +1246,6 @@
   #define HARDWARE_POT2
   #define HARDWARE_POT3
   #define HARDWARE_POT4
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            0
-  #define ADC_RCC_APB2Periph            0
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_0  // PA.00
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_1  // PA.01
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_2  // PA.02
@@ -1435,9 +1289,6 @@
   #define HARDWARE_POT1
   #define HARDWARE_POT2
   #define HARDWARE_POT3
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            0
-  #define ADC_RCC_APB2Periph            0
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_0  // PA.00
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_1  // PA.01
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_2  // PA.02
@@ -1471,9 +1322,6 @@
 #elif defined(PCBXLITE)
   #define HARDWARE_POT1
   #define HARDWARE_POT2
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            RCC_APB1Periph_TIM5
-  #define ADC_RCC_APB2Periph            0
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_3  // PA.03
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_2  // PA.02
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_0  // PA.00
@@ -1504,9 +1352,6 @@
   #define ADC_VREF_PREC2                330
 #elif defined(RADIO_T8)
   // No pots
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            0
-  #define ADC_RCC_APB2Periph            0
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_0  // PA.00
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_1  // PA.01
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_2  // PA.02
@@ -1522,9 +1367,6 @@
   #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_10
   #define ADC_VREF_PREC2                300
 #elif defined(RADIO_COMMANDO8)
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            RCC_APB1Periph_TIM5
-  #define ADC_RCC_APB2Periph            0
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_1  // PA.01  
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_0  // PA.00  
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_2  // PA.02  
@@ -1551,9 +1393,6 @@
   #define STICK_PWM_CHANNEL_RV          2
   #define STICK_PWM_CHANNEL_RH          3  
 #elif defined(RADIO_TLITE) || defined(RADIO_LR3PRO)
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            0
-  #define ADC_RCC_APB2Periph            0
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_0  // PA.00
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_1  // PA.01
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_2  // PA.02
@@ -1571,9 +1410,6 @@
 #elif defined(RADIO_TPRO) || defined(RADIO_TPROV2)
   #define HARDWARE_POT1
   #define HARDWARE_POT2
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            0
-  #define ADC_RCC_APB2Periph            0
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_0  // PA.00
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_1  // PA.01
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_2  // PA.02
@@ -1593,9 +1429,6 @@
   #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_10
   #define ADC_VREF_PREC2                330
 #elif defined(RADIO_T20)
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            0
-  #define ADC_RCC_APB2Periph            0
   #define ADC_MAIN                      ADC3
   #define ADC_DMA                       DMA2
   #define ADC_DMA_CHANNEL               LL_DMA_CHANNEL_2
@@ -1634,9 +1467,6 @@
 #elif defined(PCBX7)
   #define HARDWARE_POT1
   #define HARDWARE_POT2
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            0
-  #define ADC_RCC_APB2Periph            0
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_0  // PA.00
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_1  // PA.01
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_2  // PA.02
@@ -1665,9 +1495,6 @@
   #define ADC_VREF_PREC2                330
 #elif defined(PCBX9LITE)
   #define HARDWARE_POT1
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            0
-  #define ADC_RCC_APB2Periph            0
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_0  // PA.00
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_1  // PA.01
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_2  // PA.02
@@ -1686,9 +1513,6 @@
 #else
   #define HARDWARE_POT1
   #define HARDWARE_POT2
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            0
-  #define ADC_RCC_APB2Periph            0
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_0  // PA.00
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_1  // PA.01
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_2  // PA.02
@@ -2262,10 +2086,8 @@
 
 // Serial Port
 #if (defined(PCBX7) && !defined(RADIO_ZORRO) && !defined(RADIO_TX12MK2)) && !defined(RADIO_BOXER) || defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019)
-  #define AUX_SERIAL_RCC_AHB1Periph         0
 #else
   #define HARDWARE_TRAINER_AUX_SERIAL
-  #define AUX_SERIAL_RCC_AHB1Periph         (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_DMA1)
   #define AUX_SERIAL_GPIO                   GPIOB
   #define AUX_SERIAL_GPIO_PIN_TX            GPIO_Pin_10 // PB.10
   #define AUX_SERIAL_GPIO_PIN_RX            GPIO_Pin_11 // PB.11
