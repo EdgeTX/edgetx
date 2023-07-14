@@ -771,17 +771,14 @@
 #else
   #define TOUCH_RST_GPIO_PIN              LL_GPIO_PIN_10  // PF.10
 #endif
-  #define TOUCH_INT_EXTI_LINE1            EXTI_Line2
-  #define TOUCH_INT_EXTI_IRQn1            EXTI2_IRQn
-  #define TOUCH_INT_EXTI_IRQHandler1      EXTI2_IRQHandler
-  #define TOUCH_INT_EXTI_PortSource       EXTI_PortSourceGPIOH
-  #define TOUCH_INT_EXTI_PinSource1       EXTI_PinSource2
-
   #define TOUCH_INT_EXTI_Line             LL_EXTI_LINE_2
   #define TOUCH_INT_EXTI_Port             LL_SYSCFG_EXTI_PORTH
   #define TOUCH_INT_EXTI_SysCfgLine       LL_SYSCFG_EXTI_LINE2
-  #define TOUCH_INT_EXTI_IRQn             EXTI2_IRQn
-  #define TOUCH_INT_EXTI_IRQHandler       EXTI2_IRQHandler
+  // TOUCH_INT_EXTI IRQ
+#if !defined(USE_EXTI2_IRQ)
+  #define USE_EXTI2_IRQ
+  #define EXTI2_IRQ_Priority  9
+#endif
 
 #if defined(PCBX12S)
   #define TOUCH_PANEL_INVERTED
