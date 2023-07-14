@@ -1797,6 +1797,11 @@ Vil du indlæse indstillinger fra en fil?</translation>
         <translation>Indstil hoved billede</translation>
     </message>
     <message>
+        <location filename="../firmwares/customfunctiondata.cpp" line="129"/>
+        <source>Audio Amp Off</source>
+        <translation>Sluk audio amplifier</translation>
+    </message>
+    <message>
         <source>Value</source>
         <translation>Værdi</translation>
     </message>
