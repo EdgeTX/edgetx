@@ -164,4 +164,10 @@ TEST(Lua, testModelInputs)
 
 }
 
+TEST(Lua, Switches)
+{
+  luaExecStr("if MIXSRC_SA == nil then error('failed') end");
+  luaExecStr("if MIXSRC_SB == nil then error('failed') end");
+}
+
 #endif   // #if defined(LUA)
