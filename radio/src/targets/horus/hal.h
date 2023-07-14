@@ -325,8 +325,8 @@
   #define ADC_RCC_APB2Periph            0
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_0      // PA.00
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_1      // PA.01
-  #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_2      // PA.02
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_3      // PA.03
+  #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_2      // PA.02
   #define ADC_GPIO_PIN_POT1             LL_GPIO_PIN_0      // PC.00
   #define ADC_GPIO_PIN_POT2             LL_GPIO_PIN_1      // PC.01
   #define ADC_GPIO_PIN_POT3             LL_GPIO_PIN_2      // PC.02 //
@@ -345,6 +345,10 @@
     #define PWM_IRQHandler              TIM5_IRQHandler
     #define PWM_IRQn                    TIM5_IRQn
     #define PWM_GPIOA_PINS              (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV)
+    #define STICK_PWM_CHANNEL_LH          0
+    #define STICK_PWM_CHANNEL_LV          1
+    #define STICK_PWM_CHANNEL_RV          3
+    #define STICK_PWM_CHANNEL_RH          2
   #endif
   #define ADC_GPIOA_PINS_FS             (LL_GPIO_PIN_2 | LL_GPIO_PIN_3)
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV)
@@ -393,7 +397,7 @@
 #elif defined(RADIO_TX16S)
   #define ADC_DIRECTION                 {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 }
 #elif defined(PCBX10)
-  #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,  1,1,1,1,   1,-1 }
+  #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,  1,-1,1,1,   1,-1 }
 #elif defined(PCBX12S)
   #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,  1,-1,  -1,-1, 0,0,0}
 #else

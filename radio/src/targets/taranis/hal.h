@@ -1474,10 +1474,10 @@
   #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
   #define ADC_RCC_APB1Periph            RCC_APB1Periph_TIM5
   #define ADC_RCC_APB2Periph            0
+  #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_3  // PA.03
+  #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_2  // PA.02
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_0  // PA.00
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_1  // PA.01
-  #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_2  // PA.02
-  #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_3  // PA.03
   #define ADC_GPIO_PIN_POT1             LL_GPIO_PIN_1  // PC.01
   #define ADC_GPIO_PIN_POT2             LL_GPIO_PIN_2  // PC.02
   #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_0  // PC.00
@@ -1488,12 +1488,16 @@
   #define PWM_IRQHandler                TIM5_IRQHandler
   #define PWM_IRQn                      TIM5_IRQn
   #define PWM_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_LH)
+  #define STICK_PWM_CHANNEL_LH          3
+  #define STICK_PWM_CHANNEL_LV          2
+  #define STICK_PWM_CHANNEL_RV          0
+  #define STICK_PWM_CHANNEL_RH          1
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_LH)
   #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_BATT)
+  #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_0  // ADC1_IN0
+  #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_1  // ADC1_IN1
   #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_3  // ADC1_IN3
   #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_2  // ADC1_IN2
-  #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_1  // ADC1_IN1
-  #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_0  // ADC1_IN0
   #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_11 // ADC1_IN11
   #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_12 // ADC1_IN12
   #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_10 // ADC1_IN10
@@ -1521,10 +1525,10 @@
   #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
   #define ADC_RCC_APB1Periph            RCC_APB1Periph_TIM5
   #define ADC_RCC_APB2Periph            0
+  #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_1  // PA.01  
+  #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_0  // PA.00  
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_2  // PA.02  
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_3  // PA.03  
-  #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_0  // PA.00  
-  #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_1  // PA.01  
   #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_2  // ADC1_IN2  
   #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_3  // ADC1_IN3  
   #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_0  // ADC1_IN0  
@@ -1535,18 +1539,17 @@
   #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_15
   #define ADC_VREF_PREC2                320  
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
-  #define PWM_IRQHandler                TIM5_IRQHandler
   #define PWM_STICKS
+  #define PWM_IRQHandler                TIM5_IRQHandler
   #define PWM_TIMER                     TIM5
   #define PWM_GPIO                      GPIOA
   #define PWM_GPIO_AF                   GPIO_AF_TIM5
   #define PWM_IRQn                      TIM5_IRQn
   #define PWM_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
-  #define STICK_CHANNEL_CHANGE
-  #define STICK_PWM_CHANNEL_0           1
-  #define STICK_PWM_CHANNEL_1           0
-  #define STICK_PWM_CHANNEL_2           2
-  #define STICK_PWM_CHANNEL_3           3  
+  #define STICK_PWM_CHANNEL_LH          1
+  #define STICK_PWM_CHANNEL_LV          0
+  #define STICK_PWM_CHANNEL_RV          2
+  #define STICK_PWM_CHANNEL_RH          3  
 #elif defined(RADIO_TLITE) || defined(RADIO_LR3PRO)
   #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
   #define ADC_RCC_APB1Periph            0
