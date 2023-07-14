@@ -202,7 +202,6 @@ extern const char* const STR_ISRM_RF_PROTOCOLS[];
 extern const char* const STR_R9M_PXX2_RF_PROTOCOLS[];
 extern const char* const STR_PPM_PROTOCOLS[];
 extern const char* const STR_DSM_PROTOCOLS[];
-extern const char* const STR_FLYSKY_PROTOCOLS[];
 extern const char* const STR_CRSF_BAUDRATE[];
 extern const char* const STR_PPM_POL[];
 extern const char* const STR_SBUS_INVERSION_VALUES[];
