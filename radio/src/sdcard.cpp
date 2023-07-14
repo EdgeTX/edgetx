@@ -463,7 +463,7 @@ uint32_t sdGetSize()
 
 uint32_t sdGetFreeSectors()
 {
-  return 10;
+  return ((50 *1024*1024)/BLOCK_SIZE)+1; // SIMU SD card is always above threshold
 }
 
 #endif  // #if !defined(SIMU) || defined(SIMU_DISKIO)
