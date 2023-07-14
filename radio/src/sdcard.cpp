@@ -30,6 +30,8 @@
   #include "libopenui/src/libopenui_file.h"
 #endif
 
+#define SDCARD_MIN_FREE_SPACE_MB 50 // Maintain a 50MB free space buffer to prevent crashes
+
 const char * sdCheckAndCreateDirectory(const char * path)
 {
   DIR archiveFolder;
@@ -463,7 +465,7 @@ uint32_t sdGetSize()
 
 uint32_t sdGetFreeSectors()
 {
-  return ((50 *1024*1024)/BLOCK_SIZE)+1;    // SIMU SD card is always above threshold
+  return ((SDCARD_MIN_FREE_SPACE_MB*1024*1024)/BLOCK_SIZE)+1;    // SIMU SD card is always above threshold
 }
 
 #endif  // #if !defined(SIMU) || defined(SIMU_DISKIO)
