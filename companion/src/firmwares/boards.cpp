@@ -109,6 +109,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4378746F;
     case BOARD_FLYSKY_NV14:
       return 0x3A78746F;
+    case BOARD_FLYSKY_EL18:
+      return 0x3A78746F;  //  TODO: check this
     default:
       return 0;
   }
@@ -153,6 +155,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_JUMPER_T18:
     case BOARD_RADIOMASTER_TX16S:
     case BOARD_FLYSKY_NV14:
+    case BOARD_FLYSKY_EL18:
       return 0;
     default:
       return 0;
@@ -196,6 +199,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_JUMPER_T18:
     case BOARD_RADIOMASTER_TX16S:
     case BOARD_FLYSKY_NV14:
+    case BOARD_FLYSKY_EL18:
       return FSIZE_HORUS;
     case BOARD_UNKNOWN:
       return FSIZE_MAX;
@@ -342,7 +346,7 @@ SwitchInfo Boards::getSwitchInfo(Board::Type board, int index)
     if (index < DIM(switches))
       return switches[index];
   }
-  else if (IS_FLYSKY_NV14(board)) {
+  else if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)) {
     const Board::SwitchInfo switches[] = {
       {SWITCH_2POS,   "SA"},
       {SWITCH_3POS,   "SB"},
@@ -434,7 +438,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 7;
       else if (IS_HORUS_X12S(board))
         return 3;
-      else if (IS_FLYSKY_NV14(board))
+      else if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return 2;
       else
         return 3;
@@ -466,10 +470,11 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 0;
 
     case MaxAnalogs:
-      return getCapability(board, Board::Sticks) + getCapability(board, Board::Pots) + getCapability(board, Board::Sliders) + getCapability(board, Board::MouseAnalogs) + getCapability(board, Board::GyroAnalogs);
+      return getCapability(board, Board::Sticks) + getCapability(board, Board::Pots) + getCapability(board, Board::Sliders) +
+             getCapability(board, Board::MouseAnalogs) + getCapability(board, Board::GyroAnalogs);
 
     case MultiposPots:
-      if (IS_HORUS_OR_TARANIS(board) && !IS_FLYSKY_NV14(board))
+      if (IS_HORUS_OR_TARANIS(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)))
         return getCapability(board, Board::Pots);
       else
         return 0;
@@ -492,7 +497,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
                board == BOARD_JUMPER_TPRO || board == BOARD_BETAFPV_LR3PRO ||
                board == BOARD_IFLIGHT_COMMANDO8)
         return 4;
-      else if (board == BOARD_FLYSKY_NV14)
+      else if (board == BOARD_FLYSKY_NV14 || board == BOARD_FLYSKY_EL18)
         return 8;
       else if (board == BOARD_RADIOMASTER_TX12_MK2 || board == BOARD_RADIOMASTER_BOXER)
         return 6;
@@ -527,7 +532,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return getCapability(board, Board::Switches);
 
     case SwitchPositions:
-      if (IS_HORUS_OR_TARANIS(board) || IS_FLYSKY_NV14(board))
+      if (IS_HORUS_OR_TARANIS(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return getCapability(board, Board::Switches) * 3;
       else
         return 9;
@@ -537,7 +542,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
 
 
     case NumTrims:
-      if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board))
+      if (IS_FAMILY_HORUS_OR_T16(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)))
         return 6;
       else if (IS_IFLIGHT_COMMANDO8(board))
         return 0;
@@ -563,12 +568,12 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return (IS_STM32(board) && !IS_RADIOMASTER_T8(board));
 
     case HasAudioMuteGPIO:
-      // All color lcd (including NV14) except Horus X12S
+      // All color lcd (including NV14 and EL18) except Horus X12S
       // TX12, TX12MK2, ZORRO, BOXER, T8, TLITE, TPRO, LR3PRO, COMMANDO8
       return (IS_FAMILY_HORUS_OR_T16(board) && !IS_HORUS_X12S(board)) || IS_FAMILY_T12(board);
 
     case SportMaxBaudRate:
-      if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_TARANIS_X7_ACCESS(board) ||
+      if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_TARANIS_X7_ACCESS(board) ||
          (IS_TARANIS(board) && !IS_TARANIS_XLITE(board) && !IS_TARANIS_X7(board) && !IS_TARANIS_X9LITE(board)))
         return 400000;  //  400K and higher
       else
@@ -676,31 +681,16 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board, const
                             });
     }
   } else if (IS_RADIOMASTER_BOXER(board)) {
-    if (version < adcVersion) {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "POT1"},
-                                {tr("S2").toStdString(), "POT2"},
-                                {tr("S3").toStdString(), "POT3"},
-                            });
-    } else {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "P1", 4},
-                                {tr("S2").toStdString(), "P2", 5},
-                                {tr("S3").toStdString(), "P3", 6},
-                            });
-    }
-  } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board)) || IS_FLYSKY_NV14(board)) {
-    if (version < adcVersion) {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "POT1"},
-                                {tr("S2").toStdString(), "POT2"},
-                            });
-    } else {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "P1", 4},
-                                {tr("S2").toStdString(), "P2", 5},
-                            });
-    }
+    tbl.insert(tbl.end(), {
+                              {tr("S1").toStdString(), "POT1"},
+                              {tr("S2").toStdString(), "POT2"},
+                              {tr("S3").toStdString(), "POT3"},
+                          });
+  } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board)) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("S1").toStdString(), "POT1"},
+                              {tr("S2").toStdString(), "POT2"},
+                          });
   } else if (IS_TARANIS_X9(board)) {
     if (version < adcVersion) {
       tbl.insert(tbl.end(), {
@@ -863,6 +853,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Radiomaster T8";
     case BOARD_FLYSKY_NV14:
       return "FlySky NV14";
+    case BOARD_FLYSKY_EL18:
+      return "FlySky EL18";
     case BOARD_BETAFPV_LR3PRO:
       return "BETAFPV LR3PRO";
     case BOARD_IFLIGHT_COMMANDO8:
@@ -1035,6 +1027,8 @@ QList<int> Boards::getSupportedInternalModules(Board::Type board)
     modules.append({(int)MODULE_TYPE_ISRM_PXX2});
   } else if (IS_FLYSKY_NV14(board)) {
     modules.append({(int)MODULE_TYPE_FLYSKY_AFHDS2A});
+  } else if (IS_FLYSKY_EL18(board)) {
+    modules.append({(int)MODULE_TYPE_FLYSKY_AFHDS3});
   } else if (IS_FAMILY_HORUS_OR_T16(board) || IS_FAMILY_T12(board)
              || (IS_TARANIS_SMALL(board) && IS_ACCESS_RADIO(board))) {
     modules.append({
@@ -1090,6 +1084,9 @@ int Boards::getDefaultInternalModules(Board::Type board)
 
   case BOARD_FLYSKY_NV14:
     return (int)MODULE_TYPE_FLYSKY_AFHDS2A;
+
+  case BOARD_FLYSKY_EL18:
+    return (int)MODULE_TYPE_FLYSKY_AFHDS3;
 
   default:
     return (int)MODULE_TYPE_NONE;
