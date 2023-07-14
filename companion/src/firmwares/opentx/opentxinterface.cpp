@@ -116,6 +116,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for FrSky X10 Express";
     case BOARD_FLYSKY_NV14:
       return "EdgeTX for FlySky NV14";
+    case BOARD_FLYSKY_EL18:
+      return "EdgeTX for FlySky EL18";
     case BOARD_BETAFPV_LR3PRO:
       return "EdgeTx for BETAFPV LR3PRO";
     case BOARD_IFLIGHT_COMMANDO8:
@@ -656,7 +658,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasSDLogs:
       return true;
     case LcdWidth:
-      if (IS_FLYSKY_NV14(board))
+      if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return 320;
       else if (IS_FAMILY_HORUS_OR_T16(board))
         return 480;
@@ -667,7 +669,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       else
         return 128;
     case LcdHeight:
-      if (IS_FLYSKY_NV14(board))
+      if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return 480;
       else if (IS_FAMILY_HORUS_OR_T16(board))
         return 272;
@@ -761,7 +763,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       else
         return 40;
     case HasAuxSerialMode:
-      return (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)) ||
+      return (IS_FAMILY_HORUS_OR_T16(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))) ||
              (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board)) ||
              IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board);
     case HasAux2SerialMode:
@@ -770,7 +772,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_ZORRO(board) ||
              IS_JUMPER_TPRO(board) || IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_BOXER(board);
     case HasBluetooth:
-      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board)) ? true : false;
+      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) ||
+              IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)) ? true : false;
     case HasADCJitterFilter:
       return IS_HORUS_OR_TARANIS(board);
     case HasTelemetryBaudrate:
@@ -802,7 +805,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
              IS_IFLIGHT_COMMANDO8(board) || IS_RADIOMASTER_BOXER(board);
     case HasIntModuleFlySky:
       return  id.contains("afhds2a") || id.contains("afhds3") ||
-              IS_FLYSKY_NV14(board) /* || IS_FLYSKY_EL18(board) */ ;
+              IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board);
     default:
       return 0;
   }
@@ -1137,13 +1140,15 @@ enum RfOptions {
   NONE = 0,
   EU = 1 << 0,
   FLEX = 1 << 1,
-  AFHDS3 = 1 << 2
+  AFHDS2A = 1 << 2,
+  AFHDS3 = 1 << 3,
 };
 
 void addOpenTxRfOptions(OpenTxFirmware * firmware, uint8_t options)
 {
   static const Firmware::Option opt_eu("eu", Firmware::tr("Removes D8 FrSky protocol support which is not legal for use in the EU on radios sold after Jan 1st, 2015"));
   static const Firmware::Option opt_fl("flexr9m", Firmware::tr("Enable non certified firmwares"));
+  static const Firmware::Option opt_afhds2a("afhds2a", Firmware::tr("Enable AFHDS2A support"));
   static const Firmware::Option opt_afhds3("afhds3", Firmware::tr("Enable AFHDS3 support"));
 
 
@@ -1153,6 +1158,8 @@ void addOpenTxRfOptions(OpenTxFirmware * firmware, uint8_t options)
     firmware->addOption(opt_eu);
   else if ((options & FLEX) != 0)
     firmware->addOption(opt_fl);
+  if ((options & AFHDS2A) != 0)
+    firmware->addOption(opt_afhds2a);
   if ((options & AFHDS3) != 0)
     firmware->addOption(opt_afhds3);
 }
@@ -1206,7 +1213,7 @@ void registerOpenTxFirmwares()
   firmware->addOption("noras", Firmware::tr("Disable RAS (SWR)"));
   addOpenTxTaranisOptions(firmware);
   registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, EU + FLEX + AFHDS3);
+  addOpenTxRfOptions(firmware, EU + FLEX + AFHDS2A + AFHDS3);
 
   /* FrSky Taranis X9D+ 2019 board */
   firmware = new OpenTxFirmware(FIRMWAREID("x9d+2019"), Firmware::tr("FrSky Taranis X9D+ 2019"), BOARD_TARANIS_X9DP_2019, "x9dp2019");
@@ -1220,7 +1227,7 @@ void registerOpenTxFirmwares()
   firmware->addOption("haptic", Firmware::tr("Haptic module installed"));
   addOpenTxTaranisOptions(firmware);
   registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, EU + FLEX + AFHDS3);
+  addOpenTxRfOptions(firmware, EU + FLEX + AFHDS2A + AFHDS3);
 
   /* FrSky Taranis X9E board */
   firmware = new OpenTxFirmware(FIRMWAREID("x9e"), Firmware::tr("FrSky Taranis X9E"), BOARD_TARANIS_X9E);
@@ -1366,7 +1373,7 @@ void registerOpenTxFirmwares()
   firmware->addOption("internalelrs", Firmware::tr("Select if internal ELRS module is installed"));
   addOpenTxFontOptions(firmware);
   registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
+  addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
 
   /* Radiomaster Boxer board */
   firmware = new OpenTxFirmware(FIRMWAREID("boxer"), QCoreApplication::translate("Firmware", "Radiomaster Boxer"), Board::BOARD_RADIOMASTER_BOXER);
@@ -1376,7 +1383,7 @@ void registerOpenTxFirmwares()
   firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
   addOpenTxFontOptions(firmware);
   registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
+  addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
 
   /* Radiomaster T8 board */
   firmware = new OpenTxFirmware(FIRMWAREID("t8"), QCoreApplication::translate("Firmware", "Radiomaster T8"), BOARD_RADIOMASTER_T8);
@@ -1410,7 +1417,14 @@ void registerOpenTxFirmwares()
   firmware = new OpenTxFirmware(FIRMWAREID("nv14"), QCoreApplication::translate("Firmware", "FlySky NV14"), BOARD_FLYSKY_NV14);
   addOpenTxFrskyOptions(firmware);
   firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
-  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
+  addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
+  registerOpenTxFirmware(firmware);
+
+  /* FlySky EL18 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("el18"), QCoreApplication::translate("Firmware", "FlySky EL18"), BOARD_FLYSKY_EL18);
+  addOpenTxFrskyOptions(firmware);
+  firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
+  addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
   registerOpenTxFirmware(firmware);
 
   /* BETAFPV LR3PRO board */
