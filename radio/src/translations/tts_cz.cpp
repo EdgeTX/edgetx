@@ -39,7 +39,7 @@ enum CzechPrompts {
 };
 
 
-  #define CZ_PUSH_UNIT_PROMPT(u, p) cz_pushUnitPrompt((u), (p), id)
+#define CZ_PUSH_UNIT_PROMPT(u, p) cz_pushUnitPrompt((u), (p), id, _volume)
 
 #define MALE     0x80
 #define FEMALE     0x81

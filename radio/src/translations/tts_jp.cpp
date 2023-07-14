@@ -34,7 +34,7 @@ enum JapanesePrompts {
 };
 
 
-  #define JP_PUSH_UNIT_PROMPT(u, p) jp_pushUnitPrompt((u), (p), id)
+#define JP_PUSH_UNIT_PROMPT(u, p) jp_pushUnitPrompt((u), (p), id, _volume)
 
 I18N_PLAY_FUNCTION(jp, pushUnitPrompt, uint8_t unitprompt, int16_t number)
 {

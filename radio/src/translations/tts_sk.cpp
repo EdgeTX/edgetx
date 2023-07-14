@@ -40,7 +40,7 @@ enum SlovakPrompts {
 };
 
 
-  #define SK_PUSH_UNIT_PROMPT(u, p) sk_pushUnitPrompt((u), (p), id)
+#define SK_PUSH_UNIT_PROMPT(u, p) sk_pushUnitPrompt((u), (p), id, _volume)
 
 #define MUZSKY 0x80
 #define ZENSKY 0x81

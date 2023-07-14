@@ -34,7 +34,7 @@ enum EnglishPrompts {
 };
 
 
-  #define EN_PUSH_UNIT_PROMPT(u, p) en_pushUnitPrompt((u), (p), id)
+#define EN_PUSH_UNIT_PROMPT(u, p) en_pushUnitPrompt((u), (p), id, _volume)
 
 I18N_PLAY_FUNCTION(en, pushUnitPrompt, uint8_t unitprompt, int16_t number)
 {
@@ -46,6 +46,7 @@ I18N_PLAY_FUNCTION(en, pushUnitPrompt, uint8_t unitprompt, int16_t number)
 
 I18N_PLAY_FUNCTION(en, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
 {
+  TRACE("I18N_PLAY_FUNCTION v %d", _volume);
   if (number < 0) {
     PUSH_NUMBER_PROMPT(EN_PROMPT_MINUS);
     number = -number;

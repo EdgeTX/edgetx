@@ -34,7 +34,7 @@ enum HebrewPrompts {
 };
 
 
-  #define HE_PUSH_UNIT_PROMPT(u, p) he_pushUnitPrompt((u), (p), id)
+#define HE_PUSH_UNIT_PROMPT(u, p) he_pushUnitPrompt((u), (p), id, _volume)
 
 I18N_PLAY_FUNCTION(he, pushUnitPrompt, uint8_t unitprompt, int16_t number)
 {

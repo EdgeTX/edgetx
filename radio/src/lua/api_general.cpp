@@ -1421,9 +1421,9 @@ static int luaGetFlightMode(lua_State * L)
 }
 
 /*luadoc
-@function playFile(name)
+@function playFile(filename[, volume])
 
-Play a file from the SD card
+Play a filename from the SD card
 
 @param path (string) full path to wav file (i.e. “/SOUNDS/en/system/tada.wav”)
 Introduced in 2.1.0: If you use a relative path, the current language is appended
@@ -1440,11 +1440,13 @@ to the path (example: for English language: `/SOUNDS/en` is appended)
 // targets: BW, COLOR
 //
 // LUADOC TODO:
-//  - Add  USE_SYSTEMSETTINGS (value 127) constant to CONSTANTS section
+//  - Add  USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
 //
-//  EXAMPLES:
-// https://github.com/EdgeTX/edgetx/pull/3784
-
+// EXAMPLES:
+// playFile("armed.wav",2)  -- play file armed.wav, volume 2 clicks higher than radio setting Wav volume
+// playFile("armed.wav",-1) -- play file armed.wav, volume 1 click lower than radio setting Wav volume
+// playFile("armed.wav", 0) -- play file armed.wav, volume radio setting Wav volume
+// playFile("armed.wav")		-- play file armed.wav, volume radio setting Wav volume
 */
 static int luaPlayFile(lua_State * L)
 {
@@ -1466,7 +1468,7 @@ static int luaPlayFile(lua_State * L)
 }
 
 /*luadoc
-@function playNumber(value, unit [, attributes])
+@function playNumber(value, unit [, attributes [, volume]])
 
 Play a numerical value (text to speech)
 
@@ -1478,16 +1480,35 @@ Play a numerical value (text to speech)
  * `0 or not present` plays integral part of the number (for a number 123 it plays 123)
  * `PREC1` plays a number with one decimal place (for a number 123 it plays 12.3)
  * `PREC2` plays a number with two decimal places (for a number 123 it plays 1.23)
+ 
+ @param volume (number):
+ - (-2..2) override radio setting Wav volumne for the duration of file
+ - 127 or omitting parameter uses radio setting Wav volume
 
-@status current Introduced in 2.0.0
+@retval none 
 
+@status current Introduced in 2.0.0, changed in 2.10
+
+// targets: BW, COLOR
+//
+// LUADOC TODO:
+//  - Add  USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
+//
+// EXAMPLES:
+// playNumber(123, 3, 0, 2)  -- play number 123, unit mAh, volume 2 clicks higher than radio setting Wav volume
+// playNumber(123, 3, 0, -1) -- play number 123, unit mAh, volume 1 click lower than radio setting Wav volume
+// playNumber(123, 3, 0)     -- play number 123, unit mAh, volume radio setting Wav volume
+// playNumber(123, 3)        -- play number 123, unit mAh, volume radio setting Wav volume
 */
+
 static int luaPlayNumber(lua_State * L)
 {
   int number = luaL_checkinteger(L, 1);
   int unit = luaL_checkinteger(L, 2);
   unsigned int att = luaL_optunsigned(L, 3, 0);
-  playNumber(number, unit, att, 0);
+  int volume = luaL_optinteger(L, 4, 127);
+
+  playNumber(number, unit, att, 0, volume);
   return 0;
 }
 
@@ -1501,14 +1522,34 @@ Play a time value (text to speech)
 @param hourFormat (number):
  * `0 or not present` play format: minutes and seconds.
  * `!= 0` play format: hours, minutes and seconds.
+ * 
+@param volume (number):
+ - (-2..2) override radio setting Wav volumne for the duration of file
+ - 127 or omitting parameter uses radio setting Wav volume
 
-@status current Introduced in 2.1.0
+@retval none 
+
+@status current Introduced in 2.1.0, changed in 2.10
+
+// targets: BW, COLOR
+//
+// LUADOC TODO:
+//  - Add  USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
+//
+// EXAMPLES:
+// playDuration(101,0,2)  -- play duration 101s, secomds format, volume 2 clicks higher than radio setting Wav volume	
+// playDuration(101,0,-1) -- play duration 101s, secomds format, volume 1 click lower than radio setting Wav volume
+// playDuration(101,1,0)  -- play duration 101s, hour format, volume radio setting Wav volume
+// playDuration(101,1)    -- play duration 101s, hour format, volume radio setting Wav volume
 */
+
 static int luaPlayDuration(lua_State * L)
 {
   int duration = luaL_checkinteger(L, 1);
   bool playTime = (luaL_optinteger(L, 2, 0) != 0);
-  playDuration(duration, playTime ? PLAY_TIME : 0, 0);
+  int volume = luaL_optinteger(L, 3, 127);
+  
+  playDuration(duration, playTime ? PLAY_TIME : 0, 0, volume);
   return 0;
 }
 
@@ -1543,11 +1584,13 @@ The valid range is from -127 to 127.
 // targets: BW, COLOR
 //
 // LUADOC TODO:
-//  - Add  USE_SYSTEMSETTINGS (value 127) constant to CONSTANTS section
+//  - Add  USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
 //
-//  EXAMPLES:
-// https://github.com/EdgeTX/edgetx/pull/3784
-
+// EXAMPLES:
+// playTone(2550, 160, 20, 3, -10, 2)  -- play tone, volume 2 clicks higher than radio setting Beep volume
+// playTone(2550, 160, 20, 3, -10, -1) -- play tone, volume 1 click lower than radio setting Beep volume
+// playTone(2550, 160, 20, 3, -10, 0)  -- play tone, volume radio setting Beep volume
+// playTone(2550, 160, 20, 3, -10)		-- play tone, volume radio setting Beep volume
 */
 static int luaPlayTone(lua_State * L)
 {

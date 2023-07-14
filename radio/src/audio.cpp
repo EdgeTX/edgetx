@@ -1229,14 +1229,14 @@ void audioEvent(unsigned int index)
 }
 
 #if defined(SDCARD)
-void pushUnit(uint8_t unit, uint8_t idx, uint8_t id)
+void pushUnit(uint8_t unit, uint8_t idx, uint8_t id, uint8_t _volume)
 {
   if (unit < DIM(unitsFilenames)) {
     char path[AUDIO_FILENAME_MAXLEN+1];
     char * tmp = strAppendSystemAudioPath(path);
     tmp = strAppendStringWithIndex(tmp, unitsFilenames[unit], idx);
     strcpy(tmp, SOUNDS_EXT);
-    audioQueue.playFile(path, 0, id);
+    audioQueue.playFile(path, 0, id, _volume);
   }
   else {
     TRACE("pushUnit: out of bounds unit : %d", unit); // We should never get here, but given the nature of TTS files, this prevent segfault in case of bug there.
@@ -1244,7 +1244,7 @@ void pushUnit(uint8_t unit, uint8_t idx, uint8_t id)
 }
 #endif
 
-void pushPrompt(uint16_t prompt, uint8_t id)
+void pushPrompt(uint16_t prompt, uint8_t id, uint8_t _volume)
 {
 #if defined(SDCARD)
   char filename[AUDIO_FILENAME_MAXLEN+1];
@@ -1254,7 +1254,7 @@ void pushPrompt(uint16_t prompt, uint8_t id)
     str[i] = '0' + (prompt%10);
     prompt /= 10;
   }
-  audioQueue.playFile(filename, 0, id);
+  audioQueue.playFile(filename, 0, id, _volume);
 #endif
 }
 

@@ -617,15 +617,15 @@ enum AutomaticPromptsEvents {
   AUDIO_EVENT_MID,
 };
 
-void pushPrompt(uint16_t prompt, uint8_t id=0);
-void pushUnit(uint8_t unit, uint8_t idx, uint8_t id);
+void pushPrompt(uint16_t prompt, uint8_t id=0, uint8_t _volume = USE_SETTINGS_VOLUME);
+void pushUnit(uint8_t unit, uint8_t idx, uint8_t id, uint8_t _volume = USE_SETTINGS_VOLUME);
 void playModelName();
 
-#define I18N_PLAY_FUNCTION(lng, x, ...) void lng ## _ ## x(__VA_ARGS__, uint8_t id)
-#define PUSH_NUMBER_PROMPT(p)    pushPrompt((p), id)
-#define PUSH_UNIT_PROMPT(p, i)   pushUnit((p), (i), id)
-#define PLAY_NUMBER(n, u, a)     playNumber((n), (u), (a), id)
-#define PLAY_DURATION(d, att)    playDuration((d), (att), id)
+#define I18N_PLAY_FUNCTION(lng, x, ...) void lng ## _ ## x(__VA_ARGS__, uint8_t id, int8_t _volume = USE_SETTINGS_VOLUME)
+#define PUSH_NUMBER_PROMPT(p)    pushPrompt((p), id, _volume)
+#define PUSH_UNIT_PROMPT(p, i)   pushUnit((p), (i), id, _volume)
+#define PLAY_NUMBER(n, u, a)     playNumber((n), (u), (a), id, _volume)
+#define PLAY_DURATION(d, att)    playDuration((d), (att), id, _volume)
 #define PLAY_DURATION_ATT        , uint8_t flags
 #define PLAY_TIME                1
 #define PLAY_LONG_TIMER          2
@@ -633,8 +633,8 @@ void playModelName();
 #define IS_PLAY_TIME()           (flags & PLAY_TIME)
 #define IS_PLAY_LONG_TIMER()     (flags & PLAY_LONG_TIMER)
 #define IS_PLAYING(id)           audioQueue.isPlaying((id))
-#define PLAY_VALUE(v, id)        playValue((v), (id))
-#define PLAY_FILE(f, flags, id)  audioQueue.playFile((f), (flags), (id))
+#define PLAY_VALUE(v, id)        playValue((v), (id), USE_SETTINGS_VOLUME)
+#define PLAY_FILE(f, flags, id)  audioQueue.playFile((f), (flags), (id), USE_SETTINGS_VOLUME)
 #define STOP_PLAY(id)            audioQueue.stopPlay((id))
 #define AUDIO_RESET()            audioQueue.stopAll()
 #define AUDIO_FLUSH()            audioQueue.flush()
