@@ -770,7 +770,6 @@
   #define TOUCH_INT_EXTI_Line             LL_EXTI_LINE_2
   #define TOUCH_INT_EXTI_Port             LL_SYSCFG_EXTI_PORTH
   #define TOUCH_INT_EXTI_SysCfgLine       LL_SYSCFG_EXTI_LINE2
-  #define TOUCH_INT_EXTI_IRQn             EXTI2_IRQn
   // TOUCH_INT_EXTI IRQ
 #if !defined(USE_EXTI2_IRQ)
   #define USE_EXTI2_IRQ
