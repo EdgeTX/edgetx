@@ -74,7 +74,7 @@ enum
 #if !defined(GUI)
   #define DISPLAY_WARNING(...)
   inline void POPUP_WAIT(const char * s) { }
-  inline void POPUP_WARNING(const char *, const char * = nullptr) { }
+  inline void POPUP_WARNING(const char *, const char * = nullptr, bool waitForClose) { }
   inline void POPUP_CONFIRMATION(const char * s, PopupMenuHandler handler) { }
   inline void POPUP_INPUT(const char * s, PopupFunc func) { }
   inline void SET_WARNING_INFO(const char * info, uint8_t length, uint8_t flags) { }
@@ -105,8 +105,10 @@ enum
     popupFunc = runPopupWarning;
   }
 
-  inline void POPUP_WARNING(const char * message, const char * info = nullptr)
+  inline void POPUP_WARNING(const char * message, const char * info = nullptr, bool waitForClose = true)
   {
+    (void)waitForClose;
+
     warningText = message;
     warningInfoText = info;
     warningInfoLength = info ? strlen(info) : 0;

@@ -707,7 +707,12 @@
 #define TR_POWER_METER_INT              "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT        "Spektrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT        "Spektrum (INT)"
-#define TR_SDCARD_FULL                  "SD-kort fullt"
+#define TR_SDCARD_FULL                  "SD-kortet fullt"
+#if defined(COLORLCD)
+#define TR_SDCARD_FULL_EXT              TR_SDCARD_FULL "\nLoggar och skärmklipp inaktiverade"
+#else
+#define TR_SDCARD_FULL_EXT              TR_SDCARD_FULL "\036Loggar och " LCDW_128_480_LINEBREAK "skärmklipp inaktiverade"
+#endif
 #define TR_NEEDS_FILE                   "BEHÖVER FIL"
 #define TR_EXT_MULTI_SPEC               "opentx-inv"
 #define TR_INT_MULTI_SPEC               "stm-opentx-noinv"
