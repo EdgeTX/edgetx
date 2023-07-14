@@ -640,6 +640,11 @@ static void checkRTCBattery()
   }
 }
 
+void checkSDfreeStorage() {
+  if(IS_SDCARD_FULL())
+    ALERT(STR_SD_CARD, STR_SDCARD_FULL, AU_ERROR);
+}
+
 #if defined(PCBFRSKY) || defined(PCBFLYSKY)
 static void checkFailsafe()
 {
@@ -668,6 +673,8 @@ void checkAll()
   checkLowEEPROM();
 #endif
 
+  checkSDfreeStorage();
+  
   // we don't check the throttle stick if the radio is not calibrated
   if (g_eeGeneral.chkSum == evalChkSum()) {
     checkThrottleStick();

@@ -690,6 +690,7 @@ extern const char STR_DELETE_ERROR[];
 extern const char STR_SDCARD_ERROR[];
 extern const char STR_NO_SDCARD[];
 extern const char STR_SDCARD_FULL[];
+extern const char STR_SDCARD_FULL_EXT[];
 extern const char STR_INCOMPATIBLE[];
 extern const char STR_LOGS_PATH[];
 extern const char STR_LOGS_EXT[];
