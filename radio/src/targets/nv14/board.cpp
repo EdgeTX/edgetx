@@ -117,7 +117,6 @@ void delay_self(int count)
 #define RCC_AHB1PeriphOther   (SD_RCC_AHB1Periph |\
                                AUDIO_RCC_AHB1Periph |\
                                MONITOR_RCC_AHB1Periph |\
-                               ADC_RCC_AHB1Periph |\
                                TELEMETRY_RCC_AHB1Periph |\
                                TRAINER_RCC_AHB1Periph |\
                                AUDIO_RCC_AHB1Periph |\
@@ -139,8 +138,7 @@ void delay_self(int count)
                               )
 #define RCC_APB2PeriphMinimum (LCD_RCC_APB2Periph)
 
-#define RCC_APB2PeriphOther   (ADC_RCC_APB2Periph |\
-                               HAPTIC_RCC_APB2Periph |\
+#define RCC_APB2PeriphOther   (HAPTIC_RCC_APB2Periph |\
                                AUDIO_RCC_APB2Periph \
                               )
 

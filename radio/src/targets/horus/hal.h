@@ -247,9 +247,6 @@
 
 // ADC
 #if defined(PCBX12S)
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            0
-  #define ADC_RCC_APB2Periph            (RCC_APB2Periph_SPI4)
   #define ADC_SPI                       SPI4
   #define ADC_SPI_GPIO                  GPIOE
   #define ADC_SPI_GPIO_AF               LL_GPIO_AF_5
@@ -290,9 +287,6 @@
   #define ADC_SAMPTIME                  LL_ADC_SAMPLINGTIME_56CYCLES
   #define ADC_VREF_PREC2                600
 #elif defined(PCBX10)
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            (RCC_APB1Periph_TIM5)
-  #define ADC_RCC_APB2Periph            0
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_0      // PA.00
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_1      // PA.01
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_3      // PA.03

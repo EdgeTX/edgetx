@@ -101,8 +101,6 @@
 #define TRIMS_GPIO_ACTIVE_HIGH
 
 // ADC
-#define ADC_RCC_AHB1Periph              (RCC_AHB1Periph_DMA2)
-#define ADC_RCC_APB2Periph              0
 
 #define ADC_GPIO_PIN_STICK_LH
 #define ADC_GPIO_PIN_STICK_LV
