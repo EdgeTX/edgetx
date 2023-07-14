@@ -690,7 +690,7 @@
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\nLogs e Screenshots disattivati"
 #else
-#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\036Logs e " LCDW_128_480_LINEBREAK "Screenshots disattivati"
+#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\036Logs e Screenshots" LCDW_128_480_LINEBREAK "disattivati"
 #endif
 #define TR_NEEDS_FILE                   "RICHIEDE FILE"
 #define TR_EXT_MULTI_SPEC               "opentx-inv"
