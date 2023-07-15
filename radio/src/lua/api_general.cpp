@@ -1431,7 +1431,7 @@ to the path (example: for English language: `/SOUNDS/en` is appended)
 
 @param volume (number):
  - (-2..2) override radio setting Wav volumne for the duration of file
- - 127 or omitting parameter uses radio setting Wav volume
+ - omitting the parameter uses radio setting Wav volume
 
 @retval none 
 
@@ -1440,13 +1440,13 @@ to the path (example: for English language: `/SOUNDS/en` is appended)
 // targets: BW, COLOR
 //
 // LUADOC TODO:
-//  - Add  USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
+//  - Add USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
 //
 // EXAMPLES:
-// playFile("armed.wav",2)  -- play file armed.wav, volume 2 clicks higher than radio setting Wav volume
-// playFile("armed.wav",-1) -- play file armed.wav, volume 1 click lower than radio setting Wav volume
-// playFile("armed.wav", 0) -- play file armed.wav, volume radio setting Wav volume
-// playFile("armed.wav")		-- play file armed.wav, volume radio setting Wav volume
+// playFile("armed.wav",2)  -- play file armed.wav, use Wav volume 2
+// playFile("armed.wav",-1) -- play file armed.wav, use Wav volume -1
+// playFile("armed.wav", 0) -- play file armed.wav, use Wav volume 0
+// playFile("armed.wav")		-- play file armed.wav, use radio setting Wav volume
 */
 static int luaPlayFile(lua_State * L)
 {
@@ -1483,7 +1483,7 @@ Play a numerical value (text to speech)
  
  @param volume (number):
  - (-2..2) override radio setting Wav volumne for the duration of file
- - 127 or omitting parameter uses radio setting Wav volume
+ - omitting the parameter uses radio setting Wav volume
 
 @retval none 
 
@@ -1492,13 +1492,13 @@ Play a numerical value (text to speech)
 // targets: BW, COLOR
 //
 // LUADOC TODO:
-//  - Add  USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
+//  - Add USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
 //
 // EXAMPLES:
-// playNumber(123, 3, 0, 2)  -- play number 123, unit mAh, volume 2 clicks higher than radio setting Wav volume
-// playNumber(123, 3, 0, -1) -- play number 123, unit mAh, volume 1 click lower than radio setting Wav volume
-// playNumber(123, 3, 0)     -- play number 123, unit mAh, volume radio setting Wav volume
-// playNumber(123, 3)        -- play number 123, unit mAh, volume radio setting Wav volume
+// playNumber(123, 3, 0, 2)  -- play number 123, unit mAh, use Wav volume 2
+// playNumber(123, 3, 0, -1) -- play number 123, unit mAh, use Wav volume -1
+// playNumber(123, 3, 0)     -- play number 123, unit mAh, use Wav volume 0
+// playNumber(123, 3)        -- play number 123, unit mAh, use radio setting Wav volume
 */
 
 static int luaPlayNumber(lua_State * L)
@@ -1525,7 +1525,7 @@ Play a time value (text to speech)
  * 
 @param volume (number):
  - (-2..2) override radio setting Wav volumne for the duration of file
- - 127 or omitting parameter uses radio setting Wav volume
+ - omitting the parameter uses radio setting Wav volume
 
 @retval none 
 
@@ -1534,13 +1534,13 @@ Play a time value (text to speech)
 // targets: BW, COLOR
 //
 // LUADOC TODO:
-//  - Add  USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
+//  - Add USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
 //
 // EXAMPLES:
-// playDuration(101,0,2)  -- play duration 101s, secomds format, volume 2 clicks higher than radio setting Wav volume	
-// playDuration(101,0,-1) -- play duration 101s, secomds format, volume 1 click lower than radio setting Wav volume
-// playDuration(101,1,0)  -- play duration 101s, hour format, volume radio setting Wav volume
-// playDuration(101,1)    -- play duration 101s, hour format, volume radio setting Wav volume
+// playDuration(101,0,2)  -- play duration 101s, secomds format, use Wav volume 2
+// playDuration(101,0,-1) -- play duration 101s, secomds format, use Wav volume -1
+// playDuration(101,1,0)  -- play duration 101s, hour format, use Wav volume 0
+// playDuration(101,1)    -- play duration 101s, hour format, use radio setting Wav volume
 */
 
 static int luaPlayDuration(lua_State * L)
@@ -1575,7 +1575,7 @@ The valid range is from -127 to 127.
 
 @param volume (number):
  - (-2..2) override radio setting Beep volumne for the duration of file
- - 127 or omitting parameter uses radio setting Beep volume
+ - omitting the parameter uses radio setting Beep volume
 
 @retval none 
 
@@ -1584,13 +1584,13 @@ The valid range is from -127 to 127.
 // targets: BW, COLOR
 //
 // LUADOC TODO:
-//  - Add  USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
+//  - Add USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
 //
 // EXAMPLES:
-// playTone(2550, 160, 20, 3, -10, 2)  -- play tone, volume 2 clicks higher than radio setting Beep volume
-// playTone(2550, 160, 20, 3, -10, -1) -- play tone, volume 1 click lower than radio setting Beep volume
-// playTone(2550, 160, 20, 3, -10, 0)  -- play tone, volume radio setting Beep volume
-// playTone(2550, 160, 20, 3, -10)		-- play tone, volume radio setting Beep volume
+// playTone(2550, 160, 20, 3, -10, 2)  -- play tone, use Beep volume 2
+// playTone(2550, 160, 20, 3, -10, -1) -- play tone, use Beep volume -1
+// playTone(2550, 160, 20, 3, -10, 0)  -- play tone, use Wav volume 0
+// playTone(2550, 160, 20, 3, -10)		 -- play tone, use radio setting Beep volume
 */
 static int luaPlayTone(lua_State * L)
 {
