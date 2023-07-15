@@ -29,15 +29,18 @@ set(SRC ${SRC}
 
 AddHWGenTarget(${HW_DESC_JSON} lua_inputs lua_inputs.inc)
 AddHWGenTarget(${HW_DESC_JSON} lua_mixsrc lua_mixsrc.inc)
+AddHWGenTarget(${HW_DESC_JSON} lua_keys lua_keys.inc)
 
 set(SRC ${SRC}
   ${CMAKE_CURRENT_BINARY_DIR}/lua_inputs.inc
   ${CMAKE_CURRENT_BINARY_DIR}/lua_mixsrc.inc
+  ${CMAKE_CURRENT_BINARY_DIR}/lua_keys.inc
 )
 
 # helper target for testing purposes
 add_custom_target(lua_inputs DEPENDS ${HW_DESC_JSON} lua_inputs.inc)
 add_custom_target(lua_mixsrc DEPENDS ${HW_DESC_JSON} lua_mixsrc.inc)
+add_custom_target(lua_keys DEPENDS ${HW_DESC_JSON} lua_keys.inc)
 
 if(GUI_DIR STREQUAL colorlcd)
   set(SRC ${SRC} lua/api_colorlcd.cpp lua/widgets.cpp)
