@@ -31,9 +31,12 @@
 #include "debug.h"
 #include "rtc.h"
 
-#include "../common/arm/stm32/timers_driver.h"
-
+#include "timers_driver.h"
 #include "dataconstants.h"
+
+#if defined(FLYSKY_GIMBAL)
+  #include "flysky_gimbal_driver.h"
+#endif
 
 #if !defined(BOOT)
   #include "opentx.h"
@@ -209,6 +212,10 @@ void boardInit()
 
 #if defined(PWM_STICKS)
   sticksPwmDetect();
+#endif
+
+#if defined(FLYSKY_GIMBAL)
+  flysky_gimbal_init();
 #endif
 
   if (!adcInit(&_adc_driver))

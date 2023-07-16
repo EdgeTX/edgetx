@@ -70,8 +70,8 @@ if(AUX_SERIAL OR AUX2_SERIAL)
 endif()
 
 if(FLYSKY_GIMBAL)
-  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
-    ../common/arm/stm32/flysky_gimbal_driver.cpp
+  set(FIRMWARE_SRC ${FIRMWARE_SRC}
+    targets/common/arm/stm32/flysky_gimbal_driver.cpp
   )
   add_definitions(-DFLYSKY_GIMBAL)
 endif()
