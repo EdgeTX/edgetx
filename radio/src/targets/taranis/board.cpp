@@ -20,6 +20,7 @@
  */
 
 #include "hal/adc_driver.h"
+#include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
 
@@ -137,6 +138,7 @@ void boardInit()
   }
 #endif
 
+  init_trainer();
   // Sets 'hardwareOption.pcbrev' as well
   pwrInit();
   boardInitModulePorts();

@@ -25,14 +25,13 @@
 #include "dataconstants.h"
 
 // Trainer input channels
-extern int16_t ppmInput[MAX_TRAINER_CHANNELS];
+extern int16_t trainerInput[MAX_TRAINER_CHANNELS];
 
 // Timer gets decremented in per10ms()
-#define PPM_IN_VALID_TIMEOUT 100 // 1s
-extern uint8_t ppmInputValidityTimer;
+#define TRAINER_IN_VALID_TIMEOUT 100 // 1s
+extern uint8_t trainerInputValidityTimer;
 
 extern uint8_t currentTrainerMode;
-#define IS_TRAINER_INPUT_VALID() (ppmInputValidityTimer != 0)
 
 void checkTrainerSignalWarning();
 void checkTrainerSettings();
@@ -48,7 +47,7 @@ inline void captureTrainerPulses(uint16_t capture)
   uint16_t val = (uint16_t)(capture - lastCapt) / 2;
   lastCapt = capture;
 
-  // We process ppmInput right here to make servo movement as smooth as possible
+  // We process trainerInput right here to make servo movement as smooth as possible
   //    while under trainee control
   //
   // G: Prioritize reset pulse. (Needed when less than 16 incoming pulses)
@@ -59,8 +58,8 @@ inline void captureTrainerPulses(uint16_t capture)
   else {
     if (channelNumber >= 0 && channelNumber < MAX_TRAINER_CHANNELS) {
       if (val > 800 && val < 2200) {
-        ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;
-        ppmInput[channelNumber++] =
+        trainerInputValidityTimer = TRAINER_IN_VALID_TIMEOUT;
+        trainerInput[channelNumber++] =
           // +-500 != 512, but close enough.
           (int16_t)(val - 1500) * (g_eeGeneral.PPM_Multiplier+10) / 10;
       }

@@ -86,7 +86,7 @@ void RadioTrainerPage::build(FormWindow * form)
 #endif
 
     new DynamicNumber<int16_t>(line, rect_t{},
-        [=]() { return (ppmInput[i] - g_eeGeneral.trainer.calib[i]) * 2; },
+        [=]() { return (trainerInput[i] - g_eeGeneral.trainer.calib[i]) * 2; },
         LEFT | PPM_PRECISION | COLOR_THEME_PRIMARY1);
   }
 
@@ -110,7 +110,7 @@ void RadioTrainerPage::build(FormWindow * form)
 
   // Trainer calibration
   auto btn = new TextButton(line, rect_t{0, 0, 0, 30}, std::string(STR_CAL), [=]() -> uint8_t {
-    memcpy(g_eeGeneral.trainer.calib, ppmInput,
+    memcpy(g_eeGeneral.trainer.calib, trainerInput,
            sizeof(g_eeGeneral.trainer.calib));
     SET_DIRTY();
     return 0;

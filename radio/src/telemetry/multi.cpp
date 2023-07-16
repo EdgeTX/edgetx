@@ -294,7 +294,7 @@ static void processMultiRxChannels(const uint8_t * data, uint8_t len)
     bitsavailable -= MULTI_CHAN_BITS;
     bits >>= MULTI_CHAN_BITS;
 
-    ppmInput[ch] = (value - 1024) * 500 / 800;
+    trainerInput[ch] = (value - 1024) * 500 / 800;
     ch++;
 
     if (byteIdx >= len)
@@ -302,7 +302,7 @@ static void processMultiRxChannels(const uint8_t * data, uint8_t len)
   }
 
   if (ch == maxCh)
-    ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;
+    trainerInputValidityTimer = TRAINER_IN_VALID_TIMEOUT;
 }
 #endif
 
