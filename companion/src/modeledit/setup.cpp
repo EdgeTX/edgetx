@@ -224,6 +224,7 @@ void TimerPanel::onModeChanged(int index)
 #define MASK_MULTI_DSM_OPT         (1<<19)
 #define MASK_CHANNELMAP            (1<<20)
 #define MASK_MULTI_BAYANG_OPT      (1<<21)
+#define MASK_AFHDS                 (1<<22)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
@@ -319,9 +320,32 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   connect(ui->clearRx1, SIGNAL(clicked()), this, SLOT(onClearAccessRxClicked()));
   connect(ui->clearRx2, SIGNAL(clicked()), this, SLOT(onClearAccessRxClicked()));
   connect(ui->clearRx3, SIGNAL(clicked()), this, SLOT(onClearAccessRxClicked()));
+  connect(ui->cboAfhdsOpt1, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] (int index)
+    {
+      if (lock)
+        return;
+
+      if (this->module.protocol == PULSES_FLYSKY_AFHDS2A)
+        Helpers::setBitmappedValue(this->module.flysky.mode, ui->cboAfhdsOpt1->currentData().toInt(), 1);
+      else
+        this->module.afhds3.phyMode = ui->cboAfhdsOpt1->currentData().toInt();
+
+      emit modified();
+    });
+  connect(ui->cboAfhdsOpt2, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] (int index)
+    {
+      if (lock)
+        return;
+
+      if (this->module.protocol == PULSES_FLYSKY_AFHDS2A)
+        Helpers::setBitmappedValue(this->module.flysky.mode, ui->cboAfhdsOpt2->currentData().toInt(), 0);
+      else
+        this->module.afhds3.emi = ui->cboAfhdsOpt2->currentData().toInt();
+
+      emit modified();
+    });
 
   lock = false;
-
 }
 
 ModulePanel::~ModulePanel()
@@ -528,13 +552,10 @@ void ModulePanel::update()
         if (pdef.disableChannelMap)
           mask |= MASK_CHANNELMAP;
         break;
-      case PULSES_FLYSKY_AFHDS2A:
-        mask |= MASK_CHANNELS_RANGE| MASK_CHANNELS_COUNT | MASK_FAILSAFES;
-        mask |= MASK_RX_FREQ | MASK_RF_POWER;
-        break;
       case PULSES_FLYSKY_AFHDS3:
-        mask |= MASK_CHANNELS_RANGE| MASK_CHANNELS_COUNT | MASK_FAILSAFES;
-        mask |= MASK_RF_POWER;
+        mask |= MASK_RX_NUMBER;
+      case PULSES_FLYSKY_AFHDS2A:
+        mask |= MASK_CHANNELS_RANGE| MASK_CHANNELS_COUNT | MASK_FAILSAFES | MASK_AFHDS;
         break;
       case PULSES_LEMON_DSMP:
         mask |= MASK_CHANNELS_RANGE;
@@ -754,11 +775,33 @@ void ModulePanel::update()
   ui->clearRx3->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 2)));
   ui->rx3->setVisible((mask & MASK_ACCESS) && (module.access.receivers & (1 << 2)));
 
+  // AFHFS
+  if (mask & MASK_AFHDS) {
+    if (protocol == PULSES_FLYSKY_AFHDS2A) {
+      ui->label_afhds->setText(tr("Options"));
+      ui->cboAfhdsOpt1->setModel(ModuleData::afhds2aMode1ItemModel());
+      ui->cboAfhdsOpt1->setCurrentIndex(Helpers::getBitmappedValue(module.flysky.mode, 1));
+
+      ui->cboAfhdsOpt2->setModel(ModuleData::afhds2aMode2ItemModel());
+      ui->cboAfhdsOpt2->setCurrentIndex(Helpers::getBitmappedValue(module.flysky.mode, 0));
+    }
+    else {
+      ui->label_afhds->setText(tr("Type"));
+      ui->cboAfhdsOpt1->setModel(ModuleData::afhds3PhyModeItemModel());
+      ui->cboAfhdsOpt1->setCurrentIndex(ui->cboAfhdsOpt1->findData(module.afhds3.phyMode));
+
+      ui->cboAfhdsOpt2->setModel(ModuleData::afhds3EmiItemModel());
+      ui->cboAfhdsOpt2->setCurrentIndex(ui->cboAfhdsOpt2->findData(module.afhds3.emi));
+    }
+  }
+
+  ui->label_afhds->setVisible(mask & MASK_AFHDS);
+  ui->cboAfhdsOpt1->setVisible(mask & MASK_AFHDS);
+  ui->cboAfhdsOpt2->setVisible(mask & MASK_AFHDS);
+
   // Failsafes
   ui->label_failsafeMode->setVisible(mask & MASK_FAILSAFES);
   ui->failsafeMode->setVisible(mask & MASK_FAILSAFES);
-  //hide receiver mode for afhds2a or afhds3
-  qobject_cast<QListView *>(ui->failsafeMode->view())->setRowHidden(FAILSAFE_RECEIVER, (protocol == PULSES_FLYSKY_AFHDS2A || protocol == PULSES_FLYSKY_AFHDS3));
 
   if ((mask & MASK_FAILSAFES) && module.failsafeMode == FAILSAFE_CUSTOM) {
     if (ui->failsafesGroupBox->isHidden()) {
@@ -814,6 +857,9 @@ void ModulePanel::onProtocolChanged(int index)
     }
     else if (module.protocol == PULSES_FLYSKY_AFHDS2A) {
       module.flysky.setDefault();
+    }
+    else if (module.protocol == PULSES_FLYSKY_AFHDS3) {
+      module.afhds3.setDefault();
     }
 
     emit updateItemModels();
