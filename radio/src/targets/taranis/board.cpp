@@ -209,6 +209,7 @@ void boardInit()
 #endif
 
   delaysInit();
+  __enable_irq();
 
 #if defined(PWM_STICKS)
   sticksPwmDetect();
@@ -225,7 +226,6 @@ void boardInit()
   audioInit();
   init2MhzTimer();
   init1msTimer();
-  __enable_irq();
   usbInit();
 
 #if defined(DEBUG)
