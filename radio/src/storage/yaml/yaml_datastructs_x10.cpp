@@ -301,7 +301,8 @@ static const struct YamlNode struct_OpenTxTheme__PersistentData[] = {
 };
 static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "manuallyEdited", 1 ),
-  YAML_PADDING( 7 ),
+  YAML_SIGNED( "timezoneMinutes", 3 ),
+  YAML_PADDING( 4 ),
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_CUSTOM("board",nullptr,w_board),
   YAML_ARRAY("calib", 48, 22, struct_CalibData, NULL),

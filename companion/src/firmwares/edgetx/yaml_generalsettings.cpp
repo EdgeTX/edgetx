@@ -182,6 +182,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["hapticMode"] = rhs.hapticMode;
   node["stickMode"] = rhs.stickMode;
   node["timezone"] = rhs.timezone;
+  node["timezoneMinutes"] = rhs.timezoneMinutes;
   node["adjustRTC"] = (int)rhs.adjustRTC;
   node["inactivityTimer"] = rhs.inactivityTimer;
 
@@ -390,6 +391,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["hapticMode"] >> rhs.hapticMode;
   node["stickMode"] >> rhs.stickMode;
   node["timezone"] >> rhs.timezone;
+  node["timezoneMinutes"] >> rhs.timezoneMinutes;
   node["adjustRTC"] >> rhs.adjustRTC;
   node["inactivityTimer"] >> rhs.inactivityTimer;
 
