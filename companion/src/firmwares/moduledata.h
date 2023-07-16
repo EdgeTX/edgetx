@@ -104,6 +104,11 @@ enum ModuleSubtypeR9M {
 constexpr int PXX2_MAX_RECEIVERS_PER_MODULE = 3;
 constexpr int PXX2_LEN_RX_NAME              = 8;
 
+static const QStringList afhds2aMode1List({"PWM", "PPM"});
+static const QStringList afhds2aMode2List({"IBUS", "SBUS"});
+static const QStringList afhds3PhyModeList({"Classic 18ch", "C-Fast 10ch", "Routine 18ch", "Fast 8ch", "Lora 12ch"});
+static const QStringList afhds3EmiList({"CE", "FCC"});
+
 class ModuleData {
   Q_DECLARE_TR_FUNCTIONS(ModuleData)
 
@@ -161,6 +166,14 @@ class ModuleData {
       unsigned int phyMode;
       unsigned int reserved;
       unsigned int rfPower;
+
+      void setDefault() {
+        emi = 1;
+        telemetry = 0;
+        phyMode = 0;
+        reserved = 0;
+        rfPower = 0;
+      }
     } afhds3;
 
     struct PXX {
@@ -208,6 +221,16 @@ class ModuleData {
     static AbstractStaticItemModel * internalModuleItemModel(int board = -1);
     static bool isProtocolAvailable(int moduleidx, unsigned int  protocol, GeneralSettings & generalSettings);
     static AbstractStaticItemModel * protocolItemModel(GeneralSettings & settings);
-    static AbstractStaticItemModel * telemetryBaudrateItemModel(unsigned int  protocol);
+    static AbstractStaticItemModel * telemetryBaudrateItemModel(unsigned int protocol);
     static bool isAvailable(PulsesProtocol proto, int port = 0);  //  moved from OpenTxFirmware EdgeTX v2.9 - TODO remove and use isProtocolAvailable
+
+    QString afhds2aMode1ToString() const;
+    QString afhds2aMode2ToString() const;
+    QString afhds3PhyModeToString() const;
+    QString afhds3EmiToString() const;
+
+    static AbstractStaticItemModel * afhds2aMode1ItemModel();
+    static AbstractStaticItemModel * afhds2aMode2ItemModel();
+    static AbstractStaticItemModel * afhds3PhyModeItemModel();
+    static AbstractStaticItemModel * afhds3EmiItemModel();
 };

@@ -232,7 +232,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0" colspan="2">
+        <item row="6" column="0" colspan="2">
          <widget class="QLabel" name="warning_r9mFlex">
           <property name="palette">
            <palette>
@@ -276,7 +276,7 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
+        <item row="7" column="0">
          <widget class="QLabel" name="label_failsafeMode">
           <property name="maximumSize">
            <size>
@@ -292,7 +292,7 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
+        <item row="7" column="1">
          <widget class="QComboBox" name="failsafeMode">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -336,7 +336,7 @@
           </item>
          </widget>
         </item>
-        <item row="7" column="0">
+        <item row="8" column="0">
          <widget class="QLabel" name="label_trainerMode">
           <property name="maximumSize">
            <size>
@@ -352,7 +352,7 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
+        <item row="8" column="1">
          <widget class="AutoComboBox" name="trainerMode">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -371,35 +371,35 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
+        <item row="9" column="1">
          <widget class="QCheckBox" name="disableTelem">
           <property name="text">
            <string>Disable Telemetry</string>
           </property>
          </widget>
         </item>
-        <item row="11" column="1">
+        <item row="12" column="1">
          <widget class="QCheckBox" name="disableChMap">
           <property name="text">
            <string>Disable Ch. Map</string>
           </property>
          </widget>
         </item>
-        <item row="12" column="1">
+        <item row="13" column="1">
          <widget class="QCheckBox" name="racingMode">
           <property name="text">
            <string>Racing Mode</string>
           </property>
          </widget>
         </item>
-        <item row="13" column="1">
+        <item row="14" column="1">
          <widget class="QCheckBox" name="raw12bits">
           <property name="text">
            <string>Raw 12 bits</string>
           </property>
          </widget>
         </item>
-        <item row="15" column="0" colspan="2">
+        <item row="16" column="0" colspan="2">
          <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -411,6 +411,23 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_afhds">
+          <property name="text">
+           <string>Options</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QComboBox" name="cboAfhdsOpt1"/>
+          </item>
+          <item>
+           <widget class="QComboBox" name="cboAfhdsOpt2"/>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>

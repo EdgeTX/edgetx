@@ -21,11 +21,11 @@
 #include "moduledata.h"
 #include "eeprominterface.h"
 #include "multiprotocols.h"
-#include "afhds3.h"
 #include "radiodataconversionstate.h"
 #include "compounditemmodels.h"
 #include "generalsettings.h"
 #include "appdata.h"
+#include "helpers.h"
 
 #include <QPair>
 #include <QVector>
@@ -684,6 +684,78 @@ AbstractStaticItemModel * ModuleData::telemetryBaudrateItemModel(unsigned int  p
   for (int i = 0; i < moduleBaudratesList.size(); i++) {
     if (protocol == PULSES_GHOST && i >= 2) break;
     mdl->appendToItemList(moduleBaudratesList.at(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+QString ModuleData::afhds2aMode1ToString() const
+{
+  return afhds2aMode1List.at(Helpers::getBitmappedValue(flysky.mode, 1));
+}
+
+QString ModuleData::afhds2aMode2ToString() const
+{
+  return afhds2aMode2List.at(Helpers::getBitmappedValue(flysky.mode, 2));
+}
+
+QString ModuleData::afhds3PhyModeToString() const
+{
+  return afhds3PhyModeList.at(afhds3.phyMode);
+}
+
+QString ModuleData::afhds3EmiToString() const
+{
+  return afhds3EmiList.at(afhds3.emi);
+}
+
+AbstractStaticItemModel * ModuleData::afhds2aMode1ItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("moduledata.afhds2aMode1");
+
+  for (int i = 0; i < afhds2aMode1List.size(); i++) {
+    mdl->appendToItemList(afhds2aMode1List.at(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+AbstractStaticItemModel * ModuleData::afhds2aMode2ItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("moduledata.afhds2aMode2");
+
+  for (int i = 0; i < afhds2aMode2List.size(); i++) {
+    mdl->appendToItemList(afhds2aMode2List.at(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+AbstractStaticItemModel * ModuleData::afhds3PhyModeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("moduledata.afhds3PhyMode");
+
+  for (int i = 0; i < afhds3PhyModeList.size(); i++) {
+    mdl->appendToItemList(afhds3PhyModeList.at(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+AbstractStaticItemModel * ModuleData::afhds3EmiItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("moduledata.afhds3Emi");
+
+  for (int i = 0; i < afhds3EmiList.size(); i++) {
+    mdl->appendToItemList(afhds3EmiList.at(i), i + 1); // Note: 1 based
   }
 
   mdl->loadItemList();
