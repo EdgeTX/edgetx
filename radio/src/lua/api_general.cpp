@@ -1528,8 +1528,8 @@ Play a time value (text to speech)
 // targets: BW, COLOR
 //
 // EXAMPLES:
-// playDuration(101,0,2)  -- play duration 101s, secomds format, use Wav volume 2
-// playDuration(101,0,-1) -- play duration 101s, secomds format, use Wav volume -1
+// playDuration(101,0,2)  -- play duration 101s, seconds, use Wav volume 2
+// playDuration(101,0,-1) -- play duration 101s, seconds format, use Wav volume -1
 // playDuration(101,1,0)  -- play duration 101s, hour format, use Wav volume 0
 // playDuration(101,1)    -- play duration 101s, hour format, use radio setting Wav volume
 */
