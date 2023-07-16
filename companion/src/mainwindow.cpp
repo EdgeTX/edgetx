@@ -1272,6 +1272,7 @@ int MainWindow::newProfile(bool loadProfile)
   g.profile[i].name("New Radio");
   g.profile[i].fwType(newfw->getId());
   g.profile[i].defaultInternalModule(Boards::getDefaultInternalModules(newfw->getBoard()));
+  g.profile[i].externalModuleSize(Boards::getDefaultExternalModuleSize(newfw->getBoard()));
 
   if (loadProfile) {
     if (loadProfileId(i))
