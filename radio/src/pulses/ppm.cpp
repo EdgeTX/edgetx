@@ -110,10 +110,12 @@ static etx_serial_init ppmMLinkSerialParams = {
 
 static bool ppmInitMLinkTelemetry(uint8_t module)
 {
-  if (modulePortInitSerial(module, ETX_MOD_PORT_UART, &ppmMLinkSerialParams) != nullptr) {
+  // Try S.PORT hardware USART (requires HW inverters)
+  if (modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &ppmMLinkSerialParams) != nullptr) {
     return true;
   }
 
+  // fall-back to softserial
   if (modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &ppmMLinkSerialParams) != nullptr) {
     return true;
   }
