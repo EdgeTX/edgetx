@@ -365,7 +365,7 @@
 #define TR_KEYS_BACKLIGHT              "Keys backlight"
 #define TR_BLCOLOR                     "Farbe"
 #define TR_SPLASHSCREEN                TR("Startbild Ein", "Startbild Anzeigedauer")
-#define TR_PLAY_HELLO                  "Startup Sound"
+#define TR_PLAY_HELLO                  "Startton"
 #define TR_PWR_ON_DELAY                "PWR EIN Verzög."
 #define TR_PWR_OFF_DELAY               "PWR AUS Verzög."
 #define TR_THROTTLE_WARNING            TR("Gasalarm", INDENT "Gas Alarm")

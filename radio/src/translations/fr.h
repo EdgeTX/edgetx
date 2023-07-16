@@ -374,7 +374,7 @@
 #define TR_KEYS_BACKLIGHT              "Rétroéclairage touches"
 #define TR_BLCOLOR                     "Couleur"
 #define TR_SPLASHSCREEN                "Ecran d'accueil"
-#define TR_PLAY_HELLO                  "Startup Sound"
+#define TR_PLAY_HELLO                  "Son de démarrage"
 #define TR_PWR_ON_DELAY                "Délai btn ON"
 #define TR_PWR_OFF_DELAY               "Délai btn OFF"
 #define TR_THROTTLE_WARNING             TR(INDENT "Alerte gaz", INDENT "Alerte gaz")
