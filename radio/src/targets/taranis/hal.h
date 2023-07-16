@@ -1948,16 +1948,11 @@
     #define EXTMODULE_RCC_AHB1Periph    (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA2)
     #define EXTMODULE_PWR_GPIO          GPIOD
     #define EXTMODULE_PWR_GPIO_PIN      GPIO_Pin_8  // PD.08
-    #if defined(RADIO_ZORRO)
-      #define HARDWARE_EXTERNAL_MODULE_SIZE_SML
-    #endif
   #elif defined(PCBX9LITE)
-    #define HARDWARE_EXTERNAL_MODULE_SIZE_SML
     #define EXTMODULE_RCC_AHB1Periph    (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_DMA2)
     #define EXTMODULE_PWR_GPIO          GPIOA
     #define EXTMODULE_PWR_GPIO_PIN      GPIO_Pin_8  // PA.08
   #else
-    #define HARDWARE_EXTERNAL_MODULE_SIZE_SML
     #define EXTMODULE_RCC_AHB1Periph    (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA2)
     #define EXTMODULE_PWR_GPIO          GPIOD
     #define EXTMODULE_PWR_GPIO_PIN      GPIO_Pin_11 // PD.11
@@ -1994,9 +1989,6 @@
   #define EXTMODULE_USART_RX_DMA_STREAM         DMA2_Stream1
   #define EXTMODULE_USART_RX_DMA_STREAM_LL      LL_DMA_STREAM_1
 #else
-  #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_TLITE)
-    #define HARDWARE_EXTERNAL_MODULE_SIZE_SML
-  #endif
   #define EXTMODULE_RCC_AHB1Periph              (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA2)
   #if defined(RADIO_COMMANDO8)
     #define EXTMODULE_RF_SWITCH_GPIO              GPIOE              //Antenna switching port
@@ -2010,7 +2002,6 @@
     #define EXTMODULE_PWR_GPIO_PIN                GPIO_Pin_1 // PB.01
     #define EXTERNAL_MODULE_PWR_ON()              GPIO_SetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
     #define EXTERNAL_MODULE_PWR_OFF()             GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
-    #define HARDWARE_EXTERNAL_MODULE_SIZE_SML
   #else
     #define EXTMODULE_PWR_GPIO                    GPIOD
     #define EXTMODULE_PWR_GPIO_PIN                GPIO_Pin_8 // PD.08

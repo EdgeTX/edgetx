@@ -6,6 +6,7 @@ option(AFHDS2 "Support for AFHDS2" ON)
 option(GHOST "Ghost TX Module" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
+option(MODULE_SIZE_STD "Standard size TX Module" ON)
 
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32F4)
