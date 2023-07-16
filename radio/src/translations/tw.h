@@ -359,7 +359,7 @@
 #define TR_KEYS_BACKLIGHT              "按鍵背光"
 #define TR_BLCOLOR                     "顏色"
 #define TR_SPLASHSCREEN                "開機圖片"
-#define TR_PLAY_HELLO                  "Startup Sound"
+#define TR_PLAY_HELLO                  "開機語音"
 #define TR_PWR_ON_DELAY                "開機延遲"
 #define TR_PWR_OFF_DELAY               "關機延遲"
 #define TR_THROTTLE_WARNING            TR(INDENT "油門狀態", INDENT "油門狀態")
