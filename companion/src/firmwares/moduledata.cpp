@@ -709,7 +709,7 @@ QString ModuleData::afhds3PhyModeToString() const
 
 QString ModuleData::afhds3EmiToString() const
 {
-  return afhds3EmiList.at(afhds3.emi);
+  return afhds3EmiList.at(afhds3.emi - 1);
 }
 
 AbstractStaticItemModel * ModuleData::afhds2aMode1ItemModel()
