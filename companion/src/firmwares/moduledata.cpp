@@ -93,7 +93,7 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
           case PULSES_FLYSKY_AFHDS2A:
             return IS_FLYSKY_NV14(board);
           case PULSES_FLYSKY_AFHDS3:
-            //return IS_FLYSKY_EL18(board);
+            return IS_FLYSKY_EL18(board);
           default:
             return false;
         }
@@ -554,7 +554,8 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
               case MODULE_TYPE_CROSSFIRE:
               case MODULE_TYPE_MULTIMODULE:
               case MODULE_TYPE_GHOST:
-              case MODULE_TYPE_FLYSKY:
+              case MODULE_TYPE_FLYSKY_AFHDS2A:
+              case MODULE_TYPE_FLYSKY_AFHDS3:
               case MODULE_TYPE_LEMON_DSMP:
               case MODULE_TYPE_R9M_LITE_PXX1:
               case MODULE_TYPE_R9M_LITE_PXX2:
@@ -576,7 +577,8 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
               case MODULE_TYPE_CROSSFIRE:
               case MODULE_TYPE_MULTIMODULE:
               case MODULE_TYPE_GHOST:
-              case MODULE_TYPE_FLYSKY:
+              case MODULE_TYPE_FLYSKY_AFHDS2A:
+              case MODULE_TYPE_FLYSKY_AFHDS3:
               case MODULE_TYPE_LEMON_DSMP:
                 return true;
               default:
