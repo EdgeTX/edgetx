@@ -338,10 +338,12 @@ MultimoduleSettings::MultimoduleSettings(Window *parent,
   new StaticText(line, rect_t{}, STR_MULTI_LOWPOWER, 0, COLOR_THEME_PRIMARY1);
   lp_mode = new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->multi.lowPowerMode));
 
+#if defined(MANUFACTURER_FRSKY)
   // Disable telemetry
   line = newLine(&grid);
   new StaticText(line, rect_t{}, STR_DISABLE_TELEM, 0, COLOR_THEME_PRIMARY1);
   disable_telem = new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->multi.disableTelemetry));
+#endif
 
   cm_line = new MPMChannelMap(this, &grid, moduleIdx);
 
