@@ -1439,9 +1439,6 @@ to the path (example: for English language: `/SOUNDS/en` is appended)
 
 // targets: BW, COLOR
 //
-// LUADOC TODO:
-//  - Add USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
-//
 // EXAMPLES:
 // playFile("armed.wav",2)  -- play file armed.wav, use Wav volume 2
 // playFile("armed.wav",-1) -- play file armed.wav, use Wav volume -1
@@ -1451,7 +1448,7 @@ to the path (example: for English language: `/SOUNDS/en` is appended)
 static int luaPlayFile(lua_State * L)
 {
   const char * filename = luaL_checkstring(L, 1);
-  const int volume = luaL_optinteger(L, 2, 127);
+  const int volume = luaL_optinteger(L, 2, USE_SETTINGS_VOLUME);
 
   if (filename[0] != '/') {
     // relative sound file path - use current language dir for absolute path
@@ -1491,9 +1488,6 @@ Play a numerical value (text to speech)
 
 // targets: BW, COLOR
 //
-// LUADOC TODO:
-//  - Add USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
-//
 // EXAMPLES:
 // playNumber(123, 3, 0, 2)  -- play number 123, unit mAh, use Wav volume 2
 // playNumber(123, 3, 0, -1) -- play number 123, unit mAh, use Wav volume -1
@@ -1506,7 +1500,7 @@ static int luaPlayNumber(lua_State * L)
   int number = luaL_checkinteger(L, 1);
   int unit = luaL_checkinteger(L, 2);
   unsigned int att = luaL_optunsigned(L, 3, 0);
-  int volume = luaL_optinteger(L, 4, 127);
+  int volume = luaL_optinteger(L, 4, USE_SETTINGS_VOLUME);
 
   playNumber(number, unit, att, 0, volume);
   return 0;
@@ -1533,9 +1527,6 @@ Play a time value (text to speech)
 
 // targets: BW, COLOR
 //
-// LUADOC TODO:
-//  - Add USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
-//
 // EXAMPLES:
 // playDuration(101,0,2)  -- play duration 101s, secomds format, use Wav volume 2
 // playDuration(101,0,-1) -- play duration 101s, secomds format, use Wav volume -1
@@ -1547,7 +1538,7 @@ static int luaPlayDuration(lua_State * L)
 {
   int duration = luaL_checkinteger(L, 1);
   bool playTime = (luaL_optinteger(L, 2, 0) != 0);
-  int volume = luaL_optinteger(L, 3, 127);
+  int volume = luaL_optinteger(L, 3, USE_SETTINGS_VOLUME);
   
   playDuration(duration, playTime ? PLAY_TIME : 0, 0, volume);
   return 0;
@@ -1583,9 +1574,6 @@ The valid range is from -127 to 127.
 
 // targets: BW, COLOR
 //
-// LUADOC TODO:
-//  - Add USE_SETTINGS_VOLUME (value 127) constant to CONSTANTS section
-//
 // EXAMPLES:
 // playTone(2550, 160, 20, 3, -10, 2)  -- play tone, use Beep volume 2
 // playTone(2550, 160, 20, 3, -10, -1) -- play tone, use Beep volume -1
@@ -1599,7 +1587,7 @@ static int luaPlayTone(lua_State * L)
   int pause = luaL_checkinteger(L, 3);
   int flags = luaL_optinteger(L, 4, 0);
   int freqIncr = luaL_optinteger(L, 5, 0);
-  int volume = luaL_optinteger(L, 6, 127);
+  int volume = luaL_optinteger(L, 6, USE_SETTINGS_VOLUME);
 
   audioQueue.playTone(frequency, length, pause, flags, freqIncr, volume);
   return 0;
