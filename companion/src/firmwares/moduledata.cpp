@@ -93,7 +93,7 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
           case PULSES_FLYSKY_AFHDS2A:
             return IS_FLYSKY_NV14(board);
           case PULSES_FLYSKY_AFHDS3:
-            //return IS_FLYSKY_EL18(board);
+            return IS_FLYSKY_EL18(board);
           default:
             return false;
         }
