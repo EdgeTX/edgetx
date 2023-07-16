@@ -20,6 +20,8 @@
  */
 
 #include "ads79xx.h"
+#include "stm32_spi.h"
+#include "stm32_gpio_driver.h"
 #include "delays_driver.h"
 
 #include "stm32_hal_ll.h"
@@ -39,6 +41,7 @@ static uint16_t ads79xx_rw(SPI_TypeDef* SPIx, uint16_t value)
 
 void ads79xx_init(const stm32_spi_adc_t* adc)
 {
+  stm32_gpio_enable_clock(adc->GPIOx);
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
 
@@ -53,6 +56,7 @@ void ads79xx_init(const stm32_spi_adc_t* adc)
   LL_GPIO_Init(adc->GPIOx, &pinInit);
 
   auto SPIx = adc->SPIx;
+  stm32_spi_enable_clock(SPIx);
   LL_SPI_DeInit(SPIx);
 
   LL_SPI_InitTypeDef spiInit;
