@@ -694,12 +694,12 @@ AbstractStaticItemModel * ModuleData::telemetryBaudrateItemModel(unsigned int  p
 
 QString ModuleData::afhds2aMode1ToString() const
 {
-  return afhds2aMode1List.at(Helpers::getBitmappedValue(flysky.mode, 1));
+  return afhds2aMode1List.at(Helpers::getBitmappedValue(flysky.mode, 0));
 }
 
 QString ModuleData::afhds2aMode2ToString() const
 {
-  return afhds2aMode2List.at(Helpers::getBitmappedValue(flysky.mode, 2));
+  return afhds2aMode2List.at(Helpers::getBitmappedValue(flysky.mode, 1));
 }
 
 QString ModuleData::afhds3PhyModeToString() const
