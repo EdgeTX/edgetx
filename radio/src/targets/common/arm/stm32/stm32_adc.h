@@ -65,3 +65,5 @@ void stm32_hal_adc_disable_oversampling();
 
 void stm32_hal_adc_dma_isr(const stm32_adc_t* adc);
 void stm32_hal_adc_isr(const stm32_adc_t* adc);
+
+void stm32_hal_mask_inputs(uint32_t inputs);

@@ -24,8 +24,6 @@
 #include "hal/switch_driver.h"
 #include "hal/rotary_encoder.h"
 
-#include "sticks_pwm_driver.h"
-
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
@@ -40,7 +38,7 @@
 
 #include <string.h>
 
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
+#if defined(FLYSKY_GIMBAL)
   #include "flysky_gimbal_driver.h"
 #endif
 
@@ -111,9 +109,6 @@ void boardInit()
                          INTERRUPT_xMS_RCC_APB1Periph |
                          TIMER_2MHz_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
-#if defined(RADIO_FAMILY_T16)
-                         FLYSKY_HALL_RCC_APB1Periph |
-#endif
                          TELEMETRY_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
                          MIXER_SCHEDULER_TIMER_RCC_APB1Periph |
@@ -170,7 +165,7 @@ void boardInit()
   sticksPwmDetect();
 #endif
   
-#if defined(RADIO_FAMILY_T16)
+#if defined(FLYSKY_GIMBAL)
   flysky_gimbal_init();
 #endif
 

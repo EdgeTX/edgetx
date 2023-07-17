@@ -19,33 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "stm32_dma.h"
 
-#include <stdint.h>
-#include "stm32_hal_ll.h"
-
-inline static bool stm32_dma_check_tc_flag(DMA_TypeDef* DMAx, uint32_t DMA_Stream)
+void stm32_dma_enable_clock(DMA_TypeDef* DMAx)
 {
-  switch(DMA_Stream) {
-  case LL_DMA_STREAM_1:
-    if (!LL_DMA_IsActiveFlag_TC1(DMAx)) return false;
-    LL_DMA_ClearFlag_TC1(DMAx);
-    break;
-  case LL_DMA_STREAM_5:
-    if (!LL_DMA_IsActiveFlag_TC5(DMAx)) return false;
-    LL_DMA_ClearFlag_TC5(DMAx);
-    break;
-  case LL_DMA_STREAM_6:
-    if (!LL_DMA_IsActiveFlag_TC6(DMAx)) return false;
-    LL_DMA_ClearFlag_TC6(DMAx);
-    break;
-  case LL_DMA_STREAM_7:
-    if (!LL_DMA_IsActiveFlag_TC7(DMAx)) return false;
-    LL_DMA_ClearFlag_TC7(DMAx);
-    break;
+  if (DMAx == DMA1) {
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
+  } else if (DMAx == DMA2) {
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA2);
   }
-
-  return true;
 }
-
-void stm32_dma_enable_clock(DMA_TypeDef* DMAx);

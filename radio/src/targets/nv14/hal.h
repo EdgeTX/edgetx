@@ -399,10 +399,6 @@
 #define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           LL_GPIO_PIN_0  // PA.00
 #define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           LL_GPIO_PIN_1  // PA.01
 #define FLYSKY_HALL_SERIAL_GPIO_AF               LL_GPIO_AF_8
-
-#define FLYSKY_HALL_RCC_AHB1Periph               RCC_AHB1Periph_DMA1
-#define FLYSKY_HALL_RCC_APB1Periph               RCC_APB1Periph_UART4
-
 #define FLYSKY_HALL_SERIAL_USART_IRQHandler      UART4_IRQHandler
 #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
 #define FLYSKY_HALL_SERIAL_DMA                   DMA1
