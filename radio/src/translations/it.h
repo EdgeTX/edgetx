@@ -363,7 +363,7 @@
 #define TR_KEYS_BACKLIGHT               "Luce tasti"
 #define TR_BLCOLOR                      "Colore"
 #define TR_SPLASHSCREEN                 TR("Sch. avvio", "Schermata d'avvio")
-#define TR_PLAY_HELLO                   "Suono all'accensione"
+#define TR_PLAY_HELLO                   TR("Suono accens.", "Suono all'accensione")
 #define TR_PWR_ON_DELAY                 "Rit. accens."
 #define TR_PWR_OFF_DELAY                "Rit. spegni."
 #define TR_THROTTLE_WARNING             TR(INDENT "All. Mot.", INDENT "Allarme Motore")
