@@ -368,7 +368,7 @@
 #define TR_KEYS_BACKLIGHT              "Keys backlight"
 #define TR_BLCOLOR                     "Cor"
 #define TR_SPLASHSCREEN                "Splash screen"
-#define TR_PLAY_HELLO                  "Startup Sound"
+#define TR_PLAY_HELLO                  "Som ao ligar"
 #define TR_PWR_ON_DELAY                "Delay para LIGA"
 #define TR_PWR_OFF_DELAY               "Delay para DESL"
 #define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "Throttle state")
