@@ -9,7 +9,7 @@
 
 
 <p align="center">
-<a href="url"><img src="https://github.com/EdgeTX/edgetx.github.io/blob/master/images/edgetx-v2.png" align="center" height="150" width="150" ></a>
+<a href="url"><img src="https://edgetx.org/assets/edgehog.png" align="center" height="150" width="150" ></a>
 
 # Welcome to EdgeTX!
 **The cutting edge open-source firmware for your R/C radio!**
