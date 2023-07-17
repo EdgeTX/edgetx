@@ -206,10 +206,6 @@ void boardInit()
   // detect NV14 vs EL18
   hardwareOptions.pcbrev = boardGetPcbRev();
 
-#if defined(DEBUG)
-  serialInit(SP_AUX1, UART_MODE_DEBUG);
-#endif
-
   TRACE("\n%s board started :)",
         hardwareOptions.pcbrev == PCBREV_NV14 ?
         "NV14" : "EL18");

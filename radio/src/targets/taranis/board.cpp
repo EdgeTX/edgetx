@@ -224,10 +224,6 @@ void boardInit()
   timersInit();
   usbInit();
 
-#if defined(DEBUG)
-  serialInit(SP_AUX1, UART_MODE_DEBUG);
-#endif
-
 #if defined(HAPTIC)
   hapticInit();
 #endif
