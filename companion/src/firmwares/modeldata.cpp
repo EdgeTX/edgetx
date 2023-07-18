@@ -1625,8 +1625,8 @@ QString ModelData::trainerModeToString(int value)
       return tr("Master/SBUS Module");
     case TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE:
       return tr("Master/CPPM Module");
-    case TRAINER_MODE_MASTER_BATTERY_COMPARTMENT:
-      return tr("Master/Battery");
+    case TRAINER_MODE_MASTER_SERIAL:
+      return tr("Master/Serial");
     case TRAINER_MODE_MASTER_BLUETOOTH:
       return tr("Master/Bluetooth");
     case TRAINER_MODE_SLAVE_BLUETOOTH:
@@ -1650,11 +1650,11 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
   if (!IS_TARANIS(board) ||
            IS_ACCESS_RADIO(board, Firmware::getCurrentVariant()->getId())) {
     if (value >= TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE &&
-        value <= TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
+        value <= TRAINER_MODE_MASTER_SERIAL)
       ret = false;
   } else if (generalSettings.serialPort[GeneralSettings::SP_AUX1] !=
                  UART_MODE_SBUS_TRAINER &&
-             value == TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
+             value == TRAINER_MODE_MASTER_SERIAL)
     ret = false;
 
   if (generalSettings.bluetoothMode !=
