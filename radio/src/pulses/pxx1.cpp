@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "dataconstants.h"
 #include "hal/module_port.h"
 #include "heartbeat_driver.h"
 #include "mixer_scheduler.h"
@@ -284,6 +285,8 @@ static void* pxx1Init(uint8_t module)
 
   if (module == INTERNAL_MODULE) {
 
+    if (!pxxClearSPort()) return nullptr;
+    
     txCfg.baudrate = _pxx1_internal_baudrate;
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &txCfg, false);
 
@@ -361,7 +364,12 @@ static void* pxx1Init(uint8_t module)
 static void pxx1DeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
   modulePortDeInit(mod_st);
+
+  if (module == INTERNAL_MODULE) {
+    pulsesRestartModuleUnsafe(EXTERNAL_MODULE);
+  }
 }
 
 static void pxx1SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)

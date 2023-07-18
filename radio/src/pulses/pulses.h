@@ -175,6 +175,12 @@ void pulsesSetModuleDeInitCb(module_deinit_cb_t cb);
 void restartModule(uint8_t module);
 bool restartModuleAsync(uint8_t module, uint8_t cnt_delay);
 
+// Re-Init module
+// 
+// Note: this can only be used from within
+//       module init.
+void pulsesRestartModuleUnsafe(uint8_t module);
+
 void pulsesModuleSettingsUpdate(uint8_t module);
 
 void setupPulsesPPMTrainer();

@@ -262,6 +262,14 @@ void modulePortDeInit(etx_module_state_t* st)
   modulePortClear(st);
 }
 
+void modulePortDeInitRxPort(etx_module_state_t* st)
+{
+  if (st->rx.port) {
+    _deinit_driver(&st->rx);
+    memset(&st->rx, 0, sizeof(etx_module_driver_t));
+  }
+}
+
 etx_module_state_t* modulePortGetState(uint8_t module)
 {
   if (module >= MAX_MODULES) return nullptr;
@@ -271,4 +279,32 @@ etx_module_state_t* modulePortGetState(uint8_t module)
 uint8_t modulePortGetModule(etx_module_state_t* st)
 {
   return st - _module_states;
+}
+
+bool modulePortIsPortUsedByModule(uint8_t module, uint8_t port)
+{
+  auto mod_st = modulePortGetState(module);
+  if (!mod_st) return false;
+
+  auto tx_port = mod_st->tx.port;
+  auto rx_port = mod_st->rx.port;
+
+  return (tx_port && tx_port->port == port) ||
+         (rx_port && rx_port->port == port);
+}
+
+bool modulePortIsPortUsed(uint8_t port)
+{
+  return modulePortGetModuleForPort(port) >= 0;
+}
+
+int8_t modulePortGetModuleForPort(uint8_t port)
+{
+  for (uint8_t module = 0; module < MAX_MODULES; module++) {
+    if (modulePortIsPortUsedByModule(module, port)) {
+      return module;
+    }
+  }
+
+  return -1;
 }

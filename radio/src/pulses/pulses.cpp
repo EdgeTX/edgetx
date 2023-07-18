@@ -111,6 +111,19 @@ void restartModule(uint8_t module)
   mixerTaskStart();
 }
 
+void pulsesRestartModuleUnsafe(uint8_t module)
+{
+  if (module >= MAX_MODULES)
+    return;
+  
+  auto mod_drv = pulsesGetModuleDriver(module);
+  if (!mod_drv->drv) return;
+  
+  auto drv = mod_drv->drv;
+  drv->deinit(mod_drv->ctx);
+  mod_drv->ctx = drv->init(module);
+}
+
 #if !defined(SIMU)
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/timers.h>

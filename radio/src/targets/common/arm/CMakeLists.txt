@@ -212,6 +212,7 @@ if(PXX1)
   add_definitions(-DPXX -DPXX1)
   set(PULSES_SRC
     ${PULSES_SRC}
+    pxx.cpp
     pxx1.cpp
     )
 endif()
