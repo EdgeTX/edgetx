@@ -402,12 +402,15 @@ int VfsFile::fprintf(const char* str, ...)
 #if defined (USE_FATFS)
   case VfsFileType::FAT:
   {
+      char line[256];
       va_list args;
       va_start(args, str);
-
-      int ret = f_printf(&fat.file, str, args);
+      vsprintf(line, str, args);
       va_end(args);
-      return ret;
+
+      size_t written;
+      this->write(line, strlen(line), written);
+      return written;
   }
 #endif
   default: break;
