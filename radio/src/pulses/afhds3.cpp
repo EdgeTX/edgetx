@@ -917,6 +917,23 @@ bool ProtoState::syncSettings()
   if (checkDirtyFlag(DC_RX_CMD_BUS_TYPE_V0))
   {
     TRACE("AFHDS3 [RX_CMD_BUS_TYPE_V0]");
+    bool onlySupportIBUSOut = (1==receiver_type(rx_version.ProductNumber));
+
+    if (onlySupportIBUSOut && cfg->others.ExternalBusType == EB_BT_IBUS1_IN)
+    {
+      cfg->others.ExternalBusType == EB_BT_IBUS1_OUT;
+    }
+    uint8_t data[] = { (uint8_t)(RX_CMD_BUS_TYPE_V0&0xFF), (uint8_t)((RX_CMD_BUS_TYPE_V0>>8)&0xFF), 1,
+                       cfg->others.ExternalBusType == EB_BT_SBUS1 ? EB_BT_SBUS1 : EB_BT_IBUS1};
+    trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
+
+    if (!onlySupportIBUSOut)
+    {
+      DIRTY_CMD(cfg, DC_RX_CMD_IBUS_DIRECTION);
+    }
+    return true;
+
+/*
     if(1>=cfg->others.ExternalBusType) //IBUS1
     {
       uint8_t data[] = { (uint8_t)(RX_CMD_BUS_TYPE_V0&0xFF), (uint8_t)((RX_CMD_BUS_TYPE_V0>>8)&0xFF), 1, 0 };
@@ -926,7 +943,7 @@ bool ProtoState::syncSettings()
           cfg->others.ExternalBusType = 0;//These RXs only support iBUS-OUT
       }
       cfg->others.iBusType = cfg->others.ExternalBusType;
-      cfg->others.dirtyFlag |= (uint32_t)1<<DC_RX_CMD_IBUS_DIRECTION;
+      DIRTY_CMD(cfg, DC_RX_CMD_IBUS_DIRECTION);
     }
     else if(2==cfg->others.ExternalBusType)//SBUS
     {
@@ -934,11 +951,13 @@ bool ProtoState::syncSettings()
       trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     }
     return true;
+*/
   }
   if (checkDirtyFlag(DC_RX_CMD_IBUS_DIRECTION))
   {
     TRACE("AFHDS3 [RX_CMD_IBUS_DIRECTION]");
-    uint8_t data[] = { (uint8_t)(RX_CMD_IBUS_DIRECTION&0xFF), (uint8_t)((RX_CMD_IBUS_DIRECTION>>8)&0xFF), 1, cfg->others.iBusType };
+    uint8_t data[] = { (uint8_t)(RX_CMD_IBUS_DIRECTION&0xFF), (uint8_t)((RX_CMD_IBUS_DIRECTION>>8)&0xFF), 1,
+                       cfg->others.ExternalBusType == EB_BT_IBUS1_OUT ? EB_BT_IBUS1_OUT : EB_BT_IBUS1_IN};
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     return true;
   }
@@ -1026,7 +1045,7 @@ void ProtoState::applyConfigFromModel()
     cfg.v0.EMIStandard = moduleData->afhds3.emi;
     cfg.v0.IsTwoWay = moduleData->afhds3.telemetry;
     cfg.v0.PhyMode = moduleData->afhds3.phyMode;
-    cfg.v0.ExternalBusType = cfg.others.ExternalBusType==1?0:cfg.others.ExternalBusType;
+    cfg.v0.ExternalBusType = cfg.others.ExternalBusType==EB_BT_SBUS1 ? EB_BT_SBUS1 : EB_BT_IBUS1;
     // Failsafe
     setFailSafe(cfg.v0.FailSafe);
     if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
