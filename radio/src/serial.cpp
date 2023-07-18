@@ -294,7 +294,7 @@ static void serialSetupPort(int mode, etx_serial_init& params)
   case UART_MODE_TELEMETRY_MIRROR:
     // TODO: query telemetry baudrate / add setting for module
 #if defined(CROSSFIRE)
-    if (modelTelemetryProtocol() == PROTOCOL_TELEMETRY_CROSSFIRE) {
+    if (isModuleCrossfire(EXTERNAL_MODULE) || isModuleCrossfire(INTERNAL_MODULE)) {
       params.baudrate = CROSSFIRE_TELEM_MIRROR_BAUDRATE;
       break;
     }
@@ -303,7 +303,8 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     break;
 
   case UART_MODE_TELEMETRY:
-    if (modelTelemetryProtocol() == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
+    if (isModulePPM(EXTERNAL_MODULE) &&
+        g_model.telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
       params.baudrate = FRSKY_D_BAUDRATE;
       params.direction = ETX_Dir_RX;
     }

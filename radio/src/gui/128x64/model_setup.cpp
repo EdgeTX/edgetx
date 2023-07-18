@@ -23,6 +23,7 @@
 #include "mixer_scheduler.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
+#include "hal/module_port.h"
 #include "switches.h"
 
 #if defined(USBJ_EX)
@@ -1972,10 +1973,11 @@ void menuModelSetup(event_t event)
 #endif
         if (isModuleR9MNonAccess(moduleIdx)) {
           lcdDrawTextAlignedLeft(y, STR_MODULE_TELEMETRY);
-          if (isSportLineUsedByInternalModule())
-            lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_DISABLE_INTERNAL);
-          else
+          if (modulePortIsPortUsedByModule(moduleIdx, ETX_MOD_PORT_SPORT)) {
             lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_MODULE_TELEM_ON);
+          } else {
+            lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_DISABLE_INTERNAL);
+          }
         }
         else if (isModuleSBUS(moduleIdx)) {
           lcdDrawTextAlignedLeft(y, STR_WARN_BATTVOLTAGE);

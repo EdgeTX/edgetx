@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 #include "opentx.h"
+#include "hal/module_port.h"
 
 #include "telemetry.h"
 #include "io/multi_protolist.h"
@@ -497,14 +498,12 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 void MultiModuleStatus::getStatusString(char * statusText) const
 {
   if (!isValid()) {
-#if defined(PCBFRSKY)
-#if !defined(INTERNAL_MODULE_MULTI)
-    if (isSportLineUsedByInternalModule())
+    uint8_t module = (uint8_t)(this - &getMultiModuleStatus(0));
+    if (!modulePortIsPortUsedByModule(module, ETX_MOD_PORT_SPORT)) {
       strcpy(statusText, STR_DISABLE_INTERNAL);
-    else
-#endif
-#endif
-    strcpy(statusText, STR_MODULE_NO_TELEMETRY);
+    } else {
+      strcpy(statusText, STR_MODULE_NO_TELEMETRY);
+    }
     return;
   }
   if (!protocolValid()) {

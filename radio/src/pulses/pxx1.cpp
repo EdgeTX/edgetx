@@ -70,14 +70,17 @@ void Pxx1Pulses<PxxTransport>::addExtraFlags(uint8_t module)
   extraFlags |= (g_model.moduleData[module].pxx.receiverTelemetryOff << 1);
   extraFlags |= (g_model.moduleData[module].pxx.receiverHigherChannels << 2);
   if (isModuleR9MNonAccess(module)) {
-    extraFlags |= (min<uint8_t>(g_model.moduleData[module].pxx.power, isModuleR9M_FCC_VARIANT(module) ? (uint8_t)R9M_FCC_POWER_MAX : (uint8_t)R9M_LBT_POWER_MAX) << 3);
-    if (isModuleR9M_EUPLUS(module))
-      extraFlags |= (1 << 6);
+    extraFlags |= (min<uint8_t>(g_model.moduleData[module].pxx.power,
+                                isModuleR9M_FCC_VARIANT(module)
+                                    ? (uint8_t)R9M_FCC_POWER_MAX
+                                    : (uint8_t)R9M_LBT_POWER_MAX)
+                   << 3);
+    if (isModuleR9M_EUPLUS(module)) extraFlags |= (1 << 6);
   }
 
 #if defined(HARDWARE_EXTERNAL_MODULE) && defined(HARDWARE_INTERNAL_MODULE)
-  // Disable S.PORT if internal module is active
-  if (module == EXTERNAL_MODULE && isSportLineUsedByInternalModule()) {
+  // Disable S.PORT if port is not used (might be used by the internal module)
+  if (module == EXTERNAL_MODULE && !modulePortIsPortUsedByModule(module, ETX_MOD_PORT_SPORT)) {
     extraFlags |= (1 << 5);
   }
 #endif
