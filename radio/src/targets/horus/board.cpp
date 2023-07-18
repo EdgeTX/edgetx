@@ -144,7 +144,7 @@ void boardInit()
   delaysInit();
 
   __enable_irq();
-  
+
 #if defined(DEBUG)
   memset(serialPortStates, 0, sizeof(serialPortStates));  // early init of serialPortStates
   serialSetMode(SP_AUX1, UART_MODE_DEBUG);                // indicate AUX1 is used
