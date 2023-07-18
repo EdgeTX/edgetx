@@ -371,6 +371,8 @@ void MultimoduleSettings::update()
   }
 
   lp_mode->update();
+#if defined(MANUFACTURER_FRSKY)
   disable_telem->update();
+#endif
   cm_line->update(rfProto);
 }
