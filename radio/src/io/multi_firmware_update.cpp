@@ -90,31 +90,25 @@ bool MultiFirmwareUpdateDriver::init()
 {
   if (type == MULTI_TYPE_MULTIMODULE && module == INTERNAL_MODULE) {
     // duplex internal USART
-    mod_st = modulePortInitSerial(INTERNAL_MODULE, ETX_MOD_PORT_UART, &serialInitParams);
+    mod_st = modulePortInitSerial(INTERNAL_MODULE, ETX_MOD_PORT_UART, &serialInitParams, false);
   } else if (type == MULTI_TYPE_MULTIMODULE && module == EXTERNAL_MODULE) {
     // TX on PPM (inverted softserial)
     etx_serial_init params(serialInitParams);
     params.direction = ETX_Dir_TX;
     params.polarity = ETX_Pol_Inverted;
-    mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_UART, &params);
-    if (!mod_st) {
-      params.polarity = ETX_Pol_Inverted;
-      mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SOFT_INV, &params);
-      if (!mod_st) return false;
-    }
+    mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_UART, &params, true);
+    if (!mod_st) return false;
+
     // RX on S.PORT (inverted softserial)
     params.direction = ETX_Dir_RX;
     params.polarity = ETX_Pol_Inverted;
-    if (!modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT, &params)) {
-      params.polarity = ETX_Pol_Inverted;
-      if (!modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT_INV, &params)) {
-        modulePortDeInit(mod_st);
-        return false;
-      }
+    if (!modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT, &params, true)) {
+      modulePortDeInit(mod_st);
+      return false;
     }
   } else if (type == MULTI_TYPE_ELRS && module == EXTERNAL_MODULE) {
     // half-duplex on S.PORT USART
-    mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT, &serialInitParams);
+    mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT, &serialInitParams, false);
   }
 
   if (!mod_st) return false;

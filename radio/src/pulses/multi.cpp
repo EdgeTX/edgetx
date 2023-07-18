@@ -210,7 +210,7 @@ static void* multiInit(uint8_t module)
     // serial port setup
     // TODO: error handling
     cfg.direction = ETX_Dir_TX_RX;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &cfg);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &cfg, false);
   }
 #endif
 
@@ -219,19 +219,14 @@ static void* multiInit(uint8_t module)
     // serial port setup
     cfg.direction = ETX_Dir_TX;
     cfg.polarity = ETX_Pol_Inverted;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &cfg);
 
-    if (!mod_st) {
-      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &cfg);
-    }
-
-    // no TX port: bail out
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &cfg, true);
     if (!mod_st) return nullptr;
 
     // Init S.PORT RX channel
     cfg.direction = ETX_Dir_RX;
     cfg.polarity = ETX_Pol_Normal;
-    modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &cfg);
+    modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &cfg, false);
   }
 #endif
 

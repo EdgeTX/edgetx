@@ -285,13 +285,13 @@ static void* pxx1Init(uint8_t module)
   if (module == INTERNAL_MODULE) {
 
     txCfg.baudrate = _pxx1_internal_baudrate;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &txCfg);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &txCfg, false);
 
     if (!mod_st) {
       // assume that radios that don't have an internal UART
       // will have a module that uses legacy PXX1 (PWM)
       txCfg.encoding = ETX_Encoding_PXX1_PWM;
-      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &txCfg);
+      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &txCfg, false);
     }
 
     if (!mod_st) return nullptr;
@@ -305,14 +305,14 @@ static void* pxx1Init(uint8_t module)
 
     case MODULE_TYPE_R9M_LITE_PXX1: {
       txCfg.baudrate = EXTMODULE_PXX1_SERIAL_BAUDRATE;
-      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &txCfg);
+      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &txCfg, false);
       if (!mod_st) return nullptr;
     } break;
 
     case MODULE_TYPE_XJT_PXX1:
     case MODULE_TYPE_R9M_PXX1: {
       txCfg.encoding = ETX_Encoding_PXX1_PWM;
-      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &txCfg);
+      mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &txCfg, false);
       if (!mod_st) return nullptr;
     } break;
 
@@ -328,7 +328,7 @@ static void* pxx1Init(uint8_t module)
   rxCfg.direction = ETX_Dir_TX_RX;
 
   // TODO: handle init errors properly
-  if (modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &rxCfg) != nullptr) {
+  if (modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &rxCfg, false) != nullptr) {
     auto drv = modulePortGetSerialDrv(mod_st->rx);
     auto ctx = modulePortGetCtx(mod_st->rx);
     if (drv && ctx && drv->setIdleCb) {

@@ -1110,13 +1110,13 @@ static void* initModule(uint8_t module)
   params.baudrate = AFHDS3_UART_BAUDRATE;
   params.polarity =
     module == INTERNAL_MODULE ? ETX_Pol_Normal : ETX_Pol_Inverted;
-  mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
+  mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params, false);
 
 #if defined(CONFIGURABLE_MODULE_PORT)
   if (!mod_st && module == EXTERNAL_MODULE) {
     // Try Connect using aux serial mod
     params.polarity = ETX_Pol_Normal;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params, false);
   }
 #endif
 
@@ -1125,7 +1125,7 @@ static void* initModule(uint8_t module)
     params.baudrate = AFHDS3_SOFTSERIAL_BAUDRATE;
     params.direction = ETX_Dir_TX;
     period = AFHDS3_SOFTSERIAL_COMMAND_TIMEOUT * 1000 /* us */;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &params, false);
     // TODO: telemetry RX ???
   }
 
