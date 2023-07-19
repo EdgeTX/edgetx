@@ -690,14 +690,8 @@ void MainWindow::updateMenus()
   compareAct->setEnabled(activeChild);
   writeSettingsAct->setEnabled(activeChild);
   readSettingsAct->setEnabled(true);
-  if (IS_FAMILY_HORUS_OR_T16(getCurrentBoard())) {
-    writeBUToRadioAct->setEnabled(false);
-    readBUToFileAct->setEnabled(false);
-  }
-  else {
-    writeBUToRadioAct->setEnabled(true);
-    readBUToFileAct->setEnabled(true);
-  }
+  writeBUToRadioAct->setEnabled(false);
+  readBUToFileAct->setEnabled(false);
   editSplashAct->setDisabled(IS_FAMILY_HORUS_OR_T16(getCurrentBoard()));
 
   foreach (QAction * act, fileWindowActions) {
