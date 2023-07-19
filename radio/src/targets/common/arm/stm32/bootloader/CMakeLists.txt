@@ -106,6 +106,7 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
       ../../../../../boards/generic_stm32/aux_ports.cpp
       ../../../../../targets/common/arm/stm32/stm32_serial_driver.cpp
       ../../../../../targets/common/arm/stm32/stm32_usart_driver.cpp
+      ../../../../../targets/common/arm/stm32/stm32_dma.cpp
       )
   endif()
 else()
