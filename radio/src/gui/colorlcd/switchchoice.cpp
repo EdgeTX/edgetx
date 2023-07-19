@@ -408,7 +408,7 @@ class SwitchDialog : public ModalWindow
                  std::function<void(bool)> onSave,
                  std::function<void()> onCancel,
                  std::function<bool(int)> isValueAvailable) :
-        ModalWindow(parent, true),
+        ModalWindow(parent, false),
         m_getValue(std::move(getValue)),
         m_setValue(std::move(setValue)),
         m_onSave(std::move(onSave)),
