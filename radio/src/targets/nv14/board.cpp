@@ -273,12 +273,12 @@ void boardOff()
   if (usbPlugged())
   {
     delay_ms(100);  // Add a delay to wait for lcdOff
-    RTC->BKP0R = SOFTRESET_REQUEST;
+    setRTCBKPR(RTCBKP0R, SOFTRESET_REQUEST);
     NVIC_SystemReset();
   }
   else
   {
-    RTC->BKP0R = SHUTDOWN_REQUEST;
+    setRTCBKPR(RTCBKP0R, SHUTDOWN_REQUEST);
     pwrOff();
   }
 
