@@ -245,8 +245,8 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
       ui->label_trainerMode->hide();
       ui->trainerMode->hide();
     }
-    else {  //  TODO: model and index needs to be updated on protocol change
-      ui->trainerMode->setModel(model.trainerModeItemModel(generalSettings, firmware));
+    else {  //  TODO: model and index needs to be updated on protocol change and need to free memory when rebuilding ie before new
+      ui->trainerMode->setModel(new FilteredItemModel(model.trainerModeItemModel(generalSettings, firmware)));
       ui->trainerMode->setField(model.trainerMode);
       connect(ui->trainerMode, &AutoComboBox::currentDataChanged, this, [=] () {
               update();
