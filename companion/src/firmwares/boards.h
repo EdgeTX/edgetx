@@ -159,7 +159,10 @@ namespace Board {
     HasInternalModuleSupport,
     HasExternalModuleSupport,
     HasAudioMuteGPIO,
-    SportMaxBaudRate
+    SportMaxBaudRate,
+    HasIntModuleHeartbeatGPIO,
+    HasTrainerModuleCPPM,
+    HasTrainerModuleSBUS,
   };
 
   struct SwitchInfo
