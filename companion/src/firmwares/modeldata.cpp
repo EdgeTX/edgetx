@@ -1638,7 +1638,6 @@ QString ModelData::trainerModeToString(int value)
   }
 }
 
-//  static
 bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, const Firmware * firmware, const int value)
 {
   if (value < TRAINER_MODE_FIRST || value > TRAINER_MODE_LAST)
@@ -1688,7 +1687,6 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
   return true;
 }
 
-//  static
 AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings & generalSettings, const Firmware * firmware)
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();

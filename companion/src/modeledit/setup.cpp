@@ -245,9 +245,8 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
       ui->label_trainerMode->hide();
       ui->trainerMode->hide();
     }
-    else {
-      if (panelFilteredItemModels)
-        ui->trainerMode->setModel(panelFilteredItemModels->getItemModel(FIM_TRAINERMODE));
+    else {  //  TODO: model and index needs to be updated on protocol change
+      ui->trainerMode->setModel(model.trainerModeItemModel(generalSettings, firmware));
       ui->trainerMode->setField(model.trainerMode);
       connect(ui->trainerMode, &AutoComboBox::currentDataChanged, this, [=] () {
               update();
@@ -1408,7 +1407,6 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelItemModels->registerItemModel(TimerData::countdownStartItemModel());
   panelItemModels->registerItemModel(TimerData::persistentItemModel());
   panelItemModels->registerItemModel(TimerData::modeItemModel());
-  panelFilteredModels->registerItemModel(new FilteredItemModel(ModelData::trainerModeItemModel(generalSettings, firmware)), FIM_TRAINERMODE);
   panelItemModels->registerItemModel(TimerData::showElapsedItemModel());
   Board::Type board = firmware->getBoard();
 
