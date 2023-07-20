@@ -80,7 +80,7 @@ bool UNEXPECTED_SHUTDOWN()
 #endif
 }
 
-inline void SET_POWER_REASON(uint32_t value)
+void SET_POWER_REASON(uint32_t value)
 {
   setRTCBKPR(RTCBKP0R, value);
   setRTCBKPR(RTCBKP1R, POWER_REASON_SIGNATURE);
