@@ -66,8 +66,15 @@ static wchar_t _utf8_lut[] = {
 #if !defined(COLORLCD)
 #define UTF8_SUBS_LUT
 static wchar_t _utf8_substitution_lut[] = {
-    L'Ž', L'ž',
+    L'Ě', L'ě',
+    L'Š', L'š',
     L'Č', L'č',
+    L'Ž', L'ž',
+    L'Ú', L'ú',
+    L'Ů', L'ů',
+    L'Ó', L'ó',
+    L'Ň', L'N',
+    L'ň', L'n',
 };
 #endif
 #elif defined(TRANSLATIONS_ES)
