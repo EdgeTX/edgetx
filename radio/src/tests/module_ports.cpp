@@ -20,8 +20,11 @@
  */
 
 #include "gtests.h"
+#include "hal/module_driver.h"
 #include "hal/module_port.h"
 #include "pulses/modules_constants.h"
+#include "pulses/pulses.h"
+#include "translations.h"
 
 TEST(ports, softserialFallback)
 {
@@ -77,7 +80,34 @@ TEST(ports, isPortUsed)
 #if defined(INTERNAL_MODULE_PXX1) && defined(HARDWARE_EXTERNAL_MODULE)
 #include "pulses/pxx1.h"
 
-TEST(pxx1_ports, deactivateRX_pxx1)
+static void _setModuleDrv(uint8_t module, const etx_proto_driver_t* drv, void* ctx)
+{
+  auto mod_drv = pulsesGetModuleDriver(module);
+  mod_drv->drv = drv;
+  mod_drv->ctx = ctx;
+}
+
+static void _deinitModuleDrv(uint8_t module)
+{
+  auto mod_drv = pulsesGetModuleDriver(module);
+  auto drv = mod_drv->drv;
+  auto ctx = mod_drv->ctx;
+  
+  drv->deinit(ctx);
+  memset(mod_drv, 0, sizeof(module_pulse_driver));
+}
+
+static void _sendPulses(uint8_t module, uint8_t* buffer)
+{
+  auto mod_drv = pulsesGetModuleDriver(module);
+  auto drv = mod_drv->drv;
+  auto ctx = mod_drv->ctx;
+
+  int16_t* channels = &channelOutputs[0];
+  drv->sendPulses(ctx, buffer, channels, 16);
+}
+
+TEST(ports, deactivateRX_pxx1)
 {
   modulePortInit();
   g_model.moduleData[EXTERNAL_MODULE].type = MODULE_TYPE_R9M_PXX1;
@@ -85,29 +115,28 @@ TEST(pxx1_ports, deactivateRX_pxx1)
   void* ext_ctx = Pxx1Driver.init(EXTERNAL_MODULE);
   EXPECT_TRUE(ext_ctx != nullptr);
   EXPECT_TRUE(modulePortIsPortUsed(ETX_MOD_PORT_SPORT));
-  if (!ext_ctx) return;
 
-  auto ext_drv = pulsesGetModuleDriver(EXTERNAL_MODULE);
-  ext_drv->drv = &Pxx1Driver;
-  ext_drv->ctx = ext_ctx;
+  if (!ext_ctx) return;
+  _setModuleDrv(EXTERNAL_MODULE, &Pxx1Driver, ext_ctx);
 
   void* int_ctx = Pxx1Driver.init(INTERNAL_MODULE);
   EXPECT_TRUE(int_ctx != nullptr);
   EXPECT_EQ(INTERNAL_MODULE, modulePortGetModuleForPort(ETX_MOD_PORT_SPORT));
+
   if (!int_ctx) return;
+  _setModuleDrv(INTERNAL_MODULE, &Pxx1Driver, int_ctx);
   
-  Pxx1Driver.deinit(int_ctx);
+  _deinitModuleDrv(INTERNAL_MODULE);
   EXPECT_EQ(EXTERNAL_MODULE, modulePortGetModuleForPort(ETX_MOD_PORT_SPORT));
 
-  Pxx1Driver.deinit(ext_ctx);
-  memset(ext_drv, 0, sizeof(module_pulse_driver));
-
+  _deinitModuleDrv(EXTERNAL_MODULE);
   EXPECT_FALSE(modulePortIsPortUsed(ETX_MOD_PORT_SPORT));
 }
 
 #include "pulses/multi.h"
+#include "telemetry/multi.h"
 
-TEST(pxx1_ports, deactivateRX_multi)
+TEST(ports, deactivateRX_multi)
 {
   modulePortInit();
   g_model.moduleData[EXTERNAL_MODULE].type = MODULE_TYPE_MULTIMODULE;
@@ -115,37 +144,95 @@ TEST(pxx1_ports, deactivateRX_multi)
   void* ext_ctx = MultiDriver.init(EXTERNAL_MODULE);
   EXPECT_TRUE(ext_ctx != nullptr);
   EXPECT_TRUE(modulePortIsPortUsed(ETX_MOD_PORT_SPORT));
-  if (!ext_ctx) return;
 
-  auto ext_drv = pulsesGetModuleDriver(EXTERNAL_MODULE);
-  ext_drv->drv = &MultiDriver;
-  ext_drv->ctx = ext_ctx;
+  if (!ext_ctx) return;
+  _setModuleDrv(EXTERNAL_MODULE, &MultiDriver, ext_ctx);
 
   uint8_t buffer[64];
-  uint8_t channelStart = g_model.moduleData[EXTERNAL_MODULE].channelsStart;
-  int16_t* channels = &channelOutputs[channelStart];
-  uint8_t nChannels = 16;
-  
-  MultiDriver.sendPulses(ext_ctx, buffer, channels, nChannels);
+  _sendPulses(EXTERNAL_MODULE, buffer);
   EXPECT_FALSE(buffer[0x1A] & 2);
+
+  auto& mpm_status = getMultiModuleStatus(EXTERNAL_MODULE);
+  mpm_status.invalidate();
+  mpm_status.getStatusString((char*)buffer);
+  EXPECT_STREQ(STR_MODULE_NO_TELEMETRY, (char*)buffer);
   
   void* int_ctx = Pxx1Driver.init(INTERNAL_MODULE);
   EXPECT_TRUE(int_ctx != nullptr);
   EXPECT_EQ(INTERNAL_MODULE, modulePortGetModuleForPort(ETX_MOD_PORT_SPORT));
-  if (!int_ctx) return;
 
-  MultiDriver.sendPulses(ext_ctx, buffer, channels, nChannels);
+  if (!int_ctx) return;
+  _setModuleDrv(INTERNAL_MODULE, &Pxx1Driver, int_ctx);
+
+  _sendPulses(EXTERNAL_MODULE, buffer);
   EXPECT_TRUE(buffer[0x1A] & 2);
 
-  Pxx1Driver.deinit(int_ctx);
+  mpm_status.getStatusString((char*)buffer);
+  EXPECT_STREQ(STR_DISABLE_INTERNAL, (char*)buffer);
+
+  _deinitModuleDrv(INTERNAL_MODULE);
   EXPECT_EQ(EXTERNAL_MODULE, modulePortGetModuleForPort(ETX_MOD_PORT_SPORT));
 
-  MultiDriver.sendPulses(ext_ctx, buffer, channels, nChannels);
+  _sendPulses(EXTERNAL_MODULE, buffer);
   EXPECT_FALSE(buffer[0x1A] & 2);
 
-  MultiDriver.deinit(ext_ctx);
-  memset(ext_drv, 0, sizeof(module_pulse_driver));
+  _deinitModuleDrv(EXTERNAL_MODULE);
+  EXPECT_FALSE(modulePortIsPortUsed(ETX_MOD_PORT_SPORT));
+}
 
+TEST(ports, boot_pxx1_multi)
+{
+  modulePortInit();
+  g_model.moduleData[EXTERNAL_MODULE].type = MODULE_TYPE_MULTIMODULE;
+
+  // Init PXX1 internal module first
+  void* int_ctx = Pxx1Driver.init(INTERNAL_MODULE);
+  EXPECT_TRUE(int_ctx != nullptr);
+
+  if (!int_ctx) return;
+  _setModuleDrv(INTERNAL_MODULE, &Pxx1Driver, int_ctx);
+
+  EXPECT_TRUE(modulePortIsPortUsed(ETX_MOD_PORT_SPORT));
+  EXPECT_EQ(INTERNAL_MODULE, modulePortGetModuleForPort(ETX_MOD_PORT_SPORT));
+
+  // Init MPM external module second
+  void* ext_ctx = MultiDriver.init(EXTERNAL_MODULE);
+  EXPECT_TRUE(ext_ctx != nullptr);
+
+  if (!ext_ctx) return;
+  _setModuleDrv(EXTERNAL_MODULE, &MultiDriver, ext_ctx);
+
+  // Verify internal module still owns S.PORT
+  EXPECT_EQ(INTERNAL_MODULE, modulePortGetModuleForPort(ETX_MOD_PORT_SPORT));
+  EXPECT_FALSE(modulePortIsPortUsedByModule(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT));
+
+  // Verify MPM sends "disable telemetry" bit
+  uint8_t buffer[64];
+  _sendPulses(EXTERNAL_MODULE, buffer);
+  EXPECT_TRUE(buffer[0x1A] & 2);
+
+  // Verify MPM status
+  auto& mpm_status = getMultiModuleStatus(EXTERNAL_MODULE);
+  mpm_status.invalidate();
+  mpm_status.getStatusString((char*)buffer);
+  EXPECT_STREQ(STR_DISABLE_INTERNAL, (char*)buffer);
+
+  // Disable internal module
+  _deinitModuleDrv(INTERNAL_MODULE);
+
+  // Verify external module now owns S.PORT
+  EXPECT_EQ(EXTERNAL_MODULE, modulePortGetModuleForPort(ETX_MOD_PORT_SPORT));
+
+  // Verify MPM does not send "disable telemetry" bit
+  _sendPulses(EXTERNAL_MODULE, buffer);
+  EXPECT_FALSE(buffer[0x1A] & 2);
+
+  // Verify MPM status
+  mpm_status.getStatusString((char*)buffer);
+  EXPECT_STREQ(STR_MODULE_NO_TELEMETRY, (char*)buffer);
+
+  // disable MPM
+  _deinitModuleDrv(EXTERNAL_MODULE);
   EXPECT_FALSE(modulePortIsPortUsed(ETX_MOD_PORT_SPORT));
 }
 #endif
