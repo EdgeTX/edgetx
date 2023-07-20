@@ -21,6 +21,7 @@
 
 #include "stm32_softserial_driver.h"
 #include "stm32_exti_driver.h"
+#include "stm32_timer.h"
 
 #include <string.h>
 
@@ -67,9 +68,13 @@ static inline void _rx_fifo_clear()
   rxRidx = 0;
 }
 
-static void _softserial_init_rx(const stm32_softserial_rx_port* port,
+static bool _softserial_init_rx(const stm32_softserial_rx_port* port,
                                 const etx_serial_init* params)
 {
+  // Test if pin is in reset state
+  uint32_t mode = LL_GPIO_GetPinMode(port->GPIOx, port->GPIO_Pin);
+  if (mode != LL_GPIO_MODE_INPUT) return false;
+
   rxBitCount = 0;
   rxBuffer = port->buffer.buffer;
   rxBufLen = port->buffer.length;
@@ -80,11 +85,11 @@ static void _softserial_init_rx(const stm32_softserial_rx_port* port,
   LL_TIM_StructInit(&timInit);
 
   uint32_t freq = params->baudrate * 16;
-  if (!freq) return;
+  if (!freq) return false;
 
   timInit.Prescaler = __LL_TIM_CALC_PSC(port->TIM_Freq, freq);
 
-  // TODO: enable_tim_clock(port->TIMx);
+  stm32_timer_enable_clock(port->TIMx);
   LL_TIM_Init(port->TIMx, &timInit);
 
   LL_TIM_ClearFlag_UPDATE(port->TIMx);
@@ -119,6 +124,8 @@ static void _softserial_init_rx(const stm32_softserial_rx_port* port,
   // Configure EXTI for raising edge (start bit; assuming inverted serial)
   _softserialPort = port;
   stm32_exti_enable(port->EXTI_Line, LL_EXTI_TRIGGER_RISING, _softserial_exti);
+
+  return true;
 }
 
 static void _softserial_deinit_gpio(const stm32_softserial_rx_port* port)
@@ -142,7 +149,7 @@ static void _softserial_deinit_rx(const stm32_softserial_rx_port* port)
 static void* stm32_softserial_rx_init(void* hw_def, const etx_serial_init* params)
 {
   auto port = (const stm32_softserial_rx_port*)hw_def;
-  _softserial_init_rx(port, params);
+  if (!_softserial_init_rx(port, params)) return nullptr;
   return hw_def;
 }
 
