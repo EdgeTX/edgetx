@@ -1625,8 +1625,8 @@ QString ModelData::trainerModeToString(int value)
       return tr("Master/SBUS Module");
     case TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE:
       return tr("Master/CPPM Module");
-    case TRAINER_MODE_MASTER_BATTERY_COMPARTMENT:
-      return tr("Master/Battery");
+    case TRAINER_MODE_MASTER_SERIAL:
+      return tr("Master/Serial");
     case TRAINER_MODE_MASTER_BLUETOOTH:
       return tr("Master/Bluetooth");
     case TRAINER_MODE_SLAVE_BLUETOOTH:
@@ -1638,35 +1638,55 @@ QString ModelData::trainerModeToString(int value)
   }
 }
 
-//  static
 bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, const Firmware * firmware, const int value)
 {
   if (value < TRAINER_MODE_FIRST || value > TRAINER_MODE_LAST)
     return false;
 
-  bool ret = true;
   const Board::Type board = firmware->getBoard();
 
-  if (!IS_TARANIS(board) ||
-           IS_ACCESS_RADIO(board, Firmware::getCurrentVariant()->getId())) {
-    if (value >= TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE &&
-        value <= TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
-      ret = false;
-  } else if (generalSettings.serialPort[GeneralSettings::SP_AUX1] !=
-                 UART_MODE_SBUS_TRAINER &&
-             value == TRAINER_MODE_MASTER_BATTERY_COMPARTMENT)
-    ret = false;
+  if (value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE &&
+      IS_TARANIS_X9E(board) &&
+      generalSettings.bluetoothMode)
+    return false;
 
-  if (generalSettings.bluetoothMode !=
-          GeneralSettings::BLUETOOTH_MODE_TRAINER &&
-      value >= TRAINER_MODE_MASTER_BLUETOOTH &&
-      value <= TRAINER_MODE_SLAVE_BLUETOOTH)
-    ret = false;
+  if (value == TRAINER_MODE_MASTER_SERIAL &&
+      (generalSettings.serialPort[GeneralSettings::SP_AUX1] != GeneralSettings::AUX_SERIAL_SBUS_TRAINER &&
+       generalSettings.serialPort[GeneralSettings::SP_AUX2] != GeneralSettings::AUX_SERIAL_SBUS_TRAINER))
+    return false;
 
-  return ret;
+  if ((value == TRAINER_MODE_MASTER_BLUETOOTH || value == TRAINER_MODE_SLAVE_BLUETOOTH) &&
+      !IS_TARANIS_X9E(board) &&
+      generalSettings.bluetoothMode != GeneralSettings::BLUETOOTH_MODE_TRAINER)
+    return false;
+
+  if ((value == TRAINER_MODE_MASTER_JACK || value == TRAINER_MODE_SLAVE_JACK) &&
+      ((IS_TARANIS_XLITE(board) && !IS_TARANIS_X9LITES(board)) || IS_IFLIGHT_COMMANDO8(board)))
+    return false;
+
+  if (value == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE &&
+      !Boards::getCapability(board, Board::HasTrainerModuleCPPM))
+    return false;
+
+  if (value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE &&
+      !Boards::getCapability(board, Board::HasTrainerModuleSBUS))
+    return false;
+
+  if ((value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE || value == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE) &&
+      (Boards::getCapability(board, Board::HasTrainerModuleCPPM) ||
+       Boards::getCapability(board, Board::HasTrainerModuleSBUS)) &&
+      moduleData[1].protocol != PULSES_OFF)
+    return false;
+
+  if (value == TRAINER_MODE_MULTI &&
+      ((!Boards::getCapability(board, Board::HasInternalModuleSupport) &&
+        !Boards::getCapability(board, Board::HasExternalModuleSupport)) ||
+       (moduleData[0].protocol != PULSES_MULTIMODULE && moduleData[1].protocol != PULSES_MULTIMODULE)))
+    return false;
+
+  return true;
 }
 
-//  static
 AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings & generalSettings, const Firmware * firmware)
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
