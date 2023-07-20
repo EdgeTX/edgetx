@@ -57,16 +57,16 @@ bool UNEXPECTED_SHUTDOWN()
   if (WAS_RESET_BY_WATCHDOG())
     return true;
   else if (WAS_RESET_BY_SOFTWARE())
-    return RTC->BKP0R != SOFTRESET_REQUEST;
+    return getRTCBKPR(RTCBKP0R) != SOFTRESET_REQUEST;
   else
-    return RTC->BKP1R == POWER_REASON_SIGNATURE && RTC->BKP0R != SHUTDOWN_REQUEST;
+    return getRTCBKPR(RTCBKP1R) == POWER_REASON_SIGNATURE && getRTCBKPR(RTCBKP0R) != SHUTDOWN_REQUEST;
 #endif
 }
 
-void SET_POWER_REASON(uint32_t value)
+inline void SET_POWER_REASON(uint32_t value)
 {
-  RTC->BKP0R = value;
-  RTC->BKP1R = POWER_REASON_SIGNATURE;
+  setRTCBKPR(RTCBKP0R, value);
+  setRTCBKPR(RTCBKP1R, POWER_REASON_SIGNATURE);
 }
 
 HardwareOptions hardwareOptions;
@@ -227,7 +227,7 @@ void boardOff()
   hapticDone();
 
   rtcDisableBackupReg();
-  RTC->BKP0R = SHUTDOWN_REQUEST;
+  setRTCBKPR(RTCBKP0R, SHUTDOWN_REQUEST);
 
   pwrOff();
 

@@ -21,6 +21,58 @@
 
 #include "stm32_hal.h"
 #include "rtc.h"
+#include "debug.h"
+
+//
+// Color screen targets use the first 2 out of the 20 
+// RTC backup registers to hold data about startup reason 
+// and type.
+
+//
+// Calculates the RTC backup memory checksum and stores it
+// in the last backup register location (BKP19R).
+//
+#define RTCCHKSUM() ((RTC->BKP0R ^ RTC->BKP1R) + 45444745)
+
+//  
+// resets RTC backup registers if data is corrupt
+// and returns the requested backup register
+// 
+uint32_t getRTCBKPR(uint8_t RTCBKPRegister) {
+  uint32_t prim = __get_PRIMASK();
+  
+  __disable_irq();
+  
+  if(RTC->BKP19R != RTCCHKSUM()) {
+    RTC->BKP0R = 0;
+    RTC->BKP1R = 0;
+    RTC->BKP19R = RTCCHKSUM();
+  }
+
+  uint32_t value = ((uint32_t *)RTCBKBR_BASE)[RTCBKPRegister];   // RTC backup registers are 32bit registers
+
+  if(!prim) 
+    __enable_irq();
+
+  return value;
+}
+
+//  
+// writes data to the specified RTC backup register
+// and updates the checksum
+// 
+void setRTCBKPR(uint8_t RTCBKPRegister, uint32_t value) {
+  uint32_t prim = __get_PRIMASK();
+
+  __disable_irq();
+
+  ((uint32_t *)RTCBKBR_BASE)[RTCBKPRegister] = value;   // RTC backup registers are 32bit registers
+
+  RTC->BKP19R = RTCCHKSUM();
+
+  if(!prim) 
+    __enable_irq();
+}
 
 RTC_HandleTypeDef rtc = {};
 

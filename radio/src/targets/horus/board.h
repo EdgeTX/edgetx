@@ -34,6 +34,8 @@
 
 #include "watchdog_driver.h"
 
+#include "rtc.h"
+
 #if defined(HARDWARE_TOUCH)
 #include "tp_gt911.h"
 #endif

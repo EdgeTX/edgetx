@@ -558,7 +558,7 @@ int  bootloaderMain()
 #if !defined(SIMU)
 #if defined(RTC_BACKUP_RAM)
       rtcInit();
-      RTC->BKP0R = SOFTRESET_REQUEST;
+      setRTCBKPR(RTCBKP0R, SOFTRESET_REQUEST);
 #endif
       blExit();
       NVIC_SystemReset();

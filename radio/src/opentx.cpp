@@ -1441,7 +1441,7 @@ void opentxInit()
     globalData.unexpectedShutdown = 1;
   }
 
-#if defined(RTC_BACKUP_RAM)
+#if defined(RTC_BACKUP_RAM) and !defined(SIMU)
   SET_POWER_REASON(0);
 #endif
 
