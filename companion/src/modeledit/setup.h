@@ -79,11 +79,13 @@ class ModulePanel : public ModelPanel
   public slots:
     void onExtendedLimitsToggled();
     void onFailsafeModified(unsigned index);
+    void updateTrainerModeItemModel();
 
   signals:
     void channelsRangeChanged();
     void failsafeModified(unsigned index);
     void updateItemModels();
+    void protocolChanged();
 
   private slots:
     void setupFailsafes();
@@ -134,7 +136,6 @@ class ModulePanel : public ModelPanel
     static quint8 failsafesValueDisplayType;  // FailsafeValueDisplayTypes
     void updateFailsafeUI(unsigned channel, quint8 updtSb);
     FilteredItemModel *trainerModeItemModel;
-    void cboTrainerModeSetModel();
     static bool isTrainerModule(int index) { return index < 0; }
     static bool isInternalModule(int index) { return index == 0; }
     static bool isExternalModule(int index) { return index > 0; }

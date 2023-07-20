@@ -247,7 +247,7 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
       ui->trainerMode->hide();
     }
     else {
-      cboTrainerModeSetModel();
+      updateTrainerModeItemModel();
       ui->trainerMode->setField(model.trainerMode);
       connect(ui->trainerMode, &AutoComboBox::currentDataChanged, this, [=] () {
         update();
@@ -800,7 +800,6 @@ void ModulePanel::onProtocolChanged(int index)
   if (!lock) {
     module.channelsCount = module.getMaxChannelCount();
     update();
-    cboTrainerModeSetModel();
 
     if (module.protocol == PULSES_GHOST ||
         module.protocol == PULSES_CROSSFIRE) {
@@ -814,6 +813,7 @@ void ModulePanel::onProtocolChanged(int index)
       }
     }
 
+    emit protocolChanged();
     emit updateItemModels();
     emit modified();
   }
@@ -1178,7 +1178,7 @@ void ModulePanel::onClearAccessRxClicked()
   }
 }
 
-void ModulePanel::cboTrainerModeSetModel()
+void ModulePanel::updateTrainerModeItemModel()
 {
   if (isTrainerModule(moduleIdx)) {
     if (trainerModeItemModel)
@@ -1668,6 +1668,9 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     ui->modulesLayout->addWidget(modules[CPN_MAX_MODULES]);
     connect(modules[CPN_MAX_MODULES], &ModulePanel::modified, this, &SetupPanel::modified);
     connect(modules[CPN_MAX_MODULES], &ModulePanel::updateItemModels, this, &SetupPanel::onModuleUpdateItemModels);
+    for (int i = firmware->getCapability(NumFirstUsableModule); i < firmware->getCapability(NumModules); i++) {
+      connect(modules[i], &ModulePanel::protocolChanged, modules[CPN_MAX_MODULES], &ModulePanel::updateTrainerModeItemModel);
+    }
   }
 
   disableMouseScrolling();
