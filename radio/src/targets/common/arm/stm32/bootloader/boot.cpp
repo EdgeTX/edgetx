@@ -219,10 +219,8 @@ void writeEepromBlock()
 #if !defined(SIMU)
 void bootloaderInitApp()
 {
-  RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph | KEYS_RCC_AHB1Periph |
+  RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph |
                              LCD_RCC_AHB1Periph | BACKLIGHT_RCC_AHB1Periph |
-                             AUX_SERIAL_RCC_AHB1Periph |
-                             AUX2_SERIAL_RCC_AHB1Periph |
                              KEYS_BACKLIGHT_RCC_AHB1Periph | SD_RCC_AHB1Periph,
                          ENABLE);
 
@@ -276,6 +274,7 @@ void bootloaderInitApp()
   if (readTrims() != BOOTLOADER_KEYS) {
 #endif
 #endif
+    // TODO: deInit before restarting
     // Start main application
     jumpTo(APP_START_ADDRESS);
   }

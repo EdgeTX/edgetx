@@ -212,6 +212,7 @@ class GeneralSettings {
     BeeperMode hapticMode;
     unsigned int stickMode; // TODO enum
     int timezone;
+    int timezoneMinutes;
     bool adjustRTC;
     bool optrexDisplay;
     unsigned int inactivityTimer;

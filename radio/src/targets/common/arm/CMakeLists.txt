@@ -10,7 +10,6 @@ option(TRACE_FATFS "Traces FatFS enabled" OFF)
 option(TRACE_AUDIO "Traces audio enabled" OFF)
 option(DEBUG_TRACE_BUFFER "Debug Trace Screen" OFF)
 option(XJT "XJT TX Module" ON)
-option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(PPM "PPM TX Module" ON)
 option(DSM2 "DSM2 TX Module" ON)
 option(SBUS "SBUS TX Module" ON)
@@ -78,8 +77,25 @@ if(DEFAULT_INTERNAL_MODULE)
   add_definitions(-DDEFAULT_INTERNAL_MODULE=MODULE_TYPE_${DEFAULT_INTERNAL_MODULE})
 endif()
 
+if(MODULE_SIZE_STD)
+  add_definitions(-DHARDWARE_EXTERNAL_MODULE_SIZE_STD)
+endif()
+
+if(MODULE_SIZE_SML)
+  add_definitions(-DHARDWARE_EXTERNAL_MODULE_SIZE_SML)
+endif()
+
+if(NOT MODULE_SIZE_STD AND NOT MODULE_SIZE_SML)
+  set(HARDWARE_EXTERNAL_MODULE NO)
+  set(GHOST NO)
+endif()
+
 if(HARDWARE_EXTERNAL_MODULE)
   add_definitions(-DHARDWARE_EXTERNAL_MODULE)
+endif()
+
+if(MULTIMODULE STREQUAL INTERNAL)
+  add_definitions(-DINTERNAL_MODULE_MULTI)
 endif()
 
 if(TIMERS EQUAL 3)
@@ -207,18 +223,6 @@ if(PXX2)
     pxx2.cpp
     pxx2_ota.cpp
     )
-endif()
-
-if(XJT)
-  add_definitions(-DXJT)
-endif()
-
-if(MODULE_SIZE_STD)
-  add_definitions(-DHARDWARE_EXTERNAL_MODULE_SIZE_STD)
-endif()
-
-if(MULTIMODULE STREQUAL INTERNAL)
-  add_definitions(-DINTERNAL_MODULE_MULTI)
 endif()
 
 if(MULTIMODULE)

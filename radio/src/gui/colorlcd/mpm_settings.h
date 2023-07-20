@@ -42,7 +42,9 @@ class MultimoduleSettings : public FormGroup, public ModuleOptions
   MPMServoRate* sr_line;
   MPMAutobind* ab_line;
   CheckBox* lp_mode;
+#if defined(MANUFACTURER_FRSKY)
   CheckBox* disable_telem;
+#endif
   MPMChannelMap* cm_line;
 
  public:

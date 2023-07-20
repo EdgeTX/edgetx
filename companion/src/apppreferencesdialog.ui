@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>865</width>
-    <height>673</height>
+    <height>692</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -52,33 +52,26 @@
        <string>Radio Profile</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0,0,0,0">
-       <item row="14" column="0">
-        <widget class="QLabel" name="label_14">
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_6">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Default Stick Mode</string>
+          <string>Options</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
          </property>
         </widget>
        </item>
-       <item row="10" column="2">
-        <widget class="QLineEdit" name="profilebackupPath">
-         <property name="toolTip">
-          <string>If set it will override the application general setting</string>
-         </property>
-         <property name="readOnly">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_2">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_7">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -90,85 +83,40 @@
           </font>
          </property>
          <property name="text">
-          <string>Profile Name</string>
-         </property>
-        </widget>
-       </item>
-       <item row="19" column="2">
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>5</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="9" column="0">
-        <widget class="QLabel" name="sdPathLabel">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>SD Structure path</string>
+          <string>Radio Type</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="langLabel">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+       <item row="9" column="2">
+        <widget class="QLineEdit" name="sdPath">
+         <property name="enabled">
+          <bool>true</bool>
          </property>
          <property name="text">
-          <string>Language</string>
+          <string/>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         <property name="readOnly">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
-       <item row="0" column="2">
-        <widget class="QLineEdit" name="profileNameLE"/>
-       </item>
-       <item row="12" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>General Settings</string>
-         </property>
-        </widget>
-       </item>
-       <item row="17" column="2">
-        <widget class="QCheckBox" name="burnFirmware">
+       <item row="6" column="0" colspan="5">
+        <widget class="Line" name="splashSeparator">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="text">
-          <string>Prompt to write firmware to radio after update</string>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
-       <item row="15" column="2">
+       <item row="16" column="2">
         <widget class="QComboBox" name="channelorderCB">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -304,6 +252,36 @@
          </item>
         </widget>
        </item>
+       <item row="13" column="0">
+        <widget class="QLabel" name="label_21">
+         <property name="text">
+          <string>Default Int. Module</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="3" colspan="2">
+        <widget class="QPushButton" name="sdPathButton">
+         <property name="text">
+          <string>Select Folder</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="sdPathLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>SD Structure path</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
        <item row="12" column="2">
         <widget class="QLabel" name="lblGeneralSettings">
          <property name="enabled">
@@ -320,223 +298,14 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_6">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+       <item row="19" column="2">
+        <widget class="QCheckBox" name="chkPromptSDSync">
          <property name="text">
-          <string>Options</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          <string>Prompt to run SD Sync after update</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="0" colspan="5">
-        <widget class="QLabel" name="label">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Other Settings</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0" colspan="5">
-        <widget class="Line" name="splashSeparator">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="2">
-        <widget class="QCheckBox" name="pbackupEnable">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string>if set, will override general backup enable</string>
-         </property>
-         <property name="text">
-          <string>Enable automatic backup before writing firmware</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0">
-        <widget class="QLabel" name="profilebackupPathLabel">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string>The profile specific folder,  if set, will override general Backup folder</string>
-         </property>
-         <property name="text">
-          <string>Backup folder</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="3" colspan="2">
-        <widget class="QPushButton" name="ProfilebackupPathButton">
-         <property name="toolTip">
-          <string>The profile specific folder,  if set, will override general Backup folder</string>
-         </property>
-         <property name="text">
-          <string>Select Folder</string>
-         </property>
-        </widget>
-       </item>
-       <item row="14" column="2">
-        <widget class="QComboBox" name="stickmodeCB">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="whatsThis">
-          <string>Mode selection:
-
-Mode 1:
-  Left stick:  Elevator, Rudder
-  Right stick:  Throttle, Aileron
-
-Mode 2:
-  Left stick:  Throttle, Rudder
-  Right stick:  Elevator, Aileron
-
-Mode 3:
-  Left stick:  Elevator, Aileron
-  Right stick:  Throttle, Rudder
-
-Mode 4:
-  Left stick:  Throttle, Aileron
-  Right stick:  Elevator, Rudder
-
-</string>
-         </property>
-         <property name="currentIndex">
-          <number>1</number>
-         </property>
-         <item>
-          <property name="text">
-           <string>Mode 1 (RUD ELE THR AIL)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Mode 2 (RUD THR ELE AIL)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Mode 3 (AIL ELE THR RUD)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Mode 4 (AIL THR ELE RUD)</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="13" column="0">
-        <widget class="QLabel" name="label_21">
-         <property name="text">
-          <string>Default Int. Module</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_7">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Radio Type</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="3" colspan="2">
-        <widget class="QPushButton" name="sdPathButton">
-         <property name="text">
-          <string>Select Folder</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2">
-        <widget class="QComboBox" name="langCombo">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item row="16" column="2">
-        <widget class="QCheckBox" name="renameFirmware">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Append version number to firmware file name</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="5">
-        <widget class="Line" name="line_8">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="15" column="0">
+       <item row="16" column="0">
         <widget class="QLabel" name="label_13">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -549,6 +318,19 @@ Mode 4:
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="2">
+        <widget class="QComboBox" name="defaultInternalModuleCB"/>
+       </item>
+       <item row="4" column="2">
+        <widget class="QComboBox" name="langCombo">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
         </widget>
        </item>
@@ -666,28 +448,95 @@ Mode 4:
          </layout>
         </widget>
        </item>
-       <item row="9" column="2">
-        <widget class="QLineEdit" name="sdPath">
-         <property name="enabled">
-          <bool>true</bool>
+       <item row="10" column="3" colspan="2">
+        <widget class="QPushButton" name="ProfilebackupPathButton">
+         <property name="toolTip">
+          <string>The profile specific folder,  if set, will override general Backup folder</string>
          </property>
          <property name="text">
-          <string/>
-         </property>
-         <property name="readOnly">
-          <bool>false</bool>
+          <string>Select Folder</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="2">
-        <widget class="QComboBox" name="boardCB">
-         <property name="enabled">
-          <bool>true</bool>
+       <item row="12" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>General Settings</string>
          </property>
         </widget>
        </item>
-       <item row="13" column="2">
-        <widget class="QComboBox" name="defaultInternalModuleCB"/>
+       <item row="20" column="2">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>5</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="15" column="2">
+        <widget class="QComboBox" name="stickmodeCB">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="whatsThis">
+          <string>Mode selection:
+
+Mode 1:
+  Left stick:  Elevator, Rudder
+  Right stick:  Throttle, Aileron
+
+Mode 2:
+  Left stick:  Throttle, Rudder
+  Right stick:  Elevator, Aileron
+
+Mode 3:
+  Left stick:  Elevator, Aileron
+  Right stick:  Throttle, Rudder
+
+Mode 4:
+  Left stick:  Throttle, Aileron
+  Right stick:  Elevator, Rudder
+
+</string>
+         </property>
+         <property name="currentIndex">
+          <number>1</number>
+         </property>
+         <item>
+          <property name="text">
+           <string>Mode 1 (RUD ELE THR AIL)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Mode 2 (RUD THR ELE AIL)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Mode 3 (AIL ELE THR RUD)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Mode 4 (AIL THR ELE RUD)</string>
+          </property>
+         </item>
+        </widget>
        </item>
        <item row="5" column="2">
         <widget class="QWidget" name="optionsWidget" native="true">
@@ -719,12 +568,173 @@ Mode 4:
          </layout>
         </widget>
        </item>
-       <item row="18" column="2">
-        <widget class="QCheckBox" name="chkPromptSDSync">
+       <item row="15" column="0">
+        <widget class="QLabel" name="label_14">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
-          <string>Prompt to run SD Sync after update</string>
+          <string>Default Stick Mode</string>
          </property>
         </widget>
+       </item>
+       <item row="11" column="2">
+        <widget class="QCheckBox" name="pbackupEnable">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>if set, will override general backup enable</string>
+         </property>
+         <property name="text">
+          <string>Enable automatic backup before writing firmware</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="langLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Language</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="5">
+        <widget class="Line" name="line_8">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0" colspan="5">
+        <widget class="QLabel" name="label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Other Settings</string>
+         </property>
+        </widget>
+       </item>
+       <item row="18" column="2">
+        <widget class="QCheckBox" name="burnFirmware">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Prompt to write firmware to radio after update</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Profile Name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QComboBox" name="boardCB">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLineEdit" name="profileNameLE"/>
+       </item>
+       <item row="17" column="2">
+        <widget class="QCheckBox" name="renameFirmware">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Append version number to firmware file name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="2">
+        <widget class="QLineEdit" name="profilebackupPath">
+         <property name="toolTip">
+          <string>If set it will override the application general setting</string>
+         </property>
+         <property name="readOnly">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0">
+        <widget class="QLabel" name="profilebackupPathLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>The profile specific folder,  if set, will override general Backup folder</string>
+         </property>
+         <property name="text">
+          <string>Backup folder</string>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="0">
+        <widget class="QLabel" name="label_18">
+         <property name="text">
+          <string>External Module</string>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="2">
+        <widget class="QComboBox" name="externalModuleSizeCB"/>
        </item>
       </layout>
      </widget>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+ * Copyright (C) EdgeTx
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,31 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "stm32_dma.h"
 
-#include <stdint.h>
-#include "stm32_hal_ll.h"
-
-struct stick_pwm_input_t {
-  uint8_t channel;
-  uint8_t inverted;
-};
-
-struct stick_pwm_timer_t {
-
-  GPIO_TypeDef*              GPIOx;
-  uint32_t                   GPIO_Pin;
-  uint32_t                   GPIO_Alternate;
-
-  TIM_TypeDef*               TIMx;
-  IRQn_Type                  TIM_IRQn;
-};
-
-// returns 'true' if PWM sticks have been detected
-bool sticks_pwm_detect(const stick_pwm_timer_t* timer,
-		       const stick_pwm_input_t* inputs,
-		       uint8_t n_inputs);
-
-void sticks_pwm_isr(const stick_pwm_timer_t* tim,
-		    const stick_pwm_input_t* inputs,
-		    uint8_t n_inputs);
+void stm32_dma_enable_clock(DMA_TypeDef* DMAx)
+{
+  if (DMAx == DMA1) {
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
+  } else if (DMAx == DMA2) {
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA2);
+  }
+}

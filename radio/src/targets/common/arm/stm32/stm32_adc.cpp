@@ -33,6 +33,7 @@
 
 // Max 32 inputs supported
 static uint32_t _adc_input_mask;
+static uint32_t _adc_input_inhibt_mask = 0;
 static volatile uint32_t _adc_inhibit_mask;
 
 // DMA buffers
@@ -51,6 +52,11 @@ static uint8_t _adc_n_inputs;
 static uint8_t _adc_run;
 static uint8_t _adc_oversampling_disabled;
 static uint16_t _adc_oversampling[MAX_ADC_INPUTS];
+
+void stm32_hal_mask_inputs(uint32_t inputs)
+{
+  _adc_input_inhibt_mask |= inputs;
+}
 
 // STM32 uses a 25K+25K voltage divider bridge to measure the battery voltage
 // Measuring VBAT puts considerable drain (22 µA) on the battery instead of
@@ -212,6 +218,12 @@ static uint8_t adc_init_channels(const stm32_adc_t* adc,
     uint8_t input_idx = *chan;
     const stm32_adc_input_t* input = &inputs[input_idx];
 
+    if (_adc_input_inhibt_mask & (1 << input_idx)) {
+      // skip input
+      nconv--; chan++;
+      continue;      
+    }
+    
     // internal channel don't have a GPIO + pin defined
     uint32_t mask = (1 << (ADC_CHANNEL_ID_MASK & input->ADC_Channel));
     if (!__LL_ADC_IS_CHANNEL_INTERNAL(input->ADC_Channel)) {

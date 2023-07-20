@@ -97,20 +97,10 @@
 #define STORAGE_SWITCH_H
 
 // Index of all switches / trims
-#define KEYS_RCC_AHB1Periph             (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOJ)
-#define KEYS_GPIOB_PINS                 (GPIO_Pin_15)
-#define KEYS_GPIOC_PINS                 (GPIO_Pin_13)
-#define KEYS_GPIOD_PINS                 (GPIO_Pin_7)
-#define KEYS_GPIOG_PINS                 (GPIO_Pin_2 | GPIO_Pin_10 | GPIO_Pin_11)
-#define KEYS_GPIOH_PINS                 (GPIO_Pin_2 | GPIO_Pin_7)
-#define KEYS_GPIOJ_PINS                 (GPIO_Pin_0 | GPIO_Pin_12)
-
 #define KEYS_GPIO_ACTIVE_HIGH
 #define TRIMS_GPIO_ACTIVE_HIGH
 
 // ADC
-#define ADC_RCC_AHB1Periph              (RCC_AHB1Periph_DMA2)
-#define ADC_RCC_APB2Periph              0
 
 #define ADC_GPIO_PIN_STICK_LH
 #define ADC_GPIO_PIN_STICK_LV
@@ -201,7 +191,6 @@
 
 // Serial Port (DEBUG)
 // We will temporarily used the PPM and the HEARTBEAT PINS
-#define AUX_SERIAL_RCC_AHB1Periph       (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOE)
 #define AUX_SERIAL_GPIO                 GPIOC
 #define AUX_SERIAL_GPIO_PIN_TX          GPIO_Pin_6  // PC.06
 #define AUX_SERIAL_GPIO_PIN_RX          GPIO_Pin_7  // PC.07
@@ -410,10 +399,6 @@
 #define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           LL_GPIO_PIN_0  // PA.00
 #define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           LL_GPIO_PIN_1  // PA.01
 #define FLYSKY_HALL_SERIAL_GPIO_AF               LL_GPIO_AF_8
-
-#define FLYSKY_HALL_RCC_AHB1Periph               RCC_AHB1Periph_DMA1
-#define FLYSKY_HALL_RCC_APB1Periph               RCC_APB1Periph_UART4
-
 #define FLYSKY_HALL_SERIAL_USART_IRQHandler      UART4_IRQHandler
 #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
 #define FLYSKY_HALL_SERIAL_DMA                   DMA1
