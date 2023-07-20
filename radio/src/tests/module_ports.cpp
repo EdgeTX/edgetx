@@ -21,6 +21,7 @@
 
 #include "gtests.h"
 #include "hal/module_port.h"
+#include "pulses/modules_constants.h"
 
 TEST(ports, softserialFallback)
 {
@@ -76,7 +77,7 @@ TEST(ports, isPortUsed)
 #if defined(INTERNAL_MODULE_PXX1) && defined(HARDWARE_EXTERNAL_MODULE)
 #include "pulses/pxx1.h"
 
-TEST(pxx1_ports, deactivateRX)
+TEST(pxx1_ports, deactivateRX_pxx1)
 {
   modulePortInit();
   g_model.moduleData[EXTERNAL_MODULE].type = MODULE_TYPE_R9M_PXX1;
@@ -99,6 +100,50 @@ TEST(pxx1_ports, deactivateRX)
   EXPECT_EQ(EXTERNAL_MODULE, modulePortGetModuleForPort(ETX_MOD_PORT_SPORT));
 
   Pxx1Driver.deinit(ext_ctx);
+  memset(ext_drv, 0, sizeof(module_pulse_driver));
+
+  EXPECT_FALSE(modulePortIsPortUsed(ETX_MOD_PORT_SPORT));
+}
+
+#include "pulses/multi.h"
+
+TEST(pxx1_ports, deactivateRX_multi)
+{
+  modulePortInit();
+  g_model.moduleData[EXTERNAL_MODULE].type = MODULE_TYPE_MULTIMODULE;
+
+  void* ext_ctx = MultiDriver.init(EXTERNAL_MODULE);
+  EXPECT_TRUE(ext_ctx != nullptr);
+  EXPECT_TRUE(modulePortIsPortUsed(ETX_MOD_PORT_SPORT));
+  if (!ext_ctx) return;
+
+  auto ext_drv = pulsesGetModuleDriver(EXTERNAL_MODULE);
+  ext_drv->drv = &MultiDriver;
+  ext_drv->ctx = ext_ctx;
+
+  uint8_t buffer[64];
+  uint8_t channelStart = g_model.moduleData[EXTERNAL_MODULE].channelsStart;
+  int16_t* channels = &channelOutputs[channelStart];
+  uint8_t nChannels = 16;
+  
+  MultiDriver.sendPulses(ext_ctx, buffer, channels, nChannels);
+  EXPECT_FALSE(buffer[0x1A] & 2);
+  
+  void* int_ctx = Pxx1Driver.init(INTERNAL_MODULE);
+  EXPECT_TRUE(int_ctx != nullptr);
+  EXPECT_EQ(INTERNAL_MODULE, modulePortGetModuleForPort(ETX_MOD_PORT_SPORT));
+  if (!int_ctx) return;
+
+  MultiDriver.sendPulses(ext_ctx, buffer, channels, nChannels);
+  EXPECT_TRUE(buffer[0x1A] & 2);
+
+  Pxx1Driver.deinit(int_ctx);
+  EXPECT_EQ(EXTERNAL_MODULE, modulePortGetModuleForPort(ETX_MOD_PORT_SPORT));
+
+  MultiDriver.sendPulses(ext_ctx, buffer, channels, nChannels);
+  EXPECT_FALSE(buffer[0x1A] & 2);
+
+  MultiDriver.deinit(ext_ctx);
   memset(ext_drv, 0, sizeof(module_pulse_driver));
 
   EXPECT_FALSE(modulePortIsPortUsed(ETX_MOD_PORT_SPORT));
