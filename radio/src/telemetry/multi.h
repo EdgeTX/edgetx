@@ -120,6 +120,8 @@ struct MultiModuleStatus {
 
   void getStatusString(char * statusText) const;
 
+  uint8_t getModuleIndex() const;
+
   inline bool isValid() const { return (bool)(get_tmr10ms() - lastUpdate < 200); }
   inline bool isBufferFull() const { return (bool) (flags & 0x80); }
   inline bool supportsDisableMapping() const { return (bool) (flags & 0x40); }
