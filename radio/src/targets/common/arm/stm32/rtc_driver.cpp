@@ -21,7 +21,6 @@
 
 #include "stm32_hal.h"
 #include "rtc.h"
-#include "debug.h"
 
 //
 // Color screen targets use the first 2 out of the 20 
