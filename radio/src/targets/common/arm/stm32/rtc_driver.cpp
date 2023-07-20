@@ -21,6 +21,7 @@
 
 #include "stm32_hal.h"
 #include "rtc.h"
+#include "debug.h"
 
 //
 // Color screen targets use the first 2 out of the 20 
@@ -48,7 +49,7 @@ uint32_t getRTCBKPR(uint8_t RTCBKPRegister) {
     RTC->BKP19R = RTCCHKSUM();
   }
 
-  uint32_t value = ((uint32_t *)RTC)[RTCBKPRegister];
+  uint32_t value = ((uint32_t *)RTCBKBR_BASE)[RTCBKPRegister];   // RTC backup registers are 32bit registers
 
   if(!prim) 
     __enable_irq();
@@ -62,10 +63,10 @@ uint32_t getRTCBKPR(uint8_t RTCBKPRegister) {
 // 
 void setRTCBKPR(uint8_t RTCBKPRegister, uint32_t value) {
   uint32_t prim = __get_PRIMASK();
-  
+
   __disable_irq();
 
-  ((uint32_t *)RTC)[RTCBKPRegister] = value;
+  ((uint32_t *)RTCBKBR_BASE)[RTCBKPRegister] = value;   // RTC backup registers are 32bit registers
 
   RTC->BKP19R = RTCCHKSUM();
 
