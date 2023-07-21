@@ -139,7 +139,7 @@ void audioMute()
 
 void audioUnmute()
 {
-if(isFunctionActive(FUNC_DISABLE_AUDIO_AMP)) {
+if(isFunctionActive(FUNCTION_DISABLE_AUDIO_AMP)) {
   setMutePin(true);
   return;
 }
