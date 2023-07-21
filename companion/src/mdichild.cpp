@@ -712,6 +712,7 @@ void MdiChild::updateTitle()
 
 void MdiChild::setModified()
 {
+  radioData.models[getCurrentModel()].modelUpdated = true;
   refresh();
   setWindowModified(true);
   emit modified();
@@ -827,8 +828,9 @@ int MdiChild::newModel(int modelIndex)
   if (countUsedModels() == 1) {
     radioData.setCurrentModel(modelIndex);
   }
-  setModified();
+
   setSelectedModel(modelIndex);
+  setModified();
 
   if (isNewModel) {
     if (g.newModelAction() == AppData::MODEL_ACT_WIZARD)
@@ -1335,6 +1337,13 @@ bool MdiChild::saveFile(const QString & filename, bool setCurrent)
   if (!result) {
     return false;
   }
+
+  for (int i = 0; i < (int)radioData.models.size(); i++) {
+    if (!radioData.models[i].isEmpty())
+      radioData.models[i].modelUpdated = false;
+  }
+
+  refresh();
 
   if (setCurrent) {
     setCurrentFile(filename);
