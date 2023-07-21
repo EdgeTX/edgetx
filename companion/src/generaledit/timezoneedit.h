@@ -21,29 +21,16 @@
 
 #pragma once
 
-#include <stdint.h>
-#include "stm32_hal_ll.h"
+#include <TimerEdit>
 
-struct stick_pwm_input_t {
-  uint8_t channel;
-  uint8_t inverted;
+class TimezoneEdit : public TimerEdit
+{
+  Q_OBJECT
+
+  public:
+    explicit TimezoneEdit(QWidget * parent = Q_NULLPTR);
+    virtual ~TimezoneEdit() {}
+
+  protected:
+		void setupFormat() override;
 };
-
-struct stick_pwm_timer_t {
-
-  GPIO_TypeDef*              GPIOx;
-  uint32_t                   GPIO_Pin;
-  uint32_t                   GPIO_Alternate;
-
-  TIM_TypeDef*               TIMx;
-  IRQn_Type                  TIM_IRQn;
-};
-
-// returns 'true' if PWM sticks have been detected
-bool sticks_pwm_detect(const stick_pwm_timer_t* timer,
-		       const stick_pwm_input_t* inputs,
-		       uint8_t n_inputs);
-
-void sticks_pwm_isr(const stick_pwm_timer_t* tim,
-		    const stick_pwm_input_t* inputs,
-		    uint8_t n_inputs);

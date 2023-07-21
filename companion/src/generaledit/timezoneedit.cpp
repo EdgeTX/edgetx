@@ -19,31 +19,23 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "timezoneedit.h"
 
-#include <stdint.h>
-#include "stm32_hal_ll.h"
+TimezoneEdit::TimezoneEdit(QWidget * parent) :
+  TimerEdit(parent)
+{
+  setShowSeconds(false);
+  setMinimumTime(-12 * 60 * 60);
+  setMaximumTime(14 * 60 * 60);
+  setSingleStep(15 * 60);
+  setPageStep(60 * 60);
+}
 
-struct stick_pwm_input_t {
-  uint8_t channel;
-  uint8_t inverted;
-};
+void TimezoneEdit::setupFormat()
+{
+	QString inputRe  = "^(?<pol>-|\\+|\\s)?(?<hrs>[0-9]*[0-9]):(?<mins>00|15|30|45)";
+	m_validator->setRegularExpression(QRegularExpression(inputRe));
 
-struct stick_pwm_timer_t {
-
-  GPIO_TypeDef*              GPIOx;
-  uint32_t                   GPIO_Pin;
-  uint32_t                   GPIO_Alternate;
-
-  TIM_TypeDef*               TIMx;
-  IRQn_Type                  TIM_IRQn;
-};
-
-// returns 'true' if PWM sticks have been detected
-bool sticks_pwm_detect(const stick_pwm_timer_t* timer,
-		       const stick_pwm_input_t* inputs,
-		       uint8_t n_inputs);
-
-void sticks_pwm_isr(const stick_pwm_timer_t* tim,
-		    const stick_pwm_input_t* inputs,
-		    uint8_t n_inputs);
+	setInputMask("#99:99");
+	setValidator(m_validator);
+}

@@ -1,6 +1,8 @@
+"""Legacy names used for each analog input in previous EdgeTx versions."""
+
 LEGACY_NAMES = [
     {
-        "targets": {"x10","x10express","t16","tx16s","t18"},
+        "targets": {"x10", "x10express", "t16", "tx16s", "t18"},
         "inputs": {
             "LH": {
                 "yaml": "Rud"
@@ -211,7 +213,7 @@ LEGACY_NAMES = [
                 "label": "S2",
                 "short_label": "S2",
                 "description": "Right center slider"
-            }            
+            }
         }
     },
     {
@@ -258,7 +260,7 @@ LEGACY_NAMES = [
             "lr3pro",
             "nv14",
             "t8", "t12",
-            "tlite", "tlitef4", "tpro","tprov2",
+            "tlite", "tlitef4", "tpro", "tprov2",
             "tx12", "tx12mk2",
             "x7", "x7access",
             "xlite", "xlites",
@@ -353,7 +355,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"x9lite","x9lites"},
+        "targets": {"x9lite", "x9lites"},
         "inputs": {
             "LH": {
                 "yaml": "Rud"
@@ -377,7 +379,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"x9d","x9d+","x9d+2019"},
+        "targets": {"x9d", "x9d+", "x9d+2019"},
         "inputs": {
             "LH": {
                 "yaml": "Rud"
@@ -430,8 +432,21 @@ LEGACY_NAMES = [
     }
 ]
 
-def inputs_by_target(target):
 
+def inputs_by_target(target):
+    """Retrieve legacy definitions by target.
+
+    Parameters
+    ----------
+    target: str
+        Name of the target
+
+    Returns
+    -------
+    dict
+        a dictionary with the basic attributes needed to generate
+        compatibility mappings
+    """
     for d in LEGACY_NAMES:
         if target in d['targets']:
             return d['inputs']

@@ -264,11 +264,16 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   if (panelFilteredItemModels) {
     if (moduleIdx >= 0) {
       int id = panelFilteredItemModels->registerItemModel(new FilteredItemModel(ModuleData::protocolItemModel(generalSettings), moduleIdx + 1/*flag cannot be 0*/), QString("Module Protocol %1").arg(moduleIdx));
+      panelFilteredItemModels->getItemModel(id)->setSortCaseSensitivity(Qt::CaseInsensitive);
+      panelFilteredItemModels->getItemModel(id)->sort(0);
       ui->protocol->setModel(panelFilteredItemModels->getItemModel(id));
 
       if (ui->protocol->findData(module.protocol) < 0) {
-        QString msg = tr("Warning: The internal module protocol <b>%1</b> is incompatible with the hardware internal module <b>%2</b> and has been set to <b>OFF</b>!");
-        msg = msg.arg(module.protocolToString(module.protocol)).arg(ModuleData::typeToString(generalSettings.internalModule));
+        const QString moduleIdxDesc = moduleIdx == 0 ? tr("internal") : tr("external");
+        const QString compareDesc = moduleIdx == 0 ? tr("hardware") : tr("profile");
+        const QString intModuleDesc = moduleIdx == 0 ? ModuleData::typeToString(generalSettings.internalModule) : "";
+        QString msg = tr("Warning: The %1 module protocol <b>%2</b> is incompatible with the <b>%3 %1 module %4</b> and has been set to <b>OFF</b>!");
+        msg = msg.arg(moduleIdxDesc).arg(module.protocolToString(module.protocol)).arg(compareDesc).arg(intModuleDesc);
 
         QMessageBox *msgBox = new QMessageBox(this);
         msgBox->setIcon( QMessageBox::Warning );

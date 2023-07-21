@@ -31,7 +31,6 @@
 #define TELEMETRY_EXTI_PRIO             0 // required for soft serial
 
 // Keys
-#define KEYS_RCC_AHB1Periph             (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOJ)
 #if defined(PCBX12S)
   #define KEYS_GPIO_REG_PAGEUP          GPIOC
   #define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_13 // PC.13
@@ -245,41 +244,9 @@
   #define TRIMS_GPIO_PIN_RSD            LL_GPIO_PIN_13 // PB.13
 #endif
 
-// Index of all keys
-#if defined(PCBX12S)
-  #define KEYS_GPIOB_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15)
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4 | GPIO_Pin_13)
-  #define KEYS_GPIOD_PINS               (GPIO_Pin_3 | GPIO_Pin_7 | GPIO_Pin_11 | GPIO_Pin_13)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_3)
-  #define KEYS_GPIOG_PINS               (KEYS_GPIO_PIN_UP | SWITCHES_GPIO_PIN_D_L | SWITCHES_GPIO_PIN_G_H | SWITCHES_GPIO_PIN_G_L | SWITCHES_GPIO_PIN_H | TRIMS_GPIO_PIN_RVD)
-  #define KEYS_GPIOH_PINS               (GPIO_Pin_9 | GPIO_Pin_12 | SWITCHES_GPIO_PIN_E_H | SWITCHES_GPIO_PIN_F | ROTARY_ENCODER_GPIO_PIN_A | ROTARY_ENCODER_GPIO_PIN_B)
-  #define KEYS_GPIOI_PINS               (KEYS_GPIO_PIN_PAGEDN | KEYS_GPIO_PIN_LEFT | KEYS_GPIO_PIN_DOWN | SWITCHES_GPIO_PIN_A_L | GPIO_Pin_4)
-  #define KEYS_GPIOJ_PINS               (SWITCHES_GPIO_PIN_D_H | TRIMS_GPIO_PIN_RVU | TRIMS_GPIO_PIN_LVD | TRIMS_GPIO_PIN_LVU | TRIMS_GPIO_PIN_RSD)
-#elif defined(PCBX10)
-  #if defined(RADIO_TX16S)
-    #define KEYS_GPIOB_PINS             (GPIO_Pin_12 | GPIO_Pin_15 | GPIO_Pin_14 | GPIO_Pin_13)
-  #else
-    #define KEYS_GPIOB_PINS             (GPIO_Pin_12 | GPIO_Pin_15 | GPIO_Pin_14 | GPIO_Pin_13 | GPIO_Pin_8 | GPIO_Pin_9)
-  #endif
-  #define KEYS_GPIOD_PINS               (GPIO_Pin_11 | GPIO_Pin_3 | GPIO_Pin_7 | GPIO_Pin_13)
-  #define KEYS_GPIOE_PINS               (GPIO_Pin_3)
-  #define KEYS_GPIOG_PINS               (SWITCHES_GPIO_PIN_D_L | SWITCHES_GPIO_PIN_G_H | SWITCHES_GPIO_PIN_G_L | SWITCHES_GPIO_PIN_H | TRIMS_GPIO_PIN_LVD)
-#if defined(RADIO_TX16S)
-  #define KEYS_GPIOA_PINS               (GPIO_Pin_6)
-  #define KEYS_GPIOC_PINS               (GPIO_Pin_4 | GPIO_Pin_13)
-  #define KEYS_GPIOH_PINS               (GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_14 | GPIO_Pin_15)
-#else
-  #define KEYS_GPIOH_PINS               (GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_14 | GPIO_Pin_15)
-#endif
-  #define KEYS_GPIOI_PINS               (GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_11 | GPIO_Pin_15)
-  #define KEYS_GPIOJ_PINS               (SWITCHES_GPIO_PIN_D_H | TRIMS_GPIO_PIN_LVU | TRIMS_GPIO_PIN_RVD | TRIMS_GPIO_PIN_RVU | GPIO_Pin_8)
-#endif
 
 // ADC
 #if defined(PCBX12S)
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            0
-  #define ADC_RCC_APB2Periph            (RCC_APB2Periph_SPI4)
   #define ADC_SPI                       SPI4
   #define ADC_SPI_GPIO                  GPIOE
   #define ADC_SPI_GPIO_AF               LL_GPIO_AF_5
@@ -320,13 +287,10 @@
   #define ADC_SAMPTIME                  LL_ADC_SAMPLINGTIME_56CYCLES
   #define ADC_VREF_PREC2                600
 #elif defined(PCBX10)
-  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
-  #define ADC_RCC_APB1Periph            (RCC_APB1Periph_TIM5)
-  #define ADC_RCC_APB2Periph            0
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_0      // PA.00
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_1      // PA.01
-  #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_2      // PA.02
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_3      // PA.03
+  #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_2      // PA.02
   #define ADC_GPIO_PIN_POT1             LL_GPIO_PIN_0      // PC.00
   #define ADC_GPIO_PIN_POT2             LL_GPIO_PIN_1      // PC.01
   #define ADC_GPIO_PIN_POT3             LL_GPIO_PIN_2      // PC.02 //
@@ -345,6 +309,10 @@
     #define PWM_IRQHandler              TIM5_IRQHandler
     #define PWM_IRQn                    TIM5_IRQn
     #define PWM_GPIOA_PINS              (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV)
+    #define STICK_PWM_CHANNEL_LH          0
+    #define STICK_PWM_CHANNEL_LV          1
+    #define STICK_PWM_CHANNEL_RV          3
+    #define STICK_PWM_CHANNEL_RH          2
   #endif
   #define ADC_GPIOA_PINS_FS             (LL_GPIO_PIN_2 | LL_GPIO_PIN_3)
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV)
@@ -393,7 +361,7 @@
 #elif defined(RADIO_TX16S)
   #define ADC_DIRECTION                 {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 }
 #elif defined(PCBX10)
-  #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,  1,1,1,1,   1,-1 }
+  #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,  1,-1,1,1,   1,-1 }
 #elif defined(PCBX12S)
   #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,  1,-1,  -1,-1, 0,0,0}
 #else
@@ -473,7 +441,6 @@
 
 // Serial Port (DEBUG)
 #if defined(AUX_SERIAL)
-  #define AUX_SERIAL_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_DMA1)
   #define AUX_SERIAL_GPIO                     GPIOB
   #define AUX_SERIAL_GPIO_PIN_TX              GPIO_Pin_10 // PB.10
   #define AUX_SERIAL_GPIO_PIN_RX              GPIO_Pin_11 // PB.11
@@ -496,8 +463,6 @@
     #define AUX_SERIAL_PWR_GPIO                 GPIOA
     #define AUX_SERIAL_PWR_GPIO_PIN             GPIO_Pin_15  // PA.15
   #endif
-#else
-  #define AUX_SERIAL_RCC_AHB1Periph           0
 #endif
 
 #if defined(AUX2_SERIAL)
@@ -767,17 +732,14 @@
 #else
   #define TOUCH_RST_GPIO_PIN              LL_GPIO_PIN_10  // PF.10
 #endif
-  #define TOUCH_INT_EXTI_LINE1            EXTI_Line2
-  #define TOUCH_INT_EXTI_IRQn1            EXTI2_IRQn
-  #define TOUCH_INT_EXTI_IRQHandler1      EXTI2_IRQHandler
-  #define TOUCH_INT_EXTI_PortSource       EXTI_PortSourceGPIOH
-  #define TOUCH_INT_EXTI_PinSource1       EXTI_PinSource2
-
   #define TOUCH_INT_EXTI_Line             LL_EXTI_LINE_2
   #define TOUCH_INT_EXTI_Port             LL_SYSCFG_EXTI_PORTH
   #define TOUCH_INT_EXTI_SysCfgLine       LL_SYSCFG_EXTI_LINE2
-  #define TOUCH_INT_EXTI_IRQn             EXTI2_IRQn
-  #define TOUCH_INT_EXTI_IRQHandler       EXTI2_IRQHandler
+  // TOUCH_INT_EXTI IRQ
+#if !defined(USE_EXTI2_IRQ)
+  #define USE_EXTI2_IRQ
+  #define EXTI2_IRQ_Priority  9
+#endif
 
 #if defined(PCBX12S)
   #define TOUCH_PANEL_INVERTED
@@ -854,10 +816,6 @@
   #define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           LL_GPIO_PIN_0  // PA.00
   #define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           LL_GPIO_PIN_1  // PA.01
   #define FLYSKY_HALL_SERIAL_GPIO_AF               LL_GPIO_AF_8
-
-  #define FLYSKY_HALL_RCC_AHB1Periph               RCC_AHB1Periph_DMA1
-  #define FLYSKY_HALL_RCC_APB1Periph               RCC_APB1Periph_UART4
-
   #define FLYSKY_HALL_SERIAL_USART_IRQHandler      UART4_IRQHandler
   #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
   #define FLYSKY_HALL_SERIAL_DMA                   DMA1

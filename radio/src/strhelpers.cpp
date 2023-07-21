@@ -1045,3 +1045,47 @@ char *strAppendDate(char *str, bool time)
 
 #if !defined(BOOT)
 #endif
+
+// Manage timezones
+// For backward compatibility timezone is stored as two separate values:
+//   timezone = hour value
+//   timezoneMinutes - minute value / 15
+
+int8_t minTimezone()
+{
+  return -12 * 4;
+}
+
+int8_t maxTimezone()
+{
+  return 14 * 4;
+}
+
+std::string timezoneDisplay(int tz)
+{
+  char s[16];
+  int h = abs(tz / 4);
+  int m = abs(tz % 4) * 15;
+  sprintf(s,"%s%d:%02d", (tz < 0) ? "-" : "", h, m);
+  return std::string(s);
+}
+
+int timezoneIndex(int8_t tzHour, int8_t tzMinute)
+{
+  return (tzHour * 4) + tzMinute;
+}
+
+int8_t timezoneHour(int tz)
+{
+  return tz / 4;
+}
+
+int8_t timezoneMinute(int tz)
+{
+  return tz % 4;
+}
+
+int timezoneOffsetSeconds(int8_t tzHour, int8_t tzMinute)
+{
+  return (tzHour * 3600) + (tzMinute * 15 * 60);
+}

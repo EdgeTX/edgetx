@@ -934,7 +934,7 @@ static void adjustTimeFromUTC(uint8_t hour, uint8_t min, uint8_t sec,
                               struct gtm *tp)
 {
   // Get current UTC date/time
-  __offtime(&g_rtcTime, -g_eeGeneral.timezone * 3600, tp);
+  __offtime(&g_rtcTime, -timezoneOffsetSeconds(g_eeGeneral.timezone, g_eeGeneral.timezoneMinutes), tp);
 
   tp->tm_hour = hour;
   tp->tm_min = min;

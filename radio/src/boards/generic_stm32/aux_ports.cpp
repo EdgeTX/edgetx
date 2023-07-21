@@ -21,6 +21,7 @@
 
 #include "hal/serial_port.h"
 #include "stm32_serial_driver.h"
+#include "stm32_gpio_driver.h"
 
 #include "board.h"
 #include "dataconstants.h"
@@ -35,6 +36,7 @@
 #if defined(AUX_SERIAL_PWR_GPIO) || defined(AUX2_SERIAL_PWR_GPIO)
 static void _aux_pwr(GPIO_TypeDef *GPIOx, uint32_t pin, uint8_t on)
 {
+  stm32_gpio_enable_clock(GPIOx);
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
   pinInit.Pin = pin;

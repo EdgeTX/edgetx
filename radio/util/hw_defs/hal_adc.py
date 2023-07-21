@@ -224,8 +224,13 @@ class ADCInputParser:
 
     def _add_input(self, adc_input):
         if adc_input is not None:
+            idx = len(self.inputs)
+            if adc_input.type == 'STICK':
+                if 'PWM_STICKS' in self.hw_defs:
+                    ch = self.hw_defs.get(f'STICK_PWM_CHANNEL_{adc_input.name}')
+                    adc_input.pwm_channel = idx if ch is None else ch
             if adc_input.type != 'VBAT' and adc_input.type != 'RTC_BAT':
-                d = self.dirs[len(self.inputs)]
+                d = self.dirs[idx]
                 if d < 0:
                     adc_input.inverted = True
             if adc_input.type == 'POT':
