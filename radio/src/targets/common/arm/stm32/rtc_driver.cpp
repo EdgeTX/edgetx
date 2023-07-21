@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
 #include "stm32_hal.h"
 #include "rtc.h"
 
@@ -37,18 +38,18 @@
 // resets RTC backup registers if data is corrupt
 // and returns the requested backup register
 // 
-uint32_t getRTCBKPR(uint8_t RTCBKPRegister) {
+uint32_t getRTCBKPR(uint32_t BackupRegister) {
   uint32_t prim = __get_PRIMASK();
   
   __disable_irq();
-  
-  if(RTC->BKP19R != RTCCHKSUM()) {
-    RTC->BKP0R = 0;
-    RTC->BKP1R = 0;
-    RTC->BKP19R = RTCCHKSUM();
+
+  if(LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR19) != RTCCHKSUM()) {
+    LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR0, 0);
+    LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR1, 0);
+    LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR19, RTCCHKSUM());
   }
 
-  uint32_t value = ((uint32_t *)RTCBKBR_BASE)[RTCBKPRegister];   // RTC backup registers are 32bit registers
+  uint32_t value = LL_RTC_BAK_GetRegister(RTC, BackupRegister);
 
   if(!prim) 
     __enable_irq();
@@ -60,14 +61,13 @@ uint32_t getRTCBKPR(uint8_t RTCBKPRegister) {
 // writes data to the specified RTC backup register
 // and updates the checksum
 // 
-void setRTCBKPR(uint8_t RTCBKPRegister, uint32_t value) {
+void setRTCBKPR(uint32_t BackupRegister, uint32_t value) {
   uint32_t prim = __get_PRIMASK();
 
   __disable_irq();
 
-  ((uint32_t *)RTCBKBR_BASE)[RTCBKPRegister] = value;   // RTC backup registers are 32bit registers
-
-  RTC->BKP19R = RTCCHKSUM();
+  LL_RTC_BAK_SetRegister(RTC, BackupRegister, value);
+  LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR19, RTCCHKSUM());
 
   if(!prim) 
     __enable_irq();

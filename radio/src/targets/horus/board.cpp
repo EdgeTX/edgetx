@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
@@ -57,16 +58,16 @@ bool UNEXPECTED_SHUTDOWN()
   if (WAS_RESET_BY_WATCHDOG())
     return true;
   else if (WAS_RESET_BY_SOFTWARE())
-    return getRTCBKPR(RTCBKP0R) != SOFTRESET_REQUEST;
+    return getRTCBKPR(LL_RTC_BKP_DR0) != SOFTRESET_REQUEST;
   else
-    return getRTCBKPR(RTCBKP1R) == POWER_REASON_SIGNATURE && getRTCBKPR(RTCBKP0R) != SHUTDOWN_REQUEST;
+    return getRTCBKPR(LL_RTC_BKP_DR1) == POWER_REASON_SIGNATURE && getRTCBKPR(LL_RTC_BKP_DR0) != SHUTDOWN_REQUEST;
 #endif
 }
 
 void SET_POWER_REASON(uint32_t value)
 {
-  setRTCBKPR(RTCBKP0R, value);
-  setRTCBKPR(RTCBKP1R, POWER_REASON_SIGNATURE);
+  setRTCBKPR(LL_RTC_BKP_DR0, value);
+  setRTCBKPR(LL_RTC_BKP_DR1, POWER_REASON_SIGNATURE);
 }
 
 HardwareOptions hardwareOptions;
@@ -227,7 +228,7 @@ void boardOff()
   hapticDone();
 
   rtcDisableBackupReg();
-  setRTCBKPR(RTCBKP0R, SHUTDOWN_REQUEST);
+  setRTCBKPR(LL_RTC_BKP_DR0, SHUTDOWN_REQUEST);
 
   pwrOff();
 
