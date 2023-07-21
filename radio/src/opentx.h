@@ -665,6 +665,7 @@ enum FunctionsActive {
 #if defined(HARDWARE_TOUCH)
   FUNCTION_DISABLE_TOUCH,
 #endif
+  FUNCTION_DISABLE_AUDIO_AMP
 };
 
 #define VARIO_FREQUENCY_ZERO   700/*Hz*/
