@@ -40,8 +40,6 @@
 #include "battery_driver.h"
 #include "watchdog_driver.h"
 
-#include "rtc.h"
-
 #define FLASHSIZE                       0x200000
 #define BOOTLOADER_SIZE                 0x20000
 #define FIRMWARE_ADDRESS                0x08000000
@@ -370,16 +368,16 @@ inline bool UNEXPECTED_SHUTDOWN()
   if (WAS_RESET_BY_WATCHDOG())
     return true;
   else if (WAS_RESET_BY_SOFTWARE())
-    return getRTCBKPR(RTCBKP0R) != SOFTRESET_REQUEST;
+    return RTC->BKP0R != SOFTRESET_REQUEST;
   else
-    return getRTCBKPR(RTCBKP1R) == POWER_REASON_SIGNATURE && getRTCBKPR(RTCBKP0R) != SHUTDOWN_REQUEST;
+    return RTC->BKP1R == POWER_REASON_SIGNATURE && RTC->BKP0R != SHUTDOWN_REQUEST;
 #endif
 }
 
 inline void SET_POWER_REASON(uint32_t value)
 {
-  setRTCBKPR(RTCBKP0R, value);
-  setRTCBKPR(RTCBKP1R, POWER_REASON_SIGNATURE);
+  RTC->BKP0R = value;
+  RTC->BKP1R = POWER_REASON_SIGNATURE;
 }
 #endif
 
