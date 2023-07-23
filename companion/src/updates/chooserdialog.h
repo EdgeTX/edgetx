@@ -25,6 +25,7 @@
 #include <QString>
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
+#include <QAbstractItemView>
 
 namespace Ui {
   class ChooserDialog;
@@ -35,7 +36,8 @@ class ChooserDialog : public QDialog
     Q_OBJECT
 
   public:
-    ChooserDialog(QWidget * parent, QString title, QStandardItemModel * itemModel);
+    ChooserDialog(QWidget * parent, QString title, QStandardItemModel * itemModel,
+                  QAbstractItemView::SelectionMode selMode = QAbstractItemView::SingleSelection);
     virtual ~ChooserDialog();
 
     QItemSelectionModel* selectedItems();
