@@ -472,6 +472,25 @@ bool UpdateInterface::decompress()
   return true;
 }
 
+bool UpdateInterface::filterAssets(const UpdateParameters::AssetParams & ap)
+{
+  QString pattern(m_params->buildFilterPattern(ap.filterType, ap.filter));
+  m_repo->assets()->setFilterPattern(pattern);
+  m_status->reportProgress(tr("Asset filter applied: %1 - %2 found").arg(pattern).arg(m_repo->assets()->count()), QtDebugMsg);
+
+  if (m_repo->assets()->count() < 1) {
+    m_status->reportProgress(tr("No assets found in release '%1' using filter '%2'").arg(m_repo->releases()->name()).arg(pattern), QtCriticalMsg);
+    return false;
+  }
+  else if (ap.maxExpected > 0 && m_repo->assets()->count() > ap.maxExpected) {
+    m_status->reportProgress(tr("%1 assets found when %2 expected in release '%3' using filter '%4'")
+                        .arg(m_repo->assets()->count() + 1).arg(ap.maxExpected).arg(m_repo->releases()->name().arg(pattern)), QtCriticalMsg);
+    return false;
+  }
+
+  return true;
+}
+
 bool UpdateInterface::flagAssets()
 {
   m_status->progressMessage(tr("Flagging assets"));
@@ -739,25 +758,6 @@ bool UpdateInterface::retrieveAssetsJsonFile(const QString & assetName, QJsonDoc
 bool UpdateInterface::retrieveRepoJsonFile(const QString & filename, QJsonDocument * json)
 {
   return m_repo->getJson(filename, json);
-}
-
-bool UpdateInterface::filterAssets(const UpdateParameters::AssetParams & ap)
-{
-  QString pattern(m_params->buildFilterPattern(ap.filterType, ap.filter));
-  m_repo->assets()->setFilterPattern(pattern);
-  m_status->reportProgress(tr("Asset filter applied: %1 - %2 found").arg(pattern).arg(m_repo->assets()->count()), QtDebugMsg);
-
-  if (m_repo->assets()->count() < 1) {
-    m_status->reportProgress(tr("No assets found in release '%1' using filter '%2'").arg(m_repo->releases()->name()).arg(pattern), QtCriticalMsg);
-    return false;
-  }
-  else if (ap.maxExpected > 0 && m_repo->assets()->count() > ap.maxExpected) {
-    m_status->reportProgress(tr("%1 assets found when %2 expected in release '%3' using filter '%4'")
-                        .arg(m_repo->assets()->count() + 1).arg(ap.maxExpected).arg(m_repo->releases()->name().arg(pattern)), QtCriticalMsg);
-    return false;
-  }
-
-  return true;
 }
 
 bool UpdateInterface::setFilteredAssets(const UpdateParameters::AssetParams & ap)
