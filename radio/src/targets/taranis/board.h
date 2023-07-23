@@ -410,7 +410,7 @@ void ledBlue();
 
 #if defined(OLED_SCREEN)
   #define LCD_CONTRAST_DEFAULT          255 // full brightness
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO) || defined(RADIO_BOXER)
+#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)
   #define LCD_CONTRAST_DEFAULT          20
 #elif defined(RADIO_TPRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TPRO) || defined(RADIO_COMMANDO8)
   #define LCD_CONTRAST_DEFAULT          25

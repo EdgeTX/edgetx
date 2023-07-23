@@ -1450,6 +1450,10 @@ void opentxInit()
 
   bool radioSettingsValid = storageReadRadioSettings(false);
   (void)radioSettingsValid;
+
+#if defined(GUI) && !defined(COLORLCD)
+  lcdSetContrast();
+#endif
 #endif
 
   BACKLIGHT_ENABLE(); // we start the backlight during the startup animation
@@ -1588,7 +1592,7 @@ void opentxInit()
   }
 #endif
 
-#if defined(GUI) && !defined(COLORLCD)
+#if defined(GUI) && !defined(COLORLCD) && !defined(STARTUP_ANIMATION)
   lcdSetContrast();
 #endif
 
