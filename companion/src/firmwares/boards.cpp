@@ -1012,7 +1012,6 @@ int Boards::getDefaultExternalModuleSize(Board::Type board)
   }
 
   if (IS_TARANIS_X9LITE(board)    ||
-      IS_TARANIS_X9DP_2019(board) ||
       IS_RADIOMASTER_ZORRO(board) ||
       IS_JUMPER_TLITE(board)      ||
       IS_JUMPER_TPRO(board)       ||
