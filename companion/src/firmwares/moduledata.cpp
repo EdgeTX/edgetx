@@ -545,12 +545,17 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
               case MODULE_TYPE_R9M_PXX1:
               case MODULE_TYPE_R9M_PXX2:
               case MODULE_TYPE_DSM2:
+              case MODULE_TYPE_CROSSFIRE:
+              case MODULE_TYPE_MULTIMODULE:
+              case MODULE_TYPE_GHOST:
               case MODULE_TYPE_FLYSKY:
               case MODULE_TYPE_LEMON_DSMP:
               case MODULE_TYPE_R9M_LITE_PXX1:
               case MODULE_TYPE_R9M_LITE_PXX2:
               case MODULE_TYPE_R9M_LITE_PRO_PXX2:
               case MODULE_TYPE_XJT_LITE_PXX2:
+              case MODULE_TYPE_PPM:
+              case MODULE_TYPE_SBUS:
                 return true;
               default:
                 return false;
@@ -562,6 +567,9 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
               case MODULE_TYPE_R9M_PXX1:
               case MODULE_TYPE_R9M_PXX2:
               case MODULE_TYPE_DSM2:
+              case MODULE_TYPE_CROSSFIRE:
+              case MODULE_TYPE_MULTIMODULE:
+              case MODULE_TYPE_GHOST:
               case MODULE_TYPE_FLYSKY:
               case MODULE_TYPE_LEMON_DSMP:
                 return true;
@@ -574,6 +582,9 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
               case MODULE_TYPE_R9M_LITE_PXX2:
               case MODULE_TYPE_R9M_LITE_PRO_PXX2:
               case MODULE_TYPE_XJT_LITE_PXX2:
+              case MODULE_TYPE_CROSSFIRE:
+              case MODULE_TYPE_MULTIMODULE:
+              case MODULE_TYPE_GHOST:
                 return true;
               default:
                 return false;
