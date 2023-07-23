@@ -205,6 +205,7 @@ void menuModelTelemetry(event_t event)
         if (attr && event==EVT_KEY_BREAK(KEY_ENTER)) {
           s_editMode = 0;
           allowNewSensors = !allowNewSensors;
+          telemExpandState.sensors = true;
         }
         break;
 
