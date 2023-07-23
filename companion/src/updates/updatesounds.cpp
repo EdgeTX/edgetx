@@ -29,7 +29,7 @@
 UpdateSounds::UpdateSounds(QWidget * parent) :
   UpdateInterface(parent, CID_Sounds, tr("Sounds"))
 {
-  init(QString(GH_API_REPOS_EDGETX).append("/edgetx-sdcard-sounds"));
+  init(QString(GH_API_REPOS_EDGETX).append("/edgetx-sdcard-sounds"), "", "50");
   langPacks = new QStandardItemModel();
 }
 
