@@ -26,7 +26,7 @@
 #include "libopenui.h"
 #include "theme.h"
 
-#include "watchdog_driver.h"
+#include "hal/watchdog_driver.h"
 
 static Window* _get_parent()
 {

@@ -229,8 +229,8 @@ if(ASTERISK)
   add_definitions(-DASTERISK)
 endif()
 
-if(WATCHDOG)
-  add_definitions(-DWATCHDOG)
+if(WATCHDOG AND NOT NATIVE_BUILD)
+  add_definitions(-DUSE_WATCHDOG)
 endif()
 
 if(SIMU_AUDIO)

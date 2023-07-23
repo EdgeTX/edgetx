@@ -24,7 +24,7 @@
 
 #include "bootloader_flash.h"
 #include "timers_driver.h"
-#include "watchdog_driver.h"
+#include "hal/watchdog_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"

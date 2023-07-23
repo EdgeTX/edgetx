@@ -24,7 +24,7 @@
 #include "stm32_hal_ll.h"
 
 #include "hal.h"
-#include "watchdog_driver.h"
+#include "hal/watchdog_driver.h"
 
 static volatile uint32_t _ms_ticks;
 

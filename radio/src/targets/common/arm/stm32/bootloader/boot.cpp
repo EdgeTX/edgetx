@@ -35,8 +35,7 @@
 #include "debug.h"
 
 #include "timers_driver.h"
-#include "watchdog_driver.h"
-
+#include "hal/abnormal_reboot.h"
 #include "hal/rotary_encoder.h"
 
 #if defined(DEBUG_SEGGER_RTT)
@@ -80,8 +79,6 @@ const uint8_t bootloaderVersion[] __attribute__ ((section(".version"), used)) =
   {'B', 'O', 'O', 'T', '1', '0'};
 #endif
 
-#define SOFTRESET_REQUEST 0xCAFEDEAD
-  
 volatile tmr10ms_t g_tmr10ms;
 volatile uint8_t tenms = 1;
 
@@ -309,13 +306,10 @@ int  bootloaderMain()
 
 #if defined(PWR_BUTTON_PRESS)
   // wait until power button is released
-  while (pwrPressed()) {
-    WDG_RESET();
-  }
+  while (pwrPressed()) {}
 #endif
 
   for (;;) {
-    WDG_RESET();
 
     if (tenms) {
       tenms = 0;
@@ -560,10 +554,6 @@ int  bootloaderMain()
     if (state == ST_REBOOT) {
       sdDone();
 #if !defined(SIMU)
-#if defined(RTC_BACKUP_RAM)
-      rtcInit();
-      RTC->BKP0R = SOFTRESET_REQUEST;
-#endif
       blExit();
       NVIC_SystemReset();
 #else

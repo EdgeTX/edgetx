@@ -29,9 +29,10 @@
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/storage.h"
+#include "hal/watchdog_driver.h"
+#include "hal/abnormal_reboot.h"
 
 #include "timers_driver.h"
-#include "watchdog_driver.h"
 
 #include "switches.h"
 #include "inactivity_timer.h"
@@ -1064,11 +1065,9 @@ void edgeTxClose(uint8_t shutdown)
   if (sessionTimer > 0) {
     g_eeGeneral.globalTimer += sessionTimer;
     sessionTimer = 0;
+    storageDirty(EE_GENERAL);
   }
 
-
-  g_eeGeneral.unexpectedShutdown = 0;
-  storageDirty(EE_GENERAL);
   storageCheck(true);
 
   while (IS_PLAYING(ID_PLAY_PROMPT_BASE + AU_BYE)) {
@@ -1122,11 +1121,6 @@ void edgeTxResume()
 #endif
 
   referenceSystemAudioFiles();
-
-  if (!g_eeGeneral.unexpectedShutdown) {
-    g_eeGeneral.unexpectedShutdown = 1;
-    storageDirty(EE_GENERAL);
-  }
 }
 
 #define INSTANT_TRIM_MARGIN 10 /* around 1% */
@@ -1386,24 +1380,9 @@ void edgeTxInit()
 #endif
 #endif
 
-  // Radios handle UNEXPECTED_SHUTDOWN() differently:
-  //  * radios with WDT and EEPROM and CPU controlled power use Reset status register
-  //    and eeGeneral.unexpectedShutdown
-  //  * radios with SDCARD model storage use Reset status register and special
-  //    variables in RAM. They can not use eeGeneral.unexpectedShutdown
-  //  * radios without CPU controlled power can only use Reset status register (if available)
-  if (UNEXPECTED_SHUTDOWN()) {
-    TRACE("Unexpected Shutdown detected");
-    globalData.unexpectedShutdown = 1;
-  }
-
-#if defined(RTC_BACKUP_RAM)
-  SET_POWER_REASON(0);
-#endif
-
 #if defined(SDCARD)
-  // SDCARD related stuff, only done if not unexpectedShutdown
-  if (!globalData.unexpectedShutdown) {
+  // SDCARD related stuff, only enable if normal boot
+  if (!UNEXPECTED_SHUTDOWN()) {
 
     if (!sdMounted())
       sdInit();
@@ -1435,16 +1414,17 @@ void edgeTxInit()
 #endif // defined(SDCARD)
 
 #if defined(EEPROM)
-  if (!radioSettingsValid)
+  if (!radioSettingsValid) {
     storageReadRadioSettings();
+  }
   storageReadCurrentModel();
 #else
   (void)radioSettingsValid;
 #endif
 
 #if defined(COLORLCD) && defined(LUA)
-  if (!globalData.unexpectedShutdown) {
-    // ??? lua widget state must be prepared before the call to storageReadAll()
+  if (!UNEXPECTED_SHUTDOWN()) {
+    // lua widget state must be prepared before the call to storageReadAll()
     luaInitThemesAndWidgets();
   }
 #endif
@@ -1452,7 +1432,7 @@ void edgeTxInit()
   // handling of storage for radios that have no EEPROM
 #if !defined(EEPROM)
 #if defined(RTC_BACKUP_RAM) && !defined(SIMU)
-  if (globalData.unexpectedShutdown) {
+  if (UNEXPECTED_SHUTDOWN()) {
     // SDCARD not available, try to restore last model from RAM
     TRACE("rambackupRestore");
     rambackupRestore();
@@ -1464,7 +1444,7 @@ void edgeTxInit()
   storageReadAll();
 #endif
 #endif  // #if !defined(EEPROM)
-  
+
   initSerialPorts();
 
   currentSpeakerVolume = requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
@@ -1495,7 +1475,7 @@ void edgeTxInit()
     resetBacklightTimeout();
   }
 
-  if (!globalData.unexpectedShutdown) {
+  if (!UNEXPECTED_SHUTDOWN()) {
 
     uint8_t calibration_needed = !(startOptions & OPENTX_START_NO_CALIBRATION) && (g_eeGeneral.chkSum != evalChkSum());
 
@@ -1550,13 +1530,6 @@ void edgeTxInit()
     g_eeGeneral.bluetoothMode = oldBtMode;
 #endif
   }
-
-#if !defined(RTC_BACKUP_RAM)
-  if (!g_eeGeneral.unexpectedShutdown) {
-    g_eeGeneral.unexpectedShutdown = 1;
-    storageDirty(EE_GENERAL);
-  }
-#endif
 
 #if defined(GUI) && !defined(COLORLCD) && !defined(STARTUP_ANIMATION)
   lcdSetContrast();

@@ -21,34 +21,28 @@
 
 #pragma once
 
-#define WDG_DURATION                              500 /*ms*/
+#include <stdint.h>
 
-void watchdogInit(unsigned int duration);
+enum AbnormalRebootCause {
+  ARC_None = 0,
+  ARC_Watchdog,
+  ARC_Software,
+};
 
-#if defined(SIMU)
+// Enable detecting abnormal reboots
+// This should be called after booting
+void abnormalRebootEnableDetection();
 
-#define WAS_RESET_BY_WATCHDOG()               (false)
-#define WAS_RESET_BY_SOFTWARE()               (false)
-#define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()   (false)
-#define WDG_ENABLE(x)
-#define WDG_RESET()
+// Disable detecting abnormal reboots
+// This should be called on normal shutdowns / reboots
+void abnormalRebootDisableDetection();
 
-#else // SIMU
+// Test for abnormal reboot conditions
+// (see AbnormalRebootCause)
+uint32_t abnormalRebootGetCause();
 
-#if defined(WATCHDOG)
-  #define WDG_ENABLE(x) watchdogInit(x)
-  #define WDG_RESET()   IWDG->KR = 0xAAAA
-#else
-  #define WDG_ENABLE(x)
-  #define WDG_RESET()
-#endif
-
-#define WAS_RESET_BY_WATCHDOG() \
-  (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF))
-
-#define WAS_RESET_BY_SOFTWARE() (RCC->CSR & RCC_CSR_SFTRSTF)
+#define UNEXPECTED_SHUTDOWN() \
+  (abnormalRebootGetCause() == ARC_Watchdog)
 
 #define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE() \
-  (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF | RCC_CSR_SFTRSTF))
-
-#endif
+  (abnormalRebootGetCause() != ARC_None)

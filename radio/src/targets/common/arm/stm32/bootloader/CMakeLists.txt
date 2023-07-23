@@ -41,6 +41,8 @@ set(BOOTLOADER_SRC
   ../stm32_gpio_driver.cpp
   ../stm32_timer.cpp
   ../stm32_dma.cpp
+  ../watchdog_driver.cpp
+  ../abnormal_reboot.cpp
   init.c
   boot.cpp
   bin_files.cpp
@@ -137,7 +139,7 @@ remove_definitions(-DLUA)
 remove_definitions(-DCLI)
 remove_definitions(-DSEMIHOSTING)
 remove_definitions(-DUSB_SERIAL)
-remove_definitions(-DWATCHDOG)
+remove_definitions(-DUSE_WATCHDOG)
 
 add_definitions(-DBOOT)
 

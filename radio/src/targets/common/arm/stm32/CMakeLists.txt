@@ -54,6 +54,8 @@ set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/stm32_exti_driver.cpp
   ../common/arm/stm32/mixer_scheduler_driver.cpp
   ../common/arm/stm32/pwr_driver.cpp
+  ../common/arm/stm32/watchdog_driver.cpp
+  ../common/arm/stm32/abnormal_reboot.cpp
   )
 
 if(IMU)

@@ -23,10 +23,9 @@
 #include "inactivity_timer.h"
 #include "stamp.h"
 
-extern void checkSpeakerVolume();
+#include "hal/abnormal_reboot.h"
 
-#include "opentx.h"
-#include "stamp.h"
+extern void checkSpeakerVolume();
 
 #if defined(VERSION_TAG)
 const std::string ver_str = "" VERSION_TAG;
