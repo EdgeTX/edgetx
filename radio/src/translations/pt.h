@@ -563,7 +563,7 @@
 #define TR_LABELS                      "Etiquetas"
 #define TR_CURRENT_MODEL               "Atual"
 #define TR_ACTIVE                      "Ativo"
-#define TR_NEW                         "Novo
+#define TR_NEW                         "Novo"
 #define TR_NEW_LABEL                   "Nova Etiqueta"
 #define TR_RENAME_LABEL                "Renm Etiqueta"
 #define TR_DELETE_LABEL                "Apag Etiqueta"
