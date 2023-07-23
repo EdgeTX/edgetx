@@ -51,7 +51,7 @@ void UpdateSounds::assetSettingsInit()
   cad.processes(UPDFLG_Common_Asset);
   cad.flags(cad.processes() | UPDFLG_CopyStructure);
   cad.filterType(UpdateParameters::UFT_Startswith);
-  cad.filter("edgetx-sdcard-sounds-%LANGUAGE%-");
+  cad.filter("edgetx-sdcard-sounds-%LANGUAGE%");
 
   qDebug() << "Asset settings initialised";
 }
