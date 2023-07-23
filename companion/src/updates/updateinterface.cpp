@@ -741,7 +741,7 @@ bool UpdateInterface::retrieveRepoJsonFile(const QString & filename, QJsonDocume
   return m_repo->getJson(filename, json);
 }
 
-bool UpdateInterface::setFilteredAssets(const UpdateParameters::AssetParams & ap)
+bool UpdateInterface::filterAssets(const UpdateParameters::AssetParams & ap)
 {
   QString pattern(m_params->buildFilterPattern(ap.filterType, ap.filter));
   m_repo->assets()->setFilterPattern(pattern);
@@ -756,6 +756,14 @@ bool UpdateInterface::setFilteredAssets(const UpdateParameters::AssetParams & ap
                         .arg(m_repo->assets()->count() + 1).arg(ap.maxExpected).arg(m_repo->releases()->name().arg(pattern)), QtCriticalMsg);
     return false;
   }
+
+  return true;
+}
+
+bool UpdateInterface::setFilteredAssets(const UpdateParameters::AssetParams & ap)
+{
+  if (!filterAssets(ap))
+    return false;
 
   for (int i = 0; i < m_repo->assets()->count(); i++) {
     m_repo->assets()->getSetId(i);
