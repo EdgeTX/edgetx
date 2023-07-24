@@ -138,7 +138,8 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
 void SetupWidgetsPage::onEvent(event_t event)
 {
 #if defined(HARDWARE_KEYS)
-  if (event == EVT_KEY_FIRST(KEY_PAGEUP) || event == EVT_KEY_FIRST(KEY_PAGEDN)) {
+  if (event == EVT_KEY_FIRST(KEY_PAGEUP) || event == EVT_KEY_FIRST(KEY_PAGEDN) ||
+      event == EVT_KEY_FIRST(KEY_SYS) || event == EVT_KEY_FIRST(KEY_MODEL)) {
     killEvents(event);
   } else if (event == EVT_KEY_FIRST(KEY_TELE)) {
     onCancel();
