@@ -73,17 +73,17 @@ set(STM32_STDPERIPH_SRC
 
 if(CPU_TYPE_FULL STREQUAL STM32F429xI)
   set(STM32_STDPERIPH_SRC ${STM32_STDPERIPH_SRC}
-    targets/${TARGET_DIR}/startup_stm32f42_43xxx.s
+    boards/generic_stm32/startup/startup_stm32f42_43xxx.s
     ${STM32_STDPERIPH_DIR}/src/stm32f4xx_fmc.c
     ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma.c
     )
 elseif (CPU_TYPE_FULL STREQUAL STM32F413xG)
   set(STM32_STDPERIPH_SRC ${STM32_STDPERIPH_SRC}
-    targets/${TARGET_DIR}/startup_stm32f413vgtx.s
+    boards/generic_stm32/startup/startup_stm32f413xx.s
   )
 else()
   set(STM32_STDPERIPH_SRC ${STM32_STDPERIPH_SRC}
-    targets/${TARGET_DIR}/startup_stm32f40_41xxx.s
+    boards/generic_stm32/startup/startup_stm32f40_41xxx.s
     )  
 endif()
 
