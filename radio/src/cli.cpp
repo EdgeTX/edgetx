@@ -862,7 +862,7 @@ int cliStackInfo(const char ** argv)
   return 0;
 }
 
-extern int _end;
+extern int _heap_start;
 extern int _heap_end;
 extern unsigned char *heap;
 
@@ -889,10 +889,10 @@ int cliMemoryInfo(const char ** argv)
   cliSerialPrint("\tkeepcost %d bytes", info.keepcost);
 
   cliSerialPrint("\nHeap:");
-  cliSerialPrint("\tstart %p", (unsigned char *)&_end);
+  cliSerialPrint("\tstart %p", (unsigned char *)&_heap_start);
   cliSerialPrint("\tend   %p", (unsigned char *)&_heap_end);
   cliSerialPrint("\tcurr  %p", heap);
-  cliSerialPrint("\tused  %d bytes", (int)(heap - (unsigned char *)&_end));
+  cliSerialPrint("\tused  %d bytes", (int)(heap - (unsigned char *)&_heap_start));
   cliSerialPrint("\tfree  %d bytes", (int)((unsigned char *)&_heap_end - heap));
 
 #if defined(LUA)
