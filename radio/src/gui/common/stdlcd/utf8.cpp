@@ -60,7 +60,7 @@ static wchar_t _utf8_lut[] = {
 static wchar_t _utf8_lut[] = {
     L'á', L'č', L'é', L'ě', L'í', L'ó', L'ř',
     L'š', L'ú', L'ů', L'ý', L'Á', L'Í', L'Ř',
-    L'Ý', L'ž', L'É',
+    L'Ý', L'ž', L'É', L'ň',
 };
 
 #if !defined(COLORLCD)
@@ -73,8 +73,7 @@ static wchar_t _utf8_substitution_lut[] = {
     L'Ú', L'ú',
     L'Ů', L'ů',
     L'Ó', L'ó',
-    L'Ň', L'N',
-    L'ň', L'n',
+    L'Ň', L'ň',
 };
 #endif
 #elif defined(TRANSLATIONS_ES)
