@@ -604,7 +604,7 @@
 #define TR_SPECTRUM_ANALYSER_INT       "スペクトラム\n(内部)"
 #define TR_SDCARD_FULL                 "SDカード空き容量なし"
 #if defined(COLORLCD)
-#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogs and Screenshots disabled"
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nログとスクリーンショット保存が無効"
 #else
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Logs and " LCDW_128_480_LINEBREAK "Screenshots disabled"
 #endif
