@@ -22,7 +22,6 @@
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
 #include "rtc.h"
-#include "rtos.h"
 
 //
 // Color screen targets use the first 2 out of the 20 
@@ -40,7 +39,9 @@
 // and returns the requested backup register
 // 
 uint32_t getRTCBKPR(uint32_t BackupRegister) {
-  taskENTER_CRITICAL();
+  uint32_t prim = __get_PRIMASK();
+  
+  __disable_irq();
 
   if(LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR19) != RTCCHKSUM()) {
     LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR0, 0);
@@ -50,7 +51,8 @@ uint32_t getRTCBKPR(uint32_t BackupRegister) {
 
   uint32_t value = LL_RTC_BAK_GetRegister(RTC, BackupRegister);
 
-  taskEXIT_CRITICAL();
+  if(!prim) 
+    __enable_irq();
 
   return value;
 }
@@ -60,12 +62,15 @@ uint32_t getRTCBKPR(uint32_t BackupRegister) {
 // and updates the checksum
 // 
 void setRTCBKPR(uint32_t BackupRegister, uint32_t value) {
-  taskENTER_CRITICAL();
+  uint32_t prim = __get_PRIMASK();
+
+  __disable_irq();
 
   LL_RTC_BAK_SetRegister(RTC, BackupRegister, value);
   LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR19, RTCCHKSUM());
 
-  taskEXIT_CRITICAL();
+  if(!prim) 
+    __enable_irq();
 }
 
 RTC_HandleTypeDef rtc = {};
