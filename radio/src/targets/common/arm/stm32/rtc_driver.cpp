@@ -32,16 +32,14 @@
 // Calculates the RTC backup memory checksum and stores it
 // in the last backup register location (BKP19R).
 //
-#define RTCCHKSUM() ((RTC->BKP0R ^ RTC->BKP1R) + 45444745)
+#define RTCCHKSUM() ((RTC->BKP0R ^ RTC->BKP1R) + 0x35012153)
 
 //  
 // resets RTC backup registers if data is corrupt
 // and returns the requested backup register
 // 
 uint32_t getRTCBKPR(uint32_t BackupRegister) {
-  uint32_t prim = __get_PRIMASK();
-  
-  __disable_irq();
+  taskENTER_CRITICAL();
 
   if(LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR19) != RTCCHKSUM()) {
     LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR0, 0);
@@ -51,8 +49,7 @@ uint32_t getRTCBKPR(uint32_t BackupRegister) {
 
   uint32_t value = LL_RTC_BAK_GetRegister(RTC, BackupRegister);
 
-  if(!prim) 
-    __enable_irq();
+  taskEXIT_CRITICAL();
 
   return value;
 }
@@ -62,15 +59,12 @@ uint32_t getRTCBKPR(uint32_t BackupRegister) {
 // and updates the checksum
 // 
 void setRTCBKPR(uint32_t BackupRegister, uint32_t value) {
-  uint32_t prim = __get_PRIMASK();
-
-  __disable_irq();
+  taskENTER_CRITICAL();
 
   LL_RTC_BAK_SetRegister(RTC, BackupRegister, value);
   LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR19, RTCCHKSUM());
 
-  if(!prim) 
-    __enable_irq();
+  taskEXIT_CRITICAL();
 }
 
 RTC_HandleTypeDef rtc = {};
