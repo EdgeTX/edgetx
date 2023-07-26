@@ -212,6 +212,7 @@ class GeneralSettings {
     BeeperMode hapticMode;
     unsigned int stickMode; // TODO enum
     int timezone;
+    int timezoneMinutes;
     bool adjustRTC;
     bool optrexDisplay;
     unsigned int inactivityTimer;
@@ -247,6 +248,7 @@ class GeneralSettings {
     unsigned int countryCode;
     bool noJitterFilter;
     bool rtcCheckDisable;
+    bool muteIfNoSound;
     bool keysBacklight;
     unsigned int rotEncMode;
     unsigned int imperial;
@@ -304,6 +306,7 @@ class GeneralSettings {
     bool switchSourceAllowedTaranis(int index) const;
     bool isPotAvailable(int index) const;
     bool isSliderAvailable(int index) const;
+    bool isMultiPosPot(int index) const;
     QString antennaModeToString() const;
     QString bluetoothModeToString() const;
     QString serialPortModeToString(int port_nr) const;

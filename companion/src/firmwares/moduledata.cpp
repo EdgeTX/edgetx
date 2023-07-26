@@ -25,6 +25,7 @@
 #include "radiodataconversionstate.h"
 #include "compounditemmodels.h"
 #include "generalsettings.h"
+#include "appdata.h"
 
 #include <QPair>
 #include <QVector>
@@ -259,7 +260,7 @@ QString ModuleData::subTypeToString(int type) const
     case PULSES_MULTIMODULE:
       return Multiprotocols::subTypeToString((int)multi.rfProtocol, (unsigned)type);
     case PULSES_PPM:
-      return CHECK_IN_ARRAY(ppmSubTypeStrings, type); 
+      return CHECK_IN_ARRAY(ppmSubTypeStrings, type);
     case PULSES_PXX_R9M:
       return CHECK_IN_ARRAY(strings, type);
     case PULSES_AFHDS3:
@@ -528,44 +529,70 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
   if (moduleidx == 0)
     return (int)generalSettings.internalModule == getTypeFromProtocol(protocol);
 
-  QString id = fw->getId();
-
   if (IS_HORUS_OR_TARANIS(board)) {
     switch (moduleidx) {
-      case 1:
-        switch (protocol) {
-          case PULSES_OFF:
-          case PULSES_PPM:
-            return true;
-          case PULSES_PXX_XJT_X16:
-          case PULSES_PXX_XJT_D8:
-          case PULSES_PXX_XJT_LR12:
-            return !(IS_TARANIS_XLITES(board) || IS_TARANIS_X9LITE(board));
-          case PULSES_PXX_R9M:
-          case PULSES_LP45:
-          case PULSES_DSM2:
-          case PULSES_DSMX:
-          case PULSES_SBUS:
-          case PULSES_MULTIMODULE:
-          case PULSES_CROSSFIRE:
-          case PULSES_AFHDS3:
-          case PULSES_GHOST:
-          case PULSES_LEMON_DSMP:
-            return true;
-          case PULSES_ACCESS_R9M:
-            return (IS_ACCESS_RADIO(board, id) ||
-                   generalSettings.serialPort[GeneralSettings::SP_AUX1] == GeneralSettings::AUX_SERIAL_EXT_MODULE);
-          case PULSES_PXX_R9M_LITE:
-          case PULSES_ACCESS_R9M_LITE:
-          case PULSES_ACCESS_R9M_LITE_PRO:
-          case PULSES_XJT_LITE_X16:
-          case PULSES_XJT_LITE_D8:
-          case PULSES_XJT_LITE_LR12:
-            return (IS_TARANIS_XLITE(board) || IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_ZORRO(board));
+      case 1: {
+        const int moduleSize = g.currentProfile().externalModuleSize();
+        const int moduleType = getTypeFromProtocol(protocol);
+
+        switch(moduleSize) {
+          case Board::EXTMODSIZE_NONE:
+            return false;
+          case Board::EXTMODSIZE_BOTH:
+            switch (moduleType) {
+              case MODULE_TYPE_XJT_PXX1:
+              case MODULE_TYPE_ISRM_PXX2:
+              case MODULE_TYPE_R9M_PXX1:
+              case MODULE_TYPE_R9M_PXX2:
+              case MODULE_TYPE_DSM2:
+              case MODULE_TYPE_CROSSFIRE:
+              case MODULE_TYPE_MULTIMODULE:
+              case MODULE_TYPE_GHOST:
+              case MODULE_TYPE_FLYSKY:
+              case MODULE_TYPE_LEMON_DSMP:
+              case MODULE_TYPE_R9M_LITE_PXX1:
+              case MODULE_TYPE_R9M_LITE_PXX2:
+              case MODULE_TYPE_R9M_LITE_PRO_PXX2:
+              case MODULE_TYPE_XJT_LITE_PXX2:
+              case MODULE_TYPE_PPM:
+              case MODULE_TYPE_SBUS:
+                return true;
+              default:
+                return false;
+            }
+          case Board::EXTMODSIZE_STD:
+            switch (moduleType) {
+              case MODULE_TYPE_XJT_PXX1:
+              case MODULE_TYPE_ISRM_PXX2:
+              case MODULE_TYPE_R9M_PXX1:
+              case MODULE_TYPE_R9M_PXX2:
+              case MODULE_TYPE_DSM2:
+              case MODULE_TYPE_CROSSFIRE:
+              case MODULE_TYPE_MULTIMODULE:
+              case MODULE_TYPE_GHOST:
+              case MODULE_TYPE_FLYSKY:
+              case MODULE_TYPE_LEMON_DSMP:
+                return true;
+              default:
+                return false;
+            }
+          case Board::EXTMODSIZE_SMALL:
+            switch (moduleType) {
+              case MODULE_TYPE_R9M_LITE_PXX1:
+              case MODULE_TYPE_R9M_LITE_PXX2:
+              case MODULE_TYPE_R9M_LITE_PRO_PXX2:
+              case MODULE_TYPE_XJT_LITE_PXX2:
+              case MODULE_TYPE_CROSSFIRE:
+              case MODULE_TYPE_MULTIMODULE:
+              case MODULE_TYPE_GHOST:
+                return true;
+              default:
+                return false;
+            }
           default:
             return false;
         }
-
+      }
       case -1:
         switch (protocol) {
           case PULSES_PPM:

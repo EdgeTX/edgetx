@@ -4612,8 +4612,8 @@ Vous utilisez actuellement:
     </message>
     <message>
         <location filename="../modeledit/setup_function_switches.ui" line="47"/>
-        <source>Function Switches</source>
-        <translation type="unfinished"></translation>
+        <source>Customizable Switches</source>
+        <translation>Inters paramétrables</translation>
     </message>
     <message>
         <location filename="../modeledit/setup_function_switches.ui" line="69"/>
@@ -6245,6 +6245,11 @@ Cette fonction ne peut pas être désactivée sur la radio.
         <location filename="../generaledit/hardware.cpp" line="170"/>
         <source>ADC Filter</source>
         <translation type="unfinished">Filtre ADC</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/hardware.cpp" line="178"/>
+        <source>Mute if no sound</source>
+        <translation>Muet si pas de son</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="198"/>
@@ -10712,8 +10717,8 @@ Mixage actif par défaut si non-renseigné.</translation>
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="968"/>
-        <source>Function Switches</source>
-        <translation type="unfinished"></translation>
+        <source>Customizable Switches</source>
+        <translation>Inters paramétrables</translation>
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="970"/>

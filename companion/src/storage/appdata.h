@@ -486,6 +486,7 @@ class Profile: public CompStoreObj
     PROPERTYSTR(pBackupDir)
 
     PROPERTY (int, defaultInternalModule, 0)
+    PROPERTY (int, externalModuleSize, 1) // added 2.9 - Board::EXTMODSIZE_STD used for existing profiles
     PROPERTY4(int, channelOrder, "default_channel_order",  0)
     PROPERTY4(int, defaultMode,  "default_mode",           1)
     PROPERTY (int, volumeGain,   10)

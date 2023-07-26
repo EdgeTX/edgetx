@@ -268,6 +268,7 @@
 #define TR_WARN_5VOLTS         "Warning: output level is 5 volts"
 #define TR_MS                  "ms"
 #define TR_SWITCH              TR("Schak.", "Schakelaar")
+#define TR_FUNCTION_SWITCHES           "Customizable switches"
 #define TR_SF_SWITCH           "Trigger"
 #define TR_TRIMS               "Trims"
 #define TR_FADEIN              "Fade in"
@@ -457,7 +458,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB       "CALIBRATED ANALOGS"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS   "RAW ANALOGS (5 Hz)"
 #define TR_MENUCALIBRATION                TR("CALIB. ANALOOG", "CALIBRERING Sticks+Pots")
-#define TR_MENU_FSWITCH                   "FUNCTION SWITCHES"
+#define TR_MENU_FSWITCH                   "CUSTOMIZABLE SWITCHES"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS     "Trims => Subtrims"
 #else
@@ -837,7 +838,7 @@
 #define TR_DEBUG                       "Debug"
 #define TR_KEYS_BTN                BUTTON(TR("SW","Switches"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogs"))
-#define TR_FS_BTN                      BUTTON(TR("F. Switches", "Function switches"))
+#define TR_FS_BTN                      BUTTON(TR("Custom sw", "Customizable switches"))
 #define TR_TOUCH_NOTFOUND              "Touch hardware not found"
 #define TR_TOUCH_EXIT                  "Touch screen to exit"
 #define TR_SET                 "[Set]"
@@ -1119,6 +1120,7 @@
 #define TR_MENU_DISPLAY        "DISPLAY"
 #define TR_MENU_OTHER          "Verdere"
 #define TR_MENU_INVERT         "Inverteer"
+#define TR_AUDIO_MUTE                  TR("Audio mute","Mute if no sound")
 #define TR_JITTER_FILTER       "ADC Filter"
 #define TR_DEAD_ZONE           "Dead zone"
 #define TR_RTC_CHECK           TR("Check RTC", "Check RTC voltage")

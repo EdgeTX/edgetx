@@ -139,7 +139,9 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_OPTIONS,
 #if defined(MULTIMODULE)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_AUTOBIND,
+#if defined(MANUFACTURER_FRSKY)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_DISABLE_TELEM,
+#endif
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_DISABLE_MAPPING,
 #endif
 #if defined(AFHDS3)
@@ -494,17 +496,6 @@ uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr,
   if (rv == OVERRIDE_GLOBAL)
     lcdDrawText(MODEL_SETUP_2ND_COLUMN + 40, y, STR_ADCFILTERVALUES[globalState == 0 ? 2 : 1]);
   return rv;
-}
-
-uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
-{
-  lcdDrawTextAlignedLeft(y, title);
-  lcdDrawText(200, y, value ? STR_CHAR_UP : STR_CHAR_DOWN, attr);
-  if (attr && (event == EVT_KEY_BREAK(KEY_ENTER))) {
-    value = !value;
-    s_editMode = 0;
-  }
-  return value;
 }
 
 void menuModelSetup(event_t event)
@@ -1013,8 +1004,8 @@ void menuModelSetup(event_t event)
         lcdDrawTextAlignedLeft(y, STR_BEEPCTR);
         uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
         uint8_t max_inputs = adcGetMaxInputs(ADC_INPUT_MAIN) + adcGetMaxInputs(ADC_INPUT_POT);
+        coord_t x = MODEL_SETUP_2ND_COLUMN;
         for (uint8_t i = 0; i < max_inputs; i++) {
-          coord_t x = MODEL_SETUP_2ND_COLUMN + i*FW;
           if ( i >= pot_offset && IS_POT_MULTIPOS(i - pot_offset) ) {
             if (attr && menuHorizontalPosition == i) repeatLastCursorMove(event);
             continue;
@@ -1022,9 +1013,16 @@ void menuModelSetup(event_t event)
           LcdFlags flags = 0;
           if ((menuHorizontalPosition == i) && attr)
             flags = BLINK | INVERS;
-          else if (ANALOG_CENTER_BEEP(x) || (attr && CURSOR_ON_LINE()))
+          else if (ANALOG_CENTER_BEEP(i) || (attr && CURSOR_ON_LINE()))
             flags = INVERS;
-          lcdDrawText(x, y, getAnalogShortLabel(i), flags);
+          if (adcGetMaxInputs(ADC_INPUT_POT) > 4 || i < pot_offset) {
+            lcdDrawText(x, y, getAnalogShortLabel(i), flags);
+          }
+          else {
+            lcdDrawText(x, y, getPotLabel(i - pot_offset), flags);
+          }
+          x = lcdNextPos;
+          if (i >= pot_offset - 1) x+=2;
         }
         if (attr && CURSOR_ON_CELL) {
           if (event==EVT_KEY_BREAK(KEY_ENTER)) {
@@ -1775,11 +1773,11 @@ void menuModelSetup(event_t event)
         g_model.moduleData[EXTERNAL_MODULE].multi.autoBindMode = editCheckBox(g_model.moduleData[EXTERNAL_MODULE].multi.autoBindMode, MODEL_SETUP_2ND_COLUMN, y, STR_MULTI_AUTOBIND, attr, event);
       }
       break;
-
+#if defined(MANUFACTURER_FRSKY)
     case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DISABLE_TELEM:
       g_model.moduleData[EXTERNAL_MODULE].multi.disableTelemetry = editCheckBox(g_model.moduleData[EXTERNAL_MODULE].multi.disableTelemetry, MODEL_SETUP_2ND_COLUMN, y, INDENT TR_DISABLE_TELEM, attr, event);
       break;
-
+#endif
     case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DISABLE_MAPPING:
       g_model.moduleData[EXTERNAL_MODULE].multi.disableMapping = editCheckBox(g_model.moduleData[EXTERNAL_MODULE].multi.disableMapping, MODEL_SETUP_2ND_COLUMN, y, INDENT TR_DISABLE_CH_MAP, attr, event);
       break;

@@ -50,7 +50,7 @@ class GeneralSetupPanel : public GeneralPanel
     void on_faimode_CB_stateChanged(int );
     void on_rotEncMode_CB_currentIndexChanged(int index);
     void on_speakerPitchSB_editingFinished();
-    void on_timezoneSB_editingFinished();
+    void on_timezoneLE_textEdited(const QString &text);
     void on_adjustRTC_stateChanged(int);
     void on_hapticStrength_valueChanged();
     void on_soundModeCB_currentIndexChanged(int index);

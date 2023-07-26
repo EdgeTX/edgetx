@@ -562,7 +562,7 @@ void processSpektrumPacket(const uint8_t *packet)
     return; // Not a sensor
   }
 
-#if defined(LUA)
+#if defined(LUA) && defined(MULTIMODULE)
     // Generic way for LUA Script to request ANY Specktrum Telemety Raw Data
     // this can be used for TextGen or any other telemetry message
 
@@ -775,7 +775,9 @@ void processDSMBindPacket(uint8_t module, const uint8_t *packet)
     moduleState[module].mode = MODULE_MODE_NORMAL;
     restartModuleAsync(module, 50); // ~200ms
     
-  } else if (g_model.moduleData[module].type == MODULE_TYPE_MULTIMODULE &&
+  }
+#if defined(MULTIMODULE)
+  else if (g_model.moduleData[module].type == MODULE_TYPE_MULTIMODULE &&
              g_model.moduleData[module].multi.rfProtocol ==
              MODULE_SUBTYPE_MULTI_DSM2 &&
              g_model.moduleData[module].subType == MM_RF_DSM2_SUBTYPE_AUTO) {
@@ -817,7 +819,7 @@ void processDSMBindPacket(uint8_t module, const uint8_t *packet)
 
     storageDirty(EE_MODEL);
   }
-
+#endif
   debugval = packet[7] << 24 | packet[6] << 16 | packet[5] << 8 | packet[4];
 
   /* log the bind packet as telemetry for quick debugging */
@@ -932,7 +934,7 @@ static void adjustTimeFromUTC(uint8_t hour, uint8_t min, uint8_t sec,
                               struct gtm *tp)
 {
   // Get current UTC date/time
-  __offtime(&g_rtcTime, -g_eeGeneral.timezone * 3600, tp);
+  __offtime(&g_rtcTime, -timezoneOffsetSeconds(g_eeGeneral.timezone, g_eeGeneral.timezoneMinutes), tp);
 
   tp->tm_hour = hour;
   tp->tm_min = min;

@@ -23,7 +23,13 @@
 #define FLYSKY_HALL_BAUDRATE            ( 921600 )
 #define FLYSKY_HALL_CHANNEL_COUNT       ( 4 )
 
-#define FLYSKY_OFFSET_VALUE             ( 16384 )
+// This value has been chosen arbitrarily to allow
+// for 13-bit precision.
+//
+// Note: Flysky gimbals provide signed 16-bit values, whereby
+//       ADC sampling uses unsigned 16-bit values.
+//
+#define FLYSKY_OFFSET_VALUE             ( 1 << 12 )
 
 #define FLYSKY_HALL_PROTOLO_HEAD        0x55
 #define FLYSKY_HALL_RESP_TYPE_VALUES    0x0c

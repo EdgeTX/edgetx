@@ -523,32 +523,7 @@ void ModelMixesPage::build(FormWindow * window)
   form = new FormWindow(window, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
-  groups.clear();
-  lines.clear();
-
-  uint8_t index = 0;
-  MixData* line = g_model.mixData;
-  for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
-
-    if (index >= MAX_MIXERS) break;
-
-    bool skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
-    if (line->destCh == ch && !skip_mix) {
-
-      // one group for the complete mixer channel
-      auto group = createGroup(form, MIXSRC_FIRST_CH + ch);
-      groups.emplace_back(group);
-      while (index < MAX_MIXERS && (line->destCh == ch) && !skip_mix) {
-        // one button per input line
-        createLineButton(group, index);
-        ++index;
-        ++line;
-        skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
-      }
-    }
-  }
-
-  auto box = new FormGroup(window, rect_t{});
+  auto box = new FormWindow(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
   box->padLeft(lv_dpx(8));
 
@@ -567,6 +542,37 @@ void ModelMixesPage::build(FormWindow * window)
   });
   auto btn_obj = btn->getLvObj();
   lv_obj_set_width(btn_obj, lv_pct(100));
+  lv_group_focus_obj(btn_obj);
+
+  groups.clear();
+  lines.clear();
+
+  bool focusSet = false;
+  uint8_t index = 0;
+  MixData* line = g_model.mixData;
+  for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
+
+    if (index >= MAX_MIXERS) break;
+
+    bool skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
+    if (line->destCh == ch && !skip_mix) {
+
+      // one group for the complete mixer channel
+      auto group = createGroup(form, MIXSRC_FIRST_CH + ch);
+      groups.emplace_back(group);
+      while (index < MAX_MIXERS && (line->destCh == ch) && !skip_mix) {
+        // one button per input line
+        auto btn = createLineButton(group, index);
+        if (!focusSet) {
+          focusSet = true;
+          lv_group_focus_obj(btn->getLvObj());
+        }
+        ++index;
+        ++line;
+        skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
+      }
+    }
+  }
 }
 
 void ModelMixesPage::enableMonitors(bool enabled)

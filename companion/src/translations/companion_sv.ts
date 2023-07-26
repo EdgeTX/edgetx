@@ -3646,8 +3646,8 @@ Du använder för närvarande:
         <translation>Formulär</translation>
     </message>
     <message>
-        <source>Function Switches</source>
-        <translation>Funktionsbrytare</translation>
+        <source>Customizable Switches</source>
+        <translation>Anpassningsbara brytare</translation>
     </message>
     <message>
         <source>Type</source>
@@ -4982,6 +4982,11 @@ att fungera. Detta går inte att ändra från radion.
     <message>
         <source>ADC Filter</source>
         <translation>ADC-filter</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/hardware.cpp" line="178"/>
+        <source>Mute if no sound</source>
+        <translation>Audio av om inget ljud</translation>
     </message>
     <message>
         <source>S.Port Power</source>
@@ -8499,8 +8504,8 @@ p, li { white-space: pre-wrap; }
         <translation>Start</translation>
     </message>
     <message>
-        <source>Function Switches</source>
-        <translation>Funktionsbrytare</translation>
+        <source>Customizable Switches</source>
+        <translation>Anpassningsbara brytare</translation>
     </message>
     <message>
         <source>Switch %1</source>

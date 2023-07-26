@@ -4613,7 +4613,7 @@ Actualmente estás usando:
     </message>
     <message>
         <location filename="../modeledit/setup_function_switches.ui" line="47"/>
-        <source>Function Switches</source>
+        <source>Customizable Switches</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6246,6 +6246,11 @@ Esta función no puede ser deshabilitada en la radio.
         <location filename="../generaledit/hardware.cpp" line="170"/>
         <source>ADC Filter</source>
         <translation type="unfinished">Filtro ADC</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/hardware.cpp" line="178"/>
+        <source>Mute if no sound</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="198"/>
@@ -10559,7 +10564,7 @@ Esto determina cómo los valores de mezcla son añadidos.
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="968"/>
-        <source>Function Switches</source>
+        <source>Customizable Switches</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

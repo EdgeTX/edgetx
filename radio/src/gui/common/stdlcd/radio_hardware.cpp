@@ -57,6 +57,9 @@ enum {
   ITEM_RADIO_HARDWARE_BATTERY_CALIB,
   ITEM_RADIO_HARDWARE_RTC_BATTERY,
   ITEM_RADIO_HARDWARE_RTC_CHECK,
+#if defined(AUDIO_MUTE_GPIO)
+  ITEM_RADIO_HARDWARE_AUDIO_MUTE,
+#endif
   ITEM_RADIO_HARDWARE_LABEL_INTERNAL_MODULE,
   ITEM_RADIO_HARDWARE_INTERNAL_MODULE_TYPE,
   ITEM_RADIO_HARDWARE_INTERNAL_MODULE_BAUDRATE,
@@ -155,7 +158,9 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   tab[ITEM_RADIO_HARDWARE_BATTERY_CALIB] = 0;
   tab[ITEM_RADIO_HARDWARE_RTC_BATTERY] = READONLY_ROW;
   tab[ITEM_RADIO_HARDWARE_RTC_CHECK] = 0;
-
+#if defined(AUDIO_MUTE_GPIO)
+  tab[ITEM_RADIO_HARDWARE_AUDIO_MUTE] = 0;
+#endif
 #if defined(HARDWARE_INTERNAL_MODULE)
   tab[ITEM_RADIO_HARDWARE_INTERNAL_MODULE_TYPE] = 0;
   tab[ITEM_RADIO_HARDWARE_INTERNAL_MODULE_BAUDRATE] =
@@ -312,6 +317,12 @@ void menuRadioHardware(event_t event)
         #endif
         }
       } break;
+
+#if defined(AUDIO_MUTE_GPIO)
+      case ITEM_RADIO_HARDWARE_AUDIO_MUTE:
+        g_eeGeneral.audioMuteEnable = editCheckBox(g_eeGeneral.audioMuteEnable, HW_SETTINGS_COLUMN2, y, STR_AUDIO_MUTE, attr, event);
+        break;
+#endif
 
       case ITEM_RADIO_HARDWARE_INTERNAL_MODULE_BAUDRATE:
         lcdDrawText(INDENT_WIDTH, y, STR_BAUDRATE);
@@ -474,7 +485,7 @@ void menuRadioHardware(event_t event)
           // draw hw name
           LcdFlags flags = menuHorizontalPosition < 0 ? attr : 0;
           lcdDrawText(INDENT_WIDTH, y, STR_CHAR_POT, flags);
-          lcdDrawText(lcdNextPos, y, adcGetInputName(ADC_INPUT_POT, idx), flags);
+          lcdDrawText(lcdNextPos, y, adcGetInputLabel(ADC_INPUT_POT, idx), flags);
 
           // draw custom name
           if (analogHasCustomLabel(ADC_INPUT_POT, idx) ||

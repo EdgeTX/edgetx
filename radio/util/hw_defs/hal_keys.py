@@ -21,13 +21,15 @@ TRIMS = [
     { "name": "T4", "dec": "RHL", "inc": "RHR", "input": "RH" },
     { "name": "T5", "dec": "LSD", "inc": "LSU" },
     { "name": "T6", "dec": "RSD", "inc": "RSU" },
+    { "name": "T7", "dec": "T7L", "inc": "T7R" },
+    { "name": "T8", "dec": "T8D", "inc": "T8U" },
     # Surface
     { "name": "T1", "dec": "T1L", "inc": "T1R", "input": "ST" },
     { "name": "T2", "dec": "T2L", "inc": "T2R", "input": "TH" },
     { "name": "T3", "dec": "T3L", "inc": "T3R"},
     { "name": "T4", "dec": "T4L", "inc": "T4R"},
     { "name": "T5", "dec": "T5L", "inc": "T5R" },
-    { "name": "T6", "dec": "T6L", "inc": "T6R" },
+    { "name": "T6", "dec": "T6D", "inc": "T6U" },
 ]
 
 KEYS = [
@@ -60,6 +62,7 @@ class Key:
     def __init__(self, gpio, pin):
         self.gpio = gpio
         self.pin = pin
+        self.active_low = True
 
 class Trim:
 
@@ -67,6 +70,7 @@ class Trim:
         self.name = name
         self.dec = dec
         self.inc = inc
+        self.active_low = True
 
 def get_trim_switch(hw_defs, tag):
 
@@ -74,7 +78,10 @@ def get_trim_switch(hw_defs, tag):
     pin  = f'TRIMS_GPIO_PIN_{tag}'
 
     if (gpio in hw_defs) and (pin in hw_defs):
-        return Key(hw_defs[gpio], hw_defs[pin])
+        key = Key(hw_defs[gpio], hw_defs[pin])
+        if 'TRIMS_GPIO_ACTIVE_HIGH' in hw_defs:
+            key.active_low = False
+        return key
 
     return None
 
@@ -108,6 +115,8 @@ def parse_keys(hw_defs):
             key.key = k['key']
             key.name = name
             key.label = k['label']
+            if 'KEYS_GPIO_ACTIVE_HIGH' in hw_defs:
+                key.active_low = False
             keys.append(key)
 
     return keys

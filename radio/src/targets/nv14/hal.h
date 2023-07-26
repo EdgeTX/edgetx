@@ -97,17 +97,10 @@
 #define STORAGE_SWITCH_H
 
 // Index of all switches / trims
-#define KEYS_RCC_AHB1Periph             (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOJ)
-#define KEYS_GPIOB_PINS                 (GPIO_Pin_15)
-#define KEYS_GPIOC_PINS                 (GPIO_Pin_13)
-#define KEYS_GPIOD_PINS                 (GPIO_Pin_7)
-#define KEYS_GPIOG_PINS                 (GPIO_Pin_2 | GPIO_Pin_10 | GPIO_Pin_11)
-#define KEYS_GPIOH_PINS                 (GPIO_Pin_2 | GPIO_Pin_7)
-#define KEYS_GPIOJ_PINS                 (GPIO_Pin_0 | GPIO_Pin_12)
+#define KEYS_GPIO_ACTIVE_HIGH
+#define TRIMS_GPIO_ACTIVE_HIGH
 
 // ADC
-#define ADC_RCC_AHB1Periph              (RCC_AHB1Periph_DMA2)
-#define ADC_RCC_APB2Periph              0
 
 #define ADC_GPIO_PIN_STICK_LH
 #define ADC_GPIO_PIN_STICK_LV
@@ -117,9 +110,9 @@
 #define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_6      // PA.06 VRA
 #define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_4      // PC.04 VRB
 #define ADC_GPIO_PIN_SWA                LL_GPIO_PIN_1      // PB.01
-#define ADC_GPIO_PIN_SWB                LL_GPIO_PIN_8      // PF.08
+#define ADC_GPIO_PIN_SWB                LL_GPIO_PIN_10     // PF.10
 #define ADC_GPIO_PIN_SWC                LL_GPIO_PIN_0      // PB.00
-#define ADC_GPIO_PIN_SWD                LL_GPIO_PIN_10     // PF.10
+#define ADC_GPIO_PIN_SWD                LL_GPIO_PIN_8      // PF.08
 #define ADC_GPIO_PIN_SWE                LL_GPIO_PIN_0      // PC.00
 #define ADC_GPIO_PIN_SWF                LL_GPIO_PIN_1      // PC.01
 #define ADC_GPIO_PIN_SWG                LL_GPIO_PIN_2      // PC.02
@@ -143,9 +136,9 @@
 #define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_6   // ADC12_IN6  -> ADC1_IN6
 #define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_14  // ADC12_IN14 -> ADC1_IN14
 #define ADC_CHANNEL_SWA                 LL_ADC_CHANNEL_9   // ADC12_IN9  -> ADC1_IN9
-#define ADC_CHANNEL_SWB                 LL_ADC_CHANNEL_6   // ADC3_IN6   -> ADC3_IN6
+#define ADC_CHANNEL_SWB                 LL_ADC_CHANNEL_8   // ADC3_IN8   -> ADC3_IN8
 #define ADC_CHANNEL_SWC                 LL_ADC_CHANNEL_8   // ADC12_IN8  -> ADC1_IN8
-#define ADC_CHANNEL_SWD                 LL_ADC_CHANNEL_8   // ADC3_IN8   -> ADC3_IN8
+#define ADC_CHANNEL_SWD                 LL_ADC_CHANNEL_6   // ADC3_IN6   -> ADC3_IN6
 #define ADC_CHANNEL_SWE                 LL_ADC_CHANNEL_10  // ADC123_IN10-> ADC1_IN10
 #define ADC_CHANNEL_SWF                 LL_ADC_CHANNEL_11  // ADC123_IN11-> ADC1_IN11
 #define ADC_CHANNEL_SWG                 LL_ADC_CHANNEL_12  // ADC123_IN12-> ADC1_IN12
@@ -174,10 +167,10 @@
 
 #define ADC_DIRECTION                                                   \
     { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,           \
-      -1 /*POT1*/, 0 /*POT2*/, 0 /*SWA*/, 0 /*SWB*/, 0 /*SWC*/,         \
-      0 /*SWD*/, 0 /*SWE*/, -1 /*SWF*/,  -1 /*SWG*/, 0 /*SWH*/,         \
-      0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/                                   \
-      }
+      -1 /*POT1*/, 0 /*POT2*/, 0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/,		\
+      0 /*SWA*/, 0 /*SWB*/, 0 /*SWC*/, 0 /*SWD*/, 0 /*SWE*/,		\
+      -1 /*SWF*/,  -1 /*SWG*/, 0 /*SWH*/				\
+    }
 
 // Power
 #define PWR_RCC_AHB1Periph              RCC_AHB1Periph_GPIOI
@@ -198,7 +191,6 @@
 
 // Serial Port (DEBUG)
 // We will temporarily used the PPM and the HEARTBEAT PINS
-#define AUX_SERIAL_RCC_AHB1Periph       (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOE)
 #define AUX_SERIAL_GPIO                 GPIOC
 #define AUX_SERIAL_GPIO_PIN_TX          GPIO_Pin_6  // PC.06
 #define AUX_SERIAL_GPIO_PIN_RX          GPIO_Pin_7  // PC.07
@@ -407,10 +399,6 @@
 #define FLYSKY_HALL_SERIAL_TX_GPIO_PIN           LL_GPIO_PIN_0  // PA.00
 #define FLYSKY_HALL_SERIAL_RX_GPIO_PIN           LL_GPIO_PIN_1  // PA.01
 #define FLYSKY_HALL_SERIAL_GPIO_AF               LL_GPIO_AF_8
-
-#define FLYSKY_HALL_RCC_AHB1Periph               RCC_AHB1Periph_DMA1
-#define FLYSKY_HALL_RCC_APB1Periph               RCC_APB1Periph_UART4
-
 #define FLYSKY_HALL_SERIAL_USART_IRQHandler      UART4_IRQHandler
 #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
 #define FLYSKY_HALL_SERIAL_DMA                   DMA1

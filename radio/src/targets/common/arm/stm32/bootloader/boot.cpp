@@ -48,6 +48,10 @@
   #define BOOTLOADER_KEYS                 0x42
 #endif
 
+#if defined(RADIO_T20)
+  #define SECONDARY_BOOTLOADER_KEYS       0x1200
+#endif
+
 #define APP_START_ADDRESS               (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
 
 #if defined(EEPROM)
@@ -215,10 +219,8 @@ void writeEepromBlock()
 #if !defined(SIMU)
 void bootloaderInitApp()
 {
-  RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph | KEYS_RCC_AHB1Periph |
+  RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph |
                              LCD_RCC_AHB1Periph | BACKLIGHT_RCC_AHB1Periph |
-                             AUX_SERIAL_RCC_AHB1Periph |
-                             AUX2_SERIAL_RCC_AHB1Periph |
                              KEYS_BACKLIGHT_RCC_AHB1Periph | SD_RCC_AHB1Periph,
                          ENABLE);
 
@@ -266,8 +268,13 @@ void bootloaderInitApp()
   if ((~(KEYS_GPIO_REG_BIND->IDR) & KEYS_GPIO_PIN_BIND) == false) {
 #else
   // LHR & RHL trims not pressed simultanously
+#if defined(SECONDARY_BOOTLOADER_KEYS)
+  if (readTrims() != BOOTLOADER_KEYS && readTrims() != SECONDARY_BOOTLOADER_KEYS) {
+#else
   if (readTrims() != BOOTLOADER_KEYS) {
 #endif
+#endif
+    // TODO: deInit before restarting
     // Start main application
     jumpTo(APP_START_ADDRESS);
   }

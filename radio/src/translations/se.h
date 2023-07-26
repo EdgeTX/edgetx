@@ -284,6 +284,7 @@
 #define TR_WARN_5VOLTS                  "VARNING: Spänning ut är 5 volt"
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Brytare"
+#define TR_FUNCTION_SWITCHES            "Anpassningsbara brytare"
 #define TR_SF_SWITCH                    "Trigger"
 #define TR_TRIMS                        "Trimmar"
 #define TR_FADEIN                       "Tona in"
@@ -478,7 +479,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB     "KALIBRERADE ANALOGA"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RÅA ANALOGA (5Hz)"
 #define TR_MENUCALIBRATION              "KALIBRERING"
-#define TR_MENU_FSWITCH                 "FUNCTION SWITCHES"
+#define TR_MENU_FSWITCH                 "ANPASSNINGSBARA BRYTARE"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS              "[Spara trimvärden]"
 #else
@@ -859,7 +860,7 @@
 #define TR_DEBUG                        "Debug"
 #define TR_KEYS_BTN                     BUTTON(TR("Bryt.","Brytare"))
 #define TR_ANALOGS_BTN                  BUTTON(TR("Ana.","Analoga"))
-#define TR_FS_BTN                       BUTTON(TR("F. Switches", "Function switches"))
+#define TR_FS_BTN                       BUTTON(TR("Anp. bryt.", TR_FUNCTION_SWITCHES))
 #define TR_TOUCH_NOTFOUND               "Pekskärm hittas ej"
 #define TR_TOUCH_EXIT                   "Peka på skärmen för att avsluta"
 #define TR_SET                          BUTTON(TR("Def", "Ställ in"))
@@ -1146,6 +1147,7 @@
 #define TR_MENU_DISPLAY                 "DISPLAY"
 #define TR_MENU_OTHER                   "Övrigt"
 #define TR_MENU_INVERT                  "Invertera"
+#define TR_AUDIO_MUTE                   TR("Audio av","Audio av om inget ljud")
 #define TR_JITTER_FILTER                "ADC-filter"
 #define TR_DEAD_ZONE                    "Dödläge"
 #define TR_RTC_CHECK                    TR("Kolla RTC", "Kolla RTC-batteriet")

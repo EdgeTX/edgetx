@@ -4564,7 +4564,7 @@ You are currently using:
     </message>
     <message>
         <location filename="../modeledit/setup_function_switches.ui" line="47"/>
-        <source>Function Switches</source>
+        <source>Customizable Switches</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6101,6 +6101,11 @@ Are you sure ?</source>
     <message>
         <location filename="../generaledit/hardware.cpp" line="170"/>
         <source>ADC Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../generaledit/hardware.cpp" line="178"/>
+        <source>Mute if no sound</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10543,7 +10548,7 @@ This determines how mixer values are added.
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="968"/>
-        <source>Function Switches</source>
+        <source>Customizable Switches</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

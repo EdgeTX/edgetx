@@ -350,6 +350,7 @@
 #define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "מתג"
+#define TR_FUNCTION_SWITCHES           "מפסקים בהתאמה אישית"
 #define TR_SF_SWITCH                   "הדק"
 #define TR_TRIMS                       "קיזוזים"
 #define TR_FADEIN                      "Fade in"
@@ -534,7 +535,8 @@
 #define TR_MENU_RADIO_ANALOGS          TR("ANALOGS", "בדיקת אנלוגיות")
 #define TR_MENU_RADIO_ANALOGS_CALIB    "בדיקת אנלוגיות סטיקים ומגע"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGS (5 Hz)"
-#define TR_MENUCALIBRATION             "כיול"
+#define TR_MENUCALIBRATION              "כיול"
+#define TR_MENU_FSWITCH                 "מפסקים בהתאמה אישית"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "Trims => Subtrims"
 #else
@@ -919,6 +921,7 @@
 #define TR_DEBUG                       "איבחון"
 #define TR_KEYS_BTN                    BUTTON("בדיקת מתגים")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "בדיקת אנלוגיות"))
+#define TR_FS_BTN                      BUTTON(TR("Custom sw", TR_FUNCTION_SWITCHES))
 #define TR_TOUCH_NOTFOUND              "!מסך זה אינו מסך מגע"
 #define TR_TOUCH_EXIT                  "גע במסך כדי לצאת"
 #define TR_SET                         BUTTON("הגדר")
@@ -1185,6 +1188,7 @@
 #define TR_MENU_DISPLAY                "DISPLAY"
 #define TR_MENU_OTHER                  "Other"
 #define TR_MENU_INVERT                 "Invert"
+#define TR_AUDIO_MUTE                  TR("השתקת קול","השתק כאשר אין סאונד")
 #define TR_JITTER_FILTER               "ADC filter"
 #define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC voltage")

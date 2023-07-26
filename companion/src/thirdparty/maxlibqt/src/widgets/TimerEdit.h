@@ -86,7 +86,7 @@ class TimerEdit : public QLineEdit
 
 	protected:
 		void textEditedHandler();
-		void setupFormat();
+		virtual void setupFormat();
 		void emitValueChanged();
 		void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
 		void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE;

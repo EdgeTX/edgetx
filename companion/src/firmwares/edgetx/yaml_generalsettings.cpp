@@ -28,8 +28,11 @@
 #include "eeprominterface.h"
 #include "edgetxinterface.h"
 #include "version.h"
+#include "helpers.h"
 
 #include <QMessageBox>
+
+SemanticVersion radioSettingsVersion;
 
 const YamlLookupTable beeperModeLut = {
   {  GeneralSettings::BEEPER_QUIET, "mode_quiet" },
@@ -182,6 +185,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["hapticMode"] = rhs.hapticMode;
   node["stickMode"] = rhs.stickMode;
   node["timezone"] = rhs.timezone;
+  node["timezoneMinutes"] = rhs.timezoneMinutes;
   node["adjustRTC"] = (int)rhs.adjustRTC;
   node["inactivityTimer"] = rhs.inactivityTimer;
 
@@ -210,6 +214,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["countryCode"] = rhs.countryCode;
   node["noJitterFilter"] = (int)rhs.noJitterFilter;
   node["disableRtcWarning"] = (int)rhs.rtcCheckDisable;  // TODO: verify
+  node["audioMuteEnable"] = (int)rhs.muteIfNoSound;
   node["keysBacklight"] = (int)rhs.keysBacklight;
   node["rotEncMode"] = (int)rhs.rotEncMode;
   node["imperial"] = rhs.imperial;
@@ -260,6 +265,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
     node["switchConfig"] = switchConfig;
   }
 
+  // combine pots and sliders into potsConfig
   Node potsConfig;
   potsConfig = YamlPotConfig(rhs.potName, rhs.potConfig);
   if (potsConfig && potsConfig.IsMap()) {
@@ -313,7 +319,29 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   //   qDebug() << QString::fromStdString(n.first.Scalar());
   // }
 
-  node["semver"] >> rhs.semver;
+  radioSettingsVersion = SemanticVersion();
+
+  if (node["semver"]) {
+    node["semver"] >> rhs.semver;
+    if (SemanticVersion().isValid(rhs.semver)) {
+      radioSettingsVersion = SemanticVersion(QString(rhs.semver));
+    }
+    else {
+      qDebug() << "Invalid settings version:" << rhs.semver;
+      memset(rhs.semver, 0, sizeof(rhs.semver));
+    }
+  }
+
+  qDebug() << "Settings version:" << radioSettingsVersion.toString();
+
+  if (radioSettingsVersion > SemanticVersion(VERSION)) {
+    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Warning: Radio settings file version %1 is not supported by this version of Companion!\n\nModel and radio settings may be corrupted if you continue.\n\nI acknowledge and accept the consequences.");
+    if (QMessageBox::warning(NULL, CPN_STR_APP_NAME, prmpt.arg(radioSettingsVersion.toString()), (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) != QMessageBox::Yes) {
+      //  TODO: this triggers an error in the calling code so we need a graceful way to handle
+      return false;
+    }
+  }
+
   rhs.version = CPN_CURRENT_SETTINGS_VERSION; // depreciated in EdgeTX however data conversions use
 
   // Decoding uses profile firmare therefore all conversions are performed on the fly
@@ -389,6 +417,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["hapticMode"] >> rhs.hapticMode;
   node["stickMode"] >> rhs.stickMode;
   node["timezone"] >> rhs.timezone;
+  node["timezoneMinutes"] >> rhs.timezoneMinutes;
   node["adjustRTC"] >> rhs.adjustRTC;
   node["inactivityTimer"] >> rhs.inactivityTimer;
 
@@ -428,6 +457,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["jitterFilter"] >> rhs.noJitterFilter;   // PR1363 : read old name and
   node["noJitterFilter"] >> rhs.noJitterFilter; // new, but don't write old
   node["disableRtcWarning"] >> rhs.rtcCheckDisable;  // TODO: verify
+  node["audioMuteEnable"] >> rhs.muteIfNoSound;
   node["keysBacklight"] >> rhs.keysBacklight;
   node["rotEncDirection"] >> rhs.rotEncMode;    // PR2045: read old name and
   node["rotEncMode"] >> rhs.rotEncMode;         // new, but don't write old

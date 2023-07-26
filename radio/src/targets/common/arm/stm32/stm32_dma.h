@@ -47,3 +47,5 @@ inline static bool stm32_dma_check_tc_flag(DMA_TypeDef* DMAx, uint32_t DMA_Strea
 
   return true;
 }
+
+void stm32_dma_enable_clock(DMA_TypeDef* DMAx);

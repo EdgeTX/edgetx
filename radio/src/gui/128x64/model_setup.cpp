@@ -132,7 +132,9 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_INTERNAL_MODULE_OPTIONS,
 #if defined(MULTIMODULE)
   ITEM_MODEL_SETUP_INTERNAL_MODULE_AUTOBIND,
+#if defined(MANUFACTURER_FRSKY)
   ITEM_MODEL_SETUP_INTERNAL_MODULE_DISABLE_TELEM,
+#endif
   ITEM_MODEL_SETUP_INTERNAL_MODULE_DISABLE_MAPPING,
 #endif
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
@@ -176,7 +178,9 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_OPTIONS,
 #if defined(MULTIMODULE)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_AUTOBIND,
+#if defined(MANUFACTURER_FRSKY)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_DISABLE_TELEM,
+#endif
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_DISABLE_MAPPING,
 #endif
 
@@ -230,6 +234,7 @@ PACK(struct ExpandState {
   uint8_t preflight:1;
   uint8_t throttle:1;
   uint8_t viewOpt:1;
+  uint8_t functionSwitches:1;
 });
 
 struct ExpandState expandState;
@@ -244,6 +249,13 @@ uint8_t PREFLIGHT_ROW(uint8_t value)
 uint8_t THROTTLE_ROW(uint8_t value)
 {
   if (expandState.throttle)
+    return value;
+  return HIDDEN_ROW;
+}
+
+uint8_t FS_ROW(uint8_t value)
+{
+  if (expandState.functionSwitches)
     return value;
   return HIDDEN_ROW;
 }
@@ -341,7 +353,14 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
 #define EXTRA_MODULE_ROWS
 
 #if defined(FUNCTION_SWITCHES)
-  #define FUNCTION_SWITCHES_ROWS       READONLY_ROW, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|3, NAVIGATION_LINE_BY_LINE|(NUM_FUNCTIONS_SWITCHES-1),
+  #define FUNCTION_SWITCHES_ROWS        1,                       \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|(NUM_FUNCTIONS_SWITCHES-1)),
 #else
   #define FUNCTION_SWITCHES_ROWS
 #endif
@@ -536,17 +555,6 @@ uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr,
 {
   lcdDrawText(INDENT_WIDTH-1, y, title);
   return editChoice(96, y, nullptr, STR_ADCFILTERVALUES, value, 0, 2, attr, event);
-}
-
-uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
-{
-  lcdDrawTextAlignedLeft(y, title);
-  lcdDrawText(120, y, value ? STR_CHAR_UP : STR_CHAR_DOWN, attr);
-  if (attr && (event == EVT_KEY_BREAK(KEY_ENTER))) {
-    value = !value;
-    s_editMode = 0;
-  }
-  return value;
 }
 
 void menuModelSetup(event_t event)
@@ -779,7 +787,7 @@ void menuModelSetup(event_t event)
 #if defined(FUNCTION_SWITCHES)
 
       case ITEM_MODEL_SETUP_LABEL:
-        lcdDrawTextAlignedLeft(y, "Function Switches");
+        expandState.functionSwitches = expandableSection(y, STR_FUNCTION_SWITCHES, expandState.functionSwitches, attr, event);
         break;
 
       case ITEM_MODEL_SETUP_SW1:
@@ -1076,9 +1084,14 @@ void menuModelSetup(event_t event)
                   (g_model.potsWarnEnabled & (1 << i))) {
                 flags |= INVERS;
               }
-
-              lcdDrawText(x, y, getPotLabel(i), flags);
-              x = lcdNextPos+3;
+              if (max_pots > 3) {
+                lcdDrawText(x, y, getAnalogShortLabel(adcGetInputOffset(ADC_INPUT_POT) + i), flags);
+                x = lcdNextPos + 1;
+              }
+              else {
+                lcdDrawText(x, y, getPotLabel(i), flags);
+                x = lcdNextPos + 3;
+              }
             }
           }
         }
@@ -1092,7 +1105,7 @@ void menuModelSetup(event_t event)
           LcdFlags flags = 0;
           if ((menuHorizontalPosition == i) && attr)
             flags = BLINK | INVERS;
-          else if (ANALOG_CENTER_BEEP(x) || (attr && CURSOR_ON_LINE()))
+          else if (ANALOG_CENTER_BEEP(i) || (attr && CURSOR_ON_LINE()))
             flags = INVERS;
           lcdDrawText(x, y, getAnalogShortLabel(i), flags);
         }
@@ -2070,14 +2083,13 @@ void menuModelSetup(event_t event)
         }
         break;
 
-#if defined(HARDWARE_INTERNAL_MODULE)
+#if defined(MANUFACTURER_FRSKY)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_DISABLE_TELEM:
-#endif
-#if defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DISABLE_TELEM:
-#endif
+
         g_model.moduleData[moduleIdx].multi.disableTelemetry = editCheckBox(g_model.moduleData[moduleIdx].multi.disableTelemetry, MODEL_SETUP_2ND_COLUMN, y, INDENT TR_DISABLE_TELEM, attr, event);
         break;
+#endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_DISABLE_MAPPING:

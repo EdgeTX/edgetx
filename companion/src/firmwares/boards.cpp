@@ -561,6 +561,11 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case HasExternalModuleSupport:
       return (IS_STM32(board) && !IS_RADIOMASTER_T8(board));
 
+    case HasAudioMuteGPIO:
+      // All color lcd (including NV14) except Horus X12S
+      // TX12, TX12MK2, ZORRO, BOXER, T8, TLITE, TPRO, LR3PRO, COMMANDO8
+      return (IS_FAMILY_HORUS_OR_T16(board) && !IS_HORUS_X12S(board)) || IS_FAMILY_T12(board);
+
     case SportMaxBaudRate:
       if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_TARANIS_X7_ACCESS(board) ||
          (IS_TARANIS(board) && !IS_TARANIS_XLITE(board) && !IS_TARANIS_X7(board) && !IS_TARANIS_X9LITE(board)))
@@ -764,6 +769,9 @@ QString Boards::getBoardName(Board::Type board)
       return "BETAFPV LR3PRO";
     case BOARD_IFLIGHT_COMMANDO8:
       return "iFlight Commando 8";
+    // not supported yet
+    //case BOARD_FLYSKY_EL18:
+    //  return "FlySky EL18";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -988,4 +996,58 @@ int Boards::getDefaultInternalModules(Board::Type board)
   default:
     return (int)MODULE_TYPE_NONE;
   }
+}
+
+// static
+int Boards::getDefaultExternalModuleSize(Board::Type board)
+{
+  if (!getCapability(board, HasExternalModuleSupport))
+    return EXTMODSIZE_NONE;
+
+  if (getCapability(board, HasColorLcd)) {
+    if (IS_FLYSKY_EL18(board))
+      return EXTMODSIZE_BOTH;
+    else
+      return EXTMODSIZE_STD;
+  }
+
+  if (IS_TARANIS_X9LITE(board)    ||
+      IS_RADIOMASTER_ZORRO(board) ||
+      IS_JUMPER_TLITE(board)      ||
+      IS_JUMPER_TPRO(board)       ||
+      IS_BETAFPV_LR3PRO(board))
+    return EXTMODSIZE_SMALL;
+
+  return EXTMODSIZE_STD;
+}
+
+//  static
+QString Boards::externalModuleSizeToString(int value)
+{
+  switch(value) {
+    case EXTMODSIZE_NONE:
+      return tr("None");
+    case EXTMODSIZE_STD:
+      return tr("Standard");
+    case EXTMODSIZE_SMALL:
+      return tr("Small");
+    case EXTMODSIZE_BOTH:
+      return tr("Both");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * Boards::externalModuleSizeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_BOARDS_MODULE_SIZE);
+
+  for (int i = 0; i < EXTMODSIZE_COUNT; i++) {
+    mdl->appendToItemList(externalModuleSizeToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
 }
