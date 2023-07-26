@@ -511,6 +511,7 @@ void flightReset(uint8_t check=true);
 
 void checkLowEEPROM();
 void checkThrottleStick();
+void checkCustomWarning();
 void checkSwitches();
 void checkAlarm();
 void checkAll();

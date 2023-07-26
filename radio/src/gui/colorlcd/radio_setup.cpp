@@ -430,6 +430,16 @@ class AlarmsPage : public SubPage {
       new CheckBox(line, rect_t{},
                    GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
       line = body.newLine(&grid);
+	  
+	  // Custom warning
+      new StaticText(line, rect_t{}, TR_CUSTOM_ALARM, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.customWarningEnable));
+      line = body.newLine(&grid);
+
+      // Custom warning title
+      new StaticText(line, rect_t{}, TR_CUSTOM_ALARM_TITLE, 0, COLOR_THEME_PRIMARY1);
+      new RadioTextEdit(line, rect_t{}, g_eeGeneral.customWarningTitle, CUSTOM_WARNING_TITLE_LEN);
+      line = body.newLine(&grid);
     }
 };
 

@@ -343,6 +343,8 @@
 #define TR_MEMORYWARNING       "Pełna pamięć"
 #define TR_ALARMWARNING        "Wyłącz dźwięk"
 #define TR_RSSI_SHUTDOWN_ALARM   TR("Rssi Shutdown", "Check Rssi on Shutdown")
+#define TR_CUSTOM_ALARM_TITLE  "Własny-Tytuł"
+#define TR_CUSTOM_ALARM        "Własny"
 #define TR_MODEL_STILL_POWERED "Model jest włączony"
 #define TR_USB_STILL_CONNECTED         "USB jest podłączone"
 #define TR_MODEL_SHUTDOWN              "Wyłączyć?"
