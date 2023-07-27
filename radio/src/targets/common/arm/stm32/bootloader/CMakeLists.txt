@@ -1,6 +1,9 @@
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
+AddHardwareDefTarget(${HW_DESC_JSON})
+AddHWGenTarget(${HW_DESC_JSON} hal_keys hal_keys.inc)
+
 set(BOOTLOADER_SRC
   ${BOOTLOADER_SRC}
   ../../../../../gui/${GUI_DIR}/lcd.cpp
@@ -22,11 +25,12 @@ set(BOOTLOADER_SRC
   ../../../../../${FATFS_DIR}/ffunicode.c
   ../../../../../targets/${TARGET_DIR}/${LCD_DRIVER}
   ../../../../../targets/${TARGET_DIR}/backlight_driver.cpp
-  #../../../../../targets/${TARGET_DIR}/keys_driver.cpp
   ../../../../../targets/${TARGET_DIR}/diskio.cpp
   ../../../../../targets/${TARGET_DIR}/board.cpp
-  ../pwr_driver.cpp
   ../../../../../targets/${TARGET_DIR}/bootloader/boot_menu.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/hal_keys.inc
+  ../../../../../hal/key_driver.cpp
+  ../pwr_driver.cpp
   ../usbd_usr.cpp
   ../usbd_storage_msd.cpp
   ../delays_driver.cpp
@@ -134,6 +138,10 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
 
 add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})
 add_dependencies(bootloader ${BITMAPS_TARGET})
+
+target_include_directories(bootloader
+  PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 add_custom_command(
   TARGET bootloader POST_BUILD

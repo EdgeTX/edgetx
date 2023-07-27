@@ -808,7 +808,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_THROTTLE_TRIM_SWITCH:
         lcdDrawTextAlignedLeft(y, STR_TTRIM_SW);
         if (attr)
-          CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTrimSw, MAX_TRIMS - 1);
+          CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTrimSw, keysGetMaxTrims() - 1);
         drawSource(MODEL_SETUP_2ND_COLUMN, y, g_model.getThrottleStickTrimSource(), attr);
         break;
 

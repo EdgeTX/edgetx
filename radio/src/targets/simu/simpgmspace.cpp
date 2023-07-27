@@ -479,7 +479,7 @@ uint32_t readTrims()
 {
   uint32_t result = 0;
 
-  for (int i = 0; i < MAX_TRIMS * 2; i++) {
+  for (int i = 0; i < keysGetMaxTrims() * 2; i++) {
     if (trimsStates[i]) {
       // TRACE("trim pressed %d", i);
       result |= 1 << i;
