@@ -23,6 +23,7 @@
 #include <yaml-cpp/yaml.h>
 #include <algorithm>
 #include <QString>
+#include "helpers.h"
 
 typedef std::pair<int, std::string> YamlLookupTableElmt;
 typedef std::vector<YamlLookupTableElmt> YamlLookupTable;
@@ -171,3 +172,6 @@ struct convert_enum
       return convert_enum<enum_type>::decode(node, lut, rhs);   \
     }                                                          \
   }
+
+extern SemanticVersion radioSettingsVersion;
+extern SemanticVersion modelSettingsVersion;

@@ -20,6 +20,9 @@
 
 #include "yaml_ops.h"
 
+SemanticVersion radioSettingsVersion;
+SemanticVersion modelSettingsVersion;
+
 YAML::Node operator >> (const YAML::Node& node, const YamlLookupTable& lut)
 {
   if (node && node.IsScalar()) {

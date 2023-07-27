@@ -32,8 +32,6 @@
 
 #include <QMessageBox>
 
-SemanticVersion radioSettingsVersion;
-
 const YamlLookupTable beeperModeLut = {
   {  GeneralSettings::BEEPER_QUIET, "mode_quiet" },
   {  GeneralSettings::BEEPER_ALARMS_ONLY, "mode_alarms" },
