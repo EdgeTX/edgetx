@@ -75,6 +75,30 @@ class MixerTest : public OpenTxTest {};
 #define MIXSRC_CYC2    (MIXSRC_FIRST_HELI + 1)
 #define MIXSRC_CYC3    (MIXSRC_FIRST_HELI + 2)
 
+TEST_F(MixerTest, throttleInvert)
+{
+  // Mode 1 / reversed
+  g_eeGeneral.stickMode = 0;
+  g_model.throttleReversed = 1;
+  anaSetFiltered(inputMappingConvertMode(THR_STICK), -1024);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[2], +1024);
+
+  // Mode 2 / reversed
+  g_eeGeneral.stickMode = 1;
+  g_model.throttleReversed = 1;
+  anaSetFiltered(inputMappingConvertMode(THR_STICK), -1024);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[2], +1024);
+
+  // Mode 2 / normal
+  g_eeGeneral.stickMode = 1;
+  g_model.throttleReversed = 0;
+  anaSetFiltered(inputMappingConvertMode(THR_STICK), -1024);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[2], -1024);
+}
+
 TEST_F(TrimsTest, throttleTrim)
 {
   g_model.thrTrim = 1;
