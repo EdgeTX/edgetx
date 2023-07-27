@@ -19,11 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "flysky_settings.h"
-#include "opentx.h"
-
-#if defined(AFHDS3)
+#include "afhds3_settings.h"
 #include "afhds3_options.h"
+#include "opentx.h"
 
 static const char* _afhds3_region[] = { "CE", "FCC" };
 
@@ -36,7 +34,6 @@ static const char* _afhds3_phy_mode[] = {
   "Fast 8ch",
   "Lora 12ch",
 };
-#endif
 
 #include "pulses/flysky.h"
 #include "pulses/afhds3.h"
@@ -44,44 +41,7 @@ static const char* _afhds3_phy_mode[] = {
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-class FSProtoOpts : public FormWindow
-{
-  std::function<uint8_t()> _getMode;
-  std::function<void(uint8_t)> _setMode;
-  
-public:
-  FSProtoOpts(Window* parent, std::function<uint8_t()> getMode,
-              std::function<void(uint8_t)> setMode);
-};
-
-FSProtoOpts::FSProtoOpts(Window* parent, std::function<uint8_t()> getMode,
-                         std::function<void(uint8_t)> setMode) :
-  FormWindow(parent, rect_t{}),
-  _getMode(std::move(getMode)),
-  _setMode(std::move(setMode))
-{
-  setFlexLayout(LV_FLEX_FLOW_ROW);
-
-  // PPM / PWM
-  new Choice(
-      this, rect_t{}, STR_FLYSKY_PULSE_PROTO, 0, 1,
-      [=]() -> int { return _getMode() >> 1; },
-      [=](int v) {
-        _setMode((_getMode() & 1) | ((v & 1) << 1));
-        SET_DIRTY();
-      });
-
-  // SBUS / iBUS
-  new Choice(
-      this, rect_t{}, STR_FLYSKY_SERIAL_PROTO, 0, 1,
-      [=]() -> int { return _getMode() & 1; },
-      [=](int v) {
-        _setMode((_getMode() & 2) | (v & 1));
-        SET_DIRTY();
-      });
-}
-
-FlySkySettings::FlySkySettings(Window* parent, const FlexGridLayout& g,
+AFHDS3Settings::AFHDS3Settings(Window* parent, const FlexGridLayout& g,
                                uint8_t moduleIdx) :
     FormWindow(parent, rect_t{}),
     moduleIdx(moduleIdx),
@@ -92,33 +52,6 @@ FlySkySettings::FlySkySettings(Window* parent, const FlexGridLayout& g,
 
   FormWindow::Line* line;
 
-#if defined(AFHDS2)
-  // RX options:
-  line = newLine(&grid);
-  afhds2OptionsLabel = new StaticText(line, rect_t{}, STR_OPTIONS, 0, COLOR_THEME_PRIMARY1);
-
-  afhds2ProtoOpts = new FSProtoOpts(
-                                    line, [=]() { return md->flysky.mode; },
-                                    [=](uint8_t v) { md->flysky.mode = v; });
-
-#if defined(PCBNV14)
-  if (getNV14RfFwVersion() >= 0x1000E) {
-    line = newLine(&grid);
-    static const char* _rf_power[] = {"Default", "High"};
-    afhds2RFPowerText = new StaticText(line, rect_t{}, STR_MULTI_RFPOWER);
-    afhds2RFPowerChoice = new Choice(line, rect_t{}, _rf_power, 0, 1,
-                                     GET_DEFAULT(md->flysky.rfPower),
-                                     [=](int32_t newValue) -> void {
-                                       md->flysky.rfPower = newValue;
-                                       resetPulsesAFHDS2();
-                                     });
-#endif
-  }
-
-  hideAFHDS2Options();
-#endif
-
-#if defined(AFHDS3)
   // Status
   line = newLine(&grid);
   afhds3StatusLabel = new StaticText(line, rect_t{}, STR_MODULE_STATUS, 0, COLOR_THEME_PRIMARY1);
@@ -164,40 +97,9 @@ FlySkySettings::FlySkySettings(Window* parent, const FlexGridLayout& g,
   }
 
   hideAFHDS3Options();
-#endif
 }
 
-#if defined(AFHDS2)
-void FlySkySettings::hideAFHDS2Options()
-{
-  lv_obj_add_flag(afhds2OptionsLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  lv_obj_add_flag(afhds2ProtoOpts->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-#if defined(PCBNV14)
-  if (afhds2RFPowerText != nullptr)
-    lv_obj_add_flag(afhds2RFPowerText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  if (afhds2RFPowerChoice != nullptr)
-    lv_obj_add_flag(afhds2RFPowerChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-#endif
-}
-
-void FlySkySettings::showAFHDS2Options()
-{
-  lv_obj_clear_flag(afhds2OptionsLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  lv_obj_clear_flag(afhds2ProtoOpts->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-#if defined(PCBNV14)
-  if (afhds2RFPowerText != nullptr)
-    lv_obj_clear_flag(afhds2RFPowerText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  if (afhds2RFPowerChoice != nullptr)
-  {
-    lv_obj_clear_flag(afhds2RFPowerChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    lv_event_send(afhds2RFPowerChoice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
-  }
-#endif
-}
-#endif
-
-#if defined(AFHDS3)
-void FlySkySettings::hideAFHDS3Options()
+void AFHDS3Settings::hideAFHDS3Options()
 {
   lv_obj_add_flag(afhds3StatusLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   lv_obj_add_flag(afhds3StatusText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
@@ -205,7 +107,7 @@ void FlySkySettings::hideAFHDS3Options()
   lv_obj_add_flag(afhds3TypeForm->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 }
 
-void FlySkySettings::showAFHDS3Options()
+void AFHDS3Settings::showAFHDS3Options()
 {
   lv_obj_clear_flag(afhds3StatusLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   lv_obj_clear_flag(afhds3StatusText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
@@ -228,33 +130,21 @@ void FlySkySettings::showAFHDS3Options()
     lv_obj_clear_state(afhds3Emi->getLvObj(), LV_STATE_DISABLED);
   }
 }
-#endif
 
-void FlySkySettings::checkEvents() {
-#if defined(AFHDS3)
+void AFHDS3Settings::checkEvents() {
   if (afhds3::getConfig(moduleIdx)->others.lastUpdated > lastRefresh) {
     update();
   }
-#endif
   FormWindow::checkEvents();
 }
 
-void FlySkySettings::update()
+void AFHDS3Settings::update()
 {
   lastRefresh = get_tmr10ms();
-#if defined(AFHDS2)
-  if (isModuleAFHDS2A(moduleIdx)) {
-    showAFHDS2Options();
-  } else {
-    hideAFHDS2Options();
-  }
-#endif
 
-#if defined(AFHDS3)
   if (isModuleAFHDS3(moduleIdx)) {
     showAFHDS3Options();
   } else {
     hideAFHDS3Options();
   }
-#endif
 }

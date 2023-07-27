@@ -138,11 +138,13 @@ if(CROSSFIRE)
   add_gui_src(crossfire_settings.cpp)
 endif()
 
-if(AFHDS2 OR AFHDS3)
-  add_gui_src(flysky_settings.cpp)
-  if(AFHDS3)
-    add_gui_src(afhds3_options.cpp)
-  endif()
+if(AFHDS2)
+  add_gui_src(afhds2a_settings.cpp)
+endif()
+
+if(AFHDS3)
+  add_gui_src(afhds3_settings.cpp)
+  add_gui_src(afhds3_options.cpp)
 endif()
 
 if(MULTIMODULE)
