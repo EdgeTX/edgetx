@@ -331,6 +331,8 @@
   #define TRIMS_GPIO_PIN_LVU            LL_GPIO_PIN_0  // PB.00
   #define TRIMS_GPIO_REG_LVD            GPIOB
   #define TRIMS_GPIO_PIN_LVD            LL_GPIO_PIN_1  // PB.01
+  #define TRIMS_VIRTUAL_RV
+  #define TRIMS_VIRTUAL_RH
 #elif defined(RADIO_X7ACCESS)
   #define TRIMS_GPIO_REG_LHR            GPIOD
   #define TRIMS_GPIO_PIN_LHR            LL_GPIO_PIN_15 // PD.15
