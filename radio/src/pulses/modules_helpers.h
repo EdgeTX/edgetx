@@ -398,13 +398,6 @@ inline bool isModuleSBUS(uint8_t moduleIdx)
   return g_model.moduleData[moduleIdx].type == MODULE_TYPE_SBUS;
 }
 
-inline bool isModuleFlySky(uint8_t idx)
-{
-  auto type = g_model.moduleData[idx].type;
-  return (type == MODULE_TYPE_FLYSKY_AFHDS2A ||
-	  type == MODULE_TYPE_FLYSKY_AFHDS3);
-}
-
 inline bool isModuleAFHDS2A(uint8_t idx)
 {
   return (g_model.moduleData[idx].type == MODULE_TYPE_FLYSKY_AFHDS2A);
@@ -413,6 +406,11 @@ inline bool isModuleAFHDS2A(uint8_t idx)
 inline bool isModuleAFHDS3(uint8_t idx)
 {
   return (g_model.moduleData[idx].type == MODULE_TYPE_FLYSKY_AFHDS3);
+}
+
+inline bool isModuleFlySky(uint8_t idx)
+{
+  return (isModuleAFHDS2A(idx) || isModuleAFHDS3(idx));
 }
 
 inline bool isModuleDSMP(uint8_t idx)
