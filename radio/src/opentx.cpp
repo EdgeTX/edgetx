@@ -349,6 +349,10 @@ void generalDefault()
   g_eeGeneral.rotEncMode = ROTARY_ENCODER_MODE_INVERT_BOTH;
 #endif
 
+#if defined(MANUFACTURER_RADIOMASTER)
+  g_eeGeneral.audioMuteEnable = 1;
+#endif
+
   g_eeGeneral.chkSum = 0xFFFF;
 }
 
