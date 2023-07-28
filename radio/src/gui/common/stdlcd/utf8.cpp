@@ -28,6 +28,26 @@
 static wchar_t _utf8_lut[] = {
   L'é', L'è', L'à', L'î', L'ç',
 };
+
+#if !defined(COLORLCD)
+#define UTF8_SUBS_LUT
+static wchar_t _utf8_substitution_lut[] = {
+    L'Â', L'A',
+    L'À', L'A',
+    L'Ê', L'E',
+    L'É', L'E',
+    L'È', L'E',
+/* Existing but virtually unsused
+    L'Ä', L'A',
+    L'Ë', L'E',
+    L'Ï', L'I',
+    L'Ö', L'O',
+    L'Ü', L'U',
+    L'Û', L'U',
+    L'Ù', L'U',
+ */
+};
+#endif
 #elif defined(TRANSLATIONS_DA)
 static wchar_t _utf8_lut[] = {
   L'å', L'æ', L'ø', L'Å', L'Æ', L'Ø',
@@ -38,10 +58,24 @@ static wchar_t _utf8_lut[] = {
 };
 #elif defined(TRANSLATIONS_CZ)
 static wchar_t _utf8_lut[] = {
-  L'á', L'č', L'é', L'ě', L'í', L'ó', L'ř',
-  L'š', L'ú', L'ů', L'ý', L'Í', L'Ř', L'Ý',
-  L'ž', L'É',
+    L'á', L'č', L'é', L'ě', L'í', L'ó', L'ř',
+    L'š', L'ú', L'ů', L'ý', L'Á', L'Í', L'Ř',
+    L'Ý', L'ž', L'É', L'ň',
 };
+
+#if !defined(COLORLCD)
+#define UTF8_SUBS_LUT
+static wchar_t _utf8_substitution_lut[] = {
+    L'Ě', L'ě',
+    L'Š', L'š',
+    L'Č', L'č',
+    L'Ž', L'ž',
+    L'Ú', L'ú',
+    L'Ů', L'ů',
+    L'Ó', L'ó',
+    L'Ň', L'ň',
+};
+#endif
 #elif defined(TRANSLATIONS_ES)
 static wchar_t _utf8_lut[] = {
   L'Ñ', L'ñ', L'Á', L'á', L'É', L'é', L'Í',
@@ -80,6 +114,17 @@ static unsigned char lookup_utf8_mapping(wchar_t w)
 }
 #endif
 
+#if defined(UTF8_SUBS_LUT)
+static wchar_t lookup_utf8_substitution(wchar_t w)
+{
+  for (uint32_t i=0; i < DIM(_utf8_substitution_lut); i+=2) {
+    if (w == _utf8_substitution_lut[i])
+      return _utf8_substitution_lut[i+1];
+  }
+  return w;
+}
+#endif
+
 unsigned char map_utf8_char(const char*& s, uint8_t& len)
 {
   uint8_t c = *s;
@@ -107,7 +152,12 @@ unsigned char map_utf8_char(const char*& s, uint8_t& len)
       return STR_CHAR_BW_GREATEREQUAL;
     if(w == L'°')
       return STR_CHAR_BW_DEGREE;
-#if !defined(NO_UTF8_LUT)
+#if defined(UTF8_SUBS_LUT)
+    auto w_map = lookup_utf8_substitution(w);
+    if (w_map> 0x95)
+      w_map = lookup_utf8_mapping(w_map);
+    return w_map;
+#elif !defined(NO_UTF8_LUT)
     return lookup_utf8_mapping(w);
 #else
     return 0x20;
