@@ -260,6 +260,8 @@ class SemanticVersion
     QString toString() const;
     unsigned int toInt() const;
     bool fromInt(const unsigned int val);
+    bool isEmpty(const QString vers);
+    bool isEmpty();
 
     SemanticVersion& operator=(const SemanticVersion& rhs);
 

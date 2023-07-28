@@ -30,9 +30,12 @@ YamlCalibData::YamlCalibData(const int* calibMid, const int* calibSpanNeg,
                              const int* calibSpanPos)
 {
   for (int i = 0; i < CPN_MAX_ANALOGS; i++) {
-    calib[i].mid = calibMid[i];
-    calib[i].spanNeg = calibSpanNeg[i];
-    calib[i].spanPos = calibSpanPos[i];
+    int seq = getCurrentFirmware()->getAnalogInputSeqADC(i);
+    if (seq >=0 && seq < CPN_MAX_ANALOGS) {
+      calib[seq].mid = calibMid[i];
+      calib[seq].spanNeg = calibSpanNeg[i];
+      calib[seq].spanPos = calibSpanPos[i];
+    }
   }
 }
 
@@ -96,10 +99,15 @@ bool convert<YamlCalibData>::decode(const Node& node, YamlCalibData& rhs)
   for (const auto& kv : node) {
     std::string tag;
     kv.first >> tag;
-    int idx = getCurrentFirmware()->getAnalogInputIndex(tag.c_str());
-    if (idx >= 0) {
+    int idx = 0;
+
+    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
+      idx = getCurrentFirmware()->getAnalogInputIndex(tag.c_str());
+    else
+      idx = getCurrentFirmware()->getAnalogInputIndexADC(tag.c_str());
+
+    if (idx >= 0)
       kv.second >> rhs.calib[idx];
-    }
   }
   return true;
 }

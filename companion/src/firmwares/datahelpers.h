@@ -31,11 +31,11 @@ struct StringTagMapping {
 
   StringTagMapping() = default;
   StringTagMapping(const char* name) :
-      name(name), tag(name)
+      name(name), tag(name), seq(0)
   {
   }
   StringTagMapping(const std::string& name) :
-      name(name), tag(name)
+      name(name), tag(name), seq(0)
   {
   }
   StringTagMapping(const char* name, const char* tag, const unsigned int seq = 0) :
