@@ -54,7 +54,7 @@
 
 #define TR_AUX_SERIAL_MODES            "POIS","S-Port Pelik","Telemetry In","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse","External module"
 #define TR_SWTYPES                     "None","Toggle","2POS","3POS"
-#define TR_POTTYPES                    "None", TR("Pot w. det","Pot with detent"),TR("Multipos","Monias. Kytkin"),TR("Pot","Potikka"),"Slider"
+#define TR_POTTYPES                    "None",TR("Pot","Potikka"),TR("Pot w. det","Pot with detent"),"Slider",TR("Multipos","Monias. Kytkin"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                 "OFF","Flight","Manual Reset"
 #define TR_COUNTRY_CODES               TR("US","Amerikk"),TR("JP","Japani"),TR("EU","Euroopp")
 #define TR_USBMODES                    "Kysy",TR("Joyst","Joystick"),TR("SDCard","Storage"),"Serial"

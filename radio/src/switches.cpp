@@ -171,6 +171,8 @@ void evalFunctionSwitches()
     }
   }
 }
+#else
+uint8_t getFSLogicalState(uint8_t) { return false; }
 #endif // FUNCTION_SWITCHES
 
 div_t switchInfo(int switchPosition)
@@ -196,15 +198,12 @@ int switchLookupIdx(char c)
 
 int switchLookupIdx(const char* name, size_t len)
 {
-  if (len < 2 || name[0] != 'S') return -1;
-
-  uint8_t idx = 1; // Sx
-  if (len > 2) idx = 2; // SWx
+  if (len < 2 || (name[0] != 'S' && name[0] != 'F')) return -1;
 
   auto max_switches = switchGetMaxSwitches() + switchGetMaxFctSwitches();
   for (int i = 0; i < max_switches; i++) {
-    const char *sw_name = switchGetName(i);
-    if (sw_name[idx] == name[idx]) return i;
+    const char *sw_name = switchGetCanonicalName(i);
+    if (strncmp(sw_name, name, len) == 0) return i;
   }
 
   return -1;  
@@ -244,9 +243,6 @@ bool switchHasCustomName(uint8_t idx)
 
 const char* switchGetCanonicalName(uint8_t idx)
 {
-  if (idx >= switchGetMaxSwitches() + switchGetMaxFctSwitches())
-    return nullptr;
-
   return switchGetName(idx);
 }
 
@@ -314,8 +310,8 @@ void getSwitchesPosition(bool startup)
   
   switchesPos = newPos;
 
-  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
-  auto offset = adcGetInputOffset(ADC_INPUT_POT);
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
+  auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
 
   for (int i = 0; i < max_pots; i++) {
     if (IS_POT_MULTIPOS(i)) {
@@ -343,6 +339,30 @@ void getSwitchesPosition(bool startup)
       }
     }
   }
+}
+
+uint8_t getSwitchCount()
+{
+  int count = 0;
+  for (int i = 0; i < switchGetMaxSwitches(); ++i) {
+    if (SWITCH_EXISTS(i)) {
+      ++count;
+    }
+  }
+  return count;
+}
+
+uint8_t switchGetMaxRow(uint8_t col)
+{
+  uint8_t lastrow = 0;
+  for (int i = 0; i < switchGetMaxSwitches(); ++i) {
+    if (SWITCH_EXISTS(i)) {
+      auto switch_display = switchGetDisplayPosition(i);
+      if (switch_display.col == col)
+        lastrow = switch_display.row > lastrow ? switch_display.row : lastrow;
+    }
+  }
+  return lastrow;
 }
 
 getvalue_t getValueForLogicalSwitch(mixsrc_t i)
@@ -567,11 +587,19 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
 #endif
   else if (cs_idx <= SWSRC_LAST_SWITCH) {
     cs_idx -= SWSRC_FIRST_SWITCH;
+#if defined(FUNCTION_SWITCHES)
     auto max_reg_pos = switchGetMaxSwitches() * 3;
-    if (cs_idx < max_reg_pos) {
-      if (flags & GETSWITCH_MIDPOS_DELAY)
+    if (cs_idx >= max_reg_pos && cs_idx - max_reg_pos < switchGetMaxFctSwitches() * 3) {
+      cs_idx -= max_reg_pos;
+      div_t qr = div(cs_idx, 3);
+      auto value = getFSLogicalState(qr.quot);
+      result = qr.rem == 0 ? !value : (qr.rem == 2 ? value : false);
+    } else
+#endif
+    {
+      if (flags & GETSWITCH_MIDPOS_DELAY) {
         result = SWITCH_POSITION(cs_idx);
-      else {
+      } else {
         div_t qr = div(cs_idx, 3);
         if (SWITCH_EXISTS(qr.quot)) {
           result = switchState(cs_idx);
@@ -579,17 +607,6 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
           result = false;
         }
       }
-    }
-#if defined(FUNCTION_SWITCHES)
-    else if (cs_idx - max_reg_pos < switchGetMaxFctSwitches() * 3) {
-      cs_idx -= max_reg_pos;
-      div_t qr = div(cs_idx, 3);
-      auto value = getFSLogicalState(qr.quot);
-      result = qr.rem == 0 ? !value : (qr.rem == 2 ? value : false);
-    }
-#endif
-    else {
-      result = false;
     }
   }
   else if (cs_idx <= SWSRC_LAST_MULTIPOS_SWITCH) {
@@ -753,7 +770,7 @@ bool isSwitchWarningRequired(uint16_t &bad_pots)
   if (g_model.potsWarnMode) {
     evalFlightModeMixes(e_perout_mode_normal, 0);
     bad_pots = 0;
-    for (int  i = 0; i < adcGetMaxInputs(ADC_INPUT_POT); i++) {
+    for (int  i = 0; i < adcGetMaxInputs(ADC_INPUT_FLEX); i++) {
       if (!IS_POT_SLIDER_AVAILABLE(i)) continue;
       if ((g_model.potsWarnEnabled & (1 << i)) &&
           (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1)) {

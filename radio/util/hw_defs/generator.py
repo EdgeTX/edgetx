@@ -43,6 +43,22 @@ KEYS_LUT = [
   "KEY_BIND",
 ]
 
+# def eprint(*args, **kwargs):
+#     from sys import stderr
+#     print(*args, file=stderr, **kwargs)
+
+def is_ext_input(input):
+
+    if input.get('type') != 'FLEX':
+        return False
+
+    name = input.get('name')
+    if name and name.startswith('EXT'):
+        return True
+
+    return False
+
+
 def generate_from_template(json_filename, template_filename, target):
 
     with open(json_filename) as json_file:
@@ -69,6 +85,8 @@ def generate_from_template(json_filename, template_filename, target):
                 lstrip_blocks=True,
                 trim_blocks=True
             )
+
+            env.tests['ext_input'] = is_ext_input
 
             template_str = template_file.read()
             template = env.from_string(template_str)

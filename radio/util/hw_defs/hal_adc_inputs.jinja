@@ -12,25 +12,16 @@ static const etx_hal_adc_input_t _main_inputs[] = {
   {% endfor %}
 };
 
-{% set pot_offset = n_mains %}
-{% set pot_inputs = adc_inputs.inputs | selectattr('type', '==', 'POT') | list %}
-{% set n_pots = pot_inputs | count %}
-static const etx_hal_adc_input_t _pot_inputs[] = {
-  {% for input in pot_inputs %}
+{% set flex_offset = n_mains %}
+{% set flex_inputs = adc_inputs.inputs | selectattr('type', '==', 'FLEX') | list %}
+{% set n_flex = flex_inputs | count %}
+static etx_hal_adc_input_t _flex_inputs[] = {
+  {% for input in flex_inputs %}
     { "{{ input.name }}", "{{ input.label }}", "{{ input.short_label }}" },
   {% endfor %}
 };
 
-{% set axis_offset = pot_offset + n_pots %}
-{% set axis_inputs = adc_inputs.inputs | selectattr('type', '==', 'AXIS') | list %}
-{% set n_axis = axis_inputs | count %}
-static const etx_hal_adc_input_t _axis_inputs[] = {
-  {% for input in axis_inputs %}
-    { "{{ input.name }}", "{{ input.label }}", nullptr },
-  {% endfor %}
-};
-
-{% set vbat_offset = axis_offset + n_axis %}
+{% set vbat_offset = flex_offset + n_flex %}
 {% set vbat_inputs = adc_inputs.inputs | selectattr('type', '==', 'VBAT') | list %}
 {% set n_vbat = vbat_inputs | count %}
 static const etx_hal_adc_input_t _vbat_inputs[] = {
@@ -51,17 +42,16 @@ static const etx_hal_adc_input_t _rtc_bat_inputs[] = {
 {% set n_inputs = rtc_bat_offset + n_rtc_bat %}
 static const etx_hal_adc_inputs_t _hal_inputs[] = {
   { {{ n_mains }}, 0, _main_inputs },
-  { {{ n_pots }}, {{ pot_offset }}, _pot_inputs },
-  { {{ n_axis }}, {{ axis_offset }}, _axis_inputs },
+  { {{ n_flex }}, {{ flex_offset }}, _flex_inputs },
   { {{ n_vbat }}, {{ vbat_offset }}, _vbat_inputs },
   { {{ n_rtc_bat }}, {{ rtc_bat_offset }}, _rtc_bat_inputs },
   { {{ n_inputs }}, 0, nullptr },
 };
 
 constexpr potconfig_t _pot_default_config = (0)
-{% for pot in pot_inputs %}
-  {% if pot.default %}
-    | (POT_{{ pot.default }} << ({{ loop.index0 }} * POT_CFG_BITS))
+{% for flex in flex_inputs %}
+  {% if flex.default %}
+    | ((potconfig_t)FLEX_{{ flex.default }} << ({{ loop.index0 }} * POT_CFG_BITS))
   {% endif %}
 {% endfor %}
 ;

@@ -33,92 +33,36 @@ struct hw_switch_def {
 
 #include "simu_switches.inc"
 
-int8_t switchesStates[n_total_switches] = { -1 };
+int8_t switchesStates[MAX_SWITCHES] = { -1 };
 
 void simuSetSwitch(uint8_t swtch, int8_t state)
 {
-  assert(swtch < n_total_switches);
+  assert(swtch < switchGetMaxSwitches() + switchGetMaxFctSwitches());
   switchesStates[swtch] = state;
 }
 
-swconfig_t switchGetDefaultConfig()
+void boardInitSwitches() {}
+
+static uint8_t get_switch_index(uint8_t cat, uint8_t idx)
 {
-  return _switch_default_config;
+  switch(cat) {
+  case SWITCH_PHYSICAL:
+    assert(idx < n_switches);
+    return idx;
+
+  case SWITCH_FUNCTION:
+    assert(idx < n_fct_switches);
+    return idx + n_switches;
+
+  default:
+    assert(0);
+    return 0;
+  }  
 }
 
-switch_display_pos_t switchGetDisplayPosition(uint8_t idx)
+SwitchHwPos boardSwitchGetPosition(uint8_t cat, uint8_t idx)
 {
-  if (idx >= DIM(_switch_display))
-    return {0, 0};
-
-  return _switch_display[idx];
-}
-
-uint8_t switchGetMaxSwitches()
-{
-  return n_switches;
-}
-
-uint8_t getSwitchCount()
-{
-  int count = 0;
-  for (int i = 0; i < switchGetMaxSwitches(); ++i) {
-    if (SWITCH_EXISTS(i)) {
-      ++count;
-    }
-  }
-  return count;
-}
-
-uint8_t switchGetMaxRow(uint8_t col)
-{
-  uint8_t lastrow = 0;
-  for (int i = 0; i < switchGetMaxSwitches(); ++i) {
-    if (SWITCH_EXISTS(i)) {
-      auto switch_display = switchGetDisplayPosition(i);
-      if (switch_display.col == col)
-        lastrow = switch_display.row > lastrow ? switch_display.row : lastrow;
-    }
-  }
-  return lastrow;
-}
-
-uint8_t switchGetMaxFctSwitches()
-{
-  return n_fct_switches;
-}
-
-const char* switchGetName(uint8_t idx)
-{
-  assert(idx < n_total_switches);
-  return _hw_switch_defs[idx].name;
-}
-
-SwitchHwType switchGetHwType(uint8_t idx)
-{
-  assert(idx < n_total_switches);
-  return _hw_switch_defs[idx].type;
-}
-
-uint32_t switchState(uint8_t pos)
-{
-  assert(pos < n_total_switches * 3);
-
-  div_t qr = div(pos, 3);
-  int state = switchesStates[qr.quot];
-  switch (qr.rem) {
-    case SWITCH_HW_UP:
-      return state < 0;
-    case SWITCH_HW_DOWN:
-      return state > 0;
-    default:
-      return state == 0;
-  }
-}
-
-SwitchHwPos switchGetPosition(uint8_t idx)
-{
-  assert(idx < n_total_switches);
+  idx = get_switch_index(cat, idx);
 
   if (switchesStates[idx] < 0)
     return SWITCH_HW_UP;
@@ -126,4 +70,28 @@ SwitchHwPos switchGetPosition(uint8_t idx)
     return SWITCH_HW_MID;
   else
     return SWITCH_HW_DOWN;
+}
+
+const char* boardSwitchGetName(uint8_t cat, uint8_t idx)
+{
+  idx = get_switch_index(cat, idx);
+  return _switch_defs[idx].name;
+}
+
+SwitchHwType boardSwitchGetType(uint8_t cat, uint8_t idx)
+{
+  idx = get_switch_index(cat, idx);
+  return _switch_defs[idx].type;
+}
+
+uint8_t boardGetMaxSwitches() { return n_switches; }
+uint8_t boardGetMaxFctSwitches() { return n_fct_switches; }
+
+swconfig_t boardSwitchGetDefaultConfig() { return _switch_default_config; }
+
+switch_display_pos_t switchGetDisplayPosition(uint8_t idx)
+{
+  if (idx >= DIM(_switch_display)) return {0, 0};
+
+  return _switch_display[idx];
 }

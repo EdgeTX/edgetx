@@ -183,8 +183,8 @@ static const coord_t _pot_slots[] = {
 void drawSliders()
 {
   uint8_t slot_idx = 0;
-  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_POT);
-  uint8_t offset = adcGetInputOffset(ADC_INPUT_POT);
+  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
+  uint8_t offset = adcGetInputOffset(ADC_INPUT_FLEX);
 
   for (uint8_t i = 0; i < max_pots; i++) {
 

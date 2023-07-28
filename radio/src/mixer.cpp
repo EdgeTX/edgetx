@@ -296,6 +296,18 @@ int16_t applyLimits(uint8_t channel, int32_t value)
   return ofs;
 }
 
+static const getvalue_t _switch_2pos_lookup[] = {
+  -1024, // SWITCH_HW_UP
+  +1024, // SWITCH_HW_MID
+  +1024, // SWITCH_HW_DOWN 
+};
+
+static const getvalue_t _switch_3pos_lookup[] = {
+  -1024, // SWITCH_HW_UP
+  0,     // SWITCH_HW_MID
+  +1024, // SWITCH_HW_DOWN 
+};
+
 // TODO same naming convention than the drawSource
 // *valid added to return status to Lua for invalid sources
 getvalue_t getValue(mixsrc_t i, bool* valid)
@@ -329,23 +341,12 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
   }
   else if (i <= MIXSRC_LAST_POT) {
     i -= MIXSRC_FIRST_POT;
-    if (i >= adcGetMaxInputs(ADC_INPUT_POT)) {
+    if (i >= adcGetMaxInputs(ADC_INPUT_FLEX)) {
       if (valid != nullptr) *valid = false;
       return 0;
     }
-    return calibratedAnalogs[i + adcGetInputOffset(ADC_INPUT_POT)];
+    return calibratedAnalogs[i + adcGetInputOffset(ADC_INPUT_FLEX)];
   }
-
-#if MAX_AXIS > 0
-  else if (i <= MIXSRC_LAST_AXIS) {
-    i -= MIXSRC_FIRST_AXIS;
-    if (i >= adcGetMaxInputs(ADC_INPUT_AXIS)) {
-      if (valid != nullptr) *valid = false;
-      return 0;
-    }
-    return calibratedAnalogs[i + adcGetInputOffset(ADC_INPUT_AXIS)];
-  }
-#endif
 
 #if defined(IMU)
   else if (i == MIXSRC_TILT_X) {
@@ -383,31 +384,30 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
     auto trim_value = getTrimValue(mixerCurrentFlightMode, i);
     return calc1000toRESX((int16_t)8 * trim_value);
   }
-#if defined(FUNCTION_SWITCHES)
-  else if (i >= MIXSRC_FIRST_SWITCH && i <= MIXSRC_LAST_REGULAR_SWITCH) {
-    mixsrc_t sw = i - MIXSRC_FIRST_SWITCH;
-    if (SWITCH_EXISTS(sw)) {
-      return (switchState(3*sw) ? -1024 : (IS_CONFIG_3POS(sw) && switchState(3*sw+1) ? 0 : 1024));
-    }
-    else {
-      if (valid != nullptr) *valid = false;
-      return 0;
-    }
-  } else if (i >= MIXSRC_FIRST_FS_SWITCH && i <= MIXSRC_LAST_SWITCH) {
-    return getFSLogicalState(i - MIXSRC_FIRST_SWITCH - switchGetMaxSwitches()) ? +1024 : -1024;
-  }
-#else
   else if (i >= MIXSRC_FIRST_SWITCH && i <= MIXSRC_LAST_SWITCH) {
-    mixsrc_t sw = i - MIXSRC_FIRST_SWITCH;
-    if (SWITCH_EXISTS(sw)) {
-      return (switchState(3*sw) ? -1024 : (IS_CONFIG_3POS(sw) && switchState(3*sw+1) ? 0 : 1024));
+    auto sw_idx = (uint8_t)(i - MIXSRC_FIRST_SWITCH);
+#if defined(FUNCTION_SWITCHES)
+    auto max_reg_switches = switchGetMaxSwitches();
+    if (sw_idx >= max_reg_switches) {
+      auto fct_idx = sw_idx - max_reg_switches;
+      auto max_fct_switches = switchGetMaxFctSwitches();
+      if (fct_idx < max_fct_switches) {
+	return _switch_2pos_lookup[getFSLogicalState(fct_idx)];
+      }
     }
-    else {
+#endif
+    auto sw_cfg = (SwitchConfig)SWITCH_CONFIG(sw_idx);
+    switch(sw_cfg) {
+    case SWITCH_NONE:
       if (valid != nullptr) *valid = false;
       return 0;
+    case SWITCH_TOGGLE:
+    case SWITCH_2POS:
+      return _switch_2pos_lookup[switchGetPosition(sw_idx)];
+    case SWITCH_3POS:
+      return _switch_3pos_lookup[switchGetPosition(sw_idx)];
     }
   }
-#endif
 
   else if (i <= MIXSRC_LAST_LOGICAL_SWITCH) {
     return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i - MIXSRC_FIRST_LOGICAL_SWITCH) ? 1024 : -1024;
@@ -503,7 +503,7 @@ void evalInputs(uint8_t mode)
 #endif
 
   auto max_calib_analogs = adcGetInputOffset(ADC_INPUT_VBAT);
-  auto pots_offset = adcGetInputOffset(ADC_INPUT_POT);
+  auto pots_offset = adcGetInputOffset(ADC_INPUT_FLEX);
   
   for (uint8_t i = 0; i < max_calib_analogs; i++) {
     // normalization [0..2048] -> [-1024..1024]

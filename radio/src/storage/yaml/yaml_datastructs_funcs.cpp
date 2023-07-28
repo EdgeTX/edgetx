@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "opentx_constants.h"
 #include "yaml_bits.h"
 #include "yaml_tree_walker.h"
 
@@ -254,13 +255,8 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
     auto idx = analogLookupCanonicalIdx(ADC_INPUT_MAIN, val, val_len);
     if (idx >= 0) return idx + MIXSRC_FIRST_STICK;
 
-    idx = analogLookupCanonicalIdx(ADC_INPUT_POT, val, val_len);
+    idx = analogLookupCanonicalIdx(ADC_INPUT_FLEX, val, val_len);
     if (idx >= 0) return idx + MIXSRC_FIRST_POT;
-
-#if MAX_AXIS > 0
-    idx = analogLookupCanonicalIdx(ADC_INPUT_AXIS, val, val_len);
-    if (idx >= 0) return idx + MIXSRC_FIRST_POT;
-#endif
 
     idx = switchLookupIdx(val, val_len);
     if (idx >= 0) return idx + MIXSRC_FIRST_SWITCH;
@@ -318,13 +314,8 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
         str = analogGetCanonicalName(ADC_INPUT_MAIN, val - MIXSRC_FIRST_STICK);
     }
     else if (val <= MIXSRC_LAST_POT) {
-        str = analogGetCanonicalName(ADC_INPUT_POT, val - MIXSRC_FIRST_POT);
+        str = analogGetCanonicalName(ADC_INPUT_FLEX, val - MIXSRC_FIRST_POT);
     }
-#if MAX_AXIS > 0
-    else if (val <= MIXSRC_LAST_AXIS) {
-        str = analogGetCanonicalName(ADC_INPUT_AXIS, val - MIXSRC_FIRST_AXIS);
-    }
-#endif
     else if (val >= MIXSRC_FIRST_HELI
              && val <= MIXSRC_LAST_HELI) {
         if (!wf(opaque, "CYC", 3)) return false;
@@ -682,8 +673,8 @@ static uint32_t slider_read(void* user, const char* val, uint8_t val_len)
 }
 
 static const struct YamlIdStr enum_SliderConfig[] = {
-    {  POT_NONE, "none" },
-    {  POT_SLIDER_WITH_DETENT, "with_detent" },
+    {  FLEX_NONE, "none" },
+    {  FLEX_SLIDER, "with_detent" },
     {  0, NULL }
 };
 
@@ -704,7 +695,7 @@ static void sl_type_read(void* user, uint8_t* data, uint32_t bitoffs,
 static void sl_name_read(void* user, uint8_t* data, uint32_t bitoffs,
                          const char* val, uint8_t val_len)
 {
-  _read_analog_name(ADC_INPUT_POT, user, data, bitoffs, val, val_len);
+  _read_analog_name(ADC_INPUT_FLEX, user, data, bitoffs, val, val_len);
 }
 
 static const struct YamlNode struct_sliderConfig[] = {
@@ -768,10 +759,63 @@ static const struct YamlNode struct_switchConfig[] = {
     YAML_END
 };
 
+static bool flex_sw_valid(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+  return switchIsFlexValid_raw(idx);
+}
+
+uint8_t boardGetMaxSwitches();
+
+static uint32_t flex_sw_read(void* user, const char* val, uint8_t val_len)
+{
+  (void)user;
+  auto idx = switchLookupIdx(val, val_len);
+  return idx - boardGetMaxSwitches();
+}
+
+bool flex_sw_write(void* user, yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+
+  auto sw_offset = boardGetMaxSwitches();
+  const char* str = switchGetCanonicalName(idx + sw_offset);
+  return str ? wf(opaque, str, strlen(str)) : true;
+}
+
+static void r_flex_sw_channel(void* user, uint8_t* data, uint32_t bitoffs,
+			      const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
+
+  auto channel = analogLookupPhysicalIdx(ADC_INPUT_FLEX, val, val_len);
+  switchConfigFlex_raw(idx, channel);
+}
+
+static bool w_flex_sw_channel(void* user, uint8_t* data, uint32_t bitoffs,
+			      yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
+
+  auto channel = switchGetFlexConfig_raw(idx);
+  const char* s = analogGetPhysicalName(ADC_INPUT_FLEX, channel);
+  return s ? wf(opaque, s, strlen(s)) : true;
+}
+
+static const struct YamlNode struct_flexSwitch[] = {
+    YAML_IDX_CUST( "sw", flex_sw_read, flex_sw_write),
+    YAML_CUSTOM( "channel", r_flex_sw_channel, w_flex_sw_channel),
+    YAML_END
+};
+
 static uint32_t pot_read(void* user, const char* val, uint8_t val_len)
 {
   (void)user;
-  auto idx = analogLookupPhysicalIdx(ADC_INPUT_POT, val, val_len);
+  auto idx = analogLookupPhysicalIdx(ADC_INPUT_FLEX, val, val_len);
   if (idx >= 0) return idx;
 
   idx = _legacy_mix_src(val, val_len);
@@ -786,28 +830,31 @@ static bool pot_write(void* user, yaml_writer_func wf, void* opaque)
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
 
-  const char* str = analogGetPhysicalName(ADC_INPUT_POT, idx);
+  const char* str = analogGetPhysicalName(ADC_INPUT_FLEX, idx);
   return str ? wf(opaque, str, strlen(str)) : true;
 }
 
 static void pot_name_read(void* user, uint8_t* data, uint32_t bitoffs,
                           const char* val, uint8_t val_len)
 {
-  _read_analog_name(ADC_INPUT_POT, user, data, bitoffs, val, val_len);
+  _read_analog_name(ADC_INPUT_FLEX, user, data, bitoffs, val, val_len);
 }
 
 static bool pot_name_write(void* user, uint8_t* data, uint32_t bitoffs,
                            yaml_writer_func wf, void* opaque)
 {
-  return _write_analog_name(ADC_INPUT_POT, user, data, bitoffs, wf, opaque);
+  return _write_analog_name(ADC_INPUT_FLEX, user, data, bitoffs, wf, opaque);
 }
 
 static const struct YamlIdStr enum_PotConfig[] = {
-    {  POT_NONE, "none" },
-    {  POT_WITH_DETENT, "with_detent" },
-    {  POT_MULTIPOS_SWITCH, "multipos_switch" },
-    {  POT_WITHOUT_DETENT, "without_detent" },
-    {  POT_SLIDER_WITH_DETENT, "slider" },
+    {  FLEX_NONE, "none" },
+    {  FLEX_POT, "without_detent" },
+    {  FLEX_POT_CENTER, "with_detent" },
+    {  FLEX_SLIDER, "slider" },
+    {  FLEX_MULTIPOS, "multipos_switch" },
+    {  FLEX_AXIS_X, "axis_x" },
+    {  FLEX_AXIS_Y, "axis_y" },
+    {  FLEX_SWITCH, "switch" },
     {  0, NULL }
 };
 
@@ -840,7 +887,9 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
         val_len--;
     }
 
-    if (val_len > 3 && val[0] == 'S' && val[1] >= 'W'
+    if (val_len > 3
+	&& ((val[0] == 'S' && val[1] >= 'W')
+	    || (val[0] == 'F' && val[1] >= 'L'))
         && val[2] >= '0' && val[2] <= '9'
         && val[3] >= '0' && val[3] <= '2') {
 

@@ -50,6 +50,10 @@ bool isSwitchWarningRequired(uint16_t &bad_pots);
 
 void getSwitchesPosition(bool startup);
 
+uint8_t getSwitchCount();
+
+uint8_t switchGetMaxRow(uint8_t col);
+
 extern swarnstate_t switches_states;
 swsrc_t getMovedSwitch();
 

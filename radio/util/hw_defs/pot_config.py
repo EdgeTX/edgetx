@@ -2,9 +2,9 @@
 
 POT_CONFIG = {
     "boxer": {
-        "P1": {"default": "WITH_DETENT"},
-        "P2": {"default": "WITH_DETENT"},
-        "P3": {"default": "MULTIPOS_SWITCH"}
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"},
+        "P3": {"default": "MULTIPOS"}
     },
     "el18": {
         "P1": { "default": "WITHOUT_DETENT"},
@@ -15,128 +15,130 @@ POT_CONFIG = {
         "P2": { "default": "WITHOUT_DETENT"}
     },
     "tpro": {
-        "P1": {"default": "WITH_DETENT"},
-        "P2": {"default": "WITH_DETENT"}
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"}
     },
     "tprov2": {
-        "P1": {"default": "WITH_DETENT"},
-        "P2": {"default": "WITH_DETENT"}
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"}
     },
     "t20": {
-        "P1":  {"default": "WITH_DETENT"},
-        "P2":  {"default": "WITH_DETENT"},
-        "SL1": {"default": "SLIDER_WITH_DETENT"},
-        "SL2": {"default": "SLIDER_WITH_DETENT"},
-        "SL3": {"default": "SLIDER_WITH_DETENT"},
-        "SL4": {"default": "SLIDER_WITH_DETENT"},
+        "P1":  {"default": "POT_CENTER"},
+        "P2":  {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"},
+        "SL3": {"default": "SLIDER"},
+        "SL4": {"default": "SLIDER"},
     },
     "t12": {
-        "P1": {"default": "WITHOUT_DETENT"},
-        "P2": {"default": "WITHOUT_DETENT"}
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"}
     },
     "tx12": {
-        "P1": {"default": "WITH_DETENT"},
-        "P2": {"default": "WITH_DETENT"}
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"}
     },
     "tx12mk2": {
-        "P1": {"default": "WITH_DETENT"},
-        "P2": {"default": "WITH_DETENT"}
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"}
     },
     "t16": {
-        "P1": {"default": "WITH_DETENT"},
-        "P2": {"default": "MULTIPOS_SWITCH"},
-        "P3": {"default": "WITH_DETENT"},
-        "SL1": {"default": "SLIDER_WITH_DETENT"},
-        "SL2": {"default": "SLIDER_WITH_DETENT"}
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "MULTIPOS"},
+        "P3": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
     },
     "t18": {
-        "P1": {"default": "WITH_DETENT"},
-        "P2": {"default": "MULTIPOS_SWITCH"},
-        "P3": {"default": "WITH_DETENT"},
-        "SL1": {"default": "SLIDER_WITH_DETENT"},
-        "SL2": {"default": "SLIDER_WITH_DETENT"}
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "MULTIPOS"},
+        "P3": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
     },
     "tx16s": {
-        "P1": {"default": "WITH_DETENT"},
-        "P2": {"default": "MULTIPOS_SWITCH"},
-        "P3": {"default": "WITH_DETENT"},
-        "SL1": {"default": "SLIDER_WITH_DETENT"},
-        "SL2": {"default": "SLIDER_WITH_DETENT"}
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "MULTIPOS"},
+        "P3": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
     },
     "x7": {
-        "P1": {"default": "WITHOUT_DETENT"},
-        "P2": {"default": "WITH_DETENT"}
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT_CENTER"}
     },
     "x7access": {
-        "P1": {"default": "WITHOUT_DETENT"},
-        "P2": {"default": "WITH_DETENT"}
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT_CENTER"}
     },
     "x9d": {
-        "P1": {"default": "WITH_DETENT"},
-        "P2": {"default": "WITH_DETENT"},
-        "SL1": {"default": "SLIDER_WITH_DETENT"},
-        "SL2": {"default": "SLIDER_WITH_DETENT"}
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
     },
     "x9dp": {
-        "P1": {"default": "WITH_DETENT"},
-        "P2": {"default": "WITH_DETENT"},
-        "SL1": {"default": "SLIDER_WITH_DETENT"},
-        "SL2": {"default": "SLIDER_WITH_DETENT"}
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
     },
     "x9dp2019": {
-        "P1": {"default": "WITH_DETENT"},
-        "P2": {"default": "WITH_DETENT"},
-        "SL1": {"default": "SLIDER_WITH_DETENT"},
-        "SL2": {"default": "SLIDER_WITH_DETENT"}
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
     },
     "x9e": {
-        "P1": {"default": "WITH_DETENT"},
-        "P2": {"default": "WITH_DETENT"},
-        "SL1": {"default": "SLIDER_WITH_DETENT"},
-        "SL2": {"default": "SLIDER_WITH_DETENT"},
-        "SL3": {"default": "SLIDER_WITH_DETENT"},
-        "SL4": {"default": "SLIDER_WITH_DETENT"}
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"},
+        "SL3": {"default": "SLIDER"},
+        "SL4": {"default": "SLIDER"}
     },
     "x10": {
-        "P1": {"default": "WITHOUT_DETENT"},
-        "P2": {"default": "MULTIPOS_SWITCH"},
-        "P3": {"default": "WITH_DETENT"},
-        "SL1": {"default": "SLIDER_WITH_DETENT"},
-        "SL2": {"default": "SLIDER_WITH_DETENT"}
+        "P1": {"default": "POT"},
+        "P2": {"default": "MULTIPOS"},
+        "P3": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
     },
     "x10express": {
-        "P1": {"default": "WITHOUT_DETENT"},
-        "P2": {"default": "MULTIPOS_SWITCH"},
-        "P3": {"default": "WITH_DETENT"},
-        "SL1": {"default": "SLIDER_WITH_DETENT"},
-        "SL2": {"default": "SLIDER_WITH_DETENT"}
+        "P1": {"default": "POT"},
+        "P2": {"default": "MULTIPOS"},
+        "P3": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
     },
     "x12s": {
-        "P1": {"default": "WITHOUT_DETENT"},
-        "P2": {"default": "MULTIPOS_SWITCH"},
-        "P3": {"default": "WITH_DETENT"},
-        "SL1": {"default": "SLIDER_WITH_DETENT"},
-        "SL2": {"default": "SLIDER_WITH_DETENT"},
-        "SL3": {"default": "SLIDER_WITH_DETENT"},
-        "SL4": {"default": "SLIDER_WITH_DETENT"}
+        "P1": {"default": "POT"},
+        "P2": {"default": "MULTIPOS"},
+        "P3": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"},
+        "SL3": {"default": "SLIDER"},
+        "SL4": {"default": "SLIDER"},
+        "JSx": {"default": "AXIS_X"},
+        "JSy": {"default": "AXIS_Y"}
     },
     "xlite": {
-        "P1": {"default": "WITHOUT_DETENT"},
-        "P2": {"default": "WITHOUT_DETENT"}
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"}
     },
     "xlites": {
-        "P1": {"default": "WITHOUT_DETENT"},
-        "P2": {"default": "WITHOUT_DETENT"}
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"}
     },
     "x9lite": {
-        "P1": {"default": "WITH_DETENT"},
+        "P1": {"default": "POT_CENTER"},
     },
     "x9lites": {
-        "P1": {"default": "WITH_DETENT"},
+        "P1": {"default": "POT_CENTER"},
     },
     "zorro": {
-        "P1": {"default": "WITHOUT_DETENT"},
-        "P2": {"default": "WITHOUT_DETENT"}
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"}
     },
     "pocket": {
         "P1": { "default": "WITHOUT_DETENT" }

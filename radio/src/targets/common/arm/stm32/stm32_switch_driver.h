@@ -37,18 +37,5 @@ struct stm32_switch_t
   uint8_t      flags;
 };
 
-#define SWITCH_HW_DEF_3POS(x, flags)                                    \
-  {                                                                     \
-    SWITCHES_GPIO_REG_##x##_H, SWITCHES_GPIO_PIN_##x##_H,               \
-    SWITCHES_GPIO_REG_##x##_L, SWITCHES_GPIO_PIN_##x##_L,               \
-    SWITCH_HW_3POS, (flags)                                             \
-  }
-
-#define SWITCH_HW_DEF_2POS(x, flags)                                    \
-  {                                                                     \
-    SWITCHES_GPIO_REG_##x, SWITCHES_GPIO_PIN_##x,                       \
-    nullptr, 0, SWITCH_HW_2POS, (flags)                                 \
-  }
-
 SwitchHwPos stm32_switch_get_position(const stm32_switch_t* sw);
 bool stm32_switch_get_state(const stm32_switch_t* sw, SwitchHwPos pos);

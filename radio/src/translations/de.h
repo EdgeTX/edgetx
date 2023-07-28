@@ -54,7 +54,7 @@
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "AUS","Telem weiterl.","Telemetrie In","SBUS Eingang","LUA","CLI","GPS","Debug","SpaceMouse","Externes Modul"
 #define TR_SWTYPES                     "Kein","Taster","2POS","3POS"
-#define TR_POTTYPES                    "Kein",TR("Poti m.Ras","Poti mit Raste"),TR("Stufens.","Stufen-Schalter"),TR("Pot","Poti ohne Raste"), "Schieber"
+#define TR_POTTYPES                    "Kein",TR("Pot","Poti ohne Raste"),TR("Poti m.Ras","Poti mit Raste"),"Schieber",TR("Stufens.","Stufen-Schalter"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                 "AUS","Flugzeit","Manuell Rück"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
 #define TR_USBMODES                    "Fragen",TR("Joyst","Joystick"),TR("SDCard","Speicher"),TR("Serial","Seriell")

@@ -61,7 +61,7 @@
   #define TR_SWTYPES                    "Ingen","Flipp","2 pos","3 pos"
 #endif
 
-#define TR_POTTYPES                     "Ingen",TR("Vred m. mitt","Vred med mittläge"),TR("Multipos","Flerlägesväljare"),"Vred","Reglage"
+#define TR_POTTYPES                     "Ingen","Vred",TR("Vred m. mitt","Vred med mittläge"),"Reglage",TR("Multipos","Flerlägesväljare"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                  "Av","Flygning","Nolla själv"
 #define TR_COUNTRY_CODES                TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
 #define TR_USBMODES                     "Fråga","Joystick",TR("SD-kort","SD-kortlagring"),"Seriell"

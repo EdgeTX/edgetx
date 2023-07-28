@@ -44,13 +44,17 @@ TEST_F(SpecialFunctionsTest, FlightReset)
   g_model.customFn[0].all.val = FUNC_RESET_FLIGHT;
   g_model.customFn[0].active = true;
 
+
   mainRequestFlags = 0;
   simuSetSwitch(0, 0);
+  EXPECT_EQ(false, getSwitch(SWSRC_FIRST_SWITCH));
+
   evalFunctions(g_model.customFn, modelFunctionsContext);
   EXPECT_EQ((bool)(mainRequestFlags & (1 << REQUEST_FLIGHT_RESET)), false);
 
   // now trigger SA0
   simuSetSwitch(0, -1);
+  EXPECT_EQ(true, getSwitch(SWSRC_FIRST_SWITCH));
 
   // flightReset() should be called
   evalFunctions(g_model.customFn, modelFunctionsContext);

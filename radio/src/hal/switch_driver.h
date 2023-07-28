@@ -36,6 +36,11 @@ enum SwitchHwPos {
   SWITCH_HW_DOWN,
 };
 
+enum SwitchCategory {
+  SWITCH_PHYSICAL=0,
+  SWITCH_FUNCTION,
+};
+
 #define SWITCH_HW_INVERTED 1
 
 // init hardware for switches
@@ -62,6 +67,19 @@ struct switch_display_pos_t {
 };
 
 switch_display_pos_t switchGetDisplayPosition(uint8_t idx);
+
+// Configure Flex switch (using unified switch index)
+void switchConfigFlex(uint8_t idx, int8_t channel);
+int8_t switchGetFlexConfig(uint8_t idx);
+
+bool switchIsFlex(uint8_t idx);
+bool switchIsFlexValid(uint8_t idx);
+
+// "Raw" variants indexing only flex switches (used for storage)
+void switchConfigFlex_raw(uint8_t idx, int8_t channel);
+int8_t switchGetFlexConfig_raw(uint8_t idx);
+bool switchIsFlexValid_raw(uint8_t idx);
+
 
 // The functions bellow support regular as well as customizable switches.
 //

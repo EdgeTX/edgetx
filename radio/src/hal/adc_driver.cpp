@@ -74,7 +74,7 @@ bool adcRead()
 void adcCalibSetMidPoint()
 {
   uint8_t max_inputs = adcGetMaxCalibratedInputs();
-  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
+  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_FLEX);
 
   for (uint8_t i = 0; i < max_inputs; i++) {
 
@@ -124,7 +124,7 @@ void adcCalibSetMinMax()
 {
   // get low and high vals for sticks and pots
   uint8_t max_input = adcGetMaxCalibratedInputs();
-  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
+  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_FLEX);
 
   for (uint8_t i = 0; i < max_input; i++) {
 
@@ -192,8 +192,8 @@ void adcCalibSetMinMax()
 
 static void disableUncalibratedXPots()
 {
-  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
-  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_FLEX);
+  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
 
   for (uint8_t i = 0; i < max_pots; i++) {
     if (IS_POT_MULTIPOS(i)) {
@@ -311,7 +311,7 @@ uint16_t getBatteryVoltage()
 void getADC()
 {
   uint8_t max_analogs = adcGetMaxInputs(ADC_INPUT_ALL);
-  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
+  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_FLEX);
 
 #if defined(JITTER_MEASURE)
   if (JITTER_MEASURE_ACTIVE() && jitterResetTime < get_tmr10ms()) {
@@ -436,7 +436,7 @@ uint8_t adcGetInputOffset(uint8_t type)
 
 uint8_t adcGetMaxCalibratedInputs()
 {
-  // ADC_INPUT_MAIN + ADC_INPUT_POT + ADC_INPUT_AXIS
+  // ADC_INPUT_MAIN + ADC_INPUT_FLEX + ADC_INPUT_AXIS
   return adcGetInputOffset(ADC_INPUT_VBAT);
 }
 
@@ -467,7 +467,7 @@ const char* adcGetInputName(uint8_t idx)
 
   // find the proper input type
   while (_hal_adc_inputs[type].offset + _hal_adc_inputs[type].n_inputs <= idx) {
-    if (++type > ADC_INPUT_AXIS) return nullptr;
+    if (++type > ADC_INPUT_FLEX) return nullptr;
   }
 
   idx -= _hal_adc_inputs[type].offset;

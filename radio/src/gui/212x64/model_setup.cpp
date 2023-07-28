@@ -538,7 +538,7 @@ void menuModelSetup(event_t event)
       SW_WARN_ROWS, // ITEM_MODEL_SETUP_SWITCHES_WARNING1
       POT_WARN_ROWS, // ITEM_MODEL_SETUP_POTS_WARNING
 
-    uint8_t(NAVIGATION_LINE_BY_LINE | (adcGetInputOffset(ADC_INPUT_POT + 1) - 1)), // ITEM_MODEL_SETUP_BEEP_CENTER
+    uint8_t(NAVIGATION_LINE_BY_LINE | (adcGetInputOffset(ADC_INPUT_FLEX + 1) - 1)), // ITEM_MODEL_SETUP_BEEP_CENTER
 
     0, // ITEM_MODEL_SETUP_USE_JITTER_FILTER
 
@@ -977,7 +977,7 @@ void menuModelSetup(event_t event)
         }
         if (g_model.potsWarnMode) {
           coord_t x = MODEL_SETUP_2ND_COLUMN+28;
-          uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+          uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
           for (int i = 0; i < max_pots; ++i) {
 
             if (!IS_POT_SLIDER_AVAILABLE(i)) {
@@ -1011,8 +1011,8 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_BEEP_CENTER: {
         lcdDrawTextAlignedLeft(y, STR_BEEPCTR);
-        uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
-        uint8_t max_inputs = adcGetMaxInputs(ADC_INPUT_MAIN) + adcGetMaxInputs(ADC_INPUT_POT);
+        uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_FLEX);
+        uint8_t max_inputs = adcGetMaxInputs(ADC_INPUT_MAIN) + adcGetMaxInputs(ADC_INPUT_FLEX);
         coord_t x = MODEL_SETUP_2ND_COLUMN;
         for (uint8_t i = 0; i < max_inputs; i++) {
           if ( i >= pot_offset && IS_POT_MULTIPOS(i - pot_offset) ) {
@@ -1024,7 +1024,7 @@ void menuModelSetup(event_t event)
             flags = BLINK | INVERS;
           else if (ANALOG_CENTER_BEEP(i) || (attr && CURSOR_ON_LINE()))
             flags = INVERS;
-          if (adcGetMaxInputs(ADC_INPUT_POT) > 4 || i < pot_offset) {
+          if (adcGetMaxInputs(ADC_INPUT_FLEX) > 4 || i < pot_offset) {
             lcdDrawText(x, y, getAnalogShortLabel(i), flags);
           }
           else {

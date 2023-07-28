@@ -83,7 +83,7 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
     }
   });
 
-  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   for (int i = 0; i < max_pots; i++) {
     // TODO: check initialised ADC inputs instead!
 
@@ -93,7 +93,7 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
     //     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
     // #endif
     auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, adcGetInputLabel(ADC_INPUT_POT, i), 0,
+    new StaticText(line, rect_t{}, adcGetInputLabel(ADC_INPUT_FLEX, i), 0,
                    COLOR_THEME_PRIMARY1);
 
     auto box = new FormWindow(line, rect_t{});
@@ -102,10 +102,10 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
     auto box_obj = box->getLvObj();
     lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
 
-    new HWInputEdit(box, (char*)analogGetCustomLabel(ADC_INPUT_POT, i),
+    new HWInputEdit(box, (char*)analogGetCustomLabel(ADC_INPUT_FLEX, i),
                     LEN_ANA_NAME);
     new Choice(
-        box, rect_t{}, STR_POTTYPES, POT_NONE, POT_SLIDER_WITH_DETENT,
+        line, rect_t{}, STR_POTTYPES, FLEX_NONE, FLEX_SWITCH,
         [=]() -> int {
           return bfGet<potconfig_t>(g_eeGeneral.potsConfig, POT_CFG_BITS * i,
                                     POT_CFG_BITS);
@@ -130,7 +130,7 @@ class SwitchDynamicLabel : public StaticText
 
   std::string label()
   {
-    std::string str(switchGetName(index));
+    std::string str(switchGetCanonicalName(index));
     return str + getSwitchPositionSymbol(lastpos);
   }
 
@@ -164,13 +164,32 @@ HWSwitches::HWSwitches(Window* parent) : FormWindow(parent, rect_t{})
   FlexGridLayout grid(col_three_dsc, row_dsc, 2);
   setFlexLayout();
 
-  for (int i = 0; i < switchGetMaxSwitches(); i++) {
+  auto max_switches = switchGetMaxSwitches();
+  for (int i = 0; i < max_switches; i++) {
     auto line = newLine(&grid);
     new SwitchDynamicLabel(line, i);
-
     new HWInputEdit(line, (char*)switchGetCustomName(i), LEN_SWITCH_NAME);
+
+    auto box = new FormWindow(line, rect_t{});
+    box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
+
+    auto box_obj = box->getLvObj();
+    lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
+
+    if (switchIsFlex(i)) {
+      auto channel = new Choice(
+          box, rect_t{}, 0, adcGetMaxInputs(ADC_INPUT_FLEX) - 1,
+          [=]() -> int { return switchGetFlexConfig(i); },
+          [=](int newValue) { switchConfigFlex(i, newValue); });
+      channel->setAvailableHandler(
+          [=](int val) { return POT_CONFIG(val) == FLEX_SWITCH; });
+      channel->setTextHandler([=](int val) -> std::string {
+        return adcGetInputLabel(ADC_INPUT_FLEX, val);
+      });
+    }
+
     new Choice(
-        line, rect_t{}, STR_SWTYPES, SWITCH_NONE, switchGetMaxType(i),
+        box, rect_t{}, STR_SWTYPES, SWITCH_NONE, switchGetMaxType(i),
         [=]() -> int { return SWITCH_CONFIG(i); },
         [=](int newValue) {
           swconfig_t mask = (swconfig_t)SWITCH_CONFIG_MASK(i);

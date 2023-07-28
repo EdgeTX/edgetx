@@ -81,8 +81,8 @@ void drawExternalAntennaAndRSSI()
 
 void drawPotsBars()
 {
-  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_POT);
-  uint8_t offset = adcGetInputOffset(ADC_INPUT_POT);
+  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
+  uint8_t offset = adcGetInputOffset(ADC_INPUT_FLEX);
   uint8_t configured_pots = 0;
 
   for (uint8_t i = 0; i < max_pots; i++) {

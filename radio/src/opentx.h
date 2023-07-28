@@ -259,12 +259,19 @@ void memswap(void * a, void * b, uint8_t size);
 #define POT_CONFIG(x) \
   ((g_eeGeneral.potsConfig >> POT_CONFIG_POS(x)) & POT_CFG_MASK)
 
-#define IS_POT_MULTIPOS(x)             (POT_CONFIG(x) == POT_MULTIPOS_SWITCH)
-#define IS_POT_WITHOUT_DETENT(x)       (POT_CONFIG(x) == POT_WITHOUT_DETENT)
-#define IS_SLIDER(x)                   (POT_CONFIG(x) == POT_SLIDER_WITH_DETENT)
-#define IS_POT_AVAILABLE(x)            (POT_CONFIG(x) != POT_NONE)
-#define IS_POT_SLIDER_AVAILABLE(x)     (IS_POT_AVAILABLE(x))
-#define IS_MULTIPOS_CALIBRATED(cal)    (cal->count > 0 && cal->count < XPOTS_MULTIPOS_COUNT)
+#define IS_POT_MULTIPOS(x) (POT_CONFIG(x) == FLEX_MULTIPOS)
+
+#define IS_POT_WITHOUT_DETENT(x) (POT_CONFIG(x) == FLEX_POT)
+
+#define IS_SLIDER(x) (POT_CONFIG(x) == FLEX_SLIDER)
+
+#define IS_POT_AVAILABLE(x)						\
+  (POT_CONFIG(x) != FLEX_NONE && POT_CONFIG(x) <= FLEX_MULTIPOS)
+
+#define IS_POT_SLIDER_AVAILABLE(x) (IS_POT_AVAILABLE(x))
+
+#define IS_MULTIPOS_CALIBRATED(cal)			\
+  (cal->count > 0 && cal->count < XPOTS_MULTIPOS_COUNT)
 
 #define IS_SWITCH_MULTIPOS(x) \
   (SWSRC_FIRST_MULTIPOS_SWITCH <= (x) && (x) <= SWSRC_LAST_MULTIPOS_SWITCH)

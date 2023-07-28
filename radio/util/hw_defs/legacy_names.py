@@ -148,11 +148,15 @@ LEGACY_NAMES = [
             "JSx": {
                 "yaml": "MOUSE1",
                 "lua": "jsx",
+                "label": "JSx",
+                "short_label": "X",
                 "description": "Joystick X"
             },
             "JSy": {
                 "yaml": "MOUSE2",
                 "lua": "jsy",
+                "label": "JSy",
+                "short_label": "Y",
                 "description": "Joystick Y"
             }
         }

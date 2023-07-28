@@ -52,7 +52,7 @@
 #define TR_TRNCHN              "KN1","KN2","KN3","KN4"
 #define TR_AUX_SERIAL_MODES    "Wyłącz","S-Port Kopia","Telemetria","Trener SBUS","LUA","CLI","GPS","Debug","SpaceMouse","Moduł zewnętrzny"
 #define TR_SWTYPES             "Brak","Chwil.","2POZ","3POZ"
-#define TR_POTTYPES            "Brak",TR("Pot w. det","Poten z zapadką"),TR("Multipos","Przeł.Wielopoz."),TR("Pot","Potencjometr"),"Suwak"
+#define TR_POTTYPES            "Brak",TR("Pot","Potencjometr"),TR("Pot w. det","Poten z zapadką"),"Suwak",TR("Multipos","Przeł.Wielopoz."),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT         "Wyłącz","Lot","Ręczny Reset"
 #define TR_COUNTRY_CODES       TR("US","Ameryka"),TR("JP","Japonia"),TR("EU", "Europa")
 #define TR_USBMODES            "Ask",TR("Joyst","Joystick"),TR("SDCard","Storage"),"Serial"

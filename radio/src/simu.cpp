@@ -134,7 +134,7 @@ OpenTxSim::OpenTxSim(FXApp* a):
     sliders[i]->setValue(2047);
   }
 
-  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   memset(knobs, 0, sizeof(knobs));
   
   for (int i = 0; i < max_pots; i++) {
@@ -673,14 +673,9 @@ uint16_t simu_get_analog(uint8_t idx)
 
   idx -= max_sticks;
 
-  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   if (idx < max_pots)
     return opentxSim->knobs[idx]->getValue();
-
-  idx -= max_pots;
-
-  auto max_axes = adcGetMaxInputs(ADC_INPUT_AXIS);
-  if (idx < max_axes) return 0;
 
   // probably RTC_BAT
   return 0;

@@ -227,10 +227,10 @@ void writeHeader()
     f_putc(',', &g_oLogFile);
   }
 
-  n_inputs = adcGetMaxInputs(ADC_INPUT_POT);
+  n_inputs = adcGetMaxInputs(ADC_INPUT_FLEX);
   for (uint8_t i = 0; i < n_inputs; i++) {
     if (!IS_POT_AVAILABLE(i)) continue;
-    const char* p = analogGetCanonicalName(ADC_INPUT_POT, i);
+    const char* p = analogGetCanonicalName(ADC_INPUT_FLEX, i);
     while (*p) { f_putc(*(p++), &g_oLogFile); }
     f_putc(',', &g_oLogFile);
   }
@@ -367,8 +367,8 @@ void logsWrite()
         f_printf(&g_oLogFile, "%d,", calibratedAnalogs[inputMappingConvertMode(offset + i)]);
       }
 
-      n_inputs = adcGetMaxInputs(ADC_INPUT_POT);
-      offset = adcGetInputOffset(ADC_INPUT_POT);
+      n_inputs = adcGetMaxInputs(ADC_INPUT_FLEX);
+      offset = adcGetInputOffset(ADC_INPUT_FLEX);
 
       for (uint8_t i = 0; i < n_inputs; i++) {
         if (IS_POT_AVAILABLE(i))

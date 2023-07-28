@@ -466,6 +466,7 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
     return true;
 
   // check switches from 'sa' to 'sz'
+  // TODO: does not work with function switches!
   if (len == 2 && name[0] == 's' && name[1] >= 'a' && name[1] <= 'z') {
     auto c = name[1] - 'a' + 'A';
     auto sw_idx = switchLookupIdx(c);

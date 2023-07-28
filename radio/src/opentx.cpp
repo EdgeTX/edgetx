@@ -403,18 +403,11 @@ int8_t getMovedSource(uint8_t min)
   if (result == 0) {
     for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
       if (abs(calibratedAnalogs[i] - sourcesStates[i]) > MULTIPOS_STEP_SIZE) {
-        auto offset = adcGetInputOffset(ADC_INPUT_POT);
+        auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
         if (i >= offset) {
           result = MIXSRC_FIRST_POT + i - offset;
           break;
         }
-#if MAX_AXIS > 0
-        offset = adcGetInputOffset(ADC_INPUT_AXIS);
-        if (i >= offset) {
-          result = MIXSRC_FIRST_AXIS + i - offset;
-          break;
-        }
-#endif
         result = MIXSRC_FIRST_STICK + inputMappingConvertMode(i);
         break;
       }
@@ -1401,6 +1394,8 @@ void opentxInit()
   menuHandlers[0] = menuMainView;
   menuHandlers[1] = menuModelSelect;
 #endif
+
+  switchInit();
 
 #if defined(STARTUP_ANIMATION)
   lcdRefreshWait();

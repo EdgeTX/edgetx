@@ -57,7 +57,7 @@
   #define TR_SWTYPES                   "Ingen","Skift","2POS","3POS"
 #endif
 
-#define TR_POTTYPES                    "Ingen",TR("Drejek./klik","Drejekontakt med klik"),TR("Multipos","Multipos kontakt"),TR("Drejek.", "Drejekontakt"),"Skyder"
+#define TR_POTTYPES                    "Ingen",TR("Drejek.", "Drejekontakt"),TR("Drejek./klik","Drejekontakt med klik"),"Skyder",TR("Multipos","Multipos kontakt"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                 "FRA","Flyv","Manuel nulstil"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
 #define TR_USBMODES                    "Spørg",TR("Joyst","Joystik"),TR("Lager","USB lager"),TR("Data", "USB data")

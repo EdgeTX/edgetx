@@ -1,7 +1,7 @@
 {% set regular_switches = switches | selectattr('type','!=','FSWITCH') | list %}
 {% set function_switches = switches | selectattr('type','==','FSWITCH') | list %}
 
-const hw_switch_def _hw_switch_defs[] = {
+const hw_switch_def _switch_defs[] = {
 {% for switch in regular_switches %}
   { "{{ switch.name }}", SWITCH_HW_{{ switch.type }} },
 {% endfor %}

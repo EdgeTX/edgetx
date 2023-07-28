@@ -143,7 +143,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
     tab[i] = idx < max_sticks ? 0 : HIDDEN_ROW;
   }
 
-  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   for (int i = ITEM_RADIO_HARDWARE_POT; i <= ITEM_RADIO_HARDWARE_POT_END; i++) {
     uint8_t idx = i - ITEM_RADIO_HARDWARE_POT;
     tab[i] = idx < max_pots ? 1 : HIDDEN_ROW;
@@ -485,13 +485,13 @@ void menuRadioHardware(event_t event)
           // draw hw name
           LcdFlags flags = menuHorizontalPosition < 0 ? attr : 0;
           lcdDrawText(INDENT_WIDTH, y, STR_CHAR_POT, flags);
-          lcdDrawText(lcdNextPos, y, adcGetInputLabel(ADC_INPUT_POT, idx), flags);
+          lcdDrawText(lcdNextPos, y, adcGetInputLabel(ADC_INPUT_FLEX, idx), flags);
 
           // draw custom name
-          if (analogHasCustomLabel(ADC_INPUT_POT, idx) ||
+          if (analogHasCustomLabel(ADC_INPUT_FLEX, idx) ||
               (attr && s_editMode > 0 && menuHorizontalPosition == 0)) {
             editName(HW_SETTINGS_COLUMN1, y,
-                     (char*)analogGetCustomLabel(ADC_INPUT_POT, idx), LEN_ANA_NAME, event,
+                     (char*)analogGetCustomLabel(ADC_INPUT_FLEX, idx), LEN_ANA_NAME, event,
                      attr && menuHorizontalPosition == 0, 0, old_editMode);
           } else {
             lcdDrawMMM(HW_SETTINGS_COLUMN1, y, menuHorizontalPosition==0 ? attr : 0);
@@ -500,7 +500,7 @@ void menuRadioHardware(event_t event)
           // pot config
           uint8_t potType = (g_eeGeneral.potsConfig & mask) >> shift;
           potType = editChoice(HW_SETTINGS_COLUMN2, y, "", STR_POTTYPES, potType,
-                               POT_NONE, POT_SLIDER_WITH_DETENT,
+                               FLEX_NONE, FLEX_SWITCH,
                                menuHorizontalPosition == 1 ? attr : 0, event);
           g_eeGeneral.potsConfig &= ~mask;
           g_eeGeneral.potsConfig |= (potType << shift);

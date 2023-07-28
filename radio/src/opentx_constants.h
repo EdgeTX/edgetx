@@ -29,12 +29,15 @@ enum SwitchConfig {
   SWITCH_3POS,
 };
 
-enum PotConfig {
-  POT_NONE=0,
-  POT_WITH_DETENT,
-  POT_MULTIPOS_SWITCH,
-  POT_WITHOUT_DETENT,
-  POT_SLIDER_WITH_DETENT,
+enum FlexAnalogConfig {
+  FLEX_NONE=0,
+  FLEX_POT, // without detent
+  FLEX_POT_CENTER, // with detent
+  FLEX_SLIDER,
+  FLEX_MULTIPOS,
+  FLEX_AXIS_X,
+  FLEX_AXIS_Y,
+  FLEX_SWITCH,
 };
 
 enum fsStartPositionType {

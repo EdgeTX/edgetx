@@ -51,7 +51,7 @@
 
 #define TR_AUX_SERIAL_MODES             "禁用","回傳鏡像","回傳輸入","SBUS教練","LUA腳本","CLI","GPS","調試","SpaceMouse","外置發射"
 #define TR_SWTYPES                      "無","回彈","2段","3段"
-#define TR_POTTYPES                     "無","有中點旋鈕","多段旋鈕","無中點旋鈕","側滑塊"
+#define TR_POTTYPES                     "無","無中點旋鈕","有中點旋鈕","側滑塊","多段旋鈕"
 #define TR_VPERSISTENT                  "禁用","隨飛行記錄重啟","隨手動重啟"
 #define TR_COUNTRY_CODES                "美國","日本","歐洲"
 #define TR_USBMODES                     "詢問","遊戲柄","U盤","串行"
