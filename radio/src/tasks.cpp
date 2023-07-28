@@ -25,6 +25,8 @@
 #include "tasks.h"
 #include "tasks/mixer_task.h"
 
+#include "watchdog_driver.h"
+
 RTOS_TASK_HANDLE menusTaskId;
 RTOS_DEFINE_STACK(menusTaskId, menusStack, MENUS_STACK_SIZE);
 
@@ -73,8 +75,8 @@ TASK_FUNCTION(menusTask)
 #endif
 
     splashStartTime += SPLASH_TIMEOUT;
-    watchdogSuspend(SPLASH_TIMEOUT);
     while (splashStartTime > get_tmr10ms()) {
+      WDG_RESET();
       checkSpeakerVolume();
       checkBacklight();
       RTOS_WAIT_TICKS(10);
@@ -92,7 +94,6 @@ TASK_FUNCTION(menusTask)
       }
 #endif
     }
-    watchdogSuspend(0);
 
     // Reset timer so special/global functions set to !1x don't get triggered
     START_SILENCE_PERIOD();
