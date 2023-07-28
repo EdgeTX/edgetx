@@ -93,12 +93,12 @@ void menuRadioDiagKeys(event_t event)
       if (i >= 7) { // max 7 lines on display
         y = MENU_HEADER_HEIGHT + 1 + FH * 6;
         lcdDrawText(8, y, keysGetLabel(k), 0);
-        displayKeyState(lcdNextPos + 10, y, i);
+        displayKeyState(lcdNextPos + 10, y, k);
       }
       else {
         y = MENU_HEADER_HEIGHT + 1 + FH * i;
         lcdDrawText(0, y, keysGetLabel(k), 0);
-        displayKeyState(5 * FW + 2, y, i);
+        displayKeyState(5 * FW + 2, y, k);
       }
     }
 
