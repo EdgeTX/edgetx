@@ -1322,10 +1322,10 @@
 #elif defined(PCBXLITE)
   #define HARDWARE_POT1
   #define HARDWARE_POT2
-  #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_3  // PA.03
-  #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_2  // PA.02
-  #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_0  // PA.00
-  #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_1  // PA.01
+  #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_0  // PA.00
+  #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_1  // PA.01
+  #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_3  // PA.03
+  #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_2  // PA.02
   #define ADC_GPIO_PIN_POT1             LL_GPIO_PIN_1  // PC.01
   #define ADC_GPIO_PIN_POT2             LL_GPIO_PIN_2  // PC.02
   #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_0  // PC.00
@@ -1335,11 +1335,11 @@
   #define PWM_GPIO_AF                   LL_GPIO_AF_2
   #define PWM_IRQHandler                TIM5_IRQHandler
   #define PWM_IRQn                      TIM5_IRQn
-  #define PWM_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_LH)
-  #define STICK_PWM_CHANNEL_LH          3
-  #define STICK_PWM_CHANNEL_LV          2
-  #define STICK_PWM_CHANNEL_RV          0
-  #define STICK_PWM_CHANNEL_RH          1
+  #define PWM_GPIOA_PINS                (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH)
+  #define STICK_PWM_CHANNEL_LH          0
+  #define STICK_PWM_CHANNEL_LV          1
+  #define STICK_PWM_CHANNEL_RV          3
+  #define STICK_PWM_CHANNEL_RH          2
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_LH)
   #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_BATT)
   #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_0  // ADC1_IN0

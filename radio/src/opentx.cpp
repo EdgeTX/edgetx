@@ -349,6 +349,10 @@ void generalDefault()
   g_eeGeneral.rotEncMode = ROTARY_ENCODER_MODE_INVERT_BOTH;
 #endif
 
+#if defined(MANUFACTURER_RADIOMASTER)
+  g_eeGeneral.audioMuteEnable = 1;
+#endif
+
   g_eeGeneral.chkSum = 0xFFFF;
 }
 
@@ -1450,6 +1454,10 @@ void opentxInit()
 
   bool radioSettingsValid = storageReadRadioSettings(false);
   (void)radioSettingsValid;
+
+#if defined(GUI) && !defined(COLORLCD)
+  lcdSetContrast();
+#endif
 #endif
 
   BACKLIGHT_ENABLE(); // we start the backlight during the startup animation
@@ -1588,7 +1596,7 @@ void opentxInit()
   }
 #endif
 
-#if defined(GUI) && !defined(COLORLCD)
+#if defined(GUI) && !defined(COLORLCD) && !defined(STARTUP_ANIMATION)
   lcdSetContrast();
 #endif
 
