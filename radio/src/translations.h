@@ -143,7 +143,6 @@ extern const char* const STR_TRNCHN[];
 extern const char* const STR_AUX_SERIAL_MODES[];
 extern const char* const STR_SWTYPES[];
 extern const char* const STR_POTTYPES[];
-extern const char* const STR_SLIDERTYPES[];
 extern const char* const STR_VTRIMINC[];
 extern const char* const STR_VDISPLAYTRIMS[];
 
