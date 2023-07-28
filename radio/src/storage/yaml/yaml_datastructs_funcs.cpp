@@ -1947,7 +1947,8 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
   } else if (md->type == MODULE_TYPE_FLYSKY_AFHDS2A) {
     // Flysky sub-types have been converted into separate module types
     auto sub_type = yaml_parse_enum(enum_FLYSKY_Subtypes, val, val_len);
-    md->type += sub_type;
+    if (sub_type == FLYSKY_SUBTYPE_AFHDS3)
+      md->type = MODULE_TYPE_FLYSKY_AFHDS3;
   } else if (md->type == MODULE_TYPE_MULTIMODULE) {
 #if defined(MULTIMODULE)
     // Read type/subType by the book (see MPM documentation)
