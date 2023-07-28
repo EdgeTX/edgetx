@@ -73,6 +73,7 @@ TASK_FUNCTION(menusTask)
 #endif
 
     splashStartTime += SPLASH_TIMEOUT;
+    watchdogSuspend(SPLASH_TIMEOUT);
     while (splashStartTime > get_tmr10ms()) {
       checkSpeakerVolume();
       checkBacklight();
@@ -91,6 +92,7 @@ TASK_FUNCTION(menusTask)
       }
 #endif
     }
+    watchdogSuspend(0);
 
     // Reset timer so special/global functions set to !1x don't get triggered
     START_SILENCE_PERIOD();
