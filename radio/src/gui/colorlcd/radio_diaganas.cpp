@@ -186,6 +186,8 @@ class AnaCalibratedViewWindow: public AnaViewWindow {
       lv_obj_set_grid_cell(lbl2->getLvObj(), LV_GRID_ALIGN_STRETCH, TSI2CEventsCol, 5, LV_GRID_ALIGN_CENTER, 0, 1);
 #endif
 #endif // defined(HARDWARE_TOUCH)
+
+      setHeight(parent->height());
     }
 
 #if defined(HARDWARE_TOUCH)
