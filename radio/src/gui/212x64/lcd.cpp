@@ -546,13 +546,25 @@ void drawTelemetryTopBar()
   uint8_t att = (IS_TXBATT_WARNING() ? BLINK : 0);
   putsVBat(12*FW, 0, att);
   if (g_model.timers[0].mode) {
-    att = (timersStates[0].val<0 ? BLINK : 0);
-    drawTimer(22*FW, 0, timersStates[0].val, att, att);
+    TimerData *timer =  &g_model.timers[0];
+    int32_t val = 0;
+    if (g_model.timers[0].showElapsed)
+      val = timer->start - timersStates[0].val;
+    else
+      val = timersStates[0].val;
+    LcdFlags att = (val < 0 ? BLINK : 0) | TIMEHOUR;
+    drawTimer(22*FW, 0, val, att, att);
     lcdDrawText(22*FW, 0, "T1:", RIGHT);
   }
   if (g_model.timers[1].mode) {
-    att = (timersStates[1].val<0 ? BLINK : 0);
-    drawTimer(31*FW, 0, timersStates[1].val, att, att);
+    TimerData *timer =  &g_model.timers[1];
+    int32_t val = 0;
+    if (g_model.timers[1].showElapsed)
+      val = timer->start - timersStates[1].val;
+    else
+      val = timersStates[1].val;
+    LcdFlags att = (val < 0 ? BLINK : 0) | TIMEHOUR;
+    drawTimer(31*FW, 0, val, att, att);
     lcdDrawText(31*FW, 0, "T2:", RIGHT);
   }
   lcdInvertLine(0);
