@@ -139,9 +139,9 @@ void SetupWidgetsPage::onEvent(event_t event)
 {
 #if defined(HARDWARE_KEYS)
   if (event == EVT_KEY_FIRST(KEY_PGUP) || event == EVT_KEY_FIRST(KEY_PGDN) ||
-      event == EVT_KEY_FIRST(KEY_SYS) || event == EVT_KEY_FIRST(KEY_MODEL)) {
+      event == EVT_KEY_FIRST(KEY_RADIO) || event == EVT_KEY_FIRST(KEY_MODEL)) {
     killEvents(event);
-  } else if (event == EVT_KEY_FIRST(KEY_TELE)) {
+  } else if (event == EVT_KEY_FIRST(KEY_TELEM)) {
     onCancel();
   } else {
     FormWindow::onEvent(event);
