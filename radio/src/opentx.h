@@ -340,10 +340,8 @@ inline bool SPLASH_NEEDED()
 #endif
 }
 
-#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBNV14)
-  #define SPLASH_TIMEOUT               (g_eeGeneral.splashMode == -4 ? 1500 : (g_eeGeneral.splashMode <= 0 ? (400-g_eeGeneral.splashMode * 200) : (400 - g_eeGeneral.splashMode * 100)))
-#else
-  #define SPLASH_TIMEOUT               (4 * 100)  // 4 seconds
+#if defined(SPLASH)
+  #define SPLASH_TIMEOUT (g_eeGeneral.splashMode == -4 ? 1500 : (g_eeGeneral.splashMode <= 0 ? (400-g_eeGeneral.splashMode * 200) : (400 - g_eeGeneral.splashMode * 100)))
 #endif
 
 constexpr uint8_t HEART_TIMER_10MS = 0x01;
