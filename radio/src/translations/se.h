@@ -215,7 +215,7 @@
 #define TR_VFORMULAS                    "Addera",TR("Medel","Medelvärde"),TR("Min","Minimum"),TR("Max","Maximum"),TR("Multipl.","Multiplicera"),"Summera","Cell",TR("Förbrukn.","Förbrukning"),"Avstånd"
 #define TR_VPREC                        "0.--","0.0","0.00"
 #define TR_VCELLINDEX                   "Lägsta","1","2","3","4","5","6","7","8","Högsta","Skillnad"
-#define TR_SUBTRIMMODES                 STR_CHAR_DELTA " (Bara center)","= (Symmetriskt)"
+#define TR_SUBTRIMMODES                 STR_CHAR_DELTA " (endast center)","= (symmetrisk)"
 #define TR_TIMER_DIR                    TR("Återst.", "Visa återstående"), TR("Förbrukad", "Visa förbrukad")
 
 #if defined(COLORLCD)
@@ -619,7 +619,7 @@
 #define TR_MODULE_OPTIONS               "Modulalternativ"
 #define TR_POWER                        "Power"
 #define TR_NO_TX_OPTIONS                "Inga TX-alternativ"
-#define TR_RTC_BATT                     TR("RTC batt.","RTC batteri")
+#define TR_RTC_BATT                     "RTC Batteri"
 #define TR_POWER_METER_EXT              "Power Meter (EXT)"
 #define TR_POWER_METER_INT              "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT        "Spektrum (EXT)"
@@ -937,7 +937,7 @@
 #define TR_CHECKLIST                    TR(INDENT "Checklista", INDENT "Visa checklista")
 #define TR_AUX_SERIAL_MODE              "Serieport"
 #define TR_AUX2_SERIAL_MODE             "Serieport 2"
-#define TR_AUX_SERIAL_PORT_POWER        "Ström på"
+#define TR_AUX_SERIAL_PORT_POWER        "Strömkälla"
 #define TR_SCRIPT                       "Programkod"
 #define TR_INPUTS                       "Inputs"
 #define TR_OUTPUTS                      "Outputs"
@@ -1195,7 +1195,7 @@
 #define TR_SAVE                         "Spara"
 #define TR_CANCEL                       "Avbryt"
 #define TR_EDIT_THEME                   "REDIGERA TEMA"
-#define TR_DETAILS                      "Detaljer"
+#define TR_DETAILS                      "Temainformation"
 #define TR_THEME_EDITOR                 "TEMAN"
 
 // Main menu
@@ -1266,4 +1266,3 @@
 #define TR_ENABLED_FEATURES             "Aktiverade funktioner"
 #define TR_RADIO_MENU_TABS              "Radiomenyflikar"
 #define TR_MODEL_MENU_TABS              "Modellmenyflikar"
-
