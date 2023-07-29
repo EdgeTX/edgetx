@@ -627,13 +627,14 @@ void lcdDrawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t pat, 
 
 void drawTelemetryTopBar()
 {
-  drawModelName(0, 0, g_model.header.name, g_eeGeneral.currModel, 0);
+  if (g_model.timers[0].mode) {
+    uint8_t att = (timersStates[0].val<0 ? BLINK : 0);
+    drawTimer(0, 0, timersStates[0].val, att, att);
+  } else {
+    drawModelName(0, 0, g_model.header.name, g_eeGeneral.currModel, 0);
+  }
   uint8_t att = (IS_TXBATT_WARNING() ? BLINK : 0);
   putsVBat(10*FW-1,0,att);
-  if (g_model.timers[0].mode) {
-    att = (timersStates[0].val<0 ? BLINK : 0);
-    drawTimer(13*FW+2, 0, timersStates[0].val, att, att);
-  }
 #if defined(RTCLOCK)
   drawRtcTime(17*FW+3, 0, LEFT|TIMEBLINK);
 #endif

@@ -66,7 +66,7 @@ void menuRadioDiagKeys(event_t event)
     auto k = get_ith_key(i);
     coord_t y = MENU_HEADER_HEIGHT + 1 + FH * i;
     lcdDrawText(0, y, keysGetLabel(k), 0);
-    displayKeyState(5 * FW + 2, y, i);
+    displayKeyState(5 * FW + 2, y, k);
   }
 
   for (uint8_t i = 0, cnt = 0; i < switchGetMaxSwitches(); i++) {

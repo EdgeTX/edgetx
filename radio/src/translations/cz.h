@@ -54,8 +54,7 @@
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "VYP","Telemetrie zrcadlení","Telemetrie vstup","SBUS Trenér","LUA","CLI","GPS","Debug","SpaceMouse","Externí modul"
 #define TR_SWTYPES                     "Žádný","Bez aretace","2-polohový","3-polohový"
-#define TR_POTTYPES                    "Žádný",TR("Pot s aret.","Pot s aretací"),TR("Vícepol př.","Vícepol. přep."),TR("Pot","Potenciometr")
-#define TR_SLIDERTYPES                 "Žádný","Slider"
+#define TR_POTTYPES                    "Žádný",TR("Pot s aret.","Pot s aretací"),TR("Vícepol př.","Vícepol. přep."),TR("Pot","Potenciometr"),"Slider"
 #define TR_VPERSISTENT                 "Ne","V rámci letu","Reset ručně"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japonsko"),TR("EU","Evropa")
 #define TR_USBMODES                    TR("Zeptat","Zeptat se"),TR("Joyst","Joystick"),TR("SDkarta","Úložiště"),"Serial"
@@ -107,13 +106,13 @@
 #define TR_SF_RANGE_CHECK              "Kontrola dosahu"
 #define TR_SF_MOD_BIND                 "ModuleBind"
 
-#define TR_SOUND                       TR3("\221\222Zvuk", "\221\222Zvuk", "Hrát zvuk")
-#define TR_PLAY_TRACK                  TR3("\221\222Stopa", "\221\222Stopa", "Přehrát wav")
-#define TR_PLAY_VALUE                  TR3("\221\222Hlásit ", "\221\222Hlásit ", "Hlásit stav")
+#define TR_SOUND                       TR3("\200\201Zvuk", "\200\201Zvuk", "Hrát zvuk")
+#define TR_PLAY_TRACK                  TR3("\200\201Stopa", "\200\201Stopa", "Přehrát wav")
+#define TR_PLAY_VALUE                  TR3("\200\201Hlásit ", "\200\201Hlásit ", "Hlásit stav")
 #define TR_SF_HAPTIC                   "Vibrovat"
 #define TR_SF_PLAY_SCRIPT              "Lua Skript"
-#define TR_SF_BG_MUSIC                 TR3("\221\222Hudba","\221\222Hudba","Hudba")
-#define TR_SF_BG_MUSIC_PAUSE           TR3("\221\222Hudba ||","\221\222Hudba ||","Hudba pauza")
+#define TR_SF_BG_MUSIC                 TR3("\200\201Hudba","\200\201Hudba","Hudba")
+#define TR_SF_BG_MUSIC_PAUSE           TR3("\200\201Hudba ||","\200\201Hudba ||","Hudba pauza")
 #define TR_SF_LOGS                     "Loguj na SD"
 #define TR_ADJUST_GVAR                 "Nastav"
 #define TR_SF_BACKLIGHT                "Podsvětlení"
@@ -266,7 +265,7 @@
 #define TR_TTRACE                      TR("StopaPlynu", INDENT "Stopa plynu")
 #define TR_TTRIM                       TR3("TrimVolnob.", INDENT "Trim jen volnoběh", "Trim jen pro volnoběh")
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim spínač")
-#define TR_BEEPCTR                     TR3("Středy \221\222", "Pípat středy \221\222", "Pípat středy")
+#define TR_BEEPCTR                     TR3("Středy \200\201", "Pípat středy \200\201", "Pípat středy")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funkce", "Použít globální funkce")
 #define TR_PROTOCOL                    "Protokol"
 #define TR_PPMFRAME                    INDENT "PPM modulace"
