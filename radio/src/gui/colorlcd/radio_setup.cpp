@@ -803,12 +803,19 @@ void RadioSetupPage::build(FormWindow * window)
   new Choice(line, rect_t{}, STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE,
              GET_SET_DEFAULT(g_eeGeneral.USBMode));
 
-#if defined(ROTARY_ENCODER_NAVIGATION)
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_TRIMS_AS_BUTTONS)
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_ROTARY_ENC_MODE, 0, COLOR_THEME_PRIMARY1);
   new Choice(line, rect_t{}, STR_ROTARY_ENC_OPT, ROTARY_ENCODER_MODE_NORMAL,
              ROTARY_ENCODER_MODE_INVERT_BOTH,
              GET_SET_DEFAULT(g_eeGeneral.rotEncMode));
+#endif
+
+#if defined(USE_TRIMS_AS_BUTTONS)
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_HATS_MODE, 0, COLOR_THEME_PRIMARY1);
+  new Choice(line, rect_t{}, STR_HATS_OPT, HATS_MODE_TRIMS_ONLY, HATS_MODE_BOTH,
+             GET_SET_DEFAULT(g_eeGeneral.hatsMode));
 #endif
 
   // RX channel order

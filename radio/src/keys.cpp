@@ -18,6 +18,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+#if !defined(BOOT)
+#include "opentx.h"
+#endif
+
+#include "debug.h"
 
 #include "keys.h"
 
@@ -296,21 +301,101 @@ static bool _trims_as_buttons = false;
 void setTrimsAsButtons(bool val) { _trims_as_buttons = val; }
 bool getTrimsAsButtons() { return _trims_as_buttons; }
 
-static uint32_t transpose_trims()
-{
-  uint32_t keys = 0;
+int16_t getEmuRotaryData() {
+  static bool rotaryTrimPressed = false;
+  static tmr10ms_t timePressed = 0;
+
+  if(!getTrimsAsButtons())
+    return 0;
+
+  tmr10ms_t now = get_tmr10ms();
+
+  if(rotaryTrimPressed && (now > (timePressed + 10)))   // 100ms repeat key update rate
+    rotaryTrimPressed = false;
+
   auto trims = readTrims();
 
-  if (trims & (1 << 0)) keys |= 1 << KEY_SYS;
-  if (trims & (1 << 1)) keys |= 1 << KEY_TELE;
-  if (trims & (1 << 2)) keys |= 1 << KEY_PAGEUP;
-  if (trims & (1 << 3)) keys |= 1 << KEY_PAGEDN;
-  if (trims & (1 << 4)) keys |= 1 << KEY_DOWN;
-  if (trims & (1 << 5)) keys |= 1 << KEY_UP;
-  if (trims & (1 << 6)) keys |= 1 << KEY_LEFT;
-  if (trims & (1 << 7)) keys |= 1 << KEY_RIGHT;
+  if (trims & (1 << 4)) {
+    if(!rotaryTrimPressed) {
+      rotaryTrimPressed = true;
+      timePressed = now;
+      return 1;
+    }
+  }
 
-  return keys;
+  if (trims & (1 << 5)) {
+    if(!rotaryTrimPressed) {
+      rotaryTrimPressed = true;
+      timePressed = now;
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
+static void transpose_trims(uint32_t *keys)
+{
+#if defined(BOOT)
+  auto trims = readTrims();
+
+  if (trims & (1 << 4)) *keys |= 1 << KEY_DOWN;       // right hat, down    0x10
+  if (trims & (1 << 5)) *keys |= 1 << KEY_UP;         // right hat, up      0x20
+#else
+  static uint8_t state = 0;
+
+  if(g_eeGeneral.hatsMode == HATS_MODE_BOTH) {
+    static bool lastExitState  = false;
+    static bool lastEnterState = false;
+
+    bool exitState  = *keys & (1 << KEY_EXIT);      // edge detection for EXIT and ENTER keys   
+    bool enterState = *keys & (1 << KEY_ENTER);
+
+    bool exitPressed  = !lastExitState  && exitState;
+    bool exitReleased = lastExitState   && !exitState;
+    bool enterPressed = !lastEnterState && enterState;
+
+    lastExitState  = exitState;
+    lastEnterState = enterState;
+
+    switch(state) {
+      case 0:                                       // idle state waiting for EXIT or ENTER key
+        if(exitPressed) {
+          state = 1;
+        }
+        break;
+      
+      case 1:                                       // state EXIT received
+        if(exitReleased) {                          // if exit released go back to idle state
+          state = 0;
+          break;
+        }
+        
+        if(enterPressed) {                          // ENTER received with EXIT still pressed
+          setTrimsAsButtons(!getTrimsAsButtons());  // change mode and don't forward EXIT and ENTER keys
+          killEvents(KEY_EXIT);
+          killEvents(KEY_ENTER);
+          state = 0;                                // go to for EXIT to be released
+          break;
+        }
+        break;
+    }
+  } else
+    state = 0;                                        // state machine in idle if not in mode "BOTH"
+
+  if(getTrimsAsButtons()) {                           // map hats to keys in button mode
+    auto trims = readTrims();
+    
+    if (trims & (1 << 0)) *keys |= 1 << KEY_EXIT;     // left hat, left    0x01
+    if (trims & (1 << 1)) *keys |= 1 << KEY_MODEL;    // left hat, right   0x02
+    if (trims & (1 << 2)) *keys |= 1 << KEY_TELE;     // left hat, down    0x04
+    if (trims & (1 << 3)) *keys |= 1 << KEY_SYS;      // left hat, up      0x08
+
+    if (trims & (1 << 6)) *keys |= 1 << KEY_PAGEUP;   // rht, left    0x40
+    if (trims & (1 << 7)) *keys |= 1 << KEY_PAGEDN;   // rht, right   0x80
+  }
+
+#endif
 }
 #endif
 
@@ -320,8 +405,9 @@ bool keysPollingCycle()
   uint32_t keys_input = readKeys();
 
 #if defined(USE_TRIMS_AS_BUTTONS)
+  transpose_trims(&keys_input);
+  
   if (getTrimsAsButtons()) {
-    keys_input |= transpose_trims();
     trims_input = 0;
   } else {
     trims_input = readTrims();

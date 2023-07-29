@@ -105,7 +105,7 @@ void interrupt10ms()
 
   keysPollingCycle();
 
-#if defined(ROTARY_ENCODER_NAVIGATION)
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_TRIMS_AS_BUTTONS)
   static rotenc_t rePreviousValue;
 
   rotenc_t reNewValue = rotaryEncoderGetValue();
@@ -288,7 +288,7 @@ void bootloaderInitApp()
 
   pwrOn();
 
-#if defined(ROTARY_ENCODER_NAVIGATION)
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_TRIMS_AS_BUTTONS)
   rotaryEncoderInit();
 #endif
 

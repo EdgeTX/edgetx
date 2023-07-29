@@ -939,7 +939,12 @@ PACK(struct RadioData {
   char ownerRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
   CUST_ATTR(rotEncDirection, r_rotEncDirection, nullptr);
+
+#if defined(USE_TRIMS_AS_BUTTONS)
+  NOBACKUP(uint8_t  hatsMode:2);
+#else
   NOBACKUP(uint8_t  rotEncMode:2);
+#endif
 
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
 

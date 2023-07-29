@@ -516,6 +516,9 @@
 #define BLUETOOTH_ON_GPIO               GPIOI
 #define BLUETOOTH_ON_GPIO_PIN           GPIO_Pin_8 // PI.8
 
+//ROTARY emulation for trims as buttons
+#define ROTARY_ENCODER_NAVIGATION
+
 // Bluetooth
 #define BT_RCC_AHB1Periph               (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOH)
 #define BT_RCC_APB1Periph               (RCC_APB1Periph_USART3)

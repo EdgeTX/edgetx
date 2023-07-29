@@ -266,6 +266,30 @@ void checkSpeakerVolume()
   }
 }
 
+#if defined(USE_TRIMS_AS_BUTTONS)
+void checkTrimsAsButtons() {
+  static bool oldHatsModeButtons = g_eeGeneral.hatsMode == HATS_MODE_BUTTONS_ONLY;
+
+  if(g_eeGeneral.hatsMode == HATS_MODE_TRIMS_ONLY) {
+    setTrimsAsButtons(false);
+  }
+  
+  if(g_eeGeneral.hatsMode == HATS_MODE_BUTTONS_ONLY) {
+    setTrimsAsButtons(true);
+  }
+
+  bool hatsModeButtons = getTrimsAsButtons();
+
+  if(hatsModeButtons == oldHatsModeButtons)
+    return;
+  
+  oldHatsModeButtons = !oldHatsModeButtons;
+
+  audioKeyPress();
+  POPUP_INFORMATION(hatsModeButtons ? STR_HATS_MODE_BUTTONS : STR_HATS_MODE_TRIMS);
+}
+#endif
+
 #if defined(EEPROM)
 void checkEeprom()
 {
@@ -524,6 +548,10 @@ void perMain()
   }
 
   checkBacklight();
+
+#if defined(USE_TRIMS_AS_BUTTONS)
+  checkTrimsAsButtons();
+#endif
 
 #if !defined(LIBOPENUI)
   event_t evt = getEvent();

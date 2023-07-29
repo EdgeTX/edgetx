@@ -154,6 +154,13 @@
 
 #define TR_ON_ONE_SWITCHES             "ON","One"
 
+#if defined(USE_TRIMS_AS_BUTTONS)
+#define TR_HATS_MODE                   "Hats mode"
+#define TR_HATS_OPT                    "Trims only","Keys only","Switchable"
+#define TR_HATS_MODE_TRIMS             "Hats mode: Trims"
+#define TR_HATS_MODE_BUTTONS           "Hats mode: Keys"
+#endif
+
 #if defined(COLORLCD)
   #define TR_ROTARY_ENC_OPT         "Normal","Inverted"
 #else

@@ -657,6 +657,14 @@ enum BluetoothModes {
 #endif
 };
 
+#if defined(USE_TRIMS_AS_BUTTONS)
+enum enumHatsMode {
+  HATS_MODE_TRIMS_ONLY,
+  HATS_MODE_BUTTONS_ONLY,
+  HATS_MODE_BOTH
+};
+#endif
+
 enum UartSampleModes {
   UART_SAMPLE_MODE_NORMAL = 0,
   UART_SAMPLE_MODE_ONEBIT,

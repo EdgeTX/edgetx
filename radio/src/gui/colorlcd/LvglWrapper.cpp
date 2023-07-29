@@ -235,7 +235,27 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 #endif
 }
 
-#if defined(ROTARY_ENCODER_NAVIGATION)
+#if defined(USE_TRIMS_AS_BUTTONS)
+
+int16_t getEmuRotaryData();
+
+static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
+{
+  int16_t diff = getEmuRotaryData();
+
+  if(diff != 0) {
+    reset_inactivity();
+    audioKeyPress();
+
+    data->enc_diff = diff;
+    data->state = LV_INDEV_STATE_RELEASED;
+  }
+}
+
+// libopenui_depends.h
+int8_t rotaryEncoderGetAccel() { return 0; }
+
+#elif defined(ROTARY_ENCODER_NAVIGATION)
 extern volatile uint32_t rotencDt;
 static int8_t _rotary_enc_accel = 0;
 

@@ -174,6 +174,13 @@ extern const char* const STR_CYC_VSRCRAW[];
 
 extern const char* const STR_ROTARY_ENC_OPT[];
 
+#if defined(USE_TRIMS_AS_BUTTONS)
+extern const char STR_HATS_MODE[];
+extern const char* const STR_HATS_OPT[];
+extern const char STR_HATS_MODE_TRIMS[];
+extern const char STR_HATS_MODE_BUTTONS[];
+#endif
+
 extern const char* const STR_VTMRMODES[];
 extern const char* const STR_VPERSISTENT[];
 

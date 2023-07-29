@@ -886,7 +886,7 @@ Return rotary encoder mode
 */
 static int luaGetRotEncMode(lua_State * L)
 {
-#if defined(ROTARY_ENCODER_NAVIGATION)
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_TRIMS_AS_BUTTONS)
   lua_pushunsigned(L, g_eeGeneral.rotEncMode);
 #else
   lua_pushunsigned(L, 0);
