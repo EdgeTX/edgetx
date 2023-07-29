@@ -468,7 +468,7 @@
 #endif
 #define TR_CHANNELS2FAILSAFE           "Chanais=>Failsafe"
 #define TR_CHANNEL2FAILSAFE            "Chanal=>Failsafe"
-#define TR_MENUMODELSEL                TR("SELMODEL", "SELECAO MODELO")
+#define TR_MENUMODELSEL                TR("SEL MODELO", "SELECAO MODELO")
 #define TR_MENU_MODEL_SETUP            TR("CONFIG", "CONFIG. MODELO")
 #define TR_MENUFLIGHTMODES             "MODOS VOO"
 #define TR_MENUFLIGHTMODE              "MODO DE VOO"
@@ -513,7 +513,7 @@
 #define TR_DISABLE_INTERNAL            TR("Desatv RF intern", "Desatv RF interno")
 #define TR_MODULE_NO_SERIAL_MODE       TR("!serial mode", "Not in serial mode")
 #define TR_MODULE_NO_INPUT             TR("No input", "No serial input")
-#define TR_MODULE_NO_TELEMETRY         TR3("No telemetry", "No MULTI_TELEMETRY", "No MULTI_TELEMETRY detected")
+#define TR_MODULE_NO_TELEMETRY         TR3("Sem telemetr", "Sem MULTI_TELEMETRY", "Nenh. MULTI_TELEMETRY detectado")
 #define TR_MODULE_WAITFORBIND          "Bind to load protocol"
 #define TR_MODULE_BINDING              TR("Bind...","Binding")
 #define TR_MODULE_UPGRADE_ALERT        TR3("Upg. needed", "Module upgrade required", "Module\nUpgrade required")
@@ -569,7 +569,7 @@
 #define TR_DELETE_LABEL                "Apag Etiqueta"
 #define TR_DUPLICATE_MODEL             "DDuplicar Modelo"
 #define TR_COPY_MODEL                  "Copiar Modelo"
-#define TR_MOVE_MODEL                  "Move model"
+#define TR_MOVE_MODEL                  "Mover modelo"
 #define TR_BACKUP_MODEL                "Backup Modelo"
 #define TR_DELETE_MODEL                "Apagar Modelo"
 #define TR_RESTORE_MODEL               "Restaura Modelo"
@@ -792,16 +792,16 @@
 #define TR_JACK_MODE                   "Jack mode"
 #define TR_VOICE_LANGUAGE              "Idoma da Voz"
 #define TR_UNITS_SYSTEM                "Unidades"
-#define TR_EDIT                        "Edit"
-#define TR_INSERT_BEFORE               "Insert before"
-#define TR_INSERT_AFTER                "Insert after"
-#define TR_COPY                        "Copy"
-#define TR_MOVE                        "Move"
-#define TR_PASTE                       "Paste"
-#define TR_PASTE_AFTER                 "Paste after"
-#define TR_PASTE_BEFORE                "Paste before"
-#define TR_DELETE                      "Delete"
-#define TR_INSERT                      "Insert"
+#define TR_EDIT                        "Editar"
+#define TR_INSERT_BEFORE               "Inserir antes"
+#define TR_INSERT_AFTER                "Inserir depois"
+#define TR_COPY                        "Copiar"
+#define TR_MOVE                        "Mover"
+#define TR_PASTE                       "Colar"
+#define TR_PASTE_AFTER                 "Colar antes"
+#define TR_PASTE_BEFORE                "Colar depois"
+#define TR_DELETE                      "Apagar"
+#define TR_INSERT                      "Inserir"
 #define TR_RESET_FLIGHT                "Reset flight"
 #define TR_RESET_TIMER1                "Reset timer1"
 #define TR_RESET_TIMER2                "Reset timer2"
@@ -866,7 +866,7 @@
 #define TR_TOPLCDTIMER                 "Top LCD Timer"
 #define TR_UNIT                        "Unit"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Adic Sensor"
-#define TR_CHANNELRANGE                TR(INDENT "Ch. Range", INDENT "Channel Range")
+#define TR_CHANNELRANGE                TR(INDENT "Range Ch.", INDENT "Range Canal")
 #define TR_ANTENNACONFIRM1             "EXT. ANTENNA"
 #if defined(PCBX12S)
   #define TR_ANTENNA_MODES             "Internal","Ask","Per model","Internal + External"
@@ -897,7 +897,7 @@
 #define TR_COUNT                       "Count"
 #define TR_PT                          "pt"
 #define TR_PTS                         "pts"
-#define TR_SMOOTH                      "Smooth"
+#define TR_SMOOTH                      "Suave"
 #define TR_COPY_STICKS_TO_OFS          TR("Cpy stick->subtrim", "Copy sticks to subtrim")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Cpy min/max to all",  "Copy min/max/center to all outputs")
 #define TR_COPY_TRIMS_TO_OFS           TR("Cpy trim->subtrim", "Copy trims to subtrim")
@@ -906,7 +906,7 @@
 #define TR_MIXSOURCE                   "Mixer source"
 #define TR_CONSTANT                    "Constant"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "DESL","LIGA","AUTO"
-#define TR_PREFLIGHT                   "Preflight Checks"
+#define TR_PREFLIGHT                   "Checagem PreVoo"
 #define TR_CHECKLIST                   TR(INDENT "Checklist", INDENT "Display checklist")
 #define TR_AUX_SERIAL_MODE             "Serial port"
 #define TR_AUX2_SERIAL_MODE            "Serial port 2"
@@ -927,7 +927,7 @@
 #define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
-#define TR_PHASES_HEADERS_NAME         "Name"
+#define TR_PHASES_HEADERS_NAME         "Nome"
 #define TR_PHASES_HEADERS_SW           "Switch"
 #define TR_PHASES_HEADERS_RUD_TRIM     "Rudder Trim"
 #define TR_PHASES_HEADERS_ELE_TRIM     "Elevator Trim"
@@ -938,15 +938,15 @@
 #define TR_PHASES_HEADERS_FAD_IN       "Fade In"
 #define TR_PHASES_HEADERS_FAD_OUT      "Fade Out"
 
-#define TR_LIMITS_HEADERS_NAME         "Name"
+#define TR_LIMITS_HEADERS_NAME         "Nome"
 #define TR_LIMITS_HEADERS_SUBTRIM      "Subtrim"
 #define TR_LIMITS_HEADERS_MIN          "Min"
 #define TR_LIMITS_HEADERS_MAX          "Max"
-#define TR_LIMITS_HEADERS_DIRECTION    "Direction"
+#define TR_LIMITS_HEADERS_DIRECTION    "Direcao"
 #define TR_LIMITS_HEADERS_CURVE        "Curve"
-#define TR_LIMITS_HEADERS_PPMCENTER    "PPM Center"
-#define TR_LIMITS_HEADERS_SUBTRIMMODE  "Subtrim mode"
-#define TR_INVERTED                    "Inverted"
+#define TR_LIMITS_HEADERS_PPMCENTER    "Centro PPM"
+#define TR_LIMITS_HEADERS_SUBTRIMMODE  "Modo subtrim"
+#define TR_INVERTED                    "Invertido"
 
 
 #define TR_LSW_DESCRIPTIONS            { "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON" }
@@ -1142,7 +1142,7 @@
 #define TR_THEME_COLOR_SECONDARY2      "SECONDARY2"
 #define TR_THEME_COLOR_SECONDARY3      "SECONDARY3"
 #define TR_THEME_COLOR_FOCUS           "FOCUS"
-#define TR_THEME_COLOR_EDIT            "EDIT"
+#define TR_THEME_COLOR_EDIT            "EDITAR"
 #define TR_THEME_COLOR_ACTIVE          "ACTIVE"
 #define TR_THEME_COLOR_WARNING         "WARNING"
 #define TR_THEME_COLOR_DISABLED        "DISABLED"
@@ -1152,7 +1152,7 @@
 #define TR_THEME_REGULAR               "Regular"
 #define TR_THEME_WARNING               "Warning"
 #define TR_THEME_DISABLED              "Disabled"
-#define TR_THEME_EDIT                  "Edit"
+#define TR_THEME_EDIT                  "Editar"
 #define TR_THEME_FOCUS                 "Focus"
 #define TR_AUTHOR                       "Author"
 #define TR_DESCRIPTION                  "Description"
