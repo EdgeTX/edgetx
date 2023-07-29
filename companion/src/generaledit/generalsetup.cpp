@@ -168,6 +168,14 @@ ui(new Ui::GeneralSetup)
     ui->usbModeCB->hide();
   }
 
+  if (IS_FLYSKY_EL18(firmware->getBoard()) || IS_FLYSKY_NV14(firmware->getBoard())) {
+    ui->hatsModeCB->setCurrentIndex(generalSettings.hatsMode);
+  }
+  else {
+    ui->hatsModeLabel->hide();
+    ui->hatsModeCB->hide();
+  }
+
   if (firmware->getCapability(HasSwitchableJack)) {
     ui->jackModeCB->setCurrentIndex(generalSettings.jackMode);
   }
@@ -384,6 +392,14 @@ void GeneralSetupPanel::on_usbModeCB_currentIndexChanged(int index)
 {
   if (!lock) {
     generalSettings.usbMode = ui->usbModeCB->currentIndex();
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_hatsModeCB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.hatsMode = ui->hatsModeCB->currentIndex();
     emit modified();
   }
 }

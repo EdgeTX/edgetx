@@ -5677,6 +5677,7 @@ Acceptable values are 3v..12v</source>
         <source>Power Off Delay</source>
         <translation type="unfinished"></translation>
     </message>
+
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1941"/>
         <location filename="../generaledit/generalsetup.ui" line="2420"/>
@@ -5696,6 +5697,26 @@ Acceptable values are 3v..12v</source>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2435"/>
         <source>USB Serial (CDC)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2430"/>
+        <source>Hats Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2441"/>
+        <source>Trims only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2446"/>
+        <source>Keys only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Switchable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

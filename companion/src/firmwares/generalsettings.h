@@ -206,6 +206,7 @@ class GeneralSettings {
     bool disableAlarmWarning;
     bool disableRssiPoweroffAlarm;
     unsigned int usbMode;
+    unsigned int hatsMode;
     unsigned int stickDeadZone;
     unsigned int jackMode;
     bool sportPower;

@@ -18,11 +18,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#if !defined(BOOT)
+#if !defined(BOOT) && defined(USE_TRIMS_AS_BUTTONS)
 #include "opentx.h"
 #endif
-
-#include "debug.h"
 
 #include "keys.h"
 
