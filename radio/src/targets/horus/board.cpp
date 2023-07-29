@@ -57,9 +57,18 @@ bool UNEXPECTED_SHUTDOWN()
 #else
   if (WAS_RESET_BY_WATCHDOG())
     return true;
-  else if (WAS_RESET_BY_SOFTWARE())
-    return getRTCBKPR(LL_RTC_BKP_DR0) != SOFTRESET_REQUEST;
-  else
+  else if (WAS_RESET_BY_SOFTWARE()) {
+    // This is the entry for a software induced restart, like exiting 
+    // the bootloader. Older bootloaders don't write a checksum to RTC 
+    // backup register 19. Exiting those bootloaders will result in a 
+    // checksum error which casues an EM. To prevent this EM the relevant
+    // register (LL_RTC_BKP_DR0) is read unprotected and written back to 
+    // generate a valid checksum for further checksum protected access to 
+    // LL_RTC_BKP_DR0 and LL_RTC_BKP_DR1.
+    setRTCBKPR(LL_RTC_BKP_DR0, LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR0));
+
+    return LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR0) != SOFTRESET_REQUEST;
+  } else
     return getRTCBKPR(LL_RTC_BKP_DR1) == POWER_REASON_SIGNATURE && getRTCBKPR(LL_RTC_BKP_DR0) != SHUTDOWN_REQUEST;
 #endif
 }
