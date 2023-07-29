@@ -944,7 +944,7 @@ Mode 4:
         <location filename="../firmwares/boards.cpp" line="785"/>
         <location filename="../firmwares/boards.cpp" line="803"/>
         <location filename="../firmwares/boards.cpp" line="816"/>
-        <location filename="../firmwares/boards.cpp" line="1030"/>
+        <location filename="../firmwares/boards.cpp" line="1029"/>
         <source>None</source>
         <translation>Ingen</translation>
     </message>
@@ -1151,17 +1151,17 @@ Mode 4:
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="1032"/>
+        <location filename="../firmwares/boards.cpp" line="1031"/>
         <source>Standard</source>
         <translation>Standard</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="1034"/>
+        <location filename="../firmwares/boards.cpp" line="1033"/>
         <source>Small</source>
         <translation>Liten</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="1036"/>
+        <location filename="../firmwares/boards.cpp" line="1035"/>
         <source>Both</source>
         <translation>Båda</translation>
     </message>
