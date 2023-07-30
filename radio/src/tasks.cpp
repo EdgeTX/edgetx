@@ -25,6 +25,8 @@
 #include "tasks.h"
 #include "tasks/mixer_task.h"
 
+#include "watchdog_driver.h"
+
 RTOS_TASK_HANDLE menusTaskId;
 RTOS_DEFINE_STACK(menusTaskId, menusStack, MENUS_STACK_SIZE);
 
@@ -46,7 +48,11 @@ TASK_FUNCTION(menusTask)
 #endif
 
 #if defined(SPLASH) && !defined(STARTUP_ANIMATION)
+  tmr10ms_t splashStartTime = 0;
+  bool waitSplash = false;
   if (!UNEXPECTED_SHUTDOWN()) {
+    splashStartTime = get_tmr10ms();
+    waitSplash = true;
     drawSplash();
     TRACE("drawSplash() completed");
   }
@@ -57,6 +63,44 @@ TASK_FUNCTION(menusTask)
 #endif
 
   opentxInit();
+
+#if defined(SPLASH) && !defined(STARTUP_ANIMATION)
+  if (waitSplash){
+    extern bool inactivityCheckInputs();
+    extern void checkSpeakerVolume();
+
+#if defined(SIMU)
+    // Simulator - inputsMoved() returns true immediately without this!
+    RTOS_WAIT_TICKS(30);
+#endif
+
+    splashStartTime += SPLASH_TIMEOUT;
+    while (splashStartTime > get_tmr10ms()) {
+      WDG_RESET();
+      checkSpeakerVolume();
+      checkBacklight();
+      RTOS_WAIT_TICKS(10);
+      auto evt = getEvent();
+      if (evt || inactivityCheckInputs()) {
+        if (evt)
+          killEvents(evt);
+        break;
+      }
+#if defined(SIMU)
+      // Allow simulator to exit if closed while splash showing
+      uint32_t pwr_check = pwrCheck();
+      if (pwr_check == e_power_off) {
+        break;
+      }
+#endif
+    }
+
+    // Reset timer so special/global functions set to !1x don't get triggered
+    START_SILENCE_PERIOD();
+  }
+#endif
+
+  mixerTaskInit();
 
 #if defined(PWR_BUTTON_PRESS)
   while (true) {
@@ -110,8 +154,6 @@ void tasksStart()
 #if defined(CLI) && !defined(SIMU)
   cliStart();
 #endif
-
-  mixerTaskInit();
 
   RTOS_CREATE_TASK(menusTaskId, menusTask, "menus", menusStack,
                    MENUS_STACK_SIZE, MENUS_TASK_PRIO);

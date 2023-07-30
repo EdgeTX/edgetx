@@ -360,6 +360,7 @@
 #define TR_KEYS_BACKLIGHT              "キー バックライト"
 #define TR_BLCOLOR                     "カラー"
 #define TR_SPLASHSCREEN                "起動イメージ"
+#define TR_PLAY_HELLO                  "起動時サウンド"
 #define TR_PWR_ON_DELAY                "電源ON遅延"
 #define TR_PWR_OFF_DELAY               "電源OFF遅延"
 #define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "Throttle状態")

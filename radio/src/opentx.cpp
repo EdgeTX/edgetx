@@ -1105,7 +1105,8 @@ void opentxStart(const uint8_t startOptions = OPENTX_START_DEFAULT_ARGS)
 
 #if defined(GUI)
   if (!calibration_needed && !(startOptions & OPENTX_START_NO_SPLASH)) {
-    AUDIO_HELLO();
+    if (!g_eeGeneral.dontPlayHello)
+      AUDIO_HELLO();
     doSplash();
   }
 #endif

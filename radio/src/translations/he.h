@@ -444,6 +444,7 @@
 #define TR_KEYS_BACKLIGHT              "Keys backlight"
 #define TR_BLCOLOR                     "צבע"
 #define TR_SPLASHSCREEN                "Splash screen"
+#define TR_PLAY_HELLO                  "צליל אתחול"
 #define TR_PWR_ON_DELAY                "השהיית הפעלה פעיל"
 #define TR_PWR_OFF_DELAY               "משך לחיצה לכיבוי השלט"
 #define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "התראת מצערת פתוחה")
