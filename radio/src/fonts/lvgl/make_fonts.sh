@@ -42,7 +42,7 @@ function make_font() {
   local chars=$4
   local arg=$5
 
-  lv_font_conv --no-prefilter --bpp 4 --size ${size} \
+  lv_font_conv --no-prefilter --bpp 3 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE},${BULLET},${COMPARE}${chars} \
                --font EdgeTX/extra.ttf -r ${EXTRA_SYM} \
                --font ${ARROWS_FONT} -r ${ARROWS} \
@@ -56,7 +56,7 @@ function make_font_w_extra_sym() {
   local size=$3
   local chars=$4
   local arg=$5
-  lv_font_conv --no-prefilter --bpp 4 --size ${size} \
+  lv_font_conv --no-prefilter --bpp 3 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE}${chars} \
                --font EdgeTX/extra.ttf -r ${EXTRA_SYM} \
                --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format ${arg}
@@ -68,7 +68,7 @@ function make_font_no_sym() {
   local size=$3
   local chars=$4
   local arg=$5
-  lv_font_conv --no-prefilter --bpp 4 --size ${size} \
+  lv_font_conv --no-prefilter --bpp 3 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE}${chars} \
                --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format ${arg}
 }
@@ -93,10 +93,10 @@ function make_font_set() {
   local ttf_bold=$3
   local chars=$4
   
-  make_font "${name}" "${ttf_normal}" 9 ${chars} --no-compress
-  make_font "${name}" "${ttf_normal}" 13 ${chars} --no-compress
-  make_font "${name}" "${ttf_normal}" 16 ${chars} --no-compress
-  make_font "${name}" "${ttf_normal}" 17 ${chars} --no-compress
+  make_font "${name}" "${ttf_normal}" 9 ${chars}
+  make_font "${name}" "${ttf_normal}" 13 ${chars}
+  make_font "${name}" "${ttf_normal}" 16 ${chars}
+  make_font "${name}" "${ttf_normal}" 17 ${chars}
   make_font "${name}_bold" "${ttf_bold}" 16 ${chars}
   make_font "${name}_bold" "${ttf_bold}" 17 ${chars}
   make_font_w_extra_sym "${name}" "${ttf_normal}" 24 ${chars}
