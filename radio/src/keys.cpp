@@ -330,7 +330,7 @@ bool keysPollingCycle()
   trims_input = readTrims();
 #endif
 
-  for (int i = 0; i < keysGetMaxKeys(); i++) {
+  for (int i = 0; i < MAX_KEYS; i++) {
     event_t evt = keys[i].input(keys_input & (1 << i));
     if (evt) {
       if (i != KEY_SHIFT && evt != _MSK_KEY_REPT) {
