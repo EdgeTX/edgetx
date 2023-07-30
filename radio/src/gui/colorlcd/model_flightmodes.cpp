@@ -167,6 +167,7 @@ class FlightModeEdit : public Page
           tr_value[i]->setValue(lastTrim[i]);
         }
       }
+      Page::checkEvents();
     }
 
   protected:
