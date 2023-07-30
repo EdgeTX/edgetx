@@ -179,7 +179,7 @@ const char * logsOpen()
 
 void logsClose()
 {
-  if (sdMounted()) {
+  if (g_oLogFile.obj.fs && sdMounted()) {
     if (f_close(&g_oLogFile) != FR_OK) {
       // close failed, forget file
       g_oLogFile.obj.fs = 0;
