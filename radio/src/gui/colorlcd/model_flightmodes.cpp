@@ -108,7 +108,7 @@ class FlightModeEdit : public Page
 
       FlexGridLayout trim_grid(trims_col_dsc, line_row_dsc);
 
-      for (int t = 0; t < MAX_TRIMS; t++) {
+      for (int t = 0; t < keysGetMaxTrims(); t++) {
         lastTrim[t] = p_fm->trim[t].value;
 
         if ((t % TRIMS_PER_LINE) == 0) {

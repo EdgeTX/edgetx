@@ -464,17 +464,16 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
 void evalTrims()
 {
   uint8_t phase = mixerCurrentFlightMode;
-  for (uint8_t i=0; i<MAX_TRIMS; i++) {
+  for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
     // do trim -> throttle trim if applicable
     int16_t trim = getTrimValue(phase, i);
     if (trimsCheckTimer > 0) {
       trim = 0;
     }
 
-    trims[i] = trim*2;
+    trims[i] = trim * 2;
   }
 }
-
 
 // TODO: move to analogs.cpp
 void evalInputs(uint8_t mode)

@@ -930,7 +930,7 @@ void alert(const char * title, const char * msg , uint8_t sound)
 
 #if defined(GVARS)
 #if MAX_TRIMS == 8
-int8_t trimGvar[MAX_TRIMS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+  int8_t trimGvar[MAX_TRIMS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 #elif MAX_TRIMS == 6
   int8_t trimGvar[MAX_TRIMS] = { -1, -1, -1, -1, -1, -1 };
 #elif MAX_TRIMS == 4
@@ -1424,7 +1424,7 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
   }
 
   // reset all trims, except throttle (if throttle trim)
-  for (uint8_t i=0; i<MAX_TRIMS; i++) {
+  for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
     auto thrStick = g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM;
     if (i != thrStick || !g_model.thrTrim) {
       int16_t original_trim = getTrimValue(mixerCurrentFlightMode, i);
