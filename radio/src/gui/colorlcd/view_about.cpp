@@ -24,16 +24,13 @@
 #include "opentx.h"
 #include "stamp.h"
 
-const uint8_t mask_qrcode[] = {
-#include "mask_qrcode.lbm"
-};
-
 #if defined(VERSION_TAG)
 const std::string about_str = "EdgeTX" " (" VERSION_TAG ")\n" "\"" CODENAME "\"" ;
 #else
 const std::string about_str = "EdgeTX" " (" VERSION "-" VERSION_SUFFIX ")";
 #endif
 const std::string copyright_str = "Copyright (C) 2023 EdgeTX";
+const std::string edgetx_url = "https://edgetx.org";
 
 AboutUs::AboutUs() :
     MessageDialog(MainWindow::instance(), STR_ABOUT_US, "", "",
@@ -62,12 +59,9 @@ AboutUs::AboutUs() :
 
   messageWidget->setText(about_str + "\n" + copyright_str);
 
-  qrcode = BitmapBuffer::load8bitMaskLZ4(mask_qrcode);
-  new StaticBitmap(content,
-                   rect_t{content->width() / 2 - qrcode->width() / 2,
-                          TOP_PADDING + (NUM_LINES * PAGE_LINE_HEIGHT),
-                          qrcode->width(), qrcode->height()},
-                   qrcode, COLOR_THEME_SECONDARY1);
+  auto qr = lv_qrcode_create(content->getLvObj(), 150, makeLvColor(COLOR_THEME_SECONDARY1), makeLvColor(COLOR_THEME_SECONDARY3));
+  lv_obj_set_pos(qr, (content->width() - 150) / 2, TOP_PADDING + (NUM_LINES * PAGE_LINE_HEIGHT) - 5);
+  lv_qrcode_update(qr, edgetx_url.c_str(), edgetx_url.length());
 }
 
 AboutUs::~AboutUs() { delete qrcode; }
