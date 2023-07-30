@@ -294,6 +294,8 @@ uint8_t keysGetTrimState(uint8_t trim)
 }
 
 #if defined(USE_TRIMS_AS_BUTTONS)
+#define ROTARY_EMU_KEY_REPEAT_RATE 12                  // times 10 [ms]                 
+
 static bool _trims_as_buttons = false;
 
 void setTrimsAsButtons(bool val) { _trims_as_buttons = val; }
@@ -303,26 +305,25 @@ int16_t getEmuRotaryData() {
   static bool rotaryTrimPressed = false;
   static tmr10ms_t timePressed = 0;
 
-  if(!getTrimsAsButtons())
-    return 0;
+  if(getTrimsAsButtons()) {
+    tmr10ms_t now = get_tmr10ms();
 
-  tmr10ms_t now = get_tmr10ms();
+    if(rotaryTrimPressed) {
+      if(now < (timePressed + ROTARY_EMU_KEY_REPEAT_RATE))
+        return 0;
 
-  if(rotaryTrimPressed && (now > (timePressed + 10)))   // 100ms repeat key update rate
-    rotaryTrimPressed = false;
+      rotaryTrimPressed = false;
+    }
 
-  auto trims = readTrims();
+    auto trims = readTrims();
 
-  if (trims & (1 << 4)) {
-    if(!rotaryTrimPressed) {
+    if(trims & (1 << 4)) {
       rotaryTrimPressed = true;
       timePressed = now;
-      return 1;
+      return 1; 
     }
-  }
 
-  if (trims & (1 << 5)) {
-    if(!rotaryTrimPressed) {
+    if(trims & (1 << 5)) {
       rotaryTrimPressed = true;
       timePressed = now;
       return -1;
