@@ -384,7 +384,8 @@ static void transpose_trims(uint32_t *keys)
   if(getTrimsAsButtons()) {                           // map hats to keys in button mode
     auto trims = readTrims();
     
-    if (trims & (1 << 0)) *keys |= 1 << KEY_EXIT;     // left hat, left    0x01
+    // spare key in buttons mode: left hat left 
+    //if (trims & (1 << 0)) *keys |= 1 << tbd;        // left hat, left    0x01
     if (trims & (1 << 1)) *keys |= 1 << KEY_MODEL;    // left hat, right   0x02
     if (trims & (1 << 2)) *keys |= 1 << KEY_TELE;     // left hat, down    0x04
     if (trims & (1 << 3)) *keys |= 1 << KEY_SYS;      // left hat, up      0x08
