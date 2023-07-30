@@ -209,7 +209,7 @@
 #define TR_VPREC                       "0.--","0.0","0.00"
 #define TR_VCELLINDEX                  "Mini.","1","2","3","4","5","6","7","8","Maxi.","Diff."
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (centre seulement)","= (symétrique)"
-#define TR_TIMER_DIR                   TR("Rester", "Voir Rester"), TR("Écoulé", "Voir Écoulé")
+#define TR_TIMER_DIR                   TR("Reste", "Voir restant"), TR("Écoulé", "Voir écoulé")
 
 // ZERO TERMINATED STRINGS
 
