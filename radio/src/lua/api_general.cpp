@@ -3117,19 +3117,19 @@ LROT_BEGIN(etxcst, NULL, 0)
   KEY_EVENTS(MENU, KEY_MENU)
 #endif
 
-#if defined(KEYS_GPIO_REG_RIGHT) && defined(COLORLCD)
+#if defined(KEYS_GPIO_REG_RIGHT) && defined(COLORLCD) || defined(USE_TRIMS_AS_BUTTONS)
   KEY_EVENTS(TELEM, KEY_TELE)
 #elif defined(KEYS_GPIO_REG_RIGHT)
   KEY_EVENTS(RIGHT, KEY_RIGHT)
 #endif
 
-#if defined(KEYS_GPIO_REG_UP) && defined(COLORLCD)
+#if defined(KEYS_GPIO_REG_UP) && defined(COLORLCD) || defined(USE_TRIMS_AS_BUTTONS)
   KEY_EVENTS(MODEL, KEY_MODEL)
 #elif defined(KEYS_GPIO_REG_UP)
   KEY_EVENTS(UP, KEY_UP)
 #endif
 
-#if defined(KEYS_GPIO_REG_LEFT) && defined(COLORLCD)
+#if defined(KEYS_GPIO_REG_LEFT) && defined(COLORLCD) || defined(USE_TRIMS_AS_BUTTONS)
   KEY_EVENTS(SYS, KEY_SYS)
 #elif defined(KEYS_GPIO_REG_LEFT)
   KEY_EVENTS(LEFT, KEY_LEFT)
@@ -3141,11 +3141,11 @@ LROT_BEGIN(etxcst, NULL, 0)
   KEY_EVENTS(DOWN, KEY_DOWN)
 #endif
 
-#if defined(KEYS_GPIO_REG_PAGEUP)
+#if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_TRIMS_AS_BUTTONS)
   KEY_EVENTS(PAGEUP, KEY_PAGEUP)
 #endif
 
-#if defined(KEYS_GPIO_REG_PAGEDN)
+#if defined(KEYS_GPIO_REG_PAGEDN) || defined(USE_TRIMS_AS_BUTTONS)
   KEY_EVENTS(PAGEDN, KEY_PAGEDN)
 #endif
 
