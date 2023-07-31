@@ -118,7 +118,6 @@
 #define TR_SF_SAFETY                   TR("Rempl.", "Remplace")
 
 #define TR_SF_SCREENSHOT               "Photo Écran"
-#define TR_SF_TEST                     "Test"
 #define TR_SF_RACING_MODE              "Racing Mode"
 #define TR_SF_DISABLE_TOUCH            "Non Tactile"
 #define TR_SF_SET_SCREEN               "Définir Écran Princ."

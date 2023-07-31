@@ -123,7 +123,6 @@
 #define TR_SF_SAFETY                   "Lås"
 
 #define TR_SF_SCREENSHOT                "Skärmbild"
-#define TR_SF_TEST                      "Test"
 #define TR_SF_RACING_MODE               "Tävlingsläge"
 #define TR_SF_DISABLE_TOUCH             "Ej pekskärm"
 #define TR_SF_SET_SCREEN                "Sätt huvudskärm"

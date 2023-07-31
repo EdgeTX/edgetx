@@ -112,7 +112,6 @@
 #define TR_SF_SAFETY                   TR("Overr.","上書き")
 
 #define TR_SF_SCREENSHOT               "画面キャプチャ"
-#define TR_SF_TEST                     "Test"
 #define TR_SF_RACING_MODE              "レースモード"
 #define TR_SF_DISABLE_TOUCH            "非タッチ"
 #define TR_SF_SET_SCREEN               "メインスクリーン設定"
