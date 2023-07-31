@@ -40,7 +40,7 @@ class Topbar
 class TopbarFactory
 {
  public:
-  static Topbar* create(Window* parent);
+  static TopbarImpl* create(Window* parent);
 };
 
 class SetupTopBarWidgetsPage : public FormWindow

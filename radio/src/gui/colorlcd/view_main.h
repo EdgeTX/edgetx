@@ -77,8 +77,8 @@ class ViewMain: public Window
     void nextMainView();
     void previousMainView();
 
-    Topbar* getTopbar();
-  
+    TopbarImpl* getTopbar();
+
     void onEvent(event_t event) override;
     void onClicked() override;
     void onCancel() override;

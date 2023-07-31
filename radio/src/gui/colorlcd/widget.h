@@ -180,6 +180,8 @@ class WidgetFactory
 
     virtual Widget * create(Window* parent, const rect_t & rect, Widget::PersistentData * persistentData, bool init = true) const = 0;
 
+    virtual bool isLuaWidgetFactory() const { return false; }
+
   protected:
     const char * name;
     const char * displayName;

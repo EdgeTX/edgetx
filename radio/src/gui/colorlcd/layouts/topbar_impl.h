@@ -56,6 +56,8 @@ class TopbarImpl:
 
     void checkEvents() override;
 
+    bool isTopBar() override { return true; }
+
     void removeWidget(unsigned int index) override;
 
   protected:

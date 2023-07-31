@@ -37,6 +37,8 @@ class LuaWidgetFactory : public WidgetFactory
                  Widget::PersistentData* persistentData,
                  bool init = true) const override;
 
+  bool isLuaWidgetFactory() const override { return true; }
+
  protected:
   void translateOptions(ZoneOption * options);
 
