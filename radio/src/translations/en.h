@@ -120,7 +120,6 @@
 #define TR_SF_RACING_MODE              "RacingMode"
 #define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_SET_SCREEN               "Set Main Screen"
-#define TR_SF_TEST                     "Test"
 #define TR_SF_RESERVE                  "[reserve]"
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetry")

@@ -121,7 +121,6 @@
 #define TR_SF_TEST                     "Test"
 
 #define TR_SF_SCREENSHOT               "Snímek LCD"
-#define TR_SF_TEST                     "Test"
 #define TR_SF_RACING_MODE              "Závodní režim"
 #define TR_SF_DISABLE_TOUCH            "Deaktivace dotyku"
 #define TR_SF_SET_SCREEN               "Vybrat hlavní obrazovku"

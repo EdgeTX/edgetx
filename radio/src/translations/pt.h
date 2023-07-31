@@ -123,7 +123,6 @@
 #define TR_SF_RACING_MODE              "ModCorrida"
 #define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_SET_SCREEN               "Def Tela Princ"
-#define TR_SF_TEST                     "Test"
 #define TR_SF_RESERVE                  "[reserve]"
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetria")
