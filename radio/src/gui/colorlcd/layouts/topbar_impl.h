@@ -38,7 +38,7 @@ class TopBar: public TopBarBase
     }
 #endif
 
-    virtual void load()
+    void load() override
     {
         TopBarBase::load();
     }
