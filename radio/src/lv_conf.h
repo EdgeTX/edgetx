@@ -397,11 +397,9 @@
     LV_FONT_DECLARE(lv_font_noto_cn_9)           \
     LV_FONT_DECLARE(lv_font_noto_cn_13)          \
     LV_FONT_DECLARE(lv_font_noto_cn_16)          \
-    LV_FONT_DECLARE(lv_font_noto_cn_17)          \
     LV_FONT_DECLARE(lv_font_noto_cn_24)          \
     LV_FONT_DECLARE(lv_font_noto_cn_64)          \
     LV_FONT_DECLARE(lv_font_noto_cn_bold_16)     \
-    LV_FONT_DECLARE(lv_font_noto_cn_bold_17)     \
     LV_FONT_DECLARE(lv_font_noto_cn_bold_32)     \
     LV_FONT_DECLARE(lv_font_noto_cn_bold_64)
 
@@ -413,11 +411,9 @@
     LV_FONT_DECLARE(lv_font_noto_tw_9)           \
     LV_FONT_DECLARE(lv_font_noto_tw_13)          \
     LV_FONT_DECLARE(lv_font_noto_tw_16)          \
-    LV_FONT_DECLARE(lv_font_noto_tw_17)          \
     LV_FONT_DECLARE(lv_font_noto_tw_24)          \
     LV_FONT_DECLARE(lv_font_noto_tw_64)          \
     LV_FONT_DECLARE(lv_font_noto_tw_bold_16)     \
-    LV_FONT_DECLARE(lv_font_noto_tw_bold_17)     \
     LV_FONT_DECLARE(lv_font_noto_tw_bold_32)     \
     LV_FONT_DECLARE(lv_font_noto_tw_bold_64)
 
@@ -445,11 +441,9 @@
     LV_FONT_DECLARE(lv_font_noto_jp_9)           \
     LV_FONT_DECLARE(lv_font_noto_jp_13)          \
     LV_FONT_DECLARE(lv_font_noto_jp_16)          \
-    LV_FONT_DECLARE(lv_font_noto_jp_17)          \
     LV_FONT_DECLARE(lv_font_noto_jp_24)          \
     LV_FONT_DECLARE(lv_font_noto_jp_64)          \
     LV_FONT_DECLARE(lv_font_noto_jp_bold_16)     \
-    LV_FONT_DECLARE(lv_font_noto_jp_bold_17)     \
     LV_FONT_DECLARE(lv_font_noto_jp_bold_32)     \
     LV_FONT_DECLARE(lv_font_noto_jp_bold_64)
 
@@ -461,11 +455,9 @@
     LV_FONT_DECLARE(lv_font_arimo_he_9)           \
     LV_FONT_DECLARE(lv_font_arimo_he_13)          \
     LV_FONT_DECLARE(lv_font_arimo_he_16)          \
-    LV_FONT_DECLARE(lv_font_arimo_he_17)          \
     LV_FONT_DECLARE(lv_font_arimo_he_24)          \
     LV_FONT_DECLARE(lv_font_arimo_he_64)          \
     LV_FONT_DECLARE(lv_font_arimo_he_bold_16)     \
-    LV_FONT_DECLARE(lv_font_arimo_he_bold_17)     \
     LV_FONT_DECLARE(lv_font_arimo_he_bold_32)     \
     LV_FONT_DECLARE(lv_font_arimo_he_bold_64)
 
@@ -477,11 +469,9 @@
     LV_FONT_DECLARE(lv_font_roboto_9)           \
     LV_FONT_DECLARE(lv_font_roboto_13)          \
     LV_FONT_DECLARE(lv_font_roboto_16)          \
-    LV_FONT_DECLARE(lv_font_roboto_17)          \
     LV_FONT_DECLARE(lv_font_roboto_24)          \
     LV_FONT_DECLARE(lv_font_roboto_64)          \
     LV_FONT_DECLARE(lv_font_roboto_bold_16)     \
-    LV_FONT_DECLARE(lv_font_roboto_bold_17)     \
     LV_FONT_DECLARE(lv_font_roboto_bold_32)     \
     LV_FONT_DECLARE(lv_font_roboto_bold_64)
 
