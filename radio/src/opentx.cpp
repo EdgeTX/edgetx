@@ -572,7 +572,6 @@ void doSplash()
     resetBacklightTimeout();
     drawSplash();
 
-
     getADC(); // init ADC array
 
     inactivityCheckInputs();
@@ -605,7 +604,6 @@ void doSplash()
       }
 #endif
 
-
       checkBacklight();
     }
 #if defined(LIBOPENUI)
@@ -613,9 +611,6 @@ void doSplash()
 #endif
   }
 }
-#else
-#define Splash()
-#define doSplash()
 #endif
 
 
@@ -1094,67 +1089,6 @@ void flightReset(uint8_t check)
   }
 }
 
-#if !defined(OPENTX_START_DEFAULT_ARGS)
-  #define OPENTX_START_DEFAULT_ARGS  0
-#endif
-
-void opentxStart(const uint8_t startOptions = OPENTX_START_DEFAULT_ARGS)
-{
-  TRACE("opentxStart(%u)", startOptions);
-
-  uint8_t calibration_needed = !(startOptions & OPENTX_START_NO_CALIBRATION) && (g_eeGeneral.chkSum != evalChkSum());
-
-#if defined(BLUETOOTH_PROBE)
-  extern volatile uint8_t btChipPresent;
-  auto oldBtMode = g_eeGeneral.bluetoothMode;
-  g_eeGeneral.bluetoothMode = BLUETOOTH_TELEMETRY;
-#endif
-
-#if defined(GUI)
-  if (!calibration_needed && !(startOptions & OPENTX_START_NO_SPLASH)) {
-    if (!g_eeGeneral.dontPlayHello)
-      AUDIO_HELLO();
-    doSplash();
-  }
-#endif
-
-#if defined(DEBUG_TRACE_BUFFER)
-  trace_event(trace_start, 0x12345678);
-#endif
-
-
-#if defined(TEST_BUILD_WARNING)
-  ALERT(STR_TEST_WARNING, TR_TEST_NOTSAFE, AU_ERROR);
-#endif
-
-#if defined(FUNCTION_SWITCHES)
-  if (!UNEXPECTED_SHUTDOWN()) {
-    setFSStartupPosition();
-  }
-#endif
-
-#if defined(GUI)
-  if (calibration_needed) {
-#if defined(LIBOPENUI)
-    startCalibration();
-#else
-    chainMenu(menuFirstCalib);
-#endif
-  }
-  else if (!(startOptions & OPENTX_START_NO_CHECKS)) {
-    checkAlarm();
-    checkAll();
-    PLAY_MODEL_NAME();
-  }
-#endif
-
-#if defined(BLUETOOTH_PROBE)
-  if (bluetooth.localAddr[0] != '\0')
-    btChipPresent = 1;
-  g_eeGeneral.bluetoothMode = oldBtMode;
-#endif
-}
-
 void opentxClose(uint8_t shutdown)
 {
   TRACE("opentxClose");
@@ -1240,9 +1174,6 @@ void opentxResume()
   ViewMain::instance()->invalidate();
   TRACE("theme reloaded & ViewMain invalidated");
 #endif
-
-  // removed to avoid the double warnings (throttle, switch, etc.)
-  // opentxStart(OPENTX_START_NO_SPLASH | OPENTX_START_NO_CALIBRATION | OPENTX_START_NO_CHECKS);
 
   referenceSystemAudioFiles();
 
@@ -1442,9 +1373,31 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
   AUDIO_WARNING2();
 }
 
+#if !defined(OPENTX_START_DEFAULT_ARGS)
+  #define OPENTX_START_DEFAULT_ARGS  0
+#endif
+
+const uint8_t startOptions = OPENTX_START_DEFAULT_ARGS;
+
 void opentxInit()
 {
   TRACE("opentxInit");
+
+#if defined(SPLASH) && !defined(STARTUP_ANIMATION)
+  tmr10ms_t splashStartTime = 0;
+  bool waitSplash = false;
+  if (!UNEXPECTED_SHUTDOWN()) {
+    splashStartTime = get_tmr10ms();
+    waitSplash = true;
+    drawSplash();
+    TRACE("drawSplash() completed");
+  }
+#endif
+
+#if defined(HARDWARE_TOUCH) && !defined(PCBFLYSKY) && !defined(SIMU)
+  touchPanelInit();
+#endif
+
 #if defined(LIBOPENUI)
   // create ViewMain
   ViewMain::instance();
@@ -1509,7 +1462,7 @@ void opentxInit()
       g_eeGeneral.pwrOffSpeed = 2;
       runFatalErrorScreen(STR_NO_SDCARD);
     }
-#endif
+#endif // !defined(COLORLCD)
 
 #if defined(AUTOUPDATE)
     sportStopSendByteLoop();
@@ -1521,14 +1474,14 @@ void opentxInit()
           if (bluetooth.flashFirmware(AUTOUPDATE_FILENAME) == nullptr)
             f_unlink(AUTOUPDATE_FILENAME);
         }
-#endif
+#endif // defined(BLUETOOTH)
       }
     }
-#endif
+#endif // defined(AUTOUPDATE)
 
     logsInit();
   }
-#endif
+#endif // defined(SDCARD)
 
 #if defined(EEPROM)
   if (!radioSettingsValid)
@@ -1594,7 +1547,99 @@ void opentxInit()
   }
 
   if (!globalData.unexpectedShutdown) {
-    opentxStart();
+
+    uint8_t calibration_needed = !(startOptions & OPENTX_START_NO_CALIBRATION) && (g_eeGeneral.chkSum != evalChkSum());
+
+#if defined(GUI)
+    if (!calibration_needed && !(startOptions & OPENTX_START_NO_SPLASH)) {
+      if (!g_eeGeneral.dontPlayHello)
+        AUDIO_HELLO();
+
+      // TODO: This needs some refactoring and cleanup
+#if defined(SPLASH)
+      // Handle B&W splash screen
+      doSplash();
+
+      // Handle color splash screen
+#if !defined(STARTUP_ANIMATION)
+      if (waitSplash) {
+        extern bool inactivityCheckInputs();
+        extern void checkSpeakerVolume();
+
+#if defined(SIMU)
+        // Simulator - inputsMoved() returns true immediately without this!
+        RTOS_WAIT_TICKS(30);
+#endif // defined(SIMU)
+
+        splashStartTime += SPLASH_TIMEOUT;
+        while (splashStartTime > get_tmr10ms()) {
+          WDG_RESET();
+          checkSpeakerVolume();
+          checkBacklight();
+          RTOS_WAIT_TICKS(10);
+          auto evt = getEvent();
+          if (evt || inactivityCheckInputs()) {
+            if (evt)
+              killEvents(evt);
+            break;
+          }
+#if defined(SIMU)
+          // Allow simulator to exit if closed while splash showing
+          uint32_t pwr_check = pwrCheck();
+          if (pwr_check == e_power_off) {
+            break;
+          }
+#endif // defined(SIMU)
+        }
+
+        // Reset timer so special/global functions set to !1x don't get triggered
+        START_SILENCE_PERIOD();
+      }
+#endif // !defined(STARTUP_ANIMATION)
+#endif // defined(SPLASH)
+    }
+#endif // defined(GUI)
+
+#if defined(BLUETOOTH_PROBE)
+    extern volatile uint8_t btChipPresent;
+    auto oldBtMode = g_eeGeneral.bluetoothMode;
+    g_eeGeneral.bluetoothMode = BLUETOOTH_TELEMETRY;
+#endif
+
+#if defined(DEBUG_TRACE_BUFFER)
+    trace_event(trace_start, 0x12345678);
+#endif
+
+#if defined(TEST_BUILD_WARNING)
+    ALERT(STR_TEST_WARNING, TR_TEST_NOTSAFE, AU_ERROR);
+#endif
+
+#if defined(FUNCTION_SWITCHES)
+    if (!UNEXPECTED_SHUTDOWN()) {
+      setFSStartupPosition();
+    }
+#endif
+
+#if defined(GUI)
+    if (calibration_needed) {
+#if defined(LIBOPENUI)
+      startCalibration();
+#else
+      chainMenu(menuFirstCalib);
+#endif // defined(LIBOPENUI)
+    }
+    else if (!(startOptions & OPENTX_START_NO_CHECKS)) {
+      checkAlarm();
+      checkAll();
+      PLAY_MODEL_NAME();
+    }
+#endif // defined(GUI)
+
+#if defined(BLUETOOTH_PROBE)
+    if (bluetooth.localAddr[0] != '\0')
+      btChipPresent = 1;
+    g_eeGeneral.bluetoothMode = oldBtMode;
+#endif
   }
 
 #if !defined(RTC_BACKUP_RAM)
