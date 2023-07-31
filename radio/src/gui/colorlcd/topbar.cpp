@@ -29,9 +29,9 @@
 #include "widgets_setup.h"
 
 
-TopbarImpl * TopbarFactory::create(Window * parent)
+TopBar * TopbarFactory::create(Window * parent)
 {
-  return new TopbarImpl(parent);
+  return new TopBar(parent);
 }
 
 SetupTopBarWidgetsPage::SetupTopBarWidgetsPage():

@@ -167,7 +167,7 @@ void ViewMain::previousMainView()
   saveViewId(view);
 }
 
-TopbarImpl* ViewMain::getTopbar()
+TopBar* ViewMain::getTopbar()
 {
   return topbar;
 }

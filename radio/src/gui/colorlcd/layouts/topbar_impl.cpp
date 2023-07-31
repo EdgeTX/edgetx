@@ -24,17 +24,17 @@
 
 constexpr uint32_t TOPBAR_REFRESH = 1000 / 10; // 10 Hz
 
-TopbarImpl::TopbarImpl(Window * parent) :
-  TopbarImplBase(parent, {0, 0, LCD_W, MENU_HEADER_HEIGHT}, &g_model.topbarData)
+TopBar::TopBar(Window * parent) :
+  TopBarBase(parent, {0, 0, LCD_W, MENU_HEADER_HEIGHT}, &g_model.topbarData)
 {
 }
 
-unsigned int TopbarImpl::getZonesCount() const
+unsigned int TopBar::getZonesCount() const
 {
   return MAX_TOPBAR_ZONES;
 }
 
-rect_t TopbarImpl::getZone(unsigned int index) const
+rect_t TopBar::getZone(unsigned int index) const
 {
   if (index == MAX_TOPBAR_ZONES - 1) {
     coord_t size = LCD_W - 48 - (MAX_TOPBAR_ZONES - 1) * (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN);
@@ -49,7 +49,7 @@ rect_t TopbarImpl::getZone(unsigned int index) const
   };
 }
 
-void TopbarImpl::setVisible(float visible) // 0.0 -> 1.0
+void TopBar::setVisible(float visible) // 0.0 -> 1.0
 {
   if (visible == 0.0) {
     setTop(-(int)MENU_HEADER_HEIGHT);
@@ -63,7 +63,7 @@ void TopbarImpl::setVisible(float visible) // 0.0 -> 1.0
   }
 }
 
-coord_t TopbarImpl::getVisibleHeight(float visible) const // 0.0 -> 1.0
+coord_t TopBar::getVisibleHeight(float visible) const // 0.0 -> 1.0
 {
   if (visible == 0.0) {
     return 0;
@@ -76,13 +76,13 @@ coord_t TopbarImpl::getVisibleHeight(float visible) const // 0.0 -> 1.0
   return (coord_t)h;
 }
 
-void TopbarImpl::paint(BitmapBuffer * dc)
+void TopBar::paint(BitmapBuffer * dc)
 {
   dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY1);
   EdgeTxTheme::instance()->drawHeaderIcon(dc, ICON_EDGETX);
 }
 
-void TopbarImpl::checkEvents()
+void TopBar::checkEvents()
 {
   uint32_t now = RTOS_GET_MS();
   if (now - lastRefresh >= TOPBAR_REFRESH) {
@@ -91,7 +91,7 @@ void TopbarImpl::checkEvents()
   }
 }
 
-void TopbarImpl::removeWidget(unsigned int index)
+void TopBar::removeWidget(unsigned int index)
 {
   bool mark = false;
 
