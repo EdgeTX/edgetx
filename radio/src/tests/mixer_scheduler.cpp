@@ -39,9 +39,9 @@ TEST(MixerScheduler, MultiModules)
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 2000);
 
   EXPECT_EQ(getMixerSchedulerPeriod(), 2000);
-  EXPECT_EQ(getMixerSchedulerRealPeriod(INTERNAL_MODULE), 8000);
+  EXPECT_EQ(getMixerSchedulerRealPeriod(INTERNAL_MODULE), 6000);
   EXPECT_EQ(getMixerSchedulerRealPeriod(EXTERNAL_MODULE), 2000);
-  EXPECT_EQ(getMixerSchedulerDivider(INTERNAL_MODULE), 4);
+  EXPECT_EQ(getMixerSchedulerDivider(INTERNAL_MODULE), 3);
   EXPECT_EQ(getMixerSchedulerDivider(EXTERNAL_MODULE), 1);
 
   // internal module 143Hz
@@ -50,9 +50,9 @@ TEST(MixerScheduler, MultiModules)
   mixerSchedulerSetPeriod(EXTERNAL_MODULE, 3003);
 
   EXPECT_EQ(getMixerSchedulerPeriod(), 3003);
-  EXPECT_EQ(getMixerSchedulerRealPeriod(INTERNAL_MODULE), 9009);
+  EXPECT_EQ(getMixerSchedulerRealPeriod(INTERNAL_MODULE), 6006);
   EXPECT_EQ(getMixerSchedulerRealPeriod(EXTERNAL_MODULE), 3003);
-  EXPECT_EQ(getMixerSchedulerDivider(INTERNAL_MODULE), 3);
+  EXPECT_EQ(getMixerSchedulerDivider(INTERNAL_MODULE), 2);
   EXPECT_EQ(getMixerSchedulerDivider(EXTERNAL_MODULE), 1);
 
 
@@ -63,7 +63,7 @@ TEST(MixerScheduler, MultiModules)
 
   EXPECT_EQ(getMixerSchedulerPeriod(), 7000);
   EXPECT_EQ(getMixerSchedulerRealPeriod(INTERNAL_MODULE), 7000);
-  EXPECT_EQ(getMixerSchedulerRealPeriod(EXTERNAL_MODULE), 14000);
+  EXPECT_EQ(getMixerSchedulerRealPeriod(EXTERNAL_MODULE), 7000);
   EXPECT_EQ(getMixerSchedulerDivider(INTERNAL_MODULE), 1);
-  EXPECT_EQ(getMixerSchedulerDivider(EXTERNAL_MODULE), 2);
+  EXPECT_EQ(getMixerSchedulerDivider(EXTERNAL_MODULE), 1);
 }
