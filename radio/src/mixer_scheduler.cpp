@@ -93,7 +93,7 @@ uint16_t getMixerSchedulerPeriod()
     if(module == synced_module) 
       sched.divider = 1;
     else
-      sched.divider = ((sched.period - 1) / sync_period) + 1;
+      sched.divider = sched.period / sync_period;
   }
 
   _syncedModule = synced_module;
