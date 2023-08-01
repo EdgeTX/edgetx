@@ -1430,7 +1430,7 @@ Introduced in 2.1.0: If you use a relative path, the current language is appende
 to the path (example: for English language: `/SOUNDS/en` is appended)
 
 @param volume (number):
- - (-2..2) override radio setting Wav volumne for the duration of file
+ - (1..5) override radio setting Wav volumne for the duration of file
  - omitting the parameter uses radio setting Wav volume
 
 @retval none 
@@ -1440,15 +1440,17 @@ to the path (example: for English language: `/SOUNDS/en` is appended)
 // targets: BW, COLOR
 //
 // EXAMPLES:
-// playFile("armed.wav",2)  -- play file armed.wav, use Wav volume 2
-// playFile("armed.wav",-1) -- play file armed.wav, use Wav volume -1
-// playFile("armed.wav", 0) -- play file armed.wav, use Wav volume 0
+// playFile("armed.wav", 5) -- play file armed.wav, use Wav volume 2
+// playFile("armed.wav", 1) -- play file armed.wav, use Wav volume -1
 // playFile("armed.wav")		-- play file armed.wav, use radio setting Wav volume
 */
 static int luaPlayFile(lua_State * L)
 {
   const char * filename = luaL_checkstring(L, 1);
-  const int volume = luaL_optinteger(L, 2, USE_SETTINGS_VOLUME);
+  int volume = luaL_optinteger(L, 2, USE_SETTINGS_VOLUME);
+
+  if(volume != USE_SETTINGS_VOLUME)
+    volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
 
   if (filename[0] != '/') {
     // relative sound file path - use current language dir for absolute path
@@ -1479,7 +1481,7 @@ Play a numerical value (text to speech)
  * `PREC2` plays a number with two decimal places (for a number 123 it plays 1.23)
  
  @param volume (number):
- - (-2..2) override radio setting Wav volumne for the duration of file
+ - (1..5) override radio setting Wav volumne for the duration of file
  - omitting the parameter uses radio setting Wav volume
 
 @retval none 
@@ -1489,10 +1491,9 @@ Play a numerical value (text to speech)
 // targets: BW, COLOR
 //
 // EXAMPLES:
-// playNumber(123, 3, 0, 2)  -- play number 123, unit mAh, use Wav volume 2
-// playNumber(123, 3, 0, -1) -- play number 123, unit mAh, use Wav volume -1
-// playNumber(123, 3, 0)     -- play number 123, unit mAh, use Wav volume 0
-// playNumber(123, 3)        -- play number 123, unit mAh, use radio setting Wav volume
+// playNumber(123, 3, 0, 5) -- play number 123, unit mAh, use Wav volume 5
+// playNumber(123, 3, 0, 1) -- play number 123, unit mAh, use Wav volume 1
+// playNumber(123, 3, 0)    -- play number 123, unit mAh, use radio setting Wav volume
 */
 
 static int luaPlayNumber(lua_State * L)
@@ -1501,6 +1502,9 @@ static int luaPlayNumber(lua_State * L)
   int unit = luaL_checkinteger(L, 2);
   unsigned int att = luaL_optunsigned(L, 3, 0);
   int volume = luaL_optinteger(L, 4, USE_SETTINGS_VOLUME);
+
+  if(volume != USE_SETTINGS_VOLUME)
+    volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
 
   playNumber(number, unit, att, 0, volume);
   return 0;
@@ -1518,7 +1522,7 @@ Play a time value (text to speech)
  * `!= 0` play format: hours, minutes and seconds.
  * 
 @param volume (number):
- - (-2..2) override radio setting Wav volumne for the duration of file
+ - (1..5) override radio setting Wav volumne for the duration of file
  - omitting the parameter uses radio setting Wav volume
 
 @retval none 
@@ -1528,10 +1532,9 @@ Play a time value (text to speech)
 // targets: BW, COLOR
 //
 // EXAMPLES:
-// playDuration(101,0,2)  -- play duration 101s, seconds format, use Wav volume 2
-// playDuration(101,0,-1) -- play duration 101s, seconds format, use Wav volume -1
-// playDuration(101,1,0)  -- play duration 101s, hour format, use Wav volume 0
-// playDuration(101,1)    -- play duration 101s, hour format, use radio setting Wav volume
+// playDuration(101, 0, 5) -- play duration 101s, seconds format, use Wav volume 5
+// playDuration(101, 0, 1) -- play duration 101s, seconds format, use Wav volume 1
+// playDuration(101, 1)    -- play duration 101s, hour format, use radio setting Wav volume
 */
 
 static int luaPlayDuration(lua_State * L)
@@ -1539,7 +1542,10 @@ static int luaPlayDuration(lua_State * L)
   int duration = luaL_checkinteger(L, 1);
   bool playTime = (luaL_optinteger(L, 2, 0) != 0);
   int volume = luaL_optinteger(L, 3, USE_SETTINGS_VOLUME);
-  
+
+  if(volume != USE_SETTINGS_VOLUME)
+    volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
+
   playDuration(duration, playTime ? PLAY_TIME : 0, 0, volume);
   return 0;
 }
@@ -1565,7 +1571,7 @@ negative number decreases it. The frequency changes every 10 milliseconds, the c
 The valid range is from -127 to 127.
 
 @param volume (number):
- - (-2..2) override radio setting Beep volumne for the duration of file
+ - (1..5) override radio setting Beep volumne for the duration of file
  - omitting the parameter uses radio setting Beep volume
 
 @retval none 
@@ -1575,10 +1581,9 @@ The valid range is from -127 to 127.
 // targets: BW, COLOR
 //
 // EXAMPLES:
-// playTone(2550, 160, 20, 3, -10, 2)  -- play tone, use Beep volume 2
-// playTone(2550, 160, 20, 3, -10, -1) -- play tone, use Beep volume -1
-// playTone(2550, 160, 20, 3, -10, 0)  -- play tone, use Wav volume 0
-// playTone(2550, 160, 20, 3, -10)		 -- play tone, use radio setting Beep volume
+// playTone(2550, 160, 20, 3, -10, 5) -- play tone, use Beep volume 5
+// playTone(2550, 160, 20, 3, -10, 1) -- play tone, use Beep volume 1
+// playTone(2550, 160, 20, 3, -10)		-- play tone, use radio setting Beep volume
 */
 static int luaPlayTone(lua_State * L)
 {
@@ -1588,6 +1593,9 @@ static int luaPlayTone(lua_State * L)
   int flags = luaL_optinteger(L, 4, 0);
   int freqIncr = luaL_optinteger(L, 5, 0);
   int volume = luaL_optinteger(L, 6, USE_SETTINGS_VOLUME);
+
+  if(volume != USE_SETTINGS_VOLUME)
+    volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
 
   audioQueue.playTone(frequency, length, pause, flags, freqIncr, volume);
   return 0;
