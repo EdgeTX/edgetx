@@ -23,12 +23,12 @@
 
 static void slider_changed_cb(lv_event_t* e)
 {
-  lv_obj_t* target = lv_event_get_target(e);
-  auto code = lv_event_get_code(e);
-
-  Slider* sl = (Slider*)lv_obj_get_user_data(target);
-  if (code == LV_EVENT_VALUE_CHANGED) {
-    if (sl != nullptr) sl->setValue(lv_slider_get_value(target));
+  if (lv_event_get_code(e) == LV_EVENT_VALUE_CHANGED) {
+    Slider* sl = (Slider*)lv_event_get_user_data(e);
+    if (sl != nullptr) {
+      lv_obj_t* target = lv_event_get_target(e);
+      sl->setValue(lv_slider_get_value(target));
+    }
   }
 }
 
@@ -47,16 +47,8 @@ Slider::Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
   lv_obj_set_width(slider, lv_pct(100));
 
   lv_obj_add_event_cb(slider, slider_changed_cb, LV_EVENT_VALUE_CHANGED, this);
-  lv_obj_add_event_cb(slider, slider_changed_cb, LV_EVENT_PRESSED, this);
   lv_slider_set_range(slider, vmin, vmax);
 
   if (_getValue != nullptr)
     lv_slider_set_value(slider, _getValue(), LV_ANIM_OFF);
 }
-
-
-int Slider::value(coord_t x) const
-{
-  return vmin + ((vmax - vmin) * x + (rect.w / 2)) / rect.w;
-}
-

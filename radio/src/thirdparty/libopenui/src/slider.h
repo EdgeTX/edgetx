@@ -40,6 +40,4 @@ class Slider : public Window
   int vmax;
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
-
-  int value(coord_t x) const;
 };
