@@ -245,43 +245,49 @@ class WindowButtonGroup : public FormWindow
 class SubPage : public Page
 {
   public:
-    SubPage(MenuIcons icon, const char* title) : Page(icon)
+    SubPage(MenuIcons icon, const char* title, bool isFlex = true) : Page(icon)
     {
       header.setTitle(STR_RADIO_SETUP);
       header.setTitle2(title);
 
-      body.setFlexLayout();
+      if (isFlex)
+        body.setFlexLayout();
+
       body.padAll(8);
     }
 };
 
 class SoundPage : public SubPage {
   public:
-    SoundPage() : SubPage(ICON_RADIO_SETUP, STR_SOUND_LABEL)
+    SoundPage() : SubPage(ICON_RADIO_SETUP, STR_SOUND_LABEL, false)
     {
       FlexGridLayout grid(col_two_dsc, row_dsc, 2);
 
-      auto line = body.newLine(&grid);
+      auto form = new FormWindow(&body, rect_t{});
+      form->setFlexLayout();
+      form->padAll(0);
+
+      auto line = form->newLine(&grid);
 
       // Beeps mode
       new StaticText(line, rect_t{}, STR_SPEAKER, 0, COLOR_THEME_PRIMARY1);
       new Choice(line, rect_t{}, STR_VBEEPMODE, -2, 1, GET_SET_DEFAULT(g_eeGeneral.beepMode));
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
 
       // Main volume
       new StaticText(line, rect_t{}, STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
       new Slider(line, lv_pct(50), -VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX-VOLUME_LEVEL_DEF, GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
 
       // Beeps volume
       new StaticText(line, rect_t{}, STR_BEEP_VOLUME, 0, COLOR_THEME_PRIMARY1);
       new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepVolume));
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
 
       // Beeps length
       new StaticText(line, rect_t{}, STR_BEEP_LENGTH, 0, COLOR_THEME_PRIMARY1);
       new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepLength));
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
 
       // Beeps pitch
       new StaticText(line, rect_t{}, STR_BEEP_PITCH, 0, COLOR_THEME_PRIMARY1);
@@ -294,12 +300,12 @@ class SoundPage : public SubPage {
       edit->setStep(15);
       edit->setPrefix("+");
       edit->setSuffix("Hz");
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
 
       // Wav volume
       new StaticText(line, rect_t{}, STR_WAV_VOLUME, 0, COLOR_THEME_PRIMARY1);
       new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.wavVolume));
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
 
       // Background volume
       new StaticText(line, rect_t{}, STR_BG_VOLUME, 0, COLOR_THEME_PRIMARY1);
@@ -588,18 +594,13 @@ class GpsPage : public SubPage {
     int tzIndex;
 };
 
-class ViewOptionsPage : public Page
+class ViewOptionsPage : public SubPage
 {
    public:
     const lv_coord_t opt_col_two_dsc[3] = {LV_GRID_FR(7), LV_GRID_FR(3), LV_GRID_TEMPLATE_LAST};
 
-    ViewOptionsPage() : Page(ICON_RADIO_SETUP)
+    ViewOptionsPage() : SubPage(ICON_RADIO_SETUP, STR_ENABLED_FEATURES, false)
     {
-      header.setTitle(STR_RADIO_SETUP);
-      header.setTitle2(STR_ENABLED_FEATURES);
-
-      body.padAll(8);
-
       FlexGridLayout grid(opt_col_two_dsc, row_dsc, 2);
 
       auto form = new FormWindow(&body, rect_t{});

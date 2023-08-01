@@ -20,7 +20,7 @@
 
 #include "form.h"
 
-class Slider : public FormField
+class Slider : public Window
 {
  public:
   Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,

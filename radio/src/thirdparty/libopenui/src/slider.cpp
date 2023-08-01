@@ -35,18 +35,23 @@ static void slider_changed_cb(lv_event_t* e)
 Slider::Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
                std::function<int()> getValue,
                std::function<void(int)> setValue) :
-    FormField(parent, {0, 0, width, 8}, 0, 0, etx_slider_create),
+    Window(parent, {0, 0, width, 32}, 0, 0, window_create),
     vmin(vmin),
     vmax(vmax),
     _getValue(std::move(getValue)),
     _setValue(std::move(setValue))
 {
-  lv_obj_add_event_cb(lvobj, slider_changed_cb, LV_EVENT_VALUE_CHANGED, this);
-  lv_obj_add_event_cb(lvobj, slider_changed_cb, LV_EVENT_PRESSED, this);
-  lv_slider_set_range(lvobj, vmin, vmax);
+  padAll(7);
+
+  auto slider = etx_slider_create(lvobj);
+  lv_obj_set_width(slider, lv_pct(100));
+
+  lv_obj_add_event_cb(slider, slider_changed_cb, LV_EVENT_VALUE_CHANGED, this);
+  lv_obj_add_event_cb(slider, slider_changed_cb, LV_EVENT_PRESSED, this);
+  lv_slider_set_range(slider, vmin, vmax);
 
   if (_getValue != nullptr)
-    lv_slider_set_value(lvobj, _getValue(), LV_ANIM_OFF);
+    lv_slider_set_value(slider, _getValue(), LV_ANIM_OFF);
 }
 
 
