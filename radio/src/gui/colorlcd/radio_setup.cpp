@@ -721,7 +721,7 @@ void RadioSetupPage::build(FormWindow * window)
   // Play startup sound
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_PLAY_HELLO, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.dontPlayHello));
+  new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.dontPlayHello));
 
 #if defined(PWR_BUTTON_PRESS)
   // Pwr Off Delay
