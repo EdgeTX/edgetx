@@ -183,6 +183,8 @@ bool rotaryEncoderPollingCycle();
 #if defined(USE_TRIMS_AS_BUTTONS)
 void setTrimsAsButtons(bool val);
 bool getTrimsAsButtons();
+void setTransposeTrimsForLUA(bool val);
+bool getTransposeTrimsForLUA();
 #endif
 
 struct InactivityData

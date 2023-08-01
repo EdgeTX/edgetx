@@ -253,7 +253,7 @@ void luaDisable()
   luaState = INTERPRETER_PANIC;
 
 #if defined(USE_TRIMS_AS_BUTTONS)
-  //if (_is_standalone_script()) setTrimsAsButtons(false);
+  if (_is_standalone_script()) setTransposeTrimsForLUA(false);
 #endif
 }
 
@@ -1254,7 +1254,7 @@ bool luaTask(event_t evt, bool allowLcdUsage)
       luaState = INTERPRETER_LOADING;
 
 #if defined(USE_TRIMS_AS_BUTTONS)
-      //if (_is_standalone_script()) setTrimsAsButtons(false);
+      if (_is_standalone_script()) setTransposeTrimsForLUA(false);
 #endif
    
     case INTERPRETER_LOADING:
@@ -1270,7 +1270,7 @@ bool luaTask(event_t evt, bool allowLcdUsage)
       luaState = INTERPRETER_RUNNING;
 
 #if defined(USE_TRIMS_AS_BUTTONS)
-      //if (_is_standalone_script()) setTrimsAsButtons(true);
+      if (_is_standalone_script()) setTransposeTrimsForLUA(true);
 #endif
       
     case INTERPRETER_RUNNING:

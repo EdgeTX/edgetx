@@ -297,15 +297,19 @@ uint8_t keysGetTrimState(uint8_t trim)
 #define ROTARY_EMU_KEY_REPEAT_RATE 12                  // times 10 [ms]                 
 
 static bool _trims_as_buttons = false;
+static bool _trims_as_buttons_LUA = false;
 
 void setTrimsAsButtons(bool val) { _trims_as_buttons = val; }
 bool getTrimsAsButtons() { return _trims_as_buttons; }
+
+void setTransposeTrimsForLUA(bool val) { _trims_as_buttons_LUA = val; }
+bool getTransposeTrimsForLUA() { return _trims_as_buttons_LUA; }
 
 int16_t getEmuRotaryData() {
   static bool rotaryTrimPressed = false;
   static tmr10ms_t timePressed = 0;
 
-  if(getTrimsAsButtons()) {
+  if(getTrimsAsButtons() || getTransposeTrimsForLUA()) {
     tmr10ms_t now = get_tmr10ms();
 
     if(rotaryTrimPressed) {
@@ -343,7 +347,7 @@ static void transpose_trims(uint32_t *keys)
 #else
   static uint8_t state = 0;
 
-  if(g_eeGeneral.hatsMode == HATS_MODE_BOTH) {
+  if(g_eeGeneral.hatsMode == HATS_MODE_BOTH && !getTransposeTrimsForLUA()) {
     static bool lastExitState  = false;
     static bool lastEnterState = false;
 
@@ -382,7 +386,8 @@ static void transpose_trims(uint32_t *keys)
   } else
     state = 0;                                        // state machine in idle if not in mode "BOTH"
 
-  if(getTrimsAsButtons()) {                           // map hats to keys in button mode
+  if(getTrimsAsButtons() ||                           // map hats to keys in button mode or LUA active
+     getTransposeTrimsForLUA()) {
     auto trims = readTrims();
     
     // spare key in buttons mode: left hat left 
@@ -407,7 +412,7 @@ bool keysPollingCycle()
 #if defined(USE_TRIMS_AS_BUTTONS)
   transpose_trims(&keys_input);
   
-  if (getTrimsAsButtons()) {
+  if (getTrimsAsButtons() || getTransposeTrimsForLUA()) {
     trims_input = 0;
   } else {
     trims_input = readTrims();
