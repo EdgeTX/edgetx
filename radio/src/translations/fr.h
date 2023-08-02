@@ -52,9 +52,10 @@
 #define TR_TRNMODE                     "OFF",TR("+=","Ajoute"),TR(":=","Remplace")
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "OFF","Recopie Télém.","Télémétrie In","Écolage SBUS","LUA","CLI","GPS","Débug","SpaceMouse","Module externe"
-#define TR_SWTYPES                     "Rien","Inter","2-POS","3-POS"
-#define TR_POTTYPES                    "Rien",TR("Pots av. ctr","Pots avec centre"),TR("Multipos.","Inter multi-pos""Potentiomètre"),TR("Pots","Potentiomètre")
-#define TR_SLIDERTYPES                 "Rien","Curseurs"
+
+#define TR_SWTYPES                     "Rien","Monostable","2-POS","3-POS"
+#define TR_POTTYPES                    "Rien",TR("Pots av. ctr","Pots avec centre"),TR("Multipos.","Inter multi-pos""Potentiomètre"),TR("Pots","Potentiomètre"),"Curseurs"
+
 #define TR_VPERSISTENT                 "OFF","Vol","Reset Manuel"
 #define TR_COUNTRY_CODES               TR("US","USA"),TR("JP","Japon"),TR("Europe","EU")
 #define TR_USBMODES                    TR("Popup","Demander"),TR("Joyst","Joystick"),TR("SDCard","Stockage"),"Série"
@@ -117,7 +118,6 @@
 #define TR_SF_SAFETY                   TR("Rempl.", "Remplace")
 
 #define TR_SF_SCREENSHOT               "Photo Écran"
-#define TR_SF_TEST                     "Test"
 #define TR_SF_RACING_MODE              "Racing Mode"
 #define TR_SF_DISABLE_TOUCH            "Non Tactile"
 #define TR_SF_SET_SCREEN               "Définir Écran Princ."
@@ -208,7 +208,7 @@
 #define TR_VPREC                       "0.--","0.0","0.00"
 #define TR_VCELLINDEX                  "Mini.","1","2","3","4","5","6","7","8","Maxi.","Diff."
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (centre seulement)","= (symétrique)"
-#define TR_TIMER_DIR                   TR("Rester", "Voir Rester"), TR("Écoulé", "Voir Écoulé")
+#define TR_TIMER_DIR                   TR("Reste", "Voir restant"), TR("Écoulé", "Voir écoulé")
 
 // ZERO TERMINATED STRINGS
 
@@ -289,7 +289,7 @@
   #define TR_CHECKTRIMS                "\006Vérif\012Trims"
 #endif
 #define OFS_CHECKTRIMS                 (9*FW)
-#define TR_SWASHTYPE                   TR("Type de Plat.", "Type de plateau")
+#define TR_SWASHTYPE                   "Type de plateau"
 #define TR_COLLECTIVE                  TR("Collectif", "Source collectif")
 #define TR_AILERON                     "Source cyc. lat."
 #define TR_ELEVATOR                    "Source cyc. lon."
@@ -373,6 +373,7 @@
 #define TR_KEYS_BACKLIGHT              "Rétroéclairage touches"
 #define TR_BLCOLOR                     "Couleur"
 #define TR_SPLASHSCREEN                "Ecran d'accueil"
+#define TR_PLAY_HELLO                  "Son de démarrage"
 #define TR_PWR_ON_DELAY                "Délai btn ON"
 #define TR_PWR_OFF_DELAY               "Délai btn OFF"
 #define TR_THROTTLE_WARNING             TR(INDENT "Alerte gaz", INDENT "Alerte gaz")
@@ -385,7 +386,7 @@
 #define TR_TIMEZONE                    "Fuseau horaire"
 #define TR_ADJUST_RTC                  TR("Ajust. RTC", "Ajust. heure auto")
 #define TR_GPS                         "GPS"
-#define TR_DEF_CHAN_ORD                TR("Ordre can. prédéf.", "Ordre canaux prédéfinis")
+#define TR_DEF_CHAN_ORD                TR("Ordre ch déf.", "Ordre canaux prédéfinis")
 #define TR_STICKS                      "Manches"
 #define TR_POTS                        "Potentiomètres"
 #define TR_SWITCHES                    "Inters"
@@ -445,12 +446,12 @@
 #define TR_MODEL                       "MODÈLE"
 #define TR_FM                          "PV"
 #define TR_EEPROMLOWMEM                "EEPROM pleine!"
-#define TR_PRESS_ANY_KEY_TO_SKIP       "Toucher pour ignorer"
+#define TR_PRESS_ANY_KEY_TO_SKIP       "Touche pour ignorer"
 #define TR_THROTTLE_NOT_IDLE           "Gaz pas à zéro"
 #define TR_ALARMSDISABLED              "Alarmes désactivées"
-#define TR_PRESSANYKEY                 TR("Toucher pour continuer", "Toucher pour continuer")
+#define TR_PRESSANYKEY                 "Appuyez sur une touche"
 #define TR_BADEEPROMDATA               "EEPROM corrompue"
-#define TR_BAD_RADIO_DATA              "Absence ou erreur de donnée"
+#define TR_BAD_RADIO_DATA              "Données invalides"
 #define TR_RADIO_DATA_RECOVERED        TR3("Utilisation des données radio sauvegardées","Utilisation des paramètres radio sauvegardées","Réglages Radio restaurés de la Sauvegarde")
 #define TR_RADIO_DATA_UNRECOVERABLE    TR3("Réglages Radio invalides","Réglages Radio invalides", "Impossible lire réglages radio valides")
 #define TR_EEPROMFORMATTING            "Formatage EEPROM"
@@ -465,7 +466,7 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB    "ANALOG. CALIBRÉS"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGS (5 Hz)"
 #define TR_MENUCALIBRATION             "CALIBRATION"
-#define TR_MENU_FSWITCH                "INTERS PARAMÉTRABLES"
+#define TR_MENU_FSWITCH                "INTERS PARAMETRABLES"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "Trims => Subtrims"
 #else
@@ -474,7 +475,7 @@
 #define TR_CHANNELS2FAILSAFE          "Channels=>Failsafe"
 #define TR_CHANNEL2FAILSAFE            "Channel=>Failsafe"
 #define TR_MENUMODELSEL                "MODÈLES"
-#define TR_MENU_MODEL_SETUP                   TR("CONF. MODÈLE", "CONFIGURATION")
+#define TR_MENU_MODEL_SETUP            TR("CONF. MODÈLE", "CONFIGURATION")
 #define TR_MENUFLIGHTMODE              "PHASE DE VOL"
 #define TR_MENUFLIGHTMODES             "PHASES DE VOL"
 #define TR_MENUHELISETUP               TR("CONF.HÉLI", "CONFIGURATION HÉLICO")
@@ -611,7 +612,12 @@
 #define TR_POWER_METER_INT             "Puissancemètre (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       TR("Spectre (EXT)", "Analyseur Spectre (EXT)")
 #define TR_SPECTRUM_ANALYSER_INT       TR("Spectre (INT)", "Analyseur Spectre (INT)")
-#define TR_SDCARD_FULL                 "Carte SD pleine"
+#define TR_SDCARD_FULL                 "SD carte pleine"
+#if defined(COLORLCD)
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nJournaux et Impr. écran désactivé"
+#else
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Journaux et" LCDW_128_480_LINEBREAK "Impr. écran désactivé"
+#endif
 #define TR_NEEDS_FILE                  "FICHIER EXIGE"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
@@ -697,7 +703,7 @@
 #define TR_SAVE_TEMPLATE               "Sauvegarder comme exemple"
 #define TR_BLANK_MODEL                 "Modèle vierge"
 #define TR_BLANK_MODEL_INFO            "Création modèle vierge"
-#define TR_FILE_EXISTS                 "FICHIER DÉJA EXISTANT"
+#define TR_FILE_EXISTS                 "FICHIER DÉJÀ EXISTANT"
 #define TR_ASK_OVERWRITE               "Voulez-vous écraser?"
 
 #define TR_BLUETOOTH                   "Bluetooth"
@@ -1052,7 +1058,7 @@
 
 #define TR_BEEP_VOLUME                 "Volume bips"
 #define TR_WAV_VOLUME                  "Volume audio"
-#define TR_BG_VOLUME                   "Volume musique de fond"
+#define TR_BG_VOLUME                   TR("Volume musique", "Volume musique de fond")
 
 #define TR_TOP_BAR                     "Barre titre"
 #define TR_FLASH_ERASE                 "Effacer Flash..."
@@ -1246,6 +1252,6 @@
 #define TR_SERIAL_BUS             "Serial bus"
 #define TR_SYNC                   "Sync"
 
-#define TR_ENABLED_FEATURES       "Fonctionnalités activées"
+#define TR_ENABLED_FEATURES       TR("Fonctions activées", "Fonctionnalités activées")
 #define TR_RADIO_MENU_TABS        "Onglets Menu Radio"
 #define TR_MODEL_MENU_TABS        "Onglets Menu Modèles"

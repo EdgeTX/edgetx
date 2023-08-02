@@ -706,10 +706,27 @@ void RadioSetupPage::build(FormWindow * window)
       {STR_ENABLED_FEATURES, [](){new ViewOptionsPage();}},
 });
 
+  // Splash screen
+    auto line = window->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_SPLASHSCREEN, 0, COLOR_THEME_PRIMARY1);
+    new Choice(line, rect_t{}, STR_SPLASHSCREEN_DELAYS, 0, 7,
+               [=]() -> int32_t {
+               return 3 - g_eeGeneral.splashMode;
+               },
+               [=](int32_t newValue) {
+                   g_eeGeneral.splashMode = 3 - newValue;
+                   SET_DIRTY();
+               });
+
+  // Play startup sound
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_PLAY_HELLO, 0, COLOR_THEME_PRIMARY1);
+  new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.dontPlayHello));
+
 #if defined(PWR_BUTTON_PRESS)
   // Pwr Off Delay
   {
-    auto line = window->newLine(&grid);
+    line = window->newLine(&grid);
     new StaticText(line, rect_t{}, STR_PWR_OFF_DELAY, 0, COLOR_THEME_PRIMARY1);
     new Choice(line, rect_t{}, STR_PWR_OFF_DELAYS, 0, 3,
                [=]() -> int32_t {
@@ -725,7 +742,7 @@ void RadioSetupPage::build(FormWindow * window)
 #if defined(PXX2)
   // Owner ID
   {
-    auto line = window->newLine(&grid);
+    line = window->newLine(&grid);
     new StaticText(line, rect_t{}, STR_OWNER_ID, 0, COLOR_THEME_PRIMARY1);
     new RadioTextEdit(line, rect_t{}, g_eeGeneral.ownerRegistrationID,
                       PXX2_LEN_REGISTRATION_ID);
@@ -733,7 +750,7 @@ void RadioSetupPage::build(FormWindow * window)
 #endif
 
   // Country code
-  auto line = window->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_COUNTRY_CODE, 0, COLOR_THEME_PRIMARY1);
   new Choice(line, rect_t{}, STR_COUNTRY_CODES, 0, 2, GET_SET_DEFAULT(g_eeGeneral.countryCode));
 

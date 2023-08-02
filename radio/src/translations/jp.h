@@ -50,8 +50,7 @@
 
 #define TR_AUX_SERIAL_MODES            "OFF","テレメトリーミラー","テレメトリーIN","SBUSトレーナー","LUAスクリプト","CLI","GPS","デバッグ","外部モジュール"
 #define TR_SWTYPES                     "なし","トグル","2POS","3POS"
-#define TR_POTTYPES                    "なし",TR("Pot w. det","ダイヤル(ノッチ有)"),TR("Multipos","マルチPOSスイッチ"),"ダイヤル"
-#define TR_SLIDERTYPES                 "なし","スライダー"
+#define TR_POTTYPES                    "なし",TR("Pot w. det","ダイヤル(ノッチ有)"),TR("Multipos","マルチPOSスイッチ"),"ダイヤル","スライダー"
 #define TR_VPERSISTENT                 "無効","飛行時","手動リセット"
 #define TR_COUNTRY_CODES               TR("US","アメリカ"),TR("JP","日本"),TR("EU","ヨーロッパ")
 #define TR_USBMODES                    "確認",TR("Joyst","JoyStick"),TR("SDカード","ストレージ"),"シリアル"
@@ -113,7 +112,6 @@
 #define TR_SF_SAFETY                   TR("Overr.","上書き")
 
 #define TR_SF_SCREENSHOT               "画面キャプチャ"
-#define TR_SF_TEST                     "Test"
 #define TR_SF_RACING_MODE              "レースモード"
 #define TR_SF_DISABLE_TOUCH            "非タッチ"
 #define TR_SF_SET_SCREEN               "メインスクリーン設定"
@@ -361,6 +359,7 @@
 #define TR_KEYS_BACKLIGHT              "キー バックライト"
 #define TR_BLCOLOR                     "カラー"
 #define TR_SPLASHSCREEN                "起動イメージ"
+#define TR_PLAY_HELLO                  "起動時サウンド"
 #define TR_PWR_ON_DELAY                "電源ON遅延"
 #define TR_PWR_OFF_DELAY               "電源OFF遅延"
 #define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "Throttle状態")
@@ -604,6 +603,11 @@
 #define TR_SPECTRUM_ANALYSER_EXT       "スペクトラム\n(外部)"
 #define TR_SPECTRUM_ANALYSER_INT       "スペクトラム\n(内部)"
 #define TR_SDCARD_FULL                 "SDカード空き容量なし"
+#if defined(COLORLCD)
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nログとスクリーンショット保存が無効"
+#else
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Logs and " LCDW_128_480_LINEBREAK "Screenshots disabled"
+#endif
 #define TR_NEEDS_FILE                  "を含むファイルが必要です"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"

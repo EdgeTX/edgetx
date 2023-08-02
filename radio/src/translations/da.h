@@ -57,8 +57,7 @@
   #define TR_SWTYPES                      "Ingen","Skift","2POS","3POS"
 #endif
 
-#define TR_POTTYPES                    "Ingen",TR("Drejek./klik","Drejekontakt med klik"),TR("Multipos","Multipos kontakt"),TR("Drejek.", "Drejekontakt")
-#define TR_SLIDERTYPES                 "Ingen","Skyder"
+#define TR_POTTYPES                    "Ingen",TR("Drejek./klik","Drejekontakt med klik"),TR("Multipos","Multipos kontakt"),TR("Drejek.", "Drejekontakt"),"Skyder"
 #define TR_VPERSISTENT                 "FRA","Flyv","Manuel nulstil"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
 #define TR_USBMODES                    "Spørg",TR("Joyst","Joystik"),TR("Lager","USB lager"),TR("Data", "USB data")
@@ -120,7 +119,6 @@
 #define TR_SF_SAFETY                   TR("Overs.", "Overskriv")
 
 #define TR_SF_SCREENSHOT               "Skærm klip"
-#define TR_SF_TEST                     "Test"
 #define TR_SF_RACING_MODE              "Ræs tilstand"
 #define TR_SF_DISABLE_TOUCH            "Ikke berøringsaktiv"
 #define TR_SF_SET_SCREEN               "Vælg hoved skærm"
@@ -370,6 +368,7 @@
 #define TR_KEYS_BACKLIGHT              "Taster klarhed"
 #define TR_BLCOLOR                     "Farve"
 #define TR_SPLASHSCREEN                "Start skærm"
+#define TR_PLAY_HELLO                  "Startop lyd"
 #define TR_PWR_ON_DELAY                "Forsinkelse ved tænd"
 #define TR_PWR_OFF_DELAY               "Forsinkelse ved sluk"
 #define TR_THROTTLE_WARNING            TR(INDENT "Gas adv", INDENT "Gas advarsel")
@@ -613,6 +612,11 @@
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
 #define TR_SDCARD_FULL                 "SD kort fuldt"
+#if defined(COLORLCD)
+#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\nLog & skærmklip deaktiveret"
+#else
+#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\036Log & skærmklip" LCDW_128_480_LINEBREAK "deaktiveret"
+#endif
 #define TR_NEEDS_FILE                  "MANGLER FIL"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"

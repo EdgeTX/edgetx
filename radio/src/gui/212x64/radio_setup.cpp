@@ -83,6 +83,7 @@ enum MenuRadioSetupItems {
   CASE_PCBX9E_PCBX9DP(ITEM_RADIO_SETUP_BACKLIGHT_COLOR)
   ITEM_RADIO_SETUP_FLASH_BEEP,
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
+  ITEM_RADIO_SETUP_START_SOUND,
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_OFF_SPEED)
 #if defined(PXX2)
@@ -186,6 +187,7 @@ void menuRadioSetup(event_t event)
       CASE_PCBX9E_PCBX9DP(0) // backlight color
       0, // flash beep
     CASE_SPLASH_PARAM(0) // disable splash
+    0,
     CASE_PWR_BUTTON_PRESS(0) // pwr on speed
     CASE_PWR_BUTTON_PRESS(0) // pwr off speed
     CASE_PXX2(0) // owner registration ID
@@ -524,6 +526,11 @@ void menuRadioSetup(event_t event)
         if (attr) g_eeGeneral.splashMode = -checkIncDecGen(event, -g_eeGeneral.splashMode, -3, 4);
         break;
 #endif
+
+      case ITEM_RADIO_SETUP_START_SOUND:
+        lcdDrawTextAlignedLeft(y, STR_PLAY_HELLO);
+        g_eeGeneral.dontPlayHello = !editCheckBox(!g_eeGeneral.dontPlayHello, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event ) ;
+        break;
 
 #if defined(PWR_BUTTON_PRESS)
       case ITEM_RADIO_SETUP_PWR_ON_SPEED:

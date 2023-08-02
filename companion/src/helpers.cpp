@@ -814,9 +814,11 @@ SemanticVersion& SemanticVersion::operator=(const SemanticVersion& rhs)
 
 bool SemanticVersion::isValid(const QString vers)
 {
-  QString v(vers);
+  QString v(vers.trimmed());
 
-  v = v.trimmed();
+  if (v.isEmpty())
+    return false;
+
   if (v.toLower().startsWith("v"))
     v = v.mid(1);
 

@@ -193,9 +193,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["internalModuleBaudrate"] = internalModuleBaudrate.value;
 
   node["internalModule"] = LookupValue(internalModuleLut, rhs.internalModule);
-  if (!IS_FAMILY_HORUS_OR_T16(fw->getBoard())) {
-    node["splashMode"] = rhs.splashMode;
-  }
+  node["splashMode"] = rhs.splashMode;
   node["lightAutoOff"] = rhs.backlightDelay;
   node["templateSetup"] = rhs.templateSetup;
   node["hapticLength"] = rhs.hapticLength + 2;
@@ -226,6 +224,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["varioRange"] = rhs.varioRange * 15;
   node["varioRepeat"] = rhs.varioRepeat;
   node["backgroundVolume"] = rhs.backgroundVolume + 2;
+  node["dontPlayHello"] = (int)rhs.dontPlayHello;
   if (Boards::getCapability(fw->getBoard(), Board::HasColorLcd)) {
     node["modelQuickSelect"] = (int)rhs.modelQuickSelect;
   }
@@ -435,9 +434,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
     rhs.internalModule = Boards::getDefaultInternalModules(fw->getBoard());
   }
 
-  if (!IS_FAMILY_HORUS_OR_T16(fw->getBoard())) {
-    node["splashMode"] >> rhs.splashMode;
-  }
+  node["splashMode"] >> rhs.splashMode;
   node["lightAutoOff"] >> rhs.backlightDelay;
   node["templateSetup"] >> rhs.templateSetup;
   node["hapticLength"] >> ioffset_int(rhs.hapticLength, 2);
@@ -471,6 +468,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["varioRepeat"] >> rhs.varioRepeat;
   node["backgroundVolume"] >> ioffset_int(rhs.backgroundVolume, 2);
   node["modelQuickSelect"] >> rhs.modelQuickSelect;
+  node["dontPlayHello"] >> rhs.dontPlayHello;
 
   //  depreciated v2.7 replaced by serialPort
   if (node["auxSerialMode"]) {

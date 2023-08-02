@@ -53,8 +53,7 @@
 
 #define TR_AUX_SERIAL_MODES            "OFF","Telem Mirror","Telemetry In","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse","External module"
 #define TR_SWTYPES                     "None","Toggle","2POS","3POS"
-#define TR_POTTYPES                    "None",TR("Pot w. det","Pot with detent"),TR("Multipos","Multipos Switch"),"Pot"
-#define TR_SLIDERTYPES                 "None","Slider"
+#define TR_POTTYPES                    "None",TR("Pot w. det","Pot with detent"),TR("Multipos","Multipos Switch"),"Pot","Slider"
 #define TR_VPERSISTENT                 "OFF","Flight","Manual Reset"
 #define TR_COUNTRY_CODES               TR("US","America"),TR("JP","Japan"),TR("EU","Europe")
 #define TR_USBMODES                    "הצג לי אופציות",TR("Joyst","חיבור משחק קבוע"),TR("SDCard","העברת נתונים קבוע"),"חיבור סיריילי קבוע"
@@ -445,6 +444,7 @@
 #define TR_KEYS_BACKLIGHT              "Keys backlight"
 #define TR_BLCOLOR                     "צבע"
 #define TR_SPLASHSCREEN                "Splash screen"
+#define TR_PLAY_HELLO                  "צליל אתחול"
 #define TR_PWR_ON_DELAY                "השהיית הפעלה פעיל"
 #define TR_PWR_OFF_DELAY               "משך לחיצה לכיבוי השלט"
 #define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "התראת מצערת פתוחה")
@@ -687,7 +687,12 @@
 #define TR_POWER_METER_INT             "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
-#define TR_SDCARD_FULL                 "SD card full"
+#define TR_SDCARD_FULL                  "הדיסק מלא״
+#if defined(COLORLCD)
+#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\לוגים ושמירת צילומי מסך מושבתים"
+#else
+#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\036לוגים" LCDW_128_480_LINEBREAK "ושמירת צילומי מסך מושבתים"
+#endif
 #define TR_NEEDS_FILE                  "NEEDS FILE"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"

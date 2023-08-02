@@ -340,12 +340,8 @@ inline bool SPLASH_NEEDED()
 #endif
 }
 
-#if defined(PCBHORUS)
-  #define SPLASH_TIMEOUT               0 /* we use the splash duration to load stuff from the SD */
-#elif defined(PCBTARANIS)
-  #define SPLASH_TIMEOUT               (g_eeGeneral.splashMode == -4 ? 1500 : (g_eeGeneral.splashMode <= 0 ? (400-g_eeGeneral.splashMode * 200) : (400 - g_eeGeneral.splashMode * 100)))
-#else
-  #define SPLASH_TIMEOUT               (4 * 100)  // 4 seconds
+#if defined(SPLASH)
+  #define SPLASH_TIMEOUT (g_eeGeneral.splashMode == -4 ? 1500 : (g_eeGeneral.splashMode <= 0 ? (400-g_eeGeneral.splashMode * 200) : (400 - g_eeGeneral.splashMode * 100)))
 #endif
 
 constexpr uint8_t HEART_TIMER_10MS = 0x01;
@@ -1054,6 +1050,10 @@ inline uint8_t GET_TXBATT_BARS(uint8_t barsMax)
 inline bool IS_TXBATT_WARNING()
 {
   return g_vbat100mV <= g_eeGeneral.vBatWarn;
+}
+
+inline bool IS_SDCARD_FULL() {
+  return sdGetFreeSectors() < ((50 *1024*1024) / BLOCK_SIZE); // 50MB safety margin
 }
 
 enum TelemetryViews {

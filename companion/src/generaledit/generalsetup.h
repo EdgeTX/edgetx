@@ -93,6 +93,7 @@ class GeneralSetupPanel : public GeneralPanel
     void on_pwrOffDelay_valueChanged(int);
 
     void on_modelQuickSelect_CB_stateChanged(int);
+    void on_startSoundCB_stateChanged(int);
 
   private:
     Ui::GeneralSetup *ui;

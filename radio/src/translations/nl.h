@@ -53,8 +53,7 @@
 
 #define TR_AUX_SERIAL_MODES    "UIT","Telem Mirror","Telemetry In","SBUS Leerling","LUA","CLI","GPS","Debug","SpaceMouse","External module"
 #define TR_SWTYPES             "Geen","Wissel","2POS","3POS"
-#define TR_POTTYPES            "Geen",TR("Pot w. det","Pot met Klik"),TR("Multipos","Standenschakelaar"),TR("Pot", "Pot zonder Klik")
-#define TR_SLIDERTYPES         "Geen","Schuif"
+#define TR_POTTYPES            "Geen",TR("Pot w. det","Pot met Klik"),TR("Multipos","Standenschakelaar"),TR("Pot", "Pot zonder Klik"),"Schuif"
 #define TR_VPERSISTENT         "UIT","Vliegtijd","Handmatige Reset"
 #define TR_COUNTRY_CODES       TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
 #define TR_USBMODES            "Ask",TR("Joyst","Joystick"),TR("SDCard","Storage"),"Serial"
@@ -115,7 +114,6 @@
 #define TR_SF_SAFETY           TR("Overr.","Override")
 
 #define TR_SF_SCREENSHOT      "Schermafdr"
-#define TR_SF_TEST             "Test"
 #define TR_SF_RACING_MODE     "RacingMode"
 #define TR_SF_DISABLE_TOUCH   "No Touch"
 #define TR_SF_SET_SCREEN      "Set Main Screen"
@@ -364,6 +362,7 @@
 #define TR_KEYS_BACKLIGHT      "Keys backlight"
 #define TR_BLCOLOR             "Kleur"
 #define TR_SPLASHSCREEN        "Startscherm Aan"
+#define TR_PLAY_HELLO                  "Startup Sound"
 #define TR_PWR_ON_DELAY        "Pwr On delay"
 #define TR_PWR_OFF_DELAY       "Pwr Off delay"
 #define TR_THROTTLE_WARNING    TR(INDENT "T-Warning", INDENT "Throttle Status")
@@ -606,6 +605,11 @@
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
 #define TR_SDCARD_FULL                 "SD-Kaart vol"
+#if defined(COLORLCD)
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogs and Screenshots disabled"
+#else
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Logs and " LCDW_128_480_LINEBREAK "Screenshots disabled"
+#endif
 #define TR_NEEDS_FILE                  "NEEDS FILE"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"

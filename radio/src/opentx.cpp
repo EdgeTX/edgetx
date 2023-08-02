@@ -349,6 +349,10 @@ void generalDefault()
   g_eeGeneral.rotEncMode = ROTARY_ENCODER_MODE_INVERT_BOTH;
 #endif
 
+#if defined(MANUFACTURER_RADIOMASTER)
+  g_eeGeneral.audioMuteEnable = 1;
+#endif
+
   g_eeGeneral.chkSum = 0xFFFF;
 }
 
@@ -640,6 +644,11 @@ static void checkRTCBattery()
   }
 }
 
+void checkSDfreeStorage() {
+  if(IS_SDCARD_FULL())
+    ALERT(STR_SD_CARD, STR_SDCARD_FULL, AU_ERROR);
+}
+
 #if defined(PCBFRSKY) || defined(PCBFLYSKY)
 static void checkFailsafe()
 {
@@ -668,6 +677,8 @@ void checkAll()
   checkLowEEPROM();
 #endif
 
+  checkSDfreeStorage();
+  
   // we don't check the throttle stick if the radio is not calibrated
   if (g_eeGeneral.chkSum == evalChkSum()) {
     checkThrottleStick();
@@ -919,7 +930,7 @@ void alert(const char * title, const char * msg , uint8_t sound)
 
 #if defined(GVARS)
 #if MAX_TRIMS == 8
-int8_t trimGvar[MAX_TRIMS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+  int8_t trimGvar[MAX_TRIMS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 #elif MAX_TRIMS == 6
   int8_t trimGvar[MAX_TRIMS] = { -1, -1, -1, -1, -1, -1 };
 #elif MAX_TRIMS == 4
@@ -1101,7 +1112,8 @@ void opentxStart(const uint8_t startOptions = OPENTX_START_DEFAULT_ARGS)
 
 #if defined(GUI)
   if (!calibration_needed && !(startOptions & OPENTX_START_NO_SPLASH)) {
-    AUDIO_HELLO();
+    if (!g_eeGeneral.dontPlayHello)
+      AUDIO_HELLO();
     doSplash();
   }
 #endif
@@ -1412,7 +1424,7 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
   }
 
   // reset all trims, except throttle (if throttle trim)
-  for (uint8_t i=0; i<MAX_TRIMS; i++) {
+  for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
     auto thrStick = g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM;
     if (i != thrStick || !g_model.thrTrim) {
       int16_t original_trim = getTrimValue(mixerCurrentFlightMode, i);

@@ -251,12 +251,9 @@ ui(new Ui::GeneralSetup)
 
   ui->rssiPowerOffWarnChkB->setChecked(!generalSettings.disableRssiPoweroffAlarm); // Default is zero=checked
 
+  ui->splashScreenDuration->setCurrentIndex(3-generalSettings.splashMode);
   if (IS_FAMILY_HORUS_OR_T16(firmware->getBoard())) {
-    ui->splashScreenDuration->hide();
-    ui->splashScreenLabel->hide();
-  }
-  else {
-    ui->splashScreenDuration->setCurrentIndex(3-generalSettings.splashMode);
+    ui->splashScreenDuration->setItemText(0, QCoreApplication::translate("GeneralSetup", "1s", nullptr));
   }
 
   if (!firmware->getCapability(PwrButtonPress)) {
@@ -476,6 +473,8 @@ void GeneralSetupPanel::setValues()
   ui->pwrOffDelay->setValue(2 - generalSettings.pwrOffSpeed);
 
   ui->registrationId->setText(generalSettings.registrationId);
+
+  ui->startSoundCB->setChecked(!generalSettings.dontPlayHello);
 
   if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
     ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
@@ -802,5 +801,11 @@ void GeneralSetupPanel::stickReverseEdited()
 void GeneralSetupPanel::on_modelQuickSelect_CB_stateChanged(int)
 {
   generalSettings.modelQuickSelect = ui->modelQuickSelect_CB->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_startSoundCB_stateChanged(int)
+{
+  generalSettings.dontPlayHello = !ui->startSoundCB->isChecked();
   emit modified();
 }

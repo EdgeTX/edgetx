@@ -143,7 +143,6 @@ extern const char* const STR_TRNCHN[];
 extern const char* const STR_AUX_SERIAL_MODES[];
 extern const char* const STR_SWTYPES[];
 extern const char* const STR_POTTYPES[];
-extern const char* const STR_SLIDERTYPES[];
 extern const char* const STR_VTRIMINC[];
 extern const char* const STR_VDISPLAYTRIMS[];
 
@@ -403,6 +402,10 @@ extern const char STR_KEYS_BACKLIGHT[];
 #endif
 
 extern const char STR_SPLASHSCREEN[];
+extern const char STR_PLAY_HELLO[];
+#if defined(COLORLCD)
+extern const char* const STR_SPLASHSCREEN_DELAYS[];
+#endif
 #if defined(PWR_BUTTON_PRESS)
 extern const char STR_PWR_ON_DELAY[];
 extern const char STR_PWR_OFF_DELAY[];
@@ -690,6 +693,7 @@ extern const char STR_DELETE_ERROR[];
 extern const char STR_SDCARD_ERROR[];
 extern const char STR_NO_SDCARD[];
 extern const char STR_SDCARD_FULL[];
+extern const char STR_SDCARD_FULL_EXT[];
 extern const char STR_INCOMPATIBLE[];
 extern const char STR_LOGS_PATH[];
 extern const char STR_LOGS_EXT[];
