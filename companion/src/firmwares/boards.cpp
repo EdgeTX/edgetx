@@ -1159,7 +1159,7 @@ AbstractStaticItemModel * Boards::externalModuleSizeItemModel()
 // static
 int Boards::adcPotsBeforeSliders(Board::Type board, SemanticVersion version)
 {
-  if (version >= SemanticVersion("2.10.0")) {
+  if (version >= SemanticVersion(CPN_ADC_REFACTOR_VERSION)) {
     if (IS_TARANIS_X9(board) || IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || IS_RADIOMASTER_BOXER(board))
       return 3;
     else if (IS_TARANIS_X9LITE(board))
