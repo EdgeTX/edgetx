@@ -31,7 +31,7 @@ YamlCalibData::YamlCalibData(const int* calibMid, const int* calibSpanNeg,
 {
   for (int i = 0; i < CPN_MAX_ANALOGS; i++) {
     int seq = getCurrentFirmware()->getAnalogInputSeqADC(i);
-    if (seq >=0 && seq < CPN_MAX_ANALOGS) {
+    if (seq >= 0 && seq < CPN_MAX_ANALOGS) {
       calib[seq].mid = calibMid[i];
       calib[seq].spanNeg = calibSpanNeg[i];
       calib[seq].spanPos = calibSpanPos[i];
@@ -84,7 +84,7 @@ Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
       int seq = getCurrentFirmware()->getAnalogInputSeqADC(j);
       if (seq == i) {
         std::string tag = getCurrentFirmware()->getAnalogInputTagADC(j);
-        node[tag] = rhs.calib[j];
+        node[tag] = rhs.calib[seq];
         break;
       }
     }
