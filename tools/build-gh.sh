@@ -122,6 +122,9 @@ do
         zorro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
             ;;
+        pocket)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=POCKET"
+            ;;
         tlite)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
             ;;

@@ -371,8 +371,8 @@ LEGACY_NAMES = [
             },
             "P1": {
                 "yaml": "POT1",
-                "lua": "sf",
-                "label": "SF",
+                "lua": "s1",
+                "label": "S1",
                 "short_label": "1",
                 "description": "Potentiometer 1"
             }
