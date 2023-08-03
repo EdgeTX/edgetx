@@ -333,7 +333,8 @@ bool keysPollingCycle()
   for (int i = 0; i < MAX_KEYS; i++) {
     event_t evt = keys[i].input(keys_input & (1 << i));
     if (evt) {
-      if (i != KEY_SHIFT && evt != _MSK_KEY_REPT) {
+      // SHIFT key should not trigger REPT events
+      if (i != KEY_SHIFT || evt != _MSK_KEY_REPT) {
         pushEvent(evt | i);
       }
     }
