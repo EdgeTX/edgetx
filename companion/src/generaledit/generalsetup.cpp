@@ -21,6 +21,7 @@
 #include "generalsetup.h"
 #include "ui_generalsetup.h"
 #include "compounditemmodels.h"
+#include "filtereditemmodels.h"
 #include "autocombobox.h"
 
 GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
@@ -173,7 +174,7 @@ ui(new Ui::GeneralSetup)
   }
 
   if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board)) {
-    ui->hatsModeCB->setModel(GeneralSettings::hatsModeItemModel());
+    ui->hatsModeCB->setModel(new FilteredItemModel(GeneralSettings::hatsModeItemModel()));
     ui->hatsModeCB->setField(generalSettings.hatsMode, this);
   }
   else {

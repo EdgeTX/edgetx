@@ -177,6 +177,7 @@ class GeneralSettings {
       HATS_MODE_TRIMS_ONLY,
       HATS_MODE_BUTTONS_ONLY,
       HATS_MODE_BOTH,
+      HATS_MODE_GLOBAL,
       HATS_MODE_COUNT
     };
 
@@ -340,5 +341,5 @@ class GeneralSettings {
     static AbstractStaticItemModel * internalModuleBaudrateItemModel();
     static AbstractStaticItemModel * stickDeadZoneItemModel();
     static AbstractStaticItemModel * uartSampleModeItemModel();
-    static AbstractStaticItemModel * hatsModeItemModel();
+    static AbstractStaticItemModel * hatsModeItemModel(bool radio_setup = true);
 };
