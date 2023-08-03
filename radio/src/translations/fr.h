@@ -82,9 +82,9 @@
   #define TR_CSWRANGE                  "Plage"
   #define TR_CSWSTAY                   "Edge"
 #else
-  #define TR_CSWTIMER                  "Temp"
+  #define TR_CSWTIMER                  "Chrono"
   #define TR_CSWSTICKY                 "Bist"
-  #define TR_CSWRANGE                  "PLage"
+  #define TR_CSWRANGE                  "Plage"
   #define TR_CSWSTAY                   "Edge"
 #endif
 
@@ -98,7 +98,7 @@
 #define TR_SF_RESET                    "Remise à 0"
 #define TR_SF_SET_TIMER                "Déf."
 #define TR_SF_VOLUME                   "Volume"
-#define TR_SF_FAILSAFE                 "Déf. Failsafe"
+#define TR_SF_FAILSAFE                 "Régle Failsafe"
 #define TR_SF_RANGE_CHECK              "Test Port."
 #define TR_SF_MOD_BIND                 "Bind"
  
