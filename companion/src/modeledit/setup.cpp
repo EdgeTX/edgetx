@@ -1474,6 +1474,8 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelItemModels->registerItemModel(TimerData::persistentItemModel());
   panelItemModels->registerItemModel(TimerData::modeItemModel());
   panelItemModels->registerItemModel(TimerData::showElapsedItemModel());
+  panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::hatsModeItemModel(false)));
+
   Board::Type board = firmware->getBoard();
 
   memset(modules, 0, sizeof(modules));
@@ -1692,6 +1694,15 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   }
 
   ui->trimsDisplay->setField(model.trimsDisplay, this);
+
+  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board)) {
+    ui->cboHatsMode->setModel(panelFilteredModels->getItemModel(AIM_GS_HATSMODE));
+    ui->cboHatsMode->setField(model.hatsMode, this);
+  }
+  else {
+    ui->lblHatsMode->hide();
+    ui->cboHatsMode->hide();
+  }
 
   if (Boards::getCapability(firmware->getBoard(), Board::FunctionSwitches) > 0) {
     funcswitches = new FunctionSwitchesPanel(this, model, generalSettings, firmware);
