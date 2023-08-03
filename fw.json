@@ -26,9 +26,10 @@
         ["Jumper T-Pro", "tpro-"],
         ["Jumper T-Pro V2", "tprov2-"],
         ["Jumper T20", "t20-"],
+        ["RadioMaster Boxer", "boxer-"],
+        ["RadioMaster Pocket", "pocket-"],
         ["RadioMaster T8", "t8-"],
         ["RadioMaster TX12", "tx12-"],
-        ["RadioMaster Boxer", "boxer-"],
         ["RadioMaster TX12MK2", "tx12mk2-"],
         ["RadioMaster TX16S", "tx16s-"],
         ["RadioMaster Zorro","zorro-"]
