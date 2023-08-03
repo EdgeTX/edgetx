@@ -268,13 +268,15 @@ void checkSpeakerVolume()
 
 #if defined(USE_TRIMS_AS_BUTTONS)
 void checkTrimsAsButtons() {
-  static bool oldHatsModeButtons = g_eeGeneral.hatsMode == HATS_MODE_BUTTONS_ONLY;
+  uint8_t hatsMode = g_model.hatsMode == HATS_MODE_GLOBAL ? g_eeGeneral.hatsMode : g_model.hatsMode;
 
-  if(g_eeGeneral.hatsMode == HATS_MODE_TRIMS_ONLY) {
+  static bool oldHatsModeButtons = hatsMode == HATS_MODE_BUTTONS_ONLY;
+
+  if(hatsMode == HATS_MODE_TRIMS_ONLY) {
     setTrimsAsButtons(false);
   }
   
-  if(g_eeGeneral.hatsMode == HATS_MODE_BUTTONS_ONLY) {
+  if(hatsMode == HATS_MODE_BUTTONS_ONLY) {
     setTrimsAsButtons(true);
   }
 

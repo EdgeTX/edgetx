@@ -661,7 +661,8 @@ enum BluetoothModes {
 enum enumHatsMode {
   HATS_MODE_TRIMS_ONLY,
   HATS_MODE_BUTTONS_ONLY,
-  HATS_MODE_BOTH
+  HATS_MODE_BOTH,
+  HATS_MODE_GLOBAL
 };
 #endif
 

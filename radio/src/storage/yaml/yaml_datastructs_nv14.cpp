@@ -297,7 +297,8 @@ static const struct YamlNode struct_EdgeTxTheme__PersistentData[] = {
 static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "manuallyEdited", 1 ),
   YAML_SIGNED( "timezoneMinutes", 3 ),
-  YAML_PADDING( 4 ),
+  YAML_UNSIGNED( "hatsMode", 2 ),
+  YAML_PADDING( 2 ),
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_CUSTOM("board",nullptr,w_board),
   YAML_ARRAY("calib", 48, 22, struct_CalibData, NULL),
@@ -379,7 +380,6 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_STRUCT("themeData", 480, struct_EdgeTxTheme__PersistentData, NULL),
   YAML_STRING("ownerRegistrationID", 8),
   YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
-  YAML_UNSIGNED( "hatsMode", 2 ),
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_UNSIGNED( "stickDeadZone", 3 ),
   YAML_UNSIGNED( "audioMuteEnable", 1 ),
@@ -820,7 +820,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "disableTelemetryWarning", 1 ),
   YAML_UNSIGNED( "showInstanceIds", 1 ),
   YAML_UNSIGNED( "checklistInteractive", 1 ),
-  YAML_PADDING( 4 ),
+    YAML_UNSIGNED( "hatsMode", 2 ),
+  YAML_PADDING( 2 ),
   YAML_SIGNED( "customThrottleWarningPosition", 8 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),
   YAML_ARRAY("mixData", 160, 64, struct_MixData, NULL),
@@ -899,4 +900,3 @@ const YamlNode* get_partialmodel_nodes()
 {
    return &__PartialModel_root_node;
 }
-
