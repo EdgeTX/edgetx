@@ -60,7 +60,12 @@
 #define SD_STD_CAPACITY                 ((uint32_t)0x00000000)
 #define SD_CHECK_PATTERN                ((uint32_t)0x000001AA)
 
-#define SD_MAX_VOLT_TRIAL               ((uint32_t)0x0000FFFF)
+#if defined(RADIO_TX16S)
+  #define SD_MAX_VOLT_TRIAL               ((uint32_t)0x00000834)
+#else
+  #define SD_MAX_VOLT_TRIAL               ((uint32_t)0x0000FFFF)
+#endif
+
 #define SD_ALLZERO                      ((uint32_t)0x00000000)
 
 #define SD_WIDE_BUS_SUPPORT             ((uint32_t)0x00040000)
