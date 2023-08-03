@@ -353,7 +353,7 @@ static void style_init(void)
   lv_style_set_bg_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_ACTIVE));
   lv_style_set_text_color(&styles.bg_color_active, makeLvColor(COLOR_THEME_PRIMARY1));
 
-  lv_style_set_bg_color(&styles.bg_color_mix_active, makeLvColor(COLOR_THEME_SECONDARY3));
+  lv_style_set_bg_color(&styles.bg_color_mix_active, makeLvColor(COLOR_THEME_ACTIVE));
 
   lv_style_set_bg_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_FOCUS));
   lv_style_set_text_color(&styles.bg_color_focus, makeLvColor(COLOR_THEME_PRIMARY2));

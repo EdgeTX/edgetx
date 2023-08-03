@@ -85,7 +85,7 @@ class GVarStyle
 
       // Always update colors in case theme changes
       lv_style_set_bg_color(&fmContStyle, makeLvColor(COLOR_THEME_PRIMARY2));
-      lv_style_set_bg_color(&fmContStyleChecked, makeLvColor(COLOR_THEME_SECONDARY3));
+      lv_style_set_bg_color(&fmContStyleChecked, makeLvColor(COLOR_THEME_ACTIVE));
       lv_style_set_text_color(&fmLabelStyle, makeLvColor(COLOR_THEME_SECONDARY1));
       lv_style_set_text_color(&fmValueStyle, makeLvColor(COLOR_THEME_SECONDARY1));
       lv_style_set_text_color(&fmNameStyle, makeLvColor(COLOR_THEME_SECONDARY1));
