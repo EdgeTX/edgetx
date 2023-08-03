@@ -819,7 +819,12 @@
   #define STORAGE_SWITCH_E
   #define HARDWARE_SWITCH_E
   #define SWITCHES_GPIO_REG_E           GPIOG
-  #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_7  // PG.07
+  #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_10  // PG.10
+#elif defined(RADIO_T20)
+  #define STORAGE_SWITCH_E
+  #define HARDWARE_SWITCH_E
+  #define SWITCHES_GPIO_REG_E           GPIOD
+  #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_3  // PD.03
 #elif defined(PCBX7)
   // no SWE
 #else
@@ -869,7 +874,12 @@
   #define SWITCHES_GPIO_REG_F_L         GPIOD
   #define SWITCHES_GPIO_PIN_F_L         LL_GPIO_PIN_14 // PD.14
   #define SWITCHES_GPIO_REG_F_H         GPIOE
-  #define SWITCHES_GPIO_PIN_F_H         LL_GPIO_PIN_1  // PE.0
+  #define SWITCHES_GPIO_PIN_F_H         LL_GPIO_PIN_1  // PE.01
+#elif defined(RADIO_TPROV2)
+  #define STORAGE_SWITCH_F
+  #define HARDWARE_SWITCH_F
+  #define SWITCHES_GPIO_REG_F           GPIOG
+  #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_1  // PG.01
 #elif defined(RADIO_TPRO)
   #define STORAGE_SWITCH_F
   #define HARDWARE_SWITCH_F
