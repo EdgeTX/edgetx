@@ -42,6 +42,8 @@ constexpr char AIM_GS_SERIALMODE[]         {"gs.serialmode"};
 constexpr char AIM_GS_INTMODULEBAUDRATE[]  {"gs.intmodulebaudrate"};
 constexpr char AIM_GS_STICKDEADZONE[]      {"gs.stickdeadzone"};
 constexpr char AIM_GS_UARTSAMPLEMODE[]     {"gs.uartsamplemode"};
+constexpr char AIM_GS_HATSMODE[]           {"gs.hatsmode"};
+
 constexpr char AIM_TRAINERMIX_MODE[]       {"trainermix.mode"};
 constexpr char AIM_TRAINERMIX_SRC[]        {"trainermix.src"};
 
@@ -169,6 +171,13 @@ class GeneralSettings {
       UART_SAMPLE_MODE_NORMAL,
       UART_SAMPLE_MODE_ONEBIT,
       UART_SAMPLE_MODE_COUNT
+    };
+
+    enum HatsMode {
+      HATS_MODE_TRIMS_ONLY,
+      HATS_MODE_BUTTONS_ONLY,
+      HATS_MODE_BOTH,
+      HATS_MODE_COUNT
     };
 
     GeneralSettings() { clear(); }
@@ -314,6 +323,7 @@ class GeneralSettings {
     QString serialPortModeToString(int port_nr) const;
     QString internalModuleBaudrateToString() const;
     QString uartSampleModeToString() const;
+    QString hatsModeToString() const;
 
     static QString antennaModeToString(int value);
     static QString bluetoothModeToString(int value);
@@ -322,6 +332,7 @@ class GeneralSettings {
     static FieldRange getPPM_MultiplierRange();
     static FieldRange getTxCurrentCalibration();
     static QString uartSampleModeToString(int value);
+    static QString hatsModeToString(int value);
 
     static AbstractStaticItemModel * antennaModeItemModel(bool model_setup = false);
     static AbstractStaticItemModel * bluetoothModeItemModel();
@@ -329,4 +340,5 @@ class GeneralSettings {
     static AbstractStaticItemModel * internalModuleBaudrateItemModel();
     static AbstractStaticItemModel * stickDeadZoneItemModel();
     static AbstractStaticItemModel * uartSampleModeItemModel();
+    static AbstractStaticItemModel * hatsModeItemModel();
 };
