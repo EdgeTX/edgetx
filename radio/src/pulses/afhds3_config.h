@@ -37,17 +37,19 @@ enum eSES_PA_SetAnalogOutput {
   SES_ANALOG_OUTPUT_PPM
 };
 
-enum eEB_BusType {
+enum eEB_BusType : uint8_t {
   EB_BT_IBUS1=0,
+  EB_BT_IBUS1_OUT = EB_BT_IBUS1,
   EB_BT_IBUS2,
+  EB_BT_IBUS1_IN = EB_BT_IBUS2,
   EB_BT_SBUS1
 };
 
-typedef enum
+enum IBUS1_DIR
 {
 	IBUS1_OUT,
-	IBUS1_IN, //Not yet supported
-} eIBUS1_DIR;
+	IBUS1_IN,
+};
 
 // 48 bytes
 PACK(struct sDATA_ConfigV0 {
@@ -61,7 +63,7 @@ PACK(struct sDATA_ConfigV0 {
   uint8_t FailsafeOutputMode; //TRUE Or FALSE
   sSES_PWMFrequencyV0 PWMFrequency;
   uint8_t AnalogOutput; // eSES_PA_SetAnalogOutput
-  uint8_t ExternalBusType; // eEB_BusType
+  eEB_BusType ExternalBusType; // eEB_BusType
 });
 
 #define SES_NB_MAX_CHANNELS (32)
@@ -129,7 +131,7 @@ PACK(struct sDATA_ConfigV1 {
 
 PACK(struct sDATA_Others {
   uint8_t buffer[sizeof(sDATA_ConfigV1)];
-  uint8_t ExternalBusType;  // eEB_BusType
+  uint8_t ExternalBusType;  // eEB_BusType IBUS1:0;IBUS2:1(Not supported yet);SBUS:2
   tmr10ms_t lastUpdated;    // last updated time
   bool isConnected;         // specify if receiver is connected
   uint32_t dirtyFlag;       // mapped to commands that need to be issued to sync settings
