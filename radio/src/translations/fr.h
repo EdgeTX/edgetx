@@ -78,15 +78,15 @@
 #define TR_VMLTPX2                     "+=","*=",":="
 
 #if LCD_W >= 212
-  #define TR_CSWTIMER                  "Tempo"
+  #define TR_CSWTIMER                  "Chrono"
   #define TR_CSWSTICKY                 "Bistb"
   #define TR_CSWRANGE                  "Plage"
-  #define TR_CSWSTAY                   "Flanc"
+  #define TR_CSWSTAY                   "Edge"
 #else
-  #define TR_CSWTIMER                  "Temp"
+  #define TR_CSWTIMER                  "Chrono"
   #define TR_CSWSTICKY                 "Bist"
-  #define TR_CSWRANGE                  "Zone"
-  #define TR_CSWSTAY                   "Flnc"
+  #define TR_CSWRANGE                  "Plage"
+  #define TR_CSWSTAY                   "Edge"
 #endif
 
 #define TR_CSWEQUAL                    "a=x"
@@ -94,12 +94,12 @@
 
 #define TR_TEXT_SIZE                   "Standard","Mini","Petit","Moyen","Double"
 
-#define TR_SF_TRAINER                  "Ecolage"
+#define TR_SF_TRAINER                  "Écolage"
 #define TR_SF_INST_TRIM                "Inst. Trim"
 #define TR_SF_RESET                    "Remise à 0"
 #define TR_SF_SET_TIMER                "Déf."
 #define TR_SF_VOLUME                   "Volume"
-#define TR_SF_FAILSAFE                 "DéfFailsafe"
+#define TR_SF_FAILSAFE                 "Régle Failsafe"
 #define TR_SF_RANGE_CHECK              "Test Port."
 #define TR_SF_MOD_BIND                 "Bind"
  
@@ -191,7 +191,7 @@
 #define TR_SRC_BATT                    "Batt"
 #define TR_SRC_TIME                    "H_M"
 #define TR_SRC_GPS                     "GPS"
-#define TR_SRC_TIMER                   "Chr"
+#define TR_SRC_TIMER                   "Chrono"
 
 #define TR_VTMRMODES                   "OFF","ON","GZs","GZ%","GZt"
 #define TR_VTRAINER_MASTER_OFF         "OFF"
@@ -247,9 +247,9 @@
 #define TR_YES                         "Oui"
 #define TR_NO                          "Non"
 #define TR_DELETEMODEL                 "SUPPR. MODÈLE"
-#define TR_COPYINGMODEL                "Copie..."
-#define TR_MOVINGMODEL                 "Déplacement..."
-#define TR_LOADINGMODEL                "Chargement..."
+#define TR_COPYINGMODEL                "Copie modèle"
+#define TR_MOVINGMODEL                 "Déplacement modèle"
+#define TR_LOADINGMODEL                "Chargement modèle"
 #define TR_UNLABELEDMODEL              "Non catégorisé"
 #define TR_NAME                        "Nom"
 #define TR_MODELNAME                   TR("Nom Modèle", "Nom du Modèle")
@@ -347,7 +347,7 @@
 #define TR_BATTERY_RANGE               "Plage batterie"
 #define TR_BATTERYCHARGING             "En charge..."
 #define TR_BATTERYFULL                 "Batterie chargée"
-#define TR_BATTERYNONE                 "Pas de batterie!"
+#define TR_BATTERYNONE                 "Pas de batterie !"
 #define TR_BATTERYWARNING              TR("Batterie", "Batterie faible")
 #define TR_INACTIVITYALARM             "Inactivité"
 #define TR_MEMORYWARNING               "Mémoire pleine"
