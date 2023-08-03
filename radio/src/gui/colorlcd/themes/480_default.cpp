@@ -197,6 +197,8 @@ class Theme480: public EdgeTxTheme
       dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS)|COLOR_THEME_PRIMARY2|CENTERED);
     }
 
+    uint16_t* getDefaultColors() const override { return defaultColors; }
+
   protected:
     static bool iconsLoaded;
     static const BitmapBuffer * backgroundBitmap;

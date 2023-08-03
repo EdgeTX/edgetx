@@ -118,7 +118,9 @@ class EdgeTxTheme
     virtual void drawUsbPluggedScreen(BitmapBuffer * dc) const;
 
     virtual const BitmapBuffer * getIconMask(uint8_t index) const = 0;
-  
+
+    virtual uint16_t* getDefaultColors() const = 0;
+
   protected:
     const char * name;
     const ZoneOption * options;
