@@ -21,29 +21,14 @@
 #pragma once
 
 #include "ff.h"
-#include "lcd.h"
 #include "menus.h"
 #include "page.h"
-#include "static.h"
-#include "sdcard.h"
-
-#include "LvglWrapper.h"
-
-constexpr int maxTxtBuffSize = 64 * 1024;
 
 class ViewTextWindow : public Page
 {
  public:
   ViewTextWindow(const std::string path, const std::string name,
-                 unsigned int icon = ICON_RADIO_SD_MANAGER, bool fromMenu = true) :
-      Page(icon), path(std::move(path)), name(std::move(name)), fromMenu(fromMenu)
-  {
-    fullPath = this->path + std::string(PATH_SEPARATOR) + this->name;
-    extractNameSansExt();
-
-    header.setTitle(this->name);
-    buildBody(&body);
-  };
+                 unsigned int icon = ICON_RADIO_SD_MANAGER);
 
   FRESULT sdReadTextFileBlock(const uint32_t bufSize,
                               const uint32_t offset);
@@ -58,7 +43,6 @@ class ViewTextWindow : public Page
 
   void onCancel() override;
 
-  void updateCheckboxes(lv_obj_t* parent);
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ViewTextWindow"; };
 #endif
@@ -69,8 +53,6 @@ class ViewTextWindow : public Page
   std::string fullPath;
   std::string extension;
 
-  bool fromMenu;
-
   lv_obj_t* lb;
 
   int offset = 0;
@@ -80,10 +62,13 @@ class ViewTextWindow : public Page
   bool openFromEnd;
 
   void extractNameSansExt(void);
-  void buildBody(Window* window);
+  virtual void buildBody(Window* window);
+
+  bool openFile();
 
   void onEvent(event_t event) override;
-  bool allChecked();
+
+  static void on_draw(lv_event_t * e);
 };
 
 void readModelNotes(bool fromMenu = false);
