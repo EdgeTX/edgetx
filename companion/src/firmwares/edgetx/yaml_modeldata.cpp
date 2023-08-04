@@ -88,6 +88,13 @@ static const YamlLookupTable usbJoystickIfModeLut = {
   {  2, "MULTIAXIS"  },
 };
 
+static const YamlLookupTable hatsModeLut = {
+  {  GeneralSettings::HATS_MODE_TRIMS_ONLY, "TRIMS"  },
+  {  GeneralSettings::HATS_MODE_BUTTONS_ONLY, "BUTTONS"  },
+  {  GeneralSettings::HATS_MODE_BOTH, "BOTH"  },
+  {  GeneralSettings::HATS_MODE_GLOBAL, "GLOBAL"  },
+};
+
 struct YamlTrim {
   int mode = 0;
   int ref = 0;
@@ -1104,6 +1111,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   }
 
   node["modelRegistrationID"] = rhs.registrationId;
+  node["hatsMode"] = hatsModeLut << rhs.hatsMode;
 
   if (Boards::getCapability(board, Board::FunctionSwitches)) {
     node["functionSwitchConfig"] = rhs.functionSwitchConfig;
@@ -1342,6 +1350,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   node["view"] >> rhs.view;
   node["modelRegistrationID"] >> rhs.registrationId;
+  node["hatsMode"] >> hatsModeLut >> rhs.hatsMode;
 
   node["functionSwitchConfig"] >> rhs.functionSwitchConfig;
   node["functionSwitchGroup"] >> rhs.functionSwitchGroup;
