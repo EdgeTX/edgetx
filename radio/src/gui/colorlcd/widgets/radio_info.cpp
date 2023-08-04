@@ -217,7 +217,7 @@ class DateTimeWidget: public Widget
 };
 
 const ZoneOption DateTimeWidget::options[] = {
-  { STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_PRIMARY2) },
+  { STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_PRIMARY2 >> 16) },
   { nullptr, ZoneOption::Bool }
 };
 
