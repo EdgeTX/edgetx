@@ -111,7 +111,7 @@ class SwitchButtons : public ButtonMatrix
 
     void updateBtns()
     {
-      update();
+      refresh();
     }
 
     void setInverted(bool state)
@@ -172,8 +172,9 @@ class SwitchButtons : public ButtonMatrix
       if (inverted)
         s = "!";
       s += getSwitchPositionName(sw);
-      setText(b, s.c_str());
       btnValues[b] = sw;
+      setText(b, s.c_str());
+      setChecked(b);
     }
 
     void setButtonText(int firstIdx, int lastIdx)
