@@ -921,7 +921,7 @@ bool ProtoState::syncSettings()
 
     if (onlySupportIBUSOut && cfg->others.ExternalBusType == EB_BT_IBUS1_IN)
     {
-      cfg->others.ExternalBusType == EB_BT_IBUS1_OUT;
+      cfg->others.ExternalBusType = EB_BT_IBUS1_OUT;
     }
     uint8_t data[] = { (uint8_t)(RX_CMD_BUS_TYPE_V0&0xFF), (uint8_t)((RX_CMD_BUS_TYPE_V0>>8)&0xFF), 1,
                        cfg->others.ExternalBusType == EB_BT_SBUS1 ? EB_BT_SBUS1 : EB_BT_IBUS1};
