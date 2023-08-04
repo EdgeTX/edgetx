@@ -99,7 +99,7 @@ void ViewMainDecoration::setFlightModeVisible(bool visible)
   }
 }
 
-void ViewMainDecoration::setFlightModeColor()
+void ViewMainDecoration::updateFromTheme()
 {
   // Hack to fix flight mode color on main view
   // Required because theme is loaded after the main view has been created
@@ -131,32 +131,18 @@ rect_t ViewMainDecoration::getMainZone() const
 
 void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br)
 {
-  // TODO: make dynamic
-  //uint8_t pot_idx = 0;
-  Window* sl = new MainViewHorizontalSlider(bl, 0);
-  sl->updateSize();
-  sliders[0] = sl;
+  sliders[0] = new MainViewHorizontalSlider(bl, 0);
 
-  if (!IS_POT_AVAILABLE(2)) {
+  if (!IS_POT_AVAILABLE(2))
     bc = br;
-  }
+  
+  if (IS_POT_MULTIPOS(1))
+    sliders[1] = new MainView6POS(bc, 1);
+  else if (IS_POT_AVAILABLE(1))
+    sliders[1] = new MainViewHorizontalSlider(bc, 1);
 
-  if (IS_POT_MULTIPOS(1)) {
-    sl = new MainView6POS(bc, 1);
-    sl->updateSize();
-    sliders[1] = sl;
-  }
-  else if (IS_POT_AVAILABLE(1)) {
-    sl = new MainViewHorizontalSlider(bc, 1);
-    sl->updateSize();
-    sliders[1] = sl;
-  }
-
-  if (IS_POT_AVAILABLE(2)) {
-    sl = new MainViewHorizontalSlider(br, 2);
-    sl->updateSize();
-    sliders[2] = sl;
-  }
+  if (IS_POT_AVAILABLE(2))
+    sliders[2] = new MainViewHorizontalSlider(br, 2);
 
   // TODO: check how many pots are configured instead
   auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
@@ -169,40 +155,30 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
     auto rightPots = create_layout_box(mr, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_COLUMN);
     rightPots->setHeight(VERTICAL_SLIDERS_HEIGHT);
 
-    for (int i = 3; i <= 6; i++) {
-      if (IS_POT_AVAILABLE(i)) {
-        sl = new MainViewVerticalSlider(i & 1 ? leftPots : rightPots, i);
-        sliders[i] = sl;
-      }
-    }
+    coord_t lsh = (IS_POT_AVAILABLE(5)) ? VERTICAL_SLIDERS_HEIGHT / 2 : VERTICAL_SLIDERS_HEIGHT;
+    coord_t rsh = (IS_POT_AVAILABLE(6)) ? VERTICAL_SLIDERS_HEIGHT / 2 : VERTICAL_SLIDERS_HEIGHT;
 
-    // update size AFTER all pots/sliders are created
-    for (int i = 3; i <= 6; i++) {
-      if (sliders[i] != nullptr)
-        sliders[i]->updateSize();
-    }
+    if (IS_POT_AVAILABLE(3))
+      sliders[3] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, TRIM_SQUARE_SIZE, lsh}, 3);
+
+    if (IS_POT_AVAILABLE(4))
+      sliders[4] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, TRIM_SQUARE_SIZE, rsh}, 4);
+
+    if (IS_POT_AVAILABLE(5))
+      sliders[5] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, TRIM_SQUARE_SIZE, lsh}, 5);
+
+    if (IS_POT_AVAILABLE(6))
+      sliders[6] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, TRIM_SQUARE_SIZE, rsh}, 6);
   }
 }
 
 void ViewMainDecoration::createTrims(Window* ml, Window* mr, Window* bl, Window* br)
 {
   // Trim order TRIM_LH, TRIM_LV, TRIM_RV, TRIM_RH
-
-  Window* tr = new MainViewHorizontalTrim(bl, TRIMS_LH);
-  tr->updateSize();
-  trims[TRIMS_LH] = tr;
-
-  tr = new MainViewHorizontalTrim(br, TRIMS_RH);
-  tr->updateSize();
-  trims[TRIMS_RH] = tr;
-
-  tr = new MainViewVerticalTrim(ml, TRIMS_LV);
-  tr->updateSize();
-  trims[TRIMS_LV] = tr;
-  
-  tr = new MainViewVerticalTrim(mr, TRIMS_RV);
-  tr->updateSize();
-  trims[TRIMS_RV] = tr;
+  trims[TRIMS_LH] = new MainViewHorizontalTrim(bl, TRIMS_LH);
+  trims[TRIMS_RH] = new MainViewHorizontalTrim(br, TRIMS_RH);
+  trims[TRIMS_LV] = new MainViewVerticalTrim(ml, TRIMS_LV);
+  trims[TRIMS_RV] = new MainViewVerticalTrim(mr, TRIMS_RV);
 }
 
 void ViewMainDecoration::createFlightMode(Window* bc)

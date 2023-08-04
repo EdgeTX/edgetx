@@ -27,10 +27,6 @@
 #include "opentx_types.h"
 #include "board.h"
 
-typedef uint32_t LcdFlags;
-typedef uint8_t pixel_t;
-typedef int coord_t;
-
 #define BOX_WIDTH                      31
 #define CENTER                         "\015"
 #define CENTER_OFS                     (7*FW-FW/2)

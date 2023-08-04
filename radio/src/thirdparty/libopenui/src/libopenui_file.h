@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "libopenui_compat.h" // for strcasecmp / VC++
 #include <string>
 #include <cstring>
 #include <cinttypes>

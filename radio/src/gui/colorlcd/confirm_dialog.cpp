@@ -22,7 +22,6 @@
 #include "opentx.h"
 #include "confirm_dialog.h"
 #include "static.h"
-#include "gridlayout.h"
 
 ConfirmDialog::ConfirmDialog(Window* parent, const char* title,
                              const char* message,
@@ -39,7 +38,7 @@ ConfirmDialog::ConfirmDialog(Window* parent, const char* title,
   lv_obj_set_style_bg_color(content->getLvObj(),
                             makeLvColor(COLOR_THEME_SECONDARY3), 0);
 
-  auto box = new FormGroup(form, rect_t{});
+  auto box = new FormWindow(form, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW);
   lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
 

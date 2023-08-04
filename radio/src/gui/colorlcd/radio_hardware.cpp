@@ -65,18 +65,18 @@ void RadioHardwarePage::build(FormWindow * window)
   auto line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_BATTERY_RANGE, 0, COLOR_THEME_PRIMARY1);
 
-  auto box = new FormGroup(line, rect_t{});
+  auto box = new FormWindow(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
   lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
   lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
   auto batMin =
-      new NumberEdit(box, rect_t{}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
+      new NumberEdit(box, rect_t{0, 0, 80, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
                      GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), 0, PREC1);
   batMin->setSuffix("V");
   new StaticText(box, rect_t{}, "-");
   auto batMax =
-      new NumberEdit(box, rect_t{}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
+      new NumberEdit(box, rect_t{0, 0, 80, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
                      GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), 0, PREC1);
   batMax->setSuffix("V");
 
@@ -98,7 +98,7 @@ void RadioHardwarePage::build(FormWindow * window)
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_BATT_CALIB, 0, COLOR_THEME_PRIMARY1);
   auto batCal =
-      new NumberEdit(line, rect_t{}, -127, 127,
+      new NumberEdit(line, rect_t{0, 0, 80, 0}, -127, 127,
                      GET_SET_DEFAULT(g_eeGeneral.txVoltageCalibration));
   batCal->setDisplayHandler([](int32_t value) {
     return formatNumberAsString(getBatteryVoltage(), PREC2, 0, nullptr, "V");
@@ -109,11 +109,11 @@ void RadioHardwarePage::build(FormWindow * window)
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_RTC_CHECK, 0, COLOR_THEME_PRIMARY1);
 
-  box = new FormGroup(line, rect_t{});
+  box = new FormWindow(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
   lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
   lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
-  new CheckBox(box, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableRtcWarning ));
+  new ToggleSwitch(box, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableRtcWarning ));
 
   // RTC Batt display
   new StaticText(box, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
@@ -124,41 +124,41 @@ void RadioHardwarePage::build(FormWindow * window)
   // ADC filter
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
+  new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
 
 #if defined(AUDIO_MUTE_GPIO)
   // Mute audio
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_AUDIO_MUTE, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.audioMuteEnable));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.audioMuteEnable));
 #endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)
-  new Subtitle(window, rect_t{}, STR_INTERNALRF, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_INTERNALRF);
   auto intMod = new InternalModuleWindow(window);
   intMod->padLeft(lv_dpx(8));
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
-  new Subtitle(window, rect_t{}, STR_EXTERNALRF, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_EXTERNALRF);
   auto extMod = new ExternalModuleWindow(window);
   extMod->padLeft(lv_dpx(8));
 #endif
 
 #if defined(BLUETOOTH)
-  new Subtitle(window, rect_t{}, STR_BLUETOOTH, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_BLUETOOTH);
   auto bt = new BluetoothConfigWindow(window);
   bt->padLeft(lv_dpx(8));
 #endif
 
-  new Subtitle(window, rect_t{}, STR_AUX_SERIAL_MODE, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_AUX_SERIAL_MODE);
   auto serial = new SerialConfigWindow(window, rect_t{});
   serial->padLeft(lv_dpx(8));
 
   // Calibration
-  new Subtitle(window, rect_t{}, STR_INPUTS, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_INPUTS);
 
-  box = new FormGroup(window, rect_t{});
+  box = new FormWindow(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
   lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
   box->padRow(lv_dpx(8));
@@ -184,9 +184,9 @@ void RadioHardwarePage::build(FormWindow * window)
   lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
   
   // Debugs
-  new Subtitle(window, rect_t{}, STR_DEBUG, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_DEBUG);
 
-  box = new FormGroup(window, rect_t{});
+  box = new FormWindow(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
   lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
   box->padRow(lv_dpx(8));

@@ -38,19 +38,13 @@ void choice_changed_cb(lv_event_t *e)
 
 ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
                        WindowFlags windowFlags) :
-    FormField(parent, rect, windowFlags), type(type)
+    FormField(parent, rect, windowFlags, 0, etx_choice_create),
+    type(type)
 {
-  lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
-  lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
+//   lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
+//   lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
   lv_obj_set_layout(lvobj, LV_LAYOUT_FLEX);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
-
-  if (height() == 0)
-  {
-    lv_obj_set_style_pad_top(lvobj, 4, LV_PART_MAIN);
-    lv_obj_set_style_pad_bottom(lvobj, 4, LV_PART_MAIN);
-    lv_obj_set_style_radius(lvobj, 4, LV_PART_MAIN);
-  }
 
   lv_obj_add_event_cb(lvobj, choice_changed_cb, LV_EVENT_VALUE_CHANGED, lvobj);
   label = lv_label_create(lvobj);
@@ -59,18 +53,6 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
   if(def_group) {
       lv_group_add_obj(def_group, lvobj);
   }
-
-  // Normal font and background color
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN);
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
-  lv_obj_set_style_pad_right(lvobj, 5, LV_PART_MAIN);
-  lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
-  lv_obj_set_style_border_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY2), LV_PART_MAIN);
-  lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY1), LV_PART_MAIN);
-
-  // focused
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_FOCUS), LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_set_style_text_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2), LV_PART_MAIN | LV_STATE_FOCUSED);
 
   lv_obj_set_style_pad_left(label, FIELD_PADDING_LEFT, LV_PART_MAIN);
   lv_obj_set_style_pad_top(label, FIELD_PADDING_TOP, LV_PART_MAIN);
@@ -107,7 +89,8 @@ Choice::Choice(Window* parent, const rect_t& rect, int vmin, int vmax,
     vmin(vmin),
     vmax(vmax),
     _getValue(std::move(_getValue)),
-    _setValue(std::move(_setValue))
+    _setValue(std::move(_setValue)),
+    longPressData({})
 {
   lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
@@ -119,7 +102,8 @@ Choice::Choice(Window* parent, const rect_t& rect, const char* const values[],
     vmin(vmin),
     vmax(vmax),
     _getValue(std::move(_getValue)),
-    _setValue(std::move(_setValue))
+    _setValue(std::move(_setValue)),
+    longPressData({})
 {
   setValues(values);
   lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
@@ -134,7 +118,8 @@ Choice::Choice(Window* parent, const rect_t& rect,
     vmin(vmin),
     vmax(vmax),
     _getValue(std::move(_getValue)),
-    _setValue(std::move(_setValue))
+    _setValue(std::move(_setValue)),
+    longPressData({})
 {
   lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
@@ -146,7 +131,8 @@ Choice::Choice(Window* parent, const rect_t& rect, const char* values, int vmin,
     vmin(vmin),
     vmax(vmax),
     _getValue(std::move(_getValue)),
-    _setValue(std::move(_setValue))
+    _setValue(std::move(_setValue)),
+    longPressData({})
 {
   if (values) {
     uint8_t len = values[0];
@@ -200,7 +186,8 @@ void Choice::setValue(int val)
 
 void Choice::onClicked()
 {
-  openMenu();
+  if (!longPressData.isLongPressed)
+    openMenu();
 }
 
 void Choice::fillMenu(Menu *menu, const FilterFct& filter)
@@ -241,4 +228,24 @@ void Choice::openMenu()
   }
 
   menu->setCloseHandler([=]() { setEditMode(false); });
+}
+
+static void localLongPressHandler(lv_event_t* e)
+{
+  lv_eventData_t* ld = (lv_eventData_t*)lv_event_get_user_data(e);
+  ld->isLongPressed = true;
+  ld->lv_LongPressHandler(ld->userData);
+}
+
+void Choice::set_lv_LongPressHandler(lvHandler_t longPressHandler, void* data)
+{
+  TRACE("longPressHandler=%p", longPressHandler);
+
+  if (longPressHandler) {
+    longPressData.userData = data;
+    longPressData.lv_LongPressHandler = longPressHandler;
+    lv_obj_add_event_cb(lvobj, localLongPressHandler, LV_EVENT_LONG_PRESSED,
+                        &longPressData);
+    lv_obj_add_event_cb(lvobj, ClickHandler, LV_EVENT_CLICKED, this);
+  }
 }

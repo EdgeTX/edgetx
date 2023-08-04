@@ -49,7 +49,7 @@ class ScreenSetupPage : public PageTab
   ScreenMenu* menu;
   unsigned pageIndex;
   unsigned customScreenIndex;
-  FormGroup* layoutOptions = nullptr;
+  FormWindow* layoutOptions = nullptr;
 
   void clearLayoutOptions();
   void buildLayoutOptions();

@@ -19,9 +19,9 @@
 #include <math.h>
 #include <string.h>
 
+#include "board.h"
 #include "bitmapbuffer.h"
-#include "libopenui_depends.h"
-#include "libopenui_helpers.h"
+#include "opentx_helpers.h"
 #include "libopenui_file.h"
 #include "font.h"
 

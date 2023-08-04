@@ -25,26 +25,9 @@
 
 #include "hal/adc_driver.h"
 
-enum slider_type {
-  SLIDER_HORIZ,
-  SLIDER_6POS,
-};
-
-static void slider_self_size(lv_event_t* e)
-{
-  lv_point_t* s = (lv_point_t*)lv_event_get_param(e);
-  slider_type t = (slider_type)(intptr_t)lv_event_get_user_data(e);
-  switch(t) {
-  case SLIDER_HORIZ:
-    s->x = HORIZONTAL_SLIDERS_WIDTH;
-    s->y = TRIM_SQUARE_SIZE;
-    break;
-  case SLIDER_6POS:
-    s->x = MULTIPOS_W;
-    s->y = MULTIPOS_H;
-    break;
-  }
-}
+constexpr coord_t MULTIPOS_H = 18;
+constexpr coord_t MULTIPOS_W_SPACING = 12;
+constexpr coord_t MULTIPOS_W = (6+1)*MULTIPOS_W_SPACING;
 
 MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect,
                                uint8_t idx) :
@@ -65,27 +48,21 @@ void MainViewSlider::checkEvents()
 
 MainViewHorizontalSlider::MainViewHorizontalSlider(Window* parent,
                                                    uint8_t idx) :
-    MainViewSlider(parent, rect_t{}, idx)
+    MainViewSlider(parent, rect_t{0, 0, HORIZONTAL_SLIDERS_WIDTH, TRIM_SQUARE_SIZE}, idx)
 {
-  void* user_data = (void*)SLIDER_HORIZ;
-  lv_obj_add_event_cb(lvobj, slider_self_size, LV_EVENT_GET_SELF_SIZE,
-                      user_data);
-
-  setWidth(HORIZONTAL_SLIDERS_WIDTH);
-  setHeight(TRIM_SQUARE_SIZE);
 }
 
 void MainViewHorizontalSlider::paint(BitmapBuffer * dc)
 {
   // The ticks
-  int delta = (width() - TRIM_SQUARE_SIZE) / SLIDER_TICKS_COUNT;
+  int sliderTicksCount = (width() - TRIM_SQUARE_SIZE) / SLIDER_TICK_SPACING;
   coord_t x = TRIM_SQUARE_SIZE / 2;
-  for (uint8_t i = 0; i <= SLIDER_TICKS_COUNT; i++) {
-    if (i == 0 || i == SLIDER_TICKS_COUNT / 2 || i == SLIDER_TICKS_COUNT)
+  for (uint8_t i = 0; i <= sliderTicksCount; i++) {
+    if (i == 0 || i == sliderTicksCount / 2 || i == SLIDER_TICKS_COUNT)
       dc->drawSolidVerticalLine(x, 2, 13, COLOR_THEME_SECONDARY1);
     else
       dc->drawSolidVerticalLine(x, 4, 9, COLOR_THEME_SECONDARY1);
-    x += delta;
+    x += SLIDER_TICK_SPACING;
   }
 
   // The square
@@ -94,14 +71,8 @@ void MainViewHorizontalSlider::paint(BitmapBuffer * dc)
 }
 
 MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
-    MainViewSlider(parent, rect_t{}, idx)
+    MainViewSlider(parent, rect_t{0, 0, MULTIPOS_W, MULTIPOS_H}, idx)
 {
-  void* user_data = (void*)SLIDER_6POS;
-  lv_obj_add_event_cb(lvobj, slider_self_size, LV_EVENT_GET_SELF_SIZE,
-                      user_data);
-
-  setWidth(MULTIPOS_W);
-  setHeight(MULTIPOS_H);
 }
 
 void MainView6POS::paint(BitmapBuffer * dc)
@@ -129,27 +100,22 @@ void MainView6POS::checkEvents()
   }
 }
 
-MainViewVerticalSlider::MainViewVerticalSlider(Window* parent, uint8_t idx) :
-    MainViewSlider(parent, rect_t{}, idx)
+MainViewVerticalSlider::MainViewVerticalSlider(Window* parent, const rect_t& rect, uint8_t idx) :
+    MainViewSlider(parent, rect, idx)
 {
-  lv_obj_set_style_max_height(lvobj, VERTICAL_SLIDERS_HEIGHT, 0);
-  lv_obj_set_style_min_height(lvobj, VERTICAL_SLIDERS_HEIGHT/2, 0);
-  lv_obj_set_style_flex_grow(lvobj, 1, 0);
-  setWidth(TRIM_SQUARE_SIZE);
 }
 
 void MainViewVerticalSlider::paint(BitmapBuffer * dc)
 {
   // The ticks
-  int delta = 4;
-  int sliderTicksCount = (height() - TRIM_SQUARE_SIZE) / delta;
+  int sliderTicksCount = (height() - TRIM_SQUARE_SIZE) / SLIDER_TICK_SPACING;
   coord_t y = TRIM_SQUARE_SIZE / 2;
   for (uint8_t i = 0; i <= sliderTicksCount; i++) {
     if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount)
        dc->drawSolidHorizontalLine(2, y, 13, COLOR_THEME_SECONDARY1);
     else
       dc->drawSolidHorizontalLine(4, y, 9, COLOR_THEME_SECONDARY1);
-    y += delta;
+    y += SLIDER_TICK_SPACING;
   }
 
   // The square

@@ -27,7 +27,7 @@
 #define PAGE_INTERVAL ((1000 / 10) * 2)
 #define SHORT_PAGE_INTERVAL ((1000 / 20))  // 500 MS
 
-class FileCarosell : public FormGroup
+class FileCarosell : public FormWindow
 {
  public:
   FileCarosell(Window *parent, const rect_t &rect,

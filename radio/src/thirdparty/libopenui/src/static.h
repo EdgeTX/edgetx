@@ -19,7 +19,6 @@
 #pragma once
 
 #include "window.h"
-#include "button.h" // TODO just for BUTTON_BACKGROUND
 
 class StaticText: public Window
 {
@@ -44,67 +43,17 @@ class StaticText: public Window
     LcdFlags bgColor = 0;
 };
 
-class Subtitle: public StaticText {
-  public:
-    Subtitle(Window * parent, const rect_t & rect, const char * text, WindowFlags windowFlags = 0, LcdFlags textFlags = 0):
-      StaticText(parent, rect, text, windowFlags, textFlags | FONT(BOLD))
-    {
-    }
-
-#if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "Subtitle \"" + text + "\"";
-    }
-#endif
-};
+#define Subtitle(parent, text) StaticText(parent, rect_t{}, text, 0, COLOR_THEME_PRIMARY1 | FONT(BOLD))
 
 class StaticBitmap: public Window
 {
   public:
-    StaticBitmap(Window * parent, const rect_t & rect, bool scale = false):
-      Window(parent, rect),
-      scale(scale)
-    {
-    }
-
-    StaticBitmap(Window * parent, const rect_t & rect, const char * filename, bool scale = false):
-      Window(parent, rect),
-      bitmap(BitmapBuffer::loadBitmap(filename)),
-      scale(scale)
-    {
-    }
-
-    StaticBitmap(Window * parent, const rect_t & rect, const BitmapBuffer * bitmap, bool scale = false):
-      Window(parent, rect),
-      bitmap(bitmap),
-      scale(scale)
-    {
-    }
-
     StaticBitmap(Window * parent, const rect_t & rect, const BitmapBuffer * mask, LcdFlags color, bool scale = false):
       Window(parent, rect),
       bitmap(mask),
       color(color),
       scale(scale)
     {
-    }
-
-    void setBitmap(const char * filename)
-    {
-      setBitmap(BitmapBuffer::loadBitmap(filename));
-    }
-
-    void setMaskColor(LcdFlags value)
-    {
-      color = value;
-    }
-
-    void setBitmap(const BitmapBuffer * newBitmap)
-    {
-      delete bitmap;
-      bitmap = newBitmap;
-      invalidate();
     }
 
 #if defined(DEBUG_WINDOWS)

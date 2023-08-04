@@ -71,13 +71,13 @@ class ColorEditorPopup : public Dialog
     auto cedit = new ColorEditor(line, r, color, [=](uint32_t c) { updateColor(c); });
     lv_obj_set_style_grid_cell_x_align(cedit->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
 
-    auto vbox = new FormGroup(line, rect_t{});
+    auto vbox = new FormWindow(line, rect_t{});
     lv_obj_set_style_grid_cell_x_align(vbox->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
     vbox->setFlexLayout(LV_FLEX_FLOW_COLUMN, lv_dpx(8));
     vbox->setWidth(r.w);
     vbox->setHeight(r.h);
 
-    auto hbox = new FormGroup(vbox, rect_t{});
+    auto hbox = new FormWindow(vbox, rect_t{});
     hbox->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
     auto hbox_obj = hbox->getLvObj();
     lv_obj_set_flex_align(hbox_obj, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_SPACE_AROUND);
@@ -92,7 +92,7 @@ class ColorEditorPopup : public Dialog
 
     updateColor(color);
     
-    hbox = new FormGroup(vbox, rect_t{});
+    hbox = new FormWindow(vbox, rect_t{});
     hbox->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
     lv_obj_set_flex_align(hbox->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
@@ -127,7 +127,7 @@ class ColorEditorPopup : public Dialog
     // color editor defaults to HSV
     hsvBtn->check(true);
     
-    hbox = new FormGroup(vbox, rect_t{});
+    hbox = new FormWindow(vbox, rect_t{});
     hbox->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
     lv_obj_set_flex_align(hbox->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_SPACE_BETWEEN);
     lv_obj_set_flex_grow(hbox->getLvObj(), 1);
@@ -170,7 +170,7 @@ static void color_editor_popup(lv_event_t* e)
 ColorPicker::ColorPicker(Window* parent, const rect_t& rect,
                          std::function<uint16_t()> getValue,
                          std::function<void(uint16_t)> setValue) :
-    FormField(parent, rect, 0, 0, lv_btn_create),
+    FormField(parent, rect, 0, 0, etx_button_create),
     setValue(std::move(setValue))
 {
   lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);

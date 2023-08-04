@@ -20,7 +20,6 @@
  */
 
 #include "curveedit.h"
-#include "keyboard_curve.h"
 #include "opentx.h" // TODO for applyCustomCurve
 #include "libopenui.h"
 
@@ -30,7 +29,7 @@ static const lv_coord_t default_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_L
 static const lv_coord_t default_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 CurveDataEdit::CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index) :
-  Window(parent, rect, FORM_FORWARD_FOCUS),
+  Window(parent, rect),
   index(index)
 {
   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY3), 0);
@@ -43,7 +42,7 @@ CurveDataEdit::CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index
   #define   NUM_BTN_WIDTH   48
 #endif
 
-void CurveDataEdit::curvePointsRow(FormGroup::Line* parent, int start, int count, int curvePointsCount, bool isCustom)
+void CurveDataEdit::curvePointsRow(FormWindow::Line* parent, int start, int count, int curvePointsCount, bool isCustom)
 {
   static const lv_coord_t points_col_dsc[] = {11, LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 
@@ -209,138 +208,6 @@ void CurveEdit::updatePreview()
   invalidate();
 }
 
-// #if defined(HARDWARE_TOUCH)
-// bool CurveEdit::onTouchEnd(coord_t x, coord_t y)
-// {
-//   if (!hasFocus()) {
-//     setFocus(SET_FOCUS_DEFAULT);
-//   }
-
-//   CurveKeyboard::show(this, isCustomCurve());
-
-//   CurveHeader & curve = g_model.curves[index];
-//   for (int i=0; i<5 + curve.points; i++) {
-//     if (i != current) {
-//       point_t point = getPoint(index, i);
-//       if (abs(preview.getPointX(point.x) - x) <= 10 && abs(preview.getPointY(point.y) - y) <= 10) {
-//         current = i;
-//         updatePreview();
-//         break;
-//       }
-//     }
-//   }
-
-//   return true;
-// }
-
-// void CurveEdit::onFocusLost()
-// {
-//   CurveKeyboard::hide();
-// }
-// #endif
-
-void CurveEdit::next()
-{
-  CurveHeader & curve = g_model.curves[index];
-  if (current++ == 5 + curve.points - 1) {
-    current = 0;
-  }
-  updatePreview();
-}
-
-void CurveEdit::previous()
-{
-  CurveHeader & curve = g_model.curves[index];
-  if (current-- == 0) {
-    current = 5 + curve.points - 1;
-  }
-  updatePreview();
-}
-
-void CurveEdit::up()
-{
-  int8_t & point = curveAddress(index)[current];
-  point = min<int8_t>(100, ++point);
-  storageDirty(EE_MODEL);
-  invalidate();
-}
-
-void CurveEdit::down()
-{
-  int8_t & point = curveAddress(index)[current];
-  point = max<int8_t>(-100, --point);
-  storageDirty(EE_MODEL);
-  invalidate();
-}
-
-void CurveEdit::right()
-{
-  CurveHeader & curve = g_model.curves[index];
-  if (curve.type == CURVE_TYPE_CUSTOM && current != 0 && current != curve.points + 5 - 1) {
-    int8_t * points = curveAddress(index);
-    int8_t * point = &points[5 + curve.points + current - 1];
-    int8_t xmax = (current == (curve.points - 2) ? +100 : *(point + 1));
-    *point = min<int8_t>(*point + 1, xmax-1);
-    storageDirty(EE_MODEL);
-    invalidate();
-  }
-}
-
-void CurveEdit::left()
-{
-  CurveHeader & curve = g_model.curves[index];
-  if (curve.type == CURVE_TYPE_CUSTOM && current != 0 && current != curve.points + 5 - 1) {
-    int8_t * points = curveAddress(index);
-    int8_t * point = &points[5 + curve.points + current - 1];
-    int8_t xmin = (current == 1 ? -100 : *(point - 1));
-    *point = max<int8_t>(xmin+1, *point - 1);
-    storageDirty(EE_MODEL);
-    invalidate();
-  }
-}
-
-bool CurveEdit::isCustomCurve() const
-{
-  return g_model.curves[index].type == CURVE_TYPE_CUSTOM;
-}
-
-void CurveEdit::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
-
-  switch (event) {
-#if defined(HARDWARE_TOUCH)
-    case EVT_VIRTUAL_KEY_LEFT:
-      left();
-      break;
-
-    case EVT_VIRTUAL_KEY_RIGHT:
-      right();
-      break;
-
-    case EVT_VIRTUAL_KEY_UP:
-      up();
-      break;
-
-    case EVT_VIRTUAL_KEY_DOWN:
-      down();
-      break;
-
-    case EVT_VIRTUAL_KEY_PREVIOUS:
-      previous();
-      break;
-
-    case EVT_VIRTUAL_KEY_NEXT:
-      next();
-      break;
-#endif
-
-    default:
-      FormField::onEvent(event);
-      break;
-  }
-}
-
 void CurveEdit::checkEvents()
 {
   if (!lockSource) {
@@ -425,14 +292,12 @@ void CurveEditWindow::buildBody(FormWindow * window)
   new ModelTextEdit(iLine, rect_t{0, 0, 100, 0}, curve.name, sizeof(curve.name));
 
   // Smooth
-  auto smooth = new TextButton(iLine, rect_t{}, STR_SMOOTH, [=]() {
+  auto smooth = new TextButton(iLine, rect_t{0, 0, 70, 0}, STR_SMOOTH, [=]() {
     g_model.curves[index].smooth = !g_model.curves[index].smooth;
     curveEdit->updatePreview();
     return g_model.curves[index].smooth;
   });
   smooth->check(g_model.curves[index].smooth);
-  smooth->padAll(2);
-  smooth->setHeight(26);
   
   iLine = form->newLine(&iGrid);
   iLine->padAll(4);
@@ -463,7 +328,7 @@ void CurveEditWindow::buildBody(FormWindow * window)
              });
 
   // Points count
-  auto edit = new NumberEdit(iLine, rect_t{}, 2, 17, GET_DEFAULT(g_model.curves[index].points + 5),
+  auto edit = new NumberEdit(iLine, rect_t{0, 0, 70, 0}, 2, 17, GET_DEFAULT(g_model.curves[index].points + 5),
                              [=](int32_t newValue) {
                                  newValue -= 5;
                                  CurveHeader &curve = g_model.curves[index];
@@ -492,7 +357,7 @@ void CurveEditWindow::buildBody(FormWindow * window)
   iLine->padAll(0);
   lv_obj_set_grid_align(iLine->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
 
-  curveDataEdit = new CurveDataEdit(iLine, rect_t{ 0, 0, box->width(), box->height() - 67 }, index);
+  curveDataEdit = new CurveDataEdit(iLine, rect_t{ 0, 0, box->width(), box->height() - 72 }, index);
 
   // Curve editor
   lv_obj_set_flex_align(line->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);

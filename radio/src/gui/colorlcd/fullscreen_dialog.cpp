@@ -110,20 +110,20 @@ void FullScreenDialog::init()
 
 void FullScreenDialog::paint(BitmapBuffer * dc)
 {
-  OpenTxTheme::instance()->drawBackground(dc);
+  EdgeTxTheme::instance()->drawBackground(dc);
 
   dc->drawFilledRect(0, ALERT_FRAME_TOP, LCD_W, ALERT_FRAME_HEIGHT, SOLID,
                      COLOR_THEME_PRIMARY2, OPACITY(8));
 
   if (type == WARNING_TYPE_ALERT || type == WARNING_TYPE_ASTERISK) {
     dc->drawMask(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
-                 OpenTxTheme::instance()->error, COLOR_THEME_WARNING);
+                 EdgeTxTheme::instance()->error, COLOR_THEME_WARNING);
   } else if (type == WARNING_TYPE_INFO) {
     dc->drawMask(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
-                 OpenTxTheme::instance()->busy, COLOR_THEME_WARNING);
+                 EdgeTxTheme::instance()->busy, COLOR_THEME_WARNING);
   } else { // confirmation
     dc->drawMask(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
-                 OpenTxTheme::instance()->error, COLOR_THEME_WARNING);
+                 EdgeTxTheme::instance()->error, COLOR_THEME_WARNING);
   }
 }
 

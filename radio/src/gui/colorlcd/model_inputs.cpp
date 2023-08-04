@@ -23,7 +23,7 @@
 #include "opentx.h"
 #include "gvar_numberedit.h"
 #include "libopenui.h"
-#include "choiceex.h"
+#include "choice.h"
 #include "model_curves.h"
 #include "input_edit.h"
 #include "input_mix_group.h"

@@ -25,7 +25,7 @@
 #include "opentx.h"
 
 PageHeader::PageHeader(Page * parent, uint8_t icon):
-  FormGroup(parent, { 0, 0, LCD_W, MENU_HEADER_HEIGHT }, OPAQUE),
+  FormWindow(parent, { 0, 0, LCD_W, MENU_HEADER_HEIGHT }, OPAQUE),
   icon(icon)
 {
 #if defined(HARDWARE_TOUCH)
@@ -33,7 +33,7 @@ PageHeader::PageHeader(Page * parent, uint8_t icon):
              [=]() -> uint8_t {
                parent->onCancel();
                return 0;
-             }, NO_FOCUS | FORM_NO_BORDER);
+             }, NO_FOCUS);
 #endif
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
@@ -55,7 +55,7 @@ StaticText* PageHeader::setTitle2(std::string txt)
 
 void PageHeader::paint(BitmapBuffer * dc)
 {
-  OpenTxTheme::instance()->drawPageHeaderBackground(dc, getIcon(), "");
+  EdgeTxTheme::instance()->drawPageHeaderBackground(dc, getIcon(), nullptr);
   dc->drawSolidFilledRect(MENU_HEADER_HEIGHT, 0, LCD_W - MENU_HEADER_HEIGHT,
                           MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
 }
@@ -68,11 +68,14 @@ static constexpr rect_t _get_body_rect()
 Page::Page(unsigned icon):
   Window(Layer::back(), {0, 0, LCD_W, LCD_H}, OPAQUE),
   header(this, icon),
-  body(this, _get_body_rect(), FORM_FORWARD_FOCUS)
+  body(this, _get_body_rect())
 {
   Layer::push(this);
 
   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY3), 0);
+
+  body.padAll(0);
+  lv_obj_set_scrollbar_mode(body.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 }
 
 void Page::deleteLater(bool detach, bool trash)

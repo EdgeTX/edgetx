@@ -65,7 +65,7 @@ void ColorBar::on_key(lv_event_t* e)
   uint32_t key = *(uint32_t*)lv_event_get_param(e);
   if (key == LV_KEY_LEFT) {
     if (bar->value > 0) {
-      auto accel = rotaryEncoderGetAccel();
+      uint32_t accel = rotaryEncoderGetAccel();
       bar->value--;
       if (accel > 0) {
         if (accel > bar->value) bar->value = 0;
@@ -75,7 +75,7 @@ void ColorBar::on_key(lv_event_t* e)
     }
   } else if (key == LV_KEY_RIGHT) {
     if (bar->value < bar->maxValue) {
-      auto accel = rotaryEncoderGetAccel();
+      uint32_t accel = rotaryEncoderGetAccel();
       bar->value++;
       if (accel > 0) {
         if (accel < bar->maxValue - bar->value) bar->value += accel;
@@ -327,7 +327,7 @@ void ThemeColorType::makeButton(Window* parent, uint32_t color)
 
 void ThemeColorType::makeButtonsRow(Window* parent, uint32_t c1, uint32_t c2, uint32_t c3)
 {
-  auto hbox = new FormGroup(parent, rect_t{});
+  auto hbox = new FormWindow(parent, rect_t{});
   hbox->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
   lv_obj_set_flex_align(hbox->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
@@ -347,7 +347,7 @@ ThemeColorType::ThemeColorType(Window* parent, uint32_t color) :
   lv_style_set_border_width(&style, 2);
   lv_style_set_border_color(&style, lv_palette_main(LV_PALETTE_GREY));
 
-  auto vbox = new FormGroup(parent, rect_t{});
+  auto vbox = new FormWindow(parent, rect_t{});
   vbox->setFlexLayout(LV_FLEX_FLOW_COLUMN, lv_dpx(8));
 
   makeButtonsRow(vbox, COLOR_THEME_PRIMARY1, COLOR_THEME_PRIMARY2, COLOR_THEME_PRIMARY3);
@@ -366,7 +366,7 @@ uint32_t ThemeColorType::getRGB()
 /////////////////////////////////////////////////////////////////////////
 ColorEditor::ColorEditor(Window *parent, const rect_t& rect, uint32_t color,
                          std::function<void (uint32_t rgb)> setValue) :
-  FormGroup(parent, rect),
+  FormWindow(parent, rect),
   _setValue(std::move(setValue)),
   _color(color)
 {

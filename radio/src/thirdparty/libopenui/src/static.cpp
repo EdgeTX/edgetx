@@ -35,11 +35,6 @@ StaticText::StaticText(Window* parent, const rect_t& rect, std::string txt,
   else if (textFlags & RIGHT)
     lv_obj_set_style_text_align(lvobj, LV_TEXT_ALIGN_RIGHT, 0);
 
-  if (windowFlags & BUTTON_BACKGROUND) {
-    lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
-    setBackgroundColor(COLOR_THEME_SECONDARY2);
-  }
-
   lv_obj_set_style_grid_cell_x_align(lvobj, LV_GRID_ALIGN_STRETCH, 0);
   lv_label_set_text(lvobj, text.c_str());
   lv_obj_set_height(lvobj, LV_SIZE_CONTENT);

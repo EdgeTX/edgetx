@@ -203,7 +203,7 @@ void StatisticsViewPage::build(FormWindow* window)
 
   line = form->newLine(&grid);
   line->padAll(0);
-  line->padTop(4);
+  line->padTop(3);
 
   // Throttle curve
   auto curve = new ThrottleCurveWindow(line, {0, 0, CV_WIDTH, CV_HEIGHT});
@@ -213,7 +213,7 @@ void StatisticsViewPage::build(FormWindow* window)
 
   line = form->newLine(&grid);
   line->padAll(0);
-  line->padTop(8);
+  line->padTop(3);
 
   // Reset
   auto btn = new TextButton(line, rect_t{0, 0, 0, 24}, STR_MENUTORESET,
@@ -229,7 +229,7 @@ void StatisticsViewPage::build(FormWindow* window)
                             });
 
   lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 4,
-                       LV_GRID_ALIGN_CENTER, 0, 1);
+                       LV_GRID_ALIGN_START, 0, 1);
 }
 
 void DebugViewPage::build(FormWindow* window)

@@ -314,7 +314,7 @@ void ModelOutputsPage::build(FormWindow *window)
   lv_obj_set_style_flex_cross_place(box2->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
 
   new StaticText(box2, rect_t{}, STR_ELIMITS, 0, COLOR_THEME_PRIMARY1);
-  auto cb = new CheckBox(box2, rect_t{}, GET_SET_DEFAULT(g_model.extendedLimits));
+  new ToggleSwitch(box2, rect_t{}, GET_SET_DEFAULT(g_model.extendedLimits));
 
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
 

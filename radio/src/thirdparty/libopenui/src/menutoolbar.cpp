@@ -55,12 +55,11 @@ void MenuToolbarButton::paint(BitmapBuffer * dc)
 }
 
 MenuToolbar::MenuToolbar(Choice* choice, Menu* menu) :
-    Window(menu, MENUS_TOOLBAR_RECT, NO_SCROLLBAR),
+    Window(menu, MENUS_TOOLBAR_RECT, OPAQUE),
     choice(choice),
     menu(menu),
     group(lv_group_create())
 {
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
   lv_group_add_obj(group, lvobj);
 }
 

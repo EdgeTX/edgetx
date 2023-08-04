@@ -971,7 +971,7 @@ static int luaLcdSetColor(lua_State *L)
   if (index < LCD_COLOR_COUNT && lcdColorTable[index] != color) {
     lcdColorTable[index] = color;
     if (index != CUSTOM_COLOR_INDEX)
-      OpenTxTheme::instance()->update(false);
+      EdgeTxTheme::instance()->update(false);
   }
   return 0;
 }

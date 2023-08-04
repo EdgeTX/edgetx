@@ -20,10 +20,10 @@
 
 #include "form.h"
 
-class Slider : public FormField
+class Slider : public Window
 {
  public:
-  Slider(Window* parent, const rect_t& rect, int32_t vmin, int32_t vmax,
+  Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
          std::function<int()> getValue, std::function<void(int)> setValue);
 
 #if defined(DEBUG_WINDOWS)
@@ -40,6 +40,4 @@ class Slider : public FormField
   int vmax;
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
-
-  int value(coord_t x) const;
 };

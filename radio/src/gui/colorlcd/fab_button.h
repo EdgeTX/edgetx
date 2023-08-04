@@ -28,11 +28,11 @@ constexpr coord_t FAB_BUTTON_SIZE = 68;
 
 class FabButton: public Button {
   public:
-    FabButton(FormGroup * parent, coord_t x, coord_t y,
+    FabButton(FormWindow * parent, coord_t x, coord_t y,
               uint8_t icon, std::function<uint8_t(void)> pressHandler,
               WindowFlags windowFlags = 0);
 
-    FabButton(FormGroup * parent,  uint8_t icon,
+    FabButton(FormWindow * parent,  uint8_t icon,
               std::function<uint8_t(void)> pressHandler,
               WindowFlags windowFlags = 0);
 

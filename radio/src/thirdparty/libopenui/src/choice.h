@@ -21,6 +21,14 @@
 #include <vector>
 #include "form.h"
 
+typedef void (*lvHandler_t)(void*);
+
+typedef struct {
+  void* userData;
+  bool isLongPressed;
+  lvHandler_t lv_LongPressHandler;
+} lv_eventData_t;
+
 class Menu;
 
 constexpr int CHOICE_LABEL_MARGIN_RIGHT = 10;
@@ -36,8 +44,6 @@ class ChoiceBase : public FormField
   ChoiceBase(Window *parent, const rect_t &rect,
              ChoiceType type = CHOICE_TYPE_DROPOWN,
              WindowFlags windowFlags = 0);
-
-  inline ChoiceType getType() const { return type; }
   
  protected:
   ChoiceType type;
@@ -167,9 +173,11 @@ class Choice: public ChoiceBase {
       invalidate();
     }
 
+    void set_lv_LongPressHandler(lvHandler_t longPressHandler, void* data);
+
   protected:
     friend class MenuToolbar;
-  
+
     std::string getLabelText() override;
     std::vector<std::string> values;
     int vmin = 0;
@@ -185,4 +193,13 @@ class Choice: public ChoiceBase {
     void fillMenu(Menu *menu, const FilterFct& filter = nullptr);
 
     virtual void openMenu();
+
+    lv_eventData_t longPressData;
+    std::function<void(event_t)> longPressHandler = nullptr;
+
+    static void ClickHandler(lv_event_t* e)
+    {
+      auto ch = (Choice*)lv_event_get_user_data(e);
+      if (ch) ch->longPressData.isLongPressed = false;
+    }
 };

@@ -19,18 +19,16 @@
 #include "dialog.h"
 #include "mainwindow.h"
 #include "theme.h"
+#include "progress.h"
 
 DialogWindowContent::DialogWindowContent(Dialog* parent, const rect_t& rect) :
     ModalWindowContent(parent, rect),
     form(this, rect_t{})
 {
   form.setFlexLayout();
-
-  auto form_obj = form.getLvObj();
-  lv_obj_set_style_pad_all(form_obj, lv_dpx(8), 0);
-
-  lv_coord_t max_height = LCD_H * 0.8;
-  lv_obj_set_style_max_height(form_obj, max_height, 0);
+  lv_obj_set_style_max_height(form.getLvObj(), LCD_H * 0.8, 0);
+  lv_obj_set_style_pad_all(form.getLvObj(), lv_dpx(8), 0);
+  lv_obj_set_scrollbar_mode(form.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 }
 
 void DialogWindowContent::setTitle(const std::string& text)
@@ -65,8 +63,6 @@ std::string DialogWindowContent::getName() const
 Dialog::Dialog(Window* parent, std::string title, const rect_t& rect) :
     ModalWindow(parent), content(new DialogWindowContent(this, rect))
 {
-  lv_obj_set_style_bg_color(content->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
-  lv_obj_set_style_bg_opa(content->getLvObj(), LV_OPA_100, LV_PART_MAIN);
   bringToTop();
   if (!title.empty()) content->setTitle(std::move(title));
 }
@@ -80,4 +76,36 @@ void Dialog::onEvent(event_t event)
 {
   // block key events 
   (void)event;
+}
+
+//-----------------------------------------------------------------------------
+
+ProgressDialog::ProgressDialog(Window *parent, std::string title,
+                               std::function<void()> onClose) :
+    Dialog(parent, title, rect_t{}),
+    progress(new Progress(&content->form, rect_t{})),
+    onClose(std::move(onClose))
+{
+  progress->setHeight(LV_DPI_DEF / 4);
+
+  content->setWidth(LCD_W * 0.8);
+  content->updateSize();
+
+  auto content_w = lv_obj_get_content_width(content->form.getLvObj());
+  progress->setWidth(content_w);
+
+  // disable canceling dialog
+  setCloseWhenClickOutside(false);
+}
+
+void ProgressDialog::updateProgress(int percentage)
+{
+  progress->setValue(percentage);
+  lv_refr_now(nullptr);
+}
+
+void ProgressDialog::closeDialog()
+{
+  deleteLater();
+  onClose();
 }

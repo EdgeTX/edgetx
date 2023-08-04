@@ -19,7 +19,6 @@
  * GNU General Public License for more details.
  */
 
-#include "libopenui_config.h"
 #include "fab_button.h"
 #include "font.h"
 #include "theme.h"
@@ -34,7 +33,7 @@ const uint8_t __alpha_button_off[] {
 };
 LZ4Bitmap ALPHA_BUTTON_OFF(BMP_ARGB4444, __alpha_button_off);
 
-FabButton::FabButton(FormGroup* parent, coord_t x, coord_t y, uint8_t icon,
+FabButton::FabButton(FormWindow* parent, coord_t x, coord_t y, uint8_t icon,
                      std::function<uint8_t(void)> pressHandler,
                      WindowFlags windowFlags) :
     Button(parent,
@@ -44,7 +43,7 @@ FabButton::FabButton(FormGroup* parent, coord_t x, coord_t y, uint8_t icon,
 {
 }
 
-FabButton::FabButton(FormGroup* parent, uint8_t icon,
+FabButton::FabButton(FormWindow* parent, uint8_t icon,
                      std::function<uint8_t(void)> pressHandler,
                      WindowFlags windowFlags) :
     Button(parent, {}, pressHandler, windowFlags), icon(icon)

@@ -45,11 +45,7 @@ TabCarouselButton::TabCarouselButton(Window* parent, const rect_t& rect,
 
 void TabCarouselButton::paint(BitmapBuffer * dc)
 {
-  if(checked()) {
-    OpenTxTheme::instance()->drawCurrentMenuBackground(dc);
-  }
-
-  dc->drawBitmap(2, 7, theme->getIcon(tabs[index]->getIcon(), checked() ? STATE_PRESSED : STATE_DEFAULT));
+  EdgeTxTheme::instance()->drawMenuIcon(dc, tabs[index]->getIcon(), checked());
 }
 
 void TabCarouselButton::check(bool checked)
@@ -61,7 +57,7 @@ void TabCarouselButton::check(bool checked)
 }
 
 TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
-    FormGroup(parent, {0, 0, LCD_W, MENU_BODY_TOP}, NO_FOCUS | OPAQUE),
+    FormWindow(parent, {0, 0, LCD_W, MENU_BODY_TOP}, NO_FOCUS | OPAQUE),
 #if defined(HARDWARE_TOUCH)
     back(
         this,
@@ -70,7 +66,7 @@ TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
           parent->deleteLater();
           return 1;
         },
-        NO_FOCUS | FORM_NO_BORDER,
+        NO_FOCUS,
         0, window_create),
 #endif
     icon(icon),
@@ -81,7 +77,7 @@ TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
 
 void TabsGroupHeader::paint(BitmapBuffer* dc)
 {
-  OpenTxTheme::instance()->drawPageHeaderBackground(dc, icon, title.c_str());
+  EdgeTxTheme::instance()->drawPageHeaderBackground(dc, icon, title.c_str());
 }
 
 TabsCarousel::TabsCarousel(Window* parent, TabsGroup* menu) :
@@ -144,7 +140,7 @@ TabsGroup* TabsGroup::activeTabsGroup = nullptr;
 TabsGroup::TabsGroup(uint8_t icon):
   Window(Layer::back(), { 0, 0, LCD_W, LCD_H }, OPAQUE),
   header(this, icon),
-  body(this, _get_body_rect(), NO_FOCUS | FORM_FORWARD_FOCUS)
+  body(this, _get_body_rect(), NO_FOCUS)
 {
   Layer::push(this);
 

@@ -23,7 +23,6 @@
 #include "model_gvars.h"
 #include "libopenui.h"
 #include "numberedit.h"
-#include "lvgl_widgets/input_mix_line.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -86,7 +85,7 @@ class GVarStyle
 
       // Always update colors in case theme changes
       lv_style_set_bg_color(&fmContStyle, makeLvColor(COLOR_THEME_PRIMARY2));
-      lv_style_set_bg_color(&fmContStyleChecked, makeLvColor(COLOR_THEME_SECONDARY3));
+      lv_style_set_bg_color(&fmContStyleChecked, makeLvColor(COLOR_THEME_ACTIVE));
       lv_style_set_text_color(&fmLabelStyle, makeLvColor(COLOR_THEME_SECONDARY1));
       lv_style_set_text_color(&fmValueStyle, makeLvColor(COLOR_THEME_SECONDARY1));
       lv_style_set_text_color(&fmNameStyle, makeLvColor(COLOR_THEME_SECONDARY1));
@@ -515,7 +514,7 @@ class GVarEditWindow : public Page
       }
 
       if (flightMode > 0) {
-        auto cb = new CheckBox(
+        auto cb = new ToggleSwitch(
             line, rect_t{}, [=] { return fmData->gvars[index] <= GVAR_MAX; },
             [=](uint8_t checked) {
               fmData->gvars[index] = checked ? 0 : GVAR_MAX + 1;

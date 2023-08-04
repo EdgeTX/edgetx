@@ -25,27 +25,6 @@
 
 #include "opentx.h"
 
-enum trim_type {
-  TRIM_VERT,
-  TRIM_HORIZ,
-};
-
-static void trim_self_size(lv_event_t* e)
-{
-  lv_point_t* s = (lv_point_t*)lv_event_get_param(e);
-  trim_type t = (trim_type)(intptr_t)lv_event_get_user_data(e);
-  switch(t) {
-  case TRIM_VERT:
-    s->y = VERTICAL_SLIDERS_HEIGHT;
-    s->x = TRIM_SQUARE_SIZE;
-    break;
-  case TRIM_HORIZ:
-    s->x = HORIZONTAL_SLIDERS_WIDTH;
-    s->y = TRIM_SQUARE_SIZE;
-    break;
-  }
-}
-
 MainViewTrim::MainViewTrim(Window * parent, const rect_t & rect, uint8_t idx):
   Window(parent, rect),
   idx(idx)
@@ -109,13 +88,8 @@ void MainViewTrim::paint(BitmapBuffer * dc)
 }
 
 MainViewHorizontalTrim::MainViewHorizontalTrim(Window* parent, uint8_t idx) :
-  MainViewTrim(parent, rect_t{}, idx)
+  MainViewTrim(parent, rect_t{0, 0, HORIZONTAL_SLIDERS_WIDTH, TRIM_SQUARE_SIZE}, idx)
 {
-  void* user_data = (void*)TRIM_HORIZ;
-  lv_obj_add_event_cb(lvobj, trim_self_size, LV_EVENT_GET_SELF_SIZE, user_data);
-
-  setWidth(HORIZONTAL_SLIDERS_WIDTH);
-  setHeight(TRIM_SQUARE_SIZE);
 }
 
 coord_t MainViewHorizontalTrim::sx()
@@ -153,13 +127,8 @@ void MainViewHorizontalTrim::drawValue(BitmapBuffer * dc)
 }
 
 MainViewVerticalTrim::MainViewVerticalTrim(Window* parent, uint8_t idx) :
-  MainViewTrim(parent, rect_t{}, idx)
+  MainViewTrim(parent, rect_t{0, 0, TRIM_SQUARE_SIZE, VERTICAL_SLIDERS_HEIGHT}, idx)
 {
-  void* user_data = (void*)TRIM_VERT;
-  lv_obj_add_event_cb(lvobj, trim_self_size, LV_EVENT_GET_SELF_SIZE, user_data);
-
-  setWidth(TRIM_SQUARE_SIZE);
-  setHeight(VERTICAL_SLIDERS_HEIGHT);
 }
 
 coord_t MainViewVerticalTrim::sy()

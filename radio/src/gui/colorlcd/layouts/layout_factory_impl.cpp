@@ -88,7 +88,7 @@ void Layout::updateFromTheme()
   // Hack to fix flight mode color on main view
   // Required because theme is loaded after the main view has been created
   if (decoration)
-    decoration->setFlightModeColor();
+    decoration->updateFromTheme();
 }
 
 void Layout::adjustLayout()

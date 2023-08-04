@@ -22,7 +22,7 @@
 #pragma once
 
 #if !defined(BOOT)
-#include "libopenui_config.h"
+#include "libopenui_defines.h"
 #include "libopenui_file.h"
 #include "font.h"
 #include "window.h"
@@ -30,7 +30,7 @@
 #include "static.h"
 #include "button.h"
 #include "fab_button.h"
-#include "checkbox.h"
+#include "toggleswitch.h"
 #include "numberedit.h"
 #include "timeedit.h"
 #include "choice.h"
@@ -39,10 +39,8 @@
 #include "filechoice.h"
 #include "textedit.h"
 #include "slider.h"
-#include "progress.h"
 #include "keyboard_text.h"
 #include "keyboard_number.h"
-#include "keyboard_curve.h"
 #include "tabsgroup.h"
 #include "page.h"
 #include "menu.h"
@@ -51,7 +49,6 @@
 #include "message_dialog.h"
 #include "confirm_dialog.h"
 #include "dialog.h"
-#include "gridlayout.h"
 #include "getset_helpers.h"
 #include "curveedit.h"
 #include "draw_functions.h"

@@ -22,8 +22,9 @@
 #pragma once
 
 #include "form.h"
-#include "checkbox.h"
 #include "module_setup.h"
+
+class ToggleSwitch;
 
 struct ModuleData;
 struct MPMProtoOption;
@@ -32,7 +33,7 @@ struct MPMServoRate;
 struct MPMAutobind;
 struct MPMChannelMap;
 
-class MultimoduleSettings : public FormGroup, public ModuleOptions
+class MultimoduleSettings : public FormWindow, public ModuleOptions
 {
   ModuleData* md;
   uint8_t moduleIdx;
@@ -41,9 +42,9 @@ class MultimoduleSettings : public FormGroup, public ModuleOptions
   MPMProtoOption* opt_line;
   MPMServoRate* sr_line;
   MPMAutobind* ab_line;
-  CheckBox* lp_mode;
+  ToggleSwitch* lp_mode;
 #if defined(MANUFACTURER_FRSKY)
-  CheckBox* disable_telem;
+  ToggleSwitch* disable_telem;
 #endif
   MPMChannelMap* cm_line;
 

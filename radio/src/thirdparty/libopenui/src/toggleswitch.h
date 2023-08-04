@@ -21,15 +21,15 @@
 #include <utility>
 #include "form.h"
 
-class CheckBox : public FormField
+class ToggleSwitch : public FormField
 {
  public:
-  CheckBox(Window* parent, const rect_t& rect,
+  ToggleSwitch(Window* parent, const rect_t& rect,
            std::function<uint8_t()> getValue,
            std::function<void(uint8_t)> setValue, WindowFlags flags = 0);
 
 #if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "CheckBox"; }
+  std::string getName() const override { return "ToggleSwitch"; }
 #endif
 
   void onClicked() override;

@@ -26,7 +26,7 @@
 
 struct ModuleData;
 
-class PXX1AntennaSettings : public FormGroup, public ModuleOptions
+class PXX1AntennaSettings : public FormWindow, public ModuleOptions
 {
   ModuleData* md;
 

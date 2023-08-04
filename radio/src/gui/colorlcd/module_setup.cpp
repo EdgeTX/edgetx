@@ -69,7 +69,7 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
 
 struct FailsafeChoice;
 
-class ModuleWindow : public FormGroup
+class ModuleWindow : public FormWindow
 {
  public:
   ModuleWindow(Window* parent, uint8_t moduleIdx);
@@ -99,7 +99,7 @@ class ModuleWindow : public FormGroup
   void updateIDStaticText(int mdIdx);
 };
 
-struct FailsafeChoice : public FormGroup {
+struct FailsafeChoice : public FormWindow {
   FailsafeChoice(Window* parent, uint8_t moduleIdx);
   void update() const;
 
@@ -124,7 +124,7 @@ static void fs_changed(lv_event_t* e)
 }
 
 FailsafeChoice::FailsafeChoice(Window* parent, uint8_t moduleIdx) :
-  FormGroup(parent, rect_t{})
+  FormWindow(parent, rect_t{})
 {
   setFlexLayout(LV_FLEX_FLOW_ROW);
   lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
@@ -163,7 +163,7 @@ static void mw_refresh_cb(lv_event_t* e)
 }
 
 ModuleWindow::ModuleWindow(Window* parent, uint8_t moduleIdx) :
-    FormGroup(parent, rect_t{}),
+    FormWindow(parent, rect_t{}),
     moduleIdx(moduleIdx)
 {
   setFlexLayout();
@@ -260,7 +260,7 @@ void ModuleWindow::updateModule()
     if(isModuleModelIndexAvailable(moduleIdx)) {
       auto line = newLine(&grid);
       new StaticText(line, rect_t{},"");
-      auto box = new FormGroup(line, rect_t{});
+      auto box = new FormWindow(line, rect_t{});
       box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
       lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
       idUnique = new StaticText(box, rect_t{}, "", 0, 0);
@@ -270,7 +270,7 @@ void ModuleWindow::updateModule()
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
 
-    auto box = new FormGroup(line, rect_t{});
+    auto box = new FormWindow(line, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
     lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
 
@@ -397,7 +397,7 @@ void ModuleWindow::updateModule()
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
 
-    auto box = new FormGroup(line, rect_t{});
+    auto box = new FormWindow(line, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
 
     registerButton = new TextButton(box, rect_t{}, STR_REGISTER);
@@ -460,7 +460,7 @@ void ModuleWindow::updateModule()
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_REFRESHRATE, 0, COLOR_THEME_PRIMARY1);
 
-    auto box = new FormGroup(line, rect_t{});
+    auto box = new FormWindow(line, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW);
 
     auto edit = new NumberEdit(
@@ -483,7 +483,7 @@ void ModuleWindow::updateModule()
   if (isModuleGhost(moduleIdx)) {
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, "Raw 12 bits", 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->ghost.raw12bits));
+    new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(md->ghost.raw12bits));
   }
 
   updateSubType();
@@ -746,10 +746,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   header.setTitle(STR_MENU_MODEL_SETUP);
   header.setTitle2(title2);
 
-  body.padAll(0);
-  lv_obj_set_scrollbar_mode(body.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
-
-  auto form = new FormGroup(&body, rect_t{});
+  auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
   form->padAll(lv_dpx(8));
 
@@ -759,7 +756,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   auto line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
 
-  auto box = new FormGroup(line, rect_t{});
+  auto box = new FormWindow(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW);
   lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
 

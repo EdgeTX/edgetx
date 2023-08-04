@@ -22,7 +22,6 @@
 
 #include "dataconstants.h"
 #include "draw_functions.h"
-#include "libopenui_config.h"
 #include "menu.h"
 #include "menutoolbar.h"
 #include "opentx.h"
@@ -56,7 +55,7 @@ void SwitchChoice::LongPressHandler(void* data)
 SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
                            int vmax, std::function<int16_t()> getValue,
                            std::function<void(int16_t)> setValue) :
-    ChoiceEx(parent, rect, vmin, vmax, getValue, setValue)
+    Choice(parent, rect, vmin, vmax, getValue, setValue)
 {
   setBeforeDisplayMenuHandler([=](Menu* menu) {
     auto tb = new SwitchChoiceMenuToolbar(this, menu);

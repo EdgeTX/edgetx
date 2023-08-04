@@ -19,8 +19,18 @@
 #include "progress.h"
 #include "theme.h"
 
-void Progress::paint(BitmapBuffer * dc)
+Progress::Progress(Window * parent, const rect_t & rect):
+    Window(parent, rect)
 {
-    auto val = value > 100 ? 100 : value;
-    theme->drawProgressBar(dc, 0, 0, width(), height(), val, 100);
+  bar = etx_bar_create(lvobj);
+  lv_bar_set_range(bar, 0, 100);
+  setValue(0);
+}
+
+void Progress::setValue(int newValue)
+{
+  if (newValue != value) {
+    value = newValue;
+    lv_bar_set_value(bar, value, LV_ANIM_OFF);
+  }
 }

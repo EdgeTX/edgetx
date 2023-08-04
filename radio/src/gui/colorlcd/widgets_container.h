@@ -23,7 +23,7 @@
 #define _WIDGETS_CONTAINER_H_
 
 #include <stdlib.h>
-#include "libopenui_types.h"
+#include "opentx_types.h"
 #include "form.h"
 #include "zone.h"
 

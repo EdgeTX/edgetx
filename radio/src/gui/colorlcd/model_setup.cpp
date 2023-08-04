@@ -110,7 +110,7 @@ SubScreenButton::SubScreenButton(Window* parent, const char* text,
   Button(parent, rect_t{}, [=]() -> uint8_t {
       pressHandler();
       return 0;
-    }, 0, 0, lv_btn_create),
+    }, 0, 0, etx_vbutton_create),
   text(text)
 {
   lv_obj_add_event_cb(lvobj, SubScreenButton::event_cb, LV_EVENT_ALL, nullptr);
@@ -404,12 +404,12 @@ void ModelSetupPage::build(FormWindow * window)
   static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
   static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-  auto oform = new FormGroup(window, rect_t{});
+  auto oform = new FormWindow(window, rect_t{});
   oform->setFlexLayout(LV_FLEX_FLOW_COLUMN, lv_dpx(PAGE_PADDING));
   oform->padAll(PAGE_PADDING);
 
   // Modules
-  auto form = new FormGroup(oform, rect_t{});
+  auto form = new FormWindow(oform, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(PAGE_PADDING));
   lv_obj_set_grid_dsc_array(form->getLvObj(), col_dsc, row_dsc);
 
@@ -423,7 +423,7 @@ void ModelSetupPage::build(FormWindow * window)
   lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
   // Timer buttons
-  form = new FormGroup(oform, rect_t{});
+  form = new FormWindow(oform, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(PAGE_PADDING));
   lv_obj_set_grid_dsc_array(form->getLvObj(), col_dsc, row_dsc);
 
@@ -436,7 +436,7 @@ void ModelSetupPage::build(FormWindow * window)
   btn = new SubScreenButton(form, TR_TIMER "3", []() { new TimerWindow(2); });
   lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-  form = new FormGroup(oform, rect_t{});
+  form = new FormWindow(oform, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(PAGE_PADDING));
   lv_obj_set_grid_dsc_array(form->getLvObj(), col_dsc, row_dsc);
 
@@ -449,7 +449,7 @@ void ModelSetupPage::build(FormWindow * window)
   btn = new SubScreenButton(form, STR_THROTTLE_LABEL, []() { new ThrottleParams(); });
   lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-  form = new FormGroup(oform, rect_t{});
+  form = new FormWindow(oform, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(PAGE_PADDING));
   lv_obj_set_grid_dsc_array(form->getLvObj(), col_dsc, row_dsc);
 

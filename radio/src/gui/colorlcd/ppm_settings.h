@@ -25,7 +25,7 @@
 #include "numberedit.h"
 
 template <typename T>
-struct PpmFrameSettings : public FormGroup {
+struct PpmFrameSettings : public FormWindow {
   private:
     NumberEdit* ppmFrameLenEditObject = nullptr;
 

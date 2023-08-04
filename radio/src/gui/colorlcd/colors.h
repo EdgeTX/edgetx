@@ -46,6 +46,42 @@ enum LcdColorIndex {
   LCD_COLOR_COUNT,
 };
 
+#define ARGB_SPLIT(color, a, r, g, b) \
+  uint16_t a = ((color) & 0xF000) >> 12; \
+  uint16_t r = ((color) & 0x0F00) >> 8; \
+  uint16_t g = ((color) & 0x00F0) >> 4; \
+  uint16_t b = ((color) & 0x000F)
+
+#define RGB_SPLIT(color, r, g, b) \
+  uint16_t r = ((color) & 0xF800) >> 11; \
+  uint16_t g = ((color) & 0x07E0) >> 5; \
+  uint16_t b = ((color) & 0x001F)
+
+#define ARGB_JOIN(a, r, g, b) \
+  (((a&0xF) << 12) + ((r&0xF) << 8) + ((g&0xF) << 4) + (b&0xF))
+
+#define RGB_JOIN(r, g, b) \
+  (((r) << 11) + ((g) << 5) + (b))
+
+#define GET_RED(color) \
+  (((color) & 0xF800) >> 8)
+
+#define GET_GREEN(color) \
+  (((color) & 0x07E0) >> 3)
+
+#define GET_BLUE(color) \
+  (((color) & 0x001F) << 3)
+
+#define OPACITY_MAX                    0x0Fu
+#define OPACITY(value)                 ((value) & OPACITY_MAX)
+
+#define RGB(r, g, b)                   (uint16_t)((((r) & 0xF8) << 8) + (((g) & 0xFC) << 3) + (((b) & 0xF8) >> 3))
+#define ARGB(a, r, g, b)               (uint16_t)((((a) & 0xF0) << 8) + (((r) & 0xF0) << 4) + (((g) & 0xF0) << 0) + (((b) & 0xF0) >> 4))
+
+#define COLOR2FLAGS(color)             LcdFlags(unsigned(color) << 16u)
+#define COLOR_VAL(flags)               ((flags) >> 16u)
+#define COLOR_MASK(flags)              ((flags) & 0xFFFF0000u)
+
 //
 // Basic color definitions
 //
@@ -53,6 +89,7 @@ enum LcdColorIndex {
 #define WHITE RGB(0xFF, 0xFF, 0xFF)
 #define BLACK RGB(0, 0, 0)
 
+#define RGB_FLAG 0x8000u
 #define RGB2FLAGS(r, g, b) (COLOR2FLAGS(RGB(r, g, b)) | RGB_FLAG)
 
 //

@@ -23,7 +23,6 @@
 #include "usb_joystick.h"
 #include "channel_bar.h"
 #include "button_matrix.h"
-#include "lvgl_widgets/input_mix_line.h"
 
 #include "opentx.h"
 
@@ -111,6 +110,15 @@ class USBChannelButtonSel : public ButtonMatrix
       m_channel(channel),
       m_setValue(std::move(_setValue))
     {
+      bg_color[0] = makeLvColor(COLOR_THEME_PRIMARY2);      // Unused
+      fg_color[0] = makeLvColor(COLOR_THEME_SECONDARY1);
+      bg_color[1] = makeLvColor(COLOR_THEME_DISABLED);      // Used by other channel_bar
+      fg_color[1] = makeLvColor(COLOR_THEME_PRIMARY1);
+      bg_color[2] = makeLvColor(COLOR_THEME_ACTIVE);        // Used by this channel
+      fg_color[2] = makeLvColor(COLOR_THEME_PRIMARY1);
+      bg_color[3] = makeLvColor(COLOR_THEME_WARNING);       // Collision
+      fg_color[3] = makeLvColor(COLOR_THEME_PRIMARY2);
+
       initBtnMap(USBCH_BTNMX_COL, USBJ_BUTTON_SIZE);
       char snum[5];
       for (uint8_t btn = 0; btn < USBJ_BUTTON_SIZE; btn++) {
@@ -118,6 +126,8 @@ class USBChannelButtonSel : public ButtonMatrix
         setText(btn, snum);
       }
       update();
+
+      lv_obj_set_style_radius(lvobj, LV_RADIUS_CIRCLE, LV_PART_ITEMS);
 
       lv_obj_add_event_cb(lvobj, btnsel_event_cb, LV_EVENT_DRAW_PART_BEGIN, this);
 
@@ -137,16 +147,11 @@ class USBChannelButtonSel : public ButtonMatrix
       updateState();
     }
 
-    void setValue(int val)
-    {
-      if (m_setValue) {
-        m_setValue(val);
-      }
-    }
-
     void onPress(uint8_t btn_id) override
     {
-      setValue(btn_id);
+      if (m_setValue) {
+        m_setValue(btn_id);
+      }
       updateState();
     }
 
@@ -161,16 +166,29 @@ class USBChannelButtonSel : public ButtonMatrix
     void updateState()
     {
       USBJoystickChData * cch = usbJChAddress(m_channel);
-
-      for(uint8_t i = 0; i < USBJ_BUTTON_SIZE; i++) m_btns[i] &= 1;
       uint8_t last = cch->lastBtnNum();
-      for(uint8_t b = cch->btn_num; b <= last; b++) m_btns[b] |= 2;
+      uint8_t i;
+
+      for (i = 0; i < USBJ_BUTTON_SIZE; i++)
+        m_btns[i] &= 1;
+
+      for(i = cch->btn_num; i <= last; i++)
+        m_btns[i] |= 2;
+    }
+
+    void setColor(lv_obj_draw_part_dsc_t* dsc)
+    {
+      uint8_t state = getBtnState((uint8_t)dsc->id);
+      dsc->rect_dsc->bg_color = bg_color[state];
+      dsc->label_dsc->color = fg_color[state];
     }
 
   protected:
     uint8_t m_channel = 0;
     std::function<void(int)> m_setValue;
     uint8_t m_btns[USBJ_BUTTON_SIZE];
+    lv_color_t bg_color[4];
+    lv_color_t fg_color[4];
 };
 
 static void btnsel_event_cb(lv_event_t* e)
@@ -181,26 +199,8 @@ static void btnsel_event_cb(lv_event_t* e)
     lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
 
     if(dsc->class_p == &lv_btnmatrix_class && dsc->type == LV_BTNMATRIX_DRAW_PART_BTN) {
-      dsc->rect_dsc->radius = LV_RADIUS_CIRCLE;
       auto btsel = (USBChannelButtonSel*)lv_event_get_user_data(e);
-
-      uint8_t state = btsel->getBtnState((uint8_t)dsc->id);
-      if (state == 1) {
-        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_DISABLED);
-        dsc->label_dsc->color = makeLvColor(COLOR_THEME_PRIMARY1);
-      }
-      else if (state == 2) {
-        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_EDIT);
-        dsc->label_dsc->color = makeLvColor(COLOR_THEME_PRIMARY2);
-      }
-      else if (state == 3) {
-        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_WARNING);
-        dsc->label_dsc->color = makeLvColor(COLOR_THEME_PRIMARY2);
-      }
-      else {
-        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_PRIMARY2);
-        dsc->label_dsc->color = makeLvColor(COLOR_THEME_SECONDARY1);
-      }
+      btsel->setColor(dsc);
     }
   }
 }
@@ -298,13 +298,6 @@ class USBChannelEditWindow : public Page
 
       auto line = form->newLine(&grid);
 
-      line->padTop(0);
-      line->padBottom(0);
-      collisionText = new StaticText(line, rect_t{}, "", OPAQUE, FONT(BOLD) | COLOR_THEME_PRIMARY2 | CENTERED);
-      collisionText->setBackgroundColor(COLOR_THEME_WARNING);
-      lv_obj_set_grid_cell(collisionText->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, USBCH_COLS, LV_GRID_ALIGN_CENTER, 0, 1);
-
-      line = form->newLine(&grid);
       new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_MODE, 0, COLOR_THEME_PRIMARY1);
       new Choice(line, rect_t{}, STR_VUSBJOYSTICK_CH_MODE, 0, USBJOYS_CH_LAST,
                                  GET_DEFAULT(cch->mode), SET_VALUE_WUPDATE(cch->mode));
@@ -314,7 +307,7 @@ class USBChannelEditWindow : public Page
 #endif
 
       new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_INVERSION, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_DEFAULT(cch->inversion));
+      new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(cch->inversion));
 
       line = form->newLine(&grid);
       m_btnModeFrame = new FormWindow(line, rect_t{});
@@ -358,6 +351,13 @@ class USBChannelEditWindow : public Page
       new StaticText(m_simModeLine, rect_t{}, STR_USBJOYSTICK_CH_SIM, 0, COLOR_THEME_PRIMARY1);
       new Choice(m_simModeLine, rect_t{}, STR_VUSBJOYSTICK_CH_SIM, 0, USBJOYS_SIM_LAST,
                                  GET_DEFAULT(cch->param), SET_VALUE_WUPDATE(cch->param));
+
+      line = form->newLine(&grid);
+      line->padTop(0);
+      line->padBottom(0);
+      collisionText = new StaticText(line, rect_t{}, "", OPAQUE, FONT(BOLD) | COLOR_THEME_PRIMARY2 | CENTERED);
+      collisionText->setBackgroundColor(COLOR_THEME_WARNING);
+      lv_obj_set_grid_cell(collisionText->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, USBCH_COLS, LV_GRID_ALIGN_CENTER, 0, 1);
 
       update();
     }
@@ -546,7 +546,7 @@ ModelUSBJoystickPage::ModelUSBJoystickPage() :
   _ApplyBtn = new TextButton(line, rect_t{}, STR_USBJOYSTICK_APPLY_CHANGES,
                             [=]() { onUSBJoystickModelChanged(); this->update(); return 0; });
 
-  auto btngrp = new FormGroup(form, rect_t{});
+  auto btngrp = new FormWindow(form, rect_t{});
   _ChannelsGroup = btngrp;
   btngrp->setFlexLayout();
   btngrp->padRow(lv_dpx(4));

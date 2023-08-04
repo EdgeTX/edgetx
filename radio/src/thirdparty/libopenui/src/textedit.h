@@ -46,5 +46,4 @@ class TextEdit : public FormField
 
   void changeEnd(bool forceChanged = false) override;
   void onClicked() override;
-  void onFocusLost() override;
 };
