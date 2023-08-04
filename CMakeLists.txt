@@ -4,7 +4,7 @@ project(EdgeTX)
 
 set(VERSION_MAJOR "2")
 set(VERSION_MINOR "8")
-set(VERSION_REVISION "4")
+set(VERSION_REVISION "5")
 set(CODENAME "FlyingDutchman")
 
 if(DEFINED ENV{EDGETX_VERSION_TAG})
