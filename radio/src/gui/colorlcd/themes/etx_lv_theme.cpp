@@ -725,19 +725,6 @@ const lv_obj_class_t etx_button_class = {
     .instance_size = sizeof(lv_btn_t),
 };
 
-const lv_obj_class_t etx_vbutton_class = {
-    .base_class = &lv_btn_class,
-    .constructor_cb = etx_button_constructor,
-    .destructor_cb = nullptr,
-    .user_data = nullptr,
-    .event_cb = nullptr,
-    .width_def = LV_SIZE_CONTENT,
-    .height_def = LV_SIZE_CONTENT,
-    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
-    .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
-    .instance_size = sizeof(lv_btn_t),
-};
-
 const lv_obj_class_t etx_choice_class = {
     .base_class = &lv_obj_class,
     .constructor_cb = etx_choice_constructor,
@@ -874,12 +861,6 @@ lv_obj_t* etx_btnmatrix_create(lv_obj_t* parent)
 lv_obj_t* etx_button_create(lv_obj_t* parent)
 {
   return etx_create(&etx_button_class, parent);
-}
-
-// Variable height
-lv_obj_t* etx_vbutton_create(lv_obj_t* parent)
-{
-  return etx_create(&etx_vbutton_class, parent);
 }
 
 lv_obj_t* etx_choice_create(lv_obj_t* parent)
