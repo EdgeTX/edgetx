@@ -699,6 +699,9 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
     getStringAtIndex(dest, STR_SM_VSRCRAW, idx);
   }
 #endif
+  else if (idx == MIXSRC_MIN) {
+    copyToTerminated(dest, "MIN");
+  }
   else if (idx == MIXSRC_MAX) {
     copyToTerminated(dest, "MAX");
   } else if (idx <= MIXSRC_LAST_HELI) {
