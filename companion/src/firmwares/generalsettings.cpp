@@ -684,13 +684,13 @@ QString GeneralSettings::hatsModeToString() const
 QString GeneralSettings::hatsModeToString(int value)
 {
   switch(value) {
-    case HATS_MODE_TRIMS_ONLY:
+    case MODE_TRIMS_ONLY:
       return tr("Trims only");
-    case HATS_MODE_BUTTONS_ONLY:
+    case MODE_KEYS_ONLY:
       return tr("Keys only");
-    case HATS_MODE_BOTH:
+    case MODE_SWITCHABLE:
       return tr("Switchable");
-    case HATS_MODE_GLOBAL:
+    case MODE_GLOBAL:
       return tr("Global");
     default:
       return CPN_STR_UNKNOWN_ITEM;
@@ -704,7 +704,7 @@ AbstractStaticItemModel * GeneralSettings::hatsModeItemModel(bool radio_setup)
   mdl->setName(AIM_GS_HATSMODE);
 
   for (int i = 0; i < HATS_MODE_COUNT; i++) {
-    mdl->appendToItemList(hatsModeToString(i), i, i == HATS_MODE_GLOBAL && radio_setup ? false : true);
+    mdl->appendToItemList(hatsModeToString(i), i, i == MODE_GLOBAL && radio_setup ? false : true);
   }
 
   mdl->loadItemList();

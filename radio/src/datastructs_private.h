@@ -679,7 +679,7 @@ PACK(struct ModelData {
   uint8_t   disableTelemetryWarning:1;
   uint8_t   showInstanceIds:1;
   uint8_t   checklistInteractive:1;
-  uint8_t   hatsMode:2;
+  NOBACKUP(uint8_t hatsMode:2 ENUM(HatsMode));
   uint8_t   spare3:2 SKIP;  // padding to 8-bit aligment
   int8_t    customThrottleWarningPosition;
   BeepANACenter beepANACenter;
@@ -852,7 +852,7 @@ PACK(struct RadioData {
   // Real attributes
   NOBACKUP(uint8_t manuallyEdited:1);
   int8_t timezoneMinutes:3;    // -3 to +3 ==> (-45 to 45 minutes in 15 minute increments)
-  uint8_t hatsMode:2;
+  NOBACKUP(uint8_t hatsMode:2 ENUM(HatsMode));
   NOBACKUP(int8_t spare0:2 SKIP);
   CUST_ATTR(semver,nullptr,w_semver);
   CUST_ATTR(board,nullptr,w_board);

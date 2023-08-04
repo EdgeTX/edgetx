@@ -347,7 +347,7 @@ static void transpose_trims(uint32_t *keys)
 #else
   static uint8_t state = 0;
 
-  if(g_eeGeneral.hatsMode == HATS_MODE_BOTH && !getTransposeTrimsForLUA()) {
+  if(g_eeGeneral.hatsMode == MODE_SWITCHABLE && !getTransposeTrimsForLUA()) {
     static bool lastExitState  = false;
     static bool lastEnterState = false;
 

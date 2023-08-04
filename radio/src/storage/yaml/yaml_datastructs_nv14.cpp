@@ -4,6 +4,14 @@
 // Enums first
 //
 
+const struct YamlIdStr enum_HatsMode[] = {
+    {  MODE_TRIMS_ONLY, "TRIMS_ONLY"  },
+    {  MODE_KEYS_ONLY, "KEYS_ONLY"  },
+    {  MODE_SWITCHABLE, "SWITCHABLE " },
+    {  MODE_GLOBAL, "GLOBAL"  },
+    {  0, NULL  }
+};
+
 const struct YamlIdStr enum_BacklightMode[] = {
   {  e_backlight_mode_off, "backlight_mode_off"  },
   {  e_backlight_mode_keys, "backlight_mode_keys"  },
@@ -297,7 +305,7 @@ static const struct YamlNode struct_EdgeTxTheme__PersistentData[] = {
 static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "manuallyEdited", 1 ),
   YAML_SIGNED( "timezoneMinutes", 3 ),
-  YAML_UNSIGNED( "hatsMode", 2 ),
+  YAML_ENUM( "hatsMode", 2, enum_HatsMode ),
   YAML_PADDING( 2 ),
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_CUSTOM("board",nullptr,w_board),
@@ -820,7 +828,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "disableTelemetryWarning", 1 ),
   YAML_UNSIGNED( "showInstanceIds", 1 ),
   YAML_UNSIGNED( "checklistInteractive", 1 ),
-    YAML_UNSIGNED( "hatsMode", 2 ),
+  YAML_ENUM( "hatsMode", 2, enum_HatsMode ),
   YAML_PADDING( 2 ),
   YAML_SIGNED( "customThrottleWarningPosition", 8 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),

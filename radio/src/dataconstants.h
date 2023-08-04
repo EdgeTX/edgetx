@@ -658,11 +658,11 @@ enum BluetoothModes {
 };
 
 #if defined(USE_TRIMS_AS_BUTTONS)
-enum enumHatsMode {
-  HATS_MODE_TRIMS_ONLY,
-  HATS_MODE_BUTTONS_ONLY,
-  HATS_MODE_BOTH,
-  HATS_MODE_GLOBAL
+enum HatsMode {
+  MODE_TRIMS_ONLY,
+  MODE_KEYS_ONLY,
+  MODE_SWITCHABLE,
+  MODE_GLOBAL
 };
 #endif
 

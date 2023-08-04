@@ -118,9 +118,9 @@ const YamlLookupTable internalModuleLut = {
 };
 
 static const YamlLookupTable hatsModeLut = {
-  {  GeneralSettings::HATS_MODE_TRIMS_ONLY, "TRIMS"  },
-  {  GeneralSettings::HATS_MODE_BUTTONS_ONLY, "BUTTONS"  },
-  {  GeneralSettings::HATS_MODE_BOTH, "BOTH"  },
+  {  GeneralSettings::MODE_TRIMS_ONLY, "TRIMS_ONLY"  },
+  {  GeneralSettings::MODE_KEYS_ONLY, "KEYS_ONLY"  },
+  {  GeneralSettings::MODE_SWITCHABLE, "SWITCHABLE"  },
 };
 
 YamlTelemetryBaudrate::YamlTelemetryBaudrate(
