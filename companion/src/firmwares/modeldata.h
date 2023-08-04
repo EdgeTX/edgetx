@@ -192,6 +192,7 @@ class ModelData {
     unsigned int view;
 
     char registrationId[8+1];
+    unsigned int hatsMode;
 
     // Radio level tabs control (global settings)
     unsigned int radioThemesDisabled;
