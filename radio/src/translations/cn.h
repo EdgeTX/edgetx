@@ -1092,6 +1092,7 @@
 #define TR_MENU_LUA                    STR_CHAR_LUA "LUA脚本"
 #define TR_MENU_STICKS                 STR_CHAR_STICK "摇杆"
 #define TR_MENU_POTS                   STR_CHAR_POT "旋钮"
+#define TR_MENU_MIN                    STR_CHAR_FUNCTION "固定值MIN"
 #define TR_MENU_MAX                    STR_CHAR_FUNCTION "固定值MAX"
 #define TR_MENU_HELI                   STR_CHAR_CYC "斜盘混控CYC"
 #define TR_MENU_TRIMS                  STR_CHAR_TRIM "微调"

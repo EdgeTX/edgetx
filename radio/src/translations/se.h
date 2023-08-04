@@ -1138,6 +1138,7 @@
 #define TR_MENU_LUA                     STR_CHAR_LUA "Lua-skript"
 #define TR_MENU_STICKS                  STR_CHAR_STICK "Spakar"
 #define TR_MENU_POTS                    STR_CHAR_POT "Vred"
+#define TR_MENU_MIN                     STR_CHAR_FUNCTION "MIN"
 #define TR_MENU_MAX                     STR_CHAR_FUNCTION "MAX"
 #define TR_MENU_HELI                    STR_CHAR_CYC "Cyklisk"
 #define TR_MENU_TRIMS                   STR_CHAR_TRIM "Trimm"
