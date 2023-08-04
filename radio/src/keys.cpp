@@ -347,7 +347,12 @@ static void transpose_trims(uint32_t *keys)
 #else
   static uint8_t state = 0;
 
-  if(g_eeGeneral.hatsMode == MODE_SWITCHABLE && !getTransposeTrimsForLUA()) {
+  bool allowModeSwitch =
+    ((g_model.hatsMode == MODE_GLOBAL && g_eeGeneral.hatsMode == MODE_SWITCHABLE) ||
+     (g_model.hatsMode == MODE_SWITCHABLE)) &&
+    !getTransposeTrimsForLUA();
+
+  if(allowModeSwitch) {
     static bool lastExitState  = false;
     static bool lastEnterState = false;
 
