@@ -302,7 +302,7 @@ class PreviewWindow : public FormWindow
     dc->clear(COLOR_THEME_SECONDARY3);
 
     // top bar background
-    dc->drawSolidFilledRect(0, 0, rect.w, TOPBAR_HEIGHT, COLOR_THEME_SECONDARY1);
+    dc->drawSolidFilledRect(0, 0, rect.w, TOPBAR_ZONE_HEIGHT, COLOR_THEME_SECONDARY1);
 
     int width;
     int x = 5;
@@ -315,7 +315,7 @@ class PreviewWindow : public FormWindow
     delete bm;
 
     dc->drawSolidFilledRect(x - 2, 0, MENU_HEADER_BUTTON_WIDTH + 2,
-                            TOPBAR_HEIGHT, COLOR_THEME_FOCUS);
+                            TOPBAR_ZONE_HEIGHT, COLOR_THEME_FOCUS);
     auto mask_radio_tools = getBuiltinIcon(ICON_RADIO_TOOLS);
     bm = getBitmap(mask_radio_tools, COLOR_THEME_FOCUS, COLOR_THEME_PRIMARY2,
                    &width);

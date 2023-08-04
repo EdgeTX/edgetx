@@ -56,7 +56,8 @@ class TopbarImpl:
 
     void checkEvents() override;
 
-  
+    void removeWidget(unsigned int index) override;
+
   protected:
     uint32_t lastRefresh = 0;
 };

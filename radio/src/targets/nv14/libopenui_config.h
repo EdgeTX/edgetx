@@ -21,12 +21,6 @@
 
 #pragma once
 
-constexpr uint32_t RSSI_X =                        LCD_W - 80;
-constexpr uint32_t AUDIO_X =                       LCD_W - 115;
-constexpr uint32_t USB_X =                         LCD_W - 82;
-constexpr uint32_t LOG_X =                         LCD_W - 82;
-constexpr uint32_t GPS_X =                         LCD_W - 130;
-
 constexpr uint32_t ALERT_FRAME_TOP =               70;
 constexpr uint32_t ALERT_FRAME_HEIGHT =            (LCD_H - 2 * ALERT_FRAME_TOP);
 constexpr uint32_t ALERT_BITMAP_TOP =              ALERT_FRAME_TOP + 15;
