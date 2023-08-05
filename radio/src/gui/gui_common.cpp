@@ -1213,16 +1213,3 @@ bool isPotTypeAvailable(uint8_t type)
 
   return true;
 }
-
-uint8_t boardGetMaxSwitches();
-bool isFlexSwitchAvailable(uint8_t swtch, uint8_t val)
-{
-  if (POT_CONFIG(val) != FLEX_SWITCH)
-    return false;
-
-  for (uint8_t i = 0; i < MAX_FLEX_SWITCHES; i++) {
-    if (switchGetFlexChannel(i) == val && i != (swtch - boardGetMaxSwitches()))
-      return false;
-  }
-  return true;
-}

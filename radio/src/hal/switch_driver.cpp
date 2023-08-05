@@ -216,3 +216,43 @@ bool switchIsFlexValid(uint8_t idx)
   idx -= max_switches;
   return switchIsFlexValid_raw(idx);
 }
+
+static bool is_flex_input_available(uint8_t flex_idx, uint8_t channel)
+{
+  for (uint8_t i = 0; i < MAX_FLEX_SWITCHES; i++) {
+    if (_flex_switches[i] == channel && flex_idx != i)
+      return false;
+  }
+
+  return true;
+}
+
+bool switchIsFlexInputAvailable(uint8_t idx, uint8_t channel)
+{
+  if (MAX_FLEX_SWITCHES == 0) return false;
+  if (POT_CONFIG(channel) != FLEX_SWITCH) return false;
+
+  auto phy_switches = boardGetMaxSwitches();
+  if (idx < phy_switches) return false;
+
+  return is_flex_input_available(idx - phy_switches, channel);
+}
+
+static void invalidate_flex_config(uint8_t flex_idx)
+{
+  auto sw_idx = flex_idx + boardGetMaxSwitches();
+  swconfig_t mask = (swconfig_t)SWITCH_CONFIG_MASK(sw_idx);
+  g_eeGeneral.switchConfig &= ~mask;
+
+  _flex_switches[flex_idx] = _INVALID_ADC_CH;
+}
+
+void switchFixFlexConfig()
+{
+  for (uint8_t i = 0; i < MAX_FLEX_SWITCHES; i++) {
+    auto channel = _flex_switches[i];
+    if (channel != _INVALID_ADC_CH && POT_CONFIG(channel) != FLEX_SWITCH) {
+      invalidate_flex_config(i);
+    }
+  }
+}

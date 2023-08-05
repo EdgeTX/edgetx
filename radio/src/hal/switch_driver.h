@@ -74,8 +74,9 @@ int8_t switchGetFlexConfig(uint8_t idx);
 
 bool switchIsFlex(uint8_t idx);
 bool switchIsFlexValid(uint8_t idx);
-uint8_t switchGetFlexChannel(uint8_t idx);
+bool switchIsFlexInputAvailable(uint8_t idx, uint8_t channel);
 
+void switchFixFlexConfig();
 
 // "Raw" variants indexing only flex switches (used for storage)
 void switchConfigFlex_raw(uint8_t idx, int8_t channel);

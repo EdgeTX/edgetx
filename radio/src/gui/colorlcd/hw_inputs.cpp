@@ -113,6 +113,7 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
         [=](int newValue) {
           g_eeGeneral.potsConfig = bfSet<potconfig_t>(
               g_eeGeneral.potsConfig, newValue, POT_CFG_BITS * i, POT_CFG_BITS);
+          switchFixFlexConfig();          
           potsChanged = true;
           SET_DIRTY();
         });
@@ -161,6 +162,22 @@ class SwitchDynamicLabel : public StaticText
   uint8_t lastpos = 0xff;
 };
 
+static void flex_channel_changed(lv_event_t* e)
+{
+  auto target = lv_event_get_target(e);
+  auto channel = (Choice*)lv_obj_get_user_data(target);
+
+  auto sw_cfg = (Choice*)lv_event_get_user_data(e);
+  lv_obj_t* sw_cfg_obj = sw_cfg->getLvObj();
+
+  if (channel->getIntValue() < 0) {
+    lv_obj_add_flag(sw_cfg_obj, LV_OBJ_FLAG_HIDDEN);
+    sw_cfg->setValue(0);
+  } else {
+    lv_obj_clear_flag(sw_cfg_obj, LV_OBJ_FLAG_HIDDEN);
+  }
+}
+
 HWSwitches::HWSwitches(Window* parent) : FormWindow(parent, rect_t{})
 {
   FlexGridLayout grid(col_three_dsc, row_dsc, 2);
@@ -178,19 +195,21 @@ HWSwitches::HWSwitches(Window* parent) : FormWindow(parent, rect_t{})
     auto box_obj = box->getLvObj();
     lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
 
+    Choice* channel = nullptr;
     if (switchIsFlex(i)) {
-      auto channel = new Choice(
-          box, rect_t{}, 0, adcGetMaxInputs(ADC_INPUT_FLEX) - 1,
+      channel = new Choice(
+          box, rect_t{}, -1, adcGetMaxInputs(ADC_INPUT_FLEX) - 1,
           [=]() -> int { return switchGetFlexConfig(i); },
           [=](int newValue) { switchConfigFlex(i, newValue); });
       channel->setAvailableHandler(
-          [=](int val) { return isFlexSwitchAvailable(i,val); });
+          [=](int val) { return val < 0 || switchIsFlexInputAvailable(i, val); });
       channel->setTextHandler([=](int val) -> std::string {
+        if (val < 0) return STR_NONE;
         return adcGetInputLabel(ADC_INPUT_FLEX, val);
       });
     }
 
-    new Choice(
+    auto sw_cfg = new Choice(
         box, rect_t{}, STR_SWTYPES, SWITCH_NONE, switchGetMaxType(i),
         [=]() -> int { return SWITCH_CONFIG(i); },
         [=](int newValue) {
@@ -200,6 +219,12 @@ HWSwitches::HWSwitches(Window* parent) : FormWindow(parent, rect_t{})
               ((swconfig_t(newValue) & SW_CFG_MASK) << (SW_CFG_BITS * i));
           SET_DIRTY();
         });
+
+    if (channel) {
+      lv_obj_t* obj = channel->getLvObj();
+      lv_obj_add_event_cb(obj, flex_channel_changed, LV_EVENT_VALUE_CHANGED, sw_cfg);
+      lv_event_send(obj, LV_EVENT_VALUE_CHANGED, NULL);
+    }
   }
 }
 
