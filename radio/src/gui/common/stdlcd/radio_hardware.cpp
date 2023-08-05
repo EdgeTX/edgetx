@@ -28,6 +28,8 @@
 #include "analogs.h"
 #include "switches.h"
 
+uint8_t boardGetMaxSwitches();
+
 #if defined(BLUETOOTH)
   #include "bluetooth_driver.h"
 #endif
@@ -152,7 +154,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   auto max_switches = switchGetMaxSwitches();
   for (int i = ITEM_RADIO_HARDWARE_SWITCH; i <= ITEM_RADIO_HARDWARE_SWITCH_END; i++) {
     uint8_t idx = i - ITEM_RADIO_HARDWARE_SWITCH;
-    tab[i] = idx < max_switches ? 1 : HIDDEN_ROW;
+    tab[i] = (idx < max_switches && idx < max_switches + MAX_FLEX_SWITCHES) ? 2 : idx < max_switches ? 1 : HIDDEN_ROW;
   }
 
   tab[ITEM_RADIO_HARDWARE_BATTERY_CALIB] = 0;
@@ -502,6 +504,7 @@ void menuRadioHardware(event_t event)
           potType = editChoice(HW_SETTINGS_COLUMN2, y, "", STR_POTTYPES, potType,
                                FLEX_NONE, FLEX_SWITCH,
                                menuHorizontalPosition == 1 ? attr : 0, event);
+          if (checkIncDec_Ret) switchFixFlexConfig();
           g_eeGeneral.potsConfig &= ~mask;
           g_eeGeneral.potsConfig |= (potType << shift);
 
@@ -514,24 +517,61 @@ void menuRadioHardware(event_t event)
           lcdDrawText(INDENT_WIDTH, y, STR_CHAR_SWITCH, flags);
           lcdDrawText(lcdNextPos, y, switchGetName(index), flags);
 
-          flags = menuHorizontalPosition == 0 ? attr : 0;
-          if (switchHasCustomName(index) ||
-              (attr && s_editMode > 0 && menuHorizontalPosition == 0)) {
-            editName(HW_SETTINGS_COLUMN1, y, (char*)switchGetCustomName(index),
-                     LEN_SWITCH_NAME, event, flags, 0, old_editMode);
-          } else {
-            lcdDrawMMM(HW_SETTINGS_COLUMN1, y, flags);
+          if (switchIsFlex(index)) {
+            uint8_t swtch = index - boardGetMaxSwitches();
+
+            // flexSwitch source
+            flags = menuHorizontalPosition == 0 ? attr : 0;
+            auto source = switchGetFlexConfig_raw(swtch);
+            lcdDrawText(HW_SETTINGS_COLUMN1, y, (source < 0) ? STR_NONE : adcGetInputLabel(ADC_INPUT_FLEX, source), flags);
+            if (flags & (~RIGHT)) source = checkIncDec(event, source, -1, adcGetMaxInputs(ADC_INPUT_FLEX) - 1, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL, isFlexSwicthSourceValid);
+            switchConfigFlex_raw(swtch, source);
+
+            //Name
+            flags = menuHorizontalPosition == 1 ? attr : 0;
+            if (switchHasCustomName(index) ||
+                (attr && s_editMode > 0 && menuHorizontalPosition == 1)) {
+              editName(HW_SETTINGS_COLUMN2, y,
+                       (char*)switchGetCustomName(index), LEN_SWITCH_NAME,
+                       event, flags, 0, old_editMode);
+            } else {
+              lcdDrawMMM(HW_SETTINGS_COLUMN2, y, flags);
+            }
+
+            // Switch type
+            flags = menuHorizontalPosition == 2 ? attr : 0;
+            config = editChoice(HW_SETTINGS_COLUMN2 + 25, y, "", STR_SWTYPES, config,
+                           SWITCH_NONE, switchGetMaxType(index), flags, event);
+
+            if (attr && checkIncDec_Ret) {
+              swconfig_t mask = SWITCH_CONFIG_MASK(index);
+              g_eeGeneral.switchConfig =
+                  (g_eeGeneral.switchConfig & ~mask) |
+                  ((swconfig_t(config) & SW_CFG_MASK) << (SW_CFG_BITS * index));
+            }
           }
+          else {
+            flags = menuHorizontalPosition == 0 ? attr : 0;
+            if (switchHasCustomName(index) ||
+                (attr && s_editMode > 0 && menuHorizontalPosition == 0)) {
+              editName(HW_SETTINGS_COLUMN1, y,
+                       (char*)switchGetCustomName(index), LEN_SWITCH_NAME,
+                       event, flags, 0, old_editMode);
+            } else {
+              lcdDrawMMM(HW_SETTINGS_COLUMN1, y, flags);
+            }
 
-          flags = menuHorizontalPosition == 1 ? attr : 0;
-          config = editChoice(HW_SETTINGS_COLUMN2, y, "", STR_SWTYPES, config,
-                              SWITCH_NONE, switchGetMaxType(index), flags, event);
+            flags = menuHorizontalPosition == 1 ? attr : 0;
+            config =
+                editChoice(HW_SETTINGS_COLUMN2, y, "", STR_SWTYPES, config,
+                           SWITCH_NONE, switchGetMaxType(index), flags, event);
 
-          if (attr && checkIncDec_Ret) {
-            swconfig_t mask = SWITCH_CONFIG_MASK(index);
-            g_eeGeneral.switchConfig =
-                (g_eeGeneral.switchConfig & ~mask) |
-                ((swconfig_t(config) & SW_CFG_MASK) << (SW_CFG_BITS * index));
+            if (attr && checkIncDec_Ret) {
+              swconfig_t mask = SWITCH_CONFIG_MASK(index);
+              g_eeGeneral.switchConfig =
+                  (g_eeGeneral.switchConfig & ~mask) |
+                  ((swconfig_t(config) & SW_CFG_MASK) << (SW_CFG_BITS * index));
+            }
           }
         } else if (k <= ITEM_RADIO_HARDWARE_SERIAL_PORT_END) {
           auto port_nr = k - ITEM_RADIO_HARDWARE_SERIAL_PORT;

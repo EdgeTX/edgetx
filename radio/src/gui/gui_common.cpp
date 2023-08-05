@@ -1213,3 +1213,21 @@ bool isPotTypeAvailable(uint8_t type)
 
   return true;
 }
+
+bool isFlexSwicthSourceValid(int source)
+{
+  if (MAX_FLEX_SWITCHES == 0) return false;
+
+  // Allow NONE
+  if (source < 0) return true;
+
+  // already assigned ?
+  for (int i=0; i < MAX_FLEX_SWITCHES;i++) {
+    if (source == switchGetFlexConfig_raw(i))
+      return false;
+  }
+
+  if (POT_CONFIG(source) != FLEX_SWITCH) return false;
+
+  return true;
+}

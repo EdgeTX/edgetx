@@ -100,6 +100,7 @@ bool isRfProtocolAvailable(int protocol);
 bool isTrainerModeAvailable(int mode);
 bool isAssignableFunctionAvailable(int function, CustomFunctionData * functions);
 bool isPotTypeAvailable(uint8_t type);
+bool isFlexSwicthSourceValid(int source);
 
 bool isSensorUnit(int sensor, uint8_t unit);
 bool isCellsSensor(int sensor);
