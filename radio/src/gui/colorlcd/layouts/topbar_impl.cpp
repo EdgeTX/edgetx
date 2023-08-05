@@ -96,12 +96,12 @@ void TopbarImpl::removeWidget(unsigned int index)
   bool mark = false;
 
   // If user manually removes 'system' widgets, mark name so widget does not get reloaded on restart
-  if ((index == MAX_TOPBAR_ZONES - 1) && (strcmp(persistentData->zones[index].widgetName, "Date Time") == 0))
+  if ((index == MAX_TOPBAR_ZONES - 1) && (strncmp(persistentData->zones[index].widgetName, "Date Time", WIDGET_NAME_LEN) == 0))
     mark = true;
-  if ((index == MAX_TOPBAR_ZONES - 2) && (strcmp(persistentData->zones[index].widgetName, "Radio Info") == 0))
+  if ((index == MAX_TOPBAR_ZONES - 2) && (strncmp(persistentData->zones[index].widgetName, "Radio Info", WIDGET_NAME_LEN) == 0))
     mark = true;
 #if defined(INTERNAL_GPS)
-  if ((index == MAX_TOPBAR_ZONES - 3) && (strcmp(persistentData->zones[index].widgetName, "Internal GPS") == 0))
+  if ((index == MAX_TOPBAR_ZONES - 3) && (strncmp(persistentData->zones[index].widgetName, "Internal GPS", WIDGET_NAME_LEN) == 0))
     mark = true;
 #endif
   
