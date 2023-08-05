@@ -700,10 +700,10 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
   }
 #endif
   else if (idx == MIXSRC_MIN) {
-    copyToTerminated(dest, "MIN");
+    strncpy(dest, STR_MENU_MIN, dest_len - 1);
   }
   else if (idx == MIXSRC_MAX) {
-    copyToTerminated(dest, "MAX");
+    strncpy(dest, STR_MENU_MAX, dest_len - 1);
   } else if (idx <= MIXSRC_LAST_HELI) {
     idx -= MIXSRC_FIRST_HELI;
     getStringAtIndex(dest, STR_CYC_VSRCRAW, idx);
