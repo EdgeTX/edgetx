@@ -142,20 +142,20 @@ void postModelLoad(bool alarms)
 #if defined(COLORLCD)
   // Load 'date time' widget if slot is empty
   if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName[0] == 0) {
-    strcpy(g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName, "Date Time");
+    strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName, "Date Time", WIDGET_NAME_LEN);
     g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetData.options[0].type = ZOV_Color;
     g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetData.options[0].value.unsignedValue = 0xFFFFFF;
     storageDirty(EE_MODEL);
   }
   // Load 'radio info' widget if slot is empty
   if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName[0] == 0) {
-    strcpy(g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName, "Radio Info");
+    strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName, "Radio Info", WIDGET_NAME_LEN);
     storageDirty(EE_MODEL);
   }
 #if defined(INTERNAL_GPS)
   // Load 'internal gps' widget if slot is empty
   if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName[0] == 0) {
-    strcpy(g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName, "Internal GPS");
+    strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName, "Internal GPS", WIDGET_NAME_LEN);
     storageDirty(EE_MODEL);
   }
 #endif
