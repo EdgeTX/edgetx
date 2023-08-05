@@ -1273,6 +1273,22 @@
     <file>themes/yerico/48/stop.png</file>
     <file>themes/yerico/48/write_eeprom.png</file>
     <file>themes/yerico/48/sdsync.png</file>
+    <file>sounds/0.wav</file>
+    <file>sounds/1.wav</file>
+    <file>sounds/2.wav</file>
+    <file>sounds/3.wav</file>
+    <file>sounds/4.wav</file>
+    <file>sounds/5.wav</file>
+    <file>sounds/6.wav</file>
+    <file>sounds/7.wav</file>
+    <file>sounds/8.wav</file>
+    <file>sounds/9.wav</file>
+    <file>sounds/10.wav</file>
+    <file>sounds/11.wav</file>
+    <file>sounds/12.wav</file>
+    <file>sounds/13.wav</file>
+    <file>sounds/14.wav</file>
+    <file>sounds/15.wav</file>
   </qresource>
   <qresource prefix="/layouts/">
     <file alias="mask_layout1p2.png">images/layouts/mask_layout1+2.png</file>
