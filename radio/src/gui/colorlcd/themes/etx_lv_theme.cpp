@@ -107,6 +107,8 @@ typedef struct {
   lv_style_t cb_marker;
   lv_style_t cb_marker_checked;
 
+  // Bubble popup
+  lv_style_t bubble_popup;
 } my_theme_styles_t;
 
 /**********************
@@ -327,6 +329,14 @@ static void style_init(void)
     lv_style_init(&styles.cb_marker_checked);
     lv_style_set_bg_img_src(&styles.cb_marker_checked, LV_SYMBOL_OK);
     lv_style_set_text_font(&styles.cb_marker_checked, theme.font_small);
+
+    // Bubble popup
+    lv_style_init(&styles.bubble_popup);
+    lv_style_set_bg_opa(&styles.bubble_popup, LV_OPA_COVER);
+    lv_style_set_pad_all(&styles.bubble_popup, 4);
+    lv_style_set_border_opa(&styles.bubble_popup, LV_OPA_100);
+    lv_style_set_border_width(&styles.bubble_popup, 3);
+    lv_style_set_radius(&styles.bubble_popup, 10);
   }
 
   // Always update colors in case theme changes
@@ -395,6 +405,10 @@ static void style_init(void)
   lv_style_set_border_color(&styles.cb_marker_checked, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_bg_color(&styles.cb_marker_checked, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_text_color(&styles.cb_marker_checked, makeLvColor(COLOR_THEME_PRIMARY2));
+
+  lv_style_set_bg_color(&styles.bubble_popup, makeLvColor(COLOR_THEME_PRIMARY2));
+  lv_style_set_border_color(&styles.bubble_popup, makeLvColor(COLOR_THEME_PRIMARY1));
+  lv_style_set_text_color(&styles.bubble_popup, makeLvColor(COLOR_THEME_PRIMARY1));
 }
 
 /**********************
@@ -598,6 +612,11 @@ void etx_checkbox_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
   lv_obj_add_style(obj, &styles.disabled, LV_PART_INDICATOR | LV_STATE_DISABLED);
 }
 
+void bubble_popup_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+{
+  lv_obj_add_style(obj, &styles.bubble_popup, 0);
+}
+
 }
 
 // Object classes
@@ -796,6 +815,19 @@ const lv_obj_class_t etx_checkbox_class = {
     .instance_size = sizeof(lv_checkbox_t),
 };
 
+const lv_obj_class_t etx_bubble_popup_class = {
+    .base_class = &window_base_class,
+    .constructor_cb = bubble_popup_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = LV_DPI_DEF,
+    .height_def = LV_DPI_DEF,
+    .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_FALSE,
+    .instance_size = sizeof(lv_obj_t)
+};
+
 // Event handlers
 static void field_edit_event(const lv_obj_class_t* class_p, lv_event_t* e)
 {
@@ -911,6 +943,11 @@ lv_obj_t* etx_button_create(lv_obj_t* parent)
 lv_obj_t* etx_choice_create(lv_obj_t* parent)
 {
   return etx_create(&etx_choice_class, parent);
+}
+
+lv_obj_t* etx_bubble_popup_create(lv_obj_t* parent)
+{
+  return etx_create(&etx_bubble_popup_class, parent);
 }
 
 lv_obj_t* etx_bar_create(lv_obj_t* parent)
