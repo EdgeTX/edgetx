@@ -334,7 +334,7 @@ static void style_init(void)
     lv_style_init(&styles.bubble_popup);
     lv_style_set_bg_opa(&styles.bubble_popup, LV_OPA_COVER);
     lv_style_set_pad_all(&styles.bubble_popup, 4);
-    lv_style_set_border_opa(&styles.bubble_popup, LV_OPA_100);
+    lv_style_set_border_opa(&styles.bubble_popup, LV_OPA_COVER);
     lv_style_set_border_width(&styles.bubble_popup, 3);
     lv_style_set_radius(&styles.bubble_popup, 10);
   }
@@ -406,9 +406,9 @@ static void style_init(void)
   lv_style_set_bg_color(&styles.cb_marker_checked, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_text_color(&styles.cb_marker_checked, makeLvColor(COLOR_THEME_PRIMARY2));
 
-  lv_style_set_bg_color(&styles.bubble_popup, makeLvColor(COLOR_THEME_PRIMARY2));
-  lv_style_set_border_color(&styles.bubble_popup, makeLvColor(COLOR_THEME_PRIMARY1));
-  lv_style_set_text_color(&styles.bubble_popup, makeLvColor(COLOR_THEME_PRIMARY1));
+  lv_style_set_bg_color(&styles.bubble_popup, makeLvColor(COLOR2FLAGS(WHITE)));
+  lv_style_set_border_color(&styles.bubble_popup, makeLvColor(COLOR2FLAGS(BLACK)));
+  lv_style_set_text_color(&styles.bubble_popup, makeLvColor(COLOR2FLAGS(BLACK)));
 }
 
 /**********************
