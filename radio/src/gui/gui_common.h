@@ -99,6 +99,8 @@ bool isInternalModuleSupported(int moduleType);
 bool isRfProtocolAvailable(int protocol);
 bool isTrainerModeAvailable(int mode);
 bool isAssignableFunctionAvailable(int function, CustomFunctionData * functions);
+bool isPotTypeAvailable(uint8_t type);
+bool isFlexSwitchAvailable(uint8_t swtch, uint8_t val);
 
 bool isSensorUnit(int sensor, uint8_t unit);
 bool isCellsSensor(int sensor);

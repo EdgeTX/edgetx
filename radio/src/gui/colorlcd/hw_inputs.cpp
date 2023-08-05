@@ -116,6 +116,8 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
           potsChanged = true;
           SET_DIRTY();
         });
+    pot->setAvailableHandler(
+      [=](int val) { return isPotTypeAvailable(val); });
   }
 }
 
@@ -182,7 +184,7 @@ HWSwitches::HWSwitches(Window* parent) : FormWindow(parent, rect_t{})
           [=]() -> int { return switchGetFlexConfig(i); },
           [=](int newValue) { switchConfigFlex(i, newValue); });
       channel->setAvailableHandler(
-          [=](int val) { return POT_CONFIG(val) == FLEX_SWITCH; });
+          [=](int val) { return isFlexSwitchAvailable(i,val); });
       channel->setTextHandler([=](int val) -> std::string {
         return adcGetInputLabel(ADC_INPUT_FLEX, val);
       });

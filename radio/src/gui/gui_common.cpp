@@ -1197,3 +1197,32 @@ uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t a
   return value;
 }
 #endif
+
+bool isPotTypeAvailable(uint8_t type)
+{
+  if (type == FLEX_SWITCH) {
+    if (MAX_FLEX_SWITCHES == 0)
+      return false;
+
+    auto availableFlexSwitch = MAX_FLEX_SWITCHES;
+    for (uint8_t i = 0; i < adcGetMaxInputs(ADC_INPUT_FLEX); i++) {
+      if (POT_CONFIG(i) == FLEX_SWITCH) availableFlexSwitch--;
+      if (availableFlexSwitch == 0) return false;
+    }
+  }
+
+  return true;
+}
+
+uint8_t boardGetMaxSwitches();
+bool isFlexSwitchAvailable(uint8_t swtch, uint8_t val)
+{
+  if (POT_CONFIG(val) != FLEX_SWITCH)
+    return false;
+
+  for (uint8_t i = 0; i < MAX_FLEX_SWITCHES; i++) {
+    if (switchGetFlexChannel(i) == val && i != (swtch - boardGetMaxSwitches()))
+      return false;
+  }
+  return true;
+}

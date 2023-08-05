@@ -175,6 +175,11 @@ void switchConfigFlex_raw(uint8_t idx, int8_t channel)
   }
 }
 
+uint8_t switchGetFlexChannel(uint8_t idx)
+{
+  return _flex_switches[idx];
+}
+
 void switchConfigFlex(uint8_t idx, int8_t channel)
 {
   auto max_switches = boardGetMaxSwitches();
