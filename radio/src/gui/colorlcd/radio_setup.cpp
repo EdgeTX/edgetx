@@ -814,7 +814,7 @@ void RadioSetupPage::build(FormWindow * window)
 #if defined(USE_TRIMS_AS_BUTTONS)
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_HATS_MODE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(line, rect_t{}, STR_HATS_OPT, MODE_TRIMS_ONLY, MODE_SWITCHABLE,
+  new Choice(line, rect_t{}, STR_HATS_OPT, HATS_MODE_TRIMS_ONLY, HATS_MODE_SWITCHABLE,
              GET_SET_DEFAULT(g_eeGeneral.hatsMode));
 #endif
 

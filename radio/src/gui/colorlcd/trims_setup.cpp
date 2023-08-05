@@ -59,7 +59,7 @@ TrimsSetup::TrimsSetup() : Page(ICON_MODEL_SETUP)
   // Hats mode for NV14/EL18
   line = body.newLine(&grid);
   new StaticText(line, rect_t{}, STR_HATS_MODE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(line, rect_t{}, STR_HATS_OPT, MODE_TRIMS_ONLY, MODE_GLOBAL, 
+  new Choice(line, rect_t{}, STR_HATS_OPT, HATS_MODE_TRIMS_ONLY, HATS_MODE_GLOBAL, 
             GET_SET_DEFAULT(g_model.hatsMode));
 #endif
 

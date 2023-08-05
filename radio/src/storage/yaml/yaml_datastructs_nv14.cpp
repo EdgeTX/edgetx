@@ -5,10 +5,10 @@
 //
 
 const struct YamlIdStr enum_HatsMode[] = {
-    {  MODE_TRIMS_ONLY, "TRIMS_ONLY"  },
-    {  MODE_KEYS_ONLY, "KEYS_ONLY"  },
-    {  MODE_SWITCHABLE, "SWITCHABLE " },
-    {  MODE_GLOBAL, "GLOBAL"  },
+    {  HATS_MODE_TRIMS_ONLY, "TRIMS_ONLY"  },
+    {  HATS_MODE_KEYS_ONLY, "KEYS_ONLY"  },
+    {  HATS_MODE_SWITCHABLE, "SWITCHABLE" },
+    {  HATS_MODE_GLOBAL, "GLOBAL"  },
     {  0, NULL  }
 };
 

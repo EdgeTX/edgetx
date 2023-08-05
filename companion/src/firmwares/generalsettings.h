@@ -174,10 +174,10 @@ class GeneralSettings {
     };
 
     enum HatsMode {
-      MODE_TRIMS_ONLY,
-      MODE_KEYS_ONLY,
-      MODE_SWITCHABLE,
-      MODE_GLOBAL,
+      HATS_MODE_TRIMS_ONLY,
+      HATS_MODE_KEYS_ONLY,
+      HATS_MODE_SWITCHABLE,
+      HATS_MODE_GLOBAL,
       HATS_MODE_COUNT
     };
 

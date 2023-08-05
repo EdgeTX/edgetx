@@ -89,10 +89,10 @@ static const YamlLookupTable usbJoystickIfModeLut = {
 };
 
 static const YamlLookupTable hatsModeLut = {
-  {  GeneralSettings::MODE_TRIMS_ONLY, "TRIMS_ONLY"  },
-  {  GeneralSettings::MODE_KEYS_ONLY, "KEYS_ONLY"  },
-  {  GeneralSettings::MODE_SWITCHABLE, "SWITCHABLE"  },
-  {  GeneralSettings::MODE_GLOBAL, "GLOBAL"  },
+  {  GeneralSettings::HATS_MODE_TRIMS_ONLY, "TRIMS_ONLY"  },
+  {  GeneralSettings::HATS_MODE_KEYS_ONLY, "KEYS_ONLY"  },
+  {  GeneralSettings::HATS_MODE_SWITCHABLE, "SWITCHABLE"  },
+  {  GeneralSettings::HATS_MODE_GLOBAL, "GLOBAL"  },
 };
 
 struct YamlTrim {
