@@ -66,7 +66,7 @@ void NumberEdit::onEvent(event_t event)
         auto step = getStep();
         step += (rotaryEncoderGetAccel() * getAccelFactor()) / 8;
         do {
-#if defined(USE_TRIMS_AS_BUTTONS)
+#if defined(USE_HATS_AS_KEYS)
           value -= step;
 #else
           value += step;
@@ -87,7 +87,7 @@ void NumberEdit::onEvent(event_t event)
         auto step = getStep();
         step += (rotaryEncoderGetAccel() * getAccelFactor()) / 8;
         do {
-#if defined(USE_TRIMS_AS_BUTTONS)
+#if defined(USE_HATS_AS_KEYS)
           value += step;
 #else
           value -= step;

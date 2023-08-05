@@ -298,7 +298,7 @@ extern volatile uint32_t rotencDt;
 
 void OpenTxSimulator::rotaryEncoderEvent(int steps)
 {
-#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_TRIMS_AS_BUTTONS)
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
   static uint32_t last_tick = 0;
   if (steps != 0) {
     if (g_eeGeneral.rotEncMode >= ROTARY_ENCODER_MODE_INVERT_BOTH) steps *= -1;

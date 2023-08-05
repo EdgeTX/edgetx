@@ -448,9 +448,9 @@ void SET_POWER_REASON(uint32_t value) {}
 #if defined(TRIMS_EMULATE_BUTTONS)
 bool trimsAsButtons = false;
 
-void setTrimsAsButtons(bool val) { trimsAsButtons = val; }
+void setHatsAsKeys(bool val) { trimsAsButtons = val; }
 
-bool getTrimsAsButtons()
+bool getHatsAsKeys()
 {
   bool lua = false;
 #if defined(LUA)

@@ -886,7 +886,7 @@ Return rotary encoder mode
 */
 static int luaGetRotEncMode(lua_State * L)
 {
-#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_TRIMS_AS_BUTTONS)
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
   lua_pushunsigned(L, g_eeGeneral.rotEncMode);
 #else
   lua_pushunsigned(L, 0);
@@ -3090,7 +3090,7 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( EVT_VIRTUAL_ENTER_LONG, EVT_KEY_LONG(KEY_ENTER) )
   LROT_NUMENTRY( EVT_VIRTUAL_EXIT, EVT_KEY_BREAK(KEY_EXIT) )
 #elif defined(COLORLCD)
-#if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_TRIMS_AS_BUTTONS)
+#if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)
   LROT_NUMENTRY( EVT_VIRTUAL_PREV_PAGE, EVT_KEY_BREAK(KEY_PAGEUP) )
   LROT_NUMENTRY( EVT_VIRTUAL_NEXT_PAGE, EVT_KEY_BREAK(KEY_PAGEDN) )
 #else
@@ -3115,19 +3115,19 @@ LROT_BEGIN(etxcst, NULL, 0)
   KEY_EVENTS(MENU, KEY_MENU)
 #endif
 
-#if defined(KEYS_GPIO_REG_RIGHT) && defined(COLORLCD) || defined(USE_TRIMS_AS_BUTTONS)
+#if defined(KEYS_GPIO_REG_RIGHT) && defined(COLORLCD) || defined(USE_HATS_AS_KEYS)
   KEY_EVENTS(TELEM, KEY_TELE)
 #elif defined(KEYS_GPIO_REG_RIGHT)
   KEY_EVENTS(RIGHT, KEY_RIGHT)
 #endif
 
-#if defined(KEYS_GPIO_REG_UP) && defined(COLORLCD) || defined(USE_TRIMS_AS_BUTTONS)
+#if defined(KEYS_GPIO_REG_UP) && defined(COLORLCD) || defined(USE_HATS_AS_KEYS)
   KEY_EVENTS(MODEL, KEY_MODEL)
 #elif defined(KEYS_GPIO_REG_UP)
   KEY_EVENTS(UP, KEY_UP)
 #endif
 
-#if defined(KEYS_GPIO_REG_LEFT) && defined(COLORLCD) || defined(USE_TRIMS_AS_BUTTONS)
+#if defined(KEYS_GPIO_REG_LEFT) && defined(COLORLCD) || defined(USE_HATS_AS_KEYS)
   KEY_EVENTS(SYS, KEY_SYS)
 #elif defined(KEYS_GPIO_REG_LEFT)
   KEY_EVENTS(LEFT, KEY_LEFT)
@@ -3139,11 +3139,11 @@ LROT_BEGIN(etxcst, NULL, 0)
   KEY_EVENTS(DOWN, KEY_DOWN)
 #endif
 
-#if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_TRIMS_AS_BUTTONS)
+#if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)
   KEY_EVENTS(PAGEUP, KEY_PAGEUP)
 #endif
 
-#if defined(KEYS_GPIO_REG_PAGEDN) || defined(USE_TRIMS_AS_BUTTONS)
+#if defined(KEYS_GPIO_REG_PAGEDN) || defined(USE_HATS_AS_KEYS)
   KEY_EVENTS(PAGEDN, KEY_PAGEDN)
 #endif
 
@@ -3163,7 +3163,7 @@ LROT_BEGIN(etxcst, NULL, 0)
   KEY_EVENTS(MINUS, KEY_MINUS)
 #endif
 
-#if defined(ROTARY_ENCODER_NAVIGATION) || defined(USE_TRIMS_AS_BUTTONS)
+#if defined(ROTARY_ENCODER_NAVIGATION) || defined(USE_HATS_AS_KEYS)
   KEY_EVENTS(ROT, KEY_ENTER)
   LROT_NUMENTRY( EVT_ROT_LEFT, EVT_ROTARY_LEFT )
   LROT_NUMENTRY( EVT_ROT_RIGHT, EVT_ROTARY_RIGHT )

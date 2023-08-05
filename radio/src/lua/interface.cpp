@@ -252,8 +252,8 @@ void luaDisable()
   POPUP_WARNING("Lua disabled!");
   luaState = INTERPRETER_PANIC;
 
-#if defined(USE_TRIMS_AS_BUTTONS)
-  if (_is_standalone_script()) setTransposeTrimsForLUA(false);
+#if defined(USE_HATS_AS_KEYS)
+  if (_is_standalone_script()) setTransposeHatsForLUA(false);
 #endif
 }
 
@@ -1253,8 +1253,8 @@ bool luaTask(event_t evt, bool allowLcdUsage)
       init = true;
       luaState = INTERPRETER_LOADING;
 
-#if defined(USE_TRIMS_AS_BUTTONS)
-      if (_is_standalone_script()) setTransposeTrimsForLUA(false);
+#if defined(USE_HATS_AS_KEYS)
+      if (_is_standalone_script()) setTransposeHatsForLUA(false);
 #endif
    
     case INTERPRETER_LOADING:
@@ -1269,8 +1269,8 @@ bool luaTask(event_t evt, bool allowLcdUsage)
       init = true;
       luaState = INTERPRETER_RUNNING;
 
-#if defined(USE_TRIMS_AS_BUTTONS)
-      if (_is_standalone_script()) setTransposeTrimsForLUA(true);
+#if defined(USE_HATS_AS_KEYS)
+      if (_is_standalone_script()) setTransposeHatsForLUA(true);
 #endif
       
     case INTERPRETER_RUNNING:

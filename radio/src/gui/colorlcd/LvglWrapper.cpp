@@ -235,7 +235,7 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 #endif
 }
 
-#if defined(USE_TRIMS_AS_BUTTONS)
+#if defined(USE_HATS_AS_KEYS)
 
 int16_t getEmuRotaryData();
 

@@ -266,29 +266,29 @@ void checkSpeakerVolume()
   }
 }
 
-#if defined(USE_TRIMS_AS_BUTTONS)
-void checkTrimsAsButtons() {
-  uint8_t hatsMode = g_model.hatsMode == HATS_MODE_GLOBAL ? g_eeGeneral.hatsMode : g_model.hatsMode;
+#if defined(USE_HATS_AS_KEYS)
+void checkHatsAsKeys() {
+  uint8_t hatsMode = g_model.hatsMode == HATSMODE_GLOBAL ? g_eeGeneral.hatsMode : g_model.hatsMode;
 
-  static bool oldHatsModeButtons = hatsMode == HATS_MODE_KEYS_ONLY;
+  static bool oldHatsModeKeys = hatsMode == HATSMODE_KEYS_ONLY;
 
-  if(hatsMode == HATS_MODE_TRIMS_ONLY) {
-    setTrimsAsButtons(false);
+  if(hatsMode == HATSMODE_TRIMS_ONLY) {
+    setHatsAsKeys(false);
   }
   
-  if(hatsMode == HATS_MODE_KEYS_ONLY) {
-    setTrimsAsButtons(true);
+  if(hatsMode == HATSMODE_KEYS_ONLY) {
+    setHatsAsKeys(true);
   }
 
-  bool hatsModeButtons = getTrimsAsButtons();
+  bool hatsModeKeys = getHatsAsKeys();
 
-  if(hatsModeButtons == oldHatsModeButtons)
+  if(hatsModeKeys == oldHatsModeKeys)
     return;
   
-  oldHatsModeButtons = !oldHatsModeButtons;
+  oldHatsModeKeys = !oldHatsModeKeys;
 
   audioKeyPress();
-  POPUP_BUBBLE(hatsModeButtons ? STR_HATS_MODE_BUTTONS : STR_HATS_MODE_TRIMS, 2000);
+  POPUP_BUBBLE(hatsModeKeys ? STR_HATSMODE_KEYS : STR_HATSMODE_TRIMS, 2000);
 }
 #endif
 
@@ -551,8 +551,8 @@ void perMain()
 
   checkBacklight();
 
-#if defined(USE_TRIMS_AS_BUTTONS)
-  checkTrimsAsButtons();
+#if defined(USE_HATS_AS_KEYS)
+  checkHatsAsKeys();
 #endif
 
 #if !defined(LIBOPENUI)
