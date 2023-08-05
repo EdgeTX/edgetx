@@ -28,8 +28,6 @@
 #include "analogs.h"
 #include "switches.h"
 
-uint8_t boardGetMaxSwitches();
-
 #if defined(BLUETOOTH)
   #include "bluetooth_driver.h"
 #endif
@@ -518,14 +516,12 @@ void menuRadioHardware(event_t event)
           lcdDrawText(lcdNextPos, y, switchGetName(index), flags);
 
           if (switchIsFlex(index)) {
-            uint8_t swtch = index - boardGetMaxSwitches();
-
             // flexSwitch source
             flags = menuHorizontalPosition == 0 ? attr : 0;
-            auto source = switchGetFlexConfig_raw(swtch);
+            auto source = switchGetFlexConfig(index);
             lcdDrawText(HW_SETTINGS_COLUMN1, y, (source < 0) ? STR_NONE : adcGetInputLabel(ADC_INPUT_FLEX, source), flags);
             if (flags & (~RIGHT)) source = checkIncDec(event, source, -1, adcGetMaxInputs(ADC_INPUT_FLEX) - 1, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL, isFlexSwicthSourceValid);
-            switchConfigFlex_raw(swtch, source);
+            switchConfigFlex(index, source);
 
             //Name
             flags = menuHorizontalPosition == 1 ? attr : 0;

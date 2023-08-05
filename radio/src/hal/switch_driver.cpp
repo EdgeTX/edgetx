@@ -43,10 +43,6 @@ swconfig_t boardSwitchGetDefaultConfig();
 
 constexpr uint8_t _INVALID_ADC_CH = 0xFF;
 
-#define XSTR(x) STR(x)
-#define STR(x) #x
-#pragma message "MAX_FLEX_SWITCHES: " XSTR(MAX_FLEX_SWITCHES)
-
 static uint8_t _flex_switches[MAX_FLEX_SWITCHES];
 
 void switchInit()
@@ -219,8 +215,8 @@ bool switchIsFlexValid(uint8_t idx)
 
 static bool is_flex_input_available(uint8_t flex_idx, uint8_t channel)
 {
-  for (uint8_t i = 0; i < MAX_FLEX_SWITCHES; i++) {
-    if (_flex_switches[i] == channel && flex_idx != i)
+  for (int i = 0; i < MAX_FLEX_SWITCHES; i++) {
+    if (_flex_switches[i] == channel && (int)flex_idx != i)
       return false;
   }
 
@@ -249,7 +245,7 @@ static void invalidate_flex_config(uint8_t flex_idx)
 
 void switchFixFlexConfig()
 {
-  for (uint8_t i = 0; i < MAX_FLEX_SWITCHES; i++) {
+  for (int i = 0; i < MAX_FLEX_SWITCHES; i++) {
     auto channel = _flex_switches[i];
     if (channel != _INVALID_ADC_CH && POT_CONFIG(channel) != FLEX_SWITCH) {
       invalidate_flex_config(i);

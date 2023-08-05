@@ -20,7 +20,6 @@
  */
 
 #include "opentx.h"
-#include "hal/adc_driver.h"
 
 // For surface radio
 void drawWheel(coord_t centrex, int16_t tval)
