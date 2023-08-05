@@ -111,3 +111,39 @@ void POPUP_WARNING_ON_UI_TASK(const char * message, const char * info, bool wait
     }
   }
 }
+
+class BubbleDialog : public Window
+{
+  public:
+    BubbleDialog(const char* message, int timeout) :
+      Window(MainWindow::instance(), rect_t{50, LCD_H - 100, LCD_W - 100, 50}, OPAQUE, 0, etx_bubble_popup_create)
+    {
+      lv_obj_set_parent(lvobj, lv_layer_top());
+
+      auto label = lv_label_create(lvobj);
+      lv_label_set_text(label, message);
+      lv_obj_center(label);
+      lv_obj_set_width(label, lv_pct(100));
+      lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+      lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
+
+      endTime = RTOS_GET_MS() + timeout;
+    }
+
+    bool isBubblePopup() override { return true; }
+
+    void checkEvents() override
+    {
+      if (RTOS_GET_MS() >= endTime) {
+        deleteLater();
+      }
+    }
+
+  protected:
+    uint32_t endTime;
+};
+
+void POPUP_BUBBLE(const char* message, uint32_t timeout)
+{
+  new BubbleDialog(message, timeout);
+}

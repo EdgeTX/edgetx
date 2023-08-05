@@ -288,7 +288,7 @@ void checkTrimsAsButtons() {
   oldHatsModeButtons = !oldHatsModeButtons;
 
   audioKeyPress();
-  POPUP_INFORMATION(hatsModeButtons ? STR_HATS_MODE_BUTTONS : STR_HATS_MODE_TRIMS);
+  POPUP_BUBBLE(hatsModeButtons ? STR_HATS_MODE_BUTTONS : STR_HATS_MODE_TRIMS, 2000);
 }
 #endif
 

@@ -43,6 +43,13 @@ void MainWindow::run(bool trash)
   auto opaque = Layer::getFirstOpaque();
   if (opaque) opaque->checkEvents();
 
+  auto copy = children;
+  for (auto child: copy) {
+    if (!child->deleted() && child->isBubblePopup()) {
+      child->checkEvents();
+    }
+  }
+
   if (trash) emptyTrash();
 
   auto delta = ticksNow() - start;
