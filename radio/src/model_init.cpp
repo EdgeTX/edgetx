@@ -132,7 +132,10 @@ void applyDefaultTemplate()
       g_model.switchWarningState |= (1 << (3 * i));
   }
 #endif
+
+  g_model.hatsMode = HATSMODE_GLOBAL;
 }
+
 
 void setModelDefaults(uint8_t id)
 {
@@ -147,7 +150,7 @@ void setModelDefaults(uint8_t id)
 #endif
   strAppendUnsigned(strAppend(g_model.header.name, STR_MODEL), id, 2);
 
-#if defined(LUA) && defined(PCBTARANIS)
+#if defined(LUA) && defined(PCBTARANIS) // Horus uses menuModelWizard() for wizard
   if (isFileAvailable(WIZARD_PATH "/" WIZARD_NAME)) {
     f_chdir(WIZARD_PATH);
     luaExec(WIZARD_NAME);
