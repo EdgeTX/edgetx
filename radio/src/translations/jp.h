@@ -95,6 +95,7 @@
 #define TR_SF_FAILSAFE                 "フェイルセーフ"
 #define TR_SF_RANGE_CHECK              "レンジチェック"
 #define TR_SF_MOD_BIND                 "モジュールバインド"
+#define TR_SF_RGBLEDS                  "RGB leds"
  
 #define TR_SOUND                       "サウンド再生"
 #define TR_PLAY_TRACK                  "音源再生"

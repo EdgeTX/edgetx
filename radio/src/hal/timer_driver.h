@@ -23,13 +23,8 @@
 
 #include <stdint.h>
 
-enum PulseGenerationType {
-  ETX_PWM=0,
-  ETX_TOGGLE
-};
 
 typedef struct {
-  uint8_t  type;
   uint8_t  polarity;
   uint16_t cmp_val;
 } etx_timer_config_t;

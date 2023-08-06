@@ -35,8 +35,49 @@
 // - DMA IRQ prio configurable (now 7)
 // - Timer IRQ prio configurable (now 7)
 
-void stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
+static void init_dma_arr_mode(const stm32_pulse_timer_t* tim)
 {
+  // re-init DMA stream
+  LL_DMA_DeInit(tim->DMAx, tim->DMA_Stream);
+
+  LL_DMA_InitTypeDef dmaInit;
+  LL_DMA_StructInit(&dmaInit);
+
+  // Direction
+  dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
+
+  // Source
+  dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
+
+  // Destination
+  dmaInit.PeriphOrM2MSrcAddress = CONVERT_PTR_UINT(&tim->TIMx->ARR);
+  dmaInit.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT;
+
+  // Data width
+  if (IS_TIM_32B_COUNTER_INSTANCE(tim->TIMx)) {
+    dmaInit.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_WORD;
+    dmaInit.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_WORD;
+  } else {
+    dmaInit.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_HALFWORD;
+    dmaInit.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_HALFWORD;
+  }
+
+  dmaInit.Channel = tim->DMA_Channel;
+  dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;
+
+  stm32_dma_enable_clock(tim->DMAx);
+  LL_DMA_Init(tim->DMAx, tim->DMA_Stream, &dmaInit);
+}
+
+int stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
+{
+  // check if timer is free first (clock disabled)
+  if (stm32_timer_is_clock_enabled(tim->TIMx)) return -1;
+
+  // .. and GPIO pin is not used
+  uint32_t pin_mode = LL_GPIO_GetPinMode(tim->GPIOx, tim->GPIO_Pin);
+  if (pin_mode != LL_GPIO_MODE_INPUT) return -1;
+
   if (tim->DMA_TC_CallbackPtr) {
     memset(tim->DMA_TC_CallbackPtr, 0, sizeof(stm32_pulse_dma_tc_cb_t));
   }
@@ -61,24 +102,30 @@ void stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
   stm32_timer_enable_clock(tim->TIMx);
   LL_TIM_Init(tim->TIMx, &timInit);
 
-  if (tim->DMAx) {
-    // Enable DMA IRQ
+  if (tim->DMAx && (int32_t)tim->DMA_IRQn >= 0) {
+    init_dma_arr_mode(tim);
     NVIC_EnableIRQ(tim->DMA_IRQn);
     NVIC_SetPriority(tim->DMA_IRQn, 7);
   }
 
-  // Enable timer IRQ
-  NVIC_EnableIRQ(tim->TIM_IRQn);
-  NVIC_SetPriority(tim->TIM_IRQn, 7);
+  if ((int32_t)tim->TIM_IRQn >= 0) {
+    NVIC_EnableIRQ(tim->TIM_IRQn);
+    NVIC_SetPriority(tim->TIM_IRQn, 7);
+  }
+
+  return 0;
 }
 
 void stm32_pulse_deinit(const stm32_pulse_timer_t* tim)
 {
   // Disable IRQs
-  if (tim->DMAx) {
+  if ((int32_t)tim->DMA_IRQn >= 0) {
     NVIC_DisableIRQ(tim->DMA_IRQn);
   }
-  NVIC_DisableIRQ(tim->TIM_IRQn);
+
+  if ((int32_t)tim->TIM_IRQn >= 0) {
+    NVIC_DisableIRQ(tim->TIM_IRQn);
+  }
 
   if (tim->DMAx) {
     LL_DMA_DeInit(tim->DMAx, tim->DMA_Stream);
@@ -100,6 +147,25 @@ void stm32_pulse_deinit(const stm32_pulse_timer_t* tim)
   LL_GPIO_Init(tim->GPIOx, &pinInit);
 }
 
+static inline bool _is_complementary_channel(uint32_t channel)
+{
+  return (channel == LL_TIM_CHANNEL_CH1N) || (channel == LL_TIM_CHANNEL_CH2N) ||
+         (channel == LL_TIM_CHANNEL_CH3N);
+}
+
+static const uint32_t _base_channel[] = {
+  LL_TIM_CHANNEL_CH1, LL_TIM_CHANNEL_CH1,
+  LL_TIM_CHANNEL_CH2, LL_TIM_CHANNEL_CH2,
+  LL_TIM_CHANNEL_CH3, LL_TIM_CHANNEL_CH3,
+  LL_TIM_CHANNEL_CH4
+};
+
+static inline uint32_t _get_base_channel(uint32_t channel)
+{
+  auto idx = TIM_GET_CHANNEL_INDEX(channel);
+  return _base_channel[idx];
+}
+
 void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
                                uint32_t ocmode, uint32_t cmp_val)
 {
@@ -109,14 +175,14 @@ void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
   ocInit.OCMode = ocmode;
   ocInit.CompareValue = cmp_val;
 
-  uint32_t channel = tim->TIM_Channel;
-  if (tim->TIM_Channel != LL_TIM_CHANNEL_CH1N) {
+  uint32_t channel = _get_base_channel(tim->TIM_Channel);
+  bool comp_ch = _is_complementary_channel(tim->TIM_Channel);
+  if (!comp_ch) {
     ocInit.OCState = LL_TIM_OCSTATE_ENABLE;
     ocInit.OCNState = LL_TIM_OCSTATE_DISABLE;
   } else {
     ocInit.OCState = LL_TIM_OCSTATE_DISABLE;
     ocInit.OCNState = LL_TIM_OCSTATE_ENABLE;
-    channel = LL_TIM_CHANNEL_CH1;
   }
 
   uint32_t ll_polarity;
@@ -126,7 +192,7 @@ void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
     ll_polarity = LL_TIM_OCPOLARITY_LOW;
   }
 
-  if (tim->TIM_Channel != LL_TIM_CHANNEL_CH1N) {
+  if (!comp_ch) {
     ocInit.OCPolarity = ll_polarity;
   } else {
     ocInit.OCNPolarity = ll_polarity;
@@ -138,7 +204,6 @@ void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,
   if (IS_TIM_BREAK_INSTANCE(tim->TIMx)) {
     LL_TIM_EnableAllOutputs(tim->TIMx);
   }
-
 }
 
 void stm32_pulse_set_polarity(const stm32_pulse_timer_t* tim, bool polarity)
@@ -173,9 +238,8 @@ bool stm32_pulse_if_not_running_disable(const stm32_pulse_timer_t* tim)
 
 static void set_compare_reg(const stm32_pulse_timer_t* tim, uint32_t val)
 {
-  switch(tim->TIM_Channel){
+  switch(_get_base_channel(tim->TIM_Channel)){
   case LL_TIM_CHANNEL_CH1:
-  case LL_TIM_CHANNEL_CH1N:
     LL_TIM_OC_SetCompareCH1(tim->TIMx, val);
     break;
   case LL_TIM_CHANNEL_CH2:
@@ -190,40 +254,39 @@ static void set_compare_reg(const stm32_pulse_timer_t* tim, uint32_t val)
   }
 }
 
+void stm32_pulse_set_period(const stm32_pulse_timer_t* tim, uint32_t period)
+{
+  LL_TIM_SetAutoReload(tim->TIMx, period - 1);
+}
+
 void stm32_pulse_set_cmp_val(const stm32_pulse_timer_t* tim, uint32_t cmp_val)
 {
   set_compare_reg(tim, cmp_val);
 }
 
+void stm32_pulse_start(const stm32_pulse_timer_t* tim)
+{
+  LL_TIM_EnableCounter(tim->TIMx);
+}
+
+void stm32_pulse_stop(const stm32_pulse_timer_t* tim)
+{
+  LL_TIM_DisableCounter(tim->TIMx);
+}
+
 static void set_oc_mode(const stm32_pulse_timer_t* tim, uint32_t ocmode)
 {
-  uint32_t channel = tim->TIM_Channel;
-  if (channel == LL_TIM_CHANNEL_CH1N)
-    channel = LL_TIM_CHANNEL_CH1;
-
+  uint32_t channel = _get_base_channel(tim->TIM_Channel);
   LL_TIM_OC_SetMode(tim->TIMx, channel, ocmode);
 }
 
 void stm32_pulse_wait_for_completed(const stm32_pulse_timer_t* tim)
 {
-  uint32_t channel = tim->TIM_Channel;
-  if (channel == LL_TIM_CHANNEL_CH1N)
-    channel = LL_TIM_CHANNEL_CH1;
-
+  uint32_t channel = _get_base_channel(tim->TIM_Channel);
   while(LL_TIM_IsEnabledCounter(tim->TIMx) &&
         LL_TIM_OC_GetMode(tim->TIMx, channel) != LL_TIM_OCMODE_FORCED_INACTIVE);
 }
 
-static void force_start_level(const stm32_pulse_timer_t* tim)
-{
-  uint32_t channel = tim->TIM_Channel;
-  if (channel == LL_TIM_CHANNEL_CH1N)
-    channel = LL_TIM_CHANNEL_CH1;
-
-  uint32_t mode = LL_TIM_OC_GetMode(tim->TIMx, channel);
-  LL_TIM_OC_SetMode(tim->TIMx, channel, LL_TIM_OCMODE_FORCED_ACTIVE);
-  LL_TIM_OC_SetMode(tim->TIMx, channel, mode);
-}
 
 void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
                                const void* pulses, uint16_t length,
@@ -232,61 +295,22 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
   // Re-configure timer output
   set_compare_reg(tim, cmp_val);
   set_oc_mode(tim, ocmode);
-  
-  // re-init DMA stream
-  LL_DMA_DeInit(tim->DMAx, tim->DMA_Stream);
 
-  LL_DMA_InitTypeDef dmaInit;
-  LL_DMA_StructInit(&dmaInit);
-
-  // Direction
-  dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
-  
-  // Source
-  dmaInit.MemoryOrM2MDstAddress = CONVERT_PTR_UINT(pulses);
-  dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
-
-  // Destination
-  dmaInit.PeriphOrM2MSrcAddress = CONVERT_PTR_UINT(&tim->TIMx->ARR);
-  dmaInit.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT;
-
-  // Data width
-  if (IS_TIM_32B_COUNTER_INSTANCE(tim->TIMx)) {
-    // TODO: try using 16-bit source as well
-    dmaInit.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_WORD;
-    dmaInit.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_WORD;
-  } else {
-    dmaInit.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_HALFWORD;
-    dmaInit.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_HALFWORD;
-  }
-
-  dmaInit.NbData = length;
-  dmaInit.Channel = tim->DMA_Channel;
-  dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;
-
-  LL_DMA_Init(tim->DMAx, tim->DMA_Stream, &dmaInit);
+  LL_DMA_SetDataLength(tim->DMAx, tim->DMA_Stream, length);
+  LL_DMA_SetMemoryAddress(tim->DMAx, tim->DMA_Stream, (uint32_t)pulses);
 
   // Enable TC IRQ
   LL_DMA_EnableIT_TC(tim->DMAx, tim->DMA_Stream);
 
-  if (ocmode == LL_TIM_OCMODE_PWM1) {
-    // preloads first period for PWM)
-    LL_TIM_SetCounter(tim->TIMx, 0x00);
+  // Reset counter
+  LL_TIM_SetCounter(tim->TIMx, 0x00);
+
+  // only on PWM (preloads the first period)
+  if (ocmode == LL_TIM_OCMODE_PWM1)
     LL_TIM_GenerateEvent_UPDATE(tim->TIMx);
-  } else {
-    // Reset counter close to overflow
-    if (IS_TIM_32B_COUNTER_INSTANCE(tim->TIMx)) {
-      LL_TIM_SetCounter(tim->TIMx, 0xFFFFFFFF);
-    } else {
-      LL_TIM_SetCounter(tim->TIMx, 0xFFFF);
-    }
-  }
 
   LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
   LL_DMA_EnableStream(tim->DMAx, tim->DMA_Stream);
-
-  // Trigger update to effect the first DMA transaction
-  // and thus load ARR with the first duration
 
   // start timer
   LL_TIM_EnableCounter(tim->TIMx);

@@ -142,7 +142,6 @@ static void* ppmInit(uint8_t module)
 
   auto delay = GET_MODULE_PPM_DELAY(module) * 2;
   etx_timer_config_t cfg = {
-    .type = ETX_PWM,
     .polarity = !GET_MODULE_PPM_POLARITY(module),
     .cmp_val = (uint16_t)delay,
   };
@@ -183,7 +182,6 @@ static void ppmSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t
 
   auto delay = GET_MODULE_PPM_DELAY(module) * 2;
   etx_timer_config_t cfg = {
-    .type = ETX_PWM,
     .polarity = !GET_MODULE_PPM_POLARITY(module),
     .cmp_val = (uint16_t)delay,
   };

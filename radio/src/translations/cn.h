@@ -90,6 +90,7 @@
 #define TR_SF_FAILSAFE                 "设置失控保护"
 #define TR_SF_RANGE_CHECK              "测距模式"
 #define TR_SF_MOD_BIND                 "模块对频"
+#define TR_SF_RGBLEDS                  "RGB leds"
 
 #define TR_SOUND                       "播放声音"
 #define TR_PLAY_TRACK                  "播放音频文件"

@@ -58,6 +58,9 @@ void onCustomFunctionsFileSelectionMenu(const char * result)
     if (func == FUNC_PLAY_SCRIPT) {
       strcpy(directory, SCRIPTS_FUNCS_PATH);
     }
+    else if (func == FUNC_RGB_LED) {
+      strcpy(directory, SCRIPTS_RGB_PATH);
+    }
     else {
       strcpy(directory, SOUNDS_PATH);
       strncpy(directory+SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
@@ -305,7 +308,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #endif
 #if defined(SDCARD)
-          else if (func == FUNC_PLAY_TRACK || func == FUNC_BACKGND_MUSIC || func == FUNC_PLAY_SCRIPT) {
+          else if (func == FUNC_PLAY_TRACK || func == FUNC_BACKGND_MUSIC || func == FUNC_PLAY_SCRIPT || func==FUNC_RGB_LED) {
             if (ZEXIST(cfn->play.name))
               lcdDrawSizedText(MODEL_SPECIAL_FUNC_3RD_COLUMN-6, y, cfn->play.name, sizeof(cfn->play.name), attr);
             else
@@ -316,15 +319,18 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               if (func==FUNC_PLAY_SCRIPT) {
                 strcpy(directory, SCRIPTS_FUNCS_PATH);
               }
+              else if (func==FUNC_RGB_LED) {
+                strcpy(directory, SCRIPTS_RGB_PATH);
+              }
               else {
                 strcpy(directory, SOUNDS_PATH);
                 strncpy(directory+SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
               }
-              if (sdListFiles(directory, func==FUNC_PLAY_SCRIPT ? SCRIPTS_EXT : SOUNDS_EXT, sizeof(cfn->play.name), cfn->play.name)) {
+              if (sdListFiles(directory, func==FUNC_PLAY_SCRIPT || func==FUNC_RGB_LED ? SCRIPTS_EXT : SOUNDS_EXT, sizeof(cfn->play.name), cfn->play.name)) {
                 POPUP_MENU_START(onCustomFunctionsFileSelectionMenu);
               }
               else {
-                POPUP_WARNING(func==FUNC_PLAY_SCRIPT ? STR_NO_SCRIPTS_ON_SD : STR_NO_SOUNDS_ON_SD);
+                POPUP_WARNING(func==FUNC_PLAY_SCRIPT || func==FUNC_RGB_LED ? STR_NO_SCRIPTS_ON_SD : STR_NO_SOUNDS_ON_SD);
               }
             }
             break;

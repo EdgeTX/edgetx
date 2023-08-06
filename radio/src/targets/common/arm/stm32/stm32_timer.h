@@ -25,3 +25,5 @@
 
 void stm32_timer_enable_clock(TIM_TypeDef *TIMx);
 void stm32_timer_disable_clock(TIM_TypeDef *TIMx);
+
+bool stm32_timer_is_clock_enabled(TIM_TypeDef *TIMx);

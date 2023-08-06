@@ -32,6 +32,10 @@
 #include "hal/rotary_encoder.h"
 #include "switches.h"
 #include "input_mapping.h"
+#if defined(LED_STRIP_GPIO)
+#include "boards/generic_stm32/rgb_leds.h"
+#endif
+
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -2772,6 +2776,50 @@ static int luaGetTrainerStatus(lua_State * L)
   return 1;
 }
 
+#if defined(LED_STRIP_GPIO)
+/*luadoc
+@function setRGBLedColor(id, rvalue, bvalue, cvalue)
+
+@param id: integer identifying a led in the led chain
+
+@param rvalue: interger, value of red channel
+
+@param gvalue: interger, value of green channel
+
+@param bvalue: interger, value of blue channel
+
+@status current Introduced in 2.10
+*/
+
+static int luaSetRgbLedColor(lua_State * L)
+{
+  uint8_t id = luaL_checkunsigned(L, 1);
+  uint8_t r = luaL_checkunsigned(L, 2);
+  uint8_t g = luaL_checkunsigned(L, 3);
+  uint8_t b = luaL_checkunsigned(L, 4);
+
+  rgbSetLedColor(id, r, g, b);
+
+  return 1;
+}
+
+/*luadoc
+@function applyRGBLedColors()
+
+ Apply RGB led colors previously defined by setRGBLedColor
+
+@status current Introduced in 2.10
+*/
+
+static int luaApplyRGBLedColors(lua_State * L)
+{
+
+  rgbLedColorApply();
+
+  return 1;
+}
+
+#endif
 
 #define KEY_EVENTS(xxx, yyy)                                    \
   { "EVT_"#xxx"_FIRST", LRO_NUMVAL(EVT_KEY_FIRST(yyy)) },       \
@@ -2859,6 +2907,10 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( getSourceIndex, luaGetSourceIndex )
   LROT_FUNCENTRY( getSourceName, luaGetSourceName )
   LROT_FUNCENTRY( sources, luaSources )
+#if defined(LED_STRIP_GPIO)
+  LROT_FUNCENTRY(setRGBLedColor, luaSetRgbLedColor )
+  LROT_FUNCENTRY(applyRGBLedColors, luaApplyRGBLedColors )
+#endif
 LROT_END(etxlib, NULL, 0)
 
 LROT_BEGIN(etxcst, NULL, 0)
@@ -3196,7 +3248,9 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( PLAY_NOW, PLAY_NOW )
   LROT_NUMENTRY( PLAY_BACKGROUND, PLAY_BACKGROUND )
   LROT_NUMENTRY( TIMEHOUR, TIMEHOUR )
-
+#if defined(LED_STRIP_GPIO)
+  LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH )
+#endif
   LROT_NUMENTRY( UNIT_RAW, UNIT_RAW )
   LROT_NUMENTRY( UNIT_VOLTS, UNIT_VOLTS )
   LROT_NUMENTRY( UNIT_AMPS, UNIT_AMPS )

@@ -19,15 +19,19 @@
  * GNU General Public License for more details.
  */
 
-#include <stdint.h>
+#pragma once
 
-void usbChargerLed() {}
-void ledRed() {}
-void ledGreen() {}
-void ledBlue() {}
-void ledOff() {}
-void fsLedOn(uint8_t) {}
-void fsLedOff(uint8_t) {}
-bool getFSLedState(uint8_t) { return false;}
-void rgbSetLedColor(unsigned char, unsigned char, unsigned char, unsigned char) {}
-void rgbLedColorApply() {}
+#include "stm32_pulse_driver.h"
+
+// RGB
+#define WS2812_BYTES_PER_LED 3
+#define WS2812_MAX_LEDS 8
+
+// Number of LED periods used for trailing reset
+#define WS2812_TRAILING_RESET  10
+
+void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t strip_len);
+void ws2812_update(const stm32_pulse_timer_t* timer);
+void ws2812_dma_isr(const stm32_pulse_timer_t* timer);
+
+void ws2812_set_color(uint8_t led, uint8_t r, uint8_t g, uint8_t b);

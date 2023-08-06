@@ -102,6 +102,7 @@
 #define TR_SF_FAILSAFE                 TR("Sæt fejlsik", "Sæt fejlsikring")
 #define TR_SF_RANGE_CHECK              TR("Afst. check", "Afstand kontrol")
 #define TR_SF_MOD_BIND                 "Modul Bind"
+#define TR_SF_RGBLEDS                  "RGB leds"
 
 #define TR_SOUND                       "Spil lyd"
 #define TR_PLAY_TRACK                  TR("Afspil lyd", "Afspil lydfil")

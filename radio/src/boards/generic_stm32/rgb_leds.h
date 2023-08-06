@@ -19,15 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include <stdint.h>
+#pragma once
 
-void usbChargerLed() {}
-void ledRed() {}
-void ledGreen() {}
-void ledBlue() {}
-void ledOff() {}
-void fsLedOn(uint8_t) {}
-void fsLedOff(uint8_t) {}
-bool getFSLedState(uint8_t) { return false;}
-void rgbSetLedColor(unsigned char, unsigned char, unsigned char, unsigned char) {}
-void rgbLedColorApply() {}
+void rgbLedStart();
+void rgbLedStop();
+void rgbSetLedColor(unsigned char, unsigned char, unsigned char, unsigned char);
+void rgbLedColorApply();
+
+// void boardInitRGBLed();

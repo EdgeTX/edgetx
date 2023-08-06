@@ -19,6 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#if !defined(SIMU)
+#include "stm32_ws2812.h"
+#include "boards/generic_stm32/rgb_leds.h"
+#endif
+
 #include "opentx.h"
 #include "io/frsky_firmware_update.h"
 #include "hal/adc_driver.h"
@@ -1650,6 +1655,10 @@ void opentxInit()
 #endif
 
   resetBacklightTimeout();
+
+#if defined(LED_STRIP_GPIO) && !defined(SIMU)
+  rgbLedStart();
+#endif
 
   pulsesStart();
   WDG_ENABLE(WDG_DURATION);
