@@ -420,7 +420,11 @@
 #define TR_PPM_TRAINER         "TR"
 #define TR_CH                  "CH"
 #define TR_MODEL               "MODELO"
+#if defined(SURFACE_RADIO)
+#define TR_FM                  "DM"
+#else
 #define TR_FM                  "FM"
+#endif
 #define TR_EEPROMLOWMEM        "EEPROM mem.baja"
 #define TR_PRESS_ANY_KEY_TO_SKIP   "Pulsar tecla para omitir"
 #define TR_THROTTLE_NOT_IDLE     "Aceler. Activado"
@@ -453,8 +457,13 @@
 #define TR_MENUMODELSEL        TR("MODELOS", "SELECCIÓN MODELO")
 #define TR_MENU_MODEL_SETUP            TR("SETUP", "MODEL SETUP")
 #define TR_MENUSETUP           TR("CONFIG. MODELO", "CONFIGURACIÓN MODELO")
+#if defined(SURFACE_RADIO)
+#define TR_MENUFLIGHTMODES     "DRIVE MODES"
+#define TR_MENUFLIGHTMODE      "DRIVE MODE"
+#else
 #define TR_MENUFLIGHTMODE      "MODO DE VUELO"
 #define TR_MENUFLIGHTMODES     "MODOS DE VUELO"
+#endif
 #define TR_MENUHELISETUP       "CONFIGURACIÓN HELI"
 
 

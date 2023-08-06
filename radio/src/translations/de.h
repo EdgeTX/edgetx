@@ -430,7 +430,11 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODELL"
+#if defined(SURFACE_RADIO)
+#define TR_FM                          "DM"
+#else
 #define TR_FM                          "FP"
+#endif
 #define TR_EEPROMLOWMEM                "EEPROM voll"
 #define TR_PRESS_ANY_KEY_TO_SKIP	   TR("Taste drücken",CENTER"Taste drücken")
 #define TR_THROTTLE_NOT_IDLE           "Gas nicht Null!"
@@ -462,8 +466,13 @@
 #define TR_CHANNEL2FAILSAFE            "Channel=>Failsafe"
 #define TR_MENUMODELSEL        		   TR("MODELLE", "MODELL WÄHLEN")
 #define TR_MENU_MODEL_SETUP            TR("MODELL-EINSTELLUNG", "MODELL-EINSTELLUNGEN")
+#if defined(SURFACE_RADIO)
+#define TR_MENUFLIGHTMODES             "DRIVE MODES"
+#define TR_MENUFLIGHTMODE              "DRIVE MODE"
+#else
 #define TR_MENUFLIGHTMODE    		   "FLUGPHASE"
 #define TR_MENUFLIGHTMODES   		   "FLUGPHASEN"
+#endif
 #define TR_MENUHELISETUP               TR("HELI TS-Mischer", "HELI TS-Mischer CYC1-3")
 #define TR_MENUINPUTS                  "INPUTS"  //"Inputs=Geber"
 #define TR_MENULIMITS                  "SERVOS"  //"AUSGABEN" oder "Servos"

@@ -434,7 +434,11 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "KA"
 #define TR_MODEL                       "MODEL"
+#if defined(SURFACE_RADIO)
+#define TR_FM                          "DM"
+#else
 #define TR_FM                          "FT"
+#endif
 #define TR_EEPROMLOWMEM                "EEPROM lav mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Tryk tast for at droppe"
 #define TR_THROTTLE_NOT_IDLE           "Gas ikke i tomgang"
@@ -466,8 +470,13 @@
 #define TR_CHANNEL2FAILSAFE            "Kanal=>Fejlsikring"
 #define TR_MENUMODELSEL                TR("MODELLER", "MODEL VALG")
 #define TR_MENU_MODEL_SETUP            TR("SETUP", "MODEL SETUP")
+#if defined(SURFACE_RADIO)
+#define TR_MENUFLIGHTMODES             "DRIVE MODES"
+#define TR_MENUFLIGHTMODE              "DRIVE MODE"
+#else
 #define TR_MENUFLIGHTMODES             "FLYVE TILSTANDE"
 #define TR_MENUFLIGHTMODE              "FLYVE TILSTAND"
+#endif
 #define TR_MENUHELISETUP               "HELI SETUP"
 
   #define TR_MENUINPUTS                "INDGANGE"

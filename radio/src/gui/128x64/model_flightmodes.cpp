@@ -73,12 +73,13 @@ void menuModelFlightModeOne(event_t event)
 
 #if defined(TRIMS_GPIO_REG_T5L) || defined(TRIMS_GPIO_REG_LSD)
   #define VERTICAL_SHIFT  (ITEM_MODEL_FLIGHT_MODE_FADE_IN-ITEM_MODEL_FLIGHT_MODE_TRIMS2)
-  static const uint8_t mstate_tab_fm1[]  = {0, 3, (uint8_t)(keysGetMaxTrims() - 5), 0, 0, (uint8_t)-1, 1, 1, 1, 1, 1, 1};
+  static const uint8_t mstate_tab_fm1[]  = {0, 3, 3, 0, 0, (uint8_t)-1, 1, 1, 1, 1, 1, 1};
+  static const uint8_t mstate_tab_others[]  = {0, 0, 3, 3, 0, 0,(uint8_t)-1, 2, 2, 2, 2, 2};
 #else
   #define VERTICAL_SHIFT  (ITEM_MODEL_FLIGHT_MODE_FADE_IN-ITEM_MODEL_FLIGHT_MODE_TRIMS)
   static const uint8_t mstate_tab_fm1[]  = {0, 3, 0, 0, (uint8_t)-1, 1, 1, 1, 1, 1, 1};
-#endif
   static const uint8_t mstate_tab_others[]  = {0, 0, 3, 0, 0, (uint8_t)-1, 2, 2, 2, 2, 2};
+#endif
 
   check(event, 0, nullptr, 0, (s_currIdx == 0) ? mstate_tab_fm1 : mstate_tab_others, DIM(mstate_tab_others)-1, ITEM_MODEL_FLIGHT_MODE_MAX - HEADER_LINE - (s_currIdx==0 ? (ITEM_MODEL_FLIGHT_MODE_FADE_IN-ITEM_MODEL_FLIGHT_MODE_SWITCH-1) : 0));
 

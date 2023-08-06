@@ -440,7 +440,11 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODEL"
+#if defined(SURFACE_RADIO)
+#define TR_FM                          "DM"
+#else
 #define TR_FM                          "LR"
+#endif
 #define TR_EEPROMLOWMEM                "Dochází EEPROM"
 #define TR_PRESS_ANY_KEY_TO_SKIP       TR("\003Klávesa >>> přeskočit", "Klávesa >>> přeskočit")
 #define TR_THROTTLE_NOT_IDLE           TR("\003Páka plynu je pohnutá", "Páka plynu není na nule")
@@ -472,8 +476,13 @@
 #define TR_CHANNEL2FAILSAFE            "Kanál=>Failsafe"
 #define TR_MENUMODELSEL                "MODEL"
 #define TR_MENU_MODEL_SETUP            "NASTAVENÍ"
+#if defined(SURFACE_RADIO)
+#define TR_MENUFLIGHTMODES             "DRIVE MODES"
+#define TR_MENUFLIGHTMODE              "DRIVE MODE"
+#else
 #define TR_MENUFLIGHTMODE              "LETOVÝ REŽIM"
 #define TR_MENUFLIGHTMODES             "LETOVÉ REŽIMY"
+#endif
 #define TR_MENUHELISETUP               "HELI"
 
 #define TR_MENULIMITS                  "SERVA"
