@@ -343,13 +343,14 @@ TEST(FlexSwitches, switchGetPosition)
   switchConfigFlex(sw_idx, 0);
   EXPECT_TRUE(switchIsFlexValid(sw_idx));
 
-  setAnalogValue(0, 0);
+  auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
+  setAnalogValue(offset, 0);
   EXPECT_EQ(SWITCH_HW_UP, switchGetPosition(sw_idx));
 
-  setAnalogValue(0, ADC_MAX_VALUE / 2);
+  setAnalogValue(offset, ADC_MAX_VALUE / 2);
   EXPECT_EQ(SWITCH_HW_MID, switchGetPosition(sw_idx));
 
-  setAnalogValue(0, ADC_MAX_VALUE);
+  setAnalogValue(offset, ADC_MAX_VALUE);
   EXPECT_EQ(SWITCH_HW_DOWN, switchGetPosition(sw_idx));
 }
 
@@ -367,25 +368,26 @@ TEST(FlexSwitches, getValue)
   g_eeGeneral.switchConfig = (swconfig_t)SWITCH_3POS << (sw_idx * SW_CFG_BITS);
   EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(sw_idx));
 
-  setAnalogValue(0, 0);
+  auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
+  setAnalogValue(offset, 0);
   EXPECT_EQ(-1024, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
 
-  setAnalogValue(0, ADC_MAX_VALUE / 2);
+  setAnalogValue(offset, ADC_MAX_VALUE / 2);
   EXPECT_EQ(0, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
 
-  setAnalogValue(0, ADC_MAX_VALUE);
+  setAnalogValue(offset, ADC_MAX_VALUE);
   EXPECT_EQ(+1024, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
 
   g_eeGeneral.switchConfig = (swconfig_t)SWITCH_2POS << (sw_idx * SW_CFG_BITS);
   EXPECT_EQ(SWITCH_2POS, SWITCH_CONFIG(sw_idx));
 
-  setAnalogValue(0, 0);
+  setAnalogValue(offset, 0);
   EXPECT_EQ(-1024, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
 
-  setAnalogValue(0, ADC_MAX_VALUE / 2);
+  setAnalogValue(offset, ADC_MAX_VALUE / 2);
   EXPECT_EQ(+1024, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
 
-  setAnalogValue(0, ADC_MAX_VALUE);
+  setAnalogValue(offset, ADC_MAX_VALUE);
   EXPECT_EQ(+1024, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
 }
 
@@ -403,17 +405,18 @@ TEST(FlexSwitches, getSwitch)
   g_eeGeneral.switchConfig = (swconfig_t)SWITCH_3POS << (sw_idx * SW_CFG_BITS);
   EXPECT_EQ(SWITCH_3POS, SWITCH_CONFIG(sw_idx));
 
-  setAnalogValue(0, 0);
+  auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
+  setAnalogValue(offset, 0);
   EXPECT_EQ(true, getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3));
   EXPECT_EQ(false, getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 1));
   EXPECT_EQ(false, getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 2));
 
-  setAnalogValue(0, ADC_MAX_VALUE / 2);
+  setAnalogValue(offset, ADC_MAX_VALUE / 2);
   EXPECT_EQ(false, getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3));
   EXPECT_EQ(true, getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 1));
   EXPECT_EQ(false, getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 2));
 
-  setAnalogValue(0, ADC_MAX_VALUE);
+  setAnalogValue(offset, ADC_MAX_VALUE);
   EXPECT_EQ(false, getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3));
   EXPECT_EQ(false, getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 1));
   EXPECT_EQ(true, getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 2));
