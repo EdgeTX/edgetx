@@ -864,8 +864,6 @@
   #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_3  // PD.03
 #elif defined(RADIO_MT12)
   // ADC based switch/pot
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
 #elif defined(PCBX7)
   // no SWE
 #else
@@ -933,8 +931,6 @@
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_5 // PB.05
 #elif defined(RADIO_MT12)
   // ADC based switch/pot
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
 #elif defined(RADIO_TPRO)
   // SW2
   #define FUNCTION_SWITCH_2             SF
@@ -1528,15 +1524,15 @@
   #define ADC_CHANNEL_STICK_ST          LL_ADC_CHANNEL_1  // ADC1_IN1
   #define ADC_GPIO_PIN_POT1             LL_GPIO_PIN_2  // PA.02
   #define ADC_GPIO_PIN_POT2             LL_GPIO_PIN_3  // PA.03
+  #define ADC_GPIO_PIN_POT3             LL_GPIO_PIN_5  // PA.05
+  #define ADC_GPIO_PIN_POT4             LL_GPIO_PIN_6  // PA.06
   #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_0  // PC.00
-  #define ADC_GPIO_PIN_SWE              LL_GPIO_PIN_5  // PA.05
-  #define ADC_GPIO_PIN_SWF              LL_GPIO_PIN_6  // PA.06
   #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_2  // ADC123_IN2
   #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_3  // ADC123_IN3
+  #define ADC_CHANNEL_POT3              LL_ADC_CHANNEL_5  // ADC12_IN5
+  #define ADC_CHANNEL_POT4              LL_ADC_CHANNEL_6  // ADC12_IN6
   #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_10 // ADC123_IN10
-  #define ADC_CHANNEL_SWE               LL_ADC_CHANNEL_5 // ADC12_IN5
-  #define ADC_CHANNEL_SWF               LL_ADC_CHANNEL_6 // ADC12_IN6
-  #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_TH | ADC_GPIO_PIN_STICK_ST | ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_SWE | ADC_GPIO_PIN_SWF)
+  #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_TH | ADC_GPIO_PIN_STICK_ST | ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_POT3 | ADC_GPIO_PIN_POT4)
   #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_BATT)
   #define ADC_VREF_PREC2                330
 #elif defined(PCBX7)
