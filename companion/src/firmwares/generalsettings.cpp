@@ -129,6 +129,8 @@ void GeneralSettings::init()
   backlightDelay = 2; // 2 * 5 = 10 secs
   inactivityTimer = 10;
 
+  hatsMode = HATSMODE_SWITCHABLE;
+
   // backlightBright = 0; // 0 = 100%
 
   if (IS_FAMILY_HORUS_OR_T16(board)) {

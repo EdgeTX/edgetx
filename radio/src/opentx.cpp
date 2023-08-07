@@ -356,6 +356,8 @@ void generalDefault()
   // disable Custom Script
   g_eeGeneral.modelCustomScriptsDisabled = true;
 
+ g_eeGeneral.hatsMode = HATSMODE_SWITCHABLE;
+
   g_eeGeneral.chkSum = 0xFFFF;
 }
 
