@@ -1231,3 +1231,23 @@ bool isFlexSwicthSourceValid(int source)
 
   return true;
 }
+
+bool getPotInversion(int index)
+{
+  return bfGet<potconfig_t>(g_eeGeneral.potsConfig, (POT_CFG_BITS * index) + POT_CFG_TYPE_BITS, POT_CFG_INV_BITS);
+}
+
+void setPotInversion(int index, bool value)
+{
+  g_eeGeneral.potsConfig = bfSet<potconfig_t>(g_eeGeneral.potsConfig, value, (POT_CFG_BITS * index) + POT_CFG_TYPE_BITS, POT_CFG_INV_BITS);
+}
+
+uint8_t getPotType(int index)
+{
+  return bfGet<potconfig_t>(g_eeGeneral.potsConfig, POT_CFG_BITS * index, POT_CFG_TYPE_BITS);
+}
+
+void setPotType(int index, int value)
+{
+  g_eeGeneral.potsConfig = bfSet<potconfig_t>(g_eeGeneral.potsConfig, value, (POT_CFG_BITS * index), POT_CFG_TYPE_BITS);
+}

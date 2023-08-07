@@ -146,7 +146,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   for (int i = ITEM_RADIO_HARDWARE_POT; i <= ITEM_RADIO_HARDWARE_POT_END; i++) {
     uint8_t idx = i - ITEM_RADIO_HARDWARE_POT;
-    tab[i] = idx < max_pots ? 1 : HIDDEN_ROW;
+    tab[i] = idx < max_pots ? 2 : HIDDEN_ROW;
   }
 
   auto max_switches = switchGetMaxSwitches();
@@ -479,8 +479,6 @@ void menuRadioHardware(event_t event)
         } else if (k <= ITEM_RADIO_HARDWARE_POT_END) {
           // Pots & sliders
           int idx = k - ITEM_RADIO_HARDWARE_POT;
-          uint8_t shift = (POT_CFG_BITS * idx);
-          potconfig_t mask = POT_CONFIG_MASK(idx);
 
           // draw hw name
           LcdFlags flags = menuHorizontalPosition < 0 ? attr : 0;
@@ -498,15 +496,21 @@ void menuRadioHardware(event_t event)
           }
 
           // pot config
-          uint8_t potType = (g_eeGeneral.potsConfig & mask) >> shift;
+          uint8_t potType = getPotType(idx);
           potType = editChoice(HW_SETTINGS_COLUMN2, y, "", STR_POTTYPES, potType,
                                FLEX_NONE, FLEX_SWITCH,
                                menuHorizontalPosition == 1 ? attr : 0, event);
           if (checkIncDec_Ret) switchFixFlexConfig();
-          g_eeGeneral.potsConfig &= ~mask;
-          g_eeGeneral.potsConfig |= (potType << shift);
+          setPotType(idx, potType);
 
-        } else if (k <= ITEM_RADIO_HARDWARE_SWITCH_END) {
+          // ADC inversion
+          flags = menuHorizontalPosition == 2 ? attr : 0;
+          bool potinversion = getPotInversion(idx);
+          lcdDrawChar(LCD_W - 8, y, potinversion ? 127 : 126, flags);
+          if (flags & (~RIGHT)) potinversion = checkIncDec(event, potinversion, 0, 1, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL);
+          setPotInversion(idx, potinversion);
+        }
+        else if (k <= ITEM_RADIO_HARDWARE_SWITCH_END) {
           // Switches
           int index = k - ITEM_RADIO_HARDWARE_SWITCH;
           int config = SWITCH_CONFIG(index);

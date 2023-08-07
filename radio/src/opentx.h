@@ -256,8 +256,7 @@ enum RotaryEncoderMode {
 void memswap(void * a, void * b, uint8_t size);
 
 // TODO: move these config check macros somewhere else
-#define POT_CONFIG(x) \
-  ((g_eeGeneral.potsConfig >> POT_CONFIG_POS(x)) & POT_CFG_MASK)
+#define POT_CONFIG(x) (getPotType(x))
 
 #define IS_POT_MULTIPOS(x) (POT_CONFIG(x) == FLEX_MULTIPOS)
 
