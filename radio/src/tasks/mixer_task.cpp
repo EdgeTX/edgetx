@@ -60,9 +60,11 @@ void mixerTaskUnlock()
 
 void mixerTaskInit()
 {
+  mixerSchedulerInit();
   RTOS_CREATE_MUTEX(mixerMutex);
   RTOS_CREATE_TASK(mixerTaskId, mixerTask, "mixer", mixerStack,
                    MIXER_STACK_SIZE, MIXER_TASK_PRIO);
+  mixerSchedulerStart();
 }
 
 bool mixerTaskStarted()
@@ -146,9 +148,6 @@ TASK_FUNCTION(mixerTask)
 #if defined(IMU)
   gyroInit();
 #endif
-
-  mixerSchedulerInit();
-  mixerSchedulerStart();
 
   while (!_mixer_exit) {
 
