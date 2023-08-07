@@ -88,7 +88,7 @@
 // pots config
 #define POT_CFG_TYPE_BITS              3
 #define POT_CFG_INV_BITS               1
-#define POT_CFG_BITS                   POT_CFG_TYPE_BITS + POT_CFG_INV_BITS // 4 bits per pot
+#define POT_CFG_BITS                   (POT_CFG_TYPE_BITS + POT_CFG_INV_BITS)
 #define POT_CFG_MASK                   ((1 << POT_CFG_BITS) - 1)
 #define POT_CONFIG_POS(x)              (POT_CFG_BITS * (x))
 #define POT_CONFIG_MASK(x)             (POT_CFG_MASK << POT_CONFIG_POS(x))
