@@ -101,9 +101,9 @@ class RadioKeyDiagsWindow : public Window
       coord_t y = 1;
       for (uint8_t i = 0; i < keysGetMaxKeys(); i++) {
         auto k = get_ith_key(i);
-        y += FH;
         dc->drawText(KEY_COLUMN, y, keysGetLabel(k), COLOR_THEME_PRIMARY1);
         displayKeyState(dc, 70, y, k);
+        y += FH;
       }
 #if defined(ROTARY_ENCODER_NAVIGATION)
       y += FH;
@@ -122,12 +122,13 @@ class RadioKeyDiagsWindow : public Window
       }      
 #endif
       // SWITCHES
+      y = 1;
       for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
         if (SWITCH_EXISTS(i)) {
-          coord_t y = 1 + FH * i;
           getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
           getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
           drawSwitch(dc, SWITCHES_COLUMN, y, sw, COLOR_THEME_PRIMARY1);
+          y +=FH;
         }
       }
 
