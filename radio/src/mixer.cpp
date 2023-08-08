@@ -506,27 +506,11 @@ void evalInputs(uint8_t mode)
   auto pots_offset = adcGetInputOffset(ADC_INPUT_FLEX);
   
   for (uint8_t i = 0; i < max_calib_analogs; i++) {
-    // normalization [0..2048] -> [-1024..1024]
     int16_t v = anaIn(i);
     uint8_t ch = (i < pots_offset ? inputMappingConvertMode(i) : i);
 
-    if (i >= pots_offset && IS_POT_MULTIPOS(i - pots_offset)) {
-      v -= RESX;
-    }
-    else {
-#if defined(SIMU)
-      // Simu uses normed inputs
-      v -= RESX;
-#else
-      CalibData * calib = &g_eeGeneral.calib[i];
-      v -= calib->mid;
-      v = v * (int32_t) RESX / (max((int16_t) 100, (v > 0 ? calib->spanPos : calib->spanNeg)));
-#endif
-    }
-
-    // Limit values to supported range
-    if (v < -RESX) v = -RESX;
-    if (v >  RESX) v =  RESX;
+    // [0..2048] -> [-1024..1024]
+    v -= RESX;
 
 #if defined(STICK_DEAD_ZONE)
     // dead zone invented by FlySky in my opinion it should goes into ADC

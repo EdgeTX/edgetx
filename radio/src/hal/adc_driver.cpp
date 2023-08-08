@@ -129,9 +129,9 @@ void adcCalibSetMinMax()
   for (uint8_t i = 0; i < max_input; i++) {
 
     auto& calib = reusableBuffer.calib.inputs[i];
+    int16_t vt = getAnalogValue(i) >> 1;
 
     if (i < pot_offset || !IS_POT_MULTIPOS(i - pot_offset)) {
-      int16_t vt = anaIn(i);
       calib.input.loVal = min(vt, calib.input.loVal);
       calib.input.hiVal = max(vt, calib.input.hiVal);
 
@@ -147,9 +147,6 @@ void adcCalibSetMinMax()
       auto& xpot = calib.xpot;
       int count = xpot.stepsCount;
       if (count <= XPOTS_MULTIPOS_COUNT) {
-        // use raw analog value for multipos calibraton,
-        // anaIn() already has multipos decoded value
-        int16_t vt = getAnalogValue(i) >> 1;
         if (xpot.lastCount == 0 || vt < xpot.lastPosition - XPOT_DELTA ||
             vt > xpot.lastPosition + XPOT_DELTA) {
           xpot.lastPosition = vt;
@@ -252,8 +249,8 @@ uint16_t* getAnalogValues()
 // used by diaganas
 uint32_t s_anaFilt[MAX_ANALOG_INPUTS];
 
-#define ANALOG_MULTIPLIER       (1<<ANALOG_SCALE)
-#define ANA_FILT(chan)          (s_anaFilt[chan] / (JITTER_ALPHA * ANALOG_MULTIPLIER))
+#define ANALOG_MULTIPLIER (1 << ANALOG_SCALE)
+#define ANA_FILT(chan)    (s_anaFilt[chan] / (JITTER_ALPHA * ANALOG_MULTIPLIER))
 #if (JITTER_ALPHA * ANALOG_MULTIPLIER > 32)
   #error "JITTER_FILTER_STRENGTH and ANALOG_SCALE are too big, their summ should be <= 5 !!!"
 #endif
@@ -308,12 +305,121 @@ uint16_t getBatteryVoltage()
 #endif
 }
 
+static uint32_t apply_low_pass_filter(uint32_t v, uint32_t v_prev,
+                                      bool is_main_input)
+{
+  // Jitter filter:
+  //    * pass trough any big change directly
+  //    * for small change use Modified moving average (MMA) filter
+  //
+  // Explanation:
+  //
+  // Normal MMA filter has this formula:
+  //            <out> = ((ALPHA-1)*<out> + <in>)/ALPHA
+  //
+  // If calculation is done this way with integer arithmetics, then any small
+  // change in input signal is lost. One way to combat that, is to rearrange the
+  // formula somewhat, to store a more precise (larger) number between
+  // iterations. The basic idea is to store undivided value between iterations.
+  // Therefore an new variable <filtered> is used. The new formula becomes:
+  //           <filtered> = <filtered> - <filtered>/ALPHA + <in>
+  //           <out> = <filtered>/ALPHA  (use only when out is needed)
+  //
+  // The above formula with a maximum allowed ALPHA value (we are limited by
+  // the 16 bit s_anaFilt[]) was tested on the radio. The resulting signal still
+  // had some jitter (a value of 1 was observed). The jitter might be bigger on
+  // other radios.
+  //
+  // So another idea is to use larger input values for filtering. So instead of
+  // using input in a range from 0 to 2047, we use twice larger number (temp[x]
+  // is divided less)
+  //
+  // This also means that ALPHA must be lowered (remember 16 bit limit), but
+  // test results have proved that this kind of filtering gives better results.
+  // So the recommended values for filter are:
+  //     JITTER_FILTER_STRENGTH  4
+  //     ANALOG_SCALE            1
+  //
+  uint32_t previous = v_prev / JITTER_ALPHA;
+  uint32_t diff = (v > previous) ? (v - previous) : (previous - v);
+
+  // Combine ADC jitter filter setting form radio and model.
+  // Model can override (on or off) or use setting from radio setup.
+  // Model setting is active when 1, radio setting is active when 0
+  // Please note: these settings only apply to main controls.
+  bool useJitterFilter = true;
+  if (is_main_input) {
+    if (g_model.jitterFilter == OVERRIDE_GLOBAL) {
+      // Use radio setting - which is inverted
+      useJitterFilter = !g_eeGeneral.noJitterFilter;
+    } else {
+      // Enable if value is "On", disable if "Off"
+      useJitterFilter = (g_model.jitterFilter == OVERRIDE_ON);
+    }
+  }
+
+  uint32_t out;
+  if (useJitterFilter && diff < (10 * ANALOG_MULTIPLIER)) {
+    // apply jitter filter
+    out = (v_prev - previous) + v;
+  } else {
+    // use unfiltered value
+    out = v * JITTER_ALPHA;
+  }
+
+  return out;
+  // #if defined(JITTER_MEASURE)
+  //     if (JITTER_MEASURE_ACTIVE()) {
+  //       avgJitter[x].measure(ANA_FILT(x));
+  //     }
+  // #endif
+}
+
+static uint32_t apply_calibration(const CalibData* calib, uint32_t v)
+{
+  // Simu uses normed inputs
+#if !defined(SIMU)
+  // Apply calibration relative to mid-point
+  int32_t s = v - 2 * calib->mid;
+  s = s * (int32_t)RESX /
+      (max((int16_t)100, (s > 0 ? calib->spanPos : calib->spanNeg)));
+
+  // Limit values to supported range
+  if (s < -RESX) s = -RESX;
+  if (s > RESX) s = RESX;
+
+  // Translate back in range
+  v = s + RESX;
+#endif
+
+  return v;
+}
+
+static uint32_t apply_multipos(const StepsCalibData* calib, uint32_t v)
+{
+  constexpr uint32_t ALPHA_MULT = JITTER_ALPHA * ANALOG_MULTIPLIER;
+  constexpr uint32_t ANAFILT_MAX = 2 * RESX * ALPHA_MULT;
+
+  // TODO: consider adding another low pass filter to eliminate multipos
+  // switching glitches
+  uint8_t vShifted = (v / ALPHA_MULT) >> 4;
+
+  for (uint32_t i = 0; i < calib->count; i++) {
+    if (vShifted < calib->steps[i]) {
+      return (i * (ANAFILT_MAX + ALPHA_MULT)) / calib->count;
+    }
+  }
+
+  return ANAFILT_MAX;
+}
+
 void getADC()
 {
-  uint8_t max_mains = adcGetMaxInputs(ADC_INPUT_MAIN);
-  uint8_t max_analogs = adcGetMaxInputs(ADC_INPUT_ALL);
-  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_FLEX);
-  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
+  auto max_analogs = adcGetMaxInputs(ADC_INPUT_ALL);
+  auto max_mains = adcGetMaxInputs(ADC_INPUT_MAIN);
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
+  auto pot_offset = adcGetInputOffset(ADC_INPUT_FLEX);
+  auto max_calib_analogs = adcGetMaxCalibratedInputs();
 
 #if defined(JITTER_MEASURE)
   if (JITTER_MEASURE_ACTIVE() && jitterResetTime < get_tmr10ms()) {
@@ -322,105 +428,38 @@ void getADC()
       rawJitter[x].reset();
       avgJitter[x].reset();
     }
-    jitterResetTime = get_tmr10ms() + 100;  //every second
+    jitterResetTime = get_tmr10ms() + 100;  // every second
   }
 #endif
 
   DEBUG_TIMER_START(debugTimerAdcRead);
-  if (!adcRead())
-      TRACE("adcRead failed");
+  if (!adcRead()) TRACE("adcRead failed");
   DEBUG_TIMER_STOP(debugTimerAdcRead);
 
-  // TODO: jitter filter should probably still be applied
-  //       to VBAT and RTC_BAT, no matter what is configured
-  //
   for (uint8_t x = 0; x < max_analogs; x++) {
+    // TODO ??? ANALOG_SCALE == 1
+    uint32_t v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
 
-    auto raw = getAnalogValue(x);
-    if (x >= pot_offset && x < pot_offset + max_pots) {
-      if (getPotInversion(x - pot_offset)) raw = ADC_INVERT_VALUE(raw);
-    }
-    
-    uint32_t v = raw >> (1 - ANALOG_SCALE);
+    bool is_flex_input = (x >= pot_offset) && (x < pot_offset + max_pots);
+    bool is_multipos = is_flex_input && IS_POT_MULTIPOS(x - pot_offset);
 
-    // Jitter filter:
-    //    * pass trough any big change directly
-    //    * for small change use Modified moving average (MMA) filter
-    //
-    // Explanation:
-    //
-    // Normal MMA filter has this formula:
-    //            <out> = ((ALPHA-1)*<out> + <in>)/ALPHA
-    //
-    // If calculation is done this way with integer arithmetics, then any small change in
-    // input signal is lost. One way to combat that, is to rearrange the formula somewhat,
-    // to store a more precise (larger) number between iterations. The basic idea is to
-    // store undivided value between iterations. Therefore an new variable <filtered> is
-    // used. The new formula becomes:
-    //           <filtered> = <filtered> - <filtered>/ALPHA + <in>
-    //           <out> = <filtered>/ALPHA  (use only when out is needed)
-    //
-    // The above formula with a maximum allowed ALPHA value (we are limited by
-    // the 16 bit s_anaFilt[]) was tested on the radio. The resulting signal still had
-    // some jitter (a value of 1 was observed). The jitter might be bigger on other
-    // radios.
-    //
-    // So another idea is to use larger input values for filtering. So instead of using
-    // input in a range from 0 to 2047, we use twice larger number (temp[x] is divided less)
-    //
-    // This also means that ALPHA must be lowered (remember 16 bit limit), but test results
-    // have proved that this kind of filtering gives better results. So the recommended values
-    // for filter are:
-    //     JITTER_FILTER_STRENGTH  4
-    //     ANALOG_SCALE            1
-    //
-    // Variables mapping:
-    //   * <in> = v
-    //   * <out> = s_anaFilt[x]
-    uint32_t previous = s_anaFilt[x] / JITTER_ALPHA;
-    uint32_t diff = (v > previous) ? (v - previous) : (previous - v);
-
-    // Combine ADC jitter filter setting form radio and model.
-    // Model can override (on or off) or use setting from radio setup.
-    // Model setting is active when 1, radio setting is active when 0
-    // Please note: these settings only apply to main controls.
-    bool useJitterFilter = true;
-    if (x < max_mains) {
-      if (g_model.jitterFilter == OVERRIDE_GLOBAL) {
-        // Use radio setting - which is inverted
-        useJitterFilter = !g_eeGeneral.noJitterFilter;
-      } else {
-        // Enable if value is "On", disable if "Off"
-        useJitterFilter = (g_model.jitterFilter == OVERRIDE_ON);
-      }
+    // 1st: apply calibration
+    if (x < max_calib_analogs && !is_multipos) {
+      v = apply_calibration(&g_eeGeneral.calib[x], v);
     }
 
-    if (useJitterFilter && diff < (10*ANALOG_MULTIPLIER)) {
-      // apply jitter filter
-      s_anaFilt[x] = (s_anaFilt[x] - previous) + v;
-    }
-    else {
-      // use unfiltered value
-      s_anaFilt[x] = v * JITTER_ALPHA;
+    // 2nd: apply inversion
+    if (is_flex_input && getPotInversion(x - pot_offset)) {
+      v = 2 * RESX - v;
     }
 
-#if defined(JITTER_MEASURE)
-    if (JITTER_MEASURE_ACTIVE()) {
-      avgJitter[x].measure(ANA_FILT(x));
-    }
-#endif
+    // 3rd: apply filtering
+    s_anaFilt[x] = apply_low_pass_filter(v, s_anaFilt[x], x < max_mains);
 
-    #define ANAFILT_MAX    (2 * RESX * JITTER_ALPHA * ANALOG_MULTIPLIER)
-    StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[x];
-    if (IS_POT_MULTIPOS(x - pot_offset) && IS_MULTIPOS_CALIBRATED(calib)) {
-      // TODO: consider adding another low pass filter to eliminate multipos switching glitches
-      uint8_t vShifted = ANA_FILT(x) >> 4;
-      s_anaFilt[x] = ANAFILT_MAX;
-      for (uint32_t i = 0; i < calib->count; i++) {
-        if (vShifted < calib->steps[i]) {
-          s_anaFilt[x] = (i * (ANAFILT_MAX + JITTER_ALPHA * ANALOG_MULTIPLIER)) / calib->count;
-          break;
-        }
+    if (is_multipos) {
+      const auto* calib = (const StepsCalibData*)&g_eeGeneral.calib[x];
+      if (IS_MULTIPOS_CALIBRATED(calib)) {
+        s_anaFilt[x] = apply_multipos(calib, s_anaFilt[x]);
       }
     }
   }
