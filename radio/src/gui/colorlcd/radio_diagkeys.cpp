@@ -96,7 +96,6 @@ class RadioKeyDiagsWindow : public Window
       dc->drawText(TRIM_MINUS_COLUMN, 1, "-", COLOR_THEME_PRIMARY1);
       dc->drawText(TRIM_PLUS_COLUMN, 1, "+", COLOR_THEME_PRIMARY1);
 
-#if !defined(PCBNV14)
       // KEYS
       coord_t y = 1;
       for (uint8_t i = 0; i < keysGetMaxKeys(); i++) {
@@ -109,17 +108,6 @@ class RadioKeyDiagsWindow : public Window
       y += FH;
       dc->drawText(KEY_COLUMN, y, STR_ROTARY_ENCODER, COLOR_THEME_PRIMARY1);
       dc->drawNumber(70, y, rotaryEncoderGetValue(), COLOR_THEME_PRIMARY1);
-#endif
-#else // defined(PCBNV14)
-      // KEYS
-      {
-        coord_t y = 1;
-        dc->drawText(KEY_COLUMN, y, keysGetLabel(KEY_ENTER), COLOR_THEME_PRIMARY1);
-        displayKeyState(dc, 70, y, KEY_ENTER);
-        y += FH;
-        dc->drawText(KEY_COLUMN, y, keysGetLabel(KEY_EXIT), COLOR_THEME_PRIMARY1);
-        displayKeyState(dc, 70, y, KEY_EXIT);
-      }      
 #endif
       // SWITCHES
       y = 1;
