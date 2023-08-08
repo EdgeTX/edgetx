@@ -70,11 +70,14 @@ class AnaViewWindow: public FormWindow {
     {
       char s[10];
 
+      auto pot_offset = adcGetInputOffset(ADC_INPUT_FLEX);
       auto max_inputs = adcGetMaxInputs(ADC_INPUT_MAIN)
         + adcGetMaxInputs(ADC_INPUT_FLEX);
 
       for (uint8_t i = 0; i < max_inputs; i++) {
-        if (i > adcGetMaxInputs(ADC_INPUT_MAIN) && !IS_POT_AVAILABLE(i - adcGetMaxInputs(ADC_INPUT_MAIN))) continue;
+        if (i >= pot_offset && (POT_CONFIG(i - pot_offset) == FLEX_NONE))
+          continue;
+
 #if LCD_W > LCD_H
         if ((i & 1) == 0)
           line = newLine(grid);
