@@ -19,8 +19,37 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "stm32_spi.h"
 
-#include "hal/adc_driver.h"
+void stm32_spi_enable_clock(SPI_TypeDef *SPIx)
+{
+  if (SPIx == SPI1) {
+    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
+  }
+#if defined(SPI2)
+  else if (SPIx == SPI2) {
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_SPI2);
+  }
+#endif
+#if defined(SPI3)
+  else if (SPIx == SPI3) {
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_SPI3);
+  }
+#endif
+#if defined(SPI4)
+  else if (SPIx == SPI4) {
+    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI4);
+  }
+#endif
+#if defined(SPI5)
+  else if (SPIx == SPI5) {
+    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI5);
+  }
+#endif
+#if defined(SPI6)
+  else if (SPIx == SPI6) {
+    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI6);
+  }
+#endif
+}
 
-extern const etx_hal_adc_driver_t x12s_adc_driver;
