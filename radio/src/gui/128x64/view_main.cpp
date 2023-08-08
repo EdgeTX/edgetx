@@ -567,14 +567,14 @@ void menuMainView(event_t event)
         uint8_t configured_switches = 0;
 
         for (uint8_t i = 0; i < switches; i++) {
-          if (SWITCH_EXISTS(i)) {
+          if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
             configured_switches ++;
           }
         }
 
         if (configured_switches < 9) {
           for (int i = 0; i < switches; ++i) {
-            if (SWITCH_EXISTS(i)) {
+            if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
               auto switch_display = switchGetDisplayPosition(i);
               if (switch_display.row >= 3) {
                 drawSmallSwitch(switch_display.col == 0 ? 28 : 16 * FW + 1,
@@ -594,7 +594,7 @@ void menuMainView(event_t event)
         }
         else {
           for (int i = 0; i < switches; ++i) {
-            if (SWITCH_EXISTS(i)) {
+            if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
               auto switch_display = switchGetDisplayPosition(i);
               coord_t x = (switch_display.col == 0 ? 8 : 96) + switch_display.row * 5;
               drawSmallSwitch(x, 5 * FH + 1, 4, i);

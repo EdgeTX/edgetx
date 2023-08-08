@@ -534,7 +534,7 @@ void menuMainView(event_t event)
   uint8_t switches = switchGetMaxSwitches();
   if (getSwitchCount() > 16) {    // beware, there is a desired col/row swap in this special mode
     for (int i = 0; i < switches; ++i) {
-      if (SWITCH_EXISTS(i)) {
+      if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
         auto switch_display = switchGetDisplayPosition(i);
         if (g_model.view == VIEW_INPUTS) {
           coord_t x = 50 + (switch_display.row % 5) * 4 +
@@ -552,7 +552,7 @@ void menuMainView(event_t event)
   else {
     coord_t shiftright = switchGetMaxRow(1) < 4 ? 20 : 0;
     for (int i = 0; i < switches; ++i) {
-      if (SWITCH_EXISTS(i)) {
+      if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
         auto switch_display = switchGetDisplayPosition(i);
         if (g_model.view == VIEW_INPUTS) {
           coord_t x = (switch_display.col == 0 ? 50 : 125) +

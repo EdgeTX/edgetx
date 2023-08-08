@@ -59,6 +59,7 @@ swconfig_t boardSwitchGetDefaultConfig() { return _switch_default_config; }
 
 switch_display_pos_t switchGetDisplayPosition(uint8_t idx)
 {
+  // TODO: find a solution for FLEX switches so they can be displayed on main view
   if (idx >= DIM(_switch_display)) return {0, 0};
 
   return _switch_display[idx];

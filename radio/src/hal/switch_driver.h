@@ -49,7 +49,7 @@ void switchInit();
 // returns the factory configuration for all switches
 swconfig_t switchGetDefaultConfig();
 
-// returns the maximum number of regular switches supported in hardware
+// returns the maximum number of regular switches supported in hardware (customizable switches NOT included)
 uint8_t switchGetMaxSwitches();
 
 // returns the number of configured switches
