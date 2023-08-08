@@ -364,7 +364,7 @@ void logsWrite()
       auto offset = adcGetInputOffset(ADC_INPUT_MAIN);
 
       for (uint8_t i = 0; i < n_inputs; i++) {
-        f_printf(&g_oLogFile, "%d,", calibratedAnalogs[offset + i]);
+        f_printf(&g_oLogFile, "%d,", calibratedAnalogs[inputMappingConvertMode(offset + i)]);
       }
 
       n_inputs = adcGetMaxInputs(ADC_INPUT_POT);
