@@ -310,6 +310,7 @@ uint16_t getBatteryVoltage()
 
 void getADC()
 {
+  uint8_t max_mains = adcGetMaxInputs(ADC_INPUT_MAIN);
   uint8_t max_analogs = adcGetMaxInputs(ADC_INPUT_ALL);
   uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_FLEX);
 
@@ -376,13 +377,16 @@ void getADC()
     // Combine ADC jitter filter setting form radio and model.
     // Model can override (on or off) or use setting from radio setup.
     // Model setting is active when 1, radio setting is active when 0
-    uint8_t useJitterFilter = 0;
-    if (g_model.jitterFilter == OVERRIDE_GLOBAL) {
-       // Use radio setting - which is inverted
-      useJitterFilter = !g_eeGeneral.noJitterFilter;
-    } else {
-      // Enable if value is "On", disable if "Off"
-      useJitterFilter = (g_model.jitterFilter == OVERRIDE_ON)?1:0;
+    // Please note: these settings only apply to main controls.
+    bool useJitterFilter = true;
+    if (x < max_mains) {
+      if (g_model.jitterFilter == OVERRIDE_GLOBAL) {
+        // Use radio setting - which is inverted
+        useJitterFilter = !g_eeGeneral.noJitterFilter;
+      } else {
+        // Enable if value is "On", disable if "Off"
+        useJitterFilter = (g_model.jitterFilter == OVERRIDE_ON);
+      }
     }
 
     if (useJitterFilter && diff < (10*ANALOG_MULTIPLIER)) {
