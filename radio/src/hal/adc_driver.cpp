@@ -385,11 +385,11 @@ static uint32_t apply_calibration(const CalibData* calib, uint32_t v)
       (max((int16_t)100, (s > 0 ? calib->spanPos : calib->spanNeg)));
 
   // Limit values to supported range
-  if (s < -RESX) s = -RESX;
-  if (s > RESX) s = RESX;
+  if (s < -2 * RESX) s = - 2 * RESX;
+  if (s > 2 * RESX) s = 2 * RESX;
 
   // Translate back in range
-  v = s + RESX;
+  v = s + 2 * RESX;
 #endif
 
   return v;
