@@ -313,6 +313,7 @@ void getADC()
   uint8_t max_mains = adcGetMaxInputs(ADC_INPUT_MAIN);
   uint8_t max_analogs = adcGetMaxInputs(ADC_INPUT_ALL);
   uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_FLEX);
+  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
 
 #if defined(JITTER_MEASURE)
   if (JITTER_MEASURE_ACTIVE() && jitterResetTime < get_tmr10ms()) {
@@ -335,7 +336,12 @@ void getADC()
   //
   for (uint8_t x = 0; x < max_analogs; x++) {
 
-    uint32_t v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
+    auto raw = getAnalogValue(x);
+    if (x >= pot_offset && x < pot_offset + max_pots) {
+      if (getPotInversion(x - pot_offset)) raw = ADC_INVERT_VALUE(raw);
+    }
+    
+    uint32_t v = raw >> (1 - ANALOG_SCALE);
 
     // Jitter filter:
     //    * pass trough any big change directly

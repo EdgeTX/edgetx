@@ -85,10 +85,10 @@ SwitchHwPos switchGetPosition(uint8_t sw_idx)
 
       if (channel != _INVALID_ADC_CH) {
         auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
-        uint16_t value = getAnalogValue(channel + offset);
-        if (value > 3 * 1024) {
+        uint16_t value = anaIn(channel + offset);
+        if (value > 3 * 512) {
           ret = SWITCH_HW_DOWN;
-        } else if (value >= 1024) {
+        } else if (value >= 512) {
           ret = SWITCH_HW_MID;
         }
       }
