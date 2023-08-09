@@ -91,6 +91,9 @@ uint16_t* getAnalogValues();
 
 // Run calibration steps:
 
+// Set default values before loading radio settings
+void adcCalibDefaults();
+
 // Set mid-points and reset min/max in temporary buffer
 void adcCalibSetMidPoint();
 

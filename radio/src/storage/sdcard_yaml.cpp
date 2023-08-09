@@ -187,12 +187,7 @@ const char * loadRadioSettings()
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
 #endif
 
-    for (int i = 0; i < adcGetMaxCalibratedInputs(); i++) {
-      CalibData* calib = &g_eeGeneral.calib[i];
-      calib->mid = 1023;
-      calib->spanNeg = 1024 - (1024 / STICK_TOLERANCE);
-      calib->spanPos = 1024 - (1024 / STICK_TOLERANCE);
-    }
+    adcCalibDefaults();
 
     const char* error = loadRadioSettingsYaml(true);
     if (!error) {

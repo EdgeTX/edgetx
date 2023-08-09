@@ -277,6 +277,8 @@ void generalDefault()
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
 #endif
 
+  adcCalibDefaults();
+
   g_eeGeneral.potsConfig = adcGetDefaultPotsConfig();
   g_eeGeneral.switchConfig = switchGetDefaultConfig();
 
@@ -359,9 +361,13 @@ void generalDefault()
 uint16_t evalChkSum()
 {
   uint16_t sum = 0;
-  const int16_t * calibValues = (const int16_t *) &g_eeGeneral.calib[0];
-  for (int i=0; i<12; i++)
+  auto main_calib_words = adcGetMaxInputs(ADC_INPUT_MAIN)
+    * sizeof(CalibData) / 2;
+
+  const int16_t * calibValues = (const int16_t *)&g_eeGeneral.calib[0];
+  for (int i = 0; i < main_calib_words; i++) {
     sum += calibValues[i];
+  }
   return sum;
 }
 

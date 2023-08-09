@@ -69,6 +69,16 @@ bool adcRead()
   return true;
 }
 
+void adcCalibDefaults()
+{
+  for (int i = 0; i < adcGetMaxCalibratedInputs(); i++) {
+    CalibData* calib = &g_eeGeneral.calib[i];
+    calib->mid = 1023;
+    calib->spanNeg = 1024 - (1024 / STICK_TOLERANCE);
+    calib->spanPos = 1024 - (1024 / STICK_TOLERANCE);
+  }
+}
+
 void adcCalibSetMidPoint()
 {
   uint8_t max_inputs = adcGetMaxCalibratedInputs();
