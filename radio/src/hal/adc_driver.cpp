@@ -22,9 +22,7 @@
 #include "adc_driver.h"
 #include "board.h"
 
-// IS_POT_SLIDER_AVAILABLE()
 #include "opentx.h"
-
 
 const etx_hal_adc_driver_t* _hal_adc_driver = nullptr;
 const etx_hal_adc_inputs_t* _hal_adc_inputs = nullptr;
@@ -368,11 +366,6 @@ static uint32_t apply_low_pass_filter(uint32_t v, uint32_t v_prev,
   }
 
   return out;
-  // #if defined(JITTER_MEASURE)
-  //     if (JITTER_MEASURE_ACTIVE()) {
-  //       avgJitter[x].measure(ANA_FILT(x));
-  //     }
-  // #endif
 }
 
 static uint32_t apply_calibration(const CalibData* calib, uint32_t v)
@@ -384,12 +377,17 @@ static uint32_t apply_calibration(const CalibData* calib, uint32_t v)
   s = s * (int32_t)RESX /
       (max((int16_t)100, (s > 0 ? calib->spanPos : calib->spanNeg)));
 
-  // Limit values to supported range
-  if (s < -2 * RESX) s = - 2 * RESX;
-  if (s > 2 * RESX) s = 2 * RESX;
-
   // Translate back in range
-  v = s + 2 * RESX;
+  s += 2 * RESX;
+
+  // Limit values to supported range
+  if (s < 0) {
+    s = 0;
+  } else if (s > 4 * RESX) {
+    s = 4 * RESX;
+  }
+
+  v = s;
 #endif
 
   return v;
@@ -437,20 +435,20 @@ void getADC()
   DEBUG_TIMER_STOP(debugTimerAdcRead);
 
   for (uint8_t x = 0; x < max_analogs; x++) {
-    // TODO ??? ANALOG_SCALE == 1
-    uint32_t v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
 
     bool is_flex_input = (x >= pot_offset) && (x < pot_offset + max_pots);
     bool is_multipos = is_flex_input && IS_POT_MULTIPOS(x - pot_offset);
 
     // 1st: apply calibration
+    uint32_t v = getAnalogValue(x);
+
     if (x < max_calib_analogs && !is_multipos) {
       v = apply_calibration(&g_eeGeneral.calib[x], v);
     }
 
     // 2nd: apply inversion
     if (is_flex_input && getPotInversion(x - pot_offset)) {
-      v = 2 * RESX - v;
+      v = 4 * RESX - v;
     }
 
     // 3rd: apply filtering
@@ -462,6 +460,12 @@ void getADC()
         s_anaFilt[x] = apply_multipos(calib, s_anaFilt[x]);
       }
     }
+
+#if defined(JITTER_MEASURE)
+    if (JITTER_MEASURE_ACTIVE()) {
+      avgJitter[x].measure(ANA_FILT(x));
+    }
+#endif
   }
 }
 
