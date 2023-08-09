@@ -133,13 +133,16 @@ void adcCalibSetMinMax()
       calib.input.loVal = min(vt, calib.input.loVal);
       calib.input.hiVal = max(vt, calib.input.hiVal);
 
-      if (i >= pot_offset && IS_POT_WITHOUT_DETENT(i - pot_offset)) {
-        calib.input.midVal = (calib.input.hiVal + calib.input.loVal) / 2;
+      if (i >= pot_offset) {
+        auto pot_cfg = POT_CONFIG(i - pot_offset);
+        if (pot_cfg == FLEX_POT || pot_cfg == FLEX_SWITCH || pot_cfg == FLEX_NONE) {
+          calib.input.midVal = (calib.input.hiVal + calib.input.loVal) / 2;
+        }
       }
 
       // in case we enough input movement, store the result
       if (abs(calib.input.loVal - calib.input.hiVal) > 50) {
-	writeAnalogCalib(i, calib.input.loVal, calib.input.midVal, calib.input.hiVal);
+        writeAnalogCalib(i, calib.input.loVal, calib.input.midVal, calib.input.hiVal);
       }
     } else {
       auto& xpot = calib.xpot;
