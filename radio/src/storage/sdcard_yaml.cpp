@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/adc_driver.h"
+#include "myeeprom.h"
 #include "opentx.h"
 #include "opentx_helpers.h"
 #include "storage.h"
@@ -184,6 +186,13 @@ const char * loadRadioSettings()
 #if defined(DEFAULT_INTERNAL_MODULE)
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
 #endif
+
+    for (int i = 0; i < adcGetMaxCalibratedInputs(); i++) {
+      CalibData* calib = &g_eeGeneral.calib[i];
+      calib->mid = 1023;
+      calib->spanNeg = 1024 - (1024 / STICK_TOLERANCE);
+      calib->spanPos = 1024 - (1024 / STICK_TOLERANCE);
+    }
 
     const char* error = loadRadioSettingsYaml(true);
     if (!error) {
