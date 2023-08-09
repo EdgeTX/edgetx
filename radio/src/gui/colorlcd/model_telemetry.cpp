@@ -695,7 +695,13 @@ class SensorEditWindow : public Page {
 
       paramLines[P_AUTOOFFSET] = form->newLine(&grid);
       new StaticText(paramLines[P_AUTOOFFSET], rect_t{}, STR_AUTOOFFSET, 0, COLOR_THEME_PRIMARY1);
-      new ToggleSwitch(paramLines[P_AUTOOFFSET], rect_t{}, GET_SET_DEFAULT(sensor->autoOffset));
+      new ToggleSwitch(paramLines[P_AUTOOFFSET], rect_t{}, GET_DEFAULT(sensor->autoOffset),
+                       [=](uint8_t newValue) {
+                        sensor->autoOffset = newValue;
+                        if(sensor->autoOffset == 0)
+                          telemetryItems[index].std.offsetAutoStored = false;
+                        SET_DIRTY();
+                      });
 
       paramLines[P_ONLYPOS] = form->newLine(&grid);
       new StaticText(paramLines[P_ONLYPOS], rect_t{}, STR_ONLYPOSITIVE, 0, COLOR_THEME_PRIMARY1);

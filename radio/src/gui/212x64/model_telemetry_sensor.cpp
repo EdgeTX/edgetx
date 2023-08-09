@@ -295,6 +295,10 @@ void menuModelSensor(event_t event)
 
       case SENSOR_FIELD_AUTOOFFSET:
         sensor->autoOffset = editCheckBox(sensor->autoOffset, SENSOR_2ND_COLUMN, y, STR_AUTOOFFSET, attr, event);
+        if(checkIncDec_Ret) {
+          if(sensor->autoOffset == 0)
+            telemetryItems[s_currIdx].std.offsetAutoStored = false;
+        };
         break;
 
       case SENSOR_FIELD_ONLYPOSITIVE:

@@ -213,8 +213,9 @@ void TelemetryItem::setValue(const TelemetrySensor &sensor, int32_t val,
   else {
     newVal = sensor.getValue(newVal, unit, prec);
     if (sensor.autoOffset) {
-      if (!isAvailable()) {
+      if (!std.offsetAutoStored && TELEMETRY_STREAMING()) {
         std.offsetAuto = -newVal;
+        std.offsetAutoStored = true;
       }
       newVal += std.offsetAuto;
     }

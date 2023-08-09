@@ -52,6 +52,7 @@ class TelemetryItem
     union {
       struct {
         int32_t  offsetAuto;
+        bool     offsetAutoStored;
         int32_t  filterValues[TELEMETRY_AVERAGE_COUNT];
       } std;
       struct {
