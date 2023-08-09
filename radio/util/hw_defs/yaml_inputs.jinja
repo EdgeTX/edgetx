@@ -4,8 +4,7 @@
 //
 
 {% set main_inputs = adc_inputs.inputs | selectattr('type', '==', 'STICK') | list %}
-{% set pot_inputs = adc_inputs.inputs | selectattr('type', '==', 'POT') | list %}
-{% set axis_inputs = adc_inputs.inputs | selectattr('type', '==', 'AXIS') | list %}
+{% set flex_inputs = adc_inputs.inputs | selectattr('type', '==', 'FLEX') | list %}
 
 struct legacy_input_t {
   const char* legacy;
@@ -17,12 +16,8 @@ static const legacy_input_t _legacy_inputs[] = {
     {% set li = legacy_inputs[input.name] %}
     { "{{ li.yaml }}", MIXSRC_FIRST_STICK + {{ loop.index0 }} },
   {% endfor %}
-  {% for input in pot_inputs %}
+  {% for input in flex_inputs %}
     {% set li = legacy_inputs[input.name] %}
     { "{{ li.yaml }}", MIXSRC_FIRST_POT + {{ loop.index0 }} },
-  {% endfor %}
-  {% for input in axis_inputs %}
-    {% set li = legacy_inputs[input.name] %}
-    { "{{ li.yaml }}", MIXSRC_FIRST_AXIS + {{ loop.index0 }} },
   {% endfor %}
 };
