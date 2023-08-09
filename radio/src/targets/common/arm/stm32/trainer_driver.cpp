@@ -271,7 +271,7 @@ void stop_trainer_capture()
 
 #endif // TRAINER_GPIO
 
-bool is_trainer_connected()
+bool is_trainer_dsc_connected()
 {
 #if defined(TRAINER_DETECT_GPIO_PIN)
   bool set = LL_GPIO_IsInputPinSet(TRAINER_DETECT_GPIO, TRAINER_DETECT_GPIO_PIN);

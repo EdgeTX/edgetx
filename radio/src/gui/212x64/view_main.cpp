@@ -287,12 +287,12 @@ void displayTopBar()
   }
 
   if (SLAVE_MODE()) {
-    if (is_trainer_connected()) {
+    if (is_trainer_dsc_connected()) {
       LCD_NOTIF_ICON(x, ICON_TRAINEE);
       x -= 12;
     }
   }
-  else if (IS_TRAINER_INPUT_VALID()) {
+  else if (is_trainer_connected()) {
     LCD_NOTIF_ICON(x, ICON_TRAINER);
     x -= 12;
   }

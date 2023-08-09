@@ -93,7 +93,7 @@ void menuRadioTrainer(event_t event)
   lcdDrawText(0*FW, MENU_HEADER_HEIGHT+1+6*FH, STR_CAL, attr);
   for (uint8_t i = 0; i < 4; i++) {
     uint8_t x = 8*FW + (i * TRAINER_CALIB_COLUMN_WIDTH);
-    int32_t chVal = ppmInput[i] - g_eeGeneral.trainer.calib[i];
+    int32_t chVal = trainerInput[i] - g_eeGeneral.trainer.calib[i];
     chVal *= g_eeGeneral.trainer.mix[i].studWeight * 10;
     chVal /= 512;
 #if defined (PPM_UNIT_PERCENT_PREC1)
@@ -106,7 +106,7 @@ void menuRadioTrainer(event_t event)
   if (attr) {
     s_editMode = 0;
     if (event==EVT_KEY_LONG(KEY_ENTER)){
-      memcpy(g_eeGeneral.trainer.calib, ppmInput, sizeof(g_eeGeneral.trainer.calib));
+      memcpy(g_eeGeneral.trainer.calib, trainerInput, sizeof(g_eeGeneral.trainer.calib));
       storageDirty(EE_GENERAL);
       AUDIO_WARNING1();
     }

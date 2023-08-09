@@ -49,7 +49,7 @@ void stop_trainer_ppm() {}
 void init_trainer_capture() {}
 void stop_trainer_capture() {}
 
-bool is_trainer_connected() { return false; }
+bool is_trainer_dsc_connected() { return false; }
 
 void init_trainer_module_cppm() {}
 void stop_trainer_module_cppm() {}
