@@ -1214,7 +1214,7 @@ bool isPotTypeAvailable(uint8_t type)
   return true;
 }
 
-bool isFlexSwicthSourceValid(int source)
+bool isFlexSwitchSourceValid(int source)
 {
   if (MAX_FLEX_SWITCHES == 0) return false;
 
