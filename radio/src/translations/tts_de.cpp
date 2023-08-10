@@ -64,11 +64,23 @@ enum GermanPrompts {
 
 };
 
-  #define DE_PUSH_UNIT_PROMPT(u) de_pushUnitPrompt((u), id)
+  #define DE_PUSH_UNIT_PROMPT(u, p) de_pushUnitPrompt((u), (p), id)
 
-I18N_PLAY_FUNCTION(de, pushUnitPrompt, uint8_t unitprompt)
+I18N_PLAY_FUNCTION(de, pushUnitPrompt, uint8_t unitprompt, int16_t number)
 {
-  PUSH_UNIT_PROMPT(unitprompt, 0);
+  if(number != 1 &&                      // do plurals for this list of units if number is not 1
+     (unitprompt == UNIT_HOURS ||
+      unitprompt == UNIT_MINUTES ||
+      unitprompt == UNIT_SECONDS ||
+      unitprompt == UNIT_FLOZ ||
+      unitprompt == UNIT_MS ||
+      unitprompt == UNIT_US ||
+      unitprompt == UNIT_RADIANS ||
+      unitprompt == UNIT_MAH)) {
+    PUSH_UNIT_PROMPT(unitprompt, 1);    // push xxx1.wav for plural version
+  }
+  else
+    PUSH_UNIT_PROMPT(unitprompt, 0);    // push xxx0.wav for singular version
 }
 
 I18N_PLAY_FUNCTION(de, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
@@ -109,9 +121,11 @@ I18N_PLAY_FUNCTION(de, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
       }
     }
     if(unit)
-      DE_PUSH_UNIT_PROMPT(unit);
+      DE_PUSH_UNIT_PROMPT(unit, qr.quot);     
     return;
   }
+
+  int16_t tmp = number;
 
   if (number >= 2000) {
     PLAY_NUMBER(number / 1000, 0, 0);
@@ -146,11 +160,21 @@ I18N_PLAY_FUNCTION(de, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
   }
 
   if (number >= 0) {
-      PUSH_NUMBER_PROMPT(DE_PROMPT_NULL + number / 1);
+      if(number == 1) {
+        if(unit == UNIT_HOURS ||
+           unit == UNIT_MINUTES ||
+           unit == UNIT_SECONDS ||
+           unit == UNIT_FLOZ ||
+           unit == UNIT_MS ||
+           unit == UNIT_US ||
+           unit == UNIT_MAH)
+          PUSH_NUMBER_PROMPT(DE_PROMPT_EINE);             // "eine ..."
+      } else
+        PUSH_NUMBER_PROMPT(DE_PROMPT_NULL + number / 1);  // "ein ...""
   }
 
   if (unit) {
-    DE_PUSH_UNIT_PROMPT(unit);
+    DE_PUSH_UNIT_PROMPT(unit, tmp);
   }
 }
 
