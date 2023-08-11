@@ -601,10 +601,12 @@ enum Functions {
 #endif
   FUNC_DISABLE_AUDIO_AMP,
   FUNC_RGB_LED,
+  FUNC_TEST, // MUST remain last
 #if defined(DEBUG)
-  FUNC_TEST,  // should remain the last before MAX as not added in Companion
-#endif
   FUNC_MAX SKIP
+#else
+  FUNC_MAX SKIP = FUNC_TEST - 1
+#endif
 };
 
 enum TimerModes {

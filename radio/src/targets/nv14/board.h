@@ -27,9 +27,9 @@
 
 #include "board_common.h"
 #include "hal.h"
-#include "hal/serial_port.h"
 
-#include "watchdog_driver.h"
+#include "hal/serial_port.h"
+#include "hal/watchdog_driver.h"
 
 #define FLASHSIZE                       0x200000
 #define BOOTLOADER_SIZE                 0x20000
