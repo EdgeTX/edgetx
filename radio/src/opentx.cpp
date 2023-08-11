@@ -1259,14 +1259,14 @@ void opentxClose(uint8_t shutdown)
     pulsesStop();
     AUDIO_BYE();
     // TODO needed? telemetryEnd();
-#if defined(LUA)
-    luaClose(&lsScripts);
-#endif
-
 #if defined(HAPTIC)
     hapticOff();
 #endif
   }
+
+#if defined(LUA)
+  luaClose(&lsScripts);
+#endif
 
 #if defined(SDCARD)
   logsClose();
