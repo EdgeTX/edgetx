@@ -1267,7 +1267,7 @@ void runStartupAnimation()
     }
   }
 
-  if (duration < PWR_PRESS_DURATION_MIN() || duration >= PWR_PRESS_DURATION_MAX) {
+  if (duration <= PWR_PRESS_DURATION_MIN() || duration >= PWR_PRESS_DURATION_MAX) {
     boardOff();
   }
 }
