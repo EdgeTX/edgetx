@@ -1259,6 +1259,10 @@ void opentxClose(uint8_t shutdown)
     pulsesStop();
     AUDIO_BYE();
     // TODO needed? telemetryEnd();
+#if defined(LUA)
+    luaClose(&lsScripts);
+#endif
+
 #if defined(HAPTIC)
     hapticOff();
 #endif
@@ -1301,11 +1305,6 @@ void opentxClose(uint8_t shutdown)
   luaClose(&lsWidgets);
   lsWidgets = 0;
 #endif
-#endif
-#if defined(LUA)
-  // the script context needs to be closed *after*
-  // the widgets, as it has been the first to be opened
-  luaClose(&lsScripts);
 #endif
 
 #if defined(SDCARD)
