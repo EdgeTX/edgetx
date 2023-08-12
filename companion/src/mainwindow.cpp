@@ -1250,6 +1250,7 @@ void MainWindow::onCurrentProfileChanged()
 {
   Firmware::setCurrentVariant(Firmware::getFirmwareForId(g.currentProfile().fwType()));
   emit firmwareChanged();
+  QApplication::clipboard()->clear();
   updateMenus();
 }
 
