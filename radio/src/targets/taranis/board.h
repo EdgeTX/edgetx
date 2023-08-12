@@ -248,8 +248,14 @@ void pwrResetHandler();
 bool UNEXPECTED_SHUTDOWN();
 
 // Backlight driver
+#if defined(OLED_SCREEN)
+#define BACKLIGHT_DISABLE()             lcdSetRefVolt(0)
+#define BACKLIGHT_FORCED_ON             255
+#else
 #define BACKLIGHT_DISABLE()             backlightDisable()
 #define BACKLIGHT_FORCED_ON             101
+#endif
+
 
 void backlightInit();
 void backlightDisable();
@@ -260,6 +266,8 @@ uint8_t isBacklightEnabled();
   void backlightEnable(uint8_t level, uint8_t color);
   #define BACKLIGHT_ENABLE() \
     backlightEnable(currentBacklightBright, g_eeGeneral.backlightColor)
+#elif defined(OLED_SCREEN)
+  #define BACKLIGHT_ENABLE() lcdSetRefVolt(currentBacklightBright)
 #else
   void backlightEnable(uint8_t level);
   #define BACKLIGHT_ENABLE() backlightEnable(currentBacklightBright)
@@ -401,15 +409,15 @@ void ledBlue();
 #define LCD_DEPTH                       1
 #define IS_LCD_RESET_NEEDED()           true
 #if defined(OLED_SCREEN)
-#define LCD_CONTRAST_MIN                5
-#define LCD_CONTRAST_MAX                255
+#define LCD_CONTRAST_MIN                2
+#define LCD_CONTRAST_MAX                254
 #else
 #define LCD_CONTRAST_MIN                10
 #define LCD_CONTRAST_MAX                30
 #endif
 
 #if defined(OLED_SCREEN)
-  #define LCD_CONTRAST_DEFAULT          255 // full brightness
+  #define LCD_CONTRAST_DEFAULT          254 // full brightness
 #elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)
   #define LCD_CONTRAST_DEFAULT          20
 #elif defined(RADIO_TPRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TPRO) || defined(RADIO_COMMANDO8)
