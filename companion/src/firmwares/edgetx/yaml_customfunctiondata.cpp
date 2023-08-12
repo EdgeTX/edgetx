@@ -21,6 +21,7 @@
 #include "yaml_customfunctiondata.h"
 #include "yaml_rawswitch.h"
 #include "yaml_rawsource.h"
+#include "eeprominterface.h"
 
 static bool fnHasEnable(AssignFunc fn)
 {
@@ -164,8 +165,12 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
     def += std::to_string(rhs.param);
     break;
   case FuncPlayPrompt:
+  case FuncBackgroundMusic: {
+    std::string temp(rhs.paramarm);
+    temp.resize(getCurrentFirmware()->getCapability(VoicesMaxLength));
+    def += temp;
+  } break;
   case FuncPlayScript:
-  case FuncBackgroundMusic:
     def += std::string(rhs.paramarm);
     break;
   case FuncReset:
@@ -285,11 +290,16 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     } catch(...) {}
   } break;
   case FuncPlayPrompt:
-  case FuncPlayScript:
   case FuncBackgroundMusic: {
     std::string file_str;
     getline(def, file_str, ',');
-    strncpy(rhs.paramarm, file_str.c_str(), sizeof(rhs.paramarm)-1);
+    file_str.resize(getCurrentFirmware()->getCapability(VoicesMaxLength));
+    strncpy(rhs.paramarm, file_str.c_str(), sizeof(rhs.paramarm) - 1);
+    } break;
+  case FuncPlayScript: {
+    std::string file_str;
+    getline(def, file_str, ',');
+    strncpy(rhs.paramarm, file_str.c_str(), sizeof(rhs.paramarm) - 1);
     } break;
   case FuncReset: {
     std::string rst_str;
