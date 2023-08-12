@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>520</width>
-    <height>500</height>
+    <width>725</width>
+    <height>526</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,14 +18,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>520</width>
-    <height>500</height>
+    <width>725</width>
+    <height>526</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>520</width>
-    <height>500</height>
+    <width>725</width>
+    <height>526</height>
    </size>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -54,14 +54,14 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>100</width>
-       <height>500</height>
+       <width>202</width>
+       <height>526</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>100</width>
-       <height>500</height>
+       <width>202</width>
+       <height>526</height>
       </size>
      </property>
      <property name="styleSheet">
@@ -106,14 +106,14 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>100</width>
-       <height>500</height>
+       <width>203</width>
+       <height>526</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>100</width>
-       <height>500</height>
+       <width>203</width>
+       <height>526</height>
       </size>
      </property>
      <property name="mouseTracking">
@@ -135,13 +135,13 @@
      <property name="minimumSize">
       <size>
        <width>320</width>
-       <height>10</height>
+       <height>33</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>320</width>
-       <height>10</height>
+       <height>33</height>
       </size>
      </property>
      <property name="font">
@@ -165,13 +165,13 @@
      <property name="minimumSize">
       <size>
        <width>320</width>
-       <height>10</height>
+       <height>13</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>320</width>
-       <height>10</height>
+       <height>13</height>
       </size>
      </property>
      <property name="font">
