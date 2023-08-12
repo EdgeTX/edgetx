@@ -72,7 +72,7 @@ enum SpanishPrompts {
 
 };
 
-#define ES_PUSH_UNIT_PROMPT(u) es_pushUnitPrompt((u), id, _volume)
+#define ES_PUSH_UNIT_PROMPT(u) es_pushUnitPrompt((u), id, fragmentVolume)
 
 I18N_PLAY_FUNCTION(es, pushUnitPrompt, uint8_t unitprompt)
 {

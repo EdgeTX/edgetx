@@ -883,8 +883,8 @@ extern const char STR_MODEL_MENU_TABS[];
 struct LanguagePack {
   const char * id;
   const char * name;
-  void (*playNumber)(getvalue_t number, uint8_t unit, uint8_t flags, uint8_t id, int8_t _volume);
-  void (*playDuration)(int seconds, uint8_t flags, uint8_t id, int8_t _volume);
+  void (*playNumber)(getvalue_t number, uint8_t unit, uint8_t flags, uint8_t id, int8_t fragmentVolume);
+  void (*playDuration)(int seconds, uint8_t flags, uint8_t id, int8_t fragmentVolume);
 };
 
 extern const LanguagePack * currentLanguagePack;
@@ -948,14 +948,14 @@ const LanguagePack * const languagePacks[] = {
   const LanguagePack* currentLanguagePack = &lng##LanguagePack; \
   uint8_t currentLanguagePackIdx
 
-#define PLAY_FUNCTION(x, ...)    void x(__VA_ARGS__, uint8_t id, int8_t _volume = USE_SETTINGS_VOLUME)
+#define PLAY_FUNCTION(x, ...)    void x(__VA_ARGS__, uint8_t id, int8_t fragmentVolume = USE_SETTINGS_VOLUME)
 
 inline PLAY_FUNCTION(playNumber, getvalue_t number, uint8_t unit, uint8_t flags) {
-  currentLanguagePack->playNumber(number, unit, flags, id, _volume);
+  currentLanguagePack->playNumber(number, unit, flags, id, fragmentVolume);
 }
 
 inline PLAY_FUNCTION(playDuration, int seconds, uint8_t flags) {
-   currentLanguagePack->playDuration(seconds, flags, id, _volume);
+   currentLanguagePack->playDuration(seconds, flags, id, fragmentVolume);
 }
 
 extern const char STR_MODELNAME[];

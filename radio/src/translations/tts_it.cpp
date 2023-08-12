@@ -58,7 +58,7 @@ enum ItalianPrompts {
 
 };
 
-#define IT_PUSH_UNIT_PROMPT(u, p) it_pushUnitPrompt((u), (p), id, _volume)
+#define IT_PUSH_UNIT_PROMPT(u, p) it_pushUnitPrompt((u), (p), id, fragmentVolume)
 
 I18N_PLAY_FUNCTION(it, pushUnitPrompt, uint8_t unitprompt, int16_t number)
 {

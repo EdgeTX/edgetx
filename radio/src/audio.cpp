@@ -556,8 +556,8 @@ int WavContext::mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade)
   FRESULT result = FR_OK;
   UINT read = 0;
 
-  if(fragment._volume != USE_SETTINGS_VOLUME)
-    volume = fragment._volume;
+  if(fragment.fragmentVolume != USE_SETTINGS_VOLUME)
+    volume = fragment.fragmentVolume;
 
   if (fragment.file[1]) {
     result = f_open(&state.file, fragment.file, FA_OPEN_EXISTING | FA_READ);
@@ -655,8 +655,8 @@ int ToneContext::mixBuffer(AudioBuffer * buffer, int volume, unsigned int fade)
   int duration = 0;
   int result = 0;
 
-  if(fragment._volume != USE_SETTINGS_VOLUME)
-    volume = fragment._volume;
+  if(fragment.fragmentVolume != USE_SETTINGS_VOLUME)
+    volume = fragment.fragmentVolume;
 
   int remainingDuration = fragment.tone.duration - state.duration;
   if (remainingDuration > 0) {
@@ -843,7 +843,7 @@ bool AudioQueue::isPlaying(uint8_t id)
          fragmentsFifo.hasPromptId(id);
 }
 
-void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t flags, int8_t freqIncr, int8_t _volume)
+void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t flags, int8_t freqIncr, int8_t fragmentVolume)
 {
 #if defined(SIMU) && !defined(SIMU_AUDIO)
   return;
@@ -854,7 +854,7 @@ void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t f
   freq = limit<uint16_t>(BEEP_MIN_FREQ, freq, BEEP_MAX_FREQ);
 
   if (flags & PLAY_BACKGROUND) {
-    varioContext.setFragment(freq, len, pause, 0, 0, (flags & PLAY_NOW), _volume);
+    varioContext.setFragment(freq, len, pause, 0, 0, (flags & PLAY_NOW), fragmentVolume);
   }
   else {
     // adjust frequency and length according to the user preferences
@@ -864,11 +864,11 @@ void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t f
     if (flags & PLAY_NOW) {
       if (priorityContext.isFree()) {
         priorityContext.clear();
-        priorityContext.setFragment(freq, len, pause, flags & 0x0f, freqIncr, false, _volume);
+        priorityContext.setFragment(freq, len, pause, flags & 0x0f, freqIncr, false, fragmentVolume);
       }
     }
     else {
-      fragmentsFifo.push(AudioFragment(freq, len, pause, flags & 0x0f, freqIncr, false, _volume));
+      fragmentsFifo.push(AudioFragment(freq, len, pause, flags & 0x0f, freqIncr, false, fragmentVolume));
     }
   }
 
@@ -876,10 +876,10 @@ void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t f
 }
 
 #if defined(SDCARD)
-void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8_t _volume)
+void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8_t fragmentVolume)
 {
 #if defined(SIMU)
-  TRACE("playFile(\"%s\", flags=%x, id=%d _volume=%d ee_general=%d)", filename, flags, id, _volume, g_eeGeneral.wavVolume);
+  TRACE("playFile(\"%s\", flags=%x, id=%d fragmentVolume=%d ee_general=%d)", filename, flags, id, fragmentVolume, g_eeGeneral.wavVolume);
   if (strlen(filename) > AUDIO_FILENAME_MAXLEN) {
     TRACE("file name too long! maximum length is %d characters", AUDIO_FILENAME_MAXLEN);
     return;
@@ -904,10 +904,10 @@ void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8
 
   if (flags & PLAY_BACKGROUND) {
     backgroundContext.clear();
-    backgroundContext.setFragment(filename, 0, _volume, id);
+    backgroundContext.setFragment(filename, 0, fragmentVolume, id);
   }
   else {
-    fragmentsFifo.push(AudioFragment(filename, flags & 0x0f, _volume, id));
+    fragmentsFifo.push(AudioFragment(filename, flags & 0x0f, fragmentVolume, id));
   }
 
   RTOS_UNLOCK_MUTEX(audioMutex);
@@ -1229,14 +1229,14 @@ void audioEvent(unsigned int index)
 }
 
 #if defined(SDCARD)
-void pushUnit(uint8_t unit, uint8_t idx, uint8_t id, uint8_t _volume)
+void pushUnit(uint8_t unit, uint8_t idx, uint8_t id, uint8_t fragmentVolume)
 {
   if (unit < DIM(unitsFilenames)) {
     char path[AUDIO_FILENAME_MAXLEN+1];
     char * tmp = strAppendSystemAudioPath(path);
     tmp = strAppendStringWithIndex(tmp, unitsFilenames[unit], idx);
     strcpy(tmp, SOUNDS_EXT);
-    audioQueue.playFile(path, 0, id, _volume);
+    audioQueue.playFile(path, 0, id, fragmentVolume);
   }
   else {
     TRACE("pushUnit: out of bounds unit : %d", unit); // We should never get here, but given the nature of TTS files, this prevent segfault in case of bug there.
@@ -1244,7 +1244,7 @@ void pushUnit(uint8_t unit, uint8_t idx, uint8_t id, uint8_t _volume)
 }
 #endif
 
-void pushPrompt(uint16_t prompt, uint8_t id, uint8_t _volume)
+void pushPrompt(uint16_t prompt, uint8_t id, uint8_t fragmentVolume)
 {
 #if defined(SDCARD)
   char filename[AUDIO_FILENAME_MAXLEN+1];
@@ -1254,7 +1254,7 @@ void pushPrompt(uint16_t prompt, uint8_t id, uint8_t _volume)
     str[i] = '0' + (prompt%10);
     prompt /= 10;
   }
-  audioQueue.playFile(filename, 0, id, _volume);
+  audioQueue.playFile(filename, 0, id, fragmentVolume);
 #endif
 }
 
