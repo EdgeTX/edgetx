@@ -158,10 +158,10 @@
 #define TR_ON_ONE_SWITCHES             "ON","One"
 
 #if defined(USE_HATS_AS_KEYS)
-#define TR_HATSMODE                    "Hats mode"
-#define TR_HATSOPT                     "Trims only","Keys only","Switchable","Global"
-#define TR_HATSMODE_TRIMS              "Hats mode: Trims"
-#define TR_HATSMODE_KEYS               "Hats mode: Keys"
+#define TR_HATSMODE                    "アナログスティック"
+#define TR_HATSOPT                     "トリムのみ","キーのみ","スイッチ","すべて"
+#define TR_HATSMODE_TRIMS              "アナログスティック: トリム"
+#define TR_HATSMODE_KEYS               "アナログスティック: キー"
 #endif
 
 #if defined(COLORLCD)

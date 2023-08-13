@@ -158,10 +158,10 @@
 #define TR_ON_ONE_SWITCHES             "ON","One"
 
 #if defined(USE_HATS_AS_KEYS)
-#define TR_HATSMODE                    "Hats mode"
-#define TR_HATSOPT                     "Trims only","Keys only","Switchable","Global"
-#define TR_HATSMODE_TRIMS              "Hats mode: Trims"
-#define TR_HATSMODE_KEYS               "Hats mode: Keys"
+#define TR_HATSMODE                    "按鍵帽模式"
+#define TR_HATSOPT                     "微調","導航鍵","可切換","全局"
+#define TR_HATSMODE_TRIMS              "按鍵帽: 微調"
+#define TR_HATSMODE_KEYS               "按鍵帽: 導航鍵"
 #endif
 
 #if defined(COLORLCD)

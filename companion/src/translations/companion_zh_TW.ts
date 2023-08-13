@@ -5701,22 +5701,27 @@ Acceptable values are 3v..12v</source>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2430"/>
         <source>Hats Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>按鍵帽模式</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2441"/>
         <source>Trims only</source>
-        <translation type="unfinished"></translation>
+        <translation>微調</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2446"/>
         <source>Keys only</source>
-        <translation type="unfinished"></translation>
+        <translation>導航鍵</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2451"/>
         <source>Switchable</source>
-        <translation type="unfinished"></translation>
+        <translation>可切換</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Global</source>
+        <translation>全局</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2405"/>

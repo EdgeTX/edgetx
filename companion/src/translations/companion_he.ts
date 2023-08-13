@@ -5813,22 +5813,27 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2430"/>
         <source>Hats Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>מצב כובעונים</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2441"/>
         <source>Trims only</source>
-        <translation type="unfinished"></translation>
+        <translation>קיזוזים בלבד</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2446"/>
         <source>Keys only</source>
-        <translation type="unfinished"></translation>
+        <translation>ניווט בלבד</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2451"/>
         <source>Switchable</source>
-        <translation type="unfinished"></translation>
+        <translation>משולב</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Global</source>
+        <translation>גלובאלי</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2443"/>

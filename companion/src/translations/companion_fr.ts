@@ -5646,22 +5646,27 @@ Plage de valeurs: 3v...12v</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2430"/>
         <source>Hats Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode chapeaux</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2441"/>
         <source>Trims only</source>
-        <translation type="unfinished"></translation>
+        <translation>Trims uniquement</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2446"/>
         <source>Keys only</source>
-        <translation type="unfinished"></translation>
+        <translation>Touches uniquement</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2451"/>
         <source>Switchable</source>
-        <translation type="unfinished"></translation>
+        <translation>Permutable</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Global</source>
+        <translation>Global</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2405"/>

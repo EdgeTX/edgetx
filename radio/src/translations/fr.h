@@ -165,10 +165,10 @@
 #define TR_ON_ONE_SWITCHES             "ON","Un"
 
 #if defined(USE_HATS_AS_KEYS)
-#define TR_HATSMODE                    "Hats mode"
-#define TR_HATSOPT                     "Trims only","Keys only","Switchable","Global"
-#define TR_HATSMODE_TRIMS              "Hats mode: Trims"
-#define TR_HATSMODE_KEYS               "Hats mode: Keys"
+#define TR_HATSMODE                    "Mode chapeaux"
+#define TR_HATSOPT                     "Trims uniquement","Touches uniquement","Permutable","Global"
+#define TR_HATSMODE_TRIMS              "Mode chapeaux: Trims"
+#define TR_HATSMODE_KEYS               "Mode chapeaux: Touches"
 #endif
 
 #if defined(COLORLCD)

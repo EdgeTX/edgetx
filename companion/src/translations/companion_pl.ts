@@ -5947,22 +5947,27 @@ Dopuszczalne wartości 5v-10v {3v?} {12v?}</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2430"/>
         <source>Hats Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Tryb grzybków</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2441"/>
         <source>Trims only</source>
-        <translation type="unfinished"></translation>
+        <translation>Tylko trymy</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2446"/>
         <source>Keys only</source>
-        <translation type="unfinished"></translation>
+        <translation>Tylko przyciski</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2451"/>
         <source>Switchable</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełączane</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Global</source>
+        <translation>Globalne</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="730"/>

@@ -161,10 +161,10 @@
 #define TR_ON_ONE_SWITCHES             "EN","En"
 
 #if defined(USE_HATS_AS_KEYS)
-#define TR_HATSMODE                    "Hats mode"
-#define TR_HATSOPT                     "Trims only","Keys only","Switchable","Global"
-#define TR_HATSMODE_TRIMS              "Hats mode: Trims"
-#define TR_HATSMODE_KEYS               "Hats mode: Keys"
+#define TR_HATSMODE                    "Joystik indstilling"
+#define TR_HATSOPT                     "Kun trim","Kun knap","Trim / Knap", "Global"
+#define TR_HATSMODE_TRIMS              "Joystik: Trim"
+#define TR_HATSMODE_KEYS               "Joystik: Knap"
 #endif
 
 #if defined(COLORLCD)

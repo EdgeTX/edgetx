@@ -6023,22 +6023,27 @@ Mode 4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2430"/>
         <source>Hats Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Hattläge</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2441"/>
         <source>Trims only</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast trimm</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2446"/>
         <source>Keys only</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast knapp</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2451"/>
         <source>Switchable</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändringsbar</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Global</source>
+        <translation>Global</translation>
     </message>
     <message>
         <source>Owner Registration ID</source>

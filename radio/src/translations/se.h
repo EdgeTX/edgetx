@@ -176,10 +176,10 @@
 #define TR_ON_ONE_SWITCHES              "PÅ","Ett"
 
 #if defined(USE_HATS_AS_KEYS)
-#define TR_HATSMODE                    "Hats mode"
-#define TR_HATSOPT                     "Trims only","Keys only","Switchable","Global"
-#define TR_HATSMODE_TRIMS              "Hats mode: Trims"
-#define TR_HATSMODE_KEYS               "Hats mode: Keys"
+#define TR_HATSMODE                     "Hattläge"
+#define TR_HATSOPT                      "Endast trimm","Endast knapp","Ändringsbar","Global"
+#define TR_HATSMODE_TRIMS               "Hattläge: Trimmar"
+#define TR_HATSMODE_KEYS                "Hattläge: Knappar"
 #endif
 
 #if defined(IMU)

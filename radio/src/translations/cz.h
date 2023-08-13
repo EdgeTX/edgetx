@@ -165,10 +165,10 @@
 #define TR_ON_ONE_SWITCHES             "ZAP","One"
 
 #if defined(USE_HATS_AS_KEYS)
-#define TR_HATSMODE                    "Hats mode"
-#define TR_HATSOPT                     "Trims only","Keys only","Switchable","Global"
-#define TR_HATSMODE_TRIMS              "Hats mode: Trims"
-#define TR_HATSMODE_KEYS               "Hats mode: Keys"
+#define TR_HATSMODE                    "Režim kloboučků"
+#define TR_HATSOPT                     "Pouze trimy","Pouze tlačítka","Přepinatelné","Globální"
+#define TR_HATSMODE_TRIMS              "Režim kloboučků: Trimy"
+#define TR_HATSMODE_KEYS                "Režim kloboučků: Tlačítka"
 #endif
 
 #if defined(COLORLCD)
