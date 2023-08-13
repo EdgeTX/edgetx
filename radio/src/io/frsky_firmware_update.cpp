@@ -194,15 +194,13 @@ const uint8_t * FrskyDeviceFirmwareUpdate::readFrame(uint32_t timeout)
 {
   RTOS_WAIT_MS(1);
 
-  switch (module) {
 #if defined(INTERNAL_MODULE_PXX2)
-    case INTERNAL_MODULE:
-      return readFullDuplexFrame(timeout);
-#endif
-
-    default:
-      return readHalfDuplexFrame(timeout);
+  if ((module == INTERNAL_MODULE) &&
+      (g_eeGeneral.internalModule = MODULE_TYPE_ISRM_PXX2)) {
+    return readFullDuplexFrame(timeout);
   }
+#endif
+  return readHalfDuplexFrame(timeout);
 }
 
 bool FrskyDeviceFirmwareUpdate::waitState(State newState, uint32_t timeout)
@@ -253,18 +251,17 @@ void FrskyDeviceFirmwareUpdate::sendFrame()
     }
   }
 
-  switch (module) {
 #if defined(INTERNAL_MODULE_PXX2)
-    case INTERNAL_MODULE:
-      IntmoduleSerialDriver.sendBuffer(uart_ctx, outputTelemetryBuffer.data,
-                                       ptr - outputTelemetryBuffer.data);
-      return;
+  if ((module == INTERNAL_MODULE) &&
+      (g_eeGeneral.internalModule = MODULE_TYPE_ISRM_PXX2)) {
+    IntmoduleSerialDriver.sendBuffer(uart_ctx, outputTelemetryBuffer.data,
+                                     ptr - outputTelemetryBuffer.data);
+    return;
+  }
 #endif
 
-    default:
-      sportSendBuffer(outputTelemetryBuffer.data, ptr - outputTelemetryBuffer.data);
-      return;
-  }
+  sportSendBuffer(outputTelemetryBuffer.data, ptr - outputTelemetryBuffer.data);
+  return;
 }
 
 const char * FrskyDeviceFirmwareUpdate::sendPowerOn()
@@ -337,12 +334,12 @@ const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, P
 
   const char * ext = getFileExtension(filename);
   if (ext && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
-    if (f_read(&file, &information, sizeof(FrSkyFirmwareInformation), &count) != FR_OK || count != sizeof(FrSkyFirmwareInformation)) {
+    auto ret = f_read(&file, &information, sizeof(FrSkyFirmwareInformation), &count);
+    if (ret != FR_OK || count != sizeof(FrSkyFirmwareInformation)) {
       f_close(&file);
       return STR_DEVICE_FILE_ERROR;
     }
-  }
-  else {
+  } else {
 #if defined(PCBHORUS)
     information.productId = FIRMWARE_ID_MODULE_XJT;
 #endif
@@ -366,18 +363,17 @@ const char * FrskyDeviceFirmwareUpdate::doFlashFirmware(const char * filename, P
   }
 #endif
 
-  switch (module) {
 #if defined(INTERNAL_MODULE_PXX2)
-    case INTERNAL_MODULE: {
-      etx_serial_init params(serialInitParams);
-      params.baudrate = 57600;
-      uart_ctx = IntmoduleSerialDriver.init(&params);
-    } break;
+  if ((module == INTERNAL_MODULE) &&
+      (g_eeGeneral.internalModule = MODULE_TYPE_ISRM_PXX2)) {
+    etx_serial_init params(serialInitParams);
+    params.baudrate = 57600;
+    uart_ctx = IntmoduleSerialDriver.init(&params);
+  }
+  else
 #endif
-
-    default:
-      telemetryInit(PROTOCOL_TELEMETRY_FRSKY_SPORT);
-      break;
+  {
+    telemetryInit(PROTOCOL_TELEMETRY_FRSKY_SPORT);
   }
 
   if (module == INTERNAL_MODULE)
@@ -515,16 +511,15 @@ const char * FrskyDeviceFirmwareUpdate::endTransfer()
 
 const char * FrskyDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHandler progressHandler)
 {
+  pauseMixerCalculations();
   pausePulses();
 
 #if defined(HARDWARE_INTERNAL_MODULE)
-  uint8_t intPwr = IS_INTERNAL_MODULE_ON();
-  INTERNAL_MODULE_OFF();
+  stopPulsesInternalModule();
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
-  uint8_t extPwr = IS_EXTERNAL_MODULE_ON();
-  EXTERNAL_MODULE_OFF();
+  stopPulsesExternalModule();
 #endif
 
 #if defined(SPORT_UPDATE_PWR_GPIO)
@@ -549,6 +544,14 @@ const char * FrskyDeviceFirmwareUpdate::flashFirmware(const char * filename, Pro
     POPUP_INFORMATION(STR_FIRMWARE_UPDATE_SUCCESS);
   }
 
+#if defined(INTMODULE_USART)
+  if (uart_ctx) {
+    // If the UART is not deactivated, the module
+    // will not properly reset
+    IntmoduleSerialDriver.deinit(uart_ctx);
+  }
+#endif
+  
 #if defined(HARDWARE_INTERNAL_MODULE)
   INTERNAL_MODULE_OFF();
 #endif
@@ -560,19 +563,8 @@ const char * FrskyDeviceFirmwareUpdate::flashFirmware(const char * filename, Pro
   RTOS_WAIT_MS(2000);
   telemetryClearFifo();
 
-#if defined(HARDWARE_INTERNAL_MODULE)
-  if (intPwr) {
-    INTERNAL_MODULE_ON();
-    setupPulsesInternalModule();
-  }
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  if (extPwr) {
-    EXTERNAL_MODULE_ON();
-    setupPulsesExternalModule();
-  }
-#endif
+  resumePulses();
+  resumeMixerCalculations();
 
 #if defined(SPORT_UPDATE_PWR_GPIO)
   if (spuPwr) {
@@ -581,8 +573,6 @@ const char * FrskyDeviceFirmwareUpdate::flashFirmware(const char * filename, Pro
 #endif
 
   state = SPORT_IDLE;
-  resumePulses();
-
   return result;
 }
 

@@ -22,7 +22,6 @@
 #include "topbar_impl.h"
 #include "opentx.h"
 
-const char * const STR_MONTHS[] = TR_MONTHS;
 constexpr uint32_t TOPBAR_REFRESH = 1000 / 10; // 10 Hz
 
 static const uint8_t _LBM_DOT[] = {
@@ -149,7 +148,6 @@ void TopbarImpl::paint(BitmapBuffer * dc)
 #if defined(TRANSLATIONS_CN) || defined(TRANSLATIONS_TW) 
       sprintf(str, "%02d-%02d", t.tm_mon + 1, t.tm_mday);
 #else
-      const char * const STR_MONTHS[] = TR_MONTHS;
       sprintf(str, "%d %s", t.tm_mday, STR_MONTHS[t.tm_mon]);
 #endif
   //dc->drawSolidVerticalLine(DATETIME_SEPARATOR_X, 7, 31, COLOR_THEME_SECONDARY1);

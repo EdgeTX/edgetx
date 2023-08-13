@@ -372,7 +372,7 @@ void menuRadioSdManager(event_t _event)
       break;
 
     case EVT_KEY_LONG(KEY_ENTER):
-#if !defined(PCBX9) && !defined(RADIO_X7) && !defined(RADIO_X7ACCESS) // TODO NO_HEADER_LINE
+#if (HEADER_LINE > 0) && !defined(PCBX9) && !defined(RADIO_X7) && !defined(RADIO_X7ACCESS) // TODO NO_HEADER_LINE
       if (menuVerticalPosition < HEADER_LINE) {
         killEvents(_event);
         POPUP_MENU_ADD_ITEM(STR_SD_INFO);

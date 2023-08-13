@@ -167,4 +167,5 @@ const ZoneOption TimerWidget::options[] = {
     {STR_TIMER_SOURCE, ZoneOption::Timer, OPTION_VALUE_UNSIGNED(0)},
     {nullptr, ZoneOption::Bool}};
 
-BaseWidgetFactory<TimerWidget> timerWidget("Timer", TimerWidget::options);
+BaseWidgetFactory<TimerWidget> timerWidget("Timer", TimerWidget::options,
+                                           STR_WIDGET_TIMER);

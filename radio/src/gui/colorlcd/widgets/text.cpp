@@ -60,4 +60,5 @@ const ZoneOption TextWidget::options[] = {
   { nullptr, ZoneOption::Bool }
 };
 
-BaseWidgetFactory<TextWidget> textWidget("Text", TextWidget::options);
+BaseWidgetFactory<TextWidget> textWidget("Text", TextWidget::options,
+                                         STR_WIDGET_TEXT);

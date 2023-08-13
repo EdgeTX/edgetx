@@ -246,7 +246,7 @@ void FlightModeBtn::paint(BitmapBuffer* dc)
 
   LcdFlags txt_flags;
   if (active) {
-    txt_flags = FONT(BOLD) | COLOR_THEME_PRIMARY2;
+    txt_flags = FONT(BOLD) | COLOR_THEME_PRIMARY1;
   } else {
     txt_flags = FONT(STD) | COLOR_THEME_SECONDARY1;
   }
@@ -324,7 +324,7 @@ void ModelFlightModesPage::build(FormWindow * window)
     new FlightModeBtn(fm_box, i);
   }
 
-  new TextButton(window, rect_t{}, "Check FM Trims", [&]() -> uint8_t {
+  new TextButton(window, rect_t{}, STR_CHECKTRIMS, [&]() -> uint8_t {
     if (trimsCheckTimer)
       trimsCheckTimer = 0;
     else

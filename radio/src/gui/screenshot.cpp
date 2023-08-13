@@ -88,7 +88,7 @@ const char * writeScreenshot()
   auto h = snapshot->header.h;
 
   for (int y = h - 1; y >= 0; y--) {
-    for (int x = 0; x < w; x++) {
+    for (uint32_t x = 0; x < w; x++) {
 
       lv_color_t pixel = lv_img_buf_get_px_color(snapshot, x, y, {});
 

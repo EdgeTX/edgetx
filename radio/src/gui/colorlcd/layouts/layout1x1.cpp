@@ -45,5 +45,5 @@ class Layout1x1 : public Layout
   rect_t getZone(unsigned int index) const override { return getMainZone(); }
 };
 
-BaseLayoutFactory<Layout1x1> layout1x1("Layout1x1", "Fullscreen",
+BaseLayoutFactory<Layout1x1> layout1x1("Layout1x1", STR_WIDGET_FULLSCREEN,
                                        LBM_LAYOUT_1x1, OPTIONS_LAYOUT_1x1);

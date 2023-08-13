@@ -48,6 +48,7 @@ class CurveEdit: public FormField
 
   public:
     CurveEdit(Window * parent, const rect_t & rect, uint8_t index);
+    static void SetCurrentSource(uint32_t source);
 
     void deleteLater(bool detach = true, bool trash = true) override
     {
@@ -62,16 +63,19 @@ class CurveEdit: public FormField
     void updatePreview();
 
     void onEvent(event_t event) override;
+    void checkEvents(void) override;
 
-// #if defined(HARDWARE_TOUCH)
-//     bool onTouchEnd(coord_t x, coord_t y) override;
-//     void onFocusLost() override;
-// #endif
+    // #if defined(HARDWARE_TOUCH)
+    //     bool onTouchEnd(coord_t x, coord_t y) override;
+    //     void onFocusLost() override;
+    // #endif
 
-  protected:
+   protected:
     Curve preview;
     uint8_t index;
     uint8_t current;
+    static mixsrc_t currentSource;
+    static bool lockSource;
     void next();
     void previous();
     void up();

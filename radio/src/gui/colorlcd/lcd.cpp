@@ -58,7 +58,7 @@ void lcdSetFlushCb(void (*cb)(lv_disp_drv_t *, uint16_t*, const rect_t&))
 
 static lv_disp_drv_t* refr_disp = nullptr;
 
-#if !defined(LCD_VERTICAL_INVERT)
+#if !defined(LCD_VERTICAL_INVERT) && 0
 // TODO: DMA copy would be possible (use function from draw_ctx???
 static void _copy_screen_area(uint16_t* dst, uint16_t* src, const lv_area_t& copy_area)
 {

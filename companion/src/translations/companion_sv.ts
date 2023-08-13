@@ -2920,6 +2920,10 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <source>9X with Sky9x board</source>
         <translation></translation>
     </message>
+    <message>
+        <source>iFlight Commando8</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>FirmwareInterface</name>
@@ -7855,10 +7859,6 @@ p, li { white-space: pre-wrap; }
         <translation>Allmänt</translation>
     </message>
     <message>
-        <source>EEprom Size</source>
-        <translation>EEPROM-storlek</translation>
-    </message>
-    <message>
         <source>Model Image</source>
         <translation>Modellikon</translation>
     </message>
@@ -8176,7 +8176,7 @@ p, li { white-space: pre-wrap; }
     <name>OptionsPage</name>
     <message>
         <source>Throttle Cut</source>
-        <translation>Gas-spärr</translation>
+        <translation>Gasspärr</translation>
     </message>
     <message>
         <source>Throttle Timer</source>
@@ -8646,7 +8646,7 @@ r</translation>
     </message>
     <message>
         <source>sm%1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -9129,7 +9129,7 @@ r</translation>
     </message>
     <message>
         <source>Throttle Warning</source>
-        <translation>Gas-varning</translation>
+        <translation>Gasvarning</translation>
     </message>
     <message>
         <source>Reverse throttle operation.
@@ -11290,16 +11290,8 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
         <translation>Uppdateringsinterface</translation>
     </message>
     <message>
-        <source>No free slot to save interface settings!</source>
-        <translation>Ingen fri plats för att spara interfaceinställningar!</translation>
-    </message>
-    <message>
         <source>Unable to download release meta data</source>
         <translation>Kunde inte ladda ner metadata för versionen</translation>
-    </message>
-    <message>
-        <source>Unable to download release channel assets information</source>
-        <translation>Kunde inte ladda information om tillgångarna från versionskanalen</translation>
     </message>
     <message>
         <source>%1 directory not configured in application settings!</source>
@@ -11383,7 +11375,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     </message>
     <message>
         <source>Directories checked/created: %1</source>
-        <translation>Kataloger kontrollerade/skapde: %1</translation>
+        <translation>Kataloger kontrollerade/skapade: %1</translation>
     </message>
     <message>
         <source>Failed to delete existing file %1</source>
@@ -11519,6 +11511,21 @@ Fel:%1
         <source>Delete decompress folder: %1</source>
         <translation>Radera uppackningskatalog: %1</translation>
     </message>
+<<<<<<< HEAD
+=======
+    <message>
+        <source>Component id: %1 exceeds maximum application settings components: %2!</source>
+        <translation type="unfinished">Komponent id: %1 överskrider &quot;maximum application settings components&quot;: %2!</translation>
+    </message>
+    <message>
+        <source>unknown</source>
+        <translation>okänd</translation>
+    </message>
+    <message>
+        <source>Unable to download release assets information</source>
+        <translation>Kunde inte ladda ner information om versionens tillgångar</translation>
+    </message>
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 </context>
 <context>
     <name>UpdateMultiProtocol</name>
@@ -11682,7 +11689,7 @@ Fel:%1
     <name>Updates</name>
     <message>
         <source>No updates available at this time</source>
-        <translation>Inga uppdateringar tillgängliga i nuläget</translation>
+        <translation>Inga uppdateringar är tillgängliga för närvarande</translation>
     </message>
     <message>
         <source>Checking for Updates</source>

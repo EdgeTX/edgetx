@@ -25,6 +25,7 @@
 #include "curve_param.h"
 #include "gvar_numberedit.h"
 #include "input_source.h"
+#include "curveedit.h"
 
 #include "opentx.h"
 
@@ -80,6 +81,8 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
 
   preview->setWidth(INPUT_EDIT_CURVE_WIDTH);
   preview->setHeight(INPUT_EDIT_CURVE_HEIGHT);
+
+  CurveEdit::SetCurrentSource(expoAddress(index)->srcRaw);
 }
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),

@@ -33,7 +33,7 @@
  */
 
 
-#define TR_OFFON               "OFF","ON"
+#define TR_OFFON               TR("OFF","Disattivato"),TR("ON","Attivato")
 #define TR_MMMINV              "---","INV"
 #define TR_VBEEPMODE           TR("Silen","Silente"),TR("Avvis","Avvisi"),TR("Notst","No Tasti"),"Tutti"
 #define TR_VBLMODE             TR("OFF","Spenta"),"Tasti",TR("Stks","Sticks"),"Tutti",TR("ON","Accesa")
@@ -87,17 +87,19 @@
 #if LCD_W >= 212
   #define TR_CSWTIMER          "Timer"
   #define TR_CSWSTICKY         "Stcky"
+  #define TR_CSWSAFE           "Safe"
   #define TR_CSWRANGE          "Campo"
   #define TR_CSWSTAY           "Edge"
 #else
   #define TR_CSWTIMER          "Tim"
   #define TR_CSWSTICKY         "Glue"
+  #define TR_CSWSAFE           "Safe"
   #define TR_CSWRANGE          "Rnge"
   #define TR_CSWSTAY           "Edge"
 #endif
 
 #define TR_CSWEQUAL  "a=x"
-#define TR_VCSWFUNC  "---",TR_CSWEQUAL,"a~x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
+#define TR_VCSWFUNC  "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY,TR_CSWSAFE
 
 #if defined(VARIO)
   #define TR_VVARIO            "Vario"
@@ -337,7 +339,7 @@
 #define TR_BITMAP              "Immagine"
 #define TR_NO_PICTURE          "No immagine"
 #define TR_TIMER               TR("Timer", "Timer ")
-#define TR_START               "Start"
+#define TR_START               "Partenza"
 #define TR_ELIMITS             TR("Lim. Est.", "Limiti Estesi")
 #define TR_ETRIMS              TR("Trim Est.", "Trim Estesi")
 #define TR_TRIMINC             "Passo Trim"
@@ -359,7 +361,11 @@
 #define TR_FADEIN              "Diss.In"
 #define TR_FADEOUT             "Diss.Out"
 #define TR_DEFAULT             "(Predefinita)"
-#define TR_CHECKTRIMS          CENTER "\006Contr.\012Trims"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS        "Contr. Trims"
+#else
+  #define TR_CHECKTRIMS        CENTER "\006Contr.\012Trims"
+#endif
 #define OFS_CHECKTRIMS         CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE           "Tipo Ciclico"
 #define TR_COLLECTIVE          TR("Collettivo", "Origine Collettivo")
@@ -370,6 +376,11 @@
 #define TR_AILDIRECTION        TR("Direzione AIL", "Direzione cic. lat.")
 #define TR_COLDIRECTION        TR("Direzione PIT", "Direzione passo coll.")
 #define TR_MODE                "Modo"
+#if LCD_W > LCD_H
+  #define TR_LEFT_STICK        "Sinistro"
+#else
+  #define TR_LEFT_STICK        "Sx"
+#endif
 #define TR_SUBTYPE             INDENT "Sottotipo"
 #define TR_NOFREEEXPO          "Expo pieni!"
 #define TR_NOFREEMIXER         "Mixer pieni!"
@@ -433,6 +444,7 @@
 #define TR_MODEL_SHUTDOWN              "Spegnimento?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Premi [ENT] per confermare"
 #define TR_THROTTLE_LABEL      "Motore"
+#define TR_THROTTLE_START      "Partenza motore"
 #define TR_THROTTLEREVERSE     TR("Mot inv.", "Motore Inverso")
 #define TR_MINUTEBEEP          "Minuto"
 #define TR_BEEPCOUNTDOWN       TR(INDENT "Conto rov", INDENT "Conto rovescia")
@@ -497,7 +509,7 @@
 #define TR_LUA_SCRIPTS_LABEL          "Lua scripts"
 #define TR_FREE_MEM_LABEL             "Mem. libera"
 #define TR_TIMER_LABEL                "Timer"
-#define TR_THROTTLE_PERCENT_LABEL     "Throttle %"
+#define TR_THROTTLE_PERCENT_LABEL     "% Motore"
 #define TR_BATT_LABEL                 "Batteria"
 #define TR_SESSION                    "Sessione"
 #define TR_MENUTORESET         TR_ENTER" per azzerare"
@@ -665,9 +677,10 @@
 #define TR_UPDATE_RX_OPTIONS           "Agg. opzioni RX?"
 #define TR_UPDATE_TX_OPTIONS           "Agg. opzioni TX?"
 #define TR_MODULES_RX_VERSION          "Versioni Moduli / RX"
+#define TR_SHOW_MIXER_MONITORS         "Mostra monitors mixer"
 #define TR_MENU_MODULES_RX_VERSION     "VERSIONI MODULI / RX"
 #define TR_MENU_FIRM_OPTIONS           "OPZIONI FIRMWARE"
-#define TR_IMU                        "IMU"
+#define TR_IMU                         "IMU"
 #define TR_STICKS_POTS_SLIDERS         "Interruttori/Pots/Sliders"
 #define TR_PWM_STICKS_POTS_SLIDERS     "PWM Interruttori/Pots/Sliders"
 #define TR_RF_PROTOCOL                 "Protocollo RF"
@@ -991,6 +1004,7 @@
 #define TR_TOUCH_PANEL                 "Schermo touch:"
 #define TR_FILE_SIZE                   "Dimensione file"
 #define TR_FILE_OPEN                   "Apro comunque?"
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Nome"
@@ -1051,6 +1065,12 @@
 #define TR_MAIN_VIEW_X                 "Vista principale X"
 #define TR_PANEL1_BACKGROUND           "Sfondo Panello 1"
 #define TR_PANEL2_BACKGROUND           "Sfondo Panello 2"
+#define TR_WIDGET_GAUGE                "Indicatore"
+#define TR_WIDGET_MODELBMP             "Immagine e nome modello"
+#define TR_WIDGET_OUTPUTS              "Uscite"
+#define TR_WIDGET_TEXT                 "Testo"
+#define TR_WIDGET_TIMER                "Timer"
+#define TR_WIDGET_VALUE                "Valore"
 
 // About screen
 #define TR_ABOUTUS             TR(" INFO ", "INFO SU")
@@ -1108,6 +1128,7 @@
 #define TR_DELETE_ALL_SENSORS  "Elimina tutti i sensori"
 #define TR_CONFIRMDELETE       "Confermi " LCDW_128_480_LINEBREAK "eliminazione?"
 #define TR_SELECT_WIDGET       "Seleziona widget"
+#define TR_WIDGET_FULLSCREEN           "Full screen"
 #define TR_REMOVE_WIDGET       "Rimuovi widget"
 #define TR_WIDGET_SETTINGS     "Settaggio widget"
 #define TR_REMOVE_SCREEN       "Rimuovi schermo"
@@ -1337,3 +1358,21 @@
 #define TR_MAIN_MENU_STATISTICS         "Statistiche"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Riguardo\nEdgeTX"
 // End Main menu
+
+// Voice in native language
+#define TR_VOICE_ENGLISH                "Inglese"
+#define TR_VOICE_CHINESE                "Cinese"
+#define TR_VOICE_CZECH                  "Cecoslovacco"
+#define TR_VOICE_DANISH                 "Danese"
+#define TR_VOICE_DEUTSCH                "Tedesco"
+#define TR_VOICE_DUTCH                  "Olandese"
+#define TR_VOICE_ESPANOL                "Spagnolo"
+#define TR_VOICE_FRANCAIS               "Francese"
+#define TR_VOICE_HUNGARIAN              "Ungherese"
+#define TR_VOICE_ITALIANO               "Italiano"
+#define TR_VOICE_POLISH                 "Polacco"
+#define TR_VOICE_PORTUGUES              "Portoghese"
+#define TR_VOICE_RUSSIAN                "Russo"
+#define TR_VOICE_SLOVAK                 "Slovacco"
+#define TR_VOICE_SWEDISH                "Svedese"
+#define TR_VOICE_TAIWANESE              "Taiwanese"

@@ -223,6 +223,8 @@ void RadioSpectrumAnalyser::buildBody(FormWindow * window)
 
 void RadioSpectrumAnalyser::init()
 {
+  memclear(&reusableBuffer.spectrumAnalyser, sizeof(reusableBuffer.spectrumAnalyser));
+
 #if defined(INTERNAL_MODULE_MULTI)
   if (moduleIdx == INTERNAL_MODULE &&
       g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_NONE) {

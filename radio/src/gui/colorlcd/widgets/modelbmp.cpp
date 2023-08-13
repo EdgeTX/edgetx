@@ -134,4 +134,5 @@ const ZoneOption ModelBitmapWidget::options[] = {
     {STR_USE_THEME_COLOR, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
     {nullptr, ZoneOption::Bool}};
 
-BaseWidgetFactory<ModelBitmapWidget> modelBitmapWidget("ModelBmp", ModelBitmapWidget::options, "Models");
+BaseWidgetFactory<ModelBitmapWidget> modelBitmapWidget(
+    "ModelBmp", ModelBitmapWidget::options, STR_WIDGET_MODELBMP);

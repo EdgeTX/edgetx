@@ -27,6 +27,14 @@ int16_t ppmInput[MAX_TRAINER_CHANNELS];
 uint8_t ppmInputValidityTimer;
 uint8_t currentTrainerMode = 0xff;
 
+enum {
+  TRAINER_NOT_CONNECTED = 0,
+  TRAINER_CONNECTED,
+  TRAINER_DISCONNECTED,
+  TRAINER_RECONNECTED
+};
+uint8_t trainerStatus = TRAINER_NOT_CONNECTED;
+
 void checkTrainerSignalWarning()
 {
   enum {
@@ -39,13 +47,17 @@ void checkTrainerSignalWarning()
 
   if (ppmInputValidityTimer && (ppmInputValidState == PPM_IN_IS_NOT_USED)) {
     ppmInputValidState = PPM_IN_IS_VALID;
+    trainerStatus = TRAINER_CONNECTED;
+    AUDIO_TRAINER_CONNECTED();
   }
   else if (!ppmInputValidityTimer && (ppmInputValidState == PPM_IN_IS_VALID)) {
     ppmInputValidState = PPM_IN_INVALID;
+    trainerStatus = TRAINER_DISCONNECTED;
     AUDIO_TRAINER_LOST();
   }
   else if (ppmInputValidityTimer && (ppmInputValidState == PPM_IN_INVALID)) {
     ppmInputValidState = PPM_IN_IS_VALID;
+    trainerStatus = TRAINER_RECONNECTED;
     AUDIO_TRAINER_BACK();
   }
 }

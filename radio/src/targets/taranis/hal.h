@@ -249,6 +249,12 @@
   #define ROTARY_ENCODER_EXTI_PortSource   EXTI_PortSourceGPIOE
   #define ROTARY_ENCODER_EXTI_PinSource1   EXTI_PinSource9
   #define ROTARY_ENCODER_EXTI_PinSource2   EXTI_PinSource10
+  #if defined(RADIO_TX12)
+    #define ROTARY_ENCODER_SUPPORT_BUGGY_WIRING
+  #endif
+  #if defined(RADIO_TX12MK2) || defined(RADIO_ZORRO)
+    #define ROTARY_ENCODER_INVERTED
+  #endif
 #endif
 
 #if defined(ROTARY_ENCODER_NAVIGATION)

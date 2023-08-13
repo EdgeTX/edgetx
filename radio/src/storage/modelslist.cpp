@@ -999,13 +999,23 @@ bool ModelsList::loadYaml()
       FRESULT res = f_readdir(&moddir, &finfo);
       if (res != FR_OK || finfo.fname[0] == 0) break;
       if (finfo.fattrib & AM_DIR) continue;
-      int len = strlen(finfo.fname);
-      if (len < 5 ||
+      unsigned int len = strlen(finfo.fname);
+
+      // Only open model###.yml files
+      bool modelNameInvalid = false;
+      if (strncasecmp(finfo.fname, MODEL_FILENAME_PREFIX, sizeof(MODEL_FILENAME_PREFIX) - 1) == 0) {
+        for (unsigned int i = sizeof(MODEL_FILENAME_PREFIX) - 1; i < len - 4; i++) {
+          if(finfo.fname[i] < '0' || finfo.fname[i] > '9') {
+            modelNameInvalid = true;
+            break;
+          }
+        }
+      } else {
+        modelNameInvalid = true;
+      }
+
+      if (modelNameInvalid ||
           strcasecmp(finfo.fname + len - 4, YAML_EXT) ||  // Skip non .yml files
-          strcasecmp(finfo.fname, LABELS_FILENAME) ==
-              0 ||  // Skip labels.yml file
-          strcasecmp(finfo.fname, MODELS_FILENAME) ==
-              0 ||                     // Skip models.yml file
           (finfo.fattrib & AM_DIR)) {  // Skip sub dirs
         continue;
       }
@@ -1050,6 +1060,7 @@ bool ModelsList::loadYaml()
       if (result == FR_NO_PATH) result = f_mkdir(UNUSED_MODELS_PATH);
       if (result != FR_OK) {
         TRACE("Unable to create unused models folder");
+        f_close(&file);
         return false;
       }
     } else f_closedir(&unusedFolder);

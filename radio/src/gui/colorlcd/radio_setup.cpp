@@ -545,7 +545,6 @@ class BacklightPage : public Page {
     }
 };
 
-#if defined(INTERNAL_GPS)
 class GpsPage : public Page {
   public:
 	GpsPage() :
@@ -583,7 +582,6 @@ class GpsPage : public Page {
       line = body.newLine(&grid);
     }
 };
-#endif
 
 RadioSetupPage::RadioSetupPage():
   PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP)
@@ -609,10 +607,8 @@ void RadioSetupPage::build(FormWindow * window)
 #endif
       {STR_ALARM, []() { new AlarmsPage(); }},
       {STR_BACKLIGHT_LABEL, []() { new BacklightPage(); }},
-#if defined(INTERNAL_GPS)
       {STR_GPS, [](){new GpsPage();}},
-#endif
-  });
+});
 
 
 #if defined(PWR_BUTTON_PRESS)
@@ -733,12 +729,10 @@ void RadioSetupPage::build(FormWindow * window)
                         resumePulses();
                       });
   choice->setTextHandler([](uint8_t value) {
-    return std::to_string(1 + value) + ": left=" +
+    return std::to_string(1 + value) + ": " + STR_LEFT_STICK + " = " +
            std::string(&getSourceString(MIXSRC_Rud + modn12x3[4 * value])[1]) +
            "+" +
            std::string(
                &getSourceString(MIXSRC_Rud + modn12x3[4 * value + 1])[1]);
   });
 }
-
-

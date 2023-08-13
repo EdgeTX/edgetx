@@ -30,7 +30,7 @@ class WidgetsContainer;
 class SetupWidgetsPage : public FormWindow
 {
  public:
-  SetupWidgetsPage(ScreenMenu* menu, uint8_t customScreenIdx);
+  SetupWidgetsPage(uint8_t customScreenIdx);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override
@@ -44,9 +44,9 @@ class SetupWidgetsPage : public FormWindow
   void deleteLater(bool detach = true, bool trash = true) override;
 
  protected:
-  ScreenMenu* menu;
   uint8_t customScreenIdx;
   unsigned savedView = 0;
+  void onEvent(event_t event)  override;
 };
 
 class SetupWidgetsPageSlot : public Button

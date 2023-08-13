@@ -431,7 +431,9 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
 #endif
 
 static const char* _pots_warn_modes[] = { "OFF", "Man", "Auto" };
+#if defined(FUNCTION_SWITCHES)
 static const char* _fct_sw_start[] = { STR_CHAR_UP, STR_CHAR_DOWN, "=" };
+#endif
 
 void menuModelSetup(event_t event)
 {
@@ -816,7 +818,6 @@ void menuModelSetup(event_t event)
           }
 
           swarnstate_t states = g_model.switchWarningState;
-          char c;
 
           lcdDrawTextAlignedLeft(y, STR_SWITCHWARNING);
 #if defined(PCBXLITE)

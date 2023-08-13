@@ -113,6 +113,8 @@ class ModulePanel : public ModelPanel
     void updateFailsafe(unsigned channel);
     void on_optionValue_editingFinished();
     void onClearAccessRxClicked();
+    void on_chkOption_stateChanged(int state);
+    void on_cboOption_currentIndexChanged(int value);
 
   private:
     enum FailsafeValueDisplayTypes { FAILSAFE_DISPLAY_PERCENT = 1, FAILSAFE_DISPLAY_USEC = 2 };

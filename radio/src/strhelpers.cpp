@@ -880,10 +880,11 @@ char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
     BitmapBuffer::formatNumberAsString(dest, len, val, flags);
   }
   else if (source <= MIXSRC_LAST_CH) {
-    val = calcRESXto100(val);
 #if defined(PPM_UNIT_PERCENT_PREC1)
+    val = calcRESXto1000(val);
     BitmapBuffer::formatNumberAsString(dest, len, val, flags | PREC1);
 #else
+    val = calcRESXto100(val);
     BitmapBuffer::formatNumberAsString(dest, len, val, flags);
 #endif
   }

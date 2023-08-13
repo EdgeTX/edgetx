@@ -49,6 +49,7 @@ uint32_t telemetryErrors = 0;
 
 typedef int32_t rotenc_t;
 volatile rotenc_t rotencValue = 0;
+volatile uint32_t rotencDt = 0;
 
 // TODO: remove all STM32 defs
 GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpioj;

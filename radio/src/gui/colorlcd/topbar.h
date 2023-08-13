@@ -45,7 +45,7 @@ class TopbarFactory
 class SetupTopBarWidgetsPage : public FormWindow
 {
  public:
-  explicit SetupTopBarWidgetsPage(ScreenMenu* menu);
+  explicit SetupTopBarWidgetsPage();
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "SetupTopBarWidgetsPage"; }
@@ -54,7 +54,4 @@ class SetupTopBarWidgetsPage : public FormWindow
   void onClicked() override;
   void onCancel() override;
   void deleteLater(bool detach = true, bool trash = true) override;
-
- protected:
-  ScreenMenu* menu;
 };

@@ -59,10 +59,10 @@ void Widget::openMenu()
 {
   Menu* menu = new Menu(this);
   if (fsAllowed) {
-    menu->addLine("Full screen", [&]() { setFullscreen(true); });
+    menu->addLine(STR_WIDGET_FULLSCREEN, [&]() { setFullscreen(true); });
   }
   if (getOptions() && getOptions()->name) {
-    menu->addLine(TR_WIDGET_SETTINGS,
+    menu->addLine(STR_WIDGET_SETTINGS,
                   [=]() { new WidgetSettings(this, this); });
   }
 }

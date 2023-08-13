@@ -273,21 +273,21 @@ PACK(struct ScriptData {
 #endif
 
 /*
- * Frsky Telemetry structure
+ * Frsky Telemetry structure (legacy read-only)
  */
 PACK(struct RssiAlarmData {
-  int8_t disabled:1;
-#if defined (PCBNV14)
-  uint8_t flysky_telemetry:1; // if set for FlySky receivers use native RSSI values instead of rescaled ones
-#else
-  int8_t  spare:1 SKIP;
-#endif
-  int8_t warning:6;
-  int8_t spare2:2 SKIP;
-  int8_t critical:6;
-  inline int8_t getWarningRssi() {return 45 + warning;}
-  inline int8_t getCriticalRssi() {return 42 + critical;}
- });
+  // int8_t disabled:1;
+  CUST_ATTR(disabled,r_rssiDisabled,nullptr);
+  // int8_t warning:6; + 45
+  CUST_ATTR(warning,r_rssiWarning,nullptr);
+  // int8_t critical:6; + 42
+  CUST_ATTR(critical,r_rssiCritical,nullptr);
+});
+
+PACK(struct RFAlarmData {
+  int8_t warning;
+  int8_t critical;
+});
 
 typedef int16_t ls_telemetry_value_t;
 
@@ -640,7 +640,8 @@ PACK(struct ModelData {
   uint8_t   extendedTrims:1;
   uint8_t   throttleReversed:1;
   uint8_t   enableCustomThrottleWarning:1;
-  uint8_t   spare3:7 SKIP;
+  uint8_t   disableTelemetryWarning:1;
+  uint8_t   spare3:6 SKIP;
   int8_t    customThrottleWarningPosition;
   BeepANACenter beepANACenter;
   MixData   mixData[MAX_MIXERS] NO_IDX;
@@ -666,7 +667,10 @@ PACK(struct ModelData {
 
   TOPBAR_DATA
 
-  NOBACKUP(RssiAlarmData rssiAlarms);
+#if defined(YAML_GENERATOR)
+  RssiAlarmData rssiAlarms;
+#endif
+  NOBACKUP(RFAlarmData rfAlarms);
 
   uint8_t thrTrimSw:3;
   uint8_t potsWarnMode:2 ENUM(PotsWarnMode);

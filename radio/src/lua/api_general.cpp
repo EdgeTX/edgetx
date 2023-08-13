@@ -1187,7 +1187,7 @@ static int luaGhostTelemetryPop(lua_State * L)
     lua_newtable(L);
     for (uint8_t i=0; i<length-2; i++) {
       luaInputTelemetryFifo->pop(data);
-      lua_pushinteger(L, i+1);
+      lua_pushinteger(L, i + 1);
       lua_pushinteger(L, data);
       lua_settable(L, -3);
     }
@@ -1890,8 +1890,8 @@ static int luaGetRSSI(lua_State * L)
     lua_pushunsigned(L, min((uint8_t)99, TELEMETRY_RSSI()));
   else
     lua_pushunsigned(L, 0);
-  lua_pushunsigned(L, g_model.rssiAlarms.getWarningRssi());
-  lua_pushunsigned(L, g_model.rssiAlarms.getCriticalRssi());
+  lua_pushunsigned(L, g_model.rfAlarms.warning);
+  lua_pushunsigned(L, g_model.rfAlarms.critical);
   return 3;
 }
 
@@ -2587,11 +2587,29 @@ static int luaSources(lua_State * L)
 static int luaGetOutputValue(lua_State * L)
 {
   mixsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx >= 0 && idx < MAX_OUTPUT_CHANNELS) {
+  if (idx < MAX_OUTPUT_CHANNELS) {           // mixsrc_t is unsigned, no need to check for <0
     lua_pushinteger(L, channelOutputs[idx]);
   } else {
     lua_pushinteger(L, 0);
   }
+  return 1;
+}
+
+/*luadoc
+@function getTrainerStatus()
+
+@retval value current output value (number).
+ 0 - Not Connected
+ 1 - Connected
+ 2 - Disconnected
+ 3 - Reconnected
+
+@status current Introduced in 2.9.0
+*/
+static int luaGetTrainerStatus(lua_State * L)
+{
+  extern uint8_t trainerStatus;
+  lua_pushinteger(L, trainerStatus);
   return 1;
 }
 
@@ -2609,6 +2627,7 @@ const luaL_Reg opentxLib[] = {
   { "getValue", luaGetValue },
   { "getOutputValue", luaGetOutputValue },
   { "getSourceValue", luaGetSourceValue },
+  { "getTrainerStatus", luaGetTrainerStatus },
   { "getRAS", luaGetRAS },
   { "getTxGPS", luaGetTxGPS },
   { "getFieldInfo", luaGetFieldInfo },

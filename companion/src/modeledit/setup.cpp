@@ -220,6 +220,7 @@ void TimerPanel::onModeChanged(int index)
 #define MASK_RF_RACING_MODE (1<<16)
 #define MASK_GHOST          (1<<17)
 #define MASK_BAUDRATE       (1<<18)
+#define MASK_MULTI_DSM_OPT  (1<<19)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
@@ -492,8 +493,12 @@ void ModulePanel::update()
           mask |= MASK_CHANNELS_COUNT;
         else
           module.channelsCount = 16;
-        if (pdef.optionsstr != nullptr)
-          mask |= MASK_MULTIOPTION;
+        if (pdef.optionsstr != nullptr) {
+          if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
+            mask |= MASK_MULTI_DSM_OPT;
+          else
+            mask |= MASK_MULTIOPTION;
+        }
         if (pdef.hasFailsafe || (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKY && (module.subType == 0 || module.subType == 2 || module.subType > 3 )))
           mask |= MASK_FAILSAFES;
         break;
@@ -629,6 +634,10 @@ void ModulePanel::update()
   ui->multiProtocol->setVisible(mask & MASK_MULTIMODULE);
   ui->label_option->setVisible(mask & MASK_MULTIOPTION);
   ui->optionValue->setVisible(mask & MASK_MULTIOPTION);
+  ui->lblChkOption->setVisible(mask & MASK_MULTI_DSM_OPT);
+  ui->chkOption->setVisible(mask & MASK_MULTI_DSM_OPT);
+  ui->lblCboOption->setVisible(mask & MASK_MULTI_DSM_OPT);
+  ui->cboOption->setVisible(mask & MASK_MULTI_DSM_OPT);
   ui->disableTelem->setVisible(mask & MASK_MULTIMODULE);
   ui->disableChMap->setVisible(mask & MASK_MULTIMODULE);
   ui->lowPower->setVisible(mask & MASK_MULTIMODULE);
@@ -651,6 +660,16 @@ void ModulePanel::update()
     ui->optionValue->setMaximum(pdef.getOptionMax());
     ui->optionValue->setValue(module.multi.optionValue);
     ui->label_option->setText(qApp->translate("Multiprotocols", qPrintable(pdef.optionsstr)));
+  }
+
+  if (mask & MASK_MULTI_DSM_OPT) {
+    ui->lblChkOption->setText(qApp->translate("Multiprotocols", qPrintable(pdef.optionsstr)));
+    ui->chkOption->setChecked(Helpers::getBitmappedValue(module.multi.optionValue, 0));
+    ui->lblCboOption->setText(qApp->translate("Multiprotocols", "Servo update rate"));
+    ui->cboOption->clear();
+    ui->cboOption->addItems({"22ms", "11ms"});
+    ui->cboOption->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    ui->cboOption->setCurrentIndex(Helpers::getBitmappedValue(module.multi.optionValue, 1));
   }
 
   // Ghost settings fields
@@ -851,6 +870,42 @@ void ModulePanel::on_optionValue_editingFinished()
   if (module.multi.optionValue != ui->optionValue->value()) {
     module.multi.optionValue = ui->optionValue->value();
     emit modified();
+  }
+}
+
+void ModulePanel::on_chkOption_stateChanged(int state)
+{
+  if (!lock) {
+    if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2) {
+      unsigned int opt = (unsigned int)module.multi.optionValue;
+      if (Helpers::getBitmappedValue(opt, 0) != (state == Qt::Checked)) {
+        Helpers::setBitmappedValue(opt, (state == Qt::Checked), 0);
+        module.multi.optionValue = opt;
+        emit modified();
+      }
+    }
+    else if (module.multi.optionValue != (state == Qt::Checked)) {
+      module.multi.optionValue = (state == Qt::Checked);
+      emit modified();
+    }
+  }
+}
+
+void ModulePanel::on_cboOption_currentIndexChanged(int value)
+{
+  if (!lock && value >= 0) {
+    if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2) {
+      unsigned int opt = (unsigned int)module.multi.optionValue;
+      if (Helpers::getBitmappedValue(opt, 1) != (unsigned int)value) {
+        Helpers::setBitmappedValue(opt, value, 1);
+        module.multi.optionValue = opt;
+        emit modified();
+      }
+    }
+    else if (module.multi.optionValue != value) {
+      module.multi.optionValue = value;
+      emit modified();
+    }
   }
 }
 

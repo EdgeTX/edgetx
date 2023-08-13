@@ -151,8 +151,8 @@ void menuRadioModulesVersion(event_t event)
 #if defined(CROSSFIRE)
       if (isModuleCrossfire(module)) {
         char statusText[64] = "";
-        sprintf(statusText, "%d Hz %lu Err",
-                1000000 / getMixerSchedulerPeriod(), telemetryErrors);
+        sprintf(statusText, "%d Hz %zu Err",
+                1000000 / getMixerSchedulerPeriod(), (size_t)telemetryErrors);
         lcdDrawText(COLUMN2_X, y, statusText);
         y += FH;
         continue;

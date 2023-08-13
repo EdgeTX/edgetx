@@ -24,11 +24,11 @@
 
 #include "tabsgroup.h"
 
-class ScreenMenu: public TabsGroup {
-
-  public:
-    ScreenMenu();
-    void updateTabs();
+class ScreenMenu : public TabsGroup
+{
+ public:
+  ScreenMenu(int8_t tabIdx = -1);
+  void updateTabs(int8_t tabIdx);
 };
 
 #endif // _MENU_SCREEN_H_

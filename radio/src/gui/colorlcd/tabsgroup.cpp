@@ -140,7 +140,7 @@ static constexpr rect_t _get_body_rect()
 }
 
 TabsGroup::TabsGroup(uint8_t icon):
-  Window(MainWindow::instance(), { 0, 0, LCD_W, LCD_H }, OPAQUE),
+  Window(Layer::back(), { 0, 0, LCD_W, LCD_H }, OPAQUE),
   header(this, icon),
   body(this, _get_body_rect(), NO_FOCUS | FORM_FORWARD_FOCUS)
 {
@@ -271,8 +271,6 @@ void TabsGroup::onEvent(event_t event)
     killEvents(event);
     uint8_t current = header.carousel.getCurrentIndex();
     setCurrentTab(current == 0 ? tabs.size() - 1 : current - 1);
-  } else if (parent) {
-    parent->onEvent(event);
   }
 #endif
 }

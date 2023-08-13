@@ -236,14 +236,14 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
   uint8_t btn_cnt = 0;
   for (uint8_t i = POT_FIRST; i <= POT_LAST; i++) {
     if ((IS_POT(i) || IS_POT_MULTIPOS(i)) && IS_POT_AVAILABLE(i)) {
-      pot_idx[btn_cnt] = i;
+      pot_idx[btn_cnt] = i - POT_FIRST;
       btn_cnt++;
     }
   }
 
   for (int8_t i = SLIDER_FIRST; i <= SLIDER_LAST; i++) {
     if (IS_SLIDER(i)) {
-      pot_idx[btn_cnt] = i;
+      pot_idx[btn_cnt] = i - POT_FIRST;
       btn_cnt++;
     }
   }

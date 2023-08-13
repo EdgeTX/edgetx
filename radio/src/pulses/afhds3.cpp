@@ -21,11 +21,12 @@
 
 #include "afhds3.h"
 #include "afhds3_transport.h"
+#include "afhds3_config.h"
+
 #include "pulses.h"
 
 #include "../debug.h"
 #include "../definitions.h"
-// #include <cstdio>
 
 #include "telemetry/telemetry.h"
 #include "mixer_scheduler.h"
@@ -62,24 +63,24 @@ static uint8_t _phyMode_channels[] = {
   12, // ROUTINE_LORA_12CH
 };
 
-enum COMMAND_DIRECTION
-{
-  RADIO_TO_MODULE = 0,
-  MODULE_TO_RADIO = 1
-};
+// enum COMMAND_DIRECTION
+// {
+//   RADIO_TO_MODULE = 0,
+//   MODULE_TO_RADIO = 1
+// };
 
-enum DATA_TYPE
-{
-  READY_DT,  // 8 bytes 0x01 Not ready 0x02 Ready
-  STATE_DT,  // See MODULE_STATE
-  MODE_DT,
-  MOD_CONFIG_DT,
-  CHANNELS_DT,
-  TELEMETRY_DT,
-  MODULE_POWER_DT,
-  MODULE_VERSION_DT,
-  EMPTY_DT,
-};
+// enum DATA_TYPE
+// {
+//   READY_DT,  // 8 bytes 0x01 Not ready 0x02 Ready
+//   STATE_DT,  // See MODULE_STATE
+//   MODE_DT,
+//   MOD_CONFIG_DT,
+//   CHANNELS_DT,
+//   TELEMETRY_DT,
+//   MODULE_POWER_DT,
+//   MODULE_VERSION_DT,
+//   EMPTY_DT,
+// };
 
 //enum used by command response -> translate to ModuleState
 enum MODULE_READY_E
@@ -120,135 +121,6 @@ enum CMD_RESULT
 {
   FAILURE = 0x01,
   SUCCESS = 0x02,
-};
-
-enum BIND_POWER
-{
-  MIN_16dBm = 0x00,
-  BIND_POWER_FIRST = MIN_16dBm,
-  MIN_5dBm = 0x01,
-  MIN_0dbm = 0x02,
-  PLUS_5dBm = 0x03,
-  PLUS_14dBm = 0x04,
-  BIND_POWER_LAST = PLUS_14dBm,
-};
-
-// enum EMI_STANDARD
-// {
-//   FCC = 0x00,
-//   CE = 0x01
-// };
-
-enum TELEMETRY
-{
-  TELEMETRY_DISABLED = 0x00,
-  TELEMETRY_ENABLED = 0x01
-};
-
-enum PULSE_MODE
-{
-  PWM_MODE = 0x00,
-  PPM_MODE = 0x01,
-};
-
-enum SERIAL_MODE
-{
-  IBUS = 0x00,
-  SBUS_MODE = 0x02
-};
-
-// Old format for FRM302
-// PACK(struct Config_s {
-//   uint8_t bindPower;
-//   uint8_t runPower;
-//   uint8_t emiStandard;
-//   uint8_t telemetry;
-//   uint16_t pwmFreq;
-//   uint8_t pulseMode;
-//   uint8_t serialMode;
-//   uint8_t channelCount;
-//   uint16_t failSafeTimout;
-//   int16_t failSafeMode[AFHDS3_MAX_CHANNELS];
-// });
-
-PACK(struct sSES_PWMFrequencyV0 {
-  uint16_t Frequency : 15;    // From 50 to 400Hz
-  uint16_t Synchronized : 1;  // 1=Synchronize the PWM output to the RF cycle
-                              // (lower latency but unstable frequency)
-});
-
-enum eSES_PA_SetAnalogOutput {
-  SES_ANALOG_OUTPUT_PWM = 0,
-  SES_ANALOG_OUTPUT_PPM
-};
-
-enum eEB_BusType {
-  EB_BT_IBUS1=0,
-  EB_BT_IBUS2,
-  EB_BT_SBUS1
-};
-
-// 48 bytes
-PACK(struct sDATA_ConfigV0 {
-  uint8_t Version;     // =0
-  uint8_t EMIStandard; // eLNK_EMIStandard
-  uint8_t IsTwoWay;
-  uint8_t PhyMode;     // eDATA_PHYMODE
-  uint8_t SignalStrengthRCChannelNb; // 0xFF if not used, 0`18
-  uint16_t FailsafeTimeout;  // in unit of ms
-  int16_t FailSafe[AFHDS3_MAX_CHANNELS];
-  uint8_t FailsafeOutputMode; //TRUE Or FALSE
-  sSES_PWMFrequencyV0 PWMFrequency;
-  uint8_t AnalogOutput; // eSES_PA_SetAnalogOutput
-  uint8_t ExternalBusType; // eEB_BusType
-});
-
-#define SES_NB_MAX_CHANNELS (32)
-#define SES_NPT_NB_MAX_PORTS (4)
-
-enum eSES_NewPortType {
-  SES_NPT_PWM,
-  SES_NPT_PPM,
-  SES_NPT_SBUS,
-  SES_NPT_IBUS1_IN,
-  SES_NPT_IBUS1_OUT,
-  SES_NPT_IBUS2,
-  SES_NPT_IBUS2_HUB_PORT,
-  SES_NPT_WSTX,
-  SES_NPT_WSRX,
-  SES_NPT_NONE=0xFF
-};
-
-PACK(struct sSES_PWMFrequenciesAPPV1 {
-  // One unsigned short per
-  // channel, From 50 to 400Hz,
-  // 1:1000Hz,2:833Hz
-  uint16_t PWMFrequencies[SES_NB_MAX_CHANNELS];
-
-  // 1 bit per channel, 32 channels total
-  uint32_t Synchronized;
-});
-
-// 116 bytes
-PACK(struct sDATA_ConfigV1 {
-  uint8_t Version;      // =1
-  uint8_t EMIStandard;  // eLNK_EMIStandard
-  uint8_t IsTwoWay;
-  uint8_t PhyMode;                    // eDATA_PHYMODE
-  uint8_t SignalStrengthRCChannelNb;  // 0xFF if not used , 0`18
-  uint16_t FailsafeTimeout;           // in unit of ms
-  int16_t FailSafe[AFHDS3_MAX_CHANNELS];
-  uint8_t FailsafeOutputMode;                  // TRUE Or FALSE
-  uint8_t NewPortTypes[SES_NPT_NB_MAX_PORTS];  // eSES_NewPortType
-  sSES_PWMFrequenciesAPPV1 PWMFrequenciesV1;
-});
-
-union Config_u
-{
-  uint8_t version;
-  sDATA_ConfigV0 v0;
-  sDATA_ConfigV1 v1;
-  uint8_t buffer[sizeof(sDATA_ConfigV1)];
 };
 
 enum CHANNELS_DATA_MODE
@@ -349,9 +221,13 @@ class ProtoState
     */
     void stop();
 
+    Config_u* getConfig() { return &cfg; } 
+
+    void applyConfigFromModel();
+
   protected:
 
-    void setConfigFromModel();
+    void resetConfig(uint8_t version);
 
   private:
     //friendship declaration - use for passing telemetry
@@ -391,6 +267,7 @@ class ProtoState
     ModuleState state;
 
     bool modelIDSet;
+    uint8_t modelID;
 
     /**
      * Command count used for counting actual number of commands sent in run mode
@@ -438,7 +315,7 @@ static const char* const moduleStateText[] =
 static const COMMAND periodicRequestCommands[] =
 {
   COMMAND::MODULE_STATE,
-  COMMAND::MODULE_GET_CONFIG,
+  // COMMAND::MODULE_GET_CONFIG,
   COMMAND::VIRTUAL_FAILSAFE
 };
 
@@ -513,7 +390,7 @@ void ProtoState::setupFrame()
   if (moduleMode == ::ModuleSettingsMode::MODULE_MODE_BIND) {
     if (state != STATE_BINDING) {
       TRACE("AFHDS3 [BIND]");
-      setConfigFromModel();
+      applyConfigFromModel();
 
       trsp.sendFrame(COMMAND::MODULE_SET_CONFIG,
                      FRAME_TYPE::REQUEST_SET_EXPECT_DATA, cfg.buffer,
@@ -542,10 +419,19 @@ void ProtoState::setupFrame()
         return;        
       } else {
         modelIDSet = true;
+        modelID = g_model.header.modelId[module_index];
         trsp.sendFrame(COMMAND::MODEL_ID, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
                        &g_model.header.modelId[module_index], 1);
+
+        // always fetch config after setting model ID
+        trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
         return;
       }
+    } else if (modelID != g_model.header.modelId[module_index]) {
+      modelIDSet = false;
+      auto mode = (uint8_t)MODULE_MODE_E::STANDBY;
+      trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
+      return;
     }
     
     if (this->state == ModuleState::STATE_STANDBY) {
@@ -873,64 +759,58 @@ void ProtoState::stop()
   trsp.sendFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
 }
 
-void ProtoState::setConfigFromModel()
+void ProtoState::resetConfig(uint8_t version)
 {
-  if (moduleData->afhds3.phyMode < ROUTINE_FLCR1_18CH) {
-    cfg.version = 0;
+  memclear(&cfg, sizeof(cfg));
+  cfg.version = version;
+
+  if (cfg.version == 1) {
+    cfg.v1.SignalStrengthRCChannelNb = 0xFF;
+    cfg.v1.FailsafeTimeout = 500;
+    for (int i = 0; i < SES_NB_MAX_CHANNELS; i++)
+      cfg.v1.PWMFrequenciesV1.PWMFrequencies[i] = 50;
   } else {
-    cfg.version = 1;
+    cfg.v0.SignalStrengthRCChannelNb = 0xFF;
+    cfg.v0.FailsafeTimeout = 500;
+    cfg.v0.PWMFrequency.Frequency = 50;
+  }
+}
+
+void ProtoState::applyConfigFromModel()
+{
+  uint8_t version = 0;
+  if (moduleData->afhds3.phyMode >= ROUTINE_FLCR1_18CH) {
+    version = 1;
+  }
+
+  if (version != cfg.version) {
+    resetConfig(version);
   }
 
   if (cfg.version == 1) {
     cfg.v1.EMIStandard = moduleData->afhds3.emi;
     cfg.v1.IsTwoWay = moduleData->afhds3.telemetry;
     cfg.v1.PhyMode = moduleData->afhds3.phyMode;
-    cfg.v1.SignalStrengthRCChannelNb = 0xFF;
 
     // Failsafe
-    cfg.v1.FailsafeTimeout = 500;
     setFailSafe(cfg.v1.FailSafe);
-
     if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
       cfg.v1.FailsafeOutputMode = true;
     } else {
       cfg.v1.FailsafeOutputMode = false;
     }
-
-    // Serial output
-    memclear(&cfg.v1.NewPortTypes, sizeof(cfg.v1.NewPortTypes));
-
-    // PWM settings
-    for (int i = 0; i < SES_NB_MAX_CHANNELS; i++)
-      cfg.v1.PWMFrequenciesV1.PWMFrequencies[i] = 50;
-
-    cfg.v1.PWMFrequenciesV1.Synchronized = 0;
-
   } else {
     cfg.v0.EMIStandard = moduleData->afhds3.emi;
     cfg.v0.IsTwoWay = moduleData->afhds3.telemetry;
     cfg.v0.PhyMode = moduleData->afhds3.phyMode;
-    cfg.v0.SignalStrengthRCChannelNb = 0xFF;
 
     // Failsafe
-    cfg.v0.FailsafeTimeout = 500;
     setFailSafe(cfg.v0.FailSafe);
-
     if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
       cfg.v0.FailsafeOutputMode = true;
     } else {
       cfg.v0.FailsafeOutputMode = false;
     }
-
-    // PWM settings
-    cfg.v0.PWMFrequency.Frequency = 50;
-    cfg.v0.PWMFrequency.Synchronized = 0;
-
-    // PWM/PPM
-    cfg.v0.AnalogOutput = 0;
-
-    // iBUS/SBUS
-    cfg.v0.ExternalBusType = EB_BT_IBUS1;
   }
 }
 
@@ -967,6 +847,18 @@ uint8_t ProtoState::setFailSafe(int16_t* target)
   }
   //return max channels because channel count can not be change after bind
   return (uint8_t) (AFHDS3_MAX_CHANNELS);
+}
+
+Config_u* getConfig(uint8_t module)
+{
+  auto p_state = &protoState[module];
+  return p_state->getConfig();
+}
+
+void applyModelConfig(uint8_t module)
+{
+  auto p_state = &protoState[module];
+  p_state->applyConfigFromModel();
 }
 
 static void* initExternal(uint8_t module)
@@ -1032,6 +924,7 @@ static void* initInternal(uint8_t module)
   auto p_state = &protoState[module];
   p_state->init(module, &intmodulePulsesData, &IntmoduleSerialDriver);
 
+  telemetryProtocol = PROTOCOL_TELEMETRY_AFHDS3;
   mixerSchedulerSetPeriod(module, AFHDS3_UART_COMMAND_TIMEOUT * 1000 /* us */);
   INTERNAL_MODULE_ON();
 
@@ -1041,6 +934,7 @@ static void* initInternal(uint8_t module)
 static void deinitInternal(void* context)
 {
   INTERNAL_MODULE_OFF();
+  telemetryProtocol = 0xFF;
   mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
 
   auto p_state = (ProtoState*)context;

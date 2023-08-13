@@ -290,11 +290,10 @@ class PreviewWindow : public FormGroup
     // time on top bar
     struct gtm t;
     char str[16];
-    const char *const STR_MONTHS[] = TR_MONTHS;
 
     gettime(&t);
     int s = snprintf(str, sizeof(str), "%d %s\n", t.tm_mday, STR_MONTHS[t.tm_mon]);
-    if (s > 0 && s < sizeof(str) - 6 /* 00:00\0 */) {
+    if (s > 0 && (size_t)s < sizeof(str) - 6 /* 00:00\0 */) {
       getTimerString(str + s, getValue(MIXSRC_TX_TIME));
     }
     dc->drawText(rect.w - 40, 5, str, COLOR_THEME_PRIMARY2 | FONT(XS));

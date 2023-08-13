@@ -273,12 +273,21 @@ void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
   }
 }
 
+extern volatile uint32_t rotencDt;
+
 void OpenTxSimulator::rotaryEncoderEvent(int steps)
 {
 #if defined(ROTARY_ENCODER_NAVIGATION)
-  (g_eeGeneral.rotEncMode >= ROTARY_ENCODER_MODE_INVERT_BOTH ? steps *= -1
-                                                             : steps);
-  ROTARY_ENCODER_NAVIGATION_VALUE += steps * ROTARY_ENCODER_GRANULARITY;
+  static uint32_t last_tick = 0;
+  if (steps != 0) {
+    if (g_eeGeneral.rotEncMode >= ROTARY_ENCODER_MODE_INVERT_BOTH) steps *= -1;
+    ROTARY_ENCODER_NAVIGATION_VALUE += steps * ROTARY_ENCODER_GRANULARITY;
+    // TODO: set rotencDt
+    uint32_t now = RTOS_GET_MS();
+    uint32_t dt = now - last_tick;
+    rotencDt += dt;
+    last_tick = now;
+  }
 #else
   // TODO : this should probably be handled in the GUI
   int key;

@@ -70,7 +70,7 @@ void drawExternalAntennaAndRSSI()
 #endif
 
   if (TELEMETRY_RSSI() > 0) {
-    auto warningRSSI = g_model.rssiAlarms.getWarningRssi();
+    auto warningRSSI = g_model.rfAlarms.warning;
     int8_t value = TELEMETRY_RSSI() - warningRSSI;
     uint8_t step = (RSSI_MAX - warningRSSI) / 4;
     for (uint8_t i = 1; i < 5; i++) {

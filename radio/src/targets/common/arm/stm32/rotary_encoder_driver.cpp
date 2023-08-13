@@ -28,13 +28,11 @@
   #include "opentx.h"
 #endif
 
-static uint8_t rotencPosition;
-volatile rotenc_t rotencValue;
+volatile rotenc_t rotencValue = 0;
+volatile uint32_t rotencDt = 0;
 
 void rotaryEncoderInit()
 {
-  rotencPosition = ROTARY_ENCODER_POSITION();
-
   ROTARY_ENCODER_TIMER->ARR = 99; // 100uS
   ROTARY_ENCODER_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1; // 1uS
   ROTARY_ENCODER_TIMER->CCER = 0;
@@ -90,50 +88,58 @@ void rotaryEncoderInit()
 
 void rotaryEncoderCheck()
 {
-#if (defined(RADIO_FAMILY_T16) && !defined(RADIO_T18)) || defined(RADIO_TX12)
   static uint8_t state = 0;
   uint8_t pins = ROTARY_ENCODER_POSITION();
 
+#if defined(ROTARY_ENCODER_SUPPORT_BUGGY_WIRING)
   if (pins != (state & 0x03) && !(readKeys() & (1 << KEY_ENTER))) {
-	if ((pins ^ (state & 0x03)) == 0x03)
-	{
-		if (pins == 3)
-		{
-			rotencValue += INC_ROT_2;
-		}
-		else
-		{
-			rotencValue -= INC_ROT_2;
-		}
-	}
-	else
-	{
-		if ((state & 0x01) ^ ((pins & 0x02) >> 1))
-		{
-			rotencValue -= INC_ROT;
-		}
-		else
-		{
-			rotencValue += INC_ROT;
-		}
-	}
+    if ((pins ^ (state & 0x03)) == 0x03) {
+      if (pins == 3) {
+        rotencValue += INC_ROT_2;
+      } else {
+        rotencValue -= INC_ROT_2;
+      }
+    } else {
+      if ((state & 0x01) ^ ((pins & 0x02) >> 1)) {
+        rotencValue -= INC_ROT;
+      } else {
+        rotencValue += INC_ROT;
+      }
+    }
     state &= ~0x03;
     state |= pins;
+  }
 #else
-  uint8_t newPosition = ROTARY_ENCODER_POSITION();
-  if (newPosition != rotencPosition && !(readKeys() & (1 << KEY_ENTER))) {
-#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) // def. rotation dir is inverse of other radios
-    if (!(rotencPosition & 0x01) ^ ((newPosition & 0x02) >> 1)) {
+  if (pins != state && !(readKeys() & (1 << KEY_ENTER))) {
+#if defined(ROTARY_ENCODER_INVERTED)
+    if (!(state & 0x01) ^ ((pins & 0x02) >> 1)) {
 #else
-    if ((rotencPosition & 0x01) ^ ((newPosition & 0x02) >> 1)) {
+    if ((state & 0x01) ^ ((pins & 0x02) >> 1)) {
 #endif
       rotencValue -= INC_ROT;
     } else {
       rotencValue += INC_ROT;
     }
-    rotencPosition = newPosition;
-#endif
+    state = pins;
   }
+#endif
+
+#if !defined(BOOT) && defined(COLORLCD)
+  static uint32_t last_tick = 0;
+  static rotenc_t last_value = 0;
+
+  rotenc_t value = rotencValue;
+  rotenc_t diff = (value - last_value) / ROTARY_ENCODER_GRANULARITY;
+
+  if (diff != 0) {
+    uint32_t now = RTOS_GET_MS();
+    uint32_t dt = now - last_tick;
+    // pre-compute accumulated dt (dx/dt is done later in LVGL driver)
+    rotencDt += dt;
+    last_tick = now;
+    last_value += diff * ROTARY_ENCODER_GRANULARITY;
+  }
+#endif
 }
 
 void rotaryEncoderStartDelay()

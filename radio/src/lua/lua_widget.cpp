@@ -30,6 +30,9 @@
 #define MAX_INSTRUCTIONS       (20000/100)
 
 #if defined(HARDWARE_TOUCH)
+uint32_t LuaEventHandler::downTime = 0;
+uint32_t LuaEventHandler::tapTime = 0;
+uint32_t LuaEventHandler::tapCount = 0;
 tmr10ms_t LuaEventHandler::swipeTimeOut = 0;
 coord_t LuaEventHandler::_startX;
 coord_t LuaEventHandler::_startY;
@@ -52,9 +55,12 @@ void LuaEventHandler::event_cb(lv_event_t* e)
     }
   }
   else if (code == LV_EVENT_LONG_PRESSED) {
-    // Do not use `lv_indev_wait_release()` as some LUA scripts
-    // rely on EVT_KEY_BREAK(KEY_ENTER) being generated on key release
-    luaPushEvent(EVT_KEY_LONG(KEY_ENTER));
+    lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
+    if(indev_type != LV_INDEV_TYPE_POINTER) {
+      // Do not use `lv_indev_wait_release()` as some LUA scripts
+      // rely on EVT_KEY_BREAK(KEY_ENTER) being generated on key release
+      luaPushEvent(EVT_KEY_LONG(KEY_ENTER));
+    }
   }
 #if defined(HARDWARE_TOUCH)
   else if (code == LV_EVENT_PRESSED || code == LV_EVENT_PRESSING) {
@@ -108,6 +114,21 @@ void LuaEventHandler::event_cb(lv_event_t* e)
 
       _startX = rel_pos.x;
       _startY = rel_pos.y;
+
+      downTime = RTOS_GET_MS();
+    }
+  } else if (code == LV_EVENT_RELEASED) {
+    // tap count handling
+    uint32_t now = RTOS_GET_MS();
+    if (now - downTime <= LUA_TAP_TIME) {
+      if (now - tapTime > LUA_TAP_TIME) {
+        tapCount = 1;
+      } else {
+        tapCount++;
+      }
+      tapTime = now;
+    } else {
+      tapCount = 0;
     }
   }
 #endif  
@@ -126,10 +147,16 @@ void LuaEventHandler::onClicked()
     LuaEventData* es = luaGetEventSlot();
     if (!es) return;
 
-    es->event = EVT_TOUCH_TAP;
+    if (tapCount > 0) {
+      es->event = EVT_TOUCH_TAP;
+      es->tapCount = tapCount;
+    } else {
+      es->event = EVT_TOUCH_BREAK;
+    }
+
     es->touchX = point_act.x;
     es->touchY = point_act.y;
-    es->tapCount = 1;
+
     _sliding = false;
     return;
   }
@@ -145,6 +172,14 @@ void LuaEventHandler::onCancel()
 
 void LuaEventHandler::onEvent(event_t event)
 {
+  if (event == EVT_KEY_LONG(KEY_EXIT)) {
+    killEvents(KEY_EXIT);
+  }
+#if !defined(KEYS_GPIO_REG_PGUP)
+  else if (event == EVT_KEY_LONG(KEY_PGDN)) {
+    killEvents(KEY_PGDN);
+  }
+#endif
   luaPushEvent(event);
 }
 

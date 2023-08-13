@@ -31,6 +31,7 @@ class InternalModuleWindow : public FormGroup::Line
  protected:
   uint8_t lastModule = 0;
   lv_obj_t* br_box = nullptr;
+  lv_obj_t* ant_box = nullptr;
 
 #if defined(CROSSFIRE)
   static int getBaudrate();
@@ -39,4 +40,5 @@ class InternalModuleWindow : public FormGroup::Line
 
   void setModuleType(int moduleType);
   void updateBaudrateLine();
+  void updateAntennaLine();
 };

@@ -26,6 +26,11 @@
 
 #define SET_DIRTY()     storageDirty(functions == g_model.customFn ? EE_MODEL : EE_GENERAL)
 
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+
 class SpecialFunctionEditPage : public Page
 {
  public:
@@ -37,6 +42,8 @@ class SpecialFunctionEditPage : public Page
   {
     buildHeader(&header);
     buildBody(&body);
+    lv_obj_set_style_max_height(body.getLvObj(), LCD_H - header.height(), 0);
+    lv_obj_set_style_max_width(body.getLvObj(), LCD_W, 0);
   }
 
  protected:
@@ -90,8 +97,10 @@ class SpecialFunctionEditPage : public Page
 
   void updateSpecialFunctionOneWindow()
   {
-    FormGridLayout grid;
     specialFunctionOneWindow->clear();
+    specialFunctionOneWindow->setFlexLayout();
+    FlexGridLayout grid(col_dsc, row_dsc, 2);
+    auto line = specialFunctionOneWindow->newLine(&grid);
 
     CustomFunctionData *cfn = &functions[index];
     uint8_t func = CFN_FUNC(cfn);
@@ -99,24 +108,24 @@ class SpecialFunctionEditPage : public Page
     // Func param
     switch (func) {
       case FUNC_OVERRIDE_CHANNEL: {
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_CH, 0, COLOR_THEME_PRIMARY1);
-        new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), 1,
+        new StaticText(line, rect_t{}, STR_CH, 0, COLOR_THEME_PRIMARY1);
+        new NumberEdit(line, rect_t{}, 1,
                        MAX_OUTPUT_CHANNELS,
                        GET_SET_VALUE_WITH_OFFSET(CFN_CH_INDEX(cfn), 1));
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
 
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
+        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         int limit = (g_model.extendedLimits ? LIMIT_EXT_PERCENT : LIMIT_STD_PERCENT);
-        new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), -limit, limit,
+        new NumberEdit(line, rect_t{}, -limit, limit,
                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
         break;
     }
 
       case FUNC_TRAINER: {
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
+        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         auto choice =
-            new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
+            new Choice(line, rect_t{}, 0,
                        NUM_STICKS + 1, GET_SET_DEFAULT(CFN_CH_INDEX(cfn)));
         choice->setTextHandler([=](int32_t value) {
           if (value == 0)
@@ -127,15 +136,15 @@ class SpecialFunctionEditPage : public Page
             return TEXT_AT_INDEX(STR_VSRCRAW, value);
           ;
         });
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
         break;
       }
 
       case FUNC_RESET:
         if (CFN_PARAM(cfn) < FUNC_RESET_PARAM_FIRST_TELEM) {
-          new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_RESET, 0, COLOR_THEME_PRIMARY1);
+          new StaticText(line, rect_t{}, STR_RESET, 0, COLOR_THEME_PRIMARY1);
           auto choice = new Choice(
-              specialFunctionOneWindow, grid.getFieldSlot(), 0,
+              line, rect_t{}, 0,
               FUNC_RESET_PARAM_FIRST_TELEM + lastUsedTelemetryIndex(),
               GET_SET_DEFAULT(CFN_PARAM(cfn)));
           choice->setAvailableHandler(isSourceAvailableInResetSpecialFunction);
@@ -148,39 +157,39 @@ class SpecialFunctionEditPage : public Page
                       .label,
                   TELEM_LABEL_LEN);
           });
-          grid.nextLine();
+          line = specialFunctionOneWindow->newLine(&grid);
         }
         break;
 
       case FUNC_VOLUME:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
-        new SourceChoice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
+        new StaticText(line, rect_t{}, STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
+        new SourceChoice(line, rect_t{}, 0,
                          MIXSRC_LAST_CH, GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
         break;
 
       case FUNC_BACKLIGHT:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-        new SourceChoice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
+        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
+        new SourceChoice(line, rect_t{}, 0,
                          MIXSRC_LAST_CH, GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
         break;
 
       case FUNC_PLAY_SOUND:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-        new Choice(specialFunctionOneWindow, grid.getFieldSlot(),
+        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
+        new Choice(line, rect_t{},
                    STR_FUNCSOUNDS, 0,
                    AU_SPECIAL_SOUND_LAST - AU_SPECIAL_SOUND_FIRST - 1,
                    GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
         break;
 
       case FUNC_PLAY_TRACK:
       case FUNC_BACKGND_MUSIC:
       case FUNC_PLAY_SCRIPT:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
+        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         new FileChoice(
-            specialFunctionOneWindow, grid.getFieldSlot(),
+            line, rect_t{},
             func == FUNC_PLAY_SCRIPT
                 ? SCRIPTS_FUNCS_PATH
                 : std::string(SOUNDS_PATH, SOUNDS_PATH_LNG_OFS) +
@@ -194,52 +203,52 @@ class SpecialFunctionEditPage : public Page
               LUA_LOAD_MODEL_SCRIPTS();
             },
             true);  // strip extension
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
         break;
 
       case FUNC_SET_TIMER: {
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_TIMER, 0, COLOR_THEME_PRIMARY1);
+        new StaticText(line, rect_t{}, STR_TIMER, 0, COLOR_THEME_PRIMARY1);
         auto timerchoice =
-            new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
+            new Choice(line, rect_t{}, 0,
                        TIMERS - 1, GET_SET_DEFAULT(CFN_TIMER_INDEX(cfn)));
         timerchoice->setTextHandler([](int32_t value) {
           return std::string(STR_TIMER) + std::to_string(value + 1);
         });
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
 
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-        new TimeEdit(specialFunctionOneWindow, grid.getFieldSlot(), 0,
+        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
+        new TimeEdit(line, rect_t{}, 0,
                      9 * 60 * 60 - 1, GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
         break;
       }
 
       case FUNC_SET_FAILSAFE:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_MODULE, 0, COLOR_THEME_PRIMARY1);
-        new Choice(specialFunctionOneWindow, grid.getFieldSlot(),
+        new StaticText(line, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
+        new Choice(line, rect_t{},
                    "\004Int.Ext.", 0, NUM_MODULES - 1,
                    GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
         break;
 
       case FUNC_PLAY_VALUE:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-        new SourceChoice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
+        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
+        new SourceChoice(line, rect_t{}, 0,
                          MIXSRC_LAST_TELEM, GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
         break;
 
       case FUNC_HAPTIC:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-        new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), 0, 3,
+        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
+        new NumberEdit(line, rect_t{}, 0, 3,
                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
         break;
 
       case FUNC_LOGS: {
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE, 0, COLOR_THEME_PRIMARY1);
+        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         auto edit =
-            new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), 0,
+            new NumberEdit(line, rect_t{}, 0,
                            255, GET_SET_DEFAULT(CFN_PARAM(cfn)));
         edit->setDisplayHandler(
             [=](int32_t value) {
@@ -249,33 +258,33 @@ class SpecialFunctionEditPage : public Page
       }
 
       case FUNC_SET_SCREEN:
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_VALUE,
+        new StaticText(line, rect_t{}, STR_VALUE,
                        0, COLOR_THEME_PRIMARY1);
         CFN_PARAM(cfn) = (int16_t)max(CFN_PARAM(cfn), (int16_t)1);
         CFN_PARAM(cfn) = (int16_t)min(
             CFN_PARAM(cfn), (int16_t)ViewMain::instance()->getMainViewsCount());
-        new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(), 1,
+        new NumberEdit(line, rect_t{}, 1,
                        ViewMain::instance()->getMainViewsCount(),
                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
         break;
         
       case FUNC_ADJUST_GVAR: {
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_GLOBALVAR, 0, COLOR_THEME_PRIMARY1);
+        new StaticText(line, rect_t{}, STR_GLOBALVAR, 0, COLOR_THEME_PRIMARY1);
         auto gvarchoice =
-            new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
+            new Choice(line, rect_t{}, 0,
                        MAX_GVARS - 1, GET_SET_DEFAULT(CFN_GVAR_INDEX(cfn)));
         gvarchoice->setTextHandler([](int32_t value) {
           return std::string(STR_GV) + std::to_string(value + 1);
         });
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
 
-        new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_MODE, 0, COLOR_THEME_PRIMARY1);
+        new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
         auto modechoice =
-          new Choice(specialFunctionOneWindow, grid.getFieldSlot(),
+          new Choice(line, rect_t{},
                      FUNC_ADJUST_GVAR_CONSTANT, FUNC_ADJUST_GVAR_INCDEC,
                      GET_DEFAULT(CFN_GVAR_MODE(cfn)), nullptr);
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
 
         modechoice->setTextHandler([](int32_t value) {
           switch (value) {
@@ -300,23 +309,23 @@ class SpecialFunctionEditPage : public Page
 
         switch (CFN_GVAR_MODE(cfn)) {
           case FUNC_ADJUST_GVAR_CONSTANT: {
-            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_CONSTANT, 0, COLOR_THEME_PRIMARY1);
+            new StaticText(line, rect_t{}, STR_CONSTANT, 0, COLOR_THEME_PRIMARY1);
             int16_t val_min, val_max;
             getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min,
                            val_max);
-            new NumberEdit(specialFunctionOneWindow, grid.getFieldSlot(),
+            new NumberEdit(line, rect_t{},
                            val_min, val_max, GET_SET_DEFAULT(CFN_PARAM(cfn)));
             break;
           }
           case FUNC_ADJUST_GVAR_SOURCE:
-            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_MIXSOURCE, 0, COLOR_THEME_PRIMARY1);
-            new SourceChoice(specialFunctionOneWindow, grid.getFieldSlot(),
+            new StaticText(line, rect_t{}, STR_MIXSOURCE, 0, COLOR_THEME_PRIMARY1);
+            new SourceChoice(line, rect_t{},
                              0, MIXSRC_LAST_CH, GET_SET_DEFAULT(CFN_PARAM(cfn)));
             break;
           case FUNC_ADJUST_GVAR_GVAR: {
-            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_GLOBALVAR, 0, COLOR_THEME_PRIMARY1);
+            new StaticText(line, rect_t{}, STR_GLOBALVAR, 0, COLOR_THEME_PRIMARY1);
             auto gvarchoice =
-                new Choice(specialFunctionOneWindow, grid.getFieldSlot(), 0,
+                new Choice(line, rect_t{}, 0,
                            MAX_GVARS - 1, GET_SET_DEFAULT(CFN_PARAM(cfn)));
             gvarchoice->setTextHandler([](int32_t value) {
               return std::string(STR_GV) + std::to_string(value + 1);
@@ -327,12 +336,11 @@ class SpecialFunctionEditPage : public Page
             break;
           }
           case FUNC_ADJUST_GVAR_INCDEC: {
-            new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_INCDEC, 0, COLOR_THEME_PRIMARY1);
+            new StaticText(line, rect_t{}, STR_INCDEC, 0, COLOR_THEME_PRIMARY1);
             int16_t val_min, val_max;
             getMixSrcRange(CFN_GVAR_INDEX(cfn) + MIXSRC_FIRST_GVAR, val_min, val_max);
             getGVarIncDecRange(val_min, val_max);
-            auto numedit = new NumberEdit(specialFunctionOneWindow,
-                                          grid.getFieldSlot(), val_min, val_max,
+            auto numedit = new NumberEdit(line, rect_t{}, val_min, val_max,
                                           GET_SET_DEFAULT(CFN_PARAM(cfn)));
             numedit->setDisplayHandler(
                 [](int value) {
@@ -341,20 +349,20 @@ class SpecialFunctionEditPage : public Page
             break;
           }
         }
-        grid.nextLine();
+        line = specialFunctionOneWindow->newLine(&grid);
       }
     }
 
     if (HAS_ENABLE_PARAM(func)) {
-      new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_ENABLE, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(specialFunctionOneWindow, grid.getFieldSlot(),
+      new StaticText(line, rect_t{}, STR_ENABLE, 0, COLOR_THEME_PRIMARY1);
+      new CheckBox(line, rect_t{},
                    GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
-      grid.nextLine();
+      line = specialFunctionOneWindow->newLine(&grid);
     } else if (HAS_REPEAT_PARAM(func)) {  // !1x 1x 1s 2s 3s ...
-      new StaticText(specialFunctionOneWindow, grid.getLabelSlot(), STR_REPEAT,
+      new StaticText(line, rect_t{}, STR_REPEAT,
                      0, COLOR_THEME_PRIMARY1);
       auto repeat = new NumberEdit(
-          specialFunctionOneWindow, grid.getFieldSlot(2, 1), -1,
+          line, rect_t{}, -1,
           60 / CFN_PLAY_REPEAT_MUL, GET_DEFAULT((int8_t)CFN_PLAY_REPEAT(cfn)),
           SET_DEFAULT(CFN_PLAY_REPEAT(cfn)));
       repeat->setDisplayHandler(
@@ -367,37 +375,35 @@ class SpecialFunctionEditPage : public Page
               return formatNumberAsString(value * CFN_PLAY_REPEAT_MUL, 0, 0, nullptr, "s");
             }
           });
-      grid.nextLine();
+      line = specialFunctionOneWindow->newLine(&grid);
     }
-
-    specialFunctionOneWindow->adjustHeight();
   }
 
   void buildBody(FormWindow *window)
   {
-    // SF.one
-    FormGridLayout grid;
-    grid.spacer(PAGE_PADDING);
+    window->setFlexLayout();
+    FlexGridLayout grid(col_dsc, row_dsc, 2);
+    lv_obj_set_style_pad_all(window->getLvObj(), lv_dpx(8), 0);
 
     CustomFunctionData *cfn = &functions[index];
-    
+    auto line = window->newLine(&grid);
+
     // custom label
-    new StaticText(window, grid.getLabelSlot(), STR_CUST_FUNC_CUST_LABEL, 0, COLOR_THEME_PRIMARY1);
-    new ModelTextEdit(window, grid.getFieldSlot(), cfn->custName, LEN_SPEC_FN_NAME);
-   
-    grid.nextLine();
-    
+    new StaticText(line, rect_t{}, STR_CUST_FUNC_CUST_LABEL, 0, COLOR_THEME_PRIMARY1);
+    new ModelTextEdit(line, rect_t{}, cfn->custName, LEN_SPEC_FN_NAME);
+    line = window->newLine(&grid);
+
     // Switch
-    new StaticText(window, grid.getLabelSlot(), STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
     auto switchChoice =
-        new SwitchChoice(window, grid.getFieldSlot(), SWSRC_FIRST, SWSRC_LAST,
+        new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
                          GET_SET_DEFAULT(CFN_SWITCH(cfn)));
     switchChoice->setAvailableHandler([=](int value) {
       return (functions == g_model.customFn
                   ? isSwitchAvailable(value, ModelCustomFunctionsContext)
                   : isSwitchAvailable(value, GeneralCustomFunctionsContext));
     });
-    grid.nextLine();
+    line = window->newLine(&grid);
 
     // Patch function in case not available
     if (!isAssignableFunctionAvailable(CFN_FUNC(cfn), functions)) {
@@ -412,9 +418,9 @@ class SpecialFunctionEditPage : public Page
     }
     
     // Function
-    new StaticText(window, grid.getLabelSlot(), STR_FUNC, 0, COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, STR_FUNC, 0, COLOR_THEME_PRIMARY1);
     auto functionChoice =
-        new Choice(window, grid.getFieldSlot(), STR_VFSWFUNC,
+        new Choice(line, rect_t{}, STR_VFSWFUNC,
                    0, FUNC_MAX - 1,
                    GET_DEFAULT(CFN_FUNC(cfn)));
     functionChoice->setSetValueHandler([=](int32_t newValue) {
@@ -426,13 +432,10 @@ class SpecialFunctionEditPage : public Page
     functionChoice->setAvailableHandler([=](int value) {
       return isAssignableFunctionAvailable(value, functions);
     });
-    grid.nextLine();
+    line = window->newLine(&grid);
 
-    specialFunctionOneWindow = new FormGroup(
-        window, {0, grid.getWindowHeight(), LCD_W, 0}// , FORM_FORWARD_FOCUS
-                                             );
+    specialFunctionOneWindow = new FormGroup(window, rect_t{});
     updateSpecialFunctionOneWindow();
-    grid.addWindow(specialFunctionOneWindow);
   }
 };
 

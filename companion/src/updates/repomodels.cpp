@@ -21,6 +21,7 @@
 
 #include "repomodels.h"
 #include "appdata.h"
+#include "helpers.h"
 
 #include <QStandardItem>
 #include <QJsonDocument>
@@ -52,7 +53,7 @@ ReleasesItemModel::ReleasesItemModel() :
   m_releaseChannel(-1),
   m_refreshRequired(true)
 {
-  setSortRole(UpdatesItemModel::IMDR_Date);
+  setSortRole(UpdatesItemModel::IMDR_SortOrder);
 }
 
 void ReleasesItemModel::setReleaseChannel(const int channel)
@@ -136,6 +137,18 @@ void ReleasesItemModel::parseJsonObject(const QJsonObject & obj)
   }
 
   setDynamicItemData(item);
+
+  SemanticVersion sv;
+
+  if (tag.toLower() == m_nightlyName)
+    sv.fromString("255.255.255");
+  else
+    sv.fromString(tag);
+
+  if (sv.isValid())
+    item->setData(sv.toInt(), UpdatesItemModel::IMDR_SortOrder);
+  else
+    item->setData(item->data(IMDR_Date).toInt(), UpdatesItemModel::IMDR_SortOrder);
 
   appendRow(item);
 }
@@ -433,17 +446,35 @@ bool AssetsFilteredItemModel::setCopyFilter(const int id, const QString filter)
   return setMetaDataValue(id, UpdatesItemModel::IMDR_CopyFilter, QVariant(filter));
 }
 
+
+/*
+    RepoMetaData
+*/
+
+RepoMetaData::RepoMetaData(QObject * parent) :
+  QObject(parent)
+{
+
+}
+
 /*
     ReleasesMetaData
 */
 
 ReleasesMetaData::ReleasesMetaData(QObject * parent) :
-  QObject(parent),
-  m_repo(""),
+  RepoMetaData(parent),
   m_id(0)
 {
   itemModel = new ReleasesItemModel();
   filteredItemModel = new ReleasesFilteredItemModel(itemModel);
+}
+
+void ReleasesMetaData::init(const QString repo, const QString nightly, const int settingsIndex, const int resultsPerPage)
+{
+  m_repo = repo;
+  m_resultsPerPage = resultsPerPage;
+  itemModel->setNightlyName(nightly);
+  itemModel->setSettingsIndex(settingsIndex);
 }
 
 bool ReleasesMetaData::refreshRequired()
@@ -490,10 +521,16 @@ QString ReleasesMetaData::version()
 */
 
 AssetsMetaData::AssetsMetaData(QObject * parent) :
-  QObject(parent)
+  RepoMetaData(parent)
 {
   itemModel = new AssetsItemModel();
   filteredItemModel = new AssetsFilteredItemModel(itemModel);
+}
+
+void AssetsMetaData::init(const QString repo, const int resultsPerPage)
+{
+  m_repo = repo;
+  m_resultsPerPage = resultsPerPage;
 }
 
 int AssetsMetaData::getSetId(int row)

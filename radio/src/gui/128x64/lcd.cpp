@@ -734,11 +734,11 @@ void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
     idx = idx - MIXSRC_Rud;
     if (g_eeGeneral.anaNames[idx][0]) {
       if (idx < MIXSRC_FIRST_POT-MIXSRC_Rud )
-        lcdDrawChar(x, y, '\207', att); // stick symbol
+        lcdDrawSizedText(x, y, STR_CHAR_STICK, 2, att);
       else if (idx <= MIXSRC_LAST_POT-MIXSRC_Rud )
-        lcdDrawChar(x, y, '\210', att); // pot symbol
+        lcdDrawSizedText(x, y, STR_CHAR_POT, 2, att);
       else
-        lcdDrawChar(x, y, '\211', att); // slider symbol
+        lcdDrawSizedText(x, y, STR_CHAR_SLIDER, 2, att);
       lcdDrawSizedText(lcdNextPos, y, g_eeGeneral.anaNames[idx], LEN_ANA_NAME, att);
     }
     else {
@@ -751,20 +751,20 @@ void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
     if(idx >= MIXSRC_FIRST_FS_SWITCH) {
       idx = idx-(MIXSRC_FIRST_SWITCH+NUM_REGULAR_SWITCHES);
       if (ZEXIST(g_model.switchNames[idx])) {
-        lcdDrawChar(x, y, '\214', att); //switch symbol
+        lcdDrawSizedText(x, y, STR_CHAR_SWITCH, 2, att);
         lcdDrawSizedText(lcdNextPos, y, g_model.switchNames[idx], LEN_SWITCH_NAME, att);
       }
       else {
         char s[LEN_SWITCH_NAME] = {'S', 'W'};
         s[LEN_SWITCH_NAME-1] = '1' + idx;
-        lcdDrawChar(x, y, '\214', att); //switch symbol
+        lcdDrawSizedText(x, y, STR_CHAR_SWITCH, 2, att);
         lcdDrawSizedText(lcdNextPos, y, s, LEN_SWITCH_NAME, att);
       }
     }
     else {
       idx = idx-MIXSRC_FIRST_SWITCH;
       if (ZEXIST(g_eeGeneral.switchNames[idx])) {
-        lcdDrawChar(x, y, '\214', att); //switch symbol
+        lcdDrawSizedText(x, y, STR_CHAR_SWITCH, 2, att);
         lcdDrawSizedText(lcdNextPos, y, g_eeGeneral.switchNames[idx], LEN_SWITCH_NAME, att);
       }
       else
@@ -773,7 +773,7 @@ void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
 #else
   idx = idx-MIXSRC_FIRST_SWITCH;
   if (ZEXIST(g_eeGeneral.switchNames[idx])) {
-    lcdDrawChar(x, y, '\214', att); //switch symbol
+    lcdDrawSizedText(x, y, STR_CHAR_SWITCH, 2, att); //switch symbol
     lcdDrawSizedText(lcdNextPos, y, g_eeGeneral.switchNames[idx], LEN_SWITCH_NAME, att);
   }
   else

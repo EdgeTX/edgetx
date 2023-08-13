@@ -45,7 +45,6 @@ jobs:
                                 mingw-w64-i686-python-pip \
                                 mingw-w64-i686-python-pillow \
                                 mingw-w64-i686-python-lz4 \
-                                mingw-w64-i686-arm-none-eabi-gcc \
                                 mingw-w64-i686-libjpeg-turbo \
                                 mingw-w64-i686-zlib \
                                 mingw-w64-i686-libtiff \
@@ -61,22 +60,16 @@ jobs:
                                 mingw-w64-i686-openssl
           python -m pip install clang
 
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v1  # not v2!
-        with:
-          path: ../Qt
-          key: win32-QtCache
-
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+          cache: true
+          cache-key-prefix: 'install-qt-action-win32'
           version: ${{ env.QT_VERSION }}
           arch: ${{ env.MINGW_VERSION }}
 
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -92,7 +85,7 @@ jobs:
         run: echo "artifact_name=edgetx-cpn-win32-${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: "${{ env.artifact_name }}"
           path:  ${{github.workspace}}/output

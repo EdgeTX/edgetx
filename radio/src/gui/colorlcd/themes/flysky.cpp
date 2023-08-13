@@ -392,7 +392,6 @@ class FlyskyTheme: public OpenTxTheme
 #if defined(TRANSLATIONS_CN) || defined(TRANSLATIONS_TW)
       sprintf(str, "%d" TR_MONTH "%d", t.tm_mon + 1, t.tm_mday);
 #else
-      const char * const STR_MONTHS[] = TR_MONTHS;
       sprintf(str, "%d %s", t.tm_mday, STR_MONTHS[t.tm_mon]);
 #endif
       dc->drawText(DATETIME_MIDDLE, DATETIME_LINE1, str, FONT(XS)|COLOR_THEME_PRIMARY2|CENTERED);

@@ -49,6 +49,7 @@ class UpdatesItemModel : public QStandardItemModel
     enum ItemModelDataRoles {
       IMDR_Id = Qt::UserRole,
       IMDR_Date,
+      IMDR_SortOrder,
       IMDR_Tag,
       IMDR_Prerelease,
       IMDR_Content,
@@ -202,18 +203,32 @@ class AssetsFilteredItemModel : public UpdatesFilteredItemModel
   private:
 };
 
-class ReleasesMetaData : public QObject
+class RepoMetaData : public QObject
+{
+    Q_OBJECT
+  public:
+    explicit RepoMetaData(QObject * parent);
+    virtual ~RepoMetaData() {};
+
+    const QString urlReleases() { return QString("%1/releases").arg(m_repo); }
+    const QString urlReleaseLatest() { return QString("%1/latest").arg(urlReleases()); }
+    const QString urlContent(const QString & path) { return QString("%1/contents/%2").arg(m_repo).arg(path); }
+
+  protected:
+    QString m_repo;
+    int m_resultsPerPage;
+};
+
+class ReleasesMetaData : public RepoMetaData
 {
     Q_OBJECT
   public:
     explicit ReleasesMetaData(QObject * parent);
     virtual ~ReleasesMetaData() {};
 
-    bool refreshRequired();
+    void init(const QString repo, const QString nightly, const int settingsIndex, const int resultsPerPage);
 
-    void setRepo(QString repo) { m_repo = repo; }
-    void setNightlyName(QString name) { itemModel->setNightlyName(name); }
-    void setSettingsIndex(const int index) { itemModel->setSettingsIndex(index); }
+    bool refreshRequired();
     void setReleaseChannel(const int channel) { itemModel->setReleaseChannel(channel); }
 
     void setId(int id) { m_id = id; }
@@ -234,25 +249,22 @@ class ReleasesMetaData : public QObject
     bool prerelease() { return filteredItemModel->prerelease(m_id); }
     QString version();
 
-    QString urlReleases() { return QString("%1/releases").arg(m_repo); }
-    QString urlReleaseLatest() { return QString("%1/latest").arg(urlReleases()); }
-    QString urlRelease() { return QString("%1/%2").arg(urlReleases()).arg(m_id); }
+    const QString urlRelease() { return QString("%1/%2").arg(urlReleases()).arg(m_id); }
 
   private:
     ReleasesItemModel *itemModel;
     ReleasesFilteredItemModel *filteredItemModel;
-    QString m_repo;
     int m_id;
 };
 
-class AssetsMetaData : public QObject
+class AssetsMetaData : public RepoMetaData
 {
     Q_OBJECT
   public:
     explicit AssetsMetaData(QObject * parent);
     virtual ~AssetsMetaData() {};
 
-    void setRepo(QString repo) { m_repo = repo; }
+    void init(const QString repo, const int resultsPerPage);
 
     void setId(int id) { m_id = id; }
     int id() { return m_id; }
@@ -282,17 +294,13 @@ class AssetsMetaData : public QObject
     QString copyFilter() { return filteredItemModel->metaDataValue(m_id, UpdatesItemModel::IMDR_CopyFilter).toString(); }
     int flags() { return filteredItemModel->metaDataValue(m_id, UpdatesItemModel::IMDR_Flags).toInt(); }
 
-    QString urlReleaseAssets(int releaseId, int max)
-                            { return QString("%1/%2/assets").arg(urlReleases()).arg(releaseId) % (max > -1 ? QString("\?per_page=%1").arg(max) : ""); }
-    QString urlAsset() { return QString("%1/assets/%2").arg(urlReleases()).arg(m_id); }
-
-    QString urlContent(QString path) { return QString("%1/contents/%2").arg(m_repo).arg(path); }
+    const QString urlReleaseAssets(int releaseId) {
+                                   return QString("%1/%2/assets").arg(urlReleases()).arg(releaseId) % (m_resultsPerPage > -1 ?
+                                   QString("\?per_page=%1").arg(m_resultsPerPage) : ""); }
+    const QString urlAsset() { return QString("%1/assets/%2").arg(urlReleases()).arg(m_id); }
 
   private:
     AssetsItemModel *itemModel;
     AssetsFilteredItemModel *filteredItemModel;
-    QString m_repo;
     int m_id;
-
-    QString urlReleases() { return m_repo % "/releases"; }
 };

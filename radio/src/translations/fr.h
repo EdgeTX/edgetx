@@ -87,17 +87,19 @@
 #if LCD_W >= 212
   #define TR_CSWTIMER                  "Tempo"
   #define TR_CSWSTICKY                 "Bistb"
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWRANGE                  "Plage"
   #define TR_CSWSTAY                   "Flanc"
 #else
   #define TR_CSWTIMER                  "Temp"
   #define TR_CSWSTICKY                 "Bist"
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWRANGE                  "Zone"
   #define TR_CSWSTAY                   "Flnc"
 #endif
 
 #define TR_CSWEQUAL                    "a=x"
-#define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a~x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","ET","OU","OUX",TR_CSWSTAY,"a=b","a>b","a<b","Δ≥x","|Δ|≥x",TR_CSWTIMER,TR_CSWSTICKY
+#define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","ET","OU","OUX",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY,TR_CSWSAFE
 
 #define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
 
@@ -375,7 +377,11 @@
 #define TR_FADEIN                      "Fondu ON"
 #define TR_FADEOUT                     "Fondu OFF"
 #define TR_DEFAULT                     "(défaut)"
-#define TR_CHECKTRIMS                  "\006Vérif\012Trims"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS                "Vérif Trims"
+#else
+  #define TR_CHECKTRIMS                "\006Vérif\012Trims"
+#endif
 #define OFS_CHECKTRIMS                 (9*FW)
 #define TR_SWASHTYPE                   TR("Type de Plat.", "Type de plateau")
 #define TR_COLLECTIVE                  TR("Collectif", "Source collectif")
@@ -386,6 +392,11 @@
 #define TR_AILDIRECTION                TR("Inv. latéral", "Inversion latéral")
 #define TR_COLDIRECTION                TR("Inv. collectif", "Inversion collectif")
 #define TR_MODE                        "Mode"
+#if LCD_W > LCD_H
+  #define TR_LEFT_STICK                "Gauche"
+#else
+  #define TR_LEFT_STICK                "Gauche"
+#endif
 #define TR_SUBTYPE                     INDENT "Sous-type"
 #define TR_NOFREEEXPO                  "Max expos atteint!"
 #define TR_NOFREEMIXER                 "Max mixages atteint!"
@@ -450,6 +461,7 @@
 #define TR_MODEL_SHUTDOWN              "Eteindre ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Presser [Enter] pour confirmer"
 #define TR_THROTTLE_LABEL              "Gaz"
+#define TR_THROTTLE_START              "Gaz Start"
 #define TR_THROTTLEREVERSE             TR("Inv. gaz", INDENT "Inversion gaz")
 #define TR_MINUTEBEEP                  TR("Bip min.", "Annonces minutes")
 #define TR_BEEPCOUNTDOWN               TR(INDENT "Bip fin", INDENT "Compte à rebours")
@@ -685,6 +697,7 @@
 #define TR_UPDATE_RX_OPTIONS           "Sauver options RX?"
 #define TR_UPDATE_TX_OPTIONS           "Sauver options TX?"
 #define TR_MODULES_RX_VERSION          "Versions modules / RX"
+#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "VERSIONS MODULES / RX "
 #define TR_MENU_FIRM_OPTIONS           "OPTIONS FIRMWARE"
 #define TR_IMU                        "IMU"
@@ -1017,6 +1030,7 @@
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "File size"
 #define TR_FILE_OPEN                   "Open anyway?"
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Nom"
@@ -1077,6 +1091,12 @@
 #define TR_MAIN_VIEW_X                 "Main view X"
 #define TR_PANEL1_BACKGROUND           "Panel1 background"
 #define TR_PANEL2_BACKGROUND           "Panel2 background"
+#define TR_WIDGET_GAUGE                "Gauge"
+#define TR_WIDGET_MODELBMP             "Models"
+#define TR_WIDGET_OUTPUTS              "Outputs"
+#define TR_WIDGET_TEXT                 "Text"
+#define TR_WIDGET_TIMER                "Timer"
+#define TR_WIDGET_VALUE                "Value"
 
 // Taranis About screen
 #define TR_ABOUTUS                     TR(" A PROPOS ", "A PROPOS")
@@ -1133,6 +1153,7 @@
 #define TR_DELETE_ALL_SENSORS          TR("Suppr. tous capteurs", "Supprimer tous capteurs")
 #define TR_CONFIRMDELETE               TR("Tout effacer?", "Vraiment tout " LCDW_128_480_LINEBREAK "effacer ?")
 #define TR_SELECT_WIDGET               "Sélect. widget"
+#define TR_WIDGET_FULLSCREEN           "Full screen"
 #define TR_REMOVE_WIDGET               "Supprimer widget"
 #define TR_WIDGET_SETTINGS             "Réglages widget"
 #define TR_REMOVE_SCREEN               "Supprimer écran"
@@ -1362,3 +1383,21 @@
 #define TR_MAIN_MENU_STATISTICS         "Statistics"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "About\nEdgeTX"
 // End Main menu
+
+// Voice in native language
+#define TR_VOICE_ENGLISH                "English"
+#define TR_VOICE_CHINESE                "Chinese"
+#define TR_VOICE_CZECH                  "Czech"
+#define TR_VOICE_DANISH                 "Danish"
+#define TR_VOICE_DEUTSCH                "Deutsch"
+#define TR_VOICE_DUTCH                  "Dutch"
+#define TR_VOICE_ESPANOL                "Espanol"
+#define TR_VOICE_FRANCAIS               "Francais"
+#define TR_VOICE_HUNGARIAN              "Hungarian"
+#define TR_VOICE_ITALIANO               "Italiano"
+#define TR_VOICE_POLISH                 "Polish"
+#define TR_VOICE_PORTUGUES              "Portugues"
+#define TR_VOICE_RUSSIAN                "Russian"
+#define TR_VOICE_SLOVAK                 "Slovak"
+#define TR_VOICE_SWEDISH                "Swedish"
+#define TR_VOICE_TAIWANESE              "Taiwanese"

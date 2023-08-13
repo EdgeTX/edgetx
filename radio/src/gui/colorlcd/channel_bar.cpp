@@ -43,7 +43,7 @@ void MixerChannelBar::paint(BitmapBuffer * dc)
       limit<int>(-VIEW_CHANNELS_LIMIT_PCT, chanVal, VIEW_CHANNELS_LIMIT_PCT);
 
   // Draw mixer bar
-  if (chanVal > 0) {
+  if (chanVal >= 0) {
     dc->drawSolidFilledRect(
         0 + width() / 2, 0,
         divRoundClosest(chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2),
@@ -108,7 +108,7 @@ void OutputChannelBar::paint(BitmapBuffer* dc)
       limit<int>(-VIEW_CHANNELS_LIMIT_PCT, chanVal, VIEW_CHANNELS_LIMIT_PCT);
 
   // Draw output bar
-  if (chanVal > 0) {
+  if (chanVal >= 0) {
     dc->drawSolidFilledRect(
         width() / 2, 0,
         divRoundClosest(chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2),

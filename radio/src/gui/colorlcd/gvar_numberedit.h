@@ -40,6 +40,9 @@ class GVarNumberEdit : public Window
   void switchGVarMode();
   void setSuffix(std::string value);
 
+  void setFastStep(int value) { num_field->setFastStep(value); }
+  void setAccelFactor(int value) { num_field->setAccelFactor(value); }
+  
  protected:
   Choice* gvar_field = nullptr;
   NumberEdit* num_field = nullptr;

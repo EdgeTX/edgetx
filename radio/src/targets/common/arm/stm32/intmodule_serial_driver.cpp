@@ -118,6 +118,7 @@ static const IntmoduleCtx intmoduleCtx = {
 
 void intmoduleStop()
 {
+  INTERNAL_MODULE_OFF();
   stm32_usart_deinit(&intmoduleUSART);
 
   // reset callbacks
@@ -148,10 +149,10 @@ void* intmoduleSerialStart(const etx_serial_init* params)
 
   stm32_usart_init(&intmoduleUSART, params);
 
-  intmoduleCtx.rxFifo->clear();
   if (params->rx_enable && intmoduleUSART.rxDMA) {
     stm32_usart_init_rx_dma(&intmoduleUSART, intmoduleFifo.buffer(), intmoduleFifo.size());
   }  
+  intmoduleCtx.rxFifo->clear();
   
   return (void*)&intmoduleCtx;
 }
@@ -183,8 +184,8 @@ void intmoduleSendBuffer(void* ctx, const uint8_t * data, uint8_t size)
 
 void intmoduleWaitForTxCompleted(void* ctx)
 {
-  auto modCtx = (IntmoduleCtx*)ctx;
 #if defined(INTMODULE_DMA_STREAM)
+  auto modCtx = (IntmoduleCtx*)ctx;
   stm32_usart_wait_for_tx_dma(modCtx->usart);
 #else
   while (intmoduleTxBufferRemaining > 0);

@@ -195,6 +195,12 @@ inline uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
   }
 }
 
+#if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
+void onAntennaSwitchConfirm(const char * result);
+void checkExternalAntenna();
+void onAntennaSelection(const char* result);
+#endif
+
 #if defined(PXX2)
 inline bool isRacingModeAllowed()
 {

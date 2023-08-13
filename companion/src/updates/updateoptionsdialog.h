@@ -55,7 +55,6 @@ class UpdateOptionsDialog : public QDialog
     Ui::UpdateOptionsDialog *ui;
     UpdateFactories *factories;
     const int idx;
-    const QString name;
     const bool isRun;
     UpdateParameters *params;
 

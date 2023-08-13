@@ -38,6 +38,7 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QDir>
+#include <QRegularExpression>
 
 using namespace Helpers;
 
@@ -306,22 +307,22 @@ void Helpers::exportAppSettings(QWidget * dlgParent)
 }
 
 unsigned int Helpers::getBitmappedValue(const unsigned int & field, const unsigned int index, const unsigned int numbits, const unsigned int offset)
- {
-   int mask = -1;
-   mask = mask << numbits;
-   mask = ~mask;
-   return (field >> (numbits * index + offset)) & (unsigned int)mask;
- }
+{
+  int mask = -1;
+  mask = mask << numbits;
+  mask = ~mask;
+  return (field >> (numbits * index + offset)) & (unsigned int)mask;
+}
 
- void Helpers::setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index, unsigned int numbits, unsigned int offset)
- {
-   int mask = -1;
-   mask = mask << numbits;
-   mask = ~mask;
+void Helpers::setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index, unsigned int numbits, unsigned int offset)
+{
+  int mask = -1;
+  mask = mask << numbits;
+  mask = ~mask;
 
-   unsigned int fieldmask = ((unsigned int)mask << (numbits * index + offset));
-   field = (field & ~fieldmask) | (value << (numbits * index + offset));
- }
+  unsigned int fieldmask = ((unsigned int)mask << (numbits * index + offset));
+  field = (field & ~fieldmask) | (value << (numbits * index + offset));
+}
 
 void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
 {
@@ -727,20 +728,48 @@ QString Helpers::removeAccents(const QString & str)
   return result;
 }
 
+<<<<<<< HEAD
 SemanticVersion::SemanticVersion(QString vers)
 {
   if (!isValid(vers))
     return;
+=======
+/*
+  SemanticVersion
+
+  Based on Semantic Versioning 2.0.0 refer https://semver.org/
+*/
+
+SemanticVersion::SemanticVersion(const QString vers)
+{
+  fromString(vers);
+}
+
+bool SemanticVersion::fromString(QString vers)
+{
+  if (!isValid(vers))
+    return false;
+
+  vers = vers.trimmed();
+
+  if (vers.toLower().startsWith("v"))
+    vers = vers.mid(1);
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 
   QStringList strl = vers.split(".");
   version.major = strl.at(0).toInt();
   version.minor = strl.at(1).toInt();
+<<<<<<< HEAD
+=======
+
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
   if (strl.count() > 2) {
     if (!strl.at(2).contains("-")) {
       version.patch = strl.at(2).toInt();
     } else {
       QStringList ptch = strl.at(2).toLower().split("-");
       version.patch = ptch.at(0).toInt();
+<<<<<<< HEAD
       if (ptch.at(1).left(2) == "rc") {
         version.preReleaseType = PR_RC;
         version.preReleaseNumber = ptch.at(1).mid(2).toInt();
@@ -763,6 +792,102 @@ bool SemanticVersion::isValid(QString vers)
   QStringList strl = vers.split(".");
   if (strl.count() < 2)
     return false;
+=======
+
+      int offset = 0;
+      QString relType;
+
+      for (int i = 0; i < ptch.at(1).size(); i++) {
+        QString c(ptch.at(1).mid(i, 1));
+        if (c >= "0" && c <= "9") {
+          break;
+        } else if (c == ".") {
+          offset++;
+          break;
+        }
+
+        offset++;
+        relType.append(c);
+      }
+
+      version.preReleaseType = preReleaseTypeToInt(relType);
+
+      if (version.preReleaseType > -1 && offset < ptch.at(1).size())
+        version.preReleaseNumber = ptch.at(1).mid(offset).toInt();
+      else
+        version.preReleaseType = PR_NONE;
+    }
+  }
+
+  //qDebug() << "vers:" << vers << "toString:" << toString() << "toInt:" << toInt();
+
+  return true;
+}
+
+SemanticVersion& SemanticVersion::operator=(const SemanticVersion& rhs)
+{
+  version.major = rhs.version.major;
+  version.minor = rhs.version.minor;
+  version.patch = rhs.version.patch;
+  version.preReleaseType = rhs.version.preReleaseType;
+  version.preReleaseNumber = rhs.version.preReleaseNumber;
+  return *this;
+}
+
+bool SemanticVersion::isValid(const QString vers)
+{
+  QString v(vers);
+
+  v = v.trimmed();
+  if (v.toLower().startsWith("v"))
+    v = v.mid(1);
+
+#if 0
+  //  Keep for testing full standard
+  //  Note: regexp adapted for Qt ie extra escaping
+  QRegularExpression rx1("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$");
+
+  //  Qt only test as not all patterns supported and can change in later releases
+  if (!rx1.isValid()) {
+    qDebug() << "Full standard is an invalid Qt regular expression";
+    return false;
+  }
+
+  if (!rx1.match(v).hasMatch()) {
+    qDebug() << vers << "is not a valid Semantic Version - ";
+    return false;
+  }
+#endif // 0
+
+  //  we only support a subset of the standard alpha, beta, rc with period optional and number optional
+  //  format: major.minor.patch[-[alpha|beta|rc][.|][n|]]
+
+  QRegularExpression rx2("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-(alpha|beta|rc)\\.?(0|[1-9]\\d*)?)*$");
+
+  //  Qt only test as not all patterns supported and can change in later releases
+  if (!rx2.isValid()) {
+    qDebug() << "Standard subset is an invalid Qt regular expression";
+    return false;
+  }
+
+  if (!rx2.match(v.toLower()).hasMatch()) {
+    //qDebug() << vers << "is not a valid Semantic Version subset - ";
+    return false;
+  }
+
+  return isValid();
+}
+
+bool SemanticVersion::isValid()
+{
+  //  range checks to support 32 bit OS when components compounded
+  if (version.major < 0 || version.major > 255 || version.minor < 0 || version.minor > 255 || version.patch < 0 || version.patch > 255 ||
+      version.preReleaseType < 0 || version.preReleaseType > PR_NONE || version.preReleaseNumber < 0 || version.preReleaseNumber > 15) {
+    qDebug() << "Cannot convert to supported Semantec Version";
+    version = SemanticVersion().version;
+    return false;
+  }
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 
   return true;
 }
@@ -772,6 +897,7 @@ QString SemanticVersion::toString() const
   QString ret(QString("%1.%2.%3").arg(version.major).arg(version.minor).arg(version.patch));
 
   if (version.preReleaseType != PR_NONE) {
+<<<<<<< HEAD
     ret.append("-");
     if (version.preReleaseType == PR_RC)
       ret.append("RC");
@@ -781,6 +907,11 @@ QString SemanticVersion::toString() const
       ret.append("BETA");
 
     ret.append(QString::number(version.preReleaseNumber));
+=======
+    ret = QString("%1-%2").arg(ret).arg(preReleaseTypeToString());
+    if (version.preReleaseNumber > 0)
+      ret = QString("%1.%2").arg(ret).arg(version.preReleaseNumber);
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
   }
 
   return ret;
@@ -810,3 +941,29 @@ int SemanticVersion::compare(const SemanticVersion& other)
 
   return 0;
 }
+<<<<<<< HEAD
+=======
+
+unsigned int SemanticVersion::toInt() const
+{
+  //  limit to 32 bits for OS backward compatibility
+  unsigned int val = 0;
+  setBitmappedValue(val, version.major, 0, 8, 24);
+  setBitmappedValue(val, version.minor, 0, 8, 16);
+  setBitmappedValue(val, version.patch, 0, 8, 8);
+  setBitmappedValue(val, version.preReleaseType, 0, 4, 4);
+  setBitmappedValue(val, version.preReleaseNumber, 0, 4);
+  return val;
+}
+
+bool SemanticVersion::fromInt(const unsigned int val)
+{
+  //  assumption val was generated by toInt() but validate anyway
+  version.major = Helpers::getBitmappedValue(val, 0, 8, 24);
+  version.minor = Helpers::getBitmappedValue(val, 0, 8, 16);
+  version.patch = Helpers::getBitmappedValue(val, 0, 8, 8);
+  version.preReleaseType = Helpers::getBitmappedValue(val, 0, 4, 4);
+  version.preReleaseNumber = Helpers::getBitmappedValue(val, 0, 4);
+  return isValid();
+}
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e

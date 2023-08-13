@@ -153,8 +153,6 @@ void BindWaitDialog::checkEvents()
 {
   auto& bindInfo = getPXX2BindInformationBuffer();
 
-  auto form = &content->form;
-
   if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL) {
 
     // returned to normal after bind
@@ -842,8 +840,8 @@ void RxOptions::update()
           selectionMax++;
     }
 
-    uint8_t mapping = hwSettings.receiverSettings.outputsMapping[i];
-    uint8_t channel = getShiftedChannel(moduleIdx, mapping);
+    //uint8_t mapping = hwSettings.receiverSettings.outputsMapping[i];
+    // uint8_t channel = getShiftedChannel(moduleIdx, mapping);
 
     // TODO
     // auto r = grid.getFieldSlot(2, 1);

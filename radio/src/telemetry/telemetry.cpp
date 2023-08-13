@@ -223,9 +223,9 @@ inline bool isBadAntennaDetected()
   return false;
 }
 
-static inline void pollTelemetry(uint8_t module, const etx_module_driver_t* drv, void* ctx)
+static inline bool pollTelemetry(uint8_t module, const etx_module_driver_t* drv, void* ctx)
 {
-  if (!drv || !drv->getByte || !drv->processData) return;
+  if (!drv || !drv->getByte || !drv->processData) return false;
 
   uint8_t* rxBuffer = getTelemetryRxBuffer(module);
   uint8_t& rxBufferCount = getTelemetryRxBufferCount(module);
@@ -239,6 +239,8 @@ static inline void pollTelemetry(uint8_t module, const etx_module_driver_t* drv,
       LOG_TELEMETRY_WRITE_BYTE(data);
     } while (drv->getByte(ctx, &data) > 0);
   }
+
+  return true;
 }
 
 static inline void pollExtTelemetryLegacy()
@@ -263,23 +265,32 @@ void telemetryWakeup()
   if (int_drv) pollTelemetry(INTERNAL_MODULE, int_drv, getIntModuleCtx());
 #endif
 
+  bool disable_legacy_polling = false;
 #if defined(HARDWARE_EXTERNAL_MODULE)
   auto ext_drv = getExtModuleDriver();
-  if (ext_drv) pollTelemetry(EXTERNAL_MODULE, ext_drv, getExtModuleCtx());
-#endif
-                             
-  // TODO: needs to be moved to protocol/module init
-  //       as-is, it implies only ONE telemetry protocol
-  //       enabled at the same time
-  uint8_t requiredTelemetryProtocol = modelTelemetryProtocol();
-
-  if (telemetryProtocol != requiredTelemetryProtocol) {
-    telemetryInit(requiredTelemetryProtocol);
+  if (ext_drv) {
+    if (pollTelemetry(EXTERNAL_MODULE, ext_drv, getExtModuleCtx())) {
+      // skip legacy telemetry polling in case external module
+      // driver defines telemetry methods (getByte & processData)
+      disable_legacy_polling = true;
+    }
   }
+#endif
 
-  // Poll external / S.PORT telemetry
-  // TODO: how to switch this OFF ???
-  pollExtTelemetryLegacy();
+  if (!disable_legacy_polling) {
+    // TODO: needs to be moved to protocol/module init
+    //       as-is, it implies only ONE telemetry protocol
+    //       enabled at the same time
+    uint8_t requiredTelemetryProtocol = modelTelemetryProtocol();
+
+    if (telemetryProtocol != requiredTelemetryProtocol) {
+      telemetryInit(requiredTelemetryProtocol);
+    }
+
+    // Poll external / S.PORT telemetry
+    // TODO: how to switch this OFF ???
+    pollExtTelemetryLegacy();
+  }
 
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
     const TelemetrySensor & sensor = g_model.telemetrySensors[i];
@@ -314,7 +325,7 @@ void telemetryWakeup()
       }
     }
 
-    if (sensorLost && TELEMETRY_STREAMING() && !g_model.rssiAlarms.disabled) {
+    if (sensorLost && TELEMETRY_STREAMING() && !g_model.disableTelemetryWarning) {
       audioEvent(AU_SENSOR_LOST);
     }
 
@@ -326,13 +337,13 @@ void telemetryWakeup()
     }
 #endif
 
-    if (!g_model.rssiAlarms.disabled) {
+    if (!g_model.disableTelemetryWarning) {
       if (TELEMETRY_STREAMING()) {
-        if (TELEMETRY_RSSI() < g_model.rssiAlarms.getCriticalRssi() ) {
+        if (TELEMETRY_RSSI() < g_model.rfAlarms.critical ) {
           AUDIO_RSSI_RED();
           SCHEDULE_NEXT_ALARMS_CHECK(10/*seconds*/);
         }
-        else if (TELEMETRY_RSSI() < g_model.rssiAlarms.getWarningRssi() ) {
+        else if (TELEMETRY_RSSI() < g_model.rfAlarms.warning ) {
           AUDIO_RSSI_ORANGE();
           SCHEDULE_NEXT_ALARMS_CHECK(10/*seconds*/);
         }

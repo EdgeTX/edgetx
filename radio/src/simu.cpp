@@ -466,6 +466,8 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
   #endif
 }
 
+extern volatile uint32_t rotencDt;
+
 long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
 {
   if (hasFocus()) {
@@ -484,6 +486,14 @@ long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
     }
     else {
       rotencAction = false;
+    }
+
+    static uint32_t last_tick = 0;
+    if (rotencAction) {
+      uint32_t now = RTOS_GET_MS();
+      uint32_t dt = now - last_tick;
+      rotencDt += dt;
+      last_tick = now;
     }
 #endif
   }
@@ -534,7 +544,9 @@ void OpenTxSim::refreshDisplay()
 
 #if !defined(COLORLCD)
     FXColor offColor = isBacklightEnabled() ? BL_COLOR : FXRGB(200, 200, 200);
+#if LCD_DEPTH == 1
     FXColor onColor = FXRGB(0, 0, 0);
+#endif
 #endif
     for (int x = 0; x < LCD_W; x++) {
       for (int y = 0; y < LCD_H; y++) {

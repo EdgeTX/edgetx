@@ -50,7 +50,7 @@ class MixerEditStatusBar : public Window
                             {MIX_STATUS_BAR_MARGIN, 0,
                              rect.w - (MIX_STATUS_BAR_MARGIN * 2), rect.h},
                             channel);
-    channelBar->setLeftMargin(0);
+    channelBar->setLeftMargin(15);
     channelBar->setTextColor(COLOR_THEME_PRIMARY2);
     channelBar->setOutputChannelBarLimitColor(COLOR_THEME_EDIT);
   }
@@ -113,6 +113,7 @@ void MixEditWindow::buildBody(FormWindow* form)
   new StaticText(line, rect_t{}, STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST,
                    GET_SET_DEFAULT(mix->srcRaw));
+  CurveEdit::SetCurrentSource(mix->srcRaw);
 
   // Weight
   line = form->newLine(&grid);

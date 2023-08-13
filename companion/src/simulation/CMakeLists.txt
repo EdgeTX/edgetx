@@ -12,6 +12,8 @@ set(simulation_SRCS
   simulateduiwidgetX9D2019.cpp
   simulateduiwidgetX10.cpp
   simulateduiwidgetX12.cpp
+  simulateduiwidgetLR3PRO.cpp
+  simulateduiwidgetCommando8.cpp
   simulateduiwidgetJumperT12.cpp
   simulateduiwidgetJumperTLITE.cpp
   simulateduiwidgetJumperTPRO.cpp
@@ -19,7 +21,6 @@ set(simulation_SRCS
   simulateduiwidgetJumperT18.cpp
   simulateduiwidgetTX12.cpp
   simulateduiwidgetZorro.cpp
-  simulateduiwidgetLR3PRO.cpp
   simulateduiwidgetT8.cpp
   simulateduiwidgetTX16S.cpp
   simulateduiwidgetNV14.cpp
@@ -46,6 +47,8 @@ set(simulation_UIS
   simulateduiwidgetX9D2019.ui
   simulateduiwidgetX10.ui
   simulateduiwidgetX12.ui
+  simulateduiwidgetLR3PRO.ui
+  simulateduiwidgetCommando8.ui
   simulateduiwidgetJumperT12.ui
   simulateduiwidgetJumperTLITE.ui
   simulateduiwidgetJumperTPRO.ui
@@ -53,7 +56,6 @@ set(simulation_UIS
   simulateduiwidgetJumperT18.ui
   simulateduiwidgetTX12.ui
   simulateduiwidgetZorro.ui
-  simulateduiwidgetLR3PRO.ui 
   simulateduiwidgetT8.ui
   simulateduiwidgetTX16S.ui
   simulateduiwidgetNV14.ui

@@ -54,7 +54,7 @@ class DMAFifo
 #if defined(SIMU)
       return true;
 #endif
-      return (ridx == N - stream->NDTR);
+      return !(stream->CR & DMA_SxCR_EN) || (ridx == N - stream->NDTR);
     }
 
     bool pop(uint8_t & element)

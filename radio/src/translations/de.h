@@ -87,17 +87,19 @@
 #if LCD_W >= 212
   #define TR_CSWTIMER                  "Takt"  // TIM = Takt = Taktgenerator
   #define TR_CSWSTICKY                 "SRFF"  // Sticky = RS-Flip-Flop
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWRANGE                  "Range" // Range = Bereichsabfrage von bis
   #define TR_CSWSTAY                   "Puls"  // Edge = einstellbarer Impuls
 #else
   #define TR_CSWTIMER                  "Takt"  // TIM = Takt = Taktgenerator
   #define TR_CSWSTICKY                 "SRFF"  // Sticky = RS-Flip-Flop
-    #define TR_CSWRANGE                "Rnge"  // Range= Bereichsabfrage von bis
-    #define TR_CSWSTAY                 "Puls"  // Edge = einstellbarer Impuls
+  #define TR_CSWSAFE                   "Safe"
+  #define TR_CSWRANGE                  "Rnge"  // Range= Bereichsabfrage von bis
+   #define TR_CSWSTAY                   "Puls"  // Edge = einstellbarer Impuls
 #endif
 
 #define TR_CSWEQUAL                    "a=x"
-#define TR_VCSWFUNC            			"---",TR_CSWEQUAL,"a~x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
+#define TR_VCSWFUNC            			"---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY,TR_CSWSAFE
 
 #if defined(VARIO)
   #define TR_VVARIO                    "Vario"
@@ -282,9 +284,13 @@
 #define TR_VFORMULAS                   "Addieren","Mittelwert","Min","Max","Multiplizier","Gesamt","Zelle","Verbrauch","Distanz"
 #define TR_VPREC                       "0.--","0.0","0.00"
 #define TR_VCELLINDEX                  "Niedrigst","1. Zelle","2. Zelle","3. Zelle","4. Zelle","5. Zelle","6. Zelle","7. Zelle","8. Zelle","Höchster","Differenz"
+<<<<<<< HEAD
 #define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
+=======
+#define TR_TEXT_SIZE                   "Standard","Winzig","Klein","Mittel","Gross"
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
-#define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
+#define TR_TIMER_DIR                   TR("Rückw.", "Rückwärts"), TR("Vorwä.", "Vorwärts")
 
 // ZERO TERMINATED STRINGS
 
@@ -292,7 +298,7 @@
 #if defined(BOLD)
 #define TR_FONT_SIZES                  "STD"
 #else
-#define TR_FONT_SIZES                  "STD","BOLD","XXS","XS","L","XL","XXL"
+#define TR_FONT_SIZES                  "STD","FETT","XXS","XS","L","XL","XXL"
 #endif
 #endif
 
@@ -342,23 +348,36 @@
 #define TR_TRIMINC                     TR("Trimschritt", "Trimmschritte")
 #define TR_DISPLAY_TRIMS               TR("Trimmanzeige", "Trimmwerte anzeigen")
 #define TR_TTRACE                      TR("Gasquelle", INDENT "Gas-Timerquelle")
-#define TR_TTRIM 	       	           TR("Gastrim", INDENT "Gas-Leerlauftrim")
+#define TR_TTRIM 	       	             TR("Gastrim", INDENT "Gas-Leerlauftrim")
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
 #define TR_BEEPCTR                     TR("MittePieps", "Mittelstell. -Pieps")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob. Funkt.", "Globale Funkt verw.")
+<<<<<<< HEAD
 #define TR_PROTOCOL          		   TR("Protok.", "Protokoll")
 #define TR_PPMFRAME          	  	   INDENT "PPM-Frame"
 #define TR_REFRESHRATE             	   TR(INDENT "Refresh", INDENT "Refresh rate")
 #define STR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "Warning: output level is VBAT: ")
 #define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
 #define TR_MS                 		   "ms"
+=======
+#define TR_PROTOCOL          		       TR("Protok.", "Protokoll")
+#define TR_PPMFRAME          	  	     INDENT "PPM-Frame"
+#define TR_REFRESHRATE             	   TR(INDENT "Refresh", INDENT "Refresh Rate")
+#define STR_WARN_BATTVOLTAGE           TR(INDENT "Ausg. ist VBAT: ", INDENT "Warnung: Ausg.pegel ist VBAT: ")
+#define TR_WARN_5VOLTS                 "Warnung: Ausgangspegel ist 5 Volt"
+#define TR_MS                 		     "ms"
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 #define TR_FREQUENCY                   INDENT "Frequenz"
 #define TR_SWITCH                      TR("Schalt.", "Schalter")
 #define TR_TRIMS                       "Trimmer"
 #define TR_FADEIN                      "Langs. Ein"
 #define TR_FADEOUT                     "Langs. Aus"
 #define TR_DEFAULT                     "(Normal)"
-#define TR_CHECKTRIMS                  CENTER"\006Check\012Trims"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS                "Prüfe Flugphasen-Trimmung"
+#else
+  #define TR_CHECKTRIMS                CENTER"\006Prüfe\012Trimmung"
+#endif
 #define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                   TR("Typ Taumelsch", "Typ  Taumelscheibe")
 #define TR_COLLECTIVE                  TR("Kollekt. Pitch", "Kollekt. Pitch Quelle")
@@ -369,6 +388,11 @@
 #define TR_AILDIRECTION                TR("Roll   Richtung", "Roll   Servo Richtung")
 #define TR_COLDIRECTION                TR("Pitch Richtung", "Pitch Servo Richtung")
 #define TR_MODE                        "Modus"
+#if LCD_W > LCD_H
+  #define TR_LEFT_STICK                "Links"
+#else
+  #define TR_LEFT_STICK                "Li"
+#endif
 #define TR_SUBTYPE                     INDENT "Subtype"
 #define TR_NOFREEEXPO                  "Expos voll!"
 #define TR_NOFREEMIXER                 "Mischer voll!"
@@ -399,13 +423,13 @@
 #else
 #define TR_GV                          TR("G", "GV")
 #endif
-#define TR_ACHANNEL                    TR("A\004gemessen", "A\004Kanal gemessen =>") // 9XR-Pro
-#define TR_RANGE                       TR(INDENT "Bereich", INDENT "Variobereich m/s") // 9XR-Pro
+#define TR_ACHANNEL                    TR("A\004gemessen", "A\004Kanal gemessen =>")
+#define TR_RANGE                       TR(INDENT "Bereich", INDENT "Variobereich m/s")
 #define TR_CENTER                      TR(INDENT "Mitte", INDENT "Variomitte     m/s")
 #define TR_BAR                         "Balken"
-#define TR_ALARM                       TR("Alarme ", "Aufleuchten bei Alarm")  // 9XR-Pro
+#define TR_ALARM                       "Alarme"
 #define TR_USRDATA                     "Daten berechnen aus"
-#define TR_BLADES                      TR("Prop", "Prop-Blätter") // 9XR-Pro
+#define TR_BLADES                      TR("Prop", "Prop-Blätter")
 #define TR_SCREEN                      "Seite: "
 #define TR_SOUND_LABEL                 "Töne"
 #define TR_LENGTH                      "Dauer"
@@ -433,11 +457,12 @@
 #define TR_MODEL_SHUTDOWN              "Herunterfahren?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Drücke [ENTER] zum Bestätigen"
 #define TR_THROTTLE_LABEL              "Gas-Kontrolle"
+#define TR_THROTTLE_START              "Gas Start"
 #define TR_THROTTLEREVERSE             TR("Gas invers", INDENT "Vollgas hinten?") //Änderung wg TH9x, Taranis
 #define TR_MINUTEBEEP                  TR("Min-Alarm", "Minuten-Alarm")
 #define TR_BEEPCOUNTDOWN               INDENT "Countdown"
 #define TR_PERSISTENT                  TR(INDENT "Permanent", INDENT "Permanent")
-#define TR_BACKLIGHT_LABEL             "LCD-Beleuchtung"
+#define TR_BACKLIGHT_LABEL             "Bildschirm"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
 #define TR_STATUS                      "Status"
 #define TR_BLDELAY                     INDENT "Dauer"
@@ -499,7 +524,7 @@
 #define TR_LUA_SCRIPTS_LABEL           "Lua scripts"
 #define TR_FREE_MEM_LABEL              "Free mem"
 #define TR_TIMER_LABEL                 "Timer"
-#define TR_THROTTLE_PERCENT_LABEL      "Throttle %"
+#define TR_THROTTLE_PERCENT_LABEL      "Gas %"
 #define TR_BATT_LABEL                  "Battery"
 #define TR_SESSION                     "Session"
 #define TR_MENUTORESET                 TR_ENTER " für Reset"
@@ -664,6 +689,10 @@
 #define TR_UPDATE_RX_OPTIONS           "Update RX Optionen?"
 #define TR_UPDATE_TX_OPTIONS           "Update TX Optionen?"
 #define TR_MODULES_RX_VERSION          "Modul / RX version"
+<<<<<<< HEAD
+=======
+#define TR_SHOW_MIXER_MONITORS         "Zeige Mischermonitor"
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 #define TR_MENU_MODULES_RX_VERSION     "MODUL / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE OPTIONEN"
 #define TR_IMU                        "IMU"
@@ -991,6 +1020,10 @@
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "Dateigröße"
 #define TR_FILE_OPEN                   "trotzdem öffnen?"
+<<<<<<< HEAD
+=======
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 
 // Horus and Taranis specific column headers
 #define TR_PHASES_HEADERS_NAME         "Name "
@@ -1020,6 +1053,15 @@
 #define TR_MAIN_VIEW_X                 "Hauptansicht X"
 #define TR_PANEL1_BACKGROUND           "Panel1 Hintergrund"
 #define TR_PANEL2_BACKGROUND           "Panel2 Hintergrund"
+<<<<<<< HEAD
+=======
+#define TR_WIDGET_GAUGE                "Pegel"
+#define TR_WIDGET_MODELBMP             "Modellinfo"
+#define TR_WIDGET_OUTPUTS              "Ausgänge"
+#define TR_WIDGET_TEXT                 "Text"
+#define TR_WIDGET_TIMER                "Timer"
+#define TR_WIDGET_VALUE                "Wert"
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 
 // Taranis Info Zeile Anzeigen
 #define TR_LIMITS_HEADERS_NAME         "Name"
@@ -1108,6 +1150,7 @@
 #define TR_DELETE_ALL_SENSORS          "Lösche alle Sensoren"
 #define TR_CONFIRMDELETE               "Wirklich alle " LCDW_128_480_LINEBREAK "löschen ?"
 #define TR_SELECT_WIDGET               "Widget auswählen"  // grafisches Element
+#define TR_WIDGET_FULLSCREEN           "Full screen"
 #define TR_REMOVE_WIDGET               "Widget löschen"
 #define TR_WIDGET_SETTINGS             "Widget einstellen"
 #define TR_REMOVE_SCREEN               "Seite löschen"
@@ -1338,3 +1381,21 @@
 #define TR_MAIN_MENU_STATISTICS        "Statistiken"
 #define TR_MAIN_MENU_ABOUT_EDGETX      "Über\nEdgeTX"
 // End Main menu
+
+// Voice in native language
+#define TR_VOICE_ENGLISH               "Englisch"
+#define TR_VOICE_CHINESE               "Chinesisch"
+#define TR_VOICE_CZECH                 "Tschechisch"
+#define TR_VOICE_DANISH                "Dänisch"
+#define TR_VOICE_DEUTSCH               "Deutsch"
+#define TR_VOICE_DUTCH                 "Holländisch"
+#define TR_VOICE_ESPANOL               "Spanisch"
+#define TR_VOICE_FRANCAIS              "Französisch"
+#define TR_VOICE_HUNGARIAN             "Ungarisch"
+#define TR_VOICE_ITALIANO              "Italienisch"
+#define TR_VOICE_POLISH                "Polnisch"
+#define TR_VOICE_PORTUGUES             "Portugiesisch"
+#define TR_VOICE_RUSSIAN               "Russisch"
+#define TR_VOICE_SLOVAK                "Slowenisch"
+#define TR_VOICE_SWEDISH               "Schwedisch"
+#define TR_VOICE_TAIWANESE             "Taiwanese"

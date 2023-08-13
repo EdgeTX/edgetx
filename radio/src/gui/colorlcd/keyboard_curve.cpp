@@ -21,7 +21,8 @@
 
 #include "keyboard_curve.h"
 #include "button.h"
-#include "lcd.h"
+
+#include "translations/untranslated.h"
 
 constexpr coord_t KEYBOARD_HEIGHT = 110;
 
@@ -31,28 +32,28 @@ CurveKeyboard::CurveKeyboard() :
   Keyboard(KEYBOARD_HEIGHT)
 {
   // up
-  new TextButton(this, {LCD_W / 2 - 20, 5, 40, 40}, "\200",
+  new TextButton(this, {LCD_W / 2 - 20, 5, 40, 40}, STR_CHAR_UP,
                  [=]() -> uint8_t {
                      pushEvent(EVT_VIRTUAL_KEY_UP);
                      return 0;
                  }, BUTTON_BACKGROUND | OPAQUE | NO_FOCUS);
 
   // down
-  new TextButton(this, {LCD_W / 2 - 20, 65, 40, 40}, "\201",
+  new TextButton(this, {LCD_W / 2 - 20, 65, 40, 40}, STR_CHAR_DOWN,
                  [=]() -> uint8_t {
                      pushEvent(EVT_VIRTUAL_KEY_DOWN);
                      return 0;
                  }, BUTTON_BACKGROUND | OPAQUE | NO_FOCUS);
 
   // left
-  left = new TextButton(this, {LCD_W / 2 - 70, 35, 40, 40}, "\177",
+  left = new TextButton(this, {LCD_W / 2 - 70, 35, 40, 40}, STR_CHAR_LEFT,
                         [=]() -> uint8_t {
                             pushEvent(EVT_VIRTUAL_KEY_LEFT);
                             return 0;
                         }, BUTTON_BACKGROUND | OPAQUE | NO_FOCUS);
 
   // right
-  right = new TextButton(this, {LCD_W / 2 + 30, 35, 40, 40}, "\176",
+  right = new TextButton(this, {LCD_W / 2 + 30, 35, 40, 40}, STR_CHAR_RIGHT,
                          [=]() -> uint8_t {
                              pushEvent(EVT_VIRTUAL_KEY_RIGHT);
                              return 0;

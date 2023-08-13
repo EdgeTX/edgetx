@@ -165,6 +165,26 @@
     <file>images/simulator/XLITE/right_left.png</file>
     <file>images/simulator/XLITE/right_up.png</file>
     <file>images/simulator/XLITE/right_down.png</file>
+    <file>images/simulator/LR3PRO/top.png</file>
+    <file>images/simulator/LR3PRO/bottom.png</file>
+    <file>images/simulator/LR3PRO/left.png</file>
+    <file>images/simulator/LR3PRO/right.png</file>
+    <file>images/simulator/LR3PRO/right_plus.png</file>
+    <file>images/simulator/LR3PRO/right_minus.png</file>
+    <file>images/simulator/LR3PRO/right_up.png</file>
+    <file>images/simulator/LR3PRO/right_down.png</file>
+    <file>images/simulator/LR3PRO/right_enter.png</file>
+    <file>images/simulator/LR3PRO/left_escape.png</file>
+    <file>images/simulator/Commando8/left-mdl.png</file>
+    <file>images/simulator/Commando8/left-rtn.png</file>
+    <file>images/simulator/Commando8/left-sys.png</file>
+    <file>images/simulator/Commando8/right-up.png</file>
+    <file>images/simulator/Commando8/right-dn.png</file>
+    <file>images/simulator/Commando8/right-pageup.png</file>
+    <file>images/simulator/Commando8/right-pagedn.png</file>
+    <file>images/simulator/Commando8/right-ent.png</file>
+    <file>images/simulator/Commando8/top.png</file>
+    <file>images/simulator/Commando8/bottom.png</file>
     <file>images/simulator/JumperT12/right_up.png</file>
     <file>images/simulator/JumperT12/right_down.png</file>
     <file>images/simulator/JumperT12/right_right.png</file>
@@ -214,16 +234,6 @@
     <file>images/simulator/Zorro/right-mdl.png</file>
     <file>images/simulator/Zorro/bottom.png</file>
     <file>images/simulator/Zorro/top.png</file>
-    <file>images/simulator/LR3PRO/top.png</file>
-    <file>images/simulator/LR3PRO/bottom.png</file>
-    <file>images/simulator/LR3PRO/left.png</file>
-    <file>images/simulator/LR3PRO/right.png</file>
-    <file>images/simulator/LR3PRO/right_plus.png</file>
-    <file>images/simulator/LR3PRO/right_minus.png</file>
-    <file>images/simulator/LR3PRO/right_up.png</file>
-    <file>images/simulator/LR3PRO/right_down.png</file>
-    <file>images/simulator/LR3PRO/right_enter.png</file>
-    <file>images/simulator/LR3PRO/left_escape.png</file>
     <file>images/simulator/T8/left.png</file>
     <file>images/simulator/T8/left-pageup.png</file>
     <file>images/simulator/T8/left-pagedn.png</file>

@@ -1323,7 +1323,7 @@ void lcdInit(void)
     lcdInitFunction = LCD_ST7796S_Init;
     lcdOffFunction = LCD_ST7796S_Off;
     lcdOnFunction = LCD_ST7796S_On;
-    lcdPixelClock = 14500000;
+    lcdPixelClock = 10000000;
 /*  } else {
     TRACE("LCD INIT: unknown LCD controller");
     boardLcdType = "unknown";*/

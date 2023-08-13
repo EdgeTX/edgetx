@@ -156,7 +156,7 @@ void SubScreenButton::event_cb(lv_event_t* e)
     label_draw_dsc.align = LV_TEXT_ALIGN_CENTER;
 
     if (btn->isActive()) {
-      label_draw_dsc.color = makeLvColor(COLOR_THEME_PRIMARY2);
+      label_draw_dsc.color = makeLvColor(COLOR_THEME_PRIMARY1);
     } else {
       label_draw_dsc.color = makeLvColor(COLOR_THEME_SECONDARY1);
     }
@@ -247,7 +247,7 @@ void ModelSetupPage::build(FormWindow * window)
        Menu *menu = new Menu(window, true);
        menu->setTitle(STR_LABELS);
        for (auto &label: modelslabels.getLabels()) {
-         menu->addLine(label,
+         menu->addLineBuffered(label,
            [=] () {
              if (!modelslabels.isLabelSelected(label, curmod))
                modelslabels.addLabelToModel(label, curmod);
@@ -261,6 +261,7 @@ void ModelSetupPage::build(FormWindow * window)
              return modelslabels.isLabelSelected(label, curmod);
            });
        }
+       menu->updateLines();
        return 0;
      });
 

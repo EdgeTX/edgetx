@@ -789,10 +789,8 @@ inline void setDefaultPpmFrameLength(uint8_t moduleIdx)
 
 inline void resetAccessAuthenticationCount()
 {
-#if defined(ACCESS_LIB)
   // the module will reset on mode switch, we need to reset the authentication counter
   globalData.authenticationCount = 0;
-#endif
 }
 
 inline void resetAfhdsOptions(uint8_t moduleIdx)

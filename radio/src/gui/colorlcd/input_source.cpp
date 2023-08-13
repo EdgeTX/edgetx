@@ -122,20 +122,19 @@ InputSource::InputSource(Window* parent, ExpoData* input) :
 
   sensor_form = new FormGroup(this, rect_t{});
   sensor_form->setFlexLayout();
-  auto sensor_form_obj = sensor_form->getLvObj();
 
   FlexGridLayout grid(col_dsc, row_dsc);
   auto line = sensor_form->newLine(&grid);
 
   // Value
-  Window* w = new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
   auto sensor = new SensorValue(line, rect_t{}, input);
 
 
   // Scale
   line = sensor_form->newLine(&grid);
-  w = new StaticText(line, rect_t{}, STR_SCALE, 0, COLOR_THEME_PRIMARY1);
-  w = new NumberEdit(line, rect_t{}, 0,
+  new StaticText(line, rect_t{}, STR_SCALE, 0, COLOR_THEME_PRIMARY1);
+  new NumberEdit(line, rect_t{}, 0,
                  maxTelemValue(input->srcRaw - MIXSRC_FIRST_TELEM + 1),
                  GET_SET_DEFAULT(input->scale), 0, sensor->getSensorPrec());
 

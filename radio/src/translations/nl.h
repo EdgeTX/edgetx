@@ -20,7 +20,7 @@
  *
  */
 
-// NL translations author: Jean-Pierre van Melis (Frater)
+// NL translations author: Jean-Pierre van Melis (Fraternl)
 
 /*
  * Formatting octal codes available in TR_ strings:
@@ -86,17 +86,19 @@
 #if LCD_W >= 212
   #define TR_CSWTIMER          "Timer"
   #define TR_CSWSTICKY         "Stcky"
+  #define TR_CSWSAFE           "Safe"
   #define TR_CSWRANGE          "Range"
   #define TR_CSWSTAY           "Edge"
 #else
   #define TR_CSWTIMER          "Tim"
   #define TR_CSWSTICKY         "Glue"
+  #define TR_CSWSAFE           "Safe"
   #define TR_CSWRANGE          "Rnge"
   #define TR_CSWSTAY           "Edge"
 #endif
 
 #define TR_CSWEQUAL            "a=x"
-#define TR_VCSWFUNC            "---",TR_CSWEQUAL,"a~x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
+#define TR_VCSWFUNC            "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY,TR_CSWSAFE
 
 #if defined(VARIO)
   #define TR_VVARIO            "Vario"
@@ -357,7 +359,11 @@
 #define TR_FADEIN              "Fade in"
 #define TR_FADEOUT             "Fade out"
 #define TR_DEFAULT             "(default)"
-#define TR_CHECKTRIMS          CENTER "\006Check\012Trims"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS        "Check FM Trims"
+#else
+  #define TR_CHECKTRIMS        CENTER "\006Check\012Trims"
+#endif
 #define OFS_CHECKTRIMS         CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE           "Swash Type"
 #define TR_COLLECTIVE          TR("Collective", "Coll. pitch source")
@@ -368,6 +374,11 @@
 #define TR_AILDIRECTION        "AIL Direction"
 #define TR_COLDIRECTION        "PIT Direction"
 #define TR_MODE                "Mode"
+#if LCD_W > LCD_H
+  #define TR_LEFT_STICK        "Linkerkant"
+#else
+  #define TR_LEFT_STICK        "Li"
+#endif
 #define TR_SUBTYPE             INDENT "Subtype"
 #define TR_NOFREEEXPO          "Geen vrije expo!"
 #define TR_NOFREEMIXER         "Geen vrije mixer!"
@@ -432,6 +443,7 @@
 #define TR_MODEL_SHUTDOWN      "Shutdown ?"
 #define TR_PRESS_ENTER_TO_CONFIRM "Press enter to confirm"
 #define TR_THROTTLE_LABEL      "Gas"
+#define TR_THROTTLE_START      "Gas Start"
 #define TR_THROTTLEREVERSE     TR("Reverse", INDENT "Omgekeerd")
 #define TR_MINUTEBEEP          TR("Min-Alarm", "Minuten-Alarm")
 #define TR_BEEPCOUNTDOWN       INDENT "Countdown"
@@ -670,6 +682,7 @@
 #define TR_UPDATE_RX_OPTIONS           "Update RX options?"
 #define TR_UPDATE_TX_OPTIONS           "Update TX options?"
 #define TR_MODULES_RX_VERSION          "Modules / RX version"
+#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "MODULES / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE OPTIONS"
 #define TR_IMU                        "IMU"
@@ -1001,6 +1014,7 @@
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "File size"
 #define TR_FILE_OPEN                   "Open anyway?"
+#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Name"
@@ -1061,6 +1075,12 @@
 #define TR_MAIN_VIEW_X                 "Main view X"
 #define TR_PANEL1_BACKGROUND           "Panel1 background"
 #define TR_PANEL2_BACKGROUND           "Panel2 background"
+#define TR_WIDGET_GAUGE                "Gauge"
+#define TR_WIDGET_MODELBMP             "Models"
+#define TR_WIDGET_OUTPUTS              "Outputs"
+#define TR_WIDGET_TEXT                 "Text"
+#define TR_WIDGET_TIMER                "Timer"
+#define TR_WIDGET_VALUE                "Value"
 
 // About screen
 #define TR_ABOUTUS             TR(" ABOUT ", "ABOUT")
@@ -1118,6 +1138,7 @@
 #define TR_DELETE_ALL_SENSORS  "Wis alle sensors"
 #define TR_CONFIRMDELETE       "Echt alles wissen?"
 #define TR_SELECT_WIDGET       "Widget kiezen"
+#define TR_WIDGET_FULLSCREEN           "Full screen"
 #define TR_REMOVE_WIDGET       "Widget wissen"
 #define TR_WIDGET_SETTINGS     "Widget instellen"
 #define TR_REMOVE_SCREEN       "Scherm wissen"
@@ -1348,3 +1369,21 @@
 #define TR_MAIN_MENU_STATISTICS         "Statistics"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "About\nEdgeTX"
 // End Main menu
+
+// Voice in native language
+#define TR_VOICE_ENGLISH                "English"
+#define TR_VOICE_CHINESE                "Chinese"
+#define TR_VOICE_CZECH                  "Czech"
+#define TR_VOICE_DANISH                 "Danish"
+#define TR_VOICE_DEUTSCH                "Deutsch"
+#define TR_VOICE_DUTCH                  "Dutch"
+#define TR_VOICE_ESPANOL                "Espanol"
+#define TR_VOICE_FRANCAIS               "Francais"
+#define TR_VOICE_HUNGARIAN              "Hungarian"
+#define TR_VOICE_ITALIANO               "Italiano"
+#define TR_VOICE_POLISH                 "Polish"
+#define TR_VOICE_PORTUGUES              "Portugues"
+#define TR_VOICE_RUSSIAN                "Russian"
+#define TR_VOICE_SLOVAK                 "Slovak"
+#define TR_VOICE_SWEDISH                "Swedish"
+#define TR_VOICE_TAIWANESE              "Taiwanese"

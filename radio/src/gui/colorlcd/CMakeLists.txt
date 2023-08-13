@@ -140,10 +140,17 @@ endif()
 
 if(AFHDS2 OR AFHDS3)
   add_gui_src(flysky_settings.cpp)
+  if(AFHDS3)
+    add_gui_src(afhds3_options.cpp)
+  endif()
 endif()
 
 if(MULTIMODULE)
   add_gui_src(mpm_settings.cpp)
+endif()
+
+if(INTERNAL_MODULE_PXX1)
+  add_gui_src(pxx1_settings.cpp)
 endif()
 
 if(PXX2)

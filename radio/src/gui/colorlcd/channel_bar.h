@@ -28,6 +28,8 @@
 constexpr coord_t ROW_HEIGHT = 42;
 constexpr coord_t BAR_HEIGHT = 13;
 constexpr coord_t LEG_COLORBOX = 15;
+constexpr coord_t LMARGIN = 15;
+constexpr coord_t TMARGIN = 2;
 
 class ChannelBar : public Window
 {
@@ -78,8 +80,6 @@ class OutputChannelBar : public ChannelBar
   LcdFlags outputBarLimitsColor = COLOR_THEME_SECONDARY1;
 };
 
-constexpr coord_t lmargin = 25;
-
 class ComboChannelBar : public Window
 {
   public:
@@ -88,11 +88,11 @@ class ComboChannelBar : public Window
       Window(parent, rect), channel(channel)
     {
       outputChannelBar = new OutputChannelBar(
-          this, {leftMargin, BAR_HEIGHT, width() - leftMargin, BAR_HEIGHT},
+          this, {leftMargin, BAR_HEIGHT + TMARGIN, width() - leftMargin, BAR_HEIGHT},
           channel);
       new MixerChannelBar(
           this,
-          {leftMargin, 2 * BAR_HEIGHT + 1, width() - leftMargin, BAR_HEIGHT},
+          {leftMargin, (2 * BAR_HEIGHT) + TMARGIN + 1, width() - leftMargin, BAR_HEIGHT},
           channel);
     }
 
@@ -116,7 +116,7 @@ class ComboChannelBar : public Window
 
     void paint(BitmapBuffer * dc) override
     {
-      char chanString[] = "CH32 ";
+      char chanString[] = TR_CH"32 ";
       int usValue = PPM_CH_CENTER(channel) + channelOutputs[channel] / 2;
 
       // Channel number
@@ -132,13 +132,13 @@ class ComboChannelBar : public Window
       // Override icon
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
       if (safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED)
-        dc->drawMask(0, 1, chanMonLockedBitmap, textColor);
+        dc->drawMask(0, 5, chanMonLockedBitmap, textColor);
 #endif
 
       // Channel reverted icon
       LimitData * ld = limitAddress(channel);
       if (ld && ld->revert) {
-        dc->drawMask(0, 20, chanMonInvertedBitmap, textColor);
+        dc->drawMask(0, 25, chanMonInvertedBitmap, textColor);
       }
     }
 
@@ -164,7 +164,7 @@ class ComboChannelBar : public Window
     uint8_t channel;
     OutputChannelBar *outputChannelBar = nullptr;
     int value = 0;
-    int leftMargin = lmargin;
+    int leftMargin = LMARGIN;
     uint32_t textColor = COLOR_THEME_SECONDARY1;
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
     int safetyChValue = OVERRIDE_CHANNEL_UNDEFINED;

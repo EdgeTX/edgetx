@@ -114,19 +114,17 @@ QString UpdateParameters::updateFilterTypeToString(UpdateFilterType uft)
 UpdateInterface::UpdateInterface(QWidget * parent) :
   QWidget(parent),
   progress(nullptr),
-  resultsPerPage(-1),
   reply(nullptr),
   buffer(new QByteArray()),
   file(nullptr),
-  m_settingsIdx(-1)
+  m_id(CID_Unknown),
+  m_name("")
 {
   QNetworkProxyFactory::setUseSystemConfiguration(true);
 
   releases = new ReleasesMetaData(this);
   assets = new AssetsMetaData(this);
   params = new UpdateParameters(this);
-
-  setReleasesNightlyName("");
 }
 
 UpdateInterface::~UpdateInterface()
@@ -141,6 +139,76 @@ UpdateInterface::~UpdateInterface()
   delete params;
 }
 
+void UpdateInterface::init(ComponentIdentity id, QString name, QString repo, QString nightly, int resultsPerPage)
+{
+  setId(id);
+  setName(name);
+
+  initAppSettings();
+
+  releases->init(repo, nightly, resultsPerPage, id);
+  assets->init(repo, resultsPerPage);
+
+  currentRelease();
+}
+
+void UpdateInterface::initAppSettings()
+{
+  if (!isValidSettingsIndex()) {
+    reportProgress(tr("Component id: %1 exceeds maximum application settings components: %2!").arg(m_id).arg(MAX_COMPONENTS), QtCriticalMsg);
+    return;
+  }
+
+  if (!g.component[m_id].existsOnDisk()) {
+    g.component[m_id].init();
+  }
+
+  if (!g.component[m_id].asset[0].existsOnDisk())
+    initAssetSettings();
+}
+
+void UpdateInterface::loadAssetSettings()
+{
+  if (!isValidSettingsIndex())
+    return;
+
+  params->assets.clear();
+
+  for (int i = 0; i < MAX_COMPONENT_ASSETS && g.component[m_id].asset[i].existsOnDisk(); i++) {
+    UpdateParameters::AssetParams &ap = params->addAsset();
+    ComponentAssetData &cad = g.component[m_id].asset[i];
+
+    ap.processes = cad.processes();
+    ap.flags = cad.flags();
+    ap.filterType = (UpdateParameters::UpdateFilterType)cad.filterType();
+    ap.filter = cad.filter();
+    ap.maxExpected = cad.maxExpected();
+    ap.destSubDir = cad.destSubDir();
+    ap.copyFilterType = (UpdateParameters::UpdateFilterType)cad.copyFilterType();
+    ap.copyFilter = cad.copyFilter();
+  }
+}
+
+void UpdateInterface::saveAssetSettings()
+{
+  if (!isValidSettingsIndex())
+    return;
+
+  for (int i = 0; i < MAX_COMPONENT_ASSETS && g.component[m_id].asset[i].existsOnDisk(); i++) {
+    const UpdateParameters::AssetParams &ap = params->assets.at(i);
+    ComponentAssetData &cad = g.component[m_id].asset[i];
+
+    //  DO NOT overwrite cad.processes
+    cad.flags(ap.flags);
+    cad.filterType(ap.filterType);
+    cad.filter(ap.filter);
+    cad.maxExpected(ap.maxExpected);
+    cad.destSubDir(ap.destSubDir);
+    cad.copyFilterType(ap.copyFilterType);
+    cad.copyFilter(ap.copyFilter);
+  }
+}
+
 bool UpdateInterface::update(ProgressWidget * progress)
 {
   if (!(params->flags & UPDFLG_Update))
@@ -149,30 +217,30 @@ bool UpdateInterface::update(ProgressWidget * progress)
   this->progress = progress;
 
   if (progress) {
-    progress->setInfo(tr("Processing updates for: %1").arg(name));
+    progress->setInfo(tr("Processing updates for: %1").arg(m_name));
     progress->setValue(0);
     progress->setMaximum(100);
   }
 
-  reportProgress(tr("Processing updates for: %1").arg(name), QtInfoMsg);
+  reportProgress(tr("Processing updates for: %1").arg(m_name), QtInfoMsg);
 
   if (!preparation()) {
-    reportProgress(tr("%1 preparation failed").arg(name), QtCriticalMsg);
+    reportProgress(tr("%1 preparation failed").arg(m_name), QtCriticalMsg);
     return false;
   }
 
   if (!download()) {
-    reportProgress(tr("%1 download failed").arg(name), QtCriticalMsg);
+    reportProgress(tr("%1 download failed").arg(m_name), QtCriticalMsg);
     return false;
   }
 
   if (!decompress()) {
-    reportProgress(tr("%1 decompress failed").arg(name), QtCriticalMsg);
+    reportProgress(tr("%1 decompress failed").arg(m_name), QtCriticalMsg);
     return false;
   }
 
   if (!copyToDestination()) {
-    reportProgress(tr("%1 copy to destination failed").arg(name), QtCriticalMsg);
+    reportProgress(tr("%1 copy to destination failed").arg(m_name), QtCriticalMsg);
     return false;
   }
 
@@ -183,19 +251,19 @@ bool UpdateInterface::update(ProgressWidget * progress)
   }
 
   if (!asyncInstall()) {
-    reportProgress(tr("%1 start async failed").arg(name), QtCriticalMsg);
+    reportProgress(tr("%1 start async failed").arg(m_name), QtCriticalMsg);
     return false;
   }
 
   if (!housekeeping()) {
-    reportProgress(tr("%1 housekeeping failed").arg(name), QtCriticalMsg);
+    reportProgress(tr("%1 housekeeping failed").arg(m_name), QtCriticalMsg);
     return false;
   }
 
-  reportProgress(tr("%1 update successful").arg(name), QtInfoMsg);
+  reportProgress(tr("%1 update successful").arg(m_name), QtInfoMsg);
 
   if (!progress)
-    QMessageBox::information(progress, CPN_STR_APP_NAME, tr("%1 update successful").arg(name));
+    QMessageBox::information(progress, CPN_STR_APP_NAME, tr("%1 update successful").arg(m_name));
 
   return true;
 }
@@ -249,7 +317,7 @@ QString UpdateInterface::downloadDataTypeToString(DownloadDataType val)
 }
 
 //  static
-QString UpdateInterface::semanticVersion(QString version)
+QStringList UpdateInterface::versionToStringList(QString version)
 {
   QStringList strl = version.split(".");
 
@@ -257,7 +325,7 @@ QString UpdateInterface::semanticVersion(QString version)
     strl.append("0");
   }
 
-  return strl.join(".");
+  return strl;
 }
 
 void UpdateInterface::reportProgress(const QString & text, const int type)
@@ -288,87 +356,9 @@ void UpdateInterface::criticalMsg(const QString & msg)
   QMessageBox::critical(progress, tr("Update Interface"), msg);
 }
 
-void UpdateInterface::setName(QString name)
-{
-  this->name = name;
-  setSettingsIndex();
-  currentRelease();
-}
-
-void UpdateInterface::setRepo(QString repo)
-{
-  releases->setRepo(repo);
-  assets->setRepo(repo);
-}
-
-void UpdateInterface::setSettingsIndex()
-{
-  int i = g.getComponentIndex(name);
-
-  if (i < 0) {
-    for (i = 0; i < MAX_COMPONENTS && g.component[i].existsOnDisk(); i++)
-      ;
-    if (i >= MAX_COMPONENTS) {
-      reportProgress(tr("No free slot to save interface settings!"), QtCriticalMsg);
-      i = -1;
-    }
-    else {
-      g.component[i].init();
-      g.component[i].name(name);
-    }
-  }
-
-  m_settingsIdx = i;
-  releases->setSettingsIndex(m_settingsIdx);
-  if (isValidSettingsIndex() && !g.component[m_settingsIdx].asset[0].existsOnDisk())
-    initAssetSettings();
-}
-
-void UpdateInterface::loadAssetSettings()
-{
-  if (!isValidSettingsIndex())
-    return;
-
-  params->assets.clear();
-
-  for (int i = 0; i < MAX_COMPONENT_ASSETS && g.component[m_settingsIdx].asset[i].existsOnDisk(); i++) {
-    UpdateParameters::AssetParams &ap = params->addAsset();
-    ComponentAssetData &cad = g.component[m_settingsIdx].asset[i];
-
-    ap.processes = cad.processes();
-    ap.flags = cad.flags();
-    ap.filterType = (UpdateParameters::UpdateFilterType)cad.filterType();
-    ap.filter = cad.filter();
-    ap.maxExpected = cad.maxExpected();
-    ap.destSubDir = cad.destSubDir();
-    ap.copyFilterType = (UpdateParameters::UpdateFilterType)cad.copyFilterType();
-    ap.copyFilter = cad.copyFilter();
-  }
-}
-
-void UpdateInterface::saveAssetSettings()
-{
-  if (!isValidSettingsIndex())
-    return;
-
-  for (int i = 0; i < MAX_COMPONENT_ASSETS && g.component[m_settingsIdx].asset[i].existsOnDisk(); i++) {
-    const UpdateParameters::AssetParams &ap = params->assets.at(i);
-    ComponentAssetData &cad = g.component[m_settingsIdx].asset[i];
-
-    //  ap.processes do not overwrite as read only
-    cad.flags(ap.flags);
-    cad.filterType(ap.filterType);
-    cad.filter(ap.filter);
-    cad.maxExpected(ap.maxExpected);
-    cad.destSubDir(ap.destSubDir);
-    cad.copyFilterType(ap.copyFilterType);
-    cad.copyFilter(ap.copyFilter);
-  }
-}
-
 bool UpdateInterface::isUpdateable()
 {
-  return g.component[m_settingsIdx].checkForUpdate();
+  return g.component[m_id].checkForUpdate();
 }
 
 void UpdateInterface::resetEnvironment()
@@ -378,7 +368,7 @@ void UpdateInterface::resetEnvironment()
   progress = nullptr;
 
   params->logLevel = g.updLogLevel();
-  setReleaseChannel(g.component[m_settingsIdx].releaseChannel());
+  setReleaseChannel(g.component[m_id].releaseChannel());
   params->updateRelease = "";
   setFlavourLanguage();
   loadAssetSettings();
@@ -398,7 +388,13 @@ void UpdateInterface::resetEnvironment()
 void UpdateInterface::setReleaseChannel(int channel)
 {
   params->releaseChannel = channel;
+  //repoReleasesMetaData();
   releases->setReleaseChannel(channel);
+}
+
+void UpdateInterface::setReleaseId(QString val)
+{
+  releases->getSetId(val);
 }
 
 void UpdateInterface::setFlavourLanguage()
@@ -460,19 +456,21 @@ void UpdateInterface::setParamFolders()
 
 void UpdateInterface::clearRelease()
 {
-  g.component[m_settingsIdx].clearRelease();
+  g.component[m_id].clearRelease();
   currentRelease();
 }
 
 const QString UpdateInterface::currentRelease()
 {
-  params->currentRelease = g.component[m_settingsIdx].release();
+  params->currentRelease = g.component[m_id].release();
   return params->currentRelease;
 }
 
 QString UpdateInterface::latestRelease()
 {
-  repoReleasesMetaData();
+  if (!repoReleasesMetaData())
+    return tr("unknown");
+
   return releases->name();
 }
 
@@ -486,7 +484,7 @@ const QString UpdateInterface::updateRelease()
 
 const bool UpdateInterface::isUpdateAvailable()
 {
-  if (g.component[m_settingsIdx].checkForUpdate())
+  if (g.component[m_id].checkForUpdate())
     return !isLatestRelease();
   else {
     return false;
@@ -495,10 +493,10 @@ const bool UpdateInterface::isUpdateAvailable()
 
 const bool UpdateInterface::isLatestVersion(const QString & installed, const QString & latest)
 {
-  QStringList a = semanticVersion(installed).split(".");
-  QStringList b = semanticVersion(latest).split(".");
+  QStringList a = versionToStringList(installed);
+  QStringList b = versionToStringList(latest);
 
-  // not equal comparision used to force update if client upgraded and the release is subsequently withdrawn or subscribed to nightlies
+  // not equal comparision used as version identifiers are inconsistent eg release vs nightly vs older
   for (int i = 0; i < 4; i++) {
     if (a.at(i) != b.at(i)) {
       return false;
@@ -510,11 +508,13 @@ const bool UpdateInterface::isLatestVersion(const QString & installed, const QSt
 
 const bool UpdateInterface::isLatestRelease()
 {
-  repoReleasesMetaData();
+  if (!repoReleasesMetaData())
+    return false;
+
   QString currentVer = currentVersion();
   QString latestVer = releases->version();
   // nightlies often have the same version so also check id
-  if (isLatestVersion(currentVer, latestVer) && g.component[m_settingsIdx].id() == releases->id()) {
+  if (isLatestVersion(currentVer, latestVer) && g.component[m_id].releaseId() == releases->id()) {
     return true;
   }
   else {
@@ -524,12 +524,14 @@ const bool UpdateInterface::isLatestRelease()
 
 const QString UpdateInterface::currentVersion()
 {
-  return g.component[m_settingsIdx].version();
+  return g.component[m_id].version();
 }
 
 const QStringList UpdateInterface::getReleases()
 {
-  repoReleasesMetaData();
+  if (!repoReleasesMetaData())
+    return QStringList();
+
   return releases->list();
 }
 
@@ -541,17 +543,20 @@ bool UpdateInterface::repoReleasesMetaData()
       releases->setId(0);
       return false;
     }
-  }
 
-  releases->getSetId();
+    releases->getSetId();
+  }
 
   return true;
 }
 
 bool UpdateInterface::repoReleaseAssetsMetaData()
 {
+  if (!repoReleasesMetaData())
+    return false;
+
   if (!downloadReleaseAssetsMetaData(releases->id())) {
-    reportProgress(tr("Unable to download release channel assets information"), QtDebugMsg);
+    reportProgress(tr("Unable to download release assets information"), QtDebugMsg);
     return false;
   }
 
@@ -584,14 +589,14 @@ bool UpdateInterface::setRunFolders()
     }
   }
 
-  downloadDir = QString("%1/%2/%3").arg(params->downloadDir).arg(name).arg(fldr);
+  downloadDir = QString("%1/%2/%3").arg(params->downloadDir).arg(m_name).arg(fldr);
 
   if (!checkCreateDirectory(downloadDir, UPDFLG_Download))
     return false;
 
   //reportProgress(tr("Download directory: %1").arg(downloadDir), QtDebugMsg);
 
-  decompressDir = QString("%1/%2/%3").arg(params->decompressDir).arg(name).arg(fldr);
+  decompressDir = QString("%1/%2/%3").arg(params->decompressDir).arg(m_name).arg(fldr);
 
   if (!checkCreateDirectory(decompressDir, UPDFLG_Decompress))
     return false;
@@ -624,6 +629,38 @@ bool UpdateInterface::checkCreateDirectory(const QString & dir, const UpdateFlag
   return true;
 }
 
+ bool UpdateInterface::getReleaseJsonAsset(const QString assetName, QJsonDocument * json)
+{
+  if (!repoReleaseAssetsMetaData())
+    return false;
+
+  if (!assets->getSetId(assetName))
+    return false;
+
+  if (!downloadAssetToBuffer(assets->id())) {
+    return false;
+  }
+
+  if (!convertDownloadToJson(json)) {
+    return false;
+  }
+
+  return true;
+}
+
+ bool UpdateInterface::getRepoJsonFile(const QString filename, QJsonDocument * json)
+{
+  if (!downloadTextFileToBuffer(filename)) {
+    return false;
+  }
+
+  if (!convertDownloadToJson(json)) {
+    return false;
+  }
+
+  return true;
+}
+
 bool UpdateInterface::downloadReleasesMetaData()
 {
   //progressMessage(tr("Download releases metadata"));
@@ -649,7 +686,7 @@ bool UpdateInterface::downloadReleaseMetaData(const int releaseId)
 bool UpdateInterface::downloadReleaseAssetsMetaData(const int releaseId)
 {
   //progressMessage(tr("Download release %1 assets metadata").arg(releaseId));
-  downloadMetaData(MDT_ReleaseAssets, assets->urlReleaseAssets(releaseId, resultsPerPage));
+  downloadMetaData(MDT_ReleaseAssets, assets->urlReleaseAssets(releaseId));
   return downloadSuccess;
 }
 
@@ -1380,10 +1417,10 @@ bool UpdateInterface::asyncInstall()
 bool UpdateInterface::saveReleaseSettings()
 {
   reportProgress(tr("Save release settings"), QtDebugMsg);
-  g.component[m_settingsIdx].release(releases->name());
-  g.component[m_settingsIdx].version(releases->version());
-  g.component[m_settingsIdx].id(releases->id());
-  g.component[m_settingsIdx].date(releases->date());
+  g.component[m_id].release(releases->name());
+  g.component[m_id].version(releases->version());
+  g.component[m_id].releaseId(releases->id());
+  g.component[m_id].date(releases->date());
 
   return true;
 }
@@ -1405,6 +1442,12 @@ UpdateFactories::~UpdateFactories()
 
 void UpdateFactories::registerUpdateFactory(UpdateFactoryInterface * factory)
 {
+  foreach (UpdateFactoryInterface * registeredFactory, registeredUpdateFactories) {
+    if (registeredFactory->id() == factory->id()) {
+      qDebug() << "Duplicate factory - id:" << factory->id() << "name:" << factory->name();
+      return;
+    }
+  }
   registeredUpdateFactories.append(factory);
   qDebug() << "Registered update factory:" << factory->name();
 }
@@ -1429,63 +1472,60 @@ void UpdateFactories::unregisterUpdateFactories()
     delete factory;
 }
 
-void UpdateFactories::initAssetSettings(const QString & name)
+UpdateInterface * UpdateFactories::getInstance(const int id)
 {
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (name == factory->name()) {
-      factory->instance()->initAssetSettings();
-      break;
-    }
+    if (id == factory->id())
+      return factory->instance();
   }
+  qDebug() << "Critical error - Interface not found for id:" << id;
+  return nullptr;
 }
 
-void UpdateFactories::saveAssetSettings(const QString & name)
+const QString UpdateFactories::name(const int id)
 {
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (name == factory->name()) {
-      factory->instance()->saveAssetSettings();
-      break;
-    }
-  }
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    return iface->name();
+
+  return "";
 }
 
-UpdateParameters * const UpdateFactories::getParams(const QString & name)
+void UpdateFactories::saveAssetSettings(const int id)
 {
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (name == factory->name()) {
-      return factory->instance()->getParams();
-      break;
-    }
-  }
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    iface->saveAssetSettings();
+}
+
+UpdateParameters * const UpdateFactories::getParams(const int id)
+{
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    return iface->getParams();
 
   return nullptr;
 }
 
-void UpdateFactories::resetEnvironment(const QString & name)
+void UpdateFactories::resetEnvironment(const int id)
 {
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (name == factory->name()) {
-      factory->instance()->resetEnvironment();
-      break;
-    }
-  }
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    iface->resetEnvironment();
 }
 
 void UpdateFactories::resetAllEnvironments()
 {
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    resetEnvironment(factory->name());
+    resetEnvironment(factory->id());
   }
 }
 
-void UpdateFactories::setRunUpdate(const QString & name)
+void UpdateFactories::setRunUpdate(const int id)
 {
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (name == factory->name()) {
-      factory->instance()->setRunUpdate();
-      break;
-    }
-  }
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    iface->setRunUpdate();
 }
 
 const QMap<QString, int> UpdateFactories::sortedComponentsList(bool updateableOnly)
@@ -1495,114 +1535,85 @@ const QMap<QString, int> UpdateFactories::sortedComponentsList(bool updateableOn
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
     if (updateableOnly && !factory->instance()->isUpdateable())
       continue;
-    map.insert(factory->name(), factory->instance()->settingsIndex());
+    map.insert(factory->name(), factory->id());
   }
 
   return map;
 }
 
-void UpdateFactories::clearRelease(const QString & name)
+void UpdateFactories::clearRelease(const int id)
 {
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (name == factory->name()) {
-      factory->instance()->clearRelease();
-      break;
-    }
-  }
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    iface->clearRelease();
 }
 
-void UpdateFactories::setReleaseChannel(const QString & name, int channel)
+void UpdateFactories::setReleaseChannel(const int id, int channel)
 {
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (name == factory->name()) {
-      factory->instance()->setReleaseChannel(channel);
-      break;
-    }
-  }
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    iface->setReleaseChannel(channel);
 }
 
-const QString UpdateFactories::currentRelease(const QString & name)
+void UpdateFactories::setReleaseId(const int id, QString val)
 {
-  QString ret;
-
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (name == factory->name()) {
-      ret = factory->instance()->currentRelease();
-      break;
-    }
-  }
-
-  return ret;
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    iface->setReleaseId(val);
 }
 
-const QString UpdateFactories::updateRelease(const QString & name)
+const QString UpdateFactories::currentRelease(const int id)
 {
-  QString ret;
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    return iface->currentRelease();
 
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (name == factory->name()) {
-      ret = factory->instance()->updateRelease();
-      break;
-    }
-  }
-
-  return ret;
+  return "";
 }
 
-const bool UpdateFactories::isLatestRelease(const QString & name)
+const QString UpdateFactories::updateRelease(const int id)
 {
-  bool ret = true;
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    return iface->updateRelease();
 
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (name == factory->name()) {
-      ret = factory->instance()->isLatestRelease();
-      break;
-    }
-  }
-
-  return ret;
+  return "";
 }
 
-const QString UpdateFactories::latestRelease(const QString & name)
+const bool UpdateFactories::isLatestRelease(const int id)
 {
-  QString ret;
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    return iface->isLatestRelease();
 
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (name == factory->name()) {
-      ret = factory->instance()->latestRelease();
-      break;
-    }
-  }
-
-  return ret;
+  return true;
 }
 
-const QStringList UpdateFactories::releases(const QString & name)
+const QString UpdateFactories::latestRelease(const int id)
 {
-  QStringList ret;
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    return iface->latestRelease();
 
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (name == factory->name()) {
-      ret = factory->instance()->getReleases();
-      break;
-    }
-  }
-
-  return ret;
+  return "";
 }
 
-bool UpdateFactories::update(const QString & name, ProgressWidget * progress)
+const QStringList UpdateFactories::releases(const int id)
 {
-  bool ret = false;
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    return iface->getReleases();
 
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (name == factory->name()) {
-      ret = factory->instance()->update(progress);
-      break;
-    }
-  }
+  return QStringList();
+}
 
-  return ret;
+bool UpdateFactories::update(const int id, ProgressWidget * progress)
+{
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    return iface->update(progress);
+
+  return false;
 }
 
 bool UpdateFactories::updateAll(ProgressWidget * progress)
@@ -1610,7 +1621,7 @@ bool UpdateFactories::updateAll(ProgressWidget * progress)
   bool ret = false;
 
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    ret = update(factory->name(), progress);
+    ret = factory->instance()->update(progress);
     if (!ret)
       break;
   }
@@ -1618,17 +1629,36 @@ bool UpdateFactories::updateAll(ProgressWidget * progress)
   return ret;
 }
 
-const bool UpdateFactories::isUpdateAvailable(QStringList & names)
+const bool UpdateFactories::isUpdateAvailable(QMap<QString, int> & list)
 {
   bool ret = false;
-  names.clear();
+
+  list.clear();
 
   foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
     if (factory->instance()->isUpdateable() && factory->instance()->isUpdateAvailable()) {
-      names.append(factory->name());
+      list.insert(factory->name(), factory->id());
       ret = true;
     }
   }
 
   return ret;
+}
+
+bool UpdateFactories::getReleaseJsonAsset(const int id, const QString assetName, QJsonDocument * json)
+{
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    return iface->getReleaseJsonAsset(assetName, json);
+
+  return false;
+}
+
+bool UpdateFactories::getRepoJsonFile(const int id, const QString filename, QJsonDocument * json)
+{
+  UpdateInterface * iface = getInstance(id);
+  if (iface)
+    return iface->getRepoJsonFile(filename, json);
+
+  return false;
 }

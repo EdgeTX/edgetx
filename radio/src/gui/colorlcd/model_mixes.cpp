@@ -267,7 +267,7 @@ void MixLineButton::refresh()
 
   if (line.name[0]) {
     int cnt = lv_snprintf(s, maxlen, "%.*s ", (int)sizeof(line.name), line.name);
-    if (cnt >= maxlen) maxlen = 0;
+    if ((size_t)cnt >= maxlen) maxlen = 0;
     else { maxlen -= cnt; s += cnt; }
   }
 
@@ -275,13 +275,13 @@ void MixLineButton::refresh()
     if (line.swtch) {
       char* sw_pos = getSwitchPositionName(line.swtch);
       int cnt = lv_snprintf(s, maxlen, "%s ", sw_pos);
-      if (cnt >= maxlen) maxlen = 0;
+      if ((size_t)cnt >= maxlen) maxlen = 0;
       else { maxlen -= cnt; s += cnt; }
     }
     if (line.curve.value != 0) {
       getCurveRefString(s, maxlen, line.curve);
       int cnt = strnlen(s, maxlen);
-      if (cnt >= maxlen) maxlen = 0;
+      if ((size_t)cnt >= maxlen) maxlen = 0;
       else { maxlen -= cnt; s += cnt; }
     }
   }
@@ -342,44 +342,38 @@ InputMixButton* ModelMixesPage::createLineButton(InputMixGroup *group, uint8_t i
     menu->addLine(STR_EDIT, [=]() {
         uint8_t idx = button->getIndex();
         editMix(ch, idx);
-        _copyMode = 0;
       });
     if (!reachMixesLimit()) {
-      menu->addLine(STR_INSERT_BEFORE, [=]() {
-        uint8_t idx = button->getIndex();
-        insertMix(ch, idx);
-        _copyMode = 0;
-      });
-      menu->addLine(STR_INSERT_AFTER, [=]() {
-        uint8_t idx = button->getIndex();
-        insertMix(ch, idx + 1);
-        _copyMode = 0;
-      });
-      menu->addLine(STR_COPY, [=]() {
-        _copyMode = COPY_MODE;
-        _copySrc = button;
-      });
-      if (_copyMode != 0) {
+      if (this->_copyMode != 0) {
         menu->addLine(STR_PASTE_BEFORE, [=]() {
           uint8_t idx = button->getIndex();
           pasteMixBefore(idx);
-          _copyMode = 0;
         });
         menu->addLine(STR_PASTE_AFTER, [=]() {
           uint8_t idx = button->getIndex();
           pasteMixAfter(idx);
-          _copyMode = 0;
         });
       }
+      menu->addLine(STR_INSERT_BEFORE, [=]() {
+        uint8_t idx = button->getIndex();
+        insertMix(ch, idx);
+      });
+      menu->addLine(STR_INSERT_AFTER, [=]() {
+        uint8_t idx = button->getIndex();
+        insertMix(ch, idx + 1);
+      });
+      menu->addLine(STR_COPY, [=]() {
+        this->_copyMode = COPY_MODE;
+        this->_copySrc = button;
+      });
+      menu->addLine(STR_MOVE, [=]() {
+        this->_copyMode = MOVE_MODE;
+        this->_copySrc = button;
+      });
     }
-    menu->addLine(STR_MOVE, [=]() {
-      _copyMode = MOVE_MODE;
-      _copySrc = button;
-    });
     menu->addLine(STR_DELETE, [=]() {
       uint8_t idx = button->getIndex();
       deleteMix(idx);
-      _copyMode = 0;
     });
     return 0;
   });
@@ -421,13 +415,16 @@ void ModelMixesPage::newMix()
       }
     } else {
       std::string ch_name(getSourceString(MIXSRC_CH1 + ch));
-      menu->addLine(ch_name.c_str(), [=]() { insertMix(ch, index); });
+      menu->addLineBuffered(ch_name.c_str(), [=]() { insertMix(ch, index); });
     }
   }
+  menu->updateLines();
 }
 
 void ModelMixesPage::editMix(uint8_t channel, uint8_t index)
 {
+  _copyMode = 0;
+
   auto line = getLineByIndex(index);
   if (!line) return;
 
@@ -445,6 +442,8 @@ void ModelMixesPage::editMix(uint8_t channel, uint8_t index)
 
 void ModelMixesPage::insertMix(uint8_t channel, uint8_t index)
 {
+  _copyMode = 0;
+
   ::insertMix(index, channel);
   addLineButton(MIXSRC_CH1 + channel, index);
   editMix(channel, index);
@@ -452,6 +451,8 @@ void ModelMixesPage::insertMix(uint8_t channel, uint8_t index)
 
 void ModelMixesPage::deleteMix(uint8_t index)
 {
+  _copyMode = 0;
+
   auto group = getGroupByIndex(index);
   if (!group) return;
 
@@ -480,8 +481,11 @@ void ModelMixesPage::pasteMix(uint8_t dst_idx, uint8_t channel)
   addLineButton(dst_idx);
 
   if (_copyMode == MOVE_MODE) {
-    deleteInput(src_idx);
+    src_idx = _copySrc->getIndex();
+    deleteMix(src_idx);
   }
+
+  _copyMode = 0;
 }
 
 static int _mixChnFromIndex(uint8_t index)
@@ -524,7 +528,7 @@ void ModelMixesPage::build(FormWindow * window)
   lv_obj_set_width(box_obj, lv_pct(100));
   lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
 
-  new StaticText(box, rect_t{}, "Show mixer monitors", 0, COLOR_THEME_PRIMARY1);
+  new StaticText(box, rect_t{}, STR_SHOW_MIXER_MONITORS, 0, COLOR_THEME_PRIMARY1);
   new CheckBox(
       box, rect_t{}, [=]() { return showMonitors; },
       [=](uint8_t val) { enableMonitors(val); });

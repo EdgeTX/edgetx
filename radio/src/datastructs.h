@@ -113,10 +113,11 @@ static inline void check_struct()
   CHKSIZE(TelemetrySensor, 14);
   CHKSIZE(ModuleData, 29);
   CHKSIZE(GVarData, 7);
-  CHKSIZE(RssiAlarmData, 2);
+  CHKSIZE(RFAlarmData, 2);
   CHKSIZE(TrainerData, 16);
 
 #if defined(PCBXLITES)
+<<<<<<< HEAD
 
   CHKSIZE(RadioData, 1501);
   CHKSIZE(ModelData, 7441);
@@ -135,11 +136,31 @@ static inline void check_struct()
 #elif defined(PCBX9D) || defined(PCBX9DP)
   CHKSIZE(RadioData, 1537);
   CHKSIZE(ModelData, 7885);
+=======
+  CHKSIZE(RadioData, 1502);
+  CHKSIZE(ModelData, 7444);
+#elif defined(PCBXLITE)
+  CHKSIZE(RadioData, 1500);
+  CHKSIZE(ModelData, 7444);
+#elif defined(RADIO_TPRO)
+  CHKSIZE(RadioData, 1483);
+  CHKSIZE(ModelData, 7469);
+#elif defined(PCBX7)
+  CHKSIZE(RadioData, 1506);
+  CHKSIZE(ModelData, 7444);
+#elif defined(PCBX9E)
+  CHKSIZE(RadioData, 1596);
+  CHKSIZE(ModelData, 7896);
+#elif defined(PCBX9D) || defined(PCBX9DP)
+  CHKSIZE(RadioData, 1538);
+  CHKSIZE(ModelData, 7888);
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 #elif defined(PCBHORUS)
   #if defined(PCBX10)
     CHKSIZE(RadioData, 1564);
     CHKSIZE(ModelData, 12408);
   #else
+<<<<<<< HEAD
     CHKSIZE(RadioData, 1545);
     CHKSIZE(ModelData, 12408);
   #endif
@@ -147,6 +168,14 @@ static inline void check_struct()
   CHKSIZE(RadioData, 1491);
   CHKSIZE(ModelData, 12119);
 
+=======
+    CHKSIZE(RadioData, 1546);
+    CHKSIZE(ModelData, 12406);
+  #endif
+#elif defined(PCBNV14)
+  CHKSIZE(RadioData, 1492);
+  CHKSIZE(ModelData, 12222);
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 #endif
 
 #undef CHKSIZE

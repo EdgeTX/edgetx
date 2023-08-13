@@ -92,17 +92,19 @@
 #if LCD_W >= 212
   #define TR_CSWTIMER                   "Timer"
   #define TR_CSWSTICKY                  "Seg"
+  #define TR_CSWSAFE                    "Safe"
   #define TR_CSWRANGE                   "Vidd"
   #define TR_CSWSTAY                    "Kant"
 #else
   #define TR_CSWTIMER                   "Tim"
   #define TR_CSWSTICKY                  "Seg"
+  #define TR_CSWSAFE                    "Safe"
   #define TR_CSWRANGE                   "Vidd"
   #define TR_CSWSTAY                    "Kant"
 #endif
 
 #define TR_CSWEQUAL                     "a=x"
-#define TR_VCSWFUNC                     "---",TR_CSWEQUAL,"a~x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b","Δ≥x","|Δ|≥x",TR_CSWTIMER,TR_CSWSTICKY
+#define TR_VCSWFUNC                     "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY,TR_CSWSAFE
 
 #define TR_TEXT_SIZE                    "Std","XS","S","M","L"
 
@@ -161,7 +163,7 @@
 #endif
 
 #if defined(OVERRIDE_CHANNEL_FUNCTION) && LCD_W >= 212
-  #define TR_SF_SAFETY                  "Åsidosätt "
+  #define TR_SF_SAFETY                  "Lås "
 #elif defined(OVERRIDE_CHANNEL_FUNCTION)
   #define TR_SF_SAFETY                  "Lås "
 #else
@@ -313,11 +315,11 @@
 #define TR_TIMER_DIR                    TR("Återst.", "Visa återstående"), TR("Förbrukad", "Visa förbrukad")
 
 #if defined(COLORLCD)
-#if defined(BOLD)
-#define TR_FONT_SIZES                   "STD"
-#else
-#define TR_FONT_SIZES                   "STD","FET","XXS","XS","L","XL","XXL"
-#endif
+  #if defined(BOLD)
+    #define TR_FONT_SIZES               "STD"
+  #else
+    #define TR_FONT_SIZES               "STD","FET","XXS","XS","L","XL","XXL"
+  #endif
 #endif
 
 
@@ -382,7 +384,11 @@
 #define TR_FADEIN                       "Tona in"
 #define TR_FADEOUT                      "Tona ut"
 #define TR_DEFAULT                      "Default"
-#define TR_CHECKTRIMS                   CENTER "\006Kolla\012trimmar"
+#if defined(COLORLCD)
+  #define TR_CHECKTRIMS                 "Kolla FL-trimmar"
+#else
+  #define TR_CHECKTRIMS                 CENTER "\006Kolla\012trimmar"
+#endif 
 #define OFS_CHECKTRIMS                  CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                    "Swashtyp"
 #define TR_COLLECTIVE                   "Kollektiv"
@@ -393,6 +399,11 @@
 #define TR_AILDIRECTION                 "SKEV riktning"
 #define TR_COLDIRECTION                 TR("PITCH riktn.","PITCH riktning")
 #define TR_MODE                         "Typ"
+#if LCD_W > LCD_H
+  #define TR_LEFT_STICK                 "Vänster"
+#else
+  #define TR_LEFT_STICK                 "Vä"
+#endif
 #define TR_SUBTYPE                      INDENT "Subtyp"
 #define TR_NOFREEEXPO                   "Ingen ledig expo!"
 #define TR_NOFREEMIXER                  "Ingen ledig mixer!"
@@ -461,6 +472,7 @@
 #define TR_MODEL_SHUTDOWN               "Stänga av?"
 #define TR_PRESS_ENTER_TO_CONFIRM       "Tryck [ENTER] för att bekräfta"
 #define TR_THROTTLE_LABEL               "Gas"
+#define TR_THROTTLE_START               "Gas Start"
 #define TR_THROTTLEREVERSE              TR("Inv. gas", INDENT "Inverterad gas")
 #define TR_MINUTEBEEP                   "Minutpip"
 #define TR_BEEPCOUNTDOWN                INDENT "Nedräkning"
@@ -473,8 +485,8 @@
 #define TR_BLOFFBRIGHTNESS              INDENT "Ljusstyrka av"
 #define TR_KEYS_BACKLIGHT               "Tangentbelysning"
 #define TR_SPLASHSCREEN                 "Startbild"
-#define TR_PWR_ON_DELAY                 "Start fördröjn."
-#define TR_PWR_OFF_DELAY                "Avslut fördröjn."
+#define TR_PWR_ON_DELAY                 "Fördröj start"
+#define TR_PWR_OFF_DELAY                "Fördröj avslut"
 #define TR_BLCOLOR                      "Färg"
 #define TR_THROTTLE_WARNING             TR(INDENT "Gasvarn.", INDENT "Gasvarning")
 #define TR_CUSTOM_THROTTLE_WARNING      TR(INDENT INDENT INDENT INDENT "Egen pos", INDENT INDENT INDENT INDENT "Egen position?")
@@ -490,8 +502,7 @@
 #define TR_STICKS                       "Spakar"
 #define TR_POTS                         "Vred"
 #define TR_SWITCHES                     "Brytare"
-//#define TR_SWITCHES_DELAY               TR("Brytarfördröj.", "Brytarfördröjning")
-#define TR_SWITCHES_DELAY               TR("Play delay", "Play delay (sw. mid pos)")
+#define TR_SWITCHES_DELAY               TR("Fördröj ljud", "Fördröj ljuduppspelning")
 #define TR_SLAVE                        "Elev"
 #define TR_MODESRC                      "Läge\006% källa"
 #define TR_MULTIPLIER                   "Styrka"
@@ -533,7 +544,7 @@
 #define TR_INT_GPS_LABEL                "Intern GPS"
 #define TR_HEARTBEAT_LABEL              "Heartbeat"
 #define TR_LUA_SCRIPTS_LABEL            "Lua-skript"
-#define TR_FREE_MEM_LABEL               "Free mem"
+#define TR_FREE_MEM_LABEL               "Ledigt minne"
 #define TR_TIMER_LABEL                  "Timer"
 #define TR_THROTTLE_PERCENT_LABEL       "Gas %"
 #define TR_BATT_LABEL                   "Batteri"
@@ -598,7 +609,7 @@
 #define TR_MONITOR_CHANNELS4            "KANALÖVERSIKT - KA 25-32"
 #define TR_MONITOR_SWITCHES             "ÖVERSIKT - LOGISKA BRYTARE"
 #define TR_MONITOR_OUTPUT_DESC          "Utdata"
-#define TR_MONITOR_MIXER_DESC           "Mixrar"
+#define TR_MONITOR_MIXER_DESC           "Mixar"
 #define TR_RECEIVER_NUM                 TR("RxNum","Mottagare nr.")
 #define TR_RECEIVER                     "Mottagare"
 #define TR_SYNCMENU                     "Synk [MENY]"
@@ -704,6 +715,7 @@
 #define TR_UPDATE_RX_OPTIONS            "Uppdatera Rx alternativ?"
 #define TR_UPDATE_TX_OPTIONS            "Uppdatera Tx alternativ?"
 #define TR_MODULES_RX_VERSION           "Moduler / Rx version"
+#define TR_SHOW_MIXER_MONITORS          "Visa mixervärden"
 #define TR_MENU_MODULES_RX_VERSION      "MODULER / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS            "FIRMWAREFUNKTIONER"
 #define TR_IMU                          "IMU"
@@ -1040,6 +1052,7 @@
 #define TR_TOUCH_PANEL                  "Pekskärm:"
 #define TR_FILE_SIZE                    "Filstorlek"
 #define TR_FILE_OPEN                    "Öppna ändå?"
+#define TR_TIMER_MODES                  {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME          "Namn"
@@ -1080,6 +1093,7 @@
 #define TR_GVAR_HEADERS_FM6             "Värde för FL6"
 #define TR_GVAR_HEADERS_FM7             "Värde för FL7"
 #define TR_GVAR_HEADERS_FM8             "Värde för FL8"
+//#define TR_CHECK_FM_TRIMS               "Kolla FL-trimmar"
 
 // Horus footer descriptions
 #define TR_LSW_DESCRIPTIONS             { "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON" }
@@ -1100,6 +1114,12 @@
 #define TR_MAIN_VIEW_X                  "Huvudvy X"
 #define TR_PANEL1_BACKGROUND            "Panel 1 bakgrund"
 #define TR_PANEL2_BACKGROUND            "Panel 2 bakgrund"
+#define TR_WIDGET_GAUGE                 "Mätare"
+#define TR_WIDGET_MODELBMP              "Modellinfo"
+#define TR_WIDGET_OUTPUTS               "Output"
+#define TR_WIDGET_TEXT                  "Text"
+#define TR_WIDGET_TIMER                 "Timer"
+#define TR_WIDGET_VALUE                 "Värde"
 
 // About screen
 #define TR_ABOUTUS                      "Om oss"
@@ -1143,14 +1163,14 @@
 #define TR_CELLSENSOR                   "Cellsensor"
 #define TR_GPSSENSOR                    "GPS-sensor"
 #define TR_CURRENTSENSOR                "Sensor"
-#define TR_AUTOOFFSET                   "Auto Offset"
+#define TR_AUTOOFFSET                   "Auto offset"
 #define TR_ONLYPOSITIVE                 "Positiv"
 #define TR_FILTER                       "Filter"
 #define TR_TELEMETRYFULL                "Alla telemetriplatser upptagna!"
 #define TR_SERVOS_OK                    "Servon OK"
 #define TR_SERVOS_KO                    "Servon KO"
 
-#define TR_INVERTED_SERIAL              INDENT "Invert"
+#define TR_INVERTED_SERIAL              INDENT "Inverterad"
 #define TR_IGNORE_INSTANCE              TR(INDENT "Ej inst.", INDENT "Ignorera instansfel")
 #define TR_DISCOVER_SENSORS             "Sök nya"
 #define TR_STOP_DISCOVER_SENSORS        "Avbryt sökning"
@@ -1159,6 +1179,7 @@
 #define TR_SELECT_WIDGET                "Välj widget"
 #define TR_REMOVE_WIDGET                "Ta bort widget"
 #define TR_WIDGET_SETTINGS              "Widgetinställningar"
+#define TR_WIDGET_FULLSCREEN            "Hel skärm"
 #define TR_REMOVE_SCREEN                "Ta bort huvudvy"
 
 #if LCD_W > LCD_H
@@ -1362,9 +1383,9 @@
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Addera alla trimmar till subtrimmar"
 
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS     "Öppna kanalmonitorn" 
+  #define TR_OPEN_CHANNEL_MONITORS      "Öppna kanalmonitorn" 
 #else
-  #define TR_OPEN_CHANNEL_MONITORS     "Öppna kanalmon." 
+  #define TR_OPEN_CHANNEL_MONITORS      "Öppna kanalmon." 
 #endif
 
 #define TR_DUPLICATE                    "Duplicera"
@@ -1393,3 +1414,21 @@
 #define TR_MAIN_MENU_STATISTICS         "Statistik"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Om\nEdgeTX"
 // End Main menu
+
+// Voice in native language
+#define TR_VOICE_ENGLISH                "Engelska"
+#define TR_VOICE_CHINESE                "Kinesiska"
+#define TR_VOICE_CZECH                  "Tjeckiska"
+#define TR_VOICE_DANISH                 "Danska"
+#define TR_VOICE_DEUTSCH                "Tyska"
+#define TR_VOICE_DUTCH                  "Holländska"
+#define TR_VOICE_ESPANOL                "Spanska"
+#define TR_VOICE_FRANCAIS               "Franska"
+#define TR_VOICE_HUNGARIAN              "Ungerska"
+#define TR_VOICE_ITALIANO               "Italienska"
+#define TR_VOICE_POLISH                 "Polska"
+#define TR_VOICE_PORTUGUES              "Portugisiska"
+#define TR_VOICE_RUSSIAN                "Ryska"
+#define TR_VOICE_SLOVAK                 "Slovakiska"
+#define TR_VOICE_SWEDISH                "Svenska"
+#define TR_VOICE_TAIWANESE              "Taiwanesiska"

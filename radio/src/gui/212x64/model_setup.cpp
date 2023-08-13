@@ -730,7 +730,7 @@ void menuModelSetup(event_t event)
 #endif
         lcdDrawTextAlignedLeft(y, STR_SWITCHWARNING);
         swarnstate_t states = g_model.switchWarningState;
-        char c;
+
         if (attr) {
           s_editMode = 0;
           if (!READ_ONLY()) {

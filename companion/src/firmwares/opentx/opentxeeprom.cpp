@@ -29,8 +29,6 @@
 using namespace Board;
 
 #define MAX_VIEWS(board)                      (HAS_LARGE_LCD(board) ? 2 : 256)
-#define MAX_GYRO_ANALOGS(board, version)      (version >= 219 ? Boards::getCapability(board, Board::GyroAnalogs) : 0)
-
 inline int MAX_SWITCHES(Board::Type board, int version)
 {
   if (version <= 218) {
@@ -186,6 +184,16 @@ inline int MAX_MOUSE_ANALOG_SOURCES(Board::Type board, int version)
     return 2;
   else
     return 0;
+}
+
+inline int MAX_GYRO_ANALOGS(Board::Type board, int version)
+{
+  if (version <= 220) {
+    if (IS_FAMILY_HORUS_OR_T16(board))
+      return 0;
+  }
+
+  return Boards::getCapability(board, Board::GyroAnalogs);
 }
 
 #define MAX_ROTARY_ENCODERS(board)            0

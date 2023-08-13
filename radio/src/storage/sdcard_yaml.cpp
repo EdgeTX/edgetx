@@ -381,6 +381,9 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
       // md->swashR.collectiveWeight = 100;
       // md->swashR.aileronWeight    = 100;
       // md->swashR.elevatorWeight   = 100;
+
+      md->rfAlarms.warning = 45;
+      md->rfAlarms.critical = 42;
     }
 
     return readYamlFile(path, YamlTreeWalker::get_parser_calls(), &tree, NULL);

@@ -618,11 +618,14 @@ static const struct YamlNode struct_VarioData[] = {
   YAML_END
 };
 static const struct YamlNode struct_RssiAlarmData[] = {
-  YAML_SIGNED( "disabled", 1 ),
-  YAML_PADDING( 1 ),
-  YAML_SIGNED( "warning", 6 ),
-  YAML_PADDING( 2 ),
-  YAML_SIGNED( "critical", 6 ),
+  YAML_CUSTOM("disabled",r_rssiDisabled,nullptr),
+  YAML_CUSTOM("warning",r_rssiWarning,nullptr),
+  YAML_CUSTOM("critical",r_rssiCritical,nullptr),
+  YAML_END
+};
+static const struct YamlNode struct_RFAlarmData[] = {
+  YAML_SIGNED( "warning", 8 ),
+  YAML_SIGNED( "critical", 8 ),
   YAML_END
 };
 static const struct YamlNode struct_PpmModule[] = {
@@ -877,7 +880,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "extendedTrims", 1 ),
   YAML_UNSIGNED( "throttleReversed", 1 ),
   YAML_UNSIGNED( "enableCustomThrottleWarning", 1 ),
-  YAML_PADDING( 7 ),
+  YAML_UNSIGNED( "disableTelemetryWarning", 1 ),
+  YAML_PADDING( 6 ),
   YAML_SIGNED( "customThrottleWarningPosition", 8 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),
   YAML_ARRAY("mixData", 160, 64, struct_MixData, NULL),
@@ -897,7 +901,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED_CUST( "rssiSource", 8, r_tele_sensor, w_tele_sensor ),
   YAML_UNSIGNED_CUST( "voltsSource", 8, r_tele_sensor, w_tele_sensor ),
   YAML_UNSIGNED_CUST( "altitudeSource", 8, r_tele_sensor, w_tele_sensor ),
-  YAML_STRUCT("rssiAlarms", 16, struct_RssiAlarmData, NULL),
+  YAML_STRUCT("rssiAlarms", 0, struct_RssiAlarmData, NULL),
+  YAML_STRUCT("rfAlarms", 16, struct_RFAlarmData, NULL),
   YAML_UNSIGNED( "thrTrimSw", 3 ),
   YAML_ENUM("potsWarnMode", 2, enum_PotsWarnMode),
   YAML_ENUM("jitterFilter", 2, enum_ModelOverridableEnable),

@@ -311,7 +311,8 @@ DRESULT disk_ioctl (
 
 // TODO everything here should not be in the driver layer ...
 
-FATFS g_FATFS_Obj __DMA;    // initialized in boardInit()
+bool _g_FATFS_init = false;
+FATFS g_FATFS_Obj __DMA; // this is in uninitialised section !!!
 
 #if defined(LOG_TELEMETRY)
 FIL g_telemetryFile = {};
@@ -349,6 +350,7 @@ void sdMount()
   
   if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
     // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
+    _g_FATFS_init = true;
     sdGetFreeSectors();
 
 #if defined(LOG_TELEMETRY)
@@ -392,7 +394,7 @@ void sdDone()
 
 uint32_t sdMounted()
 {
-  return g_FATFS_Obj.fs_type != 0;
+  return _g_FATFS_init && (g_FATFS_Obj.fs_type != 0);
 }
 
 uint32_t sdIsHC()

@@ -543,10 +543,12 @@ struct convert<ScriptData> {
     node["file"] >> rhs.filename;
     node["name"] >> rhs.name;
 
-    for (int i=0; i < CPN_MAX_SCRIPT_INPUTS; i++) {
-      if (node["inputs"][std::to_string(i)]) {
-        if (node["inputs"][std::to_string(i)]["u"]["value"]) {
-          node["inputs"][std::to_string(i)]["u"]["value"] >> rhs.inputs[i];
+    if (node["inputs"]) {
+      for (int i = 0; i < CPN_MAX_SCRIPT_INPUTS; i++) {
+        if (node["inputs"][std::to_string(i)]) {
+          if (node["inputs"][std::to_string(i)]["u"]["value"]) {
+            node["inputs"][std::to_string(i)]["u"]["value"] >> rhs.inputs[i];
+          }
         }
       }
     }
@@ -555,17 +557,36 @@ struct convert<ScriptData> {
   }
 };
 
+struct RFAlarms {
+  int warning = 0;
+  int critical = 0;
+
+  RFAlarms() {}
+  
+  RFAlarms(const RSSIAlarmData& rhs)
+    : warning(rhs.warning), critical(rhs.critical)
+  {}
+};
+
 template <>
-struct convert<RSSIAlarmData> {
-  static Node encode(const RSSIAlarmData& rhs)
+struct convert<RFAlarms> {
+  static Node encode(const RFAlarms& rhs)
   {
     Node node;
-    node["disabled"] = (int)rhs.disabled;
-    node["warning"] = rhs.warning - 45;
-    node["critical"] = rhs.critical - 42;
+    node["warning"] = rhs.warning;
+    node["critical"] = rhs.critical;
     return node;
   }
+  static bool decode(const Node& node, RFAlarms& rhs)
+  {
+    node["warning"] >> rhs.warning;
+    node["critical"] >> rhs.critical;
+    return true;
+  }
+};
 
+template <>
+struct convert<RSSIAlarmData> {
   static bool decode(const Node& node, RSSIAlarmData& rhs)
   {
     node["disabled"] >> rhs.disabled;
@@ -904,7 +925,8 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     node["altitudeSource"] = YamlTelemSource(rhs.frsky.altitudeSource);
   }
 
-  node["rssiAlarms"] = rhs.rssiAlarms;
+  node["rfAlarms"] = RFAlarms(rhs.rssiAlarms);
+  node["disableTelemetryWarning"] = (int)rhs.rssiAlarms.disabled;
 
   for (int i=0; i<CPN_MAX_MODULES; i++) {
     if (rhs.moduleData[i].protocol != PULSES_OFF) {
@@ -1096,7 +1118,22 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     rhs.frsky.altitudeSource = altitudeSource.src;
   }
 
-  node["rssiAlarms"] >> rhs.rssiAlarms;
+  if (node["rssiAlarms"]) {
+    // Old format (pre 2.8)
+    node["rssiAlarms"] >> rhs.rssiAlarms;
+  } else if (node["rfAlarms"] || node["disableTelemetryWarning"]) {
+    // New format (post 2.8)
+    RFAlarms rfAlarms;
+    node["rfAlarms"] >> rfAlarms;
+    rhs.rssiAlarms.warning = rfAlarms.warning;
+    rhs.rssiAlarms.critical = rfAlarms.critical;
+    node["disableTelemetryWarning"] >> rhs.rssiAlarms.disabled;
+  } else {
+    // Use old defaults
+    rhs.rssiAlarms.warning = 45;
+    rhs.rssiAlarms.critical = 42;
+    rhs.rssiAlarms.disabled = false;
+  }
 
   node["moduleData"] >> rhs.moduleData;
   for (int i=0; i<CPN_MAX_MODULES; i++) {

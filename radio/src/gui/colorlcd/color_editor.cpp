@@ -74,12 +74,22 @@ void ColorBar::on_key(lv_event_t* e)
   uint32_t key = *(uint32_t*)lv_event_get_param(e);
   if (key == LV_KEY_LEFT) {
     if (bar->value > 0) {
+      auto accel = rotaryEncoderGetAccel();
       bar->value--;
+      if (accel > 0) {
+        if (accel > bar->value) bar->value = 0;
+        else bar->value -= accel;
+      }
       lv_event_send(obj->parent, LV_EVENT_VALUE_CHANGED, nullptr);
     }
   } else if (key == LV_KEY_RIGHT) {
     if (bar->value < bar->maxValue) {
+      auto accel = rotaryEncoderGetAccel();
       bar->value++;
+      if (accel > 0) {
+        if (accel < bar->maxValue - bar->value) bar->value += accel;
+        else bar->value = bar->maxValue;
+      }
       lv_event_send(obj->parent, LV_EVENT_VALUE_CHANGED, nullptr);
     }
   }
@@ -324,25 +334,39 @@ void ColorEditor::setColorEditorType(COLOR_EDITOR_TYPE colorType)
   if (_colorType != nullptr) {
     delete _colorType;
   }
-  if (colorType == RGB_COLOR_EDITOR) 
+  if (colorType == RGB_COLOR_EDITOR) {
     _colorType = new RGBColorType(this, _color);
-  else
+    setRGB();
+  } else {
     _colorType = new HSVColorType(this, _color);
+    setHSV();
+  }
   invalidate();
 }
 
-void ColorEditor::setRGB()
+void ColorEditor::setText()
 {
-  _color = _colorType->getRGB();
-
-  // update bars & labels
   for (int i = 0; i < MAX_BARS; i++) {
     auto bar = _colorType->bars[i];
+    lv_label_set_text_static(barLabels[i], _colorType->getLabelChars()[i]);
     lv_label_set_text_fmt(barValLabels[i], "%" PRIu32, bar->value);
     bar->invalidate();
   }
 
   if (_setValue != nullptr) _setValue(_color);
+}
+
+void ColorEditor::setRGB()
+{
+  _color = _colorType->getRGB();
+  // update bars & labels
+  setText();
+}
+
+void ColorEditor::setHSV()
+{
+  // update bars & labels
+  setText();
 }
 
 void ColorEditor::value_changed(lv_event_t* e)

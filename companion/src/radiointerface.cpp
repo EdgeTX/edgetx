@@ -302,7 +302,7 @@ QString findMassstoragePath(const QString & filename, bool onlyPath)
   QString probefile;
   bool found = false;
 
-  QRegularExpression fstypeRe("^(v?fat|msdos)", QRegularExpression::CaseInsensitiveOption);  // Linux: "vfat"; macOS: "msdos"; Win: "FAT32"
+  QRegularExpression fstypeRe("^(v?fat|msdos|lifs)", QRegularExpression::CaseInsensitiveOption);  // Linux: "vfat"; macOS: "msdos" or "lifs"; Win: "FAT32"
 
   foreach(const QStorageInfo & si, QStorageInfo::mountedVolumes()) {
     //qDebug() << si.rootPath() << si.name() << si.device() << si.displayName() << si.fileSystemType() << si.isReady();

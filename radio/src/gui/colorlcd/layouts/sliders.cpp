@@ -23,7 +23,6 @@
 #include "opentx.h"
 
 enum slider_type {
-  SLIDER_VERT,
   SLIDER_HORIZ,
   SLIDER_6POS,
 };
@@ -33,10 +32,6 @@ static void slider_self_size(lv_event_t* e)
   lv_point_t* s = (lv_point_t*)lv_event_get_param(e);
   slider_type t = (slider_type)(intptr_t)lv_event_get_user_data(e);
   switch(t) {
-  case SLIDER_VERT:
-    s->y = VERTICAL_SLIDERS_HEIGHT;
-    s->x = TRIM_SQUARE_SIZE;
-    break;
   case SLIDER_HORIZ:
     s->x = HORIZONTAL_SLIDERS_WIDTH;
     s->y = TRIM_SQUARE_SIZE;
@@ -101,21 +96,31 @@ void MainView6POS::paint(BitmapBuffer * dc)
   }
 
   // The square
-  auto value = 1 + (potsPos[idx] & 0x0f);
+  value = 1 + (potsPos[idx] & 0x0f);
   x = TRIM_SQUARE_SIZE / 2 + divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value -1) , 6);
   drawTrimSquare(dc, x, 0, COLOR_THEME_FOCUS);
   dc->drawNumber(x + 1, 0, value, FONT(XS) | COLOR_THEME_PRIMARY2);
 #endif
 }
 
+void MainView6POS::checkEvents()
+{
+  Window::checkEvents();
+#if NUM_XPOTS > 0 // prevent compiler warning
+  int16_t newValue = 1 + (potsPos[idx] & 0x0f);
+  if (value != newValue) {
+    value = newValue;
+    invalidate();
+  }
+#endif
+}
+
 MainViewVerticalSlider::MainViewVerticalSlider(Window* parent, uint8_t idx) :
     MainViewSlider(parent, rect_t{}, idx)
 {
-  void* user_data = (void*)SLIDER_VERT;
-  lv_obj_add_event_cb(lvobj, slider_self_size, LV_EVENT_GET_SELF_SIZE,
-                      user_data);
-
-  setHeight(VERTICAL_SLIDERS_HEIGHT);
+  lv_obj_set_style_max_height(lvobj, VERTICAL_SLIDERS_HEIGHT, 0);
+  lv_obj_set_style_min_height(lvobj, VERTICAL_SLIDERS_HEIGHT/2, 0);
+  lv_obj_set_style_flex_grow(lvobj, 1, 0);
   setWidth(TRIM_SQUARE_SIZE);
 }
 

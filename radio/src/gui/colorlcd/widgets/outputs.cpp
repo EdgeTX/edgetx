@@ -160,4 +160,5 @@ const ZoneOption OutputsWidget::options[] = {
     {nullptr, ZoneOption::Bool}};
 
 BaseWidgetFactory<OutputsWidget> outputsWidget("Outputs",
-                                               OutputsWidget::options);
+                                               OutputsWidget::options,
+                                               STR_WIDGET_OUTPUTS);

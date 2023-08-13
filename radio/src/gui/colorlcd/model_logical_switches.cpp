@@ -101,10 +101,11 @@ class LogicalSwitchEditPage: public Page
 
       LogicalSwitchData * cs = lswAddress(index);
       uint8_t cstate = lswFamily(cs->func);
-      // custom label
+
       new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_CUST_LOGICALSWITCH_LABEL, 0, COLOR_THEME_PRIMARY1);
       new ModelTextEdit(logicalSwitchOneWindow, grid.getFieldSlot(), cs->custName, LEN_LOGICSW_NAME);
       grid.nextLine();
+
       if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY || cs->func == LS_FUNC_SAFE) {
         new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
         auto choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));

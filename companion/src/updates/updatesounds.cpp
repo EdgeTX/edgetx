@@ -27,11 +27,10 @@
 #include <QItemSelectionModel>
 
 UpdateSounds::UpdateSounds(QWidget * parent) :
-  UpdateInterface(parent),
-  langPacks(new QStandardItemModel())
+  UpdateInterface(parent)
 {
-  setName(tr("Sounds"));
-  setRepo(QString(GH_REPOS_EDGETX).append("/edgetx-sdcard-sounds"));
+  init(CID_Sounds, tr("Sounds"), QString(GH_REPOS_EDGETX).append("/edgetx-sdcard-sounds"));
+  langPacks = new QStandardItemModel();
 }
 
 UpdateSounds::~UpdateSounds()
@@ -44,9 +43,9 @@ void UpdateSounds::initAssetSettings()
   if (!isValidSettingsIndex())
     return;
 
-  g.component[settingsIndex()].initAllAssets();
+  g.component[id()].initAllAssets();
 
-  ComponentAssetData &cad = g.component[settingsIndex()].asset[0];
+  ComponentAssetData &cad = g.component[id()].asset[0];
   cad.desc("sounds");
   cad.processes(UPDFLG_Common_Asset);
   cad.flags(cad.processes() | UPDFLG_CopyStructure);

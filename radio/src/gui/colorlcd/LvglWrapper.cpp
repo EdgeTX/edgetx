@@ -31,9 +31,11 @@ LvglWrapper* LvglWrapper::_instance = nullptr;
 
 static lv_indev_drv_t touchDriver;
 static lv_indev_drv_t keyboard_drv;
+#if defined(ROTARY_ENCODER_NAVIGATION)
 static lv_indev_drv_t rotaryDriver;
 
 static lv_indev_t* rotaryDevice = nullptr;
+#endif
 static lv_indev_t* keyboardDevice = nullptr;
 static lv_indev_t* touchDevice = nullptr;
 
@@ -76,15 +78,12 @@ static bool evt_to_indev_data(event_t evt, lv_indev_data_t *data)
     break;
 
   case KEY_EXIT:
-    if (evt != EVT_KEY_LONG(KEY_EXIT)) {
+    if (evt == EVT_KEY_BREAK(KEY_EXIT)) {
       data->key = LV_KEY_ESC;
-    } else {
-      // prevent subsequent RELEASE event
-      lv_indev_wait_release(lv_indev_get_act());
       data->state = LV_INDEV_STATE_PRESSED;
-      return false;
+      return true;
     }
-    break;    
+    return false;
 
   default:
     // abort LVGL event
@@ -107,9 +106,9 @@ static void dispatch_kb_event(Window* w, event_t evt)
   event_t key = EVT_KEY_MASK(evt);
   if (evt == EVT_KEY_BREAK(KEY_ENTER)) {
     w->onClicked();
-  } else if (evt == EVT_KEY_FIRST(KEY_EXIT)) {
+  } else if (evt == EVT_KEY_BREAK(KEY_EXIT)) {
     w->onCancel();
-  } else if (key != KEY_ENTER /*&& key != KEY_EXIT*/) {
+  } else if (key != KEY_ENTER) {
     w->onEvent(evt);
   } else if (evt == EVT_KEY_LONG(KEY_ENTER)) {
     killEvents(KEY_ENTER);
@@ -157,6 +156,13 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 
   // no event: send a copy of the last one
   copy_kb_data_backup(data);
+
+  // simulate EXIT release: necessary to map
+  // EVT_KEY_BREAK(KEY_EXIT) to LV_EVENT_CANCEL
+  if (data->key == LV_KEY_ESC && data->state == LV_INDEV_STATE_PRESSED) {
+    data->state = LV_INDEV_STATE_RELEASED;
+    backup_kb_data(data);
+  }
 }
 
 static void copy_ts_to_indev_data(const TouchState &st, lv_indev_data_t *data)
@@ -229,16 +235,18 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 }
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
+extern volatile uint32_t rotencDt;
+static int8_t _rotary_enc_accel = 0;
+
 static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
   static rotenc_t prevPos = 0;
   static int8_t prevDir = 0;
-  static int8_t accel = 0;
-  static tmr10ms_t lastEvent = 0;
+  static uint32_t lastDt = 0;
 
-  rotenc_t newPos = (ROTARY_ENCODER_NAVIGATION_VALUE / ROTARY_ENCODER_GRANULARITY);
-  auto diff = newPos - prevPos;
-  prevPos = newPos;
+  rotenc_t newPos = ROTARY_ENCODER_NAVIGATION_VALUE;
+  rotenc_t diff = (newPos - prevPos) / ROTARY_ENCODER_GRANULARITY;
+  prevPos += diff * ROTARY_ENCODER_GRANULARITY;
 
   data->enc_diff = (int16_t)diff;
   data->state = LV_INDEV_STATE_RELEASED;
@@ -261,6 +269,7 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     else if (diff > 0) dir = 1;
 
     if (use_accel && (dir == prevDir)) {
+<<<<<<< HEAD
       auto speed = (g_tmr10ms - lastEvent) / abs(diff);
       if (speed <= ROTENC_DELAY_HIGHSPEED/2) { // 80 ms
         // below ROTENC_DELAY_HIGHSPEED btw. events: accelerate
@@ -268,16 +277,33 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
       } else if (speed >= ROTENC_DELAY_MIDSPEED/2) { // 160 ms
         // above ROTENC_DELAY_MIDSPEED btw. events: normal speed
         accel = 0;
+=======
+      auto dt = rotencDt - lastDt;
+      auto dx_dt = (abs(diff) * 50) / max(dt, (uint32_t)1);
+
+      _rotary_enc_accel = (int8_t)dx_dt;
+      if (_rotary_enc_accel > 0) {
+        data->enc_diff = (int16_t)diff * (int16_t)_rotary_enc_accel;
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
       }
-      lastEvent = g_tmr10ms;
-      data->enc_diff = (int16_t)diff * max((int16_t)accel, (int16_t)1);
     } else {
-      accel = 0;
+      _rotary_enc_accel = 0;
     }
+
     prevDir = dir;
+    lastDt = rotencDt;
   }
 }
-#endif
+
+// libopenui_depends.h
+int8_t rotaryEncoderGetAccel() { return _rotary_enc_accel; }
+
+#else // !defined(ROTARY_ENCODER_NAVIGATION)
+
+// libopenui_depends.h
+int8_t rotaryEncoderGetAccel() { return 0; }
+
+#endif // defined(ROTARY_ENCODER_NAVIGATION)
 
 /**
  * Helper function to translate a colorFlags value to a lv_color_t suitable

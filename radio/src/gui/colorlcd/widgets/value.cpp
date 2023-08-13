@@ -150,4 +150,5 @@ const ZoneOption ValueWidget::options[] = {
   { nullptr, ZoneOption::Bool }
 };
 
-BaseWidgetFactory<ValueWidget> ValueWidget("Value", ValueWidget::options);
+BaseWidgetFactory<ValueWidget> ValueWidget("Value", ValueWidget::options,
+                                           STR_WIDGET_VALUE);

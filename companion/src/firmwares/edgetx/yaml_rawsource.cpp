@@ -250,6 +250,16 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     YAML::Node node(src_str);
     std::string ana_str;
     node >> ana_str;
+
+    // 2.8 conversion of GYRO1 and GYRO2 to TILT_X and TILT_Y respectively
+    if (ana_str.size() == 5) {
+      if (ana_str.substr(0, 5) == "GYRO1") {
+        ana_str = "TILT_X";
+      } else if (ana_str.substr(0, 5) == "GYRO2") {
+        ana_str = "TILT_Y";
+      }
+    }
+
     int ana_idx = getCurrentFirmware()->getAnalogInputIndex(ana_str.c_str());
     if (ana_idx >= 0) {
       rhs.type = SOURCE_TYPE_STICK;
@@ -275,7 +285,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     }
 
     if (node.IsScalar() && node.as<std::string>().size() == 12 && node.as<std::string>().substr(0, 11) == "SPACEMOUSE_") {
-      int sm_idx;
+      int sm_idx = 0;
       node >> spacemouseLut >> sm_idx;
       if (sm_idx >= 0) {
         rhs.type = SOURCE_TYPE_SPACEMOUSE;

@@ -170,7 +170,8 @@ static std::function<uint8_t()> startWidgetsSetup(ScreenMenu* menu,
                                                   uint8_t screen_idx)
 {
   return [=]() -> uint8_t {
-    new SetupWidgetsPage(menu, screen_idx);
+    menu->deleteLater();
+    new SetupWidgetsPage(screen_idx);
     return 0;
   };
 }
@@ -190,17 +191,9 @@ static std::function<uint8_t()> removeScreen(ScreenMenu* menu,
 
     // ... and reload
     loadCustomScreens();
-    menu->updateTabs();
 
     // Let's try to stay on the same page
-    // (first tab is "User interface")
-    auto pageIdx = screen_idx + 1;
-
-    // Subtract one more as the last one is "New main screen"
-    if (pageIdx > menu->getTabs() - 2) {
-      pageIdx = menu->getTabs() - 2;
-    }
-    menu->setCurrentTab(pageIdx);
+    menu->updateTabs(screen_idx + 1);
     return 0;
   };
 }
@@ -283,6 +276,7 @@ void ScreenSetupPage::build(FormWindow * form)
   lv_obj_set_style_min_height(obj, LV_DPI_DEF / 3, LV_PART_MAIN);
   lv_obj_set_style_pad_all(obj, 8, LV_PART_MAIN);
   lv_obj_set_style_radius(obj, 8, LV_PART_MAIN);
+  lv_group_focus_obj(obj);
 
   form->updateSize();
 }

@@ -518,9 +518,9 @@ void TelemetryPanel::setup()
   ui->ignoreSensorIds->setField(model->frsky.ignoreSensorIds, this);
   ui->disableTelemetryAlarms->setField(model->rssiAlarms.disabled);
 
-  ui->rssiAlarmWarningSB->setRange(45 - 30, 45 + 30);
+  ui->rssiAlarmWarningSB->setRange(0, 127);
   ui->rssiAlarmWarningSB->setValue(model->rssiAlarms.warning);
-  ui->rssiAlarmCriticalSB->setRange(42 - 30, 42 + 30);
+  ui->rssiAlarmCriticalSB->setRange(0, 127);
   ui->rssiAlarmCriticalSB->setValue(model->rssiAlarms.critical);
 
   ui->rssiSourceLabel->show();

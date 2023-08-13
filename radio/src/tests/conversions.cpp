@@ -470,6 +470,10 @@ TEST(Conversions, ConversionTX16SFrom25)
   EXPECT_EQ(FUNC_ADJUST_GVAR_INCDEC, CFN_GVAR_MODE(&(g_model.customFn[1])));
   EXPECT_EQ(5, CFN_PARAM(&(g_model.customFn[1])));
 
+  EXPECT_EQ(g_model.disableTelemetryWarning, 0);
+  EXPECT_EQ(g_model.rfAlarms.warning, 45);
+  EXPECT_EQ(g_model.rfAlarms.critical, 42);
+  
   const auto& top_widget = g_model.topbarData.zones[3];
   EXPECT_STRNEQ("Value", top_widget.widgetName);
 
@@ -530,6 +534,9 @@ TEST(Conversions, ConversionTX16SFrom25)
   EXPECT_EQ(SWSRC_FIRST_LOGICAL_SWITCH + 4, g_model.logicalSw[5].v2);
   EXPECT_EQ(SWSRC_NONE, g_model.logicalSw[5].andsw);
 
+  f_unlink("/RADIO/radio.bin");
+  f_unlink("/MODELS/model1.bin");
+  f_unlink("/MODELS/model2.bin");
   simuFatfsSetPaths("","");
 }
 #endif

@@ -114,10 +114,25 @@ class UpdateInterface : public QWidget
     };
     Q_ENUM(UpdateFlags)
 
+    //  The CID is used as a key to the application settings therefore
+    //  ids must be explicit so no renumbering if components removed
+    //  new components must be added to the end of the enum
+    enum ComponentIdentity {
+      CID_Unknown         = -1,
+      CID_SDCard          = 0,
+      CID_Firmware        = 1,
+      CID_Sounds          = 2,
+      CID_Themes          = 3,
+      CID_MultiProtocol   = 4,
+      CID_Companion       = 5,
+    };
+    Q_ENUM(ComponentIdentity)
+
     explicit UpdateInterface(QWidget * parent);
     virtual ~UpdateInterface();
 
-    const QString getName() const { return name; }
+    const int id() const { return (int)m_id; }
+    const QString name() const { return m_name; }
 
   protected:
     friend class UpdateFactories;
@@ -127,8 +142,6 @@ class UpdateInterface : public QWidget
     UpdateParameters *params;
     ProgressWidget *progress;
 
-    QString name;
-    int resultsPerPage;
     QString downloadDir;
     QString decompressDir;
     QString updateDir;
@@ -155,14 +168,17 @@ class UpdateInterface : public QWidget
     virtual const bool isLatestRelease();
     virtual const bool isLatestVersion(const QString & current, const QString & latest);
     virtual QString latestRelease();
+
     void clearRelease();
     const QStringList getReleases();
 
-    void setName(QString name);
-    void setRepo(QString repo);
-    void setResultsPerPage(int cnt) { resultsPerPage = cnt; }
-    void setReleasesNightlyName(QString name) { releases->setNightlyName(name); }
+    void init(ComponentIdentity id, QString name, QString repo, QString nightly = "", int resultsPerPage = -1);
+
+    void setId(ComponentIdentity id) { m_id = id; }
+    void setName(QString name) { m_name = name; }
+
     void setReleaseChannel(int channel);
+    void setReleaseId(QString val);
 
     void setParamFolders();
     UpdateParameters * getParams() { return params; }
@@ -177,6 +193,7 @@ class UpdateInterface : public QWidget
     bool downloadReleaseLatestMetaData();
     bool downloadReleaseMetaData(const int releaseId);
 
+    bool getReleaseJsonAsset(const QString assetName, QJsonDocument * json);
     bool downloadReleaseAssetsMetaData(const int releaseId);
     bool downloadAssetMetaData(const int assetId);
     bool getSetAssets(const UpdateParameters::AssetParams & ap);
@@ -187,6 +204,7 @@ class UpdateInterface : public QWidget
     bool copyFlaggedAssets();
     bool copyStructure();
     bool copyFiles();
+
     bool saveReleaseSettings();
 
     bool downloadAssetToBuffer(const int assetId);
@@ -196,14 +214,15 @@ class UpdateInterface : public QWidget
     bool decompressArchive(const QString & archivePath, const QString & destPath);
     QByteArray * getDownloadBuffer() { return buffer; }
 
+    bool getRepoJsonFile(const QString filename, QJsonDocument * json);
+
     void reportProgress(const QString & text, const int type = QtInfoMsg);
     void progressMessage(const QString & text);
     void criticalMsg(const QString & msg);
     static QString downloadDataTypeToString(DownloadDataType val);
     static QString updateFlagsToString(UpdateFlags val);
     void setFlavourLanguage();
-    int settingsIndex() { return m_settingsIdx; }
-    bool isValidSettingsIndex() { return m_settingsIdx > -1 && m_settingsIdx < MAX_COMPONENTS; }
+    bool isValidSettingsIndex() { return m_id > -1 && m_id < MAX_COMPONENTS; }
 
   private slots:
     void onDownloadFinished(QNetworkReply * reply, DownloadDataType ddt, int subtype);
@@ -215,13 +234,14 @@ class UpdateInterface : public QWidget
     QByteArray *buffer;
     QFile *file;
     QUrl url;
+    int m_id;
+    QString m_name;
 
     bool downloadSuccess;
-    int m_settingsIdx;
 
-    static QString semanticVersion(QString version);
+    static QStringList versionToStringList(QString version);
 
-    void setSettingsIndex();
+    void initAppSettings();
     bool setRunFolders();
     bool checkCreateDirectory(const QString & dirSetting, const UpdateFlags flag);
 
@@ -238,7 +258,8 @@ class UpdateFactoryInterface
     explicit UpdateFactoryInterface() {}
     virtual ~UpdateFactoryInterface() {}
     virtual UpdateInterface * instance() = 0;
-    virtual QString name() = 0;
+    virtual const QString name() = 0;
+    virtual const int id() = 0;
 };
 
 template <class T>
@@ -252,7 +273,8 @@ class UpdateFactory : public UpdateFactoryInterface
     virtual ~UpdateFactory() {}
 
     virtual UpdateInterface * instance() { return m_instance; }
-    virtual QString name() { return m_instance->getName(); }
+    virtual const QString name() { return m_instance->name(); }
+    virtual const int id() { return m_instance->id(); }
 
   private:
     UpdateInterface *m_instance;
@@ -266,31 +288,38 @@ class UpdateFactories : public QWidget
     explicit UpdateFactories(QWidget * parent = nullptr);
     virtual ~UpdateFactories();
 
+    const QString name(const int id);
+
     void registerUpdateFactory(UpdateFactoryInterface * factory);
     void registerUpdateFactories();
     void unregisterUpdateFactories();
 
-    void initAssetSettings(const QString & name);
-    void saveAssetSettings(const QString & name);
+    void saveAssetSettings(const int id);
 
-    UpdateParameters * const getParams(const QString & name);
-    void resetEnvironment(const QString & name);
+    UpdateParameters * const getParams(const int id);
+    void resetEnvironment(const int id);
     void resetAllEnvironments();
-    void setRunUpdate(const QString & name);
+    void setRunUpdate(const int id);
     const QMap<QString, int> sortedComponentsList(bool updateableOnly = false);
 
-    void clearRelease(const QString & name);
-    void setReleaseChannel(const QString & name, int channel);
-    const QString currentRelease(const QString & name);
-    const QString updateRelease(const QString & name);
-    const bool isLatestRelease(const QString & name);
-    const QString latestRelease(const QString & name);
-    const QStringList releases(const QString & name);
+    void clearRelease(const int id);
+    void setReleaseChannel(const int id, int channel);
+    void setReleaseId(const int id, QString val);
+    const QString currentRelease(const int id);
+    const QString updateRelease(const int id);
+    const bool isLatestRelease(const int id);
+    const QString latestRelease(const int id);
+    const QStringList releases(const int id);
+    bool getReleaseJsonAsset(const int id, const QString assetName, QJsonDocument * json);
 
-    bool update(const QString & name, ProgressWidget * progress = nullptr);
+    bool getRepoJsonFile(const int id, const QString filename, QJsonDocument * json);
+
+    bool update(const int id, ProgressWidget * progress = nullptr);
     bool updateAll(ProgressWidget * progress = nullptr);
-    const bool isUpdateAvailable(QStringList & names);
+    const bool isUpdateAvailable(QMap<QString, int> & names);
 
   private:
     QVector<UpdateFactoryInterface *> registeredUpdateFactories;
+
+    UpdateInterface * getInstance(const int id);
 };

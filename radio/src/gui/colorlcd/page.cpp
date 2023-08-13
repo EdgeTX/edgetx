@@ -53,7 +53,7 @@ static constexpr rect_t _get_body_rect()
 }
 
 Page::Page(unsigned icon):
-  Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE),
+  Window(Layer::back(), {0, 0, LCD_W, LCD_H}, OPAQUE),
   header(this, icon),
   body(this, _get_body_rect(), FORM_FORWARD_FOCUS)
 {
@@ -82,4 +82,9 @@ void Page::onCancel()
 void Page::onClicked()
 {
   Keyboard::hide();
+}
+
+void Page::onEvent(event_t event)
+{
+  // block event bubbling
 }

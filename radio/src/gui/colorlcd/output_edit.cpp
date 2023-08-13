@@ -44,7 +44,7 @@ class OutputEditStatusBar : public Window
       Window(parent, rect), _channel(channel)
   {
     channelBar = new ComboChannelBar(this, {OUTPUT_EDIT_STATUS_BAR_MARGIN, 0, rect.w - (OUTPUT_EDIT_STATUS_BAR_MARGIN * 2), rect.h}, channel);
-    channelBar->setLeftMargin(0);
+    channelBar->setLeftMargin(15);
     channelBar->setTextColor(COLOR_THEME_PRIMARY2);
     channelBar->setOutputChannelBarLimitColor(COLOR_THEME_EDIT);
   }
@@ -66,7 +66,7 @@ OutputEditWindow::OutputEditWindow(uint8_t channel) :
   title += "\n";
   title += getSourceString(MIXSRC_CH1 + channel);
 
-  chanZero = calcRESXto100(channelOutputs[channel]);
+  chanZero = calcRESXto100(ex_chans[channel]);
 
   auto form = new FormWindow(&body, rect_t{});
   auto form_obj = form->getLvObj();
@@ -82,7 +82,7 @@ void OutputEditWindow::checkEvents()
   if (value != newValue) {
     value = newValue;
 
-    int chanVal = calcRESXto100(channelOutputs[channel]);
+    int chanVal = calcRESXto100(ex_chans[channel]);
     minText->setBackgroudOpacity(chanVal < chanZero - 1 ? LV_OPA_COVER : LV_OPA_TRANSP);
     minText->setFont(chanVal < chanZero - 1 ? FONT(BOLD) : FONT(STD));
     minText->invalidate();
@@ -137,8 +137,10 @@ void OutputEditWindow::buildBody(FormWindow* form)
   // Offset
   new StaticText(line, rect_t{}, TR_LIMITS_HEADERS_SUBTRIM, 0,
                  COLOR_THEME_PRIMARY1);
-  new GVarNumberEdit(line, rect_t{}, -LIMIT_STD_MAX, +LIMIT_STD_MAX,
-                     GET_SET_DEFAULT(output->offset), PREC1);
+  auto off = new GVarNumberEdit(line, rect_t{}, -LIMIT_STD_MAX, +LIMIT_STD_MAX,
+                                 GET_SET_DEFAULT(output->offset), PREC1);
+  off->setFastStep(20);
+  off->setAccelFactor(8);
 
   // Min
   line = form->newLine(&grid);
@@ -146,12 +148,16 @@ void OutputEditWindow::buildBody(FormWindow* form)
   minEdit = new GVarNumberEdit(line, rect_t{}, -limit, 0, GET_SET_DEFAULT(output->min),
                      PREC1, -LIMIT_STD_MAX);
   minText->setBackgroundColor(COLOR_THEME_ACTIVE);
+  minEdit->setFastStep(20);
+  minEdit->setAccelFactor(16);
 
   // Max
   maxText = new StaticText(line, rect_t{}, TR_MAX, 0, COLOR_THEME_PRIMARY1);
   maxEdit = new GVarNumberEdit(line, rect_t{}, 0, +limit, GET_SET_DEFAULT(output->max),
                      PREC1, +LIMIT_STD_MAX);
   maxText->setBackgroundColor(COLOR_THEME_ACTIVE);
+  maxEdit->setFastStep(20);
+  maxEdit->setAccelFactor(16);
 
   // Direction
   line = form->newLine(&grid);
@@ -177,10 +183,13 @@ void OutputEditWindow::buildBody(FormWindow* form)
   lv_label_set_long_mode(label->getLvObj(), LV_LABEL_LONG_WRAP);
   lv_obj_set_style_grid_cell_x_align(label->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
-  new NumberEdit(line, rect_t{}, PPM_CENTER - PPM_CENTER_MAX,
-                 PPM_CENTER + PPM_CENTER_MAX,
-                 GET_VALUE(output->ppmCenter + PPM_CENTER),
-                 SET_VALUE(output->ppmCenter, newValue - PPM_CENTER));
+  auto center = new NumberEdit(line, rect_t{}, PPM_CENTER - PPM_CENTER_MAX,
+                               PPM_CENTER + PPM_CENTER_MAX,
+                               GET_VALUE(output->ppmCenter + PPM_CENTER),
+                               SET_VALUE(output->ppmCenter, newValue - PPM_CENTER));
+  center->setFastStep(20);
+  center->setAccelFactor(8);
+  center->setDefault(PPM_CENTER);
 
   // Subtrims mode
   label = new StaticText(line, rect_t{}, TR_LIMITS_HEADERS_SUBTRIMMODE, 0,

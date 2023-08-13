@@ -113,8 +113,8 @@ namespace Helpers
   QString getChecklistFilename(const ModelData * model);
   QString getChecklistFilePath(const ModelData * model);
   QString removeAccents(const QString & str);
-  unsigned int getBitmappedValue(const unsigned int & field, const unsigned int index, const unsigned int numbits = 1, const unsigned int offset = 0);
-  void setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index, unsigned int numbits = 1, unsigned int offset = 0);
+  unsigned int getBitmappedValue(const unsigned int & field, const unsigned int index = 0, const unsigned int numbits = 1, const unsigned int offset = 0);
+  void setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index = 0, unsigned int numbits = 1, unsigned int offset = 0);
 
 }  // namespace Helpers
 
@@ -244,11 +244,26 @@ extern Stopwatch gStopwatch;
 class SemanticVersion
 {
   public:
+<<<<<<< HEAD
     explicit SemanticVersion(QString vers);
     ~SemanticVersion() = default;;
 
     bool isValid(const QString vers);
     QString toString() const;
+=======
+    explicit SemanticVersion(const QString vers);
+    explicit SemanticVersion() {}
+    ~SemanticVersion() {}
+
+    bool isValid(const QString vers);
+    bool isValid();
+    bool fromString(const QString vers);
+    QString toString() const;
+    unsigned int toInt() const;
+    bool fromInt(const unsigned int val);
+
+    SemanticVersion& operator=(const SemanticVersion& rhs);
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 
     bool operator==(const SemanticVersion& rhs) {
       return compare(rhs) == 0;
@@ -275,6 +290,7 @@ class SemanticVersion
     }
 
   private:
+<<<<<<< HEAD
     enum PreRelease {
       PR_ALPHA = 0,
       PR_BETA = 1,
@@ -288,10 +304,32 @@ class SemanticVersion
       int patch                     = 0;
       PreRelease preReleaseType     = PR_NONE;
       int preReleaseNumber          = 0;
+=======
+    enum PreReleaseTypes {
+      PR_ALPHA = 0,
+      PR_BETA,
+      PR_RC,
+      PR_NONE
+    };
+
+    const QStringList PreReleaseTypesStringList = { "alpha", "beta", "rc"};
+
+    struct Version {
+      int major            = 0;
+      int minor            = 0;
+      int patch            = 0;
+      int preReleaseType   = PR_NONE;
+      int preReleaseNumber = 0;
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
     };
 
     Version version;
 
     int compare(const SemanticVersion& other);
+<<<<<<< HEAD
+=======
+    inline QString preReleaseTypeToString() const { return PreReleaseTypesStringList.value(version.preReleaseType, ""); }
+    inline int preReleaseTypeToInt(QString preRelType) const { return PreReleaseTypesStringList.indexOf(preRelType); }
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 
 };

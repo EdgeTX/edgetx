@@ -97,6 +97,8 @@ class ColorEditor : public FormGroup
   std::function<void(uint32_t)> _setValue;
   uint32_t _color;
 
+  void setText();
+  void setHSV();
   void setRGB();
   static void value_changed(lv_event_t* e);
 };

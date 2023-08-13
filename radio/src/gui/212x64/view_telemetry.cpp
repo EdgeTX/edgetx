@@ -36,7 +36,7 @@ void displayRssiLine()
     lcdDrawSizedText(0, STATUS_BAR_Y, STR_RX, 2);
     lcdDrawNumber(4*FW, STATUS_BAR_Y, rssi, LEADING0|RIGHT, 2);
     lcdDrawRect(BAR_LEFT, 57, 78, 7);
-    lcdDrawFilledRect(BAR_LEFT+1, 58, 19*rssi/25, 5, (rssi < g_model.rssiAlarms.getWarningRssi()) ? DOTTED : SOLID);
+    lcdDrawFilledRect(BAR_LEFT+1, 58, 19*rssi/25, 5, (rssi < g_model.rfAlarms.warning) ? DOTTED : SOLID);
   }
   else {
     lcdDrawText(7*FW, STATUS_BAR_Y, STR_NODATA, BLINK);

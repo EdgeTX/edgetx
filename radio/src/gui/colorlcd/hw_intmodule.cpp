@@ -40,7 +40,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent) :
   FlexGridLayout grid(col_dsc, row_dsc, 2);
   setLayout(&grid);
 
-  new StaticText(this, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(this, rect_t{}, STR_TYPE, 0, COLOR_THEME_PRIMARY1);
 
   auto box = new FormGroup(this, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
@@ -54,16 +54,48 @@ InternalModuleWindow::InternalModuleWindow(Window *parent) :
   internalModule->setAvailableHandler(
       [](int module) { return isInternalModuleSupported(module); });
 
-#if defined(CROSSFIRE)
-  box = new FormGroup(box, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+  auto pxx1_box = new FormGroup(box, rect_t{});
+  pxx1_box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
 
-  br_box = box->getLvObj();
-  lv_obj_set_width(br_box, LV_SIZE_CONTENT); 
+  ant_box = pxx1_box->getLvObj();
+  lv_obj_set_width(ant_box, LV_SIZE_CONTENT);
+  lv_obj_set_style_flex_cross_place(ant_box, LV_FLEX_ALIGN_CENTER, 0);
+
+  new StaticText(pxx1_box, rect_t{}, STR_ANTENNA, 0, COLOR_THEME_PRIMARY1);
+  new Choice(
+      pxx1_box, rect_t{}, STR_ANTENNA_MODES, ANTENNA_MODE_INTERNAL,
+      ANTENNA_MODE_EXTERNAL, GET_DEFAULT(g_eeGeneral.antennaMode),
+      [](int antenna) {
+        if (!isExternalAntennaEnabled() &&
+            (antenna == ANTENNA_MODE_EXTERNAL ||
+             (antenna == ANTENNA_MODE_PER_MODEL &&
+              g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode ==
+                  ANTENNA_MODE_EXTERNAL))) {
+          if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
+            g_eeGeneral.antennaMode = antenna;
+            SET_DIRTY();
+          }
+        } else {
+          g_eeGeneral.antennaMode = antenna;
+          checkExternalAntenna();
+          SET_DIRTY();
+        }
+      });
+
+  updateAntennaLine();
+#endif
+
+#if defined(CROSSFIRE)
+  auto crsf_box = new FormGroup(box, rect_t{});
+  crsf_box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+
+  br_box = crsf_box->getLvObj();
+  lv_obj_set_width(br_box, LV_SIZE_CONTENT);
   lv_obj_set_style_flex_cross_place(br_box, LV_FLEX_ALIGN_CENTER, 0);
 
-  new StaticText(box, rect_t{}, STR_BAUDRATE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(box, rect_t{}, STR_CRSF_BAUDRATE, 0,
+  new StaticText(crsf_box, rect_t{}, STR_BAUDRATE, 0, COLOR_THEME_PRIMARY1);
+  new Choice(crsf_box, rect_t{}, STR_CRSF_BAUDRATE, 0,
              CROSSFIRE_MAX_INTERNAL_BAUDRATE, getBaudrate, setBaudrate);
 
   updateBaudrateLine();
@@ -78,6 +110,7 @@ void InternalModuleWindow::setModuleType(int moduleType)
   }
   g_eeGeneral.internalModule = moduleType;
   updateBaudrateLine();
+  updateAntennaLine();
   SET_DIRTY();
 }
 
@@ -102,6 +135,17 @@ void InternalModuleWindow::updateBaudrateLine()
     lv_obj_clear_flag(br_box, LV_OBJ_FLAG_HIDDEN);
   } else {
     lv_obj_add_flag(br_box, LV_OBJ_FLAG_HIDDEN);
+  }
+#endif
+}
+
+void InternalModuleWindow::updateAntennaLine()
+{
+#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+  if (isInternalModuleAvailable(MODULE_TYPE_XJT_PXX1)) {
+    lv_obj_clear_flag(ant_box, LV_OBJ_FLAG_HIDDEN);
+  } else {
+    lv_obj_add_flag(ant_box, LV_OBJ_FLAG_HIDDEN);
   }
 #endif
 }

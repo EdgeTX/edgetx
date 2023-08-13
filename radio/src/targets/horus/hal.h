@@ -92,6 +92,10 @@
 #define ROTARY_ENCODER_TIMER_IRQn       TIM4_IRQn
 #define ROTARY_ENCODER_TIMER_IRQHandler TIM4_IRQHandler
 
+#if defined(RADIO_FAMILY_T16) && !defined(RADIO_T18)
+  #define ROTARY_ENCODER_SUPPORT_BUGGY_WIRING
+#endif
+
 // Switches
 #define STORAGE_SWITCH_A
 #define HARDWARE_SWITCH_A
@@ -810,10 +814,10 @@
   #define FLYSKY_HALL_TX_DMA_Stream_IRQHandler     DMA1_Stream4_IRQHandler
 #endif
 
-// Internal Module
-#if !defined(RADIO_FAMILY_T16)
-  #define EXTERNAL_ANTENNA
-#endif
+// Internal PXX1 Module:
+//  -> let's assume all internal XJT modules used are either X10 or X12S type
+#define EXTERNAL_ANTENNA
+
 #define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_DMA2)
 #define INTMODULE_PWR_GPIO              GPIOA
 #define INTMODULE_PWR_GPIO_PIN          GPIO_Pin_8  // PA.08

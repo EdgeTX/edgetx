@@ -241,6 +241,7 @@ class ModelButton : public Button
   ModelButton(FormGroup *parent, const rect_t &rect, ModelCell *modelCell) :
       Button(parent, rect), modelCell(modelCell)
   {
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
     setWidth(MODEL_SELECT_CELL_WIDTH);
     setHeight(MODEL_SELECT_CELL_HEIGHT);
   }
@@ -323,6 +324,14 @@ class ModelButton : public Button
   bool loaded = false;
   ModelCell *modelCell;
   BitmapBuffer *buffer = nullptr;
+
+  void onClicked() override {
+    if (!lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
+      lv_group_focus_obj(lvobj);
+    } else {
+      Button::onClicked();
+    }
+  }
 };
 
 //-----------------------------------------------------------------------------
@@ -394,6 +403,9 @@ void ModelsPageBody::selectModel(ModelCell *model)
 
 void ModelsPageBody::duplicateModel(ModelCell* model)
 {
+  storageFlushCurrentModel();
+  storageCheck(true);
+
   char duplicatedFilename[LEN_MODEL_FILENAME + 1];
   memcpy(duplicatedFilename, model->modelFilename,
          sizeof(duplicatedFilename));
@@ -425,6 +437,26 @@ void ModelsPageBody::deleteModel(ModelCell *model)
       });
 }
 
+void ModelsPageBody::saveAsTemplate(ModelCell *model)
+{
+  storageDirty(EE_MODEL);
+  storageCheck(true);
+  constexpr size_t size = sizeof(model->modelName) + sizeof(YAML_EXT);
+  char modelName[size];
+  snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
+  char templatePath[FF_MAX_LFN];
+  snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/', modelName);
+  sdCheckAndCreateDirectory(TEMPLATES_PATH);
+  sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
+  if (isFileAvailable(templatePath)) {
+    new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE, [=] {
+      sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+    });
+  } else {
+    sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
+  }
+}
+
 void ModelsPageBody::editLabels(ModelCell* model)
 {
   auto labels = modelslabels.getLabels();
@@ -441,7 +473,7 @@ void ModelsPageBody::editLabels(ModelCell* model)
     });
 
     for (auto &label : modelslabels.getLabels()) {
-      menu->addLine(
+      menu->addLineBuffered(
           label,
           [=]() {
             if (!modelslabels.isLabelSelected(label, model))
@@ -453,6 +485,7 @@ void ModelsPageBody::editLabels(ModelCell* model)
           },
           [=]() { return modelslabels.isLabelSelected(label, model); });
     }
+    menu->updateLines();
   }
 }
 
@@ -469,10 +502,9 @@ void ModelsPageBody::update(int selected)
 
   for (auto &model : models) {
     auto button = new ModelButton(this, rect_t{}, model);
-    button->setPressHandler([=]() -> uint8_t { return 1; });
 
     // Long Press Handler for Models
-    button->setLongPressHandler([=]() -> uint8_t {
+    button->setPressHandler([=]() -> uint8_t {
       Menu *menu = new Menu(this);
       menu->setTitle(model->modelName);
       if (model != modelslist.getCurrentModel()) {
@@ -483,6 +515,7 @@ void ModelsPageBody::update(int selected)
         menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(model); });
       }
       menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(model); });
+      menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(model);}); 
       return 0;
     });
   }
@@ -580,11 +613,8 @@ void ModelLabelsWindow::onEvent(event_t event)
     std::set<uint32_t> sellist;
     int select = 0;
     int rowcount = lblselector->getRowCount();
-#if defined(KEYS_GPIO_REG_PGUP)
+
     if (event == EVT_KEY_BREAK(KEY_PGDN)) {
-#else
-    if (event == EVT_KEY_BREAK(KEY_PGDN)) {
-#endif
       if(curSel.size())
         select = (*curSel.rbegin() + 1) % rowcount;
     } else {

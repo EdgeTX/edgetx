@@ -191,6 +191,7 @@ const char * const audioFilenames[] = {
   "swr_red",
   "telemko",
   "telemok",
+  "trainco",
   "trainko",
   "trainok",
   "sensorko",
@@ -332,7 +333,7 @@ void getSwitchAudioFile(char * filename, swsrc_t index)
   if (index <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(index);
     *str++ = 'S';
-    *str++ = 'A' + swinfo.quot;
+    *str++ = getRawSwitchFromIdx(swinfo.quot);
     const char * positions[] = { "-up", "-mid", "-down" };
     strcpy(str, positions[swinfo.rem]);
   }
@@ -529,11 +530,7 @@ void audioTask(void * pdata)
   // The audio amp needs ~2s to start
   RTOS_WAIT_MS(1000); // 1s
 #elif defined(PCBNV14)
-  while(!isAudioReady())
-  {
-    audioChipReset();
-    RTOS_WAIT_MS(1000);
-  }
+  audioOn();
 #endif
 
   while (true) {
