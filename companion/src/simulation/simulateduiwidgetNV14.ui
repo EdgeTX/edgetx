@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>725</width>
-    <height>526</height>
+    <width>724</width>
+    <height>506</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,14 +18,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>725</width>
-    <height>526</height>
+    <width>724</width>
+    <height>506</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>725</width>
-    <height>526</height>
+    <width>724</width>
+    <height>506</height>
    </size>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -55,17 +55,17 @@
      <property name="minimumSize">
       <size>
        <width>202</width>
-       <height>526</height>
+       <height>506</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>202</width>
-       <height>526</height>
+       <height>506</height>
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">background:url(:/images/simulator/NV14/right.png)</string>
+      <string notr="true">background:url(:/images/simulator/NV14/rhs.png)</string>
      </property>
     </widget>
    </item>
@@ -106,21 +106,21 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>203</width>
-       <height>526</height>
+       <width>202</width>
+       <height>506</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>203</width>
-       <height>526</height>
+       <width>202</width>
+       <height>506</height>
       </size>
      </property>
      <property name="mouseTracking">
       <bool>true</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">background:url(:/images/simulator/NV14/left.png);</string>
+      <string notr="true">background:url(:/images/simulator/NV14/lhs.png);</string>
      </property>
     </widget>
    </item>
@@ -135,13 +135,13 @@
      <property name="minimumSize">
       <size>
        <width>320</width>
-       <height>33</height>
+       <height>13</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>320</width>
-       <height>33</height>
+       <height>13</height>
       </size>
      </property>
      <property name="font">
