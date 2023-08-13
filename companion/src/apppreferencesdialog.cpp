@@ -29,7 +29,7 @@
 #endif
 #include "moduledata.h"
 #include "compounditemmodels.h"
-#include "updates/updateinterface.h"
+#include "updates/updatefactories.h"
 #include "updates/updateoptionsdialog.h"
 
 #include <QAbstractItemModel>
@@ -78,6 +78,7 @@ void AppPreferencesDialog::accept()
   g.showSplash(ui->showSplash->isChecked());
   g.promptProfile(ui->chkPromptProfile->isChecked());
   g.simuSW(ui->simuSW->isChecked());
+  g.disableJoystickWarning(ui->joystickWarningCB->isChecked());
   g.removeModelSlots(ui->opt_removeBlankSlots->isChecked());
   g.newModelAction((AppData::NewModelAction)ui->cboNewModelAction->currentIndex());
   g.historySize(ui->historySize->value());
@@ -93,13 +94,16 @@ void AppPreferencesDialog::accept()
   g.appLogsDir(ui->appLogsDir->text());
   g.runAppInstaller(ui->chkPromptInstall->isChecked());
 
-  if (ui->joystickChkB ->isChecked() && ui->joystickCB->isEnabled()) {
+  if (ui->joystickChkB ->isChecked()) {
     g.jsSupport(ui->joystickChkB ->isChecked());
-    g.jsCtrl(ui->joystickCB ->currentIndex());
+    // Don't overwrite selected joystick if not connected. Avoid surprising the user.
+    if (ui->joystickCB->isEnabled()) {
+      profile.jsName(ui->joystickCB->currentText());
+      g.loadNamedJS();
+    }
   }
   else {
     g.jsSupport(false);
-    g.jsCtrl(0);
   }
 
   //  Updates tab
@@ -149,6 +153,7 @@ void AppPreferencesDialog::accept()
   }
 
   profile.defaultInternalModule(ui->defaultInternalModuleCB->currentData().toInt());
+  profile.externalModuleSize(ui->externalModuleSizeCB->currentData().toInt());
   profile.channelOrder(ui->channelorderCB->currentIndex());
   profile.defaultMode(ui->stickmodeCB->currentIndex());
   profile.renameFwFiles(ui->renameFirmware->isChecked());
@@ -237,6 +242,7 @@ void AppPreferencesDialog::initSettings()
   }
 
   ui->simuSW->setChecked(g.simuSW());
+  ui->joystickWarningCB->setChecked(g.disableJoystickWarning());
   ui->opt_removeBlankSlots->setChecked(g.removeModelSlots());
   ui->cboNewModelAction->addItems(AppData::newModelActionsList());
   ui->cboNewModelAction->setCurrentIndex(g.newModelAction());
@@ -269,7 +275,7 @@ void AppPreferencesDialog::initSettings()
   if (ui->joystickChkB->isChecked()) {
     QStringList joystickNames;
     joystickNames << tr("No joysticks found");
-    joystick = new Joystick(0,false,0,0);
+    joystick = new Joystick(0,0,false,0);
     ui->joystickcalButton->setDisabled(true);
     ui->joystickCB->setDisabled(true);
 
@@ -283,7 +289,8 @@ void AppPreferencesDialog::initSettings()
     }
     ui->joystickCB->clear();
     ui->joystickCB->insertItems(0, joystickNames);
-    ui->joystickCB->setCurrentIndex(g.jsCtrl());
+    int stick = joystick->findCurrent(g.currentProfile().jsName());
+    ui->joystickCB->setCurrentIndex(stick);
   }
   else {
     ui->joystickCB->clear();
@@ -294,6 +301,8 @@ void AppPreferencesDialog::initSettings()
   //  Profile Tab Inits
   ui->defaultInternalModuleCB->setModel(ModuleData::internalModuleItemModel());
   ui->defaultInternalModuleCB->setCurrentIndex(ui->defaultInternalModuleCB->findData(profile.defaultInternalModule()));
+  ui->externalModuleSizeCB->setModel(Boards::externalModuleSizeItemModel());
+  ui->externalModuleSizeCB->setCurrentIndex(ui->externalModuleSizeCB->findData(profile.externalModuleSize()));
   ui->channelorderCB->setCurrentIndex(profile.channelOrder());
   ui->stickmodeCB->setCurrentIndex(profile.defaultMode());
   ui->renameFirmware->setChecked(profile.renameFwFiles());
@@ -458,7 +467,7 @@ void AppPreferencesDialog::initSettings()
 
     btnComponentOptions[i] = new QPushButton(tr("Options"));
     connect(btnComponentOptions[i], &QPushButton::clicked, [=]() {
-      UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories, i, false);
+      UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, factories->instance(i), i, false);
       dlg->exec();
       dlg->deleteLater();
     });
@@ -587,7 +596,7 @@ void AppPreferencesDialog::on_joystickChkB_clicked() {
   if (ui->joystickChkB->isChecked()) {
     QStringList joystickNames;
     joystickNames << tr("No joysticks found");
-    joystick = new Joystick(0,false,0,0);
+    joystick = new Joystick(0,0,false,0);
     ui->joystickcalButton->setDisabled(true);
     ui->joystickCB->setDisabled(true);
 
@@ -610,8 +619,9 @@ void AppPreferencesDialog::on_joystickChkB_clicked() {
 }
 
 void AppPreferencesDialog::on_joystickcalButton_clicked() {
-   joystickDialog * jd=new joystickDialog(this, ui->joystickCB->currentIndex());
-   jd->exec();
+  g.currentProfile().jsName(ui->joystickCB->currentText());
+  joystickDialog * jd = new joystickDialog(this);
+  jd->exec();
 }
 #endif
 
@@ -675,6 +685,10 @@ void AppPreferencesDialog::onBaseFirmwareChanged()
   profile.defaultInternalModule(Boards::getDefaultInternalModules(newfw->getBoard()));
   ui->defaultInternalModuleCB->setModel(ModuleData::internalModuleItemModel(newfw->getBoard()));
   ui->defaultInternalModuleCB->setCurrentIndex(ui->defaultInternalModuleCB->findData(profile.defaultInternalModule()));
+
+  profile.externalModuleSize(Boards::getDefaultExternalModuleSize(newfw->getBoard()));
+  ui->externalModuleSizeCB->setModel(Boards::externalModuleSizeItemModel());
+  ui->externalModuleSizeCB->setCurrentIndex(ui->externalModuleSizeCB->findData(profile.externalModuleSize()));
 }
 
 Firmware *AppPreferencesDialog::getBaseFirmware() const

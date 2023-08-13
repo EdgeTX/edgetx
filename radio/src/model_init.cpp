@@ -20,6 +20,8 @@
  */
 
 #include "opentx.h"
+#include "hal/adc_driver.h"
+#include "input_mapping.h"
 
 void clearInputs()
 {
@@ -28,18 +30,18 @@ void clearInputs()
 
 void setDefaultInputs()
 {
-  for (int i=0; i<NUM_STICKS; i++) {
-    uint8_t stick_index = channelOrder(i+1);
+  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
+  for (int i = 0; i < max_sticks; i++) {
+    uint8_t stick_index = inputMappingChannelOrder(i);
     ExpoData *expo = expoAddress(i);
-    expo->srcRaw = MIXSRC_Rud - 1 + stick_index;
+    expo->srcRaw = MIXSRC_FIRST_STICK + stick_index;
     expo->curve.type = CURVE_REF_EXPO;
     expo->chn = i;
     expo->weight = 100;
     expo->mode = 3; // TODO constant
-    strncpy(g_model.inputNames[i],
-            STR_VSRCRAW[stick_index] + sizeof(STR_CHAR_STICK) - 1,
-            LEN_INPUT_NAME);
+    strncpy(g_model.inputNames[i], getMainControlLabel(stick_index), LEN_INPUT_NAME);
   }
+
   storageDirty(EE_MODEL);
 }
 
@@ -50,7 +52,8 @@ void clearMixes()
 
 void setDefaultMixes()
 {
-  for (int i=0; i<NUM_STICKS; i++) {
+  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
+  for (int i = 0; i < max_sticks; i++) {
     MixData * mix = mixAddress(i);
     mix->destCh = i;
     mix->weight = 100;
@@ -86,28 +89,12 @@ void setDefaultRSSIValues()
 
 void setVendorSpecificModelDefaults(uint8_t id)
 {
-#if defined(FRSKY_RELEASE)
-  g_model.moduleData[INTERNAL_MODULE].type = IS_PXX2_INTERNAL_ENABLED() ? MODULE_TYPE_ISRM_PXX2 : MODULE_TYPE_XJT_PXX1;
-  g_model.moduleData[INTERNAL_MODULE].channelsCount = defaultModuleChannels_M8(INTERNAL_MODULE);
-  #if defined(EEPROM)
-    g_model.header.modelId[INTERNAL_MODULE] = findNextUnusedModelId(id, INTERNAL_MODULE);
-    modelHeaders[id].modelId[INTERNAL_MODULE] = g_model.header.modelId[INTERNAL_MODULE];
-  #endif
-#endif
-
-    // TODO: we should probably have some default trainer mode
-    //       per radio, depending on what is supported
-    //
-#if defined(PCBXLITE)
-  g_model.trainerData.mode = TRAINER_MODE_MASTER_BLUETOOTH;
-#endif
-
 #if defined(RADIOMASTER_RTF_RELEASE)
   // Those settings are for headless radio
   g_model.trainerData.mode = TRAINER_MODE_SLAVE;
   g_model.moduleData[INTERNAL_MODULE].type = MODULE_TYPE_MULTIMODULE;
-  g_model.moduleData[INTERNAL_MODULE].setMultiProtocol(MODULE_SUBTYPE_MULTI_FRSKY);
-  g_model.moduleData[INTERNAL_MODULE].subType = MM_RF_FRSKY_SUBTYPE_D8;
+  g_model.moduleData[INTERNAL_MODULE].multi.rfProtocol = MODULE_SUBTYPE_MULTI_FRSKY;
+  g_model.moduleData[INTERNAL_MODULE].subType = MULTI_FRSKYD_SUBTYPE_D8;
   g_model.moduleData[INTERNAL_MODULE].failsafeMode = FAILSAFE_NOPULSES;
 #endif
 }
@@ -130,17 +117,22 @@ void applyDefaultTemplate()
 
 #if defined(COLORLCD)
 
-#if !defined(GTESTS)
   loadDefaultLayout();
-#endif
 
   // enable switch warnings
-  for (int i = 0; i < NUM_SWITCHES; i++) {
-    g_model.switchWarningState |= (1 << (3*i));
+  for (int i = 0; i < MAX_SWITCHES; i++) {
+    if (SWITCH_EXISTS(i)) {
+      g_model.switchWarningState |= (1 << (3 * i));
+    }
+  }
+#else
+  // enable switch warnings
+  for (int i = 0; i < MAX_SWITCHES; i++) {
+    if (SWITCH_WARNING_ALLOWED(i))
+      g_model.switchWarningState |= (1 << (3 * i));
   }
 #endif
 
-  // TODO: what about switch warnings in non-color LCD radios?
 }
 
 

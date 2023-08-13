@@ -82,7 +82,7 @@ void title(const char * s)
   lcdDrawText(0, 0, s, INVERS);
 }
 
-choice_t editChoice(coord_t x, coord_t y, const char * label, const char** values, choice_t value, choice_t min, choice_t max, LcdFlags attr, event_t event, IsValueAvailable isValueAvailable)
+choice_t editChoice(coord_t x, coord_t y, const char * label, const char* const* values, choice_t value, choice_t min, choice_t max, LcdFlags attr, event_t event, IsValueAvailable isValueAvailable)
 {
   if (label) {
     drawFieldLabel(x, y, label);
@@ -130,7 +130,7 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int
 
   // TRACE("editGVarFieldValue(val=%d min=%d max=%d)", value, min, max);
 
-  if (invers && event == EVT_KEY_LONG(KEY_ENTER)) {
+  if (modelGVEnabled() && invers && event == EVT_KEY_LONG(KEY_ENTER)) {
     s_editMode = !s_editMode;
     if (attr & PREC1) {
       value = (GV_IS_GV_VALUE(value, min, max) ? GET_GVAR(value, min, max, mixerCurrentFlightMode)*10 : delta);

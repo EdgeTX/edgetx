@@ -25,6 +25,7 @@
 #include "radiodataconversionstate.h"
 #include "compounditemmodels.h"
 #include "generalsettings.h"
+#include "appdata.h"
 
 #include <QPair>
 #include <QVector>
@@ -43,7 +44,8 @@ void ModuleData::convert(RadioDataConversionState & cstate)
       if ((PulsesProtocol) protocol != PULSES_OFF)
         evt = RadioDataConversionState::EVT_INV;
     }
-    else if (!fw->isAvailable((PulsesProtocol) protocol, cstate.subCompIdx)) {
+    else if (!isAvailable((PulsesProtocol) protocol, cstate.subCompIdx)) {  //  TODO: replace with call to ModuleData::isProtocolAvailable
+    //else if (!isProtocolAvailable(cstate.subCompIdx, (PulsesProtocol) protocol, cstate.toGS)) {
       evt = RadioDataConversionState::EVT_INV;
     }
   }
@@ -56,6 +58,135 @@ void ModuleData::convert(RadioDataConversionState & cstate)
     cstate.setInvalid(oldData);
     clear();
   }
+}
+
+//  moved from OpenTxFirmware EdgeTX v2.9
+//  only called by ModuleData::convert
+//  TODO: merge with ModuleData::isProtocolAvailable as share much of the same logic
+//        however they differ but why? Suspect have diverged as existence of both functions not known to devs
+//  static
+bool ModuleData::isAvailable(PulsesProtocol proto, int port)
+{
+  Firmware *fw = getCurrentFirmware();
+  Board::Type board = fw->getBoard();
+
+  QString id = fw->getId();
+
+  if (IS_HORUS_OR_TARANIS(board)) {
+    switch (port) {
+      case 0:
+        switch (proto) {
+          case PULSES_OFF:
+            return true;
+          case PULSES_PXX_XJT_X16:
+          case PULSES_PXX_XJT_LR12:
+            return !IS_ACCESS_RADIO(board, id) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board);
+          case PULSES_PXX_XJT_D8:
+            return !(IS_ACCESS_RADIO(board, id)  || id.contains("eu")) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board);
+          case PULSES_ACCESS_ISRM:
+          case PULSES_ACCST_ISRM_D16:
+            return IS_ACCESS_RADIO(board, id);
+          case PULSES_MULTIMODULE:
+            return fw->getCapability(HasIntModuleMulti);
+          case PULSES_CROSSFIRE:
+            return fw->getCapability(HasIntModuleCRSF) || fw->getCapability(HasIntModuleELRS);
+          case PULSES_AFHDS3:
+            return fw->getCapability(HasIntModuleFlySky);
+          default:
+            return false;
+        }
+
+      case 1:
+        switch (proto) {
+          case PULSES_OFF:
+          case PULSES_PPM:
+            return true;
+          case PULSES_PXX_XJT_X16:
+          case PULSES_PXX_XJT_D8:
+          case PULSES_PXX_XJT_LR12:
+            return !(IS_TARANIS_XLITES(board) || IS_TARANIS_X9LITE(board));
+          case PULSES_PXX_R9M:
+          case PULSES_LP45:
+          case PULSES_DSM2:
+          case PULSES_DSMX:
+          case PULSES_SBUS:
+          case PULSES_MULTIMODULE:
+          case PULSES_CROSSFIRE:
+          case PULSES_AFHDS3:
+          case PULSES_GHOST:
+            return true;
+          case PULSES_ACCESS_R9M:
+            return IS_ACCESS_RADIO(board, id)  || (IS_FAMILY_HORUS_OR_T16(board) && id.contains("externalaccessmod"));
+          case PULSES_PXX_R9M_LITE:
+          case PULSES_ACCESS_R9M_LITE:
+          case PULSES_ACCESS_R9M_LITE_PRO:
+          case PULSES_XJT_LITE_X16:
+          case PULSES_XJT_LITE_D8:
+          case PULSES_XJT_LITE_LR12:
+            return (IS_TARANIS_XLITE(board) || IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_ZORRO(board));
+          default:
+            return false;
+        }
+
+      case -1:
+        switch (proto) {
+          case PULSES_PPM:
+            return true;
+          default:
+            return false;
+        }
+
+      default:
+        return false;
+    }
+  }
+  else if (IS_SKY9X(board)) {
+    switch (port) {
+      case 0:
+        switch (proto) {
+          case PULSES_PPM:
+          case PULSES_PXX_XJT_X16:
+          case PULSES_PXX_XJT_D8:
+          case PULSES_PXX_XJT_LR12:
+          case PULSES_PXX_R9M:
+          case PULSES_LP45:
+          case PULSES_DSM2:
+          case PULSES_DSMX:
+          case PULSES_SBUS:
+          case PULSES_MULTIMODULE:
+            return true;
+          default:
+            return false;
+        }
+        break;
+      case 1:
+        switch (proto) {
+          case PULSES_PPM:
+            return true;
+          default:
+            return false;
+        }
+        break;
+      default:
+        return false;
+    }
+  }
+  else {
+    switch (proto) {
+      case PULSES_PPM:
+      case PULSES_DSMX:
+      case PULSES_LP45:
+      case PULSES_DSM2:
+        // case PULSES_PXX_DJT:     // Unavailable for now
+      case PULSES_PPM16:
+      case PULSES_PPMSIM:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  return false; //  to avoid compiler warning
 }
 
 bool ModuleData::isPxx2Module() const
@@ -117,12 +248,19 @@ QString ModuleData::subTypeToString(int type) const
     "915MHz"
   };
 
+  static const QString ppmSubTypeStrings[PPM_NUM_SUBTYPES] = {
+    tr("No Telemetry"),
+    tr("MLink")
+  };
+
   if (type < 0)
     type = subType;
 
   switch (protocol) {
     case PULSES_MULTIMODULE:
       return Multiprotocols::subTypeToString((int)multi.rfProtocol, (unsigned)type);
+    case PULSES_PPM:
+      return CHECK_IN_ARRAY(ppmSubTypeStrings, type);
     case PULSES_PXX_R9M:
       return CHECK_IN_ARRAY(strings, type);
     case PULSES_AFHDS3:
@@ -156,28 +294,28 @@ QString ModuleData::indexToString(int index, Firmware * fw)
 // static
 QString ModuleData::protocolToString(unsigned int protocol)
 {
-  static const char * strings[] = {
-    "OFF",
-    "PPM",
-    "Silverlit A", "Silverlit B", "Silverlit C",
-    "CTP1009",
-    "LP45", "DSM2", "DSMX",
-    "PPM16", "PPMsim",
-    "FrSky XJT (D16)", "FrSky XJT (D8)", "FrSky XJT (LR12)", "FrSky DJT",
-    "Crossfire",
-    "Multi",
-    "FrSky R9M",
-    "FrSky R9M Lite",
-    "FrSky R9M Lite Pro",
-    "SBUS output at VBat",
-    "FrSky ACCESS ISRM", "FrSky ACCST ISRM D16",
-    "FrSky ACCESS R9M 2019",
-    "FrSky ACCESS R9M Lite",
-    "FrSky ACCESS R9M Lite Pro",
-    "FrSky XJT lite (D16)", "FrSky XJT lite (D8)", "FrSky XJT lite (LR12)",
-    "AFHDS3",
-    "Ghost",
-    "Lemon-Rx DSMP",
+  static const QString strings[] = {
+    tr("OFF"),
+    tr("PPM"),
+    tr("Silverlit A"), tr("Silverlit B"), tr("Silverlit C"),
+    tr("CTP1009"),
+    tr("LP45"), tr("DSM2"), tr("DSMX"),
+    tr("PPM16"), tr("PPMsim"),
+    tr("FrSky XJT (D16)"), tr("FrSky XJT (D8)"), tr("FrSky XJT (LR12)"), tr("FrSky DJT"),
+    tr("Crossfire"),
+    tr("Multi"),
+    tr("FrSky R9M"),
+    tr("FrSky R9M Lite"),
+    tr("FrSky R9M Lite Pro"),
+    tr("SBUS output at VBat"),
+    tr("FrSky ACCESS ISRM"), tr("FrSky ACCST ISRM D16"),
+    tr("FrSky ACCESS R9M 2019"),
+    tr("FrSky ACCESS R9M Lite"),
+    tr("FrSky ACCESS R9M Lite Pro"),
+    tr("FrSky XJT lite (D16)"), tr("FrSky XJT lite (D8)"), tr("FrSky XJT lite (LR12)"),
+    tr("AFHDS3"),
+    tr("Ghost"),
+    tr("Lemon-Rx DSMP"),
   };
 
   return CHECK_IN_ARRAY(strings, protocol);
@@ -378,8 +516,9 @@ AbstractStaticItemModel * ModuleData::internalModuleItemModel(int board)
   return mdl;
 }
 
+//  TODO: merge with ModuleData::isAvailable noting the functions have diverged!!!
 //  static
-bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, GeneralSettings & settings)
+bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, GeneralSettings & generalSettings)
 {
   if (protocol == PULSES_OFF)
     return true;
@@ -388,45 +527,72 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
   Board::Type board = fw->getBoard();
 
   if (moduleidx == 0)
-    return (int)settings.internalModule == getTypeFromProtocol(protocol);
-
-  QString id = fw->getId();
+    return (int)generalSettings.internalModule == getTypeFromProtocol(protocol);
 
   if (IS_HORUS_OR_TARANIS(board)) {
     switch (moduleidx) {
-      case 1:
-        switch (protocol) {
-          case PULSES_OFF:
-          case PULSES_PPM:
-            return true;
-          case PULSES_PXX_XJT_X16:
-          case PULSES_PXX_XJT_D8:
-          case PULSES_PXX_XJT_LR12:
-            return !(IS_TARANIS_XLITES(board) || IS_TARANIS_X9LITE(board));
-          case PULSES_PXX_R9M:
-          case PULSES_LP45:
-          case PULSES_DSM2:
-          case PULSES_DSMX:
-          case PULSES_SBUS:
-          case PULSES_MULTIMODULE:
-          case PULSES_CROSSFIRE:
-          case PULSES_AFHDS3:
-          case PULSES_GHOST:
-          case PULSES_LEMON_DSMP:
-            return true;
-          case PULSES_ACCESS_R9M:
-            return IS_ACCESS_RADIO(board, id)  || (IS_FAMILY_HORUS_OR_T16(board) && id.contains("externalaccessmod"));
-          case PULSES_PXX_R9M_LITE:
-          case PULSES_ACCESS_R9M_LITE:
-          case PULSES_ACCESS_R9M_LITE_PRO:
-          case PULSES_XJT_LITE_X16:
-          case PULSES_XJT_LITE_D8:
-          case PULSES_XJT_LITE_LR12:
-            return (IS_TARANIS_XLITE(board) || IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_ZORRO(board));
+      case 1: {
+        const int moduleSize = g.currentProfile().externalModuleSize();
+        const int moduleType = getTypeFromProtocol(protocol);
+
+        switch(moduleSize) {
+          case Board::EXTMODSIZE_NONE:
+            return false;
+          case Board::EXTMODSIZE_BOTH:
+            switch (moduleType) {
+              case MODULE_TYPE_XJT_PXX1:
+              case MODULE_TYPE_ISRM_PXX2:
+              case MODULE_TYPE_R9M_PXX1:
+              case MODULE_TYPE_R9M_PXX2:
+              case MODULE_TYPE_DSM2:
+              case MODULE_TYPE_CROSSFIRE:
+              case MODULE_TYPE_MULTIMODULE:
+              case MODULE_TYPE_GHOST:
+              case MODULE_TYPE_FLYSKY:
+              case MODULE_TYPE_LEMON_DSMP:
+              case MODULE_TYPE_R9M_LITE_PXX1:
+              case MODULE_TYPE_R9M_LITE_PXX2:
+              case MODULE_TYPE_R9M_LITE_PRO_PXX2:
+              case MODULE_TYPE_XJT_LITE_PXX2:
+              case MODULE_TYPE_PPM:
+              case MODULE_TYPE_SBUS:
+                return true;
+              default:
+                return false;
+            }
+          case Board::EXTMODSIZE_STD:
+            switch (moduleType) {
+              case MODULE_TYPE_XJT_PXX1:
+              case MODULE_TYPE_ISRM_PXX2:
+              case MODULE_TYPE_R9M_PXX1:
+              case MODULE_TYPE_R9M_PXX2:
+              case MODULE_TYPE_DSM2:
+              case MODULE_TYPE_CROSSFIRE:
+              case MODULE_TYPE_MULTIMODULE:
+              case MODULE_TYPE_GHOST:
+              case MODULE_TYPE_FLYSKY:
+              case MODULE_TYPE_LEMON_DSMP:
+                return true;
+              default:
+                return false;
+            }
+          case Board::EXTMODSIZE_SMALL:
+            switch (moduleType) {
+              case MODULE_TYPE_R9M_LITE_PXX1:
+              case MODULE_TYPE_R9M_LITE_PXX2:
+              case MODULE_TYPE_R9M_LITE_PRO_PXX2:
+              case MODULE_TYPE_XJT_LITE_PXX2:
+              case MODULE_TYPE_CROSSFIRE:
+              case MODULE_TYPE_MULTIMODULE:
+              case MODULE_TYPE_GHOST:
+                return true;
+              default:
+                return false;
+            }
           default:
             return false;
         }
-
+      }
       case -1:
         switch (protocol) {
           case PULSES_PPM:
@@ -515,5 +681,5 @@ AbstractStaticItemModel * ModuleData::telemetryBaudrateItemModel(unsigned int  p
   }
 
   mdl->loadItemList();
-  return mdl;  
+  return mdl;
 }

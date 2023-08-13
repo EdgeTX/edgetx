@@ -22,6 +22,9 @@
 #include "opentx.h"
 #include <math.h>
 
+#include "hal/adc_driver.h"
+#include "analogs.h"
+
 #if defined(MULTIMODULE)
 void lcdDrawMultiProtocolString(coord_t x, coord_t y, uint8_t moduleIdx, uint8_t protocol, LcdFlags flags)
 {
@@ -305,12 +308,15 @@ void drawGVarName(coord_t x, coord_t y, int8_t idx, LcdFlags flags)
   lcdDrawText(x, y, s, flags);
 }
 
-void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event, LcdFlags flags, uint8_t old_editMode)
+void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event,
+                               LcdFlags flags, uint8_t old_editMode)
 {
-  lcdDrawTextAtIndex(INDENT_WIDTH, y, STR_VSRCRAW, idx+1, 0);
-  if (g_eeGeneral.anaNames[idx][0] || (flags && s_editMode > 0))
-    editName(x, y, g_eeGeneral.anaNames[idx], LEN_ANA_NAME, event, (flags != 0),
-             flags, old_editMode);
+  lcdDrawText(INDENT_WIDTH, y, STR_CHAR_STICK, 0);
+  lcdDrawText(lcdNextPos, y, analogGetCanonicalName(ADC_INPUT_MAIN, idx), 0);
+
+  if (analogHasCustomLabel(ADC_INPUT_MAIN, idx) || (flags && s_editMode > 0))
+    editName(x, y, (char*)analogGetCustomLabel(ADC_INPUT_MAIN, idx),
+             LEN_ANA_NAME, event, (flags != 0), flags, old_editMode);
   else
     lcdDrawMMM(x, y, flags);
 }
@@ -325,18 +331,18 @@ bool isSwitchAvailableInCustomFunctions(int swtch)
 
 void drawPower(coord_t x, coord_t y, int8_t dBm, LcdFlags att)
 {
-  float power_W_PREC1 = pow(10.0, (dBm - 30.0) / 10.0) * 10;
+  float power_W_PREC1 = powf(10.0, (dBm - 30.0) / 10.0) * 10;
   if (dBm >= 30) {
     lcdDrawNumber(x, y, power_W_PREC1, PREC1 | att);
     lcdDrawText(lcdNextPos, y, "W", att);
   }
   else if (dBm < 10) {
-    uint16_t power_MW_PREC1 = round(power_W_PREC1 * 1000);
+    uint16_t power_MW_PREC1 = roundf(power_W_PREC1 * 1000);
     lcdDrawNumber(x, y, power_MW_PREC1, PREC1 | att);
     lcdDrawText(lcdNextPos, y, "mW", att);
   }
   else {
-    uint16_t power_MW = round(power_W_PREC1 * 100);
+    uint16_t power_MW = roundf(power_W_PREC1 * 100);
     if (power_MW >= 50) {
       power_MW = (power_MW / 5) * 5;
       lcdDrawNumber(x, y, power_MW, att);
@@ -440,89 +446,16 @@ void drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor, int32_t value, 
   else if (telemetrySensor.unit == UNIT_GPS) {
     drawGPSSensorValue(x, y, telemetryItem, flags);
   }
-  else if (telemetrySensor.unit == UNIT_BITFIELD) {
-    if (IS_FRSKY_SPORT_PROTOCOL()) {
-      if (telemetrySensor.id >= RBOX_STATE_FIRST_ID && telemetrySensor.id <= RBOX_STATE_LAST_ID) {
-        if (telemetrySensor.subId == 0) {
-          if (value == 0) {
-            lcdDrawText(x, y, "OK", flags);
-          }
-          else {
-            for (uint8_t i = 0; i < 16; i++) {
-              if (value & (1u << i)) {
-                char s[] = "CH__ KO";
-                strAppendUnsigned(&s[2], i + 1, 2);
-                lcdDrawText(x, flags & DBLSIZE ? y + 1 : y, s, flags & ~DBLSIZE);
-                break;
-              }
-            }
-          }
-        }
-        else {
-          if (value == 0) {
-            lcdDrawText(x, flags & DBLSIZE ? y + 1 : y, "Rx OK", flags & ~DBLSIZE);
-          }
-          else {
-            static const char * const RXS_STATUS[] = {
-              "Rx1 Ovl",
-              "Rx2 Ovl",
-              "SBUS Ovl",
-              "Rx1 FS",
-              "Rx1 LF",
-              "Rx2 FS",
-              "Rx2 LF",
-              "Rx1 Lost",
-              "Rx2 Lost",
-              "Rx1 NS",
-              "Rx2 NS",
-              "Rx3 FS",
-              "Rx3 LF",
-              "Rx3 Lost",
-              "Rx3 NS"
-            };
-            for (uint8_t i = 0; i < DIM(RXS_STATUS); i++) {
-              if (value & (1u << i)) {
-                lcdDrawText(x, flags & DBLSIZE ? y + 1 : y, RXS_STATUS[i], flags & ~DBLSIZE);
-                break;
-              }
-            }
-          }
-        }
-      }
-      else if (telemetrySensor.id >= RB3040_OUTPUT_FIRST_ID && telemetrySensor.id <= RB3040_OUTPUT_LAST_ID) {
-        if (telemetrySensor.subId == 0) {
-          if (value == 0) {
-            lcdDrawText(x, y, "OK", flags);     
-          }
-          else {
-            for (uint8_t i = 0; i < 9; i++) {
-              if (value & (1u << i)) {
-                if (i < 8) {
-                  char s[] = "CH__ KO";
-                  strAppendUnsigned(&s[2], i + 17, 2);
-                  lcdDrawText(x, flags & DBLSIZE ? y + 1 : y, s, flags & ~DBLSIZE);
-                  break;
-                }
-                else {
-                  char s[] = "S.P Ovl";
-                  lcdDrawText(x, flags & DBLSIZE ? y + 1 : y, s, flags & ~DBLSIZE);
-                  break;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
   else if (telemetrySensor.unit == UNIT_TEXT) {
-    lcdDrawSizedText(x, flags & DBLSIZE ? y + 1 : y, telemetryItem.text, sizeof(telemetryItem.text), flags & ~DBLSIZE);
-  }
-  else {
+    lcdDrawSizedText(x, flags & DBLSIZE ? y + 1 : y, telemetryItem.text,
+                     sizeof(telemetryItem.text), flags & ~DBLSIZE);
+  } else {
     if (telemetrySensor.prec > 0) {
       flags |= (telemetrySensor.prec == 1 ? PREC1 : PREC2);
     }
-    drawValueWithUnit(x, y, value, telemetrySensor.unit == UNIT_CELLS ? UNIT_VOLTS : telemetrySensor.unit, flags);
+    drawValueWithUnit(x, y, value,
+        telemetrySensor.unit == UNIT_CELLS ? UNIT_VOLTS : telemetrySensor.unit,
+        flags);
   }
 }
 

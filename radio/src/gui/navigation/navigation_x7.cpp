@@ -20,86 +20,83 @@
  */
 
 #include "opentx.h"
+#include "navigation.h"
+
+#include "switches.h"
+#include "hal/rotary_encoder.h"
 
 vertpos_t menuVerticalOffset;
+vertpos_t menuVerticalPosition;
+horzpos_t menuHorizontalPosition;
+
 int8_t s_editMode;
 uint8_t noHighlightCounter;
 uint8_t menuCalibrationState;
-vertpos_t menuVerticalPosition;
-horzpos_t menuHorizontalPosition;
-int8_t  checkIncDec_Ret;
 
-#define DBLKEYS_PRESSED_RGT_LFT(in)    (false)
-#define DBLKEYS_PRESSED_UP_DWN(in)     (false)
-#define DBLKEYS_PRESSED_RGT_UP(in)     (false)
-#define DBLKEYS_PRESSED_LFT_DWN(in)    (false)
+int8_t  checkIncDec_Ret;
 
 INIT_STOPS(stops100, 3, -100, 0, 100)
 INIT_STOPS(stops1000, 3, -1000, 0, 1000)
-INIT_STOPS(stopsSwitch, 15, SWSRC_FIRST, CATEGORY_END(-SWSRC_FIRST_LOGICAL_SWITCH), CATEGORY_END(-SWSRC_FIRST_TRIM), CATEGORY_END(-SWSRC_LAST_SWITCH+1), 0, CATEGORY_END(SWSRC_LAST_SWITCH), CATEGORY_END(SWSRC_FIRST_TRIM-1), CATEGORY_END(SWSRC_FIRST_LOGICAL_SWITCH-1), SWSRC_LAST)
+INIT_STOPS(stopsSwitch, 15, SWSRC_FIRST,
+           CATEGORY_END(-SWSRC_FIRST_LOGICAL_SWITCH),
+           CATEGORY_END(-SWSRC_FIRST_TRIM),
+           CATEGORY_END(-SWSRC_LAST_SWITCH + 1), 0,
+           CATEGORY_END(SWSRC_LAST_SWITCH), CATEGORY_END(SWSRC_FIRST_TRIM - 1),
+           CATEGORY_END(SWSRC_FIRST_LOGICAL_SWITCH - 1), SWSRC_LAST)
 
 extern int checkIncDecSelection;
 
-void onSwitchLongEnterPress(const char * result)
-{
-  if (result == STR_MENU_SWITCHES)
-    checkIncDecSelection = SWSRC_FIRST_SWITCH;
-  else if (result == STR_MENU_TRIMS)
-    checkIncDecSelection = SWSRC_FIRST_TRIM;
-  else if (result == STR_MENU_LOGICAL_SWITCHES)
-    checkIncDecSelection = SWSRC_FIRST_LOGICAL_SWITCH + getFirstAvailable(0, MAX_LOGICAL_SWITCHES, isLogicalSwitchAvailable);
-  else if (result == STR_MENU_OTHER)
-    checkIncDecSelection = SWSRC_ON;
-  else if (result == STR_MENU_INVERT)
-    checkIncDecSelection = SWSRC_INVERT;
-}
-
-int checkIncDec(event_t event, int val, int i_min, int i_max, unsigned int i_flags, IsValueAvailable isValueAvailable, const CheckIncDecStops &stops)
+int checkIncDec(event_t event, int val, int i_min, int i_max,
+                unsigned int i_flags, IsValueAvailable isValueAvailable,
+                const CheckIncDecStops &stops)
 {
   int newval = val;
-#if defined(ROTARY_ENCODER_NAVIGATION)
-  if (s_editMode>0 && event==EVT_ROTARY_RIGHT) {
-#else
-  if (s_editMode>0 && (event==EVT_KEY_FIRST(KEY_PLUS) || event==EVT_KEY_REPT(KEY_PLUS))) {
-#endif
-    newval += min<int>(rotencSpeed, i_max-val);
-    while (isValueAvailable && !isValueAvailable(newval) && newval<=i_max) {
-      newval++;
-    }
-    if (newval > i_max) {
-      newval = val;
-      AUDIO_KEY_ERROR();
-    }
-  }
-#if defined(ROTARY_ENCODER_NAVIGATION)
-  else if (s_editMode>0 && event==EVT_ROTARY_LEFT) {
-#else
-  if (s_editMode>0 && (event==EVT_KEY_FIRST(KEY_MINUS) || event==EVT_KEY_REPT(KEY_MINUS))) {
-#endif
-    newval -= min<int>(rotencSpeed, val-i_min);
-    while (isValueAvailable && !isValueAvailable(newval) && newval>=i_min) {
-      newval--;
-    }
-    if (newval < i_min) {
-      newval = val;
-      AUDIO_KEY_ERROR();
-    }
-  }
 
-  if (!READ_ONLY() && i_min==0 && i_max==1 && event==EVT_KEY_BREAK(KEY_ENTER)) {
-    s_editMode = 0;
-    newval = !val;
-  }
+  if (s_editMode > 0) {
+    if (event == EVT_ROTARY_RIGHT || event == EVT_KEY_FIRST(KEY_PLUS) ||
+        event == EVT_KEY_REPT(KEY_PLUS)) {
+
+      if (IS_KEY_REPT(event) && (i_flags & INCDEC_REP10)) {
+        newval += min(10, i_max - val);
+      } else {
+        newval += min<int>(rotaryEncoderGetAccel(), i_max - val);
+      }
+
+      while (isValueAvailable && !isValueAvailable(newval) && newval <= i_max) {
+        newval++;
+      }
+
+      if (newval > i_max) {
+        newval = val;
+        AUDIO_KEY_ERROR();
+      }
+    } else if (event == EVT_ROTARY_LEFT || event == EVT_KEY_FIRST(KEY_MINUS) ||
+               event == EVT_KEY_REPT(KEY_MINUS)) {
+
+      if (IS_KEY_REPT(event) && (i_flags & INCDEC_REP10)) {
+        newval -= min(10, val - i_min);
+      } else {
+        newval -= min<int>(rotaryEncoderGetAccel(), val - i_min);
+      }
+
+      while (isValueAvailable && !isValueAvailable(newval) && newval >= i_min) {
+        newval--;
+      }
+
+      if (newval < i_min) {
+        newval = val;
+        AUDIO_KEY_ERROR();
+      }
+    }
 
 #if defined(AUTOSWITCH)
-  if (i_flags & INCDEC_SWITCH) {
-    newval = checkIncDecMovedSwitch(newval);
-  }
+    if (i_flags & INCDEC_SWITCH) {
+      newval = checkIncDecMovedSwitch(newval);
+    }
 #endif
 
 #if defined(AUTOSOURCE)
-  if (i_flags & INCDEC_SOURCE) {
-    if (s_editMode>0) {
+    if (i_flags & INCDEC_SOURCE) {
       int source = GET_MOVED_SOURCE(i_min, i_max);
       if (source) {
         newval = source;
@@ -113,8 +110,14 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, unsigned int i_fla
       }
 #endif
     }
-  }
 #endif
+  }
+  
+  if (!READ_ONLY() && i_min == 0 && i_max == 1 &&
+      event == EVT_KEY_BREAK(KEY_ENTER)) {
+    s_editMode = 0;
+    newval = !val;
+  }
 
   if (newval != val) {
     storageDirty(i_flags & (EE_GENERAL|EE_MODEL));
@@ -145,17 +148,19 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, unsigned int i_fla
       if (i_min <= MIXSRC_FIRST_POT && i_max >= MIXSRC_FIRST_POT)          POPUP_MENU_ADD_ITEM(STR_MENU_POTS);
       if (i_min <= MIXSRC_MAX && i_max >= MIXSRC_MAX)                      POPUP_MENU_ADD_ITEM(STR_MENU_MAX);
 #if defined(HELI)
-      if (i_min <= MIXSRC_FIRST_HELI && i_max >= MIXSRC_FIRST_HELI)        POPUP_MENU_ADD_ITEM(STR_MENU_HELI);
+      if (modelHeliEnabled())
+        if (i_min <= MIXSRC_FIRST_HELI && i_max >= MIXSRC_FIRST_HELI && isValueAvailable && isValueAvailable(MIXSRC_FIRST_HELI))
+          POPUP_MENU_ADD_ITEM(STR_MENU_HELI);
 #endif
       if (i_min <= MIXSRC_FIRST_TRIM && i_max >= MIXSRC_FIRST_TRIM)        POPUP_MENU_ADD_ITEM(STR_MENU_TRIMS);
       if (i_min <= MIXSRC_FIRST_SWITCH && i_max >= MIXSRC_FIRST_SWITCH)    POPUP_MENU_ADD_ITEM(STR_MENU_SWITCHES);
       if (i_min <= MIXSRC_FIRST_TRAINER && i_max >= MIXSRC_FIRST_TRAINER)  POPUP_MENU_ADD_ITEM(STR_MENU_TRAINER);
       if (i_min <= MIXSRC_FIRST_CH && i_max >= MIXSRC_FIRST_CH)            POPUP_MENU_ADD_ITEM(STR_MENU_CHANNELS);
-      if (i_min <= MIXSRC_FIRST_GVAR && i_max >= MIXSRC_FIRST_GVAR && isValueAvailable(MIXSRC_FIRST_GVAR)) {
+      if (i_min <= MIXSRC_FIRST_GVAR && i_max >= MIXSRC_FIRST_GVAR && isValueAvailable && isValueAvailable(MIXSRC_FIRST_GVAR)) {
         POPUP_MENU_ADD_ITEM(STR_MENU_GVARS);
       }
 
-      if (i_min <= MIXSRC_FIRST_TELEM && i_max >= MIXSRC_FIRST_TELEM) {
+      if (modelTelemetryEnabled() && i_min <= MIXSRC_FIRST_TELEM && i_max >= MIXSRC_FIRST_TELEM) {
         for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
           TelemetrySensor * sensor = & g_model.telemetrySensors[i];
           if (sensor->isAvailable()) {
@@ -215,7 +220,40 @@ tmr10ms_t menuEntryTime;
 #define COLATTR(row)                   (MAXCOL_RAW(row) == (uint8_t)-1 ? (const uint8_t)0 : (const uint8_t)(MAXCOL_RAW(row) & NAVIGATION_LINE_BY_LINE))
 #define POS_HORZ_INIT(posVert)         ((COLATTR(posVert) & NAVIGATION_LINE_BY_LINE) ? -1 : 0)
 
-void check(event_t event, uint8_t curr, const MenuHandlerFunc * menuTab, uint8_t menuTabSize, const uint8_t * horTab, uint8_t horTabMax, vertpos_t rowcount)
+uint8_t chgMenu(uint8_t curr, const MenuHandler * menuTab, uint8_t menuTabSize, int direction)
+{
+  int cc = curr + direction;
+  while (cc != curr) {
+    if (cc < 0)
+      cc = menuTabSize - 1;
+    else if (cc >= menuTabSize)
+      cc = 0;
+    if (menuTab[cc].isEnabled())
+      return cc;
+    cc += direction;
+  }
+  return curr;
+}
+
+uint8_t menuSize(const MenuHandler * menuTab, uint8_t menuTabSize)
+{
+  uint8_t sz = 0;
+  for (int i = 0; i < menuTabSize; i += 1) {
+    if (menuTab[i].isEnabled()) {
+      sz += 1;
+    }
+  }
+  return sz;
+}
+
+uint8_t menuIdx(const MenuHandler * menuTab, uint8_t curr)
+{
+  return menuSize(menuTab, curr + 1) - 1;
+}
+
+void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
+           uint8_t menuTabSize, const uint8_t *horTab, uint8_t horTabMax,
+           vertpos_t rowcount, uint8_t flags)
 {
   vertpos_t l_posVert = menuVerticalPosition;
   horzpos_t l_posHorz = menuHorizontalPosition;
@@ -233,10 +271,7 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc * menuTab, uint8_t
         if (s_editMode>0)
           break;
 
-        if (curr > 0)
-          cc = curr - 1;
-        else
-          cc = menuTabSize-1;
+        cc = chgMenu(curr, menuTab, menuTabSize, -1);
         killEvents(event);
         break;
 
@@ -248,18 +283,15 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc * menuTab, uint8_t
         if (s_editMode>0)
           break;
 
-        if (curr < (menuTabSize-1))
-          cc = curr + 1;
-        else
-          cc = 0;
+        cc = chgMenu(curr, menuTab, menuTabSize, 1);
         break;
     }
 
     if (!menuCalibrationState && cc != curr) {
-      chainMenu(menuTab[cc]);
+      chainMenu(menuTab[cc].menuFunc);
     }
 
-    drawScreenIndex(curr, menuTabSize, 0);
+    drawScreenIndex(menuIdx(menuTab, curr), menuSize(menuTab, menuTabSize), 0);
   }
 
   switch (event) {
@@ -276,7 +308,7 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc * menuTab, uint8_t
       l_posHorz = POS_HORZ_INIT(l_posVert);
       break;
 
-    case EVT_ROTARY_BREAK:
+    case EVT_KEY_BREAK(KEY_ENTER):
       if (s_editMode > 1)
         break;
       if (menuHorizontalPosition < 0 && maxcol > 0 && READ_ONLY_UNLOCKED()) {
@@ -318,14 +350,11 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc * menuTab, uint8_t
         }
       }
       break;
-#if defined(ROTARY_ENCODER_NAVIGATION)
+
     case EVT_ROTARY_RIGHT:
+    case EVT_KEY_FIRST(KEY_MINUS):
+    case EVT_KEY_REPT(KEY_MINUS):
       AUDIO_KEY_PRESS();
-      // no break
-#else
-    case EVT_KEY_FIRST(KEY_DOWN):
-    case EVT_KEY_REPT(KEY_DOWN):
-#endif
       if (s_editMode > 0) break; // TODO it was !=
       if ((COLATTR(l_posVert) & NAVIGATION_LINE_BY_LINE)) {
         if (l_posHorz >= 0) {
@@ -360,14 +389,11 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc * menuTab, uint8_t
 
       l_posHorz = POS_HORZ_INIT(l_posVert);
       break;
-#if defined(ROTARY_ENCODER_NAVIGATION)
+
     case EVT_ROTARY_LEFT:
+    case EVT_KEY_FIRST(KEY_PLUS):
+    case EVT_KEY_REPT(KEY_PLUS):
       AUDIO_KEY_PRESS();
-      // no break
-#else
-    case EVT_KEY_FIRST(KEY_UP):
-    case EVT_KEY_REPT(KEY_UP):
-#endif
       if (s_editMode > 0) break; // TODO it was !=
       if ((COLATTR(l_posVert) & NAVIGATION_LINE_BY_LINE)) {
         if (l_posHorz >= 0) {
@@ -413,7 +439,10 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc * menuTab, uint8_t
 
   int linesCount = rowcount;
 
-  if (l_posVert == 0 || (l_posVert==1 && MAXCOL(vertpos_t(0)) >= HIDDEN_ROW) || (l_posVert==2 && MAXCOL(vertpos_t(0)) >= HIDDEN_ROW && MAXCOL(vertpos_t(1)) >= HIDDEN_ROW)) {
+  if (l_posVert == 0 ||
+      (l_posVert == 1 && MAXCOL(vertpos_t(0)) >= HIDDEN_ROW) ||
+      (l_posVert == 2 && MAXCOL(vertpos_t(0)) >= HIDDEN_ROW &&
+       MAXCOL(vertpos_t(1)) >= HIDDEN_ROW)) {
     menuVerticalOffset = 0;
     if (horTab) {
       linesCount = 0;
@@ -423,8 +452,7 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc * menuTab, uint8_t
         }
       }
     }
-  }
-  else if (horTab) {
+  } else if (horTab) {
     if (rowcount > NUM_BODY_LINES) {
       while (1) {
         vertpos_t firstLine = 0;
@@ -458,8 +486,7 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc * menuTab, uint8_t
         }
       }
     }
-  }
-  else {
+  } else {
     if (l_posVert>=NUM_BODY_LINES+menuVerticalOffset) {
       menuVerticalOffset = l_posVert-NUM_BODY_LINES+1;
     }

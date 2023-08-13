@@ -52,9 +52,10 @@ SECTIONS
 
     KEEP(*(.bootloader)) /* Bootloader code */
       
-    . = 32768;           /* Set the start of the main program */
+    . = 0x8000;          /* Set the start of the main program */
     _stext = .;          /* Provide the name for the start of this section */
-	 . = ALIGN(4);
+
+    . = ALIGN(4);
     KEEP(*(.isr_vector)) /* Startup code */
     KEEP(*(.fwversiondata))
     *(.text)           /* .text sections (code) */
@@ -63,7 +64,8 @@ SECTIONS
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     *(.glue_7)         /* glue arm to thumb code */
     *(.glue_7t)        /* glue thumb to arm code */
-	*(.eh_frame)
+    *(.eh_frame)
+    *(.data.__global_locale)
 
     KEEP (*(.init))
     KEEP (*(.fini))
@@ -105,7 +107,7 @@ SECTIONS
   _sidata = .;
 
   /* Initialized data sections goes into RAM, load LMA copy after code */
-  .data : AT ( _sidata )
+  .data :
   {
     . = ALIGN(4);
     _sdata = .;        /* create a global symbol at data start */
@@ -114,7 +116,7 @@ SECTIONS
 
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
-  } >RAM
+  } >RAM AT> FLASH
 
   /* Uninitialized data section */
   . = ALIGN(4);

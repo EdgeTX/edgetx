@@ -140,7 +140,8 @@ bool LabelsStorageFormat::loadBin(RadioData & radioData)
 
   // Add a Favorites label
   if(getCurrentFirmware()->getCapability(HasModelLabels)) {
-   radioData.labels.append(tr("Favorites"));
+   RadioData::LabelData ld = { tr("Favorites"), false };
+   radioData.labels.append(ld);
   }
   return true;
 }
@@ -218,15 +219,19 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
   //        - Update possible labels with all found in models too
 
   QByteArray labelslistBuffer;
+  int sortOrder = 0;
   if (loadFile(labelslistBuffer, "MODELS/labels.yml")) {
     try {
-      if (!loadLabelsListFromYaml(radioData.labels, modelFiles, labelslistBuffer)) {
+      if (!loadLabelsListFromYaml(radioData.labels, sortOrder, modelFiles, labelslistBuffer)) {
         setError(tr("Can't load MODELS/labels.yml"));
       }
     } catch(const std::runtime_error& e) {
       setError(tr("Can't load MODELS/labels.yml") + ":\n" + QString(e.what()));
     }
   }
+
+  // Save Sort Order
+  radioData.sortOrder = sortOrder;
 
   // Scan for all models
   std::list<std::string> filelist;
@@ -241,7 +246,7 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
       if (match.size() == 3) {
         std::ssub_match modelFile = match[1];
         std::ssub_match modelIdx = match[2];
-           modelFiles.push_back({ modelFile.str(), "", std::stoi(modelIdx.str()) });
+        modelFiles.push_back({ modelFile.str(), "", std::stoi(modelIdx.str()) });
       }
     }
   }
@@ -249,9 +254,25 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
   int modelIdx = 0;
   bool hasLabels = getCurrentFirmware()->getCapability(HasModelLabels);
 
-  radioData.models.resize(modelFiles.size());
+  if (hasLabels)
+    radioData.models.resize(modelFiles.size());
+
   for (const auto& mc : modelFiles) {
     qDebug() << "Filename: " << mc.filename.c_str();
+
+    if (!hasLabels) {
+      if (mc.modelIdx >= 0 && mc.modelIdx < (int)radioData.models.size()) {
+        modelIdx = mc.modelIdx;
+        if (!radioData.models[modelIdx].isEmpty()) {
+          qDebug() << QString("Warning: file %1 skipped as slot %2 already used").arg(mc.filename.c_str()).arg(mc.modelIdx + 1);
+          continue;
+        }
+      }
+      else {
+        qDebug() << QString("Warning: file %1 skipped as slot %2 not available").arg(mc.filename.c_str()).arg(mc.modelIdx + 1);
+        continue;
+      }
+    }
 
     QByteArray modelBuffer;
     QString filename = "MODELS/" + QString::fromStdString(mc.filename);
@@ -280,7 +301,7 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
 
     if (hasLabels && !strncmp(radioData.generalSettings.currModelFilename,
                                   model.filename, sizeof(model.filename))) {
-      radioData.generalSettings.currModelIndex = modelIdx;      
+      radioData.generalSettings.currModelIndex = modelIdx;
     }
 
     model.used = true;
@@ -292,8 +313,10 @@ bool LabelsStorageFormat::loadYaml(RadioData & radioData)
     radioData.addLabelsFromModels();
 
     // If no labels, add a Favorites
-    if(!radioData.labels.size())
-      radioData.labels.append(tr("Favorites"));
+    if(!radioData.labels.size()) {
+      RadioData::LabelData ld = { tr("Favorites"), false };
+      radioData.labels.append(ld);
+    }
   }
 
   return true;
@@ -312,25 +335,22 @@ bool LabelsStorageFormat::writeYaml(const RadioData & radioData)
 
   bool hasLabels = getCurrentFirmware()->getCapability(HasModelLabels);
 
-  //  B&W radios do not use the models.yml file and scan the MODELS folder for modelxx.yml files
-  //  models have been deleted or reordered in Companion so delete all old modelxx.yml and just in case models.yml files
-  //  from radio MODELS folder before writing new modelxx.yml files
-  if (!hasLabels) {
-    // fetch "MODELS/modelXX.yml"
-    std::list<std::string> filelist;
-    if (!getFileList(filelist)) {
-      setError(tr("Cannot list files"));
-      return false;
-    }
+  // fetch "MODELS/modelXX.yml"
+  std::list<std::string> filelist;
+  if (!getFileList(filelist)) {
+    setError(tr("Cannot list files"));
+    return false;
+  }
 
-    const std::regex yml_regex("MODELS/(model([0-9s]+)\\.yml)");
-    for(const auto& f : filelist) {
-      std::smatch match;
-      if (std::regex_match(f, match, yml_regex)) {
-        if (match.size() == 3) {
-          if (!deleteFile(QString(f.c_str()))) {
-            return false;
-          }
+  // Delete all old modelxx.yml from radio MODELS folder before writing new modelxx.yml files
+  const std::regex yml_regex("MODELS/(model([0-9s]+)\\.yml)");
+  for(const auto& f : filelist) {
+    std::smatch match;
+    if (std::regex_match(f, match, yml_regex)) {
+      if (match.size() == 3) {
+        if (!deleteFile(QString(f.c_str()))) {
+          setError(tr("Error deleting files"));
+          return false;
         }
       }
     }

@@ -27,17 +27,17 @@ struct CurveRef;
 
 class GVarNumberEdit;
 class Choice;
-class ChoiceEx;
 
 class CurveParam : public Window
 {
   // Curve
   CurveRef* ref;
+  std::function<void(int32_t)> setRefValue;
 
   // Controls
   GVarNumberEdit* value_edit;
   Choice* func_choice;
-  ChoiceEx* cust_choice;
+  Choice* cust_choice;
 
   Window* act_field = nullptr;
 
@@ -46,5 +46,6 @@ class CurveParam : public Window
   static void LongPressHandler(void* data);
 
  public:
-  CurveParam(Window* parent, const rect_t& rect, CurveRef* ref);
+  CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
+             std::function<void(int32_t)> setRefValue);
 };

@@ -78,7 +78,7 @@ constexpr coord_t MODEL_SELECT_CELL_WIDTH =
 class ToolbarButton : public Button
 {
  public:
-  ToolbarButton(FormGroup *parent, const rect_t &rect, const uint8_t *bitmap,
+  ToolbarButton(FormWindow *parent, const rect_t &rect, const uint8_t *bitmap,
                 std::function<uint8_t()> pressHandler = nullptr) :
       Button(parent, rect, pressHandler, 0), _bitmap(bitmap)
   {
@@ -176,6 +176,8 @@ class ButtonHolder : public FormWindow
         _buttons[1].sortState = 0;
         _buttons[1].button->setBitmap(_buttons[1].states[1]);
         break;
+      default:
+        break;
     }
   }
 
@@ -238,9 +240,11 @@ class ButtonHolder : public FormWindow
 class ModelButton : public Button
 {
  public:
-  ModelButton(FormGroup *parent, const rect_t &rect, ModelCell *modelCell) :
+  ModelButton(FormWindow *parent, const rect_t &rect, ModelCell *modelCell, std::function<void()> setSelected) :
       Button(parent, rect), modelCell(modelCell)
   {
+    m_setSelected = std::move(setSelected);
+
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
     setWidth(MODEL_SELECT_CELL_WIDTH);
     setHeight(MODEL_SELECT_CELL_HEIGHT);
@@ -298,39 +302,38 @@ class ModelButton : public Button
 
     if (modelCell == modelslist.getCurrentModel()) {
       dc->drawSolidFilledRect(0, 0, width(), 20, COLOR_THEME_ACTIVE);
-      dc->drawSizedText(width() / 2, 2, modelCell->modelName, LEN_MODEL_NAME,
-                        COLOR_THEME_SECONDARY1 | CENTERED);
     } else {
-      LcdFlags textColor;
       dc->drawFilledRect(0, 0, width(), 20, SOLID, COLOR_THEME_PRIMARY2);
-
-      textColor = COLOR_THEME_SECONDARY1;
-
-      dc->drawSizedText(width() / 2, 2, modelCell->modelName, LEN_MODEL_NAME,
-                        textColor | CENTERED);
     }
+    dc->drawSizedText(width() / 2, 2, modelCell->modelName, LEN_MODEL_NAME,
+                      COLOR_THEME_SECONDARY1 | CENTERED);
 
     if (!hasFocus()) {
       dc->drawSolidRect(0, 0, width(), height(), 1, COLOR_THEME_SECONDARY2);
     } else {
       dc->drawSolidRect(0, 0, width(), height(), 2, COLOR_THEME_FOCUS);
+      if (m_setSelected) m_setSelected();
     }
   }
 
   const char *modelFilename() { return modelCell->modelFilename; }
   ModelCell *getModelCell() const { return modelCell; }
 
+  void setFocused() {
+    if (!lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
+      lv_group_focus_obj(lvobj);
+    }
+  }
+
  protected:
   bool loaded = false;
   ModelCell *modelCell;
   BitmapBuffer *buffer = nullptr;
+  std::function<void()> m_setSelected = nullptr;
 
   void onClicked() override {
-    if (!lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
-      lv_group_focus_obj(lvobj);
-    } else {
-      Button::onClicked();
-    }
+    setFocused();
+    Button::onClicked();
   }
 };
 
@@ -364,65 +367,74 @@ ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
 {
   setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, MODEL_CELL_PADDING);
   padRow(MODEL_CELL_PADDING);
-  update();
 }
 
 void ModelsPageBody::selectModel(ModelCell *model)
 {
-  bool modelConnected =
-      TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm;
-  if (modelConnected) {
-    AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
-    if (!confirmationDialog(STR_MODEL_STILL_POWERED, nullptr, false, []() {
-          tmr10ms_t startTime = getTicks();
-          while (!TELEMETRY_STREAMING()) {
-            if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
-          }
-          return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
-        })) {
-      return;  // stop if connected but not confirmed
+  // Don't need to check connection to receiver if re-selecting the active model
+  if (model != modelslist.getCurrentModel()) {
+    bool modelConnected =
+        TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm;
+    if (modelConnected) {
+      AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
+      if (!confirmationDialog(STR_MODEL_STILL_POWERED, nullptr, false, []() {
+            tmr10ms_t startTime = getTicks();
+            while (!TELEMETRY_STREAMING()) {
+              if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
+            }
+            return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
+          })) {
+        return;  // stop if connected but not confirmed
+      }
     }
   }
-
-  // store changes (if any) and load selected model
-  storageFlushCurrentModel();
-  storageCheck(true);
-  memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
-         LEN_MODEL_FILENAME);
-
-  loadModel(g_eeGeneral.currModelFilename, true);
-  modelslist.setCurrentModel(model);
-
-  storageDirty(EE_GENERAL);
-  storageCheck(true);
 
   // Exit to main view
   auto w = Layer::back();
   if (w) w->onCancel();
+
+  // Skip reloading model if re-selecting the active model
+  if (model != modelslist.getCurrentModel()) {
+    // store changes (if any) and load selected model
+    storageFlushCurrentModel();
+    storageCheck(true);
+    memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
+           LEN_MODEL_FILENAME);
+
+    loadModel(g_eeGeneral.currModelFilename, true);
+    modelslist.setCurrentModel(model);
+
+    storageDirty(EE_GENERAL);
+    storageCheck(true);
+  }
 }
 
-void ModelsPageBody::duplicateModel(ModelCell* model)
+void ModelsPageBody::duplicateModel(ModelCell *model)
 {
-  storageFlushCurrentModel();
-  storageCheck(true);
+  new ConfirmDialog(
+      parent, STR_DUPLICATE_MODEL,
+      std::string(model->modelName, sizeof(model->modelName)).c_str(), [=] {
+        storageFlushCurrentModel();
+        storageCheck(true);
 
-  char duplicatedFilename[LEN_MODEL_FILENAME + 1];
-  memcpy(duplicatedFilename, model->modelFilename,
-         sizeof(duplicatedFilename));
-  if (findNextFileIndex(duplicatedFilename, LEN_MODEL_FILENAME,
-                        MODELS_PATH)) {
-    sdCopyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
-               MODELS_PATH);
-    // Make a new model which is a copy of the selected one, set the same
-    // labels
-    auto new_model = modelslist.addModel(duplicatedFilename, true, model);
-    for (const auto &lbl : modelslabels.getLabelsByModel(model)) {
-      modelslabels.addLabelToModel(lbl, new_model);
-    }
-    update();
-  } else {
-    TRACE("ModelsListError: Invalid File");
-  }
+        char duplicatedFilename[LEN_MODEL_FILENAME + 1];
+        memcpy(duplicatedFilename, model->modelFilename,
+               sizeof(duplicatedFilename));
+        if (findNextFileIndex(duplicatedFilename, LEN_MODEL_FILENAME,
+                              MODELS_PATH)) {
+          sdCopyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
+                     MODELS_PATH);
+          // Make a new model which is a copy of the selected one, set the same
+          // labels
+          auto new_model = modelslist.addModel(duplicatedFilename, true, model);
+          for (const auto &lbl : modelslabels.getLabelsByModel(model)) {
+            modelslabels.addLabelToModel(lbl, new_model);
+          }
+          update();
+        } else {
+          TRACE("ModelsListError: Invalid File");
+        }
+      });
 }
 
 void ModelsPageBody::deleteModel(ModelCell *model)
@@ -439,22 +451,29 @@ void ModelsPageBody::deleteModel(ModelCell *model)
 
 void ModelsPageBody::saveAsTemplate(ModelCell *model)
 {
-  storageDirty(EE_MODEL);
-  storageCheck(true);
-  constexpr size_t size = sizeof(model->modelName) + sizeof(YAML_EXT);
-  char modelName[size];
-  snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
-  char templatePath[FF_MAX_LFN];
-  snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/', modelName);
-  sdCheckAndCreateDirectory(TEMPLATES_PATH);
-  sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
-  if (isFileAvailable(templatePath)) {
-    new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE, [=] {
-      sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
-    });
-  } else {
-    sdCopyFile(model->modelFilename, MODELS_PATH, modelName, PERS_TEMPL_PATH);
-  }
+  new ConfirmDialog(
+      parent, STR_SAVE_TEMPLATE,
+      std::string(model->modelName, sizeof(model->modelName)).c_str(), [=] {
+        storageDirty(EE_MODEL);
+        storageCheck(true);
+        constexpr size_t size = sizeof(model->modelName) + sizeof(YAML_EXT);
+        char modelName[size];
+        snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
+        char templatePath[FF_MAX_LFN];
+        snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/',
+                 modelName);
+        sdCheckAndCreateDirectory(TEMPLATES_PATH);
+        sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
+        if (isFileAvailable(templatePath)) {
+          new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE, [=] {
+            sdCopyFile(model->modelFilename, MODELS_PATH, modelName,
+                       PERS_TEMPL_PATH);
+          });
+        } else {
+          sdCopyFile(model->modelFilename, MODELS_PATH, modelName,
+                     PERS_TEMPL_PATH);
+        }
+      });
 }
 
 void ModelsPageBody::editLabels(ModelCell* model)
@@ -489,7 +508,22 @@ void ModelsPageBody::editLabels(ModelCell* model)
   }
 }
 
-void ModelsPageBody::update(int selected)
+void ModelsPageBody::openMenu()
+{
+  Menu *menu = new Menu(this);
+  menu->setTitle(focusedModel->modelName);
+  if (g_eeGeneral.modelQuickSelect || focusedModel != modelslist.getCurrentModel()) {
+    menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(focusedModel); });
+  }
+  menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(focusedModel); });
+  menu->addLine(STR_LABEL_MODEL, [=]() { editLabels(focusedModel); });
+  menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(focusedModel);}); 
+  if (focusedModel != modelslist.getCurrentModel()) {
+    menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(focusedModel); });
+  }
+}
+
+void ModelsPageBody::update()
 {
   clear();
 
@@ -500,24 +534,54 @@ void ModelsPageBody::update(int selected)
     models = modelslabels.getAllModels();
   }
 
-  for (auto &model : models) {
-    auto button = new ModelButton(this, rect_t{}, model);
+  // Used to work out which button to set focus to.
+  // Priority -
+  //     current active model
+  //     previously selected model
+  //     first model in the list
+  ModelButton* firstButton = nullptr;
+  ModelButton* focusedButton = nullptr;
 
-    // Long Press Handler for Models
+  for (auto &model : models) {
+    auto button = new ModelButton(this, rect_t{}, model, [=]() {
+      focusedModel = model;
+    });
+
+    if (!firstButton)
+      firstButton = button;
+    if (model == modelslist.getCurrentModel())
+      focusedButton = button;
+    if (model == focusedModel && !focusedButton)
+      focusedButton = button;
+
+    // Press Handler for Models
     button->setPressHandler([=]() -> uint8_t {
-      Menu *menu = new Menu(this);
-      menu->setTitle(model->modelName);
-      if (model != modelslist.getCurrentModel()) {
-        menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(model); });
+      if (model == focusedModel) {
+        if (g_eeGeneral.modelQuickSelect)
+          selectModel(model);
+        else
+          openMenu();
+      } else {
+        focusedModel = model;
       }
-      menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(model); });
-      if (model != modelslist.getCurrentModel()) {
-        menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(model); });
-      }
-      menu->addLine(STR_EDIT_LABELS, [=]() { editLabels(model); });
-      menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(model);}); 
       return 0;
     });
+
+    // Long Press Handler for Models
+    button->setLongPressHandler([=]() -> uint8_t {
+      button->setFocused();
+      focusedModel = model;
+      openMenu();
+      return 0;
+    });
+  }
+
+  if (!focusedButton)
+    focusedButton = firstButton;
+
+  if (focusedButton) {
+    focusedButton->setFocused();
+    focusedModel = focusedButton->getModelCell();
   }
 }
 
@@ -542,7 +606,7 @@ class LabelDialog : public Dialog
 
     new TextEdit(form, rect_t{}, label, LABEL_LENGTH);
 
-    auto box = new FormGroup(form, rect_t{});
+    auto box = new FormWindow(form, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW);
 
     auto box_obj = box->getLvObj();
@@ -578,8 +642,8 @@ class LabelDialog : public Dialog
 
 ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
 {
-  buildBody(&body);
   buildHead(&header);
+  buildBody(&body);
 
   // find the first label of the current model and make that label active
   auto currentModel = modelslist.getCurrentModel();
@@ -602,19 +666,19 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
 #if defined(HARDWARE_KEYS)
 void ModelLabelsWindow::onEvent(event_t event)
 {
-#if defined(KEYS_GPIO_REG_PGUP)
-  if (event == EVT_KEY_BREAK(KEY_PGUP) ||
-      event == EVT_KEY_BREAK(KEY_PGDN)) {
+#if defined(KEYS_GPIO_REG_PAGEUP)
+  if (event == EVT_KEY_BREAK(KEY_PAGEUP) ||
+      event == EVT_KEY_BREAK(KEY_PAGEDN)) {
 #else
-  if (event == EVT_KEY_LONG(KEY_PGDN) ||
-      event == EVT_KEY_BREAK(KEY_PGDN)) {
+  if (event == EVT_KEY_LONG(KEY_PAGEDN) ||
+      event == EVT_KEY_BREAK(KEY_PAGEDN)) {
 #endif
     std::set<uint32_t> curSel = lblselector->getSelection();
     std::set<uint32_t> sellist;
     int select = 0;
     int rowcount = lblselector->getRowCount();
 
-    if (event == EVT_KEY_BREAK(KEY_PGDN)) {
+    if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
       if(curSel.size())
         select = (*curSel.rbegin() + 1) % rowcount;
     } else {
@@ -643,21 +707,45 @@ void ModelLabelsWindow::newModel()
   storageFlushCurrentModel();
   storageCheck(true);
 
-  // Create a new blank ModelCell and activate it first, createmodel() will modify
-  // the model in memory.
-  auto newCell = modelslist.addModel("", false);
-  modelslist.setCurrentModel(newCell);
+  new SelectTemplateFolder([=](std::string folder, std::string name) {
+    // Create a new blank ModelCell and activate it first, createmodel() will modify
+    // the model in memory.
+    auto newCell = modelslist.addModel("", false);
+    modelslist.setCurrentModel(newCell);
 
-  // Make the new model
-  createModel();
-
-  new SelectTemplateFolder([=]() {
-    // On complete update the current cell's data
-    modelslist.updateCurrentModelCell();
+    // Make the new model
+    createModel();
 
     // Close Window
     auto w = Layer::back();
     if (w) w->onCancel();
+
+    // Check for not 'Blank Model'
+    if (name.size() > 0)
+    {
+      static constexpr size_t LEN_BUFFER = sizeof(TEMPLATES_PATH) + 2 * TEXT_FILENAME_MAXLEN + 1;
+
+      char path[LEN_BUFFER + 1];
+      snprintf(path, LEN_BUFFER, "%s/%s", TEMPLATES_PATH, folder.c_str());
+
+      // Read model template
+      loadModelTemplate((name + YAML_EXT).c_str(), path);
+      storageFlushCurrentModel();
+      storageCheck(true);
+
+      // Update the current cell's data
+      modelslist.updateCurrentModelCell();
+
+#if defined(LUA)
+      // If there is a wizard Lua script, fire it up
+      int len = strlen(path);
+      snprintf(path+len, LEN_BUFFER-len, "/%s%s", name.c_str(), SCRIPT_EXT);
+      if (f_stat(path, 0) == FR_OK) {
+        luaExec(path);
+        StandaloneLuaWindow::instance()->attach();
+      }
+#endif
+    }
   });
 }
 
@@ -811,7 +899,10 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
                   new ProgressDialog(this, STR_RENAME_LABEL, [=]() {});
               modelslabels.renameLabel(
                   oldLabel, newLabel, [=](const char *name, int percentage) {
-                    rndialog->updateProgress(name, percentage);
+                    rndialog->setTitle(std::string(STR_RENAME_LABEL) + " " + name);
+                    rndialog->updateProgress(percentage);
+                    if (percentage >= 100)
+                      rndialog->closeDialog();
                   });
               auto labels = getLabels();
               lblselector->setNames(labels);
@@ -828,7 +919,10 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
                     new ProgressDialog(this, STR_DELETE_LABEL, [=]() {});
                 modelslabels.removeLabel(
                     labelToDelete, [=](const char *name, int percentage) {
-                      deldialog->updateProgress(name, percentage);
+                      deldialog->setTitle(std::string(STR_RENAME_LABEL) + " " + name);
+                      deldialog->updateProgress(percentage);
+                      if (percentage >= 100)
+                        deldialog->closeDialog();
                     });
                 auto labels = getLabels();
                 std::set<uint32_t> newset;
@@ -895,47 +989,10 @@ void ModelLabelsWindow::setTitle()
   auto curModel = modelslist.getCurrentModel();
   auto modelName = curModel != nullptr ? curModel->modelName : STR_NONE;
 
-  std::string titleName = STR_SELECT_MODEL;
-  titleName += "\n";
-  titleName += STR_CURRENT_MODEL;
-  titleName += ": ";
-  titleName += modelName;
+  std::string title2 = STR_ACTIVE;
+  title2 += ": ";
+  title2 += modelName;
 
-  header.setTitle(titleName);
+  header.setTitle(STR_MANAGE_MODELS);
+  header.setTitle2(title2);
 }
-
-//-----------------------------------------------------------------------------
-
-ProgressDialog::ProgressDialog(Window *parent, std::string title,
-                               std::function<void()> onClose) :
-    Dialog(parent, title, rect_t{}),
-    progress(new Progress(&content->form, rect_t{})),
-    onClose(std::move(onClose)),
-    _title(title)
-{
-  progress->setHeight(LV_DPI_DEF / 4);
-
-  content->setWidth(LCD_W * 0.8);
-  content->updateSize();
-
-  auto content_w = lv_obj_get_content_width(content->form.getLvObj());
-  progress->setWidth(content_w);
-
-  // disable canceling dialog
-  setCloseWhenClickOutside(false);
-}
-
-void ProgressDialog::updateProgress(const char *filename, int percentage)
-{
-  content->setTitle(_title + " " + filename);
-  progress->setValue(percentage);
-  if (percentage >= 100) {
-    deleteLater();
-    onClose();
-  } else {
-    lv_refr_now(nullptr);
-  }
-}
-
-// disable keys
-void ProgressDialog::onEvent(event_t) { return; }

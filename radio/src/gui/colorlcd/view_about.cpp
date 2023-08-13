@@ -24,17 +24,16 @@
 #include "opentx.h"
 #include "stamp.h"
 
-const uint8_t _mask_qrcode[] = {
+const uint8_t mask_qrcode[] = {
 #include "mask_qrcode.lbm"
 };
-STATIC_LZ4_BITMAP(mask_qrcode);
 
 #if defined(VERSION_TAG)
 const std::string about_str = "EdgeTX" " (" VERSION_TAG ")\n" "\"" CODENAME "\"" ;
 #else
 const std::string about_str = "EdgeTX" " (" VERSION "-" VERSION_SUFFIX ")";
 #endif
-const std::string copyright_str = "Copyright (C) 2022 EdgeTX";
+const std::string copyright_str = "Copyright (C) 2023 EdgeTX";
 
 AboutUs::AboutUs() :
     MessageDialog(MainWindow::instance(), STR_ABOUT_US, "", "",
@@ -63,13 +62,12 @@ AboutUs::AboutUs() :
 
   messageWidget->setText(about_str + "\n" + copyright_str);
 
-  qrcode = BitmapBuffer::load8bitMaskOnBackground(
-      mask_qrcode, COLOR_THEME_SECONDARY1, COLOR_THEME_SECONDARY3);
+  qrcode = BitmapBuffer::load8bitMaskLZ4(mask_qrcode);
   new StaticBitmap(content,
                    rect_t{content->width() / 2 - qrcode->width() / 2,
                           TOP_PADDING + (NUM_LINES * PAGE_LINE_HEIGHT),
                           qrcode->width(), qrcode->height()},
-                   qrcode);
+                   qrcode, COLOR_THEME_SECONDARY1);
 }
 
 AboutUs::~AboutUs() { delete qrcode; }

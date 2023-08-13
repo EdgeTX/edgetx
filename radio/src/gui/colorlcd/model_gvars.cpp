@@ -22,365 +22,559 @@
 #include "opentx.h"
 #include "model_gvars.h"
 #include "libopenui.h"
+#include "numberedit.h"
 
-#define SET_DIRTY()     storageDirty(EE_MODEL)
+#define SET_DIRTY() storageDirty(EE_MODEL)
 
-#define TEXT_LEFT_MARGIN 2
-#define GVAR_NAME_SIZE 45
+#define GVAR_NAME_SIZE 44
+#define GVAR_VAL_H (PAGE_LINE_HEIGHT * 2 - 6)
+#if LCD_W > LCD_H
+#define BTN_H 38
+#define GVAR_VAL_W 45
+#define GVAR_COLS MAX_FLIGHT_MODES
+#define GVAR_H GVAR_VAL_H
+#else
+#define BTN_H 72
+#define GVAR_VAL_W 50
+#define GVAR_COLS 5
+#define GVAR_H (GVAR_VAL_H * 2)
+#endif
 
-GVarButton::GVarButton(FormGroup * parent, const rect_t &rect, uint8_t gvar) :
-  Button(parent, rect),
-  gvarIdx(gvar)
+class GVarStyle
 {
-  int perRow = (width() - GVAR_NAME_SIZE + TEXT_LEFT_MARGIN * 2) / GVAR_NAME_SIZE;
-  lines = MAX_FLIGHT_MODES / perRow;
-  if (MAX_FLIGHT_MODES % perRow != 0) lines++;
-  setHeight(PAGE_LINE_HEIGHT * (lines << 1) + FIELD_PADDING_TOP * 2);
-}
+  public:
+    GVarStyle() {}
 
-void GVarButton::checkEvents()
-{
-  Button::checkEvents();
-  if (currentFlightMode != getFlightMode()) {
-    invalidate();
-  }
-  else {
-    int32_t sum = 0;
-    for (int flightMode = 0; flightMode < MAX_FLIGHT_MODES; flightMode++) {
-      FlightModeData * fmData = &g_model.flightModeData[flightMode];
-      sum += fmData->gvars[gvarIdx];
-    }
-    if (sum != gvarSum) invalidate();
-  }
-}
+    void init()
+    {
+      if (!styleInitDone)
+      {
+        styleInitDone = true;
 
-void GVarButton::paint(BitmapBuffer * dc)
-{
-  GVarData * gvar = &g_model.gvars[gvarIdx];
+        lv_style_init(&fmContStyle);
+        lv_style_set_pad_all(&fmContStyle, 0);
+        lv_style_set_width(&fmContStyle, GVAR_VAL_W);
+        lv_style_set_height(&fmContStyle, GVAR_VAL_H);
+        lv_style_set_bg_opa(&fmContStyle, LV_OPA_COVER);
 
-  // The bounding rect
-  int nameRectW = TEXT_LEFT_MARGIN + GVAR_NAME_SIZE;
-  coord_t x = TEXT_LEFT_MARGIN;
-  coord_t y = FIELD_PADDING_TOP;
-  currentFlightMode = getFlightMode();
-  gvarSum = 0;
+        lv_style_init(&fmContStyleChecked);
 
-  LcdFlags bgColor = COLOR_THEME_SECONDARY2;
-  LcdFlags textColor = COLOR_THEME_PRIMARY1;
-  if (hasFocus()) {
-    bgColor   = COLOR_THEME_FOCUS;
-    textColor = COLOR_THEME_PRIMARY2;
-  }
+        lv_style_init(&fmLabelStyle);
+        if (modelFMEnabled())
+          lv_style_set_height(&fmLabelStyle, PAGE_LINE_HEIGHT - 6);
+        lv_style_set_width(&fmLabelStyle, GVAR_VAL_W);
+        lv_style_set_text_font(&fmLabelStyle, getFont(FONT(XS)));
+        lv_style_set_text_align(&fmLabelStyle, LV_TEXT_ALIGN_CENTER);
 
-  dc->drawSolidFilledRect(0, 0, nameRectW, rect.h, bgColor);
-  dc->drawSolidFilledRect(nameRectW, 0, rect.w - nameRectW, rect.h, COLOR_THEME_PRIMARY2);
+        lv_style_init(&fmValueStyle);
+        lv_style_set_height(&fmValueStyle, PAGE_LINE_HEIGHT);
+        lv_style_set_width(&fmValueStyle, GVAR_VAL_W);
+        lv_style_set_text_font(&fmValueStyle, getFont(FONT(STD)));
+        lv_style_set_text_align(&fmValueStyle, LV_TEXT_ALIGN_CENTER);
 
-  dc->drawText(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, getGVarString(gvarIdx), textColor);
-  dc->drawSizedText(x, y, gvar->name, LEN_GVAR_NAME, textColor);
+        lv_style_init(&fmValueStyleSmall);
+        lv_style_set_text_font(&fmValueStyleSmall, getFont(FONT(XS)));
+        lv_style_set_pad_top(&fmValueStyleSmall, 3);
 
-  // values are right aligned
-  x += GVAR_NAME_SIZE;
-  bool bgFilled = false;
+        lv_style_init(&fmNameStyle);
+        lv_style_set_width(&fmNameStyle, modelFMEnabled() ? GVAR_NAME_SIZE : GVAR_NAME_SIZE * 2);
+        lv_style_set_text_font(&fmNameStyle, getFont(FONT(STD)));
+        lv_style_set_text_align(&fmNameStyle, LV_TEXT_ALIGN_LEFT);
+        lv_style_set_pad_left(&fmNameStyle, 2);
+      }
 
-  coord_t startX = x;
-  for (int flightMode = 0; flightMode < MAX_FLIGHT_MODES; flightMode++) {
-    FlightModeData * fmData = &g_model.flightModeData[flightMode];
-    gvar_t v = fmData->gvars[gvarIdx];
-    gvarSum += v;
-
-    LcdFlags attr = COLOR_THEME_PRIMARY1 | RIGHT;
-    if (flightMode == currentFlightMode)
-      attr |= FONT(BOLD);
-
-    x += GVAR_NAME_SIZE;
-    if (x > width()) {
-      bgFilled = false;
-      x = nameRectW + GVAR_NAME_SIZE;
-      y += PAGE_LINE_HEIGHT * 2;
-      startX = nameRectW;
+      // Always update colors in case theme changes
+      lv_style_set_bg_color(&fmContStyle, makeLvColor(COLOR_THEME_PRIMARY2));
+      lv_style_set_bg_color(&fmContStyleChecked, makeLvColor(COLOR_THEME_ACTIVE));
+      lv_style_set_text_color(&fmLabelStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+      lv_style_set_text_color(&fmValueStyle, makeLvColor(COLOR_THEME_SECONDARY1));
+      lv_style_set_text_color(&fmNameStyle, makeLvColor(COLOR_THEME_SECONDARY1));
     }
 
-    if (!bgFilled) {
-      dc->drawSolidFilledRect(startX, y, width() - startX, PAGE_LINE_HEIGHT,
-                              COLOR_THEME_SECONDARY2);
-      bgFilled = true;
+    lv_obj_t* newName(lv_obj_t* parent, const char* name)
+    {
+      auto obj = lv_label_create(parent);
+      lv_obj_add_style(obj, &fmNameStyle, LV_PART_MAIN);
+      lv_label_set_text(obj, name);
+
+      return obj;
     }
 
-    // Flight mode
-    drawFlightMode(dc, x, y, flightMode, attr);
+    lv_obj_t* newGroup(lv_obj_t* parent)
+    {
+      auto obj = lv_obj_create(parent);
+      lv_obj_set_width(obj, GVAR_VAL_W * GVAR_COLS);
+      lv_obj_set_height(obj, GVAR_H);
+      lv_obj_set_style_pad_all(obj, 0, LV_PART_MAIN);
+      lv_obj_add_flag(obj, LV_OBJ_FLAG_EVENT_BUBBLE);
 
-    coord_t yval = y + PAGE_LINE_HEIGHT;
-    if (v <= GVAR_MAX && (gvar->prec > 0 || abs(v) >= 1000 || (abs(v) >= 100 && gvar->unit > 0))) {
-      attr |= FONT(XS);
-      attr &= ~FONT(BOLD);
-      yval += 3;
+      return obj;
     }
 
-    if (v > GVAR_MAX) {
-      uint8_t fm = v - GVAR_MAX - 1;
-      if (fm >= flightMode)
-        fm++;
-      drawFlightMode(dc, x, yval, fm, attr);
+    lv_obj_t* newFMCont(lv_obj_t* parent, uint8_t flightMode)
+    {
+      auto obj = lv_obj_create(parent);
+      lv_obj_add_style(obj, &fmContStyle, LV_PART_MAIN);
+      lv_obj_add_style(obj, &fmContStyleChecked, LV_PART_MAIN|LV_STATE_CHECKED);
+      lv_obj_set_pos(obj, (flightMode%GVAR_COLS)*GVAR_VAL_W, (flightMode/GVAR_COLS)*GVAR_VAL_H);
+      lv_obj_add_flag(obj, LV_OBJ_FLAG_EVENT_BUBBLE);
+
+      return obj;
     }
-    else {
-      drawGVarValue(dc, x, yval, gvarIdx, v, attr);
+
+    lv_obj_t* newLabel(lv_obj_t* parent, const char* label)
+    {
+      auto obj = lv_label_create(parent);
+      lv_obj_add_style(obj, &fmLabelStyle, LV_PART_MAIN);
+      lv_obj_set_pos(obj, 0, 0);
+      lv_label_set_text(obj, label);
+
+      return obj;
+    }
+
+    lv_obj_t* newValue(lv_obj_t* parent)
+    {
+      auto obj = lv_label_create(parent);
+      lv_obj_add_style(obj, &fmValueStyle, LV_PART_MAIN);
+      lv_obj_add_style(obj, &fmValueStyleSmall, LV_PART_MAIN|LV_STATE_USER_1);
+      lv_obj_set_pos(obj, 0, PAGE_LINE_HEIGHT - 6);
+
+      return obj;
+    }
+
+  private:
+    lv_style_t fmNameStyle;
+    lv_style_t fmContStyle;
+    lv_style_t fmContStyleChecked;
+    lv_style_t fmLabelStyle;
+    lv_style_t fmValueStyle;
+    lv_style_t fmValueStyleSmall;
+    bool styleInitDone;
+};
+
+static GVarStyle gvarStyle;
+
+class GVarButton : public Button
+{
+ public:
+  GVarButton(Window* parent, const rect_t& rect, uint8_t gvar) :
+      Button(parent, rect, nullptr, 0, 0, input_mix_line_create), gvarIdx(gvar)
+  {
+    setHeight(BTN_H);
+    lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
+    lv_obj_set_style_pad_all(lvobj, 0, LV_PART_MAIN);
+    lv_obj_set_flex_align(lvobj, modelFMEnabled() ? LV_FLEX_ALIGN_CENTER : LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+    if (!modelFMEnabled())
+      padLeft(8);
+
+    lv_obj_add_event_cb(lvobj, GVarButton::on_draw,
+                        LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+  }
+
+  static void on_draw(lv_event_t* e)
+  {
+    lv_obj_t* target = lv_event_get_target(e);
+    auto line = (GVarButton*)lv_obj_get_user_data(target);
+    if (line)
+      line->build();
+
+    if (e) {
+      auto param = lv_event_get_param(e);
+      lv_event_send(line->getLvObj(), LV_EVENT_DRAW_MAIN, param);
+    }
+  }
+
+ protected:
+  bool init = false;
+  uint8_t gvarIdx;
+  uint8_t currentFlightMode = 0;  // used for invalidation
+  lv_obj_t* fmCont[MAX_FLIGHT_MODES];
+  lv_obj_t* valueTexts[MAX_FLIGHT_MODES];
+  gvar_t values[MAX_FLIGHT_MODES];
+
+  int numFlightModes() { return modelFMEnabled() ? MAX_FLIGHT_MODES : 1; }
+
+  void checkEvents()
+  {
+    Button::checkEvents();
+    if (init) {
+      if (modelFMEnabled()) {
+        uint8_t newFM = getFlightMode();
+        if (currentFlightMode != newFM) {
+          lv_obj_add_state(fmCont[newFM], LV_STATE_CHECKED);
+          lv_obj_clear_state(fmCont[currentFlightMode], LV_STATE_CHECKED);
+
+          currentFlightMode = newFM;
+        }
+      }
+
+      for (int flightMode = 0; flightMode < numFlightModes(); flightMode++) {
+        FlightModeData* fmData = &g_model.flightModeData[flightMode];
+        if (values[flightMode] != fmData->gvars[gvarIdx]) {
+          updateValueText(flightMode);
+        }
+      }
     }
   }
 
-  if (hasFocus())
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
-  else
-    dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_SECONDARY2);
-}
+  void build()
+  {
+    if (init) return;
 
-void GVarButton::drawFlightMode(BitmapBuffer * dc, coord_t x, coord_t y, int fm, LcdFlags attr)
-{
-  char label[16];
-  getFlightModeString(label, fm + 1);
-  dc->drawSizedText(x, y, label, strlen(label), attr);
-}
+    currentFlightMode = getFlightMode();
 
-void GVarRenderer::paint(BitmapBuffer * dc)
-{
-  lastFlightMode = getFlightMode();
-  FlightModeData * fmData = &g_model.flightModeData[lastFlightMode];
-  lastGVar = fmData->gvars[index];
-  coord_t x = drawStringWithIndex(dc, 0, FIELD_PADDING_TOP, STR_GV, index + 1,
-                                  COLOR_THEME_PRIMARY2, nullptr, "=");
-  if (lastGVar > GVAR_MAX) {
-    uint8_t fm = lastGVar - GVAR_MAX - 1;
-    if (fm >= lastFlightMode)
-      fm++;
-    char label[16];
-    getFlightModeString(label, fm + 1);
-    dc->drawSizedText(x, FIELD_PADDING_TOP, label, strlen(label), COLOR_THEME_PRIMARY2);
-  } else {
-    drawGVarValue(dc, x, FIELD_PADDING_TOP, index, lastGVar, COLOR_THEME_PRIMARY2);
+    lv_obj_enable_style_refresh(false);
+
+    gvarStyle.newName(lvobj, getGVarString(gvarIdx));
+
+    if (modelFMEnabled()) {
+      auto container = gvarStyle.newGroup(lvobj);
+
+      for (int flightMode = 0; flightMode < MAX_FLIGHT_MODES; flightMode++) {
+        fmCont[flightMode] = gvarStyle.newFMCont(container, flightMode);
+        lv_obj_set_user_data(fmCont[flightMode], this);
+        if (flightMode == currentFlightMode) {
+          lv_obj_add_state(fmCont[flightMode], LV_STATE_CHECKED);
+        }
+
+        char label[16] = {};
+        getFlightModeString(label, flightMode + 1);
+        gvarStyle.newLabel(fmCont[flightMode], label);
+
+        valueTexts[flightMode] = gvarStyle.newValue(fmCont[flightMode]);
+
+        updateValueText(flightMode);
+      }
+    } else {
+      valueTexts[0] = lv_label_create(lvobj);
+
+      updateValueText(0);
+    }
+
+    lv_obj_enable_style_refresh(true);
+
+    lv_obj_update_layout(lvobj);
+
+    init = true;
   }
-}
 
-void GVarRenderer::checkEvents()
-{
-  if (lastFlightMode != getFlightMode()) {
-    invalidate();
-    updated = true;
-  }
-  if (lastGVar != g_model.flightModeData[getFlightMode()].gvars[index]) {
-    invalidate();
-    updated = true;
-  }
-}
+  void updateValueText(uint8_t flightMode)
+  {
+    lv_obj_t* field = valueTexts[flightMode];
+    gvar_t value = g_model.flightModeData[flightMode].gvars[gvarIdx];
+    values[flightMode] = value;
 
-bool GVarRenderer::isUpdated()
-{
-  if (!updated)
-    return false;
-  updated = false;
-  return true;
-}
+    if (value > GVAR_MAX) {
+      uint8_t fm = value - GVAR_MAX - 1;
+      if (fm >= flightMode) fm += 1;
+      char label[16] = {};
+      getFlightModeString(label, fm + 1);
 
-void GVarEditWindow::buildHeader(Window * window)
-{
-  new StaticText(window,
-                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                  PAGE_LINE_HEIGHT},
-                 STR_GLOBAL_VAR, 0, COLOR_THEME_PRIMARY2);
-  gVarInHeader =
-      new GVarRenderer(window,
-                       {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-                        LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                       index);
-}
-
-void GVarEditWindow::checkEvents()
-{
-  Page::checkEvents();
-  if (gVarInHeader && gVarInHeader->isUpdated()) {
-    for (auto & value : values) {
-      value->invalidate();
+      lv_label_set_text(field, label);
+    } else {
+      uint8_t unit = g_model.gvars[gvarIdx].unit;
+      const char* suffix = (unit == 1) ? "%" : "";
+      uint8_t prec = g_model.gvars[gvarIdx].prec;
+      if (prec)
+        lv_label_set_text_fmt(field, "%d.%01u%s", value / 10,
+                              (value < 0) ? (-value) % 10 : value % 10, suffix);
+      else
+        lv_label_set_text_fmt(field, "%d%s", value, suffix);
+      if (unit) {
+        if (value <= -1000 || value >= 1000 || (prec && (value <= -100))) {
+          lv_obj_add_state(field, LV_STATE_USER_1);
+        } else {
+          lv_obj_clear_state(field, LV_STATE_USER_1);
+        }
+      }
     }
   }
-}
+};
 
-void GVarEditWindow::setProperties(int onlyForFlightMode)
+class GVarEditWindow : public Page
 {
-  GVarData * gvar = &g_model.gvars[index];
-  int32_t minValue = GVAR_MIN + gvar->min;
-  int32_t maxValue = GVAR_MAX - gvar->max;
-  const char * suffix = gvar->unit ? "%" : "";
-
-  // TODO needed? LcdFlags prec = gvar->prec ? PREC1 : 0;
-  if (min && max) {
-    min->setMax(maxValue);
-    max->setMin(minValue);
-
-    min->setSuffix(suffix);
-    max->setSuffix(suffix);
-
-    // TODO min->setLcdFlags(prec);
-    // TODO max->setLcdFlags(prec);
-
-    min->invalidate();
-    max->invalidate();
+ public:
+  explicit GVarEditWindow(uint8_t gvarIndex) :
+      Page(ICON_MODEL_GVARS), index(gvarIndex)
+  {
+    buildHeader(&header);
+    buildBody(&body);
   }
-  FlightModeData * fmData;
-  for (int fm = 0; fm < MAX_FLIGHT_MODES; fm++) {
-    if (values[fm] == nullptr)  // KLK: the order of calls has changed and this might not be initialized yet.
-      continue;
 
-    if (onlyForFlightMode >= 0 && fm != onlyForFlightMode)
-      continue;
-    fmData = &g_model.flightModeData[fm];
+ protected:
+  uint8_t index;
+  gvar_t lastGVar = 0;
+  bool refreshTitle = true;
+  uint8_t lastFlightMode = 255; // Force initial setting of header title
+  NumberEdit* min = nullptr;
+  NumberEdit* max = nullptr;
+  NumberEdit* values[MAX_FLIGHT_MODES] = {};
+  StaticText* gVarInHeader = nullptr;
 
-    // custom value
-    if (fmData->gvars[index] <= GVAR_MAX || fm == 0) {
-      values[fm]->setMin(GVAR_MIN + gvar->min);
-      values[fm]->setMax(GVAR_MAX - gvar->max);
-      values[fm]->setDisplayHandler(nullptr);
+  int numFlightModes() { return modelFMEnabled() ? MAX_FLIGHT_MODES : 1; }
+
+  void buildHeader(Window* window)
+  {
+    header.setTitle(STR_MENU_GLOBAL_VARS);
+    gVarInHeader = header.setTitle2("");
+  }
+
+  void checkEvents()
+  {
+    Page::checkEvents();
+
+    auto curFM = getFlightMode();
+    auto fmData = &g_model.flightModeData[curFM];
+
+    if (gVarInHeader &&
+        ((lastFlightMode != curFM) ||
+         (lastGVar != fmData->gvars[index]) ||
+         refreshTitle)) {
+      char label[32];
+      refreshTitle = false;
+      lastFlightMode = curFM;
+      lastGVar = fmData->gvars[index];
+      sprintf(label, "%s%d=", STR_GV, index + 1);
+      if (lastGVar > GVAR_MAX) {
+        uint8_t fm = lastGVar - GVAR_MAX - 1;
+        if (fm >= curFM) fm++;
+        getFlightModeString(label + strlen(label), fm + 1);
+      } else {
+        strcat(label, getGVarValue(index, lastGVar, 0).c_str());
+      }
+      gVarInHeader->setText(label);
+      if (modelFMEnabled()) {
+        for (auto& value : values) {
+          value->invalidate();
+        }
+      } else {
+        values[0]->invalidate();
+      }
     }
-    else {
-      values[fm]->setMin(GVAR_MAX + 1);
-      values[fm]->setMax(GVAR_MAX + MAX_FLIGHT_MODES - 1);
-      values[fm]->setDisplayHandler([=](int32_t value) {
+  }
+
+  void setProperties(int onlyForFlightMode = -1)
+  {
+    GVarData* gvar = &g_model.gvars[index];
+    int32_t minValue = GVAR_MIN + gvar->min;
+    int32_t maxValue = GVAR_MAX - gvar->max;
+    const char* suffix = gvar->unit ? "%" : "";
+
+    if (min && max) {
+      min->setMax(maxValue);
+      max->setMin(minValue);
+
+      min->setSuffix(suffix);
+      max->setSuffix(suffix);
+
+      LcdFlags minFlags = min->getTextFlags();
+      LcdFlags maxFlags = max->getTextFlags();
+      if (gvar->prec) {
+        minFlags |= PREC1;
+        maxFlags |= PREC1;
+      } else {
+        minFlags &= ~PREC1;
+        maxFlags &= ~PREC1;
+      }
+      min->setTextFlags(minFlags);
+      max->setTextFlags(maxFlags);
+
+      min->update();
+      max->update();
+    }
+    FlightModeData* fmData;
+    for (int fm = 0; fm < numFlightModes(); fm++) {
+      if (values[fm] == nullptr)  // KLK: the order of calls has changed and
+                                  // this might not be initialized yet.
+        continue;
+
+      if (onlyForFlightMode >= 0 && fm != onlyForFlightMode) continue;
+      fmData = &g_model.flightModeData[fm];
+
+      // custom value
+      if (fmData->gvars[index] <= GVAR_MAX || fm == 0) {
+        values[fm]->setMin(GVAR_MIN + gvar->min);
+        values[fm]->setMax(GVAR_MAX - gvar->max);
+        // Update value if outside min/max range
+        values[fm]->setValue(values[fm]->getValue());
+
+        LcdFlags flags = values[fm]->getTextFlags();
+        if (gvar->prec)
+          flags |= PREC1;
+        else
+          flags &= ~PREC1;
+        values[fm]->setTextFlags(flags);
+
+        values[fm]->setDisplayHandler(nullptr);
+      } else {
+        values[fm]->setMin(GVAR_MAX + 1);
+        values[fm]->setMax(GVAR_MAX + MAX_FLIGHT_MODES - 1);
+        values[fm]->setDisplayHandler([=](int32_t value) {
           uint8_t targetFlightMode = value - GVAR_MAX - 1;
-          if (targetFlightMode >= fm)
-            targetFlightMode++;
+          if (targetFlightMode >= fm) targetFlightMode++;
           char label[16];
           getFlightModeString(label, targetFlightMode + 1);
           return std::string(label);
-      });
+        });
+      }
+
+      values[fm]->setSuffix(suffix);
+      values[fm]->invalidate();
     }
-
-    values[fm]->setSuffix(suffix);
-    // TODO values[fm]->setLcdFlags(prec);
-    values[fm]->invalidate();
   }
-  if (gVarInHeader) gVarInHeader->invalidate();
-}
 
-void GVarEditWindow::buildBody(FormWindow * window)
-{
-  GVarData * gvar = &g_model.gvars[index];
+  void buildBody(FormWindow* window)
+  {
+    static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                         LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
+    static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
+                                         LV_GRID_TEMPLATE_LAST};
 
-  FormGridLayout grid;
-  grid.spacer(8);
+    window->setFlexLayout();
+    window->padAll(4);
+    FlexGridLayout grid(col_dsc, row_dsc, 2);
+    auto line = window->newLine(&grid);
 
-  new StaticText(window, grid.getLabelSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
-  new ModelTextEdit(window, grid.getFieldSlot(), gvar->name, LEN_GVAR_NAME);
+    GVarData* gvar = &g_model.gvars[index];
 
-  grid.nextLine();
+    new StaticText(line, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
+    grid.nextCell();
+    new ModelTextEdit(line, rect_t{}, gvar->name, LEN_GVAR_NAME);
 
-  new StaticText(window, grid.getLabelSlot(), STR_UNIT, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(), "\001-%", 0, 1, GET_DEFAULT(gvar->unit),
-             [=](int16_t newValue) {
+    line = window->newLine(&grid);
+
+    new StaticText(line, rect_t{}, STR_UNIT, 0, COLOR_THEME_PRIMARY1);
+    grid.nextCell();
+    new Choice(line, rect_t{}, "\001-%", 0, 1, GET_DEFAULT(gvar->unit),
+               [=](int16_t newValue) {
+                 refreshTitle = (gvar->unit != newValue);
                  gvar->unit = newValue;
                  SET_DIRTY();
                  setProperties();
-             }
-  );
+               });
 
-  grid.nextLine();
+    line = window->newLine(&grid);
 
-  new StaticText(window, grid.getLabelSlot(), STR_PRECISION, 0, COLOR_THEME_PRIMARY1);
-  new Choice(window, grid.getFieldSlot(), STR_VPREC, 0, 1, GET_DEFAULT(gvar->prec),
-             [=](int16_t newValue) {
+    new StaticText(line, rect_t{}, STR_PRECISION, 0, COLOR_THEME_PRIMARY1);
+    grid.nextCell();
+    new Choice(line, rect_t{}, STR_VPREC, 0, 1, GET_DEFAULT(gvar->prec),
+               [=](int16_t newValue) {
+                 refreshTitle = (gvar->prec != newValue);
                  gvar->prec = newValue;
                  SET_DIRTY();
                  setProperties();
-             }
-  );
+               });
 
-  grid.nextLine();
+    line = window->newLine(&grid);
 
-  new StaticText(window, grid.getLabelSlot(), STR_MIN, 0, COLOR_THEME_PRIMARY1);
-  min = new NumberEdit(window, grid.getFieldSlot(), GVAR_MIN, GVAR_MAX - gvar->max,
-                       [=] { return gvar->min + GVAR_MIN; },
-                       [=](int32_t newValue) {
-                           gvar->min = newValue - GVAR_MIN;
-                           SET_DIRTY();
-                           setProperties();
-                       }
-  );
-  min->setAccelFactor(16);
-  grid.nextLine();
-
-  new StaticText(window, grid.getLabelSlot(), STR_MAX, 0, COLOR_THEME_PRIMARY1);
-  max = new NumberEdit(window, grid.getFieldSlot(), GVAR_MIN + gvar->min, GVAR_MAX,
-                       [=] { return GVAR_MAX - gvar->max; },
-                       [=](int32_t newValue) {
-                           gvar->max = GVAR_MAX - newValue;
-                           SET_DIRTY();
-                           setProperties();
-                       }
-  );
-  max->setAccelFactor(16);
-  grid.nextLine();
-  char flightModeName[16];
-  FlightModeData * fmData;
-
-  for (int flightMode = 0; flightMode < MAX_FLIGHT_MODES; flightMode++) {
-    fmData = &g_model.flightModeData[flightMode];
-    getFlightModeString(flightModeName, flightMode + 1);
-
-    int userNameLen = zlen(fmData->name, LEN_FLIGHT_MODE_NAME);
-
-    if (userNameLen > 0) {
-      strcpy(flightModeName, fmData->name);
-    }
-    new StaticText(window, grid.getLabelSlot(), flightModeName, 0, COLOR_THEME_PRIMARY1);
-    if (flightMode > 0) {
-      auto cb = new CheckBox(window, grid.getFieldSlot(2, 0),
-                             [=] { return fmData->gvars[index] <= GVAR_MAX; }, [=](uint8_t checked) {
-            fmData->gvars[index] = checked ? 0 : GVAR_MAX + 1;
-            setProperties(flightMode);
+    new StaticText(line, rect_t{}, STR_MIN, 0, COLOR_THEME_PRIMARY1);
+    grid.nextCell();
+    min = new NumberEdit(
+        line, rect_t{}, GVAR_MIN, GVAR_MAX - gvar->max,
+        [=] { return gvar->min + GVAR_MIN; },
+        [=](int32_t newValue) {
+          gvar->min = newValue - GVAR_MIN;
+          SET_DIRTY();
+          setProperties();
         });
-      cb->setLabel(STR_OWN);
+    min->setAccelFactor(16);
+
+    line = window->newLine(&grid);
+
+    new StaticText(line, rect_t{}, STR_MAX, 0, COLOR_THEME_PRIMARY1);
+    grid.nextCell();
+    max = new NumberEdit(
+        line, rect_t{}, GVAR_MIN + gvar->min, GVAR_MAX,
+        [=] { return GVAR_MAX - gvar->max; },
+        [=](int32_t newValue) {
+          gvar->max = GVAR_MAX - newValue;
+          SET_DIRTY();
+          setProperties();
+        });
+    max->setAccelFactor(16);
+
+    line = window->newLine(&grid);
+    char flightModeName[16];
+    FlightModeData* fmData;
+
+    for (int flightMode = 0; flightMode < numFlightModes(); flightMode++) {
+      fmData = &g_model.flightModeData[flightMode];
+
+      if (modelFMEnabled()) {
+        getFlightModeString(flightModeName, flightMode + 1);
+
+        int userNameLen = zlen(fmData->name, LEN_FLIGHT_MODE_NAME);
+
+        if (userNameLen > 0) {
+          strcpy(flightModeName, fmData->name);
+        }
+        new StaticText(line, rect_t{}, flightModeName, 0, COLOR_THEME_PRIMARY1);
+      } else {
+        new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
+      }
+
+      if (flightMode > 0) {
+        auto cb = new ToggleSwitch(
+            line, rect_t{}, [=] { return fmData->gvars[index] <= GVAR_MAX; },
+            [=](uint8_t checked) {
+              fmData->gvars[index] = checked ? 0 : GVAR_MAX + 1;
+              setProperties(flightMode);
+            });
+        lv_obj_set_style_grid_cell_x_align(cb->getLvObj(), LV_GRID_ALIGN_END,
+                                           0);
+        lv_obj_invalidate(cb->getLvObj());
+        cb->setLabel(STR_OWN);
+
+      } else {
+        grid.nextCell();
+      }
+
+      values[flightMode] = new NumberEdit(
+          line, rect_t{}, GVAR_MIN + gvar->min, GVAR_MAX + MAX_FLIGHT_MODES - 1,
+          GET_SET_DEFAULT(fmData->gvars[index]));
+      values[flightMode]->setAccelFactor(16);
+      line = window->newLine(&grid);
     }
 
-    values[flightMode] = new NumberEdit(window, grid.getFieldSlot(2, 1), GVAR_MIN + gvar->min, GVAR_MAX + MAX_FLIGHT_MODES - 1,
-                                        GET_SET_DEFAULT(fmData->gvars[index]));
-    values[flightMode]->setAccelFactor(16);
-    grid.nextLine();
+    setProperties();
+    lv_obj_set_height(window->getLvObj(),
+                      LCD_H - lv_obj_get_height(header.getLvObj()));
+    lv_obj_set_height(lvobj, LCD_H);
   }
+};
 
-  setProperties();
-
+ModelGVarsPage::ModelGVarsPage() : PageTab(STR_MENU_GLOBAL_VARS, ICON_MODEL_GVARS)
+{
+  gvarStyle.init();
 }
 
-void ModelGVarsPage::rebuild(FormWindow * window)
+void ModelGVarsPage::rebuild(FormWindow* window)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
+  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());
   window->clear();
   build(window);
   lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
 }
 
-void ModelGVarsPage::build(FormWindow * window)
+void ModelGVarsPage::build(FormWindow* window)
 {
-  FormGridLayout grid;
-  grid.spacer(PAGE_PADDING);
-  grid.setLabelWidth(70);
-  window->padAll(0);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 2);
 
   for (uint8_t index = 0; index < MAX_GVARS; index++) {
-    Button * button = new GVarButton(window, grid.getLineSlot(), index);
+    Button* button = new GVarButton(window, rect_t{}, index);
     button->setPressHandler([=]() {
-        Menu * menu = new Menu(window);
-        menu->addLine(STR_EDIT, [=]() {
-            Window * editWindow = new GVarEditWindow(index);
-            editWindow->setCloseHandler([=]() {
-                rebuild(window);
-            });
-        });
-        menu->addLine(STR_CLEAR, [=]() {
-            for (auto & flightMode : g_model.flightModeData) {
-              flightMode.gvars[index] = 0;
-            }
-            storageDirty(EE_MODEL);
-        });
-        return 0;
+      Menu* menu = new Menu(window);
+      menu->addLine(STR_EDIT, [=]() {
+        Window* editWindow = new GVarEditWindow(index);
+        editWindow->setCloseHandler([=]() { rebuild(window); });
+      });
+      menu->addLine(STR_CLEAR, [=]() {
+        for (auto& flightMode : g_model.flightModeData) {
+          flightMode.gvars[index] = 0;
+        }
+        storageDirty(EE_MODEL);
+      });
+      return 0;
     });
-
-    grid.nextLine(button->height());
   }
 }

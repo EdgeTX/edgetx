@@ -15,7 +15,8 @@
 #define USE_FATFS
 #endif
 
-#define LUA_ANSI			// force ANSI mode: lua_number2integer() behaves the same way on all platforms (#3826)
+// force ANSI mode: lua_number2integer() behaves the same way on all platforms (#3826)
+#define LUA_ANSI
 
 /*
 ** ==================================================================
@@ -232,7 +233,23 @@
 #define luai_writestringerror(s,p)  TRACE_DEBUG_WP(s, p);
 #endif
 
+//
+// fix for #3468
+//
+// forces LUA print function to use 
+// debugPrintf through TRACE_DEBUG_WP
+//
+#define EDGETX
+#if defined(EDGETX)
+#undef luai_writestring
+#undef luai_writeline
+#undef luai_writestringerror
 
+#define luai_writestring(s,l)       TRACE_DEBUG_WP("%s", s);
+#define luai_writeline()            TRACE_DEBUG_WP("\n");
+#define luai_writestringerror(s,p)  TRACE_DEBUG_WP(s, p);
+#endif
+#undef EDGETX
 
 /*
 @@ LUAI_MAXSHORTLEN is the maximum length for short strings, that is,
@@ -559,7 +576,5 @@
 ** Local configuration. You can use this space to add your redefinitions
 ** without modifying the main part of the file.
 */
-
-#define LUA_MAX_ROTABLE_NAME      32
 
 #endif

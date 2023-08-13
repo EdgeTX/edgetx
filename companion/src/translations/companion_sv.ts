@@ -129,13 +129,6 @@
     </message>
 </context>
 <context>
-    <name>AppMessages</name>
-    <message>
-        <source>Show this message again at next startup?</source>
-        <translation>Visa detta meddelande vid nästa programstart?</translation>
-    </message>
-</context>
-<context>
     <name>AppPreferencesDialog</name>
     <message>
         <source>Edit Settings</source>
@@ -148,10 +141,6 @@
     <message>
         <source>Default Channel Order</source>
         <translation>Kanalordning</translation>
-    </message>
-    <message>
-        <source>Menu Language</source>
-        <translation>Språkinställning</translation>
     </message>
     <message>
         <source>Default Stick Mode</source>
@@ -526,10 +515,6 @@ Mode 4:
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Detta val behåller hanteringen från äldre OpenTX versioner, där tomma modellrader behålls när en modell flyttas eller raderas.&lt;/p&gt;&lt;p&gt;När detta val avmarkeras flyttas de andra modellerna så att den tomma modellens plats ersätts och inte lämnas kvar tom.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Remove empty model slots when deleting models (only applies for radios w/out categories)</source>
-        <translation>Ta bort tomma modellrader när modeller raderas (gäller endast sändare utan kategorier)</translation>
-    </message>
-    <message>
         <source>Debug Output Logging</source>
         <translation>Loggning av utdata för felsökning</translation>
     </message>
@@ -697,6 +682,18 @@ Mode 4:
         <source>Update Settings: Decompress and download folders have the same path!</source>
         <translation>Uppdateringsinställningar: Sökväg till katalog för uppackning och nerladdning är identiska!</translation>
     </message>
+    <message>
+        <source>Disable &apos;Cannot open joystick, joystick disabled&apos; warning</source>
+        <translation>Inaktivera varningen &apos;Ingen joystick kan hittas, joystick inkativerad&apos;</translation>
+    </message>
+    <message>
+        <source>Language</source>
+        <translation>Språk</translation>
+    </message>
+    <message>
+        <source>Remove empty model slots when deleting models (only applies for radios w/out labels)</source>
+        <translation>Ta bort tomma modellrader när modeller raderas (gäller endast sändare utan etiketter)</translation>
+    </message>
 </context>
 <context>
     <name>BinEepromFormat</name>
@@ -757,7 +754,7 @@ Mode 4:
     </message>
     <message>
         <source>2 Positions Toggle</source>
-        <translation>2-lägen momentan</translation>
+        <translation>2 lägen momentan</translation>
     </message>
     <message>
         <source>2 Positions</source>
@@ -782,6 +779,118 @@ Mode 4:
     <message>
         <source>Slider with detent</source>
         <translation>Reglage med mittklick</translation>
+    </message>
+    <message>
+        <source>Rud</source>
+        <translation>Rod</translation>
+    </message>
+    <message>
+        <source>Ele</source>
+        <translation>Hjd</translation>
+    </message>
+    <message>
+        <source>Thr</source>
+        <translation>Gas</translation>
+    </message>
+    <message>
+        <source>Ail</source>
+        <translation>Ske</translation>
+    </message>
+    <message>
+        <source>P1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>P2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>P3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>S1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>POT1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>F1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>F2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>F3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>F4</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>S2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>LS</source>
+        <translation>VR</translation>
+    </message>
+    <message>
+        <source>RS</source>
+        <translation>HR</translation>
+    </message>
+    <message>
+        <source>TltX</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>TltY</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>S3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>6P</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>L1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>L2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>JSx</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>JSy</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>EX1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>EX2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>EX3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>EX4</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1690,6 +1799,22 @@ Vill du hämta inställningarna från en fil?</translation>
     <message>
         <source>Value</source>
         <translation>Värde</translation>
+    </message>
+    <message>
+        <source>!1x</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>1x</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>%1s</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>På</translation>
     </message>
 </context>
 <context>
@@ -2797,10 +2922,6 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <translation>Stöd för intern MULTI-modul</translation>
     </message>
     <message>
-        <source>Support hardware mod: R9M ACCESS</source>
-        <translation>Stöd för hårdvarumodifiering: R9M ACCESS</translation>
-    </message>
-    <message>
         <source>FrSky Taranis X9D+</source>
         <translation></translation>
     </message>
@@ -2924,12 +3045,13 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <source>iFlight Commando8</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>FirmwareInterface</name>
     <message>
-        <source>Compressed image size exceeds reserved space.</source>
-        <translation>Storleken för komprimerad avbildning överskrider reserverat utrymme.</translation>
+        <source>Radiomaster Boxer</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Jumper T-Lite (F4 MCU)</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -3524,8 +3646,8 @@ Du använder för närvarande:
         <translation>Formulär</translation>
     </message>
     <message>
-        <source>Function Switches</source>
-        <translation>Funktionsbrytare</translation>
+        <source>Customizable Switches</source>
+        <translation>Anpassningsbara brytare</translation>
     </message>
     <message>
         <source>Type</source>
@@ -3791,6 +3913,65 @@ Dessa inställningar gäller för alla modeller.</translation>
         <source>Wrong data in profile, Switch/pot config not retrieved</source>
         <translation>Fel data i profilen, brytar-/pot.inställningar lästes inte in</translation>
     </message>
+    <message>
+        <source>Enabled Features</source>
+        <translation>Aktiverade funktioner</translation>
+    </message>
+</context>
+<context>
+    <name>GeneralOptionsPanel</name>
+    <message>
+        <source>Radio Menus</source>
+        <translation>Radiomenyer</translation>
+    </message>
+    <message>
+        <source>Themes</source>
+        <translation>Teman</translation>
+    </message>
+    <message>
+        <source>Global Functions</source>
+        <translation>Globala funktioner</translation>
+    </message>
+    <message>
+        <source>Trainer</source>
+        <translation>Lärare</translation>
+    </message>
+    <message>
+        <source>Model Menus</source>
+        <translation>Modellmenyer</translation>
+    </message>
+    <message>
+        <source>Heli</source>
+        <translation>Heli</translation>
+    </message>
+    <message>
+        <source>Flight Modes</source>
+        <translation>Flyglägen</translation>
+    </message>
+    <message>
+        <source>Curves</source>
+        <translation>Kurvor</translation>
+    </message>
+    <message>
+        <source>Global Variables</source>
+        <translation>Globala variabler</translation>
+    </message>
+    <message>
+        <source>Logical Switches</source>
+        <translation>Logiska brytare</translation>
+    </message>
+    <message>
+        <source>Special Functions</source>
+        <translation>Specialfunktioner</translation>
+    </message>
+    <message>
+        <source>Custom Mix Scripts</source>
+        <translation>Anpassade mixerskript</translation>
+    </message>
+    <message>
+        <source>Telemetry</source>
+        <translation>Telemetri</translation>
+    </message>
 </context>
 <context>
     <name>GeneralSettings</name>
@@ -3877,6 +4058,10 @@ Dessa inställningar gäller för alla modeller.</translation>
     <message>
         <source>SpaceMouse</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>External module</source>
+        <translation>Extern modul</translation>
     </message>
 </context>
 <context>
@@ -4236,10 +4421,6 @@ p, li { white-space: pre-wrap; }
         <translation>Inaktivitetstimer</translation>
     </message>
     <message>
-        <source>Show splash screen on startup</source>
-        <translation>Visa startbild vid start av radion</translation>
-    </message>
-    <message>
         <source>---</source>
         <translation></translation>
     </message>
@@ -4564,10 +4745,6 @@ Mode 4:
         <translation>Fördröjning vid avstängning</translation>
     </message>
     <message>
-        <source>nnnnnnNN</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>This is the switch selectrion for turning on the backlight (if installed).
 
 </source>
@@ -4588,6 +4765,14 @@ Acceptable values are 3v..12v</source>
 Detta är det gränsvärde vid vilket batterivarningen ljuder.
 
 Acceptabla värden är 3 - 12 volt</translation>
+    </message>
+    <message>
+        <source>Model quick select</source>
+        <translation>Snabbval av modell</translation>
+    </message>
+    <message>
+        <source>Enable this to quickly change model on the model select page (a long press can then be used to open the model edit menu).</source>
+        <translation>Aktivera detta för att snabbt byta modell på modellvalssidan. Ett långt knapptryck kan sedan användas för att öppna modellredigeringsmenyn.</translation>
     </message>
 </context>
 <context>
@@ -4716,6 +4901,18 @@ att fungera. Detta går inte att ändra från radion.
         <source>Vertical Inverted, Horizontal Alternate</source>
         <translation>Vertikal inverterad, Horisontell alternativ</translation>
     </message>
+    <message>
+        <source>Chinese</source>
+        <translation>Kinesiska</translation>
+    </message>
+    <message>
+        <source>Japanese</source>
+        <translation>Japanska</translation>
+    </message>
+    <message>
+        <source>Hebrew</source>
+        <translation>Hebreiska</translation>
+    </message>
 </context>
 <context>
     <name>GyroPage</name>
@@ -4767,24 +4964,12 @@ att fungera. Detta går inte att ändra från radion.
         <translation>Enhetsnamn:</translation>
     </message>
     <message>
-        <source>Antenna</source>
-        <translation>Antenn</translation>
-    </message>
-    <message>
-        <source>Internal module</source>
-        <translation>Intern modul</translation>
-    </message>
-    <message>
         <source>Sample Mode</source>
         <translation></translation>
     </message>
     <message>
         <source>Serial ports</source>
         <translation>Seriella portar</translation>
-    </message>
-    <message>
-        <source>%1</source>
-        <translation></translation>
     </message>
     <message>
         <source>Power</source>
@@ -4799,6 +4984,11 @@ att fungera. Detta går inte att ändra från radion.
         <translation>ADC-filter</translation>
     </message>
     <message>
+        <location filename="../generaledit/hardware.cpp" line="178"/>
+        <source>Mute if no sound</source>
+        <translation>Audio av om inget ljud</translation>
+    </message>
+    <message>
         <source>S.Port Power</source>
         <translation>S.Port strömkälla</translation>
     </message>
@@ -4809,6 +4999,34 @@ att fungera. Detta går inte att ändra från radion.
     <message>
         <source>Warning: Changing the Internal module may invalidate the internal module protocol of the models!</source>
         <translation>Varning: Byte av den interna modulen kan göra modellernas interna modulprotokoll ogiltiga!</translation>
+    </message>
+    <message>
+        <source>Internal RF</source>
+        <translation>Intern RF</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Typ</translation>
+    </message>
+    <message>
+        <source>Baudrate:</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Antenna:</source>
+        <translation>Antenn:</translation>
+    </message>
+    <message>
+        <source>External RF</source>
+        <translation>Extern RF</translation>
+    </message>
+    <message>
+        <source>AUX1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>AUX2</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -5128,6 +5346,10 @@ att fungera. Detta går inte att ändra från radion.
         <source>Cannot list files</source>
         <translation>Kan inte lista filer</translation>
     </message>
+    <message>
+        <source>Error deleting files</source>
+        <translation>Fel vid radering av filer</translation>
+    </message>
 </context>
 <context>
     <name>LimitData</name>
@@ -5254,11 +5476,11 @@ att fungera. Detta går inte att ändra från radion.
     <name>LogicalSwitchesPanel</name>
     <message>
         <source>V1</source>
-        <translation></translation>
+        <translation>Värde 1</translation>
     </message>
     <message>
         <source>V2</source>
-        <translation></translation>
+        <translation>Värde 2</translation>
     </message>
     <message>
         <source>Function</source>
@@ -5266,7 +5488,7 @@ att fungera. Detta går inte att ändra från radion.
     </message>
     <message>
         <source>AND Switch</source>
-        <translation>OCH-brytare</translation>
+        <translation>AND-brytare</translation>
     </message>
     <message>
         <source>Duration</source>
@@ -6048,6 +6270,14 @@ Vill du fortsätta?</translation>
         <source>Checking for updates...</source>
         <translation>Kollar efter uppdateringar...</translation>
     </message>
+    <message>
+        <source>Writing models and settings to radio</source>
+        <translation>Skriver modeller och inställningar till radion</translation>
+    </message>
+    <message>
+        <source>In progress...</source>
+        <translation>Pågående...</translation>
+    </message>
 </context>
 <context>
     <name>MdiChild</name>
@@ -6293,18 +6523,6 @@ Vill du spara ändringarna?</translation>
         <translation>Vill du fortsätta?</translation>
     </message>
     <message>
-        <source>Don&apos;t show this message again</source>
-        <translation>Visa inte detta meddelande igen</translation>
-    </message>
-    <message>
-        <source>Saved models and settings to radio</source>
-        <translation>Modeller och inställningar har sparats till radion</translation>
-    </message>
-    <message>
-        <source>Error saving models and settings to radio!</source>
-        <translation>Fel uppstod när modeller och inställningar sparades till radion!</translation>
-    </message>
-    <message>
         <source>Select a model template file</source>
         <translation>Välj en modellmallsfil</translation>
     </message>
@@ -6407,6 +6625,22 @@ Vill du spara ändringarna?</translation>
     <message>
         <source>Show Labels Actions Toolbar</source>
         <translation>Visa verktygsfältet för etiketter</translation>
+    </message>
+    <message>
+        <source>Invalid file extension!</source>
+        <translation>Ogiltigt filsuffix!</translation>
+    </message>
+    <message>
+        <source>Do not show this message again</source>
+        <translation>Visa inte detta meddelande igen</translation>
+    </message>
+    <message>
+        <source>Models and settings written to radio</source>
+        <translation>Modeller och inställningar skrivna till radion</translation>
+    </message>
+    <message>
+        <source>Error writing models and settings to radio!</source>
+        <translation>Fel vid skrivning av modeller och inställningar till radion!</translation>
     </message>
 </context>
 <context>
@@ -6982,6 +7216,77 @@ p, li { white-space: pre-wrap; }
         <source>Custom Screens</source>
         <translation>Anpassade skärmar</translation>
     </message>
+    <message>
+        <source>Enabled Features</source>
+        <translation>Aktiverade funktioner</translation>
+    </message>
+</context>
+<context>
+    <name>ModelOptionsPanel</name>
+    <message>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Av</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>På</translation>
+    </message>
+    <message>
+        <source>Radio Menus</source>
+        <translation>Radiomenyer</translation>
+    </message>
+    <message>
+        <source>Themes</source>
+        <translation>Teman</translation>
+    </message>
+    <message>
+        <source>Global Functions</source>
+        <translation>Globala funktioner</translation>
+    </message>
+    <message>
+        <source>Trainer</source>
+        <translation>Lärare</translation>
+    </message>
+    <message>
+        <source>Model Menus</source>
+        <translation>Modellmenyer</translation>
+    </message>
+    <message>
+        <source>Heli</source>
+        <translation>Heli</translation>
+    </message>
+    <message>
+        <source>Flight Modes</source>
+        <translation>Flyglägen</translation>
+    </message>
+    <message>
+        <source>Curves</source>
+        <translation>Kurvor</translation>
+    </message>
+    <message>
+        <source>Global Variables</source>
+        <translation>Globala variabler</translation>
+    </message>
+    <message>
+        <source>Logical Switches</source>
+        <translation>Logiska brytare</translation>
+    </message>
+    <message>
+        <source>Special Functions</source>
+        <translation>Specialfunktioner</translation>
+    </message>
+    <message>
+        <source>Custom Mix Scripts</source>
+        <translation>Anpassade mixerskript</translation>
+    </message>
+    <message>
+        <source>Telemetry</source>
+        <translation>Telemetri</translation>
+    </message>
 </context>
 <context>
     <name>ModelPrinter</name>
@@ -7548,10 +7853,6 @@ p, li { white-space: pre-wrap; }
         <translation>Alternativ värde</translation>
     </message>
     <message>
-        <source>Low Power</source>
-        <translation>Låg effekt</translation>
-    </message>
-    <message>
         <source>Multi Radio Protocol</source>
         <translation>Multiradioprotokoll</translation>
     </message>
@@ -7628,6 +7929,18 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Raw 12 bits</source>
         <translation>Rå 12 bits</translation>
+    </message>
+    <message>
+        <source>Option check</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Option combo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Low power mode</source>
+        <translation>Lågeffektläge</translation>
     </message>
 </context>
 <context>
@@ -7716,6 +8029,142 @@ p, li { white-space: pre-wrap; }
         <source>2 W</source>
         <translation></translation>
     </message>
+    <message>
+        <source>OFF</source>
+        <translation>AV</translation>
+    </message>
+    <message>
+        <source>PPM</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Silverlit A</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Silverlit B</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Silverlit C</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>CTP1009</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>LP45</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>DSM2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>DSMX</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>PPM16</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>PPMsim</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT (D16)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT (D8)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT (LR12)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky DJT</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Crossfire</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Multi</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky R9M</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky R9M Lite</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky R9M Lite Pro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>SBUS output at VBat</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS ISRM</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCST ISRM D16</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS R9M 2019</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS R9M Lite</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky ACCESS R9M Lite Pro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT lite (D16)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT lite (D8)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>FrSky XJT lite (LR12)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>AFHDS3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ghost</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Lemon-Rx DSMP</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>No Telemetry</source>
+        <translation>Ingen telemetri</translation>
+    </message>
+    <message>
+        <source>MLink</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>ModulePanel</name>
@@ -7732,24 +8181,8 @@ p, li { white-space: pre-wrap; }
         <translation>Inga pulser</translation>
     </message>
     <message>
-        <source>Ask</source>
-        <translation>Fråga</translation>
-    </message>
-    <message>
-        <source>Internal</source>
-        <translation>Intern</translation>
-    </message>
-    <message>
-        <source>Internal + External</source>
-        <translation>Intern + Extern</translation>
-    </message>
-    <message>
-        <source>External</source>
-        <translation>Extern</translation>
-    </message>
-    <message>
         <source>Bind on channel</source>
-        <translation>Parkoppla (bind) via kanal</translation>
+        <translation>Parkoppla (bind) på kanal</translation>
     </message>
     <message>
         <source>Warning: The internal module protocol &lt;b&gt;%1&lt;/b&gt; is incompatible with the hardware internal module &lt;b&gt;%2&lt;/b&gt; and has been set to &lt;b&gt;OFF&lt;/b&gt;!</source>
@@ -8071,8 +8504,8 @@ p, li { white-space: pre-wrap; }
         <translation>Start</translation>
     </message>
     <message>
-        <source>Function Switches</source>
-        <translation>Funktionsbrytare</translation>
+        <source>Customizable Switches</source>
+        <translation>Anpassningsbara brytare</translation>
     </message>
     <message>
         <source>Switch %1</source>
@@ -8086,52 +8519,76 @@ p, li { white-space: pre-wrap; }
         <source>Always On</source>
         <translation>Alltid på</translation>
     </message>
+    <message>
+        <source>Multi sensors</source>
+        <translation>Multisensorer</translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation>Funktion</translation>
+    </message>
+    <message>
+        <source>Repeat</source>
+        <translation>Repetera</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Aktiverad</translation>
+    </message>
+    <message>
+        <source>Show Instance IDs</source>
+        <translation>Visa instans-IDn</translation>
+    </message>
 </context>
 <context>
     <name>Multiprotocols</name>
     <message>
         <source>Subtype</source>
-        <translation>Variant</translation>
+        <translation type="vanished">Variant</translation>
     </message>
     <message>
         <source>Video TX frequency</source>
-        <translation>Video TX-frekvens</translation>
+        <translation type="vanished">Video TX-frekvens</translation>
     </message>
     <message>
         <source>Telemetry</source>
-        <translation>Telemetri</translation>
+        <translation type="vanished">Telemetri</translation>
     </message>
     <message>
         <source>Servo output frequency</source>
-        <translation>Utdatafrekvens för servo</translation>
+        <translation type="vanished">Utdatafrekvens för servo</translation>
     </message>
     <message>
         <source>Option value</source>
-        <translation>Alternativ värde</translation>
+        <translation type="vanished">Alternativ värde</translation>
     </message>
     <message>
         <source>DEFAULT</source>
-        <translation>FÖRVAL</translation>
+        <translation type="vanished">FÖRVAL</translation>
     </message>
     <message>
         <source>CC2500 frequency fine tune</source>
-        <translation>Finjustering av CC2500 frekvens</translation>
+        <translation type="vanished">Finjustering av CC2500 frekvens</translation>
     </message>
     <message>
         <source>Fixed ID value</source>
-        <translation>Fast ID-värde</translation>
+        <translation type="vanished">Fast ID-värde</translation>
     </message>
     <message>
         <source>RF power</source>
-        <translation>RF effekt</translation>
+        <translation type="vanished">RF effekt</translation>
     </message>
     <message>
         <source>Enable Max Throw</source>
-        <translation>Aktivera max utslag</translation>
+        <translation type="vanished">Aktivera max utslag</translation>
     </message>
     <message>
         <source>RF Channel Number</source>
-        <translation>RF kanalnummer</translation>
+        <translation type="vanished">RF kanalnummer</translation>
+    </message>
+    <message>
+        <source>Servo update rate</source>
+        <translation>Servouppdateringsfrekvens</translation>
     </message>
 </context>
 <context>
@@ -8297,6 +8754,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>&lt;p&gt;Importing JumperTX data into OpenTX 2.3 is &lt;b&gt;not supported and dangerous.&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;It is unfortunately not possible for us to differentiate JumperTX data from legitimate FrSky X10 data, but &lt;b&gt;You should only continue here if the file you opened comes from a real FrSky X10.&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;Do you really want to continue?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Import av JumperTX data till OpenTX 2.3 är &lt;b&gt;stödjs inte kan vara mycket riskfyllt.&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;Det är tyvärr inte möjligt att skilja JumperTX-data från riktiga FrSky X10-data, och &lt;b&gt;du bör endast fortsätta här om  filen du öppnat kommer från en äkta FrSky X10&lt;/b&gt;&lt;/p&gt;                       &lt;p&gt;Vill du verkligen fortsätta?&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Compressed image size exceeds reserved space.</source>
+        <translation>Storleken för komprimerad avbildning överskrider reserverat utrymme.</translation>
+    </message>
+    <message>
+        <source>Show this message again at next startup?</source>
+        <translation>Visa detta meddelande vid nästa programstart?</translation>
     </message>
 </context>
 <context>
@@ -9483,10 +9948,6 @@ Gasen reverseras om alternativet väljs. Tomgång ligger då uppåt. Trim och ga
 <context>
     <name>SimulatorMain</name>
     <message>
-        <source>OpenTx Simulator</source>
-        <translation>EdgeTX simulator</translation>
-    </message>
-    <message>
         <source>Available profiles:</source>
         <translation>Tillgängliga profiler:</translation>
     </message>
@@ -9525,10 +9986,6 @@ Gasen reverseras om alternativet väljs. Tomgång ligger då uppåt. Trim och ga
     <message>
         <source>path</source>
         <translation>sökväg</translation>
-    </message>
-    <message>
-        <source>Data source type to use (applicable to Horus only). One of:</source>
-        <translation>Typ av datakälla (gäller endast Horus-liknande radior). En av:</translation>
     </message>
     <message>
         <source>type</source>
@@ -9575,14 +10032,22 @@ Profile ID: [%1]; Radio ID: [%2]</source>
 Profil-ID: [%1]; Radio-ID [%2]</translation>
     </message>
     <message>
-        <source>Uknown error during Simulator startup.</source>
-        <translation>Okänt fel vid uppstart av simulatorn.</translation>
-    </message>
-    <message>
         <source>Radio data (.bin/.eeprom/.etx) image file to use OR data folder path (for Horus-style radios).
 NOTE: any existing EEPROM data incompatible with the selected radio type may be overwritten!</source>
         <translation>Radiodatafil (.bin/.eeprom/.etx) att använda ELLER sökväg till datakatalogen (för sändare av Horus-typ).
 OBS! All befintlig EEPROM-data som är inkompatibel med vald radiotyp kan komms att skrivas över!</translation>
+    </message>
+    <message>
+        <source>EdgeTx Simulator</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Data source type to use. One of:</source>
+        <translation>Typ av datakälla att använda. En av:</translation>
+    </message>
+    <message>
+        <source>Unknown error during Simulator startup.</source>
+        <translation>Okänt fel vid uppstart av simulatorn.</translation>
     </message>
 </context>
 <context>
@@ -9758,7 +10223,7 @@ OBS! All befintlig EEPROM-data som är inkompatibel med vald radiotyp kan komms 
     <message>
         <source>&lt;tr&gt;&lt;th&gt;Key/Mouse&lt;/th&gt;&lt;th&gt;Action&lt;/th&gt;&lt;/tr&gt;</source>
         <comment>note: must match html layout of each table row (keyTemplate).</comment>
-        <translation>&lt;tr&gt;&lt;th&gt;Knapp/Mus&lt;/th&gt;&lt;th&gt;Verkställ&lt;/th&gt;&lt;/tr&gt;</translation>
+        <translation>&lt;tr&gt;&lt;th&gt;Knapp/Mus&lt;/th&gt;&lt;th&gt;Funktion&lt;/th&gt;&lt;/tr&gt;</translation>
     </message>
     <message>
         <source>&lt;tr&gt;&lt;td&gt;&lt;kbd&gt;%1&lt;/kbd&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
@@ -9807,12 +10272,6 @@ Radiotypen som angetts i vald profil används som förval.</translation>
     <message>
         <source>SD Image Path:</source>
         <translation>Sökväg till SD-kortet:</translation>
-    </message>
-    <message>
-        <source>Radio data (.bin/.eeprom/.otx) image file to use. A new file with a default image will be created if necessary.&lt;br /&gt;
-&lt;b&gt;NOTE&lt;/b&gt;: any existing EEPROM data incompatible with the selected radio type may be overwritten!</source>
-        <translation>Radiodatafil (.bin/.eeprom/.otx/.etx) att använda. En ny fil med förvald bild skapas om så behövs.&lt;br /&gt;
-OBS! Befintlig EEPROM-data som inte är kompatibel med vald radiotyp kan komma att skrivas över!</translation>
     </message>
     <message>
         <source>Select data file...</source>
@@ -9878,6 +10337,16 @@ Förvalt värde är konfigurerat i den valda radioprofieln.</translation>
         <source>EdgeTX Simulator - Startup Options</source>
         <translation>EdgeTX simulator - Startalternativ</translation>
     </message>
+    <message>
+        <source>Radio data (.etx) settings file to use. A new file with default settings will be created if necessary.&lt;br /&gt;
+&lt;b&gt;NOTE&lt;/b&gt;: any existing data incompatible with the selected radio type may be overwritten!</source>
+        <translation>Radiodatafil (.etx) att använda. En ny fil med förvalda inställningar skapas om så behövs.&lt;br /&gt;
+&lt;b&gt;OBS!&lt;b&gt; Befintlig data som inte är kompatibel med vald radiotyp kan komma att skrivas över!</translation>
+    </message>
+    <message>
+        <source>Simulator:</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>SimulatorWidget</name>
@@ -9927,7 +10396,7 @@ Förvalt värde är konfigurerat i den valda radioprofieln.</translation>
     </message>
     <message>
         <source>Cannot open joystick, joystick disabled</source>
-        <translation>Joysticken kan inte hittas, joystick inaktiverad</translation>
+        <translation>Ingen joystick kan hittas, joystick inkativerad</translation>
     </message>
     <message>
         <source>Radio firmware error: %1</source>
@@ -10365,6 +10834,10 @@ För många fel - ger upp.</translation>
         <source>Source</source>
         <translation>Källa</translation>
     </message>
+    <message>
+        <source>Show Instance IDs</source>
+        <translation>Visa instans-IDn</translation>
+    </message>
 </context>
 <context>
     <name>TelemetryAnalog</name>
@@ -10794,11 +11267,11 @@ Tidsstämpel</translation>
     </message>
     <message>
         <source>Alt</source>
-        <translation>Höj</translation>
+        <translation></translation>
     </message>
     <message>
         <source>VSpd</source>
-        <translation>Vert.hast.</translation>
+        <translation></translation>
     </message>
     <message>
         <source>m/s</source>
@@ -10858,11 +11331,11 @@ hh:mm:ss</translation>
     </message>
     <message>
         <source>GAlt</source>
-        <translation>GHöj</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Volts</source>
-        <translation>volt</translation>
+        <translation>Volt</translation>
     </message>
     <message>
         <source>Cels</source>
@@ -10930,7 +11403,7 @@ hh:mm:ss</translation>
     </message>
     <message>
         <source>Run/Stop</source>
-        <translation>Kör/Stopp</translation>
+        <translation>Kör/Stoppa</translation>
     </message>
     <message>
         <source>Load Telemetry Values</source>
@@ -11114,6 +11587,14 @@ hh:mm:ss</translation>
         <source>Show Remaining</source>
         <translation>Visa återstående</translation>
     </message>
+    <message>
+        <source>Beeps and Haptic</source>
+        <translation>Pip och vibration</translation>
+    </message>
+    <message>
+        <source>Voice and Haptic</source>
+        <translation>Ljud och vibration</translation>
+    </message>
 </context>
 <context>
     <name>TimerEdit</name>
@@ -11223,6 +11704,22 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
         <source>Images (*.AppImage)</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Would you like to open the disk image to install the new version of Companion?</source>
+        <translation>Vill du öppna diskavbildningen för att installera den nya versionen av Companion?</translation>
+    </message>
+    <message>
+        <source>Would you like to launch the Companion installer?</source>
+        <translation>Vill du starta installationsprogrammet för Companion?</translation>
+    </message>
+    <message>
+        <source>No install process support for your operating system</source>
+        <translation>Uppdatering stöds ej för ditt operativsystem</translation>
+    </message>
+    <message>
+        <source>Asset filter applied: %1 - %2 found</source>
+        <translation>Tillgångsfilter applicerat: %1 - %2 hittades</translation>
+    </message>
 </context>
 <context>
     <name>UpdateFirmware</name>
@@ -11286,32 +11783,12 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
         <translation>Uppdatering av %1 lyckades</translation>
     </message>
     <message>
-        <source>Update Interface</source>
-        <translation>Uppdateringsinterface</translation>
-    </message>
-    <message>
-        <source>Unable to download release meta data</source>
-        <translation>Kunde inte ladda ner metadata för versionen</translation>
-    </message>
-    <message>
         <source>%1 directory not configured in application settings!</source>
         <translation>Katalog för %1 inte konfigurerad i programinställningarna!</translation>
     </message>
     <message>
         <source>Failed to create %1 directory %2!</source>
         <translation>Kunde inte skapa %1 katalog %2!</translation>
-    </message>
-    <message>
-        <source>Invalid URL: %1</source>
-        <translation>Ogiltig URL: %1</translation>
-    </message>
-    <message>
-        <source>URL: %1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Network error has occurred. Error code: %1</source>
-        <translation>Ett nätverksfel har inträffat. Felkod: %1</translation>
     </message>
     <message>
         <source>Unable to set processing flags for asset %1</source>
@@ -11324,26 +11801,6 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
     <message>
         <source>Unable to set copy filter for asset %1</source>
         <translation>Kunde inte sätta kopieringsfilter för tillgång %1</translation>
-    </message>
-    <message>
-        <source>Downloading: %1</source>
-        <translation>Laddar ner: %1</translation>
-    </message>
-    <message>
-        <source>Download: %1</source>
-        <translation>Nerladdning: %1</translation>
-    </message>
-    <message>
-        <source>File exists: %1</source>
-        <translation>Filen finns redan: %1</translation>
-    </message>
-    <message>
-        <source>File %1 exists. Download again?</source>
-        <translation>Fil %1 finns redan. Ladda ner igen?</translation>
-    </message>
-    <message>
-        <source>Failed to create directory %1!</source>
-        <translation>Kunde inte skapa katalog%1!</translation>
     </message>
     <message>
         <source>Decompressing %1</source>
@@ -11470,32 +11927,6 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
         <translation>Spara versionsinställningarna</translation>
     </message>
     <message>
-        <source>Unable to open the download file %1 for writing.
-Error: %2</source>
-        <translation>Kunde inte öppna nerladdningsfil %1 för skrivning.
-Fel: %2</translation>
-    </message>
-    <message>
-        <source>Unable to download %1.
-Error:%2
-%3</source>
-        <translation>Kunde inte ladda ner %1.
-Fel:%2
-%3</translation>
-    </message>
-    <message>
-        <source>Unable to convert downloaded data to json format.
-Error:%1
-%2</source>
-        <translation>Kunde inte konvertera nerladdad data till json-format.
-Fel:%1
-%2</translation>
-    </message>
-    <message>
-        <source>Asset filter: %1</source>
-        <translation>Filter för tillgångar: %1</translation>
-    </message>
-    <message>
         <source>No assets found in release &apos;%1&apos; using filter &apos;%2&apos;</source>
         <translation>Inga tillgångar hittades för version &apos;%1&apos; med filter &apos;%2&apos;</translation>
     </message>
@@ -11522,8 +11953,16 @@ Fel:%1
         <translation>okänd</translation>
     </message>
     <message>
-        <source>Unable to download release assets information</source>
-        <translation>Kunde inte ladda ner information om versionens tillgångar</translation>
+        <source>Copy filter pattern: %1</source>
+        <translation type="unfinished">Filtermönster för kopiering: %1</translation>
+    </message>
+    <message>
+        <source>Asset filter applied: %1 - %2 found</source>
+        <translation>Tillgångsfilter applicerat: %1 - %2 hittades</translation>
+    </message>
+    <message>
+        <source>Copy directory structure</source>
+        <translation>Koipera katalogstruktur</translation>
     </message>
 >>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 </context>
@@ -11532,6 +11971,61 @@ Fel:%1
     <message>
         <source>Multiprotocol</source>
         <translation>Multiprotokoll</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateNetwork</name>
+    <message>
+        <source>Downloading: %1</source>
+        <translation>Laddar ner: %1</translation>
+    </message>
+    <message>
+        <source>Download: %1</source>
+        <translation>Nerladdning: %1</translation>
+    </message>
+    <message>
+        <source>File exists: %1</source>
+        <translation>Filen finns redan: %1</translation>
+    </message>
+    <message>
+        <source>File %1 exists. Download again?</source>
+        <translation>Fil %1 finns redan. Ladda ner igen?</translation>
+    </message>
+    <message>
+        <source>Failed to create directory %1!</source>
+        <translation>Kunde inte skapa katalog%1!</translation>
+    </message>
+    <message>
+        <source>Unable to open the download file %1 for writing. Error: %2</source>
+        <translation>Kan inte öppna nerladdningsfil %1 för skrivning. Fel: %2</translation>
+    </message>
+    <message>
+        <source>Invalid URL: %1</source>
+        <translation>Ogiltig URL: %1</translation>
+    </message>
+    <message>
+        <source>URL: %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Network error has occurred. Error code: %1</source>
+        <translation>Ett nätverksfel har inträffat. Felkod: %1</translation>
+    </message>
+    <message>
+        <source>Ssl library version: %1</source>
+        <translation>Ssl biblioteksversion: %1</translation>
+    </message>
+    <message>
+        <source>Unable to download %1. Error:%2
+%3</source>
+        <translation>Kunde inte ladda ner %1. Fel:%2
+%3</translation>
+    </message>
+    <message>
+        <source>Unable to convert downloaded metadata to json. Error:%1
+%2</source>
+        <translation>Kan inte konvertera nerladdad metadata till json-format. Fel:%1
+%2</translation>
     </message>
 </context>
 <context>
@@ -11624,8 +12118,8 @@ Fel:%1
         <translation>Innehåller</translation>
     </message>
     <message>
-        <source>Expression</source>
-        <translation>Uttryck</translation>
+        <source>Pattern</source>
+        <translation>Mönster</translation>
     </message>
 </context>
 <context>
@@ -11636,11 +12130,19 @@ Fel:%1
     </message>
     <message>
         <source>Flagging assets</source>
-        <translation></translation>
+        <translation>Flaggar tillgångar</translation>
     </message>
     <message>
-        <source>Radio flavour %1 not listed in %2</source>
-        <translation>Radiovariant %1 finns inte listad i %2</translation>
+        <source>Unable to retrieve asset &apos;%1&apos; from release &apos;%2&apos;</source>
+        <translation>Kunde inte hämta tillgång &apos;%1&apos; från version &apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>Unable to retrieve file &apos;%1&apos; from repo &apos;%2&apos;</source>
+        <translation>Kunde inte hämta fil &apos;%1&apos; från repository &apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>Radio flavour &apos;%1&apos; not listed in &apos;%2&apos;</source>
+        <translation>Radiovariant &apos;%1&apos; finns inte listad i &apos;%2&apos;</translation>
     </message>
 </context>
 <context>
@@ -11654,18 +12156,6 @@ Fel:%1
         <translation>Bearbetar tillgängliga ljud</translation>
     </message>
     <message>
-        <source>Asset not found in release &apos;%1&apos; using filter pattern &apos;%2&apos;</source>
-        <translation>Inga tillgångar hittades för version &apos;%1&apos; med filtermönster &apos;%2&apos;</translation>
-    </message>
-    <message>
-        <source>%1 assets found when %2 expected in release &apos;%3&apos; using filter pattern &apos;%4&apos;</source>
-        <translation>%1 av %2 förväntade tillgångar hittades för version &apos;%3&apos;, med filtermönster &apos;%4&apos;</translation>
-    </message>
-    <message>
-        <source>Language %1 not listed in %2</source>
-        <translation>Språk &apos;%1&apos; saknas i %2</translation>
-    </message>
-    <message>
         <source>Choose Language Packs</source>
         <translation>Välj språkpaket</translation>
     </message>
@@ -11676,6 +12166,25 @@ Fel:%1
     <message>
         <source>Flagging assets</source>
         <translation>Flaggar tillgångar</translation>
+    </message>
+    <message>
+        <source>Unable to retrieve asset &apos;%1&apos; from release &apos;%2&apos;</source>
+        <translation>Kunde inte hämta tillgång &apos;%1&apos; från version &apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>Unable to retrieve file &apos;%1&apos; from repo &apos;%2&apos;</source>
+        <translation>Kunde inte hämta fil &apos;%1&apos; från repository &apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>Language &apos;%1&apos; not listed in &apos;%2&apos;</source>
+        <translation>Språk &apos;%1&apos; saknas i %2</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateStatus</name>
+    <message>
+        <source>Update Interface</source>
+        <translation>Uppdateringsinterface</translation>
     </message>
 </context>
 <context>
@@ -12133,7 +12642,7 @@ Bearbeta nu?</translation>
     </message>
     <message>
         <source>Has your helicopter got a flybar?</source>
-        <translation>Har din helikopter en`Flybar´?</translation>
+        <translation>Har din helikopter en flybar?</translation>
     </message>
     <message>
         <source>Select the controls for your helicopter</source>
@@ -12330,39 +12839,7 @@ m2560 för v4.1-kort</translation>
     <name>joystickDialog</name>
     <message>
         <source>Configure Joystick</source>
-        <translation>Ställ in joystick</translation>
-    </message>
-    <message>
-        <source>Ch2</source>
-        <translation>Ka2</translation>
-    </message>
-    <message>
-        <source>Ch1</source>
-        <translation>Ka1</translation>
-    </message>
-    <message>
-        <source>Ch4</source>
-        <translation>Ka4</translation>
-    </message>
-    <message>
-        <source>Ch6</source>
-        <translation>Ka6</translation>
-    </message>
-    <message>
-        <source>Ch3</source>
-        <translation>Ka3</translation>
-    </message>
-    <message>
-        <source>Ch5</source>
-        <translation>Ka5</translation>
-    </message>
-    <message>
-        <source>Ch7</source>
-        <translation>Ka7</translation>
-    </message>
-    <message>
-        <source>Ch8</source>
-        <translation>Ka8</translation>
+        <translation>Konfigurera joystick</translation>
     </message>
     <message>
         <source>Instructions</source>
@@ -12399,14 +12876,6 @@ m2560 för v4.1-kort</translation>
     <message>
         <source>Not Assigned</source>
         <translation>Ej tilldelad</translation>
-    </message>
-    <message>
-        <source> Stick</source>
-        <translation> Spak</translation>
-    </message>
-    <message>
-        <source>Knob/Slider %1</source>
-        <translation>Vred/Reglage %1</translation>
     </message>
     <message>
         <source>No joysticks found</source>

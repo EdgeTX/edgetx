@@ -28,3 +28,4 @@ void ledBlue() {}
 void ledOff() {}
 void fsLedOn(uint8_t) {}
 void fsLedOff(uint8_t) {}
+bool getFSLedState(uint8_t) { return false;}

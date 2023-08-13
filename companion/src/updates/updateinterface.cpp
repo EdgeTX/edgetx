@@ -20,7 +20,6 @@
  */
 
 #include "updateinterface.h"
-#include "minizinterface.h"
 #include "helpers.h"
 #include "updatefirmware.h"
 #include "updatecompanion.h"
@@ -28,134 +27,38 @@
 #include "updatesounds.h"
 #include "updatethemes.h"
 #include "updatemultiprotocol.h"
+#include "minizinterface.h"
 
 #include <QMessageBox>
-#include <QtNetwork/QNetworkProxyFactory>
-#include <QJsonDocument>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QRegularExpression>
 #include <QValidator>
 
-/*
-
-  UpdateParameters
-
-*/
-
-UpdateParameters::UpdateParameters(QObject * parent) :
-  QObject(parent)
-{
-  logLevel = 0;
-  flags = 0;
-  decompressDirUseDwnld = true;
-  updateDirUseSD =  true;
-}
-
-UpdateParameters::AssetParams & UpdateParameters::addAsset()
-{
-  AssetParams ap;
-  ap.processes = 0;
-  ap.flags = 0;
-  ap.filterType = UFT_None;
-  ap.maxExpected = 0;
-  ap.copyFilterType = UFT_None;
-  assets.append(ap);
-
-  return assets[assets.size() - 1];
-}
-
-QString UpdateParameters::buildFilterPattern(const UpdateFilterType filterType, const QString & filter)
-{
-  QString pattern(filter);
-
-  pattern.replace("%FWFLAVOUR%", fwFlavour);
-  pattern.replace("%LANGUAGE%", language);
-
-  switch ((int)filterType) {
-    case UFT_Exact:
-      pattern.prepend("^");
-      pattern.append("$");
-      break;
-    case UFT_Startswith:
-      pattern.prepend("^");
-      break;
-    case UFT_Endswith:
-      pattern.append("$");
-      break;
-    case UFT_Contains:
-    case UFT_Expression:
-      break;
-    default:
-      pattern = "";
-  }
-
-  return pattern;
-}
-
-//  static
-QStringList UpdateParameters::updateFilterTypeList()
-{
-  return { tr("None"), tr("Exact"), tr("Startswith"), tr("Endswith"), tr("Contains"), tr("Expression") };
-}
-
-//  static
-QString UpdateParameters::updateFilterTypeToString(UpdateFilterType uft)
-{
-  return updateFilterTypeList().value(uft, CPN_STR_UNKNOWN_ITEM);
-}
-
-/*
-
-  UpdateInterface
-
-*/
-
-UpdateInterface::UpdateInterface(QWidget * parent) :
+UpdateInterface::UpdateInterface(QWidget * parent, ComponentIdentity id, QString name) :
   QWidget(parent),
-  progress(nullptr),
-  reply(nullptr),
-  buffer(new QByteArray()),
-  file(nullptr),
-  m_id(CID_Unknown),
-  m_name("")
+  m_id(id),
+  m_name(name),
+  m_params(new UpdateParameters(this)),
+  m_status(new UpdateStatus(this)),
+  m_network(new UpdateNetwork(this, m_status)),
+  m_repo(new Repo(this, m_status, m_network))
 {
-  QNetworkProxyFactory::setUseSystemConfiguration(true);
 
-  releases = new ReleasesMetaData(this);
-  assets = new AssetsMetaData(this);
-  params = new UpdateParameters(this);
 }
 
 UpdateInterface::~UpdateInterface()
 {
-  if (reply)
-    delete reply;
-  delete buffer;
-  if (file)
-    delete file;
-  delete releases;
-  delete assets;
-  delete params;
+  delete m_params;
+  delete m_repo;
+  delete m_network;
+  delete m_status;
 }
 
-void UpdateInterface::init(ComponentIdentity id, QString name, QString repo, QString nightly, int resultsPerPage)
+void UpdateInterface::appSettingsInit()
 {
-  setId(id);
-  setName(name);
-
-  initAppSettings();
-
-  releases->init(repo, nightly, resultsPerPage, id);
-  assets->init(repo, resultsPerPage);
-
-  currentRelease();
-}
-
-void UpdateInterface::initAppSettings()
-{
-  if (!isValidSettingsIndex()) {
-    reportProgress(tr("Component id: %1 exceeds maximum application settings components: %2!").arg(m_id).arg(MAX_COMPONENTS), QtCriticalMsg);
+  if (!isSettingsIndexValid()) {
+    m_status->reportProgress(tr("Component id: %1 exceeds maximum application settings components: %2!").arg(m_id).arg(MAX_COMPONENTS), QtCriticalMsg);
     return;
   }
 
@@ -164,18 +67,18 @@ void UpdateInterface::initAppSettings()
   }
 
   if (!g.component[m_id].asset[0].existsOnDisk())
-    initAssetSettings();
+    assetSettingsInit();
 }
 
-void UpdateInterface::loadAssetSettings()
+void UpdateInterface::assetSettingsLoad()
 {
-  if (!isValidSettingsIndex())
+  if (!isSettingsIndexValid())
     return;
 
-  params->assets.clear();
+  m_params->assets.clear();
 
   for (int i = 0; i < MAX_COMPONENT_ASSETS && g.component[m_id].asset[i].existsOnDisk(); i++) {
-    UpdateParameters::AssetParams &ap = params->addAsset();
+    UpdateParameters::AssetParams &ap = m_params->addAsset();
     ComponentAssetData &cad = g.component[m_id].asset[i];
 
     ap.processes = cad.processes();
@@ -189,13 +92,13 @@ void UpdateInterface::loadAssetSettings()
   }
 }
 
-void UpdateInterface::saveAssetSettings()
+void UpdateInterface::assetSettingsSave()
 {
-  if (!isValidSettingsIndex())
+  if (!isSettingsIndexValid())
     return;
 
   for (int i = 0; i < MAX_COMPONENT_ASSETS && g.component[m_id].asset[i].existsOnDisk(); i++) {
-    const UpdateParameters::AssetParams &ap = params->assets.at(i);
+    const UpdateParameters::AssetParams &ap = m_params->assets.at(i);
     ComponentAssetData &cad = g.component[m_id].asset[i];
 
     //  DO NOT overwrite cad.processes
@@ -209,69 +112,882 @@ void UpdateInterface::saveAssetSettings()
   }
 }
 
-bool UpdateInterface::update(ProgressWidget * progress)
+bool UpdateInterface::asyncInstall()
 {
-  if (!(params->flags & UPDFLG_Update))
-    return true;
+  return true;
+}
 
-  this->progress = progress;
-
-  if (progress) {
-    progress->setInfo(tr("Processing updates for: %1").arg(m_name));
-    progress->setValue(0);
-    progress->setMaximum(100);
+bool UpdateInterface::checkCreateDirectory(const QString & dir, const UpdateFlags flag)
+{
+  if (m_params->flags & flag) {
+    if (dir.isEmpty()) {
+      m_status->reportProgress(tr("%1 directory not configured in application settings!").arg(updateFlagToString(flag)), QtCriticalMsg);
+      return false;
+    }
+    else if (!QDir().mkpath(dir)) {
+      m_status->reportProgress(tr("Failed to create %1 directory %2!").arg(updateFlagToString(flag)).arg(dir), QtCriticalMsg);
+      return false;
+    }
   }
-
-  reportProgress(tr("Processing updates for: %1").arg(m_name), QtInfoMsg);
-
-  if (!preparation()) {
-    reportProgress(tr("%1 preparation failed").arg(m_name), QtCriticalMsg);
-    return false;
-  }
-
-  if (!download()) {
-    reportProgress(tr("%1 download failed").arg(m_name), QtCriticalMsg);
-    return false;
-  }
-
-  if (!decompress()) {
-    reportProgress(tr("%1 decompress failed").arg(m_name), QtCriticalMsg);
-    return false;
-  }
-
-  if (!copyToDestination()) {
-    reportProgress(tr("%1 copy to destination failed").arg(m_name), QtCriticalMsg);
-    return false;
-  }
-
-  //  perform before async install in case Companion restarted
-  if (!saveReleaseSettings()) {
-    reportProgress(tr("Failed to save release settings"), QtDebugMsg);
-    return false;
-  }
-
-  if (!asyncInstall()) {
-    reportProgress(tr("%1 start async failed").arg(m_name), QtCriticalMsg);
-    return false;
-  }
-
-  if (!housekeeping()) {
-    reportProgress(tr("%1 housekeeping failed").arg(m_name), QtCriticalMsg);
-    return false;
-  }
-
-  reportProgress(tr("%1 update successful").arg(m_name), QtInfoMsg);
-
-  if (!progress)
-    QMessageBox::information(progress, CPN_STR_APP_NAME, tr("%1 update successful").arg(m_name));
 
   return true;
 }
 
-//  static
-QString UpdateInterface::updateFlagsToString(UpdateFlags val)
+bool UpdateInterface::copyAsset()
 {
-  switch ((int)val) {
+  if (m_repo->assets()->flags() & UPDFLG_CopyStructure)
+    return copyStructure();
+  else if (m_repo->assets()->flags() & UPDFLG_CopyFiles)
+    return copyFiles();
+
+  return true;
+}
+
+bool UpdateInterface::copyFiles()
+{
+  //m_status->reportProgress(tr("Copy files"), QtDebugMsg);
+  m_status->setValue(0);
+  m_status->setMaximum(100);
+
+  QString srcPath;
+
+  if (m_repo->assets()->flags() & UPDFLG_Decompress)
+    srcPath = QString("%1/A%2/%3").arg(m_decompressDir).arg(m_repo->assets()->id()).arg(QFileInfo(m_repo->assets()->name()).completeBaseName());
+  else if (m_repo->assets()->flags() & UPDFLG_Download)
+    srcPath = QString("%1/A%2").arg(m_downloadDir).arg(m_repo->assets()->id());
+  else {
+    m_status->reportProgress(tr("Unable to determine source directory for asset %1").arg(m_repo->assets()->name()), QtCriticalMsg);
+    return false;
+  }
+
+  m_status->reportProgress(tr("Copy files from %1").arg(srcPath), QtDebugMsg);
+
+  QString destPath = m_updateDir;
+
+  if (!m_repo->assets()->subDirectory().isEmpty())
+    destPath.append("/" % m_repo->assets()->subDirectory());
+
+  if (!QDir().mkpath(destPath)) {
+    m_status->reportProgress(tr("Failed to create directory %1").arg(QDir::toNativeSeparators(destPath)), QtCriticalMsg);
+    return false;
+  }
+
+  m_status->reportProgress(tr("Check/create directory: %1").arg(destPath), QtDebugMsg);
+  m_status->reportProgress(tr("Directories checked/created: %1").arg(1), QtDebugMsg);
+
+  QRegularExpression filter(m_repo->assets()->copyFilter(), QRegularExpression::CaseInsensitiveOption);
+  m_status->reportProgress(tr("Copy filter pattern: %1").arg(filter.pattern()), QtDebugMsg);
+
+  QDirIterator itcnt(srcPath, QDir::Files, QDirIterator::Subdirectories);
+
+  int cnt = 0;
+
+  //m_status->reportProgress(tr("Calculating number of files"), QtDebugMsg);
+
+  while (itcnt.hasNext())
+  {
+    QFileInfo src(itcnt.next());
+
+    if ((!filter.pattern().isEmpty()) && (!src.fileName().contains(filter)))
+      continue;
+
+    cnt++;
+  }
+
+  m_status->setMaximum(cnt);
+
+  QDirIterator itfiles(srcPath, QDir::Files, QDirIterator::Subdirectories);
+
+  cnt = 0;
+
+  while (itfiles.hasNext())
+  {
+    QFileInfo src(itfiles.next());
+
+    if ((!filter.pattern().isEmpty()) && (!src.fileName().contains(filter)))
+      continue;
+
+    QFile dest(destPath % "/" % src.fileName());
+
+    if (dest.exists()) {
+      if (!dest.remove()) {
+        m_status->reportProgress(tr("Failed to delete existing file %1").arg(dest.fileName()), QtCriticalMsg);
+        return false;
+      }
+      m_status->reportProgress(tr("Deleted file: %1").arg(dest.fileName()), QtDebugMsg);
+    }
+
+    if (!QFile::copy(src.absoluteFilePath(), dest.fileName())) {
+      m_status->reportProgress(tr("Failed to copy file %1").arg(src.absoluteFilePath()), QtCriticalMsg);
+      return false;
+    }
+
+    m_status->reportProgress(tr("Copied %1 to %2").arg(src.fileName()).arg(dest.fileName()), QtDebugMsg);
+    cnt++;
+    m_status->setValue(cnt);
+  }
+
+  if (!cnt) {
+    m_status->reportProgress(tr("No downloaded or decompressed files matched filter '%1'").arg(m_repo->assets()->copyFilter()), QtCriticalMsg);
+    return false;
+  }
+
+  m_status->setValue(m_status->maximum());
+  m_status->reportProgress(tr("Files copied: %1").arg(cnt), QtInfoMsg);
+
+  return true;
+}
+
+bool UpdateInterface::copyFlaggedAssets()
+{
+  m_repo->assets()->setFilterFlags(UPDFLG_CopyDest);
+  m_status->reportProgress(tr("Asset filter applied: %1 - %2 found").arg(updateFlagToString(UPDFLG_CopyDest)).arg(m_repo->assets()->count()), QtDebugMsg);
+
+  for (int i = 0; i < m_repo->assets()->count(); ++i) {
+    m_repo->assets()->getSetId(i);
+    if (!copyAsset())
+      return false;
+  }
+
+  return true;
+}
+
+bool UpdateInterface::copyStructure()
+{
+  m_status->reportProgress(tr("Copy directory structure"), QtDebugMsg);
+  m_status->setValue(0);
+  m_status->setMaximum(100);
+
+  QDir srcPath(QString("%1/A%2/%3").arg(m_decompressDir).arg(m_repo->assets()->id()).arg(QFileInfo(m_repo->assets()->name()).completeBaseName()));
+
+  if (!srcPath.exists()) {
+    m_status->reportProgress(tr("Decompressed file structure not found at %1").arg(QDir::toNativeSeparators(srcPath.path())), QtCriticalMsg);
+    return false;
+  }
+
+  m_status->reportProgress(tr("Copy file structure from: %1").arg(QDir::toNativeSeparators(srcPath.path())), QtDebugMsg);
+
+  QString baseDir = m_updateDir;
+
+  if (!m_repo->assets()->subDirectory().isEmpty())
+    baseDir.append("/" % m_repo->assets()->subDirectory());
+
+  //  create directory structure first as there is no order to QDirIterator if both files and directories selected
+  //  also supports creation of empty directories
+  QDirIterator itdirs(srcPath.path(), QDir::AllDirs | QDir::NoDot | QDir::NoDotDot, QDirIterator::Subdirectories);
+
+  int cnt = 0;
+
+  while (itdirs.hasNext())
+  {
+    QFileInfo src(itdirs.next());
+
+    QString subPath(src.absoluteFilePath());
+    subPath.replace(srcPath.path(), "");
+
+    QString dir = baseDir % subPath;
+
+    if (!QDir().mkpath(dir)) {
+      m_status->reportProgress(tr("Failed to create directory %1").arg(dir), QtCriticalMsg);
+      return false;
+    }
+
+    m_status->reportProgress(tr("Check/create directory: %1").arg(dir), QtDebugMsg);
+    cnt++;
+  }
+
+  m_status->reportProgress(tr("Directories checked/created: %1").arg(cnt), QtInfoMsg);
+
+  QRegularExpression filter(m_repo->assets()->copyFilter(), QRegularExpression::CaseInsensitiveOption);
+  //m_status->reportProgress(tr("Copy filter pattern: %1").arg(filter.pattern()), QtDebugMsg);
+
+  QDirIterator itcnt(srcPath.path(), QDir::Files, QDirIterator::Subdirectories);
+
+  cnt = 0;
+
+  //m_status->reportProgress(tr("Calculating number of files"), QtDebugMsg);
+
+  while (itcnt.hasNext())
+  {
+    QFileInfo src(itcnt.next());
+
+    if ((!filter.pattern().isEmpty()) && (!src.fileName().contains(filter)))
+      continue;
+
+    cnt++;
+  }
+
+  m_status->setMaximum(cnt);
+
+  QDirIterator itfiles(srcPath.path(), QDir::Files, QDirIterator::Subdirectories);
+
+  cnt = 0;
+
+  while (itfiles.hasNext())
+  {
+    QFileInfo src(itfiles.next());
+
+    if ((!filter.pattern().isEmpty()) && (!src.fileName().contains(filter)))
+      continue;
+
+    QString subPath(src.absoluteFilePath());
+    subPath.replace(srcPath.path(), "");
+
+    QFile dest(baseDir % subPath);
+
+    if (dest.exists()) {
+      if (!dest.remove()) {
+        m_status->reportProgress(tr("Failed to delete existing file %1").arg(dest.fileName()), QtCriticalMsg);
+        return false;
+      }
+    }
+
+    if (!QFile::copy(src.absoluteFilePath(), dest.fileName())) {
+      m_status->reportProgress(tr("Failed to copy file %1").arg(src.absoluteFilePath()), QtCriticalMsg);
+      return false;
+    }
+
+    m_status->reportProgress(tr("Copied %1 to %2").arg(src.fileName()).arg(dest.fileName()), QtDebugMsg);
+    cnt++;
+    m_status->setValue(cnt);
+  }
+
+  m_status->setValue(m_status->maximum());
+  m_status->reportProgress(tr("Files copied: %1").arg(cnt), QtInfoMsg);
+
+  return true;
+}
+
+bool UpdateInterface::copyToDestination()
+{
+  m_status->progressMessage(tr("Copying to destination"));
+
+  if (!copyFlaggedAssets()) {
+    m_status->reportProgress(tr("Unable to copy assets"), QtDebugMsg);
+    return false;
+  }
+
+  return true;
+}
+
+const QString UpdateInterface::decompressDir() const
+{
+  return m_decompressDir;
+}
+
+bool UpdateInterface::decompressFlaggedAssets()
+{
+  m_repo->assets()->setFilterFlags(UPDFLG_Decompress);
+  m_status->reportProgress(tr("Asset filter applied: %1 - %2 found").arg(updateFlagToString(UPDFLG_Decompress)).arg(m_repo->assets()->count()), QtDebugMsg);
+
+  for (int i = 0; i < m_repo->assets()->count(); ++i) {
+    if (!decompressAsset(i))
+      return false;
+  }
+
+  return true;
+}
+
+bool UpdateInterface::decompressAsset(int row)
+{
+  m_repo->assets()->getSetId(row);
+
+  if (!(m_repo->assets()->flags() & UPDFLG_Decompress))
+    return true;
+
+  QString filename = m_repo->assets()->name();
+
+  if (filename.isEmpty())
+    return false;
+
+  QFileInfo f(QString("%1/A%2/%3").arg(m_downloadDir).arg(m_repo->assets()->id()).arg(filename));
+
+  if (!f.exists())
+    return false;
+
+  m_status->progressMessage(tr("Decompressing %1").arg(filename));
+  m_status->reportProgress(tr("Decompress: %1").arg(filename), QtInfoMsg);
+
+  return decompressArchive(f.absoluteFilePath(), QString("%1/A%2").arg(m_decompressDir).arg(m_repo->assets()->id()));
+}
+
+bool UpdateInterface::decompressArchive(const QString & archivePath, const QString & destDir)
+{
+  QString dest = destDir;
+
+  if (!dest.endsWith("/"))
+    dest.append("/");
+
+  dest.append(QFileInfo(archivePath).completeBaseName());
+
+  MinizInterface mIface(m_status->progress(), MinizInterface::PCM_SIZE, m_params->logLevel);
+
+  if (!mIface.unzipArchiveToPath(archivePath, dest)) {
+    m_status->reportProgress(tr("Failed to decompress %1").arg(archivePath), QtCriticalMsg);
+    return false;
+  }
+
+  return true;
+}
+
+const QString UpdateInterface::downloadDir() const
+{
+  return m_downloadDir;
+}
+
+bool UpdateInterface::downloadFlaggedAssets()
+{
+  m_repo->assets()->setFilterFlags(UPDFLG_Download);
+  m_status->reportProgress(tr("Asset filter applied: %1 - %2 found").arg(updateFlagToString(UPDFLG_Download)).arg(m_repo->assets()->count()), QtDebugMsg);
+
+  for (int i = 0; i < m_repo->assets()->count(); ++i) {
+    if (!m_repo->assets()->downloadToFile(i, m_downloadDir))
+      return false;
+  }
+
+  return true;
+}
+
+bool UpdateInterface::download()
+{
+  m_status->progressMessage(tr("Downloading assets"));
+
+  if (!downloadFlaggedAssets()) {
+    m_status->reportProgress(tr("Unable to download flagged assets"), QtDebugMsg);
+    return false;
+  }
+
+  return true;
+}
+
+bool UpdateInterface::decompress()
+{
+  m_status->progressMessage(tr("Decompressing assets"));
+
+  if (!decompressFlaggedAssets()) {
+    m_status->reportProgress(tr("Unable to decompress flagged assets"), QtDebugMsg);
+    return false;
+  }
+
+  return true;
+}
+
+bool UpdateInterface::flagAssets()
+{
+  m_status->progressMessage(tr("Flagging assets"));
+
+  for (int i = 0; i < m_params->assets.size(); i++) {
+    const UpdateParameters::AssetParams & ap = m_params->assets.at(i);
+    if (!setFilteredAssets(ap))
+      return false;
+  }
+
+  return true;
+}
+
+bool UpdateInterface::housekeeping()
+{
+  m_status->progressMessage(tr("Housekeeping"));
+  int cnt = 0;
+
+  m_status->setValue(cnt);
+  m_status->setMaximum(2);
+
+  m_status->setValue(++cnt);
+
+  g.lastUpdateDir(m_params->updateDir);  //  used by sdsync
+
+  if (m_params->flags & UPDFLG_DelDownloads) {
+    m_status->reportProgress(tr("Delete download directory: %1").arg(m_downloadDir), QtDebugMsg);
+    QDir d(m_downloadDir);
+    if (!d.removeRecursively())
+      m_status->reportProgress(tr("Failed to delete downloads folder %1").arg(m_downloadDir), QtCriticalMsg);
+  }
+
+  m_status->setValue(++cnt);
+
+  if (m_params->flags & UPDFLG_DelDecompress) {
+    if (!m_params->decompressDirUseDwnld) {
+      m_status->reportProgress(tr("Delete decompress directory: %1").arg(m_decompressDir), QtDebugMsg);
+      QDir d(m_decompressDir);
+      if (!d.removeRecursively())
+        m_status->reportProgress(tr("Failed to delete decompress folder %1").arg(m_decompressDir), QtCriticalMsg);
+    }
+    else if (!(m_params->flags & UPDFLG_DelDownloads)) {
+      m_repo->assets()->setFilterFlags(UPDFLG_Decompress);
+      for (int i = 0; i < m_repo->assets()->count(); i++) {
+        m_repo->assets()->getSetId(i);
+        QString path = QString("%1/A%2/%3").arg(m_decompressDir).arg(m_repo->assets()->id()).arg(QFileInfo(m_repo->assets()->name()).completeBaseName());
+        m_status->reportProgress(tr("Delete decompress folder: %1").arg(path), QtDebugMsg);
+        if (!QDir(path).removeRecursively())
+          m_status->reportProgress(tr("Failed to delete decompress folder %1").arg(path), QtCriticalMsg);
+      }
+    }
+  }
+
+  m_status->setValue(++cnt);
+
+  return true;
+}
+
+const int UpdateInterface::id() const
+{
+  return (int)m_id;
+}
+
+void UpdateInterface::init(QString repoPath, QString nightly, int resultsPerPage)
+{
+  appSettingsInit();
+  m_repo->init(repoPath, nightly, resultsPerPage);
+  releaseCurrent();
+}
+
+const bool UpdateInterface::isReleaseLatest()
+{
+  if (!m_repo->releases()->retrieveMetaDataAll())
+    return false;
+
+  // release metadata and variables are cached so ensure referencing latest release for channel
+  m_repo->releases()->getSetId();
+
+  // nightlies often have the same version so also check id
+  if (isVersionLatest(versionCurrent(), m_repo->releases()->version()) &&
+      g.component[m_id].releaseId() == m_repo->releases()->id())
+    return true;
+
+  return false;
+}
+
+const bool UpdateInterface::isSettingsIndexValid() const
+{
+  return (int)m_id > -1 && (int)m_id < MAX_COMPONENTS;
+}
+
+const bool UpdateInterface::isUpdateAvailable()
+{
+  if (g.component[m_id].checkForUpdate())
+    return !isReleaseLatest();
+  else {
+    return false;
+  }
+}
+
+const bool UpdateInterface::isVersionLatest(const QString & installed, const QString & latest)
+{
+  QStringList a = versionToStringList(installed);
+  QStringList b = versionToStringList(latest);
+
+  // not equal comparision used as version identifiers are inconsistent eg release vs nightly vs older
+  for (int i = 0; i < 4; i++) {
+    if (a.at(i) != b.at(i)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+const bool UpdateInterface::isUpdateable() const
+{
+  if (!isSettingsIndexValid())
+    return false;
+
+  return g.component[m_id].checkForUpdate();
+}
+
+const QString UpdateInterface::releaseLatest()
+{
+  if (!m_repo->releases()->retrieveMetaDataAll())
+    return tr("unknown");
+
+  return m_repo->releases()->name();
+}
+
+const QString UpdateInterface::name() const
+{
+  return m_name;
+}
+
+UpdateNetwork* const UpdateInterface::network() const
+{
+  return m_network;
+}
+
+UpdateParameters* const UpdateInterface::params() const
+{
+  return m_params;
+}
+
+bool UpdateInterface::preparation()
+{
+  m_status->progressMessage(tr("Preparing"));
+  int cnt = 0;
+
+  m_status->setValue(cnt);
+  m_status->setMaximum(5);
+
+  if (!setRunFolders()) {
+    m_status->reportProgress(tr("Set run folders failed"), QtDebugMsg);
+    return false;
+  }
+
+  m_status->setValue(++cnt);
+
+  if (!m_repo->releases()->retrieveMetaDataAll()) {
+    return false;
+  }
+
+  m_status->setValue(++cnt);
+
+  if (!m_repo->releases()->getSetId(m_params->releaseUpdate)) {
+    m_status->reportProgress(tr("Set release id from update release '%1' failed").arg(m_params->releaseUpdate), QtCriticalMsg);
+    return false;
+  }
+
+  m_status->setValue(++cnt);
+
+  if (!m_repo->assets()->retrieveMetaDataAll())
+    return false;
+
+  m_status->setValue(++cnt);
+
+  if (!flagAssets())
+    return false;
+
+  m_status->setValue(++cnt);
+
+  return true;
+}
+
+void UpdateInterface::releaseClear()
+{
+  g.component[m_id].releaseClear();
+  releaseCurrent();
+}
+
+const QString UpdateInterface::releaseCurrent()
+{
+  m_params->releaseCurrent = g.component[m_id].release();
+  return m_params->releaseCurrent;
+}
+
+const QStringList UpdateInterface::releaseList()
+{
+  if (!m_repo->releases()->retrieveMetaDataAll())
+    return QStringList();
+
+  return m_repo->releases()->list();
+}
+
+bool UpdateInterface::releaseSettingsSave()
+{
+  m_status->reportProgress(tr("Save release settings"), QtDebugMsg);
+  g.component[m_id].release(m_repo->releases()->name());
+  g.component[m_id].version(m_repo->releases()->version());
+  g.component[m_id].releaseId(m_repo->releases()->id());
+  g.component[m_id].date(m_repo->releases()->date());
+
+  return true;
+}
+
+const QString UpdateInterface::releaseUpdate()
+{
+  if (m_params->releaseUpdate.isEmpty())
+    m_params->releaseUpdate = releaseLatest();
+
+  return m_params->releaseUpdate;
+}
+
+Repo* const UpdateInterface::repo() const
+{
+  return m_repo;
+}
+
+void UpdateInterface::resetEnvironment()
+{
+  //  reset from previous run if any
+  m_params->flags &= ~UPDFLG_Update;
+  m_params->logLevel = g.updLogLevel();
+
+  m_status->setProgress(nullptr);
+  m_status->setLogLevel(m_params->logLevel);
+
+  setReleaseChannel(g.component[m_id].releaseChannel());
+  m_params->releaseUpdate = "";
+  setFirmwareFlavour();
+  setLanguage();
+  assetSettingsLoad();
+  setParamFolders();
+
+  if (g.updDelDownloads())
+    m_params->flags |= UpdateInterface::UPDFLG_DelDownloads;
+  else
+    m_params->flags &= ~UpdateInterface::UPDFLG_DelDownloads;
+
+  if (g.updDelDecompress())
+    m_params->flags |= UpdateInterface::UPDFLG_DelDecompress;
+  else
+    m_params->flags &= ~UpdateInterface::UPDFLG_DelDecompress;
+}
+
+bool UpdateInterface::retrieveAssetsJsonFile(const QString & assetName, QJsonDocument * json)
+{
+  m_repo->assets()->setFilterPattern(assetName);
+  return m_repo->assets()->getJson(assetName, json);
+}
+
+bool UpdateInterface::retrieveRepoJsonFile(const QString & filename, QJsonDocument * json)
+{
+  return m_repo->getJson(filename, json);
+}
+
+bool UpdateInterface::setFilteredAssets(const UpdateParameters::AssetParams & ap)
+{
+  QString pattern(m_params->buildFilterPattern(ap.filterType, ap.filter));
+  m_repo->assets()->setFilterPattern(pattern);
+  m_status->reportProgress(tr("Asset filter applied: %1 - %2 found").arg(pattern).arg(m_repo->assets()->count()), QtDebugMsg);
+
+  if (m_repo->assets()->count() < 1) {
+    m_status->reportProgress(tr("No assets found in release '%1' using filter '%2'").arg(m_repo->releases()->name()).arg(pattern), QtCriticalMsg);
+    return false;
+  }
+  else if (ap.maxExpected > 0 && m_repo->assets()->count() > ap.maxExpected) {
+    m_status->reportProgress(tr("%1 assets found when %2 expected in release '%3' using filter '%4'")
+                        .arg(m_repo->assets()->count() + 1).arg(ap.maxExpected).arg(m_repo->releases()->name().arg(pattern)), QtCriticalMsg);
+    return false;
+  }
+
+  for (int i = 0; i < m_repo->assets()->count(); i++) {
+    m_repo->assets()->getSetId(i);
+    if (!m_repo->assets()->setFlags(ap.flags)) {
+      m_status->reportProgress(tr("Unable to set processing flags for asset %1").arg(m_repo->assets()->name()), QtCriticalMsg);
+      return false;
+    }
+
+    if (!m_repo->assets()->setSubDirectory(ap.destSubDir)) {
+      m_status->reportProgress(tr("Unable to set sub directory for asset %1").arg(m_repo->assets()->name()), QtCriticalMsg);
+      return false;
+    }
+
+    if (!m_repo->assets()->setCopyFilter(m_params->buildFilterPattern(ap.copyFilterType, ap.copyFilter))) {
+      m_status->reportProgress(tr("Unable to set copy filter for asset %1").arg(m_repo->assets()->name()), QtCriticalMsg);
+      return false;
+    }
+  }
+
+  return true;
+}
+
+void UpdateInterface::setFirmwareFlavour()
+{
+  m_params->fwFlavour = getCurrentFirmware()->getDownloadId();
+}
+
+void UpdateInterface::setLanguage()
+{
+  const Firmware * baseFw = getCurrentFirmware()->getFirmwareBase();
+  const QStringList currVariant = getCurrentFirmware()->getId().split('-');
+
+  m_params->language = "";
+
+  for (const char *lang : baseFw->languageList()) {
+    if (currVariant.last() == lang) {
+      m_params->language = currVariant.last();
+      break;
+    }
+  }
+}
+
+void UpdateInterface::setParamFolders()
+{
+  if (g.downloadDir().trimmed().isEmpty())
+    g.downloadDirReset(true);
+
+  m_params->downloadDir = g.downloadDir().trimmed();
+
+  m_params->decompressDirUseDwnld = g.decompressDirUseDwnld();
+
+  if (m_params->decompressDirUseDwnld)
+    m_params->decompressDir = m_params->downloadDir;
+  else {
+    if (g.decompressDir().trimmed().isEmpty())
+      g.decompressDirReset(true);
+
+    m_params->decompressDir = g.decompressDir().trimmed();
+  }
+
+  if (g.currentProfile().sdPath().trimmed().isEmpty())
+    m_params->updateDirUseSD = false;
+  else
+    m_params->updateDirUseSD = g.updateDirUseSD();
+
+  if (m_params->updateDirUseSD) {
+    m_params->sdDir = g.currentProfile().sdPath().trimmed();
+    m_params->updateDir = m_params->sdDir;
+  }
+  else {
+    if (g.updateDir().trimmed().isEmpty())
+      g.updateDirReset(true);
+
+    m_params->updateDir = g.updateDir().trimmed();
+  }
+}
+
+void UpdateInterface::setReleaseChannel(const int channel)
+{
+  m_params->releaseChannel = channel;
+  m_repo->releases()->setChannel(channel);
+}
+
+void UpdateInterface::setReleaseId(QString name)
+{
+  m_repo->releases()->getSetId(name);
+}
+
+bool UpdateInterface::setRunFolders()
+{
+  QRegularExpression rx("[0-9a-zA-Z_\\-.]+");
+  // the validator treats the regexp as "^[0-9a-zA-Z_\-.]+$"
+  QRegularExpressionValidator v(rx);
+  int pos = 0;
+
+  QString fldr(m_repo->releases()->name().trimmed());
+
+  if (v.validate(fldr, pos) != QValidator::Acceptable) {
+    fldr.replace("\"", "");
+    fldr.replace("'", "");
+    fldr.replace("(", "_");
+    fldr.replace(")", "_");
+    fldr.replace("[", "_");
+    fldr.replace("]", "_");
+    fldr.replace(" ", "_");
+    fldr.replace("__", "_");
+
+    if (v.validate(fldr, pos) != QValidator::Acceptable) {
+      //m_status->reportProgress(tr("Unable to use release name %1 for directory name using default %2")
+      //               .arg(m_repo->releases()->name().trimmed()).arg(QString("R%1").arg(m_repo->releases()->id())), QtDebugMsg);
+      fldr = QString("R%1").arg(m_repo->releases()->id());
+    }
+  }
+
+  m_downloadDir = QString("%1/%2/%3").arg(m_params->downloadDir).arg(m_name).arg(fldr);
+
+  if (!checkCreateDirectory(m_downloadDir, UPDFLG_Download))
+    return false;
+
+  //m_status->reportProgress(tr("Download directory: %1").arg(m_downloadDir), QtDebugMsg);
+
+  m_decompressDir = QString("%1/%2/%3").arg(m_params->decompressDir).arg(m_name).arg(fldr);
+
+  if (!checkCreateDirectory(m_decompressDir, UPDFLG_Decompress))
+    return false;
+
+  //m_status->reportProgress(tr("Decompress directory: %1").arg(m_decompressDir), QtDebugMsg);
+
+  m_updateDir = m_params->updateDir;
+
+  if (!checkCreateDirectory(m_updateDir, UPDFLG_CopyDest))
+    return false;
+
+  //m_status->reportProgress(tr("Update directory: %1").arg(m_updateDir), QtDebugMsg);
+
+  return true;
+}
+
+void UpdateInterface::setRunUpdate()
+{
+  m_params->flags |= UPDFLG_Update;
+}
+
+UpdateStatus* const UpdateInterface::status() const
+{
+  return m_status;
+}
+
+bool UpdateInterface::update(ProgressWidget * progress)
+{
+  if (!(m_params->flags & UPDFLG_Update))
+    return true;
+
+  m_status->setProgress(progress);
+  m_status->setLogLevel(m_params->logLevel);
+
+  m_status->setInfo(tr("Processing updates for: %1").arg(m_name));
+  m_status->setValue(0);
+  m_status->setMaximum(100);
+
+  m_status->reportProgress(tr("Processing updates for: %1").arg(m_name), QtInfoMsg);
+
+  if (!preparation()) {
+    m_status->reportProgress(tr("%1 preparation failed").arg(m_name), QtCriticalMsg);
+    return false;
+  }
+
+  if (!download()) {
+    m_status->reportProgress(tr("%1 download failed").arg(m_name), QtCriticalMsg);
+    return false;
+  }
+
+  if (!decompress()) {
+    m_status->reportProgress(tr("%1 decompress failed").arg(m_name), QtCriticalMsg);
+    return false;
+  }
+
+  if (!copyToDestination()) {
+    m_status->reportProgress(tr("%1 copy to destination failed").arg(m_name), QtCriticalMsg);
+    return false;
+  }
+
+  //  perform before async install in case Companion restarted
+  if (!releaseSettingsSave()) {
+    m_status->reportProgress(tr("Failed to save release settings"), QtDebugMsg);
+    return false;
+  }
+
+  if (!asyncInstall()) {
+    m_status->reportProgress(tr("%1 start async failed").arg(m_name), QtCriticalMsg);
+    return false;
+  }
+
+  if (!housekeeping()) {
+    m_status->reportProgress(tr("%1 housekeeping failed").arg(m_name), QtCriticalMsg);
+    return false;
+  }
+
+  m_status->reportProgress(tr("%1 update successful").arg(m_name), QtInfoMsg);
+
+  if (!m_status->progress())
+    QMessageBox::information(m_status->progress(), CPN_STR_APP_NAME, tr("%1 update successful").arg(m_name));
+
+  return true;
+}
+
+const QString UpdateInterface::updateDir() const
+{
+  return m_updateDir;
+}
+
+//  static
+const QString UpdateInterface::updateFlagsToString(const int flags)
+{
+  QString str;
+
+  for (int i = 0; i < 32; i++) {
+    int flag = flags & (1 << i);
+    if (flag) {
+      if (!str.isEmpty())
+        str.append(";");
+      str.append(updateFlagToString(flag));
+    }
+  }
+
+  return str;
+}
+
+//  static
+const QString UpdateInterface::updateFlagToString(const int flag)
+{
+  switch (flag) {
     case UPDFLG_None:
       return "None";
     case UPDFLG_Update:
@@ -296,27 +1012,19 @@ QString UpdateInterface::updateFlagsToString(UpdateFlags val)
       return "Async Install";
     case UPDFLG_DelDownloads:
       return "Delete Downloads";
+    case UPDFLG_DelDecompress:
+      return "Delete Decompress";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
 }
 
-//  static
-QString UpdateInterface::downloadDataTypeToString(DownloadDataType val)
+const QString UpdateInterface::versionCurrent()
 {
-  switch ((int)val) {
-    case DDT_Binary:
-      return "Binary";
-    case DDT_Content:
-      return "Content";
-    case DDT_MetaData:
-      return "Meta Data";
-    default:
-      return CPN_STR_UNKNOWN_ITEM;
-  }
+  return g.component[m_id].version();
 }
 
-//  static
+// static
 QStringList UpdateInterface::versionToStringList(QString version)
 {
   QStringList strl = version.split(".");
@@ -326,1339 +1034,4 @@ QStringList UpdateInterface::versionToStringList(QString version)
   }
 
   return strl;
-}
-
-void UpdateInterface::reportProgress(const QString & text, const int type)
-{
-  if (params->logLevel == QtDebugMsg ||
-     (params->logLevel == QtInfoMsg && type > QtDebugMsg) ||
-     (type < QtInfoMsg && type >= params->logLevel)) {
-    if (progress)
-      progress->addMessage(text, type);
-    else
-      qDebug() << text;
-  }
-
-  if (type == QtCriticalMsg || type == QtFatalMsg)
-    criticalMsg(text);
-}
-
-void UpdateInterface::progressMessage(const QString & text)
-{
-  if (progress)
-    progress->setInfo(text);
-  else
-    qDebug() << text;
-}
-
-void UpdateInterface::criticalMsg(const QString & msg)
-{
-  QMessageBox::critical(progress, tr("Update Interface"), msg);
-}
-
-bool UpdateInterface::isUpdateable()
-{
-  return g.component[m_id].checkForUpdate();
-}
-
-void UpdateInterface::resetEnvironment()
-{
-  //  reset from previous run if any
-  params->flags &= ~UPDFLG_Update;
-  progress = nullptr;
-
-  params->logLevel = g.updLogLevel();
-  setReleaseChannel(g.component[m_id].releaseChannel());
-  params->updateRelease = "";
-  setFlavourLanguage();
-  loadAssetSettings();
-  setParamFolders();
-
-  if (g.updDelDownloads())
-    params->flags |= UpdateInterface::UPDFLG_DelDownloads;
-  else
-    params->flags &= ~UpdateInterface::UPDFLG_DelDownloads;
-
-  if (g.updDelDecompress())
-    params->flags |= UpdateInterface::UPDFLG_DelDecompress;
-  else
-    params->flags &= ~UpdateInterface::UPDFLG_DelDecompress;
-}
-
-void UpdateInterface::setReleaseChannel(int channel)
-{
-  params->releaseChannel = channel;
-  //repoReleasesMetaData();
-  releases->setReleaseChannel(channel);
-}
-
-void UpdateInterface::setReleaseId(QString val)
-{
-  releases->getSetId(val);
-}
-
-void UpdateInterface::setFlavourLanguage()
-{
-  const Firmware * baseFw = getCurrentFirmware()->getFirmwareBase();
-  const QStringList currVariant = getCurrentFirmware()->getId().split('-');
-
-  params->fwFlavour = "";
-
-  if (currVariant.size() > 1) {
-    params->fwFlavour = currVariant.at(1);
-    params->fwFlavour = params->fwFlavour.replace('+', 'p');
-  }
-
-  params->language = "";
-
-  for (const char *lang : baseFw->languageList()) {
-    if (currVariant.last() == lang) {
-      params->language = currVariant.last();
-      break;
-    }
-  }
-}
-
-void UpdateInterface::setParamFolders()
-{
-  if (g.downloadDir().trimmed().isEmpty())
-    g.downloadDirReset(true);
-
-  params->downloadDir = g.downloadDir().trimmed();
-
-  params->decompressDirUseDwnld = g.decompressDirUseDwnld();
-
-  if (params->decompressDirUseDwnld)
-    params->decompressDir = params->downloadDir;
-  else {
-    if (g.decompressDir().trimmed().isEmpty())
-      g.decompressDirReset(true);
-
-    params->decompressDir = g.decompressDir().trimmed();
-  }
-
-  if (g.currentProfile().sdPath().trimmed().isEmpty())
-    params->updateDirUseSD = false;
-  else
-    params->updateDirUseSD = g.updateDirUseSD();
-
-  if (params->updateDirUseSD) {
-    params->sdDir = g.currentProfile().sdPath().trimmed();
-    params->updateDir = params->sdDir;
-  }
-  else {
-    if (g.updateDir().trimmed().isEmpty())
-      g.updateDirReset(true);
-
-    params->updateDir = g.updateDir().trimmed();
-  }
-}
-
-void UpdateInterface::clearRelease()
-{
-  g.component[m_id].clearRelease();
-  currentRelease();
-}
-
-const QString UpdateInterface::currentRelease()
-{
-  params->currentRelease = g.component[m_id].release();
-  return params->currentRelease;
-}
-
-QString UpdateInterface::latestRelease()
-{
-  if (!repoReleasesMetaData())
-    return tr("unknown");
-
-  return releases->name();
-}
-
-const QString UpdateInterface::updateRelease()
-{
-  if (params->updateRelease.isEmpty())
-    params->updateRelease = latestRelease();
-
-  return params->updateRelease;
-}
-
-const bool UpdateInterface::isUpdateAvailable()
-{
-  if (g.component[m_id].checkForUpdate())
-    return !isLatestRelease();
-  else {
-    return false;
-  }
-}
-
-const bool UpdateInterface::isLatestVersion(const QString & installed, const QString & latest)
-{
-  QStringList a = versionToStringList(installed);
-  QStringList b = versionToStringList(latest);
-
-  // not equal comparision used as version identifiers are inconsistent eg release vs nightly vs older
-  for (int i = 0; i < 4; i++) {
-    if (a.at(i) != b.at(i)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-const bool UpdateInterface::isLatestRelease()
-{
-  if (!repoReleasesMetaData())
-    return false;
-
-  QString currentVer = currentVersion();
-  QString latestVer = releases->version();
-  // nightlies often have the same version so also check id
-  if (isLatestVersion(currentVer, latestVer) && g.component[m_id].releaseId() == releases->id()) {
-    return true;
-  }
-  else {
-    return false;
-  }
-}
-
-const QString UpdateInterface::currentVersion()
-{
-  return g.component[m_id].version();
-}
-
-const QStringList UpdateInterface::getReleases()
-{
-  if (!repoReleasesMetaData())
-    return QStringList();
-
-  return releases->list();
-}
-
-bool UpdateInterface::repoReleasesMetaData()
-{
-  if (releases->refreshRequired()) {
-    if (!downloadReleasesMetaData()) {
-      reportProgress(tr("Unable to download release meta data"), QtDebugMsg);
-      releases->setId(0);
-      return false;
-    }
-
-    releases->getSetId();
-  }
-
-  return true;
-}
-
-bool UpdateInterface::repoReleaseAssetsMetaData()
-{
-  if (!repoReleasesMetaData())
-    return false;
-
-  if (!downloadReleaseAssetsMetaData(releases->id())) {
-    reportProgress(tr("Unable to download release assets information"), QtDebugMsg);
-    return false;
-  }
-
-  return true;
-}
-
-bool UpdateInterface::setRunFolders()
-{
-  QRegExp rx("[0-9a-zA-Z_\\-.]+");
-  // the validator treats the regexp as "^[0-9a-zA-Z_\-.]+$"
-  QRegExpValidator v(rx);
-  int pos = 0;
-
-  QString fldr(releases->name().trimmed());
-
-  if (v.validate(fldr, pos) != QValidator::Acceptable) {
-    fldr.replace("\"", "");
-    fldr.replace("'", "");
-    fldr.replace("(", "_");
-    fldr.replace(")", "_");
-    fldr.replace("[", "_");
-    fldr.replace("]", "_");
-    fldr.replace(" ", "_");
-    fldr.replace("__", "_");
-
-    if (v.validate(fldr, pos) != QValidator::Acceptable) {
-      //reportProgress(tr("Unable to use release name %1 for directory name using default %2")
-      //               .arg(releases->name().trimmed()).arg(QString("R%1").arg(releases->id())), QtDebugMsg);
-      fldr = QString("R%1").arg(releases->id());
-    }
-  }
-
-  downloadDir = QString("%1/%2/%3").arg(params->downloadDir).arg(m_name).arg(fldr);
-
-  if (!checkCreateDirectory(downloadDir, UPDFLG_Download))
-    return false;
-
-  //reportProgress(tr("Download directory: %1").arg(downloadDir), QtDebugMsg);
-
-  decompressDir = QString("%1/%2/%3").arg(params->decompressDir).arg(m_name).arg(fldr);
-
-  if (!checkCreateDirectory(decompressDir, UPDFLG_Decompress))
-    return false;
-
-  //reportProgress(tr("Decompress directory: %1").arg(decompressDir), QtDebugMsg);
-
-  updateDir = params->updateDir;
-
-  if (!checkCreateDirectory(updateDir, UPDFLG_CopyDest))
-    return false;
-
-  //reportProgress(tr("Update directory: %1").arg(updateDir), QtDebugMsg);
-
-  return true;
-}
-
-bool UpdateInterface::checkCreateDirectory(const QString & dir, const UpdateFlags flag)
-{
-  if (params->flags & flag) {
-    if (dir.isEmpty()) {
-      reportProgress(tr("%1 directory not configured in application settings!").arg(updateFlagsToString(flag)), QtCriticalMsg);
-      return false;
-    }
-    else if (!QDir().mkpath(dir)) {
-      reportProgress(tr("Failed to create %1 directory %2!").arg(updateFlagsToString(flag)).arg(dir), QtCriticalMsg);
-      return false;
-    }
-  }
-
-  return true;
-}
-
- bool UpdateInterface::getReleaseJsonAsset(const QString assetName, QJsonDocument * json)
-{
-  if (!repoReleaseAssetsMetaData())
-    return false;
-
-  if (!assets->getSetId(assetName))
-    return false;
-
-  if (!downloadAssetToBuffer(assets->id())) {
-    return false;
-  }
-
-  if (!convertDownloadToJson(json)) {
-    return false;
-  }
-
-  return true;
-}
-
- bool UpdateInterface::getRepoJsonFile(const QString filename, QJsonDocument * json)
-{
-  if (!downloadTextFileToBuffer(filename)) {
-    return false;
-  }
-
-  if (!convertDownloadToJson(json)) {
-    return false;
-  }
-
-  return true;
-}
-
-bool UpdateInterface::downloadReleasesMetaData()
-{
-  //progressMessage(tr("Download releases metadata"));
-  downloadMetaData(MDT_Releases, releases->urlReleases());
-  return downloadSuccess;
-}
-
-bool UpdateInterface::downloadReleaseLatestMetaData()
-{
-  //progressMessage(tr("Download latest release metadata"));
-  downloadMetaData(MDT_Release, releases->urlReleaseLatest());
-  return downloadSuccess;
-}
-
-bool UpdateInterface::downloadReleaseMetaData(const int releaseId)
-{
-  //progressMessage(tr("Download release %1 metadata").arg(releaseId));
-  releases->setId(releaseId);
-  downloadMetaData(MDT_Release, releases->urlRelease());
-  return downloadSuccess;
-}
-
-bool UpdateInterface::downloadReleaseAssetsMetaData(const int releaseId)
-{
-  //progressMessage(tr("Download release %1 assets metadata").arg(releaseId));
-  downloadMetaData(MDT_ReleaseAssets, assets->urlReleaseAssets(releaseId));
-  return downloadSuccess;
-}
-
-bool UpdateInterface::downloadAssetMetaData(const int assetId)
-{
-  //progressMessage(tr("Download asset %1 metadata").arg(assetId));
-  assets->setId(assetId);
-  downloadMetaData(MDT_Asset, assets->urlAsset());
-  return downloadSuccess;
-}
-
-void UpdateInterface::downloadMetaData(const MetaDataType mdt, const QString & url)
-{
-  //reportProgress(tr("Download metadata for: %1").arg(metaDataTypeToString(mdt).toLower()), QtDebugMsg);
-  download(DDT_MetaData, mdt, url, GH_ACCEPT_HEADER_METADATA, QString());
-}
-
-bool UpdateInterface::downloadAssetToBuffer(const int assetId)
-{
-  //progressMessage(tr("Download asset %1").arg(assetId));
-  assets->setId(assetId);
-  download(DDT_Content, 0, assets->urlAsset(), GH_ACCEPT_HEADER_BINARY, QString());
-  return downloadSuccess;
-}
-
-bool UpdateInterface::downloadTextFileToBuffer(const QString & path)
-{
-  //progressMessage(tr("Download file %1").arg(path));
-  //reportProgress(tr("Download file: %1").arg(path), QtInfoMsg);
-
-  downloadFileToBuffer(assets->urlContent(path));
-  return downloadSuccess;
-}
-
-void UpdateInterface::downloadFileToBuffer(const QString & url)
-{
-  download(DDT_Content, 0, url, GH_ACCEPT_HEADER_RAW, QString());
-}
-
-void UpdateInterface::download(const DownloadDataType type, const int subtype, const QString & urlStr,
-                               const char * header, const QString & filePath)
-{
-  if (progress) {
-    progress->setValue(0);
-    progress->setMaximum(100);
-  }
-
-  buffer->clear();
-  downloadSuccess = false;
-
-  if (type == DDT_SaveToFile) {
-    file = new QFile(filePath);
-    if (!file->open(QIODevice::WriteOnly)) {
-      reportProgress(tr("Unable to open the download file %1 for writing.\nError: %2").arg(filePath).arg(file->errorString()), QtCriticalMsg);
-      return;
-    }
-  }
-  else
-    file = nullptr;
-
-  url.setUrl(urlStr);
-
-  if (!url.isValid()) {
-    reportProgress(tr("Invalid URL: %1").arg(urlStr), QtCriticalMsg);
-    return;
-  }
-  else
-    reportProgress(tr("URL: %1").arg(urlStr), QtDebugMsg);
-
-  request.setUrl(url);
-  request.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferNetwork);
-  request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
-
-  request.setRawHeader(QByteArray("Accept"), QByteArray(header));
-
-  reply = manager.get(request);
-
-  connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error), [=] (QNetworkReply::NetworkError code) {
-    //  leave it to the finished slot to deal with error condition
-    reportProgress(tr("Network error has occurred. Error code: %1").arg(code), QtDebugMsg);
-  });
-
-  connect(reply, &QNetworkReply::readyRead, [=]() {
-    if (type == DDT_SaveToFile) {
-      file->write(reply->readAll());
-    }
-    else {
-      const QByteArray qba = reply->readAll();
-      buffer->append(qba);
-    }
-  });
-
-  connect(reply, &QNetworkReply::finished, [&]() {
-    onDownloadFinished(reply, type, subtype);
-  });
-
-  connect(reply, &QNetworkReply::downloadProgress, [=](const qint64 bytesRead, const qint64 totalBytes) {
-    if (progress) {
-      progress->setMaximum(totalBytes);
-      progress->setValue(bytesRead);
-    }
-  });
-
-  while (!reply->isFinished()) {
-    qApp->processEvents();
-  }
-}
-
-void UpdateInterface::onDownloadFinished(QNetworkReply * reply, DownloadDataType type, int subtype)
-{
-  if (type == DDT_SaveToFile) {
-    file->flush();
-    file->close();
-  }
-
-  if (progress)
-    progress->setValue(progress->maximum());
-
-  if (reply->error()) {
-    reportProgress(tr("Unable to download %1.\nError:%2\n%3").arg(downloadDataTypeToString(type)).arg(reply->error()).arg(reply->errorString()), QtCriticalMsg);
-
-    if (type == DDT_SaveToFile) {
-      file->remove();
-      delete file;
-      file = nullptr;
-    }
-
-    return;
-  }
-
-  if (type == DDT_MetaData) {
-    parseMetaData(subtype);
-  }
-  else if (type == DDT_SaveToFile) {
-    delete file;
-    file = nullptr;
-    downloadSuccess = true;
-  }
-  else {
-    downloadSuccess = true;
-  }
-}
-
-void UpdateInterface::parseMetaData(int mdt)
-{
-  //reportProgress(tr("Parse and load data models with metadata"), QtDebugMsg);
-
-  QJsonDocument *json = new QJsonDocument();
-
-  if (!convertDownloadToJson(json)) {
-    return;
-  }
-
-  switch (mdt) {
-    case MDT_Release:
-    case MDT_Releases:
-      releases->parseMetaData(mdt, json);
-      break;
-    case MDT_Asset:
-    case MDT_ReleaseAssets:
-      assets->parseMetaData(mdt, json);
-      break;
-  }
-
-  delete json;
-  downloadSuccess = true;
-}
-
-bool UpdateInterface::convertDownloadToJson(QJsonDocument * json)
-{
-  QJsonParseError res;
-
-  *json = QJsonDocument::fromJson(*buffer, &res);
-
-  if (res.error || json->isNull()) {
-    reportProgress(tr("Unable to convert downloaded data to json format.\nError:%1\n%2").arg(res.error).arg(res.errorString()), QtCriticalMsg);
-    return false;
-  }
-
-  return true;
-}
-
-bool UpdateInterface::getSetAssets(const UpdateParameters::AssetParams & ap)
-{
-  QString pattern(params->buildFilterPattern(ap.filterType, ap.filter));
-  assets->setFilterPattern(pattern);
-  reportProgress(tr("Asset filter: %1").arg(pattern), QtDebugMsg);
-
-  if (assets->count() < 1) {
-    reportProgress(tr("No assets found in release '%1' using filter '%2'").arg(releases->name()).arg(pattern), QtCriticalMsg);
-    return false;
-  }
-  else if (ap.maxExpected > 0 && assets->count() > ap.maxExpected) {
-    reportProgress(tr("%1 assets found when %2 expected in release '%3' using filter '%4'")
-                        .arg(assets->count() + 1).arg(ap.maxExpected).arg(releases->name().arg(pattern)), QtCriticalMsg);
-    return false;
-  }
-
-  //reportProgress(tr("Assets found: %1").arg(assets->count()), QtDebugMsg);
-
-  for (int i = 0; i < assets->count(); i++) {
-    assets->getSetId(i);
-    if (!assets->setFlags(ap.flags)) {
-      reportProgress(tr("Unable to set processing flags for asset %1").arg(assets->filename()), QtCriticalMsg);
-      return false;
-    }
-
-    if (!assets->setSubDirectory(ap.destSubDir)) {
-      reportProgress(tr("Unable to set sub directory for asset %1").arg(assets->filename()), QtCriticalMsg);
-      return false;
-    }
-
-    if (!assets->setCopyFilter(params->buildFilterPattern(ap.copyFilterType, ap.copyFilter))) {
-      reportProgress(tr("Unable to set copy filter for asset %1").arg(assets->filename()), QtCriticalMsg);
-      return false;
-    }
-  }
-
-  return true;
-}
-
-bool UpdateInterface::downloadFlaggedAssets()
-{
-  assets->setFilterFlags(UPDFLG_Download);
-  //reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_Download)).arg(assets->count()), QtDebugMsg);
-
-  for (int i = 0; i < assets->count(); ++i) {
-    if (!downloadAsset(i))
-      return false;
-  }
-
-  return true;
-}
-
-bool UpdateInterface::downloadAsset(int row)
-{
-  assets->getSetId(row);
-  downloadBinaryToFile(assets->urlAsset(), assets->filename());
-  return downloadSuccess;
-}
-
-void UpdateInterface::downloadBinaryToFile(const QString & url, const QString & filename)
-{
-  downloadSuccess = false;
-
-  QFileInfo f(QString("%1/A%2/%3").arg(downloadDir).arg(assets->id()).arg(filename));
-
-  progressMessage(tr("Downloading: %1").arg(filename));
-  reportProgress(tr("Download: %1").arg(filename), QtInfoMsg);
-
-  if (f.exists()) {
-    reportProgress(tr("File exists: %1").arg(filename), QtDebugMsg);
-    if (progress) {
-      int reply = QMessageBox::question(progress, CPN_STR_APP_NAME, tr("File %1 exists. Download again?").arg(filename),
-                                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::No);
-      if (reply == QMessageBox::Cancel) {
-        //reportProgress(tr("User action: Cancel"), QtDebugMsg);
-        downloadSuccess = false;
-        return;
-      }
-      else if (reply == QMessageBox::No) {
-        //reportProgress(tr("User action: Use previous download"), QtDebugMsg);
-        downloadSuccess = true;
-        return;
-      }
-      else {
-        ;
-        //reportProgress(tr("User action: Download again"), QtDebugMsg);
-      }
-    }
-  }
-  else if (!QDir().mkpath(f.path())) {
-    reportProgress(tr("Failed to create directory %1!").arg(f.path()), QtCriticalMsg);
-    return;
-  }
-
-  download(DDT_SaveToFile, 0, url, GH_ACCEPT_HEADER_BINARY, f.absoluteFilePath());
-}
-
-bool UpdateInterface::decompressFlaggedAssets()
-{
-  assets->setFilterFlags(UPDFLG_Decompress);
-  //reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_Decompress)).arg(assets->count()), QtDebugMsg);
-
-  for (int i = 0; i < assets->count(); ++i) {
-    if (!decompressAsset(i))
-      return false;
-  }
-
-  return true;
-}
-
-bool UpdateInterface::decompressAsset(int row)
-{
-  assets->getSetId(row);
-
-  if (!(assets->flags() & UPDFLG_Decompress))
-    return true;
-
-  QString filename = assets->filename();
-
-  if (filename.isEmpty())
-    return false;
-
-  QFileInfo f(QString("%1/A%2/%3").arg(downloadDir).arg(assets->id()).arg(assets->filename()));
-
-  if (!f.exists())
-    return false;
-
-  progressMessage(tr("Decompressing %1").arg(filename));
-  reportProgress(tr("Decompress: %1").arg(filename), QtInfoMsg);
-
-  return decompressArchive(f.absoluteFilePath(), QString("%1/A%2").arg(decompressDir).arg(assets->id()));
-}
-
-bool UpdateInterface::decompressArchive(const QString & archivePath, const QString & destDir)
-{
-  QString dest = destDir;
-
-  if (!dest.endsWith("/"))
-    dest.append("/");
-
-  dest.append(QFileInfo(archivePath).completeBaseName());
-
-  MinizInterface mIface(progress, MinizInterface::PCM_SIZE, params->logLevel);
-
-  if (!mIface.unzipArchiveToPath(archivePath, dest)) {
-    reportProgress(tr("Failed to decompress %1").arg(archivePath), QtCriticalMsg);
-    return false;
-  }
-
-  return true;
-}
-
-bool UpdateInterface::copyFlaggedAssets()
-{
-  assets->setFilterFlags(UPDFLG_CopyDest);
-  //reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_CopyDest)).arg(assets->count()), QtDebugMsg);
-
-  for (int i = 0; i < assets->count(); ++i) {
-    assets->getSetId(i);
-    if (!copyAsset())
-      return false;
-  }
-
-  return true;
-}
-
-bool UpdateInterface::copyAsset()
-{
-  if (assets->flags() & UPDFLG_CopyStructure)
-    return copyStructure();
-  else if (assets->flags() & UPDFLG_CopyFiles)
-    return copyFiles();
-
-  return true;
-}
-
-bool UpdateInterface::copyStructure()
-{
-  //reportProgress(tr("Copy directory structure"), QtDebugMsg);
-
-  if (progress) {
-    progress->setValue(0);
-    progress->setMaximum(100);
-  }
-
-  QDir srcPath(QString("%1/A%2/%3").arg(decompressDir).arg(assets->id()).arg(QFileInfo(assets->filename()).completeBaseName()));
-
-  if (!srcPath.exists()) {
-    reportProgress(tr("Decompressed file structure not found at %1").arg(QDir::toNativeSeparators(srcPath.path())), QtCriticalMsg);
-    return false;
-  }
-
-  reportProgress(tr("Copy file structure from: %1").arg(QDir::toNativeSeparators(srcPath.path())), QtDebugMsg);
-
-  QString baseDir = updateDir;
-
-  if (!assets->subDirectory().isEmpty())
-    baseDir.append("/" % assets->subDirectory());
-
-  //  create directory structure first as there is no order to QDirIterator if both files and directories selected
-  //  also supports creation of empty directories
-  QDirIterator itdirs(srcPath.path(), QDir::AllDirs | QDir::NoDot | QDir::NoDotDot, QDirIterator::Subdirectories);
-
-  int cnt = 0;
-
-  while (itdirs.hasNext())
-  {
-    QFileInfo src(itdirs.next());
-
-    QString subPath(src.absoluteFilePath());
-    subPath.replace(srcPath.path(), "");
-
-    QString dir = baseDir % subPath;
-
-    if (!QDir().mkpath(dir)) {
-      reportProgress(tr("Failed to create directory %1").arg(dir), QtCriticalMsg);
-      return false;
-    }
-
-    reportProgress(tr("Check/create directory: %1").arg(dir), QtDebugMsg);
-    cnt++;
-  }
-
-  reportProgress(tr("Directories checked/created: %1").arg(cnt), QtInfoMsg);
-
-  QRegularExpression filter(assets->copyFilter(), QRegularExpression::CaseInsensitiveOption);
-  //reportProgress(tr("Copy filter pattern: %1").arg(filter.pattern()), QtDebugMsg);
-
-  QDirIterator itcnt(srcPath.path(), QDir::Files, QDirIterator::Subdirectories);
-
-  cnt = 0;
-
-  //reportProgress(tr("Calculating number of files"), QtDebugMsg);
-
-  while (itcnt.hasNext())
-  {
-    QFileInfo src(itcnt.next());
-
-    if ((!filter.pattern().isEmpty()) && (!src.fileName().contains(filter)))
-      continue;
-
-    cnt++;
-  }
-
-  if (progress)
-    progress->setMaximum(cnt);
-
-  QDirIterator itfiles(srcPath.path(), QDir::Files, QDirIterator::Subdirectories);
-
-  cnt = 0;
-
-  while (itfiles.hasNext())
-  {
-    QFileInfo src(itfiles.next());
-
-    if ((!filter.pattern().isEmpty()) && (!src.fileName().contains(filter)))
-      continue;
-
-    QString subPath(src.absoluteFilePath());
-    subPath.replace(srcPath.path(), "");
-
-    QFile dest(baseDir % subPath);
-
-    if (dest.exists()) {
-      if (!dest.remove()) {
-        reportProgress(tr("Failed to delete existing file %1").arg(dest.fileName()), QtCriticalMsg);
-        return false;
-      }
-    }
-
-    if (!QFile::copy(src.absoluteFilePath(), dest.fileName())) {
-      reportProgress(tr("Failed to copy file %1").arg(src.absoluteFilePath()), QtCriticalMsg);
-      return false;
-    }
-
-    reportProgress(tr("Copied %1 to %2").arg(src.fileName()).arg(dest.fileName()), QtDebugMsg);
-    cnt++;
-    if (progress)
-      progress->setValue(cnt);
-  }
-
-  if (progress)
-    progress->setValue(progress->maximum());
-
-  reportProgress(tr("Files copied: %1").arg(cnt), QtInfoMsg);
-
-  return true;
-}
-
-bool UpdateInterface::copyFiles()
-{
-  //reportProgress(tr("Copy files"), QtDebugMsg);
-
-  if (progress) {
-    progress->setValue(0);
-    progress->setMaximum(100);
-  }
-
-  QString srcPath;
-
-  if (assets->flags() & UPDFLG_Decompress)
-    srcPath = QString("%1/A%2/%3").arg(decompressDir).arg(assets->id()).arg(QFileInfo(assets->filename()).completeBaseName());
-  else if (assets->flags() & UPDFLG_Download)
-    srcPath = QString("%1/A%2").arg(downloadDir).arg(assets->id());
-  else {
-    reportProgress(tr("Unable to determine source directory for asset %1").arg(assets->filename()), QtCriticalMsg);
-    return false;
-  }
-
-  reportProgress(tr("Copy files from %1").arg(srcPath), QtDebugMsg);
-
-  QString destPath = updateDir;
-
-  if (!assets->subDirectory().isEmpty())
-    destPath.append("/" % assets->subDirectory());
-
-  if (!QDir().mkpath(destPath)) {
-    reportProgress(tr("Failed to create directory %1").arg(QDir::toNativeSeparators(destPath)), QtCriticalMsg);
-    return false;
-  }
-
-  reportProgress(tr("Check/create directory: %1").arg(destPath), QtDebugMsg);
-  reportProgress(tr("Directories checked/created: %1").arg(1), QtDebugMsg);
-
-  QRegularExpression filter(assets->copyFilter(), QRegularExpression::CaseInsensitiveOption);
-  //reportProgress(tr("Copy filter pattern: %1").arg(filter.pattern()), QtDebugMsg);
-
-  QDirIterator itcnt(srcPath, QDir::Files, QDirIterator::Subdirectories);
-
-  int cnt = 0;
-
-  //reportProgress(tr("Calculating number of files"), QtDebugMsg);
-
-  while (itcnt.hasNext())
-  {
-    QFileInfo src(itcnt.next());
-
-    if ((!filter.pattern().isEmpty()) && (!src.fileName().contains(filter)))
-      continue;
-
-    cnt++;
-  }
-
-  if (progress)
-    progress->setMaximum(cnt);
-
-  QDirIterator itfiles(srcPath, QDir::Files, QDirIterator::Subdirectories);
-
-  cnt = 0;
-
-  while (itfiles.hasNext())
-  {
-    QFileInfo src(itfiles.next());
-
-    if ((!filter.pattern().isEmpty()) && (!src.fileName().contains(filter)))
-      continue;
-
-    QFile dest(destPath % "/" % src.fileName());
-
-    if (dest.exists()) {
-      if (!dest.remove()) {
-        reportProgress(tr("Failed to delete existing file %1").arg(dest.fileName()), QtCriticalMsg);
-        return false;
-      }
-      reportProgress(tr("Deleted file: %1").arg(dest.fileName()), QtDebugMsg);
-    }
-
-    if (!QFile::copy(src.absoluteFilePath(), dest.fileName())) {
-      reportProgress(tr("Failed to copy file %1").arg(src.absoluteFilePath()), QtCriticalMsg);
-      return false;
-    }
-
-    reportProgress(tr("Copied %1 to %2").arg(src.fileName()).arg(dest.fileName()), QtDebugMsg);
-    cnt++;
-    if (progress)
-      progress->setValue(cnt);
-  }
-
-  if (!cnt) {
-    reportProgress(tr("No downloaded or decompressed files matched filter '%1'").arg(assets->copyFilter()), QtCriticalMsg);
-    return false;
-  }
-
-  if (progress)
-    progress->setValue(progress->maximum());
-
-  reportProgress(tr("Files copied: %1").arg(cnt), QtInfoMsg);
-
-  return true;
-}
-
-bool UpdateInterface::preparation()
-{
-  progressMessage(tr("Preparing"));
-  int cnt = 0;
-
-  if (progress) {
-    progress->setValue(cnt);
-    progress->setMaximum(5);
-  }
-
-  if (!setRunFolders()) {
-    reportProgress(tr("Set run folders failed"), QtDebugMsg);
-    return false;
-  }
-
-  if (progress)
-    progress->setValue(++cnt);
-
-  if (!repoReleasesMetaData()) {
-    return false;
-  }
-
-  if (progress)
-    progress->setValue(++cnt);
-
-  if (!releases->getSetId(params->updateRelease)) {
-    reportProgress(tr("Set release id from update release '%1' failed").arg(params->updateRelease), QtCriticalMsg);
-    return false;
-  }
-
-  if (progress)
-    progress->setValue(++cnt);
-
-  if (!repoReleaseAssetsMetaData())
-    return false;
-
-  if (progress)
-    progress->setValue(++cnt);
-
-  if (!flagAssets())
-    return false;
-
-  if (progress)
-    progress->setValue(++cnt);
-
-  return true;
-}
-
-bool UpdateInterface::flagAssets()
-{
-  progressMessage(tr("Flagging assets"));
-
-  for (int i = 0; i < params->assets.size(); i++) {
-    const UpdateParameters::AssetParams & ap = params->assets.at(i);
-    if (!getSetAssets(ap))
-      return false;
-  }
-
-  return true;
-}
-
-bool UpdateInterface::download()
-{
-  progressMessage(tr("Downloading assets"));
-
-  if (!downloadFlaggedAssets()) {
-    reportProgress(tr("Unable to download flagged assets"), QtDebugMsg);
-    return false;
-  }
-
-  return true;
-}
-
-bool UpdateInterface::decompress()
-{
-  progressMessage(tr("Decompressing assets"));
-
-  if (!decompressFlaggedAssets()) {
-    reportProgress(tr("Unable to decompress flagged assets"), QtDebugMsg);
-    return false;
-  }
-
-  return true;
-}
-
-bool UpdateInterface::copyToDestination()
-{
-  progressMessage(tr("Copying to destination"));
-
-  if (!copyFlaggedAssets()) {
-    reportProgress(tr("Unable to copy assets"), QtDebugMsg);
-    return false;
-  }
-
-  return true;
-}
-
-bool UpdateInterface::housekeeping()
-{
-  progressMessage(tr("Housekeeping"));
-  int cnt = 0;
-
-  if (progress) {
-    progress->setValue(cnt);
-    progress->setMaximum(2);
-  }
-
-  if (progress)
-    progress->setValue(++cnt);
-
-  g.lastUpdateDir(params->updateDir);  //  used by sdsync
-
-  if (params->flags & UPDFLG_DelDownloads) {
-    reportProgress(tr("Delete download directory: %1").arg(downloadDir), QtDebugMsg);
-    QDir d(downloadDir);
-    if (!d.removeRecursively())
-      reportProgress(tr("Failed to delete downloads folder %1").arg(downloadDir), QtCriticalMsg);
-  }
-
-  if (progress)
-    progress->setValue(++cnt);
-
-  if (params->flags & UPDFLG_DelDecompress) {
-    if (!params->decompressDirUseDwnld) {
-      reportProgress(tr("Delete decompress directory: %1").arg(decompressDir), QtDebugMsg);
-      QDir d(decompressDir);
-      if (!d.removeRecursively())
-        reportProgress(tr("Failed to delete decompress folder %1").arg(decompressDir), QtCriticalMsg);
-    }
-    else if (!(params->flags & UPDFLG_DelDownloads)) {
-      assets->setFilterFlags(UPDFLG_Decompress);
-      for (int i = 0; i < assets->count(); i++) {
-        assets->getSetId(i);
-        QString path = QString("%1/A%2/%3").arg(decompressDir).arg(assets->id()).arg(QFileInfo(assets->filename()).completeBaseName());
-        reportProgress(tr("Delete decompress folder: %1").arg(path), QtDebugMsg);
-        //QDir d(path);
-        if (!QDir(path).removeRecursively())
-          reportProgress(tr("Failed to delete decompress folder %1").arg(path), QtCriticalMsg);
-      }
-    }
-  }
-
-  if (progress)
-    progress->setValue(++cnt);
-
-  return true;
-}
-
-//  as unique per component override if used
-bool UpdateInterface::asyncInstall()
-{
-  return true;
-}
-
-bool UpdateInterface::saveReleaseSettings()
-{
-  reportProgress(tr("Save release settings"), QtDebugMsg);
-  g.component[m_id].release(releases->name());
-  g.component[m_id].version(releases->version());
-  g.component[m_id].releaseId(releases->id());
-  g.component[m_id].date(releases->date());
-
-  return true;
-}
-
-/*
-  UpdateFactories
-*/
-
-UpdateFactories::UpdateFactories(QWidget * parent) :
-  QWidget(parent)
-{
-  registerUpdateFactories();
-}
-
-UpdateFactories::~UpdateFactories()
-{
-  unregisterUpdateFactories();
-}
-
-void UpdateFactories::registerUpdateFactory(UpdateFactoryInterface * factory)
-{
-  foreach (UpdateFactoryInterface * registeredFactory, registeredUpdateFactories) {
-    if (registeredFactory->id() == factory->id()) {
-      qDebug() << "Duplicate factory - id:" << factory->id() << "name:" << factory->name();
-      return;
-    }
-  }
-  registeredUpdateFactories.append(factory);
-  qDebug() << "Registered update factory:" << factory->name();
-}
-
-void UpdateFactories::registerUpdateFactories()
-{
-  //  Note: register in logical updating sequence
-  //        SDCard should be first as it may clean up/erase commmon destination directory
-  registerUpdateFactory(new UpdateFactory<UpdateSDCard>(this));
-  registerUpdateFactory(new UpdateFactory<UpdateFirmware>(this));
-  registerUpdateFactory(new UpdateFactory<UpdateSounds>(this));
-  registerUpdateFactory(new UpdateFactory<UpdateThemes>(this));
-  registerUpdateFactory(new UpdateFactory<UpdateMultiProtocol>(this));
-
-  //  Note: Companion must be last as its install requires the app to be closed and thus would interrupt the update loop
-  registerUpdateFactory(new UpdateFactory<UpdateCompanion>(this));
-}
-
-void UpdateFactories::unregisterUpdateFactories()
-{
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories)
-    delete factory;
-}
-
-UpdateInterface * UpdateFactories::getInstance(const int id)
-{
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (id == factory->id())
-      return factory->instance();
-  }
-  qDebug() << "Critical error - Interface not found for id:" << id;
-  return nullptr;
-}
-
-const QString UpdateFactories::name(const int id)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    return iface->name();
-
-  return "";
-}
-
-void UpdateFactories::saveAssetSettings(const int id)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    iface->saveAssetSettings();
-}
-
-UpdateParameters * const UpdateFactories::getParams(const int id)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    return iface->getParams();
-
-  return nullptr;
-}
-
-void UpdateFactories::resetEnvironment(const int id)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    iface->resetEnvironment();
-}
-
-void UpdateFactories::resetAllEnvironments()
-{
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    resetEnvironment(factory->id());
-  }
-}
-
-void UpdateFactories::setRunUpdate(const int id)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    iface->setRunUpdate();
-}
-
-const QMap<QString, int> UpdateFactories::sortedComponentsList(bool updateableOnly)
-{
-  QMap<QString, int> map;
-
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (updateableOnly && !factory->instance()->isUpdateable())
-      continue;
-    map.insert(factory->name(), factory->id());
-  }
-
-  return map;
-}
-
-void UpdateFactories::clearRelease(const int id)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    iface->clearRelease();
-}
-
-void UpdateFactories::setReleaseChannel(const int id, int channel)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    iface->setReleaseChannel(channel);
-}
-
-void UpdateFactories::setReleaseId(const int id, QString val)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    iface->setReleaseId(val);
-}
-
-const QString UpdateFactories::currentRelease(const int id)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    return iface->currentRelease();
-
-  return "";
-}
-
-const QString UpdateFactories::updateRelease(const int id)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    return iface->updateRelease();
-
-  return "";
-}
-
-const bool UpdateFactories::isLatestRelease(const int id)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    return iface->isLatestRelease();
-
-  return true;
-}
-
-const QString UpdateFactories::latestRelease(const int id)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    return iface->latestRelease();
-
-  return "";
-}
-
-const QStringList UpdateFactories::releases(const int id)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    return iface->getReleases();
-
-  return QStringList();
-}
-
-bool UpdateFactories::update(const int id, ProgressWidget * progress)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    return iface->update(progress);
-
-  return false;
-}
-
-bool UpdateFactories::updateAll(ProgressWidget * progress)
-{
-  bool ret = false;
-
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    ret = factory->instance()->update(progress);
-    if (!ret)
-      break;
-  }
-
-  return ret;
-}
-
-const bool UpdateFactories::isUpdateAvailable(QMap<QString, int> & list)
-{
-  bool ret = false;
-
-  list.clear();
-
-  foreach (UpdateFactoryInterface * factory, registeredUpdateFactories) {
-    if (factory->instance()->isUpdateable() && factory->instance()->isUpdateAvailable()) {
-      list.insert(factory->name(), factory->id());
-      ret = true;
-    }
-  }
-
-  return ret;
-}
-
-bool UpdateFactories::getReleaseJsonAsset(const int id, const QString assetName, QJsonDocument * json)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    return iface->getReleaseJsonAsset(assetName, json);
-
-  return false;
-}
-
-bool UpdateFactories::getRepoJsonFile(const int id, const QString filename, QJsonDocument * json)
-{
-  UpdateInterface * iface = getInstance(id);
-  if (iface)
-    return iface->getRepoJsonFile(filename, json);
-
-  return false;
 }

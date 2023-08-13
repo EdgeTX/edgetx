@@ -62,11 +62,9 @@ class OutputEditStatusBar : public Window
 OutputEditWindow::OutputEditWindow(uint8_t channel) :
     Page(ICON_MODEL_OUTPUTS), channel(channel)
 {
-  std::string title(STR_MENULIMITS);
-  title += "\n";
-  title += getSourceString(MIXSRC_CH1 + channel);
-
-  chanZero = calcRESXto100(ex_chans[channel]);
+  std::string title2(getSourceString(MIXSRC_FIRST_CH + channel));
+  header.setTitle(STR_MENULIMITS);
+  header.setTitle2(title2);
 
   auto form = new FormWindow(&body, rect_t{});
   auto form_obj = form->getLvObj();
@@ -83,16 +81,38 @@ void OutputEditWindow::checkEvents()
     value = newValue;
 
     int chanVal = calcRESXto100(ex_chans[channel]);
-    minText->setBackgroudOpacity(chanVal < chanZero - 1 ? LV_OPA_COVER : LV_OPA_TRANSP);
-    minText->setFont(chanVal < chanZero - 1 ? FONT(BOLD) : FONT(STD));
-    minText->invalidate();
-    lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(chanVal < chanZero - 1 ? FONT(BOLD) : FONT(STD)), 0);
-    minEdit->invalidate();
 
-    maxText->setBackgroudOpacity(chanVal > chanZero + 1 ? LV_OPA_COVER : LV_OPA_TRANSP);
-    maxText->setFont(chanVal > chanZero + 1 ? FONT(BOLD) : FONT(STD));
+    if(chanVal < -DEADBAND) {
+      lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(FONT(BOLD)), 0);   
+      minText->setBackgroudOpacity(LV_OPA_COVER);
+      minText->setFont(FONT(BOLD));
+
+      lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(FONT(STD)), 0);  
+      maxText->setBackgroudOpacity(LV_OPA_TRANSP);
+      maxText->setFont(FONT(STD));    
+    } else {
+        if(chanVal > DEADBAND) {
+          lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(FONT(STD)), 0);  
+          minText->setBackgroudOpacity(LV_OPA_TRANSP);
+          minText->setFont(FONT(STD));
+
+          lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(FONT(BOLD)), 0);  
+          maxText->setBackgroudOpacity(LV_OPA_COVER);
+          maxText->setFont(FONT(BOLD));
+        } else {
+            lv_obj_set_style_text_font(minEdit->getLvObj(), getFont(FONT(STD)), 0);
+            minText->setBackgroudOpacity(LV_OPA_TRANSP);
+            minText->setFont(FONT(STD));
+
+            lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(FONT(STD)), 0); 
+            maxText->setBackgroudOpacity(LV_OPA_TRANSP);
+            maxText->setFont(FONT(STD)); 
+        }
+    }
+
+    minText->invalidate();
     maxText->invalidate();
-    lv_obj_set_style_text_font(maxEdit->getLvObj(), getFont(chanVal > chanZero + 1 ? FONT(BOLD) : FONT(STD)), 0);
+    minEdit->invalidate(); 
     maxEdit->invalidate();
   }
 
@@ -105,7 +125,7 @@ void OutputEditWindow::buildHeader(Window *window)
       window,
       {window->getRect().w - OUTPUT_EDIT_STATUS_BAR_WIDTH -
            OUTPUT_EDIT_RIGHT_MARGIN,
-       0, OUTPUT_EDIT_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT + 3},
+       0, OUTPUT_EDIT_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT},
       channel);
 }
 
@@ -162,9 +182,8 @@ void OutputEditWindow::buildBody(FormWindow* form)
   // Direction
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_INVERTED, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_DEFAULT(output->revert),
+  new ToggleSwitch(line, rect_t{}, GET_DEFAULT(output->revert),
                [output, this](uint8_t newValue) {
-                 if (newValue != output->revert) chanZero = -chanZero;
                  output->revert = newValue;
                  SET_DIRTY();
                });

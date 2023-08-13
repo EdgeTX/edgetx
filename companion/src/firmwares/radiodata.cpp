@@ -21,8 +21,10 @@
 #include "radiodata.h"
 #include "radiodataconversionstate.h"
 #include "eeprominterface.h"
+#include "compounditemmodels.h"
 
-RadioData::RadioData()
+RadioData::RadioData() :
+  sortOrder(0)
 {
   models.resize(getCurrentFirmware()->getCapability(Models));
 }
@@ -120,8 +122,11 @@ void RadioData::addLabel(QString label)
       output.truncate(truncateAt);
   }
   label = QString(output);
-  if (labels.indexOf(label) == -1)
-    labels.append(label);
+
+  if (indexOfLabel(label) < 0) {
+    LabelData ld = { label, false };
+    labels.append(ld);
+  }
 }
 
 bool RadioData::deleteLabel(QString label)
@@ -139,7 +144,9 @@ bool RadioData::deleteLabel(QString label)
   }
 
   // Remove the label from the global list
-  labels.removeAll(label);
+  int index = indexOfLabel(label);
+  if (index > -1)
+    labels.remove(index);
 
   // If no labels remain, add a Favorites one
   if (!labels.size()) {
@@ -151,7 +158,7 @@ bool RadioData::deleteLabel(QString label)
 bool RadioData::deleteLabel(int index)
 {
   if (index >= labels.size()) return false;
-  QString modelLabel = labels.at(index);
+  QString modelLabel = labels.at(index).name;
   return deleteLabel(modelLabel);
 }
 
@@ -188,9 +195,9 @@ bool RadioData::renameLabel(QString from, QString to)
         }
       }
     }
-    int ind = labels.indexOf(from);
+    int ind = indexOfLabel(from);
     if (ind != -1) {
-      labels.replace(ind, to);
+      labels[ind].name = to;
     }
   }
   return success;
@@ -199,7 +206,7 @@ bool RadioData::renameLabel(QString from, QString to)
 bool RadioData::renameLabel(int index, QString to)
 {
   if (index >= labels.size()) return false;
-  QString from = labels.at(index);
+  QString from = labels.at(index).name;
   return renameLabel(from, to);
 }
 
@@ -211,7 +218,7 @@ void RadioData::swapLabel(int indFrom, int indTo)
       indFrom < 0 ||
       indTo < 0)
     return;
-  QString tmplbl = labels.at(indFrom);
+  LabelData tmplbl = labels.at(indFrom);
   labels.replace(indFrom, labels.at(indTo));
   labels.replace(indTo, tmplbl);
 }
@@ -258,6 +265,20 @@ void RadioData::addLabelsFromModels()
   }
 }
 
+int RadioData::indexOfLabel(QString & label) const
+{
+  int index = -1;
+
+  for (int i = 0; i < labels.size(); i++) {
+    if (labels.at(i).name == label) {
+      index = i;
+      break;
+    }
+  }
+
+  return index;
+}
+
 QStringList RadioData::fromCSV(const QString &csv)
 {
   QStringList lbls = QString(csv).split(',',QString::SkipEmptyParts);
@@ -288,3 +309,37 @@ QString RadioData::unEscapeCSV(QString str)
   str.replace("//","/");
   return str;
 }
+
+//  static
+QString RadioData::modelSortOrderToString(int value)
+{
+  switch(value) {
+    case MSO_NO_SORT:
+      return tr("None");
+    case MSO_NAME_ASC:
+      return tr("Name %1").arg(CPN_STR_SW_INDICATOR_UP);
+    case MSO_NAME_DES:
+      return tr("Name %1").arg(CPN_STR_SW_INDICATOR_DN);
+    case MSO_DATE_ASC:
+      return tr("Last Opened %1").arg(CPN_STR_SW_INDICATOR_UP);
+    case MSO_DATE_DES:
+      return tr("Last Opened %1").arg(CPN_STR_SW_INDICATOR_DN);
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * RadioData::modelSortOrderItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("radio.modelsortorder");
+
+  for (int i = 0; i < MSO_SORT_COUNT; i++) {
+    mdl->appendToItemList(modelSortOrderToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+

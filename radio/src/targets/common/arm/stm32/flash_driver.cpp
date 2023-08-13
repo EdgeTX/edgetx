@@ -20,6 +20,7 @@
  */
 
 #include "board.h"
+#include "watchdog_driver.h"
 
 void waitFlashIdle()
 {

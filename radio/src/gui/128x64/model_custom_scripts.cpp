@@ -118,7 +118,7 @@ void menuModelCustomScriptOne(event_t event)
                         scriptInputsOutputs[s_currIdx].inputsCount + 1) {
       lcdDrawTextAlignedLeft(y, STR_OUTPUTS);
       if (attr) {
-        REPEAT_LAST_CURSOR_MOVE();
+        repeatLastCursorMove(event);
       }
     } else if (i <= ITEM_MODEL_CUSTOMSCRIPT_PARAMS_LABEL +
                         scriptInputsOutputs[s_currIdx].inputsCount +

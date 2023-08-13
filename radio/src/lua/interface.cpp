@@ -33,9 +33,9 @@
 
 #include "sdcard.h"
 #include "api_filesystem.h"
+#include "switches.h"
 
 #if defined(LIBOPENUI)
-  #include "api_colorlcd.h"
   #include "libopenui.h"
 #else
   #include "libopenui/src/libopenui_file.h"
@@ -78,6 +78,11 @@ struct our_longjmp * global_lj = 0;
 #if defined(COLORLCD)
 uint32_t luaExtraMemoryUsage = 0;
 #endif
+
+static bool _is_standalone_script()
+{
+  return scriptInternalData[0].reference == SCRIPT_STANDALONE;
+}
 
 #if defined(LUA_ALLOCATOR_TRACER)
 
@@ -246,6 +251,10 @@ void luaDisable()
 {
   POPUP_WARNING("Lua disabled!");
   luaState = INTERPRETER_PANIC;
+
+#if defined(USE_TRIMS_AS_BUTTONS)
+  if (_is_standalone_script()) setTrimsAsButtons(false);
+#endif
 }
 
 void luaClose(lua_State ** L)
@@ -272,14 +281,11 @@ void luaClose(lua_State ** L)
   }
 }
 
+
 void luaRegisterLibraries(lua_State * L)
 {
   luaL_openlibs(L);
-  registerDirIter(L);
-
-#if defined(COLORLCD)
-  registerBitmapClass(L);
-#endif
+  lua_settop(L, 0);
 }
 
 #define GC_REPORT_TRESHOLD    (2*1024)
@@ -626,7 +632,7 @@ static bool luaLoadFunctionScript(uint8_t ref)
     idx = ref - SCRIPT_FUNC_FIRST;
     fn = &g_model.customFn[idx];
   }
-  else if (!g_model.noGlobalFunctions) {
+  else if (radioGFEnabled()) {
     idx = ref - SCRIPT_GFUNC_FIRST;
     fn = &g_eeGeneral.customFn[idx];
   }
@@ -779,6 +785,39 @@ void luaError(lua_State * L, uint8_t error)
   displayLuaError(true);
   TRACE_ERROR("%s\n", lua_warning_info);
 }
+
+// static void luaDumpStack (lua_State *L) {
+//   int top=lua_gettop(L);
+//   for (int i=1; i <= top; i++) {
+//     printf("%d\t%s\t", i, luaL_typename(L,i));
+//     switch (lua_type(L, i)) {
+//       case LUA_TNUMBER:
+//         printf("%g\n",lua_tonumber(L,i));
+//         break;
+//       case LUA_TSTRING:
+//         printf("%s\n",lua_tostring(L,i));
+//         break;
+//       case LUA_TBOOLEAN:
+//         printf("%s\n", (lua_toboolean(L, i) ? "true" : "false"));
+//         break;
+//       case LUA_TNIL:
+//         printf("%s\n", "nil");
+//         break;
+//       case LUA_TTABLE: {
+//         lua_pushnil(L);
+//         while(lua_next(L,i)) {
+//           const char* key = lua_tostring(L,-2);
+//           const char* val = lua_tostring(L,-1);
+//           printf("\t%s = %s\n", key, val);
+//           lua_pop(L,1);
+//         }
+//       } break;
+//       default:
+//         printf("%p\n",lua_topointer(L,i));
+//         break;
+//     }
+//   }
+// }
 
 // Register a function from a table on the top of the stack
 static int luaRegisterFunction(const char * key)
@@ -951,6 +990,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
  
   // Loading has finished - start running scripts
   luaState = INTERPRETER_START_RUNNING;
+
 } // luaLoadScripts
 
 void luaExec(const char * filename)
@@ -1054,15 +1094,25 @@ static bool resumeLua(bool init, bool allowLcdUsage)
         } else
 #endif
         if (ref <= SCRIPT_GFUNC_LAST) {
+          uint8_t idx;
           CustomFunctionData * fn;
-         
-          if (ref <= SCRIPT_FUNC_LAST)
-            fn = &g_model.customFn[ref - SCRIPT_FUNC_FIRST];
-          else
-            fn = &g_eeGeneral.customFn[ref - SCRIPT_GFUNC_FIRST];
-         
-          if (getSwitch(fn -> swtch)) {
+          CustomFunctionsContext * functionsContext;
+
+          if (ref <= SCRIPT_FUNC_LAST) {
+            idx = ref - SCRIPT_FUNC_FIRST;
+            fn = &g_model.customFn[idx];
+            functionsContext = &modelFunctionsContext;
+          } else {
+            idx = ref - SCRIPT_GFUNC_FIRST;
+            fn = &g_eeGeneral.customFn[idx];
+            functionsContext = &globalFunctionsContext;
+          }
+
+          tmr10ms_t tmr10ms = get_tmr10ms();
+
+          if (getSwitch(fn->swtch) && (functionsContext->lastFunctionTime[idx] == 0 || CFN_PLAY_REPEAT(fn) == 0)) {
             lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.run);
+            functionsContext->lastFunctionTime[idx] = tmr10ms;
           }
           else {
             if (sid.background == LUA_NOREF) continue;
@@ -1202,6 +1252,10 @@ bool luaTask(event_t evt, bool allowLcdUsage)
     case INTERPRETER_RELOAD_PERMANENT_SCRIPTS:
       init = true;
       luaState = INTERPRETER_LOADING;
+
+#if defined(USE_TRIMS_AS_BUTTONS)
+      if (_is_standalone_script()) setTrimsAsButtons(false);
+#endif
    
     case INTERPRETER_LOADING:
       PROTECT_LUA() {
@@ -1214,7 +1268,11 @@ bool luaTask(event_t evt, bool allowLcdUsage)
     case INTERPRETER_START_RUNNING:
       init = true;
       luaState = INTERPRETER_RUNNING;
-   
+
+#if defined(USE_TRIMS_AS_BUTTONS)
+      if (_is_standalone_script()) setTrimsAsButtons(true);
+#endif
+      
     case INTERPRETER_RUNNING:
       PROTECT_LUA() {
         scriptWasRun = resumeLua(init, allowLcdUsage);

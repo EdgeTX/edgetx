@@ -70,6 +70,15 @@ bool GeneralSettings::isSliderAvailable(int index) const
   return sliderConfig[index] != Board::SLIDER_NONE;
 }
 
+bool GeneralSettings::isMultiPosPot(int index) const
+{
+  if (isPotAvailable(index)) {
+    if (potConfig[index] == Board::POT_MULTIPOS_SWITCH)
+      return true;
+  }
+  return false;
+}
+
 void GeneralSettings::clear()
 {
   memset(reinterpret_cast<void *>(this), 0, sizeof(GeneralSettings));
@@ -147,6 +156,9 @@ void GeneralSettings::init()
     trainer.mix[i].src = i;
     trainer.mix[i].weight = 100;
   }
+
+  ttsLanguage[0] = 'e';
+  ttsLanguage[1] = 'n';
 
   templateSetup = g.profile[g.sessionId()].channelOrder();
   stickMode = g.profile[g.sessionId()].defaultMode();
@@ -285,6 +297,11 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
   else if(IS_RADIOMASTER_ZORRO(board)) {
     potConfig[0] = Board::POT_WITHOUT_DETENT;
     potConfig[1] = Board::POT_WITHOUT_DETENT;
+  }
+  else if(IS_RADIOMASTER_BOXER(board)) {
+    potConfig[0] = Board::POT_WITH_DETENT;
+    potConfig[1] = Board::POT_WITH_DETENT;
+    potConfig[2] = Board::POT_MULTIPOS_SWITCH;
   }
   else if (IS_FAMILY_T12(board)) {
     potConfig[0] = Board::POT_WITH_DETENT;
@@ -503,6 +520,8 @@ QString GeneralSettings::serialModeToString(int value)
       return tr("Debug");
     case AUX_SERIAL_SPACEMOUSE:
       return tr("SpaceMouse");
+    case AUX_SERIAL_EXT_MODULE:
+      return tr("External module");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -541,13 +560,13 @@ FieldRange GeneralSettings::getTxCurrentCalibration()
 }
 
 //  static
-AbstractStaticItemModel * GeneralSettings::antennaModeItemModel()
+AbstractStaticItemModel * GeneralSettings::antennaModeItemModel(bool model_setup)
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_GS_ANTENNAMODE);
 
   for (int i = ANTENNA_MODE_FIRST; i <= ANTENNA_MODE_LAST; i++) {
-    mdl->appendToItemList(antennaModeToString(i), i);
+    mdl->appendToItemList(antennaModeToString(i), i, model_setup ? i != ANTENNA_MODE_PER_MODEL : true);
   }
 
   mdl->loadItemList();
@@ -569,21 +588,27 @@ AbstractStaticItemModel * GeneralSettings::bluetoothModeItemModel()
 }
 
 //  static
-AbstractStaticItemModel * GeneralSettings::serialModeItemModel(int port_nr)
+AbstractStaticItemModel * GeneralSettings::serialModeItemModel()
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-  mdl->setName(QString(AIM_GS_SERIALMODE).arg(port_nr));
+  mdl->setName(AIM_GS_SERIALMODE);
+
 
   for (int i = 0; i < AUX_SERIAL_COUNT; i++) {
-    if (port_nr == SP_VCP &&
-        (i == AUX_SERIAL_TELE_IN ||
-         i == AUX_SERIAL_SBUS_TRAINER ||
-         i == AUX_SERIAL_GPS ||
-         i == AUX_SERIAL_SPACEMOUSE)) {
-      // These are disabled on VCP
-      continue;
+    int contexts = AllAuxSerialModeContexts;
+
+    if (i == AUX_SERIAL_EXT_MODULE) {
+      contexts &= ~(AUX2Context | VCPContext);
     }
-    mdl->appendToItemList(serialModeToString(i), i);
+    else if (i == AUX_SERIAL_TELE_IN ||
+             i == AUX_SERIAL_SBUS_TRAINER ||
+             i == AUX_SERIAL_GPS ||
+             i == AUX_SERIAL_SPACEMOUSE ||
+             i == AUX_SERIAL_EXT_MODULE) {
+      contexts &= ~VCPContext;
+    }
+
+    mdl->appendToItemList(serialModeToString(i), i, true, 0, contexts);
   }
 
   mdl->loadItemList();

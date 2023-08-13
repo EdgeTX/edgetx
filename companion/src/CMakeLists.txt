@@ -48,9 +48,12 @@ if(WIN32)
   endif()
 endif()
 
-if(SDL_FOUND)
-  include_directories(${SDL_INCLUDE_DIR})
+if(SDL2_FOUND)
+  include_directories(${SDL2_INCLUDE_DIRS})
   add_definitions(-DJOYSTICKS)
+  if(TARGET SDL2::SDL2)
+    set(SDL2_LIBRARIES SDL2::SDL2)
+  endif()
 endif()
 
 add_definitions(${APP_COMMON_DEFINES})  # set in top-level CMakeLists
@@ -78,8 +81,6 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
 
-use_cxx11()  # ensure gnu++11 in CXX_FLAGS with CMake < 3.1
-
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -102,7 +103,7 @@ configure_file(${COMPANION_SRC_DIRECTORY}/simulator.desktop.in ${CMAKE_CURRENT_B
 ### Generate .qm files and assemble resource (qrc) file.
 
 # available Companion translations (src/translations/*.ts)
-set(LANGUAGES cs da de en es fi fr it pl ru sv zh_CN ja)
+set(LANGUAGES cs da de en es fi fr he it ja nl pl pt ru sv zh_CN zh_TW)
 foreach(language ${LANGUAGES})
   list(APPEND companion_TS translations/companion_${language}.ts)
 endforeach(language)
@@ -175,7 +176,7 @@ target_link_libraries(common
   Qt5::Xml
   Qt5::Widgets
   ${PTHREAD_LIBRARY}
-  ${SDL_LIBRARY}
+  ${SDL2_LIBRARIES}
   ${WIN_LINK_LIBRARIES}
   )
 
@@ -315,14 +316,20 @@ elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T12)
   set(FLAVOUR t12)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TLITE)
   set(FLAVOUR tlite)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TLITEF4)
+  set(FLAVOUR tlitef4)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TPRO)
   set(FLAVOUR tpro)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T20)
+  set(FLAVOUR t20)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TX12)
   set(FLAVOUR tx12)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TX12MK2)
   set(FLAVOUR tx12mk2)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL ZORRO)
   set(FLAVOUR zorro)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL BOXER)
+  set(FLAVOUR boxer)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL LR3PRO)
   set(FLAVOUR lr3pro)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL COMMANDO8)
@@ -346,11 +353,21 @@ if(POLICY CMP0026)
   cmake_policy(SET CMP0026 OLD)  # https://cmake.org/cmake/help/v3.0/policy/CMP0026.html
 endif()
 
+# OpenSSL
+# environment variable set in github workflows and build-edgetx Dockerfile
+if (DEFINED ENV{QT_TOOLS_OPENSSL_ROOT_PATH})
+  set(OPENSSL_ROOT_DIR "$ENV{QT_TOOLS_OPENSSL_ROOT_PATH}")
+else()
+  message(STATUS "Environment variable QT_TOOLS_OPENSSL_ROOT_PATH not defined. Performing default OpenSSL library search.")
+endif()
+
+find_package(OpenSSL)
+
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   message(STATUS "install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX}/bin)
   install(TARGETS ${COMPANION_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION "${SIMULATOR_LIB_INSTALL_PATH}")
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${SIMULATOR_LIB_INSTALL_PATH})
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/companion.desktop DESTINATION share/applications RENAME companion${C9X_NAME_SUFFIX}.desktop)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/simulator.desktop DESTINATION share/applications RENAME simulator${C9X_NAME_SUFFIX}.desktop)
   if(${CMAKE_INSTALL_PREFIX} MATCHES "/usr/local")
@@ -368,6 +385,13 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   install(FILES images/linuxicons/scalable/companion.svg DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/scalable/apps RENAME companion${C9X_NAME_SUFFIX}.svg)
   install(FILES ../targets/linux/45-companion-taranis.rules DESTINATION ${INSTALL_TEMP_LIB_PFX}lib/udev/rules.d RENAME 45-companion${C9X_NAME_SUFFIX}-taranis.rules)
   install(FILES ../targets/linux/45-usbasp.rules DESTINATION ${INSTALL_TEMP_LIB_PFX}lib/udev/rules.d RENAME 45-companion${C9X_NAME_SUFFIX}-usbasp.rules)
+
+  if (OPENSSL_FOUND)
+    get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
+    # install only files Qt networking requires
+    install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "engines*" EXCLUDE PATTERN "pkg*" EXCLUDE PATTERN "*.so*")
+  endif()
+
   # Linux specific code
   set(OperatingSystem "Linux")
   # Shortcut target
@@ -398,31 +422,23 @@ elseif(WIN32)
   # Add installer command to execute windeployqt
   message(STATUS "windeployqt command: ${QT_BIN_DIR}/windeployqt.exe ${wdqtopts}")
 
-  # SDL dll
-  if(SDL_FOUND AND EXISTS "${SDL_LIBRARY_PATH}/SDL.dll")
-    set(SDL_DIR ${SDL_LIBRARY_PATH})  # this is also used by NSIS installer script
-    install(FILES ${SDL_DIR}/SDL.dll DESTINATION ${INSTALL_DESTINATION})
-  elseif(SDL_FOUND)
-    message(WARNING "Installer: SDL.dll not found, set SDL_LIBRARY_PATH manually.")
+  # SDL2 dll
+  if(SDL2_FOUND AND EXISTS "${SDL2_LIBRARY_PATH}/SDL2.dll")
+    set(SDL2_DIR ${SDL2_LIBRARY_PATH})  # this is also used by NSIS installer script
+    install(FILES ${SDL2_DIR}/SDL2.dll DESTINATION ${INSTALL_DESTINATION})
+  elseif(SDL2_FOUND)
+    message(WARNING "Installer: SDL2.dll not found, set SDL2_LIBRARY_PATH manually.")
   endif()
 
-  # SSL dlls (used by QtNetwork)
-  file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" WIN_PROGRAM_FILES)
-  # try 64-bit
-  find_path(SSL_LIB_DIR libssl-1_1-x64.dll libssl-1_1-x86.dll HINTS
-    "${WIN_PROGRAM_FILES}/OpenSSL" "${WIN_PROGRAM_FILES}/OpenSSL-Win32"
-    "C:/OpenSSL/" "C:/OpenSSL-Win32/"
-    "${WIN_EXTRA_LIBS_PATH}" "${WIN_EXTRA_LIBS_PATH}/OpenSSL" "${WIN_EXTRA_LIBS_PATH}/OpenSSL-Win32"
-    "${MINGW_DIR}/../opt/bin"
-    "${PYTHON_DIRECTORY}/lib/site-packages/PyQt4"
-    PATH_SUFFIXES bin
-    DOC "Path to OpenSSL for Windows 1.1"
-  )
-  if (SSL_LIB_DIR)
-    install(FILES "${SSL_LIB_DIR}/libssl-1_1-x64.dll" "${SSL_LIB_DIR}/libcrypto-1_1-x64.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
-    install(FILES "${SSL_LIB_DIR}/libssl-1_1-x86.dll" "${SSL_LIB_DIR}/libcrypto-1_1-x86.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
-  else()
-    message(WARNING "Installer: SSL libs not found, set SSL_LIB_DIR manually.")
+  if (OPENSSL_FOUND)
+    get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
+    set(OPENSSL_BIN_DIR "${OPENSSL_SSL_LIBRARY_DIR}/../bin")
+    if (EXISTS "${OPENSSL_BIN_DIR}")
+      # install only files Qt networking requires
+      install(DIRECTORY ${OPENSSL_BIN_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "*.dll")
+    else()
+  	  message(STATUS "Installer: OpenSSL bin directory not found, dlls not bundled.")
+    endif()
   endif()
 endif() # WIN32 install
 

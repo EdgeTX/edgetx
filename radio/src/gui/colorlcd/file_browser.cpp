@@ -68,6 +68,65 @@ static const char* getCurrentPath()
   return path;
 }
 
+static int strnatcasecmp(char const *s1, char const *s2)
+{
+  int i1, i2;
+  char c1, c2;
+
+  i1 = i2 = 0;
+  while (true) {
+    c1 = s1[i1]; c2 = s2[i2];
+
+    if (c1 == 0 && c2 == 0) {
+      return 0;
+    }
+
+    if (isdigit(c1) && isdigit(c2)) {
+      int num_cmp = 0;
+      while (true) {
+        if (!num_cmp) {
+          if (c1 < c2) {
+            num_cmp = -1;
+          } else if (c1 > c2) {
+            num_cmp = 1;
+          }
+        }
+        i1 += 1; i2 += 1;
+        c1 = s1[i1]; c2 = s2[i2];
+        if (!isdigit(c1) && !isdigit(c2))
+          break;
+        if (!isdigit(c1)) {
+          num_cmp = -1;
+          break;
+        }
+        if (!isdigit(c2)) {
+          num_cmp = 1;
+          break;
+        }
+      }
+      if (num_cmp)
+        return num_cmp;
+    }
+
+    c1 = toupper(c1);
+    c2 = toupper(c2);
+
+    if (c1 < c2)
+      return -1;
+
+    if (c1 > c2)
+      return +1;
+
+    i1 += 1; i2 += 1;
+  }
+}
+
+// natural comparison, not case sensitive.
+static bool natural_compare_nocase(const std::string & first, const std::string & second)
+{
+  return strnatcasecmp(first.c_str(), second.c_str()) < 0;
+}
+
 static int scan_files(std::list<std::string>& files,
                       std::list<std::string>& directories)
 {
@@ -86,8 +145,8 @@ static int scan_files(std::list<std::string>& files,
       break; // Break on error or end of dir
     // if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
     //   continue;
-    if (fno.fname[0] == '.' && fno.fname[1] != '.')
-      continue; // Ignore hidden files under UNIX, but not ..
+    if (fno.fattrib & (AM_HID|AM_SYS)) continue;     /* Ignore hidden and system files */
+    if (fno.fname[0] == '.' && fno.fname[1] != '.') continue; // Ignore hidden files under UNIX, but not ..
 
     if (fno.fattrib & AM_DIR) {
       directories.push_back((char*)fno.fname);
@@ -96,8 +155,8 @@ static int scan_files(std::list<std::string>& files,
     }
   }
 
-  directories.sort(compare_nocase);
-  files.sort(compare_nocase);
+  directories.sort(natural_compare_nocase);
+  files.sort(natural_compare_nocase);
 
   return 0;
 }

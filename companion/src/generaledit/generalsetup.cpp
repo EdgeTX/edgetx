@@ -150,7 +150,8 @@ ui(new Ui::GeneralSetup)
   }
 
   ui->gpsFormatCB->setCurrentIndex(generalSettings.gpsFormat);
-  ui->timezoneSB->setValue(generalSettings.timezone);
+
+  ui->timezoneLE->setTime((generalSettings.timezone * 3600) + (generalSettings.timezoneMinutes/*quarter hours*/ * 15 * 60));
 
   if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
     ui->adjustRTC->setChecked(generalSettings.adjustRTC);
@@ -250,18 +251,9 @@ ui(new Ui::GeneralSetup)
 
   ui->rssiPowerOffWarnChkB->setChecked(!generalSettings.disableRssiPoweroffAlarm); // Default is zero=checked
 
+  ui->splashScreenDuration->setCurrentIndex(3-generalSettings.splashMode);
   if (IS_FAMILY_HORUS_OR_T16(firmware->getBoard())) {
-    ui->splashScreenChkB->hide();
-    ui->splashScreenDuration->hide();
-    ui->splashScreenLabel->hide();
-  }
-  if (IS_TARANIS(firmware->getBoard())) {
-    ui->splashScreenChkB->hide();
-    ui->splashScreenDuration->setCurrentIndex(3-generalSettings.splashDuration);
-  }
-  else {
-    ui->splashScreenDuration->hide();
-    ui->splashScreenChkB->setChecked(!generalSettings.splashMode);
+    ui->splashScreenDuration->setItemText(0, QCoreApplication::translate("GeneralSetup", "1s", nullptr));
   }
 
   if (!firmware->getCapability(PwrButtonPress)) {
@@ -274,6 +266,10 @@ ui(new Ui::GeneralSetup)
     ui->pwrOnDelayLabel->hide();
     ui->pwrOnDelay->hide();
   }
+
+  QRegExp rx(CHAR_FOR_NAMES_REGEX);
+  ui->registrationId->setValidator(new QRegExpValidator(rx, this));
+  ui->registrationId->setMaxLength(REGISTRATION_ID_LEN);
 
   setValues();
 
@@ -330,6 +326,16 @@ GeneralSetupPanel::~GeneralSetupPanel()
   delete ui;
 }
 
+void GeneralSetupPanel::on_timezoneLE_textEdited(const QString &text)
+{
+  if (!lock) {
+    int secs = ui->timezoneLE->timeInSeconds();
+    generalSettings.timezone = secs / 3600;
+    generalSettings.timezoneMinutes = (secs % 3600) / (15 * 60); // timezoneMinutes in quarter hours
+    emit modified();
+  }
+}
+
 void GeneralSetupPanel::populateBacklightCB()
 {
   QComboBox * b = ui->backlightswCB;
@@ -348,8 +354,14 @@ void GeneralSetupPanel::populateBacklightCB()
 void GeneralSetupPanel::populateVoiceLangCB()
 {
   QComboBox * b = ui->voiceLang_CB;
-  QString strings[] = { tr("English"), tr("Danish"), tr("Dutch"), tr("French"), tr("Italian"), tr("German"), tr("Czech"), tr("Slovak"), tr("Spanish"), tr("Polish"), tr("Portuguese"), tr("Russian"), tr("Swedish"), tr("Hungarian"), NULL};
-  QString langcode[] = { "en", "da", "nl","fr", "it", "de", "cz", "sk", "es", "pl", "pt", "ru", "se", "hu", NULL};
+  QString strings[] = { tr("English"), tr("Danish"), tr("Dutch"), tr("French"), tr("Italian"), tr("German"),
+                        tr("Czech"), tr("Slovak"), tr("Spanish"), tr("Polish"), tr("Portuguese"), tr("Russian"),
+                        tr("Swedish"), tr("Hungarian"), tr("Chinese"), tr("Japanese"), tr("Hebrew"), NULL};
+
+  //  Note: these align with the radio NOT computer locales - TODO harmonise with ISO and one list!!!
+  QString langcode[] = { "en", "da", "nl","fr", "it", "de",
+                         "cz", "sk", "es", "pl", "pt", "ru",
+                         "se", "hu", "cn", "jp", "he", NULL};
 
   b->clear();
   for (int i=0; strings[i]!=NULL; i++) {
@@ -460,8 +472,16 @@ void GeneralSetupPanel::setValues()
   ui->pwrOnDelay->setValue(2 - generalSettings.pwrOnSpeed);
   ui->pwrOffDelay->setValue(2 - generalSettings.pwrOffSpeed);
 
-    // TODO: only if ACCESS available??
   ui->registrationId->setText(generalSettings.registrationId);
+
+  ui->startSoundCB->setChecked(!generalSettings.dontPlayHello);
+
+  if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
+    ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
+  } else {
+    ui->label_modelQuickSelect->hide();
+    ui->modelQuickSelect_CB->hide();
+  }
 }
 
 void GeneralSetupPanel::on_faimode_CB_stateChanged(int)
@@ -526,16 +546,9 @@ void GeneralSetupPanel::on_soundModeCB_currentIndexChanged(int index)
   emit modified();
 }
 
-
-void GeneralSetupPanel::on_splashScreenChkB_stateChanged(int )
-{
-  generalSettings.splashMode = ui->splashScreenChkB->isChecked() ? 0 : 1;
-  emit modified();
-}
-
 void GeneralSetupPanel::on_splashScreenDuration_currentIndexChanged(int index)
 {
-  generalSettings.splashDuration = 3-index;
+  generalSettings.splashMode = 3-index;
   emit modified();
 }
 
@@ -690,12 +703,6 @@ void GeneralSetupPanel::on_switchesDelay_valueChanged(int)
   emit modified();
 }
 
-void GeneralSetupPanel::on_timezoneSB_editingFinished()
-{
-  generalSettings.timezone = ui->timezoneSB->value();
-  emit modified();
-}
-
 void GeneralSetupPanel::on_adjustRTC_stateChanged(int)
 {
   generalSettings.adjustRTC = ui->adjustRTC->isChecked();
@@ -781,15 +788,24 @@ void GeneralSetupPanel::on_blAlarm_ChkB_stateChanged()
 
 void GeneralSetupPanel::on_registrationId_editingFinished()
 {
-  //copy ownerID back to generalSettings.registrationId
-  QByteArray array = ui->registrationId->text().toLocal8Bit();
-  strncpy(generalSettings.registrationId, array, 8);
-  generalSettings.registrationId[8] = '\0';
+  strncpy(generalSettings.registrationId, ui->registrationId->text().toLatin1(), REGISTRATION_ID_LEN);
   emit modified();
 }
 
 void GeneralSetupPanel::stickReverseEdited()
 {
   generalSettings.stickReverse = ((int)ui->stickReverse1->isChecked()) | ((int)ui->stickReverse2->isChecked()<<1) | ((int)ui->stickReverse3->isChecked()<<2) | ((int)ui->stickReverse4->isChecked()<<3);
+  emit modified();
+}
+
+void GeneralSetupPanel::on_modelQuickSelect_CB_stateChanged(int)
+{
+  generalSettings.modelQuickSelect = ui->modelQuickSelect_CB->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_startSoundCB_stateChanged(int)
+{
+  generalSettings.dontPlayHello = !ui->startSoundCB->isChecked();
   emit modified();
 }

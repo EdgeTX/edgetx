@@ -20,31 +20,24 @@
  */
 
 #include "opentx.h"
+#include "navigation.h"
+
+#include "hal/switch_driver.h"
+#include "switches.h"
 
 #if defined(AUTOSWITCH)
 swsrc_t checkIncDecMovedSwitch(swsrc_t val)
 {
-  if (s_editMode>0) {
-    swsrc_t swtch = getMovedSwitch();
-    if (swtch) {
-#if defined(PCBFRSKY)
-      div_t info = switchInfo(swtch);
-      if (IS_CONFIG_TOGGLE(info.quot)) {
-        if (info.rem != 0) {
-          val = (val == swtch ? swtch-2 : swtch);
-        }
+  swsrc_t swtch = getMovedSwitch();
+  if (swtch) {
+    div_t info = switchInfo(swtch);
+    if (IS_CONFIG_TOGGLE(info.quot)) {
+      if (info.rem != 0) {
+        val = (val == swtch ? swtch-2 : swtch);
       }
-      else {
-        val = swtch;
-      }
-#else
-      if (IS_CONFIG_TOGGLE(swtch) && swtch==val) {
-        val = -val;
-      }
-      else {
-        val = swtch;
-      }
-#endif
+    }
+    else {
+      val = swtch;
     }
   }
   return val;
@@ -55,7 +48,7 @@ int checkIncDecSelection = 0;
 
 void repeatLastCursorMove(event_t event)
 {
-  if (CURSOR_MOVED_LEFT(event) || CURSOR_MOVED_RIGHT(event)) {
+  if (IS_PREVIOUS_EVENT(event) || IS_NEXT_EVENT(event)) {
     pushEvent(event);
   }
   else {
@@ -63,13 +56,36 @@ void repeatLastCursorMove(event_t event)
   }
 }
 
+void onSwitchLongEnterPress(const char * result)
+{
+  if (result == STR_MENU_SWITCHES) {
+    checkIncDecSelection = SWSRC_FIRST_SWITCH;
+  } else if (result == STR_MENU_TRIMS) {
+    checkIncDecSelection = SWSRC_FIRST_TRIM;
+  } else if (result == STR_MENU_LOGICAL_SWITCHES) {
+    checkIncDecSelection =
+        SWSRC_FIRST_LOGICAL_SWITCH +
+        getFirstAvailable(0, MAX_LOGICAL_SWITCHES, isLogicalSwitchAvailable);
+  } else if (result == STR_MENU_OTHER) {
+    checkIncDecSelection = SWSRC_ON;
+  } else if (result == STR_MENU_INVERT) {
+    checkIncDecSelection = SWSRC_INVERT;
+  }
+}
+
 void onSourceLongEnterPress(const char * result)
 {
-  if (result == STR_MENU_INPUTS)
-    checkIncDecSelection = getFirstAvailable(MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, isInputAvailable)+1;
+  if (result == STR_MENU_INPUTS) {
+    checkIncDecSelection =
+        getFirstAvailable(MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT,
+                          isInputAvailable) +
+        1;
+  }
 #if defined(LUA_MODEL_SCRIPTS)
-  else if (result == STR_MENU_LUA)
-    checkIncDecSelection = getFirstAvailable(MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, isSourceAvailable);
+  else if (result == STR_MENU_LUA) {
+    checkIncDecSelection =
+        getFirstAvailable(MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, isSourceAvailable);
+  }
 #endif
   else if (result == STR_MENU_STICKS)
     checkIncDecSelection = MIXSRC_FIRST_STICK;
@@ -105,7 +121,7 @@ void check_submenu_simple(event_t event, uint8_t rowcount)
   check_simple(event, 0, nullptr, 0, rowcount);
 }
 
-void check_simple(event_t event, uint8_t curr, const MenuHandlerFunc *menuTab, uint8_t menuTabSize, vertpos_t rowcount)
+void check_simple(event_t event, uint8_t curr, const MenuHandler *menuTab, uint8_t menuTabSize, vertpos_t rowcount)
 {
   check(event, curr, menuTab, menuTabSize, 0, 0, rowcount);
 }

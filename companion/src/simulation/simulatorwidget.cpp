@@ -21,7 +21,6 @@
 #include "simulatorwidget.h"
 #include "ui_simulatorwidget.h"
 
-#include "appdata.h"
 #include "appdebugmessagehandler.h"
 #include "radiofaderwidget.h"
 #include "radiokeywidget.h"
@@ -98,6 +97,7 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
       radioUiWidget = new SimulatedUIWidgetJumperT12(simulator, this);
       break;
     case Board::BOARD_JUMPER_TLITE:
+    case Board::BOARD_JUMPER_TLITE_F4:
       radioUiWidget = new SimulatedUIWidgetJumperTLITE(simulator, this);
       break;
     case Board::BOARD_JUMPER_TPRO:
@@ -115,6 +115,9 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
       break;
     case Board::BOARD_RADIOMASTER_ZORRO:
       radioUiWidget = new SimulatedUIWidgetZorro(simulator, this);
+      break;
+    case Board::BOARD_RADIOMASTER_BOXER:
+      radioUiWidget = new SimulatedUIWidgetBoxer(simulator, this);
       break;
     case Board::BOARD_RADIOMASTER_T8:
       radioUiWidget = new SimulatedUIWidgetT8(simulator, this);
@@ -389,7 +392,7 @@ bool SimulatorWidget::useTempDataPath(bool deleteOnClose)
   }
 }
 
-// This will save radio data from temporary folder structure back into an .etx file, eg. for Horus.
+// This will save radio data from temporary folder structure back into an .etx file
 bool SimulatorWidget::saveTempData()
 {
   bool ret = false;
@@ -616,7 +619,6 @@ void SimulatorWidget::setupRadioWidgets()
     RadioKnobWidget * pot = new RadioKnobWidget(Board::PotType(radioSettings.potConfig[i]), wname, 0, ui->radioWidgetsHT);
     pot->setIndex(i);
     ui->radioWidgetsHTLayout->insertWidget(midpos++, pot);
-
     m_radioWidgets.append(pot);
   }
 
@@ -658,6 +660,7 @@ void SimulatorWidget::setupRadioWidgets()
   foreach (RadioWidget * rw, m_radioWidgets) {
     connect(rw, &RadioWidget::valueChange, this, &SimulatorWidget::onRadioWidgetValueChange);
     connect(this, &SimulatorWidget::widgetValueChange, rw, &RadioWidget::setValueQual);
+    connect(this, &SimulatorWidget::widgetValueAdjust, rw, &RadioWidget::chgValueQual);
     connect(this, &SimulatorWidget::widgetStateChange, rw, &RadioWidget::setStateData);
   }
 
@@ -668,27 +671,37 @@ void SimulatorWidget::setupJoysticks()
 #ifdef JOYSTICKS
   bool joysticksEnabled = false;
 
-  if (g.jsSupport() && g.jsCtrl() > -1) {
+  if (g.jsSupport()) {
     if (!joystick)
-      joystick = new Joystick(this);
+      joystick = new Joystick(this, SDL_JOYSTICK_DEFAULT_EVENT_TIMEOUT, false, SDL_JOYSTICK_DEFAULT_AUTOREPEAT_DELAY);
     else
       joystick->close();
 
-    if (joystick && joystick->open(g.jsCtrl())) {
-      int numAxes = std::min(joystick->numAxes, MAX_JOYSTICKS);
+    int stick = joystick->findCurrent(g.currentProfile().jsName());
+
+    if (joystick && joystick->open(stick)) {
+      int numAxes = std::min(joystick->numAxes, MAX_JS_AXES);
       for (int j=0; j<numAxes; j++) {
         joystick->sensitivities[j] = 0;
         joystick->deadzones[j] = 0;
       }
       connect(joystick, &Joystick::axisValueChanged, this, &SimulatorWidget::onjoystickAxisValueChanged);
-      if (vJoyLeft)
+      connect(joystick, &Joystick::buttonValueChanged, this, &SimulatorWidget::onjoystickButtonValueChanged);
+      if (vJoyLeft) {
         connect(this, &SimulatorWidget::stickValueChange, vJoyLeft, &VirtualJoystickWidget::setStickAxisValue);
-      if (vJoyRight)
+        connect(this, &SimulatorWidget::widgetValueAdjust, vJoyLeft->horizontalTrim(), &RadioWidget::chgValueQual);
+        connect(this, &SimulatorWidget::widgetValueAdjust, vJoyLeft->verticalTrim(), &RadioWidget::chgValueQual);
+      }
+      if (vJoyRight) {
         connect(this, &SimulatorWidget::stickValueChange, vJoyRight, &VirtualJoystickWidget::setStickAxisValue);
+        connect(this, &SimulatorWidget::widgetValueAdjust, vJoyRight->horizontalTrim(), &RadioWidget::chgValueQual);
+        connect(this, &SimulatorWidget::widgetValueAdjust, vJoyRight->verticalTrim(), &RadioWidget::chgValueQual);
+      }
       joysticksEnabled = true;
     }
     else {
-      QMessageBox::critical(this, CPN_STR_TTL_WARNING, tr("Cannot open joystick, joystick disabled"));
+      if (!g.disableJoystickWarning())
+        QMessageBox::critical(this, CPN_STR_TTL_WARNING, tr("Cannot open joystick, joystick disabled"));
     }
   }
   else if (joystick) {
@@ -850,11 +863,11 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
 {
 #ifdef JOYSTICKS
   static const int ttlSticks = 4;
-  static const int ttlKnobs = Boards::getCapability(m_board, Board::Pots);
-  static const int ttlFaders = Boards::getCapability(m_board, Board::Sliders);
+  const int ttlKnobs = Boards::getCapability(m_board, Board::Pots);
+  const int ttlFaders = Boards::getCapability(m_board, Board::Sliders);
   static const int valueRange = 1024;
 
-  if (!joystick || axis >= MAX_JOYSTICKS)
+  if (!joystick || axis >= MAX_JS_AXES)
     return;
 
   int dlta;
@@ -881,11 +894,55 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
   }
   else {
     stick -= ttlSticks;
-    if (stick < ttlKnobs)
+    if (stick < ttlKnobs) {
+      GeneralSettings radioSettings = GeneralSettings();
+      if (Board::PotType(radioSettings.potConfig[stick]) == Board::POT_MULTIPOS_SWITCH)
+        stickval += 1024;
       emit widgetValueChange(RadioWidget::RADIO_WIDGET_KNOB, stick, stickval);
-    else
+    } else {
+      stick -= ttlKnobs;
       emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick, stickval);
+    }
   }
 
+#endif
+}
+
+void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
+{
+#ifdef JOYSTICKS
+
+  if (!joystick || button >= MAX_JS_BUTTONS)
+    return;
+
+  int ttlSwitches = Boards::getCapability(m_board, Board::Switches);
+
+  int btn = g.jsButton[button].button_idx();
+
+  int swtch = btn & JS_BUTTON_SWITCH_MASK;
+
+  if (swtch < ttlSwitches) {
+    if (btn & JS_BUTTON_3POS_DN) {
+      // 3POS Down
+      if (state || (switchDirection[swtch] == 0) || (switchDirection[swtch] == (btn & JS_BUTTON_TYPE_MASK))) {
+        emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, state ? 1 : 0);
+        switchDirection[swtch] = (btn & JS_BUTTON_TYPE_MASK);
+      }
+    } else if (btn & JS_BUTTON_3POS_UP) {
+      // 3POS Up
+      if (state || (switchDirection[swtch] == 0) || (switchDirection[swtch] == (btn & JS_BUTTON_TYPE_MASK))) {
+        emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, state ? -1 : 0);
+        switchDirection[swtch] = (btn & JS_BUTTON_TYPE_MASK);
+      }
+    } else if (btn & JS_BUTTON_TOGGLE) {
+      // Toggle or momentary
+      emit widgetValueChange(RadioWidget::RADIO_WIDGET_SWITCH, swtch, state ? 1 : - 1);
+    }
+  } else {
+    // Trim
+    swtch -= ttlSwitches;
+    int offset = (btn & JS_BUTTON_3POS_DN) ? -1 : 1;
+    emit widgetValueAdjust(RadioWidget::RADIO_WIDGET_TRIM, swtch, offset, state);
+  }
 #endif
 }

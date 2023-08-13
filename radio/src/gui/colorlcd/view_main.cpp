@@ -66,7 +66,7 @@ static void tile_view_scroll(lv_event_t* e)
 ViewMain * ViewMain::_instance = nullptr;
 
 ViewMain::ViewMain():
-  Window(MainWindow::instance(), MainWindow::instance()->getRect(), NO_SCROLLBAR | OPAQUE)
+  Window(MainWindow::instance(), MainWindow::instance()->getRect(), OPAQUE)
 {
   Layer::push(this);
 
@@ -236,48 +236,72 @@ void ViewMain::updateTopbarVisibility()
   }
 }
 
+// Update screens after theme loaded / changed
+void ViewMain::updateFromTheme()
+{
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
+    if (customScreens[i])
+      customScreens[i]->updateFromTheme();
+  }
+}
+
 void ViewMain::onEvent(event_t event)
 {
 #if defined(HARDWARE_KEYS)
   switch (event) {
     case EVT_KEY_BREAK(KEY_MODEL):
+      if (viewMainMenu) viewMainMenu->onCancel();
       new ModelMenu();
       break;
 
     case EVT_KEY_LONG(KEY_MODEL):
       killEvents(KEY_MODEL);
+      if (viewMainMenu) viewMainMenu->onCancel();
       new ModelLabelsWindow();
       break;
 
-    // TODO:
-    // - use BREAK instead
-    // - use LONG for "Tools" page
-    //
-    case EVT_KEY_FIRST(KEY_RADIO):
+    case EVT_KEY_BREAK(KEY_SYS):
+      if (viewMainMenu) viewMainMenu->onCancel();
       new RadioMenu();
       break;
 
-    case EVT_KEY_FIRST(KEY_TELEM):
+    case EVT_KEY_LONG(KEY_SYS):
+      {
+        killEvents(KEY_SYS);
+        // Radio setup
+        auto m = new RadioMenu();
+        m->setCurrentTab(2);
+      }
+      break;
+
+    case EVT_KEY_FIRST(KEY_TELE):
+      if (viewMainMenu) viewMainMenu->onCancel();
       new ScreenMenu();
       break;
 
-#if defined(KEYS_GPIO_REG_PGUP)
-    case EVT_KEY_FIRST(KEY_PGDN):
+#if defined(KEYS_GPIO_REG_PAGEUP)
+    case EVT_KEY_FIRST(KEY_PAGEDN):
 #else
-    case EVT_KEY_BREAK(KEY_PGDN):
+    case EVT_KEY_BREAK(KEY_PAGEDN):
 #endif
-      if (!widget_select) nextMainView();
+      if (!widget_select) {
+        if (viewMainMenu) viewMainMenu->onCancel();
+        nextMainView();
+      }
       break;
 
 //TODO: these need to go away!
 // -> board code should map the keys as required
-#if defined(KEYS_GPIO_REG_PGUP)
-    case EVT_KEY_FIRST(KEY_PGUP):
+#if defined(KEYS_GPIO_REG_PAGEUP)
+    case EVT_KEY_FIRST(KEY_PAGEUP):
 #else
-    case EVT_KEY_LONG(KEY_PGDN):
+    case EVT_KEY_LONG(KEY_PAGEDN):
 #endif
       killEvents(event);
-      if (!widget_select) previousMainView();
+      if (!widget_select) {
+        if (viewMainMenu) viewMainMenu->onCancel();
+        previousMainView();
+      }
       break;
   }
 #endif
@@ -312,7 +336,13 @@ bool ViewMain::enableWidgetSelect(bool enable)
   widget_select = enable;
 
   lv_obj_t* tile = lv_tileview_get_tile_act(tile_view);
+  if(!tile)
+    return true;
+
   auto cont_obj = lv_obj_get_child(tile, 0);
+  if(!cont_obj)
+    return true;
+
   auto cont = (WidgetsContainer*)lv_obj_get_user_data(cont_obj);
 
   for (uint32_t i = 0; i < cont->getZonesCount(); i++) {
@@ -347,7 +377,9 @@ bool ViewMain::enableWidgetSelect(bool enable)
 
 void ViewMain::openMenu()
 {
-  new ViewMainMenu(this);
+  viewMainMenu = new ViewMainMenu(this, [=]() {
+    viewMainMenu = nullptr;
+  });
 }
 
 void ViewMain::paint(BitmapBuffer * dc)
@@ -356,7 +388,7 @@ void ViewMain::paint(BitmapBuffer * dc)
         dc->getOffsetX(), dc->getOffsetY());
 
   // TODO: set it as "window background" w/ LVGL
-  OpenTxTheme::instance()->drawBackground(dc);
+  EdgeTxTheme::instance()->drawBackground(dc);
 }
 
 void ViewMain::ws_timer(lv_timer_t* t)

@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "mixer_scheduler.h"
+#include "tasks/mixer_task.h"
 
 bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 {
@@ -96,6 +97,11 @@ void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs)
   }
 
   mixerSchedules[moduleIdx].period = periodUs;
+}
+
+uint16_t mixerSchedulerGetPeriod(uint8_t moduleIdx)
+{
+  return mixerSchedules[moduleIdx].period;
 }
 
 void mixerSchedulerISRTrigger()

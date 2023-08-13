@@ -8,13 +8,11 @@ option(DISABLE_COMPANION "Disable building companion and simulators" OFF)
 # endif()
 
 # libfox
-if(NOT WIN32)
-  find_package(Fox QUIET)  # QUIET not working on WIN32?
-  if (FOX_FOUND)
-    message(STATUS "Foxlib found at ${FOX_LIBRARY}")
-  else() # if(NOT WIN32)
-    message("Libfox not found, simu target will not be available")
-  endif()
+find_package(Fox QUIET)  # QUIET not working on WIN32?
+if (FOX_FOUND)
+  message(STATUS "Foxlib found at ${FOX_LIBRARY}")
+else()
+  message("Libfox not found, simu target will not be available")
 endif()
 
 if(NOT DISABLE_COMPANION)
@@ -22,13 +20,10 @@ if(NOT DISABLE_COMPANION)
 endif(NOT DISABLE_COMPANION)
 
 if(Qt5Core_FOUND OR FOX_FOUND)
-  set(SDL_BUILDING_LIBRARY YES)  # this prevents FindSDL from appending SDLmain lib to the results, which we don't want
-  find_package("SDL")
-  if(SDL_FOUND)
-    message(STATUS "SDL Lib: ${SDL_LIBRARY}; Headers: ${SDL_INCLUDE_DIR}; Version: ${SDL_VERSION_STRING}")
-    if (NOT ${SDL_VERSION_STRING} VERSION_LESS "2.0")
-      message(FATAL_ERROR "OpenTX requires SDL 1.x, not 2.x")
-    endif()
+  set(SDL2_BUILDING_LIBRARY YES)  # this prevents FindSDL from appending SDLmain lib to the results, which we don't want
+  find_package("SDL2")
+  if(SDL2_FOUND)
+    message(STATUS "SDL2 Lib: ${SDL2_LIBRARIES}; Headers: ${SDL2_INCLUDE_DIRS}")
   else()
     message(STATUS "SDL not found! Simulator audio, and joystick inputs, will not work.")
   endif()

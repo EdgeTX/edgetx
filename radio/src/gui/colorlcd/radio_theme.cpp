@@ -21,65 +21,109 @@
 #include "radio_theme.h"
 #include <algorithm>
 
-#include "bitmapbuffer.h"
 #include "libopenui.h"
 #include "opentx.h"
 #include "file_preview.h"
 #include "theme_manager.h"
 #include "view_main.h"
-#include "widget_settings.h"
-#include "sliders.h"
 #include "color_list.h"
-#include "color_editor.h"
 #include "listbox.h"
 #include "preview_window.h"
 
-#if (LCD_W > LCD_H)
-  #define COLOR_PREVIEW_WIDTH 18
-  #define COLOR_PREVIEW_HEIGHT  (LCD_H - TOPBAR_HEIGHT - 30)
-  #define LEFT_LIST_WIDTH (LCD_W / 2) - COLOR_PREVIEW_WIDTH
-  #define LEFT_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT - 37)
-  #define COLOR_LIST_WIDTH ((LCD_W * 3)/10)
-  #define COLOR_LIST_HEIGHT (LCD_H - TOPBAR_HEIGHT - 14)
-  #define TOP_LIST_OFFSET 4
-  #define LEFT_LIST_OFFSET 3
+constexpr int COLOR_PREVIEW_SIZE = 18;
+
+#if LCD_W > LCD_H
+  constexpr int LIST_WIDTH =          ((LCD_W - 12) / 2 - COLOR_PREVIEW_SIZE);
+  constexpr int COLOR_LIST_WIDTH =    ((LCD_W * 3)/10);
 #else
-  #define COLOR_PREVIEW_WIDTH LCD_W
-  #define COLOR_PREVIEW_HEIGHT  18
-  #define LEFT_LIST_WIDTH LCD_W - 6
-  #define LEFT_LIST_HEIGHT (LCD_H / 2 - 38)
-  #define COLOR_LIST_WIDTH LCD_W - 6
-  #define COLOR_LIST_HEIGHT (LCD_H / 2 - 24)
-  #define TOP_LIST_OFFSET 4
-  #define LEFT_LIST_OFFSET 3
+  constexpr int LIST_HEIGHT =         (LCD_H / 2 - 38);
+  constexpr int COLOR_LIST_HEIGHT =   (LCD_H / 2 - 24);
 #endif
 
-#define MARGIN_WIDTH 5
-
-#if (LCD_W > LCD_H)
-constexpr int BUTTON_HEIGHT = 30;
+#if LCD_W > LCD_H
 constexpr int BUTTON_WIDTH  = 75;
-constexpr rect_t detailsDialogRect = {50, 50, 400, 170};
-constexpr int labelWidth = 150;
+constexpr rect_t detailsDialogRect = {30, 30, LCD_W - 60, LCD_H - 60};
 
-constexpr int COLOR_BOX_LEFT = 5;
 constexpr int COLOR_BOX_WIDTH = 45;
-constexpr int COLOR_BOX_HEIGHT = 27;
 #else
-constexpr int BUTTON_HEIGHT = 30;
 constexpr int BUTTON_WIDTH  = 65;
-constexpr rect_t detailsDialogRect = {5, 50, LCD_W - 10, 340};
-constexpr int labelWidth = 120;
+constexpr rect_t detailsDialogRect = {10, 50, LCD_W - 20, 220};
 
-constexpr int COLOR_BOX_LEFT = 3;
 constexpr int COLOR_BOX_WIDTH = 55;
-constexpr int COLOR_BOX_HEIGHT = 32;
-
-constexpr int COLOR_BUTTON_WIDTH = COLOR_BOX_WIDTH;
-constexpr int COLOR_BUTTON_HEIGHT = 20;
 #endif
 
+constexpr int BUTTON_HEIGHT = 30;
+constexpr int COLOR_BOX_HEIGHT = 30;
 
+constexpr int BOX_MARGIN = 2;
+constexpr int MAX_BOX_WIDTH = 15;
+
+
+class ThemeColorPreview : public FormWindow
+{
+  public:
+    ThemeColorPreview(Window *parent, const rect_t &rect, std::vector<ColorEntry> colorList) :
+      FormWindow(parent, rect, NO_FOCUS),
+      colorList(colorList)
+    {
+      padAll(0);
+#if LCD_W > LCD_H
+      setFlexLayout(LV_FLEX_FLOW_COLUMN, BOX_MARGIN);
+#else
+      setFlexLayout(LV_FLEX_FLOW_ROW, BOX_MARGIN);
+#endif
+      build();
+    }
+
+    void build()
+    {
+      clear();
+      setBoxWidth();
+      int size = (boxWidth + BOX_MARGIN) * colorList.size() - BOX_MARGIN;
+#if LCD_W > LCD_H
+      padTop((height() - size) / 2);
+#else
+      padLeft((width() - size) / 2);
+#endif
+      for (auto color: colorList) {
+        auto c = lv_obj_create(lvobj);
+        lv_obj_set_size(c, boxWidth, boxWidth);
+        lv_obj_set_style_border_width(c, 1, 0);
+        lv_obj_set_style_border_color(c, makeLvColor(COLOR2FLAGS(BLACK)), 0);
+        lv_obj_set_style_border_opa(c, LV_OPA_100, 0);
+        lv_obj_set_style_bg_color(c, makeLvColor(COLOR2FLAGS(color.colorValue)), 0);
+        lv_obj_set_style_bg_opa(c, LV_OPA_100, 0);
+      }
+    }
+
+    void setColorList(std::vector<ColorEntry> colorList)
+    {
+      this->colorList = colorList;
+      build();
+    }
+
+  protected:
+    std::vector<ColorEntry> colorList;
+    int boxWidth = MAX_BOX_WIDTH;
+
+    void setBoxWidth()
+    {
+#if LCD_W > LCD_H
+      boxWidth = (height() - (colorList.size() - 1) * BOX_MARGIN) / colorList.size();
+#else
+      boxWidth = (width() - (colorList.size() - 1) * BOX_MARGIN) / colorList.size();
+#endif
+      boxWidth = min(boxWidth, MAX_BOX_WIDTH);
+    }
+};
+
+
+static const lv_coord_t d_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(3),
+                                       LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t b_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                       LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
 
 class ThemeDetailsDialog: public Dialog
 {
@@ -89,33 +133,60 @@ class ThemeDetailsDialog: public Dialog
       theme(theme),
       saveHandler(saveHandler)
     {
-      FormGridLayout grid(detailsDialogRect.w);
-      grid.setLabelWidth(labelWidth);
-      grid.spacer(8);
+      content->form.padAll(4);
+      content->form.padLeft(8);
+      content->form.padRight(8);
 
-      new StaticText(&content->form, grid.getLabelSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
-      new TextEdit(&content->form, grid.getFieldSlot(), this->theme.getName(), NAME_LENGTH);
-      grid.nextLine();
-      new StaticText(&content->form, grid.getLabelSlot(), STR_AUTHOR, 0, COLOR_THEME_PRIMARY1);
-      new TextEdit(&content->form, grid.getFieldSlot(), this->theme.getAuthor(), AUTHOR_LENGTH);
-      grid.nextLine();
-      new StaticText(&content->form, grid.getLineSlot(), STR_DESCRIPTION, 0, COLOR_THEME_PRIMARY1);
-      grid.nextLine();
-      new TextEdit(&content->form, grid.getLineSlot(), this->theme.getInfo(), INFO_LENGTH);
-      grid.nextLine();
+      lv_obj_set_style_bg_color(content->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
+      lv_obj_set_style_bg_opa(content->getLvObj(), LV_OPA_100, LV_PART_MAIN);
+      auto form = new FormWindow(&content->form, rect_t{});
+      form->setFlexLayout();
 
-      rect_t r = {detailsDialogRect.w - (BUTTON_WIDTH + 5), grid.getWindowHeight() + 5, BUTTON_WIDTH, BUTTON_HEIGHT };
-      new TextButton(&content->form, r, STR_SAVE, [=] () {
+      FlexGridLayout grid(d_col_dsc, row_dsc, 2);
+
+      auto line = form->newLine(&grid);
+      line->padAll(0);
+
+      new StaticText(line, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
+      auto te = new TextEdit(line, rect_t{}, this->theme.getName(), SELECTED_THEME_NAME_LEN);
+      lv_obj_set_grid_cell(te->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+      line = form->newLine(&grid);
+      line->padAll(0);
+      line->padTop(2);
+
+      new StaticText(line, rect_t{}, STR_AUTHOR, 0, COLOR_THEME_PRIMARY1);
+      te = new TextEdit(line, rect_t{}, this->theme.getAuthor(), AUTHOR_LENGTH);
+      lv_obj_set_grid_cell(te->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+      FlexGridLayout grid2(b_col_dsc, row_dsc, 2);
+
+      line = form->newLine(&grid2);
+      line->padAll(0);
+
+      new StaticText(line, rect_t{}, STR_DESCRIPTION, 0, COLOR_THEME_PRIMARY1);
+      line = form->newLine(&grid2);
+      line->padAll(0);
+      te = new TextEdit(line, rect_t{}, this->theme.getInfo(), INFO_LENGTH);
+      lv_obj_set_grid_cell(te->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 2, LV_GRID_ALIGN_CENTER, 0, 1);
+
+      line = form->newLine(&grid2);
+      line->padAll(0);
+      line->padTop(10);
+
+      auto button = new TextButton(line, rect_t{0, 0, lv_pct(30), 32}, STR_SAVE, [=] () {
         if (saveHandler != nullptr)
           saveHandler(this->theme);
         deleteLater();
         return 0;
       });
-      r.x -= (BUTTON_WIDTH + 5);
-      new TextButton(&content->form, r, STR_CANCEL, [=] () {
+      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+      button = new TextButton(line, rect_t{0, 0, lv_pct(30), 32}, STR_CANCEL, [=] () {
         deleteLater();
         return 0;
       });
+      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
     }
 
   protected:
@@ -123,169 +194,181 @@ class ThemeDetailsDialog: public Dialog
     std::function<void(ThemeFile theme)> saveHandler = nullptr;
 };
 
-class ColorSquare : public FormField
+class ColorSquare : public Window
 {
   public:
-    ColorSquare(Window *window, const rect_t &rect, uint32_t color, WindowFlags windowFlags = 0)
-      : FormField(window, rect, windowFlags | NO_FOCUS),
+    ColorSquare(Window *window, const rect_t &rect, uint32_t color, WindowFlags windowFlags = 0) :
+      Window(window, rect, windowFlags | NO_FOCUS),
       _color(color)
     {
-    }
-
-    void paint (BitmapBuffer *dc) override
-    {
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR2FLAGS(_color));
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR2FLAGS(BLACK));
+      swatch = lv_obj_create(lvobj);
+      lv_obj_set_size(swatch, width(), height());
+      lv_obj_set_style_border_width(swatch, 1, 0);
+      lv_obj_set_style_border_color(swatch, makeLvColor(COLOR2FLAGS(BLACK)), 0);
+      lv_obj_set_style_border_opa(swatch, LV_OPA_100, 0);
+      lv_obj_set_style_bg_color(swatch, makeLvColor(COLOR2FLAGS(_color)), 0);
+      lv_obj_set_style_bg_opa(swatch, LV_OPA_100, 0);
     }
 
     void setColorToEdit(uint32_t colorEntry)
     {
       _color = colorEntry;
-
-      invalidate();
+      lv_obj_set_style_bg_color(swatch, makeLvColor(COLOR2FLAGS(_color)), 0);
     }
 
   protected:
     uint32_t _color;
+    lv_obj_t *swatch;
 };
-
-void setHexStr(StaticText* hexBox, uint32_t rgb)
-{
-  auto r = GET_RED(rgb), g = GET_GREEN(rgb), b = GET_BLUE(rgb);
-  char hexstr[8];
-  snprintf(hexstr, sizeof(hexstr), "%02X%02X%02X",
-           (uint16_t)r, (uint16_t)g, (uint16_t)b);
-  hexBox->setText(hexstr);
-}
 
 class ColorEditPage : public Page
 {
-public:
-  ColorEditPage(ThemeFile theme, LcdColorIndex indexOfColor, 
-                std::function<void (uint32_t rgb)> setValue = nullptr) :
-    Page(ICON_RADIO_EDIT_THEME),
-    _setValue(std::move(setValue)),
-    _indexOfColor(indexOfColor),
-    _theme(theme)
-  {
-    buildBody(&body); 
-    buildHead(&header);
-  }
-
-  void setActiveColorBar(int activeTab)
-  {
-    if (activeTab >= 0 && _activeTab <= (int)_tabs.size()) {
-      _activeTab = activeTab;
-      for (auto i = 0; i < (int) _tabs.size(); i++)
-        _tabs[i]->check(i == _activeTab);
-      _colorEditor->setColorEditorType(_activeTab == 1 ? HSV_COLOR_EDITOR : RGB_COLOR_EDITOR);
-    }
-  }
-
-protected:
-  std::function<void (uint32_t rgb)> _setValue;
-  LcdColorIndex _indexOfColor;
-  ThemeFile  _theme;
-  TextButton *_cancelButton;
-  ColorEditor *_colorEditor;
-  PreviewWindow *_previewWindow = nullptr;
-  std::vector<Button *> _tabs;
-  int _activeTab = 0;
-  ColorSquare *_colorSquare = nullptr;
-  StaticText *_hexBox = nullptr;
-
-  void buildBody(FormWindow* window)
-  {
-    rect_t r;
-
-    // hexBox
-    r = { COLOR_BOX_LEFT + COLOR_BOX_WIDTH + 5, TOP_LIST_OFFSET, 90, 30 };
-    _hexBox = new StaticText(window, r, "", 0, COLOR_THEME_PRIMARY1 | FONT(L) | RIGHT);
-    setHexStr(_hexBox, _theme.getColorEntryByIndex(_indexOfColor)->colorValue);
-
-    if (LCD_W > LCD_H)
-      r = { COLOR_BOX_LEFT, COLOR_BOX_HEIGHT + 7, COLOR_LIST_WIDTH, window->height() - COLOR_BOX_HEIGHT - 7};
-    else
-      r = { COLOR_BOX_LEFT, COLOR_BOX_HEIGHT + 7, COLOR_LIST_WIDTH, LCD_H / 2 - COLOR_BOX_HEIGHT - 20 };
-
-    _colorEditor = new ColorEditor(window, r, _theme.getColorEntryByIndex(_indexOfColor)->colorValue,
-      [=](uint32_t rgb) {
-        _theme.setColor(_indexOfColor, rgb);
-        if (_colorSquare != nullptr) {
-          _colorSquare->setColorToEdit(rgb);
-        }
-        if (_previewWindow != nullptr) {
-          _previewWindow->setColorList(_theme.getColorList());
-        }
-        if (_hexBox != nullptr) {
-          setHexStr(_hexBox, rgb);
-        }
-        if (_setValue != nullptr)
-          _setValue(rgb);
-      });
-    _colorEditor->setColorEditorType(HSV_COLOR_EDITOR);
-    _activeTab = 1;
-
-    r = { COLOR_BOX_LEFT, 4, COLOR_BOX_WIDTH, COLOR_BOX_HEIGHT };
-    _colorSquare = new ColorSquare(window, r, _theme.getColorEntryByIndex(_indexOfColor)->colorValue);
-
-    r = LCD_W > LCD_H ?
-          rect_t { 
-            COLOR_LIST_WIDTH + MARGIN_WIDTH + LEFT_LIST_OFFSET, 
-            TOP_LIST_OFFSET, 
-            LCD_W - COLOR_LIST_WIDTH - LEFT_LIST_OFFSET - MARGIN_WIDTH * 2, 
-            COLOR_LIST_HEIGHT } :
-          rect_t { 
-            LEFT_LIST_OFFSET, 
-            TOP_LIST_OFFSET + COLOR_LIST_HEIGHT + MARGIN_WIDTH,  
-            LEFT_LIST_WIDTH, 
-            COLOR_LIST_HEIGHT - (MARGIN_WIDTH * 2) 
-          };
-    _previewWindow = new PreviewWindow(window, r, _theme.getColorList());
-  }
-
-  void buildHead(PageHeader* window)
-  {
-    LcdFlags flags = 0;
-    if (LCD_W < LCD_H) {
-      flags = FONT(XS);
+  public:
+    ColorEditPage(ThemeFile *theme, LcdColorIndex indexOfColor, 
+                  std::function<void ()> updateHandler = nullptr) :
+      Page(ICON_RADIO_EDIT_THEME),
+      _updateHandler(std::move(updateHandler)),
+      _indexOfColor(indexOfColor),
+      _theme(theme)
+    {
+      buildBody(&body); 
+      buildHead(&header);
     }
 
-    // page title
-    new StaticText(window,
-      { PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-       PAGE_LINE_HEIGHT },
-      "Edit Color", 0, COLOR_THEME_PRIMARY2 | flags);
-    new StaticText(window,
-      { PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-       LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT },
-      ThemePersistance::getColorNames()[(int)_indexOfColor], 0, COLOR_THEME_PRIMARY2 | flags);
+    void setActiveColorBar(int activeTab)
+    {
+      if (activeTab >= 0 && _activeTab <= (int)_tabs.size()) {
+        _activeTab = activeTab;
+        for (auto i = 0; i < (int) _tabs.size(); i++)
+          _tabs[i]->check(i == _activeTab);
+        _colorEditor->setColorEditorType(_activeTab == 1 ? HSV_COLOR_EDITOR : RGB_COLOR_EDITOR);
+      }
+    }
 
-    // page tabs
-    rect_t r = { LCD_W - 2*(BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };
-    _tabs.emplace_back(
-      new TextButton(window, r, "RGB",
-        [=] () {
-          setActiveColorBar(0);
-          return 1;
-        }));
-    r.x += (BUTTON_WIDTH + 5);
-    _tabs.emplace_back(
-      new TextButton(window, r, "HSV", 
-        [=] () {
-          setActiveColorBar(1);
-          return 1;
-        }));
-    _tabs[1]->check(true);
-  }
+  protected:
+    std::function<void ()> _updateHandler;
+    LcdColorIndex _indexOfColor;
+    ThemeFile *_theme;
+    TextButton *_cancelButton;
+    ColorEditor *_colorEditor;
+    PreviewWindow *_previewWindow = nullptr;
+    std::vector<Button *> _tabs;
+    int _activeTab = 0;
+    ColorSquare *_colorSquare = nullptr;
+    StaticText *_hexBox = nullptr;
+
+    void deleteLater(bool detach = true, bool trash = true) override
+    {
+      if (_updateHandler != nullptr)
+        _updateHandler();
+      Page::deleteLater(detach, trash);
+    }
+
+    void setHexStr(uint32_t rgb)
+    {
+      if (_hexBox) {
+        auto r = GET_RED(rgb), g = GET_GREEN(rgb), b = GET_BLUE(rgb);
+        char hexstr[8];
+        snprintf(hexstr, sizeof(hexstr), "%02X%02X%02X",
+                 (uint16_t)r, (uint16_t)g, (uint16_t)b);
+        _hexBox->setText(hexstr);
+      }
+    }
+
+    void buildBody(FormWindow* window)
+    {
+      window->padAll(4);
+      FormWindow *form = new FormWindow(window, {0, 0, window->width() - 8, window->height() - 8});
+      form->padAll(0);
+#if LCD_W > LCD_H
+      form->setFlexLayout(LV_FLEX_FLOW_ROW, 4);
+      rect_t r = {0, 0, COLOR_LIST_WIDTH, form->height()};
+#else
+      form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 4);
+      rect_t r = {0, 0, form->width(), COLOR_LIST_HEIGHT};
+#endif
+
+      FormWindow *colForm = new FormWindow(form, r);
+      colForm->padAll(0);
+      colForm->setFlexLayout(LV_FLEX_FLOW_COLUMN, 4);
+      colForm->setWidth(r.w);
+
+#if LCD_W > LCD_H
+      r.w = form->width() - COLOR_LIST_WIDTH - 4;
+#else
+      r.h = form->height() - COLOR_LIST_HEIGHT - 4;
+#endif
+      _previewWindow = new PreviewWindow(form, r, _theme->getColorList());
+
+      r.w = colForm->width();
+      r.h = COLOR_BOX_HEIGHT;
+
+      FormWindow *colBoxForm = new FormWindow(colForm, r);
+      colBoxForm->padAll(0);
+      colBoxForm->setFlexLayout(LV_FLEX_FLOW_ROW, 2);
+
+      r.h = colForm->height() - COLOR_BOX_HEIGHT - 4;
+
+      _colorEditor = new ColorEditor(colForm, r, _theme->getColorEntryByIndex(_indexOfColor)->colorValue,
+        [=](uint32_t rgb) {
+          _theme->setColor(_indexOfColor, rgb);
+          if (_colorSquare != nullptr) {
+            _colorSquare->setColorToEdit(rgb);
+          }
+          if (_previewWindow != nullptr) {
+            _previewWindow->setColorList(_theme->getColorList());
+          }
+          setHexStr(rgb);
+        });
+      _colorEditor->setColorEditorType(HSV_COLOR_EDITOR);
+      _activeTab = 1;
+
+      r.w = COLOR_BOX_WIDTH;
+      r.h = COLOR_BOX_HEIGHT;
+      _colorSquare = new ColorSquare(colBoxForm, r, _theme->getColorEntryByIndex(_indexOfColor)->colorValue);
+
+      // hexBox
+      r.w = 95;
+      _hexBox = new StaticText(colBoxForm, r, "", 0, COLOR_THEME_PRIMARY1 | FONT(L) | RIGHT);
+      setHexStr(_theme->getColorEntryByIndex(_indexOfColor)->colorValue);
+    }
+
+    void buildHead(PageHeader* window)
+    {
+      // page title
+      header.setTitle(STR_EDIT_COLOR);
+      auto t2 = header.setTitle2(ThemePersistance::getColorNames()[(int)_indexOfColor]);
+#if LCD_H > LCD_W
+      t2->setFont(FONT(XS));
+#else
+      LV_UNUSED(t2);
+#endif
+
+      // page tabs
+      rect_t r = { LCD_W - 2*(BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };
+      _tabs.emplace_back(
+        new TextButton(window, r, "RGB",
+          [=] () {
+            setActiveColorBar(0);
+            return 1;
+          }));
+      r.x += (BUTTON_WIDTH + 5);
+      _tabs.emplace_back(
+        new TextButton(window, r, "HSV", 
+          [=] () {
+            setActiveColorBar(1);
+            return 1;
+          }));
+      _tabs[1]->check(true);
+    }
 };
 
 class ThemeEditPage : public Page
 {
   public:
-    explicit ThemeEditPage(ThemeFile theme, std::function<void (ThemeFile &theme)> saveHandler = nullptr) :
+    explicit ThemeEditPage(ThemeFile *theme, std::function<void (ThemeFile &theme)> saveHandler = nullptr) :
       Page(ICON_RADIO_EDIT_THEME),
-      _theme(theme),
+      _theme(*theme),
       page(this),
       saveHandler(std::move(saveHandler))
     {
@@ -293,51 +376,57 @@ class ThemeEditPage : public Page
       buildHeader(&header);
     }
 
-    void deleteLater(bool detach = true, bool trash = true) override
+    void onCancel() override
     {
       if (_dirty) {
-        if (confirmationDialog("Save Theme?", _theme.getName())) {
-          if (saveHandler != nullptr) {
-            saveHandler(_theme);
-          }
-        }
+        new ConfirmDialog(
+            this, STR_SAVE_THEME, _theme.getName(),
+            [=]() {
+              if (saveHandler != nullptr) {
+                saveHandler(_theme);
+              }
+              deleteLater();
+            },
+            [=]() {
+              deleteLater();
+            });
+      } else {
+        deleteLater();
       }
+    }
 
-      Page::deleteLater(detach, trash);
+    void checkEvents() override
+    {
+      if (!started && _themeName) {
+        started = true;
+        _themeName->setText(_theme.getName());
+      }
+      Window::checkEvents();
     }
 
     void editColorPage()
     {
       auto colorEntry = _cList->getSelectedColor();
-      new ColorEditPage(_theme, colorEntry.colorNumber, 
-      [=] (uint32_t color) {
-        _dirty = true;
-        _theme.setColor(colorEntry.colorNumber, color);
-        _cList->setColorList(_theme.getColorList());
-        _previewWindow->setColorList(_theme.getColorList());
-      });
+      new ColorEditPage(&_theme, colorEntry.colorNumber, 
+          [=] () {
+            _dirty = true;
+            _cList->setColorList(_theme.getColorList());
+            _previewWindow->setColorList(_theme.getColorList());
+          });
     }
 
-    void buildHeader(FormGroup *window)
+    void buildHeader(FormWindow *window)
     {
-      LcdFlags flags = 0;
-      if (LCD_W < LCD_H) {
-        flags = FONT(XS);
-      }
-
       // page title
-      new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-                     STR_EDIT_THEME, 0, COLOR_THEME_PRIMARY2 | flags);
-      _themeName = new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-                      LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                     _theme.getName(), 0, COLOR_THEME_PRIMARY2 | flags);
+      header.setTitle(STR_EDIT_THEME);
+      _themeName = header.setTitle2(_theme.getName());
+#if LCD_H > LCD_W
+      _themeName->setFont(FONT(XS));
+#endif
 
       // save and cancel
       rect_t r = {LCD_W - (BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };
-      _detailButton = new TextButton(window, r, STR_DETAILS, [=] () {
+      new TextButton(window, r, STR_DETAILS, [=] () {
         new ThemeDetailsDialog(page, _theme, [=] (ThemeFile t) {
           _theme.setAuthor(t.getAuthor());
           _theme.setInfo(t.getInfo());
@@ -351,55 +440,62 @@ class ThemeEditPage : public Page
       });
     }
 
-    void buildBody(FormGroup *window)
+    void buildBody(FormWindow *window)
     {
-      rect_t r = { LEFT_LIST_OFFSET, TOP_LIST_OFFSET, COLOR_LIST_WIDTH, COLOR_LIST_HEIGHT};
-      _cList = new ColorList(window, r, _theme.getColorList());
+      window->padAll(4);
+      FormWindow *form = new FormWindow(window, {0, 0, window->width() - 8, window->height() - 8});
+      form->padAll(0);
+#if LCD_W > LCD_H
+      form->setFlexLayout(LV_FLEX_FLOW_ROW, 4);
+      rect_t r = {0, 0, COLOR_LIST_WIDTH, form->height()};
+#else
+      form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 4);
+      rect_t r = {0, 0, form->width(), COLOR_LIST_HEIGHT};
+#endif
+
+      _cList = new ColorList(form, r, _theme.getColorList());
       _cList->setLongPressHandler([=] () { editColorPage(); });
       _cList->setPressHandler([=] () { editColorPage(); });
 
-      if (LCD_W > LCD_H) {
-        r = { 
-          COLOR_LIST_WIDTH + MARGIN_WIDTH + LEFT_LIST_OFFSET, 
-          TOP_LIST_OFFSET, 
-          LCD_W - COLOR_LIST_WIDTH - LEFT_LIST_OFFSET - MARGIN_WIDTH * 2, 
-          COLOR_LIST_HEIGHT 
-        };
-      } else {
-        r = { 
-          LEFT_LIST_OFFSET, 
-          TOP_LIST_OFFSET + COLOR_LIST_HEIGHT + MARGIN_WIDTH,  
-          LEFT_LIST_WIDTH, 
-          COLOR_LIST_HEIGHT - (MARGIN_WIDTH * 2) 
-        };
-      }
-      _previewWindow = new PreviewWindow(window, r, _theme.getColorList());
+#if LCD_W > LCD_H
+      r.w = form->width() - COLOR_LIST_WIDTH - 4;
+#else
+      r.h = form->height() - COLOR_LIST_HEIGHT - 4;
+#endif
+      _previewWindow = new PreviewWindow(form, r, _theme.getColorList());
     }
 
   protected:
     bool _dirty = false;
+    bool started = false;
     ThemeFile _theme;
     Page *page;
     std::function<void(ThemeFile &theme)> saveHandler = nullptr;
     PreviewWindow *_previewWindow = nullptr;
     ColorList *_cList = nullptr;
     StaticText *_themeName = nullptr;
-    TextButton *_saveButton;
-    TextButton *_detailButton;
 };
 
 ThemeSetupPage::ThemeSetupPage() : PageTab(STR_THEME_EDITOR, ICON_RADIO_EDIT_THEME) {}
-ThemeSetupPage::~ThemeSetupPage()
-{
-}
+
 void ThemeSetupPage::setAuthor(ThemeFile *theme)
 {
-  char author[256];
-  strcpy(author, "By: ");
-  strcat(author, theme->getAuthor());
+  char author[256] = "";
+  if (theme && (strlen(theme->getAuthor()) > 0)) {
+    strcpy(author, "By: ");
+    strcat(author, theme->getAuthor());
+  }
   authorText->setText(author);
 }
 
+void ThemeSetupPage::setName(ThemeFile *theme)
+{
+  if (theme && (strlen(theme->getName()) > 0)) {
+    nameText->setText(theme->getName());
+  } else {
+    nameText->setText("");
+  }
+}
 
 bool isTopWindow(Window *window)
 {
@@ -415,14 +511,22 @@ void ThemeSetupPage::checkEvents()
 {
   PageTab::checkEvents();
 
-  fileCarosell->pause(!isTopWindow(pageWindow));
+  if (fileCarosell)
+    fileCarosell->pause(!isTopWindow(pageWindow));
+
+  if (!started && nameText && authorText) {
+    auto theme = ThemePersistance::instance()->getCurrentTheme();
+    started = true;
+    setName(theme);
+    setAuthor(theme);
+  }
 }
 
 void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 {
   auto menu = new Menu(listBox,false);
 
-  // you cant activate the active theme
+  // you can't activate the active theme
   if (listBox->getSelected() != tp->getThemeIndex()) {
     menu->addLine(STR_ACTIVATE, [=]() {
       auto idx = listBox->getSelected();
@@ -431,10 +535,11 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
       nameText->setTextFlags(COLOR_THEME_PRIMARY1);
       authorText->setTextFlags(COLOR_THEME_PRIMARY1);
       listBox->setActiveItem(idx);
+      TabsGroup::refreshTheme();
     });
   }
 
-  // you cant edit the default theme
+  // you can't edit the default theme
   if (listBox->getSelected() != 0) {
     menu->addLine(STR_EDIT, [=]() {
       auto themeIdx = listBox->getSelected();
@@ -443,24 +548,28 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
       auto theme = tp->getThemeByIndex(themeIdx);
       if (theme == nullptr) return;
 
-      new ThemeEditPage(*theme, [=](ThemeFile &theme) {
-        theme.serialize();
-        
+      new ThemeEditPage(theme, [=](ThemeFile &editedTheme) {
+        // update cached theme data
+        *theme = editedTheme;
+
+        theme->serialize();
+
         // if the theme info currently displayed
         // were changed, update the UI
         if (themeIdx == currentTheme) {
-          setAuthor(&theme);
-          nameText->setText(theme.getName());
-          listBox->setName(currentTheme, theme.getName());
+          setAuthor(theme);
+          setName(theme);
+          listBox->setName(currentTheme, theme->getName());
+          themeColorPreview->setColorList(theme->getColorList());
         }
 
         // if the active theme changed, re-apply it
-        if (themeIdx == tp->getThemeIndex()) theme.applyTheme();
-
-        // update cached theme data
-        auto tp_theme = tp->getThemeByIndex(themeIdx);
-        if (!tp_theme) return;
-        *tp_theme = theme;
+        if (themeIdx == tp->getThemeIndex()) {
+          // Update saved them name in case it was changed.
+          tp->setDefaultTheme(themeIdx);
+          theme->applyTheme();
+          TabsGroup::refreshTheme();
+        }
       });
     });
   }
@@ -468,14 +577,20 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
   menu->addLine(STR_DUPLICATE, [=] () {
     ThemeFile newTheme;
 
-    new ThemeDetailsDialog(window, newTheme, [=] (ThemeFile theme) {
+    new ThemeDetailsDialog(window, newTheme, [=](ThemeFile theme) {
       if (strlen(theme.getName()) != 0) {
-        char name[NAME_LENGTH + 20];
-        strncpy(name, theme.getName(), NAME_LENGTH + 19);
+        char name[SELECTED_THEME_NAME_LEN + 20];
+        strncpy(name, theme.getName(), SELECTED_THEME_NAME_LEN + 19);
         removeAllWhiteSpace(name);
-        // use the current themes color list to make the new theme
-        auto curTheme = tp->getCurrentTheme();
-        for (auto color : curTheme->getColorList())
+
+        // use the selected themes color list to make the new theme
+        auto themeIdx = listBox->getSelected();
+        if (themeIdx < 0) return;
+
+        auto selTheme = tp->getThemeByIndex(themeIdx);
+        if (selTheme == nullptr) return;
+
+        for (auto color : selTheme->getColorList())
           theme.setColor(color.colorNumber, color.colorValue);
 
         tp->createNewTheme(name, theme);
@@ -486,45 +601,62 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
     });
   });
 
-  // you cant delete the default theme or the currently active theme
+  // you can't delete the default theme or the currently active theme
   if (listBox->getSelected() != 0 && listBox->getSelected() != tp->getThemeIndex()) {
     menu->addLine(STR_DELETE, [=] () {
-      if (confirmationDialog("Delete Theme?", tp->getThemeByIndex(listBox->getSelected())->getName())) {
-        tp->deleteThemeByIndex(listBox->getSelected());
-        listBox->setNames(tp->getNames());
-        currentTheme = min<int>(currentTheme, tp->getNames().size() - 1);
-        listBox->setSelected(currentTheme);
-      }
+      new ConfirmDialog(
+          window, STR_DELETE_THEME,
+          tp->getThemeByIndex(listBox->getSelected())->getName(), [=] {
+            tp->deleteThemeByIndex(listBox->getSelected());
+            listBox->setNames(tp->getNames());
+            currentTheme = min<int>(currentTheme, tp->getNames().size() - 1);
+            listBox->setSelected(currentTheme);
+          });
     });
   }
 }
 
-void ThemeSetupPage::setupListbox(FormWindow *window, rect_t r, ThemePersistance *tp)
+void ThemeSetupPage::setSelected(ThemePersistance *tp)
+{
+  auto value = listBox->getSelected();
+  if (themeColorPreview && authorText && nameText && fileCarosell) {
+    ThemeFile *theme = tp->getThemeByIndex(value);
+    if (theme) {
+      themeColorPreview->setColorList(theme->getColorList());
+      setAuthor(theme);
+      setName(theme);
+      fileCarosell->setFileNames(theme->getThemeImageFileNames());
+    }
+  currentTheme = value;
+  }
+}
+
+void ThemeSetupPage::setupListbox(Window *window, rect_t r, ThemePersistance *tp)
 {
   listBox = new ListBox(window, r, tp->getNames());
+  lv_obj_set_scrollbar_mode(listBox->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
   listBox->setAutoEdit(true);
   listBox->setSelected(currentTheme);
   listBox->setActiveItem(tp->getThemeIndex());
-  listBox->setTitle(STR_THEME + std::string("s")); // TODO: fix this!
-  listBox->setLongPressHandler([=] () { displayThemeMenu(window, tp); });
+  listBox->setLongPressHandler([=] () {
+      setSelected(tp);
+      displayThemeMenu(window, tp);
+    });
   listBox->setPressHandler([=] () {
-      auto value = listBox->getSelected();
-      if (themeColorPreview && authorText && nameText && fileCarosell) {
-        ThemeFile *theme = tp->getThemeByIndex(value);
-        if (!theme) return;
-        themeColorPreview->setColorList(theme->getColorList());
-        setAuthor(theme);
-        nameText->setText(theme->getName());
-        fileCarosell->setFileNames(theme->getThemeImageFileNames());
-      }
-      currentTheme = value;
+      setSelected(tp);
     });
 }
 
 void ThemeSetupPage::build(FormWindow *window)
 {
-  window->padAll(0);
+  window->padAll(4);
   pageWindow = window;
+
+#if LCD_W > LCD_H
+  window->setFlexLayout(LV_FLEX_FLOW_ROW, 2);
+#else
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 2);
+#endif
 
   auto tp = ThemePersistance::instance();
   auto theme = tp->getCurrentTheme();
@@ -535,48 +667,50 @@ void ThemeSetupPage::build(FormWindow *window)
   fileCarosell = nullptr;
   nameText = nullptr;
   authorText = nullptr;
-  
+
   // create listbox and setup menus
-  rect_t r = { LEFT_LIST_OFFSET, TOP_LIST_OFFSET, LEFT_LIST_WIDTH, LEFT_LIST_HEIGHT };
+#if LCD_W > LCD_H
+  rect_t r = { 0, 0, LIST_WIDTH, window->height() - 8};
+#else
+  rect_t r = { 0, 0, window->width() - 8, LIST_HEIGHT };
+#endif
   setupListbox(window, r, tp);
 
-  rect_t colorPreviewRect;
-  if (LCD_W > LCD_H) {
-    r.x = LEFT_LIST_WIDTH + MARGIN_WIDTH + LEFT_LIST_OFFSET;
-    r.w = LCD_W - r.x;
-    colorPreviewRect = {LEFT_LIST_WIDTH + 6, 0, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT};
-  } else {
-    r.y += LEFT_LIST_HEIGHT + 4;
-    r.x = 0;
-    r.w = LCD_W;
-    colorPreviewRect = {0, LEFT_LIST_HEIGHT + 6, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT};
-  }
+#if LCD_W > LCD_H
+  r.w = COLOR_PREVIEW_SIZE;
+#else
+  r.h = COLOR_PREVIEW_SIZE;
+#endif
 
   // setup ThemeColorPreview()
   auto colorList = theme != nullptr ? theme->getColorList() : std::vector<ColorEntry>();
-  themeColorPreview = new ThemeColorPreview(window, colorPreviewRect, colorList);
-  
+  themeColorPreview = new ThemeColorPreview(window, r, colorList);
+  themeColorPreview->setWidth(r.w);
+
+#if LCD_W > LCD_H
+  r.w = window->width() - LIST_WIDTH - COLOR_PREVIEW_SIZE - 12;
+  r.h = window->height() - 8;
+#else
+  r.w = window->width() - 8;
+  r.h = window->height() - LIST_HEIGHT - COLOR_PREVIEW_SIZE - 12;
+#endif
+
+  auto rw = new FormWindow(window, r);
+  rw->padAll(0);
+  rw->setFlexLayout(LV_FLEX_FLOW_COLUMN, 2);
+  rw->setWidth(r.w);
+
+  r.h -= 46;
+
   // setup FileCarosell()
-  if (LCD_W > LCD_H) {
-    r.w -= COLOR_PREVIEW_WIDTH;
-    r.h = 130;
-    r.x += COLOR_PREVIEW_WIDTH;
-  } else {
-    r.y += COLOR_PREVIEW_HEIGHT;
-    r.h = LEFT_LIST_HEIGHT - COLOR_PREVIEW_HEIGHT - 50;
-  }
   auto fileNames = theme != nullptr ? theme->getThemeImageFileNames() : std::vector<std::string>();
-  fileCarosell = new FileCarosell(window, r, fileNames);
+  fileCarosell = new FileCarosell(rw, r, fileNames);
+
+  r.h = 20;
 
   // author and name of theme on right side of screen
-  r.x += 7;
-  r.y += 135;
-  r.h = 20;
-  nameText = new StaticText(window, r, theme != nullptr ? theme->getName() : "", 0, 
-                            COLOR_THEME_PRIMARY1);
-  if (theme != nullptr && strlen(theme->getAuthor())) {
-    r.y += 20;
-    authorText = new StaticText(window, r, "", 0, COLOR_THEME_PRIMARY1);
-    setAuthor(theme);
-  }
+  nameText = new StaticText(rw, r, "", 0, COLOR_THEME_PRIMARY1);
+  lv_label_set_long_mode(nameText->getLvObj(), LV_LABEL_LONG_DOT);
+  authorText = new StaticText(rw, r, "", 0, COLOR_THEME_PRIMARY1);
+  lv_label_set_long_mode(authorText->getLvObj(), LV_LABEL_LONG_DOT);
 }

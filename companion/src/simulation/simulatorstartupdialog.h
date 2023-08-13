@@ -28,18 +28,26 @@ namespace Ui {
 class SimulatorStartupDialog;
 }
 
+class QSortFilterProxyModel;
+
 class SimulatorStartupDialog : public QDialog
 {
     Q_OBJECT
 
   public:
 
+    enum ItemModelDataRoles {
+      IMDR_Id = Qt::UserRole,
+      IMDR_SimulatorId
+    };
+    Q_ENUM(ItemModelDataRoles)
+
     explicit SimulatorStartupDialog(SimulatorOptions * options, int * profId, QWidget *parent = 0);
     ~SimulatorStartupDialog();
 
     static bool usesCategorizedStorage(const QString & name);
     static QString findRadioId(const QString & str);
-    static QString radioEepromFileName(const QString & firmwareId, QString folder = "");
+    static QString radioEepromFileName(const QString & simulatorId, QString folder = "");
 
     void updateContainerTypes();
 
@@ -62,6 +70,9 @@ class SimulatorStartupDialog : public QDialog
     Ui::SimulatorStartupDialog *ui;
     SimulatorOptions * m_options;
     int * m_profileId;
+    QSortFilterProxyModel * m_simProxy;
+
+    void setGlobalFirmware(const QString & id);
 };
 
 #endif // SIMULATORSTARTUPDIALOG_H

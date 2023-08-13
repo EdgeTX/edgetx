@@ -23,6 +23,8 @@
 #include "fw_version.h"
 #include "lcd.h"
 
+#include "translations.h"
+
 #include "targets/common/arm/stm32/bootloader/boot.h"
 #include "targets/common/arm/stm32/bootloader/bin_files.h"
 
@@ -109,18 +111,18 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       bootloaderDrawTitle(88, BOOTLOADER_TITLE);
 
       lcd->drawText(102, 75, LV_SYMBOL_CHARGE, BL_FOREGROUND);
-      coord_t pos = lcd->drawText(124, 75, "Write Firmware", BL_FOREGROUND);
+      coord_t pos = lcd->drawText(124, 75, TR_BL_WRITE_FW, BL_FOREGROUND);
       pos += 8;
 
       lcd->drawText(100, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
-      lcd->drawText(124, 110, "Exit", BL_FOREGROUND);
+      lcd->drawText(124, 110, TR_BL_EXIT, BL_FOREGROUND);
 
       pos -= 92;
       lcd->drawSolidRect(92, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
 
       lcd->drawBitmap(60, 166, (const BitmapBuffer*)&BMP_PLUG_USB);
-      lcd->drawText(195, 175, "Or plug in a USB cable", BL_FOREGROUND);
-      lcd->drawText(195, 200, "for mass storage", BL_FOREGROUND);
+      lcd->drawText(195, 175, TR_BL_USB_PLUGIN, BL_FOREGROUND);
+      lcd->drawText(195, 200, TR_BL_USB_MASS_STORE, BL_FOREGROUND);
 
       bootloaderDrawFooter();
       lcd->drawText(LCD_W / 2, 242, getFirmwareVersion(), CENTERED | BL_FOREGROUND);
@@ -128,7 +130,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
     else if (st == ST_USB) {
 
         lcd->drawBitmap(136, 98, (const BitmapBuffer*)&BMP_USB_PLUGGED);
-        lcd->drawText(195, 128, "USB Connected", BL_FOREGROUND);
+        lcd->drawText(195, 128, TR_BL_USB_CONNECTED, BL_FOREGROUND);
     }
     else if (st == ST_FILE_LIST || st == ST_DIR_CHECK || st == ST_FLASH_CHECK ||
              st == ST_FLASHING || st == ST_FLASH_DONE) {
@@ -147,30 +149,30 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
           lcd->drawSolidFilledRect(74, 124, (332 * opt) / 100, 23, color);
         } else if (st == ST_DIR_CHECK) {
           if (opt == FR_NO_PATH) {
-            lcd->drawText(90, 168, LV_SYMBOL_CLOSE " Directory is missing",
+            lcd->drawText(90, 168, LV_SYMBOL_CLOSE TR_BL_DIR_MISSING,
                           BL_FOREGROUND);
           } else {
-            lcd->drawText(90, 168, LV_SYMBOL_CLOSE " Directory is empty",
+            lcd->drawText(90, 168, LV_SYMBOL_CLOSE TR_BL_DIR_EMPTY,
                           BL_FOREGROUND);
           }
         } else if (st == ST_FLASH_CHECK) {
           bootloaderDrawFilename(str, 0, true);
 
           if (opt == FC_ERROR) {
-            lcd->drawText(94, 168, LV_SYMBOL_CLOSE " " STR_INVALID_FIRMWARE,
+            lcd->drawText(94, 168, LV_SYMBOL_CLOSE " " TR_BL_INVALID_FIRMWARE,
                           BL_FOREGROUND);
           } else if (opt == FC_OK) {
             VersionTag tag;
             memset(&tag, 0, sizeof(tag));
             extractFirmwareVersion(&tag);
 
-            lcd->drawText(168, 138, "Fork:", RIGHT | BL_FOREGROUND);
+            lcd->drawText(168, 138, TR_BL_FORK, RIGHT | BL_FOREGROUND);
             lcd->drawSizedText(174, 138, tag.fork, 6, BL_FOREGROUND);
 
-            lcd->drawText(168, 158, "Version:", RIGHT | BL_FOREGROUND);
+            lcd->drawText(168, 158, TR_BL_VERSION, RIGHT | BL_FOREGROUND);
             lcd->drawText(174, 158, tag.version, BL_FOREGROUND);
 
-            lcd->drawText(168, 178, "Radio:", RIGHT | BL_FOREGROUND);
+            lcd->drawText(168, 178, TR_BL_RADIO, RIGHT | BL_FOREGROUND);
             lcd->drawText(174, 178, tag.flavour, BL_FOREGROUND);
 
             lcd->drawText(356, 156, LV_SYMBOL_OK, BL_GREEN);
@@ -184,22 +186,22 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
             lcd->drawText(28, 242, LV_SYMBOL_CHARGE, BL_FOREGROUND);
 
             if (st == ST_FILE_LIST) {
-                lcd->drawText(56, 244, "[ENT] to select file", BL_FOREGROUND);
+                lcd->drawText(56, 244, TR_BL_SELECT_KEY, BL_FOREGROUND);
             }
             else if (st == ST_FLASH_CHECK && opt == FC_OK) {
-                lcd->drawText(56, 244, "Hold [ENT] long to flash", BL_FOREGROUND);
+                lcd->drawText(56, 244, TR_BL_FLASH_KEY, BL_FOREGROUND);
             }
             else if (st == ST_FLASHING) {
-                lcd->drawText(56, 244, "Writing Firmware ...", BL_FOREGROUND);
+                lcd->drawText(56, 244, TR_BL_WRITING_FW, BL_FOREGROUND);
             }
             else if (st == ST_FLASH_DONE) {
-                lcd->drawText(56, 244, "Writing Completed", BL_FOREGROUND);
+                lcd->drawText(56, 244, TR_BL_WRITING_COMPL, BL_FOREGROUND);
             }
         }
 
         if (st != ST_FLASHING) {
             lcd->drawText(305, 244, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
-            lcd->drawText(335, 244, "[RTN] to exit", BL_FOREGROUND);
+            lcd->drawText(335, 244, TR_BL_EXIT_KEY, BL_FOREGROUND);
         }        
     }
 

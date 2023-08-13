@@ -21,14 +21,19 @@
 
 #include <climits>
 
+#include "ppm.h"
+#include "hal/module_port.h"
+#include "mixer_scheduler.h"
+
 #include "opentx.h"
+
+#include "telemetry/mlink.h"
 
 // Minimum space after the last PPM pulse in us
 #define PPM_SAFE_MARGIN 3000 // 3ms
 
 template <class T>
-uint16_t setupPulsesPPM(PpmPulsesData<T>* ppmPulsesData, uint8_t channelsStart,
-                        int8_t channelsCount)
+uint16_t setupPulsesPPM(T*& data, uint8_t channelsStart, int8_t channelsCount)
 {
   uint16_t total = 0;
   int16_t PPM_range = g_model.extendedLimits ?
@@ -40,16 +45,13 @@ uint16_t setupPulsesPPM(PpmPulsesData<T>* ppmPulsesData, uint8_t channelsStart,
   // The pulse ISR is 2mhz that's why everything is multiplied by 2
 
   uint8_t firstCh = channelsStart;
-  uint8_t lastCh =
-      min<uint8_t>(MAX_OUTPUT_CHANNELS, firstCh + 8 + channelsCount);
-
-  ppmPulsesData->ptr = ppmPulsesData->pulses;
+  uint8_t lastCh = min<uint8_t>(MAX_OUTPUT_CHANNELS, firstCh + 8 + channelsCount);
 
   for (uint32_t i = firstCh; i < lastCh; i++) {
     int16_t v =
         limit((int16_t)-PPM_range, channelOutputs[i], (int16_t)PPM_range) +
         2 * PPM_CH_CENTER(i);
-    *ppmPulsesData->ptr++ = v;
+    *data++ = v;
     total += v;
   }
 
@@ -58,8 +60,9 @@ uint16_t setupPulsesPPM(PpmPulsesData<T>* ppmPulsesData, uint8_t channelsStart,
 
 void setupPulsesPPMTrainer()
 {
+  auto p_data = trainerPulsesData.ppm.pulses;
   uint16_t total = setupPulsesPPM<trainer_pulse_duration_t>(
-      &trainerPulsesData.ppm, g_model.trainerData.channelsStart,
+      p_data, g_model.trainerData.channelsStart,
       g_model.trainerData.channelsCount);
 
   uint32_t rest = PPM_TRAINER_PERIOD_HALF_US();
@@ -72,42 +75,122 @@ void setupPulsesPPMTrainer()
   if (rest >= USHRT_MAX - 1)
     rest = USHRT_MAX - 1;
     
-  *trainerPulsesData.ppm.ptr++ = (uint16_t)rest;
+  *p_data++ = (uint16_t)rest;
 
   // stop mark so that IRQ-based sending
   // knows when to stop
-  *trainerPulsesData.ppm.ptr = 0;
+  *p_data = 0;
+
+  trainerPulsesData.ppm.ptr = p_data;
 }
 
-static void setupPulsesPPMModule(uint8_t module)
+static uint32_t setupPulsesPPMModule(uint8_t module, pulse_duration_t*& data)
 {
-  PpmPulsesData<pulse_duration_t>* data = nullptr;
-#if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
-  if (module == INTERNAL_MODULE) {
-    data = &intmodulePulsesData.ppm;
-  } else
-#endif
-  {
-    data = &extmodulePulsesData.ppm;
-  }
-
-  setupPulsesPPM(&extmodulePulsesData.ppm,
+  auto start = data;
+  setupPulsesPPM(data,
                  g_model.moduleData[module].channelsStart,
                  g_model.moduleData[module].channelsCount);
 
   // Set the final period to 1ms after which the
   // PPM will be switched OFF
-  *data->ptr++ = PPM_SAFE_MARGIN * 2;
+  *data++ = PPM_SAFE_MARGIN * 2;
+
+  return data - start;
 }
 
-#if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
-void setupPulsesPPMInternalModule()
+static void* ppmInit(uint8_t module)
 {
-  setupPulsesPPMModule(INTERNAL_MODULE);
-}
+#if defined(HARDWARE_INTERNAL_MODULE)
+  // only external module supported
+  if (module == INTERNAL_MODULE) return nullptr;
 #endif
 
-void setupPulsesPPMExternalModule()
+  auto delay = GET_MODULE_PPM_DELAY(module) * 2;
+  etx_timer_config_t cfg = {
+    .type = ETX_PWM,
+    .polarity = !GET_MODULE_PPM_POLARITY(module),
+    .cmp_val = (uint16_t)delay,
+  };
+
+  auto mod_st = modulePortInitTimer(module, ETX_MOD_PORT_TIMER, &cfg);
+  if (!mod_st) return nullptr;
+
+  mixerSchedulerSetPeriod(module, PPM_PERIOD(module));
+  return (void*)mod_st;  
+}
+
+static void ppmDeInit(void* ctx)
 {
-  setupPulsesPPMModule(EXTERNAL_MODULE);
+  auto mod_st = (etx_module_state_t*)ctx;
+  modulePortDeInit(mod_st);
+}
+
+static void ppmSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
+{
+  // TODO:
+  (void)channels;
+  (void)nChannels;
+
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  pulse_duration_t* pulses = (pulse_duration_t*)buffer;
+  auto length = setupPulsesPPMModule(module, pulses);
+
+  auto drv = modulePortGetTimerDrv(mod_st->tx);
+  auto drv_ctx = modulePortGetCtx(mod_st->tx);
+
+  auto delay = GET_MODULE_PPM_DELAY(module) * 2;
+  etx_timer_config_t cfg = {
+    .type = ETX_PWM,
+    .polarity = !GET_MODULE_PPM_POLARITY(module),
+    .cmp_val = (uint16_t)delay,
+  };
+
+  drv->send(drv_ctx, &cfg, buffer, length);
+
+  // PPM_PERIOD is not a constant! It can be set from UI
+  mixerSchedulerSetPeriod(module, PPM_PERIOD(module));
+}
+
+const etx_proto_driver_t PpmDriver = {
+  .protocol = PROTOCOL_CHANNELS_PPM,
+  .init = ppmInit,
+  .deinit = ppmDeInit,
+  .sendPulses = ppmSendPulses,
+  .processData = nullptr,
+};
+
+//
+// additions for PPM with external MLink Module telemetry
+//
+
+static void* ppmMLinkInit(uint8_t module);
+
+const etx_proto_driver_t PpmDriverMLink = {
+  .protocol = PROTOCOL_CHANNELS_PPM_MLINK,
+  .init = ppmMLinkInit,
+  .deinit = ppmDeInit,
+  .sendPulses = ppmSendPulses,
+  .processData = processExternalMLinkSerialData,
+};
+
+static etx_serial_init ppmMLinkSerialParams = {
+  .baudrate = PPM_MSB_BAUDRATE,
+  .encoding = ETX_Encoding_8N1,
+  .direction = ETX_Dir_RX,
+  .polarity = ETX_Pol_Inverted,
+};
+
+static void* ppmMLinkInit(uint8_t module) {
+  etx_module_state_t *mod_st = (etx_module_state_t *)ppmInit(module);
+  
+  if (!mod_st) 
+    return nullptr;
+
+  if (!modulePortInitSerial(module, ETX_MOD_PORT_UART, &ppmMLinkSerialParams)) {
+      modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &ppmMLinkSerialParams);
+  }
+
+  return (void*)mod_st;
 }

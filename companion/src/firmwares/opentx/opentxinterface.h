@@ -88,25 +88,33 @@ class OpenTxFirmware: public Firmware
 
   public:
     OpenTxFirmware(const QString & id, OpenTxFirmware * parent):
-      Firmware(parent, id, parent->getName(), parent->getBoard())
+      Firmware(parent, id, parent->getName(), parent->getBoard(), parent->getDownloadId(), parent->getSimulatorId())
     {
       setEEpromInterface(parent->getEEpromInterface());
     }
 
-    OpenTxFirmware(const QString & id, const QString & name, const Board::Type board):
-      Firmware(id, name, board)
+    OpenTxFirmware(const QString & id, const QString & name, const Board::Type board, const QString & downloadId = QString(), const QString & simulatorId = QString()):
+      Firmware(id, name, board, downloadId, simulatorId)
     {
+      //  Note: these align with the radio NOT computer locales - TODO harmonise with ISO and one list!!!
       addLanguage("en");
+      addLanguage("cn");
       addLanguage("cz");
       addLanguage("da");
       addLanguage("de");
       addLanguage("es");
+      addLanguage("fi");
       addLanguage("fr");
+      addLanguage("he");
+      addLanguage("hu");
       addLanguage("it");
+      addLanguage("jp");
       addLanguage("nl");
       addLanguage("pl");
       addLanguage("pt");
       addLanguage("se");
+      addLanguage("sk");
+      addLanguage("tw");
     }
 
     virtual Firmware * getFirmwareVariant(const QString & id);
@@ -125,7 +133,12 @@ class OpenTxFirmware: public Firmware
 
     virtual QTime getMaxTimerStart();
 
-    virtual bool isAvailable(PulsesProtocol proto, int port=0);
+    //  moved to ModuleData EdgeTX v2.9
+    virtual bool isAvailable(PulsesProtocol proto, int port=0)
+    {
+      qDebug() << "WARNING: Depreciate function called. Always returns false!";
+      return false;
+    }
 
   protected:
 

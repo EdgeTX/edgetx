@@ -91,13 +91,15 @@ ScreenUserInterfacePage::ScreenUserInterfacePage(ScreenMenu* menu):
 {
 }
 
-void ScreenUserInterfacePage::build(FormWindow* form)
+void ScreenUserInterfacePage::build(FormWindow* window)
 {
+  window->padAll(4);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
+
   FlexGridLayout grid(line_col_dsc, line_row_dsc);
-  form->setFlexLayout();
 
   // Top Bar
-  auto line = form->newLine(&grid);
+  auto line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_TOP_BAR, 0, COLOR_THEME_PRIMARY1);
 
   auto menu = this->menu;
@@ -109,7 +111,7 @@ void ScreenUserInterfacePage::build(FormWindow* form)
   });
 
   // Theme choice
-  line = form->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_THEME, 0, COLOR_THEME_PRIMARY1);
 
   auto tp = ThemePersistance::instance();
@@ -126,8 +128,8 @@ void ScreenUserInterfacePage::build(FormWindow* form)
       tp->setDefaultTheme(value);
 
       // TODO: shouldn't be necessary, would be better to send LV_EVENT_CHANGED
-      form->clear();
-      build(form);
+      window->clear();
+      build(window);
   });
 
   auto theme = tp->getCurrentTheme();
@@ -135,7 +137,7 @@ void ScreenUserInterfacePage::build(FormWindow* form)
 
   if (theme) {
     FlexGridLayout theme_grid(theme_col_dsc, theme_row_dsc);
-    line = form->newLine(&theme_grid);
+    line = window->newLine(&theme_grid);
 
     new ThemeDetails(line, theme);
 
@@ -154,6 +156,6 @@ void ScreenUserInterfacePage::build(FormWindow* form)
     }
   }
 
-  form->updateSize();
+  window->updateSize();
 }
 

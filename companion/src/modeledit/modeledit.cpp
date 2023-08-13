@@ -34,6 +34,7 @@
 #include "telemetry.h"
 #include "colorcustomscreens.h"
 #include "telemetry_customscreens.h"
+#include "modeloptions.h"
 #include "appdata.h"
 #include "compounditemmodels.h"
 
@@ -65,7 +66,6 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
   sharedItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncAction);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncResetParam);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_TeleSource);
-  sharedItemModels->addItemModel(AbstractItemModel::IMID_RssiSource);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_CurveRefType);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_CurveRefFunc);
 
@@ -115,6 +115,9 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
     addTab(new TelemetryCustomScreensPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Custom Screens"));
     s1.report("Telemetry Custom Screens");
   }
+
+  addTab(new ModelOptionsPanel(this, model, generalSettings, firmware), tr("Enabled Features"));
+  s1.report("Enabled Features");
 
   connect(setupPanel, &SetupPanel::extendedLimitsToggled, channelsPanel, &ChannelsPanel::refreshExtendedLimits);
   connect(ui->tabWidget, &QTabWidget::currentChanged, this, &ModelEdit::onTabIndexChanged);

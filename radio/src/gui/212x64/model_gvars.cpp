@@ -21,6 +21,8 @@
 
 #include "opentx.h"
 
+static int numFlightModes() { return modelFMEnabled() ? MAX_FLIGHT_MODES : 1; }
+
 void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar, uint8_t flightMode, LcdFlags flags)
 {
   FlightModeData * fm = &g_model.flightModeData[flightMode];
@@ -75,7 +77,7 @@ void menuModelGVarOne(event_t event)
 
   uint8_t old_editMode = s_editMode;
   
-  SIMPLE_SUBMENU(STR_GVARS, GVAR_FIELD_LAST);
+  SIMPLE_SUBMENU(STR_GVARS, modelFMEnabled() ? GVAR_FIELD_LAST : GVAR_FIELD_FM0+1);
 
   for (int i=0; i<NUM_BODY_LINES; i++) {
     coord_t y = MENU_HEADER_HEIGHT + 1 + i * FH;
@@ -112,7 +114,10 @@ void menuModelGVarOne(event_t event)
         break;
 
       default:
-        drawStringWithIndex(0, y, STR_FM, k-GVAR_FIELD_FM0);
+        if (modelFMEnabled())
+          drawStringWithIndex(0, y, STR_FM, k-GVAR_FIELD_FM0);
+        else
+          lcdDrawText(0, y, STR_VALUE);
         editGVarValue(GVAR_2ND_COLUMN, y, event, s_currIdx, k-GVAR_FIELD_FM0, LEFT|attr);
         break;
     }
@@ -135,14 +140,19 @@ void onGVARSMenu(const char * result)
   }
 }
 
-#define GVARS_COLUMNS                  (NAVIGATION_LINE_BY_LINE|(MAX_FLIGHT_MODES-1))
 #define GVARS_FM_COLUMN(p)             (7*FW - 7 + (p)*20)
+
+uint8_t colCount() {
+  if (modelFMEnabled())
+    return NAVIGATION_LINE_BY_LINE | (MAX_FLIGHT_MODES - 1);
+  return 0;
+}
 
 void menuModelGVars(event_t event)
 {
   tmr10ms_t tmr10ms = get_tmr10ms();
   const char * menuTitle;
-  bool after2seconds = (tmr10ms - menuEntryTime > 200); /*2 seconds*/
+  bool after2seconds = modelFMEnabled() && (tmr10ms - menuEntryTime > 200); /*2 seconds*/
 
   if (after2seconds) {
     menuTitle = STR_GVARS;
@@ -154,7 +164,8 @@ void menuModelGVars(event_t event)
     menuTitle = STR_MENU_GLOBAL_VARS;
   }
 
-  MENU_FLAGS(menuTitle, menuTabModel, MENU_MODEL_GVARS, after2seconds ? CHECK_FLAG_NO_SCREEN_INDEX : 0, MAX_GVARS, { GVARS_COLUMNS, GVARS_COLUMNS, GVARS_COLUMNS, GVARS_COLUMNS, GVARS_COLUMNS, GVARS_COLUMNS, GVARS_COLUMNS, GVARS_COLUMNS, GVARS_COLUMNS });
+ MENU_FLAGS(menuTitle, menuTabModel, MENU_MODEL_GVARS, after2seconds ? CHECK_FLAG_NO_SCREEN_INDEX : 0, MAX_GVARS,
+           { colCount(), colCount(), colCount(), colCount(), colCount(), colCount(), colCount(), colCount(), colCount() });
 
   int sub = menuVerticalPosition;
 
@@ -164,7 +175,7 @@ void menuModelGVars(event_t event)
 
     drawGVarName(0, y, i, (sub==i && menuHorizontalPosition<0) ? INVERS : 0);
 
-    for (int j=0; j<MAX_FLIGHT_MODES; j++) {
+    for (int j=0; j<numFlightModes(); j++) {
       FlightModeData * fm = &g_model.flightModeData[j];
       gvar_t v = fm->gvars[i];
 
@@ -185,7 +196,7 @@ void menuModelGVars(event_t event)
     }
   }
 
-  if (menuHorizontalPosition<0 && event==EVT_KEY_LONG(KEY_ENTER)) {
+  if ((menuHorizontalPosition<0 || !modelFMEnabled()) && event==EVT_KEY_LONG(KEY_ENTER)) {
     killEvents(event);
     POPUP_MENU_ADD_ITEM(STR_EDIT);
     POPUP_MENU_ADD_ITEM(STR_CLEAR);

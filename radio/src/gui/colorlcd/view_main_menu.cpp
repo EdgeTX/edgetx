@@ -33,9 +33,11 @@
 #include "select_fab_carousel.h"
 #include "view_text.h"
 
-ViewMainMenu::ViewMainMenu(Window* parent) :
+ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
     Window(parent->getFullScreenWindow(), rect_t{})
 {
+  this->closeHandler = std::move(closeHandler);
+
   // Save focus
   Layer::push(this);
 
@@ -44,7 +46,7 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
   setHeight(parent->height());
 
   auto carousel = new SelectFabCarousel(this);
-  carousel->addButton(ICON_MODEL_SELECT, STR_MAIN_MENU_SELECT_MODEL, [=]() -> uint8_t {
+  carousel->addButton(ICON_MODEL_SELECT,STR_MAIN_MENU_MANAGE_MODELS, [=]() -> uint8_t {
     deleteLater();
     new ModelLabelsWindow();
     return 0;
@@ -99,7 +101,7 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
     return 0;
   });
 
-  carousel->addButton(ICON_OPENTX, STR_MAIN_MENU_ABOUT_EDGETX, [=]() -> uint8_t {
+  carousel->addButton(ICON_EDGETX, STR_MAIN_MENU_ABOUT_EDGETX, [=]() -> uint8_t {
     deleteLater();
     new AboutUs();
     return 0;
@@ -131,8 +133,14 @@ void ViewMainMenu::paint(BitmapBuffer* dc)
 
 void ViewMainMenu::deleteLater(bool detach, bool trash)
 {
+  if (closeHandler) closeHandler();
   Layer::pop(this);
   Window::deleteLater(detach, trash);
+}
+
+void ViewMainMenu::onClicked()
+{
+  deleteLater();
 }
 
 void ViewMainMenu::onCancel()

@@ -22,13 +22,10 @@
 #include "opentx.h"
 #include "libopenui.h"
 
-//#include "checkbox.h"
-//#include "modal_window.h"
-
-extern OpenTxTheme * defaultTheme;
-const BitmapBuffer * OpenTxTheme::error = nullptr;
-const BitmapBuffer * OpenTxTheme::busy = nullptr;
-const BitmapBuffer * OpenTxTheme::shutdown = nullptr;
+extern EdgeTxTheme * defaultTheme;
+const BitmapBuffer * EdgeTxTheme::error = nullptr;
+const BitmapBuffer * EdgeTxTheme::busy = nullptr;
+const BitmapBuffer * EdgeTxTheme::shutdown = nullptr;
 
 constexpr coord_t LBM_USB_PLUGGED_W = 211;
 constexpr coord_t LBM_USB_PLUGGED_H = 110;
@@ -50,21 +47,21 @@ const uint8_t shutdown_bitmap[] = {
 #include "mask_shutdown.lbm"
 };
 
-std::list<OpenTxTheme *> & getRegisteredThemes()
+std::list<EdgeTxTheme *> & getRegisteredThemes()
 {
-  static std::list<OpenTxTheme *> themes;
+  static std::list<EdgeTxTheme *> themes;
   return themes;
 }
 
-void registerTheme(OpenTxTheme * theme)
+void registerTheme(EdgeTxTheme * theme)
 {
   TRACE("register theme %s", theme->getName());
   getRegisteredThemes().push_back(theme);
 }
 
-void OpenTxTheme::init() const
+void EdgeTxTheme::init() const
 {
-  memset(&g_eeGeneral.themeData, 0, sizeof(OpenTxTheme::PersistentData));
+  memset(&g_eeGeneral.themeData, 0, sizeof(EdgeTxTheme::PersistentData));
   if (options) {
     int i = 0;
     for (const ZoneOption * option = options; option->name; option++, i++) {
@@ -75,7 +72,7 @@ void OpenTxTheme::init() const
   }
 }
 
-void OpenTxTheme::load() const
+void EdgeTxTheme::load() const
 {
   if (!error)
     error = BitmapBuffer::load8bitMaskLZ4(error_bitmap);
@@ -85,12 +82,12 @@ void OpenTxTheme::load() const
     shutdown = BitmapBuffer::load8bitMaskLZ4(shutdown_bitmap);
 }
 
-ZoneOptionValue * OpenTxTheme::getOptionValue(unsigned int index) const
+ZoneOptionValue * EdgeTxTheme::getOptionValue(unsigned int index) const
 {
   return &g_eeGeneral.themeData.options[index].value;
 }
 
-const char * OpenTxTheme::getFilePath(const char * filename) const
+const char * EdgeTxTheme::getFilePath(const char * filename) const
 {
   static char path[FF_MAX_LFN+1] = THEMES_PATH "/";
   strcpy(path + sizeof(THEMES_PATH), getName());
@@ -100,7 +97,7 @@ const char * OpenTxTheme::getFilePath(const char * filename) const
   return path;
 }
 
-void OpenTxTheme::drawThumb(BitmapBuffer * dc, coord_t x, coord_t y, uint32_t flags)
+void EdgeTxTheme::drawThumb(BitmapBuffer * dc, coord_t x, coord_t y, uint32_t flags)
 {
   #define THUMB_WIDTH   51
   #define THUMB_HEIGHT  31
@@ -113,12 +110,12 @@ void OpenTxTheme::drawThumb(BitmapBuffer * dc, coord_t x, coord_t y, uint32_t fl
   }
 }
 
-void OpenTxTheme::drawBackground(BitmapBuffer * dc) const
+void EdgeTxTheme::drawBackground(BitmapBuffer * dc) const
 {
   dc->drawSolidFilledRect(0, 0, LCD_W, LCD_H, COLOR_THEME_SECONDARY3);
 }
 
-//void OpenTxTheme::drawMessageBox(const char *title, const char *text,
+//void EdgeTxTheme::drawMessageBox(const char *title, const char *text,
 //                                 const char *action, uint32_t type) const
 //{
 //  //if (flags & MESSAGEBOX_TYPE_ALERT) {
@@ -159,7 +156,7 @@ void OpenTxTheme::drawBackground(BitmapBuffer * dc) const
 //  }
 //}
 
-void OpenTxTheme::drawCheckBox(BitmapBuffer *dc, bool checked, coord_t x,
+void EdgeTxTheme::drawCheckBox(BitmapBuffer *dc, bool checked, coord_t x,
                                coord_t y, bool focus) const
 {
   dc->drawSolidFilledRect(x, y, 16, 16, COLOR_THEME_PRIMARY2);
@@ -174,7 +171,7 @@ void OpenTxTheme::drawCheckBox(BitmapBuffer *dc, bool checked, coord_t x,
   }
 }
 
-void OpenTxTheme::drawUsbPluggedScreen(BitmapBuffer * dc) const
+void EdgeTxTheme::drawUsbPluggedScreen(BitmapBuffer * dc) const
 {
   // draw USB icon
   dc->clear(COLOR_THEME_SECONDARY3);
@@ -184,9 +181,9 @@ void OpenTxTheme::drawUsbPluggedScreen(BitmapBuffer * dc) const
 }
 
 
-OpenTxTheme * getTheme(const char * name)
+EdgeTxTheme * getTheme(const char * name)
 {
-  std::list<OpenTxTheme *>::const_iterator it = getRegisteredThemes().cbegin();
+  std::list<EdgeTxTheme *>::const_iterator it = getRegisteredThemes().cbegin();
   for (; it != getRegisteredThemes().cend(); ++it) {
     if (!strcmp(name, (*it)->getName())) {
       return (*it);
@@ -195,7 +192,7 @@ OpenTxTheme * getTheme(const char * name)
   return nullptr;
 }
 
-void loadTheme(OpenTxTheme * newTheme)
+void loadTheme(EdgeTxTheme * newTheme)
 {
   TRACE("load theme %s", newTheme->getName());
   theme = newTheme;
@@ -207,20 +204,9 @@ void loadTheme()
   char name[THEME_NAME_LEN + 1];
   memset(name, 0, sizeof(name));
   strncpy(name, g_eeGeneral.themeName, THEME_NAME_LEN);
-  OpenTxTheme * newTheme = getTheme(name);
+  EdgeTxTheme * newTheme = getTheme(name);
   if (newTheme)
     loadTheme(newTheme);
   else
     loadTheme(defaultTheme);
-}
-
-MenuWindowContent * createMenuWindow(Menu * menu)
-{
-  return new MenuWindowContent(menu);
-}
-
-DialogWindowContent * createDialogWindow(Dialog * dialog, const rect_t & rect)
-{
-  TRACE("createDialogWindow [%d, %d, %d, %d]", rect.x, rect.y, rect.w, rect.h);
-  return new DialogWindowContent(dialog, rect);
 }

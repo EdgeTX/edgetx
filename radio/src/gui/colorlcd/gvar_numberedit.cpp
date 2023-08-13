@@ -64,18 +64,23 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
       });
   gvar_field->setTextHandler(
       [=](int32_t value) { return getGVarString(value); });
+  gvar_field->setWidth(70);
 
   num_field = new NumberEdit(
       this, rect_t{}, vmin, vmax, [=]() { return getValue() + voffset; },
       nullptr, windowFlags, textFlags);
+  num_field->setWidth(70);
 
 #if defined(GVARS)
   // The GVAR button
-  auto btn = new TextButton(this, rect_t{}, STR_GV, [=]() {
-    switchGVarMode();
-    return 0;
-  });
-  lv_obj_set_height(btn->getLvObj(), lv_obj_get_height(gvar_field->getLvObj()));
+  if (modelGVEnabled()) {
+    m_gvBtn = new TextButton(this, rect_t{}, STR_GV, [=]() {
+      switchGVarMode();
+      return GV_IS_GV_VALUE(getValue(), vmin, vmax);
+    });
+    m_gvBtn->check(GV_IS_GV_VALUE(getValue(), vmin, vmax));
+    lv_obj_set_height(m_gvBtn->getLvObj(), lv_obj_get_height(gvar_field->getLvObj()));
+  }
 #endif
 
   lv_obj_add_event_cb(lvobj, GVarNumberEdit::value_changed,
@@ -87,16 +92,22 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
 
 void GVarNumberEdit::switchGVarMode()
 {
-  int32_t value = getValue();
-  setValue(
-      GV_IS_GV_VALUE(value, vmin, vmax)
-          ? ((textFlags & PREC1)
-                 ? GET_GVAR_PREC1(value, vmin, vmax, mixerCurrentFlightMode)
-                 : GET_GVAR(value, vmin, vmax, mixerCurrentFlightMode))
-          : GV_GET_GV1_VALUE(vmin, vmax));
+#if defined(GVARS)
+  if (modelGVEnabled()) {
+    int32_t value = getValue();
+    setValue(
+        GV_IS_GV_VALUE(value, vmin, vmax)
+            ? ((textFlags & PREC1)
+                   ? GET_GVAR_PREC1(value, vmin, vmax, mixerCurrentFlightMode)
+                   : GET_GVAR(value, vmin, vmax, mixerCurrentFlightMode))
+            : GV_GET_GV1_VALUE(vmin, vmax));
 
-  // update field type based on value
-  update();
+    m_gvBtn->check(GV_IS_GV_VALUE(value, vmin, vmax));
+
+    // update field type based on value
+    update();
+  }
+#endif
 }
 
 void GVarNumberEdit::setSuffix(std::string value)

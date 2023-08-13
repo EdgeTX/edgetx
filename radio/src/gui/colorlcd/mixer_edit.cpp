@@ -72,15 +72,14 @@ MixEditWindow::MixEditWindow(int8_t channel, uint8_t index) :
 
 void MixEditWindow::buildHeader(Window *window)
 {
-  std::string title(STR_MIXES);
-  title += "\n";
-  title += getSourceString(MIXSRC_CH1 + channel);
-  header.setTitle(title);
+  std::string title2(getSourceString(MIXSRC_FIRST_CH + channel));
+  header.setTitle(STR_MIXES);
+  header.setTitle2(title2);
 
   new MixerEditStatusBar(
       window,
       {window->getRect().w - MIX_STATUS_BAR_WIDTH - MIX_RIGHT_MARGIN, 0,
-       MIX_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT + 3},
+       MIX_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT},
       channel);
 }
 
@@ -136,7 +135,7 @@ void MixEditWindow::buildBody(FormWindow* form)
 
   // Curve
   new StaticText(line, rect_t{}, STR_CURVE, 0, COLOR_THEME_PRIMARY1);
-  new CurveParam(line, rect_t{}, &mix->curve);
+  new CurveParam(line, rect_t{}, &mix->curve, SET_DEFAULT(mix->curve.value));
 
   line = form->newLine();
   lv_obj_set_style_pad_all(line->getLvObj(), lv_dpx(8), 0);

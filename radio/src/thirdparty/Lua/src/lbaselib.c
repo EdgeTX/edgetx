@@ -4,19 +4,22 @@
 ** See Copyright Notice in lua.h
 */
 
-
+#define lbaselib_c
+#define LUA_LIB
 
 #include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define lbaselib_c
 
 #include "lua.h"
 
 #include "lauxlib.h"
 #include "lualib.h"
-#include "lrotable.h"
+
+// ROTable
+#include "lobject.h"
+
 
 static int luaB_print (lua_State *L) {
   int n = lua_gettop(L);  /* number of arguments */
@@ -411,39 +414,44 @@ static int luaB_tostring (lua_State *L) {
   return 1;
 }
 
-const luaL_Reg baselib[] = {
-  {"assert", luaB_assert},
-  {"collectgarbage", luaB_collectgarbage},
-  {"dofile", luaB_dofile},
-  {"error", luaB_error},
-  {"getmetatable", luaB_getmetatable},
-  {"ipairs", luaB_ipairs},
-  {"loadfile", luaB_loadfile},
-  {"load", luaB_load},
-#if defined(LUA_COMPAT_LOADSTRING)
-  {"loadstring", luaB_load},
-#endif
-  {"next", luaB_next},
-  {"pairs", luaB_pairs},
-  {"pcall", luaB_pcall},
-  {"print", luaB_print},
-  {"rawequal", luaB_rawequal},
-  {"rawlen", luaB_rawlen},
-  {"rawget", luaB_rawget},
-  {"rawset", luaB_rawset},
-  {"select", luaB_select},
-  {"setmetatable", luaB_setmetatable},
-  {"tonumber", luaB_tonumber},
-  {"tostring", luaB_tostring},
-  {"type", luaB_type},
-  {"xpcall", luaB_xpcall},
-  {NULL, NULL}
-};
+extern LROT_TABLE(etxlib);
 
-#if 0
-// TODO
-const luaR_value_entry baselib_vals[] = {
-  {"_VERSION",   LUA_VERSION},
-  {NULL, 0}
-};
+LROT_BEGIN(base_func, NULL, 0)
+  LROT_FUNCENTRY(assert,         luaB_assert)
+  LROT_FUNCENTRY(collectgarbage, luaB_collectgarbage)
+  LROT_FUNCENTRY(dofile,         luaB_dofile)
+  LROT_FUNCENTRY(error,          luaB_error)
+  LROT_FUNCENTRY(getmetatable,   luaB_getmetatable)
+  LROT_FUNCENTRY(ipairs,         luaB_ipairs)
+  LROT_FUNCENTRY(loadfile,       luaB_loadfile)
+  LROT_FUNCENTRY(load,           luaB_load)
+#if defined(LUA_COMPAT_LOADSTRING)
+  LROT_FUNCENTRY(loadstring,     luaB_load)
 #endif
+  LROT_FUNCENTRY(next,           luaB_next)
+  LROT_FUNCENTRY(pairs,          luaB_pairs)
+  LROT_FUNCENTRY(pcall,          luaB_pcall)
+  LROT_FUNCENTRY(print,          luaB_print)
+  LROT_FUNCENTRY(rawequal,       luaB_rawequal)
+  LROT_FUNCENTRY(rawlen,         luaB_rawlen)
+  LROT_FUNCENTRY(rawget,         luaB_rawget)
+  LROT_FUNCENTRY(rawset,         luaB_rawset)
+  LROT_FUNCENTRY(select,         luaB_select)
+  LROT_FUNCENTRY(setmetatable,   luaB_setmetatable)
+  LROT_FUNCENTRY(tonumber,       luaB_tonumber)
+  LROT_FUNCENTRY(tostring,       luaB_tostring)
+  LROT_FUNCENTRY(type,           luaB_type)
+  LROT_FUNCENTRY(xpcall,         luaB_xpcall)
+LROT_END(base_func, NULL, 0)
+
+extern LROT_TABLE(rotables);
+LUAMOD_API int luaopen_base (lua_State *L) {
+  lua_pushglobaltable(L);           /* set global _G */
+  lua_pushliteral(L, LUA_VERSION);  /* set global _VERSION */
+  lua_setfield(L, -2, "_VERSION");
+  lua_createtable (L, 0, 1);        /* mt for _G */
+  lua_pushrotable(L, LROT_TABLEREF(rotables));
+  lua_setfield(L, -2, "__index");   /* mt.__index=ROM table */
+  lua_setmetatable(L, -2);
+  return 1;                         /* returns _G */
+}

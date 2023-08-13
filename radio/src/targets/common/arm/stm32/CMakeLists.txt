@@ -38,6 +38,16 @@ set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/usbd_hid_joystick.c
   ../common/arm/stm32/stm32_hal.cpp
   ../common/arm/stm32/stm32_i2c_driver.cpp
+  ../common/arm/stm32/stm32_serial_driver.cpp
+  ../common/arm/stm32/stm32_softserial_driver.cpp
+  ../common/arm/stm32/module_timer_driver.cpp
+  ../common/arm/stm32/stm32_switch_driver.cpp
+  ../common/arm/stm32/stm32_adc.cpp
+  ../common/arm/stm32/stm32_spi.cpp
+  ../common/arm/stm32/stm32_timer.cpp
+  ../common/arm/stm32/stm32_dma.cpp
+  ../common/arm/stm32/stm32_gpio_driver.cpp
+  ../common/arm/stm32/mixer_scheduler_driver.cpp
   )
 
 if(IMU)
@@ -49,15 +59,22 @@ if(IMU)
 endif()
 
 if(AUX_SERIAL OR AUX2_SERIAL)
-  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
-    ../common/arm/stm32/aux_serial_driver.cpp
-    )
+  # set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
+  #   ../common/arm/stm32/aux_serial_driver.cpp
+  #   )
   if(AUX_SERIAL)
     add_definitions(-DAUX_SERIAL)
   endif()
   if(AUX2_SERIAL)
     add_definitions(-DAUX2_SERIAL)
   endif()
+endif()
+
+if(FLYSKY_GIMBAL)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC}
+    targets/common/arm/stm32/flysky_gimbal_driver.cpp
+  )
+  add_definitions(-DFLYSKY_GIMBAL)
 endif()
 
 if(DEBUG OR CLI OR USB_SERIAL)
@@ -84,9 +101,6 @@ endif()
 
 set(FIRMWARE_SRC ${FIRMWARE_SRC} syscalls.c)
 
-foreach(FILE ${STM32LIB_SRC})
-  set(FIRMWARE_SRC ${FIRMWARE_SRC} ${STM32LIB_DIR}/${FILE})
-endforeach()
 
 foreach(FILE ${STM32USB_SRC})
   set(FIRMWARE_SRC ${FIRMWARE_SRC} ${STM32USB_DIR}/${FILE})

@@ -62,6 +62,8 @@ class Joystick : public QObject
     }
     int getAxisValue(int);
 
+    int findCurrent(QString jsName);
+
   private:
     QMap<int, Sint16> axes;
     QMap<int, Uint8> buttons;

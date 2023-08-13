@@ -19,10 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#define LUA_LIB
 
 #include <cstdio>
-#include "lua_api.h"
 
+#include "lua_api.h"
 #include "api_filesystem.h"
 
 // garbage collector for luaDir
@@ -31,18 +32,6 @@ static int dir_gc(lua_State* L)
   DIR* dir = (DIR*)lua_touserdata(L, 1);
   if (dir) f_closedir(dir);
   return 0;
-}
-
-void registerDirIter(lua_State* L)
-{
-  luaL_newmetatable(L, DIR_METATABLE);
-  
-  /* set the garbage colector field */
-  lua_pushstring(L, "__gc");
-  lua_pushcfunction(L, dir_gc);
-  lua_settable(L, -3);
-
-  lua_pop(L, 1);
 }
 
 static int dir_iter(lua_State* L)
@@ -74,7 +63,7 @@ static int dir_iter(lua_State* L)
   for fname in dir(".") do
     print(fname)
   end
-
+```
 */
 int luaDir(lua_State* L)
 {
@@ -127,7 +116,7 @@ int luaDir(lua_State* L)
     size = info.size
     time = info.time
   end
-
+```
 @status current Introduced in 2.5.0
 
 */
@@ -160,4 +149,52 @@ int luaFstat(lua_State* L)
   lua_settable(L, -3);
 
   return 1;
+}
+
+/*luadoc
+@function del(file or directory)
+
+ Returns FRESULT (e.g. 0=OK, 4=File not found, 5=Path not found, 6=Path invalid)
+
+@status current Introduced in 2.9.0
+
+### Example
+
+```lua
+  if del("/SCRIPTS/TOOLS/deleteme.txt") == 0 then
+     -- successfully deleted file
+  else
+     -- failed to delete file
+  end
+```
+*/
+int luaDelete(lua_State* L)
+{
+  const char* filename = luaL_optstring(L, 1, nullptr);
+
+  FRESULT res = f_unlink(filename);
+  if (res != FR_OK) {
+    printf("luaDelete cannot delete file/folder %s\n", filename);
+  }
+
+  lua_pushunsigned(L, res);
+  return 1;
+}
+
+
+LROT_BEGIN(dir_handle, NULL, LROT_MASK_GC)
+  LROT_FUNCENTRY( __gc, dir_gc )
+LROT_END(dir_handle, NULL, LROT_MASK_GC)
+
+LROT_BEGIN(etxdir, NULL, 0)
+  LROT_FUNCENTRY( dir, luaDir )
+  LROT_FUNCENTRY( fstat, luaFstat )
+  LROT_FUNCENTRY( del, luaDelete )
+LROT_END(etxdir, NULL, 0)
+
+extern "C" {
+  LUAMOD_API int luaopen_etxdir(lua_State* L) {
+    luaL_rometatable( L, DIR_METATABLE,  LROT_TABLEREF(dir_handle));
+    return 0;
+  }
 }

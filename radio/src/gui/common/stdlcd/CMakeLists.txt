@@ -16,6 +16,7 @@ set(GUI_SRC
   ../common/stdlcd/radio_version.cpp
   ../common/stdlcd/radio_trainer.cpp
   ../common/stdlcd/view_telemetry.cpp
+  ../common/stdlcd/calibration.cpp
   model_curve_edit.cpp
   )
 
@@ -62,3 +63,11 @@ if(PXX2)
     ../common/stdlcd/model_receiver_options.cpp
     )
 endif()
+
+if(USBJ_EX)
+  set(GUI_SRC
+    ${GUI_SRC}
+    ../common/stdlcd/model_usbjoystick.cpp
+    )
+endif()
+

@@ -49,7 +49,7 @@ class SimulatorMainWindow : public QMainWindow
     Q_OBJECT
 
   public:
-    explicit SimulatorMainWindow(QWidget * parent, const QString & firmwareId = "", quint8 flags=0, Qt::WindowFlags wflags = Qt::WindowFlags());
+    explicit SimulatorMainWindow(QWidget * parent, const QString & simulatorId = "", quint8 flags=0, Qt::WindowFlags wflags = Qt::WindowFlags());
     ~SimulatorMainWindow();
 
     int getExitStatus(QString * msg = Q_NULLPTR);

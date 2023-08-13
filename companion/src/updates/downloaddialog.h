@@ -51,7 +51,6 @@ class DownloadDialog : public QDialog
 
   private:
     Ui::DownloadDialog *ui;
-
     QNetworkAccessManager qnam;
     QNetworkReply *reply;
     QFile *file;

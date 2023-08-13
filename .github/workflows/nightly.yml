@@ -23,8 +23,9 @@ jobs:
           - t16
           - t18
           - t8;zorro;commando8
-          - tlite;tpro;lr3pro
-          - tx12;tx12mk2
+          - tlite;tlitef4;tpro;tprov2;lr3pro
+          - t20
+          - tx12;tx12mk2;boxer
           - tx16s
           - x10;x10-access
           - x12s
@@ -66,7 +67,7 @@ jobs:
     needs: build
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: edgetx-firmware-nightly
           path: edgetx-firmware-nightly

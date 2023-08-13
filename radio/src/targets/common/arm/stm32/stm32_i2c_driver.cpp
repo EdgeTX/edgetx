@@ -33,6 +33,7 @@ struct _i2c_defs {
   GPIO_TypeDef*      SDA_GPIOx;
   uint32_t           SDA_Pin;
   uint32_t           Alternate;
+  void (*set_pwr)(bool enable);
 };
 
 #if defined(I2C_B1)
@@ -46,6 +47,7 @@ static const _i2c_defs pins_hi2c1 = {
   .SDA_GPIOx = I2C_B1_GPIO,
   .SDA_Pin = I2C_B1_SDA_GPIO_PIN,
   .Alternate = I2C_B1_GPIO_AF,
+  .set_pwr = nullptr,
 };
 #endif
 
@@ -54,6 +56,26 @@ static I2C_HandleTypeDef hi2c2 = {
   .Instance = I2C_B2,
   .Init = { 0, 0, 0, 0, 0, 0, 0, 0 },
 };
+
+#if defined(I2C_B2_PWR_GPIO)
+void _i2c_b2_pwr(bool enable)
+{
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
+  
+  pinInit.Pin = I2C_B2_PWR_GPIO_PIN;
+  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+  pinInit.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(I2C_B2_PWR_GPIO, &pinInit);
+
+  if (enable) {
+    LL_GPIO_SetOutputPin(I2C_B2_PWR_GPIO, I2C_B2_PWR_GPIO_PIN);
+  } else {
+    LL_GPIO_ResetOutputPin(I2C_B2_PWR_GPIO, I2C_B2_PWR_GPIO_PIN);
+  }
+}
+#endif
+
 static const _i2c_defs pins_hi2c2 = {
 #if defined(I2C_B2_GPIO)
   .SCL_GPIOx = I2C_B2_GPIO,
@@ -68,6 +90,11 @@ static const _i2c_defs pins_hi2c2 = {
 #endif
   .SDA_Pin = I2C_B2_SDA_GPIO_PIN,
   .Alternate = I2C_B2_GPIO_AF,
+#if defined(I2C_B2_PWR_GPIO)
+  .set_pwr = _i2c_b2_pwr,
+#else
+  .set_pwr = nullptr,
+#endif
 };
 #endif
 
@@ -269,6 +296,13 @@ static int i2c_pins_init(const _i2c_defs* def)
   pinInit.Pin = def->SDA_Pin;
   LL_GPIO_Init(def->SDA_GPIOx, &pinInit);
 
+  if (def->set_pwr) {
+    def->set_pwr(true);
+    // Add some delay to leave enought time
+    // for devices to boot before querying them
+    HAL_Delay(20);
+  }
+  
   return 0;
 }
 
@@ -289,6 +323,10 @@ static int i2c_pins_deinit(const _i2c_defs* def)
 
   pinInit.Pin = def->SDA_Pin;
   LL_GPIO_Init(def->SDA_GPIOx, &pinInit);
+
+  if (def->set_pwr) {
+    def->set_pwr(false);
+  }
 
   return 0;
 }

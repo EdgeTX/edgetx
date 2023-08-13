@@ -184,7 +184,7 @@ class SimulatorLoader
     static void registerSimulators();
     static void unregisterSimulators();
     static QStringList getAvailableSimulators();
-    static QString findSimulatorByFirmwareName(const QString & name);
+    static QString findSimulatorByName(const QString & name);
     static SimulatorInterface * loadSimulator(const QString & name);
     static bool unloadSimulator(const QString & name);
 

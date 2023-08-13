@@ -56,10 +56,11 @@ static void timer_start_changed(lv_event_t* e)
 
 TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
 {
-  std::string title = std::string(STR_TIMER) + std::to_string(timer + 1);
-  header.setTitle(title);
+  std::string title2 = std::string(STR_TIMER) + std::to_string(timer + 1);
+  header.setTitle(STR_MENU_MODEL_SETUP);
+  header.setTitle2(title2);
 
-  auto form = new FormGroup(&body, rect_t{});
+  auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
   form->padAll(lv_dpx(8));
 
@@ -107,18 +108,38 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
   // Timer minute beep
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_MINUTEBEEP, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(p_timer->minuteBeep));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(p_timer->minuteBeep));
 
   // Timer countdown
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_BEEPCOUNTDOWN, 0, COLOR_THEME_PRIMARY1);
 
-  auto box = new FormGroup(line, rect_t{});
+  auto box = new FormWindow(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW);
   lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
 
-  new Choice(box, rect_t{}, STR_VBEEPCOUNTDOWN, COUNTDOWN_SILENT,
-             COUNTDOWN_COUNT - 1, GET_SET_DEFAULT(p_timer->countdownBeep));
+  new Choice(
+      box, rect_t{}, STR_VBEEPCOUNTDOWN, COUNTDOWN_SILENT, COUNTDOWN_COUNT - 1,
+      [=]() -> int {
+        int value = p_timer->countdownBeep;
+        if (p_timer->extraHaptic) {
+          value += (COUNTDOWN_NON_HAPTIC_LAST + 1);
+        }
+        return (value);
+      },
+      [=](int value) {
+        if (value > COUNTDOWN_NON_HAPTIC_LAST + 1) {
+          p_timer->extraHaptic = 1;
+          p_timer->countdownBeep = value - (COUNTDOWN_NON_HAPTIC_LAST + 1);
+        } else {
+          p_timer->extraHaptic = 0;
+          p_timer->countdownBeep = value;
+        }
+        SET_DIRTY();
+        TRACE("value=%d\tcountdownBeep = %d\textraHaptic = %d", value,
+              p_timer->countdownBeep, p_timer->extraHaptic);
+      });
+
   new Choice(box, rect_t{}, STR_COUNTDOWNVALUES, 0, 3,
              GET_SET_WITH_OFFSET(p_timer->countdownStart, 2));
 

@@ -41,15 +41,15 @@ bool LabelsModel::setData(const QModelIndex &index, const QVariant &value, int r
 
   if (role == Qt::CheckStateRole) {
     if (value==Qt::Unchecked && selectedModel != -1) {
-      if (radioData->removeLabelFromModel(selectedModel, radioData->labels.at(index.row())))
+      if (radioData->removeLabelFromModel(selectedModel, radioData->labels.at(index.row()).name))
         emit modelChanged(selectedModel);
     } else {
       try{
-      if (radioData->addLabelToModel(selectedModel, radioData->labels.at(index.row())))
+      if (radioData->addLabelToModel(selectedModel, radioData->labels.at(index.row()).name))
         emit modelChanged(selectedModel);
       } catch(const std::length_error& le) {
         emit labelsFault(tr("Unable to add label \"%1\" to model \"%2\" not enough room")\
-                         .arg(radioData->labels.at(index.row())).arg(le.what()));
+                         .arg(radioData->labels.at(index.row()).name).arg(le.what()));
       }
     }
     emit dataChanged(this->index(index.row(), 0),
@@ -60,10 +60,10 @@ bool LabelsModel::setData(const QModelIndex &index, const QVariant &value, int r
     QString replTo = value.toString();
     if (replFrom == replTo) // User exits edit without changing
       return true;
-    if (radioData->labels.indexOf(replTo) == -1) { // Don't allow duplicates
+    if (radioData->indexOfLabel(replTo) == -1) { // Don't allow duplicates
       bool modelsChanged = false;
       try{
-        modelsChanged = radioData->renameLabel(replFrom,replTo);
+        modelsChanged = radioData->renameLabel(replFrom, replTo);
       } catch(const std::length_error& le) {
         emit labelsFault(tr("Unable to rename \"%1\" to \"%2\" not enough room in model %3")\
                          .arg(replFrom).arg(replTo).arg(le.what()));
@@ -88,7 +88,7 @@ QVariant LabelsModel::data(const QModelIndex &index, int role) const
   if (index.row() >= labels.size() || !index.isValid() )
     return QVariant();
 
-   QString label = radioData->labels.at(index.row());
+   QString label = radioData->labels.at(index.row()).name;
 
   if (role == Qt::DisplayRole || role == Qt::EditRole) {
     if (index.column() == 0) {
@@ -125,7 +125,7 @@ QModelIndex LabelsModel::parent(const QModelIndex &index) const
 
 int LabelsModel::rowCount(const QModelIndex &parent) const
 {
-  Q_UNUSED(parent);  
+  Q_UNUSED(parent);
   return labels.size();
 }
 
@@ -158,9 +158,10 @@ bool LabelsModel::insertRows(int row, int count, const QModelIndex &parent)
       if (newNo == 0)
         newStr = QString(tr("New"));
       newNo++;
-    } while(radioData->labels.indexOf(newStr) >= 0);
+    } while(radioData->indexOfLabel(newStr) >= 0);
     // Add it to radioData
-    radioData->labels.insert(row+i, newStr);
+    RadioData::LabelData ld = { newStr , false };
+    radioData->labels.insert(row + i, ld);
   }
   buildLabelsList();
   return true;
@@ -188,10 +189,10 @@ void LabelsModel::buildLabelsList()
 {
   labels.clear();
 
-  int i=0;
-  foreach(QString lbl, radioData->labels) {
+  int i = 0;
+  foreach(RadioData::LabelData ld, radioData->labels) {
     LabelItem itm;
-    itm.label = lbl;
+    itm.label = ld.name;
     itm.radioLabelIndex = i++;
     labels.append(itm);
   }

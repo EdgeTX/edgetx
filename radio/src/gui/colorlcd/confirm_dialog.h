@@ -28,10 +28,14 @@ class ConfirmDialog : public Dialog
 {
  public:
   ConfirmDialog(Window* parent, const char* title, const char* message,
-                std::function<void(void)> confirmHandler);
+                std::function<void(void)> confirmHandler,
+                std::function<void(void)> cancelHandler = nullptr);
 
  protected:
   std::function<void(void)> confirmHandler;
+  std::function<void(void)> cancelHandler;
+
+  void onCancel() override;
 };
 
-#endif // _CONFIRM_DIALOG_H_
+#endif  // _CONFIRM_DIALOG_H_

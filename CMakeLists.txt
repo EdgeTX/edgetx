@@ -3,9 +3,13 @@ cmake_minimum_required(VERSION 3.13)
 project(EdgeTX)
 
 set(VERSION_MAJOR "2")
-set(VERSION_MINOR "8")
+set(VERSION_MINOR "10")
 set(VERSION_REVISION "0")
 set(CODENAME "FlyingDutchman")
+
+if(MINGW OR WIN32)
+  set(CMAKE_OBJECT_PATH_MAX 200)
+endif()
 
 if(DEFINED ENV{EDGETX_VERSION_TAG})
   set(VERSION_TAG "$ENV{EDGETX_VERSION_TAG}")
@@ -132,7 +136,7 @@ if(NATIVE_BUILD)
   include(NativeTargets)
 else()
   # Prevent CMake warnings
-  set(IGNORE "${SDL_LIBRARY_PATH}")
+  set(IGNORE "${SDL2_LIBRARY_PATH}")
 endif()
 
 add_subdirectory(${RADIO_SRC_DIR})

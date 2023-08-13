@@ -6,15 +6,13 @@ option(PXX2 "PXX2 protocol support" OFF)
 option(AFHDS3 "AFHDS3 TX Module" ON)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(GHOST "Ghost TX Module" ON)
-option(HARDWARE_EXTERNAL_ACCESS_MOD "Support for R9M 2019 hardware mod" OFF)
 option(SPACEMOUSE "Support for SpaceMouse" OFF)
+option(MODULE_SIZE_STD "Standard size TX Module" ON)
 
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32F4)
 set(HSE_VALUE 12000000)
 set(SDCARD YES)
-set(STORAGE SDCARD)
-set(STORAGE_FORMAT RAW)
 set(STORAGE_MODELSLIST YES)
 set(HAPTIC YES)
 set(GUI_DIR colorlcd)
@@ -32,11 +30,6 @@ if(BOOTLOADER)
   set(LINKER_SCRIPT targets/horus/stm32f4_flash_bootloader.ld)
 else()
   set(LINKER_SCRIPT targets/horus/stm32f4_flash.ld)
-endif()
-
-if(YAML_STORAGE)
-  set(STORAGE_CONVERT RAW)
-  set(STORAGE_FORMAT  YAML)
 endif()
 
 # for size report script
@@ -65,7 +58,7 @@ if (PCB STREQUAL X10)
   add_definitions(-DSOFTWARE_VOLUME)
   set(FIRMWARE_SRC
     ${FIRMWARE_SRC}
-    targets/common/arm/stm32/stm32_hal_adc.cpp
+    targets/common/arm/stm32/stm32_adc.cpp
     targets/common/arm/stm32/audio_dac_driver.cpp
     )
   if (NOT PCBREV STREQUAL TX16S)
@@ -77,7 +70,6 @@ if (PCB STREQUAL X10)
   set(BITMAPS_TARGET x10_bitmaps)
   set(FONTS_TARGET x10_fonts)
   set(LCD_DRIVER lcd_driver.cpp)
-  set(LUA_EXPORT lua_export_x10)
   if (PCBREV STREQUAL EXPRESS)
     set(FLAVOUR x10express)
     set(DEFAULT_INTERNAL_MODULE ISRM_PXX2 CACHE STRING "Default internal module")
@@ -88,7 +80,6 @@ if (PCB STREQUAL X10)
     add_definitions(-DMANUFACTURER_FRSKY)
   elseif (PCBREV STREQUAL T16)
     set(FLAVOUR t16)
-    set(LUA_EXPORT lua_export_t16)
     add_definitions(-DRADIO_T16)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
@@ -100,13 +91,9 @@ if (PCB STREQUAL X10)
       set(AUX2_SERIAL ON)
     endif()
     set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")    
-    set(FIRMWARE_TARGET_SRC
-    ${FIRMWARE_TARGET_SRC}
-       ../../thirdparty/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c
-      )
+    set(FLYSKY_GIMBAL ON)
   elseif (PCBREV STREQUAL TX16S)
     set(FLAVOUR tx16s)
-    set(LUA_EXPORT lua_export_t16)
     add_definitions(-DRADIO_TX16S)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
@@ -121,13 +108,9 @@ if (PCB STREQUAL X10)
       set(AUX2_SERIAL ON)
     endif()
     set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
-    set(FIRMWARE_TARGET_SRC
-    ${FIRMWARE_TARGET_SRC}
-       ../../thirdparty/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c
-      )
+    set(FLYSKY_GIMBAL ON)
   elseif (PCBREV STREQUAL T18)
     set(FLAVOUR t18)
-    set(LUA_EXPORT lua_export_t16)
     add_definitions(-DRADIO_T18)
     add_definitions(-DRADIO_FAMILY_T16)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
@@ -139,10 +122,7 @@ if (PCB STREQUAL X10)
       set(AUX2_SERIAL ON)
     endif()
     set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")    
-    set(FIRMWARE_TARGET_SRC
-    ${FIRMWARE_TARGET_SRC}
-       ../../thirdparty/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c
-      )
+    set(FLYSKY_GIMBAL ON)
   else()
     set(FLAVOUR x10)
     set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
@@ -168,12 +148,10 @@ elseif (PCB STREQUAL X12S)
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
     audio_spi_driver.cpp
-    x12s_adc_driver.cpp
     )
   set(BITMAPS_TARGET x12s_bitmaps)
   set(FONTS_TARGET x12s_fonts)
   set(LCD_DRIVER lcd_driver.cpp)
-  set(LUA_EXPORT lua_export_x12s)
   add_definitions(-DMANUFACTURER_FRSKY)
 endif()
 
@@ -186,13 +164,12 @@ set(RADIO_DEPENDENCIES
   ${BITMAPS_TARGET}
   )
 
-set(FIRMWARE_DEPENDENCIES datacopy)
-
 add_definitions(-DPCBHORUS -DSTM32F429_439xx -DSTM32F429xx -DSDRAM -DCCMRAM -DCOLORLCD -DHARDWARE_KEYS)
 add_definitions(-DEEPROM_VARIANT=0 -DAUDIO -DVOICE -DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DHARDWARE_TRAINER_JACK)
+add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 
 set(SDRAM ON)
 
@@ -206,19 +183,13 @@ if(NOT UNEXPECTED_SHUTDOWN)
   add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
 endif()
 
-if(HARDWARE_EXTERNAL_ACCESS_MOD)
-  set(PXX2 ON)
-  set(AUX_SERIAL OFF)
-  add_definitions(-DHARDWARE_EXTERNAL_ACCESS_MOD)
-endif()
-
-if(PCB STREQUAL X10)
-  set(FLYSKY_HALL_STICKS_DRIVER flyskyHallStick_driver.cpp)
-endif()
-
 if(IMU_LSM6DS33)
   add_definitions(-DIMU_LSM6DS33)
   set(AUX_SERIAL OFF)
+endif()
+
+if(AUX_SERIAL)
+  add_definitions(-DCONFIGURABLE_MODULE_PORT)
 endif()
 
 if(NOT INTERNAL_MODULE_PXX1)
@@ -283,29 +254,25 @@ endif()
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
   ${LCD_DRIVER}
-  ${FLYSKY_HALL_STICKS_DRIVER}
   ${TOUCH_DRIVER}
   board.cpp
   backlight_driver.cpp
   led_driver.cpp
-  trainer_driver.cpp
   sdram_driver.c
-  startup_stm32f42_43xxx.s
   )
 
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
   hal/adc_driver.cpp
-  targets/common/arm/stm32/mixer_scheduler_driver.cpp
+  targets/common/arm/stm32/stm32_exti_driver.cpp
   targets/common/arm/stm32/timers_driver.cpp
-  targets/common/arm/stm32/intmodule_serial_driver.cpp
-  targets/common/arm/stm32/extmodule_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
-  targets/common/arm/stm32/extmodule_serial_driver.cpp
   targets/common/arm/stm32/stm32_usart_driver.cpp
   targets/common/arm/stm32/rotary_encoder_driver.cpp
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
+  targets/common/arm/stm32/trainer_driver.cpp
+  targets/common/arm/stm32/ads79xx.cpp
   targets/common/arm/stm32/sdio_sd.c
   )
 
@@ -338,21 +305,3 @@ set(STM32LIB_SRC
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma2d.c
   )
-
-if(PYTHONINTERP_FOUND)
-  add_custom_command(
-    OUTPUT ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
-    WORKING_DIRECTORY ${RADIO_DIRECTORY}/src
-    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs_private.h
-      -DPCBHORUS -DPCB${PCB} -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU
-      -I. -Igui/colorlcd -Itargets/horus -Itargets/common/arm/stm32
-      -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src
-      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc
-      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include
-      -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include
-      -Wno-asm-operand-widths -Wno-pragma-once-outside-header ${SYSROOT_ARG}
-      > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
-    DEPENDS ${RADIO_DIRECTORY}/src/datastructs.h ${RADIO_DIRECTORY}/util/generate_datacopy.py
-    )
-  add_custom_target(datacopy DEPENDS ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp)
-endif()

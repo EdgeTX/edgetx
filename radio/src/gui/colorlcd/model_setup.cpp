@@ -33,6 +33,10 @@
 #include "throttle_params.h"
 #include "preflight_checks.h"
 
+#if defined(USBJ_EX)
+#include "model_usbjoystick.h"
+#endif
+
 #include <algorithm>
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
@@ -88,106 +92,30 @@ struct ModelBitmapEdit : public FileChoice {
   }
 };
 
-struct TimerBtnMatrix : public ButtonMatrix {
-  TimerBtnMatrix(Window* parent, const rect_t& rect);
-  void onPress(uint8_t btn_id) override;
-  bool isActive(uint8_t btn_id) override;
-};
-
-class SubScreenButton : public Button
+class SubScreenButton : public TextButton
 {
-  std::string text;
-
  public:
   SubScreenButton(Window* parent, const char* text,
                   std::function<void(void)> pressHandler);
 
  protected:
   virtual bool isActive() { return false; }
-  static void event_cb(lv_event_t* e);
 };
 
 SubScreenButton::SubScreenButton(Window* parent, const char* text,
                                  std::function<void(void)> pressHandler) :
-  Button(parent, rect_t{}, [=]() -> uint8_t {
+  TextButton(parent, rect_t{}, text, [=]() -> uint8_t {
       pressHandler();
       return 0;
-    }, 0, 0, lv_btn_create),
-  text(text)
+    })
 {
-  lv_obj_add_event_cb(lvobj, SubScreenButton::event_cb, LV_EVENT_ALL, nullptr);
-}
+  // Room for two lines of text
+  setHeight(62);
+  setWidth((LCD_W - 30) / 3);
 
-// TODO: move code to TextButton with BEGIN/END in main and using events
-//      to grab lv_draw_label_dsc_t (see lv_btnmatrix.c)
-//
-void SubScreenButton::event_cb(lv_event_t* e)
-{
-  auto obj = lv_event_get_target(e);
-  auto btn = (SubScreenButton*)lv_obj_get_user_data(obj);
-  if (!btn) return;
-
-  lv_event_code_t code = lv_event_get_code(e);
-  if (code == LV_EVENT_DRAW_PART_BEGIN) {
-
-    lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
-    if (dsc->part != LV_PART_MAIN) return;
-
-    if (btn->isActive()) {
-      dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_ACTIVE);
-    } else {
-      dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_PRIMARY2);
-    }
-
-  } else if (code == LV_EVENT_DRAW_PART_END) {
-
-    if (btn->text.empty()) return;
-
-    lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
-    if (dsc->part != LV_PART_MAIN) return;
-
-    lv_area_t txt_coords;
-    lv_obj_get_content_coords(obj, &txt_coords);
-
-    lv_draw_label_dsc_t label_draw_dsc;
-    lv_draw_label_dsc_init(&label_draw_dsc);
-
-    lv_obj_init_draw_label_dsc(obj, LV_PART_MAIN, &label_draw_dsc);
-    label_draw_dsc.align = LV_TEXT_ALIGN_CENTER;
-
-    if (btn->isActive()) {
-      label_draw_dsc.color = makeLvColor(COLOR_THEME_PRIMARY1);
-    } else {
-      label_draw_dsc.color = makeLvColor(COLOR_THEME_SECONDARY1);
-    }
-
-    lv_area_t txt_clip;
-    bool is_common = _lv_area_intersect(&txt_clip, &txt_coords, dsc->draw_ctx->clip_area);
-    if (!is_common) return;
-
-    lv_draw_label(dsc->draw_ctx, &label_draw_dsc, &txt_coords, btn->text.c_str(), nullptr);
-
-  } else if (code == LV_EVENT_GET_SELF_SIZE) {
-
-    // from lv_label_t with some simplifications
-    lv_point_t size;
-    const lv_font_t* font = lv_obj_get_style_text_font(obj, LV_PART_MAIN);
-    lv_coord_t letter_space = lv_obj_get_style_text_letter_space(obj, LV_PART_MAIN);
-    lv_coord_t line_space = lv_obj_get_style_text_line_space(obj, LV_PART_MAIN);
-    lv_text_flag_t flag = LV_TEXT_FLAG_NONE;
-
-    lv_coord_t w = lv_obj_get_content_width(obj);
-    if (lv_obj_get_style_width(obj, LV_PART_MAIN) == LV_SIZE_CONTENT && !obj->w_layout)
-      w = LV_COORD_MAX;
-    else
-      w = lv_obj_get_content_width(obj);
-
-    lv_txt_get_size(&size, btn->text.c_str(), font, letter_space, line_space, w, flag);
-
-    lv_point_t* self_size = (lv_point_t*)lv_event_get_param(e);
-    self_size->x = LV_MAX(self_size->x, size.x);
-    self_size->y = LV_MAX(self_size->y, size.y);
-  }
+  lv_obj_set_width(label, lv_pct(100));
+  lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
+  lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
 }
 
 struct IntmoduleButton : public SubScreenButton {
@@ -227,9 +155,135 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
+class ModelViewOptions : public Page
+{
+   public:
+    class OptChoice : FormWindow
+    {
+      public:
+        OptChoice(Window* parent, const char *const values[], int vmin, int vmax,
+                  std::function<int()> _getValue,
+                  std::function<void(int)> _setValue,
+                  bool globalState) :
+          FormWindow(parent, rect_t{}),
+          m_getValue(std::move(_getValue)),
+          m_setValue(std::move(_setValue))
+        {
+          setFlexLayout(LV_FLEX_FLOW_ROW, 4);
+          lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
+          new Choice(this, rect_t{}, values, vmin, vmax,
+                     m_getValue,
+                     [=](int newValue) {
+                       m_setValue(newValue);
+                       setState();
+                     });
+          m_lbl = new StaticText(this, rect_t{}, STR_ADCFILTERVALUES[globalState ? 1: 2], 0, COLOR_THEME_SECONDARY1);
+          setState();
+        }
+
+      protected:
+        StaticText* m_lbl;
+        std::function<int()> m_getValue;
+        std::function<void(int)> m_setValue;
+
+        void setState()
+        {
+          if (m_getValue() == 0) {
+            lv_obj_clear_flag(m_lbl->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+          } else {
+            lv_obj_add_flag(m_lbl->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+          }
+        }
+    };
+
+    ModelViewOptions() : Page(ICON_MODEL_SETUP)
+    {
+      header.setTitle(STR_MENU_MODEL_SETUP);
+      header.setTitle2(STR_ENABLED_FEATURES);
+
+      body.padAll(8);
+
+      auto form = new FormWindow(&body, rect_t{});
+      form->setFlexLayout();
+      form->padAll(4);
+
+      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+
+      auto line = form->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_RADIO_MENU_TABS, 0, COLOR_THEME_PRIMARY1);
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_THEME_EDITOR, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.radioThemesDisabled), g_eeGeneral.radioThemesDisabled);
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUSPECIALFUNCS, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.radioGFDisabled), g_eeGeneral.radioGFDisabled);
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUTRAINER, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.radioTrainerDisabled), g_eeGeneral.radioTrainerDisabled);
+
+      line = form->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_MODEL_MENU_TABS, 0, COLOR_THEME_PRIMARY1);
+
+#if defined(HELI)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUHELISETUP, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelHeliDisabled), g_eeGeneral.modelHeliDisabled);
+#endif
+
+#if defined(FLIGHT_MODES)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUFLIGHTMODES, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelFMDisabled), g_eeGeneral.modelFMDisabled);
+#endif
+
+#if defined(GVARS)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelGVDisabled), g_eeGeneral.modelGVDisabled);
+#endif
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUCURVES, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelCurvesDisabled), g_eeGeneral.modelCurvesDisabled);
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENULOGICALSWITCHES, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelLSDisabled), g_eeGeneral.modelLSDisabled);
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUCUSTOMFUNC, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelSFDisabled), g_eeGeneral.modelSFDisabled);
+
+#if defined(LUA_MODEL_SCRIPTS)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUCUSTOMSCRIPTS, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelCustomScriptsDisabled), g_eeGeneral.modelCustomScriptsDisabled);
+#endif
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUTELEMETRY, 0, COLOR_THEME_PRIMARY1);
+      new OptChoice(line, STR_ADCFILTERVALUES, 0, 2, GET_SET_DEFAULT(g_model.modelTelemetryDisabled), g_eeGeneral.modelTelemetryDisabled);
+    }
+};
+
 void ModelSetupPage::build(FormWindow * window)
 {
-  window->setFlexLayout();
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
 
   FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
 
@@ -271,98 +325,46 @@ void ModelSetupPage::build(FormWindow * window)
   // TODO: show bitmap thumbnail instead?
   new ModelBitmapEdit(line, rect_t{});
 
-  // Global functions
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_USE_GLOBAL_FUNCS, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_model.noGlobalFunctions));
-
   // Model ADC jitter filter
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
   new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2,
              GET_SET_DEFAULT(g_model.jitterFilter));
 
+  static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+  static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+  FlexGridLayout grid2(col_dsc, row_dsc, 4);
+
+  line = window->newLine(&grid2);
+  line->padTop(8);
+
   // Modules
-  auto form = new FormGroup(window, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_flex_main_place(form->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
-  form->padAll(lv_dpx(8));
+  new IntmoduleButton(line);
+  new ExtmoduleButton(line);
+  new TrainerModuleButton(line);
 
-  Window* btn = new IntmoduleButton(form);
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
-
-  btn = new ExtmoduleButton(form);
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
-
-  btn = new TrainerModuleButton(form);
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+  line = window->newLine(&grid2);
+  line->padTop(2);
 
   // Timer buttons
-  form = new FormGroup(window, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_flex_main_place(form->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
-  form->padAll(lv_dpx(8));
+  new SubScreenButton(line, TR_TIMER "1", []() { new TimerWindow(0); });
+  new SubScreenButton(line, TR_TIMER "2", []() { new TimerWindow(1); });
+  new SubScreenButton(line, TR_TIMER "3", []() { new TimerWindow(2); });
 
-  btn = new SubScreenButton(form, TR_TIMER "1",
-                            []() { new TimerWindow(0); });
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+  line = window->newLine(&grid2);
+  line->padTop(2);
 
-  btn = new SubScreenButton(form, TR_TIMER "2",
-                            []() { new TimerWindow(1); });
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+  new SubScreenButton(line, STR_PREFLIGHT, []() { new PreflightChecks(); });
+  new SubScreenButton(line, STR_TRIMS, []() { new TrimsSetup(); });
+  new SubScreenButton(line, STR_THROTTLE_LABEL, []() { new ThrottleParams(); });
 
-  btn = new SubScreenButton(form, TR_TIMER "3",
-                            []() { new TimerWindow(2); });
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+  line = window->newLine(&grid2);
+  line->padTop(2);
 
+  new SubScreenButton(line, STR_ENABLED_FEATURES, []() { new ModelViewOptions(); });
 
-  form = new FormGroup(window, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_flex_main_place(form->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
-  form->padAll(lv_dpx(8));
-
-  btn = new SubScreenButton(form, STR_PREFLIGHT,
-                            []() { new PreflightChecks(); });
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
-
-  btn = new SubScreenButton(form, STR_TRIMS,
-                            []() { new TrimsSetup(); });
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
-
-  btn = new SubScreenButton(form, STR_THROTTLE_LABEL,
-                            []() { new ThrottleParams(); });
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
-}
-
-#define MAX_SUBSCREEN_BTNS 9
-
-TimerBtnMatrix::TimerBtnMatrix(Window* parent, const rect_t& r) :
-  ButtonMatrix(parent, r)
-{
-  initBtnMap(3, MAX_TIMERS);
-  setText(0, TR_TIMER "1");
-  setText(1, TR_TIMER "2");
-  setText(2, TR_TIMER "3");
-  update();
-
-  lv_btnmatrix_set_btn_width(lvobj, 3, 2);
-  lv_obj_set_width(lvobj, lv_pct(100));
-  lv_obj_set_height(lvobj, LV_DPI_DEF / 2);
-
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, 0);
-  lv_obj_set_style_pad_all(lvobj, lv_dpx(8), 0);
-
-  lv_obj_set_style_pad_row(lvobj, lv_dpx(8), 0);
-  lv_obj_set_style_pad_column(lvobj, lv_dpx(8), 0);
-}
-
-void TimerBtnMatrix::onPress(uint8_t btn_id)
-{
-  if (btn_id >= MAX_TIMERS) return;
-  new TimerWindow((uint8_t)(btn_id));
-}
-
-bool TimerBtnMatrix::isActive(uint8_t btn_id)
-{
-  return false;
+#if defined(USBJ_EX)
+  new SubScreenButton(line, STR_USBJOYSTICK_LABEL, []() { new ModelUSBJoystickPage(); });
+#endif
 }

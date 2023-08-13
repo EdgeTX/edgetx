@@ -24,8 +24,8 @@
 
 #include "lua_api.h"
 #include "lua_event.h"
-#include "api_colorlcd.h"
 #include "draw_functions.h"
+#include "touch.h"
 
 #define MAX_INSTRUCTIONS       (20000/100)
 
@@ -175,9 +175,9 @@ void LuaEventHandler::onEvent(event_t event)
   if (event == EVT_KEY_LONG(KEY_EXIT)) {
     killEvents(KEY_EXIT);
   }
-#if !defined(KEYS_GPIO_REG_PGUP)
-  else if (event == EVT_KEY_LONG(KEY_PGDN)) {
-    killEvents(KEY_PGDN);
+#if !defined(KEYS_GPIO_REG_PAGEUP)
+  else if (event == EVT_KEY_LONG(KEY_PAGEDN)) {
+    killEvents(KEY_PAGEDN);
   }
 #endif
   luaPushEvent(event);
@@ -197,9 +197,10 @@ void LuaEventHandler::removeHandler(Window* w)
 
 LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
                      const rect_t& rect, WidgetPersistentData* persistentData,
-                     int luaWidgetDataRef) :
+                     int luaWidgetDataRef,int zoneRectDataRef) :
     Widget(factory, parent, rect, persistentData),
     luaWidgetDataRef(luaWidgetDataRef),
+    zoneRectDataRef(zoneRectDataRef),
     errorMessage(nullptr)
 {
 }
@@ -207,6 +208,7 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
 LuaWidget::~LuaWidget()
 {
   luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
+  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
   free(errorMessage);
 }
 
@@ -286,6 +288,53 @@ void LuaWidget::update()
 
   if (lua_pcall(lsWidgets, 2, 0, 0) != 0) {
     setErrorMessage("update()");
+  }
+}
+
+// Update table on top of Lua stack - set entry with name 'idx' to value 'val'
+// Return true if value has changed
+bool LuaWidget::updateTable(const char* idx, int val)
+{
+  bool update = false;
+
+  // Check existing value (or invalid value)
+  lua_getfield(lsWidgets, -1, idx);
+  if (lua_isnumber(lsWidgets, -1)) {
+    int v = lua_tointeger(lsWidgets, -1);
+    update = (v != val);
+  } else {
+    // Force table update
+    update = true;
+  }
+  lua_pop(lsWidgets, 1);
+
+  if (update) {
+    lua_pushinteger(lsWidgets, val);
+    lua_setfield(lsWidgets, -2, idx);
+  }
+
+  return update;
+}
+
+void LuaWidget::updateZoneRect(rect_t rect)
+{
+  if (lsWidgets)
+  {
+    // Update widget zone with current size and position
+
+    lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
+
+    bool changed = false;
+
+    if (updateTable("w", rect.w)) changed = true;
+    if (updateTable("h", rect.h)) changed = true;
+    if (updateTable("xabs", rect.x)) changed = true;
+    if (updateTable("yabs", rect.y)) changed = true;
+
+    lua_pop(lsWidgets, 1);
+
+    if (changed)
+      update();
   }
 }
 

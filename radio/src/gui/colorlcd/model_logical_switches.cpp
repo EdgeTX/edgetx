@@ -24,159 +24,105 @@
 #include "libopenui.h"
 #include "switches.h"
 
-#define SET_DIRTY()     storageDirty(EE_MODEL)
+#define SET_DIRTY() storageDirty(EE_MODEL)
 
-void putsEdgeDelayParam(BitmapBuffer * dc, coord_t x, coord_t y, LogicalSwitchData * ls, LcdFlags flags = 0)
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_dsc2[] = {LV_GRID_FR(4), LV_GRID_FR(3),
+                                      LV_GRID_FR(3), LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+class LogicalSwitchEditPage : public Page
 {
-  coord_t lcdNextPos = 0;
-  lcdNextPos = dc->drawText(x, y, "[", flags);
-  lcdNextPos = dc->drawNumber(lcdNextPos+2, y, lswTimerValue(ls->v2), LEFT | PREC1 | flags);
-  lcdNextPos = dc->drawText(lcdNextPos, y, ":", flags);
-  if (ls->v3 < 0)
-    lcdNextPos = dc->drawText(lcdNextPos+3, y, "<<", flags);
-  else if (ls->v3 == 0)
-    lcdNextPos = dc->drawText(lcdNextPos+3, y, "--", flags);
-  else
-    lcdNextPos = dc->drawNumber(lcdNextPos+3, y, lswTimerValue(ls->v2+ls->v3), LEFT | PREC1 | flags);
-  dc->drawText(lcdNextPos, y, "]", flags);
-}
+ public:
+  explicit LogicalSwitchEditPage(uint8_t index) :
+      Page(ICON_MODEL_LOGICAL_SWITCHES), index(index)
+  {
+    buildHeader(&header);
+    buildBody(&body);
+  }
 
-class LogicalSwitchEditPage: public Page
-{
-  public:
-    explicit LogicalSwitchEditPage(uint8_t index):
-      Page(ICON_MODEL_LOGICAL_SWITCHES),
-      index(index)
-    {
-      buildHeader(&header);
-      buildBody(&body);
-    }
+ protected:
+  uint8_t index;
+  bool active = false;
+  FormWindow* logicalSwitchOneWindow = nullptr;
+  StaticText* headerSwitchName = nullptr;
+  NumberEdit* v2Edit = nullptr;
 
-  protected:
-    uint8_t index;
-    bool active = false;
-    FormGroup * logicalSwitchOneWindow = nullptr;
-    StaticText * headerSwitchName = nullptr;
-    NumberEdit * v2Edit = nullptr;
+  bool isActive() const
+  {
+    return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + index);
+  }
 
-    bool isActive() const
-    {
-      return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + index);
-    }
-
-    void checkEvents() override
-    {
-      Page::checkEvents();
-      if (active != isActive()) {
-        if(isActive()) {
-          lv_obj_add_state(headerSwitchName->getLvObj(), LV_STATE_USER_1);
-        } else {
-          lv_obj_clear_state(headerSwitchName->getLvObj(), LV_STATE_USER_1);
-        }
-        active = isActive();
-        invalidate();
+  void checkEvents() override
+  {
+    Page::checkEvents();
+    if (active != isActive()) {
+      if (isActive()) {
+        lv_obj_add_state(headerSwitchName->getLvObj(), LV_STATE_USER_1);
+      } else {
+        lv_obj_clear_state(headerSwitchName->getLvObj(), LV_STATE_USER_1);
       }
+      active = isActive();
+      invalidate();
     }
+  }
 
-    void buildHeader(Window * window)
-    {
-      new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-                     STR_MENULOGICALSWITCHES, 0, COLOR_THEME_PRIMARY2);
-      headerSwitchName = new StaticText(
-          window,
-          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-           LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-          getSwitchPositionName(SWSRC_SW1 + index), 0, COLOR_THEME_PRIMARY2);
+  void buildHeader(Window* window)
+  {
+    header.setTitle(STR_MENULOGICALSWITCHES);
+    headerSwitchName = header.setTitle2(
+        getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + index));
 
-      lv_obj_set_style_text_color(headerSwitchName->getLvObj(), makeLvColor(COLOR_THEME_ACTIVE), LV_STATE_USER_1);
-      lv_obj_set_style_text_font(headerSwitchName->getLvObj(), getFont(FONT(BOLD)), LV_STATE_USER_1);
-    }
+    lv_obj_set_style_text_color(headerSwitchName->getLvObj(),
+                                makeLvColor(COLOR_THEME_ACTIVE),
+                                LV_STATE_USER_1);
+    lv_obj_set_style_text_font(headerSwitchName->getLvObj(),
+                               getFont(FONT(BOLD)), LV_STATE_USER_1);
+  }
 
-    void updateLogicalSwitchOneWindow()
-    {
-      FormGridLayout grid;
-      logicalSwitchOneWindow->clear();
+  void updateLogicalSwitchOneWindow()
+  {
+    SwitchChoice* choice;
+    NumberEdit* timer;
 
-      LogicalSwitchData * cs = lswAddress(index);
-      uint8_t cstate = lswFamily(cs->func);
+    logicalSwitchOneWindow->clear();
+    logicalSwitchOneWindow->setFlexLayout();
+    FlexGridLayout grid(col_dsc, row_dsc, 2);
+    FlexGridLayout grid2(col_dsc2, row_dsc, 2);
 
-      new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_CUST_LOGICALSWITCH_LABEL, 0, COLOR_THEME_PRIMARY1);
-      new ModelTextEdit(logicalSwitchOneWindow, grid.getFieldSlot(), cs->custName, LEN_LOGICSW_NAME);
-      grid.nextLine();
+    LogicalSwitchData* cs = lswAddress(index);
+    uint8_t cstate = lswFamily(cs->func);
 
-      if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY || cs->func == LS_FUNC_SAFE) {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
-        auto choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
+    // V1
+    auto line = logicalSwitchOneWindow->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_V1, 0, COLOR_THEME_PRIMARY1);
+    switch (cstate) {
+      case LS_FAMILY_BOOL:
+      case LS_FAMILY_STICKY:
+      case LS_FAMILY_EDGE:
+        choice = new SwitchChoice(
+            line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES,
+            SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
         choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
-        grid.nextLine();
-
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
-        choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v2));
-        choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
-        grid.nextLine();
-      }
-      else if (cstate == LS_FAMILY_EDGE) {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
-        auto choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), SWSRC_FIRST_IN_LOGICAL_SWITCHES, SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
-        choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
-        grid.nextLine();
-
-        auto edit1 = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(2, 0), -129, 122, GET_DEFAULT(cs->v2));
-        auto edit2 = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(2, 1), -1, 222 - cs->v2, GET_SET_DEFAULT(cs->v3));
-        edit1->setSetValueHandler([=](int32_t newValue) {
-          cs->v2 = newValue;
-          cs->v3 = min<uint8_t>(cs->v3, 222 - cs->v2);
-          SET_DIRTY();
-          edit2->setMax(222 - cs->v2);
-          edit2->invalidate();
-        });
-        edit1->setDisplayHandler([](int32_t value) {
-          return formatNumberAsString(lswTimerValue(value), PREC1);
-        });
-        edit2->setDisplayHandler([cs](int32_t value) {
-          if (value < 0)
-            return std::string("<<");
-          else if (value == 0)
-            return std::string("--");
-          else {
-            return formatNumberAsString(lswTimerValue(cs->v2 + value), PREC1);
-          }
-        });
-        grid.nextLine();
-      }
-      else if (cstate == LS_FAMILY_COMP) {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
-        new SourceChoice(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MIXSRC_LAST_TELEM, GET_SET_DEFAULT(cs->v1));
-        grid.nextLine();
-
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
-        new SourceChoice(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MIXSRC_LAST_TELEM, GET_SET_DEFAULT(cs->v2));
-        grid.nextLine();
-      }
-      else if (cstate == LS_FAMILY_TIMER) {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
-        auto timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v1));
+        break;
+      case LS_FAMILY_COMP:
+        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
+                         GET_SET_DEFAULT(cs->v1));
+        break;
+      case LS_FAMILY_TIMER:
+        timer =
+            new NumberEdit(line, rect_t{}, -128, 122, GET_SET_DEFAULT(cs->v1));
         timer->setDisplayHandler([](int32_t value) {
-          return formatNumberAsString(lswTimerValue(value), PREC1);
+          return formatNumberAsString(lswTimerValue(value), PREC1, 0, nullptr,
+                                      "s");
         });
-        grid.nextLine();
-
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
-        timer = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), -128, 122, GET_SET_DEFAULT(cs->v2));
-        timer->setDisplayHandler([](int32_t value) {
-          return std::to_string(lswTimerValue(value));
-        });
-        grid.nextLine();
-      }
-      else {
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V1, 0, COLOR_THEME_PRIMARY1);
-        new SourceChoice(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MIXSRC_LAST_TELEM, GET_DEFAULT(cs->v1),
-                         [=](int32_t newValue) {
+        break;
+      default:
+        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
+                         GET_DEFAULT(cs->v1), [=](int32_t newValue) {
                            cs->v1 = newValue;
-                           if (v2Edit != nullptr)
-                           {
+                           if (v2Edit != nullptr) {
                              int16_t v2_min = 0, v2_max = 0;
                              getMixSrcRange(cs->v1, v2_min, v2_max);
                              v2Edit->setMin(v2_min);
@@ -185,100 +131,266 @@ class LogicalSwitchEditPage: public Page
                            }
                            SET_DIRTY();
                          });
-        grid.nextLine();
+        break;
+    }
 
-        new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_V2, 0, COLOR_THEME_PRIMARY1);
+    // V2
+    if (cstate == LS_FAMILY_EDGE) {
+      line = logicalSwitchOneWindow->newLine(&grid2);
+    } else {
+      line = logicalSwitchOneWindow->newLine(&grid);
+    }
+    new StaticText(line, rect_t{}, STR_V2, 0, COLOR_THEME_PRIMARY1);
+    switch (cstate) {
+      case LS_FAMILY_BOOL:
+      case LS_FAMILY_STICKY:
+        choice = new SwitchChoice(
+            line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES,
+            SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v2));
+        choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
+        break;
+      case LS_FAMILY_EDGE: {
+        auto edit1 =
+            new NumberEdit(line, rect_t{}, -129, 122, GET_DEFAULT(cs->v2));
+        auto edit2 = new NumberEdit(line, rect_t{}, -1, 222 - cs->v2,
+                                    GET_SET_DEFAULT(cs->v3));
+        edit1->setSetValueHandler([=](int32_t newValue) {
+          cs->v2 = newValue;
+          SET_DIRTY();
+          edit2->setMax(222 - cs->v2);
+          edit2->setValue(cs->v3);
+        });
+        edit1->setDisplayHandler([](int32_t value) {
+          return formatNumberAsString(lswTimerValue(value), PREC1, 0, nullptr,
+                                      "s");
+        });
+        edit2->setDisplayHandler([cs](int32_t value) {
+          if (value < 0)
+            return std::string("<<");
+          else if (value == 0)
+            return std::string("--");
+          else {
+            return formatNumberAsString(lswTimerValue(cs->v2 + value), PREC1, 0,
+                                        nullptr, "s");
+          }
+        });
+      } break;
+      case LS_FAMILY_COMP:
+        new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
+                         GET_SET_DEFAULT(cs->v2));
+        break;
+      case LS_FAMILY_TIMER:
+        timer =
+            new NumberEdit(line, rect_t{}, -128, 122, GET_SET_DEFAULT(cs->v2));
+        timer->setDisplayHandler([](int32_t value) {
+          return formatNumberAsString(lswTimerValue(value), PREC1, 0, nullptr,
+                                      "s");
+        });
+        break;
+      default:
         int16_t v2_min = 0, v2_max = 0;
         getMixSrcRange(cs->v1, v2_min, v2_max);
-        v2Edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(),
-                                v2_min, v2_max, GET_SET_DEFAULT(cs->v2));
+        v2Edit = new NumberEdit(line, rect_t{}, v2_min, v2_max,
+                                GET_SET_DEFAULT(cs->v2));
+        lv_obj_set_width(v2Edit->getLvObj(), LV_SIZE_CONTENT);
 
         v2Edit->setDisplayHandler([=](int value) -> std::string {
           if (cs->v1 <= MIXSRC_LAST_CH) value = calc100toRESX(value);
           std::string txt = getSourceCustomValueString(cs->v1, value, 0);
           return txt;
         });
-        grid.nextLine();
-      }
-
-      // AND switch
-      if(cs->func != LS_FUNC_SAFE){
-      new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_AND_SWITCH, 0, COLOR_THEME_PRIMARY1);
-      auto choice = new SwitchChoice(logicalSwitchOneWindow, grid.getFieldSlot(), -MAX_LS_ANDSW, MAX_LS_ANDSW, GET_SET_DEFAULT(cs->andsw));
-      choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
-      grid.nextLine();
-      }
-
-      // Duration
-      new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_DURATION, 0, COLOR_THEME_PRIMARY1);
-      auto edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MAX_LS_DURATION, GET_SET_DEFAULT(cs->duration), 0, PREC1);
-      edit->setZeroText("---");
-      grid.nextLine();
-
-      // Delay
-      new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_DELAY, 0, COLOR_THEME_PRIMARY1);
-      if (cstate == LS_FAMILY_EDGE) {
-        new StaticText(logicalSwitchOneWindow, grid.getFieldSlot(), STR_NA, 0, COLOR_THEME_PRIMARY1);
-      }
-      else {
-        auto edit = new NumberEdit(logicalSwitchOneWindow, grid.getFieldSlot(), 0, MAX_LS_DELAY, GET_SET_DEFAULT(cs->delay), 0, PREC1);
-        edit->setZeroText("---");
-      }
-      grid.nextLine();
+        break;
     }
 
-    void buildBody(FormWindow * window)
-    {
-      FormGridLayout grid;
-      grid.spacer(PAGE_PADDING);
+    // AND switch
+    line = logicalSwitchOneWindow->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_AND_SWITCH, 0, COLOR_THEME_PRIMARY1);
+    choice = new SwitchChoice(line, rect_t{}, -MAX_LS_ANDSW, MAX_LS_ANDSW,
+                              GET_SET_DEFAULT(cs->andsw));
+    choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
 
-      LogicalSwitchData * cs = lswAddress(index);
+    // Duration
+    line = logicalSwitchOneWindow->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_DURATION, 0, COLOR_THEME_PRIMARY1);
+    auto edit = new NumberEdit(line, rect_t{}, 0, MAX_LS_DURATION,
+                               GET_SET_DEFAULT(cs->duration), 0, PREC1);
+    edit->setZeroText("---");
+    edit->setDisplayHandler([](int32_t value) {
+      return formatNumberAsString(value, PREC1, 0, nullptr, "s");
+    });
 
-      // LS Func
-      new StaticText(window, grid.getLabelSlot(), STR_FUNC, 0, COLOR_THEME_PRIMARY1);
-      auto functionChoice = new Choice(window, grid.getFieldSlot(), STR_VCSWFUNC, 0, LS_FUNC_MAX, GET_DEFAULT(cs->func));
-      functionChoice->setSetValueHandler([=](int32_t newValue) {
-          cs->func = newValue;
-          if (lswFamily(cs->func) == LS_FAMILY_TIMER) {
-            cs->v1 = cs->v2 = 0;
-          }
-          else if (lswFamily(cs->func) == LS_FAMILY_EDGE) {
-            cs->v1 = 0;
-            cs->v2 = -129;
-            cs->v3 = 0;
-          }
-          else {
-            cs->v1 = cs->v2 = 0;
-          }
-          SET_DIRTY();
-          updateLogicalSwitchOneWindow();
+    // Delay
+    line = logicalSwitchOneWindow->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_DELAY, 0, COLOR_THEME_PRIMARY1);
+    if (cstate == LS_FAMILY_EDGE) {
+      new StaticText(line, rect_t{}, STR_NA, 0, COLOR_THEME_PRIMARY1);
+    } else {
+      auto edit = new NumberEdit(line, rect_t{}, 0, MAX_LS_DELAY,
+                                 GET_SET_DEFAULT(cs->delay), 0, PREC1);
+      edit->setDisplayHandler([](int32_t value) {
+        if (value == 0) return std::string("---");
+        return formatNumberAsString(value, PREC1, 0, nullptr, "s");
       });
-      functionChoice->setAvailableHandler(isLogicalSwitchFunctionAvailable);
-      grid.nextLine();
-
-      logicalSwitchOneWindow = new FormGroup(window, { 0, grid.getWindowHeight(), LCD_W, 0 }// , FORM_FORWARD_FOCUS
-                                             );
-      updateLogicalSwitchOneWindow();
-      grid.addWindow(logicalSwitchOneWindow);
     }
+  }
+
+  void buildBody(FormWindow* window)
+  {
+    window->setFlexLayout();
+    window->padAll(0);
+    window->padLeft(4);
+    window->padRight(4);
+    FlexGridLayout grid(col_dsc, row_dsc, 2);
+
+    LogicalSwitchData* cs = lswAddress(index);
+
+    // LS Func
+    auto line = window->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_FUNC, 0, COLOR_THEME_PRIMARY1);
+    auto functionChoice = new Choice(line, rect_t{}, STR_VCSWFUNC, 0,
+                                     LS_FUNC_MAX, GET_DEFAULT(cs->func));
+    functionChoice->setSetValueHandler([=](int32_t newValue) {
+      cs->func = newValue;
+      if (lswFamily(cs->func) == LS_FAMILY_TIMER) {
+        cs->v1 = cs->v2 = 0;
+      } else if (lswFamily(cs->func) == LS_FAMILY_EDGE) {
+        cs->v1 = 0;
+        cs->v2 = -129;
+        cs->v3 = 0;
+      } else {
+        cs->v1 = cs->v2 = 0;
+      }
+      SET_DIRTY();
+      updateLogicalSwitchOneWindow();
+    });
+    functionChoice->setAvailableHandler(isLogicalSwitchFunctionAvailable);
+
+    logicalSwitchOneWindow = new FormWindow(window, rect_t{});
+    updateLogicalSwitchOneWindow();
+  }
 };
 
-static constexpr coord_t line1 = FIELD_PADDING_TOP;
-static constexpr coord_t line2 = line1 + PAGE_LINE_HEIGHT;
-static constexpr coord_t line3 = line2 + PAGE_LINE_HEIGHT;
-static constexpr coord_t col1 = 20;
-static constexpr coord_t col2 = (LCD_W - 100) / 3 + col1;
-static constexpr coord_t col3 = ((LCD_W - 100) / 3) * 2 + col1;
+void getsEdgeDelayParam(char* s, LogicalSwitchData* ls)
+{
+  sprintf(s, "[%s:%s]",
+          formatNumberAsString(lswTimerValue(ls->v2), PREC1, 0, nullptr, "s")
+              .c_str(),
+          (ls->v3 < 0)    ? "<<"
+          : (ls->v3 == 0) ? "--"
+                          : formatNumberAsString(lswTimerValue(ls->v2 + ls->v3),
+                                                 PREC1, 0, nullptr, "s")
+                                .c_str());
+}
+
+#if LCD_W > LCD_H  // Landscape
+
+static const lv_coord_t b_col_dsc[] = {30, 50, 88, 110,
+                                       88, 40, 40, LV_GRID_TEMPLATE_LAST};
+
+static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+#define NM_ROW_CNT 1
+#define V2_COL_CNT 1
+#define ANDSW_ROW 0
+#define ANDSW_COL 4
+
+#else  // Portrait
+
+static const lv_coord_t b_col_dsc[] = {36, 58, 88, 54, 54, LV_GRID_TEMPLATE_LAST};
+
+static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
+                                       LV_GRID_TEMPLATE_LAST};
+
+#define NM_ROW_CNT 2
+#define V2_COL_CNT 2
+#define ANDSW_ROW 1
+#define ANDSW_COL 2
+
+#endif
 
 class LogicalSwitchButton : public Button
 {
  public:
-  LogicalSwitchButton(FormGroup* parent, const rect_t& rect, int lsIndex) :
-      Button(parent, rect, nullptr, 0, COLOR_THEME_PRIMARY1), lsIndex(lsIndex), active(isActive())
+  LogicalSwitchButton(Window* parent, const rect_t& rect, int lsIndex) :
+      Button(parent, rect, nullptr, 0, 0, input_mix_line_create),
+      lsIndex(lsIndex)
   {
-    LogicalSwitchData* ls = lswAddress(lsIndex);
-    if (ls->andsw != SWSRC_NONE || ls->duration != 0 || ls->delay != 0)
-      setHeight(height() + 20);
+#if LCD_H > LCD_W
+    padTop(0);
+#endif
+    padLeft(3);
+    padRight(3);
+    lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
+    lv_obj_set_grid_dsc_array(lvobj, b_col_dsc, b_row_dsc);
+    lv_obj_set_style_pad_row(lvobj, 0, 0);
+    lv_obj_set_style_pad_column(lvobj, 2, 0);
+
+    check(isActive());
+
+    lv_obj_update_layout(parent->getLvObj());
+    if (lv_obj_is_visible(lvobj)) delayed_init(nullptr);
+
+    lv_obj_add_event_cb(lvobj, LogicalSwitchButton::on_draw,
+                        LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+  }
+
+  static void on_draw(lv_event_t* e)
+  {
+    lv_obj_t* target = lv_event_get_target(e);
+    auto line = (LogicalSwitchButton*)lv_obj_get_user_data(target);
+    if (line) {
+      if (!line->init)
+        line->delayed_init(e);
+      else
+        line->refresh();
+    }
+  }
+
+  void delayed_init(lv_event_t* e)
+  {
+    lsName = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsName, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_grid_cell(lsName, LV_GRID_ALIGN_STRETCH, 0, 1,
+                         LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
+
+    lsFunc = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsFunc, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_grid_cell(lsFunc, LV_GRID_ALIGN_STRETCH, 1, 1,
+                         LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
+
+    lsV1 = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsV1, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_grid_cell(lsV1, LV_GRID_ALIGN_STRETCH, 2, 1,
+                         LV_GRID_ALIGN_CENTER, 0, 1);
+
+    lsV2 = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsV2, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_grid_cell(lsV2, LV_GRID_ALIGN_STRETCH, 3, V2_COL_CNT,
+                         LV_GRID_ALIGN_CENTER, 0, 1);
+
+    lsAnd = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsAnd, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_grid_cell(lsAnd, LV_GRID_ALIGN_STRETCH, ANDSW_COL, 1,
+                         LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
+
+    lsDuration = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsDuration, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_grid_cell(lsDuration, LV_GRID_ALIGN_STRETCH, ANDSW_COL + 1, 1,
+                         LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
+
+    lsDelay = lv_label_create(lvobj);
+    lv_obj_set_style_text_align(lsDelay, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_grid_cell(lsDelay, LV_GRID_ALIGN_STRETCH, ANDSW_COL + 2, 1,
+                         LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
+
+    init = true;
+    refresh();
+    lv_obj_update_layout(lvobj);
+
+    if (e) {
+      auto param = lv_event_get_param(e);
+      lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
+    }
   }
 
   bool isActive() const
@@ -288,176 +400,271 @@ class LogicalSwitchButton : public Button
 
   void checkEvents() override
   {
-    if (active != isActive()) {
-      invalidate();
-      active = !active;
-    }
-
     Button::checkEvents();
+    check(isActive());
   }
 
-  void paintLogicalSwitchLine(BitmapBuffer* dc)
+  void refresh()
   {
+    if (!init) return;
+
+    char s[20];
+
     LogicalSwitchData* ls = lswAddress(lsIndex);
     uint8_t lsFamily = lswFamily(ls->func);
 
-    // CSW func
-    //dc->drawTextAtIndex(col1, line1, STR_VCSWFUNC, ls->func, COLOR_THEME_SECONDARY1);
-      dc->drawText(col1, line1, ls->custName, COLOR_THEME_SECONDARY1);
-    // CSW params
-    if (lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_STICKY || ls->func == LS_FUNC_SAFE) {
-      drawSwitch(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
-      drawSwitch(dc, col3, line1, ls->v2, COLOR_THEME_SECONDARY1);
-    } else if (lsFamily == LS_FAMILY_EDGE) {
-      drawSwitch(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
-      putsEdgeDelayParam(dc, col3, line1, ls, COLOR_THEME_SECONDARY1);
-    } else if (lsFamily == LS_FAMILY_COMP) {
-      drawSource(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
-      drawSource(dc, col3, line1, ls->v2, COLOR_THEME_SECONDARY1);
-    } else if (lsFamily == LS_FAMILY_TIMER) {
-      dc->drawNumber(col2, line1, lswTimerValue(ls->v1), COLOR_THEME_SECONDARY1 | LEFT | PREC1);
-      dc->drawNumber(col3, line1, lswTimerValue(ls->v2), COLOR_THEME_SECONDARY1 | LEFT | PREC1);
-    } else {
-      drawSource(dc, col2, line1, ls->v1, COLOR_THEME_SECONDARY1);
-      drawSourceCustomValue(dc, col3, line1, ls->v1,
-          (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2), COLOR_THEME_SECONDARY1);
+    lv_label_set_text(lsName, getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + lsIndex));
+    lv_label_set_text(lsFunc, STR_VCSWFUNC[ls->func]);
+
+    // CSW params - V1
+    switch (lsFamily) {
+      case LS_FAMILY_BOOL:
+      case LS_FAMILY_STICKY:
+      case LS_FAMILY_EDGE:
+        lv_label_set_text(lsV1, getSwitchPositionName(ls->v1));
+        break;
+      case LS_FAMILY_TIMER:
+        lv_label_set_text(lsV1, formatNumberAsString(lswTimerValue(ls->v1),
+                                                     PREC1, 0, nullptr, "s")
+                                    .c_str());
+        break;
+      default:
+        lv_label_set_text(lsV1, getSourceString(ls->v1));
+        break;
+    }
+
+    // CSW params - V2
+    strcat(s, " ");
+    switch (lsFamily) {
+      case LS_FAMILY_BOOL:
+      case LS_FAMILY_STICKY:
+        lv_label_set_text(lsV2, getSwitchPositionName(ls->v2));
+        break;
+      case LS_FAMILY_EDGE:
+        getsEdgeDelayParam(s, ls);
+        lv_label_set_text(lsV2, s);
+        break;
+      case LS_FAMILY_TIMER:
+        lv_label_set_text(lsV2, formatNumberAsString(lswTimerValue(ls->v2),
+                                                     PREC1, 0, nullptr, "s")
+                                    .c_str());
+        break;
+      case LS_FAMILY_COMP:
+        lv_label_set_text(lsV2, getSourceString(ls->v2));
+        break;
+      default:
+        lv_label_set_text(
+            lsV2,
+            getSourceCustomValueString(
+                ls->v1,
+                (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2),
+                0));
+        break;
     }
 
     // AND switch
-    drawSwitch(dc, col1, line2, ls->andsw, COLOR_THEME_SECONDARY1);
+    lv_label_set_text(lsAnd, getSwitchPositionName(ls->andsw));
 
     // CSW duration
     if (ls->duration > 0) {
-      dc->drawNumber(col2, line2, ls->duration, COLOR_THEME_SECONDARY1 | PREC1 | LEFT);
+      lv_label_set_text(
+          lsDuration,
+          formatNumberAsString(ls->duration, PREC1, 0, nullptr, "s").c_str());
+    } else {
+      lv_label_set_text(lsDuration, "");
     }
 
     // CSW delay
     if (lsFamily != LS_FAMILY_EDGE && ls->delay > 0) {
-      dc->drawNumber(col3, line2, ls->delay, COLOR_THEME_SECONDARY1 | PREC1 | LEFT);
+      lv_label_set_text(
+          lsDelay,
+          formatNumberAsString(ls->delay, PREC1, 0, nullptr, "s").c_str());
+    } else {
+      lv_label_set_text(lsDelay, "");
     }
-    // switch custom name
-    //dc->drawText(col1, line3, "somename", COLOR_THEME_SECONDARY1);
-  }
-
-  void paint(BitmapBuffer* dc) override
-  {
-    if (active){
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_ACTIVE);
-      dc->drawText(col1, line3, "somename", COLOR_THEME_SECONDARY1);
-    }
-    else{
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_PRIMARY2);
-      dc->drawText(col1, line3, "somename", COLOR_THEME_SECONDARY1);
-    }
-    paintLogicalSwitchLine(dc);
-
-    // The bounding rect
-    if (hasFocus())
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
-    else
-      dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
   }
 
  protected:
+  bool init = false;
   uint8_t lsIndex;
-  bool active;
+
+  lv_obj_t* lsName = nullptr;
+  lv_obj_t* lsFunc = nullptr;
+  lv_obj_t* lsV1 = nullptr;
+  lv_obj_t* lsV2 = nullptr;
+  lv_obj_t* lsAnd = nullptr;
+  lv_obj_t* lsDuration = nullptr;
+  lv_obj_t* lsDelay = nullptr;
 };
 
-ModelLogicalSwitchesPage::ModelLogicalSwitchesPage():
-  PageTab(STR_MENULOGICALSWITCHES, ICON_MODEL_LOGICAL_SWITCHES)
+#if LCD_W > LCD_H
+#define LS_BUTTON_H 34
+#else
+#define LS_BUTTON_H 45
+#endif
+
+ModelLogicalSwitchesPage::ModelLogicalSwitchesPage() :
+    PageTab(STR_MENULOGICALSWITCHES, ICON_MODEL_LOGICAL_SWITCHES)
 {
 }
 
-void ModelLogicalSwitchesPage::rebuild(FormWindow * window, int8_t focusIndex)
+void ModelLogicalSwitchesPage::rebuild(FormWindow* window)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());
+  // When window.clear() is called the last button on screen is given focus
+  // (???) This causes the page to jump to the end when rebuilt. Set flag to
+  // bypass the button focus handler and reset focusIndex when rebuilding
+  isRebuilding = true;
   window->clear();
-  build(window, focusIndex);
-  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
+  build(window);
+  isRebuilding = false;
 }
 
-void ModelLogicalSwitchesPage::editLogicalSwitch(FormWindow * window, uint8_t lsIndex)
+void ModelLogicalSwitchesPage::newLS(FormWindow* window, bool pasteLS)
 {
-  Window * lsWindow = new LogicalSwitchEditPage(lsIndex);
-  lsWindow->setCloseHandler([=]() {
-    rebuild(window, lsIndex);
-  });
+  Menu* menu = new Menu(Layer::back());
+  menu->setTitle(STR_MENU_LOGICAL_SWITCHES);
+
+  // search for unused switches
+  for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
+    LogicalSwitchData* ls = lswAddress(i);
+    if (ls->func == LS_FUNC_NONE) {
+      std::string ch_name(getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + i));
+      menu->addLineBuffered(ch_name.c_str(), [=]() {
+        if (pasteLS) {
+          *ls = clipboard.data.csw;
+          storageDirty(EE_MODEL);
+          focusIndex = i;
+          rebuild(window);
+        } else {
+          Window* lsWindow = new LogicalSwitchEditPage(i);
+          lsWindow->setCloseHandler([=]() {
+            if (ls->func != LS_FUNC_NONE) {
+              focusIndex = i;
+              rebuild(window);
+            }
+          });
+        }
+      });
+    }
+  }
+  menu->updateLines();
 }
 
-void ModelLogicalSwitchesPage::build(FormWindow* window, int8_t focusIndex)
+void ModelLogicalSwitchesPage::plusPopup(FormWindow* window)
 {
-  FormGridLayout grid;
-  grid.spacer(PAGE_PADDING);
-  grid.setLabelWidth(66);
-  window->padAll(0);
+  if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH) {
+    Menu* menu = new Menu(window);
+    menu->addLine(STR_NEW, [=]() { newLS(window, false); });
+    menu->addLine(STR_PASTE, [=]() { newLS(window, true); });
+  } else {
+    newLS(window, false);
+  }
+}
+
+void ModelLogicalSwitchesPage::build(FormWindow* window)
+{
+  static const lv_coord_t l_col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+
+  window->padAll(4);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
+
+  FlexGridLayout grid(l_col_dsc, row_dsc, 2);
+
+  FormWindow::Line* line;
+  bool hasEmptySwitch = false;
+  Button* button;
+
+  // Reset focusIndex after switching tabs
+  if (!isRebuilding) focusIndex = prevFocusIndex;
 
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
     LogicalSwitchData* ls = lswAddress(i);
 
-    if (ls->func == LS_FUNC_NONE) {
-      auto button = new TextButton(window, grid.getLabelSlot(),
-                                   getSwitchPositionName(SWSRC_SW1 + i));
-      button->setPressHandler([=]() {
-        if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH) {
-          Menu* menu = new Menu(window);
-          menu->addLine(STR_EDIT, [=]() { editLogicalSwitch(window, i); });
-          menu->addLine(STR_PASTE, [=]() {
-            *ls = clipboard.data.csw;
-            storageDirty(EE_MODEL);
-            rebuild(window, i);
-          });
-        } else {
-          editLogicalSwitch(window, i);
-        }
-        return 0;
-      });
-      
-      grid.spacer(button->height() + 5);
-    } else {
-      auto txt = new StaticText(window, grid.getLabelSlot(),
-                                getSwitchPositionName(SWSRC_SW1 + i),
-                                BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
+    bool isActive = (ls->func != LS_FUNC_NONE);
 
-      auto button = new LogicalSwitchButton(window, grid.getFieldSlot(), i);
+    if (isActive) {
+      line = window->newLine(&grid);
+
+      button = new LogicalSwitchButton(line, rect_t{0, 0, window->width() - 12, LS_BUTTON_H}, i);
+
       button->setPressHandler([=]() {
         Menu* menu = new Menu(window);
-        menu->addLine(STR_EDIT, [=]() { editLogicalSwitch(window, i); });
-        if (ls->func)
+        menu->addLine(STR_EDIT, [=]() {
+          Window* lsWindow = new LogicalSwitchEditPage(i);
+          lsWindow->setCloseHandler([=]() {
+            if (isActive)
+              lv_event_send(button->getLvObj(), LV_EVENT_VALUE_CHANGED,
+                            nullptr);
+            else
+              rebuild(window);
+          });
+        });
+        if (isActive) {
           menu->addLine(STR_COPY, [=]() {
             clipboard.type = CLIPBOARD_TYPE_CUSTOM_SWITCH;
             clipboard.data.csw = *ls;
           });
+        }
         if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH)
           menu->addLine(STR_PASTE, [=]() {
             *ls = clipboard.data.csw;
             storageDirty(EE_MODEL);
-            rebuild(window, i);
+            rebuild(window);
           });
-        if (ls->func || ls->v1 || ls->v2 || ls->delay || ls->duration ||
-            ls->andsw)
+        if (isActive || ls->v1 || ls->v2 || ls->delay || ls->duration ||
+            ls->andsw) {
           menu->addLine(STR_CLEAR, [=]() {
             memset(ls, 0, sizeof(LogicalSwitchData));
             storageDirty(EE_MODEL);
-            rebuild(window, i);
+            rebuild(window);
           });
+        }
         return 0;
       });
-      button->setFocusHandler([=](bool focus) {
-        if (focus) {
-          txt->setBackgroundColor(COLOR_THEME_FOCUS);
-          txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-        } else {
-          txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-          txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
+
+      if (focusIndex == i) {
+        lv_group_focus_obj(button->getLvObj());
+      }
+
+      button->setLongPressHandler([=]() -> uint8_t {
+        if (addButton) {
+          lv_group_focus_obj(addButton->getLvObj());
+          plusPopup(window);
         }
-        txt->invalidate();
+        return 0;
       });
 
-      txt->setHeight(button->height());
-      grid.spacer(button->height() + 5);
+      button->setFocusHandler([=](bool hasFocus) {
+        if (hasFocus && !isRebuilding) {
+          prevFocusIndex = focusIndex;
+          focusIndex = i;
+        }
+      });
+    } else {
+      hasEmptySwitch = true;
     }
   }
 
-  grid.nextLine();
+  if (hasEmptySwitch) {
+    line = window->newLine(&grid);
+    addButton =
+        new TextButton(line, rect_t{0, 0, window->width() - 12, LS_BUTTON_H},
+                       LV_SYMBOL_PLUS, [=]() {
+                         plusPopup(window);
+                         return 0;
+                       });
 
+    addButton->setLongPressHandler([=]() -> uint8_t {
+      plusPopup(window);
+      return 0;
+    });
+
+    addButton->setFocusHandler([=](bool hasFocus) {
+      if (hasFocus && !isRebuilding) {
+        prevFocusIndex = focusIndex;
+      }
+    });
+  } else {
+    addButton = nullptr;
+  }
 }

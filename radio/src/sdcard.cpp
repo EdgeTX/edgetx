@@ -30,36 +30,7 @@
   #include "libopenui/src/libopenui_file.h"
 #endif
 
-bool sdCardFormat()
-{
-  BYTE work[FF_MAX_SS];
-  FRESULT res = f_mkfs("", FM_FAT32, 0, work, sizeof(work));
-  switch(res) {
-    case FR_OK :
-      return true;
-    case FR_DISK_ERR:
-      POPUP_WARNING("Format error");
-      return false;
-    case FR_NOT_READY:
-      POPUP_WARNING("SDCard not ready");
-      return false;
-    case FR_WRITE_PROTECTED:
-      POPUP_WARNING("SDCard write protected");
-      return false;
-    case FR_INVALID_PARAMETER:
-      POPUP_WARNING("Format param invalid");
-      return false;
-    case FR_INVALID_DRIVE:
-      POPUP_WARNING("Invalid drive");
-      return false;
-    case FR_MKFS_ABORTED:
-      POPUP_WARNING("Format aborted");
-      return false;
-    default:
-      POPUP_WARNING(STR_SDCARD_ERROR);
-      return false;
-  }
-}
+#define SDCARD_MIN_FREE_SPACE_MB 50 // Maintain a 50MB free space buffer to prevent crashes
 
 const char * sdCheckAndCreateDirectory(const char * path)
 {
@@ -276,9 +247,8 @@ bool sdListFiles(const char * path, const char * extension, const uint8_t maxlen
     for (;;) {
       res = f_readdir(&dir, &fno);                   /* Read a directory item */
       if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-      if (fno.fattrib & AM_DIR) continue;            /* Skip subfolders */
-      if (fno.fattrib & AM_HID) continue;            /* Skip hidden files */
-      if (fno.fattrib & AM_SYS) continue;            /* Skip system files */
+      if (fno.fattrib & (AM_DIR|AM_HID|AM_SYS)) continue;  // skip subfolders, hidden files and system files
+      if (fno.fname[0] == '.') continue;  /* Ignore UNIX hidden files */
 
       fnExt = getFileExtension(fno.fname, 0, 0, &fnLen, &extLen);
       fnLen -= extLen;
@@ -495,7 +465,7 @@ uint32_t sdGetSize()
 
 uint32_t sdGetFreeSectors()
 {
-  return 10;
+  return ((SDCARD_MIN_FREE_SPACE_MB*1024*1024)/BLOCK_SIZE)+1;    // SIMU SD card is always above threshold
 }
 
 #endif  // #if !defined(SIMU) || defined(SIMU_DISKIO)

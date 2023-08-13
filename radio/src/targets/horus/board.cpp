@@ -19,12 +19,16 @@
  * GNU General Public License for more details.
  */
 
-#include "stm32_hal_ll.h"
 #include "hal/adc_driver.h"
-#include "hal/serial_driver.h"
-#include "hal/serial_port.h"
+#include "hal/trainer_driver.h"
+#include "hal/switch_driver.h"
+#include "hal/rotary_encoder.h"
 
 #include "board.h"
+#include "boards/generic_stm32/module_ports.h"
+#include "boards/generic_stm32/intmodule_heartbeat.h"
+#include "boards/generic_stm32/analog_inputs.h"
+
 #include "timers_driver.h"
 #include "dataconstants.h"
 #include "opentx_types.h"
@@ -34,21 +38,36 @@
 
 #include <string.h>
 
-#if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-#include "aux_serial_driver.h"
+#if defined(FLYSKY_GIMBAL)
+  #include "flysky_gimbal_driver.h"
 #endif
 
-#if !defined(PCBX12S)
-  #include "stm32_hal_adc.h"
-  #define ADC_DRIVER stm32_hal_adc_driver
+enum PowerReason {
+  SHUTDOWN_REQUEST = 0xDEADBEEF,
+  SOFTRESET_REQUEST = 0xCAFEDEAD,
+};
+
+constexpr uint32_t POWER_REASON_SIGNATURE = 0x0178746F;
+
+bool UNEXPECTED_SHUTDOWN()
+{
+#if defined(SIMU) || defined(NO_UNEXPECTED_SHUTDOWN)
+  return false;
 #else
-  #include "x12s_adc_driver.h"
-  #define ADC_DRIVER x12s_adc_driver
+  if (WAS_RESET_BY_WATCHDOG())
+    return true;
+  else if (WAS_RESET_BY_SOFTWARE())
+    return RTC->BKP0R != SOFTRESET_REQUEST;
+  else
+    return RTC->BKP1R == POWER_REASON_SIGNATURE && RTC->BKP0R != SHUTDOWN_REQUEST;
 #endif
+}
 
-extern void flysky_hall_stick_check_init(void);
-extern void flysky_hall_stick_init(void);
-extern void flysky_hall_stick_loop( void );
+void SET_POWER_REASON(uint32_t value)
+{
+  RTC->BKP0R = value;
+  RTC->BKP1R = POWER_REASON_SIGNATURE;
+}
 
 HardwareOptions hardwareOptions;
 bool boardBacklightOn = false;
@@ -63,40 +82,8 @@ void watchdogInit(unsigned int duration)
   IWDG->KR = 0xCCCC;      // start
 }
 
-#if HAS_SPORT_UPDATE_CONNECTOR() && !defined(BOOT)
-
-// g_eeGeneral
+#if !defined(BOOT)
 #include "opentx.h"
-
-void sportUpdateInit()
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = SPORT_UPDATE_PWR_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(SPORT_UPDATE_PWR_GPIO, &GPIO_InitStructure);
-}
-
-void sportUpdatePowerOn()
-{
-  GPIO_SetBits(SPORT_UPDATE_PWR_GPIO, SPORT_UPDATE_PWR_GPIO_PIN);
-}
-
-void sportUpdatePowerOff()
-{
-  GPIO_ResetBits(SPORT_UPDATE_PWR_GPIO, SPORT_UPDATE_PWR_GPIO_PIN);
-}
-
-void sportUpdatePowerInit()
-{
-  if (g_eeGeneral.sportUpdatePower == 1)
-    sportUpdatePowerOn();
-  else
-    sportUpdatePowerOff();
-}
-#endif
 
 void boardInit()
 {
@@ -108,13 +95,6 @@ void boardInit()
                          KEYS_BACKLIGHT_RCC_AHB1Periph |
                          SD_RCC_AHB1Periph |
                          AUDIO_RCC_AHB1Periph |
-                         KEYS_RCC_AHB1Periph |
-                         ADC_RCC_AHB1Periph |
-#if defined(RADIO_FAMILY_T16)
-                         FLYSKY_HALL_RCC_AHB1Periph |
-#endif
-                         AUX_SERIAL_RCC_AHB1Periph |
-                         AUX2_SERIAL_RCC_AHB1Periph |
                          TELEMETRY_RCC_AHB1Periph |
                          TRAINER_RCC_AHB1Periph |
                          BT_RCC_AHB1Periph |
@@ -127,33 +107,19 @@ void boardInit()
 
   RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph |
                          INTERRUPT_xMS_RCC_APB1Periph |
-                         ADC_RCC_APB1Periph |
                          TIMER_2MHz_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
-#if defined(RADIO_FAMILY_T16)
-                         FLYSKY_HALL_RCC_APB1Periph |
-#endif
-                         AUX_SERIAL_RCC_APB1Periph |
-                         AUX2_SERIAL_RCC_APB1Periph |
                          TELEMETRY_RCC_APB1Periph |
-                         TRAINER_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
-                         INTMODULE_RCC_APB1Periph |
-                         EXTMODULE_RCC_APB1Periph |
                          MIXER_SCHEDULER_TIMER_RCC_APB1Periph |
                          BACKLIGHT_RCC_APB1Periph,
                          ENABLE);
 
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG |
                          LCD_RCC_APB2Periph |
-                         ADC_RCC_APB2Periph |
                          HAPTIC_RCC_APB2Periph |
-                         INTMODULE_RCC_APB2Periph |
-                         EXTMODULE_RCC_APB2Periph |
                          TELEMETRY_RCC_APB2Periph |
                          BT_RCC_APB2Periph |
-                         AUX_SERIAL_RCC_APB2Periph |
-                         AUX2_SERIAL_RCC_APB2Periph |
                          BACKLIGHT_RCC_APB2Periph,
                          ENABLE);
 
@@ -168,6 +134,15 @@ void boardInit()
 #endif
 
   pwrInit();
+  boardInitModulePorts();
+
+#if defined(INTMODULE_HEARTBEAT) &&                                     \
+  (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2))
+  pulsesSetModuleInitCb(_intmodule_heartbeat_init);
+  pulsesSetModuleDeInitCb(_intmodule_heartbeat_deinit);
+#endif
+
+  init_trainer();
   pwrOn();
   delaysInit();
 
@@ -183,44 +158,23 @@ void boardInit()
   audioInit();
 
   keysInit();
+  switchInit();
   rotaryEncoderInit();
 
-#if NUM_PWMSTICKS > 0
-  sticksPwmInit();
-  delay_ms(20);
-  if (pwm_interrupt_count < 32) {
-    hardwareOptions.sticksPwmDisabled = true;
-  }
+#if defined(PWM_STICKS)
+  sticksPwmDetect();
+#endif
+  
+#if defined(FLYSKY_GIMBAL)
+  flysky_gimbal_init();
 #endif
 
-  globalData.flyskygimbals = false;
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
-  flysky_hall_stick_check_init();
-
-  // Wait 70ms for FlySky gimbals to respond. According to LA trace, minimally 23ms is required
-  for (uint8_t ui8 = 0; ui8 < 70; ui8++)
-  {
-      flysky_hall_stick_loop();
-      delay_ms(1);
-      if (globalData.flyskygimbals)
-      {
-          break;
-      }
-  }
-
-#endif
-
-  if (globalData.flyskygimbals)
-  {
-      flysky_hall_stick_init();
-  }
-
-  if (!adcInit(&ADC_DRIVER))
-      TRACE("adcInit failed");
-
+  if (!adcInit(&_adc_driver))
+    TRACE("adcInit failed");
 
   init2MhzTimer();
   init1msTimer();
+
   usbInit();
   hapticInit();
 
@@ -239,19 +193,20 @@ void boardInit()
   usbChargerInit();
 #endif
 
-#if HAS_SPORT_UPDATE_CONNECTOR() && !defined(BOOT)
-  sportUpdateInit();
+#if defined(RTCLOCK)
+  ledRed();
+  rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
 
   ledBlue();
-
-#if defined(RTCLOCK) && !defined(COPROCESSOR)
-  rtcInit(); // RTC must be initialized before rambackupRestore() is called
-#endif
 }
+#endif
+
+extern void rtcDisableBackupReg();
 
 void boardOff()
 {
+  ledOff();
   backlightEnable(0);
 
   while (pwrPressed()) {
@@ -275,16 +230,12 @@ void boardOff()
   // Shutdown the Haptic
   hapticDone();
 
-#if defined(RTC_BACKUP_RAM)
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_BKPSRAM, DISABLE);
-  PWR_BackupRegulatorCmd(DISABLE);
-#endif
-
+  rtcDisableBackupReg();
   RTC->BKP0R = SHUTDOWN_REQUEST;
 
   pwrOff();
-  
-  // We reach here only in forced power situations, such as hw-debugging with external power  
+
+  // We reach here only in forced power situations, such as hw-debugging with external power
   // Enter STM32 stop mode / deep-sleep
   // Code snippet from ST Nucleo PWR_EnterStopMode example
 #define PDMode             0x00000000U
@@ -298,7 +249,7 @@ void boardOff()
 
 /* Set SLEEPDEEP bit of Cortex System Control Register */
   SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
-  
+
   // To avoid HardFault at return address, end in an endless loop
   while (1) {
 
@@ -311,73 +262,3 @@ bool isBacklightEnabled()
   return boardBacklightOn;
 }
 
-#if defined(AUX_SERIAL_PWR_GPIO) || defined(AUX2_SERIAL_PWR_GPIO)
-static void _aux_pwr(GPIO_TypeDef *GPIOx, uint32_t pin, uint8_t on)
-{
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-  pinInit.Pin = pin;
-  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-  pinInit.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(GPIOx, &pinInit);
-
-  if (on) {
-    LL_GPIO_SetOutputPin(GPIOx, pin);
-  } else {
-    LL_GPIO_ResetOutputPin(GPIOx, pin);
-  }
-}
-#endif
-
-#if defined(AUX_SERIAL)
-void set_aux_pwr(uint8_t on)
-{
-#if defined(AUX_SERIAL_PWR_GPIO)
-  _aux_pwr(AUX_SERIAL_PWR_GPIO, AUX_SERIAL_PWR_GPIO_PIN, on);
-#endif
-}
-
-const etx_serial_port_t auxSerialPort = {
-  "AUX1",
-  &AuxSerialDriver,
-  set_aux_pwr,
-};
-#define AUX_SERIAL_PORT &auxSerialPort
-#else
-#define AUX_SERIAL_PORT nullptr
-#endif
-
-#if defined(AUX2_SERIAL)
-void set_aux2_pwr(uint8_t on)
-{
-#if defined(AUX2_SERIAL_PWR_GPIO)
-  _aux_pwr(AUX2_SERIAL_PWR_GPIO, AUX2_SERIAL_PWR_GPIO_PIN, on);
-#endif
-}
-
-const etx_serial_port_t aux2SerialPort = {
-#if !defined(PCBX12S)
-  "AUX2",
-#else
-  // AUX2 is hardwired to the internal GPS
-  // on the X12S, let's hide the setting
-  nullptr,
-#endif
-  &Aux2SerialDriver,
-  set_aux2_pwr,
-};
-#define AUX2_SERIAL_PORT &aux2SerialPort
-#else
-#define AUX2_SERIAL_PORT nullptr
-#endif // AUX2_SERIAL
-
-static const etx_serial_port_t* serialPorts[MAX_AUX_SERIAL] = {
-  AUX_SERIAL_PORT,
-  AUX2_SERIAL_PORT,
-};
-
-const etx_serial_port_t* auxSerialGetPort(int port_nr)
-{
-  if (port_nr >= MAX_AUX_SERIAL) return nullptr;
-  return serialPorts[port_nr];
-}

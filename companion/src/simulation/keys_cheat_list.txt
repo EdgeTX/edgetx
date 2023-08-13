@@ -1,0 +1,18 @@
+Simu key cheat list
+"Menu",0
+"Exit",1
+"Enter",2
+"Page",3
+"PgUp",4
+"PgDn",5
+"up",6
+"down",7
+"left",8
+"right",9
+"plus",10
+"minus",11
+"MDL",12
+"TELE",13
+"SYS",14
+"shift",15
+nullptr,16

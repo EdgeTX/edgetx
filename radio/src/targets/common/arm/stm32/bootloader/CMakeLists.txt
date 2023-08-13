@@ -1,55 +1,8 @@
-# TODO if the files order is different (these 2 SRC sections exchanged), the bootloader hangs for 20s in USB init. Why?
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-if(CPU_TYPE_FULL STREQUAL STM32F429xI)
-  set(BOOTLOADER_SRC
-    ${BOOTLOADER_SRC}
-    ../f4/system_stm32f4xx.c
-    ../../../../../targets/${TARGET_DIR}/startup_stm32f42_43xxx.s
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rcc.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rtc.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_pwr.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_gpio.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_exti.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_spi.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fmc.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_ltdc.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma2d.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/misc.c
-    )
-elseif(CPU_TYPE_FULL STREQUAL STM32F407xE)
-  set(BOOTLOADER_SRC
-    ${BOOTLOADER_SRC}
-    ../f4/system_stm32f4xx.c
-    ../../../../../targets/${TARGET_DIR}/startup_stm32f40_41xxx.s
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rcc.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rtc.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_pwr.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_gpio.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_exti.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_spi.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_i2c.c
-    ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/misc.c
-    )
-else()
-  set(BOOTLOADER_SRC
-    ${BOOTLOADER_SRC}
-    ../f2/system_stm32f2xx.c
-    ../../../../../${STM32LIB_DIR}/CMSIS/Device/ST/STM32F2xx/Source/Templates/gcc_ride7/startup_stm32f2xx.s
-    ../../../../../${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/src/stm32f2xx_rcc.c
-    ../../../../../${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/src/stm32f2xx_syscfg.c
-    ../../../../../${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/src/stm32f2xx_gpio.c
-    ../../../../../${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/src/stm32f2xx_exti.c
-    ../../../../../${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/src/stm32f2xx_spi.c
-    ../../../../../${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/src/stm32f2xx_i2c.c
-    ../../../../../${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/src/misc.c
-    )
-endif()
+AddHardwareDefTarget(${HW_DESC_JSON})
+AddHWGenTarget(${HW_DESC_JSON} hal_keys hal_keys.inc)
 
 set(BOOTLOADER_SRC
   ${BOOTLOADER_SRC}
@@ -72,11 +25,12 @@ set(BOOTLOADER_SRC
   ../../../../../${FATFS_DIR}/ffunicode.c
   ../../../../../targets/${TARGET_DIR}/${LCD_DRIVER}
   ../../../../../targets/${TARGET_DIR}/backlight_driver.cpp
-  ../../../../../targets/${TARGET_DIR}/keys_driver.cpp
   ../../../../../targets/${TARGET_DIR}/diskio.cpp
   ../../../../../targets/${TARGET_DIR}/board.cpp
-  ../pwr_driver.cpp
   ../../../../../targets/${TARGET_DIR}/bootloader/boot_menu.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/hal_keys.inc
+  ../../../../../hal/key_driver.cpp
+  ../pwr_driver.cpp
   ../usbd_usr.cpp
   ../usbd_storage_msd.cpp
   ../delays_driver.cpp
@@ -84,6 +38,10 @@ set(BOOTLOADER_SRC
   ../usb_bsp.c
   ../usb_driver.cpp
   ../flash_driver.cpp
+  ../stm32_exti_driver.cpp
+  ../stm32_serial_driver.cpp
+  ../stm32_usart_driver.cpp
+  ../stm32_gpio_driver.cpp
   init.c
   boot.cpp
   bin_files.cpp
@@ -103,6 +61,13 @@ if(BLUETOOTH)
     )
 endif()
 
+if(DEBUG_SEGGER_RTT)
+  set(BOOTLOADER_SRC
+  ${BOOTLOADER_SRC}
+  ../../../../../thirdparty/Segger_RTT/RTT/SEGGER_RTT.c
+  )
+endif()
+
 
 if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
   set(BOOTLOADER_SRC
@@ -112,9 +77,9 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     ../../../../../fonts/lvgl/lv_font_roboto_bl_16.c
     ../../../../../thirdparty/libopenui/src/bitmapbuffer.cpp
     ../../../../../thirdparty/libopenui/thirdparty/lz4/lz4.c
-    ../../../../../targets/${TARGET_DIR}/sdram_driver.c
     ../../../../../targets/common/arm/stm32/sdio_sd.c
     ../../../../../targets/common/arm/stm32/rtc_driver.cpp
+    ../../../../../targets/${TARGET_DIR}/sdram_driver.c
     ../../../../../targets/${TARGET_DIR}/haptic_driver.cpp
     )
 
@@ -122,29 +87,30 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
   foreach(LVGL_FILE ${LVGL_SRC_FILES_MINIMAL})
     set(BOOTLOADER_SRC ${BOOTLOADER_SRC} ../../../../../${LVGL_FILE})
   endforeach()
+
+  if(NOT PCB STREQUAL NV14)
+    set(BOOTLOADER_SRC
+      ${BOOTLOADER_SRC}
+      ../../../../../targets/${TARGET_DIR}/led_driver.cpp
+    )
+  endif()
+
   
   if(USB_CHARGER)
     set(BOOTLOADER_SRC
       ${BOOTLOADER_SRC}
       ../../../../../targets/${TARGET_DIR}/usb_charger_driver.cpp
-      ../../../../../targets/${TARGET_DIR}/led_driver.cpp
       )
   endif()
 
-  if(PCB STREQUAL NV14)
-    set(BOOTLOADER_SRC
-      ${BOOTLOADER_SRC}
-      ../../../../../targets/${TARGET_DIR}/extmodule_helper.cpp
-      )
-  endif()
-  
   if(DEBUG)
     set(BOOTLOADER_SRC
       ${BOOTLOADER_SRC}
-      ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_usart.c
       ../../../../../serial.cpp
-      ../../../../../targets/common/arm/stm32/aux_serial_driver.cpp
+      ../../../../../boards/generic_stm32/aux_ports.cpp
+      ../../../../../targets/common/arm/stm32/stm32_serial_driver.cpp
       ../../../../../targets/common/arm/stm32/stm32_usart_driver.cpp
+      ../../../../../targets/common/arm/stm32/stm32_dma.cpp
       )
   endif()
 else()
@@ -172,6 +138,10 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
 
 add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})
 add_dependencies(bootloader ${BITMAPS_TARGET})
+
+target_include_directories(bootloader
+  PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 add_custom_command(
   TARGET bootloader POST_BUILD

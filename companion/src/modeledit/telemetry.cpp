@@ -32,7 +32,6 @@ constexpr char FIM_SENSORFORMULA[]   {"Sensor.Formula"};
 constexpr char FIM_SENSORCELLINDEX[] {"Sensor.CellIndex"};
 constexpr char FIM_SENSORUNIT[]      {"Sensor.Unit"};
 constexpr char FIM_SENSORPRECISION[] {"Sensor.Precision"};
-constexpr char FIM_RSSISOURCE[]      {"Rssi Source"};
 
 TelemetrySensorPanel::TelemetrySensorPanel(QWidget *parent, SensorData & sensor, int sensorIndex, int sensorCapability, ModelData & model,
                                            GeneralSettings & generalSettings, Firmware * firmware, const bool & parentLock,
@@ -406,11 +405,6 @@ TelemetryPanel::TelemetryPanel(QWidget *parent, ModelData & model, GeneralSettin
                                                   FIM_TELEPOSSRC);
   connectItemModelEvents(id);
 
-
-  id = panelFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RssiSource)),
-                                                  FIM_RSSISOURCE);
-  connectItemModelEvents(id);
-
   id = panelItemModels->registerItemModel(SensorData::typeItemModel());
   panelFilteredItemModels->registerItemModel(new FilteredItemModel(panelItemModels->getItemModel(id)), FIM_SENSORTYPE);
 
@@ -489,7 +483,6 @@ void TelemetryPanel::update()
       ui->telemetryProtocol->setCurrentIndex(0);
     }
 
-    ui->rssiSourceCB->updateValue();
     ui->voltsSource->updateValue();
     ui->altitudeSource->updateValue();
     ui->varioSource->updateValue();
@@ -516,18 +509,13 @@ void TelemetryPanel::setup()
   }
   ui->telemetryProtocol->setCurrentIndex(model->telemetryProtocol);
   ui->ignoreSensorIds->setField(model->frsky.ignoreSensorIds, this);
+  ui->showInstanceIds->setField(model->showInstanceIds, this);
   ui->disableTelemetryAlarms->setField(model->rssiAlarms.disabled);
 
   ui->rssiAlarmWarningSB->setRange(0, 127);
   ui->rssiAlarmWarningSB->setValue(model->rssiAlarms.warning);
   ui->rssiAlarmCriticalSB->setRange(0, 127);
   ui->rssiAlarmCriticalSB->setValue(model->rssiAlarms.critical);
-
-  ui->rssiSourceLabel->show();
-  ui->rssiSourceLabel->setText(tr("Source"));
-  ui->rssiSourceCB->setModel(panelFilteredItemModels->getItemModel(FIM_RSSISOURCE));
-  ui->rssiSourceCB->setField(model->rssiSource, this);
-  ui->rssiSourceCB->show();
 
   ui->rssiAlarmWarningCB->hide();
   ui->rssiAlarmCriticalCB->hide();

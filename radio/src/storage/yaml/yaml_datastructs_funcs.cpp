@@ -24,78 +24,12 @@
 #include "yaml_tree_walker.h"
 
 #include "pulses/multi.h"
+#include "switches.h"
+#include "analogs.h"
 #include "stamp.h"
 
-// Use definitions from v220 conversions as long as nothing changes
-
-namespace yaml_conv_220 {
-  bool w_board(void* user, uint8_t* data, uint32_t bitoffs, yaml_writer_func wf, void* opaque);
-
-  bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
-
-  bool output_source_1_param(const char* src_prefix, size_t src_len, uint32_t n,
-                             yaml_writer_func wf, void* opaque);
-
-  bool w_vbat_min(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
-  bool w_vbat_max(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
-
-  uint8_t select_zov(void* user, uint8_t* data, uint32_t bitoffs);
-  uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs);
-  uint8_t select_id1(void* user, uint8_t* data, uint32_t bitoffs);
-  uint8_t select_id2(void* user, uint8_t* data, uint32_t bitoffs);
-  uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs);
-
-  extern const struct YamlIdStr enum_SwitchConfig[];
-
-  bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs);
-  bool gvar_is_active(void* user, uint8_t* data, uint32_t bitoffs);
-  bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs);
-  bool swash_is_active(void* user, uint8_t* data, uint32_t bitoffs);
-
-  bool w_5pos(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
-  bool w_vol(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
-  bool w_spPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
-  bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque);
-
-  extern const char* _tele_screen_type_lookup[];
-  bool w_tele_screen_type(void* user, uint8_t* data, uint32_t bitoffs,
-                          yaml_writer_func wf, void* opaque);
-
-  bool w_tele_sensor(const YamlNode* node, uint32_t val,
-                     yaml_writer_func wf, void* opaque);
-
-  bool w_flightModes(const YamlNode* node, uint32_t val,
-                     yaml_writer_func wf, void* opaque);
-
-  extern const char* _func_sound_lookup[];
-  extern const uint8_t _func_sound_lookup_size;
-
-  extern const char* _func_reset_param_lookup[];
-  extern const char* _func_failsafe_lookup[];
-
-  extern const char* _adjust_gvar_mode_lookup[];
-  extern const uint8_t _adjust_gvar_mode_lookup_size;
-
-  bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
-                    yaml_writer_func wf, void* opaque);
-
-  bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
-                   yaml_writer_func wf, void* opaque);
-
-  extern const struct YamlIdStr enum_XJT_Subtypes[];
-  extern const struct YamlIdStr enum_ISRM_Subtypes[];
-  extern const struct YamlIdStr enum_R9M_Subtypes[];
-  extern const struct YamlIdStr enum_FLYSKY_Subtypes[];
-  extern const struct YamlIdStr enum_DSM2_Subtypes[];
-  
-  bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
-                    yaml_writer_func wf, void* opaque);
-
-  bool w_channelsCount(const YamlNode* node, uint32_t val, yaml_writer_func wf,
-                       void* opaque);
-
-  extern const struct YamlIdStr enum_UartModes[];
-};
+#include "hal/switch_driver.h"
+#include "hal/adc_driver.h"
 
 //
 // WARNING:
@@ -112,25 +46,6 @@ static inline void check_yaml_funcs()
   static_assert(offsetof(ModuleData, ppm) == 4,"");
   check_size<ModuleData, 29>();
   static_assert(MAX_GVARS == 9,"");
-#if defined(PCBHORUS)
-  static_assert(offsetof(FlightModeData, gvars) == 26,"");
-  check_size<FlightModeData, 44>();
-  check_size<CustomFunctionData, 19>();
-#elif defined(PCBNV14)
-  static_assert(offsetof(FlightModeData, gvars) == 22,"");
-  check_size<FlightModeData, 40>();
-  check_size<CustomFunctionData, 19>();
-#elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)
-  static_assert(offsetof(FlightModeData, gvars) == 18,"");
-  check_size<FlightModeData, 36>();
-  check_size<CustomFunctionData, 21>();
-  check_size<TelemetryScreenData, 24>();
-#else
-  static_assert(offsetof(FlightModeData, gvars) == 22,"");
-  check_size<FlightModeData, 40>();
-  check_size<CustomFunctionData, 21>();
-  check_size<TelemetryScreenData, 24>();
-#endif
 }
 
 static bool w_semver(void* user, uint8_t* data, uint32_t bitoffs,
@@ -142,7 +57,7 @@ static bool w_semver(void* user, uint8_t* data, uint32_t bitoffs,
 static bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
                     yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_board(user, data, bitoffs, wf, opaque);
+  return wf(opaque, FLAVOUR, sizeof(FLAVOUR)-1);
 }
 
 static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t val_len)
@@ -173,10 +88,41 @@ static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t va
   return (uint32_t)yaml_str2int(val, val_len);
 }
 
-static bool in_write_weight(const YamlNode* node, uint32_t val,
-                            yaml_writer_func wf, void* opaque)
+bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf,
+                     void* opaque)
 {
-  return yaml_conv_220::in_write_weight(node, val, wf, opaque);
+  int32_t sval = yaml_to_signed(val, node->size <= 11 ? node->size : 11);
+  int32_t gvar = (node->size > 8 ? GV1_LARGE : GV1_SMALL);
+
+  if (sval >= gvar - 10 && sval <= gvar) {
+    char n = gvar - sval + '0';
+    return wf(opaque, "-GV", 3) && wf(opaque, &n, 1);
+  } else if (sval <= -gvar + 10 && sval >= -gvar) {
+    char n = val - gvar + '1';
+    return wf(opaque, "GV", 2) && wf(opaque, &n, 1);
+  }
+
+  char* s = yaml_signed2str(sval);
+  return wf(opaque, s, strlen(s));
+}
+
+static int _legacy_input_idx(const char* val, uint8_t val_len)
+{
+  for (uint8_t i = 0; i < DIM(_legacy_inputs); i++){
+    if (!strncmp(_legacy_inputs[i].legacy, val, val_len))
+      return i;
+  }
+
+  return -1;
+}
+
+static int _legacy_mix_src(const char* val, uint8_t val_len)
+{
+  auto idx = _legacy_input_idx(val, val_len);
+  if (idx >= 0)
+    return _legacy_inputs[idx].src_raw;
+
+  return -1;
 }
 
 extern const struct YamlIdStr enum_MixSources[];
@@ -191,6 +137,7 @@ extern const struct YamlIdStr enum_MixSources[];
 //
 static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_len)
 {
+    // TODO: parse switch name as well
     if (val_len > 0 && val[0] == 'I') {
         return yaml_str2uint(val+1, val_len-1) + MIXSRC_FIRST_INPUT;
     } else if (val_len > 4 &&
@@ -267,19 +214,63 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
 
       // parse int and ignore closing ')'
       return yaml_str2uint(val, val_len) * 3 + sign + MIXSRC_FIRST_TELEM;
+
+    } else if (val_len > 3 &&
+               val[0] == 'C' &&
+               val[1] == 'Y' &&
+               val[2] == 'C' &&
+               val[3] >= '1' &&
+               val[3] <= '3') {
+
+      return MIXSRC_FIRST_HELI + (val[3] - '1');
+
+    } else if (val_len > 1 &&
+               val[0] == 'T' &&
+               val[1] >= '1' &&
+               val[1] <= '9') {
+      return yaml_str2uint(val + 1, val_len - 1) + MIXSRC_FIRST_TRIM - 1;
     }
 
+    auto idx = analogLookupCanonicalIdx(ADC_INPUT_MAIN, val, val_len);
+    if (idx >= 0) return idx + MIXSRC_FIRST_STICK;
+
+    idx = analogLookupCanonicalIdx(ADC_INPUT_POT, val, val_len);
+    if (idx >= 0) return idx + MIXSRC_FIRST_POT;
+
+#if MAX_AXIS > 0
+    idx = analogLookupCanonicalIdx(ADC_INPUT_AXIS, val, val_len);
+    if (idx >= 0) return idx + MIXSRC_FIRST_POT;
+#endif
+
+    idx = switchLookupIdx(val, val_len);
+    if (idx >= 0) return idx + MIXSRC_FIRST_SWITCH;
+    
+    idx = _legacy_mix_src(val, val_len);
+    if (idx >= 0) return idx;
+    
     return yaml_parse_enum(enum_MixSources, val, val_len);
 }
 
 static constexpr char closing_parenthesis[] = ")";
 
+bool output_source_1_param(const char* src_prefix, size_t src_len, uint32_t n,
+                           yaml_writer_func wf, void* opaque)
+{
+  if (!wf(opaque, src_prefix, src_len)) return false;
+  const char* str = yaml_unsigned2str(n);
+  if (!wf(opaque, str, strlen(str))) return false;
+  return true;
+}
+
 static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
     const char* str = nullptr;
 
-    if (val >= MIXSRC_FIRST_INPUT
-        && val <= MIXSRC_LAST_INPUT) {
+    if (val == MIXSRC_NONE) {
+
+      return wf(opaque, "NONE", 4);
+
+    } else if (val <= MIXSRC_LAST_INPUT) {
 
         if (!wf(opaque, "I", 1))
             return false;
@@ -287,14 +278,12 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
         str = yaml_unsigned2str(val - MIXSRC_FIRST_INPUT);
     }
 #if defined(LUA_INPUTS)
-    else if (val >= MIXSRC_FIRST_LUA
-             && val <= MIXSRC_LAST_LUA) {
+    else if (val <= MIXSRC_LAST_LUA) {
       
         val -= MIXSRC_FIRST_LUA;
         uint32_t script = val / MAX_SCRIPT_OUTPUTS;
 
-        if (!yaml_conv_220::output_source_1_param("lua(", 4, script, wf,
-                                                  opaque))
+        if (!output_source_1_param("lua(", 4, script, wf, opaque))
           return false;
         if (!wf(opaque, ",", 1)) return false;
 
@@ -305,11 +294,31 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
         str = closing_parenthesis;
     }
 #endif
+    else if (val <= MIXSRC_LAST_STICK) {
+        str = analogGetCanonicalName(ADC_INPUT_MAIN, val - MIXSRC_FIRST_STICK);
+    }
+    else if (val <= MIXSRC_LAST_POT) {
+        str = analogGetCanonicalName(ADC_INPUT_POT, val - MIXSRC_FIRST_POT);
+    }
+#if MAX_AXIS > 0
+    else if (val <= MIXSRC_LAST_AXIS) {
+        str = analogGetCanonicalName(ADC_INPUT_AXIS, val - MIXSRC_FIRST_AXIS);
+    }
+#endif
+    else if (val >= MIXSRC_FIRST_HELI
+             && val <= MIXSRC_LAST_HELI) {
+        if (!wf(opaque, "CYC", 3)) return false;
+        str = yaml_unsigned2str(val - MIXSRC_FIRST_HELI + 1);
+    }
+    else if (val >= MIXSRC_FIRST_SWITCH
+             && val <= MIXSRC_LAST_SWITCH) {
+        str = switchGetCanonicalName(val - MIXSRC_FIRST_SWITCH);
+    }
     else if (val >= MIXSRC_FIRST_LOGICAL_SWITCH
              && val <= MIXSRC_LAST_LOGICAL_SWITCH) {
 
         val -= MIXSRC_FIRST_LOGICAL_SWITCH;
-        if (!yaml_conv_220::output_source_1_param("ls(", 3, val + 1, wf, opaque))
+        if (!output_source_1_param("ls(", 3, val + 1, wf, opaque))
           return false;
         str = closing_parenthesis;
     }
@@ -317,7 +326,7 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
              && val <= MIXSRC_LAST_TRAINER) {
 
         val -= MIXSRC_FIRST_TRAINER;
-        if (!yaml_conv_220::output_source_1_param("tr(", 3, val, wf, opaque))
+        if (!output_source_1_param("tr(", 3, val, wf, opaque))
           return false;
         str = closing_parenthesis;
     }
@@ -325,7 +334,7 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
              && val <= MIXSRC_LAST_CH) {
 
         val -= MIXSRC_FIRST_CH;
-        if (!yaml_conv_220::output_source_1_param("ch(", 3, val, wf, opaque))
+        if (!output_source_1_param("ch(", 3, val, wf, opaque))
           return false;
         str = closing_parenthesis;
     }
@@ -333,7 +342,7 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
              && val <= MIXSRC_LAST_GVAR) {
 
         val -= MIXSRC_FIRST_GVAR;
-        if (!yaml_conv_220::output_source_1_param("gv(", 3, val, wf, opaque))
+        if (!output_source_1_param("gv(", 3, val, wf, opaque))
           return false;
         str = closing_parenthesis;
     }
@@ -397,7 +406,8 @@ static uint32_t r_vbat_min(const YamlNode* node, const char* val, uint8_t val_le
 
 static bool w_vbat_min(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_vbat_min(node, val, wf, opaque);
+  char* s = yaml_signed2str(yaml_to_signed(val,node->size) + 90);
+  return wf(opaque, s, strlen(s));
 }
 
 static uint32_t r_vbat_max(const YamlNode* node, const char* val, uint8_t val_len)
@@ -408,13 +418,18 @@ static uint32_t r_vbat_max(const YamlNode* node, const char* val, uint8_t val_le
 
 static bool w_vbat_max(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_vbat_max(node, val, wf, opaque);
+  char* s = yaml_signed2str(yaml_to_signed(val,node->size) + 120);
+  return wf(opaque, s, strlen(s));
 }
 
 #if defined(COLORLCD)
 static uint8_t select_zov(void* user, uint8_t* data, uint32_t bitoffs)
 {
-  return yaml_conv_220::select_zov(user, data, bitoffs);
+  data += bitoffs >> 3UL;
+  data -= offsetof(ZoneOptionValueTyped, value);
+  ZoneOptionValueEnum* p_zovt = (ZoneOptionValueEnum*)data;
+  if (*p_zovt > ZOV_Color) return 0;
+  return *p_zovt;
 }
 
 void r_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
@@ -454,7 +469,15 @@ void r_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
 bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
                  yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_zov_color(user, data, bitoffs, wf, opaque);
+  data += bitoffs >> 3UL;
+  auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
+
+  uint32_t color = (uint32_t)GET_RED(p_val->unsignedValue) << 16 |
+                   (uint32_t)GET_GREEN(p_val->unsignedValue) << 8 |
+                   (uint32_t)GET_BLUE(p_val->unsignedValue);
+
+  if (!wf(opaque, "0x", 2)) return false;
+  return wf(opaque, yaml_rgb2hex(color), 3 * 2);
 }
 #endif
 
@@ -499,30 +522,66 @@ static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
 
 static uint8_t select_script_input(void* user, uint8_t* data, uint32_t bitoffs)
 {
-  return yaml_conv_220::select_script_input(user, data, bitoffs);
+  // always use 'value'
+  return 0;
 }
 
 static uint8_t select_id1(void* user, uint8_t* data, uint32_t bitoffs)
 {
-  return yaml_conv_220::select_id1(user, data, bitoffs);
+  data += bitoffs >> 3UL;
+  const TelemetrySensor* sensor = (const TelemetrySensor*)data;
+
+  if (sensor->type == TELEM_TYPE_CALCULATED
+      && sensor->persistent)
+    return 1;
+
+  return 0;
 }
 
 static uint8_t select_id2(void* user, uint8_t* data, uint32_t bitoffs)
 {
-  return yaml_conv_220::select_id2(user, data, bitoffs);
+  data += bitoffs >> 3UL;
+  data -= 2 /* size of id1 union */;
+  const TelemetrySensor* sensor = (const TelemetrySensor*)data;
+
+  if (sensor->type == TELEM_TYPE_CALCULATED)
+    return 2; // formula
+  
+  return 1; // instance
 }
 
 static uint8_t select_sensor_cfg(void* user, uint8_t* data, uint32_t bitoffs)
 {
-  return yaml_conv_220::select_sensor_cfg(user, data, bitoffs);
+  data += bitoffs >> 3UL;
+  data -= offsetof(TelemetrySensor, param);
+  const TelemetrySensor* sensor = (const TelemetrySensor*)data;
+
+  if (sensor->unit < UNIT_FIRST_VIRTUAL) {
+    if (sensor->type == TELEM_TYPE_CALCULATED) {
+      switch(sensor->formula) {
+      case TELEM_FORMULA_CELL: return 1; // cell
+      case TELEM_FORMULA_DIST: return 4; // dist
+      case TELEM_FORMULA_CONSUMPTION: return 3; // consumption
+      case TELEM_FORMULA_TOTALIZE: return 3; // consumption
+      default: return 2; // calc
+      }
+    } else {
+      return 0; // custom
+    }
+  }
+  
+  return 5;
 }
 
 static uint32_t r_calib(void* user, const char* val, uint8_t val_len)
 {
   (void)user;
 
-  uint32_t sw = yaml_parse_enum(enum_MixSources, val, val_len);
-  if (sw >= MIXSRC_Rud) return sw - MIXSRC_Rud;
+  int idx = adcGetInputIdx(val, val_len);
+  if (idx >= 0) return idx;
+
+  idx = _legacy_input_idx(val, val_len);
+  if (idx >= 0) return idx;
 
   // detect invalid values
   if (val_len == 0 || (val[0] < '0') || (val[0] > '9')) {
@@ -537,18 +596,102 @@ static bool w_calib(void* user, yaml_writer_func wf, void* opaque)
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
 
-  const char* str =
-      yaml_output_enum(idx + MIXSRC_Rud, enum_MixSources);
+  const char* str = adcGetInputName(idx);
   return str ? wf(opaque, str, strlen(str)) : true;
 }
+
+static void _read_analog_name(uint8_t type, void* user, uint8_t* data,
+                              uint32_t bitoffs, const char* val,
+                              uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
+  analogSetCustomLabel(type, idx, val, val_len);
+}
+
+static bool _write_analog_name(uint8_t type, void* user, uint8_t* data,
+                               uint32_t bitoffs, yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
+
+  const char* name = analogGetCustomLabel(type, idx);
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!wf(opaque, name, strlen(name))) return false;
+  return wf(opaque, "\"", 1);
+}
+
+static void r_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
+                         const char* val, uint8_t val_len)
+{
+  _read_analog_name(ADC_INPUT_MAIN, user, data, bitoffs, val, val_len);
+}
+
+static bool w_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
+                         yaml_writer_func wf, void* opaque)
+{
+  return _write_analog_name(ADC_INPUT_MAIN, user, data, bitoffs, wf, opaque);
+}
+
+static bool stick_name_valid(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+  return analogHasCustomLabel(ADC_INPUT_MAIN, idx);
+}
+
+static const struct YamlNode struct_stickConfig[] = {
+    YAML_IDX,
+    YAML_CUSTOM( "name", r_stick_name, w_stick_name),
+    YAML_END
+};
+
+static uint32_t slider_read(void* user, const char* val, uint8_t val_len)
+{
+  (void)user;
+  auto idx = _legacy_mix_src(val, val_len);
+  if (idx >= 0) return idx - MIXSRC_FIRST_POT;
+
+  return -1;
+}
+
+static const struct YamlIdStr enum_SliderConfig[] = {
+    {  POT_NONE, "none" },
+    {  POT_SLIDER_WITH_DETENT, "with_detent" },
+    {  0, NULL }
+};
+
+static void sl_type_read(void* user, uint8_t* data, uint32_t bitoffs,
+                         const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
+
+  bitoffs += POT_CFG_BITS * idx;
+  data += bitoffs >> 3UL;
+  bitoffs &= 7;
+
+  auto cfg = yaml_parse_enum(enum_SliderConfig, val, val_len);
+  yaml_put_bits(data, cfg, bitoffs, POT_CFG_BITS);
+}
+
+static void sl_name_read(void* user, uint8_t* data, uint32_t bitoffs,
+                         const char* val, uint8_t val_len)
+{
+  _read_analog_name(ADC_INPUT_POT, user, data, bitoffs, val, val_len);
+}
+
+static const struct YamlNode struct_sliderConfig[] = {
+    YAML_IDX_CUST( "sl", slider_read, nullptr ),
+    YAML_CUSTOM( "type", sl_type_read, nullptr ),
+    YAML_CUSTOM( "name", sl_name_read, nullptr ),
+    YAML_END
+};
 
 static uint32_t sw_read(void* user, const char* val, uint8_t val_len)
 {
   (void)user;
-  uint32_t sw = yaml_parse_enum(enum_MixSources, val, val_len);
-  if (sw >= MIXSRC_FIRST_SWITCH) return sw - MIXSRC_FIRST_SWITCH;
-
-  return -1;
+  return switchLookupIdx(val, val_len);
 }
 
 bool sw_write(void* user, yaml_writer_func wf, void* opaque)
@@ -556,51 +699,9 @@ bool sw_write(void* user, yaml_writer_func wf, void* opaque)
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
 
-  const char* str =
-      yaml_output_enum(idx + MIXSRC_FIRST_SWITCH, enum_MixSources);
+  const char* str = switchGetCanonicalName(idx);
   return str ? wf(opaque, str, strlen(str)) : true;
 }
-
-static void r_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
-                         const char* val, uint8_t val_len)
-{
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts(1);
-  if (idx >= NUM_STICKS) return;
-
-  data -= offsetof(RadioData, switchConfig);
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  strncpy(rd->anaNames[idx], val, std::min<uint8_t>(val_len, LEN_ANA_NAME));
-}
-
-static bool w_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
-                         yaml_writer_func wf, void* opaque)
-{
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts(1);
-
-  data -= offsetof(RadioData, switchConfig);
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  if (!wf(opaque, "\"", 1)) return false;
-  if (!wf(opaque, rd->anaNames[idx],
-          strnlen(rd->anaNames[idx], LEN_ANA_NAME)))
-    return false;
-  return wf(opaque, "\"", 1);
-}
-
-static bool stick_name_valid(void* user, uint8_t* data, uint32_t bitoffs)
-{
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts();
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  return rd->anaNames[idx][0] != '\0';
-}
-
-static const struct YamlNode struct_sticksConfig[] = {
-    YAML_IDX,
-    YAML_CUSTOM( "name", r_stick_name, w_stick_name),
-    YAML_END
-};
 
 static void sw_name_read(void* user, uint8_t* data, uint32_t bitoffs,
                          const char* val, uint8_t val_len)
@@ -608,13 +709,8 @@ static void sw_name_read(void* user, uint8_t* data, uint32_t bitoffs,
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
 
-  // data / bitoffs already incremented
-  data -= ((idx + 1) * 2) / 8;
-  data -= offsetof(RadioData, switchConfig);
 
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  strncpy(rd->switchNames[idx], val,
-          std::min<uint8_t>(val_len, LEN_SWITCH_NAME));
+  switchSetCustomName(idx, val, val_len);
 }
 
 static bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
@@ -623,21 +719,25 @@ static bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
 
-  // data / bitoffs already incremented
-  data -= ((idx + 1) * 2) / 8;
-  data -= offsetof(RadioData, switchConfig);
 
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  const char* str = rd->switchNames[idx];
+  const char* str = switchGetCustomName(idx);
   if (!wf(opaque, "\"", 1)) return false;
   if (!wf(opaque, str, strnlen(str, LEN_SWITCH_NAME)))
     return false;
   return wf(opaque, "\"", 1);
 }
 
+static const struct YamlIdStr enum_SwitchConfig[] = {
+    {  SWITCH_NONE, "none"  },
+    {  SWITCH_TOGGLE, "toggle"  },
+    {  SWITCH_2POS, "2pos"  },
+    {  SWITCH_3POS, "3pos"  },
+    {  0, NULL  }
+};
+
 static const struct YamlNode struct_switchConfig[] = {
     YAML_IDX_CUST( "sw", sw_read, sw_write),
-    YAML_ENUM( "type", 2, yaml_conv_220::enum_SwitchConfig),
+    YAML_ENUM( "type", 2, enum_SwitchConfig),
     YAML_CUSTOM( "name", sw_name_read, sw_name_write),
     YAML_END
 };
@@ -645,8 +745,12 @@ static const struct YamlNode struct_switchConfig[] = {
 static uint32_t pot_read(void* user, const char* val, uint8_t val_len)
 {
   (void)user;
-  uint32_t pot = yaml_parse_enum(enum_MixSources, val, val_len);
-  if (pot >= MIXSRC_FIRST_POT) return pot - MIXSRC_FIRST_POT;
+  auto idx = analogLookupPhysicalIdx(ADC_INPUT_POT, val, val_len);
+  if (idx >= 0) return idx;
+
+  idx = _legacy_mix_src(val, val_len);
+  if (idx >= MIXSRC_FIRST_POT && idx <= MIXSRC_LAST_POT)
+    return idx - MIXSRC_FIRST_POT;
 
   return -1;
 }
@@ -656,42 +760,20 @@ static bool pot_write(void* user, yaml_writer_func wf, void* opaque)
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
 
-  const char* str = yaml_output_enum(idx + MIXSRC_FIRST_POT, enum_MixSources);
+  const char* str = analogGetPhysicalName(ADC_INPUT_POT, idx);
   return str ? wf(opaque, str, strlen(str)) : true;
 }
 
 static void pot_name_read(void* user, uint8_t* data, uint32_t bitoffs,
                           const char* val, uint8_t val_len)
 {
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts(1);
-
-  // data / bitoffs already incremented
-  data -= ((idx + 1) * 2) / 8;
-  data -= offsetof(RadioData, potsConfig);
-
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  idx += NUM_STICKS;
-  strncpy(rd->anaNames[idx], val, std::min<uint8_t>(val_len, LEN_ANA_NAME));
+  _read_analog_name(ADC_INPUT_POT, user, data, bitoffs, val, val_len);
 }
 
 static bool pot_name_write(void* user, uint8_t* data, uint32_t bitoffs,
                            yaml_writer_func wf, void* opaque)
 {
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts(1);
-
-  // data / bitoffs already incremented
-  data -= ((idx + 1) * 2) / 8;
-  data -= offsetof(RadioData, potsConfig);
-
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  idx += NUM_STICKS;
-  const char* str = rd->anaNames[idx];
-  if (!wf(opaque, "\"", 1)) return false;
-  if (!wf(opaque, str, strnlen(str, LEN_ANA_NAME)))
-    return false;
-  return wf(opaque, "\"", 1);
+  return _write_analog_name(ADC_INPUT_POT, user, data, bitoffs, wf, opaque);
 }
 
 static const struct YamlIdStr enum_PotConfig[] = {
@@ -699,101 +781,28 @@ static const struct YamlIdStr enum_PotConfig[] = {
     {  POT_WITH_DETENT, "with_detent" },
     {  POT_MULTIPOS_SWITCH, "multipos_switch" },
     {  POT_WITHOUT_DETENT, "without_detent" },
+    {  POT_SLIDER_WITH_DETENT, "slider" },
     {  0, NULL }
 };
 
 static const struct YamlNode struct_potConfig[] = {
     YAML_IDX_CUST( "pot", pot_read, pot_write ),
-    YAML_ENUM( "type", 2, enum_PotConfig),
+    YAML_ENUM( "type", POT_CFG_BITS, enum_PotConfig),
     YAML_CUSTOM( "name", pot_name_read, pot_name_write),
     YAML_END
 };
 
-static uint32_t slider_read(void* user, const char* val, uint8_t val_len)
-{
-  (void)user;
-  uint32_t sl = yaml_parse_enum(enum_MixSources, val, val_len);
-  if (sl >= MIXSRC_FIRST_SLIDER) return sl - MIXSRC_FIRST_SLIDER;
-
-  return -1;
-}
-
-static bool slider_write(void* user, yaml_writer_func wf, void* opaque)
-{
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts();
-
-  const char* str =
-      yaml_output_enum(idx + MIXSRC_FIRST_SLIDER, enum_MixSources);
-  return str ? wf(opaque, str, strlen(str)) : true;
-}
-
-static void sl_name_read(void* user, uint8_t* data, uint32_t bitoffs,
-                         const char* val, uint8_t val_len)
-{
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts(1);
-
-  // data / bitoffs already incremented
-#if defined(PCBTARANIS)
-  // Please note:
-  //   slidersConfig is defined as a bit-field member,
-  //   so let's take the next field and subtract 1
-  //
-  data -= (idx + 4 /* bitsize previous field (auxSerialMode) */ + 1) / 8;
-  data -= offsetof(RadioData, potsConfig) - 1;
-#else
-  data -= (idx + 1) / 8;
-  data -= offsetof(RadioData, slidersConfig);
-#endif
-
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  idx += NUM_STICKS + STORAGE_NUM_POTS;
-  strncpy(rd->anaNames[idx], val, std::min<uint8_t>(val_len, LEN_ANA_NAME));
-}
-
-static bool sl_name_write(void* user, uint8_t* data, uint32_t bitoffs,
-                          yaml_writer_func wf, void* opaque)
-{
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts(1);
-
-  // data / bitoffs already incremented
-#if defined(PCBTARANIS)
-  // Please note:
-  //   slidersConfig is defined as a bit-field member,
-  //   so let's take the next field and subtract 1
-  //
-  data -= (idx + 4 /* bitsize previous field (auxSerialMode) */ + 1) / 8;
-  data -= offsetof(RadioData, potsConfig) - 1;
-#else
-  data -= (idx + 1) / 8;
-  data -= offsetof(RadioData, slidersConfig);
-#endif
-
-  RadioData* rd = reinterpret_cast<RadioData*>(data);
-  idx += NUM_STICKS + STORAGE_NUM_POTS;
-  const char* str = rd->anaNames[idx];
-  if (!wf(opaque, "\"", 1)) return false;
-  if (!wf(opaque, str, strnlen(str, LEN_ANA_NAME)))
-    return false;
-  return wf(opaque, "\"", 1);
-}
-
-static const struct YamlIdStr enum_SliderConfig[] = {
-    {  SLIDER_NONE, "none" },
-    {  SLIDER_WITH_DETENT, "with_detent" },
-    {  0, NULL }
-};
-
-static const struct YamlNode struct_sliderConfig[] = {
-    YAML_IDX_CUST( "sl", slider_read, slider_write ),
-    YAML_ENUM( "type", 1, enum_SliderConfig),
-    YAML_CUSTOM( "name", sl_name_read, sl_name_write),
-    YAML_END
-};
-
 extern const struct YamlIdStr enum_SwitchSources[];
+
+// Trim switch names
+static const char* trimSwitchNames[] = {
+  "TrimRudLeft", "TrimRudRight",
+  "TrimEleDown", "TrimEleUp",
+  "TrimThrDown", "TrimThrUp",
+  "TrimAilLeft", "TrimAilRight",
+  "TrimT5Down", "TrimT5Up",
+  "TrimT6Down", "TrimT6Up"
+};
 
 static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_len)
 {
@@ -805,23 +814,54 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
         val_len--;
     }
 
-    if (val_len >= 2
-             && val[0] == 'L'
-             && (val[1] >= '0' && val[1] <= '9')) {
+    if (val_len > 3 && val[0] == 'S' && val[1] >= 'W'
+        && val[2] >= '0' && val[2] <= '9'
+        && val[3] >= '0' && val[3] <= '2') {
 
-        ival = SWSRC_FIRST_LOGICAL_SWITCH + yaml_str2int(val+1, val_len-1) - 1;
+      ival = switchLookupIdx(val, val_len - 1) * 3;
+      ival += yaml_str2int(val + 3, val_len - 2);
+      ival += SWSRC_FIRST_SWITCH;
+      
+    } else if (val_len > 2 && val[0] == 'S'
+        && val[1] >= 'A' && val[1] <= 'Z'
+        && val[2] >= '0' && val[2] <= '2') {
+
+      ival = switchLookupIdx(val, val_len - 1) * 3;
+      ival += yaml_str2int(val + 2, val_len - 2);
+      ival += SWSRC_FIRST_SWITCH;
+      
     }
-#if NUM_XPOTS > 0
     else if (val_len > 3
         && val[0] == '6'
         && val[1] == 'P'
         && (val[2] >= '0' && val[2] <= '9')
         && (val[3] >= '0' && val[3] < (XPOTS_MULTIPOS_COUNT + '0'))) {
 
-        ival = (val[2] - '0') * XPOTS_MULTIPOS_COUNT + (val[3] - '0')
-            + SWSRC_FIRST_MULTIPOS_SWITCH;
+      ival = (val[2] - '0') * XPOTS_MULTIPOS_COUNT + (val[3] - '0')
+        + SWSRC_FIRST_MULTIPOS_SWITCH;
     }
-#endif
+    else if (val_len > 3
+             && val[0] == 'T' && val[1] == 'R'
+             && val[2] >= '1' && val[2] <= '9') {
+
+      ival = SWSRC_FIRST_TRIM + (yaml_str2int(val + 2, val_len - 3) - 1) * 2;
+      if (val[val_len - 1] == '+') ival++;
+    }
+    else if (val_len > 4 && (strncmp(val, trimSwitchNames[0], 4) == 0)) {
+
+      for (int i = 0; i < sizeof(trimSwitchNames)/sizeof(const char*); i += 1) {
+        if (strncmp(val, trimSwitchNames[i], val_len) == 0) {
+          ival = SWSRC_FIRST_TRIM + i;
+          break;
+        }
+      }
+    }
+    else if (val_len >= 2
+             && val[0] == 'L'
+             && (val[1] >= '0' && val[1] <= '9')) {
+
+      ival = SWSRC_FIRST_LOGICAL_SWITCH + yaml_str2int(val+1, val_len-1) - 1;
+    }
     else if (val_len == 3
              && val[0] == 'F'
              && val[1] == 'M'
@@ -852,46 +892,57 @@ static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
     }
 
     const char* str = NULL;
-    if (sval >= SWSRC_FIRST_LOGICAL_SWITCH
-             && sval <= SWSRC_LAST_LOGICAL_SWITCH) {
 
-        wf(opaque, "L", 1);
-        str = yaml_unsigned2str(sval - SWSRC_FIRST_LOGICAL_SWITCH + 1);
-        return wf(opaque,str, strlen(str));
-    }
-#if NUM_XPOTS > 0
-    else if (sval >= SWSRC_FIRST_MULTIPOS_SWITCH
-             && sval <= SWSRC_LAST_MULTIPOS_SWITCH) {
-
-        wf(opaque, "6P", 2);
-
-        // pot #: start with 6P1
-        sval -= SWSRC_FIRST_MULTIPOS_SWITCH;
-        str = yaml_unsigned2str(sval / XPOTS_MULTIPOS_COUNT);
-        wf(opaque,str, strlen(str));
-
-        // position
-        str = yaml_unsigned2str(sval % XPOTS_MULTIPOS_COUNT);
-        return wf(opaque,str, strlen(str));
-    }
-#endif
-    else if (sval >= SWSRC_FIRST_FLIGHT_MODE
-             && sval <= SWSRC_LAST_FLIGHT_MODE) {
-
-        wf(opaque, "FM", 2);
-        str = yaml_unsigned2str(sval - SWSRC_FIRST_FLIGHT_MODE);
-        return wf(opaque,str, strlen(str));
-    }
-    else if (sval >= SWSRC_FIRST_SENSOR
-             && sval <= SWSRC_LAST_SENSOR) {
-
-        wf(opaque, "T", 1);
-        str = yaml_unsigned2str(sval - SWSRC_FIRST_SENSOR + 1);
-        return wf(opaque,str, strlen(str));
-    }
-    
     str = yaml_output_enum(sval, enum_SwitchSources);
-    return wf(opaque, str, strlen(str));
+    if (str) return wf(opaque, str, strlen(str));
+
+    if (sval <= SWSRC_LAST_SWITCH) {
+
+      auto sw_info = switchInfo(sval);
+      str = switchGetCanonicalName(sw_info.quot);
+      if (!str) return true;
+      wf(opaque, str, strlen(str));
+      str = yaml_unsigned2str(sw_info.rem);
+      return wf(opaque, str, strlen(str));
+
+    } else if (sval <= SWSRC_LAST_MULTIPOS_SWITCH) {
+
+      wf(opaque, "6P", 2);
+
+      // pot #: start with 6P1
+      sval -= SWSRC_FIRST_MULTIPOS_SWITCH;
+      str = yaml_unsigned2str(sval / XPOTS_MULTIPOS_COUNT);
+      wf(opaque,str, strlen(str));
+
+      // position
+      str = yaml_unsigned2str(sval % XPOTS_MULTIPOS_COUNT);
+      return wf(opaque,str, strlen(str));
+
+    } else if (sval <= SWSRC_LAST_TRIM) {
+
+      auto trim = trimSwitchNames[sval - SWSRC_FIRST_TRIM];
+      return wf(opaque, trim, strlen(trim));
+        
+    } else if (sval <= SWSRC_LAST_LOGICAL_SWITCH) {
+
+      wf(opaque, "L", 1);
+      str = yaml_unsigned2str(sval - SWSRC_FIRST_LOGICAL_SWITCH + 1);
+      return wf(opaque,str, strlen(str));
+    }
+    else if (sval <= SWSRC_LAST_FLIGHT_MODE) {
+
+      wf(opaque, "FM", 2);
+      str = yaml_unsigned2str(sval - SWSRC_FIRST_FLIGHT_MODE);
+      return wf(opaque,str, strlen(str));
+    }
+    else if (sval <= SWSRC_LAST_SENSOR) {
+
+      wf(opaque, "T", 1);
+      str = yaml_unsigned2str(sval - SWSRC_FIRST_SENSOR + 1);
+      return wf(opaque,str, strlen(str));
+    }
+
+    return true; // ignore error
 }
 
 bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
@@ -900,34 +951,55 @@ bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* o
       || !w_swtchSrc_unquoted(node, val, wf, opaque)
       || !wf(opaque,"\"",1))
     return false;
+
   return true;
 }
 
 bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
-  return yaml_conv_220::cfn_is_active(user, data, bitoffs);
+  data += bitoffs >> 3UL;
+  return ((CustomFunctionData*)data)->swtch;
 }
 
 static bool gvar_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
-  return yaml_conv_220::gvar_is_active(user, data, bitoffs);
+  // TODO: no need to output 0 values for FM0
+  gvar_t* gvar = (gvar_t*)(data + (bitoffs>>3UL));
+  return *gvar != GVAR_MAX+1;
 }
 
 static bool fmd_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
-  return yaml_conv_220::fmd_is_active(user, data, bitoffs);
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+
+  // FM0 defaults to all 0
+  if (idx == 0) {
+    return !yaml_is_zero(data, bitoffs, sizeof(FlightModeData) << 3UL);
+  }
+
+  // assumes gvars array is last
+  bool is_active = !yaml_is_zero(data, bitoffs, offsetof(FlightModeData, gvars) << 3UL);
+
+  data += bitoffs >> 3UL;
+  FlightModeData* fmd = (FlightModeData*)(data);
+  for (uint8_t i = 0; i < MAX_GVARS; i++) {
+    is_active |= fmd->gvars[i] != GVAR_MAX + 1; // FM0 -> default
+  }
+
+  return is_active;
 }
 
 static bool swash_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
-  return yaml_conv_220::swash_is_active(user, data, bitoffs);
+  auto swashR = reinterpret_cast<SwashRingData*>(data + (bitoffs >> 3UL));
+  return swashR->type | swashR->value;
 }
 
 static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
                         const char* val, uint8_t val_len)
 {
   data += (bitoffs >> 3UL);
-  swarnstate_t& swtchWarn = *(swarnstate_t*)data;
 
   // Read from string like 'AdBuC-':
   //
@@ -938,12 +1010,13 @@ static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
   //
   // -> switches not in the list shall not be checked
   //
-  swtchWarn = 0;
+  swarnstate_t swtchWarn = 0;
+
   while (val_len--) {
-    signed swtch = getRawSwitchIdx(*(val++));
+    signed swtch = switchLookupIdx(*(val++));
     if (swtch < 0) break;
 
-    unsigned state = 0;
+    swarnstate_t state = 0;
     switch (*(val++)) {
       case 'u':
         state = 1;
@@ -962,15 +1035,19 @@ static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
     // 3 bits per switch
     swtchWarn |= (state << (3 * swtch));
   }
+  memcpy(data, &swtchWarn, sizeof(swtchWarn));
+
 }
 
 static bool w_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
                         yaml_writer_func wf, void* opaque)
 {
   data += (bitoffs >> 3UL);
-  swarnstate_t states = *(swarnstate_t*)data;
 
-  for (int i = 0; i < NUM_SWITCHES; i++) {
+  swarnstate_t states;
+  memcpy(&states, data, sizeof(states));
+
+  for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
     // TODO: SWITCH_EXISTS() uses the g_eeGeneral stucture, which might not be
     // avail
     if (SWITCH_EXISTS(i)) {
@@ -982,7 +1059,7 @@ static bool w_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
       // state == 1 -> UP
       // state == 2 -> MIDDLE
       // state == 3 -> DOWN
-      char swtchWarn[2] = {getRawSwitchFromIdx(i), 0};
+      char swtchWarn[2] = {switchGetLetter(i), 0};
 
       switch (state) {
         case 0:
@@ -1002,7 +1079,7 @@ static bool w_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
           break;
       }
 
-      if (swtchWarn[1] != 0) {
+      if (swtchWarn[0] >= 'A' && swtchWarn[1] != 0) {
         if (!wf(opaque, swtchWarn, 2)) {
           return false;
         }
@@ -1034,17 +1111,21 @@ static uint32_t r_5pos(const YamlNode* node, const char* val, uint8_t val_len)
 
 static bool w_5pos(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_5pos(node, val, wf, opaque);
+  int32_t sval = yaml_to_signed(val,node->size);
+  char* s = yaml_signed2str(sval + 2);
+  return wf(opaque, s, strlen(s));
 }
 
 static uint32_t r_vol(const YamlNode* node, const char* val, uint8_t val_len)
 {
-    return (uint32_t)(yaml_str2int(val, val_len) - VOLUME_LEVEL_DEF);
+  return (uint32_t)(yaml_str2int(val, val_len) - VOLUME_LEVEL_DEF);
 }
 
 static bool w_vol(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_vol(node, val, wf, opaque);
+  int32_t sval = yaml_to_signed(val,node->size);
+  char* s = yaml_signed2str(sval + VOLUME_LEVEL_DEF);
+  return wf(opaque, s, strlen(s));
 }
 
 static uint32_t r_spPitch(const YamlNode* node, const char* val, uint8_t val_len)
@@ -1054,7 +1135,8 @@ static uint32_t r_spPitch(const YamlNode* node, const char* val, uint8_t val_len
 
 static bool w_spPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_spPitch(node, val, wf, opaque);
+  char* s = yaml_signed2str(val * 15);
+  return wf(opaque, s, strlen(s));
 }
 
 static uint32_t r_vPitch(const YamlNode* node, const char* val, uint8_t val_len)
@@ -1064,7 +1146,9 @@ static uint32_t r_vPitch(const YamlNode* node, const char* val, uint8_t val_len)
 
 static bool w_vPitch(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_vPitch(node, val, wf, opaque);
+  int32_t sval = yaml_to_signed(val,node->size);
+  char* s = yaml_signed2str(sval * 10);
+  return wf(opaque, s, strlen(s));
 }
 
 static const struct YamlIdStr enum_TrainerMode[] = {
@@ -1101,12 +1185,19 @@ static bool w_trainerMode(const YamlNode* node, uint32_t val,
 
 #if !defined(COLORLCD)
 
+const char* const _tele_screen_type_lookup[] = {
+  "NONE",
+  "VALUES",
+  "BARS",
+  "SCRIPT",
+};
+
 static void r_tele_screen_type(void* user, uint8_t* data, uint32_t bitoffs,
                                const char* val, uint8_t val_len)
 {
   uint8_t type = 0;
   for (uint8_t i = 0; i < 4; i++) {
-    if (!strncmp(val, yaml_conv_220::_tele_screen_type_lookup[i], val_len)) {
+    if (!strncmp(val, _tele_screen_type_lookup[i], val_len)) {
       type = i;
       break;
     }
@@ -1124,7 +1215,14 @@ static void r_tele_screen_type(void* user, uint8_t* data, uint32_t bitoffs,
 static bool w_tele_screen_type(void* user, uint8_t* data, uint32_t bitoffs,
                                yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_tele_screen_type(user, data, bitoffs, wf, opaque);
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
+
+  data -= sizeof(TelemetryScreenData) * idx + 1;
+  uint8_t type = ((*data) >> (2 * idx)) & 0x03;
+
+  const char* str = _tele_screen_type_lookup[type];
+  return wf(opaque, str, strlen(str));
 }
 
 static uint8_t select_tele_screen_data(void* user, uint8_t* data, uint32_t bitoffs)
@@ -1159,7 +1257,12 @@ static uint32_t r_tele_sensor(const YamlNode* node, const char* val, uint8_t val
 static bool w_tele_sensor(const YamlNode* node, uint32_t val,
                           yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_tele_sensor(node, val, wf, opaque);
+  if (!val) {
+    return wf(opaque, "none", 4);
+  }
+  
+  const char* str = yaml_unsigned2str(val-1);  
+  return wf(opaque, str, strlen(str));
 }
 
 static uint32_t r_flightModes(const YamlNode* node, const char* val, uint8_t val_len)
@@ -1178,8 +1281,30 @@ static uint32_t r_flightModes(const YamlNode* node, const char* val, uint8_t val
 static bool w_flightModes(const YamlNode* node, uint32_t val,
                           yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_flightModes(node, val, wf, opaque);
+  for (uint32_t i = 0; i < node->size; i++) {
+    uint32_t bit = (val >> i) & 1;
+    if (!wf(opaque, bit ? "1" : "0", 1)) return false;
+  }
+  return true;
 }
+
+static const char* const _func_reset_param_lookup[] = {
+  "Tmr1","Tmr2","Tmr3","All","Tele"
+};
+
+static const char* const _func_failsafe_lookup[] = {
+  "Int","Ext"
+};
+
+static const char* const _func_sound_lookup[] = {
+  "Bp1","Bp2","Bp3","Wrn1","Wrn2",
+  "Chee","Rata","Tick","Sirn","Ring",
+  "SciF","Robt","Chrp","Tada","Crck","Alrm"
+};
+
+static const char* const _adjust_gvar_mode_lookup[] = {
+  "Cst", "Src", "GVar", "IncDec"
+};
 
 static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
                        const char* val, uint8_t val_len)
@@ -1226,11 +1351,11 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
                && val[2] == 'a'
                && val[3] == 'n'
                && val[4] == 's') {
-      CFN_CH_INDEX(cfn) = NUM_STICKS + 1;
+      CFN_CH_INDEX(cfn) = MAX_STICKS + 1;
     } else {
-      uint32_t stick = yaml_parse_enum(enum_MixSources, val, l_sep);
-      if (stick >= MIXSRC_FIRST_STICK && stick <= MIXSRC_LAST_STICK) {
-        CFN_CH_INDEX(cfn) = stick - MIXSRC_FIRST_STICK + 1;
+      auto stick = analogLookupCanonicalIdx(ADC_INPUT_MAIN, val, val_len);
+      if (stick >= 0) {
+        CFN_CH_INDEX(cfn) = stick + 1;
       }
     }
     break;
@@ -1269,8 +1394,8 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 
   case FUNC_PLAY_SOUND:
     // find "," and cut val_len
-    for (int i=0; i < yaml_conv_220::_func_sound_lookup_size; i++) {
-      if (!strncmp(yaml_conv_220::_func_sound_lookup[i],val,l_sep)) {
+    for (unsigned i=0; i < DIM(_func_sound_lookup); i++) {
+      if (!strncmp(_func_sound_lookup[i],val,l_sep)) {
         CFN_PARAM(cfn) = i;
         break;
       }
@@ -1342,8 +1467,8 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     l_sep = sep ? sep - val : val_len;
 
     // parse CFN_GVAR_MODE
-    for (int i=0; i < yaml_conv_220::_adjust_gvar_mode_lookup_size; i++) {
-      if (!strncmp(yaml_conv_220::_adjust_gvar_mode_lookup[i],val,l_sep)) {
+    for (unsigned i=0; i < DIM(_adjust_gvar_mode_lookup); i++) {
+      if (!strncmp(_adjust_gvar_mode_lookup[i],val,l_sep)) {
         CFN_GVAR_MODE(cfn) = i;
         break;
       }
@@ -1400,7 +1525,12 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       }
     }
   } else if (HAS_REPEAT_PARAM(func)) {
-    if (val_len == 2
+    if (func == FUNC_PLAY_SCRIPT) {
+      if (val_len == 2 && val[0] == '1' && val[1] == 'x')
+        CFN_PLAY_REPEAT(cfn) = 1;
+      else
+        CFN_PLAY_REPEAT(cfn) = 0;
+    } else if (val_len == 2
         && val[0] == '1'
         && val[1] == 'x') {
       CFN_PLAY_REPEAT(cfn) = 0;
@@ -1444,12 +1574,12 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     case 0:
       if (!wf(opaque, "sticks", 6)) return false;
       break;
-    case NUM_STICKS + 1:
+    case MAX_STICKS + 1:
       if (!wf(opaque, "chans", 5)) return false;
       break;
     default:
-      if (value > 0 && value < NUM_STICKS + 1) {
-        str = yaml_output_enum(value - 1 + MIXSRC_FIRST_STICK, enum_MixSources);
+      if (value > 0 && value <= MAX_STICKS) {
+        str = analogGetCanonicalName(ADC_INPUT_MAIN, value - 1);
         if (str && !wf(opaque, str, strlen(str))) return false;
       }
     }
@@ -1458,7 +1588,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   case FUNC_RESET:
     if (CFN_PARAM(cfn) < FUNC_RESET_PARAM_FIRST_TELEM) {
       // Tmr1,Tmr2,Tmr3,All
-      str = yaml_conv_220::_func_reset_param_lookup[CFN_PARAM(cfn)];
+      str = _func_reset_param_lookup[CFN_PARAM(cfn)];
     } else {
       // sensor index
       str = yaml_unsigned2str(CFN_PARAM(cfn) - FUNC_RESET_PARAM_FIRST_TELEM);
@@ -1474,7 +1604,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 
   case FUNC_PLAY_SOUND:
     // Bp1,Bp2,Bp3,Wrn1,Wrn2,Chee,Rata,Tick,Sirn,Ring,SciF,Robt,Chrp,Tada,Crck,Alrm
-    str = yaml_conv_220::_func_sound_lookup[CFN_PARAM(cfn)];
+    str = _func_sound_lookup[CFN_PARAM(cfn)];
     if (!wf(opaque, str, strlen(str))) return false;
     break;
 
@@ -1487,7 +1617,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 
   case FUNC_SET_TIMER:
     // Tmr1,Tmr2,Tmr3
-    str = yaml_conv_220::_func_reset_param_lookup[CFN_TIMER_INDEX(cfn)];
+    str = _func_reset_param_lookup[CFN_TIMER_INDEX(cfn)];
     if (!wf(opaque, str, strlen(str))) return false;
     if (!wf(opaque,",",1)) return false;
     str = yaml_unsigned2str(CFN_PARAM(cfn));
@@ -1496,7 +1626,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 
   case FUNC_SET_FAILSAFE:
     // Int,Ext
-    str = yaml_conv_220::_func_failsafe_lookup[CFN_PARAM(cfn)];
+    str = _func_failsafe_lookup[CFN_PARAM(cfn)];
     if (!wf(opaque, str, strlen(str))) return false;
     break;
 
@@ -1515,7 +1645,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     if (!wf(opaque,",",1)) return false;
 
     // output CFN_GVAR_MODE
-    str = yaml_conv_220::_adjust_gvar_mode_lookup[CFN_GVAR_MODE(cfn)];
+    str = _adjust_gvar_mode_lookup[CFN_GVAR_MODE(cfn)];
     if (!wf(opaque, str, strlen(str))) return false;
     if (!wf(opaque,",",1)) return false;    
 
@@ -1552,7 +1682,9 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       // ","
       if (!wf(opaque,",",1)) return false;
     }
-    if (CFN_PLAY_REPEAT(cfn) == 0) {
+    if (func == FUNC_PLAY_SCRIPT) {
+      if (!wf(opaque,(CFN_PLAY_REPEAT(cfn) == 0) ? "On" : "1x",2)) return false;
+    } else if (CFN_PLAY_REPEAT(cfn) == 0) {
       // "1x"
       if (!wf(opaque,"1x",2)) return false;
     } else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
@@ -1574,7 +1706,7 @@ static delayval_t timerValue2lsw(uint32_t t)
 {
   if (t < 20) {
     return t - 129;
-  } else if (600) {
+  } else if (t < 600) {
     return t / 5 - 113;
   } else {
     return t / 10 - 53;
@@ -1596,14 +1728,6 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
   
   case LS_FAMILY_BOOL:
   case LS_FAMILY_STICKY:
-    ls->v1 = r_swtchSrc(nullptr, val, l_sep);
-    val += l_sep; val_len -= l_sep;
-    if (!val_len || val[0] != ',') return;
-    val++; val_len--;
-    ls->v2 = r_swtchSrc(nullptr, val, val_len);
-    break;
-
-  case LS_FAMILY_SAFE:
     ls->v1 = r_swtchSrc(nullptr, val, l_sep);
     val += l_sep; val_len -= l_sep;
     if (!val_len || val[0] != ',') return;
@@ -1678,12 +1802,6 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     if (!w_swtchSrc_unquoted(&_ls_node_v2, ls->v2, wf, opaque)) return false;
     break;
 
-   case LS_FAMILY_SAFE:
-    if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
-    if (!wf(opaque,",",1)) return false;
-    if (!w_swtchSrc_unquoted(&_ls_node_v2, ls->v2, wf, opaque)) return false;
-    break;
-
   case LS_FAMILY_EDGE:
     if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;
@@ -1745,6 +1863,49 @@ static bool w_thrSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf,
   return w_mixSrcRaw(nullptr, src, wf, opaque);
 }
 
+static const struct YamlIdStr enum_XJT_Subtypes[] = {
+  { MODULE_SUBTYPE_PXX1_ACCST_D16, "D16" },
+  { MODULE_SUBTYPE_PXX1_ACCST_D8, "D8" },
+  { MODULE_SUBTYPE_PXX1_ACCST_LR12, "LR12" },
+  { 0, NULL  }
+};
+
+static const struct YamlIdStr enum_ISRM_Subtypes[] = {
+  { MODULE_SUBTYPE_ISRM_PXX2_ACCESS, "ACCESS" },
+  { MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16, "D16" },
+  // unused !!!
+  // { MODULE_SUBTYPE_ISRM_PXX2_ACCST_LR12, "LR12" },
+  // { MODULE_SUBTYPE_ISRM_PXX2_ACCST_D8, "D8" },
+  { 0, NULL  }
+};
+
+static const struct YamlIdStr enum_R9M_Subtypes[] = {
+  { MODULE_SUBTYPE_R9M_FCC, "FCC" },
+  { MODULE_SUBTYPE_R9M_EU, "EU" },
+  { MODULE_SUBTYPE_R9M_EUPLUS, "EUPLUS" },
+  { MODULE_SUBTYPE_R9M_AUPLUS, "AUPLUS" },
+  { 0, NULL  }
+};
+
+static const struct YamlIdStr enum_FLYSKY_Subtypes[] = {
+  { FLYSKY_SUBTYPE_AFHDS3, "AFHDS3" },
+  { FLYSKY_SUBTYPE_AFHDS2A, "AFHDS2A" },
+  { 0, NULL  }
+};
+
+static const struct YamlIdStr enum_PPM_Subtypes[] = {
+  { 0, "NOTLM" },
+  { 1, "MLINK" },
+  { 0, NULL  }
+};
+
+static const struct YamlIdStr enum_DSM2_Subtypes[] = {
+  { 0, "LP45" },
+  { 1, "DSM2" },
+  { 2, "DSMX" },
+  { 0, NULL  }
+};
+
 static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
                          const char* val, uint8_t val_len)
 {
@@ -1753,19 +1914,16 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
 
   auto md = reinterpret_cast<ModuleData*>(data);
   if (isModuleTypeXJT(md->type)) {
-    md->subType = yaml_parse_enum(yaml_conv_220::enum_XJT_Subtypes, val, val_len);
+    md->subType = yaml_parse_enum(enum_XJT_Subtypes, val, val_len);
   } else if (isModuleTypeISRM(md->type)) {
-    md->subType = yaml_parse_enum(yaml_conv_220::enum_ISRM_Subtypes, val, val_len);
+    md->subType = yaml_parse_enum(enum_ISRM_Subtypes, val, val_len);
   } else if (isModuleTypeR9MNonAccess(md->type)) {
-    md->subType = yaml_parse_enum(yaml_conv_220::enum_R9M_Subtypes, val, val_len);
+    md->subType = yaml_parse_enum(enum_R9M_Subtypes, val, val_len);
   } else if (md->type == MODULE_TYPE_FLYSKY) {
-    md->subType = yaml_parse_enum(yaml_conv_220::enum_FLYSKY_Subtypes, val, val_len);
+    md->subType = yaml_parse_enum(enum_FLYSKY_Subtypes, val, val_len);
   } else if (md->type == MODULE_TYPE_MULTIMODULE) {
 #if defined(MULTIMODULE)
     // Read type/subType by the book (see MPM documentation)
-    // TODO: remove that crappy translation and use the MPM
-    //       data as-is (no FrSky special casing)
-
     // read "[type],[subtype]"
     const char* sep = (const char *)memchr(val, ',', val_len);
     uint8_t l_sep = sep ? sep - val : val_len;
@@ -1777,14 +1935,27 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     int subtype = yaml_str2uint(val, val_len);
 
     // convert to ETX format and write to vars
-    convertMultiProtocolToEtx(&type, &subtype);
     if (type > 0) {
-      md->multi.rfProtocol = type - 1;
-      md->subType = subtype;
+      type -= 1; // change to internal 0 based representation
+
+      if(type > MODULE_SUBTYPE_MULTI_LAST) {
+        TRACE("Multi protocol: %d exceeds supported protocols. Module set to: OFF", type);
+        md->type = MODULE_TYPE_NONE;
+      } else {
+          if(subtype > getMultiProtocolDefinition(type)->maxSubtype) {
+            TRACE("Multi protocol sub-type %d exceeds number of supported sub-types. Module set to: OFF", subtype);
+            md->type = MODULE_TYPE_NONE;
+          } else {
+            md->multi.rfProtocol = type;
+            md->subType = subtype;
+          }
+      }
     }
 #endif
   } else if (md->type == MODULE_TYPE_DSM2) {
-    md->subType = yaml_parse_enum(yaml_conv_220::enum_DSM2_Subtypes, val, val_len);
+    md->subType = yaml_parse_enum(enum_DSM2_Subtypes, val, val_len);
+  } else if (md->type == MODULE_TYPE_PPM) {
+    md->subType = yaml_parse_enum(enum_PPM_Subtypes, val, val_len);
   } else {
     md->subType = yaml_str2uint(val, val_len);
   }  
@@ -1801,21 +1972,18 @@ static bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
   auto md = reinterpret_cast<ModuleData*>(data);
   int32_t val = md->subType;
   if (md->type == MODULE_TYPE_XJT_PXX1 || md->type == MODULE_TYPE_XJT_LITE_PXX2) {
-    str = yaml_output_enum(val, yaml_conv_220::enum_XJT_Subtypes);
+    str = yaml_output_enum(val, enum_XJT_Subtypes);
   } else if (md->type == MODULE_TYPE_ISRM_PXX2) {
-    str = yaml_output_enum(val, yaml_conv_220::enum_ISRM_Subtypes);
+    str = yaml_output_enum(val, enum_ISRM_Subtypes);
   } else if (md->type == MODULE_TYPE_R9M_PXX1 || md->type == MODULE_TYPE_R9M_LITE_PXX1) {
-    str = yaml_output_enum(val, yaml_conv_220::enum_R9M_Subtypes);
+    str = yaml_output_enum(val, enum_R9M_Subtypes);
   } else if (md->type == MODULE_TYPE_FLYSKY) {
-    str = yaml_output_enum(val, yaml_conv_220::enum_FLYSKY_Subtypes);
+    str = yaml_output_enum(val, enum_FLYSKY_Subtypes);
   } else if (md->type == MODULE_TYPE_MULTIMODULE) {
 #if defined(MULTIMODULE)
     // Use type/subType by the book (see MPM documentation)
-    // TODO: remove that crappy translation and use the MPM
-    //       data as-is (no FrSky special casing)
     int type = md->multi.rfProtocol + 1;
     int subtype = val;
-    convertEtxProtocolToMulti(&type, &subtype);
 
     // output "[type],[subtype]"
     str = yaml_unsigned2str(type);
@@ -1824,7 +1992,9 @@ static bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     str = yaml_unsigned2str(subtype);
 #endif
   } else if (md->type == MODULE_TYPE_DSM2) {
-    str = yaml_output_enum(md->subType, yaml_conv_220::enum_DSM2_Subtypes);
+    str = yaml_output_enum(md->subType, enum_DSM2_Subtypes);
+  } else if (md->type == MODULE_TYPE_PPM) {
+    str = yaml_output_enum(md->subType, enum_PPM_Subtypes);
   } else {
     str = yaml_unsigned2str(val);
   }
@@ -1842,7 +2012,10 @@ static uint32_t r_channelsCount(const YamlNode* node, const char* val, uint8_t v
 
 bool w_channelsCount(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
-  return yaml_conv_220::w_channelsCount(node, val, wf, opaque);
+  // offset 8
+  int32_t sval = yaml_to_signed(val, node->size) + 8;  
+  const char* str = yaml_signed2str(sval);
+  return wf(opaque,str,strlen(str));
 }
 
 static void r_jitterFilter(void* user, uint8_t* data, uint32_t bitoffs,
@@ -1850,6 +2023,13 @@ static void r_jitterFilter(void* user, uint8_t* data, uint32_t bitoffs,
 {
   uint32_t i = yaml_str2uint(val, val_len);
   yaml_put_bits(data, i, bitoffs, 1);
+}
+
+static void r_carryTrim(void* user, uint8_t* data, uint32_t bitoffs,
+                           const char* val, uint8_t val_len)
+{
+  int32_t i = yaml_str2int(val, val_len);
+  yaml_put_bits(data, i, bitoffs, 6);
 }
 
 static void r_rotEncDirection(void* user, uint8_t* data, uint32_t bitoffs,
@@ -1874,7 +2054,6 @@ static const struct YamlIdStr enum_SerialPort[] = {
   {  0, NULL  }
 };
 
-#if STORAGE_CONVERSIONS >= 221
 const struct YamlIdStr _old_enum_UartModes[] = {
   {  UART_MODE_NONE, "MODE_NONE"  },
   {  UART_MODE_TELEMETRY_MIRROR, "MODE_TELEMETRY_MIRROR"  },
@@ -1883,7 +2062,6 @@ const struct YamlIdStr _old_enum_UartModes[] = {
   {  UART_MODE_LUA, "MODE_LUA"  },
   {  0, NULL  }
 };
-#endif
 
 static const struct YamlIdStr enum_UartModes[] = {
   {  UART_MODE_NONE, "NONE"  },
@@ -1895,6 +2073,7 @@ static const struct YamlIdStr enum_UartModes[] = {
   {  UART_MODE_GPS, "GPS"  },
   {  UART_MODE_DEBUG, "DEBUG"  },
   {  UART_MODE_SPACEMOUSE, "SPACEMOUSE"  },
+  {  UART_MODE_EXT_MODULE, "EXT_MODULE"  },
   {  0, NULL  }
 };
 
@@ -1940,11 +2119,7 @@ static void r_serialMode(void* user, uint8_t* data, uint32_t bitoffs,
   else
     return;
 
-#if STORAGE_CONVERSIONS < 221
-  auto m = yaml_parse_enum(yaml_conv_220::enum_UartModes, val, val_len);
-#else
   auto m = yaml_parse_enum(_old_enum_UartModes, val, val_len);
-#endif
   if (!m) return;
   
   auto serialPort = reinterpret_cast<uint32_t*>(data);

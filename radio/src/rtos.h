@@ -70,16 +70,21 @@ extern "C++" {
       pthread_mutex_lock(&mutex);
   }
 
+  static inline bool RTOS_TRYLOCK_MUTEX(pthread_mutex_t &mutex)
+  {
+      return pthread_mutex_trylock(&mutex) == 0;
+  }
+
   static inline void RTOS_UNLOCK_MUTEX(pthread_mutex_t &mutex)
   {
       pthread_mutex_unlock(&mutex);
   }
 
   template<int SIZE>
-  class FakeTaskStack
+  class TaskStack
   {
     public:
-      FakeTaskStack()
+      TaskStack()
       {
       }
 
@@ -97,7 +102,7 @@ extern "C++" {
         return SIZE / 2;
       }
   };
-  #define RTOS_DEFINE_STACK(name, size) FakeTaskStack<size> name
+  #define RTOS_DEFINE_STACK(taskHandle, name, size) TaskStack<size> name
 
   #define TASK_FUNCTION(task)           void* task(void *)
 
@@ -110,7 +115,7 @@ extern "C++" {
   }
 
 template<int SIZE>
-inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const char * name, FakeTaskStack<SIZE> &, unsigned size = 0, unsigned priority = 0)
+inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const char * name, TaskStack<SIZE> &, unsigned size = 0, unsigned priority = 0)
   {
     UNUSED(size);
     UNUSED(priority);
@@ -119,7 +124,7 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
 
   #define TASK_RETURN()                 return nullptr
 
-  constexpr uint32_t stackAvailable()
+  constexpr uint32_t mainStackAvailable()
   {
     return 500;
   }
@@ -204,12 +209,13 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
 
   #define RTOS_CREATE_MUTEX(handle) _RTOS_CREATE_MUTEX(&handle)
 
-  static inline void _RTOS_LOCK_MUTEX(RTOS_MUTEX_HANDLE* h)
+  static inline bool _RTOS_LOCK_MUTEX(RTOS_MUTEX_HANDLE* h, TickType_t xTickToWait)
   {
-    xSemaphoreTake(h->rtos_handle, portMAX_DELAY);
+    return xSemaphoreTake(h->rtos_handle, xTickToWait) == pdTRUE;
   }
 
-  #define RTOS_LOCK_MUTEX(handle) _RTOS_LOCK_MUTEX(&handle)
+  #define RTOS_LOCK_MUTEX(handle) _RTOS_LOCK_MUTEX(&handle, portMAX_DELAY)
+  #define RTOS_TRYLOCK_MUTEX(handle) _RTOS_LOCK_MUTEX(&handle, (TickType_t)0)
 
   static inline void _RTOS_UNLOCK_MUTEX(RTOS_MUTEX_HANDLE* h)
   {
@@ -218,7 +224,6 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
 
   #define RTOS_UNLOCK_MUTEX(handle) _RTOS_UNLOCK_MUTEX(&handle)
 
-  //TODO: replace with FreeRTOS functions
   static inline uint32_t getStackAvailable(void * address, uint32_t size)
   {
     uint32_t * array = (uint32_t *)address;
@@ -236,7 +241,7 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
     return ((unsigned char *)&_estack - (unsigned char *)&_main_stack_start) / 4;
   }
 
-  static inline uint32_t stackAvailable()
+  static inline uint32_t mainStackAvailable()
   {
     return getStackAvailable(&_main_stack_start, stackSize());
   }
@@ -272,15 +277,8 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
   class TaskStack
   {
     public:
-      TaskStack()
-      {
-      }
-
-      void paint()
-      {
-        for (uint32_t i=0; i<SIZE; i++) {
-          stack[i] = 0x55555555;
-        }
+      TaskStack(RTOS_TASK_HANDLE *h) {
+        this->h = h;
       }
 
       uint32_t size()
@@ -290,10 +288,12 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
 
       uint32_t available()
       {
-        return getStackAvailable(stack, SIZE);
+        return uxTaskGetStackHighWaterMark(h->rtos_handle);
       }
 
       StackType_t stack[SIZE];
+    protected:
+      RTOS_TASK_HANDLE *h;
   };
 #endif // __cplusplus
 
@@ -308,23 +308,15 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
   }
 
   // stack must be aligned to 8 bytes otherwise printf for %f does not work!
-  #define RTOS_DEFINE_STACK(name, size) TaskStack<size> __ALIGNED(8) name __CCMRAM
+  #define RTOS_DEFINE_STACK(taskHandle, name, size) TaskStack<size> __ALIGNED(8) name __CCMRAM (&taskHandle) 
 
   #define TASK_FUNCTION(task)           void task(void *)
   #define TASK_RETURN()                 vTaskDelete(nullptr)
 
 #else // no RTOS
-  static inline void RTOS_START()
-  {
-  }
 
-  static inline void RTOS_WAIT_MS(unsigned x)
-  {
-  }
+  #error "No RTOS implementation defined"
 
-  static inline void RTOS_WAIT_TICKS(unsigned x)
-  {
-  }
 #endif  // RTOS type
 
 #ifdef __cplusplus

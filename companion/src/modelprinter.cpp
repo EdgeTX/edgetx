@@ -205,6 +205,8 @@ QString ModelPrinter::printModule(int idx)
   else {
     str << printLabelValue(tr("Protocol"), ModuleData::protocolToString(module.protocol));
     if (module.protocol) {
+      if (module.protocol == PULSES_PPM)
+        str << printLabelValue(tr("Sub Type"), module.subTypeToString());
       str << printLabelValue(tr("Channels"), QString("%1-%2").arg(module.channelsStart + 1).arg(module.channelsStart + module.channelsCount));
       if (module.protocol == PULSES_PPM || module.protocol == PULSES_SBUS) {
         str << printLabelValue(tr("Frame length"), QString("%1ms").arg(printPPMFrameLength(module.ppm.frameLength)));
@@ -631,30 +633,6 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
       result += " " + tr("Delay") + QString("(%1s)").arg(ls.delay/10.0);
   }
 
-  return result;
-}
-
-QString ModelPrinter::printCustomFunctionLine(int idx, bool gfunc)
-{
-  QString result;
-  CustomFunctionData cf;
-  if (gfunc) {
-    if (model.noGlobalFunctions)
-      return result;
-    cf = generalSettings.customFn[idx];
-  }
-  else
-    cf = model.customFn[idx];
-  if (cf.swtch.type == SWITCH_TYPE_NONE)
-    return result;
-
-  result += cf.swtch.toString(getCurrentBoard(), &generalSettings) + " - ";
-  result += cf.funcToString(&model) + " (";
-  result += cf.paramToString(&model) + ")";
-  if (!cf.repeatToString().isEmpty())
-    result += " " + cf.repeatToString();
-  if (!cf.enabledToString().isEmpty())
-    result += " " + cf.enabledToString();
   return result;
 }
 

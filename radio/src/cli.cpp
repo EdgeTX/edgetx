@@ -25,6 +25,17 @@
 #include "opentx.h"
 #include "diskio.h"
 #include "timers_driver.h"
+#include "watchdog_driver.h"
+
+#if defined(BLUETOOTH)
+#include "bluetooth_driver.h"
+#endif
+
+#include "hal/adc_driver.h"
+#include "hal/module_port.h"
+
+#include "tasks.h"
+#include "tasks/mixer_task.h"
 
 #include "cli.h"
 
@@ -33,10 +44,6 @@
 #include <new>
 #include <stdarg.h>
 
-
-#if defined(INTMODULE_USART)
-#include "intmodule_serial_driver.h"
-#endif
 
 #define CLI_COMMAND_MAX_ARGS           8
 #define CLI_COMMAND_MAX_LEN            256
@@ -47,7 +54,7 @@
 #define CLI_PRINT_BUFFER_SIZE 128
 
 RTOS_TASK_HANDLE cliTaskId;
-RTOS_DEFINE_STACK(cliStack, CLI_STACK_SIZE);
+RTOS_DEFINE_STACK(cliTaskId, cliStack, CLI_STACK_SIZE);
 
 static uint8_t cliRxBufferStorage[CLI_RX_BUFFER_SIZE];
 static StaticStreamBuffer_t cliRxBufferStatic;
@@ -581,7 +588,7 @@ int cliTestGraphics()
   if (pulsesStarted()) {
     pausePulses();
   }
-  pauseMixerCalculations();
+  mixerTaskStop();
   perMainEnabled = false;
 
   float result = 0;
@@ -607,7 +614,7 @@ int cliTestGraphics()
   if (pulsesStarted()) {
     resumePulses();
   }
-  resumeMixerCalculations();
+  mixerTaskStart();
   watchdogSuspend(0);
 
   return 0;
@@ -714,7 +721,7 @@ int cliTestMemorySpeed()
   if (pulsesStarted()) {
     pausePulses();
   }
-  pauseMixerCalculations();
+  mixerTaskStop();
   perMainEnabled = false;
 
   float result = 0;
@@ -749,7 +756,7 @@ int cliTestMemorySpeed()
   if (pulsesStarted()) {
     resumePulses();
   }
-  resumeMixerCalculations();
+  mixerTaskStart();
   watchdogSuspend(0);
 
   return 0;
@@ -843,7 +850,7 @@ int cliTrace(const char ** argv)
 
 int cliStackInfo(const char ** argv)
 {
-  cliSerialPrint("[MAIN] %d available / %d bytes", stackAvailable()*4, stackSize()*4);
+  cliSerialPrint("[MAIN] %d available / %d bytes", mainStackAvailable()*4, stackSize()*4);
   cliSerialPrint("[MENUS] %d available / %d bytes", menusStack.available()*4, menusStack.size());
   cliSerialPrint("[MIXER] %d available / %d bytes", mixerStack.available()*4, mixerStack.size());
   cliSerialPrint("[AUDIO] %d available / %d bytes", audioStack.available()*4, audioStack.size());
@@ -906,7 +913,7 @@ int cliReboot(const char ** argv)
 #if !defined(SIMU)
   if (!strcmp(argv[1], "wdt")) {
     // do a user requested watchdog test by pausing mixer thread
-    pausePulses();
+    pulsesStop();
   }
   else {
     NVIC_SystemReset();
@@ -973,17 +980,9 @@ int cliSet(const char **argv)
     }
     if (!strcmp(argv[3], "power")) {
       if (!strcmp("on", argv[4])) {
-        if (module == 0) {
-          INTERNAL_MODULE_ON();
-        } else {
-          EXTERNAL_MODULE_ON();
-        }
+        modulePortSetPower(module, true);
       } else if (!strcmp("off", argv[4])) {
-        if (module == 0) {
-          INTERNAL_MODULE_OFF();
-        } else {
-          EXTERNAL_MODULE_OFF();
-        }
+        modulePortSetPower(module, false);
       } else {
         cliSerialPrint("%s: invalid power argument '%s'", argv[0], argv[4]);
         return -1;
@@ -1026,10 +1025,10 @@ int cliSet(const char **argv)
 
     if (level) {
       cliSerialPrint("%s: pulses start", argv[0]);
-      startPulses();
+      pulsesStart();
     } else {
       cliSerialPrint("%s: pulses stop", argv[0]);
-      stopPulses();
+      pulsesStop();
     }
   }
 
@@ -1037,21 +1036,24 @@ int cliSet(const char **argv)
 }
 
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
-static void *spInternalModuleCTX = nullptr;
+static etx_module_state_t *spInternalModuleState = nullptr;
+
 static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 {
+  auto drv = modulePortGetSerialDrv(spInternalModuleState->tx);
+  auto ctx = modulePortGetCtx(spInternalModuleState->tx);
+
   while (len > 0) {
-    IntmoduleSerialDriver.sendByte(spInternalModuleCTX, *(buf++));
+    drv->sendByte(ctx, *(buf++));
     len--;
   }
 }
 
 static const etx_serial_init spIntmoduleSerialInitParams = {
   .baudrate = 0,
-  .parity = ETX_Parity_None,
-  .stop_bits = ETX_StopBits_One,
-  .word_length = ETX_WordLength_8,
-  .rx_enable = true,
+  .encoding = ETX_Encoding_8N1,
+  .direction = ETX_Dir_TX_RX,
+  .polarity = ETX_Pol_Normal,
 };
 
 // TODO: use proper method instead
@@ -1100,7 +1102,7 @@ int cliSerialPassthrough(const char **argv)
     
     //  stop pulses
     watchdogSuspend(200/*2s*/);
-    stopPulses();
+    pulsesStop();
 
     // suspend RTOS scheduler
     vTaskSuspendAll();
@@ -1114,13 +1116,15 @@ int cliSerialPassthrough(const char **argv)
       etx_serial_init params(spIntmoduleSerialInitParams);
       params.baudrate = baudrate;
 
-      void* uart_ctx = IntmoduleSerialDriver.init(&params);
-      spInternalModuleCTX = uart_ctx;
+      spInternalModuleState = modulePortInitSerial(port_n, ETX_MOD_PORT_UART,
+                                                    &params);
+
+      auto drv = modulePortGetSerialDrv(spInternalModuleState->rx);
+      auto ctx = modulePortGetCtx(spInternalModuleState->rx);
 
       // backup and swap CLI input
       auto backupCB = cliReceiveCallBack;
       cliReceiveCallBack = spInternalModuleTx;
-
 
       // loop until cable disconnected
       while (cdcConnected) {
@@ -1128,16 +1132,11 @@ int cliSerialPassthrough(const char **argv)
         uint32_t cli_br = cliGetBaudRate();
         if (cli_br && (cli_br != (uint32_t)baudrate)) {
           baudrate = cli_br;
-
-          etx_serial_init params(spIntmoduleSerialInitParams);
-          params.baudrate = baudrate;
-
-          // re-configure serial port
-          spInternalModuleCTX = IntmoduleSerialDriver.init(&params);
+          drv->setBaudrate(ctx, baudrate);
         }
 
         uint8_t data;
-        if (IntmoduleSerialDriver.getByte(uart_ctx, &data) > 0) {
+        if (drv->getByte(ctx, &data) > 0) {
 
           uint8_t timeout = 10; // 10 ms
           while(!usbSerialFreeSpace() && (timeout > 0)) {
@@ -1154,13 +1153,13 @@ int cliSerialPassthrough(const char **argv)
 
       // restore callsbacks
       cliReceiveCallBack = backupCB;
-      spInternalModuleCTX = nullptr;
 
       // and stop module
-      IntmoduleSerialDriver.deinit(uart_ctx);
+      modulePortDeInit(spInternalModuleState);
+      spInternalModuleState = nullptr;
 
       // power off the module and wait for a bit
-      INTERNAL_MODULE_OFF();
+      modulePortSetPower(port_n, false);
       delay_ms(200);
     }
 #endif
@@ -1169,7 +1168,7 @@ int cliSerialPassthrough(const char **argv)
     //  - external module (S.PORT?)
 
     watchdogSuspend(200/*2s*/);
-    startPulses();
+    pulsesStart();
 
     // suspend RTOS scheduler
     xTaskResumeAll();
@@ -1257,6 +1256,9 @@ void printAudioVars()
 #endif
 
 #if defined(DEBUG)
+
+#include "hal/switch_driver.h"
+
 int cliDisplay(const char ** argv)
 {
   long long int address = 0;
@@ -1269,32 +1271,32 @@ int cliDisplay(const char ** argv)
   }
 
   if (!strcmp(argv[1], "keys")) {
-    for (int i=0; i<TRM_BASE; i++) {
-      cliSerialPrint("[%s] = %s", STR_VKEYS[i]+1, keys[i].state() ? "on" : "off");
+    for (int i = 0; i <= MAX_KEYS; i++) {
+      if (keysGetSupported() & (1 << i)) {
+        cliSerialPrint("[Key %s] = %s",
+                       keysGetLabel((EnumKeys)i),
+                       keysGetState(i) ? "on" : "off");
+      }
     }
-#if defined(ROTARY_ENCODER_NAVIGATION)
-    typedef int32_t rotenc_t;
-    extern volatile rotenc_t rotencValue;
-    cliSerialPrint("[Enc.] = %d", rotencValue / ROTARY_ENCODER_GRANULARITY);
-#endif
-    for (int i=TRM_BASE; i<=TRM_LAST; i++) {
-      cliSerialPrint("[Trim%d] = %s", i-TRM_BASE, keys[i].state() ? "on" : "off");
+    for (int i = 0; i < keysGetMaxTrims(); i++) {
+      cliSerialPrint("[Trim %s] = %s", getTrimLabel(i),
+                     keysGetTrimState(i) ? "on" : "off");
     }
-    for (int i=MIXSRC_FIRST_SWITCH; i<=MIXSRC_LAST_SWITCH; i++) {
-      mixsrc_t sw = i - MIXSRC_FIRST_SWITCH;
-      if (SWITCH_EXISTS(sw)) {
-        static const char * const SWITCH_POSITIONS[] = { "down", "mid", "up" };
-        cliSerialPrint("[%s] = %s", STR_VSWITCHES[sw]+1, SWITCH_POSITIONS[1 + getValue(i) / 1024]);
+    for (int i = 0; i < switchGetMaxSwitches(); i++) {
+      if (SWITCH_EXISTS(i)) {
+        static const char * const SWITCH_POSITIONS[] = { "up", "mid", "down" };
+        auto pos = switchGetPosition(i);
+        cliSerialPrint("[%s] = %s", switchGetName(i), SWITCH_POSITIONS[pos]);
       }
     }
   }
   else if (!strcmp(argv[1], "adc")) {
-    for (int i=0; i<NUM_ANALOGS; i++) {
-      cliSerialPrint("adc[%d] = %04X", i, (int)adcValues[i]);
+    for (int i = 0; i < adcGetMaxInputs(ADC_INPUT_ALL); i++) {
+      cliSerialPrint("adc[%d] = %04X", i, getAnalogValue(i));
     }
   }
   else if (!strcmp(argv[1], "outputs")) {
-    for (int i=0; i<MAX_OUTPUT_CHANNELS; i++) {
+    for (int i = 0; i < MAX_OUTPUT_CHANNELS; i++) {
       cliSerialPrint("outputs[%d] = %04d", i, (int)channelOutputs[i]);
     }
   }
@@ -1396,12 +1398,12 @@ int cliDebugVars(const char ** argv)
   cliSerialPrint("ioMutexReq=%d", ioMutexReq);
   cliSerialPrint("ioMutexRel=%d", ioMutexRel);
   cliSerialPrint("sdReadRetries=%d", sdReadRetries);
-#if defined(ACCESS_DENIED)
+#if defined(INTERNAL_MODULE_PXX2) && defined(ACCESS_DENIED) && !defined(SIMU)
   extern volatile int32_t authenticateFrames;
   cliSerialPrint("authenticateFrames=%d", authenticateFrames);
 #endif
 #elif defined(PCBTARANIS)
-  cliSerialPrint("telemetryErrors=%d", telemetryErrors);
+  //cliSerialPrint("telemetryErrors=%d", telemetryErrors);
 #endif
 
   return 0;
@@ -1439,11 +1441,13 @@ int cliRepeat(const char ** argv)
 int cliShowJitter(const char ** argv)
 {
   cliSerialPrint(  "#   anaIn   rawJ   avgJ");
-  for (int i=0; i<NUM_ANALOGS; i++) {
-    cliSerialPrint("A%02d %04X %04X %3d %3d", i, getAnalogValue(i), anaIn(i), rawJitter[i].get(), avgJitter[i].get());
-    if (IS_POT_MULTIPOS(i)) {
-      StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[i];
-      for (int j=0; j<calib->count; j++) {
+  for (int i = 0; i < MAX_ANALOG_INPUTS; i++) {
+    cliSerialPrint("A%02d %04X %04X %3d %3d", i, getAnalogValue(i), anaIn(i),
+                   rawJitter[i].get(), avgJitter[i].get());
+
+    if (i >= MAX_STICKS && IS_POT_MULTIPOS(i - MAX_STICKS)) {
+      StepsCalibData *calib = (StepsCalibData *)&g_eeGeneral.calib[i];
+      for (int j = 0; j < calib->count; j++) {
         cliSerialPrint("    s%d %04X", j, calib->steps[j]);
       }
     }
@@ -1549,7 +1553,7 @@ int cliCrypt(const char ** argv)
   if (pulsesStarted()) {
     pausePulses();
   }
-  pauseMixerCalculations();
+  mixerTaskStop();
   perMainEnabled = false;
 
   uint32_t startMs = RTOS_GET_MS();
@@ -1564,7 +1568,7 @@ int cliCrypt(const char ** argv)
   if (pulsesStarted()) {
     resumePulses();
   }
-  resumeMixerCalculations();
+  mixerTaskStart();
   watchdogSuspend(0);
 
   return 0;
@@ -1587,7 +1591,7 @@ int cliResetGT911(const char** argv)
 
     // stop pulses & suspend RTOS scheduler
     watchdogSuspend(200/*2s*/);
-    stopPulses();
+    pulsesStop();
     vTaskSuspendAll();
 
     // reset touch controller
@@ -1598,7 +1602,7 @@ int cliResetGT911(const char** argv)
     cliSerialPrintf("GT911: new config version is %u\n", tp_gt911_cfgVer);
 
     // restart pulses & RTOS scheduler
-    startPulses();
+    pulsesStart();
     xTaskResumeAll();
 
     return 0;
@@ -1719,7 +1723,7 @@ void cliTask(void * pdata)
     const TickType_t xTimeout = 100 / RTOS_MS_PER_TICK;
     size_t xReceivedBytes = xStreamBufferReceive(cliRxBuffer, &c, 1, xTimeout);
 
-    if (s_pulses_paused) {
+    if (!mixerTaskRunning()) {
       WDG_RESET();
     }
 

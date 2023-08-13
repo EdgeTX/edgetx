@@ -111,7 +111,7 @@ class ModulePanel : public ModelPanel
     void onFailsafesDisplayValueTypeChanged(int type);
     void onRfFreqChanged(int freq);
     void updateFailsafe(unsigned channel);
-    void on_optionValue_editingFinished();
+    void on_optionValue_valueChanged(int value);
     void onClearAccessRxClicked();
     void on_chkOption_stateChanged(int state);
     void on_cboOption_currentIndexChanged(int value);

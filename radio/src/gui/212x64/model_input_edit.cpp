@@ -48,6 +48,13 @@ enum ExposFields {
 
 #define CURVE_ROWS                     1
 
+uint8_t FM_ROW(uint8_t value)
+{
+  if (modelFMEnabled())
+    return value;
+  return HIDDEN_ROW;
+}
+
 void menuModelExpoOne(event_t event)
 {
   if (event == EVT_KEY_LONG(KEY_MENU)) {
@@ -61,7 +68,9 @@ void menuModelExpoOne(event_t event)
 
   uint8_t old_editMode = s_editMode;
   
-  SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX, {0, 0, 0, ed->srcRaw >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, CURVE_ROWS, CASE_FLIGHT_MODES((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE) 0 /*, ...*/});
+  SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX,
+          {0, 0, 0, ed->srcRaw >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, CURVE_ROWS,
+           CASE_FLIGHT_MODES(FM_ROW((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE)) 0 /*, ...*/});
 
   SET_SCROLLBAR_X(EXPO_ONE_2ND_COLUMN+10*FW);
 
@@ -141,11 +150,20 @@ void menuModelExpoOne(event_t event)
         break;
 
       case EXPO_FIELD_TRIM:
-        uint8_t not_stick = (ed->srcRaw > MIXSRC_Ail);
-        int8_t carryTrim = -ed->carryTrim;
         lcdDrawTextAlignedLeft(y, STR_TRIM);
-        lcdDrawTextAtIndex(EXPO_ONE_2ND_COLUMN, y, STR_VMIXTRIMS, (not_stick && carryTrim == 0) ? 0 : carryTrim+1, menuHorizontalPosition==0 ? attr : 0);
-        if (attr) ed->carryTrim = -checkIncDecModel(event, carryTrim, not_stick ? TRIM_ON : -TRIM_OFF, -TRIM_LAST);
+        {
+          const char* trim_str = getTrimSourceLabel(ed->srcRaw, ed->trimSource);
+          LcdFlags flags = RIGHT | (menuHorizontalPosition==0 ? attr : 0);
+          lcdDrawText(EXPO_ONE_2ND_COLUMN, y, trim_str, flags);
+
+          if (attr) {
+            int8_t min = TRIM_ON;
+            if (ed->srcRaw >= MIXSRC_FIRST_STICK && ed->srcRaw <= MIXSRC_LAST_STICK) {
+              min = -TRIM_OFF;
+            }
+            ed->trimSource = -checkIncDecModel(event, -ed->trimSource, min, keysGetMaxTrims());
+          }
+        }
         break;
     }
     y += FH;

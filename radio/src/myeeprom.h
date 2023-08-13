@@ -25,6 +25,7 @@
 #include "datastructs.h"
 #include "libopenui/src/bitfield.h"
 #include "storage/yaml/yaml_defs.h"
+#include "hal/switch_driver.h"
 
 #if defined(SDCARD_YAML)
   #define EEPROM_VER           221
@@ -61,9 +62,9 @@
 
 #define HAS_ENABLE_PARAM(func)         ((func) < FUNC_FIRST_WITHOUT_ENABLE || (func == FUNC_BACKLIGHT))
 #if defined(COLORLCD)
-#define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) || func == FUNC_SET_SCREEN)
+#define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) || func == FUNC_PLAY_SCRIPT || func == FUNC_SET_SCREEN)
 #else
-#define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) )
+#define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) || func == FUNC_PLAY_SCRIPT)
 #endif
 
 #define CFN_EMPTY(p)                   (!(p)->swtch)
@@ -84,29 +85,34 @@
 #define MODEL_GVAR_MIN(idx)            (CFN_GVAR_CST_MIN + g_model.gvars[idx].min)
 #define MODEL_GVAR_MAX(idx)            (CFN_GVAR_CST_MAX - g_model.gvars[idx].max)
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
-  #define SWITCH_CONFIG(x)            (bfGet<swconfig_t>(g_eeGeneral.switchConfig, 2*(x), 2))
+// pots config
+#define POT_CFG_BITS                   4 // 4 bits per pot
+#define POT_CFG_MASK                   ((1 << POT_CFG_BITS) - 1)
+#define POT_CONFIG_POS(x)              (POT_CFG_BITS * (x))
+#define POT_CONFIG_MASK(x)             (POT_CFG_MASK << POT_CONFIG_POS(x))
+#define POT_CONFIG_DISABLE_MASK(x)     (~POT_CONFIG_MASK(x))
+
+#define SW_CFG_BITS                    2
+#define SW_CFG_MASK                    ((1 << SW_CFG_BITS) - 1)
+#define SWITCH_CONFIG_MASK(x)          ((swconfig_t)SW_CFG_MASK << (SW_CFG_BITS * (x)))
+
+#define SWITCH_CONFIG(x)              (bfGet<swconfig_t>(g_eeGeneral.switchConfig, SW_CFG_BITS * (x), SW_CFG_BITS))
 #if defined(FUNCTION_SWITCHES)
-  #define FSWITCH_CONFIG(x)           (bfGet<swconfig_t>(g_model.functionSwitchConfig, 2*(x), 2))
-  #define FSWITCH_GROUP(x)            (bfGet<swconfig_t>(g_model.functionSwitchGroup, 2*(x), 2))
-  #define IS_FSWITCH_GROUP_ON(x)      (bfGet<swconfig_t>(g_model.functionSwitchGroup, 2 * NUM_FUNCTIONS_SWITCHES + x, 1))
-  #define IS_SWITCH_FS(x)             (x >= NUM_REGULAR_SWITCHES)
+  #define FSW_CFG_BITS                2
+  #define FSWITCH_CONFIG(x)           (bfGet<swconfig_t>(g_model.functionSwitchConfig, FSW_CFG_BITS * (x), FSW_CFG_BITS))
+  #define FSWITCH_GROUP(x)            (bfGet<swconfig_t>(g_model.functionSwitchGroup,  FSW_CFG_BITS * (x), FSW_CFG_BITS))
+  #define IS_FSWITCH_GROUP_ON(x)      (bfGet<swconfig_t>(g_model.functionSwitchGroup,  FSW_CFG_BITS * NUM_FUNCTIONS_SWITCHES + x, 1))
+  #define IS_SWITCH_FS(x)             (x >= switchGetMaxSwitches() && x < (switchGetMaxSwitches() + switchGetMaxFctSwitches()))
   #define SWITCH_EXISTS(x)            (IS_SWITCH_FS(x)  ? true : (SWITCH_CONFIG(x) != SWITCH_NONE))
-  #define IS_CONFIG_3POS(x)           (IS_SWITCH_FS(x)  ? (FSWITCH_CONFIG(x - NUM_REGULAR_SWITCHES) == SWITCH_3POS) : (SWITCH_CONFIG(x) == SWITCH_3POS))
-  #define IS_CONFIG_TOGGLE(x)         (IS_SWITCH_FS(x)  ? (FSWITCH_CONFIG(x - NUM_REGULAR_SWITCHES) == SWITCH_TOGGLE) : (SWITCH_CONFIG(x) == SWITCH_TOGGLE))
+  #define IS_CONFIG_3POS(x)           (IS_SWITCH_FS(x)  ? (FSWITCH_CONFIG(x - switchGetMaxSwitches()) == SWITCH_3POS) : (SWITCH_CONFIG(x) == SWITCH_3POS))
+  #define IS_CONFIG_TOGGLE(x)         (IS_SWITCH_FS(x)  ? (FSWITCH_CONFIG(x - switchGetMaxSwitches()) == SWITCH_TOGGLE) : (SWITCH_CONFIG(x) == SWITCH_TOGGLE))
 #else
   #define SWITCH_EXISTS(x)            (SWITCH_CONFIG(x) != SWITCH_NONE)
   #define IS_CONFIG_3POS(x)           (SWITCH_CONFIG(x) == SWITCH_3POS)
   #define IS_CONFIG_TOGGLE(x)         (SWITCH_CONFIG(x) == SWITCH_TOGGLE)
   #define IS_SWITCH_FS(x)             (false)
 #endif
-  #define SWITCH_WARNING_ALLOWED(x)   (SWITCH_EXISTS(x) && !(IS_CONFIG_TOGGLE(x) || IS_SWITCH_FS(x)))
-#else
-  #define IS_CONFIG_3POS(x)           IS_3POS(x)
-  #define IS_CONFIG_TOGGLE(x)         IS_TOGGLE(x)
-  #define switchInfo(x)               ((x) >= 3 ? (x)-2 : 0)
-  #define SWITCH_EXISTS(x)            true
-#endif
+#define SWITCH_WARNING_ALLOWED(x)     (SWITCH_EXISTS(x) && !(IS_CONFIG_TOGGLE(x) || IS_SWITCH_FS(x)))
 
 #define ALTERNATE_VIEW                0x10
 

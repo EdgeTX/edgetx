@@ -24,11 +24,13 @@
 #include "options.h"
 #include "libopenui.h"
 #include "fw_version.h"
+#include "hal/module_port.h"
 
 #if defined(CROSSFIRE)
   #include "mixer_scheduler.h"
 #endif
 
+#if defined(PXX2)
 char *getVersion(char *str, PXX2Version version)
 {
   if (version.major == 0xFF && version.minor == 0x0F &&
@@ -40,6 +42,7 @@ char *getVersion(char *str, PXX2Version version)
     return str;
   }
 }
+#endif
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
@@ -70,22 +73,24 @@ class VersionDialog : public Dialog
   VersionDialog(Window *parent) :
     Dialog(parent, STR_MODULES_RX_VERSION, rect_t{ 0, 0, 200, 100 })
   {
+#if defined(PXX2)
     memclear(&reusableBuffer.hardwareAndSettings.modules,
              sizeof(reusableBuffer.hardwareAndSettings.modules));
     reusableBuffer.hardwareAndSettings.updateTime = get_tmr10ms();
 
     // Query modules
-    if (isModulePXX2(INTERNAL_MODULE) && IS_INTERNAL_MODULE_ON()) {
+    if (isModulePXX2(INTERNAL_MODULE) && modulePortPowered(INTERNAL_MODULE)) {
       moduleState[INTERNAL_MODULE].readModuleInformation(
           &reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE],
           PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
     }
 
-    if (isModulePXX2(EXTERNAL_MODULE) && IS_EXTERNAL_MODULE_ON()) {
+    if (isModulePXX2(EXTERNAL_MODULE) && modulePortPowered(EXTERNAL_MODULE)) {
       moduleState[EXTERNAL_MODULE].readModuleInformation(
           &reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE],
           PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
     }
+#endif
 
     setCloseWhenClickOutside(true);
 
@@ -176,7 +181,7 @@ class VersionDialog : public Dialog
     // initialize to module does not provide status
     // PXX2 will overwrite name
     // CRSF, MPM, NV14 and PXX2 will overwrite status
-    name->setText(STR_INTERNAL_MODULE_PROTOCOLS[g_model.moduleData[module].type]);
+    name->setText(STR_MODULE_PROTOCOLS[g_model.moduleData[module].type]);
     lv_obj_add_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 
 #if defined(CROSSFIRE)
@@ -185,7 +190,8 @@ class VersionDialog : public Dialog
       char statusText[64];
 
       auto hz = 1000000 / getMixerSchedulerPeriod();
-      snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
+      // snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
+      snprintf(statusText, 64, "%d Hz", hz);
       status->setText(statusText);
       lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     }
@@ -292,16 +298,17 @@ class VersionDialog : public Dialog
 #endif
   }
 
+#if defined(PXX2)
   void checkEvents() override
   {
     if (get_tmr10ms() >= reusableBuffer.hardwareAndSettings.updateTime) {
       // Query modules
-      if (isModulePXX2(INTERNAL_MODULE) && IS_INTERNAL_MODULE_ON()) {
+      if (isModulePXX2(INTERNAL_MODULE) && modulePortPowered(INTERNAL_MODULE)) {
         moduleState[INTERNAL_MODULE].readModuleInformation(
             &reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE],
             PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
       }
-      if (isModulePXX2(EXTERNAL_MODULE) && IS_EXTERNAL_MODULE_ON()) {
+      if (isModulePXX2(EXTERNAL_MODULE) && modulePortPowered(EXTERNAL_MODULE)) {
         moduleState[EXTERNAL_MODULE].readModuleInformation(
             &reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE],
             PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
@@ -311,6 +318,7 @@ class VersionDialog : public Dialog
     update();
     Dialog::checkEvents();
   }
+#endif
 };
 
 RadioVersionPage::RadioVersionPage():

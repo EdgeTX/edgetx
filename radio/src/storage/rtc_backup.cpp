@@ -32,7 +32,7 @@ PACK(struct RamBackupUncompressed {
 #undef BACKUP
 };
 
-#include "datacopy.cpp"
+#include "datacopy.inc"
 
 Backup::RamBackupUncompressed ramBackupUncompressed __DMA;
 

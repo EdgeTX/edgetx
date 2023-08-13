@@ -34,6 +34,9 @@
 constexpr char FIM_SWITCHTYPE2POS[]  {"Switch Type 2 Pos"};
 constexpr char FIM_SWITCHTYPE3POS[]  {"Switch Type 3 Pos"};
 constexpr char FIM_INTERNALMODULES[] {"Internal Modules"};
+constexpr char FIM_AUX1SERIALMODES[] {"AUX1 Modes"};
+constexpr char FIM_AUX2SERIALMODES[] {"AUX2 Modes"};
+constexpr char FIM_VCPSERIALMODES[]  {"VCP Modes"};
 
 class ExclusiveComboGroup: public QObject
 {
@@ -83,7 +86,9 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   GeneralPanel(parent, generalSettings, firmware),
   board(firmware->getBoard()),
   editorItemModels(sharedItemModels),
-  serialPortUSBVCP(nullptr)
+  serialPortUSBVCP(nullptr),
+  params(new QList<QWidget *>),
+  row(0)
 {
   editorItemModels->registerItemModel(Boards::potTypeItemModel());
   editorItemModels->registerItemModel(Boards::sliderTypeItemModel());
@@ -95,8 +100,10 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
   int antmodelid = editorItemModels->registerItemModel(GeneralSettings::antennaModeItemModel());
   int btmodelid = editorItemModels->registerItemModel(GeneralSettings::bluetoothModeItemModel());
-  int auxmodelid = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel(GeneralSettings::SP_AUX1));
-  int vcpmodelid = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel(GeneralSettings::SP_VCP));
+  id = editorItemModels->registerItemModel(GeneralSettings::serialModeItemModel());
+  tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), GeneralSettings::AUX1Context), FIM_AUX1SERIALMODES);
+  tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), GeneralSettings::AUX2Context), FIM_AUX2SERIALMODES);
+  tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), GeneralSettings::VCPContext), FIM_VCPSERIALMODES);
   int baudmodelid = editorItemModels->registerItemModel(GeneralSettings::internalModuleBaudrateItemModel());
   int uartmodelid = editorItemModels->registerItemModel(GeneralSettings::uartSampleModeItemModel());
 
@@ -105,121 +112,145 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
   grid = new QGridLayout(this);
   int count;
-  int row = 0;
 
-  addSection(tr("Sticks"), row);
+  addSection(tr("Sticks"));
 
   count = Boards::getCapability(board, Board::Sticks);
   if (count) {
     for (int i = 0; i < count; i++) {
-      addStick(i, row);
+      addStick(i);
     }
   }
 
   if (IS_FLYSKY_NV14(board)) {
-    addLabel(tr("Dead zone"), row, 0);
+    addLabel(tr("Dead zone"));
     AutoComboBox *spnStickDeadZone = new AutoComboBox(this);
     spnStickDeadZone->setModel(GeneralSettings::stickDeadZoneItemModel());
     spnStickDeadZone->setField(generalSettings.stickDeadZone, this);
-    addParams(row, spnStickDeadZone);
+    params->append(spnStickDeadZone);
+    addParams();
   }
 
   count = Boards::getCapability(board, Board::Pots);
   count -= firmware->getCapability(HasFlySkyGimbals) ? 2 : 0;
   if (count > 0) {
-    addSection(tr("Pots"), row);
+    addSection(tr("Pots"));
     for (int i = 0; i < count; i++) {
-      addPot(i, row);
+      addPot(i);
     }
   }
 
   count = Boards::getCapability(board, Board::Sliders);
   if (count) {
-    addSection(tr("Sliders"), row);
+    addSection(tr("Sliders"));
     for (int i = 0; i < count; i++) {
-      addSlider(i, row);
+      addSlider(i);
     }
   }
 
   count = Boards::getCapability(board, Board::Switches);
   if (count) {
-    addSection(tr("Switches"), row);
+    addSection(tr("Switches"));
     for (int i = 0; i < count; i++) {
-      addSwitch(i, row);
+      addSwitch(i);
     }
   }
 
-  addLine(row);
+  addLine();
 
   if (Boards::getCapability(board, Board::HasRTC)) {
-    addLabel(tr("RTC Battery Check"), row, 0);
+    addLabel(tr("RTC Battery Check"));
     AutoCheckBox *rtcCheckDisable = new AutoCheckBox(this);
     rtcCheckDisable->setField(generalSettings.rtcCheckDisable, this, true);
-    addParams(row, rtcCheckDisable);
+    params->append(rtcCheckDisable);
+    addParams();
+  }
+
+  if (firmware->getCapability(HasADCJitterFilter)) {
+    addLabel(tr("ADC Filter"));
+    AutoCheckBox *filterEnable = new AutoCheckBox(this);
+    filterEnable->setField(generalSettings.noJitterFilter, this, true);
+    params->append(filterEnable);
+    addParams();
+  }
+
+  if (Boards::getCapability(board, Board::HasAudioMuteGPIO)) {
+    addLabel(tr("Mute if no sound"));
+    AutoCheckBox *muteIfNoSound = new AutoCheckBox(this);
+    muteIfNoSound->setField(generalSettings.muteIfNoSound, this, false);
+    params->append(muteIfNoSound);
+    addParams();
   }
 
   if (firmware->getCapability(HasBluetooth)) {
-    addLabel(tr("Bluetooth"), row, 0);
-
-    QGridLayout *btlayout = new QGridLayout();
+    addLabel(tr("Bluetooth"));
 
     AutoComboBox *bluetoothMode = new AutoComboBox(this);
     bluetoothMode->setModel(editorItemModels->getItemModel(btmodelid));
     bluetoothMode->setField(generalSettings.bluetoothMode, this);
-    btlayout->addWidget(bluetoothMode, 0, 0);
-
-    QSpacerItem * spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum );
-    btlayout->addItem(spacer, 0, 1);
+    params->append(bluetoothMode);
 
     QLabel *btnamelabel = new QLabel(this);
     btnamelabel->setText(tr("Device Name:"));
-    btlayout->addWidget(btnamelabel, 0, 2);
+    params->append(btnamelabel);
 
     AutoLineEdit *bluetoothName = new AutoLineEdit(this);
     bluetoothName->setField(generalSettings.bluetoothName, BLUETOOTH_NAME_LEN, this);
-    btlayout->addWidget(bluetoothName, 0, 3);
+    params->append(bluetoothName);
 
-    grid->addLayout(btlayout, row, 1);
-    row++;
-  }
-
-  if (firmware->getCapability(HasAntennaChoice)) {
-    addLabel(tr("Antenna"), row, 0);
-    AutoComboBox *antennaMode = new AutoComboBox(this);
-    antennaMode->setModel(editorItemModels->getItemModel(antmodelid));
-    antennaMode->setField(generalSettings.antennaMode, this);
-    addParams(row, antennaMode);
+    addParams();
   }
 
   if (Boards::getCapability(board, Board::HasInternalModuleSupport)) {
     m_internalModule = generalSettings.internalModule; // to permit undo
-    addLabel(tr("Internal module"), row, 0);
+    addSection(tr("Internal RF"));
+    addLabel(tr("Type"));
     internalModule = new AutoComboBox(this);
     internalModule->setModel(tabFilteredModels->getItemModel(FIM_INTERNALMODULES));
     internalModule->setField(generalSettings.internalModule, this);
+    params->append(internalModule);
 
     connect(internalModule, &AutoComboBox::currentDataChanged, this,
             &HardwarePanel::on_internalModuleChanged);
 
+    internalModuleBaudRateLabel = new QLabel(tr("Baudrate:"));
+    params->append(internalModuleBaudRateLabel);
+
     internalModuleBaudRate = new AutoComboBox(this);
     internalModuleBaudRate->setModel(editorItemModels->getItemModel(baudmodelid));
     internalModuleBaudRate->setField(generalSettings.internalModuleBaudrate, this);
+    params->append(internalModuleBaudRate);
 
     if (m_internalModule != MODULE_TYPE_GHOST && m_internalModule != MODULE_TYPE_CROSSFIRE) {
       generalSettings.internalModuleBaudrate = 0;
+      internalModuleBaudRateLabel->setVisible(false);
       internalModuleBaudRate->setVisible(false);
     }
 
-    addParams(row, internalModule, internalModuleBaudRate);
-    row++;
+    antennaLabel = new QLabel(tr("Antenna:"));
+    params->append(antennaLabel);
+
+    antennaMode = new AutoComboBox(this);
+    antennaMode->setModel(editorItemModels->getItemModel(antmodelid));
+    antennaMode->setField(generalSettings.antennaMode, this);
+    params->append(antennaMode);
+
+    if (!(m_internalModule == MODULE_TYPE_XJT_PXX1 && HAS_EXTERNAL_ANTENNA(board))) {
+      antennaLabel->setVisible(false);
+      antennaMode->setVisible(false);
+    }
+
+    addParams();
   }
 
   if (Boards::getCapability(board, Board::HasExternalModuleSupport)) {
-    addLabel(tr("Sample Mode"), row, 0);
+    addSection(tr("External RF"));
+    addLabel(tr("Sample Mode"));
     AutoComboBox *uartSampleMode = new AutoComboBox(this);
     uartSampleMode->setModel(editorItemModels->getItemModel(uartmodelid));
     uartSampleMode->setField(generalSettings.uartSampleMode);
-    addParams(row, uartSampleMode);
+    params->append(uartSampleMode);
+    addParams();
   }
 
   // All values except 0 are mutually exclusive
@@ -227,76 +258,74 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
       this, [=](const QVariant &value) { return value == 0; });
 
   if (firmware->getCapability(HasAuxSerialMode) || firmware->getCapability(HasAux2SerialMode) || firmware->getCapability(HasVCPSerialMode))
-    addSection(tr("Serial ports"), row);
+    addSection(tr("Serial ports"));
 
   if (firmware->getCapability(HasAuxSerialMode)) {
-    QString lbl = "AUX1";
-    addLabel(tr("%1").arg(lbl), row, 0);
+    addLabel(tr("AUX1"));
     AutoComboBox *serialPortMode = new AutoComboBox(this);
-    serialPortMode->setModel(editorItemModels->getItemModel(auxmodelid));
+    serialPortMode->setModel(tabFilteredModels->getItemModel(FIM_AUX1SERIALMODES));
     serialPortMode->setField(generalSettings.serialPort[GeneralSettings::SP_AUX1], this);
     exclGroup->addCombo(serialPortMode);
+    params->append(serialPortMode);
 
     AutoCheckBox *serialPortPower = new AutoCheckBox(this);
     serialPortPower->setField(generalSettings.serialPower[GeneralSettings::SP_AUX1], this);
     serialPortPower->setText(tr("Power"));
+    params->append(serialPortPower);
 
-    addParams(row, serialPortMode, serialPortPower);
+    addParams();
 
     if (!firmware->getCapability(HasSoftwareSerialPower))
       serialPortPower->setVisible(false);
   }
 
   if (firmware->getCapability(HasAux2SerialMode)) {
-    QString lbl = "AUX2";
-    addLabel(tr("%1").arg(lbl), row, 0);
+    addLabel(tr("AUX2"));
     AutoComboBox *serialPortMode = new AutoComboBox(this);
-    serialPortMode->setModel(editorItemModels->getItemModel(auxmodelid));
+    serialPortMode->setModel(tabFilteredModels->getItemModel(FIM_AUX2SERIALMODES));
     serialPortMode->setField(generalSettings.serialPort[GeneralSettings::SP_AUX2], this);
     exclGroup->addCombo(serialPortMode);
+    params->append(serialPortMode);
 
     AutoCheckBox *serialPortPower = new AutoCheckBox(this);
     serialPortPower->setField(generalSettings.serialPower[GeneralSettings::SP_AUX2], this);
     serialPortPower->setText(tr("Power"));
+    params->append(serialPortPower);
 
-    addParams(row, serialPortMode, serialPortPower);
+    addParams();
 
     if (!firmware->getCapability(HasSoftwareSerialPower))
       serialPortPower->setVisible(false);
   }
 
   if (firmware->getCapability(HasVCPSerialMode)) {
-    addLabel(tr("USB-VCP"), row, 0);
+    addLabel(tr("USB-VCP"));
     serialPortUSBVCP = new AutoComboBox(this);
-    serialPortUSBVCP->setModel(editorItemModels->getItemModel(vcpmodelid));
+    serialPortUSBVCP->setModel(tabFilteredModels->getItemModel(FIM_VCPSERIALMODES));
     serialPortUSBVCP->setField(generalSettings.serialPort[GeneralSettings::SP_VCP], this);
     exclGroup->addCombo(serialPortUSBVCP);
-    addParams(row, serialPortUSBVCP);
+    params->append(serialPortUSBVCP);
+    addParams();
     connect(this, &HardwarePanel::internalModuleChanged, this, &HardwarePanel::updateSerialPortUSBVCP);
     updateSerialPortUSBVCP();
   }
 
-  if (firmware->getCapability(HasADCJitterFilter)) {
-    addLabel(tr("ADC Filter"), row, 0);
-    AutoCheckBox *filterEnable = new AutoCheckBox(this);
-    filterEnable->setField(generalSettings.noJitterFilter, this, true);
-    addParams(row, filterEnable);
-  }
-
   if (firmware->getCapability(HasSportConnector)) {
-    addLabel(tr("S.Port Power"), row, 0);
+    addLabel(tr("S.Port Power"));
     AutoCheckBox *sportPower = new AutoCheckBox(this);
     sportPower->setField(generalSettings.sportPower, this);
-    addParams(row, sportPower);
+    params->append(sportPower);
+    addParams();
   }
 
   if (firmware->getCapability(HastxCurrentCalibration)) {
-    addLabel(tr("Current Offset"), row, 0);
+    addLabel(tr("Current Offset"));
     AutoSpinBox *txCurrentCalibration = new AutoSpinBox(this);
     FieldRange txCCRng = GeneralSettings::getTxCurrentCalibration();
     txCurrentCalibration->setSuffix(txCCRng.unit);
     txCurrentCalibration->setField(generalSettings.txCurrentCalibration);
-    addParams(row, txCurrentCalibration);
+    params->append(txCurrentCalibration);
+    addParams();
   }
 
   addVSpring(grid, 0, grid->rowCount());
@@ -331,106 +360,122 @@ void HardwarePanel::on_internalModuleChanged()
         internalModuleBaudRate->setCurrentIndex(1);
       }
 
+      internalModuleBaudRateLabel->setVisible(true);
       internalModuleBaudRate->setVisible(true);
     } else {
       generalSettings.internalModuleBaudrate = 0;
+      internalModuleBaudRateLabel->setVisible(false);
       internalModuleBaudRate->setVisible(false);
+    }
+
+    if (m_internalModule == MODULE_TYPE_XJT_PXX1 && HAS_EXTERNAL_ANTENNA(board)) {
+        antennaLabel->setVisible(true);
+        antennaMode->setVisible(true);
+    }
+    else {
+      antennaLabel->setVisible(false);
+      antennaMode->setVisible(false);
     }
 
     emit internalModuleChanged();
   }
 }
 
-void HardwarePanel::addStick(int index, int & row)
+void HardwarePanel::addStick(int index)
 {
-  int col = 0;
-  addLabel(Boards::getAnalogInputName(board, index), row, col++);
+  addLabel(Boards::getAnalogInputName(board, index));
 
   AutoLineEdit *name = new AutoLineEdit(this);
   name->setField(generalSettings.stickName[index], HARDWARE_NAME_LEN, this);
-
-  addParams(row, name);
+  params->append(name);
+  addParams();
 }
 
-void HardwarePanel::addPot(int index, int & row)
+void HardwarePanel::addPot(int index)
 {
-  addLabel(Boards::getAnalogInputName(board, Boards::getCapability(board, Board::Sticks) + index), row, 0);
+  addLabel(Boards::getAnalogInputName(board, Boards::getCapability(board, Board::Sticks) + index));
 
   AutoLineEdit *name = new AutoLineEdit(this);
   name->setField(generalSettings.potName[index], HARDWARE_NAME_LEN, this);
+  params->append(name);
 
   AutoComboBox *type = new AutoComboBox(this);
   type->setModel(editorItemModels->getItemModel(AIM_BOARDS_POT_TYPE));
   type->setField(generalSettings.potConfig[index], this);
+  params->append(type);
 
-  addParams(row, name, type);
+  addParams();
 }
 
-void HardwarePanel::addSlider(int index, int & row)
+void HardwarePanel::addSlider(int index)
 {
   addLabel(Boards::getAnalogInputName(board, Boards::getCapability(board, Board::Sticks) +
-                                             Boards::getCapability(board, Board::Pots) + index), row, 0);
+                                             Boards::getCapability(board, Board::Pots) + index));
 
   AutoLineEdit *name = new AutoLineEdit(this);
   name->setField(generalSettings.sliderName[index], HARDWARE_NAME_LEN, this);
+  params->append(name);
 
   AutoComboBox *type = new AutoComboBox(this);
   type->setModel(editorItemModels->getItemModel(AIM_BOARDS_SLIDER_TYPE));
   type->setField(generalSettings.sliderConfig[index], this);
+  params->append(type);
 
-  addParams(row, name, type);
+  addParams();
 }
 
-void HardwarePanel::addSwitch(int index, int & row)
+void HardwarePanel::addSwitch(int index)
 {
-  addLabel(Boards::getSwitchInfo(board, index).name, row, 0);
+  addLabel(Boards::getSwitchInfo(board, index).name);
 
   AutoLineEdit *name = new AutoLineEdit(this);
   name->setField(generalSettings.switchName[index], HARDWARE_NAME_LEN, this);
+  params->append(name);
 
   AutoComboBox *type = new AutoComboBox(this);
   Board::SwitchInfo switchInfo = Boards::getSwitchInfo(board, index);
   type->setModel(switchInfo.config < Board::SWITCH_3POS ? tabFilteredModels->getItemModel(FIM_SWITCHTYPE2POS) :
                                                           tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
   type->setField(generalSettings.switchConfig[index], this);
+  params->append(type);
 
-  addParams(row, name, type);
+  addParams();
 }
 
-void HardwarePanel::addLabel(QString text, int row, int col)
+void HardwarePanel::addLabel(QString text)
 {
   QLabel *label = new QLabel(this);
   label->setText(text);
-  grid->addWidget(label, row, col);
+  grid->addWidget(label, row, 0);
 }
 
-void HardwarePanel::addLine(int & row)
+void HardwarePanel::addLine()
 {
   QFrame *line = new QFrame(this);
   line->setFrameShape(QFrame::HLine);
   line->setFrameShadow(QFrame::Sunken);
   line->setLineWidth(1);
   line->setMidLineWidth(0);
-  grid->addWidget(line, row, 0, 1, grid->columnCount());
-  row++;
+  grid->addWidget(line, row++, 0, 1, grid->columnCount());
 }
 
-void HardwarePanel::addParams(int & row, QWidget * widget1, QWidget * widget2)
+void HardwarePanel::addParams()
 {
+  int col = 0;
   QGridLayout *subgrid = new QGridLayout();
-  subgrid->addWidget(widget1, 0, 0);
-  if (widget2)
-    subgrid->addWidget(widget2, 0, 1);
-  else
-    addHSpring(subgrid, 1, 0);
-  addHSpring(subgrid, 2, 0);
-  grid->addLayout(subgrid, row, 1);
-  row++;
+
+  for (int i = 0; i < params->size(); i++) {
+    subgrid->addWidget(params->at(i), 0, col++);
+  }
+
+  addHSpring(subgrid, col, 0);
+  grid->addLayout(subgrid, row++, 1);
+  params->clear();
 }
 
-void HardwarePanel::addSection(QString text, int & row)
+void HardwarePanel::addSection(QString text)
 {
-  addLabel(QString("<b>%1</b>").arg(text), row, 0);
+  addLabel(QString("<b>%1</b>").arg(text));
   row++;
 }
 

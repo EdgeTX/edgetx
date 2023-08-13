@@ -21,15 +21,83 @@
 
 #include "opentx.h"
 
+#if defined(PXX2)
+
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #endif
 
-#if defined(INTMODULE_USART)
-#include "intmodule_serial_driver.h"
-#endif
+#include "pulses/pxx2.h"
+#include "pulses/pxx2_transport.h"
 
-static_assert(PXX2_FRAME_MAXLENGTH <= INTMODULE_FIFO_SIZE);
+static_assert(PXX2_FRAME_MAXLENGTH <= INTMODULE_FIFO_SIZE, "");
+
+static const char * const PXX2ModulesNames[] = {
+  "---",
+  "XJT",
+  "ISRM",
+  "ISRM-PRO",
+  "ISRM-S",
+  "R9M",
+  "R9MLite",
+  "R9MLite-PRO",
+  "ISRM-N",
+  "ISRM-S-X9",
+  "ISRM-S-X10E",
+  "XJT Lite",
+  "ISRM-S-X10S",
+  "ISRM-X9LiteS"
+};
+
+const char * getPXX2ModuleName(uint8_t modelId)
+{
+  if (modelId < DIM(PXX2ModulesNames))
+    return PXX2ModulesNames[modelId];
+  else
+    return PXX2ModulesNames[0];
+}
+
+static const char * const PXX2ReceiversNames[] = {
+  "---",
+  "X8R",
+  "RX8R",
+  "RX8R-PRO",
+  "RX6R",
+  "RX4R",
+  "G-RX8",
+  "G-RX6",
+  "X6R",
+  "X4R",
+  "X4R-SB",
+  "XSR",
+  "XSR-M",
+  "RXSR",
+  "S6R",
+  "S8R",
+  "XM",
+  "XM+",
+  "XMR",
+  "R9",
+  "R9-SLIM",
+  "R9-SLIM+",
+  "R9-MINI",
+  "R9-MM",
+  "R9-STAB", // R9-STAB has OTA
+  "R9-MINI-OTA", // this one has OTA (different bootloader)
+  "R9-MM-OTA", // this one has OTA (different bootloader)
+  "R9-SLIM+-OTA", // this one has OTA (different bootloader)
+  "Archer-X", // this one has OTA (internal module)
+  "R9MX", // this one has OTA
+  "R9SX", // this one has OTA
+};
+
+const char * getPXX2ReceiverName(uint8_t modelId)
+{
+  if (modelId < DIM(PXX2ReceiversNames))
+    return PXX2ReceiversNames[modelId];
+  else
+    return PXX2ReceiversNames[0];
+}
 
 static void processGetHardwareInfoFrame(uint8_t module, const uint8_t * frame)
 {
@@ -216,14 +284,8 @@ static void processResetFrame(uint8_t module, const uint8_t * frame)
 
 static void processTelemetryFrame(uint8_t module, const uint8_t * frame)
 {
-  for (uint8_t i = 0; i < 1 + frame[0]; i++) {
-    telemetryMirrorSend(frame[i]);
-  }
-  
-  uint8_t origin = (module << 2) + (frame[3] & 0x03);
-  if (origin != TELEMETRY_ENDPOINT_SPORT) {
-    sportProcessTelemetryPacketWithoutCrc(origin, &frame[4]);
-  }
+  uint8_t origin = frame[3] & 0x03;
+  sportProcessTelemetryPacketWithoutCrc(module, origin, &frame[4]);
 }
 
 #if defined(INTERNAL_MODULE_PXX2) && defined(ACCESS_DENIED) && !defined(SIMU)
@@ -254,9 +316,10 @@ static void processAuthenticationFrame(uint8_t module, const uint8_t * frame,
 
     moduleState[module].mode = MODULE_MODE_AUTHENTICATION;
 
-    Pxx2Pulses &pxx2 = intmodulePulsesData.pxx2;
-    pxx2.setupAuthenticationFrame(module, cryptoType, (const uint8_t *)messageDigest);
-    drv->sendBuffer(ctx, pxx2.getData(), pxx2.getSize());
+    uint8_t* module_buffer = pulsesGetModuleBuffer(module);
+    Pxx2Pulses pxx2(module_buffer);
+    pxx2.setupAuthenticationFrame(module, cryptoType, (const uint8_t *)messageDigest);    
+    drv->sendBuffer(ctx, module_buffer, pxx2.getSize());
 
     // we remain in AUTHENTICATION mode to avoid a CHANNELS frame is sent at the
     // end of the mixing process
@@ -417,3 +480,4 @@ void processPXX2Frame(uint8_t module, const uint8_t * frame,
   }
 }
 
+#endif

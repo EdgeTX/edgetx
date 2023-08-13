@@ -23,6 +23,9 @@
 
 #include "board.h"
 #include "lcd.h"
+
+#include "translations.h"
+
 #include "fw_version.h"
 #include "translations.h"
 #include "../../common/arm/stm32/bootloader/boot.h"
@@ -56,59 +59,59 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
   lcdInvertLine(0);
 
   if (st == ST_START) {
-    lcdDrawText(3*FW, 2*FH, "Write Firmware", opt == 0 ? INVERS : 0);
+    lcdDrawText(3*FW, 2*FH, TR_BL_WRITE_FW, opt == 0 ? INVERS : 0);
 #if defined(EEPROM)
-    lcdDrawText(3*FW, 3*FH, "Restore EEPROM", opt == 1 ? INVERS : 0);
-    lcdDrawText(3*FW, 4*FH, "Exit", opt == 2 ? INVERS : 0);
+    lcdDrawText(3*FW, 3*FH, TR_BL_RESTORE_EEPROM, opt == 1 ? INVERS : 0);
+    lcdDrawText(3*FW, 4*FH, TR_BL_EXIT, opt == 2 ? INVERS : 0);
 #else
-    lcdDrawText(3*FW, 3*FH, "Exit", opt == 1 ? INVERS : 0);
+    lcdDrawText(3*FW, 3*FH, TR_BL_EXIT, opt == 1 ? INVERS : 0);
 #endif    
 
-    lcdDrawText(LCD_W / 2, 5 * FH + FH / 2, STR_OR_PLUGIN_USB_CABLE, CENTERED);
+    lcdDrawText(LCD_W / 2, 5 * FH + FH / 2, TR_BL_OR_PLUGIN_USB_CABLE, CENTERED);
 
-    // Remove "opentx-" from string
     const char * vers = getFirmwareVersion();
 #if LCD_W < 212
-    if (strncmp(vers, "opentx-", 7) == 0)
+    // Remove "edgetx-" from string
+    if (strncmp(vers, "edgetx-", 7) == 0)
       vers += 7;
 #endif
-    lcdDrawText(LCD_W / 2, 7 * FH, vers, CENTERED);
+    lcdDrawCenteredText(7 * FH, vers);
     lcdInvertLine(7);
   }
   else if (st == ST_USB) {
-    lcdDrawTextAlignedLeft(4 * FH, STR_USB_CONNECTED);
+    lcdDrawCenteredText(4 * FH, TR_BL_USB_CONNECTED);
   }
   else if (st == ST_DIR_CHECK) {
     if (opt == FR_NO_PATH) {
-      bootloaderDrawMsg(INDENT_WIDTH, "Directory is missing!", 1, false);
+      bootloaderDrawMsg(INDENT_WIDTH, TR_BL_DIR_MISSING, 1, false);
       bootloaderDrawMsg(INDENT_WIDTH, getBinaryPath(memoryType), 2, false);
     }
     else {
-      bootloaderDrawMsg(INDENT_WIDTH, "Directory is empty!", 1, false);
+      bootloaderDrawMsg(INDENT_WIDTH, TR_BL_DIR_EMPTY, 1, false);
     }
   }
   else if (st == ST_FLASH_CHECK) {
     if (opt == FC_ERROR) {
       if (memoryType == MEM_FLASH)
-        bootloaderDrawMsg(0, STR_INVALID_FIRMWARE, 2, false);
+        bootloaderDrawMsg(0, TR_BL_INVALID_FIRMWARE, 2, false);
       else
-        bootloaderDrawMsg(0, STR_INVALID_EEPROM, 2, false);
+        bootloaderDrawMsg(0, TR_BL_INVALID_EEPROM, 2, false);
     }
     else if (opt == FC_OK) {
       if (memoryType == MEM_FLASH) {
         const char * vers = getFirmwareVersion((const char *)Block_buffer);
 #if LCD_W < 212
-        // Remove "opentx-" from string
-        if (strncmp(vers, "opentx-", 7) == 0)
+        // Remove "edgetx-" from string
+        if (strncmp(vers, "edgetx-", 7) == 0)
           vers += 7;
 #endif
         bootloaderDrawMsg(INDENT_WIDTH, vers, 0, false);
       }
-      bootloaderDrawMsg(0, STR_HOLD_ENTER_TO_START, 2, false);
+      bootloaderDrawMsg(0, TR_BL_HOLD_ENTER_TO_START, 2, false);
     }
   }
   else if (st == ST_FLASHING) {
-    lcdDrawTextAlignedLeft(4 * FH, CENTER "\015Writing...");
+    lcdDrawCenteredText(4 * FH, TR_BL_WRITING_FW);
 
     lcdDrawRect(3, 6 * FH + 4, (LCD_W - 8), 7);
     lcdDrawSolidHorizontalLine(5, 6 * FH + 6, (LCD_W - 12) * opt / 100, FORCE);
@@ -116,7 +119,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
     lcdDrawSolidHorizontalLine(5, 6 * FH + 8, (LCD_W - 12) * opt / 100, FORCE);
   }
   else if (st == ST_FLASH_DONE) {
-    lcdDrawTextAlignedLeft(4 * FH, CENTER "\007Writing complete");
+    lcdDrawCenteredText(4 * FH, TR_BL_WRITING_COMPL);
   }
 }
 
@@ -134,8 +137,8 @@ void blExit(void)
 {
 #if defined(RADIO_COMMANDO8)
       lcdClear();
-      lcdDrawText(2, 22,"Press the power button.");
-      lcdDrawText(2, 33,"Exit the flashing mode.");
+      lcdDrawText(2, 22, TR_BL_POWER_KEY);
+      lcdDrawText(2, 33, TR_BL_FLASH_EXIT);
       lcdRefresh();
       lcdRefreshWait();
       while(1);

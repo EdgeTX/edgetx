@@ -23,6 +23,10 @@
 #include "button_matrix.h"
 #include "opentx.h"
 
+#include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
+#include "strhelpers.h"
+
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
@@ -42,7 +46,7 @@ static void cb_changed(lv_event_t* e)
   }
 }
 
-static void make_conditional(Window* w, CheckBox* cb)
+static void make_conditional(Window* w, ToggleSwitch* cb)
 {
   lv_obj_t* w_obj = w->getLvObj();
   if (!cb->getValue()) { lv_obj_add_flag(w_obj, LV_OBJ_FLAG_HIDDEN); }
@@ -77,53 +81,60 @@ struct SwitchWarnMatrix : public ButtonMatrix {
   SwitchWarnMatrix(Window* parent, const rect_t& rect);
   void onPress(uint8_t btn_id);
   bool isActive(uint8_t btn_id);
+  void setTextAndState(uint8_t btn_id);
 private:
-  uint8_t sw_idx[NUM_SWITCHES];
+  uint8_t sw_idx[MAX_SWITCHES];
 };
 
 struct PotWarnMatrix : public ButtonMatrix {
   PotWarnMatrix(Window* parent, const rect_t& rect);
   void onPress(uint8_t btn_id);
   bool isActive(uint8_t btn_id);
+  void setTextAndState(uint8_t btn_id);
 private:
-  uint8_t pot_idx[NUM_POTS + NUM_SLIDERS];
+  uint8_t pot_idx[MAX_POTS];
 };
 
 struct CenterBeepsMatrix : public ButtonMatrix {
   CenterBeepsMatrix(Window* parent, const rect_t& rect);
   void onPress(uint8_t btn_id);
   bool isActive(uint8_t btn_id);
+  void setTextAndState(uint8_t btn_id);
 private:
-  uint8_t ana_idx[NUM_STICKS + NUM_POTS + NUM_SLIDERS];
+  uint8_t max_analogs;
+  uint8_t ana_idx[MAX_ANALOG_INPUTS];
 };
 
 PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
 {
-  header.setTitle(STR_PREFLIGHT);
+  header.setTitle(STR_MENU_MODEL_SETUP);
+  header.setTitle2(STR_PREFLIGHT);
 
   auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
+  form->padAll(8);
   FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
 
   // Display checklist
   auto line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_CHECKLIST, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.displayChecklist));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.displayChecklist));
 
   // Throttle warning
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);
-  auto tw = new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_model.disableThrottleWarning));
+  auto tw = new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_model.disableThrottleWarning));
 
   // Custom Throttle warning (conditional on previous field)
   line = form->newLine(&grid);
   make_conditional(line, tw);
 
   new StaticText(line, rect_t{}, STR_CUSTOM_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);
-  auto box = new FormGroup::Line(line, window_create(line->getLvObj()));
+  auto box = new FormWindow::Line(line, window_create(line->getLvObj()));
   lv_obj_set_layout(box->getLvObj(), LV_LAYOUT_FLEX);
+  box->setWidth(LCD_W /2 - 15);
 
-  auto cst_tw = new CheckBox(
+  auto cst_tw = new ToggleSwitch(
       box, rect_t{}, GET_SET_DEFAULT(g_model.enableCustomThrottleWarning));
 
   // Custom Throttle warning value
@@ -133,79 +144,94 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   make_conditional(cst_val, cst_tw);
 
   // Switch warnings (TODO: add display switch?)
-  new SwitchWarnMatrix(form, rect_t{});
+  line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_SWITCHES, 0, COLOR_THEME_PRIMARY1);
+  line = form->newLine(&grid);
+  line->padTop(0);
+  line->padLeft(4);
+  new SwitchWarnMatrix(line, rect_t{});
 
   // Pots and sliders warning
-#if NUM_POTS + NUM_SLIDERS
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_POTWARNINGSTATE, 0, COLOR_THEME_PRIMARY1);
-  auto pots_wm = new Choice(line, rect_t{}, {"OFF", "ON", "AUTO"}, 0, 2,
-                            GET_SET_DEFAULT(g_model.potsWarnMode));
-#if (NUM_POTS)
-  // Pot warnings
-  auto pwm = new PotWarnMatrix(form, rect_t{});
-  make_conditional(pwm, pots_wm);
-#endif
-#endif
+  if (adcGetMaxInputs(ADC_INPUT_POT) > 0) {
+    line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_POTWARNINGSTATE, 0, COLOR_THEME_PRIMARY1);
+    auto pots_wm = new Choice(line, rect_t{}, STR_PREFLIGHT_POTSLIDER_CHECK, 0, 2,
+                              GET_SET_DEFAULT(g_model.potsWarnMode));
+
+    // Pot warnings
+    line = form->newLine(&grid);
+    line->padTop(0);
+    line->padLeft(4);
+    auto pwm = new PotWarnMatrix(line, rect_t{});
+    make_conditional(pwm, pots_wm);
+  }
 
   // Center beeps
   line = form->newLine(&grid);
+  line->padTop(0);
   new StaticText(line, rect_t{}, STR_BEEPCTR, 0, COLOR_THEME_PRIMARY1);
-  new CenterBeepsMatrix(form, rect_t{});
+  line = form->newLine(&grid);
+  line->padLeft(4);
+  new CenterBeepsMatrix(line, rect_t{});
 }
 
 static std::string switchWarninglabel(swsrc_t index)
 {
   auto warn_pos = g_model.switchWarningState >> (3 * index) & 0x07;
-  return TEXT_AT_INDEX(STR_VSRCRAW,
-                       (index + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1)) +
+  return std::string(switchGetName(index)) +
          std::string(getSwitchWarnSymbol(warn_pos));
 }
+
+#if LCD_W > LCD_H
+#define SW_BTNS 8
+#else
+#define SW_BTNS 4
+#endif
+#define SW_BTN_W ((LCD_W-24)/SW_BTNS)
 
 SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
   ButtonMatrix(parent, r)
 {
   // Setup button layout & texts
   uint8_t btn_cnt = 0;
-  for (uint8_t i = 0; i < NUM_SWITCHES; i++) {
+  for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
     if (SWITCH_EXISTS(i)) {
       sw_idx[btn_cnt] = i;
       btn_cnt++;
     }    
   }
 
-  initBtnMap(4, btn_cnt);
+  initBtnMap(SW_BTNS, btn_cnt);
+  update();
 
   uint8_t btn_id = 0;
-  for (uint8_t i = 0; i < NUM_SWITCHES; i++) {
+  for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
     if (SWITCH_EXISTS(i)) {
-      std::string txt = switchWarninglabel(i);
-      setText(btn_id, txt.c_str());
+      setTextAndState(i);
       btn_id++;
     }
   }
-  update();
-  
-  lv_obj_set_width(lvobj, LV_DPI_DEF * 2);
 
-  uint8_t rows = ((btn_cnt - 1) / 4) + 1;
+  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W);
+
+  uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
   lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 3);
-  
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
 
   lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
-  lv_obj_set_style_pad_left(lvobj, LV_DPI_DEF / 10, LV_PART_MAIN);
 
   lv_obj_set_style_pad_row(lvobj, 4, LV_PART_MAIN);
   lv_obj_set_style_pad_column(lvobj, 4, LV_PART_MAIN);
+}
 
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);
+void SwitchWarnMatrix::setTextAndState(uint8_t btn_id)
+{
+  setText(btn_id, switchWarninglabel(sw_idx[btn_id]).c_str());
+  setChecked(btn_id);
 }
 
 void SwitchWarnMatrix::onPress(uint8_t btn_id)
 {
-  if (btn_id >= NUM_SWITCHES) return;
+  if (btn_id >= MAX_SWITCHES) return;
   auto sw = sw_idx[btn_id];
 
   swarnstate_t newstate = bfGet(g_model.switchWarningState, 3 * sw, 3);
@@ -219,13 +245,12 @@ void SwitchWarnMatrix::onPress(uint8_t btn_id)
   SET_DIRTY();
 
   // TODO: save state in object
-  std::string txt = switchWarninglabel(sw);
-  setText(btn_id, txt.c_str());
+  setTextAndState(sw);
 }
 
 bool SwitchWarnMatrix::isActive(uint8_t btn_id)
 {
-  if (btn_id >= NUM_SWITCHES) return false;
+  if (btn_id >= MAX_SWITCHES) return false;
   return bfGet(g_model.switchWarningState, 3 * sw_idx[btn_id], 3) != 0;
 }
 
@@ -234,57 +259,44 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
 {
   // Setup button layout & texts
   uint8_t btn_cnt = 0;
-  for (uint8_t i = POT_FIRST; i <= POT_LAST; i++) {
-    if ((IS_POT(i) || IS_POT_MULTIPOS(i)) && IS_POT_AVAILABLE(i)) {
-      pot_idx[btn_cnt] = i - POT_FIRST;
+  for (uint8_t i = 0; i < MAX_POTS; i++) {
+    if (IS_POT_AVAILABLE(i)) {
+      pot_idx[btn_cnt] = i;
       btn_cnt++;
     }
   }
 
-  for (int8_t i = SLIDER_FIRST; i <= SLIDER_LAST; i++) {
-    if (IS_SLIDER(i)) {
-      pot_idx[btn_cnt] = i - POT_FIRST;
-      btn_cnt++;
-    }
-  }
-
-  initBtnMap(3, btn_cnt);
-
-  uint8_t btn_id = 0;
-  for (uint16_t i = POT_FIRST; i <= POT_LAST; i++) {
-    if ((IS_POT(i) || IS_POT_MULTIPOS(i)) && IS_POT_AVAILABLE(i)) {
-      setText(btn_id, STR_VSRCRAW[i + 1]);
-      btn_id++;
-    }
-  }
-  for (int8_t i = SLIDER_FIRST; i <= SLIDER_LAST; i++) {
-    if (IS_SLIDER(i)) {
-      setText(btn_id, STR_VSRCRAW[i + 1]);
-      btn_id++;
-    }
-  }
+  initBtnMap(SW_BTNS, btn_cnt);
   update();
 
-  lv_obj_set_width(lvobj, (LV_DPI_DEF * 3) / 2);
+  uint8_t btn_id = 0;
+  for (uint16_t i = 0; i < MAX_POTS; i++) {
+    if (IS_POT_AVAILABLE(i)) {
+      setTextAndState(btn_id);
+      btn_id++;
+    }
+  }
+
+  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W);
   
-  uint8_t rows = ((btn_cnt - 1) / 4) + 1;
+  uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
   lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 3);
 
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
-
   lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
-  lv_obj_set_style_pad_left(lvobj, LV_DPI_DEF / 10, LV_PART_MAIN);
 
   lv_obj_set_style_pad_row(lvobj, 4, LV_PART_MAIN);
   lv_obj_set_style_pad_column(lvobj, 4, LV_PART_MAIN);
+}
 
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);
+void PotWarnMatrix::setTextAndState(uint8_t btn_id)
+{
+  setText(btn_id, getPotLabel(pot_idx[btn_id]));
+  setChecked(btn_id);
 }
 
 void PotWarnMatrix::onPress(uint8_t btn_id)
 {
-  if (btn_id >= NUM_POTS + NUM_SLIDERS) return;
+  if (btn_id >= MAX_POTS) return;
   auto pot = pot_idx[btn_id];
   
   g_model.potsWarnEnabled ^= (1 << pot);
@@ -292,12 +304,13 @@ void PotWarnMatrix::onPress(uint8_t btn_id)
       (g_model.potsWarnEnabled & (1 << pot))) {
     SAVE_POT_POSITION(pot);
   }
+  setTextAndState(btn_id);
   SET_DIRTY();
 }
 
 bool PotWarnMatrix::isActive(uint8_t btn_id)
 {
-  if (btn_id >= NUM_POTS + NUM_SLIDERS) return false;
+  if (btn_id >= MAX_POTS) return false;
   return (g_model.potsWarnEnabled & (1 << pot_idx[btn_id])) != 0;
 }
 
@@ -306,53 +319,65 @@ CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
 {
   // Setup button layout & texts
   uint8_t btn_cnt = 0;
-  for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+
+  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  max_analogs = max_sticks + max_pots;
+
+  for (uint8_t i = 0; i < max_analogs; i++) {
     // multipos cannot be centered
-    if (i < NUM_STICKS || (IS_POT_SLIDER_AVAILABLE(i) && !IS_POT_MULTIPOS(i))) {
+    if (i < max_sticks || (IS_POT_SLIDER_AVAILABLE(i - max_sticks) &&
+                           !IS_POT_MULTIPOS(i - max_sticks))) {
       ana_idx[btn_cnt] = i;
       btn_cnt++;
     }
   }
 
-  initBtnMap(4, btn_cnt);
+  initBtnMap(SW_BTNS, btn_cnt);
+  update();
 
   uint8_t btn_id = 0;
-  for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
-    if (i < NUM_STICKS || (IS_POT_SLIDER_AVAILABLE(i) && !IS_POT_MULTIPOS(i))) {
-      setText(btn_id, STR_RETA123[i]);
+  for (uint8_t i = 0; i < max_analogs; i++) {
+    if (i < max_sticks || (IS_POT_SLIDER_AVAILABLE(i - max_sticks) &&
+                           !IS_POT_MULTIPOS(i - max_sticks))) {
+      setTextAndState(btn_id);
       btn_id++;
     }
   }
-  update();
 
-  lv_obj_set_width(lvobj, (3 * LV_DPI_DEF) / 2);
+  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W);
   
-  uint8_t rows = ((btn_cnt - 1) / 4) + 1;
-  lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 6);
-
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
+  uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
+  lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 3);
 
   lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
-  lv_obj_set_style_pad_left(lvobj, LV_DPI_DEF / 10, LV_PART_MAIN);
 
   lv_obj_set_style_pad_row(lvobj, 4, LV_PART_MAIN);
   lv_obj_set_style_pad_column(lvobj, 4, LV_PART_MAIN);
+}
 
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);
+void CenterBeepsMatrix::setTextAndState(uint8_t btn_id)
+{
+  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
+  if (ana_idx[btn_id] < max_sticks)
+    setText(btn_id, getAnalogShortLabel(ana_idx[btn_id]));
+  else
+    setText(btn_id, getAnalogLabel(ADC_INPUT_POT, ana_idx[btn_id] - max_sticks));
+  setChecked(btn_id);
 }
 
 void CenterBeepsMatrix::onPress(uint8_t btn_id)
 {
-  if (btn_id >= NUM_STICKS + NUM_POTS + NUM_SLIDERS) return;
+  if (btn_id >= max_analogs) return;
   uint8_t i = ana_idx[btn_id];
   BFBIT_FLIP(g_model.beepANACenter, bfBit<BeepANACenter>(i));
+  setTextAndState(btn_id);
   SET_DIRTY();  
 }
 
 bool CenterBeepsMatrix::isActive(uint8_t btn_id)
 {
-  if (btn_id >= NUM_STICKS + NUM_POTS + NUM_SLIDERS) return false;
+  if (btn_id >= max_analogs) return false;
   uint8_t i = ana_idx[btn_id];
   return bfSingleBitGet<BeepANACenter>(g_model.beepANACenter, i) != 0;
 }

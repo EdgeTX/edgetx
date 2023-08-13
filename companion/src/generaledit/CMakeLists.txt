@@ -1,4 +1,4 @@
-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 set(generaledit_NAMES
   generaledit
@@ -9,12 +9,16 @@ set(generaledit_SRCS
   calibration.cpp
   hardware.cpp
   trainer.cpp
+  generaloptions.cpp
+  timezoneedit.cpp
 )
 
 set(generaledit_HDRS
   calibration.h
   hardware.h
   trainer.h
+  generaloptions.h
+  timezoneedit.h
 )
 
 set(generaledit_UIS

@@ -32,10 +32,11 @@ FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
   initBtnMap(3, MAX_FLIGHT_MODES);
 #endif
 
-  for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
-    setText(i, std::to_string(i).c_str());
-  }
   update();
+
+  for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
+    setTextAndState(i);
+  }
 
 #if LCD_W > LCD_H
   // hide last element
@@ -47,14 +48,16 @@ FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
   lv_obj_set_height(lvobj, LV_DPI_DEF);
 #endif
 
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
-
   lv_obj_set_style_pad_all(lvobj, lv_dpx(4), LV_PART_MAIN);
   lv_obj_set_style_pad_row(lvobj, lv_dpx(4), LV_PART_MAIN);
   lv_obj_set_style_pad_column(lvobj, lv_dpx(4), LV_PART_MAIN);
+}
 
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_remove_style(lvobj, nullptr, LV_PART_MAIN | LV_STATE_EDITED);  
+template<class T>
+void FMMatrix<T>::setTextAndState(uint8_t btn_id)
+{
+  setText(btn_id, std::to_string(btn_id).c_str());
+  setChecked(btn_id);
 }
 
 template<class T>
@@ -62,6 +65,7 @@ void FMMatrix<T>::onPress(uint8_t btn_id)
 {
   if (btn_id >= MAX_FLIGHT_MODES) return;
   BFBIT_FLIP(input->flightModes, bfBit<uint32_t>(btn_id));
+  setTextAndState(btn_id);
   storageDirty(EE_MODEL);
 }
 

@@ -19,6 +19,7 @@
  */
 
 #include "board.h"
+#include "stm32f4xx_fmc.h"
 
 #define SDRAM_MEMORY_WIDTH    FMC_SDMemory_Width_16b 
 

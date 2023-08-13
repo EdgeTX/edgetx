@@ -24,10 +24,24 @@
 
 #include "definitions.h"
 #include "opentx_types.h"
+
 #include <string>
 
 #include <string>
 #include <cstring>
+
+#define IS_UFT8_2BYTES(c) \
+    ( (((uint8_t)c) & 0xE0) == 0xC0 )
+
+#define IS_UTF8_3BYTES(c) \
+    ( (((uint8_t)c) & 0xF0) == 0xE0 )
+
+#define IS_UTF8(c) \
+    ( IS_UFT8_2BYTES(c) || IS_UTF8_3BYTES(c) )
+
+#define UTF8_WIDTH(c) \
+    ( IS_UFT8_2BYTES(c) ? 2 : IS_UTF8_3BYTES(c) ? 3 : 1 )
+
 
 #define SHOW_TIME  0x1
 #define SHOW_TIMER 0x0
@@ -68,7 +82,7 @@ char *strAppendFilename(char *dest, const char *filename, const int size);
 std::string formatNumberAsString(int32_t val, LcdFlags flags = 0, uint8_t len = 0, const char * prefix = nullptr, const char * suffix = nullptr);
 
 #if !defined(BOOT)
-char *getStringAtIndex(char *dest, const char **s, int idx);
+char *getStringAtIndex(char *dest, const char *const *s, int idx);
 char *strAppendStringWithIndex(char *dest, const char *s, int idx);
 #define LEN_TIMER_STRING 10  // "-00:00:00"
 char *getTimerString(char *dest, int32_t tme, TimerOptions timerOptions = {.options = 0});
@@ -82,7 +96,14 @@ char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
 const char *getSwitchWarnSymbol(uint8_t pos);
 const char *getSwitchPositionSymbol(uint8_t pos);
 char *getSwitchPositionName(char *dest, swsrc_t idx);
-char *getSwitchName(char *dest, swsrc_t idx);
+char *getSwitchName(char *dest, uint8_t idx);
+
+const char* getAnalogLabel(uint8_t type, uint8_t idx);
+const char* getAnalogShortLabel(uint8_t idx);
+const char* getMainControlLabel(uint8_t idx);
+const char* getTrimLabel(uint8_t idx);
+const char* getTrimSourceLabel(uint16_t src_raw, int8_t trim_src);
+const char* getPotLabel(uint8_t idx);
 
 template<size_t L>
 char* getSourceString(char (&dest)[L], mixsrc_t idx);
@@ -91,8 +112,6 @@ template <size_t L>
 char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
                                  LcdFlags flags);
 
-int  getRawSwitchIdx(char sw);
-char getRawSwitchFromIdx(int sw);
 #endif
 
 char *getFlightModeString(char *dest, int8_t idx);
@@ -151,5 +170,17 @@ int strncasecmp(char (&s1)[L1], const char *const s2)
 {
   return strncasecmp(s1, s2, L1);
 }
+
+std::string getValueWithUnit(int val, uint8_t unit, LcdFlags flags);
+std::string getGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags);
+
+// Timezone handling
+extern int8_t minTimezone();
+extern int8_t maxTimezone();
+extern std::string timezoneDisplay(int tz);
+extern int timezoneIndex(int8_t tzHour, int8_t tzMinute);
+extern int8_t timezoneHour(int tz);
+extern int8_t timezoneMinute(int tz);
+extern int timezoneOffsetSeconds(int8_t tzHour, int8_t tzMinute);
 
 #endif  // _STRHELPERS_H_

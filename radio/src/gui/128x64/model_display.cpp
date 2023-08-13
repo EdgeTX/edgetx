@@ -51,7 +51,7 @@ enum MenuModelDisplayItems {
 #else
   #define DISPLAY_COL2                (8*FW)
 #endif
-#define DISPLAY_COL3                  (17*FW+2)
+#define DISPLAY_COL3                  (15*FW+2)
 
 inline uint8_t SCREEN_TYPE_COLUMNS(uint8_t screenIndex)
 {
@@ -262,7 +262,7 @@ void menuModelDisplay(event_t event)
             }
           }
           if (attr && menuHorizontalPosition == NUM_LINE_ITEMS) {
-            REPEAT_LAST_CURSOR_MOVE();
+            repeatLastCursorMove(event);
           }
         }
         break;

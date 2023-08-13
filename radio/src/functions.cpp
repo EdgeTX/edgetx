@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "switches.h"
 
 #if defined(COLORLCD)
 void setRequestedMainView(uint8_t view);
@@ -143,7 +144,7 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
 #endif
 
 #if defined(GVARS)
-  for (uint8_t i=0; i<NUM_TRIMS; i++) {
+  for (uint8_t i=0; i<MAX_TRIMS; i++) {
     trimGvar[i] = -1;
   }
 #endif
@@ -173,9 +174,9 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             uint8_t param = CFN_CH_INDEX(cfn);
             if (param == 0)
               newActiveFunctions |= 0x0F;
-            else if (param <= NUM_STICKS)
+            else if (param <= MAX_STICKS)
               newActiveFunctions |= (1 << (param - 1));
-            else if (param == NUM_STICKS + 1)
+            else if (param == MAX_STICKS + 1)
               newActiveFunctions |= (1u << FUNCTION_TRAINER_CHANNELS);
             break;
           }
@@ -297,9 +298,7 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             if (isRepeatDelayElapsed(functions, functionsContext, i)) {
               if (!IS_PLAYING(PLAY_INDEX)) {
                 if (CFN_FUNC(cfn) == FUNC_PLAY_SOUND) {
-                  if (audioQueue.isEmpty()) {
-                    AUDIO_PLAY(AU_SPECIAL_SOUND_FIRST + CFN_PARAM(cfn));
-                  }
+                  AUDIO_PLAY(AU_SPECIAL_SOUND_FIRST + CFN_PARAM(cfn));
                 } else if (CFN_FUNC(cfn) == FUNC_PLAY_VALUE) {
                   PLAY_VALUE(CFN_PARAM(cfn), PLAY_INDEX);
                 }
@@ -400,6 +399,8 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
               requiredBacklightBright =
                   (1024 - raw) * (BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN) /
                   2048;
+#elif defined(OLED_SCREEN)
+            requiredBacklightBright = (raw + 1024) * 254 / 2048;
 #else
             requiredBacklightBright = (1024 - raw) * 100 / 2048;
 #endif
@@ -467,3 +468,76 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
   functionsContext.activeFunctions  = newActiveFunctions;
 }
 
+const char* funcGetLabel(uint8_t func)
+{
+  switch(func) {
+  case FUNC_OVERRIDE_CHANNEL:
+    return STR_SF_SAFETY;
+  case FUNC_TRAINER:
+    return STR_SF_TRAINER;
+  case FUNC_INSTANT_TRIM:
+    return STR_SF_INST_TRIM;
+  case FUNC_RESET:
+    return STR_SF_RESET;
+  case FUNC_SET_TIMER:
+    return STR_SF_SET_TIMER;
+#if defined(GVARS)
+  case FUNC_ADJUST_GVAR:
+    return STR_ADJUST_GVAR;
+#endif
+  case FUNC_VOLUME:
+    return STR_SF_VOLUME;
+  case FUNC_SET_FAILSAFE:
+    return STR_SF_FAILSAFE;
+  case FUNC_RANGECHECK:
+    return STR_SF_RANGE_CHECK;
+  case FUNC_BIND:
+    return STR_SF_MOD_BIND;
+#if defined(AUDIO)
+  case FUNC_PLAY_SOUND:
+    return STR_SOUND;
+#endif
+#if defined(VOICE)
+  case FUNC_PLAY_TRACK:
+    return STR_PLAY_TRACK;
+  case FUNC_PLAY_VALUE:
+    return STR_PLAY_VALUE;
+#endif
+#if defined(LUA)
+  case FUNC_PLAY_SCRIPT:
+    return STR_SF_PLAY_SCRIPT;
+#endif
+  case FUNC_BACKGND_MUSIC:
+    return STR_SF_BG_MUSIC;
+  case FUNC_BACKGND_MUSIC_PAUSE:
+    return STR_SF_BG_MUSIC_PAUSE;
+#if defined(VARIO)
+  case FUNC_VARIO:
+    return STR_SF_VARIO;
+#endif
+#if defined(HAPTIC)
+  case FUNC_HAPTIC:
+    return STR_SF_HAPTIC;
+#endif
+  case FUNC_LOGS:
+    return STR_SF_LOGS;
+  case FUNC_BACKLIGHT:
+    return STR_SF_BACKLIGHT;
+  case FUNC_SCREENSHOT:
+    return STR_SF_SCREENSHOT;
+  case FUNC_RACING_MODE:
+    return STR_SF_RACING_MODE;
+#if defined(COLORLCD)
+  case FUNC_DISABLE_TOUCH:
+    return STR_SF_DISABLE_TOUCH;
+  case FUNC_SET_SCREEN:
+    return STR_SF_SET_SCREEN;
+#endif
+#if defined(DEBUG)
+  case FUNC_TEST:
+    return STR_SF_TEST;
+#endif
+  default:
+    return STR_EMPTY;
+  }
+}

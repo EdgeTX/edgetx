@@ -22,18 +22,17 @@
 #pragma once
 
 #include "form.h"
-
-struct ModuleData;
-
-class PpmSettings : public FormGroup
-{
-  ModuleData* md;
-
-public:
-  PpmSettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);
-};
+#include "numberedit.h"
 
 template <typename T>
-struct PpmFrameSettings : public FormGroup {
-  PpmFrameSettings(Window* parent, const FlexGridLayout& g, T* ppm);
+struct PpmFrameSettings : public FormWindow {
+  private:
+    NumberEdit* ppmFrameLenEditObject = nullptr;
+
+  public:
+    PpmFrameSettings(Window* parent, T* ppm);
+    
+    NumberEdit* getPpmFrameLenEditObject() {
+      return ppmFrameLenEditObject;
+    };
 };

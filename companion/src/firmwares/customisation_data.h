@@ -30,7 +30,7 @@
 
 */
 
-constexpr int MAX_CUSTOM_SCREENS      {5};
+constexpr int MAX_CUSTOM_SCREENS      {10};
 constexpr int THEME_NAME_LEN          {8};
 constexpr int MAX_THEME_OPTIONS       {5};
 constexpr int LEN_ZONE_OPTION_STRING  {8};
@@ -40,7 +40,7 @@ constexpr int WIDGET_NAME_LEN         {10};
 constexpr int MAX_WIDGET_OPTIONS      {5};
 constexpr int MAX_TOPBAR_ZONES        {4};
 constexpr int MAX_TOPBAR_OPTIONS      {1};
-constexpr int LAYOUT_ID_LEN           {10};
+constexpr int LAYOUT_ID_LEN           {12};
 
 // Common 'ZoneOptionValue's among all layouts
 enum {
@@ -75,6 +75,16 @@ enum ZoneOptionValueEnum {
   ZOV_LAST = ZOV_Color
 };
 
+enum ZoneOptionAlign
+{
+  ALIGN_LEFT,
+  ALIGN_CENTER,
+  ALIGN_RIGHT,
+
+  // this one MUST be last
+  ALIGN_COUNT
+};
+
 struct ZoneOption
 {
   enum Type {
@@ -86,7 +96,8 @@ struct ZoneOption
     TextSize,
     Timer,
     Switch,
-    Color
+    Color,
+    Align
   };
 
   const char * name;

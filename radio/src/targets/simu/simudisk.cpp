@@ -28,7 +28,8 @@
 #include <sys/stat.h>
 
 FILE * diskImage = 0;
-FATFS g_FATFS_Obj = {0};
+
+bool _g_FATFS_init = false;
 
 RTOS_MUTEX_HANDLE ioMutex;
 
@@ -242,9 +243,39 @@ void sdDone()
   }
 }
 
+void sdMount()
+{
+  TRACE("sdMount");
+  
+  diskCache.clear();
+  
+  if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
+    // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
+    _g_FATFS_init = true;
+    sdGetFreeSectors();
+
+#if defined(LOG_TELEMETRY)
+    f_open(&g_telemetryFile, LOGS_PATH "/telemetry.log", FA_OPEN_ALWAYS | FA_WRITE);
+    if (f_size(&g_telemetryFile) > 0) {
+      f_lseek(&g_telemetryFile, f_size(&g_telemetryFile)); // append
+    }
+#endif
+
+#if defined(LOG_BLUETOOTH)
+    f_open(&g_bluetoothFile, LOGS_PATH "/bluetooth.log", FA_OPEN_ALWAYS | FA_WRITE);
+    if (f_size(&g_bluetoothFile) > 0) {
+      f_lseek(&g_bluetoothFile, f_size(&g_bluetoothFile)); // append
+    }
+#endif
+  }
+  else {
+    TRACE("f_mount() failed");
+  }
+}
+
 uint32_t sdMounted()
 {
-  return g_FATFS_Obj.fs_type != 0;
+  return _g_FATFS_init && (g_FATFS_Obj.fs_type != 0);
 }
 
 uint32_t sdIsHC()

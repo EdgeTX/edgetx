@@ -20,9 +20,11 @@
  */
 
 #include "opentx_types.h"
-#include "libopenui_config.h"
 #include "lcd.h"
 #include <lvgl/lvgl.h>
+
+#include "stm32f4xx_dma2d.h"
+#include "stm32f4xx_ltdc.h"
 
 #if defined(RADIO_T18)
   #define HBP  43
@@ -153,8 +155,8 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
       lv_area_t refr_area;
       lv_area_copy(&refr_area, &disp->inv_areas[i]);
 
-      TRACE("{%d,%d,%d,%d}", refr_area.x1,
-            refr_area.y1, refr_area.x2, refr_area.y2);
+      //TRACE("{%d,%d,%d,%d}", refr_area.x1,
+      //      refr_area.y1, refr_area.x2, refr_area.y2);
 
       _rotate_area_180(refr_area);
 

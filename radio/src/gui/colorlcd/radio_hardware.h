@@ -24,11 +24,14 @@
 
 #include "tabsgroup.h"
 
-class RadioHardwarePage: public PageTab {
-  public:
-    RadioHardwarePage();
+class RadioHardwarePage : public PageTab
+{
+  void checkEvents() override;
 
-    void build(FormWindow * window) override;
+ public:
+  RadioHardwarePage();
+
+  void build(FormWindow* window) override;
 };
 
 #endif //_RADIO_HARDWARE_H_

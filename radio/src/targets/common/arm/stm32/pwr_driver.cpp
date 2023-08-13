@@ -20,6 +20,7 @@
  */
 
 #include "board.h"
+#include "watchdog_driver.h"
 
 void pwrInit()
 {
@@ -70,21 +71,10 @@ void pwrInit()
   hardwareOptions.pcbrev = PCBREV_VALUE();
 #endif
 
-#if defined(TRAINER_DETECT_GPIO_PIN)
-  GPIO_InitStructure.GPIO_Pin = TRAINER_DETECT_GPIO_PIN;
-  GPIO_Init(TRAINER_DETECT_GPIO, &GPIO_InitStructure);
-#endif
-
 #if defined(SD_PRESENT_GPIO_PIN)
   GPIO_ResetBits(SD_PRESENT_GPIO, SD_PRESENT_GPIO_PIN);
   GPIO_InitStructure.GPIO_Pin = SD_PRESENT_GPIO_PIN;
   GPIO_Init(SD_PRESENT_GPIO, &GPIO_InitStructure);
-#endif
-
-#if defined(INTMODULE_USART) && defined(TRAINER_MODULE_CPPM)
-  GPIO_SetBits(TRAINER_MODULE_CPPM_GPIO, TRAINER_MODULE_CPPM_GPIO_PIN);
-  GPIO_InitStructure.GPIO_Pin = TRAINER_MODULE_CPPM_GPIO_PIN;
-  GPIO_Init(TRAINER_MODULE_CPPM_GPIO, &GPIO_InitStructure);
 #endif
 }
 
@@ -118,9 +108,22 @@ bool pwrForcePressed()
 bool pwrPressed()
 {
 #if defined(PWR_EXTRA_SWITCH_GPIO)
-  return (GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == Bit_RESET || GPIO_ReadInputDataBit(PWR_EXTRA_SWITCH_GPIO, PWR_EXTRA_SWITCH_GPIO_PIN) == Bit_RESET);
+  return (GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) ==
+              Bit_RESET ||
+          GPIO_ReadInputDataBit(PWR_EXTRA_SWITCH_GPIO,
+                                PWR_EXTRA_SWITCH_GPIO_PIN) == Bit_RESET);
 #else
-  return GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == Bit_RESET;
+  return GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) ==
+         Bit_RESET;
+#endif
+}
+
+bool pwrOffPressed()
+{
+#if defined(PWR_BUTTON_PRESS)
+  return pwrPressed();
+#else
+  return !pwrPressed();
 #endif
 }
 

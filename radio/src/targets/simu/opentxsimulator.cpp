@@ -22,6 +22,10 @@
 #include "opentxsimulator.h"
 #include "opentx.h"
 #include "simulcd.h"
+#include "switches.h"
+
+#include "hal/adc_driver.h"
+#include "hal/rotary_encoder.h"
 
 #include <QDebug>
 #include <QElapsedTimer>
@@ -34,7 +38,7 @@
 
 #define ETXS_DBG    qDebug() << "(" << simuTimerMicros() << "us)"
 
-int16_t g_anas[Analogs::NUM_ANALOGS];
+int16_t g_anas[MAX_ANALOG_INPUTS];
 QVector<QIODevice *> OpenTxSimulator::tracebackDevices;
 
 #if defined(HARDWARE_TOUCH)
@@ -44,14 +48,22 @@ QVector<QIODevice *> OpenTxSimulator::tracebackDevices;
   #define TAP_TIME 25
 #endif
 
-uint16_t anaIn(uint8_t chan)
+uint16_t simu_get_analog(uint8_t idx)
 {
-  return g_anas[chan];
-}
-
-uint16_t getAnalogValue(uint8_t index)
-{
-  return anaIn(index);
+  // 6POS simu mechanism use a different scale, so needs specific offset
+  if (IS_POT_MULTIPOS(idx - adcGetInputOffset(ADC_INPUT_POT))) {
+    // Use radio calibration data to determine conversion factor
+    StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[idx];
+    int range6POS = 2048; // Default if calibration is not valid
+    if (calib->count != 0) {
+      // calculate 6POS switch range from calibration data
+      int c1 = calib->steps[calib->count - 1] * 32; // last calibration value
+      int c2 = calib->steps[calib->count - 2] * 32; // 2nd last calibration value
+      range6POS = c1 + (c1 - c2) / 2;
+    }
+    return (g_anas[idx] * range6POS / 2048);
+  }
+  return (g_anas[idx] * 2) + 2048;
 }
 
 void firmwareTraceCb(const char * text)
@@ -123,11 +135,12 @@ void OpenTxSimulator::init()
   QMutexLocker lckr(&m_mtxSimuMain);
   memset(g_anas, 0, sizeof(g_anas));
 
-#if defined(PCBTARANIS)
-  g_anas[TX_RTC_VOLTAGE] = 800;  // 2,34V
-#endif
-
   simuInit();
+
+  if (adcGetMaxInputs(ADC_INPUT_RTC_BAT) > 0) {
+    auto idx = adcGetInputOffset(ADC_INPUT_RTC_BAT);
+    setAnalogValue(idx, 800);
+  }
 }
 
 void OpenTxSimulator::start(const char * filename, bool tests)
@@ -187,7 +200,8 @@ void OpenTxSimulator::readRadioData(QByteArray & dest)
 {
 #if defined(EEPROM_SIZE)
   QMutexLocker lckr(&m_mtxRadioData);
-  memcpy(dest.data(), eeprom, std::min<int>(EEPROM_SIZE, dest.size()));
+  if (eeprom)
+    memcpy(dest.data(), eeprom, qMin<int>(EEPROM_SIZE, dest.size()));
 #endif
 }
 
@@ -220,19 +234,17 @@ void OpenTxSimulator::setTrimSwitch(uint8_t trim, bool state)
 
 void OpenTxSimulator::setTrim(unsigned int idx, int value)
 {
-  unsigned i = idx;
-  if (i < 4)  // swap axes
-    i = modn12x3[4 * getStickMode() + idx];
+  unsigned i = inputMappingConvertMode(idx);
   uint8_t phase = getTrimFlightMode(getFlightMode(), i);
   setTrimValue(phase, i, value);
 }
 
 void OpenTxSimulator::setTrainerInput(unsigned int inputNumber, int16_t value)
 {
-  static unsigned dim = DIM(ppmInput);
+  static unsigned dim = DIM(trainerInput);
   //setTrainerTimeout(100);
   if (inputNumber < dim)
-    ppmInput[inputNumber] = qMin(qMax((int16_t)-512, value), (int16_t)512);
+    trainerInput[inputNumber] = qMin(qMax((int16_t)-512, value), (int16_t)512);
 }
 
 void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
@@ -244,13 +256,21 @@ void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
       setAnalogValue(index, value);
       break;
     case INPUT_SRC_KNOB :
-      setAnalogValue(index + NUM_STICKS, value);
+      setAnalogValue(index + adcGetInputOffset(ADC_INPUT_POT), value);
       break;
     case INPUT_SRC_SLIDER :
-      setAnalogValue(index + NUM_STICKS + NUM_POTS, value);
+      // TODO redo this when Companion refactored to use radio json adc files
+      //setAnalogValue(index + adcGetInputOffset(ADC_INPUT_POT), value);
+      static const int slideroffset = adcGetInputIdx("SL1", 3);
+      //qDebug() << "SL1:" << slideroffset;
+      if (slideroffset >= 0)
+        setAnalogValue(index + slideroffset, value);
       break;
     case INPUT_SRC_TXVIN :
-      setAnalogValue(Analogs::TX_VOLTAGE, voltageToAdc(value));
+      if (adcGetMaxInputs(ADC_INPUT_VBAT) > 0) {
+        auto idx = adcGetInputOffset(ADC_INPUT_VBAT);
+        setAnalogValue(idx, voltageToAdc(value));
+      }
       break;
     case INPUT_SRC_SWITCH :
       setSwitch(index, (int8_t)value);
@@ -273,6 +293,7 @@ void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
   }
 }
 
+extern volatile rotenc_t rotencValue;
 extern volatile uint32_t rotencDt;
 
 void OpenTxSimulator::rotaryEncoderEvent(int steps)
@@ -281,7 +302,7 @@ void OpenTxSimulator::rotaryEncoderEvent(int steps)
   static uint32_t last_tick = 0;
   if (steps != 0) {
     if (g_eeGeneral.rotEncMode >= ROTARY_ENCODER_MODE_INVERT_BOTH) steps *= -1;
-    ROTARY_ENCODER_NAVIGATION_VALUE += steps * ROTARY_ENCODER_GRANULARITY;
+    rotencValue += steps * ROTARY_ENCODER_GRANULARITY;
     // TODO: set rotencDt
     uint32_t now = RTOS_GET_MS();
     uint32_t dt = now - last_tick;
@@ -390,13 +411,15 @@ void OpenTxSimulator::lcdFlushed()
 
 void OpenTxSimulator::setTrainerTimeout(uint16_t ms)
 {
-  ppmInputValidityTimer = ms;
+  trainerInputValidityTimer = ms;
 }
 
 void OpenTxSimulator::sendTelemetry(const QByteArray data)
 {
   //ETXS_DBG << data;
-  sportProcessTelemetryPacket((uint8_t *)data.constData());
+  sportProcessTelemetryPacket(INTERNAL_MODULE,
+                              (uint8_t *)data.constData(),
+                              data.count());
 }
 
 uint8_t OpenTxSimulator::getSensorInstance(uint16_t id, uint8_t defaultValue)
@@ -405,7 +428,7 @@ uint8_t OpenTxSimulator::getSensorInstance(uint16_t id, uint8_t defaultValue)
     if (isTelemetryFieldAvailable(i)) {
       TelemetrySensor * sensor = &g_model.telemetrySensors[i];
       if (sensor->id == id) {
-        return sensor->frskyInstance.physID + 1;
+        return sensor->frskyInstance.physID;
       }
     }
   }
@@ -545,7 +568,6 @@ void OpenTxSimulator::checkOutputsChanged()
   qint32 tmpVal;
   uint8_t i, idx;
   const uint8_t phase = getFlightMode();  // opentx.cpp
-  const uint8_t mode = getStickMode();
 
   for (i=0; i < chansDim; i++) {
     if (lastOutputs.chans[i] != channelOutputs[i] || m_resetOutputsData) {
@@ -561,7 +583,7 @@ void OpenTxSimulator::checkOutputsChanged()
   }
 
   for (i=0; i < MAX_LOGICAL_SWITCHES; i++) {
-    tmpVal = (qint32)GET_SWITCH_BOOL(SWSRC_SW1+i);
+    tmpVal = (qint32)GET_SWITCH_BOOL(SWSRC_FIRST_LOGICAL_SWITCH+i);
     if (lastOutputs.vsw[i] != (bool)tmpVal || m_resetOutputsData) {
       emit virtualSwValueChange(i, tmpVal);
       emit outputValueChange(OUTPUT_SRC_VIRTUAL_SW, i, tmpVal);
@@ -570,11 +592,7 @@ void OpenTxSimulator::checkOutputsChanged()
   }
 
   for (i=0; i < Board::TRIM_AXIS_COUNT; i++) {
-    if (i < 4)  // swap axes
-      idx = modn12x3[4 * mode + i];
-    else
-      idx = i;
-
+    idx = inputMappingConvertMode(i);
     tmpVal = getTrimValue(getTrimFlightMode(phase, idx), idx);
     if (lastOutputs.trims[i] != tmpVal || m_resetOutputsData) {
       emit trimValueChange(i, tmpVal);

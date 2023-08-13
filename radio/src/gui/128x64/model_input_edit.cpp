@@ -48,6 +48,13 @@ enum ExposFields {
   EXPO_FIELD_MAX
 };
 
+uint8_t FM_ROW(uint8_t value)
+{
+  if (modelFMEnabled())
+    return value;
+  return HIDDEN_ROW;
+}
+
 void menuModelExpoOne(event_t event)
 {
 #if defined(KEYS_GPIO_REG_MDL)
@@ -61,7 +68,7 @@ void menuModelExpoOne(event_t event)
     killEvents(event);
   }
 #elif defined(NAVIGATION_XLITE)
-  if (event == EVT_KEY_FIRST(KEY_ENTER) && IS_SHIFT_PRESSED()) {
+  if (event == EVT_KEY_FIRST(KEY_ENTER) && keysGetState(KEY_SHIFT)) {
     pushMenu(menuChannelsView);
     killEvents(event);
   }
@@ -71,7 +78,9 @@ void menuModelExpoOne(event_t event)
 
   uint8_t old_editMode = s_editMode;
 
-  SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX, {0, 0, 0, ed->srcRaw >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, LABEL(Curve), 1, CASE_FLIGHT_MODES(LABEL(Flight Mode)) CASE_FLIGHT_MODES((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE) 0 /*, ...*/});
+  SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX,
+          {0, 0, 0, ed->srcRaw >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, LABEL(Curve), 1,
+           CASE_FLIGHT_MODES(FM_ROW(LABEL(Flight Mode))) CASE_FLIGHT_MODES(FM_ROW((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE)) 0 /*, ...*/});
 
   int8_t sub = menuVerticalPosition;
 
@@ -150,12 +159,20 @@ void menuModelExpoOne(event_t event)
         break;
 
       case EXPO_FIELD_TRIM:
-        uint8_t notStick = (ed->srcRaw > MIXSRC_Ail);
-        int8_t carryTrim = -ed->carryTrim;
         lcdDrawTextAlignedLeft(y, STR_TRIM);
-        lcdDrawTextAtIndex(EXPO_ONE_2ND_COLUMN, y, STR_VMIXTRIMS, (notStick && carryTrim == 0) ? 0 : carryTrim+1, RIGHT | (menuHorizontalPosition==0 ? attr : 0));
-        if (attr)
-          ed->carryTrim = -checkIncDecModel(event, carryTrim, notStick ? TRIM_ON : -TRIM_OFF, -TRIM_LAST);
+        {
+          const char* trim_str = getTrimSourceLabel(ed->srcRaw, ed->trimSource);
+          LcdFlags flags = RIGHT | (menuHorizontalPosition==0 ? attr : 0);
+          lcdDrawText(EXPO_ONE_2ND_COLUMN, y, trim_str, flags);
+
+          if (attr) {
+            int8_t min = TRIM_ON;
+            if (ed->srcRaw >= MIXSRC_FIRST_STICK && ed->srcRaw <= MIXSRC_LAST_STICK) {
+              min = -TRIM_OFF;
+            }
+            ed->trimSource = -checkIncDecModel(event, -ed->trimSource, min, keysGetMaxTrims());
+          }
+        }
         break;
     }
     y += FH;

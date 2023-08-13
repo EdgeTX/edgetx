@@ -29,6 +29,7 @@
 #include <QTime>
 #include <QElapsedTimer>
 #include <QStandardItemModel>
+#include <QDialog>
 
 extern const QColor colors[CPN_MAX_CURVES];
 
@@ -121,6 +122,11 @@ namespace Helpers
 // TODO : move globals to Helpers namespace
 
 void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx);
+
+#ifdef __APPLE__
+// Flag when simulator is running
+bool isSimulatorRunning();
+#endif
 
 // Format a pixmap to fit on the current firmware
 QPixmap makePixMap(const QImage & image);
@@ -332,4 +338,18 @@ class SemanticVersion
     inline int preReleaseTypeToInt(QString preRelType) const { return PreReleaseTypesStringList.indexOf(preRelType); }
 >>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 
+};
+
+class StatusDialog: public QDialog
+{
+    Q_OBJECT
+
+  public:
+    StatusDialog(QWidget * parent = nullptr, const QString title = "", QString msgtext = "", const int width = 200);
+    virtual ~StatusDialog();
+
+    void update(QString text);
+
+  private:
+    QLabel *msg;
 };

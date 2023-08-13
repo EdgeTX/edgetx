@@ -24,14 +24,14 @@
 #include <QMessageBox>
 
 UpdateSDCard::UpdateSDCard(QWidget * parent) :
-  UpdateInterface(parent)
+  UpdateInterface(parent, CID_SDCard, tr("SD Card"))
 {
-  init(CID_SDCard, tr("SD Card"), QString(GH_REPOS_EDGETX).append("/edgetx-sdcard"));
+  init(QString(GH_API_REPOS_EDGETX).append("/edgetx-sdcard"), "Latest");
 }
 
-void UpdateSDCard::initAssetSettings()
+void UpdateSDCard::assetSettingsInit()
 {
-  if (!isValidSettingsIndex())
+  if (!isSettingsIndexValid())
     return;
 
   g.component[id()].initAllAssets();
@@ -49,7 +49,22 @@ void UpdateSDCard::initAssetSettings()
 
 bool UpdateSDCard::flagAssets()
 {
-  progressMessage(tr("Flagging assets"));
+  status()->progressMessage(tr("Flagging assets"));
+
+  QJsonDocument *json = new QJsonDocument();
+
+  const QString jsonFile("sdcard.json");
+
+  if (!retrieveAssetsJsonFile(jsonFile, json)) {
+    status()->reportProgress(tr("Unable to retrieve asset '%1' from release '%2'").arg(jsonFile).arg(repo()->releases()->name()), QtDebugMsg);
+    //  assume older release where file not an asset
+    if (!retrieveRepoJsonFile(jsonFile, json)) {
+      status()->reportProgress(tr("Unable to retrieve file '%1' from repo '%2'").arg(jsonFile).arg(repo()->path()), QtCriticalMsg);
+      delete json;
+      return false;
+    }
+  }
+
   /*
   {
     "targets": [
@@ -57,23 +72,13 @@ bool UpdateSDCard::flagAssets()
       ["FrSky Horus X10", "x10-", "c480x272"],
   */
 
-  const QString mappingfile = "sdcard.json";
+  const UpdateParameters::AssetParams & ap = params()->assets.at(0);
 
-  if (!downloadTextFileToBuffer(mappingfile)) {
-    return false;
-  }
-
-  QJsonDocument *json = new QJsonDocument();
-
-  if (!convertDownloadToJson(json)) {
-    return false;
-  }
-
-  const UpdateParameters::AssetParams & ap = params->assets.at(0);
-
-  QRegularExpression filter(params->buildFilterPattern(ap.filterType, ap.filter), QRegularExpression::CaseInsensitiveOption);
+  QRegularExpression filter(params()->buildFilterPattern(ap.filterType, ap.filter), QRegularExpression::CaseInsensitiveOption);
   bool found = false;
   QString sdimage;
+
+  //qDebug() << *json;
 
   if (json->isObject()) {
     const QJsonObject &obj = json->object();
@@ -100,7 +105,7 @@ bool UpdateSDCard::flagAssets()
   delete json;
 
   if (!found) {
-    reportProgress(tr("Radio flavour %1 not listed in %2").arg(params->fwFlavour).arg(mappingfile), QtCriticalMsg);
+    status()->reportProgress(tr("Radio flavour '%1' not listed in '%2'").arg(params()->fwFlavour).arg(jsonFile), QtCriticalMsg);
     return false;
   }
 
@@ -108,7 +113,7 @@ bool UpdateSDCard::flagAssets()
   sd.filterType = UpdateParameters::UFT_Startswith;
   sd.filter = sdimage;
 
-  if (!getSetAssets(sd))
+  if (!setFilteredAssets(sd))
     return false;
 
   return true;

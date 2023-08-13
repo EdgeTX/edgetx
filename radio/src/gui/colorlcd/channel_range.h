@@ -24,7 +24,7 @@
 #include "form.h"
 #include "numberedit.h"
 
-class ChannelRange : public FormGroup
+class ChannelRange : public FormWindow
 {
  public:
   ChannelRange(Window* parent);
@@ -36,16 +36,20 @@ class ChannelRange : public FormGroup
   void updateStart();
   void updateEnd();
 
+  virtual int8_t getChannelsCount() = 0;
+  void setPpmFrameLenEditObject(NumberEdit* ppmFrameLenEditObject);
+  NumberEdit* getPpmFrameLenEditObject();
+
  protected:
   NumberEdit* chStart;
   NumberEdit* chEnd;
+  NumberEdit* ppmFrameLenEditObject = nullptr;
 
   void build();
     
   virtual uint8_t getChannelsStart() = 0;
   virtual void setChannelsStart(uint8_t val) = 0;
 
-  virtual int8_t getChannelsCount() = 0;
   virtual void setChannelsCount(int8_t val) = 0;
 
   virtual uint8_t getChannelsUsed() = 0;
@@ -62,7 +66,6 @@ class ModuleChannelRange : public ChannelRange
   uint8_t getChannelsStart() override;
   void setChannelsStart(uint8_t val) override;
 
-  int8_t getChannelsCount() override;
   void setChannelsCount(int8_t val) override;
 
   uint8_t getChannelsUsed() override;
@@ -71,6 +74,8 @@ class ModuleChannelRange : public ChannelRange
 
  public:
   ModuleChannelRange(Window* parent, uint8_t moduleIdx);
+
+  int8_t getChannelsCount() override;
 };
 
 class TrainerChannelRange : public ChannelRange
@@ -78,7 +83,6 @@ class TrainerChannelRange : public ChannelRange
   uint8_t getChannelsStart() override;
   void setChannelsStart(uint8_t val) override;
 
-  int8_t getChannelsCount() override;
   void setChannelsCount(int8_t val) override;
 
   uint8_t getChannelsUsed() override;
@@ -87,4 +91,6 @@ class TrainerChannelRange : public ChannelRange
 
  public:
   TrainerChannelRange(Window* parent);
+
+  int8_t getChannelsCount() override;
 };

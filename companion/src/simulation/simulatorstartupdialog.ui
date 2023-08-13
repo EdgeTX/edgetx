@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>550</width>
-    <height>217</height>
+    <height>284</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -35,7 +35,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Simulator Startup Options:</string>
+      <string>Simulator Startup Options</string>
      </property>
      <layout class="QFormLayout" name="layout_options">
       <property name="sizeConstraint">
@@ -97,7 +97,7 @@ Create or edit profiles using the Companion application.</string>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QComboBox" name="radioType">
+       <widget class="QComboBox" name="cbRadioType">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -110,35 +110,35 @@ The radio type specified in the selected profile is used by default.</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="label_6">
         <property name="text">
          <string>Data Source:</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QLabel" name="label_4">
         <property name="text">
          <string>Data File:</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
          <string>Data Folder:</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
+      <item row="6" column="0">
        <widget class="QLabel" name="label_7">
         <property name="text">
          <string>SD Image Path:</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="4" column="1">
        <widget class="QWidget" name="wdgt_dataFile" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -165,8 +165,8 @@ The radio type specified in the selected profile is used by default.</string>
          <item>
           <widget class="QLineEdit" name="dataFile">
            <property name="toolTip">
-            <string>Radio data (.bin/.eeprom/.otx) image file to use. A new file with a default image will be created if necessary.&lt;br /&gt;
-&lt;b&gt;NOTE&lt;/b&gt;: any existing EEPROM data incompatible with the selected radio type may be overwritten!</string>
+            <string>Radio data (.etx) settings file to use. A new file with default settings will be created if necessary.&lt;br /&gt;
+&lt;b&gt;NOTE&lt;/b&gt;: any existing data incompatible with the selected radio type may be overwritten!</string>
            </property>
           </widget>
          </item>
@@ -190,7 +190,7 @@ The radio type specified in the selected profile is used by default.</string>
         </layout>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="5" column="1">
        <widget class="QWidget" name="wdgt_dataFolder" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -242,7 +242,7 @@ New folder(s) with default radio/model will be created here if necessary.</strin
         </layout>
        </widget>
       </item>
-      <item row="5" column="1">
+      <item row="6" column="1">
        <widget class="QWidget" name="wdgt_sdPath" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -294,7 +294,7 @@ The default is configured in the chosen Radio Profile.</string>
         </layout>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="3" column="1">
        <widget class="QWidget" name="wdgt_dataSource" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -353,6 +353,16 @@ The default is configured in the chosen Radio Profile.</string>
          </item>
         </layout>
        </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Simulator:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="cbSimulator"/>
       </item>
      </layout>
     </widget>

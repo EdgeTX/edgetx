@@ -23,22 +23,20 @@
 #include "switches.h"
 
 SwitchWarnDialog::SwitchWarnDialog() :
-    FullScreenDialog(WARNING_TYPE_ALERT, STR_SWITCHWARN)
+    FullScreenDialog(WARNING_TYPE_ALERT, STR_SWITCHWARN, "", STR_PRESS_ANY_KEY_TO_SKIP)
 {
   last_bad_switches = 0xff;
   bad_pots = 0;
   last_bad_pots = 0x0;
   setCloseCondition(std::bind(&SwitchWarnDialog::warningInactive, this));
+}
 
-  warn_label = new StaticText(this, rect_t{}, "", 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-
-  lv_obj_t* obj = warn_label->getLvObj();
-  lv_label_set_long_mode(obj, LV_LABEL_LONG_DOT);
-
-  warn_label->setLeft(ALERT_MESSAGE_LEFT);
-  warn_label->setWidth(LCD_W - ALERT_MESSAGE_LEFT - PAGE_PADDING);
-  warn_label->setTop(ALERT_MESSAGE_TOP);
-  warn_label->setHeight(LCD_H - ALERT_MESSAGE_TOP - PAGE_PADDING);
+void SwitchWarnDialog::init()
+{
+  if (!loaded) {
+    FullScreenDialog::init();
+    lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_DOT);
+  }
 }
 
 bool SwitchWarnDialog::warningInactive()
@@ -74,7 +72,7 @@ void SwitchWarnDialog::checkEvents()
 
   std::string warn_txt;
   swarnstate_t states = g_model.switchWarningState;
-  for (int i = 0; i < NUM_SWITCHES; ++i) {
+  for (int i = 0; i < MAX_SWITCHES; ++i) {
     if (SWITCH_WARNING_ALLOWED(i)) {
       swarnstate_t mask = ((swarnstate_t)0x07 << (i*3));
       if (states & mask) {
@@ -88,15 +86,15 @@ void SwitchWarnDialog::checkEvents()
 
   if (g_model.potsWarnMode) {
     if (!warn_txt.empty()) { warn_txt += '\n'; }
-    for (int i = 0; i < NUM_POTS + NUM_SLIDERS; i++) {
-      if (!IS_POT_SLIDER_AVAILABLE(POT1 + i)) { continue; }
+    for (int i = 0; i < MAX_POTS; i++) {
+      if (!IS_POT_SLIDER_AVAILABLE(i)) { continue; }
       if ( (g_model.potsWarnEnabled & (1 << i))) {
         if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
-          warn_txt += STR_VSRCRAW[POT1 + i + 1];
+          warn_txt += getPotLabel(i);
         }
       }
     }
   }
 
-  warn_label->setText(warn_txt);
+  messageLabel->setText(warn_txt);
 }

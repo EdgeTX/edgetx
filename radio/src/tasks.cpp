@@ -20,168 +20,20 @@
  */
 
 #include "opentx.h"
-#include "mixer_scheduler.h"
 #include "timers_driver.h"
 
-RTOS_TASK_HANDLE menusTaskId;
-RTOS_DEFINE_STACK(menusStack, MENUS_STACK_SIZE);
+#include "tasks.h"
+#include "tasks/mixer_task.h"
 
-RTOS_TASK_HANDLE mixerTaskId;
-RTOS_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
+#include "watchdog_driver.h"
+
+RTOS_TASK_HANDLE menusTaskId;
+RTOS_DEFINE_STACK(menusTaskId, menusStack, MENUS_STACK_SIZE);
 
 RTOS_TASK_HANDLE audioTaskId;
-RTOS_DEFINE_STACK(audioStack, AUDIO_STACK_SIZE);
+RTOS_DEFINE_STACK(audioTaskId, audioStack, AUDIO_STACK_SIZE);
 
 RTOS_MUTEX_HANDLE audioMutex;
-RTOS_MUTEX_HANDLE mixerMutex;
-
-void stackPaint()
-{
-  menusStack.paint();
-  mixerStack.paint();
-  audioStack.paint();
-#if defined(CLI)
-  cliStack.paint();
-#endif
-}
-
-volatile uint16_t timeForcePowerOffPressed = 0;
-
-bool isForcePowerOffRequested()
-{
-  if (pwrOffPressed()) {
-    if (timeForcePowerOffPressed == 0) {
-      timeForcePowerOffPressed = get_tmr10ms();
-    }
-    else {
-      uint16_t delay = (uint16_t)get_tmr10ms() - timeForcePowerOffPressed;
-      if (delay > 1000/*10s*/) {
-        return true;
-      }
-    }
-  }
-  else {
-    resetForcePowerOffRequest();
-  }
-  return false;
-}
-
-void sendSynchronousPulses(uint8_t runMask)
-{
-#if defined(HARDWARE_INTERNAL_MODULE)
-  if (runMask & (1 << INTERNAL_MODULE)) {
-    if (setupPulsesInternalModule())
-      intmoduleSendNextFrame();
-  }
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  if (runMask & (1 << EXTERNAL_MODULE)) {
-    if (setupPulsesExternalModule())
-      extmoduleSendNextFrame();
-  }
-#endif
-}
-
-constexpr uint8_t MIXER_FREQUENT_ACTIONS_PERIOD = 5 /*ms*/;
-constexpr uint8_t MIXER_MAX_PERIOD = MAX_REFRESH_RATE / 1000 /*ms*/;
-
-void execMixerFrequentActions()
-{
-#if defined(SBUS_TRAINER)
-  // SBUS trainer
-  processSbusInput();
-#endif
-
-#if defined(IMU)
-  gyro.wakeup();
-#endif
-
-#if defined(BLUETOOTH)
-  bluetooth.wakeup();
-#endif
-
-#if defined(SIMU)
-  if (!s_pulses_paused) {
-    DEBUG_TIMER_START(debugTimerTelemetryWakeup);
-    telemetryWakeup();
-    DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
-  }
-#endif
-}
-
-TASK_FUNCTION(mixerTask)
-{
-  s_pulses_paused = true;
-
-  mixerSchedulerInit();
-  mixerSchedulerStart();
-
-  while (true) {
-    int timeout = 0;
-    for (; timeout < MIXER_MAX_PERIOD; timeout += MIXER_FREQUENT_ACTIONS_PERIOD) {
-
-      // run periodicals before waiting for the trigger
-      // to keep the delay short
-      execMixerFrequentActions();
-
-      // mixer flag triggered?
-      if (!mixerSchedulerWaitForTrigger(MIXER_FREQUENT_ACTIONS_PERIOD)) {
-        break;
-      }
-    }
-
-#if defined(DEBUG_MIXER_SCHEDULER)
-    GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
-    GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
-#endif
-
-    // re-enable trigger
-    mixerSchedulerEnableTrigger();
-
-#if defined(SIMU)
-    if (pwrCheck() == e_power_off) {
-      TASK_RETURN();
-    }
-#else
-    if (isForcePowerOffRequested()) {
-      boardOff();
-    }
-#endif
-
-    if (!s_pulses_paused) {
-      uint16_t t0 = getTmr2MHz();
-
-      DEBUG_TIMER_START(debugTimerMixer);
-      RTOS_LOCK_MUTEX(mixerMutex);
-
-      doMixerCalculations();
-      sendSynchronousPulses((1 << INTERNAL_MODULE) | (1 << EXTERNAL_MODULE));
-      doMixerPeriodicUpdates();
-
-      DEBUG_TIMER_START(debugTimerMixerCalcToUsage);
-      DEBUG_TIMER_SAMPLE(debugTimerMixerIterval);
-      RTOS_UNLOCK_MUTEX(mixerMutex);
-      DEBUG_TIMER_STOP(debugTimerMixer);
-
-#if defined(STM32) && !defined(SIMU)
-      if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
-        usbJoystickUpdate();
-      }
-#endif
-
-      if (heartbeat == HEART_WDT_CHECK) {
-        WDG_RESET();
-        heartbeat = 0;
-      }
-
-      t0 = getTmr2MHz() - t0;
-      if (t0 > maxMixerDuration)
-        maxMixerDuration = t0;
-    }
-  }
-}
-
 
 #define MENU_TASK_PERIOD_TICKS         (50 / RTOS_MS_PER_TICK)    // 50ms
 
@@ -196,7 +48,11 @@ TASK_FUNCTION(menusTask)
 #endif
 
 #if defined(SPLASH) && !defined(STARTUP_ANIMATION)
+  tmr10ms_t splashStartTime = 0;
+  bool waitSplash = false;
   if (!UNEXPECTED_SHUTDOWN()) {
+    splashStartTime = get_tmr10ms();
+    waitSplash = true;
     drawSplash();
     TRACE("drawSplash() completed");
   }
@@ -206,11 +62,45 @@ TASK_FUNCTION(menusTask)
   touchPanelInit();
 #endif
 
-#if defined(IMU)
-  gyroInit();
-#endif
-  
   opentxInit();
+
+#if defined(SPLASH) && !defined(STARTUP_ANIMATION)
+  if (waitSplash){
+    extern bool inactivityCheckInputs();
+    extern void checkSpeakerVolume();
+
+#if defined(SIMU)
+    // Simulator - inputsMoved() returns true immediately without this!
+    RTOS_WAIT_TICKS(30);
+#endif
+
+    splashStartTime += SPLASH_TIMEOUT;
+    while (splashStartTime > get_tmr10ms()) {
+      WDG_RESET();
+      checkSpeakerVolume();
+      checkBacklight();
+      RTOS_WAIT_TICKS(10);
+      auto evt = getEvent();
+      if (evt || inactivityCheckInputs()) {
+        if (evt)
+          killEvents(evt);
+        break;
+      }
+#if defined(SIMU)
+      // Allow simulator to exit if closed while splash showing
+      uint32_t pwr_check = pwrCheck();
+      if (pwr_check == e_power_off) {
+        break;
+      }
+#endif
+    }
+
+    // Reset timer so special/global functions set to !1x don't get triggered
+    START_SILENCE_PERIOD();
+  }
+#endif
+
+  mixerTaskInit();
 
 #if defined(PWR_BUTTON_PRESS)
   while (true) {
@@ -250,13 +140,9 @@ TASK_FUNCTION(menusTask)
   toplcdOff();
 #endif
 
-#if defined(PCBHORUS)
-  ledOff();
-#endif
-
   drawSleepBitmap();
   opentxClose();
-  boardOff(); // Only turn power off if necessary
+  boardOff();
 
   TASK_RETURN();
 }
@@ -264,14 +150,11 @@ TASK_FUNCTION(menusTask)
 void tasksStart()
 {
   RTOS_CREATE_MUTEX(audioMutex);
-  RTOS_CREATE_MUTEX(mixerMutex);
 
-#if defined(CLI)
+#if defined(CLI) && !defined(SIMU)
   cliStart();
 #endif
 
-  RTOS_CREATE_TASK(mixerTaskId, mixerTask, "mixer", mixerStack,
-                   MIXER_STACK_SIZE, MIXER_TASK_PRIO);
   RTOS_CREATE_TASK(menusTaskId, menusTask, "menus", menusStack,
                    MENUS_STACK_SIZE, MENUS_TASK_PRIO);
 

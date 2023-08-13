@@ -222,6 +222,9 @@ int main(int argc, char *argv[])
   #ifdef SIMU_AUDIO
     sdlFlags |= SDL_INIT_AUDIO;
   #endif
+  #if defined(_WIN32) || defined(_WIN64)
+    putenv("SDL_AUDIODRIVER=directsound");
+  #endif
   if (SDL_Init(sdlFlags) < 0) {
     fprintf(stderr, "ERROR: couldn't initialize SDL: %s\n", SDL_GetError());
   }
@@ -237,27 +240,24 @@ int main(int argc, char *argv[])
     profile.fwName("");
   }
 
-  QString splashScreen;
-  splashScreen = ":/images/splash.png";
-
-  QPixmap pixmap = QPixmap(splashScreen);
-  QSplashScreen *splash = new QSplashScreen(pixmap);
-
   Firmware::setCurrentVariant(Firmware::getFirmwareForId(g.profile[g.id()].fwType()));
 
   MainWindow *mainWin = new MainWindow();
+  mainWin->show();
+
   if (g.showSplash()) {
-    splash->show();
-    QTimer::singleShot(1000*SPLASH_TIME, splash, SLOT(close()));
-    QTimer::singleShot(1000*SPLASH_TIME, mainWin, SLOT(show()));
-  }
-  else {
-    mainWin->show();
+    QSplashScreen *splash = new QSplashScreen(QPixmap(":/images/splash.png"));
+    QTimer::singleShot(1, [=] {
+      splash->show();
+    });
+    QTimer::singleShot(1000*SPLASH_TIME, [=] {
+      splash->close();
+      delete splash;
+    });
   }
 
   int result = app.exec();
 
-  delete splash;
   delete mainWin;
 
   SimulatorLoader::unregisterSimulators();

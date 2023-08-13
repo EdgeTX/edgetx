@@ -43,7 +43,6 @@ class AbstractItemModel: public QStandardItemModel
       IMID_CustomFuncAction,
       IMID_CustomFuncResetParam,
       IMID_TeleSource,
-      IMID_RssiSource,
       IMID_CurveRefType,
       IMID_CurveRefFunc,
       IMID_ReservedCount,
@@ -299,21 +298,6 @@ class TelemetrySourceItemModel: public AbstractDynamicItemModel
     explicit TelemetrySourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
                                       Firmware * firmware, const Boards * const board, const Board::Type boardType);
     virtual ~TelemetrySourceItemModel() {};
-
-  public slots:
-    virtual void update(const int event = IMUE_SystemRefresh) override;
-
-  protected:
-    virtual void setDynamicItemData(QStandardItem * item, const int value) const;
-};
-
-class RssiSourceItemModel: public AbstractDynamicItemModel
-{
-    Q_OBJECT
-  public:
-    explicit RssiSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                      Firmware * firmware, const Boards * const board, const Board::Type boardType);
-    virtual ~RssiSourceItemModel() {};
 
   public slots:
     virtual void update(const int event = IMUE_SystemRefresh) override;

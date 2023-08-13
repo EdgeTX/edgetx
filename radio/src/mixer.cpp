@@ -22,10 +22,17 @@
 #include "opentx.h"
 #include "timers.h"
 #include "switches.h"
+#include "input_mapping.h"
+
+#include "hal/adc_driver.h"
+#include "hal/trainer_driver.h"
+#include "hal/switch_driver.h"
+
+uint8_t s_mixer_first_run_done = false;
 
 int8_t  virtualInputsTrims[MAX_INPUTS];
 int16_t anas [MAX_INPUTS] = {0};
-int16_t trims[NUM_TRIMS] = {0};
+int16_t trims[MAX_TRIMS] = {0};
 int32_t chans[MAX_OUTPUT_CHANNELS] = {0};
 BeepANACenter bpanaCenter = 0;
 
@@ -34,8 +41,7 @@ SwOn    swOn  [MAX_MIXERS]; // TODO better name later...
 
 uint8_t mixWarning;
 
-
-int16_t calibratedAnalogs[NUM_CALIBRATED_ANALOGS];
+int16_t calibratedAnalogs[MAX_ANALOG_INPUTS];
 int16_t channelOutputs[MAX_OUTPUT_CHANNELS] = {0};
 int16_t ex_chans[MAX_OUTPUT_CHANNELS] = {0}; // Outputs (before LIMITS) of the last perMain;
 
@@ -157,7 +163,7 @@ void applyExpos(int16_t * anas, uint8_t mode, uint8_t ovwrIdx, int16_t ovwrValue
       continue;
     if (ed->flightModes & (1<<mixerCurrentFlightMode))
       continue;
-    if (ed->srcRaw >= MIXSRC_FIRST_TRAINER && ed->srcRaw <= MIXSRC_LAST_TRAINER && !IS_TRAINER_INPUT_VALID())
+    if (ed->srcRaw >= MIXSRC_FIRST_TRAINER && ed->srcRaw <= MIXSRC_LAST_TRAINER && !is_trainer_connected())
       continue;
     if (getSwitch(ed->swtch)) {
       int32_t v;
@@ -189,10 +195,11 @@ void applyExpos(int16_t * anas, uint8_t mode, uint8_t ovwrIdx, int16_t ovwrValue
         if (offset) v += divRoundClosest(calc100toRESX(offset), 10);
 
         //========== TRIMS ================
-        if (ed->carryTrim < TRIM_ON)
-          virtualInputsTrims[cur_chn] = -ed->carryTrim - 1;
-        else if (ed->carryTrim == TRIM_ON && ed->srcRaw >= MIXSRC_Rud && ed->srcRaw <= MIXSRC_Ail)
-          virtualInputsTrims[cur_chn] = ed->srcRaw - MIXSRC_Rud;
+        if (ed->trimSource < TRIM_ON)
+          virtualInputsTrims[cur_chn] = -ed->trimSource - 1;
+        else if (ed->trimSource == TRIM_ON && ed->srcRaw >= MIXSRC_FIRST_STICK &&
+                 ed->srcRaw <= MIXSRC_LAST_STICK)
+          virtualInputsTrims[cur_chn] = ed->srcRaw - MIXSRC_FIRST_STICK;
         else
           virtualInputsTrims[cur_chn] = -1;
         anas[cur_chn] = v;
@@ -229,8 +236,8 @@ int16_t applyLimits(uint8_t channel, int32_t value)
   }
 #endif
 
-  if (isFunctionActive(FUNCTION_TRAINER_CHANNELS) && IS_TRAINER_INPUT_VALID()) {
-    return ppmInput[channel] * 2;
+  if (isFunctionActive(FUNCTION_TRAINER_CHANNELS) && is_trainer_connected()) {
+    return trainerInput[channel] * 2;
   }
 
   LimitData * lim = limitAddress(channel);
@@ -272,16 +279,8 @@ int16_t applyLimits(uint8_t channel, int32_t value)
     value = (int32_t) value * tmp;   //  div by 1024*256 -> output = -1024..1024
 #endif
 
-#ifdef CORRECT_NEGATIVE_SHIFTS
-    int8_t sign = (value<0?1:0);
-    value -= sign;
-    tmp = value>>16;   // that's quite tricky: the shiftright 16 operation is assmbled just with addressmove; just forget the two least significant bytes;
-    tmp >>= 2;   // now one simple shift right for two bytes does the rest
-    tmp += sign;
-#else
-    tmp = value>>16;   // that's quite tricky: the shiftright 16 operation is assmbled just with addressmove; just forget the two least significant bytes;
-    tmp >>= 2;   // now one simple shift right for two bytes does the rest
-#endif
+    // Round away from 0
+    tmp = (value + (value < 0 ? (1<<17)-1 : (1<<17))) >> 18;
 
     ofs += tmp;  // ofs can to added directly because already recalculated,
   }
@@ -305,7 +304,7 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
     return 0;
   }
   else if (i <= MIXSRC_LAST_INPUT) {
-    return anas[i-MIXSRC_FIRST_INPUT];
+    return anas[i - MIXSRC_FIRST_INPUT];
   }
 #if defined(LUA_INPUTS)
   else if (i <= MIXSRC_LAST_LUA) {
@@ -319,9 +318,33 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
   }
 #endif
 
-  else if (i <= MIXSRC_LAST_POT + NUM_MOUSE_ANALOGS) {
-    return calibratedAnalogs[i - MIXSRC_Rud];
+  else if (i <= MIXSRC_LAST_STICK) {
+    i -= MIXSRC_FIRST_STICK;
+    if (i >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
+      if (valid != nullptr) *valid = false;
+      return 0;
+    }
+    return calibratedAnalogs[inputMappingConvertMode(i)];
   }
+  else if (i <= MIXSRC_LAST_POT) {
+    i -= MIXSRC_FIRST_POT;
+    if (i >= adcGetMaxInputs(ADC_INPUT_POT)) {
+      if (valid != nullptr) *valid = false;
+      return 0;
+    }
+    return calibratedAnalogs[i + adcGetInputOffset(ADC_INPUT_POT)];
+  }
+
+#if MAX_AXIS > 0
+  else if (i <= MIXSRC_LAST_AXIS) {
+    i -= MIXSRC_FIRST_AXIS;
+    if (i >= adcGetMaxInputs(ADC_INPUT_AXIS)) {
+      if (valid != nullptr) *valid = false;
+      return 0;
+    }
+    return calibratedAnalogs[i + adcGetInputOffset(ADC_INPUT_AXIS)];
+  }
+#endif
 
 #if defined(IMU)
   else if (i == MIXSRC_TILT_X) {
@@ -339,12 +362,12 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
 #endif
 
   else if (i == MIXSRC_MAX) {
-    return 1024;
+    return RESX;
   }
 
-  else if (i <= MIXSRC_CYC3) {
+  else if (i <= MIXSRC_LAST_HELI) {
 #if defined(HELI)
-    return cyc_anas[i - MIXSRC_CYC1];
+    return cyc_anas[i - MIXSRC_FIRST_HELI];
 #else
     if (valid != nullptr) *valid = false;
     return 0;
@@ -352,11 +375,10 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
   }
 
   else if (i <= MIXSRC_LAST_TRIM) {
-    return calc1000toRESX((int16_t)8 * getTrimValue(mixerCurrentFlightMode, i-MIXSRC_FIRST_TRIM));
+    i -= MIXSRC_FIRST_TRIM;
+    auto trim_value = getTrimValue(mixerCurrentFlightMode, i);
+    return calc1000toRESX((int16_t)8 * trim_value);
   }
-
-  // TODO : find a better define
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
 #if defined(FUNCTION_SWITCHES)
   else if (i >= MIXSRC_FIRST_SWITCH && i <= MIXSRC_LAST_REGULAR_SWITCH) {
     mixsrc_t sw = i - MIXSRC_FIRST_SWITCH;
@@ -367,9 +389,8 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
       if (valid != nullptr) *valid = false;
       return 0;
     }
-  }
-  else if (i >= MIXSRC_FIRST_FS_SWITCH && i <= MIXSRC_LAST_SWITCH) {
-    return getFSLogicalState(i - MIXSRC_FIRST_SWITCH - NUM_REGULAR_SWITCHES) ? +1024 : -1024;
+  } else if (i >= MIXSRC_FIRST_FS_SWITCH && i <= MIXSRC_LAST_SWITCH) {
+    return getFSLogicalState(i - MIXSRC_FIRST_SWITCH - switchGetMaxSwitches()) ? +1024 : -1024;
   }
 #else
   else if (i >= MIXSRC_FIRST_SWITCH && i <= MIXSRC_LAST_SWITCH) {
@@ -383,33 +404,22 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
     }
   }
 #endif
-#else
-  else if (i == MIXSRC_3POS) {
-    return (getSwitch(SW_ID0+1) ? -1024 : (getSwitch(SW_ID1+1) ? 0 : 1024));
-  }
-  // don't use switchState directly to give getSwitch possibility to hack values if needed for switch warning
-  else if (i < MIXSRC_SW1) {
-    return getSwitch(SWSRC_THR+i-MIXSRC_THR) ? 1024 : -1024;
-  }
-#endif
 
   else if (i <= MIXSRC_LAST_LOGICAL_SWITCH) {
     return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i - MIXSRC_FIRST_LOGICAL_SWITCH) ? 1024 : -1024;
-  }
-  else if (i <= MIXSRC_LAST_TRAINER) {
-    int16_t x = ppmInput[i - MIXSRC_FIRST_TRAINER];
+  } else if (i <= MIXSRC_LAST_TRAINER) {
+    int16_t x = trainerInput[i - MIXSRC_FIRST_TRAINER];
     if (i < MIXSRC_FIRST_TRAINER + NUM_CAL_PPM) {
       x -= g_eeGeneral.trainer.calib[i - MIXSRC_FIRST_TRAINER];
     }
     return x * 2;
-  }
-  else if (i <= MIXSRC_LAST_CH) {
-    return ex_chans[i - MIXSRC_CH1];
+  } else if (i <= MIXSRC_LAST_CH) {
+    return ex_chans[i - MIXSRC_FIRST_CH];
   }
 
   else if (i <= MIXSRC_LAST_GVAR) {
 #if defined(GVARS)
-    return GVAR_VALUE(i - MIXSRC_GVAR1, getGVarFlightMode(mixerCurrentFlightMode, i - MIXSRC_GVAR1));
+    return GVAR_VALUE(i - MIXSRC_FIRST_GVAR, getGVarFlightMode(mixerCurrentFlightMode, i - MIXSRC_FIRST_GVAR));
 #else
     if (valid != nullptr) *valid = false;
     return 0;
@@ -418,8 +428,7 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
 
   else if (i == MIXSRC_TX_VOLTAGE) {
     return g_vbat100mV;
-  }
-  else if (i < MIXSRC_FIRST_TIMER) {
+  } else if (i < MIXSRC_FIRST_TIMER) {
     // TX_TIME + SPARES
 #if defined(RTCLOCK)
     return (g_rtcTime % SECS_PER_DAY) / 60; // number of minutes from midnight
@@ -427,8 +436,7 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
     if (valid != nullptr) *valid = false;
     return 0;
 #endif
-  }
-  else if (i <= MIXSRC_LAST_TIMER) {
+  } else if (i <= MIXSRC_LAST_TIMER) {
     return timersStates[i - MIXSRC_FIRST_TIMER].val;
   }
 
@@ -448,13 +456,27 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
       default:
         return telemetryItem.value;
     }
-  }
-  else {
+  } else {
     if (valid != nullptr) *valid = false;
     return 0;
   }
 }
 
+void evalTrims()
+{
+  uint8_t phase = mixerCurrentFlightMode;
+  for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
+    // do trim -> throttle trim if applicable
+    int16_t trim = getTrimValue(phase, i);
+    if (trimsCheckTimer > 0) {
+      trim = 0;
+    }
+
+    trims[i] = trim * 2;
+  }
+}
+
+// TODO: move to analogs.cpp
 void evalInputs(uint8_t mode)
 {
   BeepANACenter anaCenter = 0;
@@ -476,29 +498,36 @@ void evalInputs(uint8_t mode)
   }
 #endif
 
-  for (uint8_t i = 0; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+  auto max_calib_analogs = adcGetInputOffset(ADC_INPUT_VBAT);
+  auto pots_offset = adcGetInputOffset(ADC_INPUT_POT);
+  
+  for (uint8_t i = 0; i < max_calib_analogs; i++) {
     // normalization [0..2048] -> [-1024..1024]
-    uint8_t ch = (i < NUM_STICKS ? CONVERT_MODE(i) : i);
     int16_t v = anaIn(i);
+    uint8_t ch = (i < pots_offset ? inputMappingConvertMode(i) : i);
 
-    if (IS_POT_MULTIPOS(i)) {
+    if (i >= pots_offset && IS_POT_MULTIPOS(i - pots_offset)) {
       v -= RESX;
     }
-#if !defined(SIMU)
     else {
+#if defined(SIMU)
+      // Simu uses normed inputs
+      v -= RESX;
+#else
       CalibData * calib = &g_eeGeneral.calib[i];
       v -= calib->mid;
       v = v * (int32_t) RESX / (max((int16_t) 100, (v > 0 ? calib->spanPos : calib->spanNeg)));
-    }
 #endif
+    }
 
+    // Limit values to supported range
     if (v < -RESX) v = -RESX;
     if (v >  RESX) v =  RESX;
 
 #if defined(STICK_DEAD_ZONE)
     // dead zone invented by FlySky in my opinion it should goes into ADC
     // float calculations are not efficient
-    if (g_eeGeneral.stickDeadZone && ch != THR_STICK) {
+    if (g_eeGeneral.stickDeadZone && ch != inputMappingGetThrottle()) {
       if (v > P_OFFSET) {
         // y=ax+b
         v = (int)((aParam * (float)v) - bParam);
@@ -511,44 +540,48 @@ void evalInputs(uint8_t mode)
     }
 #endif
 
-    if (g_model.throttleReversed && ch==THR_STICK) {
+    if (g_model.throttleReversed && ch == inputMappingGetThrottle()) {
       v = -v;
     }
 
-    BeepANACenter mask = (BeepANACenter)1 << ch;
+    BeepANACenter mask = (BeepANACenter)1 << ch; // TODO
 
-    calibratedAnalogs[ch] = v; // for show in expo
+    calibratedAnalogs[i] = v; // for show in expo
 
     // filtering for center beep
     uint8_t tmp = (uint16_t)abs(v) / 16;
     if (mode == e_perout_mode_normal) {
       if (tmp==0 || (tmp==1 && (bpanaCenter & mask))) {
         anaCenter |= mask;
-        if ((g_model.beepANACenter & mask) && !(bpanaCenter & mask) && s_mixer_first_run_done && !menuCalibrationState) {
-          if (!IS_POT(i) || IS_POT_SLIDER_AVAILABLE(i)) {
+        if ((g_model.beepANACenter & mask) && !(bpanaCenter & mask) &&
+            s_mixer_first_run_done && !menuCalibrationState) {
+          if (i < pots_offset || IS_POT_SLIDER_AVAILABLE(i - pots_offset)) {
             AUDIO_POT_MIDDLE(i);
           }
         }
       }
     }
 
-    if (ch < NUM_STICKS) { // only do this for sticks
+    if (ch < pots_offset) { // only do this for sticks
       if (mode & e_perout_mode_nosticks) {
         v = 0;
       }
 
-      if (mode <= e_perout_mode_inactive_flight_mode && isFunctionActive(FUNCTION_TRAINER_STICK1+ch) && IS_TRAINER_INPUT_VALID()) {
+      if (mode <= e_perout_mode_inactive_flight_mode &&
+          isFunctionActive(FUNCTION_TRAINER_STICK1 + ch) &&
+          is_trainer_connected()) {
         // trainer mode
         TrainerMix* td = &g_eeGeneral.trainer.mix[ch];
         if (td->mode) {
           uint8_t chStud = td->srcChn;
-          int32_t vStud  = (ppmInput[chStud] - g_eeGeneral.trainer.calib[chStud]);
+          int32_t vStud =
+              (trainerInput[chStud] - g_eeGeneral.trainer.calib[chStud]);
           vStud *= td->studWeight;
           vStud /= 50;
           switch (td->mode) {
             case TRAINER_ADD:
               // add-mode
-              v = limit<int16_t>(-RESX, v+vStud, RESX);
+              v = limit<int16_t>(-RESX, v + vStud, RESX);
               break;
             case TRAINER_REPL:
               // subst-mode
@@ -557,28 +590,17 @@ void evalInputs(uint8_t mode)
           }
         }
       }
-      calibratedAnalogs[ch] = v;
+      calibratedAnalogs[i] = v;
     }
   }
 
-#if NUM_MOUSE_ANALOGS > 0
-  for (uint8_t i=0; i<NUM_MOUSE_ANALOGS; i++) {
-    uint8_t ch = NUM_STICKS+NUM_POTS+NUM_SLIDERS+i;
-    int16_t v = anaIn(MOUSE1+i);
-    CalibData * calib = &g_eeGeneral.calib[ch];
-    v -= calib->mid;
-    v = v * (int32_t) RESX / (max((int16_t) 100, (v > 0 ? calib->spanPos : calib->spanNeg)));
-    if (v < -RESX) v = -RESX;
-    if (v >  RESX) v =  RESX;
-    calibratedAnalogs[ch] = v;
-  }
-#endif
-
-  /* EXPOs */
+  // EXPOs
   applyExpos(anas, mode);
 
-  /* TRIMs */
-  evalTrims(); // when no virtual inputs, the trims need the anas array calculated above (when throttle trim enabled)
+  // TRIMs
+  // when no virtual inputs, the trims need the anas array calculated above
+  // (when throttle trim enabled)
+  evalTrims();
 
   if (mode == e_perout_mode_normal) {
     bpanaCenter = anaCenter;
@@ -593,11 +615,11 @@ int getStickTrimValue(int stick, int stickValue)
   int trim = trims[stick];
   uint8_t thrTrimSw = g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM;
   if (stick == thrTrimSw) {
-    if (g_model.throttleReversed)
-      trim = -trim;
+    if (g_model.throttleReversed) trim = -trim;
     if (g_model.thrTrim) {
-      trim = (g_model.extendedTrims) ? 2*TRIM_EXTENDED_MAX + trim : 2*TRIM_MAX + trim;
-      trim = trim * (1024 - stickValue) / (2*RESX);
+      trim = (g_model.extendedTrims) ? 2 * TRIM_EXTENDED_MAX + trim
+                                     : 2 * TRIM_MAX + trim;
+      trim = trim * (1024 - stickValue) / (2 * RESX);
     }
   }
   return trim;
@@ -605,8 +627,8 @@ int getStickTrimValue(int stick, int stickValue)
 
 int getSourceTrimOrigin(int source)
 {
-  if (source >= MIXSRC_Rud && source <= MIXSRC_Ail)
-    return source - MIXSRC_Rud;
+  if (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_LAST_STICK)
+    return source - MIXSRC_FIRST_STICK;
   else if (source >= MIXSRC_FIRST_INPUT && source <= MIXSRC_LAST_INPUT)
     return virtualInputsTrims[source - MIXSRC_FIRST_INPUT];
   else
@@ -625,6 +647,7 @@ int getSourceTrimValue(int source, int stickValue=0)
 }
 
 uint8_t mixerCurrentFlightMode;
+
 void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 {
   evalInputs(mode);
@@ -633,66 +656,70 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
     evalLogicalSwitches(mode==e_perout_mode_normal);
 
 #if defined(HELI)
-  int heliEleValue = getValue(g_model.swashR.elevatorSource);
-  int heliAilValue = getValue(g_model.swashR.aileronSource);
-  if (g_model.swashR.value) {
-    uint32_t v = ((int32_t)heliEleValue*heliEleValue + (int32_t)heliAilValue*heliAilValue);
-    uint32_t q = calc100toRESX(g_model.swashR.value);
-    q *= q;
-    if (v>q) {
-      uint16_t d = isqrt32(v);
-      int16_t tmp = calc100toRESX(g_model.swashR.value);
-      heliEleValue = (int32_t) heliEleValue*tmp/d;
-      heliAilValue = (int32_t) heliAilValue*tmp/d;
+  if (modelHeliEnabled()) {
+    int heliEleValue = getValue(g_model.swashR.elevatorSource);
+    int heliAilValue = getValue(g_model.swashR.aileronSource);
+    if (g_model.swashR.value) {
+      uint32_t v = ((int32_t)heliEleValue*heliEleValue + (int32_t)heliAilValue*heliAilValue);
+      uint32_t q = calc100toRESX(g_model.swashR.value);
+      q *= q;
+      if (v>q) {
+        uint16_t d = isqrt32(v);
+        int16_t tmp = calc100toRESX(g_model.swashR.value);
+        heliEleValue = (int32_t) heliEleValue*tmp/d;
+        heliAilValue = (int32_t) heliAilValue*tmp/d;
+      }
     }
-  }
 
-#define REZ_SWASH_X(x)  ((x) - (x)/8 - (x)/128 - (x)/512)   //  1024*sin(60) ~= 886
-#define REZ_SWASH_Y(x)  ((x))   //  1024 => 1024
+  #define REZ_SWASH_X(x)  ((x) - (x)/8 - (x)/128 - (x)/512)   //  1024*sin(60) ~= 886
+  #define REZ_SWASH_Y(x)  ((x))   //  1024 => 1024
 
-  if (g_model.swashR.type) {
-    getvalue_t vp = heliEleValue + getSourceTrimValue(g_model.swashR.elevatorSource);
-    getvalue_t vr = heliAilValue + getSourceTrimValue(g_model.swashR.aileronSource);
-    getvalue_t vc = 0;
-    if (g_model.swashR.collectiveSource)
-      vc = getValue(g_model.swashR.collectiveSource);
+    if (g_model.swashR.type) {
+      getvalue_t vp = heliEleValue + getSourceTrimValue(g_model.swashR.elevatorSource);
+      getvalue_t vr = heliAilValue + getSourceTrimValue(g_model.swashR.aileronSource);
+      getvalue_t vc = 0;
+      if (g_model.swashR.collectiveSource)
+        vc = getValue(g_model.swashR.collectiveSource);
 
-    vp = (vp * g_model.swashR.elevatorWeight) / 100;
-    vr = (vr * g_model.swashR.aileronWeight) / 100;
-    vc = (vc * g_model.swashR.collectiveWeight) / 100;
+      vp = (vp * g_model.swashR.elevatorWeight) / 100;
+      vr = (vr * g_model.swashR.aileronWeight) / 100;
+      vc = (vc * g_model.swashR.collectiveWeight) / 100;
 
-    switch (g_model.swashR.type) {
-      case SWASH_TYPE_120:
-        vp = REZ_SWASH_Y(vp);
-        vr = REZ_SWASH_X(vr);
-        cyc_anas[0] = vc - vp;
-        cyc_anas[1] = vc + vp/2 + vr;
-        cyc_anas[2] = vc + vp/2 - vr;
-        break;
-      case SWASH_TYPE_120X:
-        vp = REZ_SWASH_X(vp);
-        vr = REZ_SWASH_Y(vr);
-        cyc_anas[0] = vc - vr;
-        cyc_anas[1] = vc + vr/2 + vp;
-        cyc_anas[2] = vc + vr/2 - vp;
-        break;
-      case SWASH_TYPE_140:
-        vp = REZ_SWASH_Y(vp);
-        vr = REZ_SWASH_Y(vr);
-        cyc_anas[0] = vc - vp;
-        cyc_anas[1] = vc + vp + vr;
-        cyc_anas[2] = vc + vp - vr;
-        break;
-      case SWASH_TYPE_90:
-        vp = REZ_SWASH_Y(vp);
-        vr = REZ_SWASH_Y(vr);
-        cyc_anas[0] = vc - vp;
-        cyc_anas[1] = vc + vr;
-        cyc_anas[2] = vc - vr;
-        break;
-      default:
-        break;
+      switch (g_model.swashR.type) {
+        case SWASH_TYPE_120:
+          vp = REZ_SWASH_Y(vp);
+          vr = REZ_SWASH_X(vr);
+          cyc_anas[0] = vc - vp;
+          cyc_anas[1] = vc + vp/2 + vr;
+          cyc_anas[2] = vc + vp/2 - vr;
+          break;
+        case SWASH_TYPE_120X:
+          vp = REZ_SWASH_X(vp);
+          vr = REZ_SWASH_Y(vr);
+          cyc_anas[0] = vc - vr;
+          cyc_anas[1] = vc + vr/2 + vp;
+          cyc_anas[2] = vc + vr/2 - vp;
+          break;
+        case SWASH_TYPE_140:
+          vp = REZ_SWASH_Y(vp);
+          vr = REZ_SWASH_Y(vr);
+          cyc_anas[0] = vc - vp;
+          cyc_anas[1] = vc + vp + vr;
+          cyc_anas[2] = vc + vp - vr;
+          break;
+        case SWASH_TYPE_90:
+          vp = REZ_SWASH_Y(vp);
+          vr = REZ_SWASH_Y(vr);
+          cyc_anas[0] = vc - vp;
+          cyc_anas[1] = vc + vr;
+          cyc_anas[2] = vc - vr;
+          break;
+        default:
+          break;
+      }
     }
+  } else {
+    cyc_anas[0] = cyc_anas[1] = cyc_anas[2] = 0;
   }
 #endif
 
@@ -721,7 +748,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         break;
 #endif
 
-      mixsrc_t stickIndex = md->srcRaw - MIXSRC_Rud;
+      mixsrc_t stickIndex = md->srcRaw - MIXSRC_FIRST_STICK;
 
       if (!(dirtyChannels & ((bitfield_channels_t)1 << md->destCh)))
         continue;
@@ -736,7 +763,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
 #define MIXER_LINE_DISABLE()   (mixCondition = true, mixEnabled = 0)
 
-      if (mixEnabled && md->srcRaw >= MIXSRC_FIRST_TRAINER && md->srcRaw <= MIXSRC_LAST_TRAINER && !IS_TRAINER_INPUT_VALID()) {
+      if (mixEnabled && md->srcRaw >= MIXSRC_FIRST_TRAINER && md->srcRaw <= MIXSRC_LAST_TRAINER && !is_trainer_connected()) {
         MIXER_LINE_DISABLE();
       }
 
@@ -759,10 +786,10 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
           continue;
       }
       else {
-        mixsrc_t srcRaw = MIXSRC_Rud + stickIndex;
+        mixsrc_t srcRaw = MIXSRC_FIRST_STICK + stickIndex;
         v = getValue(srcRaw);
-        srcRaw -= MIXSRC_CH1;
-        if (srcRaw <= MIXSRC_LAST_CH-MIXSRC_CH1 && md->destCh != srcRaw) {
+        srcRaw -= MIXSRC_FIRST_CH;
+        if (srcRaw <= MIXSRC_LAST_CH-MIXSRC_FIRST_CH && md->destCh != srcRaw) {
           if (dirtyChannels & ((bitfield_channels_t)1 << srcRaw) & (passDirtyChannels|~(((bitfield_channels_t) 1 << md->destCh)-1)))
             passDirtyChannels |= (bitfield_channels_t) 1 << md->destCh;
           if (srcRaw < md->destCh || pass > 0)
@@ -1041,9 +1068,9 @@ void evalMixes(uint8_t tick10ms)
   // must be done before limits because of the applyLimit function: it checks for safety switches which would be not initialized otherwise
   if (tick10ms) {
     requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
-    requiredBacklightBright = g_eeGeneral.backlightBright;
+    requiredBacklightBright = g_eeGeneral.getBrightness();
 
-    if (!g_model.noGlobalFunctions) {
+    if (radioGFEnabled()) {
       evalFunctions(g_eeGeneral.customFn, globalFunctionsContext);
     } else {
       globalFunctionsContext.reset();
@@ -1091,4 +1118,141 @@ void evalMixes(uint8_t tick10ms)
       }
     }
   }
+}
+
+#if defined(THRTRACE)
+uint8_t  s_traceBuf[MAXTRACE];
+uint16_t s_traceWr;
+uint8_t  s_cnt_10s;
+uint16_t s_cnt_samples_thr_10s;
+uint16_t s_sum_samples_thr_10s;
+#endif
+
+void doMixerPeriodicUpdates()
+{
+  static tmr10ms_t lastTMR = 0;
+
+  tmr10ms_t tmr10ms = get_tmr10ms();
+
+  uint8_t tick10ms = (tmr10ms >= lastTMR ? tmr10ms - lastTMR : 1);
+  // handle tick10ms overrun
+  // correct overflow handling costs a lot of code; happens only each 11 min;
+  // therefore forget the exact calculation and use only 1 instead; good compromise
+  lastTMR = tmr10ms;
+
+  DEBUG_TIMER_START(debugTimerMixes10ms);
+  if (tick10ms) {
+    /* Throttle trace */
+    int16_t val;
+
+    if (g_model.thrTraceSrc > MAX_POTS) {
+      uint8_t ch = g_model.thrTraceSrc - MAX_POTS - 1;
+      val = channelOutputs[ch];
+
+      LimitData * lim = limitAddress(ch);
+      int16_t gModelMax = LIMIT_MAX_RESX(lim);
+      int16_t gModelMin = LIMIT_MIN_RESX(lim);
+
+      if (lim->revert)
+        val = -val + gModelMax;
+      else
+        val = val - gModelMin;
+
+#if defined(PPM_LIMITS_SYMETRICAL)
+      if (lim->symetrical) {
+        val -= calc1000toRESX(lim->offset);
+      }
+#endif
+
+      gModelMax -= gModelMin; // we compare difference between Max and Mix for recaling needed; Max and Min are shifted to 0 by default
+      // usually max is 1024 min is -1024 --> max-min = 2048 full range
+
+      if (gModelMax != 0 && gModelMax != 2048)
+        val = (int32_t) (val << 11) / (gModelMax); // rescaling only needed if Min, Max differs
+
+      if (val < 0)
+        val=0;  // prevent val be negative, which would corrupt throttle trace and timers; could occur if safetyswitch is smaller than limits
+    }
+    else {
+      val = RESX + calibratedAnalogs[g_model.thrTraceSrc == 0 ? inputMappingConvertMode(inputMappingGetThrottle()) : g_model.thrTraceSrc + MAX_STICKS - 1];
+    }
+
+    val >>= (RESX_SHIFT-6); // calibrate it (resolution increased by factor 4)
+
+    evalTimers(val, tick10ms);
+
+    static uint8_t  s_cnt_100ms;
+    static uint8_t  s_cnt_1s;
+    static uint8_t  s_cnt_samples_thr_1s;
+    static uint16_t s_sum_samples_thr_1s;
+
+    s_cnt_samples_thr_1s++;
+    s_sum_samples_thr_1s+=val;
+
+    if ((s_cnt_100ms += tick10ms) >= 10) { // 0.1sec
+      s_cnt_100ms -= 10;
+      s_cnt_1s += 1;
+
+      logicalSwitchesTimerTick();
+      checkTrainerSignalWarning();
+
+      if (s_cnt_1s >= 10) { // 1sec
+        s_cnt_1s -= 10;
+        sessionTimer += 1;
+        inactivity.counter++;
+        if ((((uint8_t)inactivity.counter) & 0x07) == 0x01 && g_eeGeneral.inactivityTimer && inactivity.counter > ((uint16_t)g_eeGeneral.inactivityTimer * 60))
+          AUDIO_INACTIVITY();
+
+#if defined(AUDIO)
+        if (mixWarning & 1) if ((sessionTimer&0x03)==0) AUDIO_MIX_WARNING(1);
+        if (mixWarning & 2) if ((sessionTimer&0x03)==1) AUDIO_MIX_WARNING(2);
+        if (mixWarning & 4) if ((sessionTimer&0x03)==2) AUDIO_MIX_WARNING(3);
+#endif
+
+        val = s_sum_samples_thr_1s / s_cnt_samples_thr_1s;
+        s_timeCum16ThrP += (val>>3);  // s_timeCum16ThrP would overrun if we would store throttle value with higher accuracy; therefore stay with 16 steps
+        if (val)
+          s_timeCumThr += 1;
+        s_sum_samples_thr_1s >>= 2;  // correct better accuracy now, because trace graph can show this information; in case thrtrace is not active, the compile should remove this
+
+#if defined(THRTRACE)
+        // throttle trace is done every 10 seconds; Tracebuffer is adjusted to screen size.
+        // in case buffer runs out, it wraps around
+        // resolution for y axis is only 32, therefore no higher value makes sense
+        s_cnt_samples_thr_10s += s_cnt_samples_thr_1s;
+        s_sum_samples_thr_10s += s_sum_samples_thr_1s;
+
+        if (++s_cnt_10s >= 10) { // 10s
+          s_cnt_10s -= 10;
+          val = s_sum_samples_thr_10s / s_cnt_samples_thr_10s;
+          s_sum_samples_thr_10s = 0;
+          s_cnt_samples_thr_10s = 0;
+          s_traceBuf[s_traceWr % MAXTRACE] = val;
+          s_traceWr++;
+        }
+#endif
+
+        s_cnt_samples_thr_1s = 0;
+        s_sum_samples_thr_1s = 0;
+      }
+    }
+
+#if defined(PXX) || defined(DSM2)
+    static uint8_t countRangecheck = 0;
+    for (uint8_t i = 0; i < NUM_MODULES; ++i) {
+      if (isModuleBeeping(i)) {
+        if (++countRangecheck >= 250) {
+          countRangecheck = 0;
+          AUDIO_PLAY(AU_SPECIAL_SOUND_CHEEP);
+        }
+      }
+    }
+#endif
+
+    checkTrims();
+  }
+
+  DEBUG_TIMER_STOP(debugTimerMixes10ms);
+
+  s_mixer_first_run_done = true;
 }

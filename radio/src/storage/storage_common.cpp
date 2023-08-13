@@ -21,6 +21,11 @@
 
 #include "opentx.h"
 #include "timers_driver.h"
+#include "tasks/mixer_task.h"
+
+#if defined(USBJ_EX)
+#include "usb_joystick.h"
+#endif
 
 #if defined(MULTIMODULE)
   #include "pulses/multi.h"
@@ -56,24 +61,19 @@ void preModelLoad()
   logsClose();
 #endif
 
-  if (pulsesStarted()) {
-    pausePulses();
+  bool needDelay = false;
+  if (mixerTaskStarted()) {
+    pulsesStop();
+    needDelay = true;
   }
-  pauseMixerCalculations();
-
-#if defined(HARDWARE_INTERNAL_MODULE)
-  stopPulsesInternalModule();
-#endif
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  stopPulsesExternalModule();
-  RTOS_WAIT_MS(200);
-#endif
 
   stopTrainer();
-
 #if defined(COLORLCD)
   deleteCustomScreens();
 #endif
+
+  if (needDelay)
+    RTOS_WAIT_MS(200);
 }
 
 void postRadioSettingsLoad()
@@ -106,23 +106,103 @@ void postRadioSettingsLoad()
 #endif
 }
 
+static void sortMixerLines()
+{
+  // simple bubble sort
+  unsigned passes = 0;
+  unsigned swaps;
+  MixData tmp;
+  
+  do {
+    swaps = 0;
+    for (int i = 0; i < MAX_MIXERS - 1; i++) {
+      auto a = mixAddress(i);
+      auto b = mixAddress(i + 1);
+
+      if (b->destCh < a->destCh) {
+        if (is_memclear(b, sizeof(MixData)))
+          break;
+
+        memcpy(&tmp, a, sizeof(MixData));
+        memcpy(a, b, sizeof(MixData));
+        memcpy(b, &tmp, sizeof(MixData));
+        ++swaps;
+      }
+    }
+    ++passes;
+  } while(swaps > 0);
+
+  if (passes > 1) {
+    storageDirty(EE_MODEL);
+  }
+}
+
 void postModelLoad(bool alarms)
 {
+#if defined(COLORLCD)
+  // Load 'date time' widget if slot is empty
+  if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName[0] == 0) {
+    strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName, "Date Time", WIDGET_NAME_LEN);
+    g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetData.options[0].type = ZOV_Color;
+    g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetData.options[0].value.unsignedValue = 0xFFFFFF;
+    storageDirty(EE_MODEL);
+  }
+  // Load 'radio info' widget if slot is empty
+  if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName[0] == 0) {
+    strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName, "Radio Info", WIDGET_NAME_LEN);
+    storageDirty(EE_MODEL);
+  }
+#if defined(INTERNAL_GPS)
+  // Load 'internal gps' widget if slot is empty
+  if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName[0] == 0) {
+    strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName, "Internal GPS", WIDGET_NAME_LEN);
+    storageDirty(EE_MODEL);
+  }
+#endif
+#endif
+
+  // Convert 'noGlobalFunctions' to 'radioGFDisabled'
+  // TODO: Remove sometime in the future (and remove 'noGlobalFunctions' property)
+  if (g_model.noGlobalFunctions) {
+    g_model.radioGFDisabled = OVERRIDE_OFF;
+    g_model.noGlobalFunctions = 0;
+    storageDirty(EE_MODEL);
+  }
+
+// fix #2552: reset rssiSource to default none (= 0)
+if(g_model.rssiSource) {
+  g_model.rssiSource = 0;
+
+  storageDirty(EE_MODEL);  
+}
+
 #if defined(PXX2)
   if (is_memclear(g_model.modelRegistrationID, PXX2_LEN_REGISTRATION_ID)) {
     memcpy(g_model.modelRegistrationID, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
   }
+
+  // fix colorLCD radios not writing yaml tag receivers
+  if(isModulePXX2(INTERNAL_MODULE)) {
+    ModuleData *intModule = &g_model.moduleData[INTERNAL_MODULE];
+
+    for(uint8_t receiverIdx = 0; receiverIdx < 3; receiverIdx++) {
+      if(intModule->pxx2.receiverName[receiverIdx][0])
+        intModule->pxx2.receivers |= (1 << receiverIdx);
+    }
+  }
+
+  if(isModulePXX2(EXTERNAL_MODULE)) {
+    ModuleData *extModule = &g_model.moduleData[EXTERNAL_MODULE];
+
+    for(uint8_t receiverIdx = 0; receiverIdx < 3; receiverIdx++) {
+      if(extModule->pxx2.receiverName[receiverIdx][0])
+        extModule->pxx2.receivers |= (1 << receiverIdx);
+    }
+  }
+
+  storageDirty(EE_MODEL);
 #endif
 
-#if defined(HARDWARE_INTERNAL_MODULE)
-  if (!isInternalModuleAvailable(g_model.moduleData[INTERNAL_MODULE].type)) {
-    memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
-  }
-#endif
-
-  if (!isExternalModuleAvailable(g_model.moduleData[EXTERNAL_MODULE].type)) {
-    memclear(&g_model.moduleData[EXTERNAL_MODULE], sizeof(ModuleData));
-  }
 #if defined(MULTIMODULE) && defined(MULTI_PROTOLIST)
   MultiRfProtocols::removeInstance(EXTERNAL_MODULE);
 #endif
@@ -146,16 +226,20 @@ void postModelLoad(bool alarms)
   }
 
   loadCurves();
+  sortMixerLines();
 
-  resumeMixerCalculations();
-  if (pulsesStarted()) {
 #if defined(GUI)
-    if (alarms) {
-      checkAll();
-      PLAY_MODEL_NAME();
-    }
+  if (alarms) {
+    checkAll();
+    PLAY_MODEL_NAME();
+  }
 #endif
-    resumePulses();
+
+  // Mixer should only be restarted
+  // if we are switching between models,
+  // not on first boot (started later on)
+  if (mixerTaskStarted()) {
+    pulsesStart();
   }
 
 #if defined(SDCARD)
@@ -185,7 +269,7 @@ void storageFlushCurrentModel()
   }
 
   if (g_model.potsWarnMode == POTS_WARN_AUTO) {
-    for (int i=0; i<NUM_POTS+NUM_SLIDERS; i++) {
+    for (int i=0; i<MAX_POTS; i++) {
       if (g_model.potsWarnEnabled & (1 << i)) {
         SAVE_POT_POSITION(i);
       }
@@ -205,6 +289,10 @@ void selectModel(uint8_t idx)
   g_eeGeneral.currModel = idx;
   storageDirty(EE_GENERAL);
   loadModel(idx);
+
+#if defined(USBJ_EX) && defined(STM32) && !defined(SIMU)
+  onUSBJoystickModelChanged();
+#endif
 }
 
 uint8_t findEmptyModel(uint8_t id, bool down)

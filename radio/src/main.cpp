@@ -401,7 +401,8 @@ bool handleGui(event_t event) {
   bool refreshNeeded;
 #if defined(LUA)
   refreshNeeded = luaTask(event, true);
-  if (menuHandlers[menuLevel] == menuViewTelemetry && TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_SCRIPT) {
+  if (menuHandlers[menuLevel] == menuViewTelemetry &&
+      TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_SCRIPT) {
       menuHandlers[menuLevel](event);
   }
   else if (scriptInternalData[0].reference != SCRIPT_STANDALONE)
@@ -525,7 +526,7 @@ void perMain()
   checkBacklight();
 
 #if !defined(LIBOPENUI)
-  event_t evt = getEvent(false);
+  event_t evt = getEvent();
 #endif
 
 #if defined(RTC_BACKUP_RAM)
@@ -557,7 +558,7 @@ void perMain()
 #if defined(LIBOPENUI)
     // draw some image showing USB
     lcdInitDirectDrawing();
-    OpenTxTheme::instance()->drawUsbPluggedScreen(lcd);
+    EdgeTxTheme::instance()->drawUsbPluggedScreen(lcd);
     lcdRefresh();
 #else
     // disable access to menus
@@ -580,6 +581,8 @@ void perMain()
   DEBUG_TIMER_START(debugTimerGuiMain);
 #if defined(LIBOPENUI)
   guiMain(0);
+  // For color screens show a popup deferred from another task
+  show_ui_popup();
 #else
   guiMain(evt);
 #endif

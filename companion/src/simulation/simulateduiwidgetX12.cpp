@@ -37,32 +37,32 @@ SimulatedUIWidgetX12::SimulatedUIWidgetX12(SimulatorInterface *simulator, QWidge
   int x = 74, y = 190, oR = 63, iR = 40;
 
   polygon << polyArc(x, y, oR, 225, 315) << polyArc(x, y, iR, 225, 315);
-  act = new RadioUiAction(0, QList<int>() << Qt::Key_PageUp, SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP);
+  act = new RadioUiAction(4, QList<int>() << Qt::Key_PageUp, SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP);
   addRadioWidget(ui->leftbuttons->addArea(polygon, "X12/left_btn1.png", act));
 
   polygon.clear();
   polygon << polyArc(x, y, oR, 135, 225) << polyArc(x, y, iR, 135, 225);
-  act = new RadioUiAction(1, QList<int>() << Qt::Key_PageDown, SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN);
+  act = new RadioUiAction(5, QList<int>() << Qt::Key_PageDown, SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN);
   addRadioWidget(ui->leftbuttons->addArea(polygon, "X12/left_btn2.png", act));
 
   polygon.clear();
   polygon << polyArc(x, y, oR, -45, 45) << polyArc(x, y, iR, -45, 45);
-  act = new RadioUiAction(3, QList<int>() << Qt::Key_Up, SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL);
+  act = new RadioUiAction(12, QList<int>() << Qt::Key_Up, SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL);
   addRadioWidget(ui->rightbuttons->addArea(polygon, "X12/right_btnU.png", act));
 
   polygon.clear();
   polygon << polyArc(x, y, oR, 225, 315) << polyArc(x, y, iR, 225, 315);
-  act = new RadioUiAction(6, QList<int>() << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS);
+  act = new RadioUiAction(14, QList<int>() << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS);
   addRadioWidget(ui->rightbuttons->addArea(polygon, "X12/right_btnL.png", act));
 
   polygon.clear();
   polygon << polyArc(x, y, oR, 45, 135) << polyArc(x, y, iR, 45, 135);
-  act = new RadioUiAction(5, QList<int>() << Qt::Key_Right, SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE);
+  act = new RadioUiAction(13, QList<int>() << Qt::Key_Right, SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE);
   addRadioWidget(ui->rightbuttons->addArea(polygon, "X12/right_btnR.png", act));
 
   polygon.clear();
   polygon << polyArc(x, y, oR, 135, 225) << polyArc(x, y, iR, 135, 225);
-  act = new RadioUiAction(4, QList<int>() << Qt::Key_Down << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace,
+  act = new RadioUiAction(1, QList<int>() << Qt::Key_Down << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace,
                          SIMU_STR_HLP_KEY_DN % "<br>" % SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_RTN);
   addRadioWidget(ui->rightbuttons->addArea(polygon, "X12/right_btnD.png", act));
 

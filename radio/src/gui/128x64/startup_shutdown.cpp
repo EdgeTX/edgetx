@@ -29,6 +29,12 @@ const unsigned char bmp_sleep[]  = {
 #include "sleep.lbm"
 };
 
+#if defined(RADIO_T20)
+constexpr uint8_t steps = NUM_FUNCTIONS_SWITCHES/2;
+#elif defined(FUNCTION_SWITCHES)
+constexpr uint8_t steps = NUM_FUNCTIONS_SWITCHES;
+#endif
+
 void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
 {
   if (totalDuration == 0)
@@ -41,12 +47,16 @@ void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
 
 #if defined(FUNCTION_SWITCHES)
   uint8_t index2 = limit<uint8_t>(
-      0, duration / (totalDuration / (NUM_FUNCTIONS_SWITCHES + 1)),
-      NUM_FUNCTIONS_SWITCHES);
+      0, duration / (totalDuration / (steps + 1)),
+      steps);
 
-  for (uint8_t j = 0; j < NUM_FUNCTIONS_SWITCHES; j++) {
-    if (index2 > j)
+  for (uint8_t j = 0; j < steps; j++) {
+    if (index2 > j) {
       fsLedOn(j);
+#if defined(RADIO_T20)
+      fsLedOn(j + steps);
+#endif
+    }
   }
 #endif
 
@@ -72,14 +82,22 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
   lcdClear();
 
 #if defined(FUNCTION_SWITCHES)
-  uint8_t index2 = limit<uint8_t>(
-      0, duration / (totalDuration / (NUM_FUNCTIONS_SWITCHES + 1)),
-      NUM_FUNCTIONS_SWITCHES);
 
-  for (uint8_t j = 0; j < NUM_FUNCTIONS_SWITCHES; j++) {
+  uint8_t index2 = limit<uint8_t>(
+      0, duration / (totalDuration / (steps + 1)),
+      steps);
+
+  for (uint8_t j = 0; j < steps; j++) {
     fsLedOff(j);
-    if (NUM_FUNCTIONS_SWITCHES - index2 > j)
+#if defined(RADIO_T20)
+    fsLedOff(j + steps);
+#endif
+    if (steps - index2 > j) {
       fsLedOn(j);
+#if defined(RADIO_T20)
+      fsLedOn(j + steps);
+#endif
+    }
   }
 #endif
 

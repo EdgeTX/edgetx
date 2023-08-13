@@ -40,10 +40,6 @@ class ChooserDialog : public QDialog
 
     QItemSelectionModel* selectedItems();
 
-  signals:
-
-  private slots:
-
   private:
     Ui::ChooserDialog *ui;
 };

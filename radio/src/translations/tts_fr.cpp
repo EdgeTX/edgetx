@@ -135,36 +135,36 @@ I18N_PLAY_FUNCTION(fr, playDuration, int seconds PLAY_DURATION_ATT)
     seconds = -seconds;
   }
 
-  uint8_t tmp;
-  if (IS_PLAY_LONG_TIMER()) {
-    tmp = seconds / 60;
-    if (seconds % 60 >= 30) tmp += 1;
-    if (tmp > 0) PLAY_NUMBER(tmp, UNIT_MINUTES, 0);
-  } else {
-    tmp = seconds / 3600;
-    seconds %= 3600;
-    if (IS_PLAY_TIME() && tmp == 0) {
-      PUSH_NUMBER_PROMPT(FR_PROMPT_MINUIT);
-    } else if (IS_PLAY_TIME() && tmp == 12) {
-      PUSH_NUMBER_PROMPT(FR_PROMPT_MIDI);
-    } else if (tmp > 0) {
-      PLAY_NUMBER(tmp, UNIT_HOURS, FEMININ);
-    }
+  int hours, minutes;
+  hours = seconds / 3600;
+  seconds = seconds % 3600;
+  minutes = seconds / 60;
+  seconds = seconds % 60;
 
-    tmp = seconds / 60;
-    seconds %= 60;
-    if (tmp > 0) {
-      if (IS_PLAY_TIME()) {
-        PLAY_NUMBER(tmp, 0, tmp == 1 ? FEMININ : 0);
-      } else {
-        PLAY_NUMBER(tmp, UNIT_MINUTES, FEMININ);
-        if (seconds > 0) PUSH_NUMBER_PROMPT(FR_PROMPT_ET);
-      }
-    }
+  if (IS_PLAY_LONG_TIMER() && seconds >= 30) {
+    minutes += 1;
+  }
 
-    if (!IS_PLAY_TIME() && seconds > 0) {
-      PLAY_NUMBER(seconds, UNIT_SECONDS, FEMININ);
+  if (IS_PLAY_TIME() && hours == 0) {
+    PUSH_NUMBER_PROMPT(FR_PROMPT_MINUIT);
+  } else if (IS_PLAY_TIME() && hours == 12) {
+    PUSH_NUMBER_PROMPT(FR_PROMPT_MIDI);
+  } else if (hours > 0) {
+    PLAY_NUMBER(hours, UNIT_HOURS, FEMININ);
+  }
+
+  if (minutes > 0) {
+    if (IS_PLAY_TIME()) {
+      PLAY_NUMBER(minutes, 0, minutes == 1 ? FEMININ : 0);
+    } else {
+      PLAY_NUMBER(minutes, UNIT_MINUTES, FEMININ);
     }
+  }
+
+  if (!IS_PLAY_LONG_TIMER() && seconds > 0) {
+    if (minutes)
+      PUSH_NUMBER_PROMPT(FR_PROMPT_ET);
+    PLAY_NUMBER(seconds, UNIT_SECONDS, FEMININ);
   }
 }
 

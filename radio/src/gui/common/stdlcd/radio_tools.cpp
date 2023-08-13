@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <vector>
 #include "opentx.h"
+#include "hal/module_port.h"
 
 extern uint8_t g_moduleIdx;
 
@@ -104,7 +105,7 @@ void menuRadioTools(event_t event)
     memclear(&reusableBuffer.radioTools, sizeof(reusableBuffer.radioTools));
 #if defined(PXX2)
     for (uint8_t module = 0; module < NUM_MODULES; module++) {
-      if (isModulePXX2(module) && (module == INTERNAL_MODULE ? IS_INTERNAL_MODULE_ON() : IS_EXTERNAL_MODULE_ON())) {
+      if (isModulePXX2(module) && (module == INTERNAL_MODULE ? modulePortPowered(INTERNAL_MODULE) : modulePortPowered(EXTERNAL_MODULE))) {
         moduleState[module].readModuleInformation(&reusableBuffer.radioTools.modules[module], PXX2_HW_INFO_TX_ID, PXX2_HW_INFO_TX_ID);
       }
     }
@@ -128,9 +129,8 @@ void menuRadioTools(event_t event)
 
       res = f_readdir(&dir, &fno);                   /* Read a directory item */
       if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-      if (fno.fattrib & AM_DIR) continue;            /* Skip subfolders */
-      if (fno.fattrib & AM_HID) continue;            /* Skip hidden files */
-      if (fno.fattrib & AM_SYS) continue;            /* Skip system files */
+      if (fno.fattrib & (AM_DIR|AM_HID|AM_SYS)) continue;  // skip subfolders, hidden files and system files
+      if (fno.fname[0] == '.') continue;  /* Ignore UNIX hidden files */
 
       strcat(path, fno.fname);
       if (isRadioScriptTool(fno.fname)) {
@@ -162,12 +162,25 @@ void menuRadioTools(event_t event)
   if (isPXX2ModuleOptionAvailable(reusableBuffer.radioTools.modules[INTERNAL_MODULE].information.modelID, MODULE_OPTION_POWER_METER))
     addRadioModuleTool(index++, STR_POWER_METER_INT, menuRadioPowerMeter, INTERNAL_MODULE);
 #endif
+
 #if defined(HARDWARE_INTERNAL_MODULE) && defined(MULTIMODULE)
   if (g_eeGeneral.internalModule == MODULE_TYPE_MULTIMODULE)
     addRadioModuleTool(index++, STR_SPECTRUM_ANALYSER_INT, menuRadioSpectrumAnalyser, INTERNAL_MODULE);
 #endif
-#if defined(PXX2) || defined(MULTIMODULE)
-  if (isPXX2ModuleOptionAvailable(reusableBuffer.radioTools.modules[EXTERNAL_MODULE].information.modelID, MODULE_OPTION_SPECTRUM_ANALYSER) || isModuleMultimodule(EXTERNAL_MODULE))
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+
+#if (defined(PXX2) || defined(MULTIMODULE))
+  bool has_spectrum_analyser = false;
+#if defined(PXX2)
+  if (isPXX2ModuleOptionAvailable(reusableBuffer.radioTools.modules[EXTERNAL_MODULE].information.modelID, MODULE_OPTION_SPECTRUM_ANALYSER))
+    has_spectrum_analyser = true;
+#endif
+#if defined(MULTIMODULE)
+  if (isModuleMultimodule(EXTERNAL_MODULE))
+    has_spectrum_analyser = true;
+#endif
+  if (has_spectrum_analyser)
     addRadioModuleTool(index++, STR_SPECTRUM_ANALYSER_EXT, menuRadioSpectrumAnalyser, EXTERNAL_MODULE);
 #endif
 #if defined(PXX2)
@@ -178,6 +191,8 @@ void menuRadioTools(event_t event)
 #if defined(GHOST)
   if (isModuleGhost(EXTERNAL_MODULE))
     addRadioModuleTool(index++, "Ghost Menu", menuGhostModuleConfig, EXTERNAL_MODULE);
+#endif
+
 #endif
 
   if (index == 0) {

@@ -24,9 +24,9 @@
 #if defined(SIMU)
 
 uint16_t getTmr2MHz();
-
 #define watchdogSuspend(timeout)
-#else
+
+#else // SIMU
 
 #include "hal.h"
 
@@ -34,7 +34,7 @@ void init2MhzTimer();
 void init1msTimer();
 void stop1msTimer();
 
-static inline uint16_t getTmr2MHz() { return TIMER_2MHz_TIMER->CNT; }
+#define getTmr2MHz() TIMER_2MHz_TIMER->CNT
 
 void watchdogSuspend(uint32_t timeout);
 
@@ -48,3 +48,5 @@ static inline tmr10ms_t get_tmr10ms()
 {
   return g_tmr10ms;
 }
+
+uint32_t timersGetMsTick();

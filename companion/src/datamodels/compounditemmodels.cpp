@@ -46,8 +46,6 @@ QString AbstractItemModel::idToString(const int value)
       return "CustomFuncResetParam";
     case IMID_TeleSource:
       return "TeleSource";
-    case IMID_RssiSource:
-      return "RssiSource";
     case IMID_CurveRefType:
       return "CurveRefType";
     case IMID_CurveRefFunc:
@@ -120,9 +118,9 @@ RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSett
   addItems(SOURCE_TYPE_CYC,            RawSource::SourcesGroup,  CPN_MAX_CYC);
   addItems(SOURCE_TYPE_PPM,            RawSource::SourcesGroup,  firmware->getCapability(TrainerInputs));
   addItems(SOURCE_TYPE_CH,             RawSource::SourcesGroup,  firmware->getCapability(Outputs));
+  addItems(SOURCE_TYPE_GVAR,           RawSource::GVarsGroup,    firmware->getCapability(Gvars));
   addItems(SOURCE_TYPE_SPECIAL,        RawSource::TelemGroup,    SOURCE_TYPE_SPECIAL_COUNT);
   addItems(SOURCE_TYPE_TELEMETRY,      RawSource::TelemGroup,    firmware->getCapability(Sensors) * 3);
-  addItems(SOURCE_TYPE_GVAR,           RawSource::GVarsGroup,    firmware->getCapability(Gvars));
 }
 
 void RawSourceItemModel::setDynamicItemData(QStandardItem * item, const RawSource & src) const
@@ -512,49 +510,6 @@ void TelemetrySourceItemModel::update(const int event)
 }
 
 //
-// RssiSourceItemModel
-//
-
-RssiSourceItemModel::RssiSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                                   Firmware * firmware, const Boards * const board, const Board::Type boardType) :
-    AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
-{
-  setId(IMID_RssiSource);
-
-  if (!modelData)
-    return;
-
-  setUpdateMask(IMUE_TeleSensors | IMUE_Modules);
-
-  for (int i = 0; i <= firmware->getCapability(Sensors); ++i) {
-    QStandardItem * modelItem = new QStandardItem();
-    modelItem->setData(i, IMDR_Id);
-    modelItem->setData(i < 0 ? IMDG_Negative : i > 0 ? IMDG_Positive : IMDG_None, IMDR_Flags);
-    setDynamicItemData(modelItem, i);
-    appendRow(modelItem);
-  }
-}
-
-void RssiSourceItemModel::setDynamicItemData(QStandardItem * item, const int value) const
-{
-  item->setText(SensorData::rssiSensorToString(modelData, value));
-  item->setData(SensorData::isRssiSensorAvailable(modelData, value), IMDR_Available);
-}
-
-void RssiSourceItemModel::update(const int event)
-{
-  if (doUpdate(event)) {
-    emit aboutToBeUpdated();
-
-    for (int i = 0; i < rowCount(); ++i) {
-      setDynamicItemData(item(i), item(i)->data(IMDR_Id).toInt());
-    }
-
-    emit updateComplete();
-  }
-}
-
-//
 // CurveRefTypeItemModel
 //
 
@@ -658,9 +613,6 @@ void CompoundItemModelFactory::addItemModel(const int id)
       break;
     case AbstractItemModel::IMID_TeleSource:
       registerItemModel(new TelemetrySourceItemModel(generalSettings, modelData, firmware, board, boardType));
-      break;
-    case AbstractItemModel::IMID_RssiSource:
-      registerItemModel(new RssiSourceItemModel(generalSettings, modelData, firmware, board, boardType));
       break;
     case AbstractItemModel::IMID_CurveRefType:
       registerItemModel(new CurveRefTypeItemModel(generalSettings, modelData, firmware, board, boardType));

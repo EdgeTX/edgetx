@@ -31,7 +31,6 @@ extern "C" {
   #include <lua.h>
   #include <lauxlib.h>
   #include <lualib.h>
-  #include <lrotable.h>
   #include <lgc.h>
 }
 
@@ -62,7 +61,30 @@ extern lua_State * lsScripts;
 extern bool luaLcdAllowed;
 
 #if defined(COLORLCD)
-extern lua_State * lsWidgets;
+//
+// Obsoleted definitions:
+//  -> please check against libopenui_defines.h for conflicts
+//  -> here we use the 4 most significant bits for our flags (32 bit unsigned)
+//
+// INVERS & BLINK are used in most scripts, let's offer a compatibility mode.
+//
+#undef INVERS
+#undef BLINK
+
+#define INVERS     0x01u
+#define BLINK    0x1000u
+
+extern bool luaLcdAllowed;
+
+class BitmapBuffer;
+extern BitmapBuffer* luaLcdBuffer;
+
+class Widget;
+extern Widget* runningFS;
+
+LcdFlags flagsRGB(LcdFlags flags);
+
+extern lua_State* lsWidgets;
 extern uint32_t luaExtraMemoryUsage;
 void luaInitThemesAndWidgets();
 #endif
@@ -200,12 +222,6 @@ extern uint16_t maxLuaInterval;
 extern uint16_t maxLuaDuration;
 extern uint8_t instructionsPercent;
 
-#if defined(KEYS_GPIO_REG_PAGE)
-  #define IS_MASKABLE(key) ((key) != KEY_EXIT && (key) != KEY_ENTER && ((scriptInternalData[0].reference ==  SCRIPT_STANDALONE) || (key) != KEY_PAGE))
-#else
-  #define IS_MASKABLE(key) ((key) != KEY_EXIT && (key) != KEY_ENTER)
-#endif
-
 struct LuaField {
   uint16_t id;
   char name[20];
@@ -243,23 +259,6 @@ struct LuaMemTracer {
 
 void * tracer_alloc(void * ud, void * ptr, size_t osize, size_t nsize);
 
-inline bool isLuaStandaloneRunning() {
-  return scriptInternalData[0].reference == SCRIPT_STANDALONE;
-}
-
-// #if defined(HARDWARE_TOUCH)
-// struct LuaTouchData {
-//   coord_t touchX;
-//   coord_t touchY;
-//   coord_t startX;
-//   coord_t startY;
-//   coord_t slideX;
-//   coord_t slideY;
-//   short tapCount;
-// };
-
-// extern LuaTouchData touches[EVENT_BUFFER_SIZE];
-// #endif
 
 #else  // defined(LUA)
 

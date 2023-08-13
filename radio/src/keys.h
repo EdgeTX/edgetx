@@ -23,9 +23,9 @@
 #define _KEYS_H_
 
 #include <inttypes.h>
-#include "board.h"
 #include "opentx_types.h"
-#include "libopenui/src/libopenui_types.h"
+
+#include "hal/key_driver.h"
 
 constexpr event_t EVT_REFRESH =        0x1000;
 constexpr event_t EVT_ENTRY =          0x1001;
@@ -89,7 +89,7 @@ constexpr bool IS_TOUCH_EVENT(event_t event)
 #endif
 
 // normal order of events is: FIRST, LONG, REPEAT, REPEAT, ..., BREAK
-#define EVT_KEY_MASK(e)                ((e) & 0x1F)
+#define EVT_KEY_MASK(e) ((e) & 0x1F)
 
 constexpr event_t EVT_KEY_FIRST(uint8_t key)
 {
@@ -116,10 +116,10 @@ constexpr bool IS_KEY_EVENT(event_t event)
   return (event & 0xF000) == 0;  // fired when key is released (short or long), but only if the event was not killed
 }
 
-constexpr bool IS_TRIM_EVENT(event_t event)
-{
-  return (IS_KEY_EVENT(event) && EVT_KEY_MASK(event) >= TRM_BASE);
-}
+// constexpr bool IS_TRIM_EVENT(event_t event)
+// {
+//   return (IS_KEY_EVENT(event) && EVT_KEY_MASK(event) >= TRM_BASE);
+// }
 
 inline bool IS_KEY_FIRST(event_t evt)
 {
@@ -146,63 +146,43 @@ inline bool IS_KEY_EVT(event_t evt, uint8_t key)
   return (evt & _MSK_KEY_FLAGS) && (EVT_KEY_MASK(evt) == key);
 }
 
-#if defined(PCBXLITE)
-  #define EVT_ROTARY_BREAK             EVT_KEY_BREAK(KEY_ENTER)
-  #define EVT_ROTARY_LONG              EVT_KEY_LONG(KEY_ENTER)
-  #define IS_NEXT_EVENT(event)         (event==EVT_KEY_FIRST(KEY_DOWN) || event==EVT_KEY_REPT(KEY_DOWN))
-  #define IS_PREVIOUS_EVENT(event)     (event==EVT_KEY_FIRST(KEY_UP) || event==EVT_KEY_REPT(KEY_UP))
-#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-  #define EVT_ROTARY_BREAK             EVT_KEY_BREAK(KEY_ENTER)
-  #define EVT_ROTARY_LONG              EVT_KEY_LONG(KEY_ENTER)
-  #define IS_NEXT_EVENT(event)         (event==EVT_KEY_FIRST(KEY_DOWN) || event==EVT_KEY_REPT(KEY_DOWN))
-  #define IS_PREVIOUS_EVENT(event)     (event==EVT_KEY_FIRST(KEY_UP) || event==EVT_KEY_REPT(KEY_UP))
-#elif defined(PCBFRSKY) && defined(ROTARY_ENCODER_NAVIGATION)
-  #define EVT_ROTARY_BREAK             EVT_KEY_BREAK(KEY_ENTER)
-  #define EVT_ROTARY_LONG              EVT_KEY_LONG(KEY_ENTER)
-  #define IS_NEXT_EVENT(event)         (event==EVT_ROTARY_RIGHT)
-  #define IS_PREVIOUS_EVENT(event)     (event==EVT_ROTARY_LEFT)
-#elif defined(ROTARY_ENCODER_NAVIGATION)
-  #define EVT_ROTARY_BREAK             0xcf
-  #define EVT_ROTARY_LONG              0xce
-  #define IS_NEXT_EVENT(event)         (event==EVT_ROTARY_RIGHT || event==EVT_KEY_FIRST(KEY_DOWN) || event==EVT_KEY_REPT(KEY_DOWN))
-  #define IS_PREVIOUS_EVENT(event)     (event==EVT_ROTARY_LEFT || event==EVT_KEY_FIRST(KEY_UP) || event==EVT_KEY_REPT(KEY_UP))
-#else
-  #define IS_NEXT_EVENT(event)         (event==EVT_KEY_FIRST(KEY_DOWN) || event==EVT_KEY_REPT(KEY_DOWN))
-  #define IS_PREVIOUS_EVENT(event)     (event==EVT_KEY_FIRST(KEY_UP) || event==EVT_KEY_REPT(KEY_UP))
-#endif
-
-class Key
+inline bool IS_NEXT_EVENT(event_t evt)
 {
-  private:
-    uint8_t m_vals  = 0;
-    uint8_t m_cnt   = 0;
-    uint8_t m_state = 0;
-  public:
-    void input(bool val);
-    bool state() const { return m_vals > 0; }
-    void pauseEvents();
-    void killEvents();
-    uint8_t key() const;
-};
-
-extern Key keys[NUM_KEYS];
-extern event_t s_evt;
-
-inline void pushEvent(event_t evt)
-{
-  s_evt = evt;
+  return evt == EVT_KEY_FIRST(KEY_DOWN) || evt == EVT_KEY_REPT(KEY_DOWN) ||
+         evt == EVT_KEY_FIRST(KEY_MINUS) || evt == EVT_KEY_REPT(KEY_MINUS) ||
+         evt == EVT_ROTARY_RIGHT;
 }
+
+inline bool IS_PREVIOUS_EVENT(event_t evt)
+{
+  return evt == EVT_KEY_FIRST(KEY_UP) || evt == EVT_KEY_REPT(KEY_UP) ||
+         evt == EVT_KEY_FIRST(KEY_PLUS) || evt == EVT_KEY_REPT(KEY_PLUS) ||
+         evt == EVT_ROTARY_LEFT;
+}
+
+void pushEvent(event_t evt);
+event_t getEvent();
 
 void pauseEvents(event_t event);
 void killEvents(event_t event);
 void killAllEvents();
 bool waitKeysReleased();
-event_t getEvent(bool trim=false);
 bool isEvent();
 bool keyDown();
 
-#if defined(ROTARY_ENCODER_NAVIGATION)
-extern uint8_t rotencSpeed;
+event_t getTrimEvent();
+void pauseTrimEvents(event_t event);
+void killTrimEvents(event_t event);
+
+uint8_t keysGetState(uint8_t key);
+uint8_t keysGetTrimState(uint8_t trim);
+
+bool keysPollingCycle();
+bool rotaryEncoderPollingCycle();
+
+#if defined(USE_TRIMS_AS_BUTTONS)
+void setTrimsAsButtons(bool val);
+bool getTrimsAsButtons();
 #endif
 
 struct InactivityData

@@ -32,7 +32,7 @@ class CurvePoint {
     int8_t y;
 };
 
-#define CURVEDATA_NAME_LEN  6
+#define CURVEDATA_NAME_LEN  3
 
 class CurveData {
   Q_DECLARE_TR_FUNCTIONS(CurveData)

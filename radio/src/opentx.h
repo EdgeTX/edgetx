@@ -24,7 +24,6 @@
 #include <stdlib.h>
 #include "definitions.h"
 #include "opentx_types.h"
-#include "debounce.h"
 #include "opentx_helpers.h"
 #include "touch.h"
 
@@ -65,6 +64,13 @@
 #else
 #define CASE_BACKLIGHT(x)
 #endif
+
+#if defined(OLED_SCREEN)
+#define CASE_CONTRAST(x)
+#else
+#define CASE_CONTRAST(x) x,
+#endif
+
 
 #if defined(LUA)
   #define CASE_LUA(x) x,
@@ -168,6 +174,12 @@
   #define CASE_GVARS(x)
 #endif
 
+#if defined(LUA_MODEL_SCRIPTS)
+  #define CASE_LUA_MODEL_SCRIPTS(x) x,
+#else
+  #define CASE_LUA_MODEL_SCRIPTS(x)
+#endif
+
 #if defined(PCBX9DP) || defined(PCBX9E)
   #define CASE_PCBX9E_PCBX9DP(x) x,
 #else
@@ -240,52 +252,33 @@ enum RotaryEncoderMode {
 
 #include "debug.h"
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
-  #define SWSRC_THR                    SWSRC_SB2
-  #define SWSRC_GEA                    SWSRC_SG2
-  #define SWSRC_ID0                    SWSRC_SA0
-  #define SWSRC_ID1                    SWSRC_SA1
-  #define SWSRC_ID2                    SWSRC_SA2
-  #define IS_MOMENTARY(sw)             false // TODO
-#else
-  #define SW_DSM2_BIND     SW_TRN
-#endif
 
 #include "myeeprom.h"
 #include "curves.h"
 
 void memswap(void * a, void * b, uint8_t size);
 
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || defined(PCBHORUS)
-  #define POT_CONFIG(x)                ((g_eeGeneral.potsConfig >> (2*((x)-POT1)))&0x03)
-  #define IS_POT_MULTIPOS(x)           (IS_POT(x) && POT_CONFIG(x)==POT_MULTIPOS_SWITCH)
-  #define IS_POT_WITHOUT_DETENT(x)     (IS_POT(x) && POT_CONFIG(x)==POT_WITHOUT_DETENT)
-  #define IS_SLIDER_AVAILABLE(x)       ((x) == SLIDER1 || (x) == SLIDER2 || (IS_SLIDER(x) && (g_eeGeneral.slidersConfig & (0x01 << ((x)-SLIDER1)))))
-  #define IS_POT_AVAILABLE(x)          (IS_POT(x) && POT_CONFIG(x)!=POT_NONE)
-  #define IS_POT_SLIDER_AVAILABLE(x)   (IS_POT_AVAILABLE(x) || IS_SLIDER_AVAILABLE(x))
-  #define IS_MULTIPOS_CALIBRATED(cal)  (cal->count>0 && cal->count<XPOTS_MULTIPOS_COUNT)
-#elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBNV14)
-  #define POT_CONFIG(x)                ((g_eeGeneral.potsConfig >> (2*((x)-POT1)))&0x03)
-  #define IS_POT_MULTIPOS(x)           (IS_POT(x) && POT_CONFIG(x)==POT_MULTIPOS_SWITCH)
-  #define IS_POT_WITHOUT_DETENT(x)     (IS_POT(x) && POT_CONFIG(x)==POT_WITHOUT_DETENT)
-  #define IS_POT_AVAILABLE(x)          (IS_POT(x) && POT_CONFIG(x)!=POT_NONE)
-  #define IS_POT_SLIDER_AVAILABLE(x)   (IS_POT_AVAILABLE(x))
-  #define IS_MULTIPOS_CALIBRATED(cal)  (cal->count>0 && cal->count<XPOTS_MULTIPOS_COUNT)
-#else
-  #define IS_POT_MULTIPOS(x)           (false)
-  #define IS_POT_WITHOUT_DETENT(x)     (true)
-  #define IS_POT_SLIDER_AVAILABLE(x)   (true)
-  #define IS_MULTIPOS_CALIBRATED(cal)  (false)
-#endif
+// TODO: move these config check macros somewhere else
+#define POT_CONFIG(x) \
+  ((g_eeGeneral.potsConfig >> POT_CONFIG_POS(x)) & POT_CFG_MASK)
 
-#if NUM_XPOTS > 0
-  #define IS_SWITCH_MULTIPOS(x)         (SWSRC_FIRST_MULTIPOS_SWITCH <= (x) && (x) <= SWSRC_LAST_MULTIPOS_SWITCH)
-#else
-  #define IS_SWITCH_MULTIPOS(x)         (false)
-#endif
+#define IS_POT_MULTIPOS(x)             (POT_CONFIG(x) == POT_MULTIPOS_SWITCH)
+#define IS_POT_WITHOUT_DETENT(x)       (POT_CONFIG(x) == POT_WITHOUT_DETENT)
+#define IS_SLIDER(x)                   (POT_CONFIG(x) == POT_SLIDER_WITH_DETENT)
+#define IS_POT_AVAILABLE(x)            (POT_CONFIG(x) != POT_NONE)
+#define IS_POT_SLIDER_AVAILABLE(x)     (IS_POT_AVAILABLE(x))
+#define IS_MULTIPOS_CALIBRATED(cal)    (cal->count > 0 && cal->count < XPOTS_MULTIPOS_COUNT)
 
-#define GET_LOWRES_POT_POSITION(i)     (getValue(MIXSRC_FIRST_POT+(i)) >> 4)
-#define SAVE_POT_POSITION(i)           g_model.potsWarnPosition[i] = GET_LOWRES_POT_POSITION(i)
+#define IS_SWITCH_MULTIPOS(x) \
+  (SWSRC_FIRST_MULTIPOS_SWITCH <= (x) && (x) <= SWSRC_LAST_MULTIPOS_SWITCH)
+
+#define GET_LOWRES_POT_POSITION(i) (getValue(MIXSRC_FIRST_POT + (i)) >> 4)
+
+#define SAVE_POT_POSITION(i) \
+  g_model.potsWarnPosition[i] = GET_LOWRES_POT_POSITION(i)
+
+#define ANALOG_CENTER_BEEP(x) \
+  (g_model.beepANACenter & ((BeepANACenter)1 << (x)))
 
 #define PPM_CENTER                     1500
 
@@ -307,7 +300,7 @@ void memswap(void * a, void * b, uint8_t size);
 #include "pulses/pulses.h"
 #include "pulses/modules_helpers.h"
 
-#define MASK_CFN_TYPE  uint64_t  // current max = 64 function switches
+#define MASK_CFN_TYPE  uint64_t  // current max = 64 customizable switches
 #define MASK_FUNC_TYPE uint32_t  // current max = 32 functions
 
 struct CustomFunctionsContext {
@@ -336,26 +329,6 @@ struct CustomFunctionsContext {
   #endif
 #endif
 
-extern const uint8_t bchout_ar[];
-extern const uint8_t modn12x3[];
-
-//convert from mode 1 to mode stickMode
-//NOTICE!  =>  0..3 -> 0..3
-#define RUD_STICK 0
-#define ELE_STICK 1
-#define THR_STICK 2
-#define AIL_STICK 3
-#define CONVERT_MODE(x)          (((x)<=AIL_STICK) ? *(modn12x3 + 4*g_eeGeneral.stickMode + (x)) : (x) )
-
-#if defined(PCBXLITE)
-  #define CONVERT_MODE_TRIMS(x)  (((x) == RUD_STICK) ? AIL_STICK : ((x) == AIL_STICK) ? RUD_STICK : (x))
-#else
-  #define CONVERT_MODE_TRIMS(x)  CONVERT_MODE(x)
-#endif
-
-extern uint8_t channelOrder(uint8_t x);
-extern uint8_t channelOrder(uint8_t setup, uint8_t x);
-
 #define THRCHK_DEADBAND                16
 
 inline bool SPLASH_NEEDED()
@@ -367,12 +340,8 @@ inline bool SPLASH_NEEDED()
 #endif
 }
 
-#if defined(PCBHORUS)
-  #define SPLASH_TIMEOUT               0 /* we use the splash duration to load stuff from the SD */
-#elif defined(PCBTARANIS)
-  #define SPLASH_TIMEOUT               (g_eeGeneral.splashMode == -4 ? 1500 : (g_eeGeneral.splashMode <= 0 ? (400-g_eeGeneral.splashMode * 200) : (400 - g_eeGeneral.splashMode * 100)))
-#else
-  #define SPLASH_TIMEOUT               (4 * 100)  // 4 seconds
+#if defined(SPLASH)
+  #define SPLASH_TIMEOUT (g_eeGeneral.splashMode == -4 ? 1500 : (g_eeGeneral.splashMode <= 0 ? (400-g_eeGeneral.splashMode * 200) : (400 - g_eeGeneral.splashMode * 100)))
 #endif
 
 constexpr uint8_t HEART_TIMER_10MS = 0x01;
@@ -402,10 +371,9 @@ extern uint8_t heartbeat;
 #include "keys.h"
 #include "pwr.h"
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
-div_t switchInfo(int switchPosition);
-extern uint8_t potsPos[NUM_XPOTS];
-#endif
+// #if defined(PCBFRSKY) || defined(PCBNV14)
+// extern uint8_t potsPos[NUM_XPOTS];
+// #endif
 
 bool trimDown(uint8_t idx);
 
@@ -438,7 +406,7 @@ inline void RAISE_ALERT(const char *title, const char *msg, const char *info,
 }
 inline void ALERT(const char *title, const char *msg, uint8_t sound)
 {
-  raiseAlert(title, msg, "", sound);
+  raiseAlert(title, msg, STR_PRESS_ANY_KEY_TO_SKIP, sound);
 }
 
 #else // !COLORLCD && GUI
@@ -469,14 +437,7 @@ extern uint8_t mixerCurrentFlightMode;
 extern uint8_t lastFlightMode;
 extern uint8_t flightModeTransitionLast;
 
-#if defined(SIMU)
-  inline int availableMemory() { return 1000; }
-#else
-  extern unsigned char *heap;
-  extern int _end;
-  extern int _heap_end;
-  #define availableMemory() ((unsigned int)((unsigned char *)&_heap_end - heap))
-#endif
+extern uint32_t availableMemory();
 
 
 void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms);
@@ -491,24 +452,6 @@ void per10ms();
 
 getvalue_t getValue(mixsrc_t i, bool* valid = nullptr);
 
-#define GETSWITCH_MIDPOS_DELAY   1
-bool getSwitch(swsrc_t swtch, uint8_t flags=0);
-
-void logicalSwitchesTimerTick();
-void logicalSwitchesReset();
-
-void evalLogicalSwitches(bool isCurrentFlightmode=true);
-void logicalSwitchesCopyState(uint8_t src, uint8_t dst);
-
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
-  void getSwitchesPosition(bool startup);
-#else
-  #define getSwitchesPosition(...)
-#endif
-
-extern swarnstate_t switches_states;
-swsrc_t getMovedSwitch();
-
 int8_t getMovedSource(uint8_t min);
 #define GET_MOVED_SOURCE(min, max) getMovedSource(min)
 
@@ -521,7 +464,7 @@ int8_t getMovedSource(uint8_t min);
 #define getTrimFlightMode(phase, idx) (phase)
 
 #if defined(GVARS)
-  extern int8_t trimGvar[NUM_TRIMS];
+  extern int8_t trimGvar[MAX_TRIMS];
   #define TRIM_REUSED(idx) trimGvar[idx] >= 0
 #else
   #define TRIM_REUSED(idx) 0
@@ -569,12 +512,6 @@ void checkAlarm();
 void checkAll();
 
 void getADC();
-static inline void GET_ADC_IF_MIXER_NOT_RUNNING()
-{
-  if (s_pulses_paused) {
-    getADC();
-  }
-}
 
 #include "sbus.h"
 
@@ -582,23 +519,6 @@ void resetBacklightTimeout();
 void checkBacklight();
 
 uint16_t isqrt32(uint32_t n);
-
-#if defined(BOOT)
-#define pauseMixerCalculations()
-#define resumeMixerCalculations()
-#else
-#include "tasks.h"
-extern RTOS_MUTEX_HANDLE mixerMutex;
-inline void pauseMixerCalculations()
-{
-  RTOS_LOCK_MUTEX(mixerMutex);
-}
-
-inline void resumeMixerCalculations()
-{
-  RTOS_UNLOCK_MUTEX(mixerMutex);
-}
-#endif
 
 void setDefaultOwnerId();
 void generalDefault();
@@ -713,6 +633,7 @@ ExpoData * expoAddress(uint8_t idx);
 MixData * mixAddress(uint8_t idx);
 LimitData * limitAddress(uint8_t idx);
 LogicalSwitchData * lswAddress(uint8_t idx);
+USBJoystickChData * usbJChAddress(uint8_t idx);
 
 void applyDefaultTemplate();
 void instantTrim();
@@ -734,7 +655,7 @@ inline bool isMixActive(uint8_t mix)
 
 enum FunctionsActive {
   FUNCTION_TRAINER_STICK1,
-  FUNCTION_TRAINER_CHANNELS = FUNCTION_TRAINER_STICK1 + NUM_STICKS,
+  FUNCTION_TRAINER_CHANNELS = FUNCTION_TRAINER_STICK1 + MAX_STICKS,
   FUNCTION_INSTANT_TRIM,
   FUNCTION_VARIO,
 #if defined(SDCARD)
@@ -766,6 +687,9 @@ inline void customFunctionsReset()
   globalFunctionsContext.reset();
   modelFunctionsContext.reset();
 }
+
+const char* funcGetLabel(uint8_t func);
+
 
 #include "telemetry/telemetry.h"
 #include "crc.h"
@@ -890,9 +814,7 @@ constexpr uint8_t OPENTX_START_NO_CHECKS = 0x04;
 #if defined(STATUS_LEDS)
   #define LED_ERROR_BEGIN()            ledRed()
 // Green is preferred "ready to use" color for these radios
-#if defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TLITE) || \
-    defined(RADIO_TPRO) || defined(RADIO_TX12) || defined(RADIO_TX12MK2) ||  \
-    defined(RADIO_ZORRO)
+#if defined(MANUFACTURER_RADIOMASTER) || defined(MANUFACTURER_JUMPER) || defined(RADIO_COMMANDO8)
 #define LED_ERROR_END() ledGreen()
 #define LED_BIND() ledBlue()
 #else
@@ -941,8 +863,10 @@ union ReusableBuffer
     int8_t antennaMode;
     uint8_t previousType;
     uint8_t newType;
+#if defined(PXX2)
     BindInformation bindInformation;
     PXX2ModuleSetup pxx2;
+#endif
 #if defined(BLUETOOTH)
     struct {
       char devices[MAX_BLUETOOTH_DISTANT_ADDR][LEN_BLUETOOTH_ADDR+1];
@@ -952,18 +876,20 @@ union ReusableBuffer
   } moduleSetup;
 
   struct {
-    int16_t midVals[NUM_STICKS+NUM_POTS+NUM_SLIDERS+STORAGE_NUM_MOUSE_ANALOGS];
-    int16_t loVals[NUM_STICKS+NUM_POTS+NUM_SLIDERS+STORAGE_NUM_MOUSE_ANALOGS];
-    int16_t hiVals[NUM_STICKS+NUM_POTS+NUM_SLIDERS+STORAGE_NUM_MOUSE_ANALOGS];
     uint8_t state;
-#if defined(PCBFRSKY)
-    struct {
-      uint8_t stepsCount;
-      int16_t steps[XPOTS_MULTIPOS_COUNT];
-      uint8_t lastCount;
-      int16_t lastPosition;
-    } xpotsCalib[NUM_XPOTS];
-#endif
+    union {
+      struct {
+        int16_t midVal;
+        int16_t loVal;
+        int16_t hiVal;
+      } input;
+      struct {
+        uint8_t stepsCount;
+        int16_t steps[XPOTS_MULTIPOS_COUNT];
+        uint8_t lastCount;
+        int16_t lastPosition;
+      } xpot;
+    } inputs[MAX_ANALOG_INPUTS];
   } calib;
 
 #if defined(SDCARD)
@@ -973,8 +899,10 @@ union ReusableBuffer
     uint16_t offset;
     uint16_t count;
     char originalName[SD_SCREEN_FILE_LENGTH+1];
+#if defined(PXX2)
     OtaUpdateInformation otaUpdateInformation;
     char otaReceiverVersion[sizeof(TR_CURRENT_VERSION) + 12];
+#endif
   } sdManager;
 #endif
 
@@ -983,10 +911,14 @@ union ReusableBuffer
     char id[27];
   } version;
 
+#if defined(PXX2)
   PXX2HardwareAndSettings hardwareAndSettings; // radio_version
+#endif
 
   struct {
+#if defined(PXX2)
     ModuleInformation modules[NUM_MODULES];
+#endif
     char msg[64];
 #if !defined(COLORLCD)
     uint8_t linesCount;
@@ -1060,7 +992,9 @@ union ReusableBuffer
   } modelFailsafe;
 
   struct {
+#if defined(PXX2)
     ModuleInformation internalModule;
+#endif
   } viewMain;
 
   // Data for the USB mass storage driver. If USB mass storage runs no menu is not allowed to be displayed
@@ -1116,6 +1050,10 @@ inline uint8_t GET_TXBATT_BARS(uint8_t barsMax)
 inline bool IS_TXBATT_WARNING()
 {
   return g_vbat100mV <= g_eeGeneral.vBatWarn;
+}
+
+inline bool IS_SDCARD_FULL() {
+  return sdGetFreeSectors() < ((50 *1024*1024) / BLOCK_SIZE); // 50MB safety margin
 }
 
 enum TelemetryViews {
@@ -1212,3 +1150,18 @@ inline bool isAsteriskDisplayed()
 #include "module.h"
 
 extern CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
+
+// Radio menu tab state
+#if defined(COLORLCD)
+extern bool radioThemesEnabled();
+#endif
+extern bool radioGFEnabled();
+extern bool radioTrainerEnabled();
+extern bool modelHeliEnabled();
+extern bool modelFMEnabled();
+extern bool modelCurvesEnabled();
+extern bool modelGVEnabled();
+extern bool modelLSEnabled();
+extern bool modelSFEnabled();
+extern bool modelCustomScriptsEnabled();
+extern bool modelTelemetryEnabled();

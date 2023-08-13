@@ -35,17 +35,44 @@
 RadioMenu::RadioMenu():
   TabsGroup(ICON_RADIO)
 {
-  addTab(new RadioToolsPage());
-  addTab(new RadioSdManagerPage());
-  addTab(new RadioSetupPage());
-  addTab(new ThemeSetupPage());
-  addTab(new SpecialFunctionsPage(g_eeGeneral.customFn));
-  addTab(new RadioTrainerPage());
-  addTab(new RadioHardwarePage());
-  addTab(new RadioVersionPage());
+  build();
 }
 
 RadioMenu::~RadioMenu()
 {
-    storageCheck(true);
+  storageCheck(true);
+}
+
+void RadioMenu::build()
+{
+  _radioThemesEnabled = radioThemesEnabled();
+  _radioGFEnabled = radioGFEnabled();
+  _radioTrainerEnabled = radioTrainerEnabled();
+
+  addTab(new RadioToolsPage());
+  addTab(new RadioSdManagerPage());
+  addTab(new RadioSetupPage());
+  if (_radioThemesEnabled)
+    addTab(new ThemeSetupPage());
+  if (_radioGFEnabled)
+    addTab(new SpecialFunctionsPage(g_eeGeneral.customFn));
+  if (_radioTrainerEnabled)
+    addTab(new RadioTrainerPage());
+  addTab(new RadioHardwarePage());
+  addTab(new RadioVersionPage());
+}
+
+void RadioMenu::checkEvents()
+{
+  TabsGroup::checkEvents();
+
+  if (_radioThemesEnabled != radioThemesEnabled() ||
+      _radioGFEnabled != radioGFEnabled() ||
+      _radioTrainerEnabled != radioTrainerEnabled()) {
+    removeAllTabs();
+    build();
+    // Need to set current tab twice to work properly. TODO: can this be fixed?
+    setCurrentTab(0);
+    setCurrentTab(2);
+  }
 }

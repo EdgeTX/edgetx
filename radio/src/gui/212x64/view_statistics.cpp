@@ -19,7 +19,9 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/adc_driver.h"
 #include "opentx.h"
+#include "tasks.h"
 
 #define STATS_1ST_COLUMN               FW/2
 #define STATS_2ND_COLUMN               12*FW+FW/2
@@ -31,12 +33,12 @@ void menuStatisticsView(event_t event)
   title(STR_MENUSTAT);
 
   switch(event) {
-    case EVT_KEY_FIRST(KEY_UP):
+    case EVT_KEY_FIRST(KEY_PLUS):
     case EVT_KEY_BREAK(KEY_PAGE):
       chainMenu(menuStatisticsDebug);
       break;
 
-    case EVT_KEY_FIRST(KEY_DOWN):
+    case EVT_KEY_FIRST(KEY_MINUS):
     case EVT_KEY_LONG(KEY_PAGE):
       killEvents(event);
 #if defined(DEBUG_TRACE_BUFFER)
@@ -112,7 +114,7 @@ void menuStatisticsDebug(event_t event)
     warningResult = 0;
     // do a user requested watchdog test
     TRACE("Performing watchdog test");
-    pausePulses();
+    pulsesStop();
   }
 #endif
 
@@ -132,13 +134,13 @@ void menuStatisticsDebug(event_t event)
       maxMixerDuration  = 0;
       break;
 
-    case EVT_KEY_FIRST(KEY_UP):
+    case EVT_KEY_FIRST(KEY_PLUS):
     case EVT_KEY_BREAK(KEY_PAGE):
       disableVBatBridge();
       chainMenu(menuStatisticsDebug2);
       break;
 
-    case EVT_KEY_FIRST(KEY_DOWN):
+    case EVT_KEY_FIRST(KEY_MINUS):
     case EVT_KEY_LONG(KEY_PAGE):
       killEvents(event);
       disableVBatBridge();
@@ -164,24 +166,24 @@ void menuStatisticsDebug(event_t event)
   uint8_t y = FH + 1;
 
 #if defined(STM32)
-  lcdDrawTextAlignedLeft(y, "Free Mem");
+  lcdDrawTextAlignedLeft(y, STR_FREE_MEM_LABEL);
   lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, availableMemory(), LEFT);
-  lcdDrawText(lcdLastRightPos, y, "b");
+  lcdDrawText(lcdLastRightPos+FW, y, STR_BYTES);
   y += FH;
 #endif
 
 #if defined(LUA)
-  lcdDrawTextAlignedLeft(y, "Lua scripts");
-  lcdDrawText(MENU_DEBUG_COL1_OFS, y+1, "[Duration]", SMLSIZE);
+  lcdDrawTextAlignedLeft(y, STR_LUA_SCRIPTS_LABEL);
+  lcdDrawText(MENU_DEBUG_COL1_OFS, y+1, STR_DURATION_MS, SMLSIZE);
   lcdDrawNumber(lcdLastRightPos, y, 10*maxLuaDuration, LEFT);
-  lcdDrawText(lcdLastRightPos+2, y+1, "[Interval]", SMLSIZE);
+  lcdDrawText(lcdLastRightPos+2, y+1, STR_INTERVAL_MS, SMLSIZE);
   lcdDrawNumber(lcdLastRightPos, y, 10*maxLuaInterval, LEFT);
   y += FH;
 #endif
 
   lcdDrawTextAlignedLeft(y, STR_TMIXMAXMS);
   lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, DURATION_MS_PREC2(maxMixerDuration), PREC2|LEFT);
-  lcdDrawText(lcdLastRightPos, y, "ms");
+  lcdDrawText(lcdLastRightPos, y, STR_MS);
   y += FH;
 
   lcdDrawTextAlignedLeft(y, STR_FREE_STACK);
@@ -192,11 +194,11 @@ void menuStatisticsDebug(event_t event)
   lcdDrawText(lcdLastRightPos+2, y+1, "[A]", SMLSIZE);
   lcdDrawNumber(lcdLastRightPos, y, audioStack.available(), LEFT);
   lcdDrawText(lcdLastRightPos+2, y+1, "[I]", SMLSIZE);
-  lcdDrawNumber(lcdLastRightPos, y, stackAvailable(), LEFT);
+  lcdDrawNumber(lcdLastRightPos, y, mainStackAvailable(), LEFT);
   y += FH;
 
 #if defined(DEBUG_LATENCY)
-  lcdDrawTextAlignedLeft(y, "Heartbeat");
+  lcdDrawTextAlignedLeft(y, STR_HEARTBEAT_LABEL);
   if (heartbeatCapture.valid)
     lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, heartbeatCapture.count, LEFT);
   else
@@ -213,7 +215,7 @@ void menuStatisticsDebug2(event_t event)
   title(STR_MENUDEBUG);
 
   switch(event) {
-    case EVT_KEY_FIRST(KEY_UP):
+    case EVT_KEY_FIRST(KEY_PLUS):
     case EVT_KEY_BREAK(KEY_PAGE):
 #if defined(DEBUG_TRACE_BUFFER)
       chainMenu(menuTraceBuffer);
@@ -222,7 +224,7 @@ void menuStatisticsDebug2(event_t event)
 #endif
       return;
 
-    case EVT_KEY_FIRST(KEY_DOWN):
+    case EVT_KEY_FIRST(KEY_MINUS):
     case EVT_KEY_LONG(KEY_PAGE):
       killEvents(event);
       chainMenu(menuStatisticsDebug);
@@ -232,14 +234,14 @@ void menuStatisticsDebug2(event_t event)
       chainMenu(menuMainView);
       break;
 
-    case EVT_KEY_LONG(KEY_ENTER):
-      telemetryErrors = 0;
-      break;
+    // case EVT_KEY_LONG(KEY_ENTER):
+    //   telemetryErrors = 0;
+    //   break;
   }
 
   // UART statistics
-  lcdDrawTextAlignedLeft(MENU_DEBUG_ROW1, "Tlm RX Err");
-  lcdDrawNumber(MENU_DEBUG_COL1_OFS, MENU_DEBUG_ROW1, telemetryErrors, RIGHT);
+  // lcdDrawTextAlignedLeft(MENU_DEBUG_ROW1, "Tlm RX Err");
+  // lcdDrawNumber(MENU_DEBUG_COL1_OFS, MENU_DEBUG_ROW1, telemetryErrors, RIGHT);
 
 
   lcdDrawText(LCD_W/2, 7*FH+1, STR_MENUTORESET, CENTERED);
@@ -256,13 +258,13 @@ void menuTraceBuffer(event_t event)
       killEvents(event);
       break;
 
-    case EVT_KEY_FIRST(KEY_DOWN):
+    case EVT_KEY_FIRST(KEY_MINUS):
     case EVT_KEY_LONG(KEY_PAGE):
       killEvents(event);
       chainMenu(menuStatisticsDebug2);
       break;
 
-    case EVT_KEY_FIRST(KEY_UP):
+    case EVT_KEY_FIRST(KEY_PLUS):
     case EVT_KEY_BREAK(KEY_PAGE):
       chainMenu(menuStatisticsView);
       return;
@@ -277,7 +279,7 @@ void menuTraceBuffer(event_t event)
   int8_t sub = menuVerticalPosition;
 
   lcdDrawChar(0, FH, '#');
-  lcdDrawText(4*FW, FH, "Time");
+  lcdDrawText(4*FW, FH, TR_TIME);
   lcdDrawText(14*FW, FH, "Event");
   lcdDrawText(20*FW, FH, "Data");
 

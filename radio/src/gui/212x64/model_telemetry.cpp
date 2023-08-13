@@ -23,11 +23,6 @@
 
 enum MenuModelTelemetryFrskyItems {
   ITEM_TELEMETRY_PROTOCOL_TYPE,
-  ITEM_TELEMETRY_RSSI_LABEL,
-  ITEM_TELEMETRY_RSSI_SOURCE,
-  ITEM_TELEMETRY_RSSI_ALARM1,
-  ITEM_TELEMETRY_RSSI_ALARM2,
-  ITEM_TELEMETRY_DISABLE_ALARMS,
   ITEM_TELEMETRY_SENSORS_LABEL,
   ITEM_TELEMETRY_SENSOR_FIRST,
   ITEM_TELEMETRY_SENSOR_LAST = ITEM_TELEMETRY_SENSOR_FIRST + MAX_TELEMETRY_SENSORS - 1,
@@ -35,6 +30,10 @@ enum MenuModelTelemetryFrskyItems {
   ITEM_TELEMETRY_NEW_SENSOR,
   ITEM_TELEMETRY_DELETE_ALL_SENSORS,
   ITEM_TELEMETRY_IGNORE_SENSOR_INSTANCE,
+  ITEM_TELEMETRY_RSSI_LABEL,
+  ITEM_TELEMETRY_RSSI_ALARM1,
+  ITEM_TELEMETRY_RSSI_ALARM2,
+  ITEM_TELEMETRY_DISABLE_ALARMS,
 #if defined(VARIO)
   ITEM_TELEMETRY_VARIO_LABEL,
   ITEM_TELEMETRY_VARIO_SOURCE,
@@ -44,12 +43,25 @@ enum MenuModelTelemetryFrskyItems {
   ITEM_TELEMETRY_MAX
 };
 
+PACK(struct ExpandState {
+  uint8_t sensors:1;
+});
+
+struct ExpandState telemExpandState;
+
+uint8_t SENSOR_ROW(uint8_t value)
+{
+  if (telemExpandState.sensors)
+    return value;
+  return HIDDEN_ROW;
+}
+
 #define TELEM_COL2                    (16*FW)
 #define TELEM_COL3                    (30*FW+2)
 
-#define RSSI_ROWS                     LABEL(RSSI), 0, 0, 0, 0,
-#define SENSOR_ROWS(x)                (isTelemetryFieldAvailable(x) ? (uint8_t)0 : HIDDEN_ROW)
-#define SENSORS_ROWS                  LABEL(Sensors), SENSOR_ROWS(0), SENSOR_ROWS(1), SENSOR_ROWS(2), SENSOR_ROWS(3), SENSOR_ROWS(4), SENSOR_ROWS(5), SENSOR_ROWS(6), SENSOR_ROWS(7), SENSOR_ROWS(8), SENSOR_ROWS(9), SENSOR_ROWS(10), SENSOR_ROWS(11), SENSOR_ROWS(12), SENSOR_ROWS(13), SENSOR_ROWS(14), SENSOR_ROWS(15), SENSOR_ROWS(16), SENSOR_ROWS(17), SENSOR_ROWS(18), SENSOR_ROWS(19), SENSOR_ROWS(20), SENSOR_ROWS(21), SENSOR_ROWS(22), SENSOR_ROWS(23), SENSOR_ROWS(24), SENSOR_ROWS(25), SENSOR_ROWS(26), SENSOR_ROWS(27), SENSOR_ROWS(28), SENSOR_ROWS(29), SENSOR_ROWS(30), SENSOR_ROWS(31), SENSOR_ROWS(32), SENSOR_ROWS(33), SENSOR_ROWS(34), SENSOR_ROWS(35), SENSOR_ROWS(36), SENSOR_ROWS(37), SENSOR_ROWS(38), SENSOR_ROWS(39), SENSOR_ROWS(40), SENSOR_ROWS(41), SENSOR_ROWS(42), SENSOR_ROWS(43), SENSOR_ROWS(44), SENSOR_ROWS(45), SENSOR_ROWS(46), SENSOR_ROWS(47), SENSOR_ROWS(48), SENSOR_ROWS(49), SENSOR_ROWS(50), SENSOR_ROWS(51), SENSOR_ROWS(52), SENSOR_ROWS(53), SENSOR_ROWS(54), SENSOR_ROWS(55), SENSOR_ROWS(56), SENSOR_ROWS(57), SENSOR_ROWS(58), SENSOR_ROWS(59), 0, 0, 0, 0,
+#define RSSI_ROWS                     LABEL(RSSI), 0, 0, 0,
+#define SENSOR_ROWS(x)                SENSOR_ROW((isTelemetryFieldAvailable(x) ? (uint8_t)0 : HIDDEN_ROW))
+#define SENSORS_ROWS                  0, SENSOR_ROWS(0), SENSOR_ROWS(1), SENSOR_ROWS(2), SENSOR_ROWS(3), SENSOR_ROWS(4), SENSOR_ROWS(5), SENSOR_ROWS(6), SENSOR_ROWS(7), SENSOR_ROWS(8), SENSOR_ROWS(9), SENSOR_ROWS(10), SENSOR_ROWS(11), SENSOR_ROWS(12), SENSOR_ROWS(13), SENSOR_ROWS(14), SENSOR_ROWS(15), SENSOR_ROWS(16), SENSOR_ROWS(17), SENSOR_ROWS(18), SENSOR_ROWS(19), SENSOR_ROWS(20), SENSOR_ROWS(21), SENSOR_ROWS(22), SENSOR_ROWS(23), SENSOR_ROWS(24), SENSOR_ROWS(25), SENSOR_ROWS(26), SENSOR_ROWS(27), SENSOR_ROWS(28), SENSOR_ROWS(29), SENSOR_ROWS(30), SENSOR_ROWS(31), SENSOR_ROWS(32), SENSOR_ROWS(33), SENSOR_ROWS(34), SENSOR_ROWS(35), SENSOR_ROWS(36), SENSOR_ROWS(37), SENSOR_ROWS(38), SENSOR_ROWS(39), SENSOR_ROWS(40), SENSOR_ROWS(41), SENSOR_ROWS(42), SENSOR_ROWS(43), SENSOR_ROWS(44), SENSOR_ROWS(45), SENSOR_ROWS(46), SENSOR_ROWS(47), SENSOR_ROWS(48), SENSOR_ROWS(49), SENSOR_ROWS(50), SENSOR_ROWS(51), SENSOR_ROWS(52), SENSOR_ROWS(53), SENSOR_ROWS(54), SENSOR_ROWS(55), SENSOR_ROWS(56), SENSOR_ROWS(57), SENSOR_ROWS(58), SENSOR_ROWS(59), 0, 0, 0, 0,
 #if defined(VARIO)
   #define VARIO_ROWS                  LABEL(Vario), 0, 1, 2,
 #else
@@ -102,7 +114,7 @@ void onDeleteAllSensorsConfirm(const char * result)
 
 void menuModelTelemetry(event_t event)
 {
-  MENU(STR_MENUTELEMETRY, menuTabModel, MENU_MODEL_TELEMETRY, HEADER_LINE+ITEM_TELEMETRY_MAX, { HEADER_LINE_COLUMNS TELEMETRY_TYPE_ROWS RSSI_ROWS SENSORS_ROWS VARIO_ROWS });
+  MENU(STR_MENUTELEMETRY, menuTabModel, MENU_MODEL_TELEMETRY, HEADER_LINE+ITEM_TELEMETRY_MAX, { HEADER_LINE_COLUMNS TELEMETRY_TYPE_ROWS SENSORS_ROWS RSSI_ROWS VARIO_ROWS });
 
   uint8_t sub = menuVerticalPosition - HEADER_LINE;
 
@@ -143,14 +155,6 @@ void menuModelTelemetry(event_t event)
         lcdDrawText(TELEM_COL2, y, "---", 0); // TODO shortcut
       }
       TelemetrySensor * sensor = & g_model.telemetrySensors[index];
-#if defined(MULTIMODULE)
-      if (IS_SPEKTRUM_PROTOCOL()) {
-        // Spektrum does not (yet?) really support multiple sensor of the same type. But a lot of
-        // different sensor display the same information (e.g. voltage, capacity). Show the id
-        // of the sensor in the overview to ease figuring out what sensors belong together
-        lcdDrawHexNumber(TELEM_COL3, y, sensor->id, LEFT);
-      } else
-#endif
       if (sensor->type == TELEM_TYPE_CUSTOM && !g_model.ignoreSensorIds) {
         lcdDrawNumber(TELEM_COL3, y, sensor->instance, LEFT);
       }
@@ -181,10 +185,12 @@ void menuModelTelemetry(event_t event)
         break;
 
       case ITEM_TELEMETRY_SENSORS_LABEL:
-        lcdDrawTextAlignedLeft(y, STR_TELEMETRY_SENSORS);
-        lcdDrawText(TELEM_COL2, y, STR_VALUE, 0);
-        if (!g_model.ignoreSensorIds && !IS_SPEKTRUM_PROTOCOL()) {
-          lcdDrawText(TELEM_COL3, y, STR_ID, 0);
+        telemExpandState.sensors = expandableSection(y, STR_TELEMETRY_SENSORS, telemExpandState.sensors, attr, event);
+        if (telemExpandState.sensors) {
+          lcdDrawText(TELEM_COL2, y, STR_VALUE, 0);
+          if (!g_model.ignoreSensorIds /*&& !IS_SPEKTRUM_PROTOCOL()*/) {
+            lcdDrawText(TELEM_COL3, y, STR_ID, 0);
+          }
         }
         break;
 
@@ -193,6 +199,7 @@ void menuModelTelemetry(event_t event)
         if (attr && event==EVT_KEY_BREAK(KEY_ENTER)) {
           s_editMode = 0;
           allowNewSensors = !allowNewSensors;
+          telemExpandState.sensors = true;
         }
         break;
 
@@ -228,25 +235,8 @@ void menuModelTelemetry(event_t event)
         break;
 
       case ITEM_TELEMETRY_RSSI_LABEL:
-        lcdDrawTextAlignedLeft(y,  getRssiLabel());
+        lcdDrawTextAlignedLeft(y, getRxStatLabels()->label);
         break;
-
-      case ITEM_TELEMETRY_RSSI_SOURCE: {
-        lcdDrawTextAlignedLeft(y, INDENT TR_SOURCE);
-        if (g_model.rssiSource) {
-          drawSource(TELEM_COL2, y, MIXSRC_FIRST_TELEM + 3 * (g_model.rssiSource - 1), attr);
-          TelemetrySensor * sensor = &g_model.telemetrySensors[g_model.rssiSource - 1];
-          lcdDrawText(lcdNextPos, y, " ", attr);
-          drawReceiverName(lcdNextPos, y, sensor->frskyInstance.rxIndex >> 2, sensor->frskyInstance.rxIndex & 0x03, attr);
-        }
-        else {
-          lcdDrawText(TELEM_COL2, y, STR_DEFAULT, attr);
-        }
-        if (attr) {
-          g_model.rssiSource = checkIncDec(event, g_model.rssiSource, 0, MAX_TELEMETRY_SENSORS, EE_MODEL | NO_INCDEC_MARKS, isRssiSensorAvailable);
-        }
-        break;
-      }
 
       case ITEM_TELEMETRY_RSSI_ALARM1:
       case ITEM_TELEMETRY_RSSI_ALARM2:

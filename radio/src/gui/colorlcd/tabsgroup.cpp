@@ -45,11 +45,7 @@ TabCarouselButton::TabCarouselButton(Window* parent, const rect_t& rect,
 
 void TabCarouselButton::paint(BitmapBuffer * dc)
 {
-  if(checked()) {
-    OpenTxTheme::instance()->drawCurrentMenuBackground(dc);
-  }
-
-  dc->drawBitmap(2, 7, theme->getIcon(tabs[index]->getIcon(), checked() ? STATE_PRESSED : STATE_DEFAULT));
+  EdgeTxTheme::instance()->drawMenuIcon(dc, tabs[index]->getIcon(), checked());
 }
 
 void TabCarouselButton::check(bool checked)
@@ -61,7 +57,7 @@ void TabCarouselButton::check(bool checked)
 }
 
 TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
-    FormGroup(parent, {0, 0, LCD_W, MENU_BODY_TOP}, NO_FOCUS | OPAQUE),
+    FormWindow(parent, {0, 0, LCD_W, MENU_BODY_TOP}, NO_FOCUS | OPAQUE),
 #if defined(HARDWARE_TOUCH)
     back(
         this,
@@ -70,7 +66,7 @@ TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
           parent->deleteLater();
           return 1;
         },
-        NO_FOCUS | FORM_NO_BORDER,
+        NO_FOCUS,
         0, window_create),
 #endif
     icon(icon),
@@ -81,7 +77,7 @@ TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
 
 void TabsGroupHeader::paint(BitmapBuffer* dc)
 {
-  OpenTxTheme::instance()->drawPageHeaderBackground(dc, icon, title.c_str());
+  EdgeTxTheme::instance()->drawPageHeaderBackground(dc, icon, title.c_str());
 }
 
 TabsCarousel::TabsCarousel(Window* parent, TabsGroup* menu) :
@@ -139,19 +135,35 @@ static constexpr rect_t _get_body_rect()
   return { 0, MENU_BODY_TOP, LCD_W, MENU_BODY_HEIGHT };
 }
 
+TabsGroup* TabsGroup::activeTabsGroup = nullptr;
+
 TabsGroup::TabsGroup(uint8_t icon):
   Window(Layer::back(), { 0, 0, LCD_W, LCD_H }, OPAQUE),
   header(this, icon),
-  body(this, _get_body_rect(), NO_FOCUS | FORM_FORWARD_FOCUS)
+  body(this, _get_body_rect(), NO_FOCUS)
 {
   Layer::push(this);
+
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY3), 0);
+  lv_obj_set_scrollbar_mode(body.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+
+  activeTabsGroup = this;
 }
 
 TabsGroup::~TabsGroup()
 {
+  if (activeTabsGroup == this)
+    activeTabsGroup = nullptr;
+
   for (auto tab: tabs) {
     delete tab;
   }
+}
+
+void TabsGroup::refreshTheme()
+{
+  if (activeTabsGroup)
+    lv_obj_set_style_bg_color(activeTabsGroup->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
 }
 
 void TabsGroup::deleteLater(bool detach, bool trash)
@@ -228,7 +240,7 @@ void TabsGroup::setVisibleTab(PageTab* tab)
     tab->build(form);
 
     header.setTitle(tab->title.c_str());
-    invalidate();
+    header.invalidate();
 
 #if defined(DEBUG)
     TRACE("tab time: %d ms", RTOS_GET_MS() - start_ms);
@@ -247,6 +259,13 @@ void TabsGroup::checkEvents()
   if (currentTab) {
     currentTab->checkEvents();
   }
+
+  static uint32_t lastRefresh = 0;
+  uint32_t now = RTOS_GET_MS();
+  if (now - lastRefresh >= 5000) {
+    lastRefresh = now;
+    header.invalidate();
+  }
 }
 
 void TabsGroup::onEvent(event_t event)
@@ -254,19 +273,19 @@ void TabsGroup::onEvent(event_t event)
 #if defined(HARDWARE_KEYS)
   TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
 
-#if defined(KEYS_GPIO_REG_PGUP)
-  if (event == EVT_KEY_FIRST(KEY_PGDN)) {
+#if defined(KEYS_GPIO_REG_PAGEUP)
+  if (event == EVT_KEY_FIRST(KEY_PAGEDN)) {
 #else
-  if (event == EVT_KEY_BREAK(KEY_PGDN)) {
+  if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
 #endif
     killEvents(event);
     uint8_t current = header.carousel.getCurrentIndex() + 1;
     setCurrentTab(current >= tabs.size() ? 0 : current);
   }
-#if defined(KEYS_GPIO_REG_PGUP)
-  else if (event == EVT_KEY_FIRST(KEY_PGUP)) {
+#if defined(KEYS_GPIO_REG_PAGEUP)
+  else if (event == EVT_KEY_FIRST(KEY_PAGEUP)) {
 #else
-  else if (event == EVT_KEY_LONG(KEY_PGDN)) {
+  else if (event == EVT_KEY_LONG(KEY_PAGEDN)) {
 #endif
     killEvents(event);
     uint8_t current = header.carousel.getCurrentIndex();
@@ -283,11 +302,6 @@ void TabsGroup::onClicked()
 void TabsGroup::onCancel()
 {
   deleteLater();
-}
-
-void TabsGroup::paint(BitmapBuffer * dc)
-{
-  dc->clear(COLOR_THEME_SECONDARY3);
 }
 
 #if defined(HARDWARE_TOUCH)

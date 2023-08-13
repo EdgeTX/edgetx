@@ -23,7 +23,6 @@
 #include "storage.h"
 #include "sdcard_common.h"
 #include "modelslist.h"
-#include "conversions/conversions.h"
 #include "model_init.h"
 
 void getModelPath(char * path, const char * filename, const char* pathName)
@@ -40,7 +39,7 @@ void storageEraseAll(bool warn)
 
 #if defined(COLORLCD)
   // the theme has not been loaded before
-  static_cast<OpenTxTheme*>(theme)->load();
+  static_cast<EdgeTxTheme*>(theme)->load();
 #endif
 
   // Init backlight mode before entering alert screens
@@ -54,7 +53,7 @@ void storageEraseAll(bool warn)
     ALERT(STR_STORAGE_WARNING, STR_BAD_RADIO_DATA, AU_BAD_RADIODATA);
   }
 
-  RAISE_ALERT(STR_STORAGE_WARNING, STR_STORAGE_FORMAT, NULL, AU_NONE);
+  RAISE_ALERT(STR_STORAGE_WARNING, STR_STORAGE_FORMAT, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
 
   storageFormat();
   storageDirty(EE_GENERAL);

@@ -18,6 +18,11 @@
 #define invalidateTMcache(t)	((t)->flags = 0)
 
 
+/* test Table to determine if it is a RW or RO table */
+#define isrotable(t) ((t)->tt==LUA_TTBLROF)
+#define isrwtable(t) ((t)->tt==LUA_TTBLRAM)
+
+
 LUAI_FUNC const TValue *luaH_getint (Table *t, int key);
 LUAI_FUNC void luaH_setint (lua_State *L, Table *t, int key, TValue *value);
 LUAI_FUNC const TValue *luaH_getstr (Table *t, TString *key);

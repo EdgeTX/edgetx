@@ -21,8 +21,15 @@
 
 #define SIMPGMSPC_USE_QT    0
 
+#if defined(SIMU_AUDIO)
+  #include <SDL.h>
+#endif
+
 #include "opentx.h"
 #include "simulcd.h"
+
+#include "hal/adc_driver.h"
+#include "hal/rotary_encoder.h"
 
 #include <errno.h>
 #include <stdarg.h>
@@ -33,10 +40,6 @@
   #include <sys/time.h>
 #endif
 
-#if defined(SIMU_AUDIO)
-  #include <SDL.h>
-#endif
-
 int g_snapshot_idx = 0;
 
 uint8_t simu_start_mode = 0;
@@ -45,17 +48,20 @@ char * main_thread_error = nullptr;
 bool simu_shutdown = false;
 bool simu_running = false;
 
-uint32_t telemetryErrors = 0;
 
-typedef int32_t rotenc_t;
 volatile rotenc_t rotencValue = 0;
 volatile uint32_t rotencDt = 0;
 
+rotenc_t rotaryEncoderGetValue()
+{
+  return rotencValue / ROTARY_ENCODER_GRANULARITY;
+}
+
+rotenc_t rotaryEncoderGetRawValue() { return rotencValue; }
+
 // TODO: remove all STM32 defs
-GPIO_TypeDef gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog, gpioh, gpioi, gpioj;
-USART_TypeDef Usart0, Usart1, Usart2, Usart3, Usart4;
-ADC_Common_TypeDef adc;
-RTC_TypeDef rtc;
+
+extern const etx_hal_adc_driver_t simu_adc_driver;
 
 void lcdCopy(void * dest, void * src);
 
@@ -115,9 +121,12 @@ void simuInit()
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotencValue = 0;
 #endif
+
+  // Init ADC driver callback
+  adcInit(&simu_adc_driver);
 }
 
-bool keysStates[NUM_KEYS] = { false };
+bool keysStates[MAX_KEYS] = { false };
 void simuSetKey(uint8_t key, bool state)
 {
   // TRACE("simuSetKey(%d, %d)", key, state);
@@ -125,20 +134,12 @@ void simuSetKey(uint8_t key, bool state)
   keysStates[key] = state;
 }
 
-bool trimsStates[NUM_TRIMS_KEYS] = { false };
+bool trimsStates[MAX_TRIMS * 2] = { false };
 void simuSetTrim(uint8_t trim, bool state)
 {
   // TRACE("simuSetTrim(%d, %d)", trim, state);
   assert(trim < DIM(trimsStates));
   trimsStates[trim] = state;
-}
-
-int8_t switchesStates[NUM_SWITCHES] = { -1 };
-void simuSetSwitch(uint8_t swtch, int8_t state)
-{
-  // TRACE("simuSetSwitch(%d, %d)", swtch, state);
-  assert(swtch < DIM(switchesStates));
-  switchesStates[swtch] = state;
 }
 
 #if defined(SIMU_BOOTLOADER)
@@ -155,7 +156,6 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   if (simu_running)
     return;
 
-  stopPulses();
 #if !defined(COLORLCD)
   menuLevel = 0;
 #endif
@@ -208,9 +208,9 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   try {
 #endif
 
-  // Init LCD call backs
+  // Init LCD callbacks
   lcdInit();
-  
+
 #if !defined(SIMU_BOOTLOADER)
   simuMain();
 #else
@@ -232,6 +232,9 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   }
 #endif
 }
+
+extern RTOS_TASK_HANDLE mixerTaskId;
+extern RTOS_TASK_HANDLE menusTaskId;
 
 void simuStop()
 {
@@ -420,86 +423,28 @@ void lcdSetRefVolt(uint8_t val)
 }
 #endif
 
-void telemetryPortInit(uint8_t baudrate)
-{
-}
-
-void telemetryPortInit()
-{
-}
-
-void sportUpdatePowerOn()
-{
-}
-
-void sportUpdatePowerOff()
-{
-}
-
-void sportUpdatePowerInit()
-{
-}
-
-void telemetryPortSetDirectionInput()
-{
-}
-
-void telemetryPortSetDirectionOutput()
-{
-}
-
-void rxPdcUsart( void (*pChProcess)(uint8_t x) )
-{
-}
-
-void telemetryPortInit(uint32_t baudrate, uint8_t mode)
-{
-}
-
-bool sportGetByte(uint8_t * byte)
-{
-  return false;
-}
-
-void telemetryClearFifo()
-{
-}
-
-void telemetryPortInvertedInit(uint32_t baudrate)
-{
-}
-
-void sportSendByte(uint8_t byte)
-{
-}
-
-void sportSendBuffer(const uint8_t * buffer, uint32_t count)
-{
-}
-
-void check_telemetry_exti()
-{
-}
-
 void boardInit()
 {
 }
 
 uint32_t pwrCheck() { return simu_shutdown ? e_power_off : e_power_on; }
+
 bool pwrPressed() { return false; }
+bool pwrOffPressed()
+{
+#if defined(PWR_BUTTON_PRESS)
+  return pwrPressed();
+#else
+  return !pwrPressed();
+#endif
+}
+
 void pwrInit() {}
 void pwrOn() {}
 void pwrOff() {}
 
-bool keyDown()
-{
-  return readKeys();
-}
-
-bool trimDown(uint8_t idx)
-{
-  return readTrims() & (1 << idx);
-}
+bool UNEXPECTED_SHUTDOWN() { return false; }
+void SET_POWER_REASON(uint32_t value) {}
 
 #if defined(TRIMS_EMULATE_BUTTONS)
 bool trimsAsButtons = false;
@@ -520,7 +465,7 @@ uint32_t readKeys()
 {
   uint32_t result = 0;
 
-  for (int i = 0; i < NUM_KEYS; i++) {
+  for (int i = 0; i < MAX_KEYS; i++) {
     if (keysStates[i]) {
       // TRACE("key pressed %d", i);
       result |= 1 << i;
@@ -534,7 +479,7 @@ uint32_t readTrims()
 {
   uint32_t result = 0;
 
-  for (int i=0; i<NUM_TRIMS_KEYS; i++) {
+  for (int i = 0; i < keysGetMaxTrims() * 2; i++) {
     if (trimsStates[i]) {
       // TRACE("trim pressed %d", i);
       result |= 1 << i;
@@ -542,25 +487,11 @@ uint32_t readTrims()
   }
 
 #if defined(PCBXLITE)
-  if (IS_SHIFT_PRESSED())
+  if (keysStates[KEY_SHIFT])
     result = ((result & 0x03) << 6) | ((result & 0x0c) << 2);
 #endif
 
   return result;
-}
-
-uint32_t switchState(uint8_t index)
-{
-  div_t qr = div(index, 3);
-  int state = switchesStates[qr.quot];
-  switch (qr.rem) {
-    case 0:
-      return state < 0;
-    case 2:
-      return state > 0;
-    default:
-      return state == 0;
-  }
 }
 
 int usbPlugged() { return false; }
@@ -568,78 +499,6 @@ int getSelectedUsbMode() { return USB_JOYSTICK_MODE; }
 void setSelectedUsbMode(int mode) {}
 void delay_ms(uint32_t ms) { }
 void delay_us(uint16_t us) { }
-
-// GPIO fake functions
-void GPIO_PinAFConfig(GPIO_TypeDef* GPIOx, uint16_t GPIO_PinSource, uint8_t GPIO_AF) { }
-
-// PWR fake functions
-void PWR_BackupAccessCmd(FunctionalState NewState) { }
-void PWR_BackupRegulatorCmd(FunctionalState NewState) { }
-
-// USART fake functions
-void USART_DeInit(USART_TypeDef* ) { }
-void USART_Init(USART_TypeDef* USARTx, USART_InitTypeDef* USART_InitStruct) { }
-void USART_Cmd(USART_TypeDef* USARTx, FunctionalState NewState) { }
-void USART_ClearITPendingBit(USART_TypeDef*, unsigned short) { }
-void USART_SendData(USART_TypeDef* USARTx, uint16_t Data) { }
-uint16_t USART_ReceiveData(USART_TypeDef*) { return 0; }
-void USART_DMACmd(USART_TypeDef* USARTx, uint16_t USART_DMAReq, FunctionalState NewState) { }
-void USART_ITConfig(USART_TypeDef* USARTx, uint16_t USART_IT, FunctionalState NewState) { }
-FlagStatus USART_GetFlagStatus(USART_TypeDef* USARTx, uint16_t USART_FLAG) { return SET; }
-
-// TIM fake functions
-void TIM_DMAConfig(TIM_TypeDef* TIMx, uint16_t TIM_DMABase, uint16_t TIM_DMABurstLength) { }
-void TIM_DMACmd(TIM_TypeDef* TIMx, uint16_t TIM_DMASource, FunctionalState NewState) { }
-void TIM_CtrlPWMOutputs(TIM_TypeDef* TIMx, FunctionalState NewState) { }
-
-// SPI fake functions
-void SPI_I2S_DeInit(SPI_TypeDef* SPIx) { }
-void SPI_I2S_ITConfig(SPI_TypeDef* SPIx, uint8_t SPI_I2S_IT, FunctionalState NewState) { }
-
-// RCC fake functions
-void RCC_RTCCLKConfig(uint32_t RCC_RTCCLKSource) { }
-void RCC_APB1PeriphClockCmd(uint32_t RCC_APB1Periph, FunctionalState NewState) { }
-void RCC_RTCCLKCmd(FunctionalState NewState) { }
-void RCC_PLLI2SConfig(uint32_t PLLI2SN, uint32_t PLLI2SR) { }
-void RCC_PLLI2SCmd(FunctionalState NewState) { }
-void RCC_I2SCLKConfig(uint32_t RCC_I2SCLKSource) { }
-void RCC_LSEConfig(uint8_t RCC_LSE) { }
-void RCC_GetClocksFreq(RCC_ClocksTypeDef* RCC_Clocks) { };
-FlagStatus RCC_GetFlagStatus(uint8_t RCC_FLAG) { return SET; }
-
-// EXTI fake functions
-void SYSCFG_EXTILineConfig(uint8_t EXTI_PortSourceGPIOx, uint8_t EXTI_PinSourcex) { }
-void EXTI_StructInit(EXTI_InitTypeDef* EXTI_InitStruct) { }
-ITStatus EXTI_GetITStatus(uint32_t EXTI_Line) { return RESET; }
-void EXTI_Init(EXTI_InitTypeDef* EXTI_InitStruct) { }
-void EXTI_ClearITPendingBit(uint32_t EXTI_Line) { }
-
-// RTC fake functions
-ErrorStatus RTC_Init(RTC_InitTypeDef* RTC_InitStruct) { return SUCCESS; }
-void RTC_TimeStructInit(RTC_TimeTypeDef* RTC_TimeStruct) { }
-void RTC_DateStructInit(RTC_DateTypeDef* RTC_DateStruct) { }
-ErrorStatus RTC_WaitForSynchro(void) { return SUCCESS; }
-ErrorStatus RTC_SetTime(uint32_t RTC_Format, RTC_TimeTypeDef* RTC_TimeStruct) { return SUCCESS; }
-ErrorStatus RTC_SetDate(uint32_t RTC_Format, RTC_DateTypeDef* RTC_DateStruct) { return SUCCESS; }
-void RTC_GetTime(uint32_t RTC_Format, RTC_TimeTypeDef * RTC_TimeStruct)
-{
-  time_t tme;
-  time(&tme);
-  struct tm * timeinfo = localtime(&tme);
-  RTC_TimeStruct->RTC_Hours = timeinfo->tm_hour;
-  RTC_TimeStruct->RTC_Minutes = timeinfo->tm_min;
-  RTC_TimeStruct->RTC_Seconds = timeinfo->tm_sec;
-}
-
-void RTC_GetDate(uint32_t RTC_Format, RTC_DateTypeDef * RTC_DateStruct)
-{
-  time_t tme;
-  time(&tme);
-  struct tm * timeinfo = localtime(&tme);
-  RTC_DateStruct->RTC_Year = timeinfo->tm_year - 100; // STM32 year is two decimals only (so base is currently 2000), tm is based on number of years since 1900
-  RTC_DateStruct->RTC_Month = timeinfo->tm_mon + 1;
-  RTC_DateStruct->RTC_Date = timeinfo->tm_mday;
-}
 
 void unlockFlash()
 {
@@ -669,16 +528,6 @@ bool isJackPlugged()
 void serialPrintf(const char * format, ...) { }
 void serialCrlf() { }
 void serialPutc(char c) { }
-
-uint16_t getBatteryVoltage()
-{
-  return (g_eeGeneral.vBatWarn * 10) + 50; // 0.5 volt above alerm (value is PREC1)
-}
-
-uint16_t getRTCBatteryVoltage()
-{
-  return 300;
-}
 
 void boardOff()
 {
@@ -743,6 +592,33 @@ void rtcSetTime(const struct gtm * t)
 const etx_serial_port_t UsbSerialPort = { "USB-VCP", nullptr, nullptr };
 #endif
 
+#if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
+static void* _fake_drv_init(void*, const etx_serial_init*) { return (void*)1; }
+static void _fake_drv_fct1(void*) {}
+static void _fake_drv_send_byte(void*, uint8_t) {}
+static void _fake_drv_send_buffer(void*, const uint8_t*, uint32_t) {}
+static int _fake_drv_get_byte(void*, uint8_t*) { return 0; }
+static const etx_serial_driver_t _fake_drv = {
+  .init = _fake_drv_init,
+  .deinit = _fake_drv_fct1,
+  .sendByte = _fake_drv_send_byte,
+  .sendBuffer = _fake_drv_send_buffer,
+  .txCompleted = nullptr,
+  .waitForTxCompleted = nullptr,
+  .enableRx = nullptr,
+  .getByte = _fake_drv_get_byte,
+  .getLastByte = nullptr,
+  .clearRxBuffer = nullptr,
+  .getBaudrate = nullptr,
+  .setBaudrate = nullptr,
+  .setPolarity = nullptr,
+  .setHWOption = nullptr,
+  .setReceiveCb = nullptr,
+  .setIdleCb = nullptr,
+  .setBaudrateCb = nullptr,
+};
+#endif
+
 #if defined(AUX_SERIAL)
 #if defined(AUX_SERIAL_PWR_GPIO)
   static void _fake_pwr_aux(uint8_t) {}
@@ -750,7 +626,12 @@ const etx_serial_port_t UsbSerialPort = { "USB-VCP", nullptr, nullptr };
 #else
   #define AUX_SERIAL_PWR nullptr
 #endif
-const etx_serial_port_t auxSerialPort = { "AUX1", nullptr, AUX_SERIAL_PWR };
+static const etx_serial_port_t auxSerialPort = {
+  "AUX1",
+  &_fake_drv,
+  nullptr,
+  AUX_SERIAL_PWR
+};
 #define AUX_SERIAL_PORT &auxSerialPort
 #else
 #define AUX_SERIAL_PORT nullptr
@@ -763,7 +644,12 @@ const etx_serial_port_t auxSerialPort = { "AUX1", nullptr, AUX_SERIAL_PWR };
 #else
   #define AUX2_SERIAL_PWR nullptr
 #endif
-const etx_serial_port_t aux2SerialPort = { "AUX2", nullptr, AUX2_SERIAL_PWR };
+static const etx_serial_port_t aux2SerialPort = {
+  "AUX2",
+  &_fake_drv,
+  nullptr,
+  AUX2_SERIAL_PWR
+};
 #define AUX2_SERIAL_PORT &aux2SerialPort
 #else
 #define AUX2_SERIAL_PORT nullptr

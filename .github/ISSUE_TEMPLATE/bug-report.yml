@@ -14,8 +14,8 @@ body:
       label: Is there an existing issue for this problem?
       description: Please search to see if an issue already exists for the bug you encountered.
       options:
-      - label: I have searched the existing issues
-        required: true
+        - label: I have searched the existing issues
+          required: true
   - type: dropdown
     id: component-affected
     attributes:
@@ -58,6 +58,12 @@ body:
       label: Version
       description: What version of EdgeTX software are you running?
       options:
+        - 2.9.0
+        - 2.8.5
+        - 2.8.4
+        - 2.8.3
+        - 2.8.2
+        - 2.8.1
         - 2.8.0
         - 2.7.1
         - 2.7.0
@@ -97,6 +103,7 @@ body:
         - Jumper T18
         - Jumper T-Lite
         - Jumper T-Pro
+        - Radiomaster Boxer
         - Radiomaster T8
         - RadioMaster TX12 / TX12MK2
         - Radiomaster TX16S / TX16SMK2
@@ -104,6 +111,26 @@ body:
         - Other (Please specify below)
     validations:
       required: true
+  - type: dropdown
+    id: os-type
+    attributes:
+      label: "Operating System (OS)"
+      description: "If this relates to Companion or Simulator, what OSes are you are experiencing issues on?"
+      multiple: true
+      options:
+        - Linux
+        - macOS
+        - Windows
+    validations:
+      required: false
+  - type: input
+    id: os-version
+    attributes:
+      label: "OS Version"
+      description: "If this relates to Companion or Simulator, what OS version does this relate to?"
+      placeholder: "i.e. 10, Ubuntu 20.04, Big Sur"
+    validations:
+      required: false
   - type: textarea
     attributes:
       label: Anything else?

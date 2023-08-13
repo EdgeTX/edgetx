@@ -21,6 +21,10 @@
 
 #include "usb_driver.h"
 
+#if defined(USBJ_EX)
+#include "usb_joystick.h"
+#endif
+
 extern "C" {
 #include "usb_conf.h"
 #include "usb_dcd_int.h"
@@ -35,7 +39,6 @@ extern "C" {
 
 #include "board.h"
 #include "debug.h"
-#include "debounce.h"
 
 static bool usbDriverStarted = false;
 #if defined(BOOT)
@@ -56,8 +59,17 @@ void setSelectedUsbMode(int mode)
 
 int usbPlugged()
 {
-  static PinDebounce debounce;
-  return debounce.debounce(USB_GPIO, USB_GPIO_PIN_VBUS);
+  static uint8_t debouncedState = 0;
+  static uint8_t lastState = 0;
+
+  uint8_t state = GPIO_ReadInputDataBit(USB_GPIO, USB_GPIO_PIN_VBUS);
+
+  if (state == lastState)
+    debouncedState = state;
+  else
+    lastState = state;
+  
+  return debouncedState;
 }
 
 USB_OTG_CORE_HANDLE USB_OTG_dev;
@@ -83,6 +95,9 @@ void usbStart()
 #if !defined(BOOT)
     case USB_JOYSTICK_MODE:
       // initialize USB as HID device
+#if defined(USBJ_EX)
+      setupUSBJoystick();
+#endif
       USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_HID_cb, &USR_cb);
       break;
 #endif
@@ -108,6 +123,18 @@ void usbStop()
   USBD_DeInit(&USB_OTG_dev);
 }
 
+#if defined(USBJ_EX)
+void usbJoystickRestart()
+{
+  if (getSelectedUsbMode() != USB_JOYSTICK_MODE) return;
+
+  USBD_DeInit(&USB_OTG_dev);
+  DCD_DevDisconnect(&USB_OTG_dev);
+  DCD_DevConnect(&USB_OTG_dev);
+  USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_HID_cb, &USR_cb);
+}
+#endif
+
 bool usbStarted()
 {
   return usbDriverStarted;
@@ -125,6 +152,7 @@ bool usbStarted()
 */
 void usbJoystickUpdate()
 {
+#if !defined(USBJ_EX)
   static uint8_t HID_Buffer[HID_IN_PACKET];
 
   // test to se if TX buffer is free
@@ -158,5 +186,12 @@ void usbJoystickUpdate()
     }
     USBD_HID_SendReport(&USB_OTG_dev, HID_Buffer, HID_IN_PACKET);
   }
+#else
+  // test to se if TX buffer is free
+  if (USBD_HID_SendReport(&USB_OTG_dev, 0, 0) == USBD_OK) {
+    usbReport_t ret = usbReport();
+    USBD_HID_SendReport(&USB_OTG_dev, ret.ptr, ret.size);
+  }
+#endif
 }
 #endif

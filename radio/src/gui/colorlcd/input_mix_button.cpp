@@ -34,9 +34,9 @@ STATIC_LZ4_BITMAP(mask_textline_fm);
 
 #if LCD_W > LCD_H // Landscape
 static const lv_coord_t col_dsc[] = {
-  LV_GRID_FR(1),   // weigth
-  LV_GRID_FR(1),   // source
-  LV_GRID_FR(4),   // opts
+  LV_GRID_FR(7),   // weight
+  LV_GRID_FR(12),   // source
+  LV_GRID_FR(29),   // opts
   FM_CANVAS_WIDTH, // flight modes
   LV_GRID_TEMPLATE_LAST
 };
@@ -45,9 +45,9 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 #else // Portrait
 static const lv_coord_t col_dsc[] = {
-  LV_GRID_FR(1),   // weigth
-  LV_GRID_FR(1),   // source
-  LV_GRID_FR(2),   // opts
+  LV_GRID_FR(13),   // weight
+  LV_GRID_FR(21),   // source
+  LV_GRID_FR(32),   // opts
   LV_GRID_TEMPLATE_LAST
 };
 
@@ -56,8 +56,6 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 #endif
 
-static const char _empty_txt[] = "";
-
 InputMixButton::InputMixButton(Window* parent, uint8_t index) :
     ListLineButton(parent, index)
 {
@@ -65,7 +63,7 @@ InputMixButton::InputMixButton(Window* parent, uint8_t index) :
   lv_obj_set_grid_dsc_array(lvobj, col_dsc, row_dsc);
 
   weight = lv_label_create(lvobj);
-  lv_obj_set_grid_cell(weight, LV_GRID_ALIGN_END, 0, 1, LV_GRID_ALIGN_START, 0, 1);
+  lv_obj_set_grid_cell(weight, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
   
   source = lv_label_create(lvobj);
   lv_obj_set_grid_cell(source, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 0, 1);
@@ -98,6 +96,7 @@ void InputMixButton::setSource(mixsrc_t idx)
 
 void InputMixButton::setFlightModes(uint16_t modes)
 {
+  if (!modelFMEnabled()) return;
   if (modes == fm_modes) return;
   fm_modes = modes;
 

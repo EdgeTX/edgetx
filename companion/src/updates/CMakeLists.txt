@@ -4,7 +4,14 @@ set(updates_NAMES
   updates
   updatesdialog
   updateoptionsdialog
-  repomodels
+  updatestatus
+  updatenetwork
+  repodatamodels
+  repometadata
+  reporeleases
+  repoassets
+  repo
+  updateparameters
   updateinterface
   updatefirmware
   updatecompanion
@@ -12,6 +19,7 @@ set(updates_NAMES
   updatesounds
   updatethemes
   updatemultiprotocol
+  updatefactories
   chooserdialog
 )
 
@@ -30,8 +38,15 @@ set(updates_QTS
   updates.h
   updatesdialog.h
   updateoptionsdialog.h
-  repomodels.h
+  updatestatus.h
+  updatenetwork.h
+  repodatamodels.h
+  reporeleases.h
+  repoassets.h
+  repo.h
+  updateparameters.h
   updateinterface.h
+  updatefactories.h
   chooserdialog.h
 )
 

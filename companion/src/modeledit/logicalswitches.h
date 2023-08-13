@@ -80,7 +80,7 @@ class LogicalSwitchesPanel : public ModelPanel
     FilteredItemModel * rawSourceFilteredModel;
     int selectedIndex;
     void populateFunctionCB(QComboBox *b);
-    void updateTimerParam(QDoubleSpinBox *sb, int timer, double minimum=0);
+    void updateTimerParam(QDoubleSpinBox *sb, int timer, double minimum=0, double maximum=175.0);
     int lsCapability;
     int lsCapabilityExt;
     void swapData(int idx1, int idx2);

@@ -56,7 +56,9 @@ void ledInit()
 }
 
 #if defined(FUNCTION_SWITCHES)
-constexpr uint32_t fsLeds[] = {FSLED_GPIO_PIN_1, FSLED_GPIO_PIN_2, FSLED_GPIO_PIN_3, FSLED_GPIO_PIN_4, FSLED_GPIO_PIN_5, FSLED_GPIO_PIN_6};
+constexpr uint32_t fsLeds[] = {FSLED_GPIO_PIN_1, FSLED_GPIO_PIN_2,
+                               FSLED_GPIO_PIN_3, FSLED_GPIO_PIN_4,
+                               FSLED_GPIO_PIN_5, FSLED_GPIO_PIN_6};
 
 void fsLedOff(uint8_t index)
 {
@@ -66,6 +68,11 @@ void fsLedOff(uint8_t index)
 void fsLedOn(uint8_t index)
 {
   GPIO_FSLED_GPIO_ON(FSLED_GPIO, fsLeds[index]);
+}
+
+bool getFSLedState(uint8_t index)
+{
+  return (FSLED_GPIO->ODR & fsLeds[index]);
 }
 #endif
 

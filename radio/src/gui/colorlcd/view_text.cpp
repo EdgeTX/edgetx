@@ -20,7 +20,6 @@
 
 #include "view_text.h"
 
-#include "gridlayout.h"
 #include "menu.h"
 #include "opentx.h"
 #include "sdcard.h"
@@ -156,12 +155,12 @@ void ViewTextWindow::onEvent(event_t event)
 #if defined(HARDWARE_KEYS)
   if (int(bufSize) < fileLength) {
     TRACE("BEFORE offset=%d", offset);
-    if (event == EVT_KEY_BREAK(KEY_PGDN)) {
+    if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
       offset += bufSize;
       TRACE("event=DOWN");
     }
 
-    if (event == EVT_KEY_BREAK(KEY_PGUP)) {
+    if (event == EVT_KEY_BREAK(KEY_PAGEUP)) {
       TRACE("event=UP");
       offset -= bufSize;
     }

@@ -27,8 +27,12 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usb_dcd_int.h"
-#include "board.h"	// modified by OpenTX
-#include "debug.h"	// modified by OpenTX
+
+#if defined(STM32F4)
+ #include "stm32f4xx_rcc.h"
+#elif defined(STM32F2)
+ #include "stm32f2xx_rcc.h"
+#endif
 
 /** @addtogroup USB_OTG_DRIVER
 * @{
@@ -217,25 +221,21 @@ uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev)
     gintr_status.d32 = USB_OTG_ReadCoreItr(pdev);
     if (!gintr_status.d32) /* avoid spurious interrupt */
     {
-      DEBUG_USB_INTERRUPT(INT_OTG_FS_SPURIOUS);	// modified by OpenTX
       return 0;
     }
     
     if (gintr_status.b.outepintr)
     {
-      DEBUG_USB_INTERRUPT(INT_OTG_FS_OUT_EP);	// modified by OpenTX
       retval |= DCD_HandleOutEP_ISR(pdev);
     }    
     
     if (gintr_status.b.inepint)
     {
-      DEBUG_USB_INTERRUPT(INT_OTG_FS_IN_EP);	// modified by OpenTX
       retval |= DCD_HandleInEP_ISR(pdev);
     }
     
     if (gintr_status.b.modemismatch)
     {
-      DEBUG_USB_INTERRUPT(INT_OTG_FS_MODEMISMATCH);	// modified by OpenTX
       USB_OTG_GINTSTS_TypeDef  gintsts;
       
       /* Clear interrupt */
@@ -246,69 +246,55 @@ uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev)
     
     if (gintr_status.b.wkupintr)
     {
-      DEBUG_USB_INTERRUPT(INT_OTG_FS_WAKEUP);	// modified by OpenTX
       retval |= DCD_HandleResume_ISR(pdev);
     }
     
     if (gintr_status.b.usbsuspend)
     {
-      DEBUG_USB_INTERRUPT(INT_OTG_FS_SUSPEND);	// modified by OpenTX
       retval |= DCD_HandleUSBSuspend_ISR(pdev);
     }
     if (gintr_status.b.sofintr)
     {
-      DEBUG_USB_INTERRUPT(INT_OTG_FS_SOF);	// modified by OpenTX
       retval |= DCD_HandleSof_ISR(pdev);
-      
     }
     
     if (gintr_status.b.rxstsqlvl)
     {
-      DEBUG_USB_INTERRUPT(INT_OTG_FS_RX_STAT);	// modified by OpenTX
       retval |= DCD_HandleRxStatusQueueLevel_ISR(pdev);
-      
     }
     
     if (gintr_status.b.usbreset)
     {
-      DEBUG_USB_INTERRUPT(INT_OTG_FS_RESET);	// modified by OpenTX
       retval |= DCD_HandleUsbReset_ISR(pdev);
-      
     }
+
     if (gintr_status.b.enumdone)
     {
-      DEBUG_USB_INTERRUPT(INT_OTG_FS_ENUM);	// modified by OpenTX
       retval |= DCD_HandleEnumDone_ISR(pdev);
     }
     
     if (gintr_status.b.incomplisoin)
     {
-      DEBUG_USB_INTERRUPT(INT_OTG_FS_INCOMPLETE_IN);	// modified by OpenTX
       retval |= DCD_IsoINIncomplete_ISR(pdev);
     }
 
     if (gintr_status.b.incomplisoout)
     {
-      DEBUG_USB_INTERRUPT(INT_OTG_FS_INCOMPLETE_OUT);	// modified by OpenTX
       retval |= DCD_IsoOUTIncomplete_ISR(pdev);
     }    
 #ifdef VBUS_SENSING_ENABLED
     if (gintr_status.b.sessreqintr)
     {
-      DEBUG_USB_INTERRUPT(INT_OTG_FS_SESSION);	// modified by OpenTX
       retval |= DCD_SessionRequest_ISR(pdev);
     }
 
     if (gintr_status.b.otgintr)
     {
-      DEBUG_USB_INTERRUPT(INT_OTG_FS_OTG);	// modified by OpenTX
       retval |= DCD_OTG_ISR(pdev);
     }   
 #endif    
   }
-  else {
-    DEBUG_USB_INTERRUPT(INT_OTG_FS_RX_NOT_DEVICE);	// modified by OpenTX
-  }
+
   return retval;
 }
 

@@ -54,6 +54,11 @@ void Gyro::wakeup()
     return;
   }
 
+  // reset error count on each
+  // successful query to avoid
+  // stopping the sensor forever
+  errors = 0;
+
   int16_t gx = values[0];
   int16_t gy = values[1];
   // int16_t gz = values[2];

@@ -111,7 +111,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
     dsbOffset[i]->setMinimum(-channelsMax);
     dsbOffset[i]->setAccelerated(true);
     dsbOffset[i]->setDecimals(0);
-    connect(dsbOffset[i], SIGNAL(editingFinished()), this, SLOT(onOffsetChanged()));
+    connect(dsbOffset[i], SIGNAL(valueChanged(double)), this, SLOT(onOffsetChanged()));
     dsbOffset[i]->setVisible(false);
     v2Layout->addWidget(dsbOffset[i]);
     dsbOffset2[i] = new QDoubleSpinBox(this);
@@ -121,7 +121,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
     dsbOffset2[i]->setAccelerated(true);
     dsbOffset2[i]->setDecimals(0);
     dsbOffset2[i]->setSpecialValueText(" " + tr("(instant)"));
-    connect(dsbOffset2[i], SIGNAL(editingFinished()), this, SLOT(onOffsetChanged()));
+    connect(dsbOffset2[i], SIGNAL(valueChanged(double)), this, SLOT(onOffsetChanged()));
     dsbOffset2[i]->setVisible(false);
     v2Layout->addWidget(dsbOffset2[i]);
     teOffset[i] = new TimerEdit(this);
@@ -341,12 +341,12 @@ bool LogicalSwitchesPanel::offsetChangedAt(int index)
   return mod;
 }
 
-void LogicalSwitchesPanel::updateTimerParam(QDoubleSpinBox *sb, int timer, double minimum)
+void LogicalSwitchesPanel::updateTimerParam(QDoubleSpinBox *sb, int timer, double minimum, double maximum)
 {
   sb->setVisible(true);
   sb->setDecimals(1);
   sb->setMinimum(minimum);
-  sb->setMaximum(175);
+  sb->setMaximum(maximum);
   float value = ValToTim(timer);
   if (value >= 60)
     sb->setSingleStep(1);
@@ -432,7 +432,7 @@ void LogicalSwitchesPanel::updateLine(int i)
         cbSource1[i]->setModel(rawSwitchFilteredModel);
         cbSource1[i]->setCurrentIndex(cbSource1[i]->findData(model->logicalSw[i].val1));
         updateTimerParam(dsbOffset[i], model->logicalSw[i].val2, 0.0);
-        updateTimerParam(dsbOffset2[i], model->logicalSw[i].val2 + model->logicalSw[i].val3, ValToTim(TimToVal(dsbOffset[i]->value()) - 1));
+        updateTimerParam(dsbOffset2[i], model->logicalSw[i].val2 + model->logicalSw[i].val3, ValToTim(TimToVal(dsbOffset[i]->value()) - 1), 275.0);
         dsbOffset2[i]->setSuffix((model->logicalSw[i].val3) ? "" : tr(" (infinite)"));
         break;
 

@@ -29,8 +29,7 @@ class GhostModuleConfigWindow: public Window
 {
   public:
     GhostModuleConfigWindow(Window * parent, const rect_t & rect) :
-    Window(parent, rect, FORWARD_SCROLL // | FORM_FORWARD_FOCUS
-           | REFRESH_ALWAYS)
+    Window(parent, rect, REFRESH_ALWAYS)
     {
       // setFocus(SET_FOCUS_DEFAULT);
     }
@@ -137,7 +136,7 @@ RadioGhostModuleConfig::RadioGhostModuleConfig(uint8_t moduleIdx) :
 
 void RadioGhostModuleConfig::buildHeader(Window * window)
 {
-  new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, "GHOST MODULE", 0, COLOR_THEME_SECONDARY1);
+  header.setTitle("GHOST MODULE");
 }
 
 void RadioGhostModuleConfig::buildBody(FormWindow * window)

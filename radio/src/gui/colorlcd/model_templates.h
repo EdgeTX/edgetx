@@ -22,60 +22,47 @@
 #pragma once
 
 #include <functional>
-#include "opentx.h"
 
-constexpr size_t LEN_INFO_TEXT = 300;
-constexpr size_t LEN_PATH = sizeof(TEMPLATES_PATH) + TEXT_FILENAME_MAXLEN;
-constexpr size_t LEN_BUFFER = sizeof(TEMPLATES_PATH) + 2 * TEXT_FILENAME_MAXLEN + 1;
+#include "opentx.h"
 
 class TemplatePage : public Page
 {
   public:
+    TemplatePage();
 
-  TemplatePage() : Page(ICON_MODEL_SELECT)
-  { }
-
-  void updateInfo();
+    void updateInfo();
 
 #if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override;
+    void onEvent(event_t event) override;
 #endif
 
 #if defined(DEBUG_WINDOWS)
-  std::string getName() const { return "TemplatePage"; }
+    std::string getName() const { return "TemplatePage"; }
 #endif
 
   protected:
+    FormWindow* listWindow = nullptr;
+    lv_obj_t* infoLabel = nullptr;
 
-  static char path[LEN_PATH + 1];
-  char buffer[LEN_BUFFER + 1];
-  char infoText[LEN_INFO_TEXT + 1] = { 0 };
-  unsigned int count = 0;
-  static std::function<void(void)> update;
+    static constexpr size_t LEN_INFO_TEXT = 300;
+    static constexpr size_t LEN_PATH = sizeof(TEMPLATES_PATH) + TEXT_FILENAME_MAXLEN;
+    static constexpr size_t LEN_BUFFER = sizeof(TEMPLATES_PATH) + 2 * TEXT_FILENAME_MAXLEN + 1;
 
-  void paint(BitmapBuffer *dc) override;
-};
-
-class TemplateButton : public TextButton
-{
-  public:
-  TemplateButton(FormGroup* parent, const rect_t& rect, std::string name, std::function<uint8_t(void)> pressHandler = nullptr)
-  : TextButton(parent, rect, name, pressHandler)
-  { }
-};
-
-class SelectTemplate : public TemplatePage
-{
-  public:
-  SelectTemplate(TemplatePage* tp);
-
-  protected:
-  TemplatePage* templateFolderPage;
+    char buffer[LEN_BUFFER + 1] = "";
+    char infoText[LEN_INFO_TEXT + 1] = "";
 };
 
 class SelectTemplateFolder : public TemplatePage
 {
-  public:
-  SelectTemplateFolder(std::function<void(void)> update);
-  ~SelectTemplateFolder();
+ public:
+    SelectTemplateFolder(std::function<void(std::string, std::string)> update);
+
+    void doUpdate(std::string folder, std::string name) {
+      deleteLater();
+      if (update)
+        update(folder, name);
+    }
+
+  protected:
+    std::function<void(std::string, std::string)> update;
 };

@@ -69,7 +69,8 @@ struct ZoneOption
     TextSize,
     Timer,
     Switch,
-    Color
+    Color,
+    Align
   };
 
   const char * name;
@@ -79,6 +80,17 @@ struct ZoneOption
   ZoneOptionValue max;
   const char * displayName;
 };
+
+enum ZoneOptionAlign
+{
+  ALIGN_LEFT,
+  ALIGN_CENTER,
+  ALIGN_RIGHT,
+
+  // this one MUST be last
+  ALIGN_COUNT
+};
+
 
 struct ZoneOptionValueTyped
 {
@@ -109,6 +121,7 @@ inline ZoneOptionValueEnum zoneValueEnumFromType(ZoneOption::Type type)
   case ZoneOption::Timer:
   case ZoneOption::Switch:
   case ZoneOption::TextSize:
+  case ZoneOption::Align:
   default:
     return ZOV_Unsigned;
   }

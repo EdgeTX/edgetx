@@ -34,6 +34,7 @@
 #include <QListWidget>
 
 class QToolBar;
+class StatusDialog;
 
 namespace Ui {
 class MdiChild;
@@ -52,8 +53,9 @@ class MdiChild : public QWidget
       ACT_GEN_CPY,
       ACT_GEN_PST,
       ACT_GEN_SIM,
-      ACT_ITM_EDT,  // edit model/rename category
-      ACT_ITM_DEL,  // delete model or cat
+      ACT_GEN_SRT,  // model sort order
+      ACT_ITM_EDT,
+      ACT_ITM_DEL,
       ACT_LBL_ADD,
       ACT_LBL_DEL,
       ACT_LBL_MVU,  // Move up
@@ -75,12 +77,11 @@ class MdiChild : public QWidget
       ACT_ENUM_END
     };
 
-    MdiChild(QWidget *parent = Q_NULLPTR, QWidget * parentWin = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
+    MdiChild(QWidget *parent = nullptr, QWidget * parentWin = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~MdiChild();
 
     QString currentFile() const;
     QString userFriendlyCurrentFile() const;
-    QVector<int> getSelectedCategories() const;
     QVector<int> getSelectedModels() const;
     QList<QAction *> getGeneralActions();
     QList<QAction *> getEditActions();
@@ -95,7 +96,7 @@ class MdiChild : public QWidget
     bool saveAs(bool isNew=false);
     bool saveFile(const QString & fileName, bool setCurrent=true);
     void closeFile(bool force = false);
-    void writeSettings();
+    void writeSettings(StatusDialog * status);
     void print(int model=-1, const QString & filename="");
     void onFirmwareChanged();
 
@@ -165,10 +166,12 @@ class MdiChild : public QWidget
     void pasteGeneralData(const QMimeData * mimeData);
 
   private:
-    QAction *addAct(Actions actId, const QString & icon, const char * slot = 0, const QKeySequence & shortcut = 0, QObject * slotObj = NULL);
+    QAction *addAct(Actions actId, const QString & icon, const char * slot = 0, const QKeySequence & shortcut = 0, QObject * slotObj = nullptr);
 
     QModelIndex getCurrentIndex() const;
     int getCurrentModel() const;
+    QModelIndex getDataIndex(QModelIndex viewIndex) const;
+    int getDataModel(QModelIndex viewIndex) const;
     int countSelectedModels() const;
     bool hasSelectedModel();
     bool setSelectedModel(const int modelIndex);
@@ -204,6 +207,7 @@ class MdiChild : public QWidget
     Ui::MdiChild * ui;
     ModelsListModel * modelsListModel;
     LabelsModel * labelsListModel;
+    ModelsListProxyModel * modelsListProxyModel;
     QWidget * parentWindow;
 
     QString curFile;
@@ -222,6 +226,8 @@ class MdiChild : public QWidget
     bool showLabelToolbar;
     bool forceCloseFlag;
     const quint16 stateDataVersion;
+    AbstractStaticItemModel* modelSortOrderItemModel;
+    QComboBox* cboModelSortOrder;
 };
 
 // This will draw the drop indicator across all columns of a model View (vs. in just one column), and lets us make the indicator more obvious.

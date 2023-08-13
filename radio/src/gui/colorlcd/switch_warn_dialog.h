@@ -25,7 +25,6 @@
 #include "fullscreen_dialog.h"
 #include "mainwindow.h"
 #include "opentx.h"
-#include "gridlayout.h"
 
 class SwitchWarnDialog : public FullScreenDialog
 {
@@ -46,6 +45,8 @@ class SwitchWarnDialog : public FullScreenDialog
   StaticText*  warn_label;
 
   bool warningInactive();
+  
+  void init() override;
 };
 
 #endif

@@ -37,7 +37,6 @@ class GeneralSetupPanel : public GeneralPanel
     virtual ~GeneralSetupPanel();
 
   private slots:
-    void on_splashScreenChkB_stateChanged(int);
     void on_splashScreenDuration_currentIndexChanged(int index);
     void on_alarmwarnChkB_stateChanged(int);
     void on_rssiPowerOffWarnChkB_stateChanged(int);
@@ -51,7 +50,7 @@ class GeneralSetupPanel : public GeneralPanel
     void on_faimode_CB_stateChanged(int );
     void on_rotEncMode_CB_currentIndexChanged(int index);
     void on_speakerPitchSB_editingFinished();
-    void on_timezoneSB_editingFinished();
+    void on_timezoneLE_textEdited(const QString &text);
     void on_adjustRTC_stateChanged(int);
     void on_hapticStrength_valueChanged();
     void on_soundModeCB_currentIndexChanged(int index);
@@ -92,6 +91,9 @@ class GeneralSetupPanel : public GeneralPanel
 
     void on_pwrOnDelay_valueChanged(int);
     void on_pwrOffDelay_valueChanged(int);
+
+    void on_modelQuickSelect_CB_stateChanged(int);
+    void on_startSoundCB_stateChanged(int);
 
   private:
     Ui::GeneralSetup *ui;

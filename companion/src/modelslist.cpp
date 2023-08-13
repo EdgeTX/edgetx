@@ -22,19 +22,17 @@
 
 ModelListItem::ModelListItem(const QVector<QVariant> & itemData):
   itemData(itemData),
-  parentItem(NULL),
-  categoryIndex(-1),
+  parentItem(nullptr),
   modelIndex(-1),
   flags(0),
   highlightRX(false)
 {
 }
 
-ModelListItem::ModelListItem(ModelListItem * parent, int categoryIndex, int modelIndex):
+ModelListItem::ModelListItem(ModelListItem * parent, int modelIndex):
   ModelListItem(QVector<QVariant>(parent->columnCount()))
 {
   setParent(parent);
-  setCategoryIndex(categoryIndex);
   setModelIndex(modelIndex);
 }
 
@@ -71,16 +69,16 @@ QVariant ModelListItem::data(int column) const
   return itemData.value(column);
 }
 
-ModelListItem *ModelListItem::insertChild(const int row, int categoryIndex, int modelIndex)
+ModelListItem *ModelListItem::insertChild(const int row, int modelIndex)
 {
-  ModelListItem * item = new ModelListItem(this, categoryIndex, modelIndex);
+  ModelListItem * item = new ModelListItem(this, modelIndex);
   childItems.insert(row, item);
   return item;
 }
 
-ModelListItem * ModelListItem::appendChild(int categoryIndex, int modelIndex)
+ModelListItem * ModelListItem::appendChild(int modelIndex)
 {
-  return insertChild(childItems.size(), categoryIndex, modelIndex);
+  return insertChild(childItems.size(), modelIndex);
 }
 
 bool ModelListItem::removeChildren(int position, int count)
@@ -97,7 +95,7 @@ bool ModelListItem::removeChildren(int position, int count)
 bool ModelListItem::insertChildren(int row, int count)
 {
   for (int i=0; i < count; ++i) {
-    insertChild(row + i, -1, -1);
+    insertChild(row + i, -1);
   }
   return true;
 }
@@ -117,11 +115,6 @@ void ModelListItem::setFlag(const quint16 & flag, const bool on)
     flags |= flag;
   else
     flags &= ~flag;
-}
-
-bool ModelListItem::isCategory() const
-{
-  return (modelIndex < 0 && categoryIndex > -1);
 }
 
 bool ModelListItem::isModel() const
@@ -443,10 +436,8 @@ void ModelsListModel::encodeModelsData(const QModelIndexList & indexes, QByteArr
 {
   foreach (const QModelIndex &index, indexes) {
     if (index.isValid() && index.column() == 0) {
-      if (!getItem(index)->isCategory()) {  // TODO: encode categoreis also
-        data->append('M');
-        data->append((char *)&radioData->models[getModelIndex(index)], sizeof(ModelData));
-      }
+      data->append('M');
+      data->append((char *)&radioData->models[getModelIndex(index)], sizeof(ModelData));
     }
   }
 }
@@ -555,33 +546,14 @@ QModelIndex ModelsListModel::getIndexForModel(const int modelIndex, QModelIndex 
   return QModelIndex();
 }
 
-QModelIndex ModelsListModel::getIndexForCategory(const int categoryIndex)
-{
-  for (int i = 0; i < rowCount(); ++i) {
-    if (getItem(index(i, 0))->getCategoryIndex() == categoryIndex)
-      return index(i, 0);
-  }
-  return QModelIndex();
-}
-
 int ModelsListModel::getModelIndex(const QModelIndex & index) const
 {
   return getItem(index)->getModelIndex();
 }
 
-int ModelsListModel::getCategoryIndex(const QModelIndex & index) const
-{
-  return getItem(index)->getCategoryIndex();
-}
-
 int ModelsListModel::rowNumber(const QModelIndex & index) const
 {
   return getItem(index)->childNumber();
-}
-
-bool ModelsListModel::isCategoryType(const QModelIndex & index) const
-{
-  return index.isValid() && getItem(index)->isCategory();
 }
 
 bool ModelsListModel::isModelType(const QModelIndex & index) const
@@ -637,15 +609,15 @@ void ModelsListModel::refresh()
   for (unsigned i = 0; i < radioData->models.size(); i++) {
     ModelData & model = radioData->models[i];
     int currentColumn = 0;
-    ModelListItem * current = NULL;
+    ModelListItem * current = nullptr;
 
     model.modelIndex = i;
 
     if (hasLabels) {
-      current = rootItem->appendChild(0, i);
+      current = rootItem->appendChild(i);
     }
     else {
-      current = rootItem->appendChild(0, i);
+      current = rootItem->appendChild(i);
       current->setData(currentColumn++, QString().sprintf("%02d", i + 1));
     }
 
@@ -704,6 +676,15 @@ bool ModelsListModel::isModelIdUnique(unsigned modelIdx, unsigned module, unsign
       }
     }
   }
+  return true;
+}
+
+/*
+  ModelsListProxyModel
+*/
+
+bool ModelsListProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const
+{
   return true;
 }
 

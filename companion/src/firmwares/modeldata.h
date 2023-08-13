@@ -90,6 +90,19 @@ enum TrainerMode {
 #define INPUT_NAME_LEN 4
 #define CPN_MAX_BITMAP_LEN 14
 
+#define CPN_USBJ_MAX_JOYSTICK_CHANNELS 26
+
+class USBJoystickChData {
+  public:
+    USBJoystickChData() { clear(); }
+    unsigned int mode;
+    unsigned int inversion;
+    unsigned int param;
+    unsigned int btn_num;
+    unsigned int switch_npos;
+    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(USBJoystickChData)); }
+};
+
 class ModelData {
   Q_DECLARE_TR_FUNCTIONS(ModelData)
 
@@ -158,6 +171,7 @@ class ModelData {
     FrSkyData frsky;
     unsigned int  rssiSource;
     RSSIAlarmData rssiAlarms;
+    bool showInstanceIds;
 
     char bitmap[CPN_MAX_BITMAP_LEN + 1];
 
@@ -176,6 +190,20 @@ class ModelData {
     unsigned int view;
 
     char registrationId[8+1];
+
+    // Radio level tabs control (global settings)
+    unsigned int radioThemesDisabled;
+    unsigned int radioGFDisabled;
+    unsigned int radioTrainerDisabled;
+    // Model level tabs control (global setting)
+    unsigned int modelHeliDisabled;
+    unsigned int modelFMDisabled;
+    unsigned int modelCurvesDisabled;
+    unsigned int modelGVDisabled;
+    unsigned int modelLSDisabled;
+    unsigned int modelSFDisabled;
+    unsigned int modelCustomScriptsDisabled;
+    unsigned int modelTelemetryDisabled;
 
     enum FunctionSwitchConfig {
       FUNC_SWITCH_CONFIG_NONE,
@@ -200,6 +228,12 @@ class ModelData {
     unsigned int functionSwitchStartConfig;
     unsigned int functionSwitchLogicalState;
     char functionSwitchNames[CPN_MAX_FUNCTION_SWITCHES][HARDWARE_NAME_LEN + 1];
+
+    // Custom USB joytsick mapping
+    unsigned int usbJoystickExtMode;
+    unsigned int usbJoystickIfMode;
+    unsigned int usbJoystickCircularCut;
+    USBJoystickChData usbJoystickCh[CPN_USBJ_MAX_JOYSTICK_CHANNELS];
 
     void clear();
     bool isEmpty() const;
@@ -230,6 +264,7 @@ class ModelData {
     int linkedFlightModeValueToIndex(const int phaseIdx, const int val, const int maxOwnValue);
 
     void clearMixes();
+    void sortMixes();
     void clearInputs();
 
     int getChannelsMax(bool forceExtendedLimits=false) const;
@@ -363,6 +398,5 @@ class ModelData {
       if (value != swtch.toValue())
         value = swtch.toValue();
     }
-    void sortMixes();
     void updateResetParam(CustomFunctionData * cfd);
 };

@@ -38,7 +38,7 @@ class AbstractStaticItemModel;
 // identiying names of static abstract item models
 constexpr char AIM_GS_ANTENNAMODE[]        {"gs.antennamode"};
 constexpr char AIM_GS_BLUETOOTHMODE[]      {"gs.bluetoothmode"};
-constexpr char AIM_GS_SERIALMODE[]         {"gs.serialmode%1"};
+constexpr char AIM_GS_SERIALMODE[]         {"gs.serialmode"};
 constexpr char AIM_GS_INTMODULEBAUDRATE[]  {"gs.intmodulebaudrate"};
 constexpr char AIM_GS_STICKDEADZONE[]      {"gs.stickdeadzone"};
 constexpr char AIM_GS_UARTSAMPLEMODE[]     {"gs.uartsamplemode"};
@@ -101,6 +101,7 @@ constexpr int BLUETOOTH_NAME_LEN      {10};
 constexpr int TTS_LANGUAGE_LEN        {2};
 constexpr int HARDWARE_NAME_LEN       {3};
 constexpr int REGISTRATION_ID_LEN     {8};
+constexpr int SELECTED_THEME_NAME_LEN {26};
 
 class GeneralSettings {
   Q_DECLARE_TR_FUNCTIONS(GeneralSettings)
@@ -142,7 +143,16 @@ class GeneralSettings {
       AUX_SERIAL_GPS,
       AUX_SERIAL_DEBUG,
       AUX_SERIAL_SPACEMOUSE,
+      AUX_SERIAL_EXT_MODULE,
       AUX_SERIAL_COUNT
+    };
+
+    enum AuxSerialModeContext
+    {
+      AUX1Context = 0x01,
+      AUX2Context = 0x02,
+      VCPContext  = 0x04,
+      AllAuxSerialModeContexts = AUX1Context | AUX2Context | VCPContext,
     };
 
     enum TelemetryBaudrate {
@@ -202,6 +212,7 @@ class GeneralSettings {
     BeeperMode hapticMode;
     unsigned int stickMode; // TODO enum
     int timezone;
+    int timezoneMinutes;
     bool adjustRTC;
     bool optrexDisplay;
     unsigned int inactivityTimer;
@@ -209,8 +220,8 @@ class GeneralSettings {
     bool minuteBeep;
     bool preBeep;
     bool flashBeep;
-    unsigned int splashMode;
-    int splashDuration;
+    int splashMode;
+    bool dontPlayHello;
     unsigned int backlightDelay;
     unsigned int templateSetup;  //RETA order according to chout_ar array
     int PPM_Multiplier;
@@ -238,6 +249,7 @@ class GeneralSettings {
     unsigned int countryCode;
     bool noJitterFilter;
     bool rtcCheckDisable;
+    bool muteIfNoSound;
     bool keysBacklight;
     unsigned int rotEncMode;
     unsigned int imperial;
@@ -255,6 +267,7 @@ class GeneralSettings {
     bool serialPower[SP_COUNT];
     int antennaMode;
     unsigned int backlightColor;
+    bool modelQuickSelect;
     CustomFunctionData customFn[CPN_MAX_SPECIAL_FUNCTIONS];
     char switchName[CPN_MAX_SWITCHES][HARDWARE_NAME_LEN + 1];
     unsigned int switchConfig[CPN_MAX_SWITCHES];
@@ -274,10 +287,27 @@ class GeneralSettings {
     int pwrOnSpeed;
     int pwrOffSpeed;
 
+    char selectedTheme[SELECTED_THEME_NAME_LEN + 1];
+
+    // Radio level tabs control (global settings)
+    bool radioThemesDisabled;
+    bool radioGFDisabled;
+    bool radioTrainerDisabled;
+    // Model level tabs control (global setting)
+    bool modelHeliDisabled;
+    bool modelFMDisabled;
+    bool modelCurvesDisabled;
+    bool modelGVDisabled;
+    bool modelLSDisabled;
+    bool modelSFDisabled;
+    bool modelCustomScriptsDisabled;
+    bool modelTelemetryDisabled;
+
     bool switchPositionAllowedTaranis(int index) const;
     bool switchSourceAllowedTaranis(int index) const;
     bool isPotAvailable(int index) const;
     bool isSliderAvailable(int index) const;
+    bool isMultiPosPot(int index) const;
     QString antennaModeToString() const;
     QString bluetoothModeToString() const;
     QString serialPortModeToString(int port_nr) const;
@@ -292,9 +322,9 @@ class GeneralSettings {
     static FieldRange getTxCurrentCalibration();
     static QString uartSampleModeToString(int value);
 
-    static AbstractStaticItemModel * antennaModeItemModel();
+    static AbstractStaticItemModel * antennaModeItemModel(bool model_setup = false);
     static AbstractStaticItemModel * bluetoothModeItemModel();
-    static AbstractStaticItemModel * serialModeItemModel(int port_nr);
+    static AbstractStaticItemModel * serialModeItemModel();
     static AbstractStaticItemModel * internalModuleBaudrateItemModel();
     static AbstractStaticItemModel * stickDeadZoneItemModel();
     static AbstractStaticItemModel * uartSampleModeItemModel();

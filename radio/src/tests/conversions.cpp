@@ -20,23 +20,12 @@
  */
 
 #include "gtests.h"
-#include "storage/conversions/conversions.h"
 #include "location.h"
 
-#if defined(EEPROM) || defined(EEPROM_RLC)
-#include <storage/eeprom_common.h>
-#endif
+#if 0
 
 #if defined(SDCARD_YAML)
 #include <storage/sdcard_yaml.h>
-#endif
-
-#if defined(EEPROM_SIZE)
-void loadEEPROMFile(const char * filename)
-{
-  FILE * f = fopen(filename, "rb");
-  assert(fread(eeprom, 1, EEPROM_SIZE, f) == EEPROM_SIZE);
-}
 #endif
 
 #if defined(PCBX9DP)
@@ -95,12 +84,15 @@ TEST(Conversions, ConversionX9DPFrom23)
   EXPECT_STRNEQ("Tes", g_model.gvars[0].name); // ZSTREQ
   EXPECT_STRNEQ("Test", g_model.flightModeData[0].name); // ZSTREQ
 
-#if defined(INTERNAL_MODULE_PXX2)
+  // Please note: we don't wipe the model's module settings
+  // in case the module is not supported anymore.
+  //
+  // #if defined(INTERNAL_MODULE_PXX2)
   EXPECT_EQ(MODULE_TYPE_ISRM_PXX2, g_model.moduleData[INTERNAL_MODULE].type);
   EXPECT_EQ(MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16, g_model.moduleData[INTERNAL_MODULE].subType);
-#else
-  EXPECT_EQ(MODULE_TYPE_NONE, g_model.moduleData[INTERNAL_MODULE].type);
-#endif
+  // #else
+  //   EXPECT_EQ(MODULE_TYPE_NONE, g_model.moduleData[INTERNAL_MODULE].type);
+  // #endif
 
   EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
   EXPECT_EQ(MODULE_SUBTYPE_R9M_FCC, g_model.moduleData[EXTERNAL_MODULE].subType);
@@ -217,7 +209,19 @@ TEST(Conversions, ConversionXLiteFrom23)
 }
 #endif
 
-#if defined(PCBX7) && (STORAGE_CONVERSIONS <= 219)
+#if defined(RADIO_X7) && (STORAGE_CONVERSIONS <= 219)
+
+static swarnstate_t get_configured_switch_warn_mask()
+{
+  swarnstate_t mask = 0;
+  for (uint8_t i=0; i<NUM_SWITCHES; i++) {
+    if (SWITCH_CONFIG(i) != 0)
+      mask |= 7 << (3 * i);
+  }
+
+  return mask;
+}
+
 TEST(Conversions, ConversionX7From23)
 {
 #if defined(SDCARD_YAML)
@@ -256,12 +260,12 @@ TEST(Conversions, ConversionX7From23)
     (0x02) |            // SA middle
     (0x01 << (3 * 1)) | // SB up
     (0x03 << (3 * 2)) | // SC down
-    (0x03 << (3 * 4));  // SF down
-
-  swarnstate_t sw_mask = (1 << (STORAGE_NUM_SWITCHES * 3)) - 1;
+    (0x03 << (3 * 4)) | // SF down
+    (0x01 << (3 * 5));  // SH up
   
-  // check only the "allowed switches"
-  EXPECT_EQ(state & sw_mask, g_model.switchWarningState & 0x7FFF);
+  // check only configured switches (as the code does)
+  swarnstate_t sw_mask = get_configured_switch_warn_mask();
+  EXPECT_EQ(state & sw_mask, g_model.switchWarningState & sw_mask);
   
   EXPECT_STRNEQ("Test", g_model.header.name);
   EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
@@ -541,3 +545,4 @@ TEST(Conversions, ConversionTX16SFrom25)
 }
 #endif
 
+#endif

@@ -32,12 +32,12 @@ class UpdateCompanion : public UpdateInterface
     explicit UpdateCompanion(QWidget * parent);
     virtual ~UpdateCompanion() {}
 
-  protected:
-    virtual void initAssetSettings() override;
-
-    virtual bool asyncInstall() override;
-    virtual const QString currentRelease() override;
-    virtual const QString currentVersion() override;
-    virtual const bool isLatestRelease() override;
+    virtual const QString releaseCurrent() override;
+    virtual const QString versionCurrent() override;
+    virtual const bool isReleaseLatest() override;
     virtual const bool isUpdateAvailable() override;
+
+  protected:
+    virtual bool asyncInstall() override;
+    virtual void assetSettingsInit() override;
 };

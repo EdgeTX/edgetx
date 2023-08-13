@@ -60,7 +60,7 @@ void showMessage(const QString & message, enum QMessageBox::Icon icon = QMessage
   QMessageBox msgBox;
   msgBox.setText("<html><body><pre>" + message.toHtmlEscaped() + "</pre></body></html>");
   msgBox.setIcon(icon);
-  msgBox.setWindowTitle(QApplication::translate("SimulatorMain", "OpenTx Simulator"));
+  msgBox.setWindowTitle(QApplication::translate("SimulatorMain", "EdgeTx Simulator"));
   msgBox.exec();
 }
 
@@ -123,7 +123,7 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
                                     QApplication::translate("SimulatorMain", "path"));
 
   const QCommandLineOption optStart(QStringList() << "start-with" << "w",
-                                    QApplication::translate("SimulatorMain", "Data source type to use (applicable to Horus only). One of:") + " (file|folder|sd)",
+                                    QApplication::translate("SimulatorMain", "Data source type to use. One of:") + " (file|folder|sd)",
                                     QApplication::translate("SimulatorMain", "type"));
 
   cliOptions.addPositionalArgument(QApplication::translate("SimulatorMain", "data-source"),
@@ -180,9 +180,9 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
     cliOptsFound = true;
   }
 
-  if (cliOptsFound || (simOptions->dataFile.isEmpty() && !simOptions->firmwareId.isEmpty())) {
+  if (cliOptsFound || (simOptions->dataFile.isEmpty() && !simOptions->simulatorId.isEmpty())) {
     // this constructs a new default radio data file name in the user-configured eeprom directory
-    simOptions->dataFile = SimulatorStartupDialog::radioEepromFileName(simOptions->firmwareId, g.eepromDir());
+    simOptions->dataFile = SimulatorStartupDialog::radioEepromFileName(simOptions->simulatorId, g.eepromDir());
   }
 
   if (cliOptions.isSet(optSdDir)) {
@@ -231,11 +231,8 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
 
 int main(int argc, char *argv[])
 {
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
   /* From doc: This attribute must be set before Q(Gui)Application is constructed. */
   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
 
   QApplication app(argc, argv);
   app.setApplicationName(APP_SIMULATOR);
@@ -270,6 +267,9 @@ int main(int argc, char *argv[])
   #ifdef SIMU_AUDIO
     sdlFlags |= SDL_INIT_AUDIO;
   #endif
+  #if defined(_WIN32) || defined(_WIN64)
+  putenv("SDL_AUDIODRIVER=directsound");
+  #endif
   if (SDL_Init(sdlFlags) < 0) {
     showMessage(QApplication::translate("SimulatorMain", "WARNING: couldn't initialize SDL:\n%1").arg(SDL_GetError()), QMessageBox::Warning);
   }
@@ -288,8 +288,13 @@ int main(int argc, char *argv[])
   SimulatorOptions simOptions = g.profile[profileId].simulatorOptions();
 
   // TODO : defaults should be set in Profile::init()
-  if (simOptions.firmwareId.isEmpty())
-    simOptions.firmwareId = SimulatorLoader::findSimulatorByFirmwareName(g.profile[profileId].fwType());
+  if (simOptions.firmwareId.isEmpty()) {
+    simOptions.firmwareId = g.profile[profileId].fwType();
+  }
+
+  // do not used saved simulatorId always refresh
+  simOptions.simulatorId = SimulatorLoader::findSimulatorByName(Firmware::getFirmwareForId(simOptions.firmwareId)->getSimulatorId());
+
   if (simOptions.dataFolder.isEmpty())
     simOptions.dataFolder = g.eepromDir();
   if (simOptions.sdPath.isEmpty())
@@ -306,7 +311,7 @@ int main(int argc, char *argv[])
     return finish(1);
 
   // Present GUI startup options dialog if necessary
-  if (cliResult == CommandLineNone || profileId == -1 || simOptions.firmwareId.isEmpty() || (simOptions.dataFile.isEmpty() && simOptions.dataFolder.isEmpty())) {
+  if (cliResult == CommandLineNone || profileId == -1 || simOptions.simulatorId.isEmpty() || (simOptions.dataFile.isEmpty() && simOptions.dataFolder.isEmpty())) {
     SimulatorStartupDialog * dlg = new SimulatorStartupDialog(&simOptions, &profileId);
     int ret = dlg->exec();
     delete dlg;
@@ -319,14 +324,14 @@ int main(int argc, char *argv[])
   // Validate startup options
 
   QString resultMsg;
-  if (profileId < 0 || simOptions.firmwareId.isEmpty() || (simOptions.dataFile.isEmpty() && simOptions.dataFolder.isEmpty() && simOptions.sdPath.isEmpty())) {
+  if (profileId < 0 || simOptions.simulatorId.isEmpty() || (simOptions.dataFile.isEmpty() && simOptions.dataFolder.isEmpty() && simOptions.sdPath.isEmpty())) {
     resultMsg = QApplication::translate("SimulatorMain", "ERROR: Couldn't start simulator, missing radio/profile/data file/folder.\n  Profile ID: [%1]; Radio ID: [%2];\nData File: [%3]");
-    showMessage(resultMsg.arg(profileId).arg(simOptions.firmwareId, simOptions.dataFile), QMessageBox::Critical);
+    showMessage(resultMsg.arg(profileId).arg(simOptions.simulatorId, simOptions.dataFile), QMessageBox::Critical);
     return finish(1);
   }
-  if (!g.getActiveProfiles().contains(profileId) || !SimulatorLoader::getAvailableSimulators().contains(simOptions.firmwareId)) {
+  if (!g.getActiveProfiles().contains(profileId) || !SimulatorLoader::getAvailableSimulators().contains(simOptions.simulatorId)) {
     QTextStream stream(&resultMsg);
-    stream << QApplication::translate("SimulatorMain", "ERROR: Radio profile or simulator firmware not found.\nProfile ID: [%1]; Radio ID: [%2]").arg(profileId).arg(simOptions.firmwareId);
+    stream << QApplication::translate("SimulatorMain", "ERROR: Radio profile or simulator firmware not found.\nProfile ID: [%1]; Radio ID: [%2]").arg(profileId).arg(simOptions.simulatorId);
     stream << sharedHelpText();
     showMessage(resultMsg, QMessageBox::Critical);
     return finish(1);
@@ -339,12 +344,13 @@ int main(int argc, char *argv[])
 
   // Set global firmware environment
   Firmware::setCurrentVariant(Firmware::getFirmwareForId(simOptions.firmwareId));
+  //qDebug() << "current firmware:" << getCurrentFirmware()->getId();
 
   int result = 0;
-  SimulatorMainWindow * mainWindow = new SimulatorMainWindow(NULL, simOptions.firmwareId, SIMULATOR_FLAGS_STANDALONE);
+  SimulatorMainWindow * mainWindow = new SimulatorMainWindow(NULL, simOptions.simulatorId, SIMULATOR_FLAGS_STANDALONE);
   if ((result = mainWindow->getExitStatus(&resultMsg))) {
     if (resultMsg.isEmpty())
-      resultMsg = QApplication::translate("SimulatorMain", "Uknown error during Simulator startup.");
+      resultMsg = QApplication::translate("SimulatorMain", "Unknown error during Simulator startup.");
     showMessage(resultMsg, QMessageBox::Critical);
   }
   else if (mainWindow->setOptions(simOptions, true)) {

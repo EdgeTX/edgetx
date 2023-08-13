@@ -28,6 +28,11 @@
 constexpr coord_t SPECTRUM_HEIGHT = 180;
 constexpr coord_t SCALE_HEIGHT = 20;
 
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
+                                     LV_GRID_TEMPLATE_LAST};
+
 coord_t getAverage(uint8_t number, const uint8_t * value)
 {
   uint16_t sum = 0;
@@ -37,40 +42,36 @@ coord_t getAverage(uint8_t number, const uint8_t * value)
   return sum / number;
 }
 
-class SpectrumFooterWindow: public FormGroup
+class SpectrumFooterWindow: public FormWindow
 {
   public:
-    SpectrumFooterWindow(FormGroup * parent, const rect_t & rect, int moduleIdx) :
-      FormGroup(parent, rect// , FORM_FORWARD_FOCUS
-                )
+    SpectrumFooterWindow(FormWindow * parent, const rect_t & rect, int moduleIdx) :
+      FormWindow(parent, rect)
     {
-      FormGridLayout grid;
-      grid.spacer(4);
-      grid.setLabelWidth(5);
+      setFlexLayout();
+      padAll(0);
+      padLeft(4);
+      padRight(4);
 
-      // Tracker
-      auto tracker = new NumberEdit(this, grid.getFieldSlot(3, 2), (reusableBuffer.spectrumAnalyser.freq - reusableBuffer.spectrumAnalyser.span / 2) / 1000000,
-                                    (reusableBuffer.spectrumAnalyser.freq + reusableBuffer.spectrumAnalyser.span / 2) / 1000000,
-                                    GET_DEFAULT(reusableBuffer.spectrumAnalyser.track / 1000000),
-                                    SET_VALUE(reusableBuffer.spectrumAnalyser.track, newValue * 1000000));
-      tracker->setSuffix("MHz");
-      tracker->setPrefix("T: ");
-      // tracker->setFocus(SET_FOCUS_DEFAULT);
+      FlexGridLayout grid(col_dsc, row_dsc, 4);
+
+      auto line = newLine(&grid);
+      line->padAll(1);
 
       if (isModuleMultimodule(moduleIdx)) {
         char label[16];
 
         // Frequency
         sprintf(label,"T: %dMHz", int(reusableBuffer.spectrumAnalyser.freq / 1000000));
-        new StaticText(this, grid.getFieldSlot(3, 0), label);
+        new StaticText(line, rect_t{0, 0, lv_pct(30), LV_GRID_CONTENT}, label);
 
         // Span
         sprintf(label,"S: %dMHz", int(reusableBuffer.spectrumAnalyser.span / 1000000));
-        new StaticText(this, grid.getFieldSlot(3, 1), label);
+        new StaticText(line, rect_t{0, 0, lv_pct(30), LV_GRID_CONTENT}, label);
       }
       else {
         // Frequency
-        auto freq = new NumberEdit(this, grid.getFieldSlot(3, 0), reusableBuffer.spectrumAnalyser.freqMin,
+        auto freq = new NumberEdit(line, rect_t{0, 0, lv_pct(30), LV_GRID_CONTENT}, reusableBuffer.spectrumAnalyser.freqMin,
                                    reusableBuffer.spectrumAnalyser.freqMax,
                                    GET_DEFAULT(reusableBuffer.spectrumAnalyser.freq / 1000000),
                                    SET_VALUE(reusableBuffer.spectrumAnalyser.freq, newValue * 1000000));
@@ -78,12 +79,21 @@ class SpectrumFooterWindow: public FormGroup
         freq->setPrefix("F: ");
 
         // Span
-        auto span = new NumberEdit(this, grid.getFieldSlot(3, 1), 1, reusableBuffer.spectrumAnalyser.spanMax,
+        auto span = new NumberEdit(line, rect_t{0, 0, lv_pct(30), LV_GRID_CONTENT}, 1, reusableBuffer.spectrumAnalyser.spanMax,
                                    GET_DEFAULT(reusableBuffer.spectrumAnalyser.span / 1000000),
                                    SET_VALUE(reusableBuffer.spectrumAnalyser.span, newValue * 1000000));
         span->setSuffix("MHz");
         span->setPrefix("S: ");
       }
+
+      // Tracker
+      auto tracker = new NumberEdit(line, rect_t{0, 0, lv_pct(30), LV_GRID_CONTENT}, (reusableBuffer.spectrumAnalyser.freq - reusableBuffer.spectrumAnalyser.span / 2) / 1000000,
+                                    (reusableBuffer.spectrumAnalyser.freq + reusableBuffer.spectrumAnalyser.span / 2) / 1000000,
+                                    GET_DEFAULT(reusableBuffer.spectrumAnalyser.track / 1000000),
+                                    SET_VALUE(reusableBuffer.spectrumAnalyser.track, newValue * 1000000));
+      tracker->setSuffix("MHz");
+      tracker->setPrefix("T: ");
+      tracker->setDefault(reusableBuffer.spectrumAnalyser.freqDefault);
     }
 };
 
@@ -211,8 +221,9 @@ RadioSpectrumAnalyser::RadioSpectrumAnalyser(uint8_t moduleIdx) :
 
 void RadioSpectrumAnalyser::buildHeader(Window * window)
 {
-  new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENU_SPECTRUM_ANALYSER, 0, COLOR_THEME_SECONDARY1);
-  }
+  header.setTitle(STR_MENUTOOLS);
+  header.setTitle2(STR_MENU_SPECTRUM_ANALYSER);
+}
 
 void RadioSpectrumAnalyser::buildBody(FormWindow * window)
 {
@@ -271,15 +282,21 @@ void RadioSpectrumAnalyser::start()
 
 void RadioSpectrumAnalyser::stop()
 {
+#if defined(PXX2)
   if (isModulePXX2(moduleIdx)) {
     moduleState[moduleIdx].readModuleInformation(
         &reusableBuffer.moduleSetup.pxx2.moduleInformation, PXX2_HW_INFO_TX_ID,
         PXX2_HW_INFO_TX_ID);
-  } else if (isModuleMultimodule(moduleIdx)) {
+  }
+#endif
+
+#if defined(MULTIMODULE)
+  if (isModuleMultimodule(moduleIdx)) {
     moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
     if (reusableBuffer.spectrumAnalyser.moduleOFF)
       setModuleType(INTERNAL_MODULE, MODULE_TYPE_NONE);
   }
+#endif
   /* wait 1s to resume normal operation before leaving */
   //  watchdogSuspend(1000);
   //  RTOS_WAIT_MS(1000);

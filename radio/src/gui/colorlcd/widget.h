@@ -106,6 +106,9 @@ class Widget : public Button
     // Called at regular time interval, even if the widget cannot be seen
     virtual void background() {}
 
+    // Update widget 'zone' data (for Lua widgets)
+    virtual void updateZoneRect(rect_t rect) {}
+
   protected:
     const WidgetFactory * factory;
     PersistentData * persistentData;

@@ -10,6 +10,9 @@ import os
 structs = []
 extrastructs = []
 
+def valid_spelling(spelling):
+    return spelling and not spelling.startswith("(")
+
 def build_struct(cursor, anonymousUnion=False):
     if not anonymousUnion:
         structs.append(cursor.spelling)
@@ -17,12 +20,12 @@ def build_struct(cursor, anonymousUnion=False):
 
     for c in cursor.get_children():
         if c.kind == clang.cindex.CursorKind.UNION_DECL:
-            if c.spelling:
+            if valid_spelling(c.spelling):
                 raise Exception("Cannot handle non anonymous unions")
 
             copied_union_member = False
             for uc in c.get_children():
-                if not uc.spelling or uc.kind == clang.cindex.CursorKind.PACKED_ATTR:
+                if not valid_spelling(uc.spelling) or uc.kind == clang.cindex.CursorKind.PACKED_ATTR:
                     # Ignore
                     pass
                 else:
@@ -64,9 +67,9 @@ def copy_decl(c, spelling):
             print("  }")
         else:
             print("  memcpy(dest->%s, src->%s, sizeof(dest->%s));" % (spelling, spelling, spelling))
-    elif len(children) == 1 and children[0].kind == clang.cindex.CursorKind.STRUCT_DECL and not children[0].spelling:
+    elif len(children) == 1 and children[0].kind == clang.cindex.CursorKind.STRUCT_DECL and not valid_spelling(children[0].spelling):
         # inline declared structs
-        if c.semantic_parent.spelling:
+        if valid_spelling(c.semantic_parent.spelling):
             spelling_func = c.semantic_parent.spelling + "_" + spelling
         else:
             spelling_func = c.semantic_parent.semantic_parent.spelling + "_" + spelling

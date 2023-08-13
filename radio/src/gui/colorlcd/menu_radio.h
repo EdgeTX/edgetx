@@ -28,6 +28,14 @@ class RadioMenu: public TabsGroup {
   public:
     RadioMenu();
     ~RadioMenu();
+
+  protected:
+    bool _radioThemesEnabled = true;
+    bool _radioGFEnabled = true;
+    bool _radioTrainerEnabled = true;
+
+    void build();
+    void checkEvents() override;
 };
 
 #endif // _MENU_RADIO_H_

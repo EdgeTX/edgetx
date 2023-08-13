@@ -110,6 +110,7 @@ public:
     if (value != FAILSAFE_CHANNEL_HOLD && value != FAILSAFE_CHANNEL_NOPULSE) {
       setSetValueHandler([=](int value) {
         g_model.failsafeChannels[channel] = calc1000toRESX(value);
+        SET_DIRTY();
       });
       lv_obj_clear_state(lvobj, LV_STATE_DISABLED);
     } else {
@@ -117,6 +118,7 @@ public:
       setSetValueHandler(nullptr);
       lv_obj_add_state(lvobj, LV_STATE_DISABLED);
     }
+    SET_DIRTY();
     NumberEdit::update();
   }
 
@@ -152,13 +154,13 @@ public:
   }
 };
 
-class ChannelFSCombo : public FormGroup
+class ChannelFSCombo : public FormWindow
 {
   ChannelFailsafeEdit* edit = nullptr;
   
 public:
   ChannelFSCombo(Window* parent, uint8_t ch, int vmin, int vmax) :
-    FormGroup(parent, rect_t{})
+    FormWindow(parent, rect_t{})
   {
     setFlexLayout(LV_FLEX_FLOW_ROW);
     lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
@@ -209,7 +211,7 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) :
 {
   header.setTitle(STR_FAILSAFESET);
 
-  auto form = new FormGroup(&body, rect_t{});
+  auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
   form->padAll(lv_dpx(8));
   form->padRow(lv_dpx(8));
@@ -237,7 +239,7 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) :
 
     // Channel name
     auto line = form->newLine(&grid);
-    const char* ch_label = getSourceString(MIXSRC_CH1 + ch);
+    const char* ch_label = getSourceString(MIXSRC_FIRST_CH + ch);
     new StaticText(line, rect_t{}, ch_label, 0, COLOR_THEME_PRIMARY1);
 
     // Channel value

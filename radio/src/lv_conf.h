@@ -379,7 +379,7 @@
 /*Demonstrate special features*/
 #define LV_FONT_MONTSERRAT_12_SUBPX      0
 #define LV_FONT_MONTSERRAT_28_COMPRESSED 0  /*bpp = 3*/
-#define LV_FONT_DEJAVU_16_PERSIAN_HEBREW 0  /*Hebrew, Arabic, Persian letters and all their forms*/
+#define LV_FONT_DEJAVU_16_PERSIAN_HEBREW TRANSLATION_IS_RTL  /*Hebrew, Arabic, Persian letters and all their forms*/
 #define LV_FONT_SIMSUN_16_CJK            0  /*1000 most common CJK radicals*/
 
 /*Pixel perfect monospace fonts*/
@@ -439,6 +439,22 @@
 
   /*Always set a default font*/
   #define LV_FONT_DEFAULT &lv_font_noto_jp_16
+
+#elif defined(TRANSLATIONS_HE)
+  #define LV_FONT_CUSTOM_DECLARE                  \
+    LV_FONT_DECLARE(lv_font_arimo_he_9)           \
+    LV_FONT_DECLARE(lv_font_arimo_he_13)          \
+    LV_FONT_DECLARE(lv_font_arimo_he_16)          \
+    LV_FONT_DECLARE(lv_font_arimo_he_17)          \
+    LV_FONT_DECLARE(lv_font_arimo_he_24)          \
+    LV_FONT_DECLARE(lv_font_arimo_he_64)          \
+    LV_FONT_DECLARE(lv_font_arimo_he_bold_16)     \
+    LV_FONT_DECLARE(lv_font_arimo_he_bold_17)     \
+    LV_FONT_DECLARE(lv_font_arimo_he_bold_32)     \
+    LV_FONT_DECLARE(lv_font_arimo_he_bold_64)
+
+  /*Always set a default font*/
+  #define LV_FONT_DEFAULT &lv_font_arimo_he_16
 
 #else
   #define LV_FONT_CUSTOM_DECLARE                \
@@ -511,7 +527,7 @@
 /*Support bidirectional texts. Allows mixing Left-to-Right and Right-to-Left texts.
  *The direction will be processed according to the Unicode Bidirectional Algorithm:
  *https://www.w3.org/International/articles/inline-bidi-markup/uba-basics*/
-#define LV_USE_BIDI 0
+#define LV_USE_BIDI TRANSLATION_IS_RTL
 #if LV_USE_BIDI
     /*Set the default direction. Supported values:
     *`LV_BASE_DIR_LTR` Left-to-Right
@@ -555,9 +571,9 @@
     #define LV_LABEL_LONG_TXT_HINT 1  /*Store some extra info in labels to speed up drawing of very long texts*/
 #endif
 
-#define LV_USE_LINE       1
+#define LV_USE_LINE       0
 
-#define LV_USE_ROLLER     1   /*Requires: lv_label*/
+#define LV_USE_ROLLER     0   /*Requires: lv_label*/
 #if LV_USE_ROLLER
     #define LV_ROLLER_INF_PAGES 7 /*Number of extra "pages" when the roller is infinite*/
 #endif
@@ -596,7 +612,7 @@
 
 #define LV_USE_CHART      0
 
-#define LV_USE_COLORWHEEL 1
+#define LV_USE_COLORWHEEL 0
 
 #define LV_USE_IMGBTN     0
 
@@ -604,7 +620,7 @@
 
 #define LV_USE_LED        0
 
-#define LV_USE_LIST       1
+#define LV_USE_LIST       0
 
 #define LV_USE_MENU       0
 
@@ -612,7 +628,7 @@
 
 #define LV_USE_MSGBOX     0
 
-#define LV_USE_SPINBOX    1
+#define LV_USE_SPINBOX    0
 
 #define LV_USE_SPINNER    0
 

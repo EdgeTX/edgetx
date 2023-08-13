@@ -300,7 +300,7 @@ void VirtualJoystickWidget::loadDefaultsForMode(const unsigned mode)
 {
   if (((mode & 1) && stickSide == 'L') || (!(mode & 1) && stickSide == 'R')) {
     setStickConstraint(HOLD_Y, true);
-    setStickY(1.0);
+    setStickY(-1.0);
     onNodeYChanged();
   }
 }
@@ -323,7 +323,7 @@ void VirtualJoystickWidget::onNodeXChanged()
 
 void VirtualJoystickWidget::onNodeYChanged()
 {
-  emit valueChange(RadioWidget::RADIO_WIDGET_STICK, m_yIndex, int(-m_stickScale * getStickY()));
+  emit valueChange(RadioWidget::RADIO_WIDGET_STICK, m_yIndex, int(m_stickScale * getStickY()));
   updateNodeValueLabels();
 }
 
@@ -564,9 +564,9 @@ void VirtualJoystickWidget::onButtonChange(bool checked)
 void VirtualJoystickWidget::updateNodeValueLabels()
 {
   if (nodeLabelX)
-    nodeLabelX->setText(QString("%1").arg(node->getX() *  100.0f, 2, 'f', 0));
+    nodeLabelX->setText(QString("%1").arg(getStickX() * 100.0f, 2, 'f', 0));
   if (nodeLabelY)
-    nodeLabelY->setText(QString("%1").arg(node->getY() * -100.0f, 2, 'f', 0));
+    nodeLabelY->setText(QString("%1").arg(getStickY() * 100.0f, 2, 'f', 0));
 }
 
 void VirtualJoystickWidget::onGsMouseEvent(QGraphicsSceneMouseEvent * event)

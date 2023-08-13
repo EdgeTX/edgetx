@@ -24,8 +24,14 @@
 #include "appdata.h"
 #include "constants.h"
 #include "simulatorinterface.h"
+#include "eeprominterface.h"
 
 #include <QFileDialog>
+#include <QStandardItemModel>
+#include <QSortFilterProxyModel>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QTimer>
 
 using namespace Simulator;
 
@@ -35,9 +41,13 @@ SimulatorStartupDialog::SimulatorStartupDialog(SimulatorOptions * options, int *
   QDialog(parent),
   ui(new Ui::SimulatorStartupDialog),
   m_options(options),
-  m_profileId(profId)
+  m_profileId(profId),
+  m_simProxy(nullptr)
+
 {
   ui->setupUi(this);
+  this->setWindowIcon(QIcon(":/icon.png"));
+  this->setWindowTitle(QString("%1 - %2").arg(CPN_STR_SIMU_NAME).arg(tr("Startup Options")));
 
   QMapIterator<int, QString> pi(g.getActiveProfiles());
   while (pi.hasNext()) {
@@ -45,7 +55,34 @@ SimulatorStartupDialog::SimulatorStartupDialog(SimulatorOptions * options, int *
     ui->radioProfile->addItem(pi.value(), pi.key());
   }
 
-  ui->radioType->addItems(SimulatorLoader::getAvailableSimulators());
+  QStandardItemModel * fwModel = new QStandardItemModel(this);
+  foreach(Firmware * firmware, Firmware::getRegisteredFirmwares()) {
+    QStandardItem * item = new QStandardItem();
+    //qDebug() << "name:" << firmware->getName() << "firmware:" << firmware->getId() << "simulator:" << firmware->getSimulatorId();
+    item->setText(firmware->getName());
+    item->setData(firmware->getId(), IMDR_Id);
+    item->setData(firmware->getSimulatorId(), IMDR_SimulatorId);
+    fwModel->appendRow(item);
+  }
+
+  QSortFilterProxyModel * fwProxy = new QSortFilterProxyModel(this);
+  fwProxy->setSourceModel(fwModel);
+  fwProxy->sort(1);
+
+  ui->cbRadioType->setModel(fwProxy);
+
+  QStandardItemModel * simModel = new QStandardItemModel(this);
+  foreach(QString sim, SimulatorLoader::getAvailableSimulators()) {
+    QStandardItem * item = new QStandardItem();
+    item->setText(sim);
+    simModel->appendRow(item);
+  }
+
+  m_simProxy = new QSortFilterProxyModel(this);
+  m_simProxy->setSourceModel(simModel);
+  m_simProxy->sort(1);
+
+  ui->cbSimulator->setModel(m_simProxy);
 
   ui->optGrp_dataSource->setId(ui->optFile, SimulatorOptions::START_WITH_FILE);
   ui->optGrp_dataSource->setId(ui->optFolder, SimulatorOptions::START_WITH_FOLDER);
@@ -58,17 +95,26 @@ SimulatorStartupDialog::SimulatorStartupDialog(SimulatorOptions * options, int *
 
   loadRadioProfile(*m_profileId);
 
-  QObject::connect(ui->radioProfile, SIGNAL(currentIndexChanged(int)), this, SLOT(onRadioProfileChanged(int)));
-  QObject::connect(ui->radioType,  SIGNAL(currentIndexChanged(int)), this, SLOT(onRadioTypeChanged(int)));
+  QObject::connect(ui->radioProfile, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &SimulatorStartupDialog::onRadioProfileChanged);
+  QObject::connect(ui->cbRadioType, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &SimulatorStartupDialog::onRadioTypeChanged);
   QObject::connect(ui->btnSelectDataFile, &QToolButton::clicked, this, &SimulatorStartupDialog::onDataFileSelect);
   QObject::connect(ui->btnSelectDataFolder, &QToolButton::clicked, this, &SimulatorStartupDialog::onDataFolderSelect);
   QObject::connect(ui->btnSelectSdPath, &QToolButton::clicked, this, &SimulatorStartupDialog::onSdPathSelect);
+
+  if (ui->radioProfile->count() < 1) {
+    // give Startup dialog time to display so this error message can overlay it
+    QTimer::singleShot(250, [=] {
+      QMessageBox::critical(this, CPN_STR_SIMU_NAME, tr("No radio profiles have been found. Use %1 to create.").arg(CPN_STR_APP_NAME));
+      ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    });
+  }
 
 }
 
 SimulatorStartupDialog::~SimulatorStartupDialog()
 {
   delete ui;
+  delete m_simProxy;
 }
 
 void SimulatorStartupDialog::changeEvent(QEvent *e)
@@ -86,12 +132,12 @@ void SimulatorStartupDialog::changeEvent(QEvent *e)
 // FIXME : need a better way to check for this
 bool SimulatorStartupDialog::usesCategorizedStorage(const QString & name)
 {
-  return name.contains(QRegExp("(x12|x10|horus|16|18|nv14)", Qt::CaseInsensitive));
+  return true;
 }
 
 bool SimulatorStartupDialog::usesCategorizedStorage()
 {
-  return usesCategorizedStorage(ui->radioType->currentText());
+  return usesCategorizedStorage(ui->cbRadioType->currentText());
 }
 
 QString SimulatorStartupDialog::findRadioId(const QString & str)
@@ -108,21 +154,21 @@ QString SimulatorStartupDialog::findRadioId(const QString & str)
 }
 
 // TODO : this could be smarter and actually look for a matching file in the folder
-QString SimulatorStartupDialog::radioEepromFileName(const QString & firmwareId, QString folder)
+QString SimulatorStartupDialog::radioEepromFileName(const QString & simulatorId, QString folder)
 {
   QString eepromFileName = "", ext = "bin";
 
   if (folder.isEmpty())
     folder = g.eepromDir();
 
-  QString radioId = findRadioId(firmwareId);
+  QString radioId = findRadioId(simulatorId);
   int pos = radioId.indexOf("-");
   if (pos > 0)
     radioId = radioId.mid(pos+1);
   if (usesCategorizedStorage(radioId))
     ext = "etx";
 
-  eepromFileName = QString("eeprom-%1.%2").arg(radioId, ext);
+  eepromFileName = QString("%1.%2").arg(radioId, ext);
   eepromFileName = QDir(folder).filePath(eepromFileName.toLatin1());
   // qDebug() << "radioId" << radioId << "eepromFileName" << eepromFileName;
 
@@ -163,18 +209,31 @@ void SimulatorStartupDialog::loadRadioProfile(int id)
 
   *m_options = g.profile[id].simulatorOptions();
 
-  tmpstr = m_options->firmwareId;
-  if (tmpstr.isEmpty() && !g.profile[id].fwType().isEmpty())
-    tmpstr = g.profile[id].fwType();
-  else if (!(tmpstr2 = SimulatorLoader::findSimulatorByFirmwareName(m_options->firmwareId)).isEmpty())
-    tmpstr = tmpstr2;
-  i = ui->radioType->findText(findRadioId(tmpstr), Qt::MatchContains);
+  if (m_options->firmwareId.isEmpty() && !g.profile[id].fwType().isEmpty())
+    m_options->firmwareId = g.profile[id].fwType();
+
+  m_options->firmwareId = findRadioId(m_options->firmwareId);
+
+  i = ui->cbRadioType->findData(m_options->firmwareId, IMDR_Id, Qt::MatchContains);
   if (i > -1)
-    ui->radioType->setCurrentIndex(i);
+    ui->cbRadioType->setCurrentIndex(i);
+
+  setGlobalFirmware(m_options->firmwareId);
+
+  //  always refresh as linked simulatorId as could change over time
+  m_options->simulatorId = getCurrentFirmware()->getSimulatorId();
+
+  m_simProxy->setFilterFixedString(m_options->simulatorId);
+
+  i = ui->cbSimulator->findText(findRadioId(m_options->simulatorId), Qt::MatchContains);
+  if (i > -1)
+    ui->cbSimulator->setCurrentIndex(i);
+
+  //qDebug() << "firmware:" << m_options->firmwareId << "simulator:" << m_options->simulatorId;
 
   tmpstr = m_options->dataFile;
   if (tmpstr.isEmpty())
-    tmpstr = radioEepromFileName(ui->radioType->currentText());
+    tmpstr = radioEepromFileName(ui->cbRadioType->currentData().toString());
   ui->dataFile->setText(tmpstr);
 
   tmpstr = m_options->dataFolder;
@@ -199,8 +258,12 @@ void SimulatorStartupDialog::loadRadioProfile(int id)
 
 void SimulatorStartupDialog::accept()
 {
+  if (ui->cbSimulator->currentText() == "")
+    return;
+
   *m_profileId = ui->radioProfile->currentData().toInt();
-  m_options->firmwareId = ui->radioType->currentText();
+  m_options->firmwareId = ui->cbRadioType->currentData().toString();
+  m_options->simulatorId = ui->cbSimulator->currentText();
   m_options->dataFile = ui->dataFile->text();
   m_options->dataFolder = ui->dataFolder->text();
   m_options->sdPath = ui->sdPath->text();
@@ -221,8 +284,21 @@ void SimulatorStartupDialog::onRadioTypeChanged(int index)
 {
   if (index < 0)
     return;
-  ui->dataFile->setText(radioEepromFileName(ui->radioType->currentText()));
+
+  QString id = ui->cbRadioType->currentData(IMDR_Id).toString();
+  ui->dataFile->setText(radioEepromFileName(id));
   updateContainerTypes();
+
+  setGlobalFirmware(id);
+
+  //  always refresh as linked simulatorId as could change over time
+  id = getCurrentFirmware()->getSimulatorId();
+
+  m_simProxy->setFilterFixedString(id);
+
+  const int i = ui->cbSimulator->findText(findRadioId(id), Qt::MatchContains);
+  if (i > -1)
+    ui->cbSimulator->setCurrentIndex(i);
 }
 
 void SimulatorStartupDialog::onDataFileSelect(bool)
@@ -256,4 +332,10 @@ void SimulatorStartupDialog::onSdPathSelect(bool)
     if (usesCategorizedStorage())
       ui->optSdPath->setChecked(true);
   }
+}
+
+void SimulatorStartupDialog::setGlobalFirmware(const QString & id)
+{
+  Firmware::setCurrentVariant(Firmware::getFirmwareForId(id));
+  //qDebug() << "current firmware:" << getCurrentFirmware()->getId();
 }

@@ -25,5 +25,10 @@ class ModelFlightModesPage: public PageTab {
   public:
     ModelFlightModesPage();
 
-    void build(FormWindow * window);
+    void checkEvents() override;
+
+    void build(FormWindow * window) override;
+
+  protected:
+    TextButton* trimCheck = nullptr;
 };

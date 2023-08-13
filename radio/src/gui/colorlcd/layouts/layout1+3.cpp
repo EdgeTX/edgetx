@@ -21,51 +21,14 @@
 
 #include "layout.h"
 #include "layout_factory_impl.h"
-#include "lz4_bitmaps.h"
 
-const uint8_t _LBM_LAYOUT_1P3[] = {
-#include "mask_layout1+3.lbm"
-};
-STATIC_LZ4_BITMAP(LBM_LAYOUT_1P3);
-
-const ZoneOption OPTIONS_LAYOUT_1P3[] =  {
-  LAYOUT_COMMON_OPTIONS,
-  LAYOUT_OPTIONS_END
+static uint8_t zmap[] = {
+    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_FULL,
+    LAYOUT_MAP_HALF, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,
+    LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,
+    LAYOUT_MAP_HALF, LAYOUT_MAP_2THIRD, LAYOUT_MAP_HALF, LAYOUT_MAP_1THIRD,
 };
 
-class Layout1P3 : public Layout
-{
- public:
-  Layout1P3(Window* parent, const LayoutFactory* factory,
-            Layout::PersistentData* persistentData) :
-      Layout(parent, factory, persistentData)
-  {
-  }
-
-  unsigned int getZonesCount() const override { return 4; }
-
-  rect_t getZone(unsigned int index) const override
-  {
-    rect_t zone = getMainZone();
-
-    zone.w /= 2;
-
-    if (index == 0) {
-      if (isMirrored()) {
-        zone.x += zone.w;
-      }
-    } else {
-      index--;
-      zone.h /= 3;
-      zone.y += zone.h * (int)index;
-      if (!isMirrored()) {
-        zone.x += zone.w;
-      }
-    }
-
-    return zone;
-  }
-};
-
-BaseLayoutFactory<Layout1P3> Layout1P3("Layout1P3", "1 + 3", LBM_LAYOUT_1P3,
-                                       OPTIONS_LAYOUT_1P3);
+BaseLayoutFactory<Layout> Layout1P3("Layout1P3", "1 + 3",
+                                    defaultZoneOptions,
+                                    4, zmap);

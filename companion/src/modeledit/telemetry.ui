@@ -264,16 +264,6 @@
         </item>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="rssiSourceLabel">
-        <property name="text">
-         <string>Source</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1" colspan="2">
-       <widget class="AutoComboBox" name="rssiSourceCB"/>
-      </item>
      </layout>
     </widget>
    </item>
@@ -963,7 +953,7 @@
      <property name="flat">
       <bool>false</bool>
      </property>
-     <layout class="QGridLayout" name="sensorsLayout" columnstretch="0">
+     <layout class="QGridLayout" name="sensorsLayout" columnstretch="0,0">
       <property name="leftMargin">
        <number>4</number>
       </property>
@@ -993,6 +983,13 @@
        <widget class="AutoCheckBox" name="ignoreSensorIds">
         <property name="text">
          <string>Disable multi sensor handling</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="AutoCheckBox" name="showInstanceIds">
+        <property name="text">
+         <string>Show Instance IDs</string>
         </property>
        </widget>
       </item>

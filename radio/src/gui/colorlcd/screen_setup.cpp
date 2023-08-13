@@ -40,7 +40,7 @@ class LayoutChoice : public Button
   typedef std::function<void(const LayoutFactory*)> LayoutFactorySetter;
 
   LayoutChoice(Window* parent, LayoutFactoryGetter getValue, LayoutFactorySetter setValue) :
-    Button(parent, rect_t{}, nullptr, 0, 0, lv_btn_create),
+    Button(parent, rect_t{}, nullptr, 0, 0, etx_button_create),
       getValue(std::move(getValue)),
       _setValue(std::move(setValue))
   {
@@ -138,7 +138,16 @@ void ScreenAddPage::build(FormWindow * window)
 
         auto tab = new ScreenSetupPage(menu, pageIndex, newIdx);
         std::string title(STR_MAIN_VIEW_X);
-        title.back() = newIdx + '1';
+        if (newIdx >= 9)
+        {
+          title[title.size() - 2] = '1';
+          title.back() = (newIdx - 9) + '0';
+        }
+        else
+        {
+          title[title.size() - 2] = newIdx + '1';
+          title.back() = ' ';
+        }
         tab->setTitle(title);
         tab->setIcon(ICON_THEME_VIEW1 + newIdx);
 
@@ -150,7 +159,7 @@ void ScreenAddPage::build(FormWindow * window)
         menu->addTab(tab);
         menu->setCurrentTab(pageIndex);
 
-        if (menu->getTabs() < MAX_CUSTOM_SCREENS) {
+        if (menu->getTabs() <= MAX_CUSTOM_SCREENS) {
           menu->addTab(new ScreenAddPage(menu, menu->getTabs()));
         }
       }
@@ -161,8 +170,13 @@ void ScreenAddPage::build(FormWindow * window)
   });
 }
 
+#if LCD_W > LCD_H
+static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_FR(2),
+                                          LV_GRID_TEMPLATE_LAST};
+#else
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                           LV_GRID_TEMPLATE_LAST};
+#endif
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
@@ -207,17 +221,18 @@ ScreenSetupPage::ScreenSetupPage(ScreenMenu* menu, unsigned pageIndex,
 {
 }
 
-void ScreenSetupPage::build(FormWindow * form)
+void ScreenSetupPage::build(FormWindow * window)
 {
+  window->padAll(4);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
+
   FlexGridLayout grid(line_col_dsc, line_row_dsc);
-  form->setFlexLayout();
 
   // Layout choice...
-  auto line = form->newLine(&grid);
+  auto line = window->newLine(&grid);
   auto label = new StaticText(line, rect_t{}, STR_LAYOUT, 0, COLOR_THEME_PRIMARY1);
 
-  auto obj = label->getLvObj();
-  lv_obj_set_style_grid_cell_y_align(obj, LV_GRID_ALIGN_START, 0);
+  lv_obj_set_style_grid_cell_y_align(label->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
 
   // Dynamic options window...
   auto idx = customScreenIndex;
@@ -237,48 +252,36 @@ void ScreenSetupPage::build(FormWindow * form)
         buildLayoutOptions();
       };
 
-  auto layoutForm = new FormGroup(line, rect_t{}, FORWARD_SCROLL | FORM_FORWARD_FOCUS);
-  layoutForm->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, 8);
+  Window* btn = new LayoutChoice(line, getFactory, setLayout);
+  auto obj = btn->getLvObj();
+  lv_obj_set_style_min_width(obj, LV_DPI_DEF / 2, LV_PART_MAIN);
+  lv_obj_set_style_min_height(obj, LV_DPI_DEF / 3, LV_PART_MAIN);
+  lv_obj_set_style_pad_all(obj, 8, LV_PART_MAIN);
+  lv_obj_set_style_radius(obj, 8, LV_PART_MAIN);
 
-  obj = layoutForm->getLvObj();
-  lv_obj_set_style_grid_cell_x_align(obj, LV_GRID_ALIGN_STRETCH, 0);
+#if LCD_H > LCD_W
+  line = window->newLine(&grid);
+  grid.nextCell();
+#endif
+  btn = new TextButton(line, rect_t{}, STR_SETUP_WIDGETS,
+                       startWidgetsSetup(menu, idx));
+  lv_obj_set_style_grid_cell_y_align(btn->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
+  lv_group_focus_obj(btn->getLvObj());
 
-  line = form->newLine();
-  layoutOptions = new FormGroup(line, rect_t{}, FORWARD_SCROLL | FORM_FORWARD_FOCUS);
+  line = window->newLine();
+  layoutOptions = new FormWindow(line, rect_t{});
   buildLayoutOptions();
 
   // Prevent removing the last page
   if (customScreens[1] != nullptr) {
-    line = form->newLine();
+    line = window->newLine();
     Window* btn = new TextButton(line, rect_t{}, STR_REMOVE_SCREEN, removeScreen(menu, idx));
-    obj = btn->getLvObj();
-    lv_obj_set_style_min_width(obj, LV_DPI_DEF / 2, LV_PART_MAIN);
-    lv_obj_set_style_min_height(obj, LV_DPI_DEF / 3, LV_PART_MAIN);
-    lv_obj_set_style_pad_all(obj, 8, LV_PART_MAIN);
-    lv_obj_set_style_radius(obj, 8, LV_PART_MAIN);
-
+    auto obj = btn->getLvObj();
     lv_obj_set_width(obj, lv_pct(50));
     lv_obj_center(obj);
   }
 
-  Window* btn = new LayoutChoice(layoutForm, getFactory, setLayout);
-  obj = btn->getLvObj();
-  lv_obj_set_style_min_width(obj, LV_DPI_DEF / 2, LV_PART_MAIN);
-  lv_obj_set_style_min_height(obj, LV_DPI_DEF / 3, LV_PART_MAIN);
-  lv_obj_set_style_pad_all(obj, 8, LV_PART_MAIN);
-  lv_obj_set_style_radius(obj, 8, LV_PART_MAIN);
-  lv_group_focus_obj(obj);
-
-  btn = new TextButton(layoutForm, rect_t{}, STR_SETUP_WIDGETS,
-                       startWidgetsSetup(menu, idx));
-  obj = btn->getLvObj();
-  lv_obj_set_style_min_width(obj, LV_DPI_DEF / 2, LV_PART_MAIN);
-  lv_obj_set_style_min_height(obj, LV_DPI_DEF / 3, LV_PART_MAIN);
-  lv_obj_set_style_pad_all(obj, 8, LV_PART_MAIN);
-  lv_obj_set_style_radius(obj, 8, LV_PART_MAIN);
-  lv_group_focus_obj(obj);
-
-  form->updateSize();
+  window->updateSize();
 }
 
 void ScreenSetupPage::clearLayoutOptions()
@@ -314,7 +317,7 @@ void ScreenSetupPage::buildLayoutOptions()
     // Option value
     switch (option->type) {
       case ZoneOption::Bool:
-        new CheckBox(line, rect_t{}, GET_SET_DEFAULT(value->boolValue));
+        new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(value->boolValue));
         break;
 
       case ZoneOption::Color:

@@ -22,7 +22,7 @@
 #include "model_mixes.h"
 #include "opentx.h"
 #include "libopenui.h"
-#include "choiceex.h"
+#include "choice.h"
 #include "bitfield.h"
 #include "model_inputs.h"
 #include "gvar_numberedit.h"
@@ -30,6 +30,10 @@
 #include "input_mix_group.h"
 #include "input_mix_button.h"
 #include "mixer_edit.h"
+#include "input_mapping.h"
+
+#include "tasks/mixer_task.h"
+#include "hal/adc_driver.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 #define PASTE_BEFORE    -2
@@ -64,42 +68,36 @@ uint8_t getMixesCount()
   return count;
 }
 
-bool reachMixesLimit()
-{
-  if (getMixesCount() >= MAX_MIXERS) {
-    POPUP_WARNING(STR_NOFREEMIXER);
-    return true;
-  }
-  return false;
-}
-
 void insertMix(uint8_t idx, uint8_t channel)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   MixData *mix = mixAddress(idx);
   memmove(mix + 1, mix, (MAX_MIXERS - (idx + 1)) * sizeof(MixData));
   memclear(mix, sizeof(MixData));
   mix->destCh = channel;
   mix->srcRaw = channel + 1;
   if (!isSourceAvailable(mix->srcRaw)) {
-    mix->srcRaw = (channel > 3 ? MIXSRC_Rud - 1 + channel
-                               : MIXSRC_Rud - 1 + channelOrder(channel));
+    if (channel >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
+      mix->srcRaw = MIXSRC_FIRST_STICK + channel;
+    } else {
+      mix->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(channel);
+    }
     while (!isSourceAvailable(mix->srcRaw)) {
       mix->srcRaw += 1;
     }
   }
   mix->weight = 100;
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
 void deleteMix(uint8_t idx)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   MixData * mix = mixAddress(idx);
   memmove(mix, mix + 1, (MAX_MIXERS - (idx + 1)) * sizeof(MixData));
   memclear(&g_model.mixData[MAX_MIXERS - 1], sizeof(MixData));
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
@@ -115,7 +113,7 @@ void insertMix(uint8_t idx)
 
 void copyMix(uint8_t source, uint8_t dest, int8_t ch)
 {
-  pauseMixerCalculations();
+  mixerTaskStop();
   MixData sourceMix;
   memcpy(&sourceMix, mixAddress(source), sizeof(MixData));
   MixData *mix = mixAddress(dest);
@@ -123,7 +121,7 @@ void copyMix(uint8_t source, uint8_t dest, int8_t ch)
   memmove(mix + 1, mix, trailingMixes * sizeof(MixData));
   memcpy(mix, &sourceMix, sizeof(MixData));
   mix->destCh = ch;
-  resumeMixerCalculations();
+  mixerTaskStart();
   storageDirty(EE_MODEL);
 }
 
@@ -162,9 +160,9 @@ bool swapMixes(uint8_t &idx, uint8_t up)
     return true;
   }
 
-  pauseMixerCalculations();
+  mixerTaskStop();
   memswap(x, y, sizeof(MixData));
-  resumeMixerCalculations();
+  mixerTaskStart();
 
   idx = tgt_idx;
   return true;
@@ -312,19 +310,28 @@ ModelMixesPage::ModelMixesPage() :
   setIcon(ICON_MODEL_MIXER);
 }
 
+bool ModelMixesPage::reachMixesLimit()
+{
+  if (getMixesCount() >= MAX_MIXERS) {
+    new MessageDialog(form, STR_WARNING, STR_NOFREEMIXER);
+    return true;
+  }
+  return false;
+}
+
 InputMixGroup* ModelMixesPage::getGroupByIndex(uint8_t index)
 {
   MixData* mix = mixAddress(index);
   if (is_memclear(mix, sizeof(MixData))) return nullptr;
 
   int ch = mix->destCh;
-  return getGroupBySrc(MIXSRC_CH1 + ch);
+  return getGroupBySrc(MIXSRC_FIRST_CH + ch);
 }
 
-InputMixGroup* ModelMixesPage::createGroup(FormGroup* form, mixsrc_t src)
+InputMixGroup* ModelMixesPage::createGroup(FormWindow* form, mixsrc_t src)
 {
   auto group = new InputMixGroup(form, src);
-  if (showMonitors) group->enableMixerMonitor(src - MIXSRC_CH1);
+  if (showMonitors) group->enableMixerMonitor(src - MIXSRC_FIRST_CH);
   return group;
 }
 
@@ -336,7 +343,7 @@ InputMixButton* ModelMixesPage::createLineButton(InputMixGroup *group, uint8_t i
   lines.emplace_back(button);
   group->addLine(button);
 
-  uint8_t ch = group->getMixSrc() - MIXSRC_CH1;
+  uint8_t ch = group->getMixSrc() - MIXSRC_FIRST_CH;
   button->setPressHandler([=]() -> uint8_t {
     Menu *menu = new Menu(form);
     menu->addLine(STR_EDIT, [=]() {
@@ -392,7 +399,7 @@ void ModelMixesPage::addLineButton(uint8_t index)
   if (is_memclear(mix, sizeof(MixData))) return;
   int channel = mix->destCh;
 
-  addLineButton(MIXSRC_CH1 + channel, index);
+  addLineButton(MIXSRC_FIRST_CH + channel, index);
 }
 
 void ModelMixesPage::newMix()
@@ -414,7 +421,7 @@ void ModelMixesPage::newMix()
         skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
       }
     } else {
-      std::string ch_name(getSourceString(MIXSRC_CH1 + ch));
+      std::string ch_name(getSourceString(MIXSRC_FIRST_CH + ch));
       menu->addLineBuffered(ch_name.c_str(), [=]() { insertMix(ch, index); });
     }
   }
@@ -445,7 +452,7 @@ void ModelMixesPage::insertMix(uint8_t channel, uint8_t index)
   _copyMode = 0;
 
   ::insertMix(index, channel);
-  addLineButton(MIXSRC_CH1 + channel, index);
+  addLineButton(MIXSRC_FIRST_CH + channel, index);
   editMix(channel, index);
 }
 
@@ -510,17 +517,13 @@ void ModelMixesPage::pasteMixAfter(uint8_t dst_idx)
 void ModelMixesPage::build(FormWindow * window)
 {
   scroll_win = window->getParent();
-  window->setFlexLayout();
-  window->padRow(lv_dpx(8));
 
-  form = new FormGroup(window, rect_t{});
-  form->setFlexLayout();
-  form->padRow(lv_dpx(4));
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
-  auto form_obj = form->getLvObj();
-  lv_obj_set_width(form_obj, lv_pct(100));
+  form = new FormWindow(window, rect_t{});
+  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
-  auto box = new FormGroup(window, rect_t{});
+  auto box = new FormWindow(window, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
   box->padLeft(lv_dpx(8));
 
@@ -529,7 +532,7 @@ void ModelMixesPage::build(FormWindow * window)
   lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
 
   new StaticText(box, rect_t{}, STR_SHOW_MIXER_MONITORS, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(
+  new ToggleSwitch(
       box, rect_t{}, [=]() { return showMonitors; },
       [=](uint8_t val) { enableMonitors(val); });
 
@@ -544,6 +547,7 @@ void ModelMixesPage::build(FormWindow * window)
   groups.clear();
   lines.clear();
 
+  bool focusSet = false;
   uint8_t index = 0;
   MixData* line = g_model.mixData;
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
@@ -554,11 +558,15 @@ void ModelMixesPage::build(FormWindow * window)
     if (line->destCh == ch && !skip_mix) {
 
       // one group for the complete mixer channel
-      auto group = createGroup(form, MIXSRC_CH1 + ch);
+      auto group = createGroup(form, MIXSRC_FIRST_CH + ch);
       groups.emplace_back(group);
       while (index < MAX_MIXERS && (line->destCh == ch) && !skip_mix) {
         // one button per input line
-        createLineButton(group, index);
+        auto btn = createLineButton(group, index);
+        if (!focusSet) {
+          focusSet = true;
+          lv_group_focus_obj(btn->getLvObj());
+        }
         ++index;
         ++line;
         skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
@@ -576,7 +584,7 @@ void ModelMixesPage::enableMonitors(bool enabled)
   auto h = lv_obj_get_height(form_obj);
   for(auto* group : groups) {
     if (enabled) {
-      group->enableMixerMonitor(group->getMixSrc() - MIXSRC_CH1);
+      group->enableMixerMonitor(group->getMixSrc() - MIXSRC_FIRST_CH);
     } else {
       group->disableMixerMonitor();
     }

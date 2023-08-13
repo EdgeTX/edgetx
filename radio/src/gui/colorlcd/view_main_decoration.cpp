@@ -30,6 +30,7 @@
 #include "layouts/trims.h"
 
 #include "board.h"
+#include "hal/adc_driver.h"
 
 static Window* create_layout_box(Window* parent, lv_align_t align,
                                  lv_flex_flow_t flow)
@@ -60,8 +61,10 @@ ViewMainDecoration::ViewMainDecoration(Window* parent) :
   w_ml = create_layout_box(parent, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_ROW_REVERSE);
   w_mr = create_layout_box(parent, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_ROW);
   w_bl = create_layout_box(parent, LV_ALIGN_BOTTOM_LEFT, LV_FLEX_FLOW_COLUMN);
-  w_bc = create_layout_box(parent, LV_ALIGN_BOTTOM_MID, LV_FLEX_FLOW_COLUMN);
   w_br = create_layout_box(parent, LV_ALIGN_BOTTOM_RIGHT, LV_FLEX_FLOW_COLUMN);
+
+  w_bc = create_layout_box(parent, LV_ALIGN_BOTTOM_MID, LV_FLEX_FLOW_COLUMN);
+  lv_obj_set_flex_align(w_bc->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
   createTrims(w_ml, w_mr, w_bl, w_br);
   createFlightMode(w_bc);
@@ -96,6 +99,16 @@ void ViewMainDecoration::setFlightModeVisible(bool visible)
   }
 }
 
+void ViewMainDecoration::updateFromTheme()
+{
+  // Hack to fix flight mode color on main view
+  // Required because theme is loaded after the main view has been created
+  if (flightMode) {
+    lv_obj_set_style_text_color(flightMode->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY1), 0);
+    flightMode->invalidate();
+  }
+}
+
 rect_t ViewMainDecoration::getMainZone() const
 {
   // update layout first
@@ -118,85 +131,54 @@ rect_t ViewMainDecoration::getMainZone() const
 
 void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br)
 {
-  Window* sl = new MainViewHorizontalSlider(bl, CALIBRATED_POT1);
-  sl->updateSize();
-  sliders[SLIDERS_POT1] = sl;
+  sliders[0] = new MainViewHorizontalSlider(bl, 0);
 
-#if !defined(HARDWARE_POT3)
-  bc = br;
-#endif
+  if (!IS_POT_AVAILABLE(2))
+    bc = br;
   
-  if (IS_POT_MULTIPOS(POT2)) {
-    sl = new MainView6POS(bc, 1);
-    sl->updateSize();
-    sliders[SLIDERS_POT2] = sl;
+  if (IS_POT_MULTIPOS(1))
+    sliders[1] = new MainView6POS(bc, 1);
+  else if (IS_POT_AVAILABLE(1))
+    sliders[1] = new MainViewHorizontalSlider(bc, 1);
+
+  if (IS_POT_AVAILABLE(2))
+    sliders[2] = new MainViewHorizontalSlider(br, 2);
+
+  // TODO: check how many pots are configured instead
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  if (max_pots > 3) {
+    // create containers for the sliders, so that they are at the borders of the display
+    // on top of each other, when there are two sliders to display per side
+    auto leftPots = create_layout_box(ml, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_COLUMN);
+    leftPots->setHeight(VERTICAL_SLIDERS_HEIGHT);
+
+    auto rightPots = create_layout_box(mr, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_COLUMN);
+    rightPots->setHeight(VERTICAL_SLIDERS_HEIGHT);
+
+    coord_t lsh = (IS_POT_AVAILABLE(5)) ? VERTICAL_SLIDERS_HEIGHT / 2 : VERTICAL_SLIDERS_HEIGHT;
+    coord_t rsh = (IS_POT_AVAILABLE(6)) ? VERTICAL_SLIDERS_HEIGHT / 2 : VERTICAL_SLIDERS_HEIGHT;
+
+    if (IS_POT_AVAILABLE(3))
+      sliders[3] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, TRIM_SQUARE_SIZE, lsh}, 3);
+
+    if (IS_POT_AVAILABLE(4))
+      sliders[4] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, TRIM_SQUARE_SIZE, rsh}, 4);
+
+    if (IS_POT_AVAILABLE(5))
+      sliders[5] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, TRIM_SQUARE_SIZE, lsh}, 5);
+
+    if (IS_POT_AVAILABLE(6))
+      sliders[6] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, TRIM_SQUARE_SIZE, rsh}, 6);
   }
-  else if (IS_POT(POT2)) {
-    sl = new MainViewHorizontalSlider(bc, CALIBRATED_POT2);
-    sl->updateSize();
-    sliders[SLIDERS_POT2] = sl;
-  }
-
-#if defined(HARDWARE_POT3)
-  sl = new MainViewHorizontalSlider(br, CALIBRATED_POT3);
-  sl->updateSize();
-  sliders[SLIDERS_POT3] = sl;
-#endif
-
-#if NUM_SLIDERS > 0
-  // create containers for the sliders, so that they are at the borders of the display
-  // on top of each other, when there are two sliders to display per side
-  auto leftPots = create_layout_box(ml, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_COLUMN);
-  leftPots->setHeight(VERTICAL_SLIDERS_HEIGHT);
-
-  auto rightPots = create_layout_box(mr, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_COLUMN);
-  rightPots->setHeight(VERTICAL_SLIDERS_HEIGHT);
-
-  auto vertSlLeft1 = new MainViewVerticalSlider(leftPots, CALIBRATED_SLIDER_REAR_LEFT);
-  sliders[SLIDERS_REAR_LEFT] = vertSlLeft1;
-
-  auto vertSlRight1 = new MainViewVerticalSlider(rightPots, CALIBRATED_SLIDER_REAR_RIGHT);
-  sliders[SLIDERS_REAR_RIGHT] = vertSlRight1;
-
-#if defined(HARDWARE_EXT1) || defined(PCBX12S)
-  if (IS_POT_SLIDER_AVAILABLE(EXT1)) {
-    sl = new MainViewVerticalSlider(leftPots, CALIBRATED_POT_EXT1);
-    sl->updateSize();
-    sliders[SLIDERS_EXT1] = sl;
-  }
-#endif
-
-#if defined(HARDWARE_EXT2) || defined(PCBX12S)
-  if (IS_POT_SLIDER_AVAILABLE(EXT2)) {
-    sl = new MainViewVerticalSlider(rightPots, CALIBRATED_POT_EXT2);
-    sl->updateSize();
-    sliders[SLIDERS_EXT2] = sl;
-  }
-#endif
-  vertSlLeft1->updateSize();
-  vertSlRight1->updateSize();
-#endif // NUM_SLIDERS > 0
 }
 
 void ViewMainDecoration::createTrims(Window* ml, Window* mr, Window* bl, Window* br)
 {
   // Trim order TRIM_LH, TRIM_LV, TRIM_RV, TRIM_RH
-
-  Window* tr = new MainViewHorizontalTrim(bl, TRIMS_LH);
-  tr->updateSize();
-  trims[TRIMS_LH] = tr;
-
-  tr = new MainViewHorizontalTrim(br, TRIMS_RH);
-  tr->updateSize();
-  trims[TRIMS_RH] = tr;
-
-  tr = new MainViewVerticalTrim(ml, TRIMS_LV);
-  tr->updateSize();
-  trims[TRIMS_LV] = tr;
-  
-  tr = new MainViewVerticalTrim(mr, TRIMS_RV);
-  tr->updateSize();
-  trims[TRIMS_RV] = tr;
+  trims[TRIMS_LH] = new MainViewHorizontalTrim(bl, TRIMS_LH);
+  trims[TRIMS_RH] = new MainViewHorizontalTrim(br, TRIMS_RH);
+  trims[TRIMS_LV] = new MainViewVerticalTrim(ml, TRIMS_LV);
+  trims[TRIMS_RV] = new MainViewVerticalTrim(mr, TRIMS_RV);
 }
 
 void ViewMainDecoration::createFlightMode(Window* bc)

@@ -22,27 +22,14 @@
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
 #include "stm32_i2c_driver.h"
+#include "stm32_gpio_driver.h"
+
 #include "hal.h"
-
 #include "hal/eeprom_driver.h"
-
-static int enable_wp_clock(GPIO_TypeDef *GPIOx)
-{
-  if (GPIOx == GPIOB)
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-  else if (GPIOx == GPIOD)
-    __HAL_RCC_GPIOD_CLK_ENABLE();
-  else if (GPIOx == GPIOF)
-    __HAL_RCC_GPIOF_CLK_ENABLE();
-  else
-    return -1;
-
-  return 0;
-}
 
 static void init_wp_pin()
 {
-  enable_wp_clock(EEPROM_WP_GPIO);
+  stm32_gpio_enable_clock(EEPROM_WP_GPIO);
   
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);

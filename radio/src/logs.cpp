@@ -22,6 +22,11 @@
 #include "opentx.h"
 #include "ff.h"
 
+#include "analogs.h"
+#include "switches.h"
+#include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
+
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #endif
@@ -34,13 +39,15 @@ static tmr10ms_t lastLogTime = 0;
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/timers.h>
 
+#include "tasks/mixer_task.h"
+
 static TimerHandle_t loggingTimer = nullptr;
 static StaticTimer_t loggingTimerBuffer;
 
 static void loggingTimerCb(TimerHandle_t xTimer)
 {
   (void)xTimer;
-  if (!s_pulses_paused) {
+  if (mixerTaskRunning()) {
     DEBUG_TIMER_START(debugTimerLoggingWakeup);
     logsWrite();
     DEBUG_TIMER_STOP(debugTimerLoggingWakeup);
@@ -95,15 +102,10 @@ void initLoggingTimer() {                                       // called cyclic
 
 void writeHeader();
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
-  int getSwitchState(uint8_t swtch) {
-    int value = getValue(MIXSRC_FIRST_SWITCH + swtch);
-    return (value == 0) ? 0 : (value < 0) ? -1 : +1;
-  }
-#else
-  #define GET_2POS_STATE(sw) (switchState(SW_ ## sw) ? -1 : 1)
-  #define GET_3POS_STATE(sw) (switchState(SW_ ## sw ## 0) ? -1 : (switchState(SW_ ## sw ## 2) ? 1 : 0))
-#endif
+int getSwitchState(uint8_t swtch) {
+  int value = getValue(MIXSRC_FIRST_SWITCH + swtch);
+  return (value == 0) ? 0 : (value < 0) ? -1 : +1;
+}
 
 void logsInit()
 {
@@ -120,9 +122,6 @@ const char * logsOpen()
 
   if (!sdMounted())
     return STR_NO_SDCARD;
-
-  if (sdGetFreeSectors() == 0)
-    return STR_SDCARD_FULL;
 
   // check and create folder here
   strcpy(filename, STR_LOGS_PATH);
@@ -182,16 +181,14 @@ const char * logsOpen()
 
 void logsClose()
 {
-  if (sdMounted()) {
+  if (g_oLogFile.obj.fs && sdMounted()) {
     if (f_close(&g_oLogFile) != FR_OK) {
       // close failed, forget file
       g_oLogFile.obj.fs = 0;
     }
     lastLogTime = 0;
   }
-  #if !defined(SIMU)
-  loggingTimerStop();
-  #endif
+
 }
 
 void writeHeader()
@@ -223,23 +220,26 @@ void writeHeader()
     }
   }
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
-  for (uint8_t i=1; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS+1; i++) {
-    const char * p = STR_VSRCRAW[i] + 2;
-    size_t len = strlen(p);
-    for (uint8_t j=0; j<len; ++j) {
-      if (!*p) break;
-      f_putc(*p, &g_oLogFile);
-      ++p;
-    }
+  auto n_inputs = adcGetMaxInputs(ADC_INPUT_MAIN);
+  for (uint8_t i = 0; i < n_inputs; i++) {
+    const char* p = analogGetCanonicalName(ADC_INPUT_MAIN, i);
+    while (*p) { f_putc(*(p++), &g_oLogFile); }
     f_putc(',', &g_oLogFile);
   }
 
-  for (uint8_t i=0; i<NUM_SWITCHES; i++) {
+  n_inputs = adcGetMaxInputs(ADC_INPUT_POT);
+  for (uint8_t i = 0; i < n_inputs; i++) {
+    if (!IS_POT_AVAILABLE(i)) continue;
+    const char* p = analogGetCanonicalName(ADC_INPUT_POT, i);
+    while (*p) { f_putc(*(p++), &g_oLogFile); }
+    f_putc(',', &g_oLogFile);
+  }
+
+  for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
     if (SWITCH_EXISTS(i)) {
       char s[LEN_SWITCH_NAME + 2];
       char * temp;
-      temp = getSwitchName(s, SWSRC_FIRST_SWITCH + i * 3);
+      temp = getSwitchName(s, i);
       *temp++ = ',';
       *temp = '\0';
       f_puts(s, &g_oLogFile);
@@ -250,9 +250,6 @@ void writeHeader()
   for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
     f_printf(&g_oLogFile, "CH%d(us),", channel+1);
   }
-#else
-  f_puts("Rud,Ele,Thr,Ail,P1,P2,P3,THR,RUD,ELE,3POS,AIL,GEA,TRN,", &g_oLogFile);
-#endif
 
   f_puts("TxBat(V)\n", &g_oLogFile);
 }
@@ -283,16 +280,30 @@ void logsWrite()
     {
     #endif
 
+      bool sdCardFull = IS_SDCARD_FULL();
+
+      // check if file needs to be opened
       if (!g_oLogFile.obj.fs) {
-        const char * result = logsOpen();
+        const char *result = sdCardFull ? STR_SDCARD_FULL_EXT : logsOpen();
+
+        // SD card is full or file open failed
         if (result) {
           if (result != error_displayed) {
             error_displayed = result;
-            POPUP_WARNING(result);
+            POPUP_WARNING_ON_UI_TASK(result, nullptr, false);
           }
           return;
         }
       }
+
+      // check at every write cycle
+      if (sdCardFull) {
+        logsClose();  // timer is still running and code above will try to
+                      // open the file again but will fail with error
+                      // which will trigger the warning popup
+        return;
+      }
+
 
 #if defined(RTCLOCK)
       {
@@ -349,46 +360,49 @@ void logsWrite()
         }
       }
 
-      for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
-        f_printf(&g_oLogFile, "%d,", calibratedAnalogs[i]);
+      auto n_inputs = adcGetMaxInputs(ADC_INPUT_MAIN);
+      auto offset = adcGetInputOffset(ADC_INPUT_MAIN);
+
+      for (uint8_t i = 0; i < n_inputs; i++) {
+        f_printf(&g_oLogFile, "%d,", calibratedAnalogs[inputMappingConvertMode(offset + i)]);
       }
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
-      for (uint8_t i=0; i<NUM_SWITCHES; i++) {
+      n_inputs = adcGetMaxInputs(ADC_INPUT_POT);
+      offset = adcGetInputOffset(ADC_INPUT_POT);
+
+      for (uint8_t i = 0; i < n_inputs; i++) {
+        if (IS_POT_AVAILABLE(i))
+          f_printf(&g_oLogFile, "%d,", calibratedAnalogs[offset + i]);
+      }
+
+      for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
         if (SWITCH_EXISTS(i)) {
           f_printf(&g_oLogFile, "%d,", getSwitchState(i));
         }
       }
-      f_printf(&g_oLogFile, "0x%08X%08X,", getLogicalSwitchesStates(32), getLogicalSwitchesStates(0));
+      f_printf(&g_oLogFile, "0x%08X%08X,", getLogicalSwitchesStates(32),
+               getLogicalSwitchesStates(0));
 
       for (uint8_t channel = 0; channel < MAX_OUTPUT_CHANNELS; channel++) {
         f_printf(&g_oLogFile, "%d,", PPM_CENTER+channelOutputs[channel]/2); // in us
       }
-#else
-      f_printf(&g_oLogFile, "%d,%d,%d,%d,%d,%d,%d,",
-          GET_2POS_STATE(THR),
-          GET_2POS_STATE(RUD),
-          GET_2POS_STATE(ELE),
-          GET_3POS_STATE(ID),
-          GET_2POS_STATE(AIL),
-          GET_2POS_STATE(GEA),
-          GET_2POS_STATE(TRN));
-#endif
 
       div_t qr = div(g_vbat100mV, 10);
       int result = f_printf(&g_oLogFile, "%d.%d\n", abs(qr.quot), abs(qr.rem));
 
       if (result<0 && !error_displayed) {
         error_displayed = STR_SDCARD_ERROR;
-        POPUP_WARNING(STR_SDCARD_ERROR);
+        POPUP_WARNING_ON_UI_TASK(STR_SDCARD_ERROR, nullptr, false);
         logsClose();
       }
     }
   }
   else {
     error_displayed = nullptr;
-    if (g_oLogFile.obj.fs) {
-      logsClose();
-    }
+    logsClose();
+    
+    #if !defined(SIMU)
+    loggingTimerStop();
+    #endif
   }
 }

@@ -296,8 +296,14 @@ void usbSerialSetBaudRateCb(void*, void (*cb)(uint32_t))
 //   ctrlLineStateCb = cb;
 // }
 
+static void* usbSerialInit(void*, const etx_serial_init*)
+{
+  // always succeeds
+  return (void*)1;
+}
+
 static const etx_serial_driver_t usbSerialDriver = {
-  .init = nullptr,
+  .init = usbSerialInit,
   .deinit = nullptr,
   .sendByte = usbSerialPutc,
   .sendBuffer = nullptr,
@@ -312,6 +318,7 @@ static const etx_serial_driver_t usbSerialDriver = {
 const etx_serial_port_t UsbSerialPort = {
   "USB-VCP",
   &usbSerialDriver,
+  nullptr,
   nullptr,
 };
 

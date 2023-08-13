@@ -24,176 +24,210 @@
 #include "radio_setup.h"
 #include "opentx.h"
 #include "libopenui.h"
+#include "input_mapping.h"
+
+#include "tasks/mixer_task.h"
+#include "hal/adc_driver.h"
 
 #define SET_DIRTY()     storageDirty(EE_GENERAL)
 
-static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(19), LV_GRID_FR(21),
                                      LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t col_three_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_FR(1),
-                                     LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t col_four_dsc[] = {LV_GRID_FR(3), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t col_four_dsc[] = {LV_GRID_FR(19), LV_GRID_FR(7), LV_GRID_FR(7), LV_GRID_FR(7),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
-class DateTimeWindow : public FormGroup {
+class DateTimeWindow : public FormWindow {
   public:
     DateTimeWindow(Window* parent, const rect_t & rect) :
-      FormGroup(parent, rect)
+      FormWindow(parent, rect)
     {
       build();
     }
 
     void checkEvents() override
     {
-      FormGroup::checkEvents();
+      FormWindow::checkEvents();
 
-      if (get_tmr10ms() - lastRefresh > 100) {
-        seconds->setValue(seconds->getValue());
+      if (seconds && (get_tmr10ms() - lastRefresh >= 10)) {
         lastRefresh = get_tmr10ms();
+
+        gettime(&m_tm);
+        if (m_tm.tm_year != m_last_tm.tm_year) {
+          m_last_tm.tm_year = m_tm.tm_year;
+          year->update();
+        }
+        if (m_tm.tm_mon != m_last_tm.tm_mon) {
+          m_last_tm.tm_mon = m_tm.tm_mon;
+          month->update();
+        }
+        if (m_tm.tm_mday != m_last_tm.tm_mday) {
+          m_last_tm.tm_mday = m_tm.tm_mday;
+          day->update();
+        }
+        if (m_tm.tm_hour != m_last_tm.tm_hour) {
+          m_last_tm.tm_hour = m_tm.tm_hour;
+          hour->update();
+        }
+        if (m_tm.tm_min != m_last_tm.tm_min) {
+          m_last_tm.tm_min = m_tm.tm_min;
+          minutes->update();
+        }
+        if (m_tm.tm_sec != m_last_tm.tm_sec) {
+          m_last_tm.tm_sec = m_tm.tm_sec;
+          seconds->update();
+        }
       }
     }
 
   protected:
+    struct gtm m_tm;
+    struct gtm m_last_tm;
     tmr10ms_t lastRefresh = 0;
+    NumberEdit* year = nullptr;
+    NumberEdit* month = nullptr;
+    NumberEdit* day = nullptr;
+    NumberEdit* hour = nullptr;
+    NumberEdit* minutes = nullptr;
     NumberEdit* seconds = nullptr;
+
+    int8_t daysInMonth()
+    {
+      static const int8_t dmon[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+      int16_t year = TM_YEAR_BASE + m_tm.tm_year;
+      int8_t days_in_month = dmon[m_tm.tm_mon];
+      if ((m_tm.tm_mon == 1) && (((year % 4 == 0) && (year % 100 != 0)) || (year%400==0)))
+        days_in_month += 1;
+      return days_in_month;
+    }
+
+    void setDaysInMonth()
+    {
+        if (day) {
+            day->setMax(daysInMonth());
+            if (m_tm.tm_mday > day->getMax()) {
+                // Update stored day value if > actual days in month
+                // Will be written to RTC via SET_LOAD_DATETIME call after returning
+                // UI will update on next iteration of checkEvents
+                m_tm.tm_mday = day->getMax();
+            }
+        }
+    }
 
     void build()
     {
       setFlexLayout();
       FlexGridLayout grid(col_four_dsc, row_dsc, 2);
 
-      auto line = newLine(&grid);
+      gettime(&m_tm);
+      m_last_tm = m_tm;
+
       // Date
+      auto line = newLine(&grid);
       new StaticText(line, rect_t{}, STR_DATE, 0, COLOR_THEME_PRIMARY1);
-      auto year = new NumberEdit(line, rect_t{}, 2018, 2100,
+      year = new NumberEdit(line, rect_t{}, 2018, 2100,
                      [=]() -> int32_t {
-                       struct gtm t;
-                       gettime(&t);
-                       return TM_YEAR_BASE + t.tm_year;
+                       return TM_YEAR_BASE + m_tm.tm_year;
                      },
                      [=](int32_t newValue) {
-                       struct gtm t;
-                       gettime(&t);
-                       t.tm_year = newValue - TM_YEAR_BASE;
-                       SET_LOAD_DATETIME(&t);
+                       m_last_tm.tm_year = m_tm.tm_year = newValue - TM_YEAR_BASE;
+                       setDaysInMonth();
+                       SET_LOAD_DATETIME(&m_tm);
                      });
       lv_obj_set_style_grid_cell_x_align(year->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
-      auto month = new NumberEdit(line, rect_t{}, 1, 12,
-                                  [=]() -> int32_t {
-                                    struct gtm t;
-                                    gettime(&t);
-                                    return 1 + t.tm_mon;
-                                  },
-                                  [=](int32_t newValue) {
-                                    struct gtm t;
-                                    gettime(&t);
-                                    t.tm_mon = newValue - 1;
-                                    SET_LOAD_DATETIME(&t);
-                                  });
+
+      month = new NumberEdit(line, rect_t{}, 1, 12,
+                     [=]() -> int32_t {
+                       return 1 + m_tm.tm_mon;
+                     },
+                     [=](int32_t newValue) {
+                       m_last_tm.tm_mon = m_tm.tm_mon = newValue - 1;
+                       setDaysInMonth();
+                       SET_LOAD_DATETIME(&m_tm);
+                     });
       month->setDisplayHandler([](int32_t value) {
         return formatNumberAsString(value, LEADING0);
       });
       lv_obj_set_style_grid_cell_x_align(month->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
-      /* TODO dynamic max instead of 31 ...
-      int16_t year = TM_YEAR_BASE + t.tm_year;
-      int8_t dlim = (((((year%4==0) && (year%100!=0)) || (year%400==0)) && (t.tm_mon==1)) ? 1 : 0);
-      static const pm_uint8_t dmon[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-      dlim += *(&dmon[t.tm_mon]);*/
-      int8_t dlim = 31;
-      auto day = new NumberEdit(line, rect_t{}, 1, dlim,
-                                [=]() -> int32_t {
-                                  struct gtm t;
-                                  gettime(&t);
-                                  return t.tm_mday;
-                                },
-                                [=](int32_t newValue) {
-                                  struct gtm t;
-                                  gettime(&t);
-                                  t.tm_mday = newValue;
-                                  SET_LOAD_DATETIME(&t);
-                                });
+      day = new NumberEdit(line, rect_t{}, 1, daysInMonth(),
+                     [=]() -> int32_t {
+                       return m_tm.tm_mday;
+                     },
+                     [=](int32_t newValue) {
+                       m_last_tm.tm_mday = m_tm.tm_mday = newValue;
+                       SET_LOAD_DATETIME(&m_tm);
+                     });
       day->setDisplayHandler([](int32_t value) {
         return formatNumberAsString(value, LEADING0, 2);
       });
       lv_obj_set_style_grid_cell_x_align(day->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
-      line = newLine(&grid);
 
       // Time
+      line = newLine(&grid);
       new StaticText(line, rect_t{}, STR_TIME, 0, COLOR_THEME_PRIMARY1);
-      auto hour = new NumberEdit(line, rect_t{}, 0, 24,
-                                 [=]() -> int32_t {
-                                   struct gtm t;
-                                   gettime(&t);
-                                   return t.tm_hour;
-                                 },
-                                 [=](int32_t newValue) {
-                                   struct gtm t;
-                                   gettime(&t);
-                                   t.tm_hour = newValue;
-                                   SET_LOAD_DATETIME(&t);
-                                 });
+      hour = new NumberEdit(line, rect_t{}, 0, 23,
+                     [=]() -> int32_t {
+                       return m_tm.tm_hour;
+                     },
+                     [=](int32_t newValue) {
+                       m_last_tm.tm_hour = m_tm.tm_hour = newValue;
+                       SET_LOAD_DATETIME(&m_tm);
+                     });
       hour->setDisplayHandler([](int32_t value) {
-        static char s[50];
-        BitmapBuffer::formatNumberAsString(s, 49, value, LEADING0, 2);
-        return std::string(s);
-        // dc->drawNumber(FIELD_PADDING_LEFT, FIELD_PADDING_TOP, value, flags | LEADING0, 2);
+        return formatNumberAsString(value, LEADING0, 2);
       });
       lv_obj_set_style_grid_cell_x_align(hour->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
-      auto minutes = new NumberEdit(line, rect_t{}, 0, 59,
-                                    [=]() -> int32_t {
-                                      struct gtm t;
-                                      gettime(&t);
-                                      return t.tm_min;
-                                    },
-                                    [=](int32_t newValue) {
-                                      struct gtm t;
-                                      gettime(&t);
-                                      t.tm_min = newValue;
-                                      SET_LOAD_DATETIME(&t);
-                                    });
+      minutes = new NumberEdit(line, rect_t{}, 0, 59,
+                     [=]() -> int32_t {
+                       return m_tm.tm_min;
+                     },
+                     [=](int32_t newValue) {
+                       m_last_tm.tm_min = m_tm.tm_min = newValue;
+                       SET_LOAD_DATETIME(&m_tm);
+                     });
       minutes->setDisplayHandler([](int32_t value) {
         return formatNumberAsString(value, LEADING0, 2);
       });
       lv_obj_set_style_grid_cell_x_align(minutes->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
       seconds = new NumberEdit(line, rect_t{}, 0, 59,
-                                    [=]() -> int32_t {
-                                      struct gtm t;
-                                      gettime(&t);
-                                      return t.tm_sec;
-                                    },
-                                    [=](int32_t newValue) {
-                                      struct gtm t;
-                                      gettime(&t);
-                                      t.tm_sec = newValue;
-                                      SET_LOAD_DATETIME(&t);
-                                    });
+                     [=]() -> int32_t {
+                       return m_tm.tm_sec;
+                     },
+                     [=](int32_t newValue) {
+                       m_last_tm.tm_sec = m_tm.tm_sec = newValue;
+                       SET_LOAD_DATETIME(&m_tm);
+                     });
       seconds->setDisplayHandler([](int value) {
         return formatNumberAsString(value, LEADING0, 2);
       });
       lv_obj_set_style_grid_cell_x_align(seconds->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
+
+      // Spacer
       line = newLine(&grid);
     }
 };
 
-class WindowButtonGroup : public FormGroup
+class WindowButtonGroup : public FormWindow
 {
  public:
   typedef std::function<void()>           PageFct;
   typedef std::pair<const char*, PageFct> PageDef;
   typedef std::list<PageDef>              PageDefs;
-  
+
   WindowButtonGroup(
       Window* parent, const rect_t& rect, PageDefs pages) :
-      FormGroup(parent, rect),
+      FormWindow(parent, rect),
       pages(pages)
   {
+    padBottom(4);
     setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
     lv_obj_set_style_flex_main_place(lvobj, LV_FLEX_ALIGN_SPACE_EVENLY, 0);
     padRow(lv_dpx(8));
+    padBottom(4);
 
     for (auto& entry : pages) {
       auto btn = new TextButton(this, rect_t{}, entry.first, [&, entry]() {
@@ -208,48 +242,52 @@ class WindowButtonGroup : public FormGroup
   PageDefs pages;
 };
 
-class SoundPage : public Page {
+class SubPage : public Page
+{
   public:
-  SoundPage() :
-      Page(ICON_RADIO_SETUP)
+    SubPage(MenuIcons icon, const char* title, bool isFlex = true) : Page(icon)
     {
-      build();
+      header.setTitle(STR_RADIO_SETUP);
+      header.setTitle2(title);
+
+      if (isFlex)
+        body.setFlexLayout();
+
+      body.padAll(8);
     }
+};
 
-  protected:
-
-    void build()
+class SoundPage : public SubPage {
+  public:
+    SoundPage() : SubPage(ICON_RADIO_SETUP, STR_SOUND_LABEL, false)
     {
-      new StaticText(&header,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-                      STR_SOUND_LABEL, 0, COLOR_THEME_PRIMARY2);
-
-      body.setFlexLayout();
       FlexGridLayout grid(col_two_dsc, row_dsc, 2);
-      lv_obj_set_style_pad_column(lvobj, 10, 0);
 
-      auto line = body.newLine(&grid);
+      auto form = new FormWindow(&body, rect_t{});
+      form->setFlexLayout();
+      form->padAll(0);
+
+      auto line = form->newLine(&grid);
 
       // Beeps mode
       new StaticText(line, rect_t{}, STR_SPEAKER, 0, COLOR_THEME_PRIMARY1);
       new Choice(line, rect_t{}, STR_VBEEPMODE, -2, 1, GET_SET_DEFAULT(g_eeGeneral.beepMode));
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
 
       // Main volume
       new StaticText(line, rect_t{}, STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50), PAGE_LINE_HEIGHT}, -VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX-VOLUME_LEVEL_DEF, GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
-      line = body.newLine(&grid);
+      new Slider(line, lv_pct(50), -VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX-VOLUME_LEVEL_DEF, GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
+      line = form->newLine(&grid);
 
       // Beeps volume
       new StaticText(line, rect_t{}, STR_BEEP_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepVolume));
-      line = body.newLine(&grid);
+      new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepVolume));
+      line = form->newLine(&grid);
 
       // Beeps length
       new StaticText(line, rect_t{}, STR_BEEP_LENGTH, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepLength));
-      line = body.newLine(&grid);
+      new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.beepLength));
+      line = form->newLine(&grid);
 
       // Beeps pitch
       new StaticText(line, rect_t{}, STR_BEEP_PITCH, 0, COLOR_THEME_PRIMARY1);
@@ -262,46 +300,32 @@ class SoundPage : public Page {
       edit->setStep(15);
       edit->setPrefix("+");
       edit->setSuffix("Hz");
-      line = body.newLine(&grid);
+      line = form->newLine(&grid);
 
       // Wav volume
       new StaticText(line, rect_t{}, STR_WAV_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.wavVolume));
-      line = body.newLine(&grid);
+      new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.wavVolume));
+      line = form->newLine(&grid);
 
       // Background volume
       new StaticText(line, rect_t{}, STR_BG_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.backgroundVolume));
+      new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.backgroundVolume));
 
     }
 };
 
 #if defined(VARIO)
-class VarioPage : public Page {
+class VarioPage : public SubPage {
   public:
-  VarioPage() :
-      Page(ICON_RADIO_SETUP)
+    VarioPage() : SubPage(ICON_RADIO_SETUP, STR_VARIO)
     {
-      build();
-    }
-
-  protected:
-
-    void build()
-    {
-      new StaticText(&header,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-                      STR_VARIO, 0, COLOR_THEME_PRIMARY2);
-
-      body.setFlexLayout();
-      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
 
       // Vario volume
-      new StaticText(line, rect_t{}, TR_VOLUME, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.varioVolume));
+      new StaticText(line, rect_t{}, STR_VOLUME, 0, COLOR_THEME_PRIMARY1);
+      new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.varioVolume));
       line = body.newLine(&grid);
 
       new StaticText(line, rect_t{}, STR_PITCH_AT_ZERO, 0, COLOR_THEME_PRIMARY1);
@@ -332,25 +356,11 @@ class VarioPage : public Page {
 #endif
 
 #if defined(HAPTIC)
-class HapticPage : public Page {
+class HapticPage : public SubPage {
   public:
-	HapticPage() :
-      Page(ICON_RADIO_SETUP)
+    HapticPage() : SubPage(ICON_RADIO_SETUP, STR_HAPTIC_LABEL)
     {
-      build();
-    }
-
-  protected:
-
-    void build()
-    {
-      new StaticText(&header,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-					  STR_HAPTIC_LABEL, 0, COLOR_THEME_PRIMARY2);
-
-      body.setFlexLayout();
-      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
 
@@ -361,86 +371,78 @@ class HapticPage : public Page {
 
       // Haptic duration
       new StaticText(line, rect_t{}, STR_LENGTH, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.hapticLength));
+      new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.hapticLength));
       line = body.newLine(&grid);
 
       // Haptic strength
       new StaticText(line, rect_t{}, STR_STRENGTH, 0, COLOR_THEME_PRIMARY1);
-      new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, -2, +2, GET_SET_DEFAULT(g_eeGeneral.hapticStrength));
+      new Slider(line, lv_pct(50), -2, +2, GET_SET_DEFAULT(g_eeGeneral.hapticStrength));
       line = body.newLine(&grid);
     }
 };
 #endif
 
-class AlarmsPage : public Page {
+class AlarmsPage : public SubPage {
   public:
-	AlarmsPage() :
-      Page(ICON_RADIO_SETUP)
+    AlarmsPage() : SubPage(ICON_RADIO_SETUP, STR_ALARMS_LABEL)
     {
-      build();
-    }
-
-  protected:
-
-    void build()
-    {
-      new StaticText(&header,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-					  STR_ALARMS_LABEL, 0, COLOR_THEME_PRIMARY2);
-
-      body.setFlexLayout();
-      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
       // Battery warning
       new StaticText(line, rect_t{}, STR_BATTERYWARNING, 0, COLOR_THEME_PRIMARY1);
       auto edit = new NumberEdit(line, rect_t{}, 30, 120, GET_SET_DEFAULT(g_eeGeneral.vBatWarn), 0, PREC1);
-      lv_obj_set_style_grid_cell_x_align(edit->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
       edit->setSuffix("V");
       line = body.newLine(&grid);
 
       // Inactivity alarm
       new StaticText(line, rect_t{}, STR_INACTIVITYALARM, 0, COLOR_THEME_PRIMARY1);
       edit = new NumberEdit(line, rect_t{}, 0, 250, GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
-      lv_obj_set_style_grid_cell_x_align(edit->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
-      edit->setSuffix("minutes");
+
+      edit->setDisplayHandler([=](int value) -> std::string {
+        std::string suffix(STR_MINUTE_PLURAL2);
+        if (value == 1) {
+          suffix = std::string(STR_MINUTE_SINGULAR);
+        } else if (value < g_use_plural2) {
+          const int secondDecimal = (value / 10) % 10;
+          if (secondDecimal != 1) {
+            const int firstDecimal = value % 10;
+            if (firstDecimal) {
+              if (firstDecimal < g_min_plural2 &&
+                  firstDecimal == g_use_singular_in_plural) {
+                suffix = std::string(STR_MINUTE_SINGULAR);
+              } else if (firstDecimal <= g_max_plural2 &&
+                         firstDecimal != g_use_plural2_special_case) {
+                suffix = std::string(STR_MINUTE_PLURAL1);
+              }
+            }
+          }
+        }
+        suffix = " " + suffix;
+        return formatNumberAsString(value, 0, 0, nullptr, suffix.c_str());
+      });
       line = body.newLine(&grid);
+
       // Alarms warning
       new StaticText(line, rect_t{}, STR_ALARMWARNING, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
+      new ToggleSwitch(line, rect_t{},
+                   GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
       line = body.newLine(&grid);
 
       // RSSI shutdown alarm
-      new StaticText(line, rect_t{}, STR_RSSI_SHUTDOWN_ALARM, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
+      new StaticText(line, rect_t{}, STR_RSSI_SHUTDOWN_ALARM, 0,
+                     COLOR_THEME_PRIMARY1);
+      new ToggleSwitch(line, rect_t{},
+                   GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
       line = body.newLine(&grid);
-
     }
 };
 
-class BacklightPage : public Page {
+class BacklightPage : public SubPage {
   public:
-	BacklightPage() :
-      Page(ICON_RADIO_SETUP)
+    BacklightPage() : SubPage(ICON_RADIO_SETUP, STR_BACKLIGHT_LABEL)
     {
-      build();
-    }
-
-  protected:
-    FormField* backlightTimeout = nullptr;
-    FormField* backlightOnBright = nullptr;
-    FormField* backlightOffBright = nullptr;
-
-    void build()
-    {
-      new StaticText(&header,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-					  STR_BACKLIGHT_LABEL, 0, COLOR_THEME_PRIMARY2);
-
-      body.setFlexLayout();
-      FlexGridLayout grid(col_three_dsc, row_dsc, 2);
+      FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
       auto line = body.newLine(&grid);
 
@@ -453,25 +455,27 @@ class BacklightPage : public Page {
                                [=](int32_t newValue) {
                                  g_eeGeneral.backlightMode = newValue;
                                  updateBacklightControls();
+                                 SET_DIRTY();
                                });
 
       blMode->setAvailableHandler(
           [=](int newValue) { return newValue != e_backlight_mode_off; });
 
+      backlightTimeout = body.newLine(&grid);
+
       // Delay
-      auto edit = new NumberEdit(line, rect_t{}, 5, 600,
+      new StaticText(backlightTimeout, rect_t{}, STR_BACKLIGHT_TIMER, 0, COLOR_THEME_PRIMARY1);
+      auto edit = new NumberEdit(backlightTimeout, rect_t{}, 5, 600,
                                  GET_DEFAULT(g_eeGeneral.lightAutoOff * 5),
                                  SET_VALUE(g_eeGeneral.lightAutoOff, newValue / 5));
       edit->setStep(5);
       edit->setSuffix("s");
-      backlightTimeout = edit;
 
-      line = body.newLine(&grid);
+      backlightOnBright = body.newLine(&grid);
 
       // Backlight ON bright
-      new StaticText(line, rect_t{}, STR_BLONBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-      grid.setColSpan(2);
-      backlightOnBright = new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
+      new StaticText(backlightOnBright, rect_t{}, STR_BLONBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
+      new Slider(backlightOnBright, lv_pct(50), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
                  [=]() -> int32_t {
                    return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
                  },
@@ -480,106 +484,197 @@ class BacklightPage : public Page {
                      g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - newValue;
                    else
                      g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
+                   SET_DIRTY();
                  });
-      grid.setColSpan(1);
-      line = body.newLine(&grid);
+
+      backlightOffBright = body.newLine(&grid);
 
       // Backlight OFF bright
-      new StaticText(line, rect_t{}, STR_BLOFFBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-      grid.setColSpan(2);
-      backlightOffBright = new Slider(line, rect_t{0,0,lv_pct(50),PAGE_LINE_HEIGHT}, BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
-          [=](int32_t newValue) {
-            int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
-            if(newValue <= onBright || g_eeGeneral.backlightMode == e_backlight_mode_off)
-              g_eeGeneral.blOffBright = newValue;
-            else
-              g_eeGeneral.blOffBright = onBright;
-          });
-      grid.setColSpan(1);
+      new StaticText(backlightOffBright, rect_t{}, STR_BLOFFBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
+      new Slider(backlightOffBright, lv_pct(50), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
+                 [=](int32_t newValue) {
+                   int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
+                   if(newValue <= onBright || g_eeGeneral.backlightMode == e_backlight_mode_off)
+                     g_eeGeneral.blOffBright = newValue;
+                   else
+                     g_eeGeneral.blOffBright = onBright;
+                   SET_DIRTY();
+                 });
+
       line = body.newLine(&grid);
 
   #if defined(KEYS_BACKLIGHT_GPIO)
       // Keys backlight
       new StaticText(line, rect_t{}, STR_KEYS_BACKLIGHT, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
+      new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
       line = body.newLine(&grid);
   #endif
 
       // Flash beep
       new StaticText(line, rect_t{}, STR_ALARM, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.alarmsFlash));
+      new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.alarmsFlash));
       line = body.newLine(&grid);
 
       updateBacklightControls();
     }
+
+  protected:
+    Window* backlightTimeout = nullptr;
+    Window* backlightOnBright = nullptr;
+    Window* backlightOffBright = nullptr;
 
     void updateBacklightControls()
     {
       switch(g_eeGeneral.backlightMode)
       {
       case e_backlight_mode_off:
-        backlightTimeout->enable(false);
-        backlightOnBright->enable(false);
-        backlightOffBright->enable(true);
+        lv_obj_add_flag(backlightTimeout->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(backlightOnBright->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(backlightOffBright->getLvObj(), LV_OBJ_FLAG_HIDDEN);
         break;
       case e_backlight_mode_keys:
       case e_backlight_mode_sticks:
       case e_backlight_mode_all:
       default:
       {
-        backlightTimeout->enable(true);
-        backlightOnBright->enable(true);
-        backlightOffBright->enable(true);
+        lv_obj_clear_flag(backlightTimeout->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(backlightOnBright->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(backlightOffBright->getLvObj(), LV_OBJ_FLAG_HIDDEN);
         int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
         if(onBright < g_eeGeneral.blOffBright)
           g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
         break;
       }
       case e_backlight_mode_on:
-        backlightTimeout->enable(false);
-        backlightOnBright->enable(true);
-        backlightOffBright->enable(false);
+        lv_obj_add_flag(backlightTimeout->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(backlightOnBright->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(backlightOffBright->getLvObj(), LV_OBJ_FLAG_HIDDEN);
         break;
       }
       resetBacklightTimeout();
     }
 };
 
-class GpsPage : public Page {
+class GpsPage : public SubPage {
   public:
-	GpsPage() :
-      Page(ICON_RADIO_SETUP)
+    GpsPage() : SubPage(ICON_RADIO_SETUP, STR_GPS)
     {
-      build();
-    }
+      FlexGridLayout grid(col_two_dsc, row_dsc, 4);
 
-  protected:
-
-    void build()
-    {
-      new StaticText(&header,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-					  STR_GPS, 0, COLOR_THEME_PRIMARY2);
-
-      body.setFlexLayout();
-      FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+      tzIndex = timezoneIndex(g_eeGeneral.timezone, g_eeGeneral.timezoneMinutes);
 
       auto line = body.newLine(&grid);
       // Timezone
       new StaticText(line, rect_t{}, STR_TIMEZONE, 0, COLOR_THEME_PRIMARY1);
-      new NumberEdit(line, rect_t{}, -12, 12, GET_SET_DEFAULT(g_eeGeneral.timezone));
+      auto tz = new NumberEdit(line, rect_t{}, minTimezone(), maxTimezone(),
+                               GET_DEFAULT(tzIndex),
+                               [=](int newTz) {
+                                 tzIndex = newTz;
+                                 g_eeGeneral.timezone = timezoneHour(newTz);
+                                 g_eeGeneral.timezoneMinutes = timezoneMinute(newTz);
+                                 SET_DIRTY();
+                               });
+      tz->setDisplayHandler([](int32_t tz) {
+        return timezoneDisplay(tz);
+      });
       line = body.newLine(&grid);
 
       // Adjust RTC (from telemetry)
       new StaticText(line, rect_t{}, STR_ADJUST_RTC, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.adjustRTC));
+      new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.adjustRTC));
       line = body.newLine(&grid);
 
       // GPS format
       new StaticText(line, rect_t{}, STR_GPS_COORDS_FORMAT, 0, COLOR_THEME_PRIMARY1);
       new Choice(line, rect_t{}, STR_GPSFORMAT, 0, 1, GET_SET_DEFAULT(g_eeGeneral.gpsFormat));
       line = body.newLine(&grid);
+    }
+
+  protected:
+    int tzIndex;
+};
+
+class ViewOptionsPage : public SubPage
+{
+   public:
+    const lv_coord_t opt_col_two_dsc[3] = {LV_GRID_FR(7), LV_GRID_FR(3), LV_GRID_TEMPLATE_LAST};
+
+    ViewOptionsPage() : SubPage(ICON_RADIO_SETUP, STR_ENABLED_FEATURES, false)
+    {
+      FlexGridLayout grid(opt_col_two_dsc, row_dsc, 2);
+
+      auto form = new FormWindow(&body, rect_t{});
+      form->setFlexLayout();
+      form->padAll(0);
+
+      auto line = form->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_RADIO_MENU_TABS, 0, COLOR_THEME_PRIMARY1);
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_THEME_EDITOR, 0, COLOR_THEME_PRIMARY1);
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled));
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUSPECIALFUNCS, 0, COLOR_THEME_PRIMARY1);
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioGFDisabled));
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUTRAINER, 0, COLOR_THEME_PRIMARY1);
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioTrainerDisabled));
+
+      line = form->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_MODEL_MENU_TABS, 0, COLOR_THEME_PRIMARY1);
+
+#if defined(HELI)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUHELISETUP, 0, COLOR_THEME_PRIMARY1);
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelHeliDisabled));
+#endif
+
+#if defined(FLIGHT_MODES)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUFLIGHTMODES, 0, COLOR_THEME_PRIMARY1);
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelFMDisabled));
+#endif
+
+#if defined(GVARS)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1);
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelGVDisabled));
+#endif
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUCURVES, 0, COLOR_THEME_PRIMARY1);
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled));
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENULOGICALSWITCHES, 0, COLOR_THEME_PRIMARY1);
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelLSDisabled));
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUCUSTOMFUNC, 0, COLOR_THEME_PRIMARY1);
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelSFDisabled));
+
+#if defined(LUA_MODEL_SCRIPTS)
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUCUSTOMSCRIPTS, 0, COLOR_THEME_PRIMARY1);
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelCustomScriptsDisabled));
+#endif
+
+      line = form->newLine(&grid);
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, STR_MENUTELEMETRY, 0, COLOR_THEME_PRIMARY1);
+      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelTelemetryDisabled));
     }
 };
 
@@ -590,7 +685,7 @@ RadioSetupPage::RadioSetupPage():
 
 void RadioSetupPage::build(FormWindow * window)
 {
-  FlexGridLayout grid(col_three_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_two_dsc, row_dsc, 2);
   window->setFlexLayout();
 
   // Date & time picker including labels
@@ -605,16 +700,33 @@ void RadioSetupPage::build(FormWindow * window)
 #if defined(HAPTIC)
       {STR_HAPTIC_LABEL, []() { new HapticPage(); }},
 #endif
-      {STR_ALARM, []() { new AlarmsPage(); }},
+      {STR_ALARMS_LABEL, []() { new AlarmsPage(); }},
       {STR_BACKLIGHT_LABEL, []() { new BacklightPage(); }},
       {STR_GPS, [](){new GpsPage();}},
+      {STR_ENABLED_FEATURES, [](){new ViewOptionsPage();}},
 });
 
+  // Splash screen
+    auto line = window->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_SPLASHSCREEN, 0, COLOR_THEME_PRIMARY1);
+    new Choice(line, rect_t{}, STR_SPLASHSCREEN_DELAYS, 0, 7,
+               [=]() -> int32_t {
+               return 3 - g_eeGeneral.splashMode;
+               },
+               [=](int32_t newValue) {
+                   g_eeGeneral.splashMode = 3 - newValue;
+                   SET_DIRTY();
+               });
+
+  // Play startup sound
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_PLAY_HELLO, 0, COLOR_THEME_PRIMARY1);
+  new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.dontPlayHello));
 
 #if defined(PWR_BUTTON_PRESS)
   // Pwr Off Delay
   {
-    auto line = window->newLine(&grid);
+    line = window->newLine(&grid);
     new StaticText(line, rect_t{}, STR_PWR_OFF_DELAY, 0, COLOR_THEME_PRIMARY1);
     new Choice(line, rect_t{}, STR_PWR_OFF_DELAYS, 0, 3,
                [=]() -> int32_t {
@@ -626,11 +738,11 @@ void RadioSetupPage::build(FormWindow * window)
                });
   }
 #endif
-  
+
 #if defined(PXX2)
   // Owner ID
   {
-    auto line = window->newLine(&grid);
+    line = window->newLine(&grid);
     new StaticText(line, rect_t{}, STR_OWNER_ID, 0, COLOR_THEME_PRIMARY1);
     new RadioTextEdit(line, rect_t{}, g_eeGeneral.ownerRegistrationID,
                       PXX2_LEN_REGISTRATION_ID);
@@ -638,7 +750,7 @@ void RadioSetupPage::build(FormWindow * window)
 #endif
 
   // Country code
-  auto line = window->newLine(&grid);
+  line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_COUNTRY_CODE, 0, COLOR_THEME_PRIMARY1);
   new Choice(line, rect_t{}, STR_COUNTRY_CODES, 0, 2, GET_SET_DEFAULT(g_eeGeneral.countryCode));
 
@@ -651,6 +763,7 @@ void RadioSetupPage::build(FormWindow * window)
                    currentLanguagePackIdx = newValue;
                    currentLanguagePack = languagePacks[currentLanguagePackIdx];
                    strncpy(g_eeGeneral.ttsLanguage, currentLanguagePack->id, 2);
+                   SET_DIRTY();
                  });
   choice->setTextHandler(
       [](uint8_t value) { return languagePacks[value]->name; });
@@ -679,12 +792,10 @@ void RadioSetupPage::build(FormWindow * window)
   // Switches delay
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_SWITCHES_DELAY, 0, COLOR_THEME_PRIMARY1);
-  grid.setColSpan(2);
   auto edit =
       new NumberEdit(line, rect_t{}, -15, 100 - 15,
                      GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
   edit->setSuffix(std::string("0") + STR_MS);
-  grid.setColSpan(1);
 
   // USB mode
   line = window->newLine(&grid);
@@ -702,37 +813,43 @@ void RadioSetupPage::build(FormWindow * window)
 
   // RX channel order
   line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_RXCHANNELORD, 0,
+  new StaticText(line, rect_t{}, STR_DEF_CHAN_ORD, 0,
                  COLOR_THEME_PRIMARY1);  // RAET->AETR
-  grid.setColSpan(2);
-  choice = new Choice(line, rect_t{}, 0, 4 * 3 * 2 - 1,
+
+  uint8_t mains = adcGetMaxInputs(ADC_INPUT_MAIN);
+  auto max_order = inputMappingGetMaxChannelOrder() - 1;
+  choice = new Choice(line, rect_t{}, 0, max_order,
                       GET_SET_DEFAULT(g_eeGeneral.templateSetup));
-  choice->setTextHandler([](uint8_t value) {
+
+  choice->setTextHandler([=](uint8_t value) {
     std::string s;
-    for (uint8_t i = 0; i < 4; i++) {
-      s += STR_RETA123[channelOrder(value, i + 1) - 1];
+    for (uint8_t i = 0; i < mains; i++) {
+      s += getAnalogShortLabel(inputMappingChannelOrder(value, i));
     }
     return s;
   });
-  grid.setColSpan(1);
 
   // Stick mode
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
-  grid.setColSpan(2);
   choice = new Choice(line, rect_t{}, 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
                       [=](uint8_t newValue) {
-                        pausePulses();
+                        mixerTaskStop();
                         g_eeGeneral.stickMode = newValue;
                         SET_DIRTY();
                         checkThrottleStick();
-                        resumePulses();
+                        mixerTaskStart();
                       });
   choice->setTextHandler([](uint8_t value) {
+    auto stick0 = inputMappingConvertMode(value, 0);
+    auto stick1 = inputMappingConvertMode(value, 1);
     return std::to_string(1 + value) + ": " + STR_LEFT_STICK + " = " +
-           std::string(&getSourceString(MIXSRC_Rud + modn12x3[4 * value])[1]) +
-           "+" +
-           std::string(
-               &getSourceString(MIXSRC_Rud + modn12x3[4 * value + 1])[1]);
+           std::string(getMainControlLabel(stick0)) + "+" +
+           std::string(getMainControlLabel(stick1));
   });
+
+  // Model quick select
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_MODEL_QUICK_SELECT, 0, COLOR_THEME_PRIMARY1);
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.modelQuickSelect));
 }

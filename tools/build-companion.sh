@@ -35,9 +35,9 @@ if [ "$(uname)" = "Darwin" ]; then
     COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='10.9'"
 elif [ "$(uname)" != "Linux" ]; then # Assume Windows and MSYS2
     if [ "${MSYSTEM,,}" == "mingw32" ]; then # MSYS 32bit detected
-        COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL_LIBRARY_PATH=/mingw32/bin/"
+        COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL2_LIBRARY_PATH=/mingw32/bin/"
     else # fallback to 64bit
-        COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL_LIBRARY_PATH=/mingw64/bin/"
+        COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL2_LIBRARY_PATH=/mingw64/bin/"
     fi
 fi
 
@@ -66,8 +66,9 @@ cd build
 declare -a simulator_plugins=(x9lite x9lites
                               x7 x7-access
                               t8 t12 tx12 tx12mk2
-                              zorro commando8
+                              zorro commando8 boxer
                               tlite tpro lr3pro
+                              t20
                               x9d x9dp x9dp2019 x9e
                               xlite xlites
                               nv14
@@ -107,15 +108,24 @@ do
         zorro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
             ;;
+        boxer)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BOXER"
+            ;;
         lr3pro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
             ;;
         tlite)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
             ;;
+        tlitef4)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITEF4"
+            ;;
         tpro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPRO"
             ;;
+        t20)
+           BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20"
+           ;;
         xlite)
             BUILD_OPTIONS+="-DPCB=XLITE"
             ;;
@@ -157,6 +167,10 @@ do
             ;;
         commando8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
+            ;;
+        *)
+            echo "Unknown target: $target_name"
+            exit 1
             ;;
     esac
 

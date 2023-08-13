@@ -46,22 +46,15 @@
 #define CLI_TASK_PRIO          (1)
 #endif
 
-extern RTOS_TASK_HANDLE menusTaskId;
-extern RTOS_DEFINE_STACK(menusStack, MENUS_STACK_SIZE);
 
-extern RTOS_MUTEX_HANDLE mixerMutex;
-extern RTOS_TASK_HANDLE mixerTaskId;
-extern RTOS_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
-
-extern RTOS_TASK_HANDLE audioTaskId;
-extern RTOS_DEFINE_STACK(audioStack, AUDIO_STACK_SIZE);
+extern TaskStack<MENUS_STACK_SIZE> menusStack;
+extern TaskStack<MIXER_STACK_SIZE> mixerStack;
+extern TaskStack<AUDIO_STACK_SIZE> audioStack;
 
 #if defined(CLI)
-extern RTOS_TASK_HANDLE cliTaskId;
-extern RTOS_DEFINE_STACK(cliStack, CLI_STACK_SIZE);
+extern TaskStack<CLI_STACK_SIZE> cliStack;
 #endif
 
-void stackPaint();
 void tasksStart();
 
 extern volatile uint16_t timeForcePowerOffPressed;

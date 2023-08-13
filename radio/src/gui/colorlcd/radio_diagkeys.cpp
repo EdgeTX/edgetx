@@ -23,11 +23,23 @@
 #include "radio_diagkeys.h"
 #include "libopenui.h"
 
-#if defined(KEYS_GPIO_PIN_PGUP)
-constexpr uint8_t KEY_START = 0;
-#else
-constexpr uint8_t KEY_START = 1;
-#endif
+#include "hal/rotary_encoder.h"
+
+static const uint8_t _trimMap[MAX_TRIMS * 2] = {6, 7, 4, 5, 2, 3, 0, 1, 8, 9, 10, 11};
+
+static EnumKeys get_ith_key(uint8_t i)
+{
+  auto supported_keys = keysGetSupported();
+  for (uint8_t k = 0; k < MAX_KEYS; k++) {
+    if (supported_keys & (1 << k)) {
+      if (i-- == 0) return (EnumKeys)k;
+    }
+  }
+
+  // should not get here,
+  // we assume: i < keysGetMaxKeys()
+  return (EnumKeys)0;
+}
 
 class RadioKeyDiagsWindow : public Window
 {
@@ -43,9 +55,20 @@ class RadioKeyDiagsWindow : public Window
       invalidate();
     }
 
+    void displayTrimState(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t trim)
+    {
+      uint8_t t = keysGetTrimState(trim);
+      // TODO use drawChar when done
+      char status[2];
+      status[0] = t + '0';
+      status[1] = '\0';
+      // TODO INVERS?
+      dc->drawText(x, y, status, COLOR_THEME_PRIMARY1);
+    }
+
     void displayKeyState(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t key)
     {
-      uint8_t t = keys[key].state();
+      uint8_t t = keysGetState(key);
       // TODO use drawChar when done
       char status[2];
       status[0] = t + '0';
@@ -73,29 +96,31 @@ class RadioKeyDiagsWindow : public Window
 
 #if !defined(PCBNV14)
       // KEYS
-      for (uint8_t i = KEY_START; i <= 6; i++) {
-        coord_t y = 1 + FH * (i - KEY_START);
-        dc->drawTextAtIndex(KEY_COLUMN, y, STR_VKEYS, i, COLOR_THEME_PRIMARY1);
-        displayKeyState(dc, 70, y, i);
+      coord_t y = 1;
+      for (uint8_t i = 0; i < keysGetMaxKeys(); i++) {
+        auto k = get_ith_key(i);
+        y += FH;
+        dc->drawText(KEY_COLUMN, y, keysGetLabel(k), COLOR_THEME_PRIMARY1);
+        displayKeyState(dc, 70, y, k);
       }
 #if defined(ROTARY_ENCODER_NAVIGATION)
-      coord_t y = FH * (8 - KEY_START);
+      y += FH;
       dc->drawText(KEY_COLUMN, y, STR_ROTARY_ENCODER, COLOR_THEME_PRIMARY1);
-      dc->drawNumber(70, y, rotencValue, COLOR_THEME_PRIMARY1);
+      dc->drawNumber(70, y, rotaryEncoderGetValue(), COLOR_THEME_PRIMARY1);
 #endif
 #else // defined(PCBNV14)
       // KEYS
       {
         coord_t y = 1;
-        dc->drawTextAtIndex(KEY_COLUMN, y, STR_VKEYS, KEY_ENTER, COLOR_THEME_PRIMARY1);
+        dc->drawText(KEY_COLUMN, y, keysGetLabel(KEY_ENTER), COLOR_THEME_PRIMARY1);
         displayKeyState(dc, 70, y, KEY_ENTER);
         y += FH;
-        dc->drawTextAtIndex(KEY_COLUMN, y, STR_VKEYS, KEY_EXIT, COLOR_THEME_PRIMARY1);
+        dc->drawText(KEY_COLUMN, y, keysGetLabel(KEY_EXIT), COLOR_THEME_PRIMARY1);
         displayKeyState(dc, 70, y, KEY_EXIT);
       }      
 #endif
       // SWITCHES
-      for (uint8_t i = 0; i < NUM_SWITCHES; i++) {
+      for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
         if (SWITCH_EXISTS(i)) {
           coord_t y = 1 + FH * i;
           getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
@@ -105,18 +130,13 @@ class RadioKeyDiagsWindow : public Window
       }
 
       // TRIMS
-      for (uint8_t i = 0; i < NUM_TRIMS_KEYS; i++) {
-#if NUM_TRIMS_KEYS == 12
-        const uint8_t trimMap[NUM_TRIMS_KEYS] = {6, 7, 4, 5, 2, 3, 0, 1, 8, 9, 10, 11};
-#else
-        const uint8_t trimMap[NUM_TRIMS_KEYS] = {6, 7, 4, 5, 2, 3, 0, 1};
-#endif
+      for (uint8_t i = 0; i < keysGetMaxTrims() * 2; i++) {
         coord_t y = 1 + FH + FH * (i / 2);
         if (i & 1) {
           dc->drawText(TRIM_COLUMN, y, "T", COLOR_THEME_PRIMARY1);
           dc->drawNumber(TRIM_COLUMN + 10, y, i / 2 + 1, COLOR_THEME_PRIMARY1);
         }
-        displayKeyState(dc, i & 1 ? TRIM_PLUS_COLUMN : TRIM_MINUS_COLUMN, y, TRM_BASE + trimMap[i]);
+        displayTrimState(dc, i & 1 ? TRIM_PLUS_COLUMN : TRIM_MINUS_COLUMN, y, _trimMap[i]);
       }
     };
 
@@ -125,7 +145,8 @@ class RadioKeyDiagsWindow : public Window
 
 void RadioKeyDiagsPage::buildHeader(Window * window)
 {
-  new StaticText(window, {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT}, STR_MENU_RADIO_SWITCHES, 0, COLOR_THEME_PRIMARY2);
+  header.setTitle(STR_RADIO_SETUP);
+  header.setTitle2(STR_MENU_RADIO_SWITCHES);
 }
 
 void RadioKeyDiagsPage::buildBody(Window * window)

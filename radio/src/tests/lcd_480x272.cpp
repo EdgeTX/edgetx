@@ -277,6 +277,7 @@ TEST(Lcd_colorlcd, masks)
   }
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "masks"));
+  delete mask;
 }
 
 #if 0

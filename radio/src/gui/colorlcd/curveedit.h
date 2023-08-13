@@ -21,31 +21,14 @@
 
 #pragma once
 
+#include "page.h"
 #include "form.h"
 #include "curve.h"
 
-class CurveEdit;
-
-class CurveDataEdit : public FormGroup
-{
-  friend class CurveEdit;
-
-  public:
-    CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index, CurveEdit * curveEdit);
-
-    void paint(BitmapBuffer * dc) override;
-
-    void update();
-
-  protected:
-    uint8_t index;
-    CurveEdit * curveEdit;
-};
+class NumberEdit;
 
 class CurveEdit: public FormField
 {
-  friend class CurveDataEdit;
-
   public:
     CurveEdit(Window * parent, const rect_t & rect, uint8_t index);
     static void SetCurrentSource(uint32_t source);
@@ -62,13 +45,7 @@ class CurveEdit: public FormField
 
     void updatePreview();
 
-    void onEvent(event_t event) override;
     void checkEvents(void) override;
-
-    // #if defined(HARDWARE_TOUCH)
-    //     bool onTouchEnd(coord_t x, coord_t y) override;
-    //     void onFocusLost() override;
-    // #endif
 
    protected:
     Curve preview;
@@ -76,11 +53,39 @@ class CurveEdit: public FormField
     uint8_t current;
     static mixsrc_t currentSource;
     static bool lockSource;
-    void next();
-    void previous();
-    void up();
-    void down();
-    void right();
-    void left();
-    bool isCustomCurve() const;
+};
+
+class CurveDataEdit : public Window
+{
+  public:
+    CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index);
+
+    void setCurveEdit(CurveEdit* _curveEdit)
+    {
+      curveEdit = _curveEdit;
+      update();
+    }
+
+    void update();
+
+  protected:
+    uint8_t index;
+    CurveEdit * curveEdit;
+    NumberEdit* numEditX[16];
+
+    void curvePointsRow(FormWindow::Line* parent, int start, int count, int curvePointsCount, bool isCustom);
+};
+
+class CurveEditWindow : public Page
+{
+  public:
+    CurveEditWindow(uint8_t index);
+
+  protected:
+    uint8_t index;
+    CurveEdit * curveEdit = nullptr;
+    CurveDataEdit * curveDataEdit = nullptr;
+
+    void buildHeader(Window * window);
+    void buildBody(FormWindow * window);
 };

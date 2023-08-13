@@ -33,10 +33,9 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 InputEditAdvanced::InputEditAdvanced(uint8_t input_n, uint8_t index) :
     Page(ICON_MODEL_INPUTS)
 {
-  std::string title(STR_MENUINPUTS);
-  title += "\n";
-  title += getSourceString(MIXSRC_FIRST_INPUT + input_n);
-  header.setTitle(title);
+  std::string title2(getSourceString(MIXSRC_FIRST_INPUT + input_n));
+  header.setTitle(STR_MENUINPUTS);
+  header.setTitle2(title2);
 
   rect_t r = rect_t{0, 0, body.width(), body.height()};  
   auto form = new FormWindow(&body, r);
@@ -60,15 +59,22 @@ InputEditAdvanced::InputEditAdvanced(uint8_t input_n, uint8_t index) :
   // Trim
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_TRIM, 0, COLOR_THEME_PRIMARY1);
-  auto c = new Choice(line, rect_t{}, STR_VMIXTRIMS, -TRIM_OFF,
-                          -TRIM_LAST, GET_VALUE(-input->carryTrim),
-                          SET_VALUE(input->carryTrim, -newValue));
+  auto c = new Choice(line, rect_t{}, -TRIM_OFF, -TRIM_LAST,
+                      GET_VALUE(-input->trimSource),
+                      SET_VALUE(input->trimSource, -newValue));
+
+  uint16_t srcRaw = input->srcRaw;
   c->setAvailableHandler([=](int value) {
-    return value != TRIM_ON || input->srcRaw <= MIXSRC_Ail;
+    return value != TRIM_ON || srcRaw <= MIXSRC_LAST_STICK;
+  });
+  c->setTextHandler([=](int value) -> std::string {
+    return getTrimSourceLabel(srcRaw, -value);
   });
 
   // Flight modes
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
-  new FMMatrix<ExpoData>(line, rect_t{}, input);
+  if (modelFMEnabled()) {
+    line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
+    new FMMatrix<ExpoData>(line, rect_t{}, input);
+  }
 }

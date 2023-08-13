@@ -28,8 +28,11 @@
 #include "eeprominterface.h"
 #include "edgetxinterface.h"
 #include "version.h"
+#include "helpers.h"
 
 #include <QMessageBox>
+
+SemanticVersion radioSettingsVersion;
 
 const YamlLookupTable beeperModeLut = {
   {  GeneralSettings::BEEPER_QUIET, "mode_quiet" },
@@ -84,6 +87,7 @@ const YamlLookupTable uartModeLut = {
   {  GeneralSettings::AUX_SERIAL_GPS, "GPS"  },
   {  GeneralSettings::AUX_SERIAL_DEBUG, "DEBUG"  },
   {  GeneralSettings::AUX_SERIAL_SPACEMOUSE, "SPACEMOUSE"  },
+  {  GeneralSettings::AUX_SERIAL_EXT_MODULE, "EXT_MODULE"  },
 };
 
 const YamlLookupTable antennaModeLut = {
@@ -145,9 +149,13 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 {
   Node node;
 
+  auto fw = getCurrentFirmware();
+
+  bool hasColorLcd = Boards::getCapability(fw->getBoard(), Board::HasColorLcd);
+
   node["semver"] = VERSION;
 
-  std::string board = getCurrentFirmware()->getFlavour().toStdString();
+  std::string board = fw->getFlavour().toStdString();
   node["board"] = board;
 
   YamlCalibData calib(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
@@ -164,6 +172,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 
   node["backlightMode"] = backlightModeLut << std::abs(rhs.backlightMode);
   node["trainer"] = rhs.trainer;
+  node["PPM_Multiplier"] = rhs.PPM_Multiplier;
   node["view"] = rhs.view;
   node["fai"] = (int)rhs.fai;
   node["disableMemoryWarning"] = (int)rhs.disableMemoryWarning;
@@ -176,6 +185,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["hapticMode"] = rhs.hapticMode;
   node["stickMode"] = rhs.stickMode;
   node["timezone"] = rhs.timezone;
+  node["timezoneMinutes"] = rhs.timezoneMinutes;
   node["adjustRTC"] = (int)rhs.adjustRTC;
   node["inactivityTimer"] = rhs.inactivityTimer;
 
@@ -183,7 +193,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["internalModuleBaudrate"] = internalModuleBaudrate.value;
 
   node["internalModule"] = LookupValue(internalModuleLut, rhs.internalModule);
-  node["splashMode"] = rhs.splashMode;                // TODO: B&W only
+  node["splashMode"] = rhs.splashMode;
   node["lightAutoOff"] = rhs.backlightDelay;
   node["templateSetup"] = rhs.templateSetup;
   node["hapticLength"] = rhs.hapticLength + 2;
@@ -202,6 +212,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["countryCode"] = rhs.countryCode;
   node["noJitterFilter"] = (int)rhs.noJitterFilter;
   node["disableRtcWarning"] = (int)rhs.rtcCheckDisable;  // TODO: verify
+  node["audioMuteEnable"] = (int)rhs.muteIfNoSound;
   node["keysBacklight"] = (int)rhs.keysBacklight;
   node["rotEncMode"] = (int)rhs.rotEncMode;
   node["imperial"] = rhs.imperial;
@@ -213,6 +224,10 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["varioRange"] = rhs.varioRange * 15;
   node["varioRepeat"] = rhs.varioRepeat;
   node["backgroundVolume"] = rhs.backgroundVolume + 2;
+  node["dontPlayHello"] = (int)rhs.dontPlayHello;
+  if (Boards::getCapability(fw->getBoard(), Board::HasColorLcd)) {
+    node["modelQuickSelect"] = (int)rhs.modelQuickSelect;
+  }
 
   Node serialPort;
   for (int i = 0; i < GeneralSettings::SP_COUNT; i++) {
@@ -249,6 +264,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
     node["switchConfig"] = switchConfig;
   }
 
+  // combine pots and sliders into potsConfig
   Node potsConfig;
   potsConfig = YamlPotConfig(rhs.potName, rhs.potConfig);
   if (potsConfig && potsConfig.IsMap()) {
@@ -273,6 +289,24 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   // OneBit sampling (X9D only?)
   node["uartSampleMode"] = rhs.uartSampleMode;
 
+  if (hasColorLcd)
+    node["selectedTheme"] = rhs.selectedTheme;
+
+  // Radio level tabs control (global settings)
+  if (hasColorLcd)
+    node["radioThemesDisabled"] = (int)rhs.radioThemesDisabled;
+  node["radioGFDisabled"] = (int)rhs.radioGFDisabled;
+  node["radioTrainerDisabled"] = (int)rhs.radioTrainerDisabled;
+  // Model level tabs control (global setting)
+  node["modelHeliDisabled"] = (int)rhs.modelHeliDisabled;
+  node["modelFMDisabled"] = (int)rhs.modelFMDisabled;
+  node["modelCurvesDisabled"] = (int)rhs.modelCurvesDisabled;
+  node["modelGVDisabled"] = (int)rhs.modelGVDisabled;
+  node["modelLSDisabled"] = (int)rhs.modelLSDisabled;
+  node["modelSFDisabled"] = (int)rhs.modelSFDisabled;
+  node["modelCustomScriptsDisabled"] = (int)rhs.modelCustomScriptsDisabled;
+  node["modelTelemetryDisabled"] = (int)rhs.modelTelemetryDisabled;
+
   return node;
 }
 
@@ -284,7 +318,29 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   //   qDebug() << QString::fromStdString(n.first.Scalar());
   // }
 
-  node["semver"] >> rhs.semver;
+  radioSettingsVersion = SemanticVersion();
+
+  if (node["semver"]) {
+    node["semver"] >> rhs.semver;
+    if (SemanticVersion().isValid(rhs.semver)) {
+      radioSettingsVersion = SemanticVersion(QString(rhs.semver));
+    }
+    else {
+      qDebug() << "Invalid settings version:" << rhs.semver;
+      memset(rhs.semver, 0, sizeof(rhs.semver));
+    }
+  }
+
+  qDebug() << "Settings version:" << radioSettingsVersion.toString();
+
+  if (radioSettingsVersion > SemanticVersion(VERSION)) {
+    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Warning: Radio settings file version %1 is not supported by this version of Companion!\n\nModel and radio settings may be corrupted if you continue.\n\nI acknowledge and accept the consequences.");
+    if (QMessageBox::warning(NULL, CPN_STR_APP_NAME, prmpt.arg(radioSettingsVersion.toString()), (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) != QMessageBox::Yes) {
+      //  TODO: this triggers an error in the calling code so we need a graceful way to handle
+      return false;
+    }
+  }
+
   rhs.version = CPN_CURRENT_SETTINGS_VERSION; // depreciated in EdgeTX however data conversions use
 
   // Decoding uses profile firmare therefore all conversions are performed on the fly
@@ -347,6 +403,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   node["backlightMode"] >> backlightModeLut >> rhs.backlightMode;
   node["trainer"] >> rhs.trainer;
+  node["PPM_Multiplier"] >> rhs.PPM_Multiplier;
   node["view"] >> rhs.view;
   node["fai"] >> rhs.fai;
   node["disableMemoryWarning"] >> rhs.disableMemoryWarning;
@@ -359,6 +416,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["hapticMode"] >> rhs.hapticMode;
   node["stickMode"] >> rhs.stickMode;
   node["timezone"] >> rhs.timezone;
+  node["timezoneMinutes"] >> rhs.timezoneMinutes;
   node["adjustRTC"] >> rhs.adjustRTC;
   node["inactivityTimer"] >> rhs.inactivityTimer;
 
@@ -376,7 +434,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
     rhs.internalModule = Boards::getDefaultInternalModules(fw->getBoard());
   }
 
-  node["splashMode"] >> rhs.splashMode;                // TODO: B&W only
+  node["splashMode"] >> rhs.splashMode;
   node["lightAutoOff"] >> rhs.backlightDelay;
   node["templateSetup"] >> rhs.templateSetup;
   node["hapticLength"] >> ioffset_int(rhs.hapticLength, 2);
@@ -396,6 +454,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["jitterFilter"] >> rhs.noJitterFilter;   // PR1363 : read old name and
   node["noJitterFilter"] >> rhs.noJitterFilter; // new, but don't write old
   node["disableRtcWarning"] >> rhs.rtcCheckDisable;  // TODO: verify
+  node["audioMuteEnable"] >> rhs.muteIfNoSound;
   node["keysBacklight"] >> rhs.keysBacklight;
   node["rotEncDirection"] >> rhs.rotEncMode;    // PR2045: read old name and
   node["rotEncMode"] >> rhs.rotEncMode;         // new, but don't write old
@@ -408,6 +467,8 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["varioRange"] >> ifactor<int>(rhs.varioRange, 15);
   node["varioRepeat"] >> rhs.varioRepeat;
   node["backgroundVolume"] >> ioffset_int(rhs.backgroundVolume, 2);
+  node["modelQuickSelect"] >> rhs.modelQuickSelect;
+  node["dontPlayHello"] >> rhs.dontPlayHello;
 
   //  depreciated v2.7 replaced by serialPort
   if (node["auxSerialMode"]) {
@@ -484,6 +545,22 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   //  TODO: for consistency move up call stack to use existing eeprom and profile conversions
   if (needsConversion)
     rhs.init();
+
+  node["selectedTheme"] >> rhs.selectedTheme;
+
+  // Radio level tabs control (global settings)
+  node["radioThemesDisabled"] >> rhs.radioThemesDisabled;
+  node["radioGFDisabled"] >> rhs.radioGFDisabled;
+  node["radioTrainerDisabled"] >> rhs.radioTrainerDisabled;
+  // Model level tabs control (global setting)
+  node["modelHeliDisabled"] >> rhs.modelHeliDisabled;
+  node["modelFMDisabled"] >> rhs.modelFMDisabled;
+  node["modelCurvesDisabled"] >> rhs.modelCurvesDisabled;
+  node["modelGVDisabled"] >> rhs.modelGVDisabled;
+  node["modelLSDisabled"] >> rhs.modelLSDisabled;
+  node["modelSFDisabled"] >> rhs.modelSFDisabled;
+  node["modelCustomScriptsDisabled"] >> rhs.modelCustomScriptsDisabled;
+  node["modelTelemetryDisabled"] >> rhs.modelTelemetryDisabled;
 
   return true;
 }

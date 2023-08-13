@@ -48,6 +48,9 @@ int  usbPlugged();
 void usbInit();
 void usbStart();
 void usbStop();
+#if defined(USBJ_EX)
+void usbJoystickRestart();
+#endif
 bool usbStarted();
 
 EXTERN_C(int getSelectedUsbMode());

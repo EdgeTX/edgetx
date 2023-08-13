@@ -23,21 +23,18 @@
 #include "afhds2.h"
 #include "flysky.h"
 
-#include "intmodule_serial_driver.h"
 #include "mixer_scheduler.h"
+#include "hal/module_port.h"
 
 #include "pulses/pulses.h"
 #include "telemetry/telemetry.h"
 
 
-
-
 const etx_serial_init afhds2SerialInitParams = {
     .baudrate = INTMODULE_USART_AFHDS2_BAUDRATE,
-    .parity = ETX_Parity_None,
-    .stop_bits = ETX_StopBits_One,
-    .word_length = ETX_WordLength_8,
-    .rx_enable = true,
+    .encoding = ETX_Encoding_8N1,
+    .direction = ETX_Dir_TX_RX,
+    .polarity = ETX_Pol_Normal,
 };
 
 static void* afhds2Init(uint8_t module)
@@ -46,50 +43,43 @@ static void* afhds2Init(uint8_t module)
 
   // serial port setup
   resetPulsesAFHDS2();
-  void* ctx = IntmoduleSerialDriver.init(&afhds2SerialInitParams);
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART,
+                                     &afhds2SerialInitParams);
 
   // mixer setup
-  mixerSchedulerSetPeriod(INTERNAL_MODULE, AFHDS2_PERIOD);
-  INTERNAL_MODULE_ON();
+  mixerSchedulerSetPeriod(module, AFHDS2_PERIOD);
 
-  return ctx;
+  return (void*)mod_st;
 }
 
-static void afhds2DeInit(void* context)
+static void afhds2DeInit(void* ctx)
 {
-  INTERNAL_MODULE_OFF();
-  IntmoduleSerialDriver.deinit(context);
-
-  // mixer setup
-  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
+  auto mod_st = (etx_module_state_t*)ctx;
+  modulePortDeInit(mod_st);
 }
 
-static void afhds2SetupPulses(void* context, int16_t* channels, uint8_t nChannels)
+static void afhds2SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
 {
-  (void)context;
-
   // TODO:
   (void)channels;
   (void)nChannels;
 
-  ModuleSyncStatus& status = getModuleSyncStatus(INTERNAL_MODULE);
-  mixerSchedulerSetPeriod(INTERNAL_MODULE, status.isValid()
-                                               ? status.getAdjustedRefreshRate()
-                                               : AFHDS2_PERIOD);
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  ModuleSyncStatus& status = getModuleSyncStatus(module);
+  mixerSchedulerSetPeriod(module, status.isValid()
+                                      ? status.getAdjustedRefreshRate()
+                                      : AFHDS2_PERIOD);
   status.invalidate();
-  setupPulsesAFHDS2();
-}
 
-static void afhds2SendPulses(void* context)
-{
-  uint8_t* data = (uint8_t*)intmodulePulsesData.flysky.pulses;
-  uint16_t size = intmodulePulsesData.flysky.ptr - data;
-  IntmoduleSerialDriver.sendBuffer(context, data, size);
-}
+  auto p_data = buffer;
+  setupPulsesAFHDS2(p_data);
 
-static int afhds2GetByte(void* context, uint8_t* data)
-{
-  return IntmoduleSerialDriver.getByte(context, data);
+  auto drv = modulePortGetSerialDrv(mod_st->tx);
+  auto drv_ctx = modulePortGetCtx(mod_st->tx);
+
+  drv->sendBuffer(drv_ctx, buffer, p_data - buffer);
 }
 
 static void afhds2ProcessData(void*, uint8_t data, uint8_t* buffer, uint8_t* len)
@@ -97,12 +87,10 @@ static void afhds2ProcessData(void*, uint8_t data, uint8_t* buffer, uint8_t* len
   processInternalFlySkyTelemetryData(data, buffer, len);
 }
 
-const etx_module_driver_t Afhds2InternalDriver = {
+const etx_proto_driver_t Afhds2InternalDriver = {
   .protocol = PROTOCOL_CHANNELS_AFHDS2A,
   .init = afhds2Init,
   .deinit = afhds2DeInit,
-  .setupPulses = afhds2SetupPulses,
   .sendPulses = afhds2SendPulses,
-  .getByte = afhds2GetByte,
   .processData = afhds2ProcessData,
 };

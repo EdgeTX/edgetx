@@ -55,18 +55,17 @@ static void setThrottleTrimSource(int16_t src)
 
 ThrottleParams::ThrottleParams() : Page(ICON_MODEL_SETUP)
 {
-  new StaticText(&header,
-                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                  PAGE_LINE_HEIGHT},
-                 STR_THROTTLE_LABEL, 0, COLOR_THEME_PRIMARY2);
+  header.setTitle(STR_MENU_MODEL_SETUP);
+  header.setTitle2(STR_THROTTLE_LABEL);
 
   body.setFlexLayout();
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+  body.padAll(8);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, 4);
 
   // Throttle reversed
   auto line = body.newLine(&grid);
   new StaticText(line, rect_t{}, STR_THROTTLEREVERSE, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.throttleReversed));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.throttleReversed));
 
   // Throttle source
   line = body.newLine(&grid);
@@ -79,7 +78,7 @@ ThrottleParams::ThrottleParams() : Page(ICON_MODEL_SETUP)
   // Throttle trim
   line = body.newLine(&grid);
   new StaticText(line, rect_t{}, STR_TTRIM, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.thrTrim));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.thrTrim));
 
   // Throttle trim source
   line = body.newLine(&grid);

@@ -77,8 +77,6 @@ typedef void * (*lua_Alloc) (void *ud, void *ptr, size_t osize, size_t nsize);
 
 #define LUA_TNIL		0
 #define LUA_TBOOLEAN		1
-#define LUA_TROTABLE            2
-#define LUA_TLIGHTFUNCTION      3
 #define LUA_TLIGHTUSERDATA      4
 #define LUA_TNUMBER             5
 #define LUA_TSTRING             6
@@ -216,8 +214,6 @@ LUA_API const char *(lua_pushfstring) (lua_State *L, const char *fmt, ...);
 LUA_API void  (lua_pushcclosure) (lua_State *L, lua_CFunction fn, int n);
 LUA_API void  (lua_pushboolean) (lua_State *L, int b);
 LUA_API void  (lua_pushlightuserdata) (lua_State *L, void *p);
-LUA_API void  (lua_pushlightfunction) (lua_State *L, void *p);
-LUA_API void  (lua_pushrotable) (lua_State *L, void *p);
 LUA_API int   (lua_pushthread) (lua_State *L);
 
 
@@ -431,6 +427,15 @@ struct lua_Debug {
 
 /* }====================================================================== */
 
+/* ROTable extensions to the standard API */
+
+typedef struct ROTable ROTable;
+typedef struct ROTable_entry ROTable_entry;
+
+LUA_API void (lua_pushrotable) (lua_State *L, const ROTable *p);
+LUA_API void (lua_createrotable) (lua_State *L, ROTable *t, const ROTable_entry *e, ROTable *mt);
+
+/* }====================================================================== */
 
 /******************************************************************************
 * Copyright (C) 1994-2013 Lua.org, PUC-Rio.

@@ -31,6 +31,7 @@ class AbstractStaticItemModel;
 constexpr char AIM_BOARDS_POT_TYPE[]        {"boards.pottype"};
 constexpr char AIM_BOARDS_SLIDER_TYPE[]     {"boards.slidertype"};
 constexpr char AIM_BOARDS_SWITCH_TYPE[]     {"boards.switchtype"};
+constexpr char AIM_BOARDS_MODULE_SIZE[]     {"boards.extmodulesize"};
 
 // TODO create a Board class with all these functions
 
@@ -61,13 +62,16 @@ namespace Board {
     BOARD_JUMPER_T18,
     BOARD_RADIOMASTER_TX12,
     BOARD_RADIOMASTER_TX12_MK2,
+    BOARD_RADIOMASTER_BOXER,
     BOARD_RADIOMASTER_T8,
     BOARD_JUMPER_TLITE,
+    BOARD_JUMPER_TLITE_F4,
     BOARD_FLYSKY_NV14,
     BOARD_RADIOMASTER_ZORRO,
     BOARD_JUMPER_TPRO,
     BOARD_BETAFPV_LR3PRO,
     BOARD_IFLIGHT_COMMANDO8,
+    BOARD_FLYSKY_EL18,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -154,6 +158,7 @@ namespace Board {
     HasSDCard,
     HasInternalModuleSupport,
     HasExternalModuleSupport,
+    HasAudioMuteGPIO,
     SportMaxBaudRate
   };
 
@@ -178,6 +183,14 @@ namespace Board {
     SwitchTypeFlag3Pos    = 0x02,
     SwitchTypeContext2Pos = SwitchTypeFlag2Pos,
     SwitchTypeContext3Pos = SwitchTypeFlag2Pos | SwitchTypeFlag3Pos
+  };
+
+  enum ExternalModuleSizes {
+    EXTMODSIZE_NONE,
+    EXTMODSIZE_STD,
+    EXTMODSIZE_SMALL,
+    EXTMODSIZE_BOTH,
+    EXTMODSIZE_COUNT
   };
 
 }
@@ -226,6 +239,9 @@ class Boards
     static StringTagMappingTable getTrimSourcesLookupTable(Board::Type board);
     static QList<int> getSupportedInternalModules(Board::Type board);
     static int getDefaultInternalModules(Board::Type board);
+    static int getDefaultExternalModuleSize(Board::Type board);
+    static QString externalModuleSizeToString(int value);
+    static AbstractStaticItemModel * externalModuleSizeItemModel();
 
   protected:
 
@@ -262,7 +278,7 @@ inline bool IS_JUMPER_T12(Board::Type board)
 
 inline bool IS_JUMPER_TLITE(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_TLITE;
+  return board == Board::BOARD_JUMPER_TLITE || board == Board::BOARD_JUMPER_TLITE_F4;
 }
 
 inline bool IS_JUMPER_TPRO(Board::Type board)
@@ -300,6 +316,11 @@ inline bool IS_RADIOMASTER_ZORRO(Board::Type board)
   return board == Board::BOARD_RADIOMASTER_ZORRO;
 }
 
+inline bool IS_RADIOMASTER_BOXER(Board::Type board)
+{
+  return board == Board::BOARD_RADIOMASTER_BOXER;
+}
+
 inline bool IS_RADIOMASTER_T8(Board::Type board)
 {
   return board == Board::BOARD_RADIOMASTER_T8;
@@ -316,8 +337,10 @@ inline bool IS_FAMILY_T12(Board::Type board)
          board == Board::BOARD_RADIOMASTER_TX12 ||
          board == Board::BOARD_RADIOMASTER_TX12_MK2 ||
          board == Board::BOARD_RADIOMASTER_ZORRO ||
+         board == Board::BOARD_RADIOMASTER_BOXER ||
          board == Board::BOARD_RADIOMASTER_T8 ||
          board == Board::BOARD_JUMPER_TLITE ||
+         board == Board::BOARD_JUMPER_TLITE_F4 ||
          board == Board::BOARD_JUMPER_TPRO ||
          board == Board::BOARD_BETAFPV_LR3PRO ||
          board == Board::BOARD_IFLIGHT_COMMANDO8;
@@ -326,6 +349,11 @@ inline bool IS_FAMILY_T12(Board::Type board)
 inline bool IS_FLYSKY_NV14(Board::Type board)
 {
   return (board == Board::BOARD_FLYSKY_NV14);
+}
+
+inline bool IS_FLYSKY_EL18(Board::Type board)
+{
+  return (board == Board::BOARD_FLYSKY_EL18);
 }
 
 inline bool IS_TARANIS_XLITE(Board::Type board)
@@ -430,7 +458,7 @@ inline bool HAS_LARGE_LCD(Board::Type board)
 
 inline bool HAS_EXTERNAL_ANTENNA(Board::Type board)
 {
-  return (board == Board::BOARD_X10 || board == Board::BOARD_HORUS_X12S || (IS_TARANIS_XLITE(board) && !IS_TARANIS_XLITES(board)));
+  return (IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_XLITES(board)));
 }
 
 inline bool IS_TARANIS_X9DP_2019(Board::Type board)

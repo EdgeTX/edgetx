@@ -37,7 +37,8 @@ static bool fnHasRepeat(AssignFunc fn)
     || (fn == FuncPlayValue)
     || (fn == FuncPlayHaptic)
     || (fn == FuncPlaySound)
-    || (fn == FuncSetScreen);
+    || (fn == FuncSetScreen)
+    || (fn == FuncPlayScript);
 }
 
 static const YamlLookupTable customFnLut = {
@@ -225,7 +226,9 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
     if (add_comma) {
       def += ",";
     }
-    if (rhs.repeatParam == 0) {
+    if (rhs.func == FuncPlayScript) {
+      def += ((rhs.repeatParam == 0) ? "On" : "1x");
+    } else if (rhs.repeatParam == 0) {
       def += "1x";
     } else if (rhs.repeatParam == -1) {
       def += "!1x";
@@ -378,7 +381,9 @@ bool convert<CustomFunctionData>::decode(const Node& node,
   } else if(fnHasRepeat(rhs.func)) {
     std::string repeat;
     getline(def, repeat);
-    if (repeat == "1x") {
+    if (rhs.func == FuncPlayScript) {
+      rhs.repeatParam = (repeat == "1x") ? 1 : 0;
+    } else if (repeat == "1x") {
       rhs.repeatParam = 0;
     } else if (repeat == "!1x") {
       rhs.repeatParam = -1;

@@ -57,7 +57,10 @@ Widget::Widget(const WidgetFactory* factory, Window* parent,
 
 void Widget::openMenu()
 {
-  Menu* menu = new Menu(this);
+  // Widgets are placed on a full screen window which is underneath the main view menu bar
+  // Find the parent of this so that when the popup loads it covers the main view menu
+  Window* w = parent->getFullScreenWindow()->getParent();
+  Menu* menu = new Menu(w ? w : this);
   if (fsAllowed) {
     menu->addLine(STR_WIDGET_FULLSCREEN, [&]() { setFullscreen(true); });
   }
@@ -71,7 +74,7 @@ void Widget::paint(BitmapBuffer * dc)
 {
   if (fullscreen) {
     // Draw background screen bellow
-    OpenTxTheme::instance()->drawBackground(dc);
+    EdgeTxTheme::instance()->drawBackground(dc);
   }
 
   // refresh the widget
@@ -98,10 +101,6 @@ void Widget::onCancel()
 
 void Widget::update()
 {
-  auto container = dynamic_cast<WidgetsContainer*>(parent);
-  if (container) {
-    container->updateZones();
-  }
 }
 
 void Widget::setFullscreen(bool enable)
@@ -113,7 +112,10 @@ void Widget::setFullscreen(bool enable)
   if (!enable) {
 
     // Reset all zones in container
-    Widget::update();
+    auto container = dynamic_cast<WidgetsContainer*>(parent);
+    if (container)
+      container->updateZones();
+
     setWindowFlags(getWindowFlags() & ~OPAQUE);
     lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
 
@@ -135,9 +137,10 @@ void Widget::setFullscreen(bool enable)
   // Enter Fullscreen Mode
   else {
 
-    // Set window opaque (inhibits redraw from windows bellow)
+    // Set window opaque (inhibits redraw from windows below)
     setWindowFlags(getWindowFlags() | OPAQUE);
     lv_obj_set_style_bg_opa(lvobj, LV_OPA_MAX, LV_PART_MAIN);
+    updateZoneRect(parent->getRect());
     setRect(parent->getRect());
     fullscreen = true;
 
@@ -202,7 +205,13 @@ void registerWidget(const WidgetFactory * factory)
   if (oldWidget) {
     unregisterWidget(oldWidget);
   }
-  TRACE("register widget %s", name);
+  TRACE("register widget %s %s", name, factory->getDisplayName());
+  for (auto it = getRegisteredWidgets().cbegin(); it != getRegisteredWidgets().cend(); ++it) {
+    if (strcmp((*it)->getDisplayName(), factory->getDisplayName()) > 0) {
+      getRegisteredWidgets().insert(it, factory);
+      return;
+    }
+  }
   getRegisteredWidgets().push_back(factory);
 }
 

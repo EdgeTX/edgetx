@@ -35,6 +35,10 @@ using std::list;
 
 #endif
 
+#if defined(USBJ_EX)
+#include "usb_joystick.h"
+#endif
+
 #include <cstring>
 
 #include "datastructs.h"
@@ -1330,6 +1334,10 @@ void ModelsList::setCurrentModel(ModelCell *cell)
   gettime(&t);
   cell->lastOpened = gmktime(&t);
   modelslabels.setDirty();
+
+#if defined(USBJ_EX) && defined(STM32) && !defined(SIMU)
+  onUSBJoystickModelChanged();
+#endif
 }
 
 /**
@@ -1521,7 +1529,7 @@ bool ModelsList::isModelIdUnique(uint8_t moduleIdx, char *warn_buf,
 
       // you cannot rely exactly on WARNING_LINE_LEN so using WARNING_LINE_LEN-2
       // (-2 for the ",")
-      if ((warn_buf_len - 2 - (curr - warn_buf)) > LEN_MODEL_NAME) {
+      if ((int)(warn_buf_len - 2 - (curr - warn_buf)) > LEN_MODEL_NAME) {
         if (warn_buf[0] != 0) curr = strAppend(curr, ", ");
         if (modelName[0] == 0) {
           size_t len = min<size_t>(strlen(modelFilename), LEN_MODEL_NAME);

@@ -23,36 +23,22 @@
 
 #include "afhds3_module.h"
 #include "definitions.h"
-
-#include "hal/serial_driver.h"
+#include "hal/module_port.h"
 
 namespace afhds3
 {
-  
-struct ByteTransport {
-  enum Type { Serial, Pulses };
 
-  void (*reset)(void* buffer);
-  void (*sendByte)(void* buffer, uint8_t b);
-  void (*flush)(void* buffer);
-  uint32_t (*getSize)(void* buffer);
-
-  void init(Type t);
-};
-
-enum FRAME_TYPE: uint8_t
-{
-  REQUEST_GET_DATA = 0x01,  //Get data response: ACK + DATA
-  REQUEST_SET_EXPECT_DATA = 0x02,  //Set data response: ACK + DATA
-  REQUEST_SET_EXPECT_ACK = 0x03,  //Set data response: ACK
-  REQUEST_SET_NO_RESP = 0x05,  //Set data response: none
-  RESPONSE_DATA = 0x10,  //Response ACK + DATA
-  RESPONSE_ACK = 0x20,  //Response ACK
+enum FRAME_TYPE : uint8_t {
+  REQUEST_GET_DATA = 0x01,         // Get data response: ACK + DATA
+  REQUEST_SET_EXPECT_DATA = 0x02,  // Set data response: ACK + DATA
+  REQUEST_SET_EXPECT_ACK = 0x03,   // Set data response: ACK
+  REQUEST_SET_NO_RESP = 0x05,      // Set data response: none
+  RESPONSE_DATA = 0x10,            // Response ACK + DATA
+  RESPONSE_ACK = 0x20,             // Response ACK
   NOT_USED = 0xff
 };
 
-enum COMMAND: uint8_t
-{
+enum COMMAND : uint8_t {
   MODULE_READY = 0x01,
   MODULE_STATE = 0x02,
   MODULE_MODE = 0x03,
@@ -64,13 +50,37 @@ enum COMMAND: uint8_t
   COMMAND_RESULT = 0x0D,
   MODULE_VERSION = 0x20,
   MODEL_ID = 0x2F,
-  VIRTUAL_FAILSAFE = 0x99, // virtual command used to trigger failsafe
+  VIRTUAL_FAILSAFE = 0x99,  // virtual command used to trigger failsafe
   UNDEFINED = 0xFF
 };
 
-// one byte frames for request queue
-struct Frame
+#define RX_CMD_TX_PWR                   ( 0x2013 )
+#define RX_CMD_FAILSAFE_VALUE           ( 0x6011 )
+#define RX_CMD_FAILSAFE_TIME            ( 0x6012 )
+#define RX_CMD_RSSI_CHANNEL_SETUP       ( 0x602B )
+#define RX_CMD_RANGE                    ( 0x7013 )
+#define RX_CMD_GET_CAPABILITIES         ( 0x7015 )
+#define RX_CMD_OUT_PWM_PPM_MODE         ( 0x7016 )   //PWM or PPM
+#define RX_CMD_FREQUENCY_V0             ( 0x7017 )
+#define RX_CMD_PORT_TYPE_V1             ( 0x7027 )
+#define RX_CMD_FREQUENCY_V1             ( 0x7028 )
+#define RX_CMD_FREQUENCY_V1_2           ( 0x7028 )
+#define RX_CMD_BUS_TYPE_V0              ( 0x7018 ) //I-BUS/S-BUS
+#define RX_CMD_IBUS_SETUP               ( 0x7019 )
+#define RX_CMD_IBUS_DIRECTION           ( 0x7020 ) //IBUS INPUT or OUTPUT
+#define RX_CMD_BUS_FAILSAFE             ( 0x702A )
+#define RX_CMD_GET_VERSION              ( 0x701F )
+
+enum RX_CMDRESULT: uint8_t
 {
+  RXSUCCESS=0,
+  RXTIMEOUT=1,
+  RXERROR=2, //not support
+  RXINVALID=3,
+};
+
+// one byte frames for request queue
+struct Frame {
   enum COMMAND command;
   enum FRAME_TYPE frameType;
   uint8_t payload;
@@ -80,7 +90,7 @@ struct Frame
 };
 
 union AfhdsFrameData;
-  
+
 PACK(struct AfhdsFrame {
   uint8_t startByte;
   uint8_t address;
@@ -128,47 +138,42 @@ struct CommandFifo {
                uint8_t byteContent);
 };
 
-struct FrameTransport
-{
-  ByteTransport trsp;
-  void* trsp_buffer;
+struct FrameTransport {
+  uint8_t* trsp_buffer;
+  uint8_t* data_ptr;
 
   uint8_t crc;
+  uint8_t frameAddress;
   // uint8_t timeout;
   uint8_t esc_state;
 
-  void init(ByteTransport::Type t, void* buffer);
+  void init(void* buffer, uint8_t fAddr);
   void clear();
 
-  void sendByte(uint8_t b);
+  void putByte(uint8_t b);
   void putBytes(uint8_t* data, int length);
 
   void putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data,
                 uint8_t dataLength, uint8_t frameIndex);
 
-  uint32_t getFrameSize() { return trsp.getSize(trsp_buffer); }
-  
+  uint32_t getFrameSize();
+
   bool processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
                             uint8_t& rxBufferCount, uint8_t maxSize);
 };
 
 class Transport
 {
-  enum State {
-    UNKNOWN = 0,
-    SENDING_COMMAND,
-    AWAITING_RESPONSE,
-    IDLE
-  };
+  enum State { UNKNOWN = 0, SENDING_COMMAND, AWAITING_RESPONSE, IDLE };
 
-  const etx_serial_driver_t* uart_drv;
-  void*                      uart_ctx;
+  etx_module_state_t* mod_st;
 
   FrameTransport trsp;
-  CommandFifo    fifo;
+  CommandFifo fifo;
 
   /**
-   * Internal operation state one of UNKNOWN, SENDING_COMMAND, AWAITING_RESPONSE, IDLE
+   * Internal operation state one of UNKNOWN, SENDING_COMMAND,
+   * AWAITING_RESPONSE, IDLE
    * Used to avoid sending commands when not allowed to
    */
   State operationState;
@@ -185,14 +190,13 @@ class Transport
   uint16_t repeatCount;
 
   bool handleReply(uint8_t* buffer, uint8_t len);
-  
+
  public:
-  void init(ByteTransport::Type t, void* buffer, const etx_serial_driver_t* drv);
-  void deinit();
+  void init(void* buffer, etx_module_state_t* mod_st, uint8_t fAddr);
 
   void clear();
-  
-  void sendFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data = nullptr,
+
+  void putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data = nullptr,
                  uint8_t dataLength = 0);
 
   void enqueue(COMMAND command, FRAME_TYPE frameType, bool useData = false,
@@ -213,9 +217,7 @@ class Transport
    */
   bool processQueue();
 
-  int getTelemetryByte(uint8_t* data);
-
   bool processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
                             uint8_t& rxBufferCount, uint8_t maxSize);
 };
-};
+};  // namespace afhds3

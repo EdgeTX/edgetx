@@ -38,6 +38,8 @@ STATIC_LZ4_BITMAP(mask_textline_curve);
 
 #if LCD_W > LCD_H // Landscape
 
+#define CH_LINE_H 35
+
 #define CH_BAR_COL     7
 #define CH_BAR_COLSPAN 1
 
@@ -49,6 +51,8 @@ static const lv_coord_t col_dsc[] = {
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 #else // Portrait
+
+#define CH_LINE_H 50
 
 #define CH_BAR_COL     3
 #define CH_BAR_COLSPAN 3
@@ -83,7 +87,12 @@ class OutputLineButton : public ListLineButton
   {
     lv_obj_t* target = lv_event_get_target(e);
     auto line = (OutputLineButton*)lv_obj_get_user_data(target);
-    if (line && !line->init) line->delayed_init(e);
+    if (line) {
+      if (!line->init)
+        line->delayed_init(e);
+      else
+        line->refresh();
+    }
   }
   
   void delayed_init(lv_event_t* e)
@@ -151,6 +160,7 @@ class OutputLineButton : public ListLineButton
   OutputLineButton(Window* parent, uint8_t channel) :
       ListLineButton(parent, channel)
   {
+    setHeight(CH_LINE_H);
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
     lv_obj_set_grid_dsc_array(lvobj, col_dsc, row_dsc);
 
@@ -165,9 +175,6 @@ class OutputLineButton : public ListLineButton
     lv_obj_set_grid_cell(source, LV_GRID_ALIGN_START, 0, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 #endif
-
-    lv_obj_update_layout(parent->getLvObj());
-    if(lv_obj_is_visible(lvobj)) delayed_init(nullptr);
 
     lv_obj_add_event_cb(lvobj, OutputLineButton::on_draw, LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
   }
@@ -184,10 +191,10 @@ class OutputLineButton : public ListLineButton
       lv_obj_set_style_pad_top(source, -7, 0);
       lv_obj_set_style_pad_bottom(source, -7, 0);
 #endif
-      lv_label_set_text_fmt(source, "%s\n" TR_CH "%u", getSourceString(MIXSRC_CH1 + index), index + 1);
+      lv_label_set_text_fmt(source, "%s\n" TR_CH "%u", getSourceString(MIXSRC_FIRST_CH + index), index + 1);
     } else {
       lv_obj_set_style_text_font(source, getFont(FONT(STD)), 0);
-      lv_label_set_text(source, getSourceString(MIXSRC_CH1 + index));
+      lv_label_set_text(source, getSourceString(MIXSRC_FIRST_CH + index));
     }
     if (output->revert) {
       lv_obj_clear_flag(revert, LV_OBJ_FLAG_HIDDEN);
@@ -286,38 +293,33 @@ ModelOutputsPage::ModelOutputsPage() :
 
 void ModelOutputsPage::build(FormWindow *window)
 {
-  window->setFlexLayout();
-  window->padRow(lv_dpx(4));
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
-  auto form = new FormGroup(window, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(16));
-  form->padRow(lv_dpx(8));
-  form->padBottom(lv_dpx(4));
+  lv_obj_set_style_flex_cross_place(window->getLvObj(), LV_FLEX_ALIGN_START, 0);
 
-  auto form_obj = form->getLvObj();
-  lv_obj_set_style_flex_cross_place(form_obj, LV_FLEX_ALIGN_CENTER, 0);
+  auto box = new FormWindow(window, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
+  box->padRow(4);
+  lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
 
-  new TextButton(form, rect_t{}, STR_ADD_ALL_TRIMS_TO_SUBTRIMS, [=]() {
+  new TextButton(box, rect_t{}, STR_ADD_ALL_TRIMS_TO_SUBTRIMS, [=]() {
     moveTrimsToOffsets();
     window->invalidate();
     return 0;
   });
 
-  auto box = new FormGroup(form, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+  auto box2 = new FormWindow(box, rect_t{});
+  box2->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+  box2->setWidth(LV_SIZE_CONTENT);
+  lv_obj_set_style_flex_cross_place(box2->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
 
-  auto box_obj = box->getLvObj();
-  lv_obj_set_width(box_obj, LV_SIZE_CONTENT);
-  lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
-
-  new StaticText(box, rect_t{}, STR_ELIMITS, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(box, rect_t{}, GET_SET_DEFAULT(g_model.extendedLimits));  
+  new StaticText(box2, rect_t{}, STR_ELIMITS, 0, COLOR_THEME_PRIMARY1);
+  new ToggleSwitch(box2, rect_t{}, GET_SET_DEFAULT(g_model.extendedLimits));
 
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
 
     // Channel settings
     auto btn = new OutputLineButton(window, ch);
-    // btn->refresh();
 
     LimitData* output = limitAddress(ch);
     btn->setPressHandler([=]() -> uint8_t {

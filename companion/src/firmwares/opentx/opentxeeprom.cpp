@@ -3089,10 +3089,8 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
   internalField.Append(new UnsignedField<3>(this, generalData.internalModuleBaudrate));
   if (IS_FAMILY_HORUS_OR_T16(board))
     internalField.Append(new SpareBitsField<3>(this));
-  else if (IS_TARANIS(board))
-    internalField.Append(new SignedField<3>(this, generalData.splashDuration));
   else
-    internalField.Append(new UnsignedField<3>(this, generalData.splashMode)); // TODO
+    internalField.Append(new SignedField<3>(this, generalData.splashMode));
   internalField.Append(new SignedField<2>(this, (int &)generalData.hapticMode));
 
   internalField.Append(new SignedField<8>(this, generalData.switchesDelay));

@@ -234,6 +234,17 @@
     <file>images/simulator/Zorro/right-mdl.png</file>
     <file>images/simulator/Zorro/bottom.png</file>
     <file>images/simulator/Zorro/top.png</file>
+    <file>images/simulator/Boxer/bottom.png</file>
+    <file>images/simulator/Boxer/left.png</file>
+    <file>images/simulator/Boxer/left-sys.png</file>
+    <file>images/simulator/Boxer/left-pageup.png</file>
+    <file>images/simulator/Boxer/left-pagedn.png</file>
+    <file>images/simulator/Boxer/left-rtn.png</file>
+    <file>images/simulator/Boxer/left-tele.png</file>
+    <file>images/simulator/Boxer/right.png</file>
+    <file>images/simulator/Boxer/right-mdl.png</file>
+    <file>images/simulator/Boxer/right-ent.png</file>
+    <file>images/simulator/Boxer/top.png</file>
     <file>images/simulator/T8/left.png</file>
     <file>images/simulator/T8/left-pageup.png</file>
     <file>images/simulator/T8/left-pagedn.png</file>
@@ -1264,18 +1275,19 @@
     <file>themes/yerico/48/sdsync.png</file>
   </qresource>
   <qresource prefix="/layouts/">
-    <file alias="mask_layout1p2.png">../../radio/src/gui/colorlcd/layouts/mask_layout1+2.png</file>
-    <file alias="mask_layout1p3.png">../../radio/src/gui/colorlcd/layouts/mask_layout1+3.png</file>
-    <file alias="mask_layout1x1.png">../../radio/src/gui/colorlcd/layouts/mask_layout1x1.png</file>
-    <file alias="mask_layout1x2.png">../../radio/src/gui/colorlcd/layouts/mask_layout1x2.png</file>
-    <file alias="mask_layout1x3.png">../../radio/src/gui/colorlcd/layouts/mask_layout1x3.png</file>
-    <file alias="mask_layout1x4.png">../../radio/src/gui/colorlcd/layouts/mask_layout1x4.png</file>
-    <file alias="mask_layout2p1.png">../../radio/src/gui/colorlcd/layouts/mask_layout2+1.png</file>
-    <file alias="mask_layout2p3.png">../../radio/src/gui/colorlcd/layouts/mask_layout2+3.png</file>
-    <file alias="mask_layout2x1.png">../../radio/src/gui/colorlcd/layouts/mask_layout2x1.png</file>
-    <file alias="mask_layout2x2.png">../../radio/src/gui/colorlcd/layouts/mask_layout2x2.png</file>
-    <file alias="mask_layout2x3.png">../../radio/src/gui/colorlcd/layouts/mask_layout2x3.png</file>
-    <file alias="mask_layout2x4.png">../../radio/src/gui/colorlcd/layouts/mask_layout2x4.png</file>
-    <file alias="mask_layout4p2.png">../../radio/src/gui/colorlcd/layouts/mask_layout4+2.png</file>
+    <file alias="mask_layout1p2.png">images/layouts/mask_layout1+2.png</file>
+    <file alias="mask_layout1p3.png">images/layouts/mask_layout1+3.png</file>
+    <file alias="mask_layout1x1.png">images/layouts/mask_layout1x1.png</file>
+    <file alias="mask_layout1x2.png">images/layouts/mask_layout1x2.png</file>
+    <file alias="mask_layout1x3.png">images/layouts/mask_layout1x3.png</file>
+    <file alias="mask_layout1x4.png">images/layouts/mask_layout1x4.png</file>
+    <file alias="mask_layout2p1.png">images/layouts/mask_layout2+1.png</file>
+    <file alias="mask_layout2p3.png">images/layouts/mask_layout2+3.png</file>
+    <file alias="mask_layout2x1.png">images/layouts/mask_layout2x1.png</file>
+    <file alias="mask_layout2x2.png">images/layouts/mask_layout2x2.png</file>
+    <file alias="mask_layout2x3.png">images/layouts/mask_layout2x3.png</file>
+    <file alias="mask_layout2x4.png">images/layouts/mask_layout2x4.png</file>
+    <file alias="mask_layout4p2.png">images/layouts/mask_layout4+2.png</file>
+    <file alias="mask_layout4p2b.png">images/layouts/mask_layout4+2b.png</file>
   </qresource>
 </RCC>

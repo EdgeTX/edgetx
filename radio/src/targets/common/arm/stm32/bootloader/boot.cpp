@@ -19,18 +19,37 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
+
+#if defined(BLUETOOTH)
+  #include "bluetooth_driver.h"
+  #include "stm32_serial_driver.h"
+#endif
+
 #include "board.h"
 #include "boot.h"
 #include "bin_files.h"
 #include "dataconstants.h"
 #include "lcd.h"
-#include "keys.h"
+// #include "keys.h"
 #include "debug.h"
+
+#include "watchdog_driver.h"
+
+#include "hal/rotary_encoder.h"
+
+#if defined(DEBUG_SEGGER_RTT)
+  #include "thirdparty/Segger_RTT/RTT/SEGGER_RTT.h"
+#endif
 
 #if defined(PCBXLITE)
   #define BOOTLOADER_KEYS                 0x0F
 #else
   #define BOOTLOADER_KEYS                 0x42
+#endif
+
+#if defined(RADIO_T20)
+  #define SECONDARY_BOOTLOADER_KEYS       0x1200
 #endif
 
 #define APP_START_ADDRESS               (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
@@ -58,9 +77,10 @@ const uint8_t bootloaderVersion[] __attribute__ ((section(".version"), used)) =
   {'B', 'O', 'O', 'T', '1', '0'};
 #endif
 
-#if defined(DEBUG) && !defined(SIMU)
+#define SOFTRESET_REQUEST 0xCAFEDEAD
+  
 volatile tmr10ms_t g_tmr10ms;
-#endif
+volatile uint8_t tenms = 1;
 
 uint32_t firmwareSize;
 uint32_t firmwareAddress = FIRMWARE_ADDRESS;
@@ -71,7 +91,6 @@ uint32_t eepromAddress = 0;
 uint32_t eepromWritten = 0;
 #endif
 
-volatile uint8_t tenms = 1;
 FlashCheckRes valid;
 MemoryType memoryType;
 uint32_t unlocked = 0;
@@ -79,26 +98,18 @@ uint32_t unlocked = 0;
 void interrupt10ms()
 {
   tenms |= 1u; // 10 mS has passed
-
-#if defined(DEBUG)
   g_tmr10ms++;
-#endif
-  
-  uint8_t index = 0;
-  uint32_t in = readKeys();
 
-  for (int i = 0; i < TRM_BASE; i++) {
-    keys[index++].input(in & (1 << i));
-  }
+  keysPollingCycle();
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
   static rotenc_t rePreviousValue;
 
-  rotenc_t reNewValue = (rotencValue / ROTARY_ENCODER_GRANULARITY);
+  rotenc_t reNewValue = rotaryEncoderGetValue();
   int8_t scrollRE = reNewValue - rePreviousValue;
   if (scrollRE) {
     rePreviousValue = reNewValue;
-    pushEvent(scrollRE < 0 ? EVT_KEY_FIRST(KEY_UP) : EVT_KEY_FIRST(KEY_DOWN));
+    pushEvent(scrollRE < 0 ? EVT_ROTARY_LEFT : EVT_ROTARY_RIGHT);
   }
 #endif
 }
@@ -208,41 +219,41 @@ void writeEepromBlock()
 #if !defined(SIMU)
 void bootloaderInitApp()
 {
-  RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph | KEYS_RCC_AHB1Periph |
+  RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph |
                              LCD_RCC_AHB1Periph | BACKLIGHT_RCC_AHB1Periph |
-                             AUX_SERIAL_RCC_AHB1Periph |
-                             AUX2_SERIAL_RCC_AHB1Periph |
                              KEYS_BACKLIGHT_RCC_AHB1Periph | SD_RCC_AHB1Periph,
                          ENABLE);
 
   RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph | LCD_RCC_APB1Periph |
                              BACKLIGHT_RCC_APB1Periph |
-                             INTERRUPT_xMS_RCC_APB1Periph |
-                             AUX_SERIAL_RCC_APB1Periph |
-                             AUX2_SERIAL_RCC_APB1Periph | SD_RCC_APB1Periph,
+                             INTERRUPT_xMS_RCC_APB1Periph | SD_RCC_APB1Periph,
                          ENABLE);
 
-  RCC_APB2PeriphClockCmd(LCD_RCC_APB2Periph | BACKLIGHT_RCC_APB2Periph |
-                             RCC_APB2Periph_SYSCFG | AUX_SERIAL_RCC_APB2Periph |
-                             AUX2_SERIAL_RCC_APB2Periph,
-                         ENABLE);
+  RCC_APB2PeriphClockCmd(
+      LCD_RCC_APB2Periph | BACKLIGHT_RCC_APB2Periph | RCC_APB2Periph_SYSCFG,
+      ENABLE);
 
 #if defined(HAVE_BOARD_BOOTLOADER_INIT)
   boardBootloaderInit();
+#endif
+
+#if defined(DEBUG_SEGGER_RTT)
+  SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_NO_BLOCK_SKIP);
 #endif
 
   pwrInit();
   keysInit();
 
 #if defined(SWSERIALPOWER)
-  #if defined(AUX_SERIAL)
-    void set_aux_pwr(uint8_t on);
-    set_aux_pwr(0);
-  #endif
-  #if defined(AUX2_SERIAL)
-    void set_aux2_pwr(uint8_t on);
-    set_aux2_pwr(0);
-  #endif
+  // TODO: replace with proper serial port query...
+  // #if defined(AUX_SERIAL)
+  //   void set_aux_pwr(uint8_t on);
+  //   set_aux_pwr(0);
+  // #endif
+  // #if defined(AUX2_SERIAL)
+  //   void set_aux2_pwr(uint8_t on);
+  //   set_aux2_pwr(0);
+  // #endif
 #endif
 
   // wait a bit for the inputs to stabilize...
@@ -254,11 +265,16 @@ void bootloaderInitApp()
 
 #if (defined(RADIO_T8) || defined(RADIO_COMMANDO8)) && !defined(RADIOMASTER_RELEASE)
   // Bind button not pressed
-  if ((~KEYS_GPIO_REG_BIND & KEYS_GPIO_PIN_BIND) == false) {
+  if ((~(KEYS_GPIO_REG_BIND->IDR) & KEYS_GPIO_PIN_BIND) == false) {
 #else
   // LHR & RHL trims not pressed simultanously
+#if defined(SECONDARY_BOOTLOADER_KEYS)
+  if (readTrims() != BOOTLOADER_KEYS && readTrims() != SECONDARY_BOOTLOADER_KEYS) {
+#else
   if (readTrims() != BOOTLOADER_KEYS) {
 #endif
+#endif
+    // TODO: deInit before restarting
     // Start main application
     jumpTo(APP_START_ADDRESS);
   }
@@ -270,7 +286,7 @@ void bootloaderInitApp()
 #endif
 
   delaysInit(); // needed for lcdInit()
-  
+
 #if defined(DEBUG)
   initSerialPorts();
 #endif
@@ -363,11 +379,11 @@ int  bootloaderMain()
 
         bootloaderDrawScreen(state, vpos);
 
-        if (event == EVT_KEY_FIRST(KEY_DOWN)) {
+        if (IS_NEXT_EVENT(event)) {
           if (vpos < bootloaderGetMenuItemCount(MAIN_MENU_LEN) - 1) { vpos++; }
           continue;
         }
-        else if (event == EVT_KEY_FIRST(KEY_UP)) {
+        else if (IS_PREVIOUS_EVENT(event)) {
           if (vpos > 0) { vpos--; }
           continue;
         }
@@ -424,7 +440,7 @@ int  bootloaderMain()
           limit = nameCount;
         }
 
-        if (event == EVT_KEY_REPT(KEY_DOWN) || event == EVT_KEY_FIRST(KEY_DOWN)) {
+        if (IS_NEXT_EVENT(event)) {
           if (vpos < limit - 1) {
             vpos += 1;
           }
@@ -435,7 +451,7 @@ int  bootloaderMain()
             }
           }
         }
-        else if (event == EVT_KEY_REPT(KEY_UP) || event == EVT_KEY_FIRST(KEY_UP)) {
+        else if (IS_PREVIOUS_EVENT(event)) {
           if (vpos > 0) {
             vpos -= 1;
           }

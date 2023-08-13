@@ -289,9 +289,12 @@ void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
   }
 }
 
+#define DMA2D_ARGB4444 ((uint32_t)0x00000004)
+
 void DMABitmapConvert(uint16_t *dest, const uint8_t *src, uint16_t w,
                       uint16_t h, uint32_t format)
 {
+
   if (format == DMA2D_ARGB4444) {
     for (int row = 0; row < h; ++row) {
       for (int col = 0; col < w; ++col) {

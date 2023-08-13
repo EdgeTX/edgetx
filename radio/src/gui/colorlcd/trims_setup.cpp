@@ -38,17 +38,16 @@ static void resetTrims()
 
 TrimsSetup::TrimsSetup() : Page(ICON_MODEL_SETUP)
 {
-  new StaticText(&header,
-                 {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                  PAGE_LINE_HEIGHT},
-                 STR_TRIMS, 0, COLOR_THEME_PRIMARY2);
+  header.setTitle(STR_MENU_MODEL_SETUP);
+  header.setTitle2(STR_TRIMS);
 
   body.setFlexLayout();
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+  body.padAll(8);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, 4);
 
   // Reset trims
   auto line = body.newLine();
-  lv_obj_set_style_pad_all(line->getLvObj(), lv_dpx(8), 0);
+  line->padBottom(4);
   auto btn = new TextButton(line, rect_t{}, STR_RESET_BTN, []() -> uint8_t {
     resetTrims();
     return 0;
@@ -66,7 +65,7 @@ TrimsSetup::TrimsSetup() : Page(ICON_MODEL_SETUP)
   // Extended trims
   line = body.newLine(&grid);
   new StaticText(line, rect_t{}, STR_ETRIMS, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.extendedTrims));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.extendedTrims));
 
   // Display trims
   // TODO: move to "Screen setup" ?

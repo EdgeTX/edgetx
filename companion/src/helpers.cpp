@@ -324,10 +324,16 @@ void Helpers::setBitmappedValue(unsigned int & field, unsigned int value, unsign
   field = (field & ~fieldmask) | (value << (numbits * index + offset));
 }
 
+#ifdef __APPLE__
+// Flag when simulator is running
+static bool simulatorRunning = false;
+bool isSimulatorRunning() { return simulatorRunning; }
+#endif
+
 void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
 {
-  QString fwId = SimulatorLoader::findSimulatorByFirmwareName(getCurrentFirmware()->getId());
-  if (fwId.isEmpty()) {
+  QString simulatorId = SimulatorLoader::findSimulatorByName(getCurrentFirmware()->getSimulatorId());
+  if (simulatorId.isEmpty()) {
     QMessageBox::warning(NULL,
                          CPN_STR_TTL_WARNING,
                          QCoreApplication::translate("Companion", "Simulator for this firmware is not yet available"));
@@ -342,11 +348,14 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
     simuData->setCurrentModel(modelIdx);
   }
 
-  SimulatorMainWindow * dialog = new SimulatorMainWindow(parent, fwId, flags);
+  SimulatorMainWindow * dialog = new SimulatorMainWindow(parent, simulatorId, flags);
   dialog->setWindowModality(Qt::ApplicationModal);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
 
   QObject::connect(dialog, &SimulatorMainWindow::destroyed, [simuData] (void) {
+#ifdef __APPLE__
+    simulatorRunning = false;
+#endif
     // TODO simuData and Horus tmp directory is deleted on simulator close OR we could use it to get back data from the simulation
     delete simuData;
   });
@@ -359,6 +368,9 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
     dialog->deleteLater();
   }
    else if (dialog->setRadioData(simuData)) {
+#ifdef __APPLE__
+    simulatorRunning = true;
+#endif
     dialog->show();
   }
   else {
@@ -728,12 +740,6 @@ QString Helpers::removeAccents(const QString & str)
   return result;
 }
 
-<<<<<<< HEAD
-SemanticVersion::SemanticVersion(QString vers)
-{
-  if (!isValid(vers))
-    return;
-=======
 /*
   SemanticVersion
 
@@ -754,45 +760,17 @@ bool SemanticVersion::fromString(QString vers)
 
   if (vers.toLower().startsWith("v"))
     vers = vers.mid(1);
->>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 
   QStringList strl = vers.split(".");
   version.major = strl.at(0).toInt();
   version.minor = strl.at(1).toInt();
-<<<<<<< HEAD
-=======
 
->>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
   if (strl.count() > 2) {
     if (!strl.at(2).contains("-")) {
       version.patch = strl.at(2).toInt();
     } else {
       QStringList ptch = strl.at(2).toLower().split("-");
       version.patch = ptch.at(0).toInt();
-<<<<<<< HEAD
-      if (ptch.at(1).left(2) == "rc") {
-        version.preReleaseType = PR_RC;
-        version.preReleaseNumber = ptch.at(1).mid(2).toInt();
-      } else if (ptch.at(1).left(5) == "alpha") {
-        version.preReleaseType = PR_ALPHA;
-        version.preReleaseNumber = ptch.at(1).mid(5).toInt();
-      } else if (ptch.at(1).left(4) == "beta") {
-        version.preReleaseType = PR_BETA;
-        version.preReleaseNumber = ptch.at(1).mid(4).toInt();
-      }
-    }
-  }
-}
-
-bool SemanticVersion::isValid(QString vers)
-{
-  if (vers.trimmed().isEmpty())
-    return false;
-
-  QStringList strl = vers.split(".");
-  if (strl.count() < 2)
-    return false;
-=======
 
       int offset = 0;
       QString relType;
@@ -836,9 +814,11 @@ SemanticVersion& SemanticVersion::operator=(const SemanticVersion& rhs)
 
 bool SemanticVersion::isValid(const QString vers)
 {
-  QString v(vers);
+  QString v(vers.trimmed());
 
-  v = v.trimmed();
+  if (v.isEmpty())
+    return false;
+
   if (v.toLower().startsWith("v"))
     v = v.mid(1);
 
@@ -887,7 +867,6 @@ bool SemanticVersion::isValid()
     version = SemanticVersion().version;
     return false;
   }
->>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 
   return true;
 }
@@ -897,21 +876,9 @@ QString SemanticVersion::toString() const
   QString ret(QString("%1.%2.%3").arg(version.major).arg(version.minor).arg(version.patch));
 
   if (version.preReleaseType != PR_NONE) {
-<<<<<<< HEAD
-    ret.append("-");
-    if (version.preReleaseType == PR_RC)
-      ret.append("RC");
-    else if (version.preReleaseType == PR_ALPHA)
-      ret.append("ALPHA");
-    else if (version.preReleaseType == PR_BETA)
-      ret.append("BETA");
-
-    ret.append(QString::number(version.preReleaseNumber));
-=======
     ret = QString("%1-%2").arg(ret).arg(preReleaseTypeToString());
     if (version.preReleaseNumber > 0)
       ret = QString("%1.%2").arg(ret).arg(version.preReleaseNumber);
->>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
   }
 
   return ret;
@@ -941,8 +908,6 @@ int SemanticVersion::compare(const SemanticVersion& other)
 
   return 0;
 }
-<<<<<<< HEAD
-=======
 
 unsigned int SemanticVersion::toInt() const
 {
@@ -966,4 +931,25 @@ bool SemanticVersion::fromInt(const unsigned int val)
   version.preReleaseNumber = Helpers::getBitmappedValue(val, 0, 4);
   return isValid();
 }
->>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
+
+StatusDialog::StatusDialog(QWidget * parent, const QString title, QString msgtext, const int width) :
+  QDialog(parent)
+{
+  setWindowTitle(title);
+  QVBoxLayout *layout = new QVBoxLayout(this);
+  msg = new QLabel(this);
+  msg->setFixedWidth(width);
+  msg->setContentsMargins(50, 50, 50, 50);
+  update(msgtext);
+  layout->addWidget(msg);
+  show();
+}
+
+StatusDialog::~StatusDialog()
+{
+}
+
+void StatusDialog::update(QString text)
+{
+  msg->setText(text);
+}

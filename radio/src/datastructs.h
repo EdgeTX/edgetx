@@ -51,9 +51,9 @@ static inline void check_struct()
   CHKSIZE(MixData, 20);
   CHKSIZE(ExpoData, 17);
   CHKSIZE(LimitData, 11);
-  CHKSIZE(LogicalSwitchData, 19);
-  CHKSIZE(CustomFunctionData, 21);
-  CHKSIZE(FlightModeData, 28 + 2*NUM_TRIMS);
+  CHKSIZE(LogicalSwitchData, 9);
+  CHKSIZE(CustomFunctionData, 11);
+  CHKSIZE(FlightModeData, 28 + 2 * MAX_TRIMS);
   CHKSIZE(TimerData, 12);
   CHKSIZE(SwashRingData, 8);
   CHKSIZE(FrSkyBarData, 6);
@@ -65,9 +65,9 @@ static inline void check_struct()
   CHKSIZE(MixData, 20);
   CHKSIZE(ExpoData, 17);
   CHKSIZE(LimitData, 13);
-  CHKSIZE(LogicalSwitchData, 19);
-  CHKSIZE(CustomFunctionData, 21);
-  CHKSIZE(FlightModeData, 40);
+  CHKSIZE(LogicalSwitchData, 9);
+  CHKSIZE(CustomFunctionData, 11);
+  CHKSIZE(FlightModeData, 44);
   CHKSIZE(TimerData, 17);
   CHKSIZE(SwashRingData, 8);
   CHKSIZE(FrSkyBarData, 6);
@@ -79,14 +79,14 @@ static inline void check_struct()
   CHKSIZE(MixData, 20);
   CHKSIZE(ExpoData, 17);
   CHKSIZE(LimitData, 13);
-  CHKSIZE(CustomFunctionData, 19);
+  CHKSIZE(CustomFunctionData, 9);
   CHKSIZE(FlightModeData, 44);
   CHKSIZE(TimerData, 17);
   CHKSIZE(SwashRingData, 8);
   CHKSIZE(ModelHeader, 131);
   CHKSIZE(CurveHeader, 4);
-  CHKSIZE(CustomScreenData, 850);
-  CHKTYPE(TopBarPersistentData, 300);
+  CHKSIZE(CustomScreenData, 852);
+  CHKTYPE(TopBarPersistentData, 444);
 #elif defined(PCBNV14)
   // TODO
 #else
@@ -109,7 +109,7 @@ static inline void check_struct()
 
 #endif /* board specific ifdefs*/
 
-  CHKSIZE(LogicalSwitchData, 19);
+  CHKSIZE(LogicalSwitchData, 9);
   CHKSIZE(TelemetrySensor, 14);
   CHKSIZE(ModuleData, 29);
   CHKSIZE(GVarData, 7);
@@ -117,65 +117,43 @@ static inline void check_struct()
   CHKSIZE(TrainerData, 16);
 
 #if defined(PCBXLITES)
-<<<<<<< HEAD
-
-  CHKSIZE(RadioData, 1501);
-  CHKSIZE(ModelData, 7441);
+  CHKSIZE(RadioData, 872);
+  CHKSIZE(ModelData, 6265);
 #elif defined(PCBXLITE)
-  CHKSIZE(RadioData, 1499);
-  CHKSIZE(ModelData, 7441);
+  CHKSIZE(RadioData, 870);
+  CHKSIZE(ModelData, 6265);
 #elif defined(RADIO_TPRO)
-  CHKSIZE(RadioData, 1482);
-  CHKSIZE(ModelData, 7466);
+  CHKSIZE(RadioData, 859);
+  CHKSIZE(ModelData, 6290);
+#elif defined(RADIO_TPROV2)
+  CHKSIZE(RadioData, 859);
+  CHKSIZE(ModelData, 6290);
+#elif defined(RADIO_T20)
+  CHKSIZE(RadioData, 859);
+  CHKSIZE(ModelData, 6326);
+#elif defined(RADIO_BOXER)
+  CHKSIZE(RadioData, 870);
+  CHKSIZE(ModelData, 6265);
 #elif defined(PCBX7)
-  CHKSIZE(RadioData, 1505);
-  CHKSIZE(ModelData, 7441);
+  CHKSIZE(RadioData, 870);
+  CHKSIZE(ModelData, 6265);
 #elif defined(PCBX9E)
-  CHKSIZE(RadioData, 1595);
-  CHKSIZE(ModelData, 7893);
+  CHKSIZE(RadioData, 870);
+  CHKSIZE(ModelData, 6707);
 #elif defined(PCBX9D) || defined(PCBX9DP)
-  CHKSIZE(RadioData, 1537);
-  CHKSIZE(ModelData, 7885);
-=======
-  CHKSIZE(RadioData, 1502);
-  CHKSIZE(ModelData, 7444);
-#elif defined(PCBXLITE)
-  CHKSIZE(RadioData, 1500);
-  CHKSIZE(ModelData, 7444);
-#elif defined(RADIO_TPRO)
-  CHKSIZE(RadioData, 1483);
-  CHKSIZE(ModelData, 7469);
-#elif defined(PCBX7)
-  CHKSIZE(RadioData, 1506);
-  CHKSIZE(ModelData, 7444);
-#elif defined(PCBX9E)
-  CHKSIZE(RadioData, 1596);
-  CHKSIZE(ModelData, 7896);
-#elif defined(PCBX9D) || defined(PCBX9DP)
-  CHKSIZE(RadioData, 1538);
-  CHKSIZE(ModelData, 7888);
->>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
+  CHKSIZE(RadioData, 870);
+  CHKSIZE(ModelData, 6706);
 #elif defined(PCBHORUS)
   #if defined(PCBX10)
-    CHKSIZE(RadioData, 1564);
-    CHKSIZE(ModelData, 12408);
+    CHKSIZE(RadioData, 916);
+    CHKSIZE(ModelData, 15607);
   #else
-<<<<<<< HEAD
-    CHKSIZE(RadioData, 1545);
-    CHKSIZE(ModelData, 12408);
+    CHKSIZE(RadioData, 916);
+    CHKSIZE(ModelData, 15607);
   #endif
 #elif defined(PCBNV14)
-  CHKSIZE(RadioData, 1491);
-  CHKSIZE(ModelData, 12119);
-
-=======
-    CHKSIZE(RadioData, 1546);
-    CHKSIZE(ModelData, 12406);
-  #endif
-#elif defined(PCBNV14)
-  CHKSIZE(RadioData, 1492);
-  CHKSIZE(ModelData, 12222);
->>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
+  CHKSIZE(RadioData, 916);
+  CHKSIZE(ModelData, 15463);
 #endif
 
 #undef CHKSIZE

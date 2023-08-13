@@ -21,8 +21,8 @@
 #include "yaml_moduledata.h"
 #include "yaml_generalsettings.h"
 #include "eeprominterface.h"
-#include "moduledata.h"
 #include "rawsource.h"
+#include "multiprotocols.h"
 
 //  type: TYPE_MULTIMODULE
 //  subType: 15,2
@@ -47,6 +47,20 @@
 //  mod:
 //      ghost:
 //        raw12bits: 0
+
+// FRM303 (as of PR3501)
+// type: TYPE_FLYSKY
+// subType: AFHDS3
+// channelsStart: 0
+// channelsCount: 18
+// failsafeMode: NOT_SET
+// mod: 
+//     afhds3: 
+//       emi: 2
+//       telemetry: 1
+//       phyMode: 2
+//       reserved: 0
+//       rfPower: 1
 
 static const YamlLookupTable protocolLut = {
   {  PULSES_OFF, "TYPE_NONE"  },
@@ -86,10 +100,20 @@ static const YamlLookupTable r9mLut = {
   { MODULE_SUBTYPE_R9M_AUPLUS, "AUPLUS" },
 };
 
+static const YamlLookupTable ppmLut = {
+  { 0, "NOTLM" },
+  { 1, "MLINK" }
+};
+
 static const YamlLookupTable dsmLut = {
   { 0, "LP45" },
   { 1, "DSM2" },
   { 2, "DSMX" },
+};
+
+static const YamlLookupTable afhdsLut = {
+  { 0, "AFHDS3" },
+  { 1, "AFHDS2A" } // could be complete nonsense, CHECK IT!
 };
 
 static const YamlLookupTable failsafeLut = {
@@ -99,106 +123,6 @@ static const YamlLookupTable failsafeLut = {
   {  FAILSAFE_NOPULSES, "NOPULSES"  },
   {  FAILSAFE_RECEIVER, "RECEIVER"  },
 };
-
-enum MMRFrskySubtypes {
-  MM_RF_FRSKY_SUBTYPE_D16,
-  MM_RF_FRSKY_SUBTYPE_D8,
-  MM_RF_FRSKY_SUBTYPE_D16_8CH,
-  MM_RF_FRSKY_SUBTYPE_V8,
-  MM_RF_FRSKY_SUBTYPE_D16_LBT,
-  MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH,
-  MM_RF_FRSKY_SUBTYPE_D8_CLONED,
-  MM_RF_FRSKY_SUBTYPE_D16_CLONED
-};
-
-// from radio/src/pulses/multi.cpp
-static void convertMultiProtocolToEtx(int *protocol, int *subprotocol)
-{
-  if (*protocol == 3 && *subprotocol == 0) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
-    *subprotocol = MM_RF_FRSKY_SUBTYPE_D8;
-    return;
-  }
-
-  if (*protocol == 3 && *subprotocol == 1) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
-    *subprotocol = MM_RF_FRSKY_SUBTYPE_D8_CLONED;
-    return;
-  }
-
-  if (*protocol == 25) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
-    *subprotocol = MM_RF_FRSKY_SUBTYPE_V8;
-    return;
-  }
-
-  if (*protocol == 15) {
-    *protocol = MODULE_SUBTYPE_MULTI_FRSKY + 1;
-
-    if (*subprotocol == 0)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16;
-    else if (*subprotocol == 1)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16_8CH;
-    else if (*subprotocol == 2)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16_LBT;
-    else if (*subprotocol == 3)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH;
-    else if (*subprotocol == 4)
-      *subprotocol = MM_RF_FRSKY_SUBTYPE_D16_CLONED;
-
-    return;
-  }
-
-  if (*protocol >= 25)
-    *protocol -= 1;
-
-  if (*protocol >= 16)
-    *protocol -= 1;
-}
-
-void convertEtxProtocolToMulti(int *protocol, int *subprotocol)
-{
-  // Special treatment for the FrSky entry...
-  if (*protocol == MODULE_SUBTYPE_MULTI_FRSKY + 1) {
-    if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D8) {
-      //D8
-      *protocol = 3;
-      *subprotocol = 0;
-    }
-    else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D8_CLONED) {
-      //D8
-      *protocol = 3;
-      *subprotocol = 1;
-    }
-    else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_V8) {
-      //V8
-      *protocol = 25;
-      *subprotocol = 0;
-    }
-    else {
-      *protocol = 15;
-      if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16_8CH)
-        *subprotocol = 1;
-      else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16)
-        *subprotocol = 0; // D16
-      else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16_LBT)
-        *subprotocol = 2;
-      else if (*subprotocol == MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH)
-        *subprotocol = 3;
-      else
-        *subprotocol = 4; // D16_CLONED
-    }
-  }
-  else {
-    // 15  for Multimodule is FrskyX or D16 which we map as a protocol of 3 (FrSky)
-    // all protos > frskyx are therefore also off by one
-    if (*protocol >= 15)
-      *protocol += 1;
-    // 25 is again a FrSky *protocol (FrskyV) so shift again
-    if (*protocol >= 25)
-      *protocol += 1;
-  }
-}
 
 static int exportPpmDelay(int delay) { return (delay - 300) / 50; }
 static int importPpmDelay(int delay) { return 300 + 50 * delay; }
@@ -240,15 +164,21 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
     case PULSES_LP45:
       node["subType"] = LookupValue(dsmLut, subtype);
       break;
+    case PULSES_PPM:
+      node["subType"] = LookupValue(ppmLut, subtype);
+      break; 
     case PULSES_MULTIMODULE: {
       int rfProtocol = rhs.multi.rfProtocol + 1;
       int subType = rhs.subType;
-      convertEtxProtocolToMulti(&rfProtocol, &subType);
       std::string st_str = std::to_string(rfProtocol);
       st_str += ",";
       st_str += std::to_string(subType);
       node["subType"] = st_str;
     } break;
+    case PULSES_AFHDS3: {
+      node["subType"] = LookupValue(afhdsLut, subtype);
+      break;
+    }
   }
 
   node["channelsStart"] = rhs.channelsStart;
@@ -316,7 +246,17 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
         dsmp["flags"] = rhs.dsmp.flags;
         mod["dsmp"] = dsmp;
     } break;
-    // TODO: afhds3, flysky
+    // TODO: flysky
+    // TODO: afhds3
+    case PULSES_AFHDS3: {
+      Node afhds3;
+      afhds3["emi"] = rhs.afhds3.emi;
+      afhds3["telemetry"] = rhs.afhds3.telemetry;
+      afhds3["phyMode"] = rhs.afhds3.phyMode;
+      afhds3["reserved"] = rhs.afhds3.reserved;
+      afhds3["rfPower"] = rhs.afhds3.rfPower;
+      mod["afhds3"] = afhds3;
+    } break;
     default: {
         Node ppm;
         ppm["delay"] = exportPpmDelay(rhs.ppm.delay);
@@ -355,6 +295,9 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
     case PULSES_PXX_R9M_LITE: {
       subType >> r9mLut >> rhs.subType;
     } break;
+    case PULSES_PPM: {
+      subType >> ppmLut >> rhs.subType;
+    } break;
     case PULSES_LP45: {
       int subProto = 0;
       subType >> dsmLut >> subProto;
@@ -369,7 +312,6 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           int rfProtocol = std::stoi(st_str, &pos);
           st_str = st_str.substr(pos + 1);
           int rfSubType = std::stoi(st_str);
-          convertMultiProtocolToEtx(&rfProtocol, &rfSubType);
           if (rfProtocol > 0) {
             rhs.multi.rfProtocol = rfProtocol - 1;
             rhs.subType = rfSubType;
@@ -419,6 +361,7 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
               if (rcvrname.IsMap()) {
                 if (rcvrname["val"]) {
                   rcvrname["val"] >> rhs.access.receiverName[i];
+                  rhs.access.receivers |= (1 << i);       // fix colorLCD radios not writing tag receivers
                 }
               }
             }
@@ -438,11 +381,32 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           Node dsmp = mod["dsmp"];
           dsmp["flags"] >> rhs.dsmp.flags;
       } else if (mod["flysky"]) {
-          //TODO
+        // TODO: flysky
       } else if (mod["afhds3"]) {
-          //TODO
+        // TODO: afhds3
+        Node afhds3 = mod["afhds3"];
+        afhds3["emi"] >> rhs.afhds3.emi;
+        afhds3["telemetry"] >> rhs.afhds3.telemetry;
+        afhds3["phyMode"] >> rhs.afhds3.phyMode;
+        afhds3["reserved"] >> rhs.afhds3.reserved;
+        afhds3["rfPower"] >> rhs.afhds3.rfPower;
       }
   }
+
+  // perform integrity checks and fix-ups
+
+  if (rhs.protocol == PULSES_MULTIMODULE) {
+    if (rhs.multi.rfProtocol > MODULE_SUBTYPE_MULTI_LAST) {
+      qDebug() << "Multi protocol:" << rhs.multi.rfProtocol << "exceeds supported protocols. Module set to: OFF";
+      rhs.clear();
+      const auto & pdef = multiProtocols.getProtocol(rhs.multi.rfProtocol);
+      if (rhs.subType >= pdef.numSubTypes()) {
+        qDebug() << "Multi protocol sub-type:" << rhs.subType << "exceeds number of supported sub-types. Module set to: OFF";
+        rhs.clear();
+      }
+    }
+  }
+
 
   return true;
 }

@@ -24,53 +24,37 @@
 #include "libopenui.h"
 #include "trims.h"
 
-#if defined(PCBNV14)
+#if LCD_H > LCD_W
 constexpr uint8_t SLIDER_TICKS_COUNT = 30;
 #else
 constexpr uint8_t SLIDER_TICKS_COUNT = 40;
 #endif
-constexpr coord_t HMARGIN = 5;
-constexpr coord_t HORIZONTAL_SLIDERS_WIDTH = SLIDER_TICKS_COUNT * 4 + TRIM_SQUARE_SIZE;
-constexpr coord_t MULTIPOS_H = 18;
-constexpr coord_t MULTIPOS_W = 50;
-constexpr coord_t VERTICAL_SLIDERS_HEIGHT = SLIDER_TICKS_COUNT * 4 + TRIM_SQUARE_SIZE;
+constexpr coord_t SLIDER_TICK_SPACING = 4;
+constexpr coord_t HORIZONTAL_SLIDERS_WIDTH = SLIDER_TICKS_COUNT * SLIDER_TICK_SPACING + TRIM_SQUARE_SIZE;
+constexpr coord_t VERTICAL_SLIDERS_HEIGHT = SLIDER_TICKS_COUNT * SLIDER_TICK_SPACING + TRIM_SQUARE_SIZE;
 
 class MainViewSlider : public Window
 {
-  public:
-    MainViewSlider(Window * parent, const rect_t & rect, uint8_t idx):
-      Window(parent, rect),
-      idx(idx)
-    {
-    }
+ public:
+  MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx);
+  void checkEvents() override;
 
-    void checkEvents() override
-    {
-      Window::checkEvents();
-      int16_t newValue = calibratedAnalogs[idx];
-      if (value != newValue) {
-        value = newValue;
-        invalidate();
-      }
-    }
-
-  protected:
-    uint8_t idx;
-    int16_t value = 0;
+ protected:
+  uint8_t idx;
+  int16_t value = 0;
 };
 
 class MainViewHorizontalSlider : public MainViewSlider
 {
-  public:
-    using MainViewSlider::MainViewSlider;
-    MainViewHorizontalSlider(Window* parent, uint8_t idx);
-    void paint(BitmapBuffer * dc) override;
+ public:
+  using MainViewSlider::MainViewSlider;
+  MainViewHorizontalSlider(Window* parent, uint8_t idx);
+  void paint(BitmapBuffer* dc) override;
 };
 
 class MainView6POS : public MainViewSlider
 {
   public:
-    // using MainViewSlider::MainViewSlider;
     MainView6POS(Window* parent, uint8_t idx);
     void paint(BitmapBuffer * dc) override;
     void checkEvents() override;
@@ -79,6 +63,6 @@ class MainView6POS : public MainViewSlider
 class MainViewVerticalSlider : public MainViewSlider
 {
   public:
-    MainViewVerticalSlider(Window* parent, uint8_t idx);
+    MainViewVerticalSlider(Window* parent, const rect_t & rect, uint8_t idx);
     void paint(BitmapBuffer * dc) override;
 };

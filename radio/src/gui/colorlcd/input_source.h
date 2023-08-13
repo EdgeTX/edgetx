@@ -24,12 +24,12 @@
 #include "window.h"
 
 struct ExpoData;
-class FormGroup;
+class FormWindow;
 
 class InputSource : public Window
 {
   ExpoData* input;
-  FormGroup* sensor_form;
+  FormWindow* sensor_form;
 
   void update();
   static void value_changed(lv_event_t* e);

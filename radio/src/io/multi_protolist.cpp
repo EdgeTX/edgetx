@@ -54,7 +54,7 @@ void MultiRfProtocols::timerCb(TimerHandle_t xTimer)
 }
 #endif
 
-MultiRfProtocols* MultiRfProtocols::_instance[NUM_MODULES] = {};
+MultiRfProtocols* MultiRfProtocols::_instance[MAX_MODULES] = {};
 
 // MPM telemetry packet format type = MultiProtoDef (0x11)
 //
@@ -89,39 +89,26 @@ bool MultiRfProtocols::RfProto::parse(const uint8_t* data, uint8_t len)
   uint8_t subProtoNr = 0;
   uint8_t subProtoLen = 0;
 
-  // special case handling for Frsky protos
-  if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
-    const mm_protocol_definition* def = getMultiProtocolDefinition(proto);
-    if (!def) return false;
+  // proto label string
+  while (*s && len--) s++;
+  if (*s || !len) return false;
+  label = (const char*)data;
+  s++;
+  len--;
 
-    label = "Frsky";
-    flags = 0x20;
+  // flags, subProtoNr, subProto label max length
+  if (len < 2) return false;
+  flags = (uint8_t) * (s++);
+  //TRACE("flags: 0x%02X", flags);
 
-    fillSubProtoList(def->subTypeString, def->maxSubtype + 1);
-    return true;
+  subProtoNr = (uint8_t) * (s++);
+  len -= 2;
 
-  } else {
-    // proto label string
-    while (*s && len--) s++;
-    if (*s || !len) return false;
-    label = (const char*)data;
-    s++;
-    len--;
+  if (!len) return true;
+  subProtoLen = (uint8_t) * (s++);
+  len--;
 
-    // flags, subProtoNr, subProto label max length
-    if (len < 2) return false;
-    flags = (uint8_t) * (s++);
-    //TRACE("flags: 0x%02X", flags);
-
-    subProtoNr = (uint8_t) * (s++);
-    len -= 2;
-
-    if (!len) return true;
-    subProtoLen = (uint8_t) * (s++);
-    len--;
-
-    if (len < subProtoNr * subProtoLen) return false;
-  }
+  if (len < subProtoNr * subProtoLen) return false;
 
   fillSubProtoList(s, subProtoNr, subProtoLen);
   return true;
@@ -140,27 +127,13 @@ void MultiRfProtocols::RfProto::fillSubProtoList(const char* str, int n, int len
   }
 }
 
-void MultiRfProtocols::RfProto::fillSubProtoList(const char** str, int n)
+void MultiRfProtocols::RfProto::fillSubProtoList(const char *const *str, int n)
 {
   subProtos.reserve(n);
 
   for (int i = 0; i < n; i++) {
     subProtos.emplace_back(str[i]);
   }
-}
-
-uint8_t MultiRfProtocols::RfProto::getOption() const
-{
-  uint8_t opt = flags >> 4;
-  if (opt >= getMaxMultiOptions()) {
-    opt = 1; // Unknown options are defaulted to type 1 (basic option)
-  }
-  return opt;
-}
-
-const char* MultiRfProtocols::RfProto::getOptionStr() const
-{
-  return mm_options_strings::options[getOption()];
 }
 
 MultiRfProtocols* MultiRfProtocols::instance(unsigned int moduleIdx)
@@ -260,6 +233,12 @@ bool MultiRfProtocols::triggerScan()
       scanTimer->timer = xTimerCreateStatic(
           "MPM", MULTI_PROTOLIST_START_TIMEOUT / RTOS_MS_PER_TICK, pdTRUE,
           (void*)moduleIdx, MultiRfProtocols::timerCb, &scanTimer->timerBuffer);
+    } else {
+      if (xTimerChangePeriod(scanTimer->timer,
+          MULTI_PROTOLIST_START_TIMEOUT / RTOS_MS_PER_TICK,
+          0) != pdPASS) {
+          /* The timer period could not be reset. */
+      }
     }
 
     if (scanTimer->timer) {
@@ -296,29 +275,14 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
             //TRACE("Proto = %d; label = '%s'", replyProtoId,
             //      (const char*)packet);
 
-            int proto = convertMultiToOtx(replyProtoId);
-            if (proto != MODULE_SUBTYPE_MULTI_CONFIG &&
-                proto != MODULE_SUBTYPE_MULTI_SCANNER) {
-              bool insertProto = true;
-              if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
-                auto it = std::find_if(protoList.begin(), protoList.end(),
-                                       [=](const RfProto& p) {
-                                         return p.proto == (const int)proto;
-                                       });
-                if (it != protoList.end()) {
-                  // FRSKY proto already added
-                  insertProto = false;
-                }
-              }
-
-              if (insertProto) {
-                RfProto rfProto(proto);
-                if (rfProto.parse(packet, len)) {
-                  proto2idx[proto] = protoList.size();
-                  protoList.emplace_back(rfProto);
-                } else {
-                  TRACE("Error parsing proto [%d]", proto);
-                }
+            int proto = replyProtoId - 1;
+            if (isMultiProtocolSelectable(proto)) {
+              RfProto rfProto(proto);
+              if (rfProto.parse(packet, len)) {
+                proto2idx[proto] = protoList.size();
+                protoList.emplace_back(rfProto);
+              } else {
+                TRACE("Error parsing proto [%d]", proto);
               }
             } else {
               // do not count excluded protocols
@@ -390,7 +354,7 @@ void MultiRfProtocols::fillBuiltinProtos()
   // build the list of static protos
   protoList.clear();
   protoList.reserve(MODULE_SUBTYPE_MULTI_LAST - MODULE_SUBTYPE_MULTI_FIRST + 1);
-  for (; pdef->protocol != 0xfe; pdef++) {
+  for (; pdef->protocol != MODULE_SUBTYPE_MULTI_SENTINEL; pdef++) {
     RfProto rfProto(pdef->protocol);
 
     if (pdef->protocol == MM_RF_CUSTOM_SELECTED) break;  // skip custom proto

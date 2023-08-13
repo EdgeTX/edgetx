@@ -113,6 +113,9 @@ do
         tx12mk2)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
             ;;
+        boxer)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BOXER"
+            ;;
         t8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
             ;;
@@ -122,8 +125,17 @@ do
         tlite)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
             ;;
+        tlitef4)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITEF4"
+            ;;
         tpro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPRO"
+            ;;
+        tprov2)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROV2"
+            ;;
+        t20)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20"
             ;;
         lr3pro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"

@@ -247,7 +247,6 @@ void CurveDialog::updateCurve()
 
   Node * nodel = 0;
   Node * nodex = 0;
-  QColor color;
 
   scene->clear();
 

@@ -92,7 +92,7 @@ class AppMessages
       msgBox.setText(infoTxt);
 
       if (!transient)
-        msgBox.setCheckBox(new QCheckBox(tr("Show this message again at next startup?")));
+        msgBox.setCheckBox(new QCheckBox(QObject::tr("Show this message again at next startup?")));
 
       msgBox.exec();
 

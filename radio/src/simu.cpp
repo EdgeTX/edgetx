@@ -19,6 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#if defined(SIMU_AUDIO)
+  #include <SDL.h>
+  #undef main
+#endif
+
 #include "fx.h"
 #include "FXExpression.h"
 #include "FXPNGImage.h"
@@ -27,12 +32,10 @@
 #include "opentx.h"
 #include <time.h>
 #include <ctype.h>
-#include "targets/simu/simulcd.h"
 
-#if defined(SIMU_AUDIO)
-  #include <SDL.h>
-  #undef main
-#endif
+#include "targets/simu/simulcd.h"
+#include "hal/adc_driver.h"
+#include "hal/rotary_encoder.h"
 
 #if LCD_W > 212
   #define LCD_ZOOM 1
@@ -77,8 +80,8 @@ class OpenTxSim: public FXMainWindow
     FXImageFrame * bmf;
 
   public:
-    FXSlider * sliders[NUM_STICKS];
-    FXKnob * knobs[NUM_POTS+NUM_SLIDERS];
+    FXSlider * sliders[MAX_STICKS];
+    FXKnob * knobs[MAX_POTS];
 };
 
 // Message Map
@@ -94,11 +97,14 @@ FXDEFMAP(OpenTxSim) OpenTxSimMap[] = {
 FXIMPLEMENT(OpenTxSim, FXMainWindow, OpenTxSimMap, ARRAYNUMBER(OpenTxSimMap))
 
 OpenTxSim::OpenTxSim(FXApp* a):
-  FXMainWindow(a, "OpenTX Simu", nullptr, nullptr, DECOR_ALL, 20, 90, 0, 0)
+  FXMainWindow(a, "EdgeTX Simu", nullptr, nullptr, DECOR_ALL, 20, 90, 0, 0)
 {
   bmp = new FXPPMImage(getApp(), nullptr, IMAGE_OWNED|IMAGE_KEEP|IMAGE_SHMI|IMAGE_SHMP, W2, H2);
 
 #if defined(SIMU_AUDIO)
+  #if defined(_WIN32) || defined(_WIN64)
+  putenv("SDL_AUDIODRIVER=directsound");
+  #endif
   SDL_Init(SDL_INIT_AUDIO);
 #endif
 
@@ -123,25 +129,27 @@ OpenTxSim::OpenTxSim(FXApp* a):
         break;
       default:;
     }
-    sliders[i]->setRange(-1024, 1024);
-    sliders[i]->setTickDelta(7);
-    sliders[i]->setValue(0);
+    sliders[i]->setTickDelta(14);
+    sliders[i]->setRange(0, 4095);
+    sliders[i]->setValue(2047);
   }
 
-  for (int i = 0; i < NUM_POTS + NUM_SLIDERS; i++) {
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  memset(knobs, 0, sizeof(knobs));
+  
+  for (int i = 0; i < max_pots; i++) {
     knobs[i]= new FXKnob(hf11, nullptr, 0, KNOB_TICKS|LAYOUT_LEFT);
-    knobs[i]->setValue(0);
+    knobs[i]->setRange(0, 4095);
+    knobs[i]->setValue(2047);
 
 #if defined(PCBHORUS)
     if (i == 1) {  // 6-pos switch
-      knobs[i]->setRange(0, 2048);
-      knobs[i]->setIncrement(2048 / 5);
-      knobs[i]->setTickDelta(2048 / 5);
+      knobs[i]->setIncrement(4095 / 5);
+      knobs[i]->setTickDelta(4095 / 5);
+      knobs[i]->setValue(0);
       continue;
     }
 #endif
-
-    knobs[i]->setRange(-1024, 1024);
   }
 
   bmf = new FXImageFrame(this, bmp);
@@ -170,7 +178,7 @@ OpenTxSim::~OpenTxSim()
   delete sliders[2];
   delete sliders[3];
 
-  for (int i = 0; i < NUM_POTS + NUM_SLIDERS; i++) {
+  for (int i = 0; i < MAX_POTS; i++) {
     delete knobs[i];
   }
 
@@ -343,8 +351,8 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
 #if defined(PCBNV14)
     // no keys
 #elif defined(PCBHORUS)
-    KEY_Page_Up,   KEY_PGUP,
-    KEY_Page_Down, KEY_PGDN,
+    KEY_Page_Up,   KEY_PAGEUP,
+    KEY_Page_Down, KEY_PAGEDN,
     KEY_Return,    KEY_ENTER,
     KEY_Up,        KEY_UP,
     KEY_Down,      KEY_DOWN,
@@ -360,7 +368,7 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     KEY_Left,      KEY_LEFT,
     KEY_Up,        KEY_UP,
     KEY_Down,      KEY_DOWN,
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO)
+#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO)
     KEY_Page_Up,   KEY_PAGEUP,
     KEY_Page_Down, KEY_PAGEDN,
     KEY_Return,    KEY_ENTER,
@@ -435,7 +443,7 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
   SWITCH_KEY(C, 2, 3);
   SWITCH_KEY(D, 3, 3);
 
-  #if defined(RADIO_TPRO)
+  #if defined(RADIO_TPRO) || defined(RADIO_TPROV2)
     SWITCH_KEY(1, 4, 2);
     SWITCH_KEY(2, 5, 2);
     SWITCH_KEY(3, 6, 2);
@@ -466,6 +474,7 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
   #endif
 }
 
+extern volatile rotenc_t rotencValue;
 extern volatile uint32_t rotencDt;
 
 long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
@@ -477,11 +486,11 @@ long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
 #if defined(ROTARY_ENCODER_NAVIGATION)
     static bool rotencAction = false;
     if (getApp()->getKeyState(KEY_X) || getApp()->getKeyState(KEY_plus)) {
-      if (!rotencAction) ROTARY_ENCODER_NAVIGATION_VALUE += ROTARY_ENCODER_GRANULARITY;
+      if (!rotencAction) rotencValue += ROTARY_ENCODER_GRANULARITY;
       rotencAction = true;
     }
     else if (getApp()->getKeyState(KEY_W) || getApp()->getKeyState(KEY_minus)) {
-      if (!rotencAction) ROTARY_ENCODER_NAVIGATION_VALUE -= ROTARY_ENCODER_GRANULARITY;
+      if (!rotencAction) rotencValue -= ROTARY_ENCODER_GRANULARITY;
       rotencAction = true;
     }
     else {
@@ -620,6 +629,8 @@ int main(int argc, char ** argv)
   // so that persistent settings are now available.
   application.init(argc, argv);
 
+  simuInit();
+
   // This creates the main window. We pass in the title to be displayed
   // above the window, and possibly some icons for when its iconified.
   // The decorations determine stuff like the borders, close buttons,
@@ -640,8 +651,6 @@ int main(int argc, char ** argv)
 
   printf("Model size = %d\n", (int)sizeof(g_model));
 
-  simuInit();
-
 #if defined(EEPROM) || defined(EEPROM_RLC)
   startEepromThread(argc >= 2 ? argv[1] : "eeprom.bin");
 #endif
@@ -654,23 +663,25 @@ int main(int argc, char ** argv)
   return application.run();
 }
 
-uint16_t anaIn(uint8_t chan)
+uint16_t simu_get_analog(uint8_t idx)
 {
-  if (chan < NUM_STICKS)
-    return opentxSim->sliders[chan]->getValue();
-  else if (chan < NUM_STICKS + NUM_POTS + NUM_SLIDERS)
-    return opentxSim->knobs[chan - NUM_STICKS]->getValue();
-#if defined(PCBTARANIS)
-  else if (chan == TX_RTC_VOLTAGE)
-    return 800; // 2.34V
-#endif
-  else
-    return 0;
-}
+  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
+  if (idx < max_sticks)
+    return opentxSim->sliders[idx]->getValue();
 
-uint16_t getAnalogValue(uint8_t index)
-{
-  return anaIn(index);
+  idx -= max_sticks;
+
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  if (idx < max_pots)
+    return opentxSim->knobs[idx]->getValue();
+
+  idx -= max_pots;
+
+  auto max_axes = adcGetMaxInputs(ADC_INPUT_AXIS);
+  if (idx < max_axes) return 0;
+
+  // probably RTC_BAT
+  return 0;
 }
 
 void createBitmap(int index, uint16_t *data, int x, int y, int w, int h)

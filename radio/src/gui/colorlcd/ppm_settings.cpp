@@ -25,8 +25,8 @@
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 template <typename T>
-PpmFrameSettings<T>::PpmFrameSettings(Window* parent, const FlexGridLayout& g, T* ppm) :
-    FormGroup(parent, rect_t{})
+PpmFrameSettings<T>::PpmFrameSettings(Window* parent, T* ppm) :
+    FormWindow(parent, rect_t{})
 {
   setFlexLayout(LV_FLEX_FLOW_ROW);
 
@@ -38,6 +38,9 @@ PpmFrameSettings<T>::PpmFrameSettings(Window* parent, const FlexGridLayout& g, T
       0, PREC1);
   edit->setStep(PPM_STEP_SIZE);
   edit->setSuffix(STR_MS);
+  
+  // memorize PPM frame length NumberEdit object
+  this->ppmFrameLenEditObject = edit;
 
   // PPM frame delay
   edit = new NumberEdit(this, rect_t{}, 100, 800,
@@ -50,17 +53,6 @@ PpmFrameSettings<T>::PpmFrameSettings(Window* parent, const FlexGridLayout& g, T
   new Choice(this, rect_t{}, STR_PPM_POL, 0, 1, GET_SET_DEFAULT(ppm->pulsePol));
 }
 
-// explicit instantiation
+// explicit instantiation to make linker happy
 template struct PpmFrameSettings<TrainerModuleData>;
-
-PpmSettings::PpmSettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx) :
-    FormGroup(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
-{
-  FlexGridLayout grid(g);
-  setFlexLayout();
-
-  // PPM frame
-  auto line = newLine(&grid);
-  new StaticText(line, rect_t{}, STR_PPMFRAME, 0, COLOR_THEME_PRIMARY1);
-  new PpmFrameSettings<PpmModule>(line, grid, &md->ppm);
-}
+template struct PpmFrameSettings<PpmModule>;

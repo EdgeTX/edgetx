@@ -21,8 +21,10 @@
 
 #include <stdio.h>
 #include "opentx.h"
+
 #include "bootloader_flash.h"
 #include "timers_driver.h"
+#include "watchdog_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -50,7 +52,7 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
   uint8_t buffer[1024];
   UINT count;
 
-  pausePulses();
+  pulsesStop();
 
   f_open(&file, filename, FA_READ);
 
@@ -110,5 +112,5 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
 
   f_close(&file);
 
-  resumePulses();
+  pulsesStart();
 }

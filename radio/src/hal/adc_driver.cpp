@@ -25,187 +25,232 @@
 // IS_POT_SLIDER_AVAILABLE()
 #include "opentx.h"
 
-const etx_hal_adc_driver_t* etx_hal_adc_driver = nullptr;
 
-#if defined(SIMU)
-  // not needed
-#elif defined(RADIO_T16)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 };
-#elif defined(RADIO_T18)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1, -1,1,-1,  -1,1,1,1,  -1,1 };
-#elif defined(RADIO_TX16S)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 };
-#elif defined(PCBX10)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  -1,1,-1,  1,1,1,1,   1,-1 };
-#elif defined(PCBX9E)
-  const int8_t adcDirection[NUM_ANALOGS] = {
-#if defined(HORUS_STICKS)
-    1,-1,1,-1,
-#else
-    1,1,-1,-1,
-#endif // HORUS_STICKS
-    // other analogs are the same
-    -1,-1,-1,1, -1,1,1,-1, -1,-1 };
+const etx_hal_adc_driver_t* _hal_adc_driver = nullptr;
+const etx_hal_adc_inputs_t* _hal_adc_inputs = nullptr;
 
-  const uint8_t adcMapping[NUM_ANALOGS] = { 0 /*STICK1*/, 1 /*STICK2*/, 2 /*STICK3*/, 3 /*STICK4*/,
-                                            11 /*POT1*/, 4 /*POT2*/, 5 /*POT3*/, 6 /*POT4*/,
-                                            12 /*SLIDER1*/, 13 /*SLIDER2*/, 7 /*SLIDER3*/, 8 /*SLIDER4*/,
-                                            9 /*TX_VOLTAGE*/, 10 /*TX_VBAT*/ };
-#elif defined(PCBX9DP)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,-1,  1,1,  1,  1};
-#elif defined(PCBX9D)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,0,   1,1,  1,  1};
-#elif defined(RADIO_TX12)
-  const int8_t adcDirection[NUM_ANALOGS] = {-1,1,-1,1,  -1,-1,  1,  1};
-#elif defined(RADIO_TX12MK2)
-  const int8_t adcDirection[NUM_ANALOGS] = {-1,1,-1,1,  1,-1};
-#elif defined(RADIO_ZORRO)
-  const int8_t adcDirection[NUM_ANALOGS] = {-1, 1, 1, -1, -1, 1, 1, 1};
-#elif defined(RADIO_TPRO)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  1,1,  1,  1};
-#elif defined(PCBX7)
-  const int8_t adcDirection[NUM_ANALOGS] = {-1,1,-1,1,  1,1,  1,  1};
-#elif defined(PCBX9LITE)
-  const int8_t adcDirection[NUM_ANALOGS] = {-1,1,-1,1,  1,1,  1};
-#elif defined(PCBXLITE)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,-1,1,  -1,1,  1,  1};
-#elif defined(PCBNV14)
-  const uint8_t adcMapping[NUM_ANALOGS] = { 0 /*STICK1*/, 1 /*STICK2*/, 2 /*STICK3*/, 3 /*STICK4*/,
-                                            4 /*POT1*/, 5 /*POT2*/, 6 /*SWA*/, 14 /*SWB*/,
-                                            7 /*SWC*/,  15 /*SWD*/, 8 /*SWE*/, 9 /*SWF*/,
-                                            11/*SWG*/,  10/*SWH*/,
-                                            12 /*TX_VOLTAGE*/, 13 /* TX_VBAT */ };
-
-  const int8_t adcDirection[NUM_ANALOGS] = { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,
-                                            -1 /*POT1*/, 0 /*POT2*/, 0 /*SWA*/,  0 /*SWC*/,
-                                             0 /*SWE*/, -1 /*SWF*/,  0 /*SWG*/, -1 /*SWH*/,
-                                             0 /*TX_VOLTAGE*/, 0 /*TX_VBAT*/,
-                                             0 /*SWB*/, 0 /*SWD*/};
-
-#elif defined(PCBX12S)
-  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,1,-1,  -1,1,-1,  -1,-1,  -1,1, 0,0,0};
-#else
-  #error "ADC driver does not suppport this target"
-#endif
-
-uint16_t adcValues[NUM_ANALOGS] __DMA;
-
-#if defined(PCBX10) || defined(PCBX12S)
-uint16_t rtcBatteryVoltage;
-#endif
+static uint16_t adcValues[MAX_ANALOG_INPUTS] __DMA;
 
 bool adcInit(const etx_hal_adc_driver_t* driver)
 {
-  etx_hal_adc_driver = driver;
-  if (!etx_hal_adc_driver)
-    return false;
-
-  // If there is an init function
-  // it should succeed
-  if (etx_hal_adc_driver->init &&
-      !etx_hal_adc_driver->init()) {
-    return false;
+  // If there is an init function, it MUST succeed
+  if (driver && (!driver->init || driver->init())) {
+    _hal_adc_driver = driver;
+    _hal_adc_inputs = driver->inputs;
+    return true;
   }
 
-  return true;
+  _hal_adc_driver = nullptr;
+  return false;
 }
 
 static bool adcSingleRead()
 {
-  if (!etx_hal_adc_driver)
-      return false;
-
-  if (etx_hal_adc_driver->start_conversion &&
-      !etx_hal_adc_driver->start_conversion())
+  if (!_hal_adc_driver)
     return false;
 
-  if (etx_hal_adc_driver->wait_completion)
-    etx_hal_adc_driver->wait_completion();
+  if (_hal_adc_driver->start_conversion &&
+      !_hal_adc_driver->start_conversion())
+    return false;
+
+  if (_hal_adc_driver->wait_completion)
+    _hal_adc_driver->wait_completion();
 
   return true;
 }
 
-// Declare adcRead() weak so it can be re-declared
-#pragma weak adcRead
 bool adcRead()
 {
-  uint16_t temp[NUM_ANALOGS] = { 0 };
-
-  uint8_t first_analog_adc;
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
-    if (globalData.flyskygimbals)
-    {
-        first_analog_adc = FIRST_ANALOG_ADC_FS;
-    } else
-    {
-        first_analog_adc = FIRST_ANALOG_ADC;
-    }
-#else
-    first_analog_adc = FIRST_ANALOG_ADC;
-#endif
-
-
-  for (int i=0; i<4; i++) {
-    if (!adcSingleRead())
-        return false;
-    for (uint8_t x=first_analog_adc; x<NUM_ANALOGS; x++) {
-      uint16_t val = adcValues[x];
-#if defined(JITTER_MEASURE)
-      if (JITTER_MEASURE_ACTIVE()) {
-        rawJitter[x].measure(val);
-      }
-#endif
-      temp[x] += val;
-    }
+  adcSingleRead();
+  
+  // TODO: this hack needs to go away...
+  if (isVBatBridgeEnabled()) {
+    disableVBatBridge();
   }
 
-  for (uint8_t x=first_analog_adc; x<NUM_ANALOGS; x++) {
-    adcValues[x] = temp[x] >> 2;
-  }
-
-#if NUM_PWMSTICKS > 0
-  if (STICKS_PWM_ENABLED()) {
-    sticksPwmRead(adcValues);
-  }
-#endif
   return true;
 }
 
-#if !defined(SIMU)
+void adcCalibSetMidPoint()
+{
+  uint8_t max_inputs = adcGetMaxCalibratedInputs();
+  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
+
+  for (uint8_t i = 0; i < max_inputs; i++) {
+
+    auto& calib = reusableBuffer.calib.inputs[i];
+    if (i < pot_offset || !IS_POT_MULTIPOS(i - pot_offset)) {
+      calib.input.loVal = 15000;
+      calib.input.hiVal = -15000;
+      calib.input.midVal = getAnalogValue(i) >> 1;
+    } else {
+      calib.xpot.stepsCount = 0;
+      calib.xpot.lastCount = 0;
+      memclear(calib.xpot.steps, sizeof(calib.xpot.steps));
+    }
+  }
+}
+
+#define XPOT_DELTA 10
+#define XPOT_DELAY 10 /* cycles */
+
+#define XPOT_CALIB_SHIFT 5
+
+static void writeAnalogCalib(uint8_t input, int16_t low, int16_t mid, int16_t high)
+{
+  auto& calib = g_eeGeneral.calib[input];
+  calib.mid = mid;
+
+  int16_t v = mid - low;
+  calib.spanNeg = v - v / STICK_TOLERANCE;
+
+  v = high - mid;
+  calib.spanPos = v - v / STICK_TOLERANCE;
+}
+
+static void writeXPotCalib(uint8_t input, int16_t* steps, uint8_t n_steps)
+{
+  if (n_steps < 1) return;
+
+  StepsCalibData* calib = (StepsCalibData*)&g_eeGeneral.calib[input];
+  calib->count = n_steps - 1;
+
+  for (int i = 0; i < calib->count; i++) {
+    calib->steps[i] = (steps[i + 1] + steps[i]) >> XPOT_CALIB_SHIFT;
+  }
+}
+
+void adcCalibSetMinMax()
+{
+  // get low and high vals for sticks and pots
+  uint8_t max_input = adcGetMaxCalibratedInputs();
+  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
+
+  for (uint8_t i = 0; i < max_input; i++) {
+
+    auto& calib = reusableBuffer.calib.inputs[i];
+
+    if (i < pot_offset || !IS_POT_MULTIPOS(i - pot_offset)) {
+      int16_t vt = anaIn(i);
+      calib.input.loVal = min(vt, calib.input.loVal);
+      calib.input.hiVal = max(vt, calib.input.hiVal);
+
+      if (i >= pot_offset && IS_POT_WITHOUT_DETENT(i - pot_offset)) {
+        calib.input.midVal = (calib.input.hiVal + calib.input.loVal) / 2;
+      }
+
+      // in case we enough input movement, store the result
+      if (abs(calib.input.loVal - calib.input.hiVal) > 50) {
+	writeAnalogCalib(i, calib.input.loVal, calib.input.midVal, calib.input.hiVal);
+      }
+    } else {
+      auto& xpot = calib.xpot;
+      int count = xpot.stepsCount;
+      if (count <= XPOTS_MULTIPOS_COUNT) {
+        // use raw analog value for multipos calibraton,
+        // anaIn() already has multipos decoded value
+        int16_t vt = getAnalogValue(i) >> 1;
+        if (xpot.lastCount == 0 || vt < xpot.lastPosition - XPOT_DELTA ||
+            vt > xpot.lastPosition + XPOT_DELTA) {
+          xpot.lastPosition = vt;
+          xpot.lastCount = 1;
+        } else {
+          if (xpot.lastCount < 255) xpot.lastCount++;
+        }
+        if (xpot.lastCount == XPOT_DELAY) {
+          int16_t position = xpot.lastPosition;
+          bool found = false;
+          for (int j = 0; j < count; j++) {
+            int16_t step = xpot.steps[j];
+            if (position >= step - XPOT_DELTA &&
+                position <= step + XPOT_DELTA) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            if (count < XPOTS_MULTIPOS_COUNT) {
+              int j = 0;
+              for (; j < count; j++) {
+                if (position < xpot.steps[j]) {
+                  memmove(&xpot.steps[j + 1], &xpot.steps[j],
+                          (count - j) * sizeof(int16_t));
+                  break;
+                }
+              }
+              xpot.steps[j] = position;
+            }
+
+            xpot.stepsCount = ++count;
+	    writeXPotCalib(i, xpot.steps, count);
+          }
+        }
+      }
+    }
+  }
+}
+
+static void disableUncalibratedXPots()
+{
+  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
+  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+
+  for (uint8_t i = 0; i < max_pots; i++) {
+    if (IS_POT_MULTIPOS(i)) {
+      StepsCalibData* calib = (StepsCalibData*)&g_eeGeneral.calib[i + pot_offset];
+      if(!IS_MULTIPOS_CALIBRATED(calib)) {
+        // not enough config points
+#if defined(XPOS_CALIB_DEFAULT)
+        size_t index = 0;
+        calib->count = XPOTS_MULTIPOS_COUNT - 1;
+        for (const auto &value : XPOS_CALIB_DEFAULT) calib->steps[index++] = value;
+#else
+        g_eeGeneral.potsConfig &= POT_CONFIG_DISABLE_MASK(i);
+#endif
+      }
+    }
+  }
+}
+
+void adcCalibStore()
+{
+  disableUncalibratedXPots();
+  g_eeGeneral.chkSum = evalChkSum();
+  storageDirty(EE_GENERAL);
+}
+
 uint16_t getRTCBatteryVoltage()
 {
-#if defined(HAS_TX_RTC_VOLTAGE)
-  return (getAnalogValue(TX_RTC_VOLTAGE) * ADC_VREF_PREC2) / 2048;
-#elif defined(PCBX10) || defined(PCBX12S)
-  return (rtcBatteryVoltage * 2 * ADC_VREF_PREC2) / 2048;
-#elif defined(PCBNV14)
-  #warning "TODO RTC voltage"
-  return 330;
+  // anaIn() outputs value divided by (1 << ANALOG_SCALE)
+  if (adcGetMaxInputs(ADC_INPUT_RTC_BAT) < 1) return 0;
+#if defined(STM32F413xx)
+  return (anaIn(adcGetInputOffset(ADC_INPUT_RTC_BAT)) * ADC_VREF_PREC2) /
+         (1024 >> ANALOG_SCALE);
 #else
-  #warning "RTC battery not supported on this target"
-  return 0;
+  return (anaIn(adcGetInputOffset(ADC_INPUT_RTC_BAT)) * ADC_VREF_PREC2) /
+         (2048 >> ANALOG_SCALE);
 #endif
 }
 
 uint16_t getAnalogValue(uint8_t index)
 {
-  if (IS_POT(index) && !IS_POT_SLIDER_AVAILABLE(index)) {
-    // Use fixed analog value for non-existing and/or non-connected pots.
-    // Non-connected analog inputs will slightly follow the adjacent connected analog inputs,
-    // which produces ghost readings on these inputs.
-    return 0;
-  }
-#if defined(PCBX9E) || defined(PCBNV14)
-  index = adcMapping[index];
-#endif
-  if (adcDirection[index] < 0)
-    return ADCMAXVALUE - adcValues[index];
-  else
-    return adcValues[index];
+  if (index >= MAX_ANALOG_INPUTS) return 0;
+  return adcValues[index];
+}
+
+void setAnalogValue(uint8_t index, uint16_t value)
+{
+  if (index >= MAX_ANALOG_INPUTS) return;
+  adcValues[index] = value;
+}
+
+uint16_t* getAnalogValues()
+{
+  return adcValues;
 }
 
 // used by diaganas
-uint32_t s_anaFilt[NUM_ANALOGS];
+uint32_t s_anaFilt[MAX_ANALOG_INPUTS];
 
 #define ANALOG_MULTIPLIER       (1<<ANALOG_SCALE)
 #define ANA_FILT(chan)          (s_anaFilt[chan] / (JITTER_ALPHA * ANALOG_MULTIPLIER))
@@ -215,20 +260,40 @@ uint32_t s_anaFilt[NUM_ANALOGS];
 
 uint16_t anaIn(uint8_t chan)
 {
+  if (chan >= MAX_ANALOG_INPUTS) return 0;
   return ANA_FILT(chan);
 }
 
+uint32_t anaIn_diag(uint8_t chan)
+{
+  if (chan >= MAX_ANALOG_INPUTS) return 0;
+  return s_anaFilt[chan] / JITTER_ALPHA;
+}
+
+void anaSetFiltered(uint8_t chan, uint16_t val)
+{
+  val += RESX;
+  s_anaFilt[chan] = val * (JITTER_ALPHA * ANALOG_MULTIPLIER);
+}
+
+void anaResetFiltered()
+{
+  memset(s_anaFilt, 0, sizeof(s_anaFilt));
+}
+
 #if defined(JITTER_MEASURE)
-JitterMeter<uint16_t> rawJitter[NUM_ANALOGS];
-JitterMeter<uint16_t> avgJitter[NUM_ANALOGS];
+JitterMeter<uint16_t> rawJitter[MAX_ANALOG_INPUTS];
+JitterMeter<uint16_t> avgJitter[MAX_ANALOG_INPUTS];
 tmr10ms_t jitterResetTime = 0;
 #endif
 
 uint16_t getBatteryVoltage()
 {
   // using filtered ADC value on purpose
-  int32_t instant_vbat = anaIn(TX_VOLTAGE);
+  if (adcGetMaxInputs(ADC_INPUT_VBAT) < 1) return 0;
+  int32_t instant_vbat = anaIn(adcGetInputOffset(ADC_INPUT_VBAT));
 
+  // TODO: remove BATT_SCALE / BATTERY_DIVIDER defines
 #if defined(BATT_SCALE)
   instant_vbat =
       (instant_vbat * BATT_SCALE * (128 + g_eeGeneral.txVoltageCalibration)) /
@@ -243,14 +308,15 @@ uint16_t getBatteryVoltage()
 #endif
 }
 
-extern uint16_t get_flysky_hall_adc_value(uint8_t ch);
-
 void getADC()
 {
+  uint8_t max_analogs = adcGetMaxInputs(ADC_INPUT_ALL);
+  uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_POT);
+
 #if defined(JITTER_MEASURE)
   if (JITTER_MEASURE_ACTIVE() && jitterResetTime < get_tmr10ms()) {
     // reset jitter measurement every second
-    for (uint32_t x=0; x<NUM_ANALOGS; x++) {
+    for (uint32_t x = 0; x < max_analogs; x++) {
       rawJitter[x].reset();
       avgJitter[x].reset();
     }
@@ -263,22 +329,12 @@ void getADC()
       TRACE("adcRead failed");
   DEBUG_TIMER_STOP(debugTimerAdcRead);
 
-  for (uint8_t x=0; x<NUM_ANALOGS; x++) {
-    uint32_t v;
-#if defined(RADIO_FAMILY_T16) || defined(PCBNV14)
-    if (globalData.flyskygimbals)
-    {
-        if (x < 4) {
-          v = get_flysky_hall_adc_value(x) >> (1 - ANALOG_SCALE);
-        } else {
-        v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
-        }
-    }
-    else
-#endif
-    {
-        v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
-    }
+  // TODO: jitter filter should probably still be applied
+  //       to VBAT and RTC_BAT, no matter what is configured
+  //
+  for (uint8_t x = 0; x < max_analogs; x++) {
+
+    uint32_t v = getAnalogValue(x) >> (1 - ANALOG_SCALE);
 
     // Jitter filter:
     //    * pass trough any big change directly
@@ -344,15 +400,15 @@ void getADC()
     }
 #endif
 
-    #define ANAFILT_MAX    (2 * RESX * JITTER_ALPHA * ANALOG_MULTIPLIER - 1)
+    #define ANAFILT_MAX    (2 * RESX * JITTER_ALPHA * ANALOG_MULTIPLIER)
     StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[x];
-    if (IS_POT_MULTIPOS(x) && IS_MULTIPOS_CALIBRATED(calib)) {
+    if (IS_POT_MULTIPOS(x - pot_offset) && IS_MULTIPOS_CALIBRATED(calib)) {
       // TODO: consider adding another low pass filter to eliminate multipos switching glitches
       uint8_t vShifted = ANA_FILT(x) >> 4;
       s_anaFilt[x] = ANAFILT_MAX;
-      for (uint32_t i=0; i<calib->count; i++) {
+      for (uint32_t i = 0; i < calib->count; i++) {
         if (vShifted < calib->steps[i]) {
-          s_anaFilt[x] = (i * ANAFILT_MAX) / calib->count;
+          s_anaFilt[x] = (i * (ANAFILT_MAX + JITTER_ALPHA * ANALOG_MULTIPLIER)) / calib->count;
           break;
         }
       }
@@ -360,4 +416,93 @@ void getADC()
   }
 }
 
-#endif // #if !defined(SIMU)
+potconfig_t adcGetDefaultPotsConfig()
+{
+  if (!_hal_adc_driver) return 0;
+  return _hal_adc_driver->default_pots_cfg;
+}
+
+uint8_t adcGetMaxInputs(uint8_t type)
+{
+  if (type > ADC_INPUT_ALL) return 0;
+  return _hal_adc_inputs[type].n_inputs;
+}
+
+uint8_t adcGetInputOffset(uint8_t type)
+{
+  if (type > ADC_INPUT_ALL) return 0;
+  return _hal_adc_inputs[type].offset;
+}
+
+uint8_t adcGetMaxCalibratedInputs()
+{
+  // ADC_INPUT_MAIN + ADC_INPUT_POT + ADC_INPUT_AXIS
+  return adcGetInputOffset(ADC_INPUT_VBAT);
+}
+
+uint16_t adcGetInputValue(uint8_t type, uint8_t idx)
+{
+  if (type >= ADC_INPUT_ALL) return 0;
+
+  const auto& inputs = _hal_adc_inputs[type];
+  auto n_inputs = inputs.n_inputs;
+  auto offset = inputs.offset;
+  if (!n_inputs || idx >= n_inputs) return 0;
+
+  return getAnalogValue(offset + idx);
+}
+
+const char* adcGetInputName(uint8_t type, uint8_t idx)
+{
+  if (type >= ADC_INPUT_ALL ||
+      idx >= _hal_adc_inputs[type].n_inputs)
+    return "";
+
+  return _hal_adc_inputs[type].inputs[idx].name;
+}
+
+const char* adcGetInputName(uint8_t idx)
+{
+  uint8_t type = ADC_INPUT_MAIN;
+
+  // find the proper input type
+  while (_hal_adc_inputs[type].offset + _hal_adc_inputs[type].n_inputs <= idx) {
+    if (++type > ADC_INPUT_AXIS) return nullptr;
+  }
+
+  idx -= _hal_adc_inputs[type].offset;
+  return _hal_adc_inputs[type].inputs[idx].name;
+}
+
+int adcGetInputIdx(const char* input, uint8_t len)
+{
+  int idx = 0;
+  uint8_t type = ADC_INPUT_MAIN;
+
+  do {
+    for (uint8_t i = 0; i < _hal_adc_inputs[type].n_inputs; i++, idx++) {
+      if (!strncmp(_hal_adc_inputs[type].inputs[i].name, input, len))
+        return idx;
+    }
+  } while(++type < ADC_INPUT_ALL);
+
+  return -1;
+}
+
+const char* adcGetInputLabel(uint8_t type, uint8_t idx)
+{
+  if (type >= ADC_INPUT_ALL ||
+      idx >= _hal_adc_inputs[type].n_inputs)
+    return "";
+
+  return _hal_adc_inputs[type].inputs[idx].label;
+}
+
+const char* adcGetInputShortLabel(uint8_t type, uint8_t idx)
+{
+  if (type >= ADC_INPUT_ALL ||
+      idx >= _hal_adc_inputs[type].n_inputs)
+    return "";
+
+  return _hal_adc_inputs[type].inputs[idx].short_label;
+}

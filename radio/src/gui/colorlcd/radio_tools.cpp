@@ -27,6 +27,7 @@
 #include "libopenui.h"
 #include "lua/lua_api.h"
 #include "standalone_lua.h"
+#include "hal/module_port.h"
 
 extern uint8_t g_moduleIdx;
 
@@ -44,7 +45,7 @@ void RadioToolsPage::build(FormWindow * window)
 
 #if defined(PXX2)
   for (uint8_t module = 0; module < NUM_MODULES; module++) {
-    if (isModulePXX2(module) && (module == INTERNAL_MODULE ? IS_INTERNAL_MODULE_ON() : IS_EXTERNAL_MODULE_ON())) {
+    if (isModulePXX2(module) && (module == INTERNAL_MODULE ? modulePortPowered(INTERNAL_MODULE) : modulePortPowered(EXTERNAL_MODULE))) {
       waiting |= (1 << module);
       moduleState[module].readModuleInformation(&reusableBuffer.radioTools.modules[module], PXX2_HW_INFO_TX_ID, PXX2_HW_INFO_TX_ID);
     }
@@ -56,6 +57,7 @@ void RadioToolsPage::build(FormWindow * window)
 
 void RadioToolsPage::checkEvents()
 {
+#if defined(PXX2)
   bool refresh = false;
 
   for (uint8_t module = 0; module < NUM_MODULES; module++) {
@@ -68,6 +70,7 @@ void RadioToolsPage::checkEvents()
   if (refresh) {
     rebuild(window);
   }
+#endif
 
   PageTab::checkEvents();
 }
@@ -111,9 +114,8 @@ static void scanLuaTools(std::list<ToolEntry>& scripts)
       TCHAR path[FF_MAX_LFN+1] = SCRIPTS_TOOLS_PATH "/";
       res = f_readdir(&dir, &fno);                   /* Read a directory item */
       if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-      if (fno.fattrib & AM_DIR) continue;            /* Skip subfolders */
-      if (fno.fattrib & AM_HID) continue;            /* Skip hidden files */
-      if (fno.fattrib & AM_SYS) continue;            /* Skip system files */
+      if (fno.fattrib & (AM_DIR|AM_HID|AM_SYS)) continue;  // skip subfolders, hidden files and system files
+      if (fno.fname[0] == '.') continue;  /* Ignore UNIX hidden files */
 
       strcat(path, fno.fname);
       if (isRadioScriptTool(fno.fname)) {
@@ -241,9 +243,10 @@ void RadioToolsPage::rebuild(FormWindow * window)
 
   tools.sort(tool_compare_nocase);
 
+  window->padAll(lv_dpx(8));
   window->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
   window->padRow(lv_dpx(8));
-  
+
   for (const auto& tool : tools) {
     new ToolButton(window, tool);
   }

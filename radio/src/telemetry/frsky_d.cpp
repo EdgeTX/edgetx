@@ -62,31 +62,37 @@ void parseTelemHubByte(uint8_t byte)
   processHubPacket(structPos, (byte << 8) + lowByte);
 }
 
-void frskyDProcessPacket(const uint8_t *packet)
+void frskyDProcessPacket(uint8_t module, const uint8_t *packet, uint8_t len)
 {
+  const TelemetryProtocol proto = PROTOCOL_TELEMETRY_FRSKY_D;
   // What type of packet?
   switch (packet[0])
   {
-    case LINKPKT: // A1/A2/RSSI values
+    // A1/A2/RSSI values
+    case LINKPKT:
     {
-      setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, D_A1_ID, 0, 0, packet[1], UNIT_VOLTS, 0);
-      setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, D_A2_ID, 0, 0, packet[2], UNIT_VOLTS, 0);
-      setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, D_RSSI_ID, 0, 0, packet[3], UNIT_RAW, 0);
-#if defined(MULTIMODULE)
-      if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE) {
-        setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, TX_RSSI_ID, 0, 0, packet[4]>>1, UNIT_DB,  0);
-        setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, RX_LQI_ID,  0, 0, packet[5]   , UNIT_RAW, 0);
-        setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, TX_LQI_ID , 0, 0, packet[6]   , UNIT_RAW, 0);
+      setTelemetryValue(proto, D_A1_ID, 0, 0, packet[1], UNIT_VOLTS, 0);
+      setTelemetryValue(proto, D_A2_ID, 0, 0, packet[2], UNIT_VOLTS, 0);
+      setTelemetryValue(proto, D_RSSI_ID, 0, 0, packet[3], UNIT_RAW, 0);
+      
+      if (len >= 7) {
+        setTelemetryValue(proto, TX_RSSI_ID, 0, 0, packet[4]>>1, UNIT_DB,  0);
+        setTelemetryValue(proto, RX_LQI_ID,  0, 0, packet[5]   , UNIT_RAW, 0);
+        setTelemetryValue(proto, TX_LQI_ID , 0, 0, packet[6]   , UNIT_RAW, 0);
       }
-#endif
+
+      // reset counter only if valid packets are being detected
       telemetryData.rssi.set(packet[3]);
-      telemetryStreaming = TELEMETRY_TIMEOUT10ms; // reset counter only if valid packets are being detected
+      telemetryStreaming = TELEMETRY_TIMEOUT10ms;
       break;
     }
 
-    case USRPKT: // User Data packet
-      uint8_t numBytes = 3 + (packet[1] & 0x07); // sanitize in case of data corruption leading to buffer overflow
-      for (uint8_t i=3; i<numBytes; i++) {
+    // User Data packet
+    case USRPKT:
+      // sanitize in case of data corruption
+      // leading to buffer overflow
+      uint8_t numBytes = 3 + (packet[1] & 0x07);
+      for (uint8_t i = 3; i < numBytes; i++) {
         parseTelemHubByte(packet[i]);
       }
       break;

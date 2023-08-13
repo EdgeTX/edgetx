@@ -26,7 +26,7 @@ enum SensorFields {
   SENSOR_FIELD_TYPE,
   SENSOR_FIELD_ID,
   SENSOR_FIELD_FORMULA=SENSOR_FIELD_ID,
-  SENSOR_FILED_RECEIVER_NAME,
+  // SENSOR_FIELD_RECEIVER_NAME,
   SENSOR_FIELD_UNIT,
   SENSOR_FIELD_PRECISION,
   SENSOR_FIELD_PARAM1,
@@ -69,7 +69,7 @@ void menuModelSensor(event_t event)
     0,  //Name
     0,  // Type
     sensor->type == TELEM_TYPE_CALCULATED ? (uint8_t)0 : (uint8_t)1, // ID / Formula
-    sensor->type == TELEM_TYPE_CALCULATED ? HIDDEN_ROW : READONLY_ROW, // Receiver name
+    // sensor->type == TELEM_TYPE_CALCULATED ? HIDDEN_ROW : READONLY_ROW, // Receiver name
     SENSOR_UNIT_ROWS, 
     SENSOR_PREC_ROWS,
     SENSOR_PARAM1_ROWS,
@@ -118,7 +118,7 @@ void menuModelSensor(event_t event)
         if (sensor->type == TELEM_TYPE_CUSTOM) {
           lcdDrawTextAlignedLeft(y, STR_ID);
           lcdDrawHexNumber(SENSOR_2ND_COLUMN, y, sensor->id, LEFT|(menuHorizontalPosition==0 ? attr : 0));
-          lcdDrawNumber(SENSOR_3RD_COLUMN, y, (sensor->instance  & 0x1F) + 1, LEFT|(menuHorizontalPosition==1 ? attr : 0));
+          lcdDrawNumber(SENSOR_3RD_COLUMN, y, sensor->instance  & 0x1F, LEFT|(menuHorizontalPosition==1 ? attr : 0));
           if (attr) {
             switch (menuHorizontalPosition) {
               case 0:
@@ -151,19 +151,22 @@ void menuModelSensor(event_t event)
         }
         break;
 
-      case SENSOR_FILED_RECEIVER_NAME:
-        lcdDrawTextAlignedLeft(y, STR_SOURCE);
-        if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT && sensor->frskyInstance.rxIndex != TELEMETRY_ENDPOINT_SPORT) {
-          drawReceiverName(SENSOR_2ND_COLUMN, y, sensor->frskyInstance.rxIndex >> 2, sensor->frskyInstance.rxIndex & 0x03, 0);
-        }
-        else if (isModuleUsingSport(INTERNAL_MODULE, g_model.moduleData[INTERNAL_MODULE].type)) {
-          // far from perfect
-          lcdDrawText(SENSOR_2ND_COLUMN, y, STR_INTERNAL_MODULE);
-        }
-        else {
-          lcdDrawText(SENSOR_2ND_COLUMN, y, STR_EXTERNAL_MODULE);
-        }
-        break;
+      // case SENSOR_FIELD_RECEIVER_NAME:
+      //   lcdDrawTextAlignedLeft(y, STR_SOURCE);
+      //   // TODO: this needs to be known from the sensor data alone!
+      //   if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT &&
+      //       sensor->frskyInstance.rxIndex != TELEMETRY_ENDPOINT_SPORT) {
+      //     drawReceiverName(SENSOR_2ND_COLUMN, y, sensor->frskyInstance.rxIndex >> 2,
+      //                      sensor->frskyInstance.rxIndex & 0x03, 0);
+      //   }
+      //   else if (isModuleUsingSport(INTERNAL_MODULE, g_model.moduleData[INTERNAL_MODULE].type)) {
+      //     // far from perfect
+      //     lcdDrawText(SENSOR_2ND_COLUMN, y, STR_INTERNAL_MODULE);
+      //   }
+      //   else {
+      //     lcdDrawText(SENSOR_2ND_COLUMN, y, STR_EXTERNAL_MODULE);
+      //   }
+      //   break;
         
       case SENSOR_FIELD_UNIT:
         lcdDrawTextAlignedLeft(y, STR_UNIT);

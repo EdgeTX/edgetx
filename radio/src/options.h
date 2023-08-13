@@ -95,9 +95,6 @@ static const char * const options[] = {
 #if defined(SHUTDOWN_CONFIRMATION)
   "shutdownconfirm",
 #endif
-#if defined(HARDWARE_EXTERNAL_ACCESS_MOD)
-  "externalaccessmod",
-#endif
 #if defined(IMU_LSM6DS33)
   "lsm6ds33",
 #endif
@@ -109,7 +106,6 @@ static const char * const options[] = {
 #endif
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
     "passthrough",
-    "cli",
 #endif
   nullptr //sentinel
 };

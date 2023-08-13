@@ -46,7 +46,7 @@
 #include "profilechooser.h"
 #include "constants.h"
 #include "updates/updates.h"
-#include "updates/updateinterface.h"
+#include "updates/updatefactories.h"
 
 #include <QtGui>
 #include <QFileInfo>
@@ -197,6 +197,14 @@ void MainWindow::displayWarnings()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+#ifdef __APPLE__
+  // If simulator is running ignore this Quit event (simulator will still be closed)
+  // - prevents app crash on exit
+  if (isSimulatorRunning()) {
+    event->ignore();
+    return;
+  }
+#endif
   g.mainWinGeo(saveGeometry());
   g.mainWinState(saveState());
   g.tabbedMdi(actTabbedWindows->isChecked());
@@ -522,8 +530,12 @@ void MainWindow::customizeSplash()
 
 void MainWindow::writeSettings()
 {
+  StatusDialog *status = new StatusDialog(this, tr("Writing models and settings to radio"), tr("In progress..."), 400);
+
   if (activeMdiChild())
-    activeMdiChild()->writeSettings();
+    activeMdiChild()->writeSettings(status);
+
+  delete status;
 }
 
 void MainWindow::readSettings()
@@ -656,7 +668,7 @@ void MainWindow::about()
   aboutStr.append("<br/><br/>");
   aboutStr.append(tr("File new <a href='%1'>Issue or Request</a>").arg("https://github.com/EdgeTX/edgetx/issues/new/choose"));
   aboutStr.append("<br/><br/>");
-  aboutStr.append(tr("Copyright") + QString(" &copy; 2022 EdgeTX<br/>"));
+  aboutStr.append(tr("Copyright") + QString(" &copy; 2023 EdgeTX<br/>"));
   // aboutStr.append(tr("Copyright") + QString(" &copy; 2021-%1 EdgeTX<br/>").arg(QString(__DATE__).right(4)));
 
   QMessageBox msgBox(this);
@@ -678,14 +690,8 @@ void MainWindow::updateMenus()
   compareAct->setEnabled(activeChild);
   writeSettingsAct->setEnabled(activeChild);
   readSettingsAct->setEnabled(true);
-  if (IS_FAMILY_HORUS_OR_T16(getCurrentBoard())) {
-    writeBUToRadioAct->setEnabled(false);
-    readBUToFileAct->setEnabled(false);
-  }
-  else {
-    writeBUToRadioAct->setEnabled(true);
-    readBUToFileAct->setEnabled(true);
-  }
+  writeBUToRadioAct->setEnabled(false);
+  readBUToFileAct->setEnabled(false);
   editSplashAct->setDisabled(IS_FAMILY_HORUS_OR_T16(getCurrentBoard()));
 
   foreach (QAction * act, fileWindowActions) {
@@ -1260,6 +1266,7 @@ int MainWindow::newProfile(bool loadProfile)
   g.profile[i].name("New Radio");
   g.profile[i].fwType(newfw->getId());
   g.profile[i].defaultInternalModule(Boards::getDefaultInternalModules(newfw->getBoard()));
+  g.profile[i].externalModuleSize(Boards::getDefaultExternalModuleSize(newfw->getBoard()));
 
   if (loadProfile) {
     if (loadProfileId(i))

@@ -33,7 +33,6 @@ class UpdateFirmware : public UpdateInterface
     virtual ~UpdateFirmware() {}
 
   protected:
-    virtual void initAssetSettings() override;
-
     virtual bool asyncInstall() override;
+    virtual void assetSettingsInit() override;
 };

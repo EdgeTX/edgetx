@@ -83,6 +83,9 @@ static const uint8_t mask_model_special_functions[] = {
 static const uint8_t mask_model_telemetry[] = {
 #include "mask_model_telemetry.lbm"
 };
+static const uint8_t mask_model_usb[] = {
+#include "mask_model_usb.lbm"
+};
 static const uint8_t mask_menu_model_select[] = {
 #include "mask_menu_model_select.lbm" //TODO: someone may want to make proper icon
 };
@@ -197,6 +200,21 @@ static const uint8_t mask_theme_view4[] = {
 static const uint8_t mask_theme_view5[] = {
 #include "mask_theme_view5.lbm"
 };
+static const uint8_t mask_theme_view6[] = {
+#include "mask_theme_view6.lbm"
+};
+static const uint8_t mask_theme_view7[] = {
+#include "mask_theme_view7.lbm"
+};
+static const uint8_t mask_theme_view8[] = {
+#include "mask_theme_view8.lbm"
+};
+static const uint8_t mask_theme_view9[] = {
+#include "mask_theme_view9.lbm"
+};
+static const uint8_t mask_theme_view10[] = {
+#include "mask_theme_view10.lbm"
+};
 static const uint8_t stick_pointer[] = {
 #include "alpha_stick_pointer.lbm"
 };
@@ -299,7 +317,7 @@ struct _BuiltinIcon {
 };
 
 static const _BuiltinIcon _builtinIcons[] = {
-    {ICON_OPENTX, mask_edgetx},
+    {ICON_EDGETX, mask_edgetx},
 #if defined(HARDWARE_TOUCH)
     {ICON_NEXT, mask_next},
     {ICON_BACK, mask_back},
@@ -328,6 +346,7 @@ static const _BuiltinIcon _builtinIcons[] = {
     {ICON_MODEL_SPECIAL_FUNCTIONS, mask_model_special_functions},
     {ICON_MODEL_LUA_SCRIPTS, mask_model_lua_scripts},
     {ICON_MODEL_TELEMETRY, mask_model_telemetry},
+    {ICON_MODEL_USB, mask_model_usb},
     {ICON_MODEL_SELECT, mask_menu_model_select},
     {ICON_MODEL_SELECT_CATEGORY, mask_model_select_category},
     {ICON_THEME, mask_menu_theme},
@@ -337,6 +356,11 @@ static const _BuiltinIcon _builtinIcons[] = {
     {ICON_THEME_VIEW3, mask_theme_view3},
     {ICON_THEME_VIEW4, mask_theme_view4},
     {ICON_THEME_VIEW5, mask_theme_view5},
+    {ICON_THEME_VIEW6, mask_theme_view6},
+    {ICON_THEME_VIEW7, mask_theme_view7},
+    {ICON_THEME_VIEW8, mask_theme_view8},
+    {ICON_THEME_VIEW9, mask_theme_view9},
+    {ICON_THEME_VIEW10, mask_theme_view10},
     {ICON_THEME_ADD_VIEW, mask_theme_add_view},
     {ICON_STATS, mask_menu_stats},
     {ICON_STATS_THROTTLE_GRAPH, mask_stats_throttle_graph},

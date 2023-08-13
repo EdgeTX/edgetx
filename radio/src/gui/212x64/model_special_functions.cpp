@@ -27,6 +27,10 @@
 #define MODEL_SPECIAL_FUNC_4TH_COLUMN          (33*FW-3)
 #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF    (34*FW-3)
 
+#define SD_LOGS_PERIOD_MIN      1     // 0.1s  fastest period 
+#define SD_LOGS_PERIOD_MAX      255   // 25.5s slowest period 
+#define SD_LOGS_PERIOD_DEFAULT  10    // 1s    default period for newly created SF 
+
 void onCustomFunctionsFileSelectionMenu(const char * result)
 {
   int  sub = menuVerticalPosition;
@@ -191,7 +195,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 
         case ITEM_CUSTOM_FUNCTIONS_FUNCTION:
           if (CFN_SWITCH(cfn)) {
-            lcdDrawTextAtIndex(MODEL_SPECIAL_FUNC_2ND_COLUMN, y, STR_VFSWFUNC, func, attr);
+            lcdDrawText(MODEL_SPECIAL_FUNC_2ND_COLUMN, y, funcGetLabel(func), attr);
             if (active) {
               func = CFN_FUNC(cfn) = checkIncDec(event, CFN_FUNC(cfn), 0, FUNC_MAX-1, eeFlags, isAssignableFunctionAvailable);
               if (checkIncDec_Ret) CFN_RESET(cfn);
@@ -200,7 +204,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           else {
             j = ITEM_CUSTOM_FUNCTIONS_LAST; // skip other fields
             if (sub==k && menuHorizontalPosition > 0) {
-              REPEAT_LAST_CURSOR_MOVE();
+              repeatLastCursorMove(event);
             }
           }
           break;
@@ -215,14 +219,14 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           else
 #endif
           if (func == FUNC_TRAINER) {
-            maxParam = NUM_STICKS + 1;
+            maxParam = MAX_STICKS + 1;
             uint8_t param = CFN_CH_INDEX(cfn);
             if (param == 0)
               lcdDrawText(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_STICKS, attr);
-            else if (param == NUM_STICKS + 1)
+            else if (param == MAX_STICKS + 1)
               lcdDrawText(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_CHANS, attr);
             else
-              drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, MIXSRC_Rud + param - 1, attr);
+              drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, MIXSRC_FIRST_STICK + param - 1, attr);
           }
 #if defined(GVARS)
           else if (func == FUNC_ADJUST_GVAR) {
@@ -239,7 +243,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             break;
           }
           else if (attr) {
-            REPEAT_LAST_CURSOR_MOVE();
+            repeatLastCursorMove(event);
           }
           if (active) CHECK_INCDEC_MODELVAR_ZERO(event, CFN_CH_INDEX(cfn), maxParam);
           break;
@@ -334,13 +338,15 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             }
           }
           else if (func == FUNC_LOGS) {
-            if (val_displayed) {
-              lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|PREC1|LEFT);
-              lcdDrawChar(lcdLastRightPos, y, 's');
+            val_min = SD_LOGS_PERIOD_MIN; 
+            val_max = SD_LOGS_PERIOD_MAX;
+
+            if (!val_displayed) {
+              val_displayed = CFN_PARAM(cfn) = SD_LOGS_PERIOD_DEFAULT;
             }
-            else {
-              lcdDrawMMM(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, attr);
-            }
+
+            lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|PREC1|LEFT);
+            lcdDrawChar(lcdLastRightPos, y, 's');
           }
           else if (func == FUNC_BACKLIGHT) {
             val_max = MIXSRC_LAST_CH;
@@ -382,7 +388,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #endif
           else if (attr) {
-            REPEAT_LAST_CURSOR_MOVE();
+            repeatLastCursorMove(event);
           }
 
           if (active || event==EVT_KEY_LONG(KEY_ENTER)) {
@@ -410,21 +416,27 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             if (active) CFN_ACTIVE(cfn) = checkIncDec(event, CFN_ACTIVE(cfn), 0, 1, eeFlags);
           }
           else if (HAS_REPEAT_PARAM(func)) {
-            if (CFN_PLAY_REPEAT(cfn) == 0) {
-              lcdDrawText(MODEL_SPECIAL_FUNC_4TH_COLUMN+2, y, "1x", attr);
-            }
-            else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
-              lcdDrawChar(MODEL_SPECIAL_FUNC_4TH_COLUMN-1, y, '!', attr);
-              lcdDrawText(MODEL_SPECIAL_FUNC_4TH_COLUMN+2, y, "1x", attr);
+            if (func == FUNC_PLAY_SCRIPT) {
+              lcdDrawText(MODEL_SPECIAL_FUNC_4TH_COLUMN+2, y, (CFN_PLAY_REPEAT(cfn) == 0) ? "On" : "1x", attr);
+              if (active) CFN_PLAY_REPEAT(cfn) = checkIncDec(event, CFN_PLAY_REPEAT(cfn), 0, 1, eeFlags);
             }
             else {
-              lcdDrawNumber(MODEL_SPECIAL_FUNC_4TH_COLUMN+2+FW, y, CFN_PLAY_REPEAT(cfn)*CFN_PLAY_REPEAT_MUL, attr|RIGHT);
-              lcdDrawChar(MODEL_SPECIAL_FUNC_4TH_COLUMN+2+FW, y, 's', attr);
+              if (CFN_PLAY_REPEAT(cfn) == 0) {
+                lcdDrawText(MODEL_SPECIAL_FUNC_4TH_COLUMN+2, y, "1x", attr);
+              }
+              else if (CFN_PLAY_REPEAT(cfn) == CFN_PLAY_REPEAT_NOSTART) {
+                lcdDrawChar(MODEL_SPECIAL_FUNC_4TH_COLUMN-1, y, '!', attr);
+                lcdDrawText(MODEL_SPECIAL_FUNC_4TH_COLUMN+2, y, "1x", attr);
+              }
+              else {
+                lcdDrawNumber(MODEL_SPECIAL_FUNC_4TH_COLUMN+2+FW, y, CFN_PLAY_REPEAT(cfn)*CFN_PLAY_REPEAT_MUL, attr|RIGHT);
+                lcdDrawChar(MODEL_SPECIAL_FUNC_4TH_COLUMN+2+FW, y, 's', attr);
+              }
+              if (active) CFN_PLAY_REPEAT(cfn) = checkIncDec(event, CFN_PLAY_REPEAT(cfn)==CFN_PLAY_REPEAT_NOSTART?-1:CFN_PLAY_REPEAT(cfn), -1, 60/CFN_PLAY_REPEAT_MUL, eeFlags);
             }
-            if (active) CFN_PLAY_REPEAT(cfn) = checkIncDec(event, CFN_PLAY_REPEAT(cfn)==CFN_PLAY_REPEAT_NOSTART?-1:CFN_PLAY_REPEAT(cfn), -1, 60/CFN_PLAY_REPEAT_MUL, eeFlags);
           }
           else if (attr) {
-            REPEAT_LAST_CURSOR_MOVE();
+            repeatLastCursorMove(event);
           }
           break;
       }

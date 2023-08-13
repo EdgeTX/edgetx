@@ -21,6 +21,12 @@
 #include "sdio_sd.h"
 #include "debug.h"
 
+#if defined(STM32F4)
+ #include "stm32f4xx_sdio.h"
+#elif defined(STM32F2)
+ #include "stm32f2xx_sdio.h"
+#endif
+
 #define SDIO_STATIC_FLAGS               ((uint32_t)0x000005FF)
 #define SDIO_CMD0TIMEOUT                ((uint32_t)0x00010000)
 
@@ -54,7 +60,12 @@
 #define SD_STD_CAPACITY                 ((uint32_t)0x00000000)
 #define SD_CHECK_PATTERN                ((uint32_t)0x000001AA)
 
-#define SD_MAX_VOLT_TRIAL               ((uint32_t)0x0000FFFF)
+#if defined(RADIO_TX16S)
+  #define SD_MAX_VOLT_TRIAL               ((uint32_t)0x00000834)
+#else
+  #define SD_MAX_VOLT_TRIAL               ((uint32_t)0x0000FFFF)
+#endif
+
 #define SD_ALLZERO                      ((uint32_t)0x00000000)
 
 #define SD_WIDE_BUS_SUPPORT             ((uint32_t)0x00040000)

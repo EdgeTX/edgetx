@@ -19,56 +19,14 @@
  * GNU General Public License for more details.
  */
 
+#include "sbus.h"
+#include "hal/module_port.h"
+#include "mixer_scheduler.h"
+
 #include "opentx.h"
 
-
-#define BITLEN_SBUS          (10*2) // 100000 Baud => 10uS per bit
-
-
-/* The protocol reuse some the DSM2 definitions where they are identical */
-
-
-static void _send_level(uint8_t v)
-{
-  /* Copied over from DSM, this looks doubious and in my logic analyzer
-     output the low->high is about 2 ns late */
-  if (extmodulePulsesData.dsm2.index & 1)
-    v += 2;
-  else
-    v -= 2;
-
-  *extmodulePulsesData.dsm2.ptr++ = v - 1;
-  extmodulePulsesData.dsm2.index+=1;
-}
-
-void sendByteSbus(uint8_t b) // max 11 changes 0 10 10 10 10 P 1
-{
-  bool    lev = 0;
-  uint8_t parity = 1;
-
-  uint8_t len = BITLEN_SBUS; //max val: 10*20 < 256
-  for (uint8_t i=0; i<=9; i++) { //8Bits + 1Parity + Stop=1
-    bool nlev = b & 1; //lsb first
-    parity = parity ^ (uint8_t)nlev;
-    if (lev == nlev) {
-      len += BITLEN_SBUS;
-    }
-    else {
-      _send_level(len);
-      len  = BITLEN_SBUS;
-      lev  = nlev;
-    }
-    b = (b>>1) | 0x80; //shift in ones for stop bit and parity
-    if (i==7)
-      b = b ^ parity; // lowest bit is one from previous line
-  }
-  _send_level(len+ BITLEN_SBUS); // enlarge the last bit to be two stop bits long
-}
-
-
-#define SBUS_NORMAL_CHANS           16
-#define SBUS_CHAN_BITS       11
-
+#define SBUS_NORMAL_CHANS 16
+#define SBUS_CHAN_BITS    11
 
 /* Definitions from CleanFlight/BetaFlight */
 
@@ -80,44 +38,39 @@ void sendByteSbus(uint8_t b) // max 11 changes 0 10 10 10 10 P 1
 
 #define SBUS_CHAN_CENTER            992
 
-inline int getChannelValue(uint8_t port, int channel)
+static inline void sendByte(uint8_t*& p_buf, uint8_t b)
 {
-  int ch = g_model.moduleData[port].channelsStart+channel;
+  *p_buf++ = b;
+}
+
+static inline int getChannelValue(uint8_t port, int channel)
+{
+  int ch = g_model.moduleData[port].channelsStart + channel;
   // We will ignore 17 and 18th if that brings us over the limit
-  if (ch > 31)
-    return 0;
-  return channelOutputs[ch] + 2 * PPM_CH_CENTER(ch) - 2*PPM_CENTER;
+  if (ch > 31) return 0;
+  return channelOutputs[ch] + 2 * PPM_CH_CENTER(ch) - 2 * PPM_CENTER;
 }
 
-static void sbusFlush()
+static void setupPulsesSbus(uint8_t module, uint8_t*& p_buf)
 {
-  if (extmodulePulsesData.dsm2.index & 1)
-    *extmodulePulsesData.dsm2.ptr++ = 255;
-  else
-    *(extmodulePulsesData.dsm2.ptr - 1) = 255;
-}
-
-void setupPulsesSbus()
-{
-  extmodulePulsesData.dsm2.index = 0;
-
-  extmodulePulsesData.dsm2.ptr = extmodulePulsesData.dsm2.pulses;
+  // extmodulePulsesData.dsm2.index = 0;
+  // extmodulePulsesData.dsm2.ptr = extmodulePulsesData.dsm2.pulses;
 
   // Sync Byte
-  sendByteSbus(SBUS_FRAME_BEGIN_BYTE);
+  sendByte(p_buf, SBUS_FRAME_BEGIN_BYTE);
 
   uint32_t bits = 0;
   uint8_t bitsavailable = 0;
 
   // byte 1-22, channels 0..2047, limits not really clear (B
   for (int i=0; i<SBUS_NORMAL_CHANS; i++) {
-    int value = getChannelValue(EXTERNAL_MODULE, i);
+    int value = getChannelValue(module, i);
 
     value =  value*8/10 + SBUS_CHAN_CENTER;
     bits |= limit(0, value, 2047) << bitsavailable;
     bitsavailable += SBUS_CHAN_BITS;
     while (bitsavailable >= 8) {
-      sendByteSbus((uint8_t) (bits & 0xff));
+      sendByte(p_buf, (uint8_t) (bits & 0xff));
       bits >>= 8;
       bitsavailable -= 8;
     }
@@ -125,15 +78,81 @@ void setupPulsesSbus()
 
   // flags
   uint8_t flags=0;
-  if (getChannelValue(EXTERNAL_MODULE, 16) > 0)
+  if (getChannelValue(module, 16) > 0)
     flags |= SBUS_FLAG_CHANNEL_17;
-  if (getChannelValue(EXTERNAL_MODULE, 17) > 0)
+  if (getChannelValue(module, 17) > 0)
     flags |= SBUS_FLAG_CHANNEL_18;
 
-  sendByteSbus(flags);
+  sendByte(p_buf, flags);
 
   // last byte, always 0x0
-  sendByteSbus(0x00);
-
-  sbusFlush();
+  sendByte(p_buf, 0x00);
 }
+
+
+#define SBUS_BAUDRATE 100000
+
+const etx_serial_init sbusUartParams = {
+    .baudrate = SBUS_BAUDRATE,
+    .encoding = ETX_Encoding_8E2,
+    .direction = ETX_Dir_TX,
+    .polarity = ETX_Pol_Normal,
+};
+
+static void* sbusInit(uint8_t module)
+{
+#if defined(HARDWARE_INTERNAL_MODULE)
+  // only external module supported
+  if (module == INTERNAL_MODULE) return nullptr;
+#endif
+
+  // auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &sbusUartParams);
+  // TODO: check if inverter is there, or mandate it somehow...
+  // if (!mod_st) {
+  // -> SOFT_INV has 'setPolarity'
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &sbusUartParams);
+  if (!mod_st) return nullptr;
+  // }
+
+  mixerSchedulerSetPeriod(module, SBUS_PERIOD(module));
+  return (void*)mod_st;
+}
+
+static void sbusDeInit(void* ctx)
+{
+  auto mod_st = (etx_module_state_t*)ctx;
+  modulePortDeInit(mod_st);
+}
+
+static void sbusSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
+{
+  // TODO:
+  (void)channels;
+  (void)nChannels;
+
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  auto p_data = buffer;
+  setupPulsesSbus(module, p_data);
+
+  auto drv = modulePortGetSerialDrv(mod_st->tx);
+  auto drv_ctx = modulePortGetCtx(mod_st->tx);
+
+  // TODO: check if the port has an inverter and use it instead 
+  if(drv->setPolarity)
+    drv->setPolarity(drv_ctx, GET_SBUS_POLARITY(module));
+    
+  drv->sendBuffer(drv_ctx, buffer, p_data - buffer);
+
+  // SBUS_PERIOD is not a constant! It can be set from UI
+  mixerSchedulerSetPeriod(module, SBUS_PERIOD(module));
+}
+
+const etx_proto_driver_t SBusDriver = {
+  .protocol = PROTOCOL_CHANNELS_SBUS,
+  .init = sbusInit,
+  .deinit = sbusDeInit,
+  .sendPulses = sbusSendPulses,
+  .processData = nullptr,
+};

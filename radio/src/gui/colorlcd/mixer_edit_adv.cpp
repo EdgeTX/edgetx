@@ -32,7 +32,7 @@ MixEditAdvanced::MixEditAdvanced(int8_t channel, uint8_t index) :
 {
   std::string title(STR_MIXES);
   title += "\n";
-  title += getSourceString(MIXSRC_CH1 + channel);
+  title += getSourceString(MIXSRC_FIRST_CH + channel);
   header.setTitle(title);
 
   auto form = new FormWindow(&body, rect_t{});
@@ -68,45 +68,45 @@ void MixEditAdvanced::buildBody(FormWindow* form)
   new Choice(line, rect_t{}, STR_VMLTPX, 0, 2, GET_SET_DEFAULT(mix->mltpx));
 
   // Flight modes
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
-  new FMMatrix<MixData>(line, rect_t{}, mix);
+  if (modelFMEnabled()) {
+    line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
+    new FMMatrix<MixData>(line, rect_t{}, mix);
+  }
 
   // Trim
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_TRIM, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_INVERTED(mix->carryTrim));
+  new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(mix->carryTrim));
 
   // Warning
   new StaticText(line, rect_t{}, STR_MIXWARNING, 0, COLOR_THEME_PRIMARY1);
-  auto edit = new NumberEdit(line, rect_t{}, 0, 3, GET_SET_DEFAULT(mix->mixWarn));
+  auto edit = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, 3, GET_SET_DEFAULT(mix->mixWarn));
   edit->setZeroText(STR_OFF);
 
   // Delay up
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_DELAYUP, 0, COLOR_THEME_PRIMARY1);
-  edit = new NumberEdit(line, rect_t{}, 0, DELAY_MAX, GET_DEFAULT(mix->delayUp),
+  edit = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->delayUp),
                         SET_VALUE(mix->delayUp, newValue), 0, PREC1);
   edit->setSuffix("s");
 
   // Delay down
   new StaticText(line, rect_t{}, STR_DELAYDOWN, 0, COLOR_THEME_PRIMARY1);
-  edit =
-      new NumberEdit(line, rect_t{}, 0, DELAY_MAX, GET_DEFAULT(mix->delayDown),
-                     SET_VALUE(mix->delayDown, newValue), 0, PREC1);
+  edit = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->delayDown),
+                        SET_VALUE(mix->delayDown, newValue), 0, PREC1);
   edit->setSuffix("s");
 
   // Slow up
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_SLOWUP, 0, COLOR_THEME_PRIMARY1);
-  edit = new NumberEdit(line, rect_t{}, 0, DELAY_MAX, GET_DEFAULT(mix->speedUp),
+  edit = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->speedUp),
                         SET_VALUE(mix->speedUp, newValue), 0, PREC1);
   edit->setSuffix("s");
 
   // Slow down
   new StaticText(line, rect_t{}, STR_SLOWDOWN, 0, COLOR_THEME_PRIMARY1);
-  edit =
-      new NumberEdit(line, rect_t{}, 0, DELAY_MAX, GET_DEFAULT(mix->speedDown),
-                     SET_VALUE(mix->speedDown, newValue), 0, PREC1);
+  edit = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->speedDown),
+                        SET_VALUE(mix->speedDown, newValue), 0, PREC1);
   edit->setSuffix("s");
 }

@@ -768,7 +768,7 @@
           <item>
            <widget class="QCheckBox" name="lowPower">
             <property name="text">
-             <string>Low Power</string>
+             <string>Low power mode</string>
             </property>
            </widget>
           </item>

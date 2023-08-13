@@ -34,12 +34,8 @@
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
   #define CASE_ROTARY_ENCODER(x) x,
-  #define CASE_EVT_ROTARY_LEFT         case EVT_ROTARY_LEFT:
-  #define CASE_EVT_ROTARY_RIGHT        case EVT_ROTARY_RIGHT:
 #else
   #define CASE_ROTARY_ENCODER(x)
-  #define CASE_EVT_ROTARY_LEFT
-  #define CASE_EVT_ROTARY_RIGHT
 #endif
 
 #if defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
@@ -75,7 +71,6 @@ enum SwitchContext
 int circularIncDec(int current, int inc, int min, int max, IsValueAvailable isValueAvailable=nullptr);
 int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable);
 
-bool isTrimModeAvailable(int mode);
 bool isInputAvailable(int input);
 bool isSourceAvailableInInputs(int source);
 bool isThrottleSourceAvailable(int source);
@@ -116,6 +111,7 @@ uint8_t getTelemetrySensorsCount();
 bool isTelemetryFieldComparisonAvailable(int index);
 bool isSensorAvailable(int sensor);
 bool isRssiSensorAvailable(int sensor);
+bool hasSportPower();
 
 bool modelHasNotes();
 
@@ -144,8 +140,6 @@ void drawGPSSensorValue(coord_t x, coord_t y, TelemetryItem & telemetryItem, Lcd
 void drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor, int32_t value, LcdFlags flags=0);
 void drawSourceCustomValue(coord_t x, coord_t y, source_t channel, int32_t val, LcdFlags flags=0);
 void drawSourceValue(coord_t x, coord_t y, source_t channel, LcdFlags flags=0);
-
-int convertMultiToOtx(int type);
 
 // model_setup Defines that are used in all uis in the same way
 #define IF_INTERNAL_MODULE_ON(x)                  (IS_INTERNAL_MODULE_ENABLED() ? (uint8_t)(x) : HIDDEN_ROW)
@@ -178,6 +172,7 @@ inline uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
   if (!IS_MODULE_ENABLED(moduleIdx)) {
     return HIDDEN_ROW;
   }
+#if defined(MULTIMODULE)
   else if (isModuleMultimodule(moduleIdx)) {
     if (IS_RX_MULTI(moduleIdx))
       return HIDDEN_ROW;
@@ -185,7 +180,9 @@ inline uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
       return 1;
     else
       return 0;
-  } else if (isModuleDSM2(moduleIdx) || isModuleCrossfire(moduleIdx) ||
+  }
+#endif
+  else if (isModuleDSM2(moduleIdx) || isModuleCrossfire(moduleIdx) ||
              isModuleGhost(moduleIdx) || isModuleSBUS(moduleIdx) ||
              isModuleDSMP(moduleIdx)) {
     // fixed number of channels
@@ -258,11 +255,6 @@ inline uint8_t MULTI_DISABLE_CHAN_MAP_ROW(uint8_t moduleIdx)
   return MULTI_DISABLE_CHAN_MAP_ROW_STATIC(moduleIdx);
 }
 
-inline bool isMultiProtocolSelectable(int protocol)
-{
-  return protocol != MODULE_SUBTYPE_MULTI_SCANNER;
-}
-
 inline bool MULTIMODULE_PROTOCOL_KNOWN(uint8_t moduleIdx)
 {
   if (!isModuleMultimodule(moduleIdx)) {
@@ -285,10 +277,6 @@ inline bool MULTIMODULE_HAS_SUBTYPE(uint8_t moduleIdx)
 {
   MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
   int proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
-
-  if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
-    return true;
-  }
 
   if (status.isValid()) {
     TRACE("(%d) status.protocolSubNbr = %d", proto, status.protocolSubNbr);
@@ -331,8 +319,11 @@ inline uint8_t MULTIMODULE_HASOPTIONS(uint8_t moduleIdx)
 
   return false;
 }
-
-#define MULTIMODULE_MODULE_ROWS(moduleIdx)      (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MULTI(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MULTI(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, MULTI_DISABLE_CHAN_MAP_ROW(moduleIdx), // AUTOBIND, DISABLE TELEM, DISABLE CN.MAP
+#if defined(MANUFACTURER_FRSKY)
+  #define MULTIMODULE_MODULE_ROWS(moduleIdx)      (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MULTI(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MULTI(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, MULTI_DISABLE_CHAN_MAP_ROW(moduleIdx), // AUTOBIND, DISABLE TELEM, DISABLE CN.MAP
+#else
+  #define MULTIMODULE_MODULE_ROWS(moduleIdx)      (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MULTI(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, MULTI_DISABLE_CHAN_MAP_ROW(moduleIdx), // AUTOBIND, DISABLE CN.MAP
+#endif
 #define MULTIMODULE_TYPE_ROW(moduleIdx)         isModuleMultimodule(moduleIdx) ? MULTIMODULE_RFPROTO_COLUMNS(moduleIdx) : HIDDEN_ROW,
 #define MULTIMODULE_STATUS_ROWS(moduleIdx)      isModuleMultimodule(moduleIdx) ? TITLE_ROW : HIDDEN_ROW, (isModuleMultimodule(moduleIdx) && getModuleSyncStatus(moduleIdx).isValid()) ? TITLE_ROW : HIDDEN_ROW,
 #define MULTIMODULE_MODE_ROWS(moduleIdx)        (g_model.moduleData[moduleIdx].multi.customProto) ? (uint8_t) 3 : MULTIMODULE_HAS_SUBTYPE(moduleIdx) ? (uint8_t)2 : (uint8_t)1
@@ -382,5 +373,7 @@ const char * getMultiOptionTitleStatic(uint8_t moduleIdx);
 const char *getMultiOptionTitle(uint8_t moduleIdx);
 
 const char * writeScreenshot();
+
+uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event);
 
 #endif // _GUI_COMMON_H_

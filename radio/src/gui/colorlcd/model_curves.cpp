@@ -25,6 +25,69 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
+#define PREVIEW_PAD 9
+#define TITLE_H     20
+#define INFO_H      27
+#define CURVE_BTN_W 142
+#define CURVE_BTH_H CURVE_BTN_W + TITLE_H + INFO_H - PREVIEW_PAD
+
+#if LCD_W > LCD_H
+  #define   PER_ROW     3
+#else
+  #define   PER_ROW     2
+#endif
+
+DEFINE_LZ4_BITMAP(LBM_DOT);
+
+class CurveButton : public Button {
+  public:
+    CurveButton(Window * parent, const rect_t &rect, uint8_t index) :
+      Button(parent, rect, nullptr, 0, 0, etx_button_create),
+      index(index)
+    {
+      padAll(0);
+      preview = new CurveRenderer({PREVIEW_PAD, PREVIEW_PAD+TITLE_H, width() - PREVIEW_PAD*2, width() - PREVIEW_PAD*2},
+                                  [=](int x) -> int {
+                                    return applyCustomCurve(x, index);
+                                  });
+    }
+
+    void paint(BitmapBuffer * dc) override
+    {
+      char buf[32];
+      LcdFlags bg_color = hasFocus() ? COLOR_THEME_FOCUS : COLOR_THEME_SECONDARY2;
+      LcdFlags txt_color = hasFocus() ? COLOR_THEME_PRIMARY2 : COLOR_THEME_SECONDARY1;
+
+      int w = width();
+
+      // Title bar background
+      dc->drawSolidFilledRect(8, 0, w - 16, 8, bg_color);
+      dc->drawSolidFilledRect(0, 8, w, TITLE_H-6, bg_color);
+      dc->drawBitmapPattern(0, 0, LBM_DOT, bg_color);
+      dc->drawBitmapPattern(w - 13, 0, LBM_DOT, bg_color);
+
+      // Title
+      char *s = strAppendStringWithIndex(buf, STR_CV, index + 1);
+      if (g_model.curves[index].name[0]) {
+        s = strAppend(s, ":");
+        strAppend(s, g_model.curves[index].name, LEN_CURVE_NAME);
+      }
+
+      dc->drawText(w / 2, 1, buf, txt_color|CENTERED|FONT(BOLD));
+
+      // Curve preview
+      preview->paint(dc);
+
+      // Curve characteristics
+      CurveHeader &curve = g_model.curves[index];
+      snprintf(buf, 32, "%s %d %s", STR_CURVE_TYPES[curve.type], 5 + curve.points, STR_PTS);
+      dc->drawText(w / 2, height() - INFO_H + 1, buf, COLOR_THEME_SECONDARY1|CENTERED|FONT(BOLD));
+    }
+
+  protected:
+    uint8_t index;
+    CurveRenderer* preview;
+};
 
 // initialize a new curves points to the default for a 5 point
 // curve.
@@ -37,257 +100,10 @@ void initPoints(const CurveHeader &curve, int8_t *points)
   }
 }
 
-
-class CurveEditWindow : public Page
-{
-  public:
-    explicit CurveEditWindow(uint8_t index):
-      Page(ICON_MODEL_CURVES),
-      index(index)
-    {
-      buildBody(&body);
-      buildHeader(&header);
-    }
-
-  protected:
-    uint8_t index;
-    CurveEdit * curveEdit = nullptr;
-    CurveDataEdit * curveDataEdit = nullptr;
-
-    void buildHeader(Window * window)
-    {
-      new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP, LCD_W - PAGE_TITLE_LEFT,
-                      PAGE_LINE_HEIGHT},
-                     STR_MENUCURVE, 0, COLOR_THEME_PRIMARY2);
-      char s[16];
-      strAppendStringWithIndex(s, STR_CV, index + 1);
-      new StaticText(window,
-                     {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-                      LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                     s, 0, COLOR_THEME_PRIMARY2);
-    }
-
-#if LCD_W > LCD_H
-    void buildBody(FormWindow * window)
-    {
-      coord_t curveWidth = window->height() - 2 * PAGE_PADDING;
-
-      CurveHeader & curve = g_model.curves[index];
-      int8_t * points = curveAddress(index);
-
-      // Curve editor
-      curveEdit = new CurveEdit(window, { coord_t(LCD_W - curveWidth - PAGE_PADDING), PAGE_PADDING, curveWidth, curveWidth}, index);
-
-      FormGridLayout grid;
-      grid.setLabelWidth(PAGE_PADDING);
-      grid.setMarginRight(curveWidth + 2 * PAGE_PADDING);
-      grid.spacer(PAGE_PADDING);
-
-      // Name
-      new StaticText(window, grid.getFieldSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
-      grid.nextLine();
-      new ModelTextEdit(window, grid.getFieldSlot(), curve.name, sizeof(curve.name));
-      grid.nextLine();
-
-      // Type
-      new StaticText(window, grid.getFieldSlot(), STR_TYPE, 0, COLOR_THEME_PRIMARY1);
-      grid.nextLine();
-      new Choice(window, grid.getFieldSlot(2, 0), STR_CURVE_TYPES, 0, 1, GET_DEFAULT(g_model.curves[index].type),
-                 [=](int32_t newValue) {
-                     CurveHeader &curve = g_model.curves[index];
-                     if (newValue != curve.type) {
-                       for (int i = 1; i < 4 + curve.points; i++) {
-                         points[i] = calcRESXto100(applyCustomCurve(calc100toRESX(-100 + i * 200 / (4 + curve.points)), index));
-                       }
-                       if (moveCurve(index, newValue == CURVE_TYPE_CUSTOM ? 3 + curve.points : -3 - curve.points)) {
-                         if (newValue == CURVE_TYPE_CUSTOM) {
-                           resetCustomCurveX(points, 5 + curve.points);
-                         }
-                         curve.type = newValue;
-                       }
-                       SET_DIRTY();
-                       curveEdit->updatePreview();
-                       if (curveDataEdit) {
-                         curveDataEdit->clear();
-                         curveDataEdit->update();
-                       }
-                     }
-                 });
-
-      // Points count
-      auto edit = new NumberEdit(window, grid.getFieldSlot(2, 1), 2, 17, GET_DEFAULT(g_model.curves[index].points + 5),
-                                 [=](int32_t newValue) {
-                                     newValue -= 5;
-                                     CurveHeader &curve = g_model.curves[index];
-                                     int newPoints[MAX_POINTS_PER_CURVE];
-                                     newPoints[0] = points[0];
-                                     newPoints[4 + newValue] = points[4 + curve.points];
-                                     for (int i = 1; i < 4 + newValue; i++)
-                                       newPoints[i] = calcRESXto100(applyCustomCurve(-RESX + (i * 2 * RESX) / (4 + newValue), index));
-                                     if (moveCurve(index, (newValue - curve.points) * (curve.type == CURVE_TYPE_CUSTOM ? 2 : 1))) {
-                                       for (int i = 0; i < 5 + newValue; i++) {
-                                         points[i] = newPoints[i];
-                                         if (curve.type == CURVE_TYPE_CUSTOM && i != 0 && i != 4 + newValue)
-                                           points[5 + newValue + i - 1] = -100 + (i * 200) / (4 + newValue);
-                                       }
-                                       curve.points = newValue;
-                                       SET_DIRTY();
-                                       curveEdit->updatePreview();
-                                       if (curveDataEdit) {
-                                         curveDataEdit->clear();
-                                         curveDataEdit->update();
-                                       }
-                                     }
-                                 });
-      edit->setSuffix(STR_PTS);
-      grid.nextLine();
-
-      // Smooth
-      new StaticText(window, grid.getFieldSlot(2, 0), STR_SMOOTH, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(window, grid.getFieldSlot(2, 1), GET_DEFAULT(g_model.curves[index].smooth),
-                   [=](int32_t newValue) {
-                       g_model.curves[index].smooth = newValue;
-                       SET_DIRTY();
-                       curveEdit->updatePreview();
-                   });
-      grid.nextLine();
-
-      curveDataEdit = new CurveDataEdit(window, {0, grid.getWindowHeight(), coord_t(LCD_W - curveWidth - PAGE_PADDING - 1), window->height() -  grid.getWindowHeight() - PAGE_PADDING}, index, curveEdit);
-    }
-#else
-    void buildBody(FormWindow * window)
-    {
-      CurveHeader & curve = g_model.curves[index];
-      int8_t * points = curveAddress(index);
-
-      FormGridLayout grid;
-      grid.setMarginLeft(PAGE_PADDING);
-      grid.setMarginRight(PAGE_PADDING);
-      grid.setLabelWidth(100);
-      grid.spacer(PAGE_PADDING);
-
-      // Curve editor
-      curveEdit = new CurveEdit(window, { 42, grid.getWindowHeight(), LCD_W - 80, LCD_W - 80}, index);
-      grid.spacer(curveEdit->height() + 15);
-
-      // Name
-      new StaticText(window, grid.getLabelSlot(), STR_NAME, 0, COLOR_THEME_PRIMARY1);
-      new ModelTextEdit(window, grid.getFieldSlot(), curve.name, sizeof(curve.name));
-      grid.nextLine();
-
-      // Type
-      new StaticText(window, grid.getLabelSlot(), STR_TYPE, 0, COLOR_THEME_PRIMARY1);
-      new Choice(window, grid.getFieldSlot(2, 0), STR_CURVE_TYPES, 0, 1, GET_DEFAULT(g_model.curves[index].type),
-                 [=](int32_t newValue) {
-                   CurveHeader &curve = g_model.curves[index];
-                   if (newValue != curve.type) {
-                     for (int i = 1; i < 4 + curve.points; i++) {
-                       points[i] = calcRESXto100(applyCustomCurve(calc100toRESX(-100 + i * 200 / (4 + curve.points)), index));
-                     }
-                     if (moveCurve(index, newValue == CURVE_TYPE_CUSTOM ? 3 + curve.points : -3 - curve.points)) {
-                       if (newValue == CURVE_TYPE_CUSTOM) {
-                         resetCustomCurveX(points, 5 + curve.points);
-                       }
-                       curve.type = newValue;
-                     }
-                     SET_DIRTY();
-                     curveEdit->updatePreview();
-                     if(curveDataEdit) {
-                       curveDataEdit->clear();
-                       curveDataEdit->update();
-                     }
-                   }
-                 });
-
-      // Points count
-      auto edit = new NumberEdit(window, grid.getFieldSlot(2, 1), 2, 17, GET_DEFAULT(g_model.curves[index].points + 5),
-                                 [=](int32_t newValue) {
-                                   newValue -= 5;
-                                   CurveHeader &curve = g_model.curves[index];
-                                   int newPoints[MAX_POINTS_PER_CURVE];
-                                   newPoints[0] = points[0];
-                                   newPoints[4 + newValue] = points[4 + curve.points];
-                                   for (int i = 1; i < 4 + newValue; i++)
-                                     newPoints[i] = calcRESXto100(applyCustomCurve(-RESX + (i * 2 * RESX) / (4 + newValue), index));
-                                   if (moveCurve(index, (newValue - curve.points) * (curve.type == CURVE_TYPE_CUSTOM ? 2 : 1))) {
-                                     for (int i = 0; i < 5 + newValue; i++) {
-                                       points[i] = newPoints[i];
-                                       if (curve.type == CURVE_TYPE_CUSTOM && i != 0 && i != 4 + newValue)
-                                         points[5 + newValue + i - 1] = -100 + (i * 200) / (4 + newValue);
-                                     }
-                                     curve.points = newValue;
-                                     SET_DIRTY();
-                                     curveEdit->updatePreview();
-                                     if(curveDataEdit) {
-                                       curveDataEdit->clear();
-                                       curveDataEdit->update();
-                                     }
-                                   }
-                                 });
-      edit->setSuffix(STR_PTS);
-      grid.nextLine();
-
-      // Smooth
-      new StaticText(window, grid.getLabelSlot(), STR_SMOOTH, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(window, grid.getFieldSlot(), GET_DEFAULT(g_model.curves[index].smooth),
-                   [=](int32_t newValue) {
-                     g_model.curves[index].smooth = newValue;
-                     SET_DIRTY();
-                     curveEdit->updatePreview();
-                   });
-      grid.nextLine();
-
-      curveDataEdit = new CurveDataEdit(window, {PAGE_PADDING, grid.getWindowHeight(), coord_t(LCD_W - PAGE_PADDING - 1), window->height() -  grid.getWindowHeight() - PAGE_PADDING}, index, curveEdit);
-    }
-#endif
-};
-
-class CurveButton : public Button {
-  public:
-    CurveButton(FormGroup * parent, const rect_t &rect, uint8_t index) :
-      Button(parent, rect),
-      index(index)
-    {
-      if (isCurveUsed(index)) {
-        setHeight(130);
-        new Curve(this, {5, 5, 120, 120},
-                  [=](int x) -> int {
-                    return applyCustomCurve(x, index);
-                  });
-      }
-    }
-
-    void paint(BitmapBuffer * dc) override
-    {
-      dc->drawSolidFilledRect(0, 0, rect.w, rect.h, COLOR_THEME_PRIMARY2);
-
-      // bounding rect
-      if (hasFocus()) {
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 2, COLOR_THEME_FOCUS);
-      } else {
-        dc->drawSolidRect(0, 0, rect.w, rect.h, 1, COLOR_THEME_SECONDARY2);
-      }
-
-      // curve characteristics
-      if (isCurveUsed(index)) {
-        CurveHeader &curve = g_model.curves[index];
-        dc->drawNumber(130, 5, 5 + curve.points, LEFT | COLOR_THEME_SECONDARY1, 0, nullptr, STR_PTS);
-        dc->drawTextAtIndex(130, 25, STR_CURVE_TYPES, curve.type, COLOR_THEME_SECONDARY1);
-        if (curve.smooth)
-          dc->drawText(130, 45, STR_SMOOTH, COLOR_THEME_SECONDARY1);
-      }
-    }
-
-  protected:
-    uint8_t index;
-};
-
 ModelCurvesPage::ModelCurvesPage() :
   PageTab(STR_MENUCURVES, ICON_MODEL_CURVES)
 {
 }
-
 
 // can be called from any other screen to edit a curve.
 // currently called from model_mixes.cpp on longpress.
@@ -302,71 +118,118 @@ void ModelCurvesPage::pushEditCurve(int index)
   new CurveEditWindow(index);
 }
 
-void ModelCurvesPage::rebuild(FormWindow * window, int8_t focusIndex)
+void ModelCurvesPage::rebuild(FormWindow * window)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
   window->clear();
-  build(window, focusIndex);
-  lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
+  build(window);
 }
 
 void ModelCurvesPage::editCurve(FormWindow * window, uint8_t curve)
 {
   Window * editWindow = new CurveEditWindow(curve);
   editWindow->setCloseHandler([=]() {
-    rebuild(window, curve);
+    rebuild(window);
   });
 }
 
-void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
+void ModelCurvesPage::presetMenu(FormWindow * window, uint8_t index)
 {
-  FormGridLayout grid;
-  grid.spacer(PAGE_PADDING);
-  grid.setLabelWidth(66);
-  window->padAll(0);
+  Menu *menu = new Menu(window);
+  menu->setTitle(STR_CURVE_PRESET);
+  for (int angle = -45; angle <= 45; angle += 15) {
+    char label[16];
+    strAppend(strAppendSigned(label, angle), "°");
+    menu->addLineBuffered(label, [=]() {
+      CurveHeader &curve = g_model.curves[index];
+      int8_t * points = curveAddress(index);
 
-  CurveEdit::SetCurrentSource(0);
+      int dx = 2000 / (5 + curve.points - 1);
+      for (uint8_t i = 0; i < 5 + curve.points; i++) {
+        int x = -1000 + i * dx;
+        points[i] = divRoundClosest(angle * x, 450);
+      }
+      if (curve.type == CURVE_TYPE_CUSTOM) {
+       resetCustomCurveX(points, 5 + curve.points);
+      }
+
+      storageDirty(EE_MODEL);
+      rebuild(window);
+    });
+  }
+  menu->updateLines();
+}
+
+void ModelCurvesPage::newCV(FormWindow *window, bool presetCV)
+{
+  Menu *menu = new Menu(Layer::back());
+  menu->setTitle(STR_CURVE);
+  char s[6] = "CVxx";
+
+  // search for unused slot
+  for (uint8_t i = 0; i < MAX_CURVES; i += 1) {
+    if (!isCurveUsed(i)) {
+        strAppendUnsigned(&s[2], i + 1);
+        menu->addLineBuffered(s, [=]() {
+          focusIndex = i;
+          if (presetCV) {
+            presetMenu(window, i);
+          } else {
+            CurveHeader &curve = g_model.curves[i];
+            int8_t *points = curveAddress(i);
+            initPoints(curve, points);
+            editCurve(window, i);
+          }
+        });
+    }
+  }
+  menu->updateLines();
+}
+
+void ModelCurvesPage::plusPopup(FormWindow * window)
+{
+  Menu *menu = new Menu(window);
+  menu->setTitle(STR_NEW);
+  menu->addLine(STR_EDIT, [=]() { newCV(window, false); });
+  menu->addLine(STR_CURVE_PRESET, [=]() { newCV(window, true); });
+}
+
+void ModelCurvesPage::build(FormWindow * window)
+{
+#if LCD_W > LCD_H
+  static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+#else
+  static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+#endif
+  static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+  window->padAll(6);
+  window->setFlexLayout();
+
+  FlexGridLayout grid(col_dsc, row_dsc);
+  
+  FormWindow::Line* line = nullptr;
+
+  bool hasFocusButton = false;
+
+  uint8_t curveIndex = 0;
+  CurveButton* firstCurveButton = nullptr;
 
   for (uint8_t index = 0; index < MAX_CURVES; index++) {
-
-    CurveHeader &curve = g_model.curves[index];
-    int8_t * points = curveAddress(index);
-
-    std::function<void(void)> presetCurveFct = [=]() {
-      Menu *menu = new Menu(window);
-      for (int angle = -45; angle <= 45; angle += 15) {
-        char label[16];
-        strAppend(strAppendSigned(label, angle), "°");
-        menu->addLineBuffered(label, [=]() {
-          int dx = 2000 / (5 + curve.points - 1);
-          for (uint8_t i = 0; i < 5 + curve.points; i++) {
-            int x = -1000 + i * dx;
-            points[i] = divRoundClosest(angle * x, 450);
-          }
-          if (curve.type == CURVE_TYPE_CUSTOM) {
-            resetCustomCurveX(points, 5 + curve.points);
-          }
-          storageDirty(EE_MODEL);
-          rebuild(window, index);
-        });
-      }
-      menu->updateLines();
-    };
-
     if (isCurveUsed(index)) {
-      // Curve label
-      auto txt =
-          new StaticText(window, grid.getLabelSlot(), getCurveString(1 + index),
-                         BUTTON_BACKGROUND, COLOR_THEME_PRIMARY1 | CENTERED);
+      if ((curveIndex % PER_ROW) == 0) {
+        line = window->newLine(&grid);
+        lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
+      }
 
       // Curve drawing
-      Button * button = new CurveButton(window, grid.getFieldSlot(), index);
+      auto button = new CurveButton(line, rect_t{0, 0, CURVE_BTN_W, CURVE_BTH_H}, index);
       button->setPressHandler([=]() -> uint8_t {
           Menu * menu = new Menu(window);
+          menu->setTitle(STR_CURVE);
           menu->addLine(STR_EDIT, [=]() {
               editCurve(window, index);
           });
-          menu->addLine(STR_CURVE_PRESET, presetCurveFct);
+          menu->addLine(STR_CURVE_PRESET, [=]() { presetMenu(window, index); });
           menu->addLine(STR_MIRROR, [=]() {
               curveMirror(index);
               storageDirty(EE_MODEL);
@@ -375,49 +238,56 @@ void ModelCurvesPage::build(FormWindow * window, int8_t focusIndex)
           menu->addLine(STR_CLEAR, [=]() {
               curveClear(index);
               storageDirty(EE_MODEL);
-              rebuild(window, index);
+              rebuild(window);
           });
           return 0;
       });
-      button->setFocusHandler([=](bool focus) {
-        if (focus) {
-          txt->setBackgroundColor(COLOR_THEME_FOCUS);
-          txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-        } else {
-          txt->setBackgroundColor(COLOR_THEME_SECONDARY2);
-          txt->setTextFlags(COLOR_THEME_PRIMARY1 | CENTERED);
-        }
-        txt->invalidate();
+      button->setFocusHandler([=](bool hasFocus) {
+        if (hasFocus)
+          focusIndex = index;
       });
 
-      // if (focusIndex == index) {
-      //   button->setFocus(SET_FOCUS_DEFAULT);
-      //   txt->setBackgroundColor(COLOR_THEME_FOCUS);
-      //   txt->setTextFlags(COLOR_THEME_PRIMARY2 | CENTERED);
-      //   txt->invalidate();
-      // }
-
-      txt->setHeight(button->height());
-      grid.spacer(button->height() + 5);
-    } else {
-      auto button = new TextButton(window, grid.getLabelSlot(),
-                                   getCurveString(1 + index));
-      button->setPressHandler([=]() {
-        Menu *menu = new Menu(window);
-        menu->addLine(STR_EDIT, [=]() {
-            initPoints(curve, points);
-            editCurve(window, index);
-        });
-        menu->addLine(STR_CURVE_PRESET, presetCurveFct);
+      button->setLongPressHandler([=]() -> uint8_t {
+        if (addButton) {
+          lv_group_focus_obj(addButton->getLvObj());
+          plusPopup(window);
+        }
         return 0;
       });
-      grid.spacer(button->height() + 5);
+
+      if (!firstCurveButton) {
+        firstCurveButton = button;
+      }
+
+      if (index == focusIndex) {
+        hasFocusButton = true;
+        lv_group_focus_obj(button->getLvObj());
+      }
+
+      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, curveIndex % PER_ROW, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+      curveIndex += 1;
     }
   }
 
-// extra bottom padding if touchscreen
-#if defined HARDWARE_TOUCH
-  grid.nextLine();
-#endif
+  if (!hasFocusButton && firstCurveButton) {
+    lv_group_focus_obj(firstCurveButton->getLvObj());
+  }
 
+  if (curveIndex < MAX_CURVES) {
+    if ((curveIndex % PER_ROW) == 0) {
+      line = window->newLine(&grid);
+      lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN,
+                            LV_GRID_ALIGN_SPACE_BETWEEN);
+    }
+
+    addButton = new TextButton(line, rect_t{0, 0, CURVE_BTN_W, CURVE_BTH_H},
+                               LV_SYMBOL_PLUS, [=]() {
+                                 plusPopup(window);
+                                 return 0;
+                               });
+
+    lv_obj_set_grid_cell(addButton->getLvObj(), LV_GRID_ALIGN_CENTER,
+                         curveIndex % PER_ROW, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  }
 }

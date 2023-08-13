@@ -25,20 +25,15 @@ extern inline tmr10ms_t getTicks()
   return g_tmr10ms;
 }
 
-
-
 FileCarosell::FileCarosell(Window *parent, const rect_t &rect,
                            std::vector<std::string> fileNames) :
-    FormGroup(parent, rect, NO_FOCUS | FORM_NO_BORDER),
+    FormWindow(parent, rect, NO_FOCUS),
     _fileNames(fileNames),
     fp(new FilePreview(this, {0, 0, rect.w, rect.h}, false))
 {
   timer = getTicks();
+  message = new StaticText(this, {0, rect.h/2, rect.w, PAGE_LINE_HEIGHT}, "", 0, CENTERED | FONT(L) | COLOR_THEME_PRIMARY1);
   setSelected(0);
-}
-
-FileCarosell::~FileCarosell()
-{
 }
 
 void FileCarosell::setFileNames(std::vector<std::string> fileNames)
@@ -51,39 +46,34 @@ void FileCarosell::setFileNames(std::vector<std::string> fileNames)
 
 void FileCarosell::setSelected(int n)
 {
-  if (n == selected) return;
+  if (n != selected) {
+    selected = n;
+
+    if (n >= 0 && n < (int)_fileNames.size()) {
+      fp->setFile(_fileNames[selected].c_str());
+    } else
+      fp->setFile("");
+  }
   
-  selected = n;
-
-  if (n >= 0 && n < (int)_fileNames.size()) {
-    fp->setFile(_fileNames[selected].c_str());
-  } else
-    fp->setFile("");
-}
-
-void FileCarosell::paint(BitmapBuffer *dc)
-{
-  if (selected == -1 || _fileNames.size() == 0) {
-    const char *message = selected == -1 && _fileNames.size() > 0
-                              ? "Loading..."
-                              : "No theme image";
-    dc->drawText(width() / 2, height() / 2, message, FONT(L) + CENTERED);
+  if (selected == -1) {
+    lv_obj_clear_flag(message->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    message->setText(_fileNames.size() > 0 ? STR_LOADING : STR_NO_THEME_IMAGE);
+  } else {
+    lv_obj_add_flag(message->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   }
 }
 
 void FileCarosell::checkEvents()
 {
-  FormGroup::checkEvents();
+  FormWindow::checkEvents();
+
+  uint32_t newTicks = getTicks();
 
   // if we are paused then just update time.  we will begin the carosell after
   // timeout period once unpaused
   if (_paused) {
-    timer = getTicks();
-    return;
-  }
-
-  uint32_t newTicks = getTicks();
-  if (newTicks - timer > pageInterval && _fileNames.size()) {
+    timer = newTicks;
+  } else if (newTicks - timer > pageInterval && _fileNames.size()) {
     int newSelected = (selected + 1) % _fileNames.size();
     setSelected(newSelected);
     timer = newTicks;

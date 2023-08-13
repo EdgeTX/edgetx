@@ -26,7 +26,7 @@
 
 struct ModuleData;
 
-class CrossfireSettings : public FormGroup, public ModuleOptions
+class CrossfireSettings : public FormWindow, public ModuleOptions
 {
   ModuleData* md;
 

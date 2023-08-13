@@ -38,8 +38,6 @@
  #include "storage/eeprom_rlc.h"
 #endif
 
-#include "storage/conversions/conversions.h"
-
 const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, void* parser_ctx, ChecksumResult* checksum_result)
 {
     FIL  file;
@@ -133,13 +131,16 @@ static const char * attemptLoad(const char *filename, ChecksumResult* checksum_s
   return readYamlFile(filename, YamlTreeWalker::get_parser_calls(), &tree, checksum_status);
 }
 
-const char * loadRadioSettingsYaml()
+const char * loadRadioSettingsYaml(bool checks)
 {
     // YAML reader
     TRACE("YAML radio settings reader");
 
     ChecksumResult checksum_status;
     const char* p = attemptLoad(RADIO_SETTINGS_YAML_PATH, &checksum_status);
+
+    if(!checks)
+      return p;
 
     if((p != NULL) || (checksum_status != ChecksumResult::Success) ) {
       // Read failed or checksum check failed
@@ -177,37 +178,14 @@ const char * loadRadioSettings()
     if ( (f_stat(RADIO_SETTINGS_YAML_PATH, &fno) != FR_OK) && ((f_stat(RADIO_SETTINGS_TMPFILE_YAML_PATH, &fno) != FR_OK)) ) {
       // If neither the radio configuraion YAML file or the temporary file generated on write exist, this must be a first run with YAML support.
       // - thus requiring a conversion from binary to YAML.
-#if STORAGE_CONVERSIONS < 221
-#if defined(STORAGE_MODELSLIST)
-      uint8_t version;
-      const char* error = loadFileBin(RADIO_SETTINGS_PATH, nullptr, 0, &version);
-      if (error) {
-        TRACE("loadRadioSettings error=%s", error);
-        return error;
-      }
-      convertBinRadioData(RADIO_SETTINGS_PATH, version);
-#elif defined(EEPROM_RLC)
-      // Load from EEPROM
-      uint8_t versions[3];
-      uint16_t* variant = (uint16_t*)&versions[1];
-      if (!eepromOpen() || (eeLoadGeneralSettingsData(versions, 3) != 3)
-          || (*variant != EEPROM_VARIANT)) {
-        return "ERROR";
-      }
-      eeConvert(versions[0]);
-#else
-  #error "Unsupported conversion format"
-#endif
-#else
       return "no radio settings";
-#endif
     }
 
 #if defined(DEFAULT_INTERNAL_MODULE)
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
 #endif
 
-    const char* error = loadRadioSettingsYaml();
+    const char* error = loadRadioSettingsYaml(true);
     if (!error) {
       g_eeGeneral.chkSum = evalChkSum();
     }
@@ -623,5 +601,5 @@ const char * restoreModel(uint8_t idx, char *model_name)
 bool storageReadRadioSettings(bool checks)
 {
   if (!sdMounted()) sdInit();
-  return loadRadioSettingsYaml() == nullptr;
+  return loadRadioSettingsYaml(checks) == nullptr;
 }

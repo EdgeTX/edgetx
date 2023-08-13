@@ -19,23 +19,35 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/adc_driver.h"
+#include "hal/trainer_driver.h"
+#include "hal/switch_driver.h"
+#include "hal/module_port.h"
+
 #include "board.h"
+#include "boards/generic_stm32/module_ports.h"
+#include "boards/generic_stm32/intmodule_heartbeat.h"
+#include "boards/generic_stm32/analog_inputs.h"
+
 #include "debug.h"
 #include "rtc.h"
 
-#include "hal/adc_driver.h"
-#include "stm32_hal_adc.h"
-
-#include "../common/arm/stm32/timers_driver.h"
-
+#include "timers_driver.h"
 #include "dataconstants.h"
+
+#if defined(FLYSKY_GIMBAL)
+  #include "flysky_gimbal_driver.h"
+#endif
 
 #if !defined(BOOT)
   #include "opentx.h"
+  #if defined(PXX1)
+    #include "pulses/pxx1.h"
+  #endif
 #endif
 
-#if defined(AUX_SERIAL)
-#include "aux_serial_driver.h"
+#if defined(BLUETOOTH)
+  #include "bluetooth_driver.h"
 #endif
 
 #if defined(__cplusplus)
@@ -44,6 +56,14 @@ extern "C" {
 #include "usb_dcd_int.h"
 #include "usb_bsp.h"
 #if defined(__cplusplus)
+}
+#endif
+
+#if !defined(BOOT)
+bool UNEXPECTED_SHUTDOWN()
+{
+  return WAS_RESET_BY_WATCHDOG()
+    || g_eeGeneral.unexpectedShutdown;
 }
 #endif
 
@@ -59,40 +79,9 @@ void watchdogInit(unsigned int duration)
   IWDG->KR = 0xCCCC;      // start
 }
 
-#if defined(SPORT_UPDATE_PWR_GPIO) && !defined(BOOT)
-void sportUpdateInit()
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = SPORT_UPDATE_PWR_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(SPORT_UPDATE_PWR_GPIO, &GPIO_InitStructure);
-}
-
-void sportUpdatePowerOn()
-{
-  GPIO_SPORT_UPDATE_PWR_GPIO_ON(SPORT_UPDATE_PWR_GPIO, SPORT_UPDATE_PWR_GPIO_PIN);
-}
-
-void sportUpdatePowerOff()
-{
-  GPIO_SPORT_UPDATE_PWR_GPIO_OFF(SPORT_UPDATE_PWR_GPIO, SPORT_UPDATE_PWR_GPIO_PIN);
-}
-
-void sportUpdatePowerInit()
-{
-  if (g_eeGeneral.sportUpdatePower == 1)
-    sportUpdatePowerOn();
-  else
-    sportUpdatePowerOff();
-}
-#endif
-
 #if !defined(BOOT)
 
-#if defined(RADIO_TPRO)
+#if defined(FUNCTION_SWITCHES)
 #include "storage/storage.h"
 #endif
 
@@ -100,20 +89,16 @@ void boardInit()
 {
   RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph |
                          PCBREV_RCC_AHB1Periph |
-                         KEYS_RCC_AHB1Periph |
                          LCD_RCC_AHB1Periph |
                          AUDIO_RCC_AHB1Periph |
                          BACKLIGHT_RCC_AHB1Periph |
-                         ADC_RCC_AHB1Periph |
                          SD_RCC_AHB1Periph |
                          HAPTIC_RCC_AHB1Periph |
                          INTMODULE_RCC_AHB1Periph |
                          EXTMODULE_RCC_AHB1Periph |
                          TELEMETRY_RCC_AHB1Periph |
                          SPORT_UPDATE_RCC_AHB1Periph |
-                         AUX_SERIAL_RCC_AHB1Periph |
                          TRAINER_RCC_AHB1Periph |
-                         TRAINER_MODULE_RCC_AHB1Periph |
                          BT_RCC_AHB1Periph |
                          USB_CHARGER_RCC_AHB1Periph,
                          ENABLE);
@@ -121,28 +106,19 @@ void boardInit()
   RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph |
                          LCD_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
-                         ADC_RCC_APB1Periph |
                          BACKLIGHT_RCC_APB1Periph |
                          HAPTIC_RCC_APB1Periph |
                          INTERRUPT_xMS_RCC_APB1Periph |
                          TIMER_2MHz_RCC_APB1Periph |
                          SD_RCC_APB1Periph |
-                         TRAINER_RCC_APB1Periph |
                          TELEMETRY_RCC_APB1Periph |
-                         AUX_SERIAL_RCC_APB1Periph |
-                         INTMODULE_RCC_APB1Periph |
-                         TRAINER_MODULE_RCC_APB1Periph |
                          MIXER_SCHEDULER_TIMER_RCC_APB1Periph |
                          BT_RCC_APB1Periph,
                          ENABLE);
 
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG |
                          BACKLIGHT_RCC_APB2Periph |
-                         ADC_RCC_APB2Periph |
                          HAPTIC_RCC_APB2Periph |
-                         INTMODULE_RCC_APB2Periph |
-                         EXTMODULE_RCC_APB2Periph |
-                         TRAINER_MODULE_RCC_APB2Periph |
                          BT_RCC_APB2Periph |
                          TELEMETRY_RCC_APB2Periph,
                          ENABLE);
@@ -151,7 +127,7 @@ void boardInit()
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
 #endif
 
-#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2)
+#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)
     
   if (FLASH_OB_GetBOR() != OB_BOR_LEVEL3)
   {
@@ -162,18 +138,29 @@ void boardInit()
   }
 #endif
 
+  init_trainer();
+  // Sets 'hardwareOption.pcbrev' as well
   pwrInit();
+  boardInitModulePorts();
 
-#if defined(AUTOUPDATE)
-  telemetryPortInit(FRSKY_SPORT_BAUDRATE, TELEMETRY_SERIAL_WITHOUT_DMA);
-  sportSendByteLoop(0x7E);
+#if defined(INTERNAL_MODULE_PXX1) && defined(PXX_FREQUENCY_HIGH)
+  pxx1SetInternalBaudrate(PXX1_FAST_SERIAL_BAUDRATE);
 #endif
+
+#if defined(INTMODULE_HEARTBEAT) &&                                     \
+  (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2))
+  pulsesSetModuleInitCb(_intmodule_heartbeat_init);
+  pulsesSetModuleDeInitCb(_intmodule_heartbeat_deinit);
+#endif
+  
+// #if defined(AUTOUPDATE)
+//   telemetryPortInit(FRSKY_SPORT_BAUDRATE, TELEMETRY_SERIAL_WITHOUT_DMA);
+//   sportSendByteLoop(0x7E);
+// #endif
 
 #if defined(STATUS_LEDS)
   ledInit();
-#if defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TLITE) || \
-    defined(RADIO_TPRO) || defined(RADIO_TX12) || defined(RADIO_TX12MK2) ||  \
-    defined(RADIO_ZORRO)
+#if defined(MANUFACTURER_RADIOMASTER) || defined(MANUFACTURER_JUMPER) || defined(RADIO_COMMANDO8)
   ledBlue();
 #else
   ledGreen();
@@ -181,7 +168,7 @@ void boardInit()
 #endif
 
 // Support for FS Led to indicate battery charge level
-#if defined(RADIO_TPRO)
+#if defined(FUNCTION_SWITCHES)
   // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();
   // prime debounce state...
@@ -189,16 +176,15 @@ void boardInit()
 
    if (usbPlugged()) {
      delaysInit();
-     adcInit(&stm32_hal_adc_driver);
+     adcInit(&_adc_driver);
      getADC();
      pwrOn(); // required to get bat adc reads
-     storageReadRadioSettings(false);  // Needed for bat calibration
      INTERNAL_MODULE_OFF();
      EXTERNAL_MODULE_OFF();
-    
+
      while (usbPlugged()) {
        // Let it charge ...
-       getADC();
+       getADC(); // Warning: the value read does not include VBAT calibration
        delay_ms(20);
        if (getBatteryVoltage() >= 660)
          fsLedOn(0);
@@ -218,28 +204,30 @@ void boardInit()
 #endif
 
   keysInit();
+  switchInit();
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotaryEncoderInit();
 #endif
 
   delaysInit();
+  __enable_irq();
 
-#if NUM_PWMSTICKS > 0
-  sticksPwmInit();
-  delay_ms(20);
-  if (pwm_interrupt_count < 32) {
-    hardwareOptions.sticksPwmDisabled = true;
-  }
+#if defined(PWM_STICKS)
+  sticksPwmDetect();
 #endif
 
-  if (!adcInit(&stm32_hal_adc_driver))
-      TRACE("adcInit failed");
+#if defined(FLYSKY_GIMBAL)
+  flysky_gimbal_init();
+#endif
+
+  if (!adcInit(&_adc_driver))
+    TRACE("adcInit failed");
+
   lcdInit(); // delaysInit() must be called before
   audioInit();
   init2MhzTimer();
   init1msTimer();
-  __enable_irq();
   usbInit();
 
 #if defined(DEBUG)
@@ -272,10 +260,6 @@ void boardInit()
   usbChargerInit();
 #endif
 
-  if (HAS_SPORT_UPDATE_CONNECTOR()) {
-    sportUpdateInit();
-  }
-
 #if defined(JACK_DETECT_GPIO)
   initJackDetect();
 #endif
@@ -285,7 +269,7 @@ void boardInit()
 
   initHeadphoneTrainerSwitch();
 
-#if defined(RTCLOCK) && !defined(COPROCESSOR)
+#if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
 
@@ -315,7 +299,7 @@ void boardOff()
   }
 #endif
 
-#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2)
+#if defined(MANUFACTURER_RADIOMASTER) && defined(STM32F407xx)
   lcdInit(); 
 #endif
 
@@ -410,54 +394,3 @@ void initJackDetect(void)
   GPIO_Init(JACK_DETECT_GPIO, &GPIO_InitStructure);
 }
 #endif
-
-#if defined(AUX_SERIAL)
-const etx_serial_port_t auxSerialPort = {
-  "AUX1",
-  &AuxSerialDriver,
-  nullptr
-};
-#define AUX_SERIAL_PORT &auxSerialPort
-#else
-#define AUX_SERIAL_PORT nullptr
-#endif
-
-#define AUX2_SERIAL_PORT nullptr
-
-static const etx_serial_port_t* serialPorts[MAX_AUX_SERIAL] = {
-  AUX_SERIAL_PORT,
-  AUX2_SERIAL_PORT,
-};
-
-const etx_serial_port_t* auxSerialGetPort(int port_nr)
-{
-  if (port_nr >= MAX_AUX_SERIAL) return nullptr;
-  return serialPorts[port_nr];
-}
-
-void setMutePin(GPIO_TypeDef* GPIOx,uint16_t Pinx)
-{
-#if defined(AUDIO_MUTE_PIN_INVERT)
-  GPIO_ResetBits(GPIOx, Pinx);
-#else
-  GPIO_SetBits(GPIOx, Pinx);
-#endif
-}
-
-void resetMutePin(GPIO_TypeDef* GPIOx,uint16_t Pinx)
-{
-#if defined(AUDIO_MUTE_PIN_INVERT)
-  GPIO_SetBits(GPIOx, Pinx);
-#else
-  GPIO_ResetBits(GPIOx, Pinx);
-#endif
-}
-
-uint8_t readMutePinLevel(GPIO_TypeDef* GPIOx,uint16_t Pinx)
-{
-#if defined(AUDIO_MUTE_PIN_INVERT)
-  return !GPIO_ReadOutputDataBit(GPIOx, Pinx);
-#else
-  return GPIO_ReadOutputDataBit(GPIOx, Pinx);
-#endif
-}

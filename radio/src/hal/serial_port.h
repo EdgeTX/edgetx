@@ -26,5 +26,6 @@
 typedef struct {
     const char*                name;
     const etx_serial_driver_t* uart;
+    void* hw_def;
     void (*set_pwr)(uint8_t on);
 } etx_serial_port_t;

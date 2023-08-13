@@ -162,7 +162,6 @@ enum Capability {
   HasAux2SerialMode,
   HasVCPSerialMode,
   HasBluetooth,
-  HasAntennaChoice,
   HasADCJitterFilter,
   HasTelemetryBaudrate,
   TopBarZones,
@@ -287,17 +286,19 @@ class Firmware
     typedef QList<OptionsGroup> OptionsList;
 
 
-    explicit Firmware(const QString & id, const QString & name, Board::Type board) :
-      Firmware(nullptr, id, name, board)
+    explicit Firmware(const QString & id, const QString & name, Board::Type board, const QString & downloadId = QString(), const QString & simulatorId = QString()) :
+      Firmware(nullptr, id, name, board, downloadId, simulatorId)
     { }
 
-    explicit Firmware(Firmware * base, const QString & id, const QString & name, Board::Type board) :
+    explicit Firmware(Firmware * base, const QString & id, const QString & name, Board::Type board, const QString & downloadId = QString(), const QString & simulatorId = QString()) :
       id(id),
       name(name),
       board(board),
       variantBase(0),
       base(base),
       eepromInterface(nullptr),
+      downloadId(downloadId),
+      simulatorId(simulatorId),
       analogInputNamesLookupTable(Boards::getAnalogNamesLookupTable(board)),
       switchesLookupTable(Boards::getSwitchesLookupTable(board)),
       trimSwitchesLookupTable(Boards::getTrimSwitchesLookupTable(board)),
@@ -433,6 +434,9 @@ class Firmware
     STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialTypes);
     STRINGTAGMAPPINGFUNCS(rawSourceCyclicLookupTable, RawSourceCyclic);
 
+    const QString getDownloadId() { return getFirmwareBase()->downloadId.isEmpty() ? getFlavour() : getFirmwareBase()->downloadId; }
+    const QString getSimulatorId() { return getFirmwareBase()->simulatorId.isEmpty() ? getId() : getFirmwareBase()->simulatorId; }
+
   protected:
     QString id;
     QString name;
@@ -440,6 +444,8 @@ class Firmware
     unsigned int variantBase;
     Firmware * base;
     EEPROMInterface * eepromInterface;
+    QString downloadId;
+    QString simulatorId;
 
     //  used by YAML encode and decode
     const StringTagMappingTable analogInputNamesLookupTable;

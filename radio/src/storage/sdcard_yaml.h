@@ -26,7 +26,7 @@ enum class ChecksumResult {Success, Failed, None};
 
 constexpr uint8_t MODELIDX_STRLEN = sizeof(MODEL_FILENAME_PREFIX "00");
 
-const char * loadRadioSettingsYaml();
+const char * loadRadioSettingsYaml(bool checks);
 const char * writeModelYaml(const char* filename);
 const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t size, const char* pathName = STR_MODELS_PATH);
 bool YamlFileChecksum(const YamlNode* root_node, uint8_t* data, uint16_t* checksum);

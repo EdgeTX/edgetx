@@ -16,22 +16,22 @@ SimulatedUIWidgetXLITE::SimulatedUIWidgetXLITE(SimulatorInterface *simulator, QW
   polygon.clear();
 
   polygon << polyArc(x, y, oR, -45, 45) << polyArc(x, y, iR, -45, 45);
-  act = new RadioUiAction(4, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP);
+  act = new RadioUiAction(6, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP);
   addRadioWidget(ui->rightbuttons->addArea(polygon, "XLITE/right_up.png", act));
 
   polygon.clear();
   polygon << polyArc(x, y, oR, 135, 225) << polyArc(x, y, iR, 135, 225);
-  act = new RadioUiAction(3, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN);
+  act = new RadioUiAction(7, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN);
   addRadioWidget(ui->rightbuttons->addArea(polygon, "XLITE/right_down.png", act));
 
   polygon.clear();
   polygon << polyArc(x, y, oR, 45, 135) << polyArc(x, y, iR, 45, 135);
-  act = new RadioUiAction(5, QList<int>() << Qt::Key_Right << Qt::Key_Plus, SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS);
+  act = new RadioUiAction(9, QList<int>() << Qt::Key_Right << Qt::Key_Plus, SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS);
   addRadioWidget(ui->rightbuttons->addArea(polygon, "XLITE/right_right.png", act));
 
   polygon.clear();
   polygon << polyArc(x, y, oR, 225, 315) << polyArc(x, y, iR, 225, 315);
-  act = new RadioUiAction(6, QList<int>() << Qt::Key_Left << Qt::Key_Minus, SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN);
+  act = new RadioUiAction(8, QList<int>() << Qt::Key_Left << Qt::Key_Minus, SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN);
   addRadioWidget(ui->rightbuttons->addArea(polygon, "XLITE/right_left.png", act));
 
   m_mouseMidClickAction = new RadioUiAction(2, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ENT);
@@ -40,7 +40,7 @@ SimulatedUIWidgetXLITE::SimulatedUIWidgetXLITE(SimulatorInterface *simulator, QW
   act = new RadioUiAction(1, QList<int>() << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
   addRadioWidget(ui->rightbuttons->addArea(QRect(36, 147, 27, 27), "XLITE/right_exit.png", act));
 
-  act = new RadioUiAction(0, QList<int>() << Qt::Key_S, SIMU_STR_HLP_KEY_SHIFT, SIMU_STR_HLP_ACT_SHIFT);
+  act = new RadioUiAction(15, QList<int>() << Qt::Key_S, SIMU_STR_HLP_KEY_SHIFT, SIMU_STR_HLP_ACT_SHIFT);
   addRadioWidget(ui->rightbuttons->addArea(QRect(73, 129, 27, 27), "XLITE/right_shift.png", act));
 
   addRadioWidget(ui->leftbuttons->addArea(QRect(9, 152, 25, 25), "XLITE/left_scrnshot.png", m_screenshotAction));

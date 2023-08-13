@@ -20,24 +20,61 @@
  */
 
 #include "model_templates.h"
+
 #include "standalone_lua.h"
 #include "str_functions.h"
 
-char TemplatePage::path[LEN_PATH + 1];
-std::function<void(void)> TemplatePage::update = nullptr;
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
+TemplatePage::TemplatePage() : Page(ICON_MODEL_SELECT)
+{
+  auto form = new FormWindow(&body, rect_t{});
+  form->setFlexLayout();
+  form->padAll(4);
+
+  FlexGridLayout grid(col_dsc, row_dsc, 4);
+
+  auto line = form->newLine(&grid);
+
+  listWindow = new FormWindow(line, rect_t{});
+  listWindow->setFlexLayout(LV_FLEX_FLOW_COLUMN, 8);
+  listWindow->setHeight(body.height() - 16);
+  lv_obj_set_flex_align(listWindow->getLvObj(), LV_FLEX_ALIGN_START,
+                        LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_SPACE_BETWEEN);
+  lv_obj_set_grid_cell(listWindow->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1,
+                       LV_GRID_ALIGN_START, 0, 1);
+
+  infoLabel = lv_label_create(line->getLvObj());
+  lv_obj_set_height(infoLabel, body.height() - 16);
+  lv_obj_set_style_text_align(infoLabel, LV_TEXT_ALIGN_LEFT, 0);
+  lv_obj_set_grid_cell(infoLabel, LV_GRID_ALIGN_STRETCH, 1, 1,
+                       LV_GRID_ALIGN_CENTER, 0, 1);
+}
 
 void TemplatePage::updateInfo()
 {
-  FIL fp;
-  FRESULT res = f_open (&fp, buffer, FA_READ);
-  unsigned int bytesRead = 0;
-  if (res == FR_OK) {
-    f_read (&fp, infoText, LEN_INFO_TEXT, &bytesRead);
-    f_close(&fp);
+  if (buffer[0]) {
+    FIL fp;
+    FRESULT res = f_open(&fp, buffer, FA_READ);
+    unsigned int bytesRead = 0;
+    if (res == FR_OK) {
+      f_read(&fp, infoText, LEN_INFO_TEXT, &bytesRead);
+      f_close(&fp);
+    }
+    infoText[bytesRead] = '\0';
   }
-  infoText[bytesRead] = '\0';
-  invalidate();
+
+  if (infoText[0] == 0) {
+    lv_label_set_text(infoLabel, STR_NO_INFORMATION);
+    lv_obj_set_style_text_color(infoLabel, makeLvColor(COLOR_THEME_DISABLED),
+                                0);
+  } else {
+    lv_label_set_text(infoLabel, infoText);
+    lv_obj_set_style_text_color(infoLabel, makeLvColor(COLOR_THEME_PRIMARY1),
+                                0);
+  }
 }
 
 #if defined(HARDWARE_KEYS)
@@ -52,149 +89,102 @@ void TemplatePage::onEvent(event_t event)
 }
 #endif
 
-void TemplatePage::paint(BitmapBuffer *dc)
+class SelectTemplate : public TemplatePage
 {
-  Page::paint(dc);
-  rect_t rect = body.getRect();
-  coord_t x = LCD_W / 2 + PAGE_PADDING;
-  coord_t y = rect.y + PAGE_PADDING;
-  coord_t w = LCD_W / 2 - 2 * PAGE_PADDING;
-  coord_t h = rect.h - 2 * PAGE_PADDING;
-  if (count > 0) {
-    if (infoText[0] == '\0')
-      drawTextLines(dc, x, y, w, h, STR_NO_INFORMATION, COLOR_THEME_DISABLED);
-    else
-      drawTextLines(dc, x, y, w, h, infoText, COLOR_THEME_PRIMARY1);
-  }
-}
+ public:
+  SelectTemplate(SelectTemplateFolder* tp, std::string folder) : templateFolderPage(tp)
+  {
+    header.setTitle(STR_MANAGE_MODELS);
+    header.setTitle2(STR_NEW_MODEL);
 
+    char path[LEN_PATH + 1];
+    snprintf(path, LEN_PATH, "%s/%s", TEMPLATES_PATH, folder.c_str());
 
-SelectTemplate::SelectTemplate(TemplatePage* tp)
-  : templateFolderPage(tp)
-{
-  rect_t rect = {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT};
-  new StaticText(&header, rect, STR_SELECT_TEMPLATE, 0, COLOR_THEME_PRIMARY2);
+    std::list<std::string> files;
+    FILINFO fno;
+    DIR dir;
+    FRESULT res = f_opendir(&dir, path);
 
-  FormGridLayout grid;
-  grid.spacer(PAGE_PADDING);
-  std::list<std::string> files;
-  FILINFO fno;
-  DIR dir;
-  FRESULT res = f_opendir(&dir, path);
+    Button* firstButton = nullptr;
 
-  if (res == FR_OK) {
-    // read all entries
-    bool firstTime = true;
-    for (;;) {
-      res = sdReadDir(&dir, &fno, firstTime);
-      firstTime = false;
-      if (res != FR_OK || fno.fname[0] == 0)
-        break; // Break on error or end of dir
-      if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
-        continue;
-      if (fno.fname[0] == '.')
-        continue;
-      if (!(fno.fattrib & AM_DIR)) {
-        const char *ext = getFileExtension(fno.fname);
-        if(ext && !strcasecmp(ext, YAML_EXT)) {
+    if (res == FR_OK) {
+      // read all entries
+      for (;;) {
+        res = f_readdir(&dir, &fno);
+        if (res != FR_OK || fno.fname[0] == 0)
+          break;  // Break on error or end of dir
+        if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
+        if (fno.fattrib & (AM_DIR | AM_HID | AM_SYS))
+          continue; /* Ignore folders, hidden and system files */
+        if (fno.fname[0] == '.') continue; /* Ignore UNIX hidden files */
+
+        const char* ext = getFileExtension(fno.fname);
+        if (ext && !strcasecmp(ext, YAML_EXT)) {
           int len = ext - fno.fname;
           if (len < FF_MAX_LFN) {
-            char name[FF_MAX_LFN] = { 0 };
+            char name[FF_MAX_LFN] = {0};
             strncpy(name, fno.fname, len);
             files.push_back(name);
           }
         }
       }
-    }
 
-    files.sort(compare_nocase);
+      files.sort(compare_nocase);
 
-    for (auto name: files) {
-      auto tb = new TemplateButton(&body, grid.getLabelSlot(), name, [=]() -> uint8_t {
-          // Read model template
-          loadModelTemplate((name + YAML_EXT).c_str(), path);
-          storageDirty(EE_MODEL);
-          storageCheck(true);
-          // Dismiss template pages
-          deleteLater();
-          templateFolderPage->deleteLater();
-#if defined(LUA)
-          // If there is a wizard Lua script, fire it up
-          snprintf(buffer, LEN_BUFFER, "%s%c%s%s", path, '/', name.c_str(), SCRIPT_EXT);
-          if (f_stat(buffer, 0) == FR_OK) {
-            luaExec(buffer);
-            // Need to update() the ModelCategoryPageBody before attaching StandaloneLuaWindow to not mess up focus
-            update();
-            update = nullptr;
-            StandaloneLuaWindow::instance()->attach();
+      for (auto name : files) {
+        auto tb = new TextButton(
+            listWindow, rect_t{0, 0, lv_pct(100), PAGE_LINE_HEIGHT * 2}, name,
+            [=]() -> uint8_t {
+              deleteLater();
+              templateFolderPage->doUpdate(folder, name);
+              return 0;
+            });
+        tb->setFocusHandler([=](bool active) {
+          if (active) {
+            snprintf(buffer, LEN_BUFFER, "%s/%s%s", path, name.c_str(),
+                     TEXT_EXT);
+            updateInfo();
           }
-#endif
-          return 0;
         });
-      tb->setFocusHandler([=](bool active) {
-        if (active) {
-          snprintf(buffer, LEN_BUFFER, "%s%c%s%s", path, '/', name.c_str(), TEXT_EXT);
-          updateInfo();
-        }
-      });
-      tb->setHeight(PAGE_LINE_HEIGHT * 2);
-      grid.spacer(tb->height() + 5);
+
+        if (!firstButton) firstButton = tb;
+      }
+    }
+
+    f_closedir(&dir);
+
+    if (files.size() == 0) {
+      new StaticText(listWindow, rect_t{0, 0, lv_pct(100), lv_pct(50)},
+                     STR_NO_TEMPLATES, 0, COLOR_THEME_PRIMARY1);
+    } else {
+      lv_group_focus_obj(firstButton->getLvObj());
     }
   }
 
-  f_closedir(&dir);
-  count = files.size();
-  if (count == 0) {
-    rect_t rect = body.getRect();
-    rect.x = PAGE_PADDING;
-    rect.y = PAGE_PADDING;
-    rect.w = rect.w - (2 * PAGE_PADDING);
+ protected:
+  SelectTemplateFolder* templateFolderPage;
+};
 
-#if LCD_W > LCD_H
-    rect.h = PAGE_LINE_HEIGHT;
-    int charBreak = 60;
-#else
-    rect.h = PAGE_LINE_HEIGHT * 2;
-    int charBreak = 40;
-#endif
-    new StaticText(&body, rect, wrap(STR_NO_TEMPLATES, charBreak), 0, COLOR_THEME_PRIMARY1);
-
-    // The following button is needed because the EXIT key does not work without...
-    rect = body.getRect();
-    rect.x = rect.w - PAGE_PADDING - 100;
-    rect.y = rect.h - PAGE_PADDING - (PAGE_LINE_HEIGHT * 2);
-    rect.w = 100;
-    rect.h = PAGE_LINE_HEIGHT * 2;
-    new TextButton(&body, rect, STR_EXIT, [=]() -> uint8_t { deleteLater(); return 0; });
-  } else {
-    snprintf(buffer, LEN_BUFFER, "%s%c%s%s", path, '/', files.front().c_str(), TEXT_EXT);
-    updateInfo();
-  }
-}
-
-
-SelectTemplateFolder::SelectTemplateFolder(std::function<void(void)> update)
+SelectTemplateFolder::SelectTemplateFolder(std::function<void(std::string folder, std::string)> update)
 {
-  TemplatePage::update = update;
-  rect_t rect = {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + 10, LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT};
-  new StaticText(&header, rect, STR_SELECT_TEMPLATE_FOLDER, 0, COLOR_THEME_PRIMARY2);
+  this->update = update;
 
-  FormGridLayout grid;
-  grid.spacer(PAGE_PADDING);
+  header.setTitle(STR_MANAGE_MODELS);
+  header.setTitle2(STR_NEW_MODEL);
 
-  auto tfb = new TemplateButton(&body, grid.getLabelSlot(), STR_BLANK_MODEL, [=]() -> uint8_t {
-    deleteLater();
-    return 0;
-  });
-  snprintf(infoText, LEN_INFO_TEXT, "%s", STR_BLANK_MODEL_INFO);
+  auto tfb = new TextButton(listWindow,
+                            rect_t{0, 0, lv_pct(100), PAGE_LINE_HEIGHT * 2},
+                            STR_BLANK_MODEL, [=]() -> uint8_t {
+                              doUpdate("", "");
+                              return 0;
+                            });
   tfb->setFocusHandler([=](bool active) {
     if (active) {
-      snprintf(infoText, LEN_INFO_TEXT, "%s", STR_BLANK_MODEL_INFO);
-      invalidate();
+      buffer[0] = 0;
+      strcpy(infoText, STR_BLANK_MODEL_INFO);
+      updateInfo();
     }
   });
-  tfb->setHeight(PAGE_LINE_HEIGHT * 2);
-  grid.spacer(tfb->height() + 5);
 
   std::list<std::string> directories;
   FILINFO fno;
@@ -203,58 +193,49 @@ SelectTemplateFolder::SelectTemplateFolder(std::function<void(void)> update)
 
   if (res == FR_OK) {
     // read all entries
-    bool firstTime = true;
     for (;;) {
-      res = sdReadDir(&dir, &fno, firstTime);
-      firstTime = false;
+      res = f_readdir(&dir, &fno);
       if (res != FR_OK || fno.fname[0] == 0)
-        break; // Break on error or end of dir
-      if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
-        continue;
-      if (fno.fname[0] == '.')
-        continue;
-      if (fno.fattrib & AM_DIR)
-        directories.push_back((char*)fno.fname);
+        break;  // Break on error or end of dir
+      if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
+      if (fno.fattrib & (AM_HID | AM_SYS))
+        continue;                        /* Ignore hidden and system files */
+      if (fno.fname[0] == '.') continue; /* Ignore UNIX hidden files */
+      if (fno.fattrib & AM_DIR) directories.push_back((char*)fno.fname);
     }
 
     directories.sort(compare_nocase);
 
-    for (auto name: directories) {
+    for (auto name : directories) {
 #if not defined(LUA)
       // Don't show wizards dir if no lua
       if (!strcasecmp(name.c_str(), "WIZARD") == 0) {
 #endif
-      auto tfb = new TemplateButton(&body, grid.getLabelSlot(), name,
-          [=]() -> uint8_t {
-          snprintf(path, LEN_PATH, "%s%c%s", TEMPLATES_PATH, '/', name.c_str());
-          new SelectTemplate(this);
-          return 0;
+        auto tfb = new TextButton(
+            listWindow, rect_t{0, 0, lv_pct(100), PAGE_LINE_HEIGHT * 2}, name,
+            [=]() -> uint8_t {
+              new SelectTemplate(this, name);
+              return 0;
+            });
+        tfb->setFocusHandler([=](bool active) {
+          if (active) {
+            snprintf(buffer, LEN_BUFFER, "%s/%s/about%s", TEMPLATES_PATH,
+                     name.c_str(), TEXT_EXT);
+            updateInfo();
+          }
         });
-      tfb->setFocusHandler([=](bool active) {
-        if (active) {
-          snprintf(buffer, LEN_BUFFER, "%s%c%s%c%s%s", TEMPLATES_PATH, '/', name.c_str(), '/', "about", TEXT_EXT);
-          updateInfo();
-        }
-      });
-      tfb->setHeight(PAGE_LINE_HEIGHT * 2);
-      grid.spacer(tfb->height() + 5);
-    }
 #if not defined(LUA)
-    }
+      }
 #endif
+    }
   }
 
   f_closedir(&dir);
-  count = directories.size();
-  if (count == 0) {
-    rect_t rect = grid.getLabelSlot();
-    rect.w = body.getRect().w - 2 * PAGE_PADDING;
-    new StaticText(&body, rect, STR_NO_TEMPLATES, 0, COLOR_THEME_PRIMARY1);
-  }
-}
 
-SelectTemplateFolder::~SelectTemplateFolder()
-{
-  if (update)
-    update();
+  if (directories.size() == 0) {
+    new StaticText(listWindow, rect_t{0, 0, lv_pct(100), lv_pct(50)},
+                   STR_NO_TEMPLATES, 0, COLOR_THEME_PRIMARY1);
+  }
+
+  lv_group_focus_obj(tfb->getLvObj());
 }

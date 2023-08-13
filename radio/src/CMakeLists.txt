@@ -2,8 +2,8 @@ include(CMakeForceCompiler)
 include(Bitmaps)
 
 set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S NV14)
-set(RADIO_LANGUAGES CZ DA DE EN ES FI FR IT PT SK SE PL HU NL CN TW JP)
-set(TTS_LANGUAGES CZ DA DE EN ES FR IT PT SK SE PL HU NL RU CN)
+set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE IT JP PT SK SE PL HU NL TW)
+set(TTS_LANGUAGES CN CZ DA DE EN ES FR HE IT JP PT SK SE PL HU NL RU)
 
 set(PCB "X9D+" CACHE STRING "Radio type, one of: ${PCB_TYPES}")
 set_property(CACHE PCB PROPERTY STRINGS ${PCB_TYPES})
@@ -11,12 +11,12 @@ set(TRANSLATIONS "EN" CACHE STRING "Radio language, one of: ${RADIO_LANGUAGES}")
 set_property(CACHE TRANSLATIONS PROPERTY STRINGS ${RADIO_LANGUAGES})
 set(SPLASH "DEFAULT" CACHE STRING "Splash (DEFAULT/OFF/FRSKY)")
 set_property(CACHE SPLASH PROPERTY STRINGS DEFAULT OFF FRSKY)
-set(PPM_UNIT "PERCENT_PREC1" CACHE STRING "PPM display unit (US/PERCENT_PREC1/PERCENT_PREC0)")
+set(PPM_UNIT "PERCENT_PREC0" CACHE STRING "PPM display unit (US/PERCENT_PREC1/PERCENT_PREC0)")
 set_property(CACHE PPM_UNIT PROPERTY STRINGS US PERCENT_PREC1 PERCENT_PREC0)
 set(DEFAULT_MODE "" CACHE STRING "Default sticks mode")
 set(POPUP_LEVEL 2 CACHE STRING "Popup level")
 
-option(HELI "Heli menu" OFF)
+option(HELI "Heli menu" ON)
 option(FLIGHT_MODES "Flight Modes" ON)
 option(CURVES "Curves" ON)
 option(GVARS "Global variables" ON)
@@ -32,7 +32,7 @@ option(SEMIHOSTING "Enable debugger semihosting" OFF)
 option(JITTER_MEASURE "Enable ADC jitter measurement" OFF)
 option(WATCHDOG "Enable hardware Watchdog" ON)
 option(ASTERISK "Enable asterisk icon (test only firmware)" OFF)
-if(SDL_FOUND)
+if(SDL2_FOUND)
   option(SIMU_AUDIO "Enable simulator audio." ON)
 endif()
 option(LUA "Enable LUA support" ON)
@@ -44,10 +44,10 @@ option(RAS "RAS (SWR) enabled" ON)
 option(TEMPLATES "Model templates menu" OFF)
 option(TRACE_SIMPGMSPACE "Turn on traces in simpgmspace.cpp" ON)
 option(TRACE_LUA_INTERNALS "Turn on traces for Lua internals" OFF)
+option(DEBUG_SEGGER_RTT "Debug output to Segger RTT" OFF)
 option(DEBUG_WINDOWS "Turn on windows traces" OFF)
 option(DEBUG_YAML "Turn on YAML traces" OFF)
 option(DEBUG_LABELS "Turn on Labels traces" OFF)
-option(FRSKY_STICKS "Reverse sticks for FrSky sticks" OFF)
 option(NANO "Use nano newlib and binalloc")
 option(TEST_BUILD_WARNING "Warn this is a test build" OFF)
 option(MODULE_PROTOCOL_FCC "Add support for FCC modules" ON)
@@ -58,22 +58,19 @@ option(TBS_RELEASE "Used to build TBS released firmware" OFF)
 option(IMRC_RELEASE "Used to build IMRC released firmware" OFF)
 option(HARDWARE_TRAINER_MULTI "Allow multi trainer" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
-option(YAML_STORAGE "Enable YAML storage" ON)
+option(FWDRIVE "Attach also firmware drive with USB" OFF)
+
+if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
+  option(USBJ_EX "Enable USB Joystick Extension" OFF)
+else()
+  option(USBJ_EX "Enable USB Joystick Extension" ON)
+endif()
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
 set(FIRMWARE_C_FLAGS_DEBUG "-g" CACHE STRING "Additional flags for firmware target (Debug config) c compiler (note: CMAKE_C_FLAGS_DEBUG is ignored for firmware/bootloader).")
 set(FIRMWARE_CXX_FLAGS "" CACHE STRING "Additional flags for firmware target c++ compiler (note: all CMAKE_CXX_FLAGS[_*] are ignored for firmware/bootloader).")
 set(FIRMWARE_CXX_FLAGS_DEBUG "-g" CACHE STRING "Additional flags for firmware target (Debug config) c++ compiler (note: CMAKE_CXX_FLAGS_DEBUG is ignored for firmware/bootloader).")
-
-set(GCC_ARM_PATH "" CACHE STRING "Alternative GCC ARM path")
-
-set(FIRMWARE_C_COMPILER "${GCC_ARM_PATH}arm-none-eabi-gcc" CACHE STRING "Specific C compiler for firmware target.")
-set(FIRMWARE_CXX_COMPILER "${GCC_ARM_PATH}arm-none-eabi-g++" CACHE STRING "Specific C++ compiler for firmware target.")
-set(FIRMWARE_ASM_COMPILER "${GCC_ARM_PATH}arm-none-eabi-as" CACHE STRING "Specific assembler for firmware target.")
-set(FIRMWARE_OBJCOPY "${GCC_ARM_PATH}arm-none-eabi-objcopy" CACHE STRING "Specific objcopy for firmware target.")
-set(FIRMWARE_SIZE "${GCC_ARM_PATH}arm-none-eabi-size" CACHE STRING "Specific size for firmware target.")
-set(FIRMWARE_RANLIB "${GCC_ARM_PATH}arm-none-eabi-ranlib" CACHE STRING "Specific ranlib for firmware target.")
 
 set(THIRDPARTY_DIR thirdparty)
 set(LUA_DIR ${THIRDPARTY_DIR}/Lua/src)
@@ -104,16 +101,16 @@ else()
   message(FATAL_ERROR "Unknown PCB '${PCB}'")
 endif()
 
+set(HW_DESC_JSON ${FLAVOUR}.json)
+AddHardwareDefTarget(${HW_DESC_JSON})
+
+# enable generating JSON definition separately for debugging
+add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON} ${HW_DESC_JSON}.h)
+
+include(hal/CMakeLists.txt)
+
 add_subdirectory(bitmaps)
 add_subdirectory(fonts)
-add_subdirectory(lua)
-
-if(NOT PCB STREQUAL 9XRPRO)
-  option(DBLKEYS "Double Keys" ON)
-  if(DBLKEYS)
-    add_definitions(-DDBLKEYS)
-  endif()
-endif()
 
 if(CPU_TYPE STREQUAL STM32F4)
   include(targets/common/arm/stm32/f4/CMakeLists.txt)
@@ -125,6 +122,7 @@ endif()
 
 if(CPU_FAMILY STREQUAL STM32)
   include(targets/common/arm/stm32/CMakeLists.txt)
+  include(boards/generic_stm32/CMakeLists.txt)
 endif()
 
 if(ARCH STREQUAL ARM)
@@ -139,6 +137,13 @@ foreach(LANGUAGE ${RADIO_LANGUAGES})
   endif()
 endforeach()
 
+set(RTL_LANGUAGES HE)
+if(TRANSLATIONS IN_LIST RTL_LANGUAGES)
+  add_definitions(-DTRANSLATION_IS_RTL=1)
+else()
+  add_definitions(-DTRANSLATION_IS_RTL=0)
+endif()
+
 set(SRC ${SRC} debug.cpp)
 
 add_definitions(-DFLAVOUR="${FLAVOUR}")
@@ -149,125 +154,34 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/bitmaps/${BITMAPS_DIR})
 
 include(gui/CMakeLists.txt)
 
+# TODO: move to storage/
 set(SRC ${SRC} storage/storage_common.cpp)
-
-include(storage/conversions/CMakeLists.txt)
-
-if(${STORAGE} STREQUAL SDCARD)
-  set(SRC ${SRC} storage/sdcard_common.cpp)
-  if(${STORAGE_FORMAT} STREQUAL RAW)
-    set(SRC ${SRC} storage/modelslist.cpp storage/sdcard_raw.cpp)
-    add_definitions(-DSDCARD_RAW)
-  elseif(${STORAGE_FORMAT} STREQUAL YAML)
-    set(SRC ${SRC} storage/sdcard_yaml.cpp)
-    add_definitions(-DSDCARD_YAML)
-    include(storage/yaml/CMakeLists.txt)
-    if (${STORAGE_CONVERT} STREQUAL EEPROM_RLC)
-      if (STORAGE_CONVERSIONS LESS 221)
-        set(SRC ${SRC} storage/eeprom_rlc.cpp)
-        add_definitions(-DEEPROM_RLC)
-      endif()
-    else(${STORAGE_CONVERT} STREQUAL RAW)
-      set(SRC ${SRC} storage/sdcard_raw.cpp)
-    endif()
-  endif()
-  if(STORAGE_MODELSLIST)
-    set(SRC ${SRC} storage/modelslist.cpp)
-    add_definitions(-DSTORAGE_MODELSLIST)
-  endif()
-elseif(${STORAGE} STREQUAL EEPROM)
-  set(SRC ${SRC} storage/eeprom_common.cpp)
-  add_definitions(-DEEPROM)
-  if(${STORAGE_FORMAT} STREQUAL RLC)
-    set(SRC ${SRC} storage/eeprom_rlc.cpp)
-    add_definitions(-DEEPROM_RLC)
-  else()
-    set(SRC ${SRC} storage/eeprom_none.cpp)
-    add_definitions(-DEEPROM_NONE)
-  endif()
+set(SRC ${SRC} storage/sdcard_common.cpp)
+set(SRC ${SRC} storage/sdcard_yaml.cpp)
+add_definitions(-DSDCARD_YAML)
+include(storage/yaml/CMakeLists.txt)
+if(STORAGE_MODELSLIST)
+  set(SRC ${SRC} storage/modelslist.cpp)
+  add_definitions(-DSTORAGE_MODELSLIST)
 endif()
-
 
 if(RTC_BACKUP_RAM)
   add_definitions(-DRTC_BACKUP_RAM)
-  set(SRC ${SRC} storage/rlc.cpp)
-  set(FIRMWARE_SRC ${FIRMWARE_SRC} storage/rtc_backup.cpp)
-  set(GTEST_SRC ${GTEST_SRC} ${RADIO_SRC_DIR}/storage/rtc_backup.cpp)
+
+  GenerateDataCopy(datastructs_private.h datacopy.inc)
+
+  set(SRC ${SRC}
+    storage/rlc.cpp
+    storage/rtc_backup.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/datacopy.inc
+    )
+
+  # Add custom target for debugging
+  add_custom_target(datacopy DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/datacopy.inc)
 endif()
 
 if(LUA)
-  add_definitions(-DLUA)
-  if(LUA_COMPILER)
-    add_definitions(-DLUA_COMPILER)
-  endif()
-  if(LUA_ALLOCATOR_TRACER AND DEBUG)
-    add_definitions(-DLUA_ALLOCATOR_TRACER)
-  endif()
-  if(NOT "${LUA_SCRIPT_LOAD_MODE}" STREQUAL "")
-    add_definitions(-DLUA_SCRIPT_LOAD_MODE="${LUA_SCRIPT_LOAD_MODE}")
-  endif()
-  include_directories(${LUA_DIR})
-  set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${LUA_EXPORT})
-  if(LUA_MIXER)
-    add_definitions(-DLUA_MODEL_SCRIPTS)
-  endif()
-
-  # TODO: LUA CMAKE
-  set(SRC ${SRC}
-    lua/interface.cpp
-    lua/api_general.cpp
-    lua/api_model.cpp
-    lua/api_filesystem.cpp
-    lua/lua_event.cpp
-  )
-
-  if(GUI_DIR STREQUAL colorlcd)
-    set(SRC ${SRC} lua/api_colorlcd.cpp lua/widgets.cpp)
-  else()
-    set(SRC ${SRC} lua/api_stdlcd.cpp)
-  endif()
-
-  set(LUA_SRC
-    lapi.c
-    lcode.c
-    lctype.c
-    ldebug.c
-    ldo.c
-    ldump.c
-    lfunc.c
-    lgc.c
-    llex.c
-    lmem.c
-    lobject.c
-    lopcodes.c
-    lparser.c
-    lstate.c
-    lstring.c
-    ltable.c
-    lrotable.c
-    ltm.c
-    lundump.c
-    lvm.c
-    lzio.c
-    linit.c
-    lbaselib.c
-    lmathlib.c
-    lbitlib.c
-    loadlib.c
-    lauxlib.c
-    ltablib.c
-    lcorolib.c
-    liolib.c
-    lstrlib.c
-  )
-
-  foreach(FILE ${LUA_SRC})
-    set(SRC ${SRC} ${LUA_DIR}/${FILE})
-  endforeach()
-  if(MSVC)
-    # silence lots of warnings regarding "insecure" use of functions (sprintf, strcpy, etc) from Lua code
-    set(WARNING_FLAGS "${WARNING_FLAGS} /D_CRT_SECURE_NO_WARNINGS")
-  endif()
+  include(lua/CMakeLists.txt)
 endif()
 
 if (LUA_MIXER AND NOT LUA)
@@ -386,6 +300,11 @@ if(TRACE_LUA_INTERNALS)
   add_definitions(-DTRACE_LUA_INTERNALS_ENABLED)
 endif()
 
+if(DEBUG_SEGGER_RTT)
+    add_definitions(-DDEBUG_SEGGER_RTT)
+    set(SRC ${SRC} ${THIRDPARTY_DIR}/Segger_RTT/RTT/SEGGER_RTT.c)
+endif()
+
 if(DEBUG_WINDOWS)
   add_definitions(-DDEBUG_WINDOWS)
 endif()
@@ -396,10 +315,6 @@ endif()
 
 if(DEBUG_LABELS)
   add_definitions(-DDEBUG_LABELS)
-endif()
-
-if(FRSKY_STICKS)
-  add_definitions(-DFRSKY_STICKS)
 endif()
 
 if(IMU_LSM6DS33)
@@ -468,12 +383,17 @@ else()
 endif()
 add_definitions(-DDEFAULT_TEMPLATE_SETUP=${DEFAULT_TEMPLATE_SETUP})
 
+if(FWDRIVE)
+  add_definitions(-DFWDRIVE)
+endif()
+
 set(SRC
   ${SRC}
   opentx.cpp
   functions.cpp
   strhelpers.cpp
   switches.cpp
+  analogs.cpp
   mixer.cpp
   mixer_scheduler.cpp
   stamp.cpp
@@ -482,6 +402,9 @@ set(SRC
   model_init.cpp
   serial.cpp
   sbus.cpp
+  input_mapping.cpp
+  inactivity_timer.cpp
+  tasks/mixer_task.cpp
   )
 
 if(GUI)
@@ -498,6 +421,14 @@ if(GUI)
   endforeach()
 endif()
 
+
+if(USBJ_EX)
+  add_definitions(-DUSBJ_EX)
+  set(SRC
+    ${SRC}
+    usb_joystick.cpp
+    )
+endif()
 foreach(FILE ${TARGET_SRC})
   set(SRC targets/${TARGET_DIR}/${FILE} ${SRC})
 endforeach()
@@ -525,6 +456,23 @@ else()
 endif()
 
 if(NATIVE_BUILD)
+
+  set(RADIOLIB_NATIVE_SRC ${SRC})
+  if(SIMU_DISKIO)
+    set(RADIOLIB_NATIVE_SRC ${RADIOLIB_NATIVE_SRC}
+      ${FATFS_DIR}/ff.c ${FATFS_DIR}/ffunicode.c)
+  endif()
+
+  # Pack all radio sources into an object lib
+  add_library(radiolib_native OBJECT EXCLUDE_FROM_ALL
+    ${RADIOLIB_NATIVE_SRC})
+
+  # Add -DSIMU here PUBLIC, so it can be imported by other targets
+  # via INTERFACE_COMPILE_OPTIONS
+  target_compile_options(radiolib_native PUBLIC -DSIMU)
+  add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
+  set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
+
   add_subdirectory(targets/simu)
   add_subdirectory(tests)
 endif()
@@ -598,9 +546,9 @@ endif()
 
 add_definitions(-DFREE_RTOS)
 
-add_executable(firmware ${SRC} ${FIRMWARE_HEADERS})
+add_executable(firmware ${SRC})
 link_libraries(firmware -lstdc++)
-add_dependencies(firmware ${RADIO_DEPENDENCIES} ${FIRMWARE_DEPENDENCIES})
+add_dependencies(firmware ${RADIO_DEPENDENCIES})
 set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 if(ACCESS_DENIED)
@@ -660,3 +608,5 @@ if(CPU_FAMILY STREQUAL STM32)
 endif()
 
 PrintTargetReport("firmware")
+
+AddHardwareDefTarget(hardware_defs ${RADIO_DIRECTORY}/src/targets/hw_defs/${FLAVOUR}.json)

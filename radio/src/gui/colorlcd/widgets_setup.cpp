@@ -31,7 +31,7 @@
 #include "gui.h"
 #include "translations.h"
 
-SetupWidgetsPageSlot::SetupWidgetsPageSlot(FormGroup* parent,
+SetupWidgetsPageSlot::SetupWidgetsPageSlot(FormWindow* parent,
                                            const rect_t& rect,
                                            WidgetsContainer* container,
                                            uint8_t slotIndex) :
@@ -66,16 +66,11 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(FormGroup* parent,
 
 void SetupWidgetsPageSlot::paint(BitmapBuffer* dc)
 {
-  if (hasFocus()) {
-    dc->drawRect(0, 0, width() - 1, height() - 1, 2, STASHED,
-                 COLOR_THEME_FOCUS);
-  } else {
-    dc->drawSolidRect(0, 0, width() - 1, height() - 1, 2, COLOR_THEME_PRIMARY3);
-  }
+  dc->drawRect(0, 0, width(), height(), 2, hasFocus() ? STASHED : SOLID, COLOR_THEME_FOCUS);
 }
 
 SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :
-    FormWindow(ViewMain::instance(), {0, 0, 0, 0}, FORM_FORWARD_FOCUS),
+    FormWindow(ViewMain::instance(), rect_t{}),
     customScreenIdx(customScreenIdx)
 {
   Layer::push(this);
@@ -103,7 +98,7 @@ SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :
         this->deleteLater();
         return 1;
       },
-      NO_FOCUS | FORM_NO_BORDER,
+      NO_FOCUS,
       0, window_create);
 #endif
 }
@@ -137,9 +132,16 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
 
 void SetupWidgetsPage::onEvent(event_t event)
 {
-  if (event == EVT_KEY_FIRST(KEY_PGUP) || event == EVT_KEY_FIRST(KEY_PGDN)) {
+#if defined(HARDWARE_KEYS)
+  if (event == EVT_KEY_FIRST(KEY_PAGEUP) || event == EVT_KEY_FIRST(KEY_PAGEDN) ||
+      event == EVT_KEY_FIRST(KEY_SYS) || event == EVT_KEY_FIRST(KEY_MODEL)) {
     killEvents(event);
+  } else if (event == EVT_KEY_FIRST(KEY_TELE)) {
+    onCancel();
   } else {
     FormWindow::onEvent(event);
   }
+#else
+  FormWindow::onEvent(event);
+#endif
 }

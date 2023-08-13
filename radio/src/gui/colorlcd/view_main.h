@@ -29,6 +29,7 @@
 
 class SetupWidgetsPage;
 class SetupTopBarWidgetsPage;
+class ViewMainMenu;
 
 class ViewMain: public Window
 {
@@ -46,6 +47,8 @@ class ViewMain: public Window
       return _instance;
     }
 
+    static ViewMain* getInstance() { return _instance; }
+
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
     {
@@ -59,6 +62,9 @@ class ViewMain: public Window
     void disableTopbar();
     void updateTopbarVisibility();
     bool enableWidgetSelect(bool enable);
+    
+    // Update after theme loaded / changed
+    void updateFromTheme();
 
     // Get the available space in the middle of the screen
     // (without topbar)
@@ -84,6 +90,7 @@ class ViewMain: public Window
     TopbarImpl* topbar = nullptr;
     bool        widget_select = false;
     lv_timer_t* widget_select_timer = nullptr;
+    ViewMainMenu* viewMainMenu = nullptr;
 
     void paint(BitmapBuffer * dc) override;
     void deleteLater(bool detach = true, bool trash = true) override;

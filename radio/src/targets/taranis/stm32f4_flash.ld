@@ -65,6 +65,7 @@ SECTIONS
     *(.glue_7)         /* glue arm to thumb code */
     *(.glue_7t)        /* glue thumb to arm code */
     *(.eh_frame)
+    *(.data.__global_locale)
 
     KEEP (*(.init))
     KEEP (*(.fini))
@@ -106,7 +107,7 @@ SECTIONS
   _sidata = .;
 
   /* Initialized data sections goes into RAM, load LMA copy after code */
-  .data : AT ( _sidata )
+  .data :
   {
     . = ALIGN(4);
     _sdata = .;        /* create a global symbol at data start */
@@ -115,7 +116,7 @@ SECTIONS
 
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
-  } >CCM
+  } >CCM AT> FLASH
 
   /* Uninitialized data section */
   . = ALIGN(4);

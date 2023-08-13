@@ -27,10 +27,6 @@
 #include "opentx_types.h"
 #include "board.h"
 
-typedef uint32_t LcdFlags;
-typedef uint8_t pixel_t;
-typedef int coord_t;
-
 #define BOX_WIDTH                      31
 #define CENTER                         "\015"
 #define CENTER_OFS                     (7*FW-FW/2)
@@ -111,7 +107,7 @@ void lcdDrawChar(coord_t x, coord_t y, uint8_t c);
 void lcdDrawChar(coord_t x, coord_t y, uint8_t c, LcdFlags mode);
 void lcdDrawCenteredText(coord_t y, const char * s, LcdFlags flags = 0);
 void lcdDrawText(coord_t x, coord_t y, const char * s, LcdFlags mode);
-void lcdDrawTextAtIndex(coord_t x, coord_t y, const char** s,uint8_t idx, LcdFlags mode);
+void lcdDrawTextAtIndex(coord_t x, coord_t y, const char *const *s,uint8_t idx, LcdFlags mode);
 void lcdDrawSizedText(coord_t x, coord_t y, const char * s, unsigned char len, LcdFlags mode);
 void lcdDrawText(coord_t x, coord_t y, const char * s);
 void lcdDrawSizedText(coord_t x, coord_t y, const char * s, unsigned char len);
@@ -123,12 +119,12 @@ void lcdDrawNumber(coord_t x, coord_t y, int32_t val, LcdFlags mode=0);
 
 void drawModelName(coord_t x, coord_t y, char *name, uint8_t id, LcdFlags att);
 void drawSwitch(coord_t x, coord_t y, int32_t swtch, LcdFlags att=0, bool autoBold = true);
-void drawStickName(coord_t x, coord_t y, uint8_t idx, LcdFlags att=0);
+void drawMainControlLabel(coord_t x, coord_t y, uint8_t idx, LcdFlags att=0);
 void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att=0);
 void drawCurveName(coord_t x, coord_t y, int8_t idx, LcdFlags att=0);
 void drawTimerMode(coord_t x, coord_t y, swsrc_t mode, LcdFlags att=0);
 
-#define putsChn(x, y, idx, att) drawSource(x, y, MIXSRC_CH1+idx-1, att)
+#define putsChn(x, y, idx, att) drawSource(x, y, MIXSRC_FIRST_CH+idx-1, att)
 void putsChnLetter(coord_t x, coord_t y, uint8_t idx, LcdFlags attr);
 
 void putsVolts(coord_t x, coord_t y, uint16_t volts, LcdFlags att);
