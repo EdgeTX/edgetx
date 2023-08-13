@@ -63,45 +63,17 @@
 #define CT_SDC              (CT_SD1|CT_SD2)
 #define CT_BLOCK            0x08
 
-/*-----------------------------------------------------------------------*/
-/* Lock / unlock functions                                               */
-/*-----------------------------------------------------------------------*/
-#if !defined(BOOT)
-static RTOS_MUTEX_HANDLE ioMutex;
-
-int ff_cre_syncobj (BYTE vol, FF_SYNC_t *mutex)
-{
-  *mutex = ioMutex;
-  return 1;
-}
-
-int ff_req_grant (FF_SYNC_t mutex)
-{
-  RTOS_LOCK_MUTEX(mutex);
-  return 1;
-}
-
-void ff_rel_grant (FF_SYNC_t mutex)
-{
-  RTOS_UNLOCK_MUTEX(mutex);
-}
-
-int ff_del_syncobj (FF_SYNC_t mutex)
-{
-  return 1;
-}
-#endif
-
 static const DWORD socket_state_mask_cp = (1 << 0);
 static const DWORD socket_state_mask_wp = (1 << 1);
 
-static volatile
-DSTATUS Stat = STA_NOINIT;      /* Disk status */
+/* Disk status */
+static volatile DSTATUS Stat = STA_NOINIT;
 
-static volatile
-DWORD Timer1, Timer2;   /* 100Hz decrement timers */
+/* 100Hz decrement timers */
+static volatile DWORD Timer1, Timer2;
 
-BYTE CardType;                  /* Card type flags */
+/* Card type flags */
+BYTE CardType;
 
 enum speed_setting { INTERFACE_SLOW, INTERFACE_FAST };
 
@@ -955,85 +927,7 @@ void sdPoll10ms()
   }
 }
 
-// TODO everything here should not be in the driver layer ...
-
-bool _g_FATFS_init = false;
-FATFS g_FATFS_Obj __DMA; // this is in uninitialised section !!!
-
-#if defined(LOG_TELEMETRY)
-FIL g_telemetryFile = {};
-#endif
-
-#if defined(LOG_BLUETOOTH)
-FIL g_bluetoothFile = {};
-#endif
-
-#if defined(BOOT)
-void sdInit(void)
+uint32_t SD_GetCardType()
 {
-  if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
-    f_chdir("/");
-  }
-}
-#else
-// TODO shouldn't be there!
-void sdInit(void)
-{
-  TRACE("sdInit");
-  RTOS_CREATE_MUTEX(ioMutex);
-  sdMount();
-}
-
-void sdMount()
-{
-  TRACE("sdMount");
-  if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
-    // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
-    _g_FATFS_init = true;
-    sdGetFreeSectors();
-    
-#if defined(LOG_TELEMETRY)
-    f_open(&g_telemetryFile, LOGS_PATH "/telemetry.log", FA_OPEN_ALWAYS | FA_WRITE);
-    if (f_size(&g_telemetryFile) > 0) {
-      f_lseek(&g_telemetryFile, f_size(&g_telemetryFile)); // append
-    }
-#endif
-
-#if defined(LOG_BLUETOOTH)
-    f_open(&g_bluetoothFile, LOGS_PATH "/bluetooth.log", FA_OPEN_ALWAYS | FA_WRITE);
-    if (f_size(&g_bluetoothFile) > 0) {
-      f_lseek(&g_bluetoothFile, f_size(&g_bluetoothFile)); // append
-    }
-#endif
-  }
-}
-
-void sdDone()
-{
-  if (sdMounted()) {
-    audioQueue.stopSD();
-#if defined(LOG_TELEMETRY)
-    f_close(&g_telemetryFile);
-#endif
-#if defined(LOG_BLUETOOTH)
-    f_close(&g_bluetoothFile);
-#endif
-    f_mount(nullptr, "", 0); // unmount SD
-  }
-}
-#endif
-
-uint32_t sdMounted()
-{
-  return _g_FATFS_init && (g_FATFS_Obj.fs_type != 0);
-}
-
-uint32_t sdIsHC()
-{
-  return (CardType & CT_BLOCK);
-}
-
-uint32_t sdGetSpeed()
-{
-  return 330000;
+  return CardType;
 }

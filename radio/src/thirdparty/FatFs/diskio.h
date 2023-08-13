@@ -35,7 +35,6 @@ DRESULT disk_write (BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
 DRESULT disk_ioctl (BYTE pdrv, BYTE cmd, void* buff);
 
 #if defined(DISK_CACHE)
-// #include "FatFs/diskio.h"
 DRESULT __disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count);
 DRESULT __disk_write(BYTE drv, const BYTE * buff, DWORD sector, UINT count);
 #else

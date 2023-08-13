@@ -273,9 +273,6 @@ void boardInit()
   keysInit();
   switchInit();
   audioInit();
-  // we need to initialize g_FATFS_Obj here, because it is in .ram section (because of DMA access)
-  // and this section is un-initialized
-  memset(&g_FATFS_Obj, 0, sizeof(g_FATFS_Obj));
   monitorInit();
   adcInit(&_adc_driver);
   hapticInit();

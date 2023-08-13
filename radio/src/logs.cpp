@@ -280,7 +280,7 @@ void logsWrite()
     {
     #endif
 
-      bool sdCardFull = IS_SDCARD_FULL();
+      bool sdCardFull = sdIsFull();
 
       // check if file needs to be opened
       if (!g_oLogFile.obj.fs) {

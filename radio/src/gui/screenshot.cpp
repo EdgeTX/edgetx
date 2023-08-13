@@ -56,7 +56,7 @@ const char * writeScreenshot()
   UINT written;
   char filename[42]; // /SCREENSHOTS/screen-2013-01-01-123540.bmp
 
-  if (IS_SDCARD_FULL()) {
+  if (sdIsFull()) {
     POPUP_WARNING(STR_SDCARD_FULL_EXT);
     return STR_SDCARD_FULL_EXT;
   }
