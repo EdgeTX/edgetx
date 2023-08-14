@@ -150,7 +150,7 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
         return tr("Telemetry");
 
       case SWITCH_TYPE_TRAINER:
-        return tr("Trainer");
+        return tr("Trn");
 
       default:
         return CPN_STR_UNKNOWN_ITEM;
