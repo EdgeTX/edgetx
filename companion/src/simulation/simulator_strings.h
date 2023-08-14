@@ -14,6 +14,9 @@
 #define SIMU_STR_HLP_KEY_PLS           QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>+</font>")
 #define SIMU_STR_HLP_KEY_MIN           QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>-</font>")
 
+#define SIMU_STR_HLP_KEY_TAB           QCoreApplication::translate("SimulatedUIWidget", "TAB")
+#define SIMU_STR_HLP_KEY_BKTAB         QCoreApplication::translate("SimulatedUIWidget", "BK-TAB")
+
 #define SIMU_STR_HLP_KEY_LFT           QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>&larr;</font>")  // ←
 #define SIMU_STR_HLP_KEY_RGT           QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>&rarr;</font>")  // →
 #define SIMU_STR_HLP_KEY_UP            QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>&uarr;</font>")  // ↑
@@ -52,6 +55,11 @@
 #define SIMU_STR_HLP_ACT_SYS           QCoreApplication::translate("SimulatedUIWidget", "<pre>[ SYS ]</pre>")
 #define SIMU_STR_HLP_ACT_TELE          QCoreApplication::translate("SimulatedUIWidget", "<pre>[ TELE ]</pre>")
 #define SIMU_STR_HLP_ACT_MENU_ICN      QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>&#x2261;</font>")  // ≡
+
+#define SIMU_STR_HLP_ACT_PGBK          QCoreApplication::translate("SimulatedUIWidget", "<pre>[ PgBack ]</pre>")
+#define SIMU_STR_HLP_ACT_PGFWD         QCoreApplication::translate("SimulatedUIWidget", "<pre>[ PgFwd ]</pre>")
+#define SIMU_STR_HLP_ACT_PREVINC       QCoreApplication::translate("SimulatedUIWidget", "<pre>[ Prev/Inc ]</pre>")
+#define SIMU_STR_HLP_ACT_NEXTDEC       QCoreApplication::translate("SimulatedUIWidget", "<pre>[ Next/Dec ]</pre>")
 
 
 #define SIMU_STR_HLP_KEYS_EXIT         SIMU_STR_HLP_KEY_DEL % "|" % SIMU_STR_HLP_KEY_BKSP % "|" % SIMU_STR_HLP_KEY_ESC
