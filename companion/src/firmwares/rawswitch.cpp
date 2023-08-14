@@ -149,6 +149,9 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
       case SWITCH_TYPE_TELEMETRY:
         return tr("Telemetry");
 
+      case SWITCH_TYPE_TRAINER:
+        return tr("Trainer");
+
       default:
         return CPN_STR_UNKNOWN_ITEM;
      }
@@ -280,6 +283,7 @@ StringTagMappingTable RawSwitch::getRawSwitchTypesLookupTable()
                           {std::to_string(SWITCH_TYPE_TELEMETRY),       "TELEMETRY_STREAMING"},
                           {std::to_string(SWITCH_TYPE_SENSOR),          "Tnn"},
                           {std::to_string(SWITCH_TYPE_ACT),             "RADIO_ACTIVITY"},
+                          {std::to_string(SWITCH_TYPE_TRAINER),         "TRAINER_CONNECTED"},
                           });
 
   return tbl;

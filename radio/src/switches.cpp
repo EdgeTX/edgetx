@@ -603,6 +603,9 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
   else if (cs_idx == SWSRC_RADIO_ACTIVITY) {
     result = (inactivity.counter < 2);
   }
+  else if (cs_idx == SWSRC_TRAINER_CONNECTED) {
+    result = isTrainerConnected();
+  }
   else if (cs_idx >= SWSRC_FIRST_SENSOR) {
     result = !telemetryItems[cs_idx-SWSRC_FIRST_SENSOR].isOld();
   }

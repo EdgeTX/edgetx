@@ -441,6 +441,8 @@ enum SwitchSources {
 
   SWSRC_RADIO_ACTIVITY,
 
+  SWSRC_TRAINER_CONNECTED,
+
 #if defined(DEBUG_LATENCY)
   SWSRC_LATENCY_TOGGLE,
 #endif

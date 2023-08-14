@@ -167,6 +167,7 @@ RawSwitchItemModel::RawSwitchItemModel(const GeneralSettings * const generalSett
   setUpdateMask(IMUE_FlightModes | IMUE_LogicalSwitches | IMUE_TeleSensors | IMUE_FunctionSwitches);
 
   // Descending switch direction: NOT (!) switches
+  addItems(SWITCH_TYPE_TRAINER,        -1);
   addItems(SWITCH_TYPE_ACT,            -1);
   addItems(SWITCH_TYPE_SENSOR,         -firmware->getCapability(Sensors));
   addItems(SWITCH_TYPE_TELEMETRY,      -1);
@@ -190,6 +191,7 @@ RawSwitchItemModel::RawSwitchItemModel(const GeneralSettings * const generalSett
   addItems(SWITCH_TYPE_ON,             1);
   addItems(SWITCH_TYPE_ONE,            1);
   addItems(SWITCH_TYPE_ACT,            1);
+  addItems(SWITCH_TYPE_TRAINER,        1);
 }
 
 void RawSwitchItemModel::setDynamicItemData(QStandardItem * item, const RawSwitch & rsw) const

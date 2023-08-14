@@ -166,7 +166,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
     int sw_type = getCurrentFirmware()->getRawSwitchTypesIndex(sw_str_tmp.c_str());
     if (sw_type >= 0) {
       rhs.type = (RawSwitchType)sw_type;
-      if (rhs.type == SWITCH_TYPE_TELEMETRY || rhs.type == SWITCH_TYPE_ACT || rhs.type == SWITCH_TYPE_ONE)
+      if (rhs.type == SWITCH_TYPE_TELEMETRY || rhs.type == SWITCH_TYPE_TRAINER  || rhs.type == SWITCH_TYPE_ACT || rhs.type == SWITCH_TYPE_ONE)
         //  these types use index = 1
         rhs.index = 1;
       else
