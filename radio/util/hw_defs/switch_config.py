@@ -324,6 +324,15 @@ SWITCH_CONFIG = {
         "SF": {"default": "2POS",   "display": [1, 2]},
         "SH": {"default": "TOGGLE", "display": [1, 3]},
     },
+    "pocket": {
+        # left side
+        "SA": { "default": "2POS", "display": [ 0, 0 ] },
+        "SB": { "default": "3POS",   "display": [ 0, 1 ] },
+        "SE": { "default": "TOGGLE",   "display": [ 0, 2 ] },
+        # right side
+        "SD": { "default": "2POS",   "display": [ 1, 0 ] },
+        "SC": { "default": "3POS", "display": [ 1, 1 ] },
+    },
 }
 
 
