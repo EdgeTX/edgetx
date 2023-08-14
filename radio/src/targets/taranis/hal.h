@@ -83,6 +83,12 @@
   #define KEYS_GPIO_REG_RIGHT           GPIOD
   #define KEYS_GPIO_PIN_RIGHT           LL_GPIO_PIN_3 // PD.03
 #elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_MT12) || defined(RADIO_POCKET)
+#if defined(RADIO_MT12)
+  #define KEYS_GPIO_REG_PAGEUP          GPIOD
+  #define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_7  // PD.03
+  #define KEYS_GPIO_REG_PAGEDN          GPIOD
+  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_3  // PD.07
+#else
   #define KEYS_GPIO_REG_PAGEUP          GPIOD
   #define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_3  // PD.03
   #define KEYS_GPIO_REG_PAGEDN          GPIOD
