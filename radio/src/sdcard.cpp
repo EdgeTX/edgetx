@@ -592,7 +592,11 @@ void sdDone()
 
 uint32_t sdMounted()
 {
+#if defined(SIMU)
+  return true;
+#else
   return _g_FATFS_init && (g_FATFS_Obj.fs_type != 0);
+#endif
 }
 
 
