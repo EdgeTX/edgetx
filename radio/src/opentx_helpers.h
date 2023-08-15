@@ -19,32 +19,53 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _OPENTX_HELPERS_H_
-#define _OPENTX_HELPERS_H_
+#pragma once
 
-#include <string.h>
+#include <string>
+#include <cstring>
 
-#if defined(COLORLCD)
-#include "thirdparty/libopenui/src/libopenui_helpers.h"
-#else
 template<class T>
 inline T sgn(T a)
 {
   return a > 0 ? 1 : (a < 0 ? -1 : 0);
 }
 
-template<class t> inline t min(t a, t b) { return a<b?a:b; }
-template<class t> inline t max(t a, t b) { return a>b?a:b; }
-template<class t> inline t limit(t mi, t x, t ma) { return min(max(mi,x),ma); }
+template<class T>
+inline T min(T a, T b)
+{
+  return a < b ? a : b;
+}
 
-inline int divRoundClosest(const int n, const int d)
+template<class T>
+inline T max(T a, T b)
+{
+  return a > b ? a : b;
+}
+
+template<class T>
+inline T limit(T vmin, T x, T vmax)
+{
+  return min(max(vmin, x), vmax);
+}
+
+inline int divRoundClosest(int n, int d)
 {
   if (d == 0)
     return 0;
   else
     return ((n < 0) ^ (d < 0)) ? ((n - d/2)/d) : ((n + d/2)/d);
 }
-#endif
+
+inline unsigned align32(unsigned n)
+{
+  unsigned rest = (n & 3u);
+  return rest ? n + 4u - rest : n;
+}
+
+inline std::string TEXT_AT_INDEX(const char *const *val, uint8_t idx)
+{
+  return std::string(val[idx]);
+}
 
 template<class T>
 inline void SWAP(T & a, T & b)
@@ -100,5 +121,3 @@ class CircularBuffer {
       return true;
     }  
 };
-
-#endif

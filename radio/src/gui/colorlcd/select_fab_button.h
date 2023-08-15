@@ -28,7 +28,7 @@ constexpr coord_t SELECT_BUTTON_BORDER = 12;
 class SelectFabButton : public FabButton
 {
   public:
-    SelectFabButton(FormGroup* parent, uint8_t icon, const char* title,
+    SelectFabButton(FormWindow* parent, uint8_t icon, const char* title,
                     std::function<uint8_t(void)> pressHandler,
                     WindowFlags windowFlags = 0);
 

@@ -24,7 +24,6 @@
 #include "model_telemetry.h"
 #include "opentx.h"
 #include "libopenui.h"
-#include "lvgl_widgets/input_mix_line.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -696,19 +695,19 @@ class SensorEditWindow : public Page {
 
       paramLines[P_AUTOOFFSET] = form->newLine(&grid);
       new StaticText(paramLines[P_AUTOOFFSET], rect_t{}, STR_AUTOOFFSET, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(paramLines[P_AUTOOFFSET], rect_t{}, GET_SET_DEFAULT(sensor->autoOffset));
+      new ToggleSwitch(paramLines[P_AUTOOFFSET], rect_t{}, GET_SET_DEFAULT(sensor->autoOffset));
 
       paramLines[P_ONLYPOS] = form->newLine(&grid);
       new StaticText(paramLines[P_ONLYPOS], rect_t{}, STR_ONLYPOSITIVE, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(paramLines[P_ONLYPOS], rect_t{}, GET_SET_DEFAULT(sensor->onlyPositive));
+      new ToggleSwitch(paramLines[P_ONLYPOS], rect_t{}, GET_SET_DEFAULT(sensor->onlyPositive));
 
       paramLines[P_FILTER] = form->newLine(&grid);
       new StaticText(paramLines[P_FILTER], rect_t{}, STR_FILTER, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(paramLines[P_FILTER], rect_t{}, GET_SET_DEFAULT(sensor->filter));
+      new ToggleSwitch(paramLines[P_FILTER], rect_t{}, GET_SET_DEFAULT(sensor->filter));
 
       paramLines[P_PERSISTENT] = form->newLine(&grid);
       new StaticText(paramLines[P_PERSISTENT], rect_t{}, STR_PERSISTENT, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(paramLines[P_PERSISTENT], rect_t{}, GET_DEFAULT(sensor->persistent), [=](int32_t newValue) {
+      new ToggleSwitch(paramLines[P_PERSISTENT], rect_t{}, GET_DEFAULT(sensor->persistent), [=](int32_t newValue) {
         sensor->persistent = newValue;
         if (!sensor->persistent)
           sensor->persistentValue = 0;
@@ -718,7 +717,7 @@ class SensorEditWindow : public Page {
       // Logs
       line = form->newLine(&grid);
       new StaticText(line, rect_t{}, STR_LOGS, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{}, GET_DEFAULT(sensor->logs), [=](int32_t newValue) {
+      new ToggleSwitch(line, rect_t{}, GET_DEFAULT(sensor->logs), [=](int32_t newValue) {
         sensor->logs = newValue;
         logsClose();
         SET_DIRTY();
@@ -804,7 +803,7 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
               return;
             }
           }
-          for (uint8_t i = idx - 1; i >= 0; i -= 1) {
+          for (int8_t i = idx - 1; i >= 0; i -= 1) {
             if (g_model.telemetrySensors[i].isAvailable()) {
               rebuild(window, i);
               return;
@@ -836,6 +835,12 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
   }
 }
 
+#if LCD_W > LCD_H
+#define NUM_EDIT_W 100
+#else
+#define NUM_EDIT_W 65
+#endif
+
 void ModelTelemetryPage::build(FormWindow * window)
 {
   window->padAll(4);
@@ -844,7 +849,7 @@ void ModelTelemetryPage::build(FormWindow * window)
   this->window = window;
 
   // Sensors
-  new Subtitle(window, rect_t{}, STR_TELEMETRY_SENSORS, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_TELEMETRY_SENSORS);
 
   sensorWindow = new FormWindow(window, rect_t{});
   sensorWindow->padAll(0);
@@ -906,34 +911,34 @@ void ModelTelemetryPage::build(FormWindow * window)
   line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_SHOW_INSTANCE_ID, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.showInstanceIds));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.showInstanceIds));
 
   // Ignore instance button
   line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_IGNORE_INSTANCE, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.ignoreSensorIds));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.ignoreSensorIds));
 
   // RX stat
-  new Subtitle(window, rect_t{}, getRxStatLabels()->label, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, getRxStatLabels()->label);
 
   line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_LOWALARM, 0, COLOR_THEME_PRIMARY1);
-  new NumberEdit(line, rect_t{}, 0, 100, GET_SET_DEFAULT(g_model.rfAlarms.warning));
+  new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, 100, GET_SET_DEFAULT(g_model.rfAlarms.warning));
 
   line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_CRITICALALARM, 0, COLOR_THEME_PRIMARY1);
-  new NumberEdit(line, rect_t{}, 0, 100, GET_SET_DEFAULT(g_model.rfAlarms.critical));
+  new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, 100, GET_SET_DEFAULT(g_model.rfAlarms.critical));
 
   line = window->newLine(&grid);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_DISABLE_ALARM, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(g_model.disableTelemetryWarning));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.disableTelemetryWarning));
 
   // Vario
-  new Subtitle(window, rect_t{}, STR_VARIO, 0, COLOR_THEME_PRIMARY1);
+  new Subtitle(window, STR_VARIO);
 
   FlexGridLayout grid5(col_dsc5, row_dsc, 4);
 
@@ -956,20 +961,20 @@ void ModelTelemetryPage::build(FormWindow * window)
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_RANGE, 0, COLOR_THEME_PRIMARY1);
 
-  auto vMin = new NumberEdit(line, rect_t{}, -17, 17, GET_SET_WITH_OFFSET(g_model.varioData.min, -10));
+  auto vMin = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -17, 17, GET_SET_WITH_OFFSET(g_model.varioData.min, -10));
   vMin->setAvailableHandler([](int val) { return val < g_model.varioData.max + 10; });
 
-  auto vMax = new NumberEdit(line, rect_t{}, -17, 17, GET_SET_WITH_OFFSET(g_model.varioData.max, 10));
+  auto vMax = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -17, 17, GET_SET_WITH_OFFSET(g_model.varioData.max, 10));
   vMax->setAvailableHandler([](int val) { return g_model.varioData.min - 10 < val; });
 
   line = window->newLine(&grid5);
   line->padLeft(10);
   new StaticText(line, rect_t{}, STR_CENTER, 0, COLOR_THEME_PRIMARY1);
 
-  auto cMin = new NumberEdit(line, rect_t{}, -15, 15, GET_SET_WITH_OFFSET(g_model.varioData.centerMin, -5), 0, PREC1);
+  auto cMin = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -15, 15, GET_SET_WITH_OFFSET(g_model.varioData.centerMin, -5), 0, PREC1);
   cMin->setAvailableHandler([](int val) { return val < g_model.varioData.centerMax + 5; });
 
-  auto cMax = new NumberEdit(line, rect_t{}, -15, 15, GET_SET_WITH_OFFSET(g_model.varioData.centerMax, 5), 0, PREC1);
+  auto cMax = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -15, 15, GET_SET_WITH_OFFSET(g_model.varioData.centerMax, 5), 0, PREC1);
   cMax->setAvailableHandler([](int val) { return g_model.varioData.centerMin - 5 < val; });
 
   new Choice(line, rect_t{}, STR_VVARIOCENTER, 0, 1, GET_SET_DEFAULT(g_model.varioData.centerSilent));

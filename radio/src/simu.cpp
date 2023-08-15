@@ -354,6 +354,7 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     KEY_Page_Up,   KEY_PAGEUP,
     KEY_Page_Down, KEY_PAGEDN,
     KEY_Return,    KEY_ENTER,
+    KEY_BackSpace, KEY_EXIT,
     KEY_Up,        KEY_UP,
     KEY_Down,      KEY_DOWN,
     KEY_Right,     KEY_RIGHT,
@@ -368,10 +369,11 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     KEY_Left,      KEY_LEFT,
     KEY_Up,        KEY_UP,
     KEY_Down,      KEY_DOWN,
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO)
+#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_POCKET)
     KEY_Page_Up,   KEY_PAGEUP,
     KEY_Page_Down, KEY_PAGEDN,
     KEY_Return,    KEY_ENTER,
+    KEY_BackSpace, KEY_EXIT,
     KEY_Up,        KEY_MODEL,
     KEY_Down,      KEY_EXIT,
     KEY_Right,     KEY_TELE,

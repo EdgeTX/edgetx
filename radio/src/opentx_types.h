@@ -19,10 +19,68 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _OPENTX_TYPES_H_
-#define _OPENTX_TYPES_H_
+#pragma once
 
-#include "thirdparty/libopenui/src/libopenui_types.h"
+#include <cinttypes>
+
+typedef int coord_t;
+
+#if defined(COLORLCD)
+typedef uint16_t pixel_t;
+#else
+typedef uint8_t pixel_t;
+#endif
+
+struct point_t
+{
+  coord_t x;
+  coord_t y;
+
+  bool operator != (const point_t & b) const
+  {
+    return x != b.x || y != b.y;
+  }
+};
+
+struct rect_t
+{
+  coord_t x, y, w, h;
+
+  constexpr coord_t left() const
+  {
+    return x;
+  }
+
+  constexpr coord_t right() const
+  {
+    return x + w;
+  }
+
+  constexpr coord_t top() const
+  {
+    return y;
+  }
+
+  constexpr coord_t bottom() const
+  {
+    return y + h;
+  }
+
+  bool contains(coord_t x, coord_t y) const
+  {
+    return (x >= this->x && x < this->x + this->w && y >= this->y && y < this->y + this->h);
+  }
+
+  bool contains(const rect_t & other) const
+  {
+    return left() <= other.left() && right() >= other.right() && top() <= other.top() && bottom() >= other.bottom();
+  }
+};
+
+static const rect_t nullRect = {0, 0, 0, 0};
+
+typedef uint32_t LcdFlags;
+typedef uint16_t event_t;
 
 typedef uint32_t tmr10ms_t;
 typedef int32_t getvalue_t;
@@ -51,5 +109,3 @@ typedef uint64_t swarnstate_t;
   // pot warning enabled: 1 bit per pot
   typedef uint8_t potwarnen_t;
 #endif
-
-#endif // _OPENTX_TYPES_H_

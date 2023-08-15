@@ -28,10 +28,9 @@
 
 #include "bitmapbuffer.h"
 #include "libopenui_defines.h"
-#include "libopenui_helpers.h"
-#include "libopenui_config.h"
+#include "opentx_helpers.h"
 
-#include "widgets/window_base.h"
+#include "widgets/etx_obj_create.h"
 
 #include "LvglWrapper.h"
 
@@ -42,43 +41,26 @@ typedef uint32_t WindowFlags;
   #undef TRANSPARENT
 #endif
 
-constexpr int INFINITE_HEIGHT = INT32_MAX;
-
 constexpr WindowFlags OPAQUE =                1u << 0u;
 constexpr WindowFlags TRANSPARENT =           1u << 1u;
-constexpr WindowFlags NO_SCROLLBAR =          1u << 2u;
-constexpr WindowFlags NO_FOCUS =              1u << 3u;
-constexpr WindowFlags FORWARD_SCROLL =        1u << 4u;
-constexpr WindowFlags REFRESH_ALWAYS =        1u << 5u;
-constexpr WindowFlags PAINT_CHILDREN_FIRST =  1u << 6u;
-constexpr WindowFlags PUSH_FRONT =  1u << 7u;
-constexpr WindowFlags WINDOW_FLAGS_LAST =  PUSH_FRONT;
-
-// enum SetFocusFlag
-// {
-//   SET_FOCUS_DEFAULT  = 0,
-//   SET_FOCUS_FORWARD  = 1,
-//   SET_FOCUS_BACKWARD = 2,
-//   SET_FOCUS_FIRST    = 3,
-//   SET_FOCUS_NO_SCROLL= 4
-// };
+constexpr WindowFlags NO_FOCUS =              1u << 2u;
+constexpr WindowFlags REFRESH_ALWAYS =        1u << 3u;
+constexpr WindowFlags WINDOW_FLAGS_LAST =  REFRESH_ALWAYS;
 
 typedef lv_obj_t *(*LvglCreate)(lv_obj_t *);
 extern "C" void window_event_cb(lv_event_t * e);
 
-
 class Window
 {
-  friend class GridLayout;
-  friend void window_event_cb(lv_event_t * e);
+    friend void window_event_cb(lv_event_t * e);
 
   public:
-   Window(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
-          LcdFlags textFlags = 0, LvglCreate objConstruct = nullptr);
+    Window(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
+           LcdFlags textFlags = 0, LvglCreate objConstruct = nullptr);
 
-   Window(Window *parent, lv_obj_t* lvobj);
+    Window(Window *parent, lv_obj_t* lvobj);
 
-   virtual ~Window();
+    virtual ~Window();
 
 #if defined(DEBUG_WINDOWS)
     virtual std::string getName() const;
@@ -88,11 +70,6 @@ class Window
 #endif
 
     Window *getParent() const { return parent; }
-
-    bool isChild(Window *window) const
-    {
-      return window == this || (parent && parent->isChild(window));
-    }
 
     Window *getFullScreenWindow();
 
@@ -108,8 +85,6 @@ class Window
     typedef std::function<void(bool)> FocusHandler;
     void setFocusHandler(FocusHandler h) { focusHandler = std::move(h); }
 
-    const std::list<Window *> getChildren() { return children; }
-
     void clear();
     virtual void deleteLater(bool detach = true, bool trash = true);
 
@@ -120,9 +95,9 @@ class Window
       rect = value;
       lv_obj_enable_style_refresh(false);
       lv_obj_set_pos(lvobj, rect.x, rect.y);
-      lv_obj_set_width(lvobj, rect.w);
+      lv_obj_set_size(lvobj, rect.w, rect.h);
       lv_obj_enable_style_refresh(true);
-      lv_obj_set_height(lvobj, rect.h);
+      lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
     }
 
     void setWidth(coord_t value)
@@ -131,17 +106,10 @@ class Window
       lv_obj_set_width(lvobj, rect.w);
     }
 
-    void setWindowCentered()
-    {
-      rect.x = (parent->width() - width()) / 2;
-      rect.y = (parent->height() - height()) / 2;
-      lv_obj_set_pos(lvobj, rect.x, rect.y);
-    }
-
     void setHeight(coord_t value)
     {
       rect.h = value;
-      if (lvobj != nullptr) lv_obj_set_height(lvobj, rect.h);
+      lv_obj_set_height(lvobj, rect.h);
     }
 
     void setLeft(coord_t x)
@@ -200,21 +168,9 @@ class Window
     void padRow(coord_t pad);
     void padColumn(coord_t pad);
 
-    bool isChildVisible(const Window * window) const;
-    bool isChildFullSize(const Window * window) const;
-
-    bool isVisible() const
-    {
-      return parent && parent->isChildVisible(this);
-    }
-
     virtual void onEvent(event_t event);
     virtual void onClicked();
     virtual void onCancel();
-
-    coord_t adjustHeight();
-
-    void moveWindowsTop(coord_t y, coord_t delta);
 
     virtual void updateSize();
 
@@ -269,25 +225,5 @@ class Window
     void removeChild(Window * window);
 
     virtual void invalidate(const rect_t & rect);
-
-    void fullPaint(BitmapBuffer * dc);
-    void paintChildren(BitmapBuffer * dc, std::list<Window *>::iterator it);
-
-    virtual void onFocusLost()
-    {
-      TRACE_WINDOWS("%s onFocusLost()", getWindowDebugString().c_str());
-      if (focusHandler) {
-        focusHandler(false);
-      }
-      invalidate();
-    }
-
-#if defined(HARDWARE_TOUCH)
-    virtual bool onTouchSlide(coord_t x, coord_t y, coord_t startX,
-                              coord_t startY, coord_t slideX, coord_t slideY);
-#endif
-
-
-    bool hasOpaqueRect(const rect_t & testRect) const;
 };
 

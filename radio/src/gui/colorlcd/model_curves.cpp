@@ -42,7 +42,7 @@ DEFINE_LZ4_BITMAP(LBM_DOT);
 class CurveButton : public Button {
   public:
     CurveButton(Window * parent, const rect_t &rect, uint8_t index) :
-      Button(parent, rect, nullptr, 0, 0, lv_btn_create),
+      Button(parent, rect, nullptr, 0, 0, etx_button_create),
       index(index)
     {
       padAll(0);
@@ -207,12 +207,11 @@ void ModelCurvesPage::build(FormWindow * window)
 
   FlexGridLayout grid(col_dsc, row_dsc);
   
-  FormWindow::Line* line;
+  FormWindow::Line* line = nullptr;
 
   bool hasFocusButton = false;
 
   uint8_t curveIndex = 0;
-  uint8_t firstCurveIndex;
   CurveButton* firstCurveButton = nullptr;
 
   for (uint8_t index = 0; index < MAX_CURVES; index++) {
@@ -221,9 +220,6 @@ void ModelCurvesPage::build(FormWindow * window)
         line = window->newLine(&grid);
         lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN, LV_GRID_ALIGN_SPACE_BETWEEN);
       }
-
-      CurveHeader &curve = g_model.curves[index];
-      int8_t * points = curveAddress(index);
 
       // Curve drawing
       auto button = new CurveButton(line, rect_t{0, 0, CURVE_BTN_W, CURVE_BTH_H}, index);
@@ -260,7 +256,6 @@ void ModelCurvesPage::build(FormWindow * window)
       });
 
       if (!firstCurveButton) {
-        firstCurveIndex = index;
         firstCurveButton = button;
       }
 

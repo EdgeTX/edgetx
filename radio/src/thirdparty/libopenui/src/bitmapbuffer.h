@@ -21,10 +21,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "libopenui_types.h"
+#include "opentx_types.h"
 #include "libopenui_defines.h"
-#include "libopenui_depends.h"
-#include "libopenui_helpers.h"
+#include "opentx_helpers.h"
 #include "debug.h"
 
 constexpr uint8_t SOLID = 0xFF;

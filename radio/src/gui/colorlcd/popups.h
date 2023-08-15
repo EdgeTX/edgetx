@@ -27,6 +27,6 @@ typedef std::function<void(const char *, const char *, int, int)> ProgressHandle
 
 void POPUP_INFORMATION(const char * message);
 void POPUP_WARNING(const char * message, const char * info = nullptr);
-void POPUP_WARNING_ON_UI_TASK(const char * message, const char * info = nullptr);
+void POPUP_WARNING_ON_UI_TASK(const char * message, const char * info = nullptr, bool waitForClose = true);
 
 void show_ui_popup();

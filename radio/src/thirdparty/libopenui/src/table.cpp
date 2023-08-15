@@ -17,7 +17,6 @@
  */
 
 #include "table.h"
-#include "widgets/edgetx_table.h"
 
 void TableField::event_cb(lv_event_t *e)
 {
@@ -135,7 +134,7 @@ void TableField::draw_end(lv_event_t* e)
 }
 
 TableField::TableField(Window* parent, const rect_t& rect, WindowFlags windowFlags) :
-  Window(parent, rect, windowFlags, 0, table_create)
+  Window(parent, rect, windowFlags, 0, etx_table_create)
 {
   lv_obj_add_event_cb(lvobj, TableField::event_cb, LV_EVENT_ALL, nullptr);
 }

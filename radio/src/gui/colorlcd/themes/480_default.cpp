@@ -28,8 +28,8 @@
 using std::unique_ptr;
 
 const ZoneOption OPTIONS_THEME_DEFAULT[] = {
-  { STR_BACKGROUND_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_PRIMARY2) },
-  { STR_MAIN_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_WARNING) },
+  { STR_BACKGROUND_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_PRIMARY2 >> 16) },
+  { STR_MAIN_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_WARNING >> 16) },
   { nullptr, ZoneOption::Bool }
 };
 
@@ -46,11 +46,11 @@ const uint8_t mask_currentmenu_shadow[] = {
 #include "mask_currentmenu_shadow.lbm"
 };
 
-class Theme480: public OpenTxTheme
+class Theme480: public EdgeTxTheme
 {
   public:
     Theme480():
-      OpenTxTheme("EdgeTX", OPTIONS_THEME_DEFAULT)
+      EdgeTxTheme("EdgeTX", OPTIONS_THEME_DEFAULT)
     {
       loadColors();
     }
@@ -58,89 +58,39 @@ class Theme480: public OpenTxTheme
     void loadColors() const
     {
       TRACE("Load EdgeTX theme colors");
-
-      lcdColorTable[DEFAULT_COLOR_INDEX] = RGB(18, 94, 153);
-
-      lcdColorTable[COLOR_THEME_PRIMARY1_INDEX] = RGB(0, 0, 0);
-      lcdColorTable[COLOR_THEME_PRIMARY2_INDEX] = RGB(255, 255, 255);
-      lcdColorTable[COLOR_THEME_PRIMARY3_INDEX] = RGB(12, 63, 102);
-      lcdColorTable[COLOR_THEME_SECONDARY1_INDEX] = RGB(18, 94, 153);
-      lcdColorTable[COLOR_THEME_SECONDARY2_INDEX] = RGB(182, 224, 242);
-      lcdColorTable[COLOR_THEME_SECONDARY3_INDEX] = RGB(228, 238, 242);
-      lcdColorTable[COLOR_THEME_FOCUS_INDEX] = RGB(20, 161, 229);
-      lcdColorTable[COLOR_THEME_EDIT_INDEX] = RGB(0, 153, 9);
-      lcdColorTable[COLOR_THEME_ACTIVE_INDEX] = RGB(255, 222, 0);
-      lcdColorTable[COLOR_THEME_WARNING_INDEX] = RGB(224, 0, 0);
-      lcdColorTable[COLOR_THEME_DISABLED_INDEX] = RGB(140, 140, 140);
-      lcdColorTable[CUSTOM_COLOR_INDEX] = RGB(170, 85, 0);
-    }
-
-    void createMenuIcon(uint8_t index, const uint8_t * lbm, bool reload) const
-    {
-      auto mask = BitmapBuffer::load8bitMaskLZ4(lbm);
-
-      if (mask) {
-        iconMask[index] = mask;
-        menuIconNormal[index] = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
-        menuIconSelected[index] = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
-      }
+      memcpy(lcdColorTable, defaultColors, sizeof(defaultColors));
     }
 
     void createIcons() const
     {
-      if (!iconsLoaded) {
-        iconsLoaded = true;
+      if (iconsLoaded)
+        return;
 
-        for (int id = ICON_OPENTX; id != MENUS_ICONS_COUNT; id++) {
-          createMenuIcon(id, getBuiltinIcon((MenuIcons)id), true);
-        }
+      iconsLoaded = true;
 
-        // Get mask with max size
-        unique_ptr<BitmapBuffer> shadow(BitmapBuffer::load8bitMaskLZ4(mask_currentmenu_shadow));
-        currentMenuBackground = new BitmapBuffer(BMP_RGB565, shadow->width(), shadow->height());
-
-        // Get mask with max size
-        unique_ptr<BitmapBuffer> topleft(BitmapBuffer::load8bitMaskLZ4(mask_topleft));
-        topleftBitmap = new BitmapBuffer(BMP_RGB565, topleft->width(), topleft->height());
-
-        loadBuiltinBitmaps();
+      for (int id = ICON_EDGETX; id != MENUS_ICONS_COUNT; id++) {
+        iconMask[id] = BitmapBuffer::load8bitMaskLZ4(getBuiltinIcon((MenuIcons)id));
       }
-    }
 
-    void loadMenuIcon(uint8_t index, const uint8_t * lbm, bool reload) const
-    {
-      if (iconMask[index]) {
-        if (menuIconNormal[index]) {
-          menuIconNormal[index]->clear(COLOR_THEME_SECONDARY1);
-          menuIconNormal[index]->drawMask(0, 0, iconMask[index], COLOR_THEME_PRIMARY2);
-        }
-  
-        if (menuIconSelected[index]) {
-          menuIconSelected[index]->clear(COLOR_THEME_FOCUS);
-          menuIconSelected[index]->drawMask(0, 0, iconMask[index], COLOR_THEME_PRIMARY2);
-        }
-      }
+      // Get mask with max size
+      unique_ptr<BitmapBuffer> shadow(BitmapBuffer::load8bitMaskLZ4(mask_currentmenu_shadow));
+      currentMenuBackground = new BitmapBuffer(BMP_RGB565, shadow->width(), shadow->height());
+
+      topleftBitmap = BitmapBuffer::load8bitMaskLZ4(mask_topleft);
+
+      loadBuiltinBitmaps();
     }
 
     void loadIcons() const
     {
-      for (int id = ICON_OPENTX; id != MENUS_ICONS_COUNT; id++) {
-        loadMenuIcon(id, getBuiltinIcon((MenuIcons)id), true);
-      }
-
       if (currentMenuBackground) {
-
         currentMenuBackground->drawSolidFilledRect(
-            0, 0, currentMenuBackground->width(), MENU_HEADER_HEIGHT,
+            0, 0, currentMenuBackground->width(), currentMenuBackground->height(),
             COLOR_THEME_SECONDARY1);
 
         currentMenuBackground->drawSolidFilledRect(
             0, MENU_HEADER_HEIGHT, currentMenuBackground->width(),
             MENU_TITLE_TOP - MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY3);
-
-        currentMenuBackground->drawSolidFilledRect(
-            0, MENU_TITLE_TOP, currentMenuBackground->width(),
-            currentMenuBackground->height() - MENU_TITLE_TOP, COLOR_THEME_SECONDARY1);
 
         unique_ptr<BitmapBuffer> background(BitmapBuffer::load8bitMaskLZ4(mask_currentmenu_bg));
         currentMenuBackground->drawMask(0, 0, background.get(), COLOR_THEME_FOCUS);
@@ -151,13 +101,6 @@ class Theme480: public OpenTxTheme
         unique_ptr<BitmapBuffer> dot(BitmapBuffer::load8bitMaskLZ4(mask_currentmenu_dot));
         currentMenuBackground->drawMask(10, 39, dot.get(), COLOR_THEME_PRIMARY2);
       }
-
-      if (topleftBitmap) {
-        topleftBitmap->clear(COLOR_THEME_SECONDARY1);
-
-        unique_ptr<BitmapBuffer> topleft(BitmapBuffer::load8bitMaskLZ4(mask_topleft));
-        topleftBitmap->drawMask(0, 0, topleft.get(), COLOR_THEME_FOCUS);
-      }
     }
 
     void setBackgroundImageFileName(const char *fileName) override
@@ -165,7 +108,7 @@ class Theme480: public OpenTxTheme
       // ensure you delete old bitmap
       if (backgroundBitmap != nullptr)
         delete backgroundBitmap;
-      OpenTxTheme::setBackgroundImageFileName(fileName);  // set the filename
+      EdgeTxTheme::setBackgroundImageFileName(fileName);  // set the filename
       backgroundBitmap = BitmapBuffer::loadBitmap(backgroundImageFileName);
     }
 
@@ -173,7 +116,7 @@ class Theme480: public OpenTxTheme
     {
       loadColors();
       ThemePersistance::instance()->loadDefaultTheme();
-      OpenTxTheme::load();
+      EdgeTxTheme::load();
       if (!backgroundBitmap) {
         backgroundBitmap = BitmapBuffer::loadBitmap(getFilePath("background.png"));
       }
@@ -189,38 +132,28 @@ class Theme480: public OpenTxTheme
 
     void drawBackground(BitmapBuffer * dc) const override
     {
-      if (backgroundBitmap) {
-        dc->clear(COLOR_THEME_SECONDARY3);
+      dc->clear(COLOR_THEME_SECONDARY3);
+      if (backgroundBitmap)
         dc->drawBitmap(0, 0, backgroundBitmap);
-      } else {
-        dc->drawSolidFilledRect(0, 0, LCD_W, LCD_H, COLOR_THEME_SECONDARY3);
-      }
     }
 
-    void drawTopLeftBitmap(BitmapBuffer * dc) const override
+    void drawHeaderIcon(BitmapBuffer * dc, uint8_t icon) const override
     {
-      if (topleftBitmap) {
-        dc->drawBitmap(0, 0, topleftBitmap);
-        dc->drawBitmap(4, 10, menuIconSelected[ICON_OPENTX]);
-      }
+      dc->drawSolidFilledRect(0, 0, LCD_W, MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
+
+      if (topleftBitmap)
+        dc->drawMask(0, 0, topleftBitmap, COLOR_THEME_FOCUS);
+
+      if (icon == ICON_EDGETX)
+        dc->drawMask(4, 10, iconMask[icon], COLOR_THEME_PRIMARY2);
+      else
+        dc->drawMask(5, 7, iconMask[icon], COLOR_THEME_PRIMARY2);
     }
 
     void drawPageHeaderBackground(BitmapBuffer *dc, uint8_t icon,
                                   const char *title) const override
     {
-      if (topleftBitmap) {
-        dc->drawBitmap(0, 0, topleftBitmap);
-        uint16_t width = topleftBitmap->width();
-        dc->drawSolidFilledRect(width, 0, LCD_W - width, MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
-      }
-      else {
-        dc->drawSolidFilledRect(0, 0, LCD_W, MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
-      }
-
-      if (icon == ICON_OPENTX)
-        dc->drawBitmap(4, 10, menuIconSelected[ICON_OPENTX]);
-      else
-        dc->drawBitmap(5, 7, menuIconSelected[icon]);
+      drawHeaderIcon(dc, icon);
 
       dc->drawSolidFilledRect(0, MENU_HEADER_HEIGHT, LCD_W,
                               MENU_TITLE_TOP - MENU_HEADER_HEIGHT,
@@ -240,15 +173,11 @@ class Theme480: public OpenTxTheme
       return iconMask[index];
     }
 
-    const BitmapBuffer * getIcon(uint8_t index, IconState state) const override
+    void drawMenuIcon(BitmapBuffer *dc, uint8_t icon, bool checked) const override
     {
-      return state == STATE_DEFAULT ? menuIconNormal[index] : menuIconSelected[index];
-    }
-
-    void drawCurrentMenuBackground(BitmapBuffer *dc) const override
-    {
-      dc->drawBitmap(0, 0,
-                     currentMenuBackground);
+      if (checked)
+        dc->drawBitmap(0, 0, currentMenuBackground);
+      dc->drawMask(2, 7, iconMask[icon], COLOR_THEME_PRIMARY2);
     }
 
     void drawMenuDatetime(BitmapBuffer * dc) const
@@ -268,24 +197,15 @@ class Theme480: public OpenTxTheme
       dc->drawText(DATETIME_MIDDLE, DATETIME_LINE2, str, FONT(XS)|COLOR_THEME_PRIMARY2|CENTERED);
     }
 
-    void drawProgressBar(BitmapBuffer *dc, coord_t x, coord_t y, coord_t w,
-                         coord_t h, int value, int total) const override
-    {
-      dc->drawSolidRect(x, y, w, h, 1, COLOR_THEME_SECONDARY1);
-      if (value > 0) {
-        int width = (w * value) / total;
-        dc->drawSolidFilledRect(x + 2, y + 2, width - 4, h - 4, COLOR_THEME_FOCUS);
-      }
-    }
+    uint16_t* getDefaultColors() const override { return defaultColors; }
 
   protected:
     static bool iconsLoaded;
     static const BitmapBuffer * backgroundBitmap;
     static BitmapBuffer * topleftBitmap;
-    static BitmapBuffer * menuIconNormal[MENUS_ICONS_COUNT];
-    static BitmapBuffer * menuIconSelected[MENUS_ICONS_COUNT];
     static BitmapBuffer * iconMask[MENUS_ICONS_COUNT];
     static BitmapBuffer * currentMenuBackground;
+    static uint16_t defaultColors[LCD_COLOR_COUNT];
 };
 
 bool Theme480::iconsLoaded = false;
@@ -293,13 +213,27 @@ bool Theme480::iconsLoaded = false;
 const BitmapBuffer * Theme480::backgroundBitmap = nullptr;
 BitmapBuffer * Theme480::topleftBitmap = nullptr;
 BitmapBuffer * Theme480::iconMask[MENUS_ICONS_COUNT] = { nullptr };
-BitmapBuffer * Theme480::menuIconNormal[MENUS_ICONS_COUNT] = { nullptr };
-BitmapBuffer * Theme480::menuIconSelected[MENUS_ICONS_COUNT] = { nullptr };
 BitmapBuffer * Theme480::currentMenuBackground = nullptr;
 
-Theme480 Theme480;
+uint16_t Theme480::defaultColors[LCD_COLOR_COUNT] = {
+  RGB(18, 94, 153),     // DEFAULT
+  RGB(0, 0, 0),         // PRIMARY1
+  RGB(255, 255, 255),   // PRIMARY2
+  RGB(12, 63, 102),     // PRIMARY3
+  RGB(18, 94, 153),     // SECONDARY1
+  RGB(182, 224, 242),   // SECONDARY2
+  RGB(228, 238, 242),   // SECONDARY3
+  RGB(20, 161, 229),    // FOCUS
+  RGB(0, 153, 9),       // EDIT
+  RGB(255, 222, 0),     // ACTIVE
+  RGB(224, 0, 0),       // WARNING
+  RGB(140, 140, 140),   // DISABLED
+  RGB(170, 85, 0)       // CUSTOM
+};
+
+Theme480 theme480;
 
 #if LCD_W == 480  || LCD_H == 480
-OpenTxTheme * defaultTheme = &Theme480;
-Theme * theme = &Theme480;
+EdgeTxTheme * defaultTheme = &theme480;
+EdgeTxTheme * theme = &theme480;
 #endif

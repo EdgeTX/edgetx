@@ -22,8 +22,6 @@
 #include "model_flightmodes.h"
 #include "opentx.h"
 #include "libopenui.h"
-#include "lvgl_widgets/input_mix_line.h"
-#include "hal/key_driver.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -68,11 +66,9 @@ class FlightModeEdit : public Page
       header.setTitle(STR_MENUFLIGHTMODES);
       header.setTitle2(title2);
 
-      body.padAll(lv_dpx(8));
-      lv_obj_set_scrollbar_mode(body.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
-
       FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
       auto form = new FormWindow(&body, rect_t{});
+      form->padAll(8);
       form->setFlexLayout();
 
       FlightModeData* p_fm = &g_model.flightModeData[index];
@@ -108,7 +104,7 @@ class FlightModeEdit : public Page
 
       FlexGridLayout trim_grid(trims_col_dsc, line_row_dsc);
 
-      for (int t = 0; t < MAX_TRIMS; t++) {
+      for (int t = 0; t < keysGetMaxTrims(); t++) {
         lastTrim[t] = p_fm->trim[t].value;
 
         if ((t % TRIMS_PER_LINE) == 0) {
@@ -116,7 +112,7 @@ class FlightModeEdit : public Page
           line->padLeft(10);
         }
 
-        auto trim = new FormGroup(line, rect_t{});
+        auto trim = new FormWindow(line, rect_t{});
         trim->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
 
         auto trim_obj = trim->getLvObj();
@@ -168,6 +164,7 @@ class FlightModeEdit : public Page
           tr_value[i]->setValue(lastTrim[i]);
         }
       }
+      Page::checkEvents();
     }
 
   protected:

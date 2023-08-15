@@ -22,8 +22,6 @@
 #include "afhds3_options.h"
 #include "opentx.h"
 
-//#include "checkbox.h"
-
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
@@ -75,7 +73,7 @@ static void pwmfreq_changedV0(lv_event_t* e)
   }
 }
 PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_t channelIdx) :
-  FormGroup(parent, rect_t{})
+  FormWindow(parent, rect_t{})
 {
   setFlexLayout(LV_FLEX_FLOW_ROW);
   lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
@@ -112,7 +110,7 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_
 }
 
 PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx ) :
-  FormGroup(parent, rect_t{})
+  FormWindow(parent, rect_t{})
 {
   setFlexLayout(LV_FLEX_FLOW_ROW);
   lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
@@ -163,7 +161,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   title += ")";
   header.setTitle2(title);
 
-  auto form = new FormGroup(&body, rect_t{});
+  auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
   form->padAll(lv_dpx(8));
 
@@ -183,7 +181,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
     temp_str += " ";
     temp_str += STR_SYNC;
     new StaticText(line, rect_t{}, temp_str);
-    new CheckBox(line, rect_t{}, GET_SET_AND_SYNC(cfg, vCfg->PWMFrequency.Synchronized,
+    new ToggleSwitch(line, rect_t{}, GET_SET_AND_SYNC(cfg, vCfg->PWMFrequency.Synchronized,
                  afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V0));
     line = form->newLine(&grid);
 
@@ -212,7 +210,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
       temp_str += " ";
       temp_str += STR_SYNC;
       new StaticText(line, rect_t{}, temp_str);
-      new CheckBox(
+      new ToggleSwitch(
           line, rect_t{}, GET_DEFAULT((vCfg->PWMFrequenciesV1.Synchronized&1<<i)>>i),
           [=](uint8_t newVal) {
             vCfg->PWMFrequenciesV1.Synchronized &= ~(1<<i);

@@ -78,15 +78,15 @@
 #define TR_VMLTPX2                     "+=","*=",":="
 
 #if LCD_W >= 212
-  #define TR_CSWTIMER                  "Tempo"
+  #define TR_CSWTIMER                  "Chrono"
   #define TR_CSWSTICKY                 "Bistb"
   #define TR_CSWRANGE                  "Plage"
-  #define TR_CSWSTAY                   "Flanc"
+  #define TR_CSWSTAY                   "Edge"
 #else
-  #define TR_CSWTIMER                  "Temp"
+  #define TR_CSWTIMER                  "Chrono"
   #define TR_CSWSTICKY                 "Bist"
-  #define TR_CSWRANGE                  "Zone"
-  #define TR_CSWSTAY                   "Flnc"
+  #define TR_CSWRANGE                  "Plage"
+  #define TR_CSWSTAY                   "Edge"
 #endif
 
 #define TR_CSWEQUAL                    "a=x"
@@ -94,12 +94,12 @@
 
 #define TR_TEXT_SIZE                   "Standard","Mini","Petit","Moyen","Double"
 
-#define TR_SF_TRAINER                  "Ecolage"
+#define TR_SF_TRAINER                  "Écolage"
 #define TR_SF_INST_TRIM                "Inst. Trim"
 #define TR_SF_RESET                    "Remise à 0"
 #define TR_SF_SET_TIMER                "Déf."
 #define TR_SF_VOLUME                   "Volume"
-#define TR_SF_FAILSAFE                 "DéfFailsafe"
+#define TR_SF_FAILSAFE                 "Régle Failsafe"
 #define TR_SF_RANGE_CHECK              "Test Port."
 #define TR_SF_MOD_BIND                 "Bind"
  
@@ -118,7 +118,6 @@
 #define TR_SF_SAFETY                   TR("Rempl.", "Remplace")
 
 #define TR_SF_SCREENSHOT               "Photo Écran"
-#define TR_SF_TEST                     "Test"
 #define TR_SF_RACING_MODE              "Racing Mode"
 #define TR_SF_DISABLE_TOUCH            "Non Tactile"
 #define TR_SF_SET_SCREEN               "Définir Écran Princ."
@@ -192,7 +191,7 @@
 #define TR_SRC_BATT                    "Batt"
 #define TR_SRC_TIME                    "H_M"
 #define TR_SRC_GPS                     "GPS"
-#define TR_SRC_TIMER                   "Chr"
+#define TR_SRC_TIMER                   "Chrono"
 
 #define TR_VTMRMODES                   "OFF","ON","GZs","GZ%","GZt"
 #define TR_VTRAINER_MASTER_OFF         "OFF"
@@ -209,7 +208,7 @@
 #define TR_VPREC                       "0.--","0.0","0.00"
 #define TR_VCELLINDEX                  "Mini.","1","2","3","4","5","6","7","8","Maxi.","Diff."
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (centre seulement)","= (symétrique)"
-#define TR_TIMER_DIR                   TR("Rester", "Voir Rester"), TR("Écoulé", "Voir Écoulé")
+#define TR_TIMER_DIR                   TR("Reste", "Voir restant"), TR("Écoulé", "Voir écoulé")
 
 // ZERO TERMINATED STRINGS
 
@@ -248,9 +247,9 @@
 #define TR_YES                         "Oui"
 #define TR_NO                          "Non"
 #define TR_DELETEMODEL                 "SUPPR. MODÈLE"
-#define TR_COPYINGMODEL                "Copie..."
-#define TR_MOVINGMODEL                 "Déplacement..."
-#define TR_LOADINGMODEL                "Chargement..."
+#define TR_COPYINGMODEL                "Copie modèle"
+#define TR_MOVINGMODEL                 "Déplacement modèle"
+#define TR_LOADINGMODEL                "Chargement modèle"
 #define TR_UNLABELEDMODEL              "Non catégorisé"
 #define TR_NAME                        "Nom"
 #define TR_MODELNAME                   TR("Nom Modèle", "Nom du Modèle")
@@ -348,7 +347,7 @@
 #define TR_BATTERY_RANGE               "Plage batterie"
 #define TR_BATTERYCHARGING             "En charge..."
 #define TR_BATTERYFULL                 "Batterie chargée"
-#define TR_BATTERYNONE                 "Pas de batterie!"
+#define TR_BATTERYNONE                 "Pas de batterie !"
 #define TR_BATTERYWARNING              TR("Batterie", "Batterie faible")
 #define TR_INACTIVITYALARM             "Inactivité"
 #define TR_MEMORYWARNING               "Mémoire pleine"
@@ -374,6 +373,7 @@
 #define TR_KEYS_BACKLIGHT              "Rétroéclairage touches"
 #define TR_BLCOLOR                     "Couleur"
 #define TR_SPLASHSCREEN                "Ecran d'accueil"
+#define TR_PLAY_HELLO                  "Son de démarrage"
 #define TR_PWR_ON_DELAY                "Délai btn ON"
 #define TR_PWR_OFF_DELAY               "Délai btn OFF"
 #define TR_THROTTLE_WARNING             TR(INDENT "Alerte gaz", INDENT "Alerte gaz")
@@ -612,7 +612,12 @@
 #define TR_POWER_METER_INT             "Puissancemètre (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       TR("Spectre (EXT)", "Analyseur Spectre (EXT)")
 #define TR_SPECTRUM_ANALYSER_INT       TR("Spectre (INT)", "Analyseur Spectre (INT)")
-#define TR_SDCARD_FULL                 "Carte SD pleine"
+#define TR_SDCARD_FULL                 "SD carte pleine"
+#if defined(COLORLCD)
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nJournaux et Impr. écran désactivé"
+#else
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Journaux et" LCDW_128_480_LINEBREAK "Impr. écran désactivé"
+#endif
 #define TR_NEEDS_FILE                  "FICHIER EXIGE"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"

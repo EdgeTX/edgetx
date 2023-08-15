@@ -24,7 +24,6 @@
 
 #include <inttypes.h>
 #include "opentx_types.h"
-#include "libopenui/src/libopenui_types.h"
 
 #include "hal/key_driver.h"
 

@@ -28,6 +28,7 @@ static inline uint32_t _read_keys()
   return keys;
 }
 
+{% set hw_trims = trims | selectattr('dec', 'defined') | selectattr('inc', 'defined') | list %}
 static inline void _init_trims()
 {
 {% for trim_gpio, pins in trim_gpios | dictsort %}
@@ -36,7 +37,7 @@ static inline void _init_trims()
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
   pinInit.Mode = LL_GPIO_MODE_INPUT;
-{% for trim in trims %}
+{% for trim in hw_trims %}
   pinInit.Pin = {{ trim.dec.pin }};
   pinInit.Pull = {{ 'LL_GPIO_PULL_UP' if trim.dec.active_low else 'LL_GPIO_PULL_DOWN' }};
   LL_GPIO_Init({{ trim.dec.gpio }}, &pinInit);
@@ -49,7 +50,7 @@ static inline void _init_trims()
 static inline uint32_t _read_trims()
 {
   uint32_t trims = 0;
-{% for trim in trims %}
+{% for trim in hw_trims %}
   if ({{'!' if trim.dec.active_low }}LL_GPIO_IsInputPinSet({{ trim.dec.gpio }}, {{ trim.dec.pin }}))
     trims |= (1 << {{ loop.index0 * 2 }});
   if ({{'!' if trim.inc.active_low }}LL_GPIO_IsInputPinSet({{ trim.inc.gpio }}, {{ trim.inc.pin }}))

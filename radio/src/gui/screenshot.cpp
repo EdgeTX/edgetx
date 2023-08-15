@@ -56,6 +56,11 @@ const char * writeScreenshot()
   UINT written;
   char filename[42]; // /SCREENSHOTS/screen-2013-01-01-123540.bmp
 
+  if (sdIsFull()) {
+    POPUP_WARNING(STR_SDCARD_FULL_EXT);
+    return STR_SDCARD_FULL_EXT;
+  }
+
   // check and create folder here
   strcpy(filename, SCREENSHOTS_PATH);
   const char * error = sdCheckAndCreateDirectory(filename);

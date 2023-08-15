@@ -60,10 +60,7 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
   header.setTitle(STR_MENU_MODEL_SETUP);
   header.setTitle2(title2);
 
-  body.padAll(0);
-  lv_obj_set_scrollbar_mode(body.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
-
-  auto form = new FormGroup(&body, rect_t{});
+  auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
   form->padAll(lv_dpx(8));
 
@@ -111,13 +108,13 @@ TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
   // Timer minute beep
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_MINUTEBEEP, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(line, rect_t{}, GET_SET_DEFAULT(p_timer->minuteBeep));
+  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(p_timer->minuteBeep));
 
   // Timer countdown
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_BEEPCOUNTDOWN, 0, COLOR_THEME_PRIMARY1);
 
-  auto box = new FormGroup(line, rect_t{});
+  auto box = new FormWindow(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW);
   lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
 

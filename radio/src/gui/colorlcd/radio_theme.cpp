@@ -340,6 +340,8 @@ class ColorEditPage : public Page
       auto t2 = header.setTitle2(ThemePersistance::getColorNames()[(int)_indexOfColor]);
 #if LCD_H > LCD_W
       t2->setFont(FONT(XS));
+#else
+      LV_UNUSED(t2);
 #endif
 
       // page tabs
@@ -413,7 +415,7 @@ class ThemeEditPage : public Page
           });
     }
 
-    void buildHeader(FormGroup *window)
+    void buildHeader(FormWindow *window)
     {
       // page title
       header.setTitle(STR_EDIT_THEME);
@@ -438,7 +440,7 @@ class ThemeEditPage : public Page
       });
     }
 
-    void buildBody(FormGroup *window)
+    void buildBody(FormWindow *window)
     {
       window->padAll(4);
       FormWindow *form = new FormWindow(window, {0, 0, window->width() - 8, window->height() - 8});

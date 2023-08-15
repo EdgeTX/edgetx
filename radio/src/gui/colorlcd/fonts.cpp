@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "libopenui_config.h"
+#include "libopenui_defines.h"
 #include "font.h"
 
 #if !defined(BOOT)

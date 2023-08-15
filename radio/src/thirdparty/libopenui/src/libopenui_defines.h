@@ -18,10 +18,69 @@
 
 #pragma once
 
-#include "libopenui_types.h"
-#include "libopenui_compat.h"
+#include "debug.h"
+#include "board.h"
+#include "colors.h"
+#include "keys.h"
+#include "opentx_types.h"
 
-/* obsolete flags */
+enum FontIndex
+{
+  FONT_STD_INDEX,
+  FONT_BOLD_INDEX,
+  FONT_XXS_INDEX,
+  FONT_XS_INDEX,
+  FONT_L_INDEX,
+  FONT_XL_INDEX,
+  FONT_XXL_INDEX,
+
+  // this one MUST be last
+  FONTS_COUNT
+};
+
+constexpr uint32_t MENU_HEADER_BUTTON_WIDTH =      33;
+constexpr uint32_t MENU_HEADER_BUTTONS_LEFT =      47;
+
+constexpr uint32_t MENUS_TOOLBAR_BUTTON_WIDTH =    30;
+constexpr uint32_t MENUS_TOOLBAR_BUTTON_PADDING =  3;
+
+constexpr uint32_t MENU_HEADER_HEIGHT =            45;
+constexpr uint32_t MENU_TITLE_TOP =                48;
+constexpr uint32_t MENU_TITLE_HEIGHT =             21;
+constexpr uint32_t MENU_BODY_TOP =                 MENU_TITLE_TOP + MENU_TITLE_HEIGHT;
+constexpr uint32_t MENU_FOOTER_HEIGHT =            0;
+constexpr uint32_t MENU_FOOTER_TOP =               LCD_H - MENU_FOOTER_HEIGHT;
+constexpr uint32_t MENU_BODY_HEIGHT =              MENU_FOOTER_TOP - MENU_BODY_TOP;
+constexpr uint32_t MENUS_MARGIN_LEFT =             6;
+
+constexpr uint32_t MENU_HEADER_BACK_BUTTON_WIDTH  = MENU_HEADER_HEIGHT;
+constexpr uint32_t MENU_HEADER_BACK_BUTTON_HEIGHT = MENU_HEADER_HEIGHT;
+
+constexpr coord_t  PAGE_PADDING =                  6;
+constexpr uint32_t PAGE_LINE_HEIGHT =              20;
+constexpr uint32_t FH =                            PAGE_LINE_HEIGHT;
+constexpr uint32_t NUM_BODY_LINES =                MENU_BODY_HEIGHT / PAGE_LINE_HEIGHT;
+
+constexpr uint32_t FIELD_PADDING_LEFT =            3;
+constexpr uint32_t FIELD_PADDING_TOP =             2;
+
+constexpr uint32_t CURVE_SIDE_WIDTH =              100;
+constexpr uint32_t CURVE_CENTER_X =                LCD_W - CURVE_SIDE_WIDTH - 7;
+constexpr uint32_t CURVE_CENTER_Y =                151;
+constexpr uint32_t CURVE_COORD_WIDTH =             36;
+constexpr uint32_t CURVE_COORD_HEIGHT =            17;
+
+constexpr uint32_t DATETIME_SEPARATOR_X =          LCD_W - 53;
+constexpr uint32_t DATETIME_LINE1 =                7;
+constexpr uint32_t DATETIME_LINE2 =                22;
+constexpr uint32_t DATETIME_MIDDLE =               (LCD_W + DATETIME_SEPARATOR_X + 1) / 2;
+
+constexpr uint32_t PAGE_TITLE_TOP =                2;
+constexpr uint32_t PAGE_TITLE_LEFT =               50;
+
+constexpr coord_t POPUP_HEADER_HEIGHT = 30;
+constexpr coord_t MODEL_SELECT_FOOTER_HEIGHT = 24;
+
 #define BLINK                          0
 #define TIMEHOUR                       0
 
@@ -33,7 +92,6 @@
 #define RIGHT                          0x08u /* align right */
 #define SHADOWED                       0x80u /* black copy at +1 +1 */
 // 0x1000u used by Lua in api_colorlcd.h
-#define SPACING_NUMBERS_CONST          0x2000u
 // 0x8000u used by Lua in api_colorlcd.h
 
 /* drawNumber flags */
@@ -49,40 +107,7 @@
 #define FONT_INDEX(flags)              (((flags) & FONT_MASK) >> 8u)
 #define FONT(xx)                       (unsigned(FONT_ ## xx ## _INDEX) << 8u)
 
-#define ARGB_SPLIT(color, a, r, g, b) \
-  uint16_t a = ((color) & 0xF000) >> 12; \
-  uint16_t r = ((color) & 0x0F00) >> 8; \
-  uint16_t g = ((color) & 0x00F0) >> 4; \
-  uint16_t b = ((color) & 0x000F)
-
-#define RGB_SPLIT(color, r, g, b) \
-  uint16_t r = ((color) & 0xF800) >> 11; \
-  uint16_t g = ((color) & 0x07E0) >> 5; \
-  uint16_t b = ((color) & 0x001F)
-
-#define ARGB_JOIN(a, r, g, b) \
-  (((a&0xF) << 12) + ((r&0xF) << 8) + ((g&0xF) << 4) + (b&0xF))
-
-#define RGB_JOIN(r, g, b) \
-  (((r) << 11) + ((g) << 5) + (b))
-
-#define GET_RED(color) \
-  (((color) & 0xF800) >> 8)
-
-#define GET_GREEN(color) \
-  (((color) & 0x07E0) >> 3)
-
-#define GET_BLUE(color) \
-  (((color) & 0x001F) << 3)
-
-#define OPACITY_MAX                    0x0Fu
-#define OPACITY(value)                 ((value) & OPACITY_MAX)
-
-#define RGB(r, g, b)                   (uint16_t)((((r) & 0xF8) << 8) + (((g) & 0xFC) << 3) + (((b) & 0xF8) >> 3))
-#define ARGB(a, r, g, b)               (uint16_t)((((a) & 0xF0) << 8) + (((r) & 0xF0) << 4) + (((g) & 0xF0) << 0) + (((b) & 0xF0) >> 4))
-
-#define COLOR2FLAGS(color)             LcdFlags(unsigned(color) << 16u)
-#define COLOR_VAL(flags)               ((flags) >> 16u)
-#define COLOR_MASK(flags)              ((flags) & 0xFFFF0000u)
-
 #define LV_OBJ_FLAG_ENCODER_ACCEL LV_OBJ_FLAG_USER_1
+
+#include "libopenui_config.h"
+

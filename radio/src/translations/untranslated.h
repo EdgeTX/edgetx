@@ -96,6 +96,9 @@
 #define TR_FLYSKY_SERIAL_PROTO         "iBUS","SBUS"
 #define TR_PPM_POL                     "-","+"
 #define TR_PWR_OFF_DELAYS              "0s","1s","2s","4s"
+#if defined(COLORLCD)
+#define TR_SPLASHSCREEN_DELAYS         "1s","2s","3s","4s","6s","8s","10s","15s"
+#endif
 
 // Telemetry sensor name definitions
 #define STR_SENSOR_RSSI                      "RSSI"

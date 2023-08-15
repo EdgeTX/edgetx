@@ -117,7 +117,6 @@
 #define TR_SF_SAFETY                   "Blocco"
 
 #define TR_SF_SCREENSHOT               "Screenshot"
-#define TR_SF_TEST                     "Test"
 #define TR_SF_RACING_MODE              "Modo Racing"
 #define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_SET_SCREEN               "Setta Schermo Princ."
@@ -363,6 +362,7 @@
 #define TR_KEYS_BACKLIGHT               "Luce tasti"
 #define TR_BLCOLOR                      "Colore"
 #define TR_SPLASHSCREEN                 TR("Sch. avvio", "Schermata d'avvio")
+#define TR_PLAY_HELLO                   "Suono all'accensione"
 #define TR_PWR_ON_DELAY                 "Rit. accens."
 #define TR_PWR_OFF_DELAY                "Rit. spegni."
 #define TR_THROTTLE_WARNING             TR(INDENT "All. Mot.", INDENT "Allarme Motore")
@@ -604,7 +604,12 @@
 #define TR_POWER_METER_INT              "Meter Potenza (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT        "Spettro (EST)"
 #define TR_SPECTRUM_ANALYSER_INT        "Spettro (INT)"
-#define TR_SDCARD_FULL                  "SDCard Piena"
+#define TR_SDCARD_FULL                  "SDCard piena"
+#if defined(COLORLCD)
+#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\nLogs e Screenshots disattivati"
+#else
+#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\036Logs e Screenshots" LCDW_128_480_LINEBREAK "disattivati"
+#endif
 #define TR_NEEDS_FILE                   "RICHIEDE FILE"
 #define TR_EXT_MULTI_SPEC               "opentx-inv"
 #define TR_INT_MULTI_SPEC               "stm-opentx-noinv"

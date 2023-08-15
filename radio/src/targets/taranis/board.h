@@ -31,7 +31,7 @@
 #include "opentx_constants.h"
 #include "board_common.h"
 
-#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)  || defined(RADIO_ZORRO)
+#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)  || defined(RADIO_ZORRO) || defined(RADIO_POCKET)
   #define  NAVIGATION_X7_TX12
 #endif
 
@@ -65,37 +65,13 @@ enum {
 };
 
 // SD driver
-#define BLOCK_SIZE                      512 /* Block Size in Bytes */
-#if !defined(SIMU) || defined(SIMU_DISKIO)
-uint32_t sdIsHC();
-uint32_t sdGetSpeed();
-#define SD_IS_HC()                      (sdIsHC())
-#define SD_GET_SPEED()                  (sdGetSpeed())
-#define SD_GET_FREE_BLOCKNR()           (sdGetFreeSectors())
-#else
-#define SD_IS_HC()                      (0)
-#define SD_GET_SPEED()                  (0)
-#endif
 #define __disk_read                     disk_read
 #define __disk_write                    disk_write
-#if defined(SIMU)
-  #if !defined(SIMU_DISKIO)
-    #define sdInit()
-    #define sdDone()
-  #endif
-  #define sdMount()
-  #define SD_CARD_PRESENT()               true
+
+#if defined(SIMU) || !defined(SD_PRESENT_GPIO)
+  #define SD_CARD_PRESENT()             true
 #else
-void sdInit();
-void sdMount();
-void sdDone();
-void sdPoll10ms();
-uint32_t sdMounted();
-#if defined(SD_PRESENT_GPIO)
-#define SD_CARD_PRESENT()               ((SD_PRESENT_GPIO->IDR & SD_PRESENT_GPIO_PIN) == 0)
-#else
-#define SD_CARD_PRESENT()               (true)
-#endif
+  #define SD_CARD_PRESENT()             ((SD_PRESENT_GPIO->IDR & SD_PRESENT_GPIO_PIN) == 0)
 #endif
 
 // Flash Write driver
@@ -248,8 +224,14 @@ void pwrResetHandler();
 bool UNEXPECTED_SHUTDOWN();
 
 // Backlight driver
+#if defined(OLED_SCREEN)
+#define BACKLIGHT_DISABLE()             lcdSetRefVolt(0)
+#define BACKLIGHT_FORCED_ON             255
+#else
 #define BACKLIGHT_DISABLE()             backlightDisable()
 #define BACKLIGHT_FORCED_ON             101
+#endif
+
 
 void backlightInit();
 void backlightDisable();
@@ -260,6 +242,8 @@ uint8_t isBacklightEnabled();
   void backlightEnable(uint8_t level, uint8_t color);
   #define BACKLIGHT_ENABLE() \
     backlightEnable(currentBacklightBright, g_eeGeneral.backlightColor)
+#elif defined(OLED_SCREEN)
+  #define BACKLIGHT_ENABLE() lcdSetRefVolt(currentBacklightBright)
 #else
   void backlightEnable(uint8_t level);
   #define BACKLIGHT_ENABLE() backlightEnable(currentBacklightBright)
@@ -280,6 +264,10 @@ uint8_t isBacklightEnabled();
   #define USB_NAME                     "Radiomaster Zorro"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'R', 'M', ' ', 'Z', 'O', 'R', 'R', 'O'  /* 8 Bytes */
+#elif defined(RADIO_POCKET)
+  #define USB_NAME                     "Radiomaster Pocket"
+  #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'R', 'M', 'P', 'O', 'C', 'K', 'E', 'T'  /* 8 Bytes */
 #elif defined(RADIO_T8)
   #define USB_NAME                     "Radiomaster T8"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
@@ -401,15 +389,15 @@ void ledBlue();
 #define LCD_DEPTH                       1
 #define IS_LCD_RESET_NEEDED()           true
 #if defined(OLED_SCREEN)
-#define LCD_CONTRAST_MIN                5
-#define LCD_CONTRAST_MAX                255
+#define LCD_CONTRAST_MIN                2
+#define LCD_CONTRAST_MAX                254
 #else
 #define LCD_CONTRAST_MIN                10
 #define LCD_CONTRAST_MAX                30
 #endif
 
 #if defined(OLED_SCREEN)
-  #define LCD_CONTRAST_DEFAULT          255 // full brightness
+  #define LCD_CONTRAST_DEFAULT          254 // full brightness
 #elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)
   #define LCD_CONTRAST_DEFAULT          20
 #elif defined(RADIO_TPRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TPRO) || defined(RADIO_COMMANDO8)
@@ -475,7 +463,7 @@ void setTopBatteryValue(uint32_t volts);
   #define BATTERY_DIVIDER 22830
 #elif defined (RADIO_T8) || defined(RADIO_COMMANDO8)
   #define BATTERY_DIVIDER 50000
-#elif defined (RADIO_ZORRO) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)
+#elif defined (RADIO_ZORRO) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_POCKET)
   #define BATTERY_DIVIDER 23711 // = 2047*128*BATT_SCALE/(100*(VREF*(160+499)/160))
 #elif defined (RADIO_LR3PRO)
   #define BATTERY_DIVIDER 39500
@@ -483,7 +471,7 @@ void setTopBatteryValue(uint32_t volts);
   #define BATTERY_DIVIDER 26214
 #endif 
 
-#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)
+#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_POCKET)
   #define VOLTAGE_DROP 45
 #elif defined(RADIO_TPROV2)
   #define VOLTAGE_DROP 60

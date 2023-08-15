@@ -11,7 +11,7 @@ SimulatedUIWidgetJumperTPRO::SimulatedUIWidgetJumperTPRO(SimulatorInterface *sim
 
   ui->setupUi(this);
 
-  act = new RadioUiAction(4, QList<int>() << Qt::Key_PageUp << Qt::Key_Up, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU_ICN);
+  act = new RadioUiAction(0, QList<int>() << Qt::Key_PageUp << Qt::Key_Up, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU_ICN);
   addRadioWidget(ui->leftbuttons->addArea(QRect(70, 85, 110, 90), "JumperTPRO/left.png", act));
 
   act = new RadioUiAction(3, QList<int>() << Qt::Key_PageDown << Qt::Key_Down, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_PAGE);

@@ -55,12 +55,11 @@ void MenuToolbarButton::paint(BitmapBuffer * dc)
 }
 
 MenuToolbar::MenuToolbar(Choice* choice, Menu* menu) :
-    Window(menu, MENUS_TOOLBAR_RECT, NO_SCROLLBAR),
+    Window(menu, MENUS_TOOLBAR_RECT, OPAQUE),
     choice(choice),
     menu(menu),
     group(lv_group_create())
 {
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
   lv_group_add_obj(group, lvobj);
 }
 
@@ -83,7 +82,7 @@ void MenuToolbar::onEvent(event_t event)
   if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
     lv_group_focus_next(group);
   }
-#if defined(KEYS_GPIO_REG_PGUP)
+#if defined(KEYS_GPIO_REG_PAGEUP)
   else if (event == EVT_KEY_BREAK(KEY_PAGEUP)) {
 #else
   else if (event == EVT_KEY_LONG(KEY_PAGEDN)) {

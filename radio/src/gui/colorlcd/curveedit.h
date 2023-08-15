@@ -45,13 +45,7 @@ class CurveEdit: public FormField
 
     void updatePreview();
 
-    void onEvent(event_t event) override;
     void checkEvents(void) override;
-
-    // #if defined(HARDWARE_TOUCH)
-    //     bool onTouchEnd(coord_t x, coord_t y) override;
-    //     void onFocusLost() override;
-    // #endif
 
    protected:
     Curve preview;
@@ -59,13 +53,6 @@ class CurveEdit: public FormField
     uint8_t current;
     static mixsrc_t currentSource;
     static bool lockSource;
-    void next();
-    void previous();
-    void up();
-    void down();
-    void right();
-    void left();
-    bool isCustomCurve() const;
 };
 
 class CurveDataEdit : public Window
@@ -86,7 +73,7 @@ class CurveDataEdit : public Window
     CurveEdit * curveEdit;
     NumberEdit* numEditX[16];
 
-    void curvePointsRow(FormGroup::Line* parent, int start, int count, int curvePointsCount, bool isCustom);
+    void curvePointsRow(FormWindow::Line* parent, int start, int count, int curvePointsCount, bool isCustom);
 };
 
 class CurveEditWindow : public Page

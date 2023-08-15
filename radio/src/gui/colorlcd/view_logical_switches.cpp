@@ -258,7 +258,7 @@ void LogicalSwitchesViewPage::build(FormWindow* window)
   form->padTop(3);
 
   FlexGridLayout grid(col_dsc, row_dsc, 2);
-  FormWindow::Line* line;
+  FormWindow::Line* line = nullptr;
 
   // Footer
   footer = new LogicalSwitchDisplayFooter(

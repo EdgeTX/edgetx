@@ -21,7 +21,7 @@
 
 #include "lz4_bitmaps.h"
 #include "libopenui/thirdparty/lz4/lz4.h"
-#include "libopenui_helpers.h"
+#include "opentx_helpers.h"
 
 const uint8_t* _decompressed_mask(const uint8_t* lz4_compressed, uint8_t** raw)
 {

@@ -29,7 +29,6 @@
 #include "draw_functions.h"
 #include "bitmaps.h"
 #include "theme.h"
-#include "libopenui_config.h"
 
 #define LOAD_MODEL_BITMAP()
 

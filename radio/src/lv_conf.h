@@ -571,9 +571,9 @@
     #define LV_LABEL_LONG_TXT_HINT 1  /*Store some extra info in labels to speed up drawing of very long texts*/
 #endif
 
-#define LV_USE_LINE       1
+#define LV_USE_LINE       0
 
-#define LV_USE_ROLLER     1   /*Requires: lv_label*/
+#define LV_USE_ROLLER     0   /*Requires: lv_label*/
 #if LV_USE_ROLLER
     #define LV_ROLLER_INF_PAGES 7 /*Number of extra "pages" when the roller is infinite*/
 #endif
@@ -612,7 +612,7 @@
 
 #define LV_USE_CHART      0
 
-#define LV_USE_COLORWHEEL 1
+#define LV_USE_COLORWHEEL 0
 
 #define LV_USE_IMGBTN     0
 
@@ -620,7 +620,7 @@
 
 #define LV_USE_LED        0
 
-#define LV_USE_LIST       1
+#define LV_USE_LIST       0
 
 #define LV_USE_MENU       0
 
@@ -628,7 +628,7 @@
 
 #define LV_USE_MSGBOX     0
 
-#define LV_USE_SPINBOX    1
+#define LV_USE_SPINBOX    0
 
 #define LV_USE_SPINNER    0
 

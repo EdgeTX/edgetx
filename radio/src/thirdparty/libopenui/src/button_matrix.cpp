@@ -31,43 +31,23 @@ static void btn_matrix_event(lv_event_t *e)
 
   if (code == LV_EVENT_VALUE_CHANGED) {
     lv_obj_t* obj = lv_event_get_target(e);
-    auto btn_id = (uint32_t *)lv_event_get_param(e);
+    auto btn_id = *((uint8_t *)lv_event_get_param(e));
     auto btnm = (ButtonMatrix*)lv_event_get_user_data(e);
 
     bool edited = lv_obj_has_state(obj, LV_STATE_EDITED);
     bool is_pointer = lv_indev_get_type(lv_indev_get_act()) == LV_INDEV_TYPE_POINTER;
-    if (edited || is_pointer)
-      btnm->onPress((uint8_t)*btn_id);
-  }
-  else if (code == LV_EVENT_DRAW_PART_BEGIN) {
-
-    lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
-    if (dsc->part == LV_PART_ITEMS) {
-      auto btnm = (ButtonMatrix*)lv_event_get_user_data(e);
-      if (btnm->isActive((uint8_t)dsc->id)) {
-        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_ACTIVE);
-        dsc->label_dsc->color = makeLvColor(COLOR_THEME_PRIMARY2);
-      } else {
-        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_PRIMARY2);
-        dsc->label_dsc->color = makeLvColor(COLOR_THEME_SECONDARY1);
-      }
-    } else if (dsc->part == LV_PART_MAIN) {
-      lv_obj_t* obj = lv_event_get_target(e);
-      if (lv_obj_has_state(obj, LV_STATE_FOCUS_KEY) &&
-          !lv_obj_has_state(obj, LV_STATE_EDITED)) {
-        dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_FOCUS);
-        dsc->rect_dsc->bg_opa = LV_OPA_20;
-      }
+    if (edited || is_pointer) {
+      btnm->onPress(btn_id);
     }
   }
 }
 
 ButtonMatrix::ButtonMatrix(Window* parent, const rect_t& r) :
-  FormField(parent, r, 0, 0, lv_btnmatrix_create)
+  FormField(parent, r, 0, 0, etx_btnmatrix_create)
 {
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
-  
+
   lv_obj_add_event_cb(lvobj, btn_matrix_event, LV_EVENT_ALL, this);
 }
 
@@ -144,4 +124,12 @@ void ButtonMatrix::onClicked()
 {
   lv_group_focus_obj(lvobj);
   FormField::onClicked();
+}
+
+void ButtonMatrix::setChecked(uint8_t btn_id)
+{
+  if (isActive(btn_id))
+    lv_btnmatrix_set_btn_ctrl(lvobj, btn_id, LV_BTNMATRIX_CTRL_CHECKED);
+  else
+    lv_btnmatrix_clear_btn_ctrl(lvobj, btn_id, LV_BTNMATRIX_CTRL_CHECKED);
 }

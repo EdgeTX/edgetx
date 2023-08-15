@@ -22,23 +22,24 @@
 
 class ButtonMatrix : public FormField
 {
-  char** lv_btnm_map = nullptr;
-  uint8_t* txt_index = nullptr;
-  uint8_t txt_cnt = 0;
-  uint8_t btn_cnt = 0;
+    char** lv_btnm_map = nullptr;
+    uint8_t* txt_index = nullptr;
+    uint8_t txt_cnt = 0;
+    uint8_t btn_cnt = 0;
 
- public:
-  ButtonMatrix(Window* parent, const rect_t& rect);
-  ~ButtonMatrix();
-    
-  virtual void onPress(uint8_t btn_id) {}
-  virtual bool isActive(uint8_t btn_id) { return false; }
-    
- protected:
-  void deallocate();
-  void initBtnMap(uint8_t cols, uint8_t btns);
-  void setText(uint8_t btn_id, const char* txt);
-  void update();
+  public:
+    ButtonMatrix(Window* parent, const rect_t& rect);
+    ~ButtonMatrix();
 
-  void onClicked() override;
+    virtual void onPress(uint8_t btn_id) {}
+    virtual bool isActive(uint8_t btn_id) { return false; }
+
+  protected:
+    void deallocate();
+    void initBtnMap(uint8_t cols, uint8_t btns);
+    void setText(uint8_t btn_id, const char* txt);
+    void setChecked(uint8_t btn_id);
+    void update();
+
+    void onClicked() override;
 };

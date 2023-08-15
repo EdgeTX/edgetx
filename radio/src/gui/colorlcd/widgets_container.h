@@ -23,7 +23,7 @@
 #define _WIDGETS_CONTAINER_H_
 
 #include <stdlib.h>
-#include "libopenui_types.h"
+#include "opentx_types.h"
 #include "form.h"
 #include "zone.h"
 
@@ -31,9 +31,9 @@
 #define MAX_WIDGET_OPTIONS   5 // Name?
 
 #if LCD_W > LCD_H
-#define MAX_TOPBAR_ZONES     4
+#define MAX_TOPBAR_ZONES     6
 #else
-#define MAX_TOPBAR_ZONES     2
+#define MAX_TOPBAR_ZONES     4
 #endif
 #define MAX_TOPBAR_OPTIONS   1 // just because of VC++ which doesn't like 0-size arrays :(
 

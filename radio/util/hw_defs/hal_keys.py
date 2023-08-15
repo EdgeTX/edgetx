@@ -68,9 +68,10 @@ class Trim:
 
     def __init__(self, name, dec, inc):
         self.name = name
-        self.dec = dec
-        self.inc = inc
-        self.active_low = True
+        if dec and dec.gpio and inc and inc.gpio:
+            self.dec = dec
+            self.inc = inc
+            self.active_low = True
 
 def get_trim_switch(hw_defs, tag):
 
@@ -97,6 +98,11 @@ def parse_trims(hw_defs):
 
         if dec and inc:
             trims.append(Trim(name, dec, inc))
+
+        elif t.get('input'):
+            input = t['input']
+            if f'TRIMS_VIRTUAL_{input}' in hw_defs:
+                trims.append(Trim(name, None, None))
 
     return trims
         

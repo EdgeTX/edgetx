@@ -25,7 +25,11 @@
 #include <list>
 #include <vector>
 #include "zone.h"
-#include "thirdparty/libopenui/src/theme.h"
+
+enum IconState {
+  STATE_DEFAULT,
+  STATE_PRESSED,
+};
 
 // TODO: hotfix, through FatFS out of libopenui instead
 #if !defined(YAML_GENERATOR)
@@ -39,22 +43,25 @@ class PageTab;
 
 #define MAX_THEME_OPTIONS              5
 
-class OpenTxTheme;
-void registerTheme(OpenTxTheme * theme);
+class EdgeTxTheme;
+void registerTheme(EdgeTxTheme * theme);
 
 // YAML_GENERATOR defs
 #if !defined(USE_IDX)
 #define USE_IDX
 #endif
 
-class OpenTxTheme: public Theme
+class EdgeTxTheme;
+extern EdgeTxTheme * theme;
+
+class EdgeTxTheme
 {
   public:
     struct PersistentData {
       ZoneOptionValueTyped options[MAX_THEME_OPTIONS] USE_IDX;
     };
 
-    explicit OpenTxTheme(const char * name, const ZoneOption * options = nullptr):
+    explicit EdgeTxTheme(const char * name, const ZoneOption * options = nullptr):
       name(name),
       options(options),
       thumb(nullptr)
@@ -62,9 +69,9 @@ class OpenTxTheme: public Theme
       registerTheme(this);
     }
 
-    static OpenTxTheme * instance()
+    static EdgeTxTheme * instance()
     {
-      return static_cast<OpenTxTheme *>(theme);
+      return theme;
     }
 
     inline const char * getName() const
@@ -102,15 +109,18 @@ class OpenTxTheme: public Theme
     virtual void drawPageHeaderBackground(BitmapBuffer *dc, uint8_t icon,
                                           const char *title) const = 0;
 
-    virtual void drawCurrentMenuBackground(BitmapBuffer *dc) const = 0;
+    virtual void drawMenuIcon(BitmapBuffer *dc, uint8_t icon, bool checked) const = 0;
 
-    void drawCheckBox(BitmapBuffer * dc, bool checked, coord_t x, coord_t y, bool focus) const override;
+    virtual void drawCheckBox(BitmapBuffer * dc, bool checked, coord_t x, coord_t y, bool focus) const;
 
-    virtual void drawTopLeftBitmap(BitmapBuffer * dc) const = 0;
+    virtual void drawHeaderIcon(BitmapBuffer * dc, uint8_t icon) const = 0;
 
     virtual void drawUsbPluggedScreen(BitmapBuffer * dc) const;
 
-  
+    virtual const BitmapBuffer * getIconMask(uint8_t index) const = 0;
+
+    virtual uint16_t* getDefaultColors() const = 0;
+
   protected:
     const char * name;
     const ZoneOption * options;
@@ -123,10 +133,10 @@ class OpenTxTheme: public Theme
     static const BitmapBuffer * shutdown;
 };
 
-OpenTxTheme * getTheme(const char * name);
-void loadTheme(OpenTxTheme * theme);
+EdgeTxTheme * getTheme(const char * name);
+void loadTheme(EdgeTxTheme * theme);
 void loadTheme();
 
-std::list<OpenTxTheme *> & getRegisteredThemes();
+std::list<EdgeTxTheme *> & getRegisteredThemes();
 
 #endif // _COLORLCD_THEME_H_

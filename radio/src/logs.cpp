@@ -123,9 +123,6 @@ const char * logsOpen()
   if (!sdMounted())
     return STR_NO_SDCARD;
 
-  if (sdGetFreeSectors() == 0)
-    return STR_SDCARD_FULL;
-
   // check and create folder here
   strcpy(filename, STR_LOGS_PATH);
   const char * error = sdCheckAndCreateDirectory(filename);
@@ -184,16 +181,14 @@ const char * logsOpen()
 
 void logsClose()
 {
-  if (sdMounted()) {
+  if (g_oLogFile.obj.fs && sdMounted()) {
     if (f_close(&g_oLogFile) != FR_OK) {
       // close failed, forget file
       g_oLogFile.obj.fs = 0;
     }
     lastLogTime = 0;
   }
-  #if !defined(SIMU)
-  loggingTimerStop();
-  #endif
+
 }
 
 void writeHeader()
@@ -285,16 +280,30 @@ void logsWrite()
     {
     #endif
 
+      bool sdCardFull = sdIsFull();
+
+      // check if file needs to be opened
       if (!g_oLogFile.obj.fs) {
-        const char * result = logsOpen();
+        const char *result = sdCardFull ? STR_SDCARD_FULL_EXT : logsOpen();
+
+        // SD card is full or file open failed
         if (result) {
           if (result != error_displayed) {
             error_displayed = result;
-            POPUP_WARNING(result);
+            POPUP_WARNING_ON_UI_TASK(result, nullptr, false);
           }
           return;
         }
       }
+
+      // check at every write cycle
+      if (sdCardFull) {
+        logsClose();  // timer is still running and code above will try to
+                      // open the file again but will fail with error
+                      // which will trigger the warning popup
+        return;
+      }
+
 
 #if defined(RTCLOCK)
       {
@@ -355,7 +364,7 @@ void logsWrite()
       auto offset = adcGetInputOffset(ADC_INPUT_MAIN);
 
       for (uint8_t i = 0; i < n_inputs; i++) {
-        f_printf(&g_oLogFile, "%d,", calibratedAnalogs[offset + i]);
+        f_printf(&g_oLogFile, "%d,", calibratedAnalogs[inputMappingConvertMode(offset + i)]);
       }
 
       n_inputs = adcGetMaxInputs(ADC_INPUT_POT);
@@ -383,15 +392,17 @@ void logsWrite()
 
       if (result<0 && !error_displayed) {
         error_displayed = STR_SDCARD_ERROR;
-        POPUP_WARNING(STR_SDCARD_ERROR);
+        POPUP_WARNING_ON_UI_TASK(STR_SDCARD_ERROR, nullptr, false);
         logsClose();
       }
     }
   }
   else {
     error_displayed = nullptr;
-    if (g_oLogFile.obj.fs) {
-      logsClose();
-    }
+    logsClose();
+    
+    #if !defined(SIMU)
+    loggingTimerStop();
+    #endif
   }
 }

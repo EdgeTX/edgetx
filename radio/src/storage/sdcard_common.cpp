@@ -39,7 +39,7 @@ void storageEraseAll(bool warn)
 
 #if defined(COLORLCD)
   // the theme has not been loaded before
-  static_cast<OpenTxTheme*>(theme)->load();
+  static_cast<EdgeTxTheme*>(theme)->load();
 #endif
 
   // Init backlight mode before entering alert screens

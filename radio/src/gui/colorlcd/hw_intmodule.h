@@ -23,7 +23,7 @@
 
 #include "form.h"
 
-class InternalModuleWindow : public FormGroup::Line
+class InternalModuleWindow : public FormWindow::Line
 {
  public:
   InternalModuleWindow(Window *parent);

@@ -39,10 +39,12 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(7), LV_GRID_FR(13), LV_GRID_FR(1
                                      LV_GRID_TEMPLATE_LAST};
                                      
 #define MULT_COL_CNT    3
+#define NUM_EDIT_W 80
 #else
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(7), LV_GRID_FR(15), LV_GRID_FR(9), LV_GRID_FR(9),
                                      LV_GRID_TEMPLATE_LAST};
 #define MULT_COL_CNT    2
+#define NUM_EDIT_W 65
 #endif
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
@@ -73,7 +75,7 @@ void RadioTrainerPage::build(FormWindow * form)
 
     new Choice(line, rect_t{}, STR_TRNMODE, 0, 2, GET_SET_DEFAULT(td->mode));
     new Choice(line, rect_t{}, STR_TRNCHN, 0, 3, GET_SET_DEFAULT(td->srcChn));
-    auto weight = new NumberEdit(line, rect_t{}, -125, 125,
+    auto weight = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -125, 125,
                                  GET_SET_DEFAULT(td->studWeight));
     weight->setSuffix("%");
 
@@ -83,8 +85,8 @@ void RadioTrainerPage::build(FormWindow * form)
     line->padBottom(8);
 #endif
 
-    auto d = new DynamicNumber<int16_t>(line, rect_t{},
-        [=]() { return (ppmInput[i] - g_eeGeneral.trainer.calib[i]) * 2; },
+    new DynamicNumber<int16_t>(line, rect_t{},
+        [=]() { return (trainerInput[i] - g_eeGeneral.trainer.calib[i]) * 2; },
         LEFT | PPM_PRECISION | COLOR_THEME_PRIMARY1);
   }
 
@@ -95,7 +97,7 @@ void RadioTrainerPage::build(FormWindow * form)
   auto lbl = new StaticText(line, rect_t{}, STR_MULTIPLIER, 0, COLOR_THEME_PRIMARY1);
   lbl->padRight(4);
   lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_END, 0, MULT_COL_CNT, LV_GRID_ALIGN_CENTER, 0, 1);
-  auto multiplier = new NumberEdit(line, rect_t{}, -10, 40,
+  auto multiplier = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -10, 40,
                                    GET_SET_DEFAULT(g_eeGeneral.PPM_Multiplier));
   multiplier->setDisplayHandler(
       [](int32_t value) { return formatNumberAsString(value + 10, PREC1); });
@@ -108,7 +110,7 @@ void RadioTrainerPage::build(FormWindow * form)
 
   // Trainer calibration
   auto btn = new TextButton(line, rect_t{0, 0, 0, 30}, std::string(STR_CAL), [=]() -> uint8_t {
-    memcpy(g_eeGeneral.trainer.calib, ppmInput,
+    memcpy(g_eeGeneral.trainer.calib, trainerInput,
            sizeof(g_eeGeneral.trainer.calib));
     SET_DIRTY();
     return 0;

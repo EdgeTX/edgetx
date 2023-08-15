@@ -131,7 +131,7 @@ class TabsCarousel: public Window {
 #endif
 };
 
-class TabsGroupHeader: public FormGroup {
+class TabsGroupHeader: public FormWindow {
     friend class TabsGroup;
 
   public:
@@ -153,7 +153,7 @@ class TabsGroupHeader: public FormGroup {
       back.deleteLater(true, false);
 #endif
       carousel.deleteLater(true, false);
-      FormGroup::deleteLater(detach, trash);
+      FormWindow::deleteLater(detach, trash);
     }
 
     void paint(BitmapBuffer * dc) override;

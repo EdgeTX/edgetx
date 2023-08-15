@@ -59,6 +59,7 @@ body:
       description: What version of EdgeTX software are you running?
       options:
         - 2.9.0
+        - 2.8.5
         - 2.8.4
         - 2.8.3
         - 2.8.2

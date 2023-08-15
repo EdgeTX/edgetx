@@ -91,7 +91,7 @@ void processSbusFrame(uint8_t * sbus, int16_t * pulses, uint32_t size)
     inputbits >>= SBUS_CH_BITS;
   }
 
-  ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;
+  trainerInputValidityTimer = TRAINER_IN_VALID_TIMEOUT;
 }
 
 void processSbusInput()
@@ -124,7 +124,7 @@ void processSbusInput()
   // Check if end-of-frame is detected
   if (SbusIndex) {
     if ((uint16_t)(getTmr2MHz() - SbusTimer) > SBUS_FRAME_GAP_DELAY) {
-      processSbusFrame(SbusFrame, ppmInput, SbusIndex);
+      processSbusFrame(SbusFrame, trainerInput, SbusIndex);
       SbusIndex = 0;
     }
   }

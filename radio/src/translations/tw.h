@@ -113,7 +113,6 @@
 #define TR_SF_SAFETY                   "鎖定通道值"
 
 #define TR_SF_SCREENSHOT               "截屏"
-#define TR_SF_TEST                     "Test"
 #define TR_SF_RACING_MODE              "競速模式"
 #define TR_SF_DISABLE_TOUCH            "禁用觸摸"
 #define TR_SF_SET_SCREEN               "選擇主屏"
@@ -359,6 +358,7 @@
 #define TR_KEYS_BACKLIGHT              "按鍵背光"
 #define TR_BLCOLOR                     "顏色"
 #define TR_SPLASHSCREEN                "開機圖片"
+#define TR_PLAY_HELLO                  "開機語音"
 #define TR_PWR_ON_DELAY                "開機延遲"
 #define TR_PWR_OFF_DELAY               "關機延遲"
 #define TR_THROTTLE_WARNING            TR(INDENT "油門狀態", INDENT "油門狀態")
@@ -601,7 +601,12 @@
 #define TR_POWER_METER_INT             "功率計 (內置)"
 #define TR_SPECTRUM_ANALYSER_EXT       "頻譜儀 (外置)"
 #define TR_SPECTRUM_ANALYSER_INT       "頻譜儀 (內置)"
-#define TR_SDCARD_FULL                 "存儲卡已滿"
+#define TR_SDCARD_FULL                 "SD卡已滿"
+#if defined(COLORLCD)
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\n日誌和截屏功能將被禁用"
+#else
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036日誌和 " LCDW_128_480_LINEBREAK "截屏功能將被禁用"
+#endif
 #define TR_NEEDS_FILE                  "需要文件名包含"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"

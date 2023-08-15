@@ -53,6 +53,9 @@ do
         zorro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
             ;;
+        pocket)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=POCKET"
+            ;;
         lr3pro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
             ;;

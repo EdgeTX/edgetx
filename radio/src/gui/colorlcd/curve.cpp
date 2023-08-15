@@ -109,9 +109,9 @@ void CurveRenderer::paint(BitmapBuffer * dc, uint8_t ofst)
 
 Curve::Curve(Window * parent, const rect_t & rect, std::function<int(int)> function, std::function<int()> position):
       Window(parent, rect, OPAQUE),
+      base(rect_t{0, 0, rect.w, rect.h}, function),
       function(std::move(function)),
-      position(std::move(position)),
-      base(rect_t{0, 0, rect.w, rect.h}, function)
+      position(std::move(position))
 {
 }
 

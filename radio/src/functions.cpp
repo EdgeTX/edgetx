@@ -399,6 +399,8 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
               requiredBacklightBright =
                   (1024 - raw) * (BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN) /
                   2048;
+#elif defined(OLED_SCREEN)
+            requiredBacklightBright = (raw + 1024) * 254 / 2048;
 #else
             requiredBacklightBright = (1024 - raw) * 100 / 2048;
 #endif

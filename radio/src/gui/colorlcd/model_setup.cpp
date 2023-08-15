@@ -92,100 +92,30 @@ struct ModelBitmapEdit : public FileChoice {
   }
 };
 
-class SubScreenButton : public Button
+class SubScreenButton : public TextButton
 {
-  std::string text;
-
  public:
   SubScreenButton(Window* parent, const char* text,
                   std::function<void(void)> pressHandler);
 
  protected:
   virtual bool isActive() { return false; }
-  static void event_cb(lv_event_t* e);
 };
 
 SubScreenButton::SubScreenButton(Window* parent, const char* text,
                                  std::function<void(void)> pressHandler) :
-  Button(parent, rect_t{}, [=]() -> uint8_t {
+  TextButton(parent, rect_t{}, text, [=]() -> uint8_t {
       pressHandler();
       return 0;
-    }, 0, 0, lv_btn_create),
-  text(text)
+    })
 {
-  lv_obj_add_event_cb(lvobj, SubScreenButton::event_cb, LV_EVENT_ALL, nullptr);
-}
+  // Room for two lines of text
+  setHeight(62);
+  setWidth((LCD_W - 30) / 3);
 
-// TODO: move code to TextButton with BEGIN/END in main and using events
-//      to grab lv_draw_label_dsc_t (see lv_btnmatrix.c)
-//
-void SubScreenButton::event_cb(lv_event_t* e)
-{
-  auto obj = lv_event_get_target(e);
-  auto btn = (SubScreenButton*)lv_obj_get_user_data(obj);
-  if (!btn) return;
-
-  lv_event_code_t code = lv_event_get_code(e);
-  if (code == LV_EVENT_DRAW_PART_BEGIN) {
-
-    lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
-    if (dsc->part != LV_PART_MAIN) return;
-
-    if (btn->isActive()) {
-      dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_ACTIVE);
-    } else {
-      dsc->rect_dsc->bg_color = makeLvColor(COLOR_THEME_PRIMARY2);
-    }
-
-  } else if (code == LV_EVENT_DRAW_PART_END) {
-
-    if (btn->text.empty()) return;
-
-    lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
-    if (dsc->part != LV_PART_MAIN) return;
-
-    lv_area_t txt_coords;
-    lv_obj_get_content_coords(obj, &txt_coords);
-
-    lv_draw_label_dsc_t label_draw_dsc;
-    lv_draw_label_dsc_init(&label_draw_dsc);
-
-    lv_obj_init_draw_label_dsc(obj, LV_PART_MAIN, &label_draw_dsc);
-    label_draw_dsc.align = LV_TEXT_ALIGN_CENTER;
-
-    if (btn->isActive()) {
-      label_draw_dsc.color = makeLvColor(COLOR_THEME_PRIMARY1);
-    } else {
-      label_draw_dsc.color = makeLvColor(COLOR_THEME_SECONDARY1);
-    }
-
-    lv_area_t txt_clip;
-    bool is_common = _lv_area_intersect(&txt_clip, &txt_coords, dsc->draw_ctx->clip_area);
-    if (!is_common) return;
-
-    lv_draw_label(dsc->draw_ctx, &label_draw_dsc, &txt_coords, btn->text.c_str(), nullptr);
-
-  } else if (code == LV_EVENT_GET_SELF_SIZE) {
-
-    // from lv_label_t with some simplifications
-    lv_point_t size;
-    const lv_font_t* font = lv_obj_get_style_text_font(obj, LV_PART_MAIN);
-    lv_coord_t letter_space = lv_obj_get_style_text_letter_space(obj, LV_PART_MAIN);
-    lv_coord_t line_space = lv_obj_get_style_text_line_space(obj, LV_PART_MAIN);
-    lv_text_flag_t flag = LV_TEXT_FLAG_NONE;
-
-    lv_coord_t w = lv_obj_get_content_width(obj);
-    if (lv_obj_get_style_width(obj, LV_PART_MAIN) == LV_SIZE_CONTENT && !obj->w_layout)
-      w = LV_COORD_MAX;
-    else
-      w = lv_obj_get_content_width(obj);
-
-    lv_txt_get_size(&size, btn->text.c_str(), font, letter_space, line_space, w, flag);
-
-    lv_point_t* self_size = (lv_point_t*)lv_event_get_param(e);
-    self_size->x = LV_MAX(self_size->x, size.x);
-    self_size->y = LV_MAX(self_size->y, size.y);
-  }
+  lv_obj_set_width(label, lv_pct(100));
+  lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
+  lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
 }
 
 struct IntmoduleButton : public SubScreenButton {
@@ -404,60 +334,37 @@ void ModelSetupPage::build(FormWindow * window)
   static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
   static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-  auto oform = new FormGroup(window, rect_t{});
-  oform->setFlexLayout(LV_FLEX_FLOW_COLUMN, lv_dpx(PAGE_PADDING));
-  oform->padAll(PAGE_PADDING);
+  FlexGridLayout grid2(col_dsc, row_dsc, 4);
+
+  line = window->newLine(&grid2);
+  line->padTop(8);
 
   // Modules
-  auto form = new FormGroup(oform, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(PAGE_PADDING));
-  lv_obj_set_grid_dsc_array(form->getLvObj(), col_dsc, row_dsc);
+  new IntmoduleButton(line);
+  new ExtmoduleButton(line);
+  new TrainerModuleButton(line);
 
-  Window* btn = new IntmoduleButton(form);
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-
-  btn = new ExtmoduleButton(form);
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-
-  btn = new TrainerModuleButton(form);
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  line = window->newLine(&grid2);
+  line->padTop(2);
 
   // Timer buttons
-  form = new FormGroup(oform, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(PAGE_PADDING));
-  lv_obj_set_grid_dsc_array(form->getLvObj(), col_dsc, row_dsc);
+  new SubScreenButton(line, TR_TIMER "1", []() { new TimerWindow(0); });
+  new SubScreenButton(line, TR_TIMER "2", []() { new TimerWindow(1); });
+  new SubScreenButton(line, TR_TIMER "3", []() { new TimerWindow(2); });
 
-  btn = new SubScreenButton(form, TR_TIMER "1", []() { new TimerWindow(0); });
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  line = window->newLine(&grid2);
+  line->padTop(2);
 
-  btn = new SubScreenButton(form, TR_TIMER "2", []() { new TimerWindow(1); });
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  new SubScreenButton(line, STR_PREFLIGHT, []() { new PreflightChecks(); });
+  new SubScreenButton(line, STR_TRIMS, []() { new TrimsSetup(); });
+  new SubScreenButton(line, STR_THROTTLE_LABEL, []() { new ThrottleParams(); });
 
-  btn = new SubScreenButton(form, TR_TIMER "3", []() { new TimerWindow(2); });
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  line = window->newLine(&grid2);
+  line->padTop(2);
 
-  form = new FormGroup(oform, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(PAGE_PADDING));
-  lv_obj_set_grid_dsc_array(form->getLvObj(), col_dsc, row_dsc);
-
-  btn = new SubScreenButton(form, STR_PREFLIGHT, []() { new PreflightChecks(); });
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-
-  btn = new SubScreenButton(form, STR_TRIMS, []() { new TrimsSetup(); });
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-
-  btn = new SubScreenButton(form, STR_THROTTLE_LABEL, []() { new ThrottleParams(); });
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-
-  form = new FormGroup(oform, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(PAGE_PADDING));
-  lv_obj_set_grid_dsc_array(form->getLvObj(), col_dsc, row_dsc);
-
-  btn = new SubScreenButton(form, STR_ENABLED_FEATURES, []() { new ModelViewOptions(); });
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  new SubScreenButton(line, STR_ENABLED_FEATURES, []() { new ModelViewOptions(); });
 
 #if defined(USBJ_EX)
-  btn = new SubScreenButton(form, STR_USBJOYSTICK_LABEL, []() { new ModelUSBJoystickPage(); });
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  new SubScreenButton(line, STR_USBJOYSTICK_LABEL, []() { new ModelUSBJoystickPage(); });
 #endif
 }

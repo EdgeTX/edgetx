@@ -24,6 +24,7 @@
 #include "widget.h"
 #include "widgets_container.h"
 #include "draw_functions.h"
+#include "strhelpers.h"
 
 template <int N, int O>
 class WidgetsContainerImpl : public WidgetsContainer
@@ -33,7 +34,7 @@ class WidgetsContainerImpl : public WidgetsContainer
 
   WidgetsContainerImpl(Window* parent, const rect_t& rect,
                        PersistentData* persistentData) :
-      WidgetsContainer(parent, rect, NO_FOCUS | FORM_FORWARD_FOCUS),
+      WidgetsContainer(parent, rect, NO_FOCUS),
       persistentData(persistentData)
   {
   }
@@ -48,8 +49,7 @@ class WidgetsContainerImpl : public WidgetsContainer
 
     Widget* widget = nullptr;
     if (factory) {
-      strncpy(persistentData->zones[index].widgetName, factory->getName(),
-              sizeof(ZonePersistentData::widgetName));
+      strAppend(persistentData->zones[index].widgetName, factory->getName(), WIDGET_NAME_LEN);
       widget = factory->create(this, getZone(index),
                                &persistentData->zones[index].widgetData);
     }
@@ -100,7 +100,7 @@ class WidgetsContainerImpl : public WidgetsContainer
       if (persistentData->zones[i].widgetName[0]) {
         char name[WIDGET_NAME_LEN + 1];
         memset(name, 0, sizeof(name));
-        strncpy(name, persistentData->zones[i].widgetName, WIDGET_NAME_LEN);
+        strAppend(name, persistentData->zones[i].widgetName, WIDGET_NAME_LEN);
         widgets[i] = loadWidget(name, this, getZone(i),
                                 &persistentData->zones[i].widgetData);
       }

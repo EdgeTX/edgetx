@@ -811,12 +811,6 @@ PACK(struct TrainerData {
 });
 
 #if defined(COLORLCD)
-  #define SPLASH_MODE uint8_t splashSpares:3 SKIP
-#else
-  #define SPLASH_MODE int8_t splashMode:3
-#endif
-
-#if defined(COLORLCD)
   #define EXTRA_GENERAL_FIELDS \
     NOBACKUP(char currModelFilename[LEN_MODEL_FILENAME+1]); \
     NOBACKUP(uint8_t modelQuickSelect:1); \
@@ -840,7 +834,7 @@ PACK(struct TrainerData {
   #define THEME_NAME_LEN 8
   #define THEME_DATA \
     NOBACKUP(char themeName[THEME_NAME_LEN]); \
-    NOBACKUP(OpenTxTheme::PersistentData themeData);
+    NOBACKUP(EdgeTxTheme::PersistentData themeData);
 #else
   #define THEME_DATA
 #endif
@@ -869,7 +863,7 @@ PACK(struct RadioData {
   int8_t antennaMode:2 ENUM(AntennaModes);
   uint8_t disableRtcWarning:1;
   uint8_t keysBacklight:1;
-  uint8_t spare1:1 SKIP;
+  NOBACKUP(uint8_t dontPlayHello:1);
   uint8_t internalModule ENUM(ModuleType);
   NOBACKUP(TrainerData trainer);
   NOBACKUP(uint8_t view);            // index of view in main screen
@@ -885,7 +879,7 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t inactivityTimer);
   CUST_ATTR(telemetryBaudrate, r_telemetryBaudrate, nullptr);
   uint8_t internalModuleBaudrate:3;
-  SPLASH_MODE; /* 3bits */
+  int8_t splashMode:3; /* 3bits */
   int8_t hapticMode:2 CUST(r_beeperMode,w_beeperMode);
   int8_t switchesDelay;
   NOBACKUP(uint8_t lightAutoOff);
@@ -980,6 +974,15 @@ PACK(struct RadioData {
   uint8_t modelSFDisabled:1;
   uint8_t modelCustomScriptsDisabled:1;
   uint8_t modelTelemetryDisabled:1;
+
+  NOBACKUP(uint8_t getBrightness() const
+  {
+#if defined(OLED_SCREEN)
+    return contrast;
+#else
+    return backlightBright;
+#endif
+  });
 });
 
 #undef SWITCHES_WARNING_DATA
@@ -987,7 +990,6 @@ PACK(struct RadioData {
 #undef TELEMETRY_DATA
 #undef SCRIPTS_DATA
 #undef CUSTOM_SCREENS_DATA
-#undef SPLASH_MODE
 #undef EXTRA_GENERAL_FIELDS
 #undef THEME_DATA
 #undef NOBACKUP

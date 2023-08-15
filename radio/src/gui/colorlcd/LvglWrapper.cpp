@@ -24,7 +24,6 @@
 
 #include "LvglWrapper.h"
 #include "themes/etx_lv_theme.h"
-#include "widgets/field_edit.h"
 
 #include "view_main.h"
 
@@ -277,12 +276,10 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   }
 }
 
-// libopenui_depends.h
 int8_t rotaryEncoderGetAccel() { return _rotary_enc_accel; }
 
 #else // !defined(ROTARY_ENCODER_NAVIGATION)
 
-// libopenui_depends.h
 int8_t rotaryEncoderGetAccel() { return 0; }
 
 #endif // defined(ROTARY_ENCODER_NAVIGATION)
@@ -342,7 +339,7 @@ void initLvglTheme()
   /* Initialize the ETX theme */
   lv_theme_t* th = etx_lv_theme_init(
       NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
-      false, LV_FONT_DEFAULT);
+      LV_FONT_DEFAULT);
 
   /* Assign the theme to the current display*/
   lv_disp_set_theme(NULL, th);

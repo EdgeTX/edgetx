@@ -74,7 +74,7 @@ void Widget::paint(BitmapBuffer * dc)
 {
   if (fullscreen) {
     // Draw background screen bellow
-    OpenTxTheme::instance()->drawBackground(dc);
+    EdgeTxTheme::instance()->drawBackground(dc);
   }
 
   // refresh the widget

@@ -31,6 +31,7 @@
 #include "view_text.h"
 #include "file_preview.h"
 #include "file_browser.h"
+#include "progress.h"
 
 constexpr int WARN_FILE_LENGTH = 40 * 1024;
 
@@ -60,8 +61,13 @@ class FileNameEditWindow : public Page
 
   void buildBody(Window *window)
   {
-    GridLayout grid(window);
-    grid.spacer(8);
+    window->padAll(0);
+
+    auto form = new FormWindow(window, rect_t());
+    form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 4);
+    form->padAll(4);
+    form->padTop(12);
+
     uint8_t nameLength;
     uint8_t extLength;
     char extension[LEN_FILE_EXTENSION_MAX + 1];
@@ -81,7 +87,7 @@ class FileNameEditWindow : public Page
     reusableBuffer.sdManager.originalName[nameLength] = '\0';
 
     auto newFileName = new TextEdit(
-        window, grid.getSlot(), reusableBuffer.sdManager.originalName,
+        form, rect_t{0, 0, LCD_W-8, 0}, reusableBuffer.sdManager.originalName,
         SD_SCREEN_FILE_LENGTH - extLength, LcdFlags(0));
     newFileName->setChangeHandler([=]() {
       char *newValue = reusableBuffer.sdManager.originalName;
@@ -287,7 +293,7 @@ void RadioSdManagerPage::build(FormWindow * window)
   FlexGridLayout grid(col_dsc, row_dsc, 0);
   window->padAll(0);
   
-  FormGroup* form = new FormGroup(window, rect_t{});
+  FormWindow* form = new FormWindow(window, rect_t{});
   form->setWidth(window->width());
   form->setHeight(window->height());
   grid.apply(form);

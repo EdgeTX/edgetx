@@ -20,7 +20,6 @@
 
 #include "view_text.h"
 
-#include "gridlayout.h"
 #include "menu.h"
 #include "opentx.h"
 #include "sdcard.h"

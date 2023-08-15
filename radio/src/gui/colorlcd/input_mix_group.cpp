@@ -22,8 +22,6 @@
 #include "input_mix_group.h"
 #include "channel_bar.h"
 
-#include "lvgl_widgets/input_mix_group.h"
-
 #include "opentx.h"
 
 #include <algorithm>
@@ -57,7 +55,7 @@ InputMixGroup::InputMixGroup(Window* parent, mixsrc_t idx) :
   if (idx >= MIXSRC_FIRST_CH && idx <= MIXSRC_LAST_CH
       && g_model.limitData[idx - MIXSRC_FIRST_CH].name[0] != '\0') {
     chText = lv_label_create(lvobj);
-    lv_label_set_text_fmt(chText, TR_CH "%zu", (size_t)(idx - MIXSRC_FIRST_CH + 1));
+    lv_label_set_text_fmt(chText, TR_CH "%" PRIu32, UINT32_C(idx - MIXSRC_FIRST_CH + 1));
     lv_obj_set_style_text_font(chText, getFont(FONT(XS)), 0);
 #if LCD_H > LCD_W
     lv_obj_set_style_pad_bottom(chText, -2, 0);

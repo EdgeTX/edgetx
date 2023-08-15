@@ -22,12 +22,12 @@
 #ifndef _SOURCECHOICE_H_
 #define _SOURCECHOICE_H_
 
-#include "choiceex.h"
+#include "choice.h"
 #include "form.h"
 
 bool isSourceAvailable(int source);
 
-class SourceChoice : public ChoiceEx
+class SourceChoice : public Choice
 {
  public:
   SourceChoice(Window* parent, const rect_t& rect, int16_t vmin,

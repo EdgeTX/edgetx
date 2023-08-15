@@ -24,7 +24,7 @@
 
 FilePreview::FilePreview(Window *parent, const rect_t &rect,
                          bool drawCentered) :
-    Window(parent, rect, NO_SCROLLBAR), _drawCentered(drawCentered)
+    Window(parent, rect), _drawCentered(drawCentered)
 {
 }
 

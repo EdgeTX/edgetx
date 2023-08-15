@@ -20,6 +20,7 @@
  */
 
 #include "hal/adc_driver.h"
+#include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
 
@@ -126,7 +127,7 @@ void boardInit()
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
 #endif
 
-#if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)
+#if defined(MANUFACTURER_RADIOMASTER) && defined(STM32F407xx)
     
   if (FLASH_OB_GetBOR() != OB_BOR_LEVEL3)
   {
@@ -137,6 +138,7 @@ void boardInit()
   }
 #endif
 
+  init_trainer();
   // Sets 'hardwareOption.pcbrev' as well
   pwrInit();
   boardInitModulePorts();

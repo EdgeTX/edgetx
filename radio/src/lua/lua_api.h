@@ -73,7 +73,6 @@ extern bool luaLcdAllowed;
 
 #define INVERS     0x01u
 #define BLINK    0x1000u
-#define RGB_FLAG 0x8000u
 
 extern bool luaLcdAllowed;
 

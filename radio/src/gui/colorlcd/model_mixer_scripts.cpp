@@ -28,7 +28,6 @@
 #include "translations.h"
 #include "menus.h"
 #include "libopenui.h"
-#include "lvgl_widgets/input_mix_line.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -99,7 +98,7 @@ class ScriptEditWindow : public Page {
       // File
       auto line = form->newLine(&grid);
       new StaticText(line, rect_t{}, STR_SCRIPT, 0, COLOR_THEME_PRIMARY1);
-      auto fc = new FileChoice(
+      new FileChoice(
           line, rect_t{}, SCRIPTS_MIXES_PATH, SCRIPTS_EXT,
           LEN_SCRIPT_FILENAME,
           [=]() { return stringFromNtString(sd->file); },
@@ -121,7 +120,7 @@ class ScriptEditWindow : public Page {
 
       if (sio->inputsCount > 0) {
         line = form->newLine(&grid);
-        new Subtitle(line, rect_t{}, STR_INPUTS, 0, COLOR_THEME_PRIMARY1);
+        new Subtitle(line, STR_INPUTS);
 
         for (int i = 0; i < sio->inputsCount; i++) {
           line = form->newLine(&grid);
@@ -140,7 +139,7 @@ class ScriptEditWindow : public Page {
 
       if (sio->outputsCount > 0) {
         line = form->newLine(&grid);
-        new Subtitle(line, rect_t{}, STR_OUTPUTS, 0, COLOR_THEME_PRIMARY1);
+        new Subtitle(line, STR_OUTPUTS);
 
         for (int i = 0; i < sio->outputsCount; i++) {
           line = form->newLine(&grid);
@@ -173,9 +172,9 @@ class ScriptLineButton : public Button
                    const ScriptInternalData* runtimeData,
                    uint8_t index) :
       Button(parent, rect, nullptr, 0, 0, input_mix_line_create),
+      index(index),
       scriptData(scriptData),
-      runtimeData(runtimeData),
-      index(index)
+      runtimeData(runtimeData)
   {
 #if LCD_H > LCD_W
   padTop(5);
@@ -293,8 +292,6 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
 
   FlexGridLayout grid(col_dsc, row_dsc, 2);
-
-  FormWindow::Line* line;
 
   int8_t scriptIdx = 0;
   for (int8_t idx = 0; idx < MAX_SCRIPTS; idx++) {

@@ -23,7 +23,6 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "switches.h"
-#include "lvgl_widgets/input_mix_line.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -46,7 +45,7 @@ class LogicalSwitchEditPage : public Page
  protected:
   uint8_t index;
   bool active = false;
-  FormGroup* logicalSwitchOneWindow = nullptr;
+  FormWindow* logicalSwitchOneWindow = nullptr;
   StaticText* headerSwitchName = nullptr;
   NumberEdit* v2Edit = nullptr;
 

@@ -19,49 +19,21 @@
 #include "textedit.h"
 #include "font.h"
 
-#include "widgets/field_edit.h"
-
-#if !defined(STR_EDIT)
-#define STR_EDIT "Edit"
-#endif
-
-#if !defined(STR_CLEAR)
-#define STR_CLEAR "Clear"
-#endif
-
 #include "keyboard_text.h"
 
 #if defined(HARDWARE_KEYS)
 #include "menu.h"
 #endif
 
-#if defined(CLIPBOARD)
-#include "clipboard.h"
-#endif
-
 TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
                    uint8_t length, LcdFlags windowFlags) :
     FormField(parent, rect, windowFlags, 0,
-              field_edit_create),
+              etx_text_edit_create),
     value(value),
     length(length)
 {
-  // properties
-  lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
-  lv_textarea_set_password_mode(lvobj, false);
-  lv_textarea_set_one_line(lvobj, true);
-
   lv_textarea_set_placeholder_text(lvobj, "---");
   lv_textarea_set_max_length(lvobj, length);
-
-  setHeight(33);
-  padTop(5);
-  padLeft(4);
-  lv_obj_set_style_radius(lvobj, 4, 0);
-
-  if (width() == 0) {
-    lv_obj_set_width(lvobj, LV_DPI_DEF);
-  }
 
   update();
 }
@@ -103,10 +75,4 @@ void TextEdit::changeEnd(bool forceChanged)
 void TextEdit::onClicked()
 {
   TextKeyboard::show(this);
-}
-
-void TextEdit::onFocusLost()
-{
-  changeEnd();
-  FormField::onFocusLost();
 }

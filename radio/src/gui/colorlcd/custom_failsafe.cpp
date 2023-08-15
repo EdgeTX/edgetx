@@ -154,13 +154,13 @@ public:
   }
 };
 
-class ChannelFSCombo : public FormGroup
+class ChannelFSCombo : public FormWindow
 {
   ChannelFailsafeEdit* edit = nullptr;
   
 public:
   ChannelFSCombo(Window* parent, uint8_t ch, int vmin, int vmax) :
-    FormGroup(parent, rect_t{})
+    FormWindow(parent, rect_t{})
   {
     setFlexLayout(LV_FLEX_FLOW_ROW);
     lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
@@ -211,7 +211,7 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) :
 {
   header.setTitle(STR_FAILSAFESET);
 
-  auto form = new FormGroup(&body, rect_t{});
+  auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
   form->padAll(lv_dpx(8));
   form->padRow(lv_dpx(8));

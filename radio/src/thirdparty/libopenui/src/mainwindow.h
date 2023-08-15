@@ -34,11 +34,6 @@ class MainWindow: public Window
       children.clear();
     }
 
-    static bool isMainWindowCreated()
-    {
-      return _instance != nullptr;
-    }
-
     static MainWindow * instance()
     {
       if (!_instance)
@@ -61,30 +56,13 @@ class MainWindow: public Window
     }
 #endif
 
-
     void setActiveScreen() {
       lv_scr_load(lvobj);
     }
-  
-    void invalidate()
-    {
-      invalidate({0, 0, rect.w, rect.h});
-    }
-
-    void invalidate(const rect_t & rect) override;
-
-    bool needsRefresh() const
-    {
-      return invalidatedRect.w > 0;
-    }
-
-    bool refresh();
 
     void run(bool trash=true);
 
   protected:
     static MainWindow * _instance;
     static void emptyTrash();
-    rect_t invalidatedRect;
-    const char * shutdown = nullptr;
 };

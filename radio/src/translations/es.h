@@ -114,7 +114,6 @@
 #define TR_SF_SAFETY                   "Seguro"
 
 #define TR_SF_SCREENSHOT      "Captura"
-#define TR_SF_TEST            "Test"
 #define TR_SF_RACING_MODE     "RacingMode"
 #define TR_SF_DISABLE_TOUCH   "No Touch"
 #define TR_SF_SET_SCREEN      "Set Main Screen"
@@ -362,6 +361,7 @@
 #define TR_KEYS_BACKLIGHT              "Keys backlight"
 #define TR_BLCOLOR             INDENT "Color"
 #define TR_SPLASHSCREEN        "Pantalla inicio"
+#define TR_PLAY_HELLO                  "Startup Sound"
 #define TR_PWR_ON_DELAY        TR("Atraso On", "Atraso encendido")
 #define TR_PWR_OFF_DELAY       TR("Atraso Off", "Atraso apagado")
 #define TR_THROTTLE_WARNING    TR("Aviso-A", INDENT "Aviso acelerador")
@@ -604,6 +604,11 @@
 #define TR_SPECTRUM_ANALYSER_EXT       "Espectro (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Espectro (INT)"
 #define TR_SDCARD_FULL                 "SD Card llena"
+#if defined(COLORLCD)
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogs and Screenshots disabled"
+#else
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Logs and " LCDW_128_480_LINEBREAK "Screenshots disabled"
+#endif
 #define TR_NEEDS_FILE                  "NECESITA ARCHIVO"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"

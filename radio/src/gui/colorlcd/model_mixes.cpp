@@ -22,7 +22,7 @@
 #include "model_mixes.h"
 #include "opentx.h"
 #include "libopenui.h"
-#include "choiceex.h"
+#include "choice.h"
 #include "bitfield.h"
 #include "model_inputs.h"
 #include "gvar_numberedit.h"
@@ -532,7 +532,7 @@ void ModelMixesPage::build(FormWindow * window)
   lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
 
   new StaticText(box, rect_t{}, STR_SHOW_MIXER_MONITORS, 0, COLOR_THEME_PRIMARY1);
-  new CheckBox(
+  new ToggleSwitch(
       box, rect_t{}, [=]() { return showMonitors; },
       [=](uint8_t val) { enableMonitors(val); });
 

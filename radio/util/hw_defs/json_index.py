@@ -66,13 +66,19 @@ def build_switch_gpio_port_index(switches):
 def build_trim_gpio_port_index(trims):
 
     def index_contact(gpios, contact):
-        append_to_index(gpios, contact['gpio'], contact['pin'])
+        gpio = contact['gpio']
+        pin = contact['pin']
+        if gpio and pin:
+            append_to_index(gpios, contact['gpio'], contact['pin'])
 
     i = 0
     gpios = {}
     for trim in trims:
-        index_contact(gpios, trim['dec'])
-        index_contact(gpios, trim['inc'])
+        dec = trim.get('dec')
+        inc = trim.get('inc')
+        if dec and inc:
+            index_contact(gpios, dec)
+            index_contact(gpios, inc)
 
     return gpios
 

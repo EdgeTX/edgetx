@@ -25,6 +25,8 @@
 
 #include "hal/rotary_encoder.h"
 
+static const uint8_t _trimMap[MAX_TRIMS * 2] = {6, 7, 4, 5, 2, 3, 0, 1, 8, 9, 10, 11};
+
 static EnumKeys get_ith_key(uint8_t i)
 {
   auto supported_keys = keysGetSupported();
@@ -118,7 +120,7 @@ class RadioKeyDiagsWindow : public Window
       }      
 #endif
       // SWITCHES
-      for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
+      for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
         if (SWITCH_EXISTS(i)) {
           coord_t y = 1 + FH * i;
           getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
@@ -128,18 +130,13 @@ class RadioKeyDiagsWindow : public Window
       }
 
       // TRIMS
-      for (uint8_t i = 0; i < MAX_TRIMS * 2; i++) {
-#if MAX_TRIMS * 2 == 12
-        const uint8_t trimMap[MAX_TRIMS * 2] = {6, 7, 4, 5, 2, 3, 0, 1, 8, 9, 10, 11};
-#else
-        const uint8_t trimMap[MAX_TRIMS * 2] = {6, 7, 4, 5, 2, 3, 0, 1};
-#endif
+      for (uint8_t i = 0; i < keysGetMaxTrims() * 2; i++) {
         coord_t y = 1 + FH + FH * (i / 2);
         if (i & 1) {
           dc->drawText(TRIM_COLUMN, y, "T", COLOR_THEME_PRIMARY1);
           dc->drawNumber(TRIM_COLUMN + 10, y, i / 2 + 1, COLOR_THEME_PRIMARY1);
         }
-        displayTrimState(dc, i & 1 ? TRIM_PLUS_COLUMN : TRIM_MINUS_COLUMN, y, trimMap[i]);
+        displayTrimState(dc, i & 1 ? TRIM_PLUS_COLUMN : TRIM_MINUS_COLUMN, y, _trimMap[i]);
       }
     };
 

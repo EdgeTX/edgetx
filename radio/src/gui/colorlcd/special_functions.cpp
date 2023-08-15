@@ -23,7 +23,6 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "view_main.h"
-#include "lvgl_widgets/input_mix_line.h"
 
 #include "hal/adc_driver.h"
 #include "strhelpers.h"
@@ -90,13 +89,13 @@ class SpecialFunctionEditPage : public Page
     lv_obj_set_style_text_font(headerSF->getLvObj(), getFont(FONT(BOLD)), LV_STATE_USER_1);
   }
 
-  void addSourceChoice(FormGroup::Line* line, const char* title, CustomFunctionData* cfn, int16_t vmax)
+  void addSourceChoice(FormWindow::Line* line, const char* title, CustomFunctionData* cfn, int16_t vmax)
   {
     new StaticText(line, rect_t{}, title, 0, COLOR_THEME_PRIMARY1);
     new SourceChoice(line, rect_t{}, 0, vmax, GET_SET_DEFAULT(CFN_PARAM(cfn)));
   }
 
-  NumberEdit* addNumberEdit(FormGroup::Line* line, const char* title, CustomFunctionData* cfn, int16_t vmin, int16_t vmax)
+  NumberEdit* addNumberEdit(FormWindow::Line* line, const char* title, CustomFunctionData* cfn, int16_t vmin, int16_t vmax)
   {
     new StaticText(line, rect_t{}, title, 0, COLOR_THEME_PRIMARY1);
     return new NumberEdit(line, rect_t{}, vmin, vmax, GET_SET_DEFAULT(CFN_PARAM(cfn)));
@@ -329,7 +328,7 @@ class SpecialFunctionEditPage : public Page
     if (HAS_ENABLE_PARAM(func)) {
       line = specialFunctionOneWindow->newLine(&grid);
       new StaticText(line, rect_t{}, STR_ENABLE, 0, COLOR_THEME_PRIMARY1);
-      new CheckBox(line, rect_t{},
+      new ToggleSwitch(line, rect_t{},
                    GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
     } else if (HAS_REPEAT_PARAM(func)) {  // !1x 1x 1s 2s 3s ...
       line = specialFunctionOneWindow->newLine(&grid);
@@ -513,13 +512,19 @@ class SpecialFunctionButton : public Button
     lv_obj_set_grid_cell(sfRepeat, LV_GRID_ALIGN_CENTER, FUNC_COL+1, 1, LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
 
     sfEnable = lv_obj_create(lvobj);
-    lv_obj_set_size(sfEnable, 16, 16);
+    lv_obj_set_size(sfEnable, 22, 22);
     lv_obj_add_flag(sfEnable, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_set_style_border_width(sfEnable, 2, 0);
-    lv_obj_set_style_border_color(sfEnable, makeLvColor(COLOR_THEME_SECONDARY1), 0);
+    lv_obj_set_style_border_width(sfEnable, 3, 0);
+    lv_obj_set_style_border_color(sfEnable, makeLvColor(COLOR_THEME_PRIMARY2), 0);
     lv_obj_set_style_border_opa(sfEnable, LV_OPA_100, 0);
     lv_obj_set_style_bg_color(sfEnable, makeLvColor(COLOR_THEME_ACTIVE), LV_STATE_CHECKED);
     lv_obj_set_style_bg_opa(sfEnable, LV_OPA_100, 0);
+    auto sfEnableInner = lv_obj_create(sfEnable);
+    lv_obj_set_size(sfEnableInner, 16, 16);
+    lv_obj_set_style_border_width(sfEnableInner, 2, 0);
+    lv_obj_set_style_border_color(sfEnableInner, makeLvColor(COLOR_THEME_SECONDARY1), 0);
+    lv_obj_set_style_border_opa(sfEnableInner, LV_OPA_100, 0);
+    lv_obj_set_style_bg_opa(sfEnableInner, LV_OPA_0, 0);
     lv_obj_set_grid_cell(sfEnable, LV_GRID_ALIGN_CENTER, FUNC_COL+2, 1, LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
 
     init = true;
@@ -694,7 +699,7 @@ class SpecialFunctionButton : public Button
 };
 
 #if LCD_W > LCD_H
-#define SF_BUTTON_H 36
+#define SF_BUTTON_H 34
 #else
 #define SF_BUTTON_H 45
 #endif

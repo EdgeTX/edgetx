@@ -36,20 +36,20 @@ static void update_mpm_settings(lv_event_t* e)
   lv_event_send(ms->getParent()->getLvObj(), LV_EVENT_REFRESH, nullptr);
 }
 
-struct MPMProtoOption : public FormGroup::Line
+struct MPMProtoOption : public FormWindow::Line
 {
   StaticText* label;
   Choice* choice;
   NumberEdit* edit;
-  CheckBox* cb;
+  ToggleSwitch* cb;
   DynamicNumber<uint16_t>* rssi;
 
-  MPMProtoOption(FormGroup* form, FlexGridLayout *layout);
+  MPMProtoOption(FormWindow* form, FlexGridLayout *layout);
   void update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md, uint8_t moduleIdx);
 };
 
-MPMProtoOption::MPMProtoOption(FormGroup* form, FlexGridLayout *layout) :
-  FormGroup::Line(form, layout)
+MPMProtoOption::MPMProtoOption(FormWindow* form, FlexGridLayout *layout) :
+  FormWindow::Line(form, layout)
 {
   if (layout) layout->resetPos();
   label = new StaticText(this, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
@@ -60,7 +60,7 @@ MPMProtoOption::MPMProtoOption(FormGroup* form, FlexGridLayout *layout) :
 
   choice = new Choice(box, rect_t{}, 0, 0, nullptr);
   edit = new NumberEdit(box, rect_t{}, 0, 0, nullptr);
-  cb = new CheckBox(box, rect_t{}, nullptr, nullptr);
+  cb = new ToggleSwitch(box, rect_t{}, nullptr, nullptr);
   rssi = new DynamicNumber<uint16_t>(
       box, rect_t{}, [] { return (uint16_t)TELEMETRY_RSSI(); }, 0, getRxStatLabels()->label, getRxStatLabels()->unit);
   rssi->padTop(5);
@@ -148,11 +148,11 @@ void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData
   }
 }
 
-struct MPMSubtype : public FormGroup::Line
+struct MPMSubtype : public FormWindow::Line
 {
   Choice* choice;
 
-  MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx);
+  MPMSubtype(FormWindow* form, FlexGridLayout *layout, uint8_t moduleIdx);
   void update(const MultiRfProtocols::RfProto* rfProto, uint8_t moduleIdx);
   void checkEvents();
 
@@ -187,8 +187,8 @@ static void subtype_event_cb(lv_event_t* e)
   if (obj) lv_event_send(obj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
-MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx) :
-  FormGroup::Line(form, layout)
+MPMSubtype::MPMSubtype(FormWindow* form, FlexGridLayout *layout, uint8_t moduleIdx) :
+  FormWindow::Line(form, layout)
 {
   this->moduleIdx = moduleIdx;
   this->DSM2lastSubType = g_model.moduleData[this->moduleIdx].subType;
@@ -227,16 +227,16 @@ void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, uint8_t module
   lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, &stop);
 }
 
-struct MPMServoRate : public FormGroup::Line {
-  MPMServoRate(FormGroup* form, FlexGridLayout* layout, uint8_t moduleIdx);
+struct MPMServoRate : public FormWindow::Line {
+  MPMServoRate(FormWindow* form, FlexGridLayout* layout, uint8_t moduleIdx);
   void update() const { lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr); }
 
  private:
   Choice* choice;
 };
 
-MPMServoRate::MPMServoRate(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx) :
-  FormGroup::Line(form, layout)
+MPMServoRate::MPMServoRate(FormWindow* form, FlexGridLayout *layout, uint8_t moduleIdx) :
+  FormWindow::Line(form, layout)
 {
   if (layout) layout->resetPos();
   new StaticText(this, rect_t{}, STR_MULTI_SERVOFREQ, 0, COLOR_THEME_PRIMARY1);
@@ -249,40 +249,40 @@ MPMServoRate::MPMServoRate(FormGroup* form, FlexGridLayout *layout, uint8_t modu
       md->multi.optionValue, (md->multi.optionValue & 0xFD) + (newValue << 1)));
 }
 
-struct MPMAutobind : public FormGroup::Line {
-  MPMAutobind(FormGroup* form, FlexGridLayout* layout, uint8_t moduleIdx);
+struct MPMAutobind : public FormWindow::Line {
+  MPMAutobind(FormWindow* form, FlexGridLayout* layout, uint8_t moduleIdx);
   void update() const { cb->update(); }
 
  private:
-  CheckBox* cb;
+  ToggleSwitch* cb;
 };
 
-MPMAutobind::MPMAutobind(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx) :
-  FormGroup::Line(form, layout)
+MPMAutobind::MPMAutobind(FormWindow* form, FlexGridLayout *layout, uint8_t moduleIdx) :
+  FormWindow::Line(form, layout)
 {
   if (layout) layout->resetPos();
   new StaticText(this, rect_t{}, STR_MULTI_AUTOBIND, 0, COLOR_THEME_PRIMARY1);
 
   auto md = &g_model.moduleData[moduleIdx];
-  cb = new CheckBox(this, rect_t{}, GET_SET_DEFAULT(md->multi.autoBindMode));
+  cb = new ToggleSwitch(this, rect_t{}, GET_SET_DEFAULT(md->multi.autoBindMode));
 }
 
-struct MPMChannelMap : public FormGroup::Line
+struct MPMChannelMap : public FormWindow::Line
 {
-  MPMChannelMap(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx);
+  MPMChannelMap(FormWindow* form, FlexGridLayout *layout, uint8_t moduleIdx);
   void update(const MultiRfProtocols::RfProto* rfProto);
  private:
-  CheckBox* cb;
+  ToggleSwitch* cb;
 };
 
-MPMChannelMap::MPMChannelMap(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx) :
-  FormGroup::Line(form, layout)
+MPMChannelMap::MPMChannelMap(FormWindow* form, FlexGridLayout *layout, uint8_t moduleIdx) :
+  FormWindow::Line(form, layout)
 {
   if (layout) layout->resetPos();
   new StaticText(this, rect_t{}, STR_DISABLE_CH_MAP, 0, COLOR_THEME_PRIMARY1);
 
   auto md = &g_model.moduleData[moduleIdx];
-  cb = new CheckBox(this, rect_t{}, GET_SET_DEFAULT(md->multi.disableMapping));
+  cb = new ToggleSwitch(this, rect_t{}, GET_SET_DEFAULT(md->multi.disableMapping));
 }
 
 void MPMChannelMap::update(const MultiRfProtocols::RfProto* rfProto)
@@ -298,7 +298,7 @@ void MPMChannelMap::update(const MultiRfProtocols::RfProto* rfProto)
 MultimoduleSettings::MultimoduleSettings(Window *parent,
                                          const FlexGridLayout &g,
                                          uint8_t moduleIdx) :
-  FormGroup(parent, rect_t{}), md(&g_model.moduleData[moduleIdx]),
+  FormWindow(parent, rect_t{}), md(&g_model.moduleData[moduleIdx]),
   moduleIdx(moduleIdx)
 {
   FlexGridLayout grid(g);
@@ -336,13 +336,13 @@ MultimoduleSettings::MultimoduleSettings(Window *parent,
   // Low power mode
   line = newLine(&grid);
   new StaticText(line, rect_t{}, STR_MULTI_LOWPOWER, 0, COLOR_THEME_PRIMARY1);
-  lp_mode = new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->multi.lowPowerMode));
+  lp_mode = new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(md->multi.lowPowerMode));
 
 #if defined(MANUFACTURER_FRSKY)
   // Disable telemetry
   line = newLine(&grid);
   new StaticText(line, rect_t{}, STR_DISABLE_TELEM, 0, COLOR_THEME_PRIMARY1);
-  disable_telem = new CheckBox(line, rect_t{}, GET_SET_DEFAULT(md->multi.disableTelemetry));
+  disable_telem = new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(md->multi.disableTelemetry));
 #endif
 
   cm_line = new MPMChannelMap(this, &grid, moduleIdx);

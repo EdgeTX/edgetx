@@ -559,6 +559,8 @@ void audioTask(void * pdata);
   #define AUDIO_ERROR_MESSAGE(e) audioEvent(e)
   #define AUDIO_TIMER_MINUTE(t)  playDuration(t, 0, 0)
 
+void onKeyError();
+
 void audioKeyPress();
 void audioKeyError();
 void audioTrimPress(int value);

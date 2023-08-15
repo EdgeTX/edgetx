@@ -628,8 +628,14 @@ void lcdDrawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h, uint8_t pat, 
 void drawTelemetryTopBar()
 {
   if (g_model.timers[0].mode) {
-    uint8_t att = (timersStates[0].val<0 ? BLINK : 0);
-    drawTimer(0, 0, timersStates[0].val, att, att);
+    TimerData *timer =  &g_model.timers[0];
+    int32_t val = 0;
+    if (g_model.timers[0].showElapsed)
+      val = timer->start - timersStates[0].val;
+    else
+      val = timersStates[0].val;
+    LcdFlags att = (val < 0 ? BLINK : 0) | TIMEHOUR;
+    drawTimer(0, 0, val, att, att);
   } else {
     drawModelName(0, 0, g_model.header.name, g_eeGeneral.currModel, 0);
   }
@@ -973,6 +979,10 @@ void lcdSetContrast(bool useDefault)
 {
 #if defined(BOOT)
   lcdSetRefVolt(LCD_CONTRAST_DEFAULT);
+#elif defined(OLED_SCREEN)
+  // Handled by brightness feature
+  if (useDefault)
+    lcdSetRefVolt(LCD_CONTRAST_DEFAULT);
 #else
   lcdSetRefVolt(useDefault ? LCD_CONTRAST_DEFAULT : g_eeGeneral.contrast);
 #endif

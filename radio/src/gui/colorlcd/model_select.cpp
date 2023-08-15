@@ -78,7 +78,7 @@ constexpr coord_t MODEL_SELECT_CELL_WIDTH =
 class ToolbarButton : public Button
 {
  public:
-  ToolbarButton(FormGroup *parent, const rect_t &rect, const uint8_t *bitmap,
+  ToolbarButton(FormWindow *parent, const rect_t &rect, const uint8_t *bitmap,
                 std::function<uint8_t()> pressHandler = nullptr) :
       Button(parent, rect, pressHandler, 0), _bitmap(bitmap)
   {
@@ -240,7 +240,7 @@ class ButtonHolder : public FormWindow
 class ModelButton : public Button
 {
  public:
-  ModelButton(FormGroup *parent, const rect_t &rect, ModelCell *modelCell, std::function<void()> setSelected) :
+  ModelButton(FormWindow *parent, const rect_t &rect, ModelCell *modelCell, std::function<void()> setSelected) :
       Button(parent, rect), modelCell(modelCell)
   {
     m_setSelected = std::move(setSelected);
@@ -606,7 +606,7 @@ class LabelDialog : public Dialog
 
     new TextEdit(form, rect_t{}, label, LABEL_LENGTH);
 
-    auto box = new FormGroup(form, rect_t{});
+    auto box = new FormWindow(form, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW);
 
     auto box_obj = box->getLvObj();
@@ -738,7 +738,8 @@ void ModelLabelsWindow::newModel()
 
 #if defined(LUA)
       // If there is a wizard Lua script, fire it up
-      snprintf(path, LEN_BUFFER, "%s/%s%s", path, name.c_str(), SCRIPT_EXT);
+      int len = strlen(path);
+      snprintf(path+len, LEN_BUFFER-len, "/%s%s", name.c_str(), SCRIPT_EXT);
       if (f_stat(path, 0) == FR_OK) {
         luaExec(path);
         StandaloneLuaWindow::instance()->attach();
@@ -898,7 +899,10 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
                   new ProgressDialog(this, STR_RENAME_LABEL, [=]() {});
               modelslabels.renameLabel(
                   oldLabel, newLabel, [=](const char *name, int percentage) {
-                    rndialog->updateProgress(name, percentage);
+                    rndialog->setTitle(std::string(STR_RENAME_LABEL) + " " + name);
+                    rndialog->updateProgress(percentage);
+                    if (percentage >= 100)
+                      rndialog->closeDialog();
                   });
               auto labels = getLabels();
               lblselector->setNames(labels);
@@ -915,7 +919,10 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
                     new ProgressDialog(this, STR_DELETE_LABEL, [=]() {});
                 modelslabels.removeLabel(
                     labelToDelete, [=](const char *name, int percentage) {
-                      deldialog->updateProgress(name, percentage);
+                      deldialog->setTitle(std::string(STR_RENAME_LABEL) + " " + name);
+                      deldialog->updateProgress(percentage);
+                      if (percentage >= 100)
+                        deldialog->closeDialog();
                     });
                 auto labels = getLabels();
                 std::set<uint32_t> newset;
@@ -989,39 +996,3 @@ void ModelLabelsWindow::setTitle()
   header.setTitle(STR_MANAGE_MODELS);
   header.setTitle2(title2);
 }
-
-//-----------------------------------------------------------------------------
-
-ProgressDialog::ProgressDialog(Window *parent, std::string title,
-                               std::function<void()> onClose) :
-    Dialog(parent, title, rect_t{}),
-    progress(new Progress(&content->form, rect_t{})),
-    onClose(std::move(onClose)),
-    _title(title)
-{
-  progress->setHeight(LV_DPI_DEF / 4);
-
-  content->setWidth(LCD_W * 0.8);
-  content->updateSize();
-
-  auto content_w = lv_obj_get_content_width(content->form.getLvObj());
-  progress->setWidth(content_w);
-
-  // disable canceling dialog
-  setCloseWhenClickOutside(false);
-}
-
-void ProgressDialog::updateProgress(const char *filename, int percentage)
-{
-  content->setTitle(_title + " " + filename);
-  progress->setValue(percentage);
-  if (percentage >= 100) {
-    deleteLater();
-    onClose();
-  } else {
-    lv_refr_now(nullptr);
-  }
-}
-
-// disable keys
-void ProgressDialog::onEvent(event_t) { return; }

@@ -296,16 +296,12 @@
 #define SD_RCC_APB1Periph               0
 #define SD_PRESENT_GPIO                 GPIOH
 #define SD_PRESENT_GPIO_PIN             GPIO_Pin_10  // PH.10
+#define SD_PRESENT_LL_GPIO_PIN          LL_GPIO_PIN_10  // PH.10
+#define SD_SDIO_DMA                     DMA2
 #define SD_SDIO_DMA_STREAM              DMA2_Stream3
-#define SD_SDIO_DMA_CHANNEL             DMA_Channel_4
-#define SD_SDIO_DMA_FLAG_FEIF           DMA_FLAG_FEIF3
-#define SD_SDIO_DMA_FLAG_DMEIF          DMA_FLAG_DMEIF3
-#define SD_SDIO_DMA_FLAG_TEIF           DMA_FLAG_TEIF3
-#define SD_SDIO_DMA_FLAG_HTIF           DMA_FLAG_HTIF3
-#define SD_SDIO_DMA_FLAG_TCIF           DMA_FLAG_TCIF3
+#define SD_SDIO_DMA_CHANNEL             LL_DMA_CHANNEL_4
 #define SD_SDIO_DMA_IRQn                DMA2_Stream3_IRQn
 #define SD_SDIO_DMA_IRQHANDLER          DMA2_Stream3_IRQHandler
-#define SD_SDIO_FIFO_ADDRESS            ((uint32_t)0x40012C80)
 #define SD_SDIO_CLK_DIV(fq)             ((48000000 / (fq)) - 2)
 #define SD_SDIO_INIT_CLK_DIV            SD_SDIO_CLK_DIV(400000)
 #define SD_SDIO_TRANSFER_CLK_DIV        SD_SDIO_CLK_DIV(24000000)

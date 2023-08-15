@@ -1,8 +1,11 @@
 /*
- * Copyright (C) EdgeTX
+ * Copyright (C) EdgeTx
  *
  * Based on code named
- *   libopenui - https://github.com/opentx/libopenui
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
  *
  * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
  *
@@ -16,20 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef WINDOW_BASE_H
-#define WINDOW_BASE_H
+#pragma once
 
-#include <lvgl/lvgl.h>
+#include "stm32_hal_ll.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-extern const lv_obj_class_t window_base_class;
-lv_obj_t* window_create(lv_obj_t* parent);
-
-#ifdef __cplusplus
-};
-#endif
-
-#endif
+void stm32_spi_enable_clock(SPI_TypeDef *SPIx);

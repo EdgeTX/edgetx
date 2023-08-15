@@ -22,8 +22,6 @@
 #include "list_line_button.h"
 #include "opentx.h"
 
-#include "lvgl_widgets/input_mix_line.h"
-
 void ListLineButton::value_changed(lv_event_t* e)
 {
   auto obj = lv_event_get_target(e);

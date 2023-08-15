@@ -259,8 +259,6 @@ MenuWindowContent::MenuWindowContent(Menu* parent) :
                                 (LCD_H - MENUS_WIDTH) / 2, MENUS_WIDTH, 0}),
     body(this, {0, 0, width(), height()})
 {
-  // body.setFocus(SET_FOCUS_DEFAULT);
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_100, LV_PART_MAIN);
 }
 
 coord_t MenuWindowContent::getHeaderHeight() const
@@ -278,7 +276,7 @@ void MenuWindowContent::deleteLater(bool detach, bool trash)
 
 Menu::Menu(Window * parent, bool multiple):
   ModalWindow(parent, true),
-  content(createMenuWindow(this)),
+  content(new MenuWindowContent(this)),
   multiple(multiple)
 {
 }
@@ -371,7 +369,7 @@ void Menu::onEvent(event_t event)
 #if defined(HARDWARE_KEYS)
   if (toolbar &&
       (event == EVT_KEY_BREAK(KEY_PAGEDN) ||
-#if defined(KEYS_GPIO_REG_PGUP)
+#if defined(KEYS_GPIO_REG_PAGEUP)
        event == EVT_KEY_BREAK(KEY_PAGEUP)
 #else
        event == EVT_KEY_LONG(KEY_PAGEDN)

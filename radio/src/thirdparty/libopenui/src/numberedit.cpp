@@ -17,8 +17,8 @@
  */
 
 #include "numberedit.h"
-#include "widgets/field_edit.h"
 #include "keyboard_number.h"
+#include "audio.h"
 
 static void numberedit_cb(lv_event_t* e)
 {
@@ -40,24 +40,16 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
                        std::function<int()> getValue,
                        std::function<void(int)> setValue,
                        WindowFlags windowFlags, LcdFlags textFlags) :
-    BaseNumberEdit(parent, rect, vmin, vmax, std::move(getValue),
-                   std::move(setValue), windowFlags, textFlags,
-                   field_edit_create)
+        FormField(parent, rect, windowFlags, textFlags, etx_number_edit_create),
+        vmin(vmin),
+        vmax(vmax),
+        _getValue(std::move(getValue)),
+        _setValue(std::move(setValue))
 {
   // Allow encoder acceleration
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
 
-  // properties
-  lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
-  lv_textarea_set_password_mode(lvobj, false);
-  lv_textarea_set_one_line(lvobj, true);
   lv_obj_add_event_cb(lvobj, numberedit_cb, LV_EVENT_KEY, this);
-
-  setHeight(33);
-  padTop(5);
-  padRight(4);
-  lv_obj_set_style_text_align(lvobj, LV_TEXT_ALIGN_RIGHT, 0);
-  lv_obj_set_style_radius(lvobj, 4, 0);
 
   update();
 }

@@ -121,7 +121,6 @@
 #define TR_SF_TEST                     "Test"
 
 #define TR_SF_SCREENSHOT               "Snímek LCD"
-#define TR_SF_TEST                     "Test"
 #define TR_SF_RACING_MODE              "Závodní režim"
 #define TR_SF_DISABLE_TOUCH            "Deaktivace dotyku"
 #define TR_SF_SET_SCREEN               "Vybrat hlavní obrazovku"
@@ -370,6 +369,7 @@
 #define TR_KEYS_BACKLIGHT              "Podsvětlení kláves"
 #define TR_BLCOLOR                     "Barva"
 #define TR_SPLASHSCREEN                TR("úvodní logo", "Zobrazit úvodní logo")
+#define TR_PLAY_HELLO                  "Zvuk při spuštění"
 #define TR_PWR_ON_DELAY                "Zpoždění zapnutí"
 #define TR_PWR_OFF_DELAY               "Zpoždění vypnutí"
 #define TR_THROTTLE_WARNING            TR("* Plyn", INDENT "Kontrola plynu")
@@ -608,7 +608,12 @@
 #define TR_POWER_METER_INT             "Měřič výkonu (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spektální an. (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spektální an. (INT)"
-#define TR_SDCARD_FULL                 "Plná SD karta"
+#define TR_SDCARD_FULL                 "Plná karta SD"
+#if defined(COLORLCD)
+#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\nLogování dat a snímky obrazovky vypnuty"
+#else
+#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\036Logy a " LCDW_128_480_LINEBREAK " Snímky obrazovky vypnuty"
+#endif
 #define TR_NEEDS_FILE                  "Vyžadován soubor"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"

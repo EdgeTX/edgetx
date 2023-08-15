@@ -41,10 +41,10 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
-class TrainerModuleWindow : public FormGroup
+class TrainerModuleWindow : public FormWindow
 {
  public:
-  TrainerModuleWindow(FormGroup* parent);
+  TrainerModuleWindow(FormWindow* parent);
 
   void checkEvents() override;
   void update();
@@ -70,8 +70,8 @@ class TrainerModuleWindow : public FormGroup
 #endif
 };
 
-TrainerModuleWindow::TrainerModuleWindow(FormGroup* parent) :
-    FormGroup(parent, rect_t{})
+TrainerModuleWindow::TrainerModuleWindow(FormWindow* parent) :
+    FormWindow(parent, rect_t{})
 {
   setFlexLayout();
   update();
@@ -100,7 +100,7 @@ void TrainerModuleWindow::checkEvents()
 //     lastbluetoothstate = bluetooth.state;
 //   }
 // #endif
-  FormGroup::checkEvents();
+  FormWindow::checkEvents();
 }
 
 void TrainerModuleWindow::update()
@@ -146,7 +146,7 @@ TrainerPage::TrainerPage() : Page(ICON_MODEL_SETUP)
   header.setTitle(STR_MENU_MODEL_SETUP);
   header.setTitle2(STR_TRAINER);
 
-  auto form = new FormGroup(&body, rect_t{});
+  auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
   form->padAll(lv_dpx(8));
 

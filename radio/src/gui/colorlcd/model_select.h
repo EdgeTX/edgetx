@@ -106,24 +106,4 @@ class ModelLabelsWindow : public Page
   void setTitle();
 };
 
-class ProgressDialog : public Dialog
-{
-  uint32_t lastUpdate = 0;
-  Progress *progress;
-
-  std::function<void()> onClose;
-
- public:
-  ProgressDialog(Window *parent, std::string title,
-                 std::function<void()> onClose);
-
-  void updateProgress(const char *filename, int percentage);
-
-  // disable keys
-  void onEvent(event_t) override;
-
- protected:
-  std::string _title;
-};
-
 #endif  // _MODEL_SELECT_H_

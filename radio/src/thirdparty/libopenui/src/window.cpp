@@ -20,8 +20,6 @@
 #include "touch.h"
 #include "mainwindow.h"
 
-#include "widgets/window_base.h"
-
 std::list<Window *> Window::trash;
 
 extern lv_obj_t *virtual_kb;
@@ -73,10 +71,6 @@ extern "C" void window_event_cb(lv_event_t * e)
     TRACE_WINDOWS("PRESSED: %s", window->getWindowDebugString().c_str());
 
     lv_indev_t *click_source = (lv_indev_t *)lv_event_get_param(e);
-    // if(lv_indev_get_type(click_source) == LV_INDEV_TYPE_KEYPAD ||
-    //    lv_indev_get_type(click_source) == LV_INDEV_TYPE_ENCODER) {
-    //   return;
-    // }
 
     lv_area_t obj_coords;
     lv_obj_get_coords(target, &obj_coords);
@@ -160,10 +154,12 @@ Window::Window(Window *parent, const rect_t &rect, WindowFlags windowFlags,
 
   lv_obj_set_user_data(lvobj, this);
 
-  if (rect.w || rect.h) {
+  if (rect.x || rect.y)
     lv_obj_set_pos(lvobj, rect.x, rect.y);
-    lv_obj_set_size(lvobj, rect.w, rect.h);
-  }
+  if (rect.w)
+    lv_obj_set_width(lvobj, rect.w);
+  if (rect.h)
+    lv_obj_set_height(lvobj, rect.h);
 
   if (windowFlags & OPAQUE) {
     lv_obj_set_style_bg_opa(lvobj, LV_OPA_MAX, LV_PART_MAIN);
@@ -273,16 +269,7 @@ void Window::setTextFlags(LcdFlags flags)
   if (!lvobj) return;
 
   // lv integration for colors
-  auto textColor = COLOR_VAL(flags);
-  auto r = GET_RED(textColor), g = GET_GREEN(textColor),
-       b = GET_BLUE(textColor);
-  lv_obj_set_style_text_color(lvobj, lv_color_make(r, g, b), LV_PART_MAIN);
-
-  // // rco: shouldn't this be done via 'setTextFlags()' on the children?
-  // for (uint32_t i = 0; i < lv_obj_get_child_cnt(lvobj); i++) {
-  //   auto child = lv_obj_get_child(lvobj, i);
-  //   lv_obj_set_style_text_color(child, lv_color_make(r, g, b), LV_PART_MAIN);
-  // }
+  lv_obj_set_style_text_color(lvobj, makeLvColor(textFlags), LV_PART_MAIN);
 }
 
 void Window::attach(Window *newParent)
@@ -393,122 +380,6 @@ void Window::padColumn(coord_t pad)
   lv_obj_set_style_pad_column(lvobj, pad, 0);
 }
 
-bool Window::hasOpaqueRect(const rect_t & testRect) const
-{
-  if (!rect.contains(testRect))
-    return false;
-
-  if (windowFlags & OPAQUE) {
-    return true;
-  }
-
-  rect_t relativeRect = {testRect.x - rect.x, testRect.y - rect.y, testRect.w, testRect.h};
-  for (auto child: children) {
-    if (child->hasOpaqueRect(relativeRect))
-      return true;
-  }
-
-  return false;
-}
-
-void Window::fullPaint(BitmapBuffer * dc)
-{
-  if(lvobj != nullptr)
-    lv_obj_invalidate(lvobj);
-  bool paintNeeded = true;
-  std::list<Window *>::iterator firstChild;
-
-  coord_t xmin, xmax, ymin, ymax;
-  dc->getClippingRect(xmin, xmax, ymin, ymax);
-  coord_t x = dc->getOffsetX();
-  coord_t y = dc->getOffsetY();
-
-  if (windowFlags & PAINT_CHILDREN_FIRST) {
-    paintChildren(dc, children.begin());
-    dc->setOffset(x, y);
-    dc->setClippingRect(xmin, xmax, ymin, ymax);
-  }
-  else {
-    firstChild = children.end();
-    rect_t relativeRect = {xmin - x, ymin - y, xmax - xmin, ymax - ymin};
-    while (firstChild != children.begin()) {
-      auto child = *(--firstChild);
-      if (child->hasOpaqueRect(relativeRect)) {
-        paintNeeded = false;
-        break;
-      }
-    }
-  }
-
-  if (paintNeeded) {
-    TRACE_WINDOWS_INDENT("%s%s", getWindowDebugString().c_str(), hasFocus() ? " (*)" : "");
-    paint(dc);
-#if defined(WINDOWS_INSPECT_BORDER_COLOR)
-    dc->drawSolidRect(0, 0, width(), height(), 1, WINDOWS_INSPECT_BORDER_COLOR);
-#endif
-  }
-  else {
-    TRACE_WINDOWS_INDENT("%s (skipped)", getWindowDebugString().c_str());
-  }
-
-
-  if (!(windowFlags & PAINT_CHILDREN_FIRST)) {
-    paintChildren(dc, firstChild);
-  }
-}
-
-bool Window::isChildFullSize(const Window * child) const
-{
-  return child->top() == 0 && child->height() == height() && child->left() == 0 && child->width() == width();
-}
-
-bool Window::isChildVisible(const Window * window) const
-{
-  for (auto rit = children.rbegin(); rit != children.rend(); rit++) {
-    auto child = *rit;
-    if (child == window) {
-      return true;
-    }
-    if ((child->getWindowFlags() & OPAQUE) & isChildFullSize(child)) {
-      return false;
-    }
-  }
-  return false;
-}
-
-
-void Window::paintChildren(BitmapBuffer * dc, std::list<Window *>::iterator it)
-{
-  coord_t x = dc->getOffsetX();
-  coord_t y = dc->getOffsetY();
-  coord_t xmin, xmax, ymin, ymax;
-  dc->getClippingRect(xmin, xmax, ymin, ymax);
-
-  for (; it != children.end(); it++) {
-    auto child = *it;
-
-    coord_t child_xmin = x + child->rect.x;
-    if (child_xmin >= xmax)
-      continue;
-    coord_t child_ymin = y + child->rect.y;
-    if (child_ymin >= ymax)
-      continue;
-    coord_t child_xmax = child_xmin + child->rect.w;
-    if (child_xmax <= xmin)
-      continue;
-    coord_t child_ymax = child_ymin + child->rect.h;
-    if (child_ymax <= ymin)
-      continue;
-
-    // dc->setOffset(x + child->rect.x - child->scrollPositionX,
-    //               y + child->rect.y - child->scrollPositionY);
-    dc->setClippingRect(
-        max(xmin, x + child->rect.left()), min(xmax, x + child->rect.right()),
-        max(ymin, y + child->rect.top()), min(ymax, y + child->rect.bottom()));
-    child->fullPaint(dc);
-  }
-}
-
 void Window::bringToTop()
 {
   attach(parent); // does a detach + attach
@@ -558,51 +429,7 @@ bool Window::onTouchEnd(coord_t x, coord_t y)
   if (parent && !(windowFlags & OPAQUE)) return parent->onTouchEnd(x, y);
   return true;
 }
-
-bool Window::onTouchSlide(coord_t x, coord_t y, coord_t startX, coord_t startY, coord_t slideX, coord_t slideY)
-{
-  // TODO: this is not used anymore: REMOVE
-  
-  // for (auto it = children.rbegin(); it != children.rend(); ++it) {
-  //   auto child = *it;
-  //   if (child->rect.contains(startX, startY)) {
-  //     if (child->onTouchSlide(x - child->rect.x, y - child->rect.y, startX - child->rect.x, startY - child->rect.y, slideX, slideY)) {
-  //       return true;
-  //     }
-  //   }
-  // }
-
-  // return false;
-
-  return true;
-}
 #endif
-
-coord_t Window::adjustHeight()
-{
-  coord_t old = rect.h;
-  if (lvobj) {
-    lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
-    lv_obj_update_layout(lvobj);
-    rect.h = lv_obj_get_height(lvobj);
-    lv_obj_set_style_height(lvobj, rect.h, LV_PART_MAIN);
-  }
-  return rect.h - old;
-}
-
-void Window::moveWindowsTop(coord_t y, coord_t delta)
-{
-  if (getWindowFlags() & FORWARD_SCROLL) {
-    parent->moveWindowsTop(bottom(), delta);
-  }
-
-  for (auto child: children) {
-    if (child->rect.y >= y) {
-      child->setTop(child->top() + delta);
-      invalidate();
-    }
-  }
-}
 
 void Window::updateSize()
 {

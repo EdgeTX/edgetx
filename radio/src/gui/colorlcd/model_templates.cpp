@@ -30,8 +30,6 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 TemplatePage::TemplatePage() : Page(ICON_MODEL_SELECT)
 {
-  body.padAll(0);
-
   auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
   form->padAll(4);

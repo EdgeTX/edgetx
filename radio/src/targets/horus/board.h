@@ -92,27 +92,10 @@ enum {
   #endif
 #endif
 
-// SD driver
-#define BLOCK_SIZE                     512 /* Block Size in Bytes */
-#if !defined(SIMU) || defined(SIMU_DISKIO)
-uint32_t sdIsHC();
-uint32_t sdGetSpeed();
-#define SD_IS_HC()                     (sdIsHC())
-#define SD_GET_SPEED()                 (sdGetSpeed())
-#define SD_GET_FREE_BLOCKNR()          (sdGetFreeSectors())
-#define SD_CARD_PRESENT()              (~SD_PRESENT_GPIO->IDR & SD_PRESENT_GPIO_PIN)
-void sdInit();
-void sdMount();
-void sdDone();
-#define sdPoll10ms()
-uint32_t sdMounted();
+#if defined(SIMU)
+  #define SD_CARD_PRESENT()             true
 #else
-#define SD_IS_HC()                     (0)
-#define SD_GET_SPEED()                 (0)
-#define sdInit()
-#define sdMount()
-#define sdDone()
-#define SD_CARD_PRESENT()              true
+  #define SD_CARD_PRESENT()             (~SD_PRESENT_GPIO->IDR & SD_PRESENT_GPIO_PIN)
 #endif
 
 // Flash Write driver
@@ -238,13 +221,18 @@ void ledBlue();
 #define LCD_PHYS_H                     LCD_H
 #define LCD_PHYS_W                     LCD_W
 #define LCD_DEPTH                      16
+
 void lcdInit();
 void lcdCopy(void * dest, void * src);
+
 void DMAFillRect(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
 void DMACopyBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h);
 void DMACopyAlphaBitmap(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint16_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h);
+void DMACopyAlphaMask(uint16_t * dest, uint16_t destw, uint16_t desth, uint16_t x, uint16_t y, const uint8_t * src, uint16_t srcw, uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w, uint16_t h, uint16_t bg_color);
 void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t h, uint32_t format);
+
 #define lcdOff()              backlightEnable(0) /* just disable the backlight */
+
 #define lcdRefreshWait(...)
 
 // Backlight driver

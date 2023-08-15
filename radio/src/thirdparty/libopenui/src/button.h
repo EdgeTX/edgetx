@@ -20,9 +20,7 @@
 
 #include "form.h"
 
-constexpr WindowFlags BUTTON_BACKGROUND = FORM_FLAGS_LAST << 1u;
-constexpr WindowFlags BUTTON_CHECKED = FORM_FLAGS_LAST << 2u;
-constexpr WindowFlags BUTTON_CHECKED_ON_FOCUS = FORM_FLAGS_LAST << 3u;
+constexpr WindowFlags BUTTON_CHECKED = WINDOW_FLAGS_LAST << 1u;
 
 class Button : public FormField
 {
@@ -77,7 +75,7 @@ class TextButton: public Button
   public:
    TextButton(Window* parent, const rect_t& rect, std::string text,
               std::function<uint8_t(void)> pressHandler = nullptr,
-              WindowFlags windowFlags = BUTTON_BACKGROUND | OPAQUE);
+              WindowFlags windowFlags = OPAQUE);
               
 #if defined(DEBUG_WINDOWS)
    std::string getName() const override
@@ -104,27 +102,4 @@ class TextButton: public Button
 
     std::string text;
     std::function<LcdFlags(void)> bgColorHandler = nullptr;
-};
-
-class IconButton: public Button
-{
-  public:
-    IconButton(Window* parent, const rect_t& rect, uint8_t icon,
-               std::function<uint8_t(void)> pressHandler,
-               WindowFlags flags = 0) :
-        Button(parent, rect, std::move(pressHandler), flags), icon(icon)
-    {
-    }
-
-#if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "IconButton(" + std::to_string(icon) + ")";
-    }
-#endif
-
-    void paint(BitmapBuffer * dc) override;
-
-  protected:
-    uint8_t icon;
 };

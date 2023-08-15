@@ -24,7 +24,7 @@
 #include "form.h"
 #include "numberedit.h"
 
-class ChannelRange : public FormGroup
+class ChannelRange : public FormWindow
 {
  public:
   ChannelRange(Window* parent);

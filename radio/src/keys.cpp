@@ -316,8 +316,6 @@ static uint32_t transpose_trims()
 
 bool keysPollingCycle()
 {
-  uint32_t i;
-
   uint32_t trims_input;
   uint32_t keys_input = readKeys();
 
@@ -332,16 +330,18 @@ bool keysPollingCycle()
   trims_input = readTrims();
 #endif
 
-  for (i = 0; i < MAX_KEYS; i++) {
+  for (int i = 0; i < MAX_KEYS; i++) {
     event_t evt = keys[i].input(keys_input & (1 << i));
     if (evt) {
-      if (i != KEY_SHIFT && evt != _MSK_KEY_REPT) {
+      // SHIFT key should not trigger REPT events
+      if (i != KEY_SHIFT || evt != _MSK_KEY_REPT) {
         pushEvent(evt | i);
       }
     }
   }
 
-  for (i = 0; i < MAX_TRIMS * 2; i++) {
+  auto trim_switches = keysGetMaxTrims() * 2;
+  for (int i = 0; i < trim_switches; i++) {
     event_t evt = trim_keys[i].input(trims_input & (1 << i));
     if (evt) pushTrimEvent(evt | i);
   }

@@ -39,10 +39,12 @@ struct HWInputEdit : public RadioTextEdit {
 
 static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                          LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_three_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(2),
+                                         LV_GRID_TEMPLATE_LAST};
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-HWSticks::HWSticks(Window* parent) : FormGroup(parent, rect_t{})
+HWSticks::HWSticks(Window* parent) : FormWindow(parent, rect_t{})
 {
   FlexGridLayout grid(col_two_dsc, row_dsc, 2);
   setFlexLayout();
@@ -67,9 +69,9 @@ HWSticks::HWSticks(Window* parent) : FormGroup(parent, rect_t{})
 #endif
 }
 
-HWPots::HWPots(Window* parent) : FormGroup(parent, rect_t{})
+HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
 {
-  FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_three_dsc, row_dsc, 2);
   setFlexLayout();
 
   auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
@@ -85,7 +87,7 @@ HWPots::HWPots(Window* parent) : FormGroup(parent, rect_t{})
     new StaticText(line, rect_t{}, adcGetInputLabel(ADC_INPUT_POT, i), 0,
                    COLOR_THEME_PRIMARY1);
 
-    auto box = new FormGroup(line, rect_t{});
+    auto box = new FormWindow(line, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
 
     auto box_obj = box->getLvObj();
@@ -147,24 +149,18 @@ class SwitchDynamicLabel : public StaticText
   uint8_t lastpos = 0xff;
 };
 
-HWSwitches::HWSwitches(Window* parent) : FormGroup(parent, rect_t{})
+HWSwitches::HWSwitches(Window* parent) : FormWindow(parent, rect_t{})
 {
-  FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_three_dsc, row_dsc, 2);
   setFlexLayout();
 
   for (int i = 0; i < switchGetMaxSwitches(); i++) {
     auto line = newLine(&grid);
     new SwitchDynamicLabel(line, i);
 
-    auto box = new FormGroup(line, rect_t{});
-    box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
-
-    auto box_obj = box->getLvObj();
-    lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
-
-    new HWInputEdit(box, (char*)switchGetCustomName(i), LEN_SWITCH_NAME);
+    new HWInputEdit(line, (char*)switchGetCustomName(i), LEN_SWITCH_NAME);
     new Choice(
-        box, rect_t{}, STR_SWTYPES, SWITCH_NONE, switchGetMaxType(i),
+        line, rect_t{}, STR_SWTYPES, SWITCH_NONE, switchGetMaxType(i),
         [=]() -> int { return SWITCH_CONFIG(i); },
         [=](int newValue) {
           swconfig_t mask = (swconfig_t)SWITCH_CONFIG_MASK(i);

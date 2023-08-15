@@ -235,7 +235,7 @@ void ThemeFile::applyColors()
 
 void ThemeFile::applyBackground()
 {
-  auto instance = OpenTxTheme::instance();
+  auto instance = EdgeTxTheme::instance();
   std::string backgroundImageFileName(getPath());
   auto pos = backgroundImageFileName.rfind('/');
   if (pos != std::string::npos) {
@@ -264,7 +264,7 @@ void ThemeFile::applyTheme()
 {
   applyColors();
   applyBackground();
-  OpenTxTheme::instance()->update(false);
+  EdgeTxTheme::instance()->update(false);
 
   // Update views with new theme
   // Currently, on startup, active theme is loaded after ViewMain is created so ViewMain instance is defined
@@ -465,19 +465,12 @@ class DefaultEdgeTxTheme : public ThemeFile
       setName("EdgeTX Default");
       setAuthor("EdgeTX Team");
       setInfo("Default EdgeTX Color Scheme");
-    
+
       // initializze the default color table
-      colorList.emplace_back(ColorEntry { COLOR_THEME_PRIMARY1_INDEX, RGB(0, 0, 0) });
-      colorList.emplace_back(ColorEntry { COLOR_THEME_PRIMARY2_INDEX, RGB(255, 255, 255) });
-      colorList.emplace_back(ColorEntry { COLOR_THEME_PRIMARY3_INDEX, RGB(12, 63, 102) });
-      colorList.emplace_back(ColorEntry { COLOR_THEME_SECONDARY1_INDEX, RGB(18, 94, 153) });
-      colorList.emplace_back(ColorEntry { COLOR_THEME_SECONDARY2_INDEX, RGB(182, 224, 242) });
-      colorList.emplace_back(ColorEntry { COLOR_THEME_SECONDARY3_INDEX, RGB(228, 238, 242) });
-      colorList.emplace_back(ColorEntry { COLOR_THEME_FOCUS_INDEX, RGB(20, 161, 229) });
-      colorList.emplace_back(ColorEntry { COLOR_THEME_EDIT_INDEX, RGB(0, 153, 9) });
-      colorList.emplace_back(ColorEntry { COLOR_THEME_ACTIVE_INDEX, RGB(255, 222, 0) });
-      colorList.emplace_back(ColorEntry { COLOR_THEME_WARNING_INDEX, RGB(224, 0, 0) });
-      colorList.emplace_back(ColorEntry { COLOR_THEME_DISABLED_INDEX, RGB(140, 140, 140) });
+      extern EdgeTxTheme * defaultTheme;
+      uint16_t* defaultColors = defaultTheme->getDefaultColors();
+      for (uint8_t i = COLOR_THEME_PRIMARY1_INDEX; i <= COLOR_THEME_DISABLED_INDEX; i += 1)
+        colorList.emplace_back(ColorEntry { (LcdColorIndex)i, defaultColors[i] });
     }
 };
 
