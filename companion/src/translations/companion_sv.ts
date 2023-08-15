@@ -7247,7 +7247,7 @@ fält</translation>
     <message>
         <location filename="../mainwindow.cpp" line="659"/>
         <source>If you&apos;ve found this program useful, please support by &lt;a href=&apos;%1&apos;&gt;donating&lt;/a&gt;</source>
-        <translation>Om du tycker att programet är användbart kan du stödja utvecklingen genom att &lt;a href=&apos;%1&apos;&gt;donera.&lt;/a&gt;</translation>
+        <translation>Om du tycker att programet är användbart kan du stödja utvecklingen genom en &lt;a href=&apos;%1&apos;&gt;gåva.&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="817"/>
