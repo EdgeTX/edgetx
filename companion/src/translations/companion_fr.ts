@@ -5646,7 +5646,7 @@ Plage de valeurs: 3v...12v</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2430"/>
         <source>Hats Mode</source>
-        <translation>Mode chapeaux</translation>
+        <translation>Mode joystick</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2441"/>
@@ -5661,7 +5661,7 @@ Plage de valeurs: 3v...12v</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2451"/>
         <source>Switchable</source>
-        <translation>Permutable</translation>
+        <translation>Commutable</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2451"/>
