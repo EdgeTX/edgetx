@@ -310,6 +310,7 @@ static void _conv_byte_8n1(stm32_softserial_tx_state* st, uint8_t b)
 //
 #define PXX1_FREQ      1000000 /* 1 MHz */
 #define PXX1_PWM_ON    8  /* 8us */
+#define PXX1_SLOW_INVERTER_COMPENSATION   1  /* 1us, only on rise (polarity == false) */
 #define PXX1_BIT_ZERO  16 /* 0 = 16us */
 #define PXX1_BIT_ONE   24 /* 1 = 24us */
 
@@ -360,7 +361,7 @@ static void* stm32_softserial_tx_init(void* hw_def, const etx_serial_init* param
     freq = PXX1_FREQ;
     polarity = false;
     ocmode = LL_TIM_OCMODE_FORCED_INACTIVE;
-    cmp_val = PXX1_PWM_ON;
+    cmp_val = PXX1_PWM_ON + PXX1_SLOW_INVERTER_COMPENSATION;
     break;
 
   default:
@@ -483,7 +484,7 @@ static void stm32_softserial_tx_send_buffer(void* ctx, const uint8_t* data, uint
   // dirty hack...
   if (st->conv_byte == _conv_byte_pxx1) {
     ocmode = LL_TIM_OCMODE_PWM1;
-    cmp_val = PXX1_PWM_ON;
+    cmp_val = PXX1_PWM_ON + PXX1_SLOW_INVERTER_COMPENSATION;
   }
 
   stm32_pulse_start_dma_req(timer, pulses, length, ocmode, cmp_val);
