@@ -94,29 +94,31 @@ struct ModelBitmapEdit : public FileChoice {
 
 class SubScreenButton : public TextButton
 {
- public:
-  SubScreenButton(Window* parent, const char* text,
-                  std::function<void(void)> pressHandler);
+  public:
+    SubScreenButton(Window* parent, const char* text,
+                    std::function<void(void)> pressHandler) :
+      TextButton(parent, rect_t{}, text, [=]() -> uint8_t {
+          pressHandler();
+          return 0;
+      })
+    {
+      // Room for two lines of text
+      setHeight(62);
+      setWidth((LCD_W - 30) / 3);
 
- protected:
-  virtual bool isActive() { return false; }
+      lv_obj_set_width(label, lv_pct(100));
+      lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
+      lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    }
+
+    void checkEvents() override
+    {
+      check(isActive());
+    }
+
+  protected:
+    virtual bool isActive() { return false; }
 };
-
-SubScreenButton::SubScreenButton(Window* parent, const char* text,
-                                 std::function<void(void)> pressHandler) :
-  TextButton(parent, rect_t{}, text, [=]() -> uint8_t {
-      pressHandler();
-      return 0;
-    })
-{
-  // Room for two lines of text
-  setHeight(62);
-  setWidth((LCD_W - 30) / 3);
-
-  lv_obj_set_width(label, lv_pct(100));
-  lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
-  lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-}
 
 struct IntmoduleButton : public SubScreenButton {
   IntmoduleButton(Window* parent) :
