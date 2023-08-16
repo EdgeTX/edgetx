@@ -23,7 +23,7 @@
 
 #include <string>
 
-#include "tjftl/tjftl.h"
+#include "frftl.h"
 #include "FatFs/ff.h"
 #if defined (SDCARD)
 #include "sdcard.h"

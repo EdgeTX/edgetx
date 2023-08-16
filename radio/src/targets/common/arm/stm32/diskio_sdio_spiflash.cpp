@@ -45,29 +45,30 @@ extern volatile uint32_t WriteStatus;
 extern volatile uint32_t ReadStatus;
 
 #if defined(SPI_FLASH)
-#include "tjftl/tjftl.h"
+#include "frftl.h"
 
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size);
 size_t flashSpiWrite(size_t address, const uint8_t* data, size_t size);
 uint16_t flashSpiGetPageSize();
 size_t flashSpiGetSize();
-uint32_t flashSpiGetBlockCount();
+//uint32_t flashSpiGetBlockCount();
 
 int flashSpiErase(size_t address);
+bool flashSpiIsErased(size_t address);
 int flashSpiBlockErase(size_t address);
 void flashSpiEraseAll();
 
 void flashSpiSync();
 
-static tjftl_t* tjftl = nullptr;
+static FrFTL* frftl = nullptr;
 extern "C" {
-static bool flashRead(int addr, uint8_t* buf, int len, void* arg)
+static bool flashRead(uint32_t addr, uint8_t* buf, uint32_t len)
 {
   flashSpiRead(addr, buf, len);
   return true;
 }
 
-static bool flashWrite(int addr, const uint8_t *buf, int len, void *arg)
+static bool flashWrite(uint32_t addr, const uint8_t *buf, uint32_t len)
 {
   size_t pageSize = flashSpiGetPageSize();
   if(len%pageSize != 0)
@@ -84,11 +85,22 @@ static bool flashWrite(int addr, const uint8_t *buf, int len, void *arg)
   return true;
 }
 
-static bool flashErase(int addr, void *arg)
+static bool flashErase(uint32_t addr)
 {
-  flashSpiBlockErase(addr);
+  flashSpiErase(addr);
   return true;
 }
+
+static bool isFlashErased(uint32_t addr)
+{
+  return flashSpiIsErased(addr);
+}
+
+void flushFTL()
+{
+  ftlSync(frftl);
+}
+
 }
 #endif
 /*-----------------------------------------------------------------------*/
@@ -102,23 +114,24 @@ DSTATUS disk_initialize (
 #if defined(SPI_FLASH)
   if(drv == 1)
   {
-    if(tjftl != nullptr)
+    if(frftl != nullptr)
       return stat;
-    if(!tjftl_detect(flashRead, nullptr))
-      flashSpiEraseAll();
+//    if(!tjftl_detect(flashRead, nullptr))
+//      flashSpiEraseAll();
 
     int flashSize = flashSpiGetSize();
     int flashSizeMB = flashSize  / 1024 / 1024;
-    int blockCount = flashSpiGetBlockCount();
+  //  int blockCount = flashSpiGetBlockCount();
     
     // tjftl requires 1/64 overhead and some blocks for GC (at least 10)
     // However, if give it more GC blocks, it can help to reduce wearing level and improve performance
     // Simulation is done to give a balanace between wearing and overhead
-    int overheadBlockCount = blockCount / 64 + (flashSizeMB >= 32 ? flashSizeMB * 2 : 32);
+//    int overheadBlockCount = blockCount / 64 + (flashSizeMB >= 32 ? flashSizeMB * 2 : 32);
 
-    tjftl = tjftl_init(flashRead, flashErase, flashWrite, nullptr, flashSize, (flashSize - overheadBlockCount * 32768)/512, 0);
+//    tjftl = tjftl_init(flashRead, flashErase, flashWrite, nullptr, flashSize, (flashSize - overheadBlockCount * 32768)/512, 0);
+    frftl = ftlInit(flashRead, flashWrite, flashErase, isFlashErased, flashSizeMB);
 
-    if(tjftl == nullptr)
+    if(frftl == nullptr)
       stat |= STA_NOINIT;
     return stat;
   }
@@ -165,7 +178,7 @@ DSTATUS disk_status (
 #if defined(SPI_FLASH)
   if(drv == 1)
   {
-    if(tjftl == nullptr)
+    if(frftl == nullptr)
       stat |= STA_NODISK;
     return stat;
   }
@@ -240,14 +253,14 @@ DRESULT __disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
 #if defined(SPI_FLASH)
   if(drv == 1)
   {
-    if(tjftl == nullptr)
+    if(frftl == nullptr)
     {
       res = RES_ERROR;
       return res;
     }
     while(count)
     {
-      if(!tjftl_read(tjftl, sector, (uint8_t*)buff))
+      if(!ftlRead(frftl, sector, (uint8_t*)buff))
         return RES_ERROR;
       buff += 512;
       sector++;
@@ -316,19 +329,13 @@ DRESULT __disk_write(
 #if defined(SPI_FLASH)
   if(drv == 1)
   {
-    if(tjftl == nullptr)
+    if(frftl == nullptr)
     {
       res = RES_ERROR;
       return res;
     }
-    while(count)
-    {
-      if(!tjftl_write(tjftl, sector, (uint8_t*)buff))
-        return RES_ERROR;
-      buff += 512;
-      sector++;
-      count --;
-    }
+    if (!ftlWrite(frftl, sector, count, (uint8_t*)buff))
+      return RES_ERROR;
     return res;
   }
 #endif
@@ -406,7 +413,7 @@ DRESULT disk_ioctl (
   if(drv == 1)
   {
     disk_initialize(1);
-    if(tjftl == nullptr)
+    if(frftl == nullptr)
     {
       res = RES_ERROR;
       return res;
@@ -416,23 +423,29 @@ DRESULT disk_ioctl (
     switch (ctrl) {
       case GET_SECTOR_COUNT : /* Get number of sectors on the disk (DWORD) */
       {
-        *(DWORD*)buff = tjftl_getSectorCount(tjftl);
+        *(DWORD*)buff = frftl->usableSectorCount;
         res = RES_OK;
         break;
       }
       case GET_SECTOR_SIZE :  /* Get R/W sector size (WORD) */
-        *(WORD*)buff = tjftl_getSectorSize(tjftl);
+        *(WORD*)buff = 512;
         res = RES_OK;
         break;
 
       case GET_BLOCK_SIZE :   /* Get erase block size in unit of sector (DWORD) */
         // TODO verify that this is the correct value
-        *(DWORD*)buff = 512;
+        *(DWORD*)buff = 4096;
         res = RES_OK;
         break;
 
       case CTRL_SYNC:
-        res = RES_OK;
+        if (ftlSync(frftl))
+          res = RES_OK;
+        break;
+
+      case CTRL_TRIM:
+        if (ftlTrim(frftl, *(DWORD*)buff, 1 + *((DWORD*)buff + 1) - *(DWORD*)buff))
+          res = RES_OK;
         break;
 
       default:

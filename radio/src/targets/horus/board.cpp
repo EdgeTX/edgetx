@@ -215,6 +215,10 @@ extern void rtcDisableBackupReg();
 
 void boardOff()
 {
+#if defined(SPI_FLASH)
+  flushFTL();
+#endif
+
   ledOff();
   backlightEnable(0);
 

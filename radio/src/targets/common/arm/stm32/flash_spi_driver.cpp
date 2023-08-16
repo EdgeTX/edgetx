@@ -285,9 +285,44 @@ size_t flashSpiGetSize()
 	return flashDescriptor->blockSize * flashDescriptor->blockCount;
 }
 
-uint32_t flashSpiGetBlockCount()
+/*uint32_t flashSpiGetBlockCount()
 {
 	return flashDescriptor->blockCount;
+}*/
+
+bool flashSpiIsErased(size_t address)
+{
+  if(address%flashDescriptor->sectorSize != 0)
+    return false;
+
+  flashSpiSync();
+
+  CS_LOW();
+
+  flashSpiReadWriteByte(flashDescriptor->readCmd);
+  if (flashDescriptor->use4BytesAddress)
+  {
+    flashSpiReadWriteByte((address>>24)&0xFF);
+  }
+  flashSpiReadWriteByte((address>>16)&0xFF);
+  flashSpiReadWriteByte((address>>8)&0xFF);
+  flashSpiReadWriteByte(address&0xFF);
+
+  bool ret = true;
+  for(size_t i = 0; i < flashDescriptor->sectorSize; i++)
+  {
+    uint8_t byte = flashSpiReadWriteByte(0xFF);
+    if (byte != 0xff)
+    {
+      ret = false;
+      break;
+    }
+  }
+
+  delay_01us(100); // 10us
+  CS_HIGH();
+
+  return ret;
 }
 
 size_t flashSpiRead(size_t address, uint8_t* data, size_t size)

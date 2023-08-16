@@ -47,10 +47,11 @@ set(BOOTLOADER_SRC
   )
 
 if(SPI_FLASH)
-  set(BOOTLOADER_SRC
-    ${BOOTLOADER_SRC}
-    ../../../../../targets/common/arm/stm32/flash_spi_driver.cpp
-    ../../../../../thirdparty/tjftl/tjftl.c
+set(BOOTLOADER_SRC
+  ${BOOTLOADER_SRC}
+  ../../../../../targets/common/arm/stm32/flash_spi_driver.cpp
+  ../../../../../frftl.cpp
+  ../../../../../crc.cpp
   )
 endif()
 
