@@ -884,6 +884,20 @@ QString SemanticVersion::toString() const
   return ret;
 }
 
+bool SemanticVersion::isEmpty(const QString vers)
+{
+  fromString(vers);
+  return isEmpty();
+}
+
+bool SemanticVersion::isEmpty()
+{
+  if (toInt() == SemanticVersion().toInt() )
+    return true;
+  else
+    return false;
+}
+
 int SemanticVersion::compare(const SemanticVersion& other)
 {
   if (version.major != other.version.major) {

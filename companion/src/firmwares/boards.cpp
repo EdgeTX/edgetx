@@ -22,6 +22,7 @@
 #include "macros.h"
 #include "compounditemmodels.h"
 #include "moduledata.h"
+#include "helpers.h"
 
 // TODO remove all those constants
 // Update: These are now all only used within this class.
@@ -594,17 +595,29 @@ QString Boards::getAxisName(int index)
     return CPN_STR_UNKNOWN_ITEM;
 }
 
-StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
+StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board, const QString strVersion)
 {
+  SemanticVersion version(strVersion);
+  SemanticVersion adcVersion(QString(CPN_ADC_REFACTOR_VERSION));
+
   StringTagMappingTable tbl;
 
   if (getBoardCapability(board, Board::Sticks)) {
-    tbl.insert(tbl.end(), {
-                              {tr("Rud").toStdString(), "Rud"},
-                              {tr("Ele").toStdString(), "Ele"},
-                              {tr("Thr").toStdString(), "Thr"},
-                              {tr("Ail").toStdString(), "Ail"},
-                          });
+    if (version < adcVersion) {
+      tbl.insert(tbl.end(), {
+                                {tr("Rud").toStdString(), "Rud"},
+                                {tr("Ele").toStdString(), "Ele"},
+                                {tr("Thr").toStdString(), "Thr"},
+                                {tr("Ail").toStdString(), "Ail"},
+                            });
+    } else {
+      tbl.insert(tbl.end(), {
+                                {tr("Rud").toStdString(), "LH", 0},
+                                {tr("Ele").toStdString(), "LV", 1},
+                                {tr("Thr").toStdString(), "RH", 2},
+                                {tr("Ail").toStdString(), "RV", 3},
+                            });
+    }
   }
 
   if (IS_SKY9X(board)) {
@@ -614,77 +627,162 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board)
                               {tr("P3").toStdString(), "P3"},
                           });
   } else if (IS_TARANIS_X9LITE(board)) {
-    tbl.insert(tbl.end(), {
-                              {tr("S1").toStdString(), "S1"},
-                              {tr("POT1").toStdString(), "POT1"},
-                          });
+    if (version < adcVersion) {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "S1"},
+                                {tr("POT1").toStdString(), "POT1"},
+                            });
+    } else {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "P1", 4},
+                            });
+    }
   } else if (IS_TARANIS_X9E(board)) {
-    tbl.insert(tbl.end(), {
-                              {tr("F1").toStdString(), "POT1"},
-                              {tr("F2").toStdString(), "POT2"},
-                              {tr("F3").toStdString(), "POT3"},
-                              {tr("F4").toStdString(), "POT4"},
-                              {tr("S1").toStdString(), "SLIDER1"},
-                              {tr("S2").toStdString(), "SLIDER2"},
-                              {tr("LS").toStdString(), "SLIDER3"},
-                              {tr("RS").toStdString(), "SLIDER4"},
-                          });
+    if (version < adcVersion) {
+      tbl.insert(tbl.end(), {
+                                {tr("F1").toStdString(), "POT1"},
+                                {tr("F2").toStdString(), "POT2"},
+                                {tr("F3").toStdString(), "POT3"},
+                                {tr("F4").toStdString(), "POT4"},
+                                {tr("S1").toStdString(), "SLIDER1"},
+                                {tr("S2").toStdString(), "SLIDER2"},
+                                {tr("LS").toStdString(), "SLIDER3"},
+                                {tr("RS").toStdString(), "SLIDER4"},
+                            });
+    } else {
+      tbl.insert(tbl.end(), {
+                                {tr("F1").toStdString(), "P1", 4},
+                                {tr("F2").toStdString(), "P2", 5},
+                                {tr("S1").toStdString(), "SL3", 8},
+                                {tr("S2").toStdString(), "SL4", 9},
+                                {tr("LS").toStdString(), "SL1", 6},
+                                {tr("RS").toStdString(), "SL2", 7},
+                            });
+    }
   } else if (IS_TARANIS_XLITES(board)) {
-    tbl.insert(tbl.end(), {
-                              {tr("S1").toStdString(), "POT1"},
-                              {tr("S2").toStdString(), "POT2"},
-                              {tr("TltX").toStdString(), "TILT_X"},
-                              {tr("TltY").toStdString(), "TILT_Y"},
-                          });
+    if (version < adcVersion) {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "POT1"},
+                                {tr("S2").toStdString(), "POT2"},
+                                {tr("TltX").toStdString(), "TILT_X"},
+                                {tr("TltY").toStdString(), "TILT_Y"},
+                            });
+    } else {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "P1", 4},
+                                {tr("S2").toStdString(), "P2", 5},
+                                {tr("TltX").toStdString(), "TILT_X", 6},
+                                {tr("TltY").toStdString(), "TILT_Y", 7},
+                            });
+    }
   } else if (IS_RADIOMASTER_BOXER(board)) {
-    tbl.insert(tbl.end(), {
-                              {tr("S1").toStdString(), "POT1"},
-                              {tr("S2").toStdString(), "POT2"},
-                              {tr("S3").toStdString(), "POT3"},
-                          });
+    if (version < adcVersion) {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "POT1"},
+                                {tr("S2").toStdString(), "POT2"},
+                                {tr("S3").toStdString(), "POT3"},
+                            });
+    } else {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "P1", 4},
+                                {tr("S2").toStdString(), "P2", 5},
+                                {tr("S3").toStdString(), "P3", 6},
+                            });
+    }
   } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board)) || IS_FLYSKY_NV14(board)) {
-    tbl.insert(tbl.end(), {
-                              {tr("S1").toStdString(), "POT1"},
-                              {tr("S2").toStdString(), "POT2"},
-                          });
+    if (version < adcVersion) {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "POT1"},
+                                {tr("S2").toStdString(), "POT2"},
+                            });
+    } else {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "P1", 4},
+                                {tr("S2").toStdString(), "P2", 5},
+                            });
+    }
   } else if (IS_TARANIS_X9(board)) {
-    tbl.insert(tbl.end(), {
-                              {tr("S1").toStdString(), "POT1"},
-                              {tr("S2").toStdString(), "POT2"},
-                              {tr("S3").toStdString(), "POT3"},
-                              {tr("LS").toStdString(), "SLIDER1"},
-                              {tr("RS").toStdString(), "SLIDER2"},
-                          });
+    if (version < adcVersion) {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "POT1"},
+                                {tr("S2").toStdString(), "POT2"},
+                                {tr("S3").toStdString(), "POT3"},
+                                {tr("LS").toStdString(), "SLIDER1"},
+                                {tr("RS").toStdString(), "SLIDER2"},
+                            });
+    } else {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "P1", 4},
+                                {tr("S2").toStdString(), "P2", 5},
+                                {tr("S3").toStdString(), "P3", 6},
+                                {tr("LS").toStdString(), "SL1", 7},
+                                {tr("RS").toStdString(), "SL2", 8},
+                            });
+    }
   } else if (IS_HORUS_X12S(board)) {
-    tbl.insert(tbl.end(), {
-                              {tr("S1").toStdString(), "S1"},
-                              {tr("6P").toStdString(), "6POS"},
-                              {tr("S2").toStdString(), "S2"},
-                              {tr("L1").toStdString(), "S3"},
-                              {tr("L2").toStdString(), "S4"},
-                              {tr("LS").toStdString(), "LS"},
-                              {tr("RS").toStdString(), "RS"},
-                              {tr("JSx").toStdString(), "MOUSE1"},
-                              {tr("JSy").toStdString(), "MOUSE2"},
-                              {tr("TltX").toStdString(), "TILT_X"},
-                              {tr("TltY").toStdString(), "TILT_Y"},
-                          });
+    if (version < adcVersion) {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "S1"},
+                                {tr("6P").toStdString(), "6POS"},
+                                {tr("S2").toStdString(), "S2"},
+                                {tr("L1").toStdString(), "S3"},
+                                {tr("L2").toStdString(), "S4"},
+                                {tr("LS").toStdString(), "LS"},
+                                {tr("RS").toStdString(), "RS"},
+                                {tr("JSx").toStdString(), "MOUSE1"},
+                                {tr("JSy").toStdString(), "MOUSE2"},
+                                {tr("TltX").toStdString(), "TILT_X"},
+                                {tr("TltY").toStdString(), "TILT_Y"},
+                            });
+    } else {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "P1", 4},
+                                {tr("6POS").toStdString(), "P2", 5},
+                                {tr("S2").toStdString(), "P3", 6},
+                                {tr("L1").toStdString(), "SL3", 9},
+                                {tr("L2").toStdString(), "SL4", 10},
+                                {tr("LS").toStdString(), "SL1", 7},
+                                {tr("RS").toStdString(), "SL2", 8},
+                                {tr("JSx").toStdString(), "JSx", 11},
+                                {tr("JSy").toStdString(), "JSy", 12},
+                                {tr("TltX").toStdString(), "TILT_X", 13},
+                                {tr("TltY").toStdString(), "TILT_Y", 14},
+                            });
+    }
   } else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
-    tbl.insert(tbl.end(), {
-                              {tr("S1").toStdString(), "S1"},
-                              {tr("6P").toStdString(), "6POS"},
-                              {tr("S2").toStdString(), "S2"},
-                              {tr("EX1").toStdString(), "EXT1"},
-                              {tr("EX2").toStdString(), "EXT2"},
-                              {tr("EX3").toStdString(), "EXT3"},
-                              {tr("EX4").toStdString(), "EXT4"},
-                              {tr("LS").toStdString(), "LS"},
-                              {tr("RS").toStdString(), "RS"},
-                              {tr("JSx").toStdString(), "MOUSE1"},
-                              {tr("JSy").toStdString(), "MOUSE2"},
-                              {tr("TltX").toStdString(), "TILT_X"},
-                              {tr("TltY").toStdString(), "TILT_Y"},
-                          });
+    if (version < adcVersion) {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "S1"},
+                                {tr("6P").toStdString(), "6POS"},
+                                {tr("S2").toStdString(), "S2"},
+                                {tr("EX1").toStdString(), "EXT1"},
+                                {tr("EX2").toStdString(), "EXT2"},
+                                {tr("EX3").toStdString(), "EXT3"},
+                                {tr("EX4").toStdString(), "EXT4"},
+                                {tr("LS").toStdString(), "LS"},
+                                {tr("RS").toStdString(), "RS"},
+                                {tr("JSx").toStdString(), "MOUSE1"},
+                                {tr("JSy").toStdString(), "MOUSE2"},
+                                {tr("TltX").toStdString(), "TILT_X"},
+                                {tr("TltY").toStdString(), "TILT_Y"},
+                            });
+    } else {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "P1", 4},
+                                {tr("6POS").toStdString(), "P2", 5},
+                                {tr("S2").toStdString(), "P3", 6},
+                                {tr("EXT1").toStdString(), "EXT1", 9},
+                                {tr("EXT2").toStdString(), "EXT2", 10},
+                                {tr("EXT3").toStdString(), "EXT3", 11},
+                                {tr("EXT4").toStdString(), "EXT4", 12},
+                                {tr("LS").toStdString(), "SL1", 7},
+                                {tr("RS").toStdString(), "SL2", 8},
+                                {tr("JSx").toStdString(), "JSx", 13},
+                                {tr("JSy").toStdString(), "JSy", 14},
+                                {tr("TltX").toStdString(), "TILT_X", 15},
+                                {tr("TltY").toStdString(), "TILT_Y", 16},
+                            });
+    }
   }
 
   return tbl;
@@ -1050,4 +1148,28 @@ AbstractStaticItemModel * Boards::externalModuleSizeItemModel()
 
   mdl->loadItemList();
   return mdl;
+}
+
+//  EdgeTX 2.10.0 ADC refactor changed order of pots and sliders that affected interpretation of model warnings
+//  This conversion needs to be revisited when Companion is refactored to use ADC radio defns
+//  Make ADC orders backwards compatible
+
+//  the values below are based on radio\src\util\hw_defns\pots_config.py
+
+// static
+int Boards::adcPotsBeforeSliders(Board::Type board, SemanticVersion version)
+{
+  if (version >= SemanticVersion(CPN_ADC_REFACTOR_VERSION)) {
+    if (IS_TARANIS_X9(board) || IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || IS_RADIOMASTER_BOXER(board))
+      return 3;
+    else if (IS_TARANIS_X9LITE(board))
+      return 1;
+    else if (IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board))
+      return 0;
+    else
+      return 2;
+  }
+  else {
+    return getCapability(board, Board::Pots);
+  }
 }

@@ -90,7 +90,13 @@ std::string YamlSwitchLookup::idx2name(unsigned int idx)
 int YamlPotLookup::name2idx(const std::string& name)
 {
     auto fw = getCurrentFirmware();
-    int idx = fw->getAnalogInputIndex(name.c_str());
+    int idx = 0;
+
+    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
+      idx = fw->getAnalogInputIndex(name.c_str());
+    else
+      idx = fw->getAnalogInputIndexADC(name.c_str());
+
     if (idx < 0) return idx;
 
     int sticks = Boards::getCapability(fw->getBoard(), Board::Sticks);
@@ -98,7 +104,8 @@ int YamlPotLookup::name2idx(const std::string& name)
     idx -= sticks;
 
     int pots = Boards::getCapability(fw->getBoard(), Board::Pots);
-    if (idx >= pots) return -1;
+    int sliders = Boards::getCapability(fw->getBoard(), Board::Sliders);
+    if (idx >= pots + sliders) return -1;
 
     return idx;
 }
@@ -106,17 +113,24 @@ int YamlPotLookup::name2idx(const std::string& name)
 std::string YamlPotLookup::idx2name(unsigned int idx)
 {
     auto fw = getCurrentFirmware();
-    unsigned int pots = Boards::getCapability(fw->getBoard(), Board::Pots);
+    auto board = fw->getBoard();
+    unsigned int pots = Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders);
     if (idx >= pots) return std::string();
 
-    unsigned int sticks = Boards::getCapability(fw->getBoard(), Board::Sticks);
-    return fw->getAnalogInputTag(idx + sticks);
+    unsigned int sticks = Boards::getCapability(board, Board::Sticks);
+    return fw->getAnalogInputSeqTagADC(idx + sticks);
 }
 
 int YamlSliderLookup::name2idx(const std::string& name)
 {
     auto fw = getCurrentFirmware();
-    int idx = fw->getAnalogInputIndex(name.c_str());
+    int idx = 0;
+
+    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
+      idx = fw->getAnalogInputIndex(name.c_str());
+    else
+      idx = fw->getAnalogInputIndexADC(name.c_str());
+
     if (idx < 0) return idx;
 
     int sticks = Boards::getCapability(fw->getBoard(), Board::Sticks);

@@ -21,15 +21,21 @@
 #include "yaml_calibdata.h"
 #include "eeprominterface.h"
 
-YamlCalibData::YamlCalibData() { memset(calib, 0, sizeof(calib)); }
+YamlCalibData::YamlCalibData()
+{
+  memset(calib, 0, sizeof(calib));
+}
 
 YamlCalibData::YamlCalibData(const int* calibMid, const int* calibSpanNeg,
                              const int* calibSpanPos)
 {
   for (int i = 0; i < CPN_MAX_ANALOGS; i++) {
-    calib[i].mid = calibMid[i];
-    calib[i].spanNeg = calibSpanNeg[i];
-    calib[i].spanPos = calibSpanPos[i];
+    int seq = getCurrentFirmware()->getAnalogInputSeqADC(i);
+    if (seq >= 0 && seq < CPN_MAX_ANALOGS) {
+      calib[seq].mid = calibMid[i];
+      calib[seq].spanNeg = calibSpanNeg[i];
+      calib[seq].spanPos = calibSpanPos[i];
+    }
   }
 }
 
@@ -67,10 +73,21 @@ bool convert<CalibData>::decode(const Node& node, CalibData& rhs)
 Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 {
   Node node;
-  int idx = 0;
-  const auto* calibIdxLut = getCurrentFirmware()->getAnalogIndexNamesLookupTable();
-  for (const auto& kv : *calibIdxLut) {
-    node[kv.tag] = rhs.calib[idx++];
+  auto fw = getCurrentFirmware();
+  auto board = fw->getBoard();
+  const auto* calibIdxLut = fw->getAnalogIndexNamesLookupTableADC();
+  const int calibs = Boards::getCapability(board, Board::Sticks) +
+                     Boards::getCapability(board, Board::Pots) +
+                     Boards::getCapability(board, Board::Sliders);
+  for (int i = 0; i < calibs; i++) {
+    for (int j = 0; j < (int)calibIdxLut->size(); j++) {
+      int seq = getCurrentFirmware()->getAnalogInputSeqADC(j);
+      if (seq == i) {
+        std::string tag = getCurrentFirmware()->getAnalogInputTagADC(j);
+        node[tag] = rhs.calib[seq];
+        break;
+      }
+    }
   }
   return node;
 }
@@ -82,10 +99,15 @@ bool convert<YamlCalibData>::decode(const Node& node, YamlCalibData& rhs)
   for (const auto& kv : node) {
     std::string tag;
     kv.first >> tag;
-    int idx = getCurrentFirmware()->getAnalogInputIndex(tag.c_str());
-    if (idx >= 0) {
+    int idx = 0;
+
+    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
+      idx = getCurrentFirmware()->getAnalogInputIndex(tag.c_str());
+    else
+      idx = getCurrentFirmware()->getAnalogInputIndexADC(tag.c_str());
+
+    if (idx >= 0)
       kv.second >> rhs.calib[idx];
-    }
   }
   return true;
 }

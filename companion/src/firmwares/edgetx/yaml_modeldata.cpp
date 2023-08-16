@@ -177,10 +177,9 @@ struct YamlPotsWarnEnabled {
   unsigned int value;
 
   const Board::Type board = getCurrentBoard();
-  //  modeldata potwarnen_t potsWarnEnabled
   const int maxradio = 8 * (int)(Boards::getCapability(board, Board::HasColorLcd) ? sizeof(uint16_t) : sizeof(uint8_t));
   const int maxcpn = CPN_MAX_POTS + CPN_MAX_SLIDERS;
-  const int slidersStart = adcPotsBeforeSliders();
+  const int slidersStart = Boards::adcPotsBeforeSliders(board, modelSettingsVersion);
   const int numpots = Boards::getCapability(board, Board::Pots);
   const int offset = numpots - slidersStart;
 
@@ -229,11 +228,10 @@ struct YamlBeepANACenter {
   unsigned int value;
 
   const Board::Type board = getCurrentBoard();
-  //  modeldata BeepANACenter beepANACenter
   const int maxradio = 8 * (int)sizeof(uint16_t);
   const int numstickspots = CPN_MAX_STICKS + Boards::getCapability(board, Board::Pots);
   const int maxcpn = numstickspots + getBoardCapability(board, Board::Sliders);
-  const int slidersStart = CPN_MAX_STICKS + adcPotsBeforeSliders();
+  const int slidersStart = CPN_MAX_STICKS + Boards::adcPotsBeforeSliders(board, modelSettingsVersion);
   const int offset = numstickspots - slidersStart;
 
   YamlBeepANACenter() = default;
@@ -1154,12 +1152,12 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   unsigned int modelIds[CPN_MAX_MODULES];
   memset(modelIds, 0, sizeof(modelIds));
 
-  version = SemanticVersion();
+  modelSettingsVersion = SemanticVersion();
 
   if (node["semver"]) {
     node["semver"] >> rhs.semver;
     if (SemanticVersion().isValid(rhs.semver)) {
-      version = SemanticVersion(QString(rhs.semver));
+      modelSettingsVersion = SemanticVersion(QString(rhs.semver));
     }
     else {
       qDebug() << "Invalid settings version:" << rhs.semver;
@@ -1167,9 +1165,9 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     }
   }
 
-  qDebug() << "Settings version:" << version.toString();
+  qDebug() << "Settings version:" << modelSettingsVersion.toString();
 
-  if (version > SemanticVersion(VERSION))
+  if (modelSettingsVersion > SemanticVersion(VERSION))
     qDebug() << "Warning: version not supported by Companion!";
 
   if (node["header"]) {
@@ -1371,7 +1369,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   //  preferably perform conversions here to avoid cluttering the field decodes
 
-  if (version < SemanticVersion("2.8.0")) {
+  if (modelSettingsVersion < SemanticVersion("2.8.0"))
+  {
     //  Cells 7 and 8 introduced requiring Highest and Delta to be shifted + 2
     for (int i = 0; i < CPN_MAX_SENSORS; i++) {
       SensorData &sd = rhs.sensorData[i];

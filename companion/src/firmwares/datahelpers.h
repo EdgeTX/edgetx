@@ -27,40 +27,65 @@
 struct StringTagMapping {
   std::string name;
   std::string tag;
+  unsigned int seq;
 
   StringTagMapping() = default;
   StringTagMapping(const char* name) :
-      name(name), tag(name)
+      name(name), tag(name), seq(0)
   {
   }
   StringTagMapping(const std::string& name) :
-      name(name), tag(name)
+      name(name), tag(name), seq(0)
   {
   }
-  StringTagMapping(const char* name, const char* tag) :
-      name(name), tag(tag)
+  StringTagMapping(const char* name, const char* tag, const unsigned int seq = 0) :
+      name(name), tag(tag), seq(seq)
   {
   }
-  StringTagMapping(const std::string& name, const std::string& tag) :
-      name(name), tag(tag)
+  StringTagMapping(const std::string& name, const std::string& tag, const unsigned int seq = 0) :
+      name(name), tag(tag), seq(seq)
   {
   }
 };
 
 typedef std::vector<StringTagMapping> StringTagMappingTable;
 
-#define STRINGTAGMAPPINGFUNCS_HELPER(tbl, name, index, tag)     \
-    inline int name##index (const char * tag)                   \
-    {                                                           \
-      return DataHelpers::getStringTagMappingIndex(tbl, tag);   \
-    }                                                           \
-                                                                \
-    inline std::string name##tag (unsigned int index)           \
-    {                                                           \
-      return DataHelpers::getStringTagMappingTag(tbl, index);   \
+#define STRINGTAGMAPPINGFUNCS_HELPER(tbl, name)                   \
+    inline int name##Index (const char * tag)                     \
+    {                                                             \
+      return DataHelpers::getStringTagMappingIndex(tbl, tag);     \
+    }                                                             \
+                                                                  \
+    inline std::string name##Tag (unsigned int index)             \
+    {                                                             \
+      return DataHelpers::getStringTagMappingTag(tbl, index);     \
     }
 
-#define STRINGTAGMAPPINGFUNCS(tbl, name)  STRINGTAGMAPPINGFUNCS_HELPER(tbl, get##name, Index, Tag)
+#define STRINGTAGMAPPINGFUNCS_ADC_HELPER(tbl, tbladc, name)       \
+    STRINGTAGMAPPINGFUNCS_HELPER(tbl, name)                       \
+                                                                  \
+    inline int name##IndexADC (const char * tag)                  \
+    {                                                             \
+      return DataHelpers::getStringTagMappingIndex(tbladc, tag);  \
+    }                                                             \
+                                                                  \
+    inline std::string name##TagADC (unsigned int index)          \
+    {                                                             \
+      return DataHelpers::getStringTagMappingTag(tbladc, index);  \
+    }                                                             \
+                                                                  \
+    inline int name##SeqADC (unsigned int index)                  \
+    {                                                             \
+      return DataHelpers::getStringTagMappingSeq(tbladc, index);  \
+    }                                                             \
+                                                                  \
+    inline std::string name##SeqTagADC (unsigned int seq)         \
+    {                                                             \
+      return DataHelpers::getStringSeqMappingTag(tbladc, seq);    \
+    }
+
+#define STRINGTAGMAPPINGFUNCS(tbl, name)  STRINGTAGMAPPINGFUNCS_HELPER(tbl, get##name)
+#define STRINGTAGMAPPINGFUNCS_ADC(tbl, tbladc, name)  STRINGTAGMAPPINGFUNCS_ADC_HELPER(tbl, tbladc, get##name)
 
 class FieldRange
 {
@@ -107,4 +132,6 @@ namespace DataHelpers
   QString timeToString(const int value, const unsigned int mask);
   int getStringTagMappingIndex(const StringTagMappingTable& lut, const char * tag);
   std::string getStringTagMappingTag(const StringTagMappingTable& lut, unsigned int index);
+  int getStringTagMappingSeq(const StringTagMappingTable& lut, unsigned int index);
+  std::string getStringSeqMappingTag(const StringTagMappingTable& lut, unsigned int seq);
 }
