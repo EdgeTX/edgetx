@@ -520,6 +520,10 @@ const etx_module_t _sport_module = {
 
 #endif // SPORT_UPDATE_PWR_GPIO
 
+#if !defined(RADIO_X10E)
+uint32_t __pxx1_get_inverter_comp() { return 1; }
+#endif
+
 void boardInitModulePorts()
 {
   _sport_direction_init();

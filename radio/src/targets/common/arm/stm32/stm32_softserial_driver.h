@@ -105,3 +105,7 @@ struct stm32_softserial_tx_port {
 #define REF_STM32_SOFTSERIAL_PORT(p) ((void*)& p ## _STM32Softserial)
 
 extern const etx_serial_driver_t STM32SoftSerialTxDriver;
+
+// This is defined as a weak symbol to allow stretching the prelude part
+// of PXX1 pulses to an acceptable length
+uint32_t __pxx1_get_inverter_comp();
