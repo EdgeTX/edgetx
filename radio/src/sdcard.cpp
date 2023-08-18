@@ -479,7 +479,8 @@ uint32_t sdGetSize()
 
 uint32_t sdGetFreeSectors()
 {
-  return ((SDCARD_MIN_FREE_SPACE_MB*1024*1024)/BLOCK_SIZE)+1;    // SIMU SD card is always above threshold
+  // SIMU SD card is always above threshold
+  return ((SDCARD_MIN_FREE_SPACE_MB*1024*1024)/BLOCK_SIZE)+1;
 }
 
 uint32_t sdGetFreeKB() { return SDCARD_MIN_FREE_SPACE_MB * 1024 + 1; }
@@ -597,19 +598,4 @@ uint32_t sdMounted()
 #else
   return _g_FATFS_init && (g_FATFS_Obj.fs_type != 0);
 #endif
-}
-
-
-uint32_t sdIsHC()
-{
-  // defined in diskio
-  #define CT_BLOCK 0x08
-  extern uint32_t SD_GetCardType();
-
-  return SD_GetCardType() & CT_BLOCK;
-}
-
-uint32_t sdGetSpeed()
-{
-  return 330000;
 }

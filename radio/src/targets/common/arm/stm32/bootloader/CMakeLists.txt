@@ -119,8 +119,11 @@ else()
     ${BOOTLOADER_SRC}
     ../../../../../gui/common/stdlcd/fonts.cpp
     ../../../../../gui/common/stdlcd/utf8.cpp
-    ../../../../../targets/${TARGET_DIR}/eeprom_driver.cpp
-    ../../../../../targets/${TARGET_DIR}/diskio.cpp
+    ../../../../../targets/common/arm/stm32/stm32_gpio_driver.cpp
+    ../../../../../targets/common/arm/stm32/stm32_spi.cpp
+    ../../../../../targets/common/arm/stm32/sdcard_spi.cpp
+    ../../../../../targets/common/arm/stm32/diskio_spi.cpp
+    ../../../../../crc.cpp
     )
   remove_definitions(-DDEBUG)
 endif()

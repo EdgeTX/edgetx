@@ -198,10 +198,6 @@ void per10ms()
   if (mixWarning & 4) if(((g_tmr10ms&0xFF)==128) || ((g_tmr10ms&0xFF)==136) || ((g_tmr10ms&0xFF)==144)) AUDIO_MIX_WARNING(3);
 #endif
 
-#if defined(SDCARD) && defined(PCBTARANIS)
-  sdPoll10ms();
-#endif
-
   outputTelemetryBuffer.per10ms();
 
   heartbeat |= HEART_TIMER_10MS;

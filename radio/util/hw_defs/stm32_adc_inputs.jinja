@@ -49,11 +49,12 @@ static const stm32_spi_adc_t _ADC_spi[] = {
   {% set inputs = adc_inputs.inputs | selectattr('adc', '==', adc.name) | selectattr('channel','defined') %}
   {% set input_count = inputs | list | count %}
   {
-    {{ adc.adc }},
-    {{ adc.gpio }},
-    {{ adc.gpio_pin_miso }} | {{ adc.gpio_pin_mosi }} | {{ adc.gpio_pin_sck }},
-    {{ adc.gpio_af }},
-    {{ adc.gpio_pin_cs }},
+    .spi = {
+      {{ adc.adc }},
+      {{ adc.gpio }},
+      {{ adc.gpio_pin_miso }} | {{ adc.gpio_pin_mosi }} | {{ adc.gpio_pin_sck }},
+      {{ adc.gpio_pin_cs }},
+    },
     _ADC_{{ adc.name }}_channels,
     {{ input_count }}
   },

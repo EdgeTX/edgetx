@@ -30,69 +30,43 @@
 #define MANUAL_MODE                    0x1000 // manual mode channel 0
 #define MANUAL_MODE_CHANNEL(x)         (MANUAL_MODE | ((x) << 7))
 
-static uint16_t ads79xx_rw(SPI_TypeDef* SPIx, uint16_t value)
-{
-  while (!LL_SPI_IsActiveFlag_TXE(SPIx));
-  LL_SPI_TransmitData16(SPIx, value);
+#define ADS79XX_MAX_FREQ (20000000UL)
 
-  while (!LL_SPI_IsActiveFlag_RXNE(SPIx));
-  return LL_SPI_ReceiveData16(SPIx);
+static inline uint16_t ads79xx_rw(const stm32_spi_t* spi, uint16_t value)
+{
+  return stm32_spi_transfer_word(spi, value);
 }
 
 void ads79xx_init(const stm32_spi_adc_t* adc)
 {
-  stm32_gpio_enable_clock(adc->GPIOx);
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
+  const auto* spi = &adc->spi;
 
-  pinInit.Pin = adc->GPIO_Pins;
-  pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
-  pinInit.Alternate = adc->GPIO_AF;
-  LL_GPIO_Init(adc->GPIOx, &pinInit);
-
-  pinInit.Pin = adc->GPIO_CS;
-  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-  pinInit.Alternate = LL_GPIO_AF_0;
-  LL_GPIO_Init(adc->GPIOx, &pinInit);
-
-  auto SPIx = adc->SPIx;
-  stm32_spi_enable_clock(SPIx);
-  LL_SPI_DeInit(SPIx);
-
-  LL_SPI_InitTypeDef spiInit;
-  LL_SPI_StructInit(&spiInit);
-
-  spiInit.TransferDirection = LL_SPI_FULL_DUPLEX;
-  spiInit.Mode = LL_SPI_MODE_MASTER;
-  spiInit.DataWidth = LL_SPI_DATAWIDTH_16BIT;
-  spiInit.NSS = LL_SPI_NSS_SOFT;
-  spiInit.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV8;
-  LL_SPI_Init(SPIx, &spiInit);
-
-  LL_SPI_Enable(SPIx);
-
-  LL_SPI_DisableIT_TXE(SPIx);
-  LL_SPI_DisableIT_RXNE(SPIx);
-
-  _SPI_ADC_CS_HIGH(adc);
+  stm32_spi_init(spi);
+  stm32_spi_set_max_baudrate(spi, ADS79XX_MAX_FREQ);
+  LL_SPI_SetDataWidth(spi->SPIx, LL_SPI_DATAWIDTH_16BIT);
+  
+  stm32_spi_unselect(spi);
   delay_01us(1);
-  _SPI_ADC_CS_LOW(adc);
-  ads79xx_rw(SPIx, RESETCMD);
-  _SPI_ADC_CS_HIGH(adc);
+
+  stm32_spi_select(spi);
+  ads79xx_rw(spi, RESETCMD);
+  stm32_spi_unselect(spi);
   delay_01us(1);
-  _SPI_ADC_CS_LOW(adc);
-  ads79xx_rw(SPIx, MANUAL_MODE);
-  _SPI_ADC_CS_HIGH(adc);
+
+  stm32_spi_select(spi);
+  ads79xx_rw(spi, MANUAL_MODE);
+  stm32_spi_unselect(spi);
 }
 
 static void ads79xx_dummy_read(const stm32_spi_adc_t* adc, uint16_t start_channel)
 {
   // A dummy command to get things started
   // (because the sampled data is lagging behind for two command cycles)
-  _SPI_ADC_CS_LOW(adc);
+  const auto* spi = &adc->spi;
+  stm32_spi_select(spi);
   delay_01us(1);
-  ads79xx_rw(adc->SPIx, MANUAL_MODE_CHANNEL(start_channel));
-  _SPI_ADC_CS_HIGH(adc);
+  ads79xx_rw(spi, MANUAL_MODE_CHANNEL(start_channel));
+  stm32_spi_unselect(spi);
   delay_01us(1);
 }
 
@@ -115,8 +89,9 @@ static uint32_t ads79xx_read_next_channel(const stm32_spi_adc_t* adc,
   //         62               0             0.225ms - 0.243ms
   delay_01us(40);
 
+  const auto* spi = &adc->spi;
   for (uint8_t i = 0; i < 4; i++) {
-    _SPI_ADC_CS_LOW(adc);
+    stm32_spi_select(spi);
     delay_01us(1);
 
     // command is changed to the next index for the last two readings
@@ -126,7 +101,7 @@ static uint32_t ads79xx_read_next_channel(const stm32_spi_adc_t* adc,
     auto input_idx = chan[chan_idx];
     auto spi_chan = inputs[input_idx].ADC_Channel;
     
-    uint16_t val = (0x0fff & ads79xx_rw(adc->SPIx, MANUAL_MODE_CHANNEL(spi_chan)));
+    uint16_t val = (0x0fff & ads79xx_rw(spi, MANUAL_MODE_CHANNEL(spi_chan)));
 
 #if defined(JITTER_MEASURE)
     if (JITTER_MEASURE_ACTIVE()) {
@@ -134,7 +109,7 @@ static uint32_t ads79xx_read_next_channel(const stm32_spi_adc_t* adc,
     }
 #endif
 
-    _SPI_ADC_CS_HIGH(adc);
+    stm32_spi_unselect(spi);
     delay_01us(1);
     result += val;
   }

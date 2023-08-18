@@ -134,21 +134,6 @@ uint32_t sdGetFreeSectors();
 uint32_t sdGetFreeKB();
 bool sdIsFull();
 
-#if defined(PCBTARANIS)
-void sdPoll10ms();
-#endif
-
-#if !defined(SIMU) || defined(SIMU_DISKIO)
-  uint32_t sdIsHC();
-  uint32_t sdGetSpeed();
-  #define SD_IS_HC()                    (sdIsHC())
-  #define SD_GET_SPEED()                (sdGetSpeed())
-  #define SD_GET_FREE_BLOCKNR()         (sdGetFreeSectors())
-#else
-  #define SD_IS_HC()                    (0)
-  #define SD_GET_SPEED()                (0)
-#endif
-
 const char * sdCheckAndCreateDirectory(const char * path);
 
 #if !defined(BOOT)

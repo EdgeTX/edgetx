@@ -22,5 +22,39 @@
 #pragma once
 
 #include "stm32_hal_ll.h"
+#include <stdint.h>
+
+
+struct stm32_spi_t {
+  SPI_TypeDef*   SPIx;
+  GPIO_TypeDef*  GPIOx;
+  uint32_t       SPI_Pins; // SCK, MISO, MOSI
+  uint32_t       CS_Pin;   // CS
+
+  DMA_TypeDef*   DMA;
+  uint32_t       DMA_Channel;
+  uint32_t       txDMA_Stream;
+  uint32_t       rxDMA_Stream;
+};
 
 void stm32_spi_enable_clock(SPI_TypeDef *SPIx);
+
+void stm32_spi_init(const stm32_spi_t* spi);
+void stm32_spi_deinit(const stm32_spi_t* spi);
+
+void stm32_spi_select(const stm32_spi_t* spi);
+void stm32_spi_unselect(const stm32_spi_t* spi);
+
+void stm32_spi_set_max_baudrate(const stm32_spi_t* spi, uint32_t baudrate);
+
+uint8_t stm32_spi_transfer_byte(const stm32_spi_t* spi, uint8_t out);
+uint16_t stm32_spi_transfer_word(const stm32_spi_t* spi, uint16_t out);
+
+uint16_t stm32_spi_transfer_bytes(const stm32_spi_t* spi, const uint8_t* out,
+                                  uint8_t* in, uint16_t length);
+
+uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi, uint8_t* data,
+                                     uint16_t length);
+
+uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi, const uint8_t* data,
+                                      uint16_t length);

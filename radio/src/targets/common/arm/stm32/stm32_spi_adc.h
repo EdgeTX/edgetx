@@ -22,17 +22,11 @@
 #pragma once
 
 #include "stm32_hal_ll.h"
+#include "stm32_spi.h"
 
 struct stm32_spi_adc_t {
-  SPI_TypeDef*    SPIx;
-  GPIO_TypeDef*   GPIOx;
-  uint32_t        GPIO_Pins;
-  uint32_t        GPIO_AF;
-  uint32_t        GPIO_CS;
-  const uint8_t*  channels;
-  uint8_t         n_channels;  
+  stm32_spi_t        spi;
+  const uint8_t*     channels;
+  uint8_t            n_channels;  
 };
-
-#define _SPI_ADC_CS_HIGH(adc) LL_GPIO_SetOutputPin(adc->GPIOx, adc->GPIO_CS)
-#define _SPI_ADC_CS_LOW(adc) LL_GPIO_ResetOutputPin(adc->GPIOx, adc->GPIO_CS)
 

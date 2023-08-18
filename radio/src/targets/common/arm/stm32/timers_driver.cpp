@@ -22,15 +22,21 @@
 #include "opentx.h"
 #include "watchdog_driver.h"
 
-static volatile uint32_t msTickCount; // Used to get 1 kHz counter
+static volatile uint32_t msTickCount;  // Used to get 1 kHz counter
+static volatile uint32_t _us_overflow_cnt;
 
 // Start TIMER at 2000000Hz
 void init2MhzTimer()
 {
+  _us_overflow_cnt = 0;
   TIMER_2MHz_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 2000000 - 1; // 0.5 uS, 2 MHz
   TIMER_2MHz_TIMER->ARR = 65535;
   TIMER_2MHz_TIMER->CR2 = 0;
   TIMER_2MHz_TIMER->CR1 = TIM_CR1_CEN;
+  TIMER_2MHz_TIMER->DIER = TIM_DIER_UIE;
+
+  NVIC_EnableIRQ(TIMER_2MHz_IRQn);
+  NVIC_SetPriority(TIMER_2MHz_IRQn, 4);  
 }
 
 // Start TIMER at 1000Hz
@@ -38,13 +44,13 @@ void init1msTimer()
 {
   msTickCount = 0;
 
-  INTERRUPT_xMS_TIMER->ARR = 999; // 5mS in uS
+  INTERRUPT_xMS_TIMER->ARR = 999; // 1mS in uS
   INTERRUPT_xMS_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1;  // 1uS
   INTERRUPT_xMS_TIMER->CCER = 0;
   INTERRUPT_xMS_TIMER->CCMR1 = 0;
   INTERRUPT_xMS_TIMER->EGR = 0;
   INTERRUPT_xMS_TIMER->CR1 = TIM_CR1_CEN | TIM_CR1_URS;
-  INTERRUPT_xMS_TIMER->DIER |= TIM_DIER_UIE;
+  INTERRUPT_xMS_TIMER->DIER = TIM_DIER_UIE;
   NVIC_EnableIRQ(INTERRUPT_xMS_IRQn);
   NVIC_SetPriority(INTERRUPT_xMS_IRQn, 4);
 }
@@ -58,6 +64,14 @@ void stop1msTimer()
 uint32_t timersGetMsTick()
 {
   return msTickCount;
+}
+
+uint32_t timersGetUsTick()
+{
+  uint32_t us;
+  us = TIMER_2MHz_TIMER->CNT >> 1;
+  us += _us_overflow_cnt << 15;
+  return us;
 }
 
 static uint32_t watchdogTimeout = 0;
@@ -104,4 +118,10 @@ extern "C" void INTERRUPT_xMS_IRQHandler()
   INTERRUPT_xMS_TIMER->SR &= ~TIM_SR_UIF;
   interrupt1ms();
   DEBUG_INTERRUPT(INT_5MS);
+}
+
+extern "C" void TIMER_2MHz_IRQHandler()
+{
+  TIMER_2MHz_TIMER->SR &= ~TIM_SR_UIF;
+  _us_overflow_cnt += 1;
 }

@@ -50,3 +50,4 @@ static inline tmr10ms_t get_tmr10ms()
 }
 
 uint32_t timersGetMsTick();
+uint32_t timersGetUsTick();
