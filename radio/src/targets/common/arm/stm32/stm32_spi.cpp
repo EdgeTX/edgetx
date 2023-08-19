@@ -279,8 +279,7 @@ uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
   LL_SPI_EnableDMAReq_TX(spi->SPIx);
 
   // Wait for end of DMA transfer
-  while (!stm32_dma_check_tc_flag(spi->DMA, spi->txDMA_Stream))
-    ;
+  while (!stm32_dma_check_tc_flag(spi->DMA, spi->txDMA_Stream));
 
   // Disable SPI TX DMA requests
   CLEAR_BIT(spi->SPIx->CR2, SPI_CR2_TXDMAEN);
