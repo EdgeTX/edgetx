@@ -1431,7 +1431,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
         && val[1] == 'm'
         && val[2] == 'r'
         && val[3] >= '1'
-        && val[3] <= '3') {
+        && val[3] <= ('1' + MAX_TIMERS)) {
 
       CFN_TIMER_INDEX(cfn) = val[3] - '1';
 
