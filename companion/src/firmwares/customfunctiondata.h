@@ -122,7 +122,7 @@ class CustomFunctionData {
 
     static QString nameToString(const int index, const bool globalContext = false);
     static QString funcToString(const AssignFunc func, const ModelData * model = nullptr);
-    static bool isFuncAvailable(const int index);
+    static bool isFuncAvailable(const int index, const ModelData * model = nullptr);
     static int funcContext(const int index);
     static QString resetToString(const int value, const ModelData * model = nullptr);
     static int resetParamCount();

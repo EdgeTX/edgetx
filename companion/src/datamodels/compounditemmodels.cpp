@@ -413,7 +413,7 @@ CustomFuncActionItemModel::CustomFuncActionItemModel(const GeneralSettings * con
 void CustomFuncActionItemModel::setDynamicItemData(QStandardItem * item, const int value) const
 {
   item->setText(CustomFunctionData::funcToString((AssignFunc)value, modelData));
-  item->setData(CustomFunctionData::isFuncAvailable(value), IMDR_Available);
+  item->setData(CustomFunctionData::isFuncAvailable(value, modelData), IMDR_Available);
 }
 
 void CustomFuncActionItemModel::update(const int event)

@@ -240,7 +240,7 @@ QString CustomFunctionData::enabledToString() const
 }
 
 //  static
-bool CustomFunctionData::isFuncAvailable(const int index)
+bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * model)
 {
   Firmware * fw = getCurrentFirmware();
 
@@ -250,7 +250,8 @@ bool CustomFunctionData::isFuncAvailable(const int index)
         ((index == FuncPlayHaptic) && !fw->getCapability(Haptic)) ||
         ((index == FuncPlayBoth) && !fw->getCapability(HasBeeper)) ||
         ((index == FuncLogs) && !fw->getCapability(HasSDLogs)) ||
-        ((index >= FuncSetTimer1 && index <= FuncSetTimerLast) && index > FuncSetTimer1 + fw->getCapability(Timers)) ||
+        ((index >= FuncSetTimer1 && index <= FuncSetTimerLast) &&
+         (index > FuncSetTimer1 + fw->getCapability(Timers) || model->timers[index - FuncSetTimer1].isModeOff())) ||
         ((index == FuncScreenshot) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
         ((index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) && !fw->getCapability(DangerousFunctions)) ||
         ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && !fw->getCapability(Gvars)) ||
