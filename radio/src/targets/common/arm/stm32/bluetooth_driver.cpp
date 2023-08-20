@@ -20,7 +20,10 @@
  */
 
 #include "bluetooth_driver.h"
+#include "hal/gpio.h"
+
 #include "stm32_hal_ll.h"
+#include "stm32_gpio.h"
 
 #include "board.h"
 #include "debug.h"
@@ -33,8 +36,8 @@
 
 static const stm32_usart_t btUSART = {
   .USARTx = BT_USART,
-  .GPIOx = BT_USART_GPIO,
-  .GPIO_Pin = BT_TX_GPIO_PIN | BT_RX_GPIO_PIN,
+  .txGPIO = BT_TX_GPIO,
+  .rxGPIO = BT_RX_GPIO,
   .IRQn = BT_USART_IRQn,
   .IRQ_Prio = BT_USART_IRQ_PRIORITY,
   .txDMA = nullptr,
@@ -57,16 +60,8 @@ void* _bt_usart_ctx = nullptr;
 
 void bluetoothInit(uint32_t baudrate, bool enable)
 {
-#if defined(BT_EN_GPIO_PIN)
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-
-  pinInit.Pin = BT_EN_GPIO_PIN;
-  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-  pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  pinInit.Pull = LL_GPIO_PULL_NO;
-
-  LL_GPIO_Init(BT_EN_GPIO, &pinInit);
+#if defined(BT_EN_GPIO)
+  gpio_init(BT_EN_GPIO, GPIO_OUT);
 #endif
 
 #if !defined(BOOT)
@@ -85,21 +80,17 @@ void bluetoothInit(uint32_t baudrate, bool enable)
   }
 #endif
 
-#if defined(BT_EN_GPIO_PIN)
-  if (enable) {
-    LL_GPIO_ResetOutputPin(BT_EN_GPIO, BT_EN_GPIO_PIN);
-  } else {
-    LL_GPIO_SetOutputPin(BT_EN_GPIO, BT_EN_GPIO_PIN);
-  }
+#if defined(BT_EN_GPIO)
+  gpio_write(BT_EN_GPIO, !enable);
 #endif
 }
 
 #if !defined(BOOT)
 void bluetoothDisable()
 {
-#if defined(BT_EN_GPIO_PIN)
+#if defined(BT_EN_GPIO)
   // close bluetooth (recent modules will go to bootloader mode)
-  LL_GPIO_SetOutputPin(BT_EN_GPIO, BT_EN_GPIO_PIN);
+  gpio_set(BT_EN_GPIO);
 #endif
   if (_bt_usart_ctx) {
     STM32SerialDriver.deinit(_bt_usart_ctx);

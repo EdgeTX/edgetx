@@ -29,8 +29,8 @@ set(STM32USB_SRC
 set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/rtc_driver.cpp
   ../common/arm/stm32/delays_driver.cpp
-  ../common/arm/stm32/usb_bsp.c
   ../common/arm/stm32/usbd_desc.c
+  ../common/arm/stm32/usb_bsp.cpp
   ../common/arm/stm32/usbd_usr.cpp
   ../common/arm/stm32/usb_driver.cpp
   ../common/arm/stm32/flash_driver.cpp
@@ -46,6 +46,7 @@ set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/stm32_spi.cpp
   ../common/arm/stm32/stm32_timer.cpp
   ../common/arm/stm32/stm32_dma.cpp
+  ../common/arm/stm32/stm32_gpio.cpp
   ../common/arm/stm32/stm32_gpio_driver.cpp
   ../common/arm/stm32/mixer_scheduler_driver.cpp
   )

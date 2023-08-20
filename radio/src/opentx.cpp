@@ -1671,8 +1671,13 @@ int main()
 
 
 #if !defined(SIMU)
+  #if !defined(NVIC_PRIORITYGROUP_4)
+    /*!< 4 bits for pre-emption priority */
+    #define NVIC_PRIORITYGROUP_4 (0x00000003U)
+  #endif
+  
   /* Ensure all priority bits are assigned as preemption priority bits. */
-  NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
+  NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4 );
 #endif
 
   // G: The WDT remains active after a WDT reset -- at maximum clock speed. So it's

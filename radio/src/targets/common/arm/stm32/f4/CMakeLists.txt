@@ -28,6 +28,8 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_i2c_ex.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_sd.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_dma.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_hal_flash.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_hal_flash_ex.c
     )
 
   target_compile_options(stm32cube_ll PRIVATE -DUSE_FULL_LL_DRIVER)
@@ -51,11 +53,7 @@ set(STM32_STDPERIPH_DIR ${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver)
 
 set(STM32_STDPERIPH_SRC
   targets/common/arm/stm32/f4/system_stm32f4xx.c
-  ${STM32_STDPERIPH_DIR}/src/misc.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_gpio.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dbgmcu.c
   ${STM32_STDPERIPH_DIR}/src/stm32f4xx_rcc.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_flash.c
 )
 
 if(CPU_TYPE_FULL STREQUAL STM32F429xI)

@@ -19,73 +19,65 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
 #include "board.h"
+
+#if defined(FUNCTION_SWITCHES)
+static const uint32_t fsLeds[] = {FSLED_GPIO_PIN_1, FSLED_GPIO_PIN_2,
+				  FSLED_GPIO_PIN_3, FSLED_GPIO_PIN_4,
+				  FSLED_GPIO_PIN_5, FSLED_GPIO_PIN_6};
+#endif
 
 void ledInit()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-
 #if defined(LED_GREEN_GPIO)
-  GPIO_InitStructure.GPIO_Pin = LED_GREEN_GPIO_PIN;
-  GPIO_Init(LED_GREEN_GPIO, &GPIO_InitStructure);
+  gpio_init(LED_GREEN_GPIO, GPIO_OUT);
 #endif
 
 #if defined(LED_RED_GPIO)
-  GPIO_InitStructure.GPIO_Pin = LED_RED_GPIO_PIN;
-  GPIO_Init(LED_RED_GPIO, &GPIO_InitStructure);
+  gpio_init(LED_RED_GPIO, GPIO_OUT);
 #endif
 
 #if defined(LED_BLUE_GPIO)
-  GPIO_InitStructure.GPIO_Pin = LED_BLUE_GPIO_PIN;
-  GPIO_Init(LED_BLUE_GPIO, &GPIO_InitStructure);
+  gpio_init(LED_BLUE_GPIO, GPIO_OUT);
 #endif
 
 #if defined(FUNCTION_SWITCHES)
-  RCC_AHB1PeriphClockCmd(FS_RCC_AHB1Periph, ENABLE);
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Pin = FSLED_GPIO_PIN_1 | FSLED_GPIO_PIN_2 | FSLED_GPIO_PIN_3 | FSLED_GPIO_PIN_4 | FSLED_GPIO_PIN_5 | FSLED_GPIO_PIN_6;
-  GPIO_Init(FSLED_GPIO, &GPIO_InitStructure);
+  for (int i = 0; i < DIM(fsLeds); i++) {
+    gpio_init(fsLeds[i], GPIO_OUT);
+  }
 #endif
 }
 
 #if defined(FUNCTION_SWITCHES)
-constexpr uint32_t fsLeds[] = {FSLED_GPIO_PIN_1, FSLED_GPIO_PIN_2,
-                               FSLED_GPIO_PIN_3, FSLED_GPIO_PIN_4,
-                               FSLED_GPIO_PIN_5, FSLED_GPIO_PIN_6};
-
 void fsLedOff(uint8_t index)
 {
-  GPIO_FSLED_GPIO_OFF(FSLED_GPIO, fsLeds[index]);
+  gpio_clear(fsLeds[index]);
 }
 
 void fsLedOn(uint8_t index)
 {
-  GPIO_FSLED_GPIO_ON(FSLED_GPIO, fsLeds[index]);
+  gpio_set(fsLeds[index]);
 }
 
 bool getFSLedState(uint8_t index)
 {
-  return (FSLED_GPIO->ODR & fsLeds[index]);
+  return gpio_read(fsLeds[index]) ? true : false;
 }
 #endif
 
 void ledOff()
 {
 #if defined(LED_RED_GPIO)
-  GPIO_LED_GPIO_OFF(LED_RED_GPIO, LED_RED_GPIO_PIN);
+  GPIO_LED_GPIO_OFF(LED_RED_GPIO);
 #endif
 #if defined(LED_BLUE_GPIO)
-  GPIO_LED_GPIO_OFF(LED_BLUE_GPIO, LED_BLUE_GPIO_PIN);
+  GPIO_LED_GPIO_OFF(LED_BLUE_GPIO);
 #endif
 #if defined(LED_GREEN_GPIO)
-  GPIO_LED_GPIO_OFF(LED_GREEN_GPIO, LED_GREEN_GPIO_PIN);
+  GPIO_LED_GPIO_OFF(LED_GREEN_GPIO);
 #endif
 }
 
@@ -93,7 +85,7 @@ void ledRed()
 {
   ledOff();
 #if defined(LED_RED_GPIO)
-  GPIO_LED_GPIO_ON(LED_RED_GPIO, LED_RED_GPIO_PIN);
+  GPIO_LED_GPIO_ON(LED_RED_GPIO);
 #endif
 }
 
@@ -101,7 +93,7 @@ void ledGreen()
 {
   ledOff();
 #if defined(LED_GREEN_GPIO)
-  GPIO_LED_GPIO_ON(LED_GREEN_GPIO, LED_GREEN_GPIO_PIN);
+  GPIO_LED_GPIO_ON(LED_GREEN_GPIO);
 #endif
 }
 
@@ -109,6 +101,6 @@ void ledBlue()
 {
   ledOff();
 #if defined(LED_BLUE_GPIO)
-  GPIO_LED_GPIO_ON(LED_BLUE_GPIO, LED_BLUE_GPIO_PIN);
+  GPIO_LED_GPIO_ON(LED_BLUE_GPIO);
 #endif
 }

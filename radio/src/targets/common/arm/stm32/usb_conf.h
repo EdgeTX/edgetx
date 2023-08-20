@@ -130,7 +130,8 @@
 
 /****************** C Compilers dependant keywords ****************************/
 /* In HS mode and when the DMA is used, all variables and data structures dealing
-   with the DMA during the transaction process should be 4-bytes aligned */    
+   with the DMA during the transaction process should be 4-bytes aligned */
+#if !defined(__ALIGN_BEGIN) && !defined(__ALIGN_END)
 #ifdef USB_OTG_HS_INTERNAL_DMA_ENABLED
   #if defined   (__GNUC__)        /* GNU Compiler */
     #define __ALIGN_END    __attribute__ ((aligned (4)))
@@ -149,6 +150,7 @@
   #define __ALIGN_BEGIN
   #define __ALIGN_END   
 #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
+#endif
 
 /* __packed keyword used to decrease the data type alignment to 1-byte */
 #if !defined(__packed)

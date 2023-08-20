@@ -19,13 +19,19 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
 #include "opentx_types.h"
 #include "lcd.h"
 #include "lcd_driver.h"
 
 // StdPeriph
-#include "stm32f4xx_ltdc.h"
 #include "stm32f4xx_dma2d.h"
+#include "stm32f4xx_ltdc.h"
+#include "stm32f4xx_rcc.h"
+
+#define GPIO_AF_LTDC GPIO_AF14
 
 static volatile uint8_t _frame_addr_reloaded = 0;
 
@@ -104,81 +110,61 @@ void GPIO_SetDirection( GPIO_TypeDef *GPIOx, unsigned char Pin, unsigned char Is
   GPIOx->MODER = Register;
   //ExitCritical();
 }
-static void LCD_AF_GPIOConfig(void) {
+
+static void LCD_AF_GPIOConfig(void)
+{
+  /* GPIOs Configuration */
   /*
-   -----------------------------------------------------------------------------
-   LCD_CLK <-> PG.07 | LCD_HSYNC <-> PI.12 | LCD_R3 <-> PJ.02 | LCD_G5 <-> PK.00
-   | LCD VSYNC <-> PI.13 | LCD_R4 <-> PJ.03 | LCD_G6 <-> PK.01
-   |                     | LCD_R5 <-> PJ.04 | LCD_G7 <-> PK.02
-   |                     | LCD_R6 <-> PJ.05 | LCD_B4 <-> PK.03
-   |                     | LCD_R7 <-> PJ.06 | LCD_B5 <-> PK.04
-   |                     | LCD_G2 <-> PJ.09 | LCD_B6 <-> PK.05
-   |                     | LCD_G3 <-> PJ.10 | LCD_B7 <-> PK.06
-   |                     | LCD_G4 <-> PJ.11 | LCD_DE <-> PK.07
-   |                     | LCD_B3 <-> PJ.15 |
-   */
+    +---------------------+---------------------+------------------+------------------+
+    +                       LCD pins assignment                                       +
+    +---------------------+---------------------+------------------+------------------+
+    | LCD_CLK <-> PG.07   | LCD_HSYNC <-> PI.12 | LCD_R3 <-> PJ.02 | LCD_G5 <-> PK.00 |
+    | LCD VSYNC <-> PI.13 | LCD_R4 <-> PJ.03    | LCD_G6 <-> PK.01 |                  |
+    |                     | LCD_R5 <-> PJ.04    | LCD_G7 <-> PK.02 |                  |
+    |                     | LCD_R6 <-> PJ.05    | LCD_B4 <-> PK.03 |                  |
+    |                     | LCD_R7 <-> PJ.06    | LCD_B5 <-> PK.04 |                  |
+    |                     | LCD_G2 <-> PJ.09    | LCD_B6 <-> PK.05 |                  |
+    |                     | LCD_G3 <-> PJ.10    | LCD_B7 <-> PK.06 |                  |
+    |                     | LCD_G4 <-> PJ.11    | LCD_DE <-> PK.07 |                  |
+    |                     | LCD_B3 <-> PJ.15    |                  |                  |
+    +---------------------+---------------------+------------------+------------------+
+  */
 
   // GPIOG configuration
-  GPIO_PinAFConfig(GPIOG, GPIO_PinSource7, GPIO_AF_LTDC);
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
-  GPIO_Init(GPIOG, &GPIO_InitStructure);
+  gpio_init_af(GPIO_PIN(GPIOG, 7), GPIO_AF_LTDC);
 
   // GPIOI configuration
-  GPIO_PinAFConfig(GPIOI, GPIO_PinSource12, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOI, GPIO_PinSource13, GPIO_AF_LTDC);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13;
-  GPIO_Init(GPIOI, &GPIO_InitStructure);
+  gpio_init_af(GPIO_PIN(GPIOI, 12), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOI, 13), GPIO_AF_LTDC);
 
   // GPIOJ configuration
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource2, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource3, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource4, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource5, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource6, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource9, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource10, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource11, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource15, GPIO_AF_LTDC);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_15;
-  GPIO_Init(GPIOJ, &GPIO_InitStructure);
+  gpio_init_af(GPIO_PIN(GPIOJ, 2), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 3), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 4), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 5), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 6), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 9), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 10), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 11), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 15), GPIO_AF_LTDC);
 
   // GPIOK configuration
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource0, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource1, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource2, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource3, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource4, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource5, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource6, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource7, GPIO_AF_LTDC);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;
-  GPIO_Init(GPIOK, &GPIO_InitStructure);
+  gpio_init_af(GPIO_PIN(GPIOK, 0), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 1), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 2), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 3), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 4), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 5), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 6), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 7), GPIO_AF_LTDC);
 }
 
-static void lcdSpiConfig(void) {
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-  GPIO_InitStructure.GPIO_Pin = LCD_SPI_SCK_GPIO_PIN | LCD_SPI_MOSI_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = LCD_SPI_CS_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = LCD_NRST_GPIO_PIN;
-  GPIO_Init(LCD_NRST_GPIO, &GPIO_InitStructure);
+static void lcdSpiConfig(void)
+{
+  gpio_init(LCD_SPI_SCK_GPIO, GPIO_OUT);
+  gpio_init(LCD_SPI_MOSI_GPIO, GPIO_OUT);
+  gpio_init(LCD_SPI_CS_GPIO, GPIO_OUT);
+  gpio_init(LCD_NRST_GPIO, GPIO_OUT);
 
   /* Set the chip select pin aways low */
   CLR_LCD_CS();
@@ -1113,7 +1099,6 @@ unsigned int LCD_ST7796S_ReadID(void) {
 
   lcdWriteCommand( 0XD3 );
 
-  SET_LCD_CLK_OUTPUT();
   SET_LCD_DATA_INPUT();
   CLR_LCD_CLK();
   LCD_DELAY();
@@ -1194,12 +1179,8 @@ void LCD_Init_LTDC() {
   LTDC_Init(&LTDC_InitStruct);
 
   // Configure IRQ (line)
-  NVIC_InitTypeDef NVIC_InitStructure;
-  NVIC_InitStructure.NVIC_IRQChannel = LTDC_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = LTDC_IRQ_PRIO;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+  NVIC_SetPriority(LTDC_IRQn, LTDC_IRQ_PRIO);
+  NVIC_EnableIRQ(LTDC_IRQn);
 
   // Trigger on last line
   LTDC_LIPConfig(LCD_PHYS_H);

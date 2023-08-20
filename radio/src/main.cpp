@@ -19,9 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "hal/adc_driver.h"
 #include "hal/storage.h"
+#include "opentx.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -187,29 +187,6 @@ void handleUsbConnection()
   }
 #endif // defined(STM32) && !defined(SIMU)
 }
-
-#if defined(JACK_DETECT_GPIO) && !defined(SIMU)
-bool isJackPlugged()
-{
-  // debounce
-  static bool debounced_state = 0;
-  static bool last_state = 0;
-
-  if (GPIO_ReadInputDataBit(JACK_DETECT_GPIO, JACK_DETECT_GPIO_PIN)) {
-    if (!last_state) {
-      debounced_state = false;
-    }
-    last_state = false;
-  }
-  else {
-    if (last_state) {
-      debounced_state = true;
-    }
-    last_state = true;
-  }
-  return debounced_state;
-}
-#endif
 
 #if defined(PCBXLITES)
 uint8_t jackState = SPEAKER_ACTIVE;

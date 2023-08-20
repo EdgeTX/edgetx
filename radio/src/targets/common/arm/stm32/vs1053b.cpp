@@ -313,28 +313,24 @@ void audioSendRiffHeader()
 #if defined(AUDIO_MUTE_GPIO_PIN)
 static inline void setMutePin(bool enabled)
 {
+#if defined(INVERTED_MUTE_PIN)
+  enabled = !enabled;
+#endif
+  
   if (enabled) {
-#if defined(INVERTED_MUTE_PIN)
-    GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-#else
-    GPIO_SetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-#endif
+    LL_GPIO_SetOutputPin(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
   } else {
-#if defined(INVERTED_MUTE_PIN)
-    GPIO_SetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-#else
-    GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-#endif
+    LL_GPIO_ResetOutputPin(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
   }
 }
 
 static inline bool getMutePin(void)
 {
+  bool muted = LL_GPIO_IsOutputPinSet(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
 #if defined(INVERTED_MUTE_PIN)
-  return !GPIO_ReadOutputDataBit(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-#else
-  return GPIO_ReadOutputDataBit(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+  muted = !muted;
 #endif
+  return muted;
 }
 
 void audioMute()
@@ -377,14 +373,14 @@ void audioUnmute()
 
 void audioMuteInit()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = AUDIO_MUTE_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(AUDIO_MUTE_GPIO, &GPIO_InitStructure);
-  GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
+
+  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+  pinInit.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(AUDIO_MUTE_GPIO, &pinInit);
+
+  LL_GPIO_ResetOutputPin(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
 }
 #endif
 

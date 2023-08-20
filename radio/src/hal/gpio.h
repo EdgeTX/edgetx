@@ -19,35 +19,32 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _BOARD_COMMON_H_
-#define _BOARD_COMMON_H_
+#pragma once
 
-#include <inttypes.h>
-#include "cpu_id.h"
+#include <stdint.h>
 
-#if !defined(SIMU) && !defined(BACKUP)
+typedef uint32_t gpio_t;
 
-#if defined(STM32F4)
-  #include "stm32f4xx.h"
-#else
-  #include "stm32f2xx.h"
-  #include "dwt.h"    // the old ST library that we use does not define DWT register for STM32F2xx
-#endif
+typedef uint8_t  gpio_mode_t;
+typedef uint8_t  gpio_af_t;
 
-#endif
+typedef enum {
+    GPIO_RISING = 1,
+    GPIO_FALLING = 2,
+    GPIO_BOTH = 3
+} gpio_flank_t;
 
-#include "usb_driver.h"
+typedef void (*gpio_cb_t)();
 
-#if defined(SIMU)
-#include "../simu/simpgmspace.h"
-#endif
+void gpio_init(gpio_t pin, gpio_mode_t mode);
+void gpio_init_af(gpio_t pin, gpio_af_t af);
+void gpio_init_int(gpio_t pin, gpio_mode_t mode, gpio_flank_t flank, gpio_cb_t cb);
+void gpio_init_analog(gpio_t pin);
 
-#if !defined(SIMU) && !defined(BACKUP)
-  #define ticksNow() ((uint32_t)(DWT->CYCCNT))
-#else
-  #define ticksNow() ((uint32_t)(0UL))
-#endif
+void gpio_int_disable(gpio_t pin);
 
-#include "delays_driver.h"
-
-#endif
+int gpio_read(gpio_t pin);
+void gpio_set(gpio_t pin);
+void gpio_clear(gpio_t pin);
+void gpio_write(gpio_t pin, int value);
+void gpio_toggle(gpio_t pin);

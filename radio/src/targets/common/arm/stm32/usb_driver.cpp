@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
 #include "usb_driver.h"
 
 #if defined(USBJ_EX)
@@ -62,8 +64,8 @@ int usbPlugged()
   static uint8_t debouncedState = 0;
   static uint8_t lastState = 0;
 
-  uint8_t state = GPIO_ReadInputDataBit(USB_GPIO, USB_GPIO_PIN_VBUS);
-
+  // uint8_t state = GPIO_ReadInputDataBit(USB_GPIO, USB_GPIO_PIN_VBUS);
+  uint8_t state = gpio_read(USB_GPIO_VBUS) ? 1 : 0;
   if (state == lastState)
     debouncedState = state;
   else

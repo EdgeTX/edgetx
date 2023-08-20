@@ -19,96 +19,74 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
 #include "board.h"
 #include "watchdog_driver.h"
 
 void pwrInit()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-
 #if defined(INTMODULE_BOOTCMD_GPIO)
-  INIT_INTMODULE_BOOTCMD_PIN();
-  GPIO_InitStructure.GPIO_Pin = INTMODULE_BOOTCMD_GPIO_PIN;
-  GPIO_Init(INTMODULE_BOOTCMD_GPIO, &GPIO_InitStructure);
+  gpio_init(INTMODULE_BOOTCMD_GPIO, GPIO_OUT);
+  gpio_write(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_DEFAULT);
 #endif
 
   // Internal module power
+  gpio_init(INTMODULE_PWR_GPIO, GPIO_OUT);
   INTERNAL_MODULE_OFF();
-  GPIO_InitStructure.GPIO_Pin = INTMODULE_PWR_GPIO_PIN;
-  GPIO_Init(INTMODULE_PWR_GPIO, &GPIO_InitStructure);
 
   // External module power
+  gpio_init(EXTMODULE_PWR_GPIO, GPIO_OUT);
   EXTERNAL_MODULE_PWR_OFF();
-  GPIO_InitStructure.GPIO_Pin = EXTMODULE_PWR_GPIO_PIN;
-  GPIO_Init(EXTMODULE_PWR_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 
   // PWR switch
-  GPIO_InitStructure.GPIO_Pin = PWR_SWITCH_GPIO_PIN;
-  GPIO_Init(PWR_SWITCH_GPIO, &GPIO_InitStructure);
+  gpio_init(PWR_SWITCH_GPIO, GPIO_IN_PU);
 
 #if defined(PWR_EXTRA_SWITCH_GPIO)
   // PWR Extra switch
-  GPIO_InitStructure.GPIO_Pin = PWR_EXTRA_SWITCH_GPIO_PIN;
-  GPIO_Init(PWR_EXTRA_SWITCH_GPIO, &GPIO_InitStructure);
+  gpio_init(PWR_EXTRA_SWITCH_GPIO, GPIO_IN_PU);
 #endif
 
 #if defined(PCBREV_HARDCODED)
   hardwareOptions.pcbrev = PCBREV_HARDCODED;
-#elif defined(PCBREV_GPIO_PIN)
+#elif defined(PCBREV_GPIO)
   #if defined(PCBREV_GPIO_PULL_DOWN)
-    GPIO_ResetBits(PCBREV_GPIO, PCBREV_GPIO_PIN);
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+    gpio_init(PCBREV_GPIO, GPIO_IN_PD);
   #endif
-  GPIO_InitStructure.GPIO_Pin = PCBREV_GPIO_PIN;
-  GPIO_Init(PCBREV_GPIO, &GPIO_InitStructure);
+  gpio_init(PCBREV_GPIO, GPIO_IN_PU);
+  hardwareOptions.pcbrev = PCBREV_VALUE();
+#elif defined(PCBREV_GPIO_1) && defined(PCBREV_GPIO_2)
+  gpio_init(PCBREV_GPIO_1, GPIO_IN_PU);
+  gpio_init(PCBREV_GPIO_2, GPIO_IN_PU);
   hardwareOptions.pcbrev = PCBREV_VALUE();
 #endif
 }
 
 void pwrOn()
 {
-  // we keep the init of the PIN to have pwrOn as quick as possible
-
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = PWR_ON_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(PWR_ON_GPIO, &GPIO_InitStructure);
-
-  GPIO_SetBits(PWR_ON_GPIO, PWR_ON_GPIO_PIN);
+  gpio_init(PWR_ON_GPIO, GPIO_OUT);
+  gpio_set(PWR_ON_GPIO);
 }
 
 void pwrOff()
 {
-  GPIO_ResetBits(PWR_ON_GPIO, PWR_ON_GPIO_PIN);
+  gpio_clear(PWR_ON_GPIO);
 }
 
 #if defined(PWR_EXTRA_SWITCH_GPIO)
 bool pwrForcePressed()
 {
-  return (GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == Bit_RESET && GPIO_ReadInputDataBit(PWR_EXTRA_SWITCH_GPIO, PWR_EXTRA_SWITCH_GPIO_PIN) == Bit_RESET);
+  return !gpio_read(PWR_SWITCH_GPIO) && !gpio_read(PWR_EXTRA_SWITCH_GPIO);
 }
 #endif
 
 bool pwrPressed()
 {
 #if defined(PWR_EXTRA_SWITCH_GPIO)
-  return (GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) ==
-              Bit_RESET ||
-          GPIO_ReadInputDataBit(PWR_EXTRA_SWITCH_GPIO,
-                                PWR_EXTRA_SWITCH_GPIO_PIN) == Bit_RESET);
+  return !gpio_read(PWR_SWITCH_GPIO) && !gpio_read(PWR_EXTRA_SWITCH_GPIO);
 #else
-  return GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) ==
-         Bit_RESET;
+  return !gpio_read(PWR_SWITCH_GPIO);
 #endif
 }
 
@@ -123,13 +101,6 @@ bool pwrOffPressed()
 
 void pwrResetHandler()
 {
-  RCC->AHB1ENR |= PWR_RCC_AHB1Periph;
-
-  // these two NOPs are needed (see STM32F errata sheet) before the peripheral
-  // register can be written after the peripheral clock was enabled
-  __ASM volatile ("nop");
-  __ASM volatile ("nop");
-
   if (WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
     pwrOn();
   }

@@ -24,7 +24,10 @@
 #include "stm32_gpio.h"
 #include "stm32_hal_ll.h"
 
-#include "usb_bsp.h"
+extern "C" {
+  #include "usb_bsp.h"
+}
+
 #include "board.h"
 #include "usbd_conf.h"
 
@@ -37,7 +40,7 @@ extern uint32_t SystemCoreClock;
 * @retval None
 */
 
-void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev)
+extern "C" void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev)
 {
   /* GPIO_InitTypeDef GPIO_InitStructure;   */
   
@@ -71,7 +74,7 @@ void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev)
   LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_OTGFS);
 }
 
-void USB_OTG_BSP_Deinit(USB_OTG_CORE_HANDLE *pdev)
+extern "C" void USB_OTG_BSP_Deinit(USB_OTG_CORE_HANDLE *pdev)
 {
   //nothing to do  
 }
@@ -82,7 +85,7 @@ void USB_OTG_BSP_Deinit(USB_OTG_CORE_HANDLE *pdev)
 * @param  None
 * @retval None
 */
-void USB_OTG_BSP_EnableInterrupt(USB_OTG_CORE_HANDLE *pdev)
+extern "C" void USB_OTG_BSP_EnableInterrupt(USB_OTG_CORE_HANDLE *pdev)
 {
   // FreeRTOS syscall prio is 5
   NVIC_SetPriority(OTG_FS_IRQn, 11); // Lower priority interrupt
@@ -95,7 +98,7 @@ void USB_OTG_BSP_EnableInterrupt(USB_OTG_CORE_HANDLE *pdev)
 * @param  None
 * @retval None
 */
-void USB_OTG_BSP_DisableInterrupt(USB_OTG_CORE_HANDLE *pdev)
+extern "C" void USB_OTG_BSP_DisableInterrupt(USB_OTG_CORE_HANDLE *pdev)
 {
   NVIC_DisableIRQ(OTG_FS_IRQn);
 }
@@ -107,7 +110,7 @@ void USB_OTG_BSP_DisableInterrupt(USB_OTG_CORE_HANDLE *pdev)
 * @param  usec : Value of delay required in micro sec
 * @retval None
 */
-void USB_OTG_BSP_uDelay (const uint32_t usec)
+extern "C" void USB_OTG_BSP_uDelay (const uint32_t usec)
 {
   delay_us(usec);
 }
@@ -119,7 +122,7 @@ void USB_OTG_BSP_uDelay (const uint32_t usec)
 * @param  msec : Value of delay required in milli sec
 * @retval None
 */
-void USB_OTG_BSP_mDelay (const uint32_t msec)
+extern "C" void USB_OTG_BSP_mDelay (const uint32_t msec)
 {
   delay_ms(msec);
 }

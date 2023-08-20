@@ -19,21 +19,24 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
 #include "board.h"
 #include "fw_version.h"
 #include "lcd.h"
 
 #include "translations.h"
 
-#include "../../common/arm/stm32/bootloader/boot.h"
-#include "../../common/arm/stm32/bootloader/bin_files.h"
+#include "targets/common/arm/stm32/bootloader/boot.h"
+#include "targets/common/arm/stm32/bootloader/bin_files.h"
 
 #include <lvgl/lvgl.h>
 
 #define RADIO_MENU_LEN 2
 
-#define USB_SW_TO_INTERNAL_MODULE() GPIO_SetBits(USB_SW_GPOIO, USB_SW_PIN);
-#define USB_SW_TO_MCU() GPIO_ResetBits(USB_SW_GPOIO, USB_SW_PIN);
+#define USB_SW_TO_INTERNAL_MODULE() gpio_set(USB_SW_GPIO);
+#define USB_SW_TO_MCU()             gpio_clear(USB_SW_GPIO);
 
 #define SELECTED_COLOR (INVERS | COLOR_THEME_SECONDARY1)
 #define DEFAULT_PADDING 28

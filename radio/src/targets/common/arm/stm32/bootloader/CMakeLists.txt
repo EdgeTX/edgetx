@@ -32,15 +32,17 @@ set(BOOTLOADER_SRC
   ../delays_driver.cpp
   ../timers_driver.cpp
   ../usbd_desc.c
-  ../usb_bsp.c
+  ../usb_bsp.cpp
   ../usb_driver.cpp
   ../flash_driver.cpp
   ../stm32_exti_driver.cpp
   ../stm32_serial_driver.cpp
   ../stm32_usart_driver.cpp
+  ../stm32_gpio.cpp
   ../stm32_gpio_driver.cpp
   ../stm32_timer.cpp
   ../stm32_dma.cpp
+  ../stm32_timer.cpp
   init.c
   boot.cpp
   bin_files.cpp
@@ -78,7 +80,7 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     ../../../../../thirdparty/libopenui/thirdparty/lz4/lz4.c
     ../../../../../targets/common/arm/stm32/diskio_sdio.cpp
     ../../../../../targets/common/arm/stm32/rtc_driver.cpp
-    ../../../../../targets/${TARGET_DIR}/sdram_driver.c
+    ../../../../../targets/${TARGET_DIR}/sdram_driver.cpp
     ../../../../../targets/${TARGET_DIR}/haptic_driver.cpp
     )
 
@@ -117,11 +119,10 @@ else()
     ${BOOTLOADER_SRC}
     ../../../../../gui/common/stdlcd/fonts.cpp
     ../../../../../gui/common/stdlcd/utf8.cpp
-    ../../../../../targets/common/arm/stm32/stm32_gpio_driver.cpp
-    ../../../../../targets/common/arm/stm32/stm32_spi.cpp
-    ../../../../../targets/common/arm/stm32/sdcard_spi.cpp
-    ../../../../../targets/common/arm/stm32/diskio_spi.cpp
     ../../../../../crc.cpp
+    ../stm32_spi.cpp
+    ../sdcard_spi.cpp
+    ../diskio_spi.cpp
     )
   remove_definitions(-DDEBUG)
 endif()

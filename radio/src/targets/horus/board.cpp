@@ -19,6 +19,9 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
+#include "stm32_hal.h"
+
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
@@ -87,46 +90,19 @@ void watchdogInit(unsigned int duration)
 
 void boardInit()
 {
-  RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph |
-                         PCBREV_RCC_AHB1Periph |
-                         LED_RCC_AHB1Periph |
-                         LCD_RCC_AHB1Periph |
-                         BACKLIGHT_RCC_AHB1Periph |
-                         KEYS_BACKLIGHT_RCC_AHB1Periph |
-                         SD_RCC_AHB1Periph |
-                         AUDIO_RCC_AHB1Periph |
-                         TELEMETRY_RCC_AHB1Periph |
-                         TRAINER_RCC_AHB1Periph |
-                         BT_RCC_AHB1Periph |
-                         AUDIO_RCC_AHB1Periph |
-                         HAPTIC_RCC_AHB1Periph |
-                         INTMODULE_RCC_AHB1Periph |
-                         EXTMODULE_RCC_AHB1Periph |
-                         SPORT_UPDATE_RCC_AHB1Periph,
-                         ENABLE);
-
-  RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph |
-                         AUDIO_RCC_APB1Periph |
-                         TELEMETRY_RCC_APB1Periph |
-                         AUDIO_RCC_APB1Periph |
-                         BACKLIGHT_RCC_APB1Periph,
-                         ENABLE);
-
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG |
-                         LCD_RCC_APB2Periph |
-                         HAPTIC_RCC_APB2Periph |
-                         TELEMETRY_RCC_APB2Periph |
-                         BT_RCC_APB2Periph |
-                         BACKLIGHT_RCC_APB2Periph,
-                         ENABLE);
+  LL_AHB1_GRP1_EnableClock(LCD_RCC_AHB1Periph);
+  LL_APB2_GRP1_EnableClock(LCD_RCC_APB2Periph);
 
 #if defined(RADIO_FAMILY_T16)
-  if (FLASH_OB_GetBOR() != OB_BOR_LEVEL3)
-  {
-    FLASH_OB_Unlock();
-    FLASH_OB_BORConfig(OB_BOR_LEVEL3);
-    FLASH_OB_Launch();
-    FLASH_OB_Lock();
+  FLASH_OBProgramInitTypeDef OBInit;
+  HAL_FLASHEx_OBGetConfig(&OBInit);
+  if (OBInit.BORLevel != OB_BOR_LEVEL3) {
+    OBInit.OptionType = OPTIONBYTE_BOR;
+    OBInit.BORLevel = OB_BOR_LEVEL3;
+    HAL_FLASH_OB_Unlock();
+    HAL_FLASHEx_OBProgram(&OBInit);
+    HAL_FLASH_OB_Launch();
+    HAL_FLASH_OB_Lock();
   }
 #endif
 
@@ -180,7 +156,9 @@ void boardInit()
 
 
 #if defined(DEBUG)
-  DBGMCU_APB1PeriphConfig(DBGMCU_IWDG_STOP|DBGMCU_TIM1_STOP|DBGMCU_TIM2_STOP|DBGMCU_TIM3_STOP|DBGMCU_TIM4_STOP|DBGMCU_TIM5_STOP|DBGMCU_TIM6_STOP|DBGMCU_TIM7_STOP|DBGMCU_TIM8_STOP|DBGMCU_TIM9_STOP|DBGMCU_TIM10_STOP|DBGMCU_TIM11_STOP|DBGMCU_TIM12_STOP|DBGMCU_TIM13_STOP|DBGMCU_TIM14_STOP, ENABLE);
+  // Freeze timers & watchdog when core is halted
+  DBGMCU->APB1FZ = 0x00E009FF;
+  DBGMCU->APB2FZ = 0x00070003;
 #endif
 
   ledInit();
@@ -213,14 +191,7 @@ void boardOff()
 
 #if defined(PCBX12S)
   // Shutdown the Audio amp
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = AUDIO_SHUTDOWN_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(AUDIO_SHUTDOWN_GPIO, &GPIO_InitStructure);
-  GPIO_ResetBits(AUDIO_SHUTDOWN_GPIO, AUDIO_SHUTDOWN_GPIO_PIN);
+  LL_GPIO_ResetOutputPin(AUDIO_SHUTDOWN_GPIO, AUDIO_SHUTDOWN_GPIO_PIN);
 #endif
 
   // Shutdown the Haptic

@@ -109,10 +109,9 @@ uint16_t getTmr2MHz()
   return simuTimerMicros() * 2;
 }
 
-// return 2ms resolution to match CoOS settings
-uint64_t CoGetOSTime(void)
+uint32_t timersGetMsTick(void)
 {
-  return simuTimerMicros() / 2000;
+  return simuTimerMicros() / 1000;
 }
 
 void simuInit()

@@ -993,24 +993,24 @@ int cliSet(const char **argv)
       }
       cliSerialPrint("%s: rfmod %d power %s", argv[0], module, argv[4]);
     }
-#if defined(INTMODULE_BOOTCMD_GPIO)
     else if (!strcmp(argv[3], "bootpin")) {
       int level = 0;
       if (toInt(argv, 4, &level) < 0) {
         cliSerialPrint("%s: invalid bootpin argument '%s'", argv[0], argv[4]);
         return -1;
       }
-      if (module == 0) {
-        if (level) {
-          GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
-          cliSerialPrint("%s: bootpin set", argv[0]);
-        } else {
-          GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
-          cliSerialPrint("%s: bootpin reset", argv[0]);
-        }
+      const auto* mod = modulePortGetModuleDescription(INTERNAL_MODULE);
+      if (!mod || !mod->set_bootcmd) {
+	cliSerialPrint("%s: invalid module or has no bootcmd pin", argv[0]);
+	return -1;
+      }
+      mod->set_bootcmd(level);
+      if (level) {
+	cliSerialPrint("%s: bootcmd set", argv[0]);
+      } else {
+	cliSerialPrint("%s: bootcmd reset", argv[0]);
       }
     }
-#endif
     else {
       if (strlen(argv[2]) == 0) {
         cliSerialPrint("%s: missing rfmod arguments", argv[0]);

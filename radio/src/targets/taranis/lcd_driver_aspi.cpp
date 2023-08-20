@@ -19,6 +19,9 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
 #include "board.h"
 #include "lcd.h"
 
@@ -33,20 +36,20 @@
 bool lcdInitFinished = false;
 void lcdInitFinish();
 
-#define LCD_NCS_HIGH()    LCD_NCS_GPIO->BSRRL = LCD_NCS_GPIO_PIN
-#define LCD_NCS_LOW()     LCD_NCS_GPIO->BSRRH = LCD_NCS_GPIO_PIN
+#define LCD_NCS_HIGH()  gpio_set(LCD_NCS_GPIO)
+#define LCD_NCS_LOW()   gpio_clear(LCD_NCS_GPIO)
 
-#define LCD_A0_HIGH()     LCD_SPI_GPIO->BSRRL = LCD_A0_GPIO_PIN
-#define LCD_A0_LOW()      LCD_SPI_GPIO->BSRRH = LCD_A0_GPIO_PIN
+#define LCD_A0_HIGH()   gpio_set(LCD_A0_GPIO)
+#define LCD_A0_LOW()    gpio_clear(LCD_A0_GPIO)
 
-#define LCD_RST_HIGH()    LCD_RST_GPIO->BSRRL = LCD_RST_GPIO_PIN
-#define LCD_RST_LOW()     LCD_RST_GPIO->BSRRH = LCD_RST_GPIO_PIN
+#define LCD_RST_HIGH()  gpio_set(LCD_RST_GPIO)
+#define LCD_RST_LOW()   gpio_clear(LCD_RST_GPIO)
 
-#define LCD_CLK_HIGH()    LCD_SPI_GPIO->BSRRL = LCD_CLK_GPIO_PIN
-#define LCD_CLK_LOW()     LCD_SPI_GPIO->BSRRH = LCD_CLK_GPIO_PIN
+#define LCD_CLK_HIGH()  gpio_set(LCD_CLK_GPIO)
+#define LCD_CLK_LOW()   gpio_clear(LCD_CLK_GPIO)
 
-#define LCD_MOSI_HIGH()   LCD_SPI_GPIO->BSRRL = LCD_MOSI_GPIO_PIN
-#define LCD_MOSI_LOW()    LCD_SPI_GPIO->BSRRH = LCD_MOSI_GPIO_PIN
+#define LCD_MOSI_HIGH() gpio_set(LCD_MOSI_GPIO)
+#define LCD_MOSI_LOW()  gpio_clear(LCD_MOSI_GPIO)
 
 void lcdWriteCommand(uint8_t command)
 {
@@ -197,29 +200,14 @@ void lcdRefresh()
 
 void lcdHardwareInit()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
+  gpio_init(LCD_MOSI_GPIO, GPIO_OUT);
+  gpio_init(LCD_CLK_GPIO, GPIO_OUT);
+  gpio_init(LCD_A0_GPIO, GPIO_OUT);
   
-  // Configure CLK, MOSI and A0 pins in output push-pull mode
-  GPIO_InitStructure.GPIO_Pin = LCD_MOSI_GPIO_PIN | LCD_CLK_GPIO_PIN | LCD_A0_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
-  
+  gpio_init(LCD_NCS_GPIO, GPIO_OUT);
   LCD_NCS_HIGH();
   
-  // Configure NCS pin in output push-pull mode with PULLUP
-  GPIO_InitStructure.GPIO_Pin = LCD_NCS_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(LCD_NCS_GPIO, &GPIO_InitStructure);
-  
-  // Configure RST pin in output push-pull mode with PULLUP
-  GPIO_InitStructure.GPIO_Pin = LCD_RST_GPIO_PIN;
-  GPIO_Init(LCD_RST_GPIO, &GPIO_InitStructure);
+  gpio_init(LCD_RST_GPIO, GPIO_OUT);
 }
 
 /*
@@ -232,14 +220,14 @@ void lcdOff()
   LCD Sleep mode is also good for draining capacitors and enables us
   to re-init LCD without any delay
   */
-  lcdWriteCommand(0xAE);    //LCD sleep
-  delay_ms(3);	        //wait for caps to drain
+  lcdWriteCommand(0xAE); // LCD sleep
+  delay_ms(3);	         // wait for caps to drain
 }
 
 void lcdReset()
 {
   LCD_RST_LOW();
-  delay_ms(1);       // only 3 us needed according to data-sheet, we use 1 ms
+  delay_ms(1);    // only 3 us needed according to data-sheet, we use 1 ms
   LCD_RST_HIGH();
 }
 

@@ -90,6 +90,10 @@ void stm32_exti_enable(uint32_t line, uint8_t trigger, stm32_exti_handler_t cb)
 {
   if (line > LL_EXTI_LINE_15) return;
 
+#if defined(LL_APB2_GRP1_PERIPH_EXTI)
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_EXTI);
+#endif
+
   LL_EXTI_InitTypeDef EXTI_init;
   LL_EXTI_StructInit(&EXTI_init);
 

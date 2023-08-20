@@ -22,6 +22,7 @@
 #include "stm32_pulse_driver.h"
 #include "stm32_timer.h"
 #include "stm32_dma.h"
+#include "stm32_gpio.h"
 
 #include "definitions.h"
 
@@ -41,12 +42,13 @@ void stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
     memset(tim->DMA_TC_CallbackPtr, 0, sizeof(stm32_pulse_dma_tc_cb_t));
   }
   
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-  pinInit.Pin = tim->GPIO_Pin;
-  pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
-  pinInit.Alternate = tim->GPIO_Alternate;
-  LL_GPIO_Init(tim->GPIOx, &pinInit);
+  // LL_GPIO_InitTypeDef pinInit;
+  // LL_GPIO_StructInit(&pinInit);
+  // pinInit.Pin = tim->GPIO_Pin;
+  // pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
+  // pinInit.Alternate = tim->GPIO_Alternate;
+  // LL_GPIO_Init(tim->GPIOx, &pinInit);
+  gpio_init_af(tim->GPIO, tim->GPIO_Alternate);
 
   LL_TIM_InitTypeDef timInit;
   LL_TIM_StructInit(&timInit);
@@ -92,12 +94,13 @@ void stm32_pulse_deinit(const stm32_pulse_timer_t* tim)
   stm32_timer_disable_clock(tim->TIMx);
 
   // Reconfigure pin as input
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
+  // LL_GPIO_InitTypeDef pinInit;
+  // LL_GPIO_StructInit(&pinInit);
 
-  pinInit.Pin = tim->GPIO_Pin;
-  pinInit.Mode = LL_GPIO_MODE_INPUT;
-  LL_GPIO_Init(tim->GPIOx, &pinInit);
+  // pinInit.Pin = tim->GPIO_Pin;
+  // pinInit.Mode = LL_GPIO_MODE_INPUT;
+  // LL_GPIO_Init(tim->GPIOx, &pinInit);
+  gpio_init(tim->GPIO, GPIO_IN);
 }
 
 void stm32_pulse_config_output(const stm32_pulse_timer_t* tim, bool polarity,

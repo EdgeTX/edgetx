@@ -86,13 +86,14 @@ const etx_hal_adc_driver_t _adc_driver = {
 };
 
 #if defined(PWM_STICKS)
+#include "stm32_gpio.h"
 
 static const stick_pwm_timer_t _sticks_timer = {
-  PWM_GPIO,
-  PWM_GPIOA_PINS,
-  PWM_GPIO_AF,
-  PWM_TIMER,
-  PWM_IRQn,
+  .GPIOx = PWM_GPIO,
+  .GPIO_Pin = PWM_GPIOA_PINS,
+  .GPIO_Alternate = PWM_GPIO_AF,
+  .TIMx = PWM_TIMER,
+  .TIM_IRQn = PWM_IRQn,
 };
 
 #if !defined(PWM_IRQHandler)

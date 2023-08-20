@@ -20,6 +20,7 @@
  */
 
 #include "stm32_hal_ll.h"
+#include "stm32_timer.h"
 
 #if defined(BLUETOOTH)
   #include "bluetooth_driver.h"
@@ -123,7 +124,6 @@ extern "C" uint32_t HAL_GetTick(void)
     return timer10MsCount * 10;
 }
 
-
 uint32_t isValidBufferStart(const uint8_t * buffer)
 {
 #if !defined(SIMU)
@@ -207,18 +207,8 @@ void writeEepromBlock()
 #if !defined(SIMU)
 void bootloaderInitApp()
 {
-  RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph | LCD_RCC_AHB1Periph |
-                             BACKLIGHT_RCC_AHB1Periph |
-                             KEYS_BACKLIGHT_RCC_AHB1Periph,
-                         ENABLE);
-
-  RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph | LCD_RCC_APB1Periph |
-                             BACKLIGHT_RCC_APB1Periph,
-                         ENABLE);
-
-  RCC_APB2PeriphClockCmd(
-      LCD_RCC_APB2Periph | BACKLIGHT_RCC_APB2Periph | RCC_APB2Periph_SYSCFG,
-      ENABLE);
+  LL_AHB1_GRP1_EnableClock(LCD_RCC_AHB1Periph);
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 
 #if defined(HAVE_BOARD_BOOTLOADER_INIT)
   boardBootloaderInit();

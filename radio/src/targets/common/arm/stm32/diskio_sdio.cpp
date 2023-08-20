@@ -20,11 +20,13 @@
  */
 
 #include "diskio_sdio.h"
+#include "hal/gpio.h"
 
 #include "stm32_dma.h"
 #include "stm32_hal.h"
 #include "stm32_hal_ll.h"
 #include "stm32_gpio_driver.h"
+#include "stm32_gpio.h"
 
 #include "hal.h"
 
@@ -208,7 +210,7 @@ static DSTATUS sdio_status(BYTE lun)
   DSTATUS stat = RES_OK;
 
 #if defined(SD_PRESENT_GPIO)
-  if ((LL_GPIO_ReadInputPort(SD_PRESENT_GPIO) & SD_PRESENT_LL_GPIO_PIN) != 0) {
+  if (gpio_read(SD_PRESENT_GPIO)) {
     stat |= STA_NODISK;
   }
 #endif

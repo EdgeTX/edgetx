@@ -48,9 +48,6 @@ set(STM32_STDPERIPH_DIR ${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver)
 add_library(stm32_stdperiph OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/f2/system_stm32f2xx.c
   ${STM32LIB_DIR}/CMSIS/Device/ST/STM32F2xx/Source/Templates/gcc_ride7/startup_stm32f2xx.s
-  ${STM32_STDPERIPH_DIR}/src/misc.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_gpio.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_dbgmcu.c
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_rcc.c
   )
 

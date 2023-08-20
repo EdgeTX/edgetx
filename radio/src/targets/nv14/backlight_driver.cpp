@@ -19,6 +19,10 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+#include "stm32_timer.h"
+
 #include "opentx_types.h"
 #include "board.h"
 
@@ -27,30 +31,16 @@
 
 void backlightLowInit( void )
 {
-    RCC_AHB1PeriphClockCmd(BACKLIGHT_RCC_AHB1Periph, ENABLE);
-    GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin = BACKLIGHT_GPIO_PIN;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(BACKLIGHT_GPIO, &GPIO_InitStructure);
-    GPIO_WriteBit( BACKLIGHT_GPIO, BACKLIGHT_GPIO_PIN, Bit_RESET );
+  gpio_init(BACKLIGHT_GPIO, GPIO_OUT);
+  gpio_clear(BACKLIGHT_GPIO);
 }
 
 void backlightInit()
 {
   // PIN init
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = BACKLIGHT_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(BACKLIGHT_GPIO, &GPIO_InitStructure);
-  GPIO_PinAFConfig(BACKLIGHT_GPIO, BACKLIGHT_GPIO_PinSource, BACKLIGHT_GPIO_AF);
+  gpio_init_af(BACKLIGHT_GPIO, BACKLIGHT_GPIO_AF);
 
-  // TODO review this when the timer will be chosen
+  stm32_timer_enable_clock(BACKLIGHT_TIMER);
   BACKLIGHT_TIMER->ARR = 100;
   BACKLIGHT_TIMER->PSC = BACKLIGHT_TIMER_FREQ / 1000000 - 1; // 10kHz (same as FrOS)
   BACKLIGHT_TIMER->CCMR1 = TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1PE; // PWM mode 1

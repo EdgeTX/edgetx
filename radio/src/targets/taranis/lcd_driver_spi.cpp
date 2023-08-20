@@ -19,6 +19,9 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
 #include "board.h"
 #include "debug.h"
 #include "lcd.h"
@@ -37,14 +40,14 @@
 #define RESET_WAIT_DELAY_MS            300 // Wait time after LCD reset before first command
 #define WAIT_FOR_DMA_END()             do { } while (lcd_busy)
 
-#define LCD_NCS_HIGH()                 LCD_NCS_GPIO->BSRRL = LCD_NCS_GPIO_PIN
-#define LCD_NCS_LOW()                  LCD_NCS_GPIO->BSRRH = LCD_NCS_GPIO_PIN
+#define LCD_NCS_HIGH()  gpio_set(LCD_NCS_GPIO)
+#define LCD_NCS_LOW()   gpio_clear(LCD_NCS_GPIO)
 
-#define LCD_A0_HIGH()                  LCD_SPI_GPIO->BSRRL = LCD_A0_GPIO_PIN
-#define LCD_A0_LOW()                   LCD_SPI_GPIO->BSRRH = LCD_A0_GPIO_PIN
+#define LCD_A0_HIGH()   gpio_set(LCD_A0_GPIO)
+#define LCD_A0_LOW()    gpio_clear(LCD_A0_GPIO)
 
-#define LCD_RST_HIGH()                 LCD_RST_GPIO->BSRRL = LCD_RST_GPIO_PIN
-#define LCD_RST_LOW()                  LCD_RST_GPIO->BSRRH = LCD_RST_GPIO_PIN
+#define LCD_RST_HIGH()  gpio_set(LCD_RST_GPIO)
+#define LCD_RST_LOW()   gpio_clear(LCD_RST_GPIO)
 
 bool lcdInitFinished = false;
 void lcdInitFinish();
@@ -66,7 +69,8 @@ void lcdWriteCommand(uint8_t byte)
 
 void lcdHardwareInit()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
+  gpio_init_af(LCD_MOSI_GPIO, LCD_GPIO_AF);
+  gpio_init_af(LCD_CLK_GPIO, LCD_GPIO_AF);
 
   // APB1 clock / 2 = 133nS per clock
   LCD_SPI->CR1 = 0; // Clear any mode error
@@ -75,28 +79,11 @@ void lcdHardwareInit()
   LCD_SPI->CR1 |= SPI_CR1_MSTR;	// Make sure in case SSM/SSI needed to be set first
   LCD_SPI->CR1 |= SPI_CR1_SPE;
 
+  gpio_init(LCD_NCS_GPIO, GPIO_OUT);
   LCD_NCS_HIGH();
 
-  GPIO_InitStructure.GPIO_Pin = LCD_NCS_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(LCD_NCS_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = LCD_RST_GPIO_PIN;
-  GPIO_Init(LCD_RST_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = LCD_A0_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = LCD_CLK_GPIO_PIN | LCD_MOSI_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
-
-  GPIO_PinAFConfig(LCD_SPI_GPIO, LCD_MOSI_GPIO_PinSource, LCD_GPIO_AF);
-  GPIO_PinAFConfig(LCD_SPI_GPIO, LCD_CLK_GPIO_PinSource, LCD_GPIO_AF);
+  gpio_init(LCD_RST_GPIO, GPIO_OUT);
+  gpio_init(LCD_A0_GPIO, GPIO_OUT);
 
   LCD_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA
   LCD_DMA->HIFCR = LCD_DMA_FLAGS; // Write ones to clear bits

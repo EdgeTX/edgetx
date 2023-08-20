@@ -18,6 +18,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
 #include "opentx.h"
 #include "battery_driver.h"
 
@@ -35,14 +39,8 @@
 
 void battery_charge_init()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = PWR_CHARGE_FINISHED_GPIO_PIN | PWR_CHARGING_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(PWR_CHARGING_GPIO, &GPIO_InitStructure);
-  GPIO_SetBits(PWR_CHARGING_GPIO, PWR_CHARGE_FINISHED_GPIO_PIN | PWR_CHARGING_GPIO_PIN);
+  gpio_init(PWR_CHARGE_FINISHED_GPIO, GPIO_IN_PU);
+  gpio_init(PWR_CHARGING_GPIO, GPIO_IN_PU);
 }
 
 #define CHARGE_SAMPLES 10

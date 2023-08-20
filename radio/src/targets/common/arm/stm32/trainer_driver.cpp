@@ -20,7 +20,10 @@
  */
 
 #include "stm32_pulse_driver.h"
+#include "stm32_gpio.h"
+
 #include "hal/trainer_driver.h"
+#include "hal/gpio.h"
 #include "hal.h"
 
 #include "opentx.h"
@@ -54,13 +57,7 @@ static const stm32_pulse_timer_t* _trainer_timer;
 void init_trainer()
 {
 #if defined(TRAINER_DETECT_GPIO_PIN)
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-
-  pinInit.Pin = TRAINER_DETECT_GPIO_PIN;
-  pinInit.Mode = LL_GPIO_MODE_INPUT;
-  pinInit.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(TRAINER_DETECT_GPIO, &pinInit);
+  gpio_input(TRAINER_DETECT_GPIO, GPIO_IN_PU);
 #endif  
 
   _trainer_timer = nullptr;
@@ -167,8 +164,7 @@ static void _init_trainer_capture(const stm32_pulse_timer_t* tim)
 #if defined(TRAINER_GPIO)
 
 static const stm32_pulse_timer_t trainerOutputTimer = {
-  .GPIOx = TRAINER_GPIO,
-  .GPIO_Pin = TRAINER_OUT_GPIO_PIN,
+  .GPIO = TRAINER_OUT_GPIO,
   .GPIO_Alternate = TRAINER_GPIO_AF,
   .TIMx = TRAINER_TIMER,
   .TIM_Freq = TRAINER_TIMER_FREQ,
@@ -245,8 +241,7 @@ void stop_trainer_ppm()
 }
 
 static const stm32_pulse_timer_t trainerInputTimer = {
-  .GPIOx = TRAINER_GPIO,
-  .GPIO_Pin = TRAINER_IN_GPIO_PIN,
+  .GPIO = TRAINER_IN_GPIO,
   .GPIO_Alternate = TRAINER_GPIO_AF,
   .TIMx = TRAINER_TIMER,
   .TIM_Freq = TRAINER_TIMER_FREQ,
@@ -274,7 +269,7 @@ void stop_trainer_capture()
 bool is_trainer_dsc_connected()
 {
 #if defined(TRAINER_DETECT_GPIO_PIN)
-  bool set = LL_GPIO_IsInputPinSet(TRAINER_DETECT_GPIO, TRAINER_DETECT_GPIO_PIN);
+  bool set = gpio_read(TRAINER_DETECT_GPIO);
 #if defined(TRAINER_DETECT_INVERTED)
   return !set;
 #else
@@ -307,8 +302,7 @@ static_assert(__IS_TRAINER_TIMER_IN_CHANNEL_SUPPORTED(TRAINER_MODULE_CPPM_TIMER_
               "Unsupported trainer timer input channel");
 
 static const stm32_pulse_timer_t trainerModuleTimer = {
-  .GPIOx = TRAINER_MODULE_CPPM_GPIO,
-  .GPIO_Pin = TRAINER_MODULE_CPPM_GPIO_PIN,
+  .GPIO = TRAINER_MODULE_CPPM_GPIO,
   .GPIO_Alternate = TRAINER_MODULE_CPPM_GPIO_AF,
   .TIMx = TRAINER_MODULE_CPPM_TIMER,
   .TIM_Freq = TRAINER_MODULE_CPPM_FREQ,
@@ -392,8 +386,8 @@ int trainerModuleSbusGetByte(uint8_t* data)
 
 static const stm32_usart_t sbus_trainer_USART = {
   .USARTx = TRAINER_MODULE_SBUS_USART,
-  .GPIOx = TRAINER_MODULE_SBUS_GPIO,
-  .GPIO_Pin = TRAINER_MODULE_SBUS_GPIO_PIN,
+  .txGPIO = GPIO_UNDEF,
+  .rxGPIO = TRAINER_MODULE_SBUS_GPIO,
   .IRQn = (IRQn_Type)-1,
   .IRQ_Prio = 0,
   .txDMA = nullptr,

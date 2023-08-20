@@ -21,6 +21,7 @@
 
 #include "stm32_softserial_driver.h"
 #include "stm32_exti_driver.h"
+#include "stm32_gpio.h"
 
 #include <string.h>
 
@@ -47,8 +48,7 @@ static void _softserial_exti()
 
     // cheap debouncing...
     for (uint8_t i = 0; i < 16; ++i) {
-      if (LL_GPIO_IsInputPinSet(port->GPIOx, port->GPIO_Pin) == 0)
-        return;
+      if (!gpio_read(port->GPIO)) return;
     }
 
     // enable timer counter
@@ -93,43 +93,40 @@ static void _softserial_init_rx(const stm32_softserial_rx_port* port,
   NVIC_SetPriority(port->TIM_IRQn, 0);
   NVIC_EnableIRQ(port->TIM_IRQn);
 
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-
-  if (port->dir_GPIOx) {
-    pinInit.Pin = port->dir_Pin;
-    pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-    LL_GPIO_Init(port->dir_GPIOx, &pinInit);
+  if (port->dir_GPIO != GPIO_UNDEF) {
+    gpio_init(port->dir_GPIO, GPIO_OUT);
     if (!port->dir_Input) {
-      LL_GPIO_ResetOutputPin(port->dir_GPIOx, port->dir_Pin);
+      gpio_clear(port->dir_GPIO);
     } else {
-      LL_GPIO_SetOutputPin(port->dir_GPIOx, port->dir_Pin);
+      gpio_set(port->dir_GPIO);
     }
   }
 
-  pinInit.Pin = port->GPIO_Pin;
-  pinInit.Mode = LL_GPIO_MODE_INPUT;
-  pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  pinInit.Pull = LL_GPIO_PULL_DOWN;
-  LL_GPIO_Init(port->GPIOx, &pinInit);
+  // pinInit.Pin = port->GPIO_Pin;
+  // pinInit.Mode = LL_GPIO_MODE_INPUT;
+  // pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  // pinInit.Pull = LL_GPIO_PULL_DOWN;
+  // LL_GPIO_Init(port->GPIOx, &pinInit);
 
   // Connect EXTI line to TELEMETRY RX pin
-  LL_SYSCFG_SetEXTISource(port->EXTI_Port, port->EXTI_SysLine);
+  // LL_SYSCFG_SetEXTISource(port->EXTI_Port, port->EXTI_SysLine);
 
   // Configure EXTI for raising edge (start bit; assuming inverted serial)
   _softserialPort = port;
-  stm32_exti_enable(port->EXTI_Line, LL_EXTI_TRIGGER_RISING, _softserial_exti);
+  // stm32_exti_enable(port->EXTI_Line, LL_EXTI_TRIGGER_RISING, _softserial_exti);
+  gpio_init_int(port->GPIO, GPIO_IN_PD, GPIO_RISING, _softserial_exti);
 }
 
 static void _softserial_deinit_gpio(const stm32_softserial_rx_port* port)
 {
   // Reconfigure pin as input
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
+  gpio_init(port->GPIO, GPIO_IN);
+  // LL_GPIO_InitTypeDef pinInit;
+  // LL_GPIO_StructInit(&pinInit);
 
-  pinInit.Pin = port->GPIO_Pin;
-  pinInit.Mode = LL_GPIO_MODE_INPUT;
-  LL_GPIO_Init(port->GPIOx, &pinInit);
+  // pinInit.Pin = port->GPIO_Pin;
+  // pinInit.Mode = LL_GPIO_MODE_INPUT;
+  // LL_GPIO_Init(port->GPIOx, &pinInit);
 }
 
 static void _softserial_deinit_rx(const stm32_softserial_rx_port* port)
@@ -193,7 +190,7 @@ void stm32_softserial_rx_timer_isr(const stm32_softserial_rx_port* port)
       rxByte >>= 1;
     }
 
-    if (LL_GPIO_IsInputPinSet(port->GPIOx, port->GPIO_Pin) == 0)
+    if (!gpio_read(port->GPIO) == 0)
       rxByte |= 0x80;
 
     ++rxBitCount;
