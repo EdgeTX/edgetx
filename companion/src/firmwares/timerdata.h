@@ -100,7 +100,7 @@ class TimerData {
    void convert(RadioDataConversionState& cstate);
    void clear();
    bool isEmpty() const;
-   bool isModeOff();
+   bool isModeOff() const;
    QString nameToString(int index) const;
    QString countdownBeepToString() const;
    QString countdownStartToString() const;
