@@ -312,7 +312,7 @@ bool CustomFunctionData::isResetParamAvailable(const int index, const ModelData 
   Firmware * firmware = getCurrentFirmware();
 
   if (index < CPN_MAX_TIMERS) {
-    if (index < firmware->getCapability(Timers))
+    if (index < firmware->getCapability(Timers) && !model->timers[index].isModeOff())
       return true;
     else
       return false;
