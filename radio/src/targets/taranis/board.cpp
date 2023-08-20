@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
+#include "stm32_gpio.h"
 #include "stm32_ws2812.h"
 
 #include "hal/adc_driver.h"
@@ -27,6 +29,7 @@
 #include "hal/module_port.h"
 #include "hal/abnormal_reboot.h"
 #include "hal/usb_driver.h"
+#include "hal/gpio.h"
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
@@ -65,36 +68,8 @@ HardwareOptions hardwareOptions;
 
 void boardInit()
 {
-  RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph |
-                         PCBREV_RCC_AHB1Periph |
-                         LCD_RCC_AHB1Periph |
-                         AUDIO_RCC_AHB1Periph |
-                         BACKLIGHT_RCC_AHB1Periph |
-                         HAPTIC_RCC_AHB1Periph |
-                         INTMODULE_RCC_AHB1Periph |
-                         EXTMODULE_RCC_AHB1Periph |
-                         TELEMETRY_RCC_AHB1Periph |
-                         SPORT_UPDATE_RCC_AHB1Periph |
-                         TRAINER_RCC_AHB1Periph |
-                         BT_RCC_AHB1Periph |
-                         USB_CHARGER_RCC_AHB1Periph,
-                         ENABLE);
-
-  RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph |
-                         LCD_RCC_APB1Periph |
-                         AUDIO_RCC_APB1Periph |
-                         BACKLIGHT_RCC_APB1Periph |
-                         HAPTIC_RCC_APB1Periph |
-                         TELEMETRY_RCC_APB1Periph |
-                         BT_RCC_APB1Periph,
-                         ENABLE);
-
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG |
-                         BACKLIGHT_RCC_APB2Periph |
-                         HAPTIC_RCC_APB2Periph |
-                         BT_RCC_APB2Periph |
-                         TELEMETRY_RCC_APB2Periph,
-                         ENABLE);
+  LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 
 #if defined(BLUETOOTH) && !defined(PCBX9E)
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
@@ -220,7 +195,9 @@ void boardInit()
 #endif
 
 #if defined(DEBUG)
-  DBGMCU_APB1PeriphConfig(DBGMCU_IWDG_STOP|DBGMCU_TIM1_STOP|DBGMCU_TIM2_STOP|DBGMCU_TIM3_STOP|DBGMCU_TIM6_STOP|DBGMCU_TIM8_STOP|DBGMCU_TIM10_STOP|DBGMCU_TIM13_STOP|DBGMCU_TIM14_STOP, ENABLE);
+  // Freeze timers & watchdog when core is halted
+  DBGMCU->APB1FZ = 0x00E009FF;
+  DBGMCU->APB2FZ = 0x00070003;
 #endif
 
 #if defined(PWR_BUTTON_PRESS)
@@ -313,61 +290,61 @@ void boardOff()
 #if defined(AUDIO_SPEAKER_ENABLE_GPIO)
 void initSpeakerEnable()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-  GPIO_InitStructure.GPIO_Pin = AUDIO_SPEAKER_ENABLE_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(AUDIO_SPEAKER_ENABLE_GPIO, &GPIO_InitStructure);
+  gpio_init(AUDIO_SPEAKER_ENABLE_GPIO, GPIO_OUT);
 }
 
 void enableSpeaker()
 {
-  GPIO_SetBits(AUDIO_SPEAKER_ENABLE_GPIO, AUDIO_SPEAKER_ENABLE_GPIO_PIN);
+  gpio_set(AUDIO_SPEAKER_ENABLE_GPIO);
 }
 
 void disableSpeaker()
 {
-  GPIO_ResetBits(AUDIO_SPEAKER_ENABLE_GPIO, AUDIO_SPEAKER_ENABLE_GPIO_PIN);
+  gpio_clear(AUDIO_SPEAKER_ENABLE_GPIO);
 }
 #endif
 
 #if defined(HEADPHONE_TRAINER_SWITCH_GPIO)
 void initHeadphoneTrainerSwitch()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-  GPIO_InitStructure.GPIO_Pin = HEADPHONE_TRAINER_SWITCH_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(HEADPHONE_TRAINER_SWITCH_GPIO, &GPIO_InitStructure);
+  gpio_init(HEADPHONE_TRAINER_SWITCH_GPIO, GPIO_OUT);
 }
 
 void enableHeadphone()
 {
-  GPIO_ResetBits(HEADPHONE_TRAINER_SWITCH_GPIO, HEADPHONE_TRAINER_SWITCH_GPIO_PIN);
+  gpio_clear(HEADPHONE_TRAINER_SWITCH_GPIO);
 }
 
 void enableTrainer()
 {
-  GPIO_SetBits(HEADPHONE_TRAINER_SWITCH_GPIO, HEADPHONE_TRAINER_SWITCH_GPIO_PIN);
+  gpio_set(HEADPHONE_TRAINER_SWITCH_GPIO);
 }
 #endif
 
 #if defined(JACK_DETECT_GPIO)
 void initJackDetect(void)
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
+  gpio_init(JACK_DETECT_GPIO, GPIO_IN_PU);
+}
 
-  GPIO_InitStructure.GPIO_Pin = JACK_DETECT_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(JACK_DETECT_GPIO, &GPIO_InitStructure);
+bool isJackPlugged()
+{
+  // debounce
+  static bool debounced_state = 0;
+  static bool last_state = 0;
+
+  if (gpio_read(JACK_DETECT_GPIO)) {
+    if (!last_state) {
+      debounced_state = false;
+    }
+    last_state = false;
+  }
+  else {
+    if (last_state) {
+      debounced_state = true;
+    }
+    last_state = true;
+  }
+  return debounced_state;
 }
 #endif

@@ -20,6 +20,7 @@
  */
 
 #include "stm32_hal_ll.h"
+#include "stm32_timer.h"
 #include "hal/usb_driver.h"
 
 #if defined(BLUETOOTH)
@@ -203,15 +204,8 @@ void writeEepromBlock()
 #if !defined(SIMU)
 void bootloaderInitApp()
 {
-  LL_AHB1_GRP1_EnableClock(PWR_RCC_AHB1Periph | LCD_RCC_AHB1Periph |
-                             BACKLIGHT_RCC_AHB1Periph |
-                             KEYS_BACKLIGHT_RCC_AHB1Periph);
-
-  LL_APB1_GRP1_EnableClock(ROTARY_ENCODER_RCC_APB1Periph | LCD_RCC_APB1Periph |
-                             BACKLIGHT_RCC_APB1Periph);
-
-  LL_APB2_GRP1_EnableClock(
-      LCD_RCC_APB2Periph | BACKLIGHT_RCC_APB2Periph | LL_APB2_GRP1_PERIPH_SYSCFG);
+  LL_AHB1_GRP1_EnableClock(LCD_RCC_AHB1Periph);
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 
 #if defined(HAVE_BOARD_BOOTLOADER_INIT)
   boardBootloaderInit();

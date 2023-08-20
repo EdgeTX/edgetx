@@ -19,8 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
+
 #include "opentx_types.h"
 #include "dma2d.h"
 #include "hal.h"
@@ -28,6 +31,7 @@
 
 #include "lcd.h"
 #include <lvgl/lvgl.h>
+#include "stm32f4xx_rcc.h"
 
 #if defined(RADIO_T18)
   #define HBP  43
@@ -48,6 +52,8 @@
   #define HFP  3
   #define VFP  2
 #endif
+
+#define GPIO_AF_LTDC GPIO_AF14
 
 static LTDC_HandleTypeDef hltdc;
 static void* initialFrameBuffer = nullptr;
@@ -181,72 +187,65 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
 
 inline void LCD_NRST_LOW()
 {
-  LL_GPIO_ResetOutputPin(LCD_GPIO_NRST, LCD_GPIO_PIN_NRST);
+  gpio_clear(LCD_GPIO_NRST);
 }
 
 inline void LCD_NRST_HIGH()
 {
-  LL_GPIO_SetOutputPin(LCD_GPIO_NRST, LCD_GPIO_PIN_NRST);
+  gpio_set(LCD_GPIO_NRST);
 }
 
 static void LCD_AF_GPIOConfig()
 {
-  LL_GPIO_InitTypeDef GPIO_InitStructure;
-  LL_GPIO_StructInit(&GPIO_InitStructure);
-
-      /* GPIOs Configuration */
-      /*
-       +------------------------+-----------------------+----------------------------+
-       +                       LCD pins assignment                                   +
-       +------------------------+-----------------------+----------------------------
-       |                                       |  LCD_TFT G2 <-> PJ.09 |                                            |
-       |  LCD_TFT R3 <-> PJ.02  |  LCD_TFT G3 <-> PJ.10 |  LCD_TFT B3 <-> PJ.15      |
-       |  LCD_TFT R4 <-> PJ.03  |  LCD_TFT G4 <-> PJ.11 |  LCD_TFT B4 <-> PK.03      |
-       |  LCD_TFT R5 <-> PJ.04  |  LCD_TFT G5 <-> PK.00 |  LCD_TFT B5 <-> PK.04      |
-       |  LCD_TFT R6 <-> PJ.05  |  LCD_TFT G6 <-> PK.01 |  LCD_TFT B6 <-> PK.05      |
-       |  LCD_TFT R7 <-> PJ.06  |  LCD_TFT G7 <-> PK.02 |  LCD_TFT B7 <-> PK.06      |
-       -------------------------------------------------------------------------------
-                |  LCD_TFT HSYNC <-> PI.12  | LCDTFT VSYNC <->  PI.13 |
-                |  LCD_TFT CLK   <-> PI.14  | LCD_TFT DE   <->  PK.07 ///
-                 -----------------------------------------------------
-                | LCD_CS <-> PI.10    |LCD_SCK<->PI.11
-                 -----------------------------------------------------
+  /* GPIOs Configuration */
+  /*
+    +------------------------+-----------------------+----------------------------+
+    +                       LCD pins assignment                                   +
+    +------------------------+-----------------------+----------------------------+
+    |                        |  LCD_TFT G2 <-> PJ.09 |                            |
+    |  LCD_TFT R3 <-> PJ.02  |  LCD_TFT G3 <-> PJ.10 |  LCD_TFT B3 <-> PJ.15      |
+    |  LCD_TFT R4 <-> PJ.03  |  LCD_TFT G4 <-> PJ.11 |  LCD_TFT B4 <-> PK.03      |
+    |  LCD_TFT R5 <-> PJ.04  |  LCD_TFT G5 <-> PK.00 |  LCD_TFT B5 <-> PK.04      |
+    |  LCD_TFT R6 <-> PJ.05  |  LCD_TFT G6 <-> PK.01 |  LCD_TFT B6 <-> PK.05      |
+    |  LCD_TFT R7 <-> PJ.06  |  LCD_TFT G7 <-> PK.02 |  LCD_TFT B7 <-> PK.06      |
+    -------------------------------------------------------------------------------
+    |  LCD_TFT HSYNC <-> PI.12  | LCD_TFT VSYNC <->  PI.13 |
+    |  LCD_TFT CLK   <-> PI.14  | LCD_TFT DE    <->  PK.07 |
+    --------------------------------------------------------
+    | LCD_CS <-> PI.10          | LCD_SCK<->PI.11          |
+    --------------------------------------------------------
   */
 
   // GPIOI configuration
-  GPIO_InitStructure.Pin        = LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_14;
-  GPIO_InitStructure.Speed      = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStructure.Mode       = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStructure.Pull       = LL_GPIO_PULL_NO;
-  GPIO_InitStructure.Alternate  = LL_GPIO_AF_14; // AF LTDC
-  LL_GPIO_Init(GPIOI, &GPIO_InitStructure);
+  gpio_init_af(GPIO_PIN(GPIOI, 12), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOI, 13), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOI, 14), GPIO_AF_LTDC);
 
   // GPIOJ configuration
-  GPIO_InitStructure.Pin = LL_GPIO_PIN_2 | LL_GPIO_PIN_3  | LL_GPIO_PIN_4  | LL_GPIO_PIN_5 | LL_GPIO_PIN_6
-                         | LL_GPIO_PIN_9 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_15;
-
-  LL_GPIO_Init(GPIOJ, &GPIO_InitStructure);
+  gpio_init_af(GPIO_PIN(GPIOJ, 2), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 3), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 4), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 5), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 6), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 9), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 10), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 11), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 15), GPIO_AF_LTDC);
 
   // GPIOK configuration
-  GPIO_InitStructure.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3 | LL_GPIO_PIN_4
-                         | LL_GPIO_PIN_5 | LL_GPIO_PIN_6 | LL_GPIO_PIN_7;
-
-  LL_GPIO_Init(GPIOK, &GPIO_InitStructure);
+  gpio_init_af(GPIO_PIN(GPIOK, 0), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 1), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 2), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 3), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 4), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 5), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 6), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 7), GPIO_AF_LTDC);
 }
 
 static void LCD_NRSTConfig(void)
 {
-  LL_GPIO_InitTypeDef GPIO_InitStructure;
-  LL_GPIO_StructInit(&GPIO_InitStructure);
-
-  GPIO_InitStructure.Pin        = LCD_GPIO_PIN_NRST;
-  GPIO_InitStructure.Mode       = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStructure.Speed      = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStructure.Pull       = LL_GPIO_PULL_NO;
-
-  LL_GPIO_Init(LCD_GPIO_NRST, &GPIO_InitStructure);
+  gpio_init(LCD_GPIO_NRST, GPIO_OUT);
 }
 
 static void lcdReset(void)

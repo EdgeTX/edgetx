@@ -19,24 +19,19 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
 #include "board.h"
-#include "stm32_hal_ll.h"
 
 void usbChargerInit()
 {
-  LL_GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.Pin = USB_CHARGER_GPIO_PIN | USB_USBDet_GPIO_PIN;
-  GPIO_InitStructure.Mode = LL_GPIO_MODE_INPUT;
-  GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStructure.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(USB_CHARGER_GPIO, &GPIO_InitStructure);
+  gpio_init(USB_CHARGER_GPIO, GPIO_IN_PU);
+  gpio_init(USB_USBDet_GPIO, GPIO_IN_PU);
 }
 
 bool usbChargerLed()
 {
-  if (LL_GPIO_IsInputPinSet(USB_CHARGER_GPIO, USB_USBDet_GPIO_PIN) == 0)
-    return 0;
-
-  return LL_GPIO_IsInputPinSet(USB_CHARGER_GPIO, USB_CHARGER_GPIO_PIN) == 0;
+  if (!gpio_read(USB_USBDet_GPIO)) return 0;
+  return !gpio_read(USB_CHARGER_GPIO);
 }

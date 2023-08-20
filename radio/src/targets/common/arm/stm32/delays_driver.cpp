@@ -19,7 +19,12 @@
  * GNU General Public License for more details.
  */
 
+#include "delays_driver.h"
 #include "board.h"
+
+#define SYSTEM_TICKS_1MS  ((CPU_FREQ + 500) / 1000)
+#define SYSTEM_TICKS_1US  ((CPU_FREQ + 500000)  / 1000000)
+#define SYSTEM_TICKS_01US ((CPU_FREQ + 5000000) / 10000000)
 
 void delaysInit()
 {

@@ -18,8 +18,13 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
 #include "stm32_hal_ll.h"
+
+#include "board.h"
+
+#include "stm32f4xx_fmc.h"
 
 #define SDRAM_MEMORY_WIDTH    FMC_SDRAM_MEM_BUS_WIDTH_16
 
@@ -43,7 +48,9 @@
 #define SDRAM_MODEREG_OPERATING_MODE_STANDARD    ((uint16_t)0x0000)
 #define SDRAM_MODEREG_WRITEBURST_MODE_PROGRAMMED ((uint16_t)0x0000)
 #define SDRAM_MODEREG_WRITEBURST_MODE_SINGLE     ((uint16_t)0x0200)
-    
+
+#define GPIO_AF_FMC GPIO_AF12
+
 /**
   * @brief  FMC SDRAM Memory Read Burst feature
   */
@@ -62,80 +69,80 @@ static void __Delay(__IO uint32_t nCount)
   * @param  None.
   * @retval None.
   */
-void SDRAM_GPIOConfig(void)
+extern "C" void SDRAM_GPIOConfig(void)
 {
-	LL_GPIO_InitTypeDef GPIO_InitStructure;
+  /*-- GPIOs Configuration -----------------------------------------------------*/
+  /*
+    +-------------------+--------------------+--------------------+--------------------+
+    +                       SDRAM pins assignment                                      +
+    +-------------------+--------------------+--------------------+--------------------+
+    | PD0  <-> FMC_D2   | PE0  <-> FMC_NBL0  | PF0  <-> FMC_A0    | PG0  <-> FMC_A10   |
+    | PD1  <-> FMC_D3   | PE1  <-> FMC_NBL1  | PF1  <-> FMC_A1    | PG1  <-> FMC_A11   |
+    | PD8  <-> FMC_D13  | PE7  <-> FMC_D4    | PF2  <-> FMC_A2    | PG8  <-> FMC_SDCLK |
+    | PD9  <-> FMC_D14  | PE8  <-> FMC_D5    | PF3  <-> FMC_A3    | PG15 <-> FMC_NCAS  |
+    | PD10 <-> FMC_D15  | PE9  <-> FMC_D6    | PF4  <-> FMC_A4    |--------------------+
+    | PD14 <-> FMC_D0   | PE10 <-> FMC_D7    | PF5  <-> FMC_A5    |
+    | PD15 <-> FMC_D1   | PE11 <-> FMC_D8    | PF11 <-> FMC_NRAS  |
+    +-------------------| PE12 <-> FMC_D9    | PF12 <-> FMC_A6    |
+                        | PE13 <-> FMC_D10   | PF13 <-> FMC_A7    |
+                        | PE14 <-> FMC_D11   | PF14 <-> FMC_A8    |
+                        | PE15 <-> FMC_D12   | PF15 <-> FMC_A9    |
+    +-------------------+--------------------+--------------------+
+    | PB5 <-> FMC_SDCKE1|
+    | PH6 <-> FMC_SDNE1 |
+    | PH5 <-> FMC_SDNWE |
+    +-------------------+
+  */
 
-	/* Enable GPIOs clock */
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB | LL_AHB1_GRP1_PERIPH_GPIOC | LL_AHB1_GRP1_PERIPH_GPIOD |
-	                         LL_AHB1_GRP1_PERIPH_GPIOE | LL_AHB1_GRP1_PERIPH_GPIOF | LL_AHB1_GRP1_PERIPH_GPIOG|LL_AHB1_GRP1_PERIPH_GPIOH);
+  /* GPIOB configuration */
+  gpio_init_af(GPIO_PIN(GPIOB, 5), GPIO_AF_FMC);
 
-	/*-- GPIOs Configuration -----------------------------------------------------*/
-	/*
-	+-------------------+--------------------+--------------------+--------------------+
-	+                       SDRAM pins assignment                                      +
-	+-------------------+--------------------+--------------------+--------------------+
-	| PD0  <-> FMC_D2   | PE0  <-> FMC_NBL0  | PF0  <-> FMC_A0    | PG0  <-> FMC_A10   |
-	| PD1  <-> FMC_D3   | PE1  <-> FMC_NBL1  | PF1  <-> FMC_A1    | PG1  <-> FMC_A11   |
-	| PD8  <-> FMC_D13  | PE7  <-> FMC_D4    | PF2  <-> FMC_A2    | PG8  <-> FMC_SDCLK |
-	| PD9  <-> FMC_D14  | PE8  <-> FMC_D5    | PF3  <-> FMC_A3    | PG15 <-> FMC_NCAS  |
-	| PD10 <-> FMC_D15  | PE9  <-> FMC_D6    | PF4  <-> FMC_A4    |--------------------+
-	| PD14 <-> FMC_D0   | PE10 <-> FMC_D7    | PF5  <-> FMC_A5    |
-	| PD15 <-> FMC_D1   | PE11 <-> FMC_D8    | PF11 <-> FMC_NRAS  |
-	+-------------------| PE12 <-> FMC_D9    | PF12 <-> FMC_A6    |
-					 | PE13 <-> FMC_D10   | PF13 <-> FMC_A7    |
-					 | PE14 <-> FMC_D11   | PF14 <-> FMC_A8    |
-					 | PE15 <-> FMC_D12   | PF15 <-> FMC_A9    |
-	+-------------------+--------------------+--------------------+
-	| PB5 <-> FMC_SDCKE1|
-	| PB6 <-> FMC_SDNE1 |
-	| PH5 <-> FMC_SDNWE |///////
-	+-------------------+
+  /* GPIOH configuration */
+  gpio_init_af(GPIO_PIN(GPIOH, 5), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOH, 6), GPIO_AF_FMC);
 
-	*/
+  /* GPIOD configuration */
+  gpio_init_af(GPIO_PIN(GPIOD, 0), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOD, 1), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOD, 8), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOD, 9), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOD, 10), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOD, 14), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOD, 15), GPIO_AF_FMC);
 
-	/* Common GPIO configuration */
-	GPIO_InitStructure.Mode       = LL_GPIO_MODE_ALTERNATE;
-	GPIO_InitStructure.Speed      = LL_GPIO_SPEED_FREQ_HIGH;
-	GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-	GPIO_InitStructure.Pull       = LL_GPIO_PULL_NO;
-	GPIO_InitStructure.Alternate  = LL_GPIO_AF_12; // FMC
+  /* GPIOE configuration */
+  gpio_init_af(GPIO_PIN(GPIOE, 0), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOE, 1), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOE, 7), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOE, 8), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOE, 9), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOE, 10), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOE, 11), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOE, 12), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOE, 13), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOE, 14), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOE, 15), GPIO_AF_FMC);
 
-	/* GPIOB configuration */
-	GPIO_InitStructure.Pin = LL_GPIO_PIN_5 ;
-	LL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+  /* GPIOF configuration */
+  gpio_init_af(GPIO_PIN(GPIOF, 0), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOF, 1), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOF, 2), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOF, 3), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOF, 4), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOF, 5), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOF, 11), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOF, 12), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOF, 13), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOF, 14), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOF, 15), GPIO_AF_FMC);
 
-	/* GPIOC configuration */
-	GPIO_InitStructure.Pin = LL_GPIO_PIN_5 | LL_GPIO_PIN_6;
-	LL_GPIO_Init(GPIOH, &GPIO_InitStructure);
-
-	/* GPIOD configuration */
-	GPIO_InitStructure.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_1  | LL_GPIO_PIN_8 |
-								LL_GPIO_PIN_9 | LL_GPIO_PIN_10 | LL_GPIO_PIN_14 |
-								LL_GPIO_PIN_15;
-
-	LL_GPIO_Init(GPIOD, &GPIO_InitStructure);
-
-	/* GPIOE configuration */
-	GPIO_InitStructure.Pin = LL_GPIO_PIN_0  | LL_GPIO_PIN_1  | LL_GPIO_PIN_7 |
-								LL_GPIO_PIN_8  | LL_GPIO_PIN_9  | LL_GPIO_PIN_10 |
-								LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_13 |
-								LL_GPIO_PIN_14 | LL_GPIO_PIN_15;
-	LL_GPIO_Init(GPIOE, &GPIO_InitStructure);
-
-	/* GPIOF configuration */
-	GPIO_InitStructure.Pin = LL_GPIO_PIN_0  | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 |
-								LL_GPIO_PIN_3  | LL_GPIO_PIN_4 | LL_GPIO_PIN_5 |
-								LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_13 |
-								LL_GPIO_PIN_14 | LL_GPIO_PIN_15;
-
-	LL_GPIO_Init(GPIOF, &GPIO_InitStructure);
-
-	/* GPIOG configuration */
-	GPIO_InitStructure.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_4 |
-								LL_GPIO_PIN_5 | LL_GPIO_PIN_8 | LL_GPIO_PIN_15;
-
-	LL_GPIO_Init(GPIOG, &GPIO_InitStructure);
+  /* GPIOG configuration */
+  gpio_init_af(GPIO_PIN(GPIOG, 0), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOG, 1), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOG, 4), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOG, 5), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOG, 8), GPIO_AF_FMC);
+  gpio_init_af(GPIO_PIN(GPIOG, 15), GPIO_AF_FMC);
 }
 
 /**
@@ -143,7 +150,7 @@ void SDRAM_GPIOConfig(void)
   * @param  None.
   * @retval None.
   */
-void SDRAM_InitSequence(void)
+extern "C" void SDRAM_InitSequence(void)
 {
   FMC_SDRAM_CommandTypeDef FMC_SDRAMCommandStructure;
   uint32_t tmpr = 0;
@@ -242,7 +249,7 @@ void SDRAM_InitSequence(void)
   * @param  None.
   * @retval None.
   */
-void SDRAMTest_InitSequence(void)
+extern "C" void SDRAMTest_InitSequence(void)
 {
   FMC_SDRAM_CommandTypeDef FMC_SDRAMCommandStructure;
   uint32_t tmpr = 0;
@@ -329,7 +336,7 @@ void SDRAMTest_InitSequence(void)
   }
 }
 
-void SDRAM_Init(void)
+extern "C" void SDRAM_Init(void)
 {
   FMC_SDRAM_InitTypeDef  FMC_SDRAMInitStructure;
   FMC_SDRAM_TimingTypeDef  FMC_SDRAMTimingInitStructure;
@@ -380,41 +387,3 @@ void SDRAM_Init(void)
   /* FMC SDRAM device initialization sequence */
   SDRAMTest_InitSequence();
 }
-
-#if 0
-void SDRAM_WriteBuffer(uint32_t* pBuffer, uint32_t uwWriteAddress, uint32_t uwBufferSize)
-{
-  __IO uint32_t write_pointer = (uint32_t)uwWriteAddress;
-
-  FMC_SDRAMWriteProtectionConfig(FMC_Bank1_SDRAM, DISABLE);
-
-  while(FMC_GetFlagStatus(FMC_Bank1_SDRAM, FMC_FLAG_Busy) != RESET)
-  {
-  }
-
-  for (; uwBufferSize != 0; uwBufferSize--)
-  {
-
-    *(uint32_t *) (SDRAM_BANK_ADDR + write_pointer) = *pBuffer++;
-
-    write_pointer += 4;
-  }
-
-}
-
-void SDRAM_ReadBuffer(uint32_t* pBuffer, uint32_t uwReadAddress, uint32_t uwBufferSize)
-{
-  __IO uint32_t write_pointer = (uint32_t)uwReadAddress;
-
-  while(FMC_GetFlagStatus(FMC_Bank1_SDRAM, FMC_FLAG_Busy) != RESET)
-  {
-  }
-
-  for(; uwBufferSize != 0x00; uwBufferSize--)
-  {
-   *pBuffer++ = *(__IO uint32_t *)(SDRAM_BANK_ADDR + write_pointer );
-
-    write_pointer += 4;
-  }
-}
-#endif

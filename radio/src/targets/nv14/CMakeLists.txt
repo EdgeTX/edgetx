@@ -136,7 +136,7 @@ set(FIRMWARE_TARGET_SRC
   board.cpp
   ${LCD_DRIVER}
   ${TOUCH_DRIVER}
-  sdram_driver.c
+  sdram_driver.cpp
   battery_driver.cpp
   backlight_driver.cpp
   )

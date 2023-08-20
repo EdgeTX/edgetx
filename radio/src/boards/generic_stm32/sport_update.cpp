@@ -19,10 +19,14 @@
  * GNU General Public License for more details.
  */
 
-#include "hal.h"
 #include "stm32_hal_ll.h"
+#include "stm32_gpio.h"
 
 #include "hal/module_port.h"
+#include "hal/gpio.h"
+
+#include "hal.h"
+
 #include "opentx.h" // g_eeGeneral
 
 void sportUpdateInit()
@@ -41,13 +45,7 @@ void sportUpdateInit()
   }
 #endif
 
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = SPORT_UPDATE_PWR_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(SPORT_UPDATE_PWR_GPIO, &GPIO_InitStructure);
+  gpio_init(SPORT_UPDATE_PWR_GPIO, GPIO_OUT);
 #endif
 }
 

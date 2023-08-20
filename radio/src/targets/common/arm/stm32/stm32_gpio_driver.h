@@ -21,6 +21,6 @@
 
 #pragma once
 
-#include "stm32_hal_ll.h"
+#include "stm32_cmsis.h"
 
 void stm32_gpio_enable_clock(GPIO_TypeDef *GPIOx);

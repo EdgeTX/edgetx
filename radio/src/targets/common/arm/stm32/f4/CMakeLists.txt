@@ -41,6 +41,8 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_dma.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_pcd.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_pcd_ex.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_hal_flash.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_hal_flash_ex.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_cortex.c
     
     ${STM32_COLORLCD_DRIVERS}
@@ -68,18 +70,11 @@ set(STM32_STDPERIPH_DIR ${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver)
 
 set(STM32_STDPERIPH_SRC
   targets/common/arm/stm32/f4/system_stm32f4xx.c
-#  ${STM32_STDPERIPH_DIR}/src/misc.c
-#  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_gpio.c
-#  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dbgmcu.c
-#  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_rcc.c
-#  ${STM32_STDPERIPH_DIR}/src/stm32f4xx_flash.c
 )
 
 if(CPU_TYPE_FULL STREQUAL STM32F429xI)
   set(STM32_STDPERIPH_SRC ${STM32_STDPERIPH_SRC}
     boards/generic_stm32/startup/startup_stm32f42_43xxx.s
-#    ${STM32_STDPERIPH_DIR}/src/stm32f4xx_fmc.c
-#    ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma.c
     )
 elseif (CPU_TYPE_FULL STREQUAL STM32F413xG)
   set(STM32_STDPERIPH_SRC ${STM32_STDPERIPH_SRC}

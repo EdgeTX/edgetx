@@ -19,10 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+#include "stm32_timer.h"
+
 #include "board.h"
-#include "stm32_hal_ll.h"
-#include "stm32_hal.h"
-#include "stm32f4xx.h"
 
 void hapticOff(void)
 {
@@ -39,15 +40,9 @@ void hapticOn(uint32_t pwmPercent)
 
 void hapticInit(void)
 {
-  LL_GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.Pin = HAPTIC_GPIO_PIN;
-  GPIO_InitStructure.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStructure.Pull = LL_GPIO_PULL_NO;
-  GPIO_InitStructure.Alternate = HAPTIC_GPIO_AF;
-  LL_GPIO_Init(HAPTIC_GPIO, &GPIO_InitStructure);
+  gpio_init_af(HAPTIC_GPIO, HAPTIC_GPIO_AF);
 
+  stm32_timer_enable_clock(HAPTIC_GPIO_TIMER);
   HAPTIC_GPIO_TIMER->ARR = 100;
   HAPTIC_GPIO_TIMER->PSC = (PERI2_FREQUENCY * TIMER_MULT_APB2) / 10000 - 1;
   HAPTIC_GPIO_TIMER->CCMR1 = HAPTIC_TIMER_MODE; // PWM
@@ -62,5 +57,4 @@ void hapticInit(void)
 void hapticDone(void)
 {
   hapticOff();
-  LL_AHB1_GRP1_DisableClock(HAPTIC_RCC_AHB1Periph);
 }

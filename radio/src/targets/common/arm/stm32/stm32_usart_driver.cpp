@@ -20,8 +20,9 @@
  */
 
 #include "stm32_usart_driver.h"
-#include "stm32_gpio_driver.h"
+#include "stm32_gpio.h"
 #include "stm32_dma.h"
+#include "hal/gpio.h"
 
 #include <string.h>
 
@@ -144,27 +145,12 @@ static void disable_usart_clock(USART_TypeDef* USARTx)
 
 }
 
-static uint32_t _get_pin_speed(uint32_t baudrate)
-{
-  // 1 Mbps and above
-  if (baudrate >= 1000000) {
-    return LL_GPIO_SPEED_FREQ_VERY_HIGH;
-  }
-  // 400kbps and above
-  else if (baudrate >= 400000) {
-    return LL_GPIO_SPEED_FREQ_HIGH;
-  }
-
-  // under 400kbps
-  return LL_GPIO_SPEED_FREQ_LOW;
-}
-
-static uint32_t _get_usart_af(USART_TypeDef* USARTx)
+static gpio_af_t _get_usart_af(USART_TypeDef* USARTx)
 {
   if (USARTx == USART1 || USARTx == USART2 || USARTx == USART3) {
-    return LL_GPIO_AF_7;
+    return GPIO_AF7;
   } else {
-    return LL_GPIO_AF_8;
+    return GPIO_AF8;
   }
 }
 
@@ -236,18 +222,13 @@ bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   enable_usart_clock(usart->USARTx);
   LL_USART_DeInit(usart->USARTx);
 
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-
-  pinInit.Pin = usart->GPIO_Pin;
-  pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
-  pinInit.Speed = _get_pin_speed(params->baudrate);
-  pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  pinInit.Pull = LL_GPIO_PULL_UP;
-  pinInit.Alternate = _get_usart_af(usart->USARTx);
-
-  stm32_gpio_enable_clock(usart->GPIOx);
-  LL_GPIO_Init(usart->GPIOx, &pinInit);
+  gpio_af_t af = _get_usart_af(usart->USARTx);
+  if (usart->rxGPIO != GPIO_UNDEF) {
+    gpio_init_af(usart->rxGPIO, af);
+  }
+  if (usart->txGPIO != GPIO_UNDEF) {
+    gpio_init_af(usart->txGPIO, af);
+  }
   
   LL_USART_InitTypeDef usartInit;
   LL_USART_StructInit(&usartInit);
@@ -331,13 +312,13 @@ void stm32_usart_deinit(const stm32_usart_t* usart)
   LL_USART_DeInit(usart->USARTx);
   disable_usart_clock(usart->USARTx);
 
-  // Reconfigure pin as output
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-  pinInit.Pin = usart->GPIO_Pin;
-  pinInit.Mode = LL_GPIO_MODE_INPUT;
-  LL_GPIO_Init(usart->GPIOx, &pinInit);
-  LL_GPIO_ResetOutputPin(usart->GPIOx, pinInit.Pin);
+  // Reconfigure pin as input
+  if (usart->rxGPIO != GPIO_UNDEF) {
+    gpio_init(usart->rxGPIO, GPIO_IN);
+  }
+  if (usart->txGPIO != GPIO_UNDEF) {
+    gpio_init(usart->txGPIO, GPIO_IN);
+  }
 }
 
 void stm32_usart_send_byte(const stm32_usart_t* usart, uint8_t byte)
@@ -509,19 +490,6 @@ void stm32_usart_set_baudrate(const stm32_usart_t* usart, uint32_t baudrate)
   auto periphclk = _get_usart_periph_clock(usart->USARTx);
   auto oversampling = LL_USART_GetOverSampling(usart->USARTx);
   LL_USART_SetBaudRate(usart->USARTx, periphclk, oversampling, baudrate);
-
-  // update pin speed accordingly (must be done one-by-one)
-  uint32_t pin_speed = _get_pin_speed(baudrate);
-  uint32_t pindef = usart->GPIO_Pin;
-
-  // loop borrowed from LL_GPIO_init()
-  uint32_t pinpos = POSITION_VAL(pindef);
-  uint32_t currentpin = 0;
-  while ((pindef >> pinpos) != 0) {
-    currentpin = pindef & (1 << pinpos);
-    if (currentpin) LL_GPIO_SetPinSpeed(usart->GPIOx, currentpin, pin_speed);
-    pinpos++;
-  }
 }
 
 void stm32_usart_set_hw_option(const stm32_usart_t* usart, uint32_t option)

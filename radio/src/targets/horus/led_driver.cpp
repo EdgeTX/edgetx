@@ -19,64 +19,72 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
 #include "board.h"
-#include "stm32_hal_ll.h"
 
 void ledInit()
 {
-  LL_GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.Pin = LED_GPIO_PIN;
-  GPIO_InitStructure.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStructure.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(LED_GPIO, &GPIO_InitStructure);
+#if defined(LED_GPIO)
+  gpio_init(LED_GPIO, GPIO_OUT);
+#endif
+#if defined(LED_RED_GPIO)
+  gpio_init(LED_RED_GPIO, GPIO_OUT);
+#endif
+#if defined(LED_GREEN_GPIO)
+  gpio_init(LED_GREEN_GPIO, GPIO_OUT);
+#endif
+#if defined(LED_BLUE_GPIO)
+  gpio_init(LED_BLUE_GPIO, GPIO_OUT);
+#endif
 }
 
-#if defined(PCBX12S)
+#if defined(LED_GPIO)
+
+// Single GPIO for dual color LED
 void ledOff()
 {
-  LL_GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.Pin = LED_GPIO_PIN;
-  GPIO_InitStructure.Mode = LL_GPIO_MODE_INPUT;
-  GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStructure.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(LED_GPIO, &GPIO_InitStructure);
+  gpio_init(LED_GPIO, GPIO_IN_PU);
 }
 
 void ledRed()
 {
   ledInit();
-  LL_GPIO_SetOutputPin(LED_GPIO, LED_GPIO_PIN);
+  gpio_set(LED_GPIO);
 }
 
 void ledBlue()
 {
   ledInit();
-  LL_GPIO_ResetOutputPin(LED_GPIO, LED_GPIO_PIN);
+  gpio_clear(LED_GPIO);
 }
-#elif defined(PCBX10)
+
+#elif defined(LED_RED_GPIO) && defined(LED_GREEN_GPIO) && defined(LED_BLUE_GPIO)
+
 void ledOff()
 {
-  LL_GPIO_ResetOutputPin(LED_GPIO, LED_GPIO_PIN);
+  gpio_clear(LED_RED_GPIO);
+  gpio_clear(LED_GREEN_GPIO);
+  gpio_clear(LED_BLUE_GPIO);
 }
 
 void ledRed()
 {
   ledOff();
-  LL_GPIO_SetOutputPin(LED_GPIO, LED_RED_GPIO_PIN);
+  gpio_set(LED_RED_GPIO);
 }
 
 void ledGreen()
 {
   ledOff();
-  LL_GPIO_SetOutputPin(LED_GPIO, LED_GREEN_GPIO_PIN);
+  gpio_set(LED_GREEN_GPIO);
 }
 
 void ledBlue()
 {
   ledOff();
-  LL_GPIO_SetOutputPin(LED_GPIO, LED_BLUE_GPIO_PIN);
+  gpio_set(LED_BLUE_GPIO);
 }
+
 #endif

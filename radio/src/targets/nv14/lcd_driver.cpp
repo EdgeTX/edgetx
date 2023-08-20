@@ -21,6 +21,7 @@
 
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
+
 #include "opentx_types.h"
 #include "dma2d.h"
 #include "hal.h"
@@ -30,7 +31,11 @@
 #include "lcd_driver.h"
 
 static LTDC_HandleTypeDef hltdc;
+#include "stm32f4xx_dma2d.h"
 static void* initialFrameBuffer = nullptr;
+#include "stm32f4xx_dma2d.h"
+
+#define GPIO_AF_LTDC GPIO_AF14
 
 static volatile uint8_t _frame_addr_reloaded = 0;
 
@@ -83,67 +88,64 @@ enum ENUM_IO_MODE
     IO_MODE_ANALOG
 };
 
-static void LCD_AF_GPIOConfig(void) {
-  LL_GPIO_InitTypeDef GPIO_InitStructure;
-  LL_GPIO_StructInit(&GPIO_InitStructure);
+
+static void LCD_AF_GPIOConfig(void)
+{
+  /* GPIOs Configuration */
   /*
-   -----------------------------------------------------------------------------
-   LCD_CLK <-> PG.07 | LCD_HSYNC <-> PI.12 | LCD_R3 <-> PJ.02 | LCD_G5 <-> PK.00
-   | LCD VSYNC <-> PI.13 | LCD_R4 <-> PJ.03 | LCD_G6 <-> PK.01
-   |                     | LCD_R5 <-> PJ.04 | LCD_G7 <-> PK.02
-   |                     | LCD_R6 <-> PJ.05 | LCD_B4 <-> PK.03
-   |                     | LCD_R7 <-> PJ.06 | LCD_B5 <-> PK.04
-   |                     | LCD_G2 <-> PJ.09 | LCD_B6 <-> PK.05
-   |                     | LCD_G3 <-> PJ.10 | LCD_B7 <-> PK.06
-   |                     | LCD_G4 <-> PJ.11 | LCD_DE <-> PK.07
-   |                     | LCD_B3 <-> PJ.15 |
-   */
+    +---------------------+---------------------+------------------+------------------+
+    +                       LCD pins assignment                                       +
+    +---------------------+---------------------+------------------+------------------+
+    | LCD_CLK <-> PG.07   | LCD_HSYNC <-> PI.12 | LCD_R3 <-> PJ.02 | LCD_G5 <-> PK.00 |
+    | LCD VSYNC <-> PI.13 | LCD_R4 <-> PJ.03    | LCD_G6 <-> PK.01 |                  |
+    |                     | LCD_R5 <-> PJ.04    | LCD_G7 <-> PK.02 |                  |
+    |                     | LCD_R6 <-> PJ.05    | LCD_B4 <-> PK.03 |                  |
+    |                     | LCD_R7 <-> PJ.06    | LCD_B5 <-> PK.04 |                  |
+    |                     | LCD_G2 <-> PJ.09    | LCD_B6 <-> PK.05 |                  |
+    |                     | LCD_G3 <-> PJ.10    | LCD_B7 <-> PK.06 |                  |
+    |                     | LCD_G4 <-> PJ.11    | LCD_DE <-> PK.07 |                  |
+    |                     | LCD_B3 <-> PJ.15    |                  |                  |
+    +---------------------+---------------------+------------------+------------------+
+  */
 
   // GPIOG configuration
-  GPIO_InitStructure.Pin        = LL_GPIO_PIN_7;
-  GPIO_InitStructure.Speed      = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStructure.Mode       = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStructure.Pull       = LL_GPIO_PULL_NO;
-  GPIO_InitStructure.Alternate  = LL_GPIO_AF_14; // AF LTDC
-  LL_GPIO_Init(GPIOG, &GPIO_InitStructure);
+  gpio_init_af(GPIO_PIN(GPIOG, 7), GPIO_AF_LTDC);
 
   // GPIOI configuration
-  GPIO_InitStructure.Pin        = LL_GPIO_PIN_12 | LL_GPIO_PIN_13;
-  LL_GPIO_Init(GPIOI, &GPIO_InitStructure);
+  gpio_init_af(GPIO_PIN(GPIOI, 12), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOI, 13), GPIO_AF_LTDC);
 
   // GPIOJ configuration
-  GPIO_InitStructure.Pin = LL_GPIO_PIN_2 | LL_GPIO_PIN_3 | LL_GPIO_PIN_4 | LL_GPIO_PIN_5 | LL_GPIO_PIN_6 | LL_GPIO_PIN_9 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_15;
-  LL_GPIO_Init(GPIOJ, &GPIO_InitStructure);
+  gpio_init_af(GPIO_PIN(GPIOJ, 2), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 3), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 4), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 5), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 6), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 9), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 10), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 11), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOJ, 15), GPIO_AF_LTDC);
 
   // GPIOK configuration
-  GPIO_InitStructure.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3 | LL_GPIO_PIN_4 | LL_GPIO_PIN_5 | LL_GPIO_PIN_6 | LL_GPIO_PIN_7;
-  LL_GPIO_Init(GPIOK, &GPIO_InitStructure);
+  gpio_init_af(GPIO_PIN(GPIOK, 0), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 1), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 2), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 3), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 4), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 5), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 6), GPIO_AF_LTDC);
+  gpio_init_af(GPIO_PIN(GPIOK, 7), GPIO_AF_LTDC);
 }
 
-static void lcdSpiConfig(void) {
-  LL_GPIO_InitTypeDef GPIO_InitStructure;
-  LL_GPIO_StructInit(&GPIO_InitStructure);
-
-  GPIO_InitStructure.Pin        = LCD_SPI_SCK_GPIO_PIN | LCD_SPI_MOSI_GPIO_PIN;
-  GPIO_InitStructure.Speed      = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStructure.Mode       = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStructure.Pull       = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.Pin        = LCD_SPI_CS_GPIO_PIN;
-  GPIO_InitStructure.Speed      = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStructure.Mode       = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStructure.Pull       = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.Pin        = LCD_NRST_GPIO_PIN;
-  LL_GPIO_Init(LCD_NRST_GPIO, &GPIO_InitStructure);
+static void lcdSpiConfig(void)
+{
+  gpio_init(LCD_SPI_SCK_GPIO, GPIO_OUT);
+  gpio_init(LCD_SPI_MOSI_GPIO, GPIO_OUT);
+  gpio_init(LCD_SPI_CS_GPIO, GPIO_OUT);
+  gpio_init(LCD_NRST_GPIO, GPIO_OUT);
 
   /* Set the chip select pin aways low */
-  LCD_CS_LOW();
+  CLR_LCD_CS();
 }
 
 void lcdDelay() {
@@ -154,25 +156,25 @@ unsigned char LCD_ReadByteOnFallingEdge(void) {
   unsigned int i;
   unsigned char ReceiveData = 0;
 
-  LCD_MOSI_HIGH();
-  LCD_MOSI_AS_INPUT();
+  SET_LCD_DATA();
+  SET_LCD_DATA_INPUT();
 
   for (i = 0; i < 8; i++) {
     LCD_DELAY();
-    LCD_SCK_HIGH();
+    SET_LCD_CLK();
     LCD_DELAY();
     LCD_DELAY();
     ReceiveData <<= 1;
 
-    LCD_SCK_LOW();
+    CLR_LCD_CLK();
     LCD_DELAY();
     LCD_DELAY();
-    if (LCD_READ_DATA_PIN()) {
+    if (READ_LCD_DATA_PIN()) {
       ReceiveData |= 0x01;
     }
   }
 
-  LCD_MOSI_AS_OUTPUT();
+  SET_LCD_DATA_OUTPUT();
 
   return (ReceiveData);
 }
@@ -213,22 +215,22 @@ unsigned char LCD_ReadByte(void) {
   unsigned int i;
   unsigned char ReceiveData = 0;
 
-  LCD_MOSI_HIGH();
-  LCD_MOSI_AS_INPUT();
+  SET_LCD_DATA();
+  SET_LCD_DATA_INPUT();
   for (i = 0; i < 8; i++) {
-    LCD_SCK_LOW();
+    CLR_LCD_CLK();
     LCD_DELAY();
     LCD_DELAY();
     ReceiveData <<= 1;
-    LCD_SCK_HIGH();
+    SET_LCD_CLK();
     LCD_DELAY();
     LCD_DELAY();
-    if (LCD_READ_DATA_PIN()) {
+    if (READ_LCD_DATA_PIN()) {
       ReceiveData |= 0x01;
     }
   }
-  LCD_SCK_LOW();
-  LCD_MOSI_AS_OUTPUT();
+  CLR_LCD_CLK();
+  SET_LCD_DATA_OUTPUT();
   return (ReceiveData);
 }
 
