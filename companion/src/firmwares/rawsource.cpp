@@ -323,8 +323,13 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
     if (!model || index >= b.getCapability(Board::FunctionSwitches))
       return false;
 
-  if (type == SOURCE_TYPE_SPECIAL && index >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED && index <= SOURCE_TYPE_SPECIAL_LAST_RESERVED)
-    return false;
+  if (type == SOURCE_TYPE_SPECIAL) {
+    if (index >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED && index <= SOURCE_TYPE_SPECIAL_LAST_RESERVED)
+      return false;
+    else if (index >= SOURCE_TYPE_SPECIAL_FIRST_TIMER && index <= SOURCE_TYPE_SPECIAL_LAST_TIMER &&
+             model->timers[index - SOURCE_TYPE_SPECIAL_FIRST_TIMER].isModeOff())
+      return false;
+  }
 
   if (model) {
     if (type == SOURCE_TYPE_FUNCTIONSWITCH && !model->isFunctionSwitchSourceAllowed(index))
