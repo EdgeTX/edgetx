@@ -34,9 +34,11 @@
 #define SD_SPI_CLK_MAX (25000000UL)
 #endif
 
-#if !defined(SD_CARD_SPI_DISABLE_CRC)
-#define SD_CARD_SPI_ENABLE_CRC
-#endif
+// Disable CRC support by default
+//
+// #if !defined(SD_CARD_SPI_DISABLE_CRC)
+// #define SD_CARD_SPI_ENABLE_CRC
+// #endif
 
 #define US_PER_MS                   (1000UL)
 #define INIT_CMD_RETRY_US           (250 * US_PER_MS)
