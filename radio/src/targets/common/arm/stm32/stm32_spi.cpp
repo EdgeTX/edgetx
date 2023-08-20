@@ -25,6 +25,10 @@
 
 #include <stdlib.h>
 
+#if !defined(SPI_DISABLE_DMA)
+#define USE_SPI_DMA
+#endif
+
 #define SPI_DUMMY_BYTE (0xFF)
 
 void stm32_spi_enable_clock(SPI_TypeDef *SPIx)
@@ -127,6 +131,7 @@ static void _init_gpios(const stm32_spi_t* spi)
   LL_GPIO_Init(spi->GPIOx, &pinInit);
 }
 
+#if defined(USE_SPI_DMA)
 static void _config_dma_streams(const stm32_spi_t* spi)
 {
   stm32_dma_enable_clock(spi->DMA);
@@ -149,6 +154,7 @@ static void _config_dma_streams(const stm32_spi_t* spi)
   dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
   LL_DMA_Init(spi->DMA, spi->rxDMA_Stream, &dmaInit);
 }
+#endif
 
 void stm32_spi_init(const stm32_spi_t* spi)
 {
@@ -168,9 +174,11 @@ void stm32_spi_init(const stm32_spi_t* spi)
   LL_SPI_Init(SPIx, &spiInit);
   LL_SPI_Enable(SPIx);
 
+#if defined(USE_SPI_DMA)
   if (spi->DMA) {
     _config_dma_streams(spi);
   }
+#endif
 }
 
 // void stm32_spi_deinit(const stm32_spi_t* spi);
@@ -232,6 +240,7 @@ uint16_t stm32_spi_transfer_word(const stm32_spi_t* spi, uint16_t out)
   return LL_SPI_ReceiveData16(SPIx);
 }
 
+#if defined(USE_SPI_DMA)
 static void _dma_enable_stream(DMA_TypeDef* DMAx, uint32_t stream,
 			       const void* data, uint32_t length)
 {
@@ -239,10 +248,12 @@ static void _dma_enable_stream(DMA_TypeDef* DMAx, uint32_t stream,
   LL_DMA_SetDataLength(DMAx, stream, length);
   LL_DMA_EnableStream(DMAx, stream);
 }
+#endif
 
 uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
 				     uint8_t* data, uint16_t length)
 {
+#if defined(USE_SPI_DMA)
   if (!spi->DMA) {
     return stm32_spi_transfer_bytes(spi, 0, data, length);
   }
@@ -266,11 +277,15 @@ uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
   while(LL_SPI_IsActiveFlag_BSY(spi->SPIx));
 
   return length;
+#else
+  return stm32_spi_transfer_bytes(spi, 0, data, length);
+#endif
 }
 
 uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
                                       const uint8_t* data, uint16_t length)
 {
+#if defined(USE_SPI_DMA)
   if (!spi->DMA) {
     return stm32_spi_transfer_bytes(spi, data, 0, length);
   }
@@ -291,4 +306,7 @@ uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
   while (LL_SPI_IsActiveFlag_BSY(spi->SPIx));
 
   return length;
+#else
+  return stm32_spi_transfer_bytes(spi, data, 0, length);
+#endif
 }
