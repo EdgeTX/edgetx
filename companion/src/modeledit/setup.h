@@ -57,6 +57,7 @@ class TimerPanel : public ModelPanel
 
   signals:
     void nameChanged();
+    void modeChanged();
 
   private:
     TimerData & timer;
@@ -209,7 +210,7 @@ class SetupPanel : public ModelPanel
     void cmTimerPaste();
     void cmTimerMoveDown();
     void cmTimerMoveUp();
-    void onTimerNameChanged();
+    void onTimerChanged();
     void onItemModelAboutToBeUpdated();
     void onItemModelUpdateComplete();
     void onModuleUpdateItemModels();
