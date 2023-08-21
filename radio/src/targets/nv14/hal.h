@@ -549,6 +549,8 @@
 // 2MHz Timer
 #define TIMER_2MHz_RCC_APB1Periph       RCC_APB1Periph_TIM7
 #define TIMER_2MHz_TIMER                TIM7
+#define TIMER_2MHz_IRQn                 TIM7_IRQn
+#define TIMER_2MHz_IRQHandler           TIM7_IRQHandler
 
 // Mixer scheduler timer
 #define MIXER_SCHEDULER_TIMER_RCC_APB1Periph RCC_APB1Periph_TIM12
