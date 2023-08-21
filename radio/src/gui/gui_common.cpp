@@ -608,6 +608,12 @@ bool isAssignableFunctionAvailable(int function)
 }
 #endif
 
+bool isSourceAvailableInTimerSetSpecialFunction(int index)
+{
+  TimerData *timer = &g_model.timers[index];
+  return timer->mode != 0;
+}
+
 bool isSourceAvailableInGlobalResetSpecialFunction(int index)
 {
   if (index >= FUNC_RESET_PARAM_FIRST_TELEM)

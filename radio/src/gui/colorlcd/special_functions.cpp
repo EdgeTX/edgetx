@@ -208,8 +208,7 @@ class SpecialFunctionEditPage : public Page
           return std::string(STR_TIMER) + std::to_string(value + 1);
         });
         timerchoice->setAvailableHandler([=](int value) {
-          TimerData *timer = &g_model.timers[value];
-          return timer->mode != 0;
+          return isSourceAvailableInTimerSetSpecialFunction(value);
         });
 
         line = specialFunctionOneWindow->newLine(&grid);

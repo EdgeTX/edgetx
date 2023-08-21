@@ -714,7 +714,7 @@ void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
       lcdDrawSizedText(x, y, g_model.timers[idx].name, LEN_TIMER_NAME, att);
     }
     else {
-      drawStringWithIndex(x, y, STR_SRC_TIMER, idx, att);
+      drawStringWithIndex(x, y, STR_SRC_TIMER, idx + 1, att);
     }
   }
   else {
