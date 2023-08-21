@@ -278,7 +278,23 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
       rhs.index = cyc_idx;
     }
 
-    int sp_idx = getCurrentFirmware()->getRawSourceSpecialTypesIndex(src_str.c_str());
+    std::string special_str;
+    node >> special_str;
+
+    // 2.10 conversion of TIMERx to Tmrx
+    if (special_str.size() == 6) {
+      if (special_str.substr(0, 6) == "TIMER1") {
+        special_str = "Tmr1";
+      }
+      else if (special_str.substr(0, 6) == "TIMER2") {
+        special_str = "Tmr2";
+      }
+      else if (special_str.substr(0, 6) == "TIMER3") {
+        special_str = "Tmr3";
+      }
+    }
+
+    int sp_idx = getCurrentFirmware()->getRawSourceSpecialTypesIndex(special_str.c_str());
     if (sp_idx >= 0) {
       rhs.type = SOURCE_TYPE_SPECIAL;
       rhs.index = sp_idx;

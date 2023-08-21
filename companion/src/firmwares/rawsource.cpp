@@ -463,9 +463,9 @@ tbl.insert(tbl.end(), {
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED2),  "RESERVED2"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED3),  "RESERVED3"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED4),  "RESERVED4"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER1),     "TIMER1"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER2),     "TIMER2"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER3),     "TIMER3"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER1),     "Tmr1"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER2),     "Tmr2"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER3),     "Tmr3"},
                           });
 
   return tbl;
