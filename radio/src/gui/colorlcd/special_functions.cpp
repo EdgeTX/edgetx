@@ -619,7 +619,7 @@ class SpecialFunctionButton : public Button
         break;
 
       case FUNC_SET_TIMER:
-        sprintf(s+strlen(s), "%s%d = %s", STR_TIMER, CFN_TIMER_INDEX(cfn) + 1, getTimerString(CFN_PARAM(cfn), {.options = SHOW_TIME}));
+        sprintf(s+strlen(s), "%s%d = %s", STR_SRC_TIMER, CFN_TIMER_INDEX(cfn) + 1, getTimerString(CFN_PARAM(cfn), {.options = SHOW_TIME}));
         break;
 
       case FUNC_SET_FAILSAFE:

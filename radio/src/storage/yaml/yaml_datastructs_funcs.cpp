@@ -224,7 +224,16 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
 
       return MIXSRC_FIRST_HELI + (val[3] - '1');
 
-    } else if (val_len > 5 &&
+    } else if (val_len > 3 &&
+               val[0] == 'T' &&
+               val[1] == 'm' &&
+               val[2] == 'r' &&
+               val[3] >= '1' &&
+               val[3] <= ('1' + MAX_TIMERS)) {
+
+      return MIXSRC_FIRST_TIMER + (val[3] - '1');
+
+    } else if (val_len > 5 &&    // Old form, removed in 2.10
                val[0] == 'T' &&
                val[1] == 'I' &&
                val[2] == 'M' &&
@@ -359,7 +368,7 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
     }
     else if (val >= MIXSRC_FIRST_TIMER
              && val <= MIXSRC_LAST_TIMER) {
-        if (!wf(opaque, "TIMER", 5)) return false;
+        if (!wf(opaque, "Tmr", 3)) return false;
         str = yaml_unsigned2str(val - MIXSRC_FIRST_TIMER + 1);
     }
     else if (val >= MIXSRC_FIRST_TELEM
