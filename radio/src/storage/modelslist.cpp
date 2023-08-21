@@ -1006,8 +1006,8 @@ bool ModelsList::loadYaml()
   if (vfs.openDirectory(moddir, MODELS_PATH) == VfsError::OK) {
     for (;;) {
       VfsError res = moddir.read(finfo);
-      if (res != VfsError::OK || finfo.getName()[0] == 0) break;
       const char* fName = finfo.getName();
+      if (res != VfsError::OK || fName[0] == 0) break;
       if (finfo.getType() == VfsType::DIR) continue;
       unsigned int len = strlen(fName);
 
