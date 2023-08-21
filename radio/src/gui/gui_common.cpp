@@ -622,16 +622,14 @@ bool isSourceAvailableInResetSpecialFunction(int index)
     TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index-FUNC_RESET_PARAM_FIRST_TELEM];
     return telemetrySensor.isAvailable();
   }
-#if TIMERS < 3
-    else if (index == FUNC_RESET_TIMER3) {
-    return false;
+  else if (index <= FUNC_RESET_TIMER3) {
+    if (index > (TIMERS - 1))
+      return false;
+    else {
+      TimerData *timer = &g_model.timers[index];
+      return timer->mode != 0;
+    }
   }
-#endif
-#if TIMERS < 2
-    else if (index == FUNC_RESET_TIMER2) {
-    return false;
-  }
-#endif
   else {
     return true;
   }

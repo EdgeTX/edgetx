@@ -207,8 +207,12 @@ class SpecialFunctionEditPage : public Page
         timerchoice->setTextHandler([](int32_t value) {
           return std::string(STR_TIMER) + std::to_string(value + 1);
         });
-        line = specialFunctionOneWindow->newLine(&grid);
+        timerchoice->setAvailableHandler([=](int value) {
+          TimerData *timer = &g_model.timers[value];
+          return timer->mode != 0;
+        });
 
+        line = specialFunctionOneWindow->newLine(&grid);
         new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         new TimeEdit(line, rect_t{}, 0,
                      9 * 60 * 60 - 1, GET_SET_DEFAULT(CFN_PARAM(cfn)));
