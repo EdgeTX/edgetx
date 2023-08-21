@@ -113,7 +113,8 @@ static uint32_t _get_spi_prescaler(SPI_TypeDef *SPIx, uint32_t max_freq)
 
 static void _init_gpios(const stm32_spi_t* spi)
 {
-  stm32_gpio_enable_clock(spi->GPIOx);
+  stm32_gpio_enable_clock(spi->SPI_GPIOx);
+  stm32_gpio_enable_clock(spi->CS_GPIOx);
 
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
@@ -122,13 +123,13 @@ static void _init_gpios(const stm32_spi_t* spi)
   pinInit.Pin = spi->SPI_Pins;
   pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
   pinInit.Alternate = _get_spi_af(spi->SPIx);
-  LL_GPIO_Init(spi->GPIOx, &pinInit);
+  LL_GPIO_Init(spi->SPI_GPIOx, &pinInit);
 
   // CS
   pinInit.Pin = spi->CS_Pin;
   pinInit.Mode = LL_GPIO_MODE_OUTPUT;
   pinInit.Alternate = LL_GPIO_AF_0;
-  LL_GPIO_Init(spi->GPIOx, &pinInit);
+  LL_GPIO_Init(spi->CS_GPIOx, &pinInit);
 }
 
 #if defined(USE_SPI_DMA)
@@ -185,12 +186,12 @@ void stm32_spi_init(const stm32_spi_t* spi)
 
 void stm32_spi_select(const stm32_spi_t* spi)
 {
-  LL_GPIO_ResetOutputPin(spi->GPIOx, spi->CS_Pin);
+  LL_GPIO_ResetOutputPin(spi->CS_GPIOx, spi->CS_Pin);
 }
 
 void stm32_spi_unselect(const stm32_spi_t* spi)
 {
-  LL_GPIO_SetOutputPin(spi->GPIOx, spi->CS_Pin);
+  LL_GPIO_SetOutputPin(spi->CS_GPIOx, spi->CS_Pin);
 }
 
 void stm32_spi_set_max_baudrate(const stm32_spi_t* spi, uint32_t baudrate)

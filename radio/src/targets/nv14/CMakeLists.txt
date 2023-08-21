@@ -140,7 +140,6 @@ set(FIRMWARE_TARGET_SRC
   ${TOUCH_DRIVER}
   sdram_driver.c
   battery_driver.cpp
-  audio_spi_driver.cpp
   backlight_driver.cpp
   )
 
@@ -155,6 +154,7 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/sdio_sd.cpp
   targets/common/arm/stm32/diskio_sdio.cpp
+  targets/common/arm/stm32/vs1053b.cpp
   )
 
 # Make malloc() thread-safe

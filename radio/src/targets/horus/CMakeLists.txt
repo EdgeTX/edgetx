@@ -146,10 +146,7 @@ elseif (PCB STREQUAL X12S)
   endif()
   set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
   set(AUX2_SERIAL ON) # wire to GPS
-  set(FIRMWARE_TARGET_SRC
-    ${FIRMWARE_TARGET_SRC}
-    audio_spi_driver.cpp
-    )
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} targets/common/arm/stm32/vs1053b.cpp)
   set(BITMAPS_TARGET x12s_bitmaps)
   set(FONTS_TARGET x12s_fonts)
   set(LCD_DRIVER lcd_driver.cpp)

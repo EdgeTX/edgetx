@@ -27,8 +27,9 @@
 
 struct stm32_spi_t {
   SPI_TypeDef*   SPIx;
-  GPIO_TypeDef*  GPIOx;
+  GPIO_TypeDef*  SPI_GPIOx;
   uint32_t       SPI_Pins; // SCK, MISO, MOSI
+  GPIO_TypeDef*  CS_GPIOx;
   uint32_t       CS_Pin;   // CS
 
   DMA_TypeDef*   DMA;

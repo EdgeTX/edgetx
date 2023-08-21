@@ -19,6 +19,10 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal_ll.h"
+#include "stm32_gpio_driver.h"
+#include "stm32_spi.h"
+
 #include "opentx.h"
 
 #if !defined(SIMU)
@@ -70,69 +74,44 @@
 
 #define MP3_BUFFER_SIZE                32
 
-#define CS_HIGH()                      do { AUDIO_CS_GPIO->BSRRL = AUDIO_CS_GPIO_PIN; } while (0)
-#define CS_LOW()                       do { AUDIO_CS_GPIO->BSRRH = AUDIO_CS_GPIO_PIN; } while (0)
-#define XDCS_HIGH()                    do { AUDIO_XDCS_GPIO->BSRRL = AUDIO_XDCS_GPIO_PIN; } while (0)
-#define XDCS_LOW()                     do { AUDIO_XDCS_GPIO->BSRRH = AUDIO_XDCS_GPIO_PIN; } while (0)
-#define RST_HIGH()                     do { AUDIO_RST_GPIO->BSRRL = AUDIO_RST_GPIO_PIN; } while (0)
-#define RST_LOW()                      do { AUDIO_RST_GPIO->BSRRH = AUDIO_RST_GPIO_PIN; } while (0)
+#define CS_HIGH()    stm32_spi_unselect(&_audio_spi)
+#define CS_LOW()     stm32_spi_select(&_audio_spi)
+#define XDCS_HIGH()  do { AUDIO_XDCS_GPIO->BSRR = AUDIO_XDCS_GPIO_PIN; } while (0)
+#define XDCS_LOW()   do { AUDIO_XDCS_GPIO->BSRR = AUDIO_XDCS_GPIO_PIN << 16; } while (0)
+#define RST_HIGH()   do { AUDIO_RST_GPIO->BSRR = AUDIO_RST_GPIO_PIN; } while (0)
+#define RST_LOW()    do { AUDIO_RST_GPIO->BSRR = AUDIO_RST_GPIO_PIN << 16; } while (0)
 
-#define READ_DREQ()                    (GPIO_ReadInputDataBit(AUDIO_DREQ_GPIO, AUDIO_DREQ_GPIO_PIN))
+#define READ_DREQ()  (LL_GPIO_IsInputPinSet(AUDIO_DREQ_GPIO, AUDIO_DREQ_GPIO_PIN))
+
+static const stm32_spi_t _audio_spi = {
+  .SPIx = AUDIO_SPI,
+  .SPI_GPIOx = AUDIO_SPI_SCK_GPIO,
+  .SPI_Pins = AUDIO_SPI_SCK_GPIO_PIN | AUDIO_SPI_MISO_GPIO_PIN | AUDIO_SPI_MOSI_GPIO_PIN,
+  .CS_GPIOx = AUDIO_CS_GPIO,
+  .CS_Pin = AUDIO_CS_GPIO_PIN,
+};
 
 void audioSpiInit(void)
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  SPI_InitTypeDef SPI_InitStructure;
+  stm32_gpio_enable_clock(AUDIO_XDCS_GPIO);
+  stm32_gpio_enable_clock(AUDIO_RST_GPIO);
+  stm32_gpio_enable_clock(AUDIO_DREQ_GPIO);
+  
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
 
-  GPIO_InitStructure.GPIO_Pin = AUDIO_SPI_MISO_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(AUDIO_SPI_MISO_GPIO, &GPIO_InitStructure);
+  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+  pinInit.Pin = AUDIO_XDCS_GPIO_PIN;
+  LL_GPIO_Init(AUDIO_XDCS_GPIO, &pinInit);
 
-  GPIO_InitStructure.GPIO_Pin = AUDIO_SPI_SCK_GPIO_PIN;
-  GPIO_Init(AUDIO_SPI_SCK_GPIO, &GPIO_InitStructure);
+  pinInit.Pin = AUDIO_RST_GPIO_PIN;
+  LL_GPIO_Init(AUDIO_RST_GPIO, &pinInit);
 
-  GPIO_InitStructure.GPIO_Pin = AUDIO_SPI_MOSI_GPIO_PIN;
-  GPIO_Init(AUDIO_SPI_MOSI_GPIO, &GPIO_InitStructure);
+  pinInit.Pin = AUDIO_DREQ_GPIO_PIN;
+  pinInit.Mode = LL_GPIO_MODE_INPUT;
+  LL_GPIO_Init(AUDIO_DREQ_GPIO, &pinInit);
 
-  GPIO_InitStructure.GPIO_Pin = AUDIO_CS_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_Init(AUDIO_CS_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = AUDIO_XDCS_GPIO_PIN;
-  GPIO_Init(AUDIO_XDCS_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = AUDIO_RST_GPIO_PIN;
-  GPIO_Init(AUDIO_RST_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = AUDIO_DREQ_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_Init(AUDIO_DREQ_GPIO, &GPIO_InitStructure);
-
-  GPIO_PinAFConfig(AUDIO_SPI_SCK_GPIO, AUDIO_SPI_SCK_GPIO_PinSource, AUDIO_SPI_GPIO_AF);
-  GPIO_PinAFConfig(AUDIO_SPI_MISO_GPIO, AUDIO_SPI_MISO_GPIO_PinSource, AUDIO_SPI_GPIO_AF);
-  GPIO_PinAFConfig(AUDIO_SPI_MOSI_GPIO, AUDIO_SPI_MOSI_GPIO_PinSource, AUDIO_SPI_GPIO_AF);
-
-  RCC_ClocksTypeDef RCC_Clocks;
-  RCC_GetClocksFreq(&RCC_Clocks);
-
-  SPI_I2S_DeInit(AUDIO_SPI);
-  SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-  SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-  SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
-  SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
-  SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
-  SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
-  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-  SPI_InitStructure.SPI_CRCPolynomial = 7;
-  SPI_Init(AUDIO_SPI, &SPI_InitStructure);
-  SPI_Cmd(AUDIO_SPI, ENABLE);
-
-  SPI_I2S_ClearFlag(AUDIO_SPI, SPI_I2S_FLAG_RXNE);
-  SPI_I2S_ClearFlag(AUDIO_SPI, SPI_I2S_FLAG_TXE);
+  stm32_spi_init(&_audio_spi);
 }
 
 void audioWaitReady()
@@ -175,35 +154,7 @@ void audioSpiSetSpeed(uint8_t speed)
 
 uint8_t audioSpiReadWriteByte(uint8_t value)
 {
-  uint16_t time_out = 0x0FFF;
-  while (SPI_I2S_GetFlagStatus(AUDIO_SPI, SPI_I2S_FLAG_TXE) == RESET) {
-    if (--time_out == 0) {
-      // reset SPI
-      SPI_Cmd(AUDIO_SPI, DISABLE);
-      SPI_I2S_ClearFlag(AUDIO_SPI, SPI_I2S_FLAG_OVR);
-      SPI_I2S_ClearFlag(AUDIO_SPI, SPI_I2S_FLAG_BSY);
-      SPI_I2S_ClearFlag(AUDIO_SPI, I2S_FLAG_UDR);
-      SPI_I2S_ClearFlag(AUDIO_SPI, SPI_I2S_FLAG_TIFRFE);
-      SPI_Cmd(AUDIO_SPI, ENABLE);
-      break;
-    }
-  }
-  SPI_I2S_SendData(AUDIO_SPI, value);
-
-  time_out = 0x0FFF;
-  while (SPI_I2S_GetFlagStatus(AUDIO_SPI, SPI_I2S_FLAG_RXNE) == RESET) {
-    if (--time_out == 0) {
-      // reset SPI
-      SPI_Cmd(AUDIO_SPI, DISABLE);
-      SPI_I2S_ClearFlag(AUDIO_SPI, SPI_I2S_FLAG_OVR);
-      SPI_I2S_ClearFlag(AUDIO_SPI, SPI_I2S_FLAG_BSY);
-      SPI_I2S_ClearFlag(AUDIO_SPI, I2S_FLAG_UDR);
-      SPI_I2S_ClearFlag(AUDIO_SPI, SPI_I2S_FLAG_TIFRFE);
-      SPI_Cmd(AUDIO_SPI, ENABLE);
-      break;
-    }
-  }
-  return SPI_I2S_ReceiveData(AUDIO_SPI);
+  return stm32_spi_transfer_byte(&_audio_spi, value);
 }
 
 uint8_t audioWaitDreq(int32_t delay_us)
@@ -283,7 +234,7 @@ uint8_t audioHardReset(void)
   delay_ms(100); // 100ms
   RST_HIGH();
 
-  if (!audioWaitDreq(5000))
+  if (!audioWaitDreq(100))
     return 0;
 
   delay_ms(20); // 20ms
@@ -296,15 +247,14 @@ uint8_t audioSoftReset(void)
   if (!audioWaitDreq(100))
     return 0;
 
-  audioSpiReadWriteByte(0Xff);
+  audioSpiReadWriteByte(0x00); // start the transfer
 
-  uint8_t retry = 0;
-  while (audioSpiReadReg(SPI_MODE) != 0x0800 && retry < 100) {
-    retry++;
-    audioSpiWriteCmd(SPI_MODE, 0x0804);
-  }
+  audioSpiWriteCmd(SPI_MODE, 0x0816); // SOFT RESET, new model
+  if (!audioWaitDreq(100))
+    return 0;
+
   // wait for set up successful
-  retry = 0;
+  uint8_t retry = 0;
   while (audioSpiReadReg(SPI_CLOCKF) != 0x9800 && retry < 100) {
     retry++;
     audioSpiWriteCmd(SPI_CLOCKF, 0x9800);
@@ -403,10 +353,10 @@ void audioMute()
 
 void audioUnmute()
 {
-if(isFunctionActive(FUNCTION_DISABLE_AUDIO_AMP)) {
-  setMutePin(true);
-  return;
-}
+  if(isFunctionActive(FUNCTION_DISABLE_AUDIO_AMP)) {
+    setMutePin(true);
+    return;
+  }
 
 #if defined(AUDIO_UNMUTE_DELAY)
   // if muted
@@ -435,10 +385,29 @@ void audioMuteInit()
 }
 #endif
 
+#if defined(PCBX12S)
+void audioShutdownInit()
+{
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
+
+  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
+  pinInit.Pin = AUDIO_SHUTDOWN_GPIO_PIN;
+  LL_GPIO_Init(AUDIO_SHUTDOWN_GPIO, &pinInit);
+
+  // we never RESET it, there is a 2s delay on STARTUP
+  LL_GPIO_SetOutputPin(AUDIO_SHUTDOWN_GPIO, AUDIO_SHUTDOWN_GPIO_PIN);
+}
+#endif
+
 void audioInit()
 {
 #if defined(AUDIO_MUTE_GPIO_PIN)
   audioMuteInit();
+#endif
+
+  #if defined(PCBX12S)
+  audioShutdownInit();
 #endif
 
   audioSpiInit();
@@ -510,7 +479,7 @@ void setScaledVolume(uint8_t volume)
   }
   // maximum volume is 0x00 and total silence is 0xFE
   if (volume == 0) {
-    setVolume(0xFE);  // silence
+    setVolume(0xFE);  // silence  
   }
   else {
     uint32_t vol = (VOLUME_MIN_DB * 2) - ((uint32_t)volume * (VOLUME_MIN_DB * 2)) / VOLUME_LEVEL_MAX;
