@@ -77,18 +77,18 @@ static uint32_t _get_spi_prescaler(SPI_TypeDef *SPIx, uint32_t max_freq)
   LL_RCC_GetSystemClocksFreq(&RCC_Clocks);
 
   uint32_t pclk = RCC_Clocks.PCLK2_Frequency;
+#if defined(SPI2)
+  if (SPIx == SPI2) {
+    pclk = RCC_Clocks.PCLK1_Frequency;
+  }
+#endif
 #if defined(SPI3)
   if (SPIx == SPI3) {
     pclk = RCC_Clocks.PCLK1_Frequency;
   }
 #endif
 
-  auto d = div((int32_t)pclk, (int32_t)max_freq);
-  uint32_t divider = d.quot;
-  if (d.rem > 0) {
-    divider += 1;
-  }
-  
+  uint32_t divider = (pclk + max_freq) / max_freq;
   uint32_t presc;
   if (divider > 128) {
     presc = LL_SPI_BAUDRATEPRESCALER_DIV256;
