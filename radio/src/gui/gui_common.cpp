@@ -608,7 +608,7 @@ bool isAssignableFunctionAvailable(int function)
 }
 #endif
 
-bool isSourceAvailableInTimerSetSpecialFunction(int index)
+bool isTimerSourceAvailable(int index)
 {
   TimerData *timer = &g_model.timers[index];
   return timer->mode != 0;
