@@ -104,6 +104,10 @@ void watchdogInit(unsigned int duration)
 extern "C" void initialise_monitor_handles();
 #endif
 
+#if defined(SPI_FLASH)
+extern "C" void flushFTL();
+#endif
+
 void delay_self(int count)
 {
    for (int i = 50000; i > 0; i--)

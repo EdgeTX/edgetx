@@ -20,7 +20,6 @@
  */
 
 #include <algorithm>
-#include "rtos.h"
 #include "board.h"
 
 #if !defined(SIMU)
