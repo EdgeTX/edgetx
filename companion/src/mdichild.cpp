@@ -553,8 +553,7 @@ void MdiChild::initModelsList()
   if (labelsListModel)
     delete labelsListModel;
 
-  labelsListModel = new LabelsModel(ui->modelsList->selectionModel(),
-                                    &radioData, this);
+  labelsListModel = new LabelsModel(modelsListProxyModel, ui->modelsList->selectionModel(), &radioData, this);
   connect(labelsListModel, &LabelsModel::modelChanged, this, &MdiChild::modelLabelsChanged);
   connect(labelsListModel, &LabelsModel::labelsFault, this, &MdiChild::labelsFault);
   ui->lstLabels->setModel(labelsListModel);

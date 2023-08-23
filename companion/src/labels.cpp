@@ -1,8 +1,10 @@
 #include "labels.h"
 
-LabelsModel::LabelsModel(QItemSelectionModel *selectionModel,
+LabelsModel::LabelsModel(QSortFilterProxyModel * modelsListProxyModel,
+                         QItemSelectionModel *selectionModel,
                          RadioData *radioData, QObject *parent) :
   QAbstractItemModel(parent),
+  modelsListProxyModel(modelsListProxyModel),
   modelsSelection(selectionModel),
   radioData(radioData),
   selectedModel(-1)
@@ -204,9 +206,9 @@ void LabelsModel::buildLabelsList()
 
 void LabelsModel::modelsSelectionChanged()
 {
-  QModelIndex index = modelsSelection->currentIndex();
+  QModelIndex index = getDataIndex(modelsSelection->currentIndex());
   if (index.isValid()) {
-      int mi = modelsSelection->currentIndex().row();
+      int mi = index.row();
       if (mi < (int)radioData->models.size()) {
         selectedModel = mi;
         buildLabelsList();
@@ -215,6 +217,12 @@ void LabelsModel::modelsSelectionChanged()
   else
     selectedModel = -1;
 }
+
+QModelIndex LabelsModel::getDataIndex(QModelIndex viewIndex) const
+{
+  return modelsListProxyModel->mapToSource(viewIndex);
+}
+
 
 QValidator::State LabelValidator::validate(QString &label, int &pos) const
 {

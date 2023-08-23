@@ -7,6 +7,7 @@
 #include <QValidator>
 #include <QLineEdit>
 #include <QStyledItemDelegate>
+#include <QSortFilterProxyModel>
 
 #include "radiodata.h"
 
@@ -22,7 +23,7 @@ class LabelsModel : public QAbstractItemModel
   Q_OBJECT
 
 public:
-  LabelsModel(QItemSelectionModel *selectionModel, RadioData *radioData, QObject *parent = nullptr);
+  LabelsModel(QSortFilterProxyModel * modelsListProxyModel, QItemSelectionModel *selectionModel, RadioData *radioData, QObject *parent = nullptr);
   ~LabelsModel();
   Qt::ItemFlags flags(const QModelIndex &index) const override;
   bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
@@ -46,11 +47,14 @@ signals:
   void labelsFault(QString msg);
 
 private:
+  QSortFilterProxyModel * modelsListProxyModel;
   QItemSelectionModel *modelsSelection;
   RadioData *radioData;
   int selectedModel;
   QList<QModelIndex> modelIndices;
   QList<LabelItem> labels;
+
+  QModelIndex getDataIndex(QModelIndex viewIndex) const;
 };
 
 class LabelValidator : public QValidator
