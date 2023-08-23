@@ -720,7 +720,9 @@ class SensorEditWindow : public Page {
       new StaticText(line, rect_t{}, STR_LOGS, 0, COLOR_THEME_PRIMARY1);
       new ToggleSwitch(line, rect_t{}, GET_DEFAULT(sensor->logs), [=](int32_t newValue) {
         sensor->logs = newValue;
+#if defined(SDCARD)
         logsClose();
+#endif
         SET_DIRTY();
       });
 

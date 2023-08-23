@@ -63,6 +63,9 @@ if(BOOTLOADER)
     ../../frftl.cpp
     ../../crc.cpp
     )
+  add_definitions(-DSPI_FLASH)
+  add_definitions(-DUSE_FATFS)
+  
 else()
   set(LINKER_SCRIPT targets/nv14/stm32f4_flash.ld)
 endif()
