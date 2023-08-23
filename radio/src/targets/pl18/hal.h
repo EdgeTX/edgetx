@@ -24,6 +24,12 @@
 
 #define CPU_FREQ                168000000
 
+// HSI is at 168Mhz (over-drive is not enabled!)
+#define PERI1_FREQUENCY                 42000000
+#define PERI2_FREQUENCY                 84000000
+#define TIMER_MULT_APB1                 2
+#define TIMER_MULT_APB2                 2
+
 /* Timers Allocation:
  * TIM1 = Haptic
  * TIM4 = Trainer

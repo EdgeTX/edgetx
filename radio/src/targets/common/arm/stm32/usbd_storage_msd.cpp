@@ -202,10 +202,11 @@ int8_t STORAGE_GetCapacity (uint8_t lun, uint32_t *block_num, uint32_t *block_si
     *block_num  = RESERVED_SECTORS + EEPROM_SIZE/BLOCK_SIZE + FLASHSIZE/BLOCK_SIZE;
 #else
     *block_num  = RESERVED_SECTORS + FLASHSIZE/BLOCK_SIZE;
-#endif
+#endif  // EEPROM
     return 0;
   }
-#endif  
+#endif  // FWDRIVE
+
   if (lun == STORAGE_SPI_FLASH_LUN) {
 #if !defined(SPI_FLASH)
     return -1;

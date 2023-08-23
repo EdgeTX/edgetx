@@ -1,21 +1,22 @@
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
+option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(AFHDS2 "Support for AFHDS2" OFF)
 option(GHOST "Ghost TX Module" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
+option(SPI_FLASH "enable internal spi flash as additional storage" NO)
 
-set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
-set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
 set(DEFAULT_STORAGE "INTERNAL" CACHE STRING "storage to use for settings, model data, ... (INTERNAL/SDCARD)")
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32F4)
 set(HSE_VALUE 12000000)
-set(SDCARD YES)
-set(STORAGE SDCARD)
-set(STORAGE_FORMAT RAW)
+set(SDCARD NO)
+#set(STORAGE SDCARD)
+#set(STORAGE_FORMAT RAW)
 set(STORAGE_MODELSLIST YES)
+set(SPI_FLASH YES)
 set(HAPTIC YES)
 set(GUI_DIR colorlcd)
 set(BITMAPS_DIR 480x272)
@@ -26,8 +27,48 @@ set(WIRELESS_CHARGER YES)
 set(TARGET_DIR pl18)
 add_definitions(-DHARDWARE_TRAINER_JACK)
 
+if(NOT SDCARD AND NOT SPI_FLASH)
+  message(FATAL_ERROR "No storage type enabled")
+endif()
+if(NOT SDCARD AND DEFAULT_STORAGE STREQUAL "SDCARD")
+  message(FATAL_ERROR "SD card support disabled, but 'SDCARD' selected as default storage")
+endif()
+if(NOT SPI_FLASH AND DEFAULT_STORAGE STREQUAL "INTERNAL")
+  message(FATAL_ERROR "SPI flash support disabled, but 'INTERNAL' selected as default storage")
+endif()
+
+add_definitions(-DDEFAULT_STORAGE=${DEFAULT_STORAGE})
+
+if(SPI_FLASH)
+  set(TARGET_SRC ${TARGET_SRC}
+    ../common/arm/stm32/flash_spi_driver.cpp
+  )
+
+  if(LITTLEFS)
+    set(TARGET_SRC ${TARGET_SRC}
+      ../../thirdparty/littlefs_v2.4.1/lfs_util.c
+      ../../thirdparty/littlefs_v2.4.1/lfs.c
+    )
+    add_definitions(-DUSE_LITTLEFS)
+  else()
+    set(TARGET_SRC ${TARGET_SRC}
+        ../../frftl.cpp
+        ../../crc.cpp
+        )
+  endif()
+endif()
+
 if(BOOTLOADER)
   set(LINKER_SCRIPT targets/pl18/stm32f4_flash_bootloader.ld)
+  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
+    ../common/arm/stm32/diskio_sdio_spiflash.cpp
+    ../common/arm/stm32/flash_spi_driver.cpp
+    ../../frftl.cpp
+    ../../crc.cpp
+    )
+  add_definitions(-DSPI_FLASH)
+  add_definitions(-DUSE_FATFS)
+  
 else()
   set(LINKER_SCRIPT targets/pl18/stm32f4_flash.ld)
 endif()
@@ -54,7 +95,8 @@ add_definitions(-DBATTERY_CHARGE)
 add_definitions(-DSOFTWARE_VOLUME)
 
 # defines existing internal modules
-set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "No internal module")
+set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
+set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
 
 set(BITMAPS_TARGET pl18_bitmaps)
 set(FONTS_TARGET x12_fonts)
@@ -67,6 +109,7 @@ set(FIRMWARE_DEPENDENCIES datacopy)
 
 set(HARDWARE_TOUCH ON)
 set(SOFTWARE_KEYBOARD ON)
+set(FLYSKY_GIMBAL ON)
 
 add_definitions(
   -DSTM32F429_439xx -DSTM32F429xx
@@ -91,6 +134,9 @@ if(NOT UNEXPECTED_SHUTDOWN)
   add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
 endif()
 
+if(STICKS_DEAD_ZONE)
+  add_definitions(-DSTICK_DEAD_ZONE)
+endif()
 set(AFHDS3 ON)
 
 # VCP CLI
@@ -140,29 +186,27 @@ endif()
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
   board.cpp
-  startup_stm32f42_43xxx.s
   ${LCD_DRIVER}
   ${TOUCH_DRIVER}
   sdram_driver.c
-  trainer_driver.cpp
   battery_driver.cpp
   backlight_driver.cpp
-  extmodule_helper.cpp
-  ../horus/flyskyHallStick_driver.cpp
+  ../common/arm/stm32/diskio_sdio_spiflash.cpp
   )
 
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
   hal/adc_driver.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
+  boards/generic_stm32/module_ports.cpp
   boards/generic_stm32/aux_ports.cpp
   targets/common/arm/stm32/stm32_hal_adc.cpp
   targets/common/arm/stm32/timers_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/extmodule_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
-  targets/common/arm/stm32/extmodule_serial_driver.cpp
   targets/common/arm/stm32/stm32_usart_driver.cpp
+  targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/sdio_sd.c
   )
@@ -179,52 +223,4 @@ set(STM32LIB_SRC
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_exti.c
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c
   )
-
-MACRO(GET_GCC_INCLUDE_PATH gcc_include_path)
-  if (WIN32)
-    execute_process(COMMAND arm-none-eabi-gcc -v -x c -E NUL ERROR_VARIABLE _gcc_output OUTPUT_QUIET)
-  else()
-    execute_process(COMMAND arm-none-eabi-gcc -v -x c -E - INPUT_FILE /dev/null ERROR_VARIABLE _gcc_output OUTPUT_QUIET)
-  endif()
-
-  # Build an array of string from the GCC output
-  string(REPLACE "\n" ";" _gcc_output "${_gcc_output}")
-
-  set(_capture_include FALSE)
-  set(_include_path "")
-
-  # Go through the lines and capture between '"#include <...> search starts here:"' and 'End of search list.'
-  foreach(_line ${_gcc_output})
-    if(${_line} STREQUAL "End of search list.")
-      set(_capture_include FALSE)
-    endif()
-
-    if(_capture_include)
-      # Remove the leading and trailing empty characters
-      string(REPLACE "\r" "" _line ${_line})
-      string(SUBSTRING "${_line}" 1 -1 _line)
-      set(_include_path "${_include_path}" "-I\"${_line}\"")
-    endif()
-
-    if(${_line} STREQUAL "#include <...> search starts here:")
-      set(_capture_include TRUE)
-    endif()
-  endforeach()
-  set(${gcc_include_path} ${_include_path})
-ENDMACRO()
-
-if(PYTHONINTERP_FOUND)
-  GET_GCC_INCLUDE_PATH(gcc_include_path)
-
-  add_custom_command(
-    OUTPUT ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
-    WORKING_DIRECTORY ${RADIO_DIRECTORY}/src
-    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/generate_datacopy.py datastructs_private.h -DPCBFLYSKY -DPCBPL18 -DCPUARM -DSTM32F4 -DSTM32F429_439xx -DCOLORLCD -DBACKUP -DSIMU -I. -Igui/colorlcd -Itargets/pl18 -Itargets/common/arm/stm32 -I${THIRDPARTY_DIR} -I${THIRDPARTY_DIR}/libopenui/src -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/STM32F4xx_StdPeriph_Driver/inc -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Device/ST/STM32F4xx/Include -I${THIRDPARTY_DIR}/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries/CMSIS/Include ${gcc_include_path} -Wno-asm-operand-widths -Wno-pragma-once-outside-header ${SYSROOT_ARG} > ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
-    DEPENDS ${RADIO_DIRECTORY}/src/datastructs.h ${RADIO_DIRECTORY}/util/generate_datacopy.py
-    )
-
-  add_custom_target(datacopy
-    DEPENDS ${PROJECT_BINARY_DIR}/radio/src/datacopy.cpp
-    )
-endif()
 

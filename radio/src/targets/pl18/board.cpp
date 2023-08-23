@@ -20,13 +20,21 @@
  */
  
 #include "board.h"
+#include "boards/generic_stm32/module_ports.h"
+
+#include "hal/adc_driver.h"
+#include "hal/trainer_driver.h"
 #include "tp_cst340.h"
+
 #include "globals.h"
+#if defined(SDCARD)
 #include "sdcard.h"
+#endif
 #include "touch.h"
 #include "debug.h"
 
 #include "stm32_hal_adc.h"
+#include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
 #include "../../debounce.h"
 
@@ -44,8 +52,6 @@ extern "C" {
 }
 #endif
 
-extern void flysky_hall_stick_init( void );
-
 HardwareOptions hardwareOptions;
 
 void watchdogInit(unsigned int duration)
@@ -62,6 +68,10 @@ void watchdogInit(unsigned int duration)
 extern "C" void initialise_monitor_handles();
 #endif
 
+#if defined(SPI_FLASH)
+extern "C" void flushFTL();
+#endif
+
 void delay_self(int count)
 {
    for (int i = 50000; i > 0; i--)
@@ -72,7 +82,8 @@ void delay_self(int count)
 #define RCC_AHB1PeriphMinimum (PWR_RCC_AHB1Periph |\
                                LCD_RCC_AHB1Periph |\
                                BACKLIGHT_RCC_AHB1Periph |\
-                               SDRAM_RCC_AHB1Periph \
+                               SDRAM_RCC_AHB1Periph |\
+                               FLASH_RCC_AHB1Periph \
                               )
 #define RCC_AHB1PeriphOther   (SD_RCC_AHB1Periph |\
                                AUDIO_RCC_AHB1Periph |\
@@ -95,18 +106,14 @@ void delay_self(int count)
 
 #define RCC_APB1PeriphOther   (TELEMETRY_RCC_APB1Periph |\
                                AUDIO_RCC_APB1Periph |\
-                               TRAINER_RCC_APB1Periph |\
                                FLYSKY_HALL_RCC_APB1Periph |\
-                               EXTMODULE_RCC_APB1Periph |\
-                               AUX_SERIAL_RCC_APB1Periph |\
                                MIXER_SCHEDULER_TIMER_RCC_APB1Periph \
                               )
-#define RCC_APB2PeriphMinimum (LCD_RCC_APB2Periph)
-
+#define RCC_APB2PeriphMinimum (LCD_RCC_APB2Periph |\
+                               FLASH_RCC_APB2Periph \
+                              )
 #define RCC_APB2PeriphOther   (ADC_RCC_APB2Periph |\
-                               HAPTIC_RCC_APB2Periph |\
-                               AUX_SERIAL_RCC_APB2Periph |\
-                               EXTMODULE_RCC_APB2Periph \
+                               HAPTIC_RCC_APB2Periph \
                               )
 
 void boardInit()
@@ -134,14 +141,16 @@ void boardInit()
   TRACE("RCC->CSR = %08x", RCC->CSR);
 
   pwrInit();
-  extModuleInit();
+  boardInitModulePorts();
+
+  init_trainer();
   battery_charge_init();
-  globalData.flyskygimbals = true;
-  flysky_hall_stick_init();
+  globalData.flyskygimbals = flysky_gimbal_init();
   init2MhzTimer();
   init1msTimer();
   TouchInit();
   usbInit();
+  flashInit();
 
   uint32_t press_start = 0;
   uint32_t press_end = 0;
@@ -239,9 +248,6 @@ void boardInit()
 
   keysInit();
   audioInit();
-  // we need to initialize g_FATFS_Obj here, because it is in .ram section (because of DMA access)
-  // and this section is un-initialized
-  memset(&g_FATFS_Obj, 0, sizeof(g_FATFS_Obj));
   monitorInit();
   adcInit(&stm32_hal_adc_driver);
   hapticInit();
@@ -266,6 +272,10 @@ void boardInit()
 void boardOff()
 {
 //  lcd->drawFilledRect(0, 0, LCD_W, LCD_H, SOLID, COLOR_THEME_FOCUS);
+#if defined(SPI_FLASH)
+  flushFTL();
+#endif
+
   lcdOff();
 
   while (pwrPressed()) {

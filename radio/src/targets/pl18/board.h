@@ -26,6 +26,7 @@
 #include "opentx_constants.h"
 #include "board_common.h"
 #include "hal.h"
+#include "hal/serial_port.h"
 
 #if !defined(LUA_EXPORT_GENERATION)
 #include "stm32f4xx_sdio.h"
@@ -35,9 +36,9 @@
 #endif
 
 #include "tp_cst340.h"
-//#include "hallStick_driver.h"
 #include "lcd_driver.h"
 #include "battery_driver.h"
+#include "watchdog_driver.h"
 
 #define FLASHSIZE                       0x200000
 #define BOOTLOADER_SIZE                 0x20000
@@ -46,12 +47,6 @@
 #define MB                              *1024*1024
 #define LUA_MEM_EXTRA_MAX               (2 MB)    // max allowed memory usage for Lua bitmaps (in bytes)
 #define LUA_MEM_MAX                     (6 MB)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
-
-// HSI is at 168Mhz (over-drive is not enabled!)
-#define PERI1_FREQUENCY                 42000000
-#define PERI2_FREQUENCY                 84000000
-#define TIMER_MULT_APB1                 2
-#define TIMER_MULT_APB2                 2
 
 extern uint16_t sessionTimer;
 
@@ -84,7 +79,11 @@ uint32_t sdGetSpeed();
 #define SD_IS_HC()                     (sdIsHC())
 #define SD_GET_SPEED()                 (sdGetSpeed())
 #define SD_GET_FREE_BLOCKNR()          (sdGetFreeSectors())
+#if defined(SDCARD)
 #define SD_CARD_PRESENT()              true
+#else
+#define SD_CARD_PRESENT()              false
+#endif
 void sdInit();
 void sdMount();
 void sdDone();
@@ -115,8 +114,8 @@ void SDRAM_Init();
 
 #define INTERNAL_MODULE_ON()            GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
 #define INTERNAL_MODULE_OFF()           GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
-void EXTERNAL_MODULE_ON();
-void EXTERNAL_MODULE_OFF();
+#define EXTERNAL_MODULE_ON()            GPIO_SetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
+#define EXTERNAL_MODULE_OFF()           GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
 #define EXTERNAL_MODULE_PWR_OFF EXTERNAL_MODULE_OFF
 #define BLUETOOTH_MODULE_ON()           GPIO_ResetBits(BT_EN_GPIO, BT_EN_GPIO_PIN)
 #define BLUETOOTH_MODULE_OFF()          GPIO_SetBits(BT_EN_GPIO, BT_EN_GPIO_PIN)
@@ -273,27 +272,6 @@ uint32_t readTrims();
 #define DBLKEYS_PRESSED_RGT_UP(in)      (false)
 #define DBLKEYS_PRESSED_LFT_DWN(in)     (false)
 
-#define WDG_DURATION                              500 /*ms*/
-void watchdogInit(unsigned int duration);
-#if defined(SIMU)
-  #define WAS_RESET_BY_WATCHDOG()               (false)
-  #define WAS_RESET_BY_SOFTWARE()               (false)
-  #define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()   (false)
-  #define WDG_ENABLE(x)
-  #define WDG_RESET()
-#else
-  #if defined(WATCHDOG)
-    #define WDG_ENABLE(x)                       watchdogInit(x)
-    #define WDG_RESET()                         IWDG->KR = 0xAAAA
-  #else
-    #define WDG_ENABLE(x)
-    #define WDG_RESET()
-  #endif
-  #define WAS_RESET_BY_WATCHDOG()               (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF))
-  #define WAS_RESET_BY_SOFTWARE()               (RCC->CSR & RCC_CSR_SFTRSTF)
-  #define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()   (RCC->CSR & (RCC_CSR_WDGRSTF | RCC_CSR_WWDGRSTF | RCC_CSR_SFTRSTF))
-#endif
-
 // ADC driver
 #define NUM_POTS                        3
 #define NUM_XPOTS                       0 // NUM_POTS
@@ -336,6 +314,8 @@ enum Analogs {
 
 #define SLIDER1 SLIDER_FRONT_LEFT
 #define SLIDER2 SLIDER_FRONT_RIGHT
+
+#define DEFAULT_STICK_DEADZONE          2
 
 #define DEFAULT_POTS_CONFIG    (POT_WITH_DETENT << 4) + (POT_WITHOUT_DETENT << 2) + (POT_WITH_DETENT << 0) // VRA and VRC pots with detent, VRB without
 #define DEFAULT_SLIDERS_CONFIG (SLIDER_WITH_DETENT << 1) + (SLIDER_WITH_DETENT << 0)
@@ -487,6 +467,9 @@ void usbJoystickUpdate();
 }
 #endif
 
+// SPI Flash driver
+void flashInit();
+
 // Audio driver
 void audioInit();
 void audioConsumeCurrentBuffer();
@@ -525,23 +508,6 @@ int32_t getVolume();
 // Telemetry driver
 #define INTMODULE_FIFO_SIZE            512
 #define TELEMETRY_FIFO_SIZE             512
-void telemetryPortInit(uint32_t baudrate, uint8_t mode);
-void telemetryPortSetDirectionOutput();
-void telemetryPortSetDirectionInput();
-void sportSendBuffer(const uint8_t * buffer, uint32_t count);
-bool sportGetByte(uint8_t * byte);
-void telemetryClearFifo();
-void sportSendByte(uint8_t byte);
-extern uint32_t telemetryErrors;
-
-// soft-serial
-void telemetryPortInvertedInit(uint32_t baudrate);
-
-// Sport update driver
-#define SPORT_UPDATE_POWER_ON()
-#define SPORT_UPDATE_POWER_OFF()
-#define SPORT_UPDATE_POWER_INIT()
-#define IS_SPORT_UPDATE_POWER_ON()     (false)
 
 // Haptic driver
 void hapticInit();
@@ -553,34 +519,9 @@ void hapticOn(uint32_t pwmPercent);
 //#define AUX_SERIAL
 #define DEBUG_BAUDRATE                  115200
 #define LUA_DEFAULT_BAUDRATE            115200
-extern uint8_t auxSerialMode;
-#if defined __cplusplus
-void auxSerialSetup(unsigned int baudrate, bool dma, uint16_t length = USART_WordLength_8b, uint16_t parity = USART_Parity_No, uint16_t stop = USART_StopBits_1);
-#endif
-void auxSerialInit(unsigned int mode, unsigned int protocol);
-void auxSerialPutc(char c);
-#define auxSerialTelemetryInit(protocol) auxSerialInit(UART_MODE_TELEMETRY, protocol)
-void auxSerialSbusInit();
-void auxSerialStop();
-#if defined(AUX_SERIAL_PWR_GPIO)
-#define AUX_SERIAL_POWER_ON()            auxSerialPowerOn()
-#define AUX_SERIAL__POWER_OFF()          auxSerialPowerOff()
-#else
-#define AUX_SERIAL_POWER_ON()
-#define AUX_SERIAL__POWER_OFF()
-#endif
-#define USART_FLAG_ERRORS               (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)
 
 extern uint8_t currentTrainerMode;
 void checkTrainerSettings();
-
-#if defined(__cplusplus)
-#include "fifo.h"
-#include "dmafifo.h"
-extern DMAFifo<512> telemetryFifo;
-typedef Fifo<uint8_t, 32> AuxSerialRxFifo;
-extern AuxSerialRxFifo auxSerialRxFifo;
-#endif
 
 // Touch panel driver
 bool touchPanelEventOccured();
