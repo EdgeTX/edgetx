@@ -1757,7 +1757,8 @@ void MdiChild::modelLabelsChanged(int index)
 {
   setWindowModified(true);
   refresh();
-  ui->modelsList->selectionModel()->select(modelsListModel->getIndexForModel(index), QItemSelectionModel::ClearAndSelect |
+  const QModelIndex idx = modelsListProxyModel->mapFromSource(modelsListModel->getIndexForModel(index));
+  ui->modelsList->selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect |
                                                                            QItemSelectionModel::Rows);
 }
 

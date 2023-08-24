@@ -216,7 +216,7 @@ void LabelsModel::buildLabelsList()
   }
 
   if (i) {
-    emit dataChanged(index(0,0), index(i - 1, 0));
+    emit dataChanged(index(0, 0), index(i - 1, 0));
   }
 }
 
