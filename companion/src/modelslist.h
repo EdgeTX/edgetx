@@ -114,7 +114,7 @@ class ModelsListModel : public QAbstractItemModel
     QUuid getMimeDataSourceId(const QMimeData * mimeData) const;
     bool hasSupportedMimeData(const QMimeData * mimeData) const;
     bool hasModelsMimeData(const QMimeData * mimeData) const;
-    bool hasGenralMimeData(const QMimeData * mimeData) const;
+    bool hasGeneralMimeData(const QMimeData * mimeData) const;
     bool hasHeaderMimeData(const QMimeData * mimeData) const;
     bool hasOwnMimeData(const QMimeData * mimeData) const;
 
