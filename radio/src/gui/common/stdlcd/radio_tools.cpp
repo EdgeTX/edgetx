@@ -130,7 +130,7 @@ void menuRadioTools(event_t event)
       char path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
 
       res = dir.read(fno);                   /* Read a directory item */
-      constchar *name = fno.getName();
+      const char *name = fno.getName();
       if (res != VfsError::OK || name[0] == 0) break;  /* Break on error or end of dir */
       if (fno.getType() == VfsType::DIR) continue;            /* Skip subfolders */
       /* Skip hidden and system files */
