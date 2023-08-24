@@ -200,6 +200,7 @@ void per10ms()
 
 #if defined(SDCARD) && defined(PCBTARANIS)
   sdPoll10ms();
+#endif
 
   outputTelemetryBuffer.per10ms();
 

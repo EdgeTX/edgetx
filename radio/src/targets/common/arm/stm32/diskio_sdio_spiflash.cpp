@@ -43,7 +43,42 @@
 // Disk status
 extern volatile uint32_t WriteStatus;
 extern volatile uint32_t ReadStatus;
+/*-----------------------------------------------------------------------*/
+/* Lock / unlock functions                                               */
+/*-----------------------------------------------------------------------*/
+#if !defined(BOOT)
+static RTOS_MUTEX_HANDLE ioMutex;
+static bool initialized = false;
+uint32_t ioMutexReq = 0, ioMutexRel = 0;
+int ff_cre_syncobj (BYTE vol, FF_SYNC_t *mutex)
+{
+  if(!initialized)
+  {
+    RTOS_CREATE_MUTEX(ioMutex);
+    initialized = true;
+  }
+  *mutex = ioMutex;
+  return 1;
+}
 
+int ff_req_grant (FF_SYNC_t mutex)
+{
+  ioMutexReq += 1;
+  RTOS_LOCK_MUTEX(mutex);
+  return 1;
+}
+
+void ff_rel_grant (FF_SYNC_t mutex)
+{
+  ioMutexRel += 1;
+  RTOS_UNLOCK_MUTEX(mutex);
+}
+
+int ff_del_syncobj (FF_SYNC_t mutex)
+{
+  return 1;
+}
+#endif
 #if defined(SPI_FLASH)
 #include "frftl.h"
 

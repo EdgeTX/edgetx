@@ -30,5 +30,11 @@ bool sdCardFormat();
 uint32_t sdGetNoSectors();
 uint32_t sdGetSize();
 uint32_t sdGetFreeSectors();
+uint32_t sdGetFreeKB();
+bool sdIsFull();
+
+#if defined(PCBTARANIS)
+void sdPoll10ms();
+#endif
 
 #endif // _SDCARD_H_

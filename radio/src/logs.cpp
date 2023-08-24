@@ -231,8 +231,8 @@ void writeHeader()
   for (uint8_t i = 0; i < n_inputs; i++) {
     if (!IS_POT_AVAILABLE(i)) continue;
     const char* p = analogGetCanonicalName(ADC_INPUT_POT, i);
-    while (*p) { f_putc(*(p++), &g_oLogFile); }
-    f_putc(',', &g_oLogFile);
+    while (*p) { g_oLogFile.putc(*(p++)); }
+    g_oLogFile.putc(',');
   }
 
   for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
@@ -364,7 +364,7 @@ void logsWrite()
       auto offset = adcGetInputOffset(ADC_INPUT_MAIN);
 
       for (uint8_t i = 0; i < n_inputs; i++) {
-        g_oLogFile.fprint("%d,", calibratedAnalogs[inputMappingConvertMode(offset + i)]);
+        g_oLogFile.fprintf("%d,", calibratedAnalogs[inputMappingConvertMode(offset + i)]);
       }
 
       n_inputs = adcGetMaxInputs(ADC_INPUT_POT);
@@ -372,7 +372,7 @@ void logsWrite()
 
       for (uint8_t i = 0; i < n_inputs; i++) {
         if (IS_POT_AVAILABLE(i))
-          g_oLogFile.fprint("%d,", calibratedAnalogs[offset + i]);
+          g_oLogFile.fprintf("%d,", calibratedAnalogs[offset + i]);
       }
 
       for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
