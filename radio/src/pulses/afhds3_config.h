@@ -45,10 +45,10 @@ enum eEB_BusType : uint8_t {
   EB_BT_SBUS1
 };
 
-enum IBUS1_DIR
+enum BUS_DIR
 {
-	IBUS1_OUT,
-	IBUS1_IN,
+	BUS_OUT,
+	BUS_IN,
 };
 
 // 48 bytes
@@ -95,10 +95,12 @@ enum DirtyConfig {
   DC_RX_CMD_FREQUENCY_V1,
   DC_RX_CMD_FREQUENCY_V1_2,
   DC_RX_CMD_BUS_TYPE_V0,
+  DC_RX_CMD_BUS_TYPE_V0_2,
   DC_RX_CMD_IBUS_SETUP,
-  DC_RX_CMD_IBUS_DIRECTION,
+  DC_RX_CMD_BUS_DIRECTION,
   DC_RX_CMD_BUS_FAILSAFE,
-  DC_RX_CMD_GET_VERSION
+  DC_RX_CMD_GET_VERSION,
+  DC_RX_CMD_GET_RX_VERSION
 };
 
 #define SET_AND_SYNC(cfg, value, dirtyCmd)  [=](int32_t newValue) { value = newValue; cfg->others.dirtyFlag |= (uint32_t) 1 << dirtyCmd; }
