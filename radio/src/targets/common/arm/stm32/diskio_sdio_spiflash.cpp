@@ -548,3 +548,15 @@ DRESULT disk_ioctl (
 
   return res;
 }
+
+#if defined (SDCARD)
+uint32_t sdIsHC()
+{
+  return SD_isHC();
+}
+
+uint32_t sdGetSpeed()
+{
+  return 330000;
+}
+#endif

@@ -37,4 +37,43 @@ bool sdIsFull();
 void sdPoll10ms();
 #endif
 
+#if !defined(SIMU) || defined(SIMU_DISKIO)
+  uint32_t sdIsHC();
+  uint32_t sdGetSpeed();
+  #define SD_IS_HC()                    (sdIsHC())
+  #define SD_GET_SPEED()                (sdGetSpeed())
+  #define SD_GET_FREE_BLOCKNR()         (sdGetFreeSectors())
+#else
+  #define SD_IS_HC()                    (0)
+  #define SD_GET_SPEED()                (0)
+#endif
+
+/*
+const char * sdCheckAndCreateDirectory(const char * path);
+
+#if !defined(BOOT)
+inline const char * SDCARD_ERROR(FRESULT result)
+{
+  if (result == FR_NOT_READY)
+    return STR_NO_SDCARD;
+  else
+    return STR_SDCARD_ERROR;
+}
+#endif
+
+// NOTE: 'size' must = 0 or be a valid character position within 'filename' array -- it is NOT validated
+const char * getBasename(const char * path);
+
+bool isFileAvailable(const char * filename, bool exclDir = false);
+unsigned int findNextFileIndex(char * filename, uint8_t size, const char * directory);
+
+const char * sdCopyFile(const char * src, const char * dest);
+const char * sdCopyFile(const char * srcFilename, const char * srcDir, const char * destFilename, const char * destDir);
+const char * sdMoveFile(const char * src, const char * dest);
+const char * sdMoveFile(const char * srcFilename, const char * srcDir, const char * destFilename, const char * destDir);
+
+#define LIST_NONE_SD_FILE   1
+#define LIST_SD_FILE_EXT    2
+bool sdListFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags=0);
+*/
 #endif // _SDCARD_H_

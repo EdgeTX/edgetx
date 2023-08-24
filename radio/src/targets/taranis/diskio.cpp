@@ -63,6 +63,35 @@
 #define CT_SDC              (CT_SD1|CT_SD2)
 #define CT_BLOCK            0x08
 
+/*-----------------------------------------------------------------------*/
+/* Lock / unlock functions                                               */
+/*-----------------------------------------------------------------------*/
+#if !defined(BOOT)
+static RTOS_MUTEX_HANDLE ioMutex;
+
+int ff_cre_syncobj (BYTE vol, FF_SYNC_t *mutex)
+{
+  *mutex = ioMutex;
+  return 1;
+}
+
+int ff_req_grant (FF_SYNC_t mutex)
+{
+  RTOS_LOCK_MUTEX(mutex);
+  return 1;
+}
+
+void ff_rel_grant (FF_SYNC_t mutex)
+{
+  RTOS_UNLOCK_MUTEX(mutex);
+}
+
+int ff_del_syncobj (FF_SYNC_t mutex)
+{
+  return 1;
+}
+#endif
+
 static const DWORD socket_state_mask_cp = (1 << 0);
 static const DWORD socket_state_mask_wp = (1 << 1);
 
@@ -930,4 +959,14 @@ void sdPoll10ms()
 uint32_t SD_GetCardType()
 {
   return CardType;
+}
+
+uint32_t sdIsHC()
+{
+  return (CardType & CT_BLOCK);
+}
+
+uint32_t sdGetSpeed()
+{
+  return 330000;
 }
