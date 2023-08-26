@@ -1039,7 +1039,7 @@ Mode 4:
         <location filename="../firmwares/boards.cpp" line="656"/>
         <location filename="../firmwares/boards.cpp" line="670"/>
         <source>6P</source>
-        <translation type="unfinished">5x {6P?}</translation>
+        <translation type="unfinished">6P</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="658"/>
@@ -2060,7 +2060,7 @@ Do you want to import settings from a file?</source>
         <location filename="../firmwares/customfunctiondata.cpp" line="219"/>
         <location filename="../firmwares/customfunctiondata.cpp" line="404"/>
         <source>1x</source>
-        <translation type="unfinished">5x {1x?}</translation>
+        <translation type="unfinished">1x</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="222"/>
@@ -4381,7 +4381,7 @@ Aktualnie używasz:
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="385"/>
         <source>0.0</source>
-        <translation type="unfinished">5x {0.0?}</translation>
+        <translation type="unfinished">0.0</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="490"/>
@@ -4794,7 +4794,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../firmwares/gvardata.cpp" line="43"/>
         <source>0.0</source>
-        <translation type="unfinished">5x {0.0?}</translation>
+        <translation type="unfinished">0.0</translation>
     </message>
     <message>
         <location filename="../firmwares/gvardata.cpp" line="45"/>
@@ -13920,7 +13920,7 @@ Too many errors, giving up.</source>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="2157"/>
         <source>25.9973,-97.1572</source>
-        <translation type="unfinished">5x {25.9973,-97.1572?}</translation>
+        <translation type="unfinished">25.9973,-97.1572</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="2308"/>
@@ -14360,7 +14360,7 @@ hh:mm:ss</translation>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="127"/>
         <source>5s</source>
-        <translation type="unfinished">5x {5s?}</translation>
+        <translation type="unfinished">5s</translation>
     </message>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="129"/>
@@ -14370,12 +14370,12 @@ hh:mm:ss</translation>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="131"/>
         <source>20s</source>
-        <translation type="unfinished">5x {20s?}</translation>
+        <translation type="unfinished">20s</translation>
     </message>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="133"/>
         <source>30s</source>
-        <translation type="unfinished">5x {30s?}</translation>
+        <translation type="unfinished">30s</translation>
     </message>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="144"/>
