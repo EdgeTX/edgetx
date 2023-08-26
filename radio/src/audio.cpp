@@ -161,7 +161,7 @@ const char * const unitsFilenames[] = {
   "rpm",
   "g",
   "degree",
-  "radian",
+  "rad",
   "ml",
   "founce",
   "mlpm",
