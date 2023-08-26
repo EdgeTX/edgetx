@@ -416,7 +416,7 @@ bool ModelsListModel::hasModelsMimeData(const QMimeData * mimeData) const
   return mimeData->hasFormat("application/x-companion-modeldata");
 }
 
-bool ModelsListModel::hasGenralMimeData(const QMimeData * mimeData) const
+bool ModelsListModel::hasGeneralMimeData(const QMimeData * mimeData) const
 {
   return mimeData->hasFormat("application/x-companion-generaldata");
 }

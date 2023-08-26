@@ -147,7 +147,7 @@ class MdiChild : public QWidget
     void labelRename();
     void labelMoveUp();
     void labelMoveDown();
-    void modelLabelsChanged(int row);
+    void modelLabelsChanged(int index);
     void labelsFault(QString msg);
     void wizardEdit();
     void modelDuplicate();
