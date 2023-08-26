@@ -187,6 +187,7 @@ void MixesPanel::gm_openMix(int index)
   if(dlg->exec()) {
     model->mixData[index] = mixd;
     emit modified();
+    updateItemModels();
     update();
   }
   else {
@@ -194,6 +195,7 @@ void MixesPanel::gm_openMix(int index)
       gm_deleteMix(index);
     }
     mixInserted = false;
+    updateItemModels();
     update();
   }
   delete dlg;
@@ -275,6 +277,7 @@ void MixesPanel::mixersDelete(bool prompt)
 
   mixersDeleteList(list);
   emit modified();
+  updateItemModels();
   update();
 }
 
@@ -331,6 +334,7 @@ void MixesPanel::pasteMixerMimeData(const QMimeData * mimeData, int destIdx)
     }
 
     emit modified();
+    updateItemModels();
     update();
   }
 }
@@ -519,6 +523,7 @@ void MixesPanel::moveMixUp()
     highlightList << gm_moveMix(idx, false);
   }
   emit modified();
+  updateItemModels();
   update();
   setSelectedByMixList(highlightList);
 }
@@ -531,6 +536,7 @@ void MixesPanel::moveMixDown()
     highlightList << gm_moveMix(idx, true);
   }
   emit modified();
+  updateItemModels();
   update();
   setSelectedByMixList(highlightList);
 }
@@ -540,6 +546,7 @@ void MixesPanel::clearMixes()
   if (QMessageBox::question(this, tr("Clear Mixes?"), tr("Really clear all the mixes?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
     model->clearMixes();
     emit modified();
+    updateItemModels();
     update();
   }
 }
@@ -567,3 +574,10 @@ void MixesPanel::onItemModelUpdateComplete()
     lock = false;
   }
 }
+
+void MixesPanel::updateItemModels()
+{
+  lock = true;
+  sharedItemModels->update(AbstractItemModel::IMUE_Channels);
+}
+

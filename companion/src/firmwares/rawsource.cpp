@@ -351,6 +351,9 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
         return false;
       }
     }
+
+    if (type == SOURCE_TYPE_CH && !model->hasMixes(index))
+      return false;
   }
 
   if (gs) {

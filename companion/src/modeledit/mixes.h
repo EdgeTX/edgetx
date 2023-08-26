@@ -82,6 +82,7 @@ class MixesPanel : public ModelPanel
     void AddMixerLine(int dest);
     QString getMixerText(int dest, bool newChannel);
     void connectItemModelEvents(const int id);
+    void updateItemModels();
 };
 
 #endif // _MIXES_H_
