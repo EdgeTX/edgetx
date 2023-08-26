@@ -68,7 +68,7 @@ if not os.path.exists(IMAGES_DIR) or not os.path.exists(WIN_ICONS_DIR) or not os
 # Download and save logo if we don't have it already
 if not os.path.exists(LOGO_FILENAME):
     print("Downloading logo...")
-    downloadFile('https://raw.githubusercontent.com/EdgeTX/edgetx.github.io/master/images/edgetx-v2.png', LOGO_FILENAME)
+    downloadFile('https://edgetx.org/assets/logo.png', LOGO_FILENAME)
 
 print("Generate 96x96 icon.png... ")
 os.chdir(IMAGES_DIR)
