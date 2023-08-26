@@ -1061,7 +1061,7 @@ Mode 4:
         <location filename="../firmwares/boards.cpp" line="656"/>
         <location filename="../firmwares/boards.cpp" line="670"/>
         <source>6P</source>
-        <translation type="unfinished">5x {6P?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="658"/>
@@ -2088,7 +2088,7 @@ Do you want to import settings from a file?</source>
         <location filename="../firmwares/customfunctiondata.cpp" line="219"/>
         <location filename="../firmwares/customfunctiondata.cpp" line="404"/>
         <source>1x</source>
-        <translation type="unfinished">5x {1x?}</translation>
+        <translation type="unfinished">1x</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="222"/>
@@ -13888,7 +13888,7 @@ Too many errors, giving up.</source>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="2157"/>
         <source>25.9973,-97.1572</source>
-        <translation type="unfinished">5x {25.9973,-97.1572?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="2308"/>
@@ -13937,7 +13937,7 @@ Too many errors, giving up.</source>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="3098"/>
-        <source>Row # 
+        <source>Row #
 Timestamp</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14325,7 +14325,7 @@ hh:mm:ss</source>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="127"/>
         <source>5s</source>
-        <translation type="unfinished">5x {5s?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="129"/>
@@ -14335,12 +14335,12 @@ hh:mm:ss</source>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="131"/>
         <source>20s</source>
-        <translation type="unfinished">5x {20s?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="133"/>
         <source>30s</source>
-        <translation type="unfinished">5x {30s?}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="144"/>
