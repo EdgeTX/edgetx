@@ -591,6 +591,7 @@ Return input data for given input and line number
  * `name` (string) input line name
  * `inputName` (string) input input name
  * `source` (number) input source index
+ * `scale` (number)  input scaling (for telemetry)
  * `weight` (number) input weight
  * `offset` (number) input offset
  * `switch` (number) input switch index
@@ -600,7 +601,7 @@ Return input data for given input and line number
  * 'trimSource' (number) a positive number representing trim source
  * 'flightModes' (number) bit-mask of active flight modes
 
-@status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11, broken carryTrim replaced by trimSource in 2.8.1
+@status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11, broken carryTrim replaced by trimSource in 2.8.1, scale added in 2.10
 */
 static int luaModelGetInput(lua_State *L)
 {
@@ -640,7 +641,7 @@ Insert an Input at specified line
 
 @param value (table) input data, see model.getInput()
 
-@status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, broken carryTrim replaced by trimSource in EdgeTX 2.8.1
+@status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, broken carryTrim replaced by trimSource in EdgeTX 2.8.1, scale added in 2.10
 */
 static int luaModelInsertInput(lua_State *L)
 {
