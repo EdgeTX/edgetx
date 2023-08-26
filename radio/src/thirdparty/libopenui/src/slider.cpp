@@ -43,7 +43,7 @@ Slider::Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
 {
   padAll(7);
 
-  auto slider = etx_slider_create(lvobj);
+  auto slider = (new FormField(this, rect_t{}, 0, 0, etx_slider_create))->getLvObj();
   lv_obj_set_width(slider, lv_pct(100));
 
   lv_obj_add_event_cb(slider, slider_changed_cb, LV_EVENT_VALUE_CHANGED, this);

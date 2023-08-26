@@ -523,6 +523,9 @@ void etx_slider_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
   lv_obj_add_style(obj, &styles.circle, LV_PART_KNOB);
   lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_MAIN | LV_STATE_FOCUSED);
   lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_EDITED);
+  lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_INDICATOR | LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_INDICATOR | LV_STATE_FOCUSED | LV_STATE_EDITED);
+  lv_obj_add_style(obj, &styles.bg_color_edit, LV_PART_KNOB | LV_STATE_FOCUSED | LV_STATE_EDITED);
 }
 
 void etx_btnmatrix_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
