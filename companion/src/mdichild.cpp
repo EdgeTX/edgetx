@@ -553,8 +553,7 @@ void MdiChild::initModelsList()
   if (labelsListModel)
     delete labelsListModel;
 
-  labelsListModel = new LabelsModel(ui->modelsList->selectionModel(),
-                                    &radioData, this);
+  labelsListModel = new LabelsModel(modelsListProxyModel, ui->modelsList->selectionModel(), &radioData, this);
   connect(labelsListModel, &LabelsModel::modelChanged, this, &MdiChild::modelLabelsChanged);
   connect(labelsListModel, &LabelsModel::labelsFault, this, &MdiChild::labelsFault);
   ui->lstLabels->setModel(labelsListModel);
@@ -1096,7 +1095,7 @@ bool MdiChild::hasClipboardData(const quint8 type) const
     return modelsListModel->hasModelsMimeData(QApplication::clipboard()->mimeData());
   }
   else {
-    return modelsListModel->hasGenralMimeData(QApplication::clipboard()->mimeData());
+    return modelsListModel->hasGeneralMimeData(QApplication::clipboard()->mimeData());
   }
 }
 
@@ -1742,7 +1741,7 @@ void MdiChild::labelMoveUp()
   if(row == 0) return;
   radioData.swapLabel(row, row-1);
   labelsListModel->buildLabelsList();
-  ui->lstLabels->selectionModel()->setCurrentIndex(labelsListModel->index(row-1,0), QItemSelectionModel::ClearAndSelect);
+  ui->lstLabels->selectionModel()->setCurrentIndex(labelsListModel->index(row - 1,0), QItemSelectionModel::ClearAndSelect);
 }
 
 void MdiChild::labelMoveDown()
@@ -1751,15 +1750,16 @@ void MdiChild::labelMoveDown()
   if(row == labelsListModel->rowCount() -1) return;
   radioData.swapLabel(row, row+1);
   labelsListModel->buildLabelsList();
-  ui->lstLabels->selectionModel()->setCurrentIndex(labelsListModel->index(row+1,0), QItemSelectionModel::ClearAndSelect);
+  ui->lstLabels->selectionModel()->setCurrentIndex(labelsListModel->index(row + 1,0), QItemSelectionModel::ClearAndSelect);
 }
 
-void MdiChild::modelLabelsChanged(int row)
+void MdiChild::modelLabelsChanged(int index)
 {
   setWindowModified(true);
   refresh();
-  ui->modelsList->selectionModel()->select(modelsListModel->index(row,0), QItemSelectionModel::ClearAndSelect |
-                                                                          QItemSelectionModel::Rows);
+  const QModelIndex idx = modelsListProxyModel->mapFromSource(modelsListModel->getIndexForModel(index));
+  ui->modelsList->selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect |
+                                                                           QItemSelectionModel::Rows);
 }
 
 void MdiChild::labelsFault(QString msg)
