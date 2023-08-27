@@ -72,6 +72,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for Jumper T16";
     case BOARD_JUMPER_T18:
       return "EdgeTX for Jumper T18";
+    case BOARD_JUMPER_T20:
+      return "EdgeTX for Jumper T20";
     case BOARD_RADIOMASTER_TX16S:
       return "EdgeTX for Radiomaster TX16S";
     case BOARD_RADIOMASTER_TX12:
@@ -790,19 +792,21 @@ int OpenTxFirmware::getCapability(::Capability capability)
               IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_TX12(board) ||
               IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_ZORRO(board) ||
               IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_TX16S(board) ||
-              IS_JUMPER_T18(board));
+              IS_JUMPER_T18(board)) || IS_JUMPER_T20(board);
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
     case HasIntModuleMulti:
       return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) ||
               IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) ||
               (IS_RADIOMASTER_ZORRO(board) && !id.contains("internalelrs")) ||
-              IS_RADIOMASTER_BOXER(board);
+              (IS_RADIOMASTER_BOXER(board) && !id.contains("internalelrs")) ||
+              (IS_JUMPER_T20(board) && !id.contains("internalelrs"));
     case HasIntModuleCRSF:
       return id.contains("internalcrsf");
     case HasIntModuleELRS:
       return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board) ||
-             IS_IFLIGHT_COMMANDO8(board) || IS_RADIOMASTER_BOXER(board);
+             IS_IFLIGHT_COMMANDO8(board) || IS_RADIOMASTER_BOXER(board) ||
+             IS_JUMPER_T20(board);
     case HasIntModuleFlySky:
       return  id.contains("afhds2a") || id.contains("afhds3") ||
               IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board);
@@ -1357,6 +1361,14 @@ void registerOpenTxFirmwares()
   firmware->addOption("internalmulti", Firmware::tr("Support for MULTI internal module"));
   firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
   addOpenTxRfOptions(firmware, FLEX);
+  registerOpenTxFirmware(firmware);
+
+  /* Jumper T20 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("t20"), Firmware::tr("Jumper T20"), BOARD_JUMPER_T20);
+  addOpenTxFrskyOptions(firmware);
+  firmware->addOption("internalmulti", Firmware::tr("Support for MULTI internal module"));
+  firmware->addOption("internalelrs", Firmware::tr("Select if internal ELRS module is installed"));
+  addOpenTxRfOptions(firmware, NONE);
   registerOpenTxFirmware(firmware);
 
   /* Radiomaster TX12 board */

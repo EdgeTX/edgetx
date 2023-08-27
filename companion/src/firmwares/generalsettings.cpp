@@ -305,6 +305,10 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
     potConfig[1] = Board::POT_WITH_DETENT;
     potConfig[2] = Board::POT_MULTIPOS_SWITCH;
   }
+  else if(IS_JUMPER_T20(board)) {
+    potConfig[0] = Board::POT_WITHOUT_DETENT;
+    potConfig[1] = Board::POT_WITHOUT_DETENT;
+  }
   else if (IS_FAMILY_T12(board)) {
     potConfig[0] = Board::POT_WITH_DETENT;
     potConfig[1] = Board::POT_WITH_DETENT;
@@ -319,7 +323,7 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
     potConfig[2] = Board::POT_WITHOUT_DETENT;
   }
 
-  if (IS_HORUS_X12S(board) || IS_TARANIS_X9E(board)) {
+  if (IS_HORUS_X12S(board) || IS_TARANIS_X9E(board) || IS_JUMPER_T20(board)) {
     sliderConfig[0] = Board::SLIDER_WITH_DETENT;
     sliderConfig[1] = Board::SLIDER_WITH_DETENT;
     sliderConfig[2] = Board::SLIDER_WITH_DETENT;
