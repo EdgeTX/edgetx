@@ -133,8 +133,10 @@ void applyDefaultTemplate()
   }
 #endif
 
+#if defined(LUA_MODEL_SCRIPTS)
+  g_model.modelCustomScriptsDisabled = OVERRIDE_OFF;
+#endif
 }
-
 
 void setModelDefaults(uint8_t id)
 {
