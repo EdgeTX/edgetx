@@ -1399,8 +1399,8 @@ void menuModelSetup(event_t event)
         lcdDrawTextAlignedLeft(y, STR_SUBTYPE);
         lcdDrawMultiSubProtocolString(MODEL_SETUP_2ND_COLUMN, y, moduleIdx, g_model.moduleData[moduleIdx].subType, menuHorizontalPosition == 0 ? attr : 0);
         int8_t optionValue = (g_model.moduleData[moduleIdx].multi.optionValue & 0x04) >> 2;
-        if (g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2) {
-          lcdDrawText(LCD_W, y, optionValue ? "Cloned" : "Normal", RIGHT | (menuHorizontalPosition == 1 ? attr : 0));
+        if (isMultiProtocolDSMCloneAvailable(moduleIdx)) {
+          lcdDrawTextAtIndex(LCD_W, y, STR_MULTI_DSM_CLONE, optionValue, RIGHT | (menuHorizontalPosition == 1 ? attr : 0));
         }
         if (attr && s_editMode > 0) {
           switch (menuHorizontalPosition) {

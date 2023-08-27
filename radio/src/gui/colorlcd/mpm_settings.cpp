@@ -393,7 +393,7 @@ void MultimoduleSettings::update()
     ab_line->update();
   }
 
-  if (md->multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2) {
+  if (isMultiProtocolDSMCloneAvailable(moduleIdx)) {
     lv_obj_clear_flag(cl_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     cl_line->update();
   } else {

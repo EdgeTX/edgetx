@@ -1239,7 +1239,7 @@ void menuModelSetup(event_t event)
         int8_t optionValue =
             (g_model.moduleData[EXTERNAL_MODULE].multi.optionValue & 0x04) >> 2;
         lcdDrawText(INDENT_WIDTH / 2, y, STR_SUBTYPE);
-        lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, optionValue ? "Cloned" : "Normal", attr | LEFT);
+        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_MULTI_DSM_CLONE, optionValue, attr | LEFT);
 
         if (attr && s_editMode > 0) {
           CHECK_INCDEC_MODELVAR(event, optionValue, 0, 1);
