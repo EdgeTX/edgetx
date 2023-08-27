@@ -19,7 +19,7 @@
 #pragma once
 
 #include "debug.h"
-#include "board.h"
+#include "hal.h"
 #include "colors.h"
 #include "keys.h"
 #include "opentx_types.h"

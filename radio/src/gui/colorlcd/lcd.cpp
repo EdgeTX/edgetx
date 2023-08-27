@@ -21,6 +21,7 @@
 
 #include "board.h"
 #include "lcd.h"
+#include "dma2d.h"
 #include "bitmapbuffer.h"
 #include <lvgl/lvgl.h>
 

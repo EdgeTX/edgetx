@@ -24,6 +24,7 @@
 #include "opentx_helpers.h"
 #include "libopenui_file.h"
 #include "font.h"
+#include "dma2d.h"
 
 #include "lvgl/src/draw/sw/lv_draw_sw.h"
 
