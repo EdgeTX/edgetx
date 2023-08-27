@@ -132,10 +132,6 @@ void applyDefaultTemplate()
       g_model.switchWarningState |= (1 << (3 * i));
   }
 #endif
-
-#if defined(LUA_MODEL_SCRIPTS)
-  g_model.modelCustomScriptsDisabled = OVERRIDE_OFF;
-#endif
 }
 
 void setModelDefaults(uint8_t id)
@@ -151,7 +147,11 @@ void setModelDefaults(uint8_t id)
 #endif
   strAppendUnsigned(strAppend(g_model.header.name, STR_MODEL), id, 2);
 
-#if defined(LUA) && defined(PCBTARANIS) // Horus uses menuModelWizard() for wizard
+#if defined(LUA_MODEL_SCRIPTS)
+  g_model.modelCustomScriptsDisabled = OVERRIDE_OFF;
+#endif
+
+#if defined(LUA) && defined(PCBTARANIS)
   if (isFileAvailable(WIZARD_PATH "/" WIZARD_NAME)) {
     f_chdir(WIZARD_PATH);
     luaExec(WIZARD_NAME);
