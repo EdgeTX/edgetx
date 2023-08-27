@@ -7,7 +7,7 @@ option(GHOST "Ghost TX Module" ON)
 option(INTERNAL_MODULE_PPM "Support for PPM internal module" OFF)
 option(AUTOUPDATE "Auto update internal chips from SD" OFF)
 option(BIND_KEY "Enable bind button" OFF)
-option(BLUETOOTH "FrSky BT module support" NO)
+option(BLUETOOTH "FrSky BT module support" OFF)
 
 set(USE_RTC_CLOCK YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
