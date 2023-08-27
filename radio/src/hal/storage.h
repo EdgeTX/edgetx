@@ -30,6 +30,10 @@ void storageInit();
 // Called before the storage is mounted
 void storagePreMountHook();
 
+bool storageIsPresent();
+
+#define SD_CARD_PRESENT() storageIsPresent()
+
 struct diskio_driver_t;
 
 // returns the default storage's IO driver

@@ -617,5 +617,6 @@ FRESULT f_getfree (const TCHAR* path, DWORD* nclst, FATFS** fatfs)
 
 void storageInit() {}
 void storagePreMountHook() {}
+bool storageIsPresent() { return true; }
 
 #endif  // #if defined(SIMU_USE_SDCARD)

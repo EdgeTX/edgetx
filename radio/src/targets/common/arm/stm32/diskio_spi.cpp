@@ -61,15 +61,6 @@ static void _sd_present_gpio_init()
 #endif
 }
 
-bool sdcard_present()
-{
-#if defined(SD_PRESENT_GPIO)
-  return !LL_GPIO_IsInputPinSet(SD_PRESENT_GPIO, SD_PRESENT_GPIO_PIN);
-#else
-  return true;
-#endif
-}
-
 static DSTATUS sdcard_spi_initialize(BYTE lun)
 {
   _sd_present_gpio_init();
@@ -88,9 +79,11 @@ static DSTATUS sdcard_spi_status(BYTE lun)
 {
   DSTATUS stat = 0;
 
-  if (!sdcard_present()) {
+#if defined(SD_PRESENT_GPIO)
+  if (LL_GPIO_IsInputPinSet(SD_PRESENT_GPIO, SD_PRESENT_GPIO_PIN)) {
     stat |= STA_NODISK;
   }
+#endif
 
   return stat;
 }

@@ -53,12 +53,6 @@ void boardOff();
 #define LEN_CPU_UID                     (3*8+2)
 void getCPUUniqueID(char * s);
 
-#if defined(SIMU)
-  #define SD_CARD_PRESENT()             true
-#else
-  #define SD_CARD_PRESENT()             (~SD_PRESENT_GPIO->IDR & SD_PRESENT_GPIO_PIN)
-#endif
-
 // Flash Write driver
 #define FLASH_PAGESIZE 256
 void unlockFlash();

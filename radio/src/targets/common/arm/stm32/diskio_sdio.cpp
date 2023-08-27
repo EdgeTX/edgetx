@@ -207,8 +207,11 @@ static DSTATUS sdio_status(BYTE lun)
 {
   DSTATUS stat = RES_OK;
 
-  if ((LL_GPIO_ReadInputPort(SD_PRESENT_GPIO) & SD_PRESENT_LL_GPIO_PIN) != 0)
+#if defined(SD_PRESENT_GPIO)
+  if ((LL_GPIO_ReadInputPort(SD_PRESENT_GPIO) & SD_PRESENT_LL_GPIO_PIN) != 0) {
     stat |= STA_NODISK;
+  }
+#endif
 
   return stat;
 }
