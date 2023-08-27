@@ -107,6 +107,7 @@ BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height,
 
 BitmapBuffer::~BitmapBuffer()
 {
+  DMAWait();
   if (dataAllocated) {
 #if !defined(BOOT)
     lv_obj_del(canvas);
@@ -217,6 +218,7 @@ void BitmapBuffer::drawBitmapAbs(coord_t x, coord_t y, const T *bmp,
       DMACopyBitmap(data, _width, _height, x, y, bmp->getData(), bmpw, bmph,
                     srcx, srcy, srcw, srch);
     }
+    DMAWait();
   } else {
 
     int scaledw = srcw * scale;

@@ -41,10 +41,12 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
   (void)disp_drv;
   (void)copy_area;
 
+  LTDC_Layer1->CFBAR &= ~(LTDC_LxCFBAR_CFBADD);
   LTDC_Layer1->CFBAR = (uint32_t)buffer;
   // reload shadow registers on vertical blank
   _frame_addr_reloaded = 0;
   LTDC->SRCR = LTDC_SRCR_VBR;
+  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 
   // wait for reload
   // TODO: replace through some smarter mechanism without busy wait
@@ -1313,5 +1315,6 @@ extern "C" void LTDC_IRQHandler(void)
 {
   // clear interrupt flag
   __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
+  __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
   _frame_addr_reloaded = 1;
 }
