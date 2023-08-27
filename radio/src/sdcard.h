@@ -146,7 +146,6 @@ inline const char * SDCARD_ERROR(FRESULT result)
 }
 #endif
 
-// NOTE: 'size' must = 0 or be a valid character position within 'filename' array -- it is NOT validated
 const char * getBasename(const char * path);
 
 bool isFileAvailable(const char * filename, bool exclDir = false);

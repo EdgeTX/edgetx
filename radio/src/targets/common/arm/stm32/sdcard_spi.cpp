@@ -70,6 +70,8 @@ typedef enum {
   SD_INIT_FINISH
 } sd_init_fsm_state_t;
 
+static sdcard_spi_t _sdcard_spi = {nullptr, false};
+
 static bool _wait_for_not_busy(const stm32_spi_t* spi, uint32_t retry_us)
 {
   uint32_t timeout = timersGetUsTick();
@@ -491,6 +493,8 @@ int sdcard_spi_init(const stm32_spi_t* spi, sdcard_info_t* card)
   } while (state != SD_INIT_FINISH);
 
   if (card->card_type != SD_UNKNOWN) {
+    _sdcard_spi.spi = spi;
+    _sdcard_spi.use_block_addr = card->use_block_addr;
     return SDCARD_SPI_OK;
   }
 
@@ -588,15 +592,17 @@ static uint16_t _read_blocks(const sdcard_spi_t* card, uint8_t cmd_idx,
   return reads;
 }
 
-int sdcard_spi_read_blocks(const sdcard_spi_t* card, uint32_t blockaddr,
-			   uint8_t* data, uint16_t blocksize,
-			   uint16_t nblocks, sd_rw_response_t* state)
+int sdcard_spi_read_blocks(uint32_t blockaddr, uint8_t* data,
+                           uint16_t blocksize, uint16_t nblocks,
+                           sd_rw_response_t* state)
 {
   *state = SD_RW_OK;
   if (nblocks > 1) {
-    return _read_blocks(card, SD_CMD_18, blockaddr, data, blocksize, nblocks, state);
+    return _read_blocks(&_sdcard_spi, SD_CMD_18, blockaddr, data, blocksize,
+                        nblocks, state);
   } else {
-    return _read_blocks(card, SD_CMD_17, blockaddr, data, blocksize, nblocks, state);
+    return _read_blocks(&_sdcard_spi, SD_CMD_17, blockaddr, data, blocksize,
+                        nblocks, state);
   }
 }
 
@@ -718,16 +724,17 @@ static uint16_t _write_blocks(const sdcard_spi_t* card, uint8_t cmd_idx,
   }
 }
 
-int sdcard_spi_write_blocks(const sdcard_spi_t* card, uint32_t blockaddr,
-			    const uint8_t* data, uint16_t blocksize,
-			    uint16_t nblocks, sd_rw_response_t* state)
+int sdcard_spi_write_blocks(uint32_t blockaddr, const uint8_t* data,
+                            uint16_t blocksize, uint16_t nblocks,
+                            sd_rw_response_t* state)
 {
   *state = SD_RW_OK;
   if (nblocks > 1) {
-    return _write_blocks(card, SD_CMD_25, blockaddr, data, blocksize, nblocks, state);
-  }
-  else {
-    return _write_blocks(card, SD_CMD_24, blockaddr, data, blocksize, nblocks, state);
+    return _write_blocks(&_sdcard_spi, SD_CMD_25, blockaddr, data, blocksize,
+                         nblocks, state);
+  } else {
+    return _write_blocks(&_sdcard_spi, SD_CMD_24, blockaddr, data, blocksize,
+                         nblocks, state);
   }
 }
 

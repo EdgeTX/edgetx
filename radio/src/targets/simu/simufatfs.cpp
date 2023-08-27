@@ -613,5 +613,9 @@ FRESULT f_getfree (const TCHAR* path, DWORD* nclst, FATFS** fatfs)
   return FR_OK;
 }
 
+#include "hal/storage.h"
+
+void storageInit() {}
+void storagePreMountHook() {}
 
 #endif  // #if defined(SIMU_USE_SDCARD)

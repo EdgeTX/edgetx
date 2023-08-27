@@ -22,8 +22,10 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "hal/fatfs_diskio.h"
+#include "hal/storage.h"
+
 #include "opentx.h"
-#include "diskio.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -502,41 +504,11 @@ FIL g_bluetoothFile = {};
 
 #include "audio.h"
 #include "sdcard.h"
-#include "disk_cache.h"
-
-/*-----------------------------------------------------------------------*/
-/* Lock / unlock functions                                               */
-/*-----------------------------------------------------------------------*/
-static RTOS_MUTEX_HANDLE ioMutex;
-uint32_t ioMutexReq = 0, ioMutexRel = 0;
-int ff_cre_syncobj (BYTE vol, FF_SYNC_t * mutex)
-{
-  *mutex = ioMutex;
-  return 1;
-}
-
-int ff_req_grant (FF_SYNC_t mutex)
-{
-  ioMutexReq += 1;
-  RTOS_LOCK_MUTEX(mutex);
-  return 1;
-}
-
-void ff_rel_grant (FF_SYNC_t mutex)
-{
-  ioMutexRel += 1;
-  RTOS_UNLOCK_MUTEX(mutex);
-}
-
-int ff_del_syncobj (FF_SYNC_t mutex)
-{
-  return 1;
-}
 
 void sdInit()
 {
   TRACE("sdInit");
-  RTOS_CREATE_MUTEX(ioMutex);
+  storageInit();
   sdMount();
 }
 
@@ -544,9 +516,7 @@ void sdMount()
 {
   TRACE("sdMount");
 
-#if defined(DISK_CACHE)
-  diskCache.clear();
-#endif
+  storagePreMountHook();
   
   if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
     // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called

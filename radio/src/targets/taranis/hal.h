@@ -2588,6 +2588,8 @@
 #endif
 #endif
 
+#define STORAGE_USE_SDCARD_SPI
+
 #define SD_GPIO                         GPIOB
 #define SD_GPIO_PIN_CS                  LL_GPIO_PIN_12 // PB.12
 #define SD_GPIO_PIN_SCK                 LL_GPIO_PIN_13 // PB.13

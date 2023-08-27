@@ -279,11 +279,10 @@ uint64_t sdcard_spi_get_capacity(sdcard_info_t* card);
 
 uint32_t sdcard_spi_get_sector_count(sdcard_info_t* card);
 
-int sdcard_spi_read_blocks(const sdcard_spi_t* card, uint32_t blockaddr,
-			   uint8_t* data, uint16_t blocksize,
-			   uint16_t nblocks, sd_rw_response_t* state);
+int sdcard_spi_read_blocks(uint32_t blockaddr, uint8_t* data,
+                           uint16_t blocksize, uint16_t nblocks,
+                           sd_rw_response_t* state);
 
-int sdcard_spi_write_blocks(const sdcard_spi_t* card, uint32_t blockaddr,
-			    const uint8_t* data, uint16_t blocksize,
-			    uint16_t nblocks, sd_rw_response_t* state);
-
+int sdcard_spi_write_blocks(uint32_t blockaddr, const uint8_t* data,
+                            uint16_t blocksize, uint16_t nblocks,
+                            sd_rw_response_t* state);

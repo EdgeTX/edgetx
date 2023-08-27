@@ -631,6 +631,7 @@
 #define SD_SDIO_CLK_DIV(fq)             ((48000000 / (fq)) - 2)
 #define SD_SDIO_INIT_CLK_DIV            SD_SDIO_CLK_DIV(400000)
 #define SD_SDIO_TRANSFER_CLK_DIV        SD_SDIO_CLK_DIV(24000000)
+#define STORAGE_USE_SDIO
 
 // EEPROM
 #if defined(PCBX12S) && PCBREV >= 13

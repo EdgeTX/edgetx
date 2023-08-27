@@ -24,15 +24,14 @@
 /* disk I/O modules and attach it to FatFs module with common interface. */
 /*-----------------------------------------------------------------------*/
 
+#include "diskio_spi.h"
 #include "stm32_gpio_driver.h"
 #include "sdcard_spi.h"
 
-#include "FatFs/diskio.h"
+#include "hal.h"
 
 #include <string.h>
 #include "debug.h"
-
-#include "hal.h"
 
 static const stm32_spi_t _sd_spi_hw = {
     .SPIx = SD_SPI,
@@ -46,8 +45,7 @@ static const stm32_spi_t _sd_spi_hw = {
     .rxDMA_Stream = SD_SPI_DMA_RX_STREAM,
 };
 
-static sdcard_spi_t _sdcard_spi = {nullptr, false};
-static uint32_t     _sdcard_sectors;
+static uint32_t _sdcard_sectors;
 
 static void _sd_present_gpio_init()
 {
@@ -72,26 +70,8 @@ bool sdcard_present()
 #endif
 }
 
-/*-----------------------------------------------------------------------*/
-/* Inidialize a Drive                                                    */
-
-DSTATUS disk_initialize (
-  BYTE drv                                /* Physical drive nmuber (0..) */
-)
+static DSTATUS sdcard_spi_initialize(BYTE lun)
 {
-  /* Supports only single drive */
-  if (drv > 0) {
-    return STA_NOINIT | STA_NODISK;
-  }
-
-  if (!sdcard_present()) {
-    return STA_NODISK;
-  }
-
-  if (_sdcard_spi.spi != nullptr) {
-    return 0;
-  }
-
   _sd_present_gpio_init();
 
   sdcard_info_t card_info;
@@ -99,50 +79,28 @@ DSTATUS disk_initialize (
     return STA_NOINIT;
   }
 
-  _sdcard_spi.spi = &_sd_spi_hw;
-  _sdcard_spi.use_block_addr = card_info.use_block_addr;
   _sdcard_sectors = sdcard_spi_get_sector_count(&card_info);
 
   return 0;
 }
 
-/*-----------------------------------------------------------------------*/
-/* Return Disk Status                                                    */
-
-DSTATUS disk_status (
-  BYTE drv                /* Physical drive nmuber (0..) */
-)
+static DSTATUS sdcard_spi_status(BYTE lun)
 {
   DSTATUS stat = 0;
-
-  /* Supports only single drive */
-  if (drv > 0) {
-    return STA_NOINIT | STA_NODISK;
-  }
 
   if (!sdcard_present()) {
     stat |= STA_NODISK;
   }
 
-  if (_sdcard_spi.spi == nullptr) {
-    stat |= STA_NOINIT;
-  }
-
   return stat;
 }
 
-/*-----------------------------------------------------------------------*/
-/* Read Sector(s)                                                        */
-
-DRESULT disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
+static DRESULT sdcard_spi_read(BYTE lun, BYTE * buff, DWORD sector, UINT count)
 {
-  // TRACE("disk_read %d %p %10d %d", drv, buff, sector, count);
-  if (!sdcard_present()) {
-    return RES_NOTRDY;
-  }
+  // TRACE("disk_read %d %p %10d %d", lun, buff, sector, count);
 
   sd_rw_response_t state;
-  sdcard_spi_read_blocks(&_sdcard_spi, sector, buff, SD_HC_BLOCK_SIZE, count, &state);
+  sdcard_spi_read_blocks(sector, buff, SD_HC_BLOCK_SIZE, count, &state);
   if (state == SD_RW_OK) {
     return RES_OK;
   }
@@ -150,66 +108,48 @@ DRESULT disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count)
   return RES_ERROR;
 }
 
-/*-----------------------------------------------------------------------*/
-/* Write Sector(s)                                                       */
-
-#if _READONLY == 0
-DRESULT __disk_write(
-  BYTE drv,                       /* Physical drive nmuber (0..) */
-  const BYTE *buff,               /* Data to be written */
-  DWORD sector,                   /* Sector address (LBA) */
-  UINT count                      /* Number of sectors to write (1..255) */
-)
+static DRESULT sdcard_spi_write(BYTE lun, const BYTE* buff, DWORD sector, UINT count)
 {
-  if (!sdcard_present()) {
-    return RES_NOTRDY;
-  }
+  // TRACE("disk_write %d %p %10d %d", lun, buff, sector, count);
 
   sd_rw_response_t state;
-  sdcard_spi_write_blocks(&_sdcard_spi, sector, buff, SD_HC_BLOCK_SIZE, count, &state);
+  sdcard_spi_write_blocks(sector, buff, SD_HC_BLOCK_SIZE, count, &state);
   if (state == SD_RW_OK) {
     return RES_OK;
   }
 
   return RES_ERROR;
 }
-#endif /* _READONLY */
 
-/*-----------------------------------------------------------------------*/
-/* Miscellaneous Functions                                               */
-
-DRESULT disk_ioctl (
-  BYTE drv,               /* Physical drive nmuber (0..) */
-  BYTE ctrl,              /* Control code */
-  void *buff              /* Buffer to send/receive control data */
-)
+static DRESULT sdcard_spi_ioctl(BYTE lun, BYTE ctrl, void *buff)
 {
-  if (drv > 0) return RES_PARERR;
-
-  DRESULT res = RES_ERROR;
+  DRESULT res = RES_OK;
 
   switch (ctrl) {
     case GET_SECTOR_COUNT : /* Get number of sectors on the disk (DWORD) */
       *(DWORD*)buff = _sdcard_sectors;
-      res = RES_OK;
       break;
 
     case GET_SECTOR_SIZE :  /* Get R/W sector size (WORD) */
       *(WORD*)buff = SD_HC_BLOCK_SIZE;
-      res = RES_OK;
       break;
 
     // case CTRL_SYNC:
-    //   /* Complete pending write process (needed at _FS_READONLY == 0) */
     //   while (SD_GetStatus() == SD_TRANSFER_BUSY);
     //   res = RES_OK;
     //   break;
 
     default:
-      res = RES_OK;
       break;
-
   }
 
   return res;
 }
+
+const diskio_driver_t sdcard_spi_driver = {
+  .initialize = sdcard_spi_initialize,
+  .status = sdcard_spi_status,
+  .read = sdcard_spi_read,
+  .write = sdcard_spi_write,
+  .ioctl = sdcard_spi_ioctl,
+};
