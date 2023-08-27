@@ -227,6 +227,28 @@ void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, uint8_t module
   lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, &stop);
 }
 
+struct MPMDSMCloned : public FormWindow::Line {
+  MPMDSMCloned(FormWindow* form, FlexGridLayout* layout, uint8_t moduleIdx);
+  void update() const { lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr); }
+
+ private:
+  Choice* choice;
+};
+
+MPMDSMCloned::MPMDSMCloned(FormWindow* form, FlexGridLayout *layout, uint8_t moduleIdx) :
+    FormWindow::Line(form, layout)
+{
+  if (layout) layout->resetPos();
+  new StaticText(this, rect_t{}, STR_SUBTYPE, 0, COLOR_THEME_PRIMARY1);
+
+  auto md = &g_model.moduleData[moduleIdx];
+  choice = new Choice(this, rect_t{}, STR_MULTI_DSM_CLONE, 0, 1, 0, 0);
+
+  choice->setGetValueHandler(GET_DEFAULT((md->multi.optionValue & 0x04) >> 2));
+  choice->setSetValueHandler(SET_VALUE(
+      md->multi.optionValue, (md->multi.optionValue & 0xFB) + (newValue << 2)));
+}
+
 struct MPMServoRate : public FormWindow::Line {
   MPMServoRate(FormWindow* form, FlexGridLayout* layout, uint8_t moduleIdx);
   void update() const { lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr); }
@@ -329,6 +351,7 @@ MultimoduleSettings::MultimoduleSettings(Window *parent,
   lv_obj_add_event_cb(st_line->getLvObj(), update_mpm_settings,
                       LV_EVENT_VALUE_CHANGED, this);
 
+  cl_line = new MPMDSMCloned(this, &grid, moduleIdx);
   opt_line = new MPMProtoOption(this, &grid);
   sr_line = new MPMServoRate(this, &grid, moduleIdx);
   ab_line = new MPMAutobind(this, &grid, moduleIdx);
@@ -368,6 +391,13 @@ void MultimoduleSettings::update()
     lv_obj_add_flag(sr_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(ab_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     ab_line->update();
+  }
+
+  if (md->multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2) {
+    lv_obj_clear_flag(cl_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    cl_line->update();
+  } else {
+    lv_obj_add_flag(cl_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   }
 
   lp_mode->update();

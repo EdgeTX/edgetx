@@ -85,7 +85,8 @@
 
 #define TR_MULTI_PROTOCOLS             PROTO_NAMES
 #define TR_MULTI_BAYANG_OPTIONS        BAYANG_OPTION_TELEMETRY_NAMES
-#define TR_MULTI_DSM_OPTIONS           DSM2_OPTION_SERVOFREQ_NAMES 
+#define TR_MULTI_DSM_OPTIONS           DSM2_OPTION_SERVOFREQ_NAMES
+#define TR_MULTI_DSM_CLONE             DSM_CLONE_NAMES
 
 #define TR_MULTI_POWER                 "1.6mW","2.0mW","2.5mW","3.2mW","4.0mW","5.0mW","6.3mW","7.9mW","10mW","13mW","16mW","20mW","25mW","32mW","40mW","50mW"
 #define TR_MULTI_WBUS_MODE             "WBUS","PPM"

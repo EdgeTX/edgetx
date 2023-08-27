@@ -213,6 +213,7 @@ extern const char* const STR_MULTI_PROTOCOLS[];
 extern const char* const STR_MULTI_POWER[];
 extern const char* const STR_MULTI_BAYANG_OPTIONS[];
 extern const char* const STR_MULTI_DSM_OPTIONS[];
+extern const char* const STR_MULTI_DSM_CLONE[];
 extern const char* const STR_MULTI_WBUS_MODE[];
 extern const char* const STR_SPORT_MODES[];
 extern const char* const STR_FSGROUPS[];
@@ -565,9 +566,7 @@ extern const char STR_MODULE_SYNC[];
 extern const char STR_MULTI_SERVOFREQ[];
 extern const char STR_MULTI_MAX_THROW[];
 extern const char STR_MULTI_RFCHAN[];
-#if LCD_W < 212
 extern const char STR_SUBTYPE[];
-#endif
 
 #if defined(DSM2) || defined(PXX)
 extern const char STR_RECEIVER_NUM[];

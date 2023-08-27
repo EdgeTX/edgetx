@@ -175,6 +175,7 @@ enum ModuleSubtypeMulti {
 //
 #define BAYANG_OPTION_TELEMETRY_NAMES     "Off","On","Off+Aux","On+Aux"
 #define DSM2_OPTION_SERVOFREQ_NAMES       "22ms","11ms"
+#define DSM_CLONE_NAMES                   "Normal","Cloned"
 
 //
 // Common list of protocols the MPM doesn't allow to be selected (not sent by MPM protocol scan)
