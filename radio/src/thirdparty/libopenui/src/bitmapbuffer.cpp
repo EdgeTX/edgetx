@@ -28,8 +28,6 @@
 
 #include "lvgl/src/draw/sw/lv_draw_sw.h"
 
-void DMAWait();
-
 RLEBitmap::RLEBitmap(uint8_t format, const uint8_t* rle_data) :
   BitmapBufferBase<uint16_t>(format, 0, 0, nullptr)
 {
