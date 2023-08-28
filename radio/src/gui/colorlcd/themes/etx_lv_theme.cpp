@@ -323,6 +323,7 @@ static void style_init(void)
     // Check Box
     lv_style_init(&styles.cb_marker);
     lv_style_set_bg_opa(&styles.cb_marker, LV_OPA_COVER);
+    lv_style_set_pad_all(&styles.cb_marker, lv_disp_dpx(theme.disp, 3));
     lv_style_init(&styles.cb_marker_checked);
     lv_style_set_bg_img_src(&styles.cb_marker_checked, LV_SYMBOL_OK);
     lv_style_set_text_font(&styles.cb_marker_checked, theme.font_small);
