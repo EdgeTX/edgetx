@@ -46,7 +46,6 @@ ModelSetupPage::ModelSetupPage() :
 {
 }
 
-
 static void onModelNameChanged()
 {
   auto model = modelslist.getCurrentModel();
@@ -96,11 +95,13 @@ class SubScreenButton : public TextButton
 {
   public:
     SubScreenButton(Window* parent, const char* text,
-                    std::function<void(void)> pressHandler) :
+                    std::function<void(void)> pressHandler,
+                    std::function<bool(void)> checkActive = nullptr) :
       TextButton(parent, rect_t{}, text, [=]() -> uint8_t {
           pressHandler();
           return 0;
-      })
+      }),
+      m_isActive(std::move(checkActive))
     {
       // Room for two lines of text
       setHeight(62);
@@ -117,39 +118,9 @@ class SubScreenButton : public TextButton
     }
 
   protected:
-    virtual bool isActive() { return false; }
-};
+    std::function<bool(void)> m_isActive = nullptr;
 
-struct IntmoduleButton : public SubScreenButton {
-  IntmoduleButton(Window* parent) :
-      SubScreenButton(parent, STR_INTERNALRF,
-                      []() { new ModulePage(INTERNAL_MODULE); })
-  {
-  }
-  bool isActive() override
-  {
-    return g_model.moduleData[INTERNAL_MODULE].type > 0;
-  }
-};
-
-struct ExtmoduleButton : public SubScreenButton {
-  ExtmoduleButton(Window* parent) :
-      SubScreenButton(parent, STR_EXTERNALRF,
-                      []() { new ModulePage(EXTERNAL_MODULE); })
-  {
-  }
-  bool isActive() override
-  {
-    return g_model.moduleData[EXTERNAL_MODULE].type > 0;
-  }
-};
-
-struct TrainerModuleButton : public SubScreenButton {
-  TrainerModuleButton(Window* parent) :
-      SubScreenButton(parent, STR_TRAINER, []() { new TrainerPage(); })
-  {
-  }
-  bool isActive() override { return g_model.trainerData.mode > 0; }
+    virtual bool isActive() { return m_isActive ? m_isActive() : false; }
 };
 
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
@@ -342,17 +313,17 @@ void ModelSetupPage::build(FormWindow * window)
   line->padTop(8);
 
   // Modules
-  new IntmoduleButton(line);
-  new ExtmoduleButton(line);
-  new TrainerModuleButton(line);
+  new SubScreenButton(line, STR_INTERNALRF, []() { new ModulePage(INTERNAL_MODULE); }, []() { return g_model.moduleData[INTERNAL_MODULE].type > 0; });
+  new SubScreenButton(line, STR_EXTERNALRF, []() { new ModulePage(EXTERNAL_MODULE); }, []() { return g_model.moduleData[EXTERNAL_MODULE].type > 0; });
+  new SubScreenButton(line, STR_TRAINER, []() { new TrainerPage(); }, []() { return g_model.trainerData.mode > 0; });
 
   line = window->newLine(&grid2);
   line->padTop(2);
 
   // Timer buttons
-  new SubScreenButton(line, TR_TIMER "1", []() { new TimerWindow(0); });
-  new SubScreenButton(line, TR_TIMER "2", []() { new TimerWindow(1); });
-  new SubScreenButton(line, TR_TIMER "3", []() { new TimerWindow(2); });
+  new SubScreenButton(line, TR_TIMER "1", []() { new TimerWindow(0); }, []() { return g_model.timers[0].mode > 0; });
+  new SubScreenButton(line, TR_TIMER "2", []() { new TimerWindow(1); }, []() { return g_model.timers[1].mode > 0; });
+  new SubScreenButton(line, TR_TIMER "3", []() { new TimerWindow(2); }, []() { return g_model.timers[2].mode > 0; });
 
   line = window->newLine(&grid2);
   line->padTop(2);
