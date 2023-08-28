@@ -345,7 +345,7 @@ class ViewChecklistWindow : public ViewTextWindow
 
               lv_obj_set_style_pad_left(row, 10, 0);
 
-              auto cb = lv_checkbox_create(row);
+              auto cb = etx_checkbox_create(row);
               lv_checkbox_set_text_static(cb, "");
               lv_obj_set_width(cb, 25);
               lv_obj_set_height(cb, 25);
