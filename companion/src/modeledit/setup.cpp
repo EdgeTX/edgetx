@@ -195,6 +195,7 @@ void TimerPanel::onModeChanged(int index)
 {
   timer.modeChanged();
   update();
+  emit modeChanged();
 }
 
 /******************************************************************************/
@@ -1483,7 +1484,8 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
       timers[i] = new TimerPanel(this, model, model.timers[i], generalSettings, firmware, prevFocus, panelFilteredModels, panelItemModels);
       ui->gridLayout->addWidget(timers[i], 1+i, 1);
       connect(timers[i], &TimerPanel::modified, this, &SetupPanel::modified);
-      connect(timers[i], &TimerPanel::nameChanged, this, &SetupPanel::onTimerNameChanged);
+      connect(timers[i], &TimerPanel::nameChanged, this, &SetupPanel::onTimerChanged);
+      connect(timers[i], &TimerPanel::modeChanged, this, &SetupPanel::onTimerChanged);
       connect(this, &SetupPanel::updated, timers[i], &TimerPanel::update);
       prevFocus = timers[i]->getLastFocus();
       //  TODO more reliable method required
@@ -2145,7 +2147,7 @@ void SetupPanel::swapTimerData(int idx1, int idx2)
   }
 }
 
-void SetupPanel::onTimerNameChanged()
+void SetupPanel::onTimerChanged()
 {
   updateItemModels();
 }

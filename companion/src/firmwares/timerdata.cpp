@@ -43,9 +43,9 @@ bool TimerData::isEmpty() const
           persistent == 0 /*&& pvalue == 0*/);
 }
 
-bool TimerData::isModeOff()
+bool TimerData::isModeOff() const
 {
-  return swtch == RawSwitch(SWITCH_TYPE_TIMER_MODE, 0);
+  return mode == TIMERMODE_OFF;
 }
 
 QString TimerData::nameToString(int index) const

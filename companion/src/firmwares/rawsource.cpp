@@ -323,8 +323,13 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
     if (!model || index >= b.getCapability(Board::FunctionSwitches))
       return false;
 
-  if (type == SOURCE_TYPE_SPECIAL && index >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED && index <= SOURCE_TYPE_SPECIAL_LAST_RESERVED)
-    return false;
+  if (type == SOURCE_TYPE_SPECIAL) {
+    if (index >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED && index <= SOURCE_TYPE_SPECIAL_LAST_RESERVED)
+      return false;
+    else if (index >= SOURCE_TYPE_SPECIAL_FIRST_TIMER && index <= SOURCE_TYPE_SPECIAL_LAST_TIMER &&
+             model->timers[index - SOURCE_TYPE_SPECIAL_FIRST_TIMER].isModeOff())
+      return false;
+  }
 
   if (model) {
     if (type == SOURCE_TYPE_FUNCTIONSWITCH && !model->isFunctionSwitchSourceAllowed(index))
@@ -458,9 +463,9 @@ tbl.insert(tbl.end(), {
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED2),  "RESERVED2"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED3),  "RESERVED3"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED4),  "RESERVED4"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER1),     "TIMER1"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER2),     "TIMER2"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER3),     "TIMER3"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER1),     "Tmr1"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER2),     "Tmr2"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER3),     "Tmr3"},
                           });
 
   return tbl;
