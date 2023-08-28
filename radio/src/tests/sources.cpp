@@ -99,7 +99,8 @@ TEST(Sources, getSourceString)
   EXPECT_STREQ(getSourceString(MIXSRC_SPACEMOUSE_F), "smF");
 #endif
 
-  EXPECT_STREQ(getSourceString(MIXSRC_MAX), "MAX");
+  EXPECT_STREQ(getSourceString(MIXSRC_MIN), STR_MENU_MIN);
+  EXPECT_STREQ(getSourceString(MIXSRC_MAX), STR_MENU_MAX);
 
 #if defined(HELI)
   EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI), "CYC1");

@@ -11525,6 +11525,11 @@ r</translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="190"/>
+        <source>MIN</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/rawsource.cpp" line="193"/>
         <source>MAX</source>
         <translation></translation>
     </message>

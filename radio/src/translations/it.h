@@ -1095,6 +1095,7 @@
 #define TR_MENU_LUA                     STR_CHAR_LUA "Lua scripts"
 #define TR_MENU_STICKS                  STR_CHAR_STICK "Sticks"
 #define TR_MENU_POTS                    STR_CHAR_POT "Potenziometri"
+#define TR_MENU_MIN                     STR_CHAR_FUNCTION "MIN"
 #define TR_MENU_MAX                     STR_CHAR_FUNCTION "MAX"
 #define TR_MENU_HELI                    STR_CHAR_CYC "Ciclico"
 #define TR_MENU_TRIMS                   STR_CHAR_TRIM "Trims"

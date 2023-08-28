@@ -715,6 +715,7 @@ const char STR_MENU_INPUTS[] = TR_MENU_INPUTS;
 const char STR_MENU_LUA[] = TR_MENU_LUA;
 const char STR_MENU_STICKS[] = TR_MENU_STICKS;
 const char STR_MENU_POTS[] = TR_MENU_POTS;
+const char STR_MENU_MIN[] = TR_MENU_MIN;
 const char STR_MENU_MAX[] = TR_MENU_MAX;
 const char STR_MENU_HELI[] = TR_MENU_HELI;
 const char STR_MENU_TRIMS[] = TR_MENU_TRIMS;

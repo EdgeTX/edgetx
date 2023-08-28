@@ -382,7 +382,8 @@ const LuaSingleField luaSingleFields[] = {
     {MIXSRC_SPACEMOUSE_E, "sme", "SpaceMouse E"},
     {MIXSRC_SPACEMOUSE_F, "smf", "SpaceMouse F"},
 #endif
-    
+
+    {MIXSRC_MAX, "min", "MIN"},
     {MIXSRC_MAX, "max", "MAX"},
 
     {MIXSRC_TrimRud, "trim-rud", "Rudder trim"},
@@ -2893,6 +2894,7 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( VALUE, INPUT_TYPE_VALUE )
   LROT_NUMENTRY( SOURCE, INPUT_TYPE_SOURCE )
   LROT_NUMENTRY( REPLACE, MLTPX_REPL )
+  LROT_NUMENTRY( MIXSRC_MIN, MIXSRC_MIN )
   LROT_NUMENTRY( MIXSRC_MAX, MIXSRC_MAX )
   LROT_NUMENTRY( MIXSRC_FIRST_INPUT, MIXSRC_FIRST_INPUT )
   #include "lua_mixsrc.inc"

@@ -1110,6 +1110,7 @@ extern const char STR_MENU_INPUTS[];
 extern const char STR_MENU_LUA[];
 extern const char STR_MENU_STICKS[];
 extern const char STR_MENU_POTS[];
+extern const char STR_MENU_MIN[];
 extern const char STR_MENU_MAX[];
 extern const char STR_MENU_HELI[];
 extern const char STR_MENU_TRIMS[];

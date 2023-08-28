@@ -313,8 +313,7 @@ bool isSourceAvailableInInputs(int source)
   if (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE)
     return true;
 #endif
-  
-  if (source == MIXSRC_MAX)
+  if (source == MIXSRC_MIN || source == MIXSRC_MAX)
     return true;
 
   if (source >= MIXSRC_FIRST_TRIM && source <= MIXSRC_LAST_TRIM) {

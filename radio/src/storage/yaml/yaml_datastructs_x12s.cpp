@@ -119,6 +119,7 @@ const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_SPACEMOUSE_D, "SPACEMOUSE_D"  },
   {  MIXSRC_SPACEMOUSE_E, "SPACEMOUSE_E"  },
   {  MIXSRC_SPACEMOUSE_F, "SPACEMOUSE_F"  },
+  {  MIXSRC_MIN, "MIN"  },
   {  MIXSRC_MAX, "MAX"  },
   {  MIXSRC_TrimRud, "TrimRud"  },
   {  MIXSRC_TrimEle, "TrimEle"  },

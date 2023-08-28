@@ -52,6 +52,9 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
     case SOURCE_TYPE_TRIM:
       src_str = getCurrentFirmware()->getTrimSourcesTag(rhs.index);
       break;
+    case SOURCE_TYPE_MIN:
+      src_str += "MIN";
+      break;
     case SOURCE_TYPE_MAX:
       src_str += "MAX";
       break;
@@ -307,6 +310,11 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
         rhs.type = SOURCE_TYPE_SPACEMOUSE;
         rhs.index = sm_idx;
       }
+    }
+
+    if (node.IsScalar() && node.as<std::string>() == "MIN") {
+      rhs.type = SOURCE_TYPE_MIN;
+      rhs.index = 0;
     }
 
     if (node.IsScalar() && node.as<std::string>() == "MAX") {
