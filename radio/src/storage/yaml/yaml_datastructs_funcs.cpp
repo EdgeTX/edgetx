@@ -224,6 +224,26 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
 
       return MIXSRC_FIRST_HELI + (val[3] - '1');
 
+    } else if (val_len > 3 &&
+               val[0] == 'T' &&
+               val[1] == 'm' &&
+               val[2] == 'r' &&
+               val[3] >= '1' &&
+               val[3] <= ('1' + MAX_TIMERS)) {
+
+      return MIXSRC_FIRST_TIMER + (val[3] - '1');
+
+    } else if (val_len > 5 &&    // Old form, removed in 2.10
+               val[0] == 'T' &&
+               val[1] == 'I' &&
+               val[2] == 'M' &&
+               val[3] == 'E' &&
+               val[4] == 'R' &&
+               val[5] >= '1' &&
+               val[5] <= ('1' + MAX_TIMERS)) {
+
+      return MIXSRC_FIRST_TIMER + (val[5] - '1');
+
     } else if (val_len > 1 &&
                val[0] == 'T' &&
                val[1] >= '1' &&
@@ -345,6 +365,11 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
         if (!output_source_1_param("gv(", 3, val, wf, opaque))
           return false;
         str = closing_parenthesis;
+    }
+    else if (val >= MIXSRC_FIRST_TIMER
+             && val <= MIXSRC_LAST_TIMER) {
+        if (!wf(opaque, "Tmr", 3)) return false;
+        str = yaml_unsigned2str(val - MIXSRC_FIRST_TIMER + 1);
     }
     else if (val >= MIXSRC_FIRST_TELEM
              && val <= MIXSRC_LAST_TELEM) {
@@ -1415,7 +1440,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
         && val[1] == 'm'
         && val[2] == 'r'
         && val[3] >= '1'
-        && val[3] <= '3') {
+        && val[3] <= ('1' + MAX_TIMERS)) {
 
       CFN_TIMER_INDEX(cfn) = val[3] - '1';
 

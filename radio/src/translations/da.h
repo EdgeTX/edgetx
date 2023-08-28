@@ -125,12 +125,8 @@
 #define TR_SF_RESERVE                  "[reserve]"
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetri")
+#define TR_FSW_RESET_TIMERS            "Tid1","Tid2","Tid3"
 
-#if LCD_W >= 212
-  #define TR_FSW_RESET_TIMERS          "Tidtag 1","Tidtag 2","Tidtag 3"
-#else
-  #define TR_FSW_RESET_TIMERS          "Tid1","Tid2","Tid3"
-#endif
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("Alle","Flight"),TR_FSW_RESET_TELEM
 

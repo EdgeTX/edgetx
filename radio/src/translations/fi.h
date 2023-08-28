@@ -124,12 +124,7 @@
 #define TR_SF_SET_SCREEN               "Set Main Screen"
 
 #define TR_FSW_RESET_TELEM             TR("Telm","Telemetry")
-
-#if defined(PCBTARANIS)
-  #define TR_FSW_RESET_TIMERS          "Timer 1","Timer 2","Timer 3"
-#else
-  #define TR_FSW_RESET_TIMERS          "Tmr1","Tmr2","Tmr3"
-#endif
+#define TR_FSW_RESET_TIMERS          "Tmr1","Tmr2","Tmr3"
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,"All",TR_FSW_RESET_TELEM
 

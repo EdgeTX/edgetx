@@ -207,8 +207,11 @@ class SpecialFunctionEditPage : public Page
         timerchoice->setTextHandler([](int32_t value) {
           return std::string(STR_TIMER) + std::to_string(value + 1);
         });
-        line = specialFunctionOneWindow->newLine(&grid);
+        timerchoice->setAvailableHandler([=](int value) {
+          return isTimerSourceAvailable(value);
+        });
 
+        line = specialFunctionOneWindow->newLine(&grid);
         new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         new TimeEdit(line, rect_t{}, 0,
                      9 * 60 * 60 - 1, GET_SET_DEFAULT(CFN_PARAM(cfn)));
@@ -619,7 +622,7 @@ class SpecialFunctionButton : public Button
         break;
 
       case FUNC_SET_TIMER:
-        sprintf(s+strlen(s), "%s%d = %s", STR_TIMER, CFN_TIMER_INDEX(cfn) + 1, getTimerString(CFN_PARAM(cfn), {.options = SHOW_TIME}));
+        sprintf(s+strlen(s), "%s%d = %s", STR_SRC_TIMER, CFN_TIMER_INDEX(cfn) + 1, getTimerString(CFN_PARAM(cfn), {.options = SHOW_TIME}));
         break;
 
       case FUNC_SET_FAILSAFE:

@@ -239,7 +239,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           else if (func == FUNC_SET_TIMER) {
             maxParam = TIMERS-1;
             drawStringWithIndex(lcdNextPos, y, STR_TIMER, CFN_TIMER_INDEX(cfn)+1, attr);
-            if (active) CFN_TIMER_INDEX(cfn) = checkIncDec(event, CFN_TIMER_INDEX(cfn), 0, maxParam, eeFlags);
+            if (active) CFN_TIMER_INDEX(cfn) = checkIncDec(event, CFN_TIMER_INDEX(cfn), 0, maxParam, eeFlags, isTimerSourceAvailable);
             break;
           }
           else if (attr) {
