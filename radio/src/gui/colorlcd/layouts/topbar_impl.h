@@ -24,14 +24,12 @@
 #include "topbar.h"
 #include "layouts/layout_factory_impl.h"
 
-typedef WidgetsContainerImpl<MAX_TOPBAR_ZONES, MAX_TOPBAR_OPTIONS> TopbarImplBase;
+typedef WidgetsContainerImpl<MAX_TOPBAR_ZONES, MAX_TOPBAR_OPTIONS> TopBarBase;
 
-class TopbarImpl:
-  public TopbarImplBase,
-  public Topbar
+class TopBar: public TopBarBase
 {
   public:
-    explicit TopbarImpl(Window * parent);
+    explicit TopBar(Window * parent);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -42,7 +40,7 @@ class TopbarImpl:
 
     void load() override
     {
-        TopbarImplBase::load();
+        TopBarBase::load();
     }
     
     unsigned int getZonesCount() const override;
@@ -55,6 +53,8 @@ class TopbarImpl:
     void paint(BitmapBuffer * dc) override;
 
     void checkEvents() override;
+
+    bool isTopBar() override { return true; }
 
     void removeWidget(unsigned int index) override;
 

@@ -39,7 +39,7 @@ Widget::Widget(const WidgetFactory* factory, Window* parent,
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
-  if (dynamic_cast<Topbar*>(parent))
+  if (parent->isTopBar())
     fsAllowed = false;
   
   setPressHandler([&]() -> uint8_t {
@@ -112,9 +112,8 @@ void Widget::setFullscreen(bool enable)
   if (!enable) {
 
     // Reset all zones in container
-    auto container = dynamic_cast<WidgetsContainer*>(parent);
-    if (container)
-      container->updateZones();
+    if (parent->isWidgetsContainer())
+      ((WidgetsContainer*)parent)->updateZones();
 
     setWindowFlags(getWindowFlags() & ~OPAQUE);
     lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);

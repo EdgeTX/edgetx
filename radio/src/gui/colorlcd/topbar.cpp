@@ -29,9 +29,9 @@
 #include "widgets_setup.h"
 
 
-Topbar * TopbarFactory::create(Window * parent)
+TopBar * TopbarFactory::create(Window * parent)
 {
-  return new TopbarImpl(parent);
+  return new TopBar(parent);
 }
 
 SetupTopBarWidgetsPage::SetupTopBarWidgetsPage():
@@ -48,7 +48,7 @@ SetupTopBarWidgetsPage::SetupTopBarWidgetsPage():
   // adopt the dimensions of the main view
   setRect(viewMain->getRect());
 
-  auto topbar = dynamic_cast<TopbarImpl*>(viewMain->getTopbar());
+  auto topbar = viewMain->getTopbar();
   for (unsigned i = 0; i < topbar->getZonesCount(); i++) {
     auto rect = topbar->getZone(i);
     new SetupWidgetsPageSlot(this, rect, topbar, i);

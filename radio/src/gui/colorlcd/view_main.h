@@ -77,8 +77,8 @@ class ViewMain: public Window
     void nextMainView();
     void previousMainView();
 
-    Topbar* getTopbar();
-  
+    TopBar* getTopbar();
+
     void onEvent(event_t event) override;
     void onClicked() override;
     void onCancel() override;
@@ -87,7 +87,7 @@ class ViewMain: public Window
     static ViewMain * _instance;
 
     lv_obj_t*   tile_view = nullptr;
-    TopbarImpl* topbar = nullptr;
+    TopBar* topbar = nullptr;
     bool        widget_select = false;
     lv_timer_t* widget_select_timer = nullptr;
     ViewMainMenu* viewMainMenu = nullptr;

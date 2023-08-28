@@ -29,18 +29,12 @@ constexpr coord_t TOPBAR_ZONE_HMARGIN = 3;
 constexpr coord_t TOPBAR_ZONE_HEIGHT = MENU_HEADER_HEIGHT - 2 * TOPBAR_ZONE_VMARGIN;
 
 class ScreenMenu;
-class TopbarImpl;
-
-class Topbar
-{
- public:
-  virtual void load() = 0;
-};
+class TopBar;
 
 class TopbarFactory
 {
  public:
-  static Topbar* create(Window* parent);
+  static TopBar* create(Window* parent);
 };
 
 class SetupTopBarWidgetsPage : public FormWindow
