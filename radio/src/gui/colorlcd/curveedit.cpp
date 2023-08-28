@@ -600,43 +600,6 @@ int8_t CurveEdit::getY(uint8_t n) const
   return curveAddress(index)[n];
 }
 
-void CurveEdit::onEvent(event_t event)
-{
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
-
-  switch (event) {
-#if defined(HARDWARE_TOUCH)
-    case EVT_VIRTUAL_KEY_LEFT:
-      setX(-1);
-      break;
-
-    case EVT_VIRTUAL_KEY_RIGHT:
-      setX(1);
-      break;
-
-    case EVT_VIRTUAL_KEY_UP:
-      setY(1);
-      break;
-
-    case EVT_VIRTUAL_KEY_DOWN:
-      setY(-1);
-      break;
-
-    case EVT_VIRTUAL_KEY_PREVIOUS:
-      selectPoint(-1);
-      break;
-
-    case EVT_VIRTUAL_KEY_NEXT:
-      selectPoint(1);
-      break;
-#endif
-
-    default:
-      FormField::onEvent(event);
-      break;
-  }
-}
-
 void CurveEdit::checkEvents()
 {
   if (!lockSource) {

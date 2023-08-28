@@ -113,8 +113,7 @@ Curve::Curve(Window * parent, const rect_t & rect, std::function<int(int)> funct
       base(rect_t{0, 0, rect.w, rect.h}, function),
       function(std::move(function)),
       position(std::move(position)),
-      selected(std::move(selected)),
-      base(rect_t{0, 0, rect.w, rect.h}, function)
+      selected(std::move(selected))
 {
 }
 
