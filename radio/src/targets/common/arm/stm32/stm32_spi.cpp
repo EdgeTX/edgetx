@@ -22,6 +22,7 @@
 #include "stm32_spi.h"
 #include "stm32_dma.h"
 #include "stm32_gpio_driver.h"
+#include "definitions.h"
 
 #include <stdlib.h>
 
@@ -66,9 +67,9 @@ void stm32_spi_enable_clock(SPI_TypeDef *SPIx)
 static inline uint32_t _get_spi_af(SPI_TypeDef *SPIx)
 {
 #if defined(SPI3)
-  if (SPIx == SPI3) return LL_GPIO_AF_5;
+  if (SPIx == SPI3) return LL_GPIO_AF_6;
 #endif
-  return LL_GPIO_AF_6;
+  return LL_GPIO_AF_5;
 }
 
 static uint32_t _get_spi_prescaler(SPI_TypeDef *SPIx, uint32_t max_freq)
@@ -123,12 +124,14 @@ static void _init_gpios(const stm32_spi_t* spi)
   pinInit.Pin = spi->SPI_Pins;
   pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
   pinInit.Alternate = _get_spi_af(spi->SPIx);
+  pinInit.Pull = LL_GPIO_PULL_UP;
   LL_GPIO_Init(spi->SPI_GPIOx, &pinInit);
 
   // CS
   pinInit.Pin = spi->CS_Pin;
   pinInit.Mode = LL_GPIO_MODE_OUTPUT;
   pinInit.Alternate = LL_GPIO_AF_0;
+  pinInit.Pull = LL_GPIO_PULL_UP;
   LL_GPIO_Init(spi->CS_GPIOx, &pinInit);
 }
 
@@ -153,7 +156,7 @@ static void _config_dma_streams(const stm32_spi_t* spi)
   LL_DMA_Init(spi->DMA, spi->rxDMA_Stream, &dmaInit);
 
   dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
-  LL_DMA_Init(spi->DMA, spi->rxDMA_Stream, &dmaInit);
+  LL_DMA_Init(spi->DMA, spi->txDMA_Stream, &dmaInit);
 }
 #endif
 
@@ -242,9 +245,12 @@ uint16_t stm32_spi_transfer_word(const stm32_spi_t* spi, uint16_t out)
 }
 
 #if defined(USE_SPI_DMA)
+static uint16_t _work_byte __DMA;
+
 static void _dma_enable_stream(DMA_TypeDef* DMAx, uint32_t stream,
 			       const void* data, uint32_t length)
 {
+  stm32_dma_check_tc_flag(DMAx, stream);
   LL_DMA_SetMemoryAddress(DMAx, stream, (uintptr_t)data);
   LL_DMA_SetDataLength(DMAx, stream, length);
   LL_DMA_EnableStream(DMAx, stream);
@@ -255,14 +261,16 @@ uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
 				     uint8_t* data, uint16_t length)
 {
 #if defined(USE_SPI_DMA)
-  if (!spi->DMA) {
+  if (!spi->DMA || ((uintptr_t)data < SRAM_BASE) || ((uintptr_t)data & 3)) {
     return stm32_spi_transfer_bytes(spi, 0, data, length);
   }
 
   _dma_enable_stream(spi->DMA, spi->rxDMA_Stream, data, length);
   LL_SPI_EnableDMAReq_RX(spi->SPIx);
 
-  _dma_enable_stream(spi->DMA, spi->txDMA_Stream, data, length);
+  _work_byte = 0xFF;
+  LL_DMA_SetMemoryIncMode(spi->DMA, spi->txDMA_Stream, LL_DMA_MEMORY_NOINCREMENT);
+  _dma_enable_stream(spi->DMA, spi->txDMA_Stream, &_work_byte, length);
   LL_SPI_EnableDMAReq_TX(spi->SPIx);
 
   // Wait for end of DMA transfer
@@ -287,10 +295,11 @@ uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
                                       const uint8_t* data, uint16_t length)
 {
 #if defined(USE_SPI_DMA)
-  if (!spi->DMA) {
+  if (!spi->DMA || ((uintptr_t)data < SRAM_BASE) || ((uintptr_t)data & 3)) {
     return stm32_spi_transfer_bytes(spi, data, 0, length);
   }
 
+  LL_DMA_SetMemoryIncMode(spi->DMA, spi->txDMA_Stream, LL_DMA_MEMORY_INCREMENT);
   _dma_enable_stream(spi->DMA, spi->txDMA_Stream, data, length);
   LL_SPI_EnableDMAReq_TX(spi->SPIx);
 
@@ -305,6 +314,11 @@ uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
 
   // Wait for BSY=0
   while (LL_SPI_IsActiveFlag_BSY(spi->SPIx));
+
+  // Clear data register
+  if (LL_SPI_IsActiveFlag_RXNE(spi->SPIx)) {
+    (void)LL_SPI_ReceiveData8(spi->SPIx);
+  }
 
   return length;
 #else

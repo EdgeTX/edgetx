@@ -22,7 +22,8 @@
 #ifndef _RTOS_H_
 #define _RTOS_H_
 
-#include "definitions.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C++" {
@@ -114,15 +115,17 @@ extern "C++" {
 #endif
   }
 
-template<int SIZE>
-inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const char * name, TaskStack<SIZE> &, unsigned size = 0, unsigned priority = 0)
+  template <int SIZE>
+  inline void RTOS_CREATE_TASK(pthread_t &taskId, void *(*task)(void *),
+                               const char *name, TaskStack<SIZE> &,
+                               unsigned size = 0, unsigned priority = 0)
   {
-    UNUSED(size);
-    UNUSED(priority);
+    (void)size;
+    (void)priority;
     RTOS_CREATE_TASK(taskId, task, name);
   }
 
-  #define TASK_RETURN()                 return nullptr
+#define TASK_RETURN()                 return nullptr
 
   constexpr uint32_t mainStackAvailable()
   {

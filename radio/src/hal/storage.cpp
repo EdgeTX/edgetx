@@ -47,6 +47,9 @@
 
 void storageInit()
 {
+  if (fatfsGetDriver(0) != nullptr)
+    return;
+
   const diskio_driver_t* drv = &_STORAGE_DRIVER;
 
 #if defined(DISK_CACHE)
@@ -55,7 +58,7 @@ void storageInit()
 #endif
 
   if (!fatfsRegisterDriver(drv, 0)) {
-    TRACE("Failed to register storage driver");
+    TRACE("fatfsRegisterDriver: [FAILED]");
   }
 }
 

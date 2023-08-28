@@ -127,10 +127,10 @@ static DRESULT sdcard_spi_ioctl(BYTE lun, BYTE ctrl, void *buff)
       *(WORD*)buff = SD_HC_BLOCK_SIZE;
       break;
 
-    // case CTRL_SYNC:
-    //   while (SD_GetStatus() == SD_TRANSFER_BUSY);
-    //   res = RES_OK;
-    //   break;
+    case CTRL_SYNC:
+      sdcard_spi_wait_for_not_busy();
+      res = RES_OK;
+      break;
 
     default:
       break;

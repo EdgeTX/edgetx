@@ -94,7 +94,8 @@ uint32_t eepromWritten = 0;
 FlashCheckRes valid;
 MemoryType memoryType;
 uint32_t unlocked = 0;
-uint32_t timer10MsCount;
+
+volatile uint32_t timer10MsCount;
 
 void interrupt10ms()
 {
@@ -118,7 +119,7 @@ void interrupt10ms()
 
 extern "C" uint32_t HAL_GetTick(void)
 {
-    return timer10MsCount*10;
+    return timer10MsCount * 10;
 }
 
 #if !defined(SIMU)
@@ -139,6 +140,8 @@ void initTimers()
   TIMER_2MHz_TIMER->CR1 = TIM_CR1_CEN;
   TIMER_2MHz_TIMER->DIER = TIM_DIER_UIE;
   NVIC_EnableIRQ(TIMER_2MHz_IRQn);
+
+  while(timer10MsCount < 10);
 }
 
 uint32_t timersGetUsTick()
@@ -245,14 +248,15 @@ void writeEepromBlock()
 #if !defined(SIMU)
 void bootloaderInitApp()
 {
-  RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph |
-                             LCD_RCC_AHB1Periph | BACKLIGHT_RCC_AHB1Periph |
+  RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph | LCD_RCC_AHB1Periph |
+                             BACKLIGHT_RCC_AHB1Periph |
                              KEYS_BACKLIGHT_RCC_AHB1Periph,
                          ENABLE);
 
   RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph | LCD_RCC_APB1Periph |
                              BACKLIGHT_RCC_APB1Periph |
-                             INTERRUPT_xMS_RCC_APB1Periph,
+                             INTERRUPT_xMS_RCC_APB1Periph |
+                             TIMER_2MHz_RCC_APB1Periph,
                          ENABLE);
 
   RCC_APB2PeriphClockCmd(

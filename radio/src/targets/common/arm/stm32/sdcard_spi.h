@@ -80,6 +80,7 @@
 #define SD_CMD_17 17 /* Reads a block of the size selected by the SET_BLOCKLEN command */
 #define SD_CMD_18 18 /* Continuously transfers data blocks from card to host
                         until interrupted by a STOP_TRANSMISSION command */
+#define SD_CMD_23 23 /* Used for ACMD23: write block erase count */
 #define SD_CMD_24 24 /* Writes a block of the size selected by the SET_BLOCKLEN command */
 #define SD_CMD_25 25 /* Continuously writes blocks of data until 'Stop Tran'token is sent */
 #define SD_CMD_41 41 /* Reserved (used for ACMD41) */
@@ -286,3 +287,5 @@ int sdcard_spi_read_blocks(uint32_t blockaddr, uint8_t* data,
 int sdcard_spi_write_blocks(uint32_t blockaddr, const uint8_t* data,
                             uint16_t blocksize, uint16_t nblocks,
                             sd_rw_response_t* state);
+
+int sdcard_spi_wait_for_not_busy();

@@ -28,6 +28,7 @@
 #include "bin_files.h"
 #include "fw_version.h"
 #include "strhelpers.h"
+#include "hal/storage.h"
 
 // 'private'
 static DIR  dir;
@@ -41,6 +42,8 @@ UINT        BlockCount;
 void sdInit(void)
 {
   static FATFS fatFS __DMA;
+
+  storageInit();
 
   if (f_mount(&fatFS, "", 1) == FR_OK) {
     f_chdir("/");

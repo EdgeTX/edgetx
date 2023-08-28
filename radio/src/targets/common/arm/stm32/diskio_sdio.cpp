@@ -247,7 +247,7 @@ static DRESULT sdio_read(BYTE lun, BYTE * buff, DWORD sector, UINT count)
     return RES_ERROR;
   }
 
-  if ((DWORD)buff < 0x20000000 || ((DWORD)buff & 3)) {
+  if ((DWORD)buff < SRAM_BASE || ((DWORD)buff & 3)) {
     // TRACE("disk_read bad alignment (%p)", buff);
     while (count--) {
       res = _read_dma(scratch, sector++, 1);
@@ -303,7 +303,7 @@ static DRESULT sdio_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
     return RES_ERROR;
   }
 
-  if ((DWORD)buff < 0x20000000 || ((DWORD)buff & 3)) {
+  if ((DWORD)buff < SRAM_BASE || ((DWORD)buff & 3)) {
     //TRACE("disk_write bad alignment (%p)", buff);
     while(count--) {
       memcpy(scratch, buff, BLOCK_SIZE);
