@@ -901,6 +901,7 @@
 #define TR_PREFLIGHT_POTSLIDER_CHECK "WYŁ","ZAŁ","Auto"
 #define TR_PREFLIGHT           "Lista Ostrzeżeń"
 #define TR_CHECKLIST           TR(INDENT "Czeklista",INDENT "Pokaż Listę Ostrzeżeń")
+#define TR_CHECKLIST_INTERACTIVE       TR(INDENT "C-Interakt", INDENT "Interkatywna lista ostrż.")
 #define TR_AUX_SERIAL_MODE     "Port szreg."
 #define TR_AUX2_SERIAL_MODE    "Port szreg. 2"
 #define TR_AUX_SERIAL_PORT_POWER       "Zasil.portu"

@@ -910,6 +910,7 @@
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Fra","Til","Auto"
 #define TR_PREFLIGHT                   "Fly checkliste"
 #define TR_CHECKLIST                   TR(INDENT "Checkliste", INDENT "Vis checkliste")
+#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "C-Interact", INDENT "Interact. checklist", INDENT "Interactive checklist")
 #define TR_AUX_SERIAL_MODE             "Seriel port"
 #define TR_AUX2_SERIAL_MODE            "Seriel port 2"
 #define TR_AUX_SERIAL_PORT_POWER       "Port strøm"

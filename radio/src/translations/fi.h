@@ -919,6 +919,7 @@
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Off","On","Auto"
 #define TR_PREFLIGHT                   "Preflight Checks"
 #define TR_CHECKLIST                   INDENT "Display Checklist"
+#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "C-Interact", INDENT "Interact. checklist", INDENT "Interactive checklist")
 #define TR_AUX_SERIAL_MODE             "Sarjaportti"
 #define TR_AUX2_SERIAL_MODE            "Sarjaportti 2"
 #define TR_AUX_SERIAL_PORT_POWER       "Virta"

@@ -118,7 +118,18 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   // Display checklist
   auto line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_CHECKLIST, 0, COLOR_THEME_PRIMARY1);
-  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.displayChecklist));
+  auto chkList = new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.displayChecklist));
+
+  // Interactive checklist
+  line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_CHECKLIST_INTERACTIVE, 0, COLOR_THEME_PRIMARY1);
+  auto interactiveChkList = new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.checklistInteractive));
+  if(!chkList->getValue())
+    interactiveChkList->disable();
+  chkList->setSetValueHandler([=](int32_t newValue) {
+    g_model.displayChecklist = newValue; SET_DIRTY();
+    (g_model.displayChecklist)?interactiveChkList->enable():interactiveChkList->disable();
+  });
 
   // Throttle warning
   line = form->newLine(&grid);

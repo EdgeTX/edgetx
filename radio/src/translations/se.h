@@ -934,6 +934,7 @@
 #define TR_PREFLIGHT                    "Startkontroller"
 #define TR_PREFLIGHT_POTSLIDER_CHECK    "Av","På","Auto"
 #define TR_CHECKLIST                    TR(INDENT "Checklista", INDENT "Visa checklista")
+#define TR_CHECKLIST_INTERACTIVE        TR(INDENT "C-Interact", INDENT "Interactive checklist")
 #define TR_AUX_SERIAL_MODE              "Serieport"
 #define TR_AUX2_SERIAL_MODE             "Serieport 2"
 #define TR_AUX_SERIAL_PORT_POWER        "Strömkälla"

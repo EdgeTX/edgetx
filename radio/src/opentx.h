@@ -975,6 +975,8 @@ union ReusableBuffer
     char filename[TEXT_FILENAME_MAXLEN];
     char lines[NUM_BODY_LINES][LCD_COLS + 1];
     int linesCount;
+    bool checklistComplete;
+    bool pushMenu;
   } viewText;
 #endif
 
