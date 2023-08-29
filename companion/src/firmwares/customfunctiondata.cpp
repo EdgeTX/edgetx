@@ -251,7 +251,8 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
         ((index == FuncPlayBoth) && !fw->getCapability(HasBeeper)) ||
         ((index == FuncLogs) && !fw->getCapability(HasSDLogs)) ||
         ((index >= FuncSetTimer1 && index <= FuncSetTimerLast) &&
-         (index > FuncSetTimer1 + fw->getCapability(Timers) || model->timers[index - FuncSetTimer1].isModeOff())) ||
+         (index > FuncSetTimer1 + fw->getCapability(Timers) ||
+         (model ? model->timers[index - FuncSetTimer1].isModeOff() : false))) ||
         ((index == FuncScreenshot) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
         ((index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) && !fw->getCapability(DangerousFunctions)) ||
         ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && !fw->getCapability(Gvars)) ||
@@ -313,7 +314,7 @@ bool CustomFunctionData::isResetParamAvailable(const int index, const ModelData 
   Firmware * firmware = getCurrentFirmware();
 
   if (index < CPN_MAX_TIMERS) {
-    if (index < firmware->getCapability(Timers) && !model->timers[index].isModeOff())
+    if (index < firmware->getCapability(Timers) && (model ? !model->timers[index].isModeOff() : true))
       return true;
     else
       return false;
