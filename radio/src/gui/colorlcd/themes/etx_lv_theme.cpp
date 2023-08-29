@@ -611,10 +611,11 @@ void etx_checkbox_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
   lv_obj_add_style(obj, &styles.focussed, LV_PART_INDICATOR | LV_STATE_FOCUSED);
   lv_obj_add_style(obj, &styles.disabled, LV_PART_INDICATOR | LV_STATE_DISABLED);
 }
-
 void bubble_popup_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
 {
   lv_obj_add_style(obj, &styles.bubble_popup, 0);
+}
+
 }
 
 
