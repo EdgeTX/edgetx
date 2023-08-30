@@ -22,6 +22,7 @@
 #include "sdcard_spi.h"
 #include "stm32_spi.h"
 #include "timers_driver.h"
+#include "delays_driver.h"
 
 #include "debug.h"
 #include "crc.h"
@@ -72,6 +73,11 @@ typedef enum {
 
 static sdcard_spi_t _sdcard_spi = {nullptr, false};
 
+static inline void _send_dummy_byte(const stm32_spi_t* spi)
+{
+  stm32_spi_transfer_byte(spi, SD_CARD_DUMMY_BYTE);
+}
+
 static bool _wait_for_not_busy(const stm32_spi_t* spi, uint32_t retry_us)
 {
   uint32_t timeout = timersGetUsTick();
@@ -80,7 +86,12 @@ static bool _wait_for_not_busy(const stm32_spi_t* spi, uint32_t retry_us)
     uint8_t read_byte = stm32_spi_transfer_byte(spi, SD_CARD_DUMMY_BYTE);
     if (read_byte == 0xFF) {
       return true;
-    } else {
+    }
+    if ((read_byte & 0x0F) != 0x00) {
+      // shift by some bits???
+      stm32_spi_unselect(spi);
+      _send_dummy_byte(spi);
+      stm32_spi_select(spi);
     }
   } while (timersGetUsTick() - timeout < retry_us);
 
@@ -110,12 +121,6 @@ static inline uint16_t _transfer_bytes(const stm32_spi_t* spi, const uint8_t* ou
 {
   return stm32_spi_transfer_bytes(spi, out, in, length);
 }
-
-static inline void _send_dummy_byte(const stm32_spi_t* spi)
-{
-  stm32_spi_transfer_byte(spi, SD_CARD_DUMMY_BYTE);
-}
-
 
 static void _flush_block(const stm32_spi_t* spi)
 {
@@ -224,9 +229,7 @@ static uint8_t sdcard_spi_send_acmd(const stm32_spi_t* spi, uint8_t sd_cmd_idx,
 
       if (R1_VALID(r1_resu) && !R1_ERROR(r1_resu)) {
         return r1_resu;
-      } else {
       }
-    } else {
     }
   } while (timersGetUsTick() - timeout < retry_us);
 
@@ -251,7 +254,7 @@ static sd_init_fsm_state_t _init_sd_fsm_step(const stm32_spi_t* spi,
   case SD_INIT_SPI_POWER_SEQ:
     TRACE("SD_INIT_SPI_POWER_SEQ");
     {
-      // wait minimum 1ms until card is powered
+      // wait minimum 50 ms until card is powered
       uint32_t power_on_timeout = timersGetUsTick();
       while(timersGetUsTick() - power_on_timeout < 50 * US_PER_MS);
     }
@@ -576,6 +579,8 @@ static uint16_t _read_blocks(const sdcard_spi_t* card, uint8_t cmd_idx,
   stm32_spi_unselect(spi);
   _send_dummy_byte(spi);
   // TODO: delay 100us?
+  delay_us(100);
+
   return reads;
 }
 
@@ -629,7 +634,6 @@ static sd_rw_response_t _write_data_packet(const stm32_spi_t* spi, uint8_t token
     if (data_response == 0xFF) continue;
 
     if (!DATA_RESPONSE_IS_VALID(data_response)) {
-      TRACE("_write_data_packet: DATA_RESPONSE invalid");
       return SD_RW_RX_TX_ERROR;
     }
 
@@ -694,6 +698,8 @@ static uint16_t _write_blocks(const sdcard_spi_t* card, uint8_t cmd_idx,
   stm32_spi_unselect(spi);
   _send_dummy_byte(spi);
   // TODO: delay 100us?
+  delay_us(100);
+
   return written;
 }
 

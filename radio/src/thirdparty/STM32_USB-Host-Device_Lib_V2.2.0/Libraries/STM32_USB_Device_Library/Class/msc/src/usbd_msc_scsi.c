@@ -147,7 +147,9 @@ int8_t SCSI_ProcessCmd(USB_OTG_CORE_HANDLE  *pdev,
     return SCSI_StartStopUnit(lun, params);
     
   case SCSI_ALLOW_MEDIUM_REMOVAL:
-    return SCSI_AllowRemoval( lun, params);  // ST lib 2.2.0 uses SCSI_StartStopUnit which doesn't work	// modified by OpenTX
+    // Modified by OpenTX:
+    // ST lib 2.2.0 uses SCSI_StartStopUnit which doesn't work
+    return SCSI_AllowRemoval(lun, params);
     
   case SCSI_MODE_SENSE6:
     return SCSI_ModeSense6 (lun, params);
@@ -436,16 +438,18 @@ void SCSI_SenseCode(uint8_t lun, uint8_t sKey, uint8_t ASC)
 
 extern uint8_t lunReady[];	// modified by OpenTX
 
+#if defined(FWDRIVE)
+  #define _MAX_LUN 2
+#else
+  #define _MAX_LUN 1
+#endif
+
 static int8_t SCSI_StartStopUnit(uint8_t lun, uint8_t *params)
 {
   MSC_BOT_DataLen = 0;
-  
-#if defined(BOOT)		// modified by OpenTX
-  if (lun < 2) 
-#else
-  if (lun < 1) 
-#endif
-    {
+
+  /* modified by OpenTX */
+  if (lun < _MAX_LUN) {
     if (params[4] & 1) {
       // lun to be active
       lunReady[lun] = 1 ;

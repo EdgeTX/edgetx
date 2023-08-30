@@ -125,6 +125,7 @@ static void _init_gpios(const stm32_spi_t* spi)
   pinInit.Pin = spi->SPI_Pins;
   pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
   pinInit.Alternate = _get_spi_af(spi->SPIx);
+  pinInit.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
   pinInit.Pull = LL_GPIO_PULL_UP;
   LL_GPIO_Init(spi->SPI_GPIOx, &pinInit);
 

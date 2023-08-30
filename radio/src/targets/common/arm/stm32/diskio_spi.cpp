@@ -129,7 +129,6 @@ static DRESULT sdcard_spi_ioctl(BYTE lun, BYTE ctrl, void *buff)
 
     case CTRL_SYNC:
       sdcard_spi_wait_for_not_busy();
-      res = RES_OK;
       break;
 
     default:
