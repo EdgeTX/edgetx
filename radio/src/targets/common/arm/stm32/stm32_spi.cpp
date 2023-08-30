@@ -25,6 +25,7 @@
 #include "definitions.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #if !defined(SPI_DISABLE_DMA)
 #define USE_SPI_DMA
@@ -131,7 +132,7 @@ static void _init_gpios(const stm32_spi_t* spi)
   pinInit.Pin = spi->CS_Pin;
   pinInit.Mode = LL_GPIO_MODE_OUTPUT;
   pinInit.Alternate = LL_GPIO_AF_0;
-  pinInit.Pull = LL_GPIO_PULL_UP;
+  pinInit.Pull = LL_GPIO_PULL_NO;
   LL_GPIO_Init(spi->CS_GPIOx, &pinInit);
 }
 
@@ -245,7 +246,8 @@ uint16_t stm32_spi_transfer_word(const stm32_spi_t* spi, uint16_t out)
 }
 
 #if defined(USE_SPI_DMA)
-static uint16_t _work_byte __DMA;
+static uint16_t _scratch_byte __DMA;
+static uint8_t _scratch_buffer[512] __DMA;
 
 static void _dma_enable_stream(DMA_TypeDef* DMAx, uint32_t stream,
 			       const void* data, uint32_t length)
@@ -261,16 +263,20 @@ uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
 				     uint8_t* data, uint16_t length)
 {
 #if defined(USE_SPI_DMA)
-  if (!spi->DMA || ((uintptr_t)data < SRAM_BASE) || ((uintptr_t)data & 3)) {
+  if (!spi->DMA) {
     return stm32_spi_transfer_bytes(spi, 0, data, length);
   }
 
-  _dma_enable_stream(spi->DMA, spi->rxDMA_Stream, data, length);
+  if (((uintptr_t)data < SRAM_BASE) || ((uintptr_t)data & 3)) {
+    _dma_enable_stream(spi->DMA, spi->rxDMA_Stream, _scratch_buffer, length);
+  } else {
+    _dma_enable_stream(spi->DMA, spi->rxDMA_Stream, data, length);
+  }
   LL_SPI_EnableDMAReq_RX(spi->SPIx);
 
-  _work_byte = 0xFF;
+  _scratch_byte = 0xFFFF;
   LL_DMA_SetMemoryIncMode(spi->DMA, spi->txDMA_Stream, LL_DMA_MEMORY_NOINCREMENT);
-  _dma_enable_stream(spi->DMA, spi->txDMA_Stream, &_work_byte, length);
+  _dma_enable_stream(spi->DMA, spi->txDMA_Stream, &_scratch_byte, length);
   LL_SPI_EnableDMAReq_TX(spi->SPIx);
 
   // Wait for end of DMA transfer
@@ -285,6 +291,10 @@ uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
   // Wait for BSY=0
   while(LL_SPI_IsActiveFlag_BSY(spi->SPIx));
 
+  if (((uintptr_t)data < SRAM_BASE) || ((uintptr_t)data & 3)) {
+    memcpy(data, _scratch_buffer, length);
+  }
+  
   return length;
 #else
   return stm32_spi_transfer_bytes(spi, 0, data, length);
@@ -295,8 +305,13 @@ uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
                                       const uint8_t* data, uint16_t length)
 {
 #if defined(USE_SPI_DMA)
-  if (!spi->DMA || ((uintptr_t)data < SRAM_BASE) || ((uintptr_t)data & 3)) {
+  if (!spi->DMA) {
     return stm32_spi_transfer_bytes(spi, data, 0, length);
+  }
+
+  if (((uintptr_t)data < SRAM_BASE) || ((uintptr_t)data & 3)) {
+    memcpy(_scratch_buffer, data, length);
+    data = _scratch_buffer;
   }
 
   LL_DMA_SetMemoryIncMode(spi->DMA, spi->txDMA_Stream, LL_DMA_MEMORY_INCREMENT);
