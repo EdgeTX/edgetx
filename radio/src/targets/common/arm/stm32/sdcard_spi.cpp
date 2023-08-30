@@ -116,6 +116,14 @@ static inline void _send_dummy_byte(const stm32_spi_t* spi)
   stm32_spi_transfer_byte(spi, SD_CARD_DUMMY_BYTE);
 }
 
+
+static void _flush_block(const stm32_spi_t* spi)
+{
+  for (int i = 0; i < 512 + 2; i++) {
+    _send_dummy_byte(spi);
+  }
+}
+
 static inline uint8_t _wait_for_r1(const stm32_spi_t* spi, uint32_t retry_us)
 {
   uint32_t timeout = timersGetUsTick();
@@ -145,6 +153,12 @@ static inline bool _wait_for_token(const stm32_spi_t* spi, uint8_t token, uint32
     }
     
   } while ((read_byte == 0xFF) && (timersGetUsTick() - timeout < retry_us));
+
+  // hack to get rid of a packet in case
+  // the token was shifted
+  if (read_byte != 0xFF) {
+    _flush_block(spi);
+  }
 
   return false;
 }
