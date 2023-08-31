@@ -388,6 +388,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_STRUCT("themeData", 480, struct_EdgeTxTheme__PersistentData, NULL),
   YAML_STRING("ownerRegistrationID", 8),
   YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
+  YAML_UNSIGNED( "rotEncMode", 2 ),
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_UNSIGNED( "stickDeadZone", 3 ),
   YAML_UNSIGNED( "audioMuteEnable", 1 ),
