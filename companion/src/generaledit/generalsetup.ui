@@ -2521,11 +2521,6 @@ p, li { white-space: pre-wrap; }
    <extends>QLineEdit</extends>
    <header>timezoneedit.h</header>
   </customwidget>
-  <customwidget>
-   <class>AutoComboBox</class>
-   <extends>QComboBox</extends>
-   <header>autocombobox.h</header>
-  </customwidget>
  </customwidgets>
  <resources/>
  <connections/>
