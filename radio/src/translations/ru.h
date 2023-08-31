@@ -1174,7 +1174,7 @@
 // End Main menu
 
 // Voice in native language
-#define TR_VOICE_ENGLISH                "English"
+#define TR_VOICE_ENGLISH                "Английский"
 #define TR_VOICE_CHINESE                "Chinese"
 #define TR_VOICE_CZECH                  "Czech"
 #define TR_VOICE_DANISH                 "Danish"
@@ -1186,7 +1186,7 @@
 #define TR_VOICE_ITALIANO               "Italian"
 #define TR_VOICE_POLISH                 "Polish"
 #define TR_VOICE_PORTUGUES              "Portuguese"
-#define TR_VOICE_RUSSIAN                "Russian"
+#define TR_VOICE_RUSSIAN                "Русский"
 #define TR_VOICE_SLOVAK                 "Slovak"
 #define TR_VOICE_SWEDISH                "Swedish"
 #define TR_VOICE_TAIWANESE              "Taiwanese"
