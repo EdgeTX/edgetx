@@ -439,6 +439,9 @@ void generalDefault()
   g_eeGeneral.audioMuteEnable = 1;
 #endif
 
+  // disable Custom Script
+  g_eeGeneral.modelCustomScriptsDisabled = true;
+
   g_eeGeneral.chkSum = 0xFFFF;
 }
 
