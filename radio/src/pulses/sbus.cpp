@@ -92,12 +92,27 @@ static void setupPulsesSbus(uint8_t module, uint8_t*& p_buf)
 
 #define SBUS_BAUDRATE 100000
 
-const etx_serial_init sbusUartParams = {
+static const etx_serial_init sbusUartParams = {
     .baudrate = SBUS_BAUDRATE,
     .encoding = ETX_Encoding_8E2,
     .direction = ETX_Dir_TX,
     .polarity = ETX_Pol_Normal,
 };
+
+static const etx_serial_init sbusSportSerialParams = {
+    .baudrate = FRSKY_SPORT_BAUDRATE,
+    .encoding = ETX_Encoding_8N1,
+    .direction = ETX_Dir_RX,
+    .polarity = ETX_Pol_Normal,
+};
+
+static void sbusProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
+{
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  processFrskySportTelemetryData(module, data, buffer, *len);
+}
 
 static void* sbusInit(uint8_t module)
 {
@@ -114,7 +129,9 @@ static void* sbusInit(uint8_t module)
   if (!mod_st) return nullptr;
   // }
 
+  modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &sbusSportSerialParams);
   mixerSchedulerSetPeriod(module, SBUS_PERIOD(module));
+  
   return (void*)mod_st;
 }
 
@@ -154,5 +171,5 @@ const etx_proto_driver_t SBusDriver = {
   .init = sbusInit,
   .deinit = sbusDeInit,
   .sendPulses = sbusSendPulses,
-  .processData = nullptr,
+  .processData = sbusProcessData,
 };
