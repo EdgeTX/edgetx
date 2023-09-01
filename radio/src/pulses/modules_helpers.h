@@ -629,7 +629,7 @@ inline bool isModuleFailsafeAvailable(uint8_t moduleIdx)
 }
 
 #if defined(MULTIMODULE)
-constexpr int32_t MULTI_DSM_CLONE_VERSION = (1 << 24) | (3 << 16) | (3 << 8)  | 20;
+constexpr int32_t MULTI_DSM_CLONE_VERSION = (1 << 24) | (3 << 16) | (3 << 8) | 30;
 
 inline bool isMultiProtocolDSMCloneAvailable(uint8_t moduleIdx)
 {
