@@ -180,6 +180,10 @@ void storageReadAll()
   modelslist.clear();
 #endif
 
+  // Some radio defaults overriden by config loading:
+  // - screens disabled by default:
+  g_eeGeneral.modelCustomScriptsDisabled = true;
+  
   if (loadRadioSettings() != nullptr) {
     storageEraseAll(true);
   }
