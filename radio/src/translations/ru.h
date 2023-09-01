@@ -202,9 +202,9 @@
 
 #if defined(COLORLCD)
 #if defined(BOLD)
-#define TR_FONT_SIZES                  "STD"
+#define TR_FONT_SIZES                  "СТД"
 #else
-#define TR_FONT_SIZES                  "STD","BOLD","XXS","XS","L","XL","XXL"
+#define TR_FONT_SIZES                  "СТД","ЖИРНЫЙ","XXS","XS","L","XL","XXL"
 #endif
 #endif
 
@@ -262,7 +262,7 @@
   #define TR_REFRESHRATE               TR(INDENT "Refresh", INDENT "Refresh rate")
   #define STR_WARN_BATTVOLTAGE         TR(INDENT "Output is VBAT: ", INDENT "Warning: output level is VBAT: ")
 #define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
-#define TR_MS                          "ms"
+#define TR_MS                          "мс"
 #define TR_SWITCH                      "Switch"
 #define TR_FUNCTION_SWITCHES           "Customizable Switches"
 #define TR_SF_SWITCH                   "Trigger"
@@ -283,9 +283,9 @@
 #define TR_SWASHRING                   "Swash Ring"
 #define TR_MODE                        "Mode"
 #if LCD_W > LCD_H
-  #define TR_LEFT_STICK                "Left"
+  #define TR_LEFT_STICK                "Левый"
 #else
-  #define TR_LEFT_STICK                "Left"
+  #define TR_LEFT_STICK                "Левый"
 #endif
 #define TR_SUBTYPE                     INDENT "Subtype"
 #define TR_NOFREEEXPO                  "No free expo!"
@@ -328,14 +328,14 @@
 #define TR_STRENGTH                    "Strength"
 #define TR_IMU_LABEL                   "IMU"
 #define TR_IMU_OFFSET                  "Offset"
-#define TR_IMU_MAX                     "Max"
-#define TR_CONTRAST                    "Contrast"
+#define TR_IMU_MAX                     "Макс"
+#define TR_CONTRAST                    "Контраст"
 #define TR_ALARMS_LABEL                "Alarms"
 #define TR_BATTERY_RANGE               TR("Batt. range", "Battery meter range")
 #define TR_BATTERYCHARGING             "Charging..."
 #define TR_BATTERYFULL                 "Battery full"
 #define TR_BATTERYNONE                 "None!"
-#define TR_BATTERYWARNING              "Battery low"
+#define TR_BATTERYWARNING              "АКБ Разряжена"
 #define TR_INACTIVITYALARM             "Inactivity"
 #define TR_MEMORYWARNING               "Memory low"
 #define TR_ALARMWARNING                "Sound off"
