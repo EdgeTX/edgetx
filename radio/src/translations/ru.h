@@ -1192,7 +1192,7 @@
 #define TR_VOICE_SLOVAK                 "Slovak"
 #define TR_VOICE_SWEDISH                "Swedish"
 #define TR_VOICE_TAIWANESE              "Taiwanese"
-#define TR_VOICE_JAPANESE               "Japanese"
+#define TR_VOICE_JAPANESE               "Японский"
 #define TR_VOICE_HEBREW                 "Hebrew"
 
 #define TR_USBJOYSTICK_LABEL           "USB Joystick"
