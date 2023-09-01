@@ -1180,7 +1180,7 @@
 #define TR_VOICE_CHINESE                "Chinese"
 #define TR_VOICE_CZECH                  "Czech"
 #define TR_VOICE_DANISH                 "Danish"
-#define TR_VOICE_DEUTSCH                "German"
+#define TR_VOICE_DEUTSCH                "Немецкий"
 #define TR_VOICE_DUTCH                  "Dutch"
 #define TR_VOICE_ESPANOL                "Spanish"
 #define TR_VOICE_FRANCAIS               "French"
