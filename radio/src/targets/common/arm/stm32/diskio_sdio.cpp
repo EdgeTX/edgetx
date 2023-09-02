@@ -195,7 +195,7 @@ static int sdio_check_card_state_with_timeout(uint32_t timeout)
   /* block until SDIO IP is ready again or a timeout occur */
   while(HAL_GetTick() - timer < timeout) {
     auto state = sdio_check_card_state();
-    if (state == SD_TRANSFER_BUSY) {
+    if (state != SD_TRANSFER_BUSY) {
       return state == SD_TRANSFER_OK ? 0 : -1;
     }
   }
@@ -395,3 +395,38 @@ const diskio_driver_t sdio_diskio_driver = {
   .write = sdio_write,
   .ioctl = sdio_ioctl,
 };
+
+/**
+* @brief Tx Transfer completed callbacks
+* @param hsd: SD handle
+* @retval None
+*/
+
+extern "C" void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
+{
+  UNUSED(hsd);
+  WriteStatus = 1;
+}
+
+/**
+* @brief Rx Transfer completed callbacks
+* @param hsd: SD handle
+* @retval None
+*/
+
+extern "C" void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
+{
+  UNUSED(hsd);
+  ReadStatus = 1;
+}
+
+extern "C" void SDIO_IRQHandler(void)
+{
+  DEBUG_INTERRUPT(INT_SDIO);
+  HAL_SD_IRQHandler(&sdio);
+}
+extern "C" void SD_SDIO_DMA_IRQHANDLER(void)
+{
+  DEBUG_INTERRUPT(INT_SDIO_DMA);
+  HAL_DMA_IRQHandler(&sdioTxDma);
+}
