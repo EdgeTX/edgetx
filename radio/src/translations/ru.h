@@ -108,7 +108,7 @@
 #define TR_ADJUST_GVAR                 "Настройка"
 #define TR_SF_BACKLIGHT                "Подсветка"
 #define TR_SF_VARIO                    "Vario"
-#define TR_SF_TEST                     "Test"
+#define TR_SF_TEST                     "Тест"
 #define TR_SF_SAFETY                   TR("Безп.","Безопасность")
 
 #if LCD_W >= 212
@@ -259,7 +259,7 @@
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
 #define TR_BEEPCTR                     TR("Ctr Beep", "Center Бип")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funcs", "Use global funcs")
-#define TR_PROTOCOL                    TR("Proto", "Protocol")
+#define TR_PROTOCOL                    TR("Прото", "Протокол")
   #define TR_PPMFRAME                  INDENT "PPM frame"
   #define TR_REFRESHRATE               TR(INDENT "Refresh", INDENT "Refresh rate")
   #define STR_WARN_BATTVOLTAGE         TR(INDENT "Output is VBAT: ", INDENT "Warning: output level is VBAT: ")
@@ -317,12 +317,12 @@
 #else
 #define TR_GV                          TR("G", "GV")
 #endif
-#define TR_RANGE                       INDENT "Range"
-#define TR_CENTER                      INDENT "Center"
-#define TR_ALARM                       "Alarm"
+#define TR_RANGE                       INDENT "Диапазон"
+#define TR_CENTER                      INDENT "Центр"
+#define TR_ALARM                       "Тревога"
 #define TR_BLADES                      "Blades/Poles"
-#define TR_SCREEN                      "Screen\001"
-#define TR_SOUND_LABEL                 "Sound"
+#define TR_SCREEN                      "Экран\001"
+#define TR_SOUND_LABEL                 "Звук"
 #define TR_LENGTH                      "Length"
 #define TR_BEEP_LENGTH                 "Beep length"
 #define TR_BEEP_PITCH                  "Beep pitch"
@@ -331,10 +331,10 @@
 #define TR_IMU_LABEL                   "IMU"
 #define TR_IMU_OFFSET                  "Offset"
 #define TR_IMU_MAX                     "Max"
-#define TR_CONTRAST                    "Contrast"
-#define TR_ALARMS_LABEL                "Alarms"
+#define TR_CONTRAST                    "Контраст"
+#define TR_ALARMS_LABEL                "Тревоги"
 #define TR_BATTERY_RANGE               TR("Batt. range", "Battery meter range")
-#define TR_BATTERYCHARGING             "Charging..."
+#define TR_BATTERYCHARGING             "Зарядка..."
 #define TR_BATTERYFULL                 "Battery full"
 #define TR_BATTERYNONE                 "None!"
 #define TR_BATTERYWARNING              "Battery low"
@@ -356,10 +356,10 @@
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
 #define TR_STATUS                      "Status"
 #define TR_BLDELAY                     INDENT "Duration"
-#define TR_BLONBRIGHTNESS              INDENT "ON brightness"
-#define TR_BLOFFBRIGHTNESS             INDENT "OFF brightness"
+#define TR_BLONBRIGHTNESS              INDENT "Подсветка ВКЛ"
+#define TR_BLOFFBRIGHTNESS             INDENT "Подсветка ВЫКЛ"
 #define TR_KEYS_BACKLIGHT              "Keys backlight"
-#define TR_BLCOLOR                     "Color"
+#define TR_BLCOLOR                     "Цвет"
 #define TR_SPLASHSCREEN                "Splash screen"
 #define TR_PLAY_HELLO                  "Startup Sound"
 #define TR_PWR_ON_DELAY                "Pwr On delay"
