@@ -739,7 +739,6 @@ void MdiChild::checkAndInitModel(int row)
 {
   if (row < (int)radioData.models.size() && radioData.models[row].isEmpty()) {
     radioData.models[row].setDefaultValues(row, radioData.generalSettings);
-    setModified();
   }
 }
 
@@ -827,7 +826,7 @@ int MdiChild::newModel(int modelIndex)
   if (countUsedModels() == 1) {
     radioData.setCurrentModel(modelIndex);
   }
-  setModified();
+  setModelModified(modelIndex);
   setSelectedModel(modelIndex);
 
   if (isNewModel) {
@@ -987,6 +986,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
       strcpy(radioData.models[modelIdx].filename, radioData.getNextModelFilename().toStdString().c_str());
       lastSelectedModel = modelIdx;  // after refresh the last pasted model will be selected
       modified = true;
+      setModelModified(modelIdx, false);  // avoid unnecessary refreshes
       if (doMove) {
         deletesList.append(origMdlIdx);
         removeModelFromCutList(origMdlIdx);
@@ -1175,7 +1175,7 @@ void MdiChild::openModelWizard(int row)
   int res = wizard->exec();
   if (res == QDialog::Accepted && wizard->mix.complete /*TODO rather test the exec() result?*/) {
     radioData.models[row] = wizard->mix;
-    setModified();
+    setModelModified(row);
     setSelectedModel(row);
   }
 }
@@ -1200,7 +1200,7 @@ void MdiChild::openModelEditWindow(int row)
   ModelEdit * t = new ModelEdit(this, radioData, (row), firmware);
   gStopwatch.report("ModelEdit created");
   t->setWindowTitle(tr("Editing model %1: ").arg(row+1) + QString(model.name) + QString("   (%1)").arg(userFriendlyCurrentFile()));
-  connect(t, &ModelEdit::modified, this, &MdiChild::setModified);
+  connect(t, &ModelEdit::modified, this, &MdiChild::setCurrentModelModified);
   gStopwatch.report("STARTING MODEL EDIT");
   t->show();
   QApplication::restoreOverrideCursor();
@@ -1335,6 +1335,13 @@ bool MdiChild::saveFile(const QString & filename, bool setCurrent)
   if (!result) {
     return false;
   }
+
+  for (int i = 0; i < (int)radioData.models.size(); i++) {
+    if (!radioData.models[i].isEmpty())
+      radioData.models[i].modelUpdated = false;
+  }
+
+  refresh();
 
   if (setCurrent) {
     setCurrentFile(filename);
@@ -1663,6 +1670,8 @@ void MdiChild::openModelTemplate(int row)
   for (int i = 0; i < CPN_MAX_MODULES; i++) {
     radioData.models[row].moduleData[i].modelId = row + 1;
   }
+
+  setModelModified(row);
 }
 
 void MdiChild::openModelPrompt(int row)
@@ -1817,4 +1826,18 @@ bool MdiChild::exportModel(const int modelIndex)
 void MdiChild::exportSelectedModels()
 {
   exportModels(getSelectedModels());
+}
+
+void MdiChild::setCurrentModelModified()
+{
+  setModelModified(getCurrentModel());
+}
+
+void MdiChild::setModelModified(const int modelIndex, bool cascade)
+{
+  if (modelIndex >= 0 && modelIndex < (int)radioData.models.size()) {
+    radioData.models[modelIndex].modelUpdated = true;
+    if (cascade)
+      setModified();
+  }
 }

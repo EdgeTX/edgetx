@@ -115,6 +115,7 @@ class MdiChild : public QWidget
     void updateNavigation();
     void updateTitle();
     void setModified();
+    void setCurrentModelModified();
     void retranslateUi();
     void showModelsListContextMenu(const QPoint & pos);
     void showLabelsContextMenu(const QPoint & pos);
@@ -228,6 +229,7 @@ class MdiChild : public QWidget
     const quint16 stateDataVersion;
     AbstractStaticItemModel* modelSortOrderItemModel;
     QComboBox* cboModelSortOrder;
+    void setModelModified(const int modelIndex, bool cascade = true);
 };
 
 // This will draw the drop indicator across all columns of a model View (vs. in just one column), and lets us make the indicator more obvious.
