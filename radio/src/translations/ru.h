@@ -20,6 +20,8 @@
  *
  */
 
+// RU translations author: kobakirill <blokhin.kirill@yandex.ru>
+
 /*
  * Formatting octal codes available in TR_ strings:
  *  \037\x           -sets LCD x-coord (x value in octal)
