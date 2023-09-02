@@ -1121,13 +1121,13 @@
 #define TR_AUTH_FAILURE                "Auth-failure"
 #define TR_RACING_MODE                 "Racing mode"
 
-#define TR_USE_THEME_COLOR              "Use theme color"
+#define TR_USE_THEME_COLOR              "Используйте Цвет Темы"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor"
+  #define TR_OPEN_CHANNEL_MONITORS      "Монитор Открытого Канала"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon."
+  #define TR_OPEN_CHANNEL_MONITORS        "Мон. Открытого Канала"
 #endif
 #define TR_DUPLICATE                    "Duplicate"
 #define TR_ACTIVATE                     "Set Active"
