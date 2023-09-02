@@ -112,12 +112,19 @@ void drawSleepBitmap()
   lcdRefresh();
 }
 
-#define SHUTDOWN_CIRCLE_DIAMETER 150
+#define SHUTDOWN_CIRCLE_RADIUS 75
 
 const uint8_t _LBM_SHUTDOWN_CIRCLE[] = {
 #include "mask_shutdown_circle.lbm"
 };
 STATIC_LZ4_BITMAP(LBM_SHUTDOWN_CIRCLE);
+
+const int8_t bmp_shutdown_xo[] = {
+  0, 0, -SHUTDOWN_CIRCLE_RADIUS, -SHUTDOWN_CIRCLE_RADIUS
+};
+const int8_t bmp_shutdown_yo[] = {
+  -SHUTDOWN_CIRCLE_RADIUS, 0, 0, -SHUTDOWN_CIRCLE_RADIUS
+};
 
 void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
                            const char* message)
@@ -140,31 +147,17 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
   lcdInitDirectDrawing();
   lcd->clear(bgColor);
 
+  int quarter = duration / (totalDuration / 5);
+
   if (shutdown) {
     lcd->drawMask((LCD_W - shutdown->width()) / 2,
                   (LCD_H - shutdown->height()) / 2, shutdown, fgColor);
 
-    int quarter = duration / (totalDuration / 5);
-    if (quarter >= 1)
-      lcd->drawBitmapPattern(LCD_W / 2, (LCD_H - SHUTDOWN_CIRCLE_DIAMETER) / 2,
-                             LBM_SHUTDOWN_CIRCLE, fgColor, 0,
-                             SHUTDOWN_CIRCLE_DIAMETER / 2);
-    if (quarter >= 2)
-      lcd->drawBitmapPattern(LCD_W / 2, LCD_H / 2, LBM_SHUTDOWN_CIRCLE, fgColor,
-                             SHUTDOWN_CIRCLE_DIAMETER / 2,
-                             SHUTDOWN_CIRCLE_DIAMETER / 2);
-    if (quarter >= 3)
-      lcd->drawBitmapPattern((LCD_W - SHUTDOWN_CIRCLE_DIAMETER) / 2, LCD_H / 2,
-                             LBM_SHUTDOWN_CIRCLE, fgColor,
-                             SHUTDOWN_CIRCLE_DIAMETER,
-                             SHUTDOWN_CIRCLE_DIAMETER / 2);
-    if (quarter >= 4)
-      lcd->drawBitmapPattern(
-          (LCD_W - SHUTDOWN_CIRCLE_DIAMETER) / 2,
-          (LCD_H - SHUTDOWN_CIRCLE_DIAMETER) / 2, LBM_SHUTDOWN_CIRCLE, fgColor,
-          SHUTDOWN_CIRCLE_DIAMETER * 3 / 2, SHUTDOWN_CIRCLE_DIAMETER / 2);
+    for (int i = 0; i <= 3 - quarter; i += 1) {
+      lcd->drawBitmapPattern(LCD_W / 2 + bmp_shutdown_xo[i], LCD_H / 2 + bmp_shutdown_yo[i],
+                             LBM_SHUTDOWN_CIRCLE, fgColor, i * SHUTDOWN_CIRCLE_RADIUS, SHUTDOWN_CIRCLE_RADIUS);
+    }
   } else {
-    int quarter = duration / (totalDuration / 5);
     for (int i = 1; i <= 4; i++) {
       if (quarter >= i) {
         lcd->drawSolidFilledRect(LCD_W / 2 - 70 + 24 * i, LCD_H / 2 - 10, 20,
