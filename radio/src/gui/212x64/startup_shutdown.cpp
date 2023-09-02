@@ -36,20 +36,8 @@ const unsigned char bmp_lock[] = {
 #include "lock.lbm"
 };
 
-const unsigned char bmp_shutdown0[] = {
-#include "shutdown0.lbm"
-};
-const unsigned char bmp_shutdown1[] = {
-#include "shutdown1.lbm"
-};
-const unsigned char bmp_shutdown2[] = {
-#include "shutdown2.lbm"
-};
-const unsigned char bmp_shutdown3[] = {
-#include "shutdown3.lbm"
-};
-const unsigned char* const bmp_shutdown[] = {
-  bmp_shutdown0, bmp_shutdown1, bmp_shutdown2, bmp_shutdown3
+const unsigned char bmp_shutdown[] = {
+#include "shutdown.lbm"
 };
 const int8_t bmp_shutdown_xo[] = {
   0, 0, -ANIMATIONS_BITMAP_WIDTH, -ANIMATIONS_BITMAP_WIDTH
@@ -70,7 +58,7 @@ static void drawAnimation(uint8_t idx)
 {
   lcdDrawRleBitmap((LCD_W - POWER_BITMAP_WIDTH) / 2, (LCD_H - POWER_BITMAP_HEIGHT) / 2, bmp_power);
   for (uint8_t i = 0; i <=idx; i += 1)
-    lcdDrawRleBitmap((LCD_W / 2) + bmp_shutdown_xo[i], (LCD_H / 2) + bmp_shutdown_yo[i], bmp_shutdown[i]);
+    lcdDrawRleBitmap((LCD_W / 2) + bmp_shutdown_xo[i], (LCD_H / 2) + bmp_shutdown_yo[i], bmp_shutdown, i * ANIMATIONS_BITMAP_WIDTH, ANIMATIONS_BITMAP_WIDTH);
 }
 
 void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
