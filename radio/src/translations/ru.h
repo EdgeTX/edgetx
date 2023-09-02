@@ -254,13 +254,13 @@
 #define TR_START                       "Старт"
 #define TR_ELIMITS                     TR("Р.Лимит", "Расширенный Лимит")
 #define TR_ETRIMS                      TR("Р.Трим", "Расширеные Тримы")
-#define TR_TRIMINC                     "Щаг Трима"
+#define TR_TRIMINC                     "Шаг Трима"
 #define TR_DISPLAY_TRIMS               TR("Пок. Тримы", "Показывать Тримы")
 #define TR_TTRACE                      TR("T-Source", INDENT "Source")
 #define TR_TTRIM                       TR("T-Trim-Idle", INDENT "Trim idle only")
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
-#define TR_BEEPCTR                     TR("Ctr Beep", "Center Бип")
-#define TR_USE_GLOBAL_FUNCS            TR("Glob.Funcs", "Use global funcs")
+#define TR_BEEPCTR                     TR("Цент. Гудок", "Центр Гудок")
+#define TR_USE_GLOBAL_FUNCS            TR("Глоб. Функции", "Используйте Глобальные Функции")
 #define TR_PROTOCOL                    TR("Прото", "Протокол")
   #define TR_PPMFRAME                  INDENT "PPM frame"
   #define TR_REFRESHRATE               TR(INDENT "Refresh", INDENT "Refresh rate")
@@ -325,55 +325,55 @@
 #define TR_BLADES                      "Blades/Poles"
 #define TR_SCREEN                      "Экран\001"
 #define TR_SOUND_LABEL                 "Звук"
-#define TR_LENGTH                      "Length"
-#define TR_BEEP_LENGTH                 "Beep length"
-#define TR_BEEP_PITCH                  "Beep pitch"
+#define TR_LENGTH                      "Длина"
+#define TR_BEEP_LENGTH                 "Длина Гудка"
+#define TR_BEEP_PITCH                  "Высота Гудка"
 #define TR_HAPTIC_LABEL                "Haptic"
 #define TR_STRENGTH                    "Strength"
 #define TR_IMU_LABEL                   "IMU"
 #define TR_IMU_OFFSET                  "Offset"
-#define TR_IMU_MAX                     "Max"
+#define TR_IMU_MAX                     "Макс"
 #define TR_CONTRAST                    "Контраст"
 #define TR_ALARMS_LABEL                "Тревоги"
-#define TR_BATTERY_RANGE               TR("Batt. range", "Battery meter range")
+#define TR_BATTERY_RANGE               TR("Диапазон АКБ", "Диапазон Измерения АКБ")
 #define TR_BATTERYCHARGING             "Зарядка..."
-#define TR_BATTERYFULL                 "Battery full"
-#define TR_BATTERYNONE                 "None!"
-#define TR_BATTERYWARNING              "Battery low"
-#define TR_INACTIVITYALARM             "Inactivity"
-#define TR_MEMORYWARNING               "Memory low"
-#define TR_ALARMWARNING                "Sound off"
-#define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI shutdown", "Check RSSI on shutdown")
-#define TR_MODEL_STILL_POWERED         "Model still powered"
-#define TR_USB_STILL_CONNECTED         "USB still connected"
-#define TR_MODEL_SHUTDOWN              "Shutdown?"
-#define TR_PRESS_ENTER_TO_CONFIRM      "Press enter to confirm"
-#define TR_THROTTLE_LABEL              "Throttle"
-#define TR_THROTTLE_START              "Throttle Start"
-#define TR_THROTTLEREVERSE             TR("T-Reverse", INDENT "Reverse")
-#define TR_MINUTEBEEP                  TR("Minute", "Minute call")
-#define TR_BEEPCOUNTDOWN               INDENT "Countdown"
+#define TR_BATTERYFULL                 "АКБ Заряжена"
+#define TR_BATTERYNONE                 "АКБ Отсутствует"
+#define TR_BATTERYWARNING              "АКБ Разряжена"
+#define TR_INACTIVITYALARM             "Отключено"
+#define TR_MEMORYWARNING               "Память Заканчивается"
+#define TR_ALARMWARNING                "Звук ВЫКЛ"
+#define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI shutdown", "Проверьте RSSI При Выключении")
+#define TR_MODEL_STILL_POWERED         "Модель Еще Работает"
+#define TR_USB_STILL_CONNECTED         "USB Еще Подключен"
+#define TR_MODEL_SHUTDOWN              "Отключение?"
+#define TR_PRESS_ENTER_TO_CONFIRM      "Нажмите enter Для Подтверждения"
+#define TR_THROTTLE_LABEL              "Дроссель"
+#define TR_THROTTLE_START              "Дроссель Старт"
+#define TR_THROTTLEREVERSE             TR("Д-Реверс", INDENT "Реверс")
+#define TR_MINUTEBEEP                  TR("Минут", "Звонок минуты")
+#define TR_BEEPCOUNTDOWN               INDENT "Обратный отсчет"
 #define TR_PERSISTENT                  TR(INDENT "Persist.", INDENT "Persistent")
-#define TR_BACKLIGHT_LABEL             "Backlight"
+#define TR_BACKLIGHT_LABEL             "Подсветка"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
-#define TR_STATUS                      "Status"
-#define TR_BLDELAY                     INDENT "Duration"
+#define TR_STATUS                      "Статус"
+#define TR_BLDELAY                     INDENT "Продолжительность"
 #define TR_BLONBRIGHTNESS              INDENT "Подсветка ВКЛ"
 #define TR_BLOFFBRIGHTNESS             INDENT "Подсветка ВЫКЛ"
 #define TR_KEYS_BACKLIGHT              "Keys backlight"
 #define TR_BLCOLOR                     "Цвет"
-#define TR_SPLASHSCREEN                "Splash screen"
-#define TR_PLAY_HELLO                  "Startup Sound"
-#define TR_PWR_ON_DELAY                "Pwr On delay"
-#define TR_PWR_OFF_DELAY               "Pwr Off delay"
-#define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "Throttle state")
-#define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Cust-Pos", INDENT INDENT INDENT INDENT "Custom position?")
-#define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
-#define TR_SWITCHWARNING               TR(INDENT "S-Warning", INDENT "Switch positions")
+#define TR_SPLASHSCREEN                "Заставка"
+#define TR_PLAY_HELLO                  "Звук Запуска"
+#define TR_PWR_ON_DELAY                "Время Включения"
+#define TR_PWR_OFF_DELAY               "Время Выключения"
+#define TR_THROTTLE_WARNING            TR(INDENT "Д-Предупреждение", INDENT "Положение Дроселя")
+#define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Свое-Пол", INDENT INDENT INDENT INDENT "Свое Положение?")
+#define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Пол. %", "Положение %")
+#define TR_SWITCHWARNING               TR(INDENT "С-Предупреждение", INDENT "Положения Свитча")
 #define TR_POTWARNINGSTATE             TR(INDENT "Pot&Slid.", INDENT "Pots & sliders")
-#define TR_SLIDERWARNING               TR(INDENT "Slid. pos.", INDENT "Slider positions")
+#define TR_SLIDERWARNING               TR(INDENT "Полож. Свитч.", INDENT "Положение Свитча")
 #define TR_POTWARNING                  TR(INDENT "Pot warn.", INDENT "Pot positions")
-#define TR_TIMEZONE                    "Time zone"
+#define TR_TIMEZONE                    "Временная зона"
 #define TR_ADJUST_RTC                  "Adjust RTC"
 #define TR_GPS                         "GPS"
 #define TR_DEF_CHAN_ORD                TR("Def chan order", "Default channel order")
