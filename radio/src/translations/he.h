@@ -175,7 +175,7 @@
 #define TR_SF_SET_SCREEN               "הגדרת מסך ראשי"
 #define TR_SF_RESERVE                  "[reserve]"
 
-#define TR_VFSWFUNC                    TR_SF_SAFETY,"Trainer","Inst. Trim","Reset","Set",TR_ADJUST_GVAR,"Volume","SetFailsafe","RangeCheck","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Backlight",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH, TR_SF_SET_SCREEN, TR_SF_DISABLE_AUDIO_AMP TR_SF_TEST
+#define TR_VFSWFUNC                    TR_SF_SAFETY,"Trainer","Inst. Trim","Reset","Set",TR_ADJUST_GVAR,"Volume","SetFailsafe","RangeCheck","ModuleBind",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"Backlight",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_SET_SCREEN,TR_SF_DISABLE_AUDIO_AMP TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "טלמטריה")
 
@@ -686,7 +686,7 @@
 #define TR_POWER_METER_INT             "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
-#define TR_SDCARD_FULL                  "הדיסק מלא״
+#define TR_SDCARD_FULL                  "הדיסק מלא״"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\לוגים ושמירת צילומי מסך מושבתים"
 #else
@@ -920,6 +920,7 @@
 #define TR_BIND                        "צימוד"
 #define TR_REGISTER                    TR("Reg", "Register")
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "בדיקת טווח קליטה"))
+#define TR_RANGE_TEST                  "בדיקת טווח"
 #define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "RECEIVER OPTIONS")
 #define TR_RESET_BTN                   BUTTON("איפוס")
 #define TR_DEBUG                       "איבחון"

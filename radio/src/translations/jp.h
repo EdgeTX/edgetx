@@ -172,7 +172,7 @@
 #define TR_SF_SET_SCREEN               "メインスクリーン設定"
 #define TR_SF_RESERVE                  "[予備]"
 
-#define TR_VFSWFUNC                    TR_SF_SAFETY,"トレーナー","Inst.トリム","リセット","設定",TR_ADJUST_GVAR,"ダイヤル","フェイルセーフ","レンジチェック","モジュールバインド",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"バックライト",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH, TR_SF_DISABLE_AUDIO_AMP TR_SF_TEST
+#define TR_VFSWFUNC                    TR_SF_SAFETY,"トレーナー","Inst.トリム","リセット","設定",TR_ADJUST_GVAR,"ダイヤル","フェイルセーフ","レンジチェック","モジュールバインド",TR_SOUND,TR_PLAY_TRACK,TR_PLAY_VALUE,TR_SF_RESERVE,TR_SF_PLAY_SCRIPT,TR_SF_RESERVE,TR_SF_BG_MUSIC,TR_VVARIO,TR_HAPTIC,TR_SDCLOGS,"バックライト",TR_SF_SCREENSHOT,TR_SF_RACING_MODE,TR_SF_DISABLE_TOUCH,TR_SF_DISABLE_AUDIO_AMP TR_SF_TEST
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "テレメトリー")
 
