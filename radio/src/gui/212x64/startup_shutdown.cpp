@@ -58,7 +58,7 @@ static void drawAnimation(uint8_t idx)
 {
   lcdDrawRleBitmap((LCD_W - POWER_BITMAP_WIDTH) / 2, (LCD_H - POWER_BITMAP_HEIGHT) / 2, bmp_power);
   for (uint8_t i = 0; i <=idx; i += 1)
-    lcdDrawRleBitmap((LCD_W / 2) + bmp_shutdown_xo[i], (LCD_H / 2) + bmp_shutdown_yo[i], bmp_shutdown, i * ANIMATIONS_BITMAP_WIDTH, ANIMATIONS_BITMAP_WIDTH);
+    lcdDrawRleBitmap((LCD_W / 2) + bmp_shutdown_xo[i], (LCD_H / 2) + bmp_shutdown_yo[i], bmp_shutdown, i * ANIMATIONS_BITMAP_WIDTH, ANIMATIONS_BITMAP_WIDTH, true);
 }
 
 void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
