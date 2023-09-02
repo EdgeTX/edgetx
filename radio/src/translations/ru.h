@@ -304,8 +304,8 @@
 #define TR_CURVE                       "Curve"
 #define TR_FLMODE                      TR("Mode", "Modes")
 #define TR_MIXWARNING                  "Warning"
-#define TR_OFF                         "OFF"
-#define TR_ANTENNA                     "Antenna"
+#define TR_OFF                         "Вык"
+#define TR_ANTENNA                     "Антена"
 #define TR_NO_INFORMATION              TR("No info", "No information")
 #define TR_MULTPX                      "Multiplex"
 #define TR_DELAYDOWN                   TR("Delay dn", "Delay down")
@@ -374,88 +374,88 @@
 #define TR_SLIDERWARNING               TR(INDENT "Полож. Свитч.", INDENT "Положение Свитча")
 #define TR_POTWARNING                  TR(INDENT "Pot warn.", INDENT "Pot positions")
 #define TR_TIMEZONE                    "Временная зона"
-#define TR_ADJUST_RTC                  "Adjust RTC"
+#define TR_ADJUST_RTC                  "Настроить RTC"
 #define TR_GPS                         "GPS"
-#define TR_DEF_CHAN_ORD                TR("Def chan order", "Default channel order")
-#define TR_STICKS                      "Sticks"
+#define TR_DEF_CHAN_ORD                TR("Пор. Кн. По Ум.", "Порядок Каналов По Умолчанию")
+#define TR_STICKS                      "Стики"
 #define TR_POTS                        "Pots"
-#define TR_SWITCHES                    "Switches"
+#define TR_SWITCHES                    "Свитчи"
 #define TR_SWITCHES_DELAY              TR("Play delay", "Play delay (sw. mid pos)")
 #define TR_SLAVE                       CENTER "Slave"
 #define TR_MODESRC                     "Mode\006% Source"
 #define TR_MULTIPLIER                  "Multiplier"
-#define TR_CAL                         "Cal"
-#define TR_CALIBRATION                 "Calibration"
-#define TR_VTRIM                       "Trim - +"
-#define TR_CALIB_DONE                  "Calibration completed"
+#define TR_CAL                         "Звонок"
+#define TR_CALIBRATION                 "Калибровка"
+#define TR_VTRIM                       "Трим - +"
+#define TR_CALIB_DONE                  "Калибровка Завершена"
 #if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Press [Enter] to start"
-  #define TR_SETMIDPOINT               "Center sticks/pots/sliders and press [Enter]"
-  #define TR_MOVESTICKSPOTS            "Move sticks/pots/sliders and press [Enter]"
+  #define TR_MENUTOSTART               "Надмите [Enter] Для Продолжения"
+  #define TR_SETMIDPOINT               "По Центру Стики/pots/Слайдеры И Нажмите [Enter]"
+  #define TR_MOVESTICKSPOTS            "Двигайте Стики/pots/Слайдеры И Нажмите [Enter]"
 #elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " TO START"
+  #define TR_MENUTOSTART               TR_ENTER " Начать"
   #define TR_SETMIDPOINT               "CENTER STICKS/SLIDERS"
   #define TR_MOVESTICKSPOTS            "MOVE STICKS/POTS"
 #else
-  #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " TO START"
+  #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " Начать"
   #define TR_SETMIDPOINT               TR(CENTER "\004SET STICKS MIDPOINT", CENTER "\004CENTER STICKS/SLIDERS")
   #define TR_MOVESTICKSPOTS            CENTER "\006MOVE STICKS/POTS"
   #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " WHEN DONE"
 #endif
 #define TR_TXnRX                       "Tx:\0Rx:"
 #define OFS_RX                         4
-#define TR_NODATA                      CENTER "NO DATA"
+#define TR_NODATA                      CENTER "Нет Данных"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
 #define TR_TMIXMAXMS                   "Tmix max"
 #define TR_FREE_STACK                  "Free stack"
 #define TR_INT_GPS_LABEL               "Internal GPS"
 #define TR_HEARTBEAT_LABEL             "Heartbeat"
-#define TR_LUA_SCRIPTS_LABEL           "Lua scripts"
+#define TR_LUA_SCRIPTS_LABEL           "Lua Скрипт"
 #define TR_FREE_MEM_LABEL              "Free mem"
 #define TR_DURATION_MS             TR("[D]","Duration(ms): ")
 #define TR_INTERVAL_MS             TR("[I]","Interval(ms): ")
-#define TR_MEM_USED_SCRIPT         "Script(B): "
-#define TR_MEM_USED_WIDGET         "Widget(B): "
+#define TR_MEM_USED_SCRIPT         "Скрипт(B): "
+#define TR_MEM_USED_WIDGET         "Виджет(B): "
 #define TR_MEM_USED_EXTRA          "Extra(B): "
 #define TR_STACK_MIX                   "Mix: "
-#define TR_STACK_AUDIO                 "Audio: "
+#define TR_STACK_AUDIO                 "Аудио: "
 #define TR_GPS_FIX_YES                 "Fix: Yes"
 #define TR_GPS_FIX_NO                  "Fix: No"
 #define TR_GPS_SATS                    "Sats: "
 #define TR_GPS_HDOP                    "Hdop: "
-#define TR_STACK_MENU                  "Menu: "
-#define TR_TIMER_LABEL                 "Timer"
-#define TR_THROTTLE_PERCENT_LABEL      "Throttle %"
-#define TR_BATT_LABEL                  "Battery"
-#define TR_SESSION                     "Session"
-#define TR_MENUTORESET                 TR_ENTER " to reset"
+#define TR_STACK_MENU                  "Меню: "
+#define TR_TIMER_LABEL                 "Таймер"
+#define TR_THROTTLE_PERCENT_LABEL      "Дросель %"
+#define TR_BATT_LABEL                  "АКБ"
+#define TR_SESSION                     "Сесия"
+#define TR_MENUTORESET                 TR_ENTER " Для Сброса"
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
-#define TR_MODEL                       "MODEL"
+#define TR_MODEL                       "Модель"
 #define TR_FM                          "FM"
-#define TR_EEPROMLOWMEM                "EEPROM low mem"
-#define TR_PRESS_ANY_KEY_TO_SKIP       "Press any key to skip"
-#define TR_THROTTLE_NOT_IDLE           "Throttle not idle"
-#define TR_ALARMSDISABLED              "Alarms disabled"
-#define TR_PRESSANYKEY                 TR("\010Press any Key", "Press any key")
-#define TR_BADEEPROMDATA               "Bad EEprom data"
-#define TR_BAD_RADIO_DATA              "Missing or bad radio data"
+#define TR_EEPROMLOWMEM                "EEPROM Нехватает Памяти"
+#define TR_PRESS_ANY_KEY_TO_SKIP       "Нажать Любую Кнопку Для Сброса"
+#define TR_THROTTLE_NOT_IDLE           "Дросель Не Работает На ХХ"
+#define TR_ALARMSDISABLED              "Аварийные Сигналы Отключены"
+#define TR_PRESSANYKEY                 TR("\010Нажмите Любую Кнопку", "Нажмите Любую Кнопку")
+#define TR_BADEEPROMDATA               "Неверные Данные EEprom"
+#define TR_BAD_RADIO_DATA              "Отсутствуют Или Некорректные Радиоданные"
 #define TR_RADIO_DATA_RECOVERED        TR3("Using backup radio data","Using backup radio settings","Radio settings recovered from backup")
 #define TR_RADIO_DATA_UNRECOVERABLE    TR3("Radio settings invalid","Radio settings not valid", "Unable to read valid radio settings")
-#define TR_EEPROMFORMATTING            "Formatting EEPROM"
-#define TR_STORAGE_FORMAT              "Storage preparation"
+#define TR_EEPROMFORMATTING            "Форматирование EEPROM"
+#define TR_STORAGE_FORMAT              "Форматирование Памяти"
 #define TR_EEPROMOVERFLOW              "EEPROM overflow"
-#define TR_RADIO_SETUP                 "RADIO SETUP"
-#define TR_MENUTRAINER                 "TRAINER"
-#define TR_MENUSPECIALFUNCS            "GLOBAL FUNCTIONS"
-#define TR_MENUVERSION                 "VERSION"
-#define TR_MENU_RADIO_SWITCHES         TR("SWITCHES", "SWITCHES TEST")
-#define TR_MENU_RADIO_ANALOGS          TR("ANALOGS", "ANALOGS TEST")
-#define TR_MENU_RADIO_ANALOGS_CALIB    "CALIBRATED ANALOGS"
+#define TR_RADIO_SETUP                 "НАСТРОЙКА РАДИО"
+#define TR_MENUTRAINER                 "ТРЕНЕР"
+#define TR_MENUSPECIALFUNCS            "ГЛОБАЛЬНЫЕ ФУНКЦИИ"
+#define TR_MENUVERSION                 "ВЕРСИЯ"
+#define TR_MENU_RADIO_SWITCHES         TR("СВИТЧИ", "ТЕСТ СВИТЧЕЙ")
+#define TR_MENU_RADIO_ANALOGS          TR("FYFKJUB", "ТЕСТ АНАЛОГОВ")
+#define TR_MENU_RADIO_ANALOGS_CALIB    "КАЛИБРОВКА АНАЛОГОВ"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGS (5 Hz)"
-#define TR_MENUCALIBRATION             "CALIBRATION"
-#define TR_MENU_FSWITCH                "CUSTOMIZABLE SWITCHES"
+#define TR_MENUCALIBRATION             "КАЛИБРОВКА"
+#define TR_MENU_FSWITCH                "НАСТРАИВАЕМЫЕ СВИТЧИ"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "Trims => Subtrims"
 #else
