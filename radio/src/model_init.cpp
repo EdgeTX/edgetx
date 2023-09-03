@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "mixes.h"
 
 void clearInputs()
 {

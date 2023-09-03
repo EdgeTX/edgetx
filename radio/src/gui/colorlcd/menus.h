@@ -101,11 +101,6 @@ uint8_t getExposCount();
 void deleteExpo(uint8_t idx);
 void insertExpo(uint8_t idx, uint8_t input);
 
-uint8_t getMixesCount();
-void deleteMix(uint8_t idx);
-void insertMix(uint8_t idx);
-void copyMix(uint8_t source, uint8_t dest, int8_t ch);
-
 typedef int (*FnFuncP) (int x);
 void drawFunction(FnFuncP fn, int x, int y, int width);
 

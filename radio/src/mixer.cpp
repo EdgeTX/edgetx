@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "timers.h"
 #include "switches.h"
+#include "mixes.h"
 
 uint8_t s_mixer_first_run_done = false;
 

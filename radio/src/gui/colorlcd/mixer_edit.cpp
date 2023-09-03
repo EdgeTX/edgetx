@@ -24,6 +24,7 @@
 #include "channel_bar.h"
 #include "gvar_numberedit.h"
 #include "curve_param.h"
+#include "mixes.h"
 
 #include "opentx.h"
 

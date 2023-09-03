@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "mixes.h"
 
 enum MixFields {
   MIX_FIELD_NAME,

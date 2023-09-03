@@ -28,6 +28,7 @@
 #include "../timers.h"
 #include "model_init.h"
 #include "gvars.h"
+#include "mixes.h"
 
 #if defined(SDCARD_YAML)
 #include <storage/sdcard_yaml.h>
@@ -881,10 +882,9 @@ static int luaModelInsertMix(lua_State *L)
   unsigned int first = getFirstMix(chn);
   unsigned int count = getMixesCountFromFirst(chn, first);
 
-  if (chn<MAX_OUTPUT_CHANNELS && getMixesCount()<MAX_MIXERS && idx<=count) {
+  if (chn<MAX_OUTPUT_CHANNELS && getMixCount()<MAX_MIXERS && idx<=count) {
     idx += first;
-    s_currCh = chn+1;
-    insertMix(idx);
+    insertMix(idx, chn + 1);
     MixData *mix = mixAddress(idx);
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {

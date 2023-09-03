@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "hal/module_port.h"
+#include "mixes.h"
 
 #undef CPN
 #include "MultiSubtypeDefs.h"
