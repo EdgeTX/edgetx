@@ -141,7 +141,7 @@ POT_CONFIG = {
         "P2": {"default": "POT"}
     },
     "pocket": {
-        "P1": { "default": "WITHOUT_DETENT" }
+        "P1": {"default": "POT"}
     },
 }
 
