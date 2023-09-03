@@ -216,6 +216,7 @@
 #define TR_VCELLINDEX                  "Mini.","1","2","3","4","5","6","7","8","Maxi.","Diff."
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (centre seulement)","= (symétrique)"
 #define TR_TIMER_DIR                   TR("Reste", "Voir restant"), TR("Écoulé", "Voir écoulé")
+#define TR_PPMUNIT                     "0.--","0.0","us"
 
 // ZERO TERMINATED STRINGS
 
@@ -813,6 +814,7 @@
 #define TR_JACK_MODE                   "Mode Jack"
 #define TR_VOICE_LANGUAGE               TR("Langue voix", "Langue annonces vocales")
 #define TR_UNITS_SYSTEM                "Unités"
+#define TR_UNITS_PPM                   "PPM Units"
 #define TR_EDIT                        "Éditer"
 #define TR_INSERT_BEFORE               "Insérer avant"
 #define TR_INSERT_AFTER                "Insérer après"

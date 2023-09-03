@@ -209,6 +209,7 @@
 #define TR_TEXT_SIZE                   "標準","極小","小","中","2倍"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (中央)","= (全体)"
 #define TR_TIMER_DIR                   TR("Remain", "残り時間表示"), TR("Elaps.", "経過時間表示")
+#define TR_PPMUNIT                     "0.--","0.0","us"
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -802,6 +803,7 @@
 #define TR_JACK_MODE                   "Jackモード"
 #define TR_VOICE_LANGUAGE              "音声言語"
 #define TR_UNITS_SYSTEM                "ユニット"
+#define TR_UNITS_PPM                   "PPM Units"
 #define TR_EDIT                        "編集"
 #define TR_INSERT_BEFORE               "前に挿入"
 #define TR_INSERT_AFTER                "後に挿入"

@@ -27,9 +27,9 @@ void menuChannelsView(event_t event)
   uint8_t wbar = (reusableBuffer.viewChannels.longNames ? 54 : 64);
   int16_t limits = 512 * 2;
 
-#if defined(PPM_UNIT_PERCENT_PREC1)
-  wbar -= 6;
-#endif
+  if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+    wbar -= 6;
+  }
 
   switch(event) {
     case EVT_ENTRY:
@@ -87,13 +87,13 @@ void menuChannelsView(event_t event)
       }
 
       // Value
-#if defined(PPM_UNIT_US)
-      lcdDrawNumber(x+LCD_W/2-3-wbar-ofs, y+1, PPM_CH_CENTER(ch)+val/2, TINSIZE|RIGHT);
-#elif defined(PPM_UNIT_PERCENT_PREC1)
-      lcdDrawNumber(x+LCD_W/2-3-wbar-ofs, y+1, calcRESXto1000(val), PREC1|TINSIZE|RIGHT);
-#else
-      lcdDrawNumber(x+LCD_W/2-3-wbar-ofs, y+1, calcRESXto1000(val)/10, TINSIZE|RIGHT);
-#endif
+      if (g_eeGeneral.ppmunit == PPM_US) {
+        lcdDrawNumber(x+LCD_W/2-3-wbar-ofs, y+1, PPM_CH_CENTER(ch)+val/2, TINSIZE|RIGHT);
+      } else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+        lcdDrawNumber(x+LCD_W/2-3-wbar-ofs, y+1, calcRESXto1000(val), PREC1|TINSIZE|RIGHT);
+      } else {
+        lcdDrawNumber(x+LCD_W/2-3-wbar-ofs, y+1, calcRESXto1000(val)/10, TINSIZE|RIGHT);
+      }
 
       // Gauge
       drawGauge(x+LCD_W/2-3-wbar-ofs, y, wbar, 6, val, limits);

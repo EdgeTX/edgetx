@@ -215,6 +215,7 @@
 #define TR_VCELLINDEX                  "Alin","1","2","3","4","5","6","7","8","Korkein","Ero"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
+#define TR_PPMUNIT                     "0.--","0.0","us"
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -817,6 +818,7 @@
 #define TR_JACK_MODE                   "Jack Mode"
 #define TR_VOICE_LANGUAGE              "Äänen kieli"
 #define TR_UNITS_SYSTEM                "Units"
+#define TR_UNITS_PPM                   "PPM Units"
 #define TR_EDIT                        "Edit"
 #define TR_INSERT_BEFORE               "Insert Before"
 #define TR_INSERT_AFTER                "Insert After"

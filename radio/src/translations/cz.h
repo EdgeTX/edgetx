@@ -216,6 +216,7 @@
 #define TR_VCELLINDEX                  "Nízký","1","2","3","4","5","6","7","8","Nejvíce","Delta"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA"(pouze středy)","= (symetrický)"
 #define TR_TIMER_DIR                   TR("Zbývající", "Zobrazit zbývající"), TR("Uplynulý", "Zobrazit uplynulý")
+#define TR_PPMUNIT                     "0.--","0.0","us"
 
 // ZERO TERMINATED STRINGS
 
@@ -813,6 +814,7 @@
 #define TR_JACK_MODE                   "Režim Jack"
 #define TR_VOICE_LANGUAGE              "Jazyk hlasu"
 #define TR_UNITS_SYSTEM                "Jednotky"
+#define TR_UNITS_PPM                   "PPM Units"
 #define TR_EDIT                        "Upravit"
 #define TR_INSERT_BEFORE               "Vložit před"
 #define TR_INSERT_AFTER                "Vložit za"

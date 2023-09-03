@@ -212,6 +212,7 @@
 #define TR_TEXT_SIZE                   "Standard","Tynd","Lille","Medium","Dobbelt"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center kun)","= (symmetrisk)"
 #define TR_TIMER_DIR                   TR("Rest", "Vis rest"), TR("Gået tid", "Vis gået tid")
+#define TR_PPMUNIT                     "0.--","0.0","us"
 
 #if defined(COLORLCD)
   #if defined(BOLD)
@@ -812,6 +813,7 @@
 #define TR_JACK_MODE                   "Jack tilstand"
 #define TR_VOICE_LANGUAGE              "Stemme sprog"
 #define TR_UNITS_SYSTEM                "Enheder"
+#define TR_UNITS_PPM                   "PPM Units"
 #define TR_EDIT                        "Rediger"
 #define TR_INSERT_BEFORE               "Insæt før"
 #define TR_INSERT_AFTER                "Insæt efter"

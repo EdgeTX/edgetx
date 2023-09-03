@@ -462,11 +462,11 @@ void drawSourceCustomValue(BitmapBuffer * dc, coord_t x, coord_t y, source_t sou
     dc->drawNumber(x, y, calcRESXto100(value), flags);
   }
   else if (source <= MIXSRC_LAST_CH) {
-#if defined(PPM_UNIT_PERCENT_PREC1)
-    dc->drawNumber(x, y, calcRESXto1000(value), flags|PREC1);
-#else
-    dc->drawNumber(x, y, calcRESXto100(value), flags);
-#endif
+    if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+      dc->drawNumber(x, y, calcRESXto1000(value), flags|PREC1);
+    } else {
+      dc->drawNumber(x, y, calcRESXto100(value), flags);
+    }
   }
   else {
     dc->drawNumber(x, y, value, flags);

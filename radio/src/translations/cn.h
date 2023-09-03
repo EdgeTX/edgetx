@@ -204,6 +204,7 @@
 #define TR_TEXT_SIZE                   "标准","小","较小","中等","双倍"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA "(中点)", "=(整体)"
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
+#define TR_PPMUNIT                     "0.--","0.0","us"
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -796,6 +797,7 @@
 #define TR_JACK_MODE                   "教练插口模式"
 #define TR_VOICE_LANGUAGE              "播报语言"
 #define TR_UNITS_SYSTEM                "单位"
+#define TR_UNITS_PPM                   "PPM Units"
 #define TR_EDIT                        "编辑"
 #define TR_INSERT_BEFORE               "在本条前插入"
 #define TR_INSERT_AFTER                "在本条后插入"

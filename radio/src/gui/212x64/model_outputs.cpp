@@ -56,13 +56,12 @@ enum LimitsItems {
 
 #define CONVERT_US_MIN_MAX(x) (((x)*1280)/250)
 
-#if defined(PPM_UNIT_US)
-  #define SET_MIN_MAX(x, val)   x = ((val)*250)/128
-  #define MIN_MAX_DISPLAY(x)    CONVERT_US_MIN_MAX(x)
-#else
-  #define MIN_MAX_DISPLAY(x)    (x)
-  #define SET_MIN_MAX(x, val)   x = (val)
-#endif
+int32_t minMaxDisplay(int32_t val)
+{
+  if (g_eeGeneral.ppmunit == PPM_US)
+    val = CONVERT_US_MIN_MAX(val);
+  return val;
+}
 
 void onLimitsMenu(const char *result)
 {
@@ -96,11 +95,16 @@ void menuModelLimits(event_t event)
   int sub = menuVerticalPosition;
 
   if (sub < MAX_OUTPUT_CHANNELS) {
-#if defined(PPM_CENTER_ADJUSTABLE) || defined(PPM_UNIT_US)
+#if defined(PPM_CENTER_ADJUSTABLE)
     lcdDrawNumber(13*FW, 0, PPM_CH_CENTER(sub)+channelOutputs[sub]/2, RIGHT);
     lcdDrawText(13*FW, 0, STR_US);
 #else
-    lcdDrawNumber(13*FW, 0, calcRESXto1000(channelOutputs[sub]), PREC1|RIGHT);
+    if (g_eeGeneral.ppmunit == PPM_US) {
+      lcdDrawNumber(13*FW, 0, PPM_CH_CENTER(sub)+channelOutputs[sub]/2, RIGHT);
+      lcdDrawText(13*FW, 0, STR_US);
+    } else {
+      lcdDrawNumber(13*FW, 0, calcRESXto1000(channelOutputs[sub]), PREC1|RIGHT);
+    }
 #endif
   }
 
@@ -167,11 +171,11 @@ void menuModelLimits(event_t event)
             break;
           }
 
-#if defined(PPM_UNIT_US)
-          lcdDrawNumber(LIMITS_OFFSET_POS, y, ((int32_t)ld->offset*128) / 25, attr|PREC1|RIGHT);
-#else
-          lcdDrawNumber(LIMITS_OFFSET_POS, y, ld->offset, attr|PREC1|RIGHT);
-#endif
+          if (g_eeGeneral.ppmunit == PPM_US) {
+            lcdDrawNumber(LIMITS_OFFSET_POS, y, ((int32_t)ld->offset*128) / 25, attr|PREC1|RIGHT);
+          } else {
+            lcdDrawNumber(LIMITS_OFFSET_POS, y, ld->offset, attr|PREC1|RIGHT);
+          }
           if (active) {
             ld->offset = checkIncDec(event, ld->offset, -1000, 1000, EE_MODEL, nullptr, stops1000);
           }
@@ -186,7 +190,7 @@ void menuModelLimits(event_t event)
             ld->min = GVAR_MENU_ITEM(LIMITS_MIN_POS, y, ld->min, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1|RIGHT, 0, event);
             break;
           }
-          lcdDrawNumber(LIMITS_MIN_POS, y, MIN_MAX_DISPLAY(ld->min-LIMITS_MIN_MAX_OFFSET), attr|PREC1|RIGHT);
+          lcdDrawNumber(LIMITS_MIN_POS, y, minMaxDisplay(ld->min-LIMITS_MIN_MAX_OFFSET), attr|PREC1|RIGHT);
           if (active) ld->min = LIMITS_MIN_MAX_OFFSET + checkIncDec(event, ld->min-LIMITS_MIN_MAX_OFFSET, -limit, 0, EE_MODEL, nullptr, stops1000);
           break;
 
@@ -195,7 +199,7 @@ void menuModelLimits(event_t event)
             ld->max = GVAR_MENU_ITEM(LIMITS_MAX_POS, y, ld->max, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1|RIGHT, 0, event);
             break;
           }
-          lcdDrawNumber(LIMITS_MAX_POS, y, MIN_MAX_DISPLAY(ld->max+LIMITS_MIN_MAX_OFFSET), attr|PREC1|RIGHT);
+          lcdDrawNumber(LIMITS_MAX_POS, y, minMaxDisplay(ld->max+LIMITS_MIN_MAX_OFFSET), attr|PREC1|RIGHT);
           if (active) ld->max = -LIMITS_MIN_MAX_OFFSET + checkIncDec(event, ld->max+LIMITS_MIN_MAX_OFFSET, 0, +limit, EE_MODEL, nullptr, stops1000);
           break;
 

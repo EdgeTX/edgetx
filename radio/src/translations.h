@@ -239,6 +239,7 @@ extern const char STR_FILE_SIZE[];
 extern const char STR_FILE_OPEN[];
 extern const char* const STR_TIMER_MODES[];
 extern const char* const STR_MONTHS[];
+extern const char* const STR_PPMUNIT[];
 
 extern const char STR_BLUETOOTH[];
 extern const char STR_BLUETOOTH_DISC[];
@@ -615,6 +616,7 @@ extern const char STR_BATT_CALIB[];
 extern const char STR_VOLTAGE[];
 extern const char STR_CURRENT_CALIB[];
 extern const char STR_UNITS_SYSTEM[];
+extern const char STR_UNITS_PPM[];
 extern const char STR_VOICE_LANGUAGE[];
 extern const char STR_MODELIDUSED[];
 extern const char STR_MODELIDUNIQUE[];

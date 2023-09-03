@@ -154,6 +154,8 @@ ui(new Ui::GeneralSetup)
     ui->units_CB->setCurrentIndex(generalSettings.imperial);
   }
 
+  ui->ppm_units_CB->setCurrentIndex(generalSettings.ppmunit);
+
   ui->gpsFormatCB->setCurrentIndex(generalSettings.gpsFormat);
 
   ui->timezoneLE->setTime((generalSettings.timezone * 3600) + (generalSettings.timezoneMinutes/*quarter hours*/ * 15 * 60));
@@ -677,6 +679,12 @@ void GeneralSetupPanel::on_countrycode_CB_currentIndexChanged(int index)
 void GeneralSetupPanel::on_units_CB_currentIndexChanged(int index)
 {
   generalSettings.imperial = ui->units_CB->currentIndex();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_ppm_units_CB_currentIndexChanged(int index)
+{
+  generalSettings.ppmunit = ui->ppm_units_CB->currentIndex();
   emit modified();
 }
 

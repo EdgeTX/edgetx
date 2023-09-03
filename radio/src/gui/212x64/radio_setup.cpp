@@ -96,6 +96,7 @@ enum MenuRadioSetupItems {
   CASE_PXX1(ITEM_RADIO_SETUP_COUNTRYCODE)
   ITEM_RADIO_SETUP_LANGUAGE,
   ITEM_RADIO_SETUP_IMPERIAL,
+  ITEM_RADIO_SETUP_PPM,
   IF_FAI_CHOICE(ITEM_RADIO_SETUP_FAI)
   ITEM_RADIO_SETUP_SWITCHES_DELAY,
   ITEM_RADIO_SETUP_USB_MODE,
@@ -198,6 +199,7 @@ void menuRadioSetup(event_t event)
     CASE_PXX1(0) // country code
     0, // voice language
     0, // imperial
+    0, // PPM unit
     IF_FAI_CHOICE(0)
     0, // switches delay
     0, // USB mode
@@ -601,6 +603,10 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_IMPERIAL:
         g_eeGeneral.imperial = editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_UNITS_SYSTEM, STR_VUNITSSYSTEM, g_eeGeneral.imperial, 0, 1, attr, event);
+        break;
+
+      case ITEM_RADIO_SETUP_PPM:
+        g_eeGeneral.ppmunit = editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_UNITS_PPM, STR_PPMUNIT, g_eeGeneral.ppmunit, PPM_PERCENT_PREC0, PPM_US, attr, event);
         break;
 
 #if defined(FAI_CHOICE)

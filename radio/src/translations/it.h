@@ -209,6 +209,7 @@
 #define TR_TEXT_SIZE                      "Standard","Minusc.","Piccolo","Medio","Doppio"
 #define TR_SUBTRIMMODES                   STR_CHAR_DELTA" (center only)","= (symetrical)"
 #define TR_TIMER_DIR                      TR("Riman.", "Mostra Riman."), TR("Trasc.", "Mostra Trascorso")
+#define TR_PPMUNIT                     "0.--","0.0","us"
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -806,6 +807,7 @@
 #define TR_JACK_MODE                    "Modo JACK"
 #define TR_VOICE_LANGUAGE               "Lingua vocale"
 #define TR_UNITS_SYSTEM                 "Unità"
+#define TR_UNITS_PPM                   "PPM Units"
 #define TR_EDIT                         "Modifica"
 #define TR_INSERT_BEFORE                "Inserisci prima"
 #define TR_INSERT_AFTER                 "Inserisci dopo"

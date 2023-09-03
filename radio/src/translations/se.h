@@ -221,6 +221,7 @@
 #define TR_VCELLINDEX                   "Lägsta","1","2","3","4","5","6","7","8","Högsta","Skillnad"
 #define TR_SUBTRIMMODES                 STR_CHAR_DELTA " (endast center)","= (symmetrisk)"
 #define TR_TIMER_DIR                    TR("Återst.", "Visa återstående"), TR("Förbrukad", "Visa förbrukad")
+#define TR_PPMUNIT                     "0.--","0.0","us"
 
 #if defined(COLORLCD)
   #if defined(BOLD)
@@ -824,6 +825,7 @@
 #define TR_JACK_MODE                    "Uttagsläge"
 #define TR_VOICE_LANGUAGE               "Röstspråk"
 #define TR_UNITS_SYSTEM                 "Enheter"
+#define TR_UNITS_PPM                   "PPM Units"
 #define TR_EDIT                         "Redigera"
 #define TR_INSERT_BEFORE                "Addera före"
 #define TR_INSERT_AFTER                 "Addera efter"

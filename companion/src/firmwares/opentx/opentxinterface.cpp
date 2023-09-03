@@ -619,8 +619,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 32;
     case PPMCenter:
       return (IS_HORUS_OR_TARANIS(board) ? 500 : (id.contains("ppmca") ? 125 : 0));
-    case PPMUnitMicroseconds:
-      return id.contains("ppmus") ? 1 : 0;
     case SYMLimits:
       return 1;
     case OptrexDisplay:
@@ -1131,7 +1129,6 @@ void addOpenTxCommonOptions(OpenTxFirmware * firmware)
     Firmware::Option("faichoice", Firmware::tr("Possibility to enable FAI MODE (no telemetry) at field")),
     Firmware::Option("faimode",   Firmware::tr("FAI MODE (no telemetry) always enabled"))
   };
-  firmware->addOption("ppmus", Firmware::tr("Channel values displayed in us"));
   firmware->addOptionsGroup(fai_options);
   firmware->addOption("nooverridech", Firmware::tr("No OverrideCH functions available"));
 }
