@@ -25,6 +25,7 @@
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 #include "switches.h"
+#include "mixes.h"
 
 #undef CPN
 #include "MultiSubtypeDefs.h"

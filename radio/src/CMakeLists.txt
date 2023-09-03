@@ -395,6 +395,7 @@ set(SRC
   strhelpers.cpp
   switches.cpp
   analogs.cpp
+  mixes.cpp
   mixer.cpp
   mixer_scheduler.cpp
   stamp.cpp

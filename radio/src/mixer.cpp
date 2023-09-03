@@ -23,6 +23,7 @@
 #include "timers.h"
 #include "switches.h"
 #include "input_mapping.h"
+#include "mixes.h"
 
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"

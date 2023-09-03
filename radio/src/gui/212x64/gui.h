@@ -157,10 +157,6 @@ uint8_t getExposCount();
 void deleteExpo(uint8_t idx);
 void insertExpo(uint8_t idx);
 
-uint8_t getMixesCount();
-void deleteMix(uint8_t idx);
-void insertMix(uint8_t idx);
-
 #define STATUS_LINE_LENGTH             32
 extern char statusLineMsg[STATUS_LINE_LENGTH];
 void showStatusLine();
