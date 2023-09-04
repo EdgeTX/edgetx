@@ -2162,7 +2162,7 @@ static void r_serialMode(void* user, uint8_t* data, uint32_t bitoffs,
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
 
   auto node = tw->getAttr();
-  if (!node || node->tag_len < 4) return;
+  if (!node || node->tag_len() < 4) return;
 
   uint8_t port_nr;
   if (node->tag[3] == 'S')
