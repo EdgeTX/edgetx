@@ -27,17 +27,9 @@ const uint8_t __bmp_splash_bg[] {
 #include "splash_bg.lbm"
 };
 
-//const uint8_t __bmp_splash_bg2[] {
-//#include "splash_bg2.lbm"
-//};
-
 const uint8_t __bmp_splash_logo[] {
 #include "splash_logo.lbm"
 };
-
-//static const uint8_t mask_splash_bg[] = {
-//#include "mask_splash_bg.lbm"
-//};
 
 void draw_splash_cb(lv_event_t * e)
 {
