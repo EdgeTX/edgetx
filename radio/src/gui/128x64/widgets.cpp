@@ -44,7 +44,7 @@ void drawThrottle(coord_t centrex, int16_t wval)
   constexpr coord_t MARKER_WIDTH = 5;
   lcdDrawSquare(centrex-BOX_WIDTH/2, BOX_CENTERY-BOX_WIDTH/2, BOX_WIDTH);
   lcdDrawSolidHorizontalLine(centrex - MARKER_WIDTH, BOX_CENTERY, 2 * MARKER_WIDTH + 1);
-  coord_t tsize = wval / 150;
+  coord_t tsize = - wval / 150;
   lcdDrawLine( centrex - tsize, BOX_CENTERY, centrex, BOX_CENTERY + tsize, SOLID, FORCE);
   lcdDrawLine( centrex + tsize, BOX_CENTERY, centrex, BOX_CENTERY + tsize, SOLID, FORCE);
 }

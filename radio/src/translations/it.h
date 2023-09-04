@@ -428,7 +428,11 @@
 #define TR_PPM_TRAINER                  "TR"
 #define TR_CH                           "CH"
 #define TR_MODEL                        "MODELLO"
+#if defined(SURFACE_RADIO)
+#define TR_FM                          "DM"
+#else
 #define TR_FM                           "FV"
+#endif
 #define TR_EEPROMLOWMEM                 "EEPROM quasi piena!"
 #define TR_PRESS_ANY_KEY_TO_SKIP        "\010Premi un tasto"
 #define TR_THROTTLE_NOT_IDLE            "Gas non a minimo"
@@ -460,8 +464,13 @@
 #define TR_CHANNEL2FAILSAFE             "Canale => Failsafe"
 #define TR_MENUMODELSEL                 "MODELLI"
 #define TR_MENU_MODEL_SETUP             "CONFIGURA"
+#if defined(SURFACE_RADIO)
+#define TR_MENUFLIGHTMODES             "DRIVE MODES"
+#define TR_MENUFLIGHTMODE              "DRIVE MODE"
+#else
 #define TR_MENUFLIGHTMODES              "FASI DI VOLO"
 #define TR_MENUFLIGHTMODE               "FASE DI VOLO"
+#endif
 #define TR_MENUHELISETUP                "CONFIGURA ELI"
 #define TR_MENUINPUTS                   "INGRESSI"
 #define TR_MENULIMITS                   "USCITE"

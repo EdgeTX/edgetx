@@ -450,7 +450,11 @@
 #define TR_PPM_TRAINER                  "TR"
 #define TR_CH                           "KA"
 #define TR_MODEL                        "MODELL"
+#if defined(SURFACE_RADIO)
+#define TR_FM                           "DM"
+#else
 #define TR_FM                           "FL"
+#endif
 #define TR_EEPROMLOWMEM                 "Minnesbrist"
 #define TR_PRESS_ANY_KEY_TO_SKIP        "Avbryt med valfri knapp"
 #define TR_THROTTLE_NOT_IDLE            "Gasen är på!"
@@ -482,8 +486,13 @@
 #define TR_CHANNEL2FAILSAFE             "Kanal=>Failsafe"
 #define TR_MENUMODELSEL                 TR("MODELL","VÄLJ MODELL")
 #define TR_MENU_MODEL_SETUP             TR("MODELLINSTÄLLNING","MODELLINSTÄLLNINGAR")
+#if defined(SURFACE_RADIO)
+#define TR_MENUFLIGHTMODES              "DRIVE MODES"
+#define TR_MENUFLIGHTMODE               "DRIVE MODE"
+#else
 #define TR_MENUFLIGHTMODE               "FLYGLÄGE"
 #define TR_MENUFLIGHTMODES              "FLYGLÄGEN"
+#endif
 #define TR_MENUHELISETUP                "HELIKOPTER"
 
 #define TR_MENUINPUTS                   "INPUT"

@@ -109,8 +109,8 @@ void drawPotsBars()
 void doMainScreenGraphics()
 {
 #if defined(SURFACE_RADIO)
-  drawWheel(LBOX_CENTERX, calibratedAnalogs[ADC_MAIN_ST]);
-  drawThrottle(RBOX_CENTERX, calibratedAnalogs[ADC_MAIN_TH]);
+  drawWheel(RBOX_CENTERX, calibratedAnalogs[ADC_MAIN_ST]);
+  drawThrottle(LBOX_CENTERX, calibratedAnalogs[ADC_MAIN_TH]);
 #else
   int16_t calibStickVert = calibratedAnalogs[ADC_MAIN_LV];
   if (g_model.throttleReversed && inputMappingConvertMode(ADC_MAIN_LV) == THR_STICK)
@@ -129,8 +129,13 @@ void doMainScreenGraphics()
 void displayTrims(uint8_t phase)
 {
   for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
+#if defined(SURFACE_RADIO)
+    static coord_t x[] = {TRIM_RH_X, TRIM_LH_X, TRIM_RV_X, TRIM_LV_X, TRIM_LV_X};
+    static uint8_t vert[] = {0, 0, 1, 1, 1};
+#else
     static coord_t x[] = {TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X, TRIM_LH_X, TRIM_LV_X, TRIM_RH_X, TRIM_RV_X};
     static uint8_t vert[] = {0, 1, 1, 0, 0, 1, 0, 1};
+#endif
     coord_t xm, ym;
     uint8_t stickIndex = inputMappingConvertMode(i);
     xm = x[stickIndex];
@@ -186,7 +191,7 @@ void displayTrims(uint8_t phase)
       }
       else {
         ym -= val;
-        if ((i > 4 && xm < LCD_W / 2) || (i < 4 && xm > LCD_W / 2) ) {
+        if ((i > 3 && xm < LCD_W / 2) || (i < 4 && xm > LCD_W / 2) ) {
           lcdDrawSolidVerticalLine(xm - 1, ym, 1);
           lcdDrawSolidVerticalLine(xm - 2, ym - 1, 3);
           lcdDrawSolidVerticalLine(xm - 3, ym - 2, 5);

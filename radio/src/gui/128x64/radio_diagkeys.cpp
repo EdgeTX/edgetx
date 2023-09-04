@@ -84,7 +84,14 @@ void menuRadioDiagKeys(event_t event)
 
     if (i < keysGetMaxTrims() * 2) {
       y = MENU_HEADER_HEIGHT + 1 + FH + FH * (i / 2);
+#if defined(SURFACE_RADIO)
+      if (i & 1) {
+        lcdDrawText(14 * FW, y, "T");
+        lcdDrawNumber(lcdNextPos, y, 1 + i / 2);
+      }
+#else
       if (i & 1) lcdDraw1bitBitmap(14 * FW, y, sticks, i / 2, 0);
+#endif
       displayTrimState(i & 1 ? 20 * FW : 18 * FW, y, i);
     }
 

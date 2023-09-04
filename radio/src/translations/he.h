@@ -510,7 +510,11 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "ערוץ "
 #define TR_MODEL                       "מודל"
+#if defined(SURFACE_RADIO)
+#define TR_FM                          "DM"
+#else
 #define TR_FM                          "FM"
+#else
 #define TR_EEPROMLOWMEM                "EEPROM low mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "לחץ על המסך או על כפתור"
 #define TR_THROTTLE_NOT_IDLE           "סטיק מצערת פתוח"
@@ -542,8 +546,13 @@
 #define TR_CHANNEL2FAILSAFE            "הגדר מצב נוכחי כקבוע"
 #define TR_MENUMODELSEL                TR("MODELSEL", "MODEL SELECTION")
 #define TR_MENU_MODEL_SETUP            TR("הגדרות מודל", "הגדרות מודל")
+#if defined(SURFACE_RADIO)
+#define TR_MENUFLIGHTMODES             "DRIVE MODES"
+#define TR_MENUFLIGHTMODE              "DRIVE MODE"
+#else
 #define TR_MENUFLIGHTMODES             "מצבי טיסה"
 #define TR_MENUFLIGHTMODE              "מצב טיסה"
+#endif
 #define TR_MENUHELISETUP               "הגדרות מסוק"
 
   #define TR_MENUINPUTS                "כניסות"
