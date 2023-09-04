@@ -233,27 +233,27 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   ModelPanel(parent, model, generalSettings, firmware),
   module(module),
   moduleIdx(moduleIdx),
-  ui(new Ui::Module)
+  ui(new Ui::Module),
+  trainerModeItemModel(nullptr)
 {
   lock = true;
 
   ui->setupUi(this);
 
   ui->label_module->setText(ModuleData::indexToString(moduleIdx, firmware));
-  if (moduleIdx < 0) {
+  if (isTrainerModule(moduleIdx)) {
     ui->formLayout_col1->setSpacing(0);
     if (!IS_HORUS_OR_TARANIS(firmware->getBoard())) {
       ui->label_trainerMode->hide();
       ui->trainerMode->hide();
     }
     else {
-      if (panelFilteredItemModels)
-        ui->trainerMode->setModel(panelFilteredItemModels->getItemModel(FIM_TRAINERMODE));
+      updateTrainerModeItemModel();
       ui->trainerMode->setField(model.trainerMode);
       connect(ui->trainerMode, &AutoComboBox::currentDataChanged, this, [=] () {
-              update();
-              emit updateItemModels();
-              emit modified();
+        update();
+        emit updateItemModels();
+        emit modified();
       });
     }
   }
@@ -263,16 +263,16 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   }
 
   if (panelFilteredItemModels) {
-    if (moduleIdx >= 0) {
+    if (!isTrainerModule(moduleIdx)) {
       int id = panelFilteredItemModels->registerItemModel(new FilteredItemModel(ModuleData::protocolItemModel(generalSettings), moduleIdx + 1/*flag cannot be 0*/), QString("Module Protocol %1").arg(moduleIdx));
       panelFilteredItemModels->getItemModel(id)->setSortCaseSensitivity(Qt::CaseInsensitive);
       panelFilteredItemModels->getItemModel(id)->sort(0);
       ui->protocol->setModel(panelFilteredItemModels->getItemModel(id));
 
       if (ui->protocol->findData(module.protocol) < 0) {
-        const QString moduleIdxDesc = moduleIdx == 0 ? tr("internal") : tr("external");
-        const QString compareDesc = moduleIdx == 0 ? tr("hardware") : tr("profile");
-        const QString intModuleDesc = moduleIdx == 0 ? ModuleData::typeToString(generalSettings.internalModule) : "";
+        const QString moduleIdxDesc = isInternalModule(moduleIdx) ? tr("internal") : tr("external");
+        const QString compareDesc = isInternalModule(moduleIdx) ? tr("hardware") : tr("profile");
+        const QString intModuleDesc = isInternalModule(moduleIdx) ? ModuleData::typeToString(generalSettings.internalModule) : "";
         QString msg = tr("Warning: The %1 module protocol <b>%2</b> is incompatible with the <b>%3 %1 module %4</b> and has been set to <b>OFF</b>!");
         msg = msg.arg(moduleIdxDesc).arg(module.protocolToString(module.protocol)).arg(compareDesc).arg(intModuleDesc);
 
@@ -291,7 +291,7 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
       ui->protocol->setField(module.protocol, this);
     }
 
-    if (moduleIdx == 0) {
+    if (isInternalModule(moduleIdx)) {
       int id = panelFilteredItemModels->registerItemModel(new FilteredItemModel(GeneralSettings::antennaModeItemModel(true)), FIM_ANTENNAMODE);
       ui->antennaMode->setModel(panelFilteredItemModels->getItemModel(id));
     }
@@ -434,7 +434,7 @@ void ModulePanel::update()
   unsigned int mask = 0;
   unsigned int max_rx_num = 63;
 
-  if (moduleIdx >= 0) {
+  if (!isTrainerModule(moduleIdx)) {
     mask |= MASK_PROTOCOL;
     switch (protocol) {
       case PULSES_PXX_R9M:
@@ -461,7 +461,7 @@ void ModulePanel::update()
         else if (protocol==PULSES_ACCESS_ISRM || protocol==PULSES_ACCESS_R9M ||
                  protocol==PULSES_ACCESS_R9M_LITE || protocol==PULSES_ACCESS_R9M_LITE_PRO)
           mask |= MASK_RX_NUMBER | MASK_ACCESS;
-        if (moduleIdx == 0 &&
+        if (isInternalModule(moduleIdx) &&
             (protocol==PULSES_PXX_XJT_X16 ||
              protocol==PULSES_PXX_XJT_D8 || protocol==PULSES_PXX_XJT_LR12) &&
             HAS_EXTERNAL_ANTENNA(board) && generalSettings.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
@@ -553,7 +553,7 @@ void ModulePanel::update()
     mask |= MASK_FAILSAFES;
   }
 
-  if (moduleIdx > 0)
+  if (isExternalModule(moduleIdx))
     ui->telemetryBaudrate->setVisible(mask & MASK_BAUDRATE);
   else
     ui->telemetryBaudrate->setVisible(false);
@@ -814,6 +814,7 @@ void ModulePanel::onProtocolChanged(int index)
       }
     }
 
+    emit protocolChanged();
     emit updateItemModels();
     emit modified();
   }
@@ -1178,6 +1179,18 @@ void ModulePanel::onClearAccessRxClicked()
   }
 }
 
+void ModulePanel::updateTrainerModeItemModel()
+{
+  if (isTrainerModule(moduleIdx)) {
+    if (trainerModeItemModel)
+      delete trainerModeItemModel;
+
+    trainerModeItemModel = new FilteredItemModel(model->trainerModeItemModel(generalSettings, firmware));
+    ui->trainerMode->setModel(trainerModeItemModel);
+    ui->trainerMode->updateValue();
+  }
+}
+
 /******************************************************************************/
 FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model, GeneralSettings & generalSettings, Firmware * firmware):
   ModelPanel(parent, model, generalSettings, firmware),
@@ -1409,7 +1422,6 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelItemModels->registerItemModel(TimerData::countdownStartItemModel());
   panelItemModels->registerItemModel(TimerData::persistentItemModel());
   panelItemModels->registerItemModel(TimerData::modeItemModel());
-  panelFilteredModels->registerItemModel(new FilteredItemModel(ModelData::trainerModeItemModel(generalSettings, firmware)), FIM_TRAINERMODE);
   panelItemModels->registerItemModel(TimerData::showElapsedItemModel());
   Board::Type board = firmware->getBoard();
 
@@ -1658,6 +1670,9 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     ui->modulesLayout->addWidget(modules[CPN_MAX_MODULES]);
     connect(modules[CPN_MAX_MODULES], &ModulePanel::modified, this, &SetupPanel::modified);
     connect(modules[CPN_MAX_MODULES], &ModulePanel::updateItemModels, this, &SetupPanel::onModuleUpdateItemModels);
+    for (int i = firmware->getCapability(NumFirstUsableModule); i < firmware->getCapability(NumModules); i++) {
+      connect(modules[i], &ModulePanel::protocolChanged, modules[CPN_MAX_MODULES], &ModulePanel::updateTrainerModeItemModel);
+    }
   }
 
   disableMouseScrolling();
