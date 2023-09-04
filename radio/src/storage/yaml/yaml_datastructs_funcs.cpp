@@ -844,6 +844,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
         && val[3] >= '0' && val[3] <= '2') {
 
       ival = switchLookupIdx(val, val_len - 1) * 3;
+      if (ival < 0) return SWSRC_NONE;
       ival += yaml_str2int(val + 3, val_len - 2);
       ival += SWSRC_FIRST_SWITCH;
       
@@ -852,6 +853,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
         && val[2] >= '0' && val[2] <= '2') {
 
       ival = switchLookupIdx(val, val_len - 1) * 3;
+      if (ival < 0) return SWSRC_NONE;
       ival += yaml_str2int(val + 2, val_len - 2);
       ival += SWSRC_FIRST_SWITCH;
       
