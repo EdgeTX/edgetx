@@ -510,7 +510,11 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "ערוץ "
 #define TR_MODEL                       "מודל"
+#if defined(SURFACE_RADIO)
+#define TR_FM                          "DM"
+#else
 #define TR_FM                          "FM"
+#else
 #define TR_EEPROMLOWMEM                "EEPROM low mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "לחץ על המסך או על כפתור"
 #define TR_THROTTLE_NOT_IDLE           "סטיק מצערת פתוח"
