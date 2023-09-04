@@ -429,7 +429,11 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "モデル名"
+#if defined(SURFACE_RADIO)
+#define TR_FM                          "DM"
+#else
 #define TR_FM                          "FM"
+#else
 #define TR_EEPROMLOWMEM                "EEPROMメモリ低"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "任意のキーを押してスキップします"
 #define TR_THROTTLE_NOT_IDLE           "Throttleがアイドル値ではありません"
