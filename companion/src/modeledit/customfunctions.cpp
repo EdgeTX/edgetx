@@ -242,29 +242,40 @@ void CustomFunctionsPanel::onMediaPlayerError(QMediaPlayer::Error error)
 
 bool CustomFunctionsPanel::playSound(int index)
 {
-  QString path = g.profile[g.id()].sdPath();
-  if (!QDir(path).exists())
-    return false;  // unlikely
+  QString path;
 
-  if (mediaPlayer)
-    stopSound(mediaPlayerCurrent);
-
-  if (firmware->getCapability(VoicesAsNumbers)) {  // AVR
-    path.append(QString("/%1.wav").arg(int(fswtchParam[index]->value()), 4, 10, QChar('0')));
+  if (functions[index].func == FuncPlaySound) {
+    path = QString(":/sounds/%1.wav").arg(functions[index].param);
   }
   else {
-    QString lang(generalSettings.ttsLanguage);
-    if (lang.isEmpty())
-      lang = "en";
-    path.append(QString("/SOUNDS/%1/%2.wav").arg(lang).arg(fswtchParamArmT[index]->currentText()));
+    path = g.profile[g.id()].sdPath();
+    if (!QDir(path).exists())
+      return false;  // unlikely
+
+    if (firmware->getCapability(VoicesAsNumbers)) {  // AVR
+      path.append(QString("/%1.wav").arg(int(fswtchParam[index]->value()), 4, 10, QChar('0')));
+    }
+    else {
+      QString lang(generalSettings.ttsLanguage);
+      if (lang.isEmpty())
+        lang = "en";
+      path.append(QString("/SOUNDS/%1/%2.wav").arg(lang).arg(fswtchParamArmT[index]->currentText()));
+    }
   }
+
   if (!QFileInfo::exists(path) || !QFileInfo(path).isReadable()) {
     QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find or open sound file:\n%1").arg(path));
     return false;
   }
 
+  if (mediaPlayer)
+    stopSound(mediaPlayerCurrent);
+
   mediaPlayer = new QMediaPlayer(this, QMediaPlayer::LowLatency);
-  mediaPlayer->setMedia(QUrl::fromLocalFile(path));
+  if (functions[index].func == FuncPlaySound)
+    mediaPlayer->setMedia(QUrl(path.prepend("qrc")));
+  else
+    mediaPlayer->setMedia(QUrl::fromLocalFile(path));
   connect(mediaPlayer, &QMediaPlayer::stateChanged, this, &CustomFunctionsPanel::onMediaPlayerStateChanged);
   connect(mediaPlayer, static_cast<void(QMediaPlayer::*)(QMediaPlayer::Error)>(&QMediaPlayer::error), this, &CustomFunctionsPanel::onMediaPlayerError);
   mediaPlayerCurrent = index;
@@ -489,7 +500,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
             Helpers::getFileComboBoxValue(fswtchParamArmT[i], cfn.paramarm, firmware->getCapability(VoicesMaxLength));
           }
           Helpers::populateFileComboBox(fswtchParamArmT[i], tracksSet, cfn.paramarm);
-          if (fswtchParamArmT[i]->currentText() != "----") {
+          if (fswtchParamArmT[i]->currentText() != CPN_STR_NONE_ITEM) {
             widgetsMask |= CUSTOM_FUNCTION_PLAY;
           }
         }
@@ -500,7 +511,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
           Helpers::getFileComboBoxValue(fswtchParamArmT[i], cfn.paramarm, firmware->getCapability(VoicesMaxLength));
         }
         Helpers::populateFileComboBox(fswtchParamArmT[i], tracksSet, cfn.paramarm);
-        if (fswtchParamArmT[i]->currentText() != "----") {
+        if (fswtchParamArmT[i]->currentText() != CPN_STR_NONE_ITEM) {
           widgetsMask |= CUSTOM_FUNCTION_PLAY;
         }
       }
@@ -508,7 +519,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
         if (modified)
           cfn.param = (uint8_t)fswtchParamT[i]->currentIndex();
         populateFuncParamCB(fswtchParamT[i], func, cfn.param);
-        widgetsMask |= CUSTOM_FUNCTION_SOURCE_PARAM;
+        widgetsMask |= CUSTOM_FUNCTION_SOURCE_PARAM | CUSTOM_FUNCTION_PLAY;
       }
       else if (func == FuncPlayHaptic) {
         if (modified)

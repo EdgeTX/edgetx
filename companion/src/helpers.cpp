@@ -260,7 +260,7 @@ bool displayT16ImportWarning()
 void Helpers::populateFileComboBox(QComboBox * b, const QSet<QString> & set, const QString & current)
 {
   b->clear();
-  b->addItem("----");
+  b->addItem(CPN_STR_NONE_ITEM);
 
   bool added = false;
   // Convert set into list and sort it alphabetically case insensitive
@@ -283,7 +283,7 @@ void Helpers::populateFileComboBox(QComboBox * b, const QSet<QString> & set, con
 void Helpers::getFileComboBoxValue(QComboBox * b, char * dest, int length)
 {
   memset(dest, 0, length+1);
-  if (b->currentText() != "----") {
+  if (b->currentText() != CPN_STR_NONE_ITEM) {
     strncpy(dest, b->currentText().toLatin1(), length);
   }
 }
