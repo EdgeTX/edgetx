@@ -272,6 +272,9 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/ads79xx.cpp
   targets/common/arm/stm32/diskio_sdio.cpp
+  targets/common/arm/stm32/spi_flash.cpp
+  targets/common/arm/stm32/diskio_spi_flash.cpp
+  drivers/frftl.cpp
   )
 
 if(BOOTLOADER)
