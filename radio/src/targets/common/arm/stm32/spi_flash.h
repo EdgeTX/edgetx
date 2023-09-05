@@ -19,34 +19,20 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
-
-#include "FatFs/diskio.h"
 #include <stdint.h>
+#include <stdbool.h>
 
-struct diskio_driver_t
-{
-  DSTATUS (*initialize)(BYTE pdrv);
+bool flashSpiInit();
 
-  DSTATUS (*deinit)(BYTE pdrv);
+uint32_t flashSpiRead(uint32_t address, uint8_t* data, uint32_t size);
+uint32_t flashSpiWrite(uint32_t address, const uint8_t* data, uint32_t size);
 
-  DSTATUS (*status)(BYTE pdrv);
+uint32_t flashSpiGetSize();
+uint16_t flashSpiGetPageSize();
 
-  DRESULT (*read)(BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
+int  flashSpiErase(uint32_t address);
+bool flashSpiIsErased(uint32_t address);
+int  flashSpiBlockErase(uint32_t address);
 
-  DRESULT (*write)(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
-
-  DRESULT (*ioctl)(BYTE pdrv, BYTE cmd, void* buff);
-};
-
-// returns 1 if successful, 0 otherwise
-int fatfsRegisterDriver(const diskio_driver_t* drv, uint8_t lun);
-
-// gracefully tear down all drivers
-void fatfsUnregisterDrivers();
-
-// returns a pyhsical disk driver or NULL
-const diskio_driver_t* fatfsGetDriver(uint8_t pdrv);
-
-// returns a physical LUN or 0
-uint8_t fatfsGetLun(uint8_t pdrv);
+void flashSpiEraseAll();
+void flashSpiSync();

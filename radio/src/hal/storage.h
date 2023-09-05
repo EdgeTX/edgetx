@@ -26,6 +26,7 @@
 // Note: can be used to attach the pyhsical volume driver
 //       to the generic FatFs driver
 void storageInit();
+void storageDeInit();
 
 // Called before the storage is mounted
 void storagePreMountHook();

@@ -550,11 +550,13 @@ int  bootloaderMain()
 
     if (state != ST_FLASHING && state != ST_USB) {
       if (pwrOffPressed()) {
+        sdDone();
         boardOff();
       }
     }
 
     if (state == ST_REBOOT) {
+      sdDone();
 #if !defined(SIMU)
 #if defined(RTC_BACKUP_RAM)
       rtcInit();

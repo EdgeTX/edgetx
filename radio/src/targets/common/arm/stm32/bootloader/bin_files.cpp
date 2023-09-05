@@ -41,13 +41,19 @@ UINT        BlockCount;
 
 void sdInit(void)
 {
-  static FATFS fatFS __DMA;
-
   storageInit();
 
+  static FATFS fatFS __DMA;
   if (f_mount(&fatFS, "", 1) == FR_OK) {
     f_chdir("/");
   }
+}
+
+void sdDone()
+{
+  // unmount
+  f_mount(0, "", 0);
+  storageDeInit();
 }
 
 FRESULT openBinDir(MemoryType mt)

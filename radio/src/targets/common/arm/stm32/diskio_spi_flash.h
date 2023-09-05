@@ -21,32 +21,6 @@
 
 #pragma once
 
-#include "FatFs/diskio.h"
-#include <stdint.h>
+#include "hal/fatfs_diskio.h"
 
-struct diskio_driver_t
-{
-  DSTATUS (*initialize)(BYTE pdrv);
-
-  DSTATUS (*deinit)(BYTE pdrv);
-
-  DSTATUS (*status)(BYTE pdrv);
-
-  DRESULT (*read)(BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
-
-  DRESULT (*write)(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
-
-  DRESULT (*ioctl)(BYTE pdrv, BYTE cmd, void* buff);
-};
-
-// returns 1 if successful, 0 otherwise
-int fatfsRegisterDriver(const diskio_driver_t* drv, uint8_t lun);
-
-// gracefully tear down all drivers
-void fatfsUnregisterDrivers();
-
-// returns a pyhsical disk driver or NULL
-const diskio_driver_t* fatfsGetDriver(uint8_t pdrv);
-
-// returns a physical LUN or 0
-uint8_t fatfsGetLun(uint8_t pdrv);
+extern const diskio_driver_t spi_flash_diskio_driver;
