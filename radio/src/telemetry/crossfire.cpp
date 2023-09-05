@@ -55,6 +55,7 @@ const CrossfireSensor crossfireSensors[] = {
   {FLIGHT_MODE_ID, 0, STR_SENSOR_FLIGHT_MODE,   UNIT_TEXT,              0},
   {CF_VARIO_ID,    0, STR_SENSOR_VSPD,          UNIT_METERS_PER_SECOND, 2},
   {BARO_ALT_ID,    0, STR_SENSOR_ALT,           UNIT_METERS,            2},
+  {BARO_ALT_ID,    1, STR_SENSOR_VSPD,          UNIT_METERS_PER_SECOND, 2},
   {0,              0, "UNKNOWN",          UNIT_RAW,               0},
 };
 
@@ -71,13 +72,13 @@ const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
   else if (id == GPS_ID)
     return crossfireSensors[GPS_LATITUDE_INDEX + subId];
   else if (id == CF_VARIO_ID)
-    return crossfireSensors[VERTICAL_SPEED_INDEX];
+    return crossfireSensors[VARIO_VERTICAL_SPEED_INDEX];
   else if (id == ATTITUDE_ID)
     return crossfireSensors[ATTITUDE_PITCH_INDEX + subId];
   else if (id == FLIGHT_MODE_ID)
     return crossfireSensors[FLIGHT_MODE_INDEX];
   else if (id == BARO_ALT_ID)
-    return crossfireSensors[BARO_ALTITUDE_INDEX];
+    return crossfireSensors[BAROALTITUDE_ALTITUDE_INDEX + subId];
   else
     return crossfireSensors[UNKNOWN_INDEX];
 }
@@ -125,7 +126,7 @@ void processCrossfireTelemetryFrame(uint8_t module)
   switch(id) {
     case CF_VARIO_ID:
       if (getCrossfireTelemetryValue<2>(3, value, module))
-        processCrossfireTelemetryValue(VERTICAL_SPEED_INDEX, value);
+        processCrossfireTelemetryValue(VARIO_VERTICAL_SPEED_INDEX, value);
       break;
 
     case GPS_ID:
@@ -154,12 +155,11 @@ void processCrossfireTelemetryFrame(uint8_t module)
           value -= 10000;
           value *= 10;
         }
-        processCrossfireTelemetryValue(BARO_ALTITUDE_INDEX, value);
+        processCrossfireTelemetryValue(BAROALTITUDE_ALTITUDE_INDEX, value);
       }
-      // Length of TBS BARO_ALT has 4 payload bytes with just 2 bytes of altitude
-      // but support including VARIO if the declared payload length is 6 bytes or more
-      if (crsfPayloadLen > 5 && getCrossfireTelemetryValue<2>(5, value, module))
-        processCrossfireTelemetryValue(VERTICAL_SPEED_INDEX, value);
+
+      if (getCrossfireTelemetryValue<2>(5, value, module))
+        processCrossfireTelemetryValue(BAROALTITUDE_VERTICAL_SPEED_INDEX, value);
       break;
 
     case LINK_ID:
