@@ -71,7 +71,7 @@
 #define LEN_SPECIAL_CHARS 0
 #elif defined(TRANSLATIONS_RU)
 #include "translations/ru.h"
-#define LEN_SPECIAL_CHARS 64
+#define LEN_SPECIAL_CHARS 0
 #elif defined(TRANSLATIONS_HE)
 #include "translations/he.h"
 #define LEN_SPECIAL_CHARS 0
