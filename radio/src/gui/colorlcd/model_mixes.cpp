@@ -438,7 +438,7 @@ void ModelMixesPage::build(FormWindow * window)
   bool focusSet = false;
   uint8_t index = 0;
   MixData* line = g_model.mixData;
-  for (uint8_t ch = 0; (ch < MAX_OUTPUT_CHANNELS) && (index >= MAX_MIXERS); ch++) {
+  for (uint8_t ch = 0; (ch < MAX_OUTPUT_CHANNELS) && (index < MAX_MIXERS); ch++) {
 
     if (line->destCh == ch) {
 
