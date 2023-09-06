@@ -28,6 +28,8 @@ JP_SYMBOLS="${JP_Hiragana},${JP_Katakana},${JP_Kanji}"
 
 HE_SYMBOLS="0x05D0-0x05F4"
 
+RU_SYMBOLS="0х0400-0x04ff"
+
 # https://yeun.github.io/open-arrow/
 ARROWS_FONT="EdgeTX/OpenArrow-Regular.woff"
 # 0x80: right, 0x81: left, 0x82: up, 0x83: down
