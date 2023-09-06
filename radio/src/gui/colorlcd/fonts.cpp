@@ -44,6 +44,8 @@
 #elif defined(TRANSLATIONS_HE)
   FONT_TABLE(arimo_he);
 #else
+#elif defined(TRANSLATIONS_RU)
+  FONT_TABLE(roboto_ru);
   FONT_TABLE(roboto);
 #endif
 
