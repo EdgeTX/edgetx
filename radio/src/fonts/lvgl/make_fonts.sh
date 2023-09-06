@@ -115,3 +115,4 @@ make_font_set "noto_tw" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bol
 make_font_set "noto_cn" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" ",${CN_SYMBOLS}"
 make_font_set "noto_jp" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" ",${JP_SYMBOLS}"
 make_font_set "arimo_he" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${HE_SYMBOLS}"
+make_font_set "roboto_ru" "Roboto/Roboto-Regular.ttf" "Roboto/Roboto-Bold.ttf" ",${RU_SYMBOLS}"
