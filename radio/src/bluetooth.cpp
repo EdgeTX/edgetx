@@ -470,7 +470,7 @@ void Bluetooth::wakeup()
     } else if (state == BLUETOOTH_STATE_NAME_SENT && (line != nullptr) &&
                (!strncmp(line, "OK+", 3) || !strncmp(line, "Central:", 8) ||
                 !strncmp(line, "Peripheral:", 11))) {
-      writeString("AT+TXPW0");
+      writeString("AT+TXPW2");
       state = BLUETOOTH_STATE_POWER_SENT;
     } else if (state == BLUETOOTH_STATE_POWER_SENT &&
                (line != nullptr) &&
