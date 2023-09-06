@@ -157,8 +157,9 @@ void processCrossfireTelemetryFrame(uint8_t module)
         }
         processCrossfireTelemetryValue(BAROALTITUDE_ALTITUDE_INDEX, value);
       }
-
-      if (getCrossfireTelemetryValue<2>(5, value, module))
+      // Length of TBS BARO_ALT has 4 payload bytes with just 2 bytes of altitude
+      // but support including VARIO if the declared payload length is 6 bytes or more
+      if (crsfPayloadLen > 5 && getCrossfireTelemetryValue<2>(5, value, module))
         processCrossfireTelemetryValue(BAROALTITUDE_VERTICAL_SPEED_INDEX, value);
       break;
 
