@@ -126,7 +126,6 @@
 #define TR_SF_DISABLE_TOUCH             "Ej pekskärm"
 #define TR_SF_DISABLE_AUDIO_AMP         TR("Audioförst. av","Audioförstärkare av")
 #define TR_SF_SET_SCREEN                "Sätt huvudskärm"
-#define TR_SF_RESERVE                   "[reserv]"
 
 #define TR_FSW_RESET_TELEM              TR("Telm","Telemetri")
 #define TR_FSW_RESET_TIMERS             "Tmr1","Tmr2","Tmr3"
@@ -897,7 +896,6 @@
 #define TR_UNIT                         "Enhet"
 #define TR_TELEMETRY_NEWSENSOR          INDENT "Lägg till..."
 #define TR_CHANNELRANGE                 TR(INDENT "Kanalomr.", INDENT "Kanalområde")
-#define TR_RXFREQUENCY                  TR("Rx frekv.", "Rx frekvens")
 #define TR_AFHDS3_RX_FREQ               TR("Rx frekv.", "Rx frekvens")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY  TR("Unicast/Tel.", "Unicast/Telemetry")
 #define TR_AFHDS3_ONE_TO_MANY           "Multicast"
@@ -1003,7 +1001,6 @@
   #define TR_TIMER_SOURCE               "Timerkälla"
   #define TR_SIZE                       "Storlek"
   #define TR_SHADOW                     "Skugga"
-  #define TR_ALIGNMENT                  "Justering"
   #define TR_ALIGN_LABEL                "Justera etikett"
   #define TR_ALIGN_VALUE                "Justera värde"
   #define TR_ALIGN_OPTS                 { "Vänster", "Mitten", "Höger" }
@@ -1068,6 +1065,8 @@
   #define TR_BL_SELECT_KEY              "[R TRIM] foer att vaelja fil"
   #define TR_BL_FLASH_KEY               "Tryck [R TRIM] foer att flasha"
   #define TR_BL_EXIT_KEY                " [L TRIM] för att avsluta"
+  #define TR_BL_ENABLE                "Enable"
+  #define TR_BL_DISABLE               "Disable"
 #endif
 
 // About screen

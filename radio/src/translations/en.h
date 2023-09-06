@@ -120,7 +120,6 @@
 #define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
 #define TR_SF_SET_SCREEN               "Set Main Screen"
-#define TR_SF_RESERVE                  "[reserve]"
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetry")
 #define TR_FSW_RESET_TIMERS            "Tmr1","Tmr2","Tmr3"

@@ -460,7 +460,6 @@
 #define TR_CHANNEL2FAILSAFE    "Canal=>Failsafe"
 #define TR_MENUMODELSEL        TR("MODELOS", "SELECCIÓN MODELO")
 #define TR_MENU_MODEL_SETUP            TR("SETUP", "MODEL SETUP")
-#define TR_MENUSETUP           TR("CONFIG. MODELO", "CONFIGURACIÓN MODELO")
 #if defined(SURFACE_RADIO)
 #define TR_MENUFLIGHTMODES     "DRIVE MODES"
 #define TR_MENUFLIGHTMODE      "DRIVE MODE"
@@ -868,7 +867,6 @@
 #define TR_INTERVAL            "Interval"
 #define TR_REPEAT                      "Repeat"
 #define TR_ENABLE                      "Enable"
-#define TR_DISABLE                     "Disable"
 #define TR_TOPLCDTIMER         "Timer LCD superior"
 #define TR_UNIT                "Unidad"
 #define TR_TELEMETRY_NEWSENSOR INDENT "Añadir sensor..."
