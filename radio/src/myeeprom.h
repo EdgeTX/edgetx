@@ -118,7 +118,6 @@
 
 #if defined(COLORLCD) && !defined(BOOT)
   #include "layout.h"
-  #include "theme.h"
   #include "topbar.h"
 #endif
 

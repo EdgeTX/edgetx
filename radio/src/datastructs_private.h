@@ -830,16 +830,6 @@ PACK(struct TrainerData {
     BLUETOOTH_FIELDS
 #endif
 
-#if defined(COLORLCD) && !defined(BACKUP)
-  #include "theme.h"
-  #define THEME_NAME_LEN 8
-  #define THEME_DATA \
-    NOBACKUP(char themeName[THEME_NAME_LEN]); \
-    NOBACKUP(EdgeTxTheme::PersistentData themeData);
-#else
-  #define THEME_DATA
-#endif
-
 #if defined(BUZZER)
   #define BUZZER_FIELD int8_t buzzerMode:2    // -2=quiet, -1=only alarms, 0=no keys, 1=all (only used on AVR radios without audio hardware)
 #else
@@ -934,8 +924,6 @@ PACK(struct RadioData {
 
   EXTRA_GENERAL_FIELDS
 
-  THEME_DATA
-
   char ownerRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
   CUST_ATTR(rotEncDirection, r_rotEncDirection, nullptr);
@@ -992,5 +980,4 @@ PACK(struct RadioData {
 #undef SCRIPTS_DATA
 #undef CUSTOM_SCREENS_DATA
 #undef EXTRA_GENERAL_FIELDS
-#undef THEME_DATA
 #undef NOBACKUP

@@ -57,7 +57,7 @@ void FabButton::paint(BitmapBuffer * dc)
   dc->drawBitmap((width() - bitmap->width()) / 2,
                  (FAB_BUTTON_SIZE - bitmap->height()) / 2, bitmap);
 
-  const BitmapBuffer* mask = theme->getIconMask(icon);
+  const BitmapBuffer* mask = EdgeTxTheme::instance()->getIconMask(icon);
   if (mask) {
     dc->drawMask((width() - mask->width()) / 2,
                  (FAB_BUTTON_SIZE - mask->height()) / 2, mask, COLOR2FLAGS(WHITE));

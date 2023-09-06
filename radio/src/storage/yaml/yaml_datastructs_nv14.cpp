@@ -85,15 +85,6 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_SET_SCREEN, "SET_SCREEN"  },
   {  0, NULL  }
 };
-const struct YamlIdStr enum_ZoneOptionValueEnum[] = {
-  {  ZOV_Unsigned, "Unsigned"  },
-  {  ZOV_Signed, "Signed"  },
-  {  ZOV_Bool, "Bool"  },
-  {  ZOV_String, "String"  },
-  {  ZOV_Source, "Source"  },
-  {  ZOV_Color, "Color"  },
-  {  0, NULL  }
-};
 const struct YamlIdStr enum_TimerModes[] = {
   {  TMRMODE_OFF, "OFF"  },
   {  TMRMODE_ON, "ON"  },
@@ -201,6 +192,15 @@ const struct YamlIdStr enum_TelemetrySensorType[] = {
   {  TELEM_TYPE_CALCULATED, "TYPE_CALCULATED"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_ZoneOptionValueEnum[] = {
+  {  ZOV_Unsigned, "Unsigned"  },
+  {  ZOV_Signed, "Signed"  },
+  {  ZOV_Bool, "Bool"  },
+  {  ZOV_String, "String"  },
+  {  ZOV_Source, "Source"  },
+  {  ZOV_Color, "Color"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_USBJoystickIfMode[] = {
   {  USBJOYS_JOYSTICK, "JOYSTICK"  },
   {  USBJOYS_GAMEPAD, "GAMEPAD"  },
@@ -272,25 +272,6 @@ static const struct YamlNode struct_CustomFunctionData[] = {
   YAML_CUSTOM("def",r_customFn,w_customFn),
   YAML_PADDING( 48 ),
   YAML_PADDING( 8 ),
-  YAML_END
-};
-static const struct YamlNode union_ZoneOptionValue_elmts[] = {
-  YAML_UNSIGNED( "unsignedValue", 32 ),
-  YAML_SIGNED( "signedValue", 32 ),
-  YAML_UNSIGNED( "boolValue", 32 ),
-  YAML_STRING("stringValue", 8),
-  YAML_CUSTOM("source",r_zov_source,w_zov_source),
-  YAML_CUSTOM("color",r_zov_color,w_zov_color),
-  YAML_END
-};
-static const struct YamlNode struct_ZoneOptionValueTyped[] = {
-  YAML_IDX,
-  YAML_ENUM("type", 32, enum_ZoneOptionValueEnum),
-  YAML_UNION("value", 64, union_ZoneOptionValue_elmts, select_zov),
-  YAML_END
-};
-static const struct YamlNode struct_EdgeTxTheme__PersistentData[] = {
-  YAML_ARRAY("options", 96, 5, struct_ZoneOptionValueTyped, NULL),
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {
@@ -374,8 +355,6 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "modelQuickSelect", 1 ),
   YAML_UNSIGNED( "blOffBright", 7 ),
   YAML_STRING("bluetoothName", 10),
-  YAML_STRING("themeName", 8),
-  YAML_STRUCT("themeData", 480, struct_EdgeTxTheme__PersistentData, NULL),
   YAML_STRING("ownerRegistrationID", 8),
   YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
   YAML_UNSIGNED( "rotEncMode", 2 ),
@@ -763,6 +742,21 @@ static const struct YamlNode struct_TelemetrySensor[] = {
   YAML_UNSIGNED( "onlyPositive", 1 ),
   YAML_PADDING( 1 ),
   YAML_UNION("cfg", 32, union_anonymous_17_elmts, select_sensor_cfg),
+  YAML_END
+};
+static const struct YamlNode union_ZoneOptionValue_elmts[] = {
+  YAML_UNSIGNED( "unsignedValue", 32 ),
+  YAML_SIGNED( "signedValue", 32 ),
+  YAML_UNSIGNED( "boolValue", 32 ),
+  YAML_STRING("stringValue", 8),
+  YAML_CUSTOM("source",r_zov_source,w_zov_source),
+  YAML_CUSTOM("color",r_zov_color,w_zov_color),
+  YAML_END
+};
+static const struct YamlNode struct_ZoneOptionValueTyped[] = {
+  YAML_IDX,
+  YAML_ENUM("type", 32, enum_ZoneOptionValueEnum),
+  YAML_UNION("value", 64, union_ZoneOptionValue_elmts, select_zov),
   YAML_END
 };
 static const struct YamlNode struct_WidgetPersistentData[] = {

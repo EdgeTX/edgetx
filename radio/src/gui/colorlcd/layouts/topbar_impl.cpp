@@ -21,6 +21,7 @@
 
 #include "topbar_impl.h"
 #include "opentx.h"
+#include "theme.h"
 
 constexpr uint32_t TOPBAR_REFRESH = 1000 / 10; // 10 Hz
 

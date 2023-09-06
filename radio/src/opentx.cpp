@@ -43,6 +43,7 @@
   #include "radio_calibration.h"
   #include "view_main.h"
   #include "view_text.h"
+  #include "theme.h"
 
   #include "gui/colorlcd/LvglWrapper.h"
 #endif
@@ -320,11 +321,6 @@ void generalDefault()
 
 #if defined(STORAGE_MODELSLIST)
   strcpy(g_eeGeneral.currModelFilename, DEFAULT_MODEL_FILENAME);
-#endif
-
-#if defined(COLORLCD)
-  strcpy(g_eeGeneral.themeName, static_cast<EdgeTxTheme *>(theme)->getName());
-  static_cast<EdgeTxTheme *>(theme)->init();
 #endif
 
 #if defined(PXX2)
@@ -1237,7 +1233,7 @@ void opentxResume()
 #if defined(COLORLCD)
   //TODO: needs to go into storageReadAll()
   TRACE("reloading theme");
-  loadTheme();
+  EdgeTxTheme::instance()->load();
 
   // Force redraw
   ViewMain::instance()->invalidate();
@@ -1581,7 +1577,7 @@ void opentxInit()
   BACKLIGHT_ENABLE();
 
 #if defined(COLORLCD)
-  loadTheme();
+  EdgeTxTheme::instance()->load();
   if (g_eeGeneral.backlightMode == e_backlight_mode_off) {
     // no backlight mode off on color lcd radios
     g_eeGeneral.backlightMode = e_backlight_mode_keys;

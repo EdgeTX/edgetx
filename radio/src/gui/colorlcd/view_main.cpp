@@ -26,6 +26,7 @@
 #include "menu_screen.h"
 #include "topbar_impl.h"
 #include "view_main_menu.h"
+#include "theme.h"
 
 #include "opentx.h"
 

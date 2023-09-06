@@ -20,6 +20,7 @@
  */
 #include "theme_manager.h"
 #include "view_main.h"
+#include "theme.h"
 
 #include "../../storage/yaml/yaml_tree_walker.h"
 #include "../../storage/yaml/yaml_bits.h"
@@ -245,26 +246,20 @@ void ThemeFile::applyBackground()
 
     if (isFileAvailable(rootDir.c_str())) {
       instance->setBackgroundImageFileName((char *)rootDir.c_str());
-    } else {
-      // TODO: This needs to be made user configurable, not
-      // require the file be deleted to remove global background
-      std::string fileName = THEMES_PATH PATH_SEPARATOR "EdgeTX/background.png";
-      if (isFileAvailable(fileName.c_str())) {
-        instance->setBackgroundImageFileName(fileName.c_str());
-      } else {
-        instance->setBackgroundImageFileName("");
+      return;
       }
-    }
-  } else {
-    instance->setBackgroundImageFileName("");
   }
+
+  // Use EdgeTxTheme default background
+  // TODO: This needs to be made user configurable
+  instance->setBackgroundImageFileName("");
 }
 
 void ThemeFile::applyTheme()
 {
   applyColors();
   applyBackground();
-  EdgeTxTheme::instance()->update(false);
+  EdgeTxTheme::instance()->update();
 
   // Update views with new theme
   // Currently, on startup, active theme is loaded after ViewMain is created so ViewMain instance is defined
@@ -467,8 +462,7 @@ class DefaultEdgeTxTheme : public ThemeFile
       setInfo("Default EdgeTX Color Scheme");
 
       // initializze the default color table
-      extern EdgeTxTheme * defaultTheme;
-      uint16_t* defaultColors = defaultTheme->getDefaultColors();
+      uint16_t* defaultColors = EdgeTxTheme::instance()->getDefaultColors();
       for (uint8_t i = COLOR_THEME_PRIMARY1_INDEX; i <= COLOR_THEME_DISABLED_INDEX; i += 1)
         colorList.emplace_back(ColorEntry { (LcdColorIndex)i, defaultColors[i] });
     }

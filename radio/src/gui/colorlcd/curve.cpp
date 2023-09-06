@@ -25,6 +25,7 @@
 #include "bitmaps.h"
 #include "strhelpers.h"
 #include "font.h"
+#include "theme.h"
 
 const uint8_t _LBM_CURVE_POINT[] = {
 #include "mask_cvpoint.lbm"

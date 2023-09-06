@@ -71,8 +71,7 @@ constexpr uint32_t CURVE_COORD_WIDTH =             36;
 constexpr uint32_t CURVE_COORD_HEIGHT =            17;
 
 constexpr uint32_t DATETIME_SEPARATOR_X =          LCD_W - 53;
-constexpr uint32_t DATETIME_LINE1 =                7;
-constexpr uint32_t DATETIME_LINE2 =                22;
+constexpr uint32_t DATETIME_LINE1 =                6;
 constexpr uint32_t DATETIME_MIDDLE =               (LCD_W + DATETIME_SEPARATOR_X + 1) / 2;
 
 constexpr uint32_t PAGE_TITLE_TOP =                2;

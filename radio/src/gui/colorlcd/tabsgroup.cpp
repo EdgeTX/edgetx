@@ -24,6 +24,7 @@
 #include "mainwindow.h"
 #include "view_main.h"
 #include "static.h"
+#include "theme.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "keyboard_base.h"

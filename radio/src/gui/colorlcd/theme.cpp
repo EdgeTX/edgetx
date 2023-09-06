@@ -21,14 +21,8 @@
 
 #include "opentx.h"
 #include "libopenui.h"
-
-extern EdgeTxTheme * defaultTheme;
-const BitmapBuffer * EdgeTxTheme::error = nullptr;
-const BitmapBuffer * EdgeTxTheme::busy = nullptr;
-const BitmapBuffer * EdgeTxTheme::shutdown = nullptr;
-
-constexpr coord_t LBM_USB_PLUGGED_W = 211;
-constexpr coord_t LBM_USB_PLUGGED_H = 110;
+#include "theme.h"
+#include "theme_manager.h"
 
 const uint8_t _LBM_USB_PLUGGED[] = {
 #include "mask_usb_symbol.lbm"
@@ -47,166 +41,217 @@ const uint8_t shutdown_bitmap[] = {
 #include "mask_shutdown.lbm"
 };
 
-std::list<EdgeTxTheme *> & getRegisteredThemes()
+const uint8_t mask_topleft[] = {
+#include "mask_topleft.lbm"
+};
+
+const uint8_t mask_currentmenu_bg[] = {
+#include "mask_currentmenu_bg.lbm"
+};
+
+const uint8_t mask_currentmenu_dot[] = {
+#include "mask_currentmenu_dot.lbm"
+};
+
+const uint8_t mask_currentmenu_shadow[] = {
+#include "mask_currentmenu_shadow.lbm"
+};
+
+uint16_t EdgeTxTheme::defaultColors[LCD_COLOR_COUNT] = {
+  RGB(18, 94, 153),     // DEFAULT
+  RGB(0, 0, 0),         // PRIMARY1
+  RGB(255, 255, 255),   // PRIMARY2
+  RGB(12, 63, 102),     // PRIMARY3
+  RGB(18, 94, 153),     // SECONDARY1
+  RGB(182, 224, 242),   // SECONDARY2
+  RGB(228, 238, 242),   // SECONDARY3
+  RGB(20, 161, 229),    // FOCUS
+  RGB(0, 153, 9),       // EDIT
+  RGB(255, 222, 0),     // ACTIVE
+  RGB(224, 0, 0),       // WARNING
+  RGB(140, 140, 140),   // DISABLED
+  RGB(170, 85, 0)       // CUSTOM
+};
+
+EdgeTxTheme::EdgeTxTheme(): name("EdgeTX")
 {
-  static std::list<EdgeTxTheme *> themes;
-  return themes;
+  loadColors();
 }
 
-void registerTheme(EdgeTxTheme * theme)
+void EdgeTxTheme::load()
 {
-  TRACE("register theme %s", theme->getName());
-  getRegisteredThemes().push_back(theme);
-}
+  loadColors();
+  ThemePersistance::instance()->loadDefaultTheme();
 
-void EdgeTxTheme::init() const
-{
-  memset(&g_eeGeneral.themeData, 0, sizeof(EdgeTxTheme::PersistentData));
-  if (options) {
-    int i = 0;
-    for (const ZoneOption * option = options; option->name; option++, i++) {
-      // TODO compiler bug? The CPU freezes ... g_eeGeneral.themeData.options[i] = &option->deflt;
-      memcpy(&g_eeGeneral.themeData.options[i].value, &option->deflt, sizeof(ZoneOptionValue));
-      g_eeGeneral.themeData.options[i].type = zoneValueEnumFromType(option->type);
-    }
-  }
-}
-
-void EdgeTxTheme::load() const
-{
   if (!error)
     error = BitmapBuffer::load8bitMaskLZ4(error_bitmap);
   if (!busy)
     busy = BitmapBuffer::load8bitMaskLZ4(busy_bitmap);
   if (!shutdown)
     shutdown = BitmapBuffer::load8bitMaskLZ4(shutdown_bitmap);
+
+  update();
 }
 
-ZoneOptionValue * EdgeTxTheme::getOptionValue(unsigned int index) const
+void EdgeTxTheme::update()
 {
-  return &g_eeGeneral.themeData.options[index].value;
+  createIcons();
+  loadIcons();
+  if (!backgroundBitmap) {
+    backgroundBitmap = BitmapBuffer::loadBitmap(getFilePath("background.png"));
+  }
+  initLvglTheme();
+}
+
+void EdgeTxTheme::loadColors() const
+{
+  TRACE("Load EdgeTX theme colors");
+  memcpy(lcdColorTable, defaultColors, sizeof(defaultColors));
+}
+
+void EdgeTxTheme::createIcons()
+{
+  if (!iconsLoaded) {
+    iconsLoaded = true;
+
+    iconMask = new BitmapBuffer*[MENUS_ICONS_COUNT];
+    for (int id = ICON_EDGETX; id != MENUS_ICONS_COUNT; id++) {
+      iconMask[id] = BitmapBuffer::load8bitMaskLZ4(getBuiltinIcon((MenuIcons)id));
+    }
+
+    // Get mask with max size. Extract size from shadow LBM file.
+    uint16_t* shadow = (uint16_t*)mask_currentmenu_shadow;
+    currentMenuBackground = new BitmapBuffer(BMP_RGB565, shadow[0], shadow[1]);
+
+    topleftBitmap = BitmapBuffer::load8bitMaskLZ4(mask_topleft);
+
+    loadBuiltinBitmaps();
+  }
+}
+
+void EdgeTxTheme::loadIcons() const
+{
+  if (currentMenuBackground) {
+    currentMenuBackground->drawSolidFilledRect(
+        0, 0, currentMenuBackground->width(), currentMenuBackground->height(),
+        COLOR_THEME_SECONDARY1);
+
+    currentMenuBackground->drawSolidFilledRect(
+        0, MENU_HEADER_HEIGHT, currentMenuBackground->width(),
+        MENU_TITLE_TOP - MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY3);
+
+    std::unique_ptr<BitmapBuffer> background(BitmapBuffer::load8bitMaskLZ4(mask_currentmenu_bg));
+    currentMenuBackground->drawMask(0, 0, background.get(), COLOR_THEME_FOCUS);
+
+    std::unique_ptr<BitmapBuffer> shadow(BitmapBuffer::load8bitMaskLZ4(mask_currentmenu_shadow));
+    currentMenuBackground->drawMask(0, 0, shadow.get(), COLOR_THEME_PRIMARY1);
+
+    std::unique_ptr<BitmapBuffer> dot(BitmapBuffer::load8bitMaskLZ4(mask_currentmenu_dot));
+    currentMenuBackground->drawMask(10, 39, dot.get(), COLOR_THEME_PRIMARY2);
+  }
+}
+
+void EdgeTxTheme::setBackgroundImageFileName(const char *fileName)
+{
+  // ensure you delete old bitmap
+  if (backgroundBitmap != nullptr)
+    delete backgroundBitmap;
+
+  strncpy(backgroundImageFileName, fileName, FF_MAX_LFN);
+  backgroundImageFileName[FF_MAX_LFN] = '\0'; // ensure string termination
+
+  // Try to load bitmap. If this fails backgroundBitmap will be NULL and default will be loaded in update() method
+  backgroundBitmap = BitmapBuffer::loadBitmap(backgroundImageFileName);
 }
 
 const char * EdgeTxTheme::getFilePath(const char * filename) const
 {
   static char path[FF_MAX_LFN+1] = THEMES_PATH "/";
-  strcpy(path + sizeof(THEMES_PATH), getName());
+  strcpy(path + sizeof(THEMES_PATH), name);
   int len = sizeof(THEMES_PATH) + strlen(path + sizeof(THEMES_PATH));
   path[len] = '/';
   strcpy(path+len+1, filename);
   return path;
 }
 
-void EdgeTxTheme::drawThumb(BitmapBuffer * dc, coord_t x, coord_t y, uint32_t flags)
+const BitmapBuffer * EdgeTxTheme::getIconMask(uint8_t index) const
 {
-  #define THUMB_WIDTH   51
-  #define THUMB_HEIGHT  31
-  if (!thumb) {
-    thumb = BitmapBuffer::loadBitmap(getFilePath("thumb.bmp"));
-  }
-  lcd->drawBitmap(x, y, thumb);
-  if (flags == COLOR_THEME_PRIMARY3) {
-    dc->drawFilledRect(x, y, THUMB_WIDTH, THUMB_HEIGHT, SOLID, COLOR_THEME_PRIMARY1);
-  }
-}
-
-void EdgeTxTheme::drawBackground(BitmapBuffer * dc) const
-{
-  dc->drawSolidFilledRect(0, 0, LCD_W, LCD_H, COLOR_THEME_SECONDARY3);
-}
-
-//void EdgeTxTheme::drawMessageBox(const char *title, const char *text,
-//                                 const char *action, uint32_t type) const
-//{
-//  //if (flags & MESSAGEBOX_TYPE_ALERT) {
-//    drawBackground();
-//    lcdDrawFilledRect(0, POPUP_Y, LCD_W, POPUP_H, SOLID, COLOR_THEME_PRIMARY2 |
-//    OPACITY(8));
-//  //}
-//
-//  if (type == WARNING_TYPE_ALERT || type == WARNING_TYPE_ASTERISK)
-//    lcd->drawBitmap(POPUP_X-80, POPUP_Y+12, asterisk);
-//  else if (type == WARNING_TYPE_INFO)
-//    lcd->drawBitmap(POPUP_X-80, POPUP_Y+12, busy);
-//  else
-//    lcd->drawBitmap(POPUP_X-80, POPUP_Y+12, question);
-//
-//  if (type == WARNING_TYPE_ALERT) {
-//#if defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_IT) ||
-//defined(TRANSLATIONS_CZ)
-//    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y, STR_WARNING,
-//    COLOR_THEME_WARNING|FONT(XL)); lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+28,
-//    title, COLOR_THEME_WARNING|FONT(XL));
-//#else
-//    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y, title, COLOR_THEME_WARNING|FONT(XL));
-//    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+28, STR_WARNING,
-//    COLOR_THEME_WARNING|FONT(XL));
-//#endif
-//  }
-//  else if (title) {
-//    lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y, title, COLOR_THEME_WARNING|FONT(XL));
-//  }
-//
-//  if (text) {
-//    lcdDrawText(WARNING_LINE_X, WARNING_INFOLINE_Y, text);
-//  }
-//
-//  if (action) {
-//    lcdDrawText(WARNING_LINE_X, WARNING_INFOLINE_Y+24, action);
-//  }
-//}
-
-void EdgeTxTheme::drawCheckBox(BitmapBuffer *dc, bool checked, coord_t x,
-                               coord_t y, bool focus) const
-{
-  dc->drawSolidFilledRect(x, y, 16, 16, COLOR_THEME_PRIMARY2);
-  if (focus) {
-    dc->drawSolidRect(x, y, 16, 16, 2, COLOR_THEME_FOCUS);
-  }
-  else {
-    dc->drawSolidRect(x, y, 16, 16, 1, COLOR_THEME_SECONDARY2);
-  }
-  if (checked) {
-    dc->drawSolidFilledRect(x + 3, y + 3, 10, 10, COLOR_THEME_FOCUS);
-  }
+  return iconMask[index];
 }
 
 void EdgeTxTheme::drawUsbPluggedScreen(BitmapBuffer * dc) const
 {
   // draw USB icon
   dc->clear(COLOR_THEME_SECONDARY3);
-  dc->drawBitmapPattern((LCD_W - LBM_USB_PLUGGED_W) / 2,
-                        (LCD_H - LBM_USB_PLUGGED_H) / 2,
+  uint16_t* usb_icon_hdr = (uint16_t*)_LBM_USB_PLUGGED;
+  dc->drawBitmapPattern((LCD_W - usb_icon_hdr[0]) / 2,
+                        (LCD_H - usb_icon_hdr[1]) / 2,
                         LBM_USB_PLUGGED, COLOR_THEME_SECONDARY1);
 }
 
-
-EdgeTxTheme * getTheme(const char * name)
+void EdgeTxTheme::drawBackground(BitmapBuffer * dc) const
 {
-  std::list<EdgeTxTheme *>::const_iterator it = getRegisteredThemes().cbegin();
-  for (; it != getRegisteredThemes().cend(); ++it) {
-    if (!strcmp(name, (*it)->getName())) {
-      return (*it);
-    }
-  }
-  return nullptr;
+  dc->clear(COLOR_THEME_SECONDARY3);
+  if (backgroundBitmap)
+    dc->drawBitmap(0, 0, backgroundBitmap);
 }
 
-void loadTheme(EdgeTxTheme * newTheme)
+void EdgeTxTheme::drawHeaderIcon(BitmapBuffer * dc, uint8_t icon) const
 {
-  TRACE("load theme %s", newTheme->getName());
-  theme = newTheme;
-  newTheme->load();
-}
+  dc->drawSolidFilledRect(0, 0, LCD_W, MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
 
-void loadTheme()
-{
-  char name[THEME_NAME_LEN + 1];
-  memset(name, 0, sizeof(name));
-  strncpy(name, g_eeGeneral.themeName, THEME_NAME_LEN);
-  EdgeTxTheme * newTheme = getTheme(name);
-  if (newTheme)
-    loadTheme(newTheme);
+  if (topleftBitmap)
+    dc->drawMask(0, 0, topleftBitmap, COLOR_THEME_FOCUS);
+
+  if (icon == ICON_EDGETX)
+    dc->drawMask(4, 10, iconMask[icon], COLOR_THEME_PRIMARY2);
   else
-    loadTheme(defaultTheme);
+    dc->drawMask(5, 7, iconMask[icon], COLOR_THEME_PRIMARY2);
+}
+
+void EdgeTxTheme::drawPageHeaderBackground(BitmapBuffer *dc, uint8_t icon, const char *title) const
+{
+  drawHeaderIcon(dc, icon);
+
+  dc->drawSolidFilledRect(0, MENU_HEADER_HEIGHT, LCD_W,
+                          MENU_TITLE_TOP - MENU_HEADER_HEIGHT,
+                          COLOR_THEME_SECONDARY3);  // the white separation line
+
+  dc->drawSolidFilledRect(0, MENU_TITLE_TOP, LCD_W, MENU_TITLE_HEIGHT,
+                          COLOR_THEME_SECONDARY1);  // the title line background
+  if (title) {
+    dc->drawText(MENUS_MARGIN_LEFT, MENU_TITLE_TOP + 1, title, COLOR_THEME_PRIMARY2);
+  }
+
+  drawMenuDatetime(dc, DATETIME_MIDDLE, DATETIME_LINE1, COLOR_THEME_PRIMARY2);
+}
+
+void EdgeTxTheme::drawMenuDatetime(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags color) const
+{
+  const TimerOptions timerOptions = {.options = SHOW_TIME};
+  struct gtm t;
+  gettime(&t);
+  char str[10];
+#if defined(TRANSLATIONS_CN) || defined(TRANSLATIONS_TW)
+  sprintf(str, "%02d-%02d", t.tm_mon + 1, t.tm_mday);
+#else
+  sprintf(str, "%d %s", t.tm_mday, STR_MONTHS[t.tm_mon]);
+#endif
+  dc->drawText(x, y, str, FONT(XS)|color|CENTERED);
+  getTimerString(str, getValue(MIXSRC_TX_TIME), timerOptions);
+  dc->drawText(x, y + 15, str, FONT(XS)|color|CENTERED);
+}
+
+void EdgeTxTheme::drawMenuIcon(BitmapBuffer *dc, uint8_t icon, bool checked) const
+{
+  if (checked)
+    dc->drawBitmap(0, 0, currentMenuBackground);
+  dc->drawMask(2, 7, iconMask[icon], COLOR_THEME_PRIMARY2);
+}
+
+EdgeTxTheme defaultTheme;
+
+EdgeTxTheme * EdgeTxTheme::instance()
+{
+  return &defaultTheme;
 }

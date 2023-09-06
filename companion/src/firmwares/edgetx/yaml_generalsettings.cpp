@@ -297,9 +297,6 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
     node["potsConfig"] = potsConfig;
   }
 
-  // Color lcd theme settings are not used in EdgeTx
-  // RadioTheme::ThemeData themeData;
-
   node["ownerRegistrationID"] = rhs.registrationId;
 
   // Gyro (for now only xlites)
@@ -570,9 +567,6 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
       rhs.sliderConfig[i] = potConfig[numPots + i];
     }
   }
-
-  // Color lcd theme settings are not used in EdgeTx
-  // RadioTheme::ThemeData themeData;
 
   node["ownerRegistrationID"] >> rhs.registrationId;
 

@@ -24,6 +24,7 @@
 #include "mainwindow.h"
 #include "opentx.h"
 #include "libopenui.h"
+#include "theme.h"
 
 #include "watchdog_driver.h"
 
