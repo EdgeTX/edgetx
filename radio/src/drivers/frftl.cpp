@@ -73,6 +73,9 @@ typedef enum {
   RELOCATE_ERASE_PROGRAM
 } ProgramMode;
 
+//
+// Structures in FLASH
+//
 typedef struct {
   uint32_t magicStart;
   uint32_t logicalPageNo;
@@ -82,20 +85,26 @@ typedef struct {
 } TransTableHeader;
 
 typedef struct {
-  int16_t physicalPageNo;
-  uint8_t sectStatus;
-} PageInfo;
-
-typedef struct {
-  TransTableHeader header; // 16 bytes
-  int16_t physicalPageNo[TT_RECORDS_PER_PAGE]; // 2KB
+  union {
+    TransTableHeader header; // 16 bytes
+    uint8_t __padding[1024];                   // 1KB
+  };
   uint8_t sectStatus[TT_RECORDS_PER_PAGE];     // 1KB
+  int16_t physicalPageNo[TT_RECORDS_PER_PAGE]; // 2KB
 } TransTable;
 
 typedef union {
   TransTable tt;           // 3KB + 16B
   uint8_t data[PAGE_SIZE]; // 4KB
 } Page;
+
+//
+// Structures in RAM only
+//
+typedef struct {
+  int16_t physicalPageNo;
+  uint8_t sectStatus;
+} PageInfo;
 
 typedef struct {
   Page    page;
@@ -570,9 +579,9 @@ bool ftlWrite(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors,
 
   uint32_t sectorNo = startSectorNo;
   while (noOfSectors > 0) {
-    if (!hasFreeBuffers(ftl, 3))  // Max no. of sectors need to be rewritten is
-                                  // 3, need to ensure has enough free buffers
-    {
+    // Max no. of sectors need to be rewritten is 3,
+    // need to ensure has enough free buffers
+    if (!hasFreeBuffers(ftl, 3)) {
       // Flush the buffers first if free space is not found
       if (!ftlSync(ftl)) {
         return false;
@@ -594,9 +603,8 @@ bool ftlWrite(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors,
         return false;
       }
 
-      // Init page in in buffer, locked for delayed program
-      dataBuffer =
-          initPhysicalPageInBuffer(ftl, logicalPageNo, pageInfo.physicalPageNo);
+      // Init page in buffer, locked for delayed program
+      dataBuffer = initPhysicalPageInBuffer(ftl, logicalPageNo, pageInfo.physicalPageNo);
       if (!dataBuffer) {
         return false;
       }
@@ -789,13 +797,21 @@ static void initPageBuffer(FrFTL* ftl)
   }
 }
 
-static void initTransTablePage(FrFTL* ftl, Page* page, uint32_t logicalPageNo)
+static void initTransTablePage(TransTable* tt, uint32_t logicalPageNo)
 {
-  memset(page->data, 0xff, PAGE_SIZE);
-  page->tt.header.magicStart = TT_PAGE_MAGIC;
-  page->tt.header.logicalPageNo = logicalPageNo;
-  page->tt.header.serial = 1;
-  page->tt.header.crc16 = calcCRC(&page->tt.header);
+  memset(tt, 0xff, sizeof(TransTable));
+  TransTableHeader* header = &tt->header;
+  header->magicStart = TT_PAGE_MAGIC;
+  header->logicalPageNo = logicalPageNo;
+  header->serial = 1;
+  header->crc16 = calcCRC(header);
+}
+
+static void updateTransTablePage(TransTable* tt, uint32_t logicalPageNo)
+{
+  TransTableHeader* header = &tt->header;
+  header->logicalPageNo = logicalPageNo;
+  header->crc16 = calcCRC(header);
 }
 
 void createFTL(FrFTL* ftl)
@@ -804,29 +820,37 @@ void createFTL(FrFTL* ftl)
   ftl->writeFrontier = 0;
   resolveUnknownState(ftl, ftl->pageBufferSize);
 
-  Page mtt;
-  initTransTablePage(ftl, &mtt, 0);
-  mtt.tt.physicalPageNo[0] = 0;
-  mtt.tt.sectStatus[0] = 0;
+  int i = 1;
+  TransTable tt;
+  initTransTablePage(&tt, i);
 
-  Page stt;
+  uint32_t addr = PAGE_SIZE;
   const FrFTLOps* cb = ftl->callbacks;
-  for (int i = 1; i < ftl->ttPageCount; i++) {
-    initTransTablePage(ftl, &stt, i);
-    uint32_t addr = i * PAGE_SIZE;
+  do {
     if (getPhysicalPageState(ftl, i) != ERASED) {
       cb->flashErase(addr);
     }
-    cb->flashProgram(addr, stt.data, PAGE_SIZE);
+    cb->flashProgram(addr, (const uint8_t*)&tt, PAGE_SIZE);
     setPhysicalPageState(ftl, i, USED);
-    mtt.tt.physicalPageNo[i] = i;
-    mtt.tt.sectStatus[i] = 0;
-  }
+
+    i += 1;
+    addr += PAGE_SIZE;
+    updateTransTablePage(&tt, i);
+    
+  } while(i < ftl->ttPageCount);
+
+  i = 0;
+  initTransTablePage(&tt, i);
+  do {
+    tt.physicalPageNo[i] = i;
+    tt.sectStatus[i] = 0;
+  } while(++i < ftl->ttPageCount);
 
   if (getPhysicalPageState(ftl, 0) != ERASED) {
     cb->flashErase(0);
   }
-  cb->flashProgram(0, mtt.data, PAGE_SIZE);
+
+  cb->flashProgram(0, (const uint8_t*)&tt, PAGE_SIZE);
   setPhysicalPageState(ftl, 0, USED);
 
   ftl->writeFrontier = ftl->ttPageCount;
