@@ -783,7 +783,7 @@
 #define TR_POWERMETER_FREQ             "Freq."
 #define TR_MENUTOOLS                   "TOOLS"
 #define TR_TURN_OFF_RECEIVER           "Turn off receiver"
-#define TR_STOPPING                    "Стоп..."
+#define TR_STOPPING                    "Остановка..."
 #define TR_MENU_SPECTRUM_ANALYSER      "SPECTRUM ANALYSER"
 #define TR_MENU_POWER_METER            "POWER METER"
 #define TR_SENSOR                      "СЕНСОР"
