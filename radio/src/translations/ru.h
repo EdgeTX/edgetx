@@ -212,11 +212,11 @@
 #endif
 
 #if defined(PCBFRSKY)
-  #define TR_ENTER                     "[ENTER]"
+  #define TR_ENTER                     "[ВВОД]"
 #elif defined(PCBNV14)
   #define TR_ENTER                     "[NEXT]"
 #else
-  #define TR_ENTER                     "[MENU]"
+  #define TR_ENTER                     "[МЕНЮ]"
 #endif
 
 #if defined(COLORLCD)
