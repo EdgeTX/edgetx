@@ -135,13 +135,6 @@ else()
   add_definitions(-DTRANSLATION_IS_RTL=0)
 endif()
 
-set(RTL_LANGUAGES RU)
-if(TRANSLATIONS IN_LIST RTL_LANGUAGES)
-  add_definitions(-DTRANSLATION_IS_RTL=1)
-else()
-  add_definitions(-DTRANSLATION_IS_RTL=0)
-endif()
-
 set(SRC ${SRC} debug.cpp)
 
 add_definitions(-DFLAVOUR="${FLAVOUR}")
