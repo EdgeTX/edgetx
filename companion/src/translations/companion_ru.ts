@@ -94,12 +94,12 @@
     <message>
         <location filename="../storage/appdata.h" line="654"/>
         <source>Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Редактор</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="654"/>
         <source>Template</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Шаблон</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="654"/>
@@ -109,37 +109,37 @@
     <message>
         <location filename="../storage/appdata.h" line="655"/>
         <source>Manual</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Инструкция</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="655"/>
         <source>Startup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Запуск</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="655"/>
         <source>Daily</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ежедневно</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="655"/>
         <source>Weekly</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Еженедельно</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="655"/>
         <source>Monthly</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ежемесячно</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="657"/>
         <source>Debug</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Отладка</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="657"/>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Предупреждение</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="657"/>
@@ -154,7 +154,7 @@
     <message>
         <location filename="../storage/appdata.h" line="657"/>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Информация</translation>
     </message>
 </context>
 <context>
