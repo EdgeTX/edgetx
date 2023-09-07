@@ -25,11 +25,12 @@
 #include <QMessageBox>
 #include <QStandardItem>
 #include <QItemSelectionModel>
+#include <QAbstractItemView>
 
 UpdateSounds::UpdateSounds(QWidget * parent) :
   UpdateInterface(parent, CID_Sounds, tr("Sounds"))
 {
-  init(QString(GH_API_REPOS_EDGETX).append("/edgetx-sdcard-sounds"));
+  init(QString(GH_API_REPOS_EDGETX).append("/edgetx-sdcard-sounds"), "", 50);
   langPacks = new QStandardItemModel();
 }
 
@@ -50,7 +51,7 @@ void UpdateSounds::assetSettingsInit()
   cad.processes(UPDFLG_Common_Asset);
   cad.flags(cad.processes() | UPDFLG_CopyStructure);
   cad.filterType(UpdateParameters::UFT_Startswith);
-  cad.filter("edgetx-sdcard-sounds-%LANGUAGE%-");
+  cad.filter("edgetx-sdcard-sounds-%LANGUAGE%");
 
   qDebug() << "Asset settings initialised";
 }
@@ -59,69 +60,18 @@ bool UpdateSounds::flagAssets()
 {
   status()->progressMessage(tr("Processing available sounds"));
 
-  QJsonDocument *json = new QJsonDocument();
-
-  const QString jsonFile("sounds.json");
-
-  if (!retrieveAssetsJsonFile(jsonFile, json)) {
-    status()->reportProgress(tr("Unable to retrieve asset '%1' from release '%2'").arg(jsonFile).arg(repo()->releases()->name()), QtDebugMsg);
-    //  assume older release where file not an asset
-    if (!retrieveRepoJsonFile(jsonFile, json)) {
-      status()->reportProgress(tr("Unable to retrieve file '%1' from repo '%2'").arg(jsonFile).arg(repo()->path()), QtCriticalMsg);
-      delete json;
-      return false;
-    }
-  }
-
-  /*
-    {
-        "language": "en-GB",
-        "name": "British English Female",
-        "description": "British English Female Voice (en-GB-Libby)",
-        "directory": "en_gb-libby"
-    },
-  */
-
-  //  always refresh to allow for language change in radio profile
+  // always refresh to allow for language change in radio profile
   langPacks->clear();
 
-  if (json->isArray()) {
-    const QJsonArray &arr = json->array();
-
-    foreach (const QJsonValue &v, arr) {
-      if (v.isObject()) {
-        const QJsonObject obj = v.toObject();
-        QString langVariant;
-        QString lang;
-
-        if (!obj.value("language").isUndefined()) {
-          langVariant = obj.value("language").toString();
-          lang = langVariant.split("-").at(0);
-        }
-
-        if (lang == params()->language) {
-          QStandardItem * item = new QStandardItem();
-
-          if (!obj.value("language").isUndefined())
-            item->setData(obj.value("language").toString(), IMDR_Language);
-          if (!obj.value("name").isUndefined())
-            item->setData(obj.value("name").toString(), IMDR_Name);
-          if (!obj.value("description").isUndefined())
-            item->setData(obj.value("description").toString(), Qt::DisplayRole);
-          if (!obj.value("directory").isUndefined())
-            item->setData(obj.value("directory").toString(), IMDR_Directory);
-
-          langPacks->appendRow(item);
-        }
-      }
-    }
-  }
-
-  delete json;
-
-  if (langPacks->rowCount() < 1) {
-    status()->reportProgress(tr("Language '%1' not listed in '%2'").arg(params()->language).arg(jsonFile), QtCriticalMsg);
+  UpdateParameters::AssetParams ap = params()->assets[0];
+  if (!filterAssets(ap))
     return false;
+
+  for (int i = 0; i < repo()->assets()->count(); i++) {
+    repo()->assets()->getSetId(i);
+    QStandardItem * item = new QStandardItem();
+    item->setText(repo()->assets()->name());
+    langPacks->appendRow(item);
   }
 
   if (langPacks->rowCount() > 1) {
@@ -139,26 +89,25 @@ bool UpdateSounds::flagAssets()
 
     QModelIndexList selIndexes = selItems->selectedIndexes();
 
-    for (int i = 0; i < selIndexes.size(); i++) {
-      if (!flagLanguageAsset(langPacks->data(selIndexes.at(i), IMDR_Directory).toString()))
-        return false;
-    }
+    if (!flagLanguageAsset(langPacks->data(selIndexes.at(0)).toString()))
+      return false;
 
     dlg->deleteLater();
   }
   else if (langPacks->rowCount() == 1) {
-    if (!flagLanguageAsset(langPacks->data(langPacks->index(0, 0), IMDR_Directory).toString()))
+    if (!flagLanguageAsset(langPacks->data(langPacks->index(0, 0)).toString()))
       return false;
   }
 
   return true;
 }
 
-bool UpdateSounds::flagLanguageAsset(QString lang)
+bool UpdateSounds::flagLanguageAsset(QString asset)
 {
   status()->progressMessage(tr("Flagging assets"));
 
-  params()->language = lang;
   UpdateParameters::AssetParams ap = params()->assets[0];
+  ap.filter = asset;
+  ap.filterType = UpdateParameters::UFT_Exact;
   return setFilteredAssets(ap);
 }

@@ -36,11 +36,8 @@ void UpdateStatus::reportProgress(QString text, QtMsgType type)
   if (m_logLevel == QtDebugMsg ||
      (m_logLevel == QtInfoMsg && type > QtDebugMsg) ||
      (type < QtInfoMsg && type >= m_logLevel)) {
-    if (m_progress) {
+    if (m_progress)
       m_progress->addMessage(text, type);
-      if (m_logLevel == QtDebugMsg)
-        qDebug() << text;
-    }
     else
       qDebug() << text;
   }

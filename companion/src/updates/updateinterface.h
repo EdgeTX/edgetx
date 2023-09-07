@@ -113,6 +113,7 @@ class UpdateInterface : public QWidget
     bool decompressFlaggedAssets();
     const QString downloadDir() const;
     bool downloadFlaggedAssets();
+    bool filterAssets(const UpdateParameters::AssetParams & ap);
     void init(QString repo, QString nightly = "", int resultsPerPage = -1);
     const bool isSettingsIndexValid() const;
     UpdateNetwork* const network() const;
