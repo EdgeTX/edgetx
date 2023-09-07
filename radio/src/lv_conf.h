@@ -426,19 +426,19 @@
 
 #elif defined(TRANSLATIONS_RU)
   #define LV_FONT_CUSTOM_DECLARE                \
-    LV_FONT_DECLARE(lv_font_roboto_ru_9)           \
-    LV_FONT_DECLARE(lv_font_roboto_ru_13)          \
-    LV_FONT_DECLARE(lv_font_roboto_ru_16)          \
-    LV_FONT_DECLARE(lv_font_roboto_ru_17)          \
-    LV_FONT_DECLARE(lv_font_roboto_ru_24)          \
-    LV_FONT_DECLARE(lv_font_roboto_ru_64)          \
-    LV_FONT_DECLARE(lv_font_roboto_ru_bold_16)     \
-    LV_FONT_DECLARE(lv_font_roboto_ru_bold_17)     \
-    LV_FONT_DECLARE(lv_font_roboto_ru_bold_32)     \
-    LV_FONT_DECLARE(lv_font_roboto_ru_bold_64)
+    LV_FONT_DECLARE(lv_font_arimo_ru_9)           \
+    LV_FONT_DECLARE(lv_font_arimo_ru_13)          \
+    LV_FONT_DECLARE(lv_font_arimo_ru_16)          \
+    LV_FONT_DECLARE(lv_font_arimo_ru_17)          \
+    LV_FONT_DECLARE(lv_font_arimo_ru_24)          \
+    LV_FONT_DECLARE(lv_font_arimo_ru_64)          \
+    LV_FONT_DECLARE(lv_font_arimo_ru_bold_16)     \
+    LV_FONT_DECLARE(lv_font_arimo_ru_bold_17)     \
+    LV_FONT_DECLARE(lv_font_arimo_ru_bold_32)     \
+    LV_FONT_DECLARE(lv_font_arimo_ru_bold_64)
 
   /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_roboto_ru_16
+  #define LV_FONT_DEFAULT &lv_font_arimo_ru_16
 
 #elif defined(TRANSLATIONS_JP)
   #define LV_FONT_CUSTOM_DECLARE                \
