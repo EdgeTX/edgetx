@@ -66,53 +66,46 @@ typedef enum {
   ERASED
 } PhysicalPageState;
 
-typedef enum: uint8_t {
+typedef enum {
   NONE,
   PROGRAM,
   ERASE_PROGRAM,
   RELOCATE_ERASE_PROGRAM
 } ProgramMode;
 
-// TODO: exactly 16 bytes,
-//       do we need "packed"?
-//
-typedef PACK(struct {
+typedef struct {
   uint32_t magicStart;
   uint32_t logicalPageNo;
   uint32_t serial;
   uint16_t padding;
   uint16_t crc16;
-}) TransTableHeader;
+} TransTableHeader;
 
-// TODO: 3 bytes is probably
-//       not such a good idea.
-//
-typedef PACK(struct {
+typedef struct {
   int16_t physicalPageNo;
   uint8_t sectStatus;
-}) PageInfo;
+} PageInfo;
 
 typedef struct {
   TransTableHeader header; // 16 bytes
-  PageInfo pageInfos[TT_RECORDS_PER_PAGE]; // 3 x 1024
+  int16_t physicalPageNo[TT_RECORDS_PER_PAGE]; // 2KB
+  uint8_t sectStatus[TT_RECORDS_PER_PAGE];     // 1KB
 } TransTable;
 
-typedef union
-{
+typedef union {
   TransTable tt;           // 3KB + 16B
   uint8_t data[PAGE_SIZE]; // 4KB
 } Page;
 
-typedef PACK(struct
-{
+typedef struct {
+  Page    page;
   int16_t logicalPageNo;        // Required for first program or reprogram
   int16_t physicalPageNo;
   uint8_t lru;                  // Index for physicalPageNo, 0 is most used
   uint8_t lock;                 // Page locked for delayed update
   uint8_t sectorEraseRequired;  // Record which sector need to be erased before update
-  ProgramMode pMode;
-  Page page;
-}) PageBuffer;
+  uint8_t pMode;
+} PageBuffer;
 
 static const uint8_t supportedFlashSizes[] = { 4, 8, 16, 32, 64, 128 };
 
@@ -135,12 +128,17 @@ static void setPhysicalPageState(FrFTL* ftl, int16_t physicalPageNo,
       ((state & 0x3) << ((physicalPageNo & 0xf) * 2));
 }
 
-static uint16_t calcCRC(TransTableHeader* header)
+
+static const uint16_t crc16_ccitt_start = 0xFFFF;
+
+static inline uint16_t crc16_x25_ccitt(const void* buf, uint32_t len) {
+  return crc16(CRC_1021, (const uint8_t*)buf, len, crc16_ccitt_start);
+}
+
+static inline uint16_t calcCRC(TransTableHeader* header)
 {
   header->padding = 0xffff;
-  uint16_t crc =
-      crc16(CRC_1021, (uint8_t*)header, sizeof(TransTableHeader) - 2, 0xffff);
-  return crc;
+  return crc16_x25_ccitt(header, sizeof(TransTableHeader) - 2);
 }
 
 static void resolveUnknownState(FrFTL* ftl, uint16_t count)
@@ -298,29 +296,25 @@ static bool readPhysicalSector(FrFTL* ftl, uint8_t* buffer,
                                uint16_t logicalPageNo, uint16_t physicalPageNo,
                                uint8_t pageSectorNo)
 {
-  PageBuffer* pageBuffer =
-      loadPhysicalPageInBuffer(ftl, logicalPageNo, physicalPageNo);
-  if (pageBuffer != nullptr) {
-    memcpy(buffer, pageBuffer->page.data + pageSectorNo * SECTOR_SIZE,
-           SECTOR_SIZE);
-    return true;
-  }
-  return false;
+  PageBuffer* pageBuffer = loadPhysicalPageInBuffer(ftl, logicalPageNo, physicalPageNo);
+  if (!pageBuffer) return false;
+
+  memcpy(buffer, pageBuffer->page.data + pageSectorNo * SECTOR_SIZE, SECTOR_SIZE);
+  return true;
 }
 
 static bool readPhysicalPageInfo(FrFTL* ftl, PageInfo* pageInfo,
                                  uint16_t logicalPageNo,
                                  uint16_t physicalPageNo, uint16_t recordNo)
 {
-  PageBuffer* pageBuffer =
-      loadPhysicalPageInBuffer(ftl, logicalPageNo, physicalPageNo);
-  if (pageBuffer != nullptr) {
-    // Page found in buffer
-    memcpy(pageInfo, &pageBuffer->page.tt.pageInfos[recordNo],
-           sizeof(PageInfo));
-    return true;
-  }
-  return false;
+  PageBuffer* pageBuffer = loadPhysicalPageInBuffer(ftl, logicalPageNo, physicalPageNo);
+  if (!pageBuffer) return false;
+  
+  // Page found in buffer
+  const TransTable* tt = &pageBuffer->page.tt;
+  pageInfo->physicalPageNo = tt->physicalPageNo[recordNo];
+  pageInfo->sectStatus = tt->sectStatus[recordNo];
+  return true;
 }
 
 static bool readPageInfo(FrFTL* ftl, PageInfo* pageInfo, uint16_t logicalPageNo)
@@ -329,20 +323,20 @@ static bool readPageInfo(FrFTL* ftl, PageInfo* pageInfo, uint16_t logicalPageNo)
     // Read from master TT
     return readPhysicalPageInfo(ftl, pageInfo, 0, ftl->mttPhysicalPageNo,
                                 logicalPageNo);
-  } else {
-    // Lookup from secondary TT from master TT
-    PageInfo secondaryTTInfo;
-    uint16_t sttLogicalPageNo = logicalPageNo / TT_RECORDS_PER_PAGE;
-    if (!readPhysicalPageInfo(ftl, &secondaryTTInfo, 0, ftl->mttPhysicalPageNo,
-                              sttLogicalPageNo)) {
-      return false;
-    }
-
-    // Read from secondary TT
-    return readPhysicalPageInfo(ftl, pageInfo, sttLogicalPageNo,
-                                secondaryTTInfo.physicalPageNo,
-                                logicalPageNo % TT_RECORDS_PER_PAGE);
   }
+  
+  // Lookup from secondary TT from master TT
+  PageInfo secondaryTTInfo;
+  uint16_t sttLogicalPageNo = logicalPageNo / TT_RECORDS_PER_PAGE;
+  if (!readPhysicalPageInfo(ftl, &secondaryTTInfo, 0, ftl->mttPhysicalPageNo,
+			    sttLogicalPageNo)) {
+    return false;
+  }
+
+  // Read from secondary TT
+  return readPhysicalPageInfo(ftl, pageInfo, sttLogicalPageNo,
+			      secondaryTTInfo.physicalPageNo,
+			      logicalPageNo % TT_RECORDS_PER_PAGE);
 }
 
 static bool updatePhysicalPageInfo(FrFTL* ftl, PageInfo* pageInfo,
@@ -360,7 +354,10 @@ static bool updatePhysicalPageInfo(FrFTL* ftl, PageInfo* pageInfo,
   if (pageBuffer->pMode == NONE) {
     pageBuffer->pMode = PROGRAM;
   }
-  memcpy(&pageBuffer->page.tt.pageInfos[recordNo], pageInfo, sizeof(PageInfo));
+
+  TransTable* tt = &pageBuffer->page.tt;
+  tt->physicalPageNo[recordNo] = pageInfo->physicalPageNo;
+  tt->sectStatus[recordNo] = pageInfo->sectStatus;
 
   return true;
 }
@@ -448,7 +445,7 @@ static bool programPageInBuffer(FrFTL* ftl, PageBuffer* buffer)
       if (buffer->logicalPageNo < ftl->ttPageCount) {
         if (buffer->logicalPageNo == 0) {
           // MTT need update physicalPageNo
-          buffer->page.tt.pageInfos[0].physicalPageNo = newPhysicalPageNo;
+          buffer->page.tt.physicalPageNo[0] = newPhysicalPageNo;
         }
 
         // TT page, need update serial and CRC
@@ -531,15 +528,16 @@ bool ftlSync(FrFTL* ftl)
   for (int i = 0; i < ftl->pageBufferSize; i++) {
     PageBuffer* currentBuffer = pageBuffer + i;
     if (currentBuffer->lock) {
-      if (currentBuffer->logicalPageNo > 0 &&
-          currentBuffer->logicalPageNo < ftl->ttPageCount) {
+      int16_t logicalPageNo = currentBuffer->logicalPageNo;
+      if (logicalPageNo > 0 &&
+          logicalPageNo < ftl->ttPageCount) {
         if (!programPageInBuffer(ftl, currentBuffer)) {
           return false;
         }
 
         // Update PageInfo in MTT page
-        mttBuffer->page.tt.pageInfos[currentBuffer->logicalPageNo]
-            .physicalPageNo = currentBuffer->physicalPageNo;
+	TransTable* tt = &mttBuffer->page.tt;
+        tt->physicalPageNo[logicalPageNo] = currentBuffer->physicalPageNo;
 
         // Unlock buffer
         currentBuffer->lock = UNLOCKED;
@@ -688,10 +686,10 @@ bool ftlRead(FrFTL* ftl, uint32_t sectorNo, uint8_t* buffer)
     // Sector never write, return init content
     memset(buffer, 0xff, SECTOR_SIZE);
     return true;
-  } else {
-    return readPhysicalSector(ftl, buffer, logicalPageNo,
-                              pageInfo.physicalPageNo, pageSectorNo);
   }
+
+  return readPhysicalSector(ftl, buffer, logicalPageNo,
+			    pageInfo.physicalPageNo, pageSectorNo);
 }
 
 bool ftlTrim(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors)
@@ -703,9 +701,9 @@ bool ftlTrim(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors)
 
   uint32_t sectorNo = startSectorNo;
   while (noOfSectors > 0) {
-    if (!hasFreeBuffers(ftl, 3))  // Max no. of sectors need to be rewritten is
-                                  // 3, need to ensure has enough free buffers
-    {
+    // Max no. of sectors need to be rewritten is 3,
+    // need to ensure has enough free buffers
+    if (!hasFreeBuffers(ftl, 3)) {
       // Flush the buffers first if free space is not found
       if (!ftlSync(ftl)) {
         return false;
@@ -808,8 +806,8 @@ void createFTL(FrFTL* ftl)
 
   Page mtt;
   initTransTablePage(ftl, &mtt, 0);
-  mtt.tt.pageInfos[0].physicalPageNo = 0;
-  mtt.tt.pageInfos[0].sectStatus = 0;
+  mtt.tt.physicalPageNo[0] = 0;
+  mtt.tt.sectStatus[0] = 0;
 
   Page stt;
   const FrFTLOps* cb = ftl->callbacks;
@@ -821,8 +819,8 @@ void createFTL(FrFTL* ftl)
     }
     cb->flashProgram(addr, stt.data, PAGE_SIZE);
     setPhysicalPageState(ftl, i, USED);
-    mtt.tt.pageInfos[i].physicalPageNo = i;
-    mtt.tt.pageInfos[i].sectStatus = 0;
+    mtt.tt.physicalPageNo[i] = i;
+    mtt.tt.sectStatus[i] = 0;
   }
 
   if (getPhysicalPageState(ftl, 0) != ERASED) {
@@ -847,6 +845,7 @@ static bool loadFTL(FrFTL* ftl)
     if (header.magicStart == TT_PAGE_MAGIC && header.logicalPageNo == 0 &&
         header.crc16 == calcCRC(&header)) {
       // MTT detected
+      // TODO: what happens on #serial overflow?
       if (header.serial > currentSerial) {
         // Newer MTT found
         currentSerial = header.serial;
@@ -867,7 +866,7 @@ static bool loadFTL(FrFTL* ftl)
     PageBuffer* mtt =
         loadPhysicalPageInBuffer(ftl, 0, currentPhysicalMTTPageNo);
     for (int i = 1; i < TT_RECORDS_PER_PAGE; i++) {
-      int16_t currentPhysicalPageNo = mtt->page.tt.pageInfos[i].physicalPageNo;
+      int16_t currentPhysicalPageNo = mtt->page.tt.physicalPageNo[i];
       if (currentPhysicalPageNo >= 0) {
         // Used page
         setPhysicalPageState(ftl, currentPhysicalPageNo, USED);
@@ -877,7 +876,7 @@ static bool loadFTL(FrFTL* ftl)
         PageBuffer* stt =
             loadPhysicalPageInBuffer(ftl, i, currentPhysicalPageNo);
         for (int j = 0; j < TT_RECORDS_PER_PAGE; j++) {
-          currentPhysicalPageNo = stt->page.tt.pageInfos[j].physicalPageNo;
+          currentPhysicalPageNo = stt->page.tt.physicalPageNo[j];
           if (currentPhysicalPageNo >= 0) {
             // Used page
             setPhysicalPageState(ftl, currentPhysicalPageNo, USED);
