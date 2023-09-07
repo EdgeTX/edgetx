@@ -475,14 +475,6 @@ void TelemetryPanel::update()
   lock = true;
 
   if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-    if (model->moduleData[0].protocol == PULSES_OFF && model->moduleData[1].protocol == PULSES_PPM) {
-      ui->telemetryProtocol->setEnabled(true);
-    }
-    else {
-      ui->telemetryProtocol->setEnabled(false);
-      ui->telemetryProtocol->setCurrentIndex(0);
-    }
-
     ui->voltsSource->updateValue();
     ui->altitudeSource->updateValue();
     ui->varioSource->updateValue();
@@ -499,15 +491,6 @@ void TelemetryPanel::setup()
 {
   lock = true;
 
-  ui->telemetryProtocol->addItem(tr("FrSky S.PORT"), 0);
-  ui->telemetryProtocol->addItem(tr("FrSky D"), 1);
-  if (IS_9XRPRO(firmware->getBoard()) ||
-      (IS_TARANIS(firmware->getBoard()) &&
-       generalSettings.serialPort[GeneralSettings::SP_AUX1] ==
-           GeneralSettings::AUX_SERIAL_TELE_IN)) {
-    ui->telemetryProtocol->addItem(tr("FrSky D (cable)"), 2);
-  }
-  ui->telemetryProtocol->setCurrentIndex(model->telemetryProtocol);
   ui->ignoreSensorIds->setField(model->frsky.ignoreSensorIds, this);
   ui->showInstanceIds->setField(model->showInstanceIds, this);
   ui->disableTelemetryAlarms->setField(model->rssiAlarms.disabled);

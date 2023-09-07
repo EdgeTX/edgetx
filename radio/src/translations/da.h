@@ -62,7 +62,6 @@
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
 #define TR_USBMODES                    "Spørg",TR("Joyst","Joystik"),TR("Lager","USB lager"),TR("Data", "USB data")
 #define TR_JACK_MODES                  "Spørg","Audio","Træner"
-#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (kabel)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetri"
 
 #define TR_SBUS_INVERSION_VALUES       "normal","ikke invers"
 #define TR_MULTI_CUSTOM                "Tilpasset"

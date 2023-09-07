@@ -59,7 +59,6 @@
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japonsko"),TR("EU","Evropa")
 #define TR_USBMODES                    TR("Zeptat","Zeptat se"),TR("Joyst","Joystick"),TR("SDkarta","Úložiště"),"Serial"
 #define TR_JACK_MODES                  "Zeptat","Audio","Trenér"
-#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (kabel)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetrie"
 
 #define TR_SBUS_INVERSION_VALUES       "normal","neinvertováno"
 #define TR_MULTI_CUSTOM                "Vlastní"

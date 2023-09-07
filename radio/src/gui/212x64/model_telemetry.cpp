@@ -22,7 +22,6 @@
 #include "opentx.h"
 
 enum MenuModelTelemetryFrskyItems {
-  ITEM_TELEMETRY_PROTOCOL_TYPE,
   ITEM_TELEMETRY_SENSORS_LABEL,
   ITEM_TELEMETRY_SENSOR_FIRST,
   ITEM_TELEMETRY_SENSOR_LAST = ITEM_TELEMETRY_SENSOR_FIRST + MAX_TELEMETRY_SENSORS - 1,
@@ -67,7 +66,6 @@ uint8_t SENSOR_ROW(uint8_t value)
 #else
   #define VARIO_ROWS
 #endif
-#define TELEMETRY_TYPE_ROWS           (!IS_INTERNAL_MODULE_ENABLED() && g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_PPM) ? (uint8_t)0 : HIDDEN_ROW,
 
 void onSensorMenu(const char * result)
 {
@@ -114,7 +112,7 @@ void onDeleteAllSensorsConfirm(const char * result)
 
 void menuModelTelemetry(event_t event)
 {
-  MENU(STR_MENUTELEMETRY, menuTabModel, MENU_MODEL_TELEMETRY, HEADER_LINE+ITEM_TELEMETRY_MAX, { HEADER_LINE_COLUMNS TELEMETRY_TYPE_ROWS SENSORS_ROWS RSSI_ROWS VARIO_ROWS });
+  MENU(STR_MENUTELEMETRY, menuTabModel, MENU_MODEL_TELEMETRY, HEADER_LINE+ITEM_TELEMETRY_MAX, { HEADER_LINE_COLUMNS SENSORS_ROWS RSSI_ROWS VARIO_ROWS });
 
   uint8_t sub = menuVerticalPosition - HEADER_LINE;
 
@@ -176,14 +174,6 @@ void menuModelTelemetry(event_t event)
     else
 
     switch (k) {
-      case ITEM_TELEMETRY_PROTOCOL_TYPE:
-        lcdDrawTextAlignedLeft(y, STR_TELEMETRY_TYPE);
-        lcdDrawTextAtIndex(TELEM_COL2, y, STR_TELEMETRY_PROTOCOLS, g_model.telemetryProtocol, attr);
-        if (attr) {
-          g_model.telemetryProtocol = checkIncDec(event, g_model.telemetryProtocol, PROTOCOL_TELEMETRY_FIRST, PROTOCOL_TELEMETRY_LAST, EE_MODEL, isTelemetryProtocolAvailable);
-        }
-        break;
-
       case ITEM_TELEMETRY_SENSORS_LABEL:
         telemExpandState.sensors = expandableSection(y, STR_TELEMETRY_SENSORS, telemExpandState.sensors, attr, event);
         if (telemExpandState.sensors) {

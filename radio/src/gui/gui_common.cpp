@@ -1024,44 +1024,6 @@ bool isRfProtocolAvailable(int protocol)
   return true;
 }
 
-bool isTelemetryProtocolAvailable(int protocol)
-{
-#if defined(PCBTARANIS)
-  if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY &&
-      hasSerialMode(UART_MODE_TELEMETRY) < 0) {
-    return false;
-  }
-#endif
-
-  if (protocol== PROTOCOL_TELEMETRY_CROSSFIRE) {
-    return false;
-  }
-
-  if ( protocol== PROTOCOL_TELEMETRY_GHOST) {
-    return false;
-  }
-
-#if !defined(MULTIMODULE)
-  if (protocol == PROTOCOL_TELEMETRY_SPEKTRUM || protocol == PROTOCOL_TELEMETRY_FLYSKY_IBUS || protocol == PROTOCOL_TELEMETRY_MULTIMODULE) {
-    return false;
-  }
-#endif
-
-#if !defined(AFHDS3)
-  if (protocol == PROTOCOL_TELEMETRY_AFHDS3) {
-    return false;
-  }
-#endif
-
-#if defined(PCBHORUS)
-  if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
-    return false;
-  }
-#endif
-
-  return true;
-}
-
 bool isTrainerModeAvailable(int mode)
 {
 #if defined(PCBX9E)

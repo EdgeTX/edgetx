@@ -55,7 +55,6 @@
 #define TR_COUNTRY_CODES               TR("US","アメリカ"),TR("JP","日本"),TR("EU","ヨーロッパ")
 #define TR_USBMODES                    "確認",TR("Joyst","JoyStick"),TR("SDカード","ストレージ"),"シリアル"
 #define TR_JACK_MODES                  "確認","音声","トレーナー"
-#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 
 #define TR_SBUS_INVERSION_VALUES       "標準","リバースなし"
 #define TR_MULTI_CUSTOM                "カスタム"
