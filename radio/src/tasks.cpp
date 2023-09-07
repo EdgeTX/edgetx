@@ -47,58 +47,7 @@ TASK_FUNCTION(menusTask)
   LvglWrapper::instance();
 #endif
 
-#if defined(SPLASH) && !defined(STARTUP_ANIMATION)
-  tmr10ms_t splashStartTime = 0;
-  bool waitSplash = false;
-  if (!UNEXPECTED_SHUTDOWN()) {
-    splashStartTime = get_tmr10ms();
-    waitSplash = true;
-    drawSplash();
-    TRACE("drawSplash() completed");
-  }
-#endif
-
-#if defined(HARDWARE_TOUCH) && !defined(PCBFLYSKY) && !defined(SIMU)
-  touchPanelInit();
-#endif
-
   opentxInit();
-
-#if defined(SPLASH) && !defined(STARTUP_ANIMATION)
-  if (waitSplash){
-    extern bool inactivityCheckInputs();
-    extern void checkSpeakerVolume();
-
-#if defined(SIMU)
-    // Simulator - inputsMoved() returns true immediately without this!
-    RTOS_WAIT_TICKS(30);
-#endif
-
-    splashStartTime += SPLASH_TIMEOUT;
-    while (splashStartTime > get_tmr10ms()) {
-      WDG_RESET();
-      checkSpeakerVolume();
-      checkBacklight();
-      RTOS_WAIT_TICKS(10);
-      auto evt = getEvent();
-      if (evt || inactivityCheckInputs()) {
-        if (evt)
-          killEvents(evt);
-        break;
-      }
-#if defined(SIMU)
-      // Allow simulator to exit if closed while splash showing
-      uint32_t pwr_check = pwrCheck();
-      if (pwr_check == e_power_off) {
-        break;
-      }
-#endif
-    }
-
-    // Reset timer so special/global functions set to !1x don't get triggered
-    START_SILENCE_PERIOD();
-  }
-#endif
 
   mixerTaskInit();
 
