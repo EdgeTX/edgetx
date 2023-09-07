@@ -6,6 +6,14 @@ POT_CONFIG = {
         "P2": {"default": "WITH_DETENT"},
         "P3": {"default": "MULTIPOS_SWITCH"}
     },
+    "el18": {
+        "P1": { "default": "WITHOUT_DETENT"},
+        "P2": { "default": "WITHOUT_DETENT"}
+    },
+    "nv14": {
+        "P1": { "default": "WITHOUT_DETENT"},
+        "P2": { "default": "WITHOUT_DETENT"}
+    },
     "tpro": {
         "P1": {"default": "WITH_DETENT"},
         "P2": {"default": "WITH_DETENT"}

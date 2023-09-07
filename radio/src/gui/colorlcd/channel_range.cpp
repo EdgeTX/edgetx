@@ -57,12 +57,18 @@ void ChannelRange::build()
   chStart = new NumberEdit(this, rect_t{}, 1, 1, GET_DEFAULT(1 + getChannelsStart()));
   chStart->setSetValueHandler([=](int newValue) { setStart(newValue); });
   chStart->setPrefix(STR_CH);
+#if LCD_H > LCD_W
+  chStart->setWidth(LCD_W/3-10);
+#endif
 
   chEnd = new NumberEdit(this, rect_t{}, 8, 8,
                          GET_DEFAULT(getChannelsStart() + 8 + getChannelsCount()));
 
   chEnd->setPrefix(STR_CH);
   chEnd->setSetValueHandler([=](int newValue) { setEnd(newValue); });
+#if LCD_H > LCD_W
+  chEnd->setWidth(LCD_W/3-10);
+#endif
 }
 
 void ChannelRange::setStart(uint8_t newValue)

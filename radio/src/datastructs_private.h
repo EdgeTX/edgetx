@@ -455,7 +455,7 @@ PACK(struct PpmModule {
 });
 
 PACK(struct ModuleData {
-  uint8_t type ENUM(ModuleType);
+  uint8_t type ENUM(ModuleType) CUST(r_moduleType, w_moduleType);
   CUST_ATTR(subType,r_modSubtype,w_modSubtype);
   uint8_t channelsStart;
   int8_t  channelsCount CUST(r_channelsCount,w_channelsCount); // 0=8 channels

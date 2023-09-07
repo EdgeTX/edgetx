@@ -46,7 +46,10 @@ jobs:
     strategy:
       matrix:
         target:
+          - x9dp2019
+          - tx16s
           - nv14
+          - el18
           - t12
           - t16
           - t18
@@ -54,13 +57,11 @@ jobs:
           - tlite
           - t20
           - tx12
-          - tx16s
           - x10
           - x12s
           - x7
           - x9d
           - x9dp
-          - x9dp2019
           - x9e
           - x9lite
           - x9lites
@@ -92,7 +93,7 @@ jobs:
     strategy:
       matrix:
         target:
-          - nv14
+          - nv14;el18
           - t12
           - t16
           - t18

@@ -46,8 +46,12 @@
 #include "crossfire_settings.h"
 #endif
 
-#if defined(AFHDS2) || defined(AFHDS3)
-#include "flysky_settings.h"
+#if defined(AFHDS2)
+#include "afhds2a_settings.h"
+#endif
+
+#if defined(AFHDS3)
+#include "afhds3_settings.h"
 #endif
 
 #if defined(AFHDS2)
@@ -213,9 +217,14 @@ void ModuleWindow::updateModule()
     modOpts = new CrossfireSettings(this, grid, moduleIdx);
   }
 #endif
-#if defined(AFHDS2) || defined(AFHDS3)
-  else if (isModuleFlySky(moduleIdx)) {
-    modOpts = new FlySkySettings(this, grid, moduleIdx);
+#if defined(AFHDS2)
+  else if (isModuleAFHDS2A(moduleIdx)) {
+    modOpts = new AFHDS2ASettings(this, grid, moduleIdx);
+  }
+#endif
+#if defined(AFHDS3)
+  else if (isModuleAFHDS3(moduleIdx)) {
+    modOpts = new AFHDS3Settings(this, grid, moduleIdx);
   }
 #endif
 #if defined(MULTIMODULE)
@@ -306,7 +315,7 @@ void ModuleWindow::updateModule()
           }
 #endif
 #if defined(AFHDS2)
-          if (isModuleFlySky(moduleIdx)) resetPulsesAFHDS2();
+          if (isModuleAFHDS2A(moduleIdx)) resetPulsesAFHDS2();
 #endif
           if (isModuleDSMP(moduleIdx)) restartModule(moduleIdx);
           return 0;
@@ -325,7 +334,7 @@ void ModuleWindow::updateModule()
 #endif
           moduleState[moduleIdx].mode = MODULE_MODE_BIND;
 #if defined(AFHDS2)
-          if (isModuleFlySky(moduleIdx)) {
+          if (isModuleAFHDS2A(moduleIdx)) {
             resetPulsesAFHDS2();
           }
 #endif
@@ -363,13 +372,13 @@ void ModuleWindow::updateModule()
           } else {
             moduleState[moduleIdx].mode = MODULE_MODE_RANGECHECK;
 #if defined(AFHDS2)
-            if (isModuleFlySky(moduleIdx)) {
+            if (isModuleAFHDS2A(moduleIdx)) {
               resetPulsesAFHDS2();
             }
 #endif
             startRSSIDialog([=]() {
 #if defined(AFHDS2)
-              if (isModuleFlySky(moduleIdx)) {
+              if (isModuleAFHDS2A(moduleIdx)) {
                 resetPulsesAFHDS2();
               }
 #endif
@@ -623,33 +632,6 @@ void ModuleSubTypeChoice::update()
     setGetValueHandler(GET_DEFAULT(md->subType));
     setSetValueHandler(SET_DEFAULT(md->subType));
     setAvailableHandler(nullptr);
-    setTextHandler(nullptr);
-  }
-#endif
-#if defined(AFHDS2) || defined(AFHDS3)
-  else if (isModuleFlySky(moduleIdx)) {
-    setMin(0);
-    setMax(FLYSKY_SUBTYPE_AFHDS2A);
-    setValues(STR_FLYSKY_PROTOCOLS);
-    setGetValueHandler(GET_DEFAULT(md->subType));
-    setSetValueHandler(SET_DEFAULT(md->subType));
-
-#if defined(PCBNV14) && !defined(SIMU)
-    if (moduleIdx == INTERNAL_MODULE) {
-      if (hardwareOptions.pcbrev == PCBREV_NV14) {
-        md->subType = FLYSKY_SUBTYPE_AFHDS2A;
-        setAvailableHandler([](int v) { return v == FLYSKY_SUBTYPE_AFHDS2A; });
-      } else {
-        md->subType = FLYSKY_SUBTYPE_AFHDS3;
-        setAvailableHandler([](int v) { return v == FLYSKY_SUBTYPE_AFHDS3; });
-      }
-    }
-#elif !defined(SIMU)
-    md->subType = FLYSKY_SUBTYPE_AFHDS3;
-    setAvailableHandler([](int v) { return v == FLYSKY_SUBTYPE_AFHDS3; });
-#else
-    setAvailableHandler(nullptr);
-#endif
     setTextHandler(nullptr);
   }
 #endif

@@ -54,8 +54,8 @@
 // channelsStart: 0
 // channelsCount: 18
 // failsafeMode: NOT_SET
-// mod: 
-//     afhds3: 
+// mod:
+//     afhds3:
 //       emi: 2
 //       telemetry: 1
 //       phyMode: 2
@@ -78,8 +78,13 @@ static const YamlLookupTable protocolLut = {
   {  PULSES_ACCESS_R9M_LITE_PRO, "TYPE_R9M_LITE_PRO_PXX2"  },
   {  PULSES_SBUS, "TYPE_SBUS"  },
   {  PULSES_XJT_LITE_X16, "TYPE_XJT_LITE_PXX2"  },
-  {  PULSES_AFHDS3, "TYPE_FLYSKY"  },
+  {  PULSES_FLYSKY_AFHDS2A, "TYPE_FLYSKY_AFHDS2A"  },
+  {  PULSES_FLYSKY_AFHDS3, "TYPE_FLYSKY_AFHDS3"  },
   {  PULSES_LEMON_DSMP, "TYPE_LEMON_DSMP"  },
+};
+
+static const YamlLookupTable oldprotocolLut = {
+  {  PULSES_FLYSKY_AFHDS2A, "TYPE_FLYSKY"  },
 };
 
 static const YamlLookupTable xjtLut = {
@@ -111,9 +116,10 @@ static const YamlLookupTable dsmLut = {
   { 2, "DSMX" },
 };
 
+// depreciated - used for decoding and converting module subtype to protocol
 static const YamlLookupTable afhdsLut = {
-  { 0, "AFHDS3" },
-  { 1, "AFHDS2A" } // could be complete nonsense, CHECK IT!
+  { 0, "AFHDS2A" },
+  { 1, "AFHDS3" }
 };
 
 static const YamlLookupTable failsafeLut = {
@@ -166,7 +172,7 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
       break;
     case PULSES_PPM:
       node["subType"] = LookupValue(ppmLut, subtype);
-      break; 
+      break;
     case PULSES_MULTIMODULE: {
       int rfProtocol = rhs.multi.rfProtocol + 1;
       int subType = rhs.subType;
@@ -175,10 +181,6 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
       st_str += std::to_string(subType);
       node["subType"] = st_str;
     } break;
-    case PULSES_AFHDS3: {
-      node["subType"] = LookupValue(afhdsLut, subtype);
-      break;
-    }
   }
 
   node["channelsStart"] = rhs.channelsStart;
@@ -246,9 +248,20 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
         dsmp["flags"] = rhs.dsmp.flags;
         mod["dsmp"] = dsmp;
     } break;
-    // TODO: flysky
-    // TODO: afhds3
-    case PULSES_AFHDS3: {
+    case PULSES_FLYSKY_AFHDS2A: {
+      Node flysky;
+      for (int i = 0; i < 4; i++) {
+        flysky["rx_id"][std::to_string(i)]["val"] = rhs.flysky.rxId[i];
+      }
+      flysky["mode"] = rhs.flysky.mode;
+      flysky["rfPower"] = rhs.flysky.rfPower;
+      flysky["reserved"] = rhs.flysky.reserved;
+      for (int i = 0; i < 2; i++) {
+        flysky["rx_freq"][std::to_string(i)]["val"] = rhs.flysky.rxFreq[i];
+      }
+      mod["flysky"] = flysky;
+    } break;
+    case PULSES_FLYSKY_AFHDS3: {
       Node afhds3;
       afhds3["emi"] = rhs.afhds3.emi;
       afhds3["telemetry"] = rhs.afhds3.telemetry;
@@ -275,6 +288,8 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
 bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
 {
   node["type"] >> protocolLut >> rhs.protocol;
+  if (rhs.protocol < 0)
+    node["type"] >> oldprotocolLut >> rhs.protocol;
 
   Node subType;
   node["subType"] >> subType;
@@ -318,6 +333,12 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           }
         } catch(...) {}
       }
+    } break;
+    case PULSES_FLYSKY_AFHDS2A: {
+      int subProto = 0;
+      subType >> afhdsLut >> subProto;
+      rhs.protocol += subProto;
+      rhs.subType = 0;
     } break;
   }
 
@@ -381,15 +402,37 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           Node dsmp = mod["dsmp"];
           dsmp["flags"] >> rhs.dsmp.flags;
       } else if (mod["flysky"]) {
-        // TODO: flysky
+          Node flysky = mod["flysky"];
+          for (int i = 0; i < 4; i++) {
+            if (flysky["rx_id"][std::to_string(i)]) {
+              Node rxid = flysky["rx_id"][std::to_string(i)];
+              if (rxid.IsMap()) {
+                if (rxid["val"]) {
+                  rxid["val"] >> rhs.flysky.rxId[i];
+                }
+              }
+            }
+          }
+          flysky["mode"] >> rhs.flysky.mode;
+          flysky["rfPower"] >> rhs.flysky.rfPower;
+          flysky["reserved"] >> rhs.flysky.reserved;
+          for (int i = 0; i < 2; i++) {
+            if (flysky["rx_freq"][std::to_string(i)]) {
+              Node rxfreq = flysky["rx_freq"][std::to_string(i)];
+              if (rxfreq.IsMap()) {
+                if (rxfreq["val"]) {
+                  rxfreq["val"] >> rhs.flysky.rxFreq[i];
+                }
+              }
+            }
+          }
       } else if (mod["afhds3"]) {
-        // TODO: afhds3
-        Node afhds3 = mod["afhds3"];
-        afhds3["emi"] >> rhs.afhds3.emi;
-        afhds3["telemetry"] >> rhs.afhds3.telemetry;
-        afhds3["phyMode"] >> rhs.afhds3.phyMode;
-        afhds3["reserved"] >> rhs.afhds3.reserved;
-        afhds3["rfPower"] >> rhs.afhds3.rfPower;
+          Node afhds3 = mod["afhds3"];
+          afhds3["emi"] >> rhs.afhds3.emi;
+          afhds3["telemetry"] >> rhs.afhds3.telemetry;
+          afhds3["phyMode"] >> rhs.afhds3.phyMode;
+          afhds3["reserved"] >> rhs.afhds3.reserved;
+          afhds3["rfPower"] >> rhs.afhds3.rfPower;
       }
   }
 

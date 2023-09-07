@@ -27,25 +27,13 @@
 
 struct ModuleData;
 
-class FlySkySettings : public FormWindow, public ModuleOptions
+class AFHDS3Settings : public FormWindow, public ModuleOptions
 {
   uint8_t moduleIdx;
   ModuleData* md;
   FlexGridLayout grid;
   tmr10ms_t lastRefresh = 0;
 
-#if defined(AFHDS2)
-  Window* afhds2OptionsLabel = nullptr;
-  Window* afhds2ProtoOpts = nullptr;
-#if defined(PCBNV14)
-  Window* afhds2RFPowerText = nullptr;
-  Window* afhds2RFPowerChoice = nullptr;
-#endif  
-  void hideAFHDS2Options();
-  void showAFHDS2Options();
-#endif
-
-#if defined(AFHDS3)
   Window* afhds3StatusLabel = nullptr;
   Window* afhds3StatusText = nullptr;
   Window* afhds3TypeLabel = nullptr;
@@ -55,11 +43,10 @@ class FlySkySettings : public FormWindow, public ModuleOptions
   Choice *afhds3RfPower = nullptr;
   void hideAFHDS3Options();
   void showAFHDS3Options();
-#endif  
 
   void checkEvents() override;
   void update() override;
     
 public:
-  FlySkySettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);
+  AFHDS3Settings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);
 };

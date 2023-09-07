@@ -215,7 +215,8 @@ QString ModelPrinter::printModule(int idx)
           str << printLabelValue(tr("Delay"), QString("%1us").arg(module.ppm.delay));
       }
       else {
-        if (!(module.protocol == PULSES_PXX_XJT_D8 || module.protocol == PULSES_CROSSFIRE || module.protocol == PULSES_GHOST || module.protocol == PULSES_SBUS)) {
+        if (!(module.protocol == PULSES_PXX_XJT_D8 || module.protocol == PULSES_CROSSFIRE ||
+              module.protocol == PULSES_GHOST || module.protocol == PULSES_SBUS || module.protocol == PULSES_FLYSKY_AFHDS2A)) {
           str << printLabelValue(tr("Receiver"), QString::number(module.modelId));
         }
         if (module.protocol == PULSES_MULTIMODULE) {
@@ -227,10 +228,11 @@ QString ModelPrinter::printModule(int idx)
           str << printLabelValue(tr("Sub Type"), module.subTypeToString());
           str << printLabelValue(tr("RF Output Power"), module.powerValueToString(firmware));
         }
-        if (module.protocol == PULSES_AFHDS3) {
-          str << printLabelValue(tr("Output Type"), module.subTypeToString());
-          str << printLabelValue(tr("RF Output Power"), module.powerValueToString(firmware));
-          str << printLabelValue(tr("RX Output Frequency"), QString("%1Hz").arg(module.afhds3.rxFreq));
+        if (module.protocol == PULSES_FLYSKY_AFHDS2A) {
+          str << printLabelValue(tr("Options"), module.afhds2aMode1ToString() + " " + module.afhds2aMode2ToString());
+        }
+        if (module.protocol == PULSES_FLYSKY_AFHDS3) {
+          str << printLabelValue(tr("Type"), module.afhds3PhyModeToString() + " " + module.afhds3EmiToString());
         }
         if (module.protocol == PULSES_GHOST) {
           str << printLabelValue(tr("Raw 12 bits"), printBoolean(module.ghost.raw12bits, BOOLEAN_YN));
