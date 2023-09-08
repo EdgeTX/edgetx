@@ -59,7 +59,7 @@
 #define TR_JACK_MODES                  "Ask","Audio","Trainer"
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 
-#define TR_SBUS_INVERSION_VALUES       "normal","not inverted"
+#define TR_SBUS_INVERSION_VALUES       "Нормально","не перевернутый"
 #define TR_MULTI_CUSTOM                "Custom"
 #define TR_VTRIMINC                    TR("Expo","Exponential"),TR("ExFine","Extra Fine"),"Fine","Medium","Coarse"
 #define TR_VDISPLAYTRIMS               "No","Change","Yes"
@@ -76,14 +76,14 @@
 #define TR_VMLTPX2                     "+=","*=",":="
 
 #if LCD_W >= 212
-  #define TR_CSWTIMER                  "Timer"
+  #define TR_CSWTIMER                  "Таймер"
   #define TR_CSWSTICKY                 "Stcky"
   #define TR_CSWRANGE                  "Диапазон"
   #define TR_CSWSTAY                   "Edge"
 #else
-  #define TR_CSWTIMER                  "Tim"
+  #define TR_CSWTIMER                  "Тайм"
   #define TR_CSWSTICKY                 "Stky"
-  #define TR_CSWRANGE                  "Диапазог"
+  #define TR_CSWRANGE                  "Диапазон"
   #define TR_CSWSTAY                   "Edge"
 #endif
 
@@ -162,9 +162,9 @@
 #define TR_ON_ONE_SWITCHES             "ВКЛ","Один"
 
 #if defined(COLORLCD)
-  #define TR_ROTARY_ENC_OPT         "Нормально","Перевернутый"
+  #define TR_ROTARY_ENC_OPT            "Нормально","Перевернутый"
 #else
-  #define TR_ROTARY_ENC_OPT         "Нормально","Перевернутый","V-I H-N","V-I H-A"
+  #define TR_ROTARY_ENC_OPT            "Нормально","Перевернутый","V-I H-N","V-I H-A"
 #endif
 
 #if defined(IMU)
@@ -196,9 +196,9 @@
 #define TR_VTRAINER_MULTI              "Master/Multi"
 #define TR_VFAILSAFE                   "Not set","Hold","Custom","No pulses","Receiver"
 #define TR_VSENSORTYPES                "Custom","Calculated"
-#define TR_VFORMULAS                   "Add","Average","Min","Max","Multiply","Totalize","Cell","Consumpt","Distance"
+#define TR_VFORMULAS                   "Add","Average","Min","Max","Multiply","Totalize","Cell","Consumpt","Дистанция"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
-#define TR_VCELLINDEX                  "Lowest","1","2","3","4","5","6","7","8","Highest","Delta"
+#define TR_VCELLINDEX                  "Низший","1","2","3","4","5","6","7","8","Высший","Дельта"
 #define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center only)","= (symmetrical)"
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
