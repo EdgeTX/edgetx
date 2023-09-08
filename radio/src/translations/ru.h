@@ -516,8 +516,8 @@
 #define TR_REBIND                      "Rebinding required"
 #define TR_REG_OK                      "Registration ok"
 #define TR_BIND_OK                     "Bind successful"
-#define TR_BINDING_CH1_8_TELEM_ON      "Ch1-8 Telem ON"
-#define TR_BINDING_CH1_8_TELEM_OFF     "Ch1-8 Telem OFF"
+#define TR_BINDING_CH1_8_TELEM_ON      "Кн1-8 Телем ВКЛ"
+#define TR_BINDING_CH1_8_TELEM_OFF     "TКн1-8 Телем Выкл"
 #define TR_BINDING_CH9_16_TELEM_ON     "Ch9-16 Telem ON"
 #define TR_BINDING_CH9_16_TELEM_OFF    "Ch9-16 Telem OFF"
 #define TR_PROTOCOL_INVALID            TR("Prot. invalid", "Protocol invalid")
@@ -568,11 +568,11 @@
 #define TR_BACKUP_MODEL                "Backup model"
 #define TR_DELETE_MODEL                "Delete model"
 #define TR_RESTORE_MODEL               "Restore model"
-#define TR_DELETE_ERROR                "Delete error"
+#define TR_DELETE_ERROR                "удалить ошибку"
 #define TR_SDCARD_ERROR                TR("SD error", "SD card error")
-#define TR_SDCARD                      "SD Card"
-#define TR_NO_FILES_ON_SD              "No files on SD!"
-#define TR_NO_SDCARD                   "No SD card"
+#define TR_SDCARD                      "SD карта"
+#define TR_NO_FILES_ON_SD              "Нет данных на SD карте!"
+#define TR_NO_SDCARD                   "Нет CD карты"
 #define TR_WAITING_FOR_RX              "Waiting for RX..."
 #define TR_WAITING_FOR_TX              "Waiting for TX..."
 #define TR_WAITING_FOR_MODULE          TR("Waiting module", "Waiting for module...")
@@ -612,16 +612,16 @@
 #else
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Logs & Screenshots" LCDW_128_480_LINEBREAK "disabled"
 #endif
-#define TR_NEEDS_FILE                  "NEEDS FILE"
+#define TR_NEEDS_FILE                  "НУЖЕН ФАЙЛ"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
-#define TR_INCOMPATIBLE                "Incompatible"
+#define TR_INCOMPATIBLE                "Несовместимый"
 #define TR_WARNING                     "ПРЕДУПРЕЖДЕНИЕ"
 #define TR_EEPROMWARN                  "EEPROM"
 #define TR_STORAGE_WARNING             "ПАМЯТЬ"
-#define TR_EEPROM_CONVERTING           "Converting EEPROM"
-#define TR_SDCARD_CONVERSION_REQUIRE   "SD card conversion required"
-#define TR_CONVERTING                  "Converting: "
+#define TR_EEPROM_CONVERTING           "Преобразование EEPROM"
+#define TR_SDCARD_CONVERSION_REQUIRE   "Требуется конвертация карты SD"
+#define TR_CONVERTING                  "Преобразование: "
 #define TR_THROTTLE_UPPERCASE          "ДРОСЕЛЬ"
 #define TR_ALARMSWARN                  "СИГНАЛЫ"
 #define TR_SWITCHWARN                  TR("SWITCH", "CONTROL")
@@ -746,7 +746,7 @@
 #define TR_FLASH_POWER_MANAGEMENT_UNIT "Flash pwr mngt unit"
 #define TR_DEVICE_NO_RESPONSE          TR("Device not responding", "Device not responding")
 #define TR_DEVICE_FILE_ERROR           TR("Device file prob.", "Device file prob.")
-#define TR_DEVICE_DATA_REFUSED         TR("Device data refused", "Device data refused")
+#define TR_DEVICE_DATA_REFUSED         TR("Отказано в передаче данных устройства", "Отказано в передаче данных устройства")
 #define TR_DEVICE_WRONG_REQUEST        TR("Device access problem", "Device access problem")
 #define TR_DEVICE_FILE_REJECTED        TR("Device file refused", "Device file refused")
 #define TR_DEVICE_FILE_WRONG_SIG       TR("Device file sig.", "Device file sig.")
@@ -939,7 +939,7 @@
 #define TR_PHASES_HEADERS_FAD_IN       "Fade In"
 #define TR_PHASES_HEADERS_FAD_OUT      "Fade Out"
 
-#define TR_LIMITS_HEADERS_NAME         "Name"
+#define TR_LIMITS_HEADERS_NAME         "Имя"
 #define TR_LIMITS_HEADERS_SUBTRIM      "Subtrim"
 #define TR_LIMITS_HEADERS_MIN          "Мин"
 #define TR_LIMITS_HEADERS_MAX          "Макс"
@@ -981,19 +981,19 @@
 #endif
 
 // Bootloader common - Ascii only
-#define TR_BL_USB_CONNECTED           "USB Connected"
-#define TR_BL_USB_PLUGIN              "Or plug in a USB cable"
+#define TR_BL_USB_CONNECTED           "Подключение по USB"
+#define TR_BL_USB_PLUGIN              "Или подключите USB-кабель"
 #define TR_BL_USB_MASS_STORE          "for mass storage"
-#define TR_BL_USB_PLUGIN_MASS_STORE   "Or plug in a USB cable for mass storage"
-#define TR_BL_WRITE_FW                "Write Firmware"
+#define TR_BL_USB_PLUGIN_MASS_STORE   "Или подключите USB-кабель для сохранения данных"
+#define TR_BL_WRITE_FW                "Запись ПО"
 #define TR_BL_FORK                    "Fork:"
-#define TR_BL_VERSION                 "Version:"
-#define TR_BL_RADIO                   "Radio:"
-#define TR_BL_EXIT                    "Exit"
-#define TR_BL_DIR_MISSING             " Directory is missing"
-#define TR_BL_DIR_EMPTY               " Directory is empty"
-#define TR_BL_WRITING_FW              "Writing..."
-#define TR_BL_WRITING_COMPL           "Writing complete"
+#define TR_BL_VERSION                 "Версия:"
+#define TR_BL_RADIO                   "Радио:"
+#define TR_BL_EXIT                    "Выход"
+#define TR_BL_DIR_MISSING             "Каталог отсутствует"
+#define TR_BL_DIR_EMPTY               "Каталог пуст"
+#define TR_BL_WRITING_FW              "Предупреждение..."
+#define TR_BL_WRITING_COMPL           "Запись завершена"
 
 #if LCD_W >= 480
   #define TR_BL_INVALID_FIRMWARE       "Not a valid firmware file"
@@ -1004,17 +1004,17 @@
   #define TR_BL_INVALID_EEPROM         "\011Not a valid EEPROM file!          "
 #else
   #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
-  #define TR_BL_HOLD_ENTER_TO_START    "\006Hold [ENT] to start"
+  #define TR_BL_HOLD_ENTER_TO_START    "\006Hold [ВВОД] для начла"
   #define TR_BL_INVALID_FIRMWARE       "\004Not a valid firmware!        "
   #define TR_BL_INVALID_EEPROM         "\004Not a valid EEPROM!          "
 #endif
 
 #if defined(PCBTARANIS)
    // Bootloader Taranis specific - Ascii only
-  #define TR_BL_RESTORE_EEPROM        "Restore EEPROM"
+  #define TR_BL_RESTORE_EEPROM        "Восстанавить EEPROM"
   #if defined(RADIO_COMMANDO8)
-    #define TR_BL_POWER_KEY           "Press the power button."
-    #define TR_BL_FLASH_EXIT          "Exit the flashing mode."
+    #define TR_BL_POWER_KEY           "Нажмите кнопку включения."
+    #define TR_BL_FLASH_EXIT          "Выход из режима прошивки."
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific - Ascii only
@@ -1055,15 +1055,15 @@
 #define TR_SCALE                       "Scale"
 #define TR_VIEW_CHANNELS               "View Channels"
 #define TR_VIEW_NOTES                  "View Notes"
-#define TR_MODEL_SELECT                "Model Select"
+#define TR_MODEL_SELECT                "Выбор модели"
 #define TR_ID                          "ID"
 #define TR_PRECISION                   "Precision"
 #define TR_RATIO                       "Ratio"
 #define TR_FORMULA                     "Formula"
 #define TR_CELLINDEX                   "Cell index"
-#define TR_LOGS                        "Logs"
-#define TR_OPTIONS                     "Options"
-#define TR_FIRMWARE_OPTIONS            "Firmware options"
+#define TR_LOGS                        "логи"
+#define TR_OPTIONS                     "Опции"
+#define TR_FIRMWARE_OPTIONS            "Опции ПО"
 
 #define TR_ALTSENSOR                   "Alt sensor"
 #define TR_CELLSENSOR                  "Cell sensor"
@@ -1165,16 +1165,16 @@
 #define TR_THEME_EDITOR                 "ТЕМЫ"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Select\nModel"
+#define TR_MAIN_MENU_SELECT_MODEL       "Выбор\nМодели"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Manage\nModels"
 #define TR_MAIN_MENU_MODEL_NOTES        "Model\nNotes"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel\nMonitor"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Model\nSettings"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Radio\nSettings"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Screens\nSettings"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset\nTelemetry"
-#define TR_MAIN_MENU_STATISTICS         "Statistics"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "About\nEdgeTX"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Канал\nМонитор"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Модель\nНастройки"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Радио\nНастройки"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Экран\nНастройки"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "Удалить\nТелеметрию"
+#define TR_MAIN_MENU_STATISTICS         "Статистика"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "Инфо о\nEdgeTX"
 // End Main menu
 
 // Voice in native language
@@ -1220,15 +1220,15 @@
 #define TR_USBJOYSTICK_BTN_COLLISION   "!Button no. collision!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!Axis collision!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Circ. cut", "Circular cutout")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "None","X-Y, Z-rX","X-Y, rX-rY"
-#define TR_USBJOYSTICK_APPLY_CHANGES   "Apply changes"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "нет","X-Y, Z-rX","X-Y, rX-rY"
+#define TR_USBJOYSTICK_APPLY_CHANGES   "Применить изменения"
 
-#define TR_DIGITAL_SERVO          "Servo333HZ"
-#define TR_ANALOG_SERVO           "Servo 50HZ"
+#define TR_DIGITAL_SERVO          "Серво 333HZ"
+#define TR_ANALOG_SERVO           "Серво 50HZ"
 #define TR_SIGNAL_OUTPUT          "Signal output"
-#define TR_SERIAL_BUS             "Serial bus"
-#define TR_SYNC                   "Sync"
+#define TR_SERIAL_BUS             "Последовательная шина"
+#define TR_SYNC                   "Синхронизация"
 
-#define TR_ENABLED_FEATURES       "Enabled Features"
-#define TR_RADIO_MENU_TABS        "Radio Menu Tabs"
+#define TR_ENABLED_FEATURES       "Включенные функции"
+#define TR_RADIO_MENU_TABS        "вкладки меню радио"
 #define TR_MODEL_MENU_TABS        "Вкладки Меню Модели"
