@@ -17,6 +17,7 @@ set(GUI_SRC
   ../common/stdlcd/radio_trainer.cpp
   ../common/stdlcd/view_telemetry.cpp
   ../common/stdlcd/calibration.cpp
+  ../common/stdlcd/splash.cpp
   model_curve_edit.cpp
   )
 

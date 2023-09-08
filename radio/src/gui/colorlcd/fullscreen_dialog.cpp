@@ -49,36 +49,63 @@ FullScreenDialog::FullScreenDialog(
 
   bringToTop();
 
-  init();
+  build();
 
   lv_obj_add_event_cb(lvobj, FullScreenDialog::long_pressed, LV_EVENT_LONG_PRESSED, nullptr);
+  lv_obj_add_event_cb(lvobj, FullScreenDialog::on_draw, LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
 }
 
-void FullScreenDialog::init()
+void FullScreenDialog::on_draw(lv_event_t* e)
 {
-  if (!loaded) {
-    loaded = true;
-
-    std::string t;
-    if (type == WARNING_TYPE_ALERT) {
-#if defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_IT) || defined(TRANSLATIONS_CZ)
-      t = std::string(STR_WARNING) + "\n" + title;
-#else
-      t = title + "\n" + STR_WARNING;
-#endif
-    } else if (!title.empty()) {
-      t = title;
+  auto dlg = (FullScreenDialog*)lv_obj_get_user_data(lv_event_get_target(e));
+  if (dlg) {
+    if (!dlg->loaded) {
+      dlg->loaded = true;
+      dlg->delayedInit();
     }
-    new StaticText(this, 
-                   rect_t{ALERT_TITLE_LEFT, ALERT_TITLE_TOP, LCD_W - ALERT_TITLE_LEFT - PAGE_PADDING, LCD_H - ALERT_TITLE_TOP - PAGE_PADDING},
-                   t.c_str(), 0, COLOR_THEME_WARNING | FONT(XL));
+  }
+}
 
-    messageLabel = new StaticText(this, 
-                   rect_t{ALERT_MESSAGE_LEFT, ALERT_MESSAGE_TOP, LCD_W - ALERT_MESSAGE_LEFT - PAGE_PADDING, LCD_H - ALERT_MESSAGE_TOP - PAGE_PADDING},
-                   message.c_str(), 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+void FullScreenDialog::build()
+{
+  std::string t;
+  if (type == WARNING_TYPE_ALERT) {
+#if defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_IT) || defined(TRANSLATIONS_CZ)
+    t = std::string(STR_WARNING) + "\n" + title;
+#else
+    t = title + "\n" + STR_WARNING;
+#endif
+  } else if (!title.empty()) {
+    t = title;
+  }
+  new StaticText(this, 
+                 rect_t{ALERT_TITLE_LEFT, ALERT_TITLE_TOP, LCD_W - ALERT_TITLE_LEFT - PAGE_PADDING, LCD_H - ALERT_TITLE_TOP - PAGE_PADDING},
+                 t.c_str(), 0, COLOR_THEME_WARNING | FONT(XL));
 
-    if (!action.empty()) {
-      auto btn = new TextButton(this, { (LCD_W - 280) / 2, LCD_H - 48, 280, 40 }, action.c_str(),
+  messageLabel = new StaticText(this, 
+                 rect_t{ALERT_MESSAGE_LEFT, ALERT_MESSAGE_TOP, LCD_W - ALERT_MESSAGE_LEFT - PAGE_PADDING, LCD_H - ALERT_MESSAGE_TOP - PAGE_PADDING},
+                 message.c_str(), 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+
+  if (!action.empty()) {
+    auto btn = new TextButton(this, { (LCD_W - 280) / 2, LCD_H - 48, 280, 40 }, action.c_str(),
+                   [=]() {
+                     closeDialog();
+                     return 0;
+                   }, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+    lv_obj_set_style_bg_color(btn->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
+    lv_obj_set_style_bg_opa(btn->getLvObj(), LV_OPA_COVER, 0);
+    lv_obj_set_style_text_color(btn->getLvObj(), makeLvColor(COLOR_THEME_PRIMARY1), 0);
+  } else {
+    if (type == WARNING_TYPE_CONFIRM) {
+      auto btn = new TextButton(this, { LCD_W / 3 - 50, LCD_H - 48, 100, 40 }, STR_EXIT,
+                     [=]() {
+                       deleteLater();
+                       return 0;
+                     }, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+      lv_obj_set_style_bg_color(btn->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
+      lv_obj_set_style_bg_opa(btn->getLvObj(), LV_OPA_COVER, 0);
+      lv_obj_set_style_text_color(btn->getLvObj(), makeLvColor(COLOR_THEME_PRIMARY1), 0);
+      btn = new TextButton(this, { LCD_W * 2 / 3 - 50, LCD_H - 48, 100, 40 }, STR_OK,
                      [=]() {
                        closeDialog();
                        return 0;
@@ -86,25 +113,6 @@ void FullScreenDialog::init()
       lv_obj_set_style_bg_color(btn->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
       lv_obj_set_style_bg_opa(btn->getLvObj(), LV_OPA_COVER, 0);
       lv_obj_set_style_text_color(btn->getLvObj(), makeLvColor(COLOR_THEME_PRIMARY1), 0);
-    } else {
-      if (type == WARNING_TYPE_CONFIRM) {
-        auto btn = new TextButton(this, { LCD_W / 3 - 50, LCD_H - 48, 100, 40 }, STR_EXIT,
-                       [=]() {
-                         deleteLater();
-                         return 0;
-                       }, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-        lv_obj_set_style_bg_color(btn->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
-        lv_obj_set_style_bg_opa(btn->getLvObj(), LV_OPA_COVER, 0);
-        lv_obj_set_style_text_color(btn->getLvObj(), makeLvColor(COLOR_THEME_PRIMARY1), 0);
-        btn = new TextButton(this, { LCD_W * 2 / 3 - 50, LCD_H - 48, 100, 40 }, STR_OK,
-                       [=]() {
-                         closeDialog();
-                         return 0;
-                       }, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-        lv_obj_set_style_bg_color(btn->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
-        lv_obj_set_style_bg_opa(btn->getLvObj(), LV_OPA_COVER, 0);
-        lv_obj_set_style_text_color(btn->getLvObj(), makeLvColor(COLOR_THEME_PRIMARY1), 0);
-      }
     }
   }
 }

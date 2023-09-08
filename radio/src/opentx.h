@@ -120,12 +120,6 @@
   #define CASE_HAPTIC(x)
 #endif
 
-#if defined(SPLASH)
-  #define CASE_SPLASH(x) x,
-#else
-  #define CASE_SPLASH(x)
-#endif
-
 #if defined(PWR_BUTTON_PRESS)
   #define CASE_PWR_BUTTON_PRESS(x) x,
 #else
@@ -343,9 +337,7 @@ inline bool SPLASH_NEEDED()
 #endif
 }
 
-#if defined(SPLASH)
-  #define SPLASH_TIMEOUT (g_eeGeneral.splashMode == -4 ? 1500 : (g_eeGeneral.splashMode <= 0 ? (400-g_eeGeneral.splashMode * 200) : (400 - g_eeGeneral.splashMode * 100)))
-#endif
+#define SPLASH_TIMEOUT (g_eeGeneral.splashMode == -4 ? 1500 : (g_eeGeneral.splashMode <= 0 ? (400-g_eeGeneral.splashMode * 200) : (400 - g_eeGeneral.splashMode * 100)))
 
 constexpr uint8_t HEART_TIMER_10MS = 0x01;
 constexpr uint8_t HEART_TIMER_PULSES = 0x02; // when multiple modules this is the first one
@@ -497,10 +489,6 @@ void flightReset(uint8_t check=true);
   #define RESET_THR_TRACE() s_traceWr = s_cnt_10s = s_cnt_samples_thr_10s = s_sum_samples_thr_10s = s_timeCum16ThrP = s_timeCumThr = 0
 #else
   #define RESET_THR_TRACE() s_timeCum16ThrP = s_timeCumThr = 0
-#endif
-
-#if defined(SPLASH)
-  void doSplash();
 #endif
 
 // disabled function (not used anywhere)
@@ -808,9 +796,9 @@ enum AUDIO_SOUNDS {
 
 
 void checkBattery();
-void opentxClose(uint8_t shutdown=true);
-void opentxInit();
-void opentxResume();
+void edgeTxClose(uint8_t shutdown=true);
+void edgeTxInit();
+void edgeTxResume();
 
 constexpr uint8_t OPENTX_START_NO_SPLASH = 0x01;
 constexpr uint8_t OPENTX_START_NO_CALIBRATION = 0x02;

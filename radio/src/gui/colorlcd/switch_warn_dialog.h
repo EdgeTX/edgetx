@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SWITCH_WARN_DIALOG_H_
-#define _SWITCH_WARN_DIALOG_H_
+#pragma once
 
 #include "fullscreen_dialog.h"
 #include "mainwindow.h"
@@ -35,18 +34,28 @@ class SwitchWarnDialog : public FullScreenDialog
   std::string getName() const override { return "SwitchWarnDialog"; }
 #endif
 
-  void checkEvents() override;
   void paint(BitmapBuffer* dc) override;
 
  protected:
   swarnstate_t last_bad_switches;
-  uint16_t     bad_pots;
   uint16_t     last_bad_pots;
-  StaticText*  warn_label;
 
   bool warningInactive();
   
-  void init() override;
+  void delayedInit() override;
 };
 
+class ThrottleWarnDialog : public FullScreenDialog
+{
+ public:
+  ThrottleWarnDialog(const char* msg);
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "ThrottleWarnDialog"; }
 #endif
+
+ protected:
+  bool warningInactive();
+  
+  void delayedInit() override;
+};

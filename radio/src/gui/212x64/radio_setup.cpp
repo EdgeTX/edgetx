@@ -41,11 +41,7 @@ const unsigned char sticks[]  = {
   value = editChoice(RADIO_SETUP_2ND_COLUMN, y, nullptr, nullptr, tmp, -2, +2, attr, event); \
 }
 
-#if defined(SPLASH)
-  #define CASE_SPLASH_PARAM(x) x,
-#else
-  #define CASE_SPLASH_PARAM(x)
-#endif
+#define CASE_SPLASH_PARAM(x) x,
 
 enum MenuRadioSetupItems {
   CASE_RTCLOCK(ITEM_RADIO_SETUP_DATE)
@@ -535,7 +531,6 @@ void menuRadioSetup(event_t event)
         break;
 #endif
 
-#if defined(SPLASH)
       case ITEM_RADIO_SETUP_DISABLE_SPLASH:
         lcdDrawTextAlignedLeft(y, STR_SPLASHSCREEN);
         if (SPLASH_NEEDED()) {
@@ -547,7 +542,6 @@ void menuRadioSetup(event_t event)
         }
         if (attr) g_eeGeneral.splashMode = -checkIncDecGen(event, -g_eeGeneral.splashMode, -3, 4);
         break;
-#endif
 
       case ITEM_RADIO_SETUP_START_SOUND:
         lcdDrawTextAlignedLeft(y, STR_PLAY_HELLO);

@@ -46,11 +46,11 @@
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
-  // #include "shutdown_animation.h"
   #include "radio_calibration.h"
   #include "view_main.h"
   #include "view_text.h"
   #include "theme.h"
+  #include "switch_warn_dialog.h"
 
   #include "gui/colorlcd/LvglWrapper.h"
 #endif
@@ -58,6 +58,9 @@
 #if !defined(SIMU)
 #include <malloc.h>
 #endif
+
+extern void startSplash();
+extern void waitSplash();
 
 RadioData  g_eeGeneral;
 ModelData  g_model;
@@ -558,58 +561,6 @@ void resetBacklightTimeout()
   lightOffCounter = (autoOff*250) << 1;
 }
 
-#if defined(SPLASH)
-void doSplash()
-{
-#if defined(PWR_BUTTON_PRESS)
-  bool refresh = false;
-#endif
-
-  if (SPLASH_NEEDED()) {
-    resetBacklightTimeout();
-    drawSplash();
-
-    getADC(); // init ADC array
-
-    inactivityCheckInputs();
-
-    tmr10ms_t tgtime = get_tmr10ms() + SPLASH_TIMEOUT;
-
-    while (tgtime > get_tmr10ms()) {
-      RTOS_WAIT_TICKS(1);
-
-      getADC();
-
-      if (getEvent() || inactivityCheckInputs())
-        return;
-
-#if defined(PWR_BUTTON_PRESS)
-      uint32_t pwr_check = pwrCheck();
-      if (pwr_check == e_power_off) {
-        break;
-      }
-      else if (pwr_check == e_power_press) {
-        refresh = true;
-      }
-      else if (pwr_check == e_power_on && refresh) {
-        drawSplash();
-        refresh = false;
-      }
-#else
-      if (pwrCheck() == e_power_off) {
-        return;
-      }
-#endif
-
-      checkBacklight();
-    }
-#if defined(LIBOPENUI)
-    MainWindow::instance()->setActiveScreen();
-#endif
-  }
-}
-#endif
-
 
 #if defined(MULTIMODULE)
 void checkMultiLowPower()
@@ -802,11 +753,7 @@ void checkThrottleStick()
       strcpy(throttleNotIdle, STR_THROTTLE_NOT_IDLE);
     }
     LED_ERROR_BEGIN();
-    AUDIO_ERROR_MESSAGE(AU_THROTTLE_ALERT);
-    auto dialog =
-        new FullScreenDialog(WARNING_TYPE_ALERT, TR_THROTTLE_UPPERCASE,
-                             throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP);
-    dialog->setCloseCondition([]() { return !isThrottleWarningAlertNeeded(); });
+    auto dialog = new ThrottleWarnDialog(throttleNotIdle);
     dialog->runForever();
     LED_ERROR_END();
   }
@@ -1087,9 +1034,9 @@ void flightReset(uint8_t check)
   }
 }
 
-void opentxClose(uint8_t shutdown)
+void edgeTxClose(uint8_t shutdown)
 {
-  TRACE("opentxClose");
+  TRACE("edgeTxClose");
 
   watchdogSuspend(2000/*20s*/);
 
@@ -1150,9 +1097,9 @@ void opentxClose(uint8_t shutdown)
 #endif
 }
 
-void opentxResume()
+void edgeTxResume()
 {
-  TRACE("opentxResume");
+  TRACE("edgeTxResume");
 
   sdMount();
 #if defined(COLORLCD) && defined(LUA)
@@ -1317,7 +1264,10 @@ void runStartupAnimation()
     else if (!isPowerOn) {
       isPowerOn = true;
       pwrOn();
-      haptic.play(15, 3, PLAY_NOW);
+#if defined(HAPTIC)
+      if (g_eeGeneral.hapticMode != e_mode_quiet)
+        haptic.play(15, 3, PLAY_NOW);
+#endif
     }
   }
 
@@ -1370,26 +1320,15 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
   AUDIO_WARNING2();
 }
 
-#if !defined(OPENTX_START_DEFAULT_ARGS)
-  #define OPENTX_START_DEFAULT_ARGS  0
-#endif
+// Overridden by simulator startup
+uint8_t startOptions = 0;
 
-const uint8_t startOptions = OPENTX_START_DEFAULT_ARGS;
-
-void opentxInit()
+void edgeTxInit()
 {
-  TRACE("opentxInit");
+  TRACE("edgeTxInit");
 
-#if defined(SPLASH) && !defined(STARTUP_ANIMATION)
-  tmr10ms_t splashStartTime = 0;
-  bool waitSplash = false;
-  if (!UNEXPECTED_SHUTDOWN()) {
-    splashStartTime = get_tmr10ms();
-    waitSplash = true;
-    drawSplash();
-    TRACE("drawSplash() completed");
-  }
-#endif
+  // Show splash screen (color LCD)
+  startSplash();
 
 #if defined(HARDWARE_TOUCH) && !defined(PCBFLYSKY) && !defined(SIMU)
   touchPanelInit();
@@ -1411,13 +1350,21 @@ void opentxInit()
   lcdClear();
   lcdRefresh();
   lcdRefreshWait();
+#endif
 
-  bool radioSettingsValid = storageReadRadioSettings(false);
-  (void)radioSettingsValid;
+  // Load radio.yml so radio settings can be used
+  bool radioSettingsValid = false;
+#if defined(RTC_BACKUP_RAM)
+  // Skip loading if EM startup and radio has RTC backup data
+  if (!UNEXPECTED_SHUTDOWN())
+    radioSettingsValid = storageReadRadioSettings(false);
+#else
+  // No RTC backup - try and load even for EM startup
+  radioSettingsValid = storageReadRadioSettings(false);
+#endif
 
 #if defined(GUI) && !defined(COLORLCD)
   lcdSetContrast();
-#endif
 #endif
 
   BACKLIGHT_ENABLE(); // we start the backlight during the startup animation
@@ -1429,9 +1376,12 @@ void opentxInit()
   else {
     runStartupAnimation();
   }
-#else // defined(PWR_BUTTON_PRESS)
+#else // defined(STARTUP_ANIMATION)
   pwrOn();
-  haptic.play(15, 3, PLAY_NOW);
+#if defined(HAPTIC)
+  if (g_eeGeneral.hapticMode != e_mode_quiet)
+    haptic.play(15, 3, PLAY_NOW);
+#endif
 #endif
 
   // Radios handle UNEXPECTED_SHUTDOWN() differently:
@@ -1486,6 +1436,8 @@ void opentxInit()
   if (!radioSettingsValid)
     storageReadRadioSettings();
   storageReadCurrentModel();
+#else
+  (void)radioSettingsValid;
 #endif
 
 #if defined(COLORLCD) && defined(LUA)
@@ -1510,11 +1462,6 @@ void opentxInit()
   storageReadAll();
 #endif
 #endif  // #if !defined(EEPROM)
-
-// TODO: move to board on hook (onStorageReady()?)
-// #if defined(SPORT_UPDATE_PWR_GPIO)
-//   SPORT_UPDATE_POWER_INIT();
-// #endif
   
   initSerialPorts();
 
@@ -1555,48 +1502,8 @@ void opentxInit()
       if (!g_eeGeneral.dontPlayHello)
         AUDIO_HELLO();
 
-      // TODO: This needs some refactoring and cleanup
-#if defined(SPLASH)
-      // Handle B&W splash screen
-      doSplash();
-
-      // Handle color splash screen
-#if !defined(STARTUP_ANIMATION)
-      if (waitSplash) {
-        extern bool inactivityCheckInputs();
-        extern void checkSpeakerVolume();
-
-#if defined(SIMU)
-        // Simulator - inputsMoved() returns true immediately without this!
-        RTOS_WAIT_TICKS(30);
-#endif // defined(SIMU)
-
-        splashStartTime += SPLASH_TIMEOUT;
-        while (splashStartTime > get_tmr10ms()) {
-          WDG_RESET();
-          checkSpeakerVolume();
-          checkBacklight();
-          RTOS_WAIT_TICKS(10);
-          auto evt = getEvent();
-          if (evt || inactivityCheckInputs()) {
-            if (evt)
-              killEvents(evt);
-            break;
-          }
-#if defined(SIMU)
-          // Allow simulator to exit if closed while splash showing
-          uint32_t pwr_check = pwrCheck();
-          if (pwr_check == e_power_off) {
-            break;
-          }
-#endif // defined(SIMU)
-        }
-
-        // Reset timer so special/global functions set to !1x don't get triggered
-        START_SILENCE_PERIOD();
-      }
-#endif // !defined(STARTUP_ANIMATION)
-#endif // defined(SPLASH)
+      // Wait until splash screen done
+      waitSplash();
     }
 #endif // defined(GUI)
 
@@ -1882,7 +1789,10 @@ uint32_t pwrCheck()
 #endif // COLORLCD
         }
 
-        haptic.play(15, 3, PLAY_NOW);
+#if defined(HAPTIC)
+        if (g_eeGeneral.hapticMode != e_mode_quiet)
+          haptic.play(15, 3, PLAY_NOW);
+#endif
         pwr_check_state = PWR_CHECK_OFF;
         return e_power_off;
       }
