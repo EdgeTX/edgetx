@@ -68,7 +68,7 @@
 #define TR_VVARIOCENTER                "Тон","тихо"
 #define TR_CURVE_TYPES                 "Стандарт","Выбор"
 
-#define TR_ADCFILTERVALUES             "Global","ВЫК","ВКЛ"
+#define TR_ADCFILTERVALUES             "Глобал","ВЫК","ВКЛ"
 
 #define TR_VCURVETYPE                  "Diff","Expo","Func","Cstm"
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
@@ -78,12 +78,12 @@
 #if LCD_W >= 212
   #define TR_CSWTIMER                  "Timer"
   #define TR_CSWSTICKY                 "Stcky"
-  #define TR_CSWRANGE                  "Range"
+  #define TR_CSWRANGE                  "Диапазон"
   #define TR_CSWSTAY                   "Edge"
 #else
   #define TR_CSWTIMER                  "Tim"
   #define TR_CSWSTICKY                 "Stky"
-  #define TR_CSWRANGE                  "Rnge"
+  #define TR_CSWRANGE                  "Диапазог"
   #define TR_CSWSTAY                   "Edge"
 #endif
 
@@ -143,7 +143,7 @@
 #define STR_V                          (STR_VTELEMUNIT[1])
 #define STR_A                          (STR_VTELEMUNIT[2])
 
-#define TR_VTELEMSCREENTYPE            "None","Nums","Bars","Скрипт"
+#define TR_VTELEMSCREENTYPE            "Нет","Nums","Bars","Скрипт"
 #define TR_GPSFORMAT                   "DMS","NMEA"
 
 
@@ -153,18 +153,18 @@
 #define TR_SURFACE_NAMES               "ST", "TH"
 
 #if defined(PCBNV14)
-#define  TR_RFPOWER_AFHDS2             "Default","High"
+#define  TR_RFPOWER_AFHDS2             "По умолсанию","Высокий"
 #endif
 
 #define TR_ROTARY_ENCODERS
 #define TR_ROTENC_SWITCHES
 
-#define TR_ON_ONE_SWITCHES             "ON","One"
+#define TR_ON_ONE_SWITCHES             "ВКЛ","Один"
 
 #if defined(COLORLCD)
-  #define TR_ROTARY_ENC_OPT         "Normal","Inverted"
+  #define TR_ROTARY_ENC_OPT         "Нормально","Перевернутый"
 #else
-  #define TR_ROTARY_ENC_OPT         "Normal","Inverted","V-I H-N","V-I H-A"
+  #define TR_ROTARY_ENC_OPT         "Нормально","Перевернутый","V-I H-N","V-I H-A"
 #endif
 
 #if defined(IMU)
@@ -180,15 +180,15 @@
 #endif
 
 
-#define TR_SRC_BATT                    "Batt"
-#define TR_SRC_TIME                    "Time"
+#define TR_SRC_BATT                    "АКБ"
+#define TR_SRC_TIME                    "Время"
 #define TR_SRC_GPS                     "GPS"
-#define TR_SRC_TIMER                   "Tmr"
+#define TR_SRC_TIMER                   "ТМР"
 
 #define TR_VTMRMODES                   "ВЫКЛ","ВКЛ","Strt","THs","TH%","THt"
-#define TR_VTRAINER_MASTER_OFF         "OFF"
+#define TR_VTRAINER_MASTER_OFF         "ВЫКЛ"
 #define TR_VTRAINER_MASTER_JACK        "Master/Jack"
-#define TR_VTRAINER_SLAVE_JACK         "Slave/Jack"
+#define TR_VTRAINER_SLAVE_JACK         "SLAVE/Jack"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Master/SBUS Module"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Master/CPPM Module"
 #define TR_VTRAINER_MASTER_BATTERY     "Master/Serial"
@@ -214,16 +214,16 @@
 #if defined(PCBFRSKY)
   #define TR_ENTER                     "[ВВОД]"
 #elif defined(PCBNV14)
-  #define TR_ENTER                     "[NEXT]"
+  #define TR_ENTER                     "[ДАЛЕЕ]"
 #else
   #define TR_ENTER                     "[МЕНЮ]"
 #endif
 
 #if defined(COLORLCD)
-  #define TR_EXIT                      "RTN"
+  #define TR_EXIT                      "ВОЗВР"
   #define TR_OK                        TR_ENTER
 #else
-  #define TR_EXIT                      "EXIT"
+  #define TR_EXIT                      "ВЫХРОД"
   #define TR_OK                        TR("\010" "\010" "\010" "[OK]", "\010" "\010" "\010" "\010" "\010" "[OK]")
 #endif
 
@@ -233,7 +233,7 @@
   #define TR_POPUPS_ENTER_EXIT         TR_ENTER "\010" TR_EXIT
 #endif
 
-#define TR_MENUWHENDONE                CENTER "\006" TR_ENTER " > ДАЛЕЕ"
+#define TR_MENUWHENDONE                CENTER "\006" TR_CENTER " > ДАЛЕЕ"
 #define TR_FREE                        "Свободн."
 #define TR_YES                         "Да"
 #define TR_NO                          "Нет"
@@ -273,19 +273,19 @@
 #define TR_TRIMS                       "Тримы"
 #define TR_FADEIN                      "Fade in"
 #define TR_FADEOUT                     "Fade out"
-#define TR_DEFAULT                     "(default)"
+#define TR_DEFAULT                     "(По умолчанию)"
 #if defined(COLORLCD)
   #define TR_CHECKTRIMS                "Проверка Тримов"
 #else
   #define TR_CHECKTRIMS                CENTER "\006Check\012trims"
 #endif
 #define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
-#define TR_SWASHTYPE                   "Swash Type"
+#define TR_SWASHTYPE                   "Наклонный тип"
 #define TR_COLLECTIVE                  TR("Collective", "Coll. pitch source")
 #define TR_AILERON                     TR("Lateral cyc.", "Lateral cyc. source")
 #define TR_ELEVATOR                    TR("Long. cyc.", "Long. cyc. source")
-#define TR_SWASHRING                   "Swash Ring"
-#define TR_MODE                        "Mode"
+#define TR_SWASHRING                   "Поворотное кольцо"
+#define TR_MODE                        "Режим"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Левый"
 #else
