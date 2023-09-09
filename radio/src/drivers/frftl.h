@@ -61,7 +61,7 @@ typedef struct {
   uint32_t memoryUsed;
 } FrFTL;
 
-bool ftlInit(FrFTL* ftl, const FrFTLOps* cb, uint8_t flashSizeInMB);
+bool ftlInit(FrFTL* ftl, const FrFTLOps* cb, uint16_t flashSizeInMB);
 void ftlDeInit(FrFTL* ftl);
 
 bool ftlWrite(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors, const uint8_t* buf);
