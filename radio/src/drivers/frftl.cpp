@@ -32,7 +32,25 @@
  *
  * It can be used to back the FatFS library by ChaN and included the support of
  * CTRL_SYNC and CTRL_TRIM functions for best performance.
+ * 
+ * 
+ * How it works:
+ * The FTL organize the storage as 4096 byte pages.  The translations from a logical page
+ * to a physical page are recorded in the translation table.  The translation table is
+ * organized into TT pages in which each TT page can store the mapping of 1024 pages.
+ * the TT pages are organized into 2 layers: master TT (MTT) and secondary TT (STT).
+ * the logical page no. of MTT is 0, and followed by STT from 1 onwards, therefore
+ * all the translation for TT pages are resided in the MTT page.
+ * 
+ * For logical to physical lookup, there are 2 cases, depends on what the logical page no. is:
+ * 1. MTT page -> data page
+ * 2. MTT page -> STT page -> data page
  *
+ * The page buffer is designed to delay the changes and write back to the flash in larger
+ * translation context to minimize the amount of TT page updates, so that the write
+ * amplification effect and wearing is minimized and improving the overall read/write
+ * performance.
+ * 
  */
 
 #include "frftl.h"
