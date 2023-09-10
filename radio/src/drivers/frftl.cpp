@@ -515,6 +515,28 @@ static bool programPageInBuffer(FrFTL* ftl, PageBuffer* buffer)
   return true;
 }
 
+static bool lockTTPages(FrFTL* ftl, uint16_t logicalPageNo)
+{
+  // Read TT pages and lock it for later update
+  PageBuffer* ttBuffer;
+  PageInfo ttPageInfo;
+  uint16_t ttPageNo = logicalPageNo / TT_RECORDS_PER_PAGE;
+  if (!readPageInfo(ftl, &ttPageInfo, ttPageNo)) {
+    return false;
+  }
+  ttBuffer =
+      loadPhysicalPageInBuffer(ftl, ttPageNo, ttPageInfo.physicalPageNo);
+  ttBuffer->lock = LOCKED;
+  ttBuffer->pMode = RELOCATE_ERASE_PROGRAM;
+  if (ttPageNo > 0) {
+    // TT page not MTT page, need to lock MTT page as well
+    ttBuffer = loadPhysicalPageInBuffer(ftl, 0, ftl->mttPhysicalPageNo);
+    ttBuffer->lock = LOCKED;
+    ttBuffer->pMode = RELOCATE_ERASE_PROGRAM;
+  }
+  return true;
+}
+
 bool ftlSync(FrFTL* ftl)
 {
   PageBuffer* pageBuffer = ((PageBuffer*)(ftl->pageBuffer));
@@ -664,23 +686,8 @@ bool ftlWrite(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors,
       memcpy(dataBuffer->page.data + pageSectorNo * SECTOR_SIZE, buf,
              SECTOR_SIZE);
 
-      // Read TT pages and lock it for later update
-      PageBuffer* ttBuffer;
-      PageInfo ttPageInfo;
-      uint16_t ttPageNo = logicalPageNo / TT_RECORDS_PER_PAGE;
-      if (!readPageInfo(ftl, &ttPageInfo, ttPageNo)) {
+      if (!lockTTPages(ftl, logicalPageNo)) {
         return false;
-      }
-      ttBuffer =
-          loadPhysicalPageInBuffer(ftl, ttPageNo, ttPageInfo.physicalPageNo);
-
-      ttBuffer->lock = LOCKED;
-      ttBuffer->pMode = RELOCATE_ERASE_PROGRAM;
-      if (ttPageNo > 0) {
-        // TT page not MTT page, need to lock MTT page as well
-        ttBuffer = loadPhysicalPageInBuffer(ftl, 0, ftl->mttPhysicalPageNo);
-        ttBuffer->lock = LOCKED;
-        ttBuffer->pMode = RELOCATE_ERASE_PROGRAM;
       }
     }
 
@@ -773,23 +780,8 @@ bool ftlTrim(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors)
           return false;
         }
 
-        // Read TT pages and lock it for later update
-        PageBuffer* ttBuffer;
-        PageInfo ttPageInfo;
-        uint16_t ttPageNo = logicalPageNo / TT_RECORDS_PER_PAGE;
-        if (!readPageInfo(ftl, &ttPageInfo, ttPageNo)) {
+        if (!lockTTPages(ftl, logicalPageNo)) {
           return false;
-        }
-        ttBuffer =
-            loadPhysicalPageInBuffer(ftl, ttPageNo, ttPageInfo.physicalPageNo);
-
-	// TODO: duplicated code?
-        ttBuffer->lock = LOCKED;
-        ttBuffer->pMode = RELOCATE_ERASE_PROGRAM;
-        if (ttPageNo > 0) {
-          ttBuffer = loadPhysicalPageInBuffer(ftl, 0, ftl->mttPhysicalPageNo);
-          ttBuffer->lock = LOCKED;
-          ttBuffer->pMode = RELOCATE_ERASE_PROGRAM;
         }
       }
     }
