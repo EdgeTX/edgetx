@@ -25,6 +25,8 @@
 
 volatile tmr10ms_t g_tmr10ms;
 
+#define MAX_ALERT_TIME   60
+
 #if TIMERS > MAX_TIMERS
 #error "Timers cannot exceed " .. MAX_TIMERS
 #endif

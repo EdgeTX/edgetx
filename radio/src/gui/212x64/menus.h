@@ -24,6 +24,7 @@
 
 #include "keys.h"
 #include "common/stdlcd/menus.h"
+#include "common/stdlcd/features.h"
 
 inline bool isRadioMenuDisplayed()
 {

@@ -72,6 +72,8 @@ Clipboard clipboard;
 GlobalData globalData;
 
 uint32_t maxMixerDuration; // microseconds
+
+constexpr uint8_t HEART_TIMER_10MS = 0x01;
 uint8_t heartbeat;
 
 #if defined(OVERRIDE_CHANNEL_FUNCTION)

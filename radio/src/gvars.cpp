@@ -85,3 +85,10 @@ int32_t getGVarFieldValuePrec1(int16_t val, int16_t min, int16_t max, int8_t fm)
   }
   return limit<int>(min*10, val, max*10);
 }
+
+void getGVarIncDecRange(int16_t & valMin, int16_t & valMax)
+{
+  int16_t rng = abs(valMax - valMin);
+  valMin = -rng;
+  valMax = rng;
+}
