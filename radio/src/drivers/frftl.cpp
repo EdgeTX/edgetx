@@ -658,7 +658,7 @@ bool ftlWrite(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors,
              SECTOR_SIZE);
     } else {
       // Sector already written, use replace write
-      // Lock page for delayed update with reprogram
+      // Lock data page for delayed update with reprogram
       dataBuffer->lock = LOCKED;
       dataBuffer->pMode = RELOCATE_ERASE_PROGRAM;
       memcpy(dataBuffer->page.data + pageSectorNo * SECTOR_SIZE, buf,
@@ -674,10 +674,10 @@ bool ftlWrite(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors,
       ttBuffer =
           loadPhysicalPageInBuffer(ftl, ttPageNo, ttPageInfo.physicalPageNo);
 
-      // TODO: duplicated code?
       ttBuffer->lock = LOCKED;
       ttBuffer->pMode = RELOCATE_ERASE_PROGRAM;
       if (ttPageNo > 0) {
+        // TT page not MTT page, need to lock MTT page as well
         ttBuffer = loadPhysicalPageInBuffer(ftl, 0, ftl->mttPhysicalPageNo);
         ttBuffer->lock = LOCKED;
         ttBuffer->pMode = RELOCATE_ERASE_PROGRAM;
@@ -888,8 +888,7 @@ static bool loadFTL(FrFTL* ftl)
     if (header.magicStart == TT_PAGE_MAGIC && header.logicalPageNo == 0 &&
         header.crc16 == calcCRC(&header)) {
       // MTT detected
-      // TODO: what happens on #serial overflow?
-      if (header.serial > currentSerial) {
+      if (header.serial > currentSerial || currentSerial - header.serial > 0x7fffffff) {
         // Newer MTT found
         currentSerial = header.serial;
         currentPhysicalMTTPageNo = i;
