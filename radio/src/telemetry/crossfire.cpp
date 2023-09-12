@@ -251,7 +251,7 @@ void processCrossfireTelemetryFrame(uint8_t module)
           update_interval /= 10;
           offset /= 10;
 
-          TRACE("[XF] Rate: %d, Lag: %d", update_interval, offset);
+          //TRACE("[XF] Rate: %d, Lag: %d", update_interval, offset);
           getModuleSyncStatus(module).update(update_interval, offset);
         }
       }

@@ -155,30 +155,10 @@ rxStatStruct *getRxStatLabels() {
   return &rxStat;
 }
 
-// TODO: move to module port driver
-//
-// static int (*_telemetryGetByte)(void*, uint8_t*) = nullptr;
-// static void* _telemetryGetByteCtx = nullptr;
-
-// void telemetrySetGetByte(void* ctx, int (*fct)(void*, uint8_t*))
-// {
-//   _telemetryGetByte = nullptr;
-//   _telemetryGetByteCtx = ctx;
-//   _telemetryGetByte = fct;
-// }
-
-// static bool telemetryGetByte(uint8_t* data)
-// {
-//   auto _getByte = _telemetryGetByte;
-//   auto _ctx = _telemetryGetByteCtx;
-
-//   if (_getByte) {
-//     return _getByte(_ctx, data);
-//   }
-
-//   // return sportGetByte(data);
-//   return false;
-// }
+// This can only be changed when the mixer is not
+// running as the priority of the timer task is
+// lower.
+volatile uint8_t _telemetryIsPolling = false;
 
 static void (*telemetryMirrorSendByte)(void*, uint8_t) = nullptr;
 static void* telemetryMirrorSendByteCtx = nullptr;
@@ -236,6 +216,51 @@ void telemetryStop()
     }
   }
 }
+
+static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
+{
+  _telemetryIsPolling = true;
+
+  auto drv = (const etx_proto_driver_t*)pvParameter1;
+  auto module = (uint8_t)ulParameter2;
+
+  auto mod = pulsesGetModuleDriver(module);
+  if (!mod || !mod->drv || !mod->ctx || (drv != mod->drv))
+    return;
+
+  auto ctx = mod->ctx;
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto serial_drv = modulePortGetSerialDrv(mod_st->rx);
+  auto serial_ctx = modulePortGetCtx(mod_st->rx);
+
+  if (!serial_drv || !serial_ctx || !serial_drv->copyRxBuffer)
+    return;
+
+  uint8_t frame[TELEMETRY_RX_PACKET_SIZE];
+
+  int frame_len = serial_drv->copyRxBuffer(serial_ctx, frame, TELEMETRY_RX_PACKET_SIZE);
+  if (frame_len > 0) {
+
+    LOG_TELEMETRY_WRITE_START();
+    for (int i = 0; i < frame_len; i++) {
+      telemetryMirrorSend(frame[i]);
+      LOG_TELEMETRY_WRITE_BYTE(frame[i]);
+    }
+
+    uint8_t* rxBuffer = getTelemetryRxBuffer(module);
+    uint8_t& rxBufferCount = getTelemetryRxBufferCount(module);
+    drv->processFrame(ctx, frame, frame_len, rxBuffer, &rxBufferCount);
+  }
+
+  _telemetryIsPolling = false;
+}
+
+void telemetryFrameTrigger_ISR(uint8_t module, const etx_proto_driver_t* drv)
+{
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  xTimerPendFunctionCallFromISR(_poll_frame, (void*)drv, module, &xHigherPriorityTaskWoken);
+  portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+}
 #endif
 
 inline bool isBadAntennaDetected()
@@ -278,11 +303,6 @@ static inline void pollTelemetry(uint8_t module, const etx_proto_driver_t* drv, 
     } while (serial_drv->getByte(serial_ctx, &data) > 0);
   }
 }
-
-// This can only be changed when the mixer is not
-// running as the priority of the timer task is
-// lower.
-volatile uint8_t _telemetryIsPolling = false;
 
 void telemetryWakeup()
 {
