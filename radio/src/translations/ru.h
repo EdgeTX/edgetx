@@ -40,8 +40,8 @@
 #define TR_USE_PLURAL2  INT_MAX
 
 #define TR_MINUTE_SINGULAR            "минута"
-#define TR_MINUTE_PLURAL1             "минуты"
-#define TR_MINUTE_PLURAL2             "минуты"
+#define TR_MINUTE_PLURAL1             "МИН"
+#define TR_MINUTE_PLURAL2             "МИН"
 
 #define TR_OFFON                       "ВЫК","ВКЛ"
 #define TR_MMMINV                      "---","INV"
@@ -435,7 +435,7 @@
 #define TR_MODEL                       "Модель"
 #define TR_FM                          "FM"
 #define TR_EEPROMLOWMEM                "EEPROM Нехватает Памяти"
-#define TR_PRESS_ANY_KEY_TO_SKIP       "Нажать Любую Кнопку Для Сброса"
+#define TR_PRESS_ANY_KEY_TO_SKIP       "Нажамите любую кнопку для сброса"
 #define TR_THROTTLE_NOT_IDLE           "Дросель Не Работает На ХХ"
 #define TR_ALARMSDISABLED              "Аварийные Сигналы Отключены"
 #define TR_PRESSANYKEY                 TR("\010Нажмите Любую Кнопку", "Нажмите Любую Кнопку")
@@ -540,14 +540,14 @@
 #define TR_BATT_CALIB                  TR("Batt. calib", "Battery calibration")
 #define TR_CURRENT_CALIB               "Current calib"
 #define TR_VOLTAGE                     TR(INDENT "Voltage", INDENT "Voltage source")
-#define TR_SELECT_MODEL                "Select model"
-#define TR_MANAGE_MODELS               "MANAGE MODELS"
-#define TR_MODELS                      "Models"
+#define TR_SELECT_MODEL                "Выбор Модели"
+#define TR_MANAGE_MODELS               "УПРАВЛЕНИЕ МОДЕЛЯМИ"
+#define TR_MODELS                      "Модели"
 #define TR_SELECT_MODE                 "Select mode"
 #define TR_CREATE_MODEL                "Create model"
-#define TR_FAVORITE_LABEL              "Favorites"
-#define TR_MODELS_MOVED                "Unused models moved to"
-#define TR_NEW_MODEL                   "New Model"
+#define TR_FAVORITE_LABEL              "Избранное"
+#define TR_MODELS_MOVED                "Неиспользуемые модели перенесены в"
+#define TR_NEW_MODEL                   "Новая модель"
 #define TR_INVALID_MODEL               "Invalid Model"
 #define TR_EDIT_LABELS                 "Edit Labels"
 #define TR_LABEL_MODEL                 "Label model"
@@ -558,7 +558,7 @@
 #define TR_LABELS                      "Labels"
 #define TR_CURRENT_MODEL               "Current"
 #define TR_ACTIVE                      "Active"
-#define TR_NEW                         "New"
+#define TR_NEW                         "Новая"
 #define TR_NEW_LABEL                   "New Label"
 #define TR_RENAME_LABEL                "Rename Label"
 #define TR_DELETE_LABEL                "Delete Label"
@@ -616,7 +616,7 @@
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
 #define TR_INCOMPATIBLE                "Несовместимый"
-#define TR_WARNING                     "ПРЕДУПРЕЖДЕНИЕ"
+#define TR_WARNING                     "ВНИМАНИЕ"
 #define TR_EEPROMWARN                  "EEPROM"
 #define TR_STORAGE_WARNING             "ПАМЯТЬ"
 #define TR_EEPROM_CONVERTING           "Преобразование EEPROM"
@@ -726,7 +726,7 @@
 #define TR_GLOBAL_VAR                  "Global variable"
 #define TR_MENU_GLOBAL_VARS              "GLOBAL VARIABLES"
 #define TR_OWN                         "Own"
-#define TR_DATE                        "Date"
+#define TR_DATE                        "Дата"
 #define TR_MONTHS                      { "Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек" }
 #define TR_ROTARY_ENCODER              "R.E."
 #define TR_ROTARY_ENC_MODE             TR("RotEnc Mode","Rotary Encoder Mode")
