@@ -53,7 +53,10 @@ typedef struct {
 struct etx_serial_callbacks_t {
   uint8_t (*on_send)(uint8_t* data);
   void (*on_receive)(uint8_t data);
-  void (*on_idle)();
+
+  void* on_idle_ctx;
+  void (*on_idle)(void* ctx);
+
   void (*on_error)();
 };
 
@@ -90,6 +93,11 @@ typedef struct {
 
   // Fetch a byte by its index from the end of the buffer
   int (*getLastByte)(void* ctx, uint32_t idx, uint8_t* data);
+
+  // Return the number of unread bytes
+  int (*getBufferedBytes)(void* ctx);
+
+  int (*copyRxBuffer)(void* ctx, uint8_t* buf, uint32_t len);
   
   // Clear internal buffer
   void (*clearRxBuffer)(void* ctx);
@@ -108,7 +116,7 @@ typedef struct {
   
   // Callbacks
   void (*setReceiveCb)(void* ctx, void (*on_receive)(uint8_t*, uint32_t));
-  void (*setIdleCb)(void* ctx, void (*on_idle)());
+  void (*setIdleCb)(void* ctx, void (*on_idle)(void*), void* param);
   void (*setBaudrateCb)(void* ctx, void (*on_set_baudrate)(uint32_t));
 
 } etx_serial_driver_t;

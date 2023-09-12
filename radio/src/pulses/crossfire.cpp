@@ -35,6 +35,7 @@
   #define CROSSFIRE_CENTER_CH_OFFSET(ch)            (0)
 #endif
 
+#define MIN_FRAME_LEN 3
 
 uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
 {
@@ -140,73 +141,36 @@ static bool _lenIsSane(uint8_t len)
   return (len > 2 && len < TELEMETRY_RX_PACKET_SIZE-1);
 }
 
-static void _seekStart(uint8_t* buffer, uint8_t* len)
+static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t flen,
+                                  uint8_t* buf, uint8_t* len)
 {
-  // Bad telemetry packets frequently are just truncated packets, with the start
-  // of a new packet contained in the data. This causes multiple packet drops as
-  // the parser tries to resync.
-  // Search through the rxBuffer for a sync byte, shift the contents if found
-  // and reduce rxBufferCount
-  for (uint8_t idx = 1; idx < *len; ++idx) {
-    uint8_t data = buffer[idx];
-    if (data == RADIO_ADDRESS || data == UART_SYNC) {
-      uint8_t remain = *len - idx;
-      // If there's at least 2 bytes, check the length for validity too
-      if (remain > 1 && !_lenIsSane(buffer[idx + 1])) continue;
+  if (flen < MIN_FRAME_LEN) return;
 
-      // TRACE("Found 0x%02x with %u remain", data, remain);
-      // copy the data to the front of the buffer
-      for (uint8_t src = idx; src < *len; ++src) {
-        buffer[src - idx] = buffer[src];
-      }
-
-      *len = remain;
-      return;
-    }  // if found sync
-  }
-
-  // Not found, clear the buffer
-  *len = 0;
-}
-
-static void crossfireProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
-{
-  if (*len == 0 && data != RADIO_ADDRESS && data != UART_SYNC) {
-    TRACE("[XF] address 0x%02X error", data);
+  if (frame[0] != RADIO_ADDRESS && frame[0] != UART_SYNC) {
+    TRACE("[XF] address 0x%02X error", frame[0]);
     return;
   }
 
-  if (*len == 1 && !_lenIsSane(data)) {
-    TRACE("[XF] length 0x%02X error", data);
-    *len = 0;
+  uint8_t pkt_len = frame[1];
+  if (!_lenIsSane(pkt_len) || pkt_len > flen - 2) {
+    TRACE("[XF] length 0x%02X error", pkt_len);
     return;
   }
 
-  if (*len < TELEMETRY_RX_PACKET_SIZE) {
-    buffer[(*len)++] = data;
+  if (_checkFrameCRC(frame)) {
+#if defined(BLUETOOTH) // TODO: generic telemetry mirror to BT
+    if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
+        bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
+      bluetooth.write(frame, pkt_len);
+    }
+#endif
+    auto mod_st = (etx_module_state_t*)ctx;
+    *len = pkt_len + 2;
+    memcpy(buf, frame, *len);
+    processCrossfireTelemetryFrame(modulePortGetModule(mod_st));
   }
   else {
-    TRACE("[XF] array size %d error", *len);
-    *len = 0;
-  }
-
-  // rxBuffer[1] holds the packet length-2, check if the whole packet was received
-  while (*len > 4 && (buffer[1]+2) == *len) {
-    if (_checkFrameCRC(buffer)) {
-#if defined(BLUETOOTH) // TODO: generic telemetry mirror to BT
-      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
-          bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
-        bluetooth.write(buffer, *len);
-      }
-#endif
-      auto mod_st = (etx_module_state_t*)ctx;
-      processCrossfireTelemetryFrame(modulePortGetModule(mod_st));
-      *len = 0;
-    }
-    else {
-      TRACE("[XF] CRC error ");
-      _seekStart(buffer, len); // adjusts len
-    }
+    TRACE("[XF] CRC error ");
   }
 }
 
@@ -216,6 +180,39 @@ static const etx_serial_init crsfSerialParams = {
   .direction = ETX_Dir_TX_RX,
   .polarity = ETX_Pol_Normal,
 };
+
+static void crsfRxFrameLenghCheck(void* param)
+{
+  uint8_t destination, lengh;
+
+  auto mod_st = (etx_module_state_t*)param;
+  auto drv = modulePortGetSerialDrv(mod_st->rx);
+  auto ctx = modulePortGetCtx(mod_st->rx);
+
+  auto buffered = drv->getBufferedBytes(ctx);
+  if (buffered < 3) {
+    drv->clearRxBuffer(ctx);
+    return;  // Should not happen
+  }
+
+  drv->getLastByte(ctx, buffered, &destination);
+  if (destination != RADIO_ADDRESS && destination != UART_SYNC) {
+    drv->clearRxBuffer(ctx);
+    return;  // Only process data sent to us
+  }
+
+  drv->getLastByte(ctx, buffered - 1, &lengh);
+  if (buffered < (lengh + 2)) {
+    // We are missing data, flush wrong data
+    drv->clearRxBuffer(ctx);
+    TRACE("[XF] missing bytes");
+    return;
+  }
+
+#if !defined(SIMU)
+  telemetryFrameTrigger_ISR(EXTERNAL_MODULE, &CrossfireDriver);
+#endif
+}
 
 static void* crossfireInit(uint8_t module)
 {
@@ -235,6 +232,15 @@ static void* crossfireInit(uint8_t module)
 
     params.baudrate = EXT_CROSSFIRE_BAUDRATE;
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params);
+
+    if (mod_st) {
+      auto drv = modulePortGetSerialDrv(mod_st->rx);
+      auto ctx = modulePortGetCtx(mod_st->rx);
+
+      if (drv && ctx && drv->setIdleCb) {
+        drv->setIdleCb(ctx, crsfRxFrameLenghCheck, mod_st);
+      }
+    }
   }
 #endif
 
@@ -256,5 +262,6 @@ const etx_proto_driver_t CrossfireDriver = {
   .init = crossfireInit,
   .deinit = crossfireDeInit,
   .sendPulses = crossfireSendPulses,
-  .processData = crossfireProcessData,
+  .processData = nullptr,
+  .processFrame = crossfireProcessFrame,
 };

@@ -592,7 +592,7 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
   if (LL_USART_IsEnabledIT_IDLE(usart->USARTx) && idle) {
     // SR clear sequence
     status = LL_USART_ReadReg(usart->USARTx, DR);
-    if (cb->on_idle) cb->on_idle();
+    if (cb->on_idle) cb->on_idle(cb->on_idle_ctx);
   }
 }
 
