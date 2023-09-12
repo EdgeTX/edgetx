@@ -596,9 +596,24 @@ class GpsPage : public SubPage {
 
 class ViewOptionsPage : public SubPage
 {
-   public:
+   private:
     const lv_coord_t opt_col_two_dsc[3] = {LV_GRID_FR(7), LV_GRID_FR(3), LV_GRID_TEMPLATE_LAST};
 
+    void viewOption(FormWindow::Line *line, const char* name, std::function<uint8_t()> getValue, std::function<void(uint8_t)> setValue, uint8_t modelOption)
+    {
+      line->padLeft(10);
+      new StaticText(line, rect_t{}, name, 0, COLOR_THEME_PRIMARY1);
+      if (modelOption == OVERRIDE_GLOBAL) {
+        new ToggleSwitch(line, rect_t{}, getValue, setValue);
+      } else {
+        std::string s(STR_MODEL);
+        s += " - ";
+        s += STR_ADCFILTERVALUES[modelOption];
+        new StaticText(line, rect_t{}, s.c_str(), 0, COLOR_THEME_PRIMARY1);
+      }
+    }
+
+  public:
     ViewOptionsPage() : SubPage(ICON_RADIO_SETUP, STR_ENABLED_FEATURES, false)
     {
       FlexGridLayout grid(opt_col_two_dsc, row_dsc, 2);
@@ -611,70 +626,48 @@ class ViewOptionsPage : public SubPage
       new StaticText(line, rect_t{}, STR_RADIO_MENU_TABS, 0, COLOR_THEME_PRIMARY1);
 
       line = form->newLine(&grid);
-      line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_THEME_EDITOR, 0, COLOR_THEME_PRIMARY1);
-      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled));
+      viewOption(line, STR_THEME_EDITOR, GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled), g_model.radioThemesDisabled);
 
       line = form->newLine(&grid);
-      line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_MENUSPECIALFUNCS, 0, COLOR_THEME_PRIMARY1);
-      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioGFDisabled));
+      viewOption(line, STR_MENUSPECIALFUNCS, GET_SET_INVERTED(g_eeGeneral.radioGFDisabled), g_model.radioGFDisabled);
 
       line = form->newLine(&grid);
-      line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_MENUTRAINER, 0, COLOR_THEME_PRIMARY1);
-      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.radioTrainerDisabled));
+      viewOption(line, STR_MENUTRAINER, GET_SET_INVERTED(g_eeGeneral.radioTrainerDisabled), g_model.radioTrainerDisabled);
 
       line = form->newLine(&grid);
       new StaticText(line, rect_t{}, STR_MODEL_MENU_TABS, 0, COLOR_THEME_PRIMARY1);
 
 #if defined(HELI)
       line = form->newLine(&grid);
-      line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_MENUHELISETUP, 0, COLOR_THEME_PRIMARY1);
-      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelHeliDisabled));
+      viewOption(line, STR_MENUHELISETUP, GET_SET_INVERTED(g_eeGeneral.modelHeliDisabled), g_model.modelHeliDisabled);
 #endif
 
 #if defined(FLIGHT_MODES)
       line = form->newLine(&grid);
-      line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_MENUFLIGHTMODES, 0, COLOR_THEME_PRIMARY1);
-      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelFMDisabled));
+      viewOption(line, STR_MENUFLIGHTMODES, GET_SET_INVERTED(g_eeGeneral.modelFMDisabled), g_model.modelFMDisabled);
 #endif
 
 #if defined(GVARS)
       line = form->newLine(&grid);
-      line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_MENU_GLOBAL_VARS, 0, COLOR_THEME_PRIMARY1);
-      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelGVDisabled));
+      viewOption(line, STR_MENU_GLOBAL_VARS, GET_SET_INVERTED(g_eeGeneral.modelGVDisabled), g_model.modelGVDisabled);
 #endif
 
       line = form->newLine(&grid);
-      line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_MENUCURVES, 0, COLOR_THEME_PRIMARY1);
-      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled));
+      viewOption(line, STR_MENUCURVES, GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled), g_model.modelCurvesDisabled);
 
       line = form->newLine(&grid);
-      line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_MENULOGICALSWITCHES, 0, COLOR_THEME_PRIMARY1);
-      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelLSDisabled));
+      viewOption(line, STR_MENULOGICALSWITCHES, GET_SET_INVERTED(g_eeGeneral.modelLSDisabled), g_model.modelLSDisabled);
 
       line = form->newLine(&grid);
-      line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_MENUCUSTOMFUNC, 0, COLOR_THEME_PRIMARY1);
-      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelSFDisabled));
+      viewOption(line, STR_MENUCUSTOMFUNC, GET_SET_INVERTED(g_eeGeneral.modelSFDisabled), g_model.modelSFDisabled);
 
 #if defined(LUA_MODEL_SCRIPTS)
       line = form->newLine(&grid);
-      line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_MENUCUSTOMSCRIPTS, 0, COLOR_THEME_PRIMARY1);
-      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelCustomScriptsDisabled));
+      viewOption(line, STR_MENUCUSTOMSCRIPTS, GET_SET_INVERTED(g_eeGeneral.modelCustomScriptsDisabled), g_model.modelCustomScriptsDisabled);
 #endif
 
       line = form->newLine(&grid);
-      line->padLeft(10);
-      new StaticText(line, rect_t{}, STR_MENUTELEMETRY, 0, COLOR_THEME_PRIMARY1);
-      new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.modelTelemetryDisabled));
+      viewOption(line, STR_MENUTELEMETRY, GET_SET_INVERTED(g_eeGeneral.modelTelemetryDisabled), g_model.modelTelemetryDisabled);
     }
 };
 

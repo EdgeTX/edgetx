@@ -119,10 +119,24 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_MAX
 };
 
-uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
+uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event, uint8_t modelOption)
 {
   lcdDrawText(INDENT_WIDTH*2, y, title);
-  return !editCheckBox(!value, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event );
+  if (modelOption == OVERRIDE_GLOBAL) {
+    return !editCheckBox(!value, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event );
+  } else {
+    std::string s("M-");
+    s += STR_ADCFILTERVALUES[modelOption];
+    lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, s.c_str());
+    return value;
+  }
+}
+
+uint8_t viewOptTab(uint8_t modelOption)
+{
+  if (modelOption == OVERRIDE_GLOBAL)
+    return 0;
+  return READONLY_ROW;
 }
 
 void menuRadioSetup(event_t event)
@@ -205,7 +219,19 @@ void menuRadioSetup(event_t event)
     CASE_ROTARY_ENCODER(0)  // Invert rotary encoder
     LABEL(TX_MODE),
       0, // sticks mode
-    LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) CASE_GVARS(0) 0, 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
+    LABEL(ViewOptions),
+     LABEL(RadioMenuTabs),
+      viewOptTab(g_model.radioGFDisabled),
+      viewOptTab(g_model.radioTrainerDisabled),
+     LABEL(ModelMenuTabs),
+      CASE_HELI(viewOptTab(g_model.modelHeliDisabled))
+      CASE_FLIGHT_MODES(viewOptTab(g_model.modelFMDisabled))
+      viewOptTab(g_model.modelCurvesDisabled),
+      CASE_GVARS(viewOptTab(g_model.modelGVDisabled))
+      viewOptTab(g_model.modelLSDisabled),
+      viewOptTab(g_model.modelSFDisabled),
+      CASE_LUA_MODEL_SCRIPTS(viewOptTab(g_model.modelCustomScriptsDisabled))
+      viewOptTab(g_model.modelTelemetryDisabled),
       1 /*to force edit mode*/
   });
 
@@ -692,45 +718,45 @@ void menuRadioSetup(event_t event)
         lcdDrawText(INDENT_WIDTH, y, TR_RADIO_MENU_TABS);
         break;
       case ITEM_VIEW_OPTIONS_GF:
-        g_eeGeneral.radioGFDisabled = viewOptCheckBox(y, STR_MENUSPECIALFUNCS, g_eeGeneral.radioGFDisabled, attr, event);
+        g_eeGeneral.radioGFDisabled = viewOptCheckBox(y, STR_MENUSPECIALFUNCS, g_eeGeneral.radioGFDisabled, attr, event, g_model.radioGFDisabled);
         break;
       case ITEM_VIEW_OPTIONS_TRAINER:
-        g_eeGeneral.radioTrainerDisabled = viewOptCheckBox(y, STR_MENUTRAINER, g_eeGeneral.radioTrainerDisabled, attr, event);
+        g_eeGeneral.radioTrainerDisabled = viewOptCheckBox(y, STR_MENUTRAINER, g_eeGeneral.radioTrainerDisabled, attr, event, g_model.radioTrainerDisabled);
         break;
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
         lcdDrawText(INDENT_WIDTH, y, TR_MODEL_MENU_TABS);
         break;
 #if defined(HELI)
       case ITEM_VIEW_OPTIONS_HELI:
-        g_eeGeneral.modelHeliDisabled = viewOptCheckBox(y, STR_MENUHELISETUP, g_eeGeneral.modelHeliDisabled, attr, event);
+        g_eeGeneral.modelHeliDisabled = viewOptCheckBox(y, STR_MENUHELISETUP, g_eeGeneral.modelHeliDisabled, attr, event, g_model.modelHeliDisabled);
         break;
 #endif
 #if defined(FLIGHT_MODES)
       case ITEM_VIEW_OPTIONS_FM:
-        g_eeGeneral.modelFMDisabled = viewOptCheckBox(y, STR_MENUFLIGHTMODES, g_eeGeneral.modelFMDisabled, attr, event);
+        g_eeGeneral.modelFMDisabled = viewOptCheckBox(y, STR_MENUFLIGHTMODES, g_eeGeneral.modelFMDisabled, attr, event, g_model.modelFMDisabled);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_CURVES:
-        g_eeGeneral.modelCurvesDisabled = viewOptCheckBox(y, STR_MENUCURVES, g_eeGeneral.modelCurvesDisabled, attr, event);
+        g_eeGeneral.modelCurvesDisabled = viewOptCheckBox(y, STR_MENUCURVES, g_eeGeneral.modelCurvesDisabled, attr, event, g_model.modelCurvesDisabled);
         break;
 #if defined(GVARS)
       case ITEM_VIEW_OPTIONS_GV:
-        g_model.modelGVDisabled = viewOptCheckBox(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event);
+        g_model.modelGVDisabled = viewOptCheckBox(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event, g_model.modelGVDisabled);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_LS:
-        g_eeGeneral.modelLSDisabled = viewOptCheckBox(y, STR_MENULOGICALSWITCHES, g_eeGeneral.modelLSDisabled, attr, event);
+        g_eeGeneral.modelLSDisabled = viewOptCheckBox(y, STR_MENULOGICALSWITCHES, g_eeGeneral.modelLSDisabled, attr, event, g_model.modelLSDisabled);
         break;
       case ITEM_VIEW_OPTIONS_SF:
-        g_eeGeneral.modelSFDisabled = viewOptCheckBox(y, STR_MENUCUSTOMFUNC, g_eeGeneral.modelSFDisabled, attr, event);
+        g_eeGeneral.modelSFDisabled = viewOptCheckBox(y, STR_MENUCUSTOMFUNC, g_eeGeneral.modelSFDisabled, attr, event, g_model.modelSFDisabled);
         break;
 #if defined(LUA_MODEL_SCRIPTS)
       case ITEM_VIEW_OPTIONS_CUSTOM_SCRIPTS:
-        g_eeGeneral.modelCustomScriptsDisabled = viewOptCheckBox(y, STR_MENUCUSTOMSCRIPTS, g_eeGeneral.modelCustomScriptsDisabled, attr, event);
+        g_eeGeneral.modelCustomScriptsDisabled = viewOptCheckBox(y, STR_MENUCUSTOMSCRIPTS, g_eeGeneral.modelCustomScriptsDisabled, attr, event, g_model.modelCustomScriptsDisabled);
         break;
 #endif
       case ITEM_VIEW_OPTIONS_TELEMETRY:
-        g_eeGeneral.modelTelemetryDisabled = viewOptCheckBox(y, STR_MENUTELEMETRY, g_eeGeneral.modelTelemetryDisabled, attr, event);
+        g_eeGeneral.modelTelemetryDisabled = viewOptCheckBox(y, STR_MENUTELEMETRY, g_eeGeneral.modelTelemetryDisabled, attr, event, g_model.modelTelemetryDisabled);
         break;
     }
   }
