@@ -125,7 +125,8 @@ uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t att
   if (modelOption == OVERRIDE_GLOBAL) {
     return !editCheckBox(!value, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event );
   } else {
-    std::string s("M-");
+    std::string s(STR_MODEL);
+    s += " - ";
     s += STR_ADCFILTERVALUES[modelOption];
     lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, s.c_str());
     return value;
