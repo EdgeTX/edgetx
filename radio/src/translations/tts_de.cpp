@@ -64,7 +64,7 @@ enum GermanPrompts {
 
 };
 
-  #define DE_PUSH_UNIT_PROMPT(u, p) de_pushUnitPrompt((u), (p), id, , fragmentVolume)
+  #define DE_PUSH_UNIT_PROMPT(u, p) de_pushUnitPrompt((u), (p), id, fragmentVolume)
 
 I18N_PLAY_FUNCTION(de, pushUnitPrompt, uint8_t unitprompt, int16_t number)
 {
