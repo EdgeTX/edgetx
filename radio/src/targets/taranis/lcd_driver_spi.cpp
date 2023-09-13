@@ -110,6 +110,7 @@ void lcdHardwareInit()
 #endif
   LCD_DMA_Stream->FCR = 0x05; // DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0;
 
+  NVIC_SetPriority(LCD_DMA_Stream_IRQn, 7);
   NVIC_EnableIRQ(LCD_DMA_Stream_IRQn);
 }
 
