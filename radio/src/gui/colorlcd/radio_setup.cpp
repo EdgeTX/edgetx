@@ -597,26 +597,25 @@ class GpsPage : public SubPage {
 class ViewOptionsPage : public SubPage
 {
    private:
-    const lv_coord_t opt_col_two_dsc[3] = {LV_GRID_FR(7), LV_GRID_FR(3), LV_GRID_TEMPLATE_LAST};
+    const lv_coord_t opt_col_dsc[4] = {LV_GRID_FR(5), LV_GRID_FR(2), LV_GRID_FR(4), LV_GRID_TEMPLATE_LAST};
 
     void viewOption(FormWindow::Line *line, const char* name, std::function<uint8_t()> getValue, std::function<void(uint8_t)> setValue, uint8_t modelOption)
     {
       line->padLeft(10);
       new StaticText(line, rect_t{}, name, 0, COLOR_THEME_PRIMARY1);
-      if (modelOption == OVERRIDE_GLOBAL) {
-        new ToggleSwitch(line, rect_t{}, getValue, setValue);
-      } else {
+      new ToggleSwitch(line, rect_t{}, getValue, setValue);
+      if (modelOption != OVERRIDE_GLOBAL) {
         std::string s(STR_MODEL);
         s += " - ";
         s += STR_ADCFILTERVALUES[modelOption];
-        new StaticText(line, rect_t{}, s.c_str(), 0, COLOR_THEME_PRIMARY1);
+        new StaticText(line, rect_t{}, s.c_str(), 0, COLOR_THEME_SECONDARY1);
       }
     }
 
   public:
     ViewOptionsPage() : SubPage(ICON_RADIO_SETUP, STR_ENABLED_FEATURES, false)
     {
-      FlexGridLayout grid(opt_col_two_dsc, row_dsc, 2);
+      FlexGridLayout grid(opt_col_dsc, row_dsc, 2);
 
       auto form = new FormWindow(&body, rect_t{});
       form->setFlexLayout();

@@ -135,21 +135,11 @@ enum {
 uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event, uint8_t modelOption)
 {
   lcdDrawText(INDENT_WIDTH, y, title);
-  if (modelOption == OVERRIDE_GLOBAL) {
-    return !editCheckBox(!value, LCD_W-9, y, nullptr, attr, event ) ;
-  } else {
-    std::string s("M-");
-    s += STR_ADCFILTERVALUES[modelOption];
-    lcdDrawText(LCD_W, y, s.c_str(), RIGHT);
-    return value;
+  if (modelOption != OVERRIDE_GLOBAL) {
+    std::string s(STR_ADCFILTERVALUES[modelOption]);
+    lcdDrawText(LCD_W-3*FW, y, s.c_str());
   }
-}
-
-uint8_t viewOptTab(uint8_t modelOption)
-{
-  if (modelOption == OVERRIDE_GLOBAL)
-    return 0;
-  return READONLY_ROW;
+  return !editCheckBox(!value, LCD_W-4*FW-3, y, nullptr, attr, event ) ;
 }
 
 void menuRadioSetup(event_t event)
@@ -226,16 +216,16 @@ void menuRadioSetup(event_t event)
     CASE_TX_MODE(0)
     LABEL(ViewOptions),
      LABEL(RadioMenuTabs),
-      viewOptTab(g_model.radioGFDisabled),
-      viewOptTab(g_model.radioTrainerDisabled),
+      0,
+      0,
      LABEL(ModelMenuTabs),
-      CASE_HELI(viewOptTab(g_model.modelHeliDisabled))
-      CASE_FLIGHT_MODES(viewOptTab(g_model.modelFMDisabled))
-      viewOptTab(g_model.modelCurvesDisabled),
-      viewOptTab(g_model.modelLSDisabled),
-      viewOptTab(g_model.modelSFDisabled),
-      CASE_LUA_MODEL_SCRIPTS(viewOptTab(g_model.modelCustomScriptsDisabled))
-      viewOptTab(g_model.modelTelemetryDisabled),
+      CASE_HELI(0)
+      CASE_FLIGHT_MODES(0)
+      0,
+      0,
+      0,
+      CASE_LUA_MODEL_SCRIPTS(0)
+      0,
     1/*to force edit mode*/});
 
   if (event == EVT_ENTRY) {
