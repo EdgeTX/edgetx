@@ -143,7 +143,13 @@ static inline void _usart_isr_handler(_STM32_USART n)
 #endif
 
 #if defined (USART2)
-  DEFINE_USART_IRQ(USART2);
+// DEFINE_USART_IRQ(USART2);
+extern "C" void USART2_IRQHandler(void)
+{
+  GPIOC->BSRR = (1 << 6); // SET
+  _usart_isr_handler(_STM32_USART2);
+  GPIOC->BSRR = (1 << 6) << 16; // RESET
+}
 #endif
 
 #if defined (USART3)

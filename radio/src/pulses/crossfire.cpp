@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_gpio_driver.h"  // DEBUG PIN
 #include "stm32_exti_driver.h"
 
 #include "opentx.h"
@@ -248,6 +249,10 @@ static void* crossfireInit(uint8_t module)
         drv->setIdleCb(ctx, crsfRxFrameLenghCheck, mod_st);
         stm32_exti_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 0, _crsf_extmodule_frame_received);
       }
+
+      // DEBUG PIN: PPM as OUTPUT
+      stm32_gpio_enable_clock(EXTMODULE_TX_GPIO);
+      EXTMODULE_TX_GPIO->MODER |= (1 << 12);// PC.06
     }
   }
 #endif
