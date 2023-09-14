@@ -29,7 +29,7 @@
 
 #if defined(INTMODULE_USART)
 
-#define INTMODULE_USART_IRQ_PRIORITY 6
+#define INTMODULE_USART_IRQ_PRIORITY 5
 
 static const stm32_usart_t intmoduleUSART = {
   .USARTx = INTMODULE_USART,
