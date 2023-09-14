@@ -549,6 +549,11 @@
 #define TELEMETRY_TIMER_IRQn            TIM1_TRG_COM_TIM11_IRQn
 #define TELEMETRY_TIMER_IRQHandler      TIM1_TRG_COM_TIM11_IRQHandler
 
+// Software IRQ (Prio 5 -> FreeRTOS compatible)
+#define TELEMETRY_RX_FRAME_EXTI_LINE    LL_EXTI_LINE_4
+#define USE_EXTI4_IRQ
+#define EXTI4_IRQ_Priority 5
+
 // USB
 #define USB_RCC_AHB1Periph_GPIO         RCC_AHB1Periph_GPIOA
 #define USB_GPIO                        GPIOA
