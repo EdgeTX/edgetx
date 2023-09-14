@@ -233,13 +233,20 @@ static const etx_serial_init crsfSerialParams = {
   .polarity = ETX_Pol_Normal,
 };
 
+#if !defined(SIMU)
+static void _crsf_intmodule_frame_received(void*)
+{
+  telemetryFrameTrigger_ISR(INTERNAL_MODULE, &CrossfireDriver);
+}
+
 static void _crsf_extmodule_frame_received()
 {
   telemetryFrameTrigger_ISR(EXTERNAL_MODULE, &CrossfireDriver);
 }
 
-#if !defined(SIMU)
-static void _soft_irq_trigger(void* param)
+// proxy trigger to avoid calling
+// FreeRTOS methods from ISR with prio 0
+static void _soft_irq_trigger(void*)
 {
   EXTI->SWIER = TELEMETRY_RX_FRAME_EXTI_LINE;
 }
@@ -255,6 +262,20 @@ static void* crossfireInit(uint8_t module)
 
     params.baudrate = INT_CROSSFIRE_BAUDRATE;
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
+
+    if (mod_st) {
+      auto drv = modulePortGetSerialDrv(mod_st->rx);
+      auto ctx = modulePortGetCtx(mod_st->rx);
+
+      auto& rx_count = getTelemetryRxBufferCount(INTERNAL_MODULE);
+      rx_count = 0;
+
+#if !defined(SIMU)
+      if (drv && ctx && drv->setIdleCb) {
+        drv->setIdleCb(ctx, _crsf_intmodule_frame_received, 0);
+      }
+#endif
+    }
   }
 #endif
 
@@ -273,7 +294,7 @@ static void* crossfireInit(uint8_t module)
 
 #if !defined(SIMU)
       if (drv && ctx && drv->setIdleCb) {
-        drv->setIdleCb(ctx, _soft_irq_trigger, mod_st);
+        drv->setIdleCb(ctx, _soft_irq_trigger, 0);
         stm32_exti_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 0, _crsf_extmodule_frame_received);
       }
 #endif
