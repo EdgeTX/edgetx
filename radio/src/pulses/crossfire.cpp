@@ -320,6 +320,17 @@ static void* crossfireInit(uint8_t module)
 static void crossfireDeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
+
+#if !defined(SIMU)
+  if (mod_st && (modulePortGetModule(mod_st) == EXTERNAL_MODULE)) {
+    auto drv = modulePortGetSerialDrv(mod_st->rx);
+    auto ctx = modulePortGetCtx(mod_st->rx);
+    if (drv && ctx && drv->setIdleCb) {
+      stm32_exti_disable(TELEMETRY_RX_FRAME_EXTI_LINE);
+    }
+  }
+#endif
+  
   modulePortDeInit(mod_st);
 }
 

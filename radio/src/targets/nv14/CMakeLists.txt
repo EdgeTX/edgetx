@@ -145,13 +145,6 @@ set(FIRMWARE_TARGET_SRC
 
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
-  hal/adc_driver.cpp
-  targets/common/arm/stm32/stm32_adc.cpp
-  targets/common/arm/stm32/timers_driver.cpp
-  targets/common/arm/stm32/stm32_pulse_driver.cpp
-  targets/common/arm/stm32/stm32_usart_driver.cpp
-  targets/common/arm/stm32/trainer_driver.cpp
-  targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/diskio_sdio.cpp
   targets/common/arm/stm32/vs1053b.cpp
   )
