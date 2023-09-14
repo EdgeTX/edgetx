@@ -70,6 +70,9 @@
 // The multiplier for cache buffers, min recommendation is 2
 #define BUFFER_SIZE_MULTIPLIER         4
 
+// Will cap the buffer size to this when exceeded
+#define MAX_BUFFER_SIZE               64
+
 // Reserve pages to minimize the erase cycles when the FS is full,
 // should be at least 2 times of BUFFER_SIZE_MULTIPLIER
 #define RESERVED_PAGES_MULTIPLIER      16
@@ -124,15 +127,19 @@ typedef struct {
   uint8_t sectStatus;
 } PageInfo;
 
-typedef struct {
+typedef struct PageBuffer PageBuffer;
+
+struct PageBuffer {
   Page    page;
+  PageBuffer* lruPrev;           // Double linked-list for LRU implementation
+  PageBuffer* lruNext;           // Double linked-list for LRU implementation
+  PageBuffer* hashNext;          // Linked-list for hash table implementation
   uint16_t logicalPageNo;        // Required for first program or reprogram
   uint16_t physicalPageNo;
-  uint8_t lru;                  // Index for physicalPageNo, 0 is most used
   uint8_t lock;                 // Page locked for delayed update
   uint8_t sectorEraseRequired;  // Record which sector need to be erased before update
   uint8_t pMode;
-} PageBuffer;
+};
 
 static const uint16_t supportedFlashSizes[] = { 4, 8, 16, 32, 64, 128, 256 };
 
@@ -199,52 +206,142 @@ static void resolveUnknownState(FrFTL* ftl, uint16_t count)
   }
 }
 
-static PageBuffer* findPhysicalPageInBuffer(FrFTL* ftl, uint16_t physicalPageNo)
+static PageBuffer* findPageFromHashTable(FrFTL* ftl, uint16_t physicalPageNo)
 {
-  PageBuffer* pageBuffer = ((PageBuffer*)(ftl->pageBuffer));
-  for (uint16_t i = 0; i < ftl->pageBufferSize; i++) {
-    PageBuffer* iBuffer = (pageBuffer + i);
-    if (iBuffer->physicalPageNo == physicalPageNo) {
-      // Found physical page in buffer
-      // Update LRU
-      for (uint16_t j = 0; j < ftl->pageBufferSize; j++) {
-        if ((pageBuffer + j)->lru == i && j > 0) {
-          uint16_t temp = i;
-          while (j > 0) {
-            (pageBuffer + j)->lru = (pageBuffer + j - 1)->lru;
-            j--;
+  PageBuffer** hashTable = (PageBuffer**) ftl->hashTable;
+  uint16_t hash = physicalPageNo % ftl->pageBufferSize;
+  PageBuffer* lastBuffer = nullptr;
+  PageBuffer* buffer = hashTable[hash];
+  while (buffer) {
+    if (buffer->physicalPageNo == physicalPageNo) {
+      // Update search order with LRU
+      if (lastBuffer) {
+        lastBuffer->hashNext = buffer->hashNext;
+        buffer->hashNext = hashTable[hash];
+        hashTable[hash] = buffer;
+      }
+      return buffer;
+    }
+    lastBuffer = buffer;
+    buffer = buffer->hashNext;
+  }
+
+  return nullptr;
+}
+
+static void removePageFromHashTable(FrFTL* ftl, uint16_t physicalPageNo)
+{
+  PageBuffer** hashTable = (PageBuffer**) ftl->hashTable;
+  uint16_t hash = physicalPageNo % ftl->pageBufferSize;
+  PageBuffer* lastBuffer = nullptr;
+  PageBuffer* buffer = hashTable[hash];
+  while (buffer) {
+    if (buffer->physicalPageNo == physicalPageNo) {
+      if (lastBuffer == nullptr) {
+        hashTable[hash] = buffer->hashNext;
+      } else {
+        lastBuffer->hashNext = buffer->hashNext;
+      }
+      buffer->hashNext = nullptr;
+      return;
+    }
+    lastBuffer = buffer;
+    buffer = buffer->hashNext;
+  }
+}
+
+static void addPageToHashTable(FrFTL* ftl, PageBuffer* buffer)
+{
+  PageBuffer** hashTable = (PageBuffer**) ftl->hashTable;
+  uint16_t hash = buffer->physicalPageNo % ftl->pageBufferSize;
+  buffer->hashNext = hashTable[hash];
+  hashTable[hash] = buffer;
+}
+
+static void movePageBufferToLRUHead(FrFTL* ftl, PageBuffer* buffer)
+{
+  // Take buffer out from the linked list
+  if (buffer->lruPrev) {
+    buffer->lruPrev->lruNext = buffer->lruNext;
+  } else {
+    // Already is head, done
+    return;
           }
-          pageBuffer->lru = temp;
-          break;
+
+  if (buffer->lruNext) {
+    buffer->lruNext->lruPrev = buffer->lruPrev;
+  } else {
+    // Tail detected, need to update tail pointer
+    ftl->bufferTail = buffer->lruPrev;
         }
+
+  // Put buffer to buffer head
+  ((PageBuffer*) ftl->bufferHead)->lruPrev = buffer;
+  buffer->lruNext = (PageBuffer*) ftl->bufferHead;
+  buffer->lruPrev = nullptr;
+  ftl->bufferHead = buffer;
       }
 
-      return iBuffer;
+static PageBuffer* rawFindReplacableBuffer(FrFTL* ftl)
+{
+  PageBuffer* buffer = (PageBuffer*) ftl->bufferTail;
+  while (buffer && buffer->lock == LOCKED) {
+    buffer = buffer->lruPrev;
     }
+
+  return buffer;
   }
+
+static PageBuffer* findReplacableBuffer(FrFTL* ftl)
+{
+  PageBuffer* buffer = rawFindReplacableBuffer(ftl);
+  if (!buffer)
+  {
+    // All buffers are locked, flush lock pages
+    if (!ftlSync(ftl)) {
   return nullptr;
+}
+
+    // Try again
+    buffer = rawFindReplacableBuffer(ftl);
+  }
+
+  if (buffer) {
+    // Invalidate buffer from hash table
+    if (buffer->physicalPageNo != 0xffff) {
+      removePageFromHashTable(ftl, buffer->physicalPageNo);
+      buffer->physicalPageNo = 0xffff;
+    }
+    
+    // Update LRU
+    movePageBufferToLRUHead(ftl, buffer);
+  }
+
+  return buffer;
+}
+
+static PageBuffer* findPhysicalPageInBuffer(FrFTL* ftl, uint16_t physicalPageNo)
+{
+  PageBuffer* buffer = findPageFromHashTable(ftl, physicalPageNo);
+  if (buffer) {
+    // Update LRU
+    movePageBufferToLRUHead(ftl, buffer);
+  }
+
+  return buffer;
 }
 
 static PageBuffer* loadPhysicalPageInBuffer(FrFTL* ftl, uint16_t logicalPageNo,
                                             uint16_t physicalPageNo)
 {
   // Find page in buffer
-  PageBuffer* pageBuffer = ((PageBuffer*)(ftl->pageBuffer));
   PageBuffer* currentBuffer = findPhysicalPageInBuffer(ftl, physicalPageNo);
   if (currentBuffer == nullptr) {
     // Page not in buffer, load page in buffer
-    uint16_t bufferIdx = 0;
-    for (uint16_t i = ftl->pageBufferSize - 1; i >= 0; i--) {
-      bufferIdx = (pageBuffer + i)->lru;
-      currentBuffer = (pageBuffer + bufferIdx);
-      if (!currentBuffer->lock) {
-        break;
-      }
-    }
-    if (currentBuffer->lock) {
-      return nullptr;
-    }
-    currentBuffer->physicalPageNo = 0xffff;
+    if ((currentBuffer = findReplacableBuffer(ftl)) == nullptr) {
+      return nullptr;  // BUG
+    };
+
     const FrFTLOps* cb = ftl->callbacks;
     if (!cb->flashRead(physicalPageNo * PAGE_SIZE, currentBuffer->page.data,
                         PAGE_SIZE)) {
@@ -256,18 +353,8 @@ static PageBuffer* loadPhysicalPageInBuffer(FrFTL* ftl, uint16_t logicalPageNo,
     currentBuffer->sectorEraseRequired = 0;
     currentBuffer->pMode = NONE;
 
-    // Update LRU
-    for (uint16_t j = 0; j < ftl->pageBufferSize; j++) {
-      if ((pageBuffer + j)->lru == bufferIdx && j > 0) {
-        uint16_t temp = bufferIdx;
-        while (j > 0) {
-          (pageBuffer + j)->lru = (pageBuffer + j - 1)->lru;
-          j--;
-        }
-        pageBuffer->lru = temp;
-        break;
-      }
-    }
+    // Add new page to hash table
+    addPageToHashTable(ftl, currentBuffer);
   }
 
   return currentBuffer;
@@ -279,26 +366,19 @@ static PageBuffer* initPhysicalPageInBuffer(FrFTL* ftl, uint16_t logicalPageNo,
   // Find page in buffer
   PageBuffer* currentBuffer = findPhysicalPageInBuffer(ftl, physicalPageNo);
   if (currentBuffer == nullptr) {
-    // Page not in buffer, load page in buffer
-    PageBuffer* pageBuffer = ((PageBuffer*)(ftl->pageBuffer));
-    uint16_t bufferIdx;
-    for (uint16_t i = ftl->pageBufferSize - 1; i >= 0; i--) {
-      bufferIdx = (pageBuffer + i)->lru;
-      currentBuffer = (pageBuffer + bufferIdx);
-      if (!currentBuffer->lock) {
-        break;
-      }
-    }
-    if (currentBuffer->lock) {
-      return nullptr;
-    }
+    // Page not in buffer, init page in buffer
+    if ((currentBuffer = findReplacableBuffer(ftl)) == nullptr) {
+      return nullptr;  // BUG
+    };
     currentBuffer->logicalPageNo = logicalPageNo;
     currentBuffer->physicalPageNo = physicalPageNo;
     currentBuffer->lock = LOCKED;
     currentBuffer->sectorEraseRequired = 0;
     currentBuffer->pMode = ERASE_PROGRAM;
-
     memset(currentBuffer->page.data, 0xff, PAGE_SIZE);
+
+    // Add new page to hash table
+    addPageToHashTable(ftl, currentBuffer);
   }
 
   return currentBuffer;
@@ -307,15 +387,18 @@ static PageBuffer* initPhysicalPageInBuffer(FrFTL* ftl, uint16_t logicalPageNo,
 static bool hasFreeBuffers(FrFTL* ftl, uint16_t bufferCount)
 {
   uint16_t freeBufferFound = 0;
-  PageBuffer* pageBuffer = ((PageBuffer*)(ftl->pageBuffer));
-  for (uint16_t i = 0; i < ftl->pageBufferSize; i++) {
-    if (!(pageBuffer + i)->lock) {
+  PageBuffer* pageBuffer = (PageBuffer*) ftl->bufferHead;
+  while (pageBuffer != nullptr)
+  {
+    if (pageBuffer->lock == UNLOCKED) {
       freeBufferFound++;
       if (freeBufferFound >= bufferCount) {
         return true;
       }
     }
+    pageBuffer = pageBuffer->lruNext;
   }
+
   return false;
 }
 
@@ -448,6 +531,9 @@ static bool programPageInBuffer(FrFTL* ftl, PageBuffer* buffer)
         return false;
       }
       setPhysicalPageState(ftl, buffer->physicalPageNo, USED);
+      if (!findPageFromHashTable(ftl, buffer->physicalPageNo)) {
+        addPageToHashTable(ftl, buffer);
+      }
       break;
     case ERASE_PROGRAM:
       addr = buffer->physicalPageNo * PAGE_SIZE;
@@ -461,6 +547,9 @@ static bool programPageInBuffer(FrFTL* ftl, PageBuffer* buffer)
         return false;
       }
       setPhysicalPageState(ftl, buffer->physicalPageNo, USED);
+      if (!findPageFromHashTable(ftl, buffer->physicalPageNo)) {
+        addPageToHashTable(ftl, buffer);
+      }
       break;
     case RELOCATE_ERASE_PROGRAM:
       // Reprogram
@@ -500,8 +589,10 @@ static bool programPageInBuffer(FrFTL* ftl, PageBuffer* buffer)
         return false;
       }
       setPhysicalPageState(ftl, buffer->physicalPageNo, ERASE_REQUIRED);
+      removePageFromHashTable(ftl, buffer->physicalPageNo);
       buffer->physicalPageNo = newPhysicalPageNo;
       setPhysicalPageState(ftl, buffer->physicalPageNo, USED);
+      addPageToHashTable(ftl, buffer);
       if (buffer->logicalPageNo == 0) {
         // MTT page, need update mttPhysicalPageNo
         ftl->mttPhysicalPageNo = buffer->physicalPageNo;
@@ -544,7 +635,7 @@ bool ftlSync(FrFTL* ftl)
   // First program data pages
   for (uint16_t i = 0; i < ftl->pageBufferSize; i++) {
     PageBuffer* currentBuffer = pageBuffer + i;
-    if (currentBuffer->lock) {
+    if (currentBuffer->lock == LOCKED) {
       if (currentBuffer->logicalPageNo >= ftl->ttPageCount) {
         if (!programPageInBuffer(ftl, currentBuffer)) {
           return false;
@@ -576,7 +667,7 @@ bool ftlSync(FrFTL* ftl)
   }
   for (uint16_t i = 0; i < ftl->pageBufferSize; i++) {
     PageBuffer* currentBuffer = pageBuffer + i;
-    if (currentBuffer->lock) {
+    if (currentBuffer->lock == LOCKED) {
       int16_t logicalPageNo = currentBuffer->logicalPageNo;
       if (logicalPageNo > 0 &&
           logicalPageNo < ftl->ttPageCount) {
@@ -596,7 +687,7 @@ bool ftlSync(FrFTL* ftl)
   }
 
   // Finally program MTT page
-  if (mttBuffer->lock) {
+  if (mttBuffer->lock == LOCKED) {
     if (!programPageInBuffer(ftl, mttBuffer)) {
       return false;
     }
@@ -765,6 +856,7 @@ bool ftlTrim(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors)
         if (pageInfo.sectStatus == 0xff) {
           // Free whole page
           setPhysicalPageState(ftl, pageInfo.physicalPageNo, ERASE_REQUIRED);
+          removePageFromHashTable(ftl, pageInfo.physicalPageNo);
           pageInfo.physicalPageNo = 0xffff;     // Invalidate page info
           dataBuffer->physicalPageNo = 0xffff;  // Invalidate buffer
           dataBuffer->lock = UNLOCKED;
@@ -792,20 +884,41 @@ bool ftlTrim(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors)
   return true;
 }
 
-static uint32_t initPageBuffer(FrFTL* ftl)
+static void initPageBuffer(FrFTL* ftl)
 {
+  // Init page buffer
   uint32_t bufferSize = sizeof(PageBuffer) * ftl->pageBufferSize;
   ftl->memoryUsed += bufferSize;
-  ftl->pageBuffer = (PageBuffer*)malloc(bufferSize);
+  ftl->pageBuffer = malloc(bufferSize);
+  ftl->bufferHead = ftl->pageBuffer;
+
   for (uint16_t i = 0; i < ftl->pageBufferSize; i++) {
     PageBuffer* currentBuffer = ((PageBuffer*)ftl->pageBuffer) + i;
+    if (i == 0) {
+      // First buffer
+      currentBuffer->lruPrev = nullptr;
+    } else {
+      currentBuffer->lruPrev = ((PageBuffer*)ftl->pageBuffer) + i - 1;
+    }
+    if (i == ftl->pageBufferSize - 1) {
+      // Last buffer
+      currentBuffer->lruNext = nullptr;
+      ftl->bufferTail = currentBuffer;
+    } else {
+      currentBuffer->lruNext = ((PageBuffer*)ftl->pageBuffer) + i + 1;
+    }
+    currentBuffer->hashNext = nullptr;
     currentBuffer->logicalPageNo = 0xffff;
     currentBuffer->physicalPageNo = 0xffff;
-    currentBuffer->lru = i;
     currentBuffer->lock = UNLOCKED;
     currentBuffer->pMode = NONE;
   }
-  return bufferSize;
+
+  // Init hash table
+  bufferSize = sizeof(PageBuffer*) * ftl->pageBufferSize;
+  ftl->memoryUsed += bufferSize;
+  ftl->hashTable = malloc(bufferSize);
+  memset(ftl->hashTable, 0, bufferSize);
 }
 
 static void initTransTablePage(TransTable* tt, uint32_t logicalPageNo)
@@ -869,6 +982,10 @@ void createFTL(FrFTL* ftl)
 
 static bool loadFTL(FrFTL* ftl)
 {
+  uint32_t stateSize =
+      ftl->physicalPageCount / 16 + (ftl->physicalPageCount % 16 > 0 ? 1 : 0);
+  memset(ftl->physicalPageState, 0, stateSize * sizeof(uint32_t));
+
   // Scan for MTT
   uint32_t currentSerial = 0;
   uint16_t currentPhysicalMTTPageNo = 0xffff;
@@ -901,7 +1018,7 @@ static bool loadFTL(FrFTL* ftl)
         loadPhysicalPageInBuffer(ftl, 0, currentPhysicalMTTPageNo);
     for (uint16_t i = 1; i < TT_RECORDS_PER_PAGE; i++) {
       uint16_t currentPhysicalPageNo = mtt->page.tt.physicalPageNo[i];
-      if (currentPhysicalPageNo >= 0) {
+      if (currentPhysicalPageNo != 0xffff) {
         // Used page
         setPhysicalPageState(ftl, currentPhysicalPageNo, USED);
       }
@@ -909,9 +1026,17 @@ static bool loadFTL(FrFTL* ftl)
         // TT pages
         PageBuffer* stt =
             loadPhysicalPageInBuffer(ftl, i, currentPhysicalPageNo);
+        
+        // Check if TT valid
+        if (stt->page.tt.header.magicStart != TT_PAGE_MAGIC ||
+            stt->page.tt.header.crc16 != calcCRC(&stt->page.tt.header))
+        {
+          return false;
+        }
+
         for (uint16_t j = 0; j < TT_RECORDS_PER_PAGE; j++) {
           currentPhysicalPageNo = stt->page.tt.physicalPageNo[j];
-          if (currentPhysicalPageNo >= 0) {
+          if (currentPhysicalPageNo != 0xffff) {
             // Used page
             setPhysicalPageState(ftl, currentPhysicalPageNo, USED);
           }
@@ -955,12 +1080,15 @@ bool ftlInit(FrFTL* ftl, const FrFTLOps* cb, uint16_t flashSizeInMB)
   ftl->physicalPageStateResolved = false;
   ftl->memoryUsed += stateSize * sizeof(uint32_t);
   ftl->pageBufferSize = ftl->ttPageCount * BUFFER_SIZE_MULTIPLIER;
-  ftl->memoryUsed += initPageBuffer(ftl);
+  if (ftl->pageBufferSize > MAX_BUFFER_SIZE) {
+    ftl->pageBufferSize = MAX_BUFFER_SIZE;
+  }
+  initPageBuffer(ftl);
 
   if (!loadFTL(ftl)) {
     createFTL(ftl);
   }
-  return ftl;
+  return true;
 }
 
 void ftlDeInit(FrFTL* ftl)
