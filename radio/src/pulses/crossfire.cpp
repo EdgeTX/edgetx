@@ -19,8 +19,10 @@
  * GNU General Public License for more details.
  */
 
+#if !defined(SIMU)
 #include "stm32_exti_driver.h"
 #include "stm32_hal_ll.h"
+#endif
 
 #include "opentx.h"
 #include "mixer_scheduler.h"
@@ -234,11 +236,15 @@ static const etx_serial_init crsfSerialParams = {
 };
 
 #if !defined(SIMU)
+
+#if defined(INTERNAL_MODULE_CRSF)
 static void _crsf_intmodule_frame_received(void*)
 {
   telemetryFrameTrigger_ISR(INTERNAL_MODULE, &CrossfireDriver);
 }
+#endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
 static void _crsf_extmodule_frame_received()
 {
   telemetryFrameTrigger_ISR(EXTERNAL_MODULE, &CrossfireDriver);
@@ -251,6 +257,8 @@ static void _soft_irq_trigger(void*)
   EXTI->SWIER = TELEMETRY_RX_FRAME_EXTI_LINE;
 }
 #endif
+
+#endif // !SIMU
 
 static void* crossfireInit(uint8_t module)
 {
