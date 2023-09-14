@@ -117,6 +117,7 @@
 #define TR_SF_SCREENSHOT               "Screenshot"
 #define TR_SF_RACING_MODE              "RacingMode"
 #define TR_SF_DISABLE_TOUCH            "Kein Touch"
+#define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp AUS"
 #define TR_SF_SET_SCREEN               "Set Main Screen"
 
 #define TR_FSW_RESET_TELEM             TR("Telm","Telemetrie")

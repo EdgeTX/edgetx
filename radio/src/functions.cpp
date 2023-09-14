@@ -425,6 +425,11 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             newActiveFunctions |= (1u << FUNCTION_DISABLE_TOUCH);
             break;
 #endif
+#if defined(AUDIO_MUTE_GPIO)
+          case FUNC_DISABLE_AUDIO_AMP:
+            newActiveFunctions |= (1u << FUNCTION_DISABLE_AUDIO_AMP);
+            break;
+#endif
 #if defined(COLORLCD)
           case FUNC_SET_SCREEN:
             if (isRepeatDelayElapsed(functions, functionsContext, i)) {
@@ -532,6 +537,10 @@ const char* funcGetLabel(uint8_t func)
     return STR_SF_DISABLE_TOUCH;
   case FUNC_SET_SCREEN:
     return STR_SF_SET_SCREEN;
+#endif
+#if defined(AUDIO_MUTE_GPIO)
+    case FUNC_DISABLE_AUDIO_AMP:
+      return STR_SF_DISABLE_AUDIO_AMP;
 #endif
 #if defined(DEBUG)
   case FUNC_TEST:

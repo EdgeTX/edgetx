@@ -594,7 +594,11 @@ bool isAssignableFunctionAvailable(int function, CustomFunctionData * functions)
     case FUNC_PLAY_SCRIPT:
       return false;
 #endif
-
+    case FUNC_DISABLE_AUDIO_AMP:
+#if defined(AUDIO_MUTE_GPIO)
+      return true;
+#endif
+      return false;
     default:
       return true;
   }
