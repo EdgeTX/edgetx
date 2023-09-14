@@ -95,9 +95,8 @@ void processCrossfireTelemetryValue(uint8_t index, int32_t value)
 }
 
 template<int N>
-bool getCrossfireTelemetryValue(uint8_t index, int32_t & value, uint8_t module)
+bool getCrossfireTelemetryValue(uint8_t index, int32_t & value, uint8_t* rxBuffer)
 {
-  uint8_t * rxBuffer = getTelemetryRxBuffer(module);
   bool result = false;
   uint8_t * byte = &rxBuffer[index];
   value = (*byte & 0x80) ? -1 : 0;
@@ -111,11 +110,8 @@ bool getCrossfireTelemetryValue(uint8_t index, int32_t & value, uint8_t module)
   return result;
 }
 
-void processCrossfireTelemetryFrame(uint8_t module)
+void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer, uint8_t rxBufferCount)
 {
-  uint8_t * rxBuffer = getTelemetryRxBuffer(module);
-  uint8_t &rxBufferCount = getTelemetryRxBufferCount(module);
-
   if (telemetryState == TELEMETRY_INIT &&
       moduleState[module].counter != CRSF_FRAME_MODELID_SENT) {
     moduleState[module].counter = CRSF_FRAME_MODELID;
@@ -126,27 +122,27 @@ void processCrossfireTelemetryFrame(uint8_t module)
   int32_t value;
   switch(id) {
     case CF_VARIO_ID:
-      if (getCrossfireTelemetryValue<2>(3, value, module))
+      if (getCrossfireTelemetryValue<2>(3, value, rxBuffer))
         processCrossfireTelemetryValue(VERTICAL_SPEED_INDEX, value);
       break;
 
     case GPS_ID:
-      if (getCrossfireTelemetryValue<4>(3, value, module))
+      if (getCrossfireTelemetryValue<4>(3, value, rxBuffer))
         processCrossfireTelemetryValue(GPS_LATITUDE_INDEX, value/10);
-      if (getCrossfireTelemetryValue<4>(7, value, module))
+      if (getCrossfireTelemetryValue<4>(7, value, rxBuffer))
         processCrossfireTelemetryValue(GPS_LONGITUDE_INDEX, value/10);
-      if (getCrossfireTelemetryValue<2>(11, value, module))
+      if (getCrossfireTelemetryValue<2>(11, value, rxBuffer))
         processCrossfireTelemetryValue(GPS_GROUND_SPEED_INDEX, value);
-      if (getCrossfireTelemetryValue<2>(13, value, module))
+      if (getCrossfireTelemetryValue<2>(13, value, rxBuffer))
         processCrossfireTelemetryValue(GPS_HEADING_INDEX, value);
-      if (getCrossfireTelemetryValue<2>(15, value, module))
+      if (getCrossfireTelemetryValue<2>(15, value, rxBuffer))
         processCrossfireTelemetryValue(GPS_ALTITUDE_INDEX,  value - 1000);
-      if (getCrossfireTelemetryValue<1>(17, value, module))
+      if (getCrossfireTelemetryValue<1>(17, value, rxBuffer))
         processCrossfireTelemetryValue(GPS_SATELLITES_INDEX, value);
       break;
 
     case BARO_ALT_ID:
-      if (getCrossfireTelemetryValue<2>(3, value, module)) {
+      if (getCrossfireTelemetryValue<2>(3, value, rxBuffer)) {
         if (value & 0x8000) {
           // Altitude in meters
           value &= ~(0x8000);
@@ -160,13 +156,13 @@ void processCrossfireTelemetryFrame(uint8_t module)
       }
       // Length of TBS BARO_ALT has 4 payload bytes with just 2 bytes of altitude
       // but support including VARIO if the declared payload length is 6 bytes or more
-      if (crsfPayloadLen > 5 && getCrossfireTelemetryValue<2>(5, value, module))
+      if (crsfPayloadLen > 5 && getCrossfireTelemetryValue<2>(5, value, rxBuffer))
         processCrossfireTelemetryValue(VERTICAL_SPEED_INDEX, value);
       break;
 
     case LINK_ID:
       for (unsigned int i=0; i<=TX_SNR_INDEX; i++) {
-        if (getCrossfireTelemetryValue<1>(3+i, value, module)) {
+        if (getCrossfireTelemetryValue<1>(3+i, value, rxBuffer)) {
           if (i == TX_POWER_INDEX) {
             static const int32_t power_values[] = {0,    10,   25,  100, 500,
                                                    1000, 2000, 250, 50};
@@ -193,38 +189,38 @@ void processCrossfireTelemetryFrame(uint8_t module)
       break;
 
     case LINK_RX_ID:
-      if (getCrossfireTelemetryValue<1>(4, value, module))
+      if (getCrossfireTelemetryValue<1>(4, value, rxBuffer))
         processCrossfireTelemetryValue(RX_RSSI_PERC_INDEX, value);
-      if (getCrossfireTelemetryValue<1>(7, value, module))
+      if (getCrossfireTelemetryValue<1>(7, value, rxBuffer))
         processCrossfireTelemetryValue(TX_RF_POWER_INDEX, value);
       break;
 
     case LINK_TX_ID:
-      if (getCrossfireTelemetryValue<1>(4, value, module))
+      if (getCrossfireTelemetryValue<1>(4, value, rxBuffer))
         processCrossfireTelemetryValue(TX_RSSI_PERC_INDEX, value);
-      if (getCrossfireTelemetryValue<1>(7, value, module))
+      if (getCrossfireTelemetryValue<1>(7, value, rxBuffer))
         processCrossfireTelemetryValue(RX_RF_POWER_INDEX, value);
-      if (getCrossfireTelemetryValue<1>(8, value, module))
+      if (getCrossfireTelemetryValue<1>(8, value, rxBuffer))
         processCrossfireTelemetryValue(TX_FPS_INDEX, value * 10);
       break;
 
     case BATTERY_ID:
-      if (getCrossfireTelemetryValue<2>(3, value, module))
+      if (getCrossfireTelemetryValue<2>(3, value, rxBuffer))
         processCrossfireTelemetryValue(BATT_VOLTAGE_INDEX, value);
-      if (getCrossfireTelemetryValue<2>(5, value, module))
+      if (getCrossfireTelemetryValue<2>(5, value, rxBuffer))
         processCrossfireTelemetryValue(BATT_CURRENT_INDEX, value);
-      if (getCrossfireTelemetryValue<3>(7, value, module))
+      if (getCrossfireTelemetryValue<3>(7, value, rxBuffer))
         processCrossfireTelemetryValue(BATT_CAPACITY_INDEX, value);
-      if (getCrossfireTelemetryValue<1>(10, value, module))
+      if (getCrossfireTelemetryValue<1>(10, value, rxBuffer))
         processCrossfireTelemetryValue(BATT_REMAINING_INDEX, value);
       break;
 
     case ATTITUDE_ID:
-      if (getCrossfireTelemetryValue<2>(3, value, module))
+      if (getCrossfireTelemetryValue<2>(3, value, rxBuffer))
         processCrossfireTelemetryValue(ATTITUDE_PITCH_INDEX, value/10);
-      if (getCrossfireTelemetryValue<2>(5, value, module))
+      if (getCrossfireTelemetryValue<2>(5, value, rxBuffer))
         processCrossfireTelemetryValue(ATTITUDE_ROLL_INDEX, value/10);
-      if (getCrossfireTelemetryValue<2>(7, value, module))
+      if (getCrossfireTelemetryValue<2>(7, value, rxBuffer))
         processCrossfireTelemetryValue(ATTITUDE_YAW_INDEX, value/10);
       break;
 
@@ -245,8 +241,8 @@ void processCrossfireTelemetryFrame(uint8_t module)
         uint32_t update_interval;
         int32_t offset;
         if (getCrossfireTelemetryValue<4>(6, (int32_t &)update_interval,
-                                          module) &&
-            getCrossfireTelemetryValue<4>(10, offset, module)) {
+                                          rxBuffer) &&
+            getCrossfireTelemetryValue<4>(10, offset, rxBuffer)) {
           // values are in 10th of micro-seconds
           update_interval /= 10;
           offset /= 10;
@@ -259,8 +255,8 @@ void processCrossfireTelemetryFrame(uint8_t module)
 
 #if defined(LUA)
     default:
-      if (luaInputTelemetryFifo && luaInputTelemetryFifo->hasSpace(rxBufferCount-2) ) {
-        for (uint8_t i=1; i<rxBufferCount-1; i++) {
+      if (luaInputTelemetryFifo && luaInputTelemetryFifo->hasSpace(rxBufferCount - 2)) {
+        for (uint8_t i = 1; i < rxBufferCount - 1; i++) {
           // destination address and CRC are skipped
           luaInputTelemetryFifo->push(rxBuffer[i]);
         }

@@ -116,8 +116,8 @@ static void crossfireSetupMixerScheduler(uint8_t module)
 static bool _checkFrameCRC(uint8_t* rxBuffer)
 {
   uint8_t len = rxBuffer[1];
-  uint8_t crc = crc8(&rxBuffer[2], len-1);
-  return (crc == rxBuffer[len+1]);
+  uint8_t crc = crc8(&rxBuffer[2], len - 1);
+  return (crc == rxBuffer[len + 1]);
 }
 
 static void crossfireSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
@@ -140,40 +140,97 @@ static void crossfireSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, u
 
 static bool _lenIsSane(uint8_t len)
 {
-  // packet len must be at least 3 bytes (type+payload+crc) and 2 bytes < MAX (hdr+len)
-  return (len > 2 && len < TELEMETRY_RX_PACKET_SIZE-1);
+  // packet len must be at least 3 bytes (type + payload + crc)
+  // and 2 bytes < MAX (hdr + len)
+  return (len > 2 && len < TELEMETRY_RX_PACKET_SIZE - 1);
 }
 
-static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t flen,
-                                  uint8_t* buf, uint8_t* len)
+static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
+                                  uint8_t* buf, uint8_t* p_len)
 {
-  if (flen < MIN_FRAME_LEN) return;
+  if (frame_len < MIN_FRAME_LEN) return;
 
-  if (frame[0] != RADIO_ADDRESS && frame[0] != UART_SYNC) {
-    TRACE("[XF] address 0x%02X error", frame[0]);
-    return;
-  }
+  // De-Fragmentation:
+  //   It is assumed here that a continuation chunk
+  //   will not belong to multiple CRSF frames.
+  
+  uint8_t& len = *p_len;
+  if (len > 0) {
 
-  uint8_t pkt_len = frame[1];
-  if (!_lenIsSane(pkt_len) || pkt_len > flen - 2) {
-    TRACE("[XF] length 0x%02X error", pkt_len);
-    return;
-  }
+    uint8_t unfrag_len = buf[1] + 2;
+    uint8_t defrag_len = len + frame_len;
 
-  if (_checkFrameCRC(frame)) {
-#if defined(BLUETOOTH) // TODO: generic telemetry mirror to BT
-    if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
-        bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
-      bluetooth.write(frame, pkt_len);
+    if (defrag_len <= unfrag_len &&
+	defrag_len <= TELEMETRY_RX_PACKET_SIZE) {
+
+      // If we're not going to overshoot
+      // the intended frame length,
+      // let's reassemble it
+      //
+      memcpy(buf + len, frame, frame_len);
+      len = defrag_len;
+      frame_len = 0;
+
+      // frame complete?
+      if (defrag_len < unfrag_len) {
+        TRACE("[XF] frag cont frame (%d < %d)", defrag_len, unfrag_len);
+        return;
+      } else {
+	TRACE("[XF] frame complete");
+      }
+    } else {
+      TRACE("[XF] overshoot (%d > %d)", defrag_len, unfrag_len);
     }
-#endif
-    auto mod_st = (etx_module_state_t*)ctx;
-    *len = pkt_len + 2;
-    memcpy(buf, frame, *len);
-    processCrossfireTelemetryFrame(modulePortGetModule(mod_st));
   }
-  else {
-    TRACE("[XF] CRC error ");
+
+  if (frame_len > 0) {
+    memcpy(buf, frame, frame_len);
+    len = frame_len;
+
+    uint8_t unfrag_len = buf[1] + 2;
+    if (!_lenIsSane(unfrag_len)) {
+      TRACE("[XF] pkt len error (%d)", unfrag_len);
+      len = 0;
+      return;
+    }
+
+    if (len < unfrag_len) {
+      TRACE("[XF] frag frame (%d < %d)", len, unfrag_len);
+      return;
+    }
+  }
+
+  uint8_t* p_buf = buf;
+  while(len >= MIN_FRAME_LEN) {
+
+    GPIOC->BSRR = (1 << 6); // SET
+
+    uint8_t pkt_len = p_buf[1] + 2;
+    if (p_buf[0] != RADIO_ADDRESS && p_buf[0] != UART_SYNC) {
+      TRACE("[XF] address 0x%02X error", p_buf[0]);
+    } else if (!_checkFrameCRC(p_buf)) {
+      TRACE("[XF] CRC error ");
+    } else {
+#if defined(BLUETOOTH)
+      // TODO: generic telemetry mirror to BT
+      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
+          bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
+        bluetooth.write(p_buf, pkt_len);
+      }
+#endif
+      auto mod_st = (etx_module_state_t*)ctx;
+      auto module = modulePortGetModule(mod_st);
+      processCrossfireTelemetryFrame(module, p_buf, pkt_len);
+    }
+
+    GPIOC->BSRR = (1 << 6) << 16; // RESET
+
+    p_buf += pkt_len;
+    len -= pkt_len;
+
+    // if (len >= MIN_FRAME_LEN) {
+    //   TRACE("[XF] next frame");
+    // }
   }
 }
 
@@ -189,38 +246,12 @@ static void _crsf_extmodule_frame_received()
   telemetryFrameTrigger_ISR(EXTERNAL_MODULE, &CrossfireDriver);
 }
 
-static void crsfRxFrameLenghCheck(void* param)
-{
-  uint8_t destination, lengh;
-
-  auto mod_st = (etx_module_state_t*)param;
-  auto drv = modulePortGetSerialDrv(mod_st->rx);
-  auto ctx = modulePortGetCtx(mod_st->rx);
-
-  auto buffered = drv->getBufferedBytes(ctx);
-  if (buffered < 3) {
-    drv->clearRxBuffer(ctx);
-    return;  // Should not happen
-  }
-
-  drv->getLastByte(ctx, buffered, &destination);
-  if (destination != RADIO_ADDRESS && destination != UART_SYNC) {
-    drv->clearRxBuffer(ctx);
-    return;  // Only process data sent to us
-  }
-
-  drv->getLastByte(ctx, buffered - 1, &lengh);
-  if (buffered < (lengh + 2)) {
-    // We are missing data, flush wrong data
-    drv->clearRxBuffer(ctx);
-    TRACE("[XF] missing bytes");
-    return;
-  }
-
 #if !defined(SIMU)
+static void _soft_irq_trigger(void* param)
+{
   EXTI->SWIER = TELEMETRY_RX_FRAME_EXTI_LINE;
-#endif
 }
+#endif
 
 static void* crossfireInit(uint8_t module)
 {
@@ -245,14 +276,19 @@ static void* crossfireInit(uint8_t module)
       auto drv = modulePortGetSerialDrv(mod_st->rx);
       auto ctx = modulePortGetCtx(mod_st->rx);
 
+      auto& rx_count = getTelemetryRxBufferCount(EXTERNAL_MODULE);
+      rx_count = 0;
+
+#if !defined(SIMU)
       if (drv && ctx && drv->setIdleCb) {
-        drv->setIdleCb(ctx, crsfRxFrameLenghCheck, mod_st);
+        drv->setIdleCb(ctx, _soft_irq_trigger, mod_st);
         stm32_exti_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 0, _crsf_extmodule_frame_received);
       }
 
       // DEBUG PIN: PPM as OUTPUT
       stm32_gpio_enable_clock(EXTMODULE_TX_GPIO);
       EXTMODULE_TX_GPIO->MODER |= (1 << 12);// PC.06
+#endif
     }
   }
 #endif
