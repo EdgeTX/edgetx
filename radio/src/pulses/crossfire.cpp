@@ -19,8 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#include "stm32_gpio_driver.h"  // DEBUG PIN
 #include "stm32_exti_driver.h"
+#include "stm32_hal_ll.h"
 
 #include "opentx.h"
 #include "mixer_scheduler.h"
@@ -203,8 +203,6 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
   uint8_t* p_buf = buf;
   while(len >= MIN_FRAME_LEN) {
 
-    GPIOC->BSRR = (1 << 6); // SET
-
     uint8_t pkt_len = p_buf[1] + 2;
     if (p_buf[0] != RADIO_ADDRESS && p_buf[0] != UART_SYNC) {
       TRACE("[XF] address 0x%02X error", p_buf[0]);
@@ -223,14 +221,8 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
       processCrossfireTelemetryFrame(module, p_buf, pkt_len);
     }
 
-    GPIOC->BSRR = (1 << 6) << 16; // RESET
-
     p_buf += pkt_len;
     len -= pkt_len;
-
-    // if (len >= MIN_FRAME_LEN) {
-    //   TRACE("[XF] next frame");
-    // }
   }
 }
 
@@ -284,10 +276,6 @@ static void* crossfireInit(uint8_t module)
         drv->setIdleCb(ctx, _soft_irq_trigger, mod_st);
         stm32_exti_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 0, _crsf_extmodule_frame_received);
       }
-
-      // DEBUG PIN: PPM as OUTPUT
-      stm32_gpio_enable_clock(EXTMODULE_TX_GPIO);
-      EXTMODULE_TX_GPIO->MODER |= (1 << 12);// PC.06
 #endif
     }
   }
