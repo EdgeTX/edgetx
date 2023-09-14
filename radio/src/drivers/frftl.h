@@ -58,6 +58,9 @@ typedef struct {
   bool physicalPageStateResolved;
   uint16_t pageBufferSize;
   void *pageBuffer;
+  void* bufferHead;  // LRU most used
+  void* bufferTail;  // LRU least used
+  void* hashTable;   // Fast cache lookup
   uint32_t memoryUsed;
 } FrFTL;
 
