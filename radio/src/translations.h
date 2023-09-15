@@ -703,8 +703,6 @@ extern const char STR_YAML_EXT[];
 #define STR_UPDATE_LIST STR_DELAYDOWN
 
 extern const char STR_NEEDS_FILE[];
-extern const char STR_EXT_MULTI_SPEC[];
-extern const char STR_INT_MULTI_SPEC[];
 extern const char STR_WARNING[];
 extern const char STR_STORAGE_WARNING[];
 extern const char STR_EEPROM_CONVERTING[];

@@ -527,7 +527,7 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
     if (module == EXTERNAL_MODULE) {
       if (!firmwareFile.isMultiExternalFirmware()) {
         f_close(&file);
-        POPUP_WARNING(STR_NEEDS_FILE, STR_EXT_MULTI_SPEC);
+        POPUP_WARNING(STR_INCOMPATIBLE);
         return false;
       }
     }
@@ -537,7 +537,7 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
     if (module == INTERNAL_MODULE) {
       if (!firmwareFile.isMultiInternalFirmware()) {
         f_close(&file);
-        POPUP_WARNING(STR_NEEDS_FILE, STR_INT_MULTI_SPEC);
+        POPUP_WARNING(STR_INCOMPATIBLE);
         return false;
       }
     }

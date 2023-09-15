@@ -624,8 +624,6 @@
 #define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\036Logy a " LCDW_128_480_LINEBREAK " Snímky obrazovky vypnuty"
 #endif
 #define TR_NEEDS_FILE                  "Vyžadován soubor"
-#define TR_EXT_MULTI_SPEC              "opentx-inv"
-#define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
 #define TR_INCOMPATIBLE                "Nekompatibilní"
 #define TR_WARNING                     "KONTROLA"
 #define TR_EEPROMWARN                  "EEPROM"

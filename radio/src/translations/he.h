@@ -699,8 +699,6 @@
 #define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\036לוגים" LCDW_128_480_LINEBREAK "ושמירת צילומי מסך מושבתים"
 #endif
 #define TR_NEEDS_FILE                  "NEEDS FILE"
-#define TR_EXT_MULTI_SPEC              "opentx-inv"
-#define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
 #define TR_INCOMPATIBLE                "Incompatible"
 #define TR_WARNING                     "אזהרה"
 #define TR_EEPROMWARN                  "EEPROM"

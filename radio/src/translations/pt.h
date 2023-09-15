@@ -621,8 +621,6 @@
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Logs e captura" LCDW_128_480_LINEBREAK "de tela desativados"
 #endif
 #define TR_NEEDS_FILE                  "NEEDS FILE"
-#define TR_EXT_MULTI_SPEC              "opentx-inv"
-#define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
 #define TR_INCOMPATIBLE                "Incompativel"
 #define TR_WARNING                     "AVISO"
 #define TR_EEPROMWARN                  "EEPROM"
