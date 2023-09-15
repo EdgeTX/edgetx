@@ -29,7 +29,7 @@
 
 #if defined(INTMODULE_USART)
 
-#define INTMODULE_USART_IRQ_PRIORITY 6
+#define INTMODULE_USART_IRQ_PRIORITY 5
 
 static const stm32_usart_t intmoduleUSART = {
   .USARTx = INTMODULE_USART,
@@ -138,7 +138,7 @@ DEFINE_STM32_SERIAL_PORT(ExternalModule, extmoduleUSART, INTMODULE_FIFO_SIZE, 0)
 DEFINE_STM32_SOFTSERIAL_PORT(ExternalModule, extmoduleTimer);
 #endif
 
-#define TELEMETRY_USART_IRQ_PRIORITY 5
+#define TELEMETRY_USART_IRQ_PRIORITY 0
 #define TELEMETRY_DMA_IRQ_PRIORITY   0
 
 static void _set_sport_input(uint8_t enable)
