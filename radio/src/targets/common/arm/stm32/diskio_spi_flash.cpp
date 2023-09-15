@@ -161,7 +161,7 @@ static DRESULT spi_flash_ioctl(BYTE lun, BYTE ctrl, void *buff)
     break;
 
   case GET_BLOCK_SIZE :   /* Get erase block size in unit of sector (DWORD) */
-    *(DWORD*)buff = 4096 / GET_SECTOR_SIZE;
+    *(DWORD*)buff = 4096 / 512;
     break;
 
   case CTRL_SYNC:
