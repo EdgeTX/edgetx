@@ -106,14 +106,16 @@ rect_t MenuToolbar::getButtonRect(size_t buttons)
 }
 
 bool MenuToolbar::filterMenu(MenuToolbarButton* btn, int16_t filtermin,
-                             int16_t filtermax)
+                             int16_t filtermax, const FilterFct& filterFunc)
 {
   btn->check(!btn->checked());
 
   Choice::FilterFct filter = nullptr;
   if (btn->checked()) {
     filter = [=](int16_t index) {
-      return index >= filtermin && index <= filtermax;
+      if (filterFunc)
+        return filterFunc(index);
+      return index == 0 || (abs(index) >= filtermin && abs(index) <= filtermax);
     };
   }
 
@@ -135,7 +137,7 @@ static int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable
 }
 
 void MenuToolbar::addButton(const char* picto, int16_t filtermin,
-                            int16_t filtermax)
+                            int16_t filtermax, const FilterFct& filterFunc)
 {
   int vmin = choice->vmin;
   int vmax = choice->vmax;
@@ -150,7 +152,7 @@ void MenuToolbar::addButton(const char* picto, int16_t filtermin,
   auto button = new MenuToolbarButton(this, r, picto);
 
   button->setPressHandler(
-      std::bind(&MenuToolbar::filterMenu, this, button, filtermin, filtermax));
+      std::bind(&MenuToolbar::filterMenu, this, button, filtermin, filtermax, filterFunc));
 
   lv_group_add_obj(group, button->getLvObj());
 }

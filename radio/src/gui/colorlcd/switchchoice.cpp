@@ -34,10 +34,19 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
   SwitchChoiceMenuToolbar(SwitchChoice* choice, Menu* menu) :
       MenuToolbar(choice, menu)
   {
-    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_SWITCH);
+    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH);
     addButton(STR_CHAR_TRIM, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM);
-    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_LOGICAL_SWITCH,
-              SWSRC_LAST_LOGICAL_SWITCH);
+    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH);
+    addButton(STR_CHAR_TELEMETRY, SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR);
+#if defined(DEBUG_LATENCY)
+    auto lastSource = SWSRC_LATENCY_TOGGLE;
+#else
+    auto lastSource = SWSRC_RADIO_ACTIVITY;
+#endif
+    addButton(STR_CHAR_FUNCTION, SWSRC_TELEMETRY_STREAMING, lastSource, [=](int16_t index) {
+      index = abs(index);
+      return index == 0 || (index >= SWSRC_TELEMETRY_STREAMING && index <= lastSource && !(index >= SWSRC_FIRST_SENSOR && index <= SWSRC_LAST_SENSOR));
+    });
   }
 };
 
