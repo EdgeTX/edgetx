@@ -240,6 +240,8 @@
 #define TR_UNLABELEDMODEL              "Unlabeled"
 #define TR_NAME                        "Name"
 #define TR_MODELNAME                   "Modellname"
+#define TR_ADD_SWITCHES                "Add switches"
+#define TR_MODEL_DEFAULT               "Model defaults"
 #define TR_PHASENAME                   "Phase-Name"
 #define TR_MIXNAME                     "Mix-Name"
 #define TR_INPUTNAME                   TR("Input", "Inputname")

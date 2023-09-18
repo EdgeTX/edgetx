@@ -235,6 +235,8 @@
 #define TR_UNLABELEDMODEL              "未分组"
 #define TR_NAME                        "名称"
 #define TR_MODELNAME                   "模型名称"
+#define TR_ADD_SWITCHES                "Add switches"
+#define TR_MODEL_DEFAULT               "Model defaults"
 #define TR_PHASENAME                   "模式名称"
 #define TR_MIXNAME                     "混控名称"
 #define TR_INPUTNAME                   TR("名称", "输入名称")

@@ -249,6 +249,8 @@
 #define TR_UNLABELEDMODEL              "Bez štítku"
 #define TR_NAME                        "Název"
 #define TR_MODELNAME                   TR("Model", "Název modelu")
+#define TR_ADD_SWITCHES                "Add switches"
+#define TR_MODEL_DEFAULT               "Model defaults"
 #define TR_PHASENAME                   "Název"
 #define TR_MIXNAME                     "Název"
 #define TR_INPUTNAME                   "Název"

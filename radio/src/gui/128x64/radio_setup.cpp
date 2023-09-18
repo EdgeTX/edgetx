@@ -111,7 +111,9 @@ enum {
   ITEM_RADIO_SETUP_SWITCHES_DELAY,
   ITEM_RADIO_SETUP_USB_MODE,
   CASE_JACK_DETECT(ITEM_RADIO_SETUP_JACK_MODE)
+  ITEM_RADIO_SETUP_MODEL_DEFAULT_LABEL,
   ITEM_RADIO_SETUP_RX_CHANNEL_ORD,
+  ITEM_RADIO_SETUP_ADD_SWITCHES,
   CASE_ROTARY_ENCODER(ITEM_RADIO_SETUP_ROTARY_ENC_MODE)
 #if !defined(SURFACE_RADIO)
   ITEM_RADIO_SETUP_STICK_MODE_LABELS,
@@ -167,49 +169,64 @@ void menuRadioSetup(event_t event)
 #endif
 
   MENU(STR_RADIO_SETUP, menuTabGeneral, MENU_RADIO_SETUP, HEADER_LINE+ITEM_RADIO_SETUP_MAX, {
-    HEADER_LINE_COLUMNS CASE_RTCLOCK(2) CASE_RTCLOCK(2) CASE_BATTGRAPH(1)
-    LABEL(SOUND), CASE_AUDIO(0)
-    CASE_BUZZER(0)
-    0, 0, 0, 0, 0, CASE_AUDIO(0)
-    CASE_VARIO(LABEL(VARIO))
-    CASE_VARIO(0)
-    CASE_VARIO(0)
-    CASE_VARIO(0)
-    CASE_VARIO(0)
-    CASE_HAPTIC(LABEL(HAPTIC))
-    CASE_HAPTIC(0)
-    CASE_HAPTIC(0)
-    CASE_HAPTIC(0)
-    CASE_IMU(LABEL(IMU))
-    CASE_IMU(0)
-    CASE_IMU(0)
-    LABEL(ALARMS), 0, CASE_CAPACITY(0)
+    HEADER_LINE_COLUMNS
+    CASE_RTCLOCK(2)                         // ITEM_RADIO_SETUP_DATE
+    CASE_RTCLOCK(2)                         // ITEM_RADIO_SETUP_TIME
+    CASE_BATTGRAPH(1)                       // ITEM_RADIO_SETUP_BATT_RANGE
+    LABEL(SOUND),                           // ITEM_RADIO_SETUP_SOUND_LABEL
+    CASE_AUDIO(0)                           // ITEM_RADIO_SETUP_BEEP_MODE
+    CASE_BUZZER(0)                          // ITEM_RADIO_SETUP_BUZZER_MODE
+    0,                                      // ITEM_RADIO_SETUP_SPEAKER_VOLUME
+    0,                                      // ITEM_RADIO_SETUP_BEEP_VOLUME
+    0,                                      // ITEM_RADIO_SETUP_BEEP_LENGTH
+    CASE_AUDIO(0)                           // ITEM_RADIO_SETUP_SPEAKER_PITCH
+    0,                                      // ITEM_RADIO_SETUP_WAV_VOLUME
+    0,                                      // ITEM_RADIO_SETUP_BACKGROUND_VOLUME
+    CASE_VARIO(LABEL(VARIO))                // ITEM_RADIO_SETUP_VARIO_LABEL
+    CASE_VARIO(0)                           // ITEM_RADIO_SETUP_VARIO_VOLUME
+    CASE_VARIO(0)                           // ITEM_RADIO_SETUP_VARIO_PITCH
+    CASE_VARIO(0)                           // ITEM_RADIO_SETUP_VARIO_RANGE
+    CASE_VARIO(0)                           // ITEM_RADIO_SETUP_VARIO_REPEAT
+    CASE_HAPTIC(LABEL(HAPTIC))              // ITEM_RADIO_SETUP_HAPTIC_LABEL
+    CASE_HAPTIC(0)                          // ITEM_RADIO_SETUP_HAPTIC_MODE
+    CASE_HAPTIC(0)                          // ITEM_RADIO_SETUP_HAPTIC_LENGTH
+    CASE_HAPTIC(0)                          // ITEM_RADIO_SETUP_HAPTIC_STRENGTH
+    CASE_IMU(LABEL(IMU))                    // ITEM_RADIO_SETUP_IMU_LABEL
+    CASE_IMU(0)                             // ITEM_RADIO_SETUP_IMU_MAX
+    CASE_IMU(0)                             // ITEM_RADIO_SETUP_IMU_OFFSET
+    LABEL(ALARMS),                          // ITEM_RADIO_SETUP_ALARMS_LABEL
+    0,                                      // ITEM_RADIO_SETUP_BATTERY_WARNING
+    CASE_CAPACITY(0)                        // ITEM_RADIO_SETUP_CAPACITY_WARNING
     0, 0, 0, 0, /* ITEM_RADIO_SETUP_INACTIVITY_ALARM ITEM_RADIO_SETUP_MEMORY_WARNING ITEM_RADIO_SETUP_ALARM_WARNING ITEM_RADIO_SETUP_RSSI_POWEROFF_ALARM */
-    CASE_BACKLIGHT(LABEL(BACKLIGHT))
-    CASE_BACKLIGHT(0)
-    CASE_BACKLIGHT(0)
-    CASE_BACKLIGHT(0)
-    CASE_PWM_BACKLIGHT(0)
-    CASE_PWM_BACKLIGHT(0)
-    CASE_BACKLIGHT(0)
-    0, // Contrast
-    CASE_SPLASH_PARAM(0)
-    0,
-    CASE_PWR_BUTTON_PRESS(0)
-    CASE_PWR_BUTTON_PRESS(0)
-    CASE_PXX2(0) /* owner registration ID */
-
-    CASE_GPS(0)
-    0, CASE_GPS(0)
-    CASE_PXX1(0)
-    0, 0, IF_FAI_CHOICE(0)
-    0,
-    0, // USB mode
-    CASE_JACK_DETECT(0) // Jack mode
-    CASE_ROTARY_ENCODER(0)
-    0,
-    CASE_TX_MODE(LABEL(TX_MODE))
-    CASE_TX_MODE(0)
+    CASE_BACKLIGHT(LABEL(BACKLIGHT))        // ITEM_RADIO_SETUP_BACKLIGHT_LABEL
+    CASE_BACKLIGHT(0)                       // ITEM_RADIO_SETUP_BACKLIGHT_MODE
+    CASE_BACKLIGHT(0)                       // ITEM_RADIO_SETUP_BACKLIGHT_DELAY
+    CASE_BACKLIGHT(0)                       // ITEM_RADIO_SETUP_BRIGHTNESS
+    CASE_PWM_BACKLIGHT(0)                   // ITEM_RADIO_SETUP_BACKLIGHT_BRIGHTNESS_OFF
+    CASE_PWM_BACKLIGHT(0)                   // ITEM_RADIO_SETUP_BACKLIGHT_BRIGHTNESS_ON
+    CASE_BACKLIGHT(0)                       // ITEM_RADIO_SETUP_FLASH_BEEP
+    0,                                      // ITEM_RADIO_SETUP_CONTRAST
+    CASE_SPLASH_PARAM(0)                    // ITEM_RADIO_SETUP_DISABLE_SPLASH
+    0,                                      // ITEM_RADIO_SETUP_START_SOUND
+    CASE_PWR_BUTTON_PRESS(0)                // ITEM_RADIO_SETUP_PWR_ON_SPEED
+    CASE_PWR_BUTTON_PRESS(0)                // ITEM_RADIO_SETUP_PWR_OFF_SPEED
+    CASE_PXX2(0)                            // ITEM_RADIO_SETUP_OWNER_ID
+    CASE_GPS(0)                             // ITEM_RADIO_SETUP_TIMEZONE
+    0,                                      // ITEM_RADIO_SETUP_ADJUST_RTC
+    CASE_GPS(0)                             // ITEM_RADIO_SETUP_GPSFORMAT
+    CASE_PXX1(0)                            // ITEM_RADIO_SETUP_COUNTRYCODE
+    0,                                      // ITEM_RADIO_SETUP_LANGUAGE
+    0,                                      // ITEM_RADIO_SETUP_IMPERIAL
+    IF_FAI_CHOICE(0)                        // ITEM_RADIO_SETUP_FAI
+    0,                                      // ITEM_RADIO_SETUP_SWITCHES_DELAY
+    0,                                      // ITEM_RADIO_SETUP_USB_MODE
+    CASE_JACK_DETECT(0)                     // ITEM_RADIO_SETUP_JACK_MODE
+    LABEL(MODEL_DEFAULT),                   // ITEM_RADIO_SETUP_MODEL_DEFAULT_LABEL
+    0,                                      // ITEM_RADIO_SETUP_RX_CHANNEL_ORD
+    0,                                      // ITEM_RADIO_SETUP_ADD_SWITCHES
+    CASE_ROTARY_ENCODER(0)                  // ITEM_RADIO_SETUP_ROTARY_ENC_MODE
+    CASE_TX_MODE(LABEL(TX_MODE))            // ITEM_RADIO_SETUP_STICK_MODE_LABELS
+    CASE_TX_MODE(0)                         // ITEM_RADIO_SETUP_STICK_MODE
     LABEL(ViewOptions), LABEL(RadioMenuTabs), 0, 0, LABEL(ModelMenuTabs), CASE_HELI(0) CASE_FLIGHT_MODES(0) 0, 0, 0, CASE_LUA_MODEL_SCRIPTS(0) 0,
     1/*to force edit mode*/});
 
@@ -701,8 +718,12 @@ void menuRadioSetup(event_t event)
         break;
 #endif
 
+      case ITEM_RADIO_SETUP_MODEL_DEFAULT_LABEL:
+        lcdDrawTextAlignedLeft(y, TR_MODEL_DEFAULT);
+        break;
+
       case ITEM_RADIO_SETUP_RX_CHANNEL_ORD:
-        lcdDrawTextAlignedLeft(y, STR_DEF_CHAN_ORD); // RAET->AETR
+        lcdDrawText(INDENT_WIDTH, y, STR_DEF_CHAN_ORD); // RAET->AETR
         {
           for (uint8_t i = 0; i < adcGetMaxInputs(ADC_INPUT_MAIN); i++) {
             putsChnLetter(LCD_W - 2 - (adcGetMaxInputs(ADC_INPUT_MAIN)-i)*FW, y, inputMappingChannelOrder(i), attr);
@@ -712,6 +733,10 @@ void menuRadioSetup(event_t event)
             CHECK_INCDEC_GENVAR(event, g_eeGeneral.templateSetup, 0, max_order);
           }
         }
+        break;
+
+      case ITEM_RADIO_SETUP_ADD_SWITCHES:
+        g_eeGeneral.modelDefaultAddSwitches = viewOptCheckBox(y, STR_ADD_SWITCHES, g_eeGeneral.modelDefaultAddSwitches, attr, event);
         break;
 
 #if !defined(SURFACE_RADIO)

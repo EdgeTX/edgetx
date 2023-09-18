@@ -239,6 +239,8 @@
 #define TR_UNLABELEDMODEL               "Senza etic."
 #define TR_NAME                         "Nome"
 #define TR_MODELNAME                    TR("Nome Mode.", "Nome Modello")
+#define TR_ADD_SWITCHES                "Add switches"
+#define TR_MODEL_DEFAULT               "Model defaults"
 #define TR_PHASENAME                    "Nome Fase"
 #define TR_MIXNAME                      "Nome Mix"
 #define TR_INPUTNAME                    "Nome Ingr."

@@ -976,6 +976,8 @@ PACK(struct RadioData {
   uint8_t modelCustomScriptsDisabled:1;
   uint8_t modelTelemetryDisabled:1;
 
+  uint8_t modelDefaultAddSwitches:1;
+
   NOBACKUP(uint8_t getBrightness() const
   {
 #if defined(OLED_SCREEN)

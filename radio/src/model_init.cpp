@@ -50,6 +50,22 @@ void clearMixes()
   memset(g_model.mixData, 0, sizeof(g_model.mixData));
 }
 
+void setSwitchMixes()
+{
+  auto max_switch = switchGetMaxSwitches();
+  auto offset = adcGetMaxInputs(ADC_INPUT_MAIN);
+  for (int i = 0; i < max_switch; i++) {
+    auto switch_display = switchGetDisplayPosition(i);
+    if (SWITCH_EXISTS(i) && switch_display.row < 2) {
+      MixData *mix = mixAddress(i + offset);
+      mix->destCh = i + offset;
+      mix->weight = 100;
+      mix->srcRaw = i + MIXSRC_FIRST_SWITCH;
+    }
+  }
+  storageDirty(EE_MODEL);
+}
+
 void setDefaultMixes()
 {
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
@@ -103,6 +119,8 @@ void applyDefaultTemplate()
 {
   setDefaultInputs();
   setDefaultMixes();
+  if (g_eeGeneral.modelDefaultAddSwitches)
+    setSwitchMixes();
   setDefaultGVars();
   setDefaultRSSIValues();
 

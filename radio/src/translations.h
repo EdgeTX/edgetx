@@ -946,6 +946,8 @@ inline PLAY_FUNCTION(playDuration, int seconds, uint8_t flags) {
 }
 
 extern const char STR_MODELNAME[];
+extern const char STR_ADD_SWITCHES[];
+extern const char STR_MODEL_DEFAULT[];
 extern const char STR_PHASENAME[];
 extern const char STR_MIXNAME[];
 extern const char STR_INPUTNAME[];

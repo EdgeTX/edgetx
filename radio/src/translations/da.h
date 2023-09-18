@@ -243,6 +243,8 @@
 #define TR_UNLABELEDMODEL              "Typeløs"
 #define TR_NAME                        "Navn"
 #define TR_MODELNAME                   "Model navn"
+#define TR_ADD_SWITCHES                "Add switches"
+#define TR_MODEL_DEFAULT               "Model defaults"
 #define TR_PHASENAME                   "Mode navn"
 #define TR_MIXNAME                     "Mix navn"
 #define TR_INPUTNAME                   TR("Indgang", "Indgang navn")

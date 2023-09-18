@@ -253,6 +253,8 @@
 #define TR_UNLABELEDMODEL               "Utan etikett"
 #define TR_NAME                         "Namn"
 #define TR_MODELNAME                    "Modellnamn"
+#define TR_ADD_SWITCHES                "Add switches"
+#define TR_MODEL_DEFAULT               "Model defaults"
 #define TR_PHASENAME                    "Lägesnamn"
 #define TR_MIXNAME                      "Mixernamn"
 #define TR_INPUTNAME                    TR("Namn","Inputnamn")

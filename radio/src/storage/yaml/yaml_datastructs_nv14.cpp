@@ -113,7 +113,6 @@ const struct YamlIdStr enum_MixerMultiplex[] = {
 };
 const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_NONE, "NONE"  },
-
   {  MIXSRC_MIN, "MIN"  },
   {  MIXSRC_MAX, "MAX"  },
   {  MIXSRC_TrimRud, "TrimRud"  },
@@ -396,6 +395,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "modelSFDisabled", 1 ),
   YAML_UNSIGNED( "modelCustomScriptsDisabled", 1 ),
   YAML_UNSIGNED( "modelTelemetryDisabled", 1 ),
+  YAML_UNSIGNED( "modelDefaultAddSwitches", 1 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {

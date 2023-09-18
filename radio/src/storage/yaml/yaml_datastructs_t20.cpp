@@ -82,6 +82,7 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_BACKLIGHT, "BACKLIGHT"  },
   {  FUNC_SCREENSHOT, "SCREENSHOT"  },
   {  FUNC_RACING_MODE, "RACING_MODE"  },
+  {  FUNC_DISABLE_AUDIO_AMP, "DISABLE_AUDIO_AMP"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_TimerModes[] = {
@@ -357,6 +358,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "modelSFDisabled", 1 ),
   YAML_UNSIGNED( "modelCustomScriptsDisabled", 1 ),
   YAML_UNSIGNED( "modelTelemetryDisabled", 1 ),
+  YAML_UNSIGNED( "modelDefaultAddSwitches", 1 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {

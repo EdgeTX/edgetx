@@ -240,6 +240,8 @@
 #define TR_UNLABELEDMODEL              "ラベルなし"
 #define TR_NAME                        "名称"
 #define TR_MODELNAME                   "モデル名"
+#define TR_ADD_SWITCHES                "Add switches"
+#define TR_MODEL_DEFAULT               "Model defaults"
 #define TR_PHASENAME                   "モード名"
 #define TR_MIXNAME                     "ミキサー名称"
 #define TR_INPUTNAME                   TR("入力", "入力名")

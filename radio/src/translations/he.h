@@ -321,6 +321,8 @@
 #define TR_UNLABELEDMODEL              "Unlabeled"
 #define TR_NAME                        "שם"
 #define TR_MODELNAME                   "שם המודל"
+#define TR_ADD_SWITCHES                "Add switches"
+#define TR_MODEL_DEFAULT               "Model defaults"
 #define TR_PHASENAME                   "שם המצב"
 #define TR_MIXNAME                     "שם המיקס"
 #define TR_INPUTNAME                   TR("Input", "Input name")
