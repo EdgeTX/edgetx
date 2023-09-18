@@ -27,6 +27,7 @@
 
 static const uint8_t _trimMap[MAX_TRIMS * 2] = {6, 7, 4, 5, 2, 3, 0, 1, 8, 9, 10, 11};
 
+#if !defined(PCBNV14)
 static EnumKeys get_ith_key(uint8_t i)
 {
   auto supported_keys = keysGetSupported();
@@ -40,6 +41,7 @@ static EnumKeys get_ith_key(uint8_t i)
   // we assume: i < keysGetMaxKeys()
   return (EnumKeys)0;
 }
+#endif
 
 class RadioKeyDiagsWindow : public Window
 {
