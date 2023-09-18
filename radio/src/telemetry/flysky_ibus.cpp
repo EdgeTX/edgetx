@@ -188,8 +188,8 @@ const FlySkySensor flySkySensors[] = {
   { AFHDS2A_ID_ODO1,                  STR_SENSOR_ODO1,          UNIT_METERS,            2 },  // 2 bytes Odometer1 -- some magic with 330 needed
   { AFHDS2A_ID_ODO2,                  STR_SENSOR_ODO2,          UNIT_METERS,            2 },  // 2 bytes Odometer2 -- some magic with 330 needed
   { AFHDS2A_ID_SPE,                   STR_SENSOR_ASPD,          UNIT_KMH,               2 },  // 2 bytes Speed km/h -- some magic with 330 needed
-  { AFHDS2A_ID_GPS_LAT,               STR_SENSOR_GPS,           UNIT_RAW,               0 },  // 4 bytes signed WGS84 in degrees * 1E7
-  { AFHDS2A_ID_GPS_LON,               STR_SENSOR_GPS,           UNIT_RAW,               0 },  // 4 bytes signed WGS84 in degrees * 1E7
+  { AFHDS2A_ID_GPS_LAT,               STR_SENSOR_GPS_LAT,       UNIT_RAW,               0 },  // 4 bytes signed WGS84 in degrees * 1E7
+  { AFHDS2A_ID_GPS_LON,               STR_SENSOR_GPS_LON,       UNIT_RAW,               0 },  // 4 bytes signed WGS84 in degrees * 1E7
   { AFHDS2A_ID_GPS_ALT,               STR_SENSOR_GPSALT,        UNIT_METERS,            2 },  // 4 bytes signed GPS alt m*100
   { AFHDS2A_ID_ALT,                   STR_SENSOR_ALT,           UNIT_METERS,            2 },  // 4 bytes signed Alt m*100
   { AFHDS2A_ID_RX_SIG_AFHDS3,         STR_SENSOR_RX_QUALITY,    UNIT_PERCENT,           0 },  // RX error rate

@@ -148,6 +148,8 @@
 #define STR_SENSOR_GPSALT                    "GAlt"
 #define STR_SENSOR_GPSDATETIME               "Date"
 #define STR_SENSOR_GPS                       "GPS"
+#define STR_SENSOR_GPS_LAT                   "GLat"
+#define STR_SENSOR_GPS_LON                   "GLon"
 #define STR_SENSOR_BATT1_VOLTAGE             "RB1V"
 #define STR_SENSOR_BATT2_VOLTAGE             "RB2V"
 #define STR_SENSOR_BATT1_CURRENT             "RB1A"
