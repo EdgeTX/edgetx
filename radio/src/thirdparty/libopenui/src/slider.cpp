@@ -51,6 +51,11 @@ Slider::Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
   lv_obj_add_event_cb(slider, slider_changed_cb, LV_EVENT_VALUE_CHANGED, this);
   lv_slider_set_range(slider, vmin, vmax);
 
+  update();
+}
+
+void Slider::update()
+{
   if (_getValue != nullptr)
     lv_slider_set_value(slider, _getValue(), LV_ANIM_OFF);
 }

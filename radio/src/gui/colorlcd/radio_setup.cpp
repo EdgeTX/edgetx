@@ -475,15 +475,17 @@ class BacklightPage : public SubPage {
 
       // Backlight ON bright
       new StaticText(backlightOnBright, rect_t{}, STR_BLONBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-      new Slider(backlightOnBright, lv_pct(50), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
+      backlightOnSlider = new Slider(backlightOnBright, lv_pct(50), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
                  [=]() -> int32_t {
                    return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
                  },
                  [=](int32_t newValue) {
-                   if(newValue >= g_eeGeneral.blOffBright || g_eeGeneral.backlightMode == e_backlight_mode_on)
+                   if(newValue >= g_eeGeneral.blOffBright || g_eeGeneral.backlightMode == e_backlight_mode_on) {
                      g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - newValue;
-                   else
+                   } else {
                      g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
+                     backlightOnSlider->update();
+                   }
                    SET_DIRTY();
                  });
 
@@ -491,13 +493,15 @@ class BacklightPage : public SubPage {
 
       // Backlight OFF bright
       new StaticText(backlightOffBright, rect_t{}, STR_BLOFFBRIGHTNESS, 0, COLOR_THEME_PRIMARY1);
-      new Slider(backlightOffBright, lv_pct(50), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
+      backlightOffSlider = new Slider(backlightOffBright, lv_pct(50), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
                  [=](int32_t newValue) {
                    int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
-                   if(newValue <= onBright || g_eeGeneral.backlightMode == e_backlight_mode_off)
+                   if(newValue <= onBright || g_eeGeneral.backlightMode == e_backlight_mode_off) {
                      g_eeGeneral.blOffBright = newValue;
-                   else
+                   } else {
                      g_eeGeneral.blOffBright = onBright;
+                     backlightOffSlider->update();
+                   }
                    SET_DIRTY();
                  });
 
@@ -522,6 +526,8 @@ class BacklightPage : public SubPage {
     Window* backlightTimeout = nullptr;
     Window* backlightOnBright = nullptr;
     Window* backlightOffBright = nullptr;
+    Slider* backlightOffSlider = nullptr;
+    Slider* backlightOnSlider = nullptr;
 
     void updateBacklightControls()
     {

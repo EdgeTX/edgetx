@@ -37,6 +37,8 @@ class Slider : public Window
 
   void paint(BitmapBuffer *) override;
 
+  void update();
+
  protected:
   int vmin;
   int vmax;
