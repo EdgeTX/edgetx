@@ -206,6 +206,12 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
   while(len >= MIN_FRAME_LEN) {
 
     uint8_t pkt_len = p_buf[1] + 2;
+    if (pkt_len > len) {
+      TRACE("[XF] length error (%d > %d)", pkt_len, len);
+      len = 0;
+      return;
+    }
+    
     if (p_buf[0] != RADIO_ADDRESS && p_buf[0] != UART_SYNC) {
       TRACE("[XF] address 0x%02X error", p_buf[0]);
     } else if (!_checkFrameCRC(p_buf)) {
