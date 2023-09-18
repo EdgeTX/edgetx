@@ -394,12 +394,8 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
 
             getvalue_t raw = getValue(CFN_PARAM(cfn));
 #if defined(COLORLCD)
-            if (raw == -1024)
-              requiredBacklightBright = 100;
-            else
-              requiredBacklightBright =
-                  (1024 - raw) * (BACKLIGHT_LEVEL_MAX - BACKLIGHT_LEVEL_MIN) /
-                  2048;
+            requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright + 
+                ((1024 + raw) * ((BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright) - g_eeGeneral.blOffBright) / 2048));
 #elif defined(OLED_SCREEN)
             requiredBacklightBright = (raw + 1024) * 254 / 2048;
 #else
