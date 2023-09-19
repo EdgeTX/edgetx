@@ -329,8 +329,7 @@
 #define TR_HAPTIC_LABEL                "Вибрация"
 #define TR_STRENGTH                    "Сила"
 #define TR_IMU_LABEL                   "IMU"
-#define TR_HAPTIC_LABEL                "Вибрация"
-#define TR_STRENGTH                    "Сила"
+#define TR_IMU_OFFSET                  "Смещение"
 #define TR_IMU_MAX                     "Макс"
 #define TR_CONTRAST                    "Контраст"
 #define TR_ALARMS_LABEL                "Сигнал тревоги"
@@ -377,7 +376,7 @@
 #define TR_GPS                         "GPS"
 #define TR_DEF_CHAN_ORD                TR("Пор. Кн. По Ум.", "Порядок каналов по умолчанию")
 #define TR_STICKS                      "Стики"
-#define TR_POTS                        "Pots"
+#define TR_POTS                        "Потенциометры"
 #define TR_SWITCHES                    "Переключатели"
 #define TR_SWITCHES_DELAY              TR("Зад воспр", "Задержка воспроизведения (средн. полож. перекл.)")
 #define TR_SLAVE                       CENTER "Рабочий"
@@ -432,7 +431,11 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "Модель"
+#if defined(SURFACE_RADIO)
+#define TR_FM                          "DM"
+#else
 #define TR_FM                          "FM"
+#endif
 #define TR_EEPROMLOWMEM                "EEPROM Нехватает памяти"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Нажамите любую кнопку для сброса"
 #define TR_THROTTLE_NOT_IDLE           "Газ не работает на ХХ"
@@ -464,9 +467,15 @@
 #define TR_CHANNEL2FAILSAFE            "Канал=>Аварийный режим"
 #define TR_MENUMODELSEL                TR("ВЫБОР МОДЕЛИ", "УПРАВЛЕНИЕ МОДЕЛЬЮ")
 #define TR_MENU_MODEL_SETUP            TR("НАСТРОЙКА", "НАСТРОЙКА МОДЕЛИ")
+#if defined(SURFACE_RADIO)
+#define TR_MENUFLIGHTMODES             "РЕЖИМЫ ВОЖДЕНИЯ"
+#define TR_MENUFLIGHTMODE              "РЕЖИМ ВОЖДЕНИЯ"
+#else
 #define TR_MENUFLIGHTMODES             "РЕЖИМЫ ПОЛЕТА"
 #define TR_MENUFLIGHTMODE              "РЕЖИМ ПОЛЕТА"
+#endif
 #define TR_MENUHELISETUP               "НАСТРОЙКА ВЕРТОЛЕТА"
+  
   #define TR_MENUINPUTS                "ВХОДЫ"
   #define TR_MENULIMITS                "ВЫХОДЫ"
 #define TR_MENUCURVES                  "КРИВЫЕ"
