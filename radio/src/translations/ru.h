@@ -59,7 +59,7 @@
 #define TR_JACK_MODES                  "Спросить","Аудио","Тренажер"
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (кабель)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Мульти-телеметрия"
 
-#define TR_SBUS_INVERSION_VALUES       "Нормально","не перевернутый"
+#define TR_SBUS_INVERSION_VALUES       "Нормально","не перевер"
 #define TR_MULTI_CUSTOM                "Настроенный"
 #define TR_VTRIMINC                    TR("Экспо","Экспоненциальный"),TR("Очень мелко","Очень мелко"),"Мелко","Средне","Грубо"
 #define TR_VDISPLAYTRIMS               "Нет","Изменить","Да"
@@ -161,9 +161,9 @@
 #define TR_ON_ONE_SWITCHES             "ВКЛ","Один"
 
 #if defined(COLORLCD)
-  #define TR_ROTARY_ENC_OPT            "Нормально","Перевернутый"
+  #define TR_ROTARY_ENC_OPT            "Нормально","Перевер"
 #else
-  #define TR_ROTARY_ENC_OPT            "Нормально","Перевернутый","V-I H-N","V-I H-A"
+  #define TR_ROTARY_ENC_OPT            "Нормально","Перевер","V-I H-N","V-I H-A"
 #endif
 
 #if defined(IMU)
@@ -339,9 +339,9 @@
 #define TR_BATTERYNONE                 "АКБ Отсутствует"
 #define TR_BATTERYWARNING              "АКБ Разряжена"
 #define TR_INACTIVITYALARM             "Отключено"
-#define TR_MEMORYWARNING               "Память заканчивается"
+#define TR_MEMORYWARNING               "Память заканчив"
 #define TR_ALARMWARNING                "Звук ВЫКЛ"
-#define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI shutdown", "Проверьте RSSI при выключении")
+#define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI выключение", "Проверьте RSSI при выключении")
 #define TR_MODEL_STILL_POWERED         "Модель еще работает"
 #define TR_USB_STILL_CONNECTED         "USB Еще подключен"
 #define TR_MODEL_SHUTDOWN              "Отключение?"
@@ -539,7 +539,7 @@
 #define TR_AFHDS3_ACTUAL_POWER         TR("Акт. мощность", "Фактическая мощность")
 #define TR_AFHDS3_POWER_SOURCE         TR("Источник питания", "Источник питания")
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Использовать значение FlySky RSSI без пересчета")
-#define TR_GPS_COORDS_FORMAT           TR("Формат координат GPS", "Формат координат")
+#define TR_GPS_COORDS_FORMAT           TR("Формат коорд GPS", "Формат координат")
 #define TR_VARIO                       TR("Вариометр", "Вариометр")
 #define TR_PITCH_AT_ZERO               "Тоны при нуле"
 #define TR_PITCH_AT_MAX                "Тоны при макс."
@@ -572,7 +572,7 @@
 #define TR_DUPLICATE_MODEL             "Дублировать модель"
 #define TR_COPY_MODEL                  "Копировать модель"
 #define TR_MOVE_MODEL                  "Переместить модель"
-#define TR_BACKUP_MODEL                "Резерв копия модели"
+#define TR_BACKUP_MODEL                "Резер копия модели"
 #define TR_DELETE_MODEL                "Удалить модель"
 #define TR_RESTORE_MODEL               "Восстан модель"
 #define TR_DELETE_ERROR                "удалить ошибку"
@@ -645,7 +645,7 @@
 #define TR_KEYSTUCK                    "Застрявшая клавиша"
 #define TR_VOLUME                      "Громкость"
 #define TR_LCD                         "LCD"
-#define TR_BRIGHTNESS                  "ПОДСВЕТКА"
+#define TR_BRIGHTNESS                  "Подсветка"
 #define TR_CPU_TEMP                    "CPU Темп."
 #define TR_CPU_CURRENT                 "Ток"
 #define TR_CPU_MAH                     "Расход"
@@ -679,7 +679,7 @@
 #define TR_REMOVED                     " удалено"
 #define TR_SD_INFO                     "Информация"
 #define TR_NA                          "Н/Д"
-#define TR_HARDWARE                    "АППАРАТНОЕ ОБЕСПЕЧЕНИЕ"
+#define TR_HARDWARE                    "АППАРАТНОЕ ОБЕСП"
 #define TR_FORMATTING                  "ФОРМАТИРОВАНИЕ..."
 #define TR_TEMP_CALIB                  "Калиб темп"
 #define TR_TIME                        "Время"
@@ -736,7 +736,7 @@
 #define TR_DATE                        "Дата"
 #define TR_MONTHS                      { "Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек" }
 #define TR_ROTARY_ENCODER              "П.Э."
-#define TR_ROTARY_ENC_MODE             TR("Режим пов энкодера","Режим поворотного энкодера")
+#define TR_ROTARY_ENC_MODE             TR("Режим пов энк","Режим поворотного энкодера")
 #define TR_CHANNELS_MONITOR            "МОНИТОР КАНАЛОВ"
 #define TR_MIXERS_MONITOR              "МОНИТОР МИКСЕРОВ"
 #define TR_PATH_TOO_LONG               "Путь Слишком Длинный"
@@ -797,7 +797,7 @@
 #define TR_COUNTRY_CODE                "Код страны"
 #define TR_USBMODE                     "Режим USB"
 #define TR_JACK_MODE                   "Режим разъема"
-#define TR_VOICE_LANGUAGE              "Язык Озвучки"
+#define TR_VOICE_LANGUAGE              "Язык звука"
 #define TR_UNITS_SYSTEM                "Единицы"
 #define TR_EDIT                        "Редактировать"
 #define TR_INSERT_BEFORE               "Вставить перед"
