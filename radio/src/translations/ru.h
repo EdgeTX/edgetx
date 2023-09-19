@@ -50,7 +50,7 @@
 #define TR_TRNMODE                     "ВЫКЛ",TR("+=","Добавить"),TR(":=","Заменить")
 #define TR_TRNCHN                      "КН1","КН2","КН3","КН4"
 
-##define TR_AUX_SERIAL_MODES            "Выключено","Зеркало телеметрии","Телеметрия входящая","SBUS тренажер","LUA","CLI","GPS","Отладка","SpaceMouse","Внешний модуль"
+#define TR_AUX_SERIAL_MODES            "Выключено","Зеркало телеметрии","Телеметрия входящая","SBUS тренажер","LUA","CLI","GPS","Отладка","SpaceMouse","Внешний модуль"
 #define TR_SWTYPES                     "Нет","Переключатель","2-позиционный","3-позиционный"
 #define TR_POTTYPES                    "Нет",TR("Потенциометр с шагом","Потенциометр с шагом"),TR("Многопозиционный","Многопозиционный переключатель"),"Потенциометр","Слайдер"
 #define TR_VPERSISTENT                 "Выключено","Полет","Ручной сброс"
@@ -110,12 +110,11 @@
 #define TR_SF_BACKLIGHT                "Подсветка"
 #define TR_SF_VARIO                    "Варио"
 #define TR_SF_TEST                     "Тест"
-#define TR_SF_SAFETY                   TR("Безп.","Безопасность")
 
 #if LCD_W >= 212
-  #define TR_SF_SAFETY                 "Переопределение"
+  #define TR_SF_SAFETY                 "Override"
 #else
-  #define TR_SF_SAFETY                 "Переопр."
+  #define TR_SF_SAFETY                 "Overr."
 #endif
 
 #define TR_SF_SCREENSHOT               "Скриншот"
@@ -232,7 +231,6 @@
   #define TR_POPUPS_ENTER_EXIT         TR_ENTER "\010" TR_EXIT
 #endif
 
-#define TR_MENUWHENDONE                CENTER "\006" TR_CENTER " > ДАЛЕЕ"
 #define TR_FREE                        "Свободн."
 #define TR_YES                         "Да"
 #define TR_NO                          "Нет"
@@ -400,7 +398,7 @@
   #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " Начать"
   #define TR_SETMIDPOINT               TR(CENTER "\004УСТАНОВИТЬ СЕРЕДИНУ СТИКОВ", CENTER "\004СЕРЕДИНА СТИКОВ/СЛАЙДЕРОВ")
   #define TR_MOVESTICKSPOTS            CENTER "\006ПЕРЕМЕСТИТЬ СТИКИ/ПОТЕНЦИОМЕТРЫ"
-  #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " КОГДА ГОТОВО"
+  #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " ПО ГОТОВНОСТИ"
 #endif
 #define TR_TXnRX                       "Tx:\0Rx:"
 #define OFS_RX                         4
@@ -776,7 +774,7 @@
 #define TR_NONE                        "Отсутствует"
 #define TR_NONE_UPPERCASE              "ОТСУТСТВУЕТ"
 #define TR_MENUSENSOR                  "Сенсор"
-##define TR_POWERMETER_PEAK             "Пиковое"
+#define TR_POWERMETER_PEAK             "Пиковое"
 #define TR_POWERMETER_POWER            "Мощность"
 #define TR_POWERMETER_ATTN             "Аттенюация"
 #define TR_POWERMETER_FREQ             "Частота"
