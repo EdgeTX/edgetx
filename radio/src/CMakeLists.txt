@@ -184,7 +184,7 @@ if(RTC_BACKUP_RAM)
     )
 
   # Add custom target for debugging
-  add_custom_target(datacopy DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/datacopy.cpp)
+  add_custom_target(datacopy DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/datacopy.inc)
 endif()
 
 option(LUA_MIXER "Enable LUA mixer/model scripts support" OFF)
