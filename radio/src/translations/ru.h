@@ -51,8 +51,8 @@
 #define TR_TRNCHN                      "КН1","КН2","КН3","КН4"
 
 #define TR_AUX_SERIAL_MODES            "Выключено","Зеркало телеметрии","Телеметрия входящая","SBUS тренажер","LUA","CLI","GPS","Отладка","SpaceMouse","Внешний модуль"
-#define TR_SWTYPES                     "Нет","Переключатель","2-позиционный","3-позиционный"
-#define TR_POTTYPES                    "Нет",TR("Потенциометр с шагом","Потенциометр с шагом"),TR("Многопозиционный","Многопозиционный переключатель"),"Потенциометр","Слайдер"
+#define TR_SWTYPES                     "Нет","Переключ","2Х-Поз пер","3Х-Поз пер"
+#define TR_POTTYPES                    "Нет",TR("Потенциометр с шагом","Потенциометр с шагом"),TR("Мн Поз пер","Многопозиционный переключатель"),"Потенциометр","Слайдер"
 #define TR_VPERSISTENT                 "Выключено","Полет","Ручной сброс"
 #define TR_COUNTRY_CODES               TR("US","США"),TR("JP","Япония"),TR("EU","Европа")
 #define TR_USBMODES                    "Спросить",TR("Джойстик","Джойстик"),TR("SD-карта","Хранилище"),"Серийный"
@@ -95,7 +95,7 @@
 #define TR_SF_RESET                    "Сброс"
 #define TR_SF_SET_TIMER                "Установка"
 #define TR_SF_VOLUME                   "Громкость"
-#define TR_SF_FAILSAFE                 "Установить аварийное управление"
+#define TR_SF_FAILSAFE                 "Авар управ"
 #define TR_SF_RANGE_CHECK              "Проверка диапазона"
 #define TR_SF_MOD_BIND                 "Bind модуль"
  
@@ -200,7 +200,7 @@
 #define TR_VCELLINDEX                  "Низший","1","2","3","4","5","6","7","8","Высший","Дельта"
 #define TR_TEXT_SIZE                   "Стандартный", "Крошечный", "Маленький", "Средний", "Двойной"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (только центр)", "= (симметрично)"
-#define TR_TIMER_DIR                   TR("Осталось", "Показать остаток"), TR("Прошло", "Показать прошедшее")
+#define TR_TIMER_DIR                   TR("Остал", "Остал"), TR("Прошло", "Прошед")
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -241,8 +241,8 @@
 #define TR_LOADINGMODEL                "Загрузить Модель"
 #define TR_UNLABELEDMODEL              "Без Названия"
 #define TR_NAME                        "Название"
-#define TR_MODELNAME                   "Название Модели"
-#define TR_PHASENAME                   "Название Фазы"
+#define TR_MODELNAME                   "Название"
+#define TR_PHASENAME                   "Назв Фазы"
 #define TR_MIXNAME                     "Название Mix"
 #define TR_INPUTNAME                   TR("Ввод", "Ввод Имени")
 #define TR_EXPONAME                    TR("Название", "Линия Названия")
@@ -269,8 +269,8 @@
 #define TR_FUNCTION_SWITCHES           "Настроенные переключатели"
 #define TR_SF_SWITCH                   "Триггер"
 #define TR_TRIMS                       "Тримы"
-#define TR_FADEIN                      "Затухание входа"
-#define TR_FADEOUT                     "Затухание выхода"
+#define TR_FADEIN                      "Затух входа"
+#define TR_FADEOUT                     "Затух выхода"
 #define TR_DEFAULT                     "(По умолчанию)"
 #if defined(COLORLCD)
   #define TR_CHECKTRIMS                "Проверка Тримов"
@@ -282,7 +282,7 @@
 #define TR_COLLECTIVE                  TR("Коллектив", "Источник коллектива")
 #define TR_AILERON                     TR("Крен", "Источник крена")
 #define TR_ELEVATOR                    TR("Тангаж", "Источник тангажа")
-#define TR_SWASHRING                   "Поворотное кольцо"
+#define TR_SWASHRING                   "Поворотное"
 #define TR_MODE                        "Режим"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Левый"
@@ -292,7 +292,7 @@
 #define TR_SUBTYPE                     INDENT "Подтип"
 #define TR_NOFREEEXPO                  "Нет свободного экспо!"
 #define TR_NOFREEMIXER                 "Нет свободного микшера!"
-#define TR_SOURCE                       "Источник"
+#define TR_SOURCE                       "Источ"
 #define TR_WEIGHT                      "Вес"
 #define TR_SIDE                        "Сторона"
 #define TR_OFFSET                       "Смещение"
@@ -350,12 +350,12 @@
 #define TR_THROTTLE_START              "Дроссель cтарт"
 #define TR_THROTTLEREVERSE             TR("Д-Реверс", INDENT "Реверс")
 #define TR_MINUTEBEEP                  TR("Минут", "Звонок минуты")
-#define TR_BEEPCOUNTDOWN               INDENT "Обратный отсчет"
+#define TR_BEEPCOUNTDOWN               INDENT "Обр отс"
 #define TR_PERSISTENT                  TR(INDENT "Пост", INDENT "Постоянный")
 #define TR_BACKLIGHT_LABEL             "Подсветка"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
 #define TR_STATUS                      "Статус"
-#define TR_BLDELAY                     INDENT "Продолжительность"
+#define TR_BLDELAY                     INDENT "Продолж"
 #define TR_BLONBRIGHTNESS              INDENT "Подсветка ВКЛ"
 #define TR_BLOFFBRIGHTNESS             INDENT "Подсветка ВЫКЛ"
 #define TR_KEYS_BACKLIGHT              "Подсветка клавиш"
@@ -376,8 +376,8 @@
 #define TR_GPS                         "GPS"
 #define TR_DEF_CHAN_ORD                TR("Пор. Кн. По Ум.", "Порядок каналов по умолчанию")
 #define TR_STICKS                      "Стики"
-#define TR_POTS                        "Потенциометры"
-#define TR_SWITCHES                    "Переключатели"
+#define TR_POTS                        "Потенциоме"
+#define TR_SWITCHES                    "Переключат"
 #define TR_SWITCHES_DELAY              TR("Зад воспр", "Задержка воспроизведения (средн. полож. перекл.)")
 #define TR_SLAVE                       CENTER "Рабочий"
 #define TR_MODESRC                     "Mode\006% Source"
@@ -396,9 +396,9 @@
   #define TR_MOVESTICKSPOTS            "ПЕРЕМЕСТИТЬ СТИКИ/ПОТЕНЦИОМЕТРЫ"
 #else
   #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " Начать"
-  #define TR_SETMIDPOINT               TR(CENTER "\004УСТАНОВИТЬ СЕРЕДИНУ СТИКОВ", CENTER "\004СЕРЕДИНА СТИКОВ/СЛАЙДЕРОВ")
-  #define TR_MOVESTICKSPOTS            CENTER "\006ПЕРЕМЕСТИТЬ СТИКИ/ПОТЕНЦИОМЕТРЫ"
-  #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " ПО ГОТОВНОСТИ"
+  #define TR_SETMIDPOINT               TR(CENTER "\004УСТ СЕР СТИКОВ", CENTER "\004СЕРЕДИНА СТИКОВ/СЛАЙДЕРОВ")
+  #define TR_MOVESTICKSPOTS            CENTER "\006ПЕРЕМ СТИКИ/ПОТ"
+  #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " ПО ГОТОВНОС"
 #endif
 #define TR_TXnRX                       "Tx:\0Rx:"
 #define OFS_RX                         4
@@ -474,15 +474,15 @@
 #define TR_MENUFLIGHTMODES             "РЕЖИМЫ ПОЛЕТА"
 #define TR_MENUFLIGHTMODE              "РЕЖИМ ПОЛЕТА"
 #endif
-#define TR_MENUHELISETUP               "НАСТРОЙКА ВЕРТОЛЕТА"
+#define TR_MENUHELISETUP               "НАСТРОЙКА ВЕРТ"
   
   #define TR_MENUINPUTS                "ВХОДЫ"
   #define TR_MENULIMITS                "ВЫХОДЫ"
 #define TR_MENUCURVES                  "КРИВЫЕ"
 #define TR_MENUCURVE                   "КРИВАЯ"
-#define TR_MENULOGICALSWITCH           "ЛОГИЧЕСКИЙ ПЕРЕКЛЮЧАТЕЛЬ"
-#define TR_MENULOGICALSWITCHES         "ЛОГИЧЕСКИЕ ПЕРЕКЛЮЧАТЕЛИ"
-#define TR_MENUCUSTOMFUNC              "СПЕЦИАЛЬНЫЕ ФУНКЦИИ"
+#define TR_MENULOGICALSWITCH           "ЛОГ ПЕРЕКЛЮЧАТЕЛЬ"
+#define TR_MENULOGICALSWITCHES         "ЛОГ ПЕРЕКЛЮЧАТЕЛИ"
+#define TR_MENUCUSTOMFUNC              "СПЕЦ ФУНКЦИИ"
 #define TR_MENUCUSTOMSCRIPTS           "ПОЛЬЗОВАТЕЛЬСКИЕ СЦЕНАРИИ"
 #define TR_MENUTELEMETRY               "ТЕЛЕМЕТРИЯ"
 #define TR_MENUSTAT                    "СТАТИСТИКА"
@@ -491,7 +491,7 @@
 #define TR_MONITOR_CHANNELS2           "МОНИТОР КАНАЛОВ 9-16"
 #define TR_MONITOR_CHANNELS3           "МОНИТОР КАНАЛОВ 17-24"
 #define TR_MONITOR_CHANNELS4           "МОНИТОР КАНАЛОВ 25-32"
-#define TR_MONITOR_SWITCHES            "МОНИТОР ЛОГИЧЕСКИХ ПЕРЕКЛЮЧАТЕЛЕЙ"
+#define TR_MONITOR_SWITCHES            "МОНИТОР ЛОГ ПЕРЕКЛЮЧАТЕЛЕЙ"
 #define TR_MONITOR_OUTPUT_DESC         "Выходы"
 #define TR_MONITOR_MIXER_DESC          "Микшеры"
   #define TR_RECEIVER_NUM              TR("RxNum", "Номер приемника")
@@ -572,9 +572,9 @@
 #define TR_DUPLICATE_MODEL             "Дублировать модель"
 #define TR_COPY_MODEL                  "Копировать модель"
 #define TR_MOVE_MODEL                  "Переместить модель"
-#define TR_BACKUP_MODEL                "Резервная копия модели"
+#define TR_BACKUP_MODEL                "Резерв копия модели"
 #define TR_DELETE_MODEL                "Удалить модель"
-#define TR_RESTORE_MODEL               "Восстановить модель"
+#define TR_RESTORE_MODEL               "Восстан модель"
 #define TR_DELETE_ERROR                "удалить ошибку"
 #define TR_SDCARD_ERROR                TR("SD error", "SD card error")
 #define TR_SDCARD                      "SD карта"
@@ -597,9 +597,9 @@
 #define TR_PIN                         "Pin"
 #define TR_UPDATE_RX_OPTIONS           "Обновить опции приемника?"
 #define TR_UPDATE_TX_OPTIONS           "Обновить опции передатчика?"
-#define TR_MODULES_RX_VERSION          "Модули / Версия приемника"
+#define TR_MODULES_RX_VERSION          "Модули / Версия радио"
 #define TR_SHOW_MIXER_MONITORS         "Показать мониторы миксера"
-#define TR_MENU_MODULES_RX_VERSION     "МОДУЛИ / ВЕРСИЯ ПРИЕМНИКА"
+#define TR_MENU_MODULES_RX_VERSION     "МОДУЛИ / ВЕРСИЯ РАДИО"
 #define TR_MENU_FIRM_OPTIONS           "ОПЦИИ ПО"
 #define TR_IMU                        "IMU"
 #define TR_STICKS_POTS_SLIDERS         "Джойстики/Потенциометры/Слайдеры"
@@ -608,11 +608,11 @@
 #define TR_MODULE_OPTIONS              "Опции модуля"
 #define TR_POWER                       "Питание"
 #define TR_NO_TX_OPTIONS               "Отсутствуют опции передатчика"
-#define TR_RTC_BATT                    "RTC Батарея"
-#define TR_POWER_METER_EXT             "Измеритель мощности (ВНЕШ)"
-#define TR_POWER_METER_INT             "Измеритель мощности (ВНУТ)"
-#define TR_SPECTRUM_ANALYSER_EXT       "Спектроанализатор (ВНЕШ)"
-#define TR_SPECTRUM_ANALYSER_INT       "Спектроанализатор (ВНУТ)"
+#define TR_RTC_BATT                    "RTC АКБ"
+#define TR_POWER_METER_EXT             "Изм мощност (ВНЕШ)"
+#define TR_POWER_METER_INT             "Изм мощност (ВНУТ)"
+#define TR_SPECTRUM_ANALYSER_EXT       "Спек анализ (ВНЕШ)"
+#define TR_SPECTRUM_ANALYSER_INT       "Спек анализ (ВНУТ)"
 #define TR_SDCARD_FULL                 "SD-карта заполнена"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nЛоги и скриншоты отключены"
@@ -657,7 +657,7 @@
 #define TR_FUNC                        "Функция"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
-#define TR_DURATION                    "Продолжительность"
+#define TR_DURATION                    "Продолж"
 #define TR_DELAY                       "Задержка"
 #define TR_SD_CARD                     "SD КАРТА"
 #define TR_SDHC_CARD                   "SD-HC КАРТА"
@@ -684,8 +684,8 @@
 #define TR_TEMP_CALIB                  "Калиб темп"
 #define TR_TIME                        "Время"
 #define TR_MAXBAUDRATE                 "Макс. скорость"
-#define TR_BAUDRATE                    "Скорость передачи"
-#define TR_SAMPLE_MODE                 TR("Режим выборки","Режим выборки")
+#define TR_BAUDRATE                    "Скор пер"
+#define TR_SAMPLE_MODE                 TR("Реж выб","Режим выборки")
 #define TR_SAMPLE_MODES                "Обычный","Один бит"
 #define TR_LOADING                     "Загрузка..."
 #define TR_DELETE_THEME                "Удалить тему?"
@@ -729,7 +729,7 @@
 #define TR_SD_SIZE                     "Размер:"
 #define TR_TYPE                        INDENT "Тип"
 #define TR_GLOBAL_VARS                 "Глобальные переменные"
-#define TR_GVARS                       "ГЛБПЕР"
+#define TR_GVARS                       "ГЛОБ ПЕРЕМ"
 #define TR_GLOBAL_VAR                  "Глобальная переменная"
 #define TR_MENU_GLOBAL_VARS            "ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ"
 #define TR_OWN                         "Свой"
@@ -786,7 +786,7 @@
 #define TR_MENUSENSOR                  "Сенсор"
 #define TR_POWERMETER_PEAK             "Пиковое"
 #define TR_POWERMETER_POWER            "Мощность"
-#define TR_POWERMETER_ATTN             "Аттенюация"
+#define TR_POWERMETER_ATTN             "Аттен"
 #define TR_POWERMETER_FREQ             "Частота"
 #define TR_MENUTOOLS                   "ИНСТРУМЕНТЫ"
 #define TR_TURN_OFF_RECEIVER           "Выключить приемник"
@@ -873,7 +873,7 @@
 #define TR_TOPLCDTIMER                 "Верхний таймер LCD"
 #define TR_UNIT                        "Единица"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Добавить новый"
-#define TR_CHANNELRANGE                TR(INDENT "Диапазон канала", INDENT "Диапазон канала")
+#define TR_CHANNELRANGE                TR(INDENT "Диапазон", INDENT "Диапазон канала")
 #define TR_ANTENNACONFIRM1             "НАР. Антенна"
 #if defined(PCBX12S)
   #define TR_ANTENNA_MODES             "Внутренняя","Запрос","На модель","Внутренняя + Внешняя"
@@ -913,7 +913,7 @@
 #define TR_MIXSOURCE                   "Источник микшера"
 #define TR_CONSTANT                    "Постоянное значение"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "ВЫКЛ","ВКЛ","АВТО"
-#define TR_PREFLIGHT                   "Предполетные проверки"
+#define TR_PREFLIGHT                   "Предполет проверки"
 #define TR_CHECKLIST                   TR(INDENT "Контрольный список", INDENT "Отобразить контрольный список")
 #define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "КС-Интерактивный", INDENT "Интер контр список", INDENT "Интерактивный контрольный список")
 #define TR_AUX_SERIAL_MODE             "Последовательный порт"
@@ -922,7 +922,7 @@
 #define TR_SCRIPT                      "Скрипт"
 #define TR_INPUTS                      "Входные"
 #define TR_OUTPUTS                     "Выходные"
-#define STR_EEBACKUP                   "EEPROM Резервная копия"
+#define STR_EEBACKUP                   "EEPROM Резерв копия"
 #define STR_FACTORYRESET               "Сброс к заводским настройкам"
 #define TR_CONFIRMRESET                TR("Удалить все", "Удалить все модели и настройки?")
 #define TR_TOO_MANY_LUA_SCRIPTS        "Слишком много Lua-скриптов!"
@@ -957,7 +957,7 @@
 #define TR_INVERTED                    "Перевернутый"
 
 
-#define TR_LSW_DESCRIPTIONS            { "Тип сравнения или функция", "Первая переменная", "Вторая переменная или константа", "Вторая переменная или константа", "Дополнительное условие для включения линии", "Минимальная продолжительность логического переключения", "Минимальная Истинная продолжительность включения переключателя" }
+#define TR_LSW_DESCRIPTIONS            { "Тип сравнения или функция", "Первая переменная", "Вторая переменная или константа", "Вторая переменная или константа", "Дополнительное условие для включения линии", "Минимальная продолж логического переключения", "Минимальная Истинная продолжительность включения переключателя" }
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1045,7 +1045,7 @@
 #define TR_CHR_HOUR                    'h'
 #define TR_CHR_INPUT                   'I'   // Values between A-I will work
 
-#define TR_BEEP_VOLUME                 "Громкость звукового сигнала"
+#define TR_BEEP_VOLUME                 "Громк сигнала"
 #define TR_WAV_VOLUME                  "Громкость WAV"
 #define TR_BG_VOLUME                   TR("Гром фон зв", "Громкость фонового звука")
 
@@ -1106,14 +1106,14 @@
 #define TR_TEXT_VIEWER                 "Текстовый просмотрщик"
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "Входы"
 #define TR_MENU_LUA                    STR_CHAR_LUA "Скрипты Lua"
-#define TR_MENU_STICKS                 STR_CHAR_STICK "Джойстики"
-#define TR_MENU_POTS                   STR_CHAR_POT "Потенциометры"
+#define TR_MENU_STICKS                 STR_CHAR_STICK "Стики"
+#define TR_MENU_POTS                   STR_CHAR_POT "Потенц"
 #define TR_MENU_MIN                    STR_CHAR_FUNCTION "МИН"
 #define TR_MENU_MAX                    STR_CHAR_FUNCTION "МАКС"
 #define TR_MENU_HELI                   STR_CHAR_CYC "Циклическое управление"
 #define TR_MENU_TRIMS                  STR_CHAR_TRIM "Триммеры"
 #define TR_MENU_SWITCHES               STR_CHAR_SWITCH "Переключатели"
-#define TR_MENU_LOGICAL_SWITCHES       STR_CHAR_SWITCH "Логические переключатели"
+#define TR_MENU_LOGICAL_SWITCHES       STR_CHAR_SWITCH "Лог переключатели"
 #define TR_MENU_TRAINER                STR_CHAR_TRAINER "Тренажер"
 #define TR_MENU_CHANNELS               STR_CHAR_CHANNEL "Каналы"
 #define TR_MENU_GVARS                  STR_CHAR_SLIDER "Глобальные переменные"
