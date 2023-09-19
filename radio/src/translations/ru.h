@@ -58,6 +58,7 @@
 #define TR_USBMODES                    "Спросить",TR("Джойстик","Джойстик"),TR("SD-карта","Хранилище"),"Серийный"
 #define TR_JACK_MODES                  "Спросить","Аудио","Тренажер"
 #define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (кабель)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Мульти-телеметрия"
+
 #define TR_SBUS_INVERSION_VALUES       "Нормально","не перевернутый"
 #define TR_MULTI_CUSTOM                "Настроенный"
 #define TR_VTRIMINC                    TR("Экспо","Экспоненциальный"),TR("Очень мелко","Очень мелко"),"Мелко","Средне","Грубо"
