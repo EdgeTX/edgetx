@@ -1,8 +1,4 @@
-image: ghcr.io/edgetx/edgetx-dev:2.9.0
-
-vscode:
-  extensions:
-    - ms-vscode.cpptools
+image: ghcr.io/edgetx/gitpod-workspace:pr-20
 
 tasks:
   - name: Prep build folder
