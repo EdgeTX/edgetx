@@ -898,7 +898,7 @@
 #define TR_SMOOTH                      "Плавно"
 #define TR_COPY_STICKS_TO_OFS          TR("Коп стики->субтрим", "Копировать стики в субтрим")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Коп mмин/макс во все вых", "Копировать мин/макс/центр во все выходы")
-#define TR_COPY_TRIMS_TO_OFS           TR(""Коп трим->субтрим", "Копировать тримы в субтрим")
+#define TR_COPY_TRIMS_TO_OFS           TR("Коп трим->субтрим", "Копировать тримы в субтрим")
 #define TR_INCDEC                      "Увеличение/Уменьшение"
 #define TR_GLOBALVAR                   "Глобальная переменная"
 #define TR_MIXSOURCE                   "Источник микшера"
