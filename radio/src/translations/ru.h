@@ -45,18 +45,18 @@
 
 #define TR_OFFON                       "ВЫКЛ","ВКЛ"
 #define TR_MMMINV                      "---","ИНВ"
-#define TR_VBEEPMODE                   "Тихо","Сигнал","Без кнопки","Все"
-#define TR_VBLMODE                     "ВЫКЛ","Кнопки",TR("Управление","Контроли"), "Оба","ВКЛ"
+#define TR_VBEEPMODE                   "Тихо","Сигнал","Без клавиш","Все"
+#define TR_VBLMODE                     "ВЫКЛ","Клавиши",TR("Управление","Стики"), "Оба","ВКЛ"
 #define TR_TRNMODE                     "ВЫКЛ",TR("+=","Добавить"),TR(":=","Заменить")
 #define TR_TRNCHN                      "КН1","КН2","КН3","КН4"
 
-#define TR_AUX_SERIAL_MODES            "Выключено","Зеркало телеметрии","Телеметрия входящая","SBUS тренажер","LUA","CLI","GPS","Отладка","SpaceMouse","Внешний модуль"
+#define TR_AUX_SERIAL_MODES            "Выключено","Зеркало телемет","Телемет входящая","SBUS тренажер","LUA","CLI","GPS","Отладка","SpaceMouse","Внешний модуль"
 #define TR_SWTYPES                     "Нет","Переключ","2Х-Поз пер","3Х-Поз пер"
-#define TR_POTTYPES                    "Нет",TR("Потенциометр с шагом","Потенциометр с шагом"),TR("Мн Поз пер","Многопозиционный переключатель"),"Потенциометр","Слайдер"
+#define TR_POTTYPES                    "Нет",TR("Потен с шагом","Потен с шагом"),TR("Мн Поз пер","Многопоз перекл"),"Потенциометр","Слайдер"
 #define TR_VPERSISTENT                 "Выключено","Полет","Ручной сброс"
 #define TR_COUNTRY_CODES               TR("US","США"),TR("JP","Япония"),TR("EU","Европа")
-#define TR_USBMODES                    "Спросить",TR("Джойстик","Джойстик"),TR("SD-карта","Хранилище"),"Серийный"
-#define TR_JACK_MODES                  "Спросить","Аудио","Тренажер"
+#define TR_USBMODES                    "Выбор",TR("Джойстик","Джойстик"),TR("SD-карта","Хранилище"),"Серийный"
+#define TR_JACK_MODES                  "Выбор","Аудио","Тренажер"
 
 #define TR_SBUS_INVERSION_VALUES       "Нормально","не перевер"
 #define TR_MULTI_CUSTOM                "Настроенный"
@@ -376,8 +376,8 @@
 #define TR_GPS                         "GPS"
 #define TR_DEF_CHAN_ORD                TR("Пор. Кн. По Ум.", "Порядок каналов по умолчанию")
 #define TR_STICKS                      "Стики"
-#define TR_POTS                        "Потенциоме"
-#define TR_SWITCHES                    "Переключат"
+#define TR_POTS                        "Потенциом"
+#define TR_SWITCHES                    "Переключ"
 #define TR_SWITCHES_DELAY              TR("Зад воспр", "Задержка воспроизведения (средн. полож. перекл.)")
 #define TR_SLAVE                       CENTER "Рабочий"
 #define TR_MODESRC                     "Mode\006% Source"
@@ -388,8 +388,8 @@
 #define TR_CALIB_DONE                  "Калибровка Завершена"
 #if defined(PCBHORUS)
   #define TR_MENUTOSTART               "Надмите [Enter] Для Продолжения"
-  #define TR_SETMIDPOINT               "По Центру стики/pots/Слайдеры и нажмите [Enter]"
-  #define TR_MOVESTICKSPOTS            "Двигайте стики/pots/Слайдеры и нажмите [Enter]"
+  #define TR_SETMIDPOINT               "По Центру стики/потен/Слайдеры и нажмите [Enter]"
+  #define TR_MOVESTICKSPOTS            "Двигайте стики/потен/Слайдеры и нажмите [Enter]"
 #elif defined(COLORLCD)
   #define TR_MENUTOSTART               TR_ENTER " Начать"
   #define TR_SETMIDPOINT               "ЦЕНТРИРОВАТЬ СТИКИ/СЛАЙДЕРЫ"
@@ -405,8 +405,8 @@
 #define TR_NODATA                      CENTER "Нет Данных"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
-#define TR_TMIXMAXMS                   "Tmix max"
-#define TR_FREE_STACK                  "Свободный стек"
+#define TR_TMIXMAXMS                   "Макс Tmix"
+#define TR_FREE_STACK                  "Свободн  стек"
 #define TR_INT_GPS_LABEL               "Внутренний GPS"
 #define TR_HEARTBEAT_LABEL             "Пульсация"
 #define TR_LUA_SCRIPTS_LABEL           "Lua Скрипт"
@@ -629,7 +629,7 @@
 #define TR_EEPROM_CONVERTING           "Преобразование EEPROM"
 #define TR_SDCARD_CONVERSION_REQUIRE   "Требуется конвертация карты SD"
 #define TR_CONVERTING                  "Преобразование: "
-#define TR_THROTTLE_UPPERCASE          "ДРОСЕЛЬ"
+#define TR_THROTTLE_UPPERCASE          "Газ"
 #define TR_ALARMSWARN                  "СИГНАЛЫ"
 #define TR_SWITCHWARN                  TR("ПЕРЕКЛЮЧАТЕЛЬ", "УПРАВЛЕНИЕ")
 #define TR_FAILSAFEWARN                "СБОЙ БЕЗОПАСНОСТИ"
@@ -825,8 +825,8 @@
 #define TR_SF                          "SF"
 #define TR_GF                          "GF"
 #define TR_ANADIAGS_CALIB              "Калибровка Аналогов"
-#define TR_ANADIAGS_FILTRAWDEV         "Отфильтрованные необработанные аналоговые сигналы с отклонением"
-#define TR_ANADIAGS_UNFILTRAW          "Неотфильтрованные необработанные аналоговые сигналы"
+#define TR_ANADIAGS_FILTRAWDEV         "Отфильтр необработ аналог сигн с отклон"
+#define TR_ANADIAGS_UNFILTRAW          "Неотфильтр необработ аналог сигн"
 #define TR_ANADIAGS_MINMAX             "Мин., Макс. и Диапазон"
 #define TR_ANADIAGS_MOVE               "Подвигайте аналоговые датчики до конца!"
 #define TR_SPEAKER                     INDENT "Динамик"
@@ -856,7 +856,7 @@
 #define TR_TOUCH_NOTFOUND              "Сенсорный аппарат не найден"
 #define TR_TOUCH_EXIT                  "Нажмите на сенсорный экран, чтобы выйти"
 #define TR_SET                         BUTTON("Установить")
-#define TR_TRAINER                     "Тренажёр"
+#define TR_TRAINER                     "Тренажер"
 #define TR_CHANS                       "Каналы"
 #define TR_ANTENNAPROBLEM              CENTER "Проблема с антенной TX!"
 #define TR_MODELIDUSED                 "ID использован в:"
@@ -887,11 +887,11 @@
 #define TR_MODULE_PROTOCOL_FCC_WARN_LINE1    "Требует FCC"
 #define TR_MODULE_PROTOCOL_EU_WARN_LINE1     "Требует EU"
 #define TR_MODULE_PROTOCOL_WARN_LINE2        "Сертифицированное ПО"
-#define TR_LOWALARM                    INDENT "Low alarm"
-#define TR_CRITICALALARM               INDENT "Critical alarm"
+#define TR_LOWALARM                    INDENT "Низкий сигнал"
+#define TR_CRITICALALARM               INDENT "Критический сигнал"
 #define TR_RSSIALARM_WARN              "RSSI"
-#define TR_NO_RSSIALARM                TR(INDENT "Alarms disabled", "Telemetry alarms disabled")
-#define TR_DISABLE_ALARM               TR(INDENT "Disable alarms", INDENT "Disable telemetry alarms")
+#define TR_NO_RSSIALARM                TR(INDENT "Отключены сигналы", "Отключены сигналы телеметрии")
+#define TR_DISABLE_ALARM               TR(INDENT "Отключить сигналы", INDENT "Отключить сигналы телеметрии")
 #define TR_POPUP                       "Popup"
 #define TR_MIN                         "Мин"
 #define TR_MAX                         "Макс"
@@ -966,7 +966,7 @@
   #define TR_BG_COLOR                  "Цвет фона"
   #define TR_SLIDERS_TRIMS             "Слайдеры+Триммеры"
   #define TR_SLIDERS                   "Слайдеры"
-  #define TR_FLIGHT_MODE               "Режим полёта"
+  #define TR_FLIGHT_MODE               "Режим полета"
   #define TR_INVALID_FILE              "Недопустимый файл"
   #define TR_TIMER_SOURCE              "Источник таймера"
   #define TR_SIZE                      "Размер"
@@ -976,7 +976,7 @@
   #define TR_ALIGN_OPTS                { "Слева", "По центру", "Справа" }
   #define TR_TEXT                      "Текст"
   #define TR_COLOR                     "Цвет"
-  #define TR_MAIN_VIEW_X               "Основное представление X"
+  #define TR_MAIN_VIEW_X               "Основное экран X"
   #define TR_PANEL1_BACKGROUND         "Фон панели 1"
   #define TR_PANEL2_BACKGROUND         "Фон панели 2"
   #define TR_WIDGET_GAUGE              "Шкала"
@@ -1068,7 +1068,7 @@
 #define TR_RATIO                       "Коэффициент"
 #define TR_FORMULA                     "Формула"
 #define TR_CELLINDEX                   "Индекс ячейки"
-#define TR_LOGS                        "логи"
+#define TR_LOGS                        "Логи"
 #define TR_OPTIONS                     "Опции"
 #define TR_FIRMWARE_OPTIONS            "Опции ПО"
 
@@ -1083,7 +1083,7 @@
 #define TR_INVERTED_SERIAL             INDENT "Инвертировать"
 #define TR_IGNORE_INSTANCE             TR(INDENT "Нет инстанса", INDENT "Игнорировать инстансы")
 #define TR_SHOW_INSTANCE_ID            "Показать ID инстанса"
-#define TR_DISCOVER_SENSORS            "Поиск новых датчиков"
+#define TR_DISCOVER_SENSORS            "Поиск нов датч"
 #define TR_STOP_DISCOVER_SENSORS       "Остановить"
 #define TR_DELETE_ALL_SENSORS          "Удалить все"
 #define TR_CONFIRMDELETE               "Действительно удалить все?"
@@ -1097,7 +1097,7 @@
 #define TR_THEME                       "Тема"
 #define TR_SETUP                       "Настройка"
 #define TR_LAYOUT                      "Макет"
-#define TR_ADD_MAIN_VIEW               "Добавить основное представление"
+#define TR_ADD_MAIN_VIEW               "Добавить экран"
 #define TR_BACKGROUND_COLOR            "Цвет фона"
 #define TR_MAIN_COLOR                  "Основной цвет"
 #define TR_BAR2_COLOR                  "Цвет вторичной панели"
@@ -1121,7 +1121,7 @@
 #define TR_MENU_DISPLAY                "ДИСПЛЕЙ"
 #define TR_MENU_OTHER                  "Другое"
 #define TR_MENU_INVERT                 "Инвертировать"
-#define TR_AUDIO_MUTE                  TR("Выключить звук", "Выключать звук при отсутствии звука")
+#define TR_AUDIO_MUTE                  TR("Выключить звук", "Выключить звук")
 #define TR_JITTER_FILTER               "Фильтр АЦП"
 #define TR_DEAD_ZONE                   "Зона нечувствительности"
 #define TR_RTC_CHECK                   TR("Проверка RTC", "Проверка напряжения RTC")
@@ -1173,14 +1173,14 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Выбор\nМодели"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Управл\nМоделями"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Меню\nМоделей"
 #define TR_MAIN_MENU_MODEL_NOTES        "Заметки\nк Модели"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Монитор\nКаналов"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Настройки\nМодели"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Настройки\nРадио"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "Настройки\nЭкрана"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "Удалить\nТелеметр"
-#define TR_MAIN_MENU_STATISTICS         "Статистика"
+#define TR_MAIN_MENU_STATISTICS         "Статистик"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Инфо\nEdgeTX"
 // End Main menu
 
@@ -1237,5 +1237,5 @@
 #define TR_SYNC                   "Синхронизация"
 
 #define TR_ENABLED_FEATURES       "Включенные функции"
-#define TR_RADIO_MENU_TABS        "вкладки меню радио"
-#define TR_MODEL_MENU_TABS        "Вкладки Меню Модели"
+#define TR_RADIO_MENU_TABS        "ВКЛАДКИ МЕНЮ РАДИО"
+#define TR_MODEL_MENU_TABS        "ВКЛАДКИ МЕНЮ МОДЕЛИ"
