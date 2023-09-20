@@ -875,7 +875,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
     }
     else if (val_len > 4 && (strncmp(val, trimSwitchNames[0], 4) == 0)) {
 
-      for (int i = 0; i < sizeof(trimSwitchNames)/sizeof(const char*); i += 1) {
+      for (size_t i = 0; i < sizeof(trimSwitchNames)/sizeof(const char*); i += 1) {
         if (strncmp(val, trimSwitchNames[i], val_len) == 0) {
           ival = SWSRC_FIRST_TRIM + i;
           break;

@@ -135,6 +135,7 @@ void onSdManagerMenu(const char * result)
     strncpy(clipboard.data.sd.filename, line, CLIPBOARD_PATH_LEN-1);
   }
   else if (result == STR_PASTE) {
+    char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
     f_getcwd(lfn, FF_MAX_LFN);
     // if destination is dir, copy into that dir
     if (IS_DIRECTORY(line)) {
@@ -144,7 +145,6 @@ void onSdManagerMenu(const char * result)
     char *destNamePtr = clipboard.data.sd.filename;
     if (!strcmp(clipboard.data.sd.directory, lfn)) {
         // prevent copying to the same directory under the same name
-        char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
         destNamePtr =
             strAppend(destFileName, FILE_COPY_PREFIX, CLIPBOARD_PATH_LEN);
         destNamePtr = strAppend(destNamePtr, clipboard.data.sd.filename,
