@@ -623,7 +623,7 @@
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
 #define TR_INCOMPATIBLE                "Несовместимый"
-#define TR_WARNING                     "оНИМАНИЕ"
+#define TR_WARNING                     "ВНИМАНИЕ"
 #define TR_EEPROMWARN                  "EEPROM"
 #define TR_STORAGE_WARNING             "ПАМЯТЬ"
 #define TR_EEPROM_CONVERTING           "Преобразование EEPROM"
