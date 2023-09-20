@@ -81,8 +81,8 @@ const GhostSensor ghostSensors[] = {
   {GHOST_ID_PACK_AMPS,       STR_SENSOR_CURR,             UNIT_AMPS,              2},
   {GHOST_ID_PACK_MAH,        STR_SENSOR_CAPACITY,         UNIT_MAH,               0},
 
-  {GHOST_ID_GPS_LAT,         STR_GPS,                     UNIT_GPS_LATITUDE,      0},
-  {GHOST_ID_GPS_LONG,        STR_GPS,                     UNIT_GPS_LONGITUDE,     0},
+  {GHOST_ID_GPS_LAT,         STR_SENSOR_GPS_LAT,          UNIT_GPS_LATITUDE,      0},
+  {GHOST_ID_GPS_LONG,        STR_SENSOR_GPS_LAT,          UNIT_GPS_LONGITUDE,     0},
   {GHOST_ID_GPS_GSPD,        STR_SENSOR_GSPD,             UNIT_KMH,               1},
   {GHOST_ID_GPS_HDG,         STR_SENSOR_HDG,              UNIT_DEGREE,            3},
   {GHOST_ID_GPS_ALT,         STR_SENSOR_GPSALT,           UNIT_METERS,            0},
