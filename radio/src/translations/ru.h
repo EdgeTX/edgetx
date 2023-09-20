@@ -57,7 +57,6 @@
 #define TR_COUNTRY_CODES               TR("US","США"),TR("JP","Япония"),TR("EU","Европа")
 #define TR_USBMODES                    "Спросить",TR("Джойстик","Джойстик"),TR("SD-карта","Хранилище"),"Серийный"
 #define TR_JACK_MODES                  "Спросить","Аудио","Тренажер"
-#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (кабель)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Мульти-телеметрия"
 
 #define TR_SBUS_INVERSION_VALUES       "Нормально","не перевер"
 #define TR_MULTI_CUSTOM                "Настроенный"
@@ -121,6 +120,7 @@
 #define TR_SF_SCREENSHOT               "Скриншот"
 #define TR_SF_RACING_MODE              "Режим гонка"
 #define TR_SF_DISABLE_TOUCH            "Сенсор ВЫК"
+#define TR_SF_DISABLE_AUDIO_AMP        "Выключить аудио усилитель"
 #define TR_SF_SET_SCREEN               "Выбрать главный экран"
 #define TR_SF_RESERVE                  "[резев]"
 
@@ -236,7 +236,7 @@
 #define TR_YES                         "Да"
 #define TR_NO                          "Нет"
 #define TR_DELETEMODEL                 "Удалить Модель"
-#define TR_COPYINGMODEL                "Коприровать Модель"
+#define TR_COPYINGMODEL                "Копировать Модель"
 #define TR_MOVINGMODEL                 "Перенести Модель"
 #define TR_LOADINGMODEL                "Загрузить Модель"
 #define TR_UNLABELEDMODEL              "Без Названия"
@@ -324,8 +324,8 @@
 #define TR_SCREEN                      "Экран\001"
 #define TR_SOUND_LABEL                 "Звук"
 #define TR_LENGTH                      "Длина"
-#define TR_BEEP_LENGTH                 "Длина Гудка"
-#define TR_BEEP_PITCH                  "Высота Гудка"
+#define TR_BEEP_LENGTH                 "Длина звука"
+#define TR_BEEP_PITCH                  "Высота звука"
 #define TR_HAPTIC_LABEL                "Вибрация"
 #define TR_STRENGTH                    "Сила"
 #define TR_IMU_LABEL                   "IMU"
@@ -346,8 +346,8 @@
 #define TR_USB_STILL_CONNECTED         "USB Еще подключен"
 #define TR_MODEL_SHUTDOWN              "Отключение?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Нажмите enter Для подтверждения"
-#define TR_THROTTLE_LABEL              "Дроссель"
-#define TR_THROTTLE_START              "Дроссель cтарт"
+#define TR_THROTTLE_LABEL              "Газ"
+#define TR_THROTTLE_START              "Газ cтарт"
 #define TR_THROTTLEREVERSE             TR("Д-Реверс", INDENT "Реверс")
 #define TR_MINUTEBEEP                  TR("Минут", "Звонок минуты")
 #define TR_BEEPCOUNTDOWN               INDENT "Обр отс"
@@ -364,7 +364,7 @@
 #define TR_PLAY_HELLO                  "Звук Запуска"
 #define TR_PWR_ON_DELAY                "Время Включения"
 #define TR_PWR_OFF_DELAY               "Время Выключения"
-#define TR_THROTTLE_WARNING            TR(INDENT "Д-Предупреждение", INDENT "Положение Дроселя")
+#define TR_THROTTLE_WARNING            TR(INDENT "Д-Предупреждение", INDENT "Положение Газа")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Свое-Пол", INDENT INDENT INDENT INDENT "Свое Положение?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Пол. %", "Положение %")
 #define TR_SWITCHWARNING               TR(INDENT "С-Предупреждение", INDENT "Положения Переключателей")
@@ -1173,13 +1173,13 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Выбор\nМодели"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Управление\nМоделями"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Управл\nМоделями"
 #define TR_MAIN_MENU_MODEL_NOTES        "Заметки\nк Модели"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Монитор\nКаналов"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Настройки\nМоделии"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Настройки\nМодели"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Настройки\nРадио"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "Настройки\nЭкрана"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Удалить\nТелеметрию"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "Удалить\nТелеметр"
 #define TR_MAIN_MENU_STATISTICS         "Статистика"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Инфо\nEdgeTX"
 // End Main menu
