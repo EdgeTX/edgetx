@@ -46,7 +46,7 @@
 #define TR_OFFON                       "ВЫКЛ","ВКЛ"
 #define TR_MMMINV                      "---","ИНВ"
 #define TR_VBEEPMODE                   "Тихо","Сигнал","Без клавиш","Все"
-#define TR_VBLMODE                     "ВЫКЛ","Клавиши",TR("Управление","Стики"), "Оба","ВКЛ"
+#define TR_VBLMODE                     "ВЫКЛ","Клавиши",TR("Стики","Стики"), "Оба","ВКЛ"
 #define TR_TRNMODE                     "ВЫКЛ",TR("+=","Добавить"),TR(":=","Заменить")
 #define TR_TRNCHN                      "КН1","КН2","КН3","КН4"
 
@@ -90,12 +90,12 @@
 #define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
 #define TR_SF_TRAINER                  "Таймер"
-#define TR_SF_INST_TRIM                "Мгновенный трим"
+#define TR_SF_INST_TRIM                "Мгнов трим"
 #define TR_SF_RESET                    "Сброс"
-#define TR_SF_SET_TIMER                "Установка"
+#define TR_SF_SET_TIMER                "Установ"
 #define TR_SF_VOLUME                   "Громкость"
 #define TR_SF_FAILSAFE                 "Авар управ"
-#define TR_SF_RANGE_CHECK              "Проверка диапазона"
+#define TR_SF_RANGE_CHECK              "Пров диапаз"
 #define TR_SF_MOD_BIND                 "Bind модуль"
  
 #define TR_SOUND                       "Играть Звук"
@@ -340,7 +340,7 @@
 #define TR_BATTERYWARNING              "АКБ Разряжена"
 #define TR_INACTIVITYALARM             "Отключено"
 #define TR_MEMORYWARNING               "Память заканчив"
-#define TR_ALARMWARNING                "Звук ВЫКЛ"
+#define TR_ALARMWARNING                "Звук Выкл"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI выключение", "Проверьте RSSI при выключении")
 #define TR_MODEL_STILL_POWERED         "Модель еще работает"
 #define TR_USB_STILL_CONNECTED         "USB Еще подключен"
@@ -364,10 +364,10 @@
 #define TR_PLAY_HELLO                  "Звук Запуска"
 #define TR_PWR_ON_DELAY                "Время Включения"
 #define TR_PWR_OFF_DELAY               "Время Выключения"
-#define TR_THROTTLE_WARNING            TR(INDENT "Д-Предупреждение", INDENT "Положение Газа")
+#define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "Throttle state")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Свое-Пол", INDENT INDENT INDENT INDENT "Свое Положение?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Пол. %", "Положение %")
-#define TR_SWITCHWARNING               TR(INDENT "С-Предупреждение", INDENT "Положения Переключателей")
+#define TR_SWITCHWARNING               TR(INDENT "S-Warning", INDENT "Switch positions")
 #define TR_POTWARNINGSTATE             TR(INDENT "Состояние потенциометров и слайдеров", INDENT "Потенциометры и слайдеры")
 #define TR_SLIDERWARNING               TR(INDENT "Полож. Перек.", INDENT "Положение Переключателя")
 #define TR_POTWARNING                  TR(INDENT "Предупр. о положении потенциометра", INDENT "Положение потенциометра")
@@ -437,8 +437,8 @@
 #define TR_FM                          "FM"
 #endif
 #define TR_EEPROMLOWMEM                "EEPROM Нехватает памяти"
-#define TR_PRESS_ANY_KEY_TO_SKIP       "Нажамите любую кнопку для сброса"
-#define TR_THROTTLE_NOT_IDLE           "Газ не работает на ХХ"
+#define TR_PRESS_ANY_KEY_TO_SKIP       "Нажмите любую кнопку"
+#define TR_THROTTLE_NOT_IDLE           "Газ не на ХХ"
 #define TR_ALARMSDISABLED              "Аварийные сигналы отключены"
 #define TR_PRESSANYKEY                 TR("\010Нажмите любую кнопку", "Нажмите любую кнопку")
 #define TR_BADEEPROMDATA               "Неверные данные EEprom"
@@ -483,7 +483,7 @@
 #define TR_MENULOGICALSWITCH           "ЛОГ ПЕРЕКЛЮЧАТЕЛЬ"
 #define TR_MENULOGICALSWITCHES         "ЛОГ ПЕРЕКЛЮЧАТЕЛИ"
 #define TR_MENUCUSTOMFUNC              "СПЕЦ ФУНКЦИИ"
-#define TR_MENUCUSTOMSCRIPTS           "ПОЛЬЗОВАТЕЛЬСКИЕ СЦЕНАРИИ"
+#define TR_MENUCUSTOMSCRIPTS           "ПОЛЬЗОВ СЦЕНАРИИ"
 #define TR_MENUTELEMETRY               "ТЕЛЕМЕТРИЯ"
 #define TR_MENUSTAT                    "СТАТИСТИКА"
 #define TR_MENUDEBUG                   "ОТЛАДКА"
@@ -661,9 +661,9 @@
 #define TR_DELAY                       "Задержка"
 #define TR_SD_CARD                     "SD КАРТА"
 #define TR_SDHC_CARD                   "SD-HC КАРТА"
-#define TR_NO_SOUNDS_ON_SD             "Нт звуков на SD"
-#define TR_NO_MODELS_ON_SD             "Нет Модели На SD"
-#define TR_NO_BITMAPS_ON_SD            "Отсутствуют изображения на SD"
+#define TR_NO_SOUNDS_ON_SD             "Нет звуков на SD"
+#define TR_NO_MODELS_ON_SD             "Нет модели на SD"
+#define TR_NO_BITMAPS_ON_SD            "Нет изображения на SD"
 #define TR_NO_SCRIPTS_ON_SD            "Нет скриптов на SD"
 #define TR_SCRIPT_SYNTAX_ERROR         TR("Ошиб синтак", "Ошибка синтаксиса сценария")
 #define TR_SCRIPT_PANIC                "Аварийное завершение сценария"
