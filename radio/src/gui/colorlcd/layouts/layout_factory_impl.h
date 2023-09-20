@@ -79,8 +79,6 @@ class Layout: public LayoutBase
     {
       return factory;
     }
-
-    void checkEvents() override;
   
     bool hasTopbar() const {
       return getOptionValue(LAYOUT_OPTION_TOPBAR)->boolValue;

@@ -53,21 +53,6 @@ void Layout::paint(BitmapBuffer * dc)
 }
 #endif
 
-void Layout::checkEvents()
-{
-  LayoutBase::checkEvents();
-  adjustLayout();
-
-//   uint32_t now = RTOS_GET_MS();
-//   if (now - lastRefresh >= LAYOUT_REFRESH) {
-//     lastRefresh = now;
-//     invalidate();
-// #if defined(DEBUG_WINDOWS)
-//     TRACE_WINDOWS("# %s refresh: %s", factory->getId(), getWindowDebugString().c_str());
-// #endif
-//   }
-}
-
 void Layout::setTrimsVisible(bool visible)
 {
   decoration->setTrimsVisible(visible);
