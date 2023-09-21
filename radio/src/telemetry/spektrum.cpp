@@ -1018,9 +1018,9 @@ static uint8_t replaceForTestingPackage(const uint8_t *packet)
   uint8_t i2cAddress = packet[2] & 0x7f;
 
   // If we received a real package for the ones that we can Fake it, disable replacement
-  if (i2cAddress != I2C_GPS_LOC) real0x16 = true;
-  else if (i2cAddress != I2C_GPS_STAT) real0x17 = true;
-  else if (i2cAddress != I2C_FP_BATT) real0x34 = true;
+  if (i2cAddress == I2C_GPS_LOC) real0x16 = true;
+  else if (i2cAddress == I2C_GPS_STAT) real0x17 = true;
+  else if (i2cAddress == I2C_FP_BATT) real0x34 = true;
   
   // Only Substiture AS3X/SAFE I2C_FLITECTRL packages, since they are constantly brodcast
   if (i2cAddress != I2C_FLITECTRL) {  
