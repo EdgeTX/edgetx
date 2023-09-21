@@ -170,7 +170,7 @@ static void processGetHardwareInfoFrame(uint8_t module, const uint8_t * frame)
       POPUP_WARNING(STR_MODULE_UPGRADE_ALERT);
     }
   }
-  else if (index < PXX2_MAX_RECEIVERS_PER_MODULE && modelId < DIM(PXX2ReceiversNames)) {
+  else if (index < PXX2_MAX_RECEIVERS_PER_MODULE) {
     memcpy(&destination->receivers[index].information, &frame[4], length);
     destination->receivers[index].timestamp = get_tmr10ms();
     if (destination->receivers[index].information.capabilities & ~((1 << RECEIVER_CAPABILITY_COUNT) - 1))
