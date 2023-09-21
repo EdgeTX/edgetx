@@ -121,6 +121,7 @@
 #define TR_SF_SCREENSHOT               "Capt. Tela"
 #define TR_SF_RACING_MODE              "ModCorrida"
 #define TR_SF_DISABLE_TOUCH            "No Touch"
+#define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
 #define TR_SF_SET_SCREEN               "Def Tela Princ"
 #define TR_SF_RESERVE                  "[reserve]"
 

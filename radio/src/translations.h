@@ -301,6 +301,7 @@ extern const char STR_SF_BACKLIGHT[];
 extern const char STR_SF_BG_MUSIC[];
 extern const char STR_SF_BG_MUSIC_PAUSE[];
 extern const char STR_SF_DISABLE_TOUCH[];
+extern const char STR_SF_DISABLE_AUDIO_AMP[];
 extern const char STR_SF_FAILSAFE[];
 extern const char STR_SF_HAPTIC[];
 extern const char STR_SF_INST_TRIM[];

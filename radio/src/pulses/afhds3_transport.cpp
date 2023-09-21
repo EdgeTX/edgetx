@@ -135,7 +135,7 @@ bool FrameTransport::processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
                                           uint8_t maxSize)
 {
   if (rxBufferCount == 0 && byte != START) {
-    TRACE("AFHDS3 [SKIP] %02X", byte);
+//     TRACE("AFHDS3 [SKIP] %02X", byte);
     this->esc_state = 0;
     return false;
   }
@@ -280,11 +280,11 @@ bool Transport::processQueue()
   trsp.putFrame(f->command, f->frameType, &f->payload, f->payloadSize,
                 f->useFrameNumber ? f->frameNumber : frameIndex);
 
-  TRACE(
-      "AFHDS3 [CMD QUEUE] cmd: 0x%02x frameType 0x%02x, useFrameNumber %d "
-      "frame Number %d size %d",
-      f->command, f->frameType, f->useFrameNumber, f->frameNumber,
-      f->payloadSize);
+//   TRACE(
+//       "AFHDS3 [CMD QUEUE] cmd: 0x%02x frameType 0x%02x, useFrameNumber %d "
+//       "frame Number %d size %d",
+//       f->command, f->frameType, f->useFrameNumber, f->frameNumber,
+//       f->payloadSize);
 
   if (!f->useFrameNumber) frameIndex++;
   fifo.skip();
@@ -300,7 +300,7 @@ bool Transport::handleRetransmissions(bool& error)
       return true; // re-send
     }
 
-    TRACE("AFHDS3 [NO RESP]");
+//     TRACE("AFHDS3 [NO RESP]");
     error = true;
     return false;
   }
@@ -333,9 +333,9 @@ bool Transport::handleReply(uint8_t* buffer, uint8_t len)
       return true;
     }
 
-    TRACE("AFHDS3 [SEND ACK] cmd %02X type %02X number %02X",
-          responseFrame->command, responseFrame->frameType,
-          responseFrame->frameNumber);
+//     TRACE("AFHDS3 [SEND ACK] cmd %02X type %02X number %02X",
+//           responseFrame->command, responseFrame->frameType,
+//           responseFrame->frameNumber);
 
     auto command = (enum COMMAND)responseFrame->command;
     trsp.putFrame(command, FRAME_TYPE::RESPONSE_ACK, nullptr, 0,

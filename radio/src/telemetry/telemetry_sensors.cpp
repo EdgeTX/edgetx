@@ -83,6 +83,8 @@ uint32_t getDistFromEarthAxis(int32_t latitude)
 void TelemetryItem::setValue(const TelemetrySensor & sensor, const char * val, uint32_t, uint32_t)
 {
   strncpy(text, val, sizeof(text));
+  // Save hash of string so changes can be detected quickly
+  value = hash(text, sizeof(text));
   setFresh();
 }
 

@@ -39,8 +39,6 @@
 UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, GeneralSettings & generalSettings, Firmware * firmware):
   ModelPanel(parent, model, generalSettings, firmware)
 {
-  RadioTheme::ThemeData & td = generalSettings.themeData;
-
   QString sdPath = QString(g.profile[g.id()].sdPath()).trimmed();
 
   grid = new QGridLayout(this);
@@ -190,11 +188,6 @@ UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, Gene
   addGridBlankRow(grid, row);
 
   col  = 0;
-
-  if (SHOW_RAW_INFO) {
-    addGridLabel(grid, tr("Theme"), row, col++);
-    grid->addLayout(addOptionsLayout<RadioTheme::PersistentData>(td.themePersistentData, MAX_THEME_OPTIONS), row, col);
-  }
 
   //  the grid must be fully built for the rowspan to work as required
   foreach (QWidget * wgt, optswidgets) {

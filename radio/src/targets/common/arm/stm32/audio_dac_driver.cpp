@@ -139,6 +139,11 @@ void audioMute()
 
 void audioUnmute()
 {
+if(isFunctionActive(FUNCTION_DISABLE_AUDIO_AMP)) {
+  setMutePin(true);
+  return;
+}
+
 #if defined(AUDIO_UNMUTE_DELAY)
   // if muted
   if (getMutePin()) {

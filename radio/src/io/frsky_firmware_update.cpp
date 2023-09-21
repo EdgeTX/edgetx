@@ -377,6 +377,7 @@ const char *FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(
   UINT count;
   uint8_t frame[8];
 
+  uart_drv->clearRxBuffer(uart_ctx);
   if (!readBuffer(frame, 8, 100) || frame[0] != 0x01) {
     return STR_DEVICE_NO_RESPONSE;
   }

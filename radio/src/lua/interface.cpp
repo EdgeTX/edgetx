@@ -79,10 +79,12 @@ struct our_longjmp * global_lj = 0;
 uint32_t luaExtraMemoryUsage = 0;
 #endif
 
+#if defined(USE_TRIMS_AS_BUTTONS)
 static bool _is_standalone_script()
 {
   return scriptInternalData[0].reference == SCRIPT_STANDALONE;
 }
+#endif
 
 #if defined(LUA_ALLOCATOR_TRACER)
 

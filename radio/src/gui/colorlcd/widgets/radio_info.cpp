@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "widgets_container_impl.h"
+#include "theme.h"
 
 #define W_AUDIO_X 0
 #define W_USB_X 32
@@ -192,19 +193,7 @@ class DateTimeWidget: public Widget
     {
       // get color from options
       LcdFlags color = COLOR2FLAGS(persistentData->options[0].value.unsignedValue);
-
-      const TimerOptions timerOptions = {.options = SHOW_TIME}; 
-      struct gtm t;
-      gettime(&t);
-      char str[10];
-#if defined(TRANSLATIONS_CN) || defined(TRANSLATIONS_TW) 
-      sprintf(str, "%02d-%02d", t.tm_mon + 1, t.tm_mday);
-#else
-      sprintf(str, "%d %s", t.tm_mday, STR_MONTHS[t.tm_mon]);
-#endif
-      dc->drawText(width()/2+DT_OFFSET, 3, str, FONT(XS) | CENTERED | color);
-      getTimerString(str, getValue(MIXSRC_TX_TIME), timerOptions);
-      dc->drawText(width()/2+DT_OFFSET, 18, str, FONT(XS) | CENTERED | color);
+      EdgeTxTheme::instance()->drawMenuDatetime(dc, width()/2+DT_OFFSET, 3, color);
     }
 
     void checkEvents() override

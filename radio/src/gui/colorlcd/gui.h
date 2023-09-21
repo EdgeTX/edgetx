@@ -28,7 +28,6 @@
 #include "popups.h"
 #include "draw_functions.h"
 #include "bitmaps.h"
-#include "theme.h"
 
 #define LOAD_MODEL_BITMAP()
 

@@ -205,6 +205,8 @@ class Window
     virtual bool isWidgetsContainer() { return false; }
     virtual bool isBubblePopup() { return false; }
 
+    virtual bool isBubblePopup() { return false; }
+
   protected:
     static std::list<Window*> trash;
 

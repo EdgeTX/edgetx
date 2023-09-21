@@ -27,6 +27,7 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "widget.h"
+#include "theme.h"
 
 #include "lua_api.h"
 #include "api_colorlcd.h"
@@ -971,7 +972,7 @@ static int luaLcdSetColor(lua_State *L)
   if (index < LCD_COLOR_COUNT && lcdColorTable[index] != color) {
     lcdColorTable[index] = color;
     if (index != CUSTOM_COLOR_INDEX)
-      EdgeTxTheme::instance()->update(false);
+      EdgeTxTheme::instance()->update();
   }
   return 0;
 }

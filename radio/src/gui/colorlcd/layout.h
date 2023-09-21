@@ -52,9 +52,6 @@ class LayoutFactory
 
   virtual const uint8_t* getBitmap() const = 0;
 
-  virtual void drawThumb(BitmapBuffer* dc, uint16_t x, uint16_t y,
-                         LcdFlags flags) const = 0;
-
   virtual const ZoneOption* getOptions() const = 0;
 
   virtual WidgetsContainer* create(Window* parent,

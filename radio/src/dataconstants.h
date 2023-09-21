@@ -597,6 +597,7 @@ enum Functions {
   FUNC_DISABLE_TOUCH,
   FUNC_SET_SCREEN,
 #endif
+  FUNC_DISABLE_AUDIO_AMP,
 #if defined(DEBUG)
   FUNC_TEST,  // should remain the last before MAX as not added in Companion
 #endif

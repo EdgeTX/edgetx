@@ -229,6 +229,7 @@ static void SetSysClock(void);
 void SystemInit(void)
 {
 #if defined(PCBFLYSKY)
+  extern void backlightLowInit( void );
   backlightLowInit();
 #endif
   /* FPU settings ------------------------------------------------------------*/

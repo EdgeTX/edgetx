@@ -25,6 +25,7 @@
 #include "widget_settings.h"
 #include "view_main.h"
 #include "lcd.h"
+#include "theme.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "touch.h"

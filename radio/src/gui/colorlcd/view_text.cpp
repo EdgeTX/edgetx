@@ -213,8 +213,6 @@ void ViewTextWindow::onEvent(event_t event)
 #endif
 }
 
-static void checkbox_event_handler(lv_event_t* e);
-
 class ViewChecklistWindow : public ViewTextWindow
 {
   public:
@@ -321,7 +319,7 @@ class ViewChecklistWindow : public ViewTextWindow
 
         size_t cur = 0;
 
-        for(int i=0; i<bufSize; ++i)
+        for(size_t i=0; i<bufSize; ++i)
         {
           if (buffer[i] == '\n' || buffer[i] == '\r') {
             buffer[i] = 0;

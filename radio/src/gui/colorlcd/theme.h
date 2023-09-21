@@ -19,17 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _COLORLCD_THEME_H_
-#define _COLORLCD_THEME_H_
-
-#include <list>
-#include <vector>
-#include "zone.h"
-
-enum IconState {
-  STATE_DEFAULT,
-  STATE_PRESSED,
-};
+#pragma once
 
 // TODO: hotfix, through FatFS out of libopenui instead
 #if !defined(YAML_GENERATOR)
@@ -39,104 +29,54 @@ enum IconState {
 #endif
 
 class BitmapBuffer;
-class PageTab;
-
-#define MAX_THEME_OPTIONS              5
-
-class EdgeTxTheme;
-void registerTheme(EdgeTxTheme * theme);
-
-// YAML_GENERATOR defs
-#if !defined(USE_IDX)
-#define USE_IDX
-#endif
-
-class EdgeTxTheme;
-extern EdgeTxTheme * theme;
 
 class EdgeTxTheme
 {
   public:
-    struct PersistentData {
-      ZoneOptionValueTyped options[MAX_THEME_OPTIONS] USE_IDX;
-    };
+    EdgeTxTheme();
 
-    explicit EdgeTxTheme(const char * name, const ZoneOption * options = nullptr):
-      name(name),
-      options(options),
-      thumb(nullptr)
-    {
-      registerTheme(this);
-    }
-
-    static EdgeTxTheme * instance()
-    {
-      return theme;
-    }
-
-    inline const char * getName() const
-    {
-      return name;
-    }
+    static EdgeTxTheme * instance();
 
     const char * getFilePath(const char * filename) const;
 
-    void drawThumb(BitmapBuffer * dc, coord_t x, coord_t y, uint32_t flags);
+    void createIcons();
+    void loadColors() const;
+    void loadIcons() const;
+    virtual void load();
+    void update();
 
-    inline const ZoneOption * getOptions() const
-    {
-      return options;
-    }
+    void setBackgroundImageFileName(const char *fileName);
 
-    void init() const;
+    void drawBackground(BitmapBuffer * dc) const;
 
-    virtual void update(bool reload = true) const
-    {
-    }
+    void drawPageHeaderBackground(BitmapBuffer *dc, uint8_t icon, const char *title) const;
 
-    ZoneOptionValue * getOptionValue(unsigned int index) const;
+    void drawMenuIcon(BitmapBuffer *dc, uint8_t icon, bool checked) const;
 
-    virtual void setBackgroundImageFileName(const char *fileName)
-    {
-      strncpy(backgroundImageFileName, fileName, FF_MAX_LFN);
-      backgroundImageFileName[FF_MAX_LFN] = '\0'; // ensure string termination
-    }
+    void drawMenuDatetime(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags color) const;
 
-    virtual void load() const;
+    void drawHeaderIcon(BitmapBuffer * dc, uint8_t icon) const;
 
-    virtual void drawBackground(BitmapBuffer * dc) const;
+    void drawUsbPluggedScreen(BitmapBuffer * dc) const;
 
-    virtual void drawPageHeaderBackground(BitmapBuffer *dc, uint8_t icon,
-                                          const char *title) const = 0;
+    const BitmapBuffer * getIconMask(uint8_t index) const;
 
-    virtual void drawMenuIcon(BitmapBuffer *dc, uint8_t icon, bool checked) const = 0;
-
-    virtual void drawCheckBox(BitmapBuffer * dc, bool checked, coord_t x, coord_t y, bool focus) const;
-
-    virtual void drawHeaderIcon(BitmapBuffer * dc, uint8_t icon) const = 0;
-
-    virtual void drawUsbPluggedScreen(BitmapBuffer * dc) const;
-
-    virtual const BitmapBuffer * getIconMask(uint8_t index) const = 0;
-
-    virtual uint16_t* getDefaultColors() const = 0;
+    uint16_t* getDefaultColors() const { return defaultColors; }
 
   protected:
+    bool iconsLoaded = false;
     const char * name;
-    const ZoneOption * options;
-    BitmapBuffer * thumb;
     char backgroundImageFileName[FF_MAX_LFN + 1];
 
+    const BitmapBuffer * backgroundBitmap = nullptr;
+    const BitmapBuffer * topleftBitmap = nullptr;
+    BitmapBuffer * currentMenuBackground = nullptr;
+    BitmapBuffer ** iconMask = nullptr;
+
+    static uint16_t defaultColors[LCD_COLOR_COUNT];
+
   public:
-    static const BitmapBuffer * error;
-    static const BitmapBuffer * busy;
-    static const BitmapBuffer * shutdown;
+    const BitmapBuffer * error = nullptr;
+    const BitmapBuffer * busy = nullptr;
+    const BitmapBuffer * shutdown = nullptr;
 };
-
-EdgeTxTheme * getTheme(const char * name);
-void loadTheme(EdgeTxTheme * theme);
-void loadTheme();
-
-std::list<EdgeTxTheme *> & getRegisteredThemes();
-
-#endif // _COLORLCD_THEME_H_

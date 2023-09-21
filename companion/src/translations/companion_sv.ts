@@ -2360,6 +2360,11 @@ Vill du hämta inställningarna från en fil?</translation>
         <translation>Ställ in huvudskärm</translation>
     </message>
     <message>
+        <location filename="../firmwares/customfunctiondata.cpp" line="129"/>
+        <source>Audio Amp Off</source>
+        <translation>Audioförstärkare av</translation>
+    </message>
+    <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="371"/>
         <source>Value</source>
         <translation>Värde</translation>
