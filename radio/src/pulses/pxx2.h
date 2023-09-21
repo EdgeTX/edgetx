@@ -106,7 +106,13 @@ enum ModuleCapabilities {
 const char * getPXX2ReceiverName(uint8_t modelId);
 
 enum {
-  RECEIVER_OPTION_OTA,
+  RECEIVER_OPTION_24G,
+  RECEIVER_OPTION_900M,
+  RECEIVER_OPTION_OTA_TO_UPDATE_SELF,
+  RECEIVER_OPTION_OTA_TO_UPDATE_OTHER,
+  RECEIVER_OPTION_TANDEM,
+  RECEIVER_OPTION_TWIN,
+  RECEIVER_OPTION_D_TELE_PORT,
 };
 
 uint8_t getPXX2ReceiverOptions(uint8_t modelId);
