@@ -79,7 +79,7 @@ struct our_longjmp * global_lj = 0;
 uint32_t luaExtraMemoryUsage = 0;
 #endif
 
-#if defined(USE_TRIMS_AS_BUTTONS)
+#if defined(USE_HATS_AS_KEYS)
 static bool _is_standalone_script()
 {
   return scriptInternalData[0].reference == SCRIPT_STANDALONE;
