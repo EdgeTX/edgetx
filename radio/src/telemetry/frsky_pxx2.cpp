@@ -39,7 +39,7 @@ static const char * const PXX2ModulesNames[] = {
   "ISRM-PRO",
   "ISRM-S",
   "R9M",
-  "R9M Lit",
+  "R9M Lite",
   "R9M Lite Pro",
   "ISRM-N",
   "ISRM-S-X9",
