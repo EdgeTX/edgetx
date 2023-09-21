@@ -4,6 +4,7 @@
 #
 import os
 import sys
+
 from clang.cindex import *
 
 # Check if libclang is able to find the builtin include files.
@@ -28,6 +29,9 @@ def canFindBuiltinHeaders(index, args = []):
 # for all manual installations (the ones where the builtin header path problem
 # is very common) as well as a set of very common distributions.
 def getBuiltinHeaderPath(library_path):
+    if not library_path:
+        return None
+
     if os.path.isfile(library_path):
         library_path = os.path.dirname(library_path)
 
@@ -56,10 +60,11 @@ def getBuiltinHeaderPath(library_path):
 def findLibClang():
     if sys.platform == "darwin":
         knownPaths = [
-            "/usr/local/Cellar/llvm/6.0.0/lib",
             "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib",
             "/Library/Developer/CommandLineTools/usr/lib"
         ]
+        if Config.library_path:
+            knownPaths.insert(0, Config.library_path)
         libSuffix = ".dylib"
     elif sys.platform.startswith("linux"):
         knownPaths = [
@@ -90,17 +95,14 @@ def initLibClang():
 
     library_path = findLibClang()
     if library_path:
-        #print("libclang found: " + library_path)
+        print("libclang found: " + library_path, file=sys.stderr)
         if os.path.isdir(library_path):
             Config.set_library_path(library_path)
         else:
             Config.set_library_file(library_path)
-    else:
-        print("ERROR: libclang not found!", file=sys.stderr)
-        return False
 
     Config.set_compatibility_check(False)
-    
+
     try:
         index = Index.create()
     except Exception as e:
@@ -109,9 +111,8 @@ def initLibClang():
 
     global builtin_hdr_path
     builtin_hdr_path = getBuiltinHeaderPath(library_path)
-    if not builtin_hdr_path:
-        print("ERROR: builtin header path not found", file=sys.stderr)
-        return False
+    if builtin_hdr_path:
+        print("builtin header path found: " + builtin_hdr_path, file=sys.stderr)
 
     # Everything is OK, libclang can be used
     return True
