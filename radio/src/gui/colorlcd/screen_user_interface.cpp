@@ -126,6 +126,7 @@ void ScreenUserInterfacePage::build(FormWindow* window)
       tp->setThemeIndex(value);
       tp->applyTheme(value);
       tp->setDefaultTheme(value);
+      TabsGroup::refreshTheme();
 
       // TODO: shouldn't be necessary, would be better to send LV_EVENT_CHANGED
       window->clear();
