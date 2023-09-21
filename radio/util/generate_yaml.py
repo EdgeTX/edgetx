@@ -147,7 +147,7 @@ class FieldAST(AST_Element):
             if self.type == 'char':
                 self.type = 'string'
         else:
-            self.type = map_type(t.spelling)
+            self.type = map_type(t.get_canonical().spelling)
 
 
 class StructAST(AST_Element):
