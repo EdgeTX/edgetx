@@ -184,7 +184,7 @@
         </widget>
        </item>
        <item alignment="Qt::AlignRight">
-        <widget class="QLabel" name="label_spacer">
+        <widget class="QLabel" name="lblHatsMode">
          <property name="font">
           <font>
            <weight>50</weight>
@@ -192,7 +192,7 @@
           </font>
          </property>
          <property name="text">
-          <string/>
+          <string>Hats Mode</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -673,13 +673,6 @@ If this is checked the throttle will be reversed.  Idle will be forward, trim wi
         <widget class="QLabel" name="label_2">
          <property name="text">
           <string>Throttle trim switch</string>
-         </property>
-        </widget>
-       </item>
-	   <item row="1" column="0">
-        <widget class="QLabel" name="lblHatsMode">
-         <property name="text">
-          <string>Hats Mode</string>
          </property>
         </widget>
        </item>
