@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import os
 import sys
+import find_clang
+
 from clang.cindex import *
 
 # debug
@@ -491,23 +493,15 @@ def print_ast_node(ast_node):
 if len(sys.argv) < 2:
     bail_out(f"usage: {sys.argv[0]} [header file name] [template] [node name] [additional compile args]")
 
-CLANG_LIB_LOCATIONS = [
-    '/usr/local/Cellar/llvm/6.0.0/lib/libclang.dylib',
-    '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib',
-    '/Library/Developer/CommandLineTools/usr/lib/libclang.dylib',
-    '/usr/lib/x86_64-linux-gnu/libclang-6.0.so.1',
-    '/usr/lib/aarch64-linux-gnu/libclang-6.0.so.1'
-]
+if not find_clang.initLibClang():
+    sys.exit(-1)
 
-# set clang lib file
-for lib in CLANG_LIB_LOCATIONS:
-    if os.path.exists(lib):
-        Config.set_library_file(lib)
-        break
+index = find_clang.index
+args = ['-x', 'c++', '-std=c++11', '-Wno-deprecated-register'] + sys.argv[4:]
+if find_clang.builtin_hdr_path:
+    args.append("-I" + find_clang.builtin_hdr_path)
 
-# compile source file
-index = Index.create()
-translation_unit = index.parse(sys.argv[1], ['-x', 'c++', '-std=c++11', '-Wno-deprecated-register'] + sys.argv[4:])
+translation_unit = index.parse(sys.argv[1], args)
 
 def show_tu_diags(diags, prefix=''):
     tu_errors =  0
