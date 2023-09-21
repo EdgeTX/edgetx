@@ -3304,15 +3304,6 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
       internalField.Append(new ZCharField<10>(this, generalData.bluetoothName, "Bluetooth name"));
   }
 
-  if (IS_FAMILY_HORUS_OR_T16(board)) {
-    if (version >= 220) {   //  data from earlier versions cannot be converted so fields initialised in afterImport
-      internalField.Append(new CharField<8>(this, generalData.themeData.themeName, true, "Theme name"));
-      for (int i = 0; i < MAX_THEME_OPTIONS; i++) {
-        internalField.Append(new ZoneOptionValueTypedField(this, generalData.themeData.themePersistentData.options[i], board, version));
-      }
-    }
-  }
-
   if (version >= 220) {
     internalField.Append(new CharField<8>(this, generalData.registrationId, "ACCESS Registration ID"));
   }
@@ -3357,13 +3348,6 @@ void OpenTxGeneralData::beforeExport()
 
 void OpenTxGeneralData::afterImport()
 {
-  if (IS_FAMILY_HORUS_OR_T16(board)) {
-    if (version < 220) {    //  re-initialise as no conversion possible
-      const char * themeName = IS_FLYSKY_NV14(board) ? "FlySky" : "EdgeTX";
-      RadioTheme::init(themeName, generalData.themeData);
-    }
-  }
-
   if (Boards::getCapability((Board::Type)generalData.variant,
                             Board::SportMaxBaudRate) >= 400000)
     generalData.internalModuleBaudrate =

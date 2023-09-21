@@ -31,7 +31,6 @@
 */
 
 constexpr int MAX_CUSTOM_SCREENS      {10};
-constexpr int THEME_NAME_LEN          {8};
 constexpr int MAX_THEME_OPTIONS       {5};
 constexpr int LEN_ZONE_OPTION_STRING  {8};
 constexpr int MAX_LAYOUT_ZONES        {10};
@@ -145,23 +144,6 @@ typedef WidgetsContainerPersistentData<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS>
 
 typedef WidgetsContainerPersistentData<MAX_TOPBAR_ZONES, MAX_TOPBAR_OPTIONS>
     TopBarPersistentData;
-
-class RadioTheme
-{
-  Q_DECLARE_TR_FUNCTIONS(RadioTheme)
-
-  public:
-    struct PersistentData {
-      ZoneOptionValueTyped options[MAX_THEME_OPTIONS];
-    };
-
-    struct ThemeData {
-      char themeName[THEME_NAME_LEN + 1];
-      PersistentData themePersistentData;
-    };
-
-    static void init(const char * themeName, ThemeData & themeData);
-};
 
 class RadioLayout
 {

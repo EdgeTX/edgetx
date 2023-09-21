@@ -277,8 +277,6 @@ class GeneralSettings {
     char sliderName[CPN_MAX_SLIDERS][HARDWARE_NAME_LEN + 1];
     unsigned int sliderConfig[CPN_MAX_SLIDERS];
 
-    RadioTheme::ThemeData themeData;
-
     char registrationId[REGISTRATION_ID_LEN + 1];
     int gyroMax;
     int gyroOffset;

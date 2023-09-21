@@ -23,6 +23,7 @@
 #include "lcd.h"
 #include "theme_manager.h"
 #include "libopenui.h"
+#include "theme.h"
 
 #include "watchdog_driver.h"
 

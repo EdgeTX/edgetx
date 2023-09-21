@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "view_main.h"
 #include "topbar_impl.h"
+#include "theme.h"
 
 WidgetsContainer * customScreens[MAX_CUSTOM_SCREENS] = {};
 
