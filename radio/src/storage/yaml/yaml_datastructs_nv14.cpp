@@ -104,7 +104,6 @@ const struct YamlIdStr enum_MixerMultiplex[] = {
 };
 const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_NONE, "NONE"  },
-
   {  MIXSRC_MIN, "MIN"  },
   {  MIXSRC_MAX, "MAX"  },
   {  MIXSRC_TrimRud, "TrimRud"  },
