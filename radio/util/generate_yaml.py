@@ -160,7 +160,7 @@ class StructAST(AST_Element):
         if len(alt_name) > 0:
             name = alt_name
 
-        if name == '':
+        if name == '' or (isinstance(cursor,Cursor) and cursor.is_anonymous()):
             name = self.name_prefix() + 'anonymous_' + get_next_anon()
         else:
             name = self.name_prefix() + name
