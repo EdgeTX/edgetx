@@ -62,7 +62,7 @@
 #define TR_MULTI_CUSTOM                "Настроенный"
 #define TR_VTRIMINC                    TR("Экспо","Экспоненциальный"),TR("Очень мелко","Очень мелко"),"Мелко","Средне","Грубо"
 #define TR_VDISPLAYTRIMS               "Нет","Изменить","Да"
-#define TR_VBEEPCOUNTDOWN              "Без звука", "Сигналы", "Голос", "Вибрация", TR2_2("Звук и вибрация", "Сигналы и вибрация"), TR2_2("Голос и вибрация", "Голос и вибрация")
+#define TR_VBEEPCOUNTDOWN              "Без звука", "Сигнал", "Голос", "Вибро", TR2_2("Звук и вибрация", "Сигнал и вибро"), TR2_2("Голос и вибро", "Голос и вибро")
 #define TR_COUNTDOWNVALUES             "5с","10с","20с","30с"
 #define TR_VVARIOCENTER                "Тон","тихо"
 #define TR_CURVE_TYPES                 "Стандарт","Выбор"
@@ -317,7 +317,7 @@
 #else
 #define TR_GV                          TR("G", "GV")
 #endif
-#define TR_RANGE                       INDENT "Диапазон"
+#define TR_RANGE                       INDENT "Диапаз"
 #define TR_CENTER                      INDENT "Центр"
 #define TR_ALARM                       "Сигнал тревоги"
 #define TR_BLADES                      "Blades/Poles"
@@ -346,7 +346,7 @@
 #define TR_USB_STILL_CONNECTED         "USB Еще подключен"
 #define TR_MODEL_SHUTDOWN              "Отключение?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Нажмите enter Для подтверждения"
-#define TR_THROTTLE_LABEL              "THROTTLE"
+#define TR_THROTTLE_LABEL              "ГАЗ"
 #define TR_THROTTLE_START              "Газ cтарт"
 #define TR_THROTTLEREVERSE             TR("Д-Реверс", INDENT "Реверс")
 #define TR_MINUTEBEEP                  TR("Минут", "Звонок минуты")
@@ -364,10 +364,10 @@
 #define TR_PLAY_HELLO                  "Звук Запуска"
 #define TR_PWR_ON_DELAY                "Время Включения"
 #define TR_PWR_OFF_DELAY               "Время Выключения"
-#define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "Throttle state")
+#define TR_THROTTLE_WARNING            TR(INDENT "Г-Предупр", INDENT "статистика газа")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Свое-Пол", INDENT INDENT INDENT INDENT "Свое Положение?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Пол. %", "Положение %")
-#define TR_SWITCHWARNING               TR(INDENT "S-Warning", INDENT "Switch positions")
+#define TR_SWITCHWARNING               TR(INDENT "П-Предупр", INDENT "Позиция переключателя")
 #define TR_POTWARNINGSTATE             TR(INDENT "Состояние потенциометров и слайдеров", INDENT "Потенциометры и слайдеры")
 #define TR_SLIDERWARNING               TR(INDENT "Полож. Перек.", INDENT "Положение Переключателя")
 #define TR_POTWARNING                  TR(INDENT "Предупр. о положении потенциометра", INDENT "Положение потенциометра")
@@ -388,8 +388,8 @@
 #define TR_CALIB_DONE                  "Калибровка Завершена"
 #if defined(PCBHORUS)
   #define TR_MENUTOSTART               "Надмите [Enter] Для Продолжения"
-  #define TR_SETMIDPOINT               "По Центру стики/потен/Слайдеры и нажмите [Enter]"
-  #define TR_MOVESTICKSPOTS            "Двигайте стики/потен/Слайдеры и нажмите [Enter]"
+  #define TR_SETMIDPOINT               "По Центру стики/потен/слайдеры и нажмите [Enter]"
+  #define TR_MOVESTICKSPOTS            "Двигайте стики/потен/слайдеры и нажмите [Enter]"
 #elif defined(COLORLCD)
   #define TR_MENUTOSTART               TR_ENTER " Начать"
   #define TR_SETMIDPOINT               "ЦЕНТРИРОВАТЬ СТИКИ/СЛАЙДЕРЫ"
@@ -623,15 +623,15 @@
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
 #define TR_INCOMPATIBLE                "Несовместимый"
-#define TR_WARNING                     "ВНИМАНИЕ"
+#define TR_WARNING                     "WARNING"
 #define TR_EEPROMWARN                  "EEPROM"
 #define TR_STORAGE_WARNING             "ПАМЯТЬ"
 #define TR_EEPROM_CONVERTING           "Преобразование EEPROM"
 #define TR_SDCARD_CONVERSION_REQUIRE   "Требуется конвертация карты SD"
 #define TR_CONVERTING                  "Преобразование: "
-#define TR_THROTTLE_UPPERCASE          "Газ"
+#define TR_THROTTLE_UPPERCASE          "THROTTLE"
 #define TR_ALARMSWARN                  "СИГНАЛЫ"
-#define TR_SWITCHWARN                  TR("ПЕРЕКЛЮЧАТЕЛЬ", "УПРАВЛЕНИЕ")
+#define TR_SWITCHWARN                  TR("SWITCH", "УПРАВЛЕНИЕ")
 #define TR_FAILSAFEWARN                "СБОЙ БЕЗОПАСНОСТИ"
 #define TR_TEST_WARNING                TR("ТЕСТИРОВАНИЕ", "ТЕСТОВАЯ ВЕРСИЯ")
 #define TR_TEST_NOTSAFE                "Используйте только для тестов"
@@ -888,7 +888,7 @@
 #define TR_MODULE_PROTOCOL_EU_WARN_LINE1     "Требует EU"
 #define TR_MODULE_PROTOCOL_WARN_LINE2        "Сертифицированное ПО"
 #define TR_LOWALARM                    INDENT "Низкий сигнал"
-#define TR_CRITICALALARM               INDENT "Критический сигнал"
+#define TR_CRITICALALARM               INDENT "Критич сигнал"
 #define TR_RSSIALARM_WARN              "RSSI"
 #define TR_NO_RSSIALARM                TR(INDENT "Отключены сигналы", "Отключены сигналы телеметрии")
 #define TR_DISABLE_ALARM               TR(INDENT "Отключить сигналы", INDENT "Отключить сигналы телеметрии")
@@ -1206,15 +1206,15 @@
 
 #define TR_USBJOYSTICK_LABEL           "USB Джойстик"
 #define TR_USBJOYSTICK_EXTMODE         "Режим"
-#define TR_VUSBJOYSTICK_EXTMODE        "Классический","Расширенный"
+#define TR_VUSBJOYSTICK_EXTMODE        "Обычный","Расширенный"
 #define TR_USBJOYSTICK_SETTINGS        "Настройки канала"
-#define TR_USBJOYSTICK_IF_MODE         TR("Интерфейсный режим","Режим интерфейса")
+#define TR_USBJOYSTICK_IF_MODE         TR("Интерфейс","Режим интерфейса")
 #define TR_VUSBJOYSTICK_IF_MODE        "Джойстик","Геймпад","Многозонный"
 #define TR_USBJOYSTICK_CH_MODE         "Режим"
 #define TR_VUSBJOYSTICK_CH_MODE        "Нет","Кнопка","Ось","Симуляция"
 #define TR_VUSBJOYSTICK_CH_MODE_S      "-","B","A","S"
 #define TR_USBJOYSTICK_CH_BTNMODE      "Режим Кнопки"
-#define TR_VUSBJOYSTICK_CH_BTNMODE     "Обычный","Импульсный","Эмуляция переключателя","Дельта","Компаньон"
+#define TR_VUSBJOYSTICK_CH_BTNMODE     "Обычный","Импульс","Эмул перек","Дельта","Компаньон"
 #define TR_VUSBJOYSTICK_CH_BTNMODE_S   TR("Norm","Normal"),TR("Puls","Pulse"),TR("SWEm","SWEmul"),TR("Delt","Delta"),TR("CPN","Companion")
 #define TR_USBJOYSTICK_CH_SWPOS        "Положения"
 #define TR_VUSBJOYSTICK_CH_SWPOS       "Нажатие","2-поз","3-поз","4-поз","5-поз","6-поз","7-поз","8-поз"
@@ -1224,7 +1224,7 @@
 #define TR_VUSBJOYSTICK_CH_SIM         "Аилерон","Высота","Руль","Газ"
 #define TR_USBJOYSTICK_CH_INVERSION    "Инверсия"
 #define TR_USBJOYSTICK_CH_BTNNUM       "Номер кнопки"
-#define TR_USBJOYSTICK_BTN_COLLISION   "!Конфликт номеров кнопок!"
+#define TR_USBJOYSTICK_BTN_COLLISION   "!Конфликт ном кнопок!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!Конфликт осей!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Круг. вырез", "Круглый вырез")
 #define TR_VUSBJOYSTICK_CIRC_COUTOUT   "нет","X-Y, Z-rotX","X-Y, rotX-rotY"
