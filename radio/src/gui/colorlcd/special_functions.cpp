@@ -136,7 +136,7 @@ class SpecialFunctionEditPage : public Page
           else if (value == MAX_STICKS + 1)
             return std::string(STR_CHANS);
 
-          return std::string(getMainControlLabel(value));
+          return std::string(getMainControlLabel(value - 1));
         });
         break;
       }
