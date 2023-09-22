@@ -63,5 +63,3 @@ AboutUs::AboutUs() :
   lv_obj_set_pos(qr, (content->width() - 150) / 2, TOP_PADDING + (NUM_LINES * PAGE_LINE_HEIGHT) - 5);
   lv_qrcode_update(qr, edgetx_url.c_str(), edgetx_url.length());
 }
-
-AboutUs::~AboutUs() { delete qrcode; }
