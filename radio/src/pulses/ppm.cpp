@@ -98,6 +98,21 @@ static uint32_t setupPulsesPPMModule(uint8_t module, pulse_duration_t*& data)
   return data - start;
 }
 
+static const etx_serial_init ppmSportSerialParams = {
+    .baudrate = FRSKY_SPORT_BAUDRATE,
+    .encoding = ETX_Encoding_8N1,
+    .direction = ETX_Dir_RX,
+    .polarity = ETX_Pol_Normal,
+};
+
+static void ppmProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
+{
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  processFrskySportTelemetryData(module, data, buffer, *len);
+}
+
 static void* ppmInit(uint8_t module)
 {
 #if defined(HARDWARE_INTERNAL_MODULE)
@@ -115,6 +130,7 @@ static void* ppmInit(uint8_t module)
   auto mod_st = modulePortInitTimer(module, ETX_MOD_PORT_TIMER, &cfg);
   if (!mod_st) return nullptr;
 
+  modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &ppmSportSerialParams);
   mixerSchedulerSetPeriod(module, PPM_PERIOD(module));
   return (void*)mod_st;  
 }
@@ -158,7 +174,7 @@ const etx_proto_driver_t PpmDriver = {
   .init = ppmInit,
   .deinit = ppmDeInit,
   .sendPulses = ppmSendPulses,
-  .processData = nullptr,
+  .processData = ppmProcessData,
 };
 
 //
