@@ -62,11 +62,6 @@ class ThemeView : public FormWindow
       padAll(0);
       setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
 
-      update();
-    }
-
-    void update()
-    {
       auto tp = ThemePersistance::instance();
       auto theme = tp->getCurrentTheme();
 
@@ -166,7 +161,10 @@ void ScreenUserInterfacePage::build(FormWindow* window)
       tp->applyTheme(value);
       tp->setDefaultTheme(value);
       TabsGroup::refreshTheme();
-      themeView->update();
+
+      // Force redraw to ensure all items are updated with new theme colors
+      window->clear();
+      build(window);
   });
 
   grid.setColSpan(2);
