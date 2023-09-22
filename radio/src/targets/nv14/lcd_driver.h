@@ -70,8 +70,6 @@
 #define LCD_DOTCLK_PIN      ( LL_GPIO_PIN_7 )
 #define PIN_LCD_DOTCLK      ( 7 )
 
-#define SUPPORTED_LCD_CNT   ( 5 )
-
 #define LCD_ST7796S_ID      ( 0x7796 )
 #define LCD_ILI9481_ID      ( 0x9481 )
 #define LCD_ILI9486_ID      ( 0x9486 )
