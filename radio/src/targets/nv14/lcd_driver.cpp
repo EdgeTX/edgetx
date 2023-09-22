@@ -84,33 +84,6 @@ enum ENUM_IO_MODE
     IO_MODE_ANALOG
 };
 
-
-void GPIO_SetDirection( GPIO_TypeDef *GPIOx, unsigned char Pin, unsigned char IsInput )
-{
-  unsigned int Mask;
-  unsigned int Position;
-  unsigned int Register;
-
-
-  Position = Pin << 1;
-  Mask = ~( 0x03UL << Position );
-
-  //EnterCritical();
-  Register = GPIOx->OSPEEDR & Mask;
-  Register |= IO_SPEED_HIGH << Position;
-  GPIOx->OSPEEDR = Register;
-  //ExitCritical();
-
-  //EnterCritical();
-  Register = GPIOx->MODER & Mask;
-  if( !IsInput )
-  {
-      Register |= IO_MODE_OUTPUT << Position;
-  }
-
-  GPIOx->MODER = Register;
-  //ExitCritical();
-}
 static void LCD_AF_GPIOConfig(void) {
   LL_GPIO_InitTypeDef GPIO_InitStructure;
   LL_GPIO_StructInit(&GPIO_InitStructure);
@@ -171,7 +144,7 @@ static void lcdSpiConfig(void) {
   LL_GPIO_Init(LCD_NRST_GPIO, &GPIO_InitStructure);
 
   /* Set the chip select pin aways low */
-  CLR_LCD_CS();
+  LCD_CS_LOW();
 }
 
 void lcdDelay() {
@@ -182,25 +155,25 @@ unsigned char LCD_ReadByteOnFallingEdge(void) {
   unsigned int i;
   unsigned char ReceiveData = 0;
 
-  SET_LCD_DATA();
-  SET_LCD_DATA_INPUT();
+  LCD_MOSI_HIGH();
+  LCD_MOSI_AS_INPUT();
 
   for (i = 0; i < 8; i++) {
     LCD_DELAY();
-    SET_LCD_CLK();
+    LCD_SCK_HIGH();
     LCD_DELAY();
     LCD_DELAY();
     ReceiveData <<= 1;
 
-    CLR_LCD_CLK();
+    LCD_SCK_LOW();
     LCD_DELAY();
     LCD_DELAY();
-    if (READ_LCD_DATA_PIN()) {
+    if (LCD_READ_DATA_PIN()) {
       ReceiveData |= 0x01;
     }
   }
 
-  SET_LCD_DATA_OUTPUT();
+  LCD_MOSI_AS_OUTPUT();
 
   return (ReceiveData);
 }
@@ -241,22 +214,22 @@ unsigned char LCD_ReadByte(void) {
   unsigned int i;
   unsigned char ReceiveData = 0;
 
-  SET_LCD_DATA();
-  SET_LCD_DATA_INPUT();
+  LCD_MOSI_HIGH();
+  LCD_MOSI_AS_INPUT();
   for (i = 0; i < 8; i++) {
-    CLR_LCD_CLK();
+    LCD_SCK_LOW();
     LCD_DELAY();
     LCD_DELAY();
     ReceiveData <<= 1;
-    SET_LCD_CLK();
+    LCD_SCK_HIGH();
     LCD_DELAY();
     LCD_DELAY();
-    if (READ_LCD_DATA_PIN()) {
+    if (LCD_READ_DATA_PIN()) {
       ReceiveData |= 0x01;
     }
   }
-  CLR_LCD_CLK();
-  SET_LCD_DATA_OUTPUT();
+  LCD_SCK_LOW();
+  LCD_MOSI_AS_OUTPUT();
   return (ReceiveData);
 }
 
@@ -1103,12 +1076,11 @@ unsigned int LCD_ST7796S_ReadID(void) {
 
   lcdWriteCommand( 0XD3 );
 
-  SET_LCD_CLK_OUTPUT();
-  SET_LCD_DATA_INPUT();
-  CLR_LCD_CLK();
+  LCD_MOSI_AS_INPUT();
+  LCD_SCK_LOW();
   LCD_DELAY();
   LCD_DELAY();
-  SET_LCD_CLK();
+  LCD_SCK_HIGH();
   LCD_DELAY();
   LCD_DELAY();
 
