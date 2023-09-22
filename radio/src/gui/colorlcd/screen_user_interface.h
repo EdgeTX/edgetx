@@ -24,6 +24,7 @@
 #include "tabsgroup.h"
 
 class ScreenMenu;
+class ThemeView;
 
 class ScreenUserInterfacePage : public PageTab
 {
@@ -34,4 +35,5 @@ class ScreenUserInterfacePage : public PageTab
 
  protected:
   ScreenMenu* menu;
+  ThemeView* themeView = nullptr;
 };

@@ -24,37 +24,6 @@
 #include "file_preview.h"
 #include "menu_screen.h"
 
-struct ThemeDetails : public Window {
-  ThemeDetails(Window* parent, ThemeFile* theme) : Window(parent, rect_t{})
-  {
-    // vertical flow layout
-    lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_style_pad_row(lvobj, 2, LV_PART_MAIN);
-
-    // make the object fill the grid cell
-    lv_obj_set_style_grid_cell_x_align(lvobj, LV_GRID_ALIGN_STRETCH, 0);
-
-    // TODO: translation
-    new StaticText(this, rect_t{}, "Author", 0,
-                   COLOR_THEME_PRIMARY1 | FONT(BOLD));
-    auto txt = new StaticText(this, rect_t{}, theme->getAuthor(), 0,
-                              COLOR_THEME_PRIMARY1);
-
-    // labels default to LV_SIZE_CONTENT,
-    // which could overflow the width avail
-    auto obj = txt->getLvObj();
-    lv_obj_set_width(obj, lv_pct(100));
-
-    // TODO: translation
-    new StaticText(this, rect_t{}, "Description", 0,
-                   COLOR_THEME_PRIMARY1 | FONT(BOLD));
-    txt = new StaticText(this, rect_t{}, theme->getInfo(), 0,
-                         COLOR_THEME_PRIMARY1);
-    obj = txt->getLvObj();
-    lv_obj_set_width(obj, lv_pct(100));
-  }
-};
-
 #if LCD_W > LCD_H // landscape
 
 // form grid
@@ -84,6 +53,76 @@ static const lv_coord_t theme_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
 
 constexpr coord_t MAX_PREVIEW_WIDTH = (100 * LV_DPI_DEF) / 57;
 constexpr coord_t MAX_PREVIEW_HEIGHT = LV_DPI_DEF;
+
+class ThemeView : public FormWindow
+{
+  public:
+    ThemeView(Window* parent) : FormWindow(parent, rect_t{})
+    {
+      padAll(0);
+      setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
+
+      update();
+    }
+
+    void update()
+    {
+      auto tp = ThemePersistance::instance();
+      auto theme = tp->getCurrentTheme();
+
+      if (theme) {
+        if (!details) {
+          FlexGridLayout theme_grid(theme_col_dsc, theme_row_dsc);
+          auto line = newLine(&theme_grid);
+
+          details = new Window(line, rect_t{});
+          // vertical flow layout
+          lv_obj_set_flex_flow(details->getLvObj(), LV_FLEX_FLOW_COLUMN);
+          lv_obj_set_style_pad_row(details->getLvObj(), 2, LV_PART_MAIN);
+
+          // make the object fill the grid cell
+          lv_obj_set_style_grid_cell_x_align(details->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
+
+          new StaticText(details, rect_t{}, STR_AUTHOR, 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+          author = new StaticText(details, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+
+          // labels default to LV_SIZE_CONTENT,
+          // which could overflow the width avail
+          lv_obj_set_width(author->getLvObj(), lv_pct(100));
+
+          new StaticText(details, rect_t{}, STR_DESCRIPTION, 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+          description = new StaticText(details, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+
+          lv_obj_set_width(description->getLvObj(), lv_pct(100));
+
+          preview = new FilePreview(line, rect_t{}, false);
+
+          // center within cell
+          lv_obj_set_style_grid_cell_x_align(preview->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
+        }
+
+        author->setText(theme->getAuthor());
+        description->setText(theme->getInfo());
+
+        auto themeImage = theme->getThemeImageFileNames();
+        if (themeImage.size() > 0) {
+          preview->setFile(themeImage[0].c_str());
+
+          // adjust width according to max
+          preview->setWidth(min(MAX_PREVIEW_WIDTH, preview->getBitmapWidth()));
+          preview->setHeight(min(MAX_PREVIEW_HEIGHT, preview->getBitmapHeight()));
+        } else {
+          preview->setFile("");
+        }
+      }
+    }
+
+  protected:
+    Window* details = nullptr;
+    FilePreview* preview = nullptr;
+    StaticText* author = nullptr;
+    StaticText* description = nullptr;
+};
 
 ScreenUserInterfacePage::ScreenUserInterfacePage(ScreenMenu* menu):
   PageTab(STR_USER_INTERFACE, ICON_THEME_SETUP),
@@ -126,36 +165,12 @@ void ScreenUserInterfacePage::build(FormWindow* window)
       tp->setThemeIndex(value);
       tp->applyTheme(value);
       tp->setDefaultTheme(value);
-
-      // TODO: shouldn't be necessary, would be better to send LV_EVENT_CHANGED
-      window->clear();
-      build(window);
+      TabsGroup::refreshTheme();
+      themeView->update();
   });
 
-  auto theme = tp->getCurrentTheme();
-  FilePreview* preview = nullptr;
-
-  if (theme) {
-    FlexGridLayout theme_grid(theme_col_dsc, theme_row_dsc);
-    line = window->newLine(&theme_grid);
-
-    new ThemeDetails(line, theme);
-
-    auto themeImage = theme->getThemeImageFileNames();
-    if (themeImage.size() > 0) {
-      preview = new FilePreview(line, rect_t{}, false);
-      preview->setFile(themeImage[0].c_str());
-
-      // adjust width according to max
-      preview->setWidth(min(MAX_PREVIEW_WIDTH, preview->getBitmapWidth()));
-      preview->setHeight(min(MAX_PREVIEW_HEIGHT, preview->getBitmapHeight()));
-
-      // center within cell
-      auto obj = preview->getLvObj();
-      lv_obj_set_style_grid_cell_x_align(obj, LV_GRID_ALIGN_CENTER, 0);
-    }
-  }
-
-  window->updateSize();
+  grid.setColSpan(2);
+  line = window->newLine(&grid);
+  themeView = new ThemeView(line);
 }
 
