@@ -83,7 +83,6 @@ class ThemeView : public FormWindow
           // make the object fill the grid cell
           lv_obj_set_style_grid_cell_x_align(details->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
 
-          // TODO: translation
           new StaticText(details, rect_t{}, STR_AUTHOR, 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
           author = new StaticText(details, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
 
@@ -91,7 +90,6 @@ class ThemeView : public FormWindow
           // which could overflow the width avail
           lv_obj_set_width(author->getLvObj(), lv_pct(100));
 
-          // TODO: translation
           new StaticText(details, rect_t{}, STR_DESCRIPTION, 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
           description = new StaticText(details, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
 

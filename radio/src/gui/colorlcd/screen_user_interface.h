@@ -28,12 +28,12 @@ class ThemeView;
 
 class ScreenUserInterfacePage : public PageTab
 {
-   public:
-    ScreenUserInterfacePage(ScreenMenu* menu);
+ public:
+  ScreenUserInterfacePage(ScreenMenu* menu);
 
-    void build(FormWindow* window) override;
+  void build(FormWindow* window) override;
 
-  protected:
-    ScreenMenu* menu;
-    ThemeView* themeView = nullptr;
+ protected:
+  ScreenMenu* menu;
+  ThemeView* themeView = nullptr;
 };
