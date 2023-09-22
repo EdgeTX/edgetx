@@ -67,7 +67,7 @@ extern lcdSpiInitFucPtr lcdOnFunction;
 #define LCD_MOSI_AS_INPUT()           SET_IO_INPUT( LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN )
 #define LCD_MOSI_AS_OUTPUT()          SET_IO_OUTPUT( LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN )
 
-#define LCD_READ_DATA_PIN()           (LL_GPIO_IsInputPinSet(LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN)
+#define LCD_READ_DATA_PIN()           LL_GPIO_IsInputPinSet(LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN)
 
 
 #if 1
