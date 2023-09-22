@@ -109,23 +109,6 @@ static const uint8_t HID_JOYSTICK_ReportDesc[] =
 static bool isUniqueAxisType(int type) { return type < 6; }
 static bool isUniqueSimType(int type) { return true; }
 
-const uint32_t MOD_ADLER = 65521;
-
-uint32_t adler32(uint8_t *data, size_t len) 
-{
-    uint32_t a = 1, b = 0;
-    size_t index;
-    
-    // Process each byte of the data in order
-    for (index = 0; index < len; ++index)
-    {
-        a = (a + data[index]) % MOD_ADLER;
-        b = (b + a) % MOD_ADLER;
-    }
-    
-    return (b << 16) | a;
-}
-
 int usbJoystickExtMode()
 {
   return g_model.usbJoystickExtMode;
@@ -148,7 +131,7 @@ int usbJoystickSettingsChanged()
     return true;
 
   uint32_t oldChecksum = settingsChecksum;
-  settingsChecksum = adler32((uint8_t*)&g_model.usbJoystickCh, sizeof(g_model.usbJoystickCh));
+  settingsChecksum = hash((uint8_t*)&g_model.usbJoystickCh, sizeof(g_model.usbJoystickCh));
   
   return oldChecksum != settingsChecksum;
 }
@@ -180,7 +163,7 @@ int setupUSBJoystick()
 
   // properties to detect change
   uint8_t oldHIDReportDescSize = _hidReportDescSize;
-  uint32_t oldChecksum = adler32(_hidReportDesc, _hidReportDescSize);
+  uint32_t oldChecksum = hash(_hidReportDesc, _hidReportDescSize);
 
   // copy the model snapshot
   _usbJoystickIfMode = g_model.usbJoystickIfMode;
@@ -374,7 +357,7 @@ int setupUSBJoystick()
 
   //compare with the old description
   if (_hidReportDescSize != oldHIDReportDescSize) return true;
-  uint32_t newChecksum = adler32(_hidReportDesc, _hidReportDescSize);
+  uint32_t newChecksum = hash(_hidReportDesc, _hidReportDescSize);
   return oldChecksum != newChecksum;
 }
 
