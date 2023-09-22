@@ -1155,8 +1155,8 @@ void LCD_Init_LTDC() {
   HAL_LTDC_Init(&hltdc);
 
   // Configure IRQ (line)
-  HAL_NVIC_SetPriority(LTDC_IRQn, LTDC_IRQ_PRIO, 0);
-  HAL_NVIC_EnableIRQ(LTDC_IRQn);
+  NVIC_SetPriority(LTDC_IRQn, LTDC_IRQ_PRIO);
+  NVIC_EnableIRQ(LTDC_IRQn);
 
   // Trigger on last line
   HAL_LTDC_ProgramLineEvent(&hltdc, LCD_PHYS_H);
