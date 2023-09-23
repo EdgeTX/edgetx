@@ -289,7 +289,9 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
 
   if (params->direction & ETX_Dir_RX) {
     // IRQ based RX
-    LL_USART_EnableIT_RXNE(usart->USARTx);
+    if ((int32_t)(usart->IRQn) >= 0) {
+      LL_USART_EnableIT_RXNE(usart->USARTx);
+    }
 
     // half-duplex: start in input mode
     if (usart->set_input)
