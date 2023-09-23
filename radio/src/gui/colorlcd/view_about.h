@@ -23,9 +23,6 @@
 
 class AboutUs : public MessageDialog
 {
-  BitmapBuffer* qrcode = nullptr;
-
  public:
   AboutUs();
-  ~AboutUs();
 };
