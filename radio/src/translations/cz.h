@@ -153,8 +153,12 @@
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
-#define TR_STICK_NAMES                 "Smě", "Výš", "Pln", "Kři"
-#define TR_SURFACE_NAMES               "Smě", "Pln"
+#define TR_STICK_NAMES0                "Smě"
+#define TR_STICK_NAMES1                "Výš"
+#define TR_STICK_NAMES2                "Pln"
+#define TR_STICK_NAMES3                "Kři"
+#define TR_SURFACE_NAMES0              "Smě"
+#define TR_SURFACE_NAMES1              "Pln"
 
 #if defined(PCBNV14)
 #define  TR_RFPOWER_AFHDS2             "Defaultní","Vysoký"

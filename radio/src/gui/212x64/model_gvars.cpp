@@ -65,7 +65,7 @@ enum GVarFields {
 
 #define GVAR_2ND_COLUMN                (12*FW)
 
-static const char* _str_units[] = { "-", "%" };
+static const char* const _str_units[] = { "-", "%" };
 
 void menuModelGVarOne(event_t event)
 {

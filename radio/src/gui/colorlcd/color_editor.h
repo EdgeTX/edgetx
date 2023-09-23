@@ -75,7 +75,7 @@ protected:
   lv_obj_t* barLabels[MAX_BARS];
   lv_obj_t* barValLabels[MAX_BARS];
 
-  virtual const char** getLabelChars() { return nullptr; };
+  virtual const char* const* getLabelChars() { return nullptr; };
 
   lv_obj_t* create_bar_label(lv_obj_t* parent, lv_coord_t x, lv_coord_t y);
   lv_obj_t* create_bar_value_label(lv_obj_t* parent, lv_coord_t x, lv_coord_t y);
@@ -88,7 +88,7 @@ public:
   uint32_t getRGB() override;
 
 protected:
-  const char** getLabelChars() override;
+  const char* const* getLabelChars() override;
 };
 
 // Color editor for RGB color input
@@ -98,7 +98,7 @@ public:
   uint32_t getRGB() override;
 
 protected:
-  const char** getLabelChars() override;
+  const char* const* getLabelChars() override;
 };
 
 // Color editor that shows the system theme colors as buttons

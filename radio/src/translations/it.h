@@ -146,8 +146,12 @@
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
-#define TR_STICK_NAMES                 "Dir", "Ele", "Mot", "Ale"
-#define TR_SURFACE_NAMES               "Dir", "Mot"
+#define TR_STICK_NAMES0                "Dir"
+#define TR_STICK_NAMES1                "Ele"
+#define TR_STICK_NAMES2                "Mot
+#define TR_STICK_NAMES3                "Ale"
+#define TR_SURFACE_NAMES0              "Dir"
+#define TR_SURFACE_NAMES1              "Mot"
 
 #if defined(PCBNV14)
 #define  TR_RFPOWER_AFHDS2             "Default","Alto"

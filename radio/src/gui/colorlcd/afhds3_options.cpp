@@ -29,11 +29,11 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
 
 #define SET_DIRTY()
 
-static const char* _analog_outputs[] = { "PWM", "PPM" };
-static const char* _bus_types[] = { "iBUS OUT", "iBUS IN", "SBUS" };
-static const char* _v1_bus_types[] = { "PWM", "PPM", "SBUS", "iBUS IN", "iBUS OUT" };
-static const char* _v1_pwmfreq_types[] = { STR_ANALOG_SERVO, STR_DIGITAL_SERVO, "SR833HZ", "SFR1000HZ", STR_MULTI_CUSTOM };
-static const char* _v0_pwmfreq_types[] = { STR_ANALOG_SERVO, STR_DIGITAL_SERVO, STR_MULTI_CUSTOM };
+static const char* const _analog_outputs[] = { "PWM", "PPM" };
+static const char* const _bus_types[] = { "iBUS OUT", "iBUS IN", "SBUS" };
+static const char* const _v1_bus_types[] = { "PWM", "PPM", "SBUS", "iBUS IN", "iBUS OUT" };
+static const char* const _v1_pwmfreq_types[] = { STR_ANALOG_SERVO, STR_DIGITAL_SERVO, "SR833HZ", "SFR1000HZ", STR_MULTI_CUSTOM };
+static const char* const _v0_pwmfreq_types[] = { STR_ANALOG_SERVO, STR_DIGITAL_SERVO, STR_MULTI_CUSTOM };
 
 static const uint16_t _v1_index2pwmvalue[] = {50, 333, 2, 1, 50};
 static const uint16_t _v0_index2pwmvalue[] = {50, 333, 50};

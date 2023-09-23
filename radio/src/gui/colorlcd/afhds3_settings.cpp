@@ -23,9 +23,9 @@
 #include "afhds3_options.h"
 #include "opentx.h"
 
-static const char* _afhds3_region[] = { "CE", "FCC" };
+static const char* const _afhds3_region[] = { "CE", "FCC" };
 
-static const char* _afhds3_phy_mode[] = {
+static const char* const _afhds3_phy_mode[] = {
   // V0
   "Classic 18ch",
   "C-Fast 10ch",

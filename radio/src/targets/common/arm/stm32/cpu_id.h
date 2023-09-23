@@ -29,5 +29,5 @@ EXTERN_C(void getCPUUniqueID(char * s));
 #if defined(SIMU)
 extern const uint32_t cpu_uid[3];
 #else
-extern const uint32_t * cpu_uid;
+extern const uint32_t * const cpu_uid;
 #endif

@@ -187,7 +187,7 @@ class TSStyle
 
 static TSStyle tsStyle;
 
-static uint8_t freshBitmap[] = {
+static uint8_t const freshBitmap[] = {
   0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00,
   0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
   0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
@@ -290,7 +290,7 @@ class SensorButton : public Button {
 
       box = tsStyle.newFreshCont(lvobj);
       fresh = tsStyle.newFreshIcon(box);
-      lv_canvas_set_buffer(fresh, freshBitmap, 8, 8, LV_IMG_CF_ALPHA_8BIT);
+      lv_canvas_set_buffer(fresh, (void*)freshBitmap, 8, 8, LV_IMG_CF_ALPHA_8BIT);
       lv_obj_add_flag(fresh, LV_OBJ_FLAG_HIDDEN);
 
       valLabel = tsStyle.newValue(lvobj);
