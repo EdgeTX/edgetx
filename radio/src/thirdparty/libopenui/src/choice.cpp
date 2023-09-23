@@ -194,9 +194,10 @@ void Choice::fillMenu(Menu *menu, const FilterFct& filter)
 {
   menu->removeLines();
   auto value = _getValue();
-  
+
   int count = 0;
   int selectedIx = -1;
+  int selectedIx0 = -1;
   for (int i = vmin; i <= vmax; ++i) {
     if (filter && !filter(i)) continue;
     if (isValueAvailable && !isValueAvailable(i)) continue;
@@ -208,10 +209,19 @@ void Choice::fillMenu(Menu *menu, const FilterFct& filter)
       menu->addLineBuffered(std::to_string(i), [=]() { setValue(i); });
     }
     if (value == i) { selectedIx = count; }
+    if (i == 0) { selectedIx0 = count; }
     ++count;
   }
   menu->updateLines();
-  if (selectedIx >= 0) { menu->select(selectedIx); }
+  // Force update - in case selected row is first row
+  menu->select(-1);
+  if (selectedIx >= 0)
+    menu->select(selectedIx);
+  else if (selectedIx0 >= 0)
+    menu->select(selectedIx0);
+  else {
+    menu->select(0);
+  }
 }
 
 void Choice::openMenu()

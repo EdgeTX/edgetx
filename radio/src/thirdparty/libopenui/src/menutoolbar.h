@@ -47,11 +47,12 @@ class MenuToolbar : public Window
  protected:
   Choice* choice;
   Menu* menu;
+  typedef std::function<bool(int16_t)> FilterFct;
 
   lv_group_t* group;
 
-  void addButton(const char* picto, int16_t filtermin, int16_t filtermax);
-  bool filterMenu(MenuToolbarButton* btn, int16_t filtermin, int16_t filtermax);
+  void addButton(const char* picto, int16_t filtermin, int16_t filtermax, const FilterFct& filterFunc = nullptr);
+  bool filterMenu(MenuToolbarButton* btn, int16_t filtermin, int16_t filtermax, const FilterFct& filterFunc = nullptr);
 
   rect_t getButtonRect(size_t buttons);
 

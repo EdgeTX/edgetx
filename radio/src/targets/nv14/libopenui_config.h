@@ -32,9 +32,9 @@ constexpr uint32_t ALERT_MESSAGE_LEFT =            15;
 
 constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 176;
 constexpr coord_t INPUT_EDIT_CURVE_HEIGHT = 132;
-constexpr coord_t MENUS_LINE_HEIGHT = 40;
+constexpr coord_t MENUS_LINE_HEIGHT = 35;
 constexpr coord_t MENUS_WIDTH = 200;
-constexpr coord_t MENUS_MAX_HEIGHT = 7 * MENUS_LINE_HEIGHT - 1;
+constexpr coord_t MENUS_MAX_HEIGHT = (MENUS_LINE_HEIGHT * 10);
 
 constexpr rect_t MENUS_TOOLBAR_RECT =              { 35, (LCD_H - MENUS_MAX_HEIGHT) / 2, 50, MENUS_MAX_HEIGHT };
 

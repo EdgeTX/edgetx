@@ -511,6 +511,7 @@ void table_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
   lv_obj_add_style(obj, &styles.pad_small, LV_PART_ITEMS);
   lv_obj_add_style(obj, &styles.pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
   lv_obj_add_style(obj, &styles.bg_color_focus, LV_PART_ITEMS | LV_STATE_EDITED);
+  lv_obj_set_style_pad_ver(obj, 7, LV_PART_ITEMS);
 }
 
 void etx_keyboard_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)

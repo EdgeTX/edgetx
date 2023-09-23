@@ -40,20 +40,39 @@ class SourceChoiceMenuToolbar : public MenuToolbar
       if (modelCustomScriptsEnabled())
         addButton(STR_CHAR_LUA, MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA);
 #endif
-      addButton(STR_CHAR_STICK, MIXSRC_FIRST_STICK, MIXSRC_LAST_STICK);
+#if defined(PCBHORUS)
+      auto lastSource = MIXSRC_LAST_SPACEMOUSE;
+#elif defined(IMU)
+      auto lastSource = MIXSRC_TILT_Y;
+#else
+      auto lastSource = MIXSRC_LAST_STICK;
+#endif
+      addButton(STR_CHAR_STICK, MIXSRC_FIRST_STICK, lastSource, [=](int16_t index) {
+        if (index >= MIXSRC_FIRST_POT && index <= MIXSRC_LAST_POT)
+          return false;
+#if MAX_AXIS > 0
+        if (index >= MIXSRC_FIRST_AXIS && index <= MIXSRC_LAST_AXIS)
+          return false;
+#endif
+        return index >= MIXSRC_FIRST_STICK && index <= lastSource;
+      });
       addButton(STR_CHAR_POT, MIXSRC_FIRST_POT, MIXSRC_LAST_POT);
-      addButton(STR_CHAR_FUNCTION, MIXSRC_MIN, MIXSRC_MAX);
+      addButton(STR_CHAR_FUNCTION, MIXSRC_MIN, MIXSRC_LAST_TIMER, [=](int16_t index) {
+        return (index >= MIXSRC_MIN && index <= MIXSRC_MAX) || (index >= MIXSRC_TX_VOLTAGE && index <= MIXSRC_LAST_TIMER);
+      });
 #if defined(HELI)
       if (modelHeliEnabled())
         addButton(STR_CHAR_CYC, MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI);
 #endif
       addButton(STR_CHAR_TRIM, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM);
       addButton(STR_CHAR_SWITCH, MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH);
+      if (modelLSEnabled())
+        addButton(STR_CHAR_SWITCH, MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH);
       addButton(STR_CHAR_TRAINER, MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER);
       addButton(STR_CHAR_CHANNEL, MIXSRC_FIRST_CH, MIXSRC_LAST_CH);
 #if defined(GVARS)
       if (modelGVEnabled())
-        addButton(STR_CHAR_SLIDER, MIXSRC_LAST_GVAR, MIXSRC_FIRST_GVAR);
+        addButton(STR_CHAR_SLIDER, MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR);
 #endif
       if (modelTelemetryEnabled())
         addButton(STR_CHAR_TELEMETRY, MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM);
