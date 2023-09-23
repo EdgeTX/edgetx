@@ -34,10 +34,10 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
   SwitchChoiceMenuToolbar(SwitchChoice* choice, Menu* menu) :
       MenuToolbar(choice, menu)
   {
-    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH);
-    addButton(STR_CHAR_TRIM, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM);
-    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH);
-    addButton(STR_CHAR_TELEMETRY, SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR);
+    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, nullptr, STR_MENU_SWITCHES);
+    addButton(STR_CHAR_TRIM, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, nullptr, STR_MENU_TRIMS);
+    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH, nullptr, STR_MENU_LOGICAL_SWITCHES);
+    addButton(STR_CHAR_TELEMETRY, SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR, nullptr, STR_MENU_TELEMETRY);
 #if defined(DEBUG_LATENCY)
     auto lastSource = SWSRC_LATENCY_TOGGLE;
 #else
@@ -46,7 +46,7 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
     addButton(STR_CHAR_FUNCTION, SWSRC_TELEMETRY_STREAMING, lastSource, [=](int16_t index) {
       index = abs(index);
       return index == 0 || (index >= SWSRC_TELEMETRY_STREAMING && index <= lastSource && !(index >= SWSRC_FIRST_SENSOR && index <= SWSRC_LAST_SENSOR));
-    });
+    }, STR_MENU_OTHER);
   }
 };
 
@@ -66,6 +66,7 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
                            std::function<void(int16_t)> setValue) :
     Choice(parent, rect, vmin, vmax, getValue, setValue)
 {
+  setMenuTitle(STR_SWITCH);
   setBeforeDisplayMenuHandler([=](Menu* menu) {
     auto tb = new SwitchChoiceMenuToolbar(this, menu);
     menu->setToolbar(tb);

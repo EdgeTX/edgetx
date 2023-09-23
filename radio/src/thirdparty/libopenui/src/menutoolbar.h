@@ -51,8 +51,8 @@ class MenuToolbar : public Window
 
   lv_group_t* group;
 
-  void addButton(const char* picto, int16_t filtermin, int16_t filtermax, const FilterFct& filterFunc = nullptr);
-  bool filterMenu(MenuToolbarButton* btn, int16_t filtermin, int16_t filtermax, const FilterFct& filterFunc = nullptr);
+  void addButton(const char* picto, int16_t filtermin, int16_t filtermax, const FilterFct& filterFunc = nullptr, const char* title = nullptr);
+  bool filterMenu(MenuToolbarButton* btn, int16_t filtermin, int16_t filtermax, const FilterFct& filterFunc, const char* title);
 
   rect_t getButtonRect(size_t buttons);
 

@@ -40,18 +40,16 @@ MenuToolbarButton::MenuToolbarButton(Window* parent, const rect_t& rect,
 void MenuToolbarButton::paint(BitmapBuffer * dc)
 {
   lv_coord_t width = lv_obj_get_content_width(lvobj);
+  LcdFlags color = COLOR_THEME_PRIMARY1;
   if (checked()) {
     dc->drawSolidFilledRect(
         MENUS_TOOLBAR_BUTTON_PADDING, MENUS_TOOLBAR_BUTTON_PADDING,
-        width - 2 * MENUS_TOOLBAR_BUTTON_PADDING,
-        MENUS_TOOLBAR_BUTTON_WIDTH - 2 * MENUS_TOOLBAR_BUTTON_PADDING,
+        MENUS_TOOLBAR_BUTTON_WIDTH, MENUS_TOOLBAR_BUTTON_WIDTH,
         COLOR_THEME_FOCUS);
-    dc->drawText(width / 2, (rect.h - getFontHeight(FONT(L))) / 2 + 2,
-                 picto, FONT(L) | CENTERED | COLOR_THEME_PRIMARY2);
-  } else {
-    dc->drawText(width / 2, (rect.h - getFontHeight(FONT(L))) / 2 + 2,
-                 picto, FONT(L) | CENTERED | COLOR_THEME_PRIMARY1);
+    color = COLOR_THEME_PRIMARY2;
   }
+  dc->drawText(MENUS_TOOLBAR_BUTTON_WIDTH / 2, (rect.h - getFontHeight(FONT(L))) / 2 + 2,
+               picto, FONT(L) | CENTERED | color);
 }
 
 MenuToolbar::MenuToolbar(Choice* choice, Menu* menu) :
@@ -101,22 +99,28 @@ void MenuToolbar::onEvent(event_t event)
 
 rect_t MenuToolbar::getButtonRect(size_t buttons)
 {
-  coord_t y = buttons * (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING);
-  return {0, y, LV_PCT(100), MENUS_TOOLBAR_BUTTON_WIDTH};
+  coord_t x = (buttons & 1) * (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING);
+  coord_t y = (buttons / 2) * (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING);
+  return {x, y, MENUS_TOOLBAR_BUTTON_WIDTH, MENUS_TOOLBAR_BUTTON_WIDTH};
 }
 
 bool MenuToolbar::filterMenu(MenuToolbarButton* btn, int16_t filtermin,
-                             int16_t filtermax, const FilterFct& filterFunc)
+                             int16_t filtermax, const FilterFct& filterFunc,
+                             const char* title)
 {
   btn->check(!btn->checked());
 
   Choice::FilterFct filter = nullptr;
   if (btn->checked()) {
+    if (title)
+      menu->setTitle(title);
     filter = [=](int16_t index) {
       if (filterFunc)
         return filterFunc(index);
       return index == 0 || (abs(index) >= filtermin && abs(index) <= filtermax);
     };
+  } else {
+    menu->setTitle(choice->menuTitle);
   }
 
   choice->fillMenu(menu, filter);
@@ -137,7 +141,8 @@ static int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable
 }
 
 void MenuToolbar::addButton(const char* picto, int16_t filtermin,
-                            int16_t filtermax, const FilterFct& filterFunc)
+                            int16_t filtermax, const FilterFct& filterFunc,
+                            const char* title)
 {
   int vmin = choice->vmin;
   int vmax = choice->vmax;
@@ -152,7 +157,7 @@ void MenuToolbar::addButton(const char* picto, int16_t filtermin,
   auto button = new MenuToolbarButton(this, r, picto);
 
   button->setPressHandler(
-      std::bind(&MenuToolbar::filterMenu, this, button, filtermin, filtermax, filterFunc));
+      std::bind(&MenuToolbar::filterMenu, this, button, filtermin, filtermax, filterFunc, title));
 
   lv_group_add_obj(group, button->getLvObj());
 }

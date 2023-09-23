@@ -35,10 +35,10 @@ class SourceChoiceMenuToolbar : public MenuToolbar
     SourceChoiceMenuToolbar(SourceChoice * choice, Menu * menu):
       MenuToolbar(choice, menu)
     {
-      addButton(STR_CHAR_INPUT, MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT);
+      addButton(STR_CHAR_INPUT, MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, nullptr, STR_MENU_INPUTS);
 #if defined(LUA_MODEL_SCRIPTS)
       if (modelCustomScriptsEnabled())
-        addButton(STR_CHAR_LUA, MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA);
+        addButton(STR_CHAR_LUA, MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, nullptr, TR_MENU_LUA);
 #endif
 #if defined(PCBHORUS)
       auto lastSource = MIXSRC_LAST_SPACEMOUSE;
@@ -55,27 +55,27 @@ class SourceChoiceMenuToolbar : public MenuToolbar
           return false;
 #endif
         return index >= MIXSRC_FIRST_STICK && index <= lastSource;
-      });
-      addButton(STR_CHAR_POT, MIXSRC_FIRST_POT, MIXSRC_LAST_POT);
+      }, STR_MENU_STICKS);
+      addButton(STR_CHAR_POT, MIXSRC_FIRST_POT, MIXSRC_LAST_POT, nullptr, STR_MENU_POTS);
       addButton(STR_CHAR_FUNCTION, MIXSRC_MIN, MIXSRC_LAST_TIMER, [=](int16_t index) {
         return (index >= MIXSRC_MIN && index <= MIXSRC_MAX) || (index >= MIXSRC_TX_VOLTAGE && index <= MIXSRC_LAST_TIMER);
-      });
+      }, STR_MENU_OTHER);
 #if defined(HELI)
       if (modelHeliEnabled())
-        addButton(STR_CHAR_CYC, MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI);
+        addButton(STR_CHAR_CYC, MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, nullptr, STR_MENU_HELI);
 #endif
-      addButton(STR_CHAR_TRIM, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM);
-      addButton(STR_CHAR_SWITCH, MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH);
+      addButton(STR_CHAR_TRIM, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, nullptr, STR_MENU_TRIMS);
+      addButton(STR_CHAR_SWITCH, MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, nullptr, STR_MENU_SWITCHES);
       if (modelLSEnabled())
-        addButton(STR_CHAR_SWITCH, MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH);
-      addButton(STR_CHAR_TRAINER, MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER);
-      addButton(STR_CHAR_CHANNEL, MIXSRC_FIRST_CH, MIXSRC_LAST_CH);
+        addButton(STR_CHAR_SWITCH, MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH, nullptr, STR_MENU_LOGICAL_SWITCHES);
+      addButton(STR_CHAR_TRAINER, MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER, nullptr, STR_MENU_TRAINER);
+      addButton(STR_CHAR_CHANNEL, MIXSRC_FIRST_CH, MIXSRC_LAST_CH, nullptr, STR_MENU_CHANNELS);
 #if defined(GVARS)
       if (modelGVEnabled())
-        addButton(STR_CHAR_SLIDER, MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR);
+        addButton(STR_CHAR_SLIDER, MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, nullptr, STR_MENU_GVARS);
 #endif
       if (modelTelemetryEnabled())
-        addButton(STR_CHAR_TELEMETRY, MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM);
+        addButton(STR_CHAR_TELEMETRY, MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, nullptr, STR_MENU_TELEMETRY);
     }
 };
 
@@ -88,6 +88,7 @@ SourceChoice::SourceChoice(Window* parent, const rect_t &rect, int16_t vmin,
                            WindowFlags windowFlags, LcdFlags textFlags) :
     Choice(parent, rect, vmin, vmax, getValue, setValue)
 {
+  setMenuTitle(STR_SOURCE);
   setBeforeDisplayMenuHandler([=](Menu *menu) {
     auto tb = new SourceChoiceMenuToolbar(this, menu);
     menu->setToolbar(tb);
