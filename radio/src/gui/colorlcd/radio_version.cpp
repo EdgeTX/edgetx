@@ -100,7 +100,13 @@ class VersionDialog : public Dialog
     // define form
     auto form = &content->form;
     form->setFlexLayout();
-    
+
+    auto g = lv_group_get_default();
+    lv_group_set_editing(g, true);
+
+    lv_obj_add_flag(form->getLvObj(), LV_OBJ_FLAG_SCROLLABLE);
+    lv_group_add_obj(g, form->getLvObj());
+
     // headline "Internal module"
     new StaticText(form, rect_t{}, STR_INTERNAL_MODULE, 0, COLOR_THEME_PRIMARY1);
 
