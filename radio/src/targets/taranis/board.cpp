@@ -92,7 +92,6 @@ void boardInit()
                          LCD_RCC_AHB1Periph |
                          AUDIO_RCC_AHB1Periph |
                          BACKLIGHT_RCC_AHB1Periph |
-                         SD_RCC_AHB1Periph |
                          HAPTIC_RCC_AHB1Periph |
                          INTMODULE_RCC_AHB1Periph |
                          EXTMODULE_RCC_AHB1Periph |
@@ -110,7 +109,6 @@ void boardInit()
                          HAPTIC_RCC_APB1Periph |
                          INTERRUPT_xMS_RCC_APB1Periph |
                          TIMER_2MHz_RCC_APB1Periph |
-                         SD_RCC_APB1Periph |
                          TELEMETRY_RCC_APB1Periph |
                          MIXER_SCHEDULER_TIMER_RCC_APB1Periph |
                          BT_RCC_APB1Periph,

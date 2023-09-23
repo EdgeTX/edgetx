@@ -84,12 +84,6 @@ set(GVARS_VARIANT   1)
 set(FRSKY_VARIANT   2)
 set(3POS_VARIANT    4)
 
-set(FATFS_SRC
-  ${FATFS_DIR}/ff.c
-  ${FATFS_DIR}/ffunicode.c
-  ${FATFS_DIR}/fattime.c
-)
-
 if(PCB STREQUAL X12S OR PCB STREQUAL X10)
   include(targets/horus/CMakeLists.txt)
 elseif(PCB STREQUAL NV14)
@@ -252,9 +246,8 @@ endif()
 
 if(SDCARD)
   add_definitions(-DSDCARD)
-  include_directories(${FATFS_DIR} ${FATFS_DIR}/option)
   set(SRC ${SRC} sdcard.cpp rtc.cpp logs.cpp thirdparty/libopenui/src/libopenui_file.cpp)
-  set(FIRMWARE_SRC ${FIRMWARE_SRC} ${FATFS_SRC})
+  set(FIRMWARE_SRC ${FIRMWARE_SRC})
 endif()
 
 if(SHUTDOWN_CONFIRMATION)

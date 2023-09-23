@@ -21,33 +21,20 @@
 
 #pragma once
 
-#if defined(SIMU)
+// Called when the storage is initialized
+// 
+// Note: can be used to attach the pyhsical volume driver
+//       to the generic FatFs driver
+void storageInit();
 
-uint16_t getTmr2MHz();
-#define watchdogSuspend(timeout)
+// Called before the storage is mounted
+void storagePreMountHook();
 
-#else // SIMU
+bool storageIsPresent();
 
-#include "hal.h"
+#define SD_CARD_PRESENT() storageIsPresent()
 
-void init2MhzTimer();
-void init1msTimer();
-void stop1msTimer();
+struct diskio_driver_t;
 
-#define getTmr2MHz() TIMER_2MHz_TIMER->CNT
-
-void watchdogSuspend(uint32_t timeout);
-
-#endif
-
-#include "opentx_types.h"
-
-extern "C" volatile tmr10ms_t g_tmr10ms;
-
-static inline tmr10ms_t get_tmr10ms()
-{
-  return g_tmr10ms;
-}
-
-uint32_t timersGetMsTick();
-uint32_t timersGetUsTick();
+// returns the default storage's IO driver
+const diskio_driver_t* storageGetDefaultDriver();

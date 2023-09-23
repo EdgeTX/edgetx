@@ -19,10 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _DISK_CACHE_H_
-#define _DISK_CACHE_H_
+#pragma once
 
-#include "FatFs/diskio.h"
+#include "hal/fatfs_diskio.h"
 
 // tunable parameters
 #define DISK_CACHE_BLOCKS_NUM      32   // no cache blocks
@@ -39,23 +38,31 @@ class DiskCacheBlock;
 
 class DiskCache
 {
-  public:
-    DiskCache();
+ public:
+  DiskCache();
 
-    void clear();
+  void initialize(const diskio_driver_t* drv);
+  void clear();
 
-    DRESULT read(BYTE drv, BYTE* buff, DWORD sector, UINT count);
-    DRESULT write(BYTE drv, const BYTE* buff, DWORD sector, UINT count);
+  DRESULT read(BYTE drv, BYTE* buff, DWORD sector, UINT count);
+  DRESULT write(BYTE drv, const BYTE* buff, DWORD sector, UINT count);
 
-    const DiskCacheStats & getStats() const;
-    int getHitRate() const;
+  const DiskCacheStats& getStats() const;
+  int getHitRate() const;
 
-  private:
-    DiskCacheStats stats;
-    uint32_t lastBlock;
-    DiskCacheBlock * blocks;
+ private:
+  DiskCacheStats stats;
+  uint32_t lastBlock;
+  DiskCacheBlock* blocks;
+  const diskio_driver_t* diskDrv;
+  uint32_t sectors;
+
+  uint32_t getSectors(uint8_t lun);
 };
 
 extern DiskCache diskCache;
 
-#endif // _DISK_CACHE_H_
+DRESULT disk_cache_read(BYTE drv, BYTE* buff, DWORD sector, UINT count);
+DRESULT disk_cache_write(BYTE drv, const BYTE* buff, DWORD sector, UINT count);
+
+

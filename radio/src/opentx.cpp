@@ -23,6 +23,8 @@
 #include "io/frsky_firmware_update.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
+#include "hal/storage.h"
+
 #include "timers_driver.h"
 #include "watchdog_driver.h"
 
@@ -196,10 +198,6 @@ void per10ms()
   if (mixWarning & 1) if(((g_tmr10ms&0xFF)==  0)) AUDIO_MIX_WARNING(1);
   if (mixWarning & 2) if(((g_tmr10ms&0xFF)== 64) || ((g_tmr10ms&0xFF)== 72)) AUDIO_MIX_WARNING(2);
   if (mixWarning & 4) if(((g_tmr10ms&0xFF)==128) || ((g_tmr10ms&0xFF)==136) || ((g_tmr10ms&0xFF)==144)) AUDIO_MIX_WARNING(3);
-#endif
-
-#if defined(SDCARD) && defined(PCBTARANIS)
-  sdPoll10ms();
 #endif
 
   outputTelemetryBuffer.per10ms();

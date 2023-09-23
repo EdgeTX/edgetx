@@ -101,8 +101,8 @@ uint16_t crc16(uint8_t index, const uint8_t * buf, uint32_t len, uint16_t start)
 {
   uint16_t crc = start;
   const unsigned short * tab = crc16tab[index];
-  for (uint32_t i=0; i<len; i++) {
-    crc = (crc<<8) ^ tab[((crc>>8) ^ *buf++) & 0x00FF];
+  for (uint32_t i = 0; i < len; i++) {
+    crc = (crc << 8) ^ tab[((crc >> 8) ^ *buf++) & 0x00FF];
   }
   return crc;
 }

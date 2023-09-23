@@ -16,6 +16,7 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_DIR}/Src/stm32f2xx_ll_rcc.c
     ${STM32CUBE_DIR}/Src/stm32f2xx_ll_exti.c
     ${STM32CUBE_DIR}/Src/stm32f2xx_ll_adc.c
+    ${STM32CUBE_DIR}/Src/stm32f2xx_ll_spi.c
     # HAL drivers
     ${STM32CUBE_DIR}/Src/stm32f2xx_hal.c
     ${STM32CUBE_DIR}/Src/stm32f2xx_hal_pwr.c
@@ -51,8 +52,6 @@ add_library(stm32_stdperiph OBJECT EXCLUDE_FROM_ALL
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_gpio.c
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_dbgmcu.c
   ${STM32_STDPERIPH_DIR}/src/stm32f2xx_rcc.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_spi.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_dma.c
   )
 
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_stdperiph>)

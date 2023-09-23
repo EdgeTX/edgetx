@@ -21,33 +21,27 @@
 
 #pragma once
 
-#if defined(SIMU)
+#include "FatFs/diskio.h"
+#include <stdint.h>
 
-uint16_t getTmr2MHz();
-#define watchdogSuspend(timeout)
-
-#else // SIMU
-
-#include "hal.h"
-
-void init2MhzTimer();
-void init1msTimer();
-void stop1msTimer();
-
-#define getTmr2MHz() TIMER_2MHz_TIMER->CNT
-
-void watchdogSuspend(uint32_t timeout);
-
-#endif
-
-#include "opentx_types.h"
-
-extern "C" volatile tmr10ms_t g_tmr10ms;
-
-static inline tmr10ms_t get_tmr10ms()
+struct diskio_driver_t
 {
-  return g_tmr10ms;
-}
+  DSTATUS (*initialize)(BYTE pdrv);
 
-uint32_t timersGetMsTick();
-uint32_t timersGetUsTick();
+  DSTATUS (*status)(BYTE pdrv);
+
+  DRESULT (*read)(BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
+
+  DRESULT (*write)(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
+
+  DRESULT (*ioctl)(BYTE pdrv, BYTE cmd, void* buff);
+};
+
+// returns 1 if successful, 0 otherwise
+int fatfsRegisterDriver(const diskio_driver_t* drv, uint8_t lun);
+
+// returns a pyhsical disk driver or NULL
+const diskio_driver_t* fatfsGetDriver(uint8_t pdrv);
+
+// returns a physical LUN or 0
+uint8_t fatfsGetLun(uint8_t pdrv);

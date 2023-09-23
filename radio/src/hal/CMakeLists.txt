@@ -8,3 +8,24 @@ set(SRC ${SRC}
   hal/adc_driver.cpp
   hal/key_driver.cpp
 )
+
+include_directories(${FATFS_DIR} ${FATFS_DIR}/option)
+
+set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
+  ${CMAKE_CURRENT_SOURCE_DIR}/hal/key_driver.cpp
+)
+
+if (NOT NATIVE_BUILD)
+  set(SRC ${SRC}
+    hal/storage.cpp
+    hal/fatfs_diskio.cpp
+    ${FATFS_DIR}/ff.c
+    ${FATFS_DIR}/ffunicode.c
+  )
+  set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
+    ${CMAKE_CURRENT_SOURCE_DIR}/hal/storage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/hal/fatfs_diskio.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/${FATFS_DIR}/ff.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/${FATFS_DIR}/ffunicode.c
+  )
+endif()

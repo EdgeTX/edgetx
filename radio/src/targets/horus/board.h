@@ -92,12 +92,6 @@ enum {
   #endif
 #endif
 
-#if defined(SIMU)
-  #define SD_CARD_PRESENT()             true
-#else
-  #define SD_CARD_PRESENT()             (~SD_PRESENT_GPIO->IDR & SD_PRESENT_GPIO_PIN)
-#endif
-
 // Flash Write driver
 #define FLASH_PAGESIZE                 256
 void unlockFlash();

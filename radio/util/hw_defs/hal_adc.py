@@ -176,7 +176,6 @@ class ADCInputParser:
             adc.gpio_pin_mosi = self.hw_defs['ADC_SPI_GPIO_PIN_MOSI']
             adc.gpio_pin_sck = self.hw_defs['ADC_SPI_GPIO_PIN_SCK']
             adc.gpio_pin_cs = self.hw_defs['ADC_SPI_GPIO_PIN_CS']
-            adc.gpio_af = self.hw_defs['ADC_SPI_GPIO_AF']
             adcs.append(adc)
         
         adc_main = self._parse_adc('MAIN', 'ADC_MAIN', 'ADC')

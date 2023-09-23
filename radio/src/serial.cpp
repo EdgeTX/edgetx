@@ -83,16 +83,13 @@ extern "C" void dbgSerialPrintf(const char * format, ...)
   va_list arglist;
   char tmp[PRINTF_BUFFER_SIZE+1];
 
-  // no need to do anything if we don't have an output
-  if (!dbg_serial_putc) return;
-
   va_start(arglist, format);
   vsnprintf(tmp, PRINTF_BUFFER_SIZE, format, arglist);
   tmp[PRINTF_BUFFER_SIZE] = '\0';
   va_end(arglist);
 
   const char *t = tmp;
-  while (*t && dbg_serial_putc) {
+  while (*t) {
     SEGGER_RTT_Write(0, (const void *)t++, 1);
   }
 }

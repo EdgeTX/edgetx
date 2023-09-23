@@ -25,6 +25,7 @@
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
 #include "libopenui/src/libopenui_file.h"
+#include "hal/storage.h"
 
 #define NODE_TYPE(fname)       fname[SD_SCREEN_FILE_LENGTH+1]
 #define IS_DIRECTORY(fname)    ((bool)(!NODE_TYPE(fname)))
@@ -39,26 +40,15 @@ void menuRadioSdManagerInfo(event_t event)
 {
   SIMPLE_SUBMENU(STR_SD_INFO_TITLE, 1);
 
-  lcdDrawTextAlignedLeft(2*FH, STR_SD_TYPE);
-  lcdDrawText(10*FW, 2*FH, SD_IS_HC() ? STR_SDHC_CARD : STR_SD_CARD);
-
-  lcdDrawTextAlignedLeft(3*FH, STR_SD_SIZE);
-  lcdDrawNumber(10*FW, 3*FH, sdGetSize(), LEFT);
+  lcdDrawTextAlignedLeft(2*FH, STR_SD_SIZE);
+  lcdDrawNumber(10*FW, 2*FH, sdGetSize(), LEFT);
   lcdDrawChar(lcdLastRightPos, 3*FH, 'M');
 
-  lcdDrawTextAlignedLeft(4*FH, STR_SD_SECTORS);
-#if defined(SD_GET_FREE_BLOCKNR)
-  lcdDrawNumber(10*FW, 4*FH,  SD_GET_FREE_BLOCKNR()/1000, LEFT);
-  lcdDrawChar(lcdLastRightPos, 4*FH, '/');
-  lcdDrawNumber(lcdLastRightPos+FW, 4*FH, sdGetNoSectors()/1000, LEFT);
-#else
-  lcdDrawNumber(10*FW, 4*FH, sdGetNoSectors()/1000, LEFT);
-#endif
-  lcdDrawChar(lcdLastRightPos, 4*FH, 'k');
-
-  lcdDrawTextAlignedLeft(5*FH, STR_SD_SPEED);
-  lcdDrawNumber(10*FW, 5*FH, SD_GET_SPEED()/1000, LEFT);
-  lcdDrawText(lcdLastRightPos, 5*FH, "kb/s");
+  lcdDrawTextAlignedLeft(3*FH, STR_SD_SECTORS);
+  lcdDrawNumber(10*FW, 3*FH,  sdGetFreeSectors()/1000, LEFT);
+  lcdDrawChar(lcdLastRightPos, 3*FH, '/');
+  lcdDrawNumber(lcdLastRightPos+FW, 3*FH, sdGetNoSectors()/1000, LEFT);
+  lcdDrawChar(lcdLastRightPos, 3*FH, 'k');
 }
 
 inline bool isFilenameGreater(bool isfile, const char * fn, const char * line)
@@ -298,7 +288,7 @@ void menuRadioSdManager(event_t _event)
 
   event_t event = (EVT_KEY_MASK(_event) == KEY_ENTER ? 0 : _event);
   uint8_t old_editMode = s_editMode;
-  SIMPLE_MENU(SD_IS_HC() ? STR_SDHC_CARD : STR_SD_CARD, menuTabGeneral, MENU_RADIO_SD_MANAGER, HEADER_LINE + reusableBuffer.sdManager.count);
+  SIMPLE_MENU(STR_SD_CARD, menuTabGeneral, MENU_RADIO_SD_MANAGER, HEADER_LINE + reusableBuffer.sdManager.count);
 
   switch (_event) {
     case EVT_ENTRY:

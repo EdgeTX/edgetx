@@ -305,6 +305,7 @@
 #define SD_SDIO_CLK_DIV(fq)             ((48000000 / (fq)) - 2)
 #define SD_SDIO_INIT_CLK_DIV            SD_SDIO_CLK_DIV(400000)
 #define SD_SDIO_TRANSFER_CLK_DIV        SD_SDIO_CLK_DIV(24000000)
+#define STORAGE_USE_SDIO
 
 // SDRAM
 #define SDRAM_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH)
@@ -549,6 +550,8 @@
 // 2MHz Timer
 #define TIMER_2MHz_RCC_APB1Periph       RCC_APB1Periph_TIM7
 #define TIMER_2MHz_TIMER                TIM7
+#define TIMER_2MHz_IRQn                 TIM7_IRQn
+#define TIMER_2MHz_IRQHandler           TIM7_IRQHandler
 
 // Mixer scheduler timer
 #define MIXER_SCHEDULER_TIMER_RCC_APB1Periph RCC_APB1Periph_TIM12

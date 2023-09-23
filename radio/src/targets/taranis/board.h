@@ -64,16 +64,6 @@ enum {
   PCBREV_X7_40 = 1,
 };
 
-// SD driver
-#define __disk_read                     disk_read
-#define __disk_write                    disk_write
-
-#if defined(SIMU) || !defined(SD_PRESENT_GPIO)
-  #define SD_CARD_PRESENT()             true
-#else
-  #define SD_CARD_PRESENT()             ((SD_PRESENT_GPIO->IDR & SD_PRESENT_GPIO_PIN) == 0)
-#endif
-
 // Flash Write driver
 #define FLASH_PAGESIZE 256
 void unlockFlash();

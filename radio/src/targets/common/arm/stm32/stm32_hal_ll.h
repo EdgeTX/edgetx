@@ -49,6 +49,7 @@ extern "C" {
   #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_system.h"
   #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_rcc.h"
   #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_adc.h"
+  #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_spi.h"
 #endif
 
 #if defined(__cplusplus)
