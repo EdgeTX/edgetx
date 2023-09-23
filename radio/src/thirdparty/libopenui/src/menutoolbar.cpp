@@ -76,7 +76,6 @@ void MenuToolbar::resetFilter()
 
 void MenuToolbar::onEvent(event_t event)
 {
-  
   if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
     lv_group_focus_next(group);
   }
@@ -91,7 +90,7 @@ void MenuToolbar::onEvent(event_t event)
     
   auto obj = lv_group_get_focused(group);
   if (!obj) {
-    choice->fillMenu(menu);
+    onClicked();
   } else {
     lv_event_send(obj, LV_EVENT_CLICKED, nullptr);
   }
@@ -165,4 +164,5 @@ void MenuToolbar::addButton(const char* picto, int16_t filtermin,
 void MenuToolbar::onClicked()
 {
   choice->fillMenu(menu);
+  menu->setTitle(choice->menuTitle);
 }
