@@ -341,10 +341,6 @@ void generalDefault()
   g_eeGeneral.pwrOffSpeed = 2;
 #endif
 
-#if defined(RADIO_TPROV2)
-  g_eeGeneral.rotEncMode = ROTARY_ENCODER_MODE_INVERT_BOTH;
-#endif
-
 #if defined(MANUFACTURER_RADIOMASTER)
   g_eeGeneral.audioMuteEnable = 1;
 #endif
