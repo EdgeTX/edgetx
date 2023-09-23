@@ -129,6 +129,7 @@ const int8_t bmp_shutdown_yo[] = {
 void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
                            const char* message)
 {
+  static BitmapBuffer* shutdownSplashImg = nullptr;
   if (totalDuration == 0) return;
 
   LcdFlags fgColor;
@@ -150,12 +151,22 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
   int quarter = duration / (totalDuration / 5);
 
   if (shutdown) {
-    lcd->drawMask((LCD_W - shutdown->width()) / 2,
-                  (LCD_H - shutdown->height()) / 2, shutdown, fgColor);
+    if (!sdMounted()) sdInit();
+    shutdownSplashImg = BitmapBuffer::loadBitmap(
+        BITMAPS_PATH "/" SHUTDOWN_SPLASH_FILE, BMP_RGB565);
 
-    for (int i = 0; i <= 3 - quarter; i += 1) {
-      lcd->drawBitmapPattern(LCD_W / 2 + bmp_shutdown_xo[i], LCD_H / 2 + bmp_shutdown_yo[i],
-                             LBM_SHUTDOWN_CIRCLE, fgColor, i * SHUTDOWN_CIRCLE_RADIUS, SHUTDOWN_CIRCLE_RADIUS);
+    if (shutdownSplashImg) {
+      lcd->drawBitmap(0, 0, shutdownSplashImg);
+    } else {
+      lcd->drawMask((LCD_W - shutdown->width()) / 2,
+                    (LCD_H - shutdown->height()) / 2, shutdown, fgColor);
+
+      for (int i = 0; i <= 3 - quarter; i += 1) {
+        lcd->drawBitmapPattern(
+            LCD_W / 2 + bmp_shutdown_xo[i], LCD_H / 2 + bmp_shutdown_yo[i],
+            LBM_SHUTDOWN_CIRCLE, fgColor, i * SHUTDOWN_CIRCLE_RADIUS,
+            SHUTDOWN_CIRCLE_RADIUS);
+      }
     }
   } else {
     for (int i = 1; i <= 4; i++) {
