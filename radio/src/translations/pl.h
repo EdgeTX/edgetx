@@ -91,9 +91,9 @@
 #define TR_SF_RESET           "Resetuj"
 #define TR_SF_SET_TIMER       "Ustaw"
 #define TR_SF_VOLUME          "Głośność"
-#define TR_SF_FAILSAFE        "SetFailsafe"
-#define TR_SF_RANGE_CHECK     "RangeCheck"
-#define TR_SF_MOD_BIND        "ModuleBind"
+#define TR_SF_FAILSAFE        "Set Failsafe"
+#define TR_SF_RANGE_CHECK     "Range Check"
+#define TR_SF_MOD_BIND        "Module Bind"
 #define TR_SF_RGBLEDS         "RGB ledy"
  
 #define TR_SOUND              "GrajDźwięk"

@@ -88,7 +88,7 @@
 #define TR_VCSWFUNC      "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
 #define TR_SF_TRAINER                  "Entrenador"
-#define TR_SF_INST_TRIM                "Inst. Trim"
+#define TR_SF_INST_TRIM                TR("Inst. Trim","Instant Trim")
 #define TR_SF_RESET                    "Reset"
 #define TR_SF_SET_TIMER                "Ajuste"
 #define TR_SF_VOLUME                   "Volumen"

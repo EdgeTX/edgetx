@@ -93,13 +93,13 @@
 #define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
 
 #define TR_SF_TRAINER                  "Trainer"
-#define TR_SF_INST_TRIM                "Inst. Trim"
+#define TR_SF_INST_TRIM                TR("Inst. Trim","Instant Trim")
 #define TR_SF_RESET                    "Reset"
 #define TR_SF_SET_TIMER                "Set"
 #define TR_SF_VOLUME                   "Volume"
-#define TR_SF_FAILSAFE                 "SetFailsafe"
-#define TR_SF_RANGE_CHECK              "RangeCheck"
-#define TR_SF_MOD_BIND                 "ModuleBind"
+#define TR_SF_FAILSAFE                 "Set Failsafe"
+#define TR_SF_RANGE_CHECK              "Range Check"
+#define TR_SF_MOD_BIND                 "Module Bind"
 #define TR_SF_RGBLEDS                  "RGB leds"
  
 #define TR_SOUND                       "Play Sound"

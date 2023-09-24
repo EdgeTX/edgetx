@@ -90,13 +90,13 @@
 #define TR_VCSWFUNC            	       "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
 #define TR_SF_TRAINER                  "Lehrer"
-#define TR_SF_INST_TRIM                "Inst. Trim"
+#define TR_SF_INST_TRIM                TR("Inst. Trim","Instant Trim")
 #define TR_SF_RESET                    "Rücksetz."
 #define TR_SF_SET_TIMER                "Setze"
 #define TR_SF_VOLUME                   "Lautstr."
-#define TR_SF_FAILSAFE                 "SetFailsafe"
-#define TR_SF_RANGE_CHECK              "RangeCheck"
-#define TR_SF_MOD_BIND                 "ModuleBind"
+#define TR_SF_FAILSAFE                 "Set Failsafe"
+#define TR_SF_RANGE_CHECK              "Range Check"
+#define TR_SF_MOD_BIND                 "Module Bind"
 #define TR_SF_RGBLEDS                  "RGB LED"
 
 #define TR_SOUND                       "Spiel Töne"
