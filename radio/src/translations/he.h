@@ -1050,6 +1050,7 @@
   #define TR_TIMER_SOURCE              "מקור השעון"
   #define TR_SIZE                      "גודל"
   #define TR_SHADOW                    "הצללה"
+  #define TR_ALIGNMENT                 "יישור"
   #define TR_ALIGN_LABEL               "Align label"
   #define TR_ALIGN_VALUE               "Align value"
   #define TR_ALIGN_OPTS                { "שמאל", "מרכז", "ימין" }
