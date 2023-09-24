@@ -321,29 +321,20 @@ static void serialSetupPort(int mode, etx_serial_init& params)
 
   case UART_MODE_IBUS_TRAINER:
     params.baudrate = IBus::baudrate;
-    params.word_length = ETX_WordLength_8;
-    params.parity = ETX_Parity_None;
-    params.stop_bits = ETX_StopBits_One;
-    params.rx_enable = true;
-    power_required = true;
+    params.encoding = ETX_Encoding_8N1,
+    params.direction = ETX_Dir_RX;
     break;
 
   case UART_MODE_CRSF_TRAINER:
     params.baudrate = CRSF::baudrate;
-    params.word_length = ETX_WordLength_8;
-    params.parity = ETX_Parity_None;
-    params.stop_bits = ETX_StopBits_One;
-    params.rx_enable = true;
-    power_required = true;
+    params.encoding = ETX_Encoding_8N1,
+    params.direction = ETX_Dir_RX;
     break;
     
   case UART_MODE_SUMD_TRAINER:
     params.baudrate = SumDV3::baudrate;
-    params.word_length = ETX_WordLength_8;
-    params.parity = ETX_Parity_None;
-    params.stop_bits = ETX_StopBits_One;
-    params.rx_enable = true;
-    power_required = true;
+    params.encoding = ETX_Encoding_8N1,
+    params.direction = ETX_Dir_RX;
     break;
 
 #if defined(LUA)
