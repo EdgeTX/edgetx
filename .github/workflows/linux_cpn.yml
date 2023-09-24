@@ -35,7 +35,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/edgetx/edgetx-dev:latest
+      image: ghcr.io/edgetx/edgetx-dev:v2.8.0
       volumes:
         - ${{ github.workspace }}:/src
 
