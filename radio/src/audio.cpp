@@ -637,7 +637,7 @@ int WavContext::mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade)
 }
 #endif
 
-const unsigned int toneVolumes[] = { 10, 8, 6, 4, 2 };
+const uint8_t toneVolumes[] = { 10, 8, 6, 4, 2 };
 inline float evalVolumeRatio(int freq, int volume)
 {
   float result = toneVolumes[2+volume];

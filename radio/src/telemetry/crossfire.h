@@ -54,9 +54,9 @@
 struct CrossfireSensor {
   const uint8_t id;
   const uint8_t subId;
-  const char * name;
   const TelemetryUnit unit;
   const uint8_t precision;
+  const char * name;
 };
 
 enum CrossfireSensorIndexes {

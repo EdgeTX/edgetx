@@ -37,9 +37,9 @@
 struct FlySkySensor
 {
   const uint16_t type;
-  const char * name;
   const TelemetryUnit unit;
   const uint8_t precision;
+  const char * name;
 };
 
 // telemetry sensors type
@@ -144,59 +144,60 @@ enum
   AFHDS2A_ID_END = 0xFF,
 };
 
+#define FS(type,name,unit,precision) {type,unit,precision,name}
 
 const FlySkySensor flySkySensors[] = {
   // flysky start
-  { SENSOR_TYPE_RX_VOL,              STR_SENSOR_A1,             UNIT_VOLTS,             2 },  // RX Voltage (remapped, really 0x0)
-  { SENSOR_TYPE_TEMPERATURE,         STR_SENSOR_TEMP1,          UNIT_CELSIUS,           1 },  // Temperature
-  { SENSOR_TYPE_MOT,                 STR_SENSOR_RPM,            UNIT_RAW,               0 },  // RPM
-  { SENSOR_TYPE_EXT_VOL,             STR_SENSOR_A3,             UNIT_VOLTS,             2 },  // External voltage
-  { SENSOR_TYPE_BVD,                 "BVD",                     UNIT_VOLTS,             2 },  // BVD
-  { SENSOR_TYPE_GYROSCOPE_1_AXIS,    STR_SENSOR_CELLS,          UNIT_DEGREE,            1 },  //
-  { SENSOR_TYPE_PRES,                STR_SENSOR_PRES,           UNIT_RAW,               2 },  // 4 bytes In fact Temperature + Pressure -> Altitude
-  { SENSOR_TYPE_ALT,                 STR_SENSOR_ALT,            UNIT_METERS,            2 },
-  { SENSOR_TYPE_RF_MODULE_TEMP,      STR_SENSOR_TEMP2,          UNIT_CELSIUS,           0 },  // 1 bytes temperature
-  { SENSOR_TYPE_RF_MODULE_VOL,       STR_SENSOR_TXV,            UNIT_VOLTS,             2 },  // 2 bytes voltage
-  { SENSOR_TYPE_RF_MODULE_POWER,     STR_SENSOR_TX_POWER,       UNIT_DBM,               0 },  // 2 bytes DBM
-//  { SENSOR_TYPE_RF_MODULE_RAW,       STR_SENSOR_TX_POWER,       UNIT_RAW,               0 },  // 2 bytes DBM
-  { SENSOR_TYPE_TX_V,                STR_SENSOR_TXV,            UNIT_VOLTS,             2 },  // TX Voltage
-  { SENSOR_TYPE_RX_SNR,              STR_SENSOR_RX_SNR,         UNIT_DB,                0 },  // RX SNR
-  { SENSOR_TYPE_RX_NOISE,            STR_SENSOR_RX_NOISE,       UNIT_DBM,               0 },  // RX Noise
-  { SENSOR_TYPE_RX_RSSI,             STR_SENSOR_RSSI,           UNIT_DBM,               0 },  // RX RSSI (0xfc)
-  { SENSOR_TYPE_RX_ERR_RATE,         STR_SENSOR_RX_QUALITY,     UNIT_PERCENT,           0 },  // RX error rate
+  FS( SENSOR_TYPE_RX_VOL,              STR_SENSOR_A1,             UNIT_VOLTS,             2 ),  // RX Voltage (remapped, really 0x0)
+  FS( SENSOR_TYPE_TEMPERATURE,         STR_SENSOR_TEMP1,          UNIT_CELSIUS,           1 ),  // Temperature
+  FS( SENSOR_TYPE_MOT,                 STR_SENSOR_RPM,            UNIT_RAW,               0 ),  // RPM
+  FS( SENSOR_TYPE_EXT_VOL,             STR_SENSOR_A3,             UNIT_VOLTS,             2 ),  // External voltage
+  FS( SENSOR_TYPE_BVD,                 "BVD",                     UNIT_VOLTS,             2 ),  // BVD
+  FS( SENSOR_TYPE_GYROSCOPE_1_AXIS,    STR_SENSOR_CELLS,          UNIT_DEGREE,            1 ),  //
+  FS( SENSOR_TYPE_PRES,                STR_SENSOR_PRES,           UNIT_RAW,               2 ),  // 4 bytes In fact Temperature + Pressure -> Altitude
+  FS( SENSOR_TYPE_ALT,                 STR_SENSOR_ALT,            UNIT_METERS,            2 ),
+  FS( SENSOR_TYPE_RF_MODULE_TEMP,      STR_SENSOR_TEMP2,          UNIT_CELSIUS,           0 ),  // 1 bytes temperature
+  FS( SENSOR_TYPE_RF_MODULE_VOL,       STR_SENSOR_TXV,            UNIT_VOLTS,             2 ),  // 2 bytes voltage
+  FS( SENSOR_TYPE_RF_MODULE_POWER,     STR_SENSOR_TX_POWER,       UNIT_DBM,               0 ),  // 2 bytes DBM
+//  FS( SENSOR_TYPE_RF_MODULE_RAW,       STR_SENSOR_TX_POWER,       UNIT_RAW,               0 ),  // 2 bytes DBM
+  FS( SENSOR_TYPE_TX_V,                STR_SENSOR_TXV,            UNIT_VOLTS,             2 ),  // TX Voltage
+  FS( SENSOR_TYPE_RX_SNR,              STR_SENSOR_RX_SNR,         UNIT_DB,                0 ),  // RX SNR
+  FS( SENSOR_TYPE_RX_NOISE,            STR_SENSOR_RX_NOISE,       UNIT_DBM,               0 ),  // RX Noise
+  FS( SENSOR_TYPE_RX_RSSI,             STR_SENSOR_RSSI,           UNIT_DBM,               0 ),  // RX RSSI (0xfc)
+  FS( SENSOR_TYPE_RX_ERR_RATE,         STR_SENSOR_RX_QUALITY,     UNIT_PERCENT,           0 ),  // RX error rate
   ////////////////////////////////////////////////////////////////
 
-  { AFHDS2A_ID_BAT_CURR,              STR_SENSOR_CURR,          UNIT_AMPS,              2 },  // battery current A * 100
-  { AFHDS2A_ID_FUEL,                  STR_SENSOR_CAPACITY,      UNIT_RAW,               0 },  // remaining battery percentage / mah drawn otherwise or fuel level no unit!
-  { AFHDS2A_ID_RPM,                   STR_SENSOR_RPM,           UNIT_RAW,               0 },  // throttle value / battery capacity
-  { AFHDS2A_ID_CMP_HEAD,              STR_SENSOR_HDG,           UNIT_DEGREE,            0 },  // Heading  0..360 deg, 0=north 2bytes
-  { AFHDS2A_ID_CLIMB_RATE,            STR_SENSOR_VSPD,          UNIT_METERS_PER_SECOND, 2 },  // 2 bytes m/s *100
-  { AFHDS2A_ID_COG,                   STR_SENSOR_HDG,           UNIT_DEGREE,            2 },  // 2 bytes  Course over ground(NOT heading, but direction of movement) in degrees * 100, 0.0..359.99 degrees. unknown max uint
-  { AFHDS2A_ID_GPS_STATUS,            STR_SENSOR_SATELLITES,    UNIT_RAW,               0 },  // 2 bytes
-  { AFHDS2A_ID_ACC_X,                 STR_SENSOR_ACCX,          UNIT_METERS_PER_SECOND, 2 },  // 2 bytes m/s *100 signed
-  { AFHDS2A_ID_ACC_Y,                 STR_SENSOR_ACCY,          UNIT_METERS_PER_SECOND, 2 },  // 2 bytes m/s *100 signed
-  { AFHDS2A_ID_ACC_Z,                 STR_SENSOR_ACCZ,          UNIT_METERS_PER_SECOND, 2 },  // 2 bytes m/s *100 signed
-  { AFHDS2A_ID_ROLL,                  STR_SENSOR_ROLL,          UNIT_DEGREE,            2 },  // 2 bytes deg *100 signed
-  { AFHDS2A_ID_PITCH,                 STR_SENSOR_PITCH,         UNIT_DEGREE,            2 },  // 2 bytes deg *100 signed
-  { AFHDS2A_ID_YAW,                   STR_SENSOR_YAW,           UNIT_DEGREE,            2 },  // 2 bytes deg *100 signed
-  { AFHDS2A_ID_VERTICAL_SPEED,        STR_SENSOR_VSPD,          UNIT_METERS_PER_SECOND, 2 },  // 2 bytes m/s *100
-  { AFHDS2A_ID_GROUND_SPEED,          STR_SENSOR_GSPD,          UNIT_METERS_PER_SECOND, 2 },  // 2 bytes m/s *100 different unit than build-in sensor
-  { AFHDS2A_ID_GPS_DIST,              STR_SENSOR_DIST,          UNIT_METERS,            0 },  // 2 bytes dist from home m unsigned
-  { AFHDS2A_ID_ARMED,                 STR_SENSOR_ARM,           UNIT_RAW,               0 },  // 2 bytes
-  { AFHDS2A_ID_FLIGHT_MODE,           STR_SENSOR_FLIGHT_MODE,   UNIT_RAW,               0 },  // 2 bytes index
-  { SENSOR_TYPE_PRES | 0x100,         STR_SENSOR_TEMP2,         UNIT_CELSIUS,           1 },  // 2 bytes Temperature
-  { AFHDS2A_ID_ODO1,                  STR_SENSOR_ODO1,          UNIT_METERS,            2 },  // 2 bytes Odometer1 -- some magic with 330 needed
-  { AFHDS2A_ID_ODO2,                  STR_SENSOR_ODO2,          UNIT_METERS,            2 },  // 2 bytes Odometer2 -- some magic with 330 needed
-  { AFHDS2A_ID_SPE,                   STR_SENSOR_ASPD,          UNIT_KMH,               2 },  // 2 bytes Speed km/h -- some magic with 330 needed
-  { AFHDS2A_ID_GPS_LAT,               STR_SENSOR_GPS,           UNIT_RAW,               0 },  // 4 bytes signed WGS84 in degrees * 1E7
-  { AFHDS2A_ID_GPS_LON,               STR_SENSOR_GPS,           UNIT_RAW,               0 },  // 4 bytes signed WGS84 in degrees * 1E7
-  { AFHDS2A_ID_GPS_ALT,               STR_SENSOR_GPSALT,        UNIT_METERS,            2 },  // 4 bytes signed GPS alt m*100
-  { AFHDS2A_ID_ALT,                   STR_SENSOR_ALT,           UNIT_METERS,            2 },  // 4 bytes signed Alt m*100
-  { AFHDS2A_ID_RX_SIG_AFHDS3,         STR_SENSOR_RX_QUALITY,    UNIT_PERCENT,           0 },  // RX error rate
-  { AFHDS2A_ID_RX_SNR_AFHDS3,         STR_SENSOR_RX_SNR,        UNIT_DB,                1 },  // RX SNR
-  { AFHDS2A_ID_TX_RSSI,               STR_SENSOR_TX_RSSI,       UNIT_DBM,               0 },  // Pseudo sensor for TRSSI
+  FS( AFHDS2A_ID_BAT_CURR,              STR_SENSOR_CURR,          UNIT_AMPS,              2 ),  // battery current A * 100
+  FS( AFHDS2A_ID_FUEL,                  STR_SENSOR_CAPACITY,      UNIT_RAW,               0 ),  // remaining battery percentage / mah drawn otherwise or fuel level no unit!
+  FS( AFHDS2A_ID_RPM,                   STR_SENSOR_RPM,           UNIT_RAW,               0 ),  // throttle value / battery capacity
+  FS( AFHDS2A_ID_CMP_HEAD,              STR_SENSOR_HDG,           UNIT_DEGREE,            0 ),  // Heading  0..360 deg, 0=north 2bytes
+  FS( AFHDS2A_ID_CLIMB_RATE,            STR_SENSOR_VSPD,          UNIT_METERS_PER_SECOND, 2 ),  // 2 bytes m/s *100
+  FS( AFHDS2A_ID_COG,                   STR_SENSOR_HDG,           UNIT_DEGREE,            2 ),  // 2 bytes  Course over ground(NOT heading, but direction of movement) in degrees * 100, 0.0..359.99 degrees. unknown max uint
+  FS( AFHDS2A_ID_GPS_STATUS,            STR_SENSOR_SATELLITES,    UNIT_RAW,               0 ),  // 2 bytes
+  FS( AFHDS2A_ID_ACC_X,                 STR_SENSOR_ACCX,          UNIT_METERS_PER_SECOND, 2 ),  // 2 bytes m/s *100 signed
+  FS( AFHDS2A_ID_ACC_Y,                 STR_SENSOR_ACCY,          UNIT_METERS_PER_SECOND, 2 ),  // 2 bytes m/s *100 signed
+  FS( AFHDS2A_ID_ACC_Z,                 STR_SENSOR_ACCZ,          UNIT_METERS_PER_SECOND, 2 ),  // 2 bytes m/s *100 signed
+  FS( AFHDS2A_ID_ROLL,                  STR_SENSOR_ROLL,          UNIT_DEGREE,            2 ),  // 2 bytes deg *100 signed
+  FS( AFHDS2A_ID_PITCH,                 STR_SENSOR_PITCH,         UNIT_DEGREE,            2 ),  // 2 bytes deg *100 signed
+  FS( AFHDS2A_ID_YAW,                   STR_SENSOR_YAW,           UNIT_DEGREE,            2 ),  // 2 bytes deg *100 signed
+  FS( AFHDS2A_ID_VERTICAL_SPEED,        STR_SENSOR_VSPD,          UNIT_METERS_PER_SECOND, 2 ),  // 2 bytes m/s *100
+  FS( AFHDS2A_ID_GROUND_SPEED,          STR_SENSOR_GSPD,          UNIT_METERS_PER_SECOND, 2 ),  // 2 bytes m/s *100 different unit than build-in sensor
+  FS( AFHDS2A_ID_GPS_DIST,              STR_SENSOR_DIST,          UNIT_METERS,            0 ),  // 2 bytes dist from home m unsigned
+  FS( AFHDS2A_ID_ARMED,                 STR_SENSOR_ARM,           UNIT_RAW,               0 ),  // 2 bytes
+  FS( AFHDS2A_ID_FLIGHT_MODE,           STR_SENSOR_FLIGHT_MODE,   UNIT_RAW,               0 ),  // 2 bytes index
+  FS( SENSOR_TYPE_PRES | 0x100,         STR_SENSOR_TEMP2,         UNIT_CELSIUS,           1 ),  // 2 bytes Temperature
+  FS( AFHDS2A_ID_ODO1,                  STR_SENSOR_ODO1,          UNIT_METERS,            2 ),  // 2 bytes Odometer1 -- some magic with 330 needed
+  FS( AFHDS2A_ID_ODO2,                  STR_SENSOR_ODO2,          UNIT_METERS,            2 ),  // 2 bytes Odometer2 -- some magic with 330 needed
+  FS( AFHDS2A_ID_SPE,                   STR_SENSOR_ASPD,          UNIT_KMH,               2 ),  // 2 bytes Speed km/h -- some magic with 330 needed
+  FS( AFHDS2A_ID_GPS_LAT,               STR_SENSOR_GPS,           UNIT_RAW,               0 ),  // 4 bytes signed WGS84 in degrees * 1E7
+  FS( AFHDS2A_ID_GPS_LON,               STR_SENSOR_GPS,           UNIT_RAW,               0 ),  // 4 bytes signed WGS84 in degrees * 1E7
+  FS( AFHDS2A_ID_GPS_ALT,               STR_SENSOR_GPSALT,        UNIT_METERS,            2 ),  // 4 bytes signed GPS alt m*100
+  FS( AFHDS2A_ID_ALT,                   STR_SENSOR_ALT,           UNIT_METERS,            2 ),  // 4 bytes signed Alt m*100
+  FS( AFHDS2A_ID_RX_SIG_AFHDS3,         STR_SENSOR_RX_QUALITY,    UNIT_PERCENT,           0 ),  // RX error rate
+  FS( AFHDS2A_ID_RX_SNR_AFHDS3,         STR_SENSOR_RX_SNR,        UNIT_DB,                1 ),  // RX SNR
+  FS( AFHDS2A_ID_TX_RSSI,               STR_SENSOR_TX_RSSI,       UNIT_DBM,               0 ),  // Pseudo sensor for TRSSI
 
-  { 0x00,                            NULL,                      UNIT_RAW,               0 },  // sentinel
+  FS( 0x00,                            NULL,                      UNIT_RAW,               0 ),  // sentinel
 };
 
 int32_t getALT(uint32_t value);

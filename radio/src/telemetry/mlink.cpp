@@ -25,31 +25,33 @@
 struct MLinkSensor
 {
   const uint16_t id;
-  const char * name;
   const TelemetryUnit unit;
   const uint8_t precision;
+  const char * name;
 };
 
+#define MS(id,name,unit,precision) {id,unit,precision,name}
+
 const MLinkSensor mlinkSensors[] = {
-  {MLINK_SPECIAL,         STR_SENSOR_SPECIAL,           UNIT_RAW,               0},
-  {MLINK_RX_VOLTAGE,      STR_SENSOR_BATT,              UNIT_VOLTS,             1},
-  {MLINK_VOLTAGE,         STR_SENSOR_VFAS,              UNIT_VOLTS,             1},
-  {MLINK_CURRENT,         STR_SENSOR_CURR,              UNIT_AMPS,              1},
-  {MLINK_VARIO,           STR_SENSOR_VSPD,              UNIT_METERS_PER_SECOND, 1},
-  {MLINK_SPEED,           STR_SENSOR_SPEED,             UNIT_KMH,               1},
-  {MLINK_RPM,             STR_SENSOR_RPM,               UNIT_RPMS,              0},
-  {MLINK_TEMP,            STR_SENSOR_TEMP1,             UNIT_CELSIUS,           1},
-  {MLINK_HEADING,         STR_SENSOR_HDG,               UNIT_DEGREE,            1},
-  {MLINK_ALT,             STR_SENSOR_ALT ,              UNIT_METERS,            0},
-  {MLINK_FUEL,            STR_SENSOR_FUEL,              UNIT_PERCENT,           0},
-  {MLINK_CAPACITY,        STR_SENSOR_CAPACITY,          UNIT_MAH,               0},
-  {MLINK_FLOW,            STR_SENSOR_FLOW,              UNIT_MILLILITERS,       0},
-  {MLINK_DISTANCE,        STR_SENSOR_DIST,              UNIT_KM,                1},
-  {MLINK_GRATE,           STR_SENSOR_ACC,               UNIT_G,                 1},
-  {MLINK_LQI,             STR_SENSOR_RSSI,              UNIT_RAW,               0},
-  {MLINK_LOSS,            STR_SENSOR_LOSS,              UNIT_RAW,               0},
-  {MLINK_TX_RSSI,         STR_SENSOR_TX_RSSI,           UNIT_RAW,               0},
-  {MLINK_TX_LQI,          STR_SENSOR_TX_QUALITY,        UNIT_RAW,               0},
+  MS(MLINK_SPECIAL,         STR_SENSOR_SPECIAL,           UNIT_RAW,               0),
+  MS(MLINK_RX_VOLTAGE,      STR_SENSOR_BATT,              UNIT_VOLTS,             1),
+  MS(MLINK_VOLTAGE,         STR_SENSOR_VFAS,              UNIT_VOLTS,             1),
+  MS(MLINK_CURRENT,         STR_SENSOR_CURR,              UNIT_AMPS,              1),
+  MS(MLINK_VARIO,           STR_SENSOR_VSPD,              UNIT_METERS_PER_SECOND, 1),
+  MS(MLINK_SPEED,           STR_SENSOR_SPEED,             UNIT_KMH,               1),
+  MS(MLINK_RPM,             STR_SENSOR_RPM,               UNIT_RPMS,              0),
+  MS(MLINK_TEMP,            STR_SENSOR_TEMP1,             UNIT_CELSIUS,           1),
+  MS(MLINK_HEADING,         STR_SENSOR_HDG,               UNIT_DEGREE,            1),
+  MS(MLINK_ALT,             STR_SENSOR_ALT ,              UNIT_METERS,            0),
+  MS(MLINK_FUEL,            STR_SENSOR_FUEL,              UNIT_PERCENT,           0),
+  MS(MLINK_CAPACITY,        STR_SENSOR_CAPACITY,          UNIT_MAH,               0),
+  MS(MLINK_FLOW,            STR_SENSOR_FLOW,              UNIT_MILLILITERS,       0),
+  MS(MLINK_DISTANCE,        STR_SENSOR_DIST,              UNIT_KM,                1),
+  MS(MLINK_GRATE,           STR_SENSOR_ACC,               UNIT_G,                 1),
+  MS(MLINK_LQI,             STR_SENSOR_RSSI,              UNIT_RAW,               0),
+  MS(MLINK_LOSS,            STR_SENSOR_LOSS,              UNIT_RAW,               0),
+  MS(MLINK_TX_RSSI,         STR_SENSOR_TX_RSSI,           UNIT_RAW,               0),
+  MS(MLINK_TX_LQI,          STR_SENSOR_TX_QUALITY,        UNIT_RAW,               0),
 };
 
 const MLinkSensor * getMLinkSensor(uint16_t id)
