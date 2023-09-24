@@ -686,7 +686,6 @@ uint16_t anaIn(uint8_t chan);
 
 FlightModeData * flightModeAddress(uint8_t idx);
 ExpoData * expoAddress(uint8_t idx);
-MixData * mixAddress(uint8_t idx);
 LimitData * limitAddress(uint8_t idx);
 LogicalSwitchData * lswAddress(uint8_t idx);
 USBJoystickChData * usbJChAddress(uint8_t idx);

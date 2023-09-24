@@ -276,9 +276,6 @@ extern uint8_t editNameCursorPos;
 uint8_t getExposCount();
 void insertExpo(uint8_t idx);
 void deleteExpo(uint8_t idx);
-uint8_t getMixesCount();
-void insertMix(uint8_t idx);
-void deleteMix(uint8_t idx);
 
 void onSourceLongEnterPress(const char *result);
 

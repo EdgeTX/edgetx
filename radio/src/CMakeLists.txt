@@ -406,6 +406,7 @@ set(SRC
   functions.cpp
   strhelpers.cpp
   switches.cpp
+  mixes.cpp
   mixer.cpp
   mixer_scheduler.cpp
   stamp.cpp
