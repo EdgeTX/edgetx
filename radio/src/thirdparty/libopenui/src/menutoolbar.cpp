@@ -17,6 +17,7 @@
  */
 
 #include "menutoolbar.h"
+
 #include "choice.h"
 #include "font.h"
 
@@ -47,13 +48,10 @@ MenuToolbar::MenuToolbar(Choice* choice, Menu* menu) :
     menu(menu),
     group(lv_group_create())
 {
-  lv_group_add_obj(group, lvobj);
+  addButton("ALL", choice->getMin(), choice->getMax(), nullptr, nullptr, true);
 }
 
-MenuToolbar::~MenuToolbar()
-{
-  lv_group_del(group);
-}
+MenuToolbar::~MenuToolbar() { lv_group_del(group); }
 
 void MenuToolbar::resetFilter()
 {
@@ -77,20 +75,25 @@ void MenuToolbar::onEvent(event_t event)
 #endif
     lv_group_focus_prev(group);
   }
-    
+
   auto obj = lv_group_get_focused(group);
-  if (!obj) {
-    onClicked();
-  } else {
-    lv_event_send(obj, LV_EVENT_CLICKED, nullptr);
-  }
+  lv_event_send(obj, LV_EVENT_CLICKED, nullptr);
 }
 
-rect_t MenuToolbar::getButtonRect(size_t buttons)
+rect_t MenuToolbar::getButtonRect(bool wideButton)
 {
-  coord_t x = (buttons & 1) * (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING) + MENUS_TOOLBAR_BUTTON_PADDING;
-  coord_t y = (buttons / 2) * (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING) + MENUS_TOOLBAR_BUTTON_PADDING;
-  return {x, y, MENUS_TOOLBAR_BUTTON_WIDTH, MENUS_TOOLBAR_BUTTON_WIDTH};
+  if (wideButton && (nxtBtnPos & 1)) nxtBtnPos += 1;
+  coord_t x = (nxtBtnPos & 1) *
+                  (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING) +
+              MENUS_TOOLBAR_BUTTON_PADDING;
+  coord_t y = (nxtBtnPos / 2) *
+                  (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING) +
+              MENUS_TOOLBAR_BUTTON_PADDING;
+  coord_t w =
+      wideButton ? MENUS_TOOLBAR_BUTTON_WIDTH * 2 + MENUS_TOOLBAR_BUTTON_PADDING
+                 : MENUS_TOOLBAR_BUTTON_WIDTH;
+  nxtBtnPos += wideButton ? 2 : 1;
+  return {x, y, w, MENUS_TOOLBAR_BUTTON_WIDTH};
 }
 
 bool MenuToolbar::filterMenu(MenuToolbarButton* btn, int16_t filtermin,
@@ -103,35 +106,36 @@ bool MenuToolbar::filterMenu(MenuToolbarButton* btn, int16_t filtermin,
   if (btn->checked()) {
     if (title)
       menu->setTitle(title);
+    else
+      menu->setTitle(choice->menuTitle);
     filter = [=](int16_t index) {
-      if (filterFunc)
-        return filterFunc(index);
+      if (filterFunc) return filterFunc(index);
       return index == 0 || (abs(index) >= filtermin && abs(index) <= filtermax);
     };
+    lv_group_focus_obj(btn->getLvObj());
+    choice->fillMenu(menu, filter);
   } else {
-    menu->setTitle(choice->menuTitle);
+    lv_event_send(allBtn->getLvObj(), LV_EVENT_CLICKED, nullptr);
   }
 
-  choice->fillMenu(menu, filter);
   return btn->checked();
 }
 
 typedef std::function<bool(int)> IsValueAvailable;
-static int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable)
+static bool checkFirstAvailable(int min, int max,
+                                IsValueAvailable isValueAvailable)
 {
-  int retval = 0;
   for (int i = min; i <= max; i++) {
     if (isValueAvailable(i)) {
-      retval = i;
-      break;
+      return true;
     }
   }
-  return retval;
+  return false;
 }
 
 void MenuToolbar::addButton(const char* picto, int16_t filtermin,
                             int16_t filtermax, const FilterFct& filterFunc,
-                            const char* title)
+                            const char* title, bool wideButton)
 {
   int vmin = choice->vmin;
   int vmax = choice->vmax;
@@ -139,25 +143,19 @@ void MenuToolbar::addButton(const char* picto, int16_t filtermin,
   if (vmin > filtermin || vmax < filtermin) return;
 
   if (choice->isValueAvailable &&
-      getFirstAvailable(filtermin, filtermax, choice->isValueAvailable) == 0)
+      !checkFirstAvailable(filtermin, filtermax, choice->isValueAvailable))
     return;
 
-  rect_t r = getButtonRect(children.size());
+  rect_t r = getButtonRect(wideButton);
   auto button = new MenuToolbarButton(this, r, picto);
 
-  button->setPressHandler(
-      std::bind(&MenuToolbar::filterMenu, this, button, filtermin, filtermax, filterFunc, title));
+  button->setPressHandler(std::bind(&MenuToolbar::filterMenu, this, button,
+                                    filtermin, filtermax, filterFunc, title));
 
-  addButton(button);
-}
+  lv_group_add_obj(group, button->getLvObj());
 
-void MenuToolbar::addButton(Window* btn)
-{
-  lv_group_add_obj(group, btn->getLvObj());
-}
-
-void MenuToolbar::onClicked()
-{
-  choice->fillMenu(menu);
-  menu->setTitle(choice->menuTitle);
+  if (children.size() == 1) {
+    allBtn = button;
+    lv_event_send(allBtn->getLvObj(), LV_EVENT_CLICKED, nullptr);
+  }
 }
