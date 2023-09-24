@@ -20,7 +20,10 @@
  */
 
 #include "stm32_adc.h"
+#include "stm32_dma.h"
 #include "stm32_gpio_driver.h"
+#include "timers_driver.h"
+
 #include "opentx.h"
 
 #define ADC_COMMON     ((ADC_Common_TypeDef *) ADC_BASE)
@@ -235,7 +238,7 @@ static uint8_t adc_init_channels(const stm32_adc_t* adc,
       }
     } else {
       // Internal channels are inhibited until explicitely enabled
-      _adc_inhibit_mask |= mask;
+      _adc_inhibit_mask |= (1 << input_idx);
     }
 
     // channel is already used, probably a secondary input
@@ -270,6 +273,8 @@ static bool adc_init_dma_stream(ADC_TypeDef* adc, DMA_TypeDef* DMAx,
                                 uint32_t stream, uint32_t channel,
                                 uint16_t* dest, uint8_t nconv)
 {
+  stm32_dma_enable_clock(DMAx);
+
   // Disable DMA before continuing (see ref. manual "Stream configuration procedure")
   if (!adc_disable_dma(DMAx, stream))
       return false;
