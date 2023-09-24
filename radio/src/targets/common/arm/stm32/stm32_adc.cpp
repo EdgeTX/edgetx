@@ -26,9 +26,10 @@
 
 #include "opentx.h"
 
-#define ADC_COMMON     ((ADC_Common_TypeDef *) ADC_BASE)
-#define MAX_ADC_INPUTS 32
-#define OVERSAMPLING   4
+#define ADC_COMMON ((ADC_Common_TypeDef *)ADC_BASE)
+#define OVERSAMPLING 4
+
+#define SAMPLING_TIMEOUT_US 500
 
 // Please note that we use the same prio for DMA TC and ADC IRQs
 // to avoid issues with preemption between these 2
@@ -43,7 +44,7 @@ static volatile uint32_t _adc_inhibit_mask;
 static uint16_t _adc_dma_buffer[MAX_ADC_INPUTS] __DMA;
 
 // ADCs started
-static uint8_t _adc_started_mask;
+static volatile uint8_t _adc_started_mask;
 static volatile uint8_t _adc_completed;
 
 static const stm32_adc_t* _adc_ADCs;
@@ -532,8 +533,14 @@ void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
   (void)inputs;
   (void)n_inputs;
 
+  auto timeout = timersGetUsTick();
   while(!_adc_completed) {
     // busy wait
+    if ((uint32_t)(timersGetUsTick() - timeout) >= SAMPLING_TIMEOUT_US) {
+      TRACE("ADC timeout");
+      _adc_started_mask = 0;
+      return;
+    }
   }
 }
 
@@ -572,8 +579,7 @@ static void _adc_chain_conversions(const stm32_adc_t* adc)
 void stm32_hal_adc_dma_isr(const stm32_adc_t* adc)
 {
   // Disable IRQ
-  auto dma_stream = _dma_get_stream(adc->DMAx, adc->DMA_Stream);
-  CLEAR_BIT(dma_stream->CR, DMA_SxCR_TCIE | DMA_SxCR_TEIE | DMA_SxCR_DMEIE);
+  adc_dma_clear_flags(adc->DMAx, adc->DMA_Stream);
 
   uint16_t* dma_buffer = _adc_dma_buffer + adc->offset;
   copy_adc_values(dma_buffer, adc, _adc_inputs);
