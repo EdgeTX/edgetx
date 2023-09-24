@@ -56,7 +56,7 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
                   !(index >= SWSRC_FIRST_SENSOR && index <= SWSRC_LAST_SENSOR));
         },
         STR_MENU_OTHER);
-    addButton("CLR", 0, 0, nullptr, nullptr, true);
+    addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
   }
 };
 

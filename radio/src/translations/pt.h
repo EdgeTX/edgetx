@@ -1252,3 +1252,6 @@
 #define TR_ENABLED_FEATURES       "Recursos ativos"
 #define TR_RADIO_MENU_TABS        "Abas opcoes radio"
 #define TR_MODEL_MENU_TABS        "Abas opcoes modelo"
+
+#define TR_SELECT_MENU_ALL        "All"
+#define TR_SELECT_MENU_CLR        "Clear"

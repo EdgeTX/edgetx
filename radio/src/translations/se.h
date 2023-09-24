@@ -1287,3 +1287,6 @@
 #define TR_ENABLED_FEATURES             "Aktiverade funktioner"
 #define TR_RADIO_MENU_TABS              "Radiomenyflikar"
 #define TR_MODEL_MENU_TABS              "Modellmenyflikar"
+
+#define TR_SELECT_MENU_ALL        "All"
+#define TR_SELECT_MENU_CLR        "Clear"

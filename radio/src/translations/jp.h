@@ -1244,3 +1244,6 @@
 #define TR_ENABLED_FEATURES       "有効機能"
 #define TR_RADIO_MENU_TABS        "送信機メニュータブ"
 #define TR_MODEL_MENU_TABS        "モデルメニュータブ"
+
+#define TR_SELECT_MENU_ALL        "All"
+#define TR_SELECT_MENU_CLR        "Clear"

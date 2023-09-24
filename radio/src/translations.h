@@ -1261,5 +1261,8 @@ extern const char* const STR_VUSBJOYSTICK_CIRC_COUTOUT[];
 extern const char STR_USBJOYSTICK_APPLY_CHANGES[];
 #endif
 
+extern const char STR_SELECT_MENU_ALL[];
+extern const char STR_SELECT_MENU_CLR[];
+
 #endif // _TRANSLATIONS_H_
 

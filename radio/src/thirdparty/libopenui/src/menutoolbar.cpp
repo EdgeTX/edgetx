@@ -20,6 +20,7 @@
 
 #include "choice.h"
 #include "font.h"
+#include "translations.h"
 
 static void toolbar_btn_defocus(lv_event_t* event)
 {
@@ -48,7 +49,7 @@ MenuToolbar::MenuToolbar(Choice* choice, Menu* menu) :
     menu(menu),
     group(lv_group_create())
 {
-  addButton("ALL", choice->getMin(), choice->getMax(), nullptr, nullptr, true);
+  addButton(STR_SELECT_MENU_ALL, choice->getMin(), choice->getMax(), nullptr, nullptr, true);
 }
 
 MenuToolbar::~MenuToolbar() { lv_group_del(group); }

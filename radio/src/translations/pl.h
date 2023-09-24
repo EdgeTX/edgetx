@@ -1248,3 +1248,6 @@
 #define TR_ENABLED_FEATURES       "Włączone opcje"
 #define TR_RADIO_MENU_TABS        "Zakładki menu radia"
 #define TR_MODEL_MENU_TABS        "Zakładki menu modelu"
+
+#define TR_SELECT_MENU_ALL        "All"
+#define TR_SELECT_MENU_CLR        "Clear"

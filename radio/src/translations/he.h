@@ -1258,3 +1258,6 @@
 #define TR_ENABLED_FEATURES       "אפשר יכולות"
 #define TR_RADIO_MENU_TABS        "לשוניות תפריט רדיו"
 #define TR_MODEL_MENU_TABS        "לשוניות תפריט מודל"
+
+#define TR_SELECT_MENU_ALL        "All"
+#define TR_SELECT_MENU_CLR        "Clear"

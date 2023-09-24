@@ -1261,3 +1261,6 @@
 #define TR_ENABLED_FEATURES            "Aktivní funkce"
 #define TR_RADIO_MENU_TABS             "Rádiové menu záložky"
 #define TR_MODEL_MENU_TABS             "Model menu záložky"
+
+#define TR_SELECT_MENU_ALL        "All"
+#define TR_SELECT_MENU_CLR        "Clear"
