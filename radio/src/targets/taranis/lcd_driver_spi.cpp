@@ -27,9 +27,10 @@
   #include "opentx.h"
 #endif
 
-#if defined(OLED_SCREEN)
-  #define LCD_CONTRAST_OFFSET            0
-#elif defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO)
+#if (defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) ||                \
+     defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || \
+     defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO)) &&  \
+    !defined(RADIO_LR3PRO)
   #define LCD_CONTRAST_OFFSET            -10
 #else
   #define LCD_CONTRAST_OFFSET            160
@@ -53,6 +54,7 @@ void lcdWriteCommand(uint8_t byte)
 {
   LCD_A0_LOW();
   LCD_NCS_LOW();
+
   while ((SPI3->SR & SPI_SR_TXE) == 0) {
     // Wait
   }
@@ -70,7 +72,12 @@ void lcdHardwareInit()
 
   // APB1 clock / 2 = 133nS per clock
   LCD_SPI->CR1 = 0; // Clear any mode error
-  LCD_SPI->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_CPOL | SPI_CR1_CPHA;
+  //LCD_SPI->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_CPOL | SPI_CR1_CPHA;
+  LCD_SPI->CR1 = SPI_CR1_SSM | SPI_CR1_SSI  ;     // SPI mode 0 for OLED BOXER
+  //LCD_SPI->CR1 |= SPI_CR1_BR_0 ;                // lower Clock BR[2:0]-001 fpclk/4 OLED BOXER --> occuring frame shift
+  LCD_SPI->CR1 |= SPI_CR1_BR_1 ;                  // lower Clock BR[2:0]-010 fpclk/8 OLED BOXER --> work, best choice
+  //LCD_SPI->CR1 |= SPI_CR1_BR_1 | SPI_CR1_BR_0 ; // lower Clock BR[2:0]-011 fpclk/16 OLED BOXER --> work
+
   LCD_SPI->CR2 = 0;
   LCD_SPI->CR1 |= SPI_CR1_MSTR;	// Make sure in case SSM/SSI needed to be set first
   LCD_SPI->CR1 |= SPI_CR1_SPE;
@@ -116,6 +123,91 @@ void lcdHardwareInit()
 #if LCD_W == 128
 void lcdStart()
 {
+  // BOXER_OLED Initialize
+	// *****************************************
+	// 2.42" OLED 128x64 display               *
+	// SSD1309 driver IC                       *
+	// developed by Brain(Y.S.Cho)             *
+	// *****************************************
+	lcdWriteCommand(0xAE);	// set display off
+	lcdWriteCommand(0x00);	// set lower column start address
+	lcdWriteCommand(0x10);	// set higher column start address
+
+	lcdWriteCommand(0x40|0x00);	// set display start line
+	
+	lcdWriteCommand(0x81);	// set contrast control --> Set SEG Output Current
+	//lcdWriteCommand(0x32);
+	lcdWriteCommand(0x7F);
+	
+#if defined(LCD_VERTICAL_INVERT)
+	lcdWriteCommand(0xA1);	// set segment remap
+	//     0xA0 => Column Address 0 Mapped to SEG0
+	//     0xA1 => Column Address 0 Mapped to SEG127
+
+	lcdWriteCommand(0xc8);	// set com scan direction
+	//     0xC0 => Scan from COM0 to 63
+	//     0xC8 => Scan from COM63 to 0
+
+#else	//	#if defined(LCD_HORIZONTAL_INVERT)
+	lcdWriteCommand(0xA0);	// set segment remap
+	//     0xA0 => Column Address 0 Mapped to SEG0
+	//     0xA1 => Column Address 0 Mapped to SEG127
+
+	lcdWriteCommand(0xc0);	// set com scan direction
+	//     0xC0 => Scan from COM0 to 63
+	//     0xC8 => Scan from COM63 to 0
+#endif
+
+	lcdWriteCommand(0xA6);	// set normal display
+	//     0xA6 => Normal Display
+	//     0xA7 => Inverse Display On
+
+	lcdWriteCommand(0xA8);	// set multiplex ratio
+	lcdWriteCommand(0x3F);	// 1/64
+	
+	lcdWriteCommand(0xd3);	// set display offset
+	lcdWriteCommand(0x00);
+	
+	lcdWriteCommand(0xd5);	// set display clock divide/oscillator frequency
+	lcdWriteCommand(0xA0);	// Default => 0x80
+	//	D[3:0] => Display Clock Divider
+	//	D[7:4] => Oscillator Frequency
+	
+	lcdWriteCommand(0xD9);	// set Pre-Charge Period
+	lcdWriteCommand(0xF1);	//   Default => 0x22 (2 Display Clocks [Phase 2] / 2 Display Clocks [Phase 1])
+	//     D[3:0] => Phase 1 Period in 1~15 Display Clocks
+	//     D[7:4] => Phase 2 Period in 1~15 Display Clocks
+	
+	lcdWriteCommand(0xDA);	// set com pin configuration
+	lcdWriteCommand(0x12);	//   Default => 0x12, Alternative COM Pin Configuration, Disable COM Left/Right Re-Map
+
+	// Set Page Addressing Mode (0x00/0x01/0x02)
+	lcdWriteCommand(0x20);			// Set Memory Addressing Mode
+	lcdWriteCommand(0x02);			//   Default => 0x02
+	//     0x00 => Horizontal Addressing Mode
+	//     0x01 => Vertical Addressing Mode
+	//     0x02 => Page Addressing Mode
+
+	//Set_Entire_Display_096(0xA4);			// Disable Entire Display On (0xA4/0xA5)
+	lcdWriteCommand(0xA4);			// Set Entire Display On / Off
+	//   Default => 0xA4
+	//     0xA4 => Normal Display
+	//     0xA5 => Entire Display On
+
+	//Set_Inverse_Display_096(0xA6);			// Disable Inverse Display On (0xA6/0xA7)
+	lcdWriteCommand(0xA6);			// Set Inverse Display On/Off
+	//   Default => 0xA6
+	//     0xA6 => Normal Display
+	//     0xA7 => Inverse Display On
+	
+	lcdWriteCommand(0x91);	//manufacturer provided
+	lcdWriteCommand(0x3F);	//manufacturer provided
+	lcdWriteCommand(0x3F);	//manufacturer provided
+	lcdWriteCommand(0x3F);	//manufacturer provided
+	lcdWriteCommand(0x3F);	//manufacturer provided
+
+
+/*
 #if defined(LCD_VERTICAL_INVERT)
   // T12 and TX12 have the screen inverted.
   lcdWriteCommand(0xe2); // (14) Soft reset
@@ -147,6 +239,8 @@ void lcdStart()
   lcdWriteCommand(0x36); // Set Vop
   lcdWriteCommand(0xa6); // Set display mode
 #endif
+*/
+
 #if defined(BOOT)
   lcdSetRefVolt(LCD_CONTRAST_DEFAULT);
 #else

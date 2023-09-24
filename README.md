@@ -11,6 +11,9 @@
 <p align="center">
 <a href="https://raw.githubusercontent.com/EdgeTX/edgetx.github.io/master/docs/assets/logo.png"><img src="https://raw.githubusercontent.com/EdgeTX/edgetx.github.io/master/docs/assets/logo.png" align="center" height="150" width="150" ></a>
 
+# This is a fork of the original EdgeTX with an modified display driver to support an OLED display in a Radiomaster Boxer
+Thanks to the developer who wrote the modification. For more information checkout this repo: https://github.com/DongkwanYi/OLEDBOXER/blob/main/README.md
+
 # Welcome to EdgeTX!
 **The cutting edge open-source firmware for your R/C radio!**
 
