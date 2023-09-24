@@ -840,6 +840,10 @@ QString ModelPrinter::printSettingsTrim()
   str << printLabelValue(tr("Step"), printTrimIncrementMode());
   str << printLabelValue(tr("Display"), printTrimsDisplayMode());
   str << printLabelValue(tr("Extended"), printBoolean(model.extendedTrims, BOOLEAN_YESNO));
+  Board::Type board = firmware->getBoard();
+  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board)) {
+    str << printLabelValue(tr("Hats Mode"), printHatsMode());
+  }
   return str.join(" ");
 }
 
@@ -864,6 +868,22 @@ QString ModelPrinter::printTrimsDisplayMode()
       return tr("On Change");
     case 2:
       return tr("Always");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+QString ModelPrinter::printHatsMode()
+{
+  switch (model.hatsMode) {
+    case GeneralSettings::HATSMODE_TRIMS_ONLY:
+      return tr("Trims only");
+    case GeneralSettings::HATSMODE_KEYS_ONLY:
+      return tr("Keys only");
+    case GeneralSettings::HATSMODE_SWITCHABLE:
+      return tr("Switchable");
+    case GeneralSettings::HATSMODE_GLOBAL:
+      return tr("Global");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
