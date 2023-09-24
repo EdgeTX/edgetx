@@ -34,8 +34,8 @@ constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 132;
 constexpr coord_t INPUT_EDIT_CURVE_HEIGHT = INPUT_EDIT_CURVE_WIDTH;
 constexpr coord_t MENUS_LINE_HEIGHT = 35;
 constexpr coord_t MENUS_WIDTH = 200;
-constexpr coord_t MENUS_MAX_HEIGHT = (MENUS_LINE_HEIGHT * 7);
+constexpr coord_t MENUS_MAX_HEIGHT = (MENUS_LINE_HEIGHT * 7) + 8;
 
-constexpr rect_t MENUS_TOOLBAR_RECT =              { 0, (LCD_H - MENUS_MAX_HEIGHT) / 2, 73, MENUS_MAX_HEIGHT };
+constexpr rect_t MENUS_TOOLBAR_RECT =              { 0, (LCD_H - MENUS_MAX_HEIGHT) / 2, 76, MENUS_MAX_HEIGHT };
 
 #define ROTARY_ENCODER_SPEED() rotencSpeed

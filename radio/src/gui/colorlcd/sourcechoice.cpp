@@ -41,7 +41,7 @@ class SourceChoiceMenuToolbar : public MenuToolbar
 #if defined(LUA_MODEL_SCRIPTS)
     if (modelCustomScriptsEnabled())
       addButton(STR_CHAR_LUA, MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, nullptr,
-                TR_MENU_LUA);
+                STR_MENU_LUA);
 #endif
 #if defined(PCBHORUS)
     auto lastSource = MIXSRC_LAST_SPACEMOUSE;

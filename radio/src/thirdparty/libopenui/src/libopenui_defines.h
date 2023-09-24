@@ -42,7 +42,7 @@ constexpr uint32_t MENU_HEADER_BUTTON_WIDTH =      33;
 constexpr uint32_t MENU_HEADER_BUTTONS_LEFT =      47;
 
 constexpr uint32_t MENUS_TOOLBAR_BUTTON_WIDTH =    32;
-constexpr uint32_t MENUS_TOOLBAR_BUTTON_PADDING =  3;
+constexpr uint32_t MENUS_TOOLBAR_BUTTON_PADDING =  4;
 
 constexpr uint32_t MENU_HEADER_HEIGHT =            45;
 constexpr uint32_t MENU_TITLE_TOP =                48;
