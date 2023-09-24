@@ -22,6 +22,7 @@
 #include "mixer_edit_adv.h"
 #include "numberedit.h"
 #include "fm_matrix.h"
+#include "mixes.h"
 
 #include "opentx.h"
 

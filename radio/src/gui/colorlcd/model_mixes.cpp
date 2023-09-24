@@ -31,6 +31,7 @@
 #include "input_mix_button.h"
 #include "mixer_edit.h"
 #include "input_mapping.h"
+#include "mixes.h"
 
 #include "tasks/mixer_task.h"
 #include "hal/adc_driver.h"
@@ -54,119 +55,6 @@ static const uint8_t _mask_mplex_replace[] = {
 };
 STATIC_LZ4_BITMAP(mask_mplex_replace);
 
-uint8_t getMixesCount()
-{
-  uint8_t count = 0;
-  uint8_t ch;
-
-  for (int i = MAX_MIXERS - 1; i >= 0; i--) {
-    ch = mixAddress(i)->srcRaw;
-    if (ch != 0) {
-      count++;
-    }
-  }
-  return count;
-}
-
-void insertMix(uint8_t idx, uint8_t channel)
-{
-  mixerTaskStop();
-  MixData *mix = mixAddress(idx);
-  memmove(mix + 1, mix, (MAX_MIXERS - (idx + 1)) * sizeof(MixData));
-  memclear(mix, sizeof(MixData));
-  mix->destCh = channel;
-  mix->srcRaw = channel + 1;
-  if (!isSourceAvailable(mix->srcRaw)) {
-    if (channel >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
-      mix->srcRaw = MIXSRC_FIRST_STICK + channel;
-    } else {
-      mix->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(channel);
-    }
-    while (!isSourceAvailable(mix->srcRaw)) {
-      mix->srcRaw += 1;
-    }
-  }
-  mix->weight = 100;
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
-}
-
-void deleteMix(uint8_t idx)
-{
-  mixerTaskStop();
-  MixData * mix = mixAddress(idx);
-  memmove(mix, mix + 1, (MAX_MIXERS - (idx + 1)) * sizeof(MixData));
-  memclear(&g_model.mixData[MAX_MIXERS - 1], sizeof(MixData));
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
-}
-
-#if defined(LUA)
-// This is necessary as the LUA API uses th old interface
-// where insertMix() has only one param. The channel is
-// passed through s_currCh
-void insertMix(uint8_t idx)
-{
-  insertMix(idx, s_currCh - 1);
-}
-#endif
-
-void copyMix(uint8_t source, uint8_t dest, int8_t ch)
-{
-  mixerTaskStop();
-  MixData sourceMix;
-  memcpy(&sourceMix, mixAddress(source), sizeof(MixData));
-  MixData *mix = mixAddress(dest);
-  size_t trailingMixes = MAX_MIXERS - (dest + 1);
-  memmove(mix + 1, mix, trailingMixes * sizeof(MixData));
-  memcpy(mix, &sourceMix, sizeof(MixData));
-  mix->destCh = ch;
-  mixerTaskStart();
-  storageDirty(EE_MODEL);
-}
-
-bool swapMixes(uint8_t &idx, uint8_t up)
-{
-  MixData * x, * y;
-  int8_t tgt_idx = (up ? idx - 1 : idx + 1);
-
-  x = mixAddress(idx);
-
-  if (tgt_idx < 0) {
-    if (x->destCh == 0)
-      return false;
-    x->destCh--;
-    return true;
-  }
-
-  if (tgt_idx == MAX_MIXERS) {
-    if (x->destCh == MAX_OUTPUT_CHANNELS - 1)
-      return false;
-    x->destCh++;
-    return true;
-  }
-
-  y = mixAddress(tgt_idx);
-  uint8_t destCh = x->destCh;
-  if (!y->srcRaw || destCh != y->destCh) {
-    if (up) {
-      if (destCh > 0) x->destCh--;
-      else return false;
-    }
-    else {
-      if (destCh < MAX_OUTPUT_CHANNELS - 1) x->destCh++;
-      else return false;
-    }
-    return true;
-  }
-
-  mixerTaskStop();
-  memswap(x, y, sizeof(MixData));
-  mixerTaskStart();
-
-  idx = tgt_idx;
-  return true;
-}
 
 class MixLineButton : public InputMixButton
 {
@@ -312,7 +200,7 @@ ModelMixesPage::ModelMixesPage() :
 
 bool ModelMixesPage::reachMixesLimit()
 {
-  if (getMixesCount() >= MAX_MIXERS) {
+  if (getMixCount() >= MAX_MIXERS) {
     new MessageDialog(form, STR_WARNING, STR_NOFREEMIXER);
     return true;
   }
@@ -550,17 +438,14 @@ void ModelMixesPage::build(FormWindow * window)
   bool focusSet = false;
   uint8_t index = 0;
   MixData* line = g_model.mixData;
-  for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
+  for (uint8_t ch = 0; (ch < MAX_OUTPUT_CHANNELS) && (index < MAX_MIXERS); ch++) {
 
-    if (index >= MAX_MIXERS) break;
-
-    bool skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
-    if (line->destCh == ch && !skip_mix) {
+    if (line->destCh == ch) {
 
       // one group for the complete mixer channel
       auto group = createGroup(form, MIXSRC_FIRST_CH + ch);
       groups.emplace_back(group);
-      while (index < MAX_MIXERS && (line->destCh == ch) && !skip_mix) {
+      while (index < MAX_MIXERS && (line->destCh == ch)) {
         // one button per input line
         auto btn = createLineButton(group, index);
         if (!focusSet) {
@@ -569,7 +454,6 @@ void ModelMixesPage::build(FormWindow * window)
         }
         ++index;
         ++line;
-        skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
       }
     }
   }

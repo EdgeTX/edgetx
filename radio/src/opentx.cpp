@@ -215,11 +215,6 @@ ExpoData *expoAddress(uint8_t idx )
   return &g_model.expoData[idx];
 }
 
-MixData *mixAddress(uint8_t idx)
-{
-  return &g_model.mixData[idx];
-}
-
 LimitData *limitAddress(uint8_t idx)
 {
   return &g_model.limitData[idx];
