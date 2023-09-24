@@ -22,19 +22,6 @@
 #include "sbus.h"
 #include "timers_driver.h"
 
-#define SBUS_FRAME_GAP_DELAY   1000 // 500uS
-
-//#define SBUS_START_BYTE        0x0F
-//#define SBUS_END_BYTE          0x00
-//#define SBUS_FLAGS_IDX         23
-#define SBUS_FRAMELOST_BIT     2
-#define SBUS_FAILSAFE_BIT      3
-
-//#define SBUS_CH_BITS           11
-//#define SBUS_CH_MASK           ((1<<SBUS_CH_BITS) - 1)
-
-#define SBUS_CH_CENTER         0x3E0
-
 static int (*_sbusAuxGetByte)(void*, uint8_t*) = nullptr;
 static void* _sbusAuxGetByteCtx = nullptr;
 
