@@ -671,7 +671,6 @@ void BitmapBuffer::drawFilledTriangle(coord_t x0, coord_t y0, coord_t x1,
   if (y1 > y2) { SWAP(y2, y1); SWAP(x2, x1); }
   if (y0 > y1) { SWAP(y0, y1); SWAP(x0, x1); }
 
-  DMAWait();
   if (y0 == y2) { // Handle awkward all-on-same-line case as its own thing
     a = b = x0;
     if (x1 < a)
