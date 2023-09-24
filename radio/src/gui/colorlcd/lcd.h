@@ -22,7 +22,6 @@
 #ifndef _LCD_H_
 #define _LCD_H_
 
-//#include "bitmapbuffer.h"
 #include "opentx_types.h"
 
 #include "colors.h"

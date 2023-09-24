@@ -22,8 +22,6 @@
 #ifndef __LCD_DRIVER_H__
 #define __LCD_DRIVER_H__
 
-//#include "stm32_hal_ll.h"
-
 #define HBP  ( 24 ) // TODO use names from FlySky
 #define VBP  ( 10 )
 
