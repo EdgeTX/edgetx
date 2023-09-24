@@ -269,7 +269,7 @@ void logsWrite()
     return;
   }
 
-  if (isFunctionActive(FUNCTION_LOGS) && logDelay100ms > 0) {
+  if (isFunctionActive(FUNCTION_LOGS) && logDelay100ms > 0 && !usbPlugged()) {
     #if defined(SIMU) || !defined(RTCLOCK)
     tmr10ms_t tmr10ms = get_tmr10ms();                                        // tmr10ms works in 10ms increments
     if (lastLogTime == 0 || (tmr10ms_t)(tmr10ms - lastLogTime) >= (tmr10ms_t)(logDelay100ms*10)-1) {
