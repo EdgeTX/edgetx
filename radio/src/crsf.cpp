@@ -17,8 +17,8 @@ void processCrsfInput() {
 
   while (sbusAuxGetByte(&rxchar)) {
       CRSF::Servo<0>::process(rxchar, [&](){
-          CRSF::Servo<0>::convert(ppmInput);
-          ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;        
+          CRSF::Servo<0>::convert(trainerInput);
+          trainerInputValidityTimer = TRAINER_IN_VALID_TIMEOUT;
       });
   }
 #endif

@@ -6,8 +6,8 @@ void processIbusInput() {
 
   while (sbusAuxGetByte(&rxchar)) {
       IBus::Servo<0>::process(rxchar, [&](){
-          IBus::Servo<0>::convert(ppmInput);
-          ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;        
+          IBus::Servo<0>::convert(trainerInput);
+          trainerInputValidityTimer = TRAINER_IN_VALID_TIMEOUT;
       });
   }
 #endif
