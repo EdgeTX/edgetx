@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "hal/adc_driver.h"
 #include "input_mapping.h"
+#include "mixes.h"
 
 void clearInputs()
 {

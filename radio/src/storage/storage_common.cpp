@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "timers_driver.h"
 #include "tasks/mixer_task.h"
+#include "mixes.h"
 
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
@@ -106,7 +107,7 @@ void postRadioSettingsLoad()
 #endif
 }
 
-static void sortMixerLines()
+static bool sortMixerLines()
 {
   // simple bubble sort
   unsigned passes = 0;
@@ -132,9 +133,16 @@ static void sortMixerLines()
     ++passes;
   } while(swaps > 0);
 
-  if (passes > 1) {
-    storageDirty(EE_MODEL);
-  }
+  // anything above 1 means that
+  // we changed something
+  return passes > 1;
+}
+
+static void sanitizeMixerLines()
+{
+  bool dirty = sortMixerLines();
+  updateMixCount();
+  if (dirty) storageDirty(EE_MODEL);
 }
 
 void postModelLoad(bool alarms)
@@ -226,7 +234,7 @@ if(g_model.rssiSource) {
   }
 
   loadCurves();
-  sortMixerLines();
+  sanitizeMixerLines();
 
 #if defined(GUI)
   if (alarms) {
