@@ -40,6 +40,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
   bool (*flashRead)(uint32_t addr, uint8_t* buf, uint32_t len);
   bool (*flashProgram)(uint32_t addr, const uint8_t* buf, uint32_t len);
@@ -72,3 +76,7 @@ bool ftlRead(FrFTL* ftl, uint32_t sectorNo, uint8_t* buffer);
 
 bool ftlTrim(FrFTL* ftl, uint32_t startSectorNo, uint32_t noOfSectors);
 bool ftlSync(FrFTL* ftl);
+
+#ifdef __cplusplus
+}
+#endif
