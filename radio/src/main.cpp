@@ -268,24 +268,25 @@ void checkSpeakerVolume()
 }
 
 #if defined(USE_HATS_AS_KEYS)
-void checkHatsAsKeys() {
-  uint8_t hatsMode = g_model.hatsMode == HATSMODE_GLOBAL ? g_eeGeneral.hatsMode : g_model.hatsMode;
+void checkHatsAsKeys()
+{
+  uint8_t hatsMode = g_model.hatsMode == HATSMODE_GLOBAL ? g_eeGeneral.hatsMode
+                                                         : g_model.hatsMode;
 
   static bool oldHatsModeKeys = hatsMode == HATSMODE_KEYS_ONLY;
 
-  if(hatsMode == HATSMODE_TRIMS_ONLY) {
+  if (hatsMode == HATSMODE_TRIMS_ONLY) {
     setHatsAsKeys(false);
   }
-  
-  if(hatsMode == HATSMODE_KEYS_ONLY) {
+
+  if (hatsMode == HATSMODE_KEYS_ONLY) {
     setHatsAsKeys(true);
   }
 
   bool hatsModeKeys = getHatsAsKeys();
 
-  if(hatsModeKeys == oldHatsModeKeys)
-    return;
-  
+  if (hatsModeKeys == oldHatsModeKeys) return;
+
   oldHatsModeKeys = !oldHatsModeKeys;
 
   audioKeyPress();

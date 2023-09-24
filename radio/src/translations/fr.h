@@ -170,7 +170,6 @@
 #define TR_HATSOPT                     "Trims uniquement","Touches uniquement","Commutable","Global"
 #define TR_HATSMODE_TRIMS              "Mode joystick: trims"
 #define TR_HATSMODE_KEYS               "Mode joystick: touches"
-
 #endif
 
 #if defined(COLORLCD)

@@ -5682,7 +5682,6 @@ Acceptable values are 3v..12v</source>
         <source>Power Off Delay</source>
         <translation type="unfinished"></translation>
     </message>
-
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1941"/>
         <location filename="../generaledit/generalsetup.ui" line="2420"/>

@@ -611,13 +611,13 @@ void etx_checkbox_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
   lv_obj_add_style(obj, &styles.focussed, LV_PART_INDICATOR | LV_STATE_FOCUSED);
   lv_obj_add_style(obj, &styles.disabled, LV_PART_INDICATOR | LV_STATE_DISABLED);
 }
+
 void bubble_popup_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
 {
   lv_obj_add_style(obj, &styles.bubble_popup, 0);
 }
 
 }
-
 
 // Object classes
 const lv_obj_class_t input_mix_line_class = {
@@ -815,7 +815,6 @@ const lv_obj_class_t etx_checkbox_class = {
     .instance_size = sizeof(lv_checkbox_t),
 };
 
-
 const lv_obj_class_t etx_bubble_popup_class = {
     .base_class = &window_base_class,
     .constructor_cb = bubble_popup_constructor,
@@ -828,7 +827,6 @@ const lv_obj_class_t etx_bubble_popup_class = {
     .group_def = LV_OBJ_CLASS_GROUP_DEF_FALSE,
     .instance_size = sizeof(lv_obj_t)
 };
-
 
 // Event handlers
 static void field_edit_event(const lv_obj_class_t* class_p, lv_event_t* e)

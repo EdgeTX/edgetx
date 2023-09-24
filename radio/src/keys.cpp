@@ -294,7 +294,7 @@ uint8_t keysGetTrimState(uint8_t trim)
 }
 
 #if defined(USE_HATS_AS_KEYS)
-#define ROTARY_EMU_KEY_REPEAT_RATE 12                  // times 10 [ms]                 
+#define ROTARY_EMU_KEY_REPEAT_RATE 12  // times 10 [ms]
 
 static bool _trims_as_buttons = false;
 static bool _trims_as_buttons_LUA = false;
@@ -305,29 +305,29 @@ bool getHatsAsKeys() { return _trims_as_buttons; }
 void setTransposeHatsForLUA(bool val) { _trims_as_buttons_LUA = val; }
 bool getTransposeHatsForLUA() { return _trims_as_buttons_LUA; }
 
-int16_t getEmuRotaryData() {
+int16_t getEmuRotaryData()
+{
   static bool rotaryTrimPressed = false;
   static tmr10ms_t timePressed = 0;
 
-  if(getHatsAsKeys() || getTransposeHatsForLUA()) {
+  if (getHatsAsKeys() || getTransposeHatsForLUA()) {
     tmr10ms_t now = get_tmr10ms();
 
-    if(rotaryTrimPressed) {
-      if(now < (timePressed + ROTARY_EMU_KEY_REPEAT_RATE))
-        return 0;
+    if (rotaryTrimPressed) {
+      if (now < (timePressed + ROTARY_EMU_KEY_REPEAT_RATE)) return 0;
 
       rotaryTrimPressed = false;
     }
 
     auto trims = readTrims();
 
-    if(trims & (1 << 4)) {
+    if (trims & (1 << 4)) {
       rotaryTrimPressed = true;
       timePressed = now;
-      return 1; 
+      return 1;
     }
 
-    if(trims & (1 << 5)) {
+    if (trims & (1 << 5)) {
       rotaryTrimPressed = true;
       timePressed = now;
       return -1;
@@ -342,67 +342,69 @@ static void transpose_trims(uint32_t *keys)
 #if defined(BOOT)
   auto trims = readTrims();
 
-  if (trims & (1 << 4)) *keys |= 1 << KEY_DOWN;       // right hat, down    0x10
-  if (trims & (1 << 5)) *keys |= 1 << KEY_UP;         // right hat, up      0x20
+  if (trims & (1 << 4)) *keys |= 1 << KEY_DOWN;  // right hat, down    0x10
+  if (trims & (1 << 5)) *keys |= 1 << KEY_UP;    // right hat, up      0x20
 #else
   static uint8_t state = 0;
 
-  bool allowModeSwitch =
-    ((g_model.hatsMode == HATSMODE_GLOBAL && g_eeGeneral.hatsMode == HATSMODE_SWITCHABLE) ||
-     (g_model.hatsMode == HATSMODE_SWITCHABLE)) &&
-    !getTransposeHatsForLUA();
+  bool allowModeSwitch = ((g_model.hatsMode == HATSMODE_GLOBAL &&
+                           g_eeGeneral.hatsMode == HATSMODE_SWITCHABLE) ||
+                          (g_model.hatsMode == HATSMODE_SWITCHABLE)) &&
+                         !getTransposeHatsForLUA();
 
-  if(allowModeSwitch) {
-    static bool lastExitState  = false;
+  if (allowModeSwitch) {
+    static bool lastExitState = false;
     static bool lastEnterState = false;
 
-    bool exitState  = *keys & (1 << KEY_EXIT);      // edge detection for EXIT and ENTER keys   
+    bool exitState =
+        *keys & (1 << KEY_EXIT);  // edge detection for EXIT and ENTER keys
     bool enterState = *keys & (1 << KEY_ENTER);
 
-    bool exitPressed  = !lastExitState  && exitState;
-    bool exitReleased = lastExitState   && !exitState;
+    bool exitPressed = !lastExitState && exitState;
+    bool exitReleased = lastExitState && !exitState;
     bool enterPressed = !lastEnterState && enterState;
 
-    lastExitState  = exitState;
+    lastExitState = exitState;
     lastEnterState = enterState;
 
-    switch(state) {
-      case 0:                                       // idle state waiting for EXIT or ENTER key
-        if(exitPressed) {
+    switch (state) {
+      case 0:  // idle state waiting for EXIT or ENTER key
+        if (exitPressed) {
           state = 1;
         }
         break;
-      
-      case 1:                                       // state EXIT received
-        if(exitReleased) {                          // if exit released go back to idle state
+
+      case 1:                // state EXIT received
+        if (exitReleased) {  // if exit released go back to idle state
           state = 0;
           break;
         }
-        
-        if(enterPressed) {                          // ENTER received with EXIT still pressed
-          setHatsAsKeys(!getHatsAsKeys());  // change mode and don't forward EXIT and ENTER keys
+
+        if (enterPressed) {  // ENTER received with EXIT still pressed
+          setHatsAsKeys(!getHatsAsKeys());  // change mode and don't forward
+                                            // EXIT and ENTER keys
           killEvents(KEY_EXIT);
           killEvents(KEY_ENTER);
-          state = 0;                                // go to for EXIT to be released
+          state = 0;  // go to for EXIT to be released
           break;
         }
         break;
     }
   } else
-    state = 0;                                        // state machine in idle if not in mode "BOTH"
+    state = 0;  // state machine in idle if not in mode "BOTH"
 
-  if(getHatsAsKeys() ||                           // map hats to keys in button mode or LUA active
-     getTransposeHatsForLUA()) {
+  if (getHatsAsKeys() ||  // map hats to keys in button mode or LUA active
+      getTransposeHatsForLUA()) {
     auto trims = readTrims();
-    
-    // spare key in buttons mode: left hat left 
-    //if (trims & (1 << 0)) *keys |= 1 << tbd;        // left hat, left    0x01
-    if (trims & (1 << 1)) *keys |= 1 << KEY_MODEL;    // left hat, right   0x02
-    if (trims & (1 << 2)) *keys |= 1 << KEY_TELE;     // left hat, down    0x04
-    if (trims & (1 << 3)) *keys |= 1 << KEY_SYS;      // left hat, up      0x08
 
-    if (trims & (1 << 6)) *keys |= 1 << KEY_PAGEUP;   // rht, left    0x40
-    if (trims & (1 << 7)) *keys |= 1 << KEY_PAGEDN;   // rht, right   0x80
+    // spare key in buttons mode: left hat left
+    // if (trims & (1 << 0)) *keys |= 1 << tbd;      // left hat, left    0x01
+    if (trims & (1 << 1)) *keys |= 1 << KEY_MODEL;  // left hat, right   0x02
+    if (trims & (1 << 2)) *keys |= 1 << KEY_TELE;   // left hat, down    0x04
+    if (trims & (1 << 3)) *keys |= 1 << KEY_SYS;    // left hat, up      0x08
+
+    if (trims & (1 << 6)) *keys |= 1 << KEY_PAGEUP;  // rht, left    0x40
+    if (trims & (1 << 7)) *keys |= 1 << KEY_PAGEDN;  // rht, right   0x80
   }
 
 #endif
@@ -416,7 +418,7 @@ bool keysPollingCycle()
 
 #if defined(USE_HATS_AS_KEYS)
   transpose_trims(&keys_input);
-  
+
   if (getHatsAsKeys() || getTransposeHatsForLUA()) {
     trims_input = 0;
   } else {

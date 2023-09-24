@@ -43,7 +43,6 @@ constexpr char AIM_GS_INTMODULEBAUDRATE[]  {"gs.intmodulebaudrate"};
 constexpr char AIM_GS_STICKDEADZONE[]      {"gs.stickdeadzone"};
 constexpr char AIM_GS_UARTSAMPLEMODE[]     {"gs.uartsamplemode"};
 constexpr char AIM_GS_HATSMODE[]           {"gs.hatsmode"};
-
 constexpr char AIM_TRAINERMIX_MODE[]       {"trainermix.mode"};
 constexpr char AIM_TRAINERMIX_SRC[]        {"trainermix.src"};
 
