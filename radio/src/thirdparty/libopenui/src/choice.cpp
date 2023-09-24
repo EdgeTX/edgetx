@@ -197,7 +197,7 @@ void Choice::fillMenu(Menu *menu, const FilterFct& filter)
 
   int count = 0;
   int selectedIx = -1;
-  int selectedIx0 = -1;
+  selectedIx0 = -1;
   for (int i = vmin; i <= vmax; ++i) {
     if (filter && !filter(i)) continue;
     if (isValueAvailable && !isValueAvailable(i)) continue;

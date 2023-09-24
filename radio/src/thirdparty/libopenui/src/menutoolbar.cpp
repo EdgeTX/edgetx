@@ -29,27 +29,16 @@ static void toolbar_btn_defocus(lv_event_t* event)
 
 MenuToolbarButton::MenuToolbarButton(Window* parent, const rect_t& rect,
                                      const char* picto) :
-    Button(parent, rect, nullptr, 0, 0, window_create), picto(picto)
+    Button(parent, rect, nullptr, 0, 0, etx_menu_button_create)
 {
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 
   lv_obj_add_event_cb(lvobj, toolbar_btn_defocus, LV_EVENT_DEFOCUSED, nullptr);
-}
 
-void MenuToolbarButton::paint(BitmapBuffer * dc)
-{
-  lv_coord_t width = lv_obj_get_content_width(lvobj);
-  LcdFlags color = COLOR_THEME_PRIMARY1;
-  if (checked()) {
-    dc->drawSolidFilledRect(
-        MENUS_TOOLBAR_BUTTON_PADDING, MENUS_TOOLBAR_BUTTON_PADDING,
-        MENUS_TOOLBAR_BUTTON_WIDTH, MENUS_TOOLBAR_BUTTON_WIDTH,
-        COLOR_THEME_FOCUS);
-    color = COLOR_THEME_PRIMARY2;
-  }
-  dc->drawText(MENUS_TOOLBAR_BUTTON_WIDTH / 2, (rect.h - getFontHeight(FONT(L))) / 2 + 2,
-               picto, FONT(L) | CENTERED | color);
+  auto label = lv_label_create(lvobj);
+  lv_label_set_text(label, picto);
+  lv_obj_center(label);
 }
 
 MenuToolbar::MenuToolbar(Choice* choice, Menu* menu) :
@@ -71,6 +60,7 @@ void MenuToolbar::resetFilter()
   if (lv_group_get_focused(group) != lvobj) {
     lv_group_focus_obj(lvobj);
     choice->fillMenu(menu);
+    menu->setTitle(choice->menuTitle);
   }
 }
 
@@ -98,8 +88,8 @@ void MenuToolbar::onEvent(event_t event)
 
 rect_t MenuToolbar::getButtonRect(size_t buttons)
 {
-  coord_t x = (buttons & 1) * (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING);
-  coord_t y = (buttons / 2) * (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING);
+  coord_t x = (buttons & 1) * (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING) + MENUS_TOOLBAR_BUTTON_PADDING;
+  coord_t y = (buttons / 2) * (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING) + MENUS_TOOLBAR_BUTTON_PADDING;
   return {x, y, MENUS_TOOLBAR_BUTTON_WIDTH, MENUS_TOOLBAR_BUTTON_WIDTH};
 }
 
@@ -158,7 +148,12 @@ void MenuToolbar::addButton(const char* picto, int16_t filtermin,
   button->setPressHandler(
       std::bind(&MenuToolbar::filterMenu, this, button, filtermin, filtermax, filterFunc, title));
 
-  lv_group_add_obj(group, button->getLvObj());
+  addButton(button);
+}
+
+void MenuToolbar::addButton(Window* btn)
+{
+  lv_group_add_obj(group, btn->getLvObj());
 }
 
 void MenuToolbar::onClicked()

@@ -27,10 +27,8 @@ class MenuToolbarButton : public Button
 {
  public:
   MenuToolbarButton(Window* parent, const rect_t& rect, const char* picto);
-  void paint(BitmapBuffer* dc) override;
 
  protected:
-  const char* picto;
 };
 
 class MenuToolbar : public Window
@@ -43,6 +41,8 @@ class MenuToolbar : public Window
 
   void resetFilter();
   void onEvent(event_t event) override;
+
+  void addButton(Window* btn);
 
  protected:
   Choice* choice;

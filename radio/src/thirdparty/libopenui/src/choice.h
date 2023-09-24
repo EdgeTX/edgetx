@@ -180,6 +180,8 @@ class Choice: public ChoiceBase {
 
     void set_lv_LongPressHandler(lvHandler_t longPressHandler, void* data);
 
+    int selectedIx0 = 0;
+
   protected:
     friend class MenuToolbar;
 
