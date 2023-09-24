@@ -1,10 +1,12 @@
 #include "crsf.h"
 
+static CRSF::Servo crsfTrainer;
+
 void crsfTrainerPauseCheck() {
 #if !defined(SIMU)
 # if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
     if (hasSerialMode(UART_MODE_CRSF_TRAINER) >= 0) {
-        CRSF::Servo<0>::tick1ms();
+        crsfTrainer.tick1ms();
         processCrsfInput();    
     }
 # endif
@@ -16,8 +18,8 @@ void processCrsfInput() {
   uint8_t rxchar;
 
   while (sbusAuxGetByte(&rxchar)) {
-      CRSF::Servo<0>::process(rxchar, [&](){
-          CRSF::Servo<0>::convert(trainerInput);
+      crsfTrainer.process(rxchar, [&](){
+          crsfTrainer.convert(trainerInput);
           trainerInputValidityTimer = TRAINER_IN_VALID_TIMEOUT;
       });
   }
