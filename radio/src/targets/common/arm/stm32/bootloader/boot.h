@@ -54,6 +54,10 @@ enum BootloaderState {
   ST_FLASH_DONE,
   ST_RESTORE_MENU,
   ST_USB,
+#if defined(SPI_FLASH)
+  ST_CLEAR_FLASH_CHECK,
+  ST_CLEAR_FLASH,
+#endif
   ST_RADIO_MENU,
   ST_REBOOT,
 };
