@@ -94,7 +94,7 @@
 #define TR_TEXT_SIZE                   "Standard","Mini","Petit","Moyen","Double"
 
 #define TR_SF_TRAINER                  "Écolage"
-#define TR_SF_INST_TRIM                "Inst. Trim"
+#define TR_SF_INST_TRIM                TR("Inst. Trim","Instant Trim")
 #define TR_SF_RESET                    "Remise à 0"
 #define TR_SF_SET_TIMER                "Déf."
 #define TR_SF_VOLUME                   "Volume"

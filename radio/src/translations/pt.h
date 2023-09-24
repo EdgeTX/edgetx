@@ -96,7 +96,7 @@
 #define TR_SF_SET_TIMER                "Definir"
 #define TR_SF_VOLUME                   "Volume"
 #define TR_SF_FAILSAFE                 "DefFailsafe"
-#define TR_SF_RANGE_CHECK              "RangeCheck"
+#define TR_SF_RANGE_CHECK              "Range Check"
 #define TR_SF_MOD_BIND                 "BindModulo"
  
 #define TR_SOUND                       "Tocar Som"

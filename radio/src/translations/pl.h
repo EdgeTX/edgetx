@@ -93,9 +93,9 @@
 #define TR_SF_RESET           "Resetuj"
 #define TR_SF_SET_TIMER       "Ustaw"
 #define TR_SF_VOLUME          "Głośność"
-#define TR_SF_FAILSAFE        "SetFailsafe"
-#define TR_SF_RANGE_CHECK     "RangeCheck"
-#define TR_SF_MOD_BIND        "ModuleBind"
+#define TR_SF_FAILSAFE        "Set Failsafe"
+#define TR_SF_RANGE_CHECK     "Range Check"
+#define TR_SF_MOD_BIND        "Module Bind"
  
 #define TR_SOUND              "GrajDźwięk"
 #define TR_PLAY_TRACK         "GrajŚcieżk"
@@ -112,7 +112,7 @@
 #define TR_SF_SAFETY          TR("Bezp.","Bezpiecz")
 
 #define TR_SF_SCREENSHOT      "Zrzut Ekra"
-#define TR_SF_RACING_MODE     "RacingMode"
+#define TR_SF_RACING_MODE     "Racing Mode"
 #define TR_SF_DISABLE_TOUCH   "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP TR("Wycisz wzm.", "Wycisz wzmacniacz audio")
 #define TR_SF_SET_SCREEN      "Set Main Screen"

@@ -95,13 +95,13 @@
 #define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
 #define TR_SF_TRAINER                  "Træner"
-#define TR_SF_INST_TRIM                "Inst. Trim"
+#define TR_SF_INST_TRIM                "Fast trim"
 #define TR_SF_RESET                    "Nulstil"
 #define TR_SF_SET_TIMER                "Sæt"
-#define TR_SF_VOLUME                   "Lydstyrke"
-#define TR_SF_FAILSAFE                 "SetFejlsikr"
-#define TR_SF_RANGE_CHECK              "AfstandCheck"
-#define TR_SF_MOD_BIND                 "ModuleBind"
+#define TR_SF_VOLUME                   "Volume"
+#define TR_SF_FAILSAFE                 "Sæt fejlsikr"
+#define TR_SF_RANGE_CHECK              "Afstand check"
+#define TR_SF_MOD_BIND                 "Modul Bind"
 
 #define TR_SOUND                       "Spil lyd"
 #define TR_PLAY_TRACK                  TR("Afspil lyd", "Afspil lydfil")
@@ -118,7 +118,7 @@
 #define TR_SF_SAFETY                   TR("Overs.", "Overskriv")
 
 #define TR_SF_SCREENSHOT               "Skærm klip"
-#define TR_SF_RACING_MODE              "Ræs tilstand"
+#define TR_SF_RACING_MODE              TR("Ræs til.", "Ræs tilstand")
 #define TR_SF_DISABLE_TOUCH            "Ikke berøringsaktiv"
 #define TR_SF_DISABLE_AUDIO_AMP        TR("Sluk audio amp", "Sluk audio amplifier")
 #define TR_SF_SET_SCREEN               "Vælg hoved skærm"

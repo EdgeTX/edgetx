@@ -97,13 +97,13 @@
 #define TR_TEXT_SIZE                   "Standard","Nejmenší","Malé","Střední","Dvojité"
 
 #define TR_SF_TRAINER                  "Trenér"
-#define TR_SF_INST_TRIM                "Insta-Trim"
+#define TR_SF_INST_TRIM                "Instantní trim"
 #define TR_SF_RESET                    "Reset"
 #define TR_SF_SET_TIMER                "Změna"
 #define TR_SF_VOLUME                   "Hlasitost"
-#define TR_SF_FAILSAFE                 "Nastavit Failsafe"
+#define TR_SF_FAILSAFE                 "Nastavit failsafe"
 #define TR_SF_RANGE_CHECK              "Kontrola dosahu"
-#define TR_SF_MOD_BIND                 "ModuleBind"
+#define TR_SF_MOD_BIND                 "Modul bind"
 
 #define TR_SOUND                       TR3("\200\201Zvuk", "\200\201Zvuk", "Hrát zvuk")
 #define TR_PLAY_TRACK                  TR3("\200\201Stopa", "\200\201Stopa", "Přehrát wav")
