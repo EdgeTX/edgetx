@@ -30,8 +30,15 @@
 #else
   #define MENUS_STACK_SIZE     2000
 #endif
+
+#if !defined(DEBUG)
 #define MIXER_STACK_SIZE       400
 #define AUDIO_STACK_SIZE       400
+#else
+#define MIXER_STACK_SIZE       512
+#define AUDIO_STACK_SIZE       512
+#endif
+
 #define CLI_STACK_SIZE         1024  // only consumed with CLI build option
 
 #if defined(FREE_RTOS)
