@@ -56,7 +56,8 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
                   !(index >= SWSRC_FIRST_SENSOR && index <= SWSRC_LAST_SENSOR));
         },
         STR_MENU_OTHER);
-    if (choice->isValueAvailable && choice->isValueAvailable(0))
+
+    if ((nxtBtnPos > filterColumns) && choice->isValueAvailable && choice->isValueAvailable(0))
       addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
 
     coord_t y =

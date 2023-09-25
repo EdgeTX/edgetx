@@ -101,7 +101,8 @@ class SourceChoiceMenuToolbar : public MenuToolbar
     if (modelTelemetryEnabled())
       addButton(STR_CHAR_TELEMETRY, MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM,
                 nullptr, STR_MENU_TELEMETRY);
-    if (choice->isValueAvailable && choice->isValueAvailable(0))
+
+    if ((nxtBtnPos > filterColumns) && choice->isValueAvailable && choice->isValueAvailable(0))
       addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
   }
 };

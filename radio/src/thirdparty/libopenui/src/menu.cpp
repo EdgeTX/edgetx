@@ -77,8 +77,8 @@ static void _force_editing(lv_group_t* g) { lv_group_set_editing(g, true); }
 
 static void localLongPressHandler(lv_event_t* e)
 {
-  MenuBody* mb = (MenuBody*)lv_event_get_user_data(e);
-  mb->longPress();
+  MenuBody* menuBody = (MenuBody*)lv_event_get_user_data(e);
+  if (menuBody) menuBody->longPress();
 }
 
 void MenuBody::longPress()
