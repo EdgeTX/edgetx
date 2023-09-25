@@ -761,6 +761,7 @@ const char STR_INVALID_FILE[] = TR_INVALID_FILE;
 const char STR_TIMER_SOURCE[] = TR_TIMER_SOURCE;
 const char STR_SIZE[] = TR_SIZE;
 const char STR_SHADOW[] = TR_SHADOW;
+const char STR_ALIGNMENT[] = TR_ALIGNMENT;
 const char STR_ALIGN_LABEL[] = TR_ALIGN_LABEL;
 const char STR_ALIGN_VALUE[] = TR_ALIGN_VALUE;
 const char* const STR_ALIGN_OPTS[] = TR_ALIGN_OPTS;

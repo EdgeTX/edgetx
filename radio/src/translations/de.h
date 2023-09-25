@@ -955,6 +955,7 @@
   #define TR_TIMER_SOURCE              "Timer Quelle"
   #define TR_SIZE                      "Größe"
   #define TR_SHADOW                    "Schatten"
+  #define TR_ALIGNMENT                 "Ausrichtung"
   #define TR_ALIGN_LABEL               "Name ausrichten"
   #define TR_ALIGN_VALUE               "Wert ausrichten"
   #define TR_ALIGN_OPTS                { "Links", "Mitte", "Rechts" }
