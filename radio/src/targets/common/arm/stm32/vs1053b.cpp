@@ -234,7 +234,7 @@ uint8_t audioHardReset(void)
   delay_ms(100); // 100ms
   RST_HIGH();
 
-  if (!audioWaitDreq(100))
+  if (!audioWaitDreq(5000))
     return 0;
 
   delay_ms(20); // 20ms
@@ -249,12 +249,15 @@ uint8_t audioSoftReset(void)
 
   audioSpiReadWriteByte(0x00); // start the transfer
 
-  audioSpiWriteCmd(SPI_MODE, 0x0816); // SOFT RESET, new model
-  if (!audioWaitDreq(100))
-    return 0;
+  uint8_t retry = 0;
+  uint16_t mode = SM_SDINEW | SM_EARSPEAKER_LO;
+  while (audioSpiReadReg(SPI_MODE) != mode && retry < 100) {
+    retry++;
+    audioSpiWriteCmd(SPI_MODE, mode | SM_RESET);
+  }
 
   // wait for set up successful
-  uint8_t retry = 0;
+  retry = 0;
   while (audioSpiReadReg(SPI_CLOCKF) != 0x9800 && retry < 100) {
     retry++;
     audioSpiWriteCmd(SPI_CLOCKF, 0x9800);
