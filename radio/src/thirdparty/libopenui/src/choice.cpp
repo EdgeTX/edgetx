@@ -17,17 +17,18 @@
  */
 
 #include "choice.h"
+
 #include "menu.h"
 #include "theme.h"
 
-void choice_changed_cb(lv_event_t *e)
+void choice_changed_cb(lv_event_t* e)
 {
   auto code = lv_event_get_code(e);
 
   if (code == LV_EVENT_VALUE_CHANGED) {
-    lv_obj_t *target = lv_event_get_target(e);
+    lv_obj_t* target = lv_event_get_target(e);
     if (target != nullptr) {
-      ChoiceBase *cb = (ChoiceBase*)lv_obj_get_user_data(target);
+      ChoiceBase* cb = (ChoiceBase*)lv_obj_get_user_data(target);
       if (cb) {
         std::string text = cb->getLabelText();
         lv_label_set_text(cb->label, text.c_str());
@@ -38,20 +39,19 @@ void choice_changed_cb(lv_event_t *e)
 
 ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
                        WindowFlags windowFlags) :
-    FormField(parent, rect, windowFlags, 0, etx_choice_create),
-    type(type)
+    FormField(parent, rect, windowFlags, 0, etx_choice_create), type(type)
 {
-//   lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
-//   lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
+  //   lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
+  //   lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
   lv_obj_set_layout(lvobj, LV_LAYOUT_FLEX);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
 
   lv_obj_add_event_cb(lvobj, choice_changed_cb, LV_EVENT_VALUE_CHANGED, lvobj);
   label = lv_label_create(lvobj);
- 
-  lv_group_t * def_group = lv_group_get_default();
-  if(def_group) {
-      lv_group_add_obj(def_group, lvobj);
+
+  lv_group_t* def_group = lv_group_get_default();
+  if (def_group) {
+    lv_group_add_obj(def_group, lvobj);
   }
 
   lv_obj_set_style_pad_left(label, FIELD_PADDING_LEFT, LV_PART_MAIN);
@@ -60,8 +60,9 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
   // lv_obj_set
 
   // add the image
-  lv_obj_t *img = lv_img_create(lvobj);
-  lv_img_set_src(img, type == CHOICE_TYPE_DROPOWN ? LV_SYMBOL_DOWN : LV_SYMBOL_DIRECTORY);
+  lv_obj_t* img = lv_img_create(lvobj);
+  lv_img_set_src(
+      img, type == CHOICE_TYPE_DROPOWN ? LV_SYMBOL_DOWN : LV_SYMBOL_DIRECTORY);
   lv_obj_set_align(img, LV_ALIGN_RIGHT_MID);
 }
 
@@ -70,7 +71,9 @@ std::string Choice::getLabelText()
   std::string text;
 
   if (textHandler != nullptr) {
-    if (_getValue) { text = textHandler(_getValue()); }
+    if (_getValue) {
+      text = textHandler(_getValue());
+    }
   } else if (_getValue) {
     int val = _getValue();
     val -= vmin;
@@ -78,7 +81,7 @@ std::string Choice::getLabelText()
       text = values[val];
     }
   }
-  
+
   return text;
 }
 
@@ -111,8 +114,8 @@ Choice::Choice(Window* parent, const rect_t& rect, const char* const values[],
 
 Choice::Choice(Window* parent, const rect_t& rect,
                std::vector<std::string> values, int vmin, int vmax,
-               std::function<int()> _getValue, std::function<void(int)> _setValue,
-               WindowFlags windowFlags) :
+               std::function<int()> _getValue,
+               std::function<void(int)> _setValue, WindowFlags windowFlags) :
     ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
     values(std::move(values)),
     vmin(vmin),
@@ -146,17 +149,16 @@ Choice::Choice(Window* parent, const rect_t& rect, const char* values, int vmin,
   lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
-void Choice::addValue(const char * value)
+void Choice::addValue(const char* value)
 {
   values.emplace_back(value);
   vmax += 1;
 }
 
-void Choice::addValues(const char * const values[], uint8_t count)
+void Choice::addValues(const char* const values[], uint8_t count)
 {
   this->values.reserve(this->values.size() + count);
-  for (uint8_t i = 0; i < count; i++)
-    this->values.emplace_back(values[i]);
+  for (uint8_t i = 0; i < count; i++) this->values.emplace_back(values[i]);
   vmax += count;
 }
 
@@ -165,7 +167,7 @@ void Choice::setValues(std::vector<std::string> values)
   this->values = std::move(values);
 }
 
-void Choice::setValues(const char * const values[])
+void Choice::setValues(const char* const values[])
 {
   this->values.clear();
   if (values) {
@@ -186,14 +188,13 @@ void Choice::setValue(int val)
 
 void Choice::onClicked()
 {
-  if (!longPressData.isLongPressed)
-    openMenu();
+  if (!longPressData.isLongPressed) openMenu();
 }
 
-void Choice::fillMenu(Menu *menu, const FilterFct& filter)
+void Choice::fillMenu(Menu* menu, const FilterFct& filter)
 {
   menu->removeLines();
-  auto value = _getValue();
+  auto value = getIntValue();
 
   int count = 0;
   int selectedIx = -1;
@@ -208,8 +209,12 @@ void Choice::fillMenu(Menu *menu, const FilterFct& filter)
     } else {
       menu->addLineBuffered(std::to_string(i), [=]() { setValue(i); });
     }
-    if (value == i) { selectedIx = count; }
-    if (i == 0) { selectedIx0 = count; }
+    if (value == i) {
+      selectedIx = count;
+    }
+    if (i == 0) {
+      selectedIx0 = count;
+    }
     ++count;
   }
   if (fillMenuHandler) {
@@ -234,11 +239,11 @@ void Choice::openMenu()
   auto menu = new Menu(this);
   if (!menuTitle.empty()) menu->setTitle(menuTitle);
 
-  fillMenu(menu);
-
   if (beforeDisplayMenuHandler) {
     beforeDisplayMenuHandler(menu);
   }
+
+  fillMenu(menu);
 
   menu->setCloseHandler([=]() { setEditMode(false); });
 }

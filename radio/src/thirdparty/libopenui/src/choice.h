@@ -140,8 +140,8 @@ class Choice : public ChoiceBase
     return value;
   }
 
-  void setValue(int val);
-  int getIntValue() const { return _getValue(); }
+  virtual void setValue(int val);
+  virtual int getIntValue() const { return _getValue(); }
 
   unsigned getValuesCount() const { return getIndexFromValue(vmax + 1); }
 

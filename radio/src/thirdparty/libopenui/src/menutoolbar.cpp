@@ -18,7 +18,6 @@
 
 #include "menutoolbar.h"
 
-#include "choice.h"
 #include "font.h"
 #include "translations.h"
 
@@ -51,9 +50,12 @@ MenuToolbar::MenuToolbar(Choice* choice, Menu* menu, const int columns) :
     group(lv_group_create()),
     filterColumns(columns)
 {
+  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY3), 0);
+
   setWidth((MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING) *
                columns +
            MENUS_TOOLBAR_BUTTON_PADDING);
+
   addButton(STR_SELECT_MENU_ALL, choice->getMin(), choice->getMax(), nullptr,
             nullptr, true);
 }
@@ -107,12 +109,12 @@ rect_t MenuToolbar::getButtonRect(bool wideButton)
 }
 
 bool MenuToolbar::filterMenu(MenuToolbarButton* btn, int16_t filtermin,
-                             int16_t filtermax, const FilterFct& filterFunc,
+                             int16_t filtermax, const Choice::FilterFct& filterFunc,
                              const char* title)
 {
   btn->check(!btn->checked());
 
-  Choice::FilterFct filter = nullptr;
+  filter = nullptr;
   if (btn->checked()) {
     if (title)
       menu->setTitle(title);
@@ -144,7 +146,7 @@ static bool checkFirstAvailable(int min, int max,
 }
 
 void MenuToolbar::addButton(const char* picto, int16_t filtermin,
-                            int16_t filtermax, const FilterFct& filterFunc,
+                            int16_t filtermax, const Choice::FilterFct& filterFunc,
                             const char* title, bool wideButton)
 {
   int vmin = choice->vmin;

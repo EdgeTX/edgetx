@@ -1263,6 +1263,7 @@ extern const char STR_USBJOYSTICK_APPLY_CHANGES[];
 
 extern const char STR_SELECT_MENU_ALL[];
 extern const char STR_SELECT_MENU_CLR[];
+extern const char STR_SELECT_MENU_INV[];
 
 #endif // _TRANSLATIONS_H_
 

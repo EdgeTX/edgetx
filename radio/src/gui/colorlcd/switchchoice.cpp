@@ -58,7 +58,33 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
         STR_MENU_OTHER);
     if (choice->isValueAvailable && choice->isValueAvailable(0))
       addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
+
+    coord_t y =
+        height() - MENUS_TOOLBAR_BUTTON_WIDTH - MENUS_TOOLBAR_BUTTON_PADDING;
+    coord_t w = width() - MENUS_TOOLBAR_BUTTON_PADDING * 2;
+
+    invertBtn = new MenuToolbarButton(
+        this, {MENUS_TOOLBAR_BUTTON_PADDING, y, w, MENUS_TOOLBAR_BUTTON_WIDTH},
+        STR_SELECT_MENU_INV);
+    invertBtn->check(choice->inverted);
+
+    invertBtn->setPressHandler([=]() {
+      lv_obj_clear_state(invertBtn->getLvObj(), LV_STATE_FOCUSED);
+      longPress();
+      return choice->inverted;
+    });
   }
+
+  void longPress()
+  {
+    SwitchChoice* switchChoice = (SwitchChoice*)choice;
+    switchChoice->inverted = !switchChoice->inverted;
+    switchChoice->fillMenu(menu, filter);
+    invertBtn->check(switchChoice->inverted);
+  }
+
+ protected:
+  MenuToolbarButton* invertBtn = nullptr;
 };
 
 void SwitchChoice::LongPressHandler(void* data)
@@ -72,13 +98,33 @@ void SwitchChoice::LongPressHandler(void* data)
   }
 }
 
+void SwitchChoice::setValue(int value)
+{
+  if (inMenu) {
+    if (inverted) value = -value;
+    inMenu = false;
+  }
+  Choice::setValue(value);
+}
+
+int SwitchChoice::getIntValue() const
+{
+  int value = Choice::getIntValue();
+  if (inMenu) value = abs(value);
+  return value;
+}
+
 SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
                            int vmax, std::function<int16_t()> getValue,
                            std::function<void(int16_t)> setValue) :
-    Choice(parent, rect, vmin, vmax, getValue, setValue)
+    Choice(parent, rect, 0, vmax, getValue, setValue)
 {
   setMenuTitle(STR_SWITCH);
+
   setBeforeDisplayMenuHandler([=](Menu* menu) {
+    inverted = getValue() < 0;
+    inMenu = true;
+
     auto tb = new SwitchChoiceMenuToolbar(this, menu);
     menu->setToolbar(tb);
 
@@ -106,6 +152,8 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
   });
 
   setTextHandler([=](int value) {
+    if (inMenu && inverted) value = -value;
+
     if (isValueAvailable && !isValueAvailable(value))
       return std::to_string(0);  // we will fix this later
 

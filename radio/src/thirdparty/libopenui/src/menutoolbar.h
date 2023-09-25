@@ -19,6 +19,7 @@
 #pragma once
 
 #include "button.h"
+#include "choice.h"
 #include "menu.h"
 
 class Choice;
@@ -42,10 +43,12 @@ class MenuToolbar : public Window
   void resetFilter();
   void onEvent(event_t event) override;
 
+  virtual void longPress() {}
+
  protected:
   Choice* choice;
+  Choice::FilterFct filter;
   Menu* menu;
-  typedef std::function<bool(int16_t)> FilterFct;
   int nxtBtnPos = 0;
   int filterColumns = 0;
   MenuToolbarButton* allBtn = nullptr;
@@ -53,10 +56,10 @@ class MenuToolbar : public Window
   lv_group_t* group;
 
   void addButton(const char* picto, int16_t filtermin, int16_t filtermax,
-                 const FilterFct& filterFunc = nullptr,
+                 const Choice::FilterFct& filterFunc = nullptr,
                  const char* title = nullptr, bool wideButton = false);
   bool filterMenu(MenuToolbarButton* btn, int16_t filtermin, int16_t filtermax,
-                  const FilterFct& filterFunc, const char* title);
+                  const Choice::FilterFct& filterFunc, const char* title);
 
   rect_t getButtonRect(bool wideButton);
 };
