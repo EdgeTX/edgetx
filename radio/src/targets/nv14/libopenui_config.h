@@ -32,11 +32,7 @@ constexpr uint32_t ALERT_MESSAGE_LEFT =            15;
 
 constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 176;
 constexpr coord_t INPUT_EDIT_CURVE_HEIGHT = 132;
-constexpr coord_t MENUS_LINE_HEIGHT = 35;
-constexpr coord_t MENUS_WIDTH = 200;
 constexpr coord_t MENUS_MAX_HEIGHT = (MENUS_LINE_HEIGHT * 10);
-
-constexpr rect_t MENUS_TOOLBAR_RECT =              { 0, (LCD_H - MENUS_MAX_HEIGHT) / 2, 76, MENUS_MAX_HEIGHT };
 
 // Disable rotary encoder, as the NV14 does not have one
 #define ROTARY_ENCODER_SPEED() 0

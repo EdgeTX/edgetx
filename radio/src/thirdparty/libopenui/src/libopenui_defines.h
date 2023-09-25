@@ -108,5 +108,8 @@ constexpr coord_t MODEL_SELECT_FOOTER_HEIGHT = 24;
 
 #define LV_OBJ_FLAG_ENCODER_ACCEL LV_OBJ_FLAG_USER_1
 
+constexpr coord_t MENUS_LINE_HEIGHT = 35;
+constexpr coord_t MENUS_WIDTH = 200;
+
 #include "libopenui_config.h"
 
