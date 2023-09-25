@@ -828,6 +828,21 @@ void RxOptions::update()
     });
   }
 
+  if (capabilities & (1 << RECEIVER_CAPABILITY_SBUS24)) {
+    line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, "SBUS24");
+    new ToggleSwitch(
+        line, rect_t{},
+        []() {
+          auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+          return hwSettings.receiverSettings.sbus24;
+        },
+        [](int val) {
+          auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+          hwSettings.receiverSettings.sbus24 = val;
+        });
+  }
+
   auto outputsCount = min<uint8_t>(16, hwSettings.receiverSettings.outputsCount);
   for (uint8_t i = 0; i < outputsCount; i++) {
     line = form->newLine(&grid);

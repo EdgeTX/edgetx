@@ -49,6 +49,7 @@ enum {
   ITEM_RECEIVER_SETTINGS_TELEMETRY,
   ITEM_RECEIVER_SETTINGS_TELEMETRY_25MW,
   ITEM_RECEIVER_SETTINGS_SPORT_MODE,
+  ITEM_RECEIVER_SETTINGS_SBUS24,
   ITEM_RECEIVER_SETTINGS_CAPABILITY_NOT_SUPPORTED1,
   ITEM_RECEIVER_SETTINGS_CAPABILITY_NOT_SUPPORTED2,
   ITEM_RECEIVER_SETTINGS_PINMAP_FIRST
@@ -88,13 +89,14 @@ void menuModelReceiverOptions(event_t event)
   uint8_t receiverVariant = reusableBuffer.hardwareAndSettings.modules[g_moduleIdx].receivers[receiverId].information.variant;
 
   SUBMENU_NOTITLE(ITEM_RECEIVER_SETTINGS_PINMAP_FIRST + outputsCount, {
-    0, // PWM rate
-    isModuleR9MAccess(g_moduleIdx) && receiverVariant == PXX2_VARIANT_EU && reusableBuffer.hardwareAndSettings.moduleSettings.txPower > 14 /*25mW*/ ? READONLY_ROW : (uint8_t)0, // Telemetry
-    IF_RECEIVER_CAPABILITY(RECEIVER_CAPABILITY_TELEMETRY_25MW, 0),
-    uint8_t((IS_RECEIVER_CAPABILITY_ENABLED(RECEIVER_CAPABILITY_FPORT) || IS_RECEIVER_CAPABILITY_ENABLED(RECEIVER_CAPABILITY_FPORT2)) ? 0 : HIDDEN_ROW),
-    uint8_t(reusableBuffer.hardwareAndSettings.modules[g_moduleIdx].receivers[receiverId].information.capabilityNotSupported ? READONLY_ROW : HIDDEN_ROW),
-    uint8_t(reusableBuffer.hardwareAndSettings.modules[g_moduleIdx].receivers[receiverId].information.capabilityNotSupported ? READONLY_ROW : HIDDEN_ROW),
-    0 // channels ...
+    0, // ITEM_RECEIVER_SETTINGS_PWM_RATE
+    isModuleR9MAccess(g_moduleIdx) && receiverVariant == PXX2_VARIANT_EU && reusableBuffer.hardwareAndSettings.moduleSettings.txPower > 14 /*25mW*/ ? READONLY_ROW : (uint8_t)0, // ITEM_RECEIVER_SETTINGS_TELEMETRY
+    IF_RECEIVER_CAPABILITY(RECEIVER_CAPABILITY_TELEMETRY_25MW, 0), // ITEM_RECEIVER_SETTINGS_TELEMETRY_25MW
+    uint8_t((IS_RECEIVER_CAPABILITY_ENABLED(RECEIVER_CAPABILITY_FPORT) || IS_RECEIVER_CAPABILITY_ENABLED(RECEIVER_CAPABILITY_FPORT2)) ? 0 : HIDDEN_ROW), // ITEM_RECEIVER_SETTINGS_SPORT_MODE
+    uint8_t(IS_RECEIVER_CAPABILITY_ENABLED(RECEIVER_CAPABILITY_SBUS24) ? 0 : HIDDEN_ROW), // ITEM_RECEIVER_SETTINGS_SBUS24
+    uint8_t(reusableBuffer.hardwareAndSettings.modules[g_moduleIdx].receivers[receiverId].information.capabilityNotSupported ? READONLY_ROW : HIDDEN_ROW),  // ITEM_RECEIVER_SETTINGS_CAPABILITY_NOT_SUPPORTED1
+    uint8_t(reusableBuffer.hardwareAndSettings.modules[g_moduleIdx].receivers[receiverId].information.capabilityNotSupported ? READONLY_ROW : HIDDEN_ROW),  // ITEM_RECEIVER_SETTINGS_CAPABILITY_NOT_SUPPORTED2
+    0 // ITEM_RECEIVER_SETTINGS_PINMAP_FIRST ...
   });
 
   if (menuEvent) {
@@ -187,6 +189,13 @@ void menuModelReceiverOptions(event_t event)
           }
           break;
         }
+
+        case ITEM_RECEIVER_SETTINGS_SBUS24:
+          reusableBuffer.hardwareAndSettings.receiverSettings.sbus24 = editCheckBox(reusableBuffer.hardwareAndSettings.receiverSettings.sbus24, RECEIVER_OPTIONS_2ND_COLUMN, y, "SBUS24", attr, event);
+          if (attr && checkIncDec_Ret) {
+            reusableBuffer.hardwareAndSettings.receiverSettings.dirty = RECEIVER_SETTINGS_DIRTY;
+          }
+          break;
 
         case ITEM_RECEIVER_SETTINGS_CAPABILITY_NOT_SUPPORTED1:
           lcdDrawText(LCD_W/2, y+1, STR_MORE_OPTIONS_AVAILABLE, SMLSIZE|CENTERED);
