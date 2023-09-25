@@ -32,7 +32,7 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
 {
  public:
   SwitchChoiceMenuToolbar(SwitchChoice* choice, Menu* menu) :
-      MenuToolbar(choice, menu)
+      MenuToolbar(choice, menu, 2)
   {
     addButton(STR_CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH,
               nullptr, STR_MENU_SWITCHES);
@@ -56,7 +56,8 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
                   !(index >= SWSRC_FIRST_SENSOR && index <= SWSRC_LAST_SENSOR));
         },
         STR_MENU_OTHER);
-    addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
+    if (choice->isValueAvailable && choice->isValueAvailable(0))
+      addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
   }
 };
 

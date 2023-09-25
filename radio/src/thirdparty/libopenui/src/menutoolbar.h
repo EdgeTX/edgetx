@@ -36,7 +36,7 @@ class MenuToolbar : public Window
   // friend Menu;
 
  public:
-  MenuToolbar(Choice* choice, Menu* menu);
+  MenuToolbar(Choice* choice, Menu* menu, const int columns);
   ~MenuToolbar();
 
   void resetFilter();
@@ -47,6 +47,7 @@ class MenuToolbar : public Window
   Menu* menu;
   typedef std::function<bool(int16_t)> FilterFct;
   int nxtBtnPos = 0;
+  int filterColumns = 0;
   MenuToolbarButton* allBtn = nullptr;
 
   lv_group_t* group;

@@ -25,6 +25,8 @@
 #include "choice.h"
 #include "form.h"
 
+class SwitchChoiceMenuToolbar;
+
 class SwitchChoice : public Choice
 {
  public:
@@ -35,6 +37,8 @@ class SwitchChoice : public Choice
   static void LongPressHandler(void* data);
 
  protected:
+  friend SwitchChoiceMenuToolbar;
+
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "SwitchChoice"; }
 #endif

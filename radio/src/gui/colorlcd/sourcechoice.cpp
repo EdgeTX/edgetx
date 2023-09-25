@@ -30,11 +30,17 @@
 #include "strhelpers.h"
 #include "switches.h"
 
+#if LCD_W > LCD_H
+  #define FILTER_COLUMNS  3
+#else
+  #define FILTER_COLUMNS  2
+#endif
+
 class SourceChoiceMenuToolbar : public MenuToolbar
 {
  public:
   SourceChoiceMenuToolbar(SourceChoice *choice, Menu *menu) :
-      MenuToolbar(choice, menu)
+      MenuToolbar(choice, menu, FILTER_COLUMNS)
   {
     addButton(STR_CHAR_INPUT, MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, nullptr,
               STR_MENU_INPUTS);
@@ -95,6 +101,8 @@ class SourceChoiceMenuToolbar : public MenuToolbar
     if (modelTelemetryEnabled())
       addButton(STR_CHAR_TELEMETRY, MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM,
                 nullptr, STR_MENU_TELEMETRY);
+    if (choice->isValueAvailable && choice->isValueAvailable(0))
+      addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
   }
 };
 

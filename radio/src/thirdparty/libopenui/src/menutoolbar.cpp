@@ -43,13 +43,19 @@ MenuToolbarButton::MenuToolbarButton(Window* parent, const rect_t& rect,
   lv_obj_center(label);
 }
 
-MenuToolbar::MenuToolbar(Choice* choice, Menu* menu) :
-    Window(menu, MENUS_TOOLBAR_RECT, OPAQUE),
+MenuToolbar::MenuToolbar(Choice* choice, Menu* menu, const int columns) :
+    Window(menu, {0, (LCD_H - MENUS_MAX_HEIGHT) / 2, 76, MENUS_MAX_HEIGHT},
+           OPAQUE),
     choice(choice),
     menu(menu),
-    group(lv_group_create())
+    group(lv_group_create()),
+    filterColumns(columns)
 {
-  addButton(STR_SELECT_MENU_ALL, choice->getMin(), choice->getMax(), nullptr, nullptr, true);
+  setWidth((MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING) *
+               columns +
+           MENUS_TOOLBAR_BUTTON_PADDING);
+  addButton(STR_SELECT_MENU_ALL, choice->getMin(), choice->getMax(), nullptr,
+            nullptr, true);
 }
 
 MenuToolbar::~MenuToolbar() { lv_group_del(group); }
@@ -83,17 +89,20 @@ void MenuToolbar::onEvent(event_t event)
 
 rect_t MenuToolbar::getButtonRect(bool wideButton)
 {
-  if (wideButton && (nxtBtnPos & 1)) nxtBtnPos += 1;
-  coord_t x = (nxtBtnPos & 1) *
+  if (wideButton && (nxtBtnPos % filterColumns))
+    nxtBtnPos = nxtBtnPos - (nxtBtnPos % filterColumns) + filterColumns;
+  coord_t x = (nxtBtnPos % filterColumns) *
                   (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING) +
               MENUS_TOOLBAR_BUTTON_PADDING;
-  coord_t y = (nxtBtnPos / 2) *
+  coord_t y = (nxtBtnPos / filterColumns) *
                   (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING) +
               MENUS_TOOLBAR_BUTTON_PADDING;
   coord_t w =
-      wideButton ? MENUS_TOOLBAR_BUTTON_WIDTH * 2 + MENUS_TOOLBAR_BUTTON_PADDING
+      wideButton ? (MENUS_TOOLBAR_BUTTON_WIDTH + MENUS_TOOLBAR_BUTTON_PADDING) *
+                           (filterColumns - 1) +
+                       MENUS_TOOLBAR_BUTTON_WIDTH
                  : MENUS_TOOLBAR_BUTTON_WIDTH;
-  nxtBtnPos += wideButton ? 2 : 1;
+  nxtBtnPos += wideButton ? filterColumns : 1;
   return {x, y, w, MENUS_TOOLBAR_BUTTON_WIDTH};
 }
 
