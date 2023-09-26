@@ -30,6 +30,7 @@ set(BOOTLOADER_SRC
   ../usbd_usr.cpp
   ../usbd_storage_msd.cpp
   ../delays_driver.cpp
+  ../timers_driver.cpp
   ../usbd_desc.c
   ../usb_bsp.c
   ../usb_driver.cpp
@@ -38,6 +39,7 @@ set(BOOTLOADER_SRC
   ../stm32_serial_driver.cpp
   ../stm32_usart_driver.cpp
   ../stm32_gpio_driver.cpp
+  ../stm32_timer.cpp
   ../stm32_dma.cpp
   init.c
   boot.cpp

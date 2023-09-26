@@ -63,7 +63,7 @@ Clipboard clipboard;
 
 GlobalData globalData;
 
-uint16_t maxMixerDuration; // step = 0.01ms
+uint32_t maxMixerDuration; // microseconds
 uint8_t heartbeat;
 
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
@@ -138,6 +138,9 @@ void checkValidMCU(void)
 
 void per10ms()
 {
+  DEBUG_TIMER_START(debugTimerPer10ms);
+  DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);
+
   g_tmr10ms++;
 
 #if defined(GUI)
@@ -203,6 +206,8 @@ void per10ms()
   outputTelemetryBuffer.per10ms();
 
   heartbeat |= HEART_TIMER_10MS;
+
+  DEBUG_TIMER_STOP(debugTimerPer10ms);
 }
 
 FlightModeData *flightModeAddress(uint8_t idx)

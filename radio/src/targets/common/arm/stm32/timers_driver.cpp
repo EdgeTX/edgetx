@@ -19,109 +19,95 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "timers_driver.h"
+#include "stm32_timer.h"
+#include "stm32_hal_ll.h"
+
+#include "hal.h"
 #include "watchdog_driver.h"
 
-static volatile uint32_t msTickCount;  // Used to get 1 kHz counter
-static volatile uint32_t _us_overflow_cnt;
+static volatile uint32_t _ms_ticks;
 
-// Start TIMER at 2000000Hz
-void init2MhzTimer()
+static void _init_1ms_timer()
 {
-  _us_overflow_cnt = 0;
-  TIMER_2MHz_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 2000000 - 1; // 0.5 uS, 2 MHz
-  TIMER_2MHz_TIMER->ARR = 65535;
-  TIMER_2MHz_TIMER->CR2 = 0;
-  TIMER_2MHz_TIMER->CR1 = TIM_CR1_CEN;
-  TIMER_2MHz_TIMER->DIER = TIM_DIER_UIE;
+  stm32_timer_enable_clock(MS_TIMER);
 
-  NVIC_EnableIRQ(TIMER_2MHz_IRQn);
-  NVIC_SetPriority(TIMER_2MHz_IRQn, 4);  
+  _ms_ticks = 0;
+  MS_TIMER->ARR = 999; // 1mS in uS
+  MS_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1;  // 1uS
+  MS_TIMER->CCER = 0;
+  MS_TIMER->CCMR1 = 0;
+  MS_TIMER->EGR = 0;
+  MS_TIMER->CR1 = TIM_CR1_CEN | TIM_CR1_URS;
+  MS_TIMER->DIER = TIM_DIER_UIE;
+  NVIC_EnableIRQ(MS_TIMER_IRQn);
+  NVIC_SetPriority(MS_TIMER_IRQn, 4);
 }
 
-// Start TIMER at 1000Hz
-void init1msTimer()
+void timersInit()
 {
-  msTickCount = 0;
-
-  INTERRUPT_xMS_TIMER->ARR = 999; // 1mS in uS
-  INTERRUPT_xMS_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1;  // 1uS
-  INTERRUPT_xMS_TIMER->CCER = 0;
-  INTERRUPT_xMS_TIMER->CCMR1 = 0;
-  INTERRUPT_xMS_TIMER->EGR = 0;
-  INTERRUPT_xMS_TIMER->CR1 = TIM_CR1_CEN | TIM_CR1_URS;
-  INTERRUPT_xMS_TIMER->DIER = TIM_DIER_UIE;
-  NVIC_EnableIRQ(INTERRUPT_xMS_IRQn);
-  NVIC_SetPriority(INTERRUPT_xMS_IRQn, 4);
-}
-
-void stop1msTimer()
-{
-  INTERRUPT_xMS_TIMER->CR1 = 0; // stop timer
-  NVIC_DisableIRQ(INTERRUPT_xMS_IRQn);
+  _init_1ms_timer();
 }
 
 uint32_t timersGetMsTick()
 {
-  return msTickCount;
+  return _ms_ticks;
 }
 
 uint32_t timersGetUsTick()
 {
+  uint32_t ms;
   uint32_t us;
-  us = TIMER_2MHz_TIMER->CNT >> 1;
-  us += _us_overflow_cnt << 15;
-  return us;
+
+  do {
+    ms = _ms_ticks;
+    us = MS_TIMER->CNT;
+    asm volatile("nop");
+    asm volatile("nop");
+  } while (ms != _ms_ticks);
+  
+  return ms * 1000 + us;
 }
 
-static uint32_t watchdogTimeout = 0;
+static volatile uint32_t watchdogTimeout = 0;
 
 void watchdogSuspend(uint32_t timeout)
 {
   watchdogTimeout = timeout;
 }
 
-static void interrupt1ms()
+#define __weak __attribute__((weak))
+
+__weak void per10ms() {}
+__weak void per5ms() {}
+
+static inline void _interrupt_1ms()
 {
   static uint8_t pre_scale = 0;
 
   ++pre_scale;
-  ++msTickCount;
-
+  ++_ms_ticks;
 
   // 5ms loop
   if(pre_scale == 5 || pre_scale == 10) {
-#if defined(HAPTIC)
-    DEBUG_TIMER_START(debugTimerHaptic);
-    HAPTIC_HEARTBEAT();
-    DEBUG_TIMER_STOP(debugTimerHaptic);
-#endif
+    per5ms();
   }
   
   // 10ms loop
   if (pre_scale == 10) {
     pre_scale = 0;
+
     if (watchdogTimeout) {
       watchdogTimeout -= 1;
       WDG_RESET();  // Retrigger hardware watchdog
     }
 
-    DEBUG_TIMER_START(debugTimerPer10ms);
-    DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);
     per10ms();
-    DEBUG_TIMER_STOP(debugTimerPer10ms);
   }
 }
 
-extern "C" void INTERRUPT_xMS_IRQHandler()
+extern "C" void MS_TIMER_IRQHandler()
 {
-  INTERRUPT_xMS_TIMER->SR &= ~TIM_SR_UIF;
-  interrupt1ms();
-  DEBUG_INTERRUPT(INT_5MS);
-}
-
-extern "C" void TIMER_2MHz_IRQHandler()
-{
-  TIMER_2MHz_TIMER->SR &= ~TIM_SR_UIF;
-  _us_overflow_cnt += 1;
+  MS_TIMER->SR &= ~TIM_SR_UIF;
+  _interrupt_1ms();
 }

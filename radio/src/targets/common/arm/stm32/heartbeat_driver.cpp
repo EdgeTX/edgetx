@@ -36,7 +36,6 @@ volatile HeartbeatCapture heartbeatCapture;
 
 static void trigger_intmodule_heartbeat()
 {
-  heartbeatCapture.timestamp = getTmr2MHz();
 #if defined(DEBUG_LATENCY)
   heartbeatCapture.count++;
 #endif

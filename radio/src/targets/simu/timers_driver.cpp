@@ -19,16 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "timers_driver.h"
 
-struct HeartbeatCapture {
-  uint8_t valid;
-#if defined(DEBUG_LATENCY)
-  uint32_t count;
-#endif
-};
+void watchdogSuspend(unsigned int) {}
+uint32_t timersGetUsTick() { return 0; }
 
-extern volatile HeartbeatCapture heartbeatCapture;
-
-void init_intmodule_heartbeat();
-void stop_intmodule_heartbeat();

@@ -987,21 +987,12 @@
 #define TRAINER_MODULE_CPPM_TIMER_IRQHandler TIM4_IRQHandler
 #define TRAINER_MODULE_CPPM_GPIO_AF          LL_GPIO_AF_2
 
-
-// Xms Interrupt
-#define INTERRUPT_xMS_RCC_APB1Periph    RCC_APB1Periph_TIM14
-#define INTERRUPT_xMS_TIMER             TIM14
-#define INTERRUPT_xMS_IRQn              TIM8_TRG_COM_TIM14_IRQn
-#define INTERRUPT_xMS_IRQHandler        TIM8_TRG_COM_TIM14_IRQHandler
-
-// 2MHz Timer
-#define TIMER_2MHz_RCC_APB1Periph       RCC_APB1Periph_TIM7
-#define TIMER_2MHz_TIMER                TIM7
-#define TIMER_2MHz_IRQn                 TIM7_IRQn
-#define TIMER_2MHz_IRQHandler           TIM7_IRQHandler
+// Millisecond timer
+#define MS_TIMER                        TIM14
+#define MS_TIMER_IRQn                   TIM8_TRG_COM_TIM14_IRQn
+#define MS_TIMER_IRQHandler             TIM8_TRG_COM_TIM14_IRQHandler
 
 // Mixer scheduler timer
-#define MIXER_SCHEDULER_TIMER_RCC_APB1Periph RCC_APB1Periph_TIM13
 #define MIXER_SCHEDULER_TIMER                TIM13
 #define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM8_UP_TIM13_IRQn

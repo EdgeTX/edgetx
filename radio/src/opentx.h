@@ -445,7 +445,6 @@ void doMixerPeriodicUpdates();
 void checkTrims();
 extern uint8_t currentBacklightBright;
 void perMain();
-void per10ms();
 
 getvalue_t getValue(mixsrc_t i, bool* valid = nullptr);
 
