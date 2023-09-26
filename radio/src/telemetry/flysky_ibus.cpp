@@ -98,11 +98,11 @@ enum
   AFHDS2A_ID_ODO2 = 0x7D,               // Odometer2
   AFHDS2A_ID_SPE = 0x7E,                // Speed 2 bytes km/h
 
-   
   AFHDS2A_ID_GPS_LAT = 0x80,            // 4bytes signed WGS84 in degrees * 1E7
   AFHDS2A_ID_GPS_LON = 0x81,            // 4bytes signed WGS84 in degrees * 1E7
   AFHDS2A_ID_GPS_ALT = 0x82,            // 4bytes signed!!! GPS alt m*100
-  AFHDS2A_ID_ALT     = 0x83,            // 4bytes signed!!! Alt m*100
+
+  AFHDS2A_ID_ALT = 0x83,                // 4bytes signed!!! Alt m*100
 
   AFHDS2A_ID_RX_SIG_AFHDS3  = 0xF7,    // SIG
   AFHDS2A_ID_RX_SNR_AFHDS3  = 0xF8,    // SNR
@@ -358,20 +358,20 @@ void processFlySkySensor(const uint8_t * packet, uint8_t type)
     }
 
     return;
-  } 
-  else if (id == AFHDS2A_ID_GPS_LAT) {
-    uint8_t instance2 = 0; // forced to be exactly the same instance. don't think that an RX will have 2 GPSs 
-    value = value / 10;  
-    setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_IBUS, AFHDS2A_ID_GPS_LAT, 0, instance2, value, UNIT_GPS_LATITUDE, 0);
-    return;   
-  }
-  else if (id == AFHDS2A_ID_GPS_LON) { // Remapped to single GPS sensor: AFHDS2A_ID_GPS_LAT
+  } else if (id == AFHDS2A_ID_GPS_LAT) {
+    uint8_t instance2 = 0;  // Assume one instance, RX would only have one GPS
+    value = value / 10;
+    setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_IBUS, AFHDS2A_ID_GPS_LAT, 0,
+                      instance2, value, UNIT_GPS_LATITUDE, 0);
+    return;
+  } else if (id == AFHDS2A_ID_GPS_LON) {  // Remapped to single GPS sensor:
+                                          // AFHDS2A_ID_GPS_LAT
     uint8_t instance2 = 0;
-    value= value / 10;  
-    setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_IBUS, AFHDS2A_ID_GPS_LAT, 0, instance2, value, UNIT_GPS_LONGITUDE, 0);
-    return; 
-  }
-  else if (id == AFHDS2A_ID_VOLT_FULL) {
+    value = value / 10;
+    setTelemetryValue(PROTOCOL_TELEMETRY_FLYSKY_IBUS, AFHDS2A_ID_GPS_LAT, 0,
+                      instance2, value, UNIT_GPS_LONGITUDE, 0);
+    return;
+  } else if (id == AFHDS2A_ID_VOLT_FULL) {
     //(AC FRAME)[ID][inst][size][ACC_X]x2[ACC_Y]x2[ACC_Z]x2[ROLL]x2[PITCH]x2[YAW]x2
     for (uint8_t sensorID = AFHDS2A_ID_EXTV; sensorID <= AFHDS2A_ID_RPM; sensorID++) {
       int index = 3 + (sensorID - AFHDS2A_ID_EXTV) * 2;
@@ -382,8 +382,7 @@ void processFlySkySensor(const uint8_t * packet, uint8_t type)
       processFlySkySensor(buffer, 0xAA);
     }
     return;
-  }
-  else if (id == AFHDS2A_ID_ACC_FULL) {
+  } else if (id == AFHDS2A_ID_ACC_FULL) {
     //(AC FRAME)[ID][inst][size]
     for (uint8_t sensorID = AFHDS2A_ID_ACC_X; sensorID <= AFHDS2A_ID_YAW; sensorID++) {
       int index = 3 + (sensorID - AFHDS2A_ID_ACC_X) * 2;
