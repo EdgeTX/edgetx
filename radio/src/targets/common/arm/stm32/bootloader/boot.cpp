@@ -34,6 +34,7 @@
 // #include "keys.h"
 #include "debug.h"
 
+#include "timers_driver.h"
 #include "watchdog_driver.h"
 
 #include "hal/rotary_encoder.h"
@@ -97,7 +98,7 @@ uint32_t unlocked = 0;
 
 volatile uint32_t timer10MsCount;
 
-void interrupt10ms()
+void per10ms()
 {
   timer10MsCount++;
   tenms |= 1u; // 10 mS has passed
@@ -122,48 +123,6 @@ extern "C" uint32_t HAL_GetTick(void)
     return timer10MsCount * 10;
 }
 
-#if !defined(SIMU)
-static volatile uint32_t _us_overflow_cnt;
-
-void initTimers()
-{
-  timer10MsCount = 0;
-  INTERRUPT_xMS_TIMER->ARR = 9999;  // 10mS in uS
-  INTERRUPT_xMS_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1; // 1uS
-  INTERRUPT_xMS_TIMER->CR1 = TIM_CR1_CEN;
-  INTERRUPT_xMS_TIMER->DIER = TIM_DIER_UIE;
-  NVIC_EnableIRQ(INTERRUPT_xMS_IRQn);
-
-  _us_overflow_cnt = 0;
-  TIMER_2MHz_TIMER->ARR = 65535;
-  TIMER_2MHz_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 2000000 - 1; // 0.5 uS, 2 MHz
-  TIMER_2MHz_TIMER->CR1 = TIM_CR1_CEN;
-  TIMER_2MHz_TIMER->DIER = TIM_DIER_UIE;
-  NVIC_EnableIRQ(TIMER_2MHz_IRQn);
-
-  while(timer10MsCount < 10);
-}
-
-uint32_t timersGetUsTick()
-{
-  uint32_t us;
-  us = TIMER_2MHz_TIMER->CNT >> 1;
-  us += _us_overflow_cnt << 15;
-  return us;
-}
-
-extern "C" void INTERRUPT_xMS_IRQHandler()
-{
-  INTERRUPT_xMS_TIMER->SR &= ~TIM_SR_UIF;
-  interrupt10ms();
-}
-
-extern "C" void TIMER_2MHz_IRQHandler()
-{
-  TIMER_2MHz_TIMER->SR &= ~TIM_SR_UIF;
-  _us_overflow_cnt += 1;
-}
-#endif
 
 uint32_t isValidBufferStart(const uint8_t * buffer)
 {
@@ -254,9 +213,7 @@ void bootloaderInitApp()
                          ENABLE);
 
   RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph | LCD_RCC_APB1Periph |
-                             BACKLIGHT_RCC_APB1Periph |
-                             INTERRUPT_xMS_RCC_APB1Periph |
-                             TIMER_2MHz_RCC_APB1Periph,
+                             BACKLIGHT_RCC_APB1Periph,
                          ENABLE);
 
   RCC_APB2PeriphClockCmd(
@@ -322,7 +279,7 @@ void bootloaderInitApp()
   eepromInit();
 #endif
 
-  initTimers();
+  timersInit();
 
   // SD card detect pin
   sdInit();

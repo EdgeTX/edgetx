@@ -106,12 +106,9 @@ void boardInit()
                          ENABLE);
 
   RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph |
-                         INTERRUPT_xMS_RCC_APB1Periph |
-                         TIMER_2MHz_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
                          TELEMETRY_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
-                         MIXER_SCHEDULER_TIMER_RCC_APB1Periph |
                          BACKLIGHT_RCC_APB1Periph,
                          ENABLE);
 
@@ -172,8 +169,7 @@ void boardInit()
   if (!adcInit(&_adc_driver))
     TRACE("adcInit failed");
 
-  init2MhzTimer();
-  init1msTimer();
+  timersInit();
 
   usbInit();
   hapticInit();

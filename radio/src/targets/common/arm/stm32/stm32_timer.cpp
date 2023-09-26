@@ -35,6 +35,10 @@ void stm32_timer_enable_clock(TIM_TypeDef *TIMx)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM5);
   } else if (TIMx == TIM8) {
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM8);
+  } else if (TIMx == TIM12) {
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM12);
+  } else if (TIMx == TIM14) {
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM14);
   }  
 }
 
@@ -52,5 +56,9 @@ void stm32_timer_disable_clock(TIM_TypeDef *TIMx)
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM5);
   } else if (TIMx == TIM8) {
     LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM8);
+  } else if (TIMx == TIM12) {
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM12);
+  } else if (TIMx == TIM14) {
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM14);
   }  
 }

@@ -187,7 +187,7 @@ TASK_FUNCTION(mixerTask)
 
     if (_mixer_running) {
 
-      uint16_t t0 = getTmr2MHz();
+      uint32_t t0 = timersGetUsTick();
 
       DEBUG_TIMER_START(debugTimerMixer);
       mixerTaskLock();
@@ -213,7 +213,7 @@ TASK_FUNCTION(mixerTask)
       // so let's do it here.
       WDG_RESET();
 
-      t0 = getTmr2MHz() - t0;
+      t0 = timersGetUsTick() - t0;
       if (t0 > maxMixerDuration)
         maxMixerDuration = t0;
     }

@@ -126,14 +126,9 @@ void delay_self(int count)
                               )
 #define RCC_AHB3PeriphMinimum (SDRAM_RCC_AHB3Periph)
 
-#define RCC_APB1PeriphMinimum (INTERRUPT_xMS_RCC_APB1Periph |\
-                               TIMER_2MHz_RCC_APB1Periph |\
-                               BACKLIGHT_RCC_APB1Periph \
-                              )
+#define RCC_APB1PeriphMinimum (BACKLIGHT_RCC_APB1Periph)
 
-#define RCC_APB1PeriphOther   (TELEMETRY_RCC_APB1Periph |\
-                               MIXER_SCHEDULER_TIMER_RCC_APB1Periph \
-                              )
+#define RCC_APB1PeriphOther   (TELEMETRY_RCC_APB1Periph)
 #define RCC_APB2PeriphMinimum (LCD_RCC_APB2Periph)
 
 #define RCC_APB2PeriphOther   (HAPTIC_RCC_APB2Periph |\
@@ -228,8 +223,7 @@ void boardInit()
   init_trainer();
   battery_charge_init();
   flysky_gimbal_init();
-  init2MhzTimer();
-  init1msTimer();
+  timersInit();
   TouchInit();
   usbInit();
 

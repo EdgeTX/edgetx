@@ -18,6 +18,7 @@ set(SIMU_DRIVERS
   backlight_driver.cpp
   gyro_driver.cpp
   bt_driver.cpp
+  timers_driver.cpp
   )
 
 set(HW_DESC_JSON ${FLAVOUR}.json)

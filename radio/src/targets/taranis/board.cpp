@@ -107,10 +107,7 @@ void boardInit()
                          AUDIO_RCC_APB1Periph |
                          BACKLIGHT_RCC_APB1Periph |
                          HAPTIC_RCC_APB1Periph |
-                         INTERRUPT_xMS_RCC_APB1Periph |
-                         TIMER_2MHz_RCC_APB1Periph |
                          TELEMETRY_RCC_APB1Periph |
-                         MIXER_SCHEDULER_TIMER_RCC_APB1Periph |
                          BT_RCC_APB1Periph,
                          ENABLE);
 
@@ -224,8 +221,7 @@ void boardInit()
 
   lcdInit(); // delaysInit() must be called before
   audioInit();
-  init2MhzTimer();
-  init1msTimer();
+  timersInit();
   usbInit();
 
 #if defined(DEBUG)

@@ -21,6 +21,7 @@
 
 #include "mixer_scheduler.h"
 #include "stm32_hal_ll.h"
+#include "stm32_timer.h"
 
 #include "FreeRTOSConfig.h"
 #include "hal.h"
@@ -28,6 +29,8 @@
 // Start scheduler with default period
 void mixerSchedulerStart()
 {
+  stm32_timer_enable_clock(MIXER_SCHEDULER_TIMER);
+
   MIXER_SCHEDULER_TIMER->CR1 &= ~TIM_CR1_CEN;
   MIXER_SCHEDULER_TIMER->PSC   = MIXER_SCHEDULER_TIMER_FREQ / 1000000 - 1; // 1uS (1Mhz)
   MIXER_SCHEDULER_TIMER->CCER  = 0;

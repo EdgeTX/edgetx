@@ -49,7 +49,7 @@ extern safetych_t safetyCh[MAX_OUTPUT_CHANNELS];
 extern uint8_t trimsCheckTimer;
 extern uint8_t trimsDisplayTimer;
 extern uint8_t trimsDisplayMask;
-extern uint16_t maxMixerDuration;
+extern uint32_t maxMixerDuration;
 
 extern uint8_t requiredSpeakerVolume;
 extern uint8_t requiredBacklightBright;
