@@ -39,8 +39,8 @@ add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DSPI_FLASH)
 
 # defines existing internal modules
-set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
-set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+# set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
+# set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
 
 set(BITMAPS_TARGET pl18_bitmaps)
 set(FONTS_TARGET x12_fonts)

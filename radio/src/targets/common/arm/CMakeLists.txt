@@ -22,17 +22,19 @@ option(DEBUG_USB_INTERRUPTS "Count individual USB interrupts" OFF)
 option(DEBUG_TIMERS "Time critical parts of the code" OFF)
 option(DEBUG_BLUETOOTH "Debug Bluetooth" OFF)
 
-# option to select the default internal module
-#set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
-set_property(CACHE DEFAULT_INTERNAL_MODULE PROPERTY STRINGS ${INTERNAL_MODULES})
+if(INTERNAL_MODULES)
+  # option to select the default internal module
+  #set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
+  set_property(CACHE DEFAULT_INTERNAL_MODULE PROPERTY STRINGS ${INTERNAL_MODULES})
 
-# define variables for internal modules
-foreach(module ${INTERNAL_MODULES})
-  set(INTERNAL_MODULE_${module} ON CACHE BOOL "Support for ${module} internal module")
-  if (INTERNAL_MODULE_${module})
-    message("-- Adding support for ${module} as internal module")
-  endif()
-endforeach()
+  # define variables for internal modules
+  foreach(module ${INTERNAL_MODULES})
+    set(INTERNAL_MODULE_${module} ON CACHE BOOL "Support for ${module} internal module")
+    if (INTERNAL_MODULE_${module})
+      message("-- Adding support for ${module} as internal module")
+    endif()
+  endforeach()
+endif()
 
 if(INTERNAL_MODULE_PXX1)
   add_definitions(-DHARDWARE_INTERNAL_MODULE)
