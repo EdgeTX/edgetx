@@ -514,7 +514,7 @@
 #define TR_FM                          "DM"
 #else
 #define TR_FM                          "FM"
-#else
+#endif
 #define TR_EEPROMLOWMEM                "EEPROM low mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "לחץ על המסך או על כפתור"
 #define TR_THROTTLE_NOT_IDLE           "סטיק מצערת פתוח"

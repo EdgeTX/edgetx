@@ -428,7 +428,7 @@
 #define TR_FM                          "DM"
 #else
 #define TR_FM                          "FM"
-#else
+#endif
 #define TR_EEPROMLOWMEM                "EEPROM low mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "按任意键跳过"
 #define TR_THROTTLE_NOT_IDLE           "请将油门拉至最低!"
