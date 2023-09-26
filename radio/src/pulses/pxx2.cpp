@@ -474,7 +474,7 @@ void Pxx2Pulses::setupReceiverSettingsFrame(uint8_t module, int16_t* channels, u
       Pxx2Transport::addByte(flag1);
       uint8_t outputsCount = min<uint8_t>(24, reusableBuffer.hardwareAndSettings.receiverSettings.outputsCount);
       for (int i = 0; i < outputsCount; i++) {
-        Pxx2Transport::addByte(min<uint8_t>(23, reusableBuffer.hardwareAndSettings.receiverSettings.outputsMapping[i]));
+        Pxx2Transport::addByte(reusableBuffer.hardwareAndSettings.receiverSettings.outputsMapping[i]);
       }
     }
     reusableBuffer.hardwareAndSettings.receiverSettings.timeout = get_tmr10ms() + 200/*next try in 2s*/;
