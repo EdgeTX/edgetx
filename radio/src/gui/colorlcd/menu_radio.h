@@ -19,23 +19,22 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MENU_RADIO_H_
-#define _MENU_RADIO_H_
+#pragma once
 
 #include "tabsgroup.h"
 
-class RadioMenu: public TabsGroup {
-  public:
-    RadioMenu();
-    ~RadioMenu();
+class RadioMenu : public TabsGroup
+{
+ public:
+  RadioMenu();
+  ~RadioMenu();
 
-  protected:
-    bool _radioThemesEnabled = true;
-    bool _radioGFEnabled = true;
-    bool _radioTrainerEnabled = true;
+ protected:
+  bool _radioThemesEnabled = true;
+  bool _radioGFEnabled = true;
+  bool _radioTrainerEnabled = true;
 
-    void build();
-    void checkEvents() override;
+  void build();
+  void checkEvents() override;
+  void onEvent(event_t event) override;
 };
-
-#endif // _MENU_RADIO_H_

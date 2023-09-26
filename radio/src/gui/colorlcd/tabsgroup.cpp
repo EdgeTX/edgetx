@@ -22,17 +22,17 @@
 #include "tabsgroup.h"
 
 #include "mainwindow.h"
-#include "view_main.h"
 #include "static.h"
 #include "theme.h"
+#include "view_main.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "keyboard_base.h"
 #endif
 
-#include "opentx.h" // TODO for constants...
-
 #include <algorithm>
+
+#include "opentx.h"  // TODO for constants...
 
 TabCarouselButton::TabCarouselButton(Window* parent, const rect_t& rect,
                                      std::vector<PageTab*>& tabs, uint8_t index,
@@ -44,7 +44,7 @@ TabCarouselButton::TabCarouselButton(Window* parent, const rect_t& rect,
 {
 }
 
-void TabCarouselButton::paint(BitmapBuffer * dc)
+void TabCarouselButton::paint(BitmapBuffer* dc)
 {
   EdgeTxTheme::instance()->drawMenuIcon(dc, tabs[index]->getIcon(), checked());
 }
@@ -52,7 +52,7 @@ void TabCarouselButton::paint(BitmapBuffer * dc)
 void TabCarouselButton::check(bool checked)
 {
   Button::check(checked);
-  if(checked) {
+  if (checked) {
     lv_obj_move_foreground(lvobj);
   }
 }
@@ -67,8 +67,7 @@ TabsGroupHeader::TabsGroupHeader(TabsGroup* parent, uint8_t icon) :
           parent->deleteLater();
           return 1;
         },
-        NO_FOCUS,
-        0, window_create),
+        NO_FOCUS, 0, window_create),
 #endif
     icon(icon),
     carousel(this, parent)
@@ -83,36 +82,36 @@ void TabsGroupHeader::paint(BitmapBuffer* dc)
 
 TabsCarousel::TabsCarousel(Window* parent, TabsGroup* menu) :
     Window(parent,
-           {MENU_HEADER_BUTTONS_LEFT, 0, DATETIME_SEPARATOR_X - MENU_HEADER_BUTTONS_LEFT,
+           {MENU_HEADER_BUTTONS_LEFT, 0,
+            DATETIME_SEPARATOR_X - MENU_HEADER_BUTTONS_LEFT,
             MENU_HEADER_HEIGHT + 10},
-            NO_FOCUS | TRANSPARENT ),
+           NO_FOCUS | TRANSPARENT),
     menu(menu)
 {
 }
 
 void TabsCarousel::update()
 {
-  while(buttons.size() < menu->tabs.size())
-  {
+  while (buttons.size() < menu->tabs.size()) {
     int index = buttons.size();
-    rect_t btnCoords = {(int)(index * (MENU_HEADER_BUTTON_WIDTH + 1)), 0, (int)(MENU_HEADER_BUTTON_WIDTH + 3), int(MENU_TITLE_TOP + 5)};
-    buttons.emplace_back(new TabCarouselButton(this, btnCoords, menu->tabs, index,
-      [&, index](){
-        menu->setCurrentTab(index);
-        setCurrentIndex(index);
+    rect_t btnCoords = {(int)(index * (MENU_HEADER_BUTTON_WIDTH + 1)), 0,
+                        (int)(MENU_HEADER_BUTTON_WIDTH + 3),
+                        int(MENU_TITLE_TOP + 5)};
+    buttons.emplace_back(new TabCarouselButton(
+        this, btnCoords, menu->tabs, index,
+        [&, index]() {
+          menu->setCurrentTab(index);
+          setCurrentIndex(index);
 
-        for(auto &b: buttons)
-          b->check(false);
+          for (auto& b : buttons) b->check(false);
 
-        buttons[index]->check(true);
-        return true;
-      }
-      , TRANSPARENT | NO_FOCUS));
-    if(index == 0)
-      buttons[index]->check(true);
+          buttons[index]->check(true);
+          return true;
+        },
+        TRANSPARENT | NO_FOCUS));
+    if (index == 0) buttons[index]->check(true);
   }
-  while(buttons.size() > menu->tabs.size())
-  {
+  while (buttons.size() > menu->tabs.size()) {
     buttons.back()->deleteLater();
     buttons.pop_back();
   }
@@ -120,28 +119,25 @@ void TabsCarousel::update()
 
 void TabsCarousel::setCurrentIndex(uint8_t index)
 {
-  if(buttons.size() <= index)
-    return;
+  if (buttons.size() <= index) return;
   buttons[currentIndex]->check(false);
   currentIndex = index;
   buttons[currentIndex]->check(true);
 }
 
-void TabsCarousel::paint(BitmapBuffer * dc)
-{
-}
+void TabsCarousel::paint(BitmapBuffer* dc) {}
 
 static constexpr rect_t _get_body_rect()
 {
-  return { 0, MENU_BODY_TOP, LCD_W, MENU_BODY_HEIGHT };
+  return {0, MENU_BODY_TOP, LCD_W, MENU_BODY_HEIGHT};
 }
 
 TabsGroup* TabsGroup::activeTabsGroup = nullptr;
 
-TabsGroup::TabsGroup(uint8_t icon):
-  Window(Layer::back(), { 0, 0, LCD_W, LCD_H }, OPAQUE),
-  header(this, icon),
-  body(this, _get_body_rect(), NO_FOCUS)
+TabsGroup::TabsGroup(uint8_t icon) :
+    Window(Layer::back(), {0, 0, LCD_W, LCD_H}, OPAQUE),
+    header(this, icon),
+    body(this, _get_body_rect(), NO_FOCUS)
 {
   Layer::push(this);
 
@@ -153,10 +149,9 @@ TabsGroup::TabsGroup(uint8_t icon):
 
 TabsGroup::~TabsGroup()
 {
-  if (activeTabsGroup == this)
-    activeTabsGroup = nullptr;
+  if (activeTabsGroup == this) activeTabsGroup = nullptr;
 
-  for (auto tab: tabs) {
+  for (auto tab : tabs) {
     delete tab;
   }
 }
@@ -164,13 +159,13 @@ TabsGroup::~TabsGroup()
 void TabsGroup::refreshTheme()
 {
   if (activeTabsGroup)
-    lv_obj_set_style_bg_color(activeTabsGroup->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
+    lv_obj_set_style_bg_color(activeTabsGroup->getLvObj(),
+                              makeLvColor(COLOR_THEME_SECONDARY3), 0);
 }
 
 void TabsGroup::deleteLater(bool detach, bool trash)
 {
-  if (_deleted)
-    return;
+  if (_deleted) return;
 
   Layer::pop(this);
 
@@ -180,7 +175,7 @@ void TabsGroup::deleteLater(bool detach, bool trash)
   Window::deleteLater(detach, trash);
 }
 
-void TabsGroup::addTab(PageTab * page)
+void TabsGroup::addTab(PageTab* page)
 {
   tabs.push_back(page);
   if (!currentTab) {
@@ -190,7 +185,7 @@ void TabsGroup::addTab(PageTab * page)
   invalidate();
 }
 
-int TabsGroup::removeTab(PageTab * page)
+int TabsGroup::removeTab(PageTab* page)
 {
   auto tabIter = std::find(tabs.begin(), tabs.end(), page);
   if (tabIter != tabs.end()) {
@@ -214,7 +209,7 @@ void TabsGroup::removeTab(unsigned index)
 
 void TabsGroup::removeAllTabs()
 {
-  for (auto * tab: tabs) {
+  for (auto* tab : tabs) {
     delete tab;
   }
   tabs.clear();
@@ -272,7 +267,8 @@ void TabsGroup::checkEvents()
 void TabsGroup::onEvent(event_t event)
 {
 #if defined(HARDWARE_KEYS)
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
+                event);
 
 #if defined(KEYS_GPIO_REG_PAGEUP)
   if (event == EVT_KEY_FIRST(KEY_PAGEDN)) {
@@ -295,15 +291,9 @@ void TabsGroup::onEvent(event_t event)
 #endif
 }
 
-void TabsGroup::onClicked()
-{
-  Keyboard::hide();
-}
+void TabsGroup::onClicked() { Keyboard::hide(); }
 
-void TabsGroup::onCancel()
-{
-  deleteLater();
-}
+void TabsGroup::onCancel() { deleteLater(); }
 
 #if defined(HARDWARE_TOUCH)
 bool TabsGroup::onTouchEnd(coord_t x, coord_t y)
