@@ -51,7 +51,7 @@
 #define TR_TRNMODE             "UIT",TR("+=","Add"),TR(":=","Replace")
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES    "UIT","Telem Mirror","Telemetry In","SBUS Leerling","LUA","CLI","GPS","Debug","SpaceMouse","External module"
+#define TR_AUX_SERIAL_MODES    "UIT","Telem Mirror","Telemetry In","SBUS Leerling","IBUS Leerling","CRSF Leerling","SUMD Leerling","LUA","CLI","GPS","Debug","SpaceMouse","External module"
 #define TR_SWTYPES             "Geen","Wissel","2POS","3POS"
 #define TR_POTTYPES            "Geen",TR("Pot w. det","Pot met Klik"),TR("Multipos","Standenschakelaar"),TR("Pot", "Pot zonder Klik"),"Schuif"
 #define TR_VPERSISTENT         "UIT","Vliegtijd","Handmatige Reset"

@@ -440,14 +440,24 @@ int hasSerialMode(int mode)
   return -1;
 }
 
-bool isSerialModeAvailable(uint8_t port_nr, int mode)
+bool isTrainerInputMode(const int mode) 
 {
-#if defined(USB_SERIAL)
-  // Do not list OFF on VCP if internal RF module is set to CROSSFIRE to allow pass-through flashing
-  if (port_nr == SP_VCP && mode == UART_MODE_NONE && isInternalModuleCrossfire())
-    return false;
-#endif
+    return (mode == UART_MODE_IBUS_TRAINER) || (mode == UART_MODE_SBUS_TRAINER) || (mode == UART_MODE_CRSF_TRAINER) || (mode == UART_MODE_SUMD_TRAINER);
+}
 
+int trainerInputActive() 
+{
+    for(int p = 0; p < MAX_SERIAL_PORTS; ++p) {
+        const int mode = serialGetMode(p);
+        if (isTrainerInputMode(mode)) {
+            return p;
+        }   
+    }
+    return -1;
+}
+
+bool isSerialModeAvailable(const uint8_t port_nr, const int mode)
+{
   if (mode == UART_MODE_NONE)
     return true;
 
@@ -496,12 +506,23 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
 #if defined(USB_SERIAL)
   // Telemetry input & SBUS trainer on VCP is not yet supported
   if (port_nr == SP_VCP &&
-      (mode == UART_MODE_TELEMETRY || mode == UART_MODE_SBUS_TRAINER))
+      (mode == UART_MODE_TELEMETRY || mode == UART_MODE_SBUS_TRAINER || mode == UART_MODE_IBUS_TRAINER || mode == UART_MODE_CRSF_TRAINER || mode == UART_MODE_SUMD_TRAINER))
     return false;
 #endif
 
-  auto p = hasSerialMode(mode);
-  if (p >= 0 && p != port_nr) return false;
+  {
+      const int p = hasSerialMode(mode);
+      if ((p >= 0) && (p != port_nr)) {
+          return false;
+      }
+  }
+  {
+      const int p = trainerInputActive(); 
+      if (isTrainerInputMode(mode) && (p >= 0) && (p != port_nr)) {
+          return false;
+      }
+  }
+
   return true;
 }
 
@@ -1041,7 +1062,8 @@ bool isTrainerModeAvailable(int mode)
 
   if (mode == TRAINER_MODE_MASTER_SERIAL) {
 #if defined(SBUS_TRAINER)
-    return hasSerialMode(UART_MODE_SBUS_TRAINER) >= 0;
+    return (hasSerialMode(UART_MODE_SBUS_TRAINER) >= 0) || (hasSerialMode(UART_MODE_IBUS_TRAINER) >= 0) 
+            || (hasSerialMode(UART_MODE_CRSF_TRAINER) >= 0) || (hasSerialMode(UART_MODE_SUMD_TRAINER) >= 0);
 #else
     return false;
 #endif

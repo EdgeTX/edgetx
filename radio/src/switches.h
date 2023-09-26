@@ -48,6 +48,7 @@ void logicalSwitchesTimerTick();
 
 bool isSwitchWarningRequired(uint16_t &bad_pots);
 
+void rawSetUnconnectedStickySwitch(uint8_t, bool);
 void getSwitchesPosition(bool startup);
 
 extern swarnstate_t switches_states;

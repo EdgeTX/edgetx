@@ -51,7 +51,7 @@
 #define TR_VBLMODE                     "OFF","Botoes",TR("Ctrl","Controles"),"Ambos","ON"
 #define TR_TRNMODE                     "OFF",TR("+=","Adicionar"),TR(":=","Trocar")
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
-#define TR_AUX_SERIAL_MODES            "OFF","Espelhar Telem","Entr Telem","Trainer SBUS","LUA","CLI","GPS","Debug","SpaceMouse","External module"
+#define TR_AUX_SERIAL_MODES            "OFF","Espelhar Telem","Entr Telem","Trainer SBUS","Trainer IBUS","Trainer CRSF","Trainer SUMD","LUA","CLI","GPS","Debug","SpaceMouse","External module"
 #define TR_SWTYPES                     "Nenhum","Tatil","2POS","3POS"
 #define TR_POTTYPES                    "Nenhum",TR("Pot c. det","Pot com detentor"),TR("Multipos","Chave Multipos"),"Pot","Slider"
 #define TR_VPERSISTENT                 "OFF","Voo","Reset Manual"

@@ -25,6 +25,7 @@
 #include "definitions.h"
 #include "dataconstants.h"
 #include "pulses_common.h"
+#include "crossfire.h"
 #include "modules_helpers.h"
 #include "hal/module_driver.h"
 
