@@ -219,11 +219,13 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
 #if defined(SBUS_TRAINER)
   case UART_MODE_SBUS_TRAINER:
   case UART_MODE_IBUS_TRAINER:
-  case UART_MODE_CRSF_TRAINER:
   case UART_MODE_SUMD_TRAINER:
     sbusSetAuxGetByte(ctx, getByte);
     // TODO: setRxCb (see MODE_LUA)
     break;
+  case UART_MODE_CRSF_TRAINER:
+	  if(port && && port->uart && port->uart->setIdleCb)
+		  port->uart->setIdleCb(ctx, CRSF::crsfTrainerOnIdle);
     break;
 #endif
 

@@ -17,7 +17,7 @@ void crsfTrainerPauseCheck();
 
 namespace CRSF {
     static constexpr uint32_t baudrate{420000};
-    
+    void crsfTrainerOnIdle();
     struct Servo {
         using Crsf = Trainer::Protocol::Crsf;
         using MesgType = Crsf::MesgType;

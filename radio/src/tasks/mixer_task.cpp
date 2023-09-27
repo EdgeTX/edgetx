@@ -217,6 +217,8 @@ TASK_FUNCTION(mixerTask)
       DEBUG_TIMER_START(debugTimerMixer);
       mixerTaskLock();
 
+      processSerialTrainerInputs();
+
       doMixerCalculations();
       pulsesSendChannels();
       doMixerPeriodicUpdates();
