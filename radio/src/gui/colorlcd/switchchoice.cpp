@@ -57,13 +57,15 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
         },
         STR_MENU_OTHER);
 
-    if ((nxtBtnPos > filterColumns) && choice->isValueAvailable && choice->isValueAvailable(0))
+    if ((nxtBtnPos > filterColumns) && choice->isValueAvailable &&
+        choice->isValueAvailable(0))
       addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
 
     coord_t y =
         height() - MENUS_TOOLBAR_BUTTON_WIDTH - MENUS_TOOLBAR_BUTTON_PADDING;
     coord_t w = width() - MENUS_TOOLBAR_BUTTON_PADDING * 2;
 
+#if defined(HARDWARE_TOUCH)
     invertBtn = new MenuToolbarButton(
         this, {MENUS_TOOLBAR_BUTTON_PADDING, y, w, MENUS_TOOLBAR_BUTTON_WIDTH},
         STR_SELECT_MENU_INV);
@@ -74,6 +76,7 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
       longPress();
       return choice->inverted;
     });
+#endif
   }
 
   void longPress()
@@ -81,7 +84,9 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
     SwitchChoice* switchChoice = (SwitchChoice*)choice;
     switchChoice->inverted = !switchChoice->inverted;
     switchChoice->fillMenu(menu, filter);
+#if defined(HARDWARE_TOUCH)
     invertBtn->check(switchChoice->inverted);
+#endif
   }
 
  protected:

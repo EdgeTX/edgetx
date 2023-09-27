@@ -31,9 +31,9 @@
 #include "switches.h"
 
 #if LCD_W > LCD_H
-  #define FILTER_COLUMNS  3
+#define FILTER_COLUMNS 3
 #else
-  #define FILTER_COLUMNS  2
+#define FILTER_COLUMNS 2
 #endif
 
 class SourceChoiceMenuToolbar : public MenuToolbar
@@ -102,7 +102,8 @@ class SourceChoiceMenuToolbar : public MenuToolbar
       addButton(STR_CHAR_TELEMETRY, MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM,
                 nullptr, STR_MENU_TELEMETRY);
 
-    if ((nxtBtnPos > filterColumns) && choice->isValueAvailable && choice->isValueAvailable(0))
+    if ((nxtBtnPos > filterColumns) && choice->isValueAvailable &&
+        choice->isValueAvailable(0))
       addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
   }
 };
