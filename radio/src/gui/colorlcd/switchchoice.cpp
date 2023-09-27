@@ -40,6 +40,8 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
               STR_MENU_TRIMS);
     addButton("LS", SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH,
               nullptr, STR_MENU_LOGICAL_SWITCHES);
+    addButton("FM", SWSRC_FIRST_FLIGHT_MODE, SWSRC_LAST_FLIGHT_MODE, nullptr,
+              STR_FLIGHT_MODE);
     addButton(STR_CHAR_TELEMETRY, SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR,
               nullptr, STR_MENU_TELEMETRY);
 #if defined(DEBUG_LATENCY)
@@ -48,10 +50,10 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
     auto lastSource = SWSRC_RADIO_ACTIVITY;
 #endif
     addButton(
-        STR_CHAR_FUNCTION, SWSRC_TELEMETRY_STREAMING, lastSource,
+        STR_CHAR_FUNCTION, SWSRC_ON, lastSource,
         [=](int16_t index) {
           index = abs(index);
-          return index == 0 ||
+          return index == 0 || index == SWSRC_ON || index == SWSRC_ONE ||
                  (index >= SWSRC_TELEMETRY_STREAMING && index <= lastSource &&
                   !(index >= SWSRC_FIRST_SENSOR && index <= SWSRC_LAST_SENSOR));
         },
@@ -61,11 +63,11 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
         choice->isValueAvailable(0))
       addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
 
+#if defined(HARDWARE_TOUCH)
     coord_t y =
         height() - MENUS_TOOLBAR_BUTTON_WIDTH - MENUS_TOOLBAR_BUTTON_PADDING;
     coord_t w = width() - MENUS_TOOLBAR_BUTTON_PADDING * 2;
 
-#if defined(HARDWARE_TOUCH)
     invertBtn = new MenuToolbarButton(
         this, {MENUS_TOOLBAR_BUTTON_PADDING, y, w, MENUS_TOOLBAR_BUTTON_WIDTH},
         STR_SELECT_MENU_INV);
@@ -83,7 +85,9 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
   {
     SwitchChoice* switchChoice = (SwitchChoice*)choice;
     switchChoice->inverted = !switchChoice->inverted;
+    auto idx = menu->selection();
     switchChoice->fillMenu(menu, filter);
+    menu->select(idx);
 #if defined(HARDWARE_TOUCH)
     invertBtn->check(switchChoice->inverted);
 #endif
