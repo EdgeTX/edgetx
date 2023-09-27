@@ -631,8 +631,12 @@ static bool luaLoadFunctionScript(uint8_t ref)
   CustomFunctionData * fn;
 
   if (ref <= SCRIPT_FUNC_LAST) {
-    idx = ref - SCRIPT_FUNC_FIRST;
-    fn = &g_model.customFn[idx];
+    if (modelSFEnabled()) {
+      idx = ref - SCRIPT_FUNC_FIRST;
+      fn = &g_model.customFn[idx];
+    } else {
+      return false;
+    }
   }
   else if (radioGFEnabled()) {
     idx = ref - SCRIPT_GFUNC_FIRST;
@@ -1101,10 +1105,12 @@ static bool resumeLua(bool init, bool allowLcdUsage)
           CustomFunctionsContext * functionsContext;
 
           if (ref <= SCRIPT_FUNC_LAST) {
+            if (!modelSFEnabled()) continue;
             idx = ref - SCRIPT_FUNC_FIRST;
             fn = &g_model.customFn[idx];
             functionsContext = &modelFunctionsContext;
           } else {
+            if (!radioGFEnabled()) continue;
             idx = ref - SCRIPT_GFUNC_FIRST;
             fn = &g_eeGeneral.customFn[idx];
             functionsContext = &globalFunctionsContext;
