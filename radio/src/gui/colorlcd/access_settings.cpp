@@ -763,14 +763,14 @@ class OutputMappingChoice : public Choice
     if (capabilities & (1 << RECEIVER_CAPABILITY_ENABLE_PWM_CH5_CH6)) {
       if (CH_ENABLE_SPORT == output_pin) {
         setTextHandler([=] (int val) {
-          if (val == channels) return std::string("S.PORT");
+          if (val == channels) return std::string(STR_SPORT);
           return get_channel_text(val);
         });
         setMax(channels);
         return;
       } else if (CH_ENABLE_SBUS == output_pin) {
         setTextHandler([=] (int val) {
-          if (val == channels) return std::string("SBUS");
+          if (val == channels) return std::string(STR_SBUSOUT);
           return get_channel_text(val);
         });
         setMax(channels);
@@ -780,13 +780,13 @@ class OutputMappingChoice : public Choice
       setTextHandler([=] (int val) {
         switch(val) {
         case CH_MAP_SBUS_IN:
-          return std::string(STR_CHMAP_SBUSIN);
+          return std::string(STR_SBUSIN);
         case CH_MAP_SBUS_OUT:
-          return std::string(STR_CHMAP_SBUSOUT);
+          return std::string(STR_SBUSOUT);
         case CH_MAP_SPORT:
-          return std::string(STR_CHMAP_SPORT);
+          return std::string(STR_SPORT);
         case CH_MAP_FBUS:
-          return std::string(STR_CHMAP_FBUS);
+          return std::string(STR_FBUS);
         default:
           return get_channel_text(val);
         }

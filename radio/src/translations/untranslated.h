@@ -73,12 +73,12 @@
 #define TR_ISRM_RF_PROTOCOLS           "ACCESS","D16","LR12"
 
 // ACCESS STUFF
-#define STR_CHMAP_SBUSIN               "SBUS in"
-#define STR_CHMAP_SBUSOUT              "SBUS out"
-#define STR_CHMAP_SPORT                "S.PORT"
-#define STR_CHMAP_FBUS                 "FBUS"
+#define STR_SBUSIN                     "SBUS in"
+#define STR_SBUSOUT                    "SBUS out"
+#define STR_SPORT                      "S.PORT"
+#define STR_FBUS                       "FBUS"
 #define STR_SBUS24                     "SBUS24"
-#define TR_SPORT_MODES                 STR_CHMAP_SPORT,STR_CHMAP_SPORT,STR_CHMAP_FBUS
+#define TR_SPORT_MODES                 STR_SPORT,STR_SPORT,STR_FBUS
 #define TR_R9M_PXX2_RF_PROTOCOLS       "ACCESS","FCC","EU","Flex"
 #define TR_R9M_REGION                  "FCC","EU","868MHz","915MHz"
 #define TR_R9M_LITE_FCC_POWER_VALUES   "(100mW)"
