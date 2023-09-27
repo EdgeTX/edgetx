@@ -1752,6 +1752,9 @@
   // #define INTMODULE_DMA                   NULL
   // #define INTMODULE_DMA_CHANNEL           0
   // #define INTMODULE_DMA_STREAM            0
+  #define INTMODULE_RX_DMA                DMA1
+  #define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_1
+  #define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_4
 #else
   #define INTMODULE_PULSES
   #define INTMODULE_RCC_AHB1Periph      (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA2)
