@@ -68,7 +68,7 @@ jobs:
           - xlite
           - xlites
     container:
-      image: ghcr.io/edgetx/edgetx-dev:pr-20
+      image: ghcr.io/edgetx/edgetx-dev:2.9.1
       volumes:
         - ${{ github.workspace }}:/src
     steps:
@@ -109,7 +109,7 @@ jobs:
           - x9lite;x9lites
           - xlite;xlites
     container:
-      image: ghcr.io/edgetx/edgetx-dev:pr-20
+      image: ghcr.io/edgetx/edgetx-dev:2.9.1
       volumes:
         - ${{ github.workspace }}:/src
     steps:
