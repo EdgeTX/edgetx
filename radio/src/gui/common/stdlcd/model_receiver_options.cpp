@@ -61,6 +61,11 @@ enum {
 #define CH_ENABLE_SPORT   4
 #define CH_ENABLE_SBUS    5
 
+#define CH_MAP_SBUS_IN  (1 << 5) /* 0x20 */
+#define CH_MAP_SPORT    (1 << 6) /* 0x40 */
+#define CH_MAP_SBUS_OUT (1 << 7) /* 0x80 */
+#define CH_MAP_FBUS     (CH_MAP_SPORT | CH_MAP_SBUS_OUT) /* 0xC0 */
+
 bool isSPortModeAvailable(int mode)
 {
   uint8_t receiverId = reusableBuffer.hardwareAndSettings.receiverSettings.receiverId;
@@ -79,8 +84,17 @@ void menuModelReceiverOptions(event_t event)
   if (event == EVT_ENTRY) {
     // reusableBuffer.hardwareSettings should have been cleared before calling this menu
 #if defined(SIMU)
-    reusableBuffer.hardwareAndSettings.receiverSettings.state = PXX2_SETTINGS_OK;
-    reusableBuffer.hardwareAndSettings.receiverSettings.outputsCount = 8;
+    auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+    memclear(&hwSettings, sizeof(hwSettings));
+    hwSettings.moduleSettings.state = PXX2_SETTINGS_OK;
+    hwSettings.receiverSettings.state = PXX2_SETTINGS_OK;
+    moduleState[g_moduleIdx].mode = MODULE_MODE_NORMAL;
+    auto& rxInfo = hwSettings.modules[0].receivers[0].information;
+    rxInfo.capabilities = 0x62;
+    hwSettings.receiverSettings.outputsCount = 6;
+    for (int i=0; i<6; i++) {
+      hwSettings.receiverSettings.outputsMapping[i] = i;
+    }
 #endif
   }
 
@@ -191,7 +205,7 @@ void menuModelReceiverOptions(event_t event)
         }
 
         case ITEM_RECEIVER_SETTINGS_SBUS24:
-          reusableBuffer.hardwareAndSettings.receiverSettings.sbus24 = editCheckBox(reusableBuffer.hardwareAndSettings.receiverSettings.sbus24, RECEIVER_OPTIONS_2ND_COLUMN, y, "SBUS24", attr, event);
+          reusableBuffer.hardwareAndSettings.receiverSettings.sbus24 = editCheckBox(reusableBuffer.hardwareAndSettings.receiverSettings.sbus24, RECEIVER_OPTIONS_2ND_COLUMN, y, STR_SBUS24, attr, event);
           if (attr && checkIncDec_Ret) {
             reusableBuffer.hardwareAndSettings.receiverSettings.dirty = RECEIVER_SETTINGS_DIRTY;
           }
@@ -210,42 +224,74 @@ void menuModelReceiverOptions(event_t event)
         {
           uint8_t pin = i - ITEM_RECEIVER_SETTINGS_PINMAP_FIRST;
           if (pin < reusableBuffer.hardwareAndSettings.receiverSettings.outputsCount) {
-            uint8_t & mapping = reusableBuffer.hardwareAndSettings.receiverSettings.outputsMapping[pin];
-            uint8_t channel = g_model.moduleData[g_moduleIdx].channelsStart + mapping;
+            uint8_t mapping = reusableBuffer.hardwareAndSettings.receiverSettings.outputsMapping[pin];
             lcdDrawText(0, y, STR_PIN);
             lcdDrawNumber(lcdLastRightPos + 1, y, pin + 1);
 
             uint8_t channelMax = sentModuleChannels(g_moduleIdx) - 1;
             uint8_t selectionMax = channelMax;
 
-            if (IS_RECEIVER_CAPABILITY_ENABLED(RECEIVER_CAPABILITY_ENABLE_PWM_CH5_CH6)) {
-              if (CH_ENABLE_SPORT == pin || CH_ENABLE_SBUS == pin)
-                selectionMax += 1;
-
-              if (CH_ENABLE_SPORT == pin && selectionMax == channel) {
-                lcdDrawText(7 * FW, y,  "S.PORT", attr);
-              }
-              else if (CH_ENABLE_SBUS == pin && selectionMax == channel) {
-                lcdDrawText(7 * FW, y,  "SBUS", attr);
-              }
-              else {
-                putsChn(7 * FW, y, channel + 1, attr);
-              }
-            }
-            else {
+            if (mapping <= channelMax) {
+              uint8_t channel = g_model.moduleData[g_moduleIdx].channelsStart + mapping;
               putsChn(7 * FW, y, channel + 1, attr);
+            }
+
+            if (isPXX2ReceiverOptionAvailable(receiverModelId, RECEIVER_OPTION_D_TELE_PORT)) {
+              if (mapping == 0b01000000) {
+                lcdDrawText(7 * FW, y, STR_CHMAP_SPORT, attr);
+                mapping = channelMax + 1;
+              }
+              else if (mapping == 0b10000000) {
+                lcdDrawText(7 * FW, y, STR_CHMAP_SBUSOUT, attr);
+                mapping = channelMax + 2;
+              }
+              else if (mapping == 0b11000000) {
+                lcdDrawText(7 * FW, y, STR_CHMAP_FBUS, attr);
+                mapping = channelMax + 3;
+              }
+              if (pin == 0) {
+                selectionMax = channelMax + 4;
+                if (mapping == 0b10100000) {
+                  lcdDrawText(7 * FW, y, STR_CHMAP_SBUSIN, attr);
+                  mapping = selectionMax;
+                }
+              }
+              else if (IS_RECEIVER_CAPABILITY_ENABLED(RECEIVER_CAPABILITY_ENABLE_PWM_CH5_CH6)) {
+                if (CH_ENABLE_SPORT == pin) {
+                  if (++selectionMax == mapping) {
+                    lcdDrawText(7 * FW, y, STR_CHMAP_SPORT, attr);
+                  }
+                }
+                else if (CH_ENABLE_SBUS == pin) {
+                  if (++selectionMax == mapping) {
+                    lcdDrawText(7 * FW, y, STR_CHMAP_SBUSOUT, attr);
+                  }
+                }
+              }
             }
 
             // Channel
             if (attr) {
               mapping = checkIncDec(event, mapping, 0, selectionMax);
               if (checkIncDec_Ret) {
+                if (isPXX2ReceiverOptionAvailable(receiverModelId, RECEIVER_OPTION_D_TELE_PORT)) {
+                  if (mapping == channelMax + 1)
+                    mapping = 0b01000000; // S.Port
+                  else if (mapping == channelMax + 2)
+                    mapping = 0b10000000; // SBUS Out
+                  else if (mapping == channelMax + 3)
+                    mapping = 0b11000000; // FBUS
+                  else if (mapping == channelMax + 4)
+                    mapping = 0b10100000; // SBUS In
+                }
+                reusableBuffer.hardwareAndSettings.receiverSettings.outputsMapping[pin] = mapping;
                 reusableBuffer.hardwareAndSettings.receiverSettings.dirty = RECEIVER_SETTINGS_DIRTY;
               }
             }
 
             // Bargraph
-            if (channel <= channelMax) {
+            if (mapping <= channelMax) {
+              uint8_t channel = g_model.moduleData[g_moduleIdx].channelsStart + mapping;
               int32_t channelValue = channelOutputs[channel];
   #if !(defined(PCBX7) || defined(PCBX9LITE) || defined(PCBX9LITES)) // X7/X9 LCD doesn't like too many horizontal lines
               lcdDrawRect(RECEIVER_OPTIONS_2ND_COLUMN, y + 2, wbar + 1, 4);

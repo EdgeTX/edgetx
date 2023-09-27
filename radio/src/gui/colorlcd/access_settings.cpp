@@ -780,13 +780,13 @@ class OutputMappingChoice : public Choice
       setTextHandler([=] (int val) {
         switch(val) {
         case CH_MAP_SBUS_IN:
-          return std::string("SBUS in"); // TODO: translation
+          return std::string(STR_CHMAP_SBUSIN);
         case CH_MAP_SBUS_OUT:
-          return std::string("SBUS out");
+          return std::string(STR_CHMAP_SBUSOUT);
         case CH_MAP_SPORT:
-          return std::string("S.PORT");
+          return std::string(STR_CHMAP_SPORT);
         case CH_MAP_FBUS:
-          return std::string("FBUS");
+          return std::string(STR_CHMAP_FBUS);
         default:
           return get_channel_text(val);
         }
@@ -913,7 +913,7 @@ void RxOptions::update()
 
   if (capabilities & (1 << RECEIVER_CAPABILITY_SBUS24)) {
     line = form->newLine(&grid);
-    new StaticText(line, rect_t{}, "SBUS24");
+    new StaticText(line, rect_t{}, STR_SBUS24);
     new ToggleSwitch(
         line, rect_t{},
         []() {
