@@ -707,14 +707,6 @@ void RxOptions::checkEvents()
   Dialog::checkEvents();
 }
 
-#define CH_ENABLE_SPORT 4
-#define CH_ENABLE_SBUS  5
-
-#define CH_MAP_SBUS_IN  (1 << 5) /* 0x20 */
-#define CH_MAP_SPORT    (1 << 6) /* 0x40 */
-#define CH_MAP_SBUS_OUT (1 << 7) /* 0x80 */
-#define CH_MAP_FBUS     (CH_MAP_SPORT | CH_MAP_SBUS_OUT) /* 0xC0 */
-
 static uint8_t getShiftedChannel(int8_t moduleIdx, int ch)
 {
   return g_model.moduleData[moduleIdx].channelsStart + ch;
@@ -749,7 +741,7 @@ class OutputMappingChoice : public Choice
   }
 
  public:
-  OutputMappingChoice(Window* parent, uint32_t capabilities,
+  OutputMappingChoice(Window* parent, uint32_t capabilities, uint8_t rx_model_id,
                       uint8_t module, uint8_t channels, uint8_t output_pin) :
       Choice(parent, rect_t{}, 0, channels - 1,
              std::bind(&OutputMappingChoice::get_output_mapping, this),
@@ -760,23 +752,7 @@ class OutputMappingChoice : public Choice
       channels(channels),
       rx_pin(output_pin)
   {
-    if (capabilities & (1 << RECEIVER_CAPABILITY_ENABLE_PWM_CH5_CH6)) {
-      if (CH_ENABLE_SPORT == output_pin) {
-        setTextHandler([=] (int val) {
-          if (val == channels) return std::string(STR_SPORT);
-          return get_channel_text(val);
-        });
-        setMax(channels);
-        return;
-      } else if (CH_ENABLE_SBUS == output_pin) {
-        setTextHandler([=] (int val) {
-          if (val == channels) return std::string(STR_SBUSOUT);
-          return get_channel_text(val);
-        });
-        setMax(channels);
-        return;
-      }
-    } else if (capabilities & (1 << RECEIVER_CAPABILITY_CONFIGURABLE_PORTS)) {
+    if (isPXX2ReceiverOptionAvailable(rx_model_id, RECEIVER_OPTION_D_TELE_PORT)) {
       setTextHandler([=] (int val) {
         switch(val) {
         case CH_MAP_SBUS_IN:
@@ -806,6 +782,24 @@ class OutputMappingChoice : public Choice
       setMax(CH_MAP_FBUS);
       return;
     }
+ 
+    if (capabilities & (1 << RECEIVER_CAPABILITY_ENABLE_PWM_CH5_CH6)) {
+      if (CH_ENABLE_SPORT == output_pin) {
+        setTextHandler([=] (int val) {
+          if (val == channels) return std::string(STR_SPORT);
+          return get_channel_text(val);
+        });
+        setMax(channels);
+        return;
+      } else if (CH_ENABLE_SBUS == output_pin) {
+        setTextHandler([=] (int val) {
+          if (val == channels) return std::string(STR_SBUSOUT);
+          return get_channel_text(val);
+        });
+        setMax(channels);
+        return;
+      }
+    }
 
     setTextHandler(std::bind(&OutputMappingChoice::get_channel_text, this,
                              std::placeholders::_1));
@@ -819,8 +813,8 @@ void RxOptions::update()
 
   auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
   auto& rxInfo = hwSettings.modules[moduleIdx].receivers[receiverIdx].information;
-  // uint8_t receiverModelId = rxInfo.modelID;
-  uint8_t receiverVariant = rxInfo.variant;
+  uint8_t rxModelId = rxInfo.modelID;
+  uint8_t rxVariant = rxInfo.variant;
   uint8_t capabilities = rxInfo.capabilities;
 
   FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
@@ -858,7 +852,7 @@ void RxOptions::update()
           hwSettings.receiverSettings.telemetryDisabled = val;
         });
 
-  if (isModuleR9MAccess(moduleIdx) && receiverVariant == PXX2_VARIANT_EU &&
+  if (isModuleR9MAccess(moduleIdx) && rxVariant == PXX2_VARIANT_EU &&
       hwSettings.moduleSettings.txPower > 14 /*25mW*/) {
     // read only field in this case
     tele25mw->disable();
@@ -933,7 +927,7 @@ void RxOptions::update()
     new StaticText(line, rect_t{}, std::string(STR_PIN) + i_str);
 
     uint8_t channels = sentModuleChannels(moduleIdx);
-    new OutputMappingChoice(line, capabilities, moduleIdx, channels, i);
+    new OutputMappingChoice(line, capabilities, rxModelId, moduleIdx, channels, i);
   }
 
   line = form->newLine(&grid);

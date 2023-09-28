@@ -58,14 +58,6 @@ enum {
 #define IS_RECEIVER_CAPABILITY_ENABLED(capability)    (reusableBuffer.hardwareAndSettings.modules[g_moduleIdx].receivers[receiverId].information.capabilities & (1 << capability))
 #define IF_RECEIVER_CAPABILITY(capability, count)     uint8_t(IS_RECEIVER_CAPABILITY_ENABLED(capability) ? count : HIDDEN_ROW)
 
-#define CH_ENABLE_SPORT   4
-#define CH_ENABLE_SBUS    5
-
-#define CH_MAP_SBUS_IN  (1 << 5) /* 0x20 */
-#define CH_MAP_SPORT    (1 << 6) /* 0x40 */
-#define CH_MAP_SBUS_OUT (1 << 7) /* 0x80 */
-#define CH_MAP_FBUS     (CH_MAP_SPORT | CH_MAP_SBUS_OUT) /* 0xC0 */
-
 bool isSPortModeAvailable(int mode)
 {
   uint8_t receiverId = reusableBuffer.hardwareAndSettings.receiverSettings.receiverId;
@@ -237,35 +229,34 @@ void menuModelReceiverOptions(event_t event)
             }
 
             if (isPXX2ReceiverOptionAvailable(receiverModelId, RECEIVER_OPTION_D_TELE_PORT)) {
-              if (mapping == 0b01000000) {
+              if (mapping == CH_MAP_SPORT) {
                 lcdDrawText(7 * FW, y, STR_SPORT, attr);
                 mapping = channelMax + 1;
-              }
-              else if (mapping == 0b10000000) {
+              } else if (mapping == CH_MAP_SBUS_OUT) {
                 lcdDrawText(7 * FW, y, STR_SBUSOUT, attr);
                 mapping = channelMax + 2;
-              }
-              else if (mapping == 0b11000000) {
+              } else if (mapping == CH_MAP_FBUS) {
                 lcdDrawText(7 * FW, y, STR_FBUS, attr);
                 mapping = channelMax + 3;
               }
               if (pin == 0) {
                 selectionMax = channelMax + 4;
-                if (mapping == 0b10100000) {
+                if (mapping == CH_MAP_SBUS_IN) {
                   lcdDrawText(7 * FW, y, STR_SBUSIN, attr);
                   mapping = selectionMax;
                 }
               }
-              else if (IS_RECEIVER_CAPABILITY_ENABLED(RECEIVER_CAPABILITY_ENABLE_PWM_CH5_CH6)) {
-                if (CH_ENABLE_SPORT == pin) {
-                  if (++selectionMax == mapping) {
-                    lcdDrawText(7 * FW, y, STR_SPORT, attr);
-                  }
+              else {
+                selectionMax = channelMax + 3;
+              }
+            } else if (IS_RECEIVER_CAPABILITY_ENABLED(RECEIVER_CAPABILITY_ENABLE_PWM_CH5_CH6)) {
+              if (CH_ENABLE_SPORT == pin) {
+                if (++selectionMax == mapping) {
+                  lcdDrawText(7 * FW, y, STR_SPORT, attr);
                 }
-                else if (CH_ENABLE_SBUS == pin) {
-                  if (++selectionMax == mapping) {
-                    lcdDrawText(7 * FW, y, STR_SBUSOUT, attr);
-                  }
+              } else if (CH_ENABLE_SBUS == pin) {
+                if (++selectionMax == mapping) {
+                  lcdDrawText(7 * FW, y, STR_SBUSOUT, attr);
                 }
               }
             }
@@ -275,14 +266,15 @@ void menuModelReceiverOptions(event_t event)
               mapping = checkIncDec(event, mapping, 0, selectionMax);
               if (checkIncDec_Ret) {
                 if (isPXX2ReceiverOptionAvailable(receiverModelId, RECEIVER_OPTION_D_TELE_PORT)) {
-                  if (mapping == channelMax + 1)
-                    mapping = 0b01000000; // S.Port
-                  else if (mapping == channelMax + 2)
-                    mapping = 0b10000000; // SBUS Out
-                  else if (mapping == channelMax + 3)
-                    mapping = 0b11000000; // FBUS
-                  else if (mapping == channelMax + 4)
-                    mapping = 0b10100000; // SBUS In
+                  if (mapping == channelMax + 1) {
+                    mapping = CH_MAP_SPORT;
+                  } else if (mapping == channelMax + 2) {
+                    mapping = CH_MAP_SBUS_OUT;
+                  } else if (mapping == channelMax + 3) {
+                    mapping = CH_MAP_FBUS;
+                  } else if (mapping == channelMax + 4) {
+                    mapping = CH_MAP_SBUS_IN;
+		  }
                 }
                 reusableBuffer.hardwareAndSettings.receiverSettings.outputsMapping[pin] = mapping;
                 reusableBuffer.hardwareAndSettings.receiverSettings.dirty = RECEIVER_SETTINGS_DIRTY;
