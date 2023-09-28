@@ -126,7 +126,7 @@ class DateTimeWindow : public FormWindow {
       // Date
       auto line = newLine(&grid);
       new StaticText(line, rect_t{}, STR_DATE, 0, COLOR_THEME_PRIMARY1);
-      year = new NumberEdit(line, rect_t{}, 2018, 2100,
+      year = new NumberEdit(line, rect_t{}, 2023, 2037,
                      [=]() -> int32_t {
                        return TM_YEAR_BASE + m_tm.tm_year;
                      },
