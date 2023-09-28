@@ -47,8 +47,8 @@ MenuToolbar::MenuToolbar(Choice* choice, Menu* menu, const int columns) :
            OPAQUE),
     choice(choice),
     menu(menu),
-    group(lv_group_create()),
-    filterColumns(columns)
+    filterColumns(columns),
+    group(lv_group_create())
 {
   lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY3), 0);
 
