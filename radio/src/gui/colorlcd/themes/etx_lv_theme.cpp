@@ -257,11 +257,14 @@ static void style_init(void)
     // Slider
     lv_style_init(&styles.slider_main);
     lv_style_set_bg_opa(&styles.slider_main, LV_OPA_100);
-    lv_style_set_pad_all(&styles.slider_main, 6);
     lv_style_init(&styles.slider_knob);
     lv_style_set_bg_opa(&styles.slider_knob, LV_OPA_COVER);
-    lv_style_set_border_width(&styles.slider_knob, 1);
-    lv_style_set_pad_all(&styles.slider_knob, lv_disp_dpx(theme.disp, 6));
+    lv_style_set_border_width(&styles.slider_knob, 2);
+    lv_style_set_pad_top(&styles.slider_knob, 9);
+    lv_style_set_pad_bottom(&styles.slider_knob, 9);
+    lv_style_set_pad_left(&styles.slider_knob, 4);
+    lv_style_set_pad_right(&styles.slider_knob, 4);
+    lv_style_set_radius(&styles.slider_knob, 4);
 
     // Choice
     lv_style_init(&styles.choice_main);
@@ -591,17 +594,16 @@ void etx_slider_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   lv_obj_add_style(obj, &styles.slider_main, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles.slider_knob, LV_PART_KNOB);
   lv_obj_add_style(obj, &styles.circle, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles.circle, LV_PART_KNOB);
   lv_obj_add_style(obj, &styles.bg_color_focus,
                    LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_add_style(obj, &styles.bg_color_focus,
+  lv_obj_add_style(obj, &styles.bg_color_edit,
                    LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_EDITED);
   lv_obj_add_style(obj, &styles.bg_color_focus,
                    LV_PART_INDICATOR | LV_STATE_FOCUSED);
-  lv_obj_add_style(obj, &styles.bg_color_focus,
-                   LV_PART_INDICATOR | LV_STATE_FOCUSED | LV_STATE_EDITED);
   lv_obj_add_style(obj, &styles.bg_color_edit,
-                   LV_PART_KNOB | LV_STATE_FOCUSED | LV_STATE_EDITED);
+                   LV_PART_INDICATOR | LV_STATE_FOCUSED | LV_STATE_EDITED);
+  lv_obj_add_style(obj, &styles.focussed,
+                   LV_PART_KNOB | LV_STATE_FOCUSED);
 }
 
 void etx_btnmatrix_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
@@ -788,7 +790,7 @@ const lv_obj_class_t etx_slider_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = 0,
-    .height_def = 16,
+    .height_def = 8,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_slider_t),

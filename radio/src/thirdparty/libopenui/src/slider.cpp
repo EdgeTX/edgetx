@@ -41,7 +41,9 @@ Slider::Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
     _getValue(std::move(getValue)),
     _setValue(std::move(setValue))
 {
-  padAll(7);
+  padTop(9);
+  padLeft(8);
+  padRight(8);
 
   slider = (new FormField(this, rect_t{}, 0, 0, etx_slider_create))->getLvObj();
   lv_obj_set_width(slider, lv_pct(100));
@@ -55,18 +57,17 @@ Slider::Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
 
 void Slider::paint(BitmapBuffer* dc)
 {
-  coord_t w = lv_obj_get_width(slider) - 11;
-  coord_t h = lv_obj_get_height(slider) + 10;
-  coord_t x = (lv_obj_get_width(lvobj) - w) / 2;
-  coord_t y = 2;
+  coord_t w = lv_obj_get_width(slider);
+  coord_t x = (lv_obj_get_width(lvobj) - w) / 2 - 1;
   int range = vmax - vmin;
-  LcdFlags color = lv_obj_has_state(slider, LV_STATE_FOCUSED)
+  LcdFlags color = lv_obj_has_state(slider, LV_STATE_EDITED) ? COLOR_THEME_EDIT
+                   : lv_obj_has_state(slider, LV_STATE_FOCUSED)
                        ? COLOR_THEME_FOCUS
                        : COLOR_THEME_SECONDARY1;
 
   if (range < 10) {
     for (int n = 0; n <= range; n += 1) {
-      dc->drawVerticalLine(x + (w * n + range / 2) / range, y, h, STASHED, color);
+      dc->drawSolidRect(x + (w * n) / range, 6, 2, 2, 1, color);
     }
   }
 }
