@@ -77,8 +77,8 @@
 
 #define CH_MAP_SPORT    0x40
 #define CH_MAP_SBUS_OUT 0x80
-#define CH_MAP_FBUS     0xC0
 #define CH_MAP_SBUS_IN  0xA0
+#define CH_MAP_FBUS     0xC0
 
 
 enum PXX2ModuleModelID {

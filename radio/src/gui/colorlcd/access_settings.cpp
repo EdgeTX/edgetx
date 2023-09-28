@@ -720,19 +720,19 @@ class OutputMappingChoice : public Choice
   uint8_t channels;
   uint8_t rx_pin;
 
-  int get_output_mapping()
+  int getOutputMapping()
   {
     auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
     return hwSettings.receiverSettings.outputsMapping[rx_pin];
   }
 
-  void set_output_mapping(int val)
+  void setOutputMapping(int val)
   {
     auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
     hwSettings.receiverSettings.outputsMapping[rx_pin] = val;
   }
   
-  std::string get_channel_text(int val)
+  std::string getChannelText(int val)
   {
     if (val < channels) {
       return std::string("CH") + std::to_string(ch_offset + val + 1);
@@ -740,12 +740,18 @@ class OutputMappingChoice : public Choice
     return std::string();
   }
 
+  void addMenuItem(int item, Menu* menu, int val, int& selectedIx)
+  {
+    menu->addLineBuffered(textHandler(item), [=]() { setValue(item); });
+    if (item == val) { selectedIx = menu->count() - 1; }
+  }
+
  public:
   OutputMappingChoice(Window* parent, uint32_t capabilities, uint8_t rx_model_id,
                       uint8_t module, uint8_t channels, uint8_t output_pin) :
       Choice(parent, rect_t{}, 0, channels - 1,
-             std::bind(&OutputMappingChoice::get_output_mapping, this),
-             std::bind(&OutputMappingChoice::set_output_mapping, this,
+             std::bind(&OutputMappingChoice::getOutputMapping, this),
+             std::bind(&OutputMappingChoice::setOutputMapping, this,
                        std::placeholders::_1), 0),
       capabilities(capabilities),
       ch_offset(getShiftedChannel(module, 0)),
@@ -764,22 +770,17 @@ class OutputMappingChoice : public Choice
         case CH_MAP_FBUS:
           return std::string(STR_FBUS);
         default:
-          return get_channel_text(val);
+          return getChannelText(val);
         }
       });
-      setAvailableHandler([=] (int val) {
-        switch(val) {
-        case CH_MAP_SBUS_IN:
-          return output_pin == 0;
-        case CH_MAP_SBUS_OUT:
-        case CH_MAP_SPORT:
-        case CH_MAP_FBUS:
-          return true;
-        default:
-          return val >= 0 && val < channels;
+      setFillMenuHandler([=](Menu* menu, int val, int& selectedIx) {
+        if (output_pin == 0) {
+          addMenuItem(CH_MAP_SBUS_IN, menu, val, selectedIx);
         }
+        addMenuItem(CH_MAP_SBUS_OUT, menu, val, selectedIx);
+        addMenuItem(CH_MAP_SPORT, menu, val, selectedIx);
+        addMenuItem(CH_MAP_FBUS, menu, val, selectedIx);
       });
-      setMax(CH_MAP_FBUS);
       return;
     }
  
@@ -787,21 +788,21 @@ class OutputMappingChoice : public Choice
       if (CH_ENABLE_SPORT == output_pin) {
         setTextHandler([=] (int val) {
           if (val == channels) return std::string(STR_SPORT);
-          return get_channel_text(val);
+          return getChannelText(val);
         });
         setMax(channels);
         return;
       } else if (CH_ENABLE_SBUS == output_pin) {
         setTextHandler([=] (int val) {
           if (val == channels) return std::string(STR_SBUSOUT);
-          return get_channel_text(val);
+          return getChannelText(val);
         });
         setMax(channels);
         return;
       }
     }
 
-    setTextHandler(std::bind(&OutputMappingChoice::get_channel_text, this,
+    setTextHandler(std::bind(&OutputMappingChoice::getChannelText, this,
                              std::placeholders::_1));
   }
 };
