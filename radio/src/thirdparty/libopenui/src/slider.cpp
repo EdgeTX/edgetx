@@ -66,7 +66,7 @@ void Slider::paint(BitmapBuffer* dc)
                        : COLOR_THEME_SECONDARY1;
 
   if (range < 10) {
-    for (int n = 0; n <= range; n += 1) {
+    for (int n = 1; n < range; n += 1) {
       dc->drawSolidRect(x + (w * n) / range, 6, 2, 2, 1, color);
     }
   }
