@@ -99,9 +99,9 @@
 #define TR_SF_RESET                    "Nulstil"
 #define TR_SF_SET_TIMER                "Sæt"
 #define TR_SF_VOLUME                   "Lydstyrke"
-#define TR_SF_FAILSAFE                 "SetFejlsikr"
-#define TR_SF_RANGE_CHECK              "AfstandCheck"
-#define TR_SF_MOD_BIND                 "ModuleBind"
+#define TR_SF_FAILSAFE                 TR("Sæt fejlsik", "Sæt fejlsikring")
+#define TR_SF_RANGE_CHECK              TR("Afst. check", "Afstand kontrol")
+#define TR_SF_MOD_BIND                 "Modul Bind"
 
 #define TR_SOUND                       "Spil lyd"
 #define TR_PLAY_TRACK                  TR("Afspil lyd", "Afspil lydfil")
@@ -403,7 +403,7 @@
   #define TR_MOVESTICKSPOTS            "FLYT PINDE/DREJEKONTAKT"
 #else
   #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " FOR START"
-  #define TR_SETMIDPOINT               TR(CENTER "\004SET PINDE I MIDTEN", CENTER "\004CENTRER PINDE/SKYDERE")
+  #define TR_SETMIDPOINT               TR(CENTER "\004SÆT PINDE I MIDT", CENTER "\004CENTRER PINDE/SKYDERE")
   #define TR_MOVESTICKSPOTS            CENTER "\006FLYT PINDE/DREJEKONTAKTER"
   #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " NÅR FÆRDIG"
 #endif
@@ -444,8 +444,8 @@
   #define TR_FM                        "FT"
 #endif
 #define TR_EEPROMLOWMEM                "EEPROM lav mem"
-#define TR_PRESS_ANY_KEY_TO_SKIP       "Tryk tast for at droppe"
-#define TR_THROTTLE_NOT_IDLE           "Gas ikke i tomgang"
+#define TR_PRESS_ANY_KEY_TO_SKIP       "Tryk en tast ..."
+#define TR_THROTTLE_NOT_IDLE           TR("Gas ikke sat lav", "Gas ikke sat i tomgang")
 #define TR_ALARMSDISABLED              "Alarmer afkoblet"
 #define TR_PRESSANYKEY                 TR("\010Tryk en tast", "Tryk en tast")
 #define TR_BADEEPROMDATA               "Dårlig EEprom data"
@@ -862,7 +862,7 @@
 #define TR_FS_BTN                      BUTTON(TR("Tilpasset sw", TR_FUNCTION_SWITCHES))
 #define TR_TOUCH_NOTFOUND              "Tryk skærm ikke fundet"
 #define TR_TOUCH_EXIT                  "Tryk på skærm for at forlade"
-#define TR_SET                         BUTTON("Set")
+#define TR_SET                         BUTTON("Sæt")
 #define TR_TRAINER                     "Træner"
 #define TR_CHANS                       "Chans"
 #define TR_ANTENNAPROBLEM              CENTER "TX antenne problem!"
@@ -1158,7 +1158,7 @@
 #endif
 
 #define TR_DUPLICATE                   "Dupliker"
-#define TR_ACTIVATE                    "Set aktiv"
+#define TR_ACTIVATE                    "Sæt aktiv"
 #define TR_RED                         "Rød"
 #define TR_BLUE                        "Blå"
 #define TR_GREEN                       "Grøn"
