@@ -91,7 +91,11 @@ void RadioTrainerPage::build(FormWindow * form)
   }
 
   auto line = form->newLine(&grid);
+#if LCD_H > LCD_W
   line->padTop(10);
+#else
+  line->padTop(6);
+#endif
 
   // Trainer multiplier
   auto lbl = new StaticText(line, rect_t{}, STR_MULTIPLIER, 0, COLOR_THEME_PRIMARY1);
