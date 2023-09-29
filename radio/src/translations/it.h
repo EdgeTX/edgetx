@@ -869,7 +869,7 @@
 #define TR_ENABLE                       "Abilita"
 #define TR_TOPLCDTIMER                  "Timer LCD Su"
 #define TR_UNIT                         "Unità"
-#define TR_TELEMETRY_NEWSENSOR          INDENT "Aggiungi nuovo sensore"
+#define TR_TELEMETRY_NEWSENSOR          INDENT "Aggiungi sensore"
 #define TR_CHANNELRANGE                 TR(INDENT "Num Canali", INDENT "Numero Canali")
 #define TR_ANTENNACONFIRM1              "ANTENNA EST."
 #if defined(PCBX12S)
