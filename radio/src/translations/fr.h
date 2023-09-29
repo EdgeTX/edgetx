@@ -153,8 +153,12 @@
 
 #define TR_VSWASHTYPE                  "--- ","120","120X","140","90"
 
-#define TR_STICK_NAMES                 "Dir", "Prf", "Gaz", "Ail"
-#define TR_SURFACE_NAMES               "Dir", "Gaz"
+#define TR_STICK_NAMES0                "Dir"
+#define TR_STICK_NAMES1                "Prf"
+#define TR_STICK_NAMES2                "Gaz"
+#define TR_STICK_NAMES3                "Ail"
+#define TR_SURFACE_NAMES0              "Dir"
+#define TR_SURFACE_NAMES1              "Gaz"
 
 #if defined(PCBNV14)
 #define  TR_RFPOWER_AFHDS2             "Défaut","Haut"

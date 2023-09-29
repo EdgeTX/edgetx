@@ -22,7 +22,7 @@
 constexpr coord_t KEYBOARD_HEIGHT = 90;
 NumberKeyboard * NumberKeyboard::_instance = nullptr;
 
-static const char* number_kb_map[] = {
+static const char* const number_kb_map[] = {
    "<<",  "-",   "+",   ">>",  "\n",
    "MIN", "DEF", "+/-", "MAX", ""
 };
@@ -71,7 +71,7 @@ NumberKeyboard::NumberKeyboard() :
 {
   // setup custom keyboard
   lv_keyboard_set_map(keyboard, LV_KEYBOARD_MODE_USER_1,
-                      number_kb_map, number_kb_ctrl_map);
+                      (const char**)number_kb_map, number_kb_ctrl_map);
 
   lv_keyboard_set_mode(keyboard, LV_KEYBOARD_MODE_USER_1);
 }

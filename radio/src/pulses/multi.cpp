@@ -53,7 +53,7 @@ static void sendDSM(uint8_t*& p_buf, uint8_t module);
 
 #include "hal/module_port.h"
 
-etx_serial_init multiSerialInitParams = {
+etx_serial_init const multiSerialInitParams = {
     .baudrate = MULTIMODULE_BAUDRATE,
     .encoding = ETX_Encoding_8E2,
     .direction = ETX_Dir_TX,

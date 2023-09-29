@@ -26,8 +26,8 @@ constexpr int BAR_MARGIN = 5;
 constexpr int BAR_TOP_MARGIN = 5;
 constexpr int BAR_HEIGHT_OFFSET = BAR_TOP_MARGIN + 25;
 
-static const char *RGBChars[MAX_BARS] = { "R", "G", "B" };
-static const char *HSVChars[MAX_BARS] = { "H", "S", "V" };
+static const char * const RGBChars[MAX_BARS] = { "R", "G", "B" };
+static const char * const HSVChars[MAX_BARS] = { "H", "S", "V" };
 
 void ColorBar::pressing(lv_event_t* e)
 {
@@ -276,7 +276,7 @@ uint32_t HSVColorType::getRGB()
   return HSVtoRGB(bars[0]->value, bars[1]->value, bars[2]->value);
 }
 
-const char** HSVColorType::getLabelChars()
+const char* const* HSVColorType::getLabelChars()
 {
   return HSVChars;
 }
@@ -306,7 +306,7 @@ uint32_t RGBColorType::getRGB()
   return RGB(bars[0]->value, bars[1]->value, bars[2]->value);
 }
 
-const char** RGBColorType::getLabelChars()
+const char* const* RGBColorType::getLabelChars()
 {
   return RGBChars;
 }

@@ -141,8 +141,12 @@
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
-#define TR_STICK_NAMES         "SK", "SW", "Gaz", "Lot"
-#define TR_SURFACE_NAMES       "SK", "Gaz"
+#define TR_STICK_NAMES0        "SK"
+#define TR_STICK_NAMES1        "SW"
+#define TR_STICK_NAMES2        "Gaz"
+#define TR_STICK_NAMES3        "Lot"
+#define TR_SURFACE_NAMES0      "SK"
+#define TR_SURFACE_NAMES1      "Gaz"
 
 #if defined(PCBNV14)
 #define  TR_RFPOWER_AFHDS2             "Default","High"

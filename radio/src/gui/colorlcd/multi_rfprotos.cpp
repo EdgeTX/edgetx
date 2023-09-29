@@ -26,7 +26,7 @@
 // TODO: format for LCD_WIDTH > LCD_HEIGHT
 
 // TODO: translation
-const char* RFSCAN_TITLE = "MPM: Scanning protocols...";
+const char* const RFSCAN_TITLE = "MPM: Scanning protocols...";
 
 RfScanDialog::RfScanDialog(Window* parent, MultiRfProtocols* protos,
                            std::function<void()> onClose) :

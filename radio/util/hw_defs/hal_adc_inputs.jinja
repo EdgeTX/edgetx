@@ -15,7 +15,7 @@ static const etx_hal_adc_input_t _main_inputs[] = {
 {% set pot_offset = n_mains %}
 {% set pot_inputs = adc_inputs.inputs | selectattr('type', '==', 'POT') | list %}
 {% set n_pots = pot_inputs | count %}
-static etx_hal_adc_input_t _pot_inputs[] = {
+static const etx_hal_adc_input_t _pot_inputs[] = {
   {% for input in pot_inputs %}
     { "{{ input.name }}", "{{ input.label }}", "{{ input.short_label }}" },
   {% endfor %}
@@ -24,7 +24,7 @@ static etx_hal_adc_input_t _pot_inputs[] = {
 {% set axis_offset = pot_offset + n_pots %}
 {% set axis_inputs = adc_inputs.inputs | selectattr('type', '==', 'AXIS') | list %}
 {% set n_axis = axis_inputs | count %}
-static etx_hal_adc_input_t _axis_inputs[] = {
+static const etx_hal_adc_input_t _axis_inputs[] = {
   {% for input in axis_inputs %}
     { "{{ input.name }}", "{{ input.label }}", nullptr },
   {% endfor %}
@@ -33,7 +33,7 @@ static etx_hal_adc_input_t _axis_inputs[] = {
 {% set vbat_offset = axis_offset + n_axis %}
 {% set vbat_inputs = adc_inputs.inputs | selectattr('type', '==', 'VBAT') | list %}
 {% set n_vbat = vbat_inputs | count %}
-static etx_hal_adc_input_t _vbat_inputs[] = {
+static const etx_hal_adc_input_t _vbat_inputs[] = {
   {% for input in vbat_inputs %}
     { "{{ input.name }}", nullptr, nullptr },
   {% endfor %}
@@ -42,7 +42,7 @@ static etx_hal_adc_input_t _vbat_inputs[] = {
 {% set rtc_bat_offset = vbat_offset + n_vbat %}
 {% set rtc_bat_inputs = adc_inputs.inputs | selectattr('type', '==', 'RTC_BAT') | list %}
 {% set n_rtc_bat = rtc_bat_inputs | count %}
-static etx_hal_adc_input_t _rtc_bat_inputs[] = {
+static const etx_hal_adc_input_t _rtc_bat_inputs[] = {
   {% for input in rtc_bat_inputs %}
     { "{{ input.name }}", nullptr, nullptr },
   {% endfor %}

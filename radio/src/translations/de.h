@@ -143,8 +143,12 @@
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
-#define TR_STICK_NAMES                 "Sei", "Höh", "Gas", "Que"
-#define TR_SURFACE_NAMES               "Str", "Gas"
+#define TR_STICK_NAMES0                "Sei"
+#define TR_STICK_NAMES1                "Höh"
+#define TR_STICK_NAMES2                "Gas"
+#define TR_STICK_NAMES3                "Que"
+#define TR_SURFACE_NAMES0              "Str"
+#define TR_SURFACE_NAMES1              "Gas"
 
 #if defined(PCBNV14)
 #define  TR_RFPOWER_AFHDS2             "Default","High"

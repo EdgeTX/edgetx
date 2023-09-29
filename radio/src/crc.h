@@ -29,7 +29,7 @@ enum {
   CRC_1189,
 };
 
-extern const unsigned short * crc16tab[2];
+extern const unsigned short * const crc16tab[2];
 
 uint8_t crc8(const uint8_t * ptr, uint32_t len);
 uint8_t crc8_BA(const uint8_t * ptr, uint32_t len);

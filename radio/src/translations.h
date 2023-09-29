@@ -161,9 +161,7 @@ extern const char* const STR_GPSFORMAT[];
 extern const char* const STR_VTELEMSCREENTYPE[];
 extern const char* const STR_VSWASHTYPE[];
 
-extern const char* const STR_STICK_NAMES[];
 extern const char* const STR_ON_ONE_SWITCHES[];
-extern const char* const STR_SURFACE_NAMES[];
 #if defined(IMU)
 extern const char* const STR_IMU_VSRCRAW[];
 #endif
@@ -246,6 +244,13 @@ extern const char STR_BLUETOOTH_SCANNING[];
 extern const char* const STR_BLUETOOTH_MODES[];
 
 #define NO_INDENT(x) (x) + LEN_INDENT
+
+extern const char STR_STICK_NAMES0[];
+extern const char STR_STICK_NAMES1[];
+extern const char STR_STICK_NAMES2[];
+extern const char STR_STICK_NAMES3[];
+extern const char STR_SURFACE_NAMES0[];
+extern const char STR_SURFACE_NAMES1[];
 
 extern const char STR_EMPTY[];
 extern const char STR_POPUPS_ENTER_EXIT[];

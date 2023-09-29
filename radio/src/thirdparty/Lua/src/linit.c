@@ -50,7 +50,7 @@ extern LROT_TABLE(tablib);
 extern LROT_TABLE(rotables_meta);
 extern LROT_TABLE(base_func);
 
-static const ROTable* _global_symbols[] = {
+static const ROTable* const _global_symbols[] = {
   LROT_TABLEREF(base_func),
   LROT_TABLEREF(etxlib),
   LROT_TABLEREF(etxdir),
@@ -61,7 +61,7 @@ static const ROTable* _global_symbols[] = {
 
 static int _index_hook_fct(lua_State * L)
 {
-  const ROTable** t = _global_symbols;
+  const ROTable* const* t = _global_symbols;
   const TValue* res = luaO_nilobject;
   TString* key;
 

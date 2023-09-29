@@ -92,7 +92,7 @@ static const unsigned short crc16tab_1189[256] = {
   0x7bc7,0x6a4e,0x58d5,0x495c,0x3de3,0x2c6a,0x1ef1,0x0f78
 };
 
-const unsigned short * crc16tab[] = {
+const unsigned short * const crc16tab[] = {
   crc16tab_1021,
   crc16tab_1189
 };

@@ -200,38 +200,12 @@
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
-#define TR_STICKS_VSRCRAW              STR_CHAR_STICK "ה.כיוון", STR_CHAR_STICK "ה.גובה", STR_CHAR_STICK "מצערת", STR_CHAR_STICK "מאזנות"
-
-#if defined(PCBHORUS)
-  #define TR_TRIMS_VSRCRAW             STR_CHAR_TRIM "ה.כיוון", STR_CHAR_TRIM "ה.גובה", STR_CHAR_TRIM "מצערת", STR_CHAR_TRIM "מאזנות", STR_CHAR_TRIM "T5", STR_CHAR_TRIM "T6"
-#else
-  #define TR_TRIMS_VSRCRAW             STR_CHAR_TRIM "ה.כיוון", STR_CHAR_TRIM "ה.גובה", STR_CHAR_TRIM "מצערת", STR_CHAR_TRIM "מאזנות"
-#endif
-
-#if defined(PCBHORUS)
-  #define TR_TRIMS_SWITCHES            STR_CHAR_TRIM "Rl", STR_CHAR_TRIM "Rr", STR_CHAR_TRIM "Ed", STR_CHAR_TRIM "Eu", STR_CHAR_TRIM "Td", STR_CHAR_TRIM "Tu", STR_CHAR_TRIM "Al", STR_CHAR_TRIM "Ar", STR_CHAR_TRIM "5d", STR_CHAR_TRIM "5u", STR_CHAR_TRIM "6d", STR_CHAR_TRIM "6u"
-#else
-  #define TRIM_SWITCH_CHAR             TR("t",STR_CHAR_TRIM)
-  #define TR_TRIMS_SWITCHES            TRIM_SWITCH_CHAR "Rl", TRIM_SWITCH_CHAR "Rr", TRIM_SWITCH_CHAR "Ed", TRIM_SWITCH_CHAR "Eu", TRIM_SWITCH_CHAR "Td", TRIM_SWITCH_CHAR "Tu", TRIM_SWITCH_CHAR "Al", TRIM_SWITCH_CHAR "Ar"
-#endif
-
-#if defined(PCBHORUS) || defined(PCBNV14)
-  #define TR_VKEYS                     "PGUP","PGDN","ENTER","MDL","RTN","TELE","SYS"
-#elif defined(PCBXLITE)
-  #define TR_VKEYS                     "Shift","Exit","Enter","Down","Up","Right","Left"
-#elif defined(RADIO_FAMILY_JUMPER_T12)
-  #define TR_VKEYS                     "Exit","Enter","Down","Up","Right","Left"
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2)
-  #define TR_VKEYS                     "Exit","Enter","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","UP","DOWN"
-#elif defined(RADIO_ZORRO)
-  #define TR_VKEYS                     "RTN","ENTER","PGUP","PGDN","SYS","MDL","TELE"
-#elif defined(PCBTARANIS)
-  #define TR_VKEYS                     "תפריט","יציאה","אישור","דף","פלוס","מינוס"
-#else
-  #define TR_VKEYS                     "תפריט","יציאה","למטה","למעלה","ימין","שמאל"
-#endif
+#define TR_STICK_NAMES0                "כיוון"
+#define TR_STICK_NAMES1                "ה.גוב"
+#define TR_STICK_NAMES2                "מצערת"
+#define TR_STICK_NAMES3                "מאזנות"
+#define TR_SURFACE_NAMES0              "ST"
+#define TR_SURFACE_NAMES1              "TH"
 
 #if defined(PCBNV14)
 #define  TR_RFPOWER_AFHDS2             "Default","High"

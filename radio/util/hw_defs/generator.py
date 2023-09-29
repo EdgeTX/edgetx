@@ -7,13 +7,13 @@ import json_index
 
 MAIN_CONTROL_LUT = {
     # 2 Gimbal radios
-    "LH": { "str": "Rud", "local": "STR_STICK_NAMES[0]" },
-    "LV": { "str": "Ele", "local": "STR_STICK_NAMES[1]" },
-    "RV": { "str": "Thr", "local": "STR_STICK_NAMES[2]" },
-    "RH": { "str": "Ail", "local": "STR_STICK_NAMES[3]" },
+    "LH": { "str": "Rud", "local": "STR_STICK_NAMES0" },
+    "LV": { "str": "Ele", "local": "STR_STICK_NAMES1" },
+    "RV": { "str": "Thr", "local": "STR_STICK_NAMES2" },
+    "RH": { "str": "Ail", "local": "STR_STICK_NAMES3" },
     # Surface radios
-    "ST": { "str": "ST", "local": "STR_SURFACE_NAMES[0]" },
-    "TH": { "str": "TH", "local": "STR_SURFACE_NAMES[1]" },
+    "ST": { "str": "ST", "local": "STR_SURFACE_NAMES0" },
+    "TH": { "str": "TH", "local": "STR_SURFACE_NAMES1" },
 }
 
 # MUST be the same order as 'EnumKeys'
