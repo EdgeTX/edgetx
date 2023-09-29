@@ -196,10 +196,10 @@ SWITCH_CONFIG = {
         "SE": {"default": "3POS",   "display": [0, 2]},
         "SF": {"default": "2POS",   "display": [0, 3]},
         # right side
-        "SC": {"default": "3POS",   "display": [2, 0]},
-        "SD": {"default": "3POS",   "display": [2, 1]},
-        "SG": {"default": "3POS",   "display": [2, 2]},
-        "SH": {"default": "TOGGLE", "display": [2, 3]}
+        "SC": {"default": "3POS",   "display": [0, 4]},
+        "SD": {"default": "3POS",   "display": [0, 5]},
+        "SG": {"default": "3POS",   "display": [0, 6]},
+        "SH": {"default": "TOGGLE", "display": [0, 7]}
     },
     "x9d+": {
         # left side
@@ -208,10 +208,10 @@ SWITCH_CONFIG = {
         "SE": {"default": "3POS",   "display": [0, 2]},
         "SF": {"default": "2POS",   "display": [0, 3]},
         # right side
-        "SC": {"default": "3POS",   "display": [2, 0]},
-        "SD": {"default": "3POS",   "display": [2, 1]},
-        "SG": {"default": "3POS",   "display": [2, 2]},
-        "SH": {"default": "TOGGLE", "display": [2, 3]}
+        "SC": {"default": "3POS",   "display": [0, 4]},
+        "SD": {"default": "3POS",   "display": [0, 5]},
+        "SG": {"default": "3POS",   "display": [0, 6]},
+        "SH": {"default": "TOGGLE", "display": [0, 7]}
     },
     "x9d+2019": {
         # left side
@@ -221,10 +221,10 @@ SWITCH_CONFIG = {
         "SF": {"default": "2POS",   "display": [0, 3]},
         "SI": {"default": "TOGGLE", "display": [0, 4]},
         # right side
-        "SC": {"default": "3POS",   "display": [2, 0]},
-        "SD": {"default": "3POS",   "display": [2, 1]},
-        "SG": {"default": "3POS",   "display": [2, 2]},
-        "SH": {"default": "TOGGLE", "display": [2, 3]}
+        "SC": {"default": "3POS",   "display": [0, 5]},
+        "SD": {"default": "3POS",   "display": [0, 6]},
+        "SG": {"default": "3POS",   "display": [0, 7]},
+        "SH": {"default": "TOGGLE", "display": [0, 8]}
     },
     "x9e": {
         # left side
