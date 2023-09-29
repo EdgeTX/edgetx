@@ -94,27 +94,27 @@
     <message>
         <location filename="../storage/appdata.h" line="654"/>
         <source>Editor</source>
-        <translation type="unfinished">Редактор</translation>
+        <translation>Редактор</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="654"/>
         <source>Template</source>
-        <translation type="unfinished">Шаблон</translation>
+        <translation>Шаблон</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="654"/>
         <source>Prompt</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="655"/>
         <source>Manual</source>
-        <translation type="unfinished">Инструкция</translation>
+        <translation>Инструкция</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="655"/>
         <source>Startup</source>
-        <translation type="unfinished">Запуск</translation>
+        <translation>Запуск</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="655"/>
