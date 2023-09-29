@@ -7,12 +7,12 @@ POT_CONFIG = {
         "P3": {"default": "MULTIPOS"}
     },
     "el18": {
-        "P1": { "default": "WITHOUT_DETENT"},
-        "P2": { "default": "WITHOUT_DETENT"}
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"}
     },
     "nv14": {
-        "P1": { "default": "WITHOUT_DETENT"},
-        "P2": { "default": "WITHOUT_DETENT"}
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"}
     },
     "tpro": {
         "P1": {"default": "POT_CENTER"},

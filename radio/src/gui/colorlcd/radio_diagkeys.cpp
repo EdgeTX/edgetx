@@ -27,7 +27,6 @@
 
 static const uint8_t _trimMap[MAX_TRIMS * 2] = {6, 7, 4, 5, 2, 3, 0, 1, 8, 9, 10, 11};
 
-#if !defined(PCBNV14)
 static EnumKeys get_ith_key(uint8_t i)
 {
   auto supported_keys = keysGetSupported();
@@ -41,7 +40,6 @@ static EnumKeys get_ith_key(uint8_t i)
   // we assume: i < keysGetMaxKeys()
   return (EnumKeys)0;
 }
-#endif
 
 class RadioKeyDiagsWindow : public Window
 {
@@ -104,7 +102,7 @@ class RadioKeyDiagsWindow : public Window
         displayKeyState(dc, 70, y, k);
         y += FH;
       }
-#if defined(ROTARY_ENCODER_NAVIGATION)
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
       y += FH;
       dc->drawText(KEY_COLUMN, y, STR_ROTARY_ENCODER, COLOR_THEME_PRIMARY1);
       dc->drawNumber(70, y, rotaryEncoderGetValue(), COLOR_THEME_PRIMARY1);
