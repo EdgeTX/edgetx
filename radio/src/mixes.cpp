@@ -40,7 +40,7 @@ void insertMix(uint8_t idx, uint8_t channel)
   mix->destCh = channel;
   mix->srcRaw = channel + 1;
   if (!isSourceAvailable(mix->srcRaw)) {
-    if (s_currCh > adcGetMaxInputs(ADC_INPUT_MAIN)) {
+    if (channel >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
       mix->srcRaw = MIXSRC_FIRST_STICK + channel;
     } else {
       mix->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(channel);

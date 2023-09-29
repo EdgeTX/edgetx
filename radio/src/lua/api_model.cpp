@@ -890,7 +890,7 @@ static int luaModelInsertMix(lua_State *L)
 
   if (chn<MAX_OUTPUT_CHANNELS && getMixCount()<MAX_MIXERS && idx<=count) {
     idx += first;
-    insertMix(idx, chn + 1);
+    insertMix(idx, chn);
     MixData *mix = mixAddress(idx);
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
