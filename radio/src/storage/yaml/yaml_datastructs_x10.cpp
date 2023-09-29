@@ -92,6 +92,7 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_DISABLE_TOUCH, "DISABLE_TOUCH"  },
   {  FUNC_SET_SCREEN, "SET_SCREEN"  },
   {  FUNC_DISABLE_AUDIO_AMP, "DISABLE_AUDIO_AMP"  },
+  {  FUNC_RGB_LED, "RGB_LED"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_TimerModes[] = {
