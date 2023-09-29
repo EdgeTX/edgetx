@@ -106,11 +106,11 @@ void postRadioSettingsLoad()
   }
 #endif
 #if !defined(DEBUG)
-    // clean up leftovers from a previous DEBUG config
-    for (uint8_t port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {
-      if(serialGetMode(port_nr) == UART_MODE_DEBUG)
-        serialSetMode(port_nr, UART_MODE_NONE);
-    }
+  // clean up leftovers from a previous DEBUG config
+  for (uint8_t port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {
+    if (serialGetMode(port_nr) == UART_MODE_DEBUG)
+      serialSetMode(port_nr, UART_MODE_NONE);
+  }
 #endif
 }
 
