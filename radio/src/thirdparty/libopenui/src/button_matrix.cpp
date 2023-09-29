@@ -123,7 +123,8 @@ void ButtonMatrix::update()
 void ButtonMatrix::onClicked()
 {
   lv_group_focus_obj(lvobj);
-  FormField::onClicked();
+  setEditMode(true);
+  invalidate();
 }
 
 void ButtonMatrix::setChecked(uint8_t btn_id)
