@@ -115,7 +115,6 @@
 #define TR_SF_DISABLE_TOUCH            "非タッチ"
 #define TR_SF_DISABLE_AUDIO_AMP        "オーディオアンプ OFF"
 #define TR_SF_SET_SCREEN               "メインスクリーン設定"
-#define TR_SF_RESERVE                  "[予備]"
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "テレメトリー")
 
@@ -867,7 +866,6 @@
 #define TR_INTERVAL                    "インターバル"
 #define TR_REPEAT                      "リピート"
 #define TR_ENABLE                      "有効"
-#define TR_DISABLE                     "Disable"
 #define TR_TOPLCDTIMER                 "上部LCDタイマー"
 #define TR_UNIT                        "ユニット"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "新規追加"

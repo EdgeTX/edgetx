@@ -877,7 +877,6 @@
 #define TR_INTERVAL                    "Interval"
 #define TR_REPEAT                      "Opakovat"
 #define TR_ENABLE                      "Povoleno"
-#define TR_DISABLE                     "Disable"
 #define TR_TOPLCDTIMER                 "Stopky horního LCD"
 #define TR_UNIT                        "Jednotky"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Přidat senzor ručně"

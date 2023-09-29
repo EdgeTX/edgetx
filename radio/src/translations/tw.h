@@ -866,7 +866,6 @@
 #define TR_INTERVAL                    "間隔"
 #define TR_REPEAT                      "循環"
 #define TR_ENABLE                      "啟用"
-#define TR_DISABLE                     "Disable"
 #define TR_TOPLCDTIMER                 "Top LCD Timer"
 #define TR_UNIT                        "單位"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "添加新傳感器..."
@@ -1183,7 +1182,6 @@
 // End Main menu
 
 #define TR_PROTOCOL                    "協議"
-#define TR_MONTH                       "月"
 
 // Voice in native language
 #define TR_VOICE_ENGLISH              "英語"

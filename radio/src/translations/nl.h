@@ -117,7 +117,6 @@
 #define TR_SF_DISABLE_TOUCH   "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
 #define TR_SF_SET_SCREEN      "Set Main Screen"
-#define TR_SF_RESERVE         "[reserve]"
 
 #define TR_FSW_RESET_TELEM    TR("Telm", "Telemetrie")
 #define TR_FSW_RESET_TIMERS "Tmr1","Tmr2","Tmr3"
@@ -868,7 +867,6 @@
 #define TR_INTERVAL            "Interval"
 #define TR_REPEAT                      "Repeat"
 #define TR_ENABLE                      "Enable"
-#define TR_DISABLE                     "Disable"
 #define TR_TOPLCDTIMER         "Top LCD Timer"
 #define TR_UNIT                "Eenheid"
 #define TR_TELEMETRY_NEWSENSOR INDENT "Sensor toevoegen ..."
