@@ -104,7 +104,7 @@
     <message>
         <location filename="../storage/appdata.h" line="654"/>
         <source>Prompt</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="655"/>
@@ -119,27 +119,27 @@
     <message>
         <location filename="../storage/appdata.h" line="655"/>
         <source>Daily</source>
-        <translation type="unfinished">Ежедневно</translation>
+        <translation>Ежедневно</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="655"/>
         <source>Weekly</source>
-        <translation type="unfinished">Еженедельно</translation>
+        <translation>Еженедельно</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="655"/>
         <source>Monthly</source>
-        <translation type="unfinished">Ежемесячно</translation>
+        <translation>Ежемесячно</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="657"/>
         <source>Debug</source>
-        <translation type="unfinished">Отладка</translation>
+        <translation>Отладка</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="657"/>
         <source>Warning</source>
-        <translation type="unfinished">Предупреждение</translation>
+        <translation>Предупреждение</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="657"/>
@@ -154,7 +154,7 @@
     <message>
         <location filename="../storage/appdata.h" line="657"/>
         <source>Information</source>
-        <translation type="unfinished">Информация</translation>
+        <translation>Информация</translation>
     </message>
 </context>
 <context>
