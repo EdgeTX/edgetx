@@ -70,7 +70,7 @@ void bootloaderInitScreen()
   lcdInitDisplayDriver();
   backlightInit();
   backlightEnable(100);
-  setTrimsAsButtons(true);
+  setHatsAsKeys(true);
 }
 
 static void bootloaderDrawTitle(const char* text)

@@ -5615,6 +5615,31 @@ Mode 4:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../generaledit/generalsetup.ui" line="2430"/>
+        <source>Hats Mode</source>
+        <translation>Modo joystick</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2441"/>
+        <source>Trims only</source>
+        <translation>Solo trims</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2446"/>
+        <source>Keys only</source>
+        <translation>Solo keys</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Switchable</source>
+        <translation>Commutabile</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Global</source>
+        <translation>Globale</translation>
+    </message>
+    <message>
         <location filename="../generaledit/generalsetup.ui" line="2405"/>
         <source>Stick Mode</source>
         <translation>Modo Stick</translation>

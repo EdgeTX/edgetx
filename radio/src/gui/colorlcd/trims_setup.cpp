@@ -55,6 +55,14 @@ TrimsSetup::TrimsSetup() : Page(ICON_MODEL_SETUP)
   auto btn_obj = btn->getLvObj();
   lv_obj_set_width(btn_obj, lv_pct(100));
 
+#if defined(USE_HATS_AS_KEYS)
+  // Hats mode for NV14/EL18
+  line = body.newLine(&grid);
+  new StaticText(line, rect_t{}, STR_HATSMODE, 0, COLOR_THEME_PRIMARY1);
+  new Choice(line, rect_t{}, STR_HATSOPT, HATSMODE_TRIMS_ONLY, HATSMODE_GLOBAL, 
+             GET_SET_DEFAULT(g_model.hatsMode));
+#endif
+
   // Trim step
   line = body.newLine(&grid);
   new StaticText(line, rect_t{}, STR_TRIMINC, 0,

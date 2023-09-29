@@ -5977,6 +5977,31 @@ Mode 4:
         <source>USB Serial (CDC)</source>
         <translation>USBシリアル （CDC)</translation>
     </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2430"/>
+        <source>Hats Mode</source>
+        <translation>アナログスティック</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2441"/>
+        <source>Trims only</source>
+        <translation>トリムのみ</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2446"/>
+        <source>Keys only</source>
+        <translation>キーのみ</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Switchable</source>
+        <translation>スイッチ</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Global</source>
+        <translation>すべて</translation>
+    </message>
 </context>
 <context>
     <name>GeneralSetupPanel</name>

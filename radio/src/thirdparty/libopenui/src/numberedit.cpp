@@ -66,7 +66,11 @@ void NumberEdit::onEvent(event_t event)
         auto step = getStep();
         step += (rotaryEncoderGetAccel() * getAccelFactor()) / 8;
         do {
+#if defined(USE_HATS_AS_KEYS)
+          value -= step;
+#else
           value += step;
+#endif
         } while (isValueAvailable && !isValueAvailable(value) && value <= vmax);
         if (value <= vmax) {
           setValue(value);
@@ -83,7 +87,11 @@ void NumberEdit::onEvent(event_t event)
         auto step = getStep();
         step += (rotaryEncoderGetAccel() * getAccelFactor()) / 8;
         do {
+#if defined(USE_HATS_AS_KEYS)
+          value += step;
+#else
           value -= step;
+#endif
         } while (isValueAvailable && !isValueAvailable(value) && value >= vmin);
         if (value >= vmin) {
           setValue(value);

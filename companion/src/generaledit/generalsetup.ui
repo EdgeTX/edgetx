@@ -1682,6 +1682,16 @@ p, li { white-space: pre-wrap; }
        </item>
       </widget>
      </item>
+     <item row="25" column="0">
+      <widget class="QLabel" name="hatsModeLabel">
+       <property name="text">
+        <string>Hats Mode</string>
+       </property>
+      </widget>
+     </item>
+     <item row="25" column="1">
+      <widget class="AutoComboBox" name="hatsModeCB"/>
+     </item>
      <item row="20" column="0">
       <widget class="QLabel" name="units_label">
        <property name="text">

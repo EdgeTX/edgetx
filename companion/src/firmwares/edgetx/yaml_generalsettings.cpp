@@ -117,6 +117,12 @@ const YamlLookupTable internalModuleLut = {
   {  MODULE_TYPE_LEMON_DSMP, "TYPE_LEMON_DSMP"  },
 };
 
+static const YamlLookupTable hatsModeLut = {
+  {  GeneralSettings::HATSMODE_TRIMS_ONLY, "TRIMS_ONLY"  },
+  {  GeneralSettings::HATSMODE_KEYS_ONLY, "KEYS_ONLY"  },
+  {  GeneralSettings::HATSMODE_SWITCHABLE, "SWITCHABLE"  },
+};
+
 YamlTelemetryBaudrate::YamlTelemetryBaudrate(
     const unsigned int* moduleBaudrate)
 {
@@ -181,6 +187,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["disableAlarmWarning"] = (int)rhs.disableAlarmWarning;
   node["disableRssiPoweroffAlarm"] = (int)rhs.disableRssiPoweroffAlarm;
   node["USBMode"] = rhs.usbMode;
+  node["hatsMode"] = hatsModeLut << rhs.hatsMode;
   node["stickDeadZone"] = rhs.stickDeadZone;
   node["jackMode"] = rhs.jackMode;
   node["hapticMode"] = rhs.hapticMode;
@@ -431,6 +438,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["disableAlarmWarning"] >> rhs.disableAlarmWarning;
   node["disableRssiPoweroffAlarm"] >> rhs.disableRssiPoweroffAlarm;
   node["USBMode"] >> rhs.usbMode;
+  node["hatsMode"] >> hatsModeLut >> rhs.hatsMode;
   node["stickDeadZone"] >> rhs.stickDeadZone;
   node["jackMode"] >> rhs.jackMode;
   node["hapticMode"] >> rhs.hapticMode;

@@ -6036,6 +6036,31 @@ Tilstand 4:
         <translation>Seriel USB (CDC)</translation>
     </message>
     <message>
+        <location filename="../generaledit/generalsetup.ui" line="2430"/>
+        <source>Hats Mode</source>
+        <translation>Joystik indstilling</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2441"/>
+        <source>Trims only</source>
+        <translation>Kun trim</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2446"/>
+        <source>Keys only</source>
+        <translation>Kun knap</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Switchable</source>
+        <translation>Trim / Knap</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
         <location filename="../generaledit/generalsetup.ui" line="1038"/>
         <source>Owner Registration ID</source>
         <translation>Ejer ID for registrering</translation>

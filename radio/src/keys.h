@@ -180,9 +180,11 @@ uint8_t keysGetTrimState(uint8_t trim);
 bool keysPollingCycle();
 bool rotaryEncoderPollingCycle();
 
-#if defined(USE_TRIMS_AS_BUTTONS)
-void setTrimsAsButtons(bool val);
-bool getTrimsAsButtons();
+#if defined(USE_HATS_AS_KEYS)
+void setHatsAsKeys(bool val);
+bool getHatsAsKeys();
+void setTransposeHatsForLUA(bool val);
+bool getTransposeHatsForLUA();
 #endif
 
 struct InactivityData

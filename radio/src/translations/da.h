@@ -164,6 +164,13 @@
 
 #define TR_ON_ONE_SWITCHES             "EN","En"
 
+#if defined(USE_HATS_AS_KEYS)
+#define TR_HATSMODE                    "Joystik indstilling"
+#define TR_HATSOPT                     "Kun trim","Kun knap","Trim / Knap", "Global"
+#define TR_HATSMODE_TRIMS              "Joystik: Trim"
+#define TR_HATSMODE_KEYS               "Joystik: Knap"
+#endif
+
 #if defined(COLORLCD)
   #define TR_ROTARY_ENC_OPT            "Normal","Invers"
 #else

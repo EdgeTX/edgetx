@@ -179,6 +179,13 @@
 
 #define TR_ON_ONE_SWITCHES              "PÅ","Ett"
 
+#if defined(USE_HATS_AS_KEYS)
+#define TR_HATSMODE                     "Hattläge"
+#define TR_HATSOPT                      "Endast trimm","Endast knapp","Ändringsbar","Global"
+#define TR_HATSMODE_TRIMS               "Hattläge: Trimmar"
+#define TR_HATSMODE_KEYS                "Hattläge: Knappar"
+#endif
+
 #if defined(IMU)
   #define TR_IMU_VSRCRAW                "TltX","TltY",
 #else

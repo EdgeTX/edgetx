@@ -79,7 +79,7 @@ struct our_longjmp * global_lj = 0;
 uint32_t luaExtraMemoryUsage = 0;
 #endif
 
-#if defined(USE_TRIMS_AS_BUTTONS)
+#if defined(USE_HATS_AS_KEYS)
 static bool _is_standalone_script()
 {
   return scriptInternalData[0].reference == SCRIPT_STANDALONE;
@@ -254,8 +254,8 @@ void luaDisable()
   POPUP_WARNING("Lua disabled!");
   luaState = INTERPRETER_PANIC;
 
-#if defined(USE_TRIMS_AS_BUTTONS)
-  if (_is_standalone_script()) setTrimsAsButtons(false);
+#if defined(USE_HATS_AS_KEYS)
+  if (_is_standalone_script()) setTransposeHatsForLUA(false);
 #endif
 }
 
@@ -1255,8 +1255,8 @@ bool luaTask(event_t evt, bool allowLcdUsage)
       init = true;
       luaState = INTERPRETER_LOADING;
 
-#if defined(USE_TRIMS_AS_BUTTONS)
-      if (_is_standalone_script()) setTrimsAsButtons(false);
+#if defined(USE_HATS_AS_KEYS)
+      if (_is_standalone_script()) setTransposeHatsForLUA(false);
 #endif
    
     case INTERPRETER_LOADING:
@@ -1271,8 +1271,8 @@ bool luaTask(event_t evt, bool allowLcdUsage)
       init = true;
       luaState = INTERPRETER_RUNNING;
 
-#if defined(USE_TRIMS_AS_BUTTONS)
-      if (_is_standalone_script()) setTrimsAsButtons(true);
+#if defined(USE_HATS_AS_KEYS)
+      if (_is_standalone_script()) setTransposeHatsForLUA(true);
 #endif
       
     case INTERPRETER_RUNNING:

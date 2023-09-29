@@ -166,6 +166,13 @@
 
 #define TR_ON_ONE_SWITCHES             "ON","One"
 
+#if defined(USE_HATS_AS_KEYS)
+#define TR_HATSMODE                   "מצב כובעונים"
+#define TR_HATSOPT                    "קיזוזים בלבד","ניווט בלבד","משולב","גלובאלי"
+#define TR_HATSMODE_TRIMS             "מצב כובעונים: קיזוזים"
+#define TR_HATSMODE_KEYS              "מצב כובעונים: ניווט"
+#endif
+
 #if defined(COLORLCD)
   #define TR_ROTARY_ENC_OPT         "רגיל","הפוך"
 #else

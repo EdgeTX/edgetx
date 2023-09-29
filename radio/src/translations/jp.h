@@ -161,6 +161,13 @@
 
 #define TR_ON_ONE_SWITCHES             "ON","One"
 
+#if defined(USE_HATS_AS_KEYS)
+#define TR_HATSMODE                    "アナログスティック"
+#define TR_HATSOPT                     "トリムのみ","キーのみ","スイッチ","すべて"
+#define TR_HATSMODE_TRIMS              "アナログスティック: トリム"
+#define TR_HATSMODE_KEYS               "アナログスティック: キー"
+#endif
+
 #if defined(COLORLCD)
   #define TR_ROTARY_ENC_OPT         "標準","リバース"
 #else

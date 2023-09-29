@@ -5816,6 +5816,31 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../generaledit/generalsetup.ui" line="2430"/>
+        <source>Hats Mode</source>
+        <translation>מצב כובעונים</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2441"/>
+        <source>Trims only</source>
+        <translation>קיזוזים בלבד</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2446"/>
+        <source>Keys only</source>
+        <translation>ניווט בלבד</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Switchable</source>
+        <translation>משולב</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Global</source>
+        <translation>גלובאלי</translation>
+    </message>
+    <message>
         <location filename="../generaledit/generalsetup.ui" line="2443"/>
         <source>Measurement Units</source>
         <translation type="unfinished"></translation>

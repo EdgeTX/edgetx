@@ -184,7 +184,7 @@
         </widget>
        </item>
        <item alignment="Qt::AlignRight">
-        <widget class="QLabel" name="label_spacer">
+        <widget class="QLabel" name="lblHatsMode">
          <property name="font">
           <font>
            <weight>50</weight>
@@ -192,7 +192,7 @@
           </font>
          </property>
          <property name="text">
-          <string/>
+          <string>Hats Mode</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -626,6 +626,9 @@
           </property>
          </item>
         </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="AutoComboBox" name="cboHatsMode"/>
        </item>
        <item row="2" column="4">
         <widget class="QPushButton" name="editText">

@@ -130,7 +130,7 @@ RadioGhostModuleConfig::RadioGhostModuleConfig(uint8_t moduleIdx) :
   lv_group_set_editing(lv_group_get_default(), true);
   lv_obj_add_event_cb(lvobj, ghostmoduleconfig_cb, LV_EVENT_KEY, this);
 #if defined(TRIMS_EMULATE_BUTTONS)
-  setTrimsAsButtons(true);  // Use trim joysticks to operate menu (e.g. on NV14)
+  setHatsAsKeys(true);  // Use trim joysticks to operate menu (e.g. on NV14)
 #endif
 }
 
@@ -156,7 +156,7 @@ void RadioGhostModuleConfig::onEvent(event_t event)
       RTOS_WAIT_MS(10);
       Page::onEvent(event);
 #if defined(TRIMS_EMULATE_BUTTONS)
-      setTrimsAsButtons(false);  // switch trims back to normal
+      setHatsAsKeys(false);  // switch trims back to normal
 #endif
       break;
   }
@@ -175,7 +175,7 @@ void RadioGhostModuleConfig::checkEvents()
     RTOS_WAIT_MS(10);
     deleteLater();
 #if defined(TRIMS_EMULATE_BUTTONS)
-    setTrimsAsButtons(false);  // switch trims back to normal
+    setHatsAsKeys(false);  // switch trims back to normal
 #endif
   }
 }

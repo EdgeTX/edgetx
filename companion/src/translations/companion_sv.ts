@@ -6026,7 +6026,31 @@ Mode 4:
         <translation>Seriell USB (CDC)</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1038"/>
+        <location filename="../generaledit/generalsetup.ui" line="2430"/>
+        <source>Hats Mode</source>
+        <translation>Hattläge</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2441"/>
+        <source>Trims only</source>
+        <translation>Endast trimm</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2446"/>
+        <source>Keys only</source>
+        <translation>Endast knapp</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Switchable</source>
+        <translation>Ändringsbar</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
         <source>Owner Registration ID</source>
         <translation>ID för ägarregistrering</translation>
     </message>

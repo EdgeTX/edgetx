@@ -36,6 +36,7 @@ constexpr char FIM_TIMERSWITCH[] {"Timer Switch"};
 constexpr char FIM_THRSOURCE[]   {"Throttle Source"};
 constexpr char FIM_TRAINERMODE[] {"Trainer Mode"};
 constexpr char FIM_ANTENNAMODE[] {"Antenna Mode"};
+constexpr char FIM_HATSMODE[]    {"Hats Mode"};
 
 TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, GeneralSettings & generalSettings, Firmware * firmware,
                        QWidget * prevFocus, FilteredItemModelFactory * panelFilteredModels, CompoundItemModelFactory * panelItemModels):
@@ -1474,6 +1475,8 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelItemModels->registerItemModel(TimerData::persistentItemModel());
   panelItemModels->registerItemModel(TimerData::modeItemModel());
   panelItemModels->registerItemModel(TimerData::showElapsedItemModel());
+  panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::hatsModeItemModel(false)), FIM_HATSMODE);
+
   Board::Type board = firmware->getBoard();
 
   memset(modules, 0, sizeof(modules));
@@ -1692,6 +1695,15 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   }
 
   ui->trimsDisplay->setField(model.trimsDisplay, this);
+
+  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board)) {
+    ui->cboHatsMode->setModel(panelFilteredModels->getItemModel(FIM_HATSMODE));
+    ui->cboHatsMode->setField(model.hatsMode, this);
+  }
+  else {
+    ui->lblHatsMode->hide();
+    ui->cboHatsMode->hide();
+  }
 
   if (Boards::getCapability(firmware->getBoard(), Board::FunctionSwitches) > 0) {
     funcswitches = new FunctionSwitchesPanel(this, model, generalSettings, firmware);

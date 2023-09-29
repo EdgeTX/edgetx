@@ -5704,6 +5704,31 @@ Acceptable values are 3v..12v</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../generaledit/generalsetup.ui" line="2430"/>
+        <source>Hats Mode</source>
+        <translation>按键帽模式</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2441"/>
+        <source>Trims only</source>
+        <translation>微调</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2446"/>
+        <source>Keys only</source>
+        <translation>导航键</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Switchable</source>
+        <translation>可切换</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Global</source>
+        <translation>全局</translation>
+    </message>
+    <message>
         <location filename="../generaledit/generalsetup.ui" line="2405"/>
         <source>Stick Mode</source>
         <translation>摇杆模式                [MODE]</translation>

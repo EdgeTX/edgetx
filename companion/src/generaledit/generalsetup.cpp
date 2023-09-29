@@ -20,6 +20,9 @@
 
 #include "generalsetup.h"
 #include "ui_generalsetup.h"
+#include "compounditemmodels.h"
+#include "filtereditemmodels.h"
+#include "autocombobox.h"
 
 GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
 GeneralPanel(parent, generalSettings, firmware),
@@ -27,10 +30,12 @@ ui(new Ui::GeneralSetup)
 {
   ui->setupUi(this);
 
+  Board::Type board = firmware->getBoard();
+
   QLabel *pmsl[] = {ui->ro_label, ui->ro1_label, ui->ro2_label, ui->ro3_label, ui->ro4_label, ui->ro5_label, ui->ro6_label, ui->ro7_label, ui->ro8_label, NULL};
   QSlider *tpmsld[] = {ui->chkSA, ui->chkSB, ui->chkSC, ui->chkSD, ui->chkSE, ui->chkSF, ui->chkSG, ui->chkSH, NULL};
 
-  if (IS_TARANIS(firmware->getBoard())) {
+  if (IS_TARANIS(board)) {
     if (firmware->getId().contains("readonly")) {
       uint16_t switchstate = generalSettings.switchUnlockStates;
       ui->chkSA->setValue(switchstate & 0x3);
@@ -153,19 +158,28 @@ ui(new Ui::GeneralSetup)
 
   ui->timezoneLE->setTime((generalSettings.timezone * 3600) + (generalSettings.timezoneMinutes/*quarter hours*/ * 15 * 60));
 
-  if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
+  if (IS_HORUS_OR_TARANIS(board)) {
     ui->adjustRTC->setChecked(generalSettings.adjustRTC);
   }
   else {
     ui->adjustRTC->hide();
   }
 
-  if (IS_STM32(firmware->getBoard())) {
+  if (IS_STM32(board)) {
     ui->usbModeCB->setCurrentIndex(generalSettings.usbMode);
   }
   else {
     ui->usbModeLabel->hide();
     ui->usbModeCB->hide();
+  }
+
+  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board)) {
+    ui->hatsModeCB->setModel(new FilteredItemModel(GeneralSettings::hatsModeItemModel()));
+    ui->hatsModeCB->setField(generalSettings.hatsMode, this);
+  }
+  else {
+    ui->hatsModeLabel->hide();
+    ui->hatsModeCB->hide();
   }
 
   if (firmware->getCapability(HasSwitchableJack)) {
@@ -200,13 +214,13 @@ ui(new Ui::GeneralSetup)
     ui->label_BLBright->hide();
   }
 
-  if (!IS_FAMILY_HORUS_OR_T16(firmware->getBoard())) {
+  if (!IS_FAMILY_HORUS_OR_T16(board)) {
     ui->OFFBright_SB->hide();
     ui->OFFBright_SB->setDisabled(true);
     ui->label_OFFBright->hide();
   }
 
-  if (!IS_JUMPER_T18(firmware->getBoard())) {
+  if (!IS_JUMPER_T18(board)) {
     ui->keysBl_ChkB->hide();
     ui->keysBl_ChkB->setDisabled(true);
     ui->label_KeysBl->hide();
@@ -262,7 +276,7 @@ ui(new Ui::GeneralSetup)
     ui->pwrOffDelayLabel->hide();
     ui->pwrOffDelay->hide();
   }
-  else if (!IS_TARANIS(firmware->getBoard())) {
+  else if (!IS_TARANIS(board)) {
     ui->pwrOnDelayLabel->hide();
     ui->pwrOnDelay->hide();
   }
@@ -279,7 +293,7 @@ ui(new Ui::GeneralSetup)
     connect(tpmsld[i], SIGNAL(valueChanged(int)),this,SLOT(unlockSwitchEdited()));
   }
 
-  if (!IS_HORUS_OR_TARANIS(firmware->getBoard())) {
+  if (!IS_HORUS_OR_TARANIS(board)) {
     ui->stickReverse1->setChecked(generalSettings.stickReverse & (1 << 0));
     ui->stickReverse2->setChecked(generalSettings.stickReverse & (1 << 1));
     ui->stickReverse3->setChecked(generalSettings.stickReverse & (1 << 2));
@@ -297,7 +311,7 @@ ui(new Ui::GeneralSetup)
     ui->stickReverse4->hide();
   }
 
-  if (IS_TARANIS_PLUS(firmware->getBoard())) {
+  if (IS_TARANIS_PLUS(board)) {
     ui->backlightColor_SL->setValue(generalSettings.backlightColor);
   }
   else {
@@ -395,7 +409,6 @@ void GeneralSetupPanel::on_jackModeCB_currentIndexChanged(int index)
     emit modified();
   }
 }
-
 
 void GeneralSetupPanel::on_backlightColor_SL_valueChanged()
 {

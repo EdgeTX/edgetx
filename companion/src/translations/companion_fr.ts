@@ -5649,6 +5649,31 @@ Plage de valeurs: 3v...12v</translation>
         <translation>Port série USB (Debug)</translation>
     </message>
     <message>
+        <location filename="../generaledit/generalsetup.ui" line="2430"/>
+        <source>Hats Mode</source>
+        <translation>Mode joystick</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2441"/>
+        <source>Trims only</source>
+        <translation>Trims uniquement</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2446"/>
+        <source>Keys only</source>
+        <translation>Touches uniquement</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Switchable</source>
+        <translation>Commutable</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Global</source>
+        <translation>Global</translation>
+    </message>
+    <message>
         <location filename="../generaledit/generalsetup.ui" line="2405"/>
         <source>Stick Mode</source>
         <translation>Mode</translation>

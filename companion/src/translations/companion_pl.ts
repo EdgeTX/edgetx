@@ -5950,6 +5950,31 @@ Dopuszczalne wartości 5v-10v {3v?} {12v?}</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../generaledit/generalsetup.ui" line="2430"/>
+        <source>Hats Mode</source>
+        <translation>Tryb grzybków</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2441"/>
+        <source>Trims only</source>
+        <translation>Tylko trymy</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2446"/>
+        <source>Keys only</source>
+        <translation>Tylko przyciski</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Switchable</source>
+        <translation>Przełączane</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <source>Global</source>
+        <translation>Globalne</translation>
+    </message>
+    <message>
         <location filename="../generaledit/generalsetup.ui" line="730"/>
         <source>Stick reverse</source>
         <translation>Rewers drążków</translation>

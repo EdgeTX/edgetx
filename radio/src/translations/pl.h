@@ -157,6 +157,13 @@
 
 #define TR_ON_ONE_SWITCHES      "ON","One"
 
+#if defined(USE_HATS_AS_KEYS)
+#define TR_HATSMODE             "Tryb grzybków"
+#define TR_HATSOPT              "Tylko trymy","Tylko przyciski","Przełączane","Globalne"
+#define TR_HATSMODE_TRIMS       "Tryb grzybków: trymy"
+#define TR_HATSMODE_KEYS        "Tryb grzybków: przyciski"
+#endif
+
 #if defined(COLORLCD)
   #define TR_ROTARY_ENC_OPT  "Normal","Inverted"
 #else

@@ -231,4 +231,3 @@ class Window
 
     virtual void invalidate(const rect_t & rect);
 };
-

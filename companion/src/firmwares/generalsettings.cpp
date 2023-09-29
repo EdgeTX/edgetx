@@ -129,6 +129,8 @@ void GeneralSettings::init()
   backlightDelay = 2; // 2 * 5 = 10 secs
   inactivityTimer = 10;
 
+  hatsMode = HATSMODE_SWITCHABLE;
+
   // backlightBright = 0; // 0 = 100%
 
   if (IS_FAMILY_HORUS_OR_T16(board)) {
@@ -669,6 +671,42 @@ AbstractStaticItemModel * GeneralSettings::uartSampleModeItemModel()
 
   for (int i = 0; i < UART_SAMPLE_MODE_COUNT; i++) {
     mdl->appendToItemList(uartSampleModeToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+QString GeneralSettings::hatsModeToString() const
+{
+  return hatsModeToString(hatsMode);
+}
+
+//  static
+QString GeneralSettings::hatsModeToString(int value)
+{
+  switch(value) {
+    case HATSMODE_TRIMS_ONLY:
+      return tr("Trims only");
+    case HATSMODE_KEYS_ONLY:
+      return tr("Keys only");
+    case HATSMODE_SWITCHABLE:
+      return tr("Switchable");
+    case HATSMODE_GLOBAL:
+      return tr("Global");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * GeneralSettings::hatsModeItemModel(bool radio_setup)
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GS_HATSMODE);
+
+  for (int i = 0; i < HATSMODE_COUNT; i++) {
+    mdl->appendToItemList(hatsModeToString(i), i, i == HATSMODE_GLOBAL && radio_setup ? false : true);
   }
 
   mdl->loadItemList();

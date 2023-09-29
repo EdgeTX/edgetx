@@ -156,6 +156,13 @@
 
 #define TR_ON_ONE_SWITCHES             "ON","One"
 
+#if defined(USE_HATS_AS_KEYS)
+#define TR_HATSMODE                    "按键帽模式"
+#define TR_HATSOPT                     "微调","导航键","可切换","全局"
+#define TR_HATSMODE_TRIMS              "按键帽: 微调"
+#define TR_HATSMODE_KEYS               "按键帽: 导航键"
+#endif
+
 #if defined(COLORLCD)
   #define TR_ROTARY_ENC_OPT         "正常","反向"
 #else

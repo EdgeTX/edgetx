@@ -79,6 +79,7 @@ class ModelPrinter: public QObject
     QString printModuleType(int idx);
     QString printThrottleSource(int idx);
     QString printTrimsDisplayMode();
+    QString printHatsMode();
     QString printSettingsTrim();
     QString printSwitchWarnings();
     QString printPotWarnings();

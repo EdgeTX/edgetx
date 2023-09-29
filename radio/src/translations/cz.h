@@ -169,6 +169,13 @@
 
 #define TR_ON_ONE_SWITCHES             "ZAP","One"
 
+#if defined(USE_HATS_AS_KEYS)
+#define TR_HATSMODE                    "Režim kloboučků"
+#define TR_HATSOPT                     "Pouze trimy","Pouze tlačítka","Přepinatelné","Globální"
+#define TR_HATSMODE_TRIMS              "Režim kloboučků: Trimy"
+#define TR_HATSMODE_KEYS                "Režim kloboučků: Tlačítka"
+#endif
+
 #if defined(COLORLCD)
   #define TR_ROTARY_ENC_OPT         "Normal","Invertován"
 #else

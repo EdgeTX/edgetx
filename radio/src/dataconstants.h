@@ -658,6 +658,13 @@ enum BluetoothModes {
 #endif
 };
 
+enum HatsMode {
+  HATSMODE_TRIMS_ONLY,
+  HATSMODE_KEYS_ONLY,
+  HATSMODE_SWITCHABLE,
+  HATSMODE_GLOBAL
+};
+
 enum UartSampleModes {
   UART_SAMPLE_MODE_NORMAL = 0,
   UART_SAMPLE_MODE_ONEBIT,

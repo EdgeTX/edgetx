@@ -181,6 +181,8 @@ void ModelData::clear()
 
   const char * layoutId = "Layout2P1";  // currently all using same default though might change for NV14
   RadioLayout::init(layoutId, customScreens);
+
+  hatsMode = GeneralSettings::HATSMODE_GLOBAL;
 }
 
 bool ModelData::isEmpty() const

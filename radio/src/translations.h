@@ -172,6 +172,13 @@ extern const char* const STR_CYC_VSRCRAW[];
 
 extern const char* const STR_ROTARY_ENC_OPT[];
 
+#if defined(USE_HATS_AS_KEYS)
+extern const char STR_HATSMODE[];
+extern const char* const STR_HATSOPT[];
+extern const char STR_HATSMODE_TRIMS[];
+extern const char STR_HATSMODE_KEYS[];
+#endif
+
 extern const char* const STR_VTMRMODES[];
 extern const char* const STR_VPERSISTENT[];
 
