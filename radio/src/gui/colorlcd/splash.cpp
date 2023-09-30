@@ -78,14 +78,17 @@ void drawSplash()
       splashImg = new BitmapBuffer(BMP_RGB565, LCD_W, LCD_H);
       splashImg->clear(BK_COLOR);
       BitmapBuffer* splashLogo = new LZ4Bitmap(BMP_ARGB4444, __bmp_splash_logo);
-      splashImg->drawBitmap((LCD_W/2) - (splashLogo->width()/2),
+#if LCD_W > LCD_H
+      splashImg->drawBitmap((LCD_W/3) - (splashLogo->width()/2),
                             (LCD_H/2) - (splashLogo->height()/2),
                             splashLogo);
-#if LCD_W > LCD_H
-      splashImg->drawText(LCD_W / 5, 220, ver_str.c_str(), TXT_COLOR | CENTERED);
+      splashImg->drawText(LCD_W * 4 / 5, 196, ver_str.c_str(), TXT_COLOR | CENTERED);
       splashImg->drawText(LCD_W * 4 / 5, 220, nam_str.c_str(), TXT_COLOR | CENTERED);
 #else
-      splashImg->drawText(LCD_W / 2, 390, ver_str.c_str(), TXT_COLOR | CENTERED);
+      splashImg->drawBitmap((LCD_W/2) - (splashLogo->width()/2),
+                            (LCD_H*2/5) - (splashLogo->height()/2),
+                            splashLogo);
+      splashImg->drawText(LCD_W / 2, 396, ver_str.c_str(), TXT_COLOR | CENTERED);
       splashImg->drawText(LCD_W / 2, 420, nam_str.c_str(), TXT_COLOR | CENTERED);
 #endif
     }
