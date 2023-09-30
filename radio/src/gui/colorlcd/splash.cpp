@@ -32,6 +32,9 @@ const std::string ver_str = "" VERSION;
 const std::string nam_str = "" VERSION_SUFFIX;
 #endif
 
+#define BK_COLOR  COLOR2FLAGS(BLACK)
+#define TXT_COLOR COLOR2FLAGS(RGB(128,128,128))
+
 const uint8_t __bmp_splash_logo[] {
 #include "splash_logo.lbm"
 };
@@ -73,17 +76,17 @@ void drawSplash()
 
     if (splashImg == nullptr) {
       splashImg = new BitmapBuffer(BMP_RGB565, LCD_W, LCD_H);
-      splashImg->clear(COLOR2FLAGS(BLACK));
+      splashImg->clear(BK_COLOR);
       BitmapBuffer* splashLogo = new LZ4Bitmap(BMP_ARGB4444, __bmp_splash_logo);
       splashImg->drawBitmap((LCD_W/2) - (splashLogo->width()/2),
                             (LCD_H/2) - (splashLogo->height()/2),
                             splashLogo);
 #if LCD_W > LCD_H
-      splashImg->drawText(LCD_W / 5, 220, ver_str.c_str(), COLOR2FLAGS(RGB(200,200,200)) | CENTERED);
-      splashImg->drawText(LCD_W * 4 / 5, 220, nam_str.c_str(), COLOR2FLAGS(RGB(200,200,200)) | CENTERED);
+      splashImg->drawText(LCD_W / 5, 220, ver_str.c_str(), TXT_COLOR | CENTERED);
+      splashImg->drawText(LCD_W * 4 / 5, 220, nam_str.c_str(), TXT_COLOR | CENTERED);
 #else
-      splashImg->drawText(LCD_W / 2, 390, ver_str.c_str(), COLOR2FLAGS(RGB(200,200,200)) | CENTERED);
-      splashImg->drawText(LCD_W / 2, 420, nam_str.c_str(), COLOR2FLAGS(RGB(200,200,200)) | CENTERED);
+      splashImg->drawText(LCD_W / 2, 390, ver_str.c_str(), TXT_COLOR | CENTERED);
+      splashImg->drawText(LCD_W / 2, 420, nam_str.c_str(), TXT_COLOR | CENTERED);
 #endif
     }
 
