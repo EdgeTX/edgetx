@@ -80,7 +80,7 @@ endforeach()
 # TODO: find a way to detect APPLE & M1
 # set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -m32)
 
-set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -Wno-inconsistent-missing-override)
+set(YAML_GEN_ARGS ${YAML_GEN_ARGS} -Wno-asm-operand-widths -Wno-inconsistent-missing-override)
 
 #message(STATUS "YAML_GEN_ARGS=${YAML_GEN_ARGS}")
 
