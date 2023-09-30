@@ -19,13 +19,18 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-
 #if defined(SPLASH)
 
-const uint8_t __bmp_splash_bg[] {
-#include "splash_bg.lbm"
-};
+#include "opentx.h"
+#include "stamp.h"
+
+#if defined(VERSION_TAG)
+const std::string ver_str = "" VERSION_TAG;
+const std::string nam_str = "" CODENAME;
+#else
+const std::string ver_str = "" VERSION;
+const std::string nam_str = "" VERSION_SUFFIX;
+#endif
 
 const uint8_t __bmp_splash_logo[] {
 #include "splash_logo.lbm"
@@ -68,16 +73,18 @@ void drawSplash()
 
     if (splashImg == nullptr) {
       splashImg = new BitmapBuffer(BMP_RGB565, LCD_W, LCD_H);
-      BitmapBuffer* splashBg = new LZ4Bitmap(BMP_ARGB4444, __bmp_splash_bg);
+      splashImg->clear(COLOR2FLAGS(BLACK));
       BitmapBuffer* splashLogo = new LZ4Bitmap(BMP_ARGB4444, __bmp_splash_logo);
-      for (int i=0; i<LCD_W; i += splashBg->width()) {
-        for (int j=0; j<LCD_H; j += splashBg->height()) {
-          splashImg->drawBitmap(i, j, splashBg);
-        }
-      }
       splashImg->drawBitmap((LCD_W/2) - (splashLogo->width()/2),
                             (LCD_H/2) - (splashLogo->height()/2),
                             splashLogo);
+#if LCD_W > LCD_H
+      splashImg->drawText(LCD_W / 5, 220, ver_str.c_str(), COLOR2FLAGS(RGB(200,200,200)) | CENTERED);
+      splashImg->drawText(LCD_W * 4 / 5, 220, nam_str.c_str(), COLOR2FLAGS(RGB(200,200,200)) | CENTERED);
+#else
+      splashImg->drawText(LCD_W / 2, 390, ver_str.c_str(), COLOR2FLAGS(RGB(200,200,200)) | CENTERED);
+      splashImg->drawText(LCD_W / 2, 420, nam_str.c_str(), COLOR2FLAGS(RGB(200,200,200)) | CENTERED);
+#endif
     }
 
     splashScreen = window_create(nullptr);
