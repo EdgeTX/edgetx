@@ -148,7 +148,7 @@
 
 #define TR_STICK_NAMES0                "Dir"
 #define TR_STICK_NAMES1                "Ele"
-#define TR_STICK_NAMES2                "Mot
+#define TR_STICK_NAMES2                "Mot"
 #define TR_STICK_NAMES3                "Ale"
 #define TR_SURFACE_NAMES0              "Dir"
 #define TR_SURFACE_NAMES1              "Mot"
