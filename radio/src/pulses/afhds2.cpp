@@ -93,4 +93,6 @@ const etx_proto_driver_t Afhds2InternalDriver = {
   .deinit = afhds2DeInit,
   .sendPulses = afhds2SendPulses,
   .processData = afhds2ProcessData,
+  .processFrame = nullptr,
+  .onConfigChange = nullptr,
 };

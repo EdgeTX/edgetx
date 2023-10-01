@@ -347,4 +347,5 @@ const etx_proto_driver_t CrossfireDriver = {
   .sendPulses = crossfireSendPulses,
   .processData = nullptr,
   .processFrame = crossfireProcessFrame,
+  .onConfigChange = nullptr,
 };
