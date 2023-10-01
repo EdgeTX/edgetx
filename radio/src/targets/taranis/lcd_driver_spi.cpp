@@ -137,7 +137,11 @@ void lcdStart()
 #else
   lcdWriteCommand(0xe2); // (14) Soft reset
   lcdWriteCommand(0xa1); // Set seg
-  lcdWriteCommand(0xc0); // Set com
+  #if defined(LCD_HORIZONTAL_INVERT)
+  lcdWriteCommand(0xa1); // Set seg
+  #else 
+  lcdWriteCommand(0xa0); // Set seg
+  #endif
   lcdWriteCommand(0xf8); // Set booster
   lcdWriteCommand(0x00); // 5x
   lcdWriteCommand(0xa3); // Set bias=1/6

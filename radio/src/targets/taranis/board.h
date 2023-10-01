@@ -64,6 +64,39 @@ enum {
   PCBREV_X7_40 = 1,
 };
 
+<<<<<<< HEAD
+=======
+// SD driver
+#define BLOCK_SIZE                      512 /* Block Size in Bytes */
+#if !defined(SIMU) || defined(SIMU_DISKIO)
+uint32_t sdIsHC();
+uint32_t sdGetSpeed();
+#define SD_IS_HC()                      (sdIsHC())
+#define SD_GET_SPEED()                  (sdGetSpeed())
+#define SD_GET_FREE_BLOCKNR()           (sdGetFreeSectors())
+#else
+#define SD_IS_HC()                      (0)
+#define SD_GET_SPEED()                  (0)
+#endif
+#define __disk_read                     disk_read
+#define __disk_write                    disk_write
+#if defined(SIMU)
+  #if !defined(SIMU_DISKIO)
+    #define sdInit()
+    #define sdDone()
+  #endif
+  #define sdMount()
+  #define SD_CARD_PRESENT()               true
+#else
+void sdInit();
+void sdMount();
+void sdDone();
+void sdPoll10ms();
+uint32_t sdMounted();
+#define SD_CARD_PRESENT() ((SD_GPIO_PRESENT_GPIO->IDR & SD_GPIO_PRESENT_GPIO_PIN) == 0)
+#endif
+
+>>>>>>> 6a0bec5f0 (10-1-23 update)
 // Flash Write driver
 #define FLASH_PAGESIZE 256
 void unlockFlash();
