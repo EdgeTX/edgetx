@@ -529,12 +529,10 @@ void pulsesSendNextFrame(uint8_t module)
     pulsesEnableModule(module, protocol);
     moduleState[module].protocol = protocol;
     return;
-
   }
 
   auto mod = &(_module_drivers[module]);
   if (mod->drv) {
-
     auto drv = mod->drv;
     auto ctx = mod->ctx;
 
@@ -542,10 +540,10 @@ void pulsesSendNextFrame(uint8_t module)
       if (drv->onConfigChange) drv->onConfigChange(ctx);
       state.settings_updated = 0;
     }
-    
+
     uint8_t channelStart = g_model.moduleData[module].channelsStart;
     int16_t* channels = &channelOutputs[channelStart];
-    uint8_t nChannels = 16; // TODO: MAX_CHANNELS - channelsStart
+    uint8_t nChannels = 16;  // TODO: MAX_CHANNELS - channelsStart
 
     auto buffer = _module_buffers[module]._buffer;
     drv->sendPulses(ctx, buffer, channels, nChannels);

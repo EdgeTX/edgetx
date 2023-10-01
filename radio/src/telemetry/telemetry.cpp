@@ -112,45 +112,44 @@ rxStatStruct *getRxStatLabels() {
 
   uint8_t moduleType = g_model.moduleData[moduleToUse].type;
 
-  switch(moduleType) {
+  switch (moduleType) {
 #if defined(MULTIMODULE)
     case MODULE_TYPE_MULTIMODULE: {
-        uint8_t multiProtocol = g_model.moduleData[moduleToUse].multi.rfProtocol;
+      uint8_t multiProtocol = g_model.moduleData[moduleToUse].multi.rfProtocol;
 
-        if (multiProtocol == MODULE_SUBTYPE_MULTI_FS_AFHDS2A ||
-            multiProtocol == MODULE_SUBTYPE_MULTI_HOTT ||
-            multiProtocol == MODULE_SUBTYPE_MULTI_MLINK) {
-          rxStat.label = STR_RXSTAT_LABEL_RQLY;
-          rxStat.unit  = STR_RXSTAT_UNIT_PERCENT;
-        }
+      if (multiProtocol == MODULE_SUBTYPE_MULTI_FS_AFHDS2A ||
+          multiProtocol == MODULE_SUBTYPE_MULTI_HOTT ||
+          multiProtocol == MODULE_SUBTYPE_MULTI_MLINK) {
+        rxStat.label = STR_RXSTAT_LABEL_RQLY;
+        rxStat.unit = STR_RXSTAT_UNIT_PERCENT;
       }
-      break;
+    } break;
 #endif
     case MODULE_TYPE_PPM:
-      if(g_model.moduleData[moduleToUse].subType == PPM_PROTO_TLM_MLINK) {
+      if (g_model.moduleData[moduleToUse].subType == PPM_PROTO_TLM_MLINK) {
         rxStat.label = STR_RXSTAT_LABEL_RQLY;
-        rxStat.unit  = STR_RXSTAT_UNIT_PERCENT;
+        rxStat.unit = STR_RXSTAT_UNIT_PERCENT;
       }
       break;
 
     case MODULE_TYPE_CROSSFIRE:
     case MODULE_TYPE_GHOST:
       rxStat.label = STR_RXSTAT_LABEL_RQLY;
-      rxStat.unit  = STR_RXSTAT_UNIT_PERCENT;
+      rxStat.unit = STR_RXSTAT_UNIT_PERCENT;
       break;
 
-#if defined (PCBNV14) && defined(AFHDS2)
+#if defined(PCBNV14) && defined(AFHDS2)
     case MODULE_TYPE_FLYSKY_AFHDS2A:
-        extern uint32_t NV14internalModuleFwVersion;
+      extern uint32_t NV14internalModuleFwVersion;
 
-        if(moduleToUse == INTERNAL_MODULE) {
-          if(NV14internalModuleFwVersion >= 0x1000E) {
-            rxStat.label = STR_RXSTAT_LABEL_SIGNAL;
-            rxStat.unit  = STR_RXSTAT_UNIT_NOUNIT ;
-          }
+      if (moduleToUse == INTERNAL_MODULE) {
+        if (NV14internalModuleFwVersion >= 0x1000E) {
+          rxStat.label = STR_RXSTAT_LABEL_SIGNAL;
+          rxStat.unit = STR_RXSTAT_UNIT_NOUNIT;
         }
+      }
       break;
-#endif      
+#endif
   }
 
   return &rxStat;
