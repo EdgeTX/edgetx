@@ -180,10 +180,10 @@
 #define TR_ON_ONE_SWITCHES              "PÅ","Ett"
 
 #if defined(USE_HATS_AS_KEYS)
-#define TR_HATSMODE                     "Hattläge"
-#define TR_HATSOPT                      "Endast trimm","Endast knapp","Ändringsbar","Global"
-#define TR_HATSMODE_TRIMS               "Hattläge: Trimmar"
-#define TR_HATSMODE_KEYS                "Hattläge: Knappar"
+  #define TR_HATSMODE                   "Hattläge"
+  #define TR_HATSOPT                    "Endast trimm","Endast knapp","Ändringsbar","Global"
+  #define TR_HATSMODE_TRIMS             "Hattläge: Trimmar"
+  #define TR_HATSMODE_KEYS              "Hattläge: Knappar"
 #endif
 
 #if defined(IMU)
@@ -497,8 +497,8 @@
 #define TR_MENUMODELSEL                 TR("MODELL","VÄLJ MODELL")
 #define TR_MENU_MODEL_SETUP             TR("MODELLINSTÄLLNING","MODELLINSTÄLLNINGAR")
 #if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES              "DRIVE MODES"
-#define TR_MENUFLIGHTMODE               "DRIVE MODE"
+#define TR_MENUFLIGHTMODES              "KÖRLÄGEN"
+#define TR_MENUFLIGHTMODE               "KÖRLÄGE"
 #else
 #define TR_MENUFLIGHTMODE               "FLYGLÄGE"
 #define TR_MENUFLIGHTMODES              "FLYGLÄGEN"
@@ -1072,8 +1072,8 @@
   #define TR_BL_SELECT_KEY              "[R TRIM] foer att vaelja fil"
   #define TR_BL_FLASH_KEY               "Tryck [R TRIM] foer att flasha"
   #define TR_BL_EXIT_KEY                " [L TRIM] för att avsluta"
-  #define TR_BL_ENABLE                "Enable"
-  #define TR_BL_DISABLE               "Disable"
+  #define TR_BL_ENABLE                  "Aktivera"
+  #define TR_BL_DISABLE                 "Inaktivera"
 #endif
 
 // About screen
