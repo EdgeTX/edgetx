@@ -181,7 +181,7 @@ void mlinkSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
   storageDirty(EE_MODEL);
 }
 
-void processExternalMLinkSerialData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len) {
+void processExternalMLinkSerialData(uint8_t module, uint8_t data, uint8_t* buffer, uint8_t* len) {
   static bool destuff = false;                // byte requires adjustment
   static bool started = false;                // start of frame detected
 

@@ -127,7 +127,7 @@ rxStatStruct *getRxStatLabels() {
       break;
 #endif
     case MODULE_TYPE_PPM:
-      if(moduleState[moduleToUse].protocol == PROTOCOL_CHANNELS_PPM_MLINK) {
+      if(g_model.moduleData[moduleToUse].subType == PPM_PROTO_TLM_MLINK) {
         rxStat.label = STR_RXSTAT_LABEL_RQLY;
         rxStat.unit  = STR_RXSTAT_UNIT_PERCENT;
       }

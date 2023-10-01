@@ -147,6 +147,11 @@ bool restartModuleAsync(uint8_t module, uint8_t cnt_delay)
 #endif
 }
 
+void pulsesModuleSettingsUpdate(uint8_t module)
+{
+  moduleState[module].settings_updated = 1;
+}
+
 // TODO: this should be moved to PXX2 territory!
 #if defined(PXX2)
 // use only for PXX
@@ -263,16 +268,7 @@ uint8_t getRequiredProtocol(uint8_t module)
 
   switch (getModuleType(module)) {
     case MODULE_TYPE_PPM:
-      switch (g_model.moduleData[module].subType) {
-        case PPM_PROTO_TLM_NONE: 
-          protocol = PROTOCOL_CHANNELS_PPM;
-          break;
-        case PPM_PROTO_TLM_MLINK:
-          protocol = PROTOCOL_CHANNELS_PPM_MLINK;
-          break;
-        default:
-          protocol = PROTOCOL_CHANNELS_PPM;
-      }
+      protocol = PROTOCOL_CHANNELS_PPM;
       break;
 
     case MODULE_TYPE_XJT_PXX1:
@@ -301,25 +297,7 @@ uint8_t getRequiredProtocol(uint8_t module)
 
 #if defined(DSM2)
     case MODULE_TYPE_DSM2:
-      protocol = limit<uint8_t>(
-          PROTOCOL_CHANNELS_DSM2_LP45,
-          PROTOCOL_CHANNELS_DSM2_LP45 + g_model.moduleData[module].subType,
-          PROTOCOL_CHANNELS_DSM2_DSMX);
-      // The module is set to OFF during one second before BIND start
-      // TODO: move this to DSM2 driver...
-      {
-        static tmr10ms_t bindStartTime = 0;
-        if (moduleState[module].mode == MODULE_MODE_BIND) {
-          if (bindStartTime == 0) bindStartTime = get_tmr10ms();
-          if ((tmr10ms_t)(get_tmr10ms() - bindStartTime) < 100) {
-            protocol = PROTOCOL_CHANNELS_NONE;
-            break;
-          }
-        }
-        else {
-          bindStartTime = 0;
-        }
-      }
+      protocol = PROTOCOL_CHANNELS_DSM2;
       break;
 #endif
 
@@ -432,9 +410,7 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
 #endif
 
 #if defined(DSM2)
-    case PROTOCOL_CHANNELS_DSM2_LP45:
-    case PROTOCOL_CHANNELS_DSM2_DSM2:
-    case PROTOCOL_CHANNELS_DSM2_DSMX:
+    case PROTOCOL_CHANNELS_DSM2:
       _init_module(module, &DSM2Driver);
       break;
 #endif
@@ -473,9 +449,6 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
   case PROTOCOL_CHANNELS_PPM:
       _init_module(module, &PpmDriver);
       break;
-  case PROTOCOL_CHANNELS_PPM_MLINK:
-      _init_module(module, &PpmDriverMLink);
-      break;  
 #endif
 
 #if defined(INTERNAL_MODULE_AFHDS2A) && defined(AFHDS2)
@@ -521,13 +494,15 @@ void pulsesStopModule(uint8_t module)
 
 static bool _handle_async_restart(uint8_t module)
 {
-  if (moduleState[module].forced_off) {
-    if (--moduleState[module].counter > 0) {
+  auto& state = moduleState[module];
+  if (state.forced_off) {
+    if (state.counter > 0) {
       _deinit_module(module);
-      moduleState[module].protocol = PROTOCOL_CHANNELS_NONE;
+      state.protocol = PROTOCOL_CHANNELS_NONE;
+      --state.counter;
       return true;
     } else {
-      moduleState[module].forced_off = 0;
+      state.forced_off = 0;
     }
   }
   return false;
@@ -539,9 +514,8 @@ void pulsesSendNextFrame(uint8_t module)
 
   uint8_t protocol = getRequiredProtocol(module);
 
-  if (moduleState[module].protocol != protocol ||
-      moduleState[module].forced_off) {
-    // TODO: error checking!
+  auto& state = moduleState[module];
+  if (state.protocol != protocol || state.forced_off) {
 
     if (_telemetryIsPolling) {
       // In case the telemetry timer is currently polling the port,
@@ -555,16 +529,24 @@ void pulsesSendNextFrame(uint8_t module)
     pulsesEnableModule(module, protocol);
     moduleState[module].protocol = protocol;
     return;
+
   }
 
   auto mod = &(_module_drivers[module]);
   if (mod->drv) {
+
+    auto drv = mod->drv;
+    auto ctx = mod->ctx;
+
+    if (state.settings_updated) {
+      if (drv->onConfigChange) drv->onConfigChange(ctx);
+      state.settings_updated = 0;
+    }
+    
     uint8_t channelStart = g_model.moduleData[module].channelsStart;
     int16_t* channels = &channelOutputs[channelStart];
     uint8_t nChannels = 16; // TODO: MAX_CHANNELS - channelsStart
 
-    auto drv = mod->drv;
-    auto ctx = mod->ctx;
     auto buffer = _module_buffers[module]._buffer;
     drv->sendPulses(ctx, buffer, channels, nChannels);
   }

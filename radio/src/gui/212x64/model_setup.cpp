@@ -1142,52 +1142,73 @@ void menuModelSetup(event_t event)
           if (s_editMode > 0) {
             switch (menuHorizontalPosition) {
               case 0:
-                reusableBuffer.moduleSetup.newType = checkIncDec(event, reusableBuffer.moduleSetup.newType, MODULE_TYPE_NONE, MODULE_TYPE_MAX, 0, isExternalModuleAvailable);
+                reusableBuffer.moduleSetup.newType = checkIncDec(
+                    event, reusableBuffer.moduleSetup.newType, MODULE_TYPE_NONE,
+                    MODULE_TYPE_MAX, 0, isExternalModuleAvailable);
                 break;
 
               case 1:
                 if (isModuleDSM2(EXTERNAL_MODULE)) {
-                  CHECK_INCDEC_MODELVAR(event, g_model.moduleData[EXTERNAL_MODULE].subType, DSM2_PROTO_LP45, DSM2_PROTO_DSMX);
-                } 
+                  CHECK_INCDEC_MODELVAR(
+                      event, g_model.moduleData[EXTERNAL_MODULE].subType,
+                      DSM2_PROTO_LP45, DSM2_PROTO_DSMX);
+                }
 #if defined(PPM)
                 else if (isModulePPM(EXTERNAL_MODULE)) {
-                  CHECK_INCDEC_MODELVAR(event, g_model.moduleData[EXTERNAL_MODULE].subType, PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_MLINK);
+                  CHECK_INCDEC_MODELVAR(
+                      event, g_model.moduleData[EXTERNAL_MODULE].subType,
+                      PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_MLINK);
                 }
 #endif
 #if defined(MULTIMODULE)
                 else if (isModuleMultimodule(EXTERNAL_MODULE)) {
-                  int multiRfProto = g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol;
-                  CHECK_INCDEC_MODELVAR_CHECK(event, multiRfProto, MODULE_SUBTYPE_MULTI_FIRST, MODULE_SUBTYPE_MULTI_LAST, isMultiProtocolSelectable);
+                  int multiRfProto =
+                      g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol;
+                  CHECK_INCDEC_MODELVAR_CHECK(
+                      event, multiRfProto, MODULE_SUBTYPE_MULTI_FIRST,
+                      MODULE_SUBTYPE_MULTI_LAST, isMultiProtocolSelectable);
                   if (checkIncDec_Ret) {
-                    g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol = multiRfProto;
+                    g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol =
+                        multiRfProto;
                     g_model.moduleData[EXTERNAL_MODULE].subType = 0;
                     resetMultiProtocolsOptions(EXTERNAL_MODULE);
                   }
                 }
 #endif
                 else if (isModuleR9MNonAccess(EXTERNAL_MODULE)) {
-                  g_model.moduleData[EXTERNAL_MODULE].subType = checkIncDec(event, g_model.moduleData[EXTERNAL_MODULE].subType,
-                                                                            MODULE_SUBTYPE_R9M_FCC, MODULE_SUBTYPE_R9M_LAST, EE_MODEL);
+                  g_model.moduleData[EXTERNAL_MODULE].subType = checkIncDec(
+                      event, g_model.moduleData[EXTERNAL_MODULE].subType,
+                      MODULE_SUBTYPE_R9M_FCC, MODULE_SUBTYPE_R9M_LAST,
+                      EE_MODEL);
                 }
 #if defined(AFHDS3)
                 else if (isModuleAFHDS3(EXTERNAL_MODULE)) {
-                  CHECK_INCDEC_MODELVAR(event, g_model.moduleData[EXTERNAL_MODULE].subType, AFHDS_SUBTYPE_FIRST, AFHDS_SUBTYPE_LAST);
+                  CHECK_INCDEC_MODELVAR(
+                      event, g_model.moduleData[EXTERNAL_MODULE].subType,
+                      AFHDS_SUBTYPE_FIRST, AFHDS_SUBTYPE_LAST);
                 }
 #endif
                 else {
-                  g_model.moduleData[EXTERNAL_MODULE].subType = checkIncDec(event, g_model.moduleData[EXTERNAL_MODULE].subType,
-                                                                               MODULE_SUBTYPE_PXX1_ACCST_D16, MODULE_SUBTYPE_PXX1_LAST, EE_MODEL,
-                                                                               isRfProtocolAvailable);
+                  g_model.moduleData[EXTERNAL_MODULE].subType = checkIncDec(
+                      event, g_model.moduleData[EXTERNAL_MODULE].subType,
+                      MODULE_SUBTYPE_PXX1_ACCST_D16, MODULE_SUBTYPE_PXX1_LAST,
+                      EE_MODEL, isRfProtocolAvailable);
                 }
+
                 if (checkIncDec_Ret) {
                   g_model.moduleData[EXTERNAL_MODULE].channelsStart = 0;
-                  g_model.moduleData[EXTERNAL_MODULE].channelsCount = defaultModuleChannels_M8(EXTERNAL_MODULE);
+                  g_model.moduleData[EXTERNAL_MODULE].channelsCount =
+                      defaultModuleChannels_M8(EXTERNAL_MODULE);
+
+                  pulsesModuleSettingsUpdate(EXTERNAL_MODULE);
                 }
                 break;
 
 #if defined(MULTIMODULE)
               case 2:
-                CHECK_INCDEC_MODELVAR(event, g_model.moduleData[EXTERNAL_MODULE].subType, 0, getMaxMultiSubtype(EXTERNAL_MODULE));
+                CHECK_INCDEC_MODELVAR(
+                    event, g_model.moduleData[EXTERNAL_MODULE].subType, 0,
+                    getMaxMultiSubtype(EXTERNAL_MODULE));
                 if (checkIncDec_Ret) {
                   resetMultiProtocolsOptions(EXTERNAL_MODULE);
                 }
@@ -1198,18 +1219,22 @@ void menuModelSetup(event_t event)
 #if POPUP_LEVEL > 1
           else if (old_editMode > 0) {
             if (isModuleR9MNonAccess(EXTERNAL_MODULE)) {
-              if (g_model.moduleData[EXTERNAL_MODULE].subType > MODULE_SUBTYPE_R9M_EU) {
+              if (g_model.moduleData[EXTERNAL_MODULE].subType >
+                  MODULE_SUBTYPE_R9M_EU) {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_FLEX_WARN_LINE1);
-                SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2, sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
+                SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
+                                 sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
               }
 #if POPUP_LEVEL >= 3
-              else if (g_model.moduleData[EXTERNAL_MODULE].subType == MODULE_SUBTYPE_R9M_EU) {
+              else if (g_model.moduleData[EXTERNAL_MODULE].subType ==
+                       MODULE_SUBTYPE_R9M_EU) {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_EU_WARN_LINE1);
-                SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2, sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
-              }
-              else {
+                SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
+                                 sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
+              } else {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_FCC_WARN_LINE1);
-                SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2, sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
+                SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
+                                 sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
               }
 #endif
             }

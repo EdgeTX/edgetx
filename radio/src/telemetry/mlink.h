@@ -65,4 +65,4 @@ void processMLinkPacket(const uint8_t *packet, bool multi);
 // used by external MLink module driver
 #define PPM_MSB_BAUDRATE  115200
 
-void processExternalMLinkSerialData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len);
+void processExternalMLinkSerialData(uint8_t module, uint8_t data, uint8_t* buffer, uint8_t* len);

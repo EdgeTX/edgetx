@@ -27,11 +27,8 @@ enum ChannelsProtocols {
   PROTOCOL_CHANNELS_UNINITIALIZED,
   PROTOCOL_CHANNELS_NONE,
   PROTOCOL_CHANNELS_PPM,
-  PROTOCOL_CHANNELS_PPM_MLINK,
   PROTOCOL_CHANNELS_PXX1,
-  PROTOCOL_CHANNELS_DSM2_LP45,
-  PROTOCOL_CHANNELS_DSM2_DSM2,
-  PROTOCOL_CHANNELS_DSM2_DSMX,
+  PROTOCOL_CHANNELS_DSM2,
   PROTOCOL_CHANNELS_CROSSFIRE,
   PROTOCOL_CHANNELS_MULTIMODULE,
   PROTOCOL_CHANNELS_SBUS,
@@ -57,5 +54,11 @@ struct etx_proto_driver_t {
     void (*sendPulses)(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels);
 
     // Process input data byte (telemetry)
-    void (*processData)(void* context, uint8_t data, uint8_t* buffer, uint8_t* len);
+    void (*processData)(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len);
+
+    // Some module settings may have been modified
+    void (*onConfigChange)(void* ctx);
+
+    // Module state mode has been modified
+    // void (*onModeChange)(void* ctx, uint8_t old_mode, uint8_t new_mode);
 };

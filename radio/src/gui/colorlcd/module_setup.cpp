@@ -714,11 +714,14 @@ static void update_module_window(lv_event_t* e)
   ModuleWindow* mw = (ModuleWindow*)lv_event_get_user_data(e);
   if (!mw) return;
 
-  if (isModuleISRM(mw->getModuleIdx())) {
+  auto module = mw->getModuleIdx();
+  if (isModuleISRM(module)) {
     mw->updateModule();
   } else {
     mw->updateSubType();
   }
+
+  pulsesModuleSettingsUpdate(module);
 }
 
 ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
