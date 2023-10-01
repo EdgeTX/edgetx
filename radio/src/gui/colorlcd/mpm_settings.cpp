@@ -20,6 +20,7 @@
  */
 
 #include "mpm_settings.h"
+#include "choice.h"
 #include "opentx.h"
 
 #include "multi_rfprotos.h"
@@ -148,9 +149,31 @@ void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData
   }
 }
 
+struct MPMSubtypeChoice : public Choice {
+  MPMSubtypeChoice(Window* parent, std::function<int()> get,
+                   std::function<void(int)> set) :
+      Choice(parent, rect_t{}, 0, 0, get, set)
+  {
+  }
+
+  std::string getLabelText() override
+  {
+    if (_getValue) {
+      int val = _getValue();
+      val -= vmin;
+      if (val >= 0 && val < (int)values.size()) {
+        return values[val];
+      } else {
+        return std::to_string(val);
+      }
+    }
+    return std::string();
+  }
+};
+
 struct MPMSubtype : public FormWindow::Line
 {
-  Choice* choice;
+  MPMSubtypeChoice* choice;
 
   MPMSubtype(FormWindow* form, FlexGridLayout *layout, uint8_t moduleIdx);
   void update(const MultiRfProtocols::RfProto* rfProto, uint8_t moduleIdx);
@@ -198,11 +221,11 @@ MPMSubtype::MPMSubtype(FormWindow* form, FlexGridLayout *layout, uint8_t moduleI
   new StaticText(this, rect_t{}, STR_RF_PROTOCOL, 0, COLOR_THEME_PRIMARY1);
 
   auto md = &g_model.moduleData[moduleIdx];
-  choice = new Choice(
-      this, rect_t{}, 0, 0, [=]() { return md->subType; },
+  choice = new MPMSubtypeChoice(
+      this, [=]() { return md->subType; },
       [=](int16_t newValue) {
         md->subType = newValue;
-        if(!DSM2autoUpdated)                        // reset MPM options only if user triggered
+        if(!DSM2autoUpdated)                     // reset MPM options only if user triggered
           resetMultiProtocolsOptions(moduleIdx);
         DSM2autoUpdated = false; 
         SET_DIRTY();
