@@ -28,7 +28,10 @@ void ledRed() {}
 void ledGreen() {}
 void ledBlue() {}
 void ledOff() {}
-bool fsLedState(uint8_t) { return false;}
+bool fsLedState(uint8_t) { return false; }
+void fsLedOn(uint8_t index) {}
+void fsLedOff(uint8_t index) {}
+
 void rgbSetLedColor(unsigned char, unsigned char, unsigned char, unsigned char) {}
 void rgbLedColorApply() {}
 
