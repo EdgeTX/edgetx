@@ -395,10 +395,12 @@
 
 // PCBREV
 #if defined(PCBX10)
-  #define PCBREV_RCC_AHB1Periph         RCC_AHB1Periph_GPIOH
-  #define PCBREV_GPIO_PIN               (GPIO_Pin_7 | GPIO_Pin_8)
+  #define PCBREV_RCC_AHB1Periph         RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOA
   #define PCBREV_GPIO                   GPIOH
-  #define PCBREV_VALUE()                (GPIO_ReadInputDataBit(PCBREV_GPIO, GPIO_Pin_7) + (GPIO_ReadInputDataBit(PCBREV_GPIO, GPIO_Pin_8) << 1))
+  #define PCBREV_GPIO_PIN               (GPIO_Pin_7 | GPIO_Pin_8)  // PH.07 | PH.08
+  #define PCBREV_TOUCH_GPIO             GPIOA
+  #define PCBREV_TOUCH_GPIO_PIN         GPIO_Pin_6  // PA.06
+  #define PCBREV_VALUE()                ((GPIO_ReadInputDataBit(PCBREV_GPIO, GPIO_Pin_7) + (GPIO_ReadInputDataBit(PCBREV_GPIO, GPIO_Pin_8) << 1)) * GPIO_ReadInputDataBit(PCBREV_TOUCH_GPIO, GPIO_Pin_6))
 #else
   #define PCBREV_RCC_AHB1Periph         RCC_AHB1Periph_GPIOI
   #define PCBREV_GPIO                   GPIOI
@@ -737,18 +739,18 @@
 #endif // HARDWARE_TOUCH
 
 // First I2C Bus
-#if defined(RADIO_T18) || defined(RADIO_T16)
-  #define I2C_B1                          I2C3
-  #define I2C_B1_GPIO                     GPIOH
-  #define I2C_B1_SCL_GPIO_PIN             LL_GPIO_PIN_7  // PH.07
-  #define I2C_B1_SDA_GPIO_PIN             LL_GPIO_PIN_8  // PH.08
-  #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4   // I2C3
-#else
+#if defined(RADIO_TX16S) || defined(PCBX12S)
   #define I2C_B1                          I2C1
   #define I2C_B1_GPIO                     GPIOB
   #define I2C_B1_SCL_GPIO_PIN             LL_GPIO_PIN_8  // PB.08
   #define I2C_B1_SDA_GPIO_PIN             LL_GPIO_PIN_9  // PB.09
   #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4   // I2C1
+#else
+  #define I2C_B1                          I2C3
+  #define I2C_B1_GPIO                     GPIOH
+  #define I2C_B1_SCL_GPIO_PIN             LL_GPIO_PIN_7  // PH.07
+  #define I2C_B1_SDA_GPIO_PIN             LL_GPIO_PIN_8  // PH.08
+  #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4   // I2C3
 #endif
 
 // Second I2C Bus
