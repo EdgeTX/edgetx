@@ -20,6 +20,10 @@
 
 // #include "user_config.h"
 
+#if __wasm__
+	#define l_signalT long
+#endif
+
 // prevent localeconv()
 #define getlocaledecpoint() ('.')
 

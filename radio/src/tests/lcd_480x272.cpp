@@ -22,7 +22,6 @@
 #include <gtest/gtest.h>
 #include <math.h>
 
-#define SWAP_DEFINED
 #include "location.h"
 #include "edgetx.h"
 
@@ -53,12 +52,13 @@ void dumpImage(const std::string& filename, const BitmapBuffer* dc)
   TRACE("dumping image '%s'", fullpath.c_str());
 
   // allocate enough for 3 channels
-  auto pixels = dc->width() * dc->height();
+  std::vector<uint8_t> img;
   auto stride = dc->width() * 3;
-  uint8_t* img = (uint8_t*)malloc(pixels * 3);
-  convert_RGB565_to_RGB888(img, dc, dc->width(), dc->height());
-  stbi_write_png(fullpath.c_str(), dc->width(), dc->height(), 3, img, stride);
-  free(img);
+  auto pixel_bytes = stride * dc->height();
+  img.resize(pixel_bytes);
+
+  convert_RGB565_to_RGB888(img.data(), dc, dc->width(), dc->height());
+  stbi_write_png(fullpath.c_str(), dc->width(), dc->height(), 3, img.data(), stride);
 }
 
 bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)

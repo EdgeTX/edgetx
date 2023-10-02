@@ -21,6 +21,7 @@
 
 #include "audio.h"
 #include "simuaudio.h"
+#include "simulib.h"
 
 #include <stdint.h>
 #include <SDL.h>
@@ -51,26 +52,17 @@ static void _fill_with_silence(Uint8* dst, uint32_t len)
 
 #endif
 
-void audioConsumeCurrentBuffer()
+void simuQueueAudio(const uint8_t* data, uint32_t len)
 {
-  while(true) {
-    auto nextBuffer = audioQueue.buffersFifo.getNextFilledBuffer();
-    if (!nextBuffer) return;
-
-    auto data = (const Uint8*)nextBuffer->data;
-    uint32_t len = nextBuffer->size * sizeof(audio_data_t);
-
 #if !defined(SOFTWARE_VOLUME)
-    assert(len <= sizeof(_tmp_buf));
-    _fill_with_silence(_tmp_buf, len);
+  assert(len <= sizeof(_tmp_buf));
+  _fill_with_silence(_tmp_buf, len);
 
-    SDL_MixAudioFormat(_tmp_buf, data, SIMU_AUDIO_FMT, len, _simu_volume);
-    data = _tmp_buf;
+  SDL_MixAudioFormat(_tmp_buf, data, SIMU_AUDIO_FMT, len, _simu_volume);
+  data = _tmp_buf;
 #endif
 
-    SDL_QueueAudio(_sdl_audio_device, data, len);
-    audioQueue.buffersFifo.freeNextFilledBuffer();
-  }
+  SDL_QueueAudio(_sdl_audio_device, data, len);
 }
 
 bool simuAudioInit()

@@ -24,3 +24,5 @@ target_include_directories(imgui PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}/imgui
   ${CMAKE_CURRENT_BINARY_DIR}/imgui/backends
 )
+
+target_link_libraries(imgui PUBLIC SDL2::SDL2)

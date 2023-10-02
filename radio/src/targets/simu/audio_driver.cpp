@@ -19,23 +19,19 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "audio.h"
+#include "simulib.h"
 
-#include <inttypes.h>
-#include "cpu_id.h"
+void audioConsumeCurrentBuffer()
+{
+  auto& fifo = audioQueue.buffersFifo;
+  while(true) {
+    auto nextBuffer = fifo.getNextFilledBuffer();
+    if (!nextBuffer) return;
 
-#if !defined(SIMU) && !defined(BACKUP) && !defined(YAML_GENERATOR)
-#if defined(STM32H7)
-  #include "stm32h7xx.h"
-#elif defined(STM32H7RS)
-  #include "stm32h7rsxx.h"
-#elif defined(STM32F4)
-  #include "stm32f4xx.h"
-#elif defined(STM32F2)
-  #include "stm32f2xx.h"
-#else
-  #error "Unknown MCU family"
-#endif
-#endif
-
-#include "delays_driver.h"
+    auto data = (const uint8_t*)nextBuffer->data;
+    uint32_t len = nextBuffer->size * sizeof(audio_data_t);
+    simuQueueAudio(data, len);
+    fifo.freeNextFilledBuffer();
+  }
+}
