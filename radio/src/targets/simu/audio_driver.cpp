@@ -20,7 +20,7 @@
  */
 
 #include "audio.h"
-#include "simuaudio.h"
+#include "simulib.h"
 
 #if !defined(SOFTWARE_VOLUME)
 static int _simu_volume = 0;

@@ -30,8 +30,8 @@ uint8_t menuLevel = 0;
 void popMenu()
 {
   killEvents(KEY_EXIT);
+  if (menuLevel == 0) return;
 
-  assert(menuLevel > 0);
   menuLevel = menuLevel - 1;
   menuEvent = EVT_ENTRY_UP;
   // TODO ? AUDIO_KEY_PRESS();
@@ -57,6 +57,7 @@ void chainMenu(MenuHandlerFunc newMenu)
 void pushMenu(MenuHandlerFunc newMenu)
 {
   killAllEvents();
+  if (menuLevel == DIM(menuHandlers) - 1) return;
 
   if (menuLevel == 0) {
     if (newMenu == menuTabGeneral[0].menuFunc)
@@ -70,8 +71,6 @@ void pushMenu(MenuHandlerFunc newMenu)
   menuVerticalOffsets[menuLevel] = menuVerticalOffset;
 
   menuLevel++;
-
-  assert(menuLevel < DIM(menuHandlers));
 
   menuHandlers[menuLevel] = newMenu;
   menuEvent = EVT_ENTRY;

@@ -104,7 +104,6 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
 
   connect(simulator, &SimulatorInterface::started, this, &SimulatorWidget::onSimulatorStarted);
   connect(simulator, &SimulatorInterface::heartbeat, this, &SimulatorWidget::onSimulatorHeartbeat);
-  connect(simulator, &SimulatorInterface::runtimeError, this, &SimulatorWidget::onSimulatorError);
   connect(simulator, &SimulatorInterface::phaseChanged, this, &SimulatorWidget::onPhaseChanged);
 
   connect((SimulatorMainWindow *)parent, &SimulatorMainWindow::txBatteryVoltageChanged, this, &SimulatorWidget::onTxBatteryVoltageChanged);

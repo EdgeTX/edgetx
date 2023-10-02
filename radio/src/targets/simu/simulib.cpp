@@ -19,29 +19,20 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
-#define SIMPGMSPC_USE_QT    0
-
-#include "edgetx.h"
+#include "simulib.h"
 #include "simulcd.h"
 
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
 #include "hal/usb_driver.h"
-#include "hal/audio_driver.h"
 
 #include "os/sleep.h"
 #include "os/task.h"
-#include "os/timer_native_impl.h"
 
-#include <errno.h>
-#include <stdarg.h>
-#include <string>
+#include "edgetx.h"
 
-#if !defined (_MSC_VER) || defined (__GNUC__)
-  #include <chrono>
-  #include <sys/time.h>
-#endif
+#include <assert.h>
+#include <chrono>
 
 int g_snapshot_idx = 0;
 
@@ -60,8 +51,6 @@ rotenc_t rotaryEncoderGetValue()
 {
   return rotencValue / ROTARY_ENCODER_GRANULARITY;
 }
-
-// TODO: remove all STM32 defs
 
 extern const etx_hal_adc_driver_t simu_adc_driver;
 
@@ -103,7 +92,6 @@ void simuInit()
 bool keysStates[MAX_KEYS] = { false };
 void simuSetKey(uint8_t key, bool state)
 {
-  // TRACE("simuSetKey(%d, %d)", key, state);
   assert(key < DIM(keysStates));
   keysStates[key] = state;
 }
@@ -111,7 +99,6 @@ void simuSetKey(uint8_t key, bool state)
 bool trimsStates[MAX_TRIMS * 2] = { false };
 void simuSetTrim(uint8_t trim, bool state)
 {
-  // TRACE("simuSetTrim(%d, %d)", trim, state);
   assert(trim < DIM(trimsStates));
   trimsStates[trim] = state;
 }
@@ -125,7 +112,7 @@ static void* bootloaderThread(void*)
 }
 #endif
 
-void simuStart(bool tests, const char * sdPath, const char * settingsPath)
+void simuStart(bool tests)
 {
   if (simu_running)
     return;
@@ -136,8 +123,6 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
 
   startOptions = (tests ? 0 : OPENTX_START_NO_SPLASH | OPENTX_START_NO_CALIBRATION | OPENTX_START_NO_CHECKS);
   simu_shutdown = false;
-
-  simuFatfsSetPaths(sdPath, settingsPath);
 
   /*
     g_tmr10ms must be non-zero otherwise some SF functions (that use this timer as a marker when it was last executed)
@@ -274,7 +259,6 @@ uint32_t readKeys()
 
   for (int i = 0; i < MAX_KEYS; i++) {
     if (keysStates[i]) {
-      // TRACE("key pressed %d", i);
       result |= 1 << i;
     }
   }
@@ -288,7 +272,6 @@ uint32_t readTrims()
 
   for (int i = 0; i < keysGetMaxTrims() * 2; i++) {
     if (trimsStates[i]) {
-      // TRACE("trim pressed %d", i);
       trims |= 1 << i;
     }
   }

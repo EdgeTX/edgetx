@@ -256,11 +256,11 @@ bool gpsNewFrameNMEA(char c)
               gpsData.numSat = gps_Msg.numSat;
               gpsData.hdop = gps_Msg.hdop;
               if (gps_Msg.fix) {
-                __disable_irq();    // do the atomic update of lat/lon
+                // __disable_irq();    // do the atomic update of lat/lon
                 gpsData.latitude = gps_Msg.latitude;
                 gpsData.longitude = gps_Msg.longitude;
                 gpsData.altitude = gps_Msg.altitude;
-                __enable_irq();
+                // __enable_irq();
               }
               break;
             case FRAME_RMC:

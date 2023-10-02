@@ -284,8 +284,9 @@ void OpenTxSimulator::start(const char * filename, bool tests)
   QMutexLocker lckr(&m_mtxSimuMain);
   QMutexLocker slckr(&m_mtxSettings);
   simuAudioInit();
-  simuStart(tests, simuSdDirectory.toLatin1().constData(),
-            simuSettingsDirectory.toLatin1().constData());
+  simuFatfsSetPaths(simuSdDirectory.toLatin1().constData(),
+                    simuSettingsDirectory.toLatin1().constData());
+  simuStart(tests);
 
   emit started();
   QTimer::singleShot(0, this, SLOT(run()));  // old style for Qt < 5.4
@@ -743,12 +744,9 @@ void OpenTxSimulator::run()
   if (!loops)
     ts.start();
 
-  if (isStopRequested()) {
-    return;
-  }
+  if (isStopRequested()) return;
+
   if (!isRunning()) {
-    QString err(getError());
-    emit runtimeError(err);
     emit stopped();
     return;
   }
@@ -882,6 +880,7 @@ uint8_t OpenTxSimulator::getStickMode()
   return limit<uint8_t>(0, g_eeGeneral.stickMode, 3);
 }
 
+// TODO: remove this
 const char * OpenTxSimulator::getPhaseName(unsigned int phase)
 {
   static char buff[LEN_FLIGHT_MODE_NAME+1];
@@ -897,12 +896,6 @@ const QString OpenTxSimulator::getCurrentPhaseName()
     name = QString::number(phase);
   return name;
 }
-
-const char * OpenTxSimulator::getError()
-{
-  return main_thread_error;
-}
-
 
 /*
  * OpenTxSimulatorFactory
