@@ -52,6 +52,11 @@ void inactivityTimerReset(ActivitySource src)
 #define INAC_STICKS_SHIFT   7
 #define INAC_SWITCHES_SHIFT 8
 
+static inline int8_t inactivity_diff(uint8_t sum)
+{
+  return abs((int8_t)(sum - inactivity.sum));
+}
+
 bool inactivityCheckInputs()
 {
   uint8_t sum = 0;
@@ -78,7 +83,7 @@ bool inactivityCheckInputs()
     sum += get_spacemouse_value(i) >> INAC_STICKS_SHIFT;
 #endif
 
-  if (abs((int8_t)(sum - inactivity.sum)) > 1) {
+  if (inactivity_diff(sum) > 1) {
     inactivity.sum = sum;
     return true;
   } else {

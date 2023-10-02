@@ -1,8 +1,17 @@
 
-option(SIMU_TARGET "Configure libsimulator/simu targets (can be turned off for compiling Companion only)" ON)
+option(SIMU_TARGET "Configure libsimulator/simu targets" ON)
 if(NOT SIMU_TARGET)
   message(STATUS "libsimulator/simu targets disabled")
   return()
+endif()
+
+target_compile_options(radiolib_native PUBLIC -DSIMU)
+
+if(SDL2_FOUND)
+  option(SIMU_AUDIO "Enable simulator audio." ON)
+  if(SIMU_AUDIO)
+    target_compile_options(radiolib_native PUBLIC -DSIMU_AUDIO)
+  endif()
 endif()
 
 set(SIMU_DRIVERS
@@ -10,6 +19,7 @@ set(SIMU_DRIVERS
   simufatfs.cpp
   simudisk.cpp
   simulcd.cpp
+  simuaudio.cpp
   switch_driver.cpp
   adc_driver.cpp
   module_drivers.cpp
@@ -156,60 +166,44 @@ if(WIN32)
   endif()
 endif(WIN32)
 
-if(MSVC)
-  set(CMAKE_CXX_FLAGS "/EHsc")
-  if(NOT CLANG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /LD /MP")
-  endif()
-else()
-  if(MINGW)
-    # struct packing breaks on MinGW w/out -mno-ms-bitfields: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991 & http://stackoverflow.com/questions/24015852/struct-packing-and-alignment-with-mingw
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-ms-bitfields")
-  endif()
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
-  if(ASAN)
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
-  endif()
+if(MINGW)
+  # struct packing breaks on MinGW w/out -mno-ms-bitfields: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991 & http://stackoverflow.com/questions/24015852/struct-packing-and-alignment-with-mingw
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-ms-bitfields")
+endif()
+
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+
+if(ASAN)
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
 
+add_executable(simu
+  EXCLUDE_FROM_ALL
+  ${SIMU_SRC}
+  display.cpp
+  widgets.cpp
+  knobs.cpp
+  sdl_simu.cpp
+)
 
-if(FOX_FOUND)
-  add_executable(simu WIN32
-    EXCLUDE_FROM_ALL
-    ${SIMU_SRC}
-    ${RADIO_SRC_DIR}/simu.cpp)
+include(FetchImgui)
+target_compile_options(simu PUBLIC -DSIMU)
 
-  target_include_directories(simu PUBLIC ${FOX_INCLUDE_DIR} )
-  target_link_libraries(simu ${FOX_LIBRARY} pthread ${SDL2_LIBRARIES})
-  target_compile_options(simu PRIVATE ${SIMU_SRC_OPTIONS})
-endif()
+add_png_target(image_assets "assets/images/*.png")
+add_dependencies(simu image_assets)
 
-if(APPLE)
-  # OS X compiler no longer automatically includes /Library/Frameworks in search path
-  set(CMAKE_SHARED_LINKER_FLAGS -F/Library/Frameworks)
+set(STB_DIR ${RADIO_SRC_DIR}/thirdparty/stb)
+target_include_directories(simu PUBLIC ${STB_DIR})
+target_link_libraries(simu PUBLIC imgui)
 
-  set(SIMULATOR_BUNDLES)
-  foreach(library ${OPENTX_LIBRARIES})
-    set(SIMULATOR_BUNDLE "${library}-bundle")
-    add_custom_target(${SIMULATOR_BUNDLE}
-      COMMAND install_name_tool -change /opt/local/Library/Frameworks/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore lib${library}.dylib
-      COMMAND install_name_tool -change /opt/local/Library/Frameworks/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork lib${library}.dylib
-      COMMAND install_name_tool -change /opt/local/Library/Frameworks/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml lib${library}.dylib
-      COMMAND install_name_tool -change /opt/local/Library/Frameworks/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui lib${library}.dylib
-      COMMAND install_name_tool -change @rpath/SDL.framework/Versions/A/SDL @executable_path/../Frameworks/SDL.framework/Versions/A/SDL lib${library}.dylib
-      WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-      COMMAND pwd
-      COMMAND cp lib${library}.dylib companion.app/Contents/Resources/
-      DEPENDS ${library}
-      )
-    list(APPEND SIMULATOR_BUNDLES ${SIMULATOR_BUNDLE})
-  endforeach()
-  add_custom_target(opentx-simulators-bundle DEPENDS ${SIMULATOR_BUNDLES})
-endif(APPLE)
+  target_link_libraries(simu PUBLIC
+    pthread
+    ${SDL2_LIBRARIES}
+  )
 
 PrintTargetReport("simu/libsimulator")
