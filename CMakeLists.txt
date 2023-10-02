@@ -8,6 +8,8 @@ set(VERSION_REVISION "0")
 set(CODENAME "dev")
 string(TIMESTAMP BUILD_YEAR "%Y")
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
 if(MINGW OR WIN32)
   set(CMAKE_OBJECT_PATH_MAX 200)
 endif()
@@ -75,59 +77,86 @@ if(EdgeTX_SUPERBUILD)
     EXCLUDE_FROM_ALL TRUE
     )
 
+  # Webasm targets
+  if(ENABLE_WASM)
+    include(FetchWasiSDK)
+    find_package(WasiSDK REQUIRED)
+ 
+    ExternalProject_Add(wasm
+      SOURCE_DIR ${CMAKE_SOURCE_DIR}
+      BINARY_DIR ${CMAKE_BINARY_DIR}/wasm
+      CMAKE_ARGS
+        ${CMAKE_ARGS}
+        -Wno-dev
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DCMAKE_TOOLCHAIN_FILE=${WASI_SDK_PATH}/share/cmake/wasi-sdk-pthread.cmake
+      CMAKE_CACHE_ARGS
+        -DEdgeTX_SUPERBUILD:BOOL=0
+        -DNATIVE_BUILD:BOOL=1
+        -DDISABLE_COMPANION:BOOL=1
+      INSTALL_COMMAND  ""
+      EXCLUDE_FROM_ALL TRUE
+    )
+  endif()
+
   add_custom_target(configure
     DEPENDS native-configure arm-none-eabi-configure)
 
   add_custom_target(libsimulator
     COMMAND $(MAKE) -C native libsimulator
     DEPENDS native-configure
-    )
+  )
 
   add_custom_target(simulator
     COMMAND $(MAKE) -C native simulator
     DEPENDS native-configure
-    )
+  )
 
   add_custom_target(simu
     COMMAND $(MAKE) -C native simu
     DEPENDS native-configure
+  )
+
+  if(ENABLE_WASM)
+    add_custom_target(wasi-module
+      COMMAND $(MAKE) -C wasm wasi-module
+      DEPENDS wasm-configure
     )
+  endif()
 
   add_custom_target(companion
     COMMAND $(MAKE) -C native companion
     DEPENDS native-configure
-    )
+  )
 
   add_custom_target(gtests-radio
     COMMAND $(MAKE) -C native gtests-radio
     DEPENDS native-configure
-    )
+  )
 
   add_custom_target(tests-radio
     COMMAND $(MAKE) -C native tests-radio
     DEPENDS native-configure
-    )
+  )
 
   add_custom_target(bootloader
     COMMAND $(MAKE) -C arm-none-eabi bootloader
     DEPENDS arm-none-eabi-configure
-    )
+  )
 
   add_custom_target(firmware
     COMMAND $(MAKE) -C arm-none-eabi firmware
     DEPENDS arm-none-eabi-configure
-    )
+  )
 
   add_custom_target(firmware-size
     COMMAND $(MAKE) -C arm-none-eabi firmware-size
     DEPENDS arm-none-eabi-configure
-    )
+  )
 
   # Quit cmake at this point
   return()
 endif()
-
-enable_language(ASM)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 include(GenericDefinitions)
@@ -138,11 +167,14 @@ else()
   message(STATUS "EdgeTX ${VERSION}-${VERSION_SUFFIX} @ ${GIT_STR}")
 endif()
 
-if(NATIVE_BUILD)
+if(NATIVE_BUILD AND NOT WASI)
   include(NativeTargets)
 else()
   # Prevent CMake warnings
   set(IGNORE "${SDL2_LIBRARY_PATH}" "${LIBSSL1_ROOT_DIR}" "${OPENSSL_ROOT_DIR}")
 endif()
+
+# Prevent CMake warnings
+set(IGNORE "${ENABLE_WASM}")
 
 add_subdirectory(${RADIO_SRC_DIR})

@@ -39,6 +39,10 @@
 #include "hal/rotary_encoder.h"
 #include "hal/switch_driver.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #if !SDL_VERSION_ATLEAST(2,0,19)
 #error This backend requires SDL 2.0.19+ because of SDL_RenderGeometryRaw() function
 #endif
@@ -63,7 +67,7 @@
 #include "display.h"
 
 #include "simuaudio.h"
-#include "simpgmspace.h"
+#include "simulib.h"
 
 #include "hal/key_driver.h"
 #include "switches.h"
@@ -87,9 +91,11 @@ static SDL_Texture* screen_frame_buffer;
 static GimbalState stick_left = {{0.5f, 0.5f}, false};
 static GimbalState stick_right = {{0.5f, 0.5f}, false};
 
+#if !defined(__EMSCRIPTEN__)
 static const unsigned char _icon_png[] = {
 #include "icon.lbm"
 };
+#endif
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
 extern volatile rotenc_t rotencValue;
@@ -295,7 +301,6 @@ static SDL_Texture* LoadTexture(SDL_Renderer* renderer, const unsigned char* pix
 
   return texture;
 }
-
 
 static float switches_width()
 {
@@ -781,10 +786,12 @@ int main(int argc, char* argv[])
   SDL_GetRendererInfo(renderer, &info);
   SDL_Log("Current SDL_Renderer: %s", info.name);
 
+#if !defined(__EMSCRIPTEN__)
   SDL_Surface* icon = LoadImage(_icon_png, sizeof(_icon_png));
   if (window && icon) {
     SDL_SetWindowIcon(window, icon);
   }
+#endif
 
   // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
@@ -829,7 +836,8 @@ int main(int argc, char* argv[])
 
   // Init simulation
   simuInit();
-  simuStart(true, storage_path.c_str(), settings_path.c_str());
+  simuFatfsSetPaths(storage_path.c_str(), settings_path.c_str());
+  simuStart();
   
   // Main loop
   SDL_SetEventFilter([](void*, SDL_Event* event){
@@ -841,6 +849,9 @@ int main(int argc, char* argv[])
     return 1;
   }, NULL);
 
+#if defined(__EMSCRIPTEN__)
+  emscripten_set_main_loop([]() { handleEvents(); }, 0, true);
+#else
   do {
     Uint64 start_ts = SDL_GetPerformanceCounter();
     if (!handleEvents()) break;
@@ -853,6 +864,7 @@ int main(int argc, char* argv[])
     SDL_Delay(std::max(0,(int32_t)floor(16.666f - elapsedMS)));
 
   } while(true);
+#endif
 
   // App cleanup
   simuStop();
@@ -865,14 +877,16 @@ int main(int argc, char* argv[])
   SDL_DestroyTexture(screen_frame_buffer);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
+#if !defined(__EMSCRIPTEN__)
   SDL_FreeSurface(icon);
+#endif
   SDL_CloseAudio();
   SDL_Quit();
   
   return 0;
 }
 
-uint16_t simu_get_analog(uint8_t idx)
+uint16_t simuGetAnalog(uint8_t idx)
 {
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   if (idx < max_sticks) {

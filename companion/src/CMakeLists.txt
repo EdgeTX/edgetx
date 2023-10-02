@@ -47,12 +47,9 @@ if(WIN32)
   endif()
 endif()
 
-if(SDL2_FOUND)
-  include_directories(${SDL2_INCLUDE_DIRS})
+if(TARGET SDL2::SDL2)
   add_definitions(-DJOYSTICKS)
-  if(TARGET SDL2::SDL2)
-    set(SDL2_LIBRARIES SDL2::SDL2)
-  endif()
+  set(SDL2_LIBRARIES SDL2::SDL2)
 endif()
 
 add_definitions(${APP_COMMON_DEFINES})  # set in top-level CMakeLists
@@ -193,7 +190,7 @@ target_link_libraries(common
   Qt5::SerialPort
   ${SDL2_LIBRARIES}
   ${WIN_LINK_LIBRARIES}
-  )
+)
 
 set(CPN_COMMON_LIB common)
 

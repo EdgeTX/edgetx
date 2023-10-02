@@ -158,11 +158,11 @@ static void gpsProcessMessage(uint16_t msg_type, uint16_t msg_len,
     gpsData.speed = pvt->gSpeed / 100;            // speed in 0.1m/s
     gpsData.groundCourse = pvt->headMot / 10000;  // degrees * 10
     if (gpsData.fix) {
-      __disable_irq();                     // do the atomic update of lat/lon
+      // __disable_irq();                     // do the atomic update of lat/lon
       gpsData.longitude = pvt->lon / 10;   // degrees * 1.000.000
       gpsData.latitude = pvt->lat / 10;    // degrees * 1.000.000
       gpsData.altitude = pvt->hMSL / 100;  // altitude in 0.1m
-      __enable_irq();
+      // __enable_irq();
     }
 
 #if defined(RTCLOCK)

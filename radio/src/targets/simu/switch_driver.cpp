@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include "simulib.h"
+
 #include "hal/switch_driver.h"
 #include "definitions.h"
 #include "myeeprom.h"
