@@ -20,7 +20,7 @@
  */
 
 #include "audio.h"
-#include "simuaudio.h"
+#include "simulib.h"
 
 #if defined(AUDIO_HP_DETECT_PIN)
 bool audioHeadphoneDetect()
