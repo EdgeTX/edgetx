@@ -793,9 +793,11 @@ void RadioSetupPage::build(FormWindow * window)
   line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_SWITCHES_DELAY, 0, COLOR_THEME_PRIMARY1);
   auto edit =
-      new NumberEdit(line, rect_t{}, -15, 100 - 15,
+      new NumberEdit(line, rect_t{}, 0, 100,
                      GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
-  edit->setSuffix(std::string("0") + STR_MS);
+  edit->setDisplayHandler([](int32_t value) {
+    return formatNumberAsString(value * 10, 0, 0, nullptr, STR_MS);
+  });
 
   // USB mode
   line = window->newLine(&grid);
