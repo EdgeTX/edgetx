@@ -26,6 +26,7 @@
 #include "switches.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
+#include "hal/usb_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"

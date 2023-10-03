@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "mixer_scheduler.h"
 #include "tasks/mixer_task.h"
+#include "hal/usb_driver.h"
 
 bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 {

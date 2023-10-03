@@ -24,6 +24,10 @@
 #include "hal/switch_driver.h"
 #include "hal/rotary_encoder.h"
 
+// TODO: remove hack when StdPeriph is no more
+//#include "hal/usb_driver.h"
+extern "C" void usbInit();
+
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
