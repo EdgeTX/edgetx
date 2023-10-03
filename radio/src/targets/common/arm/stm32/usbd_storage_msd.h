@@ -1,9 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file           : usbd_desc.c
+  * @file           : usbd_storage_if.h
   * @version        : v1.0_Cube
-  * @brief          : Header for usbd_conf.c file.
+  * @brief          : Header for usbd_storage_if.c file.
   ******************************************************************************
   * @attention
   *
@@ -17,49 +17,33 @@
   ******************************************************************************
   */
 /* USER CODE END Header */
+
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __USBD_DESC__C__
-#define __USBD_DESC__C__
+#ifndef __USBD_STORAGE_IF_H__
+#define __USBD_STORAGE_IF_H__
 
 #ifdef __cplusplus
  extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "usbd_def.h"
+#include "usbd_msc.h"
 
 /* USER CODE BEGIN INCLUDE */
 
 /* USER CODE END INCLUDE */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
+  * @brief For Usb device.
   * @{
   */
 
-/** @defgroup USBD_DESC USBD_DESC
-  * @brief Usb device descriptors module.
+/** @defgroup USBD_STORAGE USBD_STORAGE
+  * @brief Header file for the usb_storage_if.c file
   * @{
   */
 
-/** @defgroup USBD_DESC_Exported_Constants USBD_DESC_Exported_Constants
-  * @brief Constants.
-  * @{
-  */
-#define         DEVICE_ID1          (UID_BASE)
-#define         DEVICE_ID2          (UID_BASE + 0x4)
-#define         DEVICE_ID3          (UID_BASE + 0x8)
-
-#define  USB_SIZ_STRING_SERIAL       0x1A
-
-/* USER CODE BEGIN EXPORTED_CONSTANTS */
-
-/* USER CODE END EXPORTED_CONSTANTS */
-
-/**
-  * @}
-  */
-
-/** @defgroup USBD_DESC_Exported_Defines USBD_DESC_Exported_Defines
+/** @defgroup USBD_STORAGE_Exported_Defines USBD_STORAGE_Exported_Defines
   * @brief Defines.
   * @{
   */
@@ -72,7 +56,7 @@
   * @}
   */
 
-/** @defgroup USBD_DESC_Exported_TypesDefinitions USBD_DESC_Exported_TypesDefinitions
+/** @defgroup USBD_STORAGE_Exported_Types USBD_STORAGE_Exported_Types
   * @brief Types.
   * @{
   */
@@ -85,7 +69,7 @@
   * @}
   */
 
-/** @defgroup USBD_DESC_Exported_Macros USBD_DESC_Exported_Macros
+/** @defgroup USBD_STORAGE_Exported_Macros USBD_STORAGE_Exported_Macros
   * @brief Aliases.
   * @{
   */
@@ -98,13 +82,13 @@
   * @}
   */
 
-/** @defgroup USBD_DESC_Exported_Variables USBD_DESC_Exported_Variables
+/** @defgroup USBD_STORAGE_Exported_Variables USBD_STORAGE_Exported_Variables
   * @brief Public variables.
   * @{
   */
 
-/** Descriptor for the Usb device. */
-extern USBD_DescriptorsTypeDef FS_Desc;
+/** STORAGE Interface callback. */
+extern USBD_StorageTypeDef USBD_Storage_Interface_fops_FS;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
 
@@ -114,7 +98,7 @@ extern USBD_DescriptorsTypeDef FS_Desc;
   * @}
   */
 
-/** @defgroup USBD_DESC_Exported_FunctionsPrototype USBD_DESC_Exported_FunctionsPrototype
+/** @defgroup USBD_STORAGE_Exported_FunctionsPrototype USBD_STORAGE_Exported_FunctionsPrototype
   * @brief Public functions declaration.
   * @{
   */
@@ -139,5 +123,5 @@ extern USBD_DescriptorsTypeDef FS_Desc;
 }
 #endif
 
-#endif /* __USBD_DESC__C__ */
+#endif /* __USBD_STORAGE_IF_H__ */
 

@@ -41,6 +41,7 @@ extern "C" {
   #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_adc.h"
   #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_spi.h"
   #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_iwdg.h"
+  #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h"
 #elif defined(STM32F2)
   #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_bus.h"
   #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_gpio.h"
@@ -53,6 +54,7 @@ extern "C" {
   #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_adc.h"
   #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_spi.h"
   #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_iwdg.h"
+  #include "STM32F4xx_HAL_Driver/Inc/stm32f2xx_ll_usb.h"
 #endif
 
 #if defined(__cplusplus)

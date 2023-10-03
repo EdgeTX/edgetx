@@ -107,6 +107,11 @@ if(EdgeTX_SUPERBUILD)
     DEPENDS native-configure
     )
 
+  add_custom_target(bootloader
+    COMMAND $(MAKE) -C arm-none-eabi bootloader
+    DEPENDS arm-none-eabi-configure
+    )
+
   add_custom_target(firmware
     COMMAND $(MAKE) -C arm-none-eabi firmware
     DEPENDS arm-none-eabi-configure
