@@ -31,6 +31,7 @@
 #include "hal/storage.h"
 #include "hal/watchdog_driver.h"
 #include "hal/abnormal_reboot.h"
+#include "hal/usb_driver.h"
 
 #include "timers_driver.h"
 

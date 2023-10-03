@@ -30,15 +30,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef _BOARD_H_
 #include "stm32_hal.h"
+#endif
+
+#include "definitions.h"
 
 //#include "stm32f4xx.h"
 //#include "stm32f4xx_hal.h"
 
 /* USER CODE BEGIN INCLUDE */
-#define __PACKED __attribute__((packed))
-#define __IO volatile
-#define __STATIC_INLINE static inline
+
 /* USER CODE END INCLUDE */
 
 /** @addtogroup USBD_OTG_DRIVER

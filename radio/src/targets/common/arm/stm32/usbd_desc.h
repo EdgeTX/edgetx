@@ -27,6 +27,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_def.h"
+#include "stm32_hal.h"
 
 /* USER CODE BEGIN INCLUDE */
 

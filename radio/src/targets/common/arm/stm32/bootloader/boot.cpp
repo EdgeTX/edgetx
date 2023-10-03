@@ -31,7 +31,7 @@
 #include "bin_files.h"
 #include "dataconstants.h"
 #include "lcd.h"
-#include "usb_driver.h"
+#include "hal/usb_driver.h"
 //#include "usb_device.h"
 // #include "keys.h"
 #include "debug.h"

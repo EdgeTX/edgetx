@@ -22,6 +22,7 @@
 #include <math.h>
 
 #include "opentx.h"
+#include "hal/usb_driver.h"
 #include "usb_joystick.h"
 
 #define MAX_HID_REPORTDESC 160

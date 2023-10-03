@@ -27,7 +27,7 @@ set(BOOTLOADER_SRC
   ../usb_driver.cpp
 #  ../usbd_usr.cpp
 #  ../usbd_storage_if.c
-  ../help/usbd_storage_msd.cpp
+  ../usbd_storage_msd.cpp
   ../delays_driver.cpp
   ../timers_driver.cpp
   ../usbd_desc.c

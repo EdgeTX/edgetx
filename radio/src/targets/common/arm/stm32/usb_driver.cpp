@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "usb_driver.h"
+#include "hal/usb_driver.h"
 #include "usb_device.h"
 
 #if defined(USBJ_EX)
@@ -124,13 +124,15 @@ void usbStart()
 #if defined(USBJ_EX)
       setupUSBJoystick();
 #endif
-      USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_HID_cb, &USR_cb);
+      //USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_HID_cb, &USR_cb);
+      MX_USB_DEVICE_Init();
       break;
 #endif
 #if defined(USB_SERIAL)
     case USB_SERIAL_MODE:
       // initialize USB as CDC device (virtual serial port)
-      USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CDC_cb, &USR_cb);
+      //USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CDC_cb, &USR_cb);
+      MX_USB_DEVICE_Init();
       break;
 #endif
     default:
@@ -168,7 +170,7 @@ bool usbStarted()
 }
 
 #if !defined(BOOT)
-#include "globals.h"
+//#include "globals.h"
 
 /*
   Prepare and send new USB data packet
