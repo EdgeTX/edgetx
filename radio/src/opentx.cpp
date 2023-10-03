@@ -757,8 +757,8 @@ void checkThrottleStick()
     LED_ERROR_BEGIN();
     auto dialog = new ThrottleWarnDialog(throttleNotIdle);
     dialog->runForever();
-    LED_ERROR_END();
   }
+  LED_ERROR_END();
 }
 #else
 void checkThrottleStick()
