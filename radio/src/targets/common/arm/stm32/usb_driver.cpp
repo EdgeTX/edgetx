@@ -20,24 +20,27 @@
  */
 
 #include "usb_driver.h"
+#include "usb_device.h"
 
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
 #endif
 
 extern "C" {
-#include "usb_conf.h"
-#include "usb_dcd_int.h"
-#include "usb_bsp.h"
+#include "stm32_hal_ll.h"
+#include "usbd_conf.h"
+//#include "usb_dcd_int.h"
+//#include "usb_bsp.h"
 #include "usbd_core.h"
-#include "usbd_msc_core.h"
+#include "usbd_msc.h"
 #include "usbd_desc.h"
-#include "usbd_usr.h"
-#include "usbd_hid_core.h"
-#include "usbd_cdc_core.h"
+//#include "usbd_usr.h"
+#include "usbd_hid.h"
+#include "usbd_cdc.h"
 }
 
-#include "board.h"
+#include "hal.h"
+//#include "board.h"
 #include "debug.h"
 
 static bool usbDriverStarted = false;
@@ -63,7 +66,7 @@ int usbPlugged()
   static uint8_t debouncedState = 0;
   static uint8_t lastState = 0;
 
-  uint8_t state = GPIO_ReadInputDataBit(USB_GPIO, USB_GPIO_PIN_VBUS);
+  uint8_t state = LL_GPIO_IsInputPinSet(USB_GPIO, USB_GPIO_PIN_VBUS);
 
   if (state == lastState)
     debouncedState = state;
@@ -74,18 +77,39 @@ int usbPlugged()
 }
 #endif
 
-USB_OTG_CORE_HANDLE USB_OTG_dev;
+USBD_HandleTypeDef USB_OTG_dev;
+extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 extern "C" void OTG_FS_IRQHandler()
 {
   DEBUG_INTERRUPT(INT_OTG_FS);
-  USBD_OTG_ISR_Handler(&USB_OTG_dev);
+  HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
+
 }
 
 void usbInit()
 {
   // Initialize hardware
-  USB_OTG_BSP_Init(&USB_OTG_dev);
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  LL_GPIO_InitTypeDef GPIO_InitStruct;
+  LL_GPIO_StructInit(&GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = USB_GPIO_PIN_VBUS;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  LL_GPIO_Init(USB_GPIO, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = USB_GPIO_PIN_DM | USB_GPIO_PIN_DP;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = LL_GPIO_AF_10; // USB
+  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+
   usbDriverStarted = false;
 }
 
@@ -112,8 +136,9 @@ void usbStart()
     default:
     case USB_MASS_STORAGE_MODE:
       // initialize USB as MSC device
-      usbInitLUNs();
-      USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_MSC_cb, &USR_cb);
+      //usbInitLUNs();
+      MX_USB_DEVICE_Init();
+      //USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_MSC_cb, &USR_cb);
       break;
   }
   usbDriverStarted = true;
@@ -130,10 +155,10 @@ void usbJoystickRestart()
 {
   if (getSelectedUsbMode() != USB_JOYSTICK_MODE) return;
 
-  USBD_DeInit(&USB_OTG_dev);
+/*  USBD_DeInit(&USB_OTG_dev);
   DCD_DevDisconnect(&USB_OTG_dev);
   DCD_DevConnect(&USB_OTG_dev);
-  USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_HID_cb, &USR_cb);
+  USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_HID_cb, &USR_cb);*/
 }
 #endif
 

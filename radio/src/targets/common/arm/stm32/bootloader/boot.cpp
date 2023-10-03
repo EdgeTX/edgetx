@@ -31,6 +31,8 @@
 #include "bin_files.h"
 #include "dataconstants.h"
 #include "lcd.h"
+#include "usb_driver.h"
+//#include "usb_device.h"
 // #include "keys.h"
 #include "debug.h"
 
@@ -258,7 +260,7 @@ void bootloaderInitApp()
 #endif
     // TODO: deInit before restarting
     // Start main application
-    jumpTo(APP_START_ADDRESS);
+   // jumpTo(APP_START_ADDRESS);
   }
 
   pwrOn();

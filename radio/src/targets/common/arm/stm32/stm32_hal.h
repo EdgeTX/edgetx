@@ -21,7 +21,9 @@
 
 #pragma once
 
+#ifdef __cplusplus
 extern "C" {
+#endif
   #if defined(STM32F4)
     #include "CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
     #include "stm32f4xx_hal.h"
@@ -29,4 +31,6 @@ extern "C" {
     #include "CMSIS/Device/ST/STM32F2xx/Include/stm32f2xx.h"
     #include "stm32f2xx_hal.h"
   #endif
+#ifdef __cplusplus
 }
+#endif

@@ -11,29 +11,28 @@ set(BOOTLOADER_SRC
   ../../../../../strhelpers.cpp
   ../../../../../stamp.cpp
   ../../../../../syscalls.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_OTG_Driver/src/usb_core.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_OTG_Driver/src/usb_dcd.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_OTG_Driver/src/usb_dcd_int.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_Device_Library/Core/src/usbd_core.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_Device_Library/Core/src/usbd_ioreq.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_Device_Library/Core/src/usbd_req.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_Device_Library/Class/msc/src/usbd_msc_data.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_Device_Library/Class/msc/src/usbd_msc_scsi.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_Device_Library/Class/msc/src/usbd_msc_bot.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_Device_Library/Class/msc/src/usbd_msc_core.c
+  ../../../../../${STM32USB_DIR}/Core/Src/usbd_core.c
+  ../../../../../${STM32USB_DIR}/Core/Src/usbd_ctlreq.c
+  ../../../../../${STM32USB_DIR}/Core/Src/usbd_ioreq.c
+  ../../../../../${STM32USB_DIR}/Class/MSC/Src/usbd_msc_data.c
+  ../../../../../${STM32USB_DIR}/Class/MSC/Src/usbd_msc_scsi.c
+  ../../../../../${STM32USB_DIR}/Class/MSC/Src/usbd_msc_bot.c
+  ../../../../../${STM32USB_DIR}/Class/MSC/Src/usbd_msc.c
   ../../../../../targets/${TARGET_DIR}/${LCD_DRIVER}
   ../../../../../targets/${TARGET_DIR}/backlight_driver.cpp
   ../../../../../targets/${TARGET_DIR}/board.cpp
   ../../../../../targets/${TARGET_DIR}/bootloader/boot_menu.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/hal_keys.inc
   ../pwr_driver.cpp
-  ../usbd_usr.cpp
-  ../usbd_storage_msd.cpp
+  ../usb_driver.cpp
+#  ../usbd_usr.cpp
+#  ../usbd_storage_if.c
+  ../help/usbd_storage_msd.cpp
   ../delays_driver.cpp
   ../timers_driver.cpp
   ../usbd_desc.c
-  ../usb_bsp.c
-  ../usb_driver.cpp
+  ../usbd_conf.c
+  ../usb_device.c
   ../flash_driver.cpp
   ../stm32_exti_driver.cpp
   ../stm32_serial_driver.cpp
