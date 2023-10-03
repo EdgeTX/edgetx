@@ -19,19 +19,48 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-
 #if defined(SPLASH)
 
-const uint8_t __bmp_splash_bg[] {
-#include "splash_bg.lbm"
-};
+#include "opentx.h"
+#include "stamp.h"
 
-const uint8_t __bmp_splash_logo[] {
+#if defined(VERSION_TAG)
+const std::string ver_str = "" VERSION_TAG;
+const std::string nam_str = "" CODENAME;
+#if LCD_W > LCD_H
+#define TXT_Y 204
+#else
+#define TXT_Y 404
+#endif
+#else
+const std::string ver_str = "" VERSION;
+const std::string nam_str = "" VERSION_SUFFIX;
+const std::string git_str = "(" GIT_STR ")";
+#if LCD_W > LCD_H
+#define TXT_Y 180
+#else
+#define TXT_Y 380
+#endif
+#endif
+
+#if LCD_W > LCD_H
+#define TXT_X (LCD_W * 4 / 5)
+#define IMG_X (LCD_W / 3)
+#define IMG_Y (LCD_H / 2)
+#else
+#define TXT_X (LCD_W / 2)
+#define IMG_X (LCD_W / 2)
+#define IMG_Y (LCD_H * 2 / 5)
+#endif
+
+#define BK_COLOR COLOR2FLAGS(BLACK)
+#define TXT_COLOR COLOR2FLAGS(RGB(128, 128, 128))
+
+const uint8_t __bmp_splash_logo[]{
 #include "splash_logo.lbm"
 };
 
-void draw_splash_cb(lv_event_t * e)
+void draw_splash_cb(lv_event_t* e)
 {
   auto draw_ctx = lv_event_get_draw_ctx(e);
   auto splashImg = (BitmapBuffer*)lv_event_get_user_data(e);
@@ -43,13 +72,13 @@ void draw_splash_cb(lv_event_t * e)
     lv_draw_img_dsc_init(&img_dsc);
 
     lv_area_t coords;
-    coords.x1 = (LCD_W/2) - (splashImg->width()/2);
-    coords.y1 = (LCD_H/2) - (splashImg->height()/2);
-    coords.x2 = coords.x1 + splashImg->width()-1;
-    coords.y2 = coords.y1 + splashImg->height()-1;
+    coords.x1 = (LCD_W / 2) - (splashImg->width() / 2);
+    coords.y1 = (LCD_H / 2) - (splashImg->height() / 2);
+    coords.x2 = coords.x1 + splashImg->width() - 1;
+    coords.y2 = coords.y1 + splashImg->height() - 1;
 
     lv_draw_img_decoded(draw_ctx, &img_dsc, &coords,
-                        (const uint8_t *)splashImg->getData(),
+                        (const uint8_t*)splashImg->getData(),
                         LV_IMG_CF_TRUE_COLOR);
   }
 }
@@ -63,26 +92,29 @@ void drawSplash()
   // try splash from SD card first
   if (loadSplashImg && splashImg == nullptr) {
     if (!sdMounted()) sdInit();
-    splashImg = BitmapBuffer::loadBitmap(BITMAPS_PATH "/" SPLASH_FILE, BMP_RGB565);
+    splashImg =
+        BitmapBuffer::loadBitmap(BITMAPS_PATH "/" SPLASH_FILE, BMP_RGB565);
     loadSplashImg = false;
 
     if (splashImg == nullptr) {
       splashImg = new BitmapBuffer(BMP_RGB565, LCD_W, LCD_H);
-      BitmapBuffer* splashBg = new LZ4Bitmap(BMP_ARGB4444, __bmp_splash_bg);
+      splashImg->clear(BK_COLOR);
       BitmapBuffer* splashLogo = new LZ4Bitmap(BMP_ARGB4444, __bmp_splash_logo);
-      for (int i=0; i<LCD_W; i += splashBg->width()) {
-        for (int j=0; j<LCD_H; j += splashBg->height()) {
-          splashImg->drawBitmap(i, j, splashBg);
-        }
-      }
-      splashImg->drawBitmap((LCD_W/2) - (splashLogo->width()/2),
-                            (LCD_H/2) - (splashLogo->height()/2),
-                            splashLogo);
+      splashImg->drawBitmap(IMG_X - (splashLogo->width() / 2),
+                            IMG_Y - (splashLogo->height() / 2), splashLogo);
+      splashImg->drawText(TXT_X, TXT_Y, ver_str.c_str(), TXT_COLOR | CENTERED);
+      splashImg->drawText(TXT_X, TXT_Y + 24, nam_str.c_str(),
+                          TXT_COLOR | CENTERED);
+#if !defined(VERSION_TAG)
+      splashImg->drawText(TXT_X, TXT_Y + 48, git_str.c_str(),
+                          TXT_COLOR | CENTERED);
+#endif
     }
 
     splashScreen = window_create(nullptr);
     if (splashScreen) {
-      lv_obj_add_event_cb(splashScreen, draw_splash_cb, LV_EVENT_DRAW_MAIN, splashImg);
+      lv_obj_add_event_cb(splashScreen, draw_splash_cb, LV_EVENT_DRAW_MAIN,
+                          splashImg);
     }
   }
 

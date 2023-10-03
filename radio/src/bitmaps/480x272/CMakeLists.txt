@@ -17,8 +17,6 @@ set(BITMAP_LZ4_ARGS ${BITMAP_ARGS} --lz4)
 set(MASK_LZ4_ARGS ${MASK_ARGS} --lz4)
 
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_splash_logo "${RADIO_SRC_DIR}/bitmaps/480x272/splash_logo.png" "4/4/4/4" "${BITMAP_LZ4_ARGS}")
-add_bitmaps_target(${BITMAP_TARGET_PREFIX}_splash_bg "${RADIO_SRC_DIR}/bitmaps/480x272/splash_bg.png" "4/4/4/4" "${BITMAP_LZ4_ARGS}")
-add_bitmaps_target(${BITMAP_TARGET_PREFIX}_splash_bg2 "${RADIO_SRC_DIR}/bitmaps/480x272/splash_bg2.png" "4/4/4/4" "${BITMAP_LZ4_ARGS}")
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_button_bitmaps "${RADIO_SRC_DIR}/bitmaps/480x272/button/alpha_*.png" "4/4/4/4" "${BITMAP_LZ4_ARGS}")
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_masks "${RADIO_SRC_DIR}/bitmaps/480x272/mask_*.png" 8bits "${MASK_LZ4_ARGS}")
 add_bitmaps_target(${BITMAP_TARGET_PREFIX}_slider_masks "${RADIO_SRC_DIR}/bitmaps/480x272/slider/*.png" 8bits "${MASK_LZ4_ARGS}")
@@ -33,8 +31,6 @@ add_custom_target(${BITMAP_TARGET_PREFIX}_bitmaps)
 
 add_dependencies(${BITMAP_TARGET_PREFIX}_bitmaps
   ${BITMAP_TARGET_PREFIX}_splash_logo
-  ${BITMAP_TARGET_PREFIX}_splash_bg
-  ${BITMAP_TARGET_PREFIX}_splash_bg2
   ${BITMAP_TARGET_PREFIX}_button_bitmaps
   ${BITMAP_TARGET_PREFIX}_masks
   ${BITMAP_TARGET_PREFIX}_slider_masks
