@@ -1029,6 +1029,7 @@ extern const char STR_PERIOD[];
 extern const char STR_INTERVAL[];
 extern const char STR_REPEAT[];
 extern const char STR_ENABLE[];
+extern const char STR_DISABLE[];
 extern const char STR_TOPLCDTIMER[];
 extern const char STR_UNIT[]; ;
 extern const char STR_TELEMETRY_NEWSENSOR[];

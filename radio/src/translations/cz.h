@@ -884,6 +884,7 @@
 #define TR_INTERVAL                    "Interval"
 #define TR_REPEAT                      "Opakovat"
 #define TR_ENABLE                      "Povoleno"
+#define TR_DISABLE                     "Zakazano"
 #define TR_TOPLCDTIMER                 "Stopky horního LCD"
 #define TR_UNIT                        "Jednotky"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Přidat senzor ručně"
@@ -1055,8 +1056,6 @@
   #define TR_BL_SELECT_KEY            "[R TRIM] pro vybrani souboru"
   #define TR_BL_FLASH_KEY             "Drzet dlouze [R TRIM] pro nahrani"
   #define TR_BL_EXIT_KEY              " [L TRIM] pro ukonceni"
-  #define TR_BL_ENABLE                "Povoleno"
-  #define TR_BL_DISABLE               "Zakazano"
 #endif
 
 // About screen

@@ -873,6 +873,7 @@
 #define TR_INTERVAL                  "Intervall"
 #define TR_REPEAT                      "Wiederholung"
 #define TR_ENABLE                      "Aktivieren"
+#define TR_DISABLE                     "Deaktivieren"
 #define TR_TOPLCDTIMER        		   "oberer LCD Timer"
 #define TR_UNIT                        "Einheit"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Sensor hinzufügen ..."
@@ -1031,8 +1032,6 @@
   #define TR_BL_SELECT_KEY            "[R TRIM] um Datei auszuwählen"
   #define TR_BL_FLASH_KEY             "Halte [R TRIM] gedrückt, zum schreiben"
   #define TR_BL_EXIT_KEY              " [L TRIM] zum beenden"
-  #define TR_BL_ENABLE                "Aktivieren"
-  #define TR_BL_DISABLE               "Deaktivieren"
 #endif
 
 // Taranis Info Zeile Anzeigen

@@ -870,6 +870,7 @@
 #define TR_INTERVAL            "Interwał"
 #define TR_REPEAT              "Powtórz"
 #define TR_ENABLE              "Włącz"
+#define TR_DISABLE             "Wyłączać"
 #define TR_TOPLCDTIMER         "Top LCD Timer"
 #define TR_UNIT                "Jednostka"
 #define TR_TELEMETRY_NEWSENSOR INDENT "Dodaj nowy czujnik..."
@@ -1041,8 +1042,6 @@
   #define TR_BL_SELECT_KEY            "[R TRIM] aby wybrac plik"
   #define TR_BL_FLASH_KEY             "Przytrzymaj [R TRIM] aby flashowac"
   #define TR_BL_EXIT_KEY              " [L TRIM] aby wyjsc"
-  #define TR_BL_ENABLE                "Włącz"
-  #define TR_BL_DISABLE               "Wyłączać"
 #endif
 
 // About screen
