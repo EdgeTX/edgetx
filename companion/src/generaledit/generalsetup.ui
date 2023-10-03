@@ -2485,14 +2485,14 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="25" column="0">
+     <item row="26" column="0">
       <widget class="QLabel" name="ppm_units_label">
        <property name="text">
         <string>PPM Units</string>
        </property>
       </widget>
      </item>
-     <item row="25" column="1">
+     <item row="26" column="1">
       <widget class="QComboBox" name="ppm_units_CB">
        <property name="currentText">
         <string>0.--</string>
