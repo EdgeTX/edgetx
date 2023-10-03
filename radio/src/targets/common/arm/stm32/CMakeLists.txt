@@ -15,11 +15,6 @@ set(LINKER_DIR ${RADIO_SRC_DIR}/boards/generic_stm32/linker)
 add_link_options(-L${LINKER_DIR} -L${LINKER_DIR}/${TARGET_LINKER_DIR})
 
 include_directories(${RADIO_SRC_DIR}/targets/common/arm/stm32)
-#include_directories(${STM32USB_DIR}/STM32_USB_OTG_Driver/inc)
-#include_directories(${STM32USB_DIR}/STM32_USB_Device_Library/Core/inc)
-#include_directories(${STM32USB_DIR}/STM32_USB_Device_Library/Class/msc/inc)
-#include_directories(${STM32USB_DIR}/STM32_USB_Device_Library/Class/hid/inc)
-#include_directories(${STM32USB_DIR}/STM32_USB_Device_Library/Class/cdc/inc)
 include_directories(${STM32USB_DIR}/Core/Inc)
 include_directories(${STM32USB_DIR}/Class/CDC/Inc)
 include_directories(${STM32USB_DIR}/Class/HID/Inc)
@@ -38,11 +33,11 @@ set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/delays_driver.cpp
   ../common/arm/stm32/trainer_driver.cpp
 #  ../common/arm/stm32/usb_bsp.c
-#  ../common/arm/stm32/usbd_desc.c
-#  ../common/arm/stm32/usbd_usr.cpp
+  ../common/arm/stm32/usbd_desc.c
+  ../common/arm/stm32/usb_device.c
   ../common/arm/stm32/usb_driver.cpp
   ../common/arm/stm32/flash_driver.cpp
-#  ../common/arm/stm32/usbd_storage_msd.cpp
+  ../common/arm/stm32/usbd_storage_msd.cpp
 #  ../common/arm/stm32/usbd_hid_joystick.c
   ../common/arm/stm32/stm32_hal.cpp
   ../common/arm/stm32/stm32_i2c_driver.cpp
