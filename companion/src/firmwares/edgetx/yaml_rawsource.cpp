@@ -264,6 +264,8 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     }
 
     int ana_idx = getCurrentFirmware()->getAnalogInputIndex(ana_str.c_str());
+    if (ana_idx < 0)
+      ana_idx = getCurrentFirmware()->getAnalogInputIndexADC(ana_str.c_str());
     if (ana_idx >= 0) {
       rhs.type = SOURCE_TYPE_STICK;
       rhs.index = ana_idx;

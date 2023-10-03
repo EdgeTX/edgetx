@@ -297,7 +297,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
     seq = getCurrentFirmware()->getAnalogInputSeqADC(adcoffset + i) - sticks;
     if (seq >= 0 && seq < maxPots) {
       strcpy(potName[seq], rhs.sliderName[i]);
-      potConfig[seq] = rhs.sliderConfig[i];
+      potConfig[seq] = ((rhs.sliderConfig[i] == Board::SLIDER_WITH_DETENT) ? Board::POT_SLIDER_WITH_DETENT : Board::POT_NONE);
     }
   }
 
@@ -576,7 +576,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   else {
     for (int i = 0; i < Boards::getCapability(board, Board::Sliders); i++) {
       strcpy(rhs.sliderName[i], potName[numPots + i]);
-      rhs.sliderConfig[i] = potConfig[numPots + i];
+      rhs.sliderConfig[i] = ((potConfig[numPots + i] == Board::POT_SLIDER_WITH_DETENT) ? Board::SLIDER_WITH_DETENT : Board::SLIDER_NONE);
     }
   }
 

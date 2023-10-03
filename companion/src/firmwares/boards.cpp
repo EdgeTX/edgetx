@@ -888,6 +888,8 @@ QString Boards::potTypeToString(int value)
       return tr("Multi pos switch");
     case POT_WITHOUT_DETENT:
       return tr("Pot without detent");
+    case POT_SLIDER_WITH_DETENT:
+      return tr("slider");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
