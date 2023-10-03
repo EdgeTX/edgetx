@@ -104,7 +104,7 @@
     <message>
         <location filename="../storage/appdata.h" line="654"/>
         <source>Prompt</source>
-        <translation type="unfinished"></translation>
+        <translation>Сейчас</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="655"/>
@@ -144,7 +144,7 @@
     <message>
         <location filename="../storage/appdata.h" line="657"/>
         <source>Critical</source>
-        <translation type="unfinished">Критический</translation>
+        <translation>Критический</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="657"/>
@@ -218,7 +218,7 @@ Mode 4:
   Right stick:  Elevator, Rudder
 
 </source>
-        <translation>Выбор моды передатчика:
+        <translation>Выбор модели передатчика:
 
 Mode 1:
   Левый стик:  Руль высоты (Elevator), Руль направления (Rudder)
