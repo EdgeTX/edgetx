@@ -72,6 +72,13 @@ void FormField::onCancel()
   }
 }
 
+void FormField::deleteLater(bool detach, bool trash)
+{
+  if (isEditMode())
+    setEditMode(false);
+  Window::deleteLater(detach, trash);
+}
+
 FormWindow::Line::Line(Window* parent, lv_obj_t* obj, FlexGridLayout* layout) :
     Window(parent, obj), layout(layout)
 {

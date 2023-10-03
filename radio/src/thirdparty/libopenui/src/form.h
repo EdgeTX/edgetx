@@ -45,7 +45,8 @@ class FormField : public Window
 
     void onClicked() override;
     void onCancel() override;
-  
+    void deleteLater(bool detach = true, bool trash = true) override;
+
   protected:
     bool editMode = false;
     bool enabled = true;
