@@ -21,6 +21,7 @@
 
 #include "board.h"
 #include "watchdog_driver.h"
+#include "stm32f4xx_flash.h"
 
 void waitFlashIdle()
 {

@@ -106,4 +106,6 @@
   #define EXTERN_C_END
 #endif
 
+#define __PACKED __attribute__((packed))
+
 #endif // _DEFINITIONS_H_

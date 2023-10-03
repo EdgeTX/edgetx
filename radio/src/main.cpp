@@ -22,6 +22,7 @@
 #include "opentx.h"
 #include "hal/adc_driver.h"
 #include "hal/storage.h"
+#include "hal/usb_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"

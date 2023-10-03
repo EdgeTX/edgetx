@@ -25,7 +25,7 @@
 
 // include STM32 headers and generic board defs
 #include "board_common.h"
-#include "usb_driver.h"
+#include "hal/usb_driver.h"
 
 extern "C" {
 

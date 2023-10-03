@@ -25,6 +25,7 @@
 
 #include "opentx.h"
 #include "switches.h"
+#include "hal/usb_driver.h"
 
 #include "watchdog_driver.h"
 
