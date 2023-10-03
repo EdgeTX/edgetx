@@ -252,6 +252,10 @@ ui(new Ui::GeneralSetup)
     populateRotEncCB(reCount);
   }
 
+  if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
+    ui->backlightautoSB->setMinimum(5);
+  }
+
   ui->contrastSB->setMinimum(firmware->getCapability(MinContrast));
   ui->contrastSB->setMaximum(firmware->getCapability(MaxContrast));
   ui->contrastSB->setValue(generalSettings.contrast);
@@ -468,10 +472,15 @@ void GeneralSetupPanel::setValues()
     ui->label_HL->hide();
     ui->hapticLengthCB->hide();
   }
+  ui->OFFBright_SB->setMinimum(firmware->getCapability(BacklightLevelMin));
+  if (generalSettings.backlightOffBright > 100-generalSettings.backlightBright)
+    generalSettings.backlightOffBright = 100-generalSettings.backlightBright;
   ui->BLBright_SB->setValue(100-generalSettings.backlightBright);
   ui->OFFBright_SB->setValue(generalSettings.backlightOffBright);
+  ui->BLBright_SB->setMinimum(ui->OFFBright_SB->value());
+  ui->OFFBright_SB->setMaximum(ui->BLBright_SB->value());
   ui->soundModeCB->setCurrentIndex(generalSettings.speakerMode);
-  ui->volume_SB->setValue(generalSettings.speakerVolume);
+  ui->volume_SB->setValue(generalSettings.speakerVolume + 12);
   ui->beeperlenCB->setCurrentIndex(generalSettings.beeperLength+2);
   ui->speakerPitchSB->setValue(generalSettings.speakerPitch);
   ui->hapticStrength->setValue(generalSettings.hapticStrength);
@@ -622,19 +631,29 @@ void GeneralSetupPanel::on_varioR0_SB_editingFinished()
 
 void GeneralSetupPanel::on_BLBright_SB_editingFinished()
 {
-  generalSettings.backlightBright = 100 - ui->BLBright_SB->value();
-  emit modified();
+  if (ui->BLBright_SB->value() < ui->OFFBright_SB->value()) {
+    ui->BLBright_SB->setValue(ui->OFFBright_SB->value());
+  } else {
+    ui->OFFBright_SB->setMaximum(ui->BLBright_SB->value());
+    generalSettings.backlightBright = 100 - ui->BLBright_SB->value();
+    emit modified();
+  }
 }
 
 void GeneralSetupPanel::on_OFFBright_SB_editingFinished()
 {
-  generalSettings.backlightOffBright = ui->OFFBright_SB->value();
-  emit modified();
+  if (ui->OFFBright_SB->value() > ui->BLBright_SB->value()) {
+    ui->OFFBright_SB->setValue(ui->BLBright_SB->value());
+  } else {
+    ui->BLBright_SB->setMinimum(ui->OFFBright_SB->value());
+    generalSettings.backlightOffBright = ui->OFFBright_SB->value();
+    emit modified();
+  }
 }
 
 void GeneralSetupPanel::on_volume_SB_editingFinished()
 {
-  generalSettings.speakerVolume = ui->volume_SB->value();
+  generalSettings.speakerVolume = ui->volume_SB->value() - 12;
   emit modified();
 }
 

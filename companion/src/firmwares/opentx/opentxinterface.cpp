@@ -806,6 +806,12 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasIntModuleFlySky:
       return  id.contains("afhds2a") || id.contains("afhds3") ||
               IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board);
+    case BacklightLevelMin:
+      if (IS_HORUS_X12S(board))
+        return 5;
+      if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
+        return 1;
+      return 46;
     default:
       return 0;
   }

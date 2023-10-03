@@ -173,6 +173,7 @@ enum Capability {
   HasIntModuleCRSF,
   HasIntModuleELRS,
   HasIntModuleFlySky,
+  BacklightLevelMin,
 };
 
 class EEPROMInterface
