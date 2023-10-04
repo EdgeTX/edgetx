@@ -216,8 +216,7 @@ int8_t  STORAGE_IsReady (uint8_t lun)
     return (lunReady[STORAGE_EEPROM_LUN] != 0) ? 0 : -1;
   }
 #endif
-  // return (lunReady[STORAGE_SDCARD_LUN] != 0 && SD_CARD_PRESENT()) ? 0 : -1;
-  return 0; // debug: "always ON"
+  return (lunReady[STORAGE_SDCARD_LUN] != 0 && storageIsPresent()) ? 0 : -1;
 }
 
 /**
