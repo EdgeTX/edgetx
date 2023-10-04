@@ -53,12 +53,10 @@
 #define TR_AUX_SERIAL_MODES            "Выключено","Зеркало телемет","Телемет входящая","SBUS тренажер","LUA","CLI","GPS","Отладка","SpaceMouse","Внешний модуль"
 #define TR_SWTYPES                     "Нет","Переключ","2Х-Поз пер","3Х-Поз пер"
 #define TR_POTTYPES                    "Нет",TR("Потен с шагом","Потен с шагом"),TR("Мн Поз пер","Многопоз перекл"),"Потенциометр","Слайдер"
-#define TR_SLIDERTYPES                 "Нет","Слайдер"
 #define TR_VPERSISTENT                 "Выключено","Полет","Ручной сброс"
 #define TR_COUNTRY_CODES               TR("US","США"),TR("JP","Япония"),TR("EU","Европа")
 #define TR_USBMODES                    "Выбор",TR("Джойстик","Джойстик"),TR("SD-карта","Хранилище"),"Серийный"
 #define TR_JACK_MODES                  "Выбор","Аудио","Тренажер"
-#define TR_TELEMETRY_PROTOCOLS         "FrSky S.PORT","FrSky D","FrSky D (cable)","TBS Crossfire","Spektrum","AFHDS2A IBUS","Multi Telemetry"
 
 #define TR_SBUS_INVERSION_VALUES       "Нормально","не перевер"
 #define TR_MULTI_CUSTOM                "Настроенный"
@@ -71,17 +69,6 @@
 
 #define TR_ADCFILTERVALUES             "Глобал","ВЫК","ВКЛ"
 
-#if defined(PCBX10)
-  #define TR_RETA123                   "R","E","T","A","1","3","2","4","5","6","7","L","R"
-#elif defined(PCBHORUS)
-  #define TR_RETA123                   "R","E","T","A","1","3","2","4","5","L","R"
-#elif defined(PCBX9E)
-  #define TR_RETA123                   "R","E","T","A","1","2","3","4","L","R","L","R"
-#elif defined(PCBTARANIS)
-  #define TR_RETA123                   "R","E","T","A","1","2","3","L","R"
-#else
-  #define TR_RETA123                   "R","E","T","A","1","2","3"
-#endif
 #define TR_VCURVETYPE                  "Разница", "Экспо", "Функц", "Польз"
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                      "Добавить", "Умножить", "Заменить"
