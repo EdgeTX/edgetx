@@ -166,8 +166,12 @@
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
-#define TR_STICK_NAMES                 "Rud", "Ele", "Thr", "Ail"
-#define TR_SURFACE_NAMES               "ST", "TH"
+#define TR_STICK_NAMES0                "Rud"
+#define TR_STICK_NAMES1                "Ele"
+#define TR_STICK_NAMES2                "Thr"
+#define TR_STICK_NAMES3                "Ail"
+#define TR_SURFACE_NAMES0              "ST"
+#define TR_SURFACE_NAMES1              "TH"
 
 #if defined(PCBNV14)
 #define  TR_RFPOWER_AFHDS2             "По умолсанию","Высокий"
@@ -177,6 +181,13 @@
 #define TR_ROTENC_SWITCHES
 
 #define TR_ON_ONE_SWITCHES             "ВКЛ","Один"
+
+#if defined(USE_HATS_AS_KEYS)
+#define TR_HATSMODE                    "Hats mode"
+#define TR_HATSOPT                     "Trims only","Keys only","Switchable","Global"
+#define TR_HATSMODE_TRIMS              "Hats mode: Trims"
+#define TR_HATSMODE_KEYS               "Hats mode: Keys"
+#endif
 
 #if defined(COLORLCD)
   #define TR_ROTARY_ENC_OPT            "Нормально","Перевер"
@@ -989,6 +1000,7 @@
   #define TR_TIMER_SOURCE              "Источник таймера"
   #define TR_SIZE                      "Размер"
   #define TR_SHADOW                    "Тень"
+  #define TR_ALIGNMENT                 "Выравнивание"
   #define TR_ALIGN_LABEL               "Выравнивание метки"
   #define TR_ALIGN_VALUE               "Выравнивание значения"
   #define TR_ALIGN_OPTS                { "Слева", "По центру", "Справа" }
