@@ -21,26 +21,21 @@
 
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
-#include "hal.h"
-
 #include "stm32_i2c_driver.h"
+#include "stm32_gpio_driver.h"
+#include "stm32_exti_driver.h"
+
+#include "hal.h"
 #include "timers_driver.h"
 #include "delays_driver.h"
 #include "tp_cst340.h"
 
 #include "debug.h"
 
-volatile static bool touchEventOccured;
-
-#define TOUCH_RCC_AHB1Periph              RCC_AHB1Periph_GPIOB
-#define TOUCH_RCC_APB1Periph              RCC_APB1Periph_I2C1
-#define TOUCH_GPIO                        I2C_B1_GPIO
-#define TOUCH_SCL_GPIO_PIN                I2C_B1_SCL_GPIO_PIN  // PB.08
-#define TOUCH_SDA_GPIO_PIN                I2C_B1_SDA_GPIO_PIN  // PB.09
-
 #define TOUCH_FT6236_I2C_ADDRESS          (0x70>>1)
 #define TOUCH_CST340_I2C_ADDRESS          0x1A
 
+volatile static bool touchEventOccured;
 enum TouchControllers {TC_NONE, TC_FT6236, TC_CST340};
 TouchControllers touchController = TC_NONE;
 
@@ -63,59 +58,59 @@ static const TouchControllerDescriptor *tc = nullptr;
 
 static TouchState internalTouchState = {};
 
-void I2C_FreeBus()
+static void _cst340_exti_isr(void)
+{
+  touchEventOccured = true;
+}
+
+static void TOUCH_AF_ExtiStop(void)
+{
+  stm32_exti_disable(TOUCH_INT_EXTI_Line);
+}
+
+static void TOUCH_AF_ExtiConfig(void)
+{
+  __HAL_RCC_SYSCFG_CLK_ENABLE();
+  LL_SYSCFG_SetEXTISource(TOUCH_INT_EXTI_Port, TOUCH_INT_EXTI_SysCfgLine);
+
+  stm32_exti_enable(TOUCH_INT_EXTI_Line,
+		    LL_EXTI_TRIGGER_FALLING,
+		    _cst340_exti_isr);
+}
+
+static void TOUCH_AF_GPIOConfig(void)
 {
   LL_GPIO_InitTypeDef gpioInit;
   LL_GPIO_StructInit(&gpioInit);
 
-  // reset i2c bus by setting clk as output and sending manual clock pulses
-  gpioInit.Pin = TOUCH_SCL_GPIO_PIN;
+  stm32_gpio_enable_clock(TOUCH_RST_GPIO);
+  stm32_gpio_enable_clock(TOUCH_INT_GPIO);
+  
   gpioInit.Mode = LL_GPIO_MODE_OUTPUT;
+  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
   gpioInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   gpioInit.Pull = LL_GPIO_PULL_NO;
-  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  LL_GPIO_Init(TOUCH_GPIO, &gpioInit);
 
-  gpioInit.Pin = TOUCH_SDA_GPIO_PIN;
+  gpioInit.Pin = TOUCH_RST_GPIO_PIN;
+  LL_GPIO_Init(TOUCH_RST_GPIO, &gpioInit);
+  LL_GPIO_SetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
+
+  gpioInit.Pin = TOUCH_INT_GPIO_PIN;
   gpioInit.Mode = LL_GPIO_MODE_INPUT;
-  gpioInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
   gpioInit.Pull = LL_GPIO_PULL_UP;
-  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  LL_GPIO_Init(TOUCH_GPIO, &gpioInit);
+  gpioInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
+  LL_GPIO_Init(TOUCH_INT_GPIO, &gpioInit);
+  LL_GPIO_SetOutputPin(TOUCH_INT_GPIO, TOUCH_INT_GPIO_PIN);
+}
 
-  //send 100khz clock train for some 100ms
-  tmr10ms_t until = get_tmr10ms() + 11;
-  while (get_tmr10ms() < until) {
-    if (LL_GPIO_IsInputPinSet(TOUCH_GPIO, TOUCH_SDA_GPIO_PIN)) {
-      TRACE("touch: i2c free again\n");
-      break;
-    }
-    TRACE("FREEEEE");
-    LL_GPIO_ResetOutputPin(TOUCH_GPIO, TOUCH_SCL_GPIO_PIN);
-    delay_us(10);
-    LL_GPIO_SetOutputPin(TOUCH_GPIO, TOUCH_SCL_GPIO_PIN);
-    delay_us(10);
+void I2C_Init_Radio(void)
+{
+  TRACE("CST340 I2C Init");
+
+  if (stm32_i2c_init(TOUCH_I2C_BUS, TOUCH_I2C_CLK_RATE) < 0) {
+    TRACE("CST340 ERROR: stm32_i2c_init failed");
+    return;
   }
-
-  //send stop condition:
-  gpioInit.Pin = TOUCH_SDA_GPIO_PIN;
-  gpioInit.Mode = LL_GPIO_MODE_OUTPUT;
-  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  LL_GPIO_Init(TOUCH_GPIO, &gpioInit);
-
-  //clock is low
-  LL_GPIO_ResetOutputPin(TOUCH_GPIO, TOUCH_SCL_GPIO_PIN);
-  delay_us(10);
-  //sda = lo
-  LL_GPIO_SetOutputPin(TOUCH_GPIO, TOUCH_SDA_GPIO_PIN);
-  delay_us(10);
-  //clock goes high
-  LL_GPIO_ResetOutputPin(TOUCH_GPIO, TOUCH_SCL_GPIO_PIN);
-  delay_us(10);
-  //sda = hi
-  LL_GPIO_SetOutputPin(TOUCH_GPIO, TOUCH_SDA_GPIO_PIN);
-  delay_us(10);
-  TRACE("FREE BUS");
 }
 
 // void Touch_DeInit()
@@ -125,66 +120,6 @@ void I2C_FreeBus()
 //   delay_ms(150);
 //   __HAL_RCC_I2C1_RELEASE_RESET();
 // }
-
-static int _enable_gpio_clock(GPIO_TypeDef *GPIOx)
-{
-  if (GPIOx == GPIOB)
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-  else
-    return -1;
-
-  return 0;
-}
-
-void I2C_Init()
-{
-  stm32_i2c_deinit(TOUCH_I2C_BUS);
-
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_SYSCFG_CLK_ENABLE();
-
-  __HAL_RCC_I2C1_CLK_ENABLE();
-  __HAL_RCC_I2C1_CLK_DISABLE();
-
-  I2C_FreeBus();
-
-  stm32_i2c_init(TOUCH_I2C_BUS, TOUCH_I2C_CLK_RATE);
-
-  LL_GPIO_InitTypeDef gpioInit;
-  LL_GPIO_StructInit(&gpioInit);
-
-  _enable_gpio_clock(TOUCH_RST_GPIO);
-  _enable_gpio_clock(TOUCH_INT_GPIO);
-
-  gpioInit.Pin = TOUCH_RST_GPIO_PIN;
-  gpioInit.Mode = LL_GPIO_MODE_OUTPUT;
-  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  gpioInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  gpioInit.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(TOUCH_RST_GPIO, &gpioInit);
-
-  //ext interupt
-  gpioInit.Pin = TOUCH_INT_GPIO_PIN;
-  gpioInit.Mode = LL_GPIO_MODE_INPUT;
-  gpioInit.Pull = LL_GPIO_PULL_UP;
-  gpioInit.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-  gpioInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
-  LL_GPIO_Init(TOUCH_INT_GPIO, &gpioInit);
-
-  LL_SYSCFG_SetEXTISource(TOUCH_INT_EXTI_Port, TOUCH_INT_EXTI_SysCfgLine);
-
-  LL_EXTI_InitTypeDef extiInit;
-  LL_EXTI_StructInit(&extiInit);
-
-  extiInit.Line_0_31 = TOUCH_INT_EXTI_Line;
-  extiInit.Mode = LL_EXTI_MODE_IT;
-  extiInit.Trigger = LL_EXTI_TRIGGER_FALLING;
-  extiInit.LineCommand = ENABLE;
-  LL_EXTI_Init(&extiInit);
-
-  NVIC_SetPriority(TOUCH_INT_EXTI_IRQn, 8);
-  NVIC_EnableIRQ(TOUCH_INT_EXTI_IRQn);
-}
 
 #define I2C_TIMEOUT_MAX 5 // 5 ms
 
@@ -226,13 +161,14 @@ static void TS_IO_Write(uint8_t addr, uint8_t reg, uint8_t data)
 
 static uint8_t TS_IO_Read(uint8_t addr, uint8_t reg)
 {
-  uint8_t retult;
+  uint8_t result;
   uint8_t tryCount = 3;
-  while (!touch_i2c_read(addr, reg, &retult, 1)) {
+  while (!touch_i2c_read(addr, reg, &result, 1)) {
     if (--tryCount == 0) break;
-    I2C_Init();
+    I2C_Init_Radio();
+//    I2C_Init();
   }
-  return retult;
+  return result;
 }
 
 static uint16_t TS_IO_ReadMultiple(uint8_t addr, uint8_t reg, uint8_t * buffer, uint16_t length)
@@ -240,7 +176,8 @@ static uint16_t TS_IO_ReadMultiple(uint8_t addr, uint8_t reg, uint8_t * buffer, 
   uint8_t tryCount = 3;
   while (!touch_i2c_read(addr, reg, buffer, length)) {
     if (--tryCount == 0) break;
-    I2C_Init();
+    I2C_Init_Radio();
+//    I2C_Init();
   }
   return 1;
 }
@@ -439,6 +376,9 @@ static uint8_t cst340_TS_DetectTouch()
 {
   uint8_t nbTouch;
   uint8_t reg = TS_IO_Read(TOUCH_CST340_I2C_ADDRESS, CST340_FINGER1_REG);
+#if defined(DEBUG)
+  TRACE("cst340_TS_DetectTouch: reg=%d", reg);
+#endif  
   if( reg == 0x06 )
     nbTouch = 1;
   else
@@ -487,9 +427,12 @@ void detectTouchController()
 
 void TouchInit()
 {
-  I2C_Init();
+  TOUCH_AF_GPIOConfig();  // SET RST=OUT INT=IN INT=HIGH
+  I2C_Init_Radio();
   TouchReset();
   detectTouchController();
+  TOUCH_AF_ExtiConfig();
+
   tc->printDebugInfo();
 }
 
@@ -500,6 +443,9 @@ void handleTouch()
   uint32_t tEvent = 0;
   tc->read(&touchX, &touchY, &tEvent);
 
+#if defined(DEBUG)
+  TRACE("handleTouch: touchX=%d, touchY=%d, tEvent=%d", touchX, touchY, tEvent);
+#endif  
   // touch sensor is rotated by 90 deg
   unsigned short tmp = touchY;
   touchY = 319 - touchX;
@@ -535,18 +481,6 @@ void handleTouch()
       internalTouchState.deltaY = (short) dy;
     }
 
-  }
-}
-
-#if !defined(TOUCH_INT_EXTI_IRQHandler)
-  #error "TOUCH_INT_EXTI_IRQHandler is not defined"
-#endif
-extern "C" void TOUCH_INT_EXTI_IRQHandler(void)
-{
-  if (LL_EXTI_IsEnabledIT_0_31(TOUCH_INT_EXTI_Line)  &&
-      LL_EXTI_IsActiveFlag_0_31(TOUCH_INT_EXTI_Line)) {
-    touchEventOccured = true;
-    LL_EXTI_ClearFlag_0_31(TOUCH_INT_EXTI_Line);
   }
 }
 
@@ -595,6 +529,11 @@ TouchState touchPanelRead()
   internalTouchState.deltaY = 0;
   if(internalTouchState.event == TE_UP || internalTouchState.event == TE_SLIDE_END)
     internalTouchState.event = TE_NONE;
+
+#if defined(DEBUG)
+  TRACE("%s: Event = %d", touchController == TC_CST340 ? "CST340" : "FT6236", ret.event);
+#endif
+
   return ret;
 }
 
