@@ -73,11 +73,6 @@
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                      "Добавить", "Умножить", "Заменить"
 #define TR_VMLTPX2                     "+=","*=",":="
-#if defined(PCBHORUS)
-  #define TR_VMIXTRIMS                 "OFF","ON","Rud","Ele","Thr","Ail","T5","T6"
-#else
-  #define TR_VMIXTRIMS                 "OFF","ON","Rud","Ele","Thr","Ail"
-#endif
 
 #if LCD_W >= 212
   #define TR_CSWTIMER                  "Таймер"
@@ -127,7 +122,6 @@
 #define TR_SF_DISABLE_TOUCH            "Сенсор ВЫК"
 #define TR_SF_DISABLE_AUDIO_AMP        "Выключить аудио усилитель"
 #define TR_SF_SET_SCREEN               "Выбрать главный экран"
-#define TR_SF_RESERVE                  "[резев]"
 
 #define TR_FSW_RESET_TELEM             TR("Телем", "Телеметрия")
 #define TR_FSW_RESET_TIMERS            "Тмр1","Трм2","Трм3"
