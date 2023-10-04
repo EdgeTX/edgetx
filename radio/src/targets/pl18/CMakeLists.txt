@@ -19,8 +19,6 @@ set(HARDWARE_EXTERNAL_MODULE YES)
 set(WIRELESS_CHARGER YES)
 set(TARGET_DIR pl18)
 
-set(LINKER_SCRIPT targets/pl18/stm32f4_flash_bootloader.ld)  
-
 set(RTC_BACKUP_RAM YES)
 set(PPM_LIMITS_SYMETRICAL YES)
 # for size report script
@@ -100,10 +98,13 @@ set(SRC
 set(GVAR_SCREEN model_gvars.cpp)
 
 if(BOOTLOADER)
+  set(LINKER_SCRIPT targets/pl18/stm32f4_flash_bootloader.ld)
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
     ../common/arm/loadboot.cpp
     )
+else()
+  set(LINKER_SCRIPT targets/pl18/stm32f4_flash.ld)
 endif()
 
 set(SRC
@@ -133,12 +134,12 @@ set(FIRMWARE_TARGET_SRC
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
   hal/adc_driver.cpp
-  targets/common/arm/stm32/stm32_adc.cpp
+  targets/common/arm/stm32/stm32_exti_driver.cpp
   targets/common/arm/stm32/timers_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
   targets/common/arm/stm32/stm32_usart_driver.cpp
-  targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/pwr_driver.cpp
+  targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/diskio_spi_flash.cpp
