@@ -20,8 +20,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_desc.h"
-#include "usbd_hid_core.h"
-#include "usbd_req.h"
+#include "STM32_USB_Device_Library/Class/HID/Inc/usbd_hid.h"
+//#include "usbd_req.h"
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
 #endif
