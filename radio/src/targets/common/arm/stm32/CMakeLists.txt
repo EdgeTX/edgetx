@@ -30,12 +30,13 @@ set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/delays_driver.cpp
   ../common/arm/stm32/trainer_driver.cpp
 #  ../common/arm/stm32/usb_bsp.c
+  ../common/arm/stm32/usbd_conf.c
   ../common/arm/stm32/usbd_desc.c
   ../common/arm/stm32/usb_device.c
   ../common/arm/stm32/usb_driver.cpp
   ../common/arm/stm32/flash_driver.cpp
   ../common/arm/stm32/usbd_storage_msd.cpp
-#  ../common/arm/stm32/usbd_hid_joystick.c
+   ../common/arm/stm32/usbd_hid_joystick.c
   ../common/arm/stm32/stm32_hal.cpp
   ../common/arm/stm32/stm32_i2c_driver.cpp
   ../common/arm/stm32/stm32_serial_driver.cpp
