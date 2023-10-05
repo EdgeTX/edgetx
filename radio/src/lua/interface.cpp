@@ -1027,7 +1027,18 @@ static bool resumeLua(bool init, bool allowLcdUsage)
   bool scriptWasRun = false;
   bool fullGC = !allowLcdUsage;
   static uint8_t luaDisplayStatistics = false;
+
+#if defined(PCBTARANIS)
+  static MenuHandlerFunc oldMenuHandler= (MenuHandlerFunc)  NULL;
+
+  // clear event buffer after switching to telemetry view
+  if(menuHandlers[menuLevel]== menuViewTelemetry) {
+     if(oldMenuHandler!= menuViewTelemetry) luaEmptyEventBuffer();
+  }
+  oldMenuHandler= menuHandlers[menuLevel];
+#endif
  
+
   // Run in the right interactive mode
   if (lua_status(lsScripts) == LUA_YIELD && allowLcdUsage != luaLcdAllowed) {
 #if defined(PCBTARANIS)
