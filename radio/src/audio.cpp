@@ -335,7 +335,7 @@ void getSwitchAudioFile(char * filename, swsrc_t index)
 {
   char * str = getModelAudioPath(filename);
 
-  if (index <= MAX_SWITCHES * 3) {
+  if (index <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(index);
     *str++ = 'S';
     *str++ = switchGetLetter(swinfo.quot);
@@ -343,8 +343,7 @@ void getSwitchAudioFile(char * filename, swsrc_t index)
     strcpy(str, positions[swinfo.rem]);
   }
   else {
-    index -= MAX_SWITCHES * 3;
-    div_t swinfo = div((int)index, XPOTS_MULTIPOS_COUNT);
+    div_t swinfo = div((int)(index - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
     *str++ = 'S';
     *str++ = '1' + swinfo.quot;
     *str++ = '1' + swinfo.rem;
@@ -412,7 +411,7 @@ void referenceModelAudioFiles()
 
       // Switches Audio Files <switchname>-[up|mid|down].wav
       for (unsigned i = 0; i <= MAX_SWITCH_POSITIONS && !found; i++) {
-        getSwitchAudioFile(path, i);
+        getSwitchAudioFile(path, SWSRC_FIRST_SWITCH+i);
         // TRACE("referenceModelAudioFiles(): searching for %s in %s (%d)", path, fno.fname, i);
         if (!strcasecmp(filename, fno.fname)) {
           sdAvailableSwitchAudioFiles.setBit(i);
