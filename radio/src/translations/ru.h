@@ -69,7 +69,7 @@
 
 #define TR_ADCFILTERVALUES             "Глобал","ВЫК","ВКЛ"
 
-#define TR_VCURVETYPE                  "Разница", "Экспо", "Функц", "Польз"
+#define TR_VCURVETYPE                  "Разн", "Экспо", "Функц", "Польз"
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                      "Добавить", "Умножить", "Заменить"
 #define TR_VMLTPX2                     "+=","*=",":="
@@ -265,8 +265,8 @@
 #define TR_TRIMINC                     "Шаг Трима"
 #define TR_DISPLAY_TRIMS               TR("Пок. Тримы", "Показывать Тримы")
 #define TR_TTRACE                      TR("T-Источник", INDENT "Источник")
-#define TR_TTRIM                       TR("T-Трим-Холостой", INDENT "Только трим холостого хода")
-#define TR_TTRIM_SW                    TR("T-Трим-Переключатель", INDENT "Трим переключателя")
+#define TR_TTRIM                       TR("T-Трим-ХХ", INDENT "Только трим хх")
+#define TR_TTRIM_SW                    TR("T-Трим-Перек", INDENT "Трим перек")
 #define TR_BEEPCTR                     TR("Цент. Звук", "Звук в центре")
 #define TR_USE_GLOBAL_FUNCS            TR("Глоб. Функции", "Используйте Глобальные Функции")
 #define TR_PROTOCOL                    TR("Прото", "Протокол")
@@ -311,15 +311,15 @@
 #define DREX_CHBOX_OFFSET              30
 #define TR_CURVE                       "Кривая"
 #define TR_FLMODE                      TR("Режим", "Режимы")
-#define TR_MIXWARNING                  "Предупреждение"
+#define TR_MIXWARNING                  "Предупр"
 #define TR_OFF                         "ВЫК"
 #define TR_ANTENNA                     "Антенна"
 #define TR_NO_INFORMATION              TR("Нет информации", "Нет информации")
 #define TR_MULTPX                      "Multiplex"
-#define TR_DELAYDOWN                   TR("Задержка вниз", "Задержка вниз")
-#define TR_DELAYUP                     "Задержка вверх"
-#define TR_SLOWDOWN                    TR("Замедление вниз", "Замедление вниз")
-#define TR_SLOWUP                      "Замедление вверх"
+#define TR_DELAYDOWN                   TR("Задер вниз", "Задержка вниз")
+#define TR_DELAYUP                     "Задер вверх"
+#define TR_SLOWDOWN                    TR("Замед вниз", "Замедление вниз")
+#define TR_SLOWUP                      "Замед вверх"
 #define TR_MIXES                       "MIXES"
 #define TR_CV                          "CV"
 #if defined(PCBNV14)
@@ -460,7 +460,7 @@
 #define TR_EEPROMOVERFLOW              "EEPROM overflow"
 #define TR_RADIO_SETUP                 "НАСТРОЙКА РАДИО"
 #define TR_MENUTRAINER                 "ТРЕНЕР"
-#define TR_MENUSPECIALFUNCS            "ГЛОБАЛЬНЫЕ ФУНКЦИИ"
+#define TR_MENUSPECIALFUNCS            "ГЛОБю ФУНКЦИИ"
 #define TR_MENUVERSION                 "ВЕРСИЯ"
 #define TR_MENU_RADIO_SWITCHES         TR("ПЕРЕКЛЮЧАТЕЛИ", "ТЕСТ ПЕРЕКЛЮЧАТЕЛЕЙ")
 #define TR_MENU_RADIO_ANALOGS          TR("FYFKJUB", "ТЕСТ АНАЛОГОВ")
@@ -490,8 +490,8 @@
   #define TR_MENULIMITS                "ВЫХОДЫ"
 #define TR_MENUCURVES                  "КРИВЫЕ"
 #define TR_MENUCURVE                   "КРИВАЯ"
-#define TR_MENULOGICALSWITCH           "ЛОГ ПЕРЕКЛЮЧАТЕЛЬ"
-#define TR_MENULOGICALSWITCHES         "ЛОГ ПЕРЕКЛЮЧАТЕЛИ"
+#define TR_MENULOGICALSWITCH           "ЛОГ ПЕРЕКЛ."
+#define TR_MENULOGICALSWITCHES         "ЛОГ ПЕРЕКЛ."
 #define TR_MENUCUSTOMFUNC              "СПЕЦ ФУНКЦИИ"
 #define TR_MENUCUSTOMSCRIPTS           "ПОЛЬЗОВ СЦЕНАРИИ"
 #define TR_MENUTELEMETRY               "ТЕЛЕМЕТРИЯ"
@@ -787,8 +787,8 @@
 #define TR_EXTERNALRF                  "Внешний RF"
 #define TR_FAILSAFE                    TR(INDENT "Сбой", INDENT "Режим сбоя")
 #define TR_FAILSAFESET                 "Настройки сбоя"
-#define TR_REG_ID                      "ID регистрации"
-#define TR_OWNER_ID                    "ID владельца"
+#define TR_REG_ID                      "ID регистр."
+#define TR_OWNER_ID                    "ID владел."
 #define TR_HOLD                        "Удержание"
 #define TR_HOLD_UPPERCASE              "УДЕРЖАНИЕ"
 #define TR_NONE                        "Отсутствует"
@@ -957,13 +957,13 @@
 #define TR_PHASES_HEADERS_FAD_OUT      "Плавное исчезновение"
 
 #define TR_LIMITS_HEADERS_NAME         "Имя"
-#define TR_LIMITS_HEADERS_SUBTRIM      "Субтриммирование"
+#define TR_LIMITS_HEADERS_SUBTRIM      "Субтрим"
 #define TR_LIMITS_HEADERS_MIN          "Мин"
 #define TR_LIMITS_HEADERS_MAX          "Макс"
 #define TR_LIMITS_HEADERS_DIRECTION    "Направление"
 #define TR_LIMITS_HEADERS_CURVE        "Кривая"
 #define TR_LIMITS_HEADERS_PPMCENTER    "PPM Центр"
-#define TR_LIMITS_HEADERS_SUBTRIMMODE  "Режим субтриммирования"
+#define TR_LIMITS_HEADERS_SUBTRIMMODE  "Режим субтрим"
 #define TR_INVERTED                    "Перевернутый"
 
 
