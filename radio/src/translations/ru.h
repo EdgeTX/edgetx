@@ -112,9 +112,9 @@
 #define TR_SF_TEST                     "Тест"
 
 #if LCD_W >= 212
-  #define TR_SF_SAFETY                 "Override"
+  #define TR_SF_SAFETY                 "Переопределение"
 #else
-  #define TR_SF_SAFETY                 "Overr."
+  #define TR_SF_SAFETY                 "Переопред."
 #endif
 
 #define TR_SF_SCREENSHOT               "Скриншот"
@@ -165,9 +165,9 @@
 
 #if defined(USE_HATS_AS_KEYS)
 #define TR_HATSMODE                    "Hats mode"
-#define TR_HATSOPT                     "Trims only","Keys only","Switchable","Global"
-#define TR_HATSMODE_TRIMS              "Hats mode: Trims"
-#define TR_HATSMODE_KEYS               "Hats mode: Keys"
+#define TR_HATSOPT                     "Только тримы","Только кнопки","Переключаемый","Глобал"
+#define TR_HATSMODE_TRIMS              "Hats mode: Тримы"
+#define TR_HATSMODE_KEYS               "Hats mode: Кнопки"
 #endif
 
 #if defined(COLORLCD)
@@ -272,7 +272,7 @@
 #define TR_PROTOCOL                    TR("Прото", "Протокол")
   #define TR_PPMFRAME                  INDENT "Фрейм PPM"
   #define TR_REFRESHRATE               TR(INDENT "Обновление", INDENT "Частота обновления")
-  #define STR_WARN_BATTVOLTAGE         TR(INDENT "Выход - VBAT: ", INDENT "Предупреждение: уровень выхода - VBAT: ")
+  #define STR_WARN_BATTVOLTAGE         TR(INDENT "Выход - V АКБ: ", INDENT "Предупреждение: уровень выхода - V АКБ: ")
 #define TR_WARN_5VOLTS                 "Предупреждение: уровень выхода - 5 вольт"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Переключатель"
@@ -312,7 +312,7 @@
 #define TR_CURVE                       "Кривая"
 #define TR_FLMODE                      TR("Режим", "Режимы")
 #define TR_MIXWARNING                  "Предупреждение"
-#define TR_OFF                         "Вык"
+#define TR_OFF                         "ВЫК"
 #define TR_ANTENNA                     "Антенна"
 #define TR_NO_INFORMATION              TR("Нет информации", "Нет информации")
 #define TR_MULTPX                      "Multiplex"
@@ -358,12 +358,12 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "Нажмите enter Для подтверждения"
 #define TR_THROTTLE_LABEL              "ГАЗ"
 #define TR_THROTTLE_START              "Газ cтарт"
-#define TR_THROTTLEREVERSE             TR("Д-Реверс", INDENT "Реверс")
+#define TR_THROTTLEREVERSE             TR("Г-Реверс", INDENT "Реверс")
 #define TR_MINUTEBEEP                  TR("Минут", "Звонок минуты")
 #define TR_BEEPCOUNTDOWN               INDENT "Обр отс"
 #define TR_PERSISTENT                  TR(INDENT "Пост", INDENT "Постоянный")
 #define TR_BACKLIGHT_LABEL             "Подсветка"
-#define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_GHOST_MENU_LABEL            "Меню приз"
 #define TR_STATUS                      "Статус"
 #define TR_BLDELAY                     INDENT "Продолж"
 #define TR_BLONBRIGHTNESS              INDENT "Подсветка ВКЛ"
@@ -641,7 +641,7 @@
 #define TR_CONVERTING                  "Преобразование: "
 #define TR_THROTTLE_UPPERCASE          "THROTTLE"
 #define TR_ALARMSWARN                  "СИГНАЛЫ"
-#define TR_SWITCHWARN                  TR("SWITCH", "УПРАВЛЕНИЕ")
+#define TR_SWITCHWARN                  TR("ТУБЛЕРЫ", "ТУМБЛЕРЫ")
 #define TR_FAILSAFEWARN                "СБОЙ БЕЗОПАСНОСТИ"
 #define TR_TEST_WARNING                TR("ТЕСТИРОВАНИЕ", "ТЕСТОВАЯ ВЕРСИЯ")
 #define TR_TEST_NOTSAFE                "Используйте только для тестов"
@@ -651,12 +651,12 @@
 #define TR_BATTERY                     "АКБ"
 #define TR_WRONG_PCBREV                "Обнаружена неправильная версия платы"
 #define TR_EMERGENCY_MODE              "РЕЖИМ ЧРЕЗВЫЧАЙНОЙ СИТУАЦИИ"
-#define TR_NO_FAILSAFE                 "Предохранитель не настроен"
+#define TR_NO_FAILSAFE                 "FAILSAFE не настроен"
 #define TR_KEYSTUCK                    "Застрявшая клавиша"
 #define TR_VOLUME                      "Громкость"
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "Подсветка"
-#define TR_CPU_TEMP                    "CPU Темп."
+#define TR_CPU_TEMP                    "Проц. Темп."
 #define TR_CPU_CURRENT                 "Ток"
 #define TR_CPU_MAH                     "Расход"
 #define TR_COPROC                      "Копроцессор"
@@ -686,7 +686,7 @@
 #define TR_ASSIGN_BITMAP               "Назначить изображение"
 #define TR_ASSIGN_SPLASH               "Экран приветствия"
 #define TR_EXECUTE_FILE                "Запустить"
-#define TR_REMOVED                     " удалено"
+#define TR_REMOVED                     "Удалено"
 #define TR_SD_INFO                     "Информация"
 #define TR_NA                          "Н/Д"
 #define TR_HARDWARE                    "АППАРАТНОЕ ОБЕСП"
@@ -750,8 +750,8 @@
 #define TR_CHANNELS_MONITOR            "МОНИТОР КАНАЛОВ"
 #define TR_MIXERS_MONITOR              "МОНИТОР МИКСЕРОВ"
 #define TR_PATH_TOO_LONG               "Путь Слишком Длинный"
-#define TR_VIEW_TEXT                   "View text"
-#define TR_FLASH_BOOTLOADER            "Прошить bootloader"
+#define TR_VIEW_TEXT                   "Просмотр текста"
+#define TR_FLASH_BOOTLOADER            "Прошить загрузчик"
 #define TR_FLASH_DEVICE                TR("Прошить Устройство","Прошить Устройство")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Записать S.Port", "Записать устройство S.Port")
 #define TR_FLASH_RECEIVER_OTA          "Записать приемник через OTA"
@@ -782,7 +782,7 @@
 #define TR_EXTERNAL_MODULE             TR("Внеш. Модуль", "Внешний Модуль")
 #define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX требуется обновление"
 #define TR_TELEMETRY_DISABLED          "Телем. Отключена"
-#define TR_MORE_OPTIONS_AVAILABLE      "More options available"
+#define TR_MORE_OPTIONS_AVAILABLE      "Доступно больше опций"
 #define TR_NO_MODULE_INFORMATION       "Нет информации о модуле"
 #define TR_EXTERNALRF                  "Внешний RF"
 #define TR_FAILSAFE                    TR(INDENT "Сбой", INDENT "Режим сбоя")
@@ -825,9 +825,9 @@
 #define TR_RESET_TIMER3                "Удалить таймер3"
 #define TR_RESET_TELEMETRY             "Удалить телеметрию"
 #define TR_STATISTICS                  "Статистика"
-#define TR_ABOUT_US                    "About"
-#define TR_USB_JOYSTICK                "USB Joystick (HID)"
-#define TR_USB_MASS_STORAGE            "USB Память (SD)"
+#define TR_ABOUT_US                    "Об"
+#define TR_USB_JOYSTICK                "USB Джойстик (HID)"
+#define TR_USB_MASS_STORAGE            "USB Карта SD (SD)"
 #define TR_USB_SERIAL                  "USB Serial (VCP)"
 #define TR_SETUP_SCREENS               "Выбор экранов"
 #define TR_MONITOR_SCREENS             "Мониторы"
@@ -911,7 +911,7 @@
 #define TR_CLEAR                       "Очистить"
 #define TR_RESET                       "Сброс"
 #define TR_RESET_SUBMENU               "Сброс..."
-#define TR_COUNT                       "Количество"
+#define TR_COUNT                       "Колличество"
 #define TR_PT                          "pt"
 #define TR_PTS                         "pts"
 #define TR_SMOOTH                      "Плавно"
@@ -1001,7 +1001,7 @@
 // Bootloader common - Ascii only
 #define TR_BL_USB_CONNECTED           "Подключение по USB"
 #define TR_BL_USB_PLUGIN              "Или подключите USB-кабель"
-#define TR_BL_USB_MASS_STORE          "for mass storage"
+#define TR_BL_USB_MASS_STORE          "Для массового хранения"
 #define TR_BL_USB_PLUGIN_MASS_STORE   "Или подключите USB-кабель для сохранения данных"
 #define TR_BL_WRITE_FW                "Запись ПО"
 #define TR_BL_FORK                    "Вилка:"
@@ -1043,9 +1043,9 @@
    // Bootloader NV14 specific - Ascii only
   #define TR_BL_RF_USB_ACCESS         "Доступ к RF USB"
   #define TR_BL_CURRENT_FW            "Текущая прошивка:"
-  #define TR_BL_SELECT_KEY            "[R TRIM] для выбора файла"
-  #define TR_BL_FLASH_KEY             "Удерживайте [R TRIM] для прошивки"
-  #define TR_BL_EXIT_KEY              "[L TRIM] для выхода"
+  #define TR_BL_SELECT_KEY            "[П ТРИМ] для выбора файла"
+  #define TR_BL_FLASH_KEY             "Удерживайте [П ТРИМ] для прошивки"
+  #define TR_BL_EXIT_KEY              "[Л ТРИМ] для выхода"
   #define TR_BL_ENABLE                "Включить"
   #define TR_BL_DISABLE               "Выключить"
 #endif
@@ -1145,7 +1145,7 @@
 #if LCD_W > LCD_H
   #define TR_OPEN_CHANNEL_MONITORS      "Монитор Открытого Канала"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS        "Мон. Открытого Канала"
+  #define TR_OPEN_CHANNEL_MONITORS      "Мон. Открытого Канала"
 #endif
 #define TR_DUPLICATE                    "Дюбликат"
 #define TR_ACTIVATE                     "Активный"
@@ -1226,7 +1226,7 @@
 #define TR_VUSBJOYSTICK_CH_MODE_S      "-","B","A","S"
 #define TR_USBJOYSTICK_CH_BTNMODE      "Режим Кнопки"
 #define TR_VUSBJOYSTICK_CH_BTNMODE     "Обычный","Импульс","Эмул перек","Дельта","Компаньон"
-#define TR_VUSBJOYSTICK_CH_BTNMODE_S   TR("Norm","Normal"),TR("Puls","Pulse"),TR("SWEm","SWEmul"),TR("Delt","Delta"),TR("CPN","Companion")
+#define TR_VUSBJOYSTICK_CH_BTNMODE_S   TR("Норм","Нормально"),TR("Пульс","Пульс"),TR("SWEm","SWEmul"),TR("Дел","Дельта"),TR("КОМП","Компаньон")
 #define TR_USBJOYSTICK_CH_SWPOS        "Положения"
 #define TR_VUSBJOYSTICK_CH_SWPOS       "Нажатие","2-поз","3-поз","4-поз","5-поз","6-поз","7-поз","8-поз"
 #define TR_USBJOYSTICK_CH_AXIS         "Ось"
