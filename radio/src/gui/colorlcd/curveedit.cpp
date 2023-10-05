@@ -352,6 +352,7 @@ void CurveEditWindow::buildBody(FormWindow * window)
                                  }
                              });
   edit->setSuffix(STR_PTS);
+  edit->setDefault(5);
 
   iLine = form->newLine(&iGrid);
   iLine->padAll(0);
