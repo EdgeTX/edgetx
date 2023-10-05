@@ -41,6 +41,7 @@ option(RAS "RAS (SWR) enabled" ON)
 option(TEMPLATES "Model templates menu" OFF)
 option(TRACE_SIMPGMSPACE "Turn on traces in simpgmspace.cpp" ON)
 option(TRACE_LUA_INTERNALS "Turn on traces for Lua internals" OFF)
+option(TRACE_AUDIO "Traces audio enabled" OFF)
 option(DEBUG_SEGGER_RTT "Debug output to Segger RTT" OFF)
 option(DEBUG_WINDOWS "Turn on windows traces" OFF)
 option(DEBUG_YAML "Turn on YAML traces" OFF)
@@ -284,6 +285,12 @@ if(TRACE_LUA_INTERNALS)
   add_definitions(-DTRACE_LUA_INTERNALS_ENABLED)
 endif()
 
+if(TRACE_AUDIO)
+  add_definitions(-DTRACE_AUDIO)
+  set(DEBUG ON)
+  set(DEBUG_TRACE_BUFFER ON)
+endif()
+
 if(DEBUG_SEGGER_RTT)
     add_definitions(-DDEBUG_SEGGER_RTT)
     set(SRC ${SRC} ${THIRDPARTY_DIR}/Segger_RTT/RTT/SEGGER_RTT.c)
@@ -386,6 +393,8 @@ set(SRC
   trainer.cpp
   model_init.cpp
   serial.cpp
+  audio.cpp
+  model_audio.cpp
   sbus.cpp
   input_mapping.cpp
   inactivity_timer.cpp

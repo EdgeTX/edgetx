@@ -22,11 +22,14 @@
 #include "opentx.h"
 #include <math.h>
 
+#include "strhelpers.h"
 #include "switches.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #endif
+
+#include "model_audio.h"
 
 extern RTOS_MUTEX_HANDLE audioMutex;
 
@@ -306,82 +309,17 @@ void referenceSystemAudioFiles()
   }
 }
 
-const char * const suffixes[] = { "-off", "-on" };
-
-char *getModelAudioPath(char *path)
-{
-  strcpy(path, SOUNDS_PATH "/");
-  strncpy(path + SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
-  char *buf = strcat_currentmodelname(path + sizeof(SOUNDS_PATH), ' ');
-
-  if (!isFileAvailable(path)) {
-    buf = strcat_currentmodelname(path + sizeof(SOUNDS_PATH), 0);
-  }
-
-  *buf++ = '/';
-  *buf = '\0';
-  return buf;
-}
-
-void getFlightmodeAudioFile(char * filename, int index, unsigned int event)
-{
-  char * str = getModelAudioPath(filename);
-  char * tmp = strcatFlightmodeName(str, index);
-  strcpy(tmp, suffixes[event]);
-  strcat(tmp, SOUNDS_EXT);
-}
-
-void getSwitchAudioFile(char * filename, swsrc_t index)
-{
-  char * str = getModelAudioPath(filename);
-
-  if (index <= SWSRC_LAST_SWITCH) {
-    div_t swinfo = switchInfo(index);
-    *str++ = 'S';
-    *str++ = switchGetLetter(swinfo.quot);
-    const char * positions[] = { "-up", "-mid", "-down" };
-    strcpy(str, positions[swinfo.rem]);
-  }
-  else {
-    div_t swinfo = div((int)(index - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
-    *str++ = 'S';
-    *str++ = '1' + swinfo.quot;
-    *str++ = '1' + swinfo.rem;
-    *str = '\0';
-  }
-  strcat(str, SOUNDS_EXT);
-}
-
-void getLogicalSwitchAudioFile(char * filename, int index, unsigned int event)
-{
-  char * str = getModelAudioPath(filename);
-
-  *str++ = 'L';
-  if (index >= 9) {
-    div_t qr = div(index+1, 10);
-    *str++ = '0' + qr.quot;
-    *str++ = '0' + qr.rem;
-  }
-  else {
-    *str++ = '1' + index;
-  }
-
-  strcpy(str, suffixes[event]);
-  strcat(str, SOUNDS_EXT);
-}
-
 void referenceModelAudioFiles()
 {
-  char path[AUDIO_FILENAME_MAXLEN+1];
-  FILINFO fno;
   DIR dir;
+  FILINFO fno;
+  char path[AUDIO_FILENAME_MAXLEN+1];
 
   sdAvailableFlightmodeAudioFiles.reset();
   sdAvailableSwitchAudioFiles.reset();
   sdAvailableLogicalSwitchAudioFiles.reset();
 
-  char * filename = getModelAudioPath(path);
-  *(filename-1) = '\0';
+  getModelAudioPath(path);
 
   FRESULT res = f_opendir(&dir, path);        /* Open the directory */
   if (res == FR_OK) {
@@ -392,46 +330,29 @@ void referenceModelAudioFiles()
       bool found = false;
 
       // Eliminates directories / non wav files
-      if (len < 5 || strcasecmp(fno.fname+len-4, SOUNDS_EXT) || (fno.fattrib & AM_DIR)) continue;
+      if (fno.fattrib & AM_DIR) continue;
+      if (len < sizeof(SOUNDS_EXT)) continue;
+
+      char* ext = fno.fname + len - (sizeof(SOUNDS_EXT) - 1);
+      if (strcasecmp(ext, SOUNDS_EXT)) continue;
+
       TRACE("referenceModelAudioFiles(): using file: %s", fno.fname);
 
-      // Flight modes Audio Files <flightmodename>-[on|off].wav
-      for (int i=0; i<MAX_FLIGHT_MODES && !found; i++) {
-        for (int event=0; event<2; event++) {
-          getFlightmodeAudioFile(path, i, event);
-          // TRACE("referenceModelAudioFiles(): searching for %s in %s", filename, fno.fname);
-          if (!strcasecmp(filename, fno.fname)) {
-            sdAvailableFlightmodeAudioFiles.setBit(INDEX_PHASE_AUDIO_FILE(i, event));
-            found = true;
-            TRACE("\tfound: %s", filename);
-            break;
-          }
-        }
+      int idx, event;
+      if (matchModeAudioFile(fno.fname, idx, event)) {
+        sdAvailableFlightmodeAudioFiles.setBit(INDEX_PHASE_AUDIO_FILE(idx, event));
+        continue;
       }
 
-      // Switches Audio Files <switchname>-[up|mid|down].wav
-      for (unsigned i = 0; i <= MAX_SWITCH_POSITIONS && !found; i++) {
-        getSwitchAudioFile(path, SWSRC_FIRST_SWITCH+i);
-        // TRACE("referenceModelAudioFiles(): searching for %s in %s (%d)", path, fno.fname, i);
-        if (!strcasecmp(filename, fno.fname)) {
-          sdAvailableSwitchAudioFiles.setBit(i);
-          found = true;
-          TRACE("\tfound: %s", filename);
-        }
+      if (matchSwitchAudioFile(fno.fname, idx)) {
+        sdAvailableSwitchAudioFiles.setBit(idx);
+        continue;
       }
 
-      // Logical Switches Audio Files <switchname>-[on|off].wav
-      for (int i=0; i<MAX_LOGICAL_SWITCHES && !found; i++) {
-        for (int event=0; event<2; event++) {
-          getLogicalSwitchAudioFile(path, i, event);
-          // TRACE("referenceModelAudioFiles(): searching for %s in %s", filename, fno.fname);
-          if (!strcasecmp(filename, fno.fname)) {
-            sdAvailableLogicalSwitchAudioFiles.setBit(INDEX_LOGICAL_SWITCH_AUDIO_FILE(i, event));
-            found = true;
-            TRACE("\tfound: %s", filename);
-            break;
-          }
-        }
+      if (matchLogicalSwitchAudioFile(fno.fname, idx, event)) {
+        sdAvailableLogicalSwitchAudioFiles.setBit(
+            INDEX_LOGICAL_SWITCH_AUDIO_FILE(idx, event));
+        continue;
       }
     }
     f_closedir(&dir);
@@ -460,7 +381,7 @@ bool isAudioFileReferenced(uint32_t i, char * filename)
   }
   else if (category == SWITCH_AUDIO_CATEGORY) {
     if (sdAvailableSwitchAudioFiles.getBit(index)) {
-      getSwitchAudioFile(filename, SWSRC_FIRST_SWITCH+index);
+      getSwitchAudioFile(filename, SWSRC_FIRST_SWITCH + index);
       return true;
     }
   }
