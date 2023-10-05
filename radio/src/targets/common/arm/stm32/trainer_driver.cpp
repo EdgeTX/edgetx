@@ -377,7 +377,7 @@ void stop_trainer_module_sbus()
   if (!sbus_trainer_mod_st) return;
   modulePortDeInit(sbus_trainer_mod_st);
   modulePortSetPower(EXTERNAL_MODULE,false);
-  sbus_trainer_mod_st= nullptr;
+  sbus_trainer_mod_st = nullptr;
 }
 
 int trainerModuleSbusGetByte(uint8_t* data)
