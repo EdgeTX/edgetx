@@ -50,9 +50,9 @@
 #define TR_TRNMODE                     "ВЫКЛ",TR("+=","Добавить"),TR(":=","Заменить")
 #define TR_TRNCHN                      "КН1","КН2","КН3","КН4"
 
-#define TR_AUX_SERIAL_MODES            "Выключено","Зеркало телемет","Телемет входящая","SBUS тренажер","LUA","CLI","GPS","Отладка","SpaceMouse","Внешний модуль"
+#define TR_AUX_SERIAL_MODES            "Выключено","Зер. телем.","Телемет входящая","SBUS тренаж","LUA","CLI","GPS","Отладка","SpaceMouse","Внешний модуль"
 #define TR_SWTYPES                     "Нет","Переключ","2Х-Поз пер","3Х-Поз пер"
-#define TR_POTTYPES                    "Нет",TR("Потен с шагом","Потен с шагом"),TR("Мн Поз пер","Многопоз перекл"),"Потенциометр","Слайдер"
+#define TR_POTTYPES                    "Нет",TR("Потен с шаг","Потен с шагом"),TR("Мн Поз пер","Многопоз перекл"),"Потенц","Слайдер"
 #define TR_VPERSISTENT                 "Выключено","Полет","Ручной сброс"
 #define TR_COUNTRY_CODES               TR("US","США"),TR("JP","Япония"),TR("EU","Европа")
 #define TR_USBMODES                    "Выбор",TR("Джойстик","Джойстик"),TR("SD-карта","Хранилище"),"Серийный"
@@ -67,7 +67,7 @@
 #define TR_VVARIOCENTER                "Тон","тихо"
 #define TR_CURVE_TYPES                 "Стандарт","Выбор"
 
-#define TR_ADCFILTERVALUES             "Глобал","ВЫК","ВКЛ"
+#define TR_ADCFILTERVALUES             "Глоб","ВЫК","ВКЛ"
 
 #define TR_VCURVETYPE                  "Разн", "Экспо", "Функц", "Польз"
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
@@ -120,7 +120,7 @@
 #define TR_SF_SCREENSHOT               "Скриншот"
 #define TR_SF_RACING_MODE              "Режим гонка"
 #define TR_SF_DISABLE_TOUCH            "Сенсор ВЫК"
-#define TR_SF_DISABLE_AUDIO_AMP        "Выключить аудио усилитель"
+#define TR_SF_DISABLE_AUDIO_AMP        "ВЫК аудио усил."
 #define TR_SF_SET_SCREEN               "Выбрать главный экран"
 
 #define TR_FSW_RESET_TELEM             TR("Телем", "Телеметрия")
@@ -197,15 +197,15 @@
 #define TR_VTMRMODES                   "ВЫКЛ","ВКЛ","Strt","THs","TH%","THt"
 #define TR_VTRAINER_MASTER_OFF         "ВЫКЛ"
 #define TR_VTRAINER_MASTER_JACK        "Мастер/Разъем"
-#define TR_VTRAINER_SLAVE_JACK         "Рабочий/Разъем"
+#define TR_VTRAINER_SLAVE_JACK         "Раб/Разъемг"
 #define TR_VTRAINER_MASTER_SBUS_MODULE "Мастер/SBUS Модуль"
 #define TR_VTRAINER_MASTER_CPPM_MODULE "Мастер/CPPM Модуль"
 #define TR_VTRAINER_MASTER_BATTERY     "Мастер/Серийный"
 #define TR_VTRAINER_BLUETOOTH          "Мастер/" TR("BT","Bluetooth"), "Рабочий/" TR("BT","Bluetooth")
 #define TR_VTRAINER_MULTI              "Мастер/Мульти"
 #define TR_VFAILSAFE                   "Не установлено","Удержание","Настроенный","Нет импульсов","Приемник"
-#define TR_VSENSORTYPES                "Настроенный","Рассчитанный"
-#define TR_VFORMULAS                   "Добавить","Среднее","Минимум","Максимум","Умножить","Суммировать","Ячейка","Расход","Дистанция"
+#define TR_VSENSORTYPES                "Настроен.","Рассчитан."
+#define TR_VFORMULAS                   "Добавить","Среднее","Минимум","Максимум","Умножить","Суммиров","Ячейка","Расход","Дистанция"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
 #define TR_VCELLINDEX                  "Низший","1","2","3","4","5","6","7","8","Высший","Дельта"
 #define TR_TEXT_SIZE                   "Стандартный", "Крошечный", "Маленький", "Средний", "Двойной"
@@ -379,8 +379,8 @@
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Пол. %", "Положение %")
 #define TR_SWITCHWARNING               TR(INDENT "П-Предупр", INDENT "Позиция переключателя")
 #define TR_POTWARNINGSTATE             TR(INDENT "Состояние потенциометров и слайдеров", INDENT "Потенциометры и слайдеры")
-#define TR_SLIDERWARNING               TR(INDENT "Полож. Перек.", INDENT "Положение Переключателя")
-#define TR_POTWARNING                  TR(INDENT "Предупр. о положении потенциометра", INDENT "Положение потенциометра")
+#define TR_SLIDERWARNING               TR(INDENT "Полож. перек.", INDENT "Положение ереключателя")
+#define TR_POTWARNING                  TR(INDENT "Полож. пот", INDENT "Положение потенциометра")
 #define TR_TIMEZONE                    "Временная зона"
 #define TR_ADJUST_RTC                  "Настроить RTC"
 #define TR_GPS                         "GPS"
@@ -460,7 +460,7 @@
 #define TR_EEPROMOVERFLOW              "EEPROM overflow"
 #define TR_RADIO_SETUP                 "НАСТРОЙКА РАДИО"
 #define TR_MENUTRAINER                 "ТРЕНЕР"
-#define TR_MENUSPECIALFUNCS            "ГЛОБю ФУНКЦИИ"
+#define TR_MENUSPECIALFUNCS            "ГЛОБ ФУНКЦИИ"
 #define TR_MENUVERSION                 "ВЕРСИЯ"
 #define TR_MENU_RADIO_SWITCHES         TR("ПЕРЕКЛЮЧАТЕЛИ", "ТЕСТ ПЕРЕКЛЮЧАТЕЛЕЙ")
 #define TR_MENU_RADIO_ANALOGS          TR("FYFKJUB", "ТЕСТ АНАЛОГОВ")
@@ -641,7 +641,7 @@
 #define TR_CONVERTING                  "Преобразование: "
 #define TR_THROTTLE_UPPERCASE          "THROTTLE"
 #define TR_ALARMSWARN                  "СИГНАЛЫ"
-#define TR_SWITCHWARN                  TR("ТУБЛЕРЫ", "ТУМБЛЕРЫ")
+#define TR_SWITCHWARN                  TR("SWITCH", "SWITCH")
 #define TR_FAILSAFEWARN                "СБОЙ БЕЗОПАСНОСТИ"
 #define TR_TEST_WARNING                TR("ТЕСТИРОВАНИЕ", "ТЕСТОВАЯ ВЕРСИЯ")
 #define TR_TEST_NOTSAFE                "Используйте только для тестов"
@@ -831,7 +831,7 @@
 #define TR_USB_SERIAL                  "USB Serial (VCP)"
 #define TR_SETUP_SCREENS               "Выбор экранов"
 #define TR_MONITOR_SCREENS             "Мониторы"
-#define TR_AND_SWITCH                  "AND Переключатель"
+#define TR_AND_SWITCH                  "AND Перек."
 #define TR_SF                          "SF"
 #define TR_GF                          "GF"
 #define TR_ANADIAGS_CALIB              "Калибровка Аналогов"
@@ -860,8 +860,8 @@
 #define TR_RECEIVER_OPTIONS            TR("ОПЦИИ ПРИЕМНИКА", "ОПЦИИ ПРИЕМНИКА")
 #define TR_RESET_BTN                   BUTTON("Сброс")
 #define TR_DEBUG                       "Отладка"
-#define TR_KEYS_BTN                    BUTTON("Кнопки")
-#define TR_ANALOGS_BTN                 BUTTON(TR("Аналог", "Аналоги"))
+#define TR_KEYS_BTN                    BUTTON("Кноп")
+#define TR_ANALOGS_BTN                 BUTTON(TR("Анлг", "Аналоги"))
 #define TR_FS_BTN                      BUTTON(TR("Пользовательский переключатель", TR_FUNCTION_SWITCHES))
 #define TR_TOUCH_NOTFOUND              "Сенсорный аппарат не найден"
 #define TR_TOUCH_EXIT                  "Нажмите на сенсорный экран, чтобы выйти"
@@ -913,10 +913,10 @@
 #define TR_RESET_SUBMENU               "Сброс..."
 #define TR_COUNT                       "Колличество"
 #define TR_PT                          "pt"
-#define TR_PTS                         "pts"
+#define TR_PTS                         "штк"
 #define TR_SMOOTH                      "Плавно"
 #define TR_COPY_STICKS_TO_OFS          TR("Коп стики->субтрим", "Копировать стики в субтрим")
-#define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Коп mмин/макс во все вых", "Копировать мин/макс/центр во все выходы")
+#define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Коп мин/макс во все вых", "Копировать мин/макс/центр во все выходы")
 #define TR_COPY_TRIMS_TO_OFS           TR("Коп трим->субтрим", "Копировать тримы в субтрим")
 #define TR_INCDEC                      "Увеличение/Уменьшение"
 #define TR_GLOBALVAR                   "Глобальная переменная"
@@ -1078,17 +1078,17 @@
 #define TR_PRECISION                   "Точность"
 #define TR_RATIO                       "Коэффициент"
 #define TR_FORMULA                     "Формула"
-#define TR_CELLINDEX                   "Индекс ячейки"
+#define TR_CELLINDEX                   "Инд. ячейки"
 #define TR_LOGS                        "Логи"
 #define TR_OPTIONS                     "Опции"
 #define TR_FIRMWARE_OPTIONS            "Опции ПО"
 
-#define TR_ALTSENSOR                   "Датчик высоты"
-#define TR_CELLSENSOR                  "Датчик аккумулятора"
+#define TR_ALTSENSOR                   "Датчик высот"
+#define TR_CELLSENSOR                  "Датчик АКБ"
 #define TR_GPSSENSOR                   "Датчик GPS"
 #define TR_CURRENTSENSOR               "Датчик тока"
-#define TR_AUTOOFFSET                  "Авто смещение"
-#define TR_ONLYPOSITIVE                "Положительное"
+#define TR_AUTOOFFSET                  "Авто смещ."
+#define TR_ONLYPOSITIVE                "Положител."
 #define TR_FILTER                      "Фильтр"
 #define TR_TELEMETRYFULL               TR("Все слоты заняты!", "Все слоты телеметрии заняты!")
 #define TR_INVERTED_SERIAL             INDENT "Инвертировать"
@@ -1097,7 +1097,7 @@
 #define TR_DISCOVER_SENSORS            "Поиск нов датч"
 #define TR_STOP_DISCOVER_SENSORS       "Остановить"
 #define TR_DELETE_ALL_SENSORS          "Удалить все"
-#define TR_CONFIRMDELETE               "Действительно удалить все?"
+#define TR_CONFIRMDELETE               "Удалить все?"
 #define TR_SELECT_WIDGET               "Выбрать виджет"
 #define TR_WIDGET_FULLSCREEN           "Полноэкранный режим"
 #define TR_REMOVE_WIDGET               "Удалить виджет"
@@ -1207,7 +1207,7 @@
 #define TR_VOICE_HUNGARIAN              "Венгерский"
 #define TR_VOICE_ITALIANO               "Итальянский"
 #define TR_VOICE_POLISH                 "Польский"
-#define TR_VOICE_PORTUGUES              "Португальский"
+#define TR_VOICE_PORTUGUES              "Португальск"
 #define TR_VOICE_RUSSIAN                "Русский"
 #define TR_VOICE_SLOVAK                 "Словацкий"
 #define TR_VOICE_SWEDISH                "Шведский"
