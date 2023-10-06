@@ -234,7 +234,7 @@ static void* crossfireInit(uint8_t module)
   if (module == EXTERNAL_MODULE) {
 
     params.baudrate = EXT_CROSSFIRE_BAUDRATE;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
   }
 #endif
 
