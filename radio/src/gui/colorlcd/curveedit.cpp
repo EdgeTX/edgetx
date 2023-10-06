@@ -219,7 +219,6 @@ void CurveDataEdit::buildSettings()
   });
   smooth->check(g_model.curves[index].smooth);
   smooth->padAll(2);
-  smooth->setHeight(26);
   lv_obj_set_grid_cell(smooth->getLvObj(), LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
   // Type
@@ -266,6 +265,7 @@ void CurveDataEdit::buildSettings()
                                  }
                              });
   edit->setSuffix(STR_PTS);
+  edit->setWidth(width() * 5 / 18 - 4);
   lv_obj_set_grid_cell(edit->getLvObj(), LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 1, 1);
 }
 
