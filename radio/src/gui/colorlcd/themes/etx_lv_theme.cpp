@@ -177,7 +177,7 @@ static void style_init(void)
     lv_style_init(&styles.field);
     lv_style_set_bg_opa(&styles.field, LV_OPA_COVER);
     lv_style_set_pad_top(&styles.field, 4);
-    lv_style_set_pad_bottom(&styles.field, 5);
+    lv_style_set_pad_bottom(&styles.field, 3);
     lv_style_set_pad_left(&styles.field, 4);
     lv_style_set_pad_right(&styles.field, 4);
 
