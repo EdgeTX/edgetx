@@ -873,6 +873,7 @@
 #define TR_INTERVAL                    "インターバル"
 #define TR_REPEAT                      "リピート"
 #define TR_ENABLE                      "有効"
+#define TR_DISABLE                     "Disable"
 #define TR_TOPLCDTIMER                 "上部LCDタイマー"
 #define TR_UNIT                        "ユニット"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "新規追加"
@@ -1039,8 +1040,6 @@
   #define TR_BL_SELECT_KEY            "[R TRIM] to select file"
   #define TR_BL_FLASH_KEY             "Hold [R TRIM] long to flash"
   #define TR_BL_EXIT_KEY              " [L TRIM] to exit"
-  #define TR_BL_ENABLE                "Enable"
-  #define TR_BL_DISABLE               "Disable"
 #endif
 
 // About screen

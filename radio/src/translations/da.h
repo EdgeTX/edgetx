@@ -883,6 +883,7 @@
 #define TR_INTERVAL                    "Interval"
 #define TR_REPEAT                      "Gentag"
 #define TR_ENABLE                      "Aktiver"
+#define TR_DISABLE                     "Deaktiver"
 #define TR_TOPLCDTIMER                 "Top LCD ur"
 #define TR_UNIT                        "Enhed"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Tilføj ny"
@@ -1048,8 +1049,6 @@
   #define TR_BL_SELECT_KEY            "[R TRIM] for at bruge fil"
   #define TR_BL_FLASH_KEY             "[R TRIM] lang til for at starte"
   #define TR_BL_EXIT_KEY              "[L TRIM] for at forlade"
-  #define TR_BL_ENABLE                "Aktiver"
-  #define TR_BL_DISABLE               "Deaktiver"
 #endif
 
 // About screen

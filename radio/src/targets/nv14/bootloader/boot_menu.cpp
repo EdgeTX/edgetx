@@ -216,7 +216,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       bootloaderDrawTitle(TR_BL_RF_USB_ACCESS);
 
       lcd->drawText(62, 75, LV_SYMBOL_USB, BL_FOREGROUND);
-      coord_t pos = lcd->drawText(84, 75, rfUsbAccess ? TR_BL_DISABLE : TR_BL_ENABLE, BL_FOREGROUND);
+      coord_t pos = lcd->drawText(84, 75, rfUsbAccess ? TR_DISABLE : TR_ENABLE, BL_FOREGROUND);
       pos += 8;
 
       lcd->drawText(60, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);

@@ -883,6 +883,7 @@
 #define TR_INTERVAL                    "Interval"
 #define TR_REPEAT                      "מספר חזרות"
 #define TR_ENABLE                      "זמין"
+#define TR_DISABLE                     "אל תאפשר"
 #define TR_TOPLCDTIMER                 "Top LCD Timer"
 #define TR_UNIT                        "יחידה"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "הוסף חדש"
@@ -1053,8 +1054,6 @@
   #define TR_BL_SELECT_KEY            "[R TRIM] to select file"
   #define TR_BL_FLASH_KEY             "Hold [R TRIM] long to flash"
   #define TR_BL_EXIT_KEY              " [L TRIM] ליציאה"
-  #define TR_BL_ENABLE                "אפשר"
-  #define TR_BL_DISABLE               "אל תאפשר"
 #endif
 
 // About screen

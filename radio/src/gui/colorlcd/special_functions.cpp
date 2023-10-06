@@ -865,6 +865,23 @@ void SpecialFunctionsPage::build(FormWindow *window)
             pasteSpecialFunction(window, i, button);
           });
         }
+        CustomFunctionData *cfn = &functions[i];
+        uint8_t func = CFN_FUNC(cfn);
+        if (HAS_ENABLE_PARAM(func)) {
+          if (CFN_ACTIVE(cfn)) {
+            menu->addLine(STR_DISABLE, [=]() {
+              CFN_ACTIVE(cfn) = 0;
+              SET_DIRTY();
+              rebuild(window);
+            });
+          } else {
+            menu->addLine(STR_ENABLE, [=]() {
+              CFN_ACTIVE(cfn) = 1;
+              SET_DIRTY();
+              rebuild(window);
+            });
+          }
+        }
         if (functions[MAX_SPECIAL_FUNCTIONS - 1].isEmpty()) {
           for (int j = i; j < MAX_SPECIAL_FUNCTIONS; j++) {
             if (!functions[j].isEmpty()) {

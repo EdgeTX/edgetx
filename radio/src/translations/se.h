@@ -899,6 +899,7 @@
 #define TR_INTERVAL                     "Intervall"
 #define TR_REPEAT                       "Upprepa"
 #define TR_ENABLE                       "Aktivera"
+#define TR_DISABLE                      "Inaktivera"
 #define TR_TOPLCDTIMER                  "Översta LCD timer"
 #define TR_UNIT                         "Enhet"
 #define TR_TELEMETRY_NEWSENSOR          INDENT "Lägg till..."
@@ -1072,8 +1073,6 @@
   #define TR_BL_SELECT_KEY              "[R TRIM] foer att vaelja fil"
   #define TR_BL_FLASH_KEY               "Tryck [R TRIM] foer att flasha"
   #define TR_BL_EXIT_KEY                " [L TRIM] för att avsluta"
-  #define TR_BL_ENABLE                  "Aktivera"
-  #define TR_BL_DISABLE                 "Inaktivera"
 #endif
 
 // About screen

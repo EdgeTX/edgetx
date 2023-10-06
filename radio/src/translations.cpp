@@ -629,6 +629,7 @@ const char STR_PERIOD[] = TR_PERIOD;
 const char STR_INTERVAL[] = TR_INTERVAL;
 const char STR_REPEAT[] = TR_REPEAT;
 const char STR_ENABLE[] = TR_ENABLE;
+const char STR_DISABLE[] = TR_DISABLE;
 const char STR_TOPLCDTIMER[] = TR_TOPLCDTIMER;
 const char STR_UNIT[] = TR_UNIT;
 const char STR_TELEMETRY_NEWSENSOR[] = TR_TELEMETRY_NEWSENSOR;
