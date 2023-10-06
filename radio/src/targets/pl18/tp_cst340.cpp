@@ -376,9 +376,6 @@ static uint8_t cst340_TS_DetectTouch()
 {
   uint8_t nbTouch;
   uint8_t reg = TS_IO_Read(TOUCH_CST340_I2C_ADDRESS, CST340_FINGER1_REG);
-#if defined(DEBUG)
-  TRACE("cst340_TS_DetectTouch: reg=%d", reg);
-#endif  
   if( reg == 0x06 )
     nbTouch = 1;
   else
@@ -484,9 +481,24 @@ void handleTouch()
   }
 }
 
+static bool lastHasTouch = false;
 bool touchPanelEventOccured()
 {
-  return touchEventOccured;
+  bool result = touchEventOccured;
+  uint8_t hasTouch = false;
+  if (touchEventOccured) {
+    hasTouch = tc->detectTouch();
+    if (!hasTouch && !lastHasTouch) {
+      touchEventOccured = false;
+      result = false;
+    }
+    lastHasTouch = hasTouch;
+  }
+
+#if defined(DEBUG)
+  TRACE("TouchEvent: %d, %d, %d, %d", touchEventOccured, lastHasTouch, hasTouch, result);
+#endif
+  return result;      
 }
 
 TouchState touchPanelRead()
