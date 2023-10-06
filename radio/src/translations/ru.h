@@ -880,6 +880,7 @@
 #define TR_INTERVAL                    "Интервал"
 #define TR_REPEAT                      "Повтор"
 #define TR_ENABLE                      "Включено"
+#define TR_DISABLE                     "Выключено"
 #define TR_TOPLCDTIMER                 "Верхний таймер LCD"
 #define TR_UNIT                        "Единица"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Добавить новый"
@@ -1046,8 +1047,6 @@
   #define TR_BL_SELECT_KEY            "[П ТРИМ] для выбора файла"
   #define TR_BL_FLASH_KEY             "Удерживайте [П ТРИМ] для прошивки"
   #define TR_BL_EXIT_KEY              "[Л ТРИМ] для выхода"
-  #define TR_BL_ENABLE                "Включить"
-  #define TR_BL_DISABLE               "Выключить"
 #endif
 
 // About screen
