@@ -48,7 +48,7 @@ const MLinkSensor mlinkSensors[] = {
   MS(MLINK_FLOW,            STR_SENSOR_FLOW,              UNIT_MILLILITERS,       0),
   MS(MLINK_DISTANCE,        STR_SENSOR_DIST,              UNIT_KM,                1),
   MS(MLINK_GRATE,           STR_SENSOR_ACC,               UNIT_G,                 1),
-  MS(MLINK_LQI,             STR_SENSOR_RSSI,              UNIT_RAW,               0),
+  MS(MLINK_LQI,             STR_SENSOR_RX_QUALITY,        UNIT_PERCENT,           0),
   MS(MLINK_LOSS,            STR_SENSOR_LOSS,              UNIT_RAW,               0),
   MS(MLINK_TX_RSSI,         STR_SENSOR_TX_RSSI,           UNIT_RAW,               0),
   MS(MLINK_TX_LQI,          STR_SENSOR_TX_QUALITY,        UNIT_RAW,               0),
@@ -136,10 +136,10 @@ void processMLinkPacket(const uint8_t * packet, bool multi)
           setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_GRATE, 0, adress, val, UNIT_G, 1);
           break;
         case MLINK_LQI:
-          uint8_t mlinkRssi = data[i + 1] >> 1;
-          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_LQI, 0, 0, mlinkRssi, UNIT_RAW, 0);
-          telemetryData.rssi.set(mlinkRssi);
-          if (mlinkRssi > 0) {
+          uint8_t mlinkLQI = data[i + 1] >> 1;
+          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_LQI, 0, adress, mlinkLQI, UNIT_RAW, 0);
+          telemetryData.rssi.set(mlinkLQI);
+          if (mlinkLQI > 0) {
             telemetryStreaming = TELEMETRY_TIMEOUT10ms;
           }
           break;
@@ -147,10 +147,10 @@ void processMLinkPacket(const uint8_t * packet, bool multi)
     }
   }
   else if (packet[2] == 0x03) {  // Telemetry type RX-5
-    uint16_t mlinkRssi = (packet[4] * 100) / 35;
-    setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_LQI, 0, 0, mlinkRssi, UNIT_RAW, 0);
-    telemetryData.rssi.set(mlinkRssi);
-    if (mlinkRssi > 0) {
+    uint16_t mlinkLQI = (packet[4] * 100) / 35;
+    setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_LQI, 0, 0, mlinkLQI, UNIT_RAW, 0);
+    telemetryData.rssi.set(mlinkLQI);
+    if (mlinkLQI > 0) {
       telemetryStreaming = 2*TELEMETRY_TIMEOUT10ms;     // extended to 2s due to slow Mlink RSSI update rate
     }
     setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_LOSS, 0, 0, packet[7], UNIT_RAW, 0);
