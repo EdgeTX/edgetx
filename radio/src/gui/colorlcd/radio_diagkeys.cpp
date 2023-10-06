@@ -96,7 +96,7 @@ class RadioKeyDiagsWindow : public Window
       dc->drawText(TRIM_MINUS_COLUMN, 1, "-", COLOR_THEME_PRIMARY1);
       dc->drawText(TRIM_PLUS_COLUMN, 1, "+", COLOR_THEME_PRIMARY1);
 
-#if !defined(PCBNV14)
+#if !(defined(PCBNV14) || defined(PCBPL18))
       // KEYS
       coord_t y = 1;
       for (uint8_t i = 0; i < keysGetMaxKeys(); i++) {
@@ -110,7 +110,7 @@ class RadioKeyDiagsWindow : public Window
       dc->drawText(KEY_COLUMN, y, STR_ROTARY_ENCODER, COLOR_THEME_PRIMARY1);
       dc->drawNumber(70, y, rotaryEncoderGetValue(), COLOR_THEME_PRIMARY1);
 #endif
-#else // PCBNV14 does NOT have physical keys, only remapped trim keys
+#else // PCBNV14 and PCBPL18 does NOT have physical keys, only remapped trim keys
       {
         coord_t y = 1;
         dc->drawText(KEY_COLUMN, y, keysGetLabel(KEY_ENTER), COLOR_THEME_PRIMARY1);
