@@ -368,7 +368,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
         memcpy(g_model.header.bitmap, name, sizeof(g_model.header.bitmap));
         storageDirty(EE_MODEL);
       });
-    } else if (!strcasecmp(ext, TEXT_EXT) || !strcasecmp(ext, LOGS_EXT)) {
+    } else if (!strcasecmp(ext, TEXT_EXT) || !strcasecmp(ext, LOGS_EXT) || !strcasecmp(ext, SCRIPT_EXT)) {
       menu->addLine(STR_VIEW_TEXT, [=]() {
         FIL file;
         if (FR_OK == f_open(&file, fullpath, FA_OPEN_EXISTING | FA_READ)) {
