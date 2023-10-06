@@ -191,7 +191,7 @@ uint32_t readKeys()
 {
   uint32_t result = 0;
 
-  if (getTrimsAsButtons()) {
+  if (getHatsAsKeys()) {
     uint32_t mkeys = _readKeyMatrix();
     if (mkeys & (1 << TR4D)) result |= 1 << KEY_ENTER;
     if (mkeys & (1 << TR4U)) result |= 1 << KEY_EXIT;
