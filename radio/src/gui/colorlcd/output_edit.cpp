@@ -166,7 +166,7 @@ void OutputEditWindow::buildBody(FormWindow* form)
   line = form->newLine(&grid);
   minText = new StaticText(line, rect_t{}, TR_MIN, 0, COLOR_THEME_PRIMARY1);
   minEdit = new GVarNumberEdit(line, rect_t{}, -limit, 0, GET_SET_DEFAULT(output->min),
-                     PREC1, -LIMIT_STD_MAX);
+                     PREC1, -LIMIT_STD_MAX, -limit);
   minText->setBackgroundColor(COLOR_THEME_ACTIVE);
   minEdit->setFastStep(20);
   minEdit->setAccelFactor(16);
@@ -174,7 +174,7 @@ void OutputEditWindow::buildBody(FormWindow* form)
   // Max
   maxText = new StaticText(line, rect_t{}, TR_MAX, 0, COLOR_THEME_PRIMARY1);
   maxEdit = new GVarNumberEdit(line, rect_t{}, 0, +limit, GET_SET_DEFAULT(output->max),
-                     PREC1, +LIMIT_STD_MAX);
+                     PREC1, +LIMIT_STD_MAX, limit);
   maxText->setBackgroundColor(COLOR_THEME_ACTIVE);
   maxEdit->setFastStep(20);
   maxEdit->setAccelFactor(16);

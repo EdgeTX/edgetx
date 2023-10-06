@@ -34,7 +34,7 @@ void GVarNumberEdit::value_changed(lv_event_t* e)
 GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
                                int32_t vmax, std::function<int32_t()> getValue,
                                std::function<void(int32_t)> setValue,
-                               LcdFlags textFlags, int32_t voffset) :
+                               LcdFlags textFlags, int32_t voffset, int32_t vdefault) :
     Window(parent, rect),
     vmin(vmin),
     vmax(vmax),
@@ -70,6 +70,7 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
       this, rect_t{}, vmin, vmax, [=]() { return getValue() + voffset; },
       nullptr, windowFlags, textFlags);
   num_field->setWidth(70);
+  num_field->setDefault(vdefault);
 
 #if defined(GVARS)
   // The GVAR button
