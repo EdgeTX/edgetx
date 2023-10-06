@@ -4,6 +4,13 @@
 // Enums first
 //
 
+const struct YamlIdStr enum_HatsMode[] = {
+  {  HATSMODE_TRIMS_ONLY, "TRIMS_ONLY"  },
+  {  HATSMODE_KEYS_ONLY, "KEYS_ONLY"  },
+  {  HATSMODE_SWITCHABLE, "SWITCHABLE"  },
+  {  HATSMODE_GLOBAL, "GLOBAL"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_BacklightMode[] = {
   {  e_backlight_mode_off, "backlight_mode_off"  },
   {  e_backlight_mode_keys, "backlight_mode_keys"  },
@@ -284,7 +291,8 @@ static const struct YamlNode struct_CustomFunctionData[] = {
 static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "manuallyEdited", 1 ),
   YAML_SIGNED( "timezoneMinutes", 3 ),
-  YAML_PADDING( 4 ),
+  YAML_ENUM("hatsMode", 2, enum_HatsMode),
+  YAML_PADDING( 2 ),
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_CUSTOM("board",nullptr,w_board),
   YAML_ARRAY("calib", 48, 22, struct_CalibData, NULL),
@@ -820,7 +828,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "disableTelemetryWarning", 1 ),
   YAML_UNSIGNED( "showInstanceIds", 1 ),
   YAML_UNSIGNED( "checklistInteractive", 1 ),
-  YAML_PADDING( 4 ),
+  YAML_ENUM("hatsMode", 2, enum_HatsMode),
+  YAML_PADDING( 2 ),
   YAML_SIGNED( "customThrottleWarningPosition", 8 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),
   YAML_ARRAY("mixData", 160, 64, struct_MixData, NULL),
