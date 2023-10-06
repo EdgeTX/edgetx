@@ -108,6 +108,44 @@ static wchar_t _utf8_lut[] = {
   L'ш', L'щ', L'ъ', L'ы', L'ь', L'э', L'ю',
   L'я', 
 };
+
+#if !defined(COLORLCD)
+#define UTF8_SUBS_LUT
+static wchar_t _utf8_substitution_lut[] = {
+    L'А', L'а',
+    L'Б', L'б',
+    L'В', L'в',
+    L'Г', L'г',
+    L'Д', L'д',
+    L'Е', L'е',
+    L'Ж', L'ж',
+    L'З', L'з',
+    L'И', L'и',
+    L'Й', L'й',
+    L'К', L'к',
+    L'Л', L'л',
+    L'М', L'м',
+    L'Н', L'н',
+    L'О', L'о',
+    L'П', L'п',
+    L'Р', L'р',
+    L'С', L'с',
+    L'Т', L'т',
+    L'У', L'у',
+    L'Ф', L'ф',
+    L'Х', L'х',
+    L'Ц', L'ц',
+    L'Ч', L'ч',
+    L'Ш', L'ш',
+    L'Щ', L'щ',
+    L'Ъ', L'ъ',
+    L'Ы', L'ы',
+    L'Ь', L'ь',
+    L'Э', L'э',
+    L'Ю', L'ю',
+    L'Я', L'я',
+};
+#endif
 #elif defined(TRANSLATIONS_SE)
 static wchar_t _utf8_lut[] = {
   L'å', L'ä', L'ö', L'Å', L'Ä', L'Ö',
