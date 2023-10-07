@@ -751,7 +751,7 @@
 #define TR_MIXERS_MONITOR              "МОНИТОР МИКСЕРОВ"
 #define TR_PATH_TOO_LONG               "Путь Слишком Длинный"
 #define TR_VIEW_TEXT                   "Просмотр текста"
-#define TR_FLASH_BOOTLOADER            "Прошить загрузчик"
+#define TR_FLASH_BOOTLOADER            "ПРОШИТЬ ПО"
 #define TR_FLASH_DEVICE                TR("Прошить Устройство","Прошить Устройство")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Записать S.Port", "Записать устройство S.Port")
 #define TR_FLASH_RECEIVER_OTA          "Записать приемник через OTA"
