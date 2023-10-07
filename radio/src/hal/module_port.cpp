@@ -95,8 +95,36 @@ static void _init_timer_driver(etx_module_driver_t* d, const etx_module_port_t* 
   }
 }
 
+static bool _match_port(const etx_module_port_t* p, uint8_t type, uint8_t port,
+                        uint8_t polarity, bool softserial_fallback)
+{
+  if (p->type == type && p->port == port) {
+    // either polarity matches or can be set
+    if (polarity != ETX_Pol_Inverted ||
+        p->set_inverted ||
+        port == ETX_MOD_PORT_SOFT_INV ||
+        port == ETX_MOD_PORT_SPORT_INV) {
+      return true;
+    }
+  }
+
+  // soft-serial fallback (1. USART -> 2. SOFT-SERIAL)
+  if (softserial_fallback && polarity == ETX_Pol_Inverted) {
+    if (port == ETX_MOD_PORT_UART && p->port == ETX_MOD_PORT_SOFT_INV) {
+      return true;
+    }
+
+    if (port == ETX_MOD_PORT_SPORT && p->port == ETX_MOD_PORT_SPORT_INV) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
 static const etx_module_port_t* _find_port(uint8_t module, uint8_t type,
-                                           uint8_t port, uint8_t polarity)
+                                           uint8_t port, uint8_t polarity,
+                                           bool softserial_fallback)
 {
   if (module >= MAX_MODULES || module >= _n_modules || !_modules[module])
     return nullptr;
@@ -107,18 +135,9 @@ static const etx_module_port_t* _find_port(uint8_t module, uint8_t type,
 
   while(n_ports > 0) {
 
-    if (p->type == type && p->port == port) {
-
-      // skip the port if polarity does not match
-      // and cannot be set
-      if (polarity != ETX_Pol_Inverted ||
-          p->set_inverted ||
-          port == ETX_MOD_PORT_SOFT_INV ||
-          port == ETX_MOD_PORT_SPORT_INV) {
-
-        found_port = p;
-        break;
-      }
+    if (_match_port(p, type, port, polarity, softserial_fallback)) {
+      found_port = p;
+      break;
     }
 
     ++p; --n_ports;
@@ -146,7 +165,7 @@ const etx_module_t* modulePortGetModuleDescription(uint8_t module)
 const etx_module_port_t* modulePortFind(uint8_t module, uint8_t type,
                                         uint8_t port, uint8_t polarity)
 {
-  return _find_port(module, type, port, polarity);
+  return _find_port(module, type, port, polarity, false);
 }
 
 void modulePortSetPower(uint8_t module, uint8_t enable)
@@ -170,11 +189,12 @@ bool modulePortPowered(uint8_t module)
 }
 
 etx_module_state_t* modulePortInitSerial(uint8_t module, uint8_t port,
-                                         const etx_serial_init* params)
+                                         const etx_serial_init* params,
+                                         bool softserial_fallback)
 {
-  // TODO: match capabilities (1. USART -> 2. SOFT-SERIAL)
   const etx_module_port_t* found_port = _find_port(module, ETX_MOD_TYPE_SERIAL,
-                                                   port, params->polarity);
+                                                   port, params->polarity,
+                                                   softserial_fallback);
   if (!found_port) return nullptr;
 
   auto state = &(_module_states[module]);
@@ -206,7 +226,7 @@ etx_module_state_t* modulePortInitTimer(uint8_t module, uint8_t port,
                                         const etx_timer_config_t* cfg)
 {
   const etx_module_port_t* found_port = _find_port(module, ETX_MOD_TYPE_TIMER,
-                                                   port, ETX_Pol_Normal);
+                                                   port, ETX_Pol_Normal, false);
   if (!found_port) return nullptr;
 
   auto state = &(_module_states[module]);

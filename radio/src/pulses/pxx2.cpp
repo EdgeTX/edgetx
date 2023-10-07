@@ -640,7 +640,7 @@ static void* pxx2Init(uint8_t module)
   if (module == INTERNAL_MODULE) {
 
     params.baudrate = PXX2_HIGHSPEED_BAUDRATE;
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params, false);
     if (!mod_st) return nullptr;
     resetAccessAuthenticationCount();
   }
@@ -665,7 +665,7 @@ static void* pxx2Init(uint8_t module)
       return nullptr;
     }
 
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params, false);
     if (!mod_st) return nullptr;
   }
 

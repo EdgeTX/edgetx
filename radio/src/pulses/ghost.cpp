@@ -163,7 +163,7 @@ static const etx_serial_init ghostSerialParams = {
 
 static void* ghostInit(uint8_t module)
 {
-  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &ghostSerialParams);
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &ghostSerialParams, false);
   if (!mod_st) return nullptr;
 
   mixerSchedulerSetPeriod(module, GHOST_PERIOD);

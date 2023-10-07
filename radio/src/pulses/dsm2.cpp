@@ -203,19 +203,12 @@ static etx_module_state_t* dsmInit(uint8_t module, uint32_t baudrate,
 
   etx_serial_init params(dsmUartParams);
   params.baudrate = baudrate;
-  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params);
-  if (!mod_st) {
-    // inverted soft-serial fallback
-    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SOFT_INV, &params);
-    if (!mod_st) return nullptr;
-  }
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params, true);
+  if (!mod_st) return nullptr;
 
   if (telemetry) {
     params.direction = ETX_Dir_RX;
-    if (!modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params)) {
-      // inverted soft-serial fallback
-      modulePortInitSerial(module, ETX_MOD_PORT_SPORT_INV, &params);
-    }
+    modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params, true);
   }
 
   mixerSchedulerSetPeriod(module, period);

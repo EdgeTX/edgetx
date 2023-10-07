@@ -126,7 +126,8 @@ bool modulePortPowered(uint8_t module);
 
 // Init module port with params (driver & context stored locally)
 etx_module_state_t* modulePortInitSerial(uint8_t module, uint8_t port,
-                                         const etx_serial_init* params);
+                                         const etx_serial_init* params,
+                                         bool softserial_fallback);
 
 // Init module port with params (driver & context stored locally)
 etx_module_state_t* modulePortInitTimer(uint8_t module, uint8_t port,
