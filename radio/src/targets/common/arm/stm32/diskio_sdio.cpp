@@ -156,11 +156,10 @@ static DSTATUS sdio_initialize(BYTE lun)
   HAL_SD_ConfigWideBusOperation(&sdio, SDIO_BUS_WIDE_4B);
 
   TRACE("SD card info:");
-  TRACE("type: %u", (uint32_t)(SD_GetCardType()));
-  TRACE("class: %u", (uint32_t)(SD_GetCardClass()));
-  TRACE("sectors: %u", (uint32_t)(SD_GetSectorCount()));
-  TRACE("sector size: %u", (uint32_t)(SD_GetSectorSize()));
-  TRACE("block size: %u", (uint32_t)(SD_GetBlockSize()));
+  TRACE("type: %u", (uint32_t)(cardInfo.CardType));
+  TRACE("class: %u", (uint32_t)(cardInfo.Class));
+  TRACE("block nbr size: %u", (uint32_t)(cardInfo.BlockNbr));
+  TRACE("block size: %u", (uint32_t)(cardInfo.BlockSize));
 
   return RES_OK;
 }

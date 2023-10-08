@@ -1401,11 +1401,12 @@ int cliDisplay(const char ** argv)
 int cliDebugVars(const char ** argv)
 {
 #if defined(PCBHORUS)
+  /* broken
   extern uint32_t ioMutexReq, ioMutexRel;
   extern uint32_t sdReadRetries;
   cliSerialPrint("ioMutexReq=%d", ioMutexReq);
   cliSerialPrint("ioMutexRel=%d", ioMutexRel);
-  cliSerialPrint("sdReadRetries=%d", sdReadRetries);
+  cliSerialPrint("sdReadRetries=%d", sdReadRetries);*/
 #if defined(INTERNAL_MODULE_PXX2) && defined(ACCESS_DENIED) && !defined(SIMU)
   extern volatile int32_t authenticateFrames;
   cliSerialPrint("authenticateFrames=%d", authenticateFrames);
