@@ -646,7 +646,8 @@ int main(int argc, char** argv)
   // Main loop
   SDL_SetEventFilter([](void*, SDL_Event* event){
     if (event->type == SDL_WINDOWEVENT &&
-        event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+        (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
+         event->window.event == SDL_WINDOWEVENT_RESIZED)) {
       redraw();
       return 0;
     }
