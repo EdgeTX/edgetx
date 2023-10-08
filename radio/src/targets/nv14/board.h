@@ -192,9 +192,6 @@ bool isBacklightEnabled();
                         : g_eeGeneral.blOffBright);                       \
   }
 
-#if !defined(SIMU)
-void usbJoystickUpdate();
-#endif
 #if (PCBREV == EL18)
 #define USB_NAME                        "Flysky EL18"
 #define USB_MANUFACTURER                'F', 'l', 'y', 's', 'k', 'y', ' ', ' '  /* 8 bytes */

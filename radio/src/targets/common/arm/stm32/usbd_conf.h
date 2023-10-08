@@ -67,6 +67,14 @@
   * @{
   */
 
+#if defined(STM32F2)
+#define CDC_IN_FRAME_INTERVAL        4    /* Number of frames between IN transfers */
+#define APP_RX_DATA_SIZE             512  /* Total size of IN buffer: APP_RX_DATA_SIZE*8/MAX_BAUDARATE*1000 should be > CDC_IN_FRAME_INTERVAL */
+#else
+#define CDC_IN_FRAME_INTERVAL        15    /* Number of frames between IN transfers */
+#define APP_RX_DATA_SIZE             2048  /* Total size of IN buffer: APP_RX_DATA_SIZE*8/MAX_BAUDARATE*1000 should be > CDC_IN_FRAME_INTERVAL */
+#endif
+
 /*---------- -----------*/
 #define USBD_MAX_NUM_INTERFACES     1U
 /*---------- -----------*/

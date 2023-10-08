@@ -24,7 +24,7 @@
 #include "usbd_conf.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+#include "hal/usb_driver.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -62,15 +62,41 @@
   * @{
   */
 
-#define USBD_VID     1155
-#define USBD_LANGID_STRING     1033
-#define USBD_MANUFACTURER_STRING     "STMicroelectronics"
-#define USBD_PID_FS     22314
-#define USBD_PRODUCT_STRING_FS     "STM32 Mass Storage"
-#define USBD_CONFIGURATION_STRING_FS     "MSC Config"
-#define USBD_INTERFACE_STRING_FS     "MSC Interface"
+// TODO: remove hack
+#define USB_NAME                     "RM TX16S"
+#define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
+#define USB_PRODUCT                  'R', 'M', ' ', 'T', 'X', '1', '6', 'S'  /* 8 Bytes */
 
-#define USB_SIZ_BOS_DESC            0x0C
+
+#define USBD_VID_STM                        0x0483    // STM Vendor ID
+#define USBD_VID_PID_CODES                  0x1209    // https://pid.codes
+
+#define USBD_LANGID_STRING                  0x409
+#define USBD_MANUFACTURER_STRING            "EdgeTX"
+#define USBD_SERIALNUMBER_FS_STRING         "00000000001B"
+
+#if defined(BOOT)
+#define USBD_MSC_PRODUCT_FS_STRING          USB_NAME " Bootloader"
+#else
+#define USBD_MSC_PRODUCT_FS_STRING          USB_NAME " Mass Storage"
+#endif
+
+#define USBD_MSC_VID                        USBD_VID_STM
+#define USBD_MSC_PID                        0x5720
+#define USBD_MSC_CONFIGURATION_FS_STRING    "MSC Config"
+#define USBD_MSC_INTERFACE_FS_STRING        "MSC Interface"
+
+#define USBD_HID_VID                        USBD_VID_PID_CODES
+#define USBD_HID_PID                        0x4F54     // OpenTX assigned PID
+#define USBD_HID_PRODUCT_FS_STRING          USB_NAME " Joystick"
+#define USBD_HID_CONFIGURATION_FS_STRING    "HID Config"
+#define USBD_HID_INTERFACE_FS_STRING        "HID Interface"
+
+#define USBD_CDC_VID                        USBD_VID_STM
+#define USBD_CDC_PID                        0x5740     // do not change, this ID is used by the ST USB driver for Windows
+#define USBD_CDC_PRODUCT_FS_STRING          USB_NAME " Serial Port"
+#define USBD_CDC_CONFIGURATION_FS_STRING    "VSP Config"
+#define USBD_CDC_INTERFACE_FS_STRING        "VSP Interface"
 
 /* USER CODE BEGIN PRIVATE_DEFINES */
 
@@ -147,7 +173,7 @@ USBD_DescriptorsTypeDef FS_Desc =
 , USBD_FS_USR_BOSDescriptor
 #endif /* (USBD_LPM_ENABLED == 1) */
 };
-
+#if 0
 #if defined ( __ICCARM__ ) /* IAR Compiler */
   #pragma data_alignment=4
 #endif /* defined ( __ICCARM__ ) */
@@ -179,7 +205,7 @@ __ALIGN_BEGIN uint8_t USBD_FS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
   USBD_IDX_SERIAL_STR,        /*Index of serial number string*/
   USBD_MAX_NUM_CONFIGURATION  /*bNumConfigurations*/
 };
-
+#endif
 /* USB_DeviceDescriptor */
 /** BOS descriptor. */
 #if (USBD_LPM_ENABLED == 1)
@@ -258,8 +284,56 @@ __ALIGN_BEGIN uint8_t USBD_StringSerial[USB_SIZ_STRING_SERIAL] __ALIGN_END = {
 uint8_t * USBD_FS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
   UNUSED(speed);
-  *length = sizeof(USBD_FS_DeviceDesc);
-  return USBD_FS_DeviceDesc;
+
+  int vid, pid;
+
+  switch (getSelectedUsbMode()) {
+    case USB_JOYSTICK_MODE:
+      vid = USBD_HID_VID;
+      pid = USBD_HID_PID;
+      break;
+
+    case USB_SERIAL_MODE:
+      vid = USBD_CDC_VID;
+      pid = USBD_CDC_PID;
+      break;
+
+    case USB_MASS_STORAGE_MODE:
+      vid = USBD_MSC_VID;
+      pid = USBD_MSC_PID;
+      break;
+
+    default:
+      vid = 0;
+      pid = 0;
+  }
+
+  /* USB Standard Device Descriptor */
+  __ALIGN_BEGIN const uint8_t USBD_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
+    {
+        USB_LEN_DEV_DESC,         /*bLength */
+      USB_DESC_TYPE_DEVICE,       /*bDescriptorType*/
+      0x00,                       /*bcdUSB */
+      0x02,
+      0x00,                       /*bDeviceClass*/
+      0x00,                       /*bDeviceSubClass*/
+      0x00,                       /*bDeviceProtocol*/
+      USB_MAX_EP0_SIZE,           /*bMaxPacketSize*/
+      LOBYTE(vid),                /*idVendor*/
+      HIBYTE(vid),                /*idVendor*/
+      LOBYTE(pid),                /*idVendor*/
+      HIBYTE(pid),                /*idVendor*/
+      0x00,                       /*bcdDevice rel. 2.00*/
+      0x02,
+      USBD_IDX_MFC_STR,           /*Index of manufacturer  string*/
+      USBD_IDX_PRODUCT_STR,       /*Index of product string*/
+      USBD_IDX_SERIAL_STR,        /*Index of serial number string*/
+      USBD_MAX_NUM_CONFIGURATION  /*bNumConfigurations*/
+    }; /* USB_DeviceDescriptor */
+
+  *length = sizeof(USBD_DeviceDesc);
+  memcpy(USBD_StrDesc, USBD_DeviceDesc, *length);
+  return USBD_StrDesc;
 }
 
 /**
@@ -272,7 +346,8 @@ uint8_t * USBD_FS_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
   UNUSED(speed);
   *length = sizeof(USBD_LangIDDesc);
-  return USBD_LangIDDesc;
+  memcpy(USBD_StrDesc, USBD_LangIDDesc, *length);
+  return USBD_StrDesc;
 }
 
 /**
@@ -283,13 +358,16 @@ uint8_t * USBD_FS_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   */
 uint8_t * USBD_FS_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  if(speed == 0)
-  {
-    USBD_GetString((uint8_t *)USBD_PRODUCT_STRING_FS, USBD_StrDesc, length);
-  }
-  else
-  {
-    USBD_GetString((uint8_t *)USBD_PRODUCT_STRING_FS, USBD_StrDesc, length);
+  switch (getSelectedUsbMode()) {
+    case USB_JOYSTICK_MODE:
+      USBD_GetString ((uint8_t*)USBD_HID_PRODUCT_FS_STRING, USBD_StrDesc, length);
+      break;
+    case USB_SERIAL_MODE:
+      USBD_GetString ((uint8_t*)USBD_CDC_PRODUCT_FS_STRING, USBD_StrDesc, length);
+      break;
+    case USB_MASS_STORAGE_MODE:
+      USBD_GetString ((uint8_t*)USBD_MSC_PRODUCT_FS_STRING, USBD_StrDesc, length);
+      break;
   }
   return USBD_StrDesc;
 }
@@ -315,16 +393,9 @@ uint8_t * USBD_FS_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *l
   */
 uint8_t * USBD_FS_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  UNUSED(speed);
-  *length = USB_SIZ_STRING_SERIAL;
 
-  /* Update the serial number string descriptor with the data from the unique
-   * ID */
-  Get_SerialNum();
-  /* USER CODE BEGIN USBD_FS_SerialStrDescriptor */
-
-  /* USER CODE END USBD_FS_SerialStrDescriptor */
-  return (uint8_t *) USBD_StringSerial;
+  USBD_GetString ((uint8_t*)USBD_SERIALNUMBER_FS_STRING, USBD_StrDesc, length);
+  return USBD_StrDesc;
 }
 
 /**
@@ -335,13 +406,16 @@ uint8_t * USBD_FS_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   */
 uint8_t * USBD_FS_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  if(speed == USBD_SPEED_HIGH)
-  {
-    USBD_GetString((uint8_t *)USBD_CONFIGURATION_STRING_FS, USBD_StrDesc, length);
-  }
-  else
-  {
-    USBD_GetString((uint8_t *)USBD_CONFIGURATION_STRING_FS, USBD_StrDesc, length);
+  switch (getSelectedUsbMode()) {
+    case USB_JOYSTICK_MODE:
+      USBD_GetString ((uint8_t*)USBD_HID_CONFIGURATION_FS_STRING, USBD_StrDesc, length);
+      break;
+    case USB_SERIAL_MODE:
+      USBD_GetString ((uint8_t*)USBD_CDC_CONFIGURATION_FS_STRING, USBD_StrDesc, length);
+      break;
+    case USB_MASS_STORAGE_MODE:
+      USBD_GetString ((uint8_t*)USBD_MSC_CONFIGURATION_FS_STRING, USBD_StrDesc, length);
+      break;
   }
   return USBD_StrDesc;
 }
@@ -354,13 +428,16 @@ uint8_t * USBD_FS_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   */
 uint8_t * USBD_FS_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  if(speed == 0)
-  {
-    USBD_GetString((uint8_t *)USBD_INTERFACE_STRING_FS, USBD_StrDesc, length);
-  }
-  else
-  {
-    USBD_GetString((uint8_t *)USBD_INTERFACE_STRING_FS, USBD_StrDesc, length);
+  switch (getSelectedUsbMode()) {
+    case USB_JOYSTICK_MODE:
+      USBD_GetString ((uint8_t*)USBD_HID_INTERFACE_FS_STRING, USBD_StrDesc, length);
+      break;
+    case USB_SERIAL_MODE:
+      USBD_GetString ((uint8_t*)USBD_CDC_INTERFACE_FS_STRING, USBD_StrDesc, length);
+      break;
+    case USB_MASS_STORAGE_MODE:
+      USBD_GetString ((uint8_t*)USBD_MSC_INTERFACE_FS_STRING, USBD_StrDesc, length);
+      break;
   }
   return USBD_StrDesc;
 }
