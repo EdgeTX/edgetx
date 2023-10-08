@@ -77,7 +77,6 @@ int usbPlugged()
 }
 #endif
 
-USBD_HandleTypeDef USB_OTG_dev;
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 extern "C" void OTG_FS_IRQHandler()
@@ -95,11 +94,13 @@ void usbInit()
   LL_GPIO_InitTypeDef GPIO_InitStruct;
   LL_GPIO_StructInit(&GPIO_InitStruct);
 
+#if defined(USB_GPIO_PIN_VBUS)
   GPIO_InitStruct.Pin = USB_GPIO_PIN_VBUS;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   LL_GPIO_Init(USB_GPIO, &GPIO_InitStruct);
+#endif
 
   GPIO_InitStruct.Pin = USB_GPIO_PIN_DM | USB_GPIO_PIN_DP;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
@@ -114,9 +115,12 @@ void usbInit()
 }
 
 extern void usbInitLUNs();
-
+extern USBD_HandleTypeDef hUsbDeviceFS;
+extern USBD_StorageTypeDef USBD_Storage_Interface_fops_FS;
+extern USBD_CDC_ItfTypeDef USBD_Interface_fops_FS;
 void usbStart()
 {
+  USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS);
   switch (getSelectedUsbMode()) {
 #if !defined(BOOT)
     case USB_JOYSTICK_MODE:
@@ -124,43 +128,51 @@ void usbStart()
 #if defined(USBJ_EX)
       setupUSBJoystick();
 #endif
-      //USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_HID_cb, &USR_cb);
-      MX_USB_DEVICE_Init();
+      //USBD_Init(&hUsbDeviceFS, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_HID_cb, &USR_cb);
+      //MX_USB_DEVICE_Init();
+      USBD_RegisterClass(&hUsbDeviceFS, &USBD_HID);
       break;
 #endif
 #if defined(USB_SERIAL)
     case USB_SERIAL_MODE:
       // initialize USB as CDC device (virtual serial port)
-      //USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CDC_cb, &USR_cb);
-      MX_USB_DEVICE_Init();
+      //USBD_Init(&hUsbDeviceFS, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CDC_cb, &USR_cb);
+      //MX_USB_DEVICE_Init();
+      USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC);
+      USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS);
       break;
 #endif
     default:
     case USB_MASS_STORAGE_MODE:
       // initialize USB as MSC device
       //usbInitLUNs();
-      MX_USB_DEVICE_Init();
-      //USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_MSC_cb, &USR_cb);
+      //MX_USB_DEVICE_Init();
+      USBD_RegisterClass(&hUsbDeviceFS, &USBD_MSC);
+      USBD_MSC_RegisterStorage(&hUsbDeviceFS, &USBD_Storage_Interface_fops_FS);
+      //USBD_Init(&hUsbDeviceFS, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_MSC_cb, &USR_cb);
       break;
   }
+  USBD_Start(&hUsbDeviceFS);
   usbDriverStarted = true;
 }
 
 void usbStop()
 {
   usbDriverStarted = false;
-  USBD_DeInit(&USB_OTG_dev);
+  USBD_DeInit(&hUsbDeviceFS);
 }
 
 #if defined(USBJ_EX)
+extern "C" void delay_ms(uint32_t count);
 void usbJoystickRestart()
 {
-  if (getSelectedUsbMode() != USB_JOYSTICK_MODE) return;
+  if (!usbDriverStarted || getSelectedUsbMode() != USB_JOYSTICK_MODE) return;
 
-/*  USBD_DeInit(&USB_OTG_dev);
-  DCD_DevDisconnect(&USB_OTG_dev);
-  DCD_DevConnect(&USB_OTG_dev);
-  USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_HID_cb, &USR_cb);*/
+  USBD_DeInit(&hUsbDeviceFS);
+  delay_ms(100);
+  USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS);
+  USBD_RegisterClass(&hUsbDeviceFS, &USBD_HID);
+  USBD_Start(&hUsbDeviceFS);
 }
 #endif
 
@@ -185,7 +197,7 @@ void usbJoystickUpdate()
   static uint8_t HID_Buffer[HID_IN_PACKET];
 
   // test to se if TX buffer is free
-  if (USBD_HID_SendReport(&USB_OTG_dev, 0, 0) == USBD_OK) {
+  if (USBD_HID_SendReport(&hUsbDeviceFS, 0, 0) == USBD_OK) {
     //buttons
     HID_Buffer[0] = 0;
     HID_Buffer[1] = 0;
@@ -213,14 +225,14 @@ void usbJoystickUpdate()
       HID_Buffer[i*2 +4] = static_cast<uint8_t>((value >> 8) & 0x07);
 
     }
-    USBD_HID_SendReport(&USB_OTG_dev, HID_Buffer, HID_IN_PACKET);
+    USBD_HID_SendReport(&hUsbDeviceFS, HID_Buffer, HID_IN_PACKET);
   }
 #else
   // test to se if TX buffer is free
-  if (USBD_HID_SendReport(&USB_OTG_dev, 0, 0) == USBD_OK) {
+//  if (USBD_HID_SendReport(&hUsbDeviceFS, 0, 0) == USBD_OK) {
     usbReport_t ret = usbReport();
-    USBD_HID_SendReport(&USB_OTG_dev, ret.ptr, ret.size);
-  }
+    USBD_HID_SendReport(&hUsbDeviceFS, ret.ptr, ret.size);
+//  }
 #endif
 }
 #endif

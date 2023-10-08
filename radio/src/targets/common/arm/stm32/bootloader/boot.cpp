@@ -257,7 +257,7 @@ void bootloaderInitApp()
 #endif
     // TODO: deInit before restarting
     // Start main application
-   // jumpTo(APP_START_ADDRESS);
+    jumpTo(APP_START_ADDRESS);
   }
 
   pwrOn();

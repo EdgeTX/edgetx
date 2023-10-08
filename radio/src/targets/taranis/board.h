@@ -241,9 +241,6 @@ uint8_t isBacklightEnabled();
   #define BACKLIGHT_ENABLE() backlightEnable(currentBacklightBright)
 #endif
 
-#if !defined(SIMU)
-  void usbJoystickUpdate();
-#endif
 #if defined(RADIO_TX12) || defined(RADIO_TX12MK2)
   #define USB_NAME                     "Radiomaster TX12"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
