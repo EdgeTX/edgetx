@@ -255,9 +255,6 @@ bool isBacklightEnabled();
                         : g_eeGeneral.blOffBright);                         \
   }
 
-#if !defined(SIMU)
-void usbJoystickUpdate();
-#endif
 #if defined(PCBX12S)
   #define USB_NAME                     "FrSky Horus"
   #define USB_MANUFACTURER             'F', 'r', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
