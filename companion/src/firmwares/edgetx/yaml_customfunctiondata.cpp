@@ -39,7 +39,8 @@ static bool fnHasRepeat(AssignFunc fn)
     || (fn == FuncPlayHaptic)
     || (fn == FuncPlaySound)
     || (fn == FuncSetScreen)
-    || (fn == FuncPlayScript);
+    || (fn == FuncPlayScript)
+    || (fn == FuncRGBLed);
 }
 
 static const YamlLookupTable customFnLut = {
@@ -68,6 +69,7 @@ static const YamlLookupTable customFnLut = {
   {  FuncDisableTouch, "DISABLE_TOUCH"  },
   {  FuncSetScreen, "SET_SCREEN"},
   {  FuncDisableAudioAmp, "DISABLE_AUDIO_AMP"  },
+  {  FuncRGBLed, "RGB_LED"  },
 };
 
 static const YamlLookupTable trainerLut = {
@@ -172,6 +174,7 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
     def += temp;
   } break;
   case FuncPlayScript:
+  case FuncRGBLed:
     def += std::string(rhs.paramarm);
     break;
   case FuncReset:
@@ -232,7 +235,7 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
     if (add_comma) {
       def += ",";
     }
-    if (rhs.func == FuncPlayScript) {
+    if (rhs.func == FuncPlayScript || rhs.func == FuncRGBLed) {
       def += ((rhs.repeatParam == 0) ? "On" : "1x");
     } else if (rhs.repeatParam == 0) {
       def += "1x";
@@ -297,6 +300,7 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     file_str.resize(getCurrentFirmware()->getCapability(VoicesMaxLength));
     strncpy(rhs.paramarm, file_str.c_str(), sizeof(rhs.paramarm) - 1);
     } break;
+  case FuncRGBLed:
   case FuncPlayScript: {
     std::string file_str;
     getline(def, file_str, ',');
@@ -388,7 +392,7 @@ bool convert<CustomFunctionData>::decode(const Node& node,
   } else if(fnHasRepeat(rhs.func)) {
     std::string repeat;
     getline(def, repeat);
-    if (rhs.func == FuncPlayScript) {
+    if (rhs.func == FuncPlayScript || rhs.func == FuncRGBLed) {
       rhs.repeatParam = (repeat == "1x") ? 1 : 0;
     } else if (repeat == "1x") {
       rhs.repeatParam = 0;

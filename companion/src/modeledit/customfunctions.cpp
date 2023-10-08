@@ -96,6 +96,18 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     }
   }
 
+  if (IS_STM32(firmware->getBoard())) {
+    scriptsSet = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/RGBLED", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
+    for (int i = 0; i < fswCapability; i++) {
+      if (functions[i].func == FuncRGBLed) {
+        QString temp = functions[i].paramarm;
+        if (!temp.isEmpty()) {
+          scriptsSet.insert(temp);
+        }
+      }
+    }
+  }
+
   CompanionIcon playIcon("play.png");
   playIcon.addImage("stop.png", QIcon::Normal, QIcon::On);
 
@@ -194,7 +206,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     tableLayout->addLayout(i, 4, repeatLayout);
     fswtchRepeat[i] = new QComboBox(this);
     fswtchRepeat[i]->setProperty("index", i);
-    if (functions[i].func == FuncPlayScript)
+    if (functions[i].func == FuncPlayScript || functions[i].func == FuncRGBLed)
       fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatLuaId));
     else
       fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatId));
@@ -339,7 +351,7 @@ void CustomFunctionsPanel::functionEdited()
     functions[index].clear();
     functions[index].swtch = swtch;
     functions[index].func = (AssignFunc)fswtchFunc[index]->currentData().toInt();
-    if (functions[index].func == FuncPlayScript)
+    if (functions[index].func == FuncPlayScript || functions[index].func == FuncRGBLed)
       fswtchRepeat[index]->setModel(tabModelFactory->getItemModel(repeatLuaId));
     else
       fswtchRepeat[index]->setModel(tabModelFactory->getItemModel(repeatId));
@@ -541,7 +553,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
         widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM;
       }
     }
-    else if (func == FuncPlayScript) {
+    else if (func == FuncPlayScript || func == FuncRGBLed) {
       widgetsMask |= CUSTOM_FUNCTION_FILE_PARAM | CUSTOM_FUNCTION_REPEAT;
       if (modified) {
         Helpers::getFileComboBoxValue(fswtchParamArmT[i], cfn.paramarm, 8);
