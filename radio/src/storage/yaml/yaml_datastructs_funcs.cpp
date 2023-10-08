@@ -1330,11 +1330,6 @@ static const char* const _func_sound_lookup[] = {
   "SciF","Robt","Chrp","Tada","Crck","Alrm"
 };
 
-static const char* const _func_rgbled_lookup[] = {
-    "LUA","White","Blue","Red","Yellow",
-    "Green"
-};
-
 static const char* const _adjust_gvar_mode_lookup[] = {
   "Cst", "Src", "GVar", "IncDec"
 };
