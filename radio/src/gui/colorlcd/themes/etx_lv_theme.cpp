@@ -357,7 +357,6 @@ void useMainStyle() { styles = mainStyles; }
  **********************/
 
 // Event handler forward references
-static void field_edit_event(const lv_obj_class_t* class_p, lv_event_t* e);
 static void window_base_event(const lv_obj_class_t* class_p, lv_event_t* e);
 static void table_event(const lv_obj_class_t* class_p, lv_event_t* e);
 
@@ -753,7 +752,7 @@ const lv_obj_class_t field_edit_class = {
     .constructor_cb = field_edit_constructor,
     .destructor_cb = nullptr,
     .user_data = nullptr,
-    .event_cb = field_edit_event,
+    .event_cb = nullptr,
     .width_def = LV_DPI_DEF,
     .height_def = 32,
     .editable = LV_OBJ_CLASS_EDITABLE_TRUE,
@@ -765,7 +764,7 @@ const lv_obj_class_t number_edit_class = {
     .constructor_cb = number_edit_constructor,
     .destructor_cb = nullptr,
     .user_data = nullptr,
-    .event_cb = field_edit_event,
+    .event_cb = nullptr,
     .width_def = LV_DPI_DEF,
     .height_def = 32,
     .editable = LV_OBJ_CLASS_EDITABLE_TRUE,
@@ -975,12 +974,6 @@ const lv_obj_class_t etx_modal_title_class = {
     .instance_size = sizeof(lv_label_t)};
 
 // Event handlers
-static void field_edit_event(const lv_obj_class_t* class_p, lv_event_t* e)
-{
-  /* Call the ancestor's event handler */
-  lv_obj_event_base(&field_edit_class, e);
-}
-
 extern "C" void window_event_cb(lv_event_t* e);
 
 static void window_base_event(const lv_obj_class_t* class_p, lv_event_t* e)
