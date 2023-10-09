@@ -79,7 +79,7 @@ enum FrskyFirmwareReceiverProductId {
 
 inline bool isReceiverOTAEnabledFromModule(uint8_t moduleIdx, uint8_t productId)
 {
-  if(productId >= 0x15 && (isModuleISRM(moduleIdx) || isModuleR9M(moduleIdx)))
+  if (productId >= 0x15 && (isModuleISRM(moduleIdx) || isModuleR9M(moduleIdx)))
     return true;
   else
     return false;
