@@ -196,7 +196,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
 add_executable(simu
   EXCLUDE_FROM_ALL
   ${SIMU_SRC}
-  ${IMGUI_SRC}
+  widgets.cpp
   sdl_simu.cpp
 )
 

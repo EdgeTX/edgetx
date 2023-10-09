@@ -48,6 +48,8 @@
 #endif
 
 #include "simu.h"
+#include "widgets.h"
+
 #include "simuaudio.h"
 #include "hal/key_driver.h"
 
@@ -59,27 +61,18 @@
 
 #define TIMER_INTERVAL 10 // 10ms
 
-SDL_Window* window;
-SDL_Renderer* renderer;
+static SDL_Window* window;
+static SDL_Renderer* renderer;
+static SDL_Texture* screen_frame_buffer;
 
-SDL_Texture* screen_frame_buffer;
-SDL_Texture* gimbal_frame;
-SDL_Texture* stick_dot;
+static GimbalState stick_left = {{0.5f, 0.5f}, false};
+static GimbalState stick_right = {{0.5f, 0.5f}, false};
 
-static ImVec2 stick_l_pos(0.5f, 0.5f);
-static ImVec2 stick_r_pos(0.5f, 0.5f);
-
+#if !defined(__EMSCRIPTEN__)
 static const unsigned char _icon_png[] = {
-  #include "icon.lbm"
+#include "icon.lbm"
 };
-
-static const unsigned char _gimbal_frame_png[] = {
-  #include "gimbal_frame.lbm"
-};
-
-static const unsigned char _stick_dot_png[] = {
-  #include "stick_dot.lbm"
-};
+#endif
 
 static void _set_pixel(uint8_t* pixel, const SDL_Color& color)
 {
@@ -157,7 +150,7 @@ static void _blit_simu_screen_4bit(void* screen_buffer, Uint32 format, int w, in
   }
 }
 
-void refreshDisplay(SDL_Texture* screen)
+static void refreshDisplay(SDL_Texture* screen)
 {
   if (simuLcdRefresh) {
 
@@ -195,36 +188,13 @@ void refreshDisplay(SDL_Texture* screen)
   }
 }
 
-Uint32 timer_10ms_cb(Uint32 interval, void* name)
+static Uint32 timer_10ms_cb(Uint32 interval, void* name)
 {
   per10ms();
   return TIMER_INTERVAL;
 }
 
-void handleTouchEvents(const ImVec2& screen_p0, float scale_ratio)
-{
-#if defined(HARDWARE_TOUCH)
-  static bool mouse_was_down = false;
-
-  if (ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
-    
-    ImGuiIO& io = ImGui::GetIO();
-    const ImVec2 mouse_pos(io.MousePos.x - screen_p0.x, io.MousePos.y - screen_p0.y);
-    ImGui::Text("Mouse: x = %f; y = %f", mouse_pos.x, mouse_pos.y);
-
-    const ImVec2 scaled_pos(mouse_pos.x / scale_ratio, mouse_pos.y / scale_ratio);
-    ImGui::Text("Pos: x = %f; y = %f", scaled_pos.x, scaled_pos.y);
-
-    touchPanelDown((short)scaled_pos.x, (short)scaled_pos.y);
-    mouse_was_down = true;
-  } else if (mouse_was_down) {
-    touchPanelUp();
-    mouse_was_down = false;        
-  }
-#endif
-}
-
-bool simuProcessEvents(SDL_Event& event)
+static bool handleKeyEvents(SDL_Event& event)
 {
   if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
     const auto& key_event = event.key;
@@ -310,6 +280,14 @@ bool simuProcessEvents(SDL_Event& event)
       }
       break;
 
+    case SDLK_l:
+      ImGui::StyleColorsLight();
+      break;
+
+    case SDLK_d:
+      ImGui::StyleColorsDark();
+      break;
+
     default:
       key_handled = false;
       break;
@@ -325,7 +303,32 @@ bool simuProcessEvents(SDL_Event& event)
   return false;
 }
 
-SDL_Surface* LoadImage(const unsigned char* pixels, size_t len)
+static void redraw();
+
+static bool handleEvents()
+{
+  SDL_Event event;
+  while (SDL_PollEvent(&event)) {
+
+    if(handleKeyEvents(event))
+      continue;
+      
+    ImGui_ImplSDL2_ProcessEvent(&event);
+
+    if (event.type == SDL_QUIT)
+      return false;
+
+    if (event.type == SDL_WINDOWEVENT &&
+        event.window.event == SDL_WINDOWEVENT_CLOSE &&
+        event.window.windowID == SDL_GetWindowID(window))
+      return false;
+  }
+
+  redraw();
+  return true;
+}
+
+static SDL_Surface* LoadImage(const unsigned char* pixels, size_t len)
 {
   // Read data
   int32_t w, h, bpp;
@@ -346,7 +349,7 @@ SDL_Surface* LoadImage(const unsigned char* pixels, size_t len)
   return surface;
 }
 
-SDL_Texture* LoadTexture(SDL_Renderer* renderer, const unsigned char* pixels, size_t len)
+static SDL_Texture* LoadTexture(SDL_Renderer* renderer, const unsigned char* pixels, size_t len)
 {
   SDL_Surface* surface = LoadImage(pixels, len);
   if (!surface) return NULL;
@@ -355,88 +358,6 @@ SDL_Texture* LoadTexture(SDL_Renderer* renderer, const unsigned char* pixels, si
   SDL_FreeSurface(surface);
 
   return texture;
-}
-
-void SingleGimbal(const char* name, SDL_Texture* gimbal_frame,
-                  SDL_Texture* stick_dot, ImVec2& stick_pos,
-		  bool lock_y)
-{
-  auto frame_width = ImGui::GetContentRegionAvail().x;
-  auto gimbal_width = frame_width < 91.0f ? 91.0f : frame_width > 200.0f ? 200.0f : frame_width;
-
-  float ratio = gimbal_width / 182.0f;
-  
-  ImDrawList* draw_list = ImGui::GetWindowDrawList();
-
-  ImVec2 pos = ImGui::GetCursorScreenPos();
-  ImVec2 gimbal_p0(pos.x + (frame_width - gimbal_width) / 2.0f, pos.y);
-  ImVec2 gimbal_p1(gimbal_p0.x + gimbal_width, gimbal_p0.y + gimbal_width);
-  draw_list->AddImage(gimbal_frame, gimbal_p0, gimbal_p1);
-
-  float dot_width = 38.0f * ratio;
-  float dot_height = 40.0f * ratio;
-  float dot_mid = 17.0f * ratio;
-  float dot_range = gimbal_width - dot_mid * 2.0f;
-
-  ImVec2 dot_p0(gimbal_p0.x + dot_range * stick_pos.x,
-                gimbal_p0.y + dot_range * stick_pos.y);
-  ImVec2 dot_p1(dot_p0.x + dot_width, dot_p0.y + dot_height);
-  draw_list->AddImage(stick_dot, dot_p0, dot_p1);
-
-  ImGui::InvisibleButton(name, ImVec2(frame_width, gimbal_width));
-  if (ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
-
-    const auto& io = ImGui::GetIO();
-    ImVec2 mouse_pos(io.MousePos.x - gimbal_p0.x,
-                     io.MousePos.y - gimbal_p0.y);
-
-    if (mouse_pos.x >= 0 && mouse_pos.x <= gimbal_width &&
-        mouse_pos.y >= 0 && mouse_pos.y <= gimbal_width) {
-
-      stick_pos.x = (mouse_pos.x - dot_mid) / dot_range;
-      stick_pos.y = (mouse_pos.y - dot_mid) / dot_range;
-
-      if (stick_pos.x < 0.0f) stick_pos.x = 0.0f;
-      if (stick_pos.x > 1.0f) stick_pos.x = 1.0f;
-      if (stick_pos.y < 0.0f) stick_pos.y = 0.0f;
-      if (stick_pos.y > 1.0f) stick_pos.y = 1.0f;
-      
-      // ImGui::Text("X = %0.2f Y = %0.2f", stick_pos.x, stick_pos.y);
-    }
-  } else {
-    if (stick_pos.x != 0.5f) {
-      auto diff = 0.5 - stick_pos.x;
-      if (std::abs(diff) > 0.01) {
-        stick_pos.x += diff / 10;
-      } else {
-        stick_pos.x = 0.5;
-      }
-    }
-    if (!lock_y && stick_pos.y != 0.5f) {
-      auto diff = 0.5 - stick_pos.y;
-      if (std::abs(diff) > 0.01) {
-        stick_pos.y += diff / 10;
-      } else {
-        stick_pos.y = 0.5;
-      }
-    }
-  }
-}
-
-void DisplayGimbals(SDL_Texture* gimbal_frame, SDL_Texture* stick_dot)
-{
-  // TODO: minimum width
-  if (ImGui::BeginTable("gimbals", 2, 0)) {
-    ImGui::TableNextRow();
-
-    ImGui::TableSetColumnIndex(0);
-    SingleGimbal("GimbalL", gimbal_frame, stick_dot, stick_l_pos, g_eeGeneral.stickMode == 1);
-
-    ImGui::TableSetColumnIndex(1);
-    SingleGimbal("GimbalR", gimbal_frame, stick_dot, stick_r_pos, g_eeGeneral.stickMode == 0);
-
-    ImGui::EndTable();
-  }
 }
 
 Uint32 get_bg_color()
@@ -448,7 +369,7 @@ Uint32 get_bg_color()
   }
 }
 
-void redraw()
+static void redraw()
 {
   ImGuiStyle& style = ImGui::GetStyle();
 
@@ -467,6 +388,7 @@ void redraw()
     ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse |
     ImGuiWindowFlags_NoTitleBar;
 
+  // Use full work area (without menu-bars, task-bars etc.)
   const ImGuiViewport* viewport = ImGui::GetMainViewport();
   ImGui::SetNextWindowPos(viewport->WorkPos);
   ImGui::SetNextWindowSize(viewport->WorkSize);
@@ -475,45 +397,33 @@ void redraw()
   if (ImGui::Begin("Main window", &show_win, flags)) {
 
     // show gimbals
-    DisplayGimbals(gimbal_frame, stick_dot);
+    stick_left.lock_y = (g_eeGeneral.stickMode == 1);
+    stick_right.lock_y = (g_eeGeneral.stickMode == 0);
+    GimbalPair("#gimbals", stick_left, stick_right);
       
-    ImVec2 screen_p0 = ImGui::GetCursorScreenPos();
     float aspect_ratio = float(LCD_H) / float(LCD_W);
-
     float width = viewport->WorkSize.x - 2 * style.WindowPadding.x;
-    float scale_ratio = width / float(LCD_W);
-
     ImVec2 size(width, width * aspect_ratio);
 
-    if (LCD_DEPTH == 1 || LCD_DEPTH == 4) {
-      ImDrawList* draw_list = ImGui::GetWindowDrawList();
-      ImVec2 p1 = { screen_p0.x + size.x, screen_p0.y + size.y };
-      draw_list->AddRectFilled(screen_p0, p1, get_bg_color());
+    const ScreenDesc desc = {
+      .width = LCD_W,
+      .height = LCD_H,
+      .is_dot_matrix = LCD_DEPTH == 1 || LCD_DEPTH == 4,
+    };
+    SimuScreen(screen_frame_buffer, size, get_bg_color(), desc);
+
+#if defined(HARDWARE_TOUCH)
+    ScreenMouseEvent touch_event;
+    if (SimuScreenMouseEvent(desc, touch_event)) {
+      if (touch_event.type == ScreenMouseEventType::MouseDown) {
+        touchPanelDown(touch_event.pos_x, touch_event.pos_y);
+      } else {
+        touchPanelUp();
+      }
     }
-
-    ImGui::Image(screen_frame_buffer, size);
-
-    if (LCD_DEPTH == 1 || LCD_DEPTH == 4) {
-      ImDrawList* draw_list = ImGui::GetWindowDrawList();
-      float dx = size.x / float(LCD_W);
-      float thickness = dx / 50.0;
-      auto col = get_bg_color() & 0x80FFFFFF;
-      for (int x = 1; x < LCD_W; x++) {
-	ImVec2 p1 = { screen_p0.x + x * size.x / float(LCD_W), screen_p0.y };
-	ImVec2 p2 = { p1.x, screen_p0.y + size.y - 1 };
-	draw_list->AddLine(p1, p2, col, thickness);
-      }
-      for (int y = 1; y < LCD_H; y++) {
-	ImVec2 p1 = { screen_p0.x, screen_p0.y + y * size.y / float(LCD_H) };
-	ImVec2 p2 = { screen_p0.x + size.x - 1, p1.y };
-	draw_list->AddLine(p1, p2, col, thickness);
-      }
-    }    
-    
-    handleTouchEvents(screen_p0, scale_ratio);
-
-    ImGui::Text("tmr10ms: %u", g_tmr10ms);
-    ImGui::Text("rtos time: %u", RTOS_GET_MS());
+#endif
+    // ImGui::Text("tmr10ms: %u", g_tmr10ms);
+    // ImGui::Text("rtos time: %u", RTOS_GET_MS());
   }
   ImGui::End();
 
@@ -524,34 +434,17 @@ void redraw()
   SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x,
                      io.DisplayFramebufferScale.y);
 
-  SDL_SetRenderDrawColor(renderer, 114, 140, 153, 255);
+  auto bg_col = ImGui::GetColorU32(ImGuiCol_WindowBg);
+  SDL_SetRenderDrawColor(renderer,
+                         (bg_col >> IM_COL32_R_SHIFT) & 0xFF,
+                         (bg_col >> IM_COL32_G_SHIFT) & 0xFF,
+                         (bg_col >> IM_COL32_B_SHIFT) & 0xFF,
+                         (bg_col >> IM_COL32_A_SHIFT) & 0xFF);
+
   SDL_RenderClear(renderer);
 
   ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
   SDL_RenderPresent(renderer);
-}
-
-bool handle_events()
-{
-  SDL_Event event;
-  while (SDL_PollEvent(&event)) {
-
-    if(simuProcessEvents(event))
-      continue;
-      
-    ImGui_ImplSDL2_ProcessEvent(&event);
-
-    if (event.type == SDL_QUIT)
-      return false;
-
-    if (event.type == SDL_WINDOWEVENT &&
-        event.window.event == SDL_WINDOWEVENT_CLOSE &&
-        event.window.windowID == SDL_GetWindowID(window))
-      return false;
-  }
-
-  redraw();
-  return true;
 }
 
 int main(int argc, char** argv)
@@ -578,6 +471,7 @@ int main(int argc, char** argv)
       (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
   window = SDL_CreateWindow("EdgeTx Simu", SDL_WINDOWPOS_CENTERED,
                             SDL_WINDOWPOS_CENTERED, 600, 600, window_flags);
+  SDL_SetWindowMinimumSize(window, 300, 400);
 
   renderer = SDL_CreateRenderer(
                window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
@@ -590,10 +484,12 @@ int main(int argc, char** argv)
   SDL_GetRendererInfo(renderer, &info);
   SDL_Log("Current SDL_Renderer: %s", info.name);
 
+#if !defined(__EMSCRIPTEN__)
   SDL_Surface* icon = LoadImage(_icon_png, sizeof(_icon_png));
   if (window && icon) {
     SDL_SetWindowIcon(window, icon);
   }
+#endif
 
   // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
@@ -620,14 +516,6 @@ int main(int argc, char** argv)
   // SDL_SetTextureScaleMode(screen_frame_buffer, SDL_ScaleModeBest);
   SDL_SetTextureBlendMode(screen_frame_buffer, SDL_BLENDMODE_BLEND);
 
-  gimbal_frame = LoadTexture(renderer, _gimbal_frame_png, sizeof(_gimbal_frame_png));
-  stick_dot = LoadTexture(renderer, _stick_dot_png, sizeof(_stick_dot_png));
-
-  if (!gimbal_frame || !stick_dot) {
-    SDL_Log("Could not load textures");
-    return 0;
-  }
-
   // 10ms timer
   SDL_TimerID timerID_10ms =
       SDL_AddTimer(TIMER_INTERVAL, timer_10ms_cb, const_cast<char*>("10ms"));
@@ -638,9 +526,9 @@ int main(int argc, char** argv)
 
   // race condition on YAML loaded...
   if (g_eeGeneral.stickMode == 1) {
-    stick_l_pos.y = 1.0f;
+    stick_left.pos.y = 1.0f;
   } else if (g_eeGeneral.stickMode == 0) {
-    stick_r_pos.y = 1.0f;
+    stick_right.pos.y = 1.0f;
   }
   
   // Main loop
@@ -655,11 +543,11 @@ int main(int argc, char** argv)
   }, NULL);
 
 #if defined(__EMSCRIPTEN__)
-  emscripten_set_main_loop([]() { handle_events(); }, 0, true);
+  emscripten_set_main_loop([]() { handleEvents(); }, 0, true);
 #else
   do {
     Uint64 start_ts = SDL_GetPerformanceCounter();
-    if (!handle_events()) break;
+    if (!handleEvents()) break;
 
     Uint64 end_ts = SDL_GetPerformanceCounter();
     float elapsedMS =
@@ -677,13 +565,12 @@ int main(int argc, char** argv)
   ImGui::DestroyContext();
 
   SDL_DestroyTexture(screen_frame_buffer);
-  SDL_DestroyTexture(gimbal_frame);
-  SDL_DestroyTexture(stick_dot);
-
   SDL_RemoveTimer(timerID_10ms);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
+#if !defined(__EMSCRIPTEN__)
   SDL_FreeSurface(icon);
+#endif
   SDL_CloseAudio();
   SDL_Quit();
   
@@ -695,10 +582,10 @@ uint16_t simu_get_analog(uint8_t idx)
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   if (idx < max_sticks) {
     switch(idx) {
-    case 0: return stick_l_pos.x * 4096;
-    case 1: return (1.0 - stick_l_pos.y) * 4096;
-    case 2: return (1.0 - stick_r_pos.y) * 4096;
-    case 3: return stick_r_pos.x * 4096;
+    case 0: return stick_left.pos.x * 4096;
+    case 1: return (1.0 - stick_left.pos.y) * 4096;
+    case 2: return (1.0 - stick_right.pos.y) * 4096;
+    case 3: return stick_right.pos.x * 4096;
     }
   }
 
