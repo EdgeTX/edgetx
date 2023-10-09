@@ -79,21 +79,10 @@ enum FrskyFirmwareReceiverProductId {
 
 inline bool isReceiverOTAEnabledFromModule(uint8_t moduleIdx, uint8_t productId)
 {
-  switch (productId) {
-    case FIRMWARE_ID_RECEIVER_ARCHER_X:
-      return isModuleISRM(moduleIdx);
-
-    case FIRMWARE_ID_RECEIVER_R9_STAB:
-    case FIRMWARE_ID_RECEIVER_R9_MINI_OTA:
-    case FIRMWARE_ID_RECEIVER_R9_MM_OTA:
-    case FIRMWARE_ID_RECEIVER_R9_SLIMP_OTA:
-    case FIRMWARE_ID_RECEIVER_R9MX:
-    case FIRMWARE_ID_RECEIVER_R9SX:
-      return isModuleR9M(moduleIdx);
-
-    default:
-      return false;
-  }
+  if(productId >= 0x15 && (isModuleISRM(moduleIdx) || isModuleR9M(moduleIdx)))
+    return true;
+  else
+    return false;
 }
 
 PACK(struct FrSkyFirmwareInformation {
