@@ -45,11 +45,9 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     break;
 
   case SWITCH_TYPE_FUNCTIONSWITCH:
-    if (IS_JUMPER_TPRO(getCurrentBoard())) {
-      c += Boards::getCapability(getCurrentBoard(), Board::Switches);
-      c += (sval - 1) / 3;
-      sw_str += "S";
-      sw_str += c;
+    if (Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
+      sw_str += "SW";
+      sw_str += std::to_string(1 + ((sval - 1) / 3));
       sw_str += std::to_string((sval - 1) % 3);
     }
     break;
@@ -141,7 +139,14 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
       rhs.type = SWITCH_TYPE_TRIM;
       rhs.index = tsw_idx + 1;
     }
-
+  } else if (val_len >= 3 && val[0] == 'S' && val[1] == 'W' &&
+             (val[2] >= '1' && val[2] <= '6') &&
+             (val[3] >= '0' && val[3] <= '2') &&
+             Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
+    // Customisable switches
+    int idx = val[2] - '1';
+    idx = idx * 3 + (val[3] - '0' + 1);
+    rhs = RawSwitch(SWITCH_TYPE_FUNCTIONSWITCH, idx);
   } else if (val_len >= 3 && val[0] == 'S' &&
              (val[1] >= 'A' && val[1] <= 'Z') &&
              (val[2] >= '0' && val[2] <= '2')) {

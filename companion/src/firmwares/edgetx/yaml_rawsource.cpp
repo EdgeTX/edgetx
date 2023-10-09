@@ -67,11 +67,9 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_FUNCTIONSWITCH:
-      if (IS_JUMPER_TPRO(getCurrentBoard())) {
-        c += Boards::getCapability(getCurrentBoard(), Board::Switches);
-        c += rhs.index;
-        src_str += "S";
-        src_str += c;
+      if (Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
+        src_str += "SW";
+        src_str += std::to_string(rhs.index + 1);
       }
       break;
     case SOURCE_TYPE_CYC:
@@ -153,6 +151,14 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
         rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, idx);
       }
     }
+  } else if (val_len == 3
+             && val[0] == 'S'
+             && val[1] == 'W'
+             && (val[2] >= '1' && val[2] <= '6')
+             && Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
+    // Customisable switches
+    int idx = val[2] - '1';
+    rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, idx);
 
   } else if (val_len > 4 &&
              val[0] == 'l' &&

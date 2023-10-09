@@ -66,6 +66,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for Jumper T-Lite (F4 MCU)";
     case BOARD_JUMPER_TPRO:
       return "EdgeTX for Jumper T-Pro";
+    case BOARD_JUMPER_TPROV2:
+      return "EdgeTX for Jumper T-Pro V2";
     case BOARD_JUMPER_T16:
       return "EdgeTX for Jumper T16";
     case BOARD_JUMPER_T18:
@@ -1328,6 +1330,16 @@ void registerOpenTxFirmwares()
 
   /* Jumper T-Pro board */
   firmware = new OpenTxFirmware(FIRMWAREID("tpro"), QCoreApplication::translate("Firmware", "Jumper T-Pro"), BOARD_JUMPER_TPRO);
+  addOpenTxCommonOptions(firmware);
+  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
+  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
+  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+
+  /* Jumper T-Pro V2 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("tprov2"), QCoreApplication::translate("Firmware", "Jumper T-Pro v2"), BOARD_JUMPER_TPROV2);
   addOpenTxCommonOptions(firmware);
   firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
   firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));

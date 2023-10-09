@@ -43,7 +43,10 @@ inline int MAX_SWITCHES(Board::Type board, int version)
   if (IS_TARANIS_X9D(board))
     return 9;
 
-  if (IS_JUMPER_TPRO(board))
+  if (IS_JUMPER_TPROV2(board))
+    return 12;
+
+  if (IS_JUMPER_TPROV1(board))
      return 10;
 
   if (IS_FAMILY_T12(board))
