@@ -458,7 +458,6 @@ void initSerialPorts()
     }
   }
 #else
-  memset(serialPortStates, 0, sizeof(serialPortStates));
   for (uint8_t port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {
     auto mode = getSerialPortMode(port_nr);
     serialInit(port_nr, mode);
