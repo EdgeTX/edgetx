@@ -223,6 +223,9 @@ void Choice::fillMenu(Menu *menu, const FilterFct& filter)
     if (value == i) { selectedIx = count; }
     ++count;
   }
+  if (fillMenuHandler) {
+    fillMenuHandler(menu, value, selectedIx);
+  }
   menu->updateLines();
   if (selectedIx >= 0) { menu->select(selectedIx); }
 }
