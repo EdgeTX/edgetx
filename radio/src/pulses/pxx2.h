@@ -55,6 +55,7 @@
 
 #define PXX2_RX_SETTINGS_FLAG1_TELEMETRY_DISABLED  (1 << 7)
 #define PXX2_RX_SETTINGS_FLAG1_READONLY            (1 << 6)
+#define PXX2_RX_SETTINGS_FLAG1_SBUS24              (1 << 5)
 #define PXX2_RX_SETTINGS_FLAG1_FASTPWM             (1 << 4)
 #define PXX2_RX_SETTINGS_FLAG1_FPORT               (1 << 3)
 #define PXX2_RX_SETTINGS_FLAG1_TELEMETRY_25MW      (1 << 2)
@@ -69,6 +70,16 @@
 #define SPECTRUM_ANALYSER_POWER_FLOOR   -120 /*dBm*/
 
 #define PXX2_AUTH_REFUSED_FLAG          0xA5
+
+// Channel mapping constants
+#define CH_ENABLE_SPORT 4
+#define CH_ENABLE_SBUS  5
+
+#define CH_MAP_SPORT    0x40
+#define CH_MAP_SBUS_OUT 0x80
+#define CH_MAP_SBUS_IN  0xA0
+#define CH_MAP_FBUS     0xC0
+
 
 enum PXX2ModuleModelID {
   PXX2_MODULE_NONE,
@@ -106,7 +117,13 @@ enum ModuleCapabilities {
 const char * getPXX2ReceiverName(uint8_t modelId);
 
 enum {
-  RECEIVER_OPTION_OTA,
+  RECEIVER_OPTION_24G,
+  RECEIVER_OPTION_900M,
+  RECEIVER_OPTION_OTA_TO_UPDATE_SELF,
+  RECEIVER_OPTION_OTA_TO_UPDATE_OTHER,
+  RECEIVER_OPTION_TANDEM,
+  RECEIVER_OPTION_TWIN,
+  RECEIVER_OPTION_D_TELE_PORT,
 };
 
 uint8_t getPXX2ReceiverOptions(uint8_t modelId);
@@ -118,6 +135,7 @@ enum ReceiverCapabilities {
   RECEIVER_CAPABILITY_ENABLE_PWM_CH5_CH6,
   RECEIVER_CAPABILITY_FPORT2,
   RECEIVER_CAPABILITY_RACING_MODE,
+  RECEIVER_CAPABILITY_SBUS24,
   RECEIVER_CAPABILITY_COUNT
 };
 
@@ -230,6 +248,7 @@ class ReceiverSettings {
     uint8_t fport;
     uint8_t enablePwmCh5Ch6;
     uint8_t fport2;
+    uint8_t sbus24;
     uint8_t outputsCount;
     uint8_t outputsMapping[24];
 };

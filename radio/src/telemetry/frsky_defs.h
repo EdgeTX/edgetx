@@ -102,6 +102,8 @@
 #define ACCY_LAST_ID              0x071F
 #define ACCZ_FIRST_ID             0x0720
 #define ACCZ_LAST_ID              0x072F
+#define ANGLE_FIRST_ID            0x0730
+#define ANGLE_LAST_ID             0x073F
 #define GPS_LONG_LATI_FIRST_ID    0x0800
 #define GPS_LONG_LATI_LAST_ID     0x080F
 #define GPS_ALT_FIRST_ID          0x0820

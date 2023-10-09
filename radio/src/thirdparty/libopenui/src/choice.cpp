@@ -212,6 +212,9 @@ void Choice::fillMenu(Menu *menu, const FilterFct& filter)
     if (i == 0) { selectedIx0 = count; }
     ++count;
   }
+  if (fillMenuHandler) {
+    fillMenuHandler(menu, value, selectedIx);
+  }
   menu->updateLines();
   // Force update - in case selected row is first row
   menu->select(-1);
