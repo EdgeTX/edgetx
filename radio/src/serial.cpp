@@ -452,7 +452,7 @@ void initSerialPorts()
 #if defined(DEBUG)
   // AUX1 and serialPortStates was already initialized early in DEBUG config
   for (uint8_t port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {
-    if (port_nr != AUX1) {
+    if (port_nr != SP_AUX1) {
       auto mode = getSerialPortMode(port_nr);
       serialInit(port_nr, mode);
     }
