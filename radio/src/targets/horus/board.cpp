@@ -146,7 +146,8 @@ void boardInit()
   __enable_irq();
 
 #if defined(DEBUG)
-  serialInit(SP_AUX1, UART_MODE_DEBUG);
+  serialSetMode(SP_AUX1, UART_MODE_DEBUG);                // indicate AUX1 is used
+  serialInit(SP_AUX1, UART_MODE_DEBUG);                   // early AUX1 init
 #endif
 
   TRACE("\nHorus board started :)");
