@@ -217,9 +217,6 @@ void Choice::fillMenu(Menu* menu, const FilterFct& filter)
     }
     ++count;
   }
-  if (fillMenuHandler) {
-    fillMenuHandler(menu, value, selectedIx);
-  }
   menu->updateLines();
   // Force update - in case selected row is first row
   menu->select(-1);
