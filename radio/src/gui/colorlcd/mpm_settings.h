@@ -29,6 +29,7 @@ class ToggleSwitch;
 struct ModuleData;
 struct MPMProtoOption;
 struct MPMSubtype;
+struct MPMDSMCloned;
 struct MPMServoRate;
 struct MPMAutobind;
 struct MPMChannelMap;
@@ -40,6 +41,7 @@ class MultimoduleSettings : public FormWindow, public ModuleOptions
 
   MPMSubtype* st_line;
   MPMProtoOption* opt_line;
+  MPMDSMCloned* cl_line;
   MPMServoRate* sr_line;
   MPMAutobind* ab_line;
   ToggleSwitch* lp_mode;

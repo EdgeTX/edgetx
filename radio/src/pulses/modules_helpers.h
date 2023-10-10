@@ -628,6 +628,23 @@ inline bool isModuleFailsafeAvailable(uint8_t moduleIdx)
   return false;
 }
 
+#if defined(MULTIMODULE)
+constexpr int32_t MULTI_DSM_CLONE_VERSION = (1 << 24) | (3 << 16) | (3 << 8) | 30;
+
+inline bool isMultiProtocolDSMCloneAvailable(uint8_t moduleIdx)
+{
+  if (!isModuleMultimodule(moduleIdx))
+    return false;
+
+  MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
+  if (status.isValid() && ((status.major << 24) | (status.minor << 16) | (status.revision << 8) | status.patch) < MULTI_DSM_CLONE_VERSION) {
+    return false;
+  }
+
+  return g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2;
+}
+#endif
+
 inline bool isModuleBindRangeAvailable(uint8_t moduleIdx)
 {
   return isModulePXX2(moduleIdx) || isModulePXX1(moduleIdx) ||

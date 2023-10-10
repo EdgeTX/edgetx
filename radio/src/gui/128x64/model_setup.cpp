@@ -487,7 +487,7 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
     MULTIMODULE_MODULE_ROWS(INTERNAL_MODULE)   /* ITEM_MODEL_SETUP_INTERNAL_MODULE_AUTOBIND */  \
     EXTERNAL_ANTENNA_ROW                       /* ITEM_MODEL_SETUP_INTERNAL_MODULE_ANTENNA */ \
     MODULE_POWER_ROW(INTERNAL_MODULE),         /* ITEM_MODEL_SETUP_INTERNAL_MODULE_POWER */ \
-    IF_INTERNAL_MODULE_ON(FAILSAFE_ROWS(INTERNAL_MODULE)), /* ITEM_MODEL_SETUP_INTERNAL_MODULE_FAILSAFE */ \
+    IF_INTERNAL_MODULE_ON(FAILSAFE_ROW(INTERNAL_MODULE)), /* ITEM_MODEL_SETUP_INTERNAL_MODULE_FAILSAFE */ \
     IF_ACCESS_MODULE_RF(INTERNAL_MODULE, 1),   /* ITEM_MODEL_SETUP_INTERNAL_MODULE_PXX2_REGISTER_RANGE */ \
     IF_PXX2_MODULE(INTERNAL_MODULE, 0),        /* ITEM_MODEL_SETUP_INTERNAL_MODULE_PXX2_OPTIONS */ \
     IF_ACCESS_MODULE_RF(INTERNAL_MODULE, 0),   /* ITEM_MODEL_SETUP_INTERNAL_MODULE_PXX2_RECEIVER_1 */ \
@@ -515,7 +515,7 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
     MODULE_POWER_ROW(EXTERNAL_MODULE),  \
     IF_NOT_PXX2_MODULE(EXTERNAL_MODULE, MODULE_OPTION_ROW(EXTERNAL_MODULE)),  \
     MULTIMODULE_MODULE_ROWS(EXTERNAL_MODULE)  \
-    FAILSAFE_ROWS(EXTERNAL_MODULE),               /* ITEM_MODEL_SETUP_EXTERNAL_MODULE_FAILSAFE */ \
+    FAILSAFE_ROW(EXTERNAL_MODULE),               /* ITEM_MODEL_SETUP_EXTERNAL_MODULE_FAILSAFE */ \
     IF_ACCESS_MODULE_RF(EXTERNAL_MODULE, 1),      /* Range check and Register buttons */ \
     IF_PXX2_MODULE(EXTERNAL_MODULE, 0),           /* Module options */ \
     IF_ACCESS_MODULE_RF(EXTERNAL_MODULE, 0),      /* Receiver 1 */ \
@@ -1397,13 +1397,24 @@ void menuModelSetup(event_t event)
 #endif
       {
         lcdDrawTextAlignedLeft(y, STR_SUBTYPE);
-        lcdDrawMultiSubProtocolString(MODEL_SETUP_2ND_COLUMN, y, moduleIdx, g_model.moduleData[moduleIdx].subType, attr);
+        lcdDrawMultiSubProtocolString(MODEL_SETUP_2ND_COLUMN, y, moduleIdx, g_model.moduleData[moduleIdx].subType, menuHorizontalPosition == 0 ? attr : 0);
+        int8_t optionValue = (g_model.moduleData[moduleIdx].multi.optionValue & 0x04) >> 2;
+        if (isMultiProtocolDSMCloneAvailable(moduleIdx)) {
+          lcdDrawTextAtIndex(LCD_W, y, STR_MULTI_DSM_CLONE, optionValue, RIGHT | (menuHorizontalPosition == 1 ? attr : 0));
+        }
         if (attr && s_editMode > 0) {
           switch (menuHorizontalPosition) {
             case 0:{
               CHECK_INCDEC_MODELVAR(event, g_model.moduleData[moduleIdx].subType, 0, getMaxMultiSubtype(moduleIdx));
               if (checkIncDec_Ret) {
                 resetMultiProtocolsOptions(moduleIdx);
+              }
+              break;
+            }
+            case 1:{
+              CHECK_INCDEC_MODELVAR(event, optionValue, 0, 1);
+              if (checkIncDec_Ret) {
+                g_model.moduleData[moduleIdx].multi.optionValue = (g_model.moduleData[moduleIdx].multi.optionValue & 0xFB) + (optionValue << 2);
               }
               break;
             }
