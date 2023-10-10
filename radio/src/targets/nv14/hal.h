@@ -359,8 +359,9 @@
 #define I2C_B1_GPIO                   GPIOB
 #define I2C_B1_SCL_GPIO_PIN           LL_GPIO_PIN_8  // PB.08
 #define I2C_B1_SDA_GPIO_PIN           LL_GPIO_PIN_7  // PB.09
-#define I2C_B1_GPIO_AF                GPIO_AF4_I2C1
+#define I2C_B1_GPIO_AF                LL_GPIO_AF_4
 
+// Touch
 #define TOUCH_I2C_BUS                 I2C_Bus_1
 #define TOUCH_I2C_CLK_RATE            400000
 
@@ -373,8 +374,12 @@
 #define TOUCH_INT_EXTI_Line           LL_EXTI_LINE_9
 #define TOUCH_INT_EXTI_Port           LL_SYSCFG_EXTI_PORTB
 #define TOUCH_INT_EXTI_SysCfgLine     LL_SYSCFG_EXTI_LINE9
-#define TOUCH_INT_EXTI_IRQn           EXTI9_5_IRQn
-#define TOUCH_INT_EXTI_IRQHandler     EXTI9_5_IRQHandler
+
+// TOUCH_INT_EXTI IRQ
+#if !defined(USE_EXTI9_5_IRQ)
+  #define USE_EXTI9_5_IRQ
+  #define EXTI9_5_IRQ_Priority  9
+#endif
 
 // Haptic: TIM1_CH1
 #define HAPTIC_PWM
