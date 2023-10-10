@@ -49,12 +49,6 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(7), LV_GRID_FR(15), LV_GRID_FR(9
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-#if defined(PPM_UNIT_PERCENT_PREC1)
-  #define PPM_PRECISION PREC1
-#else
-  #define PPM_PRECISION 0
-#endif
-
 void RadioTrainerPage::build(FormWindow * form)
 {
   FlexGridLayout grid(col_dsc, row_dsc, 2);
@@ -85,9 +79,13 @@ void RadioTrainerPage::build(FormWindow * form)
     line->padBottom(8);
 #endif
 
+    LcdFlags flags = LEFT | COLOR_THEME_PRIMARY1;
+    if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1)
+      flags |= PREC1;
+
     new DynamicNumber<int16_t>(line, rect_t{},
         [=]() { return (trainerInput[i] - g_eeGeneral.trainer.calib[i]) * 2; },
-        LEFT | PPM_PRECISION | COLOR_THEME_PRIMARY1);
+        flags);
   }
 
   auto line = form->newLine(&grid);

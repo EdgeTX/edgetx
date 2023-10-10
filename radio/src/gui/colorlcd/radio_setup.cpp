@@ -773,6 +773,11 @@ void RadioSetupPage::build(FormWindow * window)
   new StaticText(line, rect_t{}, STR_UNITS_SYSTEM, 0, COLOR_THEME_PRIMARY1);
   new Choice(line, rect_t{}, STR_VUNITSSYSTEM, 0, 1, GET_SET_DEFAULT(g_eeGeneral.imperial));
 
+  // PPM units
+  line = window->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_UNITS_PPM, 0, COLOR_THEME_PRIMARY1);
+  new Choice(line, rect_t{}, STR_PPMUNIT, PPM_PERCENT_PREC0, PPM_PERCENT_PREC1, GET_SET_DEFAULT(g_eeGeneral.ppmunit));
+
 #if defined(FAI_CHOICE)
 /*  case ITEM_SETUP_FAI:
     lcdDrawText(MENUS_MARGIN_LEFT, y, "FAI Mode");

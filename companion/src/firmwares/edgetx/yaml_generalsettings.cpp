@@ -224,6 +224,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["keysBacklight"] = (int)rhs.keysBacklight;
   node["rotEncMode"] = (int)rhs.rotEncMode;
   node["imperial"] = rhs.imperial;
+  node["ppmunit"] = rhs.ppmunit;
   node["ttsLanguage"] = rhs.ttsLanguage;
   node["beepVolume"] = rhs.beepVolume + 2;
   node["wavVolume"] = rhs.wavVolume + 2;
@@ -487,6 +488,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["rotEncDirection"] >> rhs.rotEncMode;    // PR2045: read old name and
   node["rotEncMode"] >> rhs.rotEncMode;         // new, but don't write old
   node["imperial"] >> rhs.imperial;
+  node["ppmunit"] >> rhs.ppmunit;
   node["ttsLanguage"] >> rhs.ttsLanguage;
   node["beepVolume"] >> ioffset_int(rhs.beepVolume, 2);
   node["wavVolume"] >> ioffset_int(rhs.wavVolume, 2);

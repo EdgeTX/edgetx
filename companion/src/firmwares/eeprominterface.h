@@ -118,7 +118,6 @@ enum Capability {
   HasModuleR9MFlex,
   HasModuleR9MMini,
   PPMCenter,
-  PPMUnitMicroseconds,
   SYMLimits,
   HastxCurrentCalibration,
   HasVolume,

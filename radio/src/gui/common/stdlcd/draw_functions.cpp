@@ -492,11 +492,11 @@ void drawSourceCustomValue(coord_t x, coord_t y, source_t source, int32_t value,
     lcdDrawNumber(x, y, calcRESXto100(value), flags);
   }
   else if (source <= MIXSRC_LAST_CH) {
-#if defined(PPM_UNIT_PERCENT_PREC1)
-    lcdDrawNumber(x, y, calcRESXto1000(value), flags|PREC1);
-#else
-    lcdDrawNumber(x, y, calcRESXto100(value), flags);
-#endif
+    if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+      lcdDrawNumber(x, y, calcRESXto1000(value), flags|PREC1);
+    } else {
+      lcdDrawNumber(x, y, calcRESXto100(value), flags);
+    }
   }
   else {
     lcdDrawNumber(x, y, value, flags);

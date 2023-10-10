@@ -517,13 +517,13 @@ void menuMainView(event_t event)
 #else
           y0 = i / 4 * FH + 40;
 #endif
-#if defined(PPM_UNIT_US)
-          lcdDrawNumber(x0 + 4 * FW, y0, PPM_CH_CENTER(chan) + val / 2, RIGHT);
-#elif defined(PPM_UNIT_PERCENT_PREC1)
-          lcdDrawNumber(x0 + 4 * FW, y0, calcRESXto1000(val), RIGHT | PREC1);
-#else
-          lcdDrawNumber(x0+4*FW , y0, calcRESXto1000(val)/10, RIGHT); // G: Don't like the decimal part*
-#endif
+          if (g_eeGeneral.ppmunit == PPM_US) {
+            lcdDrawNumber(x0 + 4 * FW, y0, PPM_CH_CENTER(chan) + val / 2, RIGHT);
+          } else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+            lcdDrawNumber(x0 + 4 * FW, y0, calcRESXto1000(val), RIGHT | PREC1);
+          } else {
+            lcdDrawNumber(x0+4*FW , y0, calcRESXto1000(val)/10, RIGHT); // G: Don't like the decimal part*
+          }
         }
         else {
           constexpr coord_t WBAR2 = (50 / 2);

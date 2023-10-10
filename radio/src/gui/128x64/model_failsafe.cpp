@@ -61,9 +61,8 @@ void menuModelFailsafe(event_t event)
     LcdFlags attr = (sub == k) ? INVERS : 0;
 
     uint8_t wbar = LCD_W - FW * 4 - FWNUM * 4;
-#if defined(PPM_UNIT_PERCENT_PREC1)
-    wbar -= 6;
-#endif
+    if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1)
+      wbar -= 6;
 
     if (sub == k && !READ_ONLY() && event == EVT_KEY_LONG(KEY_ENTER)) {
       killEvents(event);
@@ -102,13 +101,13 @@ void menuModelFailsafe(event_t event)
       failsafeValue = 0;
     }
     else {
-#if defined(PPM_UNIT_US)
-      lcdDrawNumber(xValue, y, PPM_CH_CENTER(k)+failsafeValue/2, RIGHT|flags);
-#elif defined(PPM_UNIT_PERCENT_PREC1)
-      lcdDrawNumber(xValue, y, calcRESXto1000(failsafeValue), RIGHT|PREC1|flags);
-#else
-      lcdDrawNumber(xValue, y, calcRESXto1000(failsafeValue)/10, RIGHT|flags);
-#endif
+      if (g_eeGeneral.ppmunit == PPM_US) {
+        lcdDrawNumber(xValue, y, PPM_CH_CENTER(k)+failsafeValue/2, RIGHT|flags);
+      } else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+        lcdDrawNumber(xValue, y, calcRESXto1000(failsafeValue), RIGHT|PREC1|flags);
+      } else {
+        lcdDrawNumber(xValue, y, calcRESXto1000(failsafeValue)/10, RIGHT|flags);
+      }
     }
 
     // Gauge

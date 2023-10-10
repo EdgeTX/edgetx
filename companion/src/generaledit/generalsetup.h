@@ -47,6 +47,7 @@ class GeneralSetupPanel : public GeneralPanel
     void on_re_CB_currentIndexChanged(int index);
     void on_countrycode_CB_currentIndexChanged(int index);
     void on_units_CB_currentIndexChanged(int index);
+    void on_ppm_units_CB_currentIndexChanged(int index);
     void on_faimode_CB_stateChanged(int );
     void on_rotEncMode_CB_currentIndexChanged(int index);
     void on_speakerPitchSB_editingFinished();

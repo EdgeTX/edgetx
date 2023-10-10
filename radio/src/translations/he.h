@@ -214,6 +214,7 @@
 #define TR_TEXT_SIZE                   "Standard","Tiny","Small","Mid","Double"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center only)","= (symmetrical)"
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
+#define TR_PPMUNIT                     "0.--","0.0","us"
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -812,6 +813,7 @@
 #define TR_JACK_MODE                   "Jack mode"
 #define TR_VOICE_LANGUAGE              "שפת שמע"
 #define TR_UNITS_SYSTEM                "יחידות"
+#define TR_UNITS_PPM                   "PPM Units"
 #define TR_EDIT                        "ערוך"
 #define TR_INSERT_BEFORE               "כלול לפני"
 #define TR_INSERT_AFTER                "כלול אחרי"

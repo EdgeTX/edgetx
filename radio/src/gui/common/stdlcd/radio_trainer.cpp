@@ -96,11 +96,11 @@ void menuRadioTrainer(event_t event)
     int32_t chVal = trainerInput[i] - g_eeGeneral.trainer.calib[i];
     chVal *= g_eeGeneral.trainer.mix[i].studWeight * 10;
     chVal /= 512;
-#if defined (PPM_UNIT_PERCENT_PREC1)
-    lcdDrawNumber(x, MENU_HEADER_HEIGHT+1+6*FH, chVal, PREC1|RIGHT);
-#else
-    lcdDrawNumber(x, MENU_HEADER_HEIGHT+1+6*FH, chVal / 10, RIGHT);
-#endif
+    if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+      lcdDrawNumber(x, MENU_HEADER_HEIGHT+1+6*FH, chVal, PREC1|RIGHT);
+    } else {
+      lcdDrawNumber(x, MENU_HEADER_HEIGHT+1+6*FH, chVal / 10, RIGHT);
+    }
   }
 
   if (attr) {

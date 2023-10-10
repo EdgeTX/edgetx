@@ -86,9 +86,6 @@ static const char * const options[] = {
 #if !defined(OVERRIDE_CHANNEL_FUNCTION)
   "nooverridech",
 #endif
-#if defined(PPM_UNIT_US)
-  "ppmus",
-#endif
 #if defined(NO_RAS)
   "noras",
 #endif

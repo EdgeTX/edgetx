@@ -38,7 +38,7 @@ class LimitsGroup
   Q_DECLARE_TR_FUNCTIONS(LimitsGroup)
 
   public:
-    LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row, int col, int & value, const ModelData & model,
+    LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row, int col, int & value, const ModelData & model, GeneralSettings & generalSettings,
                 int min, int max, int deflt, FilteredItemModel * gvarModel, ModelPanel * panel = nullptr);
     ~LimitsGroup();
 

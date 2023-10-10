@@ -23,7 +23,7 @@
 #include "filtereditemmodels.h"
 #include "curveimagewidget.h"
 
-LimitsGroup::LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row, int col, int & value, const ModelData & model,
+LimitsGroup::LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row, int col, int & value, const ModelData & model, GeneralSettings & generalSettings,
                          int min, int max, int deflt, FilteredItemModel * gvarModel, ModelPanel * panel):
   firmware(firmware),
   spinbox(new QDoubleSpinBox()),
@@ -34,7 +34,7 @@ LimitsGroup::LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row
   spinbox->setAccelerated(true);
   spinbox->setDecimals(1);
 
-  if (firmware->getCapability(PPMUnitMicroseconds)) {
+  if (generalSettings.ppmunit == GeneralSettings::PPM_US) {
     displayStep = 0.512;
     spinbox->setSuffix("us");
   }
@@ -141,13 +141,13 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
     }
 
     // Channel offset
-    chnOffset[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].offset, model, -1000, 1000, 0, dialogFilteredItemModels->getItemModel(gvid), this);
+    chnOffset[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].offset, model, generalSettings, -1000, 1000, 0, dialogFilteredItemModels->getItemModel(gvid), this);
 
     // Channel min
-    chnMin[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].min, model, -model.getChannelsMax() * 10, 0, -1000, dialogFilteredItemModels->getItemModel(gvid), this);
+    chnMin[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].min, model, generalSettings, -model.getChannelsMax() * 10, 0, -1000, dialogFilteredItemModels->getItemModel(gvid), this);
 
     // Channel max
-    chnMax[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].max, model, 0, model.getChannelsMax() * 10, 1000, dialogFilteredItemModels->getItemModel(gvid), this);
+    chnMax[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].max, model, generalSettings, 0, model.getChannelsMax() * 10, 1000, dialogFilteredItemModels->getItemModel(gvid), this);
 
     // Channel inversion
     invCB[i] = new QComboBox(this);
