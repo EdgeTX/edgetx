@@ -211,6 +211,7 @@
 #define TR_TEXT_SIZE                   "Стандартный", "Крошечный", "Маленький", "Средний", "Двойной"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (только центр)", "= (симметрично)"
 #define TR_TIMER_DIR                   TR("Остал", "Остал"), TR("Прошло", "Прошед")
+#define TR_PPMUNIT                     "0.--","0.0","us"
 
 #if defined(COLORLCD)
 #if defined(BOLD)
@@ -809,6 +810,7 @@
 #define TR_JACK_MODE                   "Режим разъема"
 #define TR_VOICE_LANGUAGE              "Язык звука"
 #define TR_UNITS_SYSTEM                "Единицы"
+#define TR_UNITS_PPM                   "PPM Единицы"
 #define TR_EDIT                        "Редактировать"
 #define TR_INSERT_BEFORE               "Вставить перед"
 #define TR_INSERT_AFTER                "Вставить после"
