@@ -98,7 +98,7 @@ typedef struct {
   int (*getBufferedBytes)(void* ctx);
 
   int (*copyRxBuffer)(void* ctx, uint8_t* buf, uint32_t len);
-  
+
   // Clear internal buffer
   void (*clearRxBuffer)(void* ctx);
 

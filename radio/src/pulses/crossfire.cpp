@@ -155,20 +155,16 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
   // De-Fragmentation:
   //   It is assumed here that a continuation chunk
   //   will not belong to multiple CRSF frames.
-  
+
   uint8_t& len = *p_len;
   if (len > 0) {
-
     uint8_t unfrag_len = buf[1] + 2;
     uint8_t defrag_len = len + frame_len;
 
-    if (defrag_len <= unfrag_len &&
-	defrag_len <= TELEMETRY_RX_PACKET_SIZE) {
-
+    if (defrag_len <= unfrag_len && defrag_len <= TELEMETRY_RX_PACKET_SIZE) {
       // If we're not going to overshoot
       // the intended frame length,
       // let's reassemble it
-      //
       memcpy(buf + len, frame, frame_len);
       len = defrag_len;
       frame_len = 0;
@@ -178,7 +174,7 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
         TRACE("[XF] frag cont frame (%d < %d)", defrag_len, unfrag_len);
         return;
       } else {
-	TRACE("[XF] frame complete");
+        TRACE("[XF] frame complete");
       }
     } else {
       TRACE("[XF] overshoot (%d > %d)", defrag_len, unfrag_len);
@@ -203,15 +199,14 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
   }
 
   uint8_t* p_buf = buf;
-  while(len >= MIN_FRAME_LEN) {
-
+  while (len >= MIN_FRAME_LEN) {
     uint8_t pkt_len = p_buf[1] + 2;
     if (pkt_len > len) {
       TRACE("[XF] length error (%d > %d)", pkt_len, len);
       len = 0;
       return;
     }
-    
+
     if (p_buf[0] != RADIO_ADDRESS && p_buf[0] != UART_SYNC) {
       TRACE("[XF] address 0x%02X error", p_buf[0]);
     } else if (!_checkFrameCRC(p_buf)) {
@@ -273,7 +268,6 @@ static void* crossfireInit(uint8_t module)
 
 #if defined(INTERNAL_MODULE_CRSF)
   if (module == INTERNAL_MODULE) {
-
     params.baudrate = INT_CROSSFIRE_BAUDRATE;
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params, false);
 
@@ -295,7 +289,6 @@ static void* crossfireInit(uint8_t module)
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
-
     params.baudrate = EXT_CROSSFIRE_BAUDRATE;
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params, false);
 
@@ -309,7 +302,8 @@ static void* crossfireInit(uint8_t module)
 #if !defined(SIMU)
       if (drv && ctx && drv->setIdleCb) {
         drv->setIdleCb(ctx, _soft_irq_trigger, 0);
-        stm32_exti_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 0, _crsf_extmodule_frame_received);
+        stm32_exti_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 0,
+                          _crsf_extmodule_frame_received);
       }
 #endif
     }
@@ -336,7 +330,7 @@ static void crossfireDeInit(void* ctx)
     }
   }
 #endif
-  
+
   modulePortDeInit(mod_st);
 }
 

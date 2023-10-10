@@ -94,8 +94,9 @@ void processCrossfireTelemetryValue(uint8_t index, int32_t value)
                     value, sensor.unit, sensor.precision);
 }
 
-template<int N>
-bool getCrossfireTelemetryValue(uint8_t index, int32_t & value, uint8_t* rxBuffer)
+template <int N>
+bool getCrossfireTelemetryValue(uint8_t index, int32_t& value,
+                                uint8_t* rxBuffer)
 {
   bool result = false;
   uint8_t * byte = &rxBuffer[index];
@@ -110,7 +111,8 @@ bool getCrossfireTelemetryValue(uint8_t index, int32_t & value, uint8_t* rxBuffe
   return result;
 }
 
-void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer, uint8_t rxBufferCount)
+void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
+                                    uint8_t rxBufferCount)
 {
   if (telemetryState == TELEMETRY_INIT &&
       moduleState[module].counter != CRSF_FRAME_MODELID_SENT) {
@@ -156,7 +158,8 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer, uint8_t r
       }
       // Length of TBS BARO_ALT has 4 payload bytes with just 2 bytes of altitude
       // but support including VARIO if the declared payload length is 6 bytes or more
-      if (crsfPayloadLen > 5 && getCrossfireTelemetryValue<2>(5, value, rxBuffer))
+      if (crsfPayloadLen > 5 &&
+          getCrossfireTelemetryValue<2>(5, value, rxBuffer))
         processCrossfireTelemetryValue(VERTICAL_SPEED_INDEX, value);
       break;
 
