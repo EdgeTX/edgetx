@@ -88,6 +88,11 @@ class Choice : public ChoiceBase
 
   void onClicked() override;
 
+  void setFillMenuHandler(std::function<void(Menu*, int, int&)> handler)
+  {
+    fillMenuHandler = std::move(handler);
+  }
+
   void setBeforeDisplayMenuHandler(std::function<void(Menu *)> handler)
   {
     beforeDisplayMenuHandler = std::move(handler);
@@ -185,6 +190,7 @@ class Choice : public ChoiceBase
   std::function<void(int)> _setValue;
   std::function<bool(int)> isValueAvailable;
   std::function<std::string(int)> textHandler;
+  std::function<void(Menu *, int, int&)> fillMenuHandler;
   std::function<void(Menu *)> beforeDisplayMenuHandler;
 
   typedef std::function<bool(int16_t)> FilterFct;
