@@ -157,7 +157,7 @@ ZoneOption *createOptionsArray(int reference, uint8_t maxOptions)
             break;
           case 2:
             luaL_checktype(lsWidgets, -2, LUA_TNUMBER);  // key is number
-            if (option->type == ZoneOption::Integer) {
+            if (option->type == ZoneOption::Integer || option->type == ZoneOption::Switch) {
               luaL_checktype(lsWidgets, -1, LUA_TNUMBER);  // value is number
               option->deflt.signedValue = lua_tointeger(lsWidgets, -1);
               // TRACE("default signed = %d", option->deflt.signedValue);
@@ -183,14 +183,14 @@ ZoneOption *createOptionsArray(int reference, uint8_t maxOptions)
             }
             break;
           case 3:
-            if (option->type == ZoneOption::Integer) {
+            if (option->type == ZoneOption::Integer || option->type == ZoneOption::Switch) {
               luaL_checktype(lsWidgets, -2, LUA_TNUMBER);  // key is number
               luaL_checktype(lsWidgets, -1, LUA_TNUMBER);  // value is number
               option->min.signedValue = lua_tointeger(lsWidgets, -1);
             }
             break;
           case 4:
-            if (option->type == ZoneOption::Integer) {
+            if (option->type == ZoneOption::Integer || option->type == ZoneOption::Switch) {
               luaL_checktype(lsWidgets, -2, LUA_TNUMBER);  // key is number
               luaL_checktype(lsWidgets, -1, LUA_TNUMBER);  // value is number
               option->max.signedValue = lua_tointeger(lsWidgets, -1);
