@@ -46,5 +46,6 @@ struct ScreenMouseEvent {
 };
 
 void GimbalPair(const char* str_id, GimbalState& left, GimbalState& right);
-void SimuScreen(ImTextureID screen_img, ImVec2 size, ImU32 bg_col, const ScreenDesc& desc);
+void SimuScreen(const ScreenDesc& desc, ImTextureID screen_img, ImVec2 size,
+                ImU32 bg_col, ImU32 overlay_col);
 bool SimuScreenMouseEvent(const ScreenDesc& desc, ScreenMouseEvent& event);

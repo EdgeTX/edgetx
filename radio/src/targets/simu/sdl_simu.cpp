@@ -24,6 +24,7 @@
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_sdlrenderer2.h>
+#include "targets/simu/simpgmspace.h"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -52,6 +53,7 @@
 
 #include "simuaudio.h"
 #include "hal/key_driver.h"
+#include "switches.h"
 
 #include "audio.h"
 #include "debug.h"
@@ -360,19 +362,100 @@ static SDL_Texture* LoadTexture(SDL_Renderer* renderer, const unsigned char* pix
   return texture;
 }
 
-Uint32 get_bg_color()
+static void draw_switches()
 {
-  if (isBacklightEnabled()) {
-    return IM_COL32(47, 123, 227, 255);
-  } else {
-    return IM_COL32(200, 200, 200, 255);
+  const float spacing = 4;
+  ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(spacing, spacing));
+  ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
+  ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, 4.0f);
+  ImGui::PushID("switches");
+  {
+    static int switches[MAX_SWITCHES] = {0};
+
+    ImGui::BeginGroup();
+    int sw_idx = 0;
+    for (int i = 0; i < switchGetMaxSwitches(); i++) {
+      if (!SWITCH_EXISTS(i)) {
+        switches[i] = 0;
+      } else {
+        if (sw_idx > 0) ImGui::SameLine();
+        ImGui::PushID(i);
+        ImGui::VSliderInt("##sw", ImVec2(18, 60),
+                          &switches[i], IS_CONFIG_3POS(i) ? 2 : 1,
+                          0, "", ImGuiSliderFlags_NoInput);
+        if (ImGui::IsItemActive() || ImGui::IsItemHovered()) {
+          ImGui::SetTooltip("%s", switchGetCanonicalName(i));
+        }
+        ImGui::PopID();
+        
+        if (++sw_idx >= MAX_SWITCHES/2) sw_idx = 0;
+      }
+      
+      if (IS_CONFIG_3POS(i)) {
+        simuSetSwitch(i, switches[i] == 0 ? -1 : switches[i] == 1 ? 0 : 1);
+      } else {
+        simuSetSwitch(i, switches[i] == 0 ? -1 : 1);
+      }
+    }
+    ImGui::EndGroup();
   }
+  ImGui::PopID();
+  ImGui::PopStyleVar(3);
+}
+
+static void draw_gimbals()
+{
+  stick_left.lock_y = (g_eeGeneral.stickMode == 1);
+  stick_right.lock_y = (g_eeGeneral.stickMode == 0);
+
+  GimbalPair("#gimbals", stick_left, stick_right);
+}
+
+ImU32 get_bg_color()
+{
+  if (LCD_DEPTH < 16) {
+    if (isBacklightEnabled()) {
+      return IM_COL32(47, 123, 227, 255);
+    } else {
+      return IM_COL32(200, 200, 200, 255);
+    }
+  } else {
+    return IM_COL32_BLACK_TRANS;
+  }
+}
+
+static void draw_screen()
+{
+  const ImGuiViewport* viewport = ImGui::GetMainViewport();
+  float width = viewport->WorkSize.x - 2 * ImGui::GetStyle().WindowPadding.x;
+
+  const ScreenDesc desc = {
+    .width = LCD_W,
+    .height = LCD_H,
+    .is_dot_matrix = LCD_DEPTH == 1 || LCD_DEPTH == 4,
+  };
+
+  float aspect_ratio = float(LCD_H) / float(LCD_W);
+  ImVec2 size(width, width * aspect_ratio);
+
+  SimuScreen(desc, screen_frame_buffer, size, get_bg_color(),
+             (LCD_DEPTH == 16 && !isBacklightEnabled()) ?
+             IM_COL32(0,0,0,127) : IM_COL32_BLACK_TRANS);
+
+#if defined(HARDWARE_TOUCH)
+  ScreenMouseEvent touch_event;
+  if (SimuScreenMouseEvent(desc, touch_event)) {
+    if (touch_event.type == ScreenMouseEventType::MouseDown) {
+      touchPanelDown(touch_event.pos_x, touch_event.pos_y);
+    } else {
+      touchPanelUp();
+    }
+  }
+#endif
 }
 
 static void redraw()
 {
-  ImGuiStyle& style = ImGui::GetStyle();
-
   // poll audio
   audioQueue.wakeup();
 
@@ -396,34 +479,15 @@ static void redraw()
   bool show_win = true;
   if (ImGui::Begin("Main window", &show_win, flags)) {
 
-    // show gimbals
-    stick_left.lock_y = (g_eeGeneral.stickMode == 1);
-    stick_right.lock_y = (g_eeGeneral.stickMode == 0);
-    GimbalPair("#gimbals", stick_left, stick_right);
-      
-    float aspect_ratio = float(LCD_H) / float(LCD_W);
-    float width = viewport->WorkSize.x - 2 * style.WindowPadding.x;
-    ImVec2 size(width, width * aspect_ratio);
-
-    const ScreenDesc desc = {
-      .width = LCD_W,
-      .height = LCD_H,
-      .is_dot_matrix = LCD_DEPTH == 1 || LCD_DEPTH == 4,
-    };
-    SimuScreen(screen_frame_buffer, size, get_bg_color(), desc);
-
-#if defined(HARDWARE_TOUCH)
-    ScreenMouseEvent touch_event;
-    if (SimuScreenMouseEvent(desc, touch_event)) {
-      if (touch_event.type == ScreenMouseEventType::MouseDown) {
-        touchPanelDown(touch_event.pos_x, touch_event.pos_y);
-      } else {
-        touchPanelUp();
-      }
-    }
-#endif
+    draw_switches();
+    ImGui::SameLine();
+    draw_gimbals();
+    ImGui::SameLine();
+    
+    draw_screen();
     // ImGui::Text("tmr10ms: %u", g_tmr10ms);
     // ImGui::Text("rtos time: %u", RTOS_GET_MS());
+    // ImGui::Text("Backlight: %s", isBacklightEnabled() ? "on" : "off");
   }
   ImGui::End();
 

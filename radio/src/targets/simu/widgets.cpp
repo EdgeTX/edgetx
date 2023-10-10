@@ -152,23 +152,22 @@ void GimbalPair(const char* str_id, GimbalState& left, GimbalState& right)
   }
 }
 
-void SimuScreen(ImTextureID screen_img, ImVec2 size, ImU32 bg_col, const ScreenDesc& desc)
+void SimuScreen(const ScreenDesc& desc, ImTextureID screen_img, ImVec2 size,
+                ImU32 bg_col, ImU32 overlay_col)
 {
   ImVec2 p0 = ImGui::GetCursorScreenPos();
+  ImVec2 p1 = { p0.x + size.x, p0.y + size.y };
 
+  ImDrawList* draw_list = ImGui::GetWindowDrawList();
   if (bg_col != IM_COL32_BLACK_TRANS) {
-    ImDrawList* draw_list = ImGui::GetWindowDrawList();
-    ImVec2 p1 = { p0.x + size.x, p0.y + size.y };
     draw_list->AddRectFilled(p0, p1, bg_col);
   }
 
-  // ImGui::Image(screen_img, size);
   ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
   ImGui::ImageButton("#simu-screen", screen_img, size);
   ImGui::PopStyleVar();
 
   if (desc.is_dot_matrix) {
-    ImDrawList* draw_list = ImGui::GetWindowDrawList();
     float dx = size.x / float(desc.width);
     float thickness = dx / 50.0;
     auto col = bg_col & 0x80FFFFFF;
@@ -182,6 +181,10 @@ void SimuScreen(ImTextureID screen_img, ImVec2 size, ImU32 bg_col, const ScreenD
       ImVec2 p2 = { p0.x + size.x - 1, p1.y };
       draw_list->AddLine(p1, p2, col, thickness);
     }
+  }
+
+  if (overlay_col != IM_COL32_BLACK_TRANS) {
+    draw_list->AddRectFilled(p0, p1, overlay_col);
   }
 }
 

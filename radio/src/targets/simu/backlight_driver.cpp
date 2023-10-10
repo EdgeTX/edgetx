@@ -19,11 +19,16 @@
  * GNU General Public License for more details.
  */
 
+#include "board.h"
+
 bool boardBacklightOn = false;
 bool isBacklightEnabled() { return boardBacklightOn; }
-void backlightFullOn() { boardBacklightOn = true; }
 
 void backlightInit() {}
+
+#if LCD_DEPTH != 16
+
+void backlightFullOn() { boardBacklightOn = true; }
 
 void backlightEnable(unsigned char)
 {
@@ -39,3 +44,10 @@ void backlightDisable()
 {
   boardBacklightOn = false;
 }
+
+#else
+
+void backlightFullOn() { backlightEnable(BACKLIGHT_LEVEL_MAX); }
+void backlightEnable(uint8_t) {}
+
+#endif
