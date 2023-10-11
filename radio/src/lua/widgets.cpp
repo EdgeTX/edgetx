@@ -149,10 +149,15 @@ ZoneOption *createOptionsArray(int reference, uint8_t maxOptions)
               option->type = ZoneOption::Integer;
             }
             if (option->type == ZoneOption::Integer) {
-              // set some sensible defaults (only Integer actually uses them)
+              // set some sensible defaults
               option->deflt.signedValue = 0;
               option->min.signedValue = -100;
               option->max.signedValue = 100;
+            } else if (option->type == ZoneOption::Switch) {
+              // set some sensible defaults
+              option->deflt.signedValue = SWSRC_NONE;
+              option->min.signedValue = SWSRC_FIRST;
+              option->max.signedValue = SWSRC_LAST;
             }
             break;
           case 2:
