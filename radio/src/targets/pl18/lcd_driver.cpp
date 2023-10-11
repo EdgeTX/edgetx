@@ -27,8 +27,12 @@
 #include "stm32f4xx_ltdc.h"
 #include "stm32f4xx_dma2d.h"
 
-#define LCD_PHYS_W 480
-#define LCD_PHYS_H 320
+#pragma GCC push_options
+#pragma GCC optimize("O0") // FOR DEBUG
+
+uint8_t TouchControllerType = 0;  //0:cst340; 1 ft6236
+static volatile uint16_t lcd_phys_w = 320;
+static volatile uint16_t lcd_phys_h = 480;
 
 static volatile uint8_t _frame_addr_reloaded = 0;
 
@@ -1295,7 +1299,9 @@ void LCD_ST7796S_Init(void) {
 
   delay_ms(120);
 
-  lcdWriteCommand( 0x21 );
+  if( !TouchControllerType ) {
+    lcdWriteCommand( 0x21 );
+  }
 
   LCD_ST7796S_On();
 }
@@ -2775,13 +2781,13 @@ void LCD_Init_LTDC() {
   /* Configure accumulated vertical back porch */
   LTDC_InitStruct.LTDC_AccumulatedVBP = VBP;
   /* Configure accumulated active width */
-  LTDC_InitStruct.LTDC_AccumulatedActiveW = LCD_PHYS_W + HBP;
+  LTDC_InitStruct.LTDC_AccumulatedActiveW = lcd_phys_w + HBP;
   /* Configure accumulated active height */
-  LTDC_InitStruct.LTDC_AccumulatedActiveH = LCD_PHYS_H + VBP;
+  LTDC_InitStruct.LTDC_AccumulatedActiveH = lcd_phys_h + VBP;
   /* Configure total width */
-  LTDC_InitStruct.LTDC_TotalWidth = LCD_PHYS_W + HBP + HFP;
+  LTDC_InitStruct.LTDC_TotalWidth = lcd_phys_w + HBP + HFP;
   /* Configure total height */
-  LTDC_InitStruct.LTDC_TotalHeigh = LCD_PHYS_H + VBP + VFP;
+  LTDC_InitStruct.LTDC_TotalHeigh = lcd_phys_h + VBP + VFP;
 
   LTDC_Init(&LTDC_InitStruct);
 
@@ -2791,7 +2797,7 @@ void LCD_Init_LTDC() {
   
 
   // Trigger on last line
-  LTDC_LIPConfig(LCD_PHYS_H);
+  LTDC_LIPConfig(lcd_phys_h);
   LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
 }
 
@@ -2805,9 +2811,9 @@ void LCD_LayerInit() {
    Vertical start   = vertical synchronization + vertical back porch     = 4
    Vertical stop   = Vertical start + window height -1  = 4 + 320 -1      */
   LTDC_Layer_InitStruct.LTDC_HorizontalStart = HBP + 1;
-  LTDC_Layer_InitStruct.LTDC_HorizontalStop = (LCD_PHYS_W + HBP);
+  LTDC_Layer_InitStruct.LTDC_HorizontalStop = (lcd_phys_w + HBP);
   LTDC_Layer_InitStruct.LTDC_VerticalStart = VBP + 1;
-  LTDC_Layer_InitStruct.LTDC_VerticalStop = (LCD_PHYS_H + VBP);
+  LTDC_Layer_InitStruct.LTDC_VerticalStop = (lcd_phys_h + VBP);
 
   /* Pixel Format configuration*/
   LTDC_Layer_InitStruct.LTDC_PixelFormat = LTDC_Pixelformat_RGB565;
@@ -2828,14 +2834,14 @@ void LCD_LayerInit() {
    Active high width         = LCD_W
    number of bytes per pixel = 2    (pixel_format : RGB565)
    */
-  LTDC_Layer_InitStruct.LTDC_CFBLineLength = ((LCD_PHYS_W * 2) + 3);
+  LTDC_Layer_InitStruct.LTDC_CFBLineLength = ((lcd_phys_w * 2) + 3);
   /* the pitch is the increment from the start of one line of pixels to the
    start of the next line in bytes, then :
    Pitch = Active high width x number of bytes per pixel */
-  LTDC_Layer_InitStruct.LTDC_CFBPitch = (LCD_PHYS_W * 2);
+  LTDC_Layer_InitStruct.LTDC_CFBPitch = (lcd_phys_w * 2);
 
   /* Configure the number of lines */
-  LTDC_Layer_InitStruct.LTDC_CFBLineNumber = LCD_PHYS_H;
+  LTDC_Layer_InitStruct.LTDC_CFBLineNumber = lcd_phys_h;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
   uint32_t layer_address = (uint32_t)lcdFront->getData();
@@ -2893,6 +2899,9 @@ void lcdInit(void)
     lcdOffFunction = LCD_ILI9488_Off;
     lcdOnFunction = LCD_ILI9488_On;
     lcdPixelClock = 12000000;
+
+    lcd_phys_w = 480;
+    lcd_phys_h = 320;
   } else if (LCD_HX8357D_ReadID() == LCD_HX8357D_ID) {
     TRACE("LCD INIT: HX8357D");
     boardLcdType = "HX8357D";
@@ -2900,23 +2909,21 @@ void lcdInit(void)
     lcdOffFunction = LCD_HX8357D_Off;
     lcdOnFunction = LCD_HX8357D_On;
     lcdPixelClock = 12000000;
-  } else if (LCD_ST7796S_ReadID() == LCD_ST7796S_ID || 1) {
+  } else if (LCD_ST7796S_ReadID() == LCD_ST7796S_ID ) {
     TRACE("LCD INIT (default): ST7796S");
     boardLcdType = "ST7796S";
     lcdInitFunction = LCD_ST7796S_Init;
     lcdOffFunction = LCD_ST7796S_Off;
     lcdOnFunction = LCD_ST7796S_On;
     lcdPixelClock = 14500000;
-  /*} else { // NT35310 can not be detected
-    TRACE("LCD INIT (default): NT35310");
-    boardLcdType = "NT35310";
-    lcdInitFunction = LCD_NT35310_Init;
-    lcdOffFunction = LCD_NT35310_Off;
-    lcdOnFunction = LCD_NT35310_On;
-    lcdPixelClock = 12500000;*/
-/*  } else {
-    TRACE("LCD INIT: unknown LCD controller");
-    boardLcdType = "unknown";*/
+  }
+  else{
+    TRACE("LCD INIT (default): ST7796S");
+    boardLcdType = "ST7796S";
+    lcdInitFunction = LCD_ST7796S_Init;
+    lcdOffFunction = LCD_ST7796S_Off;
+    lcdOnFunction = LCD_ST7796S_On;
+    lcdPixelClock = 12000000;
   }
 
   lcdInitFunction();
@@ -3097,3 +3104,6 @@ extern "C" void LTDC_IRQHandler(void)
 
   _frame_addr_reloaded = 1;
 }
+
+#pragma GCC pop_options
+
