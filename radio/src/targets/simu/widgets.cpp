@@ -98,15 +98,11 @@ void SingleGimbal(const char* name, GimbalState& gs)
   const auto border_thickness = 6.0f;
   const auto default_dot_radius = 12.0f;
 
-  const auto frame_width = ImGui::GetContentRegionAvail().x;
-
-  ImVec2 pos = ImGui::GetCursorScreenPos();
-  ImVec2 gimbal_p0(pos.x + (frame_width - gimbal_width) / 2.0f, pos.y);
-  ImVec2 gimbal_p1(gimbal_p0.x + gimbal_width, gimbal_p0.y + gimbal_width);
-  ImGui::SetCursorScreenPos(gimbal_p0);
-
   ImGui::InvisibleButton(name, ImVec2(gimbal_width, gimbal_width));
-  draw_gimbal_frame(gimbal_p0, gimbal_p1, border_rounding, border_thickness);
+
+  auto p0 = ImGui::GetItemRectMin();
+  auto p1 = ImGui::GetItemRectMax();
+  draw_gimbal_frame(p0, p1, border_rounding, border_thickness);
   
   float dot_radius = default_dot_radius;
   ImU32 col = ImGui::GetColorU32(ImGuiCol_Button);
@@ -122,7 +118,7 @@ void SingleGimbal(const char* name, GimbalState& gs)
 
   if (ImGui::IsItemActive()) {
     const auto& io = ImGui::GetIO();
-    ImVec2 mouse_pos(io.MousePos.x - gimbal_p0.x, io.MousePos.y - gimbal_p0.y);
+    ImVec2 mouse_pos(io.MousePos.x - p0.x, io.MousePos.y - p0.y);
     gs.pos.x = _clamp((mouse_pos.x - half_width) / eff_width + 0.5);
     gs.pos.y = _clamp((mouse_pos.y - half_width) / eff_width + 0.5);
   } else {
@@ -130,61 +126,60 @@ void SingleGimbal(const char* name, GimbalState& gs)
     if (!gs.lock_y) adjust_gimbal(gs.pos.y);
   }
 
-  ImVec2 dot_center(gimbal_p0.x + eff_width * (gs.pos.x - 0.5) + half_width,
-                    gimbal_p0.y + eff_width * (gs.pos.y - 0.5) + half_width);
+  ImVec2 dot_center(p0.x + eff_width * (gs.pos.x - 0.5) + half_width,
+                    p0.y + eff_width * (gs.pos.y - 0.5) + half_width);
 
   // Make color opaque
   col |= IM_COL32_BLACK;
-    ImGui::GetWindowDrawList()->AddCircle(dot_center, dot_radius, col, 0, dot_radius - 1.0);
+  ImGui::GetWindowDrawList()->AddCircle(dot_center, dot_radius, col, 0, dot_radius - 1.0);
 }
 
 void GimbalPair(const char* str_id, GimbalState& left, GimbalState& right)
 {
-  if (ImGui::BeginTable(str_id, 2)) {
-    ImGui::TableNextColumn();
-    SingleGimbal("#g-left", left);
+  ImGui::PushID(str_id);
+  ImGui::BeginGroup();
 
-    ImGui::TableNextColumn();
-    SingleGimbal("#g-right", right);
+  SingleGimbal("#g-left", left);
+  ImGui::SameLine();
+  SingleGimbal("#g-right", right);
 
-    ImGui::EndTable();
-    ImGui::Spacing();
-  }
+  ImGui::EndGroup();
+  ImGui::PopID();
 }
 
 void SimuScreen(const ScreenDesc& desc, ImTextureID screen_img, ImVec2 size,
                 ImU32 bg_col, ImU32 overlay_col)
 {
-  ImVec2 p0 = ImGui::GetCursorScreenPos();
-  ImVec2 p1 = { p0.x + size.x, p0.y + size.y };
+  ImGui::InvisibleButton("#simu-screen", size);
+  if (!ImGui::IsItemVisible()) return;
+
+  ImVec2 p_min = ImGui::GetItemRectMin();
+  ImVec2 p_max = ImGui::GetItemRectMax();
 
   ImDrawList* draw_list = ImGui::GetWindowDrawList();
   if (bg_col != IM_COL32_BLACK_TRANS) {
-    draw_list->AddRectFilled(p0, p1, bg_col);
+    draw_list->AddRectFilled(p_min, p_max, bg_col);
   }
-
-  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-  ImGui::ImageButton("#simu-screen", screen_img, size);
-  ImGui::PopStyleVar();
+  draw_list->AddImage(screen_img, p_min, p_max);
 
   if (desc.is_dot_matrix) {
     float dx = size.x / float(desc.width);
     float thickness = dx / 50.0;
     auto col = bg_col & 0x80FFFFFF;
     for (int x = 1; x < desc.width; x++) {
-      ImVec2 p1 = { p0.x + x * size.x / float(desc.width), p0.y };
-      ImVec2 p2 = { p1.x, p0.y + size.y - 1 };
+      ImVec2 p1 = { p_min.x + x * size.x / float(desc.width), p_min.y };
+      ImVec2 p2 = { p1.x, p_min.y + size.y - 1 };
       draw_list->AddLine(p1, p2, col, thickness);
     }
     for (int y = 1; y < desc.height; y++) {
-      ImVec2 p1 = { p0.x, p0.y + y * size.y / float(desc.height) };
-      ImVec2 p2 = { p0.x + size.x - 1, p1.y };
+      ImVec2 p1 = { p_min.x, p_min.y + y * size.y / float(desc.height) };
+      ImVec2 p2 = { p_min.x + size.x - 1, p1.y };
       draw_list->AddLine(p1, p2, col, thickness);
     }
   }
 
   if (overlay_col != IM_COL32_BLACK_TRANS) {
-    draw_list->AddRectFilled(p0, p1, overlay_col);
+    draw_list->AddRectFilled(p_min, p_max, overlay_col);
   }
 }
 
