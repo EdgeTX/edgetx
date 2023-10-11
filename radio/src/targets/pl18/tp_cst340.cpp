@@ -35,6 +35,9 @@
 #define TOUCH_FT6236_I2C_ADDRESS          (0x70>>1)
 #define TOUCH_CST340_I2C_ADDRESS          0x1A
 
+
+extern uint8_t TouchControllerType;
+
 volatile static bool touchEventOccured;
 enum TouchControllers {TC_NONE, TC_FT6236, TC_CST340};
 TouchControllers touchController = TC_NONE;
@@ -414,9 +417,11 @@ void detectTouchController()
 {
   if( stm32_i2c_is_dev_ready(TOUCH_I2C_BUS, TOUCH_CST340_I2C_ADDRESS, 3, 5) == 0)
    {
+    TouchControllerType = 0;
      touchController = TC_CST340;
      tc = &CST340;
    } else {
+    TouchControllerType = 1;
      touchController = TC_FT6236;
      tc = &FT6236;
    }
