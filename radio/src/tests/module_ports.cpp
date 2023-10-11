@@ -65,7 +65,8 @@ TEST(ports, isPortUsed)
     .polarity = ETX_Pol_Normal,
   };
   
-  auto mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT, &serialCfg);
+  auto mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT,
+                                     &serialCfg, false);
   EXPECT_TRUE(mod_st != nullptr);
   EXPECT_TRUE(mod_st && mod_st->rx.port != nullptr);
 
