@@ -144,11 +144,13 @@ static void _update_dma_buffer(const stm32_pulse_timer_t* tim, uint8_t tc)
 
 void ws2812_dma_isr(const stm32_pulse_timer_t* tim)
 {
-  if (stm32_dma_check_ht_flag(tim->DMAx, tim->DMA_Stream)) {
+  if (LL_DMA_IsEnabledIT_HT(tim->DMAx, tim->DMA_Stream) &&
+      stm32_dma_check_ht_flag(tim->DMAx, tim->DMA_Stream)) {
     _update_dma_buffer(tim, 0);
   }
 
-  if (stm32_dma_check_tc_flag(tim->DMAx, tim->DMA_Stream)) {
+  if (LL_DMA_IsEnabledIT_TC(tim->DMAx, tim->DMA_Stream) &&
+      stm32_dma_check_tc_flag(tim->DMAx, tim->DMA_Stream)) {
     _update_dma_buffer(tim, 1);
   }
 }

@@ -32,9 +32,6 @@
 
 inline static bool stm32_dma_check_tc_flag(DMA_TypeDef* DMAx, uint32_t DMA_Stream)
 {
-  if (!LL_DMA_IsEnabledIT_TC(DMAx, DMA_Stream))
-    return false;
-
   switch(DMA_Stream) {
   case LL_DMA_STREAM_0:
     if (!LL_DMA_IsActiveFlag_TC0(DMAx)) return false;
@@ -75,9 +72,6 @@ inline static bool stm32_dma_check_tc_flag(DMA_TypeDef* DMAx, uint32_t DMA_Strea
 
 inline static bool stm32_dma_check_ht_flag(DMA_TypeDef* DMAx, uint32_t DMA_Stream)
 {
-  if (!LL_DMA_IsEnabledIT_HT(DMAx, DMA_Stream))
-    return false;
-
   switch(DMA_Stream) {
   case LL_DMA_STREAM_0:
     if (!LL_DMA_IsActiveFlag_HT0(DMAx)) return false;
