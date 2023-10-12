@@ -189,6 +189,7 @@ TEST(Lua, Switches)
 {
   luaExecStr("if MIXSRC_SA == nil then error('failed') end");
   luaExecStr("if MIXSRC_SB == nil then error('failed') end");
+  luaExecStr("if getSwitchIndex('Rud-') == nil then error('failed') end");
 }
 
 TEST(Lua, testLegacyNames)

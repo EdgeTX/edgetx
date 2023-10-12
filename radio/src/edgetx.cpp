@@ -1112,9 +1112,11 @@ void edgeTxClose(uint8_t shutdown)
   MainWindow::instance()->shutdown();
 #if defined(LUA)
   luaUnregisterWidgets();
-  luaClose(&lsWidgets);
-  lsWidgets = 0;
 #endif
+#endif
+
+#if defined(LUA)
+  luaClose();
 #endif
 
   sdDone();

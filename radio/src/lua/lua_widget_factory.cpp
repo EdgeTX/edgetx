@@ -23,6 +23,8 @@
 #include "lua_widget.h"
 
 #include "lua_api.h"
+#include "lua_states.h"
+
 
 #define MAX_INSTRUCTIONS       (20000/100)
 
