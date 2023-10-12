@@ -1848,7 +1848,7 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../modeledit/curves.cpp" line="35"/>
         <source>Note: to create a curve right click on the curve row label</source>
-        <translation type="unfinished">Примечание: чтобы создать кривую, щелкните правой кнопкой мыши на метке строки кривой</источник</translation>
+        <translation type="unfinished">Примечание: чтобы создать кривую, щелкните правой кнопкой мыши на метке строки кривой</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="48"/>
