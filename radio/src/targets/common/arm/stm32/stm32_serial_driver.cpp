@@ -226,7 +226,6 @@ static void _on_rx_fifo(uint8_t data)
 
 static void* stm32_serial_init(void* hw_def, const etx_serial_init* params)
 {
-  // TODO: check if port is already in use
   auto sp = (const stm32_serial_port*)hw_def;
   if (!sp) return nullptr;
 
@@ -234,8 +233,8 @@ static void* stm32_serial_init(void* hw_def, const etx_serial_init* params)
   auto st = stm32_serial_find_state(usart);
   if (!st || st->sp) return nullptr;
 
-  stm32_usart_init(usart, params);
-  st->sp = sp; // TODO: only iff init() is sucessful
+  if (!stm32_usart_init(usart, params)) return nullptr;
+  st->sp = sp;
 
   if (params->direction & ETX_Dir_TX) {
     // prepare for send_byte()

@@ -57,11 +57,14 @@ static void modulePortClear(etx_module_state_t* st)
   memset(st, 0, sizeof(etx_module_state_t));
 }
 
-static void _init_serial_driver(etx_module_driver_t* d, const etx_module_port_t* port,
+static bool _init_serial_driver(etx_module_driver_t* d, const etx_module_port_t* port,
                                 const etx_serial_init* params)
 {
   auto drv = port->drv.serial;
-  d->ctx = drv->init(port->hw_def, params);
+  auto ctx = drv->init(port->hw_def, params);
+  if (!ctx) return false;
+
+  d->ctx = ctx;
   d->port = port;
 
   // S.PORT specific HW settings
@@ -80,19 +83,26 @@ static void _init_serial_driver(etx_module_driver_t* d, const etx_module_port_t*
   if (port->set_inverted) {
     port->set_inverted(params->polarity == ETX_Pol_Inverted);
   }
+
+  return true;
 }
 
-static void _init_timer_driver(etx_module_driver_t* d, const etx_module_port_t* port,
+static bool _init_timer_driver(etx_module_driver_t* d, const etx_module_port_t* port,
                                const etx_timer_config_t* cfg)
 {
   auto drv = port->drv.timer;
-  d->ctx = drv->init(port->hw_def, cfg);
+  auto ctx = drv->init(port->hw_def, cfg);
+  if (!ctx) return false;
+
+  d->ctx = ctx;
   d->port = port;
 
   // setup polarity
   if (port->set_inverted) {
     port->set_inverted(false);
   }
+
+  return true;
 }
 
 static bool _match_port(const etx_module_port_t* p, uint8_t type, uint8_t port,
@@ -202,10 +212,11 @@ etx_module_state_t* modulePortInitSerial(uint8_t module, uint8_t port,
   const uint8_t duplex = ETX_Dir_TX_RX;
   uint8_t dir = params->direction & duplex;
 
+  bool init_ok = false;
   if (dir == duplex) {
 
     // init RX first, in case TX was already done previously
-    _init_serial_driver(&state->rx, found_port, params);
+    init_ok = _init_serial_driver(&state->rx, found_port, params);
 
     // do not overwrite TX state if it has already been set:
     // -> support using S.PORT in bidir mode
@@ -214,12 +225,12 @@ etx_module_state_t* modulePortInitSerial(uint8_t module, uint8_t port,
       state->tx.ctx = state->rx.ctx;
     }
   } else if (dir == ETX_Dir_TX) {
-    _init_serial_driver(&state->tx, found_port, params);
+    init_ok = _init_serial_driver(&state->tx, found_port, params);
   } else if (dir == ETX_Dir_RX) {
-    _init_serial_driver(&state->rx, found_port, params);
+    init_ok = _init_serial_driver(&state->rx, found_port, params);
   }
 
-  return state;
+  return init_ok ? state : nullptr;
 }
 
 etx_module_state_t* modulePortInitTimer(uint8_t module, uint8_t port,
@@ -230,9 +241,9 @@ etx_module_state_t* modulePortInitTimer(uint8_t module, uint8_t port,
   if (!found_port) return nullptr;
 
   auto state = &(_module_states[module]);
-  _init_timer_driver(&state->tx, found_port, cfg);
+  bool init_ok = _init_timer_driver(&state->tx, found_port, cfg);
 
-  return state;
+  return init_ok ? state : nullptr;
 }
 
 static void _deinit_driver(etx_module_driver_t* d)
@@ -262,6 +273,14 @@ void modulePortDeInit(etx_module_state_t* st)
   modulePortClear(st);
 }
 
+void modulePortDeInitRxPort(etx_module_state_t* st)
+{
+  if (st->rx.port) {
+    _deinit_driver(&st->rx);
+    memset(&st->rx, 0, sizeof(etx_module_driver_t));
+  }
+}
+
 etx_module_state_t* modulePortGetState(uint8_t module)
 {
   if (module >= MAX_MODULES) return nullptr;
@@ -271,4 +290,32 @@ etx_module_state_t* modulePortGetState(uint8_t module)
 uint8_t modulePortGetModule(etx_module_state_t* st)
 {
   return st - _module_states;
+}
+
+bool modulePortIsPortUsedByModule(uint8_t module, uint8_t port)
+{
+  auto mod_st = modulePortGetState(module);
+  if (!mod_st) return false;
+
+  auto tx_port = mod_st->tx.port;
+  auto rx_port = mod_st->rx.port;
+
+  return (tx_port && tx_port->port == port) ||
+         (rx_port && rx_port->port == port);
+}
+
+bool modulePortIsPortUsed(uint8_t port)
+{
+  return modulePortGetModuleForPort(port) >= 0;
+}
+
+int8_t modulePortGetModuleForPort(uint8_t port)
+{
+  for (uint8_t module = 0; module < MAX_MODULES; module++) {
+    if (modulePortIsPortUsedByModule(module, port)) {
+      return module;
+    }
+  }
+
+  return -1;
 }

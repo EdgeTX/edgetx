@@ -68,8 +68,6 @@ uint8_t telemetryState = TELEMETRY_INIT;
 
 TelemetryData telemetryData;
 
-uint8_t telemetryProtocol = 255;
-
 #if defined(INTERNAL_MODULE_SERIAL_TELEMETRY)
 static uint8_t intTelemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];
 static uint8_t intTelemetryRxBufferCount;
@@ -418,58 +416,7 @@ void telemetryReset()
   }
 
   telemetryStreaming = 0; // reset counter only if valid telemetry packets are being detected
-
   telemetryState = TELEMETRY_INIT;
-}
-
-// we don't reset the telemetry here as we would also reset the consumption after model load
-void telemetryInit(uint8_t protocol)
-{
-  telemetryProtocol = protocol;
-
-//   if (protocol == PROTOCOL_TELEMETRY_FRSKY_D) {
-//     telemetryPortInit(FRSKY_D_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
-//   }
-// #if defined(MULTIMODULE)
-//   else if (protocol == PROTOCOL_TELEMETRY_MULTIMODULE) {
-//     // The DIY Multi module always speaks 100000 baud regardless of the
-//     // telemetry protocol in use
-//     telemetryPortInit(MULTIMODULE_BAUDRATE, TELEMETRY_SERIAL_8E2);
-// #if defined(LUA)
-//     outputTelemetryBuffer.reset();
-// #endif
-//     telemetryPortSetDirectionInput();
-//   } else if (protocol == PROTOCOL_TELEMETRY_SPEKTRUM) {
-//     // Spektrum's own small race RX (SPM4648) uses 125000 8N1, use the same
-//     // since there is no real standard
-//     telemetryPortInit(125000, TELEMETRY_SERIAL_DEFAULT);
-//   }
-// #endif
-
-// #if defined(GHOST)
-//   else if (protocol == PROTOCOL_TELEMETRY_GHOST) {
-//     telemetryPortInit(GHOST_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
-// #if defined(LUA)
-//     outputTelemetryBuffer.reset();
-// #endif
-//     telemetryPortSetDirectionOutput();
-//   }
-// #endif
-
-// #if defined(AUX_SERIAL)
-//   else if (protocol == PROTOCOL_TELEMETRY_FRSKY_D_SECONDARY) {
-//     telemetryPortInit(0, TELEMETRY_SERIAL_DEFAULT);
-//   }
-// #endif
-//   else if (protocol == PROTOCOL_TELEMETRY_DSMP) {
-//     // soft serial
-//     telemetryPortInvertedInit(115200);
-//   } else {
-//     telemetryPortInit(FRSKY_SPORT_BAUDRATE, TELEMETRY_SERIAL_WITHOUT_DMA);
-// #if defined(LUA)
-//     outputTelemetryBuffer.reset();
-// #endif
-//   }
 }
 
 #if defined(LOG_TELEMETRY) && !defined(SIMU)

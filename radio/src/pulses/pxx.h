@@ -45,3 +45,7 @@
 
 #define EXTMODULE_PXX1_SERIAL_PERIOD       4000/*us*/
 #define EXTMODULE_PXX1_SERIAL_BAUDRATE     420000
+
+// Releases S.PORT usage from
+// the module driver using it.
+bool pxxClearSPort();

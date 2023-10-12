@@ -221,8 +221,17 @@ void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart)
 // - asymmetric bitrates for half-duplex (GHOST)
 // - ??? ability to switch RX DMA OFF ??? (-> X12S)
 //
-void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
+bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
 {
+  // Test if the GPIO pins are in reset state
+  uint32_t pins = usart->GPIO_Pin;
+  while(pins != 0) {
+    uint32_t pin = 1 << POSITION_VAL(pins);
+    uint32_t mode = LL_GPIO_GetPinMode(usart->GPIOx, pin);
+    if (mode != LL_GPIO_MODE_INPUT) return false;
+    pins ^= pin;
+  }
+
   enable_usart_clock(usart->USARTx);
   LL_USART_DeInit(usart->USARTx);
 
@@ -258,8 +267,8 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
     break;
 
   default:
-    // TODO: return some error
-    return;
+    stm32_usart_deinit(usart);
+    return false;
   }
 
   usartInit.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
@@ -302,6 +311,8 @@ void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
       LL_USART_IsEnabledIT_RXNE(usart->USARTx)) {
     _enable_usart_irq(usart);
   }
+
+  return true;
 }
 
 void stm32_usart_deinit(const stm32_usart_t* usart)

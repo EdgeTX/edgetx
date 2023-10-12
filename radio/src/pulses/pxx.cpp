@@ -19,8 +19,28 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "pxx.h"
+#include "hal/module_port.h"
 
-#include "hal/module_driver.h"
+bool pxxClearSPort()
+{
+  auto sport_module = modulePortGetModuleForPort(ETX_MOD_PORT_SPORT);
+  if (sport_module >= 0) {
+    // verify S.PORT is not used for TX (otherwise fail early)
+    auto mod_st = modulePortGetState(sport_module);
+    if (mod_st && mod_st->tx.port &&
+        mod_st->tx.port->port == ETX_MOD_PORT_SPORT) {
+      return false;
+    }
+  } else {
+    // S.PORT soft-serial cannot be used for sending
+    sport_module = modulePortGetModuleForPort(ETX_MOD_PORT_SPORT_INV);
+  }
 
-extern const etx_proto_driver_t MultiDriver;
+  if (sport_module >= 0) {
+    auto mod_st = modulePortGetState(sport_module);
+    if (mod_st) modulePortDeInitRxPort(mod_st);
+  }
+
+  return true;
+}

@@ -54,7 +54,7 @@ struct stm32_usart_t {
     uint8_t                    txDMA_IRQ_Prio;
 };
 
-void stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params);
+bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params);
 void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uint32_t length);
 void stm32_usart_enable_tx_irq(const stm32_usart_t* usart);
 void stm32_usart_set_idle_irq(const stm32_usart_t* usart, uint32_t enabled);

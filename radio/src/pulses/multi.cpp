@@ -139,8 +139,8 @@ static void setupPulsesMulti(uint8_t*& p_buf, uint8_t module)
   }
 
   // Invert telemetry if needed
-  if (invert[module] & 0x80 &&
-      !g_model.moduleData[module].multi.disableTelemetry) {
+  uint8_t disableTelemetry = modulePortIsPortUsedByModule(module, ETX_MOD_PORT_SPORT) ? 0 : 1;
+  if (invert[module] & 0x80 && !disableTelemetry) {
     if (getMultiModuleStatus(module).isValid()) {
       invert[module] &= 0x08;  // Telemetry received, stop searching
     } else if (counter[module] % 100 == 0) {
@@ -170,7 +170,7 @@ static void setupPulsesMulti(uint8_t*& p_buf, uint8_t module)
                                 | (g_model.header.modelId[module] & 0x30)
                                 | (invert[module] & 0x08)
                                 //| 0x04 // Future use
-                                | (g_model.moduleData[module].multi.disableTelemetry << 1)
+                                | (disableTelemetry << 1)
                                 | g_model.moduleData[module].multi.disableMapping));
   }
 

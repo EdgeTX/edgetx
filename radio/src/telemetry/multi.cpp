@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 #include "opentx.h"
+#include "hal/module_port.h"
 
 #include "telemetry.h"
 #include "io/multi_protolist.h"
@@ -83,6 +84,11 @@ MultiModuleStatus &getMultiModuleStatus(uint8_t module)
   return multiModuleStatus[module];
 }
 
+static uint8_t _getMultiStatusModuleIdx(const MultiModuleStatus* p)
+{
+  return p - multiModuleStatus;
+}
+
 uint8_t getMultiBindStatus(uint8_t module)
 {
   return multiBindStatus[module];
@@ -114,6 +120,11 @@ static uint16_t multiTelemetryLastRxTS;
 MultiModuleStatus& getMultiModuleStatus(uint8_t)
 {
   return multiModuleStatus;
+}
+
+static uint8_t _getMultiStatusModuleIdx(const MultiModuleStatus*)
+{
+  return EXTERNAL_MODULE;
 }
 
 uint8_t getMultiBindStatus(uint8_t)
@@ -497,14 +508,11 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 void MultiModuleStatus::getStatusString(char * statusText) const
 {
   if (!isValid()) {
-#if defined(PCBFRSKY)
-#if !defined(INTERNAL_MODULE_MULTI)
-    if (isSportLineUsedByInternalModule())
+    if (!modulePortIsPortUsedByModule(getModuleIndex(), ETX_MOD_PORT_SPORT)) {
       strcpy(statusText, STR_DISABLE_INTERNAL);
-    else
-#endif
-#endif
-    strcpy(statusText, STR_MODULE_NO_TELEMETRY);
+    } else {
+      strcpy(statusText, STR_MODULE_NO_TELEMETRY);
+    }
     return;
   }
   if (!protocolValid()) {
@@ -554,6 +562,10 @@ void MultiModuleStatus::getStatusString(char * statusText) const
       *(tmp + 4) = '\0';
     }
   }
+}
+
+uint8_t MultiModuleStatus::getModuleIndex() const {
+  return _getMultiStatusModuleIdx(this);
 }
 
 static void processMultiTelemetryByte(const uint8_t data, uint8_t module)
