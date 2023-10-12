@@ -1501,72 +1501,72 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../constants.h" line="54"/>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Информация</translation>
     </message>
     <message>
         <location filename="../constants.h" line="55"/>
         <source>Warning</source>
-        <translation type="unfinished">Звук</translation>
+        <translation>Предупреждение</translation>
     </message>
     <message>
         <location filename="../constants.h" line="56"/>
         <source>Error</source>
-        <translation type="unfinished">Ошибка</translation>
+        <translation>Ошибка</translation>
     </message>
     <message>
         <location filename="../constants.h" line="58"/>
         <source>files</source>
-        <translation type="unfinished"></translation>
+        <translation>файлы</translation>
     </message>
     <message>
         <location filename="../constants.h" line="59"/>
         <source>Radio and Models settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройки радио и моделей</translation>
     </message>
     <message>
         <location filename="../constants.h" line="74"/>
         <source>Application Settings</source>
-        <translation type="unfinished">Настройки приложения</translation>
+        <translation>Настройки приложения</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="294"/>
         <source>Select or create a file for exported Settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите или создайте файл для экспортируемых настроек:</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="304"/>
         <source>Press the &apos;Retry&apos; button to choose another file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нажмите &apos;Повтор&apos; выберите другой файл.</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="339"/>
         <source>Simulator for this firmware is not yet available</source>
-        <translation type="unfinished"></translation>
+        <translation>Симулятор для этой прошивки пока недоступен</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="366"/>
         <source>Uknown error during Simulator startup.</source>
-        <translation type="unfinished"></translation>
+        <translation>Неизвестная ошибка при запуске симулятора.</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="367"/>
         <source>Simulator Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка симулятора</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="377"/>
         <source>Data Load Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка загрузки данных</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="377"/>
         <source>Error occurred while starting simulator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Произошла ошибка при запуске симулятора.</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="58"/>
         <source>settings</source>
-        <translation type="unfinished"></translation>
+        <translation>настройки</translation>
     </message>
     <message>
         <location filename="../warnings.h" line="30"/>
@@ -1594,7 +1594,7 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../comparedialog.ui" line="44"/>
         <source>To compare models, drag and drop them anywhere in this window.</source>
-        <translation type="unfinished">Чтобы сравнить модели перетащите их в это окно.</translation>
+        <translation>Чтобы сравнить модели перетащите их в это окно.</translation>
     </message>
     <message>
         <location filename="../comparedialog.ui" line="67"/>
@@ -1619,12 +1619,12 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../comparedialog.cpp" line="118"/>
         <source>Unnamed Model %1</source>
-        <translation type="unfinished">Неизвестная модель %1</translation>
+        <translation>Неизвестная модель %1</translation>
     </message>
     <message>
         <location filename="../comparedialog.cpp" line="128"/>
         <source>Click to remove this model.</source>
-        <translation type="unfinished">Нажмите, чтобы убрать эту модель.</translation>
+        <translation>Нажмите, чтобы убрать эту модель.</translation>
     </message>
     <message>
         <location filename="../comparedialog.cpp" line="160"/>
@@ -1642,17 +1642,17 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../storage/appdata.h" line="588"/>
         <source>Releases</source>
-        <translation type="unfinished"></translation>
+        <translation>Выпуски</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="588"/>
         <source>Pre-release</source>
-        <translation type="unfinished"></translation>
+        <translation>Пред-выпуски</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="588"/>
         <source>Nightly</source>
-        <translation type="unfinished"></translation>
+        <translation>Ночная</translation>
     </message>
 </context>
 <context>
@@ -1668,17 +1668,17 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../process_copy.cpp" line="71"/>
         <source>Write error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка записи</translation>
     </message>
     <message>
         <location filename="../process_copy.cpp" line="79"/>
         <source>Cannot write %1 (reason: %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удается записать %1 (причина: %2)</translation>
     </message>
     <message>
         <location filename="../process_copy.cpp" line="84"/>
         <source>Cannot open %1 (reason: %2)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Не удается открыть %1 (причина: %2)</translation>
     </message>
 </context>
 <context>
@@ -1691,17 +1691,17 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../firmwares/curvedata.cpp" line="75"/>
         <source>Standard</source>
-        <translation type="unfinished">Стандартный</translation>
+        <translation>Стандартный</translation>
     </message>
     <message>
         <location filename="../firmwares/curvedata.cpp" line="77"/>
         <source>Custom</source>
-        <translation type="unfinished">Другой</translation>
+        <translation>Другой</translation>
     </message>
     <message>
         <location filename="../firmwares/curvedata.cpp" line="127"/>
         <source>%1 points</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 балл</translation>
     </message>
 </context>
 <context>
@@ -1709,32 +1709,32 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../shared/curvedialog.ui" line="60"/>
         <source>Name</source>
-        <translation type="unfinished">Название</translation>
+        <translation>Название</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="77"/>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation>Тип</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="93"/>
         <source>Smooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Гладкий</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="142"/>
         <source>Curve Creator</source>
-        <translation type="unfinished">Параметры кривой</translation>
+        <translation>Параметры кривой</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="148"/>
         <source>Template</source>
-        <translation type="unfinished"></translation>
+        <translation>Шаблон</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="158"/>
         <source>Coefficient</source>
-        <translation type="unfinished">Коэффициент</translation>
+        <translation>Коэффициент</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="181"/>
@@ -1754,12 +1754,12 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../shared/curvedialog.ui" line="250"/>
         <source>Side</source>
-        <translation type="unfinished">Сторона</translation>
+        <translation>Сторона</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="258"/>
         <source>Both</source>
-        <translation type="unfinished">Обе</translation>
+        <translation>Обе</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="263"/>
@@ -1774,42 +1774,42 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../shared/curvedialog.ui" line="276"/>
         <source>Apply</source>
-        <translation type="unfinished">Применить</translation>
+        <translation>Применить</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="290"/>
         <source>Point size</source>
-        <translation type="unfinished">Размер точки</translation>
+        <translation>Размер точки</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.cpp" line="183"/>
         <source>Linear</source>
-        <translation type="unfinished">Линейный</translation>
+        <translation>Линейный</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.cpp" line="184"/>
         <source>Single Expo</source>
-        <translation type="unfinished">Экспонента</translation>
+        <translation>Экспонента</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.cpp" line="185"/>
         <source>Symmetrical f(x)=-f(-x)</source>
-        <translation type="unfinished">Симметричная f(x)=-f(-x)</translation>
+        <translation>Симметричная f(x)=-f(-x)</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.cpp" line="186"/>
         <source>Symmetrical f(x)=f(-x)</source>
-        <translation type="unfinished">Симметричная f(x)=f(-x)</translation>
+        <translation>Симметричная f(x)=f(-x)</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.cpp" line="417"/>
         <source>Not enough free points in global points array to store the curve.</source>
-        <translation type="unfinished"></translation>
+        <translation>Недостаточно свободных точек в массиве глобальных точек для хранения кривой.</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.cpp" line="427"/>
         <source>Editing curve %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Редактирование кривой %1: %2</translation>
     </message>
 </context>
 <context>
@@ -1817,7 +1817,7 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../shared/curveimagewidget.cpp" line="31"/>
         <source>Double click to edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Дважды щелкните, чтобы отредактировать</translation>
     </message>
 </context>
 <context>
@@ -1825,22 +1825,22 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../firmwares/curvereference.cpp" line="87"/>
         <source>Diff</source>
-        <translation type="unfinished"></translation>
+        <translation>Разница</translation>
     </message>
     <message>
         <location filename="../firmwares/curvereference.cpp" line="87"/>
         <source>Expo</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспо</translation>
     </message>
     <message>
         <location filename="../firmwares/curvereference.cpp" line="87"/>
         <source>Func</source>
-        <translation type="unfinished"></translation>
+        <translation>Функция</translation>
     </message>
     <message>
         <location filename="../firmwares/curvereference.cpp" line="87"/>
         <source>Custom</source>
-        <translation type="unfinished">Другой</translation>
+        <translation>Другой</translation>
     </message>
 </context>
 <context>
@@ -1848,7 +1848,7 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../modeledit/curves.cpp" line="35"/>
         <source>Note: to create a curve right click on the curve row label</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Примечание: чтобы создать кривую, щелкните правой кнопкой мыши на метке строки кривой</источник</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="48"/>
@@ -1859,102 +1859,102 @@ Do you want to import settings from a file?</source>
         <location filename="../modeledit/curves.cpp" line="52"/>
         <location filename="../modeledit/curves.cpp" line="63"/>
         <source>Popup menu available</source>
-        <translation type="unfinished"></translation>
+        <translation>Доступно всплывающее меню</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="75"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя:</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="79"/>
         <source>Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Тип:</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="83"/>
         <source>Points:</source>
-        <translation type="unfinished"></translation>
+        <translation>Точки:</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="96"/>
         <source>Smooth:</source>
-        <translation type="unfinished"></translation>
+        <translation>Гладкий:</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="179"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="180"/>
         <source>Edit</source>
-        <translation type="unfinished">Правка</translation>
+        <translation>Правка</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="182"/>
         <source>Copy</source>
-        <translation type="unfinished">Копировать</translation>
+        <translation>Копировать</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="183"/>
         <source>Cut</source>
-        <translation type="unfinished">Вырезать</translation>
+        <translation>Вырезать</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="184"/>
         <source>Paste</source>
-        <translation type="unfinished">Вставить</translation>
+        <translation>Вставить</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="185"/>
         <source>Clear</source>
-        <translation type="unfinished">Очистить</translation>
+        <translation>Очистить</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="187"/>
         <source>Insert</source>
-        <translation type="unfinished">Вставить</translation>
+        <translation>Вставить</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="188"/>
         <source>Delete</source>
-        <translation type="unfinished">Удалить</translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="189"/>
         <source>Move Up</source>
-        <translation type="unfinished">Сдвинуть вверх</translation>
+        <translation>Сдвинуть вверх</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="190"/>
         <source>Move Down</source>
-        <translation type="unfinished">Сдвинуть вниз</translation>
+        <translation>Сдвинуть вниз</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="192"/>
         <source>Clear All</source>
-        <translation type="unfinished">Убрать всё</translation>
+        <translation>Убрать всё</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="232"/>
         <source>Clear curve %1:%2. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Четкая кривая %1: %2. Ты уверен?</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="245"/>
         <source>Clear all curves. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистите все кривые. Ты уверен?</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="269"/>
         <source>Cut curve %1:%2. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вырезать кривую %1:%2. Ты уверен?</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="277"/>
         <source>Delete curve %1:%2. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалите кривую %1:%2. Ты уверен?</translation>
     </message>
 </context>
 <context>
@@ -1972,7 +1972,7 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="65"/>
         <source>Override %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Переопределить %1</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="67"/>
