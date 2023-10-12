@@ -26,12 +26,6 @@
 // prevent C++ code to be included from lua.h
 #include "rtos.h"
 
-extern "C" {
-  #include <lua.h>
-  #include <lauxlib.h>
-  #include <lualib.h>
-  #include <lgc.h>
-}
 
 #include "dataconstants.h"
 #include "edgetx_types.h"
@@ -55,7 +49,6 @@ void luaReceiveData(uint8_t* buf, uint32_t len);
 void luaSetSendCb(void* ctx, void (*cb)(void*, uint8_t));
 void luaSetGetSerialByte(void* ctx, int (*fct)(void*, uint8_t*));
 
-extern lua_State * lsScripts;
 
 extern bool luaLcdAllowed;
 
@@ -71,12 +64,13 @@ extern LuaWidget* runningFS;
 class LuaLvglManager;
 extern LuaLvglManager* luaLvglManager;
 
-extern lua_State* lsWidgets;
 extern uint32_t luaExtraMemoryUsage;
 void luaInitThemesAndWidgets();
 #endif
 
 void luaInit();
+void luaClose();
+
 void luaEmptyEventBuffer();
 
 #define lua_registernumber(L, n, i)    (lua_pushnumber(L, (i)), lua_setglobal(L, (n)))
@@ -182,13 +176,9 @@ extern bool    luaLcdAllowed;
 extern ScriptInternalData scriptInternalData[MAX_SCRIPTS];
 extern ScriptInputsOutputs scriptInputsOutputs[MAX_SCRIPTS];
 
-void luaClose(lua_State ** L);
 bool luaTask(bool allowLcdUsage);
 void checkLuaMemoryUsage();
 void luaExec(const char * filename);
-void luaDoGc(lua_State * L, bool full);
-uint32_t luaGetMemUsed(lua_State * L);
-void luaGetValueAndPush(lua_State * L, int src);
 bool isTelemetryScriptAvailable();
 
 #define luaGetCpuUsed(idx) scriptInternalData[idx].instructions
@@ -225,12 +215,6 @@ struct LuaField {
 bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags=0);
 bool luaFindFieldById(int id, LuaField & field, unsigned int flags=0);
 void luaLoadThemes();
-void luaRegisterLibraries(lua_State * L);
-void registerBitmapClass(lua_State * L);
-void luaSetInstructionsLimit(lua_State* L, int count);
-int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * mode);
-void luaPushDateTime(lua_State * L, uint32_t year, uint32_t mon, uint32_t day,
-                            uint32_t hour, uint32_t min, uint32_t sec);
 
 // Unregister LUA widget factories
 void luaUnregisterWidgets();

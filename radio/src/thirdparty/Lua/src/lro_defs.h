@@ -12,7 +12,9 @@
 #define LRO_FUNCVAL(v)       {{.f = v}, LUA_TLCF}
 #define LRO_LUDATA(v)        {{.p = (void *) v}, LUA_TLIGHTUSERDATA}
 #define LRO_NILVAL           {{.p = NULL}, LUA_TNIL}
-#define LRO_NUMVAL(v)        {{.n = v}, LUA_TNUMBER}
+#define LRO_NUMVAL(v)        {{.i = (lua_Integer)(v)}, LUA_TNUMINT}
+#define LRO_INTVAL(v)        LRO_NUMVAL(v)
+#define LRO_FLOATVAL(v)      {{.n = v}, LUA_TNUMFLT}
 #define LRO_ROVAL(v)         {{.gc = cast(GCObject *, &(v ## _ROTable))}, LUA_TTBLROF}
 
 #define LROT_MARKED          0 //<<<<<<<<<<  *** TBD *** >>>>>>>>>>>
@@ -20,6 +22,8 @@
 #define LROT_FUNCENTRY(n,f)  {LRO_STRKEY(#n), LRO_FUNCVAL(f)},
 #define LROT_LUDENTRY(n,x)   {LRO_STRKEY(#n), LRO_LUDATA(x)},
 #define LROT_NUMENTRY(n,x)   {LRO_STRKEY(#n), LRO_NUMVAL(x)},
+#define LROT_INTENTRY(n,x)   LROT_NUMENTRY(n,x)
+#define LROT_FLOATENTRY(n,x) {LRO_STRKEY(#n), LRO_FLOATVAL(x)},
 #define LROT_TABENTRY(n,t)   {LRO_STRKEY(#n), LRO_ROVAL(t)},
 
 #define LROT_TABLE(rt)       const ROTable rt ## _ROTable

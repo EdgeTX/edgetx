@@ -23,7 +23,8 @@
 
 #include "lua_api.h"
 #include "lua_event.h"
-#include "lua_widget_factory.h"
+#include "lua_states.h"
+
 #include "touch.h"
 #include "view_main.h"
 

@@ -25,6 +25,7 @@
 #include <cstdio>
 #include "edgetx.h"
 #include "lua_api.h"
+#include "lua_states.h"
 
 /*luadoc
 @function lcd.refresh()
