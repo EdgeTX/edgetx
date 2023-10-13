@@ -307,6 +307,15 @@
 #define SD_SDIO_TRANSFER_CLK_DIV        SD_SDIO_CLK_DIV(24000000)
 #define STORAGE_USE_SDIO
 
+// SPI NOR Flash 
+#define FLASH_SPI                      SPI6
+#define FLASH_SPI_CS_GPIO              GPIOG
+#define FLASH_SPI_CS_GPIO_PIN          LL_GPIO_PIN_6  // PG.06
+#define FLASH_SPI_GPIO                 GPIOG
+#define FLASH_SPI_SCK_GPIO_PIN         LL_GPIO_PIN_13 // PG.13
+#define FLASH_SPI_MISO_GPIO_PIN        LL_GPIO_PIN_12 // PG.12
+#define FLASH_SPI_MOSI_GPIO_PIN        LL_GPIO_PIN_14 // PG.14
+
 // SDRAM
 #define SDRAM_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH)
 #define SDRAM_RCC_AHB3Periph            RCC_AHB3Periph_FMC

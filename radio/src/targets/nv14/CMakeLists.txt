@@ -153,6 +153,9 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/diskio_sdio.cpp
+  targets/common/arm/stm32/spi_flash.cpp
+  targets/common/arm/stm32/diskio_spi_flash.cpp
+  drivers/frftl.cpp
   targets/common/arm/stm32/vs1053b.cpp
   )
 

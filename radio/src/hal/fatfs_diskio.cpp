@@ -58,6 +58,21 @@ int fatfsRegisterDriver(const diskio_driver_t* drv, uint8_t lun)
   return 1;
 }
 
+void fatfsUnregisterDrivers()
+{
+  for (uint8_t i = 0; i < _fatfs_n_drives; i++) {
+    auto& drive = _fatfs_drives[i];
+    if (drive.initialized) {
+      disk_ioctl(i, CTRL_SYNC, 0);
+      if (drive.drv->deinit) {
+        drive.drv->deinit(drive.lun);
+      }
+      drive.initialized = false;
+    }
+  }
+  _fatfs_n_drives = 0;
+}
+
 const diskio_driver_t* fatfsGetDriver(uint8_t pdrv)
 {
   if (pdrv >= _fatfs_n_drives) {

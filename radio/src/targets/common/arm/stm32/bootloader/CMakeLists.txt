@@ -78,6 +78,11 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14)
     ../../../../../thirdparty/libopenui/thirdparty/lz4/lz4.c
     ../../../../../targets/common/arm/stm32/diskio_sdio.cpp
     ../../../../../targets/common/arm/stm32/rtc_driver.cpp
+    ../../../../../targets/common/arm/stm32/diskio_spi_flash.cpp
+    ../../../../../targets/common/arm/stm32/spi_flash.cpp
+    ../../../../../targets/common/arm/stm32/stm32_spi.cpp
+    ../../../../../drivers/frftl.cpp
+    ../../../../../crc.cpp
     ../../../../../targets/${TARGET_DIR}/sdram_driver.c
     ../../../../../targets/${TARGET_DIR}/haptic_driver.cpp
     )

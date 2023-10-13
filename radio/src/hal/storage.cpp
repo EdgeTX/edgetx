@@ -30,6 +30,9 @@
 #elif defined(STORAGE_USE_SDCARD_SPI)
   #include "diskio_spi.h"
   #define _STORAGE_DRIVER sdcard_spi_driver
+#elif defined(STORAGE_USE_SPI_FLASH)
+  #include "diskio_spi_flash.h"
+  #define _STORAGE_DRIVER spi_flash_diskio_driver
 #else
   #error "No supported storage driver configured"
 #endif
@@ -60,6 +63,11 @@ void storageInit()
   if (!fatfsRegisterDriver(drv, 0)) {
     TRACE("fatfsRegisterDriver: [FAILED]");
   }
+}
+
+void storageDeInit()
+{
+  fatfsUnregisterDrivers();
 }
 
 void storagePreMountHook()
