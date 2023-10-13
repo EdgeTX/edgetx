@@ -65,18 +65,21 @@ static lv_color_t grey_filter_cb(const lv_color_filter_dsc_t* f,
  **********************/
 
 // Create a style with a single property
-#define LV_STYLE_CONST_SINGLE_INIT(var_name, prop, value)         \
-  const lv_style_t var_name = {.v_p = {.value1 = {.num = value}}, \
-                               .prop1 = prop,                     \
-                               .is_const = 0,                     \
-                               .has_group = 0xFF,                 \
+#define LV_STYLE_CONST_SINGLE_INIT(var_name, prop, value)               \
+  const lv_style_t var_name = {.v_p = {.value1 = {.num = value}},       \
+                               .prop1 = prop,                           \
+                               .is_const = 0,                           \
+                               .has_group = 1 << ((prop & 0x1FF) >> 4), \
                                .prop_cnt = 1}
 
 // Create a style with multiple properties
 // Copied from lv_style.h and modified to compile with ARM GCC C++
-#define LV_STYLE_CONST_MULTI_INIT(var_name, prop_array) \
-  const lv_style_t var_name = {                         \
-      .v_p = {.const_props = prop_array}, .is_const = 1, .has_group = 0xFF}
+#define LV_STYLE_CONST_MULTI_INIT(var_name, prop_array)            \
+  const lv_style_t var_name = {.v_p = {.const_props = prop_array}, \
+                               .prop1 = 0,                         \
+                               .is_const = 1,                      \
+                               .has_group = 0xFF,                  \
+                               .prop_cnt = 0}
 
 // Opacity
 LV_STYLE_CONST_SINGLE_INIT(bg_opacity_transparent, LV_STYLE_BG_OPA,
@@ -88,17 +91,17 @@ LV_STYLE_CONST_SINGLE_INIT(fg_opacity_transparent, LV_STYLE_OPA, LV_OPA_TRANSP);
 LV_STYLE_CONST_SINGLE_INIT(fg_opacity_cover, LV_STYLE_OPA, LV_OPA_COVER);
 
 // Corner rounding (button, edit box, etc)
-LV_STYLE_CONST_SINGLE_INIT(rounded, 6, LV_STYLE_RADIUS);
+LV_STYLE_CONST_SINGLE_INIT(rounded, LV_STYLE_RADIUS, 6);
 
 // Toggle switch and slider knob rounding
-LV_STYLE_CONST_SINGLE_INIT(circle, LV_RADIUS_CIRCLE, LV_STYLE_RADIUS);
+LV_STYLE_CONST_SINGLE_INIT(circle, LV_STYLE_RADIUS, LV_RADIUS_CIRCLE);
 
 // Animation
-LV_STYLE_CONST_SINGLE_INIT(anim_fast, 120, LV_STYLE_ANIM_TIME);
+LV_STYLE_CONST_SINGLE_INIT(anim_fast, LV_STYLE_ANIM_TIME, 120);
 
 // Text align
-LV_STYLE_CONST_SINGLE_INIT(text_align_right, LV_TEXT_ALIGN_RIGHT,
-                           LV_STYLE_TEXT_ALIGN);
+LV_STYLE_CONST_SINGLE_INIT(text_align_right, LV_STYLE_TEXT_ALIGN,
+                           LV_TEXT_ALIGN_RIGHT);
 
 // Toggle switch
 const lv_style_const_prop_t switch_knob_props[] = {
