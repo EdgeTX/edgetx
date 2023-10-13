@@ -1423,7 +1423,7 @@ static int luaGetFlightMode(lua_State * L)
 /*luadoc
 @function playFile(filename[, volume])
 
-Play a filename from the SD card
+Play a file from the SD card
 
 @param path (string) full path to wav file (i.e. “/SOUNDS/en/system/tada.wav”)
 Introduced in 2.1.0: If you use a relative path, the current language is appended
