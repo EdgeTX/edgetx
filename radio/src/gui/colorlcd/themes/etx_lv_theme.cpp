@@ -34,14 +34,14 @@ extern lv_color_t makeLvColor(uint32_t colorFlags);
 /*********************
  *      DEFINES
  *********************/
-#define BORDER_WIDTH lv_disp_dpx(theme.disp, 2)
+#define BORDER_WIDTH LV_DPX(2)
 
 #if LCD_W > LCD_H
-#define PAD_SMALL (lv_disp_dpx(theme.disp, 12))
-#define PAD_TINY (lv_disp_dpx(theme.disp, 4))
+#define PAD_SMALL (LV_DPX(12))
+#define PAD_TINY (LV_DPX(4))
 #else
-#define PAD_SMALL (lv_disp_dpx(theme.disp, 10))
-#define PAD_TINY (lv_disp_dpx(theme.disp, 2))
+#define PAD_SMALL (LV_DPX(10))
+#define PAD_TINY (LV_DPX(2))
 #endif
 
 static lv_theme_t theme;
@@ -60,86 +60,244 @@ static lv_color_t grey_filter_cb(const lv_color_filter_dsc_t* f,
   return lv_color_mix(lv_palette_lighten(LV_PALETTE_GREY, 2), color, opa);
 }
 
+/**********************
+ *   Constant Styles
+ **********************/
+
+// Opacity
+const lv_style_t bg_opacity_transparent = {.v_p.value1 = LV_OPA_TRANSP,
+                                           .is_const = 0,
+                                           .prop1 = LV_STYLE_BG_OPA,
+                                           .has_group = 0xFF,
+                                           .prop_cnt = 1};
+const lv_style_t bg_opacity_20 = {.v_p.value1 = LV_OPA_20,
+                                  .is_const = 0,
+                                  .prop1 = LV_STYLE_BG_OPA,
+                                  .has_group = 0xFF,
+                                  .prop_cnt = 1};
+const lv_style_t bg_opacity_50 = {.v_p.value1 = LV_OPA_50,
+                                  .is_const = 0,
+                                  .prop1 = LV_STYLE_BG_OPA,
+                                  .has_group = 0xFF,
+                                  .prop_cnt = 1};
+const lv_style_t bg_opacity_cover = {.v_p.value1 = LV_OPA_COVER,
+                                     .is_const = 0,
+                                     .prop1 = LV_STYLE_BG_OPA,
+                                     .has_group = 0xFF,
+                                     .prop_cnt = 1};
+const lv_style_t fg_opacity_transparent = {.v_p.value1 = LV_OPA_TRANSP,
+                                           .is_const = 0,
+                                           .prop1 = LV_STYLE_OPA,
+                                           .has_group = 0xFF,
+                                           .prop_cnt = 1};
+const lv_style_t fg_opacity_cover = {.v_p.value1 = LV_OPA_COVER,
+                                     .is_const = 0,
+                                     .prop1 = LV_STYLE_OPA,
+                                     .has_group = 0xFF,
+                                     .prop_cnt = 1};
+
+// Corner rounding (button, edit box, etc)
+const lv_style_t rounded = {.v_p.value1 = 6,
+                            .is_const = 0,
+                            .prop1 = LV_STYLE_RADIUS,
+                            .has_group = 0xFF,
+                            .prop_cnt = 1};
+
+// Toggle switch and slider knob rounding
+const lv_style_t circle = {.v_p.value1 = LV_RADIUS_CIRCLE,
+                           .is_const = 0,
+                           .prop1 = LV_STYLE_RADIUS,
+                           .has_group = 0xFF,
+                           .prop_cnt = 1};
+
+// Animation
+const lv_style_t anim_fast = {.v_p.value1 = 120,
+                              .is_const = 0,
+                              .prop1 = LV_STYLE_ANIM_TIME,
+                              .has_group = 0xFF,
+                              .prop_cnt = 1};
+
+// Text align
+const lv_style_t text_align_right = {.v_p.value1 = LV_TEXT_ALIGN_RIGHT,
+                                     .is_const = 0,
+                                     .prop1 = LV_STYLE_TEXT_ALIGN,
+                                     .has_group = 0xFF,
+                                     .prop_cnt = 1};
+
+// Toggle switch
+const lv_style_const_prop_t switch_knob_props[] = {
+    LV_STYLE_CONST_PAD_TOP(-4),  LV_STYLE_CONST_PAD_BOTTOM(-4),
+    LV_STYLE_CONST_PAD_LEFT(-4), LV_STYLE_CONST_PAD_RIGHT(-4),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(switch_knob, switch_knob_props);
+
+// Scrollbar
+const lv_style_const_prop_t scrollbar_props[] = {
+    LV_STYLE_CONST_PAD_TOP(LV_DPX(7)),  LV_STYLE_CONST_PAD_BOTTOM(LV_DPX(7)),
+    LV_STYLE_CONST_PAD_LEFT(LV_DPX(7)), LV_STYLE_CONST_PAD_RIGHT(LV_DPX(7)),
+    LV_STYLE_CONST_WIDTH(LV_DPX(5)),    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(scrollbar, scrollbar_props);
+
+// Padding
+const lv_style_const_prop_t pad_zero_props[] = {
+    LV_STYLE_CONST_PAD_TOP(0),  LV_STYLE_CONST_PAD_BOTTOM(0),
+    LV_STYLE_CONST_PAD_LEFT(0), LV_STYLE_CONST_PAD_RIGHT(0),
+    LV_STYLE_CONST_PAD_ROW(0),  LV_STYLE_CONST_PAD_COLUMN(0),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(pad_zero, pad_zero_props);
+
+const lv_style_const_prop_t pad_tiny_props[] = {
+    LV_STYLE_CONST_PAD_TOP(PAD_TINY),
+    LV_STYLE_CONST_PAD_BOTTOM(PAD_TINY),
+    LV_STYLE_CONST_PAD_LEFT(PAD_TINY),
+    LV_STYLE_CONST_PAD_RIGHT(PAD_TINY),
+    LV_STYLE_CONST_PAD_ROW(PAD_TINY),
+    LV_STYLE_CONST_PAD_COLUMN(PAD_TINY),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(pad_tiny, pad_tiny_props);
+
+const lv_style_const_prop_t pad_small_props[] = {
+    LV_STYLE_CONST_PAD_TOP(PAD_SMALL),
+    LV_STYLE_CONST_PAD_BOTTOM(PAD_SMALL),
+    LV_STYLE_CONST_PAD_LEFT(PAD_SMALL),
+    LV_STYLE_CONST_PAD_RIGHT(PAD_SMALL),
+    LV_STYLE_CONST_PAD_ROW(PAD_SMALL),
+    LV_STYLE_CONST_PAD_COLUMN(PAD_SMALL),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(pad_small, pad_small_props);
+
+// Border
+const lv_style_const_prop_t border_props[] = {
+    LV_STYLE_CONST_BORDER_OPA(LV_OPA_COVER),
+    LV_STYLE_CONST_BORDER_WIDTH(BORDER_WIDTH),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(border, border_props);
+
+// Button
+const lv_style_const_prop_t btn_props[] = {
+    LV_STYLE_CONST_PAD_TOP(PAD_SMALL),
+    LV_STYLE_CONST_PAD_BOTTOM(PAD_SMALL),
+    LV_STYLE_CONST_PAD_LEFT(PAD_SMALL),
+    LV_STYLE_CONST_PAD_RIGHT(PAD_SMALL),
+    LV_STYLE_CONST_PAD_ROW(LV_DPX(5)),
+    LV_STYLE_CONST_PAD_COLUMN(LV_DPX(5)),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(btn, btn_props);
+
+// Edit box
+const lv_style_const_prop_t field_props[] = {
+    LV_STYLE_CONST_PAD_TOP(4),  LV_STYLE_CONST_PAD_BOTTOM(3),
+    LV_STYLE_CONST_PAD_LEFT(4), LV_STYLE_CONST_PAD_RIGHT(4),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(field, field_props);
+
+// Slider
+const lv_style_const_prop_t slider_main_props[] = {
+    LV_STYLE_CONST_PAD_TOP(6),  LV_STYLE_CONST_PAD_BOTTOM(6),
+    LV_STYLE_CONST_PAD_LEFT(6), LV_STYLE_CONST_PAD_RIGHT(6),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(slider_main, slider_main_props);
+
+const lv_style_const_prop_t slider_knob_props[] = {
+    LV_STYLE_CONST_PAD_TOP(LV_DPX(6)),  LV_STYLE_CONST_PAD_BOTTOM(LV_DPX(6)),
+    LV_STYLE_CONST_PAD_LEFT(LV_DPX(6)), LV_STYLE_CONST_PAD_RIGHT(LV_DPX(6)),
+    LV_STYLE_CONST_BORDER_WIDTH(1),     LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(slider_knob, slider_knob_props);
+
+// Choice
+const lv_style_const_prop_t choice_main_props[] = {
+    LV_STYLE_CONST_PAD_TOP(3),
+    LV_STYLE_CONST_PAD_BOTTOM(4),
+    LV_STYLE_CONST_PAD_RIGHT(5),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(choice_main, choice_main_props);
+
+// Modal overlay (for dimming background)
+const lv_style_const_prop_t modal_title_props[] = {
+    LV_STYLE_CONST_PAD_TOP(PAGE_PADDING),
+    LV_STYLE_CONST_PAD_BOTTOM(PAGE_PADDING),
+    LV_STYLE_CONST_PAD_LEFT(PAGE_PADDING),
+    LV_STYLE_CONST_PAD_RIGHT(PAGE_PADDING),
+    LV_STYLE_CONST_WIDTH(LV_PCT(100)),
+    LV_STYLE_CONST_MAX_HEIGHT((int)(LCD_H * 0.8)),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(modal_title, modal_title_props);
+
+// Check Box
+const lv_style_const_prop_t cb_marker_props[] = {
+    LV_STYLE_CONST_PAD_TOP(3),  LV_STYLE_CONST_PAD_BOTTOM(3),
+    LV_STYLE_CONST_PAD_LEFT(3), LV_STYLE_CONST_PAD_RIGHT(3),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(cb_marker, cb_marker_props);
+
+const lv_style_const_prop_t cb_marker_checked_props[] = {
+    LV_STYLE_CONST_BG_IMG_SRC(LV_SYMBOL_OK),
+    LV_STYLE_CONST_TEXT_FONT(LV_FONT_DEFAULT),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(cb_marker_checked, cb_marker_checked_props);
+
+// Table
+const lv_style_const_prop_t table_cell_props[] = {
+    LV_STYLE_CONST_BORDER_WIDTH(LV_DPX(1)),
+    LV_STYLE_CONST_BORDER_SIDE(LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(table_cell, table_cell_props);
+
+// Bubble popup
+const lv_style_const_prop_t bubble_popup_props[] = {
+    LV_STYLE_CONST_PAD_TOP(4),
+    LV_STYLE_CONST_PAD_BOTTOM(4),
+    LV_STYLE_CONST_PAD_LEFT(4),
+    LV_STYLE_CONST_PAD_RIGHT(4),
+    LV_STYLE_CONST_BORDER_OPA(LV_OPA_COVER),
+    LV_STYLE_CONST_BORDER_WIDTH(3),
+    LV_STYLE_CONST_RADIUS(10),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_INIT(bubble_popup, bubble_popup_props);
+
+/**********************
+ *   Variable Styles
+ **********************/
+
 class EdgeTxStyles
 {
  public:
-  lv_style_t scrollbar;
-  lv_style_t btn;
-  lv_style_t field;
-
-  // opacity
-  lv_style_t bg_opacity_transparent;
-  lv_style_t bg_opacity_20;
-  lv_style_t bg_opacity_50;
-  lv_style_t bg_opacity_cover;
-  lv_style_t fg_opacity_transparent;
-  lv_style_t fg_opacity_cover;
-
   // Colors
   lv_style_t bg_color[LCD_COLOR_COUNT];
   lv_style_t txt_color[LCD_COLOR_COUNT];
   lv_style_t border_color_secondary1;
   lv_style_t border_color_secondary2;
+  lv_style_t border_color_black;
+  lv_style_t border_color_focus;
+  lv_style_t bg_color_grey;
+  lv_style_t bg_color_white;
+  lv_style_t bg_color_black;
+  lv_style_t fg_color_black;
 
   // Utility
   lv_style_t pressed;
   lv_style_t disabled;
-  lv_style_t focussed;
-  lv_style_t pad_zero;
-  lv_style_t pad_tiny;
-  lv_style_t pad_small;
-  lv_style_t circle;
-  lv_style_t rounded;
-  lv_style_t border;
-  lv_style_t anim_fast;
   lv_style_t font_std;
   lv_style_t font_bold;
-  lv_style_t text_align_right;
-
-  // Slider parts
-  lv_style_t slider_main;
-  lv_style_t slider_knob;
-
-  // Choice
-  lv_style_t choice_main;
-
-  // Toggle switch
-  lv_style_t switch_knob;
-
-  // Table
-  lv_style_t table_cell;
-
-  // Keyboard
-  lv_style_t keyboard;
-  lv_style_t keyboard_btn_bg;
-
-  // Model popup
-  lv_style_t modal_overlay;
-  lv_style_t modal_title;
-
-  // Check Box
-  lv_style_t cb_marker;
-  lv_style_t cb_marker_checked;
-
-  // Bubble popup
-  lv_style_t bubble_popup;
 
   EdgeTxStyles()
   {
-    // Opacity
-    lv_style_init(&bg_opacity_cover);
-    lv_style_set_bg_opa(&bg_opacity_cover, LV_OPA_COVER);
-    lv_style_init(&bg_opacity_20);
-    lv_style_set_bg_opa(&bg_opacity_20, LV_OPA_20);
-    lv_style_init(&bg_opacity_50);
-    lv_style_set_bg_opa(&bg_opacity_50, LV_OPA_50);
-    lv_style_init(&bg_opacity_transparent);
-    lv_style_set_bg_opa(&bg_opacity_transparent, LV_OPA_TRANSP);
-    lv_style_init(&fg_opacity_cover);
-    lv_style_set_opa(&fg_opacity_cover, LV_OPA_COVER);
-    lv_style_init(&fg_opacity_transparent);
-    lv_style_set_opa(&fg_opacity_transparent, LV_OPA_TRANSP);
-
     // Colors
     for (int i = DEFAULT_COLOR_INDEX; i < LCD_COLOR_COUNT; i += 1) {
       lv_style_init(&bg_color[i]);
@@ -147,40 +305,18 @@ class EdgeTxStyles
     }
     lv_style_init(&border_color_secondary1);
     lv_style_init(&border_color_secondary2);
+    lv_style_init(&border_color_focus);
 
-    // Scrollbar
-    lv_style_init(&scrollbar);
-    lv_style_set_pad_all(&scrollbar, lv_disp_dpx(theme.disp, 7));
-    lv_style_set_width(&scrollbar, lv_disp_dpx(theme.disp, 5));
-
-    // Keyboard
-    lv_style_init(&keyboard);
-    lv_style_set_pad_row(&keyboard, PAD_SMALL);
-    lv_style_set_pad_column(&keyboard, PAD_SMALL);
-
-    // Keyboard buttons
-    lv_style_init(&keyboard_btn_bg);
-    lv_style_set_shadow_width(&keyboard_btn_bg, 0);
-    lv_style_set_radius(&keyboard_btn_bg, 5);
-
-    // Border
-    lv_style_init(&border);
-    lv_style_set_border_opa(&border, LV_OPA_COVER);
-    lv_style_set_border_width(&border, BORDER_WIDTH);
-
-    // Button
-    lv_style_init(&btn);
-    lv_style_set_pad_hor(&btn, PAD_SMALL);
-    lv_style_set_pad_ver(&btn, PAD_SMALL);
-    lv_style_set_pad_column(&btn, lv_disp_dpx(theme.disp, 5));
-    lv_style_set_pad_row(&btn, lv_disp_dpx(theme.disp, 5));
-
-    // Edit box
-    lv_style_init(&field);
-    lv_style_set_pad_top(&field, 4);
-    lv_style_set_pad_bottom(&field, 3);
-    lv_style_set_pad_left(&field, 4);
-    lv_style_set_pad_right(&field, 4);
+    lv_style_init(&bg_color_grey);
+    lv_style_set_bg_color(&bg_color_grey, lv_palette_main(LV_PALETTE_GREY));
+    lv_style_init(&bg_color_white);
+    lv_style_set_bg_color(&bg_color_white, lv_color_white());
+    lv_style_init(&bg_color_black);
+    lv_style_set_bg_color(&bg_color_black, lv_color_black());
+    lv_style_init(&fg_color_black);
+    lv_style_set_border_color(&fg_color_black, lv_color_black());
+    lv_style_init(&border_color_black);
+    lv_style_set_text_color(&border_color_black, lv_color_black());
 
     // States (pressed, disabled, etc)
     static lv_color_filter_dsc_t dark_filter;
@@ -197,92 +333,11 @@ class EdgeTxStyles
     lv_style_set_color_filter_dsc(&disabled, &grey_filter);
     lv_style_set_color_filter_opa(&disabled, LV_OPA_50);
 
-    lv_style_init(&focussed);
-    lv_style_set_border_opa(&focussed, LV_OPA_COVER);
-    lv_style_set_border_width(&focussed, BORDER_WIDTH);
-
-    // Padding
-    lv_style_init(&pad_small);
-    lv_style_set_pad_all(&pad_small, PAD_SMALL);
-    lv_style_set_pad_gap(&pad_small, PAD_SMALL);
-    lv_style_set_pad_column(&pad_small, PAD_SMALL);
-
-    lv_style_init(&pad_zero);
-    lv_style_set_pad_all(&pad_zero, 0);
-    lv_style_set_pad_row(&pad_zero, 0);
-    lv_style_set_pad_column(&pad_zero, 0);
-
-    lv_style_init(&pad_tiny);
-    lv_style_set_pad_all(&pad_tiny, PAD_TINY);
-    lv_style_set_pad_row(&pad_tiny, PAD_TINY);
-    lv_style_set_pad_column(&pad_tiny, PAD_TINY);
-
-    // Toggle switch and slider knob rounding
-    lv_style_init(&circle);
-    lv_style_set_radius(&circle, LV_RADIUS_CIRCLE);
-
-    // Corner rounding (button, edit box, etc)
-    lv_style_init(&rounded);
-    lv_style_set_radius(&rounded, 6);
-
-    // Slider
-    lv_style_init(&slider_main);
-    lv_style_set_pad_all(&slider_main, 6);
-    lv_style_init(&slider_knob);
-    lv_style_set_border_width(&slider_knob, 1);
-    lv_style_set_pad_all(&slider_knob, lv_disp_dpx(theme.disp, 6));
-
-    // Choice
-    lv_style_init(&choice_main);
-    lv_style_set_pad_top(&choice_main, 3);
-    lv_style_set_pad_bottom(&choice_main, 4);
-    lv_style_set_pad_right(&choice_main, 5);
-
-    // Animation
-    lv_style_init(&anim_fast);
-    lv_style_set_anim_time(&anim_fast, 120);
-
-    // Toggle switch
-    lv_style_init(&switch_knob);
-    lv_style_set_pad_all(&switch_knob, -4);
-
-    // Table
-    lv_style_init(&table_cell);
-    lv_style_set_border_width(&table_cell, lv_disp_dpx(theme.disp, 1));
-    lv_style_set_border_side(&table_cell,
-                             LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM);
-
-    // Modal overlay (for dimming background)
-    lv_style_init(&modal_overlay);
-    lv_style_set_bg_color(&modal_overlay, lv_color_black());
-    lv_style_init(&modal_title);
-    lv_style_set_pad_all(&modal_title, PAGE_PADDING);
-    lv_style_set_width(&modal_title, lv_pct(100));
-    lv_style_set_max_height(&modal_title, LCD_H * 0.8);
-
     // Fonts
     lv_style_init(&font_std);
     lv_style_set_text_font(&font_std, getFont(FONT(STD)));
     lv_style_init(&font_bold);
     lv_style_set_text_font(&font_bold, getFont(FONT(BOLD)));
-
-    // Text align
-    lv_style_init(&text_align_right);
-    lv_style_set_text_align(&text_align_right, LV_TEXT_ALIGN_RIGHT);
-
-    // Check Box
-    lv_style_init(&cb_marker);
-    lv_style_set_pad_all(&cb_marker, lv_disp_dpx(theme.disp, 3));
-    lv_style_init(&cb_marker_checked);
-    lv_style_set_bg_img_src(&cb_marker_checked, LV_SYMBOL_OK);
-    lv_style_set_text_font(&cb_marker_checked, theme.font_small);
-
-    // Bubble popup
-    lv_style_init(&bubble_popup);
-    lv_style_set_pad_all(&bubble_popup, 4);
-    lv_style_set_border_opa(&bubble_popup, LV_OPA_COVER);
-    lv_style_set_border_width(&bubble_popup, 3);
-    lv_style_set_radius(&bubble_popup, 10);
   }
 
   void applyColors()
@@ -299,13 +354,8 @@ class EdgeTxStyles
     lv_style_set_border_color(&border_color_secondary2,
                               makeLvColor(COLOR_THEME_SECONDARY2));
 
-    lv_style_set_bg_color(&scrollbar, lv_palette_main(LV_PALETTE_GREY));
-
-    lv_style_set_border_color(&focussed, makeLvColor(COLOR_THEME_FOCUS));
-
-    lv_style_set_bg_color(&bubble_popup, makeLvColor(COLOR2FLAGS(WHITE)));
-    lv_style_set_border_color(&bubble_popup, makeLvColor(COLOR2FLAGS(BLACK)));
-    lv_style_set_text_color(&bubble_popup, makeLvColor(COLOR2FLAGS(BLACK)));
+    lv_style_set_border_color(&border_color_focus,
+                              makeLvColor(COLOR_THEME_FOCUS));
   }
 
  protected:
@@ -314,7 +364,6 @@ class EdgeTxStyles
 static EdgeTxStyles* styles;
 static EdgeTxStyles* previewStyles;
 static EdgeTxStyles* mainStyles;
-static std::stack<EdgeTxStyles*> styleStack;
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -365,59 +414,59 @@ extern "C" {
 
 void input_mix_line_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_SECONDARY1_INDEX],
                    LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->border, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&border, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->border_color_secondary2, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->rounded, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->pad_tiny, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&pad_tiny, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->font_std, LV_PART_MAIN);
 
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_ACTIVE_INDEX],
                    LV_STATE_CHECKED);
-  lv_obj_add_style(obj, &styles->focussed, LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles->border_color_focus, LV_STATE_FOCUSED);
 }
 
 void input_mix_group_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_SECONDARY1_INDEX],
                    LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->border, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&border, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->border_color_secondary2, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->rounded, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->pad_tiny, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&pad_tiny, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->font_bold, LV_PART_MAIN);
 }
 
 void field_edit_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_SECONDARY1_INDEX],
                    LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->field, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->border, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&field, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&border, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->border_color_secondary2, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->rounded, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_MAIN);
 
-  lv_obj_add_style(obj, &styles->focussed, LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles->border_color_focus, LV_STATE_FOCUSED);
 
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_EDIT_INDEX],
                    LV_STATE_EDITED);
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_STATE_EDITED);
 
-  lv_obj_add_style(obj, &styles->fg_opacity_transparent, LV_PART_CURSOR);
-  lv_obj_add_style(obj, &styles->bg_opacity_50,
+  lv_obj_add_style(obj, (lv_style_t*)&fg_opacity_transparent, LV_PART_CURSOR);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_50,
                    LV_PART_CURSOR | LV_STATE_EDITED);
-  lv_obj_add_style(obj, &styles->fg_opacity_cover,
+  lv_obj_add_style(obj, (lv_style_t*)&fg_opacity_cover,
                    LV_PART_CURSOR | LV_STATE_EDITED);
 
   lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_OFF);
@@ -428,40 +477,42 @@ void field_edit_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 void number_edit_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   field_edit_constructor(class_p, obj);
-  lv_obj_add_style(obj, &styles->text_align_right, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&text_align_right, LV_PART_MAIN);
 }
 
 void window_base_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->bg_opacity_50, LV_PART_SCROLLBAR);
-  lv_obj_add_style(obj, &styles->scrollbar, LV_PART_SCROLLBAR);
-  lv_obj_add_style(obj, &styles->bg_opacity_cover,
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_50, LV_PART_SCROLLBAR);
+  lv_obj_add_style(obj, (lv_style_t*)&scrollbar, LV_PART_SCROLLBAR);
+  lv_obj_add_style(obj, &styles->bg_color_grey, LV_PART_SCROLLBAR);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover,
                    LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
 }
 
 void form_window_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   window_base_constructor(class_p, obj);
-  lv_obj_add_style(obj, &styles->bg_opacity_transparent, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_transparent, LV_PART_MAIN);
 }
 
 void table_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->pad_zero, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&pad_zero, LV_PART_MAIN);
 
-  lv_obj_add_style(obj, &styles->bg_opacity_50, LV_PART_SCROLLBAR);
-  lv_obj_add_style(obj, &styles->scrollbar, LV_PART_SCROLLBAR);
-  lv_obj_add_style(obj, &styles->bg_opacity_cover,
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_50, LV_PART_SCROLLBAR);
+  lv_obj_add_style(obj, (lv_style_t*)&scrollbar, LV_PART_SCROLLBAR);
+  lv_obj_add_style(obj, &styles->bg_color_grey, LV_PART_SCROLLBAR);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover,
                    LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
 
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_ITEMS);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_ITEMS);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_ITEMS);
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_PRIMARY1_INDEX],
                    LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles->table_cell, LV_PART_ITEMS);
+  lv_obj_add_style(obj, (lv_style_t*)&table_cell, LV_PART_ITEMS);
   lv_obj_add_style(obj, &styles->border_color_secondary2, LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles->pad_small, LV_PART_ITEMS);
+  lv_obj_add_style(obj, (lv_style_t*)&pad_small, LV_PART_ITEMS);
   lv_obj_set_style_pad_ver(obj, 7, LV_PART_ITEMS);
 
   lv_obj_add_style(obj, &styles->pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
@@ -474,20 +525,19 @@ void table_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 
 void etx_keyboard_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->keyboard, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_SECONDARY3_INDEX],
                    LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->pad_tiny, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->rounded, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&pad_tiny, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_MAIN);
 
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles->btn, LV_PART_ITEMS);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_ITEMS);
+  lv_obj_add_style(obj, (lv_style_t*)&btn, LV_PART_ITEMS);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_ITEMS);
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_PRIMARY1_INDEX],
                    LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles->keyboard_btn_bg, LV_PART_ITEMS);
+  lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_ITEMS);
 
   lv_obj_add_style(obj, &styles->disabled, LV_PART_ITEMS | LV_STATE_DISABLED);
 
@@ -511,40 +561,40 @@ void etx_keyboard_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 
 void etx_switch_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_PRIMARY1_INDEX],
                    LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->border, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&border, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->border_color_secondary2, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->circle, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->anim_fast, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&circle, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&anim_fast, LV_PART_MAIN);
 
   lv_obj_add_style(obj, &styles->disabled, LV_STATE_DISABLED);
 
-  lv_obj_add_style(obj, &styles->focussed, LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles->border_color_focus, LV_STATE_FOCUSED);
 
-  lv_obj_add_style(obj, &styles->border, LV_PART_INDICATOR);
+  lv_obj_add_style(obj, (lv_style_t*)&border, LV_PART_INDICATOR);
   lv_obj_add_style(obj, &styles->border_color_secondary2, LV_PART_INDICATOR);
-  lv_obj_add_style(obj, &styles->circle, LV_PART_INDICATOR);
+  lv_obj_add_style(obj, (lv_style_t*)&circle, LV_PART_INDICATOR);
 
   lv_obj_add_style(obj, &styles->disabled,
                    LV_PART_INDICATOR | LV_STATE_DISABLED);
 
-  lv_obj_add_style(obj, &styles->focussed,
+  lv_obj_add_style(obj, &styles->border_color_focus,
                    LV_PART_INDICATOR | LV_STATE_FOCUSED);
 
-  lv_obj_add_style(obj, &styles->bg_opacity_cover,
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover,
                    LV_PART_INDICATOR | LV_STATE_CHECKED);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_ACTIVE_INDEX],
                    LV_PART_INDICATOR | LV_STATE_CHECKED);
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_PRIMARY1_INDEX],
                    LV_PART_INDICATOR | LV_STATE_CHECKED);
 
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_KNOB);
-  lv_obj_add_style(obj, &styles->circle, LV_PART_KNOB);
-  lv_obj_add_style(obj, &styles->switch_knob, LV_PART_KNOB);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_KNOB);
+  lv_obj_add_style(obj, (lv_style_t*)&circle, LV_PART_KNOB);
+  lv_obj_add_style(obj, (lv_style_t*)&switch_knob, LV_PART_KNOB);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_SECONDARY1_INDEX],
                    LV_PART_KNOB);
 
@@ -553,23 +603,23 @@ void etx_switch_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 
 void etx_slider_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->slider_main, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&slider_main, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_SECONDARY1_INDEX],
                    LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->circle, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&circle, LV_PART_MAIN);
 
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_FOCUS_INDEX],
                    LV_PART_MAIN | LV_STATE_FOCUSED);
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_MAIN | LV_STATE_FOCUSED);
 
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_KNOB);
-  lv_obj_add_style(obj, &styles->slider_knob, LV_PART_KNOB);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_KNOB);
+  lv_obj_add_style(obj, (lv_style_t*)&slider_knob, LV_PART_KNOB);
   lv_obj_add_style(obj, &styles->border_color_secondary1, LV_PART_KNOB);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_KNOB);
-  lv_obj_add_style(obj, &styles->circle, LV_PART_KNOB);
+  lv_obj_add_style(obj, (lv_style_t*)&circle, LV_PART_KNOB);
 
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_EDIT_INDEX],
                    LV_PART_KNOB | LV_STATE_FOCUSED | LV_STATE_EDITED);
@@ -579,10 +629,10 @@ void etx_slider_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 
 void etx_btnmatrix_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->rounded, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->bg_opacity_20,
+  lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_20,
                    LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_add_style(obj, &styles->bg_opacity_20,
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_20,
                    LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_EDITED);
 
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_FOCUS_INDEX],
@@ -590,13 +640,14 @@ void etx_btnmatrix_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_MAIN | LV_STATE_FOCUSED);
 
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_ITEMS);
+  lv_obj_add_style(obj, (lv_style_t*)&border, LV_PART_ITEMS);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_ITEMS);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_ITEMS);
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_SECONDARY1_INDEX],
                    LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles->btn, LV_PART_ITEMS);
-  lv_obj_add_style(obj, &styles->rounded, LV_PART_ITEMS);
+  lv_obj_add_style(obj, (lv_style_t*)&btn, LV_PART_ITEMS);
+  lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_ITEMS);
 
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_ACTIVE_INDEX],
                    LV_PART_ITEMS | LV_STATE_CHECKED);
@@ -607,72 +658,73 @@ void etx_btnmatrix_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 
   lv_obj_add_style(obj, &styles->pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
 
-  lv_obj_add_style(obj, &styles->focussed, LV_PART_ITEMS | LV_STATE_EDITED);
+  lv_obj_add_style(obj, &styles->border_color_focus,
+                   LV_PART_ITEMS | LV_STATE_EDITED);
 }
 
 void etx_button_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->btn, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&btn, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_SECONDARY1_INDEX],
                    LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->border, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&border, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->border_color_secondary2, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->rounded, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_MAIN);
 
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_ACTIVE_INDEX],
                    LV_STATE_CHECKED);
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_PRIMARY1_INDEX],
                    LV_STATE_CHECKED);
 
-  lv_obj_add_style(obj, &styles->focussed, LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles->border_color_focus, LV_STATE_FOCUSED);
 
   lv_obj_add_style(obj, &styles->disabled, LV_STATE_DISABLED);
 }
 
 void etx_choice_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->choice_main, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&choice_main, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&border, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->border_color_secondary2, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_SECONDARY1_INDEX],
                    LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->border, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->border_color_secondary2, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->rounded, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_MAIN);
 
-  lv_obj_add_style(obj, &styles->focussed, LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles->border_color_focus,
+                   LV_PART_MAIN | LV_STATE_FOCUSED);
 }
 
 void etx_bar_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_SECONDARY2_INDEX],
                    LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->rounded, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_MAIN);
 
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_INDICATOR);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_INDICATOR);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_SECONDARY1_INDEX],
                    LV_PART_INDICATOR);
-  lv_obj_add_style(obj, &styles->rounded, LV_PART_INDICATOR);
+  lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_INDICATOR);
 }
 
 void etx_checkbox_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_INDICATOR);
-  lv_obj_add_style(obj, &styles->rounded, LV_PART_INDICATOR);
-  lv_obj_add_style(obj, &styles->pad_zero, LV_PART_INDICATOR);
-  lv_obj_add_style(obj, &styles->cb_marker, LV_PART_INDICATOR);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_INDICATOR);
+  lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_INDICATOR);
+  lv_obj_add_style(obj, (lv_style_t*)&pad_zero, LV_PART_INDICATOR);
+  lv_obj_add_style(obj, (lv_style_t*)&cb_marker, LV_PART_INDICATOR);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_INDICATOR);
-  lv_obj_add_style(obj, &styles->border, LV_PART_INDICATOR);
+  lv_obj_add_style(obj, (lv_style_t*)&border, LV_PART_INDICATOR);
   lv_obj_add_style(obj, &styles->border_color_secondary2, LV_PART_INDICATOR);
 
-  lv_obj_add_style(obj, &styles->cb_marker_checked,
+  lv_obj_add_style(obj, (lv_style_t*)&cb_marker_checked,
                    LV_PART_INDICATOR | LV_STATE_CHECKED);
   lv_obj_add_style(obj, &styles->border_color_secondary1,
                    LV_PART_INDICATOR | LV_STATE_CHECKED);
@@ -681,7 +733,7 @@ void etx_checkbox_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_INDICATOR | LV_STATE_CHECKED);
 
-  lv_obj_add_style(obj, &styles->focussed,
+  lv_obj_add_style(obj, &styles->border_color_focus,
                    LV_PART_INDICATOR | LV_STATE_FOCUSED);
 
   lv_obj_add_style(obj, &styles->disabled,
@@ -690,29 +742,32 @@ void etx_checkbox_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 
 void bubble_popup_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->bubble_popup, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bubble_popup, LV_PART_MAIN);
+  lv_obj_add_style(obj, &styles->bg_color_white, LV_PART_MAIN);
+  lv_obj_add_style(obj, &styles->fg_color_black, LV_PART_MAIN);
+  lv_obj_add_style(obj, &styles->border_color_black, LV_PART_MAIN);
 }
 
 void modal_window_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   window_base_constructor(class_p, obj);
-  lv_obj_add_style(obj, &styles->bg_opacity_50, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->modal_overlay, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_50, LV_PART_MAIN);
+  lv_obj_add_style(obj, &styles->bg_color_black, LV_PART_MAIN);
 }
 
 void modal_content_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   window_base_constructor(class_p, obj);
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_SECONDARY3_INDEX],
                    LV_PART_MAIN);
 }
 
 void modal_title_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  lv_obj_add_style(obj, &styles->bg_opacity_cover, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->modal_title, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&modal_title, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_SECONDARY1_INDEX],
                    LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_PRIMARY2_INDEX],
