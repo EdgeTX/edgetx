@@ -64,65 +64,41 @@ static lv_color_t grey_filter_cb(const lv_color_filter_dsc_t* f,
  *   Constant Styles
  **********************/
 
+// Create a style with a single property
+#define LV_STYLE_CONST_SINGLE_INIT(var_name, prop, value)         \
+  const lv_style_t var_name = {.v_p = {.value1 = {.num = value}}, \
+                               .prop1 = prop,                     \
+                               .is_const = 0,                     \
+                               .has_group = 0xFF,                 \
+                               .prop_cnt = 1}
+
+// Create a style with multiple properties
+// Copied from lv_style.h and modified to compile with ARM GCC C++
+#define LV_STYLE_CONST_MULTI_INIT(var_name, prop_array) \
+  const lv_style_t var_name = {                         \
+      .v_p = {.const_props = prop_array}, .is_const = 1, .has_group = 0xFF}
+
 // Opacity
-const lv_style_t bg_opacity_transparent = {.v_p.value1 = LV_OPA_TRANSP,
-                                           .is_const = 0,
-                                           .prop1 = LV_STYLE_BG_OPA,
-                                           .has_group = 0xFF,
-                                           .prop_cnt = 1};
-const lv_style_t bg_opacity_20 = {.v_p.value1 = LV_OPA_20,
-                                  .is_const = 0,
-                                  .prop1 = LV_STYLE_BG_OPA,
-                                  .has_group = 0xFF,
-                                  .prop_cnt = 1};
-const lv_style_t bg_opacity_50 = {.v_p.value1 = LV_OPA_50,
-                                  .is_const = 0,
-                                  .prop1 = LV_STYLE_BG_OPA,
-                                  .has_group = 0xFF,
-                                  .prop_cnt = 1};
-const lv_style_t bg_opacity_cover = {.v_p.value1 = LV_OPA_COVER,
-                                     .is_const = 0,
-                                     .prop1 = LV_STYLE_BG_OPA,
-                                     .has_group = 0xFF,
-                                     .prop_cnt = 1};
-const lv_style_t fg_opacity_transparent = {.v_p.value1 = LV_OPA_TRANSP,
-                                           .is_const = 0,
-                                           .prop1 = LV_STYLE_OPA,
-                                           .has_group = 0xFF,
-                                           .prop_cnt = 1};
-const lv_style_t fg_opacity_cover = {.v_p.value1 = LV_OPA_COVER,
-                                     .is_const = 0,
-                                     .prop1 = LV_STYLE_OPA,
-                                     .has_group = 0xFF,
-                                     .prop_cnt = 1};
+LV_STYLE_CONST_SINGLE_INIT(bg_opacity_transparent, LV_STYLE_BG_OPA,
+                           LV_OPA_TRANSP);
+LV_STYLE_CONST_SINGLE_INIT(bg_opacity_20, LV_STYLE_BG_OPA, LV_OPA_20);
+LV_STYLE_CONST_SINGLE_INIT(bg_opacity_50, LV_STYLE_BG_OPA, LV_OPA_50);
+LV_STYLE_CONST_SINGLE_INIT(bg_opacity_cover, LV_STYLE_BG_OPA, LV_OPA_COVER);
+LV_STYLE_CONST_SINGLE_INIT(fg_opacity_transparent, LV_STYLE_OPA, LV_OPA_TRANSP);
+LV_STYLE_CONST_SINGLE_INIT(fg_opacity_cover, LV_STYLE_OPA, LV_OPA_COVER);
 
 // Corner rounding (button, edit box, etc)
-const lv_style_t rounded = {.v_p.value1 = 6,
-                            .is_const = 0,
-                            .prop1 = LV_STYLE_RADIUS,
-                            .has_group = 0xFF,
-                            .prop_cnt = 1};
+LV_STYLE_CONST_SINGLE_INIT(rounded, 6, LV_STYLE_RADIUS);
 
 // Toggle switch and slider knob rounding
-const lv_style_t circle = {.v_p.value1 = LV_RADIUS_CIRCLE,
-                           .is_const = 0,
-                           .prop1 = LV_STYLE_RADIUS,
-                           .has_group = 0xFF,
-                           .prop_cnt = 1};
+LV_STYLE_CONST_SINGLE_INIT(circle, LV_RADIUS_CIRCLE, LV_STYLE_RADIUS);
 
 // Animation
-const lv_style_t anim_fast = {.v_p.value1 = 120,
-                              .is_const = 0,
-                              .prop1 = LV_STYLE_ANIM_TIME,
-                              .has_group = 0xFF,
-                              .prop_cnt = 1};
+LV_STYLE_CONST_SINGLE_INIT(anim_fast, 120, LV_STYLE_ANIM_TIME);
 
 // Text align
-const lv_style_t text_align_right = {.v_p.value1 = LV_TEXT_ALIGN_RIGHT,
-                                     .is_const = 0,
-                                     .prop1 = LV_STYLE_TEXT_ALIGN,
-                                     .has_group = 0xFF,
-                                     .prop_cnt = 1};
+LV_STYLE_CONST_SINGLE_INIT(text_align_right, LV_TEXT_ALIGN_RIGHT,
+                           LV_STYLE_TEXT_ALIGN);
 
 // Toggle switch
 const lv_style_const_prop_t switch_knob_props[] = {
@@ -130,7 +106,7 @@ const lv_style_const_prop_t switch_knob_props[] = {
     LV_STYLE_CONST_PAD_LEFT(-4), LV_STYLE_CONST_PAD_RIGHT(-4),
     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(switch_knob, switch_knob_props);
+LV_STYLE_CONST_MULTI_INIT(switch_knob, switch_knob_props);
 
 // Scrollbar
 const lv_style_const_prop_t scrollbar_props[] = {
@@ -138,7 +114,7 @@ const lv_style_const_prop_t scrollbar_props[] = {
     LV_STYLE_CONST_PAD_LEFT(LV_DPX(7)), LV_STYLE_CONST_PAD_RIGHT(LV_DPX(7)),
     LV_STYLE_CONST_WIDTH(LV_DPX(5)),    LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(scrollbar, scrollbar_props);
+LV_STYLE_CONST_MULTI_INIT(scrollbar, scrollbar_props);
 
 // Padding
 const lv_style_const_prop_t pad_zero_props[] = {
@@ -147,7 +123,7 @@ const lv_style_const_prop_t pad_zero_props[] = {
     LV_STYLE_CONST_PAD_ROW(0),  LV_STYLE_CONST_PAD_COLUMN(0),
     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(pad_zero, pad_zero_props);
+LV_STYLE_CONST_MULTI_INIT(pad_zero, pad_zero_props);
 
 const lv_style_const_prop_t pad_tiny_props[] = {
     LV_STYLE_CONST_PAD_TOP(PAD_TINY),
@@ -158,7 +134,7 @@ const lv_style_const_prop_t pad_tiny_props[] = {
     LV_STYLE_CONST_PAD_COLUMN(PAD_TINY),
     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(pad_tiny, pad_tiny_props);
+LV_STYLE_CONST_MULTI_INIT(pad_tiny, pad_tiny_props);
 
 const lv_style_const_prop_t pad_small_props[] = {
     LV_STYLE_CONST_PAD_TOP(PAD_SMALL),
@@ -169,7 +145,7 @@ const lv_style_const_prop_t pad_small_props[] = {
     LV_STYLE_CONST_PAD_COLUMN(PAD_SMALL),
     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(pad_small, pad_small_props);
+LV_STYLE_CONST_MULTI_INIT(pad_small, pad_small_props);
 
 // Border
 const lv_style_const_prop_t border_props[] = {
@@ -177,7 +153,7 @@ const lv_style_const_prop_t border_props[] = {
     LV_STYLE_CONST_BORDER_WIDTH(BORDER_WIDTH),
     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(border, border_props);
+LV_STYLE_CONST_MULTI_INIT(border, border_props);
 
 // Button
 const lv_style_const_prop_t btn_props[] = {
@@ -189,7 +165,7 @@ const lv_style_const_prop_t btn_props[] = {
     LV_STYLE_CONST_PAD_COLUMN(LV_DPX(5)),
     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(btn, btn_props);
+LV_STYLE_CONST_MULTI_INIT(btn, btn_props);
 
 // Edit box
 const lv_style_const_prop_t field_props[] = {
@@ -197,7 +173,7 @@ const lv_style_const_prop_t field_props[] = {
     LV_STYLE_CONST_PAD_LEFT(4), LV_STYLE_CONST_PAD_RIGHT(4),
     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(field, field_props);
+LV_STYLE_CONST_MULTI_INIT(field, field_props);
 
 // Slider
 const lv_style_const_prop_t slider_main_props[] = {
@@ -205,14 +181,14 @@ const lv_style_const_prop_t slider_main_props[] = {
     LV_STYLE_CONST_PAD_LEFT(6), LV_STYLE_CONST_PAD_RIGHT(6),
     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(slider_main, slider_main_props);
+LV_STYLE_CONST_MULTI_INIT(slider_main, slider_main_props);
 
 const lv_style_const_prop_t slider_knob_props[] = {
     LV_STYLE_CONST_PAD_TOP(LV_DPX(6)),  LV_STYLE_CONST_PAD_BOTTOM(LV_DPX(6)),
     LV_STYLE_CONST_PAD_LEFT(LV_DPX(6)), LV_STYLE_CONST_PAD_RIGHT(LV_DPX(6)),
     LV_STYLE_CONST_BORDER_WIDTH(1),     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(slider_knob, slider_knob_props);
+LV_STYLE_CONST_MULTI_INIT(slider_knob, slider_knob_props);
 
 // Choice
 const lv_style_const_prop_t choice_main_props[] = {
@@ -221,7 +197,7 @@ const lv_style_const_prop_t choice_main_props[] = {
     LV_STYLE_CONST_PAD_RIGHT(5),
     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(choice_main, choice_main_props);
+LV_STYLE_CONST_MULTI_INIT(choice_main, choice_main_props);
 
 // Modal overlay (for dimming background)
 const lv_style_const_prop_t modal_title_props[] = {
@@ -233,7 +209,7 @@ const lv_style_const_prop_t modal_title_props[] = {
     LV_STYLE_CONST_MAX_HEIGHT((int)(LCD_H * 0.8)),
     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(modal_title, modal_title_props);
+LV_STYLE_CONST_MULTI_INIT(modal_title, modal_title_props);
 
 // Check Box
 const lv_style_const_prop_t cb_marker_props[] = {
@@ -241,14 +217,14 @@ const lv_style_const_prop_t cb_marker_props[] = {
     LV_STYLE_CONST_PAD_LEFT(3), LV_STYLE_CONST_PAD_RIGHT(3),
     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(cb_marker, cb_marker_props);
+LV_STYLE_CONST_MULTI_INIT(cb_marker, cb_marker_props);
 
 const lv_style_const_prop_t cb_marker_checked_props[] = {
     LV_STYLE_CONST_BG_IMG_SRC(LV_SYMBOL_OK),
     LV_STYLE_CONST_TEXT_FONT(LV_FONT_DEFAULT),
     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(cb_marker_checked, cb_marker_checked_props);
+LV_STYLE_CONST_MULTI_INIT(cb_marker_checked, cb_marker_checked_props);
 
 // Table
 const lv_style_const_prop_t table_cell_props[] = {
@@ -256,7 +232,7 @@ const lv_style_const_prop_t table_cell_props[] = {
     LV_STYLE_CONST_BORDER_SIDE(LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM),
     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(table_cell, table_cell_props);
+LV_STYLE_CONST_MULTI_INIT(table_cell, table_cell_props);
 
 // Bubble popup
 const lv_style_const_prop_t bubble_popup_props[] = {
@@ -269,7 +245,7 @@ const lv_style_const_prop_t bubble_popup_props[] = {
     LV_STYLE_CONST_RADIUS(10),
     LV_STYLE_PROP_INV,
 };
-LV_STYLE_CONST_INIT(bubble_popup, bubble_popup_props);
+LV_STYLE_CONST_MULTI_INIT(bubble_popup, bubble_popup_props);
 
 /**********************
  *   Variable Styles
