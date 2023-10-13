@@ -34,14 +34,14 @@ extern lv_color_t makeLvColor(uint32_t colorFlags);
 /*********************
  *      DEFINES
  *********************/
-#define BORDER_WIDTH LV_DPX(2)
+#define BORDER_WIDTH 2
 
 #if LCD_W > LCD_H
-#define PAD_SMALL (LV_DPX(12))
-#define PAD_TINY (LV_DPX(4))
+#define PAD_SMALL 10
+#define PAD_TINY 3
 #else
-#define PAD_SMALL (LV_DPX(10))
-#define PAD_TINY (LV_DPX(2))
+#define PAD_SMALL 8
+#define PAD_TINY 2
 #endif
 
 static lv_theme_t theme;
@@ -113,9 +113,9 @@ LV_STYLE_CONST_MULTI_INIT(switch_knob, switch_knob_props);
 
 // Scrollbar
 const lv_style_const_prop_t scrollbar_props[] = {
-    LV_STYLE_CONST_PAD_TOP(LV_DPX(7)),  LV_STYLE_CONST_PAD_BOTTOM(LV_DPX(7)),
-    LV_STYLE_CONST_PAD_LEFT(LV_DPX(7)), LV_STYLE_CONST_PAD_RIGHT(LV_DPX(7)),
-    LV_STYLE_CONST_WIDTH(LV_DPX(5)),    LV_STYLE_PROP_INV,
+    LV_STYLE_CONST_PAD_TOP(6),  LV_STYLE_CONST_PAD_BOTTOM(6),
+    LV_STYLE_CONST_PAD_LEFT(6), LV_STYLE_CONST_PAD_RIGHT(6),
+    LV_STYLE_CONST_WIDTH(4),    LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(scrollbar, scrollbar_props);
 
@@ -164,8 +164,8 @@ const lv_style_const_prop_t btn_props[] = {
     LV_STYLE_CONST_PAD_BOTTOM(PAD_SMALL),
     LV_STYLE_CONST_PAD_LEFT(PAD_SMALL),
     LV_STYLE_CONST_PAD_RIGHT(PAD_SMALL),
-    LV_STYLE_CONST_PAD_ROW(LV_DPX(5)),
-    LV_STYLE_CONST_PAD_COLUMN(LV_DPX(5)),
+    LV_STYLE_CONST_PAD_ROW(4),
+    LV_STYLE_CONST_PAD_COLUMN(4),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(btn, btn_props);
@@ -187,8 +187,8 @@ const lv_style_const_prop_t slider_main_props[] = {
 LV_STYLE_CONST_MULTI_INIT(slider_main, slider_main_props);
 
 const lv_style_const_prop_t slider_knob_props[] = {
-    LV_STYLE_CONST_PAD_TOP(LV_DPX(6)),  LV_STYLE_CONST_PAD_BOTTOM(LV_DPX(6)),
-    LV_STYLE_CONST_PAD_LEFT(LV_DPX(6)), LV_STYLE_CONST_PAD_RIGHT(LV_DPX(6)),
+    LV_STYLE_CONST_PAD_TOP(5),  LV_STYLE_CONST_PAD_BOTTOM(5),
+    LV_STYLE_CONST_PAD_LEFT(5), LV_STYLE_CONST_PAD_RIGHT(5),
     LV_STYLE_CONST_BORDER_WIDTH(1),     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(slider_knob, slider_knob_props);
@@ -231,7 +231,7 @@ LV_STYLE_CONST_MULTI_INIT(cb_marker_checked, cb_marker_checked_props);
 
 // Table
 const lv_style_const_prop_t table_cell_props[] = {
-    LV_STYLE_CONST_BORDER_WIDTH(LV_DPX(1)),
+    LV_STYLE_CONST_BORDER_WIDTH(1),
     LV_STYLE_CONST_BORDER_SIDE(LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM),
     LV_STYLE_PROP_INV,
 };
