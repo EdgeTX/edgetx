@@ -1421,7 +1421,7 @@ static int luaGetFlightMode(lua_State * L)
 }
 
 /*luadoc
-@function playFile(filename[, volume])
+@function playFile(filename [, volume])
 
 Play a file from the SD card
 
@@ -1430,7 +1430,7 @@ Introduced in 2.1.0: If you use a relative path, the current language is appende
 to the path (example: for English language: `/SOUNDS/en` is appended)
 
 @param volume (number):
- - (1..5) override radio settings Wav volumne for the duration of file
+ - (1..5) override radio settings Wav volume for the duration of file
  - omitting the parameter uses radio settings Wav volume
 
 @retval none 
@@ -1481,7 +1481,7 @@ Play a numerical value (text to speech)
  * `PREC2` plays a number with two decimal places (for a number 123 it plays 1.23)
  
  @param volume (number):
- - (1..5) override radio settings Wav volumne for the duration of file
+ - (1..5) override radio settings Wav volume for the duration of file
  - omitting the parameter uses radio settings Wav volume
 
 @retval none 
@@ -1511,7 +1511,7 @@ static int luaPlayNumber(lua_State * L)
 }
 
 /*luadoc
-@function playDuration(duration [, hourFormat])
+@function playDuration(duration [, hourFormat [, volume]])
 
 Play a time value (text to speech)
 
@@ -1522,7 +1522,7 @@ Play a time value (text to speech)
  * `!= 0` play format: hours, minutes and seconds.
  * 
 @param volume (number):
- - (1..5) override radio settings Wav volumne for the duration of file
+ - (1..5) override radio settings Wav volume for the duration of file
  - omitting the parameter uses radio settings Wav volume
 
 @retval none 
@@ -1571,12 +1571,12 @@ negative number decreases it. The frequency changes every 10 milliseconds, the c
 The valid range is from -127 to 127.
 
 @param volume (number):
- - (1..5) override radio settings Beep volumne for the duration of file
+ - (1..5) override radio settings Beep volume for the duration of file
  - omitting the parameter uses radio settings Beep volume
 
 @retval none 
 
-@status current Introduced in 2.0.0, changed in 2.1.0, changed in 2.10
+@status current Introduced in 2.1.0, changed in 2.10
 
 // targets: BW, COLOR
 //
