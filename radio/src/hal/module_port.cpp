@@ -319,3 +319,11 @@ int8_t modulePortGetModuleForPort(uint8_t port)
 
   return -1;
 }
+
+bool modulePortHasRx(uint8_t module)
+{
+  auto mod_st = modulePortGetState(module);
+  if (!mod_st) return false;
+
+  return mod_st && mod_st->rx.port;
+}

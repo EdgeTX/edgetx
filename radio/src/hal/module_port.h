@@ -166,3 +166,5 @@ bool modulePortIsPortUsedByModule(uint8_t module, uint8_t port);
 bool modulePortIsPortUsed(uint8_t port);
 
 int8_t modulePortGetModuleForPort(uint8_t port);
+
+bool modulePortHasRx(uint8_t module);
