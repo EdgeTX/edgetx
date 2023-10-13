@@ -34,7 +34,7 @@ enum ChinesePrompts {
 };
 
 
-  #define CN_PUSH_UNIT_PROMPT(u, p) cn_pushUnitPrompt((u), (p), id)
+#define CN_PUSH_UNIT_PROMPT(u, p) cn_pushUnitPrompt((u), (p), id, fragmentVolume)
 
 I18N_PLAY_FUNCTION(cn, pushUnitPrompt, uint8_t unitprompt, int16_t number)
 {

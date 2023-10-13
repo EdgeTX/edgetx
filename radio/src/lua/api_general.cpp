@@ -1421,35 +1421,53 @@ static int luaGetFlightMode(lua_State * L)
 }
 
 /*luadoc
-@function playFile(name)
+@function playFile(filename [, volume])
 
 Play a file from the SD card
 
-@param path (string) full path to wav file (i.e. “/SOUNDS/en/system/tada.wav”)
+@param filename (string) full path to wav file (i.e. “/SOUNDS/en/system/tada.wav”)
 Introduced in 2.1.0: If you use a relative path, the current language is appended
 to the path (example: for English language: `/SOUNDS/en` is appended)
 
-@status current Introduced in 2.0.0, changed in 2.1.0
+@param volume (number):
+ - (1..5) override radio settings Wav volume for the duration of file
+ - omitting the parameter uses radio settings Wav volume
+
+@retval none 
+
+@status current Introduced in 2.0.0, changed in 2.1.0, changed in 2.10
+
+// targets: BW, COLOR
+//
+// EXAMPLES:
+// playFile("armed.wav", 5) -- play file armed.wav, use Wav volume 2
+// playFile("armed.wav", 1) -- play file armed.wav, use Wav volume 1
+// playFile("armed.wav")		-- play file armed.wav, use radio settings Wav volume
 */
 static int luaPlayFile(lua_State * L)
 {
   const char * filename = luaL_checkstring(L, 1);
+  int volume = luaL_optinteger(L, 2, USE_SETTINGS_VOLUME);
+
+  if(volume != USE_SETTINGS_VOLUME)
+    volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
+
   if (filename[0] != '/') {
     // relative sound file path - use current language dir for absolute path
     char file[AUDIO_FILENAME_MAXLEN+1];
     char * str = getAudioPath(file);
     strncpy(str, filename, AUDIO_FILENAME_MAXLEN - (str-file));
     file[AUDIO_FILENAME_MAXLEN] = 0;
-    PLAY_FILE(file, 0, 0);
+    audioQueue.playFile(file, 0, 0, volume);
   }
   else {
-    PLAY_FILE(filename, 0, 0);
+    audioQueue.playFile(filename, 0, 0, volume);
   }
   return 0;
 }
 
 /*luadoc
-@function playNumber(value, unit [, attributes])
+@function playNumber(value, unit [, attributes [, volume]])
 
 Play a numerical value (text to speech)
 
@@ -1461,21 +1479,39 @@ Play a numerical value (text to speech)
  * `0 or not present` plays integral part of the number (for a number 123 it plays 123)
  * `PREC1` plays a number with one decimal place (for a number 123 it plays 12.3)
  * `PREC2` plays a number with two decimal places (for a number 123 it plays 1.23)
+ 
+ @param volume (number):
+ - (1..5) override radio settings Wav volume for the duration of file
+ - omitting the parameter uses radio settings Wav volume
 
-@status current Introduced in 2.0.0
+@retval none 
 
+@status current Introduced in 2.0.0, changed in 2.10
+
+// targets: BW, COLOR
+//
+// EXAMPLES:
+// playNumber(123, 3, 0, 5) -- play number 123, unit mAh, use Wav volume 5
+// playNumber(123, 3, 0, 1) -- play number 123, unit mAh, use Wav volume 1
+// playNumber(123, 3, 0)    -- play number 123, unit mAh, use radio settings Wav volume
 */
+
 static int luaPlayNumber(lua_State * L)
 {
   int number = luaL_checkinteger(L, 1);
   int unit = luaL_checkinteger(L, 2);
   unsigned int att = luaL_optunsigned(L, 3, 0);
-  playNumber(number, unit, att, 0);
+  int volume = luaL_optinteger(L, 4, USE_SETTINGS_VOLUME);
+
+  if(volume != USE_SETTINGS_VOLUME)
+    volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
+
+  playNumber(number, unit, att, 0, volume);
   return 0;
 }
 
 /*luadoc
-@function playDuration(duration [, hourFormat])
+@function playDuration(duration [, hourFormat [, volume]])
 
 Play a time value (text to speech)
 
@@ -1484,19 +1520,38 @@ Play a time value (text to speech)
 @param hourFormat (number):
  * `0 or not present` play format: minutes and seconds.
  * `!= 0` play format: hours, minutes and seconds.
+ * 
+@param volume (number):
+ - (1..5) override radio settings Wav volume for the duration of file
+ - omitting the parameter uses radio settings Wav volume
 
-@status current Introduced in 2.1.0
+@retval none 
+
+@status current Introduced in 2.1.0, changed in 2.10
+
+// targets: BW, COLOR
+//
+// EXAMPLES:
+// playDuration(101, 0, 5) -- play duration 101s, seconds format, use Wav volume 5
+// playDuration(101, 0, 1) -- play duration 101s, seconds format, use Wav volume 1
+// playDuration(101, 1)    -- play duration 101s, hour format, use radio settings Wav volume
 */
+
 static int luaPlayDuration(lua_State * L)
 {
   int duration = luaL_checkinteger(L, 1);
   bool playTime = (luaL_optinteger(L, 2, 0) != 0);
-  playDuration(duration, playTime ? PLAY_TIME : 0, 0);
+  int volume = luaL_optinteger(L, 3, USE_SETTINGS_VOLUME);
+
+  if(volume != USE_SETTINGS_VOLUME)
+    volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
+
+  playDuration(duration, playTime ? PLAY_TIME : 0, 0, volume);
   return 0;
 }
 
 /*luadoc
-@function playTone(frequency, duration, pause [, flags [, freqIncr]])
+@function playTone(frequency, duration, pause [, flags [, freqIncr [, volume]]])
 
 Play a tone
 
@@ -1515,7 +1570,20 @@ Play a tone
 negative number decreases it. The frequency changes every 10 milliseconds, the change is `freqIncr * 10Hz`.
 The valid range is from -127 to 127.
 
-@status current Introduced in 2.1.0
+@param volume (number):
+ - (1..5) override radio settings Beep volume for the duration of file
+ - omitting the parameter uses radio settings Beep volume
+
+@retval none 
+
+@status current Introduced in 2.1.0, changed in 2.10
+
+// targets: BW, COLOR
+//
+// EXAMPLES:
+// playTone(2550, 160, 20, 3, -10, 5) -- play tone, use Beep volume 5
+// playTone(2550, 160, 20, 3, -10, 1) -- play tone, use Beep volume 1
+// playTone(2550, 160, 20, 3, -10)		-- play tone, use radio settings Beep volume
 */
 static int luaPlayTone(lua_State * L)
 {
@@ -1524,7 +1592,12 @@ static int luaPlayTone(lua_State * L)
   int pause = luaL_checkinteger(L, 3);
   int flags = luaL_optinteger(L, 4, 0);
   int freqIncr = luaL_optinteger(L, 5, 0);
-  audioQueue.playTone(frequency, length, pause, flags, freqIncr);
+  int volume = luaL_optinteger(L, 6, USE_SETTINGS_VOLUME);
+
+  if(volume != USE_SETTINGS_VOLUME)
+    volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
+
+  audioQueue.playTone(frequency, length, pause, flags, freqIncr, volume);
   return 0;
 }
 

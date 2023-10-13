@@ -52,7 +52,7 @@ enum FrenchPrompts {
 };
 
 
-  #define FR_PUSH_UNIT_PROMPT(u) fr_pushUnitPrompt((u), id)
+#define FR_PUSH_UNIT_PROMPT(u) fr_pushUnitPrompt((u), id, fragmentVolume)
 
 I18N_PLAY_FUNCTION(fr, pushUnitPrompt, uint8_t unitprompt)
 {

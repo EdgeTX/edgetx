@@ -67,7 +67,7 @@ enum PortuguesePrompts {
 };
 
 
-  #define PT_PUSH_UNIT_PROMPT(u) pt_pushUnitPrompt((u), id)
+#define PT_PUSH_UNIT_PROMPT(u) pt_pushUnitPrompt((u), id, fragmentVolume)
 
 I18N_PLAY_FUNCTION(pt, pushUnitPrompt, uint8_t unitprompt)
 {
