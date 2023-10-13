@@ -1249,3 +1249,7 @@
 #define TR_RADIO_MENU_TABS             "Schede del Menu Radio"
 #define TR_MODEL_MENU_TABS             "Schede del Menu Modello"
 
+
+#define TR_SELECT_MENU_ALL        "All"
+#define TR_SELECT_MENU_CLR        "Clear"
+#define TR_SELECT_MENU_INV        "Invert"

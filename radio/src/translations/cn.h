@@ -1240,3 +1240,7 @@
 #define TR_ENABLED_FEATURES       "启用的功能"
 #define TR_RADIO_MENU_TABS        "系统功能选项卡"
 #define TR_MODEL_MENU_TABS        "模型功能选项卡"
+
+#define TR_SELECT_MENU_ALL        "All"
+#define TR_SELECT_MENU_CLR        "Clear"
+#define TR_SELECT_MENU_INV        "Invert"

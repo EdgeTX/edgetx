@@ -32,22 +32,69 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
 {
  public:
   SwitchChoiceMenuToolbar(SwitchChoice* choice, Menu* menu) :
-      MenuToolbar(choice, menu)
+      MenuToolbar(choice, menu, 2)
   {
-    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH);
-    addButton(STR_CHAR_TRIM, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM);
-    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH);
-    addButton(STR_CHAR_TELEMETRY, SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR);
+    addButton(STR_CHAR_SWITCH, SWSRC_FIRST_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH,
+              nullptr, STR_MENU_SWITCHES);
+    addButton(STR_CHAR_TRIM, SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, nullptr,
+              STR_MENU_TRIMS);
+    addButton("LS", SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH,
+              nullptr, STR_MENU_LOGICAL_SWITCHES);
+    addButton("FM", SWSRC_FIRST_FLIGHT_MODE, SWSRC_LAST_FLIGHT_MODE, nullptr,
+              STR_FLIGHT_MODE);
+    addButton(STR_CHAR_TELEMETRY, SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR,
+              nullptr, STR_MENU_TELEMETRY);
 #if defined(DEBUG_LATENCY)
     auto lastSource = SWSRC_LATENCY_TOGGLE;
 #else
     auto lastSource = SWSRC_RADIO_ACTIVITY;
 #endif
-    addButton(STR_CHAR_FUNCTION, SWSRC_TELEMETRY_STREAMING, lastSource, [=](int16_t index) {
-      index = abs(index);
-      return index == 0 || (index >= SWSRC_TELEMETRY_STREAMING && index <= lastSource && !(index >= SWSRC_FIRST_SENSOR && index <= SWSRC_LAST_SENSOR));
+    addButton(
+        STR_CHAR_FUNCTION, SWSRC_ON, lastSource,
+        [=](int16_t index) {
+          index = abs(index);
+          return index == 0 || index == SWSRC_ON || index == SWSRC_ONE ||
+                 (index >= SWSRC_TELEMETRY_STREAMING && index <= lastSource &&
+                  !(index >= SWSRC_FIRST_SENSOR && index <= SWSRC_LAST_SENSOR));
+        },
+        STR_MENU_OTHER);
+
+    if ((nxtBtnPos > filterColumns) && choice->isValueAvailable &&
+        choice->isValueAvailable(0))
+      addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
+
+#if defined(HARDWARE_TOUCH)
+    coord_t y =
+        height() - MENUS_TOOLBAR_BUTTON_WIDTH - MENUS_TOOLBAR_BUTTON_PADDING;
+    coord_t w = width() - MENUS_TOOLBAR_BUTTON_PADDING * 2;
+
+    invertBtn = new MenuToolbarButton(
+        this, {MENUS_TOOLBAR_BUTTON_PADDING, y, w, MENUS_TOOLBAR_BUTTON_WIDTH},
+        STR_SELECT_MENU_INV);
+    invertBtn->check(choice->inverted);
+
+    invertBtn->setPressHandler([=]() {
+      lv_obj_clear_state(invertBtn->getLvObj(), LV_STATE_FOCUSED);
+      longPress();
+      return choice->inverted;
     });
+#endif
   }
+
+  void longPress()
+  {
+    SwitchChoice* switchChoice = (SwitchChoice*)choice;
+    switchChoice->inverted = !switchChoice->inverted;
+    auto idx = menu->selection();
+    switchChoice->fillMenu(menu, filter);
+    menu->select(idx);
+#if defined(HARDWARE_TOUCH)
+    invertBtn->check(switchChoice->inverted);
+#endif
+  }
+
+ protected:
+  MenuToolbarButton* invertBtn = nullptr;
 };
 
 void SwitchChoice::LongPressHandler(void* data)
@@ -61,12 +108,33 @@ void SwitchChoice::LongPressHandler(void* data)
   }
 }
 
+void SwitchChoice::setValue(int value)
+{
+  if (inMenu) {
+    if (inverted) value = -value;
+    inMenu = false;
+  }
+  Choice::setValue(value);
+}
+
+int SwitchChoice::getIntValue() const
+{
+  int value = Choice::getIntValue();
+  if (inMenu) value = abs(value);
+  return value;
+}
+
 SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
                            int vmax, std::function<int16_t()> getValue,
                            std::function<void(int16_t)> setValue) :
-    Choice(parent, rect, vmin, vmax, getValue, setValue)
+    Choice(parent, rect, 0, vmax, getValue, setValue)
 {
+  setMenuTitle(STR_SWITCH);
+
   setBeforeDisplayMenuHandler([=](Menu* menu) {
+    inverted = getValue() < 0;
+    inMenu = true;
+
     auto tb = new SwitchChoiceMenuToolbar(this, menu);
     menu->setToolbar(tb);
 
@@ -94,6 +162,8 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
   });
 
   setTextHandler([=](int value) {
+    if (inMenu && inverted) value = -value;
+
     if (isValueAvailable && !isValueAvailable(value))
       return std::to_string(0);  // we will fix this later
 

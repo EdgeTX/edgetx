@@ -1252,3 +1252,7 @@
 #define TR_ENABLED_FEATURES       "Menüpunkte"
 #define TR_RADIO_MENU_TABS        "Sender Menüpunkte"
 #define TR_MODEL_MENU_TABS        "Modell Menüpunkte"
+
+#define TR_SELECT_MENU_ALL        "All"
+#define TR_SELECT_MENU_CLR        "Clear"
+#define TR_SELECT_MENU_INV        "Invert"

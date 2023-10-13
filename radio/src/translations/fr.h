@@ -1274,3 +1274,7 @@
 #define TR_ENABLED_FEATURES       TR("Fonctions activées", "Fonctionnalités activées")
 #define TR_RADIO_MENU_TABS        "Onglets Menu Radio"
 #define TR_MODEL_MENU_TABS        "Onglets Menu Modèles"
+
+#define TR_SELECT_MENU_ALL        "All"
+#define TR_SELECT_MENU_CLR        "Clear"
+#define TR_SELECT_MENU_INV        "Invert"

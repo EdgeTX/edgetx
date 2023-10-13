@@ -41,8 +41,8 @@ enum FontIndex
 constexpr uint32_t MENU_HEADER_BUTTON_WIDTH =      33;
 constexpr uint32_t MENU_HEADER_BUTTONS_LEFT =      47;
 
-constexpr uint32_t MENUS_TOOLBAR_BUTTON_WIDTH =    30;
-constexpr uint32_t MENUS_TOOLBAR_BUTTON_PADDING =  3;
+constexpr uint32_t MENUS_TOOLBAR_BUTTON_WIDTH =    32;
+constexpr uint32_t MENUS_TOOLBAR_BUTTON_PADDING =  4;
 
 constexpr uint32_t MENU_HEADER_HEIGHT =            45;
 constexpr uint32_t MENU_TITLE_TOP =                48;
@@ -107,6 +107,9 @@ constexpr coord_t MODEL_SELECT_FOOTER_HEIGHT = 24;
 #define FONT(xx)                       (unsigned(FONT_ ## xx ## _INDEX) << 8u)
 
 #define LV_OBJ_FLAG_ENCODER_ACCEL LV_OBJ_FLAG_USER_1
+
+constexpr coord_t MENUS_LINE_HEIGHT = 35;
+constexpr coord_t MENUS_WIDTH = 200;
 
 #include "libopenui_config.h"
 
