@@ -656,6 +656,19 @@ static bool luaLoadFunctionScript(uint8_t ref)
       return true;
     }
   }
+
+  if (fn -> func == FUNC_RGB_LED && ZEXIST(fn -> play.name)) {
+    if (luaScriptsCount < MAX_SCRIPTS) {
+      ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
+      sid.reference = ref;
+      return luaLoadFile(SCRIPTS_RGB_PATH, fn->play.name, sid);
+    }
+    else {
+      POPUP_WARNING(STR_TOO_MANY_LUA_SCRIPTS);
+      return true;
+    }
+  }
+
   return false;
 }
 

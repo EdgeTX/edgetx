@@ -97,6 +97,7 @@
 #define TR_SF_FAILSAFE                 "Failsafe"
 #define TR_SF_RANGE_CHECK              "CheckRango"
 #define TR_SF_MOD_BIND                 "Enl.módulo"
+#define TR_SF_RGBLEDS                  "RGB leds"
  
 #define TR_SOUND                       "Oir sonido"
 #define TR_PLAY_TRACK                  "Oir pista"

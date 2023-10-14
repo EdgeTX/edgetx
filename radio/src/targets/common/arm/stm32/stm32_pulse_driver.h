@@ -50,7 +50,7 @@ struct stm32_pulse_timer_t {
   stm32_pulse_dma_tc_cb_t*   DMA_TC_CallbackPtr;
 };
 
-void stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq);
+int stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq);
 void stm32_pulse_deinit(const stm32_pulse_timer_t* tim);
 
 void stm32_pulse_config_input(const stm32_pulse_timer_t* tim);
@@ -62,7 +62,12 @@ void stm32_pulse_set_polarity(const stm32_pulse_timer_t* tim, bool polarity);
 
 bool stm32_pulse_get_polarity(const stm32_pulse_timer_t* tim);
 
+void stm32_pulse_set_period(const stm32_pulse_timer_t* tim, uint32_t period);
+
 void stm32_pulse_set_cmp_val(const stm32_pulse_timer_t* tim, uint32_t cmp_val);
+
+void stm32_pulse_start(const stm32_pulse_timer_t* tim);
+void stm32_pulse_stop(const stm32_pulse_timer_t* tim);
 
 void stm32_pulse_wait_for_completed(const stm32_pulse_timer_t* tim);
 
@@ -81,9 +86,6 @@ void stm32_pulse_tim_update_isr(const stm32_pulse_timer_t* tim);
 
 #define __STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(ch)       \
   ((ch) == LL_TIM_CHANNEL_CH1 || (ch) == LL_TIM_CHANNEL_CH1N || \
-   (ch) == LL_TIM_CHANNEL_CH2 || (ch) == LL_TIM_CHANNEL_CH3 ||  \
+   (ch) == LL_TIM_CHANNEL_CH2 || (ch) == LL_TIM_CHANNEL_CH2N || \
+   (ch) == LL_TIM_CHANNEL_CH3 || (ch) == LL_TIM_CHANNEL_CH3N || \
    (ch) == LL_TIM_CHANNEL_CH4)
-
-#define __STM32_PULSE_IS_DMA_STREAM_SUPPORTED(stream)       \
-  ((stream) == LL_DMA_STREAM_1 || (stream) == LL_DMA_STREAM_5 || \
-   (stream) == LL_DMA_STREAM_7)

@@ -324,6 +324,7 @@ extern const char STR_SF_SET_SCREEN[];
 extern const char STR_SF_SWITCH[];
 extern const char STR_SF_TRAINER[];
 extern const char STR_SF_VARIO[];
+extern const char STR_SF_RGBLEDS[];
 extern const char STR_SF_VOLUME[];
 extern const char STR_SF_RACING_MODE[];
 extern const char STR_SF_SCREENSHOT[];

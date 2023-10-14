@@ -186,6 +186,7 @@ const char STR_SF_SET_TIMER[] = TR_SF_SET_TIMER;
 const char STR_SF_SWITCH[] = TR_SF_SWITCH;
 const char STR_SF_TRAINER[] = TR_SF_TRAINER;
 const char STR_SF_VARIO[] = TR_SF_VARIO;
+const char STR_SF_RGBLEDS[] = TR_SF_RGBLEDS;
 const char STR_SF_VOLUME[] = TR_SF_VOLUME;
 const char STR_SF_RACING_MODE[] = TR_SF_RACING_MODE;
 const char STR_SF_SAFETY[] = TR_SF_SAFETY;

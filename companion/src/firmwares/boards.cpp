@@ -572,6 +572,10 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       // TX12, TX12MK2, ZORRO, BOXER, T8, TLITE, TPRO, LR3PRO, COMMANDO8
       return (IS_FAMILY_HORUS_OR_T16(board) && !IS_HORUS_X12S(board)) || IS_FAMILY_T12(board);
 
+    case HasLedStripGPIO:
+      // No current radio do support that feature
+      return false;
+
     case SportMaxBaudRate:
       if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_TARANIS_X7_ACCESS(board) ||
          (IS_TARANIS(board) && !IS_TARANIS_XLITE(board) && !IS_TARANIS_X7(board) && !IS_TARANIS_X9LITE(board)))

@@ -164,6 +164,7 @@ namespace Board {
     HasIntModuleHeartbeatGPIO,
     HasTrainerModuleCPPM,
     HasTrainerModuleSBUS,
+    HasLedStripGPIO
   };
 
   struct SwitchInfo

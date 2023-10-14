@@ -100,6 +100,7 @@
 #define TR_SF_FAILSAFE                 "SetFailsafe"
 #define TR_SF_RANGE_CHECK              "RangeCheck"
 #define TR_SF_MOD_BIND                 "BindModulo"
+#define TR_SF_RGBLEDS                  "RGB leds"
  
 #define TR_SOUND                       "Suona"
 #define TR_PLAY_TRACK                  "Suona Traccia"

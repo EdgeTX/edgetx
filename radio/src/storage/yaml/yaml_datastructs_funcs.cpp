@@ -1433,6 +1433,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   case FUNC_PLAY_TRACK:
   case FUNC_BACKGND_MUSIC:
   case FUNC_PLAY_SCRIPT:
+  case FUNC_RGB_LED:
     strncpy(cfn->play.name, val, std::min<uint8_t>(l_sep, LEN_FUNCTION_NAME));
     break;
 
@@ -1639,6 +1640,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   case FUNC_PLAY_TRACK:
   case FUNC_BACKGND_MUSIC:
   case FUNC_PLAY_SCRIPT:
+  case FUNC_RGB_LED:
     if (!wf(opaque, cfn->play.name, strnlen(cfn->play.name, LEN_FUNCTION_NAME)))
       return false;
     break;

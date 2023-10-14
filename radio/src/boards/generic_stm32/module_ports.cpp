@@ -22,6 +22,7 @@
 #include "hal/module_port.h"
 #include "stm32_serial_driver.h"
 #include "stm32_softserial_driver.h"
+#include "stm32_dma.h"
 
 #include "module_ports.h"
 #include "board.h"
@@ -86,7 +87,7 @@ static_assert(__STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(INTMODULE_TIMER_Channel),
               "Unsupported timer channel");
 
 // Make sure the DMA channel is supported
-static_assert(__STM32_PULSE_IS_DMA_STREAM_SUPPORTED(INTMODULE_TIMER_DMA_STREAM),
+static_assert(__STM32_DMA_IS_STREAM_SUPPORTED(INTMODULE_TIMER_DMA_STREAM),
               "Unsupported DMA stream");
 
 #if !defined(INTMODULE_TIMER_DMA_IRQHandler)
@@ -198,7 +199,7 @@ static_assert(__STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(EXTMODULE_TIMER_Channel),
               "Unsupported timer channel");
 
 // Make sure the DMA channel is supported
-static_assert(__STM32_PULSE_IS_DMA_STREAM_SUPPORTED(EXTMODULE_TIMER_DMA_STREAM_LL),
+static_assert(__STM32_DMA_IS_STREAM_SUPPORTED(EXTMODULE_TIMER_DMA_STREAM_LL),
               "Unsupported DMA stream");
 
 #if !defined(EXTMODULE_TIMER_DMA_IRQHandler)

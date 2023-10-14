@@ -95,7 +95,8 @@
 #define TR_SF_FAILSAFE                 "SetFailsafe"
 #define TR_SF_RANGE_CHECK              "RangeCheck"
 #define TR_SF_MOD_BIND                 "ModuleBind"
- 
+#define TR_SF_RGBLEDS                  "RGB leds"
+
 #define TR_SOUND                       "Play Sound"
 #define TR_PLAY_TRACK                  "Play Track"
 #define TR_PLAY_VALUE                  TR("Play Val","Play Value")

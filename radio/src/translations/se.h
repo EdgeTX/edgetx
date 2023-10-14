@@ -106,6 +106,7 @@
 #define TR_SF_FAILSAFE                 "Sätt failsafe"
 #define TR_SF_RANGE_CHECK              "Range check"
 #define TR_SF_MOD_BIND                 "Bind modul"
+#define TR_SF_RGBLEDS                  "RGB leds"
  
 #define TR_SOUND                       "Spela ljud"
 #define TR_PLAY_TRACK                  "Spela upp"

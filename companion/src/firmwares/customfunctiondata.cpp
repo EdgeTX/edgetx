@@ -127,6 +127,8 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
     return tr("Set Main Screen");
   else if (func == FuncDisableAudioAmp)
     return tr("Audio Amp Off");
+  else if (func == FuncRGBLed)
+    return tr("RGB leds");
   else {
     return QString(CPN_STR_UNKNOWN_ITEM);
   }
@@ -260,7 +262,8 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
         ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && !fw->getCapability(Gvars)) ||
         ((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
         ((index == FuncSetScreen && !Boards::getCapability(fw->getBoard(), Board::HasColorLcd)) ||
-        ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))))
+        ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))) ||
+        ((index == FuncRGBLed && !Boards::getCapability(fw->getBoard(), Board::HasLedStripGPIO))))
         );
   return !ret;
 }
@@ -475,7 +478,8 @@ bool CustomFunctionData::isParamAvailable() const
     FuncBindExternalModule,
     FuncRacingMode,
     FuncDisableTouch,
-    FuncDisableAudioAmp
+    FuncDisableAudioAmp,
+    FuncRGBLed
   };
 
   return funcList.contains(func) ? false : true;

@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "switches.h"
+#include "boards/generic_stm32/rgb_leds.h"
 
 #if defined(COLORLCD)
 void setRequestedMainView(uint8_t view);
@@ -542,6 +543,8 @@ const char* funcGetLabel(uint8_t func)
     case FUNC_DISABLE_AUDIO_AMP:
       return STR_SF_DISABLE_AUDIO_AMP;
 #endif
+  case FUNC_RGB_LED:
+    return STR_SF_RGBLEDS;
 #if defined(DEBUG)
   case FUNC_TEST:
     return STR_SF_TEST;

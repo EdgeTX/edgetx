@@ -99,7 +99,8 @@
 #define TR_SF_FAILSAFE                 "SetFailsafe"
 #define TR_SF_RANGE_CHECK              "RangeCheck"
 #define TR_SF_MOD_BIND                 "ModuleBind"
- 
+#define TR_SF_RGBLEDS                  "RGB leds"
+
 #define TR_SOUND                       "Spiel Töne"
 #define TR_PLAY_TRACK                  "Sag Text"
 #define TR_PLAY_VALUE                  "Sag Wert"
