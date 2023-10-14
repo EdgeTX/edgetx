@@ -97,6 +97,7 @@
 #define TR_SF_FAILSAFE                 "Авар управ"
 #define TR_SF_RANGE_CHECK              "Пров диапаз"
 #define TR_SF_MOD_BIND                 "Bind модуль"
+#define TR_SF_RGBLEDS                  "RGB"
  
 #define TR_SOUND                       "Играть Звук"
 #define TR_PLAY_TRACK                  "Играть Трек"
@@ -1251,3 +1252,7 @@
 #define TR_ENABLED_FEATURES       "Включенные функции"
 #define TR_RADIO_MENU_TABS        "ВКЛАДКИ МЕНЮ РАДИО"
 #define TR_MODEL_MENU_TABS        "ВКЛАДКИ МЕНЮ МОДЕЛИ"
+
+#define TR_SELECT_MENU_ALL        "Все"
+#define TR_SELECT_MENU_CLR        "Чисто"
+#define TR_SELECT_MENU_INV        "Инверт"
