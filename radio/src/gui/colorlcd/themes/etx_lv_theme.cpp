@@ -310,9 +310,9 @@ class EdgeTxStyles
     lv_style_init(&bg_color_black);
     lv_style_set_bg_color(&bg_color_black, lv_color_black());
     lv_style_init(&fg_color_black);
-    lv_style_set_border_color(&fg_color_black, lv_color_black());
+    lv_style_set_text_color(&fg_color_black, lv_color_black());
     lv_style_init(&border_color_black);
-    lv_style_set_text_color(&border_color_black, lv_color_black());
+    lv_style_set_border_color(&border_color_black, lv_color_black());
 
     // Fonts
     lv_style_init(&font_std);
