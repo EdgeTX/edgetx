@@ -24,8 +24,6 @@
  *********************/
 #include "etx_lv_theme.h"
 
-#include <stack>
-
 #include "../colors.h"
 #include "font.h"
 
@@ -45,20 +43,6 @@ extern lv_color_t makeLvColor(uint32_t colorFlags);
 #endif
 
 static lv_theme_t theme;
-
-static lv_color_t dark_color_filter_cb(const lv_color_filter_dsc_t* f,
-                                       lv_color_t c, lv_opa_t opa)
-{
-  LV_UNUSED(f);
-  return lv_color_darken(c, opa);
-}
-
-static lv_color_t grey_filter_cb(const lv_color_filter_dsc_t* f,
-                                 lv_color_t color, lv_opa_t opa)
-{
-  LV_UNUSED(f);
-  return lv_color_mix(lv_palette_lighten(LV_PALETTE_GREY, 2), color, opa);
-}
 
 /**********************
  *   Constant Styles
@@ -187,9 +171,9 @@ const lv_style_const_prop_t slider_main_props[] = {
 LV_STYLE_CONST_MULTI_INIT(slider_main, slider_main_props);
 
 const lv_style_const_prop_t slider_knob_props[] = {
-    LV_STYLE_CONST_PAD_TOP(5),  LV_STYLE_CONST_PAD_BOTTOM(5),
-    LV_STYLE_CONST_PAD_LEFT(5), LV_STYLE_CONST_PAD_RIGHT(5),
-    LV_STYLE_CONST_BORDER_WIDTH(1),     LV_STYLE_PROP_INV,
+    LV_STYLE_CONST_PAD_TOP(5),      LV_STYLE_CONST_PAD_BOTTOM(5),
+    LV_STYLE_CONST_PAD_LEFT(5),     LV_STYLE_CONST_PAD_RIGHT(5),
+    LV_STYLE_CONST_BORDER_WIDTH(1), LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(slider_knob, slider_knob_props);
 
@@ -250,6 +234,41 @@ const lv_style_const_prop_t bubble_popup_props[] = {
 };
 LV_STYLE_CONST_MULTI_INIT(bubble_popup, bubble_popup_props);
 
+// States (pressed, disabled, etc)
+static lv_color_t dark_color_filter_cb(const lv_color_filter_dsc_t* f,
+                                       lv_color_t c, lv_opa_t opa)
+{
+  LV_UNUSED(f);
+  return lv_color_darken(c, opa);
+}
+
+const lv_color_filter_dsc_t dark_filter = {.filter_cb = dark_color_filter_cb,
+                                           .user_data = 0};
+
+const lv_style_const_prop_t pressed_props[] = {
+    LV_STYLE_CONST_COLOR_FILTER_DSC(&dark_filter),
+    LV_STYLE_CONST_COLOR_FILTER_OPA(35),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_MULTI_INIT(pressed, pressed_props);
+
+static lv_color_t grey_filter_cb(const lv_color_filter_dsc_t* f,
+                                 lv_color_t color, lv_opa_t opa)
+{
+  LV_UNUSED(f);
+  return lv_color_mix(lv_palette_lighten(LV_PALETTE_GREY, 2), color, opa);
+}
+
+const lv_color_filter_dsc_t grey_filter = {.filter_cb = grey_filter_cb,
+                                           .user_data = 0};
+
+const lv_style_const_prop_t disabled_props[] = {
+    LV_STYLE_CONST_COLOR_FILTER_DSC(&grey_filter),
+    LV_STYLE_CONST_COLOR_FILTER_OPA(LV_OPA_50),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_MULTI_INIT(disabled, disabled_props);
+
 /**********************
  *   Variable Styles
  **********************/
@@ -269,9 +288,7 @@ class EdgeTxStyles
   lv_style_t bg_color_black;
   lv_style_t fg_color_black;
 
-  // Utility
-  lv_style_t pressed;
-  lv_style_t disabled;
+  // Fonts
   lv_style_t font_std;
   lv_style_t font_bold;
 
@@ -296,21 +313,6 @@ class EdgeTxStyles
     lv_style_set_border_color(&fg_color_black, lv_color_black());
     lv_style_init(&border_color_black);
     lv_style_set_text_color(&border_color_black, lv_color_black());
-
-    // States (pressed, disabled, etc)
-    static lv_color_filter_dsc_t dark_filter;
-    lv_color_filter_dsc_init(&dark_filter, dark_color_filter_cb);
-
-    static lv_color_filter_dsc_t grey_filter;
-    lv_color_filter_dsc_init(&grey_filter, grey_filter_cb);
-
-    lv_style_init(&pressed);
-    lv_style_set_color_filter_dsc(&pressed, &dark_filter);
-    lv_style_set_color_filter_opa(&pressed, 35);
-
-    lv_style_init(&disabled);
-    lv_style_set_color_filter_dsc(&disabled, &grey_filter);
-    lv_style_set_color_filter_opa(&disabled, LV_OPA_50);
 
     // Fonts
     lv_style_init(&font_std);
@@ -494,7 +496,8 @@ void table_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   lv_obj_add_style(obj, (lv_style_t*)&pad_small, LV_PART_ITEMS);
   lv_obj_set_style_pad_ver(obj, 7, LV_PART_ITEMS);
 
-  lv_obj_add_style(obj, &styles->pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
+  lv_obj_add_style(obj, (lv_style_t*)&pressed,
+                   LV_PART_ITEMS | LV_STATE_PRESSED);
 
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_FOCUS_INDEX],
                    LV_PART_ITEMS | LV_STATE_EDITED);
@@ -518,9 +521,11 @@ void etx_keyboard_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
                    LV_PART_ITEMS);
   lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_ITEMS);
 
-  lv_obj_add_style(obj, &styles->disabled, LV_PART_ITEMS | LV_STATE_DISABLED);
+  lv_obj_add_style(obj, (lv_style_t*)&disabled,
+                   LV_PART_ITEMS | LV_STATE_DISABLED);
 
-  lv_obj_add_style(obj, &styles->pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
+  lv_obj_add_style(obj, (lv_style_t*)&pressed,
+                   LV_PART_ITEMS | LV_STATE_PRESSED);
 
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_ACTIVE_INDEX],
                    LV_PART_ITEMS | LV_STATE_CHECKED);
@@ -550,7 +555,7 @@ void etx_switch_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   lv_obj_add_style(obj, (lv_style_t*)&circle, LV_PART_MAIN);
   lv_obj_add_style(obj, (lv_style_t*)&anim_fast, LV_PART_MAIN);
 
-  lv_obj_add_style(obj, &styles->disabled, LV_STATE_DISABLED);
+  lv_obj_add_style(obj, (lv_style_t*)&disabled, LV_STATE_DISABLED);
 
   lv_obj_add_style(obj, &styles->border_color_focus, LV_STATE_FOCUSED);
 
@@ -558,7 +563,7 @@ void etx_switch_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   lv_obj_add_style(obj, &styles->border_color_secondary2, LV_PART_INDICATOR);
   lv_obj_add_style(obj, (lv_style_t*)&circle, LV_PART_INDICATOR);
 
-  lv_obj_add_style(obj, &styles->disabled,
+  lv_obj_add_style(obj, (lv_style_t*)&disabled,
                    LV_PART_INDICATOR | LV_STATE_DISABLED);
 
   lv_obj_add_style(obj, &styles->border_color_focus,
@@ -577,7 +582,8 @@ void etx_switch_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_SECONDARY1_INDEX],
                    LV_PART_KNOB);
 
-  lv_obj_add_style(obj, &styles->disabled, LV_PART_KNOB | LV_STATE_DISABLED);
+  lv_obj_add_style(obj, (lv_style_t*)&disabled,
+                   LV_PART_KNOB | LV_STATE_DISABLED);
 }
 
 void etx_slider_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
@@ -633,9 +639,11 @@ void etx_btnmatrix_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_PRIMARY1_INDEX],
                    LV_PART_ITEMS | LV_STATE_CHECKED);
 
-  lv_obj_add_style(obj, &styles->disabled, LV_PART_ITEMS | LV_STATE_DISABLED);
+  lv_obj_add_style(obj, (lv_style_t*)&disabled,
+                   LV_PART_ITEMS | LV_STATE_DISABLED);
 
-  lv_obj_add_style(obj, &styles->pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
+  lv_obj_add_style(obj, (lv_style_t*)&pressed,
+                   LV_PART_ITEMS | LV_STATE_PRESSED);
 
   lv_obj_add_style(obj, &styles->border_color_focus,
                    LV_PART_ITEMS | LV_STATE_EDITED);
@@ -660,7 +668,7 @@ void etx_button_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 
   lv_obj_add_style(obj, &styles->border_color_focus, LV_STATE_FOCUSED);
 
-  lv_obj_add_style(obj, &styles->disabled, LV_STATE_DISABLED);
+  lv_obj_add_style(obj, (lv_style_t*)&disabled, LV_STATE_DISABLED);
 }
 
 void etx_choice_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
@@ -715,7 +723,7 @@ void etx_checkbox_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   lv_obj_add_style(obj, &styles->border_color_focus,
                    LV_PART_INDICATOR | LV_STATE_FOCUSED);
 
-  lv_obj_add_style(obj, &styles->disabled,
+  lv_obj_add_style(obj, (lv_style_t*)&disabled,
                    LV_PART_INDICATOR | LV_STATE_DISABLED);
 }
 
