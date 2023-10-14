@@ -448,10 +448,15 @@
 #define TR_FM                          "FP"
 #endif
 #define TR_EEPROMLOWMEM                "EEPROM voll"
-#define TR_PRESS_ANY_KEY_TO_SKIP	   TR("Taste drücken",CENTER"Taste drücken")
 #define TR_THROTTLE_NOT_IDLE           "Gas nicht Null!"
 #define TR_ALARMSDISABLED              "Alarme ausgeschaltet"
-#define TR_PRESSANYKEY                 TR("Taste drücken",CENTER"Taste drücken")
+#if defined(COLORLCD)
+  #define TR_PRESS_ANY_KEY_TO_SKIP	   "Taste drücken"
+  #define TR_PRESSANYKEY               "Taste drücken"
+#else
+  #define TR_PRESS_ANY_KEY_TO_SKIP	   TR("Taste drücken",CENTER"Taste drücken")
+  #define TR_PRESSANYKEY               TR("Taste drücken",CENTER"Taste drücken")
+#endif
 #define TR_BADEEPROMDATA               "EEPROM ungültig"
 #define TR_BAD_RADIO_DATA              "Fehlende oder fehlerhafte Daten"
 #define TR_RADIO_DATA_RECOVERED        TR3("Using backup radio data","Using backup radio settings","Radio settings recovered from backup")
