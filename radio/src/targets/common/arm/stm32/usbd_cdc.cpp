@@ -91,6 +91,7 @@ static int8_t VCP_DeInit_FS(void);
 static int8_t VCP_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length);
 static int8_t VCP_Receive_FS(uint8_t* pbuf, uint32_t *Len);
 static int8_t VCP_TransmitCplt_FS(uint8_t *pbuf, uint32_t *Len, uint8_t epnum);
+static int8_t VCP_StartOfFrame_FS();
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_DECLARATION */
 
@@ -106,7 +107,8 @@ USBD_CDC_ItfTypeDef USBD_Interface_fops_FS =
   VCP_DeInit_FS,
   VCP_Control_FS,
   VCP_Receive_FS,
-  VCP_TransmitCplt_FS
+  VCP_TransmitCplt_FS,
+  VCP_StartOfFrame_FS,
 };
 
 }   // extern "C"
@@ -254,6 +256,37 @@ static int8_t VCP_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
   /* USER CODE END 13 */
   return result;
 }
+
+/**
+  * @brief  VCP_TransmitCplt_FS
+  *         Data transmitted callback
+  *
+  *         @note
+  *         This function is IN transfer complete callback used to inform user that
+  *         the submitted Data is successfully sent over USB.
+  *
+  * @param  Buf: Buffer of data to be received
+  * @param  Len: Number of data received (in bytes)
+  * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
+  */
+static int8_t VCP_StartOfFrame_FS()
+{
+  uint8_t result = USBD_OK;
+  static uint8_t FrameCount = 0;    // modified by OpenTX
+
+  if (FrameCount++ >= CDC_IN_FRAME_INTERVAL)     // modified by OpenTX
+  {
+    /* Reset the frame counter */
+    FrameCount = 0;
+
+    /* Check the data to be sent through IN pipe */
+    //Handle_USBAsynchXfer(pdev);
+  }
+
+  return result;
+}
+
+
 // return the bytes free in the circular buffer
 uint32_t usbSerialFreeSpace()
 {
