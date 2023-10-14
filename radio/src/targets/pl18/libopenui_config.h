@@ -32,11 +32,7 @@ constexpr uint32_t ALERT_MESSAGE_LEFT =            ALERT_TITLE_LEFT;
 
 constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 132;
 constexpr coord_t INPUT_EDIT_CURVE_HEIGHT = INPUT_EDIT_CURVE_WIDTH;
-constexpr coord_t MENUS_LINE_HEIGHT = 30;
-constexpr coord_t MENUS_WIDTH = 200;
-constexpr coord_t MENUS_MAX_HEIGHT = LCD_H * 0.9;
-
-constexpr rect_t MENUS_TOOLBAR_RECT =              { 100, 51, 30, 209 };
+constexpr coord_t MENUS_MAX_HEIGHT = (MENUS_LINE_HEIGHT * 8) + 8;
 
 // Disable rotary encoder, as the PL18 does not have one
 #define ROTARY_ENCODER_SPEED() 0
