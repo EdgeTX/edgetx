@@ -481,4 +481,12 @@ void setTopBatteryValue(uint32_t volts);
   #define VOLTAGE_DROP 20
 #endif
 
+#if defined(RADIO_T20)
+#define NUM_TRIMS                               8
+#else
+#define NUM_TRIMS                               4
+#endif
+
+#define NUM_TRIMS_KEYS                          (NUM_TRIMS * 2)
+
 #endif // _BOARD_H_
