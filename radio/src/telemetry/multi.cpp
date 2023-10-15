@@ -508,7 +508,7 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 void MultiModuleStatus::getStatusString(char * statusText) const
 {
   if (!isValid()) {
-    if (!modulePortIsPortUsedByModule(getModuleIndex(), ETX_MOD_PORT_SPORT)) {
+    if (!modulePortHasRx(getModuleIndex())) {
       strcpy(statusText, STR_DISABLE_INTERNAL);
     } else {
       strcpy(statusText, STR_MODULE_NO_TELEMETRY);

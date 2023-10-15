@@ -447,6 +447,15 @@ void ModuleWindow::updateModule()
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_RF_POWER, 0, COLOR_THEME_PRIMARY1);
     rfPower = new Choice(line, rect_t{}, 0, 0, GET_SET_DEFAULT(md->pxx.power));
+    line = newLine(&grid);
+    new StaticText(line, rect_t{}, STR_MODULE_TELEMETRY, 0, COLOR_THEME_PRIMARY1);
+    new DynamicText(line, rect_t{}, [=] () {
+      if (modulePortHasRx(moduleIdx)) {
+        return std::string(STR_MODULE_TELEM_ON);
+      } else {
+        return std::string(STR_DISABLE_INTERNAL);
+      }
+    });
   }
 
 #if defined(PXX2)
