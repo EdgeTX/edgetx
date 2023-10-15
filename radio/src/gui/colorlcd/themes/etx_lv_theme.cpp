@@ -615,17 +615,13 @@ void etx_slider_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 void etx_btnmatrix_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_MAIN);
-  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_20,
-                   LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_20,
-                   LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_EDITED);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_20, LV_PART_MAIN);
 
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_FOCUS_INDEX],
                    LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_add_style(obj, &styles->txt_color[COLOR_THEME_PRIMARY2_INDEX],
-                   LV_PART_MAIN | LV_STATE_FOCUSED);
 
   lv_obj_add_style(obj, (lv_style_t*)&border, LV_PART_ITEMS);
+  lv_obj_add_style(obj, &styles->border_color_secondary2, LV_PART_ITEMS);
   lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_ITEMS);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_ITEMS);
@@ -644,6 +640,9 @@ void etx_btnmatrix_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 
   lv_obj_add_style(obj, (lv_style_t*)&pressed,
                    LV_PART_ITEMS | LV_STATE_PRESSED);
+
+  lv_obj_add_style(obj, &styles->border_color_focus,
+                   LV_PART_ITEMS | LV_STATE_FOCUSED);
 
   lv_obj_add_style(obj, &styles->border_color_focus,
                    LV_PART_ITEMS | LV_STATE_EDITED);
