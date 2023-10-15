@@ -144,17 +144,8 @@ USBD_StorageTypeDef USBD_Storage_Interface_fops_FS =
 
 int8_t STORAGE_Init_FS(uint8_t lun)
 {
-  /*
-  NVIC_InitTypeDef NVIC_InitStructure;
-  NVIC_InitStructure.NVIC_IRQChannel = SDIO_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority =0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-  */
-
   NVIC_SetPriority(SDIO_IRQn, 0);
-  NVIC_EnableIRQ(LTDC_IRQn);
+  NVIC_EnableIRQ(SDIO_IRQn);
 
 /* TODO if no SD ... if( SD_Init() != 0)
   {

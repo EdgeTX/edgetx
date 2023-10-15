@@ -26,6 +26,7 @@
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
 #include "hal/abnormal_reboot.h"
+#include "hal/usb_driver.h"
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
@@ -54,14 +55,9 @@
   #include "bluetooth_driver.h"
 #endif
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
-#include "usb_dcd_int.h"
-#include "usb_bsp.h"
-#if defined(__cplusplus)
-}
-#endif
+// TODO: remove hack when StdPeriph is no more
+//#include "hal/usb_driver.h"
+extern "C" void usbInit();
 
 HardwareOptions hardwareOptions;
 

@@ -20,7 +20,6 @@
  */
 
 #include "hal/usb_driver.h"
-#include "usb_device.h"
 
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
@@ -29,18 +28,14 @@
 extern "C" {
 #include "stm32_hal_ll.h"
 #include "usbd_conf.h"
-//#include "usb_dcd_int.h"
-//#include "usb_bsp.h"
 #include "usbd_core.h"
 #include "usbd_msc.h"
 #include "usbd_desc.h"
-//#include "usbd_usr.h"
 #include "usbd_hid.h"
 #include "usbd_cdc.h"
 }
 
 #include "hal.h"
-//#include "board.h"
 #include "debug.h"
 
 static bool usbDriverStarted = false;
@@ -49,6 +44,8 @@ static usbMode selectedUsbMode = USB_MASS_STORAGE_MODE;
 #else
 static usbMode selectedUsbMode = USB_UNSELECTED_MODE;
 #endif
+
+USBD_HandleTypeDef hUsbDeviceFS;
 
 int getSelectedUsbMode()
 {

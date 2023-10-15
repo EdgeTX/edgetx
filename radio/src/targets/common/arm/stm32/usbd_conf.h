@@ -31,13 +31,11 @@
 #include <stdlib.h>
 #include <string.h>
 #ifndef _BOARD_H_
-#include "stm32_hal.h"
+//#include "stm32_hal.h"
+#include "stm32_hal_ll.h"
 #endif
 
 #include "definitions.h"
-
-//#include "stm32f4xx.h"
-//#include "stm32f4xx_hal.h"
 
 /* USER CODE BEGIN INCLUDE */
 
@@ -69,26 +67,26 @@
 
 #if defined(STM32F2)
 #define CDC_IN_FRAME_INTERVAL        4    /* Number of frames between IN transfers */
-#define APP_RX_DATA_SIZE             512  /* Total size of IN buffer: APP_RX_DATA_SIZE*8/MAX_BAUDARATE*1000 should be > CDC_IN_FRAME_INTERVAL */
+#define APP_TX_DATA_SIZE             512  /* Total size of IN buffer: APP_TX_DATA_SIZE*8/MAX_BAUDARATE*1000 should be > CDC_IN_FRAME_INTERVAL */
 #else
 #define CDC_IN_FRAME_INTERVAL        15    /* Number of frames between IN transfers */
-#define APP_RX_DATA_SIZE             2048  /* Total size of IN buffer: APP_RX_DATA_SIZE*8/MAX_BAUDARATE*1000 should be > CDC_IN_FRAME_INTERVAL */
+#define APP_TX_DATA_SIZE             2048  /* Total size of IN buffer: APP_TX_DATA_SIZE*8/MAX_BAUDARATE*1000 should be > CDC_IN_FRAME_INTERVAL */
 #endif
 
 /*---------- -----------*/
-#define USBD_MAX_NUM_INTERFACES     1U
+#define USBD_MAX_NUM_INTERFACES    1U
 /*---------- -----------*/
-#define USBD_MAX_NUM_CONFIGURATION     1U
+#define USBD_MAX_NUM_CONFIGURATION 1U
 /*---------- -----------*/
-#define USBD_MAX_STR_DESC_SIZ     512U
+#define USBD_MAX_STR_DESC_SIZ      512U
 /*---------- -----------*/
-#define USBD_DEBUG_LEVEL     0U
+#define USBD_DEBUG_LEVEL           0U
 /*---------- -----------*/
-#define USBD_LPM_ENABLED     0U
+#define USBD_LPM_ENABLED           0U
 /*---------- -----------*/
-#define USBD_SELF_POWERED     1U
+#define USBD_SELF_POWERED          1U
 /*---------- -----------*/
-#define MSC_MEDIA_PACKET     512U
+#define MSC_MEDIA_PACKET           512U
 
 /****************************************/
 /* #define for FS and HS identification */

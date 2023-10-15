@@ -25,14 +25,11 @@ set(BOOTLOADER_SRC
   ${CMAKE_CURRENT_BINARY_DIR}/hal_keys.inc
   ../pwr_driver.cpp
   ../usb_driver.cpp
-#  ../usbd_usr.cpp
-#  ../usbd_storage_if.c
   ../usbd_storage_msd.cpp
   ../delays_driver.cpp
   ../timers_driver.cpp
   ../usbd_desc.c
   ../usbd_conf.c
-  ../usb_device.c
   ../flash_driver.cpp
   ../stm32_exti_driver.cpp
   ../stm32_serial_driver.cpp
