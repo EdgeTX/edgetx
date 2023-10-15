@@ -48,19 +48,16 @@ typedef struct __attribute__ ((packed))
 
 static LINE_CODING g_lc;
 
-/* These are external variables imported from CDC core to be used for IN
-   transfer management. */
-uint8_t  APP_Rx_Buffer [APP_RX_DATA_SIZE]; /* Write CDC received data in this buffer.
-                                     These data will be sent over USB IN endpoint
-                                     in the CDC core functions. */
-volatile uint32_t APP_Rx_ptr_in = 0;    /* Increment this pointer or roll it back to
-                                     start address when writing received data
-                                     in the buffer APP_Rx_Buffer. */
-volatile uint32_t APP_Rx_ptr_out = 0;
-uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
+#if defined(USE_USB_HS)
+uint8_t UserRxBufferFS[CDC_DATA_HS_OUT_PACKET_SIZE];
+#else
+uint8_t UserRxBufferFS[CDC_DATA_FS_OUT_PACKET_SIZE];
+#endif
 
 /** Data to send over USB CDC are stored in this buffer   */
-uint8_t UserTxBufferFS[APP_RX_DATA_SIZE];
+uint8_t  UserTxBufferFS[APP_TX_DATA_SIZE];
+volatile uint32_t APP_Tx_ptr_in = 0;
+volatile uint32_t APP_Tx_ptr_out = 0;
 
 /**
   * @}
@@ -146,6 +143,8 @@ static int8_t VCP_DeInit_FS(void)
 {
   /* USER CODE BEGIN 4 */
   cdcConnected = false;
+  APP_Tx_ptr_in = 0;
+  APP_Tx_ptr_out = 0;
   return (USBD_OK);
   /* USER CODE END 4 */
 }
@@ -257,18 +256,6 @@ static int8_t VCP_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
   return result;
 }
 
-/**
-  * @brief  VCP_TransmitCplt_FS
-  *         Data transmitted callback
-  *
-  *         @note
-  *         This function is IN transfer complete callback used to inform user that
-  *         the submitted Data is successfully sent over USB.
-  *
-  * @param  Buf: Buffer of data to be received
-  * @param  Len: Number of data received (in bytes)
-  * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
-  */
 static int8_t VCP_StartOfFrame_FS()
 {
   uint8_t result = USBD_OK;
@@ -280,7 +267,32 @@ static int8_t VCP_StartOfFrame_FS()
     FrameCount = 0;
 
     /* Check the data to be sent through IN pipe */
-    //Handle_USBAsynchXfer(pdev);
+    USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
+
+    if (hcdc->TxState != 0)
+      return USBD_OK;
+
+    if (APP_Tx_ptr_out == APP_TX_DATA_SIZE)
+      APP_Tx_ptr_out = 0;
+
+    if(APP_Tx_ptr_out == APP_Tx_ptr_in)
+      return USBD_OK;
+
+    size_t length = 0;
+
+    if(APP_Tx_ptr_out > APP_Tx_ptr_in) /* rollback */
+    {
+      length = APP_TX_DATA_SIZE - APP_Tx_ptr_out;
+    }
+    else
+    {
+      length = APP_Tx_ptr_in - APP_Tx_ptr_out;
+    }
+
+    USBD_CDC_SetTxBuffer(&hUsbDeviceFS, &UserTxBufferFS[APP_Tx_ptr_out], length);
+    result = USBD_CDC_TransmitPacket(&hUsbDeviceFS);
+    if(result == USBD_OK)
+      APP_Tx_ptr_out += length;
   }
 
   return result;
@@ -292,13 +304,13 @@ uint32_t usbSerialFreeSpace()
 {
   // functionally equivalent to:
   //
-  //      (APP_Rx_ptr_out > APP_Rx_ptr_in ? APP_Rx_ptr_out - APP_Rx_ptr_in :
-  //      APP_RX_DATA_SIZE - APP_Rx_ptr_in + APP_Rx_ptr_in)
+  //      (APP_Tx_ptr_out > APP_Tx_ptr_in ? APP_Tx_ptr_out - APP_Tx_ptr_in :
+  //      APP_TX_DATA_SIZE - APP_Tx_ptr_in + APP_Tx_ptr_in)
   //
   //  but without the impact of the condition check.
 
-  return ((APP_Rx_ptr_out - APP_Rx_ptr_in) +
-          (-((int)(APP_Rx_ptr_out <= APP_Rx_ptr_in)) & APP_RX_DATA_SIZE)) -
+  return ((APP_Tx_ptr_out - APP_Tx_ptr_in) +
+          (-((int)(APP_Tx_ptr_out <= APP_Tx_ptr_in)) & APP_TX_DATA_SIZE)) -
          1;
 }
 
@@ -325,10 +337,20 @@ void usbSerialPutc(void*, uint8_t c)
   uint32_t prim = __get_PRIMASK();
   __disable_irq();
 
-  APP_Rx_Buffer[APP_Rx_ptr_in] = c;
-  APP_Rx_ptr_in = (APP_Rx_ptr_in + 1) % APP_RX_DATA_SIZE;
+  UserTxBufferFS[APP_Tx_ptr_in] = c;
+  APP_Tx_ptr_in = (APP_Tx_ptr_in + 1) % APP_TX_DATA_SIZE;
 
   if (!prim) __enable_irq();
+  uint8_t result = USBD_OK;
+  /* USER CODE BEGIN 7 */
+  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
+  while (hcdc->TxState != 0);
+  if (hcdc->TxState != 0){
+  //  return USBD_BUSY;
+  }
+
+  /* USER CODE END 7 */
+ // return result;
 }
 
 /**

@@ -31,6 +31,7 @@
 
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
+#include "hal/usb_driver.h"
 
 #include <errno.h>
 #include <stdarg.h>

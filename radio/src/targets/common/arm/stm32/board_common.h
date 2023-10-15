@@ -26,7 +26,6 @@
 #include "cpu_id.h"
 
 #if !defined(SIMU) && !defined(BACKUP)
-
 #if defined(STM32F4)
   #include "stm32f4xx.h"
   #include "stm32f4xx_rcc.h"
@@ -55,7 +54,6 @@
   #include "misc.h"
   #include "dwt.h"    // the old ST library that we use does not define DWT register for STM32F2xx
 #endif
-
 #endif
 
 //#include "usb_driver.h"
