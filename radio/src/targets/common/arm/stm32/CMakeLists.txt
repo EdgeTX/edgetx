@@ -7,7 +7,6 @@ option(LUA_ALLOCATOR_TRACER "Trace Lua memory (de)allocations to debug port (als
 option(USB_SERIAL "Enable USB serial (CDC)" OFF)
 
 set(ARCH ARM)
-#set(STM32USB_DIR ${THIRDPARTY_DIR}/STM32_USB-Host-Device_Lib_V2.2.0/Libraries)
 set(STM32USB_DIR ${THIRDPARTY_DIR}/STM32_USB_Device_Library)
 add_definitions(-DSTM32 -DLUA_INPUTS -DVARIO)
 
@@ -21,7 +20,6 @@ set(STM32USB_SRC
   Core/Src/usbd_core.c
   Core/Src/usbd_ctlreq.c
   Core/Src/usbd_ioreq.c
-  Class/CDC/Src/usbd_cdc.c
   )
 
 set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
@@ -31,7 +29,6 @@ set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/trainer_driver.cpp
   ../common/arm/stm32/usbd_conf.c
   ../common/arm/stm32/usbd_desc.c
-  ../common/arm/stm32/usb_device.c
   ../common/arm/stm32/usb_driver.cpp
   ../common/arm/stm32/flash_driver.cpp
   ../common/arm/stm32/usbd_storage_msd.cpp

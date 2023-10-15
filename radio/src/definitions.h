@@ -108,4 +108,8 @@
 
 #define __PACKED __attribute__((packed))
 
+#if !defined(__STATIC_INLINE)
+  #define __STATIC_INLINE static inline
+#endif
+
 #endif // _DEFINITIONS_H_

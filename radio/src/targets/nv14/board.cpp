@@ -27,6 +27,7 @@
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
+#include "hal/usb_driver.h"
 
 #include "globals.h"
 #include "sdcard.h"
@@ -46,14 +47,9 @@
 
 #include <string.h>
 
-#if defined(__cplusplus) && !defined(SIMU)
-extern "C" {
-#endif
-#include "usb_dcd_int.h"
-#include "usb_bsp.h"
-#if defined(__cplusplus) && !defined(SIMU)
-}
-#endif
+// TODO: remove hack when StdPeriph is no more
+//#include "hal/usb_driver.h"
+extern "C" void usbInit();
 
 // common ADC driver
 extern const etx_hal_adc_driver_t _adc_driver;

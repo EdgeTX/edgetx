@@ -52,7 +52,7 @@ extern "C" {
   #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_rcc.h"
   #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_adc.h"
   #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_spi.h"
-  #include "STM32F4xx_HAL_Driver/Inc/stm32f2xx_ll_usb.h"
+  #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_usb.h"
 #endif
 
 #if defined(__cplusplus)
