@@ -37,6 +37,7 @@ void checkTrainerSignalWarning();
 void checkTrainerSettings();
 void stopTrainer();
 void forceResetTrainerSettings();
+bool isTrainerConnected();
 
 // Needs to be inlined to avoid slow function calls in ISR routines
 inline void captureTrainerPulses(uint16_t capture)

@@ -35,6 +35,11 @@ enum {
 };
 uint8_t trainerStatus = TRAINER_NOT_CONNECTED;
 
+bool isTrainerConnected()
+{
+  return trainerStatus == TRAINER_CONNECTED || trainerStatus == TRAINER_RECONNECTED;
+}
+
 void checkTrainerSignalWarning()
 {
   enum {

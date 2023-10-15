@@ -511,6 +511,8 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
     strcpy(s, "Tele");
   } else if (idx == SWSRC_RADIO_ACTIVITY) {
     strcpy(s, "Act");
+  } else if (idx == SWSRC_TRAINER_CONNECTED) {
+    strcpy(s, "Trn");
   }
 #if defined(DEBUG_LATENCY)
   else if (idx == SWSRC_LATENCY_TOGGLE) {
