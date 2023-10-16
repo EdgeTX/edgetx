@@ -613,14 +613,16 @@ void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h, LcdFla
   // No 'opacity' here, only 'color'
   pixel_t color = COLOR_VAL(flags);
   RGB_SPLIT(color, red, green, blue);
+  pixel_t bg_color = COLOR_VAL(COLOR_THEME_PRIMARY2);
+  RGB_SPLIT(bg_color, bgRed, bgGreen, bgBlue);
 
   DMAWait();
   for (int i = y; i < y + h; i++) {
     pixel_t * p = getPixelPtrAbs(x, i);
     for (int j = 0; j < w; j++) {
       // TODO ASSERT_IN_DISPLAY(p);
-      RGB_SPLIT(*p, bgRed, bgGreen, bgBlue);
-      drawPixel(p, RGB_JOIN(0x1F + red - bgRed, 0x3F + green - bgGreen, 0x1F + blue - bgBlue));
+      RGB_SPLIT(*p, pRed, pGreen, pBlue);
+      drawPixel(p, RGB_JOIN(bgRed + red - pRed, bgGreen + green - pGreen, bgBlue + blue - pBlue));
       MOVE_TO_NEXT_RIGHT_PIXEL(p);
     }
   }
