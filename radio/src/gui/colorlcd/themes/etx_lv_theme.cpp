@@ -163,17 +163,11 @@ const lv_style_const_prop_t field_props[] = {
 LV_STYLE_CONST_MULTI_INIT(field, field_props);
 
 // Slider
-const lv_style_const_prop_t slider_main_props[] = {
-    LV_STYLE_CONST_PAD_TOP(6),  LV_STYLE_CONST_PAD_BOTTOM(6),
-    LV_STYLE_CONST_PAD_LEFT(6), LV_STYLE_CONST_PAD_RIGHT(6),
-    LV_STYLE_PROP_INV,
-};
-LV_STYLE_CONST_MULTI_INIT(slider_main, slider_main_props);
-
 const lv_style_const_prop_t slider_knob_props[] = {
-    LV_STYLE_CONST_PAD_TOP(5),      LV_STYLE_CONST_PAD_BOTTOM(5),
-    LV_STYLE_CONST_PAD_LEFT(5),     LV_STYLE_CONST_PAD_RIGHT(5),
-    LV_STYLE_CONST_BORDER_WIDTH(1), LV_STYLE_PROP_INV,
+    LV_STYLE_CONST_PAD_TOP(9),  LV_STYLE_CONST_PAD_BOTTOM(9),
+    LV_STYLE_CONST_PAD_LEFT(4), LV_STYLE_CONST_PAD_RIGHT(4),
+    LV_STYLE_CONST_RADIUS(4),   LV_STYLE_CONST_BORDER_WIDTH(2),
+    LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(slider_knob, slider_knob_props);
 
@@ -575,23 +569,24 @@ void etx_switch_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 
 void etx_slider_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  etx_add_colors_and_opacity(obj, LV_PART_MAIN | LV_STATE_FOCUSED,
-                             COLOR_THEME_FOCUS_INDEX,
+  etx_add_colors_and_opacity(obj, LV_PART_MAIN,
+                             COLOR_THEME_SECONDARY1_INDEX,
                              COLOR_THEME_PRIMARY2_INDEX);
-  lv_obj_add_style(obj, (lv_style_t*)&slider_main, LV_PART_MAIN);
-  lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_SECONDARY1_INDEX],
-                   LV_PART_MAIN);
   lv_obj_add_style(obj, (lv_style_t*)&circle, LV_PART_MAIN);
+  lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_FOCUS_INDEX],
+                   LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_EDIT_INDEX],
+                   LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_EDITED);
+
+  lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_FOCUS_INDEX],
+                   LV_PART_INDICATOR | LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_EDIT_INDEX],
+                   LV_PART_INDICATOR | LV_STATE_FOCUSED | LV_STATE_EDITED);
 
   lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_KNOB);
   lv_obj_add_style(obj, (lv_style_t*)&slider_knob, LV_PART_KNOB);
   lv_obj_add_style(obj, &styles->border_color_secondary1, LV_PART_KNOB);
-  lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_PRIMARY2_INDEX],
-                   LV_PART_KNOB);
-  lv_obj_add_style(obj, (lv_style_t*)&circle, LV_PART_KNOB);
-
-  etx_add_colors(obj, LV_PART_KNOB | LV_STATE_FOCUSED, COLOR_THEME_EDIT_INDEX,
-                 COLOR_THEME_PRIMARY2_INDEX);
+  lv_obj_add_style(obj, &styles->border_color_focus, LV_PART_KNOB | LV_STATE_FOCUSED);
 }
 
 void etx_btnmatrix_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
