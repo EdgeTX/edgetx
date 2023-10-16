@@ -583,7 +583,6 @@ ModuleSubTypeChoice::ModuleSubTypeChoice(Window *parent, uint8_t moduleIdx) :
 {
   ModuleData *md = &g_model.moduleData[moduleIdx];
   setGetValueHandler(GET_DEFAULT(md->subType));
-  update();
 }
 
 void ModuleSubTypeChoice::update()
@@ -779,4 +778,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 
   lv_obj_add_event_cb(subTypeChoice->getLvObj(), update_module_window,
                       LV_EVENT_VALUE_CHANGED, moduleWindow);
+
+  // Call this last in case it opens the 'Scanning' popup.
+  subTypeChoice->update();
 }
