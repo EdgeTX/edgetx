@@ -368,6 +368,10 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
 
   if (swtch >= SWSRC_FIRST_SWITCH && swtch <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(swtch);
+    if (swinfo.quot >= switchGetMaxSwitches() + switchGetMaxFctSwitches()) {
+      return false;
+    }
+
     if (!SWITCH_EXISTS(swinfo.quot)) {
       return false;
     }
@@ -387,7 +391,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
 
   if (swtch >= SWSRC_FIRST_MULTIPOS_SWITCH && swtch <= SWSRC_LAST_MULTIPOS_SWITCH) {
     int index = (swtch - SWSRC_FIRST_MULTIPOS_SWITCH) / XPOTS_MULTIPOS_COUNT;
-    return IS_POT_MULTIPOS(index);
+    return (index < adcGetMaxInputs(ADC_INPUT_POT)) ? IS_POT_MULTIPOS(index) : false;
   }
 
   if (swtch >= SWSRC_FIRST_TRIM && swtch <= SWSRC_LAST_TRIM) {
