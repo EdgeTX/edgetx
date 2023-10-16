@@ -80,27 +80,27 @@ void processMLinkPacket(const uint8_t * packet, bool multi)
     for (uint8_t i = 1; i < 5; i += 3) {  //2 sensors per packet
       int32_t val = (int16_t )(data[i + 2] << 8 | data[i + 1]);
       val = val >> 1; // remove alarm flag
-      uint8_t adress = (data[i] & 0xF0) >> 4;
+      uint8_t address = (data[i] & 0xF0) >> 4;
       switch (data[i] & 0x0F) {
         case MLINK_SVC:
           setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_SPECIAL, 0, 0, val & 0x007f, UNIT_RAW, 0);
           break;
         case MLINK_VOLTAGE:
           if ((data[i] & 0xF0) == 0x00){
-            setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_RX_VOLTAGE, 0, adress, val, UNIT_VOLTS, 1);
+            setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_RX_VOLTAGE, 0, address, val, UNIT_VOLTS, 1);
           }
           else {
-            setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_VOLTAGE, 0, adress, val, UNIT_VOLTS, 1);
+            setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_VOLTAGE, 0, address, val, UNIT_VOLTS, 1);
           }
           break;
         case MLINK_CURRENT:
-          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_CURRENT, 0, adress, val, UNIT_AMPS, 1);
+          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_CURRENT, 0, address, val, UNIT_AMPS, 1);
           break;
         case MLINK_VARIO:
-          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_VARIO, 0, adress, val, UNIT_METERS_PER_SECOND, 1);
+          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_VARIO, 0, address, val, UNIT_METERS_PER_SECOND, 1);
           break;
         case MLINK_SPEED:
-          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_SPEED, 0, adress, val, UNIT_KMH, 1);
+          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_SPEED, 0, address, val, UNIT_KMH, 1);
           break;
         case MLINK_RPM:
           if (val < 0) {
@@ -109,35 +109,35 @@ void processMLinkPacket(const uint8_t * packet, bool multi)
           else {
             val = val * 100;
           }
-          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_RPM, 0, adress, val, UNIT_RPMS, 0);
+          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_RPM, 0, address, val, UNIT_RPMS, 0);
           break;
         case MLINK_TEMP:
-          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_TEMP, 0, adress, val, UNIT_CELSIUS, 1);
+          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_TEMP, 0, address, val, UNIT_CELSIUS, 1);
           break;
         case MLINK_HEADING:
-          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_HEADING, 0, adress, val, UNIT_DEGREE, 1);
+          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_HEADING, 0, address, val, UNIT_DEGREE, 1);
           break;
         case MLINK_ALT:
-          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_ALT, 0, adress, val, UNIT_METERS, 0);
+          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_ALT, 0, address, val, UNIT_METERS, 0);
           break;
         case MLINK_FUEL:
-          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_FUEL, 0, adress, val, UNIT_PERCENT, 0);
+          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_FUEL, 0, address, val, UNIT_PERCENT, 0);
           break;
         case MLINK_CAPACITY:
-          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_CAPACITY, 0, adress, val, UNIT_MAH, 0);
+          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_CAPACITY, 0, address, val, UNIT_MAH, 0);
           break;
         case MLINK_FLOW:
-          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_FLOW, 0, adress, val, UNIT_MILLILITERS, 0);
+          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_FLOW, 0, address, val, UNIT_MILLILITERS, 0);
           break;
         case MLINK_DISTANCE:
-          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_DISTANCE, 0, adress, val, UNIT_KM, 1);
+          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_DISTANCE, 0, address, val, UNIT_KM, 1);
           break;
         case MLINK_GRATE:
-          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_GRATE, 0, adress, val, UNIT_G, 1);
+          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_GRATE, 0, address, val, UNIT_G, 1);
           break;
         case MLINK_LQI:
           uint8_t mlinkLQI = data[i + 1] >> 1;
-          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_LQI, 0, adress, mlinkLQI, UNIT_RAW, 0);
+          setTelemetryValue(PROTOCOL_TELEMETRY_MLINK, MLINK_LQI, 0, address, mlinkLQI, UNIT_RAW, 0);
           telemetryData.rssi.set(mlinkLQI);
           if (mlinkLQI > 0) {
             telemetryStreaming = TELEMETRY_TIMEOUT10ms;
