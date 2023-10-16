@@ -3085,6 +3085,7 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( TIMER, ZoneOption::Timer )
   LROT_NUMENTRY( TEXT_SIZE, ZoneOption::TextSize )
   LROT_NUMENTRY( ALIGNMENT, ZoneOption::Align )
+  LROT_NUMENTRY( SWITCH, ZoneOption::Switch )
   LROT_NUMENTRY( MENU_HEADER_HEIGHT, COLOR2FLAGS(MENU_HEADER_HEIGHT) )
 
   // Colors gui/colorlcd/colors.h
