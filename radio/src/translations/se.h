@@ -106,7 +106,7 @@
 #define TR_SF_FAILSAFE                 "Sätt failsafe"
 #define TR_SF_RANGE_CHECK              "Range check"
 #define TR_SF_MOD_BIND                 "Bind modul"
-#define TR_SF_RGBLEDS                  "RGB leds"
+#define TR_SF_RGBLEDS                  "RGB lysdioder"
  
 #define TR_SOUND                       "Spela ljud"
 #define TR_PLAY_TRACK                  "Spela upp"
@@ -222,7 +222,7 @@
 #define TR_VCELLINDEX                   "Lägsta","1","2","3","4","5","6","7","8","Högsta","Skillnad"
 #define TR_SUBTRIMMODES                 STR_CHAR_DELTA " (endast center)","= (symmetrisk)"
 #define TR_TIMER_DIR                    TR("Återst.", "Visa återstående"), TR("Förbrukad", "Visa förbrukad")
-#define TR_PPMUNIT                     "0.--","0.0","us"
+#define TR_PPMUNIT                      "0.--","0.0","us"
 
 #if defined(COLORLCD)
   #if defined(BOLD)
@@ -824,7 +824,7 @@
 #define TR_JACK_MODE                    "Uttagsläge"
 #define TR_VOICE_LANGUAGE               "Röstspråk"
 #define TR_UNITS_SYSTEM                 "Enheter"
-#define TR_UNITS_PPM                   "PPM Units"
+#define TR_UNITS_PPM                    "PPM-enheter"
 #define TR_EDIT                         "Redigera"
 #define TR_INSERT_BEFORE                "Addera före"
 #define TR_INSERT_AFTER                 "Addera efter"
@@ -1287,7 +1287,3 @@
 #define TR_ENABLED_FEATURES             "Aktiverade funktioner"
 #define TR_RADIO_MENU_TABS              "Radiomenyflikar"
 #define TR_MODEL_MENU_TABS              "Modellmenyflikar"
-
-#define TR_SELECT_MENU_ALL        "All"
-#define TR_SELECT_MENU_CLR        "Clear"
-#define TR_SELECT_MENU_INV        "Invert"
