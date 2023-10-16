@@ -36,6 +36,7 @@ const YamlLookupTable potConfigLut = {
     {Board::POT_WITH_DETENT, "with_detent"},
     {Board::POT_MULTIPOS_SWITCH, "multipos_switch"},
     {Board::POT_WITHOUT_DETENT, "without_detent"},
+    {Board::POT_SLIDER_WITH_DETENT, "slider"},
 };
 
 const YamlLookupTable slidersLut = {

@@ -346,13 +346,27 @@ SwitchInfo Boards::getSwitchInfo(Board::Type board, int index)
     if (index < DIM(switches))
       return switches[index];
   }
-  else if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)) {
+  else if (IS_FLYSKY_NV14(board)) {
     const Board::SwitchInfo switches[] = {
       {SWITCH_2POS,   "SA"},
       {SWITCH_3POS,   "SB"},
       {SWITCH_TOGGLE, "SC"},
       {SWITCH_2POS,   "SD"},
       {SWITCH_TOGGLE, "SE"},
+      {SWITCH_3POS,   "SF"},
+      {SWITCH_3POS,   "SG"},
+      {SWITCH_TOGGLE, "SH"}
+    };
+    if (index < DIM(switches))
+      return switches[index];
+  }
+  else if (IS_FLYSKY_EL18(board)) {
+    const Board::SwitchInfo switches[] = {
+      {SWITCH_2POS,   "SA"},
+      {SWITCH_3POS,   "SB"},
+      {SWITCH_3POS,   "SC"},
+      {SWITCH_2POS,   "SD"},
+      {SWITCH_2POS,   "SE"},
       {SWITCH_3POS,   "SF"},
       {SWITCH_3POS,   "SG"},
       {SWITCH_TOGGLE, "SH"}
@@ -700,10 +714,17 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board, const
                               {tr("S3").toStdString(), "POT3"},
                           });
   } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board)) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)) {
-    tbl.insert(tbl.end(), {
-                              {tr("S1").toStdString(), "POT1"},
-                              {tr("S2").toStdString(), "POT2"},
-                          });
+    if (version < adcVersion) {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "POT1"},
+                                {tr("S2").toStdString(), "POT2"},
+                            });
+    } else {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "P1", 4},
+                                {tr("S2").toStdString(), "P2", 5},
+                            });
+    }
   } else if (IS_TARANIS_X9(board)) {
     if (version < adcVersion) {
       tbl.insert(tbl.end(), {
@@ -892,6 +913,8 @@ QString Boards::potTypeToString(int value)
       return tr("Multi pos switch");
     case POT_WITHOUT_DETENT:
       return tr("Pot without detent");
+    case POT_SLIDER_WITH_DETENT:
+      return tr("slider");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }

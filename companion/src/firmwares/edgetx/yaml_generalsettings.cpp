@@ -184,6 +184,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["fai"] = (int)rhs.fai;
   node["disableMemoryWarning"] = (int)rhs.disableMemoryWarning;
   node["beepMode"] = rhs.beeperMode;
+  node["alarmsFlash"] = (int)rhs.flashBeep;
   node["disableAlarmWarning"] = (int)rhs.disableAlarmWarning;
   node["disableRssiPoweroffAlarm"] = (int)rhs.disableRssiPoweroffAlarm;
   node["USBMode"] = rhs.usbMode;
@@ -297,7 +298,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
     seq = getCurrentFirmware()->getAnalogInputSeqADC(adcoffset + i) - sticks;
     if (seq >= 0 && seq < maxPots) {
       strcpy(potName[seq], rhs.sliderName[i]);
-      potConfig[seq] = rhs.sliderConfig[i];
+      potConfig[seq] = ((rhs.sliderConfig[i] == Board::SLIDER_WITH_DETENT) ? Board::POT_SLIDER_WITH_DETENT : Board::POT_NONE);
     }
   }
 
@@ -436,6 +437,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["fai"] >> rhs.fai;
   node["disableMemoryWarning"] >> rhs.disableMemoryWarning;
   node["beepMode"] >> rhs.beeperMode;
+  node["alarmsFlash"] >> rhs.flashBeep;
   node["disableAlarmWarning"] >> rhs.disableAlarmWarning;
   node["disableRssiPoweroffAlarm"] >> rhs.disableRssiPoweroffAlarm;
   node["USBMode"] >> rhs.usbMode;
@@ -576,7 +578,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   else {
     for (int i = 0; i < Boards::getCapability(board, Board::Sliders); i++) {
       strcpy(rhs.sliderName[i], potName[numPots + i]);
-      rhs.sliderConfig[i] = potConfig[numPots + i];
+      rhs.sliderConfig[i] = ((potConfig[numPots + i] == Board::POT_SLIDER_WITH_DETENT) ? Board::SLIDER_WITH_DETENT : Board::SLIDER_NONE);
     }
   }
 
