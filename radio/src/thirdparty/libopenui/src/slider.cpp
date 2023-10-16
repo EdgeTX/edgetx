@@ -51,8 +51,20 @@ Slider::Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
   lv_obj_add_event_cb(slider, slider_changed_cb, LV_EVENT_VALUE_CHANGED, this);
   lv_slider_set_range(slider, vmin, vmax);
 
-  if (_getValue != nullptr)
+  update();
+}
+
+void Slider::update()
+{
+  if (_getValue != nullptr) {
+    // Fix for lv_slider_set_value not working when using the rotary encoder to
+    // update value
+    auto bar = (lv_bar_t*)slider;
+    bar->cur_value_anim.anim_state = -1;
+    bar->cur_value_anim.anim_end = _getValue();
+
     lv_slider_set_value(slider, _getValue(), LV_ANIM_OFF);
+  }
 }
 
 void Slider::paint(BitmapBuffer* dc)
