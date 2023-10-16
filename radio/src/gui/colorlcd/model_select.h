@@ -66,10 +66,10 @@ class ModelsPageBody : public FormWindow
   std::function<void()> refreshLabels = nullptr;
 
   void openMenu();
-  void selectModel(ModelCell* model);
-  void duplicateModel(ModelCell* model);
-  void deleteModel(ModelCell* model);
-  void editLabels(ModelCell* model);
+  void selectModel(ModelCell *model);
+  void duplicateModel(ModelCell *model);
+  void deleteModel(ModelCell *model);
+  void editLabels(ModelCell *model);
   void saveAsTemplate(ModelCell *model);
 };
 

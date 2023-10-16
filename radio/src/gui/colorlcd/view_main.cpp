@@ -267,12 +267,10 @@ void ViewMain::onEvent(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_SYS):
-      {
-        killEvents(KEY_SYS);
-        // Radio setup
-        auto m = new RadioMenu();
-        m->setCurrentTab(2);
-      }
+      killEvents(KEY_SYS);
+      if (viewMainMenu) viewMainMenu->onCancel();
+      // Radio setup
+      (new RadioMenu())->setCurrentTab(2);
       break;
 
     case EVT_KEY_FIRST(KEY_TELE):
