@@ -364,8 +364,8 @@
 #define TR_RSSI_SHUTDOWN_ALARM         TR("Rssi při vyp.", "Hlídat RSSI při vypnutí")
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Použít FlySky RSSI hodnotu bez škálování")
 #define TR_MODEL_STILL_POWERED         "Model stále spuštěn"
-#define TR_TRAINER_STILL_CONNECTED     "Trainer still connected"
-#define TR_USB_STILL_CONNECTED        "USB stále připojeno"
+#define TR_TRAINER_STILL_CONNECTED     "Trenér stále připojen"
+#define TR_USB_STILL_CONNECTED         "USB stále připojeno"
 #define TR_MODEL_SHUTDOWN              "Vypnout?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Zmáčkni ENTER pro potvrzení"
 #define TR_THROTTLE_LABEL              "Plyn"
