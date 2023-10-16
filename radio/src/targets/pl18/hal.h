@@ -192,8 +192,8 @@
 #define ADC_GPIO_PIN_POT3               LL_GPIO_PIN_8      // PF.08 VRC
 #define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_9      // PF.09 VRD/LS
 #define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_7      // PA.07 VRE/RS
-#define ADC_GPIO_PIN_EXT1               LL_GPIO_PIN_2      // PA.02
-#define ADC_GPIO_PIN_EXT2               LL_GPIO_PIN_6      // PF.06
+//#define ADC_GPIO_PIN_EXT1               LL_GPIO_PIN_2      // PA.02
+//#define ADC_GPIO_PIN_EXT2               LL_GPIO_PIN_6      // PF.06
 
 #define ADC_GPIO_PIN_SWB                LL_GPIO_PIN_1      // PC.01
 #define ADC_GPIO_PIN_SWD                LL_GPIO_PIN_0      // PC.00
@@ -263,19 +263,19 @@
 
 #define ADC_VREF_PREC2                  330
 
-#define ADC_DIRECTION { \
-    0,0,0,0, /* gimbals */			\
-    0,0,0,   /* pots */				\
-    -1,-1,   /* sliders */			\
-    0,0,     /* ext1 & 2 */			\
-    0,	     /* vbat */				\
-    /* 0, */ /* rtc_bat */			\
-    -1,      /* SWB */				\
-    -1,      /* SWD */				\
-    0,       /* SWE */				\
-    0,       /* SWF */				\
-    0,       /* SWG */				\
-    0        /* SWH */				\
+#define ADC_DIRECTION {       \
+    0,0,0,0, /* gimbals */    \
+    0,0,0,   /* pots */       \
+    -1,-1,   /* sliders */    \
+    /* 0,0,*/     /* ext1 & 2 */  \
+    0,	     /* vbat */       \
+    /* 0, */ /* rtc_bat */    \
+    -1,      /* SWB */        \
+    -1,      /* SWD */        \
+    0,       /* SWE */        \
+    0,       /* SWF */        \
+    0,       /* SWG */        \
+    0        /* SWH */        \
   }
     
 // Power
@@ -519,23 +519,21 @@
 #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
 
 // Internal Module
-#define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_DMA1)
+#define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_DMA1)
 #define INTMODULE_PWR_GPIO              GPIOI
 #define INTMODULE_PWR_GPIO_PIN          GPIO_Pin_0  // PI.00
 #define INTMODULE_GPIO                  GPIOF
 #define INTMODULE_TX_GPIO_PIN           LL_GPIO_PIN_7  // PF.07
 #define INTMODULE_RX_GPIO_PIN           LL_GPIO_PIN_6  // PF.06
 #define INTMODULE_USART                 UART7
-#define INTMODULE_GPIO_AF               GPIO_AF_UART7
-#define INTMODULE_GPIO_AF_LL            LL_GPIO_AF_8
+#define INTMODULE_GPIO_AF               LL_GPIO_AF_8
 #define INTMODULE_USART_IRQn            UART7_IRQn
 #define INTMODULE_USART_IRQHandler      UART7_IRQHandler
 #define INTMODULE_DMA                   DMA1
 #define INTMODULE_DMA_STREAM            LL_DMA_STREAM_1
 #define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream1_IRQn
-#define INTMODULE_DMA_FLAG_TC           DMA_IT_TCIF1
+#define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
 #define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_5
-
 #define INTMODULE_RX_DMA                DMA1
 #define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_3
 #define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
