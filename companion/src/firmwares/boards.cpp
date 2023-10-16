@@ -140,6 +140,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_JUMPER_TLITE:
     case BOARD_JUMPER_TLITE_F4:
     case BOARD_JUMPER_TPRO:
+    case BOARD_JUMPER_TPROV2:
     case BOARD_RADIOMASTER_TX12:
     case BOARD_RADIOMASTER_TX12_MK2:
     case BOARD_RADIOMASTER_T8:
@@ -186,6 +187,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_JUMPER_TLITE:
     case BOARD_JUMPER_TLITE_F4:
     case BOARD_JUMPER_TPRO:
+    case BOARD_JUMPER_TPROV2:
     case BOARD_RADIOMASTER_TX12:
     case BOARD_RADIOMASTER_TX12_MK2:
     case BOARD_RADIOMASTER_ZORRO:
@@ -1100,6 +1102,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_TLITE:
   case BOARD_JUMPER_TLITE_F4:
   case BOARD_JUMPER_TPRO:
+  case BOARD_JUMPER_TPROV2:
     return (int)MODULE_TYPE_MULTIMODULE;
 
   case BOARD_BETAFPV_LR3PRO:
