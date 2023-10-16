@@ -353,7 +353,8 @@
 #define TR_ALARMWARNING                "靜音"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("關機檢查RSSI", "關機時檢查RSSI")
 #define TR_MODEL_STILL_POWERED         "模型未斷電"
-#define TR_USB_STILL_CONNECTED         "USB未斷開"
+#define TR_TRAINER_STILL_CONNECTED     "Trainer still connected"
+#define TR_USB_STILL_CONNECTED        "USB未斷開"
 #define TR_MODEL_SHUTDOWN              "關機 ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "按ENTER鍵確認"
 #define TR_THROTTLE_LABEL              "油門"

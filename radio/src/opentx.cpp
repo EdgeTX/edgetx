@@ -1809,7 +1809,10 @@ uint32_t pwrCheck()
             msg = STR_USB_STILL_CONNECTED;
             msg_len = sizeof(TR_USB_STILL_CONNECTED);
           }
-
+          else if (isTrainerConnected()) {
+            msg = STR_TRAINER_STILL_CONNECTED;
+            msg_len = sizeof(TR_TRAINER_STILL_CONNECTED);
+          }
           event_t evt = getEvent();
           SET_WARNING_INFO(msg, msg_len, 0);
           DISPLAY_WARNING(evt);

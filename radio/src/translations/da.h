@@ -358,7 +358,8 @@
 #define TR_ALARMWARNING                "Lyd fra"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI nedluk", "Check RSSI ved nedluk")
 #define TR_MODEL_STILL_POWERED         "Model stadig med strøm"
-#define TR_USB_STILL_CONNECTED         "USB stadig forbundet"
+#define TR_TRAINER_STILL_CONNECTED     "Trainer still connected"
+#define TR_USB_STILL_CONNECTED        "USB stadig forbundet"
 #define TR_MODEL_SHUTDOWN              "Luk ned?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Tryk enter for bekræft"
 #define TR_THROTTLE_LABEL              "Gas"

@@ -353,7 +353,8 @@
 #define TR_ALARMWARNING                "音声OFF"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI shutdown", "シャットダウン時 RSSIを確認")
 #define TR_MODEL_STILL_POWERED         "電源が入ったままです"
-#define TR_USB_STILL_CONNECTED         "USBが接続されたままです"
+#define TR_TRAINER_STILL_CONNECTED     "Trainer still connected"
+#define TR_USB_STILL_CONNECTED        "USBが接続されたままです"
 #define TR_MODEL_SHUTDOWN              "シャットダウンしますか？"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Enterを押して確認してください"
 #define TR_THROTTLE_LABEL              "Throttle"

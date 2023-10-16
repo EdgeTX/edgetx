@@ -351,7 +351,8 @@
 #define TR_ALARMWARNING        "Sin sonido"
 #define TR_RSSI_SHUTDOWN_ALARM   TR("Apagado Rssi", "Check Rssi al apagar")
 #define TR_MODEL_STILL_POWERED "Modelo aun encendido"
-#define TR_USB_STILL_CONNECTED         "USB still connected"
+#define TR_TRAINER_STILL_CONNECTED     "Trainer still connected"
+#define TR_USB_STILL_CONNECTED        "USB still connected"
 #define TR_MODEL_SHUTDOWN              "Apagar ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Enter para confirmar"
 #define TR_THROTTLE_LABEL      "Potencia"
