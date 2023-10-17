@@ -597,6 +597,7 @@ void audioTimerCountdown(uint8_t timer, int value);
 #define AUDIO_RSSI_ORANGE()      audioEvent(AU_RSSI_ORANGE)
 #define AUDIO_RSSI_RED()         audioEvent(AU_RSSI_RED)
 #define AUDIO_RAS_RED()          audioEvent(AU_RAS_RED)
+#define AUDIO_TELEMETRY_CONNECTED() audioEvent(AU_TELEMETRY_CONNECTED)
 #define AUDIO_TELEMETRY_LOST()   audioEvent(AU_TELEMETRY_LOST)
 #define AUDIO_TELEMETRY_BACK()   audioEvent(AU_TELEMETRY_BACK)
 #define AUDIO_TRAINER_CONNECTED() audioEvent(AU_TRAINER_CONNECTED)
