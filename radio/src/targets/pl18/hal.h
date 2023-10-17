@@ -237,7 +237,7 @@
 #define ADC_CHANNEL_SWH                 LL_ADC_CHANNEL_8    // ADC3_IN8    -> ADC3_IN8
 
 #define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_15   // ADC12_IN15  -> ADC1_IN15
-// #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC1_IN18
+#define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC1_IN18
 
 #define ADC_MAIN                        ADC1
 #define ADC_EXT                         ADC3
@@ -261,7 +261,7 @@
 #define ADC_EXT_DMA_STREAM_IRQHandler   DMA2_Stream0_IRQHandler
 #define ADC_EXT_SAMPTIME                LL_ADC_SAMPLINGTIME_28CYCLES
 
-#define ADC_VREF_PREC2                  330
+#define ADC_VREF_PREC2                  660
 
 #define ADC_DIRECTION {       \
     0,0,0,0, /* gimbals */    \
@@ -269,7 +269,7 @@
     -1,-1,   /* sliders */    \
     /* 0,0,*/     /* ext1 & 2 */  \
     0,	     /* vbat */       \
-    /* 0, */ /* rtc_bat */    \
+    0,       /* rtc_bat */    \
     -1,      /* SWB */        \
     -1,      /* SWD */        \
     0,       /* SWE */        \
