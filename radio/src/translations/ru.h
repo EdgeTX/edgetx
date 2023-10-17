@@ -50,7 +50,7 @@
 #define TR_TRNMODE                     "Вык",TR("+=","Добавить"),TR(":=","Заменить")
 #define TR_TRNCHN                      "КН1","КН2","КН3","КН4"
 
-#define TR_AUX_SERIAL_MODES            "Выключено","Зер. телем.","Телемет входящая","SBUS тренаж","LUA","CLI","GPS","Отладка","SpaceMouse","Внешний модуль"
+#define TR_AUX_SERIAL_MODES            "Выкл","Зер. телем.","Телемет вход","SBUS тренаж","LUA","CLI","GPS","Отладка","SpaceMouse","Внеш модуль"
 #define TR_SWTYPES                     "Нет","Тумбл","2Х-Поз пер","3Х-Поз пер"
 #define TR_POTTYPES                    "Нет",TR("Потен с шаг","Потен с шагом"),TR("Мн Поз пер","Многопоз тумбл"),"Потенц","Слайдер"
 #define TR_VPERSISTENT                 "Выкл","Полет","Ручной сброс"
@@ -129,7 +129,7 @@
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS, TR("Все", "Полетные"), TR_FSW_RESET_TELEM
 
-#define TR_FUNCSOUNDS                  TR("Зв1","Звук1"),TR("Зв2","Звук2"),TR("Зв3","Звук3"),TR("Пред1","Предупр.1"),TR("Пред2","Предупр.2"),TR("Писк","Пищалка"),TR("Рата","Рататата"),"Тик",TR("Сир","Сирена"),"Звон",TR("Фант","Научная фантастика"),TR("Роб","Робот"),TR("Цип","Цип"), "Тада",TR("Сверч","Сверчок"),TR("Буд","Будильник")
+#define TR_FUNCSOUNDS                  TR("Зв1","Звук1"),TR("Зв2","Звук2"),TR("Зв3","Звук3"),TR("Пред1","Предупр.1"),TR("Пред2","Предупр.2"),TR("Писк","Писк"),TR("Рата","Рата"),"Тик",TR("Сир","Сирена"),"Звон",TR("Фант","Науч фант"),TR("Роб","Робот"),TR("Цип","Цип"), "Тада",TR("Сверч","Сверчок"),TR("Буд","Будил")
 
 #define LENGTH_UNIT_IMP                "фут"
 #define SPEED_UNIT_IMP                 "млч"
@@ -166,7 +166,7 @@
 
 #if defined(USE_HATS_AS_KEYS)
 #define TR_HATSMODE                    "Hats mode"
-#define TR_HATSOPT                     "Только тримы","Только кнопки","Перекл","Глобал"
+#define TR_HATSOPT                     "Тримы","Кнопки","Тумбл","Глоб"
 #define TR_HATSMODE_TRIMS              "Hats mode: Тримы"
 #define TR_HATSMODE_KEYS               "Hats mode: Кнопки"
 #endif
@@ -204,9 +204,9 @@
 #define TR_VTRAINER_MASTER_BATTERY     "Мастер/Серийный"
 #define TR_VTRAINER_BLUETOOTH          "Мастер/" TR("BT","Bluetooth"), "Рабочий/" TR("BT","Bluetooth")
 #define TR_VTRAINER_MULTI              "Мастер/Мульти"
-#define TR_VFAILSAFE                   "Не установлено","Удержание","Настроенный","Нет импульсов","Приемник"
+#define TR_VFAILSAFE                   "Не устан","Удержание","Настроенный","Нет импульсов","Приемник"
 #define TR_VSENSORTYPES                "Настроен.","Рассчитан."
-#define TR_VFORMULAS                   "Добавить","Среднее","Минимум","Максимум","Умножить","Суммиров","Ячейка","Расход","Дистанция"
+#define TR_VFORMULAS                   "Добавить","Среднее","Мин","Макс","Умножить","Суммиров","Ячейка","Расход","Дистанция"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
 #define TR_VCELLINDEX                  "Низший","1","2","3","4","5","6","7","8","Высший","Дельта"
 #define TR_TEXT_SIZE                   "Стандартный", "Крошечный", "Маленький", "Средний", "Двойной"
@@ -345,7 +345,7 @@
 #define TR_IMU_MAX                     "Макс"
 #define TR_CONTRAST                    "Контраст"
 #define TR_ALARMS_LABEL                "Сигнал тревоги"
-#define TR_BATTERY_RANGE               TR("Диапазон АКБ", "Диапазон измерения АКБ")
+#define TR_BATTERY_RANGE               TR("Диапазон АКБ", "ДиапазонАКБ")
 #define TR_BATTERYCHARGING             "Зарядка..."
 #define TR_BATTERYFULL                 "АКБ Заряжена"
 #define TR_BATTERYNONE                 "АКБ Отсутствует"
@@ -353,23 +353,23 @@
 #define TR_INACTIVITYALARM             "Отключено"
 #define TR_MEMORYWARNING               "Память заканчив"
 #define TR_ALARMWARNING                "Звук Выкл"
-#define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI выключение", "Проверьте RSSI при выключении")
+#define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI выкл", "Проверьте RSSI при выкл")
 #define TR_MODEL_STILL_POWERED         "Модель еще работает"
 #define TR_USB_STILL_CONNECTED         "USB Еще подключен"
 #define TR_MODEL_SHUTDOWN              "Отключение?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Нажмите enter для подтв"
-#define TR_THROTTLE_LABEL              "ГАЗ"
+#define TR_THROTTLE_LABEL              "Газ"
 #define TR_THROTTLE_START              "Газ cтарт"
 #define TR_THROTTLEREVERSE             TR("Г-Реверс", INDENT "Реверс")
 #define TR_MINUTEBEEP                  TR("Минут", "Звонок минуты")
 #define TR_BEEPCOUNTDOWN               INDENT "Обр отс"
-#define TR_PERSISTENT                  TR(INDENT "Пост", INDENT "Постоянный")
+#define TR_PERSISTENT                  TR(INDENT "Пост", INDENT "Пост")
 #define TR_BACKLIGHT_LABEL             "Подсветка"
 #define TR_GHOST_MENU_LABEL            "Меню приз"
 #define TR_STATUS                      "Статус"
 #define TR_BLDELAY                     INDENT "Продолж"
-#define TR_BLONBRIGHTNESS              INDENT "Подсветка ВКЛ"
-#define TR_BLOFFBRIGHTNESS             INDENT "Подсветка ВЫКЛ"
+#define TR_BLONBRIGHTNESS              INDENT "Подсветка Вкл"
+#define TR_BLOFFBRIGHTNESS             INDENT "Подсветка Вык"
 #define TR_KEYS_BACKLIGHT              "Подсветка клавиш"
 #define TR_BLCOLOR                     "Цвет"
 #define TR_SPLASHSCREEN                "Заставка"
@@ -386,11 +386,11 @@
 #define TR_TIMEZONE                    "Временная зона"
 #define TR_ADJUST_RTC                  "Настроить RTC"
 #define TR_GPS                         "GPS"
-#define TR_DEF_CHAN_ORD                TR("Пор. Кн. По Ум.", "Порядок каналов по умолчанию")
+#define TR_DEF_CHAN_ORD                TR("Пор. Кн. По Ум.", "Порядок кан по умолч")
 #define TR_STICKS                      "Стики"
 #define TR_POTS                        "Потенциом"
 #define TR_SWITCHES                    "Тумблеры"
-#define TR_SWITCHES_DELAY              TR("Зад воспр", "Задержка воспроизведения (средн. полож. тумбл.)")
+#define TR_SWITCHES_DELAY              TR("Зад воспр", "Задержка воспр (средн. полож. тумбл.)")
 #define TR_SLAVE                       CENTER "Рабочий"
 #define TR_MODESRC                     "Mode\006% Source"
 #define TR_MULTIPLIER                  "Множитель"
@@ -455,8 +455,8 @@
 #define TR_PRESSANYKEY                 TR("\010Нажмите любую кнопку", "Нажмите любую кнопку")
 #define TR_BADEEPROMDATA               "Неверные данные EEprom"
 #define TR_BAD_RADIO_DATA              "Отсутствуют радиоданные"
-#define TR_RADIO_DATA_RECOVERED        TR3("Испол резерв наст радио", "Используются резервные настройки радио")
-#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Недейс наст радио", "Недействительные настройки радио")
+#define TR_RADIO_DATA_RECOVERED        TR3("Испол резерв наст радио", "Использ резерв настройки радио")
+#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Недейс наст радио", "Недейств настройки радио")
 #define TR_EEPROMFORMATTING            "Формат EEPROM"
 #define TR_STORAGE_FORMAT              "Формат памяти"
 #define TR_EEPROMOVERFLOW              "EEPROM overflow"
@@ -508,7 +508,7 @@
 #define TR_MONITOR_MIXER_DESC          "Микшеры"
   #define TR_RECEIVER_NUM              TR("RxNum", "Номер приемника")
   #define TR_RECEIVER                  "Приемник"
-#define TR_MULTI_RFTUNE                TR("Наст частоты", "Точная настройка RF частоты")
+#define TR_MULTI_RFTUNE                TR("Наст частоты", "Настройка RF частоты")
 #define TR_MULTI_RFPOWER               "Мощность RF"
 #define TR_MULTI_WBUS                  "Выход"
 #define TR_MULTI_TELEMETRY             "Телеметрия"
@@ -516,10 +516,10 @@
 #define TR_RF_POWER                    "Мощность RF"
 #define TR_MULTI_FIXEDID               TR("Фикс. ID", "Фиксированный ID")
 #define TR_MULTI_OPTION                TR("Опция", "Значение опции")
-#define TR_MULTI_AUTOBIND              TR(INDENT "Привязать к каналу", INDENT "Привязка к каналу")
-#define TR_DISABLE_CH_MAP              TR("Откл карту кан", "Отключить карту каналов")
-#define TR_DISABLE_TELEM               TR("Без телеметрии", "Отключить телеметрию")
-#define TR_MULTI_DSM_AUTODTECT         TR(INDENT "Автоопред", INDENT "Автоопределение формата")
+#define TR_MULTI_AUTOBIND              TR(INDENT "Прив к кан", INDENT "Прив к кан")
+#define TR_DISABLE_CH_MAP              TR("Откл карту кан", "Откл карту кан")
+#define TR_DISABLE_TELEM               TR("Без телеметрии", "Откл телеметрию")
+#define TR_MULTI_DSM_AUTODTECT         TR(INDENT "Автоопр", INDENT "Автоопр формата")
 #define TR_MULTI_LOWPOWER              TR(INDENT "Низкое потребление", INDENT "Режим низкого потребления")
 #define TR_MULTI_LNA_DISABLE           INDENT "Отключить LNA"
 #define TR_MODULE_TELEMETRY            TR(INDENT "S.Port", INDENT "Связь S.Port")
@@ -530,19 +530,19 @@
 #define TR_MODULE_NO_TELEMETRY         TR3("Нет телеметрии", "Нет MULTI_TELEMETRY", "MULTI_TELEMETRY не обнаружена")
 #define TR_MODULE_WAITFORBIND          "Привязка для загр протокола"
 #define TR_MODULE_BINDING              TR("Привязка...", "Привязка")
-#define TR_MODULE_UPGRADE_ALERT        TR3("Требуется обновление", "Необходимо обновление модуля", "Требуется\nОбновление модуля")
-#define TR_MODULE_UPGRADE              TR("Рекомен обновление", "Рекомен обновление модуля")
-#define TR_REBIND                      "Требуется повторная привязка"
+#define TR_MODULE_UPGRADE_ALERT        TR3("Треб обновл", "Необход обновл модуля", "Треб\nОбновл модуля")
+#define TR_MODULE_UPGRADE              TR("Рекомен обновл", "Рекомен обновл модуля")
+#define TR_REBIND                      "Треб повтор привязка"
 #define TR_REG_OK                      "Успешная Регистрация"
 #define TR_BIND_OK                     "Успешная привязка"
 #define TR_BINDING_CH1_8_TELEM_ON      "Кн1-8 Телем Вкл"
 #define TR_BINDING_CH1_8_TELEM_OFF     "Кн1-8 Телем Выкл"
 #define TR_BINDING_CH9_16_TELEM_ON     "Кн9-16 Telem Вкл"
 #define TR_BINDING_CH9_16_TELEM_OFF    "Кн9-16 Телем Выкл"
-#define TR_PROTOCOL_INVALID            TR("Недопус протокол", "Протокол недействителен")
+#define TR_PROTOCOL_INVALID            TR("Недопус протокол", "Протокол недейств")
 #define TR_MODULE_STATUS               TR(INDENT "Статус", INDENT "Статус модуля")
-#define TR_MODULE_SYNC                 TR(INDENT "Синхро", INDENT "Статус синхронизации протокола")
-#define TR_MULTI_SERVOFREQ             TR("Частота серво", "Частота обнов серво")
+#define TR_MODULE_SYNC                 TR(INDENT "Синхро", INDENT "Статус синхро протокола")
+#define TR_MULTI_SERVOFREQ             TR("Частота серво", "Частота серво")
 #define TR_MULTI_MAX_THROW             TR("Макс. ход", "Включить макс. ход")
 #define TR_MULTI_RFCHAN                TR("RF Канал", "Выбрать RF канал")
 #define TR_AFHDS3_RX_FREQ              TR("Частота RX", "Частота RX")
@@ -579,7 +579,7 @@
 #define TR_ACTIVE                      "Активная"
 #define TR_NEW                         "Новая"
 #define TR_NEW_LABEL                   "Новая метка"
-#define TR_RENAME_LABEL                "Переименовать метку"
+#define TR_RENAME_LABEL                "Переимен метку"
 #define TR_DELETE_LABEL                "Удалить метку"
 #define TR_DUPLICATE_MODEL             "Дублировать модель"
 #define TR_COPY_MODEL                  "Копировать модель"
@@ -607,14 +607,14 @@
 #define TR_8CH_WITH_TELEMETRY          TR("8КН с телеметрией", "8КН с телеметрией")
 #define TR_EXT_ANTENNA                 "Внешняя антенна"
 #define TR_PIN                         "Pin"
-#define TR_UPDATE_RX_OPTIONS           "Обновить опции приемника?"
-#define TR_UPDATE_TX_OPTIONS           "Обновить опции передатчика?"
+#define TR_UPDATE_RX_OPTIONS           "Обнов опции приемника?"
+#define TR_UPDATE_TX_OPTIONS           "Обнов опции передатчика?"
 #define TR_MODULES_RX_VERSION          "Модули / Версия радио"
-#define TR_SHOW_MIXER_MONITORS         "Показать мониторы миксера"
+#define TR_SHOW_MIXER_MONITORS         "Показ мониторы миксера"
 #define TR_MENU_MODULES_RX_VERSION     "МОДУЛИ / ВЕРСИЯ РАДИО"
 #define TR_MENU_FIRM_OPTIONS           "ОПЦИИ ПО"
 #define TR_IMU                        "IMU"
-#define TR_STICKS_POTS_SLIDERS         "Джойстики/Потенциометры/тублеры"
+#define TR_STICKS_POTS_SLIDERS         "Джойстики/Потенц/тублеры"
 #define TR_PWM_STICKS_POTS_SLIDERS     "PWM Джойстики/Потенц/тумблеры"
 #define TR_RF_PROTOCOL                 "RF Протокол"
 #define TR_MODULE_OPTIONS              "Опции модуля"
@@ -645,13 +645,13 @@
 #define TR_ALARMSWARN                  "СИГНАЛЫ"
 #define TR_SWITCHWARN                  TR("SWITCH", "SWITCH")
 #define TR_FAILSAFEWARN                "СБОЙ БЕЗОПАСНОСТИ"
-#define TR_TEST_WARNING                TR("ТЕСТ", "ТЕСТОВАЯ ВЕРСИЯ")
-#define TR_TEST_NOTSAFE                "Испол только для тестов"
+#define TR_TEST_WARNING                TR("ТЕСТ", "ТЕСТ")
+#define TR_TEST_NOTSAFE                "Испол для тестов"
 #define TR_WRONG_SDCARDVERSION         TR("Ожид версия: ", "Ожидаемая версия: ")
 #define TR_WARN_RTC_BATTERY_LOW        "Низкий заряд АКБ RTC"
 #define TR_WARN_MULTI_LOWPOWER         "Режим низкого энергопотребления"
 #define TR_BATTERY                     "АКБ"
-#define TR_WRONG_PCBREV                "Обнаружена неправ версия платы"
+#define TR_WRONG_PCBREV                "Обнаруж неправ версия платы"
 #define TR_EMERGENCY_MODE              "РЕЖИМ ЧРЕЗВЫЧАЙНОЙ СИТУАЦИИ"
 #define TR_NO_FAILSAFE                 "FAILSAFE не настроен"
 #define TR_KEYSTUCK                    "Застрявшая клавиша"
@@ -712,7 +712,7 @@
 
 #define TR_SELECT_TEMPLATE_FOLDER      "Выберите папку шаблона"
 #define TR_SELECT_TEMPLATE             "ВЫБЕРИТЕ ШАБЛОН МОДЕЛИ:"
-#define TR_NO_TEMPLATES                "В этой папке нет ни одного шаблона модели"
+#define TR_NO_TEMPLATES                "В этой папке нет шаблона модели"
 #define TR_SAVE_TEMPLATE               "Сохранить шаблон"
 #define TR_BLANK_MODEL                 "Пустая модель"
 #define TR_BLANK_MODEL_INFO            "Создайте пустую модель"
@@ -748,10 +748,10 @@
 #define TR_DATE                        "Дата"
 #define TR_MONTHS                      { "Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек" }
 #define TR_ROTARY_ENCODER              "П.Э."
-#define TR_ROTARY_ENC_MODE             TR("Режим пов энк","Режим поворотного энкодера")
+#define TR_ROTARY_ENC_MODE             TR("Режим пов энк","Режим энкодера")
 #define TR_CHANNELS_MONITOR            "МОНИТОР КАНАЛОВ"
 #define TR_MIXERS_MONITOR              "МОНИТОР МИКСЕРОВ"
-#define TR_PATH_TOO_LONG               "Путь Слишком Длинный"
+#define TR_PATH_TOO_LONG               "Путь слишком длинный"
 #define TR_VIEW_TEXT                   "Просмотр текста"
 #define TR_FLASH_BOOTLOADER            "ПРОШИТЬ ПО"
 #define TR_FLASH_DEVICE                TR("Прошить Устройство","Прошить Устройство")
@@ -763,12 +763,12 @@
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Записать контроллер через внут OTA"
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Записать модуль Bluetooth", "Записать модуль Bluetooth")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT "Записать блок управления питанием"
-#define TR_DEVICE_NO_RESPONSE          TR("Устр не отвечает", "Устройство не отвечает")
+#define TR_DEVICE_NO_RESPONSE          TR("Устр не отвечает", "Устр не отвечает")
 #define TR_DEVICE_FILE_ERROR           TR("Проблема с файлом устройства", "Проблема с файлом устройства")
 #define TR_DEVICE_DATA_REFUSED         TR("Отказ в перед дан устройства", "Отказано в передаче данных устройства")
 #define TR_DEVICE_WRONG_REQUEST        TR("Проблема доступа к устройству", "Проблема доступа к устройству")
 #define TR_DEVICE_FILE_REJECTED        TR("Файл устр отклонен", "Файл устройства отклонен")
-#define TR_DEVICE_FILE_WRONG_SIG       TR("Файл устр имеет неправ подпись", "Файл устройства имеет неправильную подпись")
+#define TR_DEVICE_FILE_WRONG_SIG       TR("Файл устр имеет неправ подпись", "Файл устр имеет неправ подпись")
 #define TR_CURRENT_VERSION             TR("Текущая версия: ", "Текущая версия: ")
 #define TR_FLASH_INTERNAL_MODULE       TR("Зап внут модуль", "Записать внут модуль")
 #define TR_FLASH_INTERNAL_MULTI        TR("Зап внут MULTI", "Записать внут MULTI")
@@ -780,9 +780,9 @@
 #define TR_WRITING                     "Запись..."
 #define TR_CONFIRM_FORMAT              "Подтв формат?"
 #define TR_INTERNALRF                  "Внут RF"
-#define TR_INTERNAL_MODULE             TR("Внут. Модуль", "Внутренний Модуль")
-#define TR_EXTERNAL_MODULE             TR("Внеш. Модуль", "Внешний Модуль")
-#define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX требуется обновление"
+#define TR_INTERNAL_MODULE             TR("Внут. Модуль", "Внутр Модуль")
+#define TR_EXTERNAL_MODULE             TR("Внеш. Модуль", "Внеш Модуль")
+#define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX требуется обновл"
 #define TR_TELEMETRY_DISABLED          "Телем. Отключена"
 #define TR_MORE_OPTIONS_AVAILABLE      "Доступно больше опций"
 #define TR_NO_MODULE_INFORMATION       "Нет инфо о модуле"
@@ -887,15 +887,15 @@
 #define TR_TOPLCDTIMER                 "Верхний таймер LCD"
 #define TR_UNIT                        "Единица"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Добавить новый"
-#define TR_CHANNELRANGE                TR(INDENT "Диапазон", INDENT "Диапазон канала")
+#define TR_CHANNELRANGE                TR(INDENT "Диапазон", INDENT "Диапазон кан")
 #define TR_ANTENNACONFIRM1             "НАР. Антенна"
 #if defined(PCBX12S)
   #define TR_ANTENNA_MODES             "Внут","Запрос","На модель","Внутр + Внеш"
 #else
   #define TR_ANTENNA_MODES             "Внутр","Запрос","На модель","Внеш"
 #endif
-#define TR_USE_INTERNAL_ANTENNA        TR("Исп внут антенну", "Использовать внутреннюю антенну")
-#define TR_USE_EXTERNAL_ANTENNA        TR("Исп внеш антенну", "Использовать внешнюю антенну")
+#define TR_USE_INTERNAL_ANTENNA        TR("Исп внут антенну", "Испол внутр антенну")
+#define TR_USE_EXTERNAL_ANTENNA        TR("Исп внеш антенну", "Испол внеш антенну")
 #define TR_ANTENNACONFIRM2             TR("Проверьте антенну", "Убедитесь, что антенна установлена!")
 #define TR_MODULE_PROTOCOL_FLEX_WARN_LINE1   "Требует не FLEX"
 #define TR_MODULE_PROTOCOL_FCC_WARN_LINE1    "Требует FCC"
@@ -919,17 +919,17 @@
 #define TR_PT                          "pt"
 #define TR_PTS                         "штк"
 #define TR_SMOOTH                      "Плавно"
-#define TR_COPY_STICKS_TO_OFS          TR("Коп стики->субтрим", "Копировать стики в субтрим")
-#define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Коп мин/макс во все вых", "Копировать мин/макс/центр во все выходы")
-#define TR_COPY_TRIMS_TO_OFS           TR("Коп трим->субтрим", "Копировать тримы в субтрим")
-#define TR_INCDEC                      "Увеличение/Уменьшение"
+#define TR_COPY_STICKS_TO_OFS          TR("Коп стики->субтрим", "Коп стики в субтрим")
+#define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Коп мин/макс во все вых", "Коп мин/макс/центр во все вых")
+#define TR_COPY_TRIMS_TO_OFS           TR("Коп трим->субтрим", "Коп тримы в субтрим")
+#define TR_INCDEC                      "Увел/Умен"
 #define TR_GLOBALVAR                   "Глоб переменная"
 #define TR_MIXSOURCE                   "Источник микшера"
 #define TR_CONSTANT                    "Постоянное значение"
-#define TR_PREFLIGHT_POTSLIDER_CHECK   "ВЫКЛ","ВКЛ","АВТО"
+#define TR_PREFLIGHT_POTSLIDER_CHECK   "Выкл","Вкл","Авто"
 #define TR_PREFLIGHT                   "Предполет проверки"
-#define TR_CHECKLIST                   TR(INDENT "Контрольный список", INDENT "Отобразить контрольный список")
-#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "КС-Интерактивный", INDENT "Интер контр список", INDENT "Интерактивный контрольный список")
+#define TR_CHECKLIST                   TR(INDENT "Контр список", INDENT "Контр список")
+#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "КС-Интерактив", INDENT "Интер контр список", INDENT "Интерактив список")
 #define TR_AUX_SERIAL_MODE             "Послед порт"
 #define TR_AUX2_SERIAL_MODE            "Послед порт 2"
 #define TR_AUX_SERIAL_PORT_POWER       "Мощность порта"
@@ -938,7 +938,7 @@
 #define TR_OUTPUTS                     "Выходные"
 #define STR_EEBACKUP                   "EEPROM Резерв копия"
 #define STR_FACTORYRESET               "Сброс к заводским настройкам"
-#define TR_CONFIRMRESET                TR("Удалить все", "Удалить все модели и настройки?")
+#define TR_CONFIRMRESET                TR("Удалить все", "Удалить все настройки?")
 #define TR_TOO_MANY_LUA_SCRIPTS        "Слишком много Lua-скриптов!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Режим питания"
 #define TR_SPORT_UPDATE_POWER_MODES    "Авто","Вкл"
@@ -957,8 +957,8 @@
 #define TR_PHASES_HEADERS_AIL_TRIM     "Триммер элеронов"
 #define TR_PHASES_HEADERS_CH5_TRIM     "Триммер 5"
 #define TR_PHASES_HEADERS_CH6_TRIM     "Триммер 6"
-#define TR_PHASES_HEADERS_FAD_IN       "Плавное появление"
-#define TR_PHASES_HEADERS_FAD_OUT      "Плавное исчезновение"
+#define TR_PHASES_HEADERS_FAD_IN       "Плавн появлен"
+#define TR_PHASES_HEADERS_FAD_OUT      "Плавн исчезнов"
 
 #define TR_LIMITS_HEADERS_NAME         "Имя"
 #define TR_LIMITS_HEADERS_SUBTRIM      "Субтрим"
@@ -971,7 +971,7 @@
 #define TR_INVERTED                    "Перевернутый"
 
 
-#define TR_LSW_DESCRIPTIONS            { "Тип сравнения или функция", "Первая перем", "Вторая перем или константа", "Вторая перем или константа", "Доп условие для вкл линии", "Мин продолж логического переключения", "Мин истинная продол вкл переключателя" }
+#define TR_LSW_DESCRIPTIONS            { "Тип сравн или функц", "Первая перем", "Вторая перем или конст", "Вторая перем или конст", "Доп условие для вкл линии", "Мин продолж лог переключ", "Мин истинная продол вкл переключателя" }
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -985,9 +985,9 @@
   #define TR_TIMER_SOURCE              "Источник таймера"
   #define TR_SIZE                      "Размер"
   #define TR_SHADOW                    "Тень"
-  #define TR_ALIGNMENT                 "Выравнивание"
-  #define TR_ALIGN_LABEL               "Выравнивание метки"
-  #define TR_ALIGN_VALUE               "Выравнивание значения"
+  #define TR_ALIGNMENT                 "Вырав"
+  #define TR_ALIGN_LABEL               "Вырав метки"
+  #define TR_ALIGN_VALUE               "Вырав значения"
   #define TR_ALIGN_OPTS                { "Слева", "По центру", "Справа" }
   #define TR_TEXT                      "Текст"
   #define TR_COLOR                     "Цвет"
@@ -1006,13 +1006,13 @@
 #define TR_BL_USB_CONNECTED           "Подключение по USB"
 #define TR_BL_USB_PLUGIN              "Или подключите USB-кабель"
 #define TR_BL_USB_MASS_STORE          "Для массового хранения"
-#define TR_BL_USB_PLUGIN_MASS_STORE   "Или подключите USB-кабель для сохранения данных"
+#define TR_BL_USB_PLUGIN_MASS_STORE   "Или подключ USB для сохр данных"
 #define TR_BL_WRITE_FW                "Запись ПО"
 #define TR_BL_FORK                    "Вилка:"
 #define TR_BL_VERSION                 "Версия:"
 #define TR_BL_RADIO                   "Радио:"
 #define TR_BL_EXIT                    "Выход"
-#define TR_BL_DIR_MISSING             "Каталог отсутствует"
+#define TR_BL_DIR_MISSING             "Каталог отсут"
 #define TR_BL_DIR_EMPTY               "Каталог пуст"
 #define TR_BL_WRITING_FW              "Предупреждение..."
 #define TR_BL_WRITING_COMPL           "Запись завершена"
@@ -1069,7 +1069,7 @@
 #define TR_MODULE_RESET                "Сброс модуля..."
 #define TR_UNKNOWN_RX                  "Неизвес приёмник"
 #define TR_UNSUPPORTED_RX              "Неподдерж приёмник"
-#define TR_OTA_UPDATE_ERROR            "Ошибка OTA-обновления"
+#define TR_OTA_UPDATE_ERROR            "Ошибка OTA-обновл"
 #define TR_DEVICE_RESET                "Сброс устройства..."
 #define TR_ALTITUDE                    INDENT "Высота"
 #define TR_SCALE                       "Масштаб"
@@ -1092,7 +1092,7 @@
 #define TR_AUTOOFFSET                  "Авто смещ."
 #define TR_ONLYPOSITIVE                "Положител."
 #define TR_FILTER                      "Фильтр"
-#define TR_TELEMETRYFULL               TR("Все слоты заняты!", "Все слоты телеметрии заняты!")
+#define TR_TELEMETRYFULL               TR("Все слоты заняты!", "Все слоты заняты!")
 #define TR_INVERTED_SERIAL             INDENT "Инвертировать"
 #define TR_IGNORE_INSTANCE             TR(INDENT "Нет инстанса", INDENT "Игнорировать инстансы")
 #define TR_SHOW_INSTANCE_ID            "Показать ID инстанса"
@@ -1101,22 +1101,22 @@
 #define TR_DELETE_ALL_SENSORS          "Удалить все"
 #define TR_CONFIRMDELETE               "Удалить все?"
 #define TR_SELECT_WIDGET               "Выбрать виджет"
-#define TR_WIDGET_FULLSCREEN           "Полноэкранный режим"
+#define TR_WIDGET_FULLSCREEN           "Полноэкран режим"
 #define TR_REMOVE_WIDGET               "Удалить виджет"
 #define TR_WIDGET_SETTINGS             "Настройки виджета"
 #define TR_REMOVE_SCREEN               "Удалить экран"
 #define TR_SETUP_WIDGETS               "Настройка виджетов"
-#define TR_USER_INTERFACE              "Пользовательский интерфейс"
+#define TR_USER_INTERFACE              "Пользов интерфейс"
 #define TR_THEME                       "Тема"
 #define TR_SETUP                       "Настройка"
 #define TR_LAYOUT                      "Макет"
 #define TR_ADD_MAIN_VIEW               "Добавить экран"
 #define TR_BACKGROUND_COLOR            "Цвет фона"
 #define TR_MAIN_COLOR                  "Основной цвет"
-#define TR_BAR2_COLOR                  "Цвет вторичной панели"
+#define TR_BAR2_COLOR                  "Цвет вторич панели"
 #define TR_BAR1_COLOR                  "Основной цвет панели"
 #define TR_TEXT_COLOR                  "Цвет текста"
-#define TR_TEXT_VIEWER                 "Текстовый просмотрщик"
+#define TR_TEXT_VIEWER                 "Текстовый"
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "Входы"
 #define TR_MENU_LUA                    STR_CHAR_LUA "Скрипты Lua"
 #define TR_MENU_STICKS                 STR_CHAR_STICK "Стики"
@@ -1134,20 +1134,20 @@
 #define TR_MENU_DISPLAY                "ДИСПЛЕЙ"
 #define TR_MENU_OTHER                  "Другое"
 #define TR_MENU_INVERT                 "Инвертировать"
-#define TR_AUDIO_MUTE                  TR("Выкл звук", "Выключить звук")
+#define TR_AUDIO_MUTE                  TR("Выкл звук", "Выкл звук")
 #define TR_JITTER_FILTER               "Фильтр АЦП"
 #define TR_DEAD_ZONE                   "Зона нечувствительности"
-#define TR_RTC_CHECK                   TR("Проверка RTC", "Проверка напряжения RTC")
-#define TR_AUTH_FAILURE                "Ошибка аутентификации"
+#define TR_RTC_CHECK                   TR("Проверка RTC", "Проверка RTC")
+#define TR_AUTH_FAILURE                "Ошибка аутентиф"
 #define TR_RACING_MODE                 "Режим гонок"
 
 #define TR_USE_THEME_COLOR              "Используйте Цвет Темы"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Добавить все триммеры в субтриммеры"
 #if LCD_W > LCD_H
-  #define TR_OPEN_CHANNEL_MONITORS      "Монитор открытого канала"
+  #define TR_OPEN_CHANNEL_MONITORS      "Монитор откр кан"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS      "Мон. открытого канала"
+  #define TR_OPEN_CHANNEL_MONITORS      "Мон. открыт кан"
 #endif
 #define TR_DUPLICATE                    "Дубликат"
 #define TR_ACTIVATE                     "Активный"
@@ -1219,7 +1219,7 @@
 
 #define TR_USBJOYSTICK_LABEL           "USB Джойстик"
 #define TR_USBJOYSTICK_EXTMODE         "Режим"
-#define TR_VUSBJOYSTICK_EXTMODE        "Обычный","Расширенный"
+#define TR_VUSBJOYSTICK_EXTMODE        "Обычный","Расшир"
 #define TR_USBJOYSTICK_SETTINGS        "Настройки канала"
 #define TR_USBJOYSTICK_IF_MODE         TR("Интерфейс","Режим интерфейса")
 #define TR_VUSBJOYSTICK_IF_MODE        "Джойстик","Геймпад","Многозонный"
@@ -1227,8 +1227,8 @@
 #define TR_VUSBJOYSTICK_CH_MODE        "Нет","Кнопка","Ось","Симуляция"
 #define TR_VUSBJOYSTICK_CH_MODE_S      "-","B","A","S"
 #define TR_USBJOYSTICK_CH_BTNMODE      "Режим Кнопки"
-#define TR_VUSBJOYSTICK_CH_BTNMODE     "Обычный","Импульс","Эмул перек","Дельта","Компаньон"
-#define TR_VUSBJOYSTICK_CH_BTNMODE_S   TR("Норм","Нормально"),TR("Пульс","Пульс"),TR("SWEm","SWEmul"),TR("Дел","Дельта"),TR("КОМП","Компаньон")
+#define TR_VUSBJOYSTICK_CH_BTNMODE     "Обыч","Импульс","Эмул перек","Дельта","Комп"
+#define TR_VUSBJOYSTICK_CH_BTNMODE_S   TR("Норм","Норм"),TR("Пульс","Пульс"),TR("SWEm","SWEmul"),TR("Дел","Дельта"),TR("КОМП","Комп")
 #define TR_USBJOYSTICK_CH_SWPOS        "Положения"
 #define TR_VUSBJOYSTICK_CH_SWPOS       "Нажатие","2-поз","3-поз","4-поз","5-поз","6-поз","7-поз","8-поз"
 #define TR_USBJOYSTICK_CH_AXIS         "Ось"
