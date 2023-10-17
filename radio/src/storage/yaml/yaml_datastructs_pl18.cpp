@@ -92,6 +92,7 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_DISABLE_TOUCH, "DISABLE_TOUCH"  },
   {  FUNC_SET_SCREEN, "SET_SCREEN"  },
   {  FUNC_DISABLE_AUDIO_AMP, "DISABLE_AUDIO_AMP"  },
+  {  FUNC_RGB_LED, "RGB_LED"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_TimerModes[] = {
@@ -166,6 +167,7 @@ const struct YamlIdStr enum_SwitchSources[] = {
   {  SWSRC_ONE, "ONE"  },
   {  SWSRC_TELEMETRY_STREAMING, "TELEMETRY_STREAMING"  },
   {  SWSRC_RADIO_ACTIVITY, "RADIO_ACTIVITY"  },
+  {  SWSRC_TRAINER_CONNECTED, "TRAINER_CONNECTED"  },
   {  SWSRC_OFF, "OFF"  },
   {  0, NULL  }
 };
@@ -292,7 +294,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "manuallyEdited", 1 ),
   YAML_SIGNED( "timezoneMinutes", 3 ),
   YAML_ENUM("hatsMode", 2, enum_HatsMode),
-  YAML_PADDING( 2 ),
+  YAML_UNSIGNED( "ppmunit", 2 ),
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_CUSTOM("board",nullptr,w_board),
   YAML_ARRAY("calib", 48, 22, struct_CalibData, NULL),
