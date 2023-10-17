@@ -299,6 +299,7 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
   else if (IS_FLYSKY_PL18(board)) {
     potConfig[0] = Board::POT_WITHOUT_DETENT;
     potConfig[1] = Board::POT_WITHOUT_DETENT;
+    potConfig[2] = Board::POT_WITHOUT_DETENT;
   }
   else if (IS_TARANIS_XLITE(board)) {
     potConfig[0] = Board::POT_WITHOUT_DETENT;
