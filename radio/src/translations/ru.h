@@ -355,7 +355,8 @@
 #define TR_ALARMWARNING                "Звук Выкл"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI выкл", "Проверьте RSSI при выкл")
 #define TR_MODEL_STILL_POWERED         "Модель еще работает"
-#define TR_USB_STILL_CONNECTED         "USB Еще подключен"
+#define TR_TRAINER_STILL_CONNECTED     "Тренер еще подкл"
+#define TR_USB_STILL_CONNECTED         "USB еще подкл"
 #define TR_MODEL_SHUTDOWN              "Отключение?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Нажмите enter для подтв"
 #define TR_THROTTLE_LABEL              "Газ"
