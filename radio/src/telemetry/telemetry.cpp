@@ -352,11 +352,9 @@ void telemetryWakeup()
       if (TELEMETRY_STREAMING()) {
         if (telemetryState == TELEMETRY_INIT) {
           AUDIO_TELEMETRY_CONNECTED();
-          telemetryState = TELEMETRY_OK;
         }
         else if (telemetryState == TELEMETRY_KO) {
           AUDIO_TELEMETRY_BACK();
-          telemetryState = TELEMETRY_OK;
 
 #if defined(CROSSFIRE)
           // TODO: move to crossfire code
@@ -373,6 +371,7 @@ void telemetryWakeup()
 #endif
 #endif
         }
+        telemetryState = TELEMETRY_OK;
       }
       else if (telemetryState == TELEMETRY_OK) {
         telemetryState = TELEMETRY_KO;
