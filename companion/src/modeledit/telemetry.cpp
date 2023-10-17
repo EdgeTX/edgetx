@@ -546,14 +546,6 @@ void TelemetryPanel::setup()
   lock = false;
 }
 
-void TelemetryPanel::on_telemetryProtocol_currentIndexChanged(int index)
-{
-  if (!isLocked()) {
-    model->telemetryProtocol = index;
-    emit modified();
-  }
-}
-
 void TelemetryPanel::onModified()
 {
   emit modified();
