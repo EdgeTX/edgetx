@@ -897,7 +897,7 @@
 #endif
 #define TR_USE_INTERNAL_ANTENNA        TR("Исп внут антенну", "Испол внутр антенну")
 #define TR_USE_EXTERNAL_ANTENNA        TR("Исп внеш антенну", "Испол внеш антенну")
-#define TR_ANTENNACONFIRM2             TR("Проверьте антенну", ""Проверьте антенну!")
+#define TR_ANTENNACONFIRM2             TR("Проверьте антенну", "Проверьте антенну!")
 #define TR_MODULE_PROTOCOL_FLEX_WARN_LINE1   "Требует не FLEX"
 #define TR_MODULE_PROTOCOL_FCC_WARN_LINE1    "Требует FCC"
 #define TR_MODULE_PROTOCOL_EU_WARN_LINE1     "Требует EU"
