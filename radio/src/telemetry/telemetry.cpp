@@ -292,8 +292,8 @@ void telemetryWakeup()
   }
   _telemetryIsPolling = false;
 
-  for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
-    const TelemetrySensor & sensor = g_model.telemetrySensors[i];
+  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+    const TelemetrySensor& sensor = g_model.telemetrySensors[i];
     if (sensor.type == TELEM_TYPE_CALCULATED) {
       telemetryItems[i].eval(sensor);
     }
@@ -306,17 +306,17 @@ void telemetryWakeup()
 #endif
 
   static tmr10ms_t alarmsCheckTime = 0;
-  #define SCHEDULE_NEXT_ALARMS_CHECK(seconds) alarmsCheckTime = get_tmr10ms() + (100*(seconds))
+#define SCHEDULE_NEXT_ALARMS_CHECK(seconds) \
+  alarmsCheckTime = get_tmr10ms() + (100 * (seconds))
   if (int32_t(get_tmr10ms() - alarmsCheckTime) > 0) {
-
-    SCHEDULE_NEXT_ALARMS_CHECK(1/*second*/);
+    SCHEDULE_NEXT_ALARMS_CHECK(1 /*second*/);
 
     bool sensorLost = false;
-    for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
+    for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
       if (isTelemetryFieldAvailable(i)) {
-        TelemetryItem & item = telemetryItems[i];
+        TelemetryItem& item = telemetryItems[i];
         if (item.timeout == 0) {
-          TelemetrySensor * sensor = & g_model.telemetrySensors[i];
+          TelemetrySensor* sensor = &g_model.telemetrySensors[i];
           if (sensor->unit != UNIT_DATETIME) {
             item.setOld();
             sensorLost = true;
@@ -325,7 +325,8 @@ void telemetryWakeup()
       }
     }
 
-    if (sensorLost && TELEMETRY_STREAMING() && !g_model.disableTelemetryWarning) {
+    if (sensorLost && TELEMETRY_STREAMING() &&
+        !g_model.disableTelemetryWarning) {
       audioEvent(AU_SENSOR_LOST);
     }
 
@@ -333,27 +334,25 @@ void telemetryWakeup()
     if (isBadAntennaDetected()) {
       AUDIO_RAS_RED();
       POPUP_WARNING_ON_UI_TASK(STR_WARNING, STR_ANTENNAPROBLEM);
-      SCHEDULE_NEXT_ALARMS_CHECK(10/*seconds*/);
+      SCHEDULE_NEXT_ALARMS_CHECK(10 /*seconds*/);
     }
 #endif
 
     if (!g_model.disableTelemetryWarning) {
       if (TELEMETRY_STREAMING()) {
-        if (TELEMETRY_RSSI() < g_model.rfAlarms.critical ) {
+        if (TELEMETRY_RSSI() < g_model.rfAlarms.critical) {
           AUDIO_RSSI_RED();
-          SCHEDULE_NEXT_ALARMS_CHECK(10/*seconds*/);
-        }
-        else if (TELEMETRY_RSSI() < g_model.rfAlarms.warning ) {
+          SCHEDULE_NEXT_ALARMS_CHECK(10 /*seconds*/);
+        } else if (TELEMETRY_RSSI() < g_model.rfAlarms.warning) {
           AUDIO_RSSI_ORANGE();
-          SCHEDULE_NEXT_ALARMS_CHECK(10/*seconds*/);
+          SCHEDULE_NEXT_ALARMS_CHECK(10 /*seconds*/);
         }
       }
 
       if (TELEMETRY_STREAMING()) {
         if (telemetryState == TELEMETRY_INIT) {
           AUDIO_TELEMETRY_CONNECTED();
-        }
-        else if (telemetryState == TELEMETRY_KO) {
+        } else if (telemetryState == TELEMETRY_KO) {
           AUDIO_TELEMETRY_BACK();
 
 #if defined(CROSSFIRE)
@@ -372,8 +371,7 @@ void telemetryWakeup()
 #endif
         }
         telemetryState = TELEMETRY_OK;
-      }
-      else if (telemetryState == TELEMETRY_OK) {
+      } else if (telemetryState == TELEMETRY_OK) {
         telemetryState = TELEMETRY_KO;
         if (!isModuleInBeepMode()) {
           AUDIO_TELEMETRY_LOST();
