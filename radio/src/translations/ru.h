@@ -455,8 +455,8 @@
 #define TR_PRESSANYKEY                 TR("\010Нажмите любую кнопку", "Нажмите любую кнопку")
 #define TR_BADEEPROMDATA               "Неверные данные EEprom"
 #define TR_BAD_RADIO_DATA              "Отсутствуют радиоданные"
-#define TR_RADIO_DATA_RECOVERED        TR3("Испол резерв наст радио", "Использ резерв настройки радио")
-#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Недейс наст радио", "Недейств настройки радио")
+#define TR_RADIO_DATA_RECOVERED        TR3("Испол резерв настройки радио", "Использ резерв настройки радио", "Настройки радио восстан из резерв копии")
+#define TR_RADIO_DATA_UNRECOVERABLE    TR3("Недейст настройки радио", "Недейств настройки радио", "Не удалось прочитать действ настройки радио")
 #define TR_EEPROMFORMATTING            "Формат EEPROM"
 #define TR_STORAGE_FORMAT              "Формат памяти"
 #define TR_EEPROMOVERFLOW              "EEPROM overflow"
