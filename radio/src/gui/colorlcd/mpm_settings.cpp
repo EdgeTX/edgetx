@@ -20,10 +20,11 @@
  */
 
 #include "mpm_settings.h"
-#include "opentx.h"
 
-#include "multi_rfprotos.h"
+#include "choice.h"
 #include "io/multi_protolist.h"
+#include "multi_rfprotos.h"
+#include "opentx.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -148,9 +149,31 @@ void MPMProtoOption::update(const MultiRfProtocols::RfProto* rfProto, ModuleData
   }
 }
 
+struct MPMSubtypeChoice : public Choice {
+  MPMSubtypeChoice(Window* parent, std::function<int()> get,
+                   std::function<void(int)> set) :
+      Choice(parent, rect_t{}, 0, 0, get, set)
+  {
+  }
+
+  std::string getLabelText() override
+  {
+    if (_getValue) {
+      int val = _getValue();
+      val -= vmin;
+      if (val >= 0 && val < (int)values.size()) {
+        return values[val];
+      } else {
+        return std::to_string(val);
+      }
+    }
+    return std::string();
+  }
+};
+
 struct MPMSubtype : public FormGroup::Line
 {
-  Choice* choice;
+  MPMSubtypeChoice* choice;
 
   MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx);
   void update(const MultiRfProtocols::RfProto* rfProto, uint8_t moduleIdx);
@@ -187,8 +210,9 @@ static void subtype_event_cb(lv_event_t* e)
   if (obj) lv_event_send(obj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
-MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleIdx) :
-  FormGroup::Line(form, layout)
+MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout* layout,
+                       uint8_t moduleIdx) :
+    FormGroup::Line(form, layout)
 {
   this->moduleIdx = moduleIdx;
   this->DSM2lastSubType = g_model.moduleData[this->moduleIdx].subType;
@@ -198,17 +222,18 @@ MPMSubtype::MPMSubtype(FormGroup* form, FlexGridLayout *layout, uint8_t moduleId
   new StaticText(this, rect_t{}, STR_RF_PROTOCOL, 0, COLOR_THEME_PRIMARY1);
 
   auto md = &g_model.moduleData[moduleIdx];
-  choice = new Choice(
-      this, rect_t{}, 0, 0, [=]() { return md->subType; },
+  choice = new MPMSubtypeChoice(
+      this, [=]() { return md->subType; },
       [=](int16_t newValue) {
         md->subType = newValue;
-        if(!DSM2autoUpdated)                        // reset MPM options only if user triggered
+        if (!DSM2autoUpdated)  // reset MPM options only if user triggered
           resetMultiProtocolsOptions(moduleIdx);
-        DSM2autoUpdated = false; 
+        DSM2autoUpdated = false;
         SET_DIRTY();
       });
 
-  lv_obj_add_event_cb(choice->getLvObj(), subtype_event_cb, LV_EVENT_VALUE_CHANGED, lvobj);
+  lv_obj_add_event_cb(choice->getLvObj(), subtype_event_cb,
+                      LV_EVENT_VALUE_CHANGED, lvobj);
 }
 
 void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, uint8_t moduleIdx)
