@@ -24,13 +24,13 @@
 #include "opentx.h"
 #include "switches.h"
 
-static const char * const _suffixes[] = { "-off", "-on" };
+static const char* const _suffixes[] = {"-off", "-on"};
 
 char* getModelAudioPath(char* path)
 {
   strcpy(path, SOUNDS_PATH "/");
   strncpy(path + SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
-  char *buf = strcat_currentmodelname(path + sizeof(SOUNDS_PATH), ' ');
+  char* buf = strcat_currentmodelname(path + sizeof(SOUNDS_PATH), ' ');
 
   if (!isFileAvailable(path)) {
     buf = strcat_currentmodelname(path + sizeof(SOUNDS_PATH), 0);
@@ -49,9 +49,7 @@ void getFlightmodeAudioFile(char* path, int index, unsigned int event)
   strAppend(tmp, SOUNDS_EXT);
 }
 
-static const char * const _sw_positions[] = {
-  "-up", "-mid", "-down"
-};
+static const char* const _sw_positions[] = {"-up", "-mid", "-down"};
 
 bool getSwitchAudioFile(char* path, swsrc_t index)
 {
@@ -63,9 +61,9 @@ bool getSwitchAudioFile(char* path, swsrc_t index)
     if (!sw_name) return false;
     str = strAppend(str, sw_name);
     str = strAppend(str, _sw_positions[swinfo.rem]);
-  }
-  else {
-    div_t swinfo = div((int)(index - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
+  } else {
+    div_t swinfo =
+        div((int)(index - SWSRC_FIRST_MULTIPOS_SWITCH), XPOTS_MULTIPOS_COUNT);
     *str++ = 'S';
     *str++ = '1' + swinfo.quot;
     *str++ = '1' + swinfo.rem;
@@ -75,17 +73,16 @@ bool getSwitchAudioFile(char* path, swsrc_t index)
   return true;
 }
 
-void getLogicalSwitchAudioFile(char * filename, int index, unsigned int event)
+void getLogicalSwitchAudioFile(char* filename, int index, unsigned int event)
 {
-  char * str = getModelAudioPath(filename);
+  char* str = getModelAudioPath(filename);
 
   *str++ = 'L';
   if (index >= 9) {
     div_t qr = div(index + 1, 10);
     *str++ = '0' + qr.quot;
     *str++ = '0' + qr.rem;
-  }
-  else {
+  } else {
     *str++ = '1' + index;
   }
 
@@ -97,8 +94,8 @@ void getLogicalSwitchAudioFile(char * filename, int index, unsigned int event)
 bool matchModeAudioFile(const char* filename, int& index, int& event)
 {
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
-    auto *c = filename;
-    auto *fm_name = g_model.flightModeData[i].name;
+    auto* c = filename;
+    auto* fm_name = g_model.flightModeData[i].name;
     auto fm_name_len = strnlen(fm_name, LEN_FLIGHT_MODE_NAME);
     if (strncasecmp(c, fm_name, fm_name_len) != 0) continue;
     c += fm_name_len;
@@ -119,7 +116,7 @@ bool matchSwitchAudioFile(const char* filename, int& sw_pos)
 {
   // Switches Audio Files <switchname>-[up|mid|down].wav
   for (int i = 0; i < switchGetMaxSwitches(); i++) {
-    auto *c = filename;
+    auto* c = filename;
     auto sw_name = switchGetName(i);
     auto sw_name_len = strlen(sw_name);
     if (strncasecmp(c, sw_name, sw_name_len) != 0) continue;
@@ -145,7 +142,7 @@ bool matchSwitchAudioFile(const char* filename, int& sw_pos)
     uint8_t pos = uint8_t(*c++ - '1');
     if (pos >= XPOTS_MULTIPOS_COUNT) return false;
     if (*c != '.') return false;
-  
+
     for (int i = 0; i < MAX_POTS; i++) {
       if (i != xpot) continue;
       if (!IS_POT_MULTIPOS(i)) continue;

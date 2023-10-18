@@ -19,8 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "gtests.h"
 #include "model_audio.h"
+
+#include "gtests.h"
 
 TEST(ModelAudio, flightModes)
 {
@@ -99,4 +100,3 @@ TEST(ModelAudio, logicalSwitches)
   EXPECT_FALSE(matchLogicalSwitchAudioFile("l24", idx, event));
   EXPECT_FALSE(matchLogicalSwitchAudioFile("l24-o.wav", idx, event));
 }
-

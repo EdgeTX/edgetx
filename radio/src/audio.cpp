@@ -19,14 +19,14 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include <math.h>
 
+#include "opentx.h"
 #include "strhelpers.h"
 #include "switches.h"
 
 #if defined(LIBOPENUI)
-  #include "libopenui.h"
+#include "libopenui.h"
 #endif
 
 #include "model_audio.h"
@@ -313,7 +313,7 @@ void referenceModelAudioFiles()
 {
   DIR dir;
   FILINFO fno;
-  char path[AUDIO_FILENAME_MAXLEN+1];
+  char path[AUDIO_FILENAME_MAXLEN + 1];
 
   sdAvailableFlightmodeAudioFiles.reset();
   sdAvailableSwitchAudioFiles.reset();
@@ -321,11 +321,12 @@ void referenceModelAudioFiles()
 
   getModelAudioPath(path);
 
-  FRESULT res = f_opendir(&dir, path);        /* Open the directory */
+  FRESULT res = f_opendir(&dir, path); /* Open the directory */
   if (res == FR_OK) {
     for (;;) {
-      res = f_readdir(&dir, &fno);                   /* Read a directory item */
-      if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
+      res = f_readdir(&dir, &fno); /* Read a directory item */
+      if (res != FR_OK || fno.fname[0] == 0)
+        break; /* Break on error or end of dir */
       uint8_t len = strlen(fno.fname);
       bool found = false;
 
@@ -333,14 +334,15 @@ void referenceModelAudioFiles()
       if (fno.fattrib & AM_DIR) continue;
       if (len < sizeof(SOUNDS_EXT)) continue;
 
-      char* ext = fno.fname + len - (sizeof(SOUNDS_EXT) - 1);
+      char *ext = fno.fname + len - (sizeof(SOUNDS_EXT) - 1);
       if (strcasecmp(ext, SOUNDS_EXT)) continue;
 
       TRACE("referenceModelAudioFiles(): using file: %s", fno.fname);
 
       int idx, event;
       if (matchModeAudioFile(fno.fname, idx, event)) {
-        sdAvailableFlightmodeAudioFiles.setBit(INDEX_PHASE_AUDIO_FILE(idx, event));
+        sdAvailableFlightmodeAudioFiles.setBit(
+            INDEX_PHASE_AUDIO_FILE(idx, event));
         continue;
       }
 
