@@ -78,30 +78,31 @@ void ScreenMenu::updateTabs(int8_t tabIdx)
   setCurrentTab(tab);
 }
 
-void ScreenMenu::onEvent(event_t event)
-{
 #if defined(HARDWARE_KEYS)
-  if (event == EVT_KEY_BREAK(KEY_MODEL)) {
-    onCancel();
-    new ModelMenu();
-  } else if (event == EVT_KEY_LONG(KEY_MODEL)) {
-    onCancel();
-    killEvents(KEY_MODEL);
-    new ModelLabelsWindow();
-  } else if (event == EVT_KEY_BREAK(KEY_SYS)) {
-    onCancel();
-    new RadioMenu();
-  } else if (event == EVT_KEY_LONG(KEY_SYS)) {
-    onCancel();
-    killEvents(KEY_SYS);
-    // Radio setup
-    (new RadioMenu())->setCurrentTab(2);
-  } else if (event == EVT_KEY_LONG(KEY_TELE)) {
-    onCancel();
-    killEvents(KEY_TELE);
-    new ChannelsViewMenu();
-  } else {
-    TabsGroup::onEvent(event);
-  }
-#endif
+void ScreenMenu::onPressSYS()
+{
+  onCancel();
+  new RadioMenu();
 }
+void ScreenMenu::onLongPressSYS()
+{
+  onCancel();
+  // Radio setup
+  (new RadioMenu())->setCurrentTab(2);
+}
+void ScreenMenu::onPressMDL()
+{
+  onCancel();
+  new ModelMenu();
+}
+void ScreenMenu::onLongPressMDL()
+{
+  onCancel();
+  new ModelLabelsWindow();
+}
+void ScreenMenu::onLongPressTELE()
+{
+  onCancel();
+  new ChannelsViewMenu();
+}
+#endif

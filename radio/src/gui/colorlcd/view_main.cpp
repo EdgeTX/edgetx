@@ -70,7 +70,7 @@ static void tile_view_scroll(lv_event_t* e)
 ViewMain* ViewMain::_instance = nullptr;
 
 ViewMain::ViewMain() :
-    Window(MainWindow::instance(), MainWindow::instance()->getRect(), OPAQUE)
+    NavWindow(MainWindow::instance(), MainWindow::instance()->getRect(), OPAQUE)
 {
   Layer::push(this);
 
@@ -235,71 +235,53 @@ void ViewMain::updateFromTheme()
   }
 }
 
-void ViewMain::onEvent(event_t event)
-{
 #if defined(HARDWARE_KEYS)
-  switch (event) {
-    case EVT_KEY_BREAK(KEY_MODEL):
-      if (viewMainMenu) viewMainMenu->onCancel();
-      new ModelMenu();
-      break;
-
-    case EVT_KEY_LONG(KEY_MODEL):
-      killEvents(KEY_MODEL);
-      if (viewMainMenu) viewMainMenu->onCancel();
-      new ModelLabelsWindow();
-      break;
-
-    case EVT_KEY_BREAK(KEY_SYS):
-      if (viewMainMenu) viewMainMenu->onCancel();
-      new RadioMenu();
-      break;
-
-    case EVT_KEY_LONG(KEY_SYS):
-      killEvents(KEY_SYS);
-      if (viewMainMenu) viewMainMenu->onCancel();
-      // Radio setup
-      (new RadioMenu())->setCurrentTab(2);
-      break;
-
-    case EVT_KEY_BREAK(KEY_TELE):
-      if (viewMainMenu) viewMainMenu->onCancel();
-      new ScreenMenu();
-      break;
-
-    case EVT_KEY_LONG(KEY_TELE):
-      killEvents(KEY_TELE);
-      if (viewMainMenu) viewMainMenu->onCancel();
-      new ChannelsViewMenu();
-      break;
-
-#if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)
-    case EVT_KEY_FIRST(KEY_PAGEDN):
-#else
-    case EVT_KEY_BREAK(KEY_PAGEDN):
-#endif
-      if (!widget_select) {
-        if (viewMainMenu) viewMainMenu->onCancel();
-        nextMainView();
-      }
-      break;
-
-// TODO: these need to go away!
-//  -> board code should map the keys as required
-#if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)
-    case EVT_KEY_FIRST(KEY_PAGEUP):
-#else
-    case EVT_KEY_LONG(KEY_PAGEDN):
-#endif
-      killEvents(event);
-      if (!widget_select) {
-        if (viewMainMenu) viewMainMenu->onCancel();
-        previousMainView();
-      }
-      break;
-  }
-#endif
+void ViewMain::onPressSYS()
+{
+  if (viewMainMenu) viewMainMenu->onCancel();
+  new RadioMenu();
 }
+void ViewMain::onLongPressSYS()
+{
+  if (viewMainMenu) viewMainMenu->onCancel();
+  // Radio setup
+  (new RadioMenu())->setCurrentTab(2);
+}
+void ViewMain::onPressMDL()
+{
+  if (viewMainMenu) viewMainMenu->onCancel();
+  new ModelMenu();
+}
+void ViewMain::onLongPressMDL()
+{
+  if (viewMainMenu) viewMainMenu->onCancel();
+  new ModelLabelsWindow();
+}
+void ViewMain::onPressTELE()
+{
+  if (viewMainMenu) viewMainMenu->onCancel();
+  new ScreenMenu();
+}
+void ViewMain::onLongPressTELE()
+{
+  if (viewMainMenu) viewMainMenu->onCancel();
+  new ChannelsViewMenu();
+}
+void ViewMain::onPressPGUP()
+{
+  if (!widget_select) {
+    if (viewMainMenu) viewMainMenu->onCancel();
+    previousMainView();
+  }
+}
+void ViewMain::onPressPGDN()
+{
+  if (!widget_select) {
+    if (viewMainMenu) viewMainMenu->onCancel();
+    nextMainView();
+  }
+}
+#endif
 
 void ViewMain::onClicked() { openMenu(); }
 

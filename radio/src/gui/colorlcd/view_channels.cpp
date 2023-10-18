@@ -42,41 +42,40 @@ ChannelsViewMenu::ChannelsViewMenu(ModelMenu* parent) :
   addTab(new LogicalSwitchesViewPage());
 }
 
-void ChannelsViewMenu::onEvent(event_t event)
-{
 #if defined(HARDWARE_KEYS)
-  if (event == EVT_KEY_BREAK(KEY_MODEL)) {
-    killEvents(event);
-    onCancel();
-    if (!parentMenu) {
-      new ModelMenu();
-    }
-  } else if (event == EVT_KEY_LONG(KEY_MODEL)) {
-    killEvents(KEY_MODEL);
-    onCancel();
-    if (parentMenu) parentMenu->onCancel();
-    new ModelLabelsWindow();
-  } else if (event == EVT_KEY_BREAK(KEY_SYS)) {
+void ChannelsViewMenu::onPressSYS()
+{
     onCancel();
     if (parentMenu) parentMenu->onCancel();
     new RadioMenu();
-  } else if (event == EVT_KEY_LONG(KEY_SYS)) {
-    killEvents(KEY_SYS);
+}
+void ChannelsViewMenu::onLongPressSYS()
+{
     onCancel();
     if (parentMenu) parentMenu->onCancel();
     // Radio setup
     (new RadioMenu())->setCurrentTab(2);
-  } else if (event == EVT_KEY_BREAK(KEY_TELE)) {
+}
+void ChannelsViewMenu::onPressMDL()
+{
+    onCancel();
+    if (!parentMenu) {
+      new ModelMenu();
+    }
+}
+void ChannelsViewMenu::onLongPressMDL()
+{
+    onCancel();
+    if (parentMenu) parentMenu->onCancel();
+    new ModelLabelsWindow();
+}
+void ChannelsViewMenu::onPressTELE()
+{
     onCancel();
     if (parentMenu) parentMenu->onCancel();
     new ScreenMenu();
-  } else if (event == EVT_KEY_LONG(KEY_TELE)) {
-    killEvents(KEY_TELE);
-  } else {
-    TabsGroup::onEvent(event);
-  }
-#endif
 }
+#endif
 
 class ChannelsViewFooter : public Window
 {

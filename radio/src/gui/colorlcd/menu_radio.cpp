@@ -72,30 +72,27 @@ void RadioMenu::checkEvents()
   }
 }
 
-void RadioMenu::onEvent(event_t event)
-{
 #if defined(HARDWARE_KEYS)
-  if (event == EVT_KEY_BREAK(KEY_MODEL)) {
-    onCancel();
-    new ModelMenu();
-  } else if (event == EVT_KEY_LONG(KEY_MODEL)) {
-    onCancel();
-    killEvents(KEY_MODEL);
-    new ModelLabelsWindow();
-  } else if (event == EVT_KEY_BREAK(KEY_SYS)) {
-    setCurrentTab(0);
-  } else if (event == EVT_KEY_LONG(KEY_SYS)) {
-    killEvents(KEY_SYS);
-    setCurrentTab(2);
-  } else if (event == EVT_KEY_BREAK(KEY_TELE)) {
-    onCancel();
-    new ScreenMenu();
-  } else if (event == EVT_KEY_LONG(KEY_TELE)) {
-    onCancel();
-    killEvents(KEY_TELE);
-    new ChannelsViewMenu();
-  } else {
-    TabsGroup::onEvent(event);
-  }
-#endif
+void RadioMenu::onPressSYS() { setCurrentTab(0); }
+void RadioMenu::onLongPressSYS() { setCurrentTab(2); }
+void RadioMenu::onPressMDL()
+{
+  onCancel();
+  new ModelMenu();
 }
+void RadioMenu::onLongPressMDL()
+{
+  onCancel();
+  new ModelLabelsWindow();
+}
+void RadioMenu::onPressTELE()
+{
+  onCancel();
+  new ScreenMenu();
+}
+void RadioMenu::onLongPressTELE()
+{
+  onCancel();
+  new ChannelsViewMenu();
+}
+#endif

@@ -97,33 +97,6 @@ void ModelMenu::checkEvents()
   }
 }
 
-void ModelMenu::onEvent(event_t event)
-{
-#if defined(HARDWARE_KEYS)
-  if ((event == EVT_KEY_BREAK(KEY_MODEL)) || (event == EVT_KEY_LONG(KEY_TELE))) {
-    killEvents(event);
-    new ChannelsViewMenu(this);
-  } else if (event == EVT_KEY_LONG(KEY_MODEL)) {
-    killEvents(KEY_MODEL);
-    onCancel();
-    new ModelLabelsWindow();
-  } else if (event == EVT_KEY_BREAK(KEY_SYS)) {
-    onCancel();
-    new RadioMenu();
-  } else if (event == EVT_KEY_LONG(KEY_SYS)) {
-    onCancel();
-    killEvents(KEY_SYS);
-    // Radio setup
-    (new RadioMenu())->setCurrentTab(2);
-  } else if (event == EVT_KEY_BREAK(KEY_TELE)) {
-    onCancel();
-    new ScreenMenu();
-  } else {
-    TabsGroup::onEvent(event);
-  }
-#endif
-}
-
 #if defined(PCBNV14) || defined(PCBPL18)
 void ModelMenu::addGoToMonitorsButton()
 {
@@ -135,4 +108,30 @@ void ModelMenu::addGoToMonitorsButton()
         return 0;
       });
 }
+#endif
+
+#if defined(HARDWARE_KEYS)
+void ModelMenu::onPressSYS()
+{
+  onCancel();
+  new RadioMenu();
+}
+void ModelMenu::onLongPressSYS()
+{
+  onCancel();
+  // Radio setup
+  (new RadioMenu())->setCurrentTab(2);
+}
+void ModelMenu::onPressMDL() { new ChannelsViewMenu(this); }
+void ModelMenu::onLongPressMDL()
+{
+  onCancel();
+  new ModelLabelsWindow();
+}
+void ModelMenu::onPressTELE()
+{
+  onCancel();
+  new ScreenMenu();
+}
+void ModelMenu::onLongPressTELE() { new ChannelsViewMenu(this); }
 #endif

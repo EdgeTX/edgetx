@@ -29,5 +29,12 @@ class ScreenMenu : public TabsGroup
   ScreenMenu(int8_t tabIdx = -1);
   void updateTabs(int8_t tabIdx);
 
-  void onEvent(event_t event) override;
+ protected:
+#if defined(HARDWARE_KEYS)
+  void onPressSYS() override;
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onLongPressTELE() override;
+#endif
 };

@@ -663,56 +663,57 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
 }
 
 #if defined(HARDWARE_KEYS)
-void ModelLabelsWindow::onEvent(event_t event)
+void ModelLabelsWindow::onPressSYS()
 {
-#if defined(KEYS_GPIO_REG_PAGEUP)
-  if (event == EVT_KEY_BREAK(KEY_PAGEUP) ||
-      event == EVT_KEY_BREAK(KEY_PAGEDN)) {
-#else
-  if (event == EVT_KEY_LONG(KEY_PAGEDN) || event == EVT_KEY_BREAK(KEY_PAGEDN)) {
-#endif
-    std::set<uint32_t> curSel = lblselector->getSelection();
-    std::set<uint32_t> sellist;
-    int select = 0;
-    int rowcount = lblselector->getRowCount();
-
-    if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
-      if (curSel.size()) select = (*curSel.rbegin() + 1) % rowcount;
-    } else {
-      killEvents(event);
-      if (curSel.size()) {
-        select = (int)*curSel.begin() - 1;
-        if (select < 0) select += rowcount;
-      } else {
-        select = rowcount - 1;
-      }
-    }
-    sellist.insert(select);
-    lblselector->setSelected(sellist);  // Check the items
-    lblselector->setSelected(select);   // Causes the list to scroll
-    updateFilteredLabels(sellist);      // Update the models
-  } else if (event == EVT_KEY_BREAK(KEY_MODEL)) {
-    onCancel();
-    new ModelMenu();
-  } else if (event == EVT_KEY_BREAK(KEY_SYS)) {
-    onCancel();
-    new RadioMenu();
-  } else if (event == EVT_KEY_LONG(KEY_SYS)) {
-    onCancel();
-    killEvents(KEY_SYS);
-    // Radio setup
-    (new RadioMenu())->setCurrentTab(2);
-  } else if (event == EVT_KEY_BREAK(KEY_TELE)) {
-    onCancel();
-    new ScreenMenu();
-  } else if (event == EVT_KEY_LONG(KEY_TELE)) {
-    onCancel();
-    killEvents(KEY_TELE);
-    new ChannelsViewMenu();
-  } else {
-    Page::onEvent(event);
-  }
+  onCancel();
+  new RadioMenu();
 }
+void ModelLabelsWindow::onLongPressSYS()
+{
+  onCancel();
+  // Radio setup
+  (new RadioMenu())->setCurrentTab(2);
+}
+void ModelLabelsWindow::onPressMDL()
+{
+  onCancel();
+  new ModelMenu();
+}
+void ModelLabelsWindow::onPressTELE()
+{
+  onCancel();
+  new ScreenMenu();
+}
+void ModelLabelsWindow::onLongPressTELE()
+{
+  onCancel();
+  new ChannelsViewMenu();
+}
+void ModelLabelsWindow::onPressPG(bool isNext)
+{
+  std::set<uint32_t> curSel = lblselector->getSelection();
+  std::set<uint32_t> sellist;
+  int select = 0;
+  int rowcount = lblselector->getRowCount();
+
+  if (isNext) {
+    if (curSel.size()) select = (*curSel.rbegin() + 1) % rowcount;
+  } else {
+    if (curSel.size()) {
+      select = (int)*curSel.begin() - 1;
+      if (select < 0) select += rowcount;
+    } else {
+      select = rowcount - 1;
+    }
+  }
+
+  sellist.insert(select);
+  lblselector->setSelected(sellist);  // Check the items
+  lblselector->setSelected(select);   // Causes the list to scroll
+  updateFilteredLabels(sellist);      // Update the models
+}
+void ModelLabelsWindow::onPressPGUP() { onPressPG(false); }
+void ModelLabelsWindow::onPressPGDN() { onPressPG(true); }
 #endif
 
 void ModelLabelsWindow::newModel()

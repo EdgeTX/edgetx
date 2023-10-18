@@ -18,216 +18,212 @@
 
 #pragma once
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
+#include <functional>
 #include <list>
 #include <string>
 #include <utility>
-#include <functional>
 
+#include "LvglWrapper.h"
 #include "bitmapbuffer.h"
 #include "libopenui_defines.h"
 #include "opentx_helpers.h"
-
 #include "widgets/etx_obj_create.h"
-
-#include "LvglWrapper.h"
 
 typedef uint32_t WindowFlags;
 
 #if !defined(_GNUC_)
-  #undef OPAQUE
-  #undef TRANSPARENT
+#undef OPAQUE
+#undef TRANSPARENT
 #endif
 
-constexpr WindowFlags OPAQUE =                1u << 0u;
-constexpr WindowFlags TRANSPARENT =           1u << 1u;
-constexpr WindowFlags NO_FOCUS =              1u << 2u;
-constexpr WindowFlags REFRESH_ALWAYS =        1u << 3u;
-constexpr WindowFlags WINDOW_FLAGS_LAST =  REFRESH_ALWAYS;
+constexpr WindowFlags OPAQUE = 1u << 0u;
+constexpr WindowFlags TRANSPARENT = 1u << 1u;
+constexpr WindowFlags NO_FOCUS = 1u << 2u;
+constexpr WindowFlags REFRESH_ALWAYS = 1u << 3u;
+constexpr WindowFlags WINDOW_FLAGS_LAST = REFRESH_ALWAYS;
 
 typedef lv_obj_t *(*LvglCreate)(lv_obj_t *);
-extern "C" void window_event_cb(lv_event_t * e);
+extern "C" void window_event_cb(lv_event_t *e);
 
 class Window
 {
-    friend void window_event_cb(lv_event_t * e);
+  friend void window_event_cb(lv_event_t *e);
 
-  public:
-    Window(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
-           LcdFlags textFlags = 0, LvglCreate objConstruct = nullptr);
+ public:
+  Window(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
+         LcdFlags textFlags = 0, LvglCreate objConstruct = nullptr);
 
-    Window(Window *parent, lv_obj_t* lvobj);
+  Window(Window *parent, lv_obj_t *lvobj);
 
-    virtual ~Window();
+  virtual ~Window();
 
 #if defined(DEBUG_WINDOWS)
-    virtual std::string getName() const;
-    std::string getRectString() const;
-    std::string getIndentString() const;
-    std::string getWindowDebugString(const char * name = nullptr) const;
+  virtual std::string getName() const;
+  std::string getRectString() const;
+  std::string getIndentString() const;
+  std::string getWindowDebugString(const char *name = nullptr) const;
 #endif
 
-    Window *getParent() const { return parent; }
+  Window *getParent() const { return parent; }
 
-    Window *getFullScreenWindow();
+  Window *getFullScreenWindow();
 
-    WindowFlags getWindowFlags() const { return windowFlags; }
-    void setWindowFlags(WindowFlags flags);
+  WindowFlags getWindowFlags() const { return windowFlags; }
+  void setWindowFlags(WindowFlags flags);
 
-    LcdFlags getTextFlags() const { return textFlags; }
-    void setTextFlags(LcdFlags flags);
+  LcdFlags getTextFlags() const { return textFlags; }
+  void setTextFlags(LcdFlags flags);
 
-    typedef std::function<void()> CloseHandler;
-    void setCloseHandler(CloseHandler h) { closeHandler = std::move(h); }
+  typedef std::function<void()> CloseHandler;
+  void setCloseHandler(CloseHandler h) { closeHandler = std::move(h); }
 
-    typedef std::function<void(bool)> FocusHandler;
-    void setFocusHandler(FocusHandler h) { focusHandler = std::move(h); }
+  typedef std::function<void(bool)> FocusHandler;
+  void setFocusHandler(FocusHandler h) { focusHandler = std::move(h); }
 
-    void clear();
-    virtual void deleteLater(bool detach = true, bool trash = true);
+  void clear();
+  virtual void deleteLater(bool detach = true, bool trash = true);
 
-    bool hasFocus() const;
+  bool hasFocus() const;
 
-    void setRect(rect_t value)
-    {
-      rect = value;
-      lv_obj_enable_style_refresh(false);
-      lv_obj_set_pos(lvobj, rect.x, rect.y);
-      lv_obj_set_size(lvobj, rect.w, rect.h);
-      lv_obj_enable_style_refresh(true);
-      lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
-    }
+  void setRect(rect_t value)
+  {
+    rect = value;
+    lv_obj_enable_style_refresh(false);
+    lv_obj_set_pos(lvobj, rect.x, rect.y);
+    lv_obj_set_size(lvobj, rect.w, rect.h);
+    lv_obj_enable_style_refresh(true);
+    lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
+  }
 
-    void setWidth(coord_t value)
-    {
-      rect.w = value;
-      lv_obj_set_width(lvobj, rect.w);
-    }
+  void setWidth(coord_t value)
+  {
+    rect.w = value;
+    lv_obj_set_width(lvobj, rect.w);
+  }
 
-    void setHeight(coord_t value)
-    {
-      rect.h = value;
-      lv_obj_set_height(lvobj, rect.h);
-    }
+  void setHeight(coord_t value)
+  {
+    rect.h = value;
+    lv_obj_set_height(lvobj, rect.h);
+  }
 
-    void setLeft(coord_t x)
-    {
-      rect.x = x;
-      lv_obj_set_pos(lvobj, rect.x, rect.y);
-    }
+  void setLeft(coord_t x)
+  {
+    rect.x = x;
+    lv_obj_set_pos(lvobj, rect.x, rect.y);
+  }
 
-    void setTop(coord_t y)
-    {
-      rect.y = y;
-      lv_obj_set_pos(lvobj, rect.x, rect.y);
-    }
+  void setTop(coord_t y)
+  {
+    rect.y = y;
+    lv_obj_set_pos(lvobj, rect.x, rect.y);
+  }
 
-    coord_t left() const
-    {
-      return rect.x;
-    }
+  coord_t left() const { return rect.x; }
 
-    coord_t right() const
-    {
-      return rect.x + rect.w;
-    }
+  coord_t right() const { return rect.x + rect.w; }
 
-    coord_t top() const
-    {
-      return rect.y;
-    }
+  coord_t top() const { return rect.y; }
 
-    coord_t bottom() const
-    {
-      return rect.y + rect.h;
-    }
+  coord_t bottom() const { return rect.y + rect.h; }
 
-    coord_t width() const
-    {
-      return rect.w;
-    }
+  coord_t width() const { return rect.w; }
 
-    coord_t height() const
-    {
-      return rect.h;
-    }
+  coord_t height() const { return rect.h; }
 
-    rect_t getRect() const
-    {
-      return rect;
-    }
+  rect_t getRect() const { return rect; }
 
-    void padLeft(coord_t pad);
-    void padRight(coord_t pad);
-    void padTop(coord_t pad);
-    void padBottom(coord_t pad);
-    void padAll(coord_t pad);
+  void padLeft(coord_t pad);
+  void padRight(coord_t pad);
+  void padTop(coord_t pad);
+  void padBottom(coord_t pad);
+  void padAll(coord_t pad);
 
-    void padRow(coord_t pad);
-    void padColumn(coord_t pad);
+  void padRow(coord_t pad);
+  void padColumn(coord_t pad);
 
-    virtual void onEvent(event_t event);
-    virtual void onClicked();
-    virtual void onCancel();
+  virtual void onEvent(event_t event);
+  virtual void onClicked();
+  virtual void onCancel();
 
-    virtual void updateSize();
+  virtual void updateSize();
 
-    void invalidate()
-    {
-      invalidate({0, 0, rect.w, rect.h});
-    }
+  void invalidate() { invalidate({0, 0, rect.w, rect.h}); }
 
-    void bringToTop();
+  void bringToTop();
 
-    virtual void checkEvents();
+  virtual void checkEvents();
 
-    void attach(Window * window);
+  void attach(Window *window);
 
-    void detach();
+  void detach();
 
-    bool deleted() const
-    {
-      return _deleted;
-    }
+  bool deleted() const { return _deleted; }
 
-    virtual void paint(BitmapBuffer *) {}
+  virtual void paint(BitmapBuffer *) {}
 
 #if defined(HARDWARE_TOUCH)
-    virtual bool onTouchStart(coord_t x, coord_t y);
-    virtual bool onTouchEnd(coord_t x, coord_t y);
+  virtual bool onTouchStart(coord_t x, coord_t y);
+  virtual bool onTouchEnd(coord_t x, coord_t y);
 #endif
-  
-    inline lv_obj_t *getLvObj() { return lvobj; }
 
-    virtual bool isTopBar() { return false; }
-    virtual bool isWidgetsContainer() { return false; }
+  inline lv_obj_t *getLvObj() { return lvobj; }
 
-    virtual bool isBubblePopup() { return false; }
+  virtual bool isTopBar() { return false; }
+  virtual bool isWidgetsContainer() { return false; }
 
-  protected:
-    static std::list<Window*> trash;
+  virtual bool isBubblePopup() { return false; }
 
-    rect_t rect;
+ protected:
+  static std::list<Window *> trash;
 
-    Window*   parent = nullptr;
-    lv_obj_t* lvobj = nullptr;
+  rect_t rect;
 
-    std::list<Window *> children;
+  Window *parent = nullptr;
+  lv_obj_t *lvobj = nullptr;
 
-    WindowFlags windowFlags = 0;
-    LcdFlags    textFlags = 0;
+  std::list<Window *> children;
 
-    bool _deleted = false;
+  WindowFlags windowFlags = 0;
+  LcdFlags textFlags = 0;
 
-    std::function<void()> closeHandler;
-    std::function<void(bool)> focusHandler;
+  bool _deleted = false;
 
-    void deleteChildren();
+  std::function<void()> closeHandler;
+  std::function<void(bool)> focusHandler;
 
-    virtual void addChild(Window * window);
-    void removeChild(Window * window);
+  void deleteChildren();
 
-    virtual void invalidate(const rect_t & rect);
+  virtual void addChild(Window *window);
+  void removeChild(Window *window);
+
+  virtual void invalidate(const rect_t &rect);
+};
+
+class NavWindow : public Window
+{
+ public:
+  NavWindow(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
+            LcdFlags textFlags = 0, LvglCreate objConstruct = nullptr) :
+      Window(parent, rect, windowFlags, textFlags, objConstruct)
+  {
+  }
+
+ protected:
+#if defined(HARDWARE_KEYS)
+  virtual void onPressSYS() {}
+  virtual void onLongPressSYS() {}
+  virtual void onPressMDL() {}
+  virtual void onLongPressMDL() {}
+  virtual void onPressTELE() {}
+  virtual void onLongPressTELE() {}
+  virtual void onPressPGUP() {}
+  virtual void onPressPGDN() {}
+#endif
+  virtual bool bubbleEvents() { return true; }
+  void onEvent(event_t event) override;
 };
