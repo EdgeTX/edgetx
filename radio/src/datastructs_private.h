@@ -964,11 +964,7 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t  stickDeadZoneSpare:3 SKIP);
 #endif
 
-#if defined(AUDIO_MUTE_GPIO)
   NOBACKUP(uint8_t  audioMuteEnable:1);
-#else
-  NOBACKUP(uint8_t  spare4:1 SKIP);
-#endif
 
 #if defined(IMU)
   NOBACKUP(int8_t imuMax);
