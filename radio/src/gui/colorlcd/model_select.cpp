@@ -29,10 +29,12 @@
 #include "listbox.h"
 #include "menu_model.h"
 #include "menu_radio.h"
+#include "menu_screen.h"
 #include "model_templates.h"
 #include "opentx.h"
 #include "standalone_lua.h"
 #include "str_functions.h"
+#include "view_channels.h"
 
 // bitmaps for toolbar
 const uint8_t _mask_sort_alpha_up[] = {
@@ -700,6 +702,13 @@ void ModelLabelsWindow::onEvent(event_t event)
     killEvents(KEY_SYS);
     // Radio setup
     (new RadioMenu())->setCurrentTab(2);
+  } else if (event == EVT_KEY_BREAK(KEY_TELE)) {
+    onCancel();
+    new ScreenMenu();
+  } else if (event == EVT_KEY_LONG(KEY_TELE)) {
+    onCancel();
+    killEvents(KEY_TELE);
+    new ChannelsViewMenu();
   } else {
     Page::onEvent(event);
   }

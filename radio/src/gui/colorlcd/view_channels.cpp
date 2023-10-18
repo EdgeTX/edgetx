@@ -25,6 +25,7 @@
 #include "libopenui.h"
 #include "menu_model.h"
 #include "menu_radio.h"
+#include "menu_screen.h"
 #include "model_select.h"
 #include "opentx.h"
 #include "view_logical_switches.h"
@@ -65,6 +66,12 @@ void ChannelsViewMenu::onEvent(event_t event)
     if (parentMenu) parentMenu->onCancel();
     // Radio setup
     (new RadioMenu())->setCurrentTab(2);
+  } else if (event == EVT_KEY_BREAK(KEY_TELE)) {
+    onCancel();
+    if (parentMenu) parentMenu->onCancel();
+    new ScreenMenu();
+  } else if (event == EVT_KEY_LONG(KEY_TELE)) {
+    killEvents(KEY_TELE);
   } else {
     TabsGroup::onEvent(event);
   }

@@ -20,15 +20,16 @@
  */
 
 #include "view_main.h"
-#include "model_select.h"
+
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
-#include "topbar_impl.h"
-#include "view_main_menu.h"
-#include "theme.h"
-
+#include "model_select.h"
 #include "opentx.h"
+#include "theme.h"
+#include "topbar_impl.h"
+#include "view_channels.h"
+#include "view_main_menu.h"
 
 static void tile_view_deleted_cb(lv_event_t* e)
 {
@@ -38,7 +39,9 @@ static void tile_view_deleted_cb(lv_event_t* e)
 
   // LV_EVENT_CHILD_DELETED is bubbled to all parents, so
   // we'd better make sure this is one of our own.
-  if (obj == target) { lv_obj_del(obj); }
+  if (obj == target) {
+    lv_obj_del(obj);
+  }
 }
 
 static void saveViewId(unsigned view)
@@ -64,10 +67,10 @@ static void tile_view_scroll(lv_event_t* e)
   }
 }
 
-ViewMain * ViewMain::_instance = nullptr;
+ViewMain* ViewMain::_instance = nullptr;
 
-ViewMain::ViewMain():
-  Window(MainWindow::instance(), MainWindow::instance()->getRect(), OPAQUE)
+ViewMain::ViewMain() :
+    Window(MainWindow::instance(), MainWindow::instance()->getRect(), OPAQUE)
 {
   Layer::push(this);
 
@@ -81,17 +84,16 @@ ViewMain::ViewMain():
   lv_obj_add_flag(tile_view, LV_OBJ_FLAG_EVENT_BUBBLE);
   lv_obj_set_user_data(tile_view, this);
   lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL, nullptr);
-  lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL_END, nullptr);
-  lv_obj_add_event_cb(lvobj, ViewMain::long_pressed, LV_EVENT_LONG_PRESSED, nullptr);
-  
+  lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL_END,
+                      nullptr);
+  lv_obj_add_event_cb(lvobj, ViewMain::long_pressed, LV_EVENT_LONG_PRESSED,
+                      nullptr);
+
   // create last to be on top
   topbar = TopbarFactory::create(this);
 }
 
-ViewMain::~ViewMain()
-{
-  _instance = nullptr;
-}
+ViewMain::~ViewMain() { _instance = nullptr; }
 
 void ViewMain::deleteLater(bool detach, bool trash)
 {
@@ -103,19 +105,18 @@ void ViewMain::addMainView(Window* view, uint32_t viewId)
 {
   TRACE("addMainView(0x%p, %d)", view, viewId);
 
-  auto tile = lv_tileview_add_tile(tile_view, viewId, 0, LV_DIR_LEFT | LV_DIR_RIGHT);
+  auto tile =
+      lv_tileview_add_tile(tile_view, viewId, 0, LV_DIR_LEFT | LV_DIR_RIGHT);
 
   auto view_obj = view->getLvObj();
   lv_obj_set_parent(view_obj, tile);
 
   auto user_data = (void*)(intptr_t)viewId;
-  lv_obj_add_event_cb(tile, tile_view_deleted_cb, LV_EVENT_CHILD_DELETED, user_data);
+  lv_obj_add_event_cb(tile, tile_view_deleted_cb, LV_EVENT_CHILD_DELETED,
+                      user_data);
 }
 
-void ViewMain::setTopbarVisible(float visible)
-{
-  topbar->setVisible(visible);
-}
+void ViewMain::setTopbarVisible(float visible) { topbar->setVisible(visible); }
 
 unsigned ViewMain::getMainViewsCount() const
 {
@@ -127,7 +128,7 @@ rect_t ViewMain::getMainZone(rect_t zone, bool hasTopbar) const
   auto visibleHeight = topbar->getVisibleHeight(hasTopbar ? 1.0 : 0.0);
   zone.y += visibleHeight;
   zone.h -= visibleHeight;
-  
+
   return zone;
 }
 
@@ -141,16 +142,12 @@ void ViewMain::setCurrentMainView(unsigned viewId)
   lv_obj_set_tile_id(tile_view, viewId, 0, LV_ANIM_OFF);
 }
 
-void setRequestedMainView(uint8_t view)
-{
-  g_model.view = view;
-}
+void setRequestedMainView(uint8_t view) { g_model.view = view; }
 
 void ViewMain::nextMainView()
 {
   auto view = getCurrentMainView();
-  if (++view >= getMainViewsCount())
-    view = 0;
+  if (++view >= getMainViewsCount()) view = 0;
 
   setCurrentMainView(view);
   saveViewId(view);
@@ -160,7 +157,7 @@ void ViewMain::previousMainView()
 {
   auto view = getCurrentMainView();
   if (view > 0)
-    view--;  
+    view--;
   else
     view = getMainViewsCount() - 1;
 
@@ -168,10 +165,7 @@ void ViewMain::previousMainView()
   saveViewId(view);
 }
 
-TopBar* ViewMain::getTopbar()
-{
-  return topbar;
-}
+TopBar* ViewMain::getTopbar() { return topbar; }
 
 static bool hasTopbar(unsigned view)
 {
@@ -205,34 +199,30 @@ void ViewMain::updateTopbarVisibility()
   coord_t pageWidth = width();
   if (!pageWidth) return;
 
-  int leftScroll =  scrollPos % width();
+  int leftScroll = scrollPos % width();
   if (leftScroll == 0) {
     int view = scrollPos / pageWidth;
     setTopbarVisible(hasTopbar(view));
-    if (customScreens[view])
-      customScreens[view]->adjustLayout();
-  }
-  else {
-    int  leftIdx     = scrollPos / pageWidth;
-    bool leftTopbar  = hasTopbar(leftIdx);
-    bool rightTopbar = hasTopbar(leftIdx+1);
+    if (customScreens[view]) customScreens[view]->adjustLayout();
+  } else {
+    int leftIdx = scrollPos / pageWidth;
+    bool leftTopbar = hasTopbar(leftIdx);
+    bool rightTopbar = hasTopbar(leftIdx + 1);
 
     if (leftTopbar != rightTopbar) {
-
       float ratio = (float)leftScroll / (float)pageWidth;
 
       if (leftTopbar) {
         // scrolling from a screen with Topbar
         ratio = 1.0 - ratio;
-      }
-      else {
+      } else {
         // scrolling to a screen with Topbar
         // -> ratio is ok
       }
 
       setTopbarVisible(ratio);
       customScreens[leftIdx]->adjustLayout();
-      customScreens[leftIdx+1]->adjustLayout();
+      customScreens[leftIdx + 1]->adjustLayout();
     }
   }
 }
@@ -241,8 +231,7 @@ void ViewMain::updateTopbarVisibility()
 void ViewMain::updateFromTheme()
 {
   for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
-    if (customScreens[i])
-      customScreens[i]->updateFromTheme();
+    if (customScreens[i]) customScreens[i]->updateFromTheme();
   }
 }
 
@@ -273,9 +262,15 @@ void ViewMain::onEvent(event_t event)
       (new RadioMenu())->setCurrentTab(2);
       break;
 
-    case EVT_KEY_FIRST(KEY_TELE):
+    case EVT_KEY_BREAK(KEY_TELE):
       if (viewMainMenu) viewMainMenu->onCancel();
       new ScreenMenu();
+      break;
+
+    case EVT_KEY_LONG(KEY_TELE):
+      killEvents(KEY_TELE);
+      if (viewMainMenu) viewMainMenu->onCancel();
+      new ChannelsViewMenu();
       break;
 
 #if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)
@@ -289,8 +284,8 @@ void ViewMain::onEvent(event_t event)
       }
       break;
 
-//TODO: these need to go away!
-// -> board code should map the keys as required
+// TODO: these need to go away!
+//  -> board code should map the keys as required
 #if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)
     case EVT_KEY_FIRST(KEY_PAGEUP):
 #else
@@ -306,10 +301,7 @@ void ViewMain::onEvent(event_t event)
 #endif
 }
 
-void ViewMain::onClicked()
-{
-  openMenu();
-}
+void ViewMain::onClicked() { openMenu(); }
 
 void ViewMain::onCancel()
 {
@@ -335,12 +327,10 @@ bool ViewMain::enableWidgetSelect(bool enable)
   widget_select = enable;
 
   lv_obj_t* tile = lv_tileview_get_tile_act(tile_view);
-  if(!tile)
-    return true;
+  if (!tile) return true;
 
   auto cont_obj = lv_obj_get_child(tile, 0);
-  if(!cont_obj)
-    return true;
+  if (!cont_obj) return true;
 
   auto cont = (WidgetsContainer*)lv_obj_get_user_data(cont_obj);
 
@@ -376,15 +366,13 @@ bool ViewMain::enableWidgetSelect(bool enable)
 
 void ViewMain::openMenu()
 {
-  viewMainMenu = new ViewMainMenu(this, [=]() {
-    viewMainMenu = nullptr;
-  });
+  viewMainMenu = new ViewMainMenu(this, [=]() { viewMainMenu = nullptr; });
 }
 
-void ViewMain::paint(BitmapBuffer * dc)
+void ViewMain::paint(BitmapBuffer* dc)
 {
   TRACE_WINDOWS("### ViewMain::paint(offset_x=%d;offset_y=%d) ###",
-        dc->getOffsetX(), dc->getOffsetY());
+                dc->getOffsetX(), dc->getOffsetY());
 
   // TODO: set it as "window background" w/ LVGL
   EdgeTxTheme::instance()->drawBackground(dc);

@@ -22,6 +22,7 @@
 #include "menu_model.h"
 
 #include "menu_radio.h"
+#include "menu_screen.h"
 #include "model_curves.h"
 #include "model_flightmodes.h"
 #include "model_gvars.h"
@@ -99,7 +100,7 @@ void ModelMenu::checkEvents()
 void ModelMenu::onEvent(event_t event)
 {
 #if defined(HARDWARE_KEYS)
-  if (event == EVT_KEY_BREAK(KEY_MODEL)) {
+  if ((event == EVT_KEY_BREAK(KEY_MODEL)) || (event == EVT_KEY_LONG(KEY_TELE))) {
     killEvents(event);
     new ChannelsViewMenu(this);
   } else if (event == EVT_KEY_LONG(KEY_MODEL)) {
@@ -114,6 +115,9 @@ void ModelMenu::onEvent(event_t event)
     killEvents(KEY_SYS);
     // Radio setup
     (new RadioMenu())->setCurrentTab(2);
+  } else if (event == EVT_KEY_BREAK(KEY_TELE)) {
+    onCancel();
+    new ScreenMenu();
   } else {
     TabsGroup::onEvent(event);
   }
