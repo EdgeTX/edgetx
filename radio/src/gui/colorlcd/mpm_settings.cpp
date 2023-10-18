@@ -20,11 +20,11 @@
  */
 
 #include "mpm_settings.h"
-#include "choice.h"
-#include "opentx.h"
 
-#include "multi_rfprotos.h"
+#include "choice.h"
 #include "io/multi_protolist.h"
+#include "multi_rfprotos.h"
+#include "opentx.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -210,8 +210,9 @@ static void subtype_event_cb(lv_event_t* e)
   if (obj) lv_event_send(obj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
-MPMSubtype::MPMSubtype(FormWindow* form, FlexGridLayout *layout, uint8_t moduleIdx) :
-  FormWindow::Line(form, layout)
+MPMSubtype::MPMSubtype(FormWindow* form, FlexGridLayout* layout,
+                       uint8_t moduleIdx) :
+    FormWindow::Line(form, layout)
 {
   this->moduleIdx = moduleIdx;
   this->DSM2lastSubType = g_model.moduleData[this->moduleIdx].subType;
@@ -225,13 +226,14 @@ MPMSubtype::MPMSubtype(FormWindow* form, FlexGridLayout *layout, uint8_t moduleI
       this, [=]() { return md->subType; },
       [=](int16_t newValue) {
         md->subType = newValue;
-        if(!DSM2autoUpdated)                     // reset MPM options only if user triggered
+        if (!DSM2autoUpdated)  // reset MPM options only if user triggered
           resetMultiProtocolsOptions(moduleIdx);
-        DSM2autoUpdated = false; 
+        DSM2autoUpdated = false;
         SET_DIRTY();
       });
 
-  lv_obj_add_event_cb(choice->getLvObj(), subtype_event_cb, LV_EVENT_VALUE_CHANGED, lvobj);
+  lv_obj_add_event_cb(choice->getLvObj(), subtype_event_cb,
+                      LV_EVENT_VALUE_CHANGED, lvobj);
 }
 
 void MPMSubtype::update(const MultiRfProtocols::RfProto* rfProto, uint8_t moduleIdx)
