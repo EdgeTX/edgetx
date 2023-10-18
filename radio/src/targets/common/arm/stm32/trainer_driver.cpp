@@ -303,6 +303,8 @@ extern "C" void TRAINER_TIMER_IRQHandler()
 
 #if defined(TRAINER_MODULE_CPPM)
 
+#include "hal/module_port.h"
+
 static_assert(__IS_TRAINER_TIMER_IN_CHANNEL_SUPPORTED(TRAINER_MODULE_CPPM_TIMER_Channel),
               "Unsupported trainer timer input channel");
 
@@ -323,12 +325,14 @@ static const stm32_pulse_timer_t trainerModuleTimer = {
 
 void init_trainer_module_cppm()
 {
+  modulePortSetPower(EXTERNAL_MODULE,true);
   _init_trainer_capture(&trainerModuleTimer);
 }
 
 void stop_trainer_module_cppm()
 {
   _stop_trainer(&trainerModuleTimer);
+  modulePortSetPower(EXTERNAL_MODULE,false);
 }
 
 #if defined(TRAINER_MODULE_CPPM_TIMER_IRQHandler)
@@ -362,6 +366,7 @@ static etx_module_state_t* sbus_trainer_mod_st = nullptr;
 void init_trainer_module_sbus()
 {
   if (sbus_trainer_mod_st) return;
+  modulePortSetPower(EXTERNAL_MODULE,true);
 
   sbus_trainer_mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_UART,
                                              &sbusTrainerParams);
@@ -371,6 +376,8 @@ void stop_trainer_module_sbus()
 {
   if (!sbus_trainer_mod_st) return;
   modulePortDeInit(sbus_trainer_mod_st);
+  modulePortSetPower(EXTERNAL_MODULE,false);
+  sbus_trainer_mod_st = nullptr;
 }
 
 int trainerModuleSbusGetByte(uint8_t* data)
