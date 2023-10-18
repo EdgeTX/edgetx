@@ -5974,7 +5974,7 @@ Mode 4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2491"/>
         <source>PPM Units</source>
-        <translation>PPM enheter</translation>
+        <translation>PPM-enheter</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2498"/>
