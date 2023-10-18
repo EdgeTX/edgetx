@@ -1115,7 +1115,7 @@ void MdiChild::insert()
 
 void MdiChild::edit()
 {
-  onItemActivated(getCurrentIndex());
+  onItemActivated(ui->modelsList->selectionModel()->currentIndex());
 }
 
 void MdiChild::confirmDelete()
