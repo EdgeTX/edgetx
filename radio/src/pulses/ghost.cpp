@@ -252,4 +252,6 @@ const etx_proto_driver_t GhostDriver = {
   .deinit = ghostDeInit,
   .sendPulses = ghostSendPulses,
   .processData = ghostProcessData,
+  .processFrame = nullptr,
+  .onConfigChange = nullptr,
 };

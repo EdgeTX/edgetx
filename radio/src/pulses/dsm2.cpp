@@ -296,6 +296,7 @@ const etx_proto_driver_t DSM2Driver = {
   .deinit = dsmDeInit,
   .sendPulses = dsm2SendPulses,
   .processData = nullptr,
+  .processFrame = nullptr,
   .onConfigChange = dsm2ConfigChange,
 };
 
@@ -305,5 +306,6 @@ const etx_proto_driver_t DSMPDriver = {
   .deinit = dsmDeInit,
   .sendPulses = dsmpSendPulses,
   .processData = dsmpProcessData,
+  .processFrame = nullptr,
   .onConfigChange = nullptr,
 };

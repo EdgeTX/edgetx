@@ -219,5 +219,6 @@ const etx_proto_driver_t PpmDriver = {
   .deinit = ppmDeInit,
   .sendPulses = ppmSendPulses,
   .processData = ppmProcessTelemetryData,
+  .processFrame = nullptr,
   .onConfigChange = ppmOnConfigChange,
 };

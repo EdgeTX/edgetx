@@ -119,7 +119,7 @@ static void _fs_parse(STRUCT_HALL *hallBuffer, unsigned char ch)
 
 static volatile bool _fs_gimbal_detected;
 
-static void flysky_gimbal_loop()
+static void flysky_gimbal_loop(void*)
 {
   uint8_t byte;
 
@@ -164,7 +164,7 @@ bool flysky_gimbal_init()
 
   _fs_gimbal_detected = false;
   _fs_usart_ctx = STM32SerialDriver.init(REF_STM32_SERIAL_PORT(FSGimbal), &cfg);
-  STM32SerialDriver.setIdleCb(_fs_usart_ctx, flysky_gimbal_loop);
+  STM32SerialDriver.setIdleCb(_fs_usart_ctx, flysky_gimbal_loop, 0);
 
   // Wait 70ms for FlySky gimbals to respond. According to LA trace, minimally 23ms is required
   for (uint8_t i = 0; i < 70; i++) {
