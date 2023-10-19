@@ -565,6 +565,9 @@ void ModulePanel::update()
       default:
         break;
     }
+
+    if (protocol != PULSES_MULTIMODULE && module.hasFailsafes(firmware))
+      mask |= MASK_FAILSAFES;
   }
   else if (IS_HORUS_OR_TARANIS(board)) {
     if (model->trainerMode == TRAINER_MODE_SLAVE_JACK) {
@@ -573,9 +576,6 @@ void ModulePanel::update()
   }
   else if (model->trainerMode != TRAINER_MODE_MASTER_JACK) {
     mask |= MASK_PPM_FIELDS | MASK_CHANNELS_RANGE | MASK_CHANNELS_COUNT;
-  }
-  else if (module.hasFailsafes(firmware)) {
-    mask |= MASK_FAILSAFES;
   }
 
   if (isExternalModule(moduleIdx))
