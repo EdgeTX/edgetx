@@ -116,7 +116,7 @@ inline int MAX_POTS_STORAGE(Board::Type board, int version)
 {
   if (version <= 218 && IS_FAMILY_HORUS_OR_T16(board))
     return 3;
-  if (version <= 220 && IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board))
+  if (version <= 220 && IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_PL18(board))
     return 5;
   if (IS_FAMILY_T12(board))
     return 2;
@@ -2608,7 +2608,7 @@ class TopBarField: public StructField {
     TopBarField(DataField * parent, TopBarPersistentData & topBar, Board::Type board, unsigned int version):
       StructField(parent, "Top Bar")
     {
-      Append(new WidgetsContainerPersistentField<TopBarPersistentData>(this, topBar, (IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board)) ? 2 : 4, MAX_TOPBAR_OPTIONS, board, version));
+      Append(new WidgetsContainerPersistentField<TopBarPersistentData>(this, topBar, IS_FLYSKY_NV14(board) ? 2 : 4, MAX_TOPBAR_OPTIONS, board, version));
       //dump();
     }
 };

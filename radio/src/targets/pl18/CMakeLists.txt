@@ -1,10 +1,9 @@
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
-option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
-option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
-option(AFHDS2 "Support for AFHDS2" OFF)
-option(GHOST "Ghost TX Module" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
+option(AFHDS3 "AFHDS3 TX Module" ON)
+option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
+option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 
@@ -16,20 +15,31 @@ set(STORAGE_MODELSLIST YES)
 set(HAPTIC YES)
 set(GUI_DIR colorlcd)
 set(BITMAPS_DIR 480x272)
-set(HARDWARE_EXTERNAL_MODULE YES)
-set(WIRELESS_CHARGER YES)
 set(TARGET_DIR pl18)
-
+set(LINKER_SCRIPT targets/pl18/stm32f4_flash.ld)
 set(RTC_BACKUP_RAM YES)
 set(PPM_LIMITS_SYMETRICAL YES)
+set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
+set(HARDWARE_EXTERNAL_MODULE YES)
+set(WIRELESS_CHARGER YES)
+
+if(BOOTLOADER)
+  set(LINKER_SCRIPT targets/pl18/stm32f4_flash_bootloader.ld)
+else()
+  set(LINKER_SCRIPT targets/pl18/stm32f4_flash.ld)
+endif()
+
+#option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
+#option(AFHDS2 "Support for AFHDS2" OFF)
+
+
 # for size report script
 set(CPU_TYPE_FULL STM32F429xI)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM2=8192")
-option(USB_SERIAL "Enable USB serial (CDC)" ON)
 
-set(RF_BAUD_RATE 921600 230400 115200 57600 38400 19200 9600 4800 2400 1200)
-set(PCB_RF_BAUD 921600 CACHE STRING "INTERNAL_MODULE_BAUDRATE: ${RF_BAUD_RATE}")
-set_property(CACHE PCB_RF_BAUD PROPERTY STRINGS ${RF_BAUD_RATE})
+#set(RF_BAUD_RATE 921600 230400 115200 57600 38400 19200 9600 4800 2400 1200)
+#set(PCB_RF_BAUD 921600 CACHE STRING "INTERNAL_MODULE_BAUDRATE: ${RF_BAUD_RATE}")
+#set_property(CACHE PCB_RF_BAUD PROPERTY STRINGS ${RF_BAUD_RATE})
 
 set(FLAVOUR pl18)
 add_definitions(-DPCBPL18 -DPCBFLYSKY)
@@ -99,13 +109,10 @@ set(SRC
 set(GVAR_SCREEN model_gvars.cpp)
 
 if(BOOTLOADER)
-  set(LINKER_SCRIPT targets/pl18/stm32f4_flash_bootloader.ld)
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
     ../common/arm/loadboot.cpp
     )
-else()
-  set(LINKER_SCRIPT targets/pl18/stm32f4_flash.ld)
 endif()
 
 set(SRC
