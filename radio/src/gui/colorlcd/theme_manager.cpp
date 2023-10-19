@@ -43,7 +43,7 @@ static uint32_t r_color(const YamlNode* node, const char* val, uint8_t val_len)
 {
   if ((strncmp(val, RGBSTRING, strlen(RGBSTRING)) == 0) && (val[val_len - 1] == ')')) {
     int r, g, b;
-    int numTokens = sscanf(val, "RGB(%d,%d,%d)", &r, &g, &b);
+    int numTokens = sscanf(val, "RGB(%i,%i,%i)", &r, &g, &b);
 
     if (numTokens == 3)
       return RGB(r, g, b);
