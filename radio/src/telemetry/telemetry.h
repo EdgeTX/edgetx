@@ -81,6 +81,12 @@ void telemetryInterrupt10ms();
 void telemetryStart();
 void telemetryStop();
 
+struct etx_proto_driver_t;
+
+// Call from ISR to schedule telemetry frame
+// processing for that module.
+void telemetryFrameTrigger_ISR(uint8_t module, const etx_proto_driver_t* drv);
+
 #define TELEMETRY_AVERAGE_COUNT        3
 
 enum {

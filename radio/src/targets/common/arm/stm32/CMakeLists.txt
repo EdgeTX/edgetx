@@ -28,7 +28,9 @@ set(STM32USB_SRC
 
 set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/rtc_driver.cpp
+  ../common/arm/stm32/timers_driver.cpp
   ../common/arm/stm32/delays_driver.cpp
+  ../common/arm/stm32/trainer_driver.cpp
   ../common/arm/stm32/usb_bsp.c
   ../common/arm/stm32/usbd_desc.c
   ../common/arm/stm32/usbd_usr.cpp
@@ -40,6 +42,8 @@ set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/stm32_i2c_driver.cpp
   ../common/arm/stm32/stm32_serial_driver.cpp
   ../common/arm/stm32/stm32_softserial_driver.cpp
+  ../common/arm/stm32/stm32_pulse_driver.cpp
+  ../common/arm/stm32/stm32_usart_driver.cpp
   ../common/arm/stm32/module_timer_driver.cpp
   ../common/arm/stm32/stm32_switch_driver.cpp
   ../common/arm/stm32/stm32_adc.cpp
@@ -47,7 +51,9 @@ set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/stm32_timer.cpp
   ../common/arm/stm32/stm32_dma.cpp
   ../common/arm/stm32/stm32_gpio_driver.cpp
+  ../common/arm/stm32/stm32_exti_driver.cpp
   ../common/arm/stm32/mixer_scheduler_driver.cpp
+  ../common/arm/stm32/pwr_driver.cpp
   )
 
 if(IMU)

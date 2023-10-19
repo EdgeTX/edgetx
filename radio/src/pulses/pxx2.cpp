@@ -841,4 +841,6 @@ const etx_proto_driver_t Pxx2Driver = {
   .deinit = pxx2DeInit,
   .sendPulses = pxx2SendPulses,
   .processData = pxx2ProcessData,
+  .processFrame = nullptr,
+  .onConfigChange = nullptr,
 };

@@ -589,13 +589,7 @@ set(FIRMWARE_SRC
   hal/adc_driver.cpp
   targets/common/arm/loadboot.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
-  targets/common/arm/stm32/timers_driver.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
-  targets/common/arm/stm32/pwr_driver.cpp
-  targets/common/arm/stm32/stm32_exti_driver.cpp
-  targets/common/arm/stm32/stm32_pulse_driver.cpp
-  targets/common/arm/stm32/stm32_usart_driver.cpp
-  targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/sdcard_spi.cpp
   targets/common/arm/stm32/diskio_spi.cpp
   )

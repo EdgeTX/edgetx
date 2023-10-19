@@ -19,6 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#if !defined(SIMU)
+#include "stm32_exti_driver.h"
+#include "stm32_hal_ll.h"
+#endif
+
 #include "opentx.h"
 #include "mixer_scheduler.h"
 #include "hal/module_driver.h"
@@ -35,6 +40,7 @@
   #define CROSSFIRE_CENTER_CH_OFFSET(ch)            (0)
 #endif
 
+#define MIN_FRAME_LEN 3
 
 uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
 {
@@ -112,8 +118,8 @@ static void crossfireSetupMixerScheduler(uint8_t module)
 static bool _checkFrameCRC(uint8_t* rxBuffer)
 {
   uint8_t len = rxBuffer[1];
-  uint8_t crc = crc8(&rxBuffer[2], len-1);
-  return (crc == rxBuffer[len+1]);
+  uint8_t crc = crc8(&rxBuffer[2], len - 1);
+  return (crc == rxBuffer[len + 1]);
 }
 
 static void crossfireSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
@@ -136,77 +142,90 @@ static void crossfireSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, u
 
 static bool _lenIsSane(uint8_t len)
 {
-  // packet len must be at least 3 bytes (type+payload+crc) and 2 bytes < MAX (hdr+len)
-  return (len > 2 && len < TELEMETRY_RX_PACKET_SIZE-1);
+  // packet len must be at least 3 bytes (type + payload + crc)
+  // and 2 bytes < MAX (hdr + len)
+  return (len > 2 && len < TELEMETRY_RX_PACKET_SIZE - 1);
 }
 
-static void _seekStart(uint8_t* buffer, uint8_t* len)
+static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
+                                  uint8_t* buf, uint8_t* p_len)
 {
-  // Bad telemetry packets frequently are just truncated packets, with the start
-  // of a new packet contained in the data. This causes multiple packet drops as
-  // the parser tries to resync.
-  // Search through the rxBuffer for a sync byte, shift the contents if found
-  // and reduce rxBufferCount
-  for (uint8_t idx = 1; idx < *len; ++idx) {
-    uint8_t data = buffer[idx];
-    if (data == RADIO_ADDRESS || data == UART_SYNC) {
-      uint8_t remain = *len - idx;
-      // If there's at least 2 bytes, check the length for validity too
-      if (remain > 1 && !_lenIsSane(buffer[idx + 1])) continue;
+  if (frame_len < MIN_FRAME_LEN) return;
 
-      // TRACE("Found 0x%02x with %u remain", data, remain);
-      // copy the data to the front of the buffer
-      for (uint8_t src = idx; src < *len; ++src) {
-        buffer[src - idx] = buffer[src];
+  // De-Fragmentation:
+  //   It is assumed here that a continuation chunk
+  //   will not belong to multiple CRSF frames.
+
+  uint8_t& len = *p_len;
+  if (len > 0) {
+    uint8_t unfrag_len = buf[1] + 2;
+    uint8_t defrag_len = len + frame_len;
+
+    if (defrag_len <= unfrag_len && defrag_len <= TELEMETRY_RX_PACKET_SIZE) {
+      // If we're not going to overshoot
+      // the intended frame length,
+      // let's reassemble it
+      memcpy(buf + len, frame, frame_len);
+      len = defrag_len;
+      frame_len = 0;
+
+      // frame complete?
+      if (defrag_len < unfrag_len) {
+        TRACE("[XF] frag cont frame (%d < %d)", defrag_len, unfrag_len);
+        return;
+      } else {
+        TRACE("[XF] frame complete");
       }
+    } else {
+      TRACE("[XF] overshoot (%d > %d)", defrag_len, unfrag_len);
+    }
+  }
 
-      *len = remain;
+  if (frame_len > 0) {
+    memcpy(buf, frame, frame_len);
+    len = frame_len;
+
+    uint8_t unfrag_len = buf[1] + 2;
+    if (!_lenIsSane(unfrag_len)) {
+      TRACE("[XF] pkt len error (%d)", unfrag_len);
+      len = 0;
       return;
-    }  // if found sync
+    }
+
+    if (len < unfrag_len) {
+      TRACE("[XF] frag frame (%d < %d)", len, unfrag_len);
+      return;
+    }
   }
 
-  // Not found, clear the buffer
-  *len = 0;
-}
+  uint8_t* p_buf = buf;
+  while (len >= MIN_FRAME_LEN) {
+    uint8_t pkt_len = p_buf[1] + 2;
+    if (pkt_len > len) {
+      TRACE("[XF] length error (%d > %d)", pkt_len, len);
+      len = 0;
+      return;
+    }
 
-static void crossfireProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
-{
-  if (*len == 0 && data != RADIO_ADDRESS && data != UART_SYNC) {
-    TRACE("[XF] address 0x%02X error", data);
-    return;
-  }
-
-  if (*len == 1 && !_lenIsSane(data)) {
-    TRACE("[XF] length 0x%02X error", data);
-    *len = 0;
-    return;
-  }
-
-  if (*len < TELEMETRY_RX_PACKET_SIZE) {
-    buffer[(*len)++] = data;
-  }
-  else {
-    TRACE("[XF] array size %d error", *len);
-    *len = 0;
-  }
-
-  // rxBuffer[1] holds the packet length-2, check if the whole packet was received
-  while (*len > 4 && (buffer[1]+2) == *len) {
-    if (_checkFrameCRC(buffer)) {
-#if defined(BLUETOOTH) // TODO: generic telemetry mirror to BT
+    if (p_buf[0] != RADIO_ADDRESS && p_buf[0] != UART_SYNC) {
+      TRACE("[XF] address 0x%02X error", p_buf[0]);
+    } else if (!_checkFrameCRC(p_buf)) {
+      TRACE("[XF] CRC error ");
+    } else {
+#if defined(BLUETOOTH)
+      // TODO: generic telemetry mirror to BT
       if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
           bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
-        bluetooth.write(buffer, *len);
+        bluetooth.write(p_buf, pkt_len);
       }
 #endif
       auto mod_st = (etx_module_state_t*)ctx;
-      processCrossfireTelemetryFrame(modulePortGetModule(mod_st));
-      *len = 0;
+      auto module = modulePortGetModule(mod_st);
+      processCrossfireTelemetryFrame(module, p_buf, pkt_len);
     }
-    else {
-      TRACE("[XF] CRC error ");
-      _seekStart(buffer, len); // adjusts len
-    }
+
+    p_buf += pkt_len;
+    len -= pkt_len;
   }
 }
 
@@ -217,6 +236,31 @@ static const etx_serial_init crsfSerialParams = {
   .polarity = ETX_Pol_Normal,
 };
 
+#if !defined(SIMU)
+
+#if defined(INTERNAL_MODULE_CRSF)
+static void _crsf_intmodule_frame_received(void*)
+{
+  telemetryFrameTrigger_ISR(INTERNAL_MODULE, &CrossfireDriver);
+}
+#endif
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+static void _crsf_extmodule_frame_received()
+{
+  telemetryFrameTrigger_ISR(EXTERNAL_MODULE, &CrossfireDriver);
+}
+
+// proxy trigger to avoid calling
+// FreeRTOS methods from ISR with prio 0
+static void _soft_irq_trigger(void*)
+{
+  EXTI->SWIER = TELEMETRY_RX_FRAME_EXTI_LINE;
+}
+#endif
+
+#endif // !SIMU
+
 static void* crossfireInit(uint8_t module)
 {
   etx_module_state_t* mod_st = nullptr;
@@ -224,17 +268,45 @@ static void* crossfireInit(uint8_t module)
 
 #if defined(INTERNAL_MODULE_CRSF)
   if (module == INTERNAL_MODULE) {
-
     params.baudrate = INT_CROSSFIRE_BAUDRATE;
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params, false);
+
+    if (mod_st) {
+      auto drv = modulePortGetSerialDrv(mod_st->rx);
+      auto ctx = modulePortGetCtx(mod_st->rx);
+
+      auto& rx_count = getTelemetryRxBufferCount(INTERNAL_MODULE);
+      rx_count = 0;
+
+#if !defined(SIMU)
+      if (drv && ctx && drv->setIdleCb) {
+        drv->setIdleCb(ctx, _crsf_intmodule_frame_received, 0);
+      }
+#endif
+    }
   }
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
   if (module == EXTERNAL_MODULE) {
-
     params.baudrate = EXT_CROSSFIRE_BAUDRATE;
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params, false);
+
+    if (mod_st) {
+      auto drv = modulePortGetSerialDrv(mod_st->rx);
+      auto ctx = modulePortGetCtx(mod_st->rx);
+
+      auto& rx_count = getTelemetryRxBufferCount(EXTERNAL_MODULE);
+      rx_count = 0;
+
+#if !defined(SIMU)
+      if (drv && ctx && drv->setIdleCb) {
+        drv->setIdleCb(ctx, _soft_irq_trigger, 0);
+        stm32_exti_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 0,
+                          _crsf_extmodule_frame_received);
+      }
+#endif
+    }
   }
 #endif
 
@@ -248,6 +320,17 @@ static void* crossfireInit(uint8_t module)
 static void crossfireDeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
+
+#if !defined(SIMU)
+  if (mod_st && (modulePortGetModule(mod_st) == EXTERNAL_MODULE)) {
+    auto drv = modulePortGetSerialDrv(mod_st->rx);
+    auto ctx = modulePortGetCtx(mod_st->rx);
+    if (drv && ctx && drv->setIdleCb) {
+      stm32_exti_disable(TELEMETRY_RX_FRAME_EXTI_LINE);
+    }
+  }
+#endif
+
   modulePortDeInit(mod_st);
 }
 
@@ -256,5 +339,7 @@ const etx_proto_driver_t CrossfireDriver = {
   .init = crossfireInit,
   .deinit = crossfireDeInit,
   .sendPulses = crossfireSendPulses,
-  .processData = crossfireProcessData,
+  .processData = nullptr,
+  .processFrame = crossfireProcessFrame,
+  .onConfigChange = nullptr,
 };

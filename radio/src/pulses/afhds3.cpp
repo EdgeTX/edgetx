@@ -1165,6 +1165,8 @@ etx_proto_driver_t ProtoDriver = {
     .deinit = deinitModule,
     .sendPulses = sendPulses,
     .processData = processTelemetryData,
+    .processFrame = nullptr,
+    .onConfigChange = nullptr,
 };
 
 }  // namespace afhds3

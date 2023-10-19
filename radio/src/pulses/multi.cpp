@@ -286,6 +286,8 @@ const etx_proto_driver_t MultiDriver = {
   .deinit = multiDeInit,
   .sendPulses = multiSendPulses,
   .processData = multiProcessData,
+  .processFrame = nullptr,
+  .onConfigChange = nullptr,
 };
 
 static void sendChannels(uint8_t*& p_buf, uint8_t module)
