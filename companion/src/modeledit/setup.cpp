@@ -1696,7 +1696,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
 
   ui->trimsDisplay->setField(model.trimsDisplay, this);
 
-  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board)) {
+  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board)) {
     ui->cboHatsMode->setModel(panelFilteredModels->getItemModel(FIM_HATSMODE));
     ui->cboHatsMode->setField(model.hatsMode, this);
   }

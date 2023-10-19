@@ -271,7 +271,7 @@ void GeneralSettings::init()
 
   internalModule = g.profile[g.sessionId()].defaultInternalModule();
 
-  if (IS_FLYSKY_NV14(board))
+  if (IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board))
     stickDeadZone = 2;
 
 }

@@ -671,7 +671,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return false;
 
     case SportMaxBaudRate:
-      if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_TARANIS_X7_ACCESS(board) ||
+      if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PL18(board) ||IS_TARANIS_X7_ACCESS(board) ||
          (IS_TARANIS(board) && !IS_TARANIS_XLITE(board) && !IS_TARANIS_X7(board) && !IS_TARANIS_X9LITE(board)))
         return 400000;  //  400K and higher
       else
@@ -1232,6 +1232,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_TLITE_F4:
   case BOARD_JUMPER_TPRO:
   case BOARD_JUMPER_TPROV2:
+  case BOARD_FLYSKY_PL18:
     return (int)MODULE_TYPE_MULTIMODULE;
 
   case BOARD_BETAFPV_LR3PRO:
