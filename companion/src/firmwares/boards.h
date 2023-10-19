@@ -73,6 +73,7 @@ namespace Board {
     BOARD_BETAFPV_LR3PRO,
     BOARD_IFLIGHT_COMMANDO8,
     BOARD_FLYSKY_EL18,
+    BOARD_JUMPER_TPROV2,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -292,7 +293,17 @@ inline bool IS_JUMPER_TLITE(Board::Type board)
 
 inline bool IS_JUMPER_TPRO(Board::Type board)
 {
+  return board == Board::BOARD_JUMPER_TPRO || board == Board::BOARD_JUMPER_TPROV2;
+}
+
+inline bool IS_JUMPER_TPROV1(Board::Type board)
+{
   return board == Board::BOARD_JUMPER_TPRO;
+}
+
+inline bool IS_JUMPER_TPROV2(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_TPROV2;
 }
 
 inline bool IS_JUMPER_T16(Board::Type board)
@@ -351,6 +362,7 @@ inline bool IS_FAMILY_T12(Board::Type board)
          board == Board::BOARD_JUMPER_TLITE ||
          board == Board::BOARD_JUMPER_TLITE_F4 ||
          board == Board::BOARD_JUMPER_TPRO ||
+         board == Board::BOARD_JUMPER_TPROV2 ||
          board == Board::BOARD_BETAFPV_LR3PRO ||
          board == Board::BOARD_IFLIGHT_COMMANDO8;
 }
