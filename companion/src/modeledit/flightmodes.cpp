@@ -89,11 +89,13 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
   }
   labels[4] = "T5";   //  TODO firmware function
   labels[5] = "T6";   //  TODO firmware function
+  labels[6] = "T7";   //  TODO firmware function
+  labels[7] = "T8";   //  TODO firmware function
 
-  trimsLabel << ui->trim1Label << ui->trim2Label << ui->trim3Label << ui->trim4Label << ui->trim5Label << ui->trim6Label;
-  trimsUse << ui->trim1Use << ui->trim2Use << ui->trim3Use << ui->trim4Use << ui->trim5Use << ui->trim6Use;
-  trimsValue << ui->trim1Value << ui->trim2Value << ui->trim3Value << ui->trim4Value << ui->trim5Value << ui->trim6Value;
-  trimsSlider << ui->trim1Slider << ui->trim2Slider << ui->trim3Slider << ui->trim4Slider << ui->trim5Slider << ui->trim6Slider;
+  trimsLabel << ui->trim1Label << ui->trim2Label << ui->trim3Label << ui->trim4Label << ui->trim5Label << ui->trim6Label << ui->trim7Label << ui->trim8Label;
+  trimsUse << ui->trim1Use << ui->trim2Use << ui->trim3Use << ui->trim4Use << ui->trim5Use << ui->trim6Use << ui->trim7Use << ui->trim8Use;
+  trimsValue << ui->trim1Value << ui->trim2Value << ui->trim3Value << ui->trim4Value << ui->trim5Value << ui->trim6Value << ui->trim7Value << ui->trim8Value;
+  trimsSlider << ui->trim1Slider << ui->trim2Slider << ui->trim3Slider << ui->trim4Slider << ui->trim5Slider << ui->trim6Slider << ui->trim7Slider << ui->trim8Slider;
 
   for (int i = trimCount; i < CPN_MAX_TRIMS; i++) {
     trimsLabel[i]->hide();

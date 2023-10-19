@@ -120,6 +120,8 @@ namespace Board {
     TRIM_AXIS_RH,
     TRIM_AXIS_T5,
     TRIM_AXIS_T6,
+    TRIM_AXIS_T7,
+    TRIM_AXIS_T8,
     TRIM_AXIS_COUNT
   };
 

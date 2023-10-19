@@ -799,8 +799,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return id.contains("internalmulti") || IS_RADIOMASTER_TX16S(board) || IS_JUMPER_T18(board) ||
               IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) ||
               (IS_RADIOMASTER_ZORRO(board) && !id.contains("internalelrs")) ||
-              (IS_RADIOMASTER_BOXER(board) && !id.contains("internalelrs")) ||
-              (IS_JUMPER_T20(board) && !id.contains("internalelrs"));
+              (IS_RADIOMASTER_BOXER(board) && !id.contains("internalelrs"));
     case HasIntModuleCRSF:
       return id.contains("internalcrsf");
     case HasIntModuleELRS:
@@ -1366,7 +1365,6 @@ void registerOpenTxFirmwares()
   /* Jumper T20 board */
   firmware = new OpenTxFirmware(FIRMWAREID("t20"), Firmware::tr("Jumper T20"), BOARD_JUMPER_T20);
   addOpenTxFrskyOptions(firmware);
-  firmware->addOption("internalmulti", Firmware::tr("Support for MULTI internal module"));
   firmware->addOption("internalelrs", Firmware::tr("Select if internal ELRS module is installed"));
   addOpenTxRfOptions(firmware, NONE);
   registerOpenTxFirmware(firmware);

@@ -95,8 +95,6 @@ uint32_t Boards::getFourCC(Type board)
       return 0x3F78746F;
     case BOARD_JUMPER_T18:
       return 0x4078746F;
-    case BOARD_JUMPER_T20:
-      return 0x4678746F; // TODO : Check this value
     case BOARD_RADIOMASTER_TX16S:
       return 0x3878746F;
     case BOARD_RADIOMASTER_TX12:
@@ -563,7 +561,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 7;
 
     case FunctionSwitches:
-       if (board == BOARD_JUMPER_TPRO || board == BOARD_JUMPER_T20)
+       if (board == BOARD_JUMPER_TPRO || board == BOARD_JUMPER_TPROV2 || board == BOARD_JUMPER_T20)
         return 6;
        else
         return 0;
