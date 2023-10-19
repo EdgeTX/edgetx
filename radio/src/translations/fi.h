@@ -451,11 +451,7 @@
 #if defined(SURFACE_RADIO)
 #define TR_FM                          "DM"
 #else
-#if defined(SURFACE_RADIO)
-#define TR_FM                          "DM"
-#else
 #define TR_FM                          "FM"
-#endif
 #endif
 #define TR_EEPROMLOWMEM                "EEPROM low mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Press any key to skip"
@@ -492,6 +488,9 @@
 #define TR_MENUFLIGHTMODES             "DRIVE MODES"
 #define TR_MENUFLIGHTMODE              "DRIVE MODE"
 #else
+#define TR_MENUFLIGHTMODE              "FLIGHT MODE"
+#define TR_MENUFLIGHTMODES             "FLIGHT MODES"
+#endif
 #define TR_MENUHELISETUP               "HELI SETUP"
 
 #if defined(PCBTARANIS)
