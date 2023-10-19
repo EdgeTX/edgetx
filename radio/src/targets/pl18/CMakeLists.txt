@@ -141,13 +141,6 @@ set(FIRMWARE_TARGET_SRC
 
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
-  hal/adc_driver.cpp
-  targets/common/arm/stm32/stm32_exti_driver.cpp
-  targets/common/arm/stm32/timers_driver.cpp
-  targets/common/arm/stm32/stm32_pulse_driver.cpp
-  targets/common/arm/stm32/stm32_usart_driver.cpp
-  targets/common/arm/stm32/pwr_driver.cpp
-  targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/diskio_spi_flash.cpp
@@ -163,7 +156,5 @@ set(STM32LIB_SRC
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_ltdc.c
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma2d.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_exti.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c
   )
 
