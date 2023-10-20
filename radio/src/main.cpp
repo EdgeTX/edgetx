@@ -427,14 +427,19 @@ void guiMain(event_t evt)
 #elif defined(GUI)
 
 bool handleGui(event_t event) {
-  bool refreshNeeded;
+  bool refreshNeeded; 
+
 #if defined(LUA)
-  refreshNeeded = luaTask(event, true);
+// LUA telemetry foreground script active
   if (menuHandlers[menuLevel] == menuViewTelemetry &&
       TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_SCRIPT) {
+      refreshNeeded = luaTask(event, true);
       menuHandlers[menuLevel](event);
   }
-  else if (scriptInternalData[0].reference != SCRIPT_STANDALONE)
+// standalone foreground script active
+  else if (scriptInternalData[0].reference == SCRIPT_STANDALONE)
+      refreshNeeded = luaTask(event, true);
+  else 
 #endif
 // No foreground Lua script is running - clear the screen show normal menu
   {
