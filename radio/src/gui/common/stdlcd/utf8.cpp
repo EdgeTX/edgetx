@@ -95,6 +95,19 @@ static wchar_t _utf8_lut[] = {
   L'ż', L'ź', L'Ą', L'Ć', L'Ę', L'Ł', L'Ń',
   L'Ó', L'Ś', L'Ż', L'Ź',
 };
+#elif defined(TRANSLATIONS_RU)
+static wchar_t _utf8_lut[] = {
+  L'А', L'Б', L'В', L'Г', L'Д', L'Е', L'Ж',
+  L'З', L'И', L'Й', L'К', L'Л', L'М', L'Н', 
+  L'О', L'П', L'Р', L'С', L'Т', L'У', L'Ф',
+  L'Х', L'Ц', L'Ч', L'Ш', L'Щ', L'Ъ', L'Ы',
+  L'Ь', L'Э', L'Ю', L'Я', L'а', L'б', L'в',
+  L'г', L'д', L'е', L'ж', L'з', L'и', L'й',
+  L'к', L'л', L'м', L'н', L'о', L'п', L'р',
+  L'с', L'т', L'у', L'ф', L'х', L'ц', L'ч',
+  L'ш', L'щ', L'ъ', L'ы', L'ь', L'э', L'ю',
+  L'я', 
+};
 #elif defined(TRANSLATIONS_SE)
 static wchar_t _utf8_lut[] = {
   L'å', L'ä', L'ö', L'Å', L'Ä', L'Ö',

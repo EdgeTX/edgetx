@@ -104,7 +104,7 @@
     <message>
         <location filename="../storage/appdata.h" line="654"/>
         <source>Prompt</source>
-        <translation type="unfinished"></translation>
+        <translation>Сейчас</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="655"/>
@@ -144,12 +144,12 @@
     <message>
         <location filename="../storage/appdata.h" line="657"/>
         <source>Critical</source>
-        <translation type="unfinished">Критический</translation>
+        <translation>Критический</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="657"/>
         <source>Fatal</source>
-        <translation type="unfinished"></translation>
+        <translation>Фатально</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="657"/>
@@ -218,7 +218,7 @@ Mode 4:
   Right stick:  Elevator, Rudder
 
 </source>
-        <translation>Выбор моды передатчика:
+        <translation>Выбор модели передатчика:
 
 Mode 1:
   Левый стик:  Руль высоты (Elevator), Руль направления (Rudder)
@@ -292,12 +292,12 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="135"/>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Язык</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="167"/>
         <source>Prompt to write firmware to radio after update</source>
-        <translation type="unfinished"></translation>
+        <translation>Запрос на запись прошивки в радио после обновления</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="187"/>
@@ -434,12 +434,12 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="522"/>
         <source>Append version number to firmware file name</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавьте номер версии к имени файла встроенного ПО</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="725"/>
         <source>Prompt to run SD Sync after update</source>
-        <translation type="unfinished"></translation>
+        <translation>Запрос на запуск SD-синхронизации после обновления</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="819"/>
@@ -449,28 +449,28 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="899"/>
         <source>Show splash screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать заставку</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="909"/>
         <source>Prompt for radio profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Запрос на ввод профиля радио</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="939"/>
         <source>Remove empty model slots when deleting models (only applies for radios w/out labels)</source>
-        <translation type="unfinished"></translation>
+        <translation>Удаляйте пустые слоты для моделей при удалении моделей (применяется только для радио без надписей)</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1115"/>
         <source>Prompt to run installer after update</source>
-        <translation type="unfinished"></translation>
+        <translation>Запрос на запуск программы установки после обновления</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1122"/>
         <location filename="../apppreferencesdialog.ui" line="1457"/>
         <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Обновление</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1321"/>
@@ -485,12 +485,12 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="1379"/>
         <source>Save switch/pot positions on simulator exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранение положения тумблера/потенциомеира при выходе из симулятора</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1386"/>
         <source>Clear saved positions</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить сохраненные позиции</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1393"/>
@@ -500,62 +500,62 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="1401"/>
         <source>Update Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Обновить настройки</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1409"/>
         <source>Check frequency</source>
-        <translation type="unfinished"></translation>
+        <translation>Частота проверки</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1432"/>
         <source>Reset to Defaults</source>
-        <translation type="unfinished"></translation>
+        <translation>Сброс к значениям по умолчанию</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1441"/>
         <source>Folders</source>
-        <translation type="unfinished"></translation>
+        <translation>Папки</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1447"/>
         <source>Download</source>
-        <translation type="unfinished"></translation>
+        <translation>Загрузка</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1464"/>
         <source>Create sub-folders in Download folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Создайте папки в папке загрузки</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1481"/>
         <source>Decompress</source>
-        <translation type="unfinished"></translation>
+        <translation>Распаковывать</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1488"/>
         <source>Use Radio Profile SD Structure</source>
-        <translation type="unfinished"></translation>
+        <translation>Используйте структуру SD радиопрофиля</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1535"/>
         <source>Components</source>
-        <translation type="unfinished"></translation>
+        <translation>Компоненты</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1548"/>
         <source>Delete downloads</source>
-        <translation type="unfinished"></translation>
+        <translation>удалить загрузки</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1555"/>
         <source>Delete decompressions</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить распаковки</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1575"/>
         <source>Logging</source>
-        <translation type="unfinished"></translation>
+        <translation>Регистрация</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="93"/>
@@ -686,7 +686,7 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="822"/>
         <source>Application (Companion/Simulator)</source>
-        <translation>приложения (Companion/Симулятор)</translation>
+        <translation>Приложения (Компаньон/Симулятор)</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="829"/>
@@ -696,7 +696,7 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="832"/>
         <source>Radio Firmware (in Simulator)</source>
-        <translation>прошивки передатчика (в симуляторе)</translation>
+        <translation>Прошивки передатчика (в симуляторе)</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="437"/>
@@ -751,7 +751,7 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.cpp" line="168"/>
         <source>My Radio</source>
-        <translation type="unfinished"></translation>
+        <translation>Мой передатчик</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="178"/>
@@ -766,22 +766,22 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.cpp" line="112"/>
         <source>Update Settings: Download folder path missing!</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройки обновления: отсутствует путь к папке загрузки!</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="117"/>
         <source>Update Settings: Decompress folder path missing!</source>
-        <translation type="unfinished"></translation>
+        <translation>Обновить настройки: отсутствует путь к папке распаковки!</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="122"/>
         <source>Update Settings: Update folder path missing!</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройки обновления: отсутствует путь к папке обновления!</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="128"/>
         <source>Update Settings: Decompress and download folders have the same path!</source>
-        <translation type="unfinished"></translation>
+        <translation>Обновить настройки: папки распаковки и загрузки имеют одинаковый путь!</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="276"/>
@@ -797,42 +797,42 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.cpp" line="329"/>
         <source>AVAILABLE: Radio settings of unknown age</source>
-        <translation type="unfinished"></translation>
+        <translation>ДОСТУПНО: Настройки радио неизвестного возраста</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="331"/>
         <source>AVAILABLE: Radio settings stored %1</source>
-        <translation type="unfinished"></translation>
+        <translation>ДОСТУПНО: Настройки радиоприемника сохранены %1</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="351"/>
         <source>Reset all update settings to defaults. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Сбросьте все настройки обновления до значений по умолчанию. Ты уверен?</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="355"/>
         <source>Update settings have been reset. Please close and restart Companion to avoid unexpected behaviour!</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройки обновления были сброшены. Пожалуйста, закройте и перезапустите Компаньон, чтобы избежать неожиданного поведения!</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="395"/>
         <source>Select your download folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите папку для загрузки</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="402"/>
         <source>Select your decompress folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите папку для распаковки</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="409"/>
         <source>Select your update destination folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите папку назначения обновления</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="434"/>
         <source>Check</source>
-        <translation type="unfinished"></translation>
+        <translation>Проверка</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="526"/>
@@ -1150,17 +1150,17 @@ Mode 4:
     <message>
         <location filename="../generaledit/calibration.cpp" line="32"/>
         <source>Negative span</source>
-        <translation type="unfinished"></translation>
+        <translation>Отрицательный промежуток</translation>
     </message>
     <message>
         <location filename="../generaledit/calibration.cpp" line="32"/>
         <source>Mid value</source>
-        <translation type="unfinished"></translation>
+        <translation>Среднее значение</translation>
     </message>
     <message>
         <location filename="../generaledit/calibration.cpp" line="32"/>
         <source>Positive span</source>
-        <translation type="unfinished"></translation>
+        <translation>Положительный промежуток</translation>
     </message>
 </context>
 <context>
@@ -1198,12 +1198,12 @@ Mode 4:
     <message>
         <location filename="../modeledit/channels.cpp" line="111"/>
         <source>Plot</source>
-        <translation type="unfinished"></translation>
+        <translation>Сюжет</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="113"/>
         <source>PPM Center</source>
-        <translation type="unfinished"></translation>
+        <translation>PPM Центр</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="115"/>
@@ -1218,7 +1218,7 @@ Mode 4:
     <message>
         <location filename="../modeledit/channels.cpp" line="127"/>
         <source>Popup menu available</source>
-        <translation type="unfinished"></translation>
+        <translation>Доступно всплывающее меню</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="154"/>
@@ -1233,67 +1233,67 @@ Mode 4:
     <message>
         <location filename="../modeledit/channels.cpp" line="349"/>
         <source>Delete Channel. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить канал. Ты уверен?</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="371"/>
         <source>Cut Channel. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Вырезать канал. Ты уверен?</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="385"/>
         <source>Copy</source>
-        <translation type="unfinished">Копировать</translation>
+        <translation>Копировать</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="386"/>
         <source>Cut</source>
-        <translation type="unfinished">Вырезать</translation>
+        <translation>Вырезать</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="387"/>
         <source>Paste</source>
-        <translation type="unfinished">Вставить</translation>
+        <translation>Вставить</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="388"/>
         <source>Clear</source>
-        <translation type="unfinished">Очистить</translation>
+        <translation>Очистить</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="390"/>
         <source>Insert</source>
-        <translation type="unfinished">Вставить</translation>
+        <translation>Вставить</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="391"/>
         <source>Delete</source>
-        <translation type="unfinished">Удалить</translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="392"/>
         <source>Move Up</source>
-        <translation type="unfinished">Сдвинуть вверх</translation>
+        <translation>Сдвинуть вверх</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="393"/>
         <source>Move Down</source>
-        <translation type="unfinished">Сдвинуть вниз</translation>
+        <translation>Сдвинуть вниз</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="395"/>
         <source>Clear All</source>
-        <translation type="unfinished">Убрать всё</translation>
+        <translation>Убрать всё</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="446"/>
         <source>Clear Channel. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить канал. Ты уверен?</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="457"/>
         <source>Clear all Channels. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить все каналы. Ты уверен?</translation>
     </message>
 </context>
 <context>
@@ -1356,33 +1356,36 @@ Mode 4:
         <location filename="../modeledit/checklistdialog.cpp" line="76"/>
         <source>Cannot open file for writing %1:
 %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удается открыть файл для записи %1:
+%2.</translation>
     </message>
     <message>
         <location filename="../modeledit/checklistdialog.cpp" line="83"/>
         <source>Cannot write to file %1:
 %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удается выполнить запись в файл %1:
+%2.</translation>
     </message>
     <message>
         <location filename="../modeledit/checklistdialog.cpp" line="85"/>
         <source>Cannot write file %1:
 %2.</source>
-        <translation type="unfinished">Не удается записать файл %1:
+        <translation>Не удается записать файл %1:
 %2.</translation>
     </message>
     <message>
         <location filename="../modeledit/checklistdialog.cpp" line="102"/>
         <source>Cannot open file %1:
 %2.</source>
-        <translation type="unfinished">Не удалось открыть файл %1:
+        <translation>Не удалось открыть файл %1:
 %2.</translation>
     </message>
     <message>
         <location filename="../modeledit/checklistdialog.cpp" line="110"/>
         <source>Cannot read file %1:
 %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удается прочитать файл %1:
+%2.</translation>
     </message>
     <message>
         <location filename="../modeledit/checklistdialog.cpp" line="123"/>
@@ -1395,7 +1398,7 @@ Mode 4:
     <message>
         <location filename="../updates/chooserdialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Диалог</translation>
     </message>
 </context>
 <context>
@@ -1403,12 +1406,12 @@ Mode 4:
     <message>
         <location filename="../modeledit/colorcustomscreens.cpp" line="448"/>
         <source>User Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>пользовательский интерфейс</translation>
     </message>
     <message>
         <location filename="../modeledit/colorcustomscreens.cpp" line="450"/>
         <source>Main View %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Основной вид %1</translation>
     </message>
 </context>
 <context>
@@ -1416,153 +1419,154 @@ Mode 4:
     <message>
         <location filename="../companion.cpp" line="59"/>
         <source>The saved settings could not be imported, please try again or continue with current settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохраненные настройки не удалось импортировать, пожалуйста, повторите попытку или продолжайте с текущими настройками.</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="74"/>
         <source>Import from File</source>
-        <translation type="unfinished"></translation>
+        <translation>Импорт из файла</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="75"/>
         <source>Do not import</source>
-        <translation type="unfinished"></translation>
+        <translation>Не импортируйте</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="78"/>
         <source>We have found possible Companion settings backup file(s).
 Do you want to import settings from a file?</source>
-        <translation type="unfinished"></translation>
+        <translation>Мы нашли возможные файлы резервной копии сопутствующих настроек.
+Вы хотите импортировать настройки из файла?</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="80"/>
         <source>Import settings from a file, or start with current values.</source>
-        <translation type="unfinished"></translation>
+        <translation>Импортируйте настройки из файла или начните с текущих значений.</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="99"/>
         <source>Select %1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбор %1:</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="120"/>
         <source>Save application settings to file...</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохраните настройки приложения в файл...</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="121"/>
         <source>Load application settings from file or previous version...</source>
-        <translation type="unfinished"></translation>
+        <translation>Загрузите настройки приложения из файла или предыдущей версии...</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="122"/>
         <source>Reset ALL application settings to default and remove radio profiles...</source>
-        <translation type="unfinished"></translation>
+        <translation>Сбросьте ВСЕ настройки приложения по умолчанию и удалите профили радиосвязи...</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="123"/>
         <source>Exit before settings initialization and application startup.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выйдите перед инициализацией настроек и запуском приложения.</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="124"/>
         <source>Print version number and exit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выведите номер версии и завершите работу.</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="125"/>
         <source>Print this help text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Распечатайте этот текст.</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="173"/>
         <source>Reset ALL application settings to default values and remove radio profiles, are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Сбросить ВСЕ настройки приложения к значениям по умолчанию и удалить профили радиосвязи, вы уверены?</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="178"/>
         <source>Would you like to perform a backup first?</source>
-        <translation type="unfinished"></translation>
+        <translation>Хотели бы вы сначала выполнить резервное копирование?</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="185"/>
         <source>Application settings were reset and saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройки приложения были сброшены и сохранены.</translation>
     </message>
     <message>
         <location filename="../constants.h" line="53"/>
         <source>EdgeTX Companion</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">EdgeTX Компаньон</translation>
     </message>
     <message>
         <location filename="../constants.h" line="54"/>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Информация</translation>
     </message>
     <message>
         <location filename="../constants.h" line="55"/>
         <source>Warning</source>
-        <translation type="unfinished">Звук</translation>
+        <translation>Предупреждение</translation>
     </message>
     <message>
         <location filename="../constants.h" line="56"/>
         <source>Error</source>
-        <translation type="unfinished">Ошибка</translation>
+        <translation>Ошибка</translation>
     </message>
     <message>
         <location filename="../constants.h" line="58"/>
         <source>files</source>
-        <translation type="unfinished"></translation>
+        <translation>файлы</translation>
     </message>
     <message>
         <location filename="../constants.h" line="59"/>
         <source>Radio and Models settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройки радио и моделей</translation>
     </message>
     <message>
         <location filename="../constants.h" line="74"/>
         <source>Application Settings</source>
-        <translation type="unfinished">Настройки приложения</translation>
+        <translation>Настройки приложения</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="294"/>
         <source>Select or create a file for exported Settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите или создайте файл для экспортируемых настроек:</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="304"/>
         <source>Press the &apos;Retry&apos; button to choose another file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нажмите &apos;Повтор&apos; выберите другой файл.</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="339"/>
         <source>Simulator for this firmware is not yet available</source>
-        <translation type="unfinished"></translation>
+        <translation>Симулятор для этой прошивки пока недоступен</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="366"/>
         <source>Uknown error during Simulator startup.</source>
-        <translation type="unfinished"></translation>
+        <translation>Неизвестная ошибка при запуске симулятора.</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="367"/>
         <source>Simulator Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка симулятора</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="377"/>
         <source>Data Load Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка загрузки данных</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="377"/>
         <source>Error occurred while starting simulator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Произошла ошибка при запуске симулятора.</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="58"/>
         <source>settings</source>
-        <translation type="unfinished"></translation>
+        <translation>настройки</translation>
     </message>
     <message>
         <location filename="../warnings.h" line="30"/>
@@ -1590,7 +1594,7 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../comparedialog.ui" line="44"/>
         <source>To compare models, drag and drop them anywhere in this window.</source>
-        <translation type="unfinished">Чтобы сравнить модели перетащите их в это окно.</translation>
+        <translation>Чтобы сравнить модели перетащите их в это окно.</translation>
     </message>
     <message>
         <location filename="../comparedialog.ui" line="67"/>
@@ -1615,12 +1619,12 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../comparedialog.cpp" line="118"/>
         <source>Unnamed Model %1</source>
-        <translation type="unfinished">Неизвестная модель %1</translation>
+        <translation>Неизвестная модель %1</translation>
     </message>
     <message>
         <location filename="../comparedialog.cpp" line="128"/>
         <source>Click to remove this model.</source>
-        <translation type="unfinished">Нажмите, чтобы убрать эту модель.</translation>
+        <translation>Нажмите, чтобы убрать эту модель.</translation>
     </message>
     <message>
         <location filename="../comparedialog.cpp" line="160"/>
@@ -1638,17 +1642,17 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../storage/appdata.h" line="588"/>
         <source>Releases</source>
-        <translation type="unfinished"></translation>
+        <translation>Выпуски</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="588"/>
         <source>Pre-release</source>
-        <translation type="unfinished"></translation>
+        <translation>Пред-выпуски</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="588"/>
         <source>Nightly</source>
-        <translation type="unfinished"></translation>
+        <translation>Ночная</translation>
     </message>
 </context>
 <context>
@@ -1664,17 +1668,17 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../process_copy.cpp" line="71"/>
         <source>Write error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка записи</translation>
     </message>
     <message>
         <location filename="../process_copy.cpp" line="79"/>
         <source>Cannot write %1 (reason: %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удается записать %1 (причина: %2)</translation>
     </message>
     <message>
         <location filename="../process_copy.cpp" line="84"/>
         <source>Cannot open %1 (reason: %2)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Не удается открыть %1 (причина: %2)</translation>
     </message>
 </context>
 <context>
@@ -1687,17 +1691,17 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../firmwares/curvedata.cpp" line="75"/>
         <source>Standard</source>
-        <translation type="unfinished">Стандартный</translation>
+        <translation>Стандартный</translation>
     </message>
     <message>
         <location filename="../firmwares/curvedata.cpp" line="77"/>
         <source>Custom</source>
-        <translation type="unfinished">Другой</translation>
+        <translation>Другой</translation>
     </message>
     <message>
         <location filename="../firmwares/curvedata.cpp" line="127"/>
         <source>%1 points</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 балл</translation>
     </message>
 </context>
 <context>
@@ -1705,32 +1709,32 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../shared/curvedialog.ui" line="60"/>
         <source>Name</source>
-        <translation type="unfinished">Название</translation>
+        <translation>Название</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="77"/>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation>Тип</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="93"/>
         <source>Smooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Гладкий</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="142"/>
         <source>Curve Creator</source>
-        <translation type="unfinished">Параметры кривой</translation>
+        <translation>Параметры кривой</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="148"/>
         <source>Template</source>
-        <translation type="unfinished"></translation>
+        <translation>Шаблон</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="158"/>
         <source>Coefficient</source>
-        <translation type="unfinished">Коэффициент</translation>
+        <translation>Коэффициент</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="181"/>
@@ -1750,12 +1754,12 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../shared/curvedialog.ui" line="250"/>
         <source>Side</source>
-        <translation type="unfinished">Сторона</translation>
+        <translation>Сторона</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="258"/>
         <source>Both</source>
-        <translation type="unfinished">Обе</translation>
+        <translation>Обе</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="263"/>
@@ -1770,42 +1774,42 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../shared/curvedialog.ui" line="276"/>
         <source>Apply</source>
-        <translation type="unfinished">Применить</translation>
+        <translation>Применить</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="290"/>
         <source>Point size</source>
-        <translation type="unfinished">Размер точки</translation>
+        <translation>Размер точки</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.cpp" line="183"/>
         <source>Linear</source>
-        <translation type="unfinished">Линейный</translation>
+        <translation>Линейный</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.cpp" line="184"/>
         <source>Single Expo</source>
-        <translation type="unfinished">Экспонента</translation>
+        <translation>Экспонента</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.cpp" line="185"/>
         <source>Symmetrical f(x)=-f(-x)</source>
-        <translation type="unfinished">Симметричная f(x)=-f(-x)</translation>
+        <translation>Симметричная f(x)=-f(-x)</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.cpp" line="186"/>
         <source>Symmetrical f(x)=f(-x)</source>
-        <translation type="unfinished">Симметричная f(x)=f(-x)</translation>
+        <translation>Симметричная f(x)=f(-x)</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.cpp" line="417"/>
         <source>Not enough free points in global points array to store the curve.</source>
-        <translation type="unfinished"></translation>
+        <translation>Недостаточно свободных точек в массиве глобальных точек для хранения кривой.</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.cpp" line="427"/>
         <source>Editing curve %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Редактирование кривой %1: %2</translation>
     </message>
 </context>
 <context>
@@ -1813,7 +1817,7 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../shared/curveimagewidget.cpp" line="31"/>
         <source>Double click to edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Дважды щелкните, чтобы отредактировать</translation>
     </message>
 </context>
 <context>
@@ -1821,22 +1825,22 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../firmwares/curvereference.cpp" line="87"/>
         <source>Diff</source>
-        <translation type="unfinished"></translation>
+        <translation>Разница</translation>
     </message>
     <message>
         <location filename="../firmwares/curvereference.cpp" line="87"/>
         <source>Expo</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспо</translation>
     </message>
     <message>
         <location filename="../firmwares/curvereference.cpp" line="87"/>
         <source>Func</source>
-        <translation type="unfinished"></translation>
+        <translation>Функция</translation>
     </message>
     <message>
         <location filename="../firmwares/curvereference.cpp" line="87"/>
         <source>Custom</source>
-        <translation type="unfinished">Другой</translation>
+        <translation>Другой</translation>
     </message>
 </context>
 <context>
@@ -1844,7 +1848,7 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../modeledit/curves.cpp" line="35"/>
         <source>Note: to create a curve right click on the curve row label</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Примечание: чтобы создать кривую, щелкните правой кнопкой мыши на метке строки кривой</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="48"/>
@@ -1855,102 +1859,102 @@ Do you want to import settings from a file?</source>
         <location filename="../modeledit/curves.cpp" line="52"/>
         <location filename="../modeledit/curves.cpp" line="63"/>
         <source>Popup menu available</source>
-        <translation type="unfinished"></translation>
+        <translation>Доступно всплывающее меню</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="75"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя:</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="79"/>
         <source>Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Тип:</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="83"/>
         <source>Points:</source>
-        <translation type="unfinished"></translation>
+        <translation>Точки:</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="96"/>
         <source>Smooth:</source>
-        <translation type="unfinished"></translation>
+        <translation>Гладкий:</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="179"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="180"/>
         <source>Edit</source>
-        <translation type="unfinished">Правка</translation>
+        <translation>Правка</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="182"/>
         <source>Copy</source>
-        <translation type="unfinished">Копировать</translation>
+        <translation>Копировать</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="183"/>
         <source>Cut</source>
-        <translation type="unfinished">Вырезать</translation>
+        <translation>Вырезать</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="184"/>
         <source>Paste</source>
-        <translation type="unfinished">Вставить</translation>
+        <translation>Вставить</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="185"/>
         <source>Clear</source>
-        <translation type="unfinished">Очистить</translation>
+        <translation>Очистить</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="187"/>
         <source>Insert</source>
-        <translation type="unfinished">Вставить</translation>
+        <translation>Вставить</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="188"/>
         <source>Delete</source>
-        <translation type="unfinished">Удалить</translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="189"/>
         <source>Move Up</source>
-        <translation type="unfinished">Сдвинуть вверх</translation>
+        <translation>Сдвинуть вверх</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="190"/>
         <source>Move Down</source>
-        <translation type="unfinished">Сдвинуть вниз</translation>
+        <translation>Сдвинуть вниз</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="192"/>
         <source>Clear All</source>
-        <translation type="unfinished">Убрать всё</translation>
+        <translation>Убрать всё</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="232"/>
         <source>Clear curve %1:%2. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Четкая кривая %1: %2. Ты уверен?</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="245"/>
         <source>Clear all curves. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистите все кривые. Ты уверен?</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="269"/>
         <source>Cut curve %1:%2. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вырезать кривую %1:%2. Ты уверен?</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="277"/>
         <source>Delete curve %1:%2. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалите кривую %1:%2. Ты уверен?</translation>
     </message>
 </context>
 <context>
@@ -1968,7 +1972,7 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="65"/>
         <source>Override %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Переопределить %1</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="67"/>

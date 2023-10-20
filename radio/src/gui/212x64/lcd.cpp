@@ -170,7 +170,7 @@ void lcdPutPattern(coord_t x, coord_t y, const uint8_t * pattern, uint8_t width,
   }
 }
 
-void getCharPattern(PatternData * pattern, unsigned char c, LcdFlags flags)
+LcdFlags getCharPattern(PatternData * pattern, unsigned char c, LcdFlags flags)
 {
 #if !defined(BOOT)
   uint32_t fontsize = FONTSIZE(flags);
@@ -199,7 +199,7 @@ void getCharPattern(PatternData * pattern, unsigned char c, LcdFlags flags)
     }
     else {
       if (c >= 0x80)
-        c_remapped = c - 60;
+        c_remapped = c - 81;
       pattern->data = &font_10x14[((uint16_t) c_remapped) * 20];
     }
   }
@@ -238,6 +238,7 @@ void getCharPattern(PatternData * pattern, unsigned char c, LcdFlags flags)
   pattern->height = 7;
   pattern->data = &font_5x7[(c - 0x20) * 5];
 #endif
+  return flags;
 }
 
 uint8_t getCharWidth(char c, LcdFlags flags)
@@ -255,7 +256,7 @@ void lcdDrawChar(coord_t x, coord_t y, uint8_t c, LcdFlags flags)
   lcdPutPattern(x, y, data, 5, 7, flags);
 #else
   PatternData pattern;
-  getCharPattern(&pattern, c, flags);
+  flags = getCharPattern(&pattern, c, flags);
   lcdPutPattern(x, y, pattern.data, pattern.width, pattern.height, flags);
 #endif
 }
