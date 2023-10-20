@@ -159,7 +159,7 @@ uint8_t getPatternWidth(const PatternData * pattern)
   return result;
 }
 
-void getCharPattern(PatternData * pattern, unsigned char c, LcdFlags flags)
+LcdFlags getCharPattern(PatternData * pattern, unsigned char c, LcdFlags flags)
 {
 #if !defined(BOOT)
   uint32_t fontsize = FONTSIZE(flags);
@@ -188,7 +188,7 @@ void getCharPattern(PatternData * pattern, unsigned char c, LcdFlags flags)
     }
     else {
       if (c >= 128)
-        c_remapped = c - 60;
+        c_remapped = c - 81;
       pattern->data = &font_10x14[((uint16_t)c_remapped)*20];
     }
   }
@@ -227,6 +227,7 @@ void getCharPattern(PatternData * pattern, unsigned char c, LcdFlags flags)
   pattern->height = 7;
   pattern->data = &font_5x7[(c-0x20)*5];
 #endif
+  return flags;
 }
 
 uint8_t getCharWidth(char c, LcdFlags flags)
@@ -238,66 +239,15 @@ uint8_t getCharWidth(char c, LcdFlags flags)
 
 void lcdDrawChar(coord_t x, coord_t y, uint8_t c, LcdFlags flags)
 {
-  const unsigned char * q;
-
-  lcdNextPos = x-1;
-
-#if !defined(BOOT)
-  uint32_t fontsize = FONTSIZE(flags);
-  unsigned char c_remapped = 0;
-
-  if (fontsize == DBLSIZE || (flags&BOLD)) {
-    // To save space only some DBLSIZE and BOLD chars are available
-    // c has to be remapped. All non existing chars mapped to 0 (space)
-    if (c>=',' && c<=':')
-      c_remapped = c - ',' + 1;
-    else if (c>='A' && c<='Z')
-      c_remapped = c - 'A' + 16;
-    else if (c>='a' && c<='z')
-      c_remapped = c - 'a' + 42;
-    else if (c=='_')
-      c_remapped = 4;
-    else if (c!=' ')
-      flags &= ~BOLD;
-  }
-
-  if (fontsize == DBLSIZE) {
-    if (c >= 0xC0) {
-      q = &font_10x14_extra[((uint16_t)(c-0xC0))*20];
-    }
-    else {
-      if (c >= 128)
-        c_remapped = c - 60;
-      q = &font_10x14[((uint16_t)c_remapped)*20];
-    }
-    lcdPutPattern(x, y, q, 10, 16, flags);
-  }
-  else if (fontsize == XXLSIZE) {
-    q = &font_22x38_num[((uint16_t)c-'0'+5)*110];
-    lcdPutPattern(x, y, q, 22, 38, flags);
-  }
-  else if (fontsize == MIDSIZE) {
-    q = &font_8x10[((uint16_t)c-0x20)*16];
-    lcdPutPattern(x, y, q, 8, 12, flags);
-  }
-  else if (fontsize == SMLSIZE) {
-    q = (c < 0xc0 ? &font_4x6[(c-0x20)*5] : &font_4x6_extra[(c-0xc0)*5]);
-    lcdPutPattern(x, y, q, 5, 6, flags);
-  }
-  else if (fontsize == TINSIZE) {
-    q = &font_3x5[((uint16_t)c-0x20)*3];
-    lcdPutPattern(x, y, q, 3, 5, flags);
-  }
-  else if (flags & BOLD) {
-    q = &font_5x7_B[c_remapped*5];
-    lcdPutPattern(x, y, q, 5, 7, flags);
-  }
-  else
+  lcdNextPos = x - 1;
+#if defined(BOOT)
+  const uint8_t * data = &font_5x7[(c-0x20)*5];
+  lcdPutPattern(x, y, data, 5, 7, flags);
+#else
+  PatternData pattern;
+  flags = getCharPattern(&pattern, c, flags);
+  lcdPutPattern(x, y, pattern.data, pattern.width, pattern.height, flags);
 #endif
-  {
-    q = &font_5x7[(c - 0x20) * 5];
-    lcdPutPattern(x, y, q, 5, 7, flags);
-  }
 }
 
 void lcdDrawChar(coord_t x, coord_t y, uint8_t c)
