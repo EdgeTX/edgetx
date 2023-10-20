@@ -22,6 +22,8 @@
 #pragma once
 
 #include "hal.h"
+#include "libopenui_defines.h"
+
 constexpr uint32_t ALERT_FRAME_TOP =               70;
 constexpr uint32_t ALERT_FRAME_HEIGHT =            (LCD_H - 2 * ALERT_FRAME_TOP);
 constexpr uint32_t ALERT_BITMAP_TOP =              ALERT_FRAME_TOP + 15;
