@@ -19,30 +19,4 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-#if defined(STM32F4)
-
-  // Workaround to prevent the other CMSIS header to be included
-  // and fix some missing items in the old one
-  #include "thirdparty/CMSIS/Include/cmsis_compiler.h"
-  #define __CORE_CM4_H_GENERIC
-
-  #include "CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
-#elif defined(STM32F2)
-
-  // Workaround to prevent the other CMSIS header to be included
-  // and fix some missing items in the old one
-  #include "thirdparty/CMSIS/Include/cmsis_compiler.h"
-  #define __CORE_CM3_H_GENERIC
-
-  #include "CMSIS/Device/ST/STM32F2xx/Include/stm32f2xx.h"
-#endif
-
-#if defined(__cplusplus)
-}
-#endif
+#define MASS_STORAGE_BUFFER_SIZE 512U

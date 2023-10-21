@@ -36,7 +36,6 @@
   #include "stm32f4xx_spi.h"
   #include "stm32f4xx_pwr.h"
   #include "stm32f4xx_dma.h"
-  #include "stm32f4xx_flash.h"
   #include "stm32f4xx_dbgmcu.h"
   #include "misc.h"
 #else
@@ -49,7 +48,6 @@
   #include "stm32f2xx_spi.h"
   #include "stm32f2xx_pwr.h"
   #include "stm32f2xx_dma.h"
-  #include "stm32f2xx_flash.h"
   #include "stm32f2xx_dbgmcu.h"
   #include "misc.h"
   #include "dwt.h"    // the old ST library that we use does not define DWT register for STM32F2xx

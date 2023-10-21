@@ -7,32 +7,78 @@ option(LUA_ALLOCATOR_TRACER "Trace Lua memory (de)allocations to debug port (als
 option(USB_SERIAL "Enable USB serial (CDC)" OFF)
 
 set(ARCH ARM)
-set(STM32USB_DIR ${THIRDPARTY_DIR}/STM32_USB_Device_Library)
 add_definitions(-DSTM32 -DLUA_INPUTS -DVARIO)
 
 include_directories(${RADIO_SRC_DIR}/targets/common/arm/stm32)
-include_directories(${STM32USB_DIR}/Core/Inc)
-include_directories(${STM32USB_DIR}/Class/CDC/Inc)
-include_directories(${STM32USB_DIR}/Class/HID/Inc)
-include_directories(${STM32USB_DIR}/Class/MSC/Inc)
 
-set(STM32USB_SRC
-  Core/Src/usbd_core.c
-  Core/Src/usbd_ctlreq.c
-  Core/Src/usbd_ioreq.c
+if(NOT NATIVE_BUILD)
+  # STM32 USB Device library
+  set(STM32USB_DIR ${THIRDPARTY_DIR}/STM32_USB_Device_Library)
+
+  add_library(stm32usb OBJECT EXCLUDE_FROM_ALL
+    ${STM32USB_DIR}/Core/Src/usbd_core.c
+    ${STM32USB_DIR}/Core/Src/usbd_ctlreq.c
+    ${STM32USB_DIR}/Core/Src/usbd_ioreq.c
+    ${STM32USB_DIR}/Class/CDC/Src/usbd_cdc.c
+    ${STM32USB_DIR}/Class/HID/Src/usbd_hid.c
+    ${STM32USB_DIR}/Class/MSC/Src/usbd_msc_data.c
+    ${STM32USB_DIR}/Class/MSC/Src/usbd_msc_scsi.c
+    ${STM32USB_DIR}/Class/MSC/Src/usbd_msc_bot.c
+    ${STM32USB_DIR}/Class/MSC/Src/usbd_msc.c
   )
+
+  target_include_directories(stm32usb PRIVATE
+    ${STM32USB_DIR}/Core/Inc
+    ${STM32USB_DIR}/Class/CDC/Inc
+    ${STM32USB_DIR}/Class/HID/Inc
+    ${STM32USB_DIR}/Class/MSC/Inc)
+
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32usb>)
+  set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32usb>)
+
+  add_library(stm32usb_device_bl OBJECT EXCLUDE_FROM_ALL    
+    targets/common/arm/stm32/usbd_conf.c
+    targets/common/arm/stm32/usbd_desc.c
+    targets/common/arm/stm32/usb_driver.cpp
+    targets/common/arm/stm32/usbd_storage_msd.cpp
+  )
+
+  target_compile_options(stm32usb_device_bl PRIVATE -DBOOT)
+  target_include_directories(stm32usb_device_bl PRIVATE
+    ${STM32USB_DIR}/Core/Inc
+    ${STM32USB_DIR}/Class/CDC/Inc
+    ${STM32USB_DIR}/Class/HID/Inc
+    ${STM32USB_DIR}/Class/MSC/Inc)
+
+  set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32usb_device_bl>)
+
+  add_library(stm32usb_device_fw OBJECT EXCLUDE_FROM_ALL
+    targets/common/arm/stm32/usbd_conf.c
+    targets/common/arm/stm32/usbd_desc.c
+    targets/common/arm/stm32/usb_driver.cpp
+    targets/common/arm/stm32/usbd_storage_msd.cpp
+    targets/common/arm/stm32/usbd_cdc.cpp
+  )
+
+  if(DEBUG OR CLI OR USB_SERIAL)
+    target_compile_options(stm32usb_device_fw PRIVATE -DUSB_SERIAL)
+  endif()
+
+  target_include_directories(stm32usb_device_fw PRIVATE
+    ${STM32USB_DIR}/Core/Inc
+    ${STM32USB_DIR}/Class/CDC/Inc
+    ${STM32USB_DIR}/Class/HID/Inc
+    ${STM32USB_DIR}/Class/MSC/Inc)
+
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32usb_device_fw>)
+endif()
 
 set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/rtc_driver.cpp
   ../common/arm/stm32/timers_driver.cpp
   ../common/arm/stm32/delays_driver.cpp
   ../common/arm/stm32/trainer_driver.cpp
-  ../common/arm/stm32/usbd_conf.c
-  ../common/arm/stm32/usbd_desc.c
-  ../common/arm/stm32/usb_driver.cpp
   ../common/arm/stm32/flash_driver.cpp
-  ../common/arm/stm32/usbd_storage_msd.cpp
-  ../common/arm/stm32/usbd_hid_joystick.c
   ../common/arm/stm32/stm32_hal.cpp
   ../common/arm/stm32/stm32_i2c_driver.cpp
   ../common/arm/stm32/stm32_serial_driver.cpp
@@ -79,33 +125,15 @@ if(FLYSKY_GIMBAL)
 endif()
 
 if(DEBUG OR CLI OR USB_SERIAL)
-  set(STM32USB_SRC ${STM32USB_SRC}
-    Class/CDC/Src/usbd_cdc.c
-  )
-  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
-    ../common/arm/stm32/usbd_cdc.cpp
-  )
   add_definitions(-DUSB_SERIAL)
   message("-- Adding support for USB serial")
 endif()
-
-set(STM32USB_SRC ${STM32USB_SRC}
-  Class/MSC/Src/usbd_msc_data.c
-  Class/MSC/Src/usbd_msc_scsi.c
-  Class/MSC/Src/usbd_msc_bot.c
-  Class/MSC/Src/usbd_msc.c
-)
 
 if(GVARS)
   set(GUI_SRC ${GUI_SRC} ${GVAR_SCREEN})
 endif()
 
 set(FIRMWARE_SRC ${FIRMWARE_SRC} syscalls.c)
-
-
-foreach(FILE ${STM32USB_SRC})
-  set(FIRMWARE_SRC ${FIRMWARE_SRC} ${STM32USB_DIR}/${FILE})
-endforeach()
 
 set(TARGET_SRC ${TARGET_SRC} ../common/arm/stm32/cpu_id.cpp)
 set(SRC ${SRC} io/bootloader_flash.cpp)

@@ -33,7 +33,9 @@
 
 #include "board.h"
 
-#include "usbd_conf.h"
+#if !defined(SIMU)
+#include "usbd_msc_conf.h"
+#endif
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -821,8 +823,11 @@ union ReusableBuffer
 #endif
   } viewMain;
 
-  // Data for the USB mass storage driver. If USB mass storage runs no menu is not allowed to be displayed
-  uint8_t MSC_BOT_Data[MSC_MEDIA_PACKET];
+#if !defined(SIMU)
+  // Data for the USB mass storage driver. If USB mass storage
+  // runs no menu is not allowed to be displayed
+  uint8_t MSC_BOT_Data[MASS_STORAGE_BUFFER_SIZE];
+#endif
 };
 
 extern ReusableBuffer reusableBuffer;

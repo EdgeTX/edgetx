@@ -19,11 +19,6 @@
  * GNU General Public License for more details.
  */
 
-
-// include STM32 headers and generic board defs
-//#include "board_common.h"
-#include "hal/usb_driver.h"
-
 extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
@@ -379,6 +374,8 @@ static int8_t VCP_Receive_FS(uint8_t* Buf, uint32_t *Len)
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
   return USBD_OK;
 }
+
+#include "hal/usb_driver.h"
 
 uint32_t usbSerialBaudRate(void*)
 {
