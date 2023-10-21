@@ -19,14 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include "hal/usb_driver.h"
-
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
 #endif
 
 extern "C" {
-#include "stm32_hal_ll.h"
 #include "usbd_conf.h"
 #include "usbd_core.h"
 #include "usbd_msc.h"
@@ -34,6 +31,11 @@ extern "C" {
 #include "usbd_hid.h"
 #include "usbd_cdc.h"
 }
+
+#include "stm32_hal_ll.h"
+#include "stm32_hal.h"
+
+#include "hal/usb_driver.h"
 
 #include "hal.h"
 #include "debug.h"
@@ -80,7 +82,6 @@ extern "C" void OTG_FS_IRQHandler()
 {
   DEBUG_INTERRUPT(INT_OTG_FS);
   HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
-
 }
 
 void usbInit()
@@ -107,14 +108,14 @@ void usbInit()
   GPIO_InitStruct.Alternate = LL_GPIO_AF_10; // USB
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-
   usbDriverStarted = false;
 }
 
 extern void usbInitLUNs();
 extern USBD_HandleTypeDef hUsbDeviceFS;
-extern USBD_StorageTypeDef USBD_Storage_Interface_fops_FS;
+extern "C" USBD_StorageTypeDef USBD_Storage_Interface_fops_FS;
 extern USBD_CDC_ItfTypeDef USBD_Interface_fops_FS;
+
 void usbStart()
 {
   USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS);
@@ -129,7 +130,6 @@ void usbStart()
       //MX_USB_DEVICE_Init();
       USBD_RegisterClass(&hUsbDeviceFS, &USBD_HID);
       break;
-#endif
 #if defined(USB_SERIAL)
     case USB_SERIAL_MODE:
       // initialize USB as CDC device (virtual serial port)
@@ -138,6 +138,7 @@ void usbStart()
       USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC);
       USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS);
       break;
+#endif
 #endif
     default:
     case USB_MASS_STORAGE_MODE:

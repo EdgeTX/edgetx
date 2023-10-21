@@ -46,12 +46,14 @@
   #define UNUSED(x)           ((void)(x)) /* to avoid warnings */
 #endif
 
+#if !defined(__ALIGNED)
 #if defined(SIMU)
   #define __ALIGNED(x)
   #define __SECTION_USED(s)
 #else
   #define __ALIGNED(x)        __attribute__((aligned(x)))
   #define __SECTION_USED(s)   __attribute__((section(s), used))
+#endif
 #endif
 
 #if defined(SIMU)
@@ -100,12 +102,6 @@
   #define EXTERN_C(__Declaration__) __Declaration__
   #define EXTERN_C_START
   #define EXTERN_C_END
-#endif
-
-#define __PACKED __attribute__((packed))
-
-#if !defined(__STATIC_INLINE)
-  #define __STATIC_INLINE static inline
 #endif
 
 #endif // _DEFINITIONS_H_

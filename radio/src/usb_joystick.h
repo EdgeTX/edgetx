@@ -23,6 +23,7 @@
 #define _USB_JOYSTICK_H_
 
 #include "storage/yaml/yaml_defs.h"
+#include <stdint.h>
 
 enum USBJoystickIfMode
 {

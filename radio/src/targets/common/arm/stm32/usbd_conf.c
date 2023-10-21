@@ -20,8 +20,11 @@
 
 /* Includes ------------------------------------------------------------------*/
 
+#include "stm32_cmsis.h"
+
 #include "stm32_hal.h"
 #include "stm32_hal_ll.h"
+
 #include "hal.h"
 #include "usbd_def.h"
 #include "usbd_core.h"

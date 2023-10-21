@@ -45,18 +45,19 @@ enum usbMode {
 #define CTRL_LINE_STATE_RTS (1 << 1)
 
 int  usbPlugged();
-EXTERN_C(void usbInit());
+void usbInit();
 void usbStart();
 void usbStop();
-#if defined(USBJ_EX)
-void usbJoystickRestart();
-#endif
-void usbJoystickUpdate();
 bool usbStarted();
 
 EXTERN_C(int getSelectedUsbMode());
 void setSelectedUsbMode(int mode);
 
-EXTERN_C(uint32_t usbSerialFreeSpace());
+uint32_t usbSerialFreeSpace();
+
+#if defined(USBJ_EX)
+void usbJoystickRestart();
+#endif
+void usbJoystickUpdate();
 
 extern const etx_serial_port_t UsbSerialPort;
