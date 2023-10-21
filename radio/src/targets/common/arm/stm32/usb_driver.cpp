@@ -180,7 +180,6 @@ bool usbStarted()
 }
 
 #if !defined(BOOT)
-//#include "globals.h"
 
 /*
   Prepare and send new USB data packet
@@ -192,39 +191,39 @@ bool usbStarted()
 void usbJoystickUpdate()
 {
 #if !defined(USBJ_EX)
-  static uint8_t HID_Buffer[HID_IN_PACKET];
+  // static uint8_t HID_Buffer[HID_IN_PACKET];
 
-  // test to se if TX buffer is free
-  if (USBD_HID_SendReport(&hUsbDeviceFS, 0, 0) == USBD_OK) {
-    //buttons
-    HID_Buffer[0] = 0;
-    HID_Buffer[1] = 0;
-    HID_Buffer[2] = 0;
-    for (int i = 0; i < 8; ++i) {
-      if ( channelOutputs[i+8] > 0 ) {
-        HID_Buffer[0] |= (1 << i);
-      }
-      if ( channelOutputs[i+16] > 0 ) {
-        HID_Buffer[1] |= (1 << i);
-      }
-      if ( channelOutputs[i+24] > 0 ) {
-        HID_Buffer[2] |= (1 << i);
-      }
-    }
+  // // test to se if TX buffer is free
+  // if (USBD_HID_SendReport(&hUsbDeviceFS, 0, 0) == USBD_OK) {
+  //   //buttons
+  //   HID_Buffer[0] = 0;
+  //   HID_Buffer[1] = 0;
+  //   HID_Buffer[2] = 0;
+  //   for (int i = 0; i < 8; ++i) {
+  //     if ( channelOutputs[i+8] > 0 ) {
+  //       HID_Buffer[0] |= (1 << i);
+  //     }
+  //     if ( channelOutputs[i+16] > 0 ) {
+  //       HID_Buffer[1] |= (1 << i);
+  //     }
+  //     if ( channelOutputs[i+24] > 0 ) {
+  //       HID_Buffer[2] |= (1 << i);
+  //     }
+  //   }
 
-    //analog values
-    //uint8_t * p = HID_Buffer + 1;
-    for (int i = 0; i < 8; ++i) {
+  //   //analog values
+  //   //uint8_t * p = HID_Buffer + 1;
+  //   for (int i = 0; i < 8; ++i) {
 
-      int16_t value = channelOutputs[i] + 1024;
-      if ( value > 2047 ) value = 2047;
-      else if ( value < 0 ) value = 0;
-      HID_Buffer[i*2 +3] = static_cast<uint8_t>(value & 0xFF);
-      HID_Buffer[i*2 +4] = static_cast<uint8_t>((value >> 8) & 0x07);
+  //     int16_t value = channelOutputs[i] + 1024;
+  //     if ( value > 2047 ) value = 2047;
+  //     else if ( value < 0 ) value = 0;
+  //     HID_Buffer[i*2 +3] = static_cast<uint8_t>(value & 0xFF);
+  //     HID_Buffer[i*2 +4] = static_cast<uint8_t>((value >> 8) & 0x07);
 
-    }
-    USBD_HID_SendReport(&hUsbDeviceFS, HID_Buffer, HID_IN_PACKET);
-  }
+  //   }
+  //   USBD_HID_SendReport(&hUsbDeviceFS, HID_Buffer, HID_IN_PACKET);
+  // }
 #else
   // test to se if TX buffer is free
 //  if (USBD_HID_SendReport(&hUsbDeviceFS, 0, 0) == USBD_OK) {
