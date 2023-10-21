@@ -20,6 +20,7 @@
  */
 
 #include "stm32_hal_ll.h"
+#include "hal/usb_driver.h"
 
 #if defined(BLUETOOTH)
   #include "bluetooth_driver.h"
@@ -29,11 +30,7 @@
 #include "board.h"
 #include "boot.h"
 #include "bin_files.h"
-#include "dataconstants.h"
 #include "lcd.h"
-#include "hal/usb_driver.h"
-//#include "usb_device.h"
-// #include "keys.h"
 #include "debug.h"
 
 #include "timers_driver.h"

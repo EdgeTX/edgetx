@@ -23,6 +23,7 @@
 
 #include "usbd_def.h"
 #include "usbd_msc.h"
+
 #include "hal/fatfs_diskio.h"
 #include "hal/storage.h"
 #include "stm32_hal.h"
@@ -50,11 +51,9 @@
   #define WATCHDOG_SUSPEND(...)
 #endif
 
-#if defined(__cplusplus) && !defined(SIMU)
+#if !defined(SIMU)
 extern "C" {
-#endif
 
-//#include "usbd_msc_mem.h"
 #include "usb_conf.h"
 
 enum MassstorageLuns {
@@ -138,7 +137,6 @@ USBD_StorageTypeDef USBD_Storage_Interface_fops_FS =
   (int8_t *)STORAGE_Inquirydata_FS
 };
 
-#if defined(__cplusplus) && !defined(SIMU)
 }
 #endif
 

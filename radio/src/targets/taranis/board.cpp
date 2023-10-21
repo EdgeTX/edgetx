@@ -55,10 +55,6 @@
   #include "bluetooth_driver.h"
 #endif
 
-// TODO: remove hack when StdPeriph is no more
-//#include "hal/usb_driver.h"
-extern "C" void usbInit();
-
 HardwareOptions hardwareOptions;
 
 #if !defined(BOOT)
@@ -105,14 +101,8 @@ void boardInit()
 #endif
 
 #if defined(MANUFACTURER_RADIOMASTER) && defined(STM32F407xx)
-    
-  if (FLASH_OB_GetBOR() != OB_BOR_LEVEL3)
-  {
-    FLASH_OB_Unlock();
-    FLASH_OB_BORConfig(OB_BOR_LEVEL3);
-    FLASH_OB_Launch();
-    FLASH_OB_Lock();
-  }
+  void board_set_bor_level();
+  board_set_bor_level();
 #endif
 
   init_trainer();

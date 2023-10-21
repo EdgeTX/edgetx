@@ -30,12 +30,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef _BOARD_H_
-//#include "stm32_hal.h"
-#include "stm32_hal_ll.h"
-#endif
+#include <stdint.h>
 
-#include "definitions.h"
+#include "stm32_cmsis.h"
+#include "stm32_hal.h"
+
+#include "usbd_msc_conf.h"
 
 /* USER CODE BEGIN INCLUDE */
 
@@ -86,7 +86,7 @@
 /*---------- -----------*/
 #define USBD_SELF_POWERED          1U
 /*---------- -----------*/
-#define MSC_MEDIA_PACKET           512U
+#define MSC_MEDIA_PACKET           MASS_STORAGE_BUFFER_SIZE
 
 /****************************************/
 /* #define for FS and HS identification */

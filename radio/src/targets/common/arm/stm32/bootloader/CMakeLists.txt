@@ -11,25 +11,14 @@ set(BOOTLOADER_SRC
   ../../../../../strhelpers.cpp
   ../../../../../stamp.cpp
   ../../../../../syscalls.c
-  ../../../../../${STM32USB_DIR}/Core/Src/usbd_core.c
-  ../../../../../${STM32USB_DIR}/Core/Src/usbd_ctlreq.c
-  ../../../../../${STM32USB_DIR}/Core/Src/usbd_ioreq.c
-  ../../../../../${STM32USB_DIR}/Class/MSC/Src/usbd_msc_data.c
-  ../../../../../${STM32USB_DIR}/Class/MSC/Src/usbd_msc_scsi.c
-  ../../../../../${STM32USB_DIR}/Class/MSC/Src/usbd_msc_bot.c
-  ../../../../../${STM32USB_DIR}/Class/MSC/Src/usbd_msc.c
   ../../../../../targets/${TARGET_DIR}/${LCD_DRIVER}
   ../../../../../targets/${TARGET_DIR}/backlight_driver.cpp
   ../../../../../targets/${TARGET_DIR}/board.cpp
   ../../../../../targets/${TARGET_DIR}/bootloader/boot_menu.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/hal_keys.inc
   ../pwr_driver.cpp
-  ../usb_driver.cpp
-  ../usbd_storage_msd.cpp
   ../delays_driver.cpp
   ../timers_driver.cpp
-  ../usbd_desc.c
-  ../usbd_conf.c
   ../flash_driver.cpp
   ../stm32_exti_driver.cpp
   ../stm32_serial_driver.cpp
@@ -146,6 +135,7 @@ remove_definitions(-DUSB_SERIAL)
 remove_definitions(-DUSE_WATCHDOG)
 
 add_definitions(-DBOOT)
+add_definitions(-DSPI_DISABLE_DMA)
 
 add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})
 add_dependencies(bootloader ${BITMAPS_TARGET})

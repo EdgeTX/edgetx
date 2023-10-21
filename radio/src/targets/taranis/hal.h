@@ -2416,7 +2416,6 @@
 #define USB_GPIO_PIN_VBUS               LL_GPIO_PIN_9  // PA.09
 #define USB_GPIO_PIN_DM                 LL_GPIO_PIN_11 // PA.11
 #define USB_GPIO_PIN_DP                 LL_GPIO_PIN_12 // PA.12
-#define USB_GPIO_AF                     GPIO_AF_OTG1_FS
 
 // BackLight
 #if defined(PCBX9E)
