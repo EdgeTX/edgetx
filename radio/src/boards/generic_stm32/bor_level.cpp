@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#if defined(MANUFACTURER_RADIOMASTER) && defined(STM32F407xx)
+#if defined(STM32F4)
 #include "stm32f4xx_flash.h"
 
 void board_set_bor_level()
