@@ -47,10 +47,6 @@
 
 #include <string.h>
 
-// TODO: remove hack when StdPeriph is no more
-//#include "hal/usb_driver.h"
-extern "C" void usbInit();
-
 // common ADC driver
 extern const etx_hal_adc_driver_t _adc_driver;
 
