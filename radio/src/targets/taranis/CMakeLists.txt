@@ -492,7 +492,7 @@ if(INTERNAL_MODULE_SERIAL)
     set(INTERNAL_MODULES PXX2 CACHE STRING "Internal modules")
   else()
     # defines existing internal modules
-    set(INTERNAL_MODULES PXX1;PXX2;MULTI;CRSF CACHE STRING "Internal modules")
+    set(INTERNAL_MODULES MULTI;CRSF CACHE STRING "Internal modules")
   endif()
 
   add_definitions(-DINTERNAL_MODULE_SERIAL)
