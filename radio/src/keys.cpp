@@ -18,10 +18,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#if !defined(BOOT) && defined(USE_HATS_AS_KEYS)
-#include "opentx.h"
-#endif
-
 #include "keys.h"
 
 #include "opentx_helpers.h"
@@ -31,6 +27,10 @@
 #include "hal/watchdog_driver.h"
 #include "hal/rotary_encoder.h"
 #include "dataconstants.h"
+
+#if !defined(BOOT) && defined(USE_HATS_AS_KEYS)
+#include "opentx.h"
+#endif
 
 // long key press minimum duration (x10ms),
 // must be less than KEY_REPEAT_DELAY
