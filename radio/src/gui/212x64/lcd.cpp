@@ -306,6 +306,7 @@ void lcdDrawSizedText(coord_t x, coord_t y, const char * s, uint8_t len, LcdFlag
       break;
     }
     else if (c >= 0x20) {
+#if !defined(BOOT)
       // UTF8 detection
       c = map_utf8_char(s, len);
       if (!c) break;
@@ -319,11 +320,14 @@ void lcdDrawSizedText(coord_t x, coord_t y, const char * s, uint8_t len, LcdFlag
           lcdDrawPoint(x, y + 5 -1 , flags);
         }
         x += 2;
-      }
-      else {
+      } else {
         lcdDrawChar(x, y, c, flags);
         x = lcdNextPos;
       }
+#else
+      lcdDrawChar(x, y, c, flags);
+      x = lcdNextPos;
+#endif
     }
     else if (c == 0x1F) {  //X-coord prefix
       setx = true;

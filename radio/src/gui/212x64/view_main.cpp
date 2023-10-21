@@ -23,6 +23,7 @@
 #include "hal/trainer_driver.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
+#include "hal/usb_driver.h"
 
 #include "switches.h"
 #include "input_mapping.h"
