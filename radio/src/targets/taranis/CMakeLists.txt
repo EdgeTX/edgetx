@@ -611,8 +611,6 @@ set(FIRMWARE_SRC
   targets/common/arm/loadboot.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
-  targets/common/arm/stm32/sdcard_spi.cpp
-  targets/common/arm/stm32/diskio_spi.cpp
   )
 
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})

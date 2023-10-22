@@ -53,7 +53,6 @@ if (PCB STREQUAL X10)
   add_definitions(-DSOFTWARE_VOLUME)
   set(FIRMWARE_SRC
     ${FIRMWARE_SRC}
-    targets/common/arm/stm32/stm32_adc.cpp
     targets/common/arm/stm32/audio_dac_driver.cpp
     )
   if (NOT PCBREV STREQUAL TX16S)
