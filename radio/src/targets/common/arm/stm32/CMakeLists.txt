@@ -9,9 +9,11 @@ option(USB_SERIAL "Enable USB serial (CDC)" OFF)
 set(ARCH ARM)
 add_definitions(-DSTM32 -DLUA_INPUTS -DVARIO)
 
-include_directories(${RADIO_SRC_DIR}/targets/common/arm/stm32)
+set(STM32_DRIVER_DIR targets/common/arm/stm32)
+include_directories(${STM32_DRIVER_DIR})
 
 if(NOT NATIVE_BUILD)
+  
   # STM32 USB Device library
   set(STM32USB_DIR ${THIRDPARTY_DIR}/STM32_USB_Device_Library)
 
@@ -36,11 +38,12 @@ if(NOT NATIVE_BUILD)
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32usb>)
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32usb>)
 
+  # Bootloader USB devices
   add_library(stm32usb_device_bl OBJECT EXCLUDE_FROM_ALL    
-    targets/common/arm/stm32/usbd_conf.c
-    targets/common/arm/stm32/usbd_desc.c
-    targets/common/arm/stm32/usb_driver.cpp
-    targets/common/arm/stm32/usbd_storage_msd.cpp
+    ${STM32_DRIVER_DIR}/usbd_conf.c
+    ${STM32_DRIVER_DIR}/usbd_desc.c
+    ${STM32_DRIVER_DIR}/usb_driver.cpp
+    ${STM32_DRIVER_DIR}/usbd_storage_msd.cpp
   )
 
   target_compile_options(stm32usb_device_bl PRIVATE -DBOOT)
@@ -52,12 +55,13 @@ if(NOT NATIVE_BUILD)
 
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32usb_device_bl>)
 
+  # Firmware USB devices
   add_library(stm32usb_device_fw OBJECT EXCLUDE_FROM_ALL
-    targets/common/arm/stm32/usbd_conf.c
-    targets/common/arm/stm32/usbd_desc.c
-    targets/common/arm/stm32/usb_driver.cpp
-    targets/common/arm/stm32/usbd_storage_msd.cpp
-    targets/common/arm/stm32/usbd_cdc.cpp
+    ${STM32_DRIVER_DIR}/usbd_conf.c
+    ${STM32_DRIVER_DIR}/usbd_desc.c
+    ${STM32_DRIVER_DIR}/usb_driver.cpp
+    ${STM32_DRIVER_DIR}/usbd_storage_msd.cpp
+    ${STM32_DRIVER_DIR}/usbd_cdc.cpp
   )
 
   if(DEBUG OR CLI OR USB_SERIAL)
@@ -71,28 +75,36 @@ if(NOT NATIVE_BUILD)
     ${STM32USB_DIR}/Class/MSC/Inc)
 
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32usb_device_fw>)
+
+  # HAL/LL based driver library
+  add_library(stm32_drivers OBJECT EXCLUDE_FROM_ALL
+    ${STM32_DRIVER_DIR}/timers_driver.cpp
+    ${STM32_DRIVER_DIR}/sdcard_spi.cpp
+    ${STM32_DRIVER_DIR}/diskio_spi.cpp
+    ${STM32_DRIVER_DIR}/stm32_exti_driver.cpp
+    ${STM32_DRIVER_DIR}/stm32_serial_driver.cpp
+    ${STM32_DRIVER_DIR}/stm32_usart_driver.cpp
+    ${STM32_DRIVER_DIR}/stm32_gpio_driver.cpp
+    ${STM32_DRIVER_DIR}/stm32_i2c_driver.cpp
+    ${STM32_DRIVER_DIR}/stm32_timer.cpp
+    ${STM32_DRIVER_DIR}/stm32_dma.cpp
+    ${STM32_DRIVER_DIR}/stm32_spi.cpp
+    ${STM32_DRIVER_DIR}/stm32_adc.cpp
+  )
+
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_drivers>)
+  set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_drivers>)
 endif()
 
 set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
   ../common/arm/stm32/rtc_driver.cpp
-  ../common/arm/stm32/timers_driver.cpp
   ../common/arm/stm32/delays_driver.cpp
   ../common/arm/stm32/trainer_driver.cpp
   ../common/arm/stm32/flash_driver.cpp
-  ../common/arm/stm32/stm32_hal.cpp
-  ../common/arm/stm32/stm32_i2c_driver.cpp
-  ../common/arm/stm32/stm32_serial_driver.cpp
   ../common/arm/stm32/stm32_softserial_driver.cpp
   ../common/arm/stm32/stm32_pulse_driver.cpp
-  ../common/arm/stm32/stm32_usart_driver.cpp
   ../common/arm/stm32/module_timer_driver.cpp
   ../common/arm/stm32/stm32_switch_driver.cpp
-  ../common/arm/stm32/stm32_adc.cpp
-  ../common/arm/stm32/stm32_spi.cpp
-  ../common/arm/stm32/stm32_timer.cpp
-  ../common/arm/stm32/stm32_dma.cpp
-  ../common/arm/stm32/stm32_gpio_driver.cpp
-  ../common/arm/stm32/stm32_exti_driver.cpp
   ../common/arm/stm32/mixer_scheduler_driver.cpp
   ../common/arm/stm32/pwr_driver.cpp
   ../common/arm/stm32/watchdog_driver.cpp
