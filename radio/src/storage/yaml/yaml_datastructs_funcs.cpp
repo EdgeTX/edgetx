@@ -127,6 +127,27 @@ static int _legacy_mix_src(const char* val, uint8_t val_len)
 
 extern const struct YamlIdStr enum_MixSources[];
 
+// Find next ',' separator, return length up to; but not inclding separator.
+uint8_t find_sep(const char* val, uint8_t val_len)
+{
+  // find ","
+  const char* sep = (const char *)memchr(val, ',', val_len);
+  if (sep) {
+    // Special case - check for '(x,y)' in string. If found skip past closing bracket
+    const char* bkt = (const char *)memchr(val, '(', val_len);
+    if (bkt && bkt < sep) {
+      // Found '(' before ','
+      bkt = (const char *)memchr(val, ')', val_len);
+      if (bkt && bkt > sep) {
+        // Found ')' after ','
+        sep = (const char *)memchr(bkt, ',', val_len-(bkt-val));
+      }
+    }
+  }
+  // Return length up to ',' (or full length if not found)
+  return sep ? sep - val : val_len;
+}
+
 // sources: parse/output
 //  - lua(script#,n): LUA mix outputs
 //  - ls(n): logical switches
@@ -1354,8 +1375,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   }
   
   // find "," and cut val_len
-  const char* sep = (const char *)memchr(val, ',', val_len);
-  uint8_t l_sep = sep ? sep - val : val_len;
+  uint8_t l_sep = find_sep(val, val_len);
 
   bool eat_comma = true;
   // read values...
@@ -1492,8 +1512,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     val++; val_len--;
 
     // find "," and cut val_len
-    sep = (const char *)memchr(val, ',', val_len);
-    l_sep = sep ? sep - val : val_len;
+    l_sep = find_sep(val, val_len);
 
     // parse CFN_GVAR_MODE
     for (unsigned i=0; i < DIM(_adjust_gvar_mode_lookup); i++) {
@@ -1507,8 +1526,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     if (val_len == 0 || val[0] != ',') return;
     val++; val_len--;
     // find "," and cut val_len
-    sep = (const char *)memchr(val, ',', val_len);
-    l_sep = sep ? sep - val : val_len;
+    l_sep = find_sep(val, val_len);
 
     // output param
     switch(CFN_GVAR_MODE(cfn)) {
@@ -1750,8 +1768,7 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
   data -= sizeof(LogicalSwitchData::func);
 
   // find "," and cut val_len
-  const char* sep = (const char *)memchr(val, ',', val_len);
-  uint8_t l_sep = sep ? sep - val : val_len;
+  uint8_t l_sep = find_sep(val, val_len);
 
   auto ls = reinterpret_cast<LogicalSwitchData*>(data);
   switch(lswFamily(ls->func)) {
@@ -1982,8 +1999,7 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
 #if defined(MULTIMODULE)
     // Read type/subType by the book (see MPM documentation)
     // read "[type],[subtype]"
-    const char* sep = (const char *)memchr(val, ',', val_len);
-    uint8_t l_sep = sep ? sep - val : val_len;
+    uint8_t l_sep = find_sep(val, val_len);
 
     int type = yaml_str2uint(val, l_sep);
     val += l_sep; val_len -= l_sep;
