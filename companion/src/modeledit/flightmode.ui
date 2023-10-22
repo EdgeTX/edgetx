@@ -515,7 +515,7 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <layout class="QVBoxLayout" name="verticalLayout_4">
+        <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
           <widget class="QComboBox" name="trim8Use"/>
          </item>
@@ -538,7 +538,7 @@
         </layout>
        </item>
        <item row="0" column="1">
-        <spacer name="verticalSpacer_2">
+        <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -594,7 +594,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <layout class="QVBoxLayout" name="verticalLayout_5">
+        <layout class="QVBoxLayout" name="verticalLayout_6">
          <item>
           <widget class="QComboBox" name="trim5Use"/>
          </item>
@@ -617,7 +617,7 @@
         </layout>
        </item>
        <item row="0" column="1">
-        <spacer name="verticalSpacer">
+        <spacer name="verticalSpacer_4">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -660,7 +660,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <layout class="QVBoxLayout" name="verticalLayout_5">
+        <layout class="QVBoxLayout" name="verticalLayout_7">
          <item>
           <widget class="QComboBox" name="trim7Use"/>
          </item>
@@ -683,7 +683,7 @@
         </layout>
        </item>
        <item row="0" column="1">
-        <spacer name="verticalSpacer">
+        <spacer name="verticalSpacer_11">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
