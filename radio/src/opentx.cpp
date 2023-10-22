@@ -1787,6 +1787,7 @@ uint32_t pwrCheck()
 #if defined(COLORLCD)
         bool usbConfirmed = !usbPlugged() || getSelectedUsbMode() == USB_UNSELECTED_MODE;
         bool modelConnectedConfirmed = !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
+        bool trainerConfirmed = !isTrainerConnected();
 #endif
 #if defined(SHUTDOWN_CONFIRMATION)
         while (1)
@@ -1849,6 +1850,12 @@ uint32_t pwrCheck()
                 if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
               }
               return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
+            };
+          }
+          else if (!trainerConfirmed) {
+            message = STR_TRAINER_STILL_CONNECTED;
+            closeCondition = [](){
+              return !isTrainerConnected();
             };
           }
 
