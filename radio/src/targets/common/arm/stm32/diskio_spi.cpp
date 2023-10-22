@@ -30,6 +30,8 @@
 
 #include "hal.h"
 
+#if defined(SD_SPI)
+
 #include <string.h>
 #include "debug.h"
 
@@ -145,3 +147,5 @@ const diskio_driver_t sdcard_spi_driver = {
   .write = sdcard_spi_write,
   .ioctl = sdcard_spi_ioctl,
 };
+
+#endif
