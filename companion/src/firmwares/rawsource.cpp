@@ -133,7 +133,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   }
 
   static const QString trims[] = {
-    tr("TrmR"), tr("TrmE"), tr("TrmT"), tr("TrmA"), tr("Trm5"), tr("Trm6")
+    tr("TrmR"), tr("TrmE"), tr("TrmT"), tr("TrmA"), tr("Trm5"), tr("Trm6"), tr("Trm7"), tr("Trm8")
   };
 
   static const QString trims2[] = {
