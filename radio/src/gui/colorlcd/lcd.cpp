@@ -19,7 +19,10 @@
  * GNU General Public License for more details.
  */
 
+#include "board.h"
 #include "lcd.h"
+#include "dma2d.h"
+#include "bitmapbuffer.h"
 #include <lvgl/lvgl.h>
 
 pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
@@ -129,7 +132,7 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
                     src, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
                     area_w, area_h);      
     }
-    
+    DMAWait(); // wait for the last DMACopyBitmap to be completed before sending completion message
     lv_disp_flush_ready(disp_drv);
 #endif
   } else {
@@ -244,6 +247,11 @@ static void _draw_buf_flush(lv_disp_t* disp)
     else
       draw_buf->buf_act = draw_buf->buf1;
   }
+}
+
+void lcdClear()
+{
+  lcd->clear();
 }
 
 void lcdRefresh()

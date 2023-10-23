@@ -571,10 +571,10 @@
 #define LCD_RCC_APB2Periph              RCC_APB2Periph_LTDC
 #if defined(PCBX12S)
   #define LCD_GPIO_NRST                 GPIOF
-  #define LCD_GPIO_PIN_NRST             GPIO_Pin_10 // PF.10
+  #define LCD_GPIO_PIN_NRST             LL_GPIO_PIN_10 // PF.10
 #elif defined(PCBX10)
   #define LCD_GPIO_NRST                 GPIOI
-  #define LCD_GPIO_PIN_NRST             GPIO_Pin_10 // PI.10
+  #define LCD_GPIO_PIN_NRST             LL_GPIO_PIN_10 // PI.10
 #endif
 #if defined(PCBX10) && !defined(RADIO_T18)
   #define LCD_VERTICAL_INVERT
@@ -1051,5 +1051,11 @@
   #define BT_EN_GPIO                    GPIOG
   #define BT_EN_GPIO_PIN                LL_GPIO_PIN_10 // PG.10
 #endif
+
+#define LCD_W                          480
+#define LCD_H                          272
+#define LCD_PHYS_H                     LCD_H
+#define LCD_PHYS_W                     LCD_W
+#define LCD_DEPTH                      16
 
 #endif // _HAL_H_
