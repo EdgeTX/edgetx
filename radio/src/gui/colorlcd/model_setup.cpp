@@ -66,19 +66,16 @@ struct ModelNameEdit : public ModelTextEdit {
 
 static std::string getModelBitmap()
 {
-  return std::string(g_model.header.bitmap, sizeof(g_model.header.bitmap));
+  return std::string(g_model.header.bitmap, LEN_BITMAP_NAME);
 }
 
 static void setModelBitmap(std::string newValue)
 {
-  strncpy(g_model.header.bitmap, newValue.c_str(),
-          sizeof(g_model.header.bitmap));
-  g_model.header.bitmap[sizeof(g_model.header.bitmap)-1] = '\0';
+  strncpy(g_model.header.bitmap, newValue.c_str(), LEN_BITMAP_NAME);
   auto model = modelslist.getCurrentModel();
   if (model) {
-    strncpy(model->modelBitmap, newValue.c_str(),
-            sizeof(ModelCell::modelBitmap));
-    model->modelBitmap[sizeof(ModelCell::modelBitmap)-1] = '\0';
+    strncpy(model->modelBitmap, newValue.c_str(), LEN_BITMAP_NAME);
+    model->modelBitmap[LEN_BITMAP_NAME] = '\0';
   }
   SET_DIRTY();
 }
@@ -86,7 +83,7 @@ static void setModelBitmap(std::string newValue)
 struct ModelBitmapEdit : public FileChoice {
   ModelBitmapEdit(Window *parent, const rect_t &rect) :
       FileChoice(parent, rect, BITMAPS_PATH, BITMAPS_EXT,
-                 sizeof(g_model.header.bitmap), getModelBitmap, setModelBitmap)
+                 LEN_BITMAP_NAME, getModelBitmap, setModelBitmap)
   {
   }
 };

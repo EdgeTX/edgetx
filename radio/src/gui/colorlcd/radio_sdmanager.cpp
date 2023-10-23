@@ -365,7 +365,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
     } else if (!strcasecmp(BITMAPS_PATH, path) &&
                isExtensionMatching(ext, BITMAPS_EXT)) {
       menu->addLine(STR_ASSIGN_BITMAP, [=]() {
-        memcpy(g_model.header.bitmap, name, sizeof(g_model.header.bitmap));
+        memcpy(g_model.header.bitmap, name, LEN_BITMAP_NAME);
         storageDirty(EE_MODEL);
       });
     } else if (!strcasecmp(ext, TEXT_EXT) || !strcasecmp(ext, LOGS_EXT) || !strcasecmp(ext, SCRIPT_EXT)) {

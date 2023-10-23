@@ -97,7 +97,7 @@ class ModelBitmapWidget: public Widget
 
     uint32_t getHash()
     {
-      return hash(g_model.header.bitmap, sizeof(g_model.header.bitmap));
+      return hash(g_model.header.bitmap, LEN_BITMAP_NAME);
     }
   
     void loadBitmap()

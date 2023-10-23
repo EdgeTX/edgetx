@@ -1350,7 +1350,7 @@ void ModelsList::updateCurrentModelCell()
   if (currentModel) {
 #if LEN_BITMAP_NAME > 0
     strncpy(currentModel->modelBitmap, g_model.header.bitmap, LEN_BITMAP_NAME);
-    currentModel->modelBitmap[LEN_BITMAP_NAME - 1] = '\0';
+    currentModel->modelBitmap[LEN_BITMAP_NAME] = '\0';
 #endif
     strncpy(currentModel->modelFilename, g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME);
     currentModel->modelFilename[LEN_MODEL_FILENAME] = '\0';
