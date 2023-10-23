@@ -25,8 +25,10 @@
 
 #if LCD_W >= 212
   #define TRAINER_CALIB_COLUMN_WIDTH (6 * FW)
+  #define WIDESPACE 5
 #else
   #define TRAINER_CALIB_COLUMN_WIDTH (4 * FW + 2)
+  #define WIDESPACE 0
 #endif
 
 void menuRadioTrainer(event_t event)
@@ -45,8 +47,8 @@ void menuRadioTrainer(event_t event)
   LcdFlags blink = ((s_editMode>0) ? BLINK|INVERS : INVERS);
 
   lcdDrawText(5*FW, MENU_HEADER_HEIGHT+1, STR_MODE);
-  lcdDrawText(11*FW, MENU_HEADER_HEIGHT+1, "%", RIGHT);
-  lcdDrawText(12*FW, MENU_HEADER_HEIGHT+1, STR_SOURCE);
+  lcdDrawText((12+WIDESPACE)*FW, MENU_HEADER_HEIGHT+1, "%", RIGHT);
+  lcdDrawText((13+WIDESPACE)*FW, MENU_HEADER_HEIGHT+1, STR_SOURCE);
 
   y = MENU_HEADER_HEIGHT + 1 + FH;
 
@@ -69,12 +71,12 @@ void menuRadioTrainer(event_t event)
           break;
 
         case 1:
-          lcdDrawNumber(11*FW, y, td->studWeight, attr|RIGHT);
+          lcdDrawNumber((12+WIDESPACE)*FW, y, td->studWeight, attr|RIGHT);
           if (attr&BLINK) CHECK_INCDEC_GENVAR(event, td->studWeight, -125, 125);
           break;
 
         case 2:
-          lcdDrawTextAtIndex(12*FW, y, STR_TRNCHN, td->srcChn, attr);
+          lcdDrawTextAtIndex((13+WIDESPACE)*FW, y, STR_TRNCHN, td->srcChn, attr);
           if (attr&BLINK) CHECK_INCDEC_GENVAR(event, td->srcChn, 0, 3);
           break;
       }
