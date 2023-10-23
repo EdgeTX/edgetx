@@ -351,6 +351,7 @@
 #define TR_ALARMWARNING        "Wyłącz dźwięk"
 #define TR_RSSI_SHUTDOWN_ALARM   TR("Rssi Shutdown", "Check Rssi on Shutdown")
 #define TR_MODEL_STILL_POWERED "Model jest włączony"
+#define TR_TRAINER_STILL_CONNECTED     "Uczeń ciągle podłączony"
 #define TR_USB_STILL_CONNECTED         "USB jest podłączone"
 #define TR_MODEL_SHUTDOWN              "Wyłączyć?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Press enter to confirm"

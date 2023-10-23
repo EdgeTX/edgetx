@@ -353,6 +353,7 @@
 #define TR_ALARMWARNING                 "Suono spento"
 #define TR_RSSI_SHUTDOWN_ALARM          TR("RSSI spento", "controlla RSSI spegnendo")
 #define TR_MODEL_STILL_POWERED          "Radio ancora\nconnessa"
+#define TR_TRAINER_STILL_CONNECTED      "Trainer ancora\nconnesso"
 #define TR_USB_STILL_CONNECTED          "USB ancora\nconnesso"
 #define TR_MODEL_SHUTDOWN               "Spegnimento?"
 #define TR_PRESS_ENTER_TO_CONFIRM       "Premi [ENT] per confermare"

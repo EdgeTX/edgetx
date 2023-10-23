@@ -1782,12 +1782,15 @@ uint32_t pwrCheck()
 #if defined(COLORLCD)
         bool usbConfirmed = !usbPlugged() || getSelectedUsbMode() == USB_UNSELECTED_MODE;
         bool modelConnectedConfirmed = !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
+        bool trainerConfirmed = !isTrainerConnected();
 #endif
 #if defined(SHUTDOWN_CONFIRMATION)
         while (1)
 #else
-        while ((usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) ||
-               (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm))
+        while (
+            (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) ||
+            (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm) ||
+            isTrainerConnected())
 #endif
         {
 
@@ -1804,7 +1807,10 @@ uint32_t pwrCheck()
             msg = STR_USB_STILL_CONNECTED;
             msg_len = sizeof(TR_USB_STILL_CONNECTED);
           }
-
+          else if (isTrainerConnected()) {
+            msg = STR_TRAINER_STILL_CONNECTED;
+            msg_len = sizeof(TR_TRAINER_STILL_CONNECTED);
+          }
           event_t evt = getEvent();
           SET_WARNING_INFO(msg, msg_len, 0);
           DISPLAY_WARNING(evt);
@@ -1841,6 +1847,12 @@ uint32_t pwrCheck()
                 if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
               }
               return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
+            };
+          }
+          else if (!trainerConfirmed) {
+            message = STR_TRAINER_STILL_CONNECTED;
+            closeCondition = [](){
+              return !isTrainerConnected();
             };
           }
 

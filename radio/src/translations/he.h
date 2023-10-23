@@ -357,6 +357,7 @@
 #define TR_ALARMWARNING                "sound off"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI shutdown", "בדיקת חיבור למקלט בכיבוי")
 #define TR_MODEL_STILL_POWERED         "מודל עדיין פעיל"
+#define TR_TRAINER_STILL_CONNECTED     "מצב חניך עדיין מחובר"
 #define TR_USB_STILL_CONNECTED         "חיבור עדיין מחובר"
 #define TR_MODEL_SHUTDOWN              "?לכבות"
 #define TR_PRESS_ENTER_TO_CONFIRM      "לחץ אנטר לאישור"
