@@ -61,6 +61,7 @@ namespace Board {
     BOARD_JUMPER_T16,
     BOARD_RADIOMASTER_TX16S,
     BOARD_JUMPER_T18,
+    BOARD_JUMPER_T20,
     BOARD_RADIOMASTER_TX12,
     BOARD_RADIOMASTER_TX12_MK2,
     BOARD_RADIOMASTER_BOXER,
@@ -119,6 +120,8 @@ namespace Board {
     TRIM_AXIS_RH,
     TRIM_AXIS_T5,
     TRIM_AXIS_T6,
+    TRIM_AXIS_T7,
+    TRIM_AXIS_T8,
     TRIM_AXIS_COUNT
   };
 
@@ -136,6 +139,10 @@ namespace Board {
     TRIM_SW_T5_INC,
     TRIM_SW_T6_DEC,
     TRIM_SW_T6_INC,
+    TRIM_SW_T7_DEC,
+    TRIM_SW_T7_INC,
+    TRIM_SW_T8_DEC,
+    TRIM_SW_T8_INC,
     TRIM_SW_COUNT
   };
 
@@ -316,6 +323,11 @@ inline bool IS_JUMPER_T18(Board::Type board)
   return board == Board::BOARD_JUMPER_T18;
 }
 
+inline bool IS_JUMPER_T20(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T20;
+}
+
 inline bool IS_RADIOMASTER_TX16S(Board::Type board)
 {
   return board == Board::BOARD_RADIOMASTER_TX16S;
@@ -354,15 +366,16 @@ inline bool IS_FAMILY_T16(Board::Type board)
 inline bool IS_FAMILY_T12(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T12 ||
+         board == Board::BOARD_JUMPER_T20 ||
+         board == Board::BOARD_JUMPER_TLITE ||
+         board == Board::BOARD_JUMPER_TLITE_F4 ||
+         board == Board::BOARD_JUMPER_TPRO ||
+         board == Board::BOARD_JUMPER_TPROV2 ||
          board == Board::BOARD_RADIOMASTER_TX12 ||
          board == Board::BOARD_RADIOMASTER_TX12_MK2 ||
          board == Board::BOARD_RADIOMASTER_ZORRO ||
          board == Board::BOARD_RADIOMASTER_BOXER ||
          board == Board::BOARD_RADIOMASTER_T8 ||
-         board == Board::BOARD_JUMPER_TLITE ||
-         board == Board::BOARD_JUMPER_TLITE_F4 ||
-         board == Board::BOARD_JUMPER_TPRO ||
-         board == Board::BOARD_JUMPER_TPROV2 ||
          board == Board::BOARD_BETAFPV_LR3PRO ||
          board == Board::BOARD_IFLIGHT_COMMANDO8;
 }

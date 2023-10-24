@@ -42,7 +42,9 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
     tr("ThrTrim Down"), tr("ThrTrim Up"),
     tr("AilTrim Left"), tr("AilTrim Right"),
     tr("Trim 5 Down"), tr("Trim 5 Up"),
-    tr("Trim 6 Down"), tr("Trim 6 Up")
+    tr("Trim 6 Down"), tr("Trim 6 Up"),
+    tr("Trim 7 Down"), tr("Trim 7 Up"),
+    tr("Trim 8 Down"), tr("Trim 8 Up")
   };
 
   static const QString trimsSwitches2[] = {
