@@ -139,6 +139,10 @@ namespace Board {
     TRIM_SW_T5_INC,
     TRIM_SW_T6_DEC,
     TRIM_SW_T6_INC,
+    TRIM_SW_T7_DEC,
+    TRIM_SW_T7_INC,
+    TRIM_SW_T8_DEC,
+    TRIM_SW_T8_INC,
     TRIM_SW_COUNT
   };
 
