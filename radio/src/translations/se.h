@@ -53,7 +53,7 @@
 #define TR_VBLMODE                      "Av",TR("Knapp","Knappar"),TR("Spak","Spakar"),"Allt","PÅ"
 #define TR_TRNMODE                      "Av",TR("+=","Addera"),TR(":=","Ersätt")
 #define TR_TRNCHN                       "KA1","KA2","KA3","KA4"
-#define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","LUA","CLI","GPS","Debug","SpaceMouse","Extern modul"
+#define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Instruktör","LUA","CLI","GPS","Debug","SpaceMouse","Extern modul"
 
 #if LCD_W > LCD_H
   #define TR_SWTYPES                    "Ingen", "2 pos flipp","2 pos","3 pos"
@@ -65,7 +65,7 @@
 #define TR_VPERSISTENT                  "Av","Flygning","Nolla själv"
 #define TR_COUNTRY_CODES                TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
 #define TR_USBMODES                     "Fråga","Joystick",TR("SD-kort","SD-kortlagring"),"Seriell"
-#define TR_JACK_MODES                   "Fråga","Audio","Lärare"
+#define TR_JACK_MODES                   "Fråga","Audio","Instruktör"
 #define TR_SBUS_INVERSION_VALUES        "normal","ej inverterad"
 #define TR_MULTI_CUSTOM                 "Anpassad"
 #define TR_VTRIMINC                     TR("Expo","Exponentiell"),TR("xFin","Extra fin"),"Fin","Medium","Grov"
@@ -98,7 +98,7 @@
 
 #define TR_TEXT_SIZE                    "Std","XS","S","M","L"
 
-#define TR_SF_TRAINER                  "Lärare"
+#define TR_SF_TRAINER                  "Instruktör"
 #define TR_SF_INST_TRIM                "Spara trimmar"
 #define TR_SF_RESET                    "Återställ"
 #define TR_SF_SET_TIMER                "Sätt"
@@ -106,7 +106,7 @@
 #define TR_SF_FAILSAFE                 "Sätt failsafe"
 #define TR_SF_RANGE_CHECK              "Range check"
 #define TR_SF_MOD_BIND                 "Bind modul"
-#define TR_SF_RGBLEDS                  "RGB lysdioder"
+#define TR_SF_RGBLEDS                  "RGB leds"
  
 #define TR_SOUND                       "Spela ljud"
 #define TR_PLAY_TRACK                  "Spela upp"
@@ -207,13 +207,13 @@
 
 #define TR_VTMRMODES                    "Av","På","Strt","GAs","GA%","GAt"
 #define TR_VTRAINER_MASTER_OFF          "AV"
-#define TR_VTRAINER_MASTER_JACK         "Lärare/Uttag"
+#define TR_VTRAINER_MASTER_JACK         "Instruktör/Uttag"
 #define TR_VTRAINER_SLAVE_JACK          "Elev/Uttag"
-#define TR_VTRAINER_MASTER_SBUS_MODULE  "Lärare/SBUS-modul"
-#define TR_VTRAINER_MASTER_CPPM_MODULE  "Lärare/CPPM-modul"
-#define TR_VTRAINER_MASTER_BATTERY      "Lärare/Seriell"
-#define TR_VTRAINER_BLUETOOTH           TR("Lärare/BT","Lärare/Bluetooth"),TR("Elev/BT","Elev/Bluetooth")
-#define TR_VTRAINER_MULTI               "Lärare/Multi"
+#define TR_VTRAINER_MASTER_SBUS_MODULE  "Instruktör/SBUS-modul"
+#define TR_VTRAINER_MASTER_CPPM_MODULE  "Instruktör/CPPM-modul"
+#define TR_VTRAINER_MASTER_BATTERY      "Instruktör/Seriell"
+#define TR_VTRAINER_BLUETOOTH           TR("Instruktör/BT","Instruktör/Bluetooth"),TR("Elev/BT","Elev/Bluetooth")
+#define TR_VTRAINER_MULTI               "Instruktör/Multi"
 
 #define TR_VFAILSAFE                    "Ej inställt","Lås senaste",TR("Eget","Egna värden"),"Inga pulser","Mottagare"
 #define TR_VSENSORTYPES                 "Anpassad","Beräknad"
@@ -222,7 +222,7 @@
 #define TR_VCELLINDEX                   "Lägsta","1","2","3","4","5","6","7","8","Högsta","Skillnad"
 #define TR_SUBTRIMMODES                 STR_CHAR_DELTA " (endast center)","= (symmetrisk)"
 #define TR_TIMER_DIR                    TR("Återst.", "Visa återstående"), TR("Förbrukad", "Visa förbrukad")
-#define TR_PPMUNIT                      "0.--","0.0","us"
+#define TR_PPMUNIT                     "0.--","0.0","us"
 
 #if defined(COLORLCD)
   #if defined(BOLD)
@@ -368,7 +368,7 @@
 #define TR_ALARMWARNING                 "Ljud av"
 #define TR_RSSI_SHUTDOWN_ALARM          TR("RSSI avstängn.", "Kolla RSSI vid avstängning")
 #define TR_MODEL_STILL_POWERED          TR("Modell på","Modellen är på")
-#define TR_TRAINER_STILL_CONNECTED      "Lärare fortfarande ansluten"
+#define TR_TRAINER_STILL_CONNECTED      TR("Instruktör ansluten", "Instruktör fortfarande ansluten")
 #define TR_USB_STILL_CONNECTED          "USB är ansluten"
 #define TR_MODEL_SHUTDOWN               "Stänga av?"
 #define TR_PRESS_ENTER_TO_CONFIRM       "Tryck [ENTER] för att bekräfta"
@@ -481,7 +481,7 @@
 #define TR_STORAGE_FORMAT               "SD-Lagring förbereds"
 #define TR_EEPROMOVERFLOW               "Minnesfel"
 #define TR_RADIO_SETUP                  "INSTÄLLNINGAR"
-#define TR_MENUTRAINER                  "LÄRARE"
+#define TR_MENUTRAINER                  "INSTRUKTÖR"
 #define TR_MENUSPECIALFUNCS             "GLOBALA FUNKTIONER"
 #define TR_MENUVERSION                  "VERSION"
 #define TR_MENU_RADIO_SWITCHES          TR("BRYTARE","TEST AV BRYTARE")
@@ -743,7 +743,7 @@
 #if defined(PCBX9E)
   #define TR_BLUETOOTH_MODES            "---","Aktiverad"
 #else
-  #define TR_BLUETOOTH_MODES            "---","Telemetri","Lärare"
+  #define TR_BLUETOOTH_MODES            "---","Telemetri","Instruktör"
 #endif
 #define TR_SD_INFO_TITLE                "SD INFO"
 #define TR_SD_TYPE                      "Typ: "
@@ -824,7 +824,7 @@
 #define TR_JACK_MODE                    "Uttagsläge"
 #define TR_VOICE_LANGUAGE               "Röstspråk"
 #define TR_UNITS_SYSTEM                 "Enheter"
-#define TR_UNITS_PPM                    "PPM-enheter"
+#define TR_UNITS_PPM                   "PPM Units"
 #define TR_EDIT                         "Redigera"
 #define TR_INSERT_BEFORE                "Addera före"
 #define TR_INSERT_AFTER                 "Addera efter"
@@ -882,7 +882,7 @@
 #define TR_TOUCH_NOTFOUND               "Pekskärm hittas ej"
 #define TR_TOUCH_EXIT                   "Peka på skärmen för att avsluta"
 #define TR_SET                          BUTTON(TR("Def", "Ställ in"))
-#define TR_TRAINER                      "Lärare"
+#define TR_TRAINER                      "Instruktör"
 #define TR_CHANS                        "Kan"
 #define TR_ANTENNAPROBLEM               CENTER "Fel på TX-antennen"
 #if defined(COLORLCD)
@@ -1160,7 +1160,7 @@
 #define TR_MENU_TRIMS                   STR_CHAR_TRIM "Trimm"
 #define TR_MENU_SWITCHES                STR_CHAR_SWITCH "Brytare"
 #define TR_MENU_LOGICAL_SWITCHES        STR_CHAR_SWITCH "Logiska brytare"
-#define TR_MENU_TRAINER                 STR_CHAR_TRAINER "Lärare"
+#define TR_MENU_TRAINER                 STR_CHAR_TRAINER "Instruktör"
 #define TR_MENU_CHANNELS                STR_CHAR_CHANNEL "Kanaler"
 #define TR_MENU_GVARS                   STR_CHAR_SLIDER "GVars"
 #define TR_MENU_TELEMETRY               STR_CHAR_TELEMETRY "Telemetri"
@@ -1287,3 +1287,7 @@
 #define TR_ENABLED_FEATURES             "Aktiverade funktioner"
 #define TR_RADIO_MENU_TABS              "Radiomenyflikar"
 #define TR_MODEL_MENU_TABS              "Modellmenyflikar"
+
+#define TR_SELECT_MENU_ALL        "All"
+#define TR_SELECT_MENU_CLR        "Clear"
+#define TR_SELECT_MENU_INV        "Invert"
