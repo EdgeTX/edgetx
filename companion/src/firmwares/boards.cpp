@@ -1235,6 +1235,7 @@ int Boards::getDefaultExternalModuleSize(Board::Type board)
 
   if (IS_TARANIS_X9LITE(board)    ||
       IS_RADIOMASTER_ZORRO(board) ||
+      IS_RADIOMASTER_POCKET(board) ||
       IS_JUMPER_TLITE(board)      ||
       IS_JUMPER_TPRO(board)       ||
       IS_JUMPER_T20(board)       ||
