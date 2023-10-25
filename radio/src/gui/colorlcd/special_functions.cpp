@@ -141,7 +141,7 @@ class SpecialFunctionEditPage : public Page
       }
 
       case FUNC_RESET:
-        if (CFN_PARAM(cfn) < FUNC_RESET_PARAM_FIRST_TELEM) {
+        if (CFN_PARAM(cfn) <= FUNC_RESET_PARAM_LAST) {
           new StaticText(line, rect_t{}, STR_RESET, 0, COLOR_THEME_PRIMARY1);
           auto choice = new Choice(
               line, rect_t{}, 0,
