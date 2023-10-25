@@ -196,35 +196,18 @@ I18N_PLAY_FUNCTION(de, playDuration, int seconds PLAY_DURATION_ATT)
   }
 
   if (hours > 0 || IS_PLAY_TIME()) {
-    if (hours == 1) {
-      PUSH_NUMBER_PROMPT(DE_PROMPT_EINE);
-      PUSH_NUMBER_PROMPT(DE_PROMPT_STUNDE);
-    } else {
-      PLAY_NUMBER(hours, 0, 0);
-      PUSH_NUMBER_PROMPT(DE_PROMPT_STUNDEN);
-    }
+    PLAY_NUMBER(hours, UNIT_HOURS, 0);
   }
 
   if (minutes > 0) {
-    if (minutes == 1) {
-      PUSH_NUMBER_PROMPT(DE_PROMPT_EINE);
-      PUSH_NUMBER_PROMPT(DE_PROMPT_MINUTE);
-    } else {
-      PLAY_NUMBER(minutes, 0, 0);
-      PUSH_NUMBER_PROMPT(DE_PROMPT_MINUTEN);
-    }
+    PLAY_NUMBER(minutes, UNIT_MINUTES, 0);
   }
 
   if (!IS_PLAY_LONG_TIMER() && seconds > 0) {
-    if (minutes || IS_PLAY_TIME())
+    if (minutes)
       PUSH_NUMBER_PROMPT(DE_PROMPT_UND);
-    if (seconds == 1) {
-      PUSH_NUMBER_PROMPT(DE_PROMPT_EINE);
-      PUSH_NUMBER_PROMPT(DE_PROMPT_SEKUNDE);
-    } else {
-      PLAY_NUMBER(seconds, 0, 0);
-      PUSH_NUMBER_PROMPT(DE_PROMPT_SEKUNDEN);
-    }
+      
+    PLAY_NUMBER(seconds, UNIT_SECONDS, 0);
   }
 }
 
