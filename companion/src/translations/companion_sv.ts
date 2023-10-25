@@ -1040,7 +1040,7 @@ Mode 4:
         <location filename="../firmwares/boards.cpp" line="834"/>
         <location filename="../firmwares/boards.cpp" line="851"/>
         <source>S1</source>
-        <translation></translation>
+        <translation>V1</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="704"/>
@@ -1085,7 +1085,7 @@ Mode 4:
         <location filename="../firmwares/boards.cpp" line="836"/>
         <location filename="../firmwares/boards.cpp" line="852"/>
         <source>S2</source>
-        <translation></translation>
+        <translation>V2</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="720"/>
