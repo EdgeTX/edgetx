@@ -1222,22 +1222,22 @@ Mode 4:
     <message>
         <location filename="../firmwares/boards.cpp" line="854"/>
         <source>S4</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="855"/>
         <source>SL</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="856"/>
         <source>SR</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="969"/>
         <source>slider</source>
-        <translation type="unfinished"></translation>
+        <translation>skyder</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="1230"/>
@@ -2197,7 +2197,7 @@ Vil du indlæse indstillinger fra en fil?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="131"/>
         <source>RGB leds</source>
-        <translation type="unfinished"></translation>
+        <translation>RGB led</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="298"/>
@@ -3793,12 +3793,12 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1348"/>
         <source>Jumper T-Pro v2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1366"/>
         <source>Jumper T20</source>
-        <translation type="unfinished">Jumper T20</translation>
+        <translation>Jumper T20</translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1476"/>
@@ -4458,7 +4458,7 @@ Du anvender aktuelt:
     <message>
         <location filename="../modeledit/flightmode.ui" line="510"/>
         <source>trim8</source>
-        <translation type="unfinished">trim8</translation>
+        <translation>trim8</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmode.ui" line="589"/>
@@ -4468,7 +4468,7 @@ Du anvender aktuelt:
     <message>
         <location filename="../modeledit/flightmode.ui" line="655"/>
         <source>trim7</source>
-        <translation type="unfinished">trim7</translation>
+        <translation>trim7</translation>
     </message>
 </context>
 <context>
@@ -5255,22 +5255,22 @@ Disse indstillinger gælder for alle modeller.</translation>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="694"/>
         <source>Trims only</source>
-        <translation type="unfinished">Kun trim</translation>
+        <translation>Kun trim</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="696"/>
         <source>Keys only</source>
-        <translation type="unfinished">Kun knap</translation>
+        <translation>Kun knap</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="698"/>
         <source>Switchable</source>
-        <translation type="unfinished">Trim / Knap</translation>
+        <translation>Trim / Knap</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="700"/>
         <source>Global</source>
-        <translation type="unfinished">Global</translation>
+        <translation>Global</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="483"/>
@@ -6020,18 +6020,18 @@ Tilstand 4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2491"/>
         <source>PPM Units</source>
-        <translation type="unfinished"></translation>
+        <translation>PPM enhed</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2498"/>
         <location filename="../generaledit/generalsetup.ui" line="2502"/>
         <source>0.--</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2507"/>
         <source>0.0</source>
-        <translation type="unfinished">0.0</translation>
+        <translation>0.0</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2512"/>
@@ -8054,7 +8054,7 @@ Vil du fortsætte?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="830"/>
         <source>Check for updates...</source>
-        <translation>Søg efter opdateringer...</translation>
+        <translation>Søg opdateringer...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="830"/>
@@ -9752,7 +9752,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modelprinter.cpp" line="845"/>
         <source>Hats Mode</source>
-        <translation type="unfinished">Joystik indstilling</translation>
+        <translation>Joystik indstilling</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="866"/>
@@ -9772,22 +9772,22 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modelprinter.cpp" line="880"/>
         <source>Trims only</source>
-        <translation type="unfinished">Kun trim</translation>
+        <translation>Kun trim</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="882"/>
         <source>Keys only</source>
-        <translation type="unfinished">Kun knap</translation>
+        <translation>Kun knap</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="884"/>
         <source>Switchable</source>
-        <translation type="unfinished">Trim / Knap</translation>
+        <translation>Trim / Knap</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="886"/>
         <source>Global</source>
-        <translation type="unfinished">Global</translation>
+        <translation>Global</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="908"/>
@@ -11588,12 +11588,12 @@ x</translation>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="136"/>
         <source>Trm7</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="136"/>
         <source>Trm8</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="140"/>
@@ -11783,22 +11783,22 @@ x</translation>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="46"/>
         <source>Trim 7 Down</source>
-        <translation type="unfinished">Trim 6 ned {7 ?}</translation>
+        <translation>Trim 7 ned</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="46"/>
         <source>Trim 7 Up</source>
-        <translation type="unfinished">Trim 6 op {7 ?}</translation>
+        <translation>Trim 7 op</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="47"/>
         <source>Trim 8 Down</source>
-        <translation type="unfinished">Trim 6 ned {8 ?}</translation>
+        <translation>Trim 8 ned</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="47"/>
         <source>Trim 8 Up</source>
-        <translation type="unfinished">Trim 6 op {8 ?}</translation>
+        <translation>Trim 8 op</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="51"/>
@@ -11875,7 +11875,7 @@ x</translation>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="155"/>
         <source>Trn</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="205"/>
@@ -12278,7 +12278,7 @@ x</translation>
     <message>
         <location filename="../modeledit/setup.ui" line="195"/>
         <source>Hats Mode</source>
-        <translation type="unfinished">Joystik indstilling</translation>
+        <translation>Joystik indstilling</translation>
     </message>
     <message>
         <location filename="../modeledit/setup.ui" line="341"/>
@@ -15011,7 +15011,7 @@ Brug CTRL + rul eller PAGE UP/DOWN taster for at ændre i større spring.</trans
         <location filename="../updates/updateinterface.cpp" line="923"/>
         <location filename="../updates/updateinterface.cpp" line="927"/>
         <source>Processing updates for: %1</source>
-        <translation>Bearbejder opdatering til: %1</translation>
+        <translation>Indlæser opdatering til: %1</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="930"/>
@@ -15519,7 +15519,7 @@ Brug CTRL + rul eller PAGE UP/DOWN taster for at ændre i større spring.</trans
     <message>
         <location filename="../updates/updatesounds.cpp" line="61"/>
         <source>Processing available sounds</source>
-        <translation>Bearbejder mulige stemme sprog</translation>
+        <translation>Indlæser tilgængelige lyde</translation>
     </message>
     <message>
         <location filename="../updates/updatesounds.cpp" line="78"/>
@@ -15609,7 +15609,7 @@ Process now?</source>
         <translation>Opdateringer findes for:
   - %1
 
-Berarbejd dem nu?</translation>
+Indlæs dem nu?</translation>
     </message>
 </context>
 <context>
