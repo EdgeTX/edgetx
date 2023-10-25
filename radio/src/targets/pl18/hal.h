@@ -408,12 +408,12 @@
 #define LCD_RCC_APB1Periph              0
 #define LCD_RCC_APB2Periph              RCC_APB2Periph_LTDC
 #define LCD_NRST_GPIO                   GPIOG
-#define LCD_NRST_GPIO_PIN               GPIO_Pin_9  // PG.09
+#define LCD_NRST_GPIO_PIN               LL_GPIO_PIN_9  // PG.09
 #define LCD_SPI_GPIO                    GPIOE
-#define LCD_SPI_CS_GPIO_PIN             GPIO_Pin_4  // PE.04
-#define LCD_SPI_SCK_GPIO_PIN            GPIO_Pin_2  // PE.02
-#define LCD_SPI_MISO_GPIO_PIN           GPIO_Pin_5  // PE.05
-#define LCD_SPI_MOSI_GPIO_PIN           GPIO_Pin_6  // PE.06
+#define LCD_SPI_CS_GPIO_PIN             LL_GPIO_PIN_4  // PE.04
+#define LCD_SPI_SCK_GPIO_PIN            LL_GPIO_PIN_2  // PE.02
+#define LCD_SPI_MISO_GPIO_PIN           LL_GPIO_PIN_5  // PE.05
+#define LCD_SPI_MOSI_GPIO_PIN           LL_GPIO_PIN_6  // PE.06
 #define LTDC_IRQ_PRIO                   4
 #define DMA_SCREEN_IRQ_PRIO             6
 
@@ -661,5 +661,14 @@
 #define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
+
+#define LCD_W                           480
+#define LCD_H                           320
+
+#define LCD_PHYS_W                      320
+#define LCD_PHYS_H                      480
+
+#define LCD_DEPTH                       16
+#define LCD_CONTRAST_DEFAULT            20
 
 #endif // _HAL_H_
