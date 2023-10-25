@@ -76,7 +76,6 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL
     ../../../../../thirdparty/libopenui/src/bitmapbuffer.cpp
     ../../../../../thirdparty/libopenui/thirdparty/lz4/lz4.c
     ../../../../../targets/common/arm/stm32/dma2d.cpp
-    ../../../../../targets/common/arm/stm32/diskio_sdio.cpp
     ../../../../../targets/common/arm/stm32/rtc_driver.cpp
     ../../../../../targets/common/arm/stm32/diskio_spi_flash.cpp
     ../../../../../targets/common/arm/stm32/spi_flash.cpp
