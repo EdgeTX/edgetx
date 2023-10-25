@@ -196,36 +196,34 @@ I18N_PLAY_FUNCTION(de, playDuration, int seconds PLAY_DURATION_ATT)
   }
 
   if (hours > 0 || IS_PLAY_TIME()) {
-    if (hours > 1) {
-      PLAY_NUMBER(hours, 0, 0);
-      PUSH_NUMBER_PROMPT(DE_PROMPT_STUNDEN);
-    } else {
+    if (hours == 1) {
       PUSH_NUMBER_PROMPT(DE_PROMPT_EINE);
       PUSH_NUMBER_PROMPT(DE_PROMPT_STUNDE);
+    } else {
+      PLAY_NUMBER(hours, 0, 0);
+      PUSH_NUMBER_PROMPT(DE_PROMPT_STUNDEN);
     }
   }
 
   if (minutes > 0) {
-    if (hours)
-      PUSH_NUMBER_PROMPT(DE_PROMPT_UND);
-    if (minutes > 1) {
-      PLAY_NUMBER(minutes, 0, 0);
-      PUSH_NUMBER_PROMPT(DE_PROMPT_MINUTEN);
-    } else {
+    if (minutes == 1) {
       PUSH_NUMBER_PROMPT(DE_PROMPT_EINE);
       PUSH_NUMBER_PROMPT(DE_PROMPT_MINUTE);
+    } else {
+      PLAY_NUMBER(minutes, 0, 0);
+      PUSH_NUMBER_PROMPT(DE_PROMPT_MINUTEN);
     }
   }
 
   if (!IS_PLAY_LONG_TIMER() && seconds > 0) {
-    if (minutes)
+    if (minutes || IS_PLAY_TIME())
       PUSH_NUMBER_PROMPT(DE_PROMPT_UND);
-    if (seconds > 1) {
-      PLAY_NUMBER(seconds, 0, 0);
-      PUSH_NUMBER_PROMPT(DE_PROMPT_SEKUNDEN);
-    } else {
+    if (seconds == 1) {
       PUSH_NUMBER_PROMPT(DE_PROMPT_EINE);
       PUSH_NUMBER_PROMPT(DE_PROMPT_SEKUNDE);
+    } else {
+      PLAY_NUMBER(seconds, 0, 0);
+      PUSH_NUMBER_PROMPT(DE_PROMPT_SEKUNDEN);
     }
   }
 }
