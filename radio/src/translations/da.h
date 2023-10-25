@@ -52,9 +52,9 @@
 #define TR_AUX_SERIAL_MODES            "FRA","Telem spejlet","Telemetri ind","SBUS træner","LUA","CLI","GPS","Debug","SpaceMouse","Eksternt modul"
 
 #if LCD_W > LCD_H
-  #define TR_SWTYPES                      "Ingen", "2 pos skift","2 position","3 position"
+  #define TR_SWTYPES                   "Ingen", "2 pos skift","2 position","3 position"
 #else
-  #define TR_SWTYPES                      "Ingen","Skift","2POS","3POS"
+  #define TR_SWTYPES                   "Ingen","Skift","2POS","3POS"
 #endif
 
 #define TR_POTTYPES                    "Ingen",TR("Drejek./klik","Drejekontakt med klik"),TR("Multipos","Multipos kontakt"),TR("Drejek.", "Drejekontakt"),"Skyder"
@@ -130,7 +130,7 @@
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("Alle","Flight"),TR_FSW_RESET_TELEM
 
-#define TR_FUNCSOUNDS                  TR("Bi1","Bip1"),TR("Bi2","Bip2"),TR("Bi3","Bi3"),TR("Adv1","Advarsel1"),TR("Adv2","Advarsel2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
+#define TR_FUNCSOUNDS                  TR("Bi1","Bip1"),TR("Bi2","Bip2"),TR("Bi3","Bi3"),TR("Adv1","Advarsel1"),TR("Adv2","Advarsel2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Sirene"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
 #define LENGTH_UNIT_IMP                "ft"
 #define SPEED_UNIT_IMP                 "mph"
@@ -265,7 +265,7 @@
 #define TR_START                       "Start"
 #define TR_ELIMITS                     TR("Udv.Grænser", "Udvidet grænser")
 #define TR_ETRIMS                      TR("Udv.Trim", "Udvidet trim")
-#define TR_TRIMINC                     "Trim Step"
+#define TR_TRIMINC                     "Trim øge"
 #define TR_DISPLAY_TRIMS               TR("Vis trim", "Vis trim")
 #define TR_TTRACE                      TR("T-kilde", INDENT "kilde")
 #define TR_TTRIM                       TR("T-trim-tomg", INDENT "Trim tomgang alene")
@@ -614,7 +614,7 @@
 #define TR_UPDATE_RX_OPTIONS           "Opdater RX tilvalg?"
 #define TR_UPDATE_TX_OPTIONS           "Opdater TX tilvalg?"
 #define TR_MODULES_RX_VERSION          "Moduler / RX version"
-#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
+#define TR_SHOW_MIXER_MONITORS         "Vis mixer monitor"
 #define TR_MENU_MODULES_RX_VERSION     "MODULER / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE TILVALG"
 #define TR_IMU                         "IMU"
@@ -1083,7 +1083,7 @@
 #define TR_PRECISION                   "Præcision"
 #define TR_RATIO                       "Forhold"
 #define TR_FORMULA                     "Formel"
-#define TR_CELLINDEX                   "Cell index"
+#define TR_CELLINDEX                   "Celle indeks"
 #define TR_LOGS                        "Log"
 #define TR_OPTIONS                     "Tilvalg"
 #define TR_FIRMWARE_OPTIONS            "Firmware tilvalg"
@@ -1092,7 +1092,7 @@
 #define TR_CELLSENSOR                  "Cell sensor"
 #define TR_GPSSENSOR                   "GPS sensor"
 #define TR_CURRENTSENSOR               "Sensor"
-#define TR_AUTOOFFSET                  "Auto Offset"
+#define TR_AUTOOFFSET                  "Auto offset"
 #define TR_ONLYPOSITIVE                "Positive"
 #define TR_FILTER                      "Filter"
 #define TR_TELEMETRYFULL               TR("Alle slots fulde!", "Alle telemetri slots fulde!")
@@ -1157,7 +1157,7 @@
 
 #define TR_USE_THEME_COLOR             "Brug tema farve"
 
-#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS   "Tillæg alle trim til subtrim"
+#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS   "Tilføj alle trim til subtrim"
 
 #if LCD_W > LCD_H
   #define TR_OPEN_CHANNEL_MONITORS     "Åbn kanal monitor"
@@ -1269,6 +1269,6 @@
 #define TR_RADIO_MENU_TABS             "Radio menu tab"
 #define TR_MODEL_MENU_TABS             "Model menu tab"
 
-#define TR_SELECT_MENU_ALL        "All"
-#define TR_SELECT_MENU_CLR        "Clear"
-#define TR_SELECT_MENU_INV        "Invert"
+#define TR_SELECT_MENU_ALL        "Alle"
+#define TR_SELECT_MENU_CLR        "Slet"
+#define TR_SELECT_MENU_INV        "Invers"
