@@ -386,7 +386,7 @@
 #define TR_ADJUST_RTC                  "Adjust RTC"
 #define TR_GPS                         "GPS"
 #define TR_DEF_CHAN_ORD                TR("Def chan order", "Default channel order")
-#define TR_STICKS                      "Sticks"
+#define TR_STICKS                      "Axis"
 #define TR_POTS                        "Pots"
 #define TR_SWITCHES                    "Switches"
 #define TR_SWITCHES_DELAY              TR("Play delay", "Play delay (sw. mid pos)")
@@ -400,15 +400,15 @@
 #if defined(PCBHORUS)
   #define TR_MENUTOSTART               "Press [Enter] to start"
   #define TR_SETMIDPOINT               "Center sticks/pots/sliders and press [Enter]"
-  #define TR_MOVESTICKSPOTS            "Move sticks/pots/sliders and press [Enter]"
+  #define TR_MOVESTICKSPOTS            "Move axis/pots/sliders and press [Enter]"
 #elif defined(COLORLCD)
   #define TR_MENUTOSTART               TR_ENTER " TO START"
-  #define TR_SETMIDPOINT               "CENTER STICKS/SLIDERS"
-  #define TR_MOVESTICKSPOTS            "MOVE STICKS/POTS"
+  #define TR_SETMIDPOINT               "CENTER AXIS/SLIDERS"
+  #define TR_MOVESTICKSPOTS            "MOVE AXIS/POTS"
 #else
   #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " TO START"
-  #define TR_SETMIDPOINT               TR(CENTER "\004SET STICKS MIDPOINT", CENTER "\004CENTER STICKS/SLIDERS")
-  #define TR_MOVESTICKSPOTS            CENTER "\006MOVE STICKS/POTS"
+  #define TR_SETMIDPOINT               TR(CENTER "\004SET AXIS MIDPOINT", CENTER "\004CENTER AXIS/SLIDERS")
+  #define TR_MOVESTICKSPOTS            CENTER "\006MOVE AXIS/POTS"
   #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " WHEN DONE"
 #endif
 #define TR_TXnRX                       "Tx:\0Rx:"
@@ -613,8 +613,8 @@
 #define TR_MENU_MODULES_RX_VERSION     "MODULES / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE OPTIONS"
 #define TR_IMU                        "IMU"
-#define TR_STICKS_POTS_SLIDERS         "Sticks/Pots/Sliders"
-#define TR_PWM_STICKS_POTS_SLIDERS     "PWM Sticks/Pots/Sliders"
+#define TR_STICKS_POTS_SLIDERS         "Axis/Pots/Sliders"
+#define TR_PWM_STICKS_POTS_SLIDERS     "PWM Axis/Pots/Sliders"
 #define TR_RF_PROTOCOL                 "RF Protocol"
 #define TR_MODULE_OPTIONS              "Module options"
 #define TR_POWER                       "Power"
@@ -821,7 +821,7 @@
 #define TR_PASTE_BEFORE                "Paste before"
 #define TR_DELETE                      "Delete"
 #define TR_INSERT                      "Insert"
-#define TR_RESET_FLIGHT                "Reset flight"
+#define TR_RESET_FLIGHT                "Reset session"
 #define TR_RESET_TIMER1                "Reset timer1"
 #define TR_RESET_TIMER2                "Reset timer2"
 #define TR_RESET_TIMER3                "Reset timer3"
@@ -918,7 +918,7 @@
 #define TR_PT                          "pt"
 #define TR_PTS                         "pts"
 #define TR_SMOOTH                      "Smooth"
-#define TR_COPY_STICKS_TO_OFS          TR("Cpy stick->subtrim", "Copy sticks to subtrim")
+#define TR_COPY_STICKS_TO_OFS          TR("Cpy stick->subtrim", "Copy axis to subtrim")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Cpy min/max to all",  "Copy min/max/center to all outputs")
 #define TR_COPY_TRIMS_TO_OFS           TR("Cpy trim->subtrim", "Copy trims to subtrim")
 #define TR_INCDEC                      "Inc/Decrement"
@@ -926,7 +926,7 @@
 #define TR_MIXSOURCE                   "Mixer source"
 #define TR_CONSTANT                    "Constant"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "OFF","ON","AUTO"
-#define TR_PREFLIGHT                   "Preflight Checks"
+#define TR_PREFLIGHT                   "Pref-start Checks"
 #define TR_CHECKLIST                   TR(INDENT "Checklist", INDENT "Display checklist")
 #define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "C-Interact", INDENT "Interact. checklist", INDENT "Interactive checklist")
 #define TR_AUX_SERIAL_MODE             "Serial port"
@@ -1118,7 +1118,7 @@
 #define TR_TEXT_VIEWER                 "Text Viewer"
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "Inputs"
 #define TR_MENU_LUA                    STR_CHAR_LUA "Lua scripts"
-#define TR_MENU_STICKS                 STR_CHAR_STICK "Sticks"
+#define TR_MENU_STICKS                 STR_CHAR_STICK "Axis"
 #define TR_MENU_POTS                   STR_CHAR_POT "Pots"
 #define TR_MENU_MIN                    STR_CHAR_FUNCTION "MIN"
 #define TR_MENU_MAX                    STR_CHAR_FUNCTION "MAX"
