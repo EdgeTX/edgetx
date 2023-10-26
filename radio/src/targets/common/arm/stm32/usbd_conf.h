@@ -88,6 +88,10 @@
 /*---------- -----------*/
 #define MSC_MEDIA_PACKET           MASS_STORAGE_BUFFER_SIZE
 
+#if !defined(USBJ_EX)
+#define HID_IN_PACKET                19
+#endif
+
 /****************************************/
 /* #define for FS and HS identification */
 #define DEVICE_FS 		0
