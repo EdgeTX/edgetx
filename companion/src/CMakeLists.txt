@@ -203,6 +203,8 @@ add_subdirectory(thirdparty/yaml-cpp)
 
 ############# Companion ###############
 
+include_directories(${maxLibQt_SOURCE_DIR}/widgets)
+
 set(companion_SRCS
   helpers_html.cpp
   mdichild.cpp
