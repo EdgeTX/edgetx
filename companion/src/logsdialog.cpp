@@ -60,7 +60,10 @@ LogsDialog::LogsDialog(QWidget *parent) :
 
   // create and prepare a plot title layout element
   QCPTextElement *title = new QCPTextElement(ui->customPlot);
+  QFont titlefont = font();
+  titlefont.setBold(true);
   title->setText(tr("Telemetry logs"));
+  title->setFont(titlefont);
 
   // add it to the main plot layout
   ui->customPlot->plotLayout()->insertRow(0);
@@ -71,8 +74,9 @@ LogsDialog::LogsDialog(QWidget *parent) :
   axisRect = ui->customPlot->axisRect();
 
   // configure bottom axis to show time instead of number:
-  QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
-  timeTicker->setTimeFormat("hh:mm:ss");
+  axisRect->axis(QCPAxis::atBottom)->setLabel(tr("Time (hh:mm:ss)"));
+  QSharedPointer<QCPAxisTickerDateTime> timeTicker(new QCPAxisTickerDateTime);
+  timeTicker->setDateTimeFormat("hh:mm:ss");
   axisRect->axis(QCPAxis::atBottom)->setTicker(timeTicker);
   QDateTime now = QDateTime::currentDateTime();
   axisRect->axis(QCPAxis::atBottom)->setRange(now.addSecs(-60 * 60 * 2).toTime_t(), now.toTime_t());
