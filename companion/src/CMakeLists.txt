@@ -89,7 +89,6 @@ include_directories(
   ${COMPANION_SRC_DIRECTORY}/shared
   ${SIMU_SRC_DIRECTORY}
   ${COMPANION_SRC_DIRECTORY}/thirdparty/qcustomplot
-  ${COMPANION_SRC_DIRECTORY}/thirdparty/miniz
   ${COMPANION_SRC_DIRECTORY}/storage
 )
 
@@ -184,6 +183,8 @@ set(CPN_COMMON_LIB common)
 
 ############# Supporting libraries ###############
 
+include(FetchMiniz)
+
 add_subdirectory(datamodels)
 add_subdirectory(firmwares)
 add_subdirectory(shared)
@@ -193,7 +194,6 @@ add_subdirectory(simulation)
 add_subdirectory(storage)
 add_subdirectory(thirdparty/qcustomplot)
 add_subdirectory(thirdparty/maxlibqt/src/widgets)
-add_subdirectory(thirdparty/miniz)
 add_subdirectory(updates)
 
 set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "Enable testing" FORCE)
