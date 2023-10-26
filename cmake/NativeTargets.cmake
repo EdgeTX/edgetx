@@ -40,7 +40,7 @@ if(WIN32)
 endif()
 
 # google tests
-include(DownloadGTest)
+include(FetchGtest)
 
 add_custom_target(tests-radio
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/gtests-radio

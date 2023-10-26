@@ -1,8 +1,13 @@
 
 
-if(GTEST_INCDIR AND GTEST_SRCDIR AND Qt5Widgets_FOUND)
-  add_library(gtests-radio-lib STATIC EXCLUDE_FROM_ALL ${GTEST_SRCDIR}/src/gtest-all.cc )
-  target_include_directories(gtests-radio-lib PUBLIC ${GTEST_INCDIR} ${GTEST_INCDIR}/gtest ${GTEST_SRCDIR})
+if(Qt5Widgets_FOUND)
+  add_library(gtests-radio-lib STATIC EXCLUDE_FROM_ALL
+    ${googletest_SOURCE_DIR}/googletest/src/gtest-all.cc
+  )
+  target_include_directories(gtests-radio-lib PRIVATE
+    ${googletest_SOURCE_DIR}/googletest
+  )
+
   set(TESTS_PATH ${RADIO_SRC_DIR}/tests)
   set(TESTS_BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR})
   configure_file(${RADIO_SRC_DIR}/tests/location.h.in ${CMAKE_CURRENT_BINARY_DIR}/location.h @ONLY)
