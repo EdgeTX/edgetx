@@ -505,6 +505,8 @@ uint8_t USBD_HID_SendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t 
     {
       hhid->state = HID_BUSY;
       (void)USBD_LL_Transmit(pdev, HIDInEpAdd, report, len);
+    } else {
+      return (uint8_t)USBD_BUSY;
     }
   }
 
