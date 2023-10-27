@@ -38,13 +38,6 @@ void menuRadioDiagAnalogs(event_t event)
 
     static int viewpage = ANAVIEW_FIRST;
 
-// TODO enum
-#if defined(TX_CAPACITY_MEASUREMENT)
-  #define ANAS_ITEMS_COUNT 3
-#else
-  #define ANAS_ITEMS_COUNT 1
-#endif
-
   switch (event) {
     case EVT_KEY_FIRST(KEY_RIGHT):
     case EVT_KEY_BREAK(KEY_PAGEDN):
@@ -74,11 +67,11 @@ void menuRadioDiagAnalogs(event_t event)
   switch (viewpage) {
     case (ANAVIEW_CALIB):
       SIMPLE_SUBMENU(STR_MENU_RADIO_ANALOGS_CALIB,
-                     HEADER_LINE+ANAS_ITEMS_COUNT);
+                     HEADER_LINE+1);
       break;
     case (ANAVIEW_RAWLOWFPS):
       SIMPLE_SUBMENU(STR_MENU_RADIO_ANALOGS_RAWLOWFPS,
-                     HEADER_LINE+ANAS_ITEMS_COUNT);
+                     HEADER_LINE+1);
       break;
   }
 

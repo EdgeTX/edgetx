@@ -658,11 +658,8 @@
 #define TR_LCD                         "Bildschirm"
 #define TR_BRIGHTNESS                  "Helligkeit"
 #define TR_CPU_TEMP                    "CPU-Temp.\016>"
-#define TR_CPU_CURRENT                 "Strom\022>"
-#define TR_CPU_MAH                     "Verbrauch"
 #define TR_COPROC                      "CoProz."
 #define TR_COPROC_TEMP                 "MB Temp. \016>"
-#define TR_CAPAWARNING                 INDENT "Kapaz. niedrig" // wg 9XR-Pro
 #define TR_TEMPWARNING                 INDENT "Temp.   größer"  //wg 9XR-Pro
 #define TR_TTL_WARNING                 "Warning: use 3.3V logic levels"
 #define TR_FUNC                        "Funktion"
