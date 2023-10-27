@@ -379,7 +379,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
 
   if (swtch >= SWSRC_FIRST_MULTIPOS_SWITCH && swtch <= SWSRC_LAST_MULTIPOS_SWITCH) {
     int index = (swtch - SWSRC_FIRST_MULTIPOS_SWITCH) / XPOTS_MULTIPOS_COUNT;
-    return (index < adcGetMaxInputs(ADC_INPUT_POT)) ? IS_POT_MULTIPOS(index) : false;
+    return (index < adcGetMaxInputs(ADC_INPUT_FLEX)) ? IS_POT_MULTIPOS(index) : false;
   }
 
   if (swtch >= SWSRC_FIRST_TRIM && swtch <= SWSRC_LAST_TRIM) {
