@@ -73,7 +73,6 @@ target_include_directories(firmwares
   PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${COMPANION_SRC_DIRECTORY}/thirdparty/yaml-cpp/include
   PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}"
     "${CMAKE_CURRENT_LIST_DIR}/er9x"
