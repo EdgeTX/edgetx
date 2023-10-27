@@ -998,7 +998,7 @@ void ModelTelemetryPage::build(FormWindow * window)
 std::string getDate(TelemetryItem & telemetryItem)
 {
   return
-    formatNumberAsString(telemetryItem.datetime.year-2000, LEADING0|LEFT,2) + "-" +
+    formatNumberAsString(telemetryItem.datetime.year, LEADING0|LEFT,4) + "-" +
     formatNumberAsString(telemetryItem.datetime.month, LEADING0|LEFT, 2) + "-" +
     formatNumberAsString(telemetryItem.datetime.day, LEADING0|LEFT, 2) + " " +
     formatNumberAsString(telemetryItem.datetime.hour, LEADING0|LEFT, 2) + ":" +

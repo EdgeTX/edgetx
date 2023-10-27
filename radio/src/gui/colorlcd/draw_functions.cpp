@@ -304,7 +304,7 @@ void drawDate(BitmapBuffer * dc, coord_t x, coord_t y, TelemetryItem & telemetry
 
   LcdFlags fl = att|LEADING0|LEFT;
 
-  x = dc->drawNumber(x, y, telemetryItem.datetime.year-2000, fl,2);
+  x = dc->drawNumber(x, y, telemetryItem.datetime.year, fl,4);
   x = dc->drawText(x, y, "-", att);
   x = dc->drawNumber(x, y, telemetryItem.datetime.month, fl, 2);
   x = dc->drawText(x, y, "-", att);
