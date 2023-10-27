@@ -302,23 +302,25 @@ void drawDate(BitmapBuffer * dc, coord_t x, coord_t y, TelemetryItem & telemetry
     doTwoLines = true;
   }
 
-  x = dc->drawNumber(x, y, telemetryItem.datetime.day, att|LEADING0|LEFT, 2);
-  x = dc->drawText(x - 1, y, "-", att);
-  x = dc->drawNumber(x, y, telemetryItem.datetime.month, att|LEFT, 2);
-  x = dc->drawText(x - 1, y, "-", att);
-  x = dc->drawNumber(x, y, telemetryItem.datetime.year-2000, att|LEFT);
+  LcdFlags fl = att|LEADING0|LEFT;
 
+  x = dc->drawNumber(x, y, telemetryItem.datetime.year-2000, fl,2);
+  x = dc->drawText(x, y, "-", att);
+  x = dc->drawNumber(x, y, telemetryItem.datetime.month, fl, 2);
+  x = dc->drawText(x, y, "-", att);
+  x = dc->drawNumber(x, y, telemetryItem.datetime.day, fl, 2);
+  
   if (doTwoLines) {
     y += FH;  x = ox;
   } else {
     x += 11;
   }
 
-  x = dc->drawNumber(x, y, telemetryItem.datetime.hour, att|LEADING0|LEFT, 2);
+  x = dc->drawNumber(x, y, telemetryItem.datetime.hour, fl, 2);
   x = dc->drawText(x, y, ":", att);
-  x = dc->drawNumber(x, y, telemetryItem.datetime.min, att|LEADING0|LEFT, 2);
+  x = dc->drawNumber(x, y, telemetryItem.datetime.min, fl, 2);
   x = dc->drawText(x, y, ":", att);
-  dc->drawNumber(x, y, telemetryItem.datetime.sec, att|LEADING0|LEFT, 2);
+  dc->drawNumber(x, y, telemetryItem.datetime.sec, fl, 2);
 }
 
 coord_t drawGPSCoord(BitmapBuffer * dc, coord_t x, coord_t y, int32_t value, const char * direction, LcdFlags flags, bool seconds=true)
