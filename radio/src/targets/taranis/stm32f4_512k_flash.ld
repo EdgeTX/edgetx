@@ -1,7 +1,7 @@
 /*
 *****************************************************************************
 **
-**  File        : stm32f4_flash.ld
+**  File        : stm32f4_512k_flash.ld
 **
 **  Abstract    : Linker script for STM32F407 Device with
 **                0.5MByte FLASH, 128KByte SRAM, 64KByte CCM
