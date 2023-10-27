@@ -192,10 +192,20 @@ class ValueWidget: public Widget
     {
       Widget::checkEvents();
 
-      auto newValue = getValue(persistentData->options[0].value.unsignedValue);
+      mixsrc_t field = persistentData->options[0].value.unsignedValue;
+
+      // if value changed
+      auto newValue = getValue(field);
       if (lastValue != newValue) {
         lastValue = newValue;
         invalidate();
+      }
+
+      // if telemetry value, and telemetry offline or old data
+      if (field >= MIXSRC_FIRST_TELEM) {
+        TelemetryItem& telemetryItem =
+            telemetryItems[(field - MIXSRC_FIRST_TELEM) / 3];
+        if (!telemetryItem.isAvailable() || telemetryItem.isOld()) invalidate();
       }
     }
 
