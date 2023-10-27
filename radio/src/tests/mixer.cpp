@@ -686,6 +686,8 @@ TEST_F(MixerTest, DelayOnSwitch)
 
 TEST_F(MixerTest, DelayOnSwitch2)
 {
+  g_eeGeneral.switchConfig = SWITCH_3POS;
+  
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
   g_model.mixData[0].srcRaw = MIXSRC_FIRST_SWITCH;
