@@ -182,6 +182,7 @@ set(CPN_COMMON_LIB common)
 ############# Supporting libraries ###############
 
 include(FetchMiniz)
+include(FetchYamlCpp)
 
 include(FetchMaxLibQt)
 
@@ -194,12 +195,6 @@ add_subdirectory(simulation)
 add_subdirectory(storage)
 add_subdirectory(thirdparty/qcustomplot)
 add_subdirectory(updates)
-
-set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "Enable testing" FORCE)
-set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "Enable parse tools" FORCE)
-set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "Enable contrib stuff in library" FORCE)
-set(YAML_CPP_INSTALL OFF CACHE BOOL "Enable generation of install target" FORCE)
-add_subdirectory(thirdparty/yaml-cpp)
 
 ############# Companion ###############
 
