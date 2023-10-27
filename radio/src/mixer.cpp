@@ -757,39 +757,40 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       if (!(dirtyChannels & ((bitfield_channels_t)1 << md->destCh)))
         continue;
 
-      // if this is the first calculation for the destination channel, initialize it with 0 (otherwise would be random)
-      if (i == 0 || md->destCh != (md-1)->destCh)
+      // if this is the first calculation for the destination channel,
+      // initialize it with 0 (otherwise would be random)
+      if (i == 0 || md->destCh != (md - 1)->destCh)
         chans[md->destCh] = 0;
 
       //========== FLIGHT MODE && SWITCH =====
-      bool mixCondition = (md->flightModes != 0 || md->swtch);
-      delayval_t mixEnabled = (!(md->flightModes & (1 << mixerCurrentFlightMode)) && getSwitch(md->swtch)) ? DELAY_POS_MARGIN+1 : 0;
+      bool fmEnabled = (md->flightModes & (1 << mixerCurrentFlightMode)) == 0;
+      bool mixLineActive = fmEnabled && getSwitch(md->swtch);
 
-#define MIXER_LINE_DISABLE()   (mixCondition = true, mixEnabled = 0)
-
-      if (mixEnabled && md->srcRaw >= MIXSRC_FIRST_TRAINER && md->srcRaw <= MIXSRC_LAST_TRAINER && !is_trainer_connected()) {
-        MIXER_LINE_DISABLE();
-      }
+      if (mixLineActive) {
+        // disable mixer using trainer channels if not connected
+        if (md->srcRaw >= MIXSRC_FIRST_TRAINER &&
+            md->srcRaw <= MIXSRC_LAST_TRAINER && !is_trainer_connected()) {
+          mixLineActive = false;
+        }
 
 #if defined(LUA_MODEL_SCRIPTS)
-      // disable mixer if Lua script is used as source and script was killed
-      if (mixEnabled && md->srcRaw >= MIXSRC_FIRST_LUA && md->srcRaw <= MIXSRC_LAST_LUA) {
-        div_t qr = div(md->srcRaw-MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
-        if (scriptInternalData[qr.quot].state != SCRIPT_OK) {
-          MIXER_LINE_DISABLE();
+        // disable mixer if Lua script is used as source and script was killed
+        if (md->srcRaw >= MIXSRC_FIRST_LUA && md->srcRaw <= MIXSRC_LAST_LUA) {
+          div_t qr = div(md->srcRaw - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
+          if (scriptInternalData[qr.quot].state != SCRIPT_OK) {
+            mixLineActive = false;
+          }
         }
-      }
 #endif
+      }
 
       //========== VALUE ===============
       getvalue_t v = 0;
+
       if (mode > e_perout_mode_inactive_flight_mode) {
-        if (mixEnabled)
-          v = getValue(md->srcRaw);
-        else
-          continue;
-      }
-      else {
+        if (!mixLineActive) continue;
+        v = getValue(md->srcRaw);
+      } else {
         mixsrc_t srcRaw = MIXSRC_FIRST_STICK + stickIndex;
         v = getValue(srcRaw);
         srcRaw -= MIXSRC_FIRST_CH;
@@ -799,9 +800,6 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
           if (srcRaw < md->destCh || pass > 0)
             v = chans[srcRaw] >> 8;
         }
-        if (!mixCondition) {
-          mixEnabled = v;
-        }
       }
 
       bool applyOffsetAndCurve = true;
@@ -809,41 +807,35 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       //========== DELAYS ===============
       delayval_t _swOn = swOn[i].now;
       delayval_t _swPrev = swOn[i].prev;
-      bool swTog = (mixEnabled > _swOn+DELAY_POS_MARGIN || mixEnabled < _swOn-DELAY_POS_MARGIN);
+
+      delayval_t v_active = mixLineActive ? v : 0;
+
+      bool swTog = (v_active > _swOn + DELAY_POS_MARGIN || v_active < _swOn - DELAY_POS_MARGIN);
       if (mode == e_perout_mode_normal && swTog) {
-        if (!swOn[i].delay)
-          _swPrev = _swOn;
-        swOn[i].delay = (mixEnabled > _swOn ? md->delayUp : md->delayDown) * 10;
-        swOn[i].now = mixEnabled;
-        swOn[i].prev = _swPrev;
+        if (!swOn[i].delay) { swOn[i].prev = _swOn; }
+        swOn[i].now = v_active;
+        swOn[i].delay = (v_active > _swOn ? md->delayUp : md->delayDown) * 10;
       }
       if (mode == e_perout_mode_normal && swOn[i].delay > 0) {
         swOn[i].delay = max<int16_t>(0, (int16_t)swOn[i].delay - tick10ms);
-        if (!mixCondition)
-          v = _swPrev;
-        else if (mixEnabled)
-          continue;
+        v = _swPrev;
       }
       else {
-        if (mode==e_perout_mode_normal) {
-          swOn[i].now = swOn[i].prev = mixEnabled;
+        if (mode == e_perout_mode_normal) {
+          swOn[i].now = swOn[i].prev = v_active;
         }
-        if (!mixEnabled) {
-          if ((md->speedDown || md->speedUp) && md->mltpx!=MLTPX_REPL) {
-            if (mixCondition) {
-              v = (md->mltpx == MLTPX_ADD ? 0 : RESX);
-              applyOffsetAndCurve = false;
-            }
-          }
-          else if (mixCondition) {
+        if (!mixLineActive) {
+          if ((md->speedDown || md->speedUp) && md->mltpx != MLTPX_REPL) {
+            v = (md->mltpx == MLTPX_ADD ? 0 : RESX);
+            applyOffsetAndCurve = false;
+          } else  {
             continue;
           }
         }
       }
 
-      if (mode==e_perout_mode_normal && (!mixCondition || mixEnabled || swOn[i].delay)) {
-        if (md->mixWarn)
-          lv_mixWarning |= 1 << (md->mixWarn - 1);
+      if (mode == e_perout_mode_normal && (mixLineActive || swOn[i].delay)) {
+        if (md->mixWarn) lv_mixWarning |= 1 << (md->mixWarn - 1);
         swOn[i].activeMix = true;
       }
 
