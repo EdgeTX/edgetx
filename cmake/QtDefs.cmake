@@ -5,6 +5,9 @@ if(APPLE AND EXISTS /usr/local/opt/qt5)
 	list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt5")
 endif()
 
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+
 find_package(Qt5Core)
 find_package(Qt5Widgets)
 find_package(Qt5Xml)
