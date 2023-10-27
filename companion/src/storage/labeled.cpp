@@ -21,7 +21,6 @@
 #include "labeled.h"
 #include "firmwares/opentx/opentxinterface.h"
 #include "firmwares/edgetx/edgetxinterface.h"
-#include "miniz.c"    //  Can only be included once!
 
 #include <regex>
 
