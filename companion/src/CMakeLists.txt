@@ -142,7 +142,6 @@ endif()
 ############# Common lib ###############
 
 set(common_SRCS
-  appdebugmessagehandler.cpp
   customdebug.cpp
   helpers.cpp
   translations.cpp
@@ -151,7 +150,6 @@ set(common_SRCS
   )
 
 set(common_MOC_HDRS
-  appdebugmessagehandler.h
   helpers.h
   modeledit/node.h
   )
@@ -170,7 +168,7 @@ target_link_libraries(common
   firmwares
   storage
   simulation
-  maxLibQtWidgets
+  maxLibQt
   Qt5::Core
   Qt5::Xml
   Qt5::Widgets
@@ -185,6 +183,8 @@ set(CPN_COMMON_LIB common)
 
 include(FetchMiniz)
 
+include(FetchMaxLibQt)
+
 add_subdirectory(datamodels)
 add_subdirectory(firmwares)
 add_subdirectory(shared)
@@ -193,7 +193,6 @@ add_subdirectory(generaledit)
 add_subdirectory(simulation)
 add_subdirectory(storage)
 add_subdirectory(thirdparty/qcustomplot)
-add_subdirectory(thirdparty/maxlibqt/src/widgets)
 add_subdirectory(updates)
 
 set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "Enable testing" FORCE)
@@ -203,6 +202,8 @@ set(YAML_CPP_INSTALL OFF CACHE BOOL "Enable generation of install target" FORCE)
 add_subdirectory(thirdparty/yaml-cpp)
 
 ############# Companion ###############
+
+include_directories(${maxLibQt_SOURCE_DIR}/widgets)
 
 set(companion_SRCS
   helpers_html.cpp

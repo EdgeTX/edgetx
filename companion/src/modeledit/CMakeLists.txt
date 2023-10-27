@@ -2,6 +2,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}
   ${COMPANION_SRC_DIRECTORY}
   ${CMAKE_CURRENT_BINARY_DIR}
+  ${maxLibQt_SOURCE_DIR}/widgets
 )
 
 set(modeledit_NAMES
