@@ -92,14 +92,14 @@
 #define TR_SF_RGBLEDS                  "RGB leds"
 
 #define TR_SOUND                       "播放声音"
-#define TR_PLAY_TRACK                  "播放音频文件"
+#define TR_PLAY_TRACK                  TR("Ply Trk", "播放音频文件")
 #define TR_PLAY_VALUE                  "播放数值"
 #define TR_SF_HAPTIC                   "振动"
 #define TR_SF_BG_MUSIC                 "播放背景音乐"
 #define TR_SF_BG_MUSIC_PAUSE           "暂停背景音乐"
 #define TR_SF_LOGS                     "记录日志到SD卡"
 #define TR_ADJUST_GVAR                 "修改全局变量GV值"
-#define TR_SF_PLAY_SCRIPT              "Lua脚本"
+#define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua脚本")
 #define TR_SF_BACKLIGHT                "背光"
 #define TR_SF_VARIO                    "Vario传感器"
 #define TR_SF_TEST                     "测试"

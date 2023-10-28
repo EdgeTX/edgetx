@@ -312,9 +312,14 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #endif
 #if defined(SDCARD)
-          else if (func == FUNC_PLAY_TRACK || func == FUNC_BACKGND_MUSIC || func == FUNC_PLAY_SCRIPT || func==FUNC_RGB_LED) {
+          else if (func == FUNC_PLAY_TRACK || func == FUNC_BACKGND_MUSIC || func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED) {
+            coord_t x = MODEL_SPECIAL_FUNC_3RD_COLUMN - 6;
+            if (func == FUNC_PLAY_SCRIPT)
+              x = x - 5 * FW;
+            else if (func == FUNC_PLAY_TRACK)
+              x = x - 2 * FW;
             if (ZEXIST(cfn->play.name))
-              lcdDrawSizedText(MODEL_SPECIAL_FUNC_3RD_COLUMN-6, y, cfn->play.name, sizeof(cfn->play.name), attr);
+              lcdDrawSizedText(x, y, cfn->play.name, sizeof(cfn->play.name), attr);
             else
               lcdDrawTextAtIndex(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_VCSWFUNC, 0, attr);
             if (active && event==EVT_KEY_BREAK(KEY_ENTER)) {

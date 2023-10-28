@@ -99,7 +99,7 @@
 #define TR_PLAY_TRACK                  "音源再生"
 #define TR_PLAY_VALUE                  TR("Play Val","再生値")
 #define TR_SF_HAPTIC                   "バイブレート"
-#define TR_SF_PLAY_SCRIPT              "LUAスクリプト"
+#define TR_SF_PLAY_SCRIPT              TR("Lua", "LUAスクリプト")
 #define TR_SF_BG_MUSIC                 "BGM再生"
 #define TR_SF_BG_MUSIC_PAUSE           "BGM一時停止"
 #define TR_SF_LOGS                     "SDログ出力"

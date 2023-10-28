@@ -102,10 +102,10 @@
 #define TR_SF_RGBLEDS                  "RGB leds"
  
 #define TR_SOUND                       "Jouer son"
-#define TR_PLAY_TRACK                  "Jouer fichier"
+#define TR_PLAY_TRACK                  TR("Ply Trk", "Jouer fichier")
 #define TR_PLAY_VALUE                  "Lire valeur"
 #define TR_SF_HAPTIC                   "Vibreur"
-#define TR_SF_PLAY_SCRIPT              "Script Lua"
+#define TR_SF_PLAY_SCRIPT              TR("Lua", "Script Lua")
 #define TR_SF_BG_MUSIC                 "Musique"
 #define TR_SF_BG_MUSIC_PAUSE           "Pause Musique"
 #define TR_SF_LOGS                     "Logs SD"
