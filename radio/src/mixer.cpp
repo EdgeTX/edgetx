@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "opentx_types.h"
 #include "timers.h"
 #include "switches.h"
 #include "input_mapping.h"
@@ -650,6 +651,31 @@ int getSourceTrimValue(int source, int stickValue=0)
   }
 }
 
+constexpr bitfield_channels_t all_channels_dirty = (bitfield_channels_t)-1;
+
+static inline bitfield_channels_t channel_bit(uint16_t ch)
+{
+  return (bitfield_channels_t)1 << ch;
+}
+
+static inline bitfield_channels_t channel_dirty(bitfield_channels_t mask, uint16_t ch)
+{
+  return mask & channel_bit(ch);
+}
+
+static inline bitfield_channels_t upper_channels_mask(uint16_t ch)
+{
+  // take the 2's complement to generate a bit pattern
+  // that has all bits of 'ch' order and above set
+  //
+  // Examples (mask for max 8 channels):
+  // - channel 0: 0b11111111
+  // - channel 1: 0b11111110
+  // - channel 2: 0b11111100
+
+  return ~(channel_bit(ch)) + 1;
+}
+
 uint8_t mixerCurrentFlightMode;
 
 void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
@@ -730,11 +756,10 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
   memclear(chans, sizeof(chans)); // all outputs to 0
 
   //========== MIXER LOOP ===============
-  uint8_t lv_mixWarning = 0;
 
   uint8_t pass = 0;
-
-  bitfield_channels_t dirtyChannels = (bitfield_channels_t)-1; // all dirty when mixer starts
+  uint8_t lv_mixWarning = 0;
+  bitfield_channels_t dirtyChannels = all_channels_dirty;
 
   do {
     bitfield_channels_t passDirtyChannels = 0;
@@ -745,16 +770,15 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
       MixData * md = mixAddress(i);
 
-      if (md->srcRaw == 0)
+      if (md->srcRaw == 0) {
 #if defined(COLORLCD)
         continue;
 #else
         break;
 #endif
+      }
 
-      mixsrc_t stickIndex = md->srcRaw - MIXSRC_FIRST_STICK;
-
-      if (!(dirtyChannels & ((bitfield_channels_t)1 << md->destCh)))
+      if (!channel_dirty(dirtyChannels, md->destCh))
         continue;
 
       // if this is the first calculation for the destination channel,
@@ -791,14 +815,31 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         if (!mixLineActive) continue;
         v = getValue(md->srcRaw);
       } else {
-        mixsrc_t srcRaw = MIXSRC_FIRST_STICK + stickIndex;
+        mixsrc_t srcRaw = md->srcRaw;
         v = getValue(srcRaw);
-        srcRaw -= MIXSRC_FIRST_CH;
-        if (srcRaw <= MIXSRC_LAST_CH-MIXSRC_FIRST_CH && md->destCh != srcRaw) {
-          if (dirtyChannels & ((bitfield_channels_t)1 << srcRaw) & (passDirtyChannels|~(((bitfield_channels_t) 1 << md->destCh)-1)))
-            passDirtyChannels |= (bitfield_channels_t) 1 << md->destCh;
-          if (srcRaw < md->destCh || pass > 0)
-            v = chans[srcRaw] >> 8;
+
+        if (srcRaw >= MIXSRC_FIRST_CH) {
+
+          auto srcChan = srcRaw - MIXSRC_FIRST_CH;
+          if (srcChan <= MAX_OUTPUT_CHANNELS && md->destCh != srcChan) {
+
+            // check whether we need to recompute the current channel later
+            bitfield_channels_t upperChansMask = upper_channels_mask(md->destCh);
+            bitfield_channels_t srcChanDirtyMask = channel_dirty(dirtyChannels, srcChan);
+
+            // if the source is any of the channels marked as dirty
+            // or contained in [ destCh, MAX_OUTPUT_CHANNELS [
+            if (srcChanDirtyMask & (passDirtyChannels | upperChansMask)) {
+              passDirtyChannels |= channel_bit(md->destCh);
+            }
+
+            // if the source has already be computed,
+            // then use it!
+            if (srcChan < md->destCh || pass > 0) {
+              // channels are in [ -1024 * 256, 1024 * 256 ]
+              v = chans[srcChan] >> 8;
+            }
+          }
         }
       }
 
