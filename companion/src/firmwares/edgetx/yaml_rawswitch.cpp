@@ -24,7 +24,6 @@
 std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 {
   std::string sw_str;
-  char c = 'A';
   int32_t sval = rhs.index;
   if (rhs.index < 0) {
     sval = -sval;
