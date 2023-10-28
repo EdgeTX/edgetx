@@ -1524,10 +1524,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       val++; val_len--;
 
       CFN_PARAM(cfn) = yaml_str2uint_ref(val, val_len);
-      if (val_len == 0 || val[0] != ',') return;
-      val++; val_len--;
-
-      eat_comma = false;
+      l_sep = 0;
     } else {
       return;
     }
@@ -1613,23 +1610,35 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     val++; val_len--;
   }
 
+  // Handle old YAML files where only one of active/repeat was present
+  bool read_enable_flag = true;
+  if (HAS_REPEAT_PARAM(func)) {
+    // Check for 2 values to be parsed
+    sep = (const char *)memchr(val, ',', val_len);
+    if (!sep) {
+      // only one more value - assume it is repeat
+      read_enable_flag = false;
+      // Set 'enabled'
+      CFN_ACTIVE(cfn) = 1;
+    }
+  }
+
   // Enable param
   // "0/1"
-  if (val_len > 0) {
+  if (val_len > 0 && read_enable_flag) {
     CFN_ACTIVE(cfn) = (val[0] == '1') ? 1 : 0;
     sep = (const char *)memchr(val, ',', val_len);
     l_sep = sep ? sep - val : val_len;
-  }
 
-  if (HAS_REPEAT_PARAM(func)) {
-    // eat_comma unconditionally
+    // Skip comma before optional repeat
     val += l_sep;
     val_len -= l_sep;
     if (val_len == 0 || val[0] != ',')
       return;
-    val++;
-    val_len--;
+    val++; val_len--;
+  }
 
+  if (HAS_REPEAT_PARAM(func)) {
     if (func == FUNC_PLAY_SCRIPT) {
       if (val_len == 2 && val[0] == '1' && val[1] == 'x')
         CFN_PLAY_REPEAT(cfn) = 1;
