@@ -376,16 +376,27 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     def.ignore();
   }
 
-  int en = 0;
-  def >> en;
-  rhs.enabled = en;
+  // Need to handle older YAML files where only one of enabled/repeat was present
+  std::string en, repeat;
+  getline(def, en, ',');
+  getline(def, repeat);
+
+  if (repeat.empty()) {
+    // Only one value left to parse
+    if (fnHasRepeat(rhs.func)) {
+      // Assume it is repeat and set enabled to true
+      repeat = en;
+      rhs.enabled = 1;
+    } else {
+      // Func does not have repeat
+      rhs.enabled = en[0] == '1' ? 1 : 0;
+    }
+  } else {
+    // Two values - first is 'enabled' flag
+    rhs.enabled = en[0] == '1' ? 1 : 0;
+  }
 
   if(fnHasRepeat(rhs.func)) {
-    if (def.peek() == ',') {
-    def.ignore();
-    }
-    std::string repeat;
-    getline(def, repeat);
     if (rhs.func == FuncPlayScript || rhs.func == FuncRGBLed) {
       rhs.repeatParam = (repeat == "1x") ? 1 : 0;
     } else if (repeat == "1x") {
