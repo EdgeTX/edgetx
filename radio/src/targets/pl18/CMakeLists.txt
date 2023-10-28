@@ -41,15 +41,22 @@ set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM2=8192")
 #set(PCB_RF_BAUD 921600 CACHE STRING "INTERNAL_MODULE_BAUDRATE: ${RF_BAUD_RATE}")
 #set_property(CACHE PCB_RF_BAUD PROPERTY STRINGS ${RF_BAUD_RATE})
 
-set(FLAVOUR pl18)
 add_definitions(-DPCBPL18 -DPCBFLYSKY)
 add_definitions(-DBATTERY_CHARGE)
 add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DSPI_FLASH)
 
-# defines existing internal modules
-set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
-set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+if(PCBREV STREQUAL PL18EV)
+  set(FLAVOUR pl18ev)
+  add_definitions(-DRADIO_PL18EV)
+else()
+  set(FLAVOUR pl18)
+  add_definitions(-DRADIO_PL18)
+
+  # Defines internal modules for PL18 via UART7
+  set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
+  set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+endif()
 
 set(BITMAPS_TARGET pl18_bitmaps)
 set(FONTS_TARGET x12_fonts)
