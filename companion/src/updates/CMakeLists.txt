@@ -1,57 +1,59 @@
-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
-set(updates_NAMES
-  updates
-  updatesdialog
-  updateoptionsdialog
-  updatestatus
-  updatenetwork
+project(updates)
+
+set(${PROJECT_NAME}_NAMES
+  chooserdialog
+  downloaddialog
+  repo
+  repoassets
   repodatamodels
   repometadata
   reporeleases
-  repoassets
-  repo
-  updateparameters
-  updateinterface
-  updatefirmware
   updatecompanion
-  updatesdcard
-  updatesounds
-  updatethemes
-  updatemultiprotocol
   updatefactories
-  chooserdialog
+  updatefirmware
+  updateinterface
+  updatemultiprotocol
+  updatenetwork
+  updateoptionsdialog
+  updateparameters
+  updates
+  updatesdcard
+  updatesdialog
+  updatesounds
+  updatestatus
+  updatethemes
 )
 
-foreach(name ${updates_NAMES})
-  set(updates_SRCS ${updates_SRCS} ${name}.cpp)
-  set(updates_HDRS ${updates_HDRS} ${name}.h)
-endforeach()
+AddHeadersSources()
 
-set(updates_UIS
-  updatesdialog.ui
-  updateoptionsdialog.ui
-  chooserdialog.ui
-)
-
-set(updates_QTS
+# AUTOMOC does not detect so manually process
+set(${PROJECT_NAME}_MOC
+  chooserdialog.h
+  updateinterface.h
+  updateoptionsdialog.h
   updates.h
   updatesdialog.h
-  updateoptionsdialog.h
-  updatestatus.h
-  updatenetwork.h
-  repodatamodels.h
-  reporeleases.h
-  repoassets.h
-  repo.h
-  updateparameters.h
-  updateinterface.h
-  updatefactories.h
-  chooserdialog.h
 )
 
-qt5_wrap_ui(updates_SRCS ${updates_UIS})
-qt5_wrap_cpp(updates_SRCS ${updates_QTS})
+qt5_wrap_cpp(${PROJECT_NAME}_SRCS
+  ${${PROJECT_NAME}_MOC}
+)
 
-add_library(updates ${updates_SRCS} ${updates_HDRS})
-target_link_libraries(updates PRIVATE ${CPN_COMMON_LIB})
+add_library(${PROJECT_NAME}
+  ${${PROJECT_NAME}_HDRS}
+  ${${PROJECT_NAME}_SRCS}
+)
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+    ${CPN_COMMON_LIB}
+)
+
+target_include_directories(${PROJECT_NAME}
+  PRIVATE
+    "${CMAKE_SOURCE_DIR}"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}"
+)
