@@ -192,8 +192,11 @@
 #define ADC_GPIO_PIN_POT3               LL_GPIO_PIN_8      // PF.08 VRC
 #define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_9      // PF.09 VRD/LS
 #define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_7      // PA.07 VRE/RS
-//#define ADC_GPIO_PIN_EXT1               LL_GPIO_PIN_2      // PA.02
-//#define ADC_GPIO_PIN_EXT2               LL_GPIO_PIN_6      // PF.06
+
+#if defined(RADIO_PL18EV)
+#define ADC_GPIO_PIN_EXT1               LL_GPIO_PIN_2      // PA.02
+#define ADC_GPIO_PIN_EXT2               LL_GPIO_PIN_6      // PF.06
+#endif
 
 #define ADC_GPIO_PIN_SWB                LL_GPIO_PIN_1      // PC.01
 #define ADC_GPIO_PIN_SWD                LL_GPIO_PIN_0      // PC.00
@@ -263,6 +266,22 @@
 
 #define ADC_VREF_PREC2                  660
 
+#if defined(RADIO_PL18EV)
+#define ADC_DIRECTION {       \
+    0,0,0,0, /* gimbals */    \
+    0,0,0,   /* pots */       \
+    -1,-1,   /* sliders */    \
+    0,0,     /* ext1 & 2 */  \
+    0,	     /* vbat */       \
+    0,       /* rtc_bat */    \
+    -1,      /* SWB */        \
+    -1,      /* SWD */        \
+    0,       /* SWE */        \
+    0,       /* SWF */        \
+    0,       /* SWG */        \
+    0        /* SWH */        \
+  }
+#else
 #define ADC_DIRECTION {       \
     0,0,0,0, /* gimbals */    \
     0,0,0,   /* pots */       \
@@ -277,7 +296,8 @@
     0,       /* SWG */        \
     0        /* SWH */        \
   }
-    
+#endif
+
 // Power
 #define PWR_RCC_AHB1Periph              RCC_AHB1Periph_GPIOI
 #define PWR_ON_GPIO                     GPIOI
@@ -525,6 +545,7 @@
 #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
 
 // Internal Module
+#if defined(RADIO_PL18)
 #define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_DMA1)
 #define INTMODULE_PWR_GPIO              GPIOI
 #define INTMODULE_PWR_GPIO_PIN          GPIO_Pin_0  // PI.00
@@ -550,6 +571,7 @@
 #define INTMODULE_TIMER_IRQn            TIM3_IRQn
 #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
 #define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
+#endif
 
 // External Module
 #define EXTMODULE
