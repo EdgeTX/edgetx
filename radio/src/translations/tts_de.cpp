@@ -31,101 +31,59 @@ enum GermanPrompts {
   DE_PROMPT_COMMA = 104,
   DE_PROMPT_UND,
   DE_PROMPT_MINUS,
-  DE_PROMPT_UHR,
-  DE_PROMPT_MINUTE,
-  DE_PROMPT_MINUTEN,
-  DE_PROMPT_SEKUNDE,
-  DE_PROMPT_SEKUNDEN,
-  DE_PROMPT_STUNDE,
-  DE_PROMPT_STUNDEN,
-
-  DE_PROMPT_UNITS_BASE = 114,
-  DE_PROMPT_VOLTS = DE_PROMPT_UNITS_BASE+UNIT_VOLTS,
-  DE_PROMPT_AMPS = DE_PROMPT_UNITS_BASE+UNIT_AMPS,
-  DE_PROMPT_METERS_PER_SECOND = DE_PROMPT_UNITS_BASE+UNIT_METERS_PER_SECOND,
-  DE_PROMPT_SPARE1 = DE_PROMPT_UNITS_BASE+UNIT_RAW,
-  DE_PROMPT_KMH = DE_PROMPT_UNITS_BASE+UNIT_SPEED,
-  DE_PROMPT_METERS = DE_PROMPT_UNITS_BASE+UNIT_DIST,
-  DE_PROMPT_DEGREES = DE_PROMPT_UNITS_BASE+UNIT_TEMPERATURE,
-  DE_PROMPT_PERCENT = DE_PROMPT_UNITS_BASE+UNIT_PERCENT,
-  DE_PROMPT_MILLIAMPS = DE_PROMPT_UNITS_BASE+UNIT_MILLIAMPS,
-  DE_PROMPT_MAH = DE_PROMPT_UNITS_BASE+UNIT_MAH,
-  DE_PROMPT_WATTS = DE_PROMPT_UNITS_BASE+UNIT_WATTS,
-  DE_PROMPT_FEET = DE_PROMPT_UNITS_BASE+UNIT_FEET,
-  DE_PROMPT_KTS = DE_PROMPT_UNITS_BASE+UNIT_KTS,
-  DE_PROMPT_HOURS = DE_PROMPT_UNITS_BASE+UNIT_HOURS,
-  DE_PROMPT_MINUTES = DE_PROMPT_UNITS_BASE+UNIT_MINUTES,
-  DE_PROMPT_SECONDS = DE_PROMPT_UNITS_BASE+UNIT_SECONDS,
-  DE_PROMPT_RPMS = DE_PROMPT_UNITS_BASE+UNIT_RPMS,
-  DE_PROMPT_G = DE_PROMPT_UNITS_BASE+UNIT_G,
-  DE_PROMPT_MILLILITERS = DE_PROMPT_UNITS_BASE+UNIT_MILLILITERS,
-  DE_PROMPT_FLOZ = DE_PROMPT_UNITS_BASE+UNIT_FLOZ,
-  DE_PROMPT_FEET_PER_SECOND = DE_PROMPT_UNITS_BASE+UNIT_FEET_PER_SECOND,
-
 };
 
-  #define DE_PUSH_UNIT_PROMPT(u, p) de_pushUnitPrompt((u), (p), id, fragmentVolume)
+static inline bool hasDualUnits(uint8_t unit) { // true if unit has a secondary unit for value 1 
+  return (unit == UNIT_HOURS ||                 // example with sec. unit: "null Stunden", "eine Stunde", "zwei Stunden", ...
+          unit == UNIT_MINUTES ||               // exmple without sec. unit "null Volt", "ein Volt", "zwei Volt", ...
+          unit == UNIT_SECONDS ||              
+          unit == UNIT_FLOZ ||                
+          unit == UNIT_MS ||
+          unit == UNIT_US ||
+          unit == UNIT_MPH ||
+          unit == UNIT_RPMS ||
+          unit == UNIT_MAH ||
+          unit == UNIT_RADIANS);                // sepcial case for value 1: "ein Radiant", not "eine Radiant"
+}
+
+#define DE_PUSH_UNIT_PROMPT(u, p) de_pushUnitPrompt((u), (p), id, fragmentVolume)
 
 I18N_PLAY_FUNCTION(de, pushUnitPrompt, uint8_t unitprompt, int16_t number)
 {
-  if(number != 1 &&                      // do plurals for this list of units if number is not 1
-     (unitprompt == UNIT_HOURS ||
-      unitprompt == UNIT_MINUTES ||
-      unitprompt == UNIT_SECONDS ||
-      unitprompt == UNIT_FLOZ ||
-      unitprompt == UNIT_MS ||
-      unitprompt == UNIT_US ||
-      unitprompt == UNIT_RADIANS ||
-      unitprompt == UNIT_MAH)) {
-    PUSH_UNIT_PROMPT(unitprompt, 1);    // push xxx1.wav for plural version
-  }
+  if(number != 1 && hasDualUnits(unitprompt))
+    PUSH_UNIT_PROMPT(unitprompt, 1); // value is not 1 and unit has secondary unit -> <unit>1.wav for secondary unit (plural)
   else
-    PUSH_UNIT_PROMPT(unitprompt, 0);    // push xxx0.wav for singular version
+    PUSH_UNIT_PROMPT(unitprompt, 0); // value is 1 or unit has no secondary unit -> push <unit>0.wav for primary unit (singular)
 }
 
 I18N_PLAY_FUNCTION(de, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
 {
-/*  if digit >= 1000000000:
-      temp_digit, digit = divmod(digit, 1000000000)
-      prompts.extend(self.getNumberPrompt(temp_digit))
-      prompts.append(Prompt(GUIDE_00_BILLION, dir=2))
-  if digit >= 1000000:
-      temp_digit, digit = divmod(digit, 1000000)
-      prompts.extend(self.getNumberPrompt(temp_digit))
-      prompts.append(Prompt(GUIDE_00_MILLION, dir=2))
-*/
-
   if (number < 0) {
     PUSH_NUMBER_PROMPT(DE_PROMPT_MINUS);
     number = -number;
   }
 
-
   int8_t mode = MODE(att);
+
   if (mode > 0) {
     if (mode == 2) {
       number /= 10;
     }
+
     div_t qr = div((int)number, 10);
+
     if (qr.rem > 0) {
       PLAY_NUMBER(qr.quot, 0, 0);
       PUSH_NUMBER_PROMPT(DE_PROMPT_COMMA);
       PUSH_NUMBER_PROMPT(DE_PROMPT_NUMBERS_BASE + qr.rem);
+      
+      number = -1;      // force secondary unit if unit has one
+                        // skips the following integer processing 
     }
     else {
-      if (qr.quot == 1) {
-        PUSH_NUMBER_PROMPT(DE_PROMPT_EIN);
-      }
-      else {
-        PUSH_NUMBER_PROMPT(qr.quot);
-      }
+      number = qr.quot;   // no remainder, continue with integer part
     }
-    if(unit)
-      DE_PUSH_UNIT_PROMPT(unit, qr.quot);     
-    return;
   }
-
-  int16_t tmp = number;
 
   if (number >= 2000) {
     PLAY_NUMBER(number / 1000, 0, 0);
@@ -160,22 +118,23 @@ I18N_PLAY_FUNCTION(de, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
   }
 
   if (number >= 0) {
-      if(number == 1) {
-        if(unit == UNIT_HOURS ||
-           unit == UNIT_MINUTES ||
-           unit == UNIT_SECONDS ||
-           unit == UNIT_FLOZ ||
-           unit == UNIT_MS ||
-           unit == UNIT_US ||
-           unit == UNIT_MAH)
-          PUSH_NUMBER_PROMPT(DE_PROMPT_EINE);             // "eine ..."
+    if (number == 1) {
+      if(unit) {
+        if(hasDualUnits(unit) && unit != UNIT_RADIANS) 
+          PUSH_NUMBER_PROMPT(DE_PROMPT_EINE);           // value is 1, has unit and unit has secondary unit -> "eine",
+                                                        // except radians -> "ein"
+        else
+          PUSH_NUMBER_PROMPT(DE_PROMPT_EIN);            // value is 1, has unit and unit has no secondary unit -> "ein"
+                                                        // or unit is radians (which has secondary unit but German ...)
       } else
-        PUSH_NUMBER_PROMPT(DE_PROMPT_NULL + number / 1);  // "ein ...""
+        PUSH_NUMBER_PROMPT(DE_PROMPT_NULL + 1);         // value is 1, has no unit -> regular number "eins"
+    } else
+      PUSH_NUMBER_PROMPT(DE_PROMPT_NULL + number);      // value is not 1, has no unit or unit has 
+                                                        // no secondary unit -> regular number
   }
 
-  if (unit) {
-    DE_PUSH_UNIT_PROMPT(unit, tmp);
-  }
+  if(unit)
+    DE_PUSH_UNIT_PROMPT(unit, number);
 }
 
 I18N_PLAY_FUNCTION(de, playDuration, int seconds PLAY_DURATION_ATT)
