@@ -114,7 +114,7 @@ bool isRepeatDelayElapsed(const CustomFunctionData * functions, CustomFunctionsC
 {
   const CustomFunctionData * cfn = &functions[index];
   tmr10ms_t tmr10ms = get_tmr10ms();
-  uint8_t repeatParam = CFN_PLAY_REPEAT(cfn);
+  int8_t repeatParam = CFN_PLAY_REPEAT(cfn);
   if (!IS_SILENCE_PERIOD_ELAPSED() && repeatParam == CFN_PLAY_REPEAT_NOSTART) {
     functionsContext.lastFunctionTime[index] = tmr10ms;
   }

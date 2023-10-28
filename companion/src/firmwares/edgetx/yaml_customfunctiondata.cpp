@@ -23,15 +23,6 @@
 #include "yaml_rawsource.h"
 #include "eeprominterface.h"
 
-static bool fnHasEnable(AssignFunc fn)
-{
-  return (fn <= FuncInstantTrim)
-    || (fn >= FuncReset && fn <= FuncSetTimerLast)
-    || (fn >= FuncAdjustGV1 && fn <= FuncBindExternalModule)
-    || (fn == FuncVolume)
-    || (fn == FuncBacklight);
-}
-
 static bool fnHasRepeat(AssignFunc fn)
 {
   return (fn == FuncPlayPrompt)
@@ -235,7 +226,7 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
   if(fnHasRepeat(rhs.func)) {
     def += ",";
 
-    if (rhs.func == FuncPlayScript || rhs.func == FuncRGBLed)) {
+    if (rhs.func == FuncPlayScript || rhs.func == FuncRGBLed) {
       def += ((rhs.repeatParam == 0) ? "On" : "1x");
     } else if (rhs.repeatParam == 0) {
       def += "1x";

@@ -328,7 +328,6 @@ class SpecialFunctionEditPage : public Page
       }
     }
 
-
     if (HAS_REPEAT_PARAM(func)) {  // !1x 1x 1s 2s 3s ...
       line = specialFunctionOneWindow->newLine(&grid);
       new StaticText(line, rect_t{}, STR_REPEAT,
@@ -359,7 +358,7 @@ class SpecialFunctionEditPage : public Page
 
     line = specialFunctionOneWindow->newLine(&grid);
     new StaticText(line, rect_t{}, STR_ENABLE, 0, COLOR_THEME_PRIMARY1);
-    new CheckBox(line, rect_t{}, GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
+    new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
 
   }
 
@@ -376,9 +375,9 @@ class SpecialFunctionEditPage : public Page
 
     CustomFunctionData *cfn = &functions[index];
 
-    // Set new function to "enabled" by default
-    if (!CFN_SWITCH(cfn)) 
-      CFN_ACTIVE(cfn) = true;
+    // Set new function to "disabled" by default
+    if (!CFN_SWITCH(cfn))
+      CFN_ACTIVE(cfn) = false;
 
     // Switch
     auto line = form->newLine(&grid);
@@ -416,7 +415,6 @@ class SpecialFunctionEditPage : public Page
     functionChoice->setSetValueHandler([=](int32_t newValue) {
       CFN_FUNC(cfn) = newValue;
       CFN_RESET(cfn);
-      CFN_ACTIVE(cfn) = 1;
       SET_DIRTY();
       updateSpecialFunctionOneWindow();
     });
@@ -521,9 +519,9 @@ class SpecialFunctionButton : public Button
     lv_obj_set_grid_cell(sfRepeat, LV_GRID_ALIGN_CENTER, FUNC_COL+1, 1, LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
 
     sfEnable = lv_obj_create(lvobj);
-    lv_obj_set_size(sfEnable, 16, 16);
-    lv_obj_set_style_border_width(sfEnable, 2, 0);
-    lv_obj_set_style_border_color(sfEnable, makeLvColor(COLOR_THEME_SECONDARY1), 0);
+    lv_obj_set_size(sfEnable, 22, 22);
+    lv_obj_set_style_border_width(sfEnable, 3, 0);
+    lv_obj_set_style_border_color(sfEnable, makeLvColor(COLOR_THEME_PRIMARY2), 0);
     lv_obj_set_style_border_opa(sfEnable, LV_OPA_100, 0);
     lv_obj_set_style_bg_color(sfEnable, makeLvColor(COLOR_THEME_ACTIVE), LV_STATE_CHECKED);
     lv_obj_set_style_bg_opa(sfEnable, LV_OPA_100, 0);
@@ -870,20 +868,18 @@ void SpecialFunctionsPage::build(FormWindow *window)
         }
         CustomFunctionData *cfn = &functions[i];
         uint8_t func = CFN_FUNC(cfn);
-        if (HAS_ENABLE_PARAM(func)) {
-          if (CFN_ACTIVE(cfn)) {
-            menu->addLine(STR_DISABLE, [=]() {
-              CFN_ACTIVE(cfn) = 0;
-              SET_DIRTY();
-              rebuild(window);
-            });
-          } else {
-            menu->addLine(STR_ENABLE, [=]() {
-              CFN_ACTIVE(cfn) = 1;
-              SET_DIRTY();
-              rebuild(window);
-            });
-          }
+        if (CFN_ACTIVE(cfn)) {
+          menu->addLine(STR_DISABLE, [=]() {
+            CFN_ACTIVE(cfn) = 0;
+            SET_DIRTY();
+            rebuild(window);
+          });
+        } else {
+          menu->addLine(STR_ENABLE, [=]() {
+            CFN_ACTIVE(cfn) = 1;
+            SET_DIRTY();
+            rebuild(window);
+          });
         }
         if (functions[MAX_SPECIAL_FUNCTIONS - 1].isEmpty()) {
           for (int j = i; j < MAX_SPECIAL_FUNCTIONS; j++) {

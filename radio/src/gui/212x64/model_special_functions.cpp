@@ -187,7 +187,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
       uint8_t active = (attr && s_editMode>0);
       switch (j) {
         case ITEM_CUSTOM_FUNCTIONS_SWITCH:
-          if(CFN_SWITCH(cfn) == SWSRC_NONE)  CFN_ACTIVE(cfn) = 1; // Enable new function by default
+          if(CFN_SWITCH(cfn) == SWSRC_NONE) CFN_ACTIVE(cfn) = 0; // Disable new function by default
           drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, CFN_SWITCH(cfn), attr | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
           if (active || AUTOSWITCH_ENTER_LONG()) CHECK_INCDEC_SWITCH(event, CFN_SWITCH(cfn), SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
           if (func == FUNC_OVERRIDE_CHANNEL && functions != g_model.customFn) {
@@ -201,7 +201,6 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             if (active) {
               func = CFN_FUNC(cfn) = checkIncDec(event, CFN_FUNC(cfn), 0, FUNC_MAX-1, eeFlags, isAssignableFunctionAvailable);
               if (checkIncDec_Ret) CFN_RESET(cfn);
-              CFN_ACTIVE(cfn) = 1;  // Enable if function is being changed
             }
           }
           else {
