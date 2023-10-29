@@ -355,6 +355,7 @@
 #define TR_RSSI_SHUTDOWN_ALARM         TR(INDENT "RSSI-Chk  aus?", INDENT "Prüfe RSSI bei Ausschalten")
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Use FlySky RSSI value without rescalling")
 #define TR_MODEL_STILL_POWERED         "Modell noch aktiv!"
+#define TR_TRAINER_STILL_CONNECTED     "Schüler noch verbunden"
 #define TR_USB_STILL_CONNECTED         "USB noch verbunden"
 #define TR_MODEL_SHUTDOWN              "Herunterfahren?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Drücke [ENTER] zum Bestätigen"

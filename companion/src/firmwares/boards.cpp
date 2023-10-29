@@ -137,6 +137,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_BETAFPV_LR3PRO:
     case BOARD_IFLIGHT_COMMANDO8:
     case BOARD_JUMPER_T12:
+    case BOARD_JUMPER_T20:
     case BOARD_JUMPER_TLITE:
     case BOARD_JUMPER_TLITE_F4:
     case BOARD_JUMPER_TPRO:
@@ -146,6 +147,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_RADIOMASTER_T8:
     case BOARD_RADIOMASTER_ZORRO:
     case BOARD_RADIOMASTER_BOXER:
+    case BOARD_RADIOMASTER_POCKET:
       return EESIZE_TARANIS;
     case BOARD_UNKNOWN:
       return EESIZE_MAX;
@@ -184,6 +186,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_BETAFPV_LR3PRO:
     case BOARD_IFLIGHT_COMMANDO8:
     case BOARD_JUMPER_T12:
+    case BOARD_JUMPER_T20:
     case BOARD_JUMPER_TLITE:
     case BOARD_JUMPER_TLITE_F4:
     case BOARD_JUMPER_TPRO:
@@ -193,6 +196,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_RADIOMASTER_ZORRO:
     case BOARD_RADIOMASTER_BOXER:
     case BOARD_RADIOMASTER_T8:
+    case BOARD_RADIOMASTER_POCKET:
       return FSIZE_TARANIS;
     case BOARD_HORUS_X12S:
     case BOARD_X10:
@@ -328,6 +332,17 @@ SwitchInfo Boards::getSwitchInfo(Board::Type board, int index)
     if (index < DIM(switches))
       return switches[index];
   }
+  else if (IS_RADIOMASTER_POCKET(board)) {
+    const Board::SwitchInfo switches[] = {
+        {SWITCH_2POS,     "SA"},
+        {SWITCH_3POS,     "SB"},
+        {SWITCH_3POS,     "SC"},
+        {SWITCH_2POS,     "SD"},
+        {SWITCH_TOGGLE,   "SE"}
+    };
+    if (index < DIM(switches))
+      return switches[index];
+  }
   else if (IS_RADIOMASTER_T8(board)) {
     const Board::SwitchInfo switches[] = {
       {SWITCH_TOGGLE,   "SA"},
@@ -356,6 +371,22 @@ SwitchInfo Boards::getSwitchInfo(Board::Type board, int index)
       {SWITCH_3POS, "SD"},
       {SWITCH_2POS, "SG"},
       {SWITCH_2POS, "SH"}
+    };
+    if (index < DIM(switches))
+      return switches[index];
+  }
+  else if (IS_JUMPER_T20(board)) {
+    const Board::SwitchInfo switches[] = {
+      {SWITCH_2POS, "SA"},
+      {SWITCH_2POS, "SB"},
+      {SWITCH_3POS, "SC"},
+      {SWITCH_3POS, "SD"},
+      {SWITCH_2POS, "SE"},
+      {SWITCH_2POS, "SF"},
+      {SWITCH_TOGGLE, "SG"},
+      {SWITCH_TOGGLE, "SH"},
+      {SWITCH_TOGGLE, "SI"},
+      {SWITCH_TOGGLE, "SJ"},
     };
     if (index < DIM(switches))
       return switches[index];
@@ -452,13 +483,13 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return 4;
 
     case Pots:
-      if (IS_TARANIS_X9LITE(board))
+      if (IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_POCKET(board))
         return 1;
       else if (IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board))
         return 0;
       else if (IS_RADIOMASTER_BOXER(board))
         return 3;
-      else if (IS_TARANIS_SMALL(board) || IS_JUMPER_TPRO(board))
+      else if (IS_TARANIS_SMALL(board) || IS_JUMPER_TPRO(board) || IS_FLYSKY_NV14(board) || IS_JUMPER_T20(board))
         return 2;
       else if (IS_TARANIS_X9E(board))
         return 4;
@@ -466,8 +497,6 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 7;
       else if (IS_HORUS_X12S(board))
         return 3;
-      else if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
-        return 2;
       else
         return 3;
 
@@ -478,7 +507,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return getCapability(board, Pots);
 
     case Sliders:
-      if (IS_HORUS_X12S(board) || IS_TARANIS_X9E(board))
+      if (IS_HORUS_X12S(board) || IS_TARANIS_X9E(board) || IS_JUMPER_T20(board))
         return 4;
       else if (IS_TARANIS_X9D(board) || IS_HORUS_X10(board) || IS_FAMILY_T16(board))
         return 2;
@@ -531,6 +560,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 8;
       else if (board == BOARD_RADIOMASTER_TX12_MK2 || board == BOARD_RADIOMASTER_BOXER || board == BOARD_JUMPER_TPRO)
         return 6;
+      else if (board == BOARD_RADIOMASTER_POCKET)
+        return 5;
       else if (IS_FAMILY_T12(board))
         return 8;
       else if (IS_TARANIS_XLITE(board))
@@ -539,13 +570,16 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 9;
       else if (IS_TARANIS(board))
         return 8;
-      else if (IS_FAMILY_HORUS_OR_T16(board))
+      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_JUMPER_T20(board))
         return 10;
       else
         return 7;
 
     case FunctionSwitches:
-       return (IS_JUMPER_TPRO(board) ? 6 : 0);
+       if (board == BOARD_JUMPER_TPRO || board == BOARD_JUMPER_TPROV2 || board == BOARD_JUMPER_T20)
+        return 6;
+       else
+        return 0;
 
     case FactoryInstalledSwitches:
       if (IS_TARANIS_X9E(board))
@@ -556,6 +590,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 4;
       else if(IS_RADIOMASTER_ZORRO(board))
         return 8;
+      else if (board == BOARD_RADIOMASTER_POCKET)
+        return 5;
       else if (IS_FAMILY_T12(board))
         return 6;
       else if (IS_HORUS_X12S(board))
@@ -578,6 +614,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 6;
       else if (IS_IFLIGHT_COMMANDO8(board))
         return 0;
+      else if (IS_JUMPER_T20(board))
+        return 8;
       else
         return 4;
 
@@ -621,7 +659,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case HasTrainerModuleSBUS:
       return ((IS_TARANIS_X9LITE(board) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_X9LITES(board)) ||
               IS_TARANIS_X9DP_2019(board) || IS_TARANIS_X7_ACCESS(board) || IS_RADIOMASTER_ZORRO(board) ||
-              IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_BOXER(board)) ||
+              IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_POCKET(board)) ||
               (getCapability(board, HasExternalModuleSupport) && (IS_TARANIS(board) && !IS_FAMILY_T12(board))));
 
     default:
@@ -731,7 +769,11 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board, const
                               {tr("S2").toStdString(), "POT2"},
                               {tr("S3").toStdString(), "POT3"},
                           });
-  } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board)) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)) {
+  } else if (IS_RADIOMASTER_POCKET(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("S1").toStdString(), "P1", 4},
+                          });
+  } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board) && !IS_JUMPER_T20(board)) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)) {
     if (version < adcVersion) {
       tbl.insert(tbl.end(), {
                                 {tr("S1").toStdString(), "POT1"},
@@ -825,6 +867,15 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board, const
                                 {tr("TltY").toStdString(), "TILT_Y", 16},
                             });
     }
+  } else if (IS_JUMPER_T20(board)) {
+      tbl.insert(tbl.end(), {
+                                {tr("S1").toStdString(), "P1", 4},
+                                {tr("S2").toStdString(), "P2", 5},
+                                {tr("S3").toStdString(), "SL1", 6},
+                                {tr("S4").toStdString(), "SL2", 7},
+                                {tr("SL").toStdString(), "SL3", 8},
+                                {tr("SR").toStdString(), "SL4", 9},
+                            });
   }
 
   return tbl;
@@ -893,6 +944,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Jumper T16";
     case BOARD_JUMPER_T18:
       return "Jumper T18";
+    case BOARD_JUMPER_T20:
+      return "Jumper T20";
     case BOARD_RADIOMASTER_TX16S:
       return "Radiomaster TX16S";
     case BOARD_RADIOMASTER_TX12:
@@ -903,6 +956,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Radiomaster Zorro";
     case BOARD_RADIOMASTER_BOXER:
       return "Radiomaster Boxer";
+    case BOARD_RADIOMASTER_POCKET:
+      return "Radiomaster Pocket";
     case BOARD_RADIOMASTER_T8:
       return "Radiomaster T8";
     case BOARD_FLYSKY_NV14:
@@ -1051,6 +1106,14 @@ StringTagMappingTable Boards::getTrimSwitchesLookupTable(Board::Type board)
                             {std::to_string(TRIM_SW_T6_INC), "TrimT6Up"},
                           });
 
+if (getCapability(board, Board::NumTrims) > 6)
+    tbl.insert(tbl.end(), {
+                            {std::to_string(TRIM_SW_T7_INC), "TrimT7Up"},
+                            {std::to_string(TRIM_SW_T7_DEC), "TrimT7Down"},
+                            {std::to_string(TRIM_SW_T8_INC), "TrimT8Up"},
+                            {std::to_string(TRIM_SW_T8_DEC), "TrimT8Down"},
+                          });
+
   return tbl;
 }
 
@@ -1072,6 +1135,11 @@ StringTagMappingTable Boards::getTrimSourcesLookupTable(Board::Type board)
                             {std::to_string(TRIM_AXIS_T6), "TrimT6"},
                           });
 
+  if (getCapability(board, Board::NumTrims) > 6)
+    tbl.insert(tbl.end(), {
+                            {std::to_string(TRIM_AXIS_T7), "TrimT7"},
+                            {std::to_string(TRIM_AXIS_T8), "TrimT8"},
+                          });
   return tbl;
 }
 
@@ -1135,8 +1203,10 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_BETAFPV_LR3PRO:
   case BOARD_RADIOMASTER_ZORRO:
   case BOARD_RADIOMASTER_BOXER:
+  case BOARD_RADIOMASTER_POCKET:
   case BOARD_RADIOMASTER_TX12_MK2:
   case BOARD_IFLIGHT_COMMANDO8:
+  case BOARD_JUMPER_T20:
     return (int)MODULE_TYPE_CROSSFIRE;
 
   case BOARD_FLYSKY_NV14:
@@ -1165,8 +1235,10 @@ int Boards::getDefaultExternalModuleSize(Board::Type board)
 
   if (IS_TARANIS_X9LITE(board)    ||
       IS_RADIOMASTER_ZORRO(board) ||
+      IS_RADIOMASTER_POCKET(board) ||
       IS_JUMPER_TLITE(board)      ||
       IS_JUMPER_TPRO(board)       ||
+      IS_JUMPER_T20(board)       ||
       IS_BETAFPV_LR3PRO(board))
     return EXTMODSIZE_SMALL;
 

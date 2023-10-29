@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include <math.h>
+
 #include "opentx.h"
 #include "usb_joystick.h"
 

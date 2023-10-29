@@ -24,10 +24,9 @@
 #include "opentx_helpers.h"
 #include "libopenui_file.h"
 #include "font.h"
+#include "dma2d.h"
 
 #include "lvgl/src/draw/sw/lv_draw_sw.h"
-
-void DMAWait();
 
 RLEBitmap::RLEBitmap(uint8_t format, const uint8_t* rle_data) :
   BitmapBufferBase<uint16_t>(format, 0, 0, nullptr)
@@ -106,6 +105,7 @@ BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height,
 
 BitmapBuffer::~BitmapBuffer()
 {
+  DMAWait();
   if (dataAllocated) {
 #if !defined(BOOT)
     lv_obj_del(canvas);
@@ -216,6 +216,7 @@ void BitmapBuffer::drawBitmapAbs(coord_t x, coord_t y, const T *bmp,
       DMACopyBitmap(data, _width, _height, x, y, bmp->getData(), bmpw, bmph,
                     srcx, srcy, srcw, srch);
     }
+    DMAWait();
   } else {
 
     int scaledw = srcw * scale;
@@ -670,7 +671,6 @@ void BitmapBuffer::drawFilledTriangle(coord_t x0, coord_t y0, coord_t x1,
   if (y1 > y2) { SWAP(y2, y1); SWAP(x2, x1); }
   if (y0 > y1) { SWAP(y0, y1); SWAP(x0, x1); }
 
-  DMAWait();
   if (y0 == y2) { // Handle awkward all-on-same-line case as its own thing
     a = b = x0;
     if (x1 < a)

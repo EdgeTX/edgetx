@@ -347,6 +347,7 @@
 #define TR_ALARMWARNING                "静音"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("关机检查RSSI", "关机时检查RSSI")
 #define TR_MODEL_STILL_POWERED         "模型未断电"
+#define TR_TRAINER_STILL_CONNECTED     "教练信号未断开"
 #define TR_USB_STILL_CONNECTED         "USB未断开"
 #define TR_MODEL_SHUTDOWN              "关机 ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "按ENTER键确认"

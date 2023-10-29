@@ -30,24 +30,66 @@
       &lv_font_ ## name ## _bold_16, /* FONT_BOLD_INDEX */     \
       &lv_font_ ## name ## _9,       /* FONT_XXS_INDEX */      \
       &lv_font_ ## name ## _13,      /* FONT_XS_INDEX */       \
-      &lv_font_ ## name ## _24,      /* FONT_L_INDEX */        \
-      &lv_font_ ## name ## _bold_32, /* FONT_XL_INDEX */       \
-      &lv_font_ ## name ## _bold_64, /* FONT_XXL_INDEX */      \
+      nullptr,                       /* FONT_L_INDEX */        \
+      nullptr,                       /* FONT_XL_INDEX */       \
+      nullptr,                       /* FONT_XXL_INDEX */      \
   }
 
 #if defined(TRANSLATIONS_CN)
   FONT_TABLE(noto_cn);
+  #define XXL_FONT "F/FONTS/lv_font_noto_cn_bold_64.bin"
+  #define XL_FONT "F/FONTS/lv_font_noto_cn_bold_32.bin"
+  #define L_FONT "F/FONTS/lv_font_noto_cn_24.bin"
 #elif defined(TRANSLATIONS_TW)
   FONT_TABLE(noto_tw);
+  #define XXL_FONT "F/FONTS/lv_font_noto_tw_bold_64.bin"
+  #define XL_FONT "F/FONTS/lv_font_noto_tw_bold_32.bin"
+  #define L_FONT "F/FONTS/lv_font_noto_tw_24.bin"
 #elif defined(TRANSLATIONS_JP)
   FONT_TABLE(noto_jp);
+  #define XXL_FONT "F/FONTS/lv_font_noto_jp_bold_64.bin"
+  #define XL_FONT "F/FONTS/lv_font_noto_jp_bold_32.bin"
+  #define L_FONT "F/FONTS/lv_font_noto_jp_24.bin"
 #elif defined(TRANSLATIONS_HE)
   FONT_TABLE(arimo_he);
+  #define XXL_FONT "F/FONTS/lv_font_arimo_he_bold_64.bin"
+  #define XL_FONT "F/FONTS/lv_font_arimo_he_bold_32.bin"
+  #define L_FONT "F/FONTS/lv_font_arimo_he_24.bin"
 #elif defined(TRANSLATIONS_RU)
   FONT_TABLE(arimo_ru);
+  #define XXL_FONT "F/FONTS/lv_font_arimo_ru_bold_64.bin"
+  #define XL_FONT "F/FONTS/lv_font_arimo_ru_bold_32.bin"
+  #define L_FONT "F/FONTS/lv_font_arimo_ru_24.bin"
 #else
   FONT_TABLE(roboto);
+  #define XXL_FONT "F/FONTS/lv_font_roboto_bold_64.bin"
+  #define XL_FONT "F/FONTS/lv_font_roboto_bold_32.bin"
+  #define L_FONT "F/FONTS/lv_font_roboto_24.bin"
 #endif
+
+void initFont(uint8_t font)
+{
+  if (font >= FONT_L_INDEX && lvglFontTable[FONT_L_INDEX] == nullptr) {
+    const lv_font_t* lvFont = lv_font_load(L_FONT);
+    if (lvFont == nullptr)
+      lvFont = lvglFontTable[FONT_STD_INDEX];
+    lvglFontTable[FONT_L_INDEX] = lvFont;
+  }
+
+  if (font >= FONT_XL_INDEX && lvglFontTable[FONT_XL_INDEX] == nullptr) {
+    const lv_font_t* lvFont = lv_font_load(XL_FONT);
+    if (lvFont == nullptr)
+      lvFont = lvglFontTable[FONT_L_INDEX];
+    lvglFontTable[FONT_XL_INDEX] = lvFont;
+  }
+
+  if (font == FONT_XXL_INDEX && lvglFontTable[font] == nullptr) {
+    const lv_font_t* lvFont = lv_font_load(XXL_FONT);
+    if (lvFont == nullptr)
+      lvFont = lvglFontTable[font-1];
+    lvglFontTable[font] = lvFont;
+  }
+}
 
 #endif // BOOT
 
@@ -68,6 +110,7 @@ const lv_font_t* getFont(LcdFlags flags)
   return LV_FONT_DEFAULT;
 #else
   auto fontIndex = FONT_INDEX(flags);
+  initFont(fontIndex);
   if (fontIndex >= FONTS_COUNT) return LV_FONT_DEFAULT;
   return lvglFontTable[fontIndex];
 #endif

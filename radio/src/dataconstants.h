@@ -517,7 +517,9 @@ enum MixSources {
   //#if defined(PCBHORUS)
   MIXSRC_TrimT5,
   MIXSRC_TrimT6,
-  MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimT6,
+  MIXSRC_TrimT7,
+  MIXSRC_TrimT8,
+  MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimT8,
   //#else
   //MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimAil,
   //#endif

@@ -356,6 +356,7 @@
 #define TR_ALARMWARNING                "Som desligado"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI Deslig.", "Checar RSSI qnd desligar")
 #define TR_MODEL_STILL_POWERED         "Modelo ainda ligado"
+#define TR_TRAINER_STILL_CONNECTED     "Trainer ainda conectado"
 #define TR_USB_STILL_CONNECTED         "USB ainda ligadp"
 #define TR_MODEL_SHUTDOWN              "Desligar?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Press enter p/ confirmar"

@@ -130,3 +130,19 @@ function(AddHWGenTarget input template output)
     DEPENDS ${INPUT_JSON} ${LEGACY_JSON} ${TEMPLATE}
     )
 endfunction()
+
+macro(AddHeadersSources)
+  foreach(name
+    ${${PROJECT_NAME}_NAMES})
+
+    set(${PROJECT_NAME}_SRCS
+      ${${PROJECT_NAME}_SRCS}
+      ${name}.cpp
+    )
+
+    set(${PROJECT_NAME}_HDRS
+      ${${PROJECT_NAME}_HDRS}
+      ${name}.h
+    )
+  endforeach()
+endmacro()
