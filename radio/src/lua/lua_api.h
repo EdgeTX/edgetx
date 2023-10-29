@@ -189,7 +189,7 @@ extern ScriptInternalData scriptInternalData[MAX_SCRIPTS];
 extern ScriptInputsOutputs scriptInputsOutputs[MAX_SCRIPTS];
 
 void luaClose(lua_State ** L);
-bool luaTask(event_t evt, bool allowLcdUsage);
+bool luaTask(bool allowLcdUsage);
 void checkLuaMemoryUsage();
 void luaExec(const char * filename);
 void luaDoGc(lua_State * L, bool full);
