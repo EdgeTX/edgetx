@@ -397,11 +397,8 @@
     LV_FONT_DECLARE(lv_font_noto_cn_9)           \
     LV_FONT_DECLARE(lv_font_noto_cn_13)          \
     LV_FONT_DECLARE(lv_font_noto_cn_16)          \
-    LV_FONT_DECLARE(lv_font_noto_cn_17)          \
     LV_FONT_DECLARE(lv_font_noto_cn_24)          \
-    LV_FONT_DECLARE(lv_font_noto_cn_64)          \
     LV_FONT_DECLARE(lv_font_noto_cn_bold_16)     \
-    LV_FONT_DECLARE(lv_font_noto_cn_bold_17)     \
     LV_FONT_DECLARE(lv_font_noto_cn_bold_32)     \
     LV_FONT_DECLARE(lv_font_noto_cn_bold_64)
 
@@ -413,11 +410,8 @@
     LV_FONT_DECLARE(lv_font_noto_tw_9)           \
     LV_FONT_DECLARE(lv_font_noto_tw_13)          \
     LV_FONT_DECLARE(lv_font_noto_tw_16)          \
-    LV_FONT_DECLARE(lv_font_noto_tw_17)          \
     LV_FONT_DECLARE(lv_font_noto_tw_24)          \
-    LV_FONT_DECLARE(lv_font_noto_tw_64)          \
     LV_FONT_DECLARE(lv_font_noto_tw_bold_16)     \
-    LV_FONT_DECLARE(lv_font_noto_tw_bold_17)     \
     LV_FONT_DECLARE(lv_font_noto_tw_bold_32)     \
     LV_FONT_DECLARE(lv_font_noto_tw_bold_64)
 
@@ -429,11 +423,8 @@
     LV_FONT_DECLARE(lv_font_arimo_ru_9)           \
     LV_FONT_DECLARE(lv_font_arimo_ru_13)          \
     LV_FONT_DECLARE(lv_font_arimo_ru_16)          \
-    LV_FONT_DECLARE(lv_font_arimo_ru_17)          \
     LV_FONT_DECLARE(lv_font_arimo_ru_24)          \
-    LV_FONT_DECLARE(lv_font_arimo_ru_64)          \
     LV_FONT_DECLARE(lv_font_arimo_ru_bold_16)     \
-    LV_FONT_DECLARE(lv_font_arimo_ru_bold_17)     \
     LV_FONT_DECLARE(lv_font_arimo_ru_bold_32)     \
     LV_FONT_DECLARE(lv_font_arimo_ru_bold_64)
 
@@ -445,11 +436,8 @@
     LV_FONT_DECLARE(lv_font_noto_jp_9)           \
     LV_FONT_DECLARE(lv_font_noto_jp_13)          \
     LV_FONT_DECLARE(lv_font_noto_jp_16)          \
-    LV_FONT_DECLARE(lv_font_noto_jp_17)          \
     LV_FONT_DECLARE(lv_font_noto_jp_24)          \
-    LV_FONT_DECLARE(lv_font_noto_jp_64)          \
     LV_FONT_DECLARE(lv_font_noto_jp_bold_16)     \
-    LV_FONT_DECLARE(lv_font_noto_jp_bold_17)     \
     LV_FONT_DECLARE(lv_font_noto_jp_bold_32)     \
     LV_FONT_DECLARE(lv_font_noto_jp_bold_64)
 
@@ -461,11 +449,8 @@
     LV_FONT_DECLARE(lv_font_arimo_he_9)           \
     LV_FONT_DECLARE(lv_font_arimo_he_13)          \
     LV_FONT_DECLARE(lv_font_arimo_he_16)          \
-    LV_FONT_DECLARE(lv_font_arimo_he_17)          \
     LV_FONT_DECLARE(lv_font_arimo_he_24)          \
-    LV_FONT_DECLARE(lv_font_arimo_he_64)          \
     LV_FONT_DECLARE(lv_font_arimo_he_bold_16)     \
-    LV_FONT_DECLARE(lv_font_arimo_he_bold_17)     \
     LV_FONT_DECLARE(lv_font_arimo_he_bold_32)     \
     LV_FONT_DECLARE(lv_font_arimo_he_bold_64)
 
@@ -477,11 +462,8 @@
     LV_FONT_DECLARE(lv_font_roboto_9)           \
     LV_FONT_DECLARE(lv_font_roboto_13)          \
     LV_FONT_DECLARE(lv_font_roboto_16)          \
-    LV_FONT_DECLARE(lv_font_roboto_17)          \
     LV_FONT_DECLARE(lv_font_roboto_24)          \
-    LV_FONT_DECLARE(lv_font_roboto_64)          \
     LV_FONT_DECLARE(lv_font_roboto_bold_16)     \
-    LV_FONT_DECLARE(lv_font_roboto_bold_17)     \
     LV_FONT_DECLARE(lv_font_roboto_bold_32)     \
     LV_FONT_DECLARE(lv_font_roboto_bold_64)
 
@@ -764,10 +746,18 @@
 #endif
 
 /*API for FATFS (needs to be added separately). Uses f_open, f_read, etc*/
+#if defined(BOOT)
 #define LV_USE_FS_FATFS  0
 #if LV_USE_FS_FATFS
     #define LV_FS_FATFS_LETTER '\0'     /*Set an upper cased letter on which the drive will accessible (e.g. 'A')*/
     #define LV_FS_FATFS_CACHE_SIZE 0    /*>0 to cache this number of bytes in lv_fs_read()*/
+#endif
+#else
+#define LV_USE_FS_FATFS  1
+#if LV_USE_FS_FATFS
+    #define LV_FS_FATFS_LETTER 'F'      /*Set an upper cased letter on which the drive will accessible (e.g. 'A')*/
+    #define LV_FS_FATFS_CACHE_SIZE 0    /*>0 to cache this number of bytes in lv_fs_read()*/
+#endif
 #endif
 
 /*PNG decoder library*/
