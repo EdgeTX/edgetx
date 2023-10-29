@@ -126,7 +126,7 @@ void StandaloneLuaWindow::checkEvents()
   if (luaState != INTERPRETER_RELOAD_PERMANENT_SCRIPTS) {
     // if LUA finished a full cycle,
     // invalidate to display the screen buffer
-    if (luaTask(0, true)) { invalidate(); }
+    if (luaTask(true)) { invalidate(); }
   }
 
   if (luaState == INTERPRETER_RELOAD_PERMANENT_SCRIPTS) {
