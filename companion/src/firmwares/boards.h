@@ -75,6 +75,7 @@ namespace Board {
     BOARD_IFLIGHT_COMMANDO8,
     BOARD_FLYSKY_EL18,
     BOARD_JUMPER_TPROV2,
+    BOARD_RADIOMASTER_POCKET,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -353,6 +354,12 @@ inline bool IS_RADIOMASTER_BOXER(Board::Type board)
   return board == Board::BOARD_RADIOMASTER_BOXER;
 }
 
+inline bool IS_RADIOMASTER_POCKET(Board::Type board)
+{
+  return board == Board::BOARD_RADIOMASTER_POCKET;
+}
+
+
 inline bool IS_RADIOMASTER_T8(Board::Type board)
 {
   return board == Board::BOARD_RADIOMASTER_T8;
@@ -375,6 +382,7 @@ inline bool IS_FAMILY_T12(Board::Type board)
          board == Board::BOARD_RADIOMASTER_TX12_MK2 ||
          board == Board::BOARD_RADIOMASTER_ZORRO ||
          board == Board::BOARD_RADIOMASTER_BOXER ||
+         board == Board::BOARD_RADIOMASTER_POCKET ||
          board == Board::BOARD_RADIOMASTER_T8 ||
          board == Board::BOARD_BETAFPV_LR3PRO ||
          board == Board::BOARD_IFLIGHT_COMMANDO8;
