@@ -483,7 +483,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return 4;
 
     case Pots:
-      if (IS_TARANIS_X9LITE(board)  || IS_RADIOMASTER_POCKET(board))
+      if (IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_POCKET(board))
         return 1;
       else if (IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board))
         return 0;
@@ -771,7 +771,7 @@ StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board, const
                           });
   } else if (IS_RADIOMASTER_POCKET(board)) {
     tbl.insert(tbl.end(), {
-                              {tr("S1").toStdString(), "POT1"},
+                              {tr("S1").toStdString(), "P1", 4},
                           });
   } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board) && !IS_JUMPER_T20(board)) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)) {
     if (version < adcVersion) {
