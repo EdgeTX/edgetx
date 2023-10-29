@@ -456,7 +456,13 @@ bool copyModel(uint8_t dst, uint8_t src)
   GET_FILENAME(fname_src, MODELS_PATH, model_idx_src, YAML_EXT);
   GET_FILENAME(fname_dst, MODELS_PATH, model_idx_dst, YAML_EXT);
 
-  return sdCopyFile(fname_src, fname_dst);
+  if (sdCopyFile(fname_src, fname_dst) == nullptr) {
+    // update headers
+    memcpy(&modelHeaders[dst], &modelHeaders[src], sizeof(ModelHeader));
+    return true;
+  }
+
+  return false;
 }
 
 static void swapModelHeaders(uint8_t id1, uint8_t id2)
