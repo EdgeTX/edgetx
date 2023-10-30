@@ -47,7 +47,9 @@ SWITCH_CONFIG = {
         "SE": { "default": "3POS"   },
         "SF": { "default": "2POS"   },
         "SG": { "default": "3POS"   },
-        "SH": { "default": "3POS"   }
+        "SH": { "default": "3POS"   },
+        "SI": { "default": "3POS"   },
+        "SJ": { "default": "3POS"   }
     },
     "lr3pro": {
         # left side
