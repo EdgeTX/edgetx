@@ -39,11 +39,16 @@ struct HWInputEdit : public RadioTextEdit {
 
 static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                          LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t col_three_dsc[] = {
-    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_three_dsc[] = {LV_GRID_FR(8), LV_GRID_FR(12), LV_GRID_FR(20),
+                                         LV_GRID_TEMPLATE_LAST};
 
-static const lv_coord_t col_four_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(2), LV_GRID_FR(5),
+#if LCD_W > LCD_H
+static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(2), LV_GRID_FR(5),
                                           LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
+#else
+static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(24), LV_GRID_FR(50), LV_GRID_FR(16),
+                                          LV_GRID_TEMPLATE_LAST};
+#endif
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
@@ -74,7 +79,7 @@ HWSticks::HWSticks(Window* parent) : FormWindow(parent, rect_t{})
 
 HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
 {
-  FlexGridLayout grid(col_four_dsc, row_dsc, 2);
+  FlexGridLayout grid(pots_col_dsc, row_dsc, 2);
   setFlexLayout();
 
   potsChanged = false;
@@ -98,6 +103,10 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, adcGetInputLabel(ADC_INPUT_FLEX, i), 0,
                    COLOR_THEME_PRIMARY1);
+
+#if LCD_H > LCD_W
+    line = newLine(&grid);
+#endif
 
     new HWInputEdit(line, (char*)analogGetCustomLabel(ADC_INPUT_FLEX, i),
                     LEN_ANA_NAME);
@@ -190,9 +199,7 @@ HWSwitches::HWSwitches(Window* parent) : FormWindow(parent, rect_t{})
 
     auto box = new FormWindow(line, rect_t{});
     box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
-
-    auto box_obj = box->getLvObj();
-    lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
+    box->setWidth(lv_pct(45));
 
     Choice* channel = nullptr;
     if (switchIsFlex(i)) {
@@ -234,7 +241,11 @@ HWInputDialog<T>::HWInputDialog(const char* title) :
   setCloseWhenClickOutside(true);
   if (title) content->setTitle(title);
   new T(&content->form);
+#if LCD_W > LCD_H
   content->setWidth(LCD_W * 0.8);
+#else
+  content->setWidth(LCD_W * 0.95);
+#endif
   content->updateSize();
 }
 
