@@ -20,11 +20,11 @@
  */
 
 #include "hw_inputs.h"
-#include "opentx.h"
 
+#include "analogs.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
-#include "analogs.h"
+#include "opentx.h"
 #include "switches.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
@@ -39,8 +39,8 @@ struct HWInputEdit : public RadioTextEdit {
 
 static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                          LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t col_three_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(2),
-                                         LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_three_dsc[] = {
+    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
@@ -52,8 +52,8 @@ HWSticks::HWSticks(Window* parent) : FormWindow(parent, rect_t{})
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (int i = 0; i < max_sticks; i++) {
     auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, analogGetCanonicalName(ADC_INPUT_MAIN, i),
-                   0, COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, analogGetCanonicalName(ADC_INPUT_MAIN, i), 0,
+                   COLOR_THEME_PRIMARY1);
     new HWInputEdit(line, (char*)analogGetCustomLabel(ADC_INPUT_MAIN, i),
                     LEN_ANA_NAME);
   }
@@ -74,15 +74,24 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
   FlexGridLayout grid(col_three_dsc, row_dsc, 2);
   setFlexLayout();
 
+  potsChanged = false;
+
+  setCloseHandler([=]() {
+    if (potsChanged) {
+      deleteCustomScreens();
+      loadCustomScreens();
+    }
+  });
+
   auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
   for (int i = 0; i < max_pots; i++) {
     // TODO: check initialised ADC inputs instead!
 
     // Display EX3 & EX4 (= last two pots) only when FlySky gimbals are present
     // TODO: use input disabled mask instead
-// #if !defined(SIMU) && defined(RADIO_FAMILY_T16)
-//     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
-// #endif
+    // #if !defined(SIMU) && defined(RADIO_FAMILY_T16)
+    //     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
+    // #endif
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, adcGetInputLabel(ADC_INPUT_POT, i), 0,
                    COLOR_THEME_PRIMARY1);
@@ -93,16 +102,18 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
     auto box_obj = box->getLvObj();
     lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
 
-    new HWInputEdit(box, (char*)analogGetCustomLabel(ADC_INPUT_POT, i), LEN_ANA_NAME);
+    new HWInputEdit(box, (char*)analogGetCustomLabel(ADC_INPUT_POT, i),
+                    LEN_ANA_NAME);
     new Choice(
         box, rect_t{}, STR_POTTYPES, POT_NONE, POT_SLIDER_WITH_DETENT,
         [=]() -> int {
           return bfGet<potconfig_t>(g_eeGeneral.potsConfig, POT_CFG_BITS * i,
-                                 POT_CFG_BITS);
+                                    POT_CFG_BITS);
         },
         [=](int newValue) {
           g_eeGeneral.potsConfig = bfSet<potconfig_t>(
               g_eeGeneral.potsConfig, newValue, POT_CFG_BITS * i, POT_CFG_BITS);
+          potsChanged = true;
           SET_DIRTY();
         });
   }
@@ -112,8 +123,7 @@ class SwitchDynamicLabel : public StaticText
 {
  public:
   SwitchDynamicLabel(Window* parent, uint8_t index) :
-      StaticText(parent, rect_t{}, "", 0, COLOR_THEME_PRIMARY1),
-      index(index)
+      StaticText(parent, rect_t{}, "", 0, COLOR_THEME_PRIMARY1), index(index)
   {
     checkEvents();
   }
