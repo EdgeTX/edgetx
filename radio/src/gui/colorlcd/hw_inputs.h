@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "form.h"
-#include "dialog.h"
 #include "button.h"
+#include "dialog.h"
+#include "form.h"
 
 struct HWSticks : public FormWindow {
   HWSticks(Window* parent);
@@ -31,15 +31,15 @@ struct HWSticks : public FormWindow {
 
 struct HWPots : public FormWindow {
   HWPots(Window* parent);
+  bool potsChanged;
 };
 
 struct HWSwitches : public FormWindow {
   HWSwitches(Window* parent);
 };
 
-template<class T>
-struct HWInputDialog : public Dialog
-{
+template <class T>
+struct HWInputDialog : public Dialog {
   HWInputDialog(const char* title = nullptr);
 };
 
