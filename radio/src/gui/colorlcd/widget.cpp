@@ -58,16 +58,18 @@ Widget::Widget(const WidgetFactory* factory, Window* parent,
 
 void Widget::openMenu()
 {
-  // Widgets are placed on a full screen window which is underneath the main view menu bar
-  // Find the parent of this so that when the popup loads it covers the main view menu
-  Window* w = parent->getFullScreenWindow()->getParent();
-  Menu* menu = new Menu(w ? w : this);
-  if (fsAllowed) {
-    menu->addLine(STR_WIDGET_FULLSCREEN, [&]() { setFullscreen(true); });
-  }
-  if (getOptions() && getOptions()->name) {
-    menu->addLine(STR_WIDGET_SETTINGS,
-                  [=]() { new WidgetSettings(this, this); });
+  if (getOptions() || fsAllowed) {
+    // Widgets are placed on a full screen window which is underneath the main view menu bar
+    // Find the parent of this so that when the popup loads it covers the main view menu
+    Window* w = parent->getFullScreenWindow()->getParent();
+    Menu* menu = new Menu(w ? w : this);
+    if (fsAllowed) {
+      menu->addLine(STR_WIDGET_FULLSCREEN, [&]() { setFullscreen(true); });
+    }
+    if (getOptions() && getOptions()->name) {
+      menu->addLine(STR_WIDGET_SETTINGS,
+                    [=]() { new WidgetSettings(this, this); });
+    }
   }
 }
 
