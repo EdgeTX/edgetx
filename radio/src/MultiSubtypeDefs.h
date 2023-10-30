@@ -130,7 +130,7 @@ STRLIST(STR_SUBTYPE_ZSX,       {"280JJRC"})
 STRLIST(STR_SUBTYPE_HEIGHT,    {"5ch","8ch"})
 STRLIST(STR_SUBTYPE_FRSKYX_RX, {"Multi","CloneTX","EraseTX","CPPM"})
 STRLIST(STR_SUBTYPE_HOTT,      {"Sync","No_Sync"})
-STRLIST(STR_SUBTYPE_FX,        {"816","620"})
+STRLIST(STR_SUBTYPE_FX,        {"816","620","9630"})
 STRLIST(STR_SUBTYPE_PELIKAN,   {"Pro","Lite","SCX24"})
 STRLIST(STR_SUBTYPE_XK,        {"X450","X420"})
 STRLIST(STR_SUBTYPE_XN297DUMP, {"250K","1M","2M","AUTO","NRF","CC2500"})
@@ -218,7 +218,7 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_FRSKYX_RX,  3, false, false,  STR_SUBTYPE_FRSKYX_RX, STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_AFHDS2A_RX, 1, false, false,  STR_SUBTYPE_RX,        nullptr}, //new
   {MODULE_SUBTYPE_MULTI_HOTT,       1, true,  false,  STR_SUBTYPE_HOTT,      STR_MULTI_RFTUNE},
-  {MODULE_SUBTYPE_MULTI_FX,         1, false, false,  STR_SUBTYPE_FX,        nullptr},
+  {MODULE_SUBTYPE_MULTI_FX,         2, false, false,  STR_SUBTYPE_FX,        nullptr},
   {MODULE_SUBTYPE_MULTI_BAYANG_RX,  1, false, false,  STR_SUBTYPE_RX,        nullptr}, //new
   {MODULE_SUBTYPE_MULTI_PELIKAN,    2, false, true,   STR_SUBTYPE_PELIKAN,   nullptr},
   {MODULE_SUBTYPE_MULTI_TIGER,      0, false, false,  NO_SUBTYPE,            nullptr}, //new
