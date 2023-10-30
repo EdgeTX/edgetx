@@ -88,7 +88,7 @@ void TopBar::checkEvents()
   uint32_t now = RTOS_GET_MS();
   if (now - lastRefresh >= TOPBAR_REFRESH) {
     lastRefresh = now;
-    invalidate();
+    TopBarBase::checkEvents();
   }
 }
 

@@ -115,6 +115,7 @@ class WidgetsContainerImpl : public WidgetsContainer
   inline void setOptionValue(unsigned int index, const ZoneOptionValue& value)
   {
     persistentData->options[index].value = value;
+    adjustLayout();
   }
 
   unsigned int getZonesCount() const override = 0;

@@ -23,6 +23,8 @@
 #include "widgets_container_impl.h"
 #include "theme.h"
 
+constexpr uint32_t WIDGET_REFRESH = 1000 / 10; // 10 Hz
+
 #define W_AUDIO_X 0
 #define W_USB_X 32
 #define W_LOG_X 32
@@ -84,14 +86,34 @@ STATIC_LZ4_BITMAP(LBM_TOPMENU_TXBATT);
 STATIC_LZ4_BITMAP(LBM_TOPMENU_TXBATT_CHARGING);
 STATIC_LZ4_BITMAP(LBM_TOPMENU_ANTENNA);
 
-class RadioInfoWidget: public Widget
+class TopBarWidget : public Widget
 {
-  protected:
+  public:
+    TopBarWidget(const WidgetFactory* factory, Window* parent,
+               const rect_t& rect, Widget::PersistentData* persistentData) :
+      Widget(factory, parent, rect, persistentData)
+    {
+    }
 
+    void checkEvents() override
+    {
+      Widget::checkEvents();
+      uint32_t now = RTOS_GET_MS();
+      if (now - lastRefresh >= WIDGET_REFRESH) {
+        lastRefresh = now;
+        invalidate();
+      }
+    }
+
+    uint32_t lastRefresh = 0;
+};
+
+class RadioInfoWidget: public TopBarWidget
+{
   public:
     RadioInfoWidget(const WidgetFactory* factory, Window* parent,
                const rect_t& rect, Widget::PersistentData* persistentData) :
-      Widget(factory, parent, rect, persistentData)
+      TopBarWidget(factory, parent, rect, persistentData)
     {
     }
 
@@ -159,14 +181,6 @@ class RadioInfoWidget: public Widget
         dc->drawSolidFilledRect(W_AUDIO_X + 2 + 4 * i, 27, 2, 8, i >= bars ? COLOR_THEME_PRIMARY3 : COLOR_THEME_PRIMARY2);
       }
     }
-
-    void checkEvents() override
-    {
-      Widget::checkEvents();
-      invalidate();
-    }
-
-    static const ZoneOption options[];
 };
 
 BaseWidgetFactory<RadioInfoWidget> RadioInfoWidget("Radio Info", nullptr, "Radio Info");
@@ -178,14 +192,12 @@ BaseWidgetFactory<RadioInfoWidget> RadioInfoWidget("Radio Info", nullptr, "Radio
 #define DT_OFFSET 1
 #endif
 
-class DateTimeWidget: public Widget
+class DateTimeWidget: public TopBarWidget
 {
-  protected:
-
   public:
     DateTimeWidget(const WidgetFactory* factory, Window* parent,
                const rect_t& rect, Widget::PersistentData* persistentData) :
-      Widget(factory, parent, rect, persistentData)
+      TopBarWidget(factory, parent, rect, persistentData)
     {
     }
 
@@ -199,8 +211,16 @@ class DateTimeWidget: public Widget
     void checkEvents() override
     {
       Widget::checkEvents();
-      invalidate();
+      // Only update if minute value has changed
+      struct gtm t;
+      gettime(&t);
+      if (t.tm_min != lastMinute) {
+        lastMinute = t.tm_min;
+        invalidate();
+      }
     }
+
+    int8_t lastMinute = 0;
 
     static const ZoneOption options[];
 };
@@ -220,14 +240,12 @@ static const uint8_t _LBM_TOPMENU_GPS[] = {
 
 STATIC_LZ4_BITMAP(LBM_TOPMENU_GPS);
 
-class InternalGPSWidget: public Widget
+class InternalGPSWidget: public TopBarWidget
 {
-  protected:
-
   public:
     InternalGPSWidget(const WidgetFactory* factory, Window* parent,
                const rect_t& rect, Widget::PersistentData* persistentData) :
-      Widget(factory, parent, rect, persistentData)
+      TopBarWidget(factory, parent, rect, persistentData)
     {
     }
 
@@ -244,14 +262,6 @@ class InternalGPSWidget: public Widget
             (gpsData.fix) ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY3);
       }
     }
-
-    void checkEvents() override
-    {
-      Widget::checkEvents();
-      invalidate();
-    }
-
-    static const ZoneOption options[];
 };
 
 BaseWidgetFactory<InternalGPSWidget> InternalGPSWidget("Internal GPS", nullptr, "Internal GPS");
