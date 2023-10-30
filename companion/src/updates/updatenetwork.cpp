@@ -154,7 +154,7 @@ void UpdateNetwork::download(const DownloadDataType type, const QString & urlStr
 
   m_reply = m_manager.get(m_request);
 
-  connect(m_reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::errorOccured), [=] (QNetworkReply::NetworkError code) {
+  connect(m_reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::errorOccurred), [=] (QNetworkReply::NetworkError code) {
     //  leave it to the finished slot to deal with error condition
     m_status->criticalMsg(tr("Network error has occurred. Error code: %1").arg(code));
   });
