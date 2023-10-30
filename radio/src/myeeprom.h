@@ -208,7 +208,6 @@ enum LogicalSwitchesFunctions {
   LS_FUNC_VALMOSTEQUAL, // v~=offset
   LS_FUNC_VPOS,   // v>offset
   LS_FUNC_VNEG,   // v<offset
-  LS_FUNC_RANGE,
   LS_FUNC_APOS,   // |v|>offset
   LS_FUNC_ANEG,   // |v|<offset
   LS_FUNC_AND,

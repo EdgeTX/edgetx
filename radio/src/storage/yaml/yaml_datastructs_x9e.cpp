@@ -131,7 +131,6 @@ const struct YamlIdStr enum_LogicalSwitchesFunctions[] = {
   {  LS_FUNC_VALMOSTEQUAL, "FUNC_VALMOSTEQUAL"  },
   {  LS_FUNC_VPOS, "FUNC_VPOS"  },
   {  LS_FUNC_VNEG, "FUNC_VNEG"  },
-  {  LS_FUNC_RANGE, "FUNC_RANGE"  },
   {  LS_FUNC_APOS, "FUNC_APOS"  },
   {  LS_FUNC_ANEG, "FUNC_ANEG"  },
   {  LS_FUNC_AND, "FUNC_AND"  },

@@ -263,7 +263,6 @@ class LogicalSwitchEditPage : public Page
       SET_DIRTY();
       updateLogicalSwitchOneWindow();
     });
-    functionChoice->setAvailableHandler(isLogicalSwitchFunctionAvailable);
 
     logicalSwitchOneWindow = new FormWindow(window, rect_t{});
     updateLogicalSwitchOneWindow();
