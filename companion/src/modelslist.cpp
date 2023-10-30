@@ -620,7 +620,7 @@ void ModelsListModel::refresh()
       current = rootItem->appendChild(i);
     }
     else {
-      current = rootItem->appendChild(0, i);
+      current = rootItem->appendChild(i);
       current->setData(currentColumn++, QString().arg(i + 1, 2, 10, QChar('0')));
     }
 
