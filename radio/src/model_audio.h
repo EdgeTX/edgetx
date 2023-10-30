@@ -23,7 +23,7 @@
 
 #include "opentx_types.h"
 
-char* getModelAudioPath(char* path);
+char* getModelAudioPath(char* path, bool trailingSlash = true);
 
 void getFlightmodeAudioFile(char* path, int index, unsigned int event);
 bool getSwitchAudioFile(char* path, swsrc_t index);

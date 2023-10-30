@@ -26,7 +26,7 @@
 
 static const char* const _suffixes[] = {"-off", "-on"};
 
-char* getModelAudioPath(char* path)
+char* getModelAudioPath(char* path, bool trailingSlash)
 {
   strcpy(path, SOUNDS_PATH "/");
   strncpy(path + SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
@@ -36,7 +36,8 @@ char* getModelAudioPath(char* path)
     buf = strcat_currentmodelname(path + sizeof(SOUNDS_PATH), 0);
   }
 
-  *buf++ = '/';
+  if (trailingSlash)
+    *buf++ = '/';
   *buf = '\0';
   return buf;
 }
@@ -99,7 +100,7 @@ bool matchModeAudioFile(const char* filename, int& index, int& event)
     auto fm_name_len = strnlen(fm_name, LEN_FLIGHT_MODE_NAME);
     if (strncasecmp(c, fm_name, fm_name_len) != 0) continue;
     c += fm_name_len;
-    for (int e = 0; e < DIM(_suffixes); e++) {
+    for (size_t e = 0; e < DIM(_suffixes); e++) {
       auto suffix_len = strlen(_suffixes[e]);
       if (strncasecmp(c, _suffixes[e], suffix_len) != 0) continue;
       c += suffix_len;
@@ -121,7 +122,7 @@ bool matchSwitchAudioFile(const char* filename, int& sw_pos)
     auto sw_name_len = strlen(sw_name);
     if (strncasecmp(c, sw_name, sw_name_len) != 0) continue;
     c += sw_name_len;
-    for (int pos = 0; pos < DIM(_sw_positions); pos++) {
+    for (size_t pos = 0; pos < DIM(_sw_positions); pos++) {
       auto pos_len = strlen(_sw_positions[pos]);
       if (strncasecmp(c, _sw_positions[pos], pos_len) != 0) continue;
       c += pos_len;
@@ -167,7 +168,7 @@ bool matchLogicalSwitchAudioFile(const char* filename, int& index, int& event)
   }
   if (*c != '-' || lsw < 1) return false;
 
-  for (int e = 0; e < DIM(_suffixes); e++) {
+  for (size_t e = 0; e < DIM(_suffixes); e++) {
     auto* s = c;
     auto suffix_len = strlen(_suffixes[e]);
     if (strncasecmp(s, _suffixes[e], suffix_len) != 0) continue;

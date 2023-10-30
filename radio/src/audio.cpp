@@ -319,7 +319,7 @@ void referenceModelAudioFiles()
   sdAvailableSwitchAudioFiles.reset();
   sdAvailableLogicalSwitchAudioFiles.reset();
 
-  getModelAudioPath(path);
+  getModelAudioPath(path, false);
 
   FRESULT res = f_opendir(&dir, path); /* Open the directory */
   if (res == FR_OK) {
@@ -328,7 +328,6 @@ void referenceModelAudioFiles()
       if (res != FR_OK || fno.fname[0] == 0)
         break; /* Break on error or end of dir */
       uint8_t len = strlen(fno.fname);
-      bool found = false;
 
       // Eliminates directories / non wav files
       if (fno.fattrib & AM_DIR) continue;
