@@ -177,7 +177,7 @@ void boardInit()
   pwrInit();
   boardInitModulePorts();
 
-  init_trainer();
+  board_trainer_init();
   battery_charge_init();
   flysky_gimbal_init();
   timersInit();

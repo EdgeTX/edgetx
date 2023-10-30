@@ -22,6 +22,7 @@ set(BOARD_LIB_SRC
   ${CMAKE_CURRENT_BINARY_DIR}/hal_adc_inputs.inc
 
   boards/generic_stm32/module_ports.cpp
+  boards/generic_stm32/trainer_ports.cpp
   boards/generic_stm32/aux_ports.cpp
   boards/generic_stm32/sport_update.cpp
   boards/generic_stm32/intmodule_heartbeat.cpp

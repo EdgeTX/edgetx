@@ -75,11 +75,8 @@ void stopTrainer()
 {
   switch (currentTrainerMode) {
     case TRAINER_MODE_MASTER_TRAINER_JACK:
-      stop_trainer_capture();
-      break;
-
     case TRAINER_MODE_SLAVE:
-      stop_trainer_ppm();
+      trainer_stop_dsc();
       break;
 
 #if defined(SBUS_TRAINER)
@@ -94,12 +91,10 @@ void stopTrainer()
       break;
 #endif
 
-#if defined(TRAINER_MODULE_SBUS)
     case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
       sbusSetGetByte(nullptr);
       stop_trainer_module_sbus();
       break;
-#endif
   }
 
 #if defined(INTMODULE_HEARTBEAT_GPIO) && !defined(SIMU) && \
@@ -127,11 +122,11 @@ void checkTrainerSettings()
 
     switch (requiredTrainerMode) {
       case TRAINER_MODE_MASTER_TRAINER_JACK:
-        init_trainer_capture();
+        trainer_init_dsc_in();
         break;
 
       case TRAINER_MODE_SLAVE:
-        init_trainer_ppm();
+        trainer_init_dsc_out();
         break;
 
 #if defined(SBUS_TRAINER)
@@ -174,10 +169,13 @@ static etx_module_state_t* sbus_trainer_mod_st = nullptr;
 static void init_trainer_module_sbus()
 {
   if (sbus_trainer_mod_st) return;
-  modulePortSetPower(EXTERNAL_MODULE,true);
 
   sbus_trainer_mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_UART,
                                              &sbusTrainerParams, false);
+
+  if (sbus_trainer_mod_st) {
+    modulePortSetPower(EXTERNAL_MODULE,true);
+  }
 }
 
 static void stop_trainer_module_sbus()

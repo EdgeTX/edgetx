@@ -98,7 +98,7 @@ void boardInit()
   pulsesSetModuleDeInitCb(_intmodule_heartbeat_deinit);
 #endif
 
-  init_trainer();
+  board_trainer_init();
   pwrOn();
   delaysInit();
 

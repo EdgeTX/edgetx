@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTx
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -21,29 +21,21 @@
 
 #pragma once
 
-// Startup init
-void board_trainer_init();
+#define __IS_TRAINER_TIMER_OUT_CHANNEL_SUPPORTED(ch)             \
+  (((ch) == LL_TIM_CHANNEL_CH1 || (ch) == LL_TIM_CHANNEL_CH2 ||  \
+    (ch) == LL_TIM_CHANNEL_CH3 || (ch) == LL_TIM_CHANNEL_CH4) && \
+   __STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(ch))
 
-// Output mode
-void trainer_init_dsc_out();
+#define __IS_TRAINER_TIMER_IN_CHANNEL_SUPPORTED(ch)            \
+  ((ch) == LL_TIM_CHANNEL_CH1 || (ch) == LL_TIM_CHANNEL_CH2 || \
+   (ch) == LL_TIM_CHANNEL_CH3 || (ch) == LL_TIM_CHANNEL_CH4)
 
-// Input mode
-void trainer_init_dsc_in();
+struct stm32_pulse_timer_t;
 
-// Stop input/output
-void trainer_stop_dsc();
+void trainer_init();
+void trainer_init_capture(const stm32_pulse_timer_t* tim);
+void trainer_init_output(const stm32_pulse_timer_t* tim);
+void trainer_stop();
 
-// Cable inserted?
-bool is_trainer_dsc_connected();
-
-// Active signal received
-extern uint8_t trainerInputValidityTimer;
-inline bool is_trainer_connected()
-{
-  return (trainerInputValidityTimer != 0);
-}
-
-#if defined(TRAINER_MODULE_CPPM)
-void init_trainer_module_cppm();
-void stop_trainer_module_cppm();
-#endif
+// Call this from the timer's IRQ
+void trainer_timer_isr();

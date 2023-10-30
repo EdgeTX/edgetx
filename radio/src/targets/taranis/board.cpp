@@ -105,7 +105,8 @@ void boardInit()
   board_set_bor_level();
 #endif
 
-  init_trainer();
+  board_trainer_init();
+
   // Sets 'hardwareOption.pcbrev' as well
   pwrInit();
   boardInitModulePorts();
