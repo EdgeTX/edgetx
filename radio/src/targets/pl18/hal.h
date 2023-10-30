@@ -204,15 +204,20 @@
 #define ADC_GPIO_PIN_SWF                LL_GPIO_PIN_0      // PB.00
 #define ADC_GPIO_PIN_SWG                LL_GPIO_PIN_1      // PB.01
 #define ADC_GPIO_PIN_SWH                LL_GPIO_PIN_10     // PF.10
+#if defined(RADIO_PL18EV)
+#define ADC_GPIO_PIN_SWI                LL_GPIO_PIN_3      // PA.03
+#define ADC_GPIO_PIN_SWJ                LL_GPIO_PIN_5      // PA.05
+#endif
 
 #define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_5      // PC.05
 
-#define ADC_GPIOA_PINS (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_SLIDER2 | ADC_GPIO_PIN_EXT1)
+#define ADC_GPIOA_PINS (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_SLIDER2 | \
+                        ADC_GPIO_PIN_EXT1 | ADC_GPIO_PIN_SWI | ADC_GPIO_PIN_SWJ)
 #define ADC_GPIOB_PINS (ADC_GPIO_PIN_SWF | ADC_GPIO_PIN_SWG)
-#define ADC_GPIOC_PINS							\
-  (ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_BATT | ADC_GPIO_PIN_SWB | ADC_GPIO_PIN_SWD | ADC_GPIO_PIN_SWE)
-#define ADC_GPIOF_PINS							\
-  (ADC_GPIO_PIN_POT3 | ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_EXT2 | ADC_GPIO_PIN_SWH)
+#define ADC_GPIOC_PINS (ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_BATT | \
+                        ADC_GPIO_PIN_SWB | ADC_GPIO_PIN_SWD | ADC_GPIO_PIN_SWE)
+#define ADC_GPIOF_PINS (ADC_GPIO_PIN_POT3 | ADC_GPIO_PIN_SLIDER1 | \
+                        ADC_GPIO_PIN_EXT2 | ADC_GPIO_PIN_SWH)
 
 #define ADC_CHANNEL_STICK_LH
 #define ADC_CHANNEL_STICK_LV
@@ -238,6 +243,8 @@
 #define ADC_CHANNEL_SWF                 LL_ADC_CHANNEL_8    // ADC12_IN8   -> ADC1_IN8
 #define ADC_CHANNEL_SWG                 LL_ADC_CHANNEL_9    // ADC12_IN9   -> ADC1_IN9
 #define ADC_CHANNEL_SWH                 LL_ADC_CHANNEL_8    // ADC3_IN8    -> ADC3_IN8
+#define ADC_CHANNEL_SWI                 LL_ADC_CHANNEL_3    // ADC123_IN2  -> ADC1_IN3
+#define ADC_CHANNEL_SWJ                 LL_ADC_CHANNEL_5    // ADC12_IN5   -> ADC1_IN5
 
 #define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_15   // ADC12_IN15  -> ADC1_IN15
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC1_IN18
@@ -271,7 +278,7 @@
     0,0,0,0, /* gimbals */    \
     0,0,0,   /* pots */       \
     -1,-1,   /* sliders */    \
-    0,0,     /* ext1 & 2 */  \
+    0,0,     /* ext1&2 */     \
     0,	     /* vbat */       \
     0,       /* rtc_bat */    \
     -1,      /* SWB */        \
@@ -279,14 +286,15 @@
     0,       /* SWE */        \
     0,       /* SWF */        \
     0,       /* SWG */        \
-    0        /* SWH */        \
+    0,       /* SWH */        \
+    0,       /* SWI */        \
+    0        /* SWJ */        \
   }
 #else
 #define ADC_DIRECTION {       \
     0,0,0,0, /* gimbals */    \
     0,0,0,   /* pots */       \
     -1,-1,   /* sliders */    \
-    /* 0,0,*/     /* ext1 & 2 */  \
     0,	     /* vbat */       \
     0,       /* rtc_bat */    \
     -1,      /* SWB */        \
