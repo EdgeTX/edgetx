@@ -7,7 +7,6 @@ option(LOG_TELEMETRY "Telemetry Logs on SD card" OFF)
 option(LOG_BLUETOOTH "Bluetooth Logs on SD card" OFF)
 option(TRACE_SD_CARD "Traces SD enabled" OFF)
 option(TRACE_FATFS "Traces FatFS enabled" OFF)
-option(TRACE_AUDIO "Traces audio enabled" OFF)
 option(DEBUG_TRACE_BUFFER "Debug Trace Screen" OFF)
 option(XJT "XJT TX Module" ON)
 option(PPM "PPM TX Module" ON)
@@ -120,12 +119,6 @@ endif()
 
 if(TRACE_FATFS)
   add_definitions(-DTRACE_FATFS)
-  set(DEBUG ON)
-  set(DEBUG_TRACE_BUFFER ON)
-endif()
-
-if(TRACE_AUDIO)
-  add_definitions(-DTRACE_AUDIO)
   set(DEBUG ON)
   set(DEBUG_TRACE_BUFFER ON)
 endif()
@@ -294,7 +287,6 @@ set(SRC
   ${SRC}
   main.cpp
   tasks.cpp
-  audio.cpp
   telemetry/telemetry.cpp
   telemetry/telemetry_sensors.cpp
   telemetry/frsky.cpp
