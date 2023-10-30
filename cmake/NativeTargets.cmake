@@ -35,6 +35,13 @@ if(LIBUSB1_FOUND)
   find_package(Dfuutil)
 endif()
 
+find_package(OpenSSL)
+
+# Qt 5.15 requires specific version of OpenSSL
+if(OPENSSL_FOUND AND OPENSSL_VERSION VERSION_GREATER_EQUAL "1.2.0")
+  message(STATUS "OpenSSL ${OPENSSL_VERSION} found. Qt 5.15 requires version 1.1.1!")
+endif()
+
 # Windows-specific includes and libs shared by sub-projects
 if(WIN32)
   list(APPEND WIN_INCLUDE_DIRS "${RADIO_SRC_DIR}/thirdparty/windows/dirent")

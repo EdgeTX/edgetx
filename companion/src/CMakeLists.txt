@@ -325,16 +325,6 @@ if(POLICY CMP0026)
   cmake_policy(SET CMP0026 OLD)  # https://cmake.org/cmake/help/v3.0/policy/CMP0026.html
 endif()
 
-# OpenSSL
-# environment variable set in github workflows and build-edgetx Dockerfile
-if (DEFINED ENV{QT_TOOLS_OPENSSL_ROOT_PATH})
-  set(OPENSSL_ROOT_DIR "$ENV{QT_TOOLS_OPENSSL_ROOT_PATH}")
-else()
-  message(STATUS "Environment variable QT_TOOLS_OPENSSL_ROOT_PATH not defined. Performing default OpenSSL library search.")
-endif()
-
-find_package(OpenSSL)
-
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   message(STATUS "install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX})
   install(TARGETS ${COMPANION_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
@@ -354,7 +344,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   install(FILES ../targets/linux/45-companion-taranis.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-taranis.rules)
   install(FILES ../targets/linux/45-usbasp.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-usbasp.rules)
 
-  if (OPENSSL_FOUND)
+  if(OPENSSL_FOUND AND OPENSSL_VERSION VERSION_LESS "1.2.0")
     get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
     # install only files Qt networking requires
     install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "engines*" EXCLUDE PATTERN "pkg*" EXCLUDE PATTERN "*.so*")
@@ -420,7 +410,7 @@ elseif(WIN32)
     message(WARNING "Installer: SDL2.dll not found, set SDL2_LIBRARY_PATH manually.")
   endif()
 
-  if (OPENSSL_FOUND)
+  if(OPENSSL_FOUND)
     get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
     set(OPENSSL_BIN_DIR "${OPENSSL_SSL_LIBRARY_DIR}/../bin")
     if (EXISTS "${OPENSSL_BIN_DIR}")
