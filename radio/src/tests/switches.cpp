@@ -20,7 +20,6 @@
  */
 
 #include "dataconstants.h"
-#include "gtest.h"
 #include "gtests.h"
 #include "myeeprom.h"
 
