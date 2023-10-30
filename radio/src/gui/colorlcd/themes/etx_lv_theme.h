@@ -40,3 +40,6 @@
 lv_theme_t* etx_lv_theme_init(lv_disp_t* disp, lv_color_t color_primary,
                               lv_color_t color_secondary,
                               const lv_font_t* font);
+
+void usePreviewStyle();
+void useMainStyle();

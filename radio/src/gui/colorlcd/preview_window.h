@@ -27,6 +27,7 @@
 #include "opentx.h"
 #include "sliders.h"
 #include "theme_manager.h"
+#include "themes/etx_lv_theme.h"
 
 extern inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
@@ -52,6 +53,8 @@ class ColorMaintainer
     for (auto color : colorList) {
       lcdColorTable[color.colorNumber] = color.colorValue;
     }
+
+    usePreviewStyle();
   }
 
   void restoreColorValues()
@@ -59,6 +62,8 @@ class ColorMaintainer
     for (auto i = 0; i < COLOR_COUNT; i++) {
       lcdColorTable[i] = oldColorVals[i];
     }
+
+    useMainStyle();
   }
 
  protected:
@@ -72,9 +77,10 @@ extern ColorMaintainer colorMaintainer;
 class ThemedStaticText : public StaticText
 {
  public:
-  ThemedStaticText(FormWindow *window, const rect_t &rect, std::string text, LcdColorIndex colorIndex) :
-    StaticText(window, rect, text, 0, COLOR(colorIndex)),
-    _colorIndex(colorIndex)
+  ThemedStaticText(FormWindow *window, const rect_t &rect, std::string text,
+                   LcdColorIndex colorIndex) :
+      StaticText(window, rect, text, 0, COLOR(colorIndex)),
+      _colorIndex(colorIndex)
   {
   }
 
@@ -86,35 +92,25 @@ class ThemedStaticText : public StaticText
     colorMaintainer.restoreColorValues();
   }
 
-  protected:
-    LcdColorIndex _colorIndex;
+ protected:
+  LcdColorIndex _colorIndex;
 };
 
 class ThemedCheckBox : public ToggleSwitch
 {
  public:
   ThemedCheckBox(Window *parent, rect_t rect, bool checked) :
-      ToggleSwitch(parent, rect, [=]() { return checked; }, [](uint8_t value) {}, NO_FOCUS),
+      ToggleSwitch(
+          parent, rect, [=]() { return checked; },
+          [=](uint8_t value) { update(); }, NO_FOCUS),
       checked(checked)
   {
-    enable(false);
-    setFocusHandler([] (bool focus) {
-    });
+    setFocusHandler([](bool focus) {});
   }
 
 #if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override
-  {
-    return parent->onEvent(event);
-  }
+  void onEvent(event_t event) override { return parent->onEvent(event); }
 #endif
-
-  void paint(BitmapBuffer *dc) override
-  {
-    colorMaintainer.applyColorValues();
-    ToggleSwitch::paint(dc);
-    colorMaintainer.restoreColorValues();
-  }
 
  protected:
   bool checked;
@@ -122,14 +118,14 @@ class ThemedCheckBox : public ToggleSwitch
 
 class ThemedMainViewHorizontalTrim : public MainViewHorizontalTrim
 {
-  public:
-    using MainViewHorizontalTrim::MainViewHorizontalTrim;
-    void paint(BitmapBuffer *dc) override
-    {
-      colorMaintainer.applyColorValues();
-      MainViewHorizontalTrim::paint(dc);
-      colorMaintainer.restoreColorValues();
-    }
+ public:
+  using MainViewHorizontalTrim::MainViewHorizontalTrim;
+  void paint(BitmapBuffer *dc) override
+  {
+    colorMaintainer.applyColorValues();
+    MainViewHorizontalTrim::paint(dc);
+    colorMaintainer.restoreColorValues();
+  }
 };
 
 class ThemedMainViewHorizontalSlider : public MainViewHorizontalSlider
@@ -146,76 +142,42 @@ class ThemedMainViewHorizontalSlider : public MainViewHorizontalSlider
 
 class ThemedButton : public TextButton
 {
-  public:
-    ThemedButton(FormWindow *window, const rect_t &rect, std::string text, bool isChecked, WindowFlags windowFlags, 
-                 LcdColorIndex colorIndex) :
-      TextButton(window, rect, text, nullptr, windowFlags | NO_FOCUS),
-      _colorIndex(colorIndex),
-      _isChecked(isChecked)
-    {
-      setTextFlags(COLOR(colorIndex));
-      setPressHandler([=] () { return _isChecked; });
-    }
+ public:
+  ThemedButton(FormWindow *window, const rect_t &rect, std::string text,
+               bool isChecked, WindowFlags windowFlags) :
+      TextButton(window, rect, text, nullptr, windowFlags | NO_FOCUS)
+  {
+    setPressHandler([=]() { return isChecked; });
+  }
 
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override
-    {
-      parent->onEvent(event);
-    }
+  void onEvent(event_t event) override { parent->onEvent(event); }
 #endif
-
-    void paint(BitmapBuffer *dc) override
-    {
-      colorMaintainer.applyColorValues();
-      setTextFlags(COLOR(_colorIndex));
-      TextButton::paint(dc);
-      colorMaintainer.restoreColorValues();
-    }
-  protected:
-    LcdColorIndex _colorIndex;
-    bool _isChecked = true;
 };
 
 class ThemedTextEdit : public TextEdit
 {
-  public:
-    ThemedTextEdit(Window *parent, const rect_t &rect, const char *text, 
-                   int colorBackgroundIndex, int colorTextIndex) :
-      TextEdit(parent, rect, editText, strlen(text), NO_FOCUS),
-      _colorBackgroundIndex(colorBackgroundIndex),
-      _colorTextIndex(colorTextIndex)
-    {
-      strcpy(editText, text);
-      update();
-    }
-
-    void paint(BitmapBuffer *dc) override
-    {
-      colorMaintainer.applyColorValues();
-      lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR(_colorBackgroundIndex)), LV_PART_MAIN);
-      lv_obj_set_style_text_color(lvobj, lv_color_white(), LV_PART_MAIN);
-      TextEdit::paint(dc);
-      colorMaintainer.restoreColorValues();
-    }
+ public:
+  ThemedTextEdit(Window *parent, const rect_t &rect, const char *text,
+                 bool edited) :
+      TextEdit(parent, rect, editText, strlen(text), NO_FOCUS)
+  {
+    strcpy(editText, text);
+    lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
+    if (edited) lv_obj_add_state(lvobj, LV_STATE_EDITED);
+    update();
+  }
 
 #if defined(HARDWARE_TOUCH)
-    bool onTouchEnd(coord_t x, coord_t y) override
-    {
-      return true;
-    }
+  bool onTouchEnd(coord_t x, coord_t y) override { return true; }
 #endif
 
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override
-    {
-      parent->onEvent(event);
-    }
+  void onEvent(event_t event) override { parent->onEvent(event); }
 #endif
 
-  protected:
-    int _colorBackgroundIndex;
-    int _colorTextIndex;
-    char editText[50];
+ protected:
+  char editText[50];
 };
 
 // display controls using the appropriate theme.
@@ -224,47 +186,47 @@ class PreviewWindow : public FormWindow
  public:
   PreviewWindow(Window *window, rect_t rect,
                 std::vector<ColorEntry> colorList) :
-      FormWindow(window, rect, NO_FOCUS), _colorList(colorList)
+      FormWindow(window, rect, NO_FOCUS)
   {
+    setColorList(colorList);
+    colorMaintainer.applyColorValues();
 
     // reset default group to avoid focus
-    lv_group_t* def_group = lv_group_get_default();
+    lv_group_t *def_group = lv_group_get_default();
     lv_group_set_default(nullptr);
 
-    new ThemedStaticText(this, {5, 44, 100, PAGE_LINE_HEIGHT}, STR_THEME_CHECKBOX, COLOR_THEME_PRIMARY1_INDEX);
+    new ThemedStaticText(this, {5, 44, 100, PAGE_LINE_HEIGHT},
+                         STR_THEME_CHECKBOX, COLOR_THEME_PRIMARY1_INDEX);
     new ThemedCheckBox(this, {100, 40, 40, 28}, true);
     new ThemedCheckBox(this, {150, 40, 40, 28}, false);
-    new ThemedButton(this, {210, 40, 100, PAGE_LINE_HEIGHT + 10}, STR_THEME_ACTIVE, true, BUTTON_CHECKED, COLOR_THEME_PRIMARY1_INDEX);
-    new ThemedButton(this, {210, 75, 100, PAGE_LINE_HEIGHT + 10}, STR_THEME_REGULAR, false, 0, COLOR_THEME_PRIMARY1_INDEX);
-    new ThemedMainViewHorizontalTrim(this, {5, 75, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
-    new ThemedMainViewHorizontalSlider(this, {5, 97, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
-    new ThemedStaticText(this, {5, 122, 100, PAGE_LINE_HEIGHT}, STR_THEME_WARNING, COLOR_THEME_WARNING_INDEX);
-    new ThemedStaticText(this, {5, 144, 100, PAGE_LINE_HEIGHT}, STR_THEME_DISABLED, COLOR_THEME_DISABLED_INDEX);
+    new ThemedButton(this, {210, 40, 100, 32}, STR_THEME_ACTIVE, true,
+                     BUTTON_CHECKED);
+    new ThemedButton(this, {210, 75, 100, 32}, STR_THEME_REGULAR, false, 0);
+    new ThemedMainViewHorizontalTrim(this,
+                                     {5, 75, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
+    new ThemedMainViewHorizontalSlider(
+        this, {5, 97, HORIZONTAL_SLIDERS_WIDTH, 20}, 0);
+    new ThemedStaticText(this, {5, 122, 100, PAGE_LINE_HEIGHT},
+                         STR_THEME_WARNING, COLOR_THEME_WARNING_INDEX);
+    new ThemedStaticText(this, {5, 144, 100, PAGE_LINE_HEIGHT},
+                         STR_THEME_DISABLED, COLOR_THEME_DISABLED_INDEX);
 
-    new ThemedTextEdit(this, {5, 170, 100, 32}, STR_THEME_EDIT,
-                       COLOR_THEME_EDIT_INDEX, COLOR_THEME_PRIMARY2_INDEX);
-    new ThemedTextEdit(this, {110, 170, 100, 32}, STR_THEME_FOCUS,
-                       COLOR_THEME_FOCUS_INDEX, COLOR_THEME_PRIMARY2_INDEX);
+    new ThemedTextEdit(this, {5, 170, 100, 0}, STR_THEME_EDIT, true);
+    new ThemedTextEdit(this, {110, 170, 100, 0}, STR_THEME_FOCUS, false);
     ticks = 0;
 
     lv_group_set_default(def_group);
+
+    colorMaintainer.restoreColorValues();
   }
 
   void setColorList(std::vector<ColorEntry> colorList)
   {
-    _colorList = colorList;
+    colorMaintainer.setColorList(colorList);
+    // Force style update
+    colorMaintainer.applyColorValues();
+    colorMaintainer.restoreColorValues();
     invalidate();
-  }
-
-  void checkEvents() override
-  {
-    Window::checkEvents();
-
-    tmr10ms_t newTicks = getTicks();
-    if (newTicks - ticks > PREVIEW_WINDOW_REFRESH_INTERVAL) {
-      invalidate();
-      ticks = newTicks;
-    }
   }
 
   BitmapBuffer *getBitmap(const uint8_t *maskData, uint32_t bgColor,
@@ -286,7 +248,8 @@ class PreviewWindow : public FormWindow
     char str[16];
 
     gettime(&t);
-    int s = snprintf(str, sizeof(str), "%d %s\n", t.tm_mday, STR_MONTHS[t.tm_mon]);
+    int s =
+        snprintf(str, sizeof(str), "%d %s\n", t.tm_mday, STR_MONTHS[t.tm_mon]);
     if (s > 0 && (size_t)s < sizeof(str) - 6 /* 00:00\0 */) {
       getTimerString(str + s, getValue(MIXSRC_TX_TIME));
     }
@@ -295,14 +258,14 @@ class PreviewWindow : public FormWindow
 
   void paint(BitmapBuffer *dc) override
   {
-    colorMaintainer.setColorList(_colorList);
     colorMaintainer.applyColorValues();
 
     // background
     dc->clear(COLOR_THEME_SECONDARY3);
 
     // top bar background
-    dc->drawSolidFilledRect(0, 0, rect.w, TOPBAR_ZONE_HEIGHT, COLOR_THEME_SECONDARY1);
+    dc->drawSolidFilledRect(0, 0, rect.w, TOPBAR_ZONE_HEIGHT,
+                            COLOR_THEME_SECONDARY1);
 
     int width;
     int x = 5;
@@ -335,8 +298,6 @@ class PreviewWindow : public FormWindow
   }
 
  protected:
-  std::vector<ColorEntry> _colorList;
-  ToggleSwitch *checkBox;
   tmr10ms_t ticks;
 };
 
