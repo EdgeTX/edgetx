@@ -46,9 +46,3 @@ inline bool is_trainer_connected()
 void init_trainer_module_cppm();
 void stop_trainer_module_cppm();
 #endif
-
-#if defined(TRAINER_MODULE_SBUS)
-void init_trainer_module_sbus();
-void stop_trainer_module_sbus();
-int trainerModuleSbusGetByte(uint8_t* byte);
-#endif

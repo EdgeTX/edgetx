@@ -20,7 +20,11 @@
  */
 
 #include "stm32_pulse_driver.h"
+#include "stm32_serial_driver.h"
+
 #include "hal/trainer_driver.h"
+#include "hal/module_port.h"
+
 #include "hal.h"
 
 #include "opentx.h"
@@ -346,93 +350,3 @@ extern "C" void TRAINER_MODULE_CPPM_TIMER_IRQHandler()
 #endif
 
 #endif // TRAINER_MODULE_CPPM
-
-#if defined(TRAINER_MODULE_SBUS)
-
-const etx_serial_init sbusTrainerParams = {
-    .baudrate = SBUS_BAUDRATE,
-    .encoding = ETX_Encoding_8E2,
-    .direction = ETX_Dir_RX,
-    .polarity = ETX_Pol_Normal,
-};
-
-// external module may have a full-duplex USART
-#if defined(EXTMODULE_USART) || defined(CONFIGURABLE_MODULE_PORT)
-
-#include "hal/module_port.h"
-
-static etx_module_state_t* sbus_trainer_mod_st = nullptr;
-
-void init_trainer_module_sbus()
-{
-  if (sbus_trainer_mod_st) return;
-  modulePortSetPower(EXTERNAL_MODULE,true);
-
-  sbus_trainer_mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_UART,
-                                             &sbusTrainerParams, false);
-}
-
-void stop_trainer_module_sbus()
-{
-  if (!sbus_trainer_mod_st) return;
-  modulePortDeInit(sbus_trainer_mod_st);
-  modulePortSetPower(EXTERNAL_MODULE,false);
-  sbus_trainer_mod_st = nullptr;
-}
-
-int trainerModuleSbusGetByte(uint8_t* data)
-{
-  if (!sbus_trainer_mod_st) return 0;
-
-  auto serial_driver = modulePortGetSerialDrv(sbus_trainer_mod_st->rx);
-  auto ctx = modulePortGetCtx(sbus_trainer_mod_st->rx);
-
-  if (ctx) {
-    return serial_driver->getByte(ctx, data);
-  }
-
-  return 0;
-}
-
-#elif defined(TRAINER_MODULE_SBUS_USART)
-#include "stm32_serial_driver.h"
-
-static const stm32_usart_t sbus_trainer_USART = {
-  .USARTx = TRAINER_MODULE_SBUS_USART,
-  .GPIOx = TRAINER_MODULE_SBUS_GPIO,
-  .GPIO_Pin = TRAINER_MODULE_SBUS_GPIO_PIN,
-  .IRQn = (IRQn_Type)-1,
-  .IRQ_Prio = 0,
-  .txDMA = nullptr,
-  .txDMA_Stream = 0,
-  .txDMA_Channel = 0,
-  .rxDMA = TRAINER_MODULE_SBUS_DMA,
-  .rxDMA_Stream = TRAINER_MODULE_SBUS_DMA_STREAM_LL,
-  .rxDMA_Channel = TRAINER_MODULE_SBUS_DMA_CHANNEL,
-};
-
-DEFINE_STM32_SERIAL_PORT(SbusTrainer, sbus_trainer_USART, 32, 0);
-
-static void* _sbus_trainer_ctx = nullptr;
-
-void init_trainer_module_sbus()
-{
-  _sbus_trainer_ctx = STM32SerialDriver.init(REF_STM32_SERIAL_PORT(SbusTrainer),
-                                             &sbusTrainerParams);
-}
-
-void stop_trainer_module_sbus()
-{
-  STM32SerialDriver.deinit(_sbus_trainer_ctx);
-  _sbus_trainer_ctx = nullptr;
-}
-
-int trainerModuleSbusGetByte(uint8_t* data)
-{
-  return STM32SerialDriver.getByte(_sbus_trainer_ctx, data);
-}
-
-#else
-  #error "No available SBUS trainer implementation"
-#endif
-#endif // TRAINER_MODULE_SBUS

@@ -1007,6 +1007,10 @@
 #define TRAINER_MODULE_CPPM_TIMER_IRQHandler TIM4_IRQHandler
 #define TRAINER_MODULE_CPPM_GPIO_AF          LL_GPIO_AF_2
 
+#if defined(EXTMODULE_USART) || defined(CONFIGURABLE_MODULE_PORT)
+  #define TRAINER_MODULE_SBUS
+#endif
+
 // Millisecond timer
 #define MS_TIMER                        TIM14
 #define MS_TIMER_IRQn                   TIM8_TRG_COM_TIM14_IRQn
