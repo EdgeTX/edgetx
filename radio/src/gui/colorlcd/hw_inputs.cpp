@@ -46,7 +46,7 @@ static const lv_coord_t col_three_dsc[] = {LV_GRID_FR(8), LV_GRID_FR(12), LV_GRI
 static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(2), LV_GRID_FR(5),
                                           LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
 #else
-static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(24), LV_GRID_FR(50), LV_GRID_FR(16),
+static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(22), LV_GRID_FR(48), LV_GRID_FR(16),
                                           LV_GRID_TEMPLATE_LAST};
 #endif
 
