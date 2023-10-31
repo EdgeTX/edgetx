@@ -47,5 +47,11 @@ class ChannelsViewMenu: public TabsGroup {
   protected:
     ModelMenu* parentMenu = nullptr;
 
-    void onEvent(event_t event) override;
+#if defined(HARDWARE_KEYS)
+  void onPressSYS() override;
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onPressTELE() override;
+#endif
 };

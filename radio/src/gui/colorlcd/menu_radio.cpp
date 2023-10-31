@@ -22,6 +22,7 @@
 #include "menu_radio.h"
 
 #include "menu_model.h"
+#include "menu_screen.h"
 #include "model_select.h"
 #include "myeeprom.h"
 #include "opentx.h"
@@ -34,6 +35,7 @@
 #include "radio_trainer.h"
 #include "radio_version.h"
 #include "special_functions.h"
+#include "view_channels.h"
 
 RadioMenu::RadioMenu() : TabsGroup(ICON_RADIO) { build(); }
 
@@ -70,18 +72,27 @@ void RadioMenu::checkEvents()
   }
 }
 
-void RadioMenu::onEvent(event_t event)
-{
 #if defined(HARDWARE_KEYS)
-  if (event == EVT_KEY_BREAK(KEY_MODEL)) {
-    onCancel();
-    new ModelMenu();
-  } else if (event == EVT_KEY_LONG(KEY_MODEL)) {
-    onCancel();
-    killEvents(KEY_MODEL);
-    new ModelLabelsWindow();
-  } else {
-    TabsGroup::onEvent(event);
-  }
-#endif
+void RadioMenu::onPressSYS() { setCurrentTab(0); }
+void RadioMenu::onLongPressSYS() { setCurrentTab(2); }
+void RadioMenu::onPressMDL()
+{
+  onCancel();
+  new ModelMenu();
 }
+void RadioMenu::onLongPressMDL()
+{
+  onCancel();
+  new ModelLabelsWindow();
+}
+void RadioMenu::onPressTELE()
+{
+  onCancel();
+  new ScreenMenu();
+}
+void RadioMenu::onLongPressTELE()
+{
+  onCancel();
+  new ChannelsViewMenu();
+}
+#endif

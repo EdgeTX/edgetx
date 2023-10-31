@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MENU_SCREEN_H_
-#define _MENU_SCREEN_H_
+#pragma once
 
 #include "tabsgroup.h"
 
@@ -29,6 +28,13 @@ class ScreenMenu : public TabsGroup
  public:
   ScreenMenu(int8_t tabIdx = -1);
   void updateTabs(int8_t tabIdx);
-};
 
-#endif // _MENU_SCREEN_H_
+ protected:
+#if defined(HARDWARE_KEYS)
+  void onPressSYS() override;
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onLongPressTELE() override;
+#endif
+};

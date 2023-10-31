@@ -23,90 +23,96 @@
 #define _VIEW_MAIN_H_
 
 #include <memory>
+
 #include "form.h"
 #include "topbar.h"
-
 
 class SetupWidgetsPage;
 class SetupTopBarWidgetsPage;
 class ViewMainMenu;
 
-class ViewMain: public Window
+class ViewMain : public NavWindow
 {
-    // singleton
-    explicit ViewMain();
+  // singleton
+  explicit ViewMain();
 
-  public:
-    ~ViewMain() override;
+ public:
+  ~ViewMain() override;
 
-    static ViewMain * instance()
-    {
-      if (!_instance)
-        _instance = new ViewMain();
+  static ViewMain* instance()
+  {
+    if (!_instance) _instance = new ViewMain();
 
-      return _instance;
-    }
+    return _instance;
+  }
 
-    static ViewMain* getInstance() { return _instance; }
+  static ViewMain* getInstance() { return _instance; }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "ViewMain";
-    }
+  std::string getName() const override { return "ViewMain"; }
 #endif
 
-    void addMainView(Window* view, uint32_t viewId);
+  void addMainView(Window* view, uint32_t viewId);
 
-    void enableTopbar();
-    void disableTopbar();
-    void updateTopbarVisibility();
-    bool enableWidgetSelect(bool enable);
-    
-    // Update after theme loaded / changed
-    void updateFromTheme();
+  void enableTopbar();
+  void disableTopbar();
+  void updateTopbarVisibility();
+  bool enableWidgetSelect(bool enable);
 
-    // Get the available space in the middle of the screen
-    // (without topbar)
-    rect_t getMainZone(rect_t zone, bool hasTopbar) const;
+  // Update after theme loaded / changed
+  void updateFromTheme();
 
-    unsigned getMainViewsCount() const;
-    unsigned getCurrentMainView() const;
-    void setCurrentMainView(unsigned view);
+  // Get the available space in the middle of the screen
+  // (without topbar)
+  rect_t getMainZone(rect_t zone, bool hasTopbar) const;
 
-    void nextMainView();
-    void previousMainView();
+  unsigned getMainViewsCount() const;
+  unsigned getCurrentMainView() const;
+  void setCurrentMainView(unsigned view);
 
-    TopBar* getTopbar();
+  void nextMainView();
+  void previousMainView();
 
-    void onEvent(event_t event) override;
-    void onClicked() override;
-    void onCancel() override;
+  TopBar* getTopbar();
 
-  protected:
-    static ViewMain * _instance;
+  void onClicked() override;
+  void onCancel() override;
 
-    lv_obj_t*   tile_view = nullptr;
-    TopBar* topbar = nullptr;
-    bool        widget_select = false;
-    lv_timer_t* widget_select_timer = nullptr;
-    ViewMainMenu* viewMainMenu = nullptr;
+ protected:
+  static ViewMain* _instance;
 
-    void paint(BitmapBuffer * dc) override;
-    void deleteLater(bool detach = true, bool trash = true) override;
+  lv_obj_t* tile_view = nullptr;
+  TopBar* topbar = nullptr;
+  bool widget_select = false;
+  lv_timer_t* widget_select_timer = nullptr;
+  ViewMainMenu* viewMainMenu = nullptr;
 
-    // Widget setup requires special permissions ;-)
-    friend class SetupWidgetsPage;
-    friend class SetupTopBarWidgetsPage;
+  void paint(BitmapBuffer* dc) override;
+  void deleteLater(bool detach = true, bool trash = true) override;
 
-    // Set topbar visibility [0.0 -> 1.0]
-    void setTopbarVisible(float visible);
+  // Widget setup requires special permissions ;-)
+  friend class SetupWidgetsPage;
+  friend class SetupTopBarWidgetsPage;
 
-    void openMenu();
-    void refreshWidgetSelectTimer();
+  // Set topbar visibility [0.0 -> 1.0]
+  void setTopbarVisible(float visible);
 
-    static void long_pressed(lv_event_t* e);
-    static void ws_timer(lv_timer_t* t);
+  void openMenu();
+  void refreshWidgetSelectTimer();
+
+  static void long_pressed(lv_event_t* e);
+  static void ws_timer(lv_timer_t* t);
+
+#if defined(HARDWARE_KEYS)
+  void onPressSYS() override;
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onPressTELE() override;
+  void onLongPressTELE() override;
+  void onPressPGUP() override;
+  void onPressPGDN() override;
+#endif
 };
 
-#endif // _VIEW_MAIN_H_
+#endif  // _VIEW_MAIN_H_

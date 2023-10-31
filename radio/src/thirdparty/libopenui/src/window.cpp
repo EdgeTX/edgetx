@@ -463,3 +463,61 @@ void Window::invalidate(const rect_t & rect)
 {
   if (lvobj) lv_obj_invalidate(lvobj);
 }
+
+void NavWindow::onEvent(event_t event)
+{
+  switch (event) {
+#if defined(HARDWARE_KEYS)
+    case EVT_KEY_BREAK(KEY_MODEL):
+      onPressMDL();
+      break;
+
+    case EVT_KEY_LONG(KEY_MODEL):
+      killEvents(KEY_MODEL);
+      onLongPressMDL();
+      break;
+
+    case EVT_KEY_BREAK(KEY_SYS):
+      onPressSYS();
+      break;
+
+    case EVT_KEY_LONG(KEY_SYS):
+      killEvents(KEY_SYS);
+      onLongPressSYS();
+      break;
+
+    case EVT_KEY_BREAK(KEY_TELE):
+      onPressTELE();
+      break;
+
+    case EVT_KEY_LONG(KEY_TELE):
+      killEvents(KEY_TELE);
+      onLongPressTELE();
+      break;
+
+#if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)
+    case EVT_KEY_FIRST(KEY_PAGEDN):
+#else
+    case EVT_KEY_BREAK(KEY_PAGEDN):
+#endif
+      killEvents(event);
+      onPressPGDN();
+      break;
+
+// TODO: these need to go away!
+//  -> board code should map the keys as required
+#if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)
+    case EVT_KEY_FIRST(KEY_PAGEUP):
+#else
+    case EVT_KEY_LONG(KEY_PAGEDN):
+#endif
+      killEvents(event);
+      onPressPGUP();
+      break;
+#endif
+
+    default:
+      if (bubbleEvents())
+        Window::onEvent(event);
+  }
+}

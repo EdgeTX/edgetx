@@ -19,20 +19,24 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "menu_screen.h"
-#include "screen_setup.h"
-#include "view_main.h"
-#include "storage/storage.h"
 
-ScreenMenu::ScreenMenu(int8_t tabIdx):
-  TabsGroup(ICON_THEME)
+#include "menu_model.h"
+#include "menu_radio.h"
+#include "model_select.h"
+#include "opentx.h"
+#include "screen_setup.h"
+#include "storage/storage.h"
+#include "view_channels.h"
+#include "view_main.h"
+
+ScreenMenu::ScreenMenu(int8_t tabIdx) : TabsGroup(ICON_THEME)
 {
   updateTabs(tabIdx);
 
-  setCloseHandler([]{
-      ViewMain::instance()->updateTopbarVisibility();
-      storageDirty(EE_MODEL);
+  setCloseHandler([] {
+    ViewMain::instance()->updateTopbarVisibility();
+    storageDirty(EE_MODEL);
   });
 }
 
@@ -46,13 +50,10 @@ void ScreenMenu::updateTabs(int8_t tabIdx)
     if (customScreens[index]) {
       auto tab = new ScreenSetupPage(this, getTabs(), index);
       std::string title(STR_MAIN_VIEW_X);
-      if (index >= 9)
-      {
+      if (index >= 9) {
         title[title.size() - 2] = '1';
         title.back() = (index - 9) + '0';
-      }
-      else
-      {
+      } else {
         title[title.size() - 2] = index + '1';
         title.back() = ' ';
       }
@@ -60,8 +61,7 @@ void ScreenMenu::updateTabs(int8_t tabIdx)
       tab->setIcon(ICON_THEME_VIEW1 + index);
 
       addTab(tab);
-    }
-    else {
+    } else {
       addTab(new ScreenAddPage(this, getTabs()));
       break;
     }
@@ -77,3 +77,32 @@ void ScreenMenu::updateTabs(int8_t tabIdx)
 
   setCurrentTab(tab);
 }
+
+#if defined(HARDWARE_KEYS)
+void ScreenMenu::onPressSYS()
+{
+  onCancel();
+  new RadioMenu();
+}
+void ScreenMenu::onLongPressSYS()
+{
+  onCancel();
+  // Radio setup
+  (new RadioMenu())->setCurrentTab(2);
+}
+void ScreenMenu::onPressMDL()
+{
+  onCancel();
+  new ModelMenu();
+}
+void ScreenMenu::onLongPressMDL()
+{
+  onCancel();
+  new ModelLabelsWindow();
+}
+void ScreenMenu::onLongPressTELE()
+{
+  onCancel();
+  new ChannelsViewMenu();
+}
+#endif

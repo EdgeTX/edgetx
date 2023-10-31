@@ -45,7 +45,7 @@ class PageHeader : public FormWindow
   StaticText* title2 = nullptr;
 };
 
-class Page : public Window
+class Page : public NavWindow
 {
  public:
   explicit Page(unsigned icon);
@@ -63,7 +63,7 @@ class Page : public Window
   PageHeader header;
   FormWindow body;
 
-  void onEvent(event_t event) override;
+  bool bubbleEvents() override { return false; }
 };
 
 #endif // _PAGE_H_
