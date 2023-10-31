@@ -20,7 +20,6 @@
  */
 
 #include "hal/trainer_driver.h"
-#include "heartbeat_driver.h"
 
 #include "opentx.h"
 
@@ -30,6 +29,8 @@
 int16_t trainerInput[MAX_TRAINER_CHANNELS];
 uint8_t trainerInputValidityTimer;
 uint8_t currentTrainerMode = 0xff;
+
+void (*_on_change_cb)(uint8_t, uint8_t) = nullptr;
 
 // Active signal received
 bool isTrainerValid() { return trainerInputValidityTimer != 0; }
@@ -110,15 +111,9 @@ void stopTrainer()
       break;
   }
 
-#if defined(INTMODULE_HEARTBEAT_GPIO) && !defined(SIMU) && \
-    (defined(TRAINER_MODULE_CPPM) || defined(TRAINER_MODULE_SBUS))
-  if ((currentTrainerMode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE ||
-       currentTrainerMode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE)
-      && (isModulePXX2(INTERNAL_MODULE) || isModulePXX1(INTERNAL_MODULE))) {
-    init_intmodule_heartbeat();
+  if (_on_change_cb) {
+    _on_change_cb(currentTrainerMode, 0xFF);
   }
-#endif
-
   currentTrainerMode = 0xFF;
 }
 
@@ -130,8 +125,6 @@ void checkTrainerSettings()
     if (currentTrainerMode != 0xFF) {
       stopTrainer();
     }
-
-    currentTrainerMode = requiredTrainerMode;
 
     switch (requiredTrainerMode) {
       case TRAINER_MODE_MASTER_TRAINER_JACK:
@@ -156,15 +149,18 @@ void checkTrainerSettings()
         break;
     }
 
-#if defined(INTMODULE_HEARTBEAT_GPIO) && !defined(SIMU) && \
-    (defined(TRAINER_MODULE_CPPM) || defined(TRAINER_MODULE_SBUS))
-    if (requiredTrainerMode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE ||
-        requiredTrainerMode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
-      stop_intmodule_heartbeat();
+    if (_on_change_cb) {
+      _on_change_cb(currentTrainerMode, requiredTrainerMode);
     }
-#endif
+    currentTrainerMode = requiredTrainerMode;
   }
 }
+
+void trainerSetChangeCb(void (*changeCb)(uint8_t, uint8_t))
+{
+  _on_change_cb = changeCb;
+}
+
 
 static const etx_serial_init sbusTrainerParams = {
     .baudrate = SBUS_BAUDRATE,

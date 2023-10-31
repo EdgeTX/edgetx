@@ -39,6 +39,7 @@
 
 #include "timers_driver.h"
 #include "dataconstants.h"
+#include "trainer.h"
 
 #if defined(FLYSKY_GIMBAL)
   #include "flysky_gimbal_driver.h"
@@ -119,6 +120,7 @@ void boardInit()
   (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2))
   pulsesSetModuleInitCb(_intmodule_heartbeat_init);
   pulsesSetModuleDeInitCb(_intmodule_heartbeat_deinit);
+  trainerSetChangeCb(_intmodule_heartbeat_trainer_hook);
 #endif
   
 // #if defined(AUTOUPDATE)

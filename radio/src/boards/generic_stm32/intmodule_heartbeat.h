@@ -25,4 +25,4 @@
 
 void _intmodule_heartbeat_init(uint8_t module, const etx_proto_driver_t* drv);
 void _intmodule_heartbeat_deinit(uint8_t module, const etx_proto_driver_t* drv);
-
+void _intmodule_heartbeat_trainer_hook(uint8_t old_mode, uint8_t new_mode);

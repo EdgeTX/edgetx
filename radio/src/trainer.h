@@ -31,13 +31,16 @@ extern uint8_t currentTrainerMode;
 
 bool isTrainerConnected();
 void checkTrainerSignalWarning();
-void checkTrainerSettings();
 
 bool isTrainerValid();
 void trainerResetTimer();
 void trainerDecTimer();
 
-void stopTrainer();
+void checkTrainerSettings();
 void forceResetTrainerSettings();
+void stopTrainer();
+
+// Allows notifications on trainer setting change (old_mode, new_mode)
+void trainerSetChangeCb(void (*changeCb)(uint8_t, uint8_t));
 
 #endif // _TRAINER_H_

@@ -246,9 +246,6 @@ void hapticOn(uint32_t pwmPercent);
 #define DEBUG_BAUDRATE                  115200
 #define LUA_DEFAULT_BAUDRATE            115200
 
-extern uint8_t currentTrainerMode;
-void checkTrainerSettings();
-
 // Touch panel driver
 bool touchPanelEventOccured();
 struct TouchState touchPanelRead();
