@@ -195,6 +195,7 @@ class GeneralSettings {
     int getDefaultStick(unsigned int channel) const;
     RawSource getDefaultSource(unsigned int channel) const;
     int getDefaultChannel(unsigned int stick) const;
+    bool fix6POSCalibration();
 
     char semver[8 + 1];
     unsigned int version;
