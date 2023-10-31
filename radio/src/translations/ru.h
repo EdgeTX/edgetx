@@ -113,9 +113,9 @@
 #define TR_SF_TEST                     "Тест"
 
 #if LCD_W >= 212
-  #define TR_SF_SAFETY                 "Переопред."
+  #define TR_SF_SAFETY                 "Оменить"
 #else
-  #define TR_SF_SAFETY                 "Переопред."
+  #define TR_SF_SAFETY                 "Отмен"
 #endif
 
 #define TR_SF_SCREENSHOT               "Скриншот"
@@ -156,7 +156,7 @@
 #define TR_SURFACE_NAMES1              "TH"
 
 #if defined(PCBNV14)
-#define  TR_RFPOWER_AFHDS2             "По умолч","Высок"
+#define  TR_RFPOWER_AFHDS2             "По умолч","Высокий"
 #endif
 
 #define TR_ROTARY_ENCODERS
@@ -262,13 +262,13 @@
 #define TR_NO_PICTURE                  "Без изображ"
 #define TR_TIMER                       TR("Таймер", "Таймер ")
 #define TR_START                       "Старт"
-#define TR_ELIMITS                     TR("Р.лимит", "Р.лимит")
-#define TR_ETRIMS                      TR("р.трим", "р.тримы")
+#define TR_ELIMITS                     TR("расш лимит", "Расш лимит")
+#define TR_ETRIMS                      TR("Расш трим", "Расш тримы")
 #define TR_TRIMINC                     "Шаг трима"
 #define TR_DISPLAY_TRIMS               TR("Пок. тримы", "Показ тримы")
-#define TR_TTRACE                      TR("Т источник", INDENT "Источник")
-#define TR_TTRIM                       TR("Т трим-ХХ", INDENT "Только трим хх")
-#define TR_TTRIM_SW                    TR("Т трим-перек", INDENT "Трим перек")
+#define TR_TTRACE                      TR("Т-источник", INDENT "Источник")
+#define TR_TTRIM                       TR("Т-трим-ХХ", INDENT "Только трим хх")
+#define TR_TTRIM_SW                    TR("Т-трим-перек", INDENT "Трим перек")
 #define TR_BEEPCTR                     TR("Цент. звук", "Звук в центре")
 #define TR_USE_GLOBAL_FUNCS            TR("Глоб. функц", "Глоб функц")
 #define TR_PROTOCOL                    TR("Проток", "Протокол")
@@ -460,7 +460,7 @@
 #define TR_RADIO_DATA_UNRECOVERABLE    TR3("Недейст настр", "Недейств настр", "Не удалось проч настр")
 #define TR_EEPROMFORMATTING            "Формат EEPROM"
 #define TR_STORAGE_FORMAT              "Формат памяти"
-#define TR_EEPROMOVERFLOW              "EEPROM overflow"
+#define TR_EEPROMOVERFLOW              "EEPROM заполнен"
 #define TR_RADIO_SETUP                 "НАСТРОЙКА РАДИО"
 #define TR_MENUTRAINER                 "ТРЕНЕР"
 #define TR_MENUSPECIALFUNCS            "ГЛОБ ФУНКЦИИ"
@@ -879,7 +879,7 @@
 #define TR_RX_NAME                     "Rx Имя"
 #define TR_TELEMETRY_TYPE              TR("Тип", "Тип")
 #define TR_TELEMETRY_SENSORS           "Сенсоры"
-#define TR_VALUE                       "Value"
+#define TR_VALUE                       "Значен"
 #define TR_PERIOD                      "Период"
 #define TR_INTERVAL                    "Интервал"
 #define TR_REPEAT                      "Повтор"
@@ -907,7 +907,7 @@
 #define TR_RSSIALARM_WARN              "RSSI"
 #define TR_NO_RSSIALARM                TR(INDENT "Откл сигналы", "Откл сигналы")
 #define TR_DISABLE_ALARM               TR(INDENT "Откл сигналы", INDENT "Откл сигналы")
-#define TR_POPUP                       "Popup"
+#define TR_POPUP                       "Всплыв"
 #define TR_MIN                         "Мин"
 #define TR_MAX                         "Макс"
 #define TR_CURVE_PRESET                "Предустановка..."
