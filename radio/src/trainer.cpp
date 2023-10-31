@@ -79,11 +79,9 @@ void stopTrainer()
       trainer_stop_dsc();
       break;
 
-#if defined(SBUS_TRAINER)
     case TRAINER_MODE_MASTER_SERIAL:
       sbusSetGetByte(nullptr);
       break;
-#endif
 
 #if defined(TRAINER_MODULE_CPPM)
     case TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE:
@@ -129,11 +127,9 @@ void checkTrainerSettings()
         trainer_init_dsc_out();
         break;
 
-#if defined(SBUS_TRAINER)
       case TRAINER_MODE_MASTER_SERIAL:
         sbusSetGetByte(sbusAuxGetByte);
         break;
-#endif
 
 #if defined(TRAINER_MODULE_CPPM)
       case TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE:
