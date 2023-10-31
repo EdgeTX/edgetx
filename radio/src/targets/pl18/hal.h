@@ -243,7 +243,7 @@
 #define ADC_CHANNEL_SWF                 LL_ADC_CHANNEL_8    // ADC12_IN8   -> ADC1_IN8
 #define ADC_CHANNEL_SWG                 LL_ADC_CHANNEL_9    // ADC12_IN9   -> ADC1_IN9
 #define ADC_CHANNEL_SWH                 LL_ADC_CHANNEL_8    // ADC3_IN8    -> ADC3_IN8
-#define ADC_CHANNEL_SWI                 LL_ADC_CHANNEL_3    // ADC123_IN2  -> ADC1_IN3
+#define ADC_CHANNEL_SWI                 LL_ADC_CHANNEL_3    // ADC123_IN3  -> ADC1_IN3
 #define ADC_CHANNEL_SWJ                 LL_ADC_CHANNEL_5    // ADC12_IN5   -> ADC1_IN5
 
 #define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_15   // ADC12_IN15  -> ADC1_IN15
