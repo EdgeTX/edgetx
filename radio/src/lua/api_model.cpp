@@ -112,7 +112,7 @@ static int luaModelSetInfo(lua_State *L)
 #if LCD_DEPTH > 1
     else if (!strcmp(key, "bitmap")) {
       const char * name = luaL_checkstring(L, -1);
-      strncpy(g_model.header.bitmap, name, sizeof(g_model.header.bitmap));
+      strncpy(g_model.header.bitmap, name, LEN_BITMAP_NAME);
     }
 #endif
   }

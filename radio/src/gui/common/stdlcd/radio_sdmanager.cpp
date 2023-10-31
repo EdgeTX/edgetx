@@ -170,8 +170,8 @@ void onSdManagerMenu(const char * result)
   }
 #if LCD_DEPTH > 1
   else if (result == STR_ASSIGN_BITMAP) {
-    strAppendFilename(g_model.header.bitmap, line, sizeof(g_model.header.bitmap));
-    memcpy(modelHeaders[g_eeGeneral.currModel].bitmap, g_model.header.bitmap, sizeof(g_model.header.bitmap));
+    strAppendFilename(g_model.header.bitmap, line, LEN_BITMAP_NAME);
+    memcpy(modelHeaders[g_eeGeneral.currModel].bitmap, g_model.header.bitmap, LEN_BITMAP_NAME);
     storageDirty(EE_MODEL);
   }
 #endif
@@ -363,7 +363,7 @@ void menuRadioSdManager(event_t _event)
           }
 #if LCD_DEPTH > 1
           else if (isExtensionMatching(ext, BITMAPS_EXT)) {
-            if (!READ_ONLY() && (ext-line) <= (int)sizeof(g_model.header.bitmap)) {
+            if (!READ_ONLY() && (ext-line) <= LEN_BITMAP_NAME) {
               POPUP_MENU_ADD_ITEM(STR_ASSIGN_BITMAP);
             }
           }
