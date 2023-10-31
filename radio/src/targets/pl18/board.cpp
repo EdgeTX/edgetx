@@ -37,7 +37,7 @@
 #include "timers_driver.h"
 
 #include "battery_driver.h"
-#include "tp_cst340.h"
+#include "touch_driver.h"
 #include "watchdog_driver.h"
 
 #include "bitmapbuffer.h"
@@ -160,7 +160,7 @@ void boardInit()
   battery_charge_init();
   flysky_gimbal_init();
   timersInit();
-  TouchInit();
+  touchPanelInit();
   usbInit();
 
   uint32_t press_start = 0;
