@@ -87,14 +87,16 @@ jobs:
           tar xfv dfu-util-0.11.tar.gz &&
           cd dfu-util-0.11 &&
           ./configure &&
-          make install
+          make install &&
+          cd ..
 
       - name: Install openssl
         run:  wget https://www.openssl.org/source/openssl-1.1.1w.tar.gz &&
           tar xfv openssl-1.1.1w.tar.gz &&
           cd openssl-1.1.1w &&
           ./config &&
-          make install
+          make &&
+          cd ..
 
       - name: Install SDL2
         run:  brew install SDL2
