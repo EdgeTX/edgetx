@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 struct HeartbeatCapture {
   uint8_t valid;
 #if defined(DEBUG_LATENCY)

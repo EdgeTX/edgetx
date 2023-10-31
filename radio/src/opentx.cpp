@@ -166,7 +166,7 @@ void per10ms()
 #endif
 
   if (trimsCheckTimer) trimsCheckTimer--;
-  if (trainerInputValidityTimer) trainerInputValidityTimer--;
+  trainerDecTimer();
 
   if (trimsDisplayTimer)
     trimsDisplayTimer--;

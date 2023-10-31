@@ -848,7 +848,7 @@ TEST(Trainer, UnpluggedTest)
   g_model.mixData[0].weight = 100;
   g_model.mixData[0].delayUp = 50;
   g_model.mixData[0].delayDown = 50;
-  trainerInputValidityTimer = 0;
+  trainerSetTimer(0);
   trainerInput[0] = 1024;
   CHECK_DELAY(0, 5000);
 }

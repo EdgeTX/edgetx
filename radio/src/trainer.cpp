@@ -19,13 +19,30 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "hal/trainer_driver.h"
 #include "heartbeat_driver.h"
+
+#include "opentx.h"
+
+// Timer gets decremented in per10ms()
+#define TRAINER_IN_VALID_TIMEOUT 100 // 1s
 
 int16_t trainerInput[MAX_TRAINER_CHANNELS];
 uint8_t trainerInputValidityTimer;
 uint8_t currentTrainerMode = 0xff;
+
+// Active signal received
+bool isTrainerValid() { return trainerInputValidityTimer != 0; }
+
+void trainerResetTimer()
+{
+  trainerInputValidityTimer = TRAINER_IN_VALID_TIMEOUT;
+}
+
+void trainerDecTimer()
+{
+  if (trainerInputValidityTimer) trainerInputValidityTimer--;
+}
 
 enum {
   TRAINER_NOT_CONNECTED = 0,
@@ -67,8 +84,8 @@ void checkTrainerSignalWarning()
   }
 }
 
-static void init_trainer_module_sbus();
-static void stop_trainer_module_sbus();
+static void trainer_init_module_sbus();
+static void trainer_stop_module_sbus();
 static int sbus_trainer_get_byte(uint8_t* data);
 
 void stopTrainer()
@@ -83,15 +100,13 @@ void stopTrainer()
       sbusSetGetByte(nullptr);
       break;
 
-#if defined(TRAINER_MODULE_CPPM)
     case TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE:
-      stop_trainer_module_cppm();
+      trainer_stop_module_cppm();
       break;
-#endif
 
     case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
       sbusSetGetByte(nullptr);
-      stop_trainer_module_sbus();
+      trainer_stop_module_sbus();
       break;
   }
 
@@ -131,14 +146,12 @@ void checkTrainerSettings()
         sbusSetGetByte(sbusAuxGetByte);
         break;
 
-#if defined(TRAINER_MODULE_CPPM)
       case TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE:
-        init_trainer_module_cppm();
+        trainer_init_module_cppm();
         break;
-#endif
 
       case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
-        init_trainer_module_sbus();
+        trainer_init_module_sbus();
         sbusSetGetByte(sbus_trainer_get_byte);
         break;
     }
@@ -162,7 +175,7 @@ static const etx_serial_init sbusTrainerParams = {
 
 static etx_module_state_t* sbus_trainer_mod_st = nullptr;
 
-static void init_trainer_module_sbus()
+static void trainer_init_module_sbus()
 {
   if (sbus_trainer_mod_st) return;
 
@@ -174,7 +187,7 @@ static void init_trainer_module_sbus()
   }
 }
 
-static void stop_trainer_module_sbus()
+static void trainer_stop_module_sbus()
 {
   if (!sbus_trainer_mod_st) return;
   modulePortDeInit(sbus_trainer_mod_st);

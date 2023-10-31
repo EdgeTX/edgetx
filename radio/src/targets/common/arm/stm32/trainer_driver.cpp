@@ -28,6 +28,7 @@
 #include "hal.h"
 
 #include "opentx.h"
+#include "trainer.h"
 
 static void (*_trainer_timer_isr)();
 static const stm32_pulse_timer_t* _trainer_timer;
@@ -73,6 +74,37 @@ static inline bool trainer_check_isr_flag(const stm32_pulse_timer_t* tim)
   return false;
 }
 
+static inline void capture_pulse(uint16_t capture)
+{
+  static uint16_t lastCapt = 0;
+  static uint8_t channel = MAX_TRAINER_CHANNELS;
+
+  uint16_t val = (uint16_t)(capture - lastCapt) / 2;
+  lastCapt = capture;
+
+  if (val > 4000 && val < 19000) {
+    // blanking period in [4..19] milliseconds
+    channel = 0;
+    return;
+  }
+
+  if (channel >= MAX_TRAINER_CHANNELS) {
+    return;
+  }
+
+  if (val < 800 || val > 2200) {
+    // invalid pulse width
+    channel = MAX_TRAINER_CHANNELS;
+    return;
+  }
+  
+  trainerInput[channel++] =
+    // +-500 != 512, but close enough.
+    (int16_t)(val - 1500) * (g_eeGeneral.PPM_Multiplier + 10) / 10;
+
+  trainerResetTimer();
+}
+
 static void trainer_in_isr()
 {
   // proceed only if the channel flag was set
@@ -98,7 +130,7 @@ static void trainer_in_isr()
     return;
   }
 
-  captureTrainerPulses(capture);
+  capture_pulse(capture);
 }
 
 void trainer_stop()

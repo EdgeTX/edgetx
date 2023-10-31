@@ -112,7 +112,7 @@ bool is_trainer_dsc_connected()
 #endif
 }
 
-void init_trainer_module_cppm()
+void trainer_init_module_cppm()
 {
   auto port =  modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_TIMER,
                               ETX_MOD_PORT_TIMER, ETX_Pol_Normal,
@@ -126,7 +126,7 @@ void init_trainer_module_cppm()
   trainer_init_capture(tim);
 }
 
-void stop_trainer_module_cppm()
+void trainer_stop_module_cppm()
 {
   trainer_stop();
   modulePortSetPower(EXTERNAL_MODULE,false);

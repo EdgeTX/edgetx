@@ -51,8 +51,8 @@ void trainer_stop_dsc() {}
 
 bool is_trainer_dsc_connected() { return false; }
 
-void init_trainer_module_cppm() {}
-void stop_trainer_module_cppm() {}
+void trainer_init_module_cppm() {}
+void trainer_stop_module_cppm() {}
 
 void init_intmodule_heartbeat() {}
 void stop_intmodule_heartbeat() {}

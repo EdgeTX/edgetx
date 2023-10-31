@@ -36,14 +36,6 @@ void trainer_stop_dsc();
 // Cable inserted?
 bool is_trainer_dsc_connected();
 
-// Active signal received
-extern uint8_t trainerInputValidityTimer;
-inline bool is_trainer_connected()
-{
-  return (trainerInputValidityTimer != 0);
-}
-
-#if defined(TRAINER_MODULE_CPPM)
-void init_trainer_module_cppm();
-void stop_trainer_module_cppm();
-#endif
+// Start/stop CPPM from module bay
+void trainer_init_module_cppm();
+void trainer_stop_module_cppm();

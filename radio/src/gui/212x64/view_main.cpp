@@ -309,7 +309,7 @@ void displayTopBar()
       x -= 12;
     }
   }
-  else if (is_trainer_connected()) {
+  else if (isTrainerConnected()) {
     LCD_NOTIF_ICON(x, ICON_TRAINER);
     x -= 12;
   }
