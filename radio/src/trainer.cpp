@@ -45,6 +45,11 @@ void trainerDecTimer()
   if (trainerInputValidityTimer) trainerInputValidityTimer--;
 }
 
+void trainerSetTimer(uint16_t t)
+{
+  trainerInputValidityTimer = t;
+}
+
 enum {
   TRAINER_NOT_CONNECTED = 0,
   TRAINER_CONNECTED,

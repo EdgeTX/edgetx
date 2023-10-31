@@ -35,6 +35,7 @@ void checkTrainerSignalWarning();
 bool isTrainerValid();
 void trainerResetTimer();
 void trainerDecTimer();
+void trainerSetTimer(uint16_t t);
 
 void checkTrainerSettings();
 void forceResetTrainerSettings();
