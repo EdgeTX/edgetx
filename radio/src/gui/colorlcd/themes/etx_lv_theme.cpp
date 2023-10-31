@@ -52,7 +52,6 @@ static lv_theme_t theme;
 #define LV_STYLE_CONST_SINGLE_INIT(var_name, prop, value)               \
   const lv_style_t var_name = {.v_p = {.value1 = {.num = value}},       \
                                .prop1 = prop,                           \
-                               .is_const = 0,                           \
                                .has_group = 1 << ((prop & 0x1FF) >> 4), \
                                .prop_cnt = 1}
 
@@ -60,10 +59,9 @@ static lv_theme_t theme;
 // Copied from lv_style.h and modified to compile with ARM GCC C++
 #define LV_STYLE_CONST_MULTI_INIT(var_name, prop_array)            \
   const lv_style_t var_name = {.v_p = {.const_props = prop_array}, \
-                               .prop1 = 0,                         \
-                               .is_const = 1,                      \
+                               .prop1 = LV_STYLE_PROP_ANY,                         \
                                .has_group = 0xFF,                  \
-                               .prop_cnt = 0}
+                               .prop_cnt = (sizeof(prop_array) / sizeof((prop_array)[0]))}
 
 // Opacity
 LV_STYLE_CONST_SINGLE_INIT(bg_opacity_transparent, LV_STYLE_BG_OPA,
@@ -286,33 +284,41 @@ class EdgeTxStyles
   lv_style_t font_std;
   lv_style_t font_bold;
 
-  EdgeTxStyles()
+  EdgeTxStyles() {}
+
+  void init()
   {
-    // Colors
-    for (int i = DEFAULT_COLOR_INDEX; i < LCD_COLOR_COUNT; i += 1) {
-      lv_style_init(&bg_color[i]);
-      lv_style_init(&txt_color[i]);
+    if (!initDone) {
+      initDone = true;
+
+      // Colors
+      for (int i = DEFAULT_COLOR_INDEX; i < LCD_COLOR_COUNT; i += 1) {
+        lv_style_init(&bg_color[i]);
+        lv_style_init(&txt_color[i]);
+      }
+      lv_style_init(&border_color_secondary1);
+      lv_style_init(&border_color_secondary2);
+      lv_style_init(&border_color_focus);
+
+      lv_style_init(&bg_color_grey);
+      lv_style_set_bg_color(&bg_color_grey, lv_palette_main(LV_PALETTE_GREY));
+      lv_style_init(&bg_color_white);
+      lv_style_set_bg_color(&bg_color_white, lv_color_white());
+      lv_style_init(&bg_color_black);
+      lv_style_set_bg_color(&bg_color_black, lv_color_black());
+      lv_style_init(&fg_color_black);
+      lv_style_set_text_color(&fg_color_black, lv_color_black());
+      lv_style_init(&border_color_black);
+      lv_style_set_border_color(&border_color_black, lv_color_black());
+
+      // Fonts
+      lv_style_init(&font_std);
+      lv_style_set_text_font(&font_std, getFont(FONT(STD)));
+      lv_style_init(&font_bold);
+      lv_style_set_text_font(&font_bold, getFont(FONT(BOLD)));
+
+      applyColors();
     }
-    lv_style_init(&border_color_secondary1);
-    lv_style_init(&border_color_secondary2);
-    lv_style_init(&border_color_focus);
-
-    lv_style_init(&bg_color_grey);
-    lv_style_set_bg_color(&bg_color_grey, lv_palette_main(LV_PALETTE_GREY));
-    lv_style_init(&bg_color_white);
-    lv_style_set_bg_color(&bg_color_white, lv_color_white());
-    lv_style_init(&bg_color_black);
-    lv_style_set_bg_color(&bg_color_black, lv_color_black());
-    lv_style_init(&fg_color_black);
-    lv_style_set_text_color(&fg_color_black, lv_color_black());
-    lv_style_init(&border_color_black);
-    lv_style_set_border_color(&border_color_black, lv_color_black());
-
-    // Fonts
-    lv_style_init(&font_std);
-    lv_style_set_text_font(&font_std, getFont(FONT(STD)));
-    lv_style_init(&font_bold);
-    lv_style_set_text_font(&font_bold, getFont(FONT(BOLD)));
   }
 
   void applyColors()
@@ -334,11 +340,12 @@ class EdgeTxStyles
   }
 
  protected:
+  bool initDone = false;
 };
 
-static EdgeTxStyles* styles;
+static EdgeTxStyles mainStyles;
 static EdgeTxStyles* previewStyles;
-static EdgeTxStyles* mainStyles;
+static EdgeTxStyles* styles = &mainStyles;
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -355,11 +362,7 @@ lv_theme_t* etx_lv_theme_init(lv_disp_t* disp, lv_color_t color_primary,
   theme.font_large = font;
   theme.flags = 0;
 
-  if (!styles) {
-    styles = new EdgeTxStyles();
-    mainStyles = styles;
-  }
-  styles->applyColors();
+  styles->init();
 
   if (disp == NULL || lv_disp_get_theme(disp) == &theme)
     lv_obj_report_style_change(NULL);
@@ -374,7 +377,7 @@ void usePreviewStyle()
   styles->applyColors();
 }
 
-void useMainStyle() { styles = mainStyles; }
+void useMainStyle() { styles = &mainStyles; }
 
 /**********************
  *   Custom object creation
@@ -569,8 +572,7 @@ void etx_switch_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 
 void etx_slider_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  etx_add_colors_and_opacity(obj, LV_PART_MAIN,
-                             COLOR_THEME_SECONDARY1_INDEX,
+  etx_add_colors_and_opacity(obj, LV_PART_MAIN, COLOR_THEME_SECONDARY1_INDEX,
                              COLOR_THEME_PRIMARY2_INDEX);
   lv_obj_add_style(obj, (lv_style_t*)&circle, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_FOCUS_INDEX],
@@ -586,7 +588,8 @@ void etx_slider_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_KNOB);
   lv_obj_add_style(obj, (lv_style_t*)&slider_knob, LV_PART_KNOB);
   lv_obj_add_style(obj, &styles->border_color_secondary1, LV_PART_KNOB);
-  lv_obj_add_style(obj, &styles->border_color_focus, LV_PART_KNOB | LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles->border_color_focus,
+                   LV_PART_KNOB | LV_STATE_FOCUSED);
 }
 
 void etx_btnmatrix_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
