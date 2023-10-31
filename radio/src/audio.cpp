@@ -194,6 +194,7 @@ const char * const audioFilenames[] = {
   "rssi_org",
   "rssi_red",
   "swr_red",
+  "telemco",
   "telemko",
   "telemok",
   "trainco",
