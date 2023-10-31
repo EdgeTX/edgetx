@@ -24,6 +24,9 @@
 // Startup init
 void board_trainer_init();
 
+// DSC port available?
+bool trainer_dsc_available();
+    
 // Output mode
 void trainer_init_dsc_out();
 

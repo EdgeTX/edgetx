@@ -44,6 +44,8 @@ void board_trainer_init()
 
 #if defined(TRAINER_GPIO)
 
+bool trainer_dsc_available() { return true; }
+
 static_assert(__IS_TRAINER_TIMER_OUT_CHANNEL_SUPPORTED(TRAINER_OUT_TIMER_Channel),
               "Unsupported trainer timer output channel");
 
@@ -93,6 +95,7 @@ void trainer_init_dsc_in()
 void trainer_stop_dsc() { trainer_stop(); }
 
 #else
+bool trainer_dsc_available() { return false; }
 void trainer_init_dsc_out() {}
 void trainer_init_dsc_in() {}
 void trainer_stop_dsc() {}

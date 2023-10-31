@@ -19,11 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-
 #include "hal/module_port.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
+#include "hal/trainer_driver.h"
+
+#include "opentx.h"
 #include "switches.h"
 #include "mixes.h"
 
@@ -1026,10 +1027,10 @@ bool isTrainerModeAvailable(int mode)
   )
     return false;
 
-#if (defined(PCBXLITE) && !defined(PCBXLITES)) || defined(RADIO_COMMANDO8)
-  if (mode == TRAINER_MODE_MASTER_TRAINER_JACK || mode == TRAINER_MODE_SLAVE)
+  if ((mode == TRAINER_MODE_MASTER_TRAINER_JACK ||
+       mode == TRAINER_MODE_SLAVE) &&
+      !trainer_dsc_available())
     return false;
-#endif
 
   if (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE ||
       mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE) {
@@ -1055,16 +1056,17 @@ bool isTrainerModeAvailable(int mode)
     }
   }
 
-#if !defined(MULTIMODULE) || !defined(HARDWARE_INTERNAL_MODULE) || \
-    !defined(HARDWARE_EXTERNAL_MODULE)
-  if (mode == TRAINER_MODE_MULTI) return false;
+  if (mode == TRAINER_MODE_MULTI) {
+
+#if !defined(MULTIMODULE)
+    return false;
 #else
-  if (mode == TRAINER_MODE_MULTI &&
-      ((!IS_INTERNAL_MODULE_ENABLED() && !IS_EXTERNAL_MODULE_ENABLED()) ||
+  if ((!IS_INTERNAL_MODULE_ENABLED() && !IS_EXTERNAL_MODULE_ENABLED()) ||
        (!isModuleMultimodule(INTERNAL_MODULE) &&
-        !isModuleMultimodule(EXTERNAL_MODULE))))
+        !isModuleMultimodule(EXTERNAL_MODULE)))
     return false;
 #endif
+  }
 
   return true;
 }

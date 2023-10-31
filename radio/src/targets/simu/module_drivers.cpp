@@ -45,6 +45,7 @@ void extmoduleSendNextFramePxx1(void const*, unsigned short) {}
 void extmoduleSendNextFrameSoftSerial(void const*, unsigned short, bool) {}
 void extmoduleSendNextFramePpm(void*, unsigned short, unsigned short, bool) {}
 
+bool trainer_dsc_available() { return true; }
 void trainer_init_dsc_out() {}
 void trainer_init_dsc_in() {}
 void trainer_stop_dsc() {}
