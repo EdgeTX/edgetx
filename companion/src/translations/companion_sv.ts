@@ -15163,6 +15163,8 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
         <source>Delete decompress folder: %1</source>
         <translation>Radera uppackningskatalog: %1</translation>
     </message>
+<<<<<<< HEAD
+=======
     <message>
         <location filename="../updates/updateinterface.cpp" line="61"/>
         <source>Component id: %1 exceeds maximum application settings components: %2!</source>
@@ -15191,6 +15193,7 @@ Använd CTRL + skroll eller PAGE UP/DOWN tangenterna för att ändra tiden i st�
         <source>Copy directory structure</source>
         <translation>Koipera katalogstruktur</translation>
     </message>
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 </context>
 <context>
     <name>UpdateMultiProtocol</name>

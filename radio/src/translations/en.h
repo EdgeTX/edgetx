@@ -75,17 +75,23 @@
 #if LCD_W >= 212
   #define TR_CSWTIMER                  "Timer"
   #define TR_CSWSTICKY                 "Stcky"
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWRANGE                  "Range"
   #define TR_CSWSTAY                   "Edge"
 #else
   #define TR_CSWTIMER                  "Tim"
   #define TR_CSWSTICKY                 "Stky"
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWRANGE                  "Rnge"
   #define TR_CSWSTAY                   "Edge"
 #endif
 
 #define TR_CSWEQUAL                    "a=x"
-#define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
+<<<<<<< HEAD
+#define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a~x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY,TR_CSWSAFE
+=======
+#define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY,TR_CSWSAFE
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 
 #define TR_SF_TRAINER                  "Trainer"
 #define TR_SF_INST_TRIM                "Inst. Trim"
@@ -493,7 +499,9 @@
 #define TR_MENUCURVE                   "CURVE"
 #define TR_MENULOGICALSWITCH           "LOGICAL SWITCH"
 #define TR_MENULOGICALSWITCHES         "LOGICAL SWITCHES"
+#define TR_CUST_LOGICALSWITCH_LABEL    "Name"
 #define TR_MENUCUSTOMFUNC              "SPECIAL FUNCTIONS"
+#define TR_CUST_FUNC_CUST_LABEL        "Name"
 #define TR_MENUCUSTOMSCRIPTS           "CUSTOM SCRIPTS"
 #define TR_MENUTELEMETRY               "TELEMETRY"
 #define TR_MENUSTAT                    "STATS"

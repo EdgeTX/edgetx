@@ -250,6 +250,13 @@ extern Stopwatch gStopwatch;
 class SemanticVersion
 {
   public:
+<<<<<<< HEAD
+    explicit SemanticVersion(QString vers);
+    ~SemanticVersion() = default;;
+
+    bool isValid(const QString vers);
+    QString toString() const;
+=======
     explicit SemanticVersion(const QString vers);
     explicit SemanticVersion() {}
     ~SemanticVersion() {}
@@ -264,6 +271,7 @@ class SemanticVersion
     bool isEmpty();
 
     SemanticVersion& operator=(const SemanticVersion& rhs);
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 
     bool operator==(const SemanticVersion& rhs) {
       return compare(rhs) == 0;
@@ -290,6 +298,21 @@ class SemanticVersion
     }
 
   private:
+<<<<<<< HEAD
+    enum PreRelease {
+      PR_ALPHA = 0,
+      PR_BETA = 1,
+      PR_RC = 2,
+      PR_NONE = 3
+    };
+
+    struct Version {
+      int major                     = 0;
+      int minor                     = 1;
+      int patch                     = 0;
+      PreRelease preReleaseType     = PR_NONE;
+      int preReleaseNumber          = 0;
+=======
     enum PreReleaseTypes {
       PR_ALPHA = 0,
       PR_BETA,
@@ -305,13 +328,17 @@ class SemanticVersion
       int patch            = 0;
       int preReleaseType   = PR_NONE;
       int preReleaseNumber = 0;
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
     };
 
     Version version;
 
     int compare(const SemanticVersion& other);
+<<<<<<< HEAD
+=======
     inline QString preReleaseTypeToString() const { return PreReleaseTypesStringList.value(version.preReleaseType, ""); }
     inline int preReleaseTypeToInt(QString preRelType) const { return PreReleaseTypesStringList.indexOf(preRelType); }
+>>>>>>> e898e851460f0b76873d4442cdc8144474863f5e
 
 };
 
