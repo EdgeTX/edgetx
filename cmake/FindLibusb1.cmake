@@ -10,6 +10,7 @@ find_library(LIBUSB1_LIBRARY
 	NAMES
     libusb-1.0
     libusb-1.0.so
+    libusb-1.0.so.0
     libusb-1.0.dll
   HINTS
     "${LIBUSB1_ROOT_DIR}")
@@ -27,4 +28,3 @@ if(LIBUSB1_FOUND)
 endif()
 
 mark_as_advanced(LIBUSB1_LIBRARY_PATH)
-
