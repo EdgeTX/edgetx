@@ -975,7 +975,6 @@
 #endif
 
 // Trainer Port
-#define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_DMA1)
 #define TRAINER_GPIO                    GPIOC
 
 #define TRAINER_IN_GPIO_PIN             LL_GPIO_PIN_6  // PC.06

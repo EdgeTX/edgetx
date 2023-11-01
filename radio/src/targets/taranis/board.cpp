@@ -76,7 +76,6 @@ void boardInit()
                          EXTMODULE_RCC_AHB1Periph |
                          TELEMETRY_RCC_AHB1Periph |
                          SPORT_UPDATE_RCC_AHB1Periph |
-                         TRAINER_RCC_AHB1Periph |
                          BT_RCC_AHB1Periph |
                          USB_CHARGER_RCC_AHB1Periph,
                          ENABLE);

@@ -2121,7 +2121,6 @@
 // Trainer Port
 #if defined(PCBXLITES) || defined(PCBX9LITE)
   // on these 2 radios the trainer port already uses DMA1_Stream6, we won't use the DMA
-  #define TRAINER_RCC_AHB1Periph        RCC_AHB1Periph_GPIOD
   #define TRAINER_GPIO                  GPIOD
   #define TRAINER_IN_GPIO_PIN           LL_GPIO_PIN_13 // PD.13
   #define TRAINER_IN_TIMER_Channel      LL_TIM_CHANNEL_CH2
@@ -2138,11 +2137,9 @@
   #define TRAINER_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #elif defined(PCBXLITE)
   #define TRAINER_TIMER                 TIM4
-  #define TRAINER_RCC_AHB1Periph        0
   #define TRAINER_TIMER_IRQn            TIM4_IRQn
   #define TRAINER_TIMER_IRQHandler      TIM4_IRQHandler
 #else
-  #define TRAINER_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA1)
   #define TRAINER_GPIO                  GPIOC
   #define TRAINER_IN_GPIO_PIN           LL_GPIO_PIN_8  // PC.08
   #define TRAINER_IN_TIMER_Channel      LL_TIM_CHANNEL_CH3
