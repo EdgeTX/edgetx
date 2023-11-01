@@ -530,8 +530,6 @@
 #define TRAINER_GPIO_AF                 LL_GPIO_AF_2
 #define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
-#define TRAINER_MODULE_SBUS
-
 //BLUETOOTH
 #define BLUETOOTH_ON_RCC_AHB1Periph     RCC_AHB1Periph_GPIOI
 #define BLUETOOTH_ON_GPIO               GPIOI

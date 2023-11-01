@@ -20,6 +20,7 @@
  */
 
 #include "stm32_pulse_driver.h"
+#include "stm32_gpio_driver.h"
 #include "trainer_driver.h"
 
 #include "hal/module_port.h"
@@ -36,6 +37,7 @@ void board_trainer_init()
   pinInit.Pin = TRAINER_DETECT_GPIO_PIN;
   pinInit.Mode = LL_GPIO_MODE_INPUT;
   pinInit.Pull = LL_GPIO_PULL_UP;
+  stm32_gpio_enable_clock(TRAINER_DETECT_GPIO);
   LL_GPIO_Init(TRAINER_DETECT_GPIO, &pinInit);
 #endif  
 

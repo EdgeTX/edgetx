@@ -23,6 +23,7 @@
 #include "stm32_serial_driver.h"
 #include "stm32_softserial_driver.h"
 #include "stm32_dma.h"
+#include "trainer_driver.h"
 
 #include "module_ports.h"
 #include "board.h"
@@ -242,10 +243,10 @@ extern "C" void EXTMODULE_TIMER_IRQHandler()
 
 DEFINE_STM32_SOFTSERIAL_PORT(ExternalModule, extmoduleTimer);
 
-#if defined(TRAINER_MODULE_CPPM)
+#if defined(TRAINER_MODULE_CPPM_TIMER)
 
-// static_assert(__IS_TRAINER_TIMER_IN_CHANNEL_SUPPORTED(TRAINER_MODULE_CPPM_TIMER_Channel),
-//               "Unsupported trainer timer input channel");
+static_assert(__IS_TRAINER_TIMER_IN_CHANNEL_SUPPORTED(TRAINER_MODULE_CPPM_TIMER_Channel),
+              "Unsupported trainer timer input channel");
 
 static const stm32_pulse_timer_t trainerModuleTimer = {
   .GPIOx = TRAINER_MODULE_CPPM_GPIO,
@@ -262,7 +263,7 @@ static const stm32_pulse_timer_t trainerModuleTimer = {
   .DMA_TC_CallbackPtr = nullptr,
 };
 
-#endif // TRAINER_MODULE_CPPM
+#endif // TRAINER_MODULE_CPPM_TIMER
 
 #endif // HARDWARE_EXTERNAL_MODULE
 
@@ -508,7 +509,7 @@ static const etx_module_port_t _external_ports[] = {
     .set_inverted = nullptr,
   },
 #endif
-#if defined(TRAINER_MODULE_CPPM)
+#if defined(TRAINER_MODULE_CPPM_TIMER)
   // Timer input on HEARTBEAT
   {
     .port = ETX_MOD_PORT_TIMER,

@@ -211,7 +211,7 @@ const etx_module_port_t _external_ports[] = {
     .drv = { .serial = &_fakeSerialDriver },
     .hw_def = nullptr,
   },
-#if defined(TRAINER_MODULE_CPPM)
+#if defined(TRAINER_MODULE_CPPM_TIMER)
   // Timer input on HEARTBEAT
   {
     .port = ETX_MOD_PORT_TIMER,

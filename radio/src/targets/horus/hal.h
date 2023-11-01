@@ -997,7 +997,6 @@
 #define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // Trainer CPPM input on heartbeat pin
-#define TRAINER_MODULE_CPPM
 #define TRAINER_MODULE_CPPM_TIMER            TIM4
 #define TRAINER_MODULE_CPPM_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #define TRAINER_MODULE_CPPM_GPIO             INTMODULE_HEARTBEAT_GPIO
@@ -1006,10 +1005,6 @@
 #define TRAINER_MODULE_CPPM_TIMER_IRQn       TIM4_IRQn
 #define TRAINER_MODULE_CPPM_TIMER_IRQHandler TIM4_IRQHandler
 #define TRAINER_MODULE_CPPM_GPIO_AF          LL_GPIO_AF_2
-
-#if defined(EXTMODULE_USART) || defined(CONFIGURABLE_MODULE_PORT)
-  #define TRAINER_MODULE_SBUS
-#endif
 
 // Millisecond timer
 #define MS_TIMER                        TIM14

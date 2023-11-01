@@ -2372,8 +2372,8 @@
 
 // Trainer / Trainee from the module bay
 #if defined(PCBX9LITE) || defined(PCBXLITE) || defined(RADIO_X9DP2019) || \
-    defined(PCBX7ACCESS) || defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12)
-  #define TRAINER_MODULE_CPPM
+  defined(PCBX7ACCESS) || defined(RADIO_ZORRO) || defined(RADIO_POCKET) || \
+  defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12)
   #define TRAINER_MODULE_CPPM_TIMER            TIM3
   #define TRAINER_MODULE_CPPM_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
   #define TRAINER_MODULE_CPPM_GPIO             EXTMODULE_USART_GPIO
@@ -2384,10 +2384,8 @@
 #if defined(PCBX9LITE) ||  defined(PCBXLITE)
   #define TRAINER_MODULE_CPPM_TIMER_IRQHandler TIM3_IRQHandler
 #endif
-  #define TRAINER_MODULE_SBUS
 #elif defined(INTMODULE_HEARTBEAT_GPIO) && defined(HARDWARE_EXTERNAL_MODULE)
   // Trainer CPPM input on heartbeat pin
-  #define TRAINER_MODULE_CPPM
   #define TRAINER_MODULE_CPPM_TIMER               TRAINER_TIMER
   #define TRAINER_MODULE_CPPM_FREQ                (PERI1_FREQUENCY * TIMER_MULT_APB1)
   #define TRAINER_MODULE_CPPM_GPIO                INTMODULE_HEARTBEAT_GPIO
@@ -2396,7 +2394,6 @@
   #define TRAINER_MODULE_CPPM_TIMER_IRQn          TRAINER_TIMER_IRQn
   #define TRAINER_MODULE_CPPM_GPIO_AF             GPIO_AF_TIM3
   // Trainer SBUS input on heartbeat pin
-  #define TRAINER_MODULE_SBUS
   #define TRAINER_MODULE_SBUS_USART               USART6
   #define TRAINER_MODULE_SBUS_GPIO_AF             GPIO_AF_USART6
   #define TRAINER_MODULE_SBUS_GPIO                INTMODULE_HEARTBEAT_GPIO
