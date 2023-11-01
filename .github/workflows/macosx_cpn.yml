@@ -71,35 +71,23 @@ jobs:
         run: python3 -m pip install --upgrade pip Pillow lz4 clang jinja2
 
       - name: Patch GitHub macOS build
-        run: brew install pkg-config
+        run:  brew install pkg-config
 
       - name: Install libusb
-        run:  wget https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26.tar.bz2 &&
-          export MACOSX_DEPLOYMENT_TARGET=10.9 &&
-          tar xfv libusb-1.0.26.tar.bz2 &&
-          cd libusb-1.0.26 &&
-          ./configure &&
-          make install &&
-          cd ..
+        run:  brew install libusb
 
       - name: Install dfu-util
-        run:  wget https://downloads.sourceforge.net/project/dfu-util/dfu-util-0.11.tar.gz &&
-          tar xfv dfu-util-0.11.tar.gz &&
-          cd dfu-util-0.11 &&
-          ./configure &&
-          make install &&
-          cd ..
+        run:  brew install dfu-util
 
-      - name: Install openssl
+      - name: Install SDL2
+        run:  brew install SDL2
+
+      - name: Install openssl 1.1
         run:  wget https://www.openssl.org/source/openssl-1.1.1w.tar.gz &&
           tar xfv openssl-1.1.1w.tar.gz &&
           cd openssl-1.1.1w &&
           ./config &&
-          make &&
-          cd ..
-
-      - name: Install SDL2
-        run:  brew install SDL2
+          make install
 
       - name: Build
         working-directory: ${{github.workspace}}
