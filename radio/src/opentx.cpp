@@ -361,11 +361,11 @@ void generalDefault()
 uint16_t evalChkSum()
 {
   uint16_t sum = 0;
-  auto main_calib_words = adcGetMaxInputs(ADC_INPUT_MAIN)
-    * sizeof(CalibData) / 2;
+  auto main_calib_bytes = adcGetMaxInputs(ADC_INPUT_MAIN)
+    * sizeof(CalibData);
 
-  const int16_t * calibValues = (const int16_t *)&g_eeGeneral.calib[0];
-  for (int i = 0; i < main_calib_words; i++) {
+  const uint8_t * calibValues = (const uint8_t *)&g_eeGeneral.calib[0];
+  for (unsigned i = 0; i < main_calib_bytes; i++) {
     sum += calibValues[i];
   }
   return sum;
