@@ -181,7 +181,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
                         MESSAGE_TOP + DEFAULT_PADDING, tag.flavour,
                         BL_FOREGROUND);
 
-          lcd->drawText(LCD_W - DOUBLE_PADDING, MESSAGE_TOP - 10,
+          lcd->drawText(LCD_W / 4 + DEFAULT_PADDING - 90, MESSAGE_TOP,
                         LV_SYMBOL_OK, BL_GREEN);
         }
       }

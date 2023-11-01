@@ -149,7 +149,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
             lcd->drawText(168, 178, TR_BL_RADIO, RIGHT | BL_FOREGROUND);
             lcd->drawText(174, 178, tag.flavour, BL_FOREGROUND);
 
-            lcd->drawText(356, 156, LV_SYMBOL_OK, BL_GREEN);
+            lcd->drawText(78, 158, LV_SYMBOL_OK, BL_GREEN);
           }
         }
 
