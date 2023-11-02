@@ -442,15 +442,25 @@ std::string ModelMap::toCSV(const LabelsVector &labels)
  * @return vector of all labels
  */
 
-LabelsVector ModelMap::fromCSV(const char *str)
+LabelsVector ModelMap::fromCSV(const char* str)
 {
   LabelsVector lbls;
-  std::istringstream f(str);
-  std::string lbl;
-  while (std::getline(f, lbl, ',')) {
+  const char* prev_c = str;
+  const char* c = strchr(prev_c, ',');
+  while(c != nullptr) {
+    std::string lbl(prev_c, c - prev_c);
+    unEscapeCSV(lbl);
+    lbls.push_back(lbl);
+    prev_c = ++c;
+    c = strchr(c, ',');
+  }
+
+  {
+    std::string lbl(prev_c);
     unEscapeCSV(lbl);
     lbls.push_back(lbl);
   }
+  
   return lbls;
 }
 

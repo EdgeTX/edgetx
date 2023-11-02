@@ -157,7 +157,7 @@ void startEepromThread(const char * filename)
   sem_init(eeprom_write_sem, 0, 0);
 #endif
 
-  RTOS_CREATE_TASK(eeprom_thread_pid, eeprom_thread_function, "eeprom");
+  _RTOS_CREATE_TASK(eeprom_thread_pid, eeprom_thread_function, "eeprom");
 }
 
 void stopEepromThread()

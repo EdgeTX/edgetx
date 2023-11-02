@@ -1934,12 +1934,10 @@ uint32_t availableMemory()
 #if defined(SIMU)
   return 1000;
 #else
-  extern unsigned char *heap;
-  extern int _heap_end;
+  extern uint32_t __heap_size;
 
   struct mallinfo info = mallinfo();
-
-  return ((uint32_t)((unsigned char *)&_heap_end - heap)) + info.fordblks;
+  return __heap_size - info.arena + info.fordblks;
 #endif
 }
 

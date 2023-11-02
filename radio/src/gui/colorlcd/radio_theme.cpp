@@ -522,6 +522,17 @@ void ThemeSetupPage::checkEvents()
   }
 }
 
+static void removeAllWhiteSpace(char *str)
+{
+  int len = strlen(str);
+  int origLen = len;
+  while(len) {
+    if (isspace(str[len]))
+      memmove(str + len, str + len + 1, origLen - len);
+    len--;
+  }
+}
+
 void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 {
   auto menu = new Menu(listBox,false);

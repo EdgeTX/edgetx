@@ -47,12 +47,12 @@
 #endif
 
 
-extern TaskStack<MENUS_STACK_SIZE> menusStack;
-extern TaskStack<MIXER_STACK_SIZE> mixerStack;
-extern TaskStack<AUDIO_STACK_SIZE> audioStack;
+RTOS_DECLARE_STACK(menusStack, MENUS_STACK_SIZE);
+RTOS_DECLARE_STACK(mixerStack, MIXER_STACK_SIZE);
+RTOS_DECLARE_STACK(audioStack, AUDIO_STACK_SIZE);
 
 #if defined(CLI)
-extern TaskStack<CLI_STACK_SIZE> cliStack;
+RTOS_DECLARE_STACK(cliStack, CLI_STACK_SIZE);
 #endif
 
 void tasksStart();

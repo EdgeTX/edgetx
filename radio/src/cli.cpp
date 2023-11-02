@@ -55,7 +55,7 @@
 #define CLI_PRINT_BUFFER_SIZE 128
 
 RTOS_TASK_HANDLE cliTaskId;
-RTOS_DEFINE_STACK(cliTaskId, cliStack, CLI_STACK_SIZE);
+RTOS_DEFINE_STACK(cliStack, CLI_STACK_SIZE);
 
 static uint8_t cliRxBufferStorage[CLI_RX_BUFFER_SIZE];
 static StaticStreamBuffer_t cliRxBufferStatic;

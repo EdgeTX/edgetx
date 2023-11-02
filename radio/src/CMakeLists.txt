@@ -46,7 +46,6 @@ option(DEBUG_SEGGER_RTT "Debug output to Segger RTT" OFF)
 option(DEBUG_WINDOWS "Turn on windows traces" OFF)
 option(DEBUG_YAML "Turn on YAML traces" OFF)
 option(DEBUG_LABELS "Turn on Labels traces" OFF)
-option(NANO "Use nano newlib and binalloc")
 option(TEST_BUILD_WARNING "Warn this is a test build" OFF)
 option(MODULE_PROTOCOL_FCC "Add support for FCC modules" ON)
 option(MODULE_PROTOCOL_LBT "Add support for EU/LBT modules" ON)
@@ -480,55 +479,24 @@ if(NATIVE_BUILD)
   return()
 endif()
 
-set(CMAKE_C_FLAGS "${FIRMWARE_C_FLAGS}")
-set(CMAKE_C_FLAGS_DEBUG "${FIRMWARE_C_FLAGS_DEBUG}")
-set(CMAKE_C_FLAGS_RELEASE "${FIRMWARE_C_FLAGS}")
-
-set(CMAKE_CXX_FLAGS "${FIRMWARE_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS_DEBUG "${FIRMWARE_CXX_FLAGS_DEBUG}")
-set(CMAKE_CXX_FLAGS_RELEASE "${FIRMWARE_CXX_FLAGS}")
-
 find_program(BASH bash
   HINTS "c:/cygwin/bin/" "c:/msys/bin/"
   DOC "bash shell for firmware size report (eg. c:/cygwin/bin/bash.exe on Windows)."
   )
 
-set(OPT "s" CACHE STRING "Optimization mode (0/1/2/s")
+# if(SEMIHOSTING)
+#   add_definitions(-DSEMIHOSTING)
+#   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=rdimon.specs")
+# endif()
 
-set(COMMON_FLAGS "-mcpu=${MCU} -mthumb -fomit-frame-pointer -fverbose-asm -Wa,-ahlms=firmware.lst")
-set(COMMON_FLAGS "${COMMON_FLAGS} -gdwarf-2 -fno-exceptions -fdata-sections -ffunction-sections")
-set(COMMON_FLAGS "${COMMON_FLAGS} -DHSE_VALUE=${HSE_VALUE}")
-set(COMMON_FLAGS "${COMMON_FLAGS} -O${OPT} ${FPU_FLAGS}")
-set(COMMON_FLAGS "${COMMON_FLAGS} ${WARNING_FLAGS}")
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_FLAGS} -Wimplicit")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_FLAGS} -fno-rtti")
-
-# these are in addition to CMAKE_CXX_FLAGS
-set(CMAKE_EXE_LINKER_FLAGS "-lm -T${RADIO_SRC_DIR}/${LINKER_SCRIPT}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map=firmware.map,--cref,--no-warn-mismatch,--gc-sections")
-
-if(SEMIHOSTING)
-  add_definitions(-DSEMIHOSTING)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=rdimon.specs")
-endif()
-
-# Use newlib nano, which saves a few kilobytes.
-if(NOT NANO STREQUAL NO)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
-  if(LUA)
-    # Lua needs %g and %f
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -u _printf_float -u _scanf_float")
-  endif()
-  if(SDRAM)
-    # Target with SDRAM do not need a custom allocator for now
-    # as the custom allocator has alignement issues
-    message("Target has SDRAM, do not use BIN_ALLOCATOR")
-  else()
-    # Nano's malloc does work well with lua, use our own
-    add_definitions(-DUSE_BIN_ALLOCATOR)
-    set(SRC ${SRC} bin_allocator.cpp)
-  endif()
+if(SDRAM)
+  # Target with SDRAM do not need a custom allocator for now
+  # as the custom allocator has alignement issues
+  message("Target has SDRAM, do not use BIN_ALLOCATOR")
+else()
+  # Nano's malloc does work well with lua, use our own
+  add_definitions(-DUSE_BIN_ALLOCATOR)
+  set(SRC ${SRC} bin_allocator.cpp)
 endif()
 
 # Bootloader
@@ -544,6 +512,38 @@ add_executable(firmware ${SRC})
 link_libraries(firmware -lstdc++)
 add_dependencies(firmware ${RADIO_DEPENDENCIES})
 set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+target_link_options(firmware PRIVATE
+  -lm -T${LINKER_DIR}/firmware.ld
+  -Wl,-Map=firmware.map,--cref,--no-warn-mismatch,--gc-sections
+)
+
+if (DEFINED TARGET_FLASH_SIZE)
+  message("TARGET_FLASH_SIZE = ${TARGET_FLASH_SIZE}")
+  target_link_options(firmware PRIVATE
+    -Wl,--defsym=__flash_size=${TARGET_FLASH_SIZE}
+  )
+endif()
+
+if (DEFINED TARGET_SDRAM_START)
+  message("TARGET_SDRAM_START = ${TARGET_SDRAM_START}")
+  target_link_options(firmware PRIVATE
+    -Wl,--defsym=__sdram_start=${TARGET_SDRAM_START}
+  )
+endif()
+
+if (LUA)
+  # ??? Lua needs %g and %f ???
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_link_options(firmware PRIVATE
+      -Wl,--defsym=vfprintf=__f_vfprintf
+     )
+  elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_link_options(firmware PRIVATE
+      "SHELL:-u _printf_float" "SHELL:-u _scanf_float"
+    )
+  endif()
+endif()
 
 if(ACCESS_DENIED)
   add_subdirectory(thirdparty/AccessDenied)

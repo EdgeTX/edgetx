@@ -1,8 +1,31 @@
+
 set(CPU_FAMILY STM32)
-set(MCU cortex-m3)
-set(FPU_FLAGS "")
 
 if(NOT NATIVE_BUILD)
+
+  # Add MCU specific flags
+  add_compile_options(
+    -mcpu=cortex-m3 -mfloat-abi=soft
+  )
+  add_link_options(
+    -mcpu=cortex-m3 -mfloat-abi=soft
+  )
+
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # using Clang
+    add_compile_options(
+      --target=arm-none-eabi
+    )
+    add_link_options(
+      --target=arm-none-eabi
+    )
+  elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # using GCC
+    add_link_options(
+      --specs=nano.specs
+    )
+  endif()
+
   # STM32 HAL/LL library
   set(STM32CUBE_DIR ${THIRDPARTY_DIR}/STM32F2xx_HAL_Driver)
   include_directories(${STM32CUBE_DIR}/Inc)

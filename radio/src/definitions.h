@@ -70,10 +70,8 @@
 
 #if defined(SDRAM) && !defined(SIMU)
   #define __SDRAM   __attribute__((section(".sdram"), aligned(4)))
-  #define __NOINIT  __attribute__((section(".noinit")))
 #else
   #define __SDRAM   __DMA
-  #define __NOINIT
 #endif
 
 #if __GNUC__

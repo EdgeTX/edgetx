@@ -10,6 +10,9 @@ set(ARCH ARM)
 set(STM32USB_DIR ${THIRDPARTY_DIR}/STM32_USB-Host-Device_Lib_V2.2.0/Libraries)
 add_definitions(-DSTM32 -DLUA_INPUTS -DVARIO)
 
+set(LINKER_DIR ${RADIO_SRC_DIR}/boards/generic_stm32/linker)
+add_link_options(-L${LINKER_DIR} -L${LINKER_DIR}/${TARGET_LINKER_DIR})
+
 include_directories(${RADIO_SRC_DIR}/targets/common/arm/stm32)
 include_directories(${STM32USB_DIR}/STM32_USB_OTG_Driver/inc)
 include_directories(${STM32USB_DIR}/STM32_USB_Device_Library/Core/inc)

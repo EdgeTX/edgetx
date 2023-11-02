@@ -997,7 +997,7 @@ char *strAppendFilename(char *dest, const char *filename, const int size)
   return dest;
 }
 
-#if defined(RTCLOCK)
+#if defined(RTCLOCK) && !defined(BOOT)
 #include "rtc.h"
 
 char *strAppendDate(char *str, bool time)

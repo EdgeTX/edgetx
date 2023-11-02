@@ -67,7 +67,7 @@ if(EdgeTX_SUPERBUILD)
     BINARY_DIR ${CMAKE_BINARY_DIR}/arm-none-eabi
     CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
     CMAKE_CACHE_ARGS
-      -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/arm-none-eabi.cmake
+      -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/gcc-arm-none-eabi.cmake
       -DEdgeTX_SUPERBUILD:BOOL=0
       -DNATIVE_BUILD:BOOL=0
     INSTALL_COMMAND  ""

@@ -22,6 +22,7 @@ ENTRY(Reset_Handler)
 /* Highest address of the user mode stack */
 _estack = 0x20030000;    /* end of 192K RAM */
 _heap_end = 0xD0800000;  /* end of 8192K SDRAM */
+__heap_end = _heap_end;
 
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0;      /* required amount of heap  */
@@ -33,7 +34,7 @@ _main_stack_start = _estack - _Main_Stack_Size;
 /* Specify the memory areas */
 MEMORY
 {
-  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 2048K
+  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 128K
   RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 192K
   CCM (xrw)       : ORIGIN = 0x10000000, LENGTH = 64K
   MEMORY_B1 (rx)  : ORIGIN = 0x60000000, LENGTH = 0K
@@ -68,15 +69,19 @@ SECTIONS
     _etext = .;        /* define a global symbols at end of code */
   } >FLASH
 
-  .ARM.extab   :
-  { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
-    .ARM : {
-    __exidx_start = .;
-      *(.ARM.exidx*)
-      __exidx_end = .;
+  .ARM.extab :
+  {
+    *(.ARM.extab* .gnu.linkonce.armextab.*)
   } >FLASH
 
-  .preinit_array     :
+  .ARM :
+  {
+    __exidx_start = .;
+    *(.ARM.exidx*)
+    __exidx_end = .;
+  } >FLASH
+
+  .preinit_array :
   {
     PROVIDE_HIDDEN (__preinit_array_start = .);
     KEEP (*(.preinit_array*))
@@ -114,7 +119,7 @@ SECTIONS
   } >RAM AT> FLASH
 
   /* Uninitialized data section */
-  .bss :
+  .bss (NOLOAD) :
   {
     . = ALIGN(4);
     /* This is used by the startup in order to initialize the .bss secion */
@@ -174,6 +179,7 @@ SECTIONS
 
   PROVIDE ( end = _eram );
   PROVIDE ( _end = _eram );
+  PROVIDE ( __heap_start = _end );
   
   /* Remove information from the standard libraries */
   /DISCARD/ :

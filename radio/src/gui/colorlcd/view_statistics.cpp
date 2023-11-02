@@ -329,18 +329,18 @@ void DebugViewPage::build(FormWindow* window)
   line->padAll(0);
   line->padLeft(10);
 #endif
-  new DebugInfoNumber<uint32_t>(
-      line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return menusStack.available(); }, COLOR_THEME_PRIMARY1,
-      STR_STACK_MENU, nullptr);
-  new DebugInfoNumber<uint32_t>(
-      line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return mixerStack.available(); }, COLOR_THEME_PRIMARY1,
-      STR_STACK_MIX, nullptr);
-  new DebugInfoNumber<uint32_t>(
-      line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return audioStack.available(); }, COLOR_THEME_PRIMARY1,
-      STR_STACK_AUDIO, nullptr);
+  // new DebugInfoNumber<uint32_t>(
+  //     line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
+  //     [] { return menusStack.available(); }, COLOR_THEME_PRIMARY1,
+  //     STR_STACK_MENU, nullptr);
+  // new DebugInfoNumber<uint32_t>(
+  //     line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
+  //     [] { return mixerStack.available(); }, COLOR_THEME_PRIMARY1,
+  //     STR_STACK_MIX, nullptr);
+  // new DebugInfoNumber<uint32_t>(
+  //     line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
+  //     [] { return audioStack.available(); }, COLOR_THEME_PRIMARY1,
+  //     STR_STACK_AUDIO, nullptr);
 
 #if defined(DEBUG_LATENCY)
   line = form->newLine(&grid2);

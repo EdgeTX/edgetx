@@ -14,12 +14,13 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2017 STMicroelectronics.
-  * All rights reserved.
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -57,8 +58,9 @@ defined in linker script */
     .section  .text.Reset_Handler
   .weak  Reset_Handler
   .type  Reset_Handler, %function
-Reset_Handler:
-  bl pwrResetHandler    /*jump to WDT reset handler where soft power control pin is turned on as soon as possible */
+Reset_Handler:  
+  ldr   sp, =_estack       /* set stack pointer */
+  bl pwrResetHandler    /* jump to soft power control as soon as possible */
 
 /* Copy the data segment initializers from flash to SRAM */
   ldr r0, =_sdata
@@ -91,17 +93,7 @@ LoopFillZerobss:
   cmp r2, r4
   bcc FillZerobss
 
-/*Paint Main Stack */
-  ldr  r2, = _main_stack_start
-PaintMainStack:
-  movs r3, #0x55555555
-  str  r3, [r2], #4
-LoopPaintMainStack:
-  ldr  r3, = _estack
-  cmp  r2, r3
-  bcc  PaintMainStack
-  
-/* Call the clock system initialization function.*/
+/* Call the clock system intitialization function.*/
   bl  SystemInit   
 /* Call static constructors */
     bl __libc_init_array
@@ -573,3 +565,4 @@ g_pfnVectors:
 
    .weak      DFSDM2_FLT3_IRQHandler
    .thumb_set DFSDM2_FLT3_IRQHandler,Default_Handler
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

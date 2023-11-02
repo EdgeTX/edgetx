@@ -27,7 +27,6 @@
 #include "debug.h"
 #include "opentx.h"
 #include "sdcard.h"
-#include "str_functions.h"
 
 #define COLOR_COUNT 13
 

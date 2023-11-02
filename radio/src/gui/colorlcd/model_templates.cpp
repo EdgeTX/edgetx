@@ -22,7 +22,6 @@
 #include "model_templates.h"
 
 #include "standalone_lua.h"
-#include "str_functions.h"
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};

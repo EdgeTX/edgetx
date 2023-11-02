@@ -210,12 +210,12 @@ void menuStatisticsDebug(event_t event)
   lcdDrawText(lcdLastRightPos, y, "ms)");
   y += FH;
 
-  lcdDrawTextAlignedLeft(y, STR_FREE_STACK);
-  lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, menusStack.available(), LEFT);
-  lcdDrawText(lcdLastRightPos, y, "/");
-  lcdDrawNumber(lcdLastRightPos, y, mixerStack.available(), LEFT);
-  lcdDrawText(lcdLastRightPos, y, "/");
-  lcdDrawNumber(lcdLastRightPos, y, audioStack.available(), LEFT);
+  // lcdDrawTextAlignedLeft(y, STR_FREE_STACK);
+  // lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, menusStack.available(), LEFT);
+  // lcdDrawText(lcdLastRightPos, y, "/");
+  // lcdDrawNumber(lcdLastRightPos, y, mixerStack.available(), LEFT);
+  // lcdDrawText(lcdLastRightPos, y, "/");
+  // lcdDrawNumber(lcdLastRightPos, y, audioStack.available(), LEFT);
   y += FH;
 
 #if defined(DEBUG_LATENCY)
