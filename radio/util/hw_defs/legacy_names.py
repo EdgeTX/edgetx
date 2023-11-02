@@ -458,6 +458,20 @@ LEGACY_NAMES = [
                 "short_label": "E2",
                 "description": "Ext 2"
             },
+            "EXT3": {
+                "yaml": "EXT3",
+                "lua": "ext3",
+                "label": "EXT3",
+                "short_label": "E3",
+                "description": "Ext 3"
+            },
+            "EXT4": {
+                "yaml": "EXT4",
+                "lua": "ext4",
+                "label": "EXT4",
+                "short_label": "E4",
+                "description": "Ext 4"
+            }
         }
     },
     {
