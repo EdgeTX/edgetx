@@ -344,7 +344,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   install(FILES ../targets/linux/45-companion-taranis.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-taranis.rules)
   install(FILES ../targets/linux/45-usbasp.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-usbasp.rules)
 
-  if(OPENSSL_FOUND AND OPENSSL_VERSION VERSION_LESS "1.2.0")
+  if(OPENSSL_FOUND AND Qt5Core_VERSION VERSION_LESS "6.0.0" AND OPENSSL_VERSION VERSION_LESS "1.2.0")
     get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
     # install only files Qt networking requires
     install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libcrypto*" PATTERN "libssl*")
@@ -410,12 +410,12 @@ elseif(WIN32)
     message(WARNING "Installer: SDL2.dll not found, set SDL2_LIBRARY_PATH manually.")
   endif()
 
-  if(OPENSSL_FOUND)
+  if(OPENSSL_FOUND AND OPENSSL)
     get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
     set(OPENSSL_BIN_DIR "${OPENSSL_SSL_LIBRARY_DIR}/../bin")
     if (EXISTS "${OPENSSL_BIN_DIR}")
       # install only files Qt networking requires
-      install(DIRECTORY ${OPENSSL_BIN_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "*.dll")
+      install(DIRECTORY ${OPENSSL_BIN_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "libcrypto*.dll" PATTERN "libssl*.dll")
     else()
   	  message(STATUS "Installer: OpenSSL bin directory not found, dlls not bundled.")
     endif()
