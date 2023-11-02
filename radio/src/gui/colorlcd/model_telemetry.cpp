@@ -19,9 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#include <iostream>
-#include <sstream>
 #include "model_telemetry.h"
+
 #include "opentx.h"
 #include "libopenui.h"
 
@@ -610,9 +609,12 @@ class SensorEditWindow : public Page {
       num->setWidth((lv_pct(28)));
 #endif
       num->setDisplayHandler([](int32_t value) {
-        std::stringstream stream;
-        stream << std::hex << value;
-        return stream.str();
+        char buf[4];
+        buf[0] = hex2char((value & 0xf000) >> 12);
+        buf[1] = hex2char((value & 0x0f00) >> 8);
+        buf[2] = hex2char((value & 0x00f0) >> 4);
+        buf[3] = hex2char((value & 0x000f) >> 0);
+        return std::string(buf, sizeof(buf));
       });
       num = new NumberEdit(paramLines[P_ID], rect_t{}, 0, 0xff, GET_SET_DEFAULT(sensor->instance));
 #if LCD_H > LCD_W

@@ -18,6 +18,9 @@
 // force ANSI mode: lua_number2integer() behaves the same way on all platforms (#3826)
 #define LUA_ANSI
 
+// prevent localeconv()
+#define getlocaledecpoint() ('.')
+
 /*
 ** ==================================================================
 ** Search for "@@" to find all configurable definitions.

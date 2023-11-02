@@ -75,7 +75,8 @@ int luaDir(lua_State* L)
 
   FRESULT res = f_opendir(dir, path);
   if (res != FR_OK) {
-    printf("luaDir cannot open %s\n", path);
+    TRACE("luaDir cannot open %s\n", path);
+    return 0;
   }
   
   lua_pushcclosure(L, dir_iter, 1);
@@ -129,7 +130,7 @@ int luaFstat(lua_State* L)
 
   res = f_stat(path, &info);
   if (res != FR_OK) {
-    printf("luaFstat cannot open %s\n", path);
+    TRACE("luaFstat cannot open %s\n", path);
     return 0;
   }
 
@@ -174,7 +175,8 @@ int luaDelete(lua_State* L)
 
   FRESULT res = f_unlink(filename);
   if (res != FR_OK) {
-    printf("luaDelete cannot delete file/folder %s\n", filename);
+    TRACE("luaDelete cannot delete file/folder %s\n", filename);
+    return 0;
   }
 
   lua_pushunsigned(L, res);

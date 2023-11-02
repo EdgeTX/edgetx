@@ -33,7 +33,6 @@
 #include "model_templates.h"
 #include "opentx.h"
 #include "standalone_lua.h"
-#include "str_functions.h"
 #include "view_channels.h"
 
 // bitmaps for toolbar
