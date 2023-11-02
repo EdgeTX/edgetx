@@ -26,7 +26,11 @@ POT_CONFIG = {
         "P2": {"default": "POT_CENTER"},
         "P3": {"default": "POT_CENTER"},
         "SL1": {"default": "SLIDER"},
-        "SL2": {"default": "SLIDER"}
+        "SL2": {"default": "SLIDER"},
+        "EXT1": {"default": "POT_CENTER"},
+        "EXT2": {"default": "POT_CENTER"},
+        "EXT3": {"default": "MULTIPOS"},
+        "EXT4": {"default": "MULTIPOS"}
     },
     "mt12": {
         "P1": {"default": "POT"},
