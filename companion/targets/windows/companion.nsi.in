@@ -197,6 +197,8 @@ Section "un.EdgeTX Companion @VERSION_FAMILY@"
   ; OpenSSL libs
   Delete "$INSTDIR\libeay32.dll"
   Delete "$INSTDIR\ssleay32.dll"
+  Delete "$INSTDIR\libssl-1*.dll"
+  Delete "$INSTDIR\libcrypto-1*.dll"
   ; MinGW libs
   Delete "$INSTDIR\libgcc_s_dw2-1.dll"
   Delete "$INSTDIR\libgcc_s_seh-1.dll"
