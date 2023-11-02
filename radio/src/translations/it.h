@@ -55,7 +55,7 @@
 
 #define TR_AUX_SERIAL_MODES             "OFF","Replica Telem","Telemetria In","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse","Modulo esterno"
 #define TR_SWTYPES                      "Disab.","Toggle","2POS","3POS"
-#define TR_POTTYPES                     "Disab.",TR("Pot c. fer","Pot. con centro"),TR("Multipos","Inter. Multipos"),TR("Pot","Potenziometro"),"Slider"
+#define TR_POTTYPES                     "Disab.",TR("Pot","Potenziometro"),TR("Pot c. fer","Pot. con centro"),"Slider",TR("Multipos","Inter. Multipos"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                  "NO","Volo","Reset Manuale"
 #define TR_COUNTRY_CODES                TR("US","America"),TR("JP","Japan"),TR("EU","Europa")
 #define TR_USBMODES                     TR("Chied","Chiedi"),TR("Joyst","Joystick"),TR("SDCard","Storage"),TR("Serial","Seriale")

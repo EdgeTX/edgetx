@@ -39,8 +39,16 @@ struct HWInputEdit : public RadioTextEdit {
 
 static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                          LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t col_three_dsc[] = {
-    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_three_dsc[] = {LV_GRID_FR(8), LV_GRID_FR(12), LV_GRID_FR(20),
+                                         LV_GRID_TEMPLATE_LAST};
+
+#if LCD_W > LCD_H
+static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(2), LV_GRID_FR(5),
+                                          LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
+#else
+static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(22), LV_GRID_FR(48), LV_GRID_FR(16),
+                                          LV_GRID_TEMPLATE_LAST};
+#endif
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
@@ -71,7 +79,7 @@ HWSticks::HWSticks(Window* parent) : FormWindow(parent, rect_t{})
 
 HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
 {
-  FlexGridLayout grid(col_three_dsc, row_dsc, 2);
+  FlexGridLayout grid(pots_col_dsc, row_dsc, 2);
   setFlexLayout();
 
   potsChanged = false;
@@ -83,7 +91,7 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
     }
   });
 
-  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   for (int i = 0; i < max_pots; i++) {
     // TODO: check initialised ADC inputs instead!
 
@@ -93,27 +101,30 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
     //     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
     // #endif
     auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, adcGetInputLabel(ADC_INPUT_POT, i), 0,
+    new StaticText(line, rect_t{}, adcGetInputLabel(ADC_INPUT_FLEX, i), 0,
                    COLOR_THEME_PRIMARY1);
 
-    auto box = new FormWindow(line, rect_t{});
-    box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
+#if LCD_H > LCD_W
+    line = newLine(&grid);
+#endif
 
-    auto box_obj = box->getLvObj();
-    lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);
-
-    new HWInputEdit(box, (char*)analogGetCustomLabel(ADC_INPUT_POT, i),
+    new HWInputEdit(line, (char*)analogGetCustomLabel(ADC_INPUT_FLEX, i),
                     LEN_ANA_NAME);
-    new Choice(
-        box, rect_t{}, STR_POTTYPES, POT_NONE, POT_SLIDER_WITH_DETENT,
-        [=]() -> int {
-          return bfGet<potconfig_t>(g_eeGeneral.potsConfig, POT_CFG_BITS * i,
-                                    POT_CFG_BITS);
-        },
+    auto pot = new Choice(
+        line, rect_t{}, STR_POTTYPES, FLEX_NONE, FLEX_SWITCH,
+        [=]() -> int { return getPotType(i); },
         [=](int newValue) {
-          g_eeGeneral.potsConfig = bfSet<potconfig_t>(
-              g_eeGeneral.potsConfig, newValue, POT_CFG_BITS * i, POT_CFG_BITS);
+          setPotType(i, newValue);
+          switchFixFlexConfig();
           potsChanged = true;
+          SET_DIRTY();
+        });
+    pot->setAvailableHandler([=](int val) { return isPotTypeAvailable(val); });
+
+    new ToggleSwitch(
+        line, rect_t{}, [=]() -> uint8_t { return (uint8_t)getPotInversion(i); },
+        [=](int8_t newValue) {
+          setPotInversion(i, newValue);
           SET_DIRTY();
         });
   }
@@ -130,7 +141,7 @@ class SwitchDynamicLabel : public StaticText
 
   std::string label()
   {
-    std::string str(switchGetName(index));
+    std::string str(switchGetCanonicalName(index));
     return str + getSwitchPositionSymbol(lastpos);
   }
 
@@ -159,18 +170,53 @@ class SwitchDynamicLabel : public StaticText
   uint8_t lastpos = 0xff;
 };
 
+static void flex_channel_changed(lv_event_t* e)
+{
+  auto target = lv_event_get_target(e);
+  auto channel = (Choice*)lv_obj_get_user_data(target);
+
+  auto sw_cfg = (Choice*)lv_event_get_user_data(e);
+  lv_obj_t* sw_cfg_obj = sw_cfg->getLvObj();
+
+  if (channel->getIntValue() < 0) {
+    lv_obj_add_flag(sw_cfg_obj, LV_OBJ_FLAG_HIDDEN);
+    sw_cfg->setValue(0);
+  } else {
+    lv_obj_clear_flag(sw_cfg_obj, LV_OBJ_FLAG_HIDDEN);
+  }
+}
+
 HWSwitches::HWSwitches(Window* parent) : FormWindow(parent, rect_t{})
 {
   FlexGridLayout grid(col_three_dsc, row_dsc, 2);
   setFlexLayout();
 
-  for (int i = 0; i < switchGetMaxSwitches(); i++) {
+  auto max_switches = switchGetMaxSwitches();
+  for (int i = 0; i < max_switches; i++) {
     auto line = newLine(&grid);
     new SwitchDynamicLabel(line, i);
-
     new HWInputEdit(line, (char*)switchGetCustomName(i), LEN_SWITCH_NAME);
-    new Choice(
-        line, rect_t{}, STR_SWTYPES, SWITCH_NONE, switchGetMaxType(i),
+
+    auto box = new FormWindow(line, rect_t{});
+    box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
+    box->setWidth(lv_pct(45));
+
+    Choice* channel = nullptr;
+    if (switchIsFlex(i)) {
+      channel = new Choice(
+          box, rect_t{}, -1, adcGetMaxInputs(ADC_INPUT_FLEX) - 1,
+          [=]() -> int { return switchGetFlexConfig(i); },
+          [=](int newValue) { switchConfigFlex(i, newValue); });
+      channel->setAvailableHandler(
+          [=](int val) { return val < 0 || switchIsFlexInputAvailable(i, val); });
+      channel->setTextHandler([=](int val) -> std::string {
+        if (val < 0) return STR_NONE;
+        return adcGetInputLabel(ADC_INPUT_FLEX, val);
+      });
+    }
+
+    auto sw_cfg = new Choice(
+        box, rect_t{}, STR_SWTYPES, SWITCH_NONE, switchGetMaxType(i),
         [=]() -> int { return SWITCH_CONFIG(i); },
         [=](int newValue) {
           swconfig_t mask = (swconfig_t)SWITCH_CONFIG_MASK(i);
@@ -179,6 +225,12 @@ HWSwitches::HWSwitches(Window* parent) : FormWindow(parent, rect_t{})
               ((swconfig_t(newValue) & SW_CFG_MASK) << (SW_CFG_BITS * i));
           SET_DIRTY();
         });
+
+    if (channel) {
+      lv_obj_t* obj = channel->getLvObj();
+      lv_obj_add_event_cb(obj, flex_channel_changed, LV_EVENT_VALUE_CHANGED, sw_cfg);
+      lv_event_send(obj, LV_EVENT_VALUE_CHANGED, NULL);
+    }
   }
 }
 
@@ -189,7 +241,11 @@ HWInputDialog<T>::HWInputDialog(const char* title) :
   setCloseWhenClickOutside(true);
   if (title) content->setTitle(title);
   new T(&content->form);
+#if LCD_W > LCD_H
   content->setWidth(LCD_W * 0.8);
+#else
+  content->setWidth(LCD_W * 0.95);
+#endif
   content->updateSize();
 }
 

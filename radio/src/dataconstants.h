@@ -392,19 +392,22 @@ enum PotsWarnMode {
 
 #if defined(COLORLCD)
   #define MAX_POTS        16
-  #define MAX_AXIS        2
 #else
   #define MAX_POTS        8
-  #define MAX_AXIS        0
 #endif
 
 #define MAX_VBAT          1
 #define MAX_RTC_BAT       1
 
-#define MAX_ANALOG_INPUTS (MAX_STICKS + MAX_POTS + MAX_AXIS + MAX_VBAT + MAX_RTC_BAT)
-#define MAX_CALIB_ANALOG_INPUTS (MAX_STICKS + MAX_POTS + MAX_AXIS)
+#define MAX_ANALOG_INPUTS (MAX_STICKS + MAX_POTS + MAX_VBAT + MAX_RTC_BAT)
+#define MAX_CALIB_ANALOG_INPUTS (MAX_STICKS + MAX_POTS)
 
 #define MAX_SWITCHES      20
+
+#if !defined(MAX_FLEX_SWITCHES)
+#define MAX_FLEX_SWITCHES 0
+#endif
+
 #if defined(RADIO_T20)
 #define MAX_TRIMS         8
 #else
@@ -481,11 +484,6 @@ enum MixSources {
 
   MIXSRC_FIRST_POT SKIP,
   MIXSRC_LAST_POT SKIP = MIXSRC_FIRST_POT + MAX_POTS - 1,
-
-#if MAX_AXIS > 0
-  MIXSRC_FIRST_AXIS SKIP,
-  MIXSRC_LAST_AXIS SKIP = MIXSRC_FIRST_AXIS + MAX_AXIS - 1,
-#endif
 
 #if defined(IMU)
   MIXSRC_TILT_X,

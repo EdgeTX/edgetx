@@ -277,6 +277,8 @@ void generalDefault()
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
 #endif
 
+  adcCalibDefaults();
+
   g_eeGeneral.potsConfig = adcGetDefaultPotsConfig();
   g_eeGeneral.switchConfig = switchGetDefaultConfig();
 
@@ -359,9 +361,12 @@ void generalDefault()
 uint16_t evalChkSum()
 {
   uint16_t sum = 0;
-  const int16_t * calibValues = (const int16_t *) &g_eeGeneral.calib[0];
-  for (int i=0; i<12; i++)
+  auto main_calib_bytes = adcGetMaxInputs(ADC_INPUT_MAIN) * sizeof(CalibData);
+
+  const uint8_t *calibValues = (const uint8_t *)&g_eeGeneral.calib[0];
+  for (unsigned i = 0; i < main_calib_bytes; i++) {
     sum += calibValues[i];
+  }
   return sum;
 }
 
@@ -403,18 +408,11 @@ int8_t getMovedSource(uint8_t min)
   if (result == 0) {
     for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
       if (abs(calibratedAnalogs[i] - sourcesStates[i]) > MULTIPOS_STEP_SIZE) {
-        auto offset = adcGetInputOffset(ADC_INPUT_POT);
+        auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
         if (i >= offset) {
           result = MIXSRC_FIRST_POT + i - offset;
           break;
         }
-#if MAX_AXIS > 0
-        offset = adcGetInputOffset(ADC_INPUT_AXIS);
-        if (i >= offset) {
-          result = MIXSRC_FIRST_AXIS + i - offset;
-          break;
-        }
-#endif
         result = MIXSRC_FIRST_STICK + inputMappingConvertMode(i);
         break;
       }
@@ -1401,6 +1399,8 @@ void opentxInit()
   menuHandlers[0] = menuMainView;
   menuHandlers[1] = menuModelSelect;
 #endif
+
+  switchInit();
 
 #if defined(STARTUP_ANIMATION)
   lcdRefreshWait();

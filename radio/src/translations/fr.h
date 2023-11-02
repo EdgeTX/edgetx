@@ -54,7 +54,7 @@
 #define TR_AUX_SERIAL_MODES            "OFF","Recopie Télém.","Télémétrie In","Écolage SBUS","LUA","CLI","GPS","Débug","SpaceMouse","Module externe"
 
 #define TR_SWTYPES                     "Rien","Monostable","2-POS","3-POS"
-#define TR_POTTYPES                    "Rien",TR("Pots av. ctr","Pots avec centre"),TR("Multipos.","Inter multi-pos""Potentiomètre"),TR("Pots","Potentiomètre"),"Curseurs"
+#define TR_POTTYPES                    "Rien",TR("Pots","Potentiomètre"),TR("Pots av. ctr","Pots avec centre"),"Curseurs",TR("Multipos.","Inter multi-pos""Potentiomètre"),"Axis X","Axis Y","Switch"
 
 #define TR_VPERSISTENT                 "OFF","Vol","Reset Manuel"
 #define TR_COUNTRY_CODES               TR("US","USA"),TR("JP","Japon"),TR("Europe","EU")

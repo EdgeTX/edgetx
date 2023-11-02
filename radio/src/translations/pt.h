@@ -53,7 +53,7 @@
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "OFF","Espelhar Telem","Entr Telem","Trainer SBUS","LUA","CLI","GPS","Debug","SpaceMouse","External module"
 #define TR_SWTYPES                     "Nenhum","Tatil","2POS","3POS"
-#define TR_POTTYPES                    "Nenhum",TR("Pot c. det","Pot com detentor"),TR("Multipos","Chave Multipos"),"Pot","Slider"
+#define TR_POTTYPES                    "Nenhum","Pot",TR("Pot c. det","Pot com detentor"),"Slider",TR("Multipos","Chave Multipos"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                 "OFF","Voo","Reset Manual"
 #define TR_COUNTRY_CODES               TR("US","America"),TR("JP","Japao"),TR("EU","Europa")
 #define TR_USBMODES                    "Pergunta",TR("Joyst","Joystick"),TR("SDCard","Storage"),"Serial"

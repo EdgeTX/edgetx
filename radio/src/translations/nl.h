@@ -53,7 +53,7 @@
 
 #define TR_AUX_SERIAL_MODES    "UIT","Telem Mirror","Telemetry In","SBUS Leerling","LUA","CLI","GPS","Debug","SpaceMouse","External module"
 #define TR_SWTYPES             "Geen","Wissel","2POS","3POS"
-#define TR_POTTYPES            "Geen",TR("Pot w. det","Pot met Klik"),TR("Multipos","Standenschakelaar"),TR("Pot", "Pot zonder Klik"),"Schuif"
+#define TR_POTTYPES            "Geen",TR("Pot", "Pot zonder Klik"),TR("Pot w. det","Pot met Klik"),"Schuif",TR("Multipos","Standenschakelaar"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT         "UIT","Vliegtijd","Handmatige Reset"
 #define TR_COUNTRY_CODES       TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
 #define TR_USBMODES            "Ask",TR("Joyst","Joystick"),TR("SDCard","Storage"),"Serial"

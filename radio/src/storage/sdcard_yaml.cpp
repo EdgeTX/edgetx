@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/adc_driver.h"
+#include "myeeprom.h"
 #include "opentx.h"
 #include "opentx_helpers.h"
 #include "storage.h"
@@ -184,6 +186,8 @@ const char * loadRadioSettings()
 #if defined(DEFAULT_INTERNAL_MODULE)
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
 #endif
+
+    adcCalibDefaults();
 
     const char* error = loadRadioSettingsYaml(true);
     if (!error) {

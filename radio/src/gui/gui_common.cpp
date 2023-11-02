@@ -198,11 +198,6 @@ bool isSourceAvailable(int source)
     return IS_POT_SLIDER_AVAILABLE(source - MIXSRC_FIRST_POT);
   }
 
-#if MAX_AXIS > 0
-  if (source >= MIXSRC_FIRST_AXIS && source <= MIXSRC_LAST_AXIS)
-    return source - MIXSRC_FIRST_AXIS < adcGetMaxInputs(ADC_INPUT_AXIS);
-#endif
-
 #if defined(PCBHORUS) && !defined(SPACEMOUSE)
   if (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE)
     return false;
@@ -298,13 +293,6 @@ bool isSourceAvailableInInputs(int source)
   if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT)
     return IS_POT_SLIDER_AVAILABLE(source - MIXSRC_FIRST_POT);
 
-#if MAX_AXIS > 0
-  if (source >= MIXSRC_FIRST_AXIS && source <= MIXSRC_LAST_AXIS) {
-    auto idx = source - MIXSRC_FIRST_AXIS;
-    return idx < adcGetMaxInputs(ADC_INPUT_AXIS);
-  }
-#endif
-
 #if defined(IMU)
   if (source == MIXSRC_TILT_X || source == MIXSRC_TILT_Y)
     return true;
@@ -391,7 +379,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
 
   if (swtch >= SWSRC_FIRST_MULTIPOS_SWITCH && swtch <= SWSRC_LAST_MULTIPOS_SWITCH) {
     int index = (swtch - SWSRC_FIRST_MULTIPOS_SWITCH) / XPOTS_MULTIPOS_COUNT;
-    return (index < adcGetMaxInputs(ADC_INPUT_POT)) ? IS_POT_MULTIPOS(index) : false;
+    return (index < adcGetMaxInputs(ADC_INPUT_FLEX)) ? IS_POT_MULTIPOS(index) : false;
   }
 
   if (swtch >= SWSRC_FIRST_TRIM && swtch <= SWSRC_LAST_TRIM) {
@@ -1209,3 +1197,57 @@ uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t a
   return value;
 }
 #endif
+
+bool isPotTypeAvailable(uint8_t type)
+{
+  if (type == FLEX_SWITCH) {
+    if (MAX_FLEX_SWITCHES == 0)
+      return false;
+
+    auto availableFlexSwitch = MAX_FLEX_SWITCHES;
+    for (uint8_t i = 0; i < adcGetMaxInputs(ADC_INPUT_FLEX); i++) {
+      if (POT_CONFIG(i) == FLEX_SWITCH) availableFlexSwitch--;
+      if (availableFlexSwitch == 0) return false;
+    }
+  }
+
+  return true;
+}
+
+bool isFlexSwitchSourceValid(int source)
+{
+  if (MAX_FLEX_SWITCHES == 0) return false;
+
+  // Allow NONE
+  if (source < 0) return true;
+
+  // already assigned ?
+  for (int i=0; i < MAX_FLEX_SWITCHES;i++) {
+    if (source == switchGetFlexConfig_raw(i))
+      return false;
+  }
+
+  if (POT_CONFIG(source) != FLEX_SWITCH) return false;
+
+  return true;
+}
+
+bool getPotInversion(int index)
+{
+  return bfGet<potconfig_t>(g_eeGeneral.potsConfig, (POT_CFG_BITS * index) + POT_CFG_TYPE_BITS, POT_CFG_INV_BITS);
+}
+
+void setPotInversion(int index, bool value)
+{
+  g_eeGeneral.potsConfig = bfSet<potconfig_t>(g_eeGeneral.potsConfig, value, (POT_CFG_BITS * index) + POT_CFG_TYPE_BITS, POT_CFG_INV_BITS);
+}
+
+uint8_t getPotType(int index)
+{
+  return bfGet<potconfig_t>(g_eeGeneral.potsConfig, POT_CFG_BITS * index, POT_CFG_TYPE_BITS);
+}
+
+void setPotType(int index, int value)
+{
+  g_eeGeneral.potsConfig = bfSet<potconfig_t>(g_eeGeneral.potsConfig, value, (POT_CFG_BITS * index), POT_CFG_TYPE_BITS);
+}

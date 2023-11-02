@@ -51,7 +51,7 @@ QVector<QIODevice *> OpenTxSimulator::tracebackDevices;
 uint16_t simu_get_analog(uint8_t idx)
 {
   // 6POS simu mechanism use a different scale, so needs specific offset
-  if (IS_POT_MULTIPOS(idx - adcGetInputOffset(ADC_INPUT_POT))) {
+  if (IS_POT_MULTIPOS(idx - adcGetInputOffset(ADC_INPUT_FLEX))) {
     // Use radio calibration data to determine conversion factor
     StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[idx];
     int range6POS = 2048; // Default if calibration is not valid
@@ -256,11 +256,11 @@ void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
       setAnalogValue(index, value);
       break;
     case INPUT_SRC_KNOB :
-      setAnalogValue(index + adcGetInputOffset(ADC_INPUT_POT), value);
+      setAnalogValue(index + adcGetInputOffset(ADC_INPUT_FLEX), value);
       break;
     case INPUT_SRC_SLIDER :
       // TODO redo this when Companion refactored to use radio json adc files
-      //setAnalogValue(index + adcGetInputOffset(ADC_INPUT_POT), value);
+      //setAnalogValue(index + adcGetInputOffset(ADC_INPUT_FLEX), value);
       static const int slideroffset = adcGetInputIdx("SL1", 3);
       //qDebug() << "SL1:" << slideroffset;
       if (slideroffset >= 0)

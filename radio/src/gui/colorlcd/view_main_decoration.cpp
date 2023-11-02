@@ -145,7 +145,7 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
     sliders[2] = new MainViewHorizontalSlider(br, 2);
 
   // TODO: check how many pots are configured instead
-  auto max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+  auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   if (max_pots > 3) {
     // create containers for the sliders, so that they are at the borders of the display
     // on top of each other, when there are two sliders to display per side

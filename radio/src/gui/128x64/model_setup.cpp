@@ -344,7 +344,7 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
   return HIDDEN_ROW;
 }
 
-#define POT_WARN_ROWS PREFLIGHT_ROW(((g_model.potsWarnMode) ? adcGetMaxInputs(ADC_INPUT_POT) : (uint8_t)0))
+#define POT_WARN_ROWS PREFLIGHT_ROW(((g_model.potsWarnMode) ? adcGetMaxInputs(ADC_INPUT_FLEX) : (uint8_t)0))
 
 #define TIMER_ROWS(x)                                                  \
   1, TIMER_ROW(x,0),                                                   \
@@ -592,7 +592,7 @@ void menuModelSetup(event_t event)
       PREFLIGHT_ROW(0), // Custom position for throttle warning value
       WARN_ROWS
 
-    uint8_t(NAVIGATION_LINE_BY_LINE | (adcGetInputOffset(ADC_INPUT_POT + 1) - 1)), // Center beeps
+    uint8_t(NAVIGATION_LINE_BY_LINE | (adcGetInputOffset(ADC_INPUT_FLEX + 1) - 1)), // Center beeps
 
     0, // ADC Jitter filter
 
@@ -899,7 +899,7 @@ void menuModelSetup(event_t event)
         if (attr)
           CHECK_INCDEC_MODELVAR_ZERO_CHECK(
               event, g_model.thrTraceSrc,
-              adcGetMaxInputs(ADC_INPUT_POT) + MAX_OUTPUT_CHANNELS,
+              adcGetMaxInputs(ADC_INPUT_FLEX) + MAX_OUTPUT_CHANNELS,
               isThrottleSourceAvailable);
 
         uint8_t idx = throttleSource2Source(g_model.thrTraceSrc);
@@ -1078,7 +1078,7 @@ void menuModelSetup(event_t event)
         }
         if (g_model.potsWarnMode) {
           coord_t x = MODEL_SETUP_2ND_COLUMN+28;
-          uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_POT);
+          uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
           for (int i = 0; i < max_pots; ++i) {
 
             if (!IS_POT_SLIDER_AVAILABLE(i)) {
@@ -1092,7 +1092,7 @@ void menuModelSetup(event_t event)
                 flags |= INVERS;
               }
               if (max_pots > 3) {
-                lcdDrawText(x, y, getAnalogShortLabel(adcGetInputOffset(ADC_INPUT_POT) + i), flags);
+                lcdDrawText(x, y, getAnalogShortLabel(adcGetInputOffset(ADC_INPUT_FLEX) + i), flags);
                 x = lcdNextPos + 1;
               }
               else {
@@ -1106,7 +1106,7 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_BEEP_CENTER: {
         lcdDrawTextAlignedLeft(y, STR_BEEPCTR);
-        uint8_t input_max = adcGetMaxInputs(ADC_INPUT_MAIN) + adcGetMaxInputs(ADC_INPUT_POT);
+        uint8_t input_max = adcGetMaxInputs(ADC_INPUT_MAIN) + adcGetMaxInputs(ADC_INPUT_FLEX);
         for (uint8_t i = 0; i < input_max; i++) {
           coord_t x = MODEL_SETUP_2ND_COLUMN + i*FW;
           LcdFlags flags = 0;

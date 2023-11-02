@@ -37,8 +37,7 @@
 
 enum {
   ADC_INPUT_MAIN=0, // gimbals / wheel + throttle
-  ADC_INPUT_POT,
-  ADC_INPUT_AXIS,
+  ADC_INPUT_FLEX,
   ADC_INPUT_VBAT,
   ADC_INPUT_RTC_BAT,
   ADC_INPUT_ALL,
@@ -91,6 +90,9 @@ void setAnalogValue(uint8_t index, uint16_t value);
 uint16_t* getAnalogValues();
 
 // Run calibration steps:
+
+// Set default values before loading radio settings
+void adcCalibDefaults();
 
 // Set mid-points and reset min/max in temporary buffer
 void adcCalibSetMidPoint();

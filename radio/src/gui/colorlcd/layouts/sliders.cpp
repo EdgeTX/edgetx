@@ -38,7 +38,7 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect,
 void MainViewSlider::checkEvents()
 {
   Window::checkEvents();
-  auto pot_idx = adcGetInputOffset(ADC_INPUT_POT) + idx;
+  auto pot_idx = adcGetInputOffset(ADC_INPUT_FLEX) + idx;
   int16_t newValue = calibratedAnalogs[pot_idx];
   if (value != newValue) {
   value = newValue;

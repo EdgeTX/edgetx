@@ -41,6 +41,13 @@ static const stm32_switch_t _switch_defs[] = {
 {% endfor %}
 };
 
+static const stm32_switch_t* const _switch_offsets[] = {
+  _switch_defs,
+{% if function_switches %}
+  _switch_defs + {{ regular_switches | count }},
+{% endif %}
+};
+
 static inline void _init_switches()
 {
   LL_GPIO_InitTypeDef pinInit;
@@ -56,7 +63,6 @@ static inline void _init_switches()
 
 constexpr uint8_t n_switches = {{ regular_switches | count }};
 constexpr uint8_t n_fct_switches = {{ function_switches | count }};
-constexpr uint8_t n_total_switches = {{ switches | count }};
 
 constexpr swconfig_t _switch_default_config = (swconfig_t)0
 {% for sw in regular_switches %}

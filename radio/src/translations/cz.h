@@ -54,7 +54,7 @@
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "VYP","Telemetrie zrcadlení","Telemetrie vstup","SBUS Trenér","LUA","CLI","GPS","Debug","SpaceMouse","Externí modul"
 #define TR_SWTYPES                     "Žádný","Bez aretace","2-polohový","3-polohový"
-#define TR_POTTYPES                    "Žádný",TR("Pot s aret.","Pot s aretací"),TR("Vícepol př.","Vícepol. přep."),TR("Pot","Potenciometr"),"Slider"
+#define TR_POTTYPES                    "Žádný",TR("Pot","Potenciometr"),TR("Pot s aret.","Pot s aretací"),"Slider",TR("Vícepol př.","Vícepol. přep."),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                 "Ne","V rámci letu","Reset ručně"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japonsko"),TR("EU","Evropa")
 #define TR_USBMODES                    TR("Zeptat","Zeptat se"),TR("Joyst","Joystick"),TR("SDkarta","Úložiště"),"Serial"

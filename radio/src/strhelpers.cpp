@@ -538,7 +538,7 @@ const char* getAnalogLabel(uint8_t type, uint8_t idx)
     return adcGetInputShortLabel(type, idx);
   }
 
-  if (type == ADC_INPUT_POT) {
+  if (type == ADC_INPUT_FLEX) {
     return adcGetInputLabel(type, idx);
   }
   
@@ -562,10 +562,10 @@ const char* getAnalogShortLabel(uint8_t idx)
   }
 
   idx -= max;
-  max = adcGetMaxInputs(ADC_INPUT_POT);
+  max = adcGetMaxInputs(ADC_INPUT_FLEX);
 
   if (idx < max) {
-    return adcGetInputShortLabel(ADC_INPUT_POT, idx);
+    return adcGetInputShortLabel(ADC_INPUT_FLEX, idx);
   }
 
   // we only support short labels
@@ -604,7 +604,7 @@ const char* getTrimSourceLabel(uint16_t src_raw, int8_t trim_src)
 
 const char* getPotLabel(uint8_t idx)
 {
-  return getAnalogLabel(ADC_INPUT_POT, idx);
+  return getAnalogLabel(ADC_INPUT_FLEX, idx);
 }
 
 // this should be declared in header, but it used so much foreign symbols that
@@ -676,19 +676,12 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
         pos = strAppend(pos, STR_CHAR_POT, sizeof(STR_CHAR_POT) - 1);
         dest_len -= sizeof(STR_CHAR_POT) - 1;
       }
+      // TODO: AXIS / SWITCH ???
       name = getPotLabel(idx);
     }
     strncpy(pos, name, dest_len - 1);
     pos[dest_len - 1] = '\0';
   }
-#if MAX_AXIS > 0
-  else if (idx <= MIXSRC_LAST_AXIS) {
-    idx -= MIXSRC_FIRST_AXIS;
-    auto name = adcGetInputName(ADC_INPUT_AXIS, idx);
-    strncpy(dest, name, dest_len - 1);
-    dest[dest_len - 1] = '\0';
-  }
-#endif
 #if defined(IMU)
   else if (idx <= MIXSRC_TILT_Y) {
     idx -= MIXSRC_TILT_X;

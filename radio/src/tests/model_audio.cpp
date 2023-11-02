@@ -74,7 +74,7 @@ TEST(ModelAudio, switches)
   EXPECT_FALSE(matchSwitchAudioFile("SX-mid.wav", sw_pos));
   EXPECT_FALSE(matchSwitchAudioFile("AS-mid.wav", sw_pos));
 
-  g_eeGeneral.potsConfig = POT_MULTIPOS_SWITCH << (POT_CFG_BITS * 2);
+  g_eeGeneral.potsConfig = FLEX_MULTIPOS << (POT_CFG_BITS * 2);
   EXPECT_TRUE(matchSwitchAudioFile("S34.wav", sw_pos));
   EXPECT_EQ(MAX_SWITCHES * 3 + 2 * XPOTS_MULTIPOS_COUNT + 3, sw_pos);
 

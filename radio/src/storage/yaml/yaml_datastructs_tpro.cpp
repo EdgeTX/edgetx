@@ -353,6 +353,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_ARRAY("slidersConfig", 0, MAX_POTS, struct_sliderConfig, nullptr),
   YAML_ARRAY("potsConfig", 4, 8, struct_potConfig, nullptr),
   YAML_ARRAY("switchConfig", 2, 32, struct_switchConfig, nullptr),
+  YAML_ARRAY("flexSwitches", 0, MAX_FLEX_SWITCHES, struct_flexSwitch, flex_sw_valid),
   YAML_UNSIGNED( "backlightColor", 8 ),
   YAML_STRING("ownerRegistrationID", 8),
   YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),

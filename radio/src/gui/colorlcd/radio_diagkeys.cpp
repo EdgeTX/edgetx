@@ -27,7 +27,6 @@
 
 static const uint8_t _trimMap[MAX_TRIMS * 2] = {6, 7, 4, 5, 2, 3, 0, 1, 8, 9, 10, 11};
 
-#if !defined(PCBNV14)
 static EnumKeys get_ith_key(uint8_t i)
 {
   auto supported_keys = keysGetSupported();
@@ -41,7 +40,6 @@ static EnumKeys get_ith_key(uint8_t i)
   // we assume: i < keysGetMaxKeys()
   return (EnumKeys)0;
 }
-#endif
 
 class RadioKeyDiagsWindow : public Window
 {
@@ -96,38 +94,27 @@ class RadioKeyDiagsWindow : public Window
       dc->drawText(TRIM_MINUS_COLUMN, 1, "-", COLOR_THEME_PRIMARY1);
       dc->drawText(TRIM_PLUS_COLUMN, 1, "+", COLOR_THEME_PRIMARY1);
 
-#if !defined(PCBNV14)
       // KEYS
       coord_t y = 1;
       for (uint8_t i = 0; i < keysGetMaxKeys(); i++) {
         auto k = get_ith_key(i);
-        y += FH;
         dc->drawText(KEY_COLUMN, y, keysGetLabel(k), COLOR_THEME_PRIMARY1);
         displayKeyState(dc, 70, y, k);
+        y += FH;
       }
-#if defined(ROTARY_ENCODER_NAVIGATION)
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
       y += FH;
       dc->drawText(KEY_COLUMN, y, STR_ROTARY_ENCODER, COLOR_THEME_PRIMARY1);
       dc->drawNumber(70, y, rotaryEncoderGetValue(), COLOR_THEME_PRIMARY1);
 #endif
-#else // defined(PCBNV14)
-      // KEYS
-      {
-        coord_t y = 1;
-        dc->drawText(KEY_COLUMN, y, keysGetLabel(KEY_ENTER), COLOR_THEME_PRIMARY1);
-        displayKeyState(dc, 70, y, KEY_ENTER);
-        y += FH;
-        dc->drawText(KEY_COLUMN, y, keysGetLabel(KEY_EXIT), COLOR_THEME_PRIMARY1);
-        displayKeyState(dc, 70, y, KEY_EXIT);
-      }      
-#endif
       // SWITCHES
+      y = 1;
       for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
         if (SWITCH_EXISTS(i)) {
-          coord_t y = 1 + FH * i;
           getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
           getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
           drawSwitch(dc, SWITCHES_COLUMN, y, sw, COLOR_THEME_PRIMARY1);
+          y +=FH;
         }
       }
 

@@ -50,7 +50,7 @@
 
 #define TR_AUX_SERIAL_MODES            "OFF","テレメトリーミラー","テレメトリーIN","SBUSトレーナー","LUAスクリプト","CLI","GPS","デバッグ","外部モジュール"
 #define TR_SWTYPES                     "なし","トグル","2POS","3POS"
-#define TR_POTTYPES                    "なし",TR("Pot w. det","ダイヤル(ノッチ有)"),TR("Multipos","マルチPOSスイッチ"),"ダイヤル","スライダー"
+#define TR_POTTYPES                    "なし","ダイヤル",TR("Pot w. det","ダイヤル(ノッチ有)"),"スライダー",TR("Multipos","マルチPOSスイッチ"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                 "無効","飛行時","手動リセット"
 #define TR_COUNTRY_CODES               TR("US","アメリカ"),TR("JP","日本"),TR("EU","ヨーロッパ")
 #define TR_USBMODES                    "確認",TR("Joyst","JoyStick"),TR("SDカード","ストレージ"),"シリアル"
