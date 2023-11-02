@@ -117,9 +117,9 @@ static bool yaml_output_string(const char* str, uint32_t max_len,
 {
     if (!wf(opaque, "\"", 1))
         return false;
-    
+
     while(max_len > 0 && *str) {
-        if (*str >= 0x20 && *str <= 0x7E && *str != '\"') {
+        if (*str >= 0x20 && *str <= 0x7E && *str != '"') {
             if (!wf(opaque, str++, 1)) return false;
             max_len--;
         }
