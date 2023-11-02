@@ -1505,6 +1505,7 @@ void registerOpenTxFirmwares()
   addOpenTxArm9xOptions(firmware);
   registerOpenTxFirmware(firmware, true);
 
+  Firmware::sortRegisteredFirmwares();
   Firmware::setDefaultVariant(Firmware::getFirmwareForFlavour("tx16s"));
   Firmware::setCurrentVariant(Firmware::getDefaultVariant());
 }
