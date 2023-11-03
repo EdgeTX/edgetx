@@ -59,6 +59,26 @@ boards = {
         "PCBREV": "BOXER",
         "DEFAULT_MODE": "2",
     },
+    "POCKET_1": {
+        "PCB": "X7",
+        "PCBREV": "POCKET",
+        "DEFAULT_MODE": "1",
+    },
+    "POCKET_2": {
+        "PCB": "X7",
+        "PCBREV": "POCKET",
+        "DEFAULT_MODE": "2",
+    },
+    "MT12_1": {
+        "PCB": "X7",
+        "PCBREV": "MT12",
+        "DEFAULT_MODE": "1",
+    },
+    "MT12_2": {
+        "PCB": "X7",
+        "PCBREV": "MT12",
+        "DEFAULT_MODE": "2",
+    },
     "T8_1": {
         "PCB": "X7",
         "PCBREV": "T8",
