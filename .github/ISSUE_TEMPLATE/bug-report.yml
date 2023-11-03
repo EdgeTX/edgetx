@@ -104,11 +104,14 @@ body:
         - Jumper T18
         - Jumper T-Lite
         - Jumper T-Pro
-        - Radiomaster Boxer
-        - Radiomaster T8
+        - Jumper T-Pro V2
+        - RadioMaster Boxer
+        - RadioMaster MT12
+        - RadioMaster Pocket
+        - RadioMaster T8
         - RadioMaster TX12 / TX12MK2
-        - Radiomaster TX16S / TX16SMK2
-        - Radiomaster Zorro
+        - RadioMaster TX16S / TX16SMK2
+        - RadioMaster Zorro
         - Other (Please specify below)
     validations:
       required: true
