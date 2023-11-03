@@ -460,10 +460,10 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
       default:
         return telemetryItem.value;
     }
-  } else {
-    if (valid != nullptr) *valid = false;
-    return 0;
   }
+  
+  if (valid != nullptr) *valid = false;
+  return 0;
 }
 
 void evalTrims()
