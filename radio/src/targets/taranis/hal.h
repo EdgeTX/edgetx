@@ -937,13 +937,6 @@
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_5 // PB.05
 #elif defined(RADIO_MT12)
   // ADC based switch/pot
-#elif defined(RADIO_TPRO)
-  // SW2
-  #define FUNCTION_SWITCH_2             SF
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
-  #define SWITCHES_GPIO_REG_F           GPIOG
-  #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_6  // PG.06
 #elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_TPROV2) || defined(RADIO_COMMANDO8) || defined(RADIO_LR3PRO) || defined(RADIO_POCKET)
   // no SWF
   #define STORAGE_SWITCH_F
