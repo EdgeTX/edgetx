@@ -83,11 +83,8 @@ jobs:
         run:  brew install SDL2
 
       - name: Install openssl 1.1
-        run:  wget https://www.openssl.org/source/openssl-1.1.1w.tar.gz &&
-          tar xfv openssl-1.1.1w.tar.gz &&
-          cd openssl-1.1.1w &&
-          ./config &&
-          make install
+        run:  brew install openssl@1.1 && \
+              cp /usr/local/opt/openssl@1.1/lib/pkgconfig/*.pc /usr/local/lib/pkgconfig/
 
       - name: Build
         working-directory: ${{github.workspace}}
