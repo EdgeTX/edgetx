@@ -125,6 +125,9 @@ do
         pocket)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=POCKET"
             ;;
+        mt12)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=MT12"
+            ;;
         tlite)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
             ;;
