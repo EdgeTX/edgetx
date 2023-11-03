@@ -57,7 +57,6 @@ jobs:
           - tlite
           - t20
           - tx12
-          - mt12
           - x10
           - x12s
           - x7
