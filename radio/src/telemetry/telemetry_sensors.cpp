@@ -153,7 +153,9 @@ void TelemetryItem::setValue(const TelemetrySensor &sensor, int32_t val,
       }
 #endif
     }
-    newVal = 0;
+    value = hash((void *) &datetime, sizeof(datetime));
+    setFresh();
+    return;
   }
   else if (unit == UNIT_GPS_LATITUDE) {
 #if defined(INTERNAL_GPS)
@@ -180,6 +182,8 @@ void TelemetryItem::setValue(const TelemetrySensor &sensor, int32_t val,
       pilotLongitude = newVal;
     }
     gps.longitude = newVal;
+
+    value = hash((void *) &gps, sizeof(gps));
     setFresh();
     return;
   }
@@ -201,7 +205,9 @@ void TelemetryItem::setValue(const TelemetrySensor &sensor, int32_t val,
   }
   else if (unit == UNIT_DATETIME_SEC) {
     datetime.sec = newVal & 0xFFu;
-    newVal = 0;
+    value = hash((void *) &datetime, sizeof(datetime));
+    setFresh();
+    return;
   }
   else if (unit == UNIT_RPMS) {
     if (sensor.custom.ratio != 0) {
