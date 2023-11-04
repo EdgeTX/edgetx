@@ -1013,47 +1013,51 @@ static bool real0x16 = false;
 static bool real0x17 = false;
 static bool real0x34 = false;
 
+// *********** GPS LOC (BCD) ******************************
+// Example 0x16:          0  1    2  3  4  5    6  7  8  9    10 11   12   13
+//                16 00 | 97 00 | 54 71 12 28 | 40 80 09 82 | 85 14 | 13 | B9
+//                Alt: 009.7, LAT: 28o 12'7154, LON: -82 09 8040 Course: 148.5, HDOP 1.3 Flags= B9
+static char test16data[] = {0x16, 0x00, 0x97, 0x00, 0x54, 0x71, 0x12, 0x28,
+                            0x40, 0x80, 0x09, 0x82, 0x85, 0x14, 0x13, 0xB9};
+
+// *********** GPS STAT (BCD) *****************************
+// Example 0x17:          0  1    2  3  4  5    6    7
+//                17 00 | 25 00 | 00 28 18 21 | 06 | 00    
+//                Spd:002.5k, TimeUTC:21:18:28.00, Sats: 06, AltH=00
+static char test17data[] = {0x17, 0x00, 0x25, 0x00, 0x00,
+                            0x28, 0x18, 0x21, 0x06, 0x00};
+
+// *********** Dual Flight pack monitor (Little-Endian)***************
+// Example 0x34:          0  1    2  3    4  5    6  7    8  9    10 11 
+//                34 00 | 2F 00 | 30 09 | 85 01 | 2B 00 | 07 0A | 81 01 
+//                B1: 004.7A, 2352mAh, 38.9C   B2: 004.3A, 2567mAh, 38.5C  
+static char test34data[] = {0x34, 0x00, 0x2F, 0x00, 0x30, 0x09, 0x85, 0x01, 
+                                        0x2B, 0x00, 0x07, 0x0A, 0x81, 0x01 };
+
 static uint8_t replaceForTestingPackage(const uint8_t *packet)
 {
   uint8_t i2cAddress = packet[2] & 0x7f;
 
   // If we received a real package for the ones that we can Fake it, disable replacement
-  if (i2cAddress != I2C_GPS_LOC) real0x16 = true;
-  else if (i2cAddress != I2C_GPS_STAT) real0x17 = true;
-  else if (i2cAddress != I2C_FP_BATT) real0x34 = true;
+  if (i2cAddress == I2C_GPS_LOC) real0x16 = true;
+  else if (i2cAddress == I2C_GPS_STAT) real0x17 = true;
+  else if (i2cAddress == I2C_FP_BATT) real0x34 = true;
   
   // Only Substiture AS3X/SAFE I2C_FLITECTRL packages, since they are constantly brodcast
   if (i2cAddress != I2C_FLITECTRL) {  
     return i2cAddress;
   }
 
-  // *********** GPS LOC (BCD) ******************************
-  // Example 0x16:          0  1    2  3  4  5    6  7  8  9    10 11   12   13
-  //                16 00 | 97 00 | 54 71 12 28 | 40 80 09 82 | 85 14 | 13 | B9
-  //                Alt: 009.7, LAT: 28o 12'7154, LON: -82 09 8040 Course: 148.5, HDOP 1.3 Flags= B9
-  const char test16data[] = {0x16, 0x00, 0x97, 0x00, 0x54, 0x71, 0x12, 0x28,
-                             0x40, 0x80, 0x09, 0x82, 0x85, 0x14, 0x13, 0xB9};
-
-  // *********** GPS STAT (BCD) *****************************
-  // Example 0x17:          0  1    2  3  4  5    6    7
-  //                17 00 | 25 00 | 00 28 18 21 | 06 | 00    
-  //                Spd:002.5k, TimeUTC:21:18:28.00, Sats: 06, AltH=00
-  const char test17data[] = {0x17, 0x00, 0x25, 0x00, 0x00,
-                             0x28, 0x18, 0x21, 0x06, 0x00};
-
-  // *********** Dual Flight pack monitor (Little-Endian)***************
-  // Example 0x34:          0  1    2  3    4  5    6  7    8  9    10 11 
-  //                34 00 | 2F 00 | 30 09 | 85 01 | 2B 00 | 07 0A | 81 01 
-  //                B1: 004.7A, 2352mAh, 38.9C   B2: 004.3A, 2567mAh, 38.5C  
-  const char test34data[] = {0x34, 0x00, 0x2F, 0x00, 0x30, 0x09, 0x85, 0x01, 
-                                         0x2B, 0x00, 0x07, 0x0A, 0x81, 0x01 };
-
   switch (testStep) {
     case 0:
         // return original packet
         break;
     case 1: // return GSP LOG
-        if (!real0x16) memcpy((char *)packet + 2, test16data, 16);
+        if (!real0x16) {
+          test16data[4]=test16data[4]+1;
+          test16data[8]=test16data[8]+1;
+          memcpy((char *)packet + 2, test16data, 16);
+        }
         break;
     case 2: // Return GPS STAT
         if (!real0x17) memcpy((char *)packet + 2, test17data, 10);
