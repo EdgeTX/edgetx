@@ -71,6 +71,9 @@ void storageFormat()
 
 void storageCheck(bool immediately)
 {
+  // Don't write anything to SD card if in EM
+  if (globalData.unexpectedShutdown) return;
+
   if (storageDirtyMsk & EE_GENERAL) {
     TRACE("eeprom write general");
     storageDirtyMsk &= ~EE_GENERAL;
