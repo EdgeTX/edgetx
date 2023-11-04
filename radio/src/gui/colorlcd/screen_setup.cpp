@@ -108,7 +108,7 @@ extern const LayoutFactory * defaultLayout;
 
 void ScreenAddPage::build(FormWindow * window)
 {
-  rect_t buttonRect = {LCD_W / 2 - 100, (window->height() - 24) / 2, 200, 24};
+  rect_t buttonRect = {LCD_W / 2 - 100, (window->height() - 32) / 2, 200, 32};
   auto button = new TextButton(window, buttonRect, STR_ADD_MAIN_VIEW);
 
   auto pageIndex = this->pageIndex;
