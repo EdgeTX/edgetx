@@ -225,6 +225,24 @@ elseif(PCB STREQUAL X7)
     add_definitions(-DMANUFACTURER_RADIOMASTER)
     set(PXX2 ON)
     set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
+  elseif(PCBREV STREQUAL MT12)
+    set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
+    set(INTERNAL_MODULE_SERIAL YES)
+    set(MODULE_SIZE_SML YES)
+    set(FLAVOUR mt12)
+    set(NAVIGATION_TYPE x7)
+    set(CPU_TYPE_FULL STM32F407xG)
+    set(ROTARY_ENCODER YES)
+    set(BLUETOOTH NO)
+    set(USB_CHARGER YES)
+    set(AUX_SERIAL NO)
+    set(HELI NO)
+    add_definitions(-DRADIO_MT12)
+    add_definitions(-DMANUFACTURER_RADIOMASTER)
+    set(PXX2 ON)
+    set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
+    set(LUA_MIXER YES)
+    set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
   elseif(PCBREV STREQUAL BOXER)
     set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
     set(INTERNAL_MODULE_SERIAL YES)
@@ -584,6 +602,13 @@ if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES OR PCBREV STREQUAL COMMANDO8)
   set(FIRMWARE_SRC
     ${FIRMWARE_SRC}
     targets/common/arm/stm32/sticks_pwm_driver.cpp)
+endif()
+
+if(PCBREV STREQUAL MT12)
+  set(FIRMWARE_SRC
+          ${FIRMWARE_SRC}
+          targets/common/arm/stm32/stm32_ws2812.cpp
+          boards/generic_stm32/rgb_leds.cpp)
 endif()
 
 set(FIRMWARE_SRC

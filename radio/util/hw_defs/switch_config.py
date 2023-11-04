@@ -47,6 +47,14 @@ SWITCH_CONFIG = {
         "SG": {"default": "3POS"},
         "SH": {"default": "TOGGLE"}
     },
+    "mt12": {
+        # left side
+        "SA": { "default": "3POS",    "display": [ 0, 0 ] },
+        "SB": { "default": "TOGGLE",  "display": [ 0, 1 ] },
+        # right side
+        "SC": { "default": "TOGGLE",  "display": [ 1, 0 ] },
+        "SD": { "default": "TOGGLE",  "display": [ 1, 1 ] },
+    },
     "t8": {
         # left side
         "SA": {"default": "2POS",   "display": [0, 0]},

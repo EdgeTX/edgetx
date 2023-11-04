@@ -259,6 +259,45 @@ LEGACY_NAMES = [
         }
     },
     {
+        "targets": {"mt12"},
+        "inputs": {
+            "ST": {
+                "yaml": "ST"
+            },
+            "TH": {
+                "yaml": "TH"
+            },
+            "P1": {
+                "yaml": "POT1",
+                "lua": "s1",
+                "label": "S1",
+                "short_label": "1",
+                "description": "Potentiometer 1"
+            },
+            "P2": {
+                "yaml": "POT2",
+                "lua": "s2",
+                "label": "S2",
+                "short_label": "2",
+                "description": "Potentiometer 2"
+            },
+            "P3": {
+                "yaml": "POT3",
+                "lua": "s3",
+                "label": "S3",
+                "short_label": "3",
+                "description": "Analog 3"
+            },
+            "P4": {
+                "yaml": "POT4",
+                "lua": "s4",
+                "label": "S4",
+                "short_label": "4",
+                "description": "Analog 4"
+            }
+        }
+    },
+    {
         "targets": {
             "commando8",
             "lr3pro",

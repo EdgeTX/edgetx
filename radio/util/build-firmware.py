@@ -149,6 +149,21 @@ def main():
         cmake_options["PCBREV"] = "ZORRO"
         firmware_options = options_radiomaster_zorro
         maxsize = 65536 * 8
+    elif board_name == "boxer":
+        cmake_options["PCB"] = "X7"
+        cmake_options["PCBREV"] = "BOXER"
+        firmware_options = options_radiomaster_boxer
+        maxsize = 65536 * 8 * 2
+    elif board_name == "pocket":
+        cmake_options["PCB"] = "X7"
+        cmake_options["PCBREV"] = "POCKET"
+        firmware_options = options_radiomaster_pocket
+        maxsize = 65536 * 8
+    elif board_name == "mt12":
+        cmake_options["PCB"] = "X7"
+        cmake_options["PCBREV"] = "MT12"
+        firmware_options = options_radiomaster_mt12
+        maxsize = 65536 * 8 * 2
     elif board_name == "t8":
         cmake_options["PCB"] = "X7"
         cmake_options["PCBREV"] = "T8"

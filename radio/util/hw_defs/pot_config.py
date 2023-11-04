@@ -14,6 +14,12 @@ POT_CONFIG = {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"}
     },
+    "mt12": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"},
+        "P3": {"default": "NONE"},
+        "P4": {"default": "NONE"}
+    },
     "tpro": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"}

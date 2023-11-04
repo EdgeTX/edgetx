@@ -45,6 +45,8 @@
 
 #if defined(PCBXLITE)
   #define BOOTLOADER_KEYS                 0x0F
+#elif defined(RADIO_MT12)
+  #define BOOTLOADER_KEYS                 0x09
 #else
   #define BOOTLOADER_KEYS                 0x42
 #endif

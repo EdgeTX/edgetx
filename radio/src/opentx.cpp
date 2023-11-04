@@ -273,6 +273,10 @@ void generalDefault()
   g_eeGeneral.contrast = LCD_CONTRAST_DEFAULT;
 #endif
 
+#if defined(LCD_BRIGHTNESS_DEFAULT)
+  g_eeGeneral.backlightBright = LCD_BRIGHTNESS_DEFAULT;
+#endif
+
 #if defined(DEFAULT_INTERNAL_MODULE)
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
 #endif
@@ -296,7 +300,7 @@ void generalDefault()
 
 #if defined(SURFACE_RADIO)
   g_eeGeneral.stickMode = 0;
-  g_eeGeneral.templateSetup = 0;
+  g_eeGeneral.templateSetup = 1;
 #elif defined(DEFAULT_MODE)
   g_eeGeneral.stickMode = DEFAULT_MODE - 1;
   g_eeGeneral.templateSetup = DEFAULT_TEMPLATE_SETUP;
