@@ -1041,7 +1041,7 @@ Mode 4:
         <location filename="../firmwares/boards.cpp" line="855"/>
         <location filename="../firmwares/boards.cpp" line="872"/>
         <source>S1</source>
-        <translation>V1</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="721"/>
@@ -1086,7 +1086,7 @@ Mode 4:
         <location filename="../firmwares/boards.cpp" line="857"/>
         <location filename="../firmwares/boards.cpp" line="873"/>
         <source>S2</source>
-        <translation>V2</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="737"/>
@@ -1228,17 +1228,17 @@ Mode 4:
     <message>
         <location filename="../firmwares/boards.cpp" line="876"/>
         <source>SL</source>
-        <translation></translation>
+        <translation>RV</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="877"/>
         <source>SR</source>
-        <translation></translation>
+        <translation>RH</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="992"/>
         <source>slider</source>
-        <translation>skjutreglage</translation>
+        <translation type="unfinished">Skjutreglage</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="1255"/>
@@ -4968,7 +4968,7 @@ Dessa inställningar gäller för alla modeller.</translation>
     <message>
         <location filename="../generaledit/generaledit.cpp" line="69"/>
         <source>Trainer</source>
-        <translation>Instruktör</translation>
+        <translation>Lärare</translation>
     </message>
     <message>
         <location filename="../generaledit/generaledit.ui" line="84"/>
@@ -5051,7 +5051,7 @@ Dessa inställningar gäller för alla modeller.</translation>
     <message>
         <location filename="../generaledit/generaloptions.cpp" line="53"/>
         <source>Trainer</source>
-        <translation>Instruktör</translation>
+        <translation>Lärare</translation>
     </message>
     <message>
         <location filename="../generaledit/generaloptions.cpp" line="61"/>
@@ -5150,7 +5150,7 @@ Dessa inställningar gäller för alla modeller.</translation>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="504"/>
         <source>Trainer</source>
-        <translation>Instruktör</translation>
+        <translation>Lärare</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="517"/>
@@ -5165,7 +5165,7 @@ Dessa inställningar gäller för alla modeller.</translation>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="521"/>
         <source>SBUS Trainer</source>
-        <translation>SBUS Instruktör</translation>
+        <translation>SBUS Lärare</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="523"/>
@@ -5977,7 +5977,7 @@ Mode 4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2507"/>
         <source>0.0</source>
-        <translation>0.0</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2512"/>
@@ -6099,7 +6099,7 @@ Mode 4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1196"/>
         <source>Trainer</source>
-        <translation>Instruktör</translation>
+        <translation>Lärare</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1283"/>
@@ -9084,27 +9084,27 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1627"/>
         <source>Master/SBUS Module</source>
-        <translation>Instruktör/SBUS-modul</translation>
+        <translation>Lärare/SBUS-modul</translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1629"/>
         <source>Master/CPPM Module</source>
-        <translation>Instruktör/CPPM-modul</translation>
+        <translation>Lärare/CPPM-modul</translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1623"/>
         <source>Master/Jack</source>
-        <translation>Instruktör/Uttag</translation>
+        <translation>Lärare/Uttag</translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1631"/>
         <source>Master/Serial</source>
-        <translation>Instruktör/Seriell</translation>
+        <translation>Lärare/Seriell</translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1633"/>
         <source>Master/Bluetooth</source>
-        <translation>Instruktör/Bluetooth</translation>
+        <translation>Lärare/Bluetooth</translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1635"/>
@@ -9114,7 +9114,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1637"/>
         <source>Master/Multi</source>
-        <translation>Instruktör/Multi</translation>
+        <translation>Lärare/Multi</translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1725"/>
@@ -9256,7 +9256,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modeledit/modeloptions.cpp" line="65"/>
         <source>Trainer</source>
-        <translation>Instruktör</translation>
+        <translation>Lärare</translation>
     </message>
     <message>
         <location filename="../modeledit/modeloptions.cpp" line="74"/>
@@ -11833,7 +11833,7 @@ r</translation>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="155"/>
         <source>Trn</source>
-        <translation>Lär</translation>
+        <translation>Instr.</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="205"/>
