@@ -12,6 +12,7 @@ find_library(LIBUSB1_LIBRARY
     libusb-1.0.so
     libusb-1.0.so.0
     libusb-1.0.dll
+    libusb-1.0.dylib
   HINTS
     "${LIBUSB1_ROOT_DIR}")
 
