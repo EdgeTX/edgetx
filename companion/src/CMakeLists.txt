@@ -527,10 +527,8 @@ IF(APPLE)
 
   if(OPENSSL_FOUND)
     # Copy openssl, resolve symlink first
-    get_filename_component(OPENSSL_ABSOLUTE_PATH "${OPENSSL_PATH}" REALPATH)
-    install(PROGRAMS ${OPENSSL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
-
-    set(bundle_openssl_path "\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/dfu-util;")
+    #get_filename_component(OPENSSL_ABSOLUTE_PATH ${OPENSSL_SSL_LIBRARY} REALPATH)
+    #install(FILES ${OPENSSL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
   endif()
 
   # Include depencies (adding frameworks, fixing the embbeded libraries)
