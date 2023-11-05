@@ -20,7 +20,7 @@
  */
 
 //
-//  Data based on MPM firmware version 1.3.3.20
+//  Data based on MPM firmware version 1.3.3.33 multi.txt
 //
 
 #if defined(MULTIMODULE) or defined(SIMU)
@@ -125,6 +125,7 @@ enum ModuleSubtypeMulti {
   MODULE_SUBTYPE_MULTI_XERALL,  //90
   MODULE_SUBTYPE_MULTI_MT99XX2,
   MODULE_SUBTYPE_MULTI_KYOSHO2,
+  MODULE_SUBTYPE_MULTI_SCORPIO,
   //
   // spare entries - don't touch,
   // just add to known protocols
@@ -163,7 +164,7 @@ enum ModuleSubtypeMulti {
   "Tiger", "XK","XN297DU","FrSkyX2","FrSkyR9","Propel","FrSky L","Skyartc","ESkyV2","DSM_RX",\
   "JJRC345","Q90C","Kyosho","RadLink","ExpLRS","Realacc","OMP","M-Link","WFLY2","E016Hv2",\
   "E010r5","LOLI","E129","JOYSWAY","E016H","Config","IKEA","WILLIFM","Losi","MouldKg",\
-  "Xerall","MT99XX2", "Kyosho2"
+  "Xerall","MT99XX2", "Kyosho2", "Scorpio"
 #define SPARE_PROTO_NAMES \
   "NN 1","NN 2","NN 3","NN 4","NN 5","NN 6","NN 7","NN 8","NN 9","NN 10"
 #define SPARE_SUBTYPE_NAMES \
