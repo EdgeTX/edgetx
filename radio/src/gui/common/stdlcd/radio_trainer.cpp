@@ -21,10 +21,15 @@
 
 #include "opentx.h"
 
+#define COL_TWO (5 * FW)
 #if LCD_W >= 212
-  #define TRAINER_CALIB_COLUMN_WIDTH (6 * FW)
+#define COL_THREE (16 * FW)
+#define COL_FOUR (17 * FW)
+#define TRAINER_CALIB_COLUMN_WIDTH (6 * FW)
 #else
-  #define TRAINER_CALIB_COLUMN_WIDTH (4 * FW + 2)
+#define COL_THREE (12 * FW)
+#define COL_FOUR (13 * FW)
+#define TRAINER_CALIB_COLUMN_WIDTH (4 * FW + 2)
 #endif
 
 void menuRadioTrainer(event_t event)
@@ -42,9 +47,9 @@ void menuRadioTrainer(event_t event)
   LcdFlags attr;
   LcdFlags blink = ((s_editMode>0) ? BLINK|INVERS : INVERS);
 
-  lcdDrawText(5*FW, MENU_HEADER_HEIGHT+1, STR_MODE);
-  lcdDrawText(11*FW, MENU_HEADER_HEIGHT+1, "%", RIGHT);
-  lcdDrawText(12*FW, MENU_HEADER_HEIGHT+1, STR_SOURCE);
+  lcdDrawText(COL_TWO, MENU_HEADER_HEIGHT + 1, STR_MODE);
+  lcdDrawText(COL_THREE, MENU_HEADER_HEIGHT + 1, "%", RIGHT);
+  lcdDrawText(COL_FOUR, MENU_HEADER_HEIGHT + 1, STR_SOURCE);
 
   y = MENU_HEADER_HEIGHT + 1 + FH;
 
@@ -60,18 +65,19 @@ void menuRadioTrainer(event_t event)
 
       switch (j) {
         case 0:
-          lcdDrawTextAtIndex(5*FW, y, STR_TRNMODE, td->mode, attr);
-          if (attr&BLINK) CHECK_INCDEC_GENVAR(event, td->mode, 0, 2);
+          lcdDrawTextAtIndex(COL_TWO, y, STR_TRNMODE, td->mode, attr);
+          if (attr & BLINK) CHECK_INCDEC_GENVAR(event, td->mode, 0, 2);
           break;
 
         case 1:
-          lcdDrawNumber(11*FW, y, td->studWeight, attr|RIGHT);
-          if (attr&BLINK) CHECK_INCDEC_GENVAR(event, td->studWeight, -125, 125);
+          lcdDrawNumber(COL_THREE, y, td->studWeight, attr | RIGHT);
+          if (attr & BLINK)
+            CHECK_INCDEC_GENVAR(event, td->studWeight, -125, 125);
           break;
 
         case 2:
-          lcdDrawTextAtIndex(12*FW, y, STR_TRNCHN, td->srcChn, attr);
-          if (attr&BLINK) CHECK_INCDEC_GENVAR(event, td->srcChn, 0, 3);
+          lcdDrawTextAtIndex(COL_FOUR, y, STR_TRNCHN, td->srcChn, attr);
+          if (attr & BLINK) CHECK_INCDEC_GENVAR(event, td->srcChn, 0, 3);
           break;
       }
     }
