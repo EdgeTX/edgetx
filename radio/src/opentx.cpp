@@ -1555,13 +1555,21 @@ void opentxInit()
   lcdClear();
   lcdRefresh();
   lcdRefreshWait();
+#endif
 
-  bool radioSettingsValid = storageReadRadioSettings(false);
-  (void)radioSettingsValid;
+  // Load radio.yml so radio settings can be used
+  bool radioSettingsValid = false;
+#if defined(RTC_BACKUP_RAM)
+  // Skip loading if EM startup and radio has RTC backup data
+  if (!UNEXPECTED_SHUTDOWN())
+    radioSettingsValid = storageReadRadioSettings(false);
+#else
+  // No RTC backup - try and load even for EM startup
+  radioSettingsValid = storageReadRadioSettings(false);
+#endif
 
 #if defined(GUI) && !defined(COLORLCD)
   lcdSetContrast();
-#endif
 #endif
 
   BACKLIGHT_ENABLE(); // we start the backlight during the startup animation
