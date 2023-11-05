@@ -20,7 +20,7 @@
  */
 
 //
-//  Data based on MPM firmware version 1.3.3.20
+//  Data based on MPM firmware version 1.3.3.33 multi.txt
 //
 
 #if defined(MULTIMODULE) or defined(SIMU)
@@ -123,7 +123,7 @@ STRLIST(STR_SUBTYPE_E01X,      {"E012","E015"})
 STRLIST(STR_SUBTYPE_V911S,     {"Std","E119"})
 STRLIST(STR_SUBTYPE_GD00X,     {"GD_V1","GD_V2"})
 STRLIST(STR_SUBTYPE_V761,      {"3ch","4ch","TOPRC"})
-STRLIST(STR_SUBTYPE_KF606,     {"KF606","MIG320"})
+STRLIST(STR_SUBTYPE_KF606,     {"KF606","MIG320","ZCZ50"})
 STRLIST(STR_SUBTYPE_REDPINE,   {"Fast","Slow"})
 STRLIST(STR_SUBTYPE_POTENSIC,  {"A20"})
 STRLIST(STR_SUBTYPE_ZSX,       {"280JJRC"})
@@ -148,6 +148,7 @@ STRLIST(STR_SUBTYPE_WFLY2,     {"RF20x"})
 STRLIST(STR_SUBTYPE_MOULDKG,   {"Analog","Digital"})
 STRLIST(STR_SUBTYPE_MT992,     {"PA18"})
 STRLIST(STR_SUBTYPE_RX,        {"Multi","CPPM"})
+STRLIST(STR_SUBTYPE_DSM_RX,    {"Multi","CloneTX","EraseTX","CPPM"})
 STRLIST(STR_SUBTYPE_E129,      {"STD","C186"})
 
 //
@@ -209,7 +210,7 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_V911S,      1, false, false,  STR_SUBTYPE_V911S,     STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_GD00X,      1, false, false,  STR_SUBTYPE_GD00X,     STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_V761,       2, false, false,  STR_SUBTYPE_V761,      nullptr},
-  {MODULE_SUBTYPE_MULTI_KF606,      1, false, false,  STR_SUBTYPE_KF606,     STR_MULTI_RFTUNE},
+  {MODULE_SUBTYPE_MULTI_KF606,      2, false, false,  STR_SUBTYPE_KF606,     STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_REDPINE,    1, false, false,  STR_SUBTYPE_REDPINE,   STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_POTENSIC,   0, false, false,  STR_SUBTYPE_POTENSIC,  nullptr},
   {MODULE_SUBTYPE_MULTI_ZSX,        0, false, false,  STR_SUBTYPE_ZSX,       nullptr},
@@ -230,7 +231,7 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_FRSKYL,     1, false, false,  STR_SUBTYPE_FRSKYL,    STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_SKYARTEC,   0, false, true,   NO_SUBTYPE,            STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_ESKY150V2,  0, false, true,   STR_SUBTYPE_ESKY150V2, STR_MULTI_RFTUNE},
-  {MODULE_SUBTYPE_MULTI_DSM_RX,     1, false, true,  STR_SUBTYPE_RX,         nullptr}, //new
+  {MODULE_SUBTYPE_MULTI_DSM_RX,     3, false, true,   STR_SUBTYPE_DSM_RX,    nullptr}, //new
   {MODULE_SUBTYPE_MULTI_JJRC345,    1, false, false,  STR_SUBTYPE_JJRC345,   nullptr},
   {MODULE_SUBTYPE_MULTI_Q90C,       0, false, false,  NO_SUBTYPE,            STR_MULTI_RFTUNE},
   {MODULE_SUBTYPE_MULTI_KYOSHO,     1, false, true,   STR_SUBTYPE_KYOSHO,    nullptr},
@@ -254,6 +255,7 @@ PROTODEF {
   {MODULE_SUBTYPE_MULTI_XERALL,     0, false, false,  NO_SUBTYPE,            nullptr}, //new
   {MODULE_SUBTYPE_MULTI_MT99XX2,    0, false, false,  STR_SUBTYPE_MT992,     nullptr},
   {MODULE_SUBTYPE_MULTI_KYOSHO2,    0, false, false,  STR_SUBTYPE_KYOSHO2,   nullptr},
+  {MODULE_SUBTYPE_MULTI_SCORPIO,    0, false, true,   NO_SUBTYPE,            nullptr},
   {MODULE_SUBTYPE_MULTI_NN1,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
   {MODULE_SUBTYPE_MULTI_NN2,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
   {MODULE_SUBTYPE_MULTI_NN3,        7, true,  true,   STR_SUBTYPE_NN,        STR_MULTI_OPTION},
