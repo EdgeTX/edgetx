@@ -327,8 +327,9 @@ endif()
 
 include(FindDfuutil)
 include(FindLibusb1)
+include(FindOpenSSL)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if(LINUX)
   message(STATUS "install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX})
   install(TARGETS ${COMPANION_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
@@ -347,7 +348,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   install(FILES ../targets/linux/45-companion-taranis.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-taranis.rules)
   install(FILES ../targets/linux/45-usbasp.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-usbasp.rules)
 
-  if(OPENSSL_FOUND AND Qt5Core_VERSION VERSION_LESS "6.0.0" AND OPENSSL_VERSION VERSION_LESS "1.2.0")
+  if(OPENSSL_FOUND)
     get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
     # install only files Qt networking requires
     install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libcrypto*" PATTERN "libssl*")
@@ -372,6 +373,7 @@ elseif(WIN32)
   install(TARGETS ${COMPANION_NAME} DESTINATION ${INSTALL_DESTINATION})
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${INSTALL_DESTINATION})
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${INSTALL_DESTINATION})
+
   # supporting utilities
   if(LIBUSB1_FOUND)
     if(MINGW)
@@ -389,8 +391,26 @@ elseif(WIN32)
     endif()
   endif()
 
-  # supporting files
+  if(OPENSSL_FOUND)
+    get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
+    if(MINGW)
+      set(OPENSSL_SSL_LIBRARY_DIR "${OPENSSL_SSL_LIBRARY_DIR}/../bin")
+    endif()
+    if (EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
+      # install only files Qt networking requires
+      install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libcrypto*.dll" PATTERN "libssl*dll")
+    endif()
+  endif()
+
   install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/license.txt" DESTINATION ${INSTALL_DESTINATION})
+
+  # SDL2 dll
+  if(SDL2_FOUND AND EXISTS "${SDL2_LIBRARY_PATH}/SDL2.dll")
+    set(SDL2_DIR ${SDL2_LIBRARY_PATH})  # this is also used by NSIS installer script
+    install(FILES ${SDL2_DIR}/SDL2.dll DESTINATION ${INSTALL_DESTINATION})
+  elseif(SDL2_FOUND)
+    message(WARNING "Installer: SDL2.dll not found, set SDL2_LIBRARY_PATH manually.")
+  endif()
 
   # Qt dlls (using windeployqt)
   ## Qt translations are already packaged into our custom qrc. Also don't need software rendering engines.
@@ -404,25 +424,6 @@ elseif(WIN32)
 
   # Add installer command to execute windeployqt
   message(STATUS "windeployqt command: ${QT_BIN_DIR}/windeployqt.exe ${wdqtopts}")
-
-  # SDL2 dll
-  if(SDL2_FOUND AND EXISTS "${SDL2_LIBRARY_PATH}/SDL2.dll")
-    set(SDL2_DIR ${SDL2_LIBRARY_PATH})  # this is also used by NSIS installer script
-    install(FILES ${SDL2_DIR}/SDL2.dll DESTINATION ${INSTALL_DESTINATION})
-  elseif(SDL2_FOUND)
-    message(WARNING "Installer: SDL2.dll not found, set SDL2_LIBRARY_PATH manually.")
-  endif()
-
-  if(OPENSSL_FOUND AND OPENSSL)
-    get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
-    set(OPENSSL_BIN_DIR "${OPENSSL_SSL_LIBRARY_DIR}/../bin")
-    if (EXISTS "${OPENSSL_BIN_DIR}")
-      # install only files Qt networking requires
-      install(DIRECTORY ${OPENSSL_BIN_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "libcrypto*.dll" PATTERN "libssl*.dll")
-    else()
-  	  message(STATUS "Installer: OpenSSL bin directory not found, dlls not bundled.")
-    endif()
-  endif()
 endif() # WIN32 install
 
 ############# Packaging ####################
@@ -515,11 +516,20 @@ IF(APPLE)
   install(FILES ${MAC_ICON_FILE} DESTINATION ${companion_res_dir} COMPONENT Runtime)
 
   # Copy dfu-util, resolve symlink first
-  get_filename_component(DFU_UTIL_ABSOLUTE_PATH ${DFU_UTIL_PATH} REALPATH)
-  install(PROGRAMS ${DFU_UTIL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
+  if(DFU_UTIL_FOUND)
+    get_filename_component(DFU_UTIL_ABSOLUTE_PATH ${DFU_UTIL_PATH} REALPATH)
+    install(PROGRAMS ${DFU_UTIL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
 
-  set(bundle_tools_path "\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/dfu-util;")
+    set(bundle_tools_path "\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/dfu-util;")
+  endif()
 
+  if(OPENSSL_FOUND)
+    # Copy openssl, resolve symlink first
+    get_filename_component(OPENSSL_ABSOLUTE_PATH ${OPENSSL_PATH} REALPATH)
+    install(PROGRAMS ${OPENSSL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
+
+    set(bundle_openssl_path "\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/dfu-util;")
+  endif()
 
   # Include depencies (adding frameworks, fixing the embbeded libraries)
   # I get write errors without setting BU_CHMOD_BUNDLE_ITEMS even though it is
@@ -543,7 +553,7 @@ if(APPLE)
   set(CPACK_PACKAGE_FILE_NAME "edgetx-${CPACK_PACKAGE_NAME_LOWERCASE}-${VERSION}")
 endif(APPLE)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if(LINUX)
   set(LINUXDEPLOY_APPIMAGE "linuxdeploy-x86_64.AppImage")
   set(LINUXDEPLOY_PLUGIN_QT "linuxdeploy-plugin-qt-x86_64.AppImage")
   set(LINUXDEPLOY_URL "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous")

@@ -36,9 +36,6 @@ if(Qt5Core_FOUND AND NOT DISABLE_COMPANION)
   endif()
 
   find_package(OpenSSL)
-  if(OPENSSL_FOUND AND OPENSSL_VERSION VERSION_GREATER_EQUAL "1.2.0")
-    message(STATUS "OpenSSL ${OPENSSL_VERSION} found. Qt 5 requires version 1.1.1!")
-  endif()
 endif()
 
 # Windows-specific includes and libs shared by sub-projects
