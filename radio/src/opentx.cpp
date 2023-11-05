@@ -1258,7 +1258,7 @@ void opentxClose(uint8_t shutdown)
     AUDIO_BYE();
     // TODO needed? telemetryEnd();
 #if defined(HAPTIC)
-    hapticOff();
+    if (g_eeGeneral.hapticMode != e_mode_quiet) hapticOff();
 #endif
   }
 
@@ -1479,7 +1479,9 @@ void runStartupAnimation()
     else if (!isPowerOn) {
       isPowerOn = true;
       pwrOn();
-      haptic.play(15, 3, PLAY_NOW);
+#if defined(HAPTIC)
+      if (g_eeGeneral.hapticMode != e_mode_quiet) haptic.play(15, 3, PLAY_NOW);
+#endif
     }
   }
 
@@ -1573,7 +1575,9 @@ void opentxInit()
   }
 #else // defined(PWR_BUTTON_PRESS)
   pwrOn();
-  haptic.play(15, 3, PLAY_NOW);
+#if defined(HAPTIC)
+  if (g_eeGeneral.hapticMode != e_mode_quiet) haptic.play(15, 3, PLAY_NOW);
+#endif
 #endif
 
   // Radios handle UNEXPECTED_SHUTDOWN() differently:
@@ -1917,8 +1921,10 @@ uint32_t pwrCheck()
 
 #endif // COLORLCD
         }
-
-        haptic.play(15, 3, PLAY_NOW);
+#if defined(HAPTIC)
+        if (g_eeGeneral.hapticMode != e_mode_quiet)
+          haptic.play(15, 3, PLAY_NOW);
+#endif
         pwr_check_state = PWR_CHECK_OFF;
         return e_power_off;
       }
