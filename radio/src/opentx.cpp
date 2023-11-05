@@ -909,8 +909,8 @@ void checkThrottleStick()
                              throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP);
     dialog->setCloseCondition([]() { return !isThrottleWarningAlertNeeded(); });
     dialog->runForever();
-    LED_ERROR_END();
   }
+  LED_ERROR_END();
 }
 #else
 void checkThrottleStick()
