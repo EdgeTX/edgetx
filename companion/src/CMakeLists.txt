@@ -396,7 +396,7 @@ elseif(WIN32)
     if(MINGW)
       set(OPENSSL_SSL_LIBRARY_DIR "${OPENSSL_SSL_LIBRARY_DIR}/../bin")
     endif()
-    if (EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
+    if(EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
       # install only files Qt networking requires
       install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "libcrypto*.dll" PATTERN "libssl*.dll")
     endif()
@@ -404,12 +404,14 @@ elseif(WIN32)
 
   install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/license.txt" DESTINATION ${INSTALL_DESTINATION})
 
-  # SDL2 dll
-  if(SDL2_FOUND AND EXISTS "${SDL2_LIBRARY_PATH}/SDL2.dll")
-    set(SDL2_DIR ${SDL2_LIBRARY_PATH})  # this is also used by NSIS installer script
-    install(FILES ${SDL2_DIR}/SDL2.dll DESTINATION ${INSTALL_DESTINATION})
-  elseif(SDL2_FOUND)
-    message(WARNING "Installer: SDL2.dll not found, set SDL2_LIBRARY_PATH manually.")
+  if(SDL2_FOUND)
+    get_filename_component(SDL2_LIBRARY_DIR ${SDL2_LIBRARY_PATH} DIRECTORY)
+    if(MINGW)
+      set(SDL2_LIBRARY_DIR "${SDL2_LIBRARY_DIR}/../bin")
+    endif()
+    if(EXISTS "${SDL2_LIBRARY_DIR}/SDL2.dll")
+      install(FILES "${SDL2_LIBRARY_DIR}/SDL2.dll" DESTINATION ${INSTALL_DESTINATION})
+    endif()
   endif()
 
   # Qt dlls (using windeployqt)
@@ -525,7 +527,7 @@ IF(APPLE)
 
   if(OPENSSL_FOUND)
     # Copy openssl, resolve symlink first
-    get_filename_component(OPENSSL_ABSOLUTE_PATH ${OPENSSL_PATH} REALPATH)
+    get_filename_component(OPENSSL_ABSOLUTE_PATH "${OPENSSL_PATH}" REALPATH)
     install(PROGRAMS ${OPENSSL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
 
     set(bundle_openssl_path "\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/dfu-util;")

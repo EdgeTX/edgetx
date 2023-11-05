@@ -25,7 +25,7 @@ if(Qt5Core_FOUND OR FOX_FOUND)
   if(SDL2_FOUND)
     message(STATUS "SDL2 Lib: ${SDL2_LIBRARIES}; Headers: ${SDL2_INCLUDE_DIRS}")
   else()
-    message(STATUS "SDL not found! Simulator audio, and joystick inputs, will not work.")
+    message(STATUS "SDL2 not found! Simulator audio, and joystick inputs, will not work.")
   endif()
 endif()
 
