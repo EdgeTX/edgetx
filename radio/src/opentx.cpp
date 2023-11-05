@@ -1258,7 +1258,7 @@ void opentxClose(uint8_t shutdown)
     AUDIO_BYE();
     // TODO needed? telemetryEnd();
 #if defined(HAPTIC)
-    if (g_eeGeneral.hapticMode != e_mode_quiet) hapticOff();
+    hapticOff();
 #endif
   }
 
