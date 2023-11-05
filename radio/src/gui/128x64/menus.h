@@ -24,6 +24,7 @@
 
 #include "keys.h"
 #include "common/stdlcd/menus.h"
+#include "common/stdlcd/features.h"
 
 #if defined(PCBTARANIS)
 #define NAVIGATION_LINE_BY_LINE        0x40

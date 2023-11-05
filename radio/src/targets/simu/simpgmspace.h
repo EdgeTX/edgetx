@@ -39,10 +39,7 @@ extern uint8_t * eeprom;
 #define __disable_irq()
 #define __enable_irq()
 
-extern uint8_t simu_start_mode;
 extern char * main_thread_error;
-
-#define OPENTX_START_DEFAULT_ARGS  simu_start_mode
 
 
 uint64_t simuTimerMicros(void);

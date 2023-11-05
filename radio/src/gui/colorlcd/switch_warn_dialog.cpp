@@ -26,33 +26,30 @@ SwitchWarnDialog::SwitchWarnDialog() :
     FullScreenDialog(WARNING_TYPE_ALERT, STR_SWITCHWARN, "", STR_PRESS_ANY_KEY_TO_SKIP)
 {
   last_bad_switches = 0xff;
-  bad_pots = 0;
   last_bad_pots = 0x0;
   setCloseCondition(std::bind(&SwitchWarnDialog::warningInactive, this));
 }
 
-void SwitchWarnDialog::init()
+void SwitchWarnDialog::delayedInit()
 {
-  if (!loaded) {
-    FullScreenDialog::init();
-    lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_DOT);
-  }
+  lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_DOT);
+  AUDIO_ERROR_MESSAGE(AU_SWITCH_ALERT);
 }
 
 bool SwitchWarnDialog::warningInactive()
 {
+  uint16_t bad_pots;
+
   if (!isSwitchWarningRequired(bad_pots))
     return true;
 
   if (last_bad_switches != switches_states || last_bad_pots != bad_pots) {
+    // Redraw to update list of switches that need attention
     invalidate();
-    if (last_bad_switches == 0xff || last_bad_pots & 0x7ff) {
-      AUDIO_ERROR_MESSAGE(AU_SWITCH_ALERT);
-    }
-  }
 
-  last_bad_pots = bad_pots;
-  last_bad_switches = switches_states;
+    last_bad_pots = bad_pots;
+    last_bad_switches = switches_states;
+  }
 
   return false;
 }
@@ -61,14 +58,6 @@ void SwitchWarnDialog::paint(BitmapBuffer * dc)
 {
   if (!running) return;
   FullScreenDialog::paint(dc);
-}
-
-void SwitchWarnDialog::checkEvents()
-{
-  if (!running) return;
-
-  FullScreenDialog::checkEvents();
-  if (deleted()) return;
 
   std::string warn_txt;
   swarnstate_t states = g_model.switchWarningState;
@@ -97,4 +86,22 @@ void SwitchWarnDialog::checkEvents()
   }
 
   messageLabel->setText(warn_txt);
+}
+
+ThrottleWarnDialog::ThrottleWarnDialog(const char* msg) :
+    FullScreenDialog(WARNING_TYPE_ALERT, TR_THROTTLE_UPPERCASE, msg, STR_PRESS_ANY_KEY_TO_SKIP)
+{
+  setCloseCondition(std::bind(&ThrottleWarnDialog::warningInactive, this));
+}
+
+void ThrottleWarnDialog::delayedInit()
+{
+  lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_DOT);
+  AUDIO_ERROR_MESSAGE(AU_THROTTLE_ALERT);
+}
+
+bool ThrottleWarnDialog::warningInactive()
+{
+  extern bool isThrottleWarningAlertNeeded();
+  return !isThrottleWarningAlertNeeded();
 }

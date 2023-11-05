@@ -79,9 +79,11 @@ class FullScreenDialog : public Window
     bool loaded = false;
     StaticText* messageLabel;
 
-    virtual void init();
+    virtual void delayedInit() {}
+    void build();
 
     static void long_pressed(lv_event_t* e);
+    static void on_draw(lv_event_t* e);
 };
 
 #endif // _FULLSCREEN_DIALOG_H_

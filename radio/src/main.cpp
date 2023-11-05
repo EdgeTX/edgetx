@@ -160,7 +160,7 @@ void handleUsbConnection()
     if (getSelectedUsbMode() != USB_UNSELECTED_MODE) {
 
       if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
-        opentxClose(false);
+        edgeTxClose(false);
       }
 #if defined(USB_SERIAL)
       else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
@@ -177,7 +177,7 @@ void handleUsbConnection()
     usbStop();
     TRACE("USB stopped");
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
-      opentxResume();
+      edgeTxResume();
       pushEvent(EVT_ENTRY);
     } else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
       serialStop(SP_VCP);

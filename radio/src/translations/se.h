@@ -674,11 +674,8 @@
 #define TR_LCD                          "LCD"
 #define TR_BRIGHTNESS                   "Ljusstyrka"
 #define TR_CPU_TEMP                     "CPU temp.\016>"
-#define TR_CPU_CURRENT                  "Ström\022>"
-#define TR_CPU_MAH                      "Förbrukn."
 #define TR_COPROC                       "CoProc."
 #define TR_COPROC_TEMP                  "MB temp. \016>"
-#define TR_CAPAWARNING                  INDENT "Låg kapacitet"
 #define TR_TEMPWARNING                  TR(INDENT "Hög temp", INDENT "Hög temperatur")
 #define TR_TTL_WARNING                  "Varning: använd 3.3V logiska nivåer"
 #define TR_FUNC                         "Funktion"

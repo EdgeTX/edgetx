@@ -21,7 +21,6 @@
 
 #include "opentx.h"
 
-#if defined(SPLASH)
 #define MAXIMUM_SPLASH_IMAGE_SIZE 3072
 const struct {
   const uint8_t __magic_prefix[4] = { 'S','P','S',0 };
@@ -39,4 +38,3 @@ void drawSplash()
   lcdDrawRleBitmap(0, 0, splash_lbm);
   lcdRefresh();
 }
-#endif

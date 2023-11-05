@@ -19,7 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#if defined(SPLASH)
+#include "opentx.h"
+#include "inactivity_timer.h"
+#include "stamp.h"
+
+extern void checkSpeakerVolume();
 
 #include "opentx.h"
 #include "stamp.h"
@@ -125,4 +129,49 @@ void drawSplash()
 
   MainWindow::instance()->setActiveScreen();
 }
-#endif
+
+static tmr10ms_t splashStartTime = 0;
+
+void startSplash()
+{
+  if (!UNEXPECTED_SHUTDOWN()) {
+    splashStartTime = get_tmr10ms();
+    drawSplash();
+  }
+}
+
+void waitSplash()
+{
+  // Handle color splash screen
+  if (splashStartTime) {
+
+#if defined(SIMU)
+    // Simulator - inputsMoved() returns true immediately without this!
+    RTOS_WAIT_TICKS(30);
+#endif // defined(SIMU)
+
+    splashStartTime += SPLASH_TIMEOUT;
+    while (splashStartTime > get_tmr10ms()) {
+      WDG_RESET();
+      checkSpeakerVolume();
+      checkBacklight();
+      RTOS_WAIT_TICKS(10);
+      auto evt = getEvent();
+      if (evt || inactivityCheckInputs()) {
+        if (evt)
+          killEvents(evt);
+        break;
+      }
+#if defined(SIMU)
+      // Allow simulator to exit if closed while splash showing
+      uint32_t pwr_check = pwrCheck();
+      if (pwr_check == e_power_off) {
+        break;
+      }
+#endif // defined(SIMU)
+    }
+
+    // Reset timer so special/global functions set to !1x don't get triggered
+    START_SILENCE_PERIOD();
+  }
+}

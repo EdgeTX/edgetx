@@ -38,12 +38,6 @@ const unsigned char sticks[]  = {
   value = editChoice(RADIO_SETUP_2ND_COLUMN, y, nullptr, nullptr, tmp, -2, +2, attr, event); \
 }
 
-#if defined(SPLASH)
-  #define CASE_SPLASH_PARAM(x) x,
-#else
-  #define CASE_SPLASH_PARAM(x)
-#endif
-
 #if defined(BATTGRAPH)
   #define CASE_BATTGRAPH(x) x,
 #else
@@ -83,7 +77,6 @@ enum {
   CASE_IMU(ITEM_RADIO_SETUP_IMU_OFFSET)
   ITEM_RADIO_SETUP_ALARMS_LABEL,
   ITEM_RADIO_SETUP_BATTERY_WARNING,
-  CASE_CAPACITY(ITEM_RADIO_SETUP_CAPACITY_WARNING)
   ITEM_RADIO_SETUP_INACTIVITY_ALARM,
   ITEM_RADIO_SETUP_MEMORY_WARNING,
   ITEM_RADIO_SETUP_ALARM_WARNING,
@@ -188,7 +181,7 @@ void menuRadioSetup(event_t event)
     CASE_IMU(LABEL(IMU))
     CASE_IMU(0)
     CASE_IMU(0)
-    LABEL(ALARMS), 0, CASE_CAPACITY(0)
+    LABEL(ALARMS), 0,
     0, 0, 0, 0, /* ITEM_RADIO_SETUP_INACTIVITY_ALARM ITEM_RADIO_SETUP_MEMORY_WARNING ITEM_RADIO_SETUP_ALARM_WARNING ITEM_RADIO_SETUP_RSSI_POWEROFF_ALARM */
     CASE_BACKLIGHT(LABEL(BACKLIGHT))
     CASE_BACKLIGHT(0)
@@ -526,14 +519,6 @@ void menuRadioSetup(event_t event)
         break;
       }
 
-#if defined(TX_CAPACITY_MEASUREMENT)
-      case ITEM_RADIO_SETUP_CAPACITY_WARNING:
-        lcdDrawTextAlignedLeft(y, STR_CAPAWARNING);
-        drawValueWithUnit(LCD_W-2, y, g_eeGeneral.mAhWarn*50, UNIT_MAH, attr|RIGHT) ;
-        if(attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.mAhWarn, 0, 100);
-        break;
-#endif
-
       case ITEM_RADIO_SETUP_INACTIVITY_ALARM:
         lcdDrawText(INDENT_WIDTH, y, STR_INACTIVITYALARM);
         lcdDrawNumber(LCD_W-7, y, g_eeGeneral.inactivityTimer, attr|RIGHT);
@@ -588,7 +573,6 @@ void menuRadioSetup(event_t event)
         break;
 #endif
 
-#if defined(SPLASH)
       case ITEM_RADIO_SETUP_DISABLE_SPLASH:
       {
         lcdDrawTextAlignedLeft(y, STR_SPLASHSCREEN);
@@ -602,7 +586,6 @@ void menuRadioSetup(event_t event)
         if (attr) g_eeGeneral.splashMode = -checkIncDecGen(event, -g_eeGeneral.splashMode, -3, 4);
         break;
       }
-#endif
 
       case ITEM_RADIO_SETUP_START_SOUND:
         lcdDrawTextAlignedLeft(y, STR_PLAY_HELLO);

@@ -47,7 +47,7 @@ TASK_FUNCTION(menusTask)
   LvglWrapper::instance();
 #endif
 
-  opentxInit();
+  edgeTxInit();
 
   mixerTaskInit();
 
@@ -90,7 +90,7 @@ TASK_FUNCTION(menusTask)
 #endif
 
   drawSleepBitmap();
-  opentxClose();
+  edgeTxClose();
   boardOff();
 
   TASK_RETURN();

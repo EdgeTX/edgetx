@@ -169,24 +169,7 @@ void menuStatisticsDebug(event_t event)
       break;
   }
 
-
   uint8_t y = FH + 1;
-
-#if defined(TX_CAPACITY_MEASUREMENT)
-  // current
-  lcdDrawTextAlignedLeft(y, STR_CPU_CURRENT);
-  drawValueWithUnit(MENU_DEBUG_COL1_OFS, y, getCurrent(), UNIT_MILLIAMPS, LEFT);
-  uint32_t current_scale = 488 + g_eeGeneral.txCurrentCalibration;
-  lcdDrawChar(MENU_DEBUG_COL2_OFS, y, '>');
-  drawValueWithUnit(MENU_DEBUG_COL2_OFS+FW+1, y, Current_max*10*current_scale/8192, UNIT_RAW, LEFT);
-  y += FH;
-
-  // consumption
-  lcdDrawTextAlignedLeft(y, STR_CPU_MAH);
-  drawValueWithUnit(MENU_DEBUG_COL1_OFS, y, g_eeGeneral.mAhUsed + Current_used*current_scale/8192/36, UNIT_MAH, LEFT|PREC1);
-  y += FH;
-#endif
-
 
   lcdDrawTextAlignedLeft(y, STR_FREE_MEM_LABEL);
   lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, availableMemory(), LEFT);

@@ -653,11 +653,8 @@
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "輝度"
 #define TR_CPU_TEMP                    "CPU温度"
-#define TR_CPU_CURRENT                 "電流"
-#define TR_CPU_MAH                     "消費量"
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "MB温度"
-#define TR_CAPAWARNING                 INDENT "電流が低すぎます"
 #define TR_TEMPWARNING                 INDENT "オーバーヒートです"
 #define TR_TTL_WARNING                 "警告: 論理値3.3Vを使用します"
 #define TR_FUNC                        TR("機能", "ファンクション")
