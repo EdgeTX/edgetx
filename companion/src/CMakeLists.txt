@@ -398,7 +398,7 @@ elseif(WIN32)
     endif()
     if (EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
       # install only files Qt networking requires
-      install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libcrypto*.dll" PATTERN "libssl*dll")
+      install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "libcrypto*.dll" PATTERN "libssl*.dll")
     endif()
   endif()
 
