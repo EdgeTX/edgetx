@@ -30,20 +30,20 @@ static const char* _model_config[] =
   {
     // As written by radio firmware - always enclosed in double quotes
     "header: \n"
-    "   name: \"Test Name\"\n",         // no embedded double quote
+    "   name: \"Tst Name\"\n",         // no embedded double quote
 
     "header: \n"
-    "   name: \"Test \\x22 Name\"\n",   // embedded and encoded double quote
+    "   name: \"Tst \\x22 Name\"\n",   // embedded and encoded double quote
 
     // As written by Companion - only enclosed in double quotes when necessary
     "header: \n"
-    "   name: Test Name\n",             // no embedded double quote
+    "   name: Tst Name\n",             // no embedded double quote
 
     "header: \n"
-    "   name: Test \" Name\n",          // embedded double quote in string
+    "   name: Tst \" Name\n",          // embedded double quote in string
 
     "header: \n"
-    "   name: \"\\\"Test Name\"\n",     // embedded double quote at start of string
+    "   name: \"\\\"Tst Name\"\n",     // embedded double quote at start of string
   };
 
 static void loadModelYamlStr(const char* str)
@@ -69,13 +69,13 @@ static char* modelName()
 TEST(Model, testModelNameParse)
 {
   loadModelYamlStr(_model_config[0]);
-  EXPECT_STREQ(modelName(), "Test Name");
+  EXPECT_STREQ(modelName(), "Tst Name");
   loadModelYamlStr(_model_config[1]);
-  EXPECT_STREQ(modelName(), "Test \" Name");
+  EXPECT_STREQ(modelName(), "Tst \" Name");
   loadModelYamlStr(_model_config[2]);
-  EXPECT_STREQ(modelName(), "Test Name");
+  EXPECT_STREQ(modelName(), "Tst Name");
   loadModelYamlStr(_model_config[3]);
-  EXPECT_STREQ(modelName(), "Test \" Name");
+  EXPECT_STREQ(modelName(), "Tst \" Name");
   loadModelYamlStr(_model_config[4]);
-  EXPECT_STREQ(modelName(), "\"Test Name");
+  EXPECT_STREQ(modelName(), "\"Tst Name");
 }
