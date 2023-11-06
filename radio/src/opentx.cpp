@@ -909,8 +909,8 @@ void checkThrottleStick()
                              throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP);
     dialog->setCloseCondition([]() { return !isThrottleWarningAlertNeeded(); });
     dialog->runForever();
-    LED_ERROR_END();
   }
+  LED_ERROR_END();
 }
 #else
 void checkThrottleStick()
@@ -1479,7 +1479,9 @@ void runStartupAnimation()
     else if (!isPowerOn) {
       isPowerOn = true;
       pwrOn();
-      haptic.play(15, 3, PLAY_NOW);
+#if defined(HAPTIC)
+      if (g_eeGeneral.hapticMode != e_mode_quiet) haptic.play(15, 3, PLAY_NOW);
+#endif
     }
   }
 
@@ -1553,13 +1555,21 @@ void opentxInit()
   lcdClear();
   lcdRefresh();
   lcdRefreshWait();
+#endif
 
-  bool radioSettingsValid = storageReadRadioSettings(false);
-  (void)radioSettingsValid;
+  // Load radio.yml so radio settings can be used
+  bool radioSettingsValid = false;
+#if defined(RTC_BACKUP_RAM)
+  // Skip loading if EM startup and radio has RTC backup data
+  if (!UNEXPECTED_SHUTDOWN())
+    radioSettingsValid = storageReadRadioSettings(false);
+#else
+  // No RTC backup - try and load even for EM startup
+  radioSettingsValid = storageReadRadioSettings(false);
+#endif
 
 #if defined(GUI) && !defined(COLORLCD)
   lcdSetContrast();
-#endif
 #endif
 
   BACKLIGHT_ENABLE(); // we start the backlight during the startup animation
@@ -1573,7 +1583,9 @@ void opentxInit()
   }
 #else // defined(PWR_BUTTON_PRESS)
   pwrOn();
-  haptic.play(15, 3, PLAY_NOW);
+#if defined(HAPTIC)
+  if (g_eeGeneral.hapticMode != e_mode_quiet) haptic.play(15, 3, PLAY_NOW);
+#endif
 #endif
 
   // Radios handle UNEXPECTED_SHUTDOWN() differently:
@@ -1917,8 +1929,10 @@ uint32_t pwrCheck()
 
 #endif // COLORLCD
         }
-
-        haptic.play(15, 3, PLAY_NOW);
+#if defined(HAPTIC)
+        if (g_eeGeneral.hapticMode != e_mode_quiet)
+          haptic.play(15, 3, PLAY_NOW);
+#endif
         pwr_check_state = PWR_CHECK_OFF;
         return e_power_off;
       }
