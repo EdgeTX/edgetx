@@ -34,6 +34,10 @@
   #include "cli.h"
 #endif
 
+#if defined(LUA)
+  #include "lua/lua_event.h"
+#endif
+
 uint8_t currentSpeakerVolume = 255;
 uint8_t requiredSpeakerVolume = 255;
 uint8_t currentBacklightBright = 0;
@@ -394,7 +398,7 @@ void guiMain(event_t evt)
   }
 
   DEBUG_TIMER_START(debugTimerLua);
-  luaTask(0, false);
+  luaTask(false);
   DEBUG_TIMER_STOP(debugTimerLua);
 
   t0 = get_tmr10ms() - t0;
@@ -429,14 +433,17 @@ void guiMain(event_t evt)
 bool handleGui(event_t event) {
   bool refreshNeeded;
 #if defined(LUA)
-  refreshNeeded = luaTask(event, true);
-  if (menuHandlers[menuLevel] == menuViewTelemetry &&
-      TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_SCRIPT) {
-      menuHandlers[menuLevel](event);
-  }
+  bool isTelemView =
+      menuHandlers[menuLevel] == menuViewTelemetry &&
+      TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_SCRIPT;
+  bool isStandalone = scriptInternalData[0].reference == SCRIPT_STANDALONE;
+  if (isTelemView || isStandalone) luaPushEvent(event);
+  refreshNeeded = luaTask(true);
+  if (isTelemView)
+    menuHandlers[menuLevel](event);
   else if (scriptInternalData[0].reference != SCRIPT_STANDALONE)
 #endif
-// No foreground Lua script is running - clear the screen show normal menu
+  // No foreground Lua script is running - clear the screen show normal menu
   {
     lcdClear();
     menuHandlers[menuLevel](event);
@@ -460,7 +467,7 @@ void guiMain(event_t evt)
   }
 
   // run Lua scripts that don't use LCD (to use CPU time while LCD DMA is running)
-  luaTask(0, false);
+  luaTask(false);
 
   t0 = get_tmr10ms() - t0;
   if (t0 > maxLuaDuration) {

@@ -1255,13 +1255,10 @@ static bool resumeLua(bool init, bool allowLcdUsage)
 } //resumeLua(...)
 
 
-bool luaTask(event_t evt, bool allowLcdUsage)
+bool luaTask(bool allowLcdUsage)
 {
   bool init = false;
   bool scriptWasRun = false;
- 
-  // Add event to buffer
-  if (evt != 0) { luaPushEvent(evt); }
  
   // For preemption
   luaCycleStart = get_tmr10ms();
