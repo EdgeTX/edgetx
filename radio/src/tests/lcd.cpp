@@ -86,14 +86,13 @@ bool checkScreenshot(const QString & test)
   QPainter p(&buffer);
   doPaint(p);
   QString filename(QString("%1_%2x%3.png").arg(test).arg(LCD_W).arg(LCD_H));
-  QImage reference(TESTS_PATH "/" + filename);
+  QImage reference(TESTS_PATH "/images/bw/" + filename);
 
   if (buffer == reference) {
     return true;
   }
   else {
-    QString filename(QString("%1_%2x%3.png").arg(test).arg(LCD_W).arg(LCD_H));
-    buffer.save("/tmp/" + filename);
+    buffer.save(TESTS_PATH "/images/bw/failed_" + filename);
     return false;
   }
 }
@@ -324,7 +323,7 @@ TEST(Lcd, BMPWrapping)
 {
   lcdClear();
   uint8_t bitmap[2+40*40/2];
-  lcdLoadBitmap(bitmap, TESTS_PATH "/plane.bmp", 40, 40);
+  lcdLoadBitmap(bitmap, TESTS_PATH "/images/bw/plane.bmp", 40, 40);
   lcdDrawBitmap(200, 0, bitmap);
   lcdDrawBitmap(200, 60, bitmap);
   lcdDrawBitmap(240, 60, bitmap);     // x too big
@@ -393,31 +392,31 @@ TEST(Lcd, lcdDrawBitmapLoadAndDisplay)
   // Test proper BMP files, they should display correctly
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(7, 32));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/4b_7x32.bmp", 7, 32) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/images/bw/4b_7x32.bmp", 7, 32) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(10, 2, bitmap.buffer());
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(6, 32));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/1b_6x32.bmp", 6, 32) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/images/bw/1b_6x32.bmp", 6, 32) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(20, 2, bitmap.buffer());
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(31, 31));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/4b_31x31.bmp", 31, 31) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/images/bw/4b_31x31.bmp", 31, 31) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(30, 2, bitmap.buffer());
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(39, 32));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/1b_39x32.bmp", 39, 32) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/images/bw/1b_39x32.bmp", 39, 32) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(70, 2, bitmap.buffer());
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(20, 20));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/4b_20x20.bmp", 20, 20) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/images/bw/4b_20x20.bmp", 20, 20) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(120, 2, bitmap.buffer());
   }
@@ -431,7 +430,7 @@ TEST(Lcd, lcdDrawBitmapLoadAndDisplay)
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(10, 10));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/1b_39x32.bmp", 10, 10) == NULL) << "to small buffer";
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/images/bw/1b_39x32.bmp", 10, 10) == NULL) << "to small buffer";
     bitmap.leakCheck();
   }
 }

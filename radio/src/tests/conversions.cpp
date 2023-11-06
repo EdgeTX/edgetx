@@ -22,6 +22,8 @@
 #include "gtests.h"
 #include "location.h"
 
+// TODO: Remove this file, and the eeprom_*.bin and model_*.otx files.
+
 #if 0
 
 #if defined(SDCARD_YAML)
