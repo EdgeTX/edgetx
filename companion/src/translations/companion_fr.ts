@@ -10772,7 +10772,7 @@ Mixage actif par défaut si non-renseigné.</translation>
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="775"/>
-        <source>RSSI Alarms</source>
+        <source>RF Quality Alarms</source>
         <translation>Alarmes RSSI</translation>
     </message>
 </context>
@@ -13481,6 +13481,11 @@ Trop d&apos;erreurs, abandon.</translation>
     <message>
         <location filename="../modeledit/telemetry.ui" line="270"/>
         <source>Source</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../modeledit/telemetry.ui" line="610"/>
+        <source>RF Quality</source>
         <translation></translation>
     </message>
     <message>

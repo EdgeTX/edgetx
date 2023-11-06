@@ -10704,8 +10704,8 @@ If blank then the mix is considered to be &quot;ON&quot; all the time.</source>
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="775"/>
-        <source>RSSI Alarms</source>
-        <translation>RSSI Alarme</translation>
+        <source>RF Quality Alarms</source>
+        <translation>HF Qualität Alarme</translation>
     </message>
 </context>
 <context>
@@ -13410,6 +13410,11 @@ Too many errors, giving up.</source>
         <location filename="../modeledit/telemetry.ui" line="270"/>
         <source>Source</source>
         <translation>Quelle</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/telemetry.ui" line="610"/>
+        <source>RF Quality</source>
+        <translation>HF Qualität</translation>
     </message>
     <message>
         <location filename="../modeledit/telemetry.ui" line="611"/>

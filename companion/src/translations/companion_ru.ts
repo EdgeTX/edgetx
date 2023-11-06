@@ -10692,7 +10692,7 @@ This determines how mixer values are added.
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="775"/>
-        <source>RSSI Alarms</source>
+        <source>RF Quality Alarms</source>
         <translation>Уровень RSSI</translation>
     </message>
 </context>
@@ -13407,6 +13407,11 @@ Too many errors, giving up.</source>
         <location filename="../modeledit/telemetry.ui" line="575"/>
         <source>Vario limits</source>
         <translation>Пределы</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/telemetry.ui" line="610"/>
+        <source>RF Quality</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../modeledit/telemetry.ui" line="611"/>
