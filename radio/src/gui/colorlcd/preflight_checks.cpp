@@ -201,15 +201,15 @@ static std::string switchWarninglabel(swsrc_t index)
 #define SW_BTN_W ((LCD_W-24)/SW_BTNS)
 
 SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
-  ButtonMatrix(parent, r)
+    ButtonMatrix(parent, r)
 {
   // Setup button layout & texts
   uint8_t btn_cnt = 0;
   for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
-    if (SWITCH_EXISTS(i)) {
+    if (SWITCH_WARNING_ALLOWED(i)) {
       sw_idx[btn_cnt] = i;
       btn_cnt++;
-    }    
+    }
   }
 
   initBtnMap(SW_BTNS, btn_cnt);
@@ -217,7 +217,7 @@ SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
 
   uint8_t btn_id = 0;
   for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
-    if (SWITCH_EXISTS(i)) {
+    if (SWITCH_WARNING_ALLOWED(i)) {
       setTextAndState(btn_id);
       btn_id++;
     }
