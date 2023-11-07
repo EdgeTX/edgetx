@@ -76,11 +76,6 @@ void watchdogSuspend(uint32_t timeout)
   watchdogTimeout = timeout;
 }
 
-#define __weak __attribute__((weak))
-
-__weak void per10ms() {}
-__weak void per5ms() {}
-
 static inline void _interrupt_1ms()
 {
   static uint8_t pre_scale = 0;
