@@ -68,11 +68,9 @@ static void _copy_rotate_180(uint16_t* dst, uint16_t* src, const rect_t& copy_ar
   coord_t x1 = LCD_W - copy_area.w - copy_area.x;
   coord_t y1 = LCD_H - copy_area.h - copy_area.y;
 
-  auto total = copy_area.w * copy_area.h;
-  uint16_t* px_src = src + total - 2;
+  src += copy_area.w - 2;
+  dst += (y1 + copy_area.h - 1) * LCD_W + x1;
 
-  dst += y1 * LCD_W + x1;
-  
   for (auto line = 0; line < copy_area.h; line++) {
 
     // invert line into _line_buffer first (SRAM)
@@ -80,27 +78,26 @@ static void _copy_rotate_180(uint16_t* dst, uint16_t* src, const rect_t& copy_ar
 
     auto line_end = px_dst + (copy_area.w & ~1);
     while (px_dst != line_end) {
-      uint32_t* px2_src = (uint32_t*)px_src;
-      uint32_t* px2_dst = (uint32_t*)px_dst;
+      uint32_t* px2_src = (uint32_t*)src;
 
-      uint32_t px = ((*px2_src & 0xFFFF0000) >> 16) | ((*px2_src & 0xFFFF) << 16);
-      *px2_dst = px;
+      *((uint32_t*)px_dst) = ((*px2_src & 0xFFFF0000) >> 16) | ((*px2_src & 0xFFFF) << 16);
 
-      px_src -= 2;
+      src -= 2;
       px_dst += 2;
     }
 
     if (copy_area.w & 1) {
-      *px_dst = *(px_src+1);
-      px_src--;
+      *px_dst = *(src+1);
+      src--;
     }
 
     // ... and DMA back into SDRAM
     DMACopyBitmap(dst, copy_area.w, 1, 0, 0,
                   _line_buffer, copy_area.w, 1, 0, 0,
                   copy_area.w, 1);
-    
-    dst += LCD_W;
+
+    src += copy_area.w * 2;
+    dst -= LCD_W;
   }
 }
 
