@@ -101,6 +101,7 @@ uint32_t unlocked = 0;
 
 volatile uint32_t timer10MsCount;
 
+void per5ms() {}
 void per10ms()
 {
   timer10MsCount++;
