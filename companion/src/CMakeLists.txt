@@ -408,7 +408,7 @@ elseif(WIN32)
   endif()
 
   if(NOT OPENSSL_FOUND OR Qt5Core_VERSION VERSION_LESS "6.0.0")
-    if(MINGW AND $ENV{MSYSTEM} EQUAL "MINGW32")
+    if(MINGW AND $ENV{MSYSTEM} STREQUAL "MINGW32")
       install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libcrypto-1_1.dll" DESTINATION ${INSTALL_DESTINATION})
       install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libssl-1_1.dll" DESTINATION ${INSTALL_DESTINATION})
     else()
