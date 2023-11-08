@@ -349,9 +349,11 @@ if(LINUX)
   install(FILES ../targets/linux/45-usbasp.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-usbasp.rules)
 
   if(OPENSSL_FOUND)
-    get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
-    # install only files Qt networking requires
-    install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libcrypto*" PATTERN "libssl*")
+    if ((OPENSSL_VERSION VERSION_LESS "1.2.0" AND Qt5Core_VERSION VERSION_LESS "6.0.0") OR (OPENSSL_VERSION VERSION_GREATER "3.0.0" AND Qt5Core_VERSION VERSION_EQUAL_GREATER "6.0.0"))
+      get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
+      # install only files Qt networking requires
+      install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libcrypto*" PATTERN "libssl*")
+    endif()
   endif()
 
   if(LIBUSB1_FOUND)
@@ -392,13 +394,27 @@ elseif(WIN32)
   endif()
 
   if(OPENSSL_FOUND)
-    get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
-    if(MINGW)
-      set(OPENSSL_SSL_LIBRARY_DIR "${OPENSSL_SSL_LIBRARY_DIR}/../bin")
+    if ((OPENSSL_VERSION VERSION_LESS "1.2.0" AND Qt5Core_VERSION VERSION_LESS "6.0.0") OR (OPENSSL_VERSION VERSION_GREATER "3.0.0" AND Qt5Core_VERSION VERSION_EQUAL_GREATER "6.0.0"))
+      get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
+      if(MINGW)
+        # the dlls are stored in the bin directory
+        set(OPENSSL_SSL_LIBRARY_DIR "${OPENSSL_SSL_LIBRARY_DIR}/../bin")
+      endif()
+      if(EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
+        # install only files Qt networking requires
+        install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "libcrypto-*.dll" PATTERN "libssl-*.dll")
+      endif()
     endif()
-    if(EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
-      # install only files Qt networking requires
-      install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "libcrypto*.dll" PATTERN "libssl*.dll")
+  endif()
+
+  if(NOT OPENSSL_FOUND OR Qt5Core_VERSION VERSION_LESS "6.0.0")
+    if(MINGW AND ENV{MSYSTEM} EQUAL "MINGW32")
+      install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libcrypto-1_1.dll" DESTINATION ${INSTALL_DESTINATION})
+      install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libssl-1_1.dll" DESTINATION ${INSTALL_DESTINATION})
+    else()
+      # MINGW64 or assume 64 bit native
+      install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libcrypto-1_1-x64.dll" DESTINATION ${INSTALL_DESTINATION})
+      install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libssl-1_1-x64.dll" DESTINATION ${INSTALL_DESTINATION})
     endif()
   endif()
 
