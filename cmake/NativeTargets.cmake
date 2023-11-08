@@ -24,11 +24,13 @@ if(Qt5Core_FOUND OR FOX_FOUND)
   find_package("SDL2")
   if(SDL2_FOUND)
     # find_package("SDL2") does not set a variable to hold the location of SDL2.dll
-    find_library(SDL2_LIB_PATH
+    # do not check for Linux as packager should find
+    find_file(SDL2_LIB_PATH
               NAMES
-                SDL2
+                SDL2.dll
+                SDL2.dylib
               HINTS
-                ENV{SDL2_LIBRARY_PATH})
+                ${SDL2_LIBRARY_PATH})
     message(STATUS "SDL2 Lib: ${SDL2_LIB_PATH} Libs: ${SDL2_LIBRARIES}; Headers: ${SDL2_INCLUDE_DIRS}")
   else()
     message(STATUS "SDL2 not found! Simulator audio, and joystick inputs, will not work.")
