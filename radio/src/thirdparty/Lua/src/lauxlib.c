@@ -216,6 +216,20 @@ LUALIB_API int luaL_error (lua_State *L, const char *fmt, ...) {
 
 
 LUALIB_API int luaL_fileresult (lua_State *L, int stat, const char *fname) {
+#if defined(USE_FATFS)
+  if (stat) {
+    lua_pushboolean(L, 1);
+    return 1;    
+  }
+  else {
+    lua_pushnil(L);
+    if (fname)
+      lua_pushfstring(L, "%s: file error", fname);
+    else
+      lua_pushstring(L, "file error");
+    return 2;
+  }
+#else
   int en = errno;  /* calls to Lua API may change this value */
   if (stat) {
     lua_pushboolean(L, 1);
@@ -230,6 +244,7 @@ LUALIB_API int luaL_fileresult (lua_State *L, int stat, const char *fname) {
     lua_pushinteger(L, en);
     return 3;
   }
+#endif
 }
 
 
@@ -619,9 +634,14 @@ static const char *getF (lua_State *L, void *ud, size_t *size) {
 
 
 static int errfile (lua_State *L, const char *what, int fnameindex) {
+#if defined(USE_FATFS)
+  const char *filename = lua_tostring(L, fnameindex) + 1;
+  lua_pushfstring(L, "cannot %s %s", what, filename);
+#else
   const char *serr = strerror(errno);
   const char *filename = lua_tostring(L, fnameindex) + 1;
   lua_pushfstring(L, "cannot %s %s: %s", what, filename, serr);
+#endif
   lua_remove(L, fnameindex);
   return LUA_ERRFILE;
 }
