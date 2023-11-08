@@ -23,7 +23,13 @@ if(Qt5Core_FOUND OR FOX_FOUND)
   set(SDL2_BUILDING_LIBRARY YES)  # this prevents FindSDL from appending SDLmain lib to the results, which we don't want
   find_package("SDL2")
   if(SDL2_FOUND)
-    message(STATUS "SDL2 Lib: ${SDL2_LIBRARIES}; Headers: ${SDL2_INCLUDE_DIRS}")
+    # find_package("SDL2") does not set a variable to hold the location of SDL2.dll
+    find_library(SDL2_LIB_PATH
+              NAMES
+                SDL2
+              HINTS
+                ENV{SDL2_LIBRARY_PATH})
+    message(STATUS "SDL2 Lib: ${SDL2_LIB_PATH} Libs: ${SDL2_LIBRARIES}; Headers: ${SDL2_INCLUDE_DIRS}")
   else()
     message(STATUS "SDL2 not found! Simulator audio, and joystick inputs, will not work.")
   endif()
