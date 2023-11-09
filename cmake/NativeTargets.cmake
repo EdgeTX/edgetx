@@ -23,13 +23,14 @@ if(Qt5Core_FOUND OR FOX_FOUND)
   set(SDL2_BUILDING_LIBRARY YES)  # this prevents FindSDL from appending SDLmain lib to the results, which we don't want
   find_package("SDL2")
   if(SDL2_FOUND)
-    # find_package("SDL2") does not set a variable to hold the location of SDL2.dll
-    # do not check for Linux as packager should find
+    # find_package("SDL2") does not set a variable holding the path to the location of the SDL2 shared library
     find_file(SDL2_LIB_PATH
               NAMES
+                libSDL2.so
                 SDL2.dll
                 SDL2.dylib
               HINTS
+                "/usr/lib/x86_64-linux-gnu"
                 ${SDL2_LIBRARY_PATH})
     message(STATUS "SDL2 Lib: ${SDL2_LIB_PATH} Libs: ${SDL2_LIBRARIES}; Headers: ${SDL2_INCLUDE_DIRS}")
   else()
@@ -41,6 +42,16 @@ if(Qt5Core_FOUND AND NOT DISABLE_COMPANION)
   find_package(Libusb1)
   if(LIBUSB1_FOUND)
     find_package(Dfuutil)
+  endif()
+
+  if(LINUX)
+    find_package(Libssl1)
+  endif()
+
+  # OpenSSL
+  # environment variable set in github workflows and build-edgetx Dockerfile
+  if (DEFINED ENV{OPENSSL_ROOT_DIR})
+    set(OPENSSL_ROOT_DIR "$ENV{OPENSSL_ROOT_DIR}")
   endif()
 
   find_package(OpenSSL)
