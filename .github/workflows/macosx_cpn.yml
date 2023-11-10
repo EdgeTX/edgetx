@@ -3,8 +3,9 @@ name: MacOSX Companion
 on:
   push:
     branches:
+      - '2.6'
+      - '2.7'
       - '2.8'
-      - '2.9'
       - 'main'
     tags:
       - v*
@@ -15,8 +16,9 @@ on:
 
   pull_request:
     branches:
+      - '2.6'
+      - '2.7'
       - '2.8'
-      - '2.9'
       - 'main'
     paths:
       - '.github/workflows/macosx_cpn.yml'
