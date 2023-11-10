@@ -1277,6 +1277,9 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
     setCurrentFile(filename);
   }
 
+  if (radioData.generalSettings.fix6POSCalibration())
+    setModified();
+
   //  set after successful import
   if (getStorageType(filename) == STORAGE_TYPE_YML)
     setModified();
@@ -1663,6 +1666,9 @@ void MdiChild::openModelTemplate(int row)
   if (!warning.isEmpty()) {
     QMessageBox::warning(this, CPN_STR_TTL_WARNING, warning);
   }
+
+  if (radioData.generalSettings.fix6POSCalibration())
+    setModified();
 
   radioData.models[row] = data.models[0];
 

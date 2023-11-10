@@ -87,12 +87,6 @@ void GeneralSettings::clear()
 
 void GeneralSettings::init()
 {
-  for (int i = 0; i < CPN_MAX_ANALOGS; ++i) {
-    calibMid[i]     = 0x200;
-    calibSpanNeg[i] = 0x180;
-    calibSpanPos[i] = 0x180;
-  }
-
   Firmware * firmware = Firmware::getCurrentVariant();
   Board::Type board = firmware->getBoard();
 
@@ -124,6 +118,18 @@ void GeneralSettings::init()
   }
 
   setDefaultControlTypes(board);
+
+  for (int i = 0; i < CPN_MAX_ANALOGS; ++i) {
+    if ((i >= CPN_MAX_STICKS) && (i < CPN_MAX_STICKS + CPN_MAX_POTS) && (potConfig[i-CPN_MAX_STICKS] == Board::POT_MULTIPOS_SWITCH)) {
+      calibMid[i]     = 773;;
+      calibSpanNeg[i] = 5388;
+      calibSpanPos[i] = 9758;
+    } else {
+      calibMid[i]     = 0x200;
+      calibSpanNeg[i] = 0x180;
+      calibSpanPos[i] = 0x180;
+    }
+  }
 
   backlightMode = 3; // keys and sticks
   backlightDelay = 2; // 2 * 5 = 10 secs
@@ -687,6 +693,21 @@ AbstractStaticItemModel * GeneralSettings::uartSampleModeItemModel()
 QString GeneralSettings::hatsModeToString() const
 {
   return hatsModeToString(hatsMode);
+}
+
+bool GeneralSettings::fix6POSCalibration()
+{
+  bool changed = false;
+  // Fix default 6POS calibration
+  for (int i = CPN_MAX_STICKS; i < CPN_MAX_STICKS+CPN_MAX_POTS; i += 1) {
+    if ((potConfig[i-CPN_MAX_STICKS] == Board::POT_MULTIPOS_SWITCH) && (calibMid[i] == 0x200) && (calibSpanNeg[i] == 0x180) && (calibSpanPos[i] == 0x180)) {
+      calibMid[i] = 773;;
+      calibSpanNeg[i] = 5388;
+      calibSpanPos[i] = 9758;
+      changed = true;
+    }
+  }
+  return changed;
 }
 
 //  static
