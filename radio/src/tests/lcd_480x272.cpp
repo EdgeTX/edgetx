@@ -287,24 +287,26 @@ TEST(Lcd_colorlcd, masks)
 }
 
 #if 0
-#define TEST_CHAR_RIGHT "\302\200"
-#define TEST_CHAR_LEFT "\302\201"
-#define TEST_CHAR_UP "\302\202"
-#define TEST_CHAR_DOWN "\302\203"
+// clang-format off
+#define TEST_CHAR_RIGHT     "\302\200"
+#define TEST_CHAR_LEFT      "\302\201"
+#define TEST_CHAR_UP        "\302\202"
+#define TEST_CHAR_DOWN      "\302\203"
 
-#define TEST_CHAR_DELTA "\302\210"
-#define TEST_CHAR_STICK "\302\211"
-#define TEST_CHAR_POT "\302\212"
-#define TEST_CHAR_SLIDER "\302\213"
-#define TEST_CHAR_SWITCH "\302\214"
-#define TEST_CHAR_TRIM "\302\215"
-#define TEST_CHAR_INPUT "\302\216"
-#define TEST_CHAR_FUNCTION "\302\217"
-#define TEST_CHAR_CYC "\302\220"
-#define TEST_CHAR_TRAINER "\302\221"
-#define TEST_CHAR_CHANNEL "\302\222"
+#define TEST_CHAR_DELTA     "\302\210"
+#define TEST_CHAR_STICK     "\302\211"
+#define TEST_CHAR_POT       "\302\212"
+#define TEST_CHAR_SLIDER    "\302\213"
+#define TEST_CHAR_SWITCH    "\302\214"
+#define TEST_CHAR_TRIM      "\302\215"
+#define TEST_CHAR_INPUT     "\302\216"
+#define TEST_CHAR_FUNCTION  "\302\217"
+#define TEST_CHAR_CYC       "\302\220"
+#define TEST_CHAR_TRAINER   "\302\221"
+#define TEST_CHAR_CHANNEL   "\302\222"
 #define TEST_CHAR_TELEMETRY "\302\223"
-#define TEST_CHAR_LUA "\302\224"
+#define TEST_CHAR_LUA       "\302\224"
+// clang-format on
 
 //#define EXTRA_TEST TEST_CHAR_RIGHT TEST_CHAR_LEFT TEST_CHAR_UP TEST_CHAR_DOWN
 #define EXTRA_TEST                                               \
