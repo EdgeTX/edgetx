@@ -19,24 +19,24 @@
  * GNU General Public License for more details.
  */
 
-#include <math.h>
 #include <gtest/gtest.h>
+#include <math.h>
 
 #define SWAP_DEFINED
-#include "opentx.h"
 #include "location.h"
+#include "opentx.h"
 
 #if defined(COLORLCD)
-
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-void convert_RGB565_to_RGB888(uint8_t * dst, const BitmapBuffer * src, coord_t w, coord_t h)
+void convert_RGB565_to_RGB888(uint8_t* dst, const BitmapBuffer* src, coord_t w,
+                              coord_t h)
 {
-  for(int y = 0; y < src->height(); y++) {
+  for (int y = 0; y < src->height(); y++) {
     for (int x = 0; x < src->width(); x++) {
-      RGB_SPLIT(*src->getPixelPtr(x,y), r, g, b);
+      RGB_SPLIT(*src->getPixelPtr(x, y), r, g, b);
       *(dst++) = (uint8_t)(r << 3);
       *(dst++) = (uint8_t)(g << 2);
       *(dst++) = (uint8_t)(b << 3);
@@ -46,14 +46,14 @@ void convert_RGB565_to_RGB888(uint8_t * dst, const BitmapBuffer * src, coord_t w
 
 void dumpImage(const std::string& filename, const BitmapBuffer* dc)
 {
-  std::string fullpath = TESTS_PATH "/failed_" + filename;
+  std::string fullpath = TESTS_PATH "/images/color/failed_" + filename;
 
   TRACE("dumping image '%s'", fullpath.c_str());
-  
+
   // allocate enough for 3 channels
   auto pixels = dc->width() * dc->height();
   auto stride = dc->width() * 3;
-  uint8_t * img = (uint8_t *)malloc(pixels * 3);
+  uint8_t* img = (uint8_t*)malloc(pixels * 3);
   convert_RGB565_to_RGB888(img, dc, dc->width(), dc->height());
   stbi_write_png(fullpath.c_str(), dc->width(), dc->height(), 3, img, stride);
   free(img);
@@ -70,17 +70,18 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
   filename += 'x' + std::to_string(LCD_H);
   filename += ".png";
 
-  std::string fullpath = TESTS_PATH "/" + filename;
-  
-  std::unique_ptr<BitmapBuffer> testPict(BitmapBuffer::loadBitmap(fullpath.c_str()));
+  std::string fullpath = TESTS_PATH "/images/color/" + filename;
+
+  std::unique_ptr<BitmapBuffer> testPict(
+      BitmapBuffer::loadBitmap(fullpath.c_str()));
   if (!testPict || testPict->width() != LCD_W || testPict->height() != LCD_H) {
     dumpImage(filename, dc);
     return false;
   }
-  
-  for (int y=0; y<LCD_H; y++) {
-    for (int x=0; x<LCD_W; x++) {
-      if (*testPict->getPixelPtr(x,y) != *dc->getPixelPtr(x,y)) {
+
+  for (int y = 0; y < LCD_H; y++) {
+    for (int x = 0; x < LCD_W; x++) {
+      if (*testPict->getPixelPtr(x, y) != *dc->getPixelPtr(x, y)) {
         dumpImage(filename, dc);
         return false;
       }
@@ -89,7 +90,6 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
 
   return true;
 }
-
 
 TEST(Lcd_colorlcd, lines)
 {
@@ -116,8 +116,8 @@ TEST(Lcd_colorlcd, vline)
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
-  for (int x=0; x<100; x+=2) {
-    dc.drawSolidVerticalLine(x, x/2, 12, COLOR_THEME_SECONDARY1);
+  for (int x = 0; x < 100; x += 2) {
+    dc.drawSolidVerticalLine(x, x / 2, 12, COLOR_THEME_SECONDARY1);
   }
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "vline"));
 }
@@ -128,8 +128,10 @@ TEST(Lcd_colorlcd, primitives)
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
-  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_DISABLED);
-  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
+  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog",
+              COLOR_THEME_DISABLED);
+  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog",
+              COLOR_THEME_SECONDARY1);
 
   dc.drawFilledRect(10, 30, 30, 30, SOLID, COLOR_THEME_SECONDARY1);
   dc.drawFilledRect(50, 30, 30, 30, DOTTED, COLOR_THEME_SECONDARY1);
@@ -139,15 +141,14 @@ TEST(Lcd_colorlcd, primitives)
   dc.drawRect(170, 30, 30, 30, 5, SOLID, COLOR_THEME_SECONDARY1);
 
   dc.drawVerticalLine(10, 70, 100, SOLID, COLOR_THEME_SECONDARY1);
-  dc.drawVerticalLine(15, 70,  90, SOLID, COLOR_THEME_SECONDARY1);
-  dc.drawVerticalLine(20, 70,  80, SOLID, COLOR_THEME_SECONDARY1);
-  dc.drawVerticalLine(25, 70,  70, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawVerticalLine(15, 70, 90, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawVerticalLine(20, 70, 80, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawVerticalLine(25, 70, 70, SOLID, COLOR_THEME_SECONDARY1);
 
   dc.drawHorizontalLine(30, 70, 100, SOLID, COLOR_THEME_SECONDARY1);
-  dc.drawHorizontalLine(30, 75,  90, SOLID, COLOR_THEME_SECONDARY1);
-  dc.drawHorizontalLine(30, 80,  80, SOLID, COLOR_THEME_SECONDARY1);
-  dc.drawHorizontalLine(30, 85,  70, SOLID, COLOR_THEME_SECONDARY1);
-
+  dc.drawHorizontalLine(30, 75, 90, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawHorizontalLine(30, 80, 80, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawHorizontalLine(30, 85, 70, SOLID, COLOR_THEME_SECONDARY1);
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "primitives_" TRANSLATIONS));
 }
@@ -158,34 +159,37 @@ TEST(Lcd_colorlcd, transparency)
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
-  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
-  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
+  dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog",
+              COLOR_THEME_SECONDARY1);
+  dc.drawText(5, 5, "The quick brown fox jumps over the lazy dog",
+              COLOR_THEME_SECONDARY1);
 
   dc.drawFilledRect(10, 30, 30, 30, SOLID, COLOR_THEME_SECONDARY1, OPACITY(8));
-  dc.drawFilledRect(50, 30, 30, 30, DOTTED, COLOR_THEME_SECONDARY1, OPACITY(10));
+  dc.drawFilledRect(50, 30, 30, 30, DOTTED, COLOR_THEME_SECONDARY1,
+                    OPACITY(10));
 
   dc.drawRect(90, 30, 30, 30, 1, SOLID, COLOR_THEME_SECONDARY1, OPACITY(8));
   dc.drawRect(130, 30, 30, 30, 2, SOLID, COLOR_THEME_SECONDARY1, OPACITY(8));
   dc.drawRect(170, 30, 30, 30, 5, SOLID, COLOR_THEME_SECONDARY1, OPACITY(8));
 
   dc.drawVerticalLine(10, 70, 100, SOLID, COLOR_THEME_SECONDARY1, OPACITY(2));
-  dc.drawVerticalLine(15, 70,  90, SOLID, COLOR_THEME_SECONDARY1, OPACITY(6));
-  dc.drawVerticalLine(20, 70,  80, SOLID, COLOR_THEME_SECONDARY1, OPACITY(10));
-  dc.drawVerticalLine(25, 70,  70, SOLID, COLOR_THEME_SECONDARY1, OPACITY(OPACITY_MAX));
+  dc.drawVerticalLine(15, 70, 90, SOLID, COLOR_THEME_SECONDARY1, OPACITY(6));
+  dc.drawVerticalLine(20, 70, 80, SOLID, COLOR_THEME_SECONDARY1, OPACITY(10));
+  dc.drawVerticalLine(25, 70, 70, SOLID, COLOR_THEME_SECONDARY1,
+                      OPACITY(OPACITY_MAX));
 
   dc.drawHorizontalLine(30, 70, 100, SOLID, COLOR_THEME_SECONDARY1, OPACITY(2));
-  dc.drawHorizontalLine(30, 75,  90, SOLID, COLOR_THEME_SECONDARY1, OPACITY(6));
-  dc.drawHorizontalLine(30, 80,  80, SOLID, COLOR_THEME_SECONDARY1, OPACITY(10));
-  dc.drawHorizontalLine(30, 85,  70, SOLID, COLOR_THEME_SECONDARY1, OPACITY(OPACITY_MAX));
+  dc.drawHorizontalLine(30, 75, 90, SOLID, COLOR_THEME_SECONDARY1, OPACITY(6));
+  dc.drawHorizontalLine(30, 80, 80, SOLID, COLOR_THEME_SECONDARY1, OPACITY(10));
+  dc.drawHorizontalLine(30, 85, 70, SOLID, COLOR_THEME_SECONDARY1,
+                        OPACITY(OPACITY_MAX));
 
-
-  for(int n=0; n<10; n++) {
+  for (int n = 0; n < 10; n++) {
     int x = 120 + n * 20;
     int y = 80 + n * 10;
-    int color = COLOR(n/2 + 5);
+    int color = COLOR(n / 2 + 5);
     int size = 100;
     dc.drawFilledRect(x, y, size, size, SOLID, color, OPACITY(8));
-
   }
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "transparency_" TRANSLATIONS));
@@ -229,19 +233,19 @@ TEST(Lcd_colorlcd, clipping)
   dc.drawSolidVerticalLine(100, 0, LCD_H, COLOR_THEME_SECONDARY1);
   dc.drawSolidVerticalLine(400, 0, LCD_H, COLOR_THEME_SECONDARY1);
 
-  dc.drawSolidHorizontalLine(0,  50, LCD_W, COLOR_THEME_SECONDARY1);
+  dc.drawSolidHorizontalLine(0, 50, LCD_W, COLOR_THEME_SECONDARY1);
   dc.drawSolidHorizontalLine(0, 200, LCD_W, COLOR_THEME_SECONDARY1);
 
   dc.setClippingRect(100, 400, 50, 200);
 
   dc.drawSolidHorizontalLine(0, 80, LCD_W, COLOR_THEME_SECONDARY1);
-  dc.drawHorizontalLine(     0, 81, LCD_W, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawHorizontalLine(0, 81, LCD_W, SOLID, COLOR_THEME_SECONDARY1);
 
-  dc.drawSolidVerticalLine(150,  0, LCD_H, COLOR_THEME_SECONDARY1);
-  dc.drawVerticalLine(     151,  0, LCD_H, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawSolidVerticalLine(150, 0, LCD_H, COLOR_THEME_SECONDARY1);
+  dc.drawVerticalLine(151, 0, LCD_H, SOLID, COLOR_THEME_SECONDARY1);
 
   dc.drawSolidRect(70, 20, 50, 50, 2, COLOR_THEME_SECONDARY1);
-  dc.drawRect(    380, 20, 50, 50, 2, SOLID, COLOR_THEME_SECONDARY1);
+  dc.drawRect(380, 20, 50, 50, 2, SOLID, COLOR_THEME_SECONDARY1);
 
   dc.clearClippingRect();
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "clipping"));
@@ -254,10 +258,11 @@ TEST(Lcd_colorlcd, bitmap)
   dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.setClippingRect(100, 400, 50, 200);
-  std::unique_ptr<BitmapBuffer> bmp(BitmapBuffer::loadBitmap(TESTS_PATH "/opentx.png"));
-  dc.drawBitmap(  0,   0, bmp.get());
-  dc.drawBitmap(320,   0, bmp.get());
-  dc.drawBitmap(  0, 150, bmp.get());
+  std::unique_ptr<BitmapBuffer> bmp(
+      BitmapBuffer::loadBitmap(TESTS_PATH "/images/color/edgetx.png"));
+  dc.drawBitmap(0, 0, bmp.get());
+  dc.drawBitmap(320, 0, bmp.get());
+  dc.drawBitmap(0, 150, bmp.get());
 
   dc.clearClippingRect();
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "bitmap"));
@@ -269,9 +274,10 @@ TEST(Lcd_colorlcd, masks)
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
-  BitmapBuffer* mask = BitmapBuffer::loadMask(TESTS_PATH "/mask_menu_radio.png");
-  for (int i=0; i<LCD_W; i += mask->width()) {
-    for (int j=0; j<LCD_H; j += mask->height()) {
+  BitmapBuffer* mask =
+      BitmapBuffer::loadMask(TESTS_PATH "/images/color/mask_menu_radio.png");
+  for (int i = 0; i < LCD_W; i += mask->width()) {
+    for (int j = 0; j < LCD_H; j += mask->height()) {
       dc.drawMask(i, j, mask, COLOR2FLAGS(BLACK));
     }
   }
@@ -281,6 +287,7 @@ TEST(Lcd_colorlcd, masks)
 }
 
 #if 0
+// clang-format off
 #define TEST_CHAR_RIGHT     "\302\200"
 #define TEST_CHAR_LEFT      "\302\201"
 #define TEST_CHAR_UP        "\302\202"
@@ -299,13 +306,16 @@ TEST(Lcd_colorlcd, masks)
 #define TEST_CHAR_CHANNEL   "\302\222"
 #define TEST_CHAR_TELEMETRY "\302\223"
 #define TEST_CHAR_LUA       "\302\224"
+// clang-format on
 
 //#define EXTRA_TEST TEST_CHAR_RIGHT TEST_CHAR_LEFT TEST_CHAR_UP TEST_CHAR_DOWN
-#define EXTRA_TEST TEST_CHAR_DELTA TEST_CHAR_STICK TEST_CHAR_POT TEST_CHAR_SLIDER \
-  TEST_CHAR_SWITCH TEST_CHAR_TRIM TEST_CHAR_INPUT
+#define EXTRA_TEST                                               \
+  TEST_CHAR_DELTA TEST_CHAR_STICK TEST_CHAR_POT TEST_CHAR_SLIDER \
+      TEST_CHAR_SWITCH TEST_CHAR_TRIM TEST_CHAR_INPUT
 
-#define EXTRA_TEST2 TEST_CHAR_FUNCTION TEST_CHAR_CYC TEST_CHAR_TRAINER \
-  TEST_CHAR_CHANNEL TEST_CHAR_TELEMETRY TEST_CHAR_LUA
+#define EXTRA_TEST2                                                    \
+  TEST_CHAR_FUNCTION TEST_CHAR_CYC TEST_CHAR_TRAINER TEST_CHAR_CHANNEL \
+      TEST_CHAR_TELEMETRY TEST_CHAR_LUA
 
 #define EXTRA_FULL EXTRA_TEST EXTRA_TEST2
 
@@ -347,4 +357,5 @@ TEST(Lcd_colorlcd, darkmode)
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "darkmode_" TRANSLATIONS));
 }
 #endif
+
 #endif
