@@ -76,7 +76,7 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step $((STEP++)): Installing Qt build environment ==="
-python -m aqt install 5.12.9 windows desktop win64_mingw73
+python -m aqt install 5.15.2 windows desktop win64_mingw81
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
 fi
