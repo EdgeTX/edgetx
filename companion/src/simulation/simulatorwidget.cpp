@@ -628,7 +628,7 @@ void SimulatorWidget::setupRadioWidgets()
   }
 
   // faders between sticks
-  int c = extraTrims / 2;  // leave space for any extra trims
+  int fc = extraTrims / 2;  // leave space for any extra trims
   for (i = 0; i < ttlFaders; ++i) {
     if (!radioSettings.isSliderAvailable(i))
       continue;
@@ -636,25 +636,24 @@ void SimulatorWidget::setupRadioWidgets()
     wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, ttlSticks + ttlKnobs + i).toString(nullptr, &radioSettings);
     RadioFaderWidget * sl = new RadioFaderWidget(wname, 0, ui->radioWidgetsVC);
     sl->setIndex(i);
-    ui->VCGridLayout->addWidget(sl, 0, c++, 1, 1);
+    ui->VCGridLayout->addWidget(sl, 0, fc++, 1, 1);
 
     m_radioWidgets.append(sl);
   }
 
   // extra trims around faders
-  int tridx = Board::TRIM_AXIS_COUNT;
-  int trswidx = Board::TRIM_SW_COUNT;
-  for (i = extraTrims; i > 0; --i) {
-    trswidx -= 2;
-    --tridx;
+  int tc = 0;
+  int tridx = ttlSticks;
+  for (i = 0; i < extraTrims; i += 1, tridx += 1) {
     wname = RawSource(RawSourceType::SOURCE_TYPE_TRIM, tridx).toString(nullptr, &radioSettings);
     wname = wname.left(1) % wname.right(1);
     RadioTrimWidget * tw = new RadioTrimWidget(Qt::Vertical, ui->radioWidgetsVC);
-    tw->setIndices(tridx, trswidx, trswidx + 1);
+    tw->setIndices(tridx, tridx * 2, tridx * 2 + 1);
     tw->setLabelText(wname);
-    if (i <= extraTrims / 2)
-      c = 0;
-    ui->VCGridLayout->addWidget(tw, 0, c++, 1, 1);
+    if (i == extraTrims / 2)
+      tc += (fc + extraTrims / 2 - 1);
+    ui->VCGridLayout->addWidget(tw, 0, tc, 1, 1);
+    tc += (i >= extraTrims / 2) ? -1 : 1;
 
     connect(simulator, &SimulatorInterface::trimValueChange, tw, &RadioTrimWidget::setTrimValue);
     connect(simulator, &SimulatorInterface::trimRangeChange, tw, &RadioTrimWidget::setTrimRangeQual);
