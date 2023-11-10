@@ -415,6 +415,15 @@ class Firmware
       currentVariant = value;
     }
 
+    static void sortRegisteredFirmwares()
+    {
+      std::sort(registeredFirmwares.begin(), registeredFirmwares.end(),
+                [](const Firmware *a, const Firmware *b) {
+                  return QString::compare(a->getName(), b->getName(),
+                                          Qt::CaseInsensitive) < 0;
+                });
+    }
+
     QString getFlavour();
 
     static Firmware * getFirmwareForFlavour(const QString & flavour)
