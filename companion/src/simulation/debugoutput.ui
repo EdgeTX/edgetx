@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>555</width>
+    <width>726</width>
     <height>733</height>
    </rect>
   </property>
@@ -121,7 +121,7 @@ To &lt;b&gt;remove a remembered entry&lt;/b&gt; from the filter  list, first cho
            <enum>QComboBox::InsertAtTop</enum>
           </property>
           <property name="sizeAdjustPolicy">
-           <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+           <enum>QComboBox::AdjustToContents</enum>
           </property>
           <property name="minimumContentsLength">
            <number>1</number>

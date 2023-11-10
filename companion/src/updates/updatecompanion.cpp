@@ -142,7 +142,7 @@ bool UpdateCompanion::asyncInstall()
   }
 
   if (QMessageBox::question(status()->progress(), CPN_STR_APP_NAME, "Restart Companion?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-    QProcess::startDetached(fileName);
+    QProcess::startDetached(fileName, QStringList());
     qApp->exit();
   }
 

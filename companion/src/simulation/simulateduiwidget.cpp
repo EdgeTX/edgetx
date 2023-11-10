@@ -148,7 +148,7 @@ void SimulatedUIWidget::captureScreenshot()
       path = "./";
     QDir dir(path);
     if (dir.exists() && dir.isReadable()) {
-      QStringList fwid = getCurrentFirmware()->getId().split("-", QString::SkipEmptyParts);
+      QStringList fwid = getCurrentFirmware()->getId().split("-", Qt::SkipEmptyParts);
       QString flavor = fwid.at(qMin(1, fwid.size()));
       QString fnpfx = tr("screenshot", "Simulator LCD screenshot file name prefix");
       fileName = "%1/%2_%3_%4.png";
@@ -173,7 +173,7 @@ void SimulatedUIWidget::wheelEvent(QWheelEvent * event)
 
 void SimulatedUIWidget::mousePressEvent(QMouseEvent * event)
 {
-  if (event->button() == Qt::MidButton && m_mouseMidClickAction)
+  if (event->button() == Qt::MiddleButton && m_mouseMidClickAction)
     m_mouseMidClickAction->trigger(true);
   else
     event->ignore();
@@ -181,7 +181,7 @@ void SimulatedUIWidget::mousePressEvent(QMouseEvent * event)
 
 void SimulatedUIWidget::mouseReleaseEvent(QMouseEvent * event)
 {
-  if (event->button() == Qt::MidButton && m_mouseMidClickAction)
+  if (event->button() == Qt::MiddleButton && m_mouseMidClickAction)
     m_mouseMidClickAction->trigger(false);
   else
     event->ignore();

@@ -621,7 +621,7 @@ void ModelsListModel::refresh()
     }
     else {
       current = rootItem->appendChild(i);
-      current->setData(currentColumn++, QString().sprintf("%02d", i + 1));
+      current->setData(currentColumn++, QString().arg(i + 1, 2, 10, QChar('0')));
     }
 
     if (!model.isEmpty() && current) {

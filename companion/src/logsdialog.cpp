@@ -650,7 +650,7 @@ void LogsDialog::saveSession()
     // save the filtered records to a new file
     QString newFilename = logFilename;
     newFilename.append(QString("-Session%1.csv").arg(index));
-    QString filename = QFileDialog::getSaveFileName(this, "Save log", newFilename, "CSV files (.csv);", 0, 0); // getting the filename (full path)
+    QString filename = QFileDialog::getSaveFileName(this, "Save log", newFilename, "CSV files (.csv);"); // getting the filename (full path)
     QFile data(filename);
     if(data.open(QFile::WriteOnly |QFile::Truncate)) {
       QTextStream output(&data);

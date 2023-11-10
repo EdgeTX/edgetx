@@ -28,7 +28,7 @@
 Edge::Edge(Node *sourceNode, Node *destNode)
     : arrowSize(10)
 {
-  setAcceptedMouseButtons(0);
+  setAcceptedMouseButtons(Qt::NoButton);
   source = sourceNode;
   dest = destNode;
   source->addEdge(this);
@@ -80,7 +80,7 @@ void Edge::adjust()
   }
 }
 
-QRectF Edge::boundingRect() const 
+QRectF Edge::boundingRect() const
 {
   if (!source || !dest)
     return QRectF();

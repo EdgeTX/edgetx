@@ -31,9 +31,9 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   CMAKE_GENERATOR: "MSYS Makefiles"
-  QT_VERSION: "5.12.9"
-  MINGW_VERSION: "win64_mingw73"
-  MINGW_PATH: "mingw73_64"
+  QT_VERSION: "5.15.2"
+  MINGW_VERSION: "win64_mingw81"
+  MINGW_PATH: "mingw81_64"
 
 jobs:
   build:
@@ -70,7 +70,9 @@ jobs:
                                 mingw-w64-x86_64-libraqm \
                                 mingw-w64-x86_64-SDL2 \
                                 mingw-w64-x86_64-clang \
-                                mingw-w64-x86_64-nsis
+                                mingw-w64-x86_64-nsis \
+                                mingw-w64-x86_64-dfu-util \
+                                mingw-w64-x86_64-openssl
           python -m pip install clang jinja2
 
       - name: Install Qt
@@ -80,7 +82,6 @@ jobs:
           cache-key-prefix: 'install-qt-action-win64'
           version: ${{ env.QT_VERSION }}
           arch: ${{ env.MINGW_VERSION }}
-          tools: 'tools_openssl_x64'
 
       - name: Check out the repo
         uses: actions/checkout@v3
@@ -93,7 +94,6 @@ jobs:
         run: |
           mkdir output && \
           CMAKE_PREFIX_PATH=$RUNNER_WORKSPACE/Qt/$QT_VERSION/$MINGW_PATH \
-          QT_TOOLS_OPENSSL_ROOT_PATH=$RUNNER_WORKSPACE/Qt/Tools/OpenSSL/Win_x64 \
           tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
 
       - name: Compose release filename
