@@ -865,7 +865,7 @@
 #define TR_TOUCH_EXIT                  "Touch screen to exit"
 #define TR_CALIBRATION                 "Kalibrieren"
 #define TR_SET                   	   BUTTON("Set")
-#define TR_TRAINER             		   "Trainer"
+#define TR_TRAINER             		   "Lehrer/Schüler"
 #define TR_CHANS                       "Chans"
 #define TR_ANTENNAPROBLEM     		   CENTER "TX-Antennenproblem!"
 #define TR_MODELIDUSED                 "ID benutzt in:"
