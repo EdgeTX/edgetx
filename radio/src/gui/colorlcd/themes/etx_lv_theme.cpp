@@ -316,9 +316,9 @@ class EdgeTxStyles
       lv_style_set_text_font(&font_std, getFont(FONT(STD)));
       lv_style_init(&font_bold);
       lv_style_set_text_font(&font_bold, getFont(FONT(BOLD)));
-
-      applyColors();
     }
+
+    applyColors();
   }
 
   void applyColors()
