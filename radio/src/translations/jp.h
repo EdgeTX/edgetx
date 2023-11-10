@@ -894,8 +894,6 @@
 #define TR_MODULE_PROTOCOL_WARN_LINE2        "認証ファームウェア"
 #define TR_LOWALARM                    INDENT "微弱時のアラーム"
 #define TR_CRITICALALARM               INDENT "極微弱警告アラーム"
-#define TR_RSSIALARM_WARN              "RSSI"
-#define TR_NO_RSSIALARM                TR(INDENT "Alarms disabled", "テレメトリーアラームを無効にしました")
 #define TR_DISABLE_ALARM               TR(INDENT "Disable alarms", INDENT "テレメトリーアラーム無効")
 #define TR_POPUP                       "ポップアップ"
 #define TR_MIN                         "最小"

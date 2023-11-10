@@ -1024,8 +1024,6 @@ extern const char STR_MODEL_SELECT[];
 extern const char STR_RESET_SUBMENU[];
 extern const char STR_LOWALARM[];
 extern const char STR_CRITICALALARM[];
-extern const char STR_RSSIALARM_WARN[];
-extern const char STR_NO_RSSIALARM[];
 extern const char STR_DISABLE_ALARM[];
 extern const char STR_TELEMETRY_TYPE[];
 extern const char STR_TELEMETRY_SENSORS[];

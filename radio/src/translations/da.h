@@ -904,8 +904,6 @@
 #define TR_MODULE_PROTOCOL_WARN_LINE2        "certificeret firmware"
 #define TR_LOWALARM                    INDENT "Lav alarm"
 #define TR_CRITICALALARM               INDENT "Kritisk alarm"
-#define TR_RSSIALARM_WARN              "RSSI"
-#define TR_NO_RSSIALARM                TR(INDENT "Alarmer afkoblet", "Telemetri alarmer afkoblet")
 #define TR_DISABLE_ALARM               TR(INDENT "Afkobl alarmer", INDENT "Afkobl telemetri alarmer")
 #define TR_POPUP                       "Popup"
 #define TR_MIN                         "Min"
