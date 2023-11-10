@@ -60,10 +60,9 @@ class RawSwitch {
       LogicalSwitchesContext  = 0x01,
       SpecialFunctionsContext = 0x02,
       GlobalFunctionsContext  = 0x04,
-      TimersContext           = 0x08,
-      MixesContext            = 0x10,
+      MixesContext            = 0x08,
 
-      AllModelContexts        = SpecialFunctionsContext | LogicalSwitchesContext | TimersContext | MixesContext,
+      AllModelContexts        = SpecialFunctionsContext | LogicalSwitchesContext | MixesContext,
       AllSwitchContexts       = AllModelContexts | GlobalFunctionsContext
     };
 

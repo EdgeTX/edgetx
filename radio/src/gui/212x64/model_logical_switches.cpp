@@ -207,7 +207,7 @@ void menuModelLogicalSwitches(event_t event)
       switch (horz) {
         case LS_FIELD_FUNCTION:
         {
-          cs->func = checkIncDec(event, cs->func, 0, LS_FUNC_MAX, EE_MODEL, isLogicalSwitchFunctionAvailable);
+          cs->func = checkIncDec(event, cs->func, 0, LS_FUNC_MAX, EE_MODEL);
           uint8_t new_cstate = lswFamily(cs->func);
           if (cstate != new_cstate) {
             unsigned int save_func = cs->func;

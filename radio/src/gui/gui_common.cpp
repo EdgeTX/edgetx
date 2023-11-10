@@ -522,24 +522,6 @@ bool isSwitch2POSWarningStateAvailable(int state)
 }
 #endif // #if defined(COLORLCD)
 
-//bool isSwitchAvailableInTimers(int swtch)
-//{
-//  if (swtch >= 0) {
-//    if (swtch < TMRMODE_COUNT)
-//      return true;
-//    else
-//      swtch -= TMRMODE_COUNT-1;
-//  }
-//  else {
-//    if (swtch > -TMRMODE_COUNT)
-//      return false;
-//    else
-//      swtch += TMRMODE_COUNT-1;
-//  }
-//
-//  return isSwitchAvailable(swtch, TimersContext);
-//}
-
 bool isThrottleSourceAvailable(int src)
 {
 #if !defined(LIBOPENUI)
@@ -549,11 +531,6 @@ bool isThrottleSourceAvailable(int src)
     ((src == MIXSRC_FIRST_STICK + inputMappingGetThrottle()) ||
      ((src >= MIXSRC_FIRST_POT) && (src <= MIXSRC_LAST_POT)) ||
      ((src >= MIXSRC_FIRST_CH) && (src <= MIXSRC_LAST_CH)));
-}
-
-bool isLogicalSwitchFunctionAvailable(int function)
-{
-  return function != LS_FUNC_RANGE;
 }
 
 bool isAssignableFunctionAvailable(int function, CustomFunctionData * functions)

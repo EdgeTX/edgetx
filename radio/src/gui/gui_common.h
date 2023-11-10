@@ -64,7 +64,6 @@ enum SwitchContext
   LogicalSwitchesContext,
   ModelCustomFunctionsContext,
   GeneralCustomFunctionsContext,
-  TimersContext,
   MixesContext
 };
 
@@ -74,7 +73,6 @@ int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable);
 bool isInputAvailable(int input);
 bool isSourceAvailableInInputs(int source);
 bool isThrottleSourceAvailable(int source);
-bool isLogicalSwitchFunctionAvailable(int function);
 bool isLogicalSwitchAvailable(int index);
 bool isAssignableFunctionAvailable(int function);
 bool isSourceAvailable(int source);
@@ -89,7 +87,6 @@ int  hasSerialMode(int mode);
 bool isSwitchAvailableInLogicalSwitches(int swtch);
 bool isSwitchAvailableInCustomFunctions(int swtch);
 bool isSwitchAvailableInMixes(int swtch);
-bool isSwitchAvailableInTimers(int swtch);
 bool isPxx2IsrmChannelsCountAllowed(int channels);
 bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType);
 bool isTrainerUsingModuleBay();

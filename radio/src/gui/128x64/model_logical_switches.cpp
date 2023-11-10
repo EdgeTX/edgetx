@@ -81,7 +81,7 @@ void menuModelLogicalSwitchOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_FUNC);
         lcdDrawTextAtIndex(CSWONE_2ND_COLUMN, y, STR_VCSWFUNC, cs->func, attr);
         if (attr) {
-          cs->func = checkIncDec(event, cs->func, 0, LS_FUNC_MAX, EE_MODEL, isLogicalSwitchFunctionAvailable);
+          cs->func = checkIncDec(event, cs->func, 0, LS_FUNC_MAX, EE_MODEL);
           uint8_t new_cstate = lswFamily(cs->func);
           if (cstate != new_cstate) {
             if (new_cstate == LS_FAMILY_TIMER) {
