@@ -74,9 +74,9 @@ LogsDialog::LogsDialog(QWidget *parent) :
   axisRect = ui->customPlot->axisRect();
 
   // configure bottom axis to show time instead of number:
-  axisRect->axis(QCPAxis::atBottom)->setLabel(tr("Time (hh:mm:ss)"));
+  axisRect->axis(QCPAxis::atBottom)->setLabel(tr("Time (hh:mm:ss.ms)"));
   QSharedPointer<QCPAxisTickerDateTime> timeTicker(new QCPAxisTickerDateTime);
-  timeTicker->setDateTimeFormat("hh:mm:ss");
+  timeTicker->setDateTimeFormat("hh:mm:ss.zzz");
   axisRect->axis(QCPAxis::atBottom)->setTicker(timeTicker);
   QDateTime now = QDateTime::currentDateTime();
   axisRect->axis(QCPAxis::atBottom)->setRange(now.addSecs(-60 * 60 * 2).toTime_t(), now.toTime_t());
