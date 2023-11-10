@@ -61,15 +61,15 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   read
 fi
 
-echo "=== Step $((STEP++)): Installing Python package py7zr in version 0.16.1 ==="
-python -m pip install py7zr==0.16.1
+echo "=== Step $((STEP++)): Installing Python package py7zr in version 0.19.* ==="
+python -m pip install py7zr==0.19.*
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
 
-echo "=== Step $((STEP++)): Installing Python package aqtinstall in version 1.2.5 ==="
-python -m pip install aqtinstall==1.2.5
+echo "=== Step $((STEP++)): Installing Python package aqtinstall in version 2.1.* ==="
+python -m pip install aqtinstall==2.1.*
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
