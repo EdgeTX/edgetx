@@ -100,11 +100,6 @@ void postRadioSettingsLoad()
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
   }
 #endif
-#if defined(STICK_DEAD_ZONE)
-  if (!g_eeGeneral.stickDeadZone) {
-    g_eeGeneral.stickDeadZone = DEFAULT_STICK_DEADZONE;
-  }
-#endif
 #if !defined(DEBUG)
   // clean up leftovers from a previous DEBUG config
   for (uint8_t port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {
