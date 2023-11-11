@@ -37,6 +37,8 @@ void stm32_timer_enable_clock(TIM_TypeDef *TIMx)
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM8);
   } else if (TIMx == TIM12) {
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM12);
+  } else if (TIMx == TIM13) {
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM13);
   } else if (TIMx == TIM14) {
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM14);
   }  
@@ -58,6 +60,8 @@ void stm32_timer_disable_clock(TIM_TypeDef *TIMx)
     LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM8);
   } else if (TIMx == TIM12) {
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM12);
+  } else if (TIMx == TIM13) {
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM13);
   } else if (TIMx == TIM14) {
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM14);
   }  
@@ -77,6 +81,12 @@ bool stm32_timer_is_clock_enabled(TIM_TypeDef *TIMx)
     return LL_APB1_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM5) != 0;
   } else if (TIMx == TIM8) {
     return LL_APB2_GRP1_IsEnabledClock(LL_APB2_GRP1_PERIPH_TIM8) != 0;
+  } else if (TIMx == TIM12) {
+    return LL_APB2_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM12) != 0;
+  } else if (TIMx == TIM13) {
+    return LL_APB2_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM13) != 0;
+  } else if (TIMx == TIM14) {
+    return LL_APB2_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM14) != 0;
   }
 
   // not supported
