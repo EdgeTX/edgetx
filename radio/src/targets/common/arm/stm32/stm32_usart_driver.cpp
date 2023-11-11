@@ -35,6 +35,7 @@
 // The new CMSIS can be used when StdPeriph is gone, as it mandates
 // the old version located in "${STM32LIB_DIR}/CMSIS/Include"
 //
+#if 0
 static inline uint32_t NVIC_GetEnableIRQ(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0) {
@@ -46,7 +47,7 @@ static inline uint32_t NVIC_GetEnableIRQ(IRQn_Type IRQn)
     return (0U);
   }
 }
-
+#endif
 static void _enable_usart_irq(const stm32_usart_t* usart)
 {
   NVIC_SetPriority(usart->IRQn, usart->IRQ_Prio);

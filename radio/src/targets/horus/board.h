@@ -22,6 +22,8 @@
 #ifndef _BOARD_H_
 #define _BOARD_H_
 
+#include "stm32_hal.h"
+#include "stm32_hal_ll.h"
 #include "definitions.h"
 #include "opentx_constants.h"
 
@@ -126,13 +128,13 @@ void SDRAM_Init();
 
 // Just turn the modue ON for all other targets
 #define INTERNAL_MODULE_ON() \
-  GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
+    LL_GPIO_SetOutputPin(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
 
 #endif
 
-#define INTERNAL_MODULE_OFF()   GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
-#define EXTERNAL_MODULE_ON()    GPIO_SetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
-#define EXTERNAL_MODULE_OFF()   GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
+#define INTERNAL_MODULE_OFF()   LL_GPIO_ResetOutputPin(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
+#define EXTERNAL_MODULE_ON()    LL_GPIO_SetOutputPin(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
+#define EXTERNAL_MODULE_OFF()   LL_GPIO_ResetOutputPin(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
 
 #if !defined(PXX2)
   #define IS_PXX2_INTERNAL_ENABLED()            (false)

@@ -20,62 +20,63 @@
  */
 
 #include "board.h"
+#include "stm32_hal_ll.h"
 
 void ledInit()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = LED_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(LED_GPIO, &GPIO_InitStructure);
+  LL_GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.Pin = LED_GPIO_PIN;
+  GPIO_InitStructure.Mode = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStructure.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(LED_GPIO, &GPIO_InitStructure);
 }
 
 #if defined(PCBX12S)
 void ledOff()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = LED_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(LED_GPIO, &GPIO_InitStructure);
+  LL_GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.Pin = LED_GPIO_PIN;
+  GPIO_InitStructure.Mode = LL_GPIO_MODE_INPUT;
+  GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStructure.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(LED_GPIO, &GPIO_InitStructure);
 }
 
 void ledRed()
 {
   ledInit();
-  GPIO_SetBits(LED_GPIO, LED_GPIO_PIN);
+  LL_GPIO_SetOutputPin(LED_GPIO, LED_GPIO_PIN);
 }
 
 void ledBlue()
 {
   ledInit();
-  GPIO_ResetBits(LED_GPIO, LED_GPIO_PIN);
+  LL_GPIO_ResetOutputPin(LED_GPIO, LED_GPIO_PIN);
 }
 #elif defined(PCBX10)
 void ledOff()
 {
-  GPIO_ResetBits(LED_GPIO, LED_GPIO_PIN);
+  LL_GPIO_ResetOutputPin(LED_GPIO, LED_GPIO_PIN);
 }
 
 void ledRed()
 {
   ledOff();
-  GPIO_SetBits(LED_GPIO, LED_RED_GPIO_PIN);
+  LL_GPIO_SetOutputPin(LED_GPIO, LED_RED_GPIO_PIN);
 }
 
 void ledGreen()
 {
   ledOff();
-  GPIO_SetBits(LED_GPIO, LED_GREEN_GPIO_PIN);
+  LL_GPIO_SetOutputPin(LED_GPIO, LED_GREEN_GPIO_PIN);
 }
 
 void ledBlue()
 {
   ledOff();
-  GPIO_SetBits(LED_GPIO, LED_BLUE_GPIO_PIN);
+  LL_GPIO_SetOutputPin(LED_GPIO, LED_BLUE_GPIO_PIN);
 }
 #endif

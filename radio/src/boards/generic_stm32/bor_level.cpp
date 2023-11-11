@@ -20,16 +20,33 @@
  */
 
 #if defined(STM32F4)
-#include "stm32f4xx_flash.h"
+#include "stm32_hal.h"
 
 void board_set_bor_level()
 {
-  if (FLASH_OB_GetBOR() != OB_BOR_LEVEL3)
+  FLASH_OBProgramInitTypeDef OB;
+  HAL_FLASHEx_OBGetConfig(&OB);
+
+  if (OB.BORLevel != OB_BOR_LEVEL3)
   {
-    FLASH_OB_Unlock();
-    FLASH_OB_BORConfig(OB_BOR_LEVEL3);
-    FLASH_OB_Launch();
-    FLASH_OB_Lock();
+
+        HAL_FLASH_Unlock();
+        HAL_FLASH_OB_Unlock();
+
+        OB.OptionType = OPTIONBYTE_BOR;
+        OB.BORLevel = OB_BOR_LEVEL3;
+
+        if ( HAL_FLASHEx_OBProgram(&OB) != HAL_OK )
+        {
+            HAL_FLASH_OB_Lock();
+            HAL_FLASH_Lock();
+        }
+
+        HAL_FLASH_OB_Launch();
+
+        HAL_FLASH_OB_Lock();
+        HAL_FLASH_Lock();
   }
+
 }
 #endif

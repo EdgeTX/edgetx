@@ -21,6 +21,7 @@
 
 #include "opentx_types.h"
 #include "board.h"
+#include "stm32_hal_ll.h"
 
 #if !defined(BOOT)
 #include "myeeprom.h"
@@ -29,22 +30,22 @@
 void backlightInit()
 {
   // PIN init
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = BACKLIGHT_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(BACKLIGHT_GPIO, &GPIO_InitStructure);
-  GPIO_PinAFConfig(BACKLIGHT_GPIO, BACKLIGHT_GPIO_PinSource, BACKLIGHT_GPIO_AF);
+  LL_GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.Pin = BACKLIGHT_GPIO_PIN;
+  GPIO_InitStructure.Mode = LL_GPIO_MODE_ALTERNATE;
+  GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStructure.Pull = LL_GPIO_PULL_NO;
+  GPIO_InitStructure.Alternate = LL_GPIO_AF_1;
+  LL_GPIO_Init(BACKLIGHT_GPIO, &GPIO_InitStructure);
 
 #if defined(KEYS_BACKLIGHT_GPIO)
-  GPIO_InitStructure.GPIO_Pin = KEYS_BACKLIGHT_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(KEYS_BACKLIGHT_GPIO, &GPIO_InitStructure);
+  GPIO_InitStructure.Pin = KEYS_BACKLIGHT_GPIO_PIN;
+  GPIO_InitStructure.Mode = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStructure.Pull = LL_GPIO_PULL_NO;
+  LL_GPIO_Init(KEYS_BACKLIGHT_GPIO, &GPIO_InitStructure);
 #endif
 
   // TIMER init
@@ -89,10 +90,10 @@ void backlightEnable(uint8_t dutyCycle)
 
 #if defined(KEYS_BACKLIGHT_GPIO) && !defined(BOOT)
   if (dutyCycle == 0 || g_eeGeneral.keysBacklight == 0) {
-    GPIO_ResetBits(KEYS_BACKLIGHT_GPIO, KEYS_BACKLIGHT_GPIO_PIN);
+    LL_GPIO_ResetOutputPin(KEYS_BACKLIGHT_GPIO, KEYS_BACKLIGHT_GPIO_PIN);
   }
   else {
-    GPIO_SetBits(KEYS_BACKLIGHT_GPIO, KEYS_BACKLIGHT_GPIO_PIN);
+    LL_GPIO_SetOutputPin(KEYS_BACKLIGHT_GPIO, KEYS_BACKLIGHT_GPIO_PIN);
   }
 #endif
 

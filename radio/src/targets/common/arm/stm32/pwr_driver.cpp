@@ -21,55 +21,56 @@
 
 #include "board.h"
 #include "hal/abnormal_reboot.h"
+#include "stm32_hal_ll.h"
 
 void pwrInit()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
+  LL_GPIO_InitTypeDef GPIO_InitStructure;
 
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+  GPIO_InitStructure.Mode = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStructure.Pull = LL_GPIO_PULL_UP;
 
 #if defined(INTMODULE_BOOTCMD_GPIO)
   INIT_INTMODULE_BOOTCMD_PIN();
-  GPIO_InitStructure.GPIO_Pin = INTMODULE_BOOTCMD_GPIO_PIN;
-  GPIO_Init(INTMODULE_BOOTCMD_GPIO, &GPIO_InitStructure);
+  GPIO_InitStructure.Pin = INTMODULE_BOOTCMD_GPIO_PIN;
+  LL_GPIO_Init(INTMODULE_BOOTCMD_GPIO, &GPIO_InitStructure);
 #endif
 
   // Internal module power
 #if defined(HARDWARE_INTERNAL_MODULE)
   INTERNAL_MODULE_OFF();
-  GPIO_InitStructure.GPIO_Pin = INTMODULE_PWR_GPIO_PIN;
-  GPIO_Init(INTMODULE_PWR_GPIO, &GPIO_InitStructure);
+  GPIO_InitStructure.Pin = INTMODULE_PWR_GPIO_PIN;
+  LL_GPIO_Init(INTMODULE_PWR_GPIO, &GPIO_InitStructure);
 #endif
 
   // External module power
   EXTERNAL_MODULE_PWR_OFF();
-  GPIO_InitStructure.GPIO_Pin = EXTMODULE_PWR_GPIO_PIN;
-  GPIO_Init(EXTMODULE_PWR_GPIO, &GPIO_InitStructure);
+  GPIO_InitStructure.Pin = EXTMODULE_PWR_GPIO_PIN;
+  LL_GPIO_Init(EXTMODULE_PWR_GPIO, &GPIO_InitStructure);
 
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_InitStructure.Mode = LL_GPIO_MODE_INPUT;
 
   // PWR switch
-  GPIO_InitStructure.GPIO_Pin = PWR_SWITCH_GPIO_PIN;
-  GPIO_Init(PWR_SWITCH_GPIO, &GPIO_InitStructure);
+  GPIO_InitStructure.Pin = PWR_SWITCH_GPIO_PIN;
+  LL_GPIO_Init(PWR_SWITCH_GPIO, &GPIO_InitStructure);
 
 #if defined(PWR_EXTRA_SWITCH_GPIO)
   // PWR Extra switch
-  GPIO_InitStructure.GPIO_Pin = PWR_EXTRA_SWITCH_GPIO_PIN;
-  GPIO_Init(PWR_EXTRA_SWITCH_GPIO, &GPIO_InitStructure);
+  GPIO_InitStructure.Pin = PWR_EXTRA_SWITCH_GPIO_PIN;
+  LL_GPIO_Init(PWR_EXTRA_SWITCH_GPIO, &GPIO_InitStructure);
 #endif
 
 #if defined(PCBREV_HARDCODED)
   hardwareOptions.pcbrev = PCBREV_HARDCODED;
 #elif defined(PCBREV_GPIO_PIN)
   #if defined(PCBREV_GPIO_PULL_DOWN)
-    GPIO_ResetBits(PCBREV_GPIO, PCBREV_GPIO_PIN);
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+    LL_GPIO_ResetOutputPin(PCBREV_GPIO, PCBREV_GPIO_PIN);
+    GPIO_InitStructure.Pull = LL_GPIO_PULL_DOWN;
   #endif
-  GPIO_InitStructure.GPIO_Pin = PCBREV_GPIO_PIN;
-  GPIO_Init(PCBREV_GPIO, &GPIO_InitStructure);
+  GPIO_InitStructure.Pin = PCBREV_GPIO_PIN;
+  LL_GPIO_Init(PCBREV_GPIO, &GPIO_InitStructure);
   hardwareOptions.pcbrev = PCBREV_VALUE();
 #endif
 }
@@ -78,39 +79,36 @@ void pwrOn()
 {
   // we keep the init of the PIN to have pwrOn as quick as possible
 
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = PWR_ON_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(PWR_ON_GPIO, &GPIO_InitStructure);
+  LL_GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.Pin = PWR_ON_GPIO_PIN;
+  GPIO_InitStructure.Mode = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStructure.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(PWR_ON_GPIO, &GPIO_InitStructure);
 
-  GPIO_SetBits(PWR_ON_GPIO, PWR_ON_GPIO_PIN);
+  LL_GPIO_SetOutputPin(PWR_ON_GPIO, PWR_ON_GPIO_PIN);
 }
 
 void pwrOff()
 {
-  GPIO_ResetBits(PWR_ON_GPIO, PWR_ON_GPIO_PIN);
+  LL_GPIO_ResetOutputPin(PWR_ON_GPIO, PWR_ON_GPIO_PIN);
 }
 
 #if defined(PWR_EXTRA_SWITCH_GPIO)
 bool pwrForcePressed()
 {
-  return (GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == Bit_RESET && GPIO_ReadInputDataBit(PWR_EXTRA_SWITCH_GPIO, PWR_EXTRA_SWITCH_GPIO_PIN) == Bit_RESET);
+  return (LL_GPIO_IsInputPinSet(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == 0 && LL_GPIO_IsInputPinSet(PWR_EXTRA_SWITCH_GPIO, PWR_EXTRA_SWITCH_GPIO_PIN) == 0);
 }
 #endif
 
 bool pwrPressed()
 {
 #if defined(PWR_EXTRA_SWITCH_GPIO)
-  return (GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) ==
-              Bit_RESET ||
-          GPIO_ReadInputDataBit(PWR_EXTRA_SWITCH_GPIO,
-                                PWR_EXTRA_SWITCH_GPIO_PIN) == Bit_RESET);
+  return (LL_GPIO_IsInputPinSet(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == 0
+      ||  LL_GPIO_IsInputPinSet(PWR_EXTRA_SWITCH_GPIO, PWR_EXTRA_SWITCH_GPIO_PIN) == 0);
 #else
-  return GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) ==
-         Bit_RESET;
+  return LL_GPIO_IsInputPinSet(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == 0;
 #endif
 }
 
