@@ -54,7 +54,7 @@
 // #define HAL_NOR_MODULE_ENABLED
 // #define HAL_PCCARD_MODULE_ENABLED
 // #define HAL_SRAM_MODULE_ENABLED
-// #define HAL_SDRAM_MODULE_ENABLED
+#define HAL_SDRAM_MODULE_ENABLED
 // #define HAL_HASH_MODULE_ENABLED
 #define HAL_GPIO_MODULE_ENABLED
 // #define HAL_EXTI_MODULE_ENABLED
@@ -101,7 +101,7 @@
 #endif /* HSE_VALUE */
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
-  #define HSE_STARTUP_TIMEOUT    100U      /*!< Time out for HSE start up, in ms */
+  #define HSE_STARTUP_TIMEOUT    2000U      /*!< Time out for HSE start up, in cycles through a loop, normal values seem to bs around 900 */
 #endif /* HSE_STARTUP_TIMEOUT */
 
 /**

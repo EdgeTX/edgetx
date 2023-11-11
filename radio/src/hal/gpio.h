@@ -19,34 +19,34 @@
  * GNU General Public License for more details.
  */
 
-#if defined(STM32F4)
-#include "stm32_hal.h"
+#pragma once
 
-void board_set_bor_level()
-{
-  FLASH_OBProgramInitTypeDef OB;
-  HAL_FLASHEx_OBGetConfig(&OB);
+#include <stdint.h>
 
-  if (OB.BORLevel != OB_BOR_LEVEL3)
-  {
+typedef uint32_t gpio_t;
 
-        HAL_FLASH_Unlock();
-        HAL_FLASH_OB_Unlock();
+typedef uint8_t  gpio_mode_t;
+typedef uint8_t  gpio_af_t;
+typedef uint8_t  gpio_speed_t;
 
-        OB.OptionType = OPTIONBYTE_BOR;
-        OB.BORLevel = OB_BOR_LEVEL3;
+typedef enum {
+    GPIO_RISING = 1,
+    GPIO_FALLING = 2,
+    GPIO_BOTH = 3
+} gpio_flank_t;
 
-        if ( HAL_FLASHEx_OBProgram(&OB) != HAL_OK )
-        {
-            HAL_FLASH_OB_Lock();
-            HAL_FLASH_Lock();
-        }
+typedef void (*gpio_cb_t)();
 
-        HAL_FLASH_OB_Launch();
+void gpio_init(gpio_t pin, gpio_mode_t mode, gpio_speed_t speed);
+void gpio_init_af(gpio_t pin, gpio_af_t af, gpio_speed_t speed);
+void gpio_init_int(gpio_t pin, gpio_mode_t mode, gpio_flank_t flank, gpio_cb_t cb);
+void gpio_init_analog(gpio_t pin);
 
-        HAL_FLASH_OB_Lock();
-        HAL_FLASH_Lock();
-  }
+void gpio_int_disable(gpio_t pin);
 
-}
-#endif
+gpio_mode_t gpio_get_mode(gpio_t pin);
+int gpio_read(gpio_t pin);
+void gpio_set(gpio_t pin);
+void gpio_clear(gpio_t pin);
+void gpio_write(gpio_t pin, int value);
+void gpio_toggle(gpio_t pin);

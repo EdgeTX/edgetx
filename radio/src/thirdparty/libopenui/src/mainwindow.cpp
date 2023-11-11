@@ -22,6 +22,9 @@
 #include "lvgl/lvgl.h"
 #include "board.h"
 
+// timers_driver.h
+uint32_t timersGetMsTick();
+
 MainWindow * MainWindow::_instance = nullptr;
 
 MainWindow::MainWindow() :
@@ -39,7 +42,7 @@ void MainWindow::emptyTrash()
 
 void MainWindow::run(bool trash)
 {
-  auto start = ticksNow();
+  auto start = timersGetMsTick();
 
   auto opaque = Layer::getFirstOpaque();
   if (opaque) opaque->checkEvents();
@@ -53,9 +56,8 @@ void MainWindow::run(bool trash)
 
   if (trash) emptyTrash();
 
-  auto delta = ticksNow() - start;
-  if (delta > 10 * SYSTEM_TICKS_1MS) {
-    TRACE_WINDOWS("MainWindow::run took %dms",
-                  (ticksNow() - start) / SYSTEM_TICKS_1MS);
+  auto delta = timersGetMsTick() - start;
+  if (delta > 10) {
+    TRACE_WINDOWS("MainWindow::run took %dms", delta);
   }
 }

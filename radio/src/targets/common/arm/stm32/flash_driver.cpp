@@ -19,20 +19,18 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_cmsis.h"
+
 #include "board.h"
 #include "hal/watchdog_driver.h"
 
-#if defined(STM32F4)
-#include "stm32f4xx_flash.h"
-#elif defined(STM32F2)
-#include "stm32f2xx_flash.h"
-#endif
+#include "stm32_hal.h"
 
 void waitFlashIdle()
 {
   do {
     WDG_RESET();
-  } while (FLASH->SR & FLASH_FLAG_BSY);
+  } while (FLASH->SR & FLASH_SR_BSY);
 }
 
 //After reset, write is not allowed in the Flash control register (FLASH_CR) to protect the
@@ -64,8 +62,8 @@ void eraseSector(uint32_t sector)
 
   waitFlashIdle();
 
-  FLASH->CR &= CR_PSIZE_MASK;
-  FLASH->CR |= FLASH_PSIZE_WORD;
+  FLASH->CR &= ~FLASH_CR_PSIZE;
+  FLASH->CR |= FLASH_CR_PSIZE_0;
   FLASH->CR &= SECTOR_MASK;
   FLASH->CR |= FLASH_CR_SER | (sector << 3);
   FLASH->CR |= FLASH_CR_STRT;
@@ -144,8 +142,8 @@ void flashWrite(uint32_t * address, const uint32_t * buffer) // page size is 256
     // Wait for last operation to be completed
     waitFlashIdle();
 
-    FLASH->CR &= CR_PSIZE_MASK;
-    FLASH->CR |= FLASH_PSIZE_WORD;
+    FLASH->CR &= ~FLASH_CR_PSIZE;
+    FLASH->CR |= FLASH_CR_PSIZE_0;
     FLASH->CR |= FLASH_CR_PG;
 
     *address = *buffer;

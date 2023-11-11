@@ -21,8 +21,10 @@
 
 #include "stm32_pulse_driver.h"
 #include "stm32_gpio_driver.h"
+#include "stm32_gpio.h"
 #include "trainer_driver.h"
 
+#include "hal/gpio.h"
 #include "hal/module_port.h"
 #include "dataconstants.h"
 
@@ -55,8 +57,7 @@ static_assert(__IS_TRAINER_TIMER_IN_CHANNEL_SUPPORTED(TRAINER_IN_TIMER_Channel),
               "Unsupported trainer timer input channel");
 
 static const stm32_pulse_timer_t trainerOutputTimer = {
-  .GPIOx = TRAINER_GPIO,
-  .GPIO_Pin = TRAINER_OUT_GPIO_PIN,
+  .GPIO = TRAINER_OUT_GPIO,
   .GPIO_Alternate = TRAINER_GPIO_AF,
   .TIMx = TRAINER_TIMER,
   .TIM_Freq = TRAINER_TIMER_FREQ,
@@ -75,8 +76,7 @@ void trainer_init_dsc_out()
 }
 
 static const stm32_pulse_timer_t trainerInputTimer = {
-  .GPIOx = TRAINER_GPIO,
-  .GPIO_Pin = TRAINER_IN_GPIO_PIN,
+  .GPIO = TRAINER_IN_GPIO,
   .GPIO_Alternate = TRAINER_GPIO_AF,
   .TIMx = TRAINER_TIMER,
   .TIM_Freq = TRAINER_TIMER_FREQ,
