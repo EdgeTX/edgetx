@@ -79,17 +79,15 @@
 #if LCD_W >= 212
   #define TR_CSWTIMER                  "Takt"  // TIM = Takt = Taktgenerator
   #define TR_CSWSTICKY                 "SRFF"  // Sticky = RS-Flip-Flop
-  #define TR_CSWRANGE                  "Range" // Range = Bereichsabfrage von bis
   #define TR_CSWSTAY                   "Puls"  // Edge = einstellbarer Impuls
 #else
   #define TR_CSWTIMER                  "Takt"  // TIM = Takt = Taktgenerator
   #define TR_CSWSTICKY                 "SRFF"  // Sticky = RS-Flip-Flop
-    #define TR_CSWRANGE                "Rnge"  // Range= Bereichsabfrage von bis
-    #define TR_CSWSTAY                 "Puls"  // Edge = einstellbarer Impuls
+  #define TR_CSWSTAY                   "Puls"  // Edge = einstellbarer Impuls
 #endif
 
 #define TR_CSWEQUAL                    "a=x"
-#define TR_VCSWFUNC            			"---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
+#define TR_VCSWFUNC            			"---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
 #define TR_SF_TRAINER                  "Lehrer"
 #define TR_SF_INST_TRIM                "Inst. Trim"
