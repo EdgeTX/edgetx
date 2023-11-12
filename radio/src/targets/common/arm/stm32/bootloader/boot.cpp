@@ -83,7 +83,6 @@ const uint8_t bootloaderVersion[] __attribute__ ((section(".version"), used)) =
   {'B', 'O', 'O', 'T', '1', '0'};
 #endif
 
-volatile tmr10ms_t g_tmr10ms;
 volatile uint8_t tenms = 1;
 
 uint32_t firmwareSize;
@@ -99,14 +98,9 @@ FlashCheckRes valid;
 MemoryType memoryType;
 uint32_t unlocked = 0;
 
-volatile uint32_t timer10MsCount;
-
-void per5ms() {}
 void per10ms()
 {
-  timer10MsCount++;
   tenms |= 1u; // 10 mS has passed
-  g_tmr10ms++;
 
   keysPollingCycle();
 
@@ -121,12 +115,6 @@ void per10ms()
   }
 #endif
 }
-
-extern "C" uint32_t HAL_GetTick(void)
-{
-    return timer10MsCount * 10;
-}
-
 
 uint32_t isValidBufferStart(const uint8_t * buffer)
 {

@@ -81,6 +81,7 @@ if(NOT NATIVE_BUILD)
 
   # HAL/LL based driver library
   add_library(stm32_drivers OBJECT EXCLUDE_FROM_ALL
+    ${STM32_DRIVER_DIR}/stm32_hal.cpp
     ${STM32_DRIVER_DIR}/timers_driver.cpp
     ${STM32_DRIVER_DIR}/sdcard_spi.cpp
     ${STM32_DRIVER_DIR}/diskio_spi.cpp
@@ -100,7 +101,6 @@ if(NOT NATIVE_BUILD)
 endif()
 
 set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
-  ../common/arm/stm32/stm32_hal.cpp
   ../common/arm/stm32/rtc_driver.cpp
   ../common/arm/stm32/delays_driver.cpp
   ../common/arm/stm32/trainer_driver.cpp
