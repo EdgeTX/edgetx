@@ -726,7 +726,15 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
     }
   } else if (idx <= MIXSRC_LAST_GVAR) {
     idx -= MIXSRC_FIRST_GVAR;
+#if defined(LIBOPENUI)
+    char* s = strAppendStringWithIndex(dest, STR_GV, idx + 1);
+    if (g_model.gvars[idx].name[0]) {
+      s = strAppend(s, ":");
+      getGVarString(s, idx);
+    }
+#else
     strAppendStringWithIndex(dest, STR_GV, idx + 1);
+#endif
   } else if (idx < MIXSRC_FIRST_TIMER) {
     // Built-in sources: TX Voltage, Time, GPS (+ reserved)
     const char* src_str;
