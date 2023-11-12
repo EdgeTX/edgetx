@@ -29,6 +29,20 @@ if(Qt5Core_FOUND OR FOX_FOUND)
   endif()
 endif()
 
+if(Qt5Core_FOUND AND NOT DISABLE_COMPANION)
+  if(LINUX)
+    find_package(Libssl1)
+  endif()
+
+  # OpenSSL
+  # environment variable set in github workflows and build-edgetx Dockerfile
+  if (DEFINED ENV{OPENSSL_ROOT_DIR})
+    set(OPENSSL_ROOT_DIR "$ENV{OPENSSL_ROOT_DIR}")
+  endif()
+
+  find_package(OpenSSL)
+endif()
+
 # Windows-specific includes and libs shared by sub-projects
 if(WIN32)
   list(APPEND WIN_INCLUDE_DIRS "${RADIO_SRC_DIR}/thirdparty/windows/dirent")
