@@ -28,10 +28,6 @@ extern uint8_t menuCalibrationState;
 
 enum MenuIcons {
   ICON_EDGETX,
-#if defined(HARDWARE_TOUCH)
-  ICON_NEXT,
-  ICON_BACK,
-#endif
   ICON_RADIO,
   ICON_RADIO_SETUP,
   ICON_RADIO_SD_MANAGER,

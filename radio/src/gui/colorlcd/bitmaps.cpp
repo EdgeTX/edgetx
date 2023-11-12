@@ -26,12 +26,6 @@ const uint8_t _LBM_POINT[] = {
 };
 IMPL_LZ4_BITMAP(LBM_POINT);
 
-static const uint8_t mask_next[] = {
-#include "mask_next.lbm"
-};
-static const uint8_t mask_back[] = {
-#include "mask_back.lbm"
-};
 static const uint8_t mask_menu_model[] = {
 #include "mask_menu_model.lbm"
 };
@@ -164,17 +158,8 @@ static const uint8_t mask_stats_throttle_graph[] = {
 static const uint8_t mask_stats_timers[] = {
 #include "mask_stats_timers.lbm"
 };
-static const uint8_t mask_textline_delay[] = {
-#include "mask_textline_delay.lbm"
-};
-static const uint8_t mask_textline_delayslow[] = {
-#include "mask_textline_delayslow.lbm"
-};
 static const uint8_t mask_textline_label[] = {
 #include "mask_textline_label.lbm"
-};
-static const uint8_t mask_textline_slow[] = {
-#include "mask_textline_slow.lbm"
 };
 static const uint8_t mask_textline_switch[] = {
 #include "mask_textline_switch.lbm"
@@ -224,41 +209,12 @@ static const uint8_t stick_background[] = {
 static const uint8_t trackp_background[] = {
 #include "alpha_trackp_background.lbm"
 };
-static const uint8_t mask_sdfree[] = {
-#include "mask_sdfree.lbm"
-};
-static const uint8_t mask_modelqty[] = {
-#include "mask_modelqty.lbm"
-};
-static const uint8_t mask_modelname[] = {
-#include "mask_modelname.lbm"
-};
-static const uint8_t mask_moveback[] = {
-#include "mask_moveback.lbm"
-};
-static const uint8_t mask_moveico[] = {
-#include "mask_moveico.lbm"
-};
 
 BitmapBuffer * calibStick = nullptr;
 BitmapBuffer * calibStickBackground = nullptr;
 BitmapBuffer * calibTrackpBackground = nullptr;
-BitmapBuffer * modelselSdFreeBitmap = nullptr;
-BitmapBuffer * modelselModelQtyBitmap = nullptr;
-BitmapBuffer * modelselModelNameBitmap = nullptr;
-BitmapBuffer * modelselModelMoveBackground = nullptr;
-BitmapBuffer * modelselModelMoveIcon = nullptr;
 BitmapBuffer * chanMonLockedBitmap = nullptr;
 BitmapBuffer * chanMonInvertedBitmap = nullptr;
-BitmapBuffer * mixerSetupMixerBitmap = nullptr;
-BitmapBuffer * mixerSetupToBitmap = nullptr;
-BitmapBuffer * mixerSetupOutputBitmap = nullptr;
-// BitmapBuffer * mixerSetupCurveIcon = nullptr;
-BitmapBuffer * mixerSetupSwitchIcon = nullptr;
-BitmapBuffer * mixerSetupLabelIcon = nullptr;
-BitmapBuffer * mixerSetupDelayIcon = nullptr;
-BitmapBuffer * mixerSetupSlowIcon = nullptr;
-BitmapBuffer * mixerSetupDelaySlowIcon = nullptr;
 
 struct _BuiltinBitmap {
 
@@ -272,27 +228,8 @@ static const _BuiltinBitmap _builtinBitmaps[] = {
     {BMP_ARGB4444, stick_background, &calibStickBackground},
     {BMP_ARGB4444, trackp_background, &calibTrackpBackground},
 
-    {BMP_8BIT, mask_sdfree, &modelselSdFreeBitmap},
-
-    {BMP_8BIT, mask_modelqty, &modelselModelQtyBitmap},
-    {BMP_8BIT, mask_modelname, &modelselModelNameBitmap},
-
-    {BMP_8BIT, mask_moveback, &modelselModelMoveBackground},
-    {BMP_8BIT, mask_moveico, &modelselModelMoveIcon},
-    {BMP_8BIT, mask_moveico, &modelselModelMoveIcon},
-
     {BMP_8BIT, mask_monitor_lockch, &chanMonLockedBitmap},
     {BMP_8BIT, mask_monitor_inver, &chanMonInvertedBitmap},
-
-    {BMP_8BIT, mask_sbar_mixer, &mixerSetupMixerBitmap},
-    {BMP_8BIT, mask_sbar_output, &mixerSetupOutputBitmap},
-
-    {BMP_8BIT, mask_textline_label, &mixerSetupLabelIcon},
-    // {BMP_8BIT, mask_textline_curve, &mixerSetupCurveIcon},
-    {BMP_8BIT, mask_textline_switch, &mixerSetupSwitchIcon},
-    {BMP_8BIT, mask_textline_slow, &mixerSetupSlowIcon},
-    {BMP_8BIT, mask_textline_delay, &mixerSetupDelayIcon},
-    {BMP_8BIT, mask_textline_delayslow, &mixerSetupDelaySlowIcon},
 };
 
 void loadBuiltinBitmaps()
@@ -318,10 +255,6 @@ struct _BuiltinIcon {
 
 static const _BuiltinIcon _builtinIcons[] = {
     {ICON_EDGETX, mask_edgetx},
-#if defined(HARDWARE_TOUCH)
-    {ICON_NEXT, mask_next},
-    {ICON_BACK, mask_back},
-#endif
     {ICON_RADIO, mask_menu_radio},
     {ICON_RADIO_SETUP, mask_radio_setup},
     {ICON_RADIO_SD_MANAGER, mask_radio_sd_browser},
