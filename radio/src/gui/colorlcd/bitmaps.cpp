@@ -83,9 +83,6 @@ static const uint8_t mask_model_usb[] = {
 static const uint8_t mask_menu_model_select[] = {
 #include "mask_menu_model_select.lbm" //TODO: someone may want to make proper icon
 };
-static const uint8_t mask_model_select_category[] = {
-#include "mask_model_select_category.lbm" //TODO: someone should make proper icon
-};
 static const uint8_t mask_monitor[] = {
 #include "mask_monitor.lbm"
 };
@@ -140,12 +137,6 @@ static const uint8_t mask_radio_trainer[] = {
 static const uint8_t mask_radio_version[] = {
 #include "mask_radio_version.lbm"
 };
-static const uint8_t mask_sbar_mixer[] = {
-#include "mask_sbar_mixer.lbm"
-};
-static const uint8_t mask_sbar_output[] = {
-#include "mask_sbar_output.lbm"
-};
 static const uint8_t mask_stats_analogs[] = {
 #include "mask_stats_analogs.lbm"
 };
@@ -157,12 +148,6 @@ static const uint8_t mask_stats_throttle_graph[] = {
 };
 static const uint8_t mask_stats_timers[] = {
 #include "mask_stats_timers.lbm"
-};
-static const uint8_t mask_textline_label[] = {
-#include "mask_textline_label.lbm"
-};
-static const uint8_t mask_textline_switch[] = {
-#include "mask_textline_switch.lbm"
 };
 static const uint8_t mask_theme_add_view[] = {
 #include "mask_theme_add_view.lbm"
@@ -206,13 +191,9 @@ static const uint8_t stick_pointer[] = {
 static const uint8_t stick_background[] = {
 #include "alpha_stick_background.lbm"
 };
-static const uint8_t trackp_background[] = {
-#include "alpha_trackp_background.lbm"
-};
 
 BitmapBuffer * calibStick = nullptr;
 BitmapBuffer * calibStickBackground = nullptr;
-BitmapBuffer * calibTrackpBackground = nullptr;
 BitmapBuffer * chanMonLockedBitmap = nullptr;
 BitmapBuffer * chanMonInvertedBitmap = nullptr;
 
@@ -226,7 +207,6 @@ struct _BuiltinBitmap {
 static const _BuiltinBitmap _builtinBitmaps[] = {
     {BMP_ARGB4444, stick_pointer, &calibStick},
     {BMP_ARGB4444, stick_background, &calibStickBackground},
-    {BMP_ARGB4444, trackp_background, &calibTrackpBackground},
 
     {BMP_8BIT, mask_monitor_lockch, &chanMonLockedBitmap},
     {BMP_8BIT, mask_monitor_inver, &chanMonInvertedBitmap},
@@ -281,7 +261,6 @@ static const _BuiltinIcon _builtinIcons[] = {
     {ICON_MODEL_TELEMETRY, mask_model_telemetry},
     {ICON_MODEL_USB, mask_model_usb},
     {ICON_MODEL_SELECT, mask_menu_model_select},
-    {ICON_MODEL_SELECT_CATEGORY, mask_model_select_category},
     {ICON_THEME, mask_menu_theme},
     {ICON_THEME_SETUP, mask_theme_setup},
     {ICON_THEME_VIEW1, mask_theme_view1},

@@ -29,7 +29,6 @@ DEFINE_LZ4_BITMAP(LBM_POINT);
 // calibration bitmaps
 extern BitmapBuffer * calibStick;
 extern BitmapBuffer * calibStickBackground;
-extern BitmapBuffer * calibTrackpBackground;
 
 // Channels monitor bitmaps
 extern BitmapBuffer * chanMonLockedBitmap;
