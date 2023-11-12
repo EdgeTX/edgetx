@@ -81,6 +81,13 @@ class LogicalSwitchEditPage : public Page
                                getFont(FONT(BOLD)), LV_STATE_USER_1);
   }
 
+  void getV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max)
+  {
+    getMixSrcRange(cs->v1, v2_min, v2_max);
+    if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG) || (cs->func == LS_FUNC_ADIFFEGREATER))
+      v2_min = 0;
+  }
+
   void updateLogicalSwitchOneWindow()
   {
     SwitchChoice* choice;
@@ -124,7 +131,7 @@ class LogicalSwitchEditPage : public Page
                            cs->v1 = newValue;
                            if (v2Edit != nullptr) {
                              int16_t v2_min = 0, v2_max = 0;
-                             getMixSrcRange(cs->v1, v2_min, v2_max);
+                             getV2Range(cs, v2_min, v2_max);
                              v2Edit->setMin(v2_min);
                              v2Edit->setMax(v2_max);
                              v2Edit->setValue(cs->v2);
@@ -189,7 +196,7 @@ class LogicalSwitchEditPage : public Page
         break;
       default:
         int16_t v2_min = 0, v2_max = 0;
-        getMixSrcRange(cs->v1, v2_min, v2_max);
+        getV2Range(cs, v2_min, v2_max);
         v2Edit = new NumberEdit(line, rect_t{}, v2_min, v2_max,
                                 GET_SET_DEFAULT(cs->v2));
         lv_obj_set_width(v2Edit->getLvObj(), LV_SIZE_CONTENT);

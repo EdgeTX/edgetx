@@ -159,9 +159,7 @@ void menuModelLogicalSwitchOne(event_t event)
           if (v1_val >= MIXSRC_FIRST_TELEM) {
             drawSourceCustomValue(CSWONE_2ND_COLUMN, y, v1_val, convertLswTelemValue(cs), attr|LEFT);
             v2_max = maxTelemValue(v1_val - MIXSRC_FIRST_TELEM + 1);
-            if (cs->func == LS_FUNC_DIFFEGREATER)
-              v2_min = -v2_max;
-            else if (cs->func == LS_FUNC_ADIFFEGREATER)
+            if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG) || (cs->func == LS_FUNC_ADIFFEGREATER))
               v2_min = 0;
             else
               v2_min = -v2_max;
@@ -175,6 +173,8 @@ void menuModelLogicalSwitchOne(event_t event)
           {
             LcdFlags lf = attr | LEFT;
             getMixSrcRange(v1_val, v2_min, v2_max, &lf);
+            if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG) || (cs->func == LS_FUNC_ADIFFEGREATER))
+              v2_min = 0;
             drawSourceCustomValue(CSWONE_2ND_COLUMN, y, v1_val, (v1_val <= MIXSRC_LAST_CH ? calc100toRESX(cs->v2) : cs->v2), lf);
           }
         }
