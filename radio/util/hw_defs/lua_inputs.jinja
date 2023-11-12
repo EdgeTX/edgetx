@@ -3,11 +3,10 @@
 //   This file has been generated from the target's JSON hardware description
 //
 
-{% set pot_inputs = adc_inputs.inputs | selectattr('type', '==', 'POT') | list %}
-{% set axis_inputs = adc_inputs.inputs | selectattr('type', '==', 'AXIS') | list %}
+{% set inputs = adc_inputs.inputs | selectattr('type', '==', 'FLEX') | list %}
 
 static const LuaSingleField _lua_inputs[] = {
-  {% for input in (pot_inputs + axis_inputs) %}
+  {% for input in inputs %}
     {% set li = legacy_inputs[input.name] %}
     { MIXSRC_FIRST_POT + {{ loop.index0 }}, "{{ li.lua }}", "{{ li.description }}" },
   {% endfor %}
