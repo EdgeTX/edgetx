@@ -139,6 +139,7 @@ if(NOT NO_LTO)
   target_compile_options(stm32cube_ll PRIVATE -flto)
   target_compile_options(stm32usb PRIVATE -flto)
   target_compile_options(stm32usb_device_bl PRIVATE -flto)
+  target_compile_options(stm32usb_device_fw PRIVATE -flto)
   target_compile_options(stm32_drivers PRIVATE -flto)
 endif()
 
