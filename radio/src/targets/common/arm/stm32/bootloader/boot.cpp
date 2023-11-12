@@ -101,6 +101,7 @@ FlashCheckRes valid;
 MemoryType memoryType;
 uint32_t unlocked = 0;
 
+void per5ms() {} // make linker happy
 void per10ms()
 {
   tenms |= 1u; // 10 mS has passed

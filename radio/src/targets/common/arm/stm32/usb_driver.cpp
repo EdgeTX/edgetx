@@ -141,7 +141,7 @@ void usbStart()
     default:
     case USB_MASS_STORAGE_MODE:
       // initialize USB as MSC device
-      //usbInitLUNs();
+      usbInitLUNs();
       //MX_USB_DEVICE_Init();
       USBD_RegisterClass(&hUsbDeviceFS, &USBD_MSC);
       USBD_MSC_RegisterStorage(&hUsbDeviceFS, &USBD_Storage_Interface_fops_FS);
