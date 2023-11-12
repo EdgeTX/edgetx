@@ -1614,8 +1614,8 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   bool read_enable_flag = true;
   if (HAS_REPEAT_PARAM(func)) {
     // Check for 2 values to be parsed
-    sep = (const char *)memchr(val, ',', val_len);
-    if (!sep) {
+    uint8_t l_sep = find_sep(val, val_len);
+    if (!l_sep) {
       // only one more value - assume it is repeat
       read_enable_flag = false;
       // Set 'enabled'
@@ -1627,8 +1627,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   // "0/1"
   if (val_len > 0 && read_enable_flag) {
     CFN_ACTIVE(cfn) = (val[0] == '1') ? 1 : 0;
-    sep = (const char *)memchr(val, ',', val_len);
-    l_sep = sep ? sep - val : val_len;
+    uint8_t l_sep = find_sep(val, val_len);
 
     // Skip comma before optional repeat
     val += l_sep;
