@@ -25,7 +25,6 @@ if(NOT NATIVE_BUILD)
     ${STM32USB_DIR}/Core/Src/usbd_ctlreq.c
     ${STM32USB_DIR}/Core/Src/usbd_ioreq.c
     ${STM32USB_DIR}/Class/CDC/Src/usbd_cdc.c
-    ${STM32USB_DIR}/Class/HID/Src/usbd_hid.c
     ${STM32USB_DIR}/Class/MSC/Src/usbd_msc_data.c
     ${STM32USB_DIR}/Class/MSC/Src/usbd_msc_scsi.c
     ${STM32USB_DIR}/Class/MSC/Src/usbd_msc_bot.c
@@ -65,6 +64,7 @@ if(NOT NATIVE_BUILD)
     ${STM32_DRIVER_DIR}/usb_driver.cpp
     ${STM32_DRIVER_DIR}/usbd_storage_msd.cpp
     ${STM32_DRIVER_DIR}/usbd_cdc.cpp
+    ${STM32_DRIVER_DIR}/usbd_hid_joystick.c
   )
 
   if(DEBUG OR CLI OR USB_SERIAL)
@@ -85,6 +85,7 @@ if(NOT NATIVE_BUILD)
     ${STM32_DRIVER_DIR}/timers_driver.cpp
     ${STM32_DRIVER_DIR}/sdcard_spi.cpp
     ${STM32_DRIVER_DIR}/diskio_spi.cpp
+    ${STM32_DRIVER_DIR}/diskio_sdio.cpp
     ${STM32_DRIVER_DIR}/stm32_exti_driver.cpp
     ${STM32_DRIVER_DIR}/stm32_serial_driver.cpp
     ${STM32_DRIVER_DIR}/stm32_usart_driver.cpp
