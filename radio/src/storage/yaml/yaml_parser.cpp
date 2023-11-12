@@ -285,10 +285,6 @@ YamlParser::parse(const char* buffer, unsigned int size)
                 state = ps_CRLF;
                 continue;
             }
-            if (*c == '\"') {
-                state = ps_ValQuo;
-                break;
-            }
             if (*c == '\\') {
                 state = ps_ValEsc;
                 break;
