@@ -905,8 +905,6 @@
 #define TR_MODULE_PROTOCOL_WARN_LINE2             "R9M non certifié"
 #define TR_LOWALARM                    INDENT "Alarme basse"
 #define TR_CRITICALALARM               INDENT "Alarme critique"
-#define TR_RSSIALARM_WARN              TR("RSSI", "TELEMETRIE")
-#define TR_NO_RSSIALARM                TR(INDENT "Alarmes désact.", "Alarme télém. désact.")
 #define TR_DISABLE_ALARM               TR(INDENT "Désact. alarme", INDENT "Désact. alarme télém.")
 #define TR_POPUP                       "Popup"
 #define TR_MIN                         "Min"

@@ -925,8 +925,6 @@
 #define TR_MODULE_PROTOCOL_WARN_LINE2             "certifierad firmware"
 #define TR_LOWALARM                     INDENT "Lågalarm"
 #define TR_CRITICALALARM                INDENT "Kritiskt alarm"
-#define TR_RSSIALARM_WARN               TR("RSSI","TELEMETRI RSSI")
-#define TR_NO_RSSIALARM                 TR(INDENT "Alarm inaktiverade", INDENT "Telemetrialarm inaktiverade")
 #define TR_DISABLE_ALARM                TR(INDENT "Inaktivera alarm", INDENT "Inaktivera telemetrialarm")
 #define TR_POPUP                        "Popup"
 #define TR_MIN                          "Min"

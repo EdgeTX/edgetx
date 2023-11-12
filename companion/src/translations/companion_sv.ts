@@ -10627,7 +10627,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="775"/>
-        <source>RSSI Alarms</source>
+        <source>RF Quality Alarms</source>
         <translation>RSSI-alarm</translation>
     </message>
     <message>
@@ -13752,6 +13752,11 @@ För många fel - ger upp.</translation>
         <location filename="../modeledit/telemetry.ui" line="532"/>
         <source>Vario limits</source>
         <translation>Vario gränser</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/telemetry.ui" line="610"/>
+        <source>RF Quality</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../modeledit/telemetry.ui" line="568"/>

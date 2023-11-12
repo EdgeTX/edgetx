@@ -887,8 +887,6 @@
 #define TR_MODULE_PROTOCOL_WARN_LINE2        "经认证的固件"
 #define TR_LOWALARM                    INDENT "信号弱报警"
 #define TR_CRITICALALARM               INDENT "信号极弱报警"
-#define TR_RSSIALARM_WARN              "RSSI"
-#define TR_NO_RSSIALARM                TR(INDENT "回传报警已禁止", "回传报警已禁止")
 #define TR_DISABLE_ALARM               TR(INDENT "禁止回传报警", INDENT "禁止回传报警")
 #define TR_POPUP                       "弹窗提示"
 #define TR_MIN                         "最小"

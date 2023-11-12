@@ -10760,7 +10760,7 @@ Esto determina cómo los valores de mezcla son añadidos.
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="775"/>
-        <source>RSSI Alarms</source>
+        <source>RF Quality Alarms</source>
         <translation>Alarmas RSSI</translation>
     </message>
 </context>
@@ -13500,6 +13500,11 @@ Demasiados errores, abortando.</translation>
         <location filename="../modeledit/telemetry.ui" line="575"/>
         <source>Vario limits</source>
         <translation>Límites variómetro</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/telemetry.ui" line="610"/>
+        <source>RF Quality</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../modeledit/telemetry.ui" line="611"/>

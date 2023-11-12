@@ -899,8 +899,6 @@
 #define TR_MODULE_PROTOCOL_WARN_LINE2             "firmware certificado"
 #define TR_LOWALARM            INDENT "Alarma baja"
 #define TR_CRITICALALARM       INDENT "Alarma crítica"
-#define TR_RSSIALARM_WARN      TR("RSSI", "TELEMETRY RSSI")
-#define TR_NO_RSSIALARM        TR(INDENT "Alarmas desact.", INDENT "Alarmas telemetría desact.")
 #define TR_DISABLE_ALARM       TR(INDENT "Desact. alarmas", INDENT "Desact. alarmas telem.")
 #define TR_POPUP               "Popup"
 #define TR_MIN                 "Min"

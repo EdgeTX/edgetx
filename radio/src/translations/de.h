@@ -863,7 +863,7 @@
 #define TR_TOUCH_EXIT                  "Touch screen to exit"
 #define TR_CALIBRATION                 "Kalibrieren"
 #define TR_SET                   	   BUTTON("Set")
-#define TR_TRAINER             		   "DSC Buchse PPM In/Out"
+#define TR_TRAINER             		   "Lehrer/Schüler"
 #define TR_CHANS                       "Chans"
 #define TR_ANTENNAPROBLEM     		   CENTER "TX-Antennenproblem!"
 #define TR_MODELIDUSED                 "ID benutzt in:"
@@ -902,8 +902,6 @@
 #define TR_MODULE_PROTOCOL_WARN_LINE2        "certified firmware"
 #define TR_LOWALARM                    INDENT "1.Warnschwelle"
 #define TR_CRITICALALARM               INDENT "Kritischer Alarm"
-#define TR_RSSIALARM_WARN              "RSSI"
-#define TR_NO_RSSIALARM                TR(INDENT "RSSI Alarms AUS", "RSSI Alarme ausschalten")
 #define TR_DISABLE_ALARM               TR(INDENT "Alarme AUS", INDENT "Telemetrie Alarme AUS")
 #define TR_POPUP                       "Popup"
 #define TR_MIN                         "Min"

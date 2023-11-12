@@ -770,9 +770,9 @@ QString MultiModelPrinter::printTelemetry()
   COMPARECELL(modelPrinter->printTelemetryProtocol(model->telemetryProtocol));
   columns.appendRowEnd();
 
-  // RSSI alarms
+  // RF Quality Alarms
   {
-    columns.appendRowStart(tr("RSSI Alarms"), 20);
+    columns.appendRowStart(tr("RF Quality Alarms"), 20);
     columns.appendCellStart(80);
     COMPARESTRING("", tr("Low"), false);
     columns.append(": ");

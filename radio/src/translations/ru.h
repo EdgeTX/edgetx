@@ -899,8 +899,6 @@
 #define TR_MODULE_PROTOCOL_WARN_LINE2        "Сертифиц ПО"
 #define TR_LOWALARM                    INDENT "Низкий сигнал"
 #define TR_CRITICALALARM               INDENT "Критич сигнал"
-#define TR_RSSIALARM_WARN              "RSSI"
-#define TR_NO_RSSIALARM                TR(INDENT "Откл сигналы", "Откл сигналы")
 #define TR_DISABLE_ALARM               TR(INDENT "Откл сигналы", INDENT "Откл сигналы")
 #define TR_POPUP                       "Всплыв"
 #define TR_MIN                         "Мин"

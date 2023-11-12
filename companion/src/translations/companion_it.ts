@@ -10750,7 +10750,7 @@ Determina come il valore viene aggiunto alla miscelazione.
     </message>
     <message>
         <location filename="../multimodelprinter.cpp" line="775"/>
-        <source>RSSI Alarms</source>
+        <source>RF Quality Alarms</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -13463,6 +13463,11 @@ Too many errors, giving up.</source>
         <location filename="../modeledit/telemetry.ui" line="575"/>
         <source>Vario limits</source>
         <translation>Limiti per il Vario</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/telemetry.ui" line="610"/>
+        <source>RF Quality</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../modeledit/telemetry.ui" line="611"/>

@@ -50,7 +50,7 @@
          </font>
         </property>
         <property name="text">
-         <string>RSSI</string>
+         <string>RF Quality</string>
         </property>
        </widget>
       </item>

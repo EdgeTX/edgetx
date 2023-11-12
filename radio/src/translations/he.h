@@ -901,8 +901,6 @@
 #define TR_MODULE_PROTOCOL_WARN_LINE2        "certified firmware"
 #define TR_LOWALARM                    INDENT "התראה נמוכה"
 #define TR_CRITICALALARM               INDENT "התראה קריטית"
-#define TR_RSSIALARM_WARN              "RSSI"
-#define TR_NO_RSSIALARM                TR(INDENT "התראות בוטלו", "התראות טלמטריה בוטלו")
 #define TR_DISABLE_ALARM               TR(INDENT "ביטול התראות", INDENT "ביטול התראות טלמטריה")
 #define TR_POPUP                       "התראות"
 #define TR_MIN                         "מינימום"
