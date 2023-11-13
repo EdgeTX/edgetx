@@ -60,7 +60,7 @@ inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
 constexpr coord_t MODEL_CELL_PADDING = 6;
 constexpr coord_t MODEL_SELECT_CELL_HEIGHT = 92;
-constexpr int BUTTONS_HEIGHT = 30;
+constexpr int BUTTONS_HEIGHT = 32;
 constexpr int MODEL_CELLS_PER_LINE = 2;
 
 #if LCD_W > LCD_H  // Landscape
@@ -82,20 +82,17 @@ class ToolbarButton : public Button
  public:
   ToolbarButton(FormWindow *parent, const rect_t &rect, const uint8_t *bitmap,
                 std::function<uint8_t()> pressHandler = nullptr) :
-      Button(parent, rect, pressHandler, 0), _bitmap(bitmap)
+      Button(parent, rect, pressHandler, 0, 0, etx_button_create),
+      _bitmap(bitmap)
   {
-    lv_obj_set_style_border_width(lvobj, lv_dpx(2), 0);
-    lv_obj_set_style_border_opa(lvobj, LV_OPA_TRANSP, 0);
-
-    lv_obj_set_style_border_color(lvobj, makeLvColor(COLOR_THEME_FOCUS),
-                                  LV_STATE_FOCUSED);
-    lv_obj_set_style_border_opa(lvobj, LV_OPA_100, LV_STATE_FOCUSED);
   }
 
   inline bool getSelected() { return _selected; }
+
   void setSelected(bool selected)
   {
     _selected = selected;
+    check(_selected);
     invalidate();
   }
 
@@ -107,29 +104,12 @@ class ToolbarButton : public Button
 
   void paint(BitmapBuffer *dc) override
   {
-    int width;
-    uint32_t bgColor =
-        !_selected ? COLOR_THEME_SECONDARY3 : COLOR_THEME_SECONDARY2;
-    auto bm = getBitmap(_bitmap, bgColor, COLOR_THEME_PRIMARY1, &width);
-    dc->drawScaledBitmap(bm, 2, 2, this->width() - 4, this->height() - 4);
-    delete bm;
+    dc->drawBitmapPattern(2, 2, _bitmap, COLOR_THEME_PRIMARY1);
   }
 
  protected:
   const uint8_t *_bitmap;
   bool _selected = false;
-
-  BitmapBuffer *getBitmap(const uint8_t *maskData, uint32_t bgColor,
-                          uint32_t fgColor, int *width)
-  {
-    auto mask = BitmapBuffer::load8bitMask(maskData);
-    BitmapBuffer *newBm =
-        new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
-    newBm->clear(bgColor);
-    newBm->drawMask(0, 0, mask, fgColor);
-    delete mask;
-    return newBm;
-  }
 };
 
 class ButtonHolder : public FormWindow
@@ -143,7 +123,7 @@ class ButtonHolder : public FormWindow
 
   ButtonHolder(Window *parent, const rect_t &rect) : FormWindow(parent, rect)
   {
-    setHeight(25);
+    setHeight(BUTTONS_HEIGHT);
     addButton(mask_sort_alpha_up, mask_sort_alpha_down);
     addButton(mask_sort_date_up, mask_sort_date_down);
 
@@ -226,7 +206,7 @@ class ButtonHolder : public FormWindow
       if (_pressHandler != nullptr && b != nullptr)
         _pressHandler(buttonIndex, b);
 
-      return 0;
+      return tb->getSelected();
     });
 
     ButtonInfo bi = {tb, state1Bm, state2Bm, 0};
@@ -244,13 +224,21 @@ class ModelButton : public Button
  public:
   ModelButton(FormWindow *parent, const rect_t &rect, ModelCell *modelCell,
               std::function<void()> setSelected) :
-      Button(parent, rect), modelCell(modelCell)
+      Button(parent, rect, nullptr, 0, 0, etx_button_create),
+      modelCell(modelCell)
   {
+    padAll(0);
+
     m_setSelected = std::move(setSelected);
 
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
     setWidth(MODEL_SELECT_CELL_WIDTH);
     setHeight(MODEL_SELECT_CELL_HEIGHT);
+
+    auto name = new StaticText(this, {0, 0, MODEL_SELECT_CELL_WIDTH - 4, 20},
+                               modelCell->modelName, 0,
+                               CENTERED | COLOR_THEME_SECONDARY1);
+    check(modelCell == modelslist.getCurrentModel());
   }
 
   ~ModelButton()
@@ -264,33 +252,35 @@ class ModelButton : public Button
   {
     const char *error = nullptr;
 
+    coord_t w = width() - 8;
+    coord_t h = height() - 26;
+
     delete buffer;
-    buffer = new BitmapBuffer(BMP_RGB565, width(), height());
+    buffer = new BitmapBuffer(BMP_RGB565, w, h);
     if (buffer == nullptr) {
       return;
     }
     buffer->clear(COLOR_THEME_PRIMARY2);
 
+    std::string errorMsg = "(";
+
     if (error) {
-      std::string errorMsg = "(";
       errorMsg += STR_INVALID_MODEL;
-      errorMsg += ")";
-      buffer->drawText(width() / 2, height() / 2, errorMsg.c_str(),
-                       COLOR_THEME_SECONDARY1 | CENTERED);
     } else {
       GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
       const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);
       if (bitmap) {
-        buffer->drawScaledBitmap(bitmap, 0, 0, width(), height());
+        buffer->drawScaledBitmap(bitmap, 0, 0, w, h);
         delete bitmap;
+        return;
       } else {
-        std::string errorMsg = "(";
         errorMsg += STR_NO_PICTURE;
-        errorMsg += ")";
-        buffer->drawText(width() / 2, 56, errorMsg.c_str(),
-                         FONT(XXS) | COLOR_THEME_SECONDARY1 | CENTERED);
       }
     }
+
+    errorMsg += ")";
+    buffer->drawText(w / 2, h / 2, errorMsg.c_str(),
+                     COLOR_THEME_SECONDARY1 | CENTERED);
   }
 
   void paint(BitmapBuffer *dc) override
@@ -299,24 +289,8 @@ class ModelButton : public Button
       load();
       loaded = true;
     }
-    FormField::paint(dc);
 
-    if (buffer) dc->drawBitmap(0, 0, buffer);
-
-    if (modelCell == modelslist.getCurrentModel()) {
-      dc->drawSolidFilledRect(0, 0, width(), 20, COLOR_THEME_ACTIVE);
-    } else {
-      dc->drawFilledRect(0, 0, width(), 20, SOLID, COLOR_THEME_PRIMARY2);
-    }
-    dc->drawSizedText(width() / 2, 2, modelCell->modelName, LEN_MODEL_NAME,
-                      COLOR_THEME_SECONDARY1 | CENTERED);
-
-    if (!hasFocus()) {
-      dc->drawSolidRect(0, 0, width(), height(), 1, COLOR_THEME_SECONDARY2);
-    } else {
-      dc->drawSolidRect(0, 0, width(), height(), 2, COLOR_THEME_FOCUS);
-      if (m_setSelected) m_setSelected();
-    }
+    if (buffer) dc->drawBitmap(4, 22, buffer);
   }
 
   const char *modelFilename() { return modelCell->modelFilename; }
@@ -339,6 +313,7 @@ class ModelButton : public Button
   {
     setFocused();
     Button::onClicked();
+    if (m_setSelected) m_setSelected();
   }
 };
 
