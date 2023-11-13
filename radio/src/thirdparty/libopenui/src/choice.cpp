@@ -199,7 +199,9 @@ void Choice::fillMenu(Menu* menu, const FilterFct& filter)
   int count = 0;
   int selectedIx = -1;
   selectedIx0 = -1;
-  for (int i = vmin; i <= vmax; ++i) {
+  for (int n = vmin; n <= vmax; ++n) {
+    int i = n;
+    if (rangeMapHandler) i = rangeMapHandler(i);
     if (filter && !filter(i)) continue;
     if (isValueAvailable && !isValueAvailable(inverted ? -i : i)) continue;
     if (textHandler) {

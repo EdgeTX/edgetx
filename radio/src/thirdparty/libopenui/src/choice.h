@@ -156,6 +156,11 @@ class Choice : public ChoiceBase
     lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
   }
 
+  void setRangeMapHandler(std::function<int(int)> handler)
+  {
+    rangeMapHandler = handler;
+  }
+
   void setMenuTitle(std::string value) { menuTitle = std::move(value); }
   std::string getMenuTitle() const { return menuTitle; }
 
@@ -192,6 +197,7 @@ class Choice : public ChoiceBase
   std::function<void(int)> _setValue;
   std::function<bool(int)> isValueAvailable;
   std::function<std::string(int)> textHandler;
+  std::function<int(int)> rangeMapHandler;
   std::function<void(Menu *, int, int&)> fillMenuHandler;
   std::function<void(Menu *)> beforeDisplayMenuHandler;
 
