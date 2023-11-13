@@ -20,29 +20,29 @@
  */
 
 #include "model_inputs.h"
-#include "opentx.h"
-#include "gvar_numberedit.h"
-#include "libopenui.h"
-#include "choice.h"
-#include "model_curves.h"
-#include "input_edit.h"
-#include "input_mix_group.h"
-#include "input_mix_button.h"
-#include "input_mapping.h"
-
-#include "tasks/mixer_task.h"
-#include "hal/adc_driver.h"
 
 #include <algorithm>
+
+#include "choice.h"
+#include "gvar_numberedit.h"
+#include "hal/adc_driver.h"
+#include "input_edit.h"
+#include "input_mapping.h"
+#include "input_mix_button.h"
+#include "input_mix_group.h"
+#include "libopenui.h"
+#include "model_curves.h"
+#include "opentx.h"
+#include "tasks/mixer_task.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 uint8_t getExposCount()
 {
   uint8_t count = 0;
-  uint8_t ch ;
+  uint8_t ch;
 
-  for (int i=MAX_EXPOS-1 ; i>=0; i--) {
+  for (int i = MAX_EXPOS - 1; i >= 0; i--) {
     ch = EXPO_VALID(expoAddress(i));
     if (ch != 0) {
       count++;
@@ -59,7 +59,7 @@ void copyExpo(uint8_t source, uint8_t dest, uint8_t input)
   mixerTaskStop();
   ExpoData sourceExpo;
   memcpy(&sourceExpo, expoAddress(source), sizeof(ExpoData));
-  ExpoData *expo = expoAddress(dest);
+  ExpoData* expo = expoAddress(dest);
   size_t trailingExpos = MAX_EXPOS - (dest + 1);
   memmove(expo + 1, expo, trailingExpos * sizeof(ExpoData));
   memcpy(expo, &sourceExpo, sizeof(ExpoData));
@@ -71,10 +71,10 @@ void copyExpo(uint8_t source, uint8_t dest, uint8_t input)
 void deleteExpo(uint8_t idx)
 {
   mixerTaskStop();
-  ExpoData * expo = expoAddress(idx);
+  ExpoData* expo = expoAddress(idx);
   int input = expo->chn;
-  memmove(expo, expo+1, (MAX_EXPOS-(idx+1))*sizeof(ExpoData));
-  memclear(&g_model.expoData[MAX_EXPOS-1], sizeof(ExpoData));
+  memmove(expo, expo + 1, (MAX_EXPOS - (idx + 1)) * sizeof(ExpoData));
+  memclear(&g_model.expoData[MAX_EXPOS - 1], sizeof(ExpoData));
   if (!isInputAvailable(input)) {
     memclear(&g_model.inputNames[input], LEN_INPUT_NAME);
   }
@@ -90,16 +90,16 @@ int8_t s_copySrcRow;
 void insertExpo(uint8_t idx, uint8_t input)
 {
   mixerTaskStop();
-  ExpoData * expo = expoAddress(idx);
-  memmove(expo+1, expo, (MAX_EXPOS-(idx+1))*sizeof(ExpoData));
+  ExpoData* expo = expoAddress(idx);
+  memmove(expo + 1, expo, (MAX_EXPOS - (idx + 1)) * sizeof(ExpoData));
   memclear(expo, sizeof(ExpoData));
   if (input >= adcGetMaxInputs(ADC_INPUT_MAIN)) {
     expo->srcRaw = MIXSRC_FIRST_STICK + input;
   } else {
     expo->srcRaw = MIXSRC_FIRST_STICK + inputMappingChannelOrder(input);
-  } 
+  }
   expo->curve.type = CURVE_REF_EXPO;
-  expo->mode = 3; // pos+neg
+  expo->mode = 3;  // pos+neg
   expo->chn = input;
   expo->weight = 100;
   mixerTaskStart();
@@ -113,47 +113,59 @@ class InputLineButton : public InputMixButton
 
   void refresh() override
   {
-    const ExpoData &line = g_model.expoData[index];
+    const ExpoData& line = g_model.expoData[index];
     setWeight(line.weight, -100, 100);
     setSource(line.srcRaw);
 
     char tmp_str[64];
     size_t maxlen = sizeof(tmp_str);
 
-    char *s = tmp_str;
+    char* s = tmp_str;
     *s = '\0';
 
     if (line.name[0]) {
-      int cnt = lv_snprintf(s, maxlen, "%.*s ", (int)sizeof(line.name), line.name);
-      if ((size_t)cnt >= maxlen) maxlen = 0;
-      else { maxlen -= cnt; s += cnt; }
+      int cnt =
+          lv_snprintf(s, maxlen, "%.*s ", (int)sizeof(line.name), line.name);
+      if ((size_t)cnt >= maxlen)
+        maxlen = 0;
+      else {
+        maxlen -= cnt;
+        s += cnt;
+      }
     }
 
     if (line.swtch || line.curve.value) {
-       if (line.swtch) {
-         char* sw_pos = getSwitchPositionName(line.swtch);
-         int cnt = lv_snprintf(s, maxlen, "%s ", sw_pos);
-         if ((size_t)cnt >= maxlen) maxlen = 0;
-         else { maxlen -= cnt; s += cnt; }
-       }
-       if (line.curve.value != 0) {
-         getCurveRefString(s, maxlen, line.curve);
-         int cnt = strnlen(s, maxlen);
-         if ((size_t)cnt >= maxlen) maxlen = 0;
-         else { maxlen -= cnt; s += cnt; }
-       }
+      if (line.swtch) {
+        char* sw_pos = getSwitchPositionName(line.swtch);
+        int cnt = lv_snprintf(s, maxlen, "%s ", sw_pos);
+        if ((size_t)cnt >= maxlen)
+          maxlen = 0;
+        else {
+          maxlen -= cnt;
+          s += cnt;
+        }
+      }
+      if (line.curve.value != 0) {
+        getCurveRefString(s, maxlen, line.curve);
+        int cnt = strnlen(s, maxlen);
+        if ((size_t)cnt >= maxlen)
+          maxlen = 0;
+        else {
+          maxlen -= cnt;
+          s += cnt;
+        }
+      }
     }
     lv_label_set_text_fmt(opts, "%.*s", (int)sizeof(tmp_str), tmp_str);
 
     setFlightModes(line.flightModes);
   }
 
-protected:
+ protected:
   bool isActive() const override { return isExpoActive(index); }
 };
 
-ModelInputsPage::ModelInputsPage():
-  PageTab(STR_MENUINPUTS, ICON_MODEL_INPUTS)
+ModelInputsPage::ModelInputsPage() : PageTab(STR_MENUINPUTS, ICON_MODEL_INPUTS)
 {
   setOnSetVisibleHandler([=]() {
     // reset clipboard
@@ -172,10 +184,9 @@ bool ModelInputsPage::reachExposLimit()
 
 InputMixGroup* ModelInputsPage::getGroupBySrc(mixsrc_t src)
 {
-  auto g =
-      std::find_if(groups.begin(), groups.end(), [=](InputMixGroup* g) -> bool {
-        return g->getMixSrc() == src;
-      });
+  auto g = std::find_if(
+      groups.begin(), groups.end(),
+      [=](InputMixGroup* g) -> bool { return g->getMixSrc() == src; });
 
   if (g != groups.end()) return *g;
 
@@ -212,9 +223,9 @@ void ModelInputsPage::removeGroup(InputMixGroup* g)
 void ModelInputsPage::removeLine(InputMixButton* l)
 {
   auto line = std::find_if(lines.begin(), lines.end(),
-                            [=](InputMixButton* lh) -> bool { return lh == l; });
+                           [=](InputMixButton* lh) -> bool { return lh == l; });
   if (line == lines.end()) return;
-  
+
   line = lines.erase(line);
   while (line != lines.end()) {
     (*line)->setIndex((*line)->getIndex() - 1);
@@ -227,18 +238,18 @@ InputMixGroup* ModelInputsPage::createGroup(FormWindow* form, mixsrc_t src)
   return new InputMixGroup(form, src);
 }
 
-InputMixButton* ModelInputsPage::createLineButton(InputMixGroup *group,
+InputMixButton* ModelInputsPage::createLineButton(InputMixGroup* group,
                                                   uint8_t index)
 {
   auto button = new InputLineButton(group, index);
   button->refresh();
-  
+
   lines.emplace_back(button);
   group->addLine(button);
 
   uint8_t input = group->getMixSrc() - MIXSRC_FIRST_INPUT;
   button->setPressHandler([=]() -> uint8_t {
-    Menu *menu = new Menu(form);
+    Menu* menu = new Menu(form);
     menu->addLine(STR_EDIT, [=]() {
       uint8_t idx = button->getIndex();
       editInput(input, idx);
@@ -293,18 +304,20 @@ void ModelInputsPage::addLineButton(uint8_t index)
 void ModelInputsPage::addLineButton(mixsrc_t src, uint8_t index)
 {
   InputMixGroup* group_w = getGroupBySrc(src);
-  if (!group_w) {    
+  if (!group_w) {
     group_w = createGroup(form, src);
     // insertion sort
     groups.emplace_back(group_w);
     auto g = groups.rbegin();
     if (g != groups.rend()) {
-      auto g_prev = g; ++g_prev;
+      auto g_prev = g;
+      ++g_prev;
       while (g_prev != groups.rend()) {
         if ((*g_prev)->getMixSrc() < (*g)->getMixSrc()) break;
         lv_obj_swap((*g)->getLvObj(), (*g_prev)->getLvObj());
         std::swap(*g, *g_prev);
-        ++g; ++g_prev;
+        ++g;
+        ++g_prev;
       }
     }
   }
@@ -316,7 +329,8 @@ void ModelInputsPage::addLineButton(mixsrc_t src, uint8_t index)
   // insertion sort for the focus group
   auto l = lines.rbegin();
   if (l != lines.rend()) {
-    auto l_prev = l; ++l_prev;
+    auto l_prev = l;
+    ++l_prev;
     while (l_prev != lines.rend()) {
       if ((*l_prev)->getIndex() < (*l)->getIndex()) break;
       // Swap elements (focus + line list)
@@ -330,9 +344,10 @@ void ModelInputsPage::addLineButton(mixsrc_t src, uint8_t index)
         lv_group_swap_obj(obj1, obj2);
       }
       std::swap(*l, *l_prev);
-      // Inc index of elements after 
+      // Inc index of elements after
       (*l)->setIndex((*l)->getIndex() + 1);
-      ++l; ++l_prev;
+      ++l;
+      ++l_prev;
     }
   }
 }
@@ -343,25 +358,26 @@ void ModelInputsPage::newInput()
   menu->setTitle(STR_MENU_INPUTS);
 
   uint8_t chn = 0;
+  uint8_t index = 0;
   ExpoData* line = g_model.expoData;
 
   // search for unused channels
-  for (uint8_t i = 0; i < MAX_EXPOS; i++) {
+  for (uint8_t i = 0; i < MAX_EXPOS && chn < MAX_INPUTS; i++) {
     if (!EXPO_VALID(line) || (line->chn > chn)) {
-      if (chn >= MAX_INPUTS) break;
-      std::string name(getSourceString(chn+1));
-      menu->addLineBuffered(name.c_str(), [=]() { insertInput(chn, i); });
+      std::string name(getSourceString(chn + 1));
+      menu->addLineBuffered(name.c_str(), [=]() { insertInput(chn, index); });
     }
-    if (EXPO_VALID(line))
+    if (EXPO_VALID(line)) {
       chn = line->chn + 1;
-    else
+      index += 1;
+    } else {
       chn += 1;
+    }
     ++line;
   }
 
   menu->updateLines();
 }
-
 
 void ModelInputsPage::editInput(uint8_t input, uint8_t index)
 {
@@ -377,9 +393,9 @@ void ModelInputsPage::editInput(uint8_t input, uint8_t index)
   auto group_obj = group->getLvObj();
   auto edit = new InputEditWindow(input, index);
   edit->setCloseHandler([=]() {
-      lv_event_send(line_obj, LV_EVENT_VALUE_CHANGED, nullptr);
-      lv_event_send(group_obj, LV_EVENT_VALUE_CHANGED, nullptr);
-    });
+    lv_event_send(line_obj, LV_EVENT_VALUE_CHANGED, nullptr);
+    lv_event_send(group_obj, LV_EVENT_VALUE_CHANGED, nullptr);
+  });
 }
 
 void ModelInputsPage::insertInput(uint8_t input, uint8_t index)
@@ -408,7 +424,7 @@ void ModelInputsPage::deleteInput(uint8_t index)
     line->deleteLater();
     removeLine(line);
   }
-  
+
   ::deleteExpo(index);
 }
 
@@ -447,10 +463,10 @@ void ModelInputsPage::pasteInputAfter(uint8_t dst_idx)
   pasteInput(dst_idx + 1, input);
 }
 
-void ModelInputsPage::build(FormWindow *window)
+void ModelInputsPage::build(FormWindow* window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
-  
+
   form = new FormWindow(window, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
@@ -469,7 +485,6 @@ void ModelInputsPage::build(FormWindow *window)
   uint8_t index = 0;
   ExpoData* line = g_model.expoData;
   for (uint8_t input = 0; input < MAX_INPUTS; input++) {
-
     if (index >= MAX_EXPOS) break;
 
     if (line->chn == input && EXPO_VALID(line)) {
@@ -486,12 +501,9 @@ void ModelInputsPage::build(FormWindow *window)
         ++index;
         ++line;
       }
-    } else if (line->chn > input && EXPO_VALID(line)) {
-      TRACE("missing input for channel #%d", input);
     } else if (!EXPO_VALID(line)) {
-      TRACE("invalid line #%d", index);
+      // End of list
       break;
     }
   }
 }
-
