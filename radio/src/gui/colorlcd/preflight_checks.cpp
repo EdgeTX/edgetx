@@ -164,17 +164,25 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
 
   // Pots and sliders warning
   if (adcGetMaxInputs(ADC_INPUT_FLEX) > 0) {
-    line = form->newLine(&grid);
-    new StaticText(line, rect_t{}, STR_POTWARNINGSTATE, 0, COLOR_THEME_PRIMARY1);
-    auto pots_wm = new Choice(line, rect_t{}, STR_PREFLIGHT_POTSLIDER_CHECK, 0, 2,
-                              GET_SET_DEFAULT(g_model.potsWarnMode));
+    uint8_t pot_cnt = 0;
+    for (uint8_t i = 0; i < MAX_POTS; i++) {
+      if (IS_POT_AVAILABLE(i)) {
+        pot_cnt++;
+      }
+    }
+    if (pot_cnt > 0) {
+      line = form->newLine(&grid);
+      new StaticText(line, rect_t{}, STR_POTWARNINGSTATE, 0, COLOR_THEME_PRIMARY1);
+      auto pots_wm = new Choice(line, rect_t{}, STR_PREFLIGHT_POTSLIDER_CHECK, 0, 2,
+                                GET_SET_DEFAULT(g_model.potsWarnMode));
 
-    // Pot warnings
-    line = form->newLine(&grid);
-    line->padTop(0);
-    line->padLeft(4);
-    auto pwm = new PotWarnMatrix(line, rect_t{});
-    make_conditional(pwm, pots_wm);
+      // Pot warnings
+      line = form->newLine(&grid);
+      line->padTop(0);
+      line->padLeft(4);
+      auto pwm = new PotWarnMatrix(line, rect_t{});
+      make_conditional(pwm, pots_wm);
+    }
   }
 
   // Center beeps
@@ -195,10 +203,11 @@ static std::string switchWarninglabel(swsrc_t index)
 
 #if LCD_W > LCD_H
 #define SW_BTNS 8
+#define SW_BTN_W 56
 #else
 #define SW_BTNS 4
+#define SW_BTN_W 72
 #endif
-#define SW_BTN_W ((LCD_W-24)/SW_BTNS)
 
 SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
     ButtonMatrix(parent, r)
@@ -212,8 +221,7 @@ SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
     }
   }
 
-  initBtnMap(SW_BTNS, btn_cnt);
-  update();
+  initBtnMap(min((int)btn_cnt, SW_BTNS), btn_cnt);
 
   uint8_t btn_id = 0;
   for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
@@ -223,10 +231,12 @@ SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
     }
   }
 
-  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W);
+  update();
+
+  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
 
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
-  lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 3);
+  lv_obj_set_height(lvobj, (rows * 36) + 4);
 
   lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
 
@@ -277,8 +287,7 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
     }
   }
 
-  initBtnMap(SW_BTNS, btn_cnt);
-  update();
+  initBtnMap(min((int)btn_cnt, SW_BTNS), btn_cnt);
 
   uint8_t btn_id = 0;
   for (uint16_t i = 0; i < MAX_POTS; i++) {
@@ -288,10 +297,12 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
     }
   }
 
-  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W);
+  update();
+
+  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
   
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
-  lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 3);
+  lv_obj_set_height(lvobj, (rows * 36) + 4);
 
   lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
 
@@ -344,8 +355,7 @@ CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
     }
   }
 
-  initBtnMap(SW_BTNS, btn_cnt);
-  update();
+  initBtnMap(min((int)btn_cnt, SW_BTNS), btn_cnt);
 
   uint8_t btn_id = 0;
   for (uint8_t i = 0; i < max_analogs; i++) {
@@ -356,10 +366,12 @@ CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
     }
   }
 
-  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W);
+  update();
+
+  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
   
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
-  lv_obj_set_height(lvobj, (rows * LV_DPI_DEF) / 3);
+  lv_obj_set_height(lvobj, (rows * 36) + 4);
 
   lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
 

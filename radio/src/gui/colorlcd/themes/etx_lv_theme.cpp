@@ -595,7 +595,7 @@ void etx_slider_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 void etx_btnmatrix_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_MAIN);
-  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_20, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_20, LV_PART_MAIN | LV_STATE_FOCUSED);
 
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_FOCUS_INDEX],
                    LV_PART_MAIN | LV_STATE_FOCUSED);

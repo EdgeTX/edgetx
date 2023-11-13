@@ -46,7 +46,7 @@ static const lv_coord_t ch_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
 #define USBCH_CHN_ROWS 1
 #define USBCH_BTN_MODE_COL 4
 #define USBCH_BTN_MODE_ROW 0
-#define USBCH_LINE_HEIGHT PAGE_LINE_HEIGHT + 14
+#define USBCH_LINE_HEIGHT PAGE_LINE_HEIGHT + 12
 
 static const lv_coord_t b_col_dsc[] = {LV_GRID_FR(10), 20, LV_GRID_FR(10), LV_GRID_FR(12),
                                        LV_GRID_FR(9), LV_GRID_FR(9), LV_GRID_TEMPLATE_LAST};
@@ -69,7 +69,7 @@ static const lv_coord_t ch_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
 #define USBCH_CHN_ROWS 2
 #define USBCH_BTN_MODE_COL 2
 #define USBCH_BTN_MODE_ROW 1
-#define USBCH_LINE_HEIGHT 2 * PAGE_LINE_HEIGHT + 10
+#define USBCH_LINE_HEIGHT 2 * PAGE_LINE_HEIGHT + 8
 
 static const lv_coord_t b_col_dsc[] = {LV_GRID_FR(1), 20, LV_GRID_FR(1), LV_GRID_FR(1),
                                        LV_GRID_TEMPLATE_LAST};
@@ -370,6 +370,9 @@ class USBChannelLineButton : public Button
       Button(parent, rect_t{}, nullptr, 0, 0, input_mix_line_create), index(index)
     {
       setHeight(USBCH_LINE_HEIGHT);
+#if LCD_W > LCD_H
+      padTop(4);
+#endif
 
       lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
       lv_obj_set_grid_dsc_array(lvobj, b_col_dsc, b_row_dsc);
