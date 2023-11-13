@@ -22,6 +22,8 @@
 #include "edgetx.h"
 #include "haptic.h"
 
+constexpr uint8_t fullHaptic = 255;
+
 hapticQueue::hapticQueue()
 {
   buzzTimeLeft = 0;
@@ -31,8 +33,8 @@ hapticQueue::hapticQueue()
   t_queueWidx = 0;
 
   hapticTick = 0;
-  
-  intensity = 255;
+
+  intensity = fullHaptic;
 }
 
 void hapticQueue::heartbeat()
@@ -43,7 +45,7 @@ void hapticQueue::heartbeat()
   if (buzzTimeLeft > 0) {
     buzzTimeLeft--; // time gets counted down
 #if defined(HAPTIC_PWM)
-    if (intensity < 255) {
+    if (intensity < fullHaptic) {
       hapticOn(intensity);
     } else {
       hapticOn(HAPTIC_STRENGTH() * 20);
@@ -88,7 +90,7 @@ void hapticQueue::play(uint8_t tLen, uint8_t tPause, uint8_t tFlags)
     } else {
       buzzTimeLeft = tLen;
       buzzPause = tPause;
-      intensity = 255;
+      intensity = fullHaptic;
     }
     t_queueWidx = t_queueRidx;
   }
