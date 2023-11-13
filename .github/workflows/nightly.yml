@@ -1,9 +1,6 @@
 ---
 name: Build and deploy nightly release
 on:
-  push:
-    branches:
-    - 'nightly_filenames'
   schedule:
     - cron: '0 2 * * *' # run at 2 AM UTC
 
