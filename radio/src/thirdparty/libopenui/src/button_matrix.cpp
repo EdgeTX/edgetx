@@ -109,15 +109,15 @@ void ButtonMatrix::setText(uint8_t btn_id, const char* txt)
 void ButtonMatrix::update()
 {
   lv_btnmatrix_set_map(lvobj, (const char**)lv_btnm_map);
-  lv_btnmatrix_set_btn_ctrl_all(lvobj, LV_BTNMATRIX_CTRL_CLICK_TRIG | LV_BTNMATRIX_CTRL_NO_REPEAT);
+  lv_btnmatrix_set_btn_ctrl_all(
+      lvobj, LV_BTNMATRIX_CTRL_CLICK_TRIG | LV_BTNMATRIX_CTRL_NO_REPEAT);
   int btn = 0;
   for (int i = 0; lv_btnm_map[i] != _map_end; i += 1) {
     if (lv_btnm_map[i] == _filler)
       lv_btnmatrix_set_btn_ctrl(lvobj, btn, LV_BTNMATRIX_CTRL_HIDDEN);
     else
       lv_btnmatrix_clear_btn_ctrl(lvobj, btn, LV_BTNMATRIX_CTRL_HIDDEN);
-    if (lv_btnm_map[i] != _newline)
-      btn += 1;
+    if (lv_btnm_map[i] != _newline) btn += 1;
   }
 }
 

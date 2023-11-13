@@ -20,14 +20,14 @@
  */
 
 #include "preflight_checks.h"
-#include "button_matrix.h"
-#include "opentx.h"
 
+#include "button_matrix.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
+#include "opentx.h"
 #include "strhelpers.h"
 
-#define SET_DIRTY()     storageDirty(EE_MODEL)
+#define SET_DIRTY() storageDirty(EE_MODEL)
 
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                           LV_GRID_TEMPLATE_LAST};
@@ -49,7 +49,9 @@ static void cb_changed(lv_event_t* e)
 static void make_conditional(Window* w, ToggleSwitch* cb)
 {
   lv_obj_t* w_obj = w->getLvObj();
-  if (!cb->getValue()) { lv_obj_add_flag(w_obj, LV_OBJ_FLAG_HIDDEN); }
+  if (!cb->getValue()) {
+    lv_obj_add_flag(w_obj, LV_OBJ_FLAG_HIDDEN);
+  }
 
   lv_obj_t* cb_obj = cb->getLvObj();
   lv_obj_add_event_cb(cb_obj, cb_changed, LV_EVENT_VALUE_CHANGED, w_obj);
@@ -71,10 +73,13 @@ static void choice_changed(lv_event_t* e)
 static void make_conditional(Window* w, Choice* choice)
 {
   lv_obj_t* w_obj = w->getLvObj();
-  if (choice->getIntValue() == 0) { lv_obj_add_flag(w_obj, LV_OBJ_FLAG_HIDDEN); }
+  if (choice->getIntValue() == 0) {
+    lv_obj_add_flag(w_obj, LV_OBJ_FLAG_HIDDEN);
+  }
 
   lv_obj_t* choice_obj = choice->getLvObj();
-  lv_obj_add_event_cb(choice_obj, choice_changed, LV_EVENT_VALUE_CHANGED, w_obj);
+  lv_obj_add_event_cb(choice_obj, choice_changed, LV_EVENT_VALUE_CHANGED,
+                      w_obj);
 }
 
 struct SwitchWarnMatrix : public ButtonMatrix {
@@ -82,7 +87,8 @@ struct SwitchWarnMatrix : public ButtonMatrix {
   void onPress(uint8_t btn_id);
   bool isActive(uint8_t btn_id);
   void setTextAndState(uint8_t btn_id);
-private:
+
+ private:
   uint8_t sw_idx[MAX_SWITCHES];
 };
 
@@ -91,7 +97,8 @@ struct PotWarnMatrix : public ButtonMatrix {
   void onPress(uint8_t btn_id);
   bool isActive(uint8_t btn_id);
   void setTextAndState(uint8_t btn_id);
-private:
+
+ private:
   uint8_t pot_idx[MAX_POTS];
 };
 
@@ -100,7 +107,8 @@ struct CenterBeepsMatrix : public ButtonMatrix {
   void onPress(uint8_t btn_id);
   bool isActive(uint8_t btn_id);
   void setTextAndState(uint8_t btn_id);
-private:
+
+ private:
   uint8_t max_analogs;
   uint8_t ana_idx[MAX_ANALOG_INPUTS];
 };
@@ -118,32 +126,38 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   // Display checklist
   auto line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_CHECKLIST, 0, COLOR_THEME_PRIMARY1);
-  auto chkList = new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.displayChecklist));
+  auto chkList = new ToggleSwitch(line, rect_t{},
+                                  GET_SET_DEFAULT(g_model.displayChecklist));
 
   // Interactive checklist
   line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_CHECKLIST_INTERACTIVE, 0, COLOR_THEME_PRIMARY1);
-  auto interactiveChkList = new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.checklistInteractive));
-  if(!chkList->getValue())
-    interactiveChkList->disable();
+  new StaticText(line, rect_t{}, STR_CHECKLIST_INTERACTIVE, 0,
+                 COLOR_THEME_PRIMARY1);
+  auto interactiveChkList = new ToggleSwitch(
+      line, rect_t{}, GET_SET_DEFAULT(g_model.checklistInteractive));
+  if (!chkList->getValue()) interactiveChkList->disable();
   chkList->setSetValueHandler([=](int32_t newValue) {
-    g_model.displayChecklist = newValue; SET_DIRTY();
-    (g_model.displayChecklist)?interactiveChkList->enable():interactiveChkList->disable();
+    g_model.displayChecklist = newValue;
+    SET_DIRTY();
+    (g_model.displayChecklist) ? interactiveChkList->enable()
+                               : interactiveChkList->disable();
   });
 
   // Throttle warning
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);
-  auto tw = new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_model.disableThrottleWarning));
+  auto tw = new ToggleSwitch(line, rect_t{},
+                             GET_SET_INVERTED(g_model.disableThrottleWarning));
 
   // Custom Throttle warning (conditional on previous field)
   line = form->newLine(&grid);
   make_conditional(line, tw);
 
-  new StaticText(line, rect_t{}, STR_CUSTOM_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_CUSTOM_THROTTLE_WARNING, 0,
+                 COLOR_THEME_PRIMARY1);
   auto box = new FormWindow::Line(line, window_create(line->getLvObj()));
   lv_obj_set_layout(box->getLvObj(), LV_LAYOUT_FLEX);
-  box->setWidth(LCD_W /2 - 15);
+  box->setWidth(LCD_W / 2 - 15);
 
   auto cst_tw = new ToggleSwitch(
       box, rect_t{}, GET_SET_DEFAULT(g_model.enableCustomThrottleWarning));
@@ -172,9 +186,10 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
     }
     if (pot_cnt > 0) {
       line = form->newLine(&grid);
-      new StaticText(line, rect_t{}, STR_POTWARNINGSTATE, 0, COLOR_THEME_PRIMARY1);
-      auto pots_wm = new Choice(line, rect_t{}, STR_PREFLIGHT_POTSLIDER_CHECK, 0, 2,
-                                GET_SET_DEFAULT(g_model.potsWarnMode));
+      new StaticText(line, rect_t{}, STR_POTWARNINGSTATE, 0,
+                     COLOR_THEME_PRIMARY1);
+      auto pots_wm = new Choice(line, rect_t{}, STR_PREFLIGHT_POTSLIDER_CHECK,
+                                0, 2, GET_SET_DEFAULT(g_model.potsWarnMode));
 
       // Pot warnings
       line = form->newLine(&grid);
@@ -276,7 +291,7 @@ bool SwitchWarnMatrix::isActive(uint8_t btn_id)
 }
 
 PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
-  ButtonMatrix(parent, r)
+    ButtonMatrix(parent, r)
 {
   // Setup button layout & texts
   uint8_t btn_cnt = 0;
@@ -300,7 +315,7 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
   update();
 
   lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
-  
+
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
   lv_obj_set_height(lvobj, (rows * 36) + 4);
 
@@ -320,7 +335,7 @@ void PotWarnMatrix::onPress(uint8_t btn_id)
 {
   if (btn_id >= MAX_POTS) return;
   auto pot = pot_idx[btn_id];
-  
+
   g_model.potsWarnEnabled ^= (1 << pot);
   if ((g_model.potsWarnMode == POTS_WARN_MANUAL) &&
       (g_model.potsWarnEnabled & (1 << pot))) {
@@ -337,7 +352,7 @@ bool PotWarnMatrix::isActive(uint8_t btn_id)
 }
 
 CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
-  ButtonMatrix(parent, r)
+    ButtonMatrix(parent, r)
 {
   // Setup button layout & texts
   uint8_t btn_cnt = 0;
@@ -369,7 +384,7 @@ CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
   update();
 
   lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
-  
+
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
   lv_obj_set_height(lvobj, (rows * 36) + 4);
 
@@ -385,7 +400,8 @@ void CenterBeepsMatrix::setTextAndState(uint8_t btn_id)
   if (ana_idx[btn_id] < max_sticks)
     setText(btn_id, getAnalogShortLabel(ana_idx[btn_id]));
   else
-    setText(btn_id, getAnalogLabel(ADC_INPUT_FLEX, ana_idx[btn_id] - max_sticks));
+    setText(btn_id,
+            getAnalogLabel(ADC_INPUT_FLEX, ana_idx[btn_id] - max_sticks));
   setChecked(btn_id);
 }
 
@@ -395,7 +411,7 @@ void CenterBeepsMatrix::onPress(uint8_t btn_id)
   uint8_t i = ana_idx[btn_id];
   BFBIT_FLIP(g_model.beepANACenter, bfBit<BeepANACenter>(i));
   setTextAndState(btn_id);
-  SET_DIRTY();  
+  SET_DIRTY();
 }
 
 bool CenterBeepsMatrix::isActive(uint8_t btn_id)
