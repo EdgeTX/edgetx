@@ -223,10 +223,19 @@ static bool flash_read_sfdp(SpiFlashDescriptor* desc)
   return true;
 }
 
+void flashSpiSync()
+{
+  uint8_t status;
+  do {
+    flash_do_cmd(FLASH_CMD_STATUS, 0, &status, 1);
+  } while (status & 0x01);
+}
+
 bool flashSpiInit(void)
 {
   stm32_spi_init(&_flash_spi);
   delay_ms(1);
+  flashSpiSync();
 
   if (!flash_read_id(&_flashDescriptor)) {
     return false;
@@ -237,14 +246,6 @@ bool flashSpiInit(void)
   }
 
   return true;  
-}
-
-void flashSpiSync()
-{
-  uint8_t status;
-  do {
-    flash_do_cmd(FLASH_CMD_STATUS, 0, &status, 1);
-  } while (status & 0x01);
 }
 
 uint32_t flashSpiGetSize()
