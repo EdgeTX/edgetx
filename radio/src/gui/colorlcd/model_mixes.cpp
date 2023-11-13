@@ -174,21 +174,6 @@ void MixLineButton::refresh()
   lv_label_set_text_fmt(opts, "%.*s", (int)sizeof(tmp_str), tmp_str);
 
   setFlightModes(line.flightModes);
-
-  // TODO: should we add these? then it would be best to have them in the font...
-  //
-  // uint8_t delayslow = 0;
-  // if (line.speedDown || line.speedUp) delayslow = 1;
-  // if (line.delayUp || line.delayDown) delayslow += 2;
-
-  // if (delayslow) {
-  //   BitmapBuffer* delayslowbmp[] = {mixerSetupSlowIcon, mixerSetupDelayIcon,
-  //                                   mixerSetupDelaySlowIcon};
-  //   const BitmapBuffer* mask = delayslowbmp[delayslow - 1];
-  //   coord_t w = lv_obj_get_width(lvobj);
-  //   w -= mask->width();
-  //   dc->drawMask(w - border - pad_right, y, mask, textColor);
-  // }
 }
 
 ModelMixesPage::ModelMixesPage() :

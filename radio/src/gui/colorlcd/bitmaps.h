@@ -26,36 +26,13 @@
 
 DEFINE_LZ4_BITMAP(LBM_POINT);
 
-// Model selection bitmaps
-extern BitmapBuffer * modelselSdFreeBitmap;
-extern BitmapBuffer * modelselModelQtyBitmap;
-extern BitmapBuffer * modelselModelNameBitmap;
-extern BitmapBuffer * modelselModelMoveBackground;
-extern BitmapBuffer * modelselModelMoveIcon;
-extern BitmapBuffer * modelselWizardBackground;
-
 // calibration bitmaps
 extern BitmapBuffer * calibStick;
 extern BitmapBuffer * calibStickBackground;
-extern BitmapBuffer * calibTrackpBackground;
 
 // Channels monitor bitmaps
 extern BitmapBuffer * chanMonLockedBitmap;
 extern BitmapBuffer * chanMonInvertedBitmap;
-
-// Mixer setup bitmaps
-extern BitmapBuffer * mixerSetupMixerBitmap;
-extern BitmapBuffer * mixerSetupToBitmap;
-extern BitmapBuffer * mixerSetupOutputBitmap;
-extern BitmapBuffer * mixerSetupAddBitmap;
-extern BitmapBuffer * mixerSetupMultiBitmap;
-extern BitmapBuffer * mixerSetupReplaceBitmap;
-extern BitmapBuffer * mixerSetupLabelIcon;
-extern BitmapBuffer * mixerSetupCurveIcon;
-extern BitmapBuffer * mixerSetupSwitchIcon;
-extern BitmapBuffer * mixerSetupDelayIcon;
-extern BitmapBuffer * mixerSetupSlowIcon;
-extern BitmapBuffer * mixerSetupDelaySlowIcon;
 
 void loadBuiltinBitmaps();
 const uint8_t* getBuiltinIcon(MenuIcons id);
