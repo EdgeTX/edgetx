@@ -21,10 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "opentx_types.h"
 #include "libopenui_defines.h"
-#include "opentx_helpers.h"
-#include "debug.h"
 
 constexpr uint8_t SOLID = 0xFF;
 constexpr uint8_t DOTTED  = 0x55;
@@ -212,6 +209,7 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
     ~BitmapBuffer();
 
     void setDrawCtx(lv_draw_ctx_t* ctx) { draw_ctx = ctx; }
+  
     void setData(uint16_t* d) {
       if (!dataAllocated) {
         data = d;
@@ -304,21 +302,13 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     void drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadius, coord_t externalRadius, int startAngle, int endAngle, LcdFlags flags = 0);
 
-    void drawBitmapPie(int x0, int y0, const uint16_t * img, int startAngle, int endAngle);
-
     void drawBitmapPatternPie(coord_t x0, coord_t y0, const uint8_t * img, LcdFlags flags, int startAngle, int endAngle);
 
     static BitmapBuffer * loadBitmap(const char * filename, BitmapFormats fmt = BMP_INVALID);
-    static BitmapBuffer * loadRamBitmap(const uint8_t * buffer, int len);
 
     static BitmapBuffer * loadMask(const char * filename);
     static BitmapBuffer * load8bitMask(const uint8_t * lbm);
     static BitmapBuffer * load8bitMaskLZ4(const uint8_t * compressed_data);
-
-    static BitmapBuffer * loadMaskOnBackground(const char * filename, LcdFlags foreground, LcdFlags background);
-    static BitmapBuffer * load8bitMaskOnBackground(const uint8_t * lbm, LcdFlags foreground, LcdFlags background);
-
-    static uint8_t * loadFont(const uint8_t * lbm, int len, int& w, int& h);
 
     uint8_t * to8bitMask(size_t* size) const;
 
@@ -336,13 +326,6 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
       return drawSizedText(x, y, s, strlen(s), flags);
     }
 
-    coord_t drawTextAtIndex(coord_t x, coord_t y, const char *const *s, uint8_t idx, LcdFlags flags = 0)
-    {
-      return drawText(x, y, s[idx], flags);
-    }
-
-    static void formatNumberAsString(char *buffer, const uint8_t buffer_size, int32_t val, LcdFlags flags = 0, uint8_t len = 0, const char * prefix = nullptr, const char * suffix = nullptr);
-
     coord_t drawNumber(coord_t x, coord_t y, int32_t val, LcdFlags flags = 0, uint8_t len = 0, const char * prefix = nullptr, const char * suffix = nullptr);
 
     template<class T>
@@ -350,12 +333,6 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     template<class T>
     void drawScaledBitmap(const T * bitmap, coord_t x, coord_t y, coord_t w, coord_t h);
-
-    BitmapBuffer * horizontalFlip() const;
-
-    BitmapBuffer * verticalFlip() const;
-
-    BitmapBuffer * invertMask() const;
 
   protected:
     static BitmapBuffer * load_bmp(const char * filename);

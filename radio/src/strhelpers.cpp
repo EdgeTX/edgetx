@@ -407,7 +407,7 @@ char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin, gv
   }
 
   value += offset;
-  BitmapBuffer::formatNumberAsString(dest, len, value, flags, 0, nullptr, suffix);
+  formatNumberAsString(dest, len, value, flags, 0, nullptr, suffix);
   return dest;
 }
 #endif
@@ -808,9 +808,9 @@ char *getValueWithUnit(char *dest, size_t len, int32_t val, uint8_t unit,
   if (unit == UNIT_CELLS) unit = UNIT_VOLTS;
   if ((flags & NO_UNIT) || (unit == UNIT_RAW)) {
     flags = flags & (~NO_UNIT);
-    BitmapBuffer::formatNumberAsString(dest, len, val, flags);
+    formatNumberAsString(dest, len, val, flags);
   } else {
-    BitmapBuffer::formatNumberAsString(dest, len, val, flags, 0, nullptr,
+    formatNumberAsString(dest, len, val, flags, 0, nullptr,
                                        STR_VTELEMUNIT[unit]);
   }
 
@@ -861,7 +861,7 @@ char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
     return getTimerString(dest, val, timerOptions);
   }
   else if (source == MIXSRC_TX_VOLTAGE) {
-    BitmapBuffer::formatNumberAsString(dest, len, val, flags | PREC1);
+    formatNumberAsString(dest, len, val, flags | PREC1);
     return dest;
   }
 #if defined(INTERNAL_GPS)
@@ -884,34 +884,75 @@ char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
 #endif
 #if defined(LUA_INPUTS)
   else if (source >= MIXSRC_FIRST_LUA && source <= MIXSRC_LAST_LUA) {
-    BitmapBuffer::formatNumberAsString(dest, len, val, flags);
+    formatNumberAsString(dest, len, val, flags);
   }
 #endif
   else if (source < MIXSRC_FIRST_CH) {
     val = calcRESXto100(val);
-    BitmapBuffer::formatNumberAsString(dest, len, val, flags);
+    formatNumberAsString(dest, len, val, flags);
   }
   else if (source <= MIXSRC_LAST_CH) {
     if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
       val = calcRESXto1000(val);
-      BitmapBuffer::formatNumberAsString(dest, len, val, flags | PREC1);
+      formatNumberAsString(dest, len, val, flags | PREC1);
     } else {
       val = calcRESXto100(val);
-      BitmapBuffer::formatNumberAsString(dest, len, val, flags);
+      formatNumberAsString(dest, len, val, flags);
     }
   }
   else {
-    BitmapBuffer::formatNumberAsString(dest, len, val, flags);
+    formatNumberAsString(dest, len, val, flags);
   }
 
   return dest;
+}
+
+void formatNumberAsString(char *buffer, uint8_t buffer_size, int32_t val, LcdFlags flags, uint8_t len, const char * prefix, const char * suffix)
+{
+  if (buffer) {
+    char str[48+1]; // max=16 for the prefix, 16 chars for the number, 16 chars for the suffix
+    char *s = str + 32;
+    *s = '\0';
+    int idx = 0;
+    int mode = MODE(flags);
+    bool neg = false;
+    if (val < 0) {
+      val = -val;
+      neg = true;
+    }
+    do {
+      *--s = '0' + (val % 10);
+      ++idx;
+      val /= 10;
+      if (mode != 0 && idx == mode) {
+        mode = 0;
+        *--s = '.';
+        if (val == 0)
+          *--s = '0';
+      }
+    } while (val != 0 || mode > 0 || (mode == MODE(LEADING0) && idx < len));
+    if (neg) *--s = '-';
+
+    // TODO needs check on all string lengths ...
+    if (prefix) {
+      int len = strlen(prefix);
+      if (len <= 16) {
+        s -= len;
+        strncpy(s, prefix, len);
+      }
+    }
+    if (suffix) {
+      strncpy(&str[32], suffix, 16);
+    }
+    strncpy(buffer, s, buffer_size);
+  }
 }
 
 std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len,
                                  const char *prefix, const char *suffix)
 {
   char s[49];
-  BitmapBuffer::formatNumberAsString(s, 49, val, flags, len, prefix, suffix);
+  formatNumberAsString(s, 49, val, flags, len, prefix, suffix);
   return std::string(s);
 }
 

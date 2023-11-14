@@ -17,7 +17,6 @@
  */
 
 #include <math.h>
-#include <string.h>
 
 #include "board.h"
 #include "bitmapbuffer.h"
@@ -25,6 +24,7 @@
 #include "libopenui_file.h"
 #include "font.h"
 #include "dma2d.h"
+#include "strhelpers.h"
 
 #include "lvgl/src/draw/sw/lv_draw_sw.h"
 
@@ -1161,49 +1161,6 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
   return ((flags & RIGHT) ? orig_pos : pos) - offsetX;
 }
 
-void BitmapBuffer::formatNumberAsString(char *buffer, uint8_t buffer_size, int32_t val, LcdFlags flags, uint8_t len, const char * prefix, const char * suffix)
-{
-  if (buffer == nullptr) {
-    return;
-  }
-
-  char str[48+1]; // max=16 for the prefix, 16 chars for the number, 16 chars for the suffix
-  char *s = str + 32;
-  *s = '\0';
-  int idx = 0;
-  int mode = MODE(flags);
-  bool neg = false;
-  if (val < 0) {
-    val = -val;
-    neg = true;
-  }
-  do {
-    *--s = '0' + (val % 10);
-    ++idx;
-    val /= 10;
-    if (mode != 0 && idx == mode) {
-      mode = 0;
-      *--s = '.';
-      if (val == 0)
-        *--s = '0';
-    }
-  } while (val != 0 || mode > 0 || (mode == MODE(LEADING0) && idx < len));
-  if (neg) *--s = '-';
-
-  // TODO needs check on all string lengths ...
-  if (prefix) {
-    int len = strlen(prefix);
-    if (len <= 16) {
-      s -= len;
-      strncpy(s, prefix, len);
-    }
-  }
-  if (suffix) {
-    strncpy(&str[32], suffix, 16);
-  }
-  strncpy(buffer, s, buffer_size);
-}
-
 coord_t BitmapBuffer::drawNumber(coord_t x, coord_t y, int32_t val, LcdFlags flags, uint8_t len, const char * prefix, const char * suffix)
 {
   char s[49];
@@ -1219,39 +1176,6 @@ void drawSolidRect(BitmapBuffer * dc, coord_t x, coord_t y, coord_t w, coord_t h
   dc->drawSolidFilledRect(x, y+h-thickness, w, thickness, flags);
 }
 
-//void BitmapBuffer::drawBitmapPie(int x0, int y0, const uint16_t * img, int startAngle, int endAngle)
-//{
-//  const uint16_t * q = img;
-//  coord_t width = *q++;
-//  coord_t height = *q++;
-//
-//  int slopes[4];
-//  if (!evalSlopes(slopes, startAngle, endAngle))
-//    return;
-//
-//  int w2 = width/2;
-//  int h2 = height/2;
-//
-//  for (int y=h2-1; y>=0; y--) {
-//    for (int x=w2-1; x>=0; x--) {
-//      int slope = (x==0 ? 99000 : y*100/x);
-//      if (slope >= slopes[0] && slope < slopes[1]) {
-//        *getPixelPtr(x0+w2+x, y0+h2-y) = q[(h2-y)*width + w2+x];
-//      }
-//      if (-slope >= slopes[0] && -slope < slopes[1]) {
-//        *getPixelPtr(x0+w2+x, y0+h2+y) = q[(h2+y)*width + w2+x];
-//      }
-//      if (slope >= slopes[2] && slope < slopes[3]) {
-//        *getPixelPtr(x0+w2-x, y0+h2-y) = q[(h2-y)*width + w2-x];
-//      }
-//      if (-slope >= slopes[2] && -slope < slopes[3]) {
-//        *getPixelPtr(x0+w2-x, y0+h2+y)  = q[(h2+y)*width + w2-x];
-//      }
-//    }
-//  }
-//}
-//
-
 BitmapBuffer * BitmapBuffer::loadBitmap(const char * filename, BitmapFormats fmt)
 {
   //TRACE("  BitmapBuffer::loadBitmap(%s)", filename);
@@ -1260,11 +1184,6 @@ BitmapBuffer * BitmapBuffer::loadBitmap(const char * filename, BitmapFormats fmt
     return load_bmp(filename);
   else
     return load_stb(filename, fmt);
-}
-
-BitmapBuffer * BitmapBuffer::loadRamBitmap(const uint8_t * buffer, int len)
-{
-  return load_stb_buffer(buffer, len);
 }
 
 BitmapBuffer * BitmapBuffer::loadMask(const char * filename)
@@ -1322,77 +1241,6 @@ BitmapBuffer* BitmapBuffer::load8bitMaskLZ4(const uint8_t* compressed_data)
       *((uint8_t *)p++) = (*(src++) >> 4);
   }
   return bitmap;
-}
-
-BitmapBuffer * BitmapBuffer::invertMask() const
-{
-  BitmapBuffer * result = new BitmapBuffer(format, width(), height());
-  pixel_t * srcData = data;
-  pixel_t * destData = result->data;
-  for (auto y = 0; y < height(); y++) {
-    for (auto x = 0; x < width(); x++) {
-      destData[x] = OPACITY_MAX - (uint8_t)srcData[x];
-    }
-    srcData += width();
-    destData += width();
-  }
-  return result;
-}
-
-BitmapBuffer * BitmapBuffer::horizontalFlip() const
-{
-  BitmapBuffer * result = new BitmapBuffer(format, width(), height());
-  pixel_t * srcData = data;
-  pixel_t * destData = result->data;
-  for (uint8_t y = 0; y < height(); y++) {
-    for (uint8_t x = 0; x < width(); x++) {
-      destData[x] = srcData[width() - 1 - x];
-    }
-    srcData += width();
-    destData += width();
-  }
-  return result;
-}
-
-BitmapBuffer * BitmapBuffer::verticalFlip() const
-{
-  BitmapBuffer * result = new BitmapBuffer(format, width(), height());
-  for (uint8_t y = 0; y < height(); y++) {
-    for (uint8_t x = 0; x < width(); x++) {
-      result->data[y * width() + x] = data[(height() - 1 - y) * width() + x];
-    }
-  }
-  return result;
-}
-
-BitmapBuffer * BitmapBuffer::loadMaskOnBackground(const char * filename, LcdFlags foreground, LcdFlags background)
-{
-  BitmapBuffer * result = nullptr;
-  BitmapBuffer * mask = BitmapBuffer::loadMask(filename);
-  if (mask) {
-    result = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
-    if (result) {
-      result->clear(background);
-      result->drawMask(0, 0, mask, foreground);
-    }
-    delete mask;
-  }
-  return result;
-}
-
-BitmapBuffer * BitmapBuffer::load8bitMaskOnBackground(const uint8_t * lbm, LcdFlags foreground, LcdFlags background)
-{
-  BitmapBuffer * result = nullptr;
-  BitmapBuffer * mask = BitmapBuffer::load8bitMask(lbm);
-  if (mask) {
-    result = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
-    if (result) {
-      result->clear(background);
-      result->drawMask(0, 0, mask, foreground);
-    }
-    delete mask;
-  }
-  return result;
 }
 
 FIL imgFile __DMA;
@@ -1759,18 +1607,6 @@ BitmapBuffer * BitmapBuffer::convert_stb_bitmap(uint8_t * img, int w, int h, int
   }
 
   return bmp;
-}
-
-uint8_t * BitmapBuffer::loadFont(const uint8_t * lbm, int len, int& w, int& h)
-{
-  int n;
-  unsigned char * font = stbi_load_from_memory(lbm, len, &w, &h, &n, 1);
-  if (!font) {
-    TRACE("load_stb_buffer(%p,%d) failed: %s", font, len, stbi_failure_reason());
-    return nullptr;
-  }
-
-  return font;
 }
 
 #include "../thirdparty/lz4/lz4.h"

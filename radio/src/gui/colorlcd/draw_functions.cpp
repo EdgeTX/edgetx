@@ -234,7 +234,7 @@ void drawCurveRef(BitmapBuffer * dc, coord_t x, coord_t y, const CurveRef & curv
         break;
 
       case CURVE_REF_FUNC:
-        dc->drawTextAtIndex(x, y, STR_VCURVEFUNC, curve.value, flags);
+        dc->drawText(x, y, STR_VCURVEFUNC[curve.value], flags);
         break;
 
       case CURVE_REF_CUSTOM:

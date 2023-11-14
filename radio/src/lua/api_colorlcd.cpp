@@ -408,7 +408,7 @@ static int luaLcdDrawNumber(lua_State *L)
   char s[49];
   int val = luaL_checkinteger(L, 3);
   LcdFlags flags = luaL_optunsigned(L, 4, 0);
-  BitmapBuffer::formatNumberAsString(s, 49, val, flags & 0xFFFF);
+  formatNumberAsString(s, 49, val, flags & 0xFFFF);
   drawString(L, s, flags);
   return 0;
 }
