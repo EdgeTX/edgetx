@@ -990,55 +990,6 @@ void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, Lcd
   }
 }
 
-void BitmapBuffer::drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, const BitmapBuffer * srcBitmap, coord_t offsetX, coord_t offsetY, coord_t width, coord_t height)
-{
-  if (!mask || !srcBitmap)
-    return;
-
-  APPLY_OFFSET();
-
-  coord_t maskWidth = mask->width();
-  coord_t maskHeight = mask->height();
-
-  if (!width || width > maskWidth) {
-    width = maskWidth;
-  }
-
-  if (!height || height > maskHeight) {
-    height = maskHeight;
-  }
-
-  if (x + width > xmax) {
-    width = xmax - x;
-  }
-
-  if (x < xmin) {
-    width += x - xmin;
-    offsetX -= x - xmin;
-    x = xmin;
-  }
-
-  if (y >= ymax || x >= xmax || width <= 0 || x + width < xmin || y + height < ymin)
-    return;
-
-
-  // TODO: This should be doable the same way as with
-  //       drawBitmapPattern() (just with ARGB as input).
-  //
-  DMAWait();
-  for (coord_t row = 0; row < height; row++) {
-    if (y + row < ymin || y + row >= ymax)
-      continue;
-    pixel_t * p = getPixelPtrAbs(x, y + row);
-    const pixel_t * q = mask->getPixelPtrAbs(offsetX, offsetY + row);
-    for (coord_t col = 0; col < width; col++) {
-      drawAlphaPixel(p, *((uint8_t *)q), *srcBitmap->getPixelPtrAbs(row, col));
-      MOVE_TO_NEXT_RIGHT_PIXEL(p);
-      MOVE_TO_NEXT_RIGHT_PIXEL(q);
-    }
-  }
-}
-
 // Apply a mask ('bmp') + color ('flags') on top of current pixels:
 //
 //  drawAlphaPixel(bmp[x][y], pixel(x,y), color)

@@ -314,8 +314,6 @@ class BitmapBuffer: public BitmapBufferBase<pixel_t>
 
     void drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, LcdFlags flags, coord_t offsetX = 0, coord_t width = 0);
 
-    void drawMask(coord_t x, coord_t y, const BitmapBuffer * mask, const BitmapBuffer * srcBitmap, coord_t offsetX = 0, coord_t offsetY = 0, coord_t width = 0, coord_t height = 0);
-
     void drawBitmapPattern(coord_t x, coord_t y, const uint8_t * bmp, LcdFlags flags, coord_t offset=0, coord_t width=0);
 
     coord_t drawSizedText(coord_t x, coord_t y, const char * s, uint8_t len, LcdFlags flags=0);
