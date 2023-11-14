@@ -105,22 +105,22 @@ Usage:
 Parser command options.
 
 Options:
-  -b, --branch <branch>       git branch use (default: main)
-  -h, --help                  display help text and exit
-  -p, --pause                 pause after each command (default: false)
-  -q, --qtversion <version>   version of Qt to compile against (default: 5.15.2)
-  -r, --repo <repo>           github repo to use (default: edgetx}
-      --project-root-dir      project root directory (default: \$HOME)
-      --extra-build-options   added to standard options eg -DTRANSLATIONS=DE
-      --no-repo-init          do not delete local source directory
-      --no-repo-fetch         do not clone or refresh the local source dirctory from github
-      --no-build-dir-init     do not delete the build directory (use with caution!)
-      --no-compile            do not compile or create install components
-      --no-companion          do not compile Companion
-      --no-firmware           do not compile firmware
-      --no-installer          do not create the installer
-      --no-radio-sim          do not compile radio libsim dll
-      --no-simulator          do not compile Simulator
+  -b, --branch <branch>                git branch use (default: main)
+  -h, --help                           display help text and exit
+  -p, --pause                          pause after each command (default: false)
+  -q, --qtversion <version>            version of Qt to compile against (default: 5.15.2)
+  -r, --repo <repo>                    github repo to use (default: edgetx}
+      --project-root-dir <path>        project root directory (default: \$HOME)
+      --extra-build-options <options>  added to standard options eg -DTRANSLATIONS=DE
+      --no-repo-init                   do not delete local source directory
+      --no-repo-fetch                  do not clone or refresh the local source dirctory from github
+      --no-build-dir-init              do not delete the build directory (use with caution!)
+      --no-compile                     do not compile or create install components
+      --no-companion                   do not compile Companion
+      --no-firmware                    do not compile firmware
+      --no-installer                   do not create the installer
+      --no-radio-sim                   do not compile radio libsim dll
+      --no-simulator                   do not compile Simulator
 EOF
 exit 1
 }
