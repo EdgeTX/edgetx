@@ -309,29 +309,6 @@ class ModelButton : public Button
 
 //-----------------------------------------------------------------------------
 
-class MyMenu : public Menu
-{
- public:
-  using Menu::Menu;
-  void setFinishHandler(std::function<void()> finishHandler)
-  {
-    _finishHandler = std::move(finishHandler);
-  }
-
-  void deleteLater(bool detach = true, bool trash = true) override
-  {
-    Menu::deleteLater(detach, trash);
-    if (_finishHandler != nullptr) {
-      _finishHandler();
-    }
-  }
-
- protected:
-  std::function<void()> _finishHandler = nullptr;
-};
-
-//-----------------------------------------------------------------------------
-
 ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
     FormWindow(parent, rect)
 {
@@ -453,9 +430,9 @@ void ModelsPageBody::editLabels(ModelCell *model)
 
   // dont display menu if there will be no labels
   if (labels.size()) {
-    MyMenu *menu = new MyMenu(getParent(), true);
+    auto menu = new Menu(getParent(), true);
     menu->setTitle(model->modelName);
-    menu->setFinishHandler([=]() {
+    menu->setCloseHandler([=]() {
       if (isDirty) {
         isDirty = false;
         update();
