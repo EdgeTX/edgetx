@@ -270,7 +270,7 @@ void generalDefault()
 {
   memclear(&g_eeGeneral, sizeof(g_eeGeneral));
 
-#if defined(PCBHORUS)
+#if defined(COLORLCD)
   g_eeGeneral.blOffBright = 20;
 #endif
 
