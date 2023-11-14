@@ -30,10 +30,8 @@ class ViewMainMenu : public Window
 
   void onCancel() override;
   void onClicked() override;
-  void paint(BitmapBuffer* dc) override;
   void deleteLater(bool detach = true, bool trash = true) override;
 
  protected:
-  rect_t carouselRect;
   std::function<void()> closeHandler = nullptr;
 };

@@ -68,6 +68,7 @@ LV_STYLE_CONST_SINGLE_INIT(bg_opacity_transparent, LV_STYLE_BG_OPA,
                            LV_OPA_TRANSP);
 LV_STYLE_CONST_SINGLE_INIT(bg_opacity_20, LV_STYLE_BG_OPA, LV_OPA_20);
 LV_STYLE_CONST_SINGLE_INIT(bg_opacity_50, LV_STYLE_BG_OPA, LV_OPA_50);
+LV_STYLE_CONST_SINGLE_INIT(bg_opacity_75, LV_STYLE_BG_OPA, 187);
 LV_STYLE_CONST_SINGLE_INIT(bg_opacity_cover, LV_STYLE_BG_OPA, LV_OPA_COVER);
 LV_STYLE_CONST_SINGLE_INIT(fg_opacity_transparent, LV_STYLE_OPA, LV_OPA_TRANSP);
 LV_STYLE_CONST_SINGLE_INIT(fg_opacity_cover, LV_STYLE_OPA, LV_OPA_COVER);
@@ -139,6 +140,14 @@ const lv_style_const_prop_t border_props[] = {
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(border, border_props);
+
+// Border
+const lv_style_const_prop_t border_transparent_props[] = {
+    LV_STYLE_CONST_BORDER_OPA(LV_OPA_TRANSP),
+    LV_STYLE_CONST_BORDER_WIDTH(BORDER_WIDTH),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_MULTI_INIT(border_transparent, border_transparent_props);
 
 // Button
 const lv_style_const_prop_t btn_props[] = {
@@ -274,11 +283,13 @@ class EdgeTxStyles
   lv_style_t border_color_secondary1;
   lv_style_t border_color_secondary2;
   lv_style_t border_color_black;
+  lv_style_t border_color_white;
   lv_style_t border_color_focus;
   lv_style_t bg_color_grey;
   lv_style_t bg_color_white;
   lv_style_t bg_color_black;
   lv_style_t fg_color_black;
+  lv_style_t fg_color_white;
 
   // Fonts
   lv_style_t font_std;
@@ -308,8 +319,12 @@ class EdgeTxStyles
       lv_style_set_bg_color(&bg_color_black, lv_color_black());
       lv_style_init(&fg_color_black);
       lv_style_set_text_color(&fg_color_black, lv_color_black());
+      lv_style_init(&fg_color_white);
+      lv_style_set_text_color(&fg_color_white, lv_color_white());
       lv_style_init(&border_color_black);
       lv_style_set_border_color(&border_color_black, lv_color_black());
+      lv_style_init(&border_color_white);
+      lv_style_set_border_color(&border_color_white, lv_color_white());
 
       // Fonts
       lv_style_init(&font_std);
@@ -636,6 +651,18 @@ void etx_button_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
                    LV_PART_MAIN | LV_STATE_DISABLED);
 }
 
+void etx_quick_button_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
+{
+  lv_obj_add_style(obj, (lv_style_t*)&border_transparent, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_MAIN);
+  lv_obj_add_style(obj, &styles->fg_color_white, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&btn, LV_PART_MAIN);
+
+  lv_obj_add_style(obj, (lv_style_t*)&border, LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_add_style(obj, &styles->border_color_white,
+                   LV_PART_MAIN | LV_STATE_FOCUSED);
+}
+
 void etx_choice_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_add_border_rounded(obj);
@@ -696,6 +723,14 @@ void modal_window_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   window_base_constructor(class_p, obj);
   lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_50, LV_PART_MAIN);
+  lv_obj_add_style(obj, &styles->bg_color_black, LV_PART_MAIN);
+}
+
+void modal_dialog_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
+{
+  window_base_constructor(class_p, obj);
+  lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_MAIN);
+  lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_75, LV_PART_MAIN);
   lv_obj_add_style(obj, &styles->bg_color_black, LV_PART_MAIN);
 }
 
@@ -868,6 +903,19 @@ const lv_obj_class_t etx_button_class = {
     .instance_size = sizeof(lv_btn_t),
 };
 
+const lv_obj_class_t etx_quick_button_class = {
+    .base_class = &lv_btn_class,
+    .constructor_cb = etx_quick_button_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = 80,
+    .height_def = 114,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
+    .instance_size = sizeof(lv_btn_t),
+};
+
 const lv_obj_class_t etx_menu_button_class = {
     .base_class = &lv_btn_class,
     .constructor_cb = etx_button_constructor,
@@ -935,6 +983,18 @@ const lv_obj_class_t etx_bubble_popup_class = {
 const lv_obj_class_t etx_modal_window_class = {
     .base_class = &window_base_class,
     .constructor_cb = modal_window_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = 0,
+    .height_def = 0,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .instance_size = sizeof(lv_obj_t)};
+
+const lv_obj_class_t etx_modal_dialog_class = {
+    .base_class = &window_base_class,
+    .constructor_cb = modal_dialog_constructor,
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
@@ -1073,6 +1133,11 @@ lv_obj_t* etx_button_create(lv_obj_t* parent)
   return etx_create(&etx_button_class, parent);
 }
 
+lv_obj_t* etx_quick_button_create(lv_obj_t* parent)
+{
+  return etx_create(&etx_quick_button_class, parent);
+}
+
 lv_obj_t* etx_menu_button_create(lv_obj_t* parent)
 {
   return etx_create(&etx_menu_button_class, parent);
@@ -1101,6 +1166,11 @@ lv_obj_t* etx_checkbox_create(lv_obj_t* parent)
 lv_obj_t* etx_modal_create(lv_obj_t* parent)
 {
   return etx_create(&etx_modal_window_class, parent);
+}
+
+lv_obj_t* etx_modal_dialog_create(lv_obj_t* parent)
+{
+  return etx_create(&etx_modal_dialog_class, parent);
 }
 
 lv_obj_t* etx_modal_content_create(lv_obj_t* parent)

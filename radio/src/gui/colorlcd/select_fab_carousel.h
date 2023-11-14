@@ -25,17 +25,14 @@
 
 class SelectFabCarousel : public FormWindow
 {
-public:
-    explicit SelectFabCarousel(Window* parent);
+ public:
+  explicit SelectFabCarousel(Window* parent);
 
-    // Maximum visible buttons (-> width of the carousel)
-    void setMaxButtons(uint8_t max);
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "SelectFabCarousel"; }
+#endif
 
-    // Add a new button to the carousel
-    void addButton(uint8_t icon, const char* title,
-                   std::function<uint8_t(void)> pressHandler);
-    
-protected:
-    uint8_t maxButtons = 0;
-    uint8_t buttons = 0;
+  // Add a new button to the carousel
+  void addButton(uint8_t icon, const char* title,
+                 std::function<uint8_t(void)> pressHandler);
 };

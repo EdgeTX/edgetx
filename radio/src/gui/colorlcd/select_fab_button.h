@@ -21,20 +21,25 @@
 
 #pragma once
 
-#include "fab_button.h"
+#include "button.h"
 
-constexpr coord_t SELECT_BUTTON_BORDER = 12;
+constexpr coord_t FAB_BUTTON_SIZE = 80;
 
-class SelectFabButton : public FabButton
+class SelectFabButton : public Button
 {
-  public:
-    SelectFabButton(FormWindow* parent, uint8_t icon, const char* title,
-                    std::function<uint8_t(void)> pressHandler,
-                    WindowFlags windowFlags = 0);
+ public:
+  SelectFabButton(FormWindow* parent, uint8_t icon, const char* title,
+                  std::function<uint8_t(void)> pressHandler,
+                  WindowFlags windowFlags = 0);
 
-    void paint(BitmapBuffer* dc) override;
-    void onEvent(event_t event) override;
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "SelectFabButton"; }
+#endif
 
-  protected:
-    std::string title;
+  void paint(BitmapBuffer* dc) override;
+  void onEvent(event_t event) override;
+
+ protected:
+  uint8_t icon;
+  std::string title;
 };
