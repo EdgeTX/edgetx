@@ -111,7 +111,7 @@ Options:
   -q, --qtversion <version>            version of Qt to compile against (default: 5.15.2)
   -r, --repo <repo>                    github repo to use (default: edgetx}
       --project-root-dir <path>        project root directory (default: \$HOME)
-      --extra-build-options <options>  added to standard options eg -DTRANSLATIONS=DE
+      --build-options <options>        eg -DTRANSLATIONS=DE
       --no-repo-init                   do not delete local source directory
       --no-repo-fetch                  do not clone or refresh the local source dirctory from github
       --no-build-dir-init              do not delete the build directory (use with caution!)
@@ -129,7 +129,8 @@ exit 1
 
 # == Parse the command line ==
 short_options=hpb:q:r:
-long_options="help, pause, branch:, qtversion:, repo:, project-root-dir:, extra-build-options:, no-compile, no-repo-init, no-repo-fetch, no-build-dir-init, no-companion, no-firmware, no-installer, no-radio-sim, no-simulator"
+long_options="help, pause, branch:, qtversion:, repo:, project-root-dir:, build-options:, no-compile, \
+no-repo-init, no-repo-fetch, no-build-dir-init, no-companion, no-firmware, no-installer, no-radio-sim, no-simulator"
 
 args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
 if [[ $? -gt 0 ]]; then
@@ -152,7 +153,7 @@ do
 		-p | --pause)           STEP_PAUSE=1           ; shift   ;;
     -h | --help)            usage                  ; shift   ;;
 		--project-root-dir)     PROJECT_ROOT_DIR=${2}  ; shift 2 ;;
-		--extra-build-options)  BUILD_OPTIONS=${2}     ; shift 2 ;;
+		--build-options)        BUILD_OPTIONS=${2}     ; shift 2 ;;
     --no-compile)           BUILD_FIRMWARE=0
                             BUILD_COMPANION=0
                             BUILD_SIMULATOR=0
@@ -189,8 +190,6 @@ if [[ $REPO_FETCH -eq 1 ]]; then BUILD_DIR_INIT=1; fi
 # == End parse command line =="
 
 # == Validation ==
-
-BUILD_OPTIONS+=" -DDEFAULT_MODE=2 -DGVARS=YES"
 
 case $RADIO_TYPE in
     x9lite)     BUILD_OPTIONS+=" -DPCB=X9LITE" ;;
@@ -342,7 +341,6 @@ if [[ $REPO_FETCH -eq 1 ]]; then
   run_step "Updating submodules to current commits" "git submodule update --init --recursive"
 else
   run_step "Switching to source directory" "cd ${SOURCE_DIR}"
-  run_step "Checking out branch ${BRANCH_NAME}" "git checkout ${BRANCH_NAME}"
 fi
 
 if [[ $BUILD_DIR_INIT -eq 1 ]]; then
