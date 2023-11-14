@@ -17,6 +17,8 @@ BRANCH_NAME="main"  # eg main | 2.9 | fix-issue-1234
 QT_VERSION="${supported_qt_versions[((${#supported_qt_versions[@]} - 1))]}"
 
 # 0 - false 1 = true
+PROJECT_ROOT_DIR=${HOME}
+BUILD_OPTIONS=""
 REPO_INIT=1
 REPO_FETCH=1
 BUILD_DIR_INIT=1
@@ -108,6 +110,8 @@ Options:
   -p, --pause                 pause after each command (default: false)
   -q, --qtversion <version>   version of Qt to compile against (default: 5.15.2)
   -r, --repo <repo>           github repo to use (default: edgetx}
+      --project-root-dir      project root directory (default: \$HOME)
+      --extra-build-options   added to standard options eg -DTRANSLATIONS=DE
       --no-repo-init          do not delete local source directory
       --no-repo-fetch         do not clone or refresh the local source dirctory from github
       --no-build-dir-init     do not delete the build directory (use with caution!)
@@ -125,7 +129,7 @@ exit 1
 
 # == Parse the command line ==
 short_options=hpb:q:r:
-long_options="help, pause, branch:, qtversion:, repo:, no-compile, no-repo-init, no-repo-fetch, no-build-dir-init, no-companion, no-firmware, no-installer, no-radio-sim, no-simulator"
+long_options="help, pause, branch:, qtversion:, repo:, project-root-dir:, extra-build-options:, no-compile, no-repo-init, no-repo-fetch, no-build-dir-init, no-companion, no-firmware, no-installer, no-radio-sim, no-simulator"
 
 args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
 if [[ $? -gt 0 ]]; then
@@ -142,24 +146,26 @@ fi
 while true
 do
 	case $1 in
-		-b | --branch)	      BRANCH_NAME=${2}     ; shift 2 ;;
-		-q | --qtversion)	    QT_VERSION=${2}      ; shift 2 ;;
-		-r | --repo)	        REPO=${2}            ; shift 2 ;;
-		-p | --pause)         STEP_PAUSE=1         ; shift   ;;
-    -h | --help)          usage                ; shift   ;;
-    --no-compile)         BUILD_FIRMWARE=0
-                          BUILD_COMPANION=0
-                          BUILD_SIMULATOR=0
-                          BUILD_RADIO_SIM=0
-                          BUILD_INSTALLER=0    ; shift   ;;
-    --no-repo-init)       REPO_INIT=0          ; shift   ;;
-    --no-repo-fetch)      REPO_FETCH=0         ; shift   ;;
-    --no-build-dir-init)  BUILD_DIR_INIT=0     ; shift   ;;
-    --no-companion)       BUILD_COMPANION=0    ; shift   ;;
-    --no-installer)       BUILD_INSTALLER=0    ; shift   ;;
-    --no-firmware)        BUILD_FIRMWARE=0     ; shift   ;;
-    --no-radio-sim)       BUILD_RADIO_SIM=0    ; shift   ;;
-    --no-simulator)       BUILD_SIMULATOR=0    ; shift   ;;
+		-b | --branch)	        BRANCH_NAME=${2}       ; shift 2 ;;
+		-q | --qtversion)	      QT_VERSION=${2}        ; shift 2 ;;
+		-r | --repo)	          REPO=${2}              ; shift 2 ;;
+		-p | --pause)           STEP_PAUSE=1           ; shift   ;;
+    -h | --help)            usage                  ; shift   ;;
+		--project-root-dir)     PROJECT_ROOT_DIR=${2}  ; shift 2 ;;
+		--extra-build-options)  BUILD_OPTIONS=${2}     ; shift 2 ;;
+    --no-compile)           BUILD_FIRMWARE=0
+                            BUILD_COMPANION=0
+                            BUILD_SIMULATOR=0
+                            BUILD_RADIO_SIM=0
+                            BUILD_INSTALLER=0      ; shift   ;;
+    --no-repo-init)         REPO_INIT=0            ; shift   ;;
+    --no-repo-fetch)        REPO_FETCH=0           ; shift   ;;
+    --no-build-dir-init)    BUILD_DIR_INIT=0       ; shift   ;;
+    --no-companion)         BUILD_COMPANION=0      ; shift   ;;
+    --no-installer)         BUILD_INSTALLER=0      ; shift   ;;
+    --no-firmware)          BUILD_FIRMWARE=0       ; shift   ;;
+    --no-radio-sim)         BUILD_RADIO_SIM=0      ; shift   ;;
+    --no-simulator)         BUILD_SIMULATOR=0      ; shift   ;;
     # -- means the end of the arguments; drop this, and break out of the while loop
     --) shift; break ;;
     *) >&2 echo Unsupported option: $1
@@ -184,7 +190,7 @@ if [[ $REPO_FETCH -eq 1 ]]; then BUILD_DIR_INIT=1; fi
 
 # == Validation ==
 
-BUILD_OPTIONS="-DDEFAULT_MODE=2 -DGVARS=YES"
+BUILD_OPTIONS+=" -DDEFAULT_MODE=2 -DGVARS=YES"
 
 case $RADIO_TYPE in
     x9lite)     BUILD_OPTIONS+=" -DPCB=X9LITE" ;;
@@ -275,13 +281,17 @@ if [[ ! -d "$QT_PATH" ]]; then
   fail "Unable to find Qt install directory $QT_PATH"
 fi
 
+if [[ ! -d "$PROJECT_ROOT_DIR" ]]; then
+  fail "Unable to find project root directory $PROJECT_ROOT_DIR"
+fi
+
 # End validate Qt
 
 # == End validation ==
 
-PROJ_DIR="$HOME/$REPO"
-SOURCE_DIR="${PROJ_DIR}/edgetx"
-BUILD_OUTPUT_DIR="${PROJ_DIR}/build-output"
+PROJECT_DIR="${PROJECT_ROOT_DIR}/$REPO"
+SOURCE_DIR="${PROJECT_DIR}/edgetx"
+BUILD_OUTPUT_DIR="${PROJECT_DIR}/build-output"
 
 echo "
 Execute with the following:
@@ -313,9 +323,9 @@ if [[ $REPO_INIT -eq 1 ]] && [[ -d ${SOURCE_DIR} ]]; then
 fi
 
 if [[ $REPO_FETCH -eq 1 ]]; then
-  if [[ ! -d "${PROJ_DIR}" ]]; then
-    run_step "Creating project directory for ${REPO}" "mkdir ${PROJ_DIR}"
-    run_step "Switching to project directory" "cd ${PROJ_DIR}"
+  if [[ ! -d "${PROJECT_DIR}" ]]; then
+    run_step "Creating project directory for ${REPO}" "mkdir ${PROJECT_DIR}"
+    run_step "Switching to project directory" "cd ${PROJECT_DIR}"
   fi
 
   if [[ ! -d "${SOURCE_DIR}/.git" ]]; then
@@ -367,7 +377,7 @@ if [[ $BUILD_INSTALLER -eq 1 ]]; then run_step "Making the installer" "${MAKENAT
 echo ""
 echo "Completed successfully"
 echo ""
-if [[ $BUILD_FIRMWARE -eq 1 ]]; then echo "firmware            : ${BUILD_OUTPUT_DIR}/arm-none-eabi/fw_${RADIO_TYPE}_release.bin"; fi
+if [[ $BUILD_FIRMWARE -eq 1 ]];  then echo "firmware            : ${BUILD_OUTPUT_DIR}/arm-none-eabi/fw_${RADIO_TYPE}_release.bin"; fi
 if [[ $BUILD_COMPANION -eq 1 ]]; then echo "Companion           : ${BUILD_OUTPUT_DIR}/native/Release/companion.exe"; fi
 if [[ $BUILD_SIMULATOR -eq 1 ]]; then echo "Simulator           : ${BUILD_OUTPUT_DIR}/native/Release/simulator.exe"; fi
 if [[ $BUILD_RADIO_SIM -eq 1 ]]; then echo "Radio libsim        : ${BUILD_OUTPUT_DIR}/native/Release/libedgetx-${RADIO_TYPE}-simulator.dll"; fi
