@@ -206,10 +206,6 @@
 #define ADC_GPIO_PIN_SWF                LL_GPIO_PIN_0      // PB.00
 #define ADC_GPIO_PIN_SWG                LL_GPIO_PIN_1      // PB.01
 #define ADC_GPIO_PIN_SWH                LL_GPIO_PIN_10     // PF.10
-//#if defined(RADIO_PL18EV)
-//#define ADC_GPIO_PIN_SWI                LL_GPIO_PIN_3      // PA.03
-//#define ADC_GPIO_PIN_SWJ                LL_GPIO_PIN_5      // PA.05
-//#endif
 
 #define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_5      // PC.05
 
@@ -226,19 +222,23 @@
 #define ADC_CHANNEL_STICK_RV
 #define ADC_CHANNEL_STICK_RH
 
+// Each ADC cannot map more than 8 channels, otherwise it will cause problems
+
 #define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_6    // ADC12_IN6   -> ADC1_IN6
 #define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_14   // ADC12_IN14  -> ADC1_IN14
 #define ADC_CHANNEL_POT3                LL_ADC_CHANNEL_6    // ADC3_IN6    -> ADC3_IN6
 #define ADC_CHANNEL_SLIDER1             LL_ADC_CHANNEL_7    // ADC3_IN7    -> ADC3_IN7
 #define ADC_CHANNEL_SLIDER2             LL_ADC_CHANNEL_7    // ADC12_IN7   -> ADC1_IN7
 
+#if defined(RADIO_PL18EV)
 // Left, right stick end pot on PL18EV
 #define ADC_CHANNEL_EXT1                LL_ADC_CHANNEL_5    // ADC12_IN5   -> ADC1_IN5
 #define ADC_CHANNEL_EXT2                LL_ADC_CHANNEL_2    // ADC123_IN2  -> ADC1_IN2
 
 // Left, right stick end buttons on PL18EV
 #define ADC_CHANNEL_EXT3                LL_ADC_CHANNEL_4    // ADC3_IN4    -> ADC3_IN4
-#define ADC_CHANNEL_EXT4                LL_ADC_CHANNEL_3    // ADC123_IN3  -> ADC1_IN3
+#define ADC_CHANNEL_EXT4                LL_ADC_CHANNEL_3    // ADC123_IN3  -> ADC3_IN3
+#endif
 
 // Analog switches
 #define ADC_CHANNEL_SWB                 LL_ADC_CHANNEL_11   // ADC123_IN11 -> ADC3_IN11
@@ -247,17 +247,19 @@
 #define ADC_CHANNEL_SWF                 LL_ADC_CHANNEL_8    // ADC12_IN8   -> ADC1_IN8
 #define ADC_CHANNEL_SWG                 LL_ADC_CHANNEL_9    // ADC12_IN9   -> ADC1_IN9
 #define ADC_CHANNEL_SWH                 LL_ADC_CHANNEL_8    // ADC3_IN8    -> ADC3_IN8
-//#define ADC_CHANNEL_SWI                 LL_ADC_CHANNEL_3    // ADC123_IN3  -> ADC1_IN3
-//#define ADC_CHANNEL_SWJ                 LL_ADC_CHANNEL_5    // ADC12_IN5   -> ADC1_IN5
 
 #define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_15   // ADC12_IN15  -> ADC1_IN15
+
+#if !defined(RADIO_PL18EV)
+// Disabled for PL18EV because 2 ADC 16 channels are fully mapped already
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC1_IN18
+#endif
 
 #define ADC_MAIN                        ADC1
 #define ADC_EXT                         ADC3
 
 #define ADC_EXT_CHANNELS						\
-  { ADC_CHANNEL_POT3, ADC_CHANNEL_SLIDER1, ADC_CHANNEL_EXT3, \
+  { ADC_CHANNEL_POT3, ADC_CHANNEL_SLIDER1, ADC_CHANNEL_EXT3, ADC_CHANNEL_EXT4, \
     ADC_CHANNEL_SWB, ADC_CHANNEL_SWD, ADC_CHANNEL_SWE, ADC_CHANNEL_SWH \
   }
 
@@ -284,7 +286,6 @@
     -1,-1,   /* sliders */    \
     0,0,0,0, /* ext1-4 */     \
     0,	     /* vbat */       \
-    0,       /* rtc_bat */    \
     -1,      /* SWB */        \
     -1,      /* SWD */        \
     0,       /* SWE */        \
