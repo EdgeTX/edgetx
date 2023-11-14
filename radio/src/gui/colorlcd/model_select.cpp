@@ -235,9 +235,44 @@ class ModelButton : public Button
     setWidth(MODEL_SELECT_CELL_WIDTH);
     setHeight(MODEL_SELECT_CELL_HEIGHT);
 
-    auto name = new StaticText(this, {0, 0, MODEL_SELECT_CELL_WIDTH - 4, 20},
+    LcdFlags bg_color = modelCell == modelslist.getCurrentModel() ? COLOR_THEME_ACTIVE : COLOR_THEME_PRIMARY2;
+
+    coord_t w = width() - 8;
+    coord_t h = height() - 8;
+
+    GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
+    const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);
+
+    if (bitmap) {
+      buffer = new BitmapBuffer(BMP_RGB565, w, h);
+      if (buffer) {
+        buffer->clear(bg_color);
+        buffer->drawScaledBitmap(bitmap, 0, 0, w, h);
+        delete bitmap;
+
+        lv_obj_t* bm = lv_canvas_create(lvobj);
+        lv_obj_center(bm);
+        lv_canvas_set_buffer(bm, buffer->getData(), buffer->width(), buffer->height(), LV_IMG_CF_TRUE_COLOR);
+      }
+    }
+
+    if (!buffer) {
+      std::string errorMsg = "(";
+      errorMsg += STR_NO_PICTURE;
+      errorMsg += ")";
+      new StaticText(this, {2, h / 2, w, 17},
+                     errorMsg, 0,
+                     CENTERED | COLOR_THEME_SECONDARY1 | FONT(XS));
+    }
+
+    auto name = new StaticText(this, {2, 2, width() - 8, 17},
                                modelCell->modelName, 0,
                                CENTERED | COLOR_THEME_SECONDARY1);
+    name->setHeight(17);
+    name->setBackgroudOpacity(LV_OPA_80);
+    name->setBackgroundColor(bg_color);
+    name->padTop(-3);
+
     check(modelCell == modelslist.getCurrentModel());
   }
 
@@ -246,51 +281,6 @@ class ModelButton : public Button
     if (buffer) {
       delete buffer;
     }
-  }
-
-  void load()
-  {
-    const char *error = nullptr;
-
-    coord_t w = width() - 8;
-    coord_t h = height() - 26;
-
-    delete buffer;
-    buffer = new BitmapBuffer(BMP_RGB565, w, h);
-    if (buffer == nullptr) {
-      return;
-    }
-    buffer->clear(COLOR_THEME_PRIMARY2);
-
-    std::string errorMsg = "(";
-
-    if (error) {
-      errorMsg += STR_INVALID_MODEL;
-    } else {
-      GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
-      const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);
-      if (bitmap) {
-        buffer->drawScaledBitmap(bitmap, 0, 0, w, h);
-        delete bitmap;
-        return;
-      } else {
-        errorMsg += STR_NO_PICTURE;
-      }
-    }
-
-    errorMsg += ")";
-    buffer->drawText(w / 2, h / 2, errorMsg.c_str(),
-                     COLOR_THEME_SECONDARY1 | CENTERED);
-  }
-
-  void paint(BitmapBuffer *dc) override
-  {
-    if (!loaded) {  // Load them on the fly
-      load();
-      loaded = true;
-    }
-
-    if (buffer) dc->drawBitmap(4, 22, buffer);
   }
 
   const char *modelFilename() { return modelCell->modelFilename; }
