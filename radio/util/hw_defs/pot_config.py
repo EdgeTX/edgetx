@@ -15,15 +15,15 @@ POT_CONFIG = {
         "P2": {"default": "POT_CENTER"}
     },
     "pl18": {
-        "P1": {"default": "POT_CENTER"},
-        "P2": {"default": "POT_CENTER"},
-        "P3": {"default": "POT_CENTER"},
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"},
+        "P3": {"default": "POT"},
         "SL1": {"default": "SLIDER"},
         "SL2": {"default": "SLIDER"}
     },
     "pl18ev": {
         "P1": {"default": "POT_CENTER"},
-        "P2": {"default": "POT_CENTER"},
+        "P2": {"default": "POT"},
         "P3": {"default": "POT_CENTER"},
         "SL1": {"default": "SLIDER"},
         "SL2": {"default": "SLIDER"},
