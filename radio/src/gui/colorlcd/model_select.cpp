@@ -104,7 +104,7 @@ class ToolbarButton : public Button
 
   void paint(BitmapBuffer *dc) override
   {
-    dc->drawBitmapPattern(2, 2, _bitmap, COLOR_THEME_PRIMARY1);
+    dc->drawBitmapPattern(0, 0, _bitmap, COLOR_THEME_PRIMARY1);
   }
 
  protected:
