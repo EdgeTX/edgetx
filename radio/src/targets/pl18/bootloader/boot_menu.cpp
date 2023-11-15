@@ -69,7 +69,7 @@ static void bootloaderDrawTitle(const char* text)
 
 static void bootloaderDrawFooter()
 {
-    lcd->drawSolidFilledRect(DEFAULT_PADDING, LCD_H - (DOUBLE_PADDING + 4), LCD_W - DOUBLE_PADDING, 2, BL_FOREGROUND);
+    lcd->drawSolidFilledRect(DEFAULT_PADDING, LCD_H - (DEFAULT_PADDING + 10), LCD_W - DOUBLE_PADDING, 2, BL_FOREGROUND);
 }
 
 static void bootloaderDrawBackground()
@@ -87,84 +87,64 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
         bootloaderDrawTitle(BOOTLOADER_TITLE);
         
-        lcd->drawText(62, 75, LV_SYMBOL_CHARGE, BL_FOREGROUND);
-        coord_t pos = lcd->drawText(84, 75, "Write Firmware", BL_FOREGROUND);
+        lcd->drawText(102, 75, LV_SYMBOL_CHARGE, BL_FOREGROUND);
+        coord_t pos = lcd->drawText(124, 75, TR_BL_WRITE_FW, BL_FOREGROUND);
         pos += 8;
 
 #if defined(SPI_FLASH)
-        lcd->drawText(60, 110, LV_SYMBOL_WARNING, BL_FOREGROUND);
-        pos = lcd->drawText(84, 110, "Erase Flash Storage", BL_FOREGROUND);
+        lcd->drawText(102, 110, LV_SYMBOL_SD_CARD, BL_FOREGROUND);
+        pos = lcd->drawText(124, 110, TR_BL_ERASE_FLASH, BL_FOREGROUND);
         pos += 8;
 
-        lcd->drawText(60, 145, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
-        lcd->drawText(84, 145, "Exit", BL_FOREGROUND);
+        lcd->drawText(100, 145, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+        lcd->drawText(124, 145, TR_BL_EXIT, BL_FOREGROUND);
 #else
-        lcd->drawText(60, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
-        lcd->drawText(84, 110, "Exit", BL_FOREGROUND);
+        lcd->drawText(100, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+        lcd->drawText(124, 110, TR_BL_EXIT, BL_FOREGROUND);
 #endif
 
-        pos -= 79;
-        lcd->drawSolidRect(79, 72 + (opt*35), pos, 26, 2, BL_SELECTED);
+        pos -= 92;
+        lcd->drawSolidRect(92, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
         
-        lcd->drawBitmap(center - 55, 165, (const BitmapBuffer*)&BMP_PLUG_USB);
-        lcd->drawText(center, 250, "Or plug in a USB cable", CENTERED | BL_FOREGROUND);
-        lcd->drawText(center, 275, "for mass storage", CENTERED | BL_FOREGROUND);
+        lcd->drawBitmap(60, 214, (const BitmapBuffer*)&BMP_PLUG_USB);
+        lcd->drawText(195, 223, TR_BL_USB_PLUGIN, BL_FOREGROUND);
+        lcd->drawText(195, 248, TR_BL_USB_MASS_STORE, BL_FOREGROUND);
 
         bootloaderDrawFooter();
-        lcd->drawText(center, LCD_H - DOUBLE_PADDING,
-                      "Current Firmware:", CENTERED | BL_FOREGROUND);
-        lcd->drawText(center, LCD_H - DEFAULT_PADDING,
-                      getFirmwareVersion(nullptr), CENTERED | BL_FOREGROUND);
+        lcd->drawText(center, LCD_H - DEFAULT_PADDING, getFirmwareVersion(), CENTERED | BL_FOREGROUND);
     }
-
-// #if defined(SPI_FLASH) && defined(SDCARD)
-//     else if (st == ST_SELECT_STORAGE) {
-//         bootloaderDrawTitle(LV_SYMBOL_DIRECTORY " select storage");
-//         lcd->drawText(62, 75, LV_SYMBOL_DIRECTORY, BL_FOREGROUND);
-//         coord_t pos = lcd->drawText(84, 75, "Internal", BL_FOREGROUND);
-//         pos += 8;
-//         lcd->drawText(60, 110, LV_SYMBOL_SD_CARD, BL_FOREGROUND);
-//         lcd->drawText(84, 110, "SD Card", BL_FOREGROUND);
-//         pos -= 79;
-//         lcd->drawSolidRect(79, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
-//         bootloaderDrawFooter();
-//         lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING,
-//                       "[R TRIM] to select storage", BL_FOREGROUND);
-//         lcd->drawText(DOUBLE_PADDING, LCD_H - DEFAULT_PADDING,
-//                       LV_SYMBOL_NEW_LINE " [L TRIM] to exit", BL_FOREGROUND);
-//     }
-// #endif
-
 #if defined(SPI_FLASH)
     else if (st == ST_CLEAR_FLASH_CHECK) {
 
-        bootloaderDrawTitle("erase internal flash storage");
+        bootloaderDrawTitle(TR_BL_ERASE_INT_FLASH);
 
-        lcd->drawText(62, 75, LV_SYMBOL_DRIVE, BL_FOREGROUND);
-        coord_t pos = lcd->drawText(84, 75, "Erase Flash Storage", BL_FOREGROUND);
+        lcd->drawText(102, 75, LV_SYMBOL_SD_CARD, BL_FOREGROUND);
+        coord_t pos = lcd->drawText(124, 75, TR_BL_ERASE_FLASH, BL_FOREGROUND);
         pos += 8;
 
-        lcd->drawText(60, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
-        lcd->drawText(84, 110, "Exit", BL_FOREGROUND);
+        lcd->drawText(100, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+        lcd->drawText(124, 110, TR_BL_EXIT, BL_FOREGROUND);
 
-        pos -= 79;
-        lcd->drawSolidRect(79, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
+        pos -= 92;
+        lcd->drawSolidRect(92, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
 
         bootloaderDrawFooter();
-        lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING, "Hold [R TRIM] long to erase storage", BL_FOREGROUND);
-        lcd->drawText(DOUBLE_PADDING, LCD_H - DEFAULT_PADDING, LV_SYMBOL_NEW_LINE "[L TRIM] to exit", BL_FOREGROUND);
+        lcd->drawText(DEFAULT_PADDING, LCD_H - DEFAULT_PADDING,
+                      LV_SYMBOL_SD_CARD TR_BL_ERASE_KEY, BL_FOREGROUND);
+        lcd->drawText(305, LCD_H - DEFAULT_PADDING,
+                      LV_SYMBOL_NEW_LINE TR_BL_EXIT_KEY, BL_FOREGROUND);
     }
     else if (st == ST_CLEAR_FLASH) {
-        bootloaderDrawTitle("erasing internal flash storage");
+        bootloaderDrawTitle(TR_BL_ERASE_INT_FLASH);
 
-        lcd->drawText(62, 75, "This may take up to 150s", BL_FOREGROUND);
+        lcd->drawText(center, 75, TR_BL_ERASE_FLASH_MSG, CENTERED | BL_FOREGROUND);
         bootloaderDrawFooter();
     }
 #endif
 
     else if (st == ST_USB) {
       lcd->drawBitmap(center - 26, 98, (const BitmapBuffer*)&BMP_USB_PLUGGED);
-      lcd->drawText(center, 168, "USB Connected", CENTERED | BL_FOREGROUND);
+      lcd->drawText(center, 168, TR_BL_USB_CONNECTED, CENTERED | BL_FOREGROUND);
     } else if (st == ST_FILE_LIST || st == ST_DIR_CHECK ||
                st == ST_FLASH_CHECK || st == ST_FLASHING ||
                st == ST_FLASH_DONE) {
@@ -187,9 +167,9 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       } else if (st == ST_DIR_CHECK) {
         if (opt == FR_NO_PATH) {
           lcd->drawText(20, MESSAGE_TOP,
-                        LV_SYMBOL_CLOSE " Directory is missing", BL_FOREGROUND);
+                        LV_SYMBOL_CLOSE TR_BL_DIR_MISSING, BL_FOREGROUND);
         } else {
-          lcd->drawText(20, MESSAGE_TOP, LV_SYMBOL_CLOSE " Directory is empty",
+          lcd->drawText(20, MESSAGE_TOP, LV_SYMBOL_CLOSE TR_BL_DIR_EMPTY,
                         BL_FOREGROUND);
         }
       } else if (st == ST_FLASH_CHECK) {
@@ -206,25 +186,24 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
           lcd->drawText(LCD_W / 4 + DEFAULT_PADDING,
                         MESSAGE_TOP - DEFAULT_PADDING,
-                        "Fork:", RIGHT | BL_FOREGROUND);
+                        TR_BL_FORK, RIGHT | BL_FOREGROUND);
           lcd->drawSizedText(LCD_W / 4 + 6 + DEFAULT_PADDING,
                              MESSAGE_TOP - DEFAULT_PADDING, tag.fork, 6,
                              BL_FOREGROUND);
 
           lcd->drawText(LCD_W / 4 + DEFAULT_PADDING, MESSAGE_TOP,
-                        "Version:", RIGHT | BL_FOREGROUND);
+                        TR_BL_VERSION, RIGHT | BL_FOREGROUND);
           lcd->drawText(LCD_W / 4 + 6 + DEFAULT_PADDING, MESSAGE_TOP,
                         tag.version, BL_FOREGROUND);
 
           lcd->drawText(LCD_W / 4 + DEFAULT_PADDING,
                         MESSAGE_TOP + DEFAULT_PADDING,
-                        "Radio:", RIGHT | BL_FOREGROUND);
+                        TR_BL_RADIO, RIGHT | BL_FOREGROUND);
           lcd->drawText(LCD_W / 4 + 6 + DEFAULT_PADDING,
                         MESSAGE_TOP + DEFAULT_PADDING, tag.flavour,
                         BL_FOREGROUND);
 
-          lcd->drawText(LCD_W - DOUBLE_PADDING, MESSAGE_TOP - 10,
-                        LV_SYMBOL_OK, BL_GREEN);
+          lcd->drawText(DOUBLE_PADDING, MESSAGE_TOP, LV_SYMBOL_OK, BL_GREEN);
         }
       }
 
@@ -232,27 +211,24 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
       if (st != ST_DIR_CHECK && (st != ST_FLASH_CHECK || opt == FC_OK)) {
 
-        lcd->drawText(DEFAULT_PADDING, LCD_H - DOUBLE_PADDING - 2,
-                      LV_SYMBOL_CHARGE, BL_FOREGROUND);
-
         if (st == ST_FILE_LIST) {
-          lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING,
-                        "[R TRIM] to select file", BL_FOREGROUND);
+          lcd->drawText(DEFAULT_PADDING, LCD_H - DEFAULT_PADDING,
+                        LV_SYMBOL_CHARGE TR_BL_SELECT_KEY, BL_FOREGROUND);
         } else if (st == ST_FLASH_CHECK && opt == FC_OK) {
-          lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING,
-                        "Hold [R TRIM] long to flash", BL_FOREGROUND);
+          lcd->drawText(DEFAULT_PADDING, LCD_H - DEFAULT_PADDING,
+                        LV_SYMBOL_CHARGE TR_BL_FLASH_KEY, BL_FOREGROUND);
         } else if (st == ST_FLASHING) {
-          lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING,
-                        "Writing Firmware ...", BL_FOREGROUND);
+          lcd->drawText(DEFAULT_PADDING, LCD_H - DEFAULT_PADDING,
+                        LV_SYMBOL_CHARGE TR_BL_WRITING_FW, BL_FOREGROUND);
         } else if (st == ST_FLASH_DONE) {
-          lcd->drawText(DOUBLE_PADDING, LCD_H - DOUBLE_PADDING,
-                        "Writing Completed", BL_FOREGROUND);
+          lcd->drawText(DEFAULT_PADDING, LCD_H - DEFAULT_PADDING,
+                        LV_SYMBOL_CHARGE TR_BL_WRITING_COMPL, BL_FOREGROUND);
         }
       }
 
       if (st != ST_FLASHING) {
-        lcd->drawText(DOUBLE_PADDING, LCD_H - DEFAULT_PADDING,
-                      LV_SYMBOL_NEW_LINE " [L TRIM] to exit", BL_FOREGROUND);
+        lcd->drawText(305, LCD_H - DEFAULT_PADDING,
+                      LV_SYMBOL_NEW_LINE TR_BL_EXIT_KEY, BL_FOREGROUND);
       }
     }
 }
@@ -263,7 +239,8 @@ void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
     lcd->drawText(DEFAULT_PADDING + 30, 75 + (line * 25), str, BL_FOREGROUND);
 
     if (selected) {
-        lcd->drawSolidRect(DEFAULT_PADDING + 25, 72 + (line * 25), LCD_W - (DEFAULT_PADDING + 25) - 28, 26, 2, BL_SELECTED);
+        lcd->drawSolidRect(DEFAULT_PADDING + 25, 72 + (line * 25),
+                           LCD_W - (DEFAULT_PADDING + 25) - 28, 26, 2, BL_SELECTED);
     }
 }
 uint32_t bootloaderGetMenuItemCount(int baseCount)

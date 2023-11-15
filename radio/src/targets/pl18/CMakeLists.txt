@@ -83,7 +83,10 @@ add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DCROSSFIRE_NATIVE)
 add_definitions(-DHARDWARE_EXTERNAL_MODULE)
-add_definitions(-DWIRELESS_CHARGER)
+
+if(WIRELESS_CHARGER)
+  add_definitions(-DWIRELESS_CHARGER)
+endif()
 
 if(STICKS_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
@@ -93,9 +96,6 @@ if(NOT UNEXPECTED_SHUTDOWN)
   add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
 endif()
 
-if(STICKS_DEAD_ZONE)
-  add_definitions(-DSTICK_DEAD_ZONE)
-endif()
 set(AFHDS3 ON)
 
 # VCP CLI
