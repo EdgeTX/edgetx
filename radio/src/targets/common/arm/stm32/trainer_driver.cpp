@@ -417,12 +417,14 @@ static void* _sbus_trainer_ctx = nullptr;
 
 void init_trainer_module_sbus()
 {
+  modulePortSetPower(EXTERNAL_MODULE, true);
   _sbus_trainer_ctx = STM32SerialDriver.init(REF_STM32_SERIAL_PORT(SbusTrainer),
                                              &sbusTrainerParams);
 }
 
 void stop_trainer_module_sbus()
 {
+  modulePortSetPower(EXTERNAL_MODULE, false);
   STM32SerialDriver.deinit(_sbus_trainer_ctx);
   _sbus_trainer_ctx = nullptr;
 }
