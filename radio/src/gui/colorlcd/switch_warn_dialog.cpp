@@ -32,7 +32,7 @@ SwitchWarnDialog::SwitchWarnDialog() :
 
 void SwitchWarnDialog::delayedInit()
 {
-  lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_DOT);
+  lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_WRAP);
   AUDIO_ERROR_MESSAGE(AU_SWITCH_ALERT);
 }
 
@@ -68,6 +68,7 @@ void SwitchWarnDialog::paint(BitmapBuffer * dc)
         if ((switches_states & mask) != (states & mask)) {
           swarnstate_t state = (states >> (i*3)) & 0x07;
           warn_txt += getSwitchPositionName(SWSRC_FIRST_SWITCH + i * 3 + state - 1);
+          warn_txt += " ";
         }
       }
     }
@@ -80,6 +81,7 @@ void SwitchWarnDialog::paint(BitmapBuffer * dc)
       if ( (g_model.potsWarnEnabled & (1 << i))) {
         if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
           warn_txt += getPotLabel(i);
+          warn_txt += " ";
         }
       }
     }
@@ -96,7 +98,7 @@ ThrottleWarnDialog::ThrottleWarnDialog(const char* msg) :
 
 void ThrottleWarnDialog::delayedInit()
 {
-  lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_DOT);
+  lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_WRAP);
   AUDIO_ERROR_MESSAGE(AU_THROTTLE_ALERT);
 }
 
