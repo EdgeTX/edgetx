@@ -336,19 +336,21 @@ void ModelInputsPage::newInput()
   menu->setTitle(STR_MENU_INPUTS);
 
   uint8_t chn = 0;
+  uint8_t index = 0;
   ExpoData* line = g_model.expoData;
 
   // search for unused channels
-  for (uint8_t i = 0; i < MAX_EXPOS; i++) {
+  for (uint8_t i = 0; i < MAX_EXPOS && chn < MAX_INPUTS; i++) {
     if (!EXPO_VALID(line) || (line->chn > chn)) {
-      if (chn >= MAX_INPUTS) break;
       std::string name(getSourceString(chn+1));
-      menu->addLineBuffered(name.c_str(), [=]() { insertInput(chn, i); });
+      menu->addLineBuffered(name.c_str(), [=]() { insertInput(chn, index); });
     }
-    if (EXPO_VALID(line))
+    if (EXPO_VALID(line)) {
       chn = line->chn + 1;
-    else
+      index += 1;
+    } else {
       chn += 1;
+    }
     ++line;
   }
 
