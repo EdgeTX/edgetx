@@ -26,7 +26,8 @@
 #define SET_DIRTY()     storageDirty(EE_GENERAL)
 
 constexpr coord_t SPECTRUM_HEIGHT = 180;
-constexpr coord_t SCALE_HEIGHT = 20;
+constexpr coord_t SCALE_HEIGHT = 15;
+constexpr coord_t FOOTER_HEIGHT = 32;
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
@@ -56,22 +57,22 @@ class SpectrumFooterWindow: public FormWindow
       FlexGridLayout grid(col_dsc, row_dsc, 4);
 
       auto line = newLine(&grid);
-      line->padAll(1);
+      line->padAll(0);
 
       if (isModuleMultimodule(moduleIdx)) {
         char label[16];
 
         // Frequency
         sprintf(label,"T: %dMHz", int(reusableBuffer.spectrumAnalyser.freq / 1000000));
-        new StaticText(line, rect_t{0, 0, lv_pct(30), LV_GRID_CONTENT}, label);
+        new StaticText(line, rect_t{0, 0, lv_pct(30), FOOTER_HEIGHT}, label);
 
         // Span
         sprintf(label,"S: %dMHz", int(reusableBuffer.spectrumAnalyser.span / 1000000));
-        new StaticText(line, rect_t{0, 0, lv_pct(30), LV_GRID_CONTENT}, label);
+        new StaticText(line, rect_t{0, 0, lv_pct(30), FOOTER_HEIGHT}, label);
       }
       else {
         // Frequency
-        auto freq = new NumberEdit(line, rect_t{0, 0, lv_pct(30), LV_GRID_CONTENT}, reusableBuffer.spectrumAnalyser.freqMin,
+        auto freq = new NumberEdit(line, rect_t{0, 0, lv_pct(30), FOOTER_HEIGHT}, reusableBuffer.spectrumAnalyser.freqMin,
                                    reusableBuffer.spectrumAnalyser.freqMax,
                                    GET_DEFAULT(reusableBuffer.spectrumAnalyser.freq / 1000000),
                                    SET_VALUE(reusableBuffer.spectrumAnalyser.freq, newValue * 1000000));
@@ -79,7 +80,7 @@ class SpectrumFooterWindow: public FormWindow
         freq->setPrefix("F: ");
 
         // Span
-        auto span = new NumberEdit(line, rect_t{0, 0, lv_pct(30), LV_GRID_CONTENT}, 1, reusableBuffer.spectrumAnalyser.spanMax,
+        auto span = new NumberEdit(line, rect_t{0, 0, lv_pct(30), FOOTER_HEIGHT}, 1, reusableBuffer.spectrumAnalyser.spanMax,
                                    GET_DEFAULT(reusableBuffer.spectrumAnalyser.span / 1000000),
                                    SET_VALUE(reusableBuffer.spectrumAnalyser.span, newValue * 1000000));
         span->setSuffix("MHz");
@@ -87,7 +88,7 @@ class SpectrumFooterWindow: public FormWindow
       }
 
       // Tracker
-      auto tracker = new NumberEdit(line, rect_t{0, 0, lv_pct(30), LV_GRID_CONTENT}, (reusableBuffer.spectrumAnalyser.freq - reusableBuffer.spectrumAnalyser.span / 2) / 1000000,
+      auto tracker = new NumberEdit(line, rect_t{0, 0, lv_pct(30), LV_SIZE_CONTENT}, (reusableBuffer.spectrumAnalyser.freq - reusableBuffer.spectrumAnalyser.span / 2) / 1000000,
                                     (reusableBuffer.spectrumAnalyser.freq + reusableBuffer.spectrumAnalyser.span / 2) / 1000000,
                                     GET_DEFAULT(reusableBuffer.spectrumAnalyser.track / 1000000),
                                     SET_VALUE(reusableBuffer.spectrumAnalyser.track, newValue * 1000000));
@@ -123,7 +124,7 @@ class SpectrumScaleWindow: public Window
         if (x >= LCD_W - 1)
           break;
         if ((frequency / 1000000) % 2 == 0) {
-          dc->drawNumber(x, 3, frequency / 1000000, FONT(XS) | CENTERED);
+          dc->drawNumber(x, 0, frequency / 1000000, FONT(XS) | CENTERED);
         }
       }
     }
@@ -229,7 +230,7 @@ void RadioSpectrumAnalyser::buildBody(FormWindow * window)
 {
   new SpectrumWindow(window, {0, 0, LCD_W, SPECTRUM_HEIGHT});
   new SpectrumScaleWindow(window, {0, SPECTRUM_HEIGHT, LCD_W, SCALE_HEIGHT});
-  new SpectrumFooterWindow(window, {0, SPECTRUM_HEIGHT + SCALE_HEIGHT, LCD_W, window->height() - SPECTRUM_HEIGHT - SCALE_HEIGHT}, moduleIdx);
+  new SpectrumFooterWindow(window, {0, SPECTRUM_HEIGHT + SCALE_HEIGHT, LCD_W, FOOTER_HEIGHT}, moduleIdx);
 }
 
 void RadioSpectrumAnalyser::init()
