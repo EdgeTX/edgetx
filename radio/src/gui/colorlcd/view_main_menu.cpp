@@ -40,17 +40,18 @@
 #endif
 
 ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
-    Window(parent->getFullScreenWindow(),
-           {(LCD_W - VM_W) / 2, (LCD_H - VM_H) / 2, VM_W, VM_H}, 0, 0,
-           etx_modal_dialog_create),
+    Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}),
     closeHandler(std::move(closeHandler))
 {
-  padAll(8);
-
   // Save focus
   Layer::push(this);
 
-  auto carousel = new SelectFabCarousel(this);
+  auto box =
+      new Window(this, {(LCD_W - VM_W) / 2, (LCD_H - VM_H) / 2, VM_W, VM_H}, 0,
+                 0, etx_modal_dialog_create);
+  box->padAll(8);
+
+  auto carousel = new SelectFabCarousel(box);
   carousel->addButton(ICON_MODEL_SELECT, STR_MAIN_MENU_MANAGE_MODELS,
                       [=]() -> uint8_t {
                         deleteLater();
