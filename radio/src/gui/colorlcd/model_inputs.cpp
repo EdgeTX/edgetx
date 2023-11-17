@@ -364,14 +364,15 @@ void ModelInputsPage::newInput()
   // search for unused channels
   for (uint8_t i = 0; i < MAX_EXPOS && chn < MAX_INPUTS; i++) {
     if (!EXPO_VALID(line) || (line->chn > chn)) {
-      std::string name(getSourceString(chn + 1));
-      menu->addLineBuffered(name.c_str(), [=]() { insertInput(chn, index); });
+      uint8_t chnEnd = EXPO_VALID(line) ? line->chn : chn + 1;
+      for (; chn < chnEnd; chn += 1) {
+        std::string name(getSourceString(chn + 1));
+        menu->addLineBuffered(name.c_str(), [=]() { insertInput(chn, index); });
+      }
     }
     if (EXPO_VALID(line)) {
       chn = line->chn + 1;
       index += 1;
-    } else {
-      chn += 1;
     }
     ++line;
   }
