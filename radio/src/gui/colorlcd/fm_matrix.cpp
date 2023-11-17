@@ -20,32 +20,31 @@
  */
 
 #include "fm_matrix.h"
+
 #include "opentx.h"
 
-template<class T>
+template <class T>
 FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
     ButtonMatrix(parent, r), input(input)
 {
 #if LCD_W > LCD_H
-  initBtnMap(5, MAX_FLIGHT_MODES + 1);
+  initBtnMap(5, MAX_FLIGHT_MODES);
 #else
   initBtnMap(3, MAX_FLIGHT_MODES);
 #endif
-
-  update();
 
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     setTextAndState(i);
   }
 
+  update();
+
 #if LCD_W > LCD_H
-  // hide last element
-  lv_btnmatrix_set_btn_ctrl(lvobj, MAX_FLIGHT_MODES, LV_BTNMATRIX_CTRL_HIDDEN);
-  lv_obj_set_width(lvobj, LV_DPI_DEF * 2);
-  lv_obj_set_height(lvobj, LV_DPI_DEF / 2);
+  lv_obj_set_width(lvobj, 258);
+  lv_obj_set_height(lvobj, 73);
 #else
-  lv_obj_set_width(lvobj, LV_DPI_DEF);
-  lv_obj_set_height(lvobj, LV_DPI_DEF);
+  lv_obj_set_width(lvobj, 156);
+  lv_obj_set_height(lvobj, 108);
 #endif
 
   lv_obj_set_style_pad_all(lvobj, lv_dpx(4), LV_PART_MAIN);
@@ -53,14 +52,14 @@ FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
   lv_obj_set_style_pad_column(lvobj, lv_dpx(4), LV_PART_MAIN);
 }
 
-template<class T>
+template <class T>
 void FMMatrix<T>::setTextAndState(uint8_t btn_id)
 {
   setText(btn_id, std::to_string(btn_id).c_str());
   setChecked(btn_id);
 }
 
-template<class T>
+template <class T>
 void FMMatrix<T>::onPress(uint8_t btn_id)
 {
   if (btn_id >= MAX_FLIGHT_MODES) return;
@@ -69,7 +68,7 @@ void FMMatrix<T>::onPress(uint8_t btn_id)
   storageDirty(EE_MODEL);
 }
 
-template<class T>
+template <class T>
 bool FMMatrix<T>::isActive(uint8_t btn_id)
 {
   if (btn_id >= MAX_FLIGHT_MODES) return false;
