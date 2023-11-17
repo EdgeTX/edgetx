@@ -21,16 +21,10 @@
 
 #include "select_fab_carousel.h"
 
-SelectFabCarousel::SelectFabCarousel(Window* parent) :
-    FormWindow(parent, {})
+SelectFabCarousel::SelectFabCarousel(Window* parent) : FormWindow(parent, {})
 {
+  padAll(0);
   setFlexLayout(LV_FLEX_FLOW_ROW_WRAP);
-
-  coord_t w = parent->width() * 0.8;
-  w -= w % (FAB_BUTTON_SIZE + SELECT_BUTTON_BORDER);
-  lv_obj_set_width(lvobj, w);
-
-  lv_obj_set_style_max_height(lvobj, lv_pct(85), 0);
 }
 
 void SelectFabCarousel::addButton(uint8_t icon, const char* title,

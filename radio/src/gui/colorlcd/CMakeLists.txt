@@ -36,7 +36,6 @@ set(GUI_SRC
   listbox.cpp
   tabsgroup.cpp
   page.cpp
-  fab_button.cpp
   select_fab_button.cpp
   select_fab_carousel.cpp
   topbar.cpp

@@ -21,31 +21,40 @@
 
 #include "select_fab_button.h"
 
-SelectFabButton::SelectFabButton(FormWindow* parent,
-                                 uint8_t icon, const char* title,
+#include "font.h"
+#include "static.h"
+#include "theme.h"
+
+const uint8_t __alpha_button_off[]{
+#include "alpha_button_off.lbm"
+};
+LZ4Bitmap ALPHA_BUTTON_OFF(BMP_ARGB4444, __alpha_button_off);
+
+SelectFabButton::SelectFabButton(FormWindow* parent, uint8_t icon,
+                                 const char* title,
                                  std::function<uint8_t(void)> pressHandler,
                                  WindowFlags windowFlags) :
-    // FabButton uses center coordinates, we want top left corner:
-    FabButton(parent, icon, pressHandler, windowFlags),
+    Button(parent, {}, pressHandler, windowFlags, 0, etx_quick_button_create),
+    icon(icon),
     title(title)
 {
-  // Add some space on either side on the button
-  setWidth(FAB_BUTTON_SIZE + SELECT_BUTTON_BORDER);
-
-  // 2 Lines extra for the text + half border
-  setHeight(FAB_BUTTON_SIZE + 2 * PAGE_LINE_HEIGHT + SELECT_BUTTON_BORDER / 2);
+  padAll(0);
+  new StaticText(this, {1, FAB_BUTTON_SIZE - 14, FAB_BUTTON_SIZE - 4, 0}, title, 0,
+                 COLOR2FLAGS(WHITE) | CENTERED);
 }
 
 void SelectFabButton::paint(BitmapBuffer* dc)
 {
-  FabButton::paint(dc);
+  const BitmapBuffer* bitmap = &ALPHA_BUTTON_OFF;
 
-  dc->drawSizedText(width() / 2, FAB_BUTTON_SIZE,
-                    title.c_str(), title.size(),
-                    COLOR2FLAGS(WHITE) | CENTERED);
+  dc->drawBitmap((FAB_BUTTON_SIZE - bitmap->width()) / 2,
+                 (FAB_BUTTON_SIZE - bitmap->height()) / 2 - 6, bitmap);
 
-  if (hasFocus()) {
-    dc->drawSolidRect(0, 0, width(), height(), 2, COLOR2FLAGS(WHITE));
+  const BitmapBuffer* mask = EdgeTxTheme::instance()->getIconMask(icon);
+  if (mask) {
+    dc->drawMask((FAB_BUTTON_SIZE - mask->width()) / 2,
+                 (FAB_BUTTON_SIZE - mask->height()) / 2 - 6, mask,
+                 COLOR2FLAGS(WHITE));
   }
 }
 
@@ -59,5 +68,5 @@ void SelectFabButton::onEvent(event_t event)
       return;
   }
 #endif
-  FabButton::onEvent(event);
+  Button::onEvent(event);
 }

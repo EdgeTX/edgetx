@@ -20,80 +20,92 @@
  */
 
 #include "view_main_menu.h"
-#include "menu.h"
-#include "audio.h"
-#include "translations.h"
-#include "model_select.h"
+
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
+#include "model_select.h"
+#include "select_fab_carousel.h"
 #include "view_about.h"
 #include "view_channels.h"
 #include "view_statistics.h"
-#include "select_fab_carousel.h"
 #include "view_text.h"
 
+#if LCD_W > LCD_H
+#define VM_W (FAB_BUTTON_SIZE * 4 + 16)
+#define VM_H ((FAB_BUTTON_SIZE + 34) * 2 + 16)
+#else
+#define VM_W (FAB_BUTTON_SIZE * 3 + 16)
+#define VM_H ((FAB_BUTTON_SIZE + 34) * 3 + 16)
+#endif
+
 ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
-    Window(parent->getFullScreenWindow(), rect_t{})
+    Window(parent->getFullScreenWindow(),
+           {(LCD_W - VM_W) / 2, (LCD_H - VM_H) / 2, VM_W, VM_H}, 0, 0,
+           etx_modal_dialog_create),
+    closeHandler(std::move(closeHandler))
 {
-  this->closeHandler = std::move(closeHandler);
+  padAll(8);
 
   // Save focus
   Layer::push(this);
 
-  // Take over the screen
-  setWidth(parent->width());
-  setHeight(parent->height());
-
   auto carousel = new SelectFabCarousel(this);
-  carousel->addButton(ICON_MODEL_SELECT,STR_MAIN_MENU_MANAGE_MODELS, [=]() -> uint8_t {
-    deleteLater();
-    new ModelLabelsWindow();
-    return 0;
-  });
+  carousel->addButton(ICON_MODEL_SELECT, STR_MAIN_MENU_MANAGE_MODELS,
+                      [=]() -> uint8_t {
+                        deleteLater();
+                        new ModelLabelsWindow();
+                        return 0;
+                      });
 
   if (modelHasNotes()) {
-    carousel->addButton(ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES, [=]() -> uint8_t {
-      deleteLater();
-      readModelNotes(true);
-      return 0;
-    });
+    carousel->addButton(ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES,
+                        [=]() -> uint8_t {
+                          deleteLater();
+                          readModelNotes(true);
+                          return 0;
+                        });
   }
 
-  carousel->addButton(ICON_MONITOR, STR_MAIN_MENU_CHANNEL_MONITOR, [=]() -> uint8_t {
-    deleteLater();
-    new ChannelsViewMenu();
-    return 0;
-  });
+  carousel->addButton(ICON_MONITOR, STR_MAIN_MENU_CHANNEL_MONITOR,
+                      [=]() -> uint8_t {
+                        deleteLater();
+                        new ChannelsViewMenu();
+                        return 0;
+                      });
 
-  carousel->addButton(ICON_MODEL, STR_MAIN_MENU_MODEL_SETTINGS, [=]() -> uint8_t {
-    deleteLater();
-    new ModelMenu();
-    return 0;
-  });
+  carousel->addButton(ICON_MODEL, STR_MAIN_MENU_MODEL_SETTINGS,
+                      [=]() -> uint8_t {
+                        deleteLater();
+                        new ModelMenu();
+                        return 0;
+                      });
 
-  carousel->addButton(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, [=]() -> uint8_t {
-    deleteLater();
-    new RadioMenu();
-    return 0;
-  });
+  carousel->addButton(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS,
+                      [=]() -> uint8_t {
+                        deleteLater();
+                        new RadioMenu();
+                        return 0;
+                      });
 
-  carousel->addButton(ICON_THEME, STR_MAIN_MENU_SCREEN_SETTINGS, [=]() -> uint8_t {
-    deleteLater();
-    new ScreenMenu();
-    return 0;
-  });
+  carousel->addButton(ICON_THEME, STR_MAIN_MENU_SCREEN_SETTINGS,
+                      [=]() -> uint8_t {
+                        deleteLater();
+                        new ScreenMenu();
+                        return 0;
+                      });
 
-  carousel->addButton(ICON_MODEL_TELEMETRY, STR_MAIN_MENU_RESET_TELEMETRY, [=]() -> uint8_t {
-    deleteLater();
-    Menu* resetMenu = new Menu(parent);
-    resetMenu->addLine(STR_RESET_FLIGHT, []() { flightReset(); });
-    resetMenu->addLine(STR_RESET_TIMER1, []() { timerReset(0); });
-    resetMenu->addLine(STR_RESET_TIMER2, []() { timerReset(1); });
-    resetMenu->addLine(STR_RESET_TIMER3, []() { timerReset(2); });
-    resetMenu->addLine(STR_RESET_TELEMETRY, []() { telemetryReset(); });
-    return 0;
-  });
+  carousel->addButton(
+      ICON_MODEL_TELEMETRY, STR_MAIN_MENU_RESET_TELEMETRY, [=]() -> uint8_t {
+        deleteLater();
+        Menu* resetMenu = new Menu(parent);
+        resetMenu->addLine(STR_RESET_FLIGHT, []() { flightReset(); });
+        resetMenu->addLine(STR_RESET_TIMER1, []() { timerReset(0); });
+        resetMenu->addLine(STR_RESET_TIMER2, []() { timerReset(1); });
+        resetMenu->addLine(STR_RESET_TIMER3, []() { timerReset(2); });
+        resetMenu->addLine(STR_RESET_TELEMETRY, []() { telemetryReset(); });
+        return 0;
+      });
 
   carousel->addButton(ICON_STATS, STR_MAIN_MENU_STATISTICS, [=]() -> uint8_t {
     deleteLater();
@@ -101,34 +113,14 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
     return 0;
   });
 
-  carousel->addButton(ICON_EDGETX, STR_MAIN_MENU_ABOUT_EDGETX, [=]() -> uint8_t {
-    deleteLater();
-    new AboutUs();
-    return 0;
-  });
+  carousel->addButton(ICON_EDGETX, STR_MAIN_MENU_ABOUT_EDGETX,
+                      [=]() -> uint8_t {
+                        deleteLater();
+                        new AboutUs();
+                        return 0;
+                      });
 
-  auto carousel_obj = carousel->getLvObj();
-  lv_obj_center(carousel_obj);
-
-  lv_obj_update_layout(carousel_obj);
-  carouselRect.x = lv_obj_get_x(carousel_obj);
-  carouselRect.y = lv_obj_get_y(carousel_obj);
-  carouselRect.w = lv_obj_get_width(carousel_obj);
-  carouselRect.h = lv_obj_get_height(carousel_obj);
-
-  // carousel->setCloseHandler([=]() { deleteLater(); });
-  // carousel->setFocus();
-}
-
-uint16_t* lcdGetBackupBuffer();
-
-void ViewMainMenu::paint(BitmapBuffer* dc)
-{
-  rect_t zone = carouselRect;
-  zone.x -= 8; zone.y -= 8;
-  zone.w += 16; zone.h += 16;
-
-  dc->drawFilledRect(zone.x, zone.y, zone.w, zone.h, SOLID, BLACK, OPACITY(4));
+  lv_obj_center(carousel->getLvObj());
 }
 
 void ViewMainMenu::deleteLater(bool detach, bool trash)
@@ -138,12 +130,6 @@ void ViewMainMenu::deleteLater(bool detach, bool trash)
   Window::deleteLater(detach, trash);
 }
 
-void ViewMainMenu::onClicked()
-{
-  deleteLater();
-}
+void ViewMainMenu::onClicked() { deleteLater(); }
 
-void ViewMainMenu::onCancel()
-{
-  deleteLater();
-}
+void ViewMainMenu::onCancel() { deleteLater(); }
