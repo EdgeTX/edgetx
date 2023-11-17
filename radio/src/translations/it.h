@@ -1249,6 +1249,6 @@
 #define TR_SELECT_MENU_CLR        "Clear"
 #define TR_SELECT_MENU_INV        "Invert"
 
-#define TR_SORT_ORDERS            "Name A-Z","Name Z-A","Least used","Most used"
-#define TR_SORT_MODELS_BY         "Sort models by"
-#define TR_CREATE_NEW             "Create"
+#define TR_SORT_ORDERS            "Nome A-Z","Nome Z-A","Meno utilizzato","Più utilizzato"
+#define TR_SORT_MODELS_BY         "Ordina modelli per"
+#define TR_CREATE_NEW             "Crea"
