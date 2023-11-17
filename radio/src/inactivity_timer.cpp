@@ -56,8 +56,12 @@ bool inactivityCheckInputs()
 {
   uint8_t sum = 0;
 
-  for (uint8_t i = 0; i < adcGetMaxInputs(ADC_INPUT_ALL); i++)
-    sum += anaIn(i) >> INAC_STICKS_SHIFT;
+  auto max_inputs = adcGetMaxInputs(ADC_INPUT_MAIN)
+    + adcGetMaxInputs(ADC_INPUT_FLEX);
+
+  for (uint8_t i = 0; i < max_inputs; i++) {
+    sum += getAnalogValue(i) >> INAC_STICKS_SHIFT;
+  }
 
   for (uint8_t i = 0; i < getSwitchCount(); i++)
     sum += getValue(MIXSRC_FIRST_SWITCH + i) >> INAC_SWITCHES_SHIFT;
