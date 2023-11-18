@@ -555,6 +555,21 @@
 #define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
 #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
 
+// LED Strip
+#define LED_STRIP_LENGTH                  4
+#define LED_STRIP_GPIO                    GPIOH
+#define LED_STRIP_GPIO_PIN_DATA           LL_GPIO_PIN_12  // PH.12 / TIM5_CH3
+#define LED_STRIP_GPIO_PIN_AF             LL_GPIO_AF_2    // TIM3/4/5
+#define LED_STRIP_TIMER                   TIM5
+#define LED_STRIP_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
+#define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH3
+#define LED_STRIP_TIMER_DMA               DMA1
+#define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMA_CHANNEL_6
+#define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_0
+#define LED_STRIP_TIMER_DMA_IRQn          DMA1_Stream0_IRQn
+#define LED_STRIP_TIMER_DMA_IRQHandler    DMA1_Stream0_IRQHandler
+#define LED_STRIP_REFRESH_PERIOD          50 //ms
+
 // Internal Module
 #if defined(RADIO_PL18)
 #define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_DMA1)
