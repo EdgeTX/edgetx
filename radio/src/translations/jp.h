@@ -1244,6 +1244,6 @@
 #define TR_SELECT_MENU_CLR        "Clear"
 #define TR_SELECT_MENU_INV        "Invert"
 
-#define TR_SORT_ORDERS            "Name A-Z","Name Z-A","Least used","Most used"
-#define TR_SORT_MODELS_BY         "Sort models by"
-#define TR_CREATE_NEW             "Create"
+#define TR_SORT_ORDERS            "名称 A-Z順","名称 Z-A順","利用の少ない順","利用の多い順"
+#define TR_SORT_MODELS_BY         "モデルをソート"
+#define TR_CREATE_NEW             "作成"
