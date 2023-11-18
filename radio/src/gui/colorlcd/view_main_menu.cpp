@@ -46,8 +46,14 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
   // Save focus
   Layer::push(this);
 
+  coord_t width = VM_W;
+#if LCD_W > LCD_H
+  if (modelHasNotes())
+    width += FAB_BUTTON_SIZE;
+#endif
+
   auto box =
-      new Window(this, {(LCD_W - VM_W) / 2, (LCD_H - VM_H) / 2, VM_W, VM_H}, 0,
+      new Window(this, {(LCD_W - width) / 2, (LCD_H - VM_H) / 2, width, VM_H}, 0,
                  0, etx_modal_dialog_create);
   box->padAll(8);
 
@@ -120,8 +126,6 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
                         new AboutUs();
                         return 0;
                       });
-
-  lv_obj_center(carousel->getLvObj());
 }
 
 void ViewMainMenu::deleteLater(bool detach, bool trash)
