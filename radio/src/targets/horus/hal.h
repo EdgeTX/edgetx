@@ -389,7 +389,7 @@
 
 // USB Charger
 #if defined(USB_CHARGER)
-#define USB_CHARGER_RCC_AHB1Periph      RCC_AHB1Periph_GPIOG
+#define USB_CHARGER_RCC_AHB1Periph      LL_AHB1_GRP1_PERIPH_GPIOG
 #define USB_CHARGER_GPIO                GPIOG
 #define USB_CHARGER_GPIO_PIN            LL_GPIO_PIN_11  // PG.11
 #define USB_USBDet_GPIO_PIN             LL_GPIO_PIN_13  // PG.13
@@ -405,7 +405,7 @@
 #endif
 
 #if defined(PCBX10) && !defined(RADIO_FAMILY_T16)
-  #define SPORT_UPDATE_RCC_AHB1Periph   RCC_AHB1Periph_GPIOH
+  #define SPORT_UPDATE_RCC_AHB1Periph   LL_AHB1_GRP1_PERIPH_GPIOH
   #define SPORT_UPDATE_PWR_GPIO         GPIOH
   #define SPORT_UPDATE_PWR_GPIO_PIN     LL_GPIO_PIN_13  // PH.13
 #else
@@ -414,12 +414,12 @@
 
 // PCBREV
 #if defined(PCBX10)
-  #define PCBREV_RCC_AHB1Periph         RCC_AHB1Periph_GPIOH
+  #define PCBREV_RCC_AHB1Periph         LL_AHB1_GRP1_PERIPH_GPIOH
   #define PCBREV_GPIO_PIN               (LL_GPIO_PIN_7 | LL_GPIO_PIN_8)
   #define PCBREV_GPIO                   GPIOH
   #define PCBREV_VALUE()                (LL_GPIO_IsInputPinSet(PCBREV_GPIO, LL_GPIO_PIN_7) + (LL_GPIO_IsInputPinSet(PCBREV_GPIO, LL_GPIO_PIN_8) << 1))
 #else
-  #define PCBREV_RCC_AHB1Periph         RCC_AHB1Periph_GPIOI
+  #define PCBREV_RCC_AHB1Periph         LL_AHB1_GRP1_PERIPH_GPIOI
   #define PCBREV_GPIO                   GPIOI
   #define PCBREV_GPIO_PIN               LL_GPIO_PIN_11  // PI.11
   #define PCBREV_VALUE()                LL_GPIO_IsInputPinSet(PCBREV_GPIO, PCBREV_GPIO_PIN)
@@ -428,11 +428,11 @@
 // Led
 #define STATUS_LEDS
 #if defined(PCBX12S)
-  #define LED_RCC_AHB1Periph            RCC_AHB1Periph_GPIOI
+  #define LED_RCC_AHB1Periph            LL_AHB1_GRP1_PERIPH_GPIOI
   #define LED_GPIO                      GPIOI
   #define LED_GPIO_PIN                  LL_GPIO_PIN_5  // PI.05
 #elif defined(PCBX10)
-  #define LED_RCC_AHB1Periph            RCC_AHB1Periph_GPIOE
+  #define LED_RCC_AHB1Periph            LL_AHB1_GRP1_PERIPH_GPIOE
   #define LED_GPIO                      GPIOE
   #define LED_RED_GPIO_PIN              LL_GPIO_PIN_2
   #define LED_GREEN_GPIO_PIN            LL_GPIO_PIN_4
@@ -468,7 +468,7 @@
 
 #if defined(AUX2_SERIAL)
 #if defined(PCBX12S)
-  #define AUX2_SERIAL_RCC_AHB1Periph           RCC_AHB1Periph_GPIOA
+  #define AUX2_SERIAL_RCC_AHB1Periph           LL_AHB1_GRP1_PERIPH_GPIOA
   #define AUX2_SERIAL_USART                    UART4
   #define AUX2_SERIAL_GPIO_AF                  GPIO_AF_UART4
   #define AUX2_SERIAL_GPIO_AF_LL               LL_GPIO_AF_8
@@ -484,7 +484,7 @@
   #define AUX2_SERIAL_DMA_Channel_RX           LL_DMA_CHANNEL_4
   #define AUX2_SERIAL_DMA_Stream_RX_LL         LL_DMA_STREAM_2
 #else
-  #define AUX2_SERIAL_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_DMA2)
+  #define AUX2_SERIAL_RCC_AHB1Periph           (LL_AHB1_GRP1_PERIPH_GPIOB | LL_AHB1_GRP1_PERIPH_GPIOG | LL_AHB1_GRP1_PERIPH_DMA2)
   #define AUX2_SERIAL_USART                    USART6
   #define AUX2_SERIAL_GPIO_AF                  GPIO_AF_USART6
   #define AUX2_SERIAL_GPIO_AF_LL               LL_GPIO_AF_8
@@ -509,7 +509,7 @@
 #endif
 
 // Telemetry
-#define TELEMETRY_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA1)
+#define TELEMETRY_RCC_AHB1Periph        (LL_AHB1_GRP1_PERIPH_GPIOD | LL_AHB1_GRP1_PERIPH_DMA1)
 #define TELEMETRY_RCC_APB1Periph        RCC_APB1Periph_USART2
 #define TELEMETRY_RCC_APB2Periph        RCC_APB2Periph_TIM11
 #define TELEMETRY_DIR_GPIO              GPIOD
@@ -556,7 +556,7 @@
 #define EXTI4_IRQ_Priority 5
 
 // USB
-#define USB_RCC_AHB1Periph_GPIO         RCC_AHB1Periph_GPIOA
+#define USB_RCC_AHB1Periph_GPIO         LL_AHB1_GRP1_PERIPH_GPIOA
 #define USB_GPIO                        GPIOA
 #define USB_GPIO_PIN_VBUS               LL_GPIO_PIN_9  // PA.09
 #define USB_GPIO_PIN_DM                 LL_GPIO_PIN_11 // PA.11
@@ -582,13 +582,13 @@
 
 // Backlight
 #if defined(PCBX12S)
-  #define BACKLIGHT_RCC_AHB1Periph             RCC_AHB1Periph_GPIOA
+  #define BACKLIGHT_RCC_AHB1Periph             LL_AHB1_GRP1_PERIPH_GPIOA
   #define BACKLIGHT_GPIO                       GPIOA
   #if PCBREV >= 13
     #define BACKLIGHT_TIMER                    TIM5
     #define BACKLIGHT_GPIO_PIN                 LL_GPIO_PIN_3  // PA.03
     #define BACKLIGHT_GPIO_PinSource           GPIO_PinSource3
-    #define BACKLIGHT_RCC_APB1Periph           RCC_APB1Periph_TIM5
+    #define BACKLIGHT_RCC_APB1Periph           LL_APB2_GRP1_PERIPH_TIM5
     #define BACKLIGHT_RCC_APB2Periph           0
     #define BACKLIGHT_GPIO_AF                  GPIO_AF_TIM5
     #define BACKLIGHT_TIMER_FREQ               (PERI1_FREQUENCY * TIMER_MULT_APB1)
@@ -597,7 +597,7 @@
     #define BACKLIGHT_GPIO_PIN                 LL_GPIO_PIN_5  // PA.05
     #define BACKLIGHT_GPIO_PinSource           GPIO_PinSource5
     #define BACKLIGHT_RCC_APB1Periph           0
-    #define BACKLIGHT_RCC_APB2Periph           RCC_APB2Periph_TIM8
+    #define BACKLIGHT_RCC_APB2Periph           LL_APB2_GRP1_PERIPH_TIM8
     #define BACKLIGHT_GPIO_AF                  GPIO_AF_TIM8
     #define BACKLIGHT_TIMER_FREQ               (PERI2_FREQUENCY * TIMER_MULT_APB2)
   #endif
@@ -613,7 +613,7 @@
   #define BACKLIGHT_TIMER_FREQ                 (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #endif
 #if defined(RADIO_T18)
-  #define KEYS_BACKLIGHT_RCC_AHB1Periph        RCC_AHB1Periph_GPIOC
+  #define KEYS_BACKLIGHT_RCC_AHB1Periph        LL_AHB1_GRP1_PERIPH_GPIOC
   #define KEYS_BACKLIGHT_GPIO                  GPIOC
   #define KEYS_BACKLIGHT_GPIO_PIN              LL_GPIO_PIN_4  // PC.04
   #define KEYS_BACKLIGHT_GPIO_PinSource        GPIO_PinSource4
@@ -622,7 +622,7 @@
 #endif
 
 // SD
-#define SD_RCC_AHB1Periph               (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA2)
+#define SD_RCC_AHB1Periph               (LL_AHB1_GRP1_PERIPH_GPIOC | LL_AHB1_GRP1_PERIPH_GPIOd | LL_AHB1_GRP1_PERIPH_DMA2)
 #define SD_RCC_APB1Periph               0
 #define SD_PRESENT_GPIO                 GPIOC
 #define SD_PRESENT_GPIO_PIN             LL_GPIO_PIN_5  // PC.05

@@ -20,7 +20,7 @@
  */
 
 #include "board.h"
-#include "stm32_hal_ll.h";
+#include "stm32_hal_ll.h"
 
 void usbChargerInit()
 {

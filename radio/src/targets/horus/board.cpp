@@ -19,6 +19,9 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal.h"
+#include "stm32_hal_ll.h"
+
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"

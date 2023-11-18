@@ -22,6 +22,8 @@
 #if !defined(SIMU)
 #include "stm32_ws2812.h"
 #include "boards/generic_stm32/rgb_leds.h"
+#include "stm32_hal.h"
+#include "stm32_hal_ll.h"
 #endif
 
 #include "opentx.h"
