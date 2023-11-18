@@ -45,6 +45,7 @@ add_definitions(-DPCBPL18 -DPCBFLYSKY)
 add_definitions(-DBATTERY_CHARGE)
 add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DSPI_FLASH)
+add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 
 if(PCBREV STREQUAL PL18EV)
   set(FLAVOUR pl18ev)
@@ -152,6 +153,8 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/dma2d.cpp
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/diskio_spi_flash.cpp
+  targets/common/arm/stm32/stm32_ws2812.cpp
+  boards/generic_stm32/rgb_leds.cpp
   drivers/frftl.cpp
   )
 
