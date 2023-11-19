@@ -52,6 +52,7 @@ static lv_theme_t theme;
 #define LV_STYLE_CONST_SINGLE_INIT(var_name, prop, value)               \
   const lv_style_t var_name = {.v_p = {.value1 = {.num = value}},       \
                                .prop1 = prop,                           \
+                               .is_const = 0,                           \
                                .has_group = 1 << ((prop & 0x1FF) >> 4), \
                                .prop_cnt = 1}
 
@@ -60,8 +61,9 @@ static lv_theme_t theme;
 #define LV_STYLE_CONST_MULTI_INIT(var_name, prop_array)            \
   const lv_style_t var_name = {.v_p = {.const_props = prop_array}, \
                                .prop1 = LV_STYLE_PROP_ANY,                         \
+                               .is_const = 0,                           \
                                .has_group = 0xFF,                  \
-                               .prop_cnt = (sizeof(prop_array) / sizeof((prop_array)[0]))}
+                               .prop_cnt = 0}
 
 // Opacity
 LV_STYLE_CONST_SINGLE_INIT(bg_opacity_transparent, LV_STYLE_BG_OPA,

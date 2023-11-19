@@ -14,4 +14,4 @@
 [submodule "radio/src/thirdparty/libopenui/thirdparty/lvgl"]
     path = radio/src/thirdparty/libopenui/thirdparty/lvgl
     url = https://github.com/EdgeTX/lvgl.git
-    branch = v8.3-patched
+    branch = release/v8.2
