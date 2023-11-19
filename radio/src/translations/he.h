@@ -1257,7 +1257,6 @@
 #define TR_SELECT_MENU_CLR        "Clear"
 #define TR_SELECT_MENU_INV        "Invert"
 
-#define TR_SORT_ORDERS            "אלפביתי A-Z","אלפביתי Z-A","הכי פחות בשימוש","הכי שימושי"
+#define TR_SORT_ORDERS            "סידור A-Z","סידור Z-A","יותר בשימוש","פחות בשימוש"
 #define TR_SORT_MODELS_BY         "סדר תצוגה"
-#define TR_CREATE_NEW             "יצירה"
-
+#define TR_CREATE_NEW             "יצירה חדשה"
