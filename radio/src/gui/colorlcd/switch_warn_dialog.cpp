@@ -80,6 +80,7 @@ void SwitchWarnDialog::paint(BitmapBuffer * dc)
       if (!IS_POT_SLIDER_AVAILABLE(i)) { continue; }
       if ( (g_model.potsWarnEnabled & (1 << i))) {
         if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
+          warn_txt += STR_CHAR_POT;
           warn_txt += getPotLabel(i);
           warn_txt += " ";
         }
