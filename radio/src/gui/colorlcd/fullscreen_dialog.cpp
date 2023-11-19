@@ -28,6 +28,26 @@
 
 #include "watchdog_driver.h"
 
+#if LCD_W > LCD_H
+constexpr uint32_t ALERT_FRAME_TOP =               50;
+constexpr uint32_t ALERT_FRAME_HEIGHT =            (LCD_H - 120);
+constexpr uint32_t ALERT_BITMAP_TOP =              ALERT_FRAME_TOP + 25;
+constexpr uint32_t ALERT_BITMAP_LEFT =             20;
+constexpr uint32_t ALERT_TITLE_TOP =               ALERT_FRAME_TOP + 5;
+constexpr uint32_t ALERT_TITLE_LEFT =              146;
+constexpr uint32_t ALERT_MESSAGE_TOP =             ALERT_TITLE_TOP + 85;
+constexpr uint32_t ALERT_MESSAGE_LEFT =            ALERT_TITLE_LEFT;
+#else
+constexpr uint32_t ALERT_FRAME_TOP =               70;
+constexpr uint32_t ALERT_FRAME_HEIGHT =            (LCD_H - 2 * ALERT_FRAME_TOP);
+constexpr uint32_t ALERT_BITMAP_TOP =              ALERT_FRAME_TOP + 15;
+constexpr uint32_t ALERT_BITMAP_LEFT =             15;
+constexpr uint32_t ALERT_TITLE_TOP =               ALERT_FRAME_TOP + 10;
+constexpr uint32_t ALERT_TITLE_LEFT =              140;
+constexpr uint32_t ALERT_MESSAGE_TOP =             ALERT_TITLE_TOP + 130;
+constexpr uint32_t ALERT_MESSAGE_LEFT =            15;
+#endif
+
 static Window* _get_parent()
 {
   Window* p = Layer::back();
