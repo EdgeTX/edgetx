@@ -280,8 +280,7 @@ void SwitchWarnMatrix::onPress(uint8_t btn_id)
       bfSet(g_model.switchWarningState, newstate, 3 * sw, 3);
   SET_DIRTY();
 
-  // TODO: save state in object
-  setTextAndState(sw);
+  setTextAndState(btn_id);
 }
 
 bool SwitchWarnMatrix::isActive(uint8_t btn_id)
