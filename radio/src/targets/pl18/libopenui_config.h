@@ -21,15 +21,6 @@
 
 #pragma once
 
-constexpr uint32_t ALERT_FRAME_TOP =               70;
-constexpr uint32_t ALERT_FRAME_HEIGHT =            (LCD_H - 2 * ALERT_FRAME_TOP);
-constexpr uint32_t ALERT_BITMAP_TOP =              ALERT_FRAME_TOP + 15;
-constexpr uint32_t ALERT_BITMAP_LEFT =             15;
-constexpr uint32_t ALERT_TITLE_TOP =               ALERT_FRAME_TOP + 10;
-constexpr uint32_t ALERT_TITLE_LEFT =              186;
-constexpr uint32_t ALERT_MESSAGE_TOP =             ALERT_TITLE_TOP + 90;
-constexpr uint32_t ALERT_MESSAGE_LEFT =            ALERT_TITLE_LEFT;
-
 constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 132;
 constexpr coord_t INPUT_EDIT_CURVE_HEIGHT = INPUT_EDIT_CURVE_WIDTH;
 constexpr coord_t MENUS_MAX_HEIGHT = (MENUS_LINE_HEIGHT * 8) + 8;
