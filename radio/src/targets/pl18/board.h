@@ -140,6 +140,13 @@ const etx_serial_port_t* auxSerialGetPort(int port_nr);
 #define AUX_SERIAL_POWER_ON()
 #define AUX_SERIAL_POWER_OFF()
 
+// LED driver
+void ledInit();
+void ledOff();
+void ledRed();
+void ledBlue();
+void ledGreen();
+
 // LCD driver
 void lcdSetInitalFrameBuffer(void* fbAddress);
 void lcdInit();

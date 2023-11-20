@@ -144,6 +144,7 @@ set(FIRMWARE_TARGET_SRC
   key_driver.cpp
   battery_driver.cpp
   backlight_driver.cpp
+  led_driver.cpp
   sdram_driver.c
   )
 
