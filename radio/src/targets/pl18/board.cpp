@@ -166,17 +166,13 @@ void boardInit()
   touchPanelInit();
   usbInit();
 
-#if defined(LED_STRIP_GPIO)
   extern const stm32_pulse_timer_t _led_timer;
 
   ws2812_init(&_led_timer, LED_STRIP_LENGTH);
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    ws2812_set_color(i, 0, 0, 50);
+    ws2812_set_color(i, 0, 0, 0);
   }
   ws2812_update(&_led_timer);
-
-//  stm32_pulse_set_cmp_val(&_led_timer, 998); // 998us
-#endif
 
   uint32_t press_start = 0;
   uint32_t press_end = 0;

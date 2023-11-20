@@ -351,12 +351,6 @@
 #define SPORT_UPDATE_RCC_AHB1Periph     0
 #define HAS_SPORT_UPDATE_CONNECTOR()    (false)
 
-// Led
-// #define STATUS_LEDS
-#define LED_RCC_AHB1Periph              RCC_AHB1Periph_GPIOI
-#define LED_GPIO                        GPIOI
-#define LED_GPIO_PIN                    GPIO_Pin_5  // PI.05
-
 // Serial Port (DEBUG)
 // We will temporarily used the PPM and the HEARTBEAT PINS
 #define AUX_SERIAL_RCC_AHB1Periph       (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOE)
@@ -569,6 +563,9 @@
 #define LED_STRIP_TIMER_DMA_IRQn          DMA1_Stream0_IRQn
 #define LED_STRIP_TIMER_DMA_IRQHandler    DMA1_Stream0_IRQHandler
 #define LED_STRIP_REFRESH_PERIOD          50 //ms
+
+#define STATUS_LEDS
+
 
 // Internal Module
 #if defined(RADIO_PL18)
