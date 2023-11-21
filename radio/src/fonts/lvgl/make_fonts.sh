@@ -32,11 +32,10 @@ function make_font() {
   local name=$1
   local ttf=$2
   local size=$3
-  local bpp=$4
-  local chars=$5
-  local arg=$6
+  local chars=$4
+  local arg=$5
 
-  lv_font_conv --no-prefilter --bpp ${bpp} --size ${size} \
+  lv_font_conv --no-prefilter --bpp 4 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE},${BULLET},${COMPARE}${chars} \
                --font EdgeTX/extra.ttf -r ${EXTRA_SYM} \
                --font ${ARROWS_FONT} -r ${ARROWS} \
@@ -44,20 +43,29 @@ function make_font() {
                --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format ${arg}
 }
 
-function make_font_bin() {
+function make_font_w_extra_sym() {
   local name=$1
   local ttf=$2
   local size=$3
-  local bpp=$4
-  local chars=$5
-  local arg=$6
+  local chars=$4
+  local arg=$5
 
-  lv_font_conv --no-prefilter --bpp ${bpp} --size ${size} \
-               --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE},${BULLET},${COMPARE}${chars} \
+  lv_font_conv --no-prefilter --bpp 4 --size ${size} \
+               --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE}${chars} \
                --font EdgeTX/extra.ttf -r ${EXTRA_SYM} \
-               --font ${ARROWS_FONT} -r ${ARROWS} \
-               --font ${SYMBOLS_FONT} -r ${SYMBOLS} \
-               --format bin -o lv_font_${name}_${size}.bin --force-fast-kern-format --no-compress ${arg}
+               --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format ${arg}
+}
+
+function make_font_no_sym() {
+  local name=$1
+  local ttf=$2
+  local size=$3
+  local chars=$4
+  local arg=$5
+
+  lv_font_conv --no-prefilter --bpp 4 --size ${size} \
+               --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE}${chars} \
+               --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format ${arg}
 }
 
 # LV_SYMBOL_CHARGE, LV_SYMBOL_NEW_LINE, LV_SYMBOL_SD_CARD, LV_SYMBOL_CLOSE
@@ -79,14 +87,14 @@ function make_font_set() {
   local ttf_normal=$2
   local ttf_bold=$3
   local chars=$4
-  
-  make_font "${name}" "${ttf_normal}" 9 4 ${chars} --no-compress
-  make_font "${name}" "${ttf_normal}" 13 4 ${chars} --no-compress
-  make_font "${name}" "${ttf_normal}" 16 4 ${chars} --no-compress
-  make_font "${name}_bold" "${ttf_bold}" 16 4 ${chars} --no-compress
-  make_font_bin "${name}" "${ttf_normal}" 24 4 ${chars}
-  make_font_bin "${name}_bold" "${ttf_bold}" 32 4 ${chars}
-  make_font_bin "${name}_bold" "${ttf_bold}" 64 4 ${chars}
+
+  make_font "${name}" "${ttf_normal}" 9 ${chars} --no-compress
+  make_font "${name}" "${ttf_normal}" 13 ${chars} --no-compress
+  make_font "${name}" "${ttf_normal}" 16 ${chars} --no-compress
+  make_font "${name}_bold" "${ttf_bold}" 16 ${chars}
+  make_font_w_extra_sym "${name}" "${ttf_normal}" 24 ${chars}
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 32 ${chars}
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 64
 }
 
 # Regular fonts
