@@ -147,7 +147,7 @@ static void lcdSpiConfig(void) {
   GPIO_InitStructure.Pin        = LCD_NRST_GPIO_PIN;
   LL_GPIO_Init(LCD_NRST_GPIO, &GPIO_InitStructure);
 
-  /* Set the chip select pin aways low */
+  /* Set the chip select pin always low */
   LCD_CS_LOW();
 }
 
