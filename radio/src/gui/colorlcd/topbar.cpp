@@ -87,3 +87,19 @@ void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
 
   storageDirty(EE_MODEL);
 }
+
+void SetupTopBarWidgetsPage::onEvent(event_t event)
+{
+#if defined(HARDWARE_KEYS)
+  if (event == EVT_KEY_FIRST(KEY_PAGEUP) || event == EVT_KEY_FIRST(KEY_PAGEDN) ||
+      event == EVT_KEY_FIRST(KEY_SYS) || event == EVT_KEY_FIRST(KEY_MODEL)) {
+    killEvents(event);
+  } else if (event == EVT_KEY_FIRST(KEY_TELE)) {
+    onCancel();
+  } else {
+    FormWindow::onEvent(event);
+  }
+#else
+  FormWindow::onEvent(event);
+#endif
+}

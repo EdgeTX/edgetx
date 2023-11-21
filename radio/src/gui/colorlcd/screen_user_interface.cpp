@@ -136,9 +136,8 @@ void ScreenUserInterfacePage::build(FormWindow* window)
   auto line = window->newLine(&grid);
   new StaticText(line, rect_t{}, STR_TOP_BAR, 0, COLOR_THEME_PRIMARY1);
 
-  auto menu = this->menu;
   auto setupTopbarWidgets = new TextButton(line, rect_t{}, STR_SETUP_WIDGETS);
-  setupTopbarWidgets->setPressHandler([menu]() -> uint8_t {
+  setupTopbarWidgets->setPressHandler([=]() -> uint8_t {
       menu->deleteLater();
       new SetupTopBarWidgetsPage();
       return 0;
