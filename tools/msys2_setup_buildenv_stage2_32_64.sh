@@ -58,7 +58,7 @@ while true
 do
 	case $1 in
     -d | --download-dir)          DOWNLOAD_DIR="${2}"                 ; shift 2 ;;
-		-e | --edgetx-version)        EDGETX_VERSION="${2}"  
+		-e | --edgetx-version)        EDGETX_VERSION="${2}"
                                   QT_VERSION="$(get_qt_version ${2})" ; shift 2 ;;
     -h | --help)                  usage                               ; shift   ;;
          --no-download-arm)       DOWNLOAD_ARM=0                      ; shift   ;;
@@ -180,10 +180,13 @@ if [[ $INSTALL_QT -eq 1 ]]; then
 fi
 
 if [[ $DOWNLOAD_ARM -eq 1 ]]; then
-  DOWNLOAD_FILE="arm-gnu-toolchain-11.3.rel1-mingw-w64-i686-arm-none-eabi.exe"
+  # Note: the version needs to be kept in sync with EdgeTX/build-edgetx/dev/Dockerfile
+
+  DOWNLOAD_FILE="gcc-arm-none-eabi-10-2020-q4-major-win32.exe"
+
   run_step "Downloading ARM installer" \
   "wget -c -O ${DOWNLOAD_DIR}/${DOWNLOAD_FILE} --progress=bar:force:noscroll --no-check-certificate \
-  'https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/${DOWNLOAD_FILE}?rev=674f6ef06614499dad033db88c3452b3&hash=11B71993F9DA4B77974E9E8AE6EEF366'"
+  'https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/${DOWNLOAD_FILE}?revision=9a4bce5a-7577-4b4f-910d-4585f55d35e8&rev=9a4bce5a75774b4f910d4585f55d35e8&hash=9770A44FEA9E9CDAC0DD9A009190CC8B'"
 fi
 
 echo "This stage of setting up EdgeTX build environment has finished"
@@ -195,7 +198,7 @@ if [[ $DOWNLOAD_ARM -eq 1 ]]; then
 
   2. In Windows, install the downloaded ARM GNU 11.3.1 toolchain
 
-    Launch the downloaded .exe
+    Launch the installer ${DOWNLOAD_FILE}
     - Accept the default installation folder and press Next
     - Select Add path to environment variable to the list of options and press Finish
 
