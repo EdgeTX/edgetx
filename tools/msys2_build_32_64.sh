@@ -1,0 +1,570 @@
+#! /usr/bin/env bash
+
+## Bash script to show how to get EdgeTX source from GitHub,
+## how to build firmware, Companion, Simulator, radio simulator
+## library and how to create an installation package.
+## Let it run as normal user in MSYS2 MinGW 64-bit console (blue icon) or 32-bit console (green icon).
+##
+## Note: This script works only for branches stemming from EdgeTX (v2.9 or later)
+
+if [[ "$MSYSTEM" == "MSYS" ]]; then
+  echo "ERROR: this script cannot be run in MSYS2 MSYS console (violet icon)"
+  echo "INFO: run as normal user in MSYS2 MinGW 64-bit console (blue icon) or"
+  echo "      in MSYS2 MinGW 32-bit console (green icon)"
+  exit 1
+fi
+
+# == Include common variables and functions ==
+source msys2_common_32_64.sh
+
+# == Initialise variables ==
+declare -a supported_radios=( \
+  "all          |" \
+  "x9lite       |-DPCB=X9LITE" \
+  "x9lites      |-DPCB=X9LITES" \
+  "x7           |-DPCB=X7" \
+  "x7-access    |-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES" \
+  "t8           |-DPCB=X7 -DPCBREV=T8" \
+  "t12          |-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON" \
+  "tx12         |-DPCB=X7 -DPCBREV=TX12" \
+  "tx12mk2      |-DPCB=X7 -DPCBREV=TX12MK2" \
+  "zorro        |-DPCB=X7 -DPCBREV=ZORRO" \
+  "commando8    |-DPCB=X7 -DPCBREV=COMMANDO8" \
+  "boxer        |-DPCB=X7 -DPCBREV=BOXER" \
+  "tlite        |-DPCB=X7 -DPCBREV=TLITE" \
+  "tpro         |-DPCB=X7 -DPCBREV=TPRO" \
+  "lr3pro       |-DPCB=X7 -DPCBREV=LR3PRO" \
+  "xlite        |-DPCB=XLITE" \
+  "xlites       |-DPCB=XLITES" \
+  "nv14         |-DPCB=NV14" \
+  "x9d          |-DPCB=X9D" \
+  "x9dp         |-DPCB=X9D+" \
+  "x9dp2019     |-DPCB=X9D+ -DPCBREV=2019" \
+  "x9e          |-DPCB=X9E" \
+  "x9e-hall     |-DPCB=X9E -DSTICKS=HORUS" \
+  "x10          |-DPCB=X10" \
+  "x10-access   |-DPCB=X10 -DPCBREV=EXPRESS -DPXX1=YES" \
+  "x12s         |-DPCB=X12S" \
+  "t16          |-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON" \
+  "t18          |-DPCB=X10 -DPCBREV=T18" \
+  "tx16s        |-DPCB=X10 -DPCBREV=TX16S" \
+)
+
+REPO_OWNER="EdgeTX"
+REPO_NAME="edgetx"
+REPO_CLONE=0
+REPO_FETCH=0
+BRANCH_NAME="main"
+BRANCH_EDGETX_VERSION=unknown
+BRANCH_QT_VERSION=unknown
+
+QT_ROOT_DIR="${HOME}/qt"
+ROOT_DIR="${HOME}"
+SOURCE_DIR="${REPO_OWNER}/${REPO_NAME}"
+
+OUTPUT_DIR_PREFIX="build-output"
+OUTPUT_TARGET_PLACEHOLDER="-<target>"
+OUTPUT_DIR="${SOURCE_DIR}"
+OUTPUT_APPEND_TARGET=1
+OUTPUT_DELETE=0
+
+BUILD_OPTIONS=""
+BUILD_TYPE=Release
+
+BUILD_COMPANION=0
+BUILD_FIRMWARE=0
+BUILD_INSTALLER=0
+BUILD_RADIO_SIM=0
+BUILD_SIMULATOR=0
+
+declare -a RADIO_TYPES=()
+
+# == End initialise variables ==
+
+# == Functions ==
+
+function branch_version_part() {
+	#	Parameters:
+	#	1 - version component as defined in top level CMakeLists.txt
+
+	local verspart
+
+  if [[ -f "${SOURCE_PATH}/CMakeLists.txt" ]]; then
+    searchstr="set(VERSION_${1}"
+    if [ $(grep -m 1 -c "${searchstr}" "${SOURCE_PATH}/CMakeLists.txt") -eq 1 ]; then
+      verspart=$(grep -m 1 "${searchstr}" "${SOURCE_PATH}/CMakeLists.txt" | cut -c $(expr ${#searchstr} + 1)-)
+      verspart=${verspart/\)/}
+      verspart=${verspart//\"/}
+      verspart=${verspart// /}
+    fi
+  fi
+	
+  echo ${verspart}
+}
+
+function branch_version_major() {
+	echo "$(branch_version_part 'MAJOR')"
+}
+
+function branch_version_minor() {
+	echo "$(branch_version_part 'MINOR')"
+}
+
+function branch_version_revision() {
+	echo "$(branch_version_part 'REVISION')"
+}
+
+function branch_version() {
+	echo "$(branch_version_major).$(branch_version_minor).$(branch_version_revision)"
+}
+
+function validate_radio_types() {
+
+  for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
+  	local radio_found=0
+
+    for ((j = 0; j < ${#supported_radios[@]}; ++j)); do
+      IFS='|' read -ra radiodefn <<< "${supported_radios[(j)]}"
+      radio=$(trim_spaces "${radiodefn[0],,}")
+
+      if [[ "${RADIO_TYPES[i],,}" == "${radio,,}" ]]; then
+        radio_found=1
+        break;
+      fi
+    done
+
+    if [[ radio_found -eq 0 ]]; then
+      fail "Invalid ratio type: '${RADIO_TYPES[i]}'"
+    fi
+	done
+}
+
+function get_radio_build_options() {
+	#	Parameters:
+	#	1 - Radio type
+
+  # Output: radio options
+
+  # Result code: 0 = success 1 = error
+
+	for ((i = 0; i < ${#supported_radios[@]}; ++i));  do
+		IFS='|' read -ra supported_radio <<< "${supported_radios[(i)]}"
+    radio="$(trim_spaces "${supported_radio[0],,}")"
+
+		if [[ "${1,,}" == "${radio}" ]]; then
+			echo "$(trim_spaces "${supported_radio[1]}")"
+      return 0;
+		fi
+	done
+	
+  # radio type not found
+  echo ""
+  return 1
+}
+
+function get_all_radio_types() {
+	unset RADIO_TYPES
+
+  # start at 1 to skip 'all' entry
+  for ((i = 1; i < ${#supported_radios[@]}; ++i));  do
+		IFS='|' read -ra supported_radio <<< "${supported_radios[(i)]}"
+    radio="$(trim_spaces "${supported_radio[0],,}")"
+		RADIO_TYPES+=($radio)
+	done
+}
+
+function build_output_path() {
+	#	Parameters:
+	#	1 - Target
+
+  outpath="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
+  if [[ $OUTPUT_APPEND_TARGET -eq 1 ]]; then outpath+="-${1}"; fi
+  echo ${outpath}
+}
+
+function create_output_dir() {
+	#	Parameters:
+	#	1 - Target
+
+  crpath="$(build_output_path ${1})"
+
+  if [[ ! -d ${crpath} ]]; then
+    run_step "Creating output directory: ${crpath}" "mkdir -p ${crpath}"
+  fi
+
+  run_step "Switching to output directory" "cd ${crpath}"
+}
+
+function delete_output_dir() {
+	#	Parameters:
+	#	1 - Target 
+
+  local delpath="$(build_output_path ${1})"
+
+  if [[ -d ${delpath} ]]; then
+    log "Deleting: ${delpath}"
+    rm -rf ${delpath}
+  fi
+}
+
+function prep_target() {
+	#	Parameters:
+  # 1 - config
+
+  BUILD_COMMON_OPTIONS="--fresh -G 'MSYS Makefiles' -Wno-dev -DCMAKE_PREFIX_PATH=${QT_PATH} -DSDL2_LIBRARY_PATH=${MSYSTEM_PREFIX}/bin/ \
+  -DOPENSSL_ROOT_DIR=${MSYSTEM_PREFIX}/bin/ -DCMAKE_BUILD_TYPE=${BUILD_TYPE}"
+
+  run_step "Generating CMake build environment" "cmake ${BUILD_COMMON_OPTIONS} ${BUILD_OPTIONS} ${BUILD_RADIO_OPTIONS} ${SOURCE_PATH}"
+  run_step "Running CMake clean" "cmake --build . --target clean"
+  run_step "Running CMake configure: ${1}" "cmake --build . --target ${1}-configure"
+}
+
+function build_target() {
+	#	Parameters:
+  # 1 - config
+	#	2 - Target
+  run_step "Building: $2" "cmake --build ${1} -j$(nproc) --target ${2}"
+}
+
+function prep_and_build_target() {
+	#	Parameters:
+  # 1 - config
+	#	2 - Target
+  prep_target ${1}
+  build_target ${1} ${2}
+}
+
+function usage() {
+>&2 cat << EOF
+
+Usage:
+  $(basename $0) [options] [all|<radio-type> <radio-type> ...]
+
+Parser command options.
+
+Options:
+  -a, --all-targets                    build companion, firmware(s), radio sim(s), simulator and installer
+  -b, --branch <branch>                git branch use (default: main)
+      --build-options <options>        eg -DTRANSLATIONS=DE
+                                       Note: radio options will be appended
+      --build-type <type>              cmake build type default: ${BUILD_TYPE}
+  -c, --clean                          perform all actions (includes --all-targets)
+      --clone                          clone the repo from github even if exists locally
+      --companion                      compile Companion
+      --del-output                     delete existing output directories before building
+  -e, --edgetx-version <version>       sets the version of Qt to compile against (default: ${EDGETX_VERSION})
+      --fetch                          refresh local source directory from github
+      --firmware                       compile firmware
+  -h, --help                           display help text and exit
+      --installer                      build the installer
+      --no-append-target               do not append target (radio type|companion) to build output directory name
+                                       Note: overidden if source does not exist, --clone or --fetch
+  -o, --output-dir <path>              relative path to root directory for build output files (default: $OUTPUT_DIR)
+                                       Note: radio type will be appended unless --no-append-radio
+  -p, --pause                          pause after each command (default: false)
+  -q, --qt-root-dir <path>             base path for qt install files (default: $QT_ROOT_DIR)
+      --qt-version <version>           overide the version of Qt to compile against (default: ${QT_VERSION})
+      --radio-sim                      compile radio simulator dlls
+      --repo-name <name>               github repo name (default: $REPO_NAME)
+      --repo-owner <owner>             github repo owner. This allows using forks of $REPO_NAME (default: $REPO_OWNER}
+  -r, --root-dir <path>                base path for files (default: $ROOT_DIR)
+  -s, --source-dir <path>              relative path to root directory for source files (default: $SOURCE_DIR)
+      --simulator                      compile Simulator
+EOF
+exit 1
+}
+
+# == End functions ==
+
+# == Parse the command line ==
+short_options=ab:ce:ho:pq:r:s:
+long_options="all-targets, branch:, clean, edgetx-version:, help, output-dir:, pause, qt-root-dir:, root_dir:, source-dir:, \
+build-options:, build-type:, clone, companion, del-output, fetch, firmware, installer, no-append-target, qt-version:, radio-sim, \
+repo-name:, repo-owner:, simulator"
+
+args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
+if [[ $? -gt 0 ]]; then
+  usage
+fi
+
+eval set -- ${args}
+
+## No parameters passed to script
+if [[ $# -eq 1 ]]; then
+  usage
+fi
+
+while true
+do
+	case $1 in
+    -c | --clean)               OUTPUT_DELETE=1
+                                REPO_CLONE=1
+                                BUILD_FIRMWARE=1
+                                BUILD_COMPANION=1
+                                BUILD_SIMULATOR=1
+                                BUILD_RADIO_SIM=1
+                                BUILD_INSTALLER=1                               ; shift   ;;
+    -a | --all-targets)         BUILD_FIRMWARE=1
+                                BUILD_COMPANION=1
+                                BUILD_SIMULATOR=1
+                                BUILD_RADIO_SIM=1
+                                BUILD_INSTALLER=1                               ; shift   ;;
+		-b | --branch)	            BRANCH_NAME="${2}"                              ; shift 2 ;;
+		-e | --edgetx-version)	    EDGETX_VERSION="${2}"
+                                QT_VERSION="$(get_qt_version ${2})"             ; shift 2 ;;
+		     --qt-version)	        QT_VERSION="${2}"                               ; shift 2 ;;
+		-p | --pause)               STEP_PAUSE=1                                    ; shift   ;;
+    -h | --help)                usage                                           ; shift   ;;
+		     --repo-owner)	        REPO_OWNER="${2}"                               ; shift 2 ;;
+		     --repo-name)	          REPO_NAME="${2}"                                ; shift 2 ;;
+		-q | --qt-root-dir)         QT_ROOT_DIR="${2}"                              ; shift 2 ;;
+		-r | --root-dir)            ROOT_DIR="${2}"                                 ; shift 2 ;;
+		-s | --source-dir)          SOURCE_DIR="${2}"
+                                OUTPUT_DIR="${2}"                               ; shift 2 ;;
+		-o | --output-dir)          OUTPUT_DIR="${2}"                               ; shift 2 ;;
+         --del-output)          OUTPUT_DELETE=1                                 ; shift   ;;
+		     --build-options)       BUILD_OPTIONS="${2}"                            ; shift 2 ;;
+		     --build-type)          BUILD_TYPE="${2}"                               ; shift 2 ;;
+         --clone)               REPO_CLONE=1                                    ; shift   ;;
+         --fetch)               REPO_FETCH=1                                    ; shift   ;;
+         --companion)           BUILD_COMPANION=1                               ; shift   ;;
+         --firmware)            BUILD_FIRMWARE=1                                ; shift   ;;
+         --installer)           BUILD_INSTALLER=1                               ; shift   ;;
+         --radio-sim)           BUILD_RADIO_SIM=1                               ; shift   ;;
+         --simulator)           BUILD_SIMULATOR=1                               ; shift   ;;
+         --no-append-target)    OUTPUT_APPEND_TARGET=0                          ; shift   ;;
+    # -- means the end of the arguments; drop this, and break out of the while loop
+    --) shift; break ;;
+    *) >&2 echo Unsupported option: $1
+       usage ;;
+	esac
+done
+
+if [[ $# -eq 0 ]]; then
+  fail "No radio types specified"
+  usage
+fi
+
+# == End parse command line =="
+
+# == Validation ==
+
+# Nov 2023 there is no arm package available for 32-bit
+if [[ "$MSYSTEM" == "MINGW32" ]] && [[ $BUILD_FIRMWARE -eq 1 ]]; then
+  log "Warning: There is no toolchain to compile firmware in $MSYSTEM. Option disabled."
+  BUILD_FIRMWARE=0
+fi
+
+if [[ ! -d "$ROOT_DIR" ]]; then
+  fail "Unable to find root directory $ROOT_DIR"
+fi
+
+RADIO_TYPES=($@)
+validate_radio_types
+
+SOURCE_PATH="${ROOT_DIR}/${SOURCE_DIR}"
+OUTPUT_PATH="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
+
+if [[ $OUTPUT_APPEND_TARGET -eq 1 ]]; then
+  OUTPUT_PATH+="${OUTPUT_TARGET_PLACEHOLDER}"
+fi
+
+validate_edgetx_version
+split_version EDGETX_VERSION
+
+if [[ -f "${SOURCE_PATH}/CMakeLists.txt" ]] && [[ $REPO_CLONE -eq 0 ]] && [[ $REPO_FETCH -eq 0 ]]; then
+  BRANCH_EDGETX_VERSION=$(branch_version)
+  BRANCH_QT_VERSION=$(get_qt_version "${BRANCH_EDGETX_VERSION}")
+fi
+
+validate_qt_version
+split_version QT_VERSION
+check_qt_arch_support
+QT_PATH="${QT_ROOT_DIR}/${QT_VERSION}"
+
+if [[ ! -d "$QT_PATH" ]]; then
+  fail "Unable to find Qt install directory $QT_PATH"
+fi
+
+unset archdir
+
+for d in $QT_PATH/*; do
+  dirname="$(basename $d)"
+  
+  if [[ "${dirname}" == *_${MSYSTEM:(-2)} ]];then
+    archdir="${dirname}"
+    break
+  fi
+
+done
+
+if [[ -z "$archdir" ]]; then
+  fail "Unable to find suitable Qt architecture directory in $QT_PATH for $MSYSTEM"
+fi
+
+QT_PATH+="/${archdir}"
+
+# this should never be true but included as a script logic safeguard
+if [[ ! -d "$QT_PATH" ]]; then
+  fail "Unable to find Qt install directory $QT_PATH"
+fi
+
+# == End validation ==
+
+# Option overrides
+
+if [[ ! -d "${SOURCE_PATH}/.git" ]] || [[ ! -f "${SOURCE_PATH}/CMakeLists.txt" ]]; then
+  REPO_CLONE=1
+  REPO_FETCH=0
+else
+  if [[ $REPO_FETCH -eq 1 ]]; then
+    REPO_CLONE=0
+  fi
+  if [[ $REPO_CLONE -eq 1 ]]; then
+    REPO_FETCH=0
+  fi
+fi
+
+# Display confirmation message with option to exit
+
+echo "
+EdgeTX version:             ${EDGETX_VERSION}
+Qt version:                 ${QT_VERSION}
+Radio types:                ${RADIO_TYPES[@]}
+Extra build options:        ${BUILD_OPTIONS}
+Build type:                 ${BUILD_TYPE}
+Repo owner:                 ${REPO_OWNER}
+     name:                  ${REPO_NAME}
+     branch:                ${BRANCH_NAME}
+     branch EdgeTX version: ${BRANCH_EDGETX_VERSION}
+     branch Qt version:     ${BRANCH_QT_VERSION}
+     clone:                 $(bool_to_text ${REPO_CLONE})
+     fetch:                 $(bool_to_text ${REPO_FETCH})
+Paths:
+  Root:                     ${ROOT_DIR}
+  Source:                   ${SOURCE_PATH}
+  Output:                   ${OUTPUT_PATH}
+  Qt package:               ${QT_PATH}
+Options:
+  Delete output dirs:       $(bool_to_text ${OUTPUT_DELETE})
+  Build Companion:          $(bool_to_text ${BUILD_COMPANION})
+  Build firmware:           $(bool_to_text ${BUILD_FIRMWARE})
+  Build installer:          $(bool_to_text ${BUILD_INSTALLER})
+  Build radio libsim:       $(bool_to_text ${BUILD_RADIO_SIM})
+  Build Simulator:          $(bool_to_text ${BUILD_SIMULATOR})
+  Pause after each step:    $(bool_to_text ${STEP_PAUSE})
+"
+read -p "Press any key to continue or ctrl+C to abort"
+
+## ============== Execute ==============
+
+if [[ ${RADIO_TYPES,,} == "all" ]]; then
+  get_all_radio_types
+fi
+
+if [[ $REPO_CLONE -eq 1 ]] && [[ -d ${SOURCE_PATH} ]]; then
+  run_step "Deleting existing source directory" "rm -rf ${SOURCE_PATH}"
+fi
+
+# tidy output directories before builds
+if [[ $OUTPUT_DELETE -eq 1 ]]; then
+  new_step "Deleting old build outputs"
+  if [[ $OUTPUT_APPEND_TARGET -eq 0 ]]; then
+    delete_output_dir
+  else
+    if [[ $BUILD_FIRMWARE -eq 1 ]] || [[ $BUILD_RADIO_SIM -eq 1 ]]; then
+      for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
+        delete_output_dir ${RADIO_TYPES[i]}
+      done
+    fi
+    if [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
+      delete_output_dir companion
+    fi
+  fi
+  end_step 0 "Deleting old build outputs"
+fi
+
+# github source
+if [[ $REPO_CLONE -eq 1 ]]; then
+  run_step "Cloning GitHub repo" \
+           "git clone --recursive -b ${BRANCH_NAME} https://github.com/${REPO_OWNER}/${REPO_NAME}.git ${SOURCE_PATH}"
+  run_step "Switching to source directory" "cd ${SOURCE_PATH}"
+fi
+
+if [[ $REPO_FETCH -eq 1 ]]; then
+  run_step "Switching to source directory" "cd ${SOURCE_PATH}"
+  run_step "Fetching latest commits" "git fetch --all"
+  run_step "Checking out branch" "git checkout ${BRANCH_NAME}"
+  run_step "Forcing reset of local to remote" "git reset --hard origin/${BRANCH_NAME}"
+  run_step "Cleaning up after reset" "git clean -df"
+  run_step "Updating submodules to current commits" "git submodule update --init --recursive"
+fi
+
+# (re)check Qt version suitable for branch
+if [[ $REPO_CLONE -eq 1 ]] || [[ $REPO_FETCH -eq 1 ]]; then
+  new_step "Checking required Qt version for branch"
+  BRANCH_EDGETX_VERSION=$(branch_version)
+  BRANCH_QT_VERSION=$(get_qt_version "${BRANCH_EDGETX_VERSION}")
+
+  if [[ "${BRANCH_QT_VERSION}" != "${QT_VERSION}" ]]; then
+    warn "Qt version ${QT_VERSION} branch '${BRANCH_NAME}' expects Qt version ${BRANCH_QT_VERSION}"
+    warn "Press Enter to continue or Ctrl+C to stop."
+    read
+  fi
+
+  end_step 0 "Checking required Qt version for branch"
+fi
+
+# builds
+if [[ $BUILD_FIRMWARE -eq 1 ]]; then
+  for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
+    create_output_dir ${RADIO_TYPES[i]}
+    BUILD_RADIO_OPTIONS=$(get_radio_build_options ${RADIO_TYPES[i]})
+    prep_and_build_target arm-none-eabi firmware-size
+
+    if [[ $OUTPUT_APPEND_TARGET -eq 0 ]]; then
+      run_step "Renaming firmware binary" "mv arm-none-eabi/firmware.bin arm-none-eabi/firmware_${RADIO_TYPES[i]}.bin"
+    fi
+  done
+fi
+
+if [[ $BUILD_RADIO_SIM -eq 1 ]]; then
+  for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
+    create_output_dir ${RADIO_TYPES[i]}
+    BUILD_RADIO_OPTIONS=$(get_radio_build_options ${RADIO_TYPES[i]})
+    prep_and_build_target native libsimulator
+  done
+fi
+
+if [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
+  create_output_dir companion
+  # just use the first radio as cmake will fail without a radio
+  BUILD_RADIO_OPTIONS=$(get_radio_build_options ${RADIO_TYPES[0]})
+  prep_target native
+fi
+
+if [[ $BUILD_COMPANION -eq 1 ]]; then build_target native companion; fi
+
+if [[ $BUILD_SIMULATOR -eq 1 ]]; then build_target native simulator; fi
+
+if [[ $BUILD_INSTALLER -eq 1 ]]; then build_target native installer; fi
+
+echo ""
+echo "Completed successfully"
+echo ""
+
+OUTPUT_PATH="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
+if [[ $OUTPUT_APPEND_TARGET -eq 1 ]]; then OUTPUT_PATH+="${OUTPUT_TARGET_PLACEHOLDER}"; fi
+
+if [[ $BUILD_FIRMWARE -eq 1 ]]; then
+  if [[ OUTPUT_APPEND_TARGET -eq 0 ]]; then
+    echo "Firmwares   : ${OUTPUT_PATH}/arm-none-eabi/firmware[-radio type].bin"
+  else
+    echo "Firmwares   : ${OUTPUT_PATH}/arm-none-eabi/firmware.bin"
+  fi
+fi
+
+if [[ $BUILD_COMPANION -eq 1 ]]; then echo "Companion   : ${OUTPUT_PATH}/native/Release/companion.exe"; fi
+if [[ $BUILD_SIMULATOR -eq 1 ]]; then echo "Simulator   : ${OUTPUT_PATH}/native/Release/simulator.exe"; fi
+if [[ $BUILD_RADIO_SIM -eq 1 ]]; then echo "Radio sims  : ${OUTPUT_PATH}/native/Release/libedgetx-[radio-type]-simulator.dll"; fi
+if [[ $BUILD_INSTALLER -eq 1 ]]; then echo "Installer   : ${OUTPUT_PATH}/native/companion/companion-windows-x.x.x.exe"; fi

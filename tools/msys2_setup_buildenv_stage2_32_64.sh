@@ -1,0 +1,208 @@
+#! /usr/bin/env bash
+
+## Bash script to setup EdgeTX development environment second stage.
+
+if [[ "$MSYSTEM" == "MSYS" ]]; then
+  echo "ERROR: this script cannot be run in MSYS2 MSYS console (violet icon)"
+  echo "INFO: run as normal user in MSYS2 MinGW 64-bit console (blue icon) or"
+  echo "      in MSYS2 MinGW 32-bit console (green icon)"
+  exit 1
+fi
+
+# == Include common variables and functions ==
+source msys2_common_32_64.sh
+
+# == Initialise variables ==
+INSTALL_PACKAGES=1
+INSTALL_QT=1
+DOWNLOAD_ARM=1
+DOWNLOAD_DIR="${HOME}"
+
+# == Functions ==
+
+function usage() {
+>&2 cat << EOF
+
+Usage:
+  $(basename $0) [options]
+
+Parser command options.
+
+Options:
+  -d, --download-dir <directory>   directory for the arm installer (default: ${DOWNLOAD_DIR})
+  -e, --edgetx-version <version>   installs the dependent Qt version (default: ${EDGETX_VERSION})
+  -h, --help                       display help text and exit
+      --no-download-arm            do not download arm toolchain installer
+      --no-install-packages        do not install packages
+      --no-install-qt              do not install Qt
+  -p, --pause                      pause after each command (default: false)
+  -q, --qt-version <version>       version of Qt to install (default: ${QT_VERSION})
+                                   Note: Overrides EdgeTX dependent version. Allows installing multiple versions.
+EOF
+exit 1
+}
+
+# == End functions ==
+
+short_options=d:,e:,h,p,q:
+long_options="download-dir:, edgetx-version:, help, no-download-arm, no-install-packages, no-install-qt, pause, qt-version:"
+
+args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
+if [[ $? -gt 0 ]]; then
+  usage
+fi
+
+eval set -- ${args}
+
+while true
+do
+	case $1 in
+    -d | --download-dir)          DOWNLOAD_DIR="${2}"                 ; shift 2 ;;
+		-e | --edgetx-version)        EDGETX_VERSION="${2}"  
+                                  QT_VERSION="$(get_qt_version ${2})" ; shift 2 ;;
+    -h | --help)                  usage                               ; shift   ;;
+         --no-download-arm)       DOWNLOAD_ARM=0                      ; shift   ;;
+         --no-install-packages)   INSTALL_PACKAGES=0                  ; shift   ;;
+         --no-install-qt)         INSTALL_QT=0                        ; shift   ;;
+    -p | --pause)                 STEP_PAUSE=1                        ; shift   ;;
+    -q | --qt-version)            QT_VERSION="${2}"                   ; shift 2 ;;
+    # -- means the end of the arguments; drop this, and break out of the while loop
+    --) shift; break ;;
+    *) >&2 echo Unsupported option: $1
+       usage ;;
+	esac
+done
+
+# == Validation ==
+
+if [[ $DOWNLOAD_ARM -eq 1 ]] && [[ ! -d ${DOWNLOAD_DIR} ]]; then
+  fail "ARM installer download directory ${DOWNLOAD_DIR} does not exist"
+fi
+
+validate_edgetx_version
+split_version EDGETX_VERSION
+
+validate_qt_version
+split_version QT_VERSION
+check_qt_arch_support
+
+# == End validation ==
+
+echo "
+Execute with the following:
+  EdgeTX version:          ${EDGETX_VERSION}
+  Qt version:              ${QT_VERSION}
+  Install packages:        $(bool_to_text ${INSTALL_PACKAGES})
+  Install Qt:              $(bool_to_text ${INSTALL_QT})
+  Download ARM installer   $(bool_to_text ${DOWNLOAD_ARM})
+  Download ARM directory:  ${DOWNLOAD_DIR}
+  Pause after each step:   $(bool_to_text ${STEP_PAUSE})
+"
+
+read -p "Press any key to continue or ctrl+C to abort"
+
+# == Execute ==
+
+# Notes:
+#   Nov 2023 openssl and zlib installed in the base dev toolchain
+#            psutil is a dependency of aqtinstall but fails to install via dependencies so explicitly install python-psutil
+
+if [[ $INSTALL_PACKAGES -eq 1 ]]; then
+  new_step "Installing packages"
+
+  pacman -S --noconfirm \
+  ${MINGW_PACKAGE_PREFIX}-cmake \
+  ${MINGW_PACKAGE_PREFIX}-python-pip \
+  ${MINGW_PACKAGE_PREFIX}-python-pillow \
+  ${MINGW_PACKAGE_PREFIX}-python-lz4 \
+  ${MINGW_PACKAGE_PREFIX}-python-psutil \
+  ${MINGW_PACKAGE_PREFIX}-libjpeg-turbo \
+  ${MINGW_PACKAGE_PREFIX}-libtiff \
+  ${MINGW_PACKAGE_PREFIX}-freetype \
+  ${MINGW_PACKAGE_PREFIX}-lcms2 \
+  ${MINGW_PACKAGE_PREFIX}-libwebp \
+  ${MINGW_PACKAGE_PREFIX}-openjpeg2 \
+  ${MINGW_PACKAGE_PREFIX}-libimagequant \
+  ${MINGW_PACKAGE_PREFIX}-libraqm \
+  ${MINGW_PACKAGE_PREFIX}-SDL2 \
+  ${MINGW_PACKAGE_PREFIX}-clang \
+  ${MINGW_PACKAGE_PREFIX}-nsis \
+  ${MINGW_PACKAGE_PREFIX}-dfu-util
+
+  end_step $? "pacman -S --noconfirm <packages>"
+
+  run_step "Upgrading pip" "python -m pip install -U pip"
+  run_step "Installing Python clang" "python -m pip install clang"
+  run_step "Installing Python setuptools and wheel" "python -m pip install setuptools wheel"
+  run_step "Installing Python jinja2" "python -m pip install jinja2"
+
+  # Nov 2023
+  # From https://github.com/miurahr/aqtinstall Install section
+  # When you want to use it on MSYS2/Mingw64 environment, you need to set environmental variable export SETUPTOOLS_USE_DISTUTILS=stdlib,
+  # because of setuptools package on mingw wrongly raise error VC6.0 is not supported
+  export SETUPTOOLS_USE_DISTUTILS=stdlib
+
+  # this will also install dependencies and see note above re psutil issue
+  run_step "Installing Python package aqtinstall" "python -m pip install aqtinstall"
+fi
+
+if [[ $INSTALL_QT -eq 1 ]]; then
+  # if modules use syntax -m MODULE [MODULE]
+  QT_MODULES=
+  # supported versions of dependencies
+  QT_TOOLS=
+  QT_HOST=windows
+  QT_TARGET=desktop
+  QT_ARCH=
+  QT_INSTALL_DIR=qt
+
+  new_step "Searching for available Qt ${QT_VERSION} architectures"
+
+  qtarchlist="$(python -m aqt list-qt ${QT_HOST} ${QT_TARGET} --arch ${QT_VERSION})"
+
+  IFS=' ' read -ra qtarcharray <<< ${qtarchlist}
+
+  for arch in "${qtarcharray[@]}"; do
+    if [[ "${arch}" == win${MSYSTEM:(-2)}_mingw* ]];then
+      QT_ARCH=${arch}
+      break
+    fi
+  done
+
+  if [[ -z "$QT_ARCH" ]]; then
+    end_step 1 "Unable to find suitable Qt architecture in Qt ${QT_VERSION} for ${MSYSTEM}"
+  else
+    end_step 0 ""
+  fi
+
+  run_step "Installing Qt ${QT_VERSION}" \
+  "python -m aqt install-qt --outputdir ${QT_INSTALL_DIR} ${QT_HOST} ${QT_TARGET} ${QT_VERSION} ${QT_ARCH} ${QT_MODULES}"
+fi
+
+if [[ $DOWNLOAD_ARM -eq 1 ]]; then
+  DOWNLOAD_FILE="arm-gnu-toolchain-11.3.rel1-mingw-w64-i686-arm-none-eabi.exe"
+  run_step "Downloading ARM installer" \
+  "wget -c -O ${DOWNLOAD_DIR}/${DOWNLOAD_FILE} --progress=bar:force:noscroll --no-check-certificate \
+  'https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/${DOWNLOAD_FILE}?rev=674f6ef06614499dad033db88c3452b3&hash=11B71993F9DA4B77974E9E8AE6EEF366'"
+fi
+
+echo "This stage of setting up EdgeTX build environment has finished"
+
+if [[ $DOWNLOAD_ARM -eq 1 ]]; then
+  echo "
+  Next steps:
+  1. Exit this terminal session
+
+  2. In Windows, install the downloaded ARM GNU 11.3.1 toolchain
+
+    Launch the downloaded .exe
+    - Accept the default installation folder and press Next
+    - Select Add path to environment variable to the list of options and press Finish
+
+  3. Allow MSYS2 to inherit the Windows path to be able to access the arm-none-eabi toolchain
+
+    Edit the file <MSYS2 install directory>\mingw64.ini eg C:\msys64\mingw64.ini
+    - Uncomment the line #MSYS2_PATH_TYPE=inherit
+    - Save the file
+  "
+fi
