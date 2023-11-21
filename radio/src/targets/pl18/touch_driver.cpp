@@ -57,7 +57,7 @@
 #define TOUCH_CST340_REG_FINGER1          0x00
 #define TOUCH_CST340_EVT_CONTACT          0x06
 
-// CHSC5445 definitions
+// CHSC5448 definitions
 #define TOUCH_CHSC5448_I2C_ADDRESS        0x2e
 #define TOUCH_CHSC5448_REG_ADDR           0x2c000020
 #define TOUCH_CHSC5448_EVT_CONTACT        0x08
