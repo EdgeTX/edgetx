@@ -27,21 +27,18 @@ static void keyboard_event_cb(lv_event_t * e)
 {
   auto code = lv_event_get_code(e);
   if (code == LV_EVENT_READY) {
-    Keyboard::hide();
+    Keyboard::hide(false);
   } else if (code == LV_EVENT_CANCEL) {
-    Keyboard::hide();
+    Keyboard::hide(true);
   } else if (code == LV_EVENT_KEY) {
     int32_t c = *((int32_t *)lv_event_get_param(e));
     if (c == LV_KEY_ESC) {
-      Keyboard::hide();
+      Keyboard::hide(false);
     }
   }
 }
 
-static void field_focus_leave(lv_event_t* e)
-{
-  Keyboard::hide();
-}
+static void field_focus_leave(lv_event_t* e) { Keyboard::hide(false); }
 
 static void _assign_lv_group(lv_group_t* g)
 {
@@ -82,7 +79,7 @@ Keyboard::~Keyboard()
   if (group) lv_group_del(group);
 }
 
-void Keyboard::clearField()
+void Keyboard::clearField(bool wasCancelled)
 {
   TRACE("CLEAR FIELD");
   if (keyboard != nullptr) {
@@ -103,8 +100,9 @@ void Keyboard::clearField()
     if (obj) {
       lv_obj_remove_event_cb(obj, field_focus_leave);
     }
-    
-    field->setEditMode(false);
+
+    if (!wasCancelled)
+      field->setEditMode(false);
     field->changeEnd();
     field = nullptr;
 
@@ -116,10 +114,10 @@ void Keyboard::clearField()
   }
 }
 
-void Keyboard::hide()
+void Keyboard::hide(bool wasCancelled)
 {
   if (activeKeyboard) {
-    activeKeyboard->clearField();
+    activeKeyboard->clearField(wasCancelled);
     lv_obj_add_flag(activeKeyboard->lvobj, LV_OBJ_FLAG_HIDDEN);
     activeKeyboard = nullptr;
   }
@@ -129,7 +127,7 @@ bool Keyboard::attachKeyboard()
 {
   if (activeKeyboard) {
     if (activeKeyboard == this) return false;
-    hide();
+    hide(false);
   }
 
   activeKeyboard = this;

@@ -277,7 +277,7 @@ void TabsGroup::onPressPGDN()
 }
 #endif
 
-void TabsGroup::onClicked() { Keyboard::hide(); }
+void TabsGroup::onClicked() { Keyboard::hide(false); }
 
 void TabsGroup::onCancel() { deleteLater(); }
 

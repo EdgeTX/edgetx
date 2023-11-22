@@ -93,7 +93,4 @@ void Page::onCancel()
   deleteLater();
 }
 
-void Page::onClicked()
-{
-  Keyboard::hide();
-}
+void Page::onClicked() { Keyboard::hide(false); }

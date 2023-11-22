@@ -28,8 +28,8 @@ class Keyboard : public Window
   explicit Keyboard(coord_t height);
   ~Keyboard();
 
-  void clearField();
-  static void hide();
+  void clearField(bool wasCancelled);
+  static void hide(bool wasCancelled);
 
  protected:
   static Keyboard *activeKeyboard;
