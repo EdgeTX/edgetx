@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=EdgeTx Companion @VERSION@
+Name=EdgeTX Companion @VERSION@
 GenericName=Transmitter Companion App
 Comment=The Ultimate Transmitter Companion
 Icon=@COMPANION_NAME@
