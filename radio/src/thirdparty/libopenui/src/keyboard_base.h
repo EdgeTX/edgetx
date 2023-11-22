@@ -31,6 +31,8 @@ class Keyboard : public Window
   void clearField();
   static void hide();
 
+  static Keyboard* keyboardWindow() { return activeKeyboard; }
+
  protected:
   static Keyboard *activeKeyboard;
 
