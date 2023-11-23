@@ -43,15 +43,10 @@ void TextKeyboard::onEvent(event_t event)
       lv_keyboard_set_mode(keyboard, mode);
     } break;
 
-    case EVT_KEY_BREAK(KEY_MODEL):
-      // Backspace
-      lv_textarea_del_char(kb->ta);
-      break;
-
     case EVT_KEY_LONG(KEY_MODEL):
       killEvents(event);
-      // Delete
-      lv_textarea_del_char_forward(kb->ta);
+      // Backspace
+      lv_textarea_del_char(kb->ta);
       break;
 
     case EVT_KEY_BREAK(KEY_PAGEDN):
@@ -89,6 +84,12 @@ void TextKeyboard::onEvent(event_t event)
         lv_textarea_cursor_left(kb->ta);
       }
     } break;
+
+    case EVT_KEY_LONG(KEY_TELE):
+      killEvents(event);
+      // Delete
+      lv_textarea_del_char_forward(kb->ta);
+      break;
 
     default:
       break;
