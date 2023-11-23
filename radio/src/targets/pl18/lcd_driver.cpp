@@ -234,12 +234,10 @@ unsigned char LCD_ReadByte(void) {
   LCD_MOSI_AS_INPUT();
   for (i = 0; i < 8; i++) {
     LCD_SCK_LOW();
-    LCD_DELAY();
-    LCD_DELAY();
+    lcdDelay();
     ReceiveData <<= 1;
     LCD_SCK_HIGH();
-    LCD_DELAY();
-    LCD_DELAY();
+    lcdDelay();
     if (LCD_READ_DATA_PIN()) {
       ReceiveData |= 0x01;
     }
@@ -253,8 +251,8 @@ unsigned char LCD_ReadRegister(unsigned char Register) {
   unsigned char ReadData = 0;
 
   lcdWriteByte(0, Register);
-  LCD_DELAY();
-  LCD_DELAY();
+  lcdDelay();
+  lcdDelay();
   ReadData = LCD_ReadByte();
   return (ReadData);
 }
@@ -1281,11 +1279,11 @@ unsigned int LCD_ST7796S_ReadID(void) {
 
   LCD_MOSI_AS_INPUT();
   LCD_SCK_LOW();
-  LCD_DELAY();
-  LCD_DELAY();
+  lcdDelay();
+  lcdDelay();
   LCD_SCK_HIGH();
-  LCD_DELAY();
-  LCD_DELAY();
+  lcdDelay();
+  lcdDelay();
 
   LCD_ReadByte();
   ID += (uint16_t)(LCD_ReadByte())<<8;
@@ -2842,7 +2840,7 @@ void lcdInit(void)
     lcdOnFunction = LCD_HX8357D_On;
     lcdPixelClock = 12000000;
   } else if (LCD_ST7796S_ReadID() == LCD_ST7796S_ID ) {
-    TRACE("LCD INIT (default): ST7796S");
+    TRACE("LCD INIT: ST7796S");
     boardLcdType = "ST7796S";
     lcdInitFunction = LCD_ST7796S_Init;
     lcdOffFunction = LCD_ST7796S_Off;
@@ -2851,7 +2849,7 @@ void lcdInit(void)
   }
   else{
     TRACE("LCD INIT (default): ST7796S");
-    boardLcdType = "ST7796S";
+    boardLcdType = "ST7796S (Default)";
     lcdInitFunction = LCD_ST7796S_Init;
     lcdOffFunction = LCD_ST7796S_Off;
     lcdOnFunction = LCD_ST7796S_On;
