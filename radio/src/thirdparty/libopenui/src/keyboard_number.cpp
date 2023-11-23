@@ -70,62 +70,114 @@ void NumberKeyboard::onEvent(event_t event)
 {
   NumberEdit* edit = (NumberEdit*)field;
 
+#if (defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)) && !defined(PCBX12S)
+  // Radios with both PGUP and PGDN buttons except X12S
   switch (event) {
     case EVT_KEY_BREAK(KEY_SYS):
+      // "<<"
       edit->onEvent(EVT_VIRTUAL_KEY_BACKWARD);
-      break;
+    break;
 
     case EVT_KEY_LONG(KEY_SYS):
       killEvents(event);
+      // "MIN"
       edit->onEvent(EVT_VIRTUAL_KEY_MIN);
       break;
 
     case EVT_KEY_BREAK(KEY_MODEL):
+      // ">>"
       edit->onEvent(EVT_VIRTUAL_KEY_FORWARD);
       break;
 
     case EVT_KEY_LONG(KEY_MODEL):
       killEvents(event);
+      // "MAX"
       edit->onEvent(EVT_VIRTUAL_KEY_MAX);
       break;
 
     case EVT_KEY_BREAK(KEY_PAGEDN):
+      // "+"
       edit->onEvent(EVT_VIRTUAL_KEY_PLUS);
       break;
 
-// TODO: these need to go away!
-//  -> board code should map the keys as required
-#if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)
     case EVT_KEY_BREAK(KEY_PAGEUP):
-#else
-    case EVT_KEY_LONG(KEY_PAGEDN):
-      killEvents(event);
-#endif
+      // "-"
       edit->onEvent(EVT_VIRTUAL_KEY_MINUS);
       break;
 
-#if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)
-    case EVT_KEY_LONG(KEY_PAGEDN):
-      killEvents(event);
-      break;
-
-    case EVT_KEY_LONG(KEY_PAGEUP):
-      killEvents(event);
-      break;
-#endif
-
-    case EVT_KEY_BREAK(KEY_TELE):
+    case EVT_KEY_BREAK(KEY_TELE): 
+      // "+/-"
       edit->onEvent(EVT_VIRTUAL_KEY_SIGN);
-      break;
+    break;
 
     case EVT_KEY_LONG(KEY_TELE):
       killEvents(event);
+      // "DEF"
       edit->onEvent(EVT_VIRTUAL_KEY_DEFAULT);
       break;
 
     default:
       break;
   }
+
+#else
+  // Radios witb only a single PGUP/DN button or X12S
+  switch (event) {
+    case EVT_KEY_BREAK(KEY_SYS):
+      // "-"
+      edit->onEvent(EVT_VIRTUAL_KEY_MINUS);
+      break;
+
+    case EVT_KEY_LONG(KEY_SYS):
+      killEvents(event);
+      // "MIN"
+      edit->onEvent(EVT_VIRTUAL_KEY_MIN);
+      break;
+
+    case EVT_KEY_BREAK(KEY_MODEL):
+      // ">>"
+      edit->onEvent(EVT_VIRTUAL_KEY_FORWARD);
+    break;
+
+    case EVT_KEY_LONG(KEY_MODEL):
+      killEvents(event);
+      // "+/-"
+      edit->onEvent(EVT_VIRTUAL_KEY_SIGN);
+      break;
+
+#if defined(PCBX12S)
+    case EVT_KEY_BREAK(KEY_PAGEUP):
+#endif
+    case EVT_KEY_BREAK(KEY_PAGEDN):
+      // "<<"
+      edit->onEvent(EVT_VIRTUAL_KEY_BACKWARD);
+    break;
+
+#if defined(PCBX12S)
+    case EVT_KEY_LONG(KEY_PAGEUP):
+#endif
+    case EVT_KEY_LONG(KEY_PAGEDN):
+      killEvents(event);
+      // "DEF"
+      edit->onEvent(EVT_VIRTUAL_KEY_DEFAULT);
+      break;
+
+    case EVT_KEY_BREAK(KEY_TELE):
+      // "+"
+      edit->onEvent(EVT_VIRTUAL_KEY_PLUS);
+    break;
+
+    case EVT_KEY_LONG(KEY_TELE):
+      killEvents(event);
+      // "MAX"
+      edit->onEvent(EVT_VIRTUAL_KEY_MAX);
+    break;
+
+    default:
+      break;
+  }
+
+#endif
 }
 #endif
 
