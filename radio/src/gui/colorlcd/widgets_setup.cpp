@@ -59,6 +59,7 @@ void SetupWidgetsPageSlot::addNewWidget(WidgetsContainer* container,
                                         uint8_t slotIndex)
 {
   Menu* menu = new Menu(parent);
+  menu->setTitle(STR_SELECT_WIDGET);
   for (auto factory : getRegisteredWidgets()) {
     menu->addLine(factory->getDisplayName(), [=]() {
       container->createWidget(slotIndex, factory);
