@@ -17,35 +17,34 @@
  */
 
 #include "keyboard_number.h"
+
 #include "numberedit.h"
 
 constexpr coord_t KEYBOARD_HEIGHT = 90;
-NumberKeyboard * NumberKeyboard::_instance = nullptr;
+NumberKeyboard* NumberKeyboard::_instance = nullptr;
 
-static const char* const number_kb_map[] = {
-   "<<",  "-",   "+",   ">>",  "\n",
-   "MIN", "DEF", "+/-", "MAX", ""
-};
+static const char* const number_kb_map[] = {"<<",  "-",   "+",   ">>",  "\n",
+                                            "MIN", "DEF", "+/-", "MAX", ""};
 
 #define LV_KB_BTN(width) LV_BTNMATRIX_CTRL_POPOVER | width
 #define LV_KB_CTRL(width) LV_KEYBOARD_CTRL_BTN_FLAGS | width
 
 static const lv_btnmatrix_ctrl_t number_kb_ctrl_map[] = {
     LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_BTN(4),  LV_KB_BTN(4),
-    LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_CTRL(4), LV_KB_BTN(4)
-};
+    LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_CTRL(4), LV_KB_BTN(4)};
 
 static void on_key(lv_event_t* e)
 {
-  lv_obj_t * obj = lv_event_get_target(e);
+  lv_obj_t* obj = lv_event_get_target(e);
   NumberEdit* edit = (NumberEdit*)lv_event_get_user_data(e);
   if (!obj || !edit) return;
 
   uint16_t btn_id = lv_btnmatrix_get_selected_btn(obj);
-  if(btn_id == LV_BTNMATRIX_BTN_NONE) return;
+  if (btn_id == LV_BTNMATRIX_BTN_NONE) return;
 
-  const char * txt = lv_btnmatrix_get_btn_text(obj, lv_btnmatrix_get_selected_btn(obj));
-  if(txt == NULL) return;
+  const char* txt =
+      lv_btnmatrix_get_btn_text(obj, lv_btnmatrix_get_selected_btn(obj));
+  if (txt == NULL) return;
 
   if (strcmp(txt, "<<") == 0) {
     edit->onEvent(EVT_VIRTUAL_KEY_BACKWARD);
@@ -66,8 +65,71 @@ static void on_key(lv_event_t* e)
   }
 }
 
-NumberKeyboard::NumberKeyboard() :
-  Keyboard(KEYBOARD_HEIGHT)
+#if defined(HARDWARE_KEYS)
+void NumberKeyboard::onEvent(event_t event)
+{
+  NumberEdit* edit = (NumberEdit*)field;
+
+  switch (event) {
+    case EVT_KEY_BREAK(KEY_SYS):
+      edit->onEvent(EVT_VIRTUAL_KEY_BACKWARD);
+      break;
+
+    case EVT_KEY_LONG(KEY_SYS):
+      killEvents(event);
+      edit->onEvent(EVT_VIRTUAL_KEY_MIN);
+      break;
+
+    case EVT_KEY_BREAK(KEY_MODEL):
+      edit->onEvent(EVT_VIRTUAL_KEY_FORWARD);
+      break;
+
+    case EVT_KEY_LONG(KEY_MODEL):
+      killEvents(event);
+      edit->onEvent(EVT_VIRTUAL_KEY_MAX);
+      break;
+
+    case EVT_KEY_BREAK(KEY_PAGEDN):
+      edit->onEvent(EVT_VIRTUAL_KEY_PLUS);
+      break;
+
+// TODO: these need to go away!
+//  -> board code should map the keys as required
+#if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)
+    case EVT_KEY_BREAK(KEY_PAGEUP):
+#else
+    case EVT_KEY_LONG(KEY_PAGEDN):
+      killEvents(event);
+#endif
+      edit->onEvent(EVT_VIRTUAL_KEY_MINUS);
+      break;
+
+#if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)
+    case EVT_KEY_LONG(KEY_PAGEDN):
+      killEvents(event);
+      break;
+
+    case EVT_KEY_LONG(KEY_PAGEUP):
+      killEvents(event);
+      break;
+#endif
+
+    case EVT_KEY_BREAK(KEY_TELE):
+      edit->onEvent(EVT_VIRTUAL_KEY_SIGN);
+      break;
+
+    case EVT_KEY_LONG(KEY_TELE):
+      killEvents(event);
+      edit->onEvent(EVT_VIRTUAL_KEY_DEFAULT);
+      break;
+
+    default:
+      break;
+  }
+}
+#endif
+
+NumberKeyboard::NumberKeyboard() : Keyboard(KEYBOARD_HEIGHT)
 {
   // setup custom keyboard
   lv_keyboard_set_map(keyboard, LV_KEYBOARD_MODE_USER_1,
@@ -76,15 +138,12 @@ NumberKeyboard::NumberKeyboard() :
   lv_keyboard_set_mode(keyboard, LV_KEYBOARD_MODE_USER_1);
 }
 
-NumberKeyboard::~NumberKeyboard()
-{
-  _instance = nullptr;
-}
+NumberKeyboard::~NumberKeyboard() { _instance = nullptr; }
 
 void NumberKeyboard::show(NumberEdit* field)
 {
   if (!_instance) _instance = new NumberKeyboard();
-  
+
   lv_obj_clear_flag(_instance->lvobj, LV_OBJ_FLAG_HIDDEN);
   lv_obj_clear_flag(_instance->keyboard, LV_OBJ_FLAG_HIDDEN);
 

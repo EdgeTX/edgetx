@@ -35,5 +35,9 @@ class NumberKeyboard : public Keyboard
   static void show(NumberEdit* field);
 
  protected:
+#if defined(HARDWARE_KEYS)
+  void onEvent(event_t event) override;
+#endif
+
   static NumberKeyboard* _instance;
 };

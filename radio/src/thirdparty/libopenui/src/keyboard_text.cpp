@@ -59,8 +59,8 @@ void TextKeyboard::onEvent(event_t event)
     case EVT_KEY_BREAK(KEY_PAGEUP):
 #else
     case EVT_KEY_LONG(KEY_PAGEDN):
-#endif
       killEvents(event);
+#endif
       lv_textarea_cursor_left(kb->ta);
       break;
 
