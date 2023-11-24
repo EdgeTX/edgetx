@@ -39,15 +39,15 @@ class MainViewSlider : public Window
                  bool isVertical);
   void checkEvents() override;
 
-  static LAYOUT_VAL(SLIDER_TICKS_COUNT, 40, 30)
-  static LAYOUT_VAL(SLIDER_TICK_SPACING, 4, 4)
+  static LAYOUT_VAL(SLIDER_TICKS_COUNT, 40, 30, 36)
+  static LAYOUT_VAL(SLIDER_TICK_SPACING, 4, 4, LS(4))
   static constexpr coord_t HORIZONTAL_SLIDERS_WIDTH =
       SLIDER_TICKS_COUNT * SLIDER_TICK_SPACING + LayoutFactory::TRIM_SQUARE_SIZE;
   static constexpr coord_t VERTICAL_SLIDERS_HEIGHT =
       SLIDER_TICKS_COUNT * SLIDER_TICK_SPACING + LayoutFactory::TRIM_SQUARE_SIZE;
 
-  static LAYOUT_VAL(SL_SZ, 15, 15)
-  static LAYOUT_VAL(SL_TK, 2, 2)
+  static LAYOUT_VAL(SL_SZ, 15, 15, 11)
+  static LAYOUT_VAL(SL_TK, 2, 2, LS(2))
 
  protected:
   uint8_t idx;
@@ -78,10 +78,10 @@ class MainView6POS : public Window
 
   void checkEvents() override;
 
-  static LAYOUT_VAL(MULTIPOS_H, 18, 18)
-  static LAYOUT_VAL(MULTIPOS_W_SPACING, 12, 12)
-  static LAYOUT_VAL(MULTIPOS_SZ, 12, 12)
-  static LAYOUT_VAL(MULTIPOS_XO, 3, 3)
+  static LAYOUT_VAL(MULTIPOS_H, 18, 18, 13)
+  static LAYOUT_VAL(MULTIPOS_W_SPACING, 12, 12, LS(12))
+  static LAYOUT_VAL(MULTIPOS_SZ, 12, 12, LS(12))
+  static LAYOUT_VAL(MULTIPOS_XO, 3, 3, LS(3))
   static constexpr coord_t MULTIPOS_W = (6 + 1) * MULTIPOS_W_SPACING;
 
  protected:

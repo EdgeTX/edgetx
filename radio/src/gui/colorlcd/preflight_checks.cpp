@@ -99,9 +99,9 @@ class SwitchWarnMatrix : public ButtonMatrix
     setChecked(btn_id);
   }
 
-  static LAYOUT_VAL(SW_BTNS, 8, 4)
-  static LAYOUT_VAL(SW_BTN_W, 56, 72)
-  static LAYOUT_VAL(SW_BTN_H, 36, 36)
+  static LAYOUT_VAL(SW_BTNS, 8, 4, 8)
+  static LAYOUT_VAL(SW_BTN_W, 56, 72, 38)
+  static LAYOUT_VAL(SW_BTN_H, 36, 36, LS(36))
 
  private:
   uint8_t sw_idx[MAX_SWITCHES];

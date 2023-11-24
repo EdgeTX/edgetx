@@ -225,7 +225,7 @@ class NumberArea : public FormField
     updateDisplay();
   }
 
-  static LAYOUT_VAL(DEF_W, 100, 100)
+  static LAYOUT_VAL(DEF_W, 100, 100, LS(100))
 
  protected:
   int vdefault = 0;

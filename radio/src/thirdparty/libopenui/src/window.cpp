@@ -511,9 +511,9 @@ SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize paddin
   padAll(PAD_ZERO);
   coord_t titleY = PAD_LARGE + lblYOffset;
   coord_t titleH = EdgeTxStyles::PAGE_LINE_HEIGHT;
-  coord_t h = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2 + lblYOffset * 2;
+  coord_t h = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY_GAP * 2 + lblYOffset * 2;
   if (createEdit) {
-    coord_t editY = PAD_TINY;
+    coord_t editY = PAD_TINY_GAP;
     coord_t lblWidth = col2 - PAD_SMALL - PAD_TINY;
     if (title) {
       if (getTextWidth(title) >= lblWidth) {

@@ -68,8 +68,8 @@ class CurveDataEdit : public Window
 
     void update();
 
-    static LAYOUT_VAL(NUM_BTN_WIDTH, 48, 48)
-    static LAYOUT_VAL(NUM_HDR_HEIGHT, 12, 12)
+    static LAYOUT_VAL(NUM_BTN_WIDTH, 48, 48, LS(48))
+    static LAYOUT_VAL(NUM_HDR_HEIGHT, 12, 12, LS(12))
 
   protected:
     uint8_t index;

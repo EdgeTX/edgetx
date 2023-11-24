@@ -111,7 +111,7 @@ class Layout: public LayoutBase
 
     bool isAppMode() { return decorationSettings == DECORATION_NONE && zoneCount == 1; }
   
-    static LAYOUT_VAL(MAIN_ZONE_BORDER, 10, 10)
+    static LAYOUT_VAL(MAIN_ZONE_BORDER, 10, 10, 6)
 
   protected:
     const LayoutFactory * factory  = nullptr;

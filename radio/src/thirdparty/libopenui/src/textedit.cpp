@@ -67,7 +67,7 @@ class TextArea : public FormField
     cancelHandler = std::move(handler);
   }
 
-  static LAYOUT_VAL(DEF_W, 100, 100)
+  static LAYOUT_VAL(DEF_W, 100, 100, LS(100))
 
  protected:
   char* value;
