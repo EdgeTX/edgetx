@@ -109,6 +109,8 @@ class Layout: public LayoutBase
 
     bool isLayout() override { return true; }
 
+    bool isAppMode() { return decorationSettings == DECORATION_NONE && zoneCount == 1; }
+  
   protected:
     const LayoutFactory * factory  = nullptr;
     std::unique_ptr<ViewMainDecoration> decoration;
