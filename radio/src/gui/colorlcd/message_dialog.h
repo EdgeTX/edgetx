@@ -44,6 +44,22 @@ class MessageDialog : public Dialog
   void onClicked() override;
 };
 
+class HelpDialog : public Dialog
+{
+ public:
+  HelpDialog(Window* parent, rect_t rect, const char* title, const char* message,
+             LcdFlags messageFlags = CENTERED);
+
+ protected:
+  StaticText* messageWidget;
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "HelpDialog"; }
+#endif
+
+  void onClicked() override;
+};
+
 class DynamicMessageDialog : public Dialog
 {
  public:

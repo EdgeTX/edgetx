@@ -163,6 +163,16 @@
 #define TR_HATSOPT                     "Nur Trimmung","Nur Tasten","Umschaltbar","Global"
 #define TR_HATSMODE_TRIMS              "Joystick Modus: Trimmung"
 #define TR_HATSMODE_KEYS               "Joystick Modus: Tasten"
+#define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
+                                       "   Right = MDL\n"\
+                                       "   Up = SYS\n"\
+                                       "   Down = TELE\n"\
+                                       "\n"\
+                                       "Right side:\n"\
+                                       "   Left = PAGE<\n"\
+                                       "   Right = PAGE>\n"\
+                                       "   Up = PREV/INC\n"\
+                                       "   Down = NEXT/DEC"
 #endif
 
 #if defined(COLORLCD)

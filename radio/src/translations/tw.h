@@ -166,6 +166,16 @@
 #define TR_HATSOPT                     "微調","導航鍵","可切換","全局"
 #define TR_HATSMODE_TRIMS              "按鍵帽: 微調"
 #define TR_HATSMODE_KEYS               "按鍵帽: 導航鍵"
+#define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
+                                       "   Right = MDL\n"\
+                                       "   Up = SYS\n"\
+                                       "   Down = TELE\n"\
+                                       "\n"\
+                                       "Right side:\n"\
+                                       "   Left = PAGE<\n"\
+                                       "   Right = PAGE>\n"\
+                                       "   Up = PREV/INC\n"\
+                                       "   Down = NEXT/DEC"
 #endif
 
 #if defined(COLORLCD)

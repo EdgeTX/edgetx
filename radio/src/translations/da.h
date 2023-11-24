@@ -168,6 +168,16 @@
 #define TR_HATSOPT                     "Kun trim","Kun knap","Trim / Knap", "Global"
 #define TR_HATSMODE_TRIMS              "Joystik: Trim"
 #define TR_HATSMODE_KEYS               "Joystik: Knap"
+#define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
+                                       "   Right = MDL\n"\
+                                       "   Up = SYS\n"\
+                                       "   Down = TELE\n"\
+                                       "\n"\
+                                       "Right side:\n"\
+                                       "   Left = PAGE<\n"\
+                                       "   Right = PAGE>\n"\
+                                       "   Up = PREV/INC\n"\
+                                       "   Down = NEXT/DEC"
 #endif
 
 #if defined(COLORLCD)

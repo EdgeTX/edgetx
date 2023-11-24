@@ -59,8 +59,15 @@ TrimsSetup::TrimsSetup() : Page(ICON_MODEL_SETUP)
   // Hats mode for NV14/EL18
   line = body.newLine(&grid);
   new StaticText(line, rect_t{}, STR_HATSMODE, 0, COLOR_THEME_PRIMARY1);
-  new Choice(line, rect_t{}, STR_HATSOPT, HATSMODE_TRIMS_ONLY, HATSMODE_GLOBAL, 
+  auto box = new FormWindow(line, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, 4);
+  new Choice(box, rect_t{}, STR_HATSOPT, HATSMODE_TRIMS_ONLY, HATSMODE_GLOBAL, 
              GET_SET_DEFAULT(g_model.hatsMode));
+  new TextButton(box, rect_t{}, "?", [=]() {
+    new HelpDialog(this, {50, 100, LCD_W - 100, LCD_H - 200},
+                   STR_HATSMODE_KEYS, STR_HATSMODE_KEYS_HELP, LEFT);
+    return 0;
+  });
 #endif
 
   // Trim step
