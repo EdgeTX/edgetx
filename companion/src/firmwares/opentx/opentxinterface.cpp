@@ -147,6 +147,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for Fatfish F16";
     case BOARD_HELLORADIOSKY_V16:
       return "EdgeTX for HelloRadioSky V16";
+    case BOARD_SMALL_LCD:
+      return "EdgeTX test for 320x240";
     default:
       return "Board is unknown to EdgeTX";
   }
@@ -1562,6 +1564,12 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX);
   firmware->addOptionsGroup({opt_bt, opt_internal_gps});
   firmware->addOption("flyskygimbals", Firmware::tr("Support hardware mod: FlySky Paladin EV Gimbals"));
+  registerOpenTxFirmware(firmware);
+
+  /* Test 320x240 */
+  firmware = new OpenTxFirmware(FIRMWAREID("smallLCD"), Firmware::tr("Test 320x240 LCD"), BOARD_SMALL_LCD);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
 
   /* Radiomaster Zorro board */

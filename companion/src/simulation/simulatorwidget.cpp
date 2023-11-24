@@ -168,6 +168,9 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
     case Board::BOARD_HELLORADIOSKY_V16:
       radioUiWidget = new SimulatedUIWidgetV16(simulator, this);
       break;
+    case Board::BOARD_SMALL_LCD:
+      radioUiWidget = new SimulatedUIWidget320x240(simulator, this);
+      break;
     default:
       radioUiWidget = new SimulatedUIWidget9X(simulator, this);
       break;
