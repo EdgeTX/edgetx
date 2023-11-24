@@ -149,14 +149,14 @@ class ColorEditorPopup : public BaseDialog
     });
   }
 
-  static LAYOUT_VAL(CE_SZ, 182, 182)
-  static LAYOUT_VAL(COLOR_EDIT_WIDTH, LCD_W * 0.8, LCD_W * 0.7)
-  static LAYOUT_VAL(COLOR_PAD_WIDTH, 52, 52)
-  static LAYOUT_VAL(COLOR_PAD_HEIGHT, 32, 32)
-  static LAYOUT_VAL(CVAL_W, 100, 100)
-  static LAYOUT_VAL(BTN_W, 80, 80)
-  static LAYOUT_VAL(BTN_PAD_TOP, 60, 60)
-  static LAYOUT_VAL(BTN_PAD_ROW, 20, 20)
+  static LAYOUT_VAL(CE_SZ, 182, 182, LS(182))
+  static LAYOUT_VAL(COLOR_EDIT_WIDTH, LCD_W * 0.8, LCD_W * 0.7, LCD_W * 0.8)
+  static LAYOUT_VAL(COLOR_PAD_WIDTH, 52, 52, LS(52))
+  static LAYOUT_VAL(COLOR_PAD_HEIGHT, 32, 32, LS(32))
+  static LAYOUT_VAL(CVAL_W, 100, 100, LS(100))
+  static LAYOUT_VAL(BTN_W, 80, 80, LS(80))
+  static LAYOUT_VAL(BTN_PAD_TOP, 60, 60, LS(60))
+  static LAYOUT_VAL(BTN_PAD_ROW, 20, 20, LS(20))
 };
 
 ColorPicker::ColorPicker(Window* parent, const rect_t& rect,

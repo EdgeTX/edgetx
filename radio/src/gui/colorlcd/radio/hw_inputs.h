@@ -41,16 +41,16 @@ struct HWPots : public Window
 
   // Absolute layout for Pots popup - due to performance issues with lv_textarea
   // in a flex layout
-  static LAYOUT_VAL(P_LBL_X, 0, 0)
-  static LAYOUT_VAL(P_LBL_W, (DIALOG_DEFAULT_WIDTH - 45) * 2 / 11, (DIALOG_DEFAULT_WIDTH - 18) * 13 / 21)
+  static LAYOUT_VAL(P_LBL_X, 0, 0, 0)
+  static LAYOUT_VAL(P_LBL_W, (DIALOG_DEFAULT_WIDTH - 45) * 2 / 11, (DIALOG_DEFAULT_WIDTH - 18) * 13 / 21, (DIALOG_DEFAULT_WIDTH - 30) * 2 / 11)
   static constexpr coord_t P_NM_X = P_LBL_X + P_LBL_W + PAD_MEDIUM;
-  static LAYOUT_VAL(P_NM_W, 70, 70)
-  static LAYOUT_VAL(P_TYP_X, P_NM_X + P_NM_W, 0)
-  static LAYOUT_VAL(P_TYP_W, 160, P_LBL_W)
+  static LAYOUT_VAL(P_NM_W, 70, 70, LS(70))
+  static LAYOUT_VAL(P_TYP_X, P_NM_X + P_NM_W, 0, P_NM_X + P_NM_W)
+  static LAYOUT_VAL(P_TYP_W, 160, P_LBL_W, LS(160))
   static constexpr coord_t P_INV_X = P_TYP_X + P_TYP_W + PAD_MEDIUM;
-  static LAYOUT_VAL(P_INV_W, 52, 52)
-  static LAYOUT_VAL(P_ROW_H, 36, 72)
-  static LAYOUT_VAL(P_OFST_Y, 0, 36)
+  static LAYOUT_VAL(P_INV_W, 52, 52, LS(52))
+  static LAYOUT_VAL(P_ROW_H, 36, 72, 26)
+  static LAYOUT_VAL(P_OFST_Y, 0, 36, 0)
   #define P_Y(i) (i * P_ROW_H + 2)
 
  protected:

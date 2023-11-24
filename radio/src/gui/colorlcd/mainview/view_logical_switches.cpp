@@ -35,8 +35,13 @@ static const lv_coord_t f_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 #else  // Landscape
 
 // Footer grid
+#if LANDSCAPE_LCD_SMALL
+static const lv_coord_t f_col_dsc[] = {
+    40, LV_GRID_FR(1), 75, LV_GRID_FR(1), 33, 33, LV_GRID_TEMPLATE_LAST};
+#else
 static const lv_coord_t f_col_dsc[] = {
     60, LV_GRID_FR(1), 112, LV_GRID_FR(1), 50, 50, LV_GRID_TEMPLATE_LAST};
+#endif
 
 #endif
 
@@ -187,9 +192,9 @@ class LogicalSwitchDisplayFooter : public Window
     refresh();
   }
 
-  static LAYOUT_VAL(V2_COL_CNT, 1, 2)
-  static LAYOUT_VAL(ANDSW_ROW, 0, 1)
-  static LAYOUT_VAL(ANDSW_COL, 3, 1)
+  static LAYOUT_VAL(V2_COL_CNT, 1, 2, 1)
+  static LAYOUT_VAL(ANDSW_ROW, 0, 1, 0)
+  static LAYOUT_VAL(ANDSW_COL, 3, 1, 3)
 
  protected:
   unsigned lsIndex = 0;
