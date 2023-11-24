@@ -37,7 +37,7 @@ struct HWInputEdit : public RadioTextEdit {
   {
   }
 
-  static LAYOUT_VAL(HW_INP_W, 64, 64)
+  static LAYOUT_VAL(HW_INP_W, 64, 64, LS(64))
 };
 
 static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),

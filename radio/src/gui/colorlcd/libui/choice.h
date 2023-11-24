@@ -52,7 +52,7 @@ class ChoiceBase : public FormField
 
   const char* getTitle() const { return menuTitle; }
 
-  static LAYOUT_VAL(ICON_W, 18, 18)
+  static LAYOUT_VAL(ICON_W, 18, 18, LS(18))
 
  protected:
   lv_obj_t *label;

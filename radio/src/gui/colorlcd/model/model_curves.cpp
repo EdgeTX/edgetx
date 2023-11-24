@@ -73,9 +73,9 @@ class CurveButton : public Button
 
   void update() { preview->update(); }
 
-  static LAYOUT_VAL(TITLE_H, 20, 20)
-  static LAYOUT_VAL(INFO_H, 27, 27)
-  static LAYOUT_VAL(CURVE_BTN_W, 142, 142)
+  static LAYOUT_VAL(TITLE_H, 20, 20, LS(20))
+  static LAYOUT_VAL(INFO_H, 27, 27, 19)
+  static LAYOUT_VAL(CURVE_BTN_W, 142, 142, LS(142))
   static constexpr coord_t CURVE_BTH_H = CURVE_BTN_W + TITLE_H + INFO_H - PAD_MEDIUM;
 
  protected:

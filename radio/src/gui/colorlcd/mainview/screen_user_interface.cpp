@@ -123,7 +123,7 @@ class ThemeView : public Window
     }
   }
 
-  static LAYOUT_VAL(PREVIEW_W, (LCD_W - PAD_MEDIUM * 3) / 2, LCD_W - 12)
+  static LAYOUT_VAL(PREVIEW_W, (LCD_W - PAD_MEDIUM * 3) / 2, LCD_W - 12, (LCD_W - PAD_MEDIUM * 3) / 2)
 
  protected:
   Window* details = nullptr;

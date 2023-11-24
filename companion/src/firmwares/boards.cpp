@@ -158,6 +158,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x3A78746F;
     case BOARD_FLYSKY_PL18:
       return 0x4878746F;
+    case BOARD_SMALL_LCD:
+      return 0x3878746F;
     default:
       return 0;
   }
@@ -267,6 +269,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_EL18:
     case BOARD_FLYSKY_PL18:
     case BOARD_FATFISH_F16:
+    case BOARD_SMALL_LCD:
       return FSIZE_HORUS;
     case BOARD_UNKNOWN:
       return FSIZE_MAX;
@@ -581,6 +584,8 @@ QString Boards::getBoardName(Board::Type board)
       return "iFlight Commando 8";
     case BOARD_FATFISH_F16:
       return "Fatfish F16";
+    case BOARD_SMALL_LCD:
+      return "320x240 Test";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -679,6 +684,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_TPRO:
   case BOARD_JUMPER_TPROV2:
   case BOARD_FLYSKY_PL18:
+  case BOARD_SMALL_LCD:
     return (int)MODULE_TYPE_MULTIMODULE;
 
   case BOARD_BETAFPV_LR3PRO:
