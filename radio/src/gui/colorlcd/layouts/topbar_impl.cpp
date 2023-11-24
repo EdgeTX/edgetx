@@ -28,6 +28,9 @@ constexpr uint32_t TOPBAR_REFRESH = 1000 / 10; // 10 Hz
 TopBar::TopBar(Window * parent) :
   TopBarBase(parent, {0, 0, LCD_W, MENU_HEADER_HEIGHT}, &g_model.topbarData)
 {
+  etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
+
+  headerIcon = new HeaderIcon(this, ICON_EDGETX);
 }
 
 unsigned int TopBar::getZonesCount() const
@@ -75,12 +78,6 @@ coord_t TopBar::getVisibleHeight(float visible) const // 0.0 -> 1.0
 
   float h = (float)MENU_HEADER_HEIGHT * visible;
   return (coord_t)h;
-}
-
-void TopBar::paint(BitmapBuffer * dc)
-{
-  dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY1);
-  EdgeTxTheme::instance()->drawHeaderIcon(dc, ICON_EDGETX);
 }
 
 void TopBar::checkEvents()

@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <utility>
 #include "form.h"
 
 class ToggleSwitch : public FormField
@@ -26,16 +25,13 @@ class ToggleSwitch : public FormField
  public:
   ToggleSwitch(Window* parent, const rect_t& rect,
            std::function<uint8_t()> getValue,
-           std::function<void(uint8_t)> setValue, WindowFlags flags = 0);
+           std::function<void(uint8_t)> setValue);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ToggleSwitch"; }
 #endif
 
   void onClicked() override;
-
-  const char* getLabel() const { return label.c_str(); }
-  void setLabel(std::string newLabel) { label = std::move(newLabel); }
 
   uint8_t getValue() const { return _getValue(); }
   void setValue(uint8_t value) { _setValue(value); }
@@ -53,7 +49,6 @@ class ToggleSwitch : public FormField
   void update() const;
   
  protected:
-  std::string label;
   std::function<uint8_t()> _getValue;
   std::function<void(uint8_t)> _setValue;
 };

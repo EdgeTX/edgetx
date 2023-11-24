@@ -198,10 +198,10 @@ static int luaLcdDrawLine(lua_State *L)
 
   if (pat == SOLID) {
     if (x1 == x2) {
-      luaLcdBuffer->drawSolidVerticalLine(x1, y1 < y2 ? y1 : y2, y1 < y2 ? (y2 - y1) + 1 : (y1 - y2) + 1, flags);
+      luaLcdBuffer->drawVerticalLine(x1, y1 < y2 ? y1 : y2, y1 < y2 ? (y2 - y1) + 1 : (y1 - y2) + 1, pat, flags);
       return 0;
     } else if (y1 == y2) {
-      luaLcdBuffer->drawSolidHorizontalLine(x1 < x2 ? x1 : x2, y1, x1 < x2 ? (x2 - x1) + 1 : (x1 - x2) + 1, flags);
+      luaLcdBuffer->drawHorizontalLine(x1 < x2 ? x1 : x2, y1, x1 < x2 ? (x2 - x1) + 1 : (x1 - x2) + 1, pat, flags);
       return 0;
     }
   }
@@ -353,11 +353,11 @@ static int luaLcdDrawTextLines(lua_State *L)
     if ((flags & BLINK) && !BLINK_ON_PHASE)
       return 0;
     if (flags & SHADOWED)
-      drawTextLines(luaLcdBuffer, x+1, y+1, w, h, s, flags & 0xFFFF); // force black
+      luaLcdBuffer->drawTextLines(x+1, y+1, w, h, s, flags & 0xFFFF); // force black
     flags = (flags & 0xFFFF) | flagsRGB(flags);
   }
   
-  drawTextLines(luaLcdBuffer, x, y, w, h, s, flags);
+  luaLcdBuffer->drawTextLines(x, y, w, h, s, flags);
   return 0;
 }
 
@@ -449,7 +449,7 @@ static int luaLcdDrawChannel(lua_State *L)
   LcdFlags flags = luaL_optunsigned(L, 4, 0);
   flags = flagsRGB(flags);
   getvalue_t value = getValue(channel);
-  drawSensorCustomValue(luaLcdBuffer, x, y, (channel-MIXSRC_FIRST_TELEM)/3, value, flags);
+  luaLcdBuffer->drawSensorCustomValue(x, y, (channel-MIXSRC_FIRST_TELEM)/3, value, flags);
 
   return 0;
 }
@@ -478,7 +478,7 @@ static int luaLcdDrawSwitch(lua_State *L)
   int s = luaL_checkinteger(L, 3);
   LcdFlags flags = luaL_optunsigned(L, 4, 0);
   flags = flagsRGB(flags);
-  drawSwitch(luaLcdBuffer, x, y, s, flags);
+  luaLcdBuffer->drawSwitch(x, y, s, flags);
 
   return 0;
 }
@@ -506,7 +506,7 @@ static int luaLcdDrawSource(lua_State *L)
   int s = luaL_checkinteger(L, 3);
   LcdFlags flags = luaL_optunsigned(L, 4, 0);
   flags = flagsRGB(flags);
-  drawSource(luaLcdBuffer, x, y, s, flags);
+  luaLcdBuffer->drawSource(x, y, s, flags);
 
   return 0;
 }
@@ -760,7 +760,7 @@ static int luaLcdDrawBitmapPattern(lua_State *L)
     auto y = luaL_checkunsigned(L, 3);
     auto flags = luaL_optunsigned(L, 4, 0);
     flags = flagsRGB(flags);
-    luaLcdBuffer->drawBitmapPattern(x, y, reinterpret_cast<const uint8_t*>(m), flags);
+    luaLcdBuffer->drawBitmapPattern(x, y, reinterpret_cast<const MaskBitmap*>(m), flags);
   }
 
   return 0;
@@ -799,7 +799,7 @@ static int luaLcdDrawBitmapPatternPie(lua_State *L)
     auto endAngle = luaL_checkinteger(L, 5);
     auto flags = luaL_optunsigned(L, 6, 0);
     flags = flagsRGB(flags);
-    luaLcdBuffer->drawBitmapPatternPie(x, y, reinterpret_cast<const uint8_t*>(m), flags, startAngle, endAngle);
+    luaLcdBuffer->drawBitmapPatternPie(x, y, reinterpret_cast<const MaskBitmap*>(m), flags, startAngle, endAngle);
   }
 
   return 0;
@@ -1339,7 +1339,7 @@ static void drawHudRectangle(BitmapBuffer * dc, float pitch, float roll, coord_t
         coord_t yy = ymin + s;
         coord_t xx = ox + ((float)yy - oy) / angle; // + 0.5f; rounding not needed
         if (xx >= xmin && xx <= xmax) {
-          dc->drawSolidHorizontalLine(xx, yy, xmax - xx + 1, flags);
+          dc->drawHorizontalLine(xx, yy, xmax - xx + 1, SOLID, flags);
         }
         else if (xx < xmin) {
           ybot = (inverted) ? max(yy, ybot) + 1 : min(yy, ybot);
@@ -1352,7 +1352,7 @@ static void drawHudRectangle(BitmapBuffer * dc, float pitch, float roll, coord_t
         coord_t yy = ymin + s;
         coord_t xx = ox + ((float)yy - oy) / angle; // + 0.5f; rounding not needed
         if (xx >= xmin && xx <= xmax) {
-          dc->drawSolidHorizontalLine(xmin, yy, xx - xmin, flags);
+          dc->drawHorizontalLine(xmin, yy, xx - xmin, SOLID, flags);
         }
         else if (xx > xmax) {
           ybot = (inverted) ? max(yy, ybot) + 1 : min(yy, ybot);

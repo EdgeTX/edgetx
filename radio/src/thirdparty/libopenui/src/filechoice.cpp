@@ -23,15 +23,6 @@
 #include "libopenui_file.h"
 #include "menu.h"
 #include "theme.h"
-#include "message_dialog.h"
-
-#if !defined(STR_SDCARD)
-#define STR_SDCARD "SD"
-#endif
-
-#if !defined(STR_NO_FILES_ON_SD)
-#define STR_NO_FILES_ON_SD "No files on SD Card!"
-#endif
 
 FileChoice::FileChoice(Window *parent, const rect_t &rect, std::string folder,
                        const char *extension, int maxlen,
@@ -115,11 +106,6 @@ bool FileChoice::openMenu()
       if (current >= 0) {
         menu->select(current);
       }
-
-      menu->setCloseHandler([=]() {
-        editMode = false;
-        // setFocus(SET_FOCUS_DEFAULT);
-      });
 
       return true;
     }

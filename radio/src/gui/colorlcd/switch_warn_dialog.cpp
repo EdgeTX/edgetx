@@ -20,10 +20,12 @@
  */
 
 #include "switch_warn_dialog.h"
+
 #include "switches.h"
 
 SwitchWarnDialog::SwitchWarnDialog() :
-    FullScreenDialog(WARNING_TYPE_ALERT, STR_SWITCHWARN, "", STR_PRESS_ANY_KEY_TO_SKIP)
+    FullScreenDialog(WARNING_TYPE_ALERT, STR_SWITCHWARN, "",
+                     STR_PRESS_ANY_KEY_TO_SKIP)
 {
   last_bad_switches = 0xff;
   last_bad_pots = 0x0;
@@ -40,13 +42,9 @@ bool SwitchWarnDialog::warningInactive()
 {
   uint16_t bad_pots;
 
-  if (!isSwitchWarningRequired(bad_pots))
-    return true;
+  if (!isSwitchWarningRequired(bad_pots)) return true;
 
   if (last_bad_switches != switches_states || last_bad_pots != bad_pots) {
-    // Redraw to update list of switches that need attention
-    invalidate();
-
     last_bad_pots = bad_pots;
     last_bad_switches = switches_states;
   }
@@ -54,20 +52,22 @@ bool SwitchWarnDialog::warningInactive()
   return false;
 }
 
-void SwitchWarnDialog::paint(BitmapBuffer * dc)
+void SwitchWarnDialog::checkEvents()
 {
   if (!running) return;
-  FullScreenDialog::paint(dc);
+
+  FullScreenDialog::checkEvents();
 
   std::string warn_txt;
   swarnstate_t states = g_model.switchWarningState;
   for (int i = 0; i < MAX_SWITCHES; ++i) {
     if (SWITCH_WARNING_ALLOWED(i)) {
-      swarnstate_t mask = ((swarnstate_t)0x07 << (i*3));
+      swarnstate_t mask = ((swarnstate_t)0x07 << (i * 3));
       if (states & mask) {
         if ((switches_states & mask) != (states & mask)) {
-          swarnstate_t state = (states >> (i*3)) & 0x07;
-          warn_txt += getSwitchPositionName(SWSRC_FIRST_SWITCH + i * 3 + state - 1);
+          swarnstate_t state = (states >> (i * 3)) & 0x07;
+          warn_txt +=
+              getSwitchPositionName(SWSRC_FIRST_SWITCH + i * 3 + state - 1);
           warn_txt += " ";
         }
       }
@@ -75,10 +75,14 @@ void SwitchWarnDialog::paint(BitmapBuffer * dc)
   }
 
   if (g_model.potsWarnMode) {
-    if (!warn_txt.empty()) { warn_txt += '\n'; }
+    if (!warn_txt.empty()) {
+      warn_txt += '\n';
+    }
     for (int i = 0; i < MAX_POTS; i++) {
-      if (!IS_POT_SLIDER_AVAILABLE(i)) { continue; }
-      if ( (g_model.potsWarnEnabled & (1 << i))) {
+      if (!IS_POT_SLIDER_AVAILABLE(i)) {
+        continue;
+      }
+      if ((g_model.potsWarnEnabled & (1 << i))) {
         if (abs(g_model.potsWarnPosition[i] - GET_LOWRES_POT_POSITION(i)) > 1) {
           warn_txt += STR_CHAR_POT;
           warn_txt += getPotLabel(i);
@@ -92,7 +96,8 @@ void SwitchWarnDialog::paint(BitmapBuffer * dc)
 }
 
 ThrottleWarnDialog::ThrottleWarnDialog(const char* msg) :
-    FullScreenDialog(WARNING_TYPE_ALERT, TR_THROTTLE_UPPERCASE, msg, STR_PRESS_ANY_KEY_TO_SKIP)
+    FullScreenDialog(WARNING_TYPE_ALERT, TR_THROTTLE_UPPERCASE, msg,
+                     STR_PRESS_ANY_KEY_TO_SKIP)
 {
   setCloseCondition(std::bind(&ThrottleWarnDialog::warningInactive, this));
 }

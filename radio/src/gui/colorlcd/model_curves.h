@@ -19,27 +19,28 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_CURVES_H_
-#define _MODEL_CURVES_H_
+#pragma once
 
+#include "opentx.h"
 #include "tabsgroup.h"
 
-class ModelCurvesPage: public PageTab {
-  public:
-    ModelCurvesPage();
-    static void pushEditCurve(int index);
+class ModelCurvesPage : public PageTab
+{
+ public:
+  ModelCurvesPage();
+  static void pushEditCurve(int index);
 
-    virtual void build(FormWindow * window) override;
+  bool isVisible() const override { return modelCurvesEnabled(); }
 
-  protected:
-    uint8_t focusIndex = -1;
-    Button* addButton = nullptr;
+  virtual void build(Window* window) override;
 
-    void rebuild(FormWindow * window);
-    void editCurve(FormWindow * window, uint8_t curve);
-    void presetMenu(FormWindow * window, uint8_t index);
-    void plusPopup(FormWindow * window);
-    void newCV(FormWindow * window, bool presetCV);
+ protected:
+  uint8_t focusIndex = -1;
+  ButtonBase* addButton = nullptr;
+
+  void rebuild(Window* window);
+  void editCurve(Window* window, uint8_t curve);
+  void presetMenu(Window* window, uint8_t index);
+  void plusPopup(Window* window);
+  void newCV(Window* window, bool presetCV);
 };
-
-#endif // _MODEL_CURVES_H_

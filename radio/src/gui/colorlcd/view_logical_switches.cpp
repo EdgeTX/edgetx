@@ -19,9 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "view_logical_switches.h"
 
+#include "opentx.h"
+#include "switches.h"
+#include "themes/etx_lv_theme.h"
 
 #if LCD_W > LCD_H  // Landscape
 
@@ -40,8 +42,7 @@ static const lv_coord_t col_dsc[] = {
 
 // Footer grid
 static const lv_coord_t f_col_dsc[] = {
-    60, LV_GRID_FR(1), 112, LV_GRID_FR(1), 50,
-    50, LV_GRID_TEMPLATE_LAST};
+    60, LV_GRID_FR(1), 112, LV_GRID_FR(1), 50, 50, LV_GRID_TEMPLATE_LAST};
 
 #else  // Portrait
 
@@ -72,12 +73,14 @@ class LogicalSwitchDisplayFooter : public Window
 {
  public:
   explicit LogicalSwitchDisplayFooter(Window* parent, rect_t rect) :
-      Window(parent, rect, OPAQUE)
+      Window(parent, rect)
   {
-    padAll(0);
+    setWindowFlag(OPAQUE);
+
+    padAll(PAD_ZERO);
     padLeft(4);
     padRight(4);
-    lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY1), 0);
+    etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
     lv_obj_set_grid_dsc_array(lvobj, f_col_dsc, row_dsc);
@@ -85,41 +88,40 @@ class LogicalSwitchDisplayFooter : public Window
     lv_obj_set_style_pad_column(lvobj, 2, 0);
 
     lsFunc = lv_label_create(lvobj);
-    lv_obj_set_style_text_align(lsFunc, LV_TEXT_ALIGN_LEFT, 0);
+    etx_obj_add_style(lsFunc, styles->text_align_left, LV_PART_MAIN);
+    etx_txt_color(lsFunc, COLOR_THEME_PRIMARY2_INDEX);
     lv_obj_set_grid_cell(lsFunc, LV_GRID_ALIGN_STRETCH, 0, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
-    lv_obj_set_style_text_color(lsFunc, makeLvColor(COLOR_THEME_PRIMARY2), 0);
 
     lsV1 = lv_label_create(lvobj);
-    lv_obj_set_style_text_align(lsV1, LV_TEXT_ALIGN_LEFT, 0);
+    etx_obj_add_style(lsV1, styles->text_align_left, LV_PART_MAIN);
+    etx_txt_color(lsV1, COLOR_THEME_PRIMARY2_INDEX);
     lv_obj_set_grid_cell(lsV1, LV_GRID_ALIGN_STRETCH, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
-    lv_obj_set_style_text_color(lsV1, makeLvColor(COLOR_THEME_PRIMARY2), 0);
 
     lsV2 = lv_label_create(lvobj);
-    lv_obj_set_style_text_align(lsV2, LV_TEXT_ALIGN_LEFT, 0);
+    etx_obj_add_style(lsV2, styles->text_align_left, LV_PART_MAIN);
+    etx_txt_color(lsV2, COLOR_THEME_PRIMARY2_INDEX);
     lv_obj_set_grid_cell(lsV2, LV_GRID_ALIGN_STRETCH, 2, V2_COL_CNT,
                          LV_GRID_ALIGN_CENTER, 0, 1);
-    lv_obj_set_style_text_color(lsV2, makeLvColor(COLOR_THEME_PRIMARY2), 0);
 
     lsAnd = lv_label_create(lvobj);
-    lv_obj_set_style_text_align(lsAnd, LV_TEXT_ALIGN_LEFT, 0);
+    etx_obj_add_style(lsAnd, styles->text_align_left, LV_PART_MAIN);
+    etx_txt_color(lsAnd, COLOR_THEME_PRIMARY2_INDEX);
     lv_obj_set_grid_cell(lsAnd, LV_GRID_ALIGN_STRETCH, ANDSW_COL, 1,
                          LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
-    lv_obj_set_style_text_color(lsAnd, makeLvColor(COLOR_THEME_PRIMARY2), 0);
 
     lsDuration = lv_label_create(lvobj);
-    lv_obj_set_style_text_align(lsDuration, LV_TEXT_ALIGN_LEFT, 0);
+    etx_obj_add_style(lsDuration, styles->text_align_left, LV_PART_MAIN);
+    etx_txt_color(lsDuration, COLOR_THEME_PRIMARY2_INDEX);
     lv_obj_set_grid_cell(lsDuration, LV_GRID_ALIGN_STRETCH, ANDSW_COL + 1, 1,
                          LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
-    lv_obj_set_style_text_color(lsDuration, makeLvColor(COLOR_THEME_PRIMARY2),
-                                0);
 
     lsDelay = lv_label_create(lvobj);
-    lv_obj_set_style_text_align(lsDelay, LV_TEXT_ALIGN_LEFT, 0);
+    etx_obj_add_style(lsDelay, styles->text_align_left, LV_PART_MAIN);
+    etx_txt_color(lsDelay, COLOR_THEME_PRIMARY2_INDEX);
     lv_obj_set_grid_cell(lsDelay, LV_GRID_ALIGN_STRETCH, ANDSW_COL + 2, 1,
                          LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
-    lv_obj_set_style_text_color(lsDelay, makeLvColor(COLOR_THEME_PRIMARY2), 0);
 
     lv_obj_update_layout(parent->getLvObj());
 
@@ -224,7 +226,7 @@ class LogicalSwitchDisplayButton : public TextButton
  public:
   LogicalSwitchDisplayButton(Window* parent, const rect_t& rect,
                              std::string text, unsigned index) :
-      TextButton(parent, rect, std::move(text), nullptr, OPAQUE), index(index)
+      TextButton(parent, rect, std::move(text), nullptr), index(index)
   {
   }
 
@@ -238,9 +240,8 @@ class LogicalSwitchDisplayButton : public TextButton
         lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
       }
       value = newvalue;
-      invalidate();
     }
-    Button::checkEvents();
+    ButtonBase::checkEvents();
   }
 
  protected:
@@ -248,17 +249,22 @@ class LogicalSwitchDisplayButton : public TextButton
   bool value = false;
 };
 
-void LogicalSwitchesViewPage::build(FormWindow* window)
+LogicalSwitchesViewPage::LogicalSwitchesViewPage() :
+    PageTab(STR_MONITOR_SWITCHES, ICON_MONITOR_LOGICAL_SWITCHES)
 {
-  window->padAll(0);
+}
 
-  auto form = new FormWindow(window, rect_t{});
-  form->setFlexLayout();
-  form->padAll(0);
+void LogicalSwitchesViewPage::build(Window* window)
+{
+  window->padAll(PAD_ZERO);
+
+  auto form = new Window(window, rect_t{});
+  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
+  form->padAll(PAD_ZERO);
   form->padTop(3);
 
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
-  FormWindow::Line* line = nullptr;
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
+  FormLine* line = nullptr;
 
   // Footer
   footer = new LogicalSwitchDisplayFooter(
@@ -269,8 +275,8 @@ void LogicalSwitchesViewPage::build(FormWindow* window)
   std::string lsString("L64");
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
     if ((i % BTN_MATRIX_COL) == 0) {
-      line = form->newLine(&grid);
-      line->padAll(1);
+      line = form->newLine(grid);
+      lv_obj_set_style_pad_all(line->getLvObj(), 1, 0);
       line->padLeft(4);
       line->padRight(4);
     }
@@ -289,15 +295,14 @@ void LogicalSwitchesViewPage::build(FormWindow* window)
       button->setFocusHandler([=](bool focus) {
         if (focus) {
           footer->setIndex(i);
-          footer->invalidate();
         }
         return 0;
       });
     } else {
       auto lbl = lv_label_create(line->getLvObj());
       lv_obj_set_height(lbl, BTN_HEIGHT);
-      lv_obj_set_style_text_color(lbl, makeLvColor(COLOR_THEME_DISABLED), 0);
-      lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, 0);
+      etx_obj_add_style(lbl, styles->text_align_center, LV_PART_MAIN);
+      etx_txt_color(lbl, COLOR_THEME_DISABLED_INDEX);
       lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_STRETCH, i % BTN_MATRIX_COL, 1,
                            LV_GRID_ALIGN_CENTER, 0, 1);
       lv_label_set_text(lbl, lsString.c_str());

@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "form.h"
+#include "button.h"
 
-class ColorPicker : public FormField
+class ColorPicker : public Button
 {
   uint32_t color;
   std::function<void(uint16_t)> setValue;
@@ -37,4 +37,6 @@ public:
 
   void setColor(uint32_t c);
   uint32_t getColor() const { return color; }
+
+  void onClicked() override;
 };

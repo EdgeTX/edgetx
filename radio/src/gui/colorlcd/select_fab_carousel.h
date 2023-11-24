@@ -21,9 +21,13 @@
 
 #pragma once
 
-#include "select_fab_button.h"
+#include "form.h"
+#include "bitmaps.h"
 
-class SelectFabCarousel : public FormWindow
+constexpr coord_t FAB_BUTTON_WIDTH = 80;
+constexpr coord_t FAB_BUTTON_HEIGHT = 114;
+
+class SelectFabCarousel : public Window
 {
  public:
   explicit SelectFabCarousel(Window* parent);
@@ -33,6 +37,6 @@ class SelectFabCarousel : public FormWindow
 #endif
 
   // Add a new button to the carousel
-  void addButton(uint8_t icon, const char* title,
+  void addButton(EdgeTxIcon icon, const char* title,
                  std::function<uint8_t(void)> pressHandler);
 };

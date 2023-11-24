@@ -528,12 +528,8 @@ bool isThrottleSourceAvailable(int src)
      ((src >= MIXSRC_FIRST_CH) && (src <= MIXSRC_LAST_CH)));
 }
 
-bool isAssignableFunctionAvailable(int function, CustomFunctionData * functions)
+bool isAssignableFunctionAvailable(int function, bool modelFunctions)
 {
-#if defined(OVERRIDE_CHANNEL_FUNCTION) || defined(GVARS)
-  bool modelFunctions = (functions == g_model.customFn);
-#endif
-
   switch (function) {
     case FUNC_OVERRIDE_CHANNEL:
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
@@ -576,7 +572,7 @@ bool isAssignableFunctionAvailable(int function, CustomFunctionData * functions)
 #if !defined(COLORLCD)
 bool isAssignableFunctionAvailable(int function)
 {
-  return isAssignableFunctionAvailable(function, menuHandlers[menuLevel] == menuModelSpecialFunctions ? g_model.customFn : g_eeGeneral.customFn);
+  return isAssignableFunctionAvailable(function, menuHandlers[menuLevel] == menuModelSpecialFunctions);
 }
 #endif
 

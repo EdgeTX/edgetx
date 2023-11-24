@@ -37,7 +37,7 @@ class TopbarFactory
   static TopBar* create(Window* parent);
 };
 
-class SetupTopBarWidgetsPage : public FormWindow
+class SetupTopBarWidgetsPage : public Window
 {
  public:
   explicit SetupTopBarWidgetsPage();

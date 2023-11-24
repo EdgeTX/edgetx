@@ -19,24 +19,15 @@
  * GNU General Public License for more details.
  */
 
+#include "bitmaps.h"
 #include "opentx.h"
-#include "widgets_container_impl.h"
+#include "widget.h"
 
-const uint8_t _LBM_TIMER[] = {
-#include "mask_timer.lbm"
-};
-
-const uint8_t _LBM_RSCALE[] = {
-#include "mask_rscale.lbm"
-};
-
-const uint8_t _LBM_TIMER_BACKGROUND[] = {
-#include "mask_timer_bg.lbm"
-};
-
-STATIC_LZ4_BITMAP(LBM_TIMER);
-STATIC_LZ4_BITMAP(LBM_RSCALE);
-STATIC_LZ4_BITMAP(LBM_TIMER_BACKGROUND);
+#define ETX_STATE_BG_WARNING LV_STATE_USER_1
+#define EXT_NAME_ALIGN_RIGHT LV_STATE_USER_1
+#define ETX_NAME_TXT_WARNING LV_STATE_USER_2
+#define ETX_NAME_COLOR_WHITE LV_STATE_USER_3
+#define ETX_VALUE_SMALL_FONT LV_STATE_USER_1
 
 class TimerWidget : public Widget
 {
@@ -45,122 +36,245 @@ class TimerWidget : public Widget
               Widget::PersistentData* persistentData) :
       Widget(factory, parent, rect, persistentData)
   {
-  }
+    etx_solid_bg(lvobj, COLOR_THEME_WARNING_INDEX,
+                 LV_PART_MAIN | ETX_STATE_BG_WARNING);
 
-  void refresh(BitmapBuffer* dc) override
-  {
-    uint32_t index = persistentData->options[0].value.unsignedValue;
-    TimerData& timerData = g_model.timers[index];
-    TimerState& timerState = timersStates[index];
-    char sDigitGroup0[LEN_TIMER_STRING];
-    char sDigitGroup1[LEN_TIMER_STRING];
-    char sUnit0[] = "M";
-    char sUnit1[] = "S";
-    LcdFlags colorBack;  // background color
-    LcdFlags colorFore;  // foreground color
+    lv_style_init(&style);
+    lv_style_set_width(&style, lv_pct(100));
+    lv_style_set_height(&style, LV_SIZE_CONTENT);
 
-    // Middle size widget
-    if (width() >= 180 && height() >= 70) {
-      colorBack = (timerState.val >= 0 || !(timerState.val % 2))
-                      ? COLOR_THEME_PRIMARY2
-                      : COLOR_THEME_WARNING;
-      colorFore = (timerState.val >= 0 || !(timerState.val % 2))
-                      ? COLOR_THEME_SECONDARY1
-                      : COLOR_THEME_SECONDARY2;
+    timerBg = new StaticIcon(this, 0, 0, ICON_TIMER_BG, COLOR_THEME_PRIMARY2);
+    timerIcon = new StaticIcon(this, 3, 4, ICON_TIMER, COLOR_THEME_SECONDARY1);
 
-      // background
-      dc->drawBitmapPattern(0, 0, LBM_TIMER_BACKGROUND, colorBack);
+    // Timer name
+    nameLabel = lv_label_create(lvobj);
+    lv_label_set_text(nameLabel, "");
+    lv_obj_add_style(nameLabel, &style, LV_PART_MAIN);
+    etx_font(nameLabel, FONT_XS_INDEX);
+    etx_obj_add_style(nameLabel, styles->text_align_left, LV_PART_MAIN);
+    etx_obj_add_style(nameLabel, styles->text_align_right,
+                      LV_PART_MAIN | EXT_NAME_ALIGN_RIGHT);
+    etx_txt_color(nameLabel, COLOR_THEME_SECONDARY1_INDEX);
+    etx_txt_color(nameLabel, COLOR_THEME_SECONDARY2_INDEX,
+                  LV_PART_MAIN | ETX_NAME_TXT_WARNING);
+    etx_txt_color(nameLabel, COLOR_THEME_PRIMARY2_INDEX,
+                  LV_PART_MAIN | ETX_NAME_COLOR_WHITE);
 
-      if (timerData.start && timerState.val >= 0) {
-        dc->drawBitmapPatternPie(
-            2, 3, LBM_RSCALE, colorFore, 0,
-            timerState.val <= 0
-                ? 360
-                : 360 * (timerData.start - timerState.val) / timerData.start);
-      } else {
-        dc->drawBitmapPattern(3, 4, LBM_TIMER, colorFore);
-      }
-      // value
-      int val = timerState.val;
-      if (timerData.start && timerData.showElapsed &&
-          timerData.start != timerState.val)
-        val = (int)timerData.start - (int)timerState.val;
-      splitTimer(sDigitGroup0, sDigitGroup1, sUnit0, sUnit1, abs(val), false);
+    // Timer value - on small size widgets
+    valLabel = lv_label_create(lvobj);
+    lv_label_set_text(valLabel, "");
+    lv_obj_add_style(valLabel, &style, LV_PART_MAIN);
+    etx_txt_color(valLabel, COLOR_THEME_PRIMARY2_INDEX);
+    etx_font(valLabel, FONT_XS_INDEX, LV_PART_MAIN | ETX_VALUE_SMALL_FONT);
+    lv_obj_set_pos(valLabel, 3, 20);
 
-      dc->drawSizedText(76, 31, sDigitGroup0, ZLEN(sDigitGroup0),
-                        FONT(XL) | colorFore);
-      dc->drawSizedText(76 + 35, 33, sUnit0, ZLEN(sUnit0),
-                        FONT(STD) | colorFore);
-      dc->drawSizedText(76 + 50, 31, sDigitGroup1, ZLEN(sDigitGroup1),
-                        FONT(XL) | colorFore);
-      dc->drawSizedText(76 + 85, 33, sUnit1, ZLEN(sUnit1),
-                        FONT(STD) | colorFore);
-      // name
-      if (ZLEN(timerData.name) > 0) {  // user name exist
-        dc->drawSizedText(78, 20, timerData.name, LEN_TIMER_NAME,
-                          FONT(XS) | colorFore);
-      } else {  // user name not exist "TMRn"
-        drawStringWithIndex(dc, 137, 17, "TMR", index + 1,
-                            FONT(XS) | colorFore);
-      }
-    }
-    // Small size widget
-    else {
-      // background
-      if (timerState.val < 0 && timerState.val % 2) {
-        dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_WARNING);
-      }
-      // name
-      if (ZLEN(timerData.name) > 0) {  // user name exist
-        dc->drawSizedText(2, 0, timerData.name, LEN_TIMER_NAME, FONT(XS) | COLOR_THEME_PRIMARY2);
-      } else {  // user name not exist "TMRn"
-        drawStringWithIndex(dc, 2, 0, "TMR", index + 1,
-                            FONT(XS) | COLOR_THEME_PRIMARY2);
-      }
-      // value
-      int val = timerState.val;
-      if (timerData.start && timerData.showElapsed &&
-          timerData.start != timerState.val)
-        val = (int)timerData.start - (int)timerState.val;
-      if (width() > 100 && height() > 40) {
-        if (abs(val) >= 3600) {
-          drawTimer(dc, 3, 20, abs(val),
-                    COLOR_THEME_PRIMARY2 | LEFT | TIMEHOUR);
-        } else {
-          drawTimer(dc, 3, 18, abs(val),
-                    COLOR_THEME_PRIMARY2 | LEFT | FONT(STD));
-        }
-      }
-      // very small size
-      else {
-        if (abs(timerState.val) >= 3600) {
-          drawTimer(dc, 3, 20, abs(timerState.val),
-                    COLOR_THEME_PRIMARY2 | LEFT | FONT(XS) | TIMEHOUR);
-        } else {
-          // value
-          int val = timerState.val;
-          if (timerData.start && timerData.showElapsed &&
-              timerData.start != timerState.val)
-            val = (int)timerData.start - (int)timerState.val;
-          drawTimer(dc, 3, 18, abs(val), COLOR_THEME_PRIMARY2 | LEFT);
-        }
-      }
-    }
+    // Timer value - on large widgets
+    unit0 = createUnitLabel();
+    lv_obj_set_pos(unit0, 111, 33);
+    unit1 = createUnitLabel();
+    lv_obj_set_pos(unit1, 161, 33);
+    digits0 = createDigitsLabel();
+    lv_obj_set_pos(digits0, 76, 31);
+    digits1 = createDigitsLabel();
+    lv_obj_set_pos(digits1, 126, 31);
+
+    timerArc = lv_arc_create(lvobj);
+    lv_arc_set_rotation(timerArc, 270);
+    lv_arc_set_bg_angles(timerArc, 0, 360);
+    lv_arc_set_range(timerArc, 0, 360);
+    lv_arc_set_angles(timerArc, 0, 360);
+    lv_arc_set_start_angle(timerArc, 0);
+    lv_obj_remove_style(timerArc, NULL, LV_PART_KNOB);
+    lv_obj_clear_flag(timerArc, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_set_pos(timerArc, 2, 3);
+    lv_obj_set_size(timerArc, 64, 64);
+    lv_obj_set_style_arc_opa(timerArc, LV_OPA_TRANSP, LV_PART_MAIN);
+    lv_obj_set_style_arc_width(timerArc, 10, LV_PART_MAIN);
+    lv_obj_set_style_arc_opa(timerArc, LV_OPA_COVER, LV_PART_INDICATOR);
+    lv_obj_set_style_arc_width(timerArc, 10, LV_PART_INDICATOR);
+    etx_obj_add_style(timerArc, styles->arc_color, LV_PART_INDICATOR);
+    lv_obj_add_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
+
+    update();
+    checkEvents();
   }
 
   void checkEvents() override
   {
     Widget::checkEvents();
-    auto newValue =
-        timersStates[persistentData->options[0].value.unsignedValue].val;
-    if (lastValue != newValue) {
-      lastValue = newValue;
-      invalidate();
+
+    uint32_t index = persistentData->options[0].value.unsignedValue;
+    TimerData& timerData = g_model.timers[index];
+    TimerState& timerState = timersStates[index];
+
+    if (lastValue != timerState.val || lastStartValue != timerData.start) {
+      lastValue = timerState.val;
+      lastStartValue = timerData.start;
+
+      if (lastStartValue && lastValue > 0) {
+        int pieEnd = 360 * (lastStartValue - lastValue) / lastStartValue;
+        if (!timerData.showElapsed) {
+          pieEnd = 360 - pieEnd;
+        }
+        lv_arc_set_end_angle(timerArc, pieEnd);
+      }
+
+      int val = lastValue;
+      if (lastStartValue && timerData.showElapsed &&
+          lastStartValue != lastValue)
+        val = (int)lastStartValue - lastValue;
+
+      if (isLarge) {
+        char sDigitGroup0[LEN_TIMER_STRING];
+        char sDigitGroup1[LEN_TIMER_STRING];
+        char sUnit0[] = "M";
+        char sUnit1[] = "S";
+
+        splitTimer(sDigitGroup0, sDigitGroup1, sUnit0, sUnit1, abs(val), false);
+
+        lv_label_set_text(digits0, sDigitGroup0);
+        lv_label_set_text(digits1, sDigitGroup1);
+        lv_label_set_text(unit0, sUnit0);
+        lv_label_set_text(unit1, sUnit1);
+
+        if (lastValue > 0) {
+          lv_obj_clear_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
+          timerIcon->hide();
+        } else {
+          lv_obj_add_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
+          timerIcon->show();
+        }
+      } else {
+        char str[LEN_TIMER_STRING];
+
+        TimerOptions timerOptions;
+        timerOptions.options = (abs(val) >= 3600) ? SHOW_TIME : SHOW_TIMER;
+        getTimerString(str, abs(val), timerOptions);
+        lv_label_set_text(valLabel, str);
+
+        if (width() <= 100 && height() <= 40 && abs(val) >= 3600)
+          lv_obj_add_state(valLabel, ETX_VALUE_SMALL_FONT);
+        else
+          lv_obj_clear_state(valLabel, ETX_VALUE_SMALL_FONT);
+
+        lv_obj_add_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
+        timerIcon->hide();
+      }
+
+      // Set colors if timer has elapsed.
+      if (lastValue < 0 && lastValue % 2) {
+        if (isLarge) {
+          lv_obj_add_state(nameLabel, ETX_NAME_TXT_WARNING);
+          lv_obj_add_state(digits0, ETX_NAME_TXT_WARNING);
+          lv_obj_add_state(digits1, ETX_NAME_TXT_WARNING);
+          lv_obj_add_state(unit0, ETX_NAME_TXT_WARNING);
+          lv_obj_add_state(unit1, ETX_NAME_TXT_WARNING);
+          lv_obj_clear_state(lvobj, ETX_STATE_BG_WARNING);
+          timerBg->setColor(COLOR_THEME_WARNING_INDEX);
+          timerIcon->setColor(COLOR_THEME_SECONDARY2_INDEX);
+        } else {
+          lv_obj_add_state(lvobj, ETX_STATE_BG_WARNING);
+        }
+      } else {
+        if (isLarge) {
+          lv_obj_clear_state(nameLabel, ETX_NAME_TXT_WARNING);
+          lv_obj_clear_state(digits0, ETX_NAME_TXT_WARNING);
+          lv_obj_clear_state(digits1, ETX_NAME_TXT_WARNING);
+          lv_obj_clear_state(unit0, ETX_NAME_TXT_WARNING);
+          lv_obj_clear_state(unit1, ETX_NAME_TXT_WARNING);
+          timerBg->setColor(COLOR_THEME_PRIMARY2_INDEX);
+          timerIcon->setColor(COLOR_THEME_SECONDARY1_INDEX);
+        }
+        lv_obj_clear_state(lvobj, ETX_STATE_BG_WARNING);
+      }
     }
   }
 
   static const ZoneOption options[];
+
+ protected:
   tmrval_t lastValue = 0;
+  uint32_t lastStartValue = 0;
+  bool isLarge = false;
+  lv_style_t style;
+  lv_obj_t* nameLabel = nullptr;
+  lv_obj_t* valLabel = nullptr;
+  lv_obj_t* digits0 = nullptr;
+  lv_obj_t* digits1 = nullptr;
+  lv_obj_t* unit0 = nullptr;
+  lv_obj_t* unit1 = nullptr;
+  lv_obj_t* timerArc = nullptr;
+  StaticIcon* timerBg = nullptr;
+  StaticIcon* timerIcon = nullptr;
+
+  void update() override
+  {
+    // Set up widget from options.
+    char s[16];
+
+    uint32_t index = persistentData->options[0].value.unsignedValue;
+    TimerData& timerData = g_model.timers[index];
+
+    bool hasName = ZLEN(timerData.name) > 0;
+
+    if (width() >= 180 && height() >= 70) {
+      isLarge = true;
+      if (hasName)
+        lv_obj_clear_state(nameLabel, EXT_NAME_ALIGN_RIGHT);
+      else
+        lv_obj_add_state(nameLabel, EXT_NAME_ALIGN_RIGHT);
+      lv_obj_set_pos(nameLabel, 78, 19);
+      lv_obj_set_width(nameLabel, 93);
+      lv_obj_clear_state(nameLabel, ETX_NAME_COLOR_WHITE);
+
+      lv_obj_add_flag(valLabel, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_clear_flag(digits0, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_clear_flag(digits1, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_clear_flag(unit0, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_clear_flag(unit1, LV_OBJ_FLAG_HIDDEN);
+      timerBg->show();
+    } else {
+      isLarge = false;
+      lv_obj_set_pos(nameLabel, 2, 0);
+      lv_obj_set_width(nameLabel, lv_pct(100));
+      lv_obj_add_state(nameLabel, ETX_NAME_COLOR_WHITE);
+
+      lv_obj_clear_flag(valLabel, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(digits0, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(digits1, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(unit0, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(unit1, LV_OBJ_FLAG_HIDDEN);
+      timerBg->hide();
+    }
+
+    // name
+    if (hasName) {
+      strAppend(s, timerData.name, LEN_TIMER_NAME);
+    } else {  // user name not exist "TMRn"
+      formatNumberAsString(s, 16, index + 1, 1, 0, "TMR");
+    }
+    lv_label_set_text(nameLabel, s);
+  }
+
+  lv_obj_t* createUnitLabel()
+  {
+    auto lbl = lv_label_create(lvobj);
+    lv_label_set_text(lbl, "");
+    lv_obj_add_style(lbl, &style, LV_PART_MAIN);
+    etx_txt_color(lbl, COLOR_THEME_SECONDARY1_INDEX);
+    etx_txt_color(lbl, COLOR_THEME_SECONDARY2_INDEX,
+                  LV_PART_MAIN | ETX_NAME_TXT_WARNING);
+
+    return lbl;
+  }
+
+  lv_obj_t* createDigitsLabel()
+  {
+    auto lbl = createUnitLabel();
+    etx_font(lbl, FONT_XL_INDEX);
+
+    return lbl;
+  }
 };
 
 const ZoneOption TimerWidget::options[] = {

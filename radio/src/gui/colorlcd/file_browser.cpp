@@ -21,7 +21,7 @@
 
 #include "file_browser.h"
 #include "libopenui_file.h"
-#include "font.h"
+#include "fonts.h"
 
 #include <list>
 #include <string>
@@ -165,8 +165,6 @@ FileBrowser::FileBrowser(Window* parent, const rect_t& rect, const char* dir) :
     TableField(parent, rect)
 {
   lv_obj_add_event_cb(lvobj, fb_event, LV_EVENT_ALL, nullptr);
-
-  setColumnCount(1);
 
   f_chdir(dir);
 

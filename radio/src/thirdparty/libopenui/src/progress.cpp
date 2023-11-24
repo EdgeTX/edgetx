@@ -17,12 +17,39 @@
  */
 
 #include "progress.h"
-#include "theme.h"
 
-Progress::Progress(Window * parent, const rect_t & rect):
-    Window(parent, rect)
+#include "themes/etx_lv_theme.h"
+
+static void etx_bar_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  bar = etx_bar_create(lvobj);
+  etx_solid_bg(obj, COLOR_THEME_SECONDARY2_INDEX);
+  etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
+
+  etx_solid_bg(obj, COLOR_THEME_SECONDARY1_INDEX, LV_PART_INDICATOR);
+  etx_obj_add_style(obj, styles->rounded, LV_PART_INDICATOR);
+}
+
+static const lv_obj_class_t bar_class = {
+    .base_class = &lv_bar_class,
+    .constructor_cb = etx_bar_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = LV_PCT(100),
+    .height_def = 32,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
+    .instance_size = sizeof(lv_bar_t),
+};
+
+static lv_obj_t* bar_create(lv_obj_t* parent)
+{
+  return etx_create(&bar_class, parent);
+}
+
+Progress::Progress(Window* parent, const rect_t& rect) : Window(parent, rect)
+{
+  bar = bar_create(lvobj);
   lv_bar_set_range(bar, 0, 100);
   setValue(0);
 }

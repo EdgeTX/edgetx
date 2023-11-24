@@ -19,42 +19,37 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
 #include "lcd.h"
-#include "dma2d.h"
-#include "bitmapbuffer.h"
+
 #include <lvgl/lvgl.h>
+
+#include "bitmapbuffer.h"
+#include "board.h"
+#include "dma2d.h"
 
 pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
 pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
 
-BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);
-BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_SECOND_FRAME_BUFFER);
+BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H,
+                        (uint16_t*)LCD_FIRST_FRAME_BUFFER);
+BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H,
+                        (uint16_t*)LCD_SECOND_FRAME_BUFFER);
 
-BitmapBuffer * lcdFront = &lcdBuffer1;
-BitmapBuffer * lcd = &lcdBuffer2;
-
-extern BitmapBuffer * lcdFront;
-extern BitmapBuffer * lcd;
+BitmapBuffer* lcdFront = &lcdBuffer1;
+BitmapBuffer* lcd = &lcdBuffer2;
 
 static lv_disp_draw_buf_t disp_buf;
 static lv_disp_drv_t disp_drv;
 static lv_disp_t* disp = nullptr;
 
-static lv_area_t screen_area = {
-    0, 0, LCD_W-1, LCD_H-1
-};
-
 // Call backs
-static void (*lcd_wait_cb)(lv_disp_drv_t *) = nullptr;
-static void (*lcd_flush_cb)(lv_disp_drv_t *, uint16_t* buffer, const rect_t& area) = nullptr;
+static void (*lcd_wait_cb)(lv_disp_drv_t*) = nullptr;
+static void (*lcd_flush_cb)(lv_disp_drv_t*, uint16_t* buffer,
+                            const rect_t& area) = nullptr;
 
-void lcdSetWaitCb(void (*cb)(lv_disp_drv_t *))
-{
-  lcd_wait_cb = cb;
-}
+void lcdSetWaitCb(void (*cb)(lv_disp_drv_t*)) { lcd_wait_cb = cb; }
 
-void lcdSetFlushCb(void (*cb)(lv_disp_drv_t *, uint16_t*, const rect_t&))
+void lcdSetFlushCb(void (*cb)(lv_disp_drv_t*, uint16_t*, const rect_t&))
 {
   lcd_flush_cb = cb;
 }
@@ -63,7 +58,8 @@ static lv_disp_drv_t* refr_disp = nullptr;
 
 #if !defined(LCD_VERTICAL_INVERT) && 0
 // TODO: DMA copy would be possible (use function from draw_ctx???
-static void _copy_screen_area(uint16_t* dst, uint16_t* src, const lv_area_t& copy_area)
+static void _copy_screen_area(uint16_t* dst, uint16_t* src,
+                              const lv_area_t& copy_area)
 {
   lv_coord_t x1 = copy_area.x1;
   lv_coord_t y1 = copy_area.y1;
@@ -81,7 +77,8 @@ static void _copy_screen_area(uint16_t* dst, uint16_t* src, const lv_area_t& cop
 }
 #endif
 
-static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
+static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
+                     lv_color_t* color_p)
 {
 #if !defined(LCD_VERTICAL_INVERT)
   // we're only interested in the last flush in direct mode
@@ -90,12 +87,12 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
     return;
   }
 #endif
-  
+
 #if defined(DEBUG_WINDOWS)
-  if (area->x1 != 0 || area->x2 != LCD_W-1 || area->y1 != 0 ||
-      area->y2 != LCD_H-1) {
-    TRACE("partial refresh @ 0x%p {%d,%d,%d,%d}", color_p, area->x1,
-          area->y1, area->x2, area->y2);
+  if (area->x1 != 0 || area->x2 != LCD_W - 1 || area->y1 != 0 ||
+      area->y2 != LCD_H - 1) {
+    TRACE("partial refresh @ 0x%p {%d,%d,%d,%d}", color_p, area->x1, area->y1,
+          area->x2, area->y2);
   } else {
     TRACE("full refresh @ 0x%p", color_p);
   }
@@ -104,9 +101,7 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
   if (lcd_flush_cb) {
     refr_disp = disp_drv;
 
-
-    rect_t copy_area = {area->x1, area->y1,
-                        area->x2 - area->x1 + 1,
+    rect_t copy_area = {area->x1, area->y1, area->x2 - area->x1 + 1,
                         area->y2 - area->y1 + 1};
 
     lcd_flush_cb(disp_drv, (uint16_t*)color_p, copy_area);
@@ -120,19 +115,19 @@ static void flushLcd(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
       dst = LCD_FIRST_FRAME_BUFFER;
 
     lv_disp_t* disp = _lv_refr_get_disp_refreshing();
-    for(int i = 0; i < disp->inv_p; i++) {
-      if(disp->inv_area_joined[i]) continue;
+    for (int i = 0; i < disp->inv_p; i++) {
+      if (disp->inv_area_joined[i]) continue;
 
       const lv_area_t& refr_area = disp->inv_areas[i];
 
       auto area_w = refr_area.x2 - refr_area.x1 + 1;
       auto area_h = refr_area.y2 - refr_area.y1 + 1;
 
-      DMACopyBitmap(dst, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
-                    src, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
-                    area_w, area_h);      
+      DMACopyBitmap(dst, LCD_W, LCD_H, refr_area.x1, refr_area.y1, src, LCD_W,
+                    LCD_H, refr_area.x1, refr_area.y1, area_w, area_h);
     }
-    DMAWait(); // wait for the last DMACopyBitmap to be completed before sending completion message
+    DMAWait();  // wait for the last DMACopyBitmap to be completed before
+                // sending completion message
     lv_disp_flush_ready(disp_drv);
 #endif
   } else {
@@ -154,16 +149,17 @@ void lcdInitDisplayDriver()
   // Init hardware LCD driver
   lcdInit();
   backlightInit();
-  
-  lv_disp_draw_buf_init(&disp_buf, lcdFront->getData(), lcd->getData(), LCD_W*LCD_H);
-  lv_disp_drv_init(&disp_drv);            /*Basic initialization*/
 
-  disp_drv.draw_buf = &disp_buf;          /*Set an initialized buffer*/
-  disp_drv.flush_cb = flushLcd;           /*Set a flush callback to draw to the display*/
-  disp_drv.wait_cb = lcd_wait_cb;         /*Set a wait callback*/
+  lv_disp_draw_buf_init(&disp_buf, lcdFront->getData(), lcd->getData(),
+                        LCD_W * LCD_H);
+  lv_disp_drv_init(&disp_drv); /*Basic initialization*/
 
-  disp_drv.hor_res = LCD_W;               /*Set the horizontal resolution in pixels*/
-  disp_drv.ver_res = LCD_H;               /*Set the vertical resolution in pixels*/
+  disp_drv.draw_buf = &disp_buf; /*Set an initialized buffer*/
+  disp_drv.flush_cb = flushLcd;  /*Set a flush callback to draw to the display*/
+  disp_drv.wait_cb = lcd_wait_cb; /*Set a wait callback*/
+
+  disp_drv.hor_res = LCD_W; /*Set the horizontal resolution in pixels*/
+  disp_drv.ver_res = LCD_H; /*Set the vertical resolution in pixels*/
   disp_drv.full_refresh = 0;
 
 #if !defined(LCD_VERTICAL_INVERT)
@@ -179,19 +175,22 @@ void lcdInitDisplayDriver()
   lv_obj_remove_style_all(lv_scr_act());
 
   // transparent background:
-  //  - this prevents LVGL overwritting things drawn directly into the bitmap buffer
+  //  - this prevents LVGL overwritting things drawn directly into the bitmap
+  //  buffer
   lv_disp_set_bg_opa(disp, LV_OPA_TRANSP);
-  
+
   // allow drawing at any moment
   _lv_refr_set_disp_refreshing(disp);
-  
-  lv_draw_ctx_t * draw_ctx = disp->driver->draw_ctx;
+
+  lv_draw_ctx_t* draw_ctx = disp->driver->draw_ctx;
   lcd->setDrawCtx(draw_ctx);
   lcdFront->setDrawCtx(draw_ctx);
 }
 
 void lcdInitDirectDrawing()
 {
+  static lv_area_t screen_area = {0, 0, LCD_W - 1, LCD_H - 1};
+
   lv_draw_ctx_t* draw_ctx = disp->driver->draw_ctx;
   draw_ctx->buf = disp->driver->draw_buf->buf_act;
   draw_ctx->buf_area = &screen_area;
@@ -227,8 +226,7 @@ static void _draw_buf_flush(lv_disp_t* disp)
    * and driver is ready to receive the new buffer */
   if (draw_buf->buf1 && draw_buf->buf2) {
     while (draw_buf->flushing) {
-      if (disp->driver->wait_cb)
-        disp->driver->wait_cb(disp->driver);
+      if (disp->driver->wait_cb) disp->driver->wait_cb(disp->driver);
     }
   }
 
@@ -249,20 +247,14 @@ static void _draw_buf_flush(lv_disp_t* disp)
   }
 }
 
-void lcdClear()
-{
-  lcd->clear();
-}
+void lcdClear() { lcd->clear(); }
 
-void lcdRefresh()
-{
-  _draw_buf_flush(disp);
-}
+void lcdRefresh() { _draw_buf_flush(disp); }
 
 void lcdFlushed()
 {
   // its possible to get here before flushLcd is ever called.
-  // so check for nullptr first. (Race condition if you put breakpoints in startup code)
-  if (refr_disp != nullptr)
-    lv_disp_flush_ready(refr_disp);
+  // so check for nullptr first. (Race condition if you put breakpoints in
+  // startup code)
+  if (refr_disp != nullptr) lv_disp_flush_ready(refr_disp);
 }

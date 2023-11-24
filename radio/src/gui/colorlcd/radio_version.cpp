@@ -20,18 +20,20 @@
  */
 
 #include "radio_version.h"
-#include "opentx.h"
-#include "options.h"
-#include "libopenui.h"
+
 #include "fw_version.h"
 #include "hal/module_port.h"
+#include "libopenui.h"
+#include "opentx.h"
+#include "options.h"
+#include "themes/etx_lv_theme.h"
 
 #if defined(CROSSFIRE)
-  #include "mixer_scheduler.h"
+#include "mixer_scheduler.h"
 #endif
 
 #if defined(PXX2)
-char *getVersion(char *str, PXX2Version version)
+char* getVersion(char* str, PXX2Version version)
 {
   if (version.major == 0xFF && version.minor == 0x0F &&
       version.revision == 0x0F) {
@@ -44,34 +46,35 @@ char *getVersion(char *str, PXX2Version version)
 }
 #endif
 
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
+                                     LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-class VersionDialog : public Dialog
+class VersionDialog : public BaseDialog
 {
-  Window*     int_module_name_w;
+  Window* int_module_name_w;
   StaticText* int_name;
-  Window*     int_module_status_w;
+  Window* int_module_status_w;
   StaticText* int_status;
 
-  Window*     int_rx_name_w;
+  Window* int_rx_name_w;
   StaticText* int_rx_name;
-  Window*     int_rx_status_w;
+  Window* int_rx_status_w;
   StaticText* int_rx_status;
 
-  Window*     ext_module_name_w;
+  Window* ext_module_name_w;
   StaticText* ext_name;
-  Window*     ext_module_status_w;
+  Window* ext_module_status_w;
   StaticText* ext_status;
-  
-  Window*     ext_rx_name_w;
+
+  Window* ext_rx_name_w;
   StaticText* ext_rx_name;
-  Window*     ext_rx_status_w;
+  Window* ext_rx_status_w;
   StaticText* ext_rx_status;
-  
+
  public:
-  VersionDialog(Window *parent) :
-    Dialog(parent, STR_MODULES_RX_VERSION, rect_t{ 0, 0, 200, 100 })
+  VersionDialog(Window* parent) :
+      BaseDialog(parent, STR_MODULES_RX_VERSION, true)
   {
 #if defined(PXX2)
     memclear(&reusableBuffer.hardwareAndSettings.modules,
@@ -93,14 +96,8 @@ class VersionDialog : public Dialog
     }
 #endif
 
-    setCloseWhenClickOutside(true);
-
     // define grid layout
     FlexGridLayout grid(col_dsc, row_dsc);
-    
-    // define form
-    auto form = &content->form;
-    form->setFlexLayout();
 
     auto g = lv_group_get_default();
     lv_group_set_editing(g, true);
@@ -109,89 +106,85 @@ class VersionDialog : public Dialog
     lv_group_add_obj(g, form->getLvObj());
 
     // headline "Internal module"
-    new StaticText(form, rect_t{}, STR_INTERNAL_MODULE, 0, COLOR_THEME_PRIMARY1);
+    new StaticText(form, rect_t{}, STR_INTERNAL_MODULE);
 
     // Internal module name
-    int_module_name_w = form->newLine(&grid);
-    new StaticText(int_module_name_w, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
-    int_name = new StaticText(int_module_name_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+    int_module_name_w = form->newLine(grid);
+    new StaticText(int_module_name_w, rect_t{}, STR_MODULE);
+    int_name = new StaticText(int_module_name_w, rect_t{}, "");
 
     // internal module status
-    int_module_status_w = form->newLine(&grid);
-    new StaticText(int_module_status_w, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
-    int_status = new StaticText(int_module_status_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
-    lv_obj_add_flag(int_module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    int_module_status_w = form->newLine(grid);
+    new StaticText(int_module_status_w, rect_t{}, STR_STATUS);
+    int_status = new StaticText(int_module_status_w, rect_t{}, "");
+    int_module_status_w->hide();
 
     // internal receiver name
-    int_rx_name_w = form->newLine(&grid);
-    new StaticText(int_rx_name_w, rect_t{}, STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
-    int_rx_name = new StaticText(int_rx_name_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
-    lv_obj_add_flag(int_rx_name_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    int_rx_name_w = form->newLine(grid);
+    new StaticText(int_rx_name_w, rect_t{}, STR_RECEIVER);
+    int_rx_name =
+        new StaticText(int_rx_name_w, rect_t{}, "");
+    int_rx_name_w->hide();
 
     // internal reciever status
-    int_rx_status_w = form->newLine(&grid);
-    new StaticText(int_rx_status_w, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
-    int_rx_status = new StaticText(int_rx_status_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
-    lv_obj_add_flag(int_rx_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    int_rx_status_w = form->newLine(grid);
+    new StaticText(int_rx_status_w, rect_t{}, STR_STATUS);
+    int_rx_status =
+        new StaticText(int_rx_status_w, rect_t{}, "");
+    int_rx_status_w->hide();
 
     // headline "External module"
-    new StaticText(form, rect_t{}, STR_EXTERNAL_MODULE, 0, COLOR_THEME_PRIMARY1);
+    new StaticText(form, rect_t{}, STR_EXTERNAL_MODULE);
 
     // external module name
-    ext_module_name_w = form->newLine(&grid);
-    new StaticText(ext_module_name_w, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
-    ext_name = new StaticText(ext_module_name_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
-    
+    ext_module_name_w = form->newLine(grid);
+    new StaticText(ext_module_name_w, rect_t{}, STR_MODULE);
+    ext_name = new StaticText(ext_module_name_w, rect_t{}, "");
+
     // external module status
-    ext_module_status_w = form->newLine(&grid);
-    new StaticText(ext_module_status_w, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
-    ext_status = new StaticText(ext_module_status_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
-    lv_obj_add_flag(ext_module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    ext_module_status_w = form->newLine(grid);
+    new StaticText(ext_module_status_w, rect_t{}, STR_STATUS);
+    ext_status = new StaticText(ext_module_status_w, rect_t{}, "");
+    ext_module_status_w->hide();
 
     // external receiver name
-    ext_rx_name_w = form->newLine(&grid);
-    new StaticText(ext_rx_name_w, rect_t{}, STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
-    ext_rx_name = new StaticText(ext_rx_name_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
-    lv_obj_add_flag(ext_rx_name_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    ext_rx_name_w = form->newLine(grid);
+    new StaticText(ext_rx_name_w, rect_t{}, STR_RECEIVER);
+    ext_rx_name =
+        new StaticText(ext_rx_name_w, rect_t{}, "");
+    ext_rx_name_w->hide();
 
     // external receiver status
-    ext_rx_status_w = form->newLine(&grid);
-    new StaticText(ext_rx_status_w, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
-    ext_rx_status = new StaticText(ext_rx_status_w, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
-    lv_obj_add_flag(ext_rx_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    ext_rx_status_w = form->newLine(grid);
+    new StaticText(ext_rx_status_w, rect_t{}, STR_STATUS);
+    ext_rx_status =
+        new StaticText(ext_rx_status_w, rect_t{}, "");
+    ext_rx_status_w->hide();
 
-    content->setWidth(LCD_W * 0.8);
+    // content->setWidth(LCD_W * 0.8);
     update();
   }
 
   void update()
   {
 #if defined(HARDWARE_INTERNAL_MODULE)
-    updateModule(INTERNAL_MODULE, 
-                 int_name, 
-                 int_module_status_w, int_status, 
-                 int_rx_name_w, int_rx_name, 
-                 int_rx_status_w, int_rx_status);
+    updateModule(INTERNAL_MODULE, int_name, int_module_status_w, int_status,
+                 int_rx_name_w, int_rx_name, int_rx_status_w, int_rx_status);
 #endif
-    updateModule(EXTERNAL_MODULE, 
-                 ext_name, 
-                 ext_module_status_w, ext_status, 
-                 ext_rx_name_w, ext_rx_name, 
-                 ext_rx_status_w, ext_rx_status);
-    content->updateSize();
+    updateModule(EXTERNAL_MODULE, ext_name, ext_module_status_w, ext_status,
+                 ext_rx_name_w, ext_rx_name, ext_rx_status_w, ext_rx_status);
   }
 
-  void updateModule(uint8_t module, 
-                    StaticText* name, 
-                    Window* module_status_w, StaticText* status, 
-                    Window* rx_name_w, StaticText* rx_name, 
-                    Window* rx_status_w, StaticText* rx_status) {
+  void updateModule(uint8_t module, StaticText* name, Window* module_status_w,
+                    StaticText* status, Window* rx_name_w, StaticText* rx_name,
+                    Window* rx_status_w, StaticText* rx_status)
+  {
     // initialize module name with module selection made in model settings
     // initialize to module does not provide status
     // PXX2 will overwrite name
     // CRSF, MPM, NV14 and PXX2 will overwrite status
     name->setText(STR_MODULE_PROTOCOLS[g_model.moduleData[module].type]);
-    lv_obj_add_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    module_status_w->hide();
 
 #if defined(CROSSFIRE)
     // CRSF is able to provide status
@@ -202,7 +195,7 @@ class VersionDialog : public Dialog
       // snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
       snprintf(statusText, 64, "%d Hz", hz);
       status->setText(statusText);
-      lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      module_status_w->show();
     }
 #endif
 
@@ -215,7 +208,7 @@ class VersionDialog : public Dialog
               (int)((NV14internalModuleFwVersion >> 8) & 0xFF),
               (int)(NV14internalModuleFwVersion & 0xFF));
       status->setText(reusableBuffer.moduleSetup.msg);
-      lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      module_status_w->show();
     }
 #endif
 
@@ -226,7 +219,7 @@ class VersionDialog : public Dialog
 
       getMultiModuleStatus(module).getStatusString(statusText);
       status->setText(statusText);
-      lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      module_status_w->show();
     }
 #endif
 
@@ -234,47 +227,50 @@ class VersionDialog : public Dialog
     // PXX2 modules are able to provide status
     if (isModulePXX2(module)) {
       char tmp[20];
-      
+
       // PXX2 module name
-      name->setText(getPXX2ModuleName(reusableBuffer.hardwareAndSettings.modules[module]
-                                      .information.modelID));
+      name->setText(
+          getPXX2ModuleName(reusableBuffer.hardwareAndSettings.modules[module]
+                                .information.modelID));
 
       // PXX2 module status
       std::string mod_ver;
       if (reusableBuffer.hardwareAndSettings.modules[module]
               .information.modelID) {
-
-        mod_ver += getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
-                          .information.hwVersion);
+        mod_ver +=
+            getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
+                                .information.hwVersion);
         mod_ver += " / ";
-        mod_ver += getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
-                          .information.swVersion);
+        mod_ver +=
+            getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
+                                .information.swVersion);
 
-        static const char *variants[] = {"FCC", "EU", "FLEX"};
+        static const char* variants[] = {"FCC", "EU", "FLEX"};
         uint8_t variant = reusableBuffer.hardwareAndSettings.modules[module]
-                              .information.variant - 1;
+                              .information.variant -
+                          1;
         if (variant < DIM(variants)) {
           mod_ver += " ";
           mod_ver += variants[variant];
         }
       }
       status->setText(mod_ver);
-      lv_obj_clear_flag(module_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      module_status_w->show();
 
       // PXX2 Receivers
       std::string rx_n;
       std::string rx_ver;
 
-      for (uint8_t receiver = 0; receiver < PXX2_MAX_RECEIVERS_PER_MODULE; receiver++) {
+      for (uint8_t receiver = 0; receiver < PXX2_MAX_RECEIVERS_PER_MODULE;
+           receiver++) {
         if (reusableBuffer.hardwareAndSettings.modules[module]
                 .receivers[receiver]
                 .information.modelID) {
-
-          if (!rx_ver.empty()){
+          if (!rx_ver.empty()) {
             rx_n += "\n";
             rx_ver += "\n";
           }
-          
+
           // Receiver model
           uint8_t modelId = reusableBuffer.hardwareAndSettings.modules[module]
                                 .receivers[receiver]
@@ -282,26 +278,28 @@ class VersionDialog : public Dialog
           rx_n += getPXX2ReceiverName(modelId);
 
           // Receiver version
-          rx_ver += getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
-                               .receivers[receiver]
-                               .information.hwVersion);
+          rx_ver +=
+              getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
+                                  .receivers[receiver]
+                                  .information.hwVersion);
           rx_ver += " / ";
-          rx_ver += getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
-                               .receivers[receiver]
-                               .information.swVersion);
+          rx_ver +=
+              getVersion(tmp, reusableBuffer.hardwareAndSettings.modules[module]
+                                  .receivers[receiver]
+                                  .information.swVersion);
         }
       }
 
       if (!rx_n.empty() && !rx_ver.empty()) {
         // unhide RX labels
         rx_name->setText(rx_n);
-        lv_obj_clear_flag(rx_name_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        rx_name_w->show();
         rx_status->setText(rx_ver);
-        lv_obj_clear_flag(rx_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        rx_status_w->show();
       } else {
         // hide RX labels
-        lv_obj_add_flag(rx_name_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(rx_status_w->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        rx_name_w->hide();
+        rx_status_w->hide();
       }
     }
 #endif
@@ -324,16 +322,17 @@ class VersionDialog : public Dialog
             &reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE],
             PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
       }
-      reusableBuffer.hardwareAndSettings.updateTime = get_tmr10ms() + 500 /* 5s*/;
+      reusableBuffer.hardwareAndSettings.updateTime =
+          get_tmr10ms() + 500 /* 5s*/;
     }
     update();
-    Dialog::checkEvents();
+    BaseDialog::checkEvents();
   }
 #endif
 };
 
-RadioVersionPage::RadioVersionPage():
-  PageTab(STR_MENUVERSION, ICON_RADIO_VERSION)
+RadioVersionPage::RadioVersionPage() :
+    PageTab(STR_MENUVERSION, ICON_RADIO_VERSION)
 {
 }
 
@@ -341,10 +340,9 @@ RadioVersionPage::RadioVersionPage():
 extern const char* boardLcdType;
 #endif
 
-void RadioVersionPage::build(FormWindow * window)
+void RadioVersionPage::build(Window* window)
 {
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, lv_dpx(8));
-  lv_obj_set_style_pad_all(window->getLvObj(), lv_dpx(8), 0);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_MEDIUM);
 
   std::string nl("\n");
   std::string version;
@@ -366,7 +364,7 @@ void RadioVersionPage::build(FormWindow * window)
   version += boardLcdType;
 #endif
 
-  auto txt = new StaticText(window, rect_t{}, version, 0, COLOR_THEME_PRIMARY1);
+  auto txt = new StaticText(window, rect_t{}, version);
   lv_obj_set_width(txt->getLvObj(), lv_pct(100));
 
   // Module and receivers versions

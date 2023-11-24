@@ -20,30 +20,32 @@
  */
 
 #include "ppm_settings.h"
+
 #include "opentx.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 template <typename T>
 PpmFrameSettings<T>::PpmFrameSettings(Window* parent, T* ppm) :
-    FormWindow(parent, rect_t{})
+    Window(parent, rect_t{})
 {
+  padAll(PAD_TINY);
   setFlexLayout(LV_FLEX_FLOW_ROW);
 
   // PPM frame length
   auto edit = new NumberEdit(
-      this, rect_t{}, 125, 35 * PPM_STEP_SIZE + PPM_DEF_PERIOD,
+      this, rect_t{0, 0, 80, 0}, 125, 35 * PPM_STEP_SIZE + PPM_DEF_PERIOD,
       GET_DEFAULT(ppm->frameLength * PPM_STEP_SIZE + PPM_DEF_PERIOD),
       SET_VALUE(ppm->frameLength, (newValue - PPM_DEF_PERIOD) / PPM_STEP_SIZE),
-      0, PREC1);
+      PREC1);
   edit->setStep(PPM_STEP_SIZE);
   edit->setSuffix(STR_MS);
-  
+
   // memorize PPM frame length NumberEdit object
   this->ppmFrameLenEditObject = edit;
 
   // PPM frame delay
-  edit = new NumberEdit(this, rect_t{}, 100, 800,
+  edit = new NumberEdit(this, rect_t{0, 0, 80, 0}, 100, 800,
                         GET_DEFAULT(ppm->delay * 50 + 300),
                         SET_VALUE(ppm->delay, (newValue - 300) / 50));
   edit->setStep(50);

@@ -21,10 +21,11 @@
 
 #pragma once
 
-#include "form.h"
-#include "numberedit.h"
+#include "window.h"
 
-class ChannelRange : public FormWindow
+class NumberEdit;
+
+class ChannelRange : public Window
 {
  public:
   ChannelRange(Window* parent);
@@ -46,7 +47,7 @@ class ChannelRange : public FormWindow
   NumberEdit* ppmFrameLenEditObject = nullptr;
 
   void build();
-    
+
   virtual uint8_t getChannelsStart() = 0;
   virtual void setChannelsStart(uint8_t val) = 0;
 

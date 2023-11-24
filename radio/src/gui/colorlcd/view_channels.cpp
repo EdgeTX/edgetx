@@ -30,7 +30,86 @@
 #include "opentx.h"
 #include "view_logical_switches.h"
 
-constexpr coord_t CHANNEL_VIEW_FOOTER_HEIGHT = 16;
+constexpr coord_t LEG_COLORBOX = 14;
+
+//-----------------------------------------------------------------------------
+
+class ChannelsViewFooter : public Window
+{
+ public:
+  explicit ChannelsViewFooter(Window* parent) :
+      Window(parent, {0, parent->height() - LEG_COLORBOX - 10, LCD_W,
+                      LEG_COLORBOX + 10})
+  {
+    etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
+
+    auto w =
+        new Window(this, {6, 4, LEG_COLORBOX + 2, LEG_COLORBOX + 2});
+    w->setWindowFlag(NO_FOCUS);
+    etx_solid_bg(w->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
+    w = new Window(w, {1, 1, LEG_COLORBOX, LEG_COLORBOX});
+    w->setWindowFlag(NO_FOCUS);
+    etx_solid_bg(w->getLvObj(), COLOR_THEME_ACTIVE_INDEX);
+
+    new StaticText(this, {24, 2, LV_SIZE_CONTENT, 16}, STR_MONITOR_OUTPUT_DESC, COLOR_THEME_PRIMARY2 | LEFT);
+
+    int x = getTextWidth(STR_MONITOR_OUTPUT_DESC) + 32;
+
+    w = new Window(this, {x + 6, 4, LEG_COLORBOX + 2, LEG_COLORBOX + 2});
+    w->setWindowFlag(NO_FOCUS);
+    etx_solid_bg(w->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
+    w = new Window(w, {1, 1, LEG_COLORBOX, LEG_COLORBOX});
+    w->setWindowFlag(NO_FOCUS);
+    etx_solid_bg(w->getLvObj(), COLOR_THEME_FOCUS_INDEX);
+
+    new StaticText(this, {x + 24, 2, LV_SIZE_CONTENT, 16},
+                   STR_MONITOR_MIXER_DESC, COLOR_THEME_PRIMARY2);
+  }
+};
+
+//-----------------------------------------------------------------------------
+
+class ChannelsViewPage : public PageTab
+{
+ public:
+  explicit ChannelsViewPage(uint8_t pageIndex = 0) :
+      PageTab(STR_MONITOR_CHANNELS[pageIndex],
+              (EdgeTxIcon)(ICON_MONITOR_CHANNELS1 + pageIndex)),
+      pageIndex(pageIndex)
+  {
+  }
+
+ protected:
+  uint8_t pageIndex = 0;
+
+  void build(Window* window) override
+  {
+    constexpr coord_t hmargin = 5;
+    window->padAll(PAD_ZERO);
+
+    // Channels bars
+    for (uint8_t chan = pageIndex * 8; chan < 8 + pageIndex * 8; chan++) {
+#if LCD_H > LCD_W
+      coord_t width = window->width() - (hmargin * 2);
+      coord_t xPos = hmargin;
+      coord_t yPos = (chan % 8) *
+                     ((window->height() - 24) / 8);
+#else
+      coord_t width = window->width() / 2 - (hmargin * 2);
+      coord_t xPos = (chan % 8) >= 4 ? width + (hmargin * 2) : hmargin;
+      coord_t yPos = (chan % 4) *
+                     ((window->height() - 23) / 4);
+#endif
+      new ComboChannelBar(window, {xPos, yPos, width, 3 * BAR_HEIGHT + 3},
+                          chan);
+    }
+
+    // Footer
+    new ChannelsViewFooter(window);
+  }
+};
+
+//-----------------------------------------------------------------------------
 
 ChannelsViewMenu::ChannelsViewMenu(ModelMenu* parent) :
     TabsGroup(ICON_MONITOR), parentMenu(parent)
@@ -45,92 +124,34 @@ ChannelsViewMenu::ChannelsViewMenu(ModelMenu* parent) :
 #if defined(HARDWARE_KEYS)
 void ChannelsViewMenu::onPressSYS()
 {
-    onCancel();
-    if (parentMenu) parentMenu->onCancel();
-    new RadioMenu();
+  onCancel();
+  if (parentMenu) parentMenu->onCancel();
+  new RadioMenu();
 }
 void ChannelsViewMenu::onLongPressSYS()
 {
-    onCancel();
-    if (parentMenu) parentMenu->onCancel();
-    // Radio setup
-    (new RadioMenu())->setCurrentTab(2);
+  onCancel();
+  if (parentMenu) parentMenu->onCancel();
+  // Radio setup
+  (new RadioMenu())->setCurrentTab(2);
 }
 void ChannelsViewMenu::onPressMDL()
 {
-    onCancel();
-    if (!parentMenu) {
-      new ModelMenu();
-    }
+  onCancel();
+  if (!parentMenu) {
+    new ModelMenu();
+  }
 }
 void ChannelsViewMenu::onLongPressMDL()
 {
-    onCancel();
-    if (parentMenu) parentMenu->onCancel();
-    new ModelLabelsWindow();
+  onCancel();
+  if (parentMenu) parentMenu->onCancel();
+  new ModelLabelsWindow();
 }
 void ChannelsViewMenu::onPressTELE()
 {
-    onCancel();
-    if (parentMenu) parentMenu->onCancel();
-    new ScreenMenu();
+  onCancel();
+  if (parentMenu) parentMenu->onCancel();
+  new ScreenMenu();
 }
 #endif
-
-class ChannelsViewFooter : public Window
-{
- public:
-  explicit ChannelsViewFooter(Window* parent) :
-      Window(parent,
-             {0, parent->height() - MODEL_SELECT_FOOTER_HEIGHT, LCD_W,
-              MODEL_SELECT_FOOTER_HEIGHT},
-             OPAQUE)
-  {
-  }
-
-  // Draw single legend
-  coord_t drawChannelsMonitorLegend(BitmapBuffer* dc, coord_t x, const char* s,
-                                    int color)
-  {
-    dc->drawSolidFilledRect(x, 4, LEG_COLORBOX + 2, LEG_COLORBOX + 2,
-                            COLOR_THEME_SECONDARY3);
-    dc->drawSolidFilledRect(x + 1, 5, LEG_COLORBOX, LEG_COLORBOX, color);
-    dc->drawText(x + 20, 4, s, COLOR_THEME_PRIMARY2);
-    return x + 25 + getTextWidth(s);
-  }
-
-  void paint(BitmapBuffer* dc) override
-  {
-    // Draw legend bar
-    coord_t x = 10;
-    dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY1);
-    x = drawChannelsMonitorLegend(dc, MENUS_MARGIN_LEFT,
-                                  STR_MONITOR_OUTPUT_DESC, COLOR_THEME_ACTIVE);
-    drawChannelsMonitorLegend(dc, x, STR_MONITOR_MIXER_DESC, COLOR_THEME_FOCUS);
-  }
-};
-
-void ChannelsViewPage::build(FormWindow* window)
-{
-  constexpr coord_t hmargin = 5;
-  window->padAll(0);
-
-  // Channels bars
-  for (uint8_t chan = pageIndex * 8; chan < 8 + pageIndex * 8; chan++) {
-#if LCD_H > LCD_W
-    coord_t width = window->width() - (hmargin * 2);
-    coord_t xPos = hmargin;
-    coord_t yPos =
-        (chan % 8) * ((window->height() - CHANNEL_VIEW_FOOTER_HEIGHT - 8) / 8);
-#else
-    coord_t width = window->width() / 2 - (hmargin * 2);
-    coord_t xPos = (chan % 8) >= 4 ? width + (hmargin * 2) : hmargin;
-    coord_t yPos =
-        (chan % 4) * ((window->height() - CHANNEL_VIEW_FOOTER_HEIGHT - 4) / 4);
-#endif
-    new ComboChannelBar(window, {xPos, yPos, width, 3 * BAR_HEIGHT + 3}, chan);
-  }
-
-  // Footer
-  new ChannelsViewFooter(window);
-}

@@ -19,11 +19,17 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
+#include "opentx.h"
 #include "tabsgroup.h"
 
-class ModelHeliPage: public PageTab {
-  public:
-    ModelHeliPage();
+class ModelHeliPage : public PageTab
+{
+ public:
+  ModelHeliPage();
 
-    void build(FormWindow * window);
+  bool isVisible() const override { return modelHeliEnabled(); }
+
+  void build(Window* window) override;
 };

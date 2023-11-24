@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "form.h"
+#include "window.h"
 #include "module_setup.h"
 
 class ToggleSwitch;
@@ -34,7 +34,7 @@ struct MPMServoRate;
 struct MPMAutobind;
 struct MPMChannelMap;
 
-class MultimoduleSettings : public FormWindow, public ModuleOptions
+class MultimoduleSettings : public Window, public ModuleOptions
 {
   ModuleData* md;
   uint8_t moduleIdx;

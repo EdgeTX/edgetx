@@ -29,13 +29,13 @@
 PXX1AntennaSettings::PXX1AntennaSettings(Window* parent,
                                          const FlexGridLayout& g,
                                          uint8_t moduleIdx) :
-    FormWindow(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
+    Window(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
 {
   FlexGridLayout grid(g);
   setFlexLayout();
 
-  auto line = newLine(&grid);
-  new StaticText(line, rect_t{}, STR_ANTENNA, 0, COLOR_THEME_PRIMARY1);
+  auto line = newLine(grid);
+  new StaticText(line, rect_t{}, STR_ANTENNA);
 
   if (md->pxx.antennaMode == ANTENNA_MODE_PER_MODEL) {
     md->pxx.antennaMode = ANTENNA_MODE_INTERNAL;

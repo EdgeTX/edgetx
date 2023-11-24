@@ -25,7 +25,7 @@
 #include <FatFs/ff.h>
 #include "sdcard.h"
 #if defined(COLORLCD)
-#include "bitmapbuffer.h"
+#include "bitmaps.h"
 #endif
 
 enum MemoryType {

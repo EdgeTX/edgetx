@@ -17,35 +17,41 @@
  */
 
 #include "static.h"
-#include "font.h"
+
+#include "bitmaps.h"
+#include "libopenui/thirdparty/lz4/lz4.h"
+#include "sdcard.h"
+#include "themes/etx_lv_theme.h"
+
+//-----------------------------------------------------------------------------
 
 StaticText::StaticText(Window* parent, const rect_t& rect, std::string txt,
-                       WindowFlags windowFlags, LcdFlags textFlags) :
-    Window(parent, rect, windowFlags, textFlags, lv_label_create),
-    text(std::move(txt))
+                       LcdFlags textFlags) :
+    Window(parent, rect, lv_label_create), text(std::move(txt))
 {
-  lv_obj_enable_style_refresh(false);
+  setTextFlag(textFlags);
+
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
-  lv_obj_set_style_text_font(lvobj, getFont(textFlags), LV_PART_MAIN);
-  lv_obj_set_style_text_color(lvobj, makeLvColor(textFlags), LV_PART_MAIN);
+  etx_font(lvobj, FONT_INDEX(textFlags));
+  etx_txt_color(lvobj, indexFromColor(textFlags));
 
   if (textFlags & CENTERED)
-    lv_obj_set_style_text_align(lvobj, LV_TEXT_ALIGN_CENTER, 0);
+    etx_obj_add_style(lvobj, styles->text_align_center, LV_PART_MAIN);
   else if (textFlags & RIGHT)
-    lv_obj_set_style_text_align(lvobj, LV_TEXT_ALIGN_RIGHT, 0);
+    etx_obj_add_style(lvobj, styles->text_align_right, LV_PART_MAIN);
 
-  lv_obj_set_style_grid_cell_x_align(lvobj, LV_GRID_ALIGN_STRETCH, 0);
+  lv_obj_set_style_grid_cell_x_align(lvobj, LV_GRID_ALIGN_STRETCH,
+                                     LV_PART_MAIN);
   lv_label_set_text(lvobj, text.c_str());
-  lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
-  lv_obj_enable_style_refresh(true);
+  if (rect.h == 0) lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
   lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
 }
 
 #if defined(DEBUG_WINDOWS)
 std::string StaticText::getName() const
 {
-  return "StaticText \"" + text + "\"";
+  return "StaticText \"" + text.substr(0, 20) + "\"";
 }
 #endif
 
@@ -57,30 +63,9 @@ void StaticText::setText(std::string value)
   }
 }
 
-const std::string& StaticText::getText() const
-{
-  return text;
-}
+const std::string& StaticText::getText() const { return text; }
 
-void StaticText::setBackgroundColor(LcdFlags color)
-{
-  bgColor = color;
-
-  if (!lvobj) return;
-
-  lv_color_t c = makeLvColor(bgColor);
-  lv_obj_set_style_bg_color(lvobj, c, LV_PART_MAIN);
-}
-
-void StaticText::setBackgroudOpacity(uint32_t opa)
-{
-  lv_obj_set_style_bg_opa(lvobj,  opa, LV_PART_MAIN);
-}
-
-void StaticText::setFont(LcdFlags font)
-{
-  lv_obj_set_style_text_font(lvobj, getFont(font), 0);
-}
+//-----------------------------------------------------------------------------
 
 template <>
 void DynamicNumber<uint32_t>::updateText()
@@ -126,7 +111,8 @@ void DynamicNumber<uint16_t>::updateText()
     const char* s = suffix ? suffix : "";
     if ((textFlags & PREC2) == PREC2) {
       lv_label_set_text_fmt(lvobj, "%s%" PRIu16 ".%02" PRIu16 "%s", p,
-                            (uint16_t)(value / 100), (uint16_t)(value % 100), s);
+                            (uint16_t)(value / 100), (uint16_t)(value % 100),
+                            s);
     } else if (textFlags & PREC1) {
       lv_label_set_text_fmt(lvobj, "%s%" PRIu16 ".%01" PRIu16 "%s", p,
                             (uint16_t)(value / 10), (uint16_t)(value % 10), s);
@@ -144,12 +130,191 @@ void DynamicNumber<int16_t>::updateText()
     const char* s = suffix ? suffix : "";
     if ((textFlags & PREC2) == PREC2) {
       lv_label_set_text_fmt(lvobj, "%s%" PRId16 ".%02" PRIu16 "%s", p,
-                            (int16_t)(value / 100), (uint16_t)abs(value % 100), s);
+                            (int16_t)(value / 100), (uint16_t)abs(value % 100),
+                            s);
     } else if (textFlags & PREC1) {
       lv_label_set_text_fmt(lvobj, "%s%" PRId16 ".%01" PRIu16 "%s", p,
-                            (int16_t)(value / 10), (uint16_t)abs(value % 10), s);
+                            (int16_t)(value / 10), (uint16_t)abs(value % 10),
+                            s);
     } else {
       lv_label_set_text_fmt(lvobj, "%s%" PRId16 "%s", p, value, s);
     }
+  }
+}
+
+//-----------------------------------------------------------------------------
+
+StaticIcon::StaticIcon(Window* parent, coord_t x, coord_t y, EdgeTxIcon icon,
+                       LcdFlags color) :
+    Window(parent, rect_t{x, y, 0, 0}, lv_canvas_create),
+    currentColor(indexFromColor(color))
+{
+  setWindowFlag(NO_FOCUS);
+
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+
+  setIcon(icon);
+
+  etx_img_color(lvobj, currentColor, LV_PART_MAIN);
+}
+
+void StaticIcon::setColor(LcdColorIndex color)
+{
+  if (currentColor != color) {
+    etx_img_color(lvobj, color, LV_PART_MAIN);
+    currentColor = color;
+  }
+}
+
+void StaticIcon::setIcon(EdgeTxIcon icon)
+{
+  auto mask = getBuiltinIcon(icon);
+  setSize(mask->width, mask->height);
+  lv_canvas_set_buffer(lvobj, (void*)mask->data, mask->width, mask->height,
+                       LV_IMG_CF_ALPHA_8BIT);
+}
+
+void StaticIcon::center(coord_t w, coord_t h)
+{
+  setPos((w - width()) / 2, (h - height()) / 2);
+}
+
+//-----------------------------------------------------------------------------
+
+// Display image from file system using LVGL with LVGL scaling
+//  - LVGL scaling is slow so don't use this if there are many images
+StaticImage::StaticImage(Window* parent, const rect_t& rect,
+                         const char* filename) :
+    Window(parent, rect)
+{
+  setWindowFlag(NO_FOCUS);
+
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+
+  if (!filename) filename = "";
+  setSource(filename);
+}
+
+void StaticImage::setSource(std::string filename)
+{
+  if (!filename.empty()) {
+    std::string fullpath = std::string("A" PATH_SEPARATOR) + filename;
+
+    if (!image) image = lv_img_create(lvobj);
+    lv_obj_set_pos(image, 0, 0);
+    lv_obj_set_size(image, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_center(image);
+    lv_img_set_src(image, fullpath.c_str());
+    if (!hasImage()) {
+      // Failed to load
+      TRACE("could not load image '%s'", filename.c_str());
+      lv_obj_del(image);
+      image = nullptr;
+    }
+    setZoom();
+  } else {
+    clearSource();
+  }
+}
+
+void StaticImage::clearSource()
+{
+  if (image) lv_obj_del(image);
+  image = nullptr;
+}
+
+bool StaticImage::hasImage() const
+{
+  lv_img_t* img = (lv_img_t*)image;
+  return img && img->w && img->h;
+}
+
+void StaticImage::setZoom()
+{
+  lv_img_t* img = (lv_img_t*)image;
+  if (img && img->w && img->h) {
+    uint16_t zw = (width() * 256) / img->w;
+    uint16_t zh = (height() * 256) / img->h;
+    lv_img_set_zoom(image, min(zw, zh));
+  }
+}
+
+//-----------------------------------------------------------------------------
+
+// Display image from file system with software scaling
+//  - uglier but much faster than LVGL scaling
+StaticBitmap::StaticBitmap(Window* parent, const rect_t& rect,
+                           const char* filename, LcdFlags bgColor) :
+    Window(parent, rect)
+{
+  setWindowFlag(NO_FOCUS);
+
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+
+  if (!filename) return;
+
+  img = BitmapBuffer::loadBitmap(filename, BMP_ARGB4444);
+  if (img) {
+    img->resizeToLVGL(width(), height(), bgColor);
+    canvas = lv_canvas_create(lvobj);
+    lv_obj_center(canvas);
+    lv_canvas_set_buffer(canvas, img->getData(), img->width(), img->height(),
+                         LV_IMG_CF_TRUE_COLOR);
+  }
+}
+
+StaticBitmap::~StaticBitmap()
+{
+  if (img) delete img;
+}
+
+bool StaticBitmap::hasImage() const
+{
+  return img && canvas;
+}
+
+//-----------------------------------------------------------------------------
+
+StaticLZ4Image::StaticLZ4Image(Window* parent, coord_t x, coord_t y,
+                               const LZ4Bitmap* lz4Bitmap) :
+    Window(parent, {x, y, lz4Bitmap->width, lz4Bitmap->height},
+           lv_canvas_create)
+{
+  setWindowFlag(NO_FOCUS);
+
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+
+  // Convert ARGB4444 to LV_IMG_CF_TRUE_COLOR_ALPHA
+  uint16_t w = lz4Bitmap->width;
+  uint16_t h = lz4Bitmap->height;
+
+  uint32_t pixels = w * h;
+  uint32_t size = (pixels + 1) & 0xFFFFFFFE;
+  imgData = (uint8_t*)lv_mem_alloc(size * 3);
+  uint16_t* decompData = (uint16_t*)(imgData + size);
+
+  LZ4_decompress_safe((const char*)lz4Bitmap->data, (char*)decompData,
+                      lz4Bitmap->compressedSize, pixels * sizeof(uint16_t));
+
+  uint8_t* dest = imgData;
+  for (uint32_t i = 0; i < pixels; i += 1) {
+    uint16_t c = *decompData;
+    ARGB_SPLIT(c, a, r, g, b);
+    c = RGB_JOIN(r * 2, g * 4, b * 2);
+    *dest++ = c & 0xFF;
+    *dest++ = c >> 8;
+    *dest++ = (a * 255) / 15;
+    decompData += 1;
+  }
+
+  lv_canvas_set_buffer(lvobj, imgData, w, h, LV_IMG_CF_TRUE_COLOR_ALPHA);
+}
+
+void StaticLZ4Image::deleteLater(bool detach, bool trash)
+{
+  if (!deleted()) {
+    if (imgData) lv_mem_free(imgData);
+    imgData = nullptr;
+    Window::deleteLater(detach, trash);
   }
 }

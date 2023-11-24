@@ -37,7 +37,7 @@ class InputEditWindow : public Page
   uint8_t index;
   Curve* preview;
 
-  void buildBody(FormWindow *window);
+  void buildBody(Window *window);
 
   void deleteLater(bool detach = true, bool trash = true) override;
 };

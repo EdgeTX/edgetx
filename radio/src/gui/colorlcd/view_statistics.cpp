@@ -22,10 +22,35 @@
 #include "view_statistics.h"
 
 #include "opentx.h"
-#include "draw_functions.h"
-
 #include "tasks.h"
 #include "tasks/mixer_task.h"
+
+class StatisticsViewPage : public PageTab
+{
+ public:
+  StatisticsViewPage() :
+      PageTab(STR_STATISTICS, ICON_STATS_THROTTLE_GRAPH, PAD_ZERO)
+  {
+  }
+
+ protected:
+  void build(Window* window) override;
+};
+
+class DebugViewPage : public PageTab
+{
+ public:
+  DebugViewPage() : PageTab(STR_DEBUG, ICON_STATS_DEBUG, PAD_ZERO) {}
+
+ protected:
+  void build(Window* window) override;
+};
+
+class DebugViewMenu : public TabsGroup
+{
+ public:
+  DebugViewMenu();
+};
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_FR(1), LV_GRID_FR(1),
@@ -33,14 +58,14 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 
 #if LCD_W > LCD_H
 static const lv_coord_t dbg_4col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
-                                         LV_GRID_FR(3), LV_GRID_FR(3),
-                                         LV_GRID_TEMPLATE_LAST};
+                                          LV_GRID_FR(3), LV_GRID_FR(3),
+                                          LV_GRID_TEMPLATE_LAST};
 #define DBG_COL_CNT 4
 #else
 static const lv_coord_t dbg_2col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                         LV_GRID_TEMPLATE_LAST};
+                                          LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t dbg_3col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                         LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+                                          LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 #define DBG_COL_CNT 3
 #endif
 
@@ -63,24 +88,19 @@ class DebugInfoNumber : public Window
 {
  public:
   DebugInfoNumber(Window* parent, const rect_t& rect,
-                  std::function<T()> numberHandler, LcdFlags textFlags = 0,
-                  const char* prefix = nullptr, const char* suffix = nullptr) :
-      Window(parent, rect, 0, textFlags), prefix(prefix), suffix(suffix)
+                  std::function<T()> numberHandler,
+                  const char* prefix = nullptr) :
+      Window(parent, rect)
   {
     coord_t prefixSize = 0;
     if (prefix != nullptr) {
-      prefixSize = getTextWidth(prefix, 0, COLOR_THEME_PRIMARY1 | FONT(XS));
-      new StaticText(this, {0, 1, prefixSize, rect.h}, prefix, 0,
-                     COLOR_THEME_PRIMARY1 | FONT(XS));
+      prefixSize = getTextWidth(prefix, 0, FONT(XS));
+      new StaticText(this, {0, 1, prefixSize, rect.h}, prefix,FONT(XS));
     }
     new DynamicNumber<uint32_t>(this,
                                 {prefixSize, 0, rect.w - prefixSize, rect.h},
-                                numberHandler, COLOR_THEME_PRIMARY1);
+                                numberHandler);
   }
-
- protected:
-  const char* prefix;
-  const char* suffix;
 };
 
 StatisticsViewPageGroup::StatisticsViewPageGroup() : TabsGroup(ICON_STATS)
@@ -94,6 +114,26 @@ class ThrottleCurveWindow : public Window
  public:
   ThrottleCurveWindow(Window* parent, const rect_t& rect) : Window(parent, rect)
   {
+    lv_coord_t x, h = height();
+    int i;
+
+    axis[0] = {0, 0};
+    axis[1] = {0, (lv_coord_t)(h - 3)};
+    axis[2] = {(lv_coord_t)width(), (lv_coord_t)(h - 3)};
+    auto axisLine = lv_line_create(lvobj);
+    etx_obj_add_style(axisLine, styles->div_line_black, LV_PART_MAIN);
+    lv_line_set_points(axisLine, axis, 3);
+
+    for (x = 0, i = 0; x < width(); x += 6, i += 2) {
+      ticks[i] = {x, (lv_coord_t)(h - 5)};
+      ticks[i + 1] = {x, h};
+      auto tick = lv_line_create(lvobj);
+      lv_line_set_points(tick, &ticks[i], 2);
+      etx_obj_add_style(tick, styles->div_line_black, LV_PART_MAIN);
+    }
+
+    line = lv_line_create(lvobj);
+    etx_obj_add_style(line, styles->graph_line, LV_PART_MAIN);
   }
 
   void checkEvents() override
@@ -101,96 +141,73 @@ class ThrottleCurveWindow : public Window
     Window::checkEvents();
     if (previousTraceWr != s_traceWr) {
       previousTraceWr = s_traceWr;
-      invalidate();
+
+      graphSize = 0;
+      uint16_t traceRd = s_traceWr > width() ? s_traceWr - width() : 0;
+      for (lv_coord_t x = 0; x < width() && traceRd < s_traceWr;
+           x += 1, traceRd += 1) {
+        uint8_t h = s_traceBuf[traceRd % width()];
+        lv_coord_t y = height() - 3 - CV_SCALE * h;
+        graph[x] = {x, y};
+        graphSize += 1;
+      }
+      lv_line_set_points(line, graph, graphSize);
     }
   }
 
-  void paint(BitmapBuffer* dc) override
-  {
-    // Axis
-    dc->drawHorizontalLine(0, height() - 3, width(), SOLID,
-                           COLOR_THEME_SECONDARY1);
-    dc->drawVerticalLine(0, 0, height() - 3, SOLID, COLOR_THEME_SECONDARY1);
-    for (coord_t i = 0; i < width(); i += 6) {
-      dc->drawVerticalLine(i, height() - 6, 3, SOLID, COLOR_THEME_SECONDARY1);
-    }
-
-    // Curve
-    uint16_t traceRd = s_traceWr > width() ? s_traceWr - width() : 0;
-    coord_t prev_yv = (coord_t)-1;
-    for (coord_t i = 1; i <= width() && traceRd < s_traceWr; i++, traceRd++) {
-      uint8_t h = s_traceBuf[traceRd % width()];
-      coord_t yv = height() - 5 - CV_SCALE * h;
-      if (prev_yv != (coord_t)-1) {
-        if (prev_yv < yv) {
-          for (int y = prev_yv; y <= yv; y++) {
-            dc->drawBitmapPattern(i, y, LBM_POINT, COLOR_THEME_SECONDARY1);
-          }
-        } else {
-          for (int y = yv; y <= prev_yv; y++) {
-            dc->drawBitmapPattern(i, y, LBM_POINT, COLOR_THEME_SECONDARY1);
-          }
-        }
-      } else {
-        dc->drawBitmapPattern(i, yv, LBM_POINT, COLOR_THEME_SECONDARY1);
-      }
-      prev_yv = yv;
-    }
-  };
-
  protected:
   unsigned previousTraceWr = 0;
+  lv_point_t graph[MAXTRACE];
+  lv_point_t axis[3];
+  lv_point_t ticks[MAXTRACE * 2 / 6];
+  lv_obj_t* line = nullptr;
+  int16_t graphSize = 0;
 };
 
-void StatisticsViewPage::build(FormWindow* window)
+void StatisticsViewPage::build(Window* window)
 {
-  window->padAll(0);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
+  window->padLeft(4);
+  window->padRight(4);
 
-  auto form = new FormWindow(window, rect_t{});
-  form->setFlexLayout();
-  form->padAll(0);
-  form->padLeft(4);
-  form->padRight(4);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_ZERO);
 
-  FlexGridLayout grid(col_dsc, row_dsc, 0);
-
-  auto line = form->newLine(&grid);
-  line->padAll(0);
+  auto line = window->newLine(grid);
+  line->padAll(PAD_ZERO);
 
   // Session data
-  new StaticText(line, rect_t{}, STR_SESSION, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_SESSION);
   new DynamicText(
       line, rect_t{}, [] { return getTimerString(sessionTimer); },
       COLOR_THEME_PRIMARY1);
 
   // Battery data
-  new StaticText(line, rect_t{}, STR_BATT_LABEL, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_BATT_LABEL);
   new DynamicText(
       line, rect_t{},
       [] { return getTimerString(g_eeGeneral.globalTimer + sessionTimer); },
       COLOR_THEME_PRIMARY1);
 
-  line = form->newLine(&grid);
-  line->padAll(0);
+  line = window->newLine(grid);
+  line->padAll(PAD_ZERO);
 
   // Throttle
-  new StaticText(line, rect_t{}, STR_THROTTLE_LABEL, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_THROTTLE_LABEL);
   new DynamicText(
       line, rect_t{}, [] { return getTimerString(s_timeCumThr); },
       COLOR_THEME_PRIMARY1);
 
   // Throttle %  data
-  new StaticText(line, rect_t{}, STR_THROTTLE_PERCENT_LABEL, 0,
-                 COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_THROTTLE_PERCENT_LABEL);
   new DynamicText(
       line, rect_t{}, [] { return getTimerString(s_timeCum16ThrP / 16); },
       COLOR_THEME_PRIMARY1);
 
-  line = form->newLine(&grid);
-  line->padAll(0);
+  line = window->newLine(grid);
+  line->padAll(PAD_ZERO);
 
   // Timers
-  new StaticText(line, rect_t{}, STR_TIMER_LABEL, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_TIMER_LABEL);
   new DynamicText(
       line, rect_t{}, [] { return getTimerString(timersStates[0].val); },
       COLOR_THEME_PRIMARY1);
@@ -201,8 +218,8 @@ void StatisticsViewPage::build(FormWindow* window)
       line, rect_t{}, [] { return getTimerString(timersStates[2].val); },
       COLOR_THEME_PRIMARY1);
 
-  line = form->newLine(&grid);
-  line->padAll(0);
+  line = window->newLine(grid);
+  line->padAll(PAD_ZERO);
   line->padTop(3);
 
   // Throttle curve
@@ -211,9 +228,8 @@ void StatisticsViewPage::build(FormWindow* window)
   lv_obj_set_grid_cell(curve->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 4,
                        LV_GRID_ALIGN_CENTER, 0, 1);
 
-  line = form->newLine(&grid);
-  line->padAll(0);
-  line->padTop(3);
+  line = window->newLine(grid);
+  line->padAll(PAD_SMALL);
 
   // Reset
   auto btn = new TextButton(line, rect_t{0, 0, 0, 24}, STR_MENUTORESET,
@@ -224,7 +240,6 @@ void StatisticsViewPage::build(FormWindow* window)
                               s_timeCumThr = 0;
                               s_timeCum16ThrP = 0;
                               s_traceWr = 0;
-                              curve->invalidate();
                               return 0;
                             });
 
@@ -232,65 +247,58 @@ void StatisticsViewPage::build(FormWindow* window)
                        LV_GRID_ALIGN_START, 0, 1);
 }
 
-void DebugViewPage::build(FormWindow* window)
+void DebugViewPage::build(Window* window)
 {
-  window->padAll(4);
-
-  auto form = new FormWindow(window, rect_t{});
-  form->setFlexLayout();
-  form->padAll(0);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
 #if LCD_W > LCD_H
-  FlexGridLayout grid(dbg_4col_dsc, row_dsc, 0);
-  FlexGridLayout grid2(dbg_4col_dsc, row_dsc, 0);
+  FlexGridLayout grid(dbg_4col_dsc, row_dsc, PAD_ZERO);
+  FlexGridLayout grid2(dbg_4col_dsc, row_dsc, PAD_ZERO);
 #else
-  FlexGridLayout grid(dbg_2col_dsc, row_dsc, 0);
-  FlexGridLayout grid2(dbg_3col_dsc, row_dsc, 0);
+  FlexGridLayout grid(dbg_2col_dsc, row_dsc, PAD_ZERO);
+  FlexGridLayout grid2(dbg_3col_dsc, row_dsc, PAD_ZERO);
 #endif
 
-  auto line = form->newLine(&grid);
-  line->padAll(2);
+  auto line = window->newLine(grid);
+  line->padAll(PAD_TINY);
 
   // Mixer data
   static std::string pad_STR_MS = " " + std::string(STR_MS);
-  new StaticText(line, rect_t{}, STR_TMIXMAXMS, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_TMIXMAXMS);
   new DynamicNumber<uint16_t>(
       line, rect_t{}, [] { return DURATION_MS_PREC2(maxMixerDuration); },
       PREC2 | COLOR_THEME_PRIMARY1, nullptr, pad_STR_MS.c_str());
 
-  line = form->newLine(&grid);
-  line->padAll(2);
+  line = window->newLine(grid);
+  line->padAll(PAD_TINY);
 
   // Free mem
   static std::string pad_STR_BYTES = " " + std::string(STR_BYTES);
-  new StaticText(line, rect_t{}, STR_FREE_MEM_LABEL, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_FREE_MEM_LABEL);
   new DynamicNumber<int32_t>(
-      line, rect_t{}, [] { return availableMemory(); }, COLOR_THEME_PRIMARY1, 
+      line, rect_t{}, [] { return availableMemory(); }, COLOR_THEME_PRIMARY1,
       nullptr, pad_STR_BYTES.c_str());
 
 #if defined(LUA)
-  line = form->newLine(&grid);
-  line->padAll(2);
+  line = window->newLine(grid);
+  line->padAll(PAD_TINY);
 
   // LUA timing data
-  new StaticText(line, rect_t{}, STR_LUA_SCRIPTS_LABEL, 0,
-                 COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_LUA_SCRIPTS_LABEL);
 #if LCD_H > LCD_W
-  line = form->newLine(&grid);
-  line->padAll(0);
+  line = window->newLine(grid);
+  line->padAll(PAD_ZERO);
   line->padLeft(10);
 #endif
   new DebugInfoNumber<uint16_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * maxLuaDuration; }, COLOR_THEME_PRIMARY1, STR_DURATION_MS,
-      nullptr);
+      [] { return 10 * maxLuaDuration; }, STR_DURATION_MS);
   new DebugInfoNumber<uint16_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return 10 * maxLuaInterval; }, COLOR_THEME_PRIMARY1, STR_INTERVAL_MS,
-      nullptr);
+      [] { return 10 * maxLuaInterval; }, STR_INTERVAL_MS);
 
-  line = form->newLine(&grid);
-  line->padAll(0);
+  line = window->newLine(grid);
+  line->padAll(PAD_ZERO);
 #if LCD_H > LCD_W
   line->padLeft(10);
 #else
@@ -300,88 +308,83 @@ void DebugViewPage::build(FormWindow* window)
   // lUA memory data
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return luaGetMemUsed(lsScripts); }, COLOR_THEME_PRIMARY1,
-      STR_MEM_USED_SCRIPT, nullptr);
+      [] { return luaGetMemUsed(lsScripts); }, STR_MEM_USED_SCRIPT);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return luaGetMemUsed(lsWidgets); }, COLOR_THEME_PRIMARY1,
-      STR_MEM_USED_WIDGET, nullptr);
+      [] { return luaGetMemUsed(lsWidgets); }, STR_MEM_USED_WIDGET);
 
 #if LCD_H > LCD_W
-  line = form->newLine(&grid);
-  line->padAll(0);
+  line = window->newLine(grid);
+  line->padAll(PAD_ZERO);
   line->padLeft(10);
 #endif
 
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return luaExtraMemoryUsage; }, COLOR_THEME_PRIMARY1,
-      STR_MEM_USED_EXTRA, nullptr);
+      [] { return luaExtraMemoryUsage; }, STR_MEM_USED_EXTRA);
 #endif
 
-  line = form->newLine(&grid);
-  line->padAll(2);
+  line = window->newLine(grid);
+  line->padAll(PAD_TINY);
 
   // Stacks data
-  new StaticText(line, rect_t{}, STR_FREE_STACK, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_FREE_STACK);
 #if LCD_H > LCD_W
-  line = form->newLine(&grid2);
-  line->padAll(0);
+  line = window->newLine(grid2);
+  line->padAll(PAD_ZERO);
   line->padLeft(10);
 #endif
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return menusStack.available(); }, COLOR_THEME_PRIMARY1,
-      STR_STACK_MENU, nullptr);
+      [] { return menusStack.available(); }, STR_STACK_MENU);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return mixerStack.available(); }, COLOR_THEME_PRIMARY1,
-      STR_STACK_MIX, nullptr);
+      [] { return mixerStack.available(); }, STR_STACK_MIX);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return audioStack.available(); }, COLOR_THEME_PRIMARY1,
-      STR_STACK_AUDIO, nullptr);
+      [] { return audioStack.available(); }, STR_STACK_AUDIO);
 
 #if defined(DEBUG_LATENCY)
-  line = form->newLine(&grid2);
-  line->padAll(2);
+  line = window->newLine(grid2);
+  line->padAll(PAD_TINY);
 
-  new StaticText(line, rect_t{}, STR_HEARTBEAT_LABEL, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_HEARTBEAT_LABEL);
   if (heartbeatCapture.valid)
     new DebugInfoNumber<uint16_t>(
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
         [] { return heartbeatCapture.count; }, COLOR_THEME_PRIMARY1);
   else
-    new StaticText(window, grid.getFieldSlot(), "---", 0, COLOR_THEME_PRIMARY1);
+    new StaticText(window, grid.getFieldSlot(), "---");
 #endif
 
 #if defined(INTERNAL_GPS)
   if (serialGetModePort(UART_MODE_GPS) >= 0) {
-    line = form->newLine(&grid);
-    line->padAll(2);
+    line = window->newLine(grid);
+    line->padAll(PAD_TINY);
 
-    new StaticText(line, rect_t{}, STR_INT_GPS_LABEL, 0, COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, STR_INT_GPS_LABEL);
 #if LCD_H > LCD_W
-    line = form->newLine(&grid2);
-    line->padAll(0);
+    line = window->newLine(grid2);
+    line->padAll(PAD_ZERO);
     line->padLeft(10);
 #endif
     new DynamicText(
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-        [] { return std::string(gpsData.fix ? STR_GPS_FIX_YES : STR_GPS_FIX_NO); },
+        [] {
+          return std::string(gpsData.fix ? STR_GPS_FIX_YES : STR_GPS_FIX_NO);
+        },
         COLOR_THEME_PRIMARY1);
     new DebugInfoNumber<uint8_t>(
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-        [] { return gpsData.numSat; }, COLOR_THEME_PRIMARY1, STR_GPS_SATS,
-        nullptr);
+        [] { return gpsData.numSat; }, STR_GPS_SATS);
     new DebugInfoNumber<uint16_t>(
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-        [] { return gpsData.hdop; }, COLOR_THEME_PRIMARY1, STR_GPS_HDOP, nullptr);
+        [] { return gpsData.hdop; }, STR_GPS_HDOP);
   }
 #endif
 
-  line = form->newLine(&grid2);
-  line->padAll(4);
+  line = window->newLine(grid2);
+  line->padAll(PAD_SMALL);
 
   // Reset
   auto btn = new TextButton(line, rect_t{0, 0, 0, 24}, STR_MENUTORESET,

@@ -32,6 +32,8 @@
 #include "file_preview.h"
 #include "file_browser.h"
 #include "progress.h"
+#include "themes/etx_lv_theme.h"
+#include "fullscreen_dialog.h"
 
 constexpr int WARN_FILE_LENGTH = 40 * 1024;
 
@@ -44,8 +46,8 @@ class FileNameEditWindow : public Page
   FileNameEditWindow(const std::string iName) :
       Page(ICON_RADIO_SD_MANAGER), name(std::move(iName))
   {
-    buildHeader(&header);
-    buildBody(&body);
+    buildHeader(header);
+    buildBody(body);
   };
 
 #if defined(DEBUG_WINDOWS)
@@ -56,17 +58,13 @@ class FileNameEditWindow : public Page
 
   void buildHeader(Window *window)
   {
-    header.setTitle(STR_RENAME_FILE);
+    header->setTitle(STR_RENAME_FILE);
   }
 
   void buildBody(Window *window)
   {
-    window->padAll(0);
-
-    auto form = new FormWindow(window, rect_t());
-    form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 4);
-    form->padAll(4);
-    form->padTop(12);
+    window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_SMALL);
+    window->padTop(12);
 
     uint8_t nameLength;
     uint8_t extLength;
@@ -87,8 +85,8 @@ class FileNameEditWindow : public Page
     reusableBuffer.sdManager.originalName[nameLength] = '\0';
 
     auto newFileName = new TextEdit(
-        form, rect_t{0, 0, LCD_W-8, 0}, reusableBuffer.sdManager.originalName,
-        SD_SCREEN_FILE_LENGTH - extLength, LcdFlags(0));
+        window, rect_t{0, 0, LV_PCT(100), 0}, reusableBuffer.sdManager.originalName,
+        SD_SCREEN_FILE_LENGTH - extLength);
     newFileName->setChangeHandler([=]() {
       char *newValue = reusableBuffer.sdManager.originalName;
       size_t totalSize = strlen(newValue);
@@ -157,18 +155,13 @@ class FlashDialog: public FullScreenDialog
 class FrskyOtaFlashDialog;
 ModuleCallback onUpdateStateChangedCallbackFor(FrskyOtaFlashDialog* dialog);
 
-class FrskyOtaFlashDialog : public Dialog
+class FrskyOtaFlashDialog : public BaseDialog
 {
  public:
-  explicit FrskyOtaFlashDialog(Window* parent, std::string title) :
-    Dialog(parent, title, rect_t{})
+  explicit FrskyOtaFlashDialog(Window* parent, const char* title) :
+    BaseDialog(parent, title, true)
   {
-    setCloseWhenClickOutside(true);
-    auto form = &content->form;
-    new StaticText(form, rect_t{}, STR_WAITING_FOR_RX, 0, COLOR_THEME_PRIMARY1);
-
-    content->setWidth(LCD_W * 0.8);
-    content->updateSize();
+    new StaticText(form, rect_t{}, STR_WAITING_FOR_RX);
   }
 
   void flash(const char * filename, ModuleIndex module)
@@ -256,7 +249,7 @@ class FrskyOtaFlashDialog : public Dialog
       }
     }
 
-    Dialog::checkEvents();
+    BaseDialog::checkEvents();
   }
 
  protected:
@@ -288,12 +281,12 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 #endif
 
-void RadioSdManagerPage::build(FormWindow * window)
+void RadioSdManagerPage::build(Window * window)
 {
-  FlexGridLayout grid(col_dsc, row_dsc, 0);
-  window->padAll(0);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_ZERO);
+  window->padAll(PAD_ZERO);
   
-  FormWindow* form = new FormWindow(window, rect_t{});
+  Window* form = new Window(window, rect_t{});
   form->setWidth(window->width());
   form->setHeight(window->height());
   grid.apply(form);
@@ -301,7 +294,6 @@ void RadioSdManagerPage::build(FormWindow * window)
   browser = new FileBrowser(form, rect_t{}, ROOT_PATH);
   grid.add(browser);
   grid.nextCell();
-  lv_obj_set_scrollbar_mode(browser->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
 
   auto obj = browser->getLvObj();
   lv_obj_set_style_grid_cell_x_align(obj, LV_GRID_ALIGN_STRETCH, 0);
@@ -309,15 +301,15 @@ void RadioSdManagerPage::build(FormWindow * window)
 
   // Adjust file browser width
   browser->adjustWidth();
-  
-  preview = new FilePreview(form, rect_t{});
+
+#if LCD_W > LCD_H
+  preview = new FilePreview(form, rect_t{0, 0, LCD_W * 2 / 5 - 8, LCD_H - 68});
+#else
+  preview = new FilePreview(form, rect_t{0, 0, LCD_W - 12, (LCD_H - 68) / 3 });
+#endif
+  preview->padAll(PAD_SMALL);
   grid.add(preview);
   grid.nextCell();
-
-  obj = preview->getLvObj();
-  lv_obj_set_style_pad_all(obj, lv_dpx(8), 0);
-  lv_obj_set_style_grid_cell_x_align(obj, LV_GRID_ALIGN_STRETCH, 0);
-  lv_obj_set_style_grid_cell_y_align(obj, LV_GRID_ALIGN_STRETCH, 0);
 
   browser->setFileAction([=](const char* path, const char* name, const char* fullpath) {
       fileAction(path, name, fullpath);
@@ -382,9 +374,9 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
             sprintf(buf, " %s %dkB. %s", STR_FILE_SIZE, fileLength / 1024,
                     STR_FILE_OPEN);
             new ConfirmDialog(window, STR_WARNING, buf,
-                              [=] { new ViewTextWindow(path, name); });
+                              [=] { new ViewTextWindow(path, name, ICON_RADIO_SD_MANAGER); });
           } else {
-            new ViewTextWindow(path, name);
+            new ViewTextWindow(path, name, ICON_RADIO_SD_MANAGER);
           }
         }
       });
