@@ -60,8 +60,8 @@ static lv_theme_t theme;
 // Copied from lv_style.h and modified to compile with ARM GCC C++
 #define LV_STYLE_CONST_MULTI_INIT(var_name, prop_array)            \
   const lv_style_t var_name = {.v_p = {.const_props = prop_array}, \
-                               .prop1 = LV_STYLE_PROP_ANY,                         \
-                               .is_const = 0,                           \
+                               .prop1 = 0,                         \
+                               .is_const = 1,                      \
                                .has_group = 0xFF,                  \
                                .prop_cnt = 0}
 
