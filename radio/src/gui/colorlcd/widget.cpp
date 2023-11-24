@@ -56,6 +56,12 @@ Widget::Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
 
 void Widget::openMenu()
 {
+  if (fsAllowed && ViewMain::instance()->isAppMode())
+  {
+    setFullscreen(true);
+    return;
+  }
+
   if (getOptions() || fsAllowed) {
     // Widgets are placed on a full screen window which is underneath the main
     // view menu bar Find the parent of this so that when the popup loads it
@@ -137,8 +143,6 @@ void Widget::setFullscreen(bool enable)
 
   update();
 }
-
-void Widget::disableFullscreen() { fsAllowed = false; }
 
 void Widget::onLongPress()
 {

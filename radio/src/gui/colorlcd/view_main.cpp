@@ -200,12 +200,12 @@ void ViewMain::updateTopbarVisibility()
   int leftScroll = scrollPos % width();
   if (leftScroll == 0) {
     int view = scrollPos / pageWidth;
-    setTopbarVisible(hasTopbar(view));
+    setTopbarVisible(::hasTopbar(view));
     if (customScreens[view]) customScreens[view]->adjustLayout();
   } else {
     int leftIdx = scrollPos / pageWidth;
-    bool leftTopbar = hasTopbar(leftIdx);
-    bool rightTopbar = hasTopbar(leftIdx + 1);
+    bool leftTopbar = ::hasTopbar(leftIdx);
+    bool rightTopbar = ::hasTopbar(leftIdx + 1);
 
     if (leftTopbar != rightTopbar) {
       float ratio = (float)leftScroll / (float)pageWidth;
@@ -342,30 +342,62 @@ void ViewMain::ws_timer(lv_timer_t* t)
   view->enableWidgetSelect(false);
 }
 
+void ViewMain::longPress()
+{
+  if (isAppMode()) {
+    int view = getCurrentMainView();
+    customScreens[view]->getWidget(0)->setFullscreen(true);
+  } else {
+    enableWidgetSelect(true);
+  }
+}
+
 void ViewMain::long_pressed(lv_event_t* e)
 {
   auto obj = lv_event_get_target(e);
-  auto view = (ViewMain*)lv_obj_get_user_data(obj);
-  if (!view) return;
+  // kill subsequent CLICKED event
+  lv_obj_clear_state(obj, LV_STATE_PRESSED);
+  lv_indev_wait_release(lv_indev_get_act());
 
-  if (view->enableWidgetSelect(true)) {
-    // kill subsequent CLICKED event
-    lv_obj_clear_state(obj, LV_STATE_PRESSED);
-    lv_indev_wait_release(lv_indev_get_act());
-  }
+  auto view = (ViewMain*)lv_obj_get_user_data(obj);
+  if (view) view->longPress();
 }
 
 void ViewMain::show(bool visible)
 {
   isVisible = visible;
-  coord_t scrollPos = lv_obj_get_scroll_x(tile_view);
-  coord_t pageWidth = width();
-  int view = scrollPos / pageWidth;
-  setTopbarVisible(visible && hasTopbar(view));
+  int view = getCurrentMainView();
+  setTopbarVisible(visible && ::hasTopbar(view));
+  if (visible)
+    topbar->showEdgeTxButton();
+  else
+    topbar->hideEdgeTxButton();
   if (customScreens[view]) {
     customScreens[view]->show(visible);
     customScreens[view]->showWidgets(visible);
   }
+}
+
+bool ViewMain::isAppMode()
+{
+  int view = getCurrentMainView();
+  return ((Layout*)customScreens[view])->isAppMode();
+}
+
+bool ViewMain::hasTopbar()
+{
+  int view = getCurrentMainView();
+  return ::hasTopbar(view);
+}
+
+void ViewMain::showTopBarEdgeTxButton()
+{
+  topbar->showEdgeTxButton();
+}
+
+void ViewMain::hideTopBarEdgeTxButton()
+{
+  topbar->hideEdgeTxButton();
 }
 
 void ViewMain::runBackground()

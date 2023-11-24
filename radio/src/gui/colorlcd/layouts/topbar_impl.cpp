@@ -22,15 +22,30 @@
 #include "topbar_impl.h"
 #include "opentx.h"
 #include "theme.h"
+#include "view_main.h"
 
 constexpr uint32_t TOPBAR_REFRESH = 1000 / 10; // 10 Hz
+
+class TopBarEdgeTx : public HeaderIcon
+{
+ public:
+  TopBarEdgeTx(Window* parent) : HeaderIcon(parent, ICON_EDGETX)
+  {
+    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+  }
+
+  void onClicked() override
+  {
+    ViewMain::instance()->openMenu();
+  }
+};
 
 TopBar::TopBar(Window * parent) :
   TopBarBase(parent, {0, 0, LCD_W, MENU_HEADER_HEIGHT}, &g_model.topbarData)
 {
   etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
-  headerIcon = new HeaderIcon(this, ICON_EDGETX);
+  headerIcon = new TopBarEdgeTx(parent);
 }
 
 unsigned int TopBar::getZonesCount() const
@@ -80,6 +95,16 @@ coord_t TopBar::getVisibleHeight(float visible) const // 0.0 -> 1.0
 
   float h = (float)MENU_HEADER_HEIGHT * visible;
   return (coord_t)h;
+}
+
+void TopBar::showEdgeTxButton()
+{
+  headerIcon->show();
+}
+
+void TopBar::hideEdgeTxButton()
+{
+  headerIcon->hide();
 }
 
 void TopBar::checkEvents()

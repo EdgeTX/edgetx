@@ -115,6 +115,7 @@ SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :
     auto viewMain = ViewMain::instance();
     savedView = viewMain->getCurrentMainView();
     viewMain->setCurrentMainView(customScreenIdx);
+    if (!viewMain->hasTopbar()) viewMain->hideTopBarEdgeTxButton();
   }
 
   SetupWidgetsPageSlot* firstSlot = nullptr;
@@ -148,6 +149,7 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
   if (screen) {
     auto viewMain = ViewMain::instance();
     viewMain->setCurrentMainView(savedView);
+    viewMain->showTopBarEdgeTxButton();
   }
   Window::deleteLater(detach, trash);
   new ScreenMenu(customScreenIdx + 1);

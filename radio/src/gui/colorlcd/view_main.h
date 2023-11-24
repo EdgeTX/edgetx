@@ -71,8 +71,15 @@ class ViewMain : public NavWindow
 
   void onClicked() override;
   void onCancel() override;
+  void openMenu();
+  void longPress();
 
   void show(bool visible = true) override;
+  void showTopBarEdgeTxButton();
+  void hideTopBarEdgeTxButton();
+
+  bool hasTopbar();
+  bool isAppMode();
 
   void runBackground();
   void refreshWidgetSelectTimer();
@@ -95,8 +102,6 @@ class ViewMain : public NavWindow
 
   // Set topbar visibility [0.0 -> 1.0]
   void setTopbarVisible(float visible);
-
-  void openMenu();
 
   static void long_pressed(lv_event_t* e);
   static void ws_timer(lv_timer_t* t);
