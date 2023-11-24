@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "form.h"
 #include "button.h"
+#include "form.h"
 
 class ScreenMenu;
 class WidgetsContainer;
@@ -46,7 +46,7 @@ class SetupWidgetsPage : public FormWindow
  protected:
   uint8_t customScreenIdx;
   unsigned savedView = 0;
-  void onEvent(event_t event)  override;
+  void onEvent(event_t event) override;
 };
 
 class SetupWidgetsPageSlot : public Button
@@ -56,4 +56,7 @@ class SetupWidgetsPageSlot : public Button
                        WidgetsContainer* container, uint8_t slotIndex);
 
   void paint(BitmapBuffer* dc) override;
+
+ protected:
+  void addNewWidget(WidgetsContainer* container, uint8_t slotIndex);
 };
