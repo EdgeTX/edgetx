@@ -45,7 +45,7 @@ class OutputEditStatusBar : public Window
         channel, true);
   }
 
-  static LAYOUT_VAL(OUTPUT_EDIT_STATUS_BAR_MARGIN, 3, 0)
+  static LAYOUT_VAL(OUTPUT_EDIT_STATUS_BAR_MARGIN, 3, 0, LS(3))
 
  protected:
   ComboChannelBar *channelBar;
