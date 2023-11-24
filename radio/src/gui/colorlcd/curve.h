@@ -23,66 +23,66 @@
 
 #include "window.h"
 
-struct CurvePoint {
-  point_t coords;
-  LcdFlags flags;
-};
+class StaticText;
+
+//-----------------------------------------------------------------------------
 
 class CurveRenderer
 {
-  public:
-    CurveRenderer(const rect_t & rect, std::function<int(int)> function);
+ public:
+  CurveRenderer(Window* parent, const rect_t& rect,
+                std::function<int(int)> function);
+  ~CurveRenderer();
 
-    void paint(BitmapBuffer * dc, uint8_t ofst = 0);
+  void update();
 
-  protected:
-    // Drawing rectangle position & size
-    uint8_t dx, dy, dw, dh;
-    rect_t rect;
-    std::function<int(int)> function;
-    void drawBackground(BitmapBuffer * dc);
-    void drawCurve(BitmapBuffer * dc);
-    coord_t getPointY(int y) const;
+ protected:
+  // Drawing rectangle position & size
+  lv_coord_t dx, dy, dw, dh;
+  std::function<int(int)> valueFunc;
+  lv_point_t bgPoints[17];
+  lv_point_t* lnPoints = nullptr;
+  lv_obj_t* ptLine = nullptr;
+
+  coord_t getPointY(int y) const;
 };
 
-class Curve: public Window
+//-----------------------------------------------------------------------------
+
+class Curve : public Window
 {
-  public:
-    Curve(Window * parent, const rect_t & rect, std::function<int(int)> function, std::function<int()> position=nullptr);
+ public:
+  Curve(Window* parent, const rect_t& rect, std::function<int(int)> function,
+        std::function<int()> position = nullptr);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "Curve";
-    }
+  std::string getName() const override { return "Curve"; }
 #endif
 
-    void checkEvents() override;
+  void addPoint(const point_t& point);
+  void clearPoints();
 
-    void addPoint(const point_t & point, LcdFlags flags);
+  void update();
 
-    void clearPoints();
+ protected:
+  CurveRenderer base;
+  // Drawing rectangle position & size
+  uint8_t dx, dy, dw, dh;
+  int lastPos = 0;
+  std::function<int(int)> valueFunc;
+  std::function<int()> positionFunc;
+  std::list<point_t> points;
+  StaticText* positionValue = nullptr;
+  lv_point_t posLinePoints[4];
+  lv_obj_t* posVLine = nullptr;
+  lv_obj_t* posHLine = nullptr;
+  lv_obj_t* posPoint = nullptr;
+  lv_obj_t* pointDots[17] = { nullptr };
 
-    void paint(BitmapBuffer * dc) override;
+  void updatePosition();
 
-  protected:
-    CurveRenderer base;
-    // Drawing rectangle position & size
-    uint8_t dx, dy, dw, dh;
-    int lastPos = 0;
-    std::function<int(int)> function;
-    std::function<int()> position;
-    std::list<CurvePoint> points;
-    void drawBackground(BitmapBuffer * dc);
-    void drawCurve(BitmapBuffer * dc);
-    void drawPosition(BitmapBuffer * dc);
-    void drawPoint(BitmapBuffer * dc, const CurvePoint & point);
-    coord_t getPointX(int x) const;
-    coord_t getPointY(int y) const;
+  coord_t getPointX(int x) const;
+  coord_t getPointY(int y) const;
+
+  void checkEvents() override;
 };
-
-#include "lz4_bitmaps.h"
-
-DEFINE_LZ4_BITMAP(LBM_CURVE_POINT);
-DEFINE_LZ4_BITMAP(LBM_CURVE_POINT_CENTER);
-DEFINE_LZ4_BITMAP(LBM_CURVE_COORD_SHADOW);

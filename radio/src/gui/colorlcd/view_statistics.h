@@ -21,38 +21,10 @@
 
 #pragma once
 
-#include "font.h"
-#include "opentx.h"
-#include "static.h"
 #include "tabsgroup.h"
-#include "window.h"
-
-class StatisticsViewPage : public PageTab
-{
- public:
-  StatisticsViewPage() : PageTab(STR_STATISTICS, ICON_STATS_THROTTLE_GRAPH) {}
-
- protected:
-  void build(FormWindow* window) override;
-};
 
 class StatisticsViewPageGroup : public TabsGroup
 {
  public:
   StatisticsViewPageGroup();
-};
-
-class DebugViewPage : public PageTab
-{
- public:
-  DebugViewPage() : PageTab(STR_DEBUG, ICON_STATS_DEBUG) {}
-
- protected:
-  void build(FormWindow* window) override;
-};
-
-class DebugViewMenu : public TabsGroup
-{
- public:
-  DebugViewMenu();
 };

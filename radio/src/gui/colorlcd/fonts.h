@@ -19,10 +19,27 @@
 #pragma once
 
 #include <lvgl/lvgl.h>
+
 #include "opentx_types.h"
+
+enum FontIndex {
+  FONT_STD_INDEX,
+  FONT_BOLD_INDEX,
+  FONT_XXS_INDEX,
+  FONT_XS_INDEX,
+  FONT_L_INDEX,
+  FONT_XL_INDEX,
+  FONT_XXL_INDEX,
+
+  // this one MUST be last
+  FONTS_COUNT
+};
+
+#define FONT_MASK 0x0F00u
+#define FONT_INDEX(flags) ((FontIndex)(((flags) & FONT_MASK) >> 8u))
+#define FONT(xx) (unsigned(FONT_##xx##_INDEX) << 8u)
 
 const lv_font_t* getFont(LcdFlags flags);
 uint8_t getFontHeight(LcdFlags flags);
 uint8_t getFontHeightCondensed(LcdFlags flags);
-int getTextWidth(const char * s, int len = 0, LcdFlags flags = 0);
-
+int getTextWidth(const char* s, int len = 0, LcdFlags flags = 0);

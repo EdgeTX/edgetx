@@ -17,13 +17,37 @@
  */
 
 #include "modal_window.h"
-#include "keyboard_base.h"
-#include "font.h"
-#include "layer.h"
 
-ModalWindow::ModalWindow(Window * parent, bool closeWhenClickOutside):
-  Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}, 0, 0, etx_modal_create),
-  closeWhenClickOutside(closeWhenClickOutside)
+#include "layer.h"
+#include "themes/etx_lv_theme.h"
+
+// Modal overlay style (for dimming background)
+void modal_window_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
+{
+  etx_obj_add_style(obj, styles->bg_opacity_50, LV_PART_MAIN);
+  etx_bg_color(obj, COLOR_BLACK_INDEX, LV_PART_MAIN);
+}
+
+static const lv_obj_class_t modal_window_class = {
+    .base_class = &window_base_class,
+    .constructor_cb = modal_window_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = 0,
+    .height_def = 0,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .instance_size = sizeof(lv_obj_t)};
+
+static lv_obj_t* modal_create(lv_obj_t* parent)
+{
+  return etx_create(&modal_window_class, parent);
+}
+
+ModalWindow::ModalWindow(Window* parent, bool closeWhenClickOutside) :
+    Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}, modal_create),
+    closeWhenClickOutside(closeWhenClickOutside)
 {
   Layer::push(this);
 }
@@ -38,30 +62,10 @@ void ModalWindow::deleteLater(bool detach, bool trash)
 void ModalWindow::onClicked()
 {
   if (closeWhenClickOutside) {
-    deleteLater();
+    // Call onCancel of first child (if one exists)
+    if (children.size() > 0)
+      children.front()->onCancel();
+    else
+      deleteLater();
   }
-}
-
-ModalWindowContent::ModalWindowContent(ModalWindow* parent,
-                                       const rect_t& rect) :
-    Window(parent, rect, OPAQUE, 0, etx_modal_content_create)
-{
-}
-
-void ModalWindowContent::onClicked() { Keyboard::hide(false); }
-
-void ModalWindowContent::setTitle(const std::string& text)
-{
-  if (!title) {
-    title = etx_modal_title_create(lvobj);
-    lv_obj_move_to_index(title, 0);
-    lv_obj_update_layout(lvobj);
-  }
-  lv_label_set_text(title, text.c_str());
-}
-
-std::string ModalWindowContent::getTitle() const
-{
-  if (!title) return std::string();
-  return lv_label_get_text(title);
 }

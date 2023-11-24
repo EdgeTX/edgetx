@@ -19,253 +19,272 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "hal/usb_driver.h"
-
-#include "widgets_container_impl.h"
+#include "opentx.h"
 #include "theme.h"
-
-constexpr uint32_t WIDGET_REFRESH = 1000 / 10; // 10 Hz
+#include "widget.h"
+#include "widgets_container_impl.h"
 
 #define W_AUDIO_X 0
 #define W_USB_X 32
 #define W_LOG_X 32
 #define W_RSSI_X 40
 
-static const uint8_t _LBM_DOT[] = {
-#include "mask_dot.lbm"
-};
-
-static const uint8_t _LBM_TOPMENU_USB[] = {
-#include "mask_topmenu_usb.lbm"
-};
-
-static const uint8_t _LBM_TOPMENU_VOLUME_0[] = {
-#include "mask_volume_0.lbm"
-};
-
-static const uint8_t _LBM_TOPMENU_VOLUME_1[] = {
-#include "mask_volume_1.lbm"
-};
-
-static const uint8_t _LBM_TOPMENU_VOLUME_2[] = {
-#include "mask_volume_2.lbm"
-};
-
-static const uint8_t _LBM_TOPMENU_VOLUME_3[] = {
-#include "mask_volume_3.lbm"
-};
-
-static const uint8_t _LBM_TOPMENU_VOLUME_4[] = {
-#include "mask_volume_4.lbm"
-};
-
-static const uint8_t _LBM_TOPMENU_VOLUME_SCALE[] = {
-#include "mask_volume_scale.lbm"
-};
-
-static const uint8_t _LBM_TOPMENU_TXBATT[] = {
-#include "mask_txbat.lbm"
-};
-
-static const uint8_t _LBM_TOPMENU_TXBATT_CHARGING[] = {
-#include "mask_txbat_charging.lbm"
-};
-
-static const uint8_t _LBM_TOPMENU_ANTENNA[] = {
-#include "mask_antenna.lbm"
-};
-
-STATIC_LZ4_BITMAP(LBM_DOT);
-STATIC_LZ4_BITMAP(LBM_TOPMENU_USB);
-STATIC_LZ4_BITMAP(LBM_TOPMENU_VOLUME_0);
-STATIC_LZ4_BITMAP(LBM_TOPMENU_VOLUME_1);
-STATIC_LZ4_BITMAP(LBM_TOPMENU_VOLUME_2);
-STATIC_LZ4_BITMAP(LBM_TOPMENU_VOLUME_3);
-STATIC_LZ4_BITMAP(LBM_TOPMENU_VOLUME_4);
-STATIC_LZ4_BITMAP(LBM_TOPMENU_VOLUME_SCALE);
-STATIC_LZ4_BITMAP(LBM_TOPMENU_TXBATT);
-STATIC_LZ4_BITMAP(LBM_TOPMENU_TXBATT_CHARGING);
-STATIC_LZ4_BITMAP(LBM_TOPMENU_ANTENNA);
-
 class TopBarWidget : public Widget
 {
-  public:
-    TopBarWidget(const WidgetFactory* factory, Window* parent,
-               const rect_t& rect, Widget::PersistentData* persistentData) :
+ public:
+  TopBarWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
+               Widget::PersistentData* persistentData) :
       Widget(factory, parent, rect, persistentData)
-    {
-    }
-
-    void checkEvents() override
-    {
-      Widget::checkEvents();
-      uint32_t now = RTOS_GET_MS();
-      if (now - lastRefresh >= WIDGET_REFRESH) {
-        lastRefresh = now;
-        invalidate();
-      }
-    }
-
-    uint32_t lastRefresh = 0;
+  {
+  }
 };
 
-class RadioInfoWidget: public TopBarWidget
+class RadioInfoWidget : public TopBarWidget
 {
-  public:
-    RadioInfoWidget(const WidgetFactory* factory, Window* parent,
-               const rect_t& rect, Widget::PersistentData* persistentData) :
+ public:
+  RadioInfoWidget(const WidgetFactory* factory, Window* parent,
+                  const rect_t& rect, Widget::PersistentData* persistentData) :
       TopBarWidget(factory, parent, rect, persistentData)
-    {
+  {
+    // Logs
+    logsIcon = new StaticIcon(this, W_LOG_X, 3, ICON_DOT, COLOR_THEME_PRIMARY2);
+    logsIcon->hide();
+
+    usbIcon = new StaticIcon(this, W_USB_X, 5, ICON_TOPMENU_USB,
+                             COLOR_THEME_PRIMARY2);
+    usbIcon->hide();
+
+    audioScale =
+        new StaticIcon(this, W_AUDIO_X + 15, 2, ICON_TOPMENU_VOLUME_SCALE,
+                       COLOR_THEME_PRIMARY3);
+
+    for (int i = 0; i < 5; i += 1) {
+      audioVol[i] = new StaticIcon(this, W_AUDIO_X, 2,
+                                   (EdgeTxIcon)(ICON_TOPMENU_VOLUME_0 + i),
+                                   COLOR_THEME_PRIMARY2);
+      audioVol[i]->hide();
     }
+    audioVol[0]->show();
 
-    void refresh(BitmapBuffer * dc) override
-    {
-      // USB icon
-      if (usbPlugged()) {
-
-        LcdFlags flags = COLOR_THEME_PRIMARY2;
-        if (getSelectedUsbMode() == USB_UNSELECTED_MODE) {
-          flags = COLOR_THEME_PRIMARY3;
-        }
-
-        dc->drawBitmapPattern(W_USB_X, 5, LBM_TOPMENU_USB, flags);
-      }
-
-      // Logs
-      else if (isFunctionActive(FUNCTION_LOGS) && BLINK_ON_PHASE) {
-        dc->drawBitmapPattern(W_LOG_X, 3, LBM_DOT, COLOR_THEME_PRIMARY2);
-      }
-
-      // RSSI
-      const uint8_t rssiBarsValue[] = {30, 40, 50, 60, 80};
-      const uint8_t rssiBarsHeight[] = {5, 10, 15, 21, 31};
-      for (unsigned int i = 0; i < DIM(rssiBarsHeight); i++) {
-        uint8_t height = rssiBarsHeight[i];
-        dc->drawSolidFilledRect(W_RSSI_X + i * 6, 35 - height, 4, height,
-                                TELEMETRY_RSSI() >= rssiBarsValue[i]
-                                    ? COLOR_THEME_PRIMARY2
-                                    : COLOR_THEME_PRIMARY3);
-      }
+    batteryIcon = new StaticIcon(this, W_AUDIO_X, 25, ICON_TOPMENU_TXBATT,
+                                 COLOR_THEME_PRIMARY2);
+#if defined(USB_CHARGER)
+    batteryChargeIcon =
+        new StaticIcon(this, W_AUDIO_X + 25, 23, ICON_TOPMENU_TXBATT_CHARGE,
+                       COLOR_THEME_PRIMARY2);
+    batteryChargeIcon->hide();
+#endif
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-      if (isModuleXJT(INTERNAL_MODULE) && isExternalAntennaEnabled()) {
-        dc->drawBitmapPattern(W_RSSI_X - 4, 1, LBM_TOPMENU_ANTENNA, COLOR_THEME_PRIMARY2);
-      }
+    extAntenna = new StaticIcon(this, W_RSSI_X - 4, 1, ICON_TOPMENU_ANTENNA,
+                                COLOR_THEME_PRIMARY2);
+    extAntenna->hide();
 #endif
 
-      /* Audio volume */
-      dc->drawBitmapPattern(W_AUDIO_X, 1, LBM_TOPMENU_VOLUME_SCALE, COLOR_THEME_PRIMARY3);
-      if (requiredSpeakerVolume == 0 || g_eeGeneral.beepMode == e_mode_quiet)
-        dc->drawBitmapPattern(W_AUDIO_X, 1, LBM_TOPMENU_VOLUME_0, COLOR_THEME_PRIMARY2);
-      else if (requiredSpeakerVolume < 7)
-        dc->drawBitmapPattern(W_AUDIO_X, 1, LBM_TOPMENU_VOLUME_1, COLOR_THEME_PRIMARY2);
-      else if (requiredSpeakerVolume < 13)
-        dc->drawBitmapPattern(W_AUDIO_X, 1, LBM_TOPMENU_VOLUME_2, COLOR_THEME_PRIMARY2);
-      else if (requiredSpeakerVolume < 19)
-        dc->drawBitmapPattern(W_AUDIO_X, 1, LBM_TOPMENU_VOLUME_3, COLOR_THEME_PRIMARY2);
-      else
-        dc->drawBitmapPattern(W_AUDIO_X, 1, LBM_TOPMENU_VOLUME_4, COLOR_THEME_PRIMARY2);
+    batteryFill = lv_obj_create(lvobj);
+    lv_obj_set_pos(batteryFill, W_AUDIO_X + 1, 26);
+    lv_obj_set_size(batteryFill, 20, 9);
+    lv_obj_set_style_bg_color(batteryFill, lv_palette_main(LV_PALETTE_GREEN),
+                              LV_PART_MAIN);
+    lv_obj_set_style_bg_color(batteryFill, lv_palette_main(LV_PALETTE_AMBER),
+                              LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(batteryFill, lv_palette_main(LV_PALETTE_RED),
+                              LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_opa(batteryFill, LV_OPA_COVER, LV_PART_MAIN);
 
-      /* Tx battery */
-      uint8_t bars = GET_TXBATT_BARS(5);
+    // RSSI bars
+    const uint8_t rssiBarsHeight[] = {5, 10, 15, 21, 31};
+    for (unsigned int i = 0; i < DIM(rssiBarsHeight); i++) {
+      uint8_t height = rssiBarsHeight[i];
+      rssiBars[i] = lv_obj_create(lvobj);
+      lv_obj_set_pos(rssiBars[i], W_RSSI_X + i * 6, 35 - height);
+      lv_obj_set_size(rssiBars[i], 4, height);
+      etx_solid_bg(rssiBars[i], COLOR_THEME_PRIMARY3_INDEX);
+      etx_bg_color(rssiBars[i], COLOR_THEME_PRIMARY2_INDEX, LV_STATE_USER_1);
+    }
+
+    checkEvents();
+  }
+
+  void checkEvents() override
+  {
+    TopBarWidget::checkEvents();
+
+    usbIcon->show(usbPlugged());
+    if (getSelectedUsbMode() == USB_UNSELECTED_MODE)
+      usbIcon->setColor(COLOR_THEME_PRIMARY3_INDEX);
+    else
+      usbIcon->setColor(COLOR_THEME_PRIMARY2_INDEX);
+
+    logsIcon->show(!usbPlugged() && isFunctionActive(FUNCTION_LOGS) &&
+                   BLINK_ON_PHASE);
+
+    /* Audio volume */
+    uint8_t vol = 4;
+    if (requiredSpeakerVolume == 0 || g_eeGeneral.beepMode == e_mode_quiet)
+      vol = 0;
+    else if (requiredSpeakerVolume < 7)
+      vol = 1;
+    else if (requiredSpeakerVolume < 13)
+      vol = 2;
+    else if (requiredSpeakerVolume < 19)
+      vol = 3;
+    if (vol != lastVol) {
+      audioVol[vol]->show();
+      audioVol[lastVol]->hide();
+      lastVol = vol;
+    }
+
 #if defined(USB_CHARGER)
-      if (usbChargerLed()) {
-        dc->drawBitmapPattern(W_AUDIO_X, 22, LBM_TOPMENU_TXBATT_CHARGING, COLOR_THEME_PRIMARY2);
-      }
-      else {
-        dc->drawBitmapPattern(W_AUDIO_X, 22, LBM_TOPMENU_TXBATT, COLOR_THEME_PRIMARY2);
-      }
-#else
-      dc->drawBitmapPattern(W_AUDIO_X, 22, LBM_TOPMENU_TXBATT, COLOR_THEME_PRIMARY2);
+    batteryChargeIcon->show(usbChargerLed());
 #endif
-      for (unsigned int i = 0; i < 5; i++) {
-        dc->drawSolidFilledRect(W_AUDIO_X + 2 + 4 * i, 27, 2, 8, i >= bars ? COLOR_THEME_PRIMARY3 : COLOR_THEME_PRIMARY2);
+
+#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+    extAntenna->show(isModuleXJT(INTERNAL_MODULE) &&
+                     isExternalAntennaEnabled());
+#endif
+
+    // Battery level
+    uint8_t bars = GET_TXBATT_BARS(20);
+    if (bars != lastBatt) {
+      lastBatt = bars;
+      lv_obj_set_size(batteryFill, bars, 9);
+      if (bars >= 12) {
+        lv_obj_clear_state(batteryFill, LV_STATE_USER_1 | LV_STATE_USER_2);
+      } else if (bars >= 5) {
+        lv_obj_add_state(batteryFill, LV_STATE_USER_1);
+        lv_obj_clear_state(batteryFill, LV_STATE_USER_2);
+      } else {
+        lv_obj_clear_state(batteryFill, LV_STATE_USER_1);
+        lv_obj_add_state(batteryFill, LV_STATE_USER_2);
       }
     }
+
+    // RSSI
+    const uint8_t rssiBarsValue[] = {30, 40, 50, 60, 80};
+    uint8_t rssi = TELEMETRY_RSSI();
+    if (rssi != lastRSSI) {
+      lastRSSI = rssi;
+      for (unsigned int i = 0; i < DIM(rssiBarsValue); i++) {
+        if (rssi >= rssiBarsValue[i])
+          lv_obj_add_state(rssiBars[i], LV_STATE_USER_1);
+        else
+          lv_obj_clear_state(rssiBars[i], LV_STATE_USER_1);
+      }
+    }
+  }
+
+ protected:
+  uint8_t lastVol = 0;
+  uint8_t lastBatt = 0;
+  uint8_t lastRSSI = 0;
+  StaticIcon* logsIcon;
+  StaticIcon* usbIcon;
+  StaticIcon* audioScale;
+  StaticIcon* audioVol[5];
+  StaticIcon* batteryIcon;
+  lv_obj_t* batteryFill = nullptr;
+  lv_obj_t* rssiBars[5] = {nullptr};
+#if defined(USB_CHARGER)
+  StaticIcon* batteryChargeIcon;
+#endif
+#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+  StaticIcon* extAntenna;
+#endif
 };
 
-BaseWidgetFactory<RadioInfoWidget> RadioInfoWidget("Radio Info", nullptr, "Radio Info");
+BaseWidgetFactory<RadioInfoWidget> RadioInfoWidget("Radio Info", nullptr,
+                                                   "Radio Info");
 
 // Adjustment to make main view date/time align with model/radio settings views
 #if LCD_W > LCD_H
-#define DT_OFFSET 8
+#define DT_OFFSET 19
 #else
-#define DT_OFFSET 1
+#define DT_OFFSET 5
 #endif
 
-class DateTimeWidget: public TopBarWidget
+class DateTimeWidget : public TopBarWidget
 {
-  public:
-    DateTimeWidget(const WidgetFactory* factory, Window* parent,
-               const rect_t& rect, Widget::PersistentData* persistentData) :
+ public:
+  DateTimeWidget(const WidgetFactory* factory, Window* parent,
+                 const rect_t& rect, Widget::PersistentData* persistentData) :
       TopBarWidget(factory, parent, rect, persistentData)
-    {
-    }
+  {
+    dateTime = new HeaderDateTime(lvobj, DT_OFFSET, 3);
+  }
 
-    void refresh(BitmapBuffer * dc) override
-    {
+  void checkEvents() override
+  {
+    TopBarWidget::checkEvents();
+
+    // Only update if minute value has changed
+    struct gtm t;
+    gettime(&t);
+    if (t.tm_min != lastMinute) {
+      lastMinute = t.tm_min;
+      dateTime->update();
       // get color from options
-      LcdFlags color = COLOR2FLAGS(persistentData->options[0].value.unsignedValue);
-      EdgeTxTheme::instance()->drawMenuDatetime(dc, width()/2+DT_OFFSET, 3, color);
+      LcdFlags color =
+          COLOR2FLAGS(persistentData->options[0].value.unsignedValue);
+      dateTime->setColor(color);
     }
+  }
 
-    void checkEvents() override
-    {
-      Widget::checkEvents();
-      // Only update if minute value has changed
-      struct gtm t;
-      gettime(&t);
-      if (t.tm_min != lastMinute) {
-        lastMinute = t.tm_min;
-        invalidate();
-      }
-    }
+  HeaderDateTime* dateTime = nullptr;
+  int8_t lastMinute = -1;
 
-    int8_t lastMinute = 0;
-
-    static const ZoneOption options[];
+  static const ZoneOption options[];
 };
 
 const ZoneOption DateTimeWidget::options[] = {
-  { STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_PRIMARY2 >> 16) },
-  { nullptr, ZoneOption::Bool }
-};
+    {STR_COLOR, ZoneOption::Color,
+     OPTION_VALUE_UNSIGNED(COLOR_THEME_PRIMARY2 >> 16)},
+    {nullptr, ZoneOption::Bool}};
 
-BaseWidgetFactory<DateTimeWidget> DateTimeWidget("Date Time", DateTimeWidget::options, "Date Time");
+BaseWidgetFactory<DateTimeWidget> DateTimeWidget("Date Time",
+                                                 DateTimeWidget::options,
+                                                 "Date Time");
 
 #if defined(INTERNAL_GPS)
 
-static const uint8_t _LBM_TOPMENU_GPS[] = {
-#include "mask_topmenu_gps_18.lbm"
-};
-
-STATIC_LZ4_BITMAP(LBM_TOPMENU_GPS);
-
-class InternalGPSWidget: public TopBarWidget
+class InternalGPSWidget : public TopBarWidget
 {
-  public:
-    InternalGPSWidget(const WidgetFactory* factory, Window* parent,
-               const rect_t& rect, Widget::PersistentData* persistentData) :
+ public:
+  InternalGPSWidget(const WidgetFactory* factory, Window* parent,
+                    const rect_t& rect,
+                    Widget::PersistentData* persistentData) :
       TopBarWidget(factory, parent, rect, persistentData)
-    {
-    }
+  {
+    icon = new StaticIcon(this, width() / 2 - 10, 19, ICON_TOPMENU_GPS,
+                          COLOR_THEME_PRIMARY3);
 
-    void refresh(BitmapBuffer * dc) override
-    {
-      if (serialGetModePort(UART_MODE_GPS) >= 0) {
-        if (gpsData.fix) {
-          char s[10];
-          sprintf(s, "%d", gpsData.numSat);
-          dc->drawText(width() / 2, 1, s, FONT(XS) | CENTERED | COLOR_THEME_PRIMARY2);
-        }
-        dc->drawBitmapPattern(
-            width() / 2 - 10, 19, LBM_TOPMENU_GPS,
-            (gpsData.fix) ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY3);
-      }
-    }
+    numSats = new DynamicNumber<uint16_t>(
+        this, {0, 1, width(), 12}, [=] { return gpsData.numSat; },
+        COLOR_THEME_PRIMARY2 | CENTERED | FONT(XS));
+  }
+
+  void checkEvents() override
+  {
+    TopBarWidget::checkEvents();
+
+    bool hasGPS = serialGetModePort(UART_MODE_GPS) >= 0;
+
+    numSats->show(hasGPS && (gpsData.numSat > 0));
+    icon->show(hasGPS);
+
+    if (gpsData.fix)
+      icon->setColor(COLOR_THEME_PRIMARY2_INDEX);
+    else
+      icon->setColor(COLOR_THEME_PRIMARY3_INDEX);
+  }
+
+ protected:
+  StaticIcon* icon;
+  DynamicNumber<uint16_t>* numSats;
 };
 
-BaseWidgetFactory<InternalGPSWidget> InternalGPSWidget("Internal GPS", nullptr, "Internal GPS");
+BaseWidgetFactory<InternalGPSWidget> InternalGPSWidget("Internal GPS", nullptr,
+                                                       "Internal GPS");
 
 #endif

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _GVAR_NUMBEREDIT_H_
-#define _GVAR_NUMBEREDIT_H_
+#pragma once
 
 #include "form.h"
 #include "choice.h"
@@ -65,5 +64,3 @@ class GVarNumberEdit : public Window
 
   static void value_changed(lv_event_t* e);
 };
-
-#endif // _GVAR_NUMBEREDIT_H_

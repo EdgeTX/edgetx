@@ -18,16 +18,16 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+
 #pragma once
-#include "color_editor.h"
+
 #include "file_preview.h"
 #include "file_carosell.h"
-#include "tabsgroup.h"
 
 #define PAGE_INTERVAL ((1000 / 10) * 2)
 #define SHORT_PAGE_INTERVAL ((1000 / 20))  // 500 MS
 
-class FileCarosell : public FormWindow
+class FileCarosell : public Window
 {
  public:
   FileCarosell(Window *parent, const rect_t &rect,

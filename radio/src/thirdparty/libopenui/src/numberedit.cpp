@@ -17,8 +17,11 @@
  */
 
 #include "numberedit.h"
-#include "keyboard_number.h"
+
 #include "audio.h"
+#include "keyboard_number.h"
+#include "strhelpers.h"
+#include "themes/etx_lv_theme.h"
 
 static void numberedit_cb(lv_event_t* e)
 {
@@ -27,36 +30,56 @@ static void numberedit_cb(lv_event_t* e)
 
   uint32_t key = lv_event_get_key(e);
   switch (key) {
-  case LV_KEY_LEFT:
-    numEdit->onEvent(EVT_ROTARY_LEFT);
-    break;
-  case LV_KEY_RIGHT:
-    numEdit->onEvent(EVT_ROTARY_RIGHT);
-    break;
+    case LV_KEY_LEFT:
+      numEdit->onEvent(EVT_ROTARY_LEFT);
+      break;
+    case LV_KEY_RIGHT:
+      numEdit->onEvent(EVT_ROTARY_RIGHT);
+      break;
   }
 }
 
 NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
                        std::function<int()> getValue,
-                       std::function<void(int)> setValue,
-                       WindowFlags windowFlags, LcdFlags textFlags) :
-        FormField(parent, rect, windowFlags, textFlags, etx_number_edit_create),
-        vmin(vmin),
-        vmax(vmax),
-        _getValue(std::move(getValue)),
-        _setValue(std::move(setValue))
+                       std::function<void(int)> setValue, LcdFlags textFlags) :
+    FormField(rect, textFlags),
+    vmin(vmin),
+    vmax(vmax),
+    _getValue(std::move(getValue)),
+    _setValue(std::move(setValue))
 {
+  lv_obj_enable_style_refresh(false);
+
+  // Workaround for performance issues with lv_textarea - create on top layer
+  // not this window then reparent to this window after setup finished
+  this->parent = parent;
+  lvobj = lv_textarea_create(lv_layer_top());
+
+  // Do this first - before any styles are applied, otherwise it is very slow
+  update();
+
+  etx_textarea_style(lvobj);
+
+  etx_obj_add_style(lvobj, styles->text_align_right, LV_PART_MAIN);
+
   // Allow encoder acceleration
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
 
   lv_obj_add_event_cb(lvobj, numberedit_cb, LV_EVENT_KEY, this);
 
-  update();
+  lv_obj_set_parent(lvobj, parent->getLvObj());
+  setupLVGL();
+
+  if (rect.w == 0) setWidth(100);
+
+  lv_obj_enable_style_refresh(true);
+  lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
 }
 
 void NumberEdit::onEvent(event_t event)
 {
-  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(), event);
+  TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
+                event);
 
   if (editMode) {
     switch (event) {
@@ -74,8 +97,7 @@ void NumberEdit::onEvent(event_t event)
         } while (isValueAvailable && !isValueAvailable(value) && value <= vmax);
         if (value <= vmax) {
           setValue(value);
-        }
-        else {
+        } else {
           setValue(vmax);
           onKeyError();
         }
@@ -95,8 +117,7 @@ void NumberEdit::onEvent(event_t event)
         } while (isValueAvailable && !isValueAvailable(value) && value >= vmin);
         if (value >= vmin) {
           setValue(value);
-        }
-        else {
+        } else {
           setValue(vmin);
           onKeyError();
         }
@@ -144,10 +165,48 @@ void NumberEdit::onEvent(event_t event)
 void NumberEdit::onClicked()
 {
   lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
-  if(indev_type == LV_INDEV_TYPE_POINTER) {
+  if (indev_type == LV_INDEV_TYPE_POINTER) {
     NumberKeyboard::show(this);
     return;
   }
 
   FormField::onClicked();
+}
+
+void NumberEdit::updateDisplay()
+{
+  if (lvobj != nullptr) {
+    std::string str;
+    if (displayFunction != nullptr) {
+      str = displayFunction(currentValue);
+    } else if (!zeroText.empty() && currentValue == 0) {
+      str = zeroText;
+    } else {
+      str = formatNumberAsString(currentValue, textFlags, 0, prefix.c_str(),
+                                 suffix.c_str());
+    }
+    lv_textarea_set_text(lvobj, str.c_str());
+  }
+}
+
+void NumberEdit::setValue(int value)
+{
+  auto newValue = limit(vmin, value, vmax);
+  if (newValue != currentValue) {
+    currentValue = newValue;
+    if (_setValue != nullptr) {
+      _setValue(currentValue);
+    }
+  }
+  updateDisplay();
+}
+
+void NumberEdit::update()
+{
+  if (_getValue == nullptr) return;
+  auto newValue = _getValue();
+  if (newValue != currentValue) {
+    currentValue = newValue;
+  }
+  updateDisplay();
 }

@@ -21,6 +21,8 @@
 
 #include "throttle_params.h"
 #include "opentx.h"
+#include "sourcechoice.h"
+#include "switchchoice.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -55,36 +57,33 @@ static void setThrottleTrimSource(int16_t src)
 
 ThrottleParams::ThrottleParams() : Page(ICON_MODEL_SETUP)
 {
-  header.setTitle(STR_MENU_MODEL_SETUP);
-  header.setTitle2(STR_THROTTLE_LABEL);
+  header->setTitle(STR_MENU_MODEL_SETUP);
+  header->setTitle2(STR_THROTTLE_LABEL);
 
-  body.setFlexLayout();
-  body.padAll(8);
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 4);
+  body->setFlexLayout();
+  FlexGridLayout grid(line_col_dsc, line_row_dsc);
 
   // Throttle reversed
-  auto line = body.newLine(&grid);
-  new StaticText(line, rect_t{}, STR_THROTTLEREVERSE, 0, COLOR_THEME_PRIMARY1);
+  auto line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_THROTTLEREVERSE);
   new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.throttleReversed));
 
   // Throttle source
-  line = body.newLine(&grid);
-  new StaticText(line, rect_t{}, STR_TTRACE, 0, COLOR_THEME_PRIMARY1);
+  line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_TTRACE);
   auto sc = new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
-                             getThrottleSource, setThrottleSource,
-                             0, COLOR_THEME_PRIMARY1);
+                             getThrottleSource, setThrottleSource);
   sc->setAvailableHandler(isThrottleSourceAvailable);
 
   // Throttle trim
-  line = body.newLine(&grid);
-  new StaticText(line, rect_t{}, STR_TTRIM, 0, COLOR_THEME_PRIMARY1);
+  line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_TTRIM);
   new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.thrTrim));
 
   // Throttle trim source
-  line = body.newLine(&grid);
-  new StaticText(line, rect_t{}, STR_TTRIM_SW, 0, COLOR_THEME_PRIMARY1);
+  line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_TTRIM_SW);
   new SourceChoice(
       line, rect_t{}, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM,
-      getThrottleTrimSource, setThrottleTrimSource, 0,
-      COLOR_THEME_PRIMARY1);
+      getThrottleTrimSource, setThrottleTrimSource);
 }

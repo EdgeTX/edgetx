@@ -17,87 +17,103 @@ file(GLOB WIDGETS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd
 
 set(GUI_SRC
   ${GUI_SRC}
-  colors.cpp
-  lcd.cpp
-  splash.cpp
-  fonts.cpp
-  curves.cpp
-  bitmaps.cpp
-  lz4_bitmaps.cpp
-  theme.cpp
-  theme_manager.cpp
-  color_editor.cpp
-  color_picker.cpp
-  color_list.cpp
-  preview_window.cpp
-  file_browser.cpp
-  file_preview.cpp
-  file_carosell.cpp
-  listbox.cpp
-  tabsgroup.cpp
-  page.cpp
-  select_fab_button.cpp
-  select_fab_carousel.cpp
-  topbar.cpp
-  layout.cpp
-  widget.cpp
-  widget_settings.cpp
   ${THEMES_SRC}
   ${LAYOUTS_SRC}
   ${WIDGETS_SRC}
-  draw_functions.cpp
-  menu_model.cpp
-  model_select.cpp
-  bind_menu_d16.cpp
-  trainer_setup.cpp
-  custom_failsafe.cpp
-  ppm_settings.cpp
+  bitmaps.cpp
+  channel_bar.cpp
   channel_range.cpp
-  module_setup.cpp
-  timer_setup.cpp
-  trims_setup.cpp
-  throttle_params.cpp
-  preflight_checks.cpp
-  model_setup.cpp
+  color_editor.cpp
+  color_list.cpp
+  color_picker.cpp
+  colors.cpp
+  curve.cpp
+  file_browser.cpp
+  file_preview.cpp
+  fonts.cpp
+  fullscreen_dialog.cpp
+  special_functions.cpp
+  layout.cpp
+  lcd.cpp
+  list_line_button.cpp
+  listbox.cpp
+  LvglWrapper.cpp
+  menu_model.cpp
+  menu_radio.cpp
+  menu_screen.cpp
+  page.cpp
+  popups.cpp
+  screen_setup.cpp
+  screen_user_interface.cpp
+  select_fab_carousel.cpp
+  sourcechoice.cpp
+  startup_shutdown.cpp
+  switch_warn_dialog.cpp
+  switchchoice.cpp
+  tabsgroup.cpp
+  theme_manager.cpp
+  theme.cpp
+  topbar.cpp
+  view_about.cpp
+  view_channels.cpp
+  view_logical_switches.cpp
+  view_main_decoration.cpp
+  view_main_menu.cpp
+  view_main.cpp
+  view_statistics.cpp
+  view_text.cpp
+  widget_settings.cpp
+  widget.cpp
+  widgets_setup.cpp
+  curve_param.cpp
+  curveedit.cpp
+  fm_matrix.cpp
+  gvar_numberedit.cpp
+  input_edit_adv.cpp
+  input_edit.cpp
+  input_mix_button.cpp
+  input_mix_group.cpp
+  input_source.cpp
+  mixer_edit_adv.cpp
+  mixer_edit.cpp
+  model_curves.cpp
   model_flightmodes.cpp
+  model_gvars.cpp
   model_inputs.cpp
+  model_logical_switches.cpp
   model_mixes.cpp
   model_outputs.cpp
-  model_curves.cpp
-  model_gvars.cpp
-  model_templates.cpp
-  model_logical_switches.cpp
-  special_functions.cpp
+  model_select.cpp
+  model_setup.cpp
   model_telemetry.cpp
-  menu_radio.cpp
-  radio_setup.cpp
+  model_templates.cpp
+  output_edit.cpp
+  preflight_checks.cpp
+  throttle_params.cpp
+  timeedit.cpp
+  timer_setup.cpp
+  trainer_setup.cpp
+  trims_setup.cpp
+  bind_menu_d16.cpp
+  custom_failsafe.cpp
+  hw_extmodule.cpp
+  hw_intmodule.cpp
+  module_setup.cpp
+  ppm_settings.cpp
+  file_carosell.cpp
+  hw_inputs.cpp
+  hw_serial.cpp
+  preview_window.cpp
+  radio_calibration.cpp
+  radio_diaganas.cpp
+  radio_diagkeys.cpp
+  radio_hardware.cpp
   radio_sdmanager.cpp
+  radio_setup.cpp
+  radio_theme.cpp
   radio_tools.cpp
   radio_trainer.cpp
   radio_version.cpp
-  hw_intmodule.cpp
-  hw_extmodule.cpp
-  hw_inputs.cpp
-  hw_serial.cpp
-  radio_hardware.cpp
-  radio_diagkeys.cpp
-  radio_diaganas.cpp
-  radio_theme.cpp
-  radio_calibration.cpp
-  view_about.cpp
-  view_main.cpp
-  view_main_menu.cpp
-  view_main_decoration.cpp
-  view_channels.cpp
-  view_logical_switches.cpp
-  view_statistics.cpp
-  view_text.cpp
-  menu_screen.cpp
-  screen_user_interface.cpp
-  widgets_setup.cpp
-  screen_setup.cpp
-  switch_warn_dialog.cpp
-  LvglWrapper.cpp
   )
 
 macro(add_gui_src src)
@@ -122,10 +138,6 @@ endif()
 
 if(HELI)
   add_gui_src(model_heli.cpp)
-endif()
-
-if(PXX2 OR LUA OR MULTIMODULE)
-  add_gui_src(radio_tools.cpp)
 endif()
 
 if(PXX2 OR MULTIMODULE)
@@ -193,31 +205,6 @@ set(SRC ${SRC} ${LVGL_FONT_SOURCES})
 
 add_definitions(-DLIBOPENUI)
 
-add_gui_src(fullscreen_dialog.cpp)
-add_gui_src(message_dialog.cpp)
-add_gui_src(confirm_dialog.cpp)
-add_gui_src(popups.cpp)
-add_gui_src(timeedit.cpp)
-add_gui_src(curve.cpp)
-add_gui_src(sourcechoice.cpp)
-add_gui_src(switchchoice.cpp)
-add_gui_src(curveedit.cpp)
-add_gui_src(gvar_numberedit.cpp)
-add_gui_src(curve_param.cpp)
-add_gui_src(fm_matrix.cpp)
-add_gui_src(input_source.cpp)
-add_gui_src(input_edit.cpp)
-add_gui_src(input_edit_adv.cpp)
-add_gui_src(mixer_edit.cpp)
-add_gui_src(mixer_edit_adv.cpp)
-add_gui_src(output_edit.cpp)
-add_gui_src(input_mix_group.cpp)
-add_gui_src(input_mix_button.cpp)
-add_gui_src(channel_bar.cpp)
-
-add_gui_src(list_line_button.cpp)
-
 if(USBJ_EX)
   add_gui_src(model_usbjoystick.cpp)
 endif()
-

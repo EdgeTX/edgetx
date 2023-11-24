@@ -22,10 +22,8 @@
 #pragma once
 
 #include "page.h"
-#include "form.h"
-#include "curve.h"
 
-class FormWindow;
+class Window;
 
 class MixEditWindow : public Page
 {
@@ -37,7 +35,7 @@ class MixEditWindow : public Page
   uint8_t index;
 
   void buildHeader(Window *window);
-  void buildBody(FormWindow *window);
+  void buildBody(Window *window);
 
   void deleteLater(bool detach = true, bool trash = true) override;
 };

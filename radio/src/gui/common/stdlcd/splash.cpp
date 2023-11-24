@@ -22,8 +22,16 @@
 #include "opentx.h"
 #include "inactivity_timer.h"
 
+static bool splashStarted = false;
+
 void startSplash()
 {
+  splashStarted = true;
+}
+
+void cancelSplash()
+{
+  splashStarted = false;
 }
 
 void waitSplash()
@@ -34,7 +42,7 @@ void waitSplash()
   bool refresh = false;
 #endif
 
-  if (SPLASH_NEEDED()) {
+  if (SPLASH_NEEDED() && splashStarted) {
     resetBacklightTimeout();
     drawSplash();
 

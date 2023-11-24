@@ -18,9 +18,8 @@
 
 #pragma once
 
-#include <utility>
 #include "layer.h"
-#include "bitmapbuffer.h"
+#include "window.h"
 
 class MainWindow: public Window
 {
@@ -29,18 +28,7 @@ class MainWindow: public Window
     MainWindow();
 
   public:
-    ~MainWindow() override
-    {
-      children.clear();
-    }
-
-    static MainWindow * instance()
-    {
-      if (!_instance)
-        _instance = new MainWindow();
-
-      return _instance;
-    }
+    static MainWindow * instance();
 
 #if defined(TESTS)
     static void create()
@@ -62,7 +50,13 @@ class MainWindow: public Window
 
     void run(bool trash=true);
 
+    void setBackground(const BitmapBuffer* bitmap);
+
+    void shutdown();
+
   protected:
+    lv_obj_t* background = nullptr;
+
     static MainWindow * _instance;
     static void emptyTrash();
 };

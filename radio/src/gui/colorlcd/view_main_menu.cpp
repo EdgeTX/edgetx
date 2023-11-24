@@ -25,18 +25,45 @@
 #include "menu_radio.h"
 #include "menu_screen.h"
 #include "model_select.h"
+#include "opentx.h"
 #include "select_fab_carousel.h"
+#include "themes/etx_lv_theme.h"
 #include "view_about.h"
 #include "view_channels.h"
 #include "view_statistics.h"
 #include "view_text.h"
 
+static void modal_dialog_constructor(const lv_obj_class_t* class_p,
+                                     lv_obj_t* obj)
+{
+  etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->bg_opacity_75, LV_PART_MAIN);
+  etx_bg_color(obj, COLOR_BLACK_INDEX, LV_PART_MAIN);
+}
+
+static const lv_obj_class_t etx_modal_dialog_class = {
+    .base_class = &window_base_class,
+    .constructor_cb = modal_dialog_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = 0,
+    .height_def = 0,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .instance_size = sizeof(lv_obj_t)};
+
+static lv_obj_t* etx_modal_dialog_create(lv_obj_t* parent)
+{
+  return etx_create(&etx_modal_dialog_class, parent);
+}
+
 #if LCD_W > LCD_H
-#define VM_W (FAB_BUTTON_SIZE * 4 + 16)
-#define VM_H ((FAB_BUTTON_SIZE + 34) * 2 + 16)
+#define VM_W (FAB_BUTTON_WIDTH * 4 + 16)
+#define VM_H (FAB_BUTTON_HEIGHT * 2 + 16)
 #else
-#define VM_W (FAB_BUTTON_SIZE * 3 + 16)
-#define VM_H ((FAB_BUTTON_SIZE + 34) * 3 + 16)
+#define VM_W (FAB_BUTTON_WIDTH * 3 + 16)
+#define VM_H (FAB_BUTTON_HEIGHT * 3 + 16)
 #endif
 
 ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
@@ -51,13 +78,13 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
 
 #if LCD_W > LCD_H
   if (hasNotes)
-    width += FAB_BUTTON_SIZE;
+    width += FAB_BUTTON_WIDTH;
 #endif
 
   auto box =
-      new Window(this, {(LCD_W - width) / 2, (LCD_H - VM_H) / 2, width, VM_H}, 0,
-                 0, etx_modal_dialog_create);
-  box->padAll(8);
+      new Window(this, {(LCD_W - width) / 2, (LCD_H - VM_H) / 2, width, VM_H},
+                 etx_modal_dialog_create);
+  box->padAll(PAD_LARGE);
 
   auto carousel = new SelectFabCarousel(box);
   carousel->addButton(ICON_MODEL_SELECT, STR_MAIN_MENU_MANAGE_MODELS,

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TIMEEDIT_H_
-#define _TIMEEDIT_H_
+#pragma once
 
 #include "numberedit.h"
 
@@ -35,5 +34,3 @@ class TimeEdit : public NumberEdit {
     }
 #endif
 };
-
-#endif // _TIMEEDIT_H_

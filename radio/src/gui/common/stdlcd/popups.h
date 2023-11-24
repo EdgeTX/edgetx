@@ -61,13 +61,14 @@ void showAlertBox(const char * title, const char * text, const char * action , u
 void drawProgressScreen(const char * title, const char * message, int num, int den);
 typedef void (* ProgressHandler)(const char *, const char *, int, int);
 
-enum
+enum WarningType
 {
   WARNING_TYPE_WAIT,
   WARNING_TYPE_INFO,
   WARNING_TYPE_ASTERISK,
   WARNING_TYPE_CONFIRM,
-  WARNING_TYPE_INPUT
+  WARNING_TYPE_INPUT,
+  WARNING_TYPE_ALERT
 };
 
 #if !defined(GUI)

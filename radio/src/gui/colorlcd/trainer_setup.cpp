@@ -41,10 +41,10 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
-class TrainerModuleWindow : public FormWindow
+class TrainerModuleWindow : public Window
 {
  public:
-  TrainerModuleWindow(FormWindow* parent);
+  TrainerModuleWindow(Window* parent);
 
   void checkEvents() override;
   void update();
@@ -70,8 +70,8 @@ class TrainerModuleWindow : public FormWindow
 #endif
 };
 
-TrainerModuleWindow::TrainerModuleWindow(FormWindow* parent) :
-    FormWindow(parent, rect_t{})
+TrainerModuleWindow::TrainerModuleWindow(Window* parent) :
+    Window(parent, rect_t{})
 {
   setFlexLayout();
   update();
@@ -100,12 +100,12 @@ void TrainerModuleWindow::checkEvents()
 //     lastbluetoothstate = bluetooth.state;
 //   }
 // #endif
-  FormWindow::checkEvents();
+  Window::checkEvents();
 }
 
 void TrainerModuleWindow::update()
 {
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
   clear();
 
   auto td = &g_model.trainerData;
@@ -127,13 +127,13 @@ void TrainerModuleWindow::update()
   if (td->mode == TRAINER_MODE_SLAVE) {
 
     // Channel range
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_CHANNELRANGE, 0, COLOR_THEME_PRIMARY1);
+    auto line = newLine(grid);
+    new StaticText(line, rect_t{}, STR_CHANNELRANGE);
     chRange = new TrainerChannelRange(line);
 
     // PPM frame
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_PPMFRAME, 0, COLOR_THEME_PRIMARY1);
+    line = newLine(grid);
+    new StaticText(line, rect_t{}, STR_PPMFRAME);
     auto obj = new PpmFrameSettings<TrainerModuleData>(line, td);
   
     // copy pointer to frame len edit object to channel range
@@ -143,24 +143,22 @@ void TrainerModuleWindow::update()
 
 TrainerPage::TrainerPage() : Page(ICON_MODEL_SETUP)
 {
-  header.setTitle(STR_MENU_MODEL_SETUP);
-  header.setTitle2(STR_TRAINER);
+  header->setTitle(STR_MENU_MODEL_SETUP);
+  header->setTitle2(STR_TRAINER);
 
-  auto form = new FormWindow(&body, rect_t{});
-  form->setFlexLayout();
-  form->padAll(lv_dpx(8));
+  body->setFlexLayout();
 
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
-  auto line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
+  auto line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_MODE);
 
   auto trainerChoice =
       new Choice(line, rect_t{}, STR_VTRAINERMODES, 0, TRAINER_MODE_MAX(),
                  GET_SET_DEFAULT(g_model.trainerData.mode));
   trainerChoice->setAvailableHandler(isTrainerModeAvailable);
 
-  auto trainerModule = new TrainerModuleWindow(form);
+  auto trainerModule = new TrainerModuleWindow(body);
 
   TrainerModuleData* tr = &g_model.trainerData;
   trainerChoice->setSetValueHandler([=](int32_t newValue) {

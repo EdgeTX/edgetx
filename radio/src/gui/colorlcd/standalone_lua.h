@@ -64,10 +64,11 @@ protected:
   // run LUA code
   void runLua(event_t evt);
 
-  void paint(BitmapBuffer* dc) override;
   void onEvent(event_t evt) override;
   void checkEvents() override;
   void onClicked() override;
   void onCancel() override;
+
+  static void redraw_cb(lv_event_t *e);
 };
 #endif

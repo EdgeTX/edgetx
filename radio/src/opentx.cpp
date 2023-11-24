@@ -53,6 +53,7 @@
   #include "view_text.h"
   #include "theme.h"
   #include "switch_warn_dialog.h"
+  #include "startup_shutdown.h"
 
   #include "gui/colorlcd/LvglWrapper.h"
 #endif
@@ -64,9 +65,6 @@
 #if !defined(SIMU)
 #include <malloc.h>
 #endif
-
-extern void startSplash();
-extern void waitSplash();
 
 RadioData  g_eeGeneral;
 ModelData  g_model;
@@ -653,6 +651,7 @@ void checkAll()
   disableVBatBridge();
 
   if (g_model.displayChecklist && modelHasNotes()) {
+    cancelSplash();
     readModelNotes();
   }
 
@@ -1089,15 +1088,8 @@ void edgeTxClose(uint8_t shutdown)
   RTOS_WAIT_MS(100);
 
 #if defined(COLORLCD)
-  // clear layer stack first
-  for (Window* w = Layer::back(); w; w = Layer::back()) w->deleteLater();
-  MainWindow::instance()->clear();
-  // this is necessary as the custom screens are not deleted
-  // by using deleteCustomScreens(), but here through it's parent window
-  memset(customScreens, 0, sizeof(customScreens));
-
-  //TODO: In fact we want only to empty the trash (private method)
-  MainWindow::instance()->run();
+  cancelShutdownAnimation();  // To prevent simulator crash
+  MainWindow::instance()->shutdown();
 #if defined(LUA)
   luaUnregisterWidgets();
   luaClose(&lsWidgets);
@@ -1126,10 +1118,6 @@ void edgeTxResume()
   //TODO: needs to go into storageReadAll()
   TRACE("reloading theme");
   EdgeTxTheme::instance()->load();
-
-  // Force redraw
-  ViewMain::instance()->invalidate();
-  TRACE("theme reloaded & ViewMain invalidated");
 #endif
 
   referenceSystemAudioFiles();
@@ -1496,9 +1484,6 @@ void edgeTxInit()
     if (!calibration_needed && !(startOptions & OPENTX_START_NO_SPLASH)) {
       if (!g_eeGeneral.dontPlayHello)
         AUDIO_HELLO();
-
-      // Wait until splash screen done
-      waitSplash();
     }
 #endif // defined(GUI)
 
@@ -1524,6 +1509,7 @@ void edgeTxInit()
 
 #if defined(GUI)
     if (calibration_needed) {
+      cancelSplash();
 #if defined(LIBOPENUI)
       startCalibration();
 #else
@@ -1730,6 +1716,8 @@ uint32_t pwrCheck()
           }
 #else  // COLORLCD
 
+          cancelShutdownAnimation();
+
           const char* message = nullptr;
           std::function<bool(void)> closeCondition = nullptr;
           if (!usbConfirmed) {
@@ -1791,6 +1779,9 @@ uint32_t pwrCheck()
     }
   }
   else {
+#if defined(COLORLCD)
+    cancelShutdownAnimation();
+#endif
     pwr_check_state = PWR_CHECK_ON;
     pwr_press_time = 0;
   }

@@ -44,64 +44,37 @@ ModelMenu::ModelMenu() : TabsGroup(ICON_MODEL) { build(); }
 
 void ModelMenu::build()
 {
-  _modelHeliEnabled = modelHeliEnabled();
-  _modelFMEnabled = modelFMEnabled();
-  _modelCurvesEnabled = modelCurvesEnabled();
-  _modelGVEnabled = modelGVEnabled();
-  _modelLSEnabled = modelLSEnabled();
-  _modelSFEnabled = modelSFEnabled();
-  _modelCustomScriptsEnabled = modelCustomScriptsEnabled();
-  _modelTelemetryEnabled = modelTelemetryEnabled();
-
   addTab(new ModelSetupPage());
 #if defined(HELI)
-  if (_modelHeliEnabled) addTab(new ModelHeliPage());
+  addTab(new ModelHeliPage());
 #endif
 #if defined(FLIGHT_MODES)
-  if (_modelFMEnabled) addTab(new ModelFlightModesPage());
+  addTab(new ModelFlightModesPage());
 #endif
   addTab(new ModelInputsPage());
   addTab(new ModelMixesPage());
   addTab(new ModelOutputsPage());
-  if (_modelCurvesEnabled) addTab(new ModelCurvesPage());
+  addTab(new ModelCurvesPage());
 #if defined(GVARS)
-  if (_modelGVEnabled) addTab(new ModelGVarsPage());
+  addTab(new ModelGVarsPage());
 #endif
-  if (_modelLSEnabled) addTab(new ModelLogicalSwitchesPage());
-  if (_modelSFEnabled) addTab(new SpecialFunctionsPage(g_model.customFn));
+  addTab(new ModelLogicalSwitchesPage());
+  addTab(new SpecialFunctionsPage());
 #if defined(LUA_MODEL_SCRIPTS)
-  if (_modelCustomScriptsEnabled) addTab(new ModelMixerScriptsPage());
+  addTab(new ModelMixerScriptsPage());
 #endif
-  if (_modelTelemetryEnabled) addTab(new ModelTelemetryPage());
+  addTab(new ModelTelemetryPage());
 
 #if defined(PCBNV14) || defined(PCBPL18)
   addGoToMonitorsButton();
 #endif
 }
 
-void ModelMenu::checkEvents()
-{
-  TabsGroup::checkEvents();
-
-  if (_modelHeliEnabled != modelHeliEnabled() ||
-      _modelFMEnabled != modelFMEnabled() ||
-      _modelCurvesEnabled != modelCurvesEnabled() ||
-      _modelGVEnabled != modelGVEnabled() ||
-      _modelLSEnabled != modelLSEnabled() ||
-      _modelSFEnabled != modelSFEnabled() ||
-      _modelCustomScriptsEnabled != modelCustomScriptsEnabled() ||
-      _modelTelemetryEnabled != modelTelemetryEnabled()) {
-    removeAllTabs();
-    build();
-    setCurrentTab(0);
-  }
-}
-
 #if defined(PCBNV14) || defined(PCBPL18)
 void ModelMenu::addGoToMonitorsButton()
 {
   new TextButton(
-      &header,
+      getHeaderWindow(),
       {LCD_W / 2 + 6, MENU_TITLE_TOP + 1, LCD_W / 2 - 8, MENU_TITLE_HEIGHT - 2},
       STR_OPEN_CHANNEL_MONITORS, [=]() {
         pushEvent(EVT_KEY_FIRST(KEY_MODEL));

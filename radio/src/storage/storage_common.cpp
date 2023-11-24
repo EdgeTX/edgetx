@@ -70,7 +70,7 @@ void preModelLoad()
 
   stopTrainer();
 #if defined(COLORLCD)
-  deleteCustomScreens();
+  LayoutFactory::deleteCustomScreens();
 #endif
 
   if (needDelay)
@@ -271,10 +271,11 @@ if(g_model.rssiSource) {
 #endif
 
 #if defined(COLORLCD)
-  loadCustomScreens();
+  LayoutFactory::loadCustomScreens();
+#else
+  LOAD_MODEL_BITMAP();
 #endif
 
-  LOAD_MODEL_BITMAP();
   LUA_LOAD_MODEL_SCRIPTS();
 
   SEND_FAILSAFE_1S();

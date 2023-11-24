@@ -19,15 +19,70 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "access_settings.h"
-#include "channel_bar.h"
 
 #include <functional>
 
-#define SET_DIRTY()     storageDirty(EE_MODEL)
+#include "channel_bar.h"
+#include "opentx.h"
 
-namespace pxx2 {
+#define SET_DIRTY() storageDirty(EE_MODEL)
+
+namespace pxx2
+{
+
+class BindRxChoiceMenu : public Menu
+{
+ public:
+  BindRxChoiceMenu(Window* parent, uint8_t moduleIdx, uint8_t receiverIdx);
+
+ protected:
+  uint8_t moduleIdx;
+  uint8_t receiverIdx;
+};
+
+class BindWaitDialog : public BaseDialog
+{
+ public:
+  BindWaitDialog(Window* parent, uint8_t moduleIdx, uint8_t receiverIdx);
+
+  void checkEvents() override;
+
+  void deleteLater(bool detach = true, bool trash = true) override;
+
+ protected:
+  uint8_t moduleIdx;
+  uint8_t receiverIdx;
+};
+
+class RxOptions : public BaseDialog
+{
+ public:
+  RxOptions(Window* parent, uint8_t moduleIdx, uint8_t rxIdx);
+  void checkEvents() override;
+
+ protected:
+  enum {
+    RO_Init = 0,
+    RO_ReadModuleInfo,
+    RO_ReadModuleSettings,
+    RO_ReadReceiverSettings,
+    RO_DisplaySettings,
+    RO_WriteSettings,
+    RO_WritingSettings,
+  };
+
+  uint8_t moduleIdx;
+  uint8_t receiverIdx;
+  uint8_t state = RO_Init;
+
+  std::string statusText;
+
+  uint8_t getRxSettingsState();
+
+  void update();
+  void writeSettings();
+};
 
 static void startBindWaitDialog(Window* parent, uint8_t moduleIdx,
                                 uint8_t receiverIdx)
@@ -80,7 +135,6 @@ BindRxChoiceMenu::BindRxChoiceMenu(Window* parent, uint8_t moduleIdx,
       bindInfo.selectedReceiverIndex = i;
       if (isModuleR9MAccess(moduleIdx) &&
           modInfo.information.variant == PXX2_VARIANT_EU) {
-
         auto& modSetup = getPXX2ModuleSetupBuffer();
         if (modSetup.moduleSettings.txPower <= 14) {
           // with telemetry
@@ -110,18 +164,6 @@ BindRxChoiceMenu::BindRxChoiceMenu(Window* parent, uint8_t moduleIdx,
   setCancelHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
 }
 
-#if defined(HARDWARE_TOUCH)
-bool BindRxChoiceMenu::onTouchEnd(coord_t x, coord_t y)
-{
-  // Note: onCancel() is not called when the menu is discarded
-  //       by clicking outside the menu window and the onCancel
-  //       handler is not accessible from here
-  moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
-  deleteLater();
-  return true;
-}
-#endif
-
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                           LV_GRID_TEMPLATE_LAST};
 
@@ -130,23 +172,18 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
 
 BindWaitDialog::BindWaitDialog(Window* parent, uint8_t moduleIdx,
                                uint8_t receiverIdx) :
-    Dialog(parent, STR_BIND, rect_t{}),
+    BaseDialog(parent, STR_BIND, true),
     moduleIdx(moduleIdx),
     receiverIdx(receiverIdx)
 {
-  setCloseWhenClickOutside(true);
-  auto form = &content->form;
-  new StaticText(form, rect_t{}, STR_WAITING_FOR_RX, 0, COLOR_THEME_PRIMARY1);
-
-  content->setWidth(LCD_W * 0.8);
-  content->updateSize();
+  new StaticText(form, rect_t{}, STR_WAITING_FOR_RX);
 
   setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
 }
 
 void BindWaitDialog::deleteLater(bool detach, bool trash)
 {
-  Dialog::deleteLater(detach, trash);
+  BaseDialog::deleteLater(detach, trash);
 }
 
 void BindWaitDialog::checkEvents()
@@ -154,7 +191,6 @@ void BindWaitDialog::checkEvents()
   auto& bindInfo = getPXX2BindInformationBuffer();
 
   if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL) {
-
     // returned to normal after bind
     if (bindInfo.step > BIND_INIT) {
       removePXX2ReceiverIfEmpty(moduleIdx, receiverIdx);
@@ -168,33 +204,32 @@ void BindWaitDialog::checkEvents()
 
     // pre-bind phase: fetching info for R9M
     auto& modSetup = getPXX2ModuleSetupBuffer();
-    switch(bindInfo.step) {
-    case BIND_MODULE_TX_INFORMATION_REQUEST:
-      if (modSetup.moduleInformation.information.variant == PXX2_VARIANT_EU) {
-        // In EU mode we will need the power of the module to know if telemetry
-        // can be proposed
-        bindInfo.step = BIND_MODULE_TX_SETTINGS_REQUEST;
+    switch (bindInfo.step) {
+      case BIND_MODULE_TX_INFORMATION_REQUEST:
+        if (modSetup.moduleInformation.information.variant == PXX2_VARIANT_EU) {
+          // In EU mode we will need the power of the module to know if
+          // telemetry can be proposed
+          bindInfo.step = BIND_MODULE_TX_SETTINGS_REQUEST;
 #if defined(SIMU)
-        modSetup.moduleSettings.txPower = 14;
+          modSetup.moduleSettings.txPower = 14;
 #else
-        moduleState[moduleIdx].readModuleSettings(&modSetup.moduleSettings);
+          moduleState[moduleIdx].readModuleSettings(&modSetup.moduleSettings);
 #endif
-      } else {
+        } else {
+          bindInfo.step = 0;
+          moduleState[moduleIdx].startBind(&bindInfo);
+        }
+        break;
+      case BIND_MODULE_TX_SETTINGS_REQUEST:
+        // We just receive the module settings (for TX power)
         bindInfo.step = 0;
         moduleState[moduleIdx].startBind(&bindInfo);
-      }
-      break;
-    case BIND_MODULE_TX_SETTINGS_REQUEST:
-      // We just receive the module settings (for TX power)
-      bindInfo.step = 0;
-      moduleState[moduleIdx].startBind(&bindInfo);
-      break;
+        break;
     }
     return;
   }
 
   if (bindInfo.step == BIND_INIT && bindInfo.candidateReceiversCount > 0) {
-
     // prevent module mode being reset to NORMAL before exiting
     setCloseHandler(nullptr);
     deleteLater();
@@ -204,11 +239,11 @@ void BindWaitDialog::checkEvents()
     return;
   }
 
-  Dialog::checkEvents();
+  BaseDialog::checkEvents();
 }
 
-ReceiverButton::ReceiverButton(Window* parent, rect_t rect,
-                               uint8_t moduleIdx, uint8_t receiverIdx) :
+ReceiverButton::ReceiverButton(Window* parent, rect_t rect, uint8_t moduleIdx,
+                               uint8_t receiverIdx) :
     TextButton(parent, rect, STR_BIND,
                std::bind(&ReceiverButton::pressBind, this)),
     moduleIdx(moduleIdx),
@@ -308,45 +343,47 @@ void ReceiverButton::checkEvents()
 }
 
 RegisterDialog::RegisterDialog(Window* parent, uint8_t moduleIdx) :
-    Dialog(parent, STR_REGISTER, rect_t{}), moduleIdx(moduleIdx)
+    BaseDialog(parent, STR_REGISTER, true, DIALOG_DEFAULT_WIDTH,
+               LV_SIZE_CONTENT),
+    moduleIdx(moduleIdx)
 {
-  setCloseWhenClickOutside(true);
-  auto form = &content->form;
-
   FlexGridLayout grid(line_col_dsc, line_row_dsc);
 
   // Register ID
-  auto line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_REG_ID, 0, COLOR_THEME_PRIMARY1);
+  auto line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_REG_ID);
   reg_id = new ModelTextEdit(line, rect_t{}, g_model.modelRegistrationID,
                              sizeof(g_model.modelRegistrationID));
 
   // UID
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, "UID", 0, COLOR_THEME_PRIMARY1);
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, "UID");
 
   auto* modSetup = &(getPXX2ModuleSetupBuffer());
-  uid = new NumberEdit(line, rect_t{}, 0, 2, GET_SET_DEFAULT(modSetup->registerLoopIndex));
+  uid = new NumberEdit(line, rect_t{}, 0, 2,
+                       GET_SET_DEFAULT(modSetup->registerLoopIndex));
 
   // RX name
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_RX_NAME, 0, COLOR_THEME_PRIMARY1);
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_RX_NAME);
 
-  start(); // clears registration data buffer
-  rx_name = new ModelTextEdit(line, rect_t{}, modSetup->registerRxName, PXX2_LEN_RX_NAME);
-  //lv_textarea_set_text(rx_name->getLvObj(), STR_WAITING_FOR_RX);
-  lv_obj_add_state(rx_name->getLvObj(), LV_STATE_DISABLED);
+  start();  // clears registration data buffer
+  rx_name = new ModelTextEdit(line, rect_t{}, modSetup->registerRxName,
+                              PXX2_LEN_RX_NAME);
+  // lv_textarea_set_text(rx_name->getLvObj(), STR_WAITING_FOR_RX);
+  rx_name->disable();
 
   // Status
-  // line = form->newLine(&grid);
-  // new StaticText(line, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
-  // status = new StaticText(line, rect_t{}, STR_WAITING_FOR_RX, 0, COLOR_THEME_PRIMARY1);
+  // line = form->newLine(grid);
+  // new StaticText(line, rect_t{}, STR_STATUS);
+  // status = new StaticText(line, rect_t{}, STR_WAITING_FOR_RX);
 
-  auto box = new FormWindow(form, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
-  box->padAll(lv_dpx(8));
-  
+  auto box = new Window(form, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_MEDIUM);
+  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY,
+                                   0);
+  box->padAll(PAD_MEDIUM);
+
   new TextButton(box, rect_t{}, STR_CANCEL, [=]() -> int8_t {
     this->deleteLater();
     return 0;
@@ -356,20 +393,17 @@ RegisterDialog::RegisterDialog(Window* parent, uint8_t moduleIdx) :
     modSetup->registerStep = REGISTER_RX_NAME_SELECTED;
     return 0;
   });
-  lv_obj_add_flag(btn_ok->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  
-  content->setWidth(LCD_W * 0.8);
-  content->updateSize();
+  btn_ok->hide();
 
   setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
 }
 
 void RegisterDialog::start()
 {
-    auto& pxx2Setup = getPXX2ModuleSetupBuffer();
-    memclear(&pxx2Setup, sizeof(pxx2Setup));
-    moduleState[moduleIdx].mode = MODULE_MODE_REGISTER;
-    old_registerStep = REGISTER_INIT;
+  auto& pxx2Setup = getPXX2ModuleSetupBuffer();
+  memclear(&pxx2Setup, sizeof(pxx2Setup));
+  moduleState[moduleIdx].mode = MODULE_MODE_REGISTER;
+  old_registerStep = REGISTER_INIT;
 }
 
 void RegisterDialog::checkEvents()
@@ -385,14 +419,14 @@ void RegisterDialog::checkEvents()
     moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
   }
 #endif
-  
+
   if (old_registerStep != modSetup.registerStep) {
     old_registerStep = modSetup.registerStep;
 
     if (modSetup.registerStep == REGISTER_RX_NAME_RECEIVED) {
-      lv_obj_clear_state(rx_name->getLvObj(), LV_STATE_DISABLED);
-      lv_obj_clear_flag(btn_ok->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-      // lv_obj_add_flag(status->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      rx_name->enable();
+      btn_ok->show();
+      // status->hide();
       rx_name->update();
     } else if (modSetup.registerStep == REGISTER_OK) {
       deleteLater();
@@ -403,19 +437,13 @@ void RegisterDialog::checkEvents()
     }
   }
 
-  Dialog::checkEvents();
+  BaseDialog::checkEvents();
 }
 
-ModuleOptions::ModuleOptions(Window* parent, uint8_t moduleIdx):
-  Dialog(parent, STR_MODULE_OPTIONS, rect_t{}),
-  moduleIdx(moduleIdx)
+ModuleOptions::ModuleOptions(Window* parent, uint8_t moduleIdx) :
+    BaseDialog(parent, STR_MODULE_OPTIONS, true), moduleIdx(moduleIdx)
 {
-  setCloseWhenClickOutside(true);
-  auto form = &content->form;
-  new StaticText(form, rect_t{}, STR_WAITING_FOR_MODULE, COLOR_THEME_PRIMARY1);
-
-  content->setWidth(LCD_W * 0.8);
-  content->updateSize();
+  new StaticText(form, rect_t{}, STR_WAITING_FOR_MODULE);
 
 #if defined(SIMU)
   auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
@@ -460,7 +488,7 @@ void ModuleOptions::checkEvents()
       state = MO_WritingSettings;
       break;
 
-    case MO_WritingSettings:      
+    case MO_WritingSettings:
 #if defined(SIMU)
       statusText.clear();
       deleteLater();
@@ -473,11 +501,11 @@ void ModuleOptions::checkEvents()
 #endif
       break;
 
-    default: // MO_DisplaySettings
+    default:  // MO_DisplaySettings
       break;
   }
 
-  Dialog::checkEvents();
+  BaseDialog::checkEvents();
 }
 
 uint8_t ModuleOptions::getModuleSettingsState()
@@ -488,7 +516,6 @@ uint8_t ModuleOptions::getModuleSettingsState()
 
 void ModuleOptions::update()
 {
-  auto form = &content->form;
   form->clear();
 
   auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
@@ -501,43 +528,42 @@ void ModuleOptions::update()
     hwSettings.modules[moduleIdx].information.variant = PXX2_VARIANT_FCC;
   }
 #endif
-  
+
   uint8_t optionsAvailable =
       getPXX2ModuleOptions(modelId) &
       ((1 << MODULE_OPTION_EXTERNAL_ANTENNA) | (1 << MODULE_OPTION_POWER));
 
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
 
-  auto line = form->newLine(&grid);
+  auto line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_MODULE);
   new StaticText(line, rect_t{}, getPXX2ModuleName(modelId));
 
   if (!optionsAvailable) {
     // no options available
-    line = form->newLine(&grid);
+    line = form->newLine(grid);
     new StaticText(line, rect_t{}, STR_NO_TX_OPTIONS, 0);
   } else {
     // some options available
     if (optionsAvailable & (1 << MODULE_OPTION_EXTERNAL_ANTENNA)) {
-
-      line = form->newLine(&grid);
-      new StaticText(line, rect_t{}, STR_EXT_ANTENNA, 0, COLOR_THEME_PRIMARY1);
-      new ToggleSwitch(line, rect_t{},
-                   []() {
-                     const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-                     return hwSettings.moduleSettings.externalAntenna;
-                   },
-                   [&](uint8_t val) {
-                     auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-                     hwSettings.moduleSettings.externalAntenna = val;
-                   });
+      line = form->newLine(grid);
+      new StaticText(line, rect_t{}, STR_EXT_ANTENNA);
+      new ToggleSwitch(
+          line, rect_t{},
+          []() {
+            const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+            return hwSettings.moduleSettings.externalAntenna;
+          },
+          [&](uint8_t val) {
+            auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+            hwSettings.moduleSettings.externalAntenna = val;
+          });
     }
 
     if (optionsAvailable & (1 << MODULE_OPTION_POWER)) {
-
       // TODO: use isTelemetryAvailable() to check if rebind is necessary
-      line = form->newLine(&grid);
-      new StaticText(line, rect_t{}, STR_POWER, 0, COLOR_THEME_PRIMARY1);
+      line = form->newLine(grid);
+      new StaticText(line, rect_t{}, STR_POWER);
       auto txPower = new Choice(
           line, rect_t{}, 0, 30,
           []() {
@@ -547,7 +573,7 @@ void ModuleOptions::update()
           [&](int val) {
             auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
             hwSettings.moduleSettings.txPower = val;
-            //state = MO_WriteSettings;
+            // state = MO_WriteSettings;
           });
 
       txPower->setTextHandler([](int val) {
@@ -571,20 +597,22 @@ void ModuleOptions::update()
 
       txPower->setAvailableHandler([=](int val) {
         const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-        return isPXX2PowerAvailable(hwSettings.modules[moduleIdx].information, val);
+        return isPXX2PowerAvailable(hwSettings.modules[moduleIdx].information,
+                                    val);
       });
     }
   }
 
-  line = form->newLine(&grid);
+  line = form->newLine(grid);
   new DynamicText(line, rect_t{}, [=]() { return statusText; });
 
-  line = form->newLine(&grid);
+  line = form->newLine(grid);
 
-  auto box = new FormWindow(form, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
-  box->padAll(lv_dpx(8));
+  auto box = new Window(form, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_MEDIUM);
+  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY,
+                                   0);
+  box->padAll(PAD_MEDIUM);
 
   new TextButton(box, rect_t{}, STR_CANCEL, [=]() -> int8_t {
     this->deleteLater();
@@ -595,8 +623,6 @@ void ModuleOptions::update()
     this->writeSettings();
     return 0;
   });
-
-  content->updateSize();
 }
 
 void ModuleOptions::writeSettings()
@@ -607,17 +633,12 @@ void ModuleOptions::writeSettings()
   }
 }
 
-RxOptions::RxOptions(Window* parent, uint8_t moduleIdx, uint8_t rxIdx):
-  Dialog(parent, STR_RECEIVER_OPTIONS, rect_t{}),
-  moduleIdx(moduleIdx),
-  receiverIdx(rxIdx)
+RxOptions::RxOptions(Window* parent, uint8_t moduleIdx, uint8_t rxIdx) :
+    BaseDialog(parent, STR_RECEIVER_OPTIONS, true),
+    moduleIdx(moduleIdx),
+    receiverIdx(rxIdx)
 {
-  setCloseWhenClickOutside(true);
-  auto form = &content->form;
-  new StaticText(form, rect_t{}, STR_WAITING_FOR_RX, 0, COLOR_THEME_PRIMARY1);
-
-  content->setWidth(LCD_W * 0.8);
-  content->updateSize();
+  new StaticText(form, rect_t{}, STR_WAITING_FOR_RX);
 
 #if defined(SIMU)
   auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
@@ -626,10 +647,11 @@ RxOptions::RxOptions(Window* parent, uint8_t moduleIdx, uint8_t rxIdx):
   hwSettings.receiverSettings.state = PXX2_SETTINGS_OK;
   moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
   state = RO_ReadReceiverSettings;
-  auto& rxInfo = hwSettings.modules[moduleIdx].receivers[receiverIdx].information;
+  auto& rxInfo =
+      hwSettings.modules[moduleIdx].receivers[receiverIdx].information;
   rxInfo.capabilities = 0xFFFFFFFF;
   hwSettings.receiverSettings.outputsCount = 6;
-  for (int i=0; i<6; i++) {
+  for (int i = 0; i < 6; i++) {
     hwSettings.receiverSettings.outputsMapping[i] = i;
   }
 #endif
@@ -661,7 +683,8 @@ void RxOptions::checkEvents()
           moduleState[moduleIdx].readModuleSettings(&hwSettings.moduleSettings);
           state = RO_ReadModuleSettings;
         } else {
-          moduleState[moduleIdx].readReceiverSettings(&hwSettings.receiverSettings);
+          moduleState[moduleIdx].readReceiverSettings(
+              &hwSettings.receiverSettings);
           state = RO_ReadReceiverSettings;
         }
       }
@@ -670,7 +693,8 @@ void RxOptions::checkEvents()
       // this one does NOT timeout (see pxx2.cpp)
       if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL &&
           hwSettings.moduleSettings.state == PXX2_SETTINGS_OK) {
-        moduleState[moduleIdx].readReceiverSettings(&hwSettings.receiverSettings);
+        moduleState[moduleIdx].readReceiverSettings(
+            &hwSettings.receiverSettings);
         state = RO_ReadReceiverSettings;
       }
       break;
@@ -683,7 +707,8 @@ void RxOptions::checkEvents()
       break;
     case RO_WriteSettings:
       // TODO: ask for confirmation ???
-      moduleState[moduleIdx].writeReceiverSettings(&hwSettings.receiverSettings);
+      moduleState[moduleIdx].writeReceiverSettings(
+          &hwSettings.receiverSettings);
       state = RO_WritingSettings;
       break;
 
@@ -700,11 +725,11 @@ void RxOptions::checkEvents()
 #endif
       break;
 
-    default: // RO_DisplaySettings
+    default:  // RO_DisplaySettings
       break;
   }
 
-  Dialog::checkEvents();
+  BaseDialog::checkEvents();
 }
 
 static uint8_t getShiftedChannel(int8_t moduleIdx, int ch)
@@ -731,7 +756,7 @@ class OutputMappingChoice : public Choice
     auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
     hwSettings.receiverSettings.outputsMapping[rx_pin] = val;
   }
-  
+
   std::string getChannelText(int val)
   {
     if (val < channels) {
@@ -743,34 +768,39 @@ class OutputMappingChoice : public Choice
   void addMenuItem(int item, Menu* menu, int val, int& selectedIx)
   {
     menu->addLineBuffered(textHandler(item), [=]() { setValue(item); });
-    if (item == val) { selectedIx = menu->count() - 1; }
+    if (item == val) {
+      selectedIx = menu->count() - 1;
+    }
   }
 
  public:
-  OutputMappingChoice(Window* parent, uint32_t capabilities, uint8_t rx_model_id,
-                      uint8_t module, uint8_t channels, uint8_t output_pin) :
+  OutputMappingChoice(Window* parent, uint32_t capabilities,
+                      uint8_t rx_model_id, uint8_t module, uint8_t channels,
+                      uint8_t output_pin) :
       Choice(parent, rect_t{}, 0, channels - 1,
              std::bind(&OutputMappingChoice::getOutputMapping, this),
              std::bind(&OutputMappingChoice::setOutputMapping, this,
-                       std::placeholders::_1), 0),
+                       std::placeholders::_1),
+             0),
       capabilities(capabilities),
       ch_offset(getShiftedChannel(module, 0)),
       channels(channels),
       rx_pin(output_pin)
   {
-    if (isPXX2ReceiverOptionAvailable(rx_model_id, RECEIVER_OPTION_D_TELE_PORT)) {
-      setTextHandler([=] (int val) {
-        switch(val) {
-        case CH_MAP_SBUS_IN:
-          return std::string(STR_SBUSIN);
-        case CH_MAP_SBUS_OUT:
-          return std::string(STR_SBUSOUT);
-        case CH_MAP_SPORT:
-          return std::string(STR_SPORT);
-        case CH_MAP_FBUS:
-          return std::string(STR_FBUS);
-        default:
-          return getChannelText(val);
+    if (isPXX2ReceiverOptionAvailable(rx_model_id,
+                                      RECEIVER_OPTION_D_TELE_PORT)) {
+      setTextHandler([=](int val) {
+        switch (val) {
+          case CH_MAP_SBUS_IN:
+            return std::string(STR_SBUSIN);
+          case CH_MAP_SBUS_OUT:
+            return std::string(STR_SBUSOUT);
+          case CH_MAP_SPORT:
+            return std::string(STR_SPORT);
+          case CH_MAP_FBUS:
+            return std::string(STR_FBUS);
+          default:
+            return getChannelText(val);
         }
       });
       setFillMenuHandler([=](Menu* menu, int val, int& selectedIx) {
@@ -783,17 +813,17 @@ class OutputMappingChoice : public Choice
       });
       return;
     }
- 
+
     if (capabilities & (1 << RECEIVER_CAPABILITY_ENABLE_PWM_CH5_CH6)) {
       if (CH_ENABLE_SPORT == output_pin) {
-        setTextHandler([=] (int val) {
+        setTextHandler([=](int val) {
           if (val == channels) return std::string(STR_SPORT);
           return getChannelText(val);
         });
         setMax(channels);
         return;
       } else if (CH_ENABLE_SBUS == output_pin) {
-        setTextHandler([=] (int val) {
+        setTextHandler([=](int val) {
           if (val == channels) return std::string(STR_SBUSOUT);
           return getChannelText(val);
         });
@@ -809,25 +839,24 @@ class OutputMappingChoice : public Choice
 
 void RxOptions::update()
 {
-  auto form = &content->form;
-  form->clear();
-
   auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-  auto& rxInfo = hwSettings.modules[moduleIdx].receivers[receiverIdx].information;
+  auto& rxInfo =
+      hwSettings.modules[moduleIdx].receivers[receiverIdx].information;
   uint8_t rxModelId = rxInfo.modelID;
   uint8_t rxVariant = rxInfo.variant;
   uint8_t capabilities = rxInfo.capabilities;
 
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
 
-  auto line = form->newLine(&grid);
+  auto line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_RECEIVER);
   new StaticText(line, rect_t{},
                  g_model.moduleData[moduleIdx].pxx2.receiverName[receiverIdx]);
 
   // PWM rate
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, isModuleR9MAccess(moduleIdx) ? "6.67ms PWM" : "7ms PWM");
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{},
+                 isModuleR9MAccess(moduleIdx) ? "6.67ms PWM" : "7ms PWM");
   new ToggleSwitch(
       line, rect_t{},
       []() {
@@ -840,18 +869,18 @@ void RxOptions::update()
       });
 
   // telemetry disabled
-  line = form->newLine(&grid);
+  line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_TELEMETRY_DISABLED);
   auto tele25mw = new ToggleSwitch(
-        line, rect_t{},
-        []() {
-          auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-          return hwSettings.receiverSettings.telemetryDisabled;
-        },
-        [](int val) {
-          auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-          hwSettings.receiverSettings.telemetryDisabled = val;
-        });
+      line, rect_t{},
+      []() {
+        auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+        return hwSettings.receiverSettings.telemetryDisabled;
+      },
+      [](int val) {
+        auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
+        hwSettings.receiverSettings.telemetryDisabled = val;
+      });
 
   if (isModuleR9MAccess(moduleIdx) && rxVariant == PXX2_VARIANT_EU &&
       hwSettings.moduleSettings.txPower > 14 /*25mW*/) {
@@ -861,7 +890,7 @@ void RxOptions::update()
 
   if (capabilities & (1 << RECEIVER_CAPABILITY_TELEMETRY_25MW)) {
     // telemetry 25 mW
-    line = form->newLine(&grid);
+    line = form->newLine(grid);
     new StaticText(line, rect_t{}, "25mw Tele");
     new ToggleSwitch(
         line, rect_t{},
@@ -877,9 +906,8 @@ void RxOptions::update()
 
   if (capabilities &
       ((1 << RECEIVER_CAPABILITY_FPORT) | (1 << RECEIVER_CAPABILITY_FPORT2))) {
-
     // SPORT modes
-    line = form->newLine(&grid);
+    line = form->newLine(grid);
     new StaticText(line, rect_t{}, STR_PROTOCOL);
     auto sportModes = new Choice(
         line, rect_t{}, STR_SPORT_MODES, 0, 2,
@@ -907,7 +935,7 @@ void RxOptions::update()
   }
 
   if (capabilities & (1 << RECEIVER_CAPABILITY_SBUS24)) {
-    line = form->newLine(&grid);
+    line = form->newLine(grid);
     new StaticText(line, rect_t{}, STR_SBUS24);
     new ToggleSwitch(
         line, rect_t{},
@@ -921,23 +949,26 @@ void RxOptions::update()
         });
   }
 
-  auto outputsCount = min<uint8_t>(16, hwSettings.receiverSettings.outputsCount);
+  auto outputsCount =
+      min<uint8_t>(16, hwSettings.receiverSettings.outputsCount);
   for (uint8_t i = 0; i < outputsCount; i++) {
-    line = form->newLine(&grid);
-    std::string i_str = std::to_string(i+1);
+    line = form->newLine(grid);
+    std::string i_str = std::to_string(i + 1);
     new StaticText(line, rect_t{}, std::string(STR_PIN) + i_str);
 
     uint8_t channels = sentModuleChannels(moduleIdx);
-    new OutputMappingChoice(line, capabilities, rxModelId, moduleIdx, channels, i);
+    new OutputMappingChoice(line, capabilities, rxModelId, moduleIdx, channels,
+                            i);
   }
 
-  line = form->newLine(&grid);
+  line = form->newLine(grid);
   new DynamicText(line, rect_t{}, [=]() { return statusText; });
 
-  auto box = new FormWindow(form, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
-  box->padAll(lv_dpx(8));
+  auto box = new Window(form, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_MEDIUM);
+  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY,
+                                   0);
+  box->padAll(PAD_MEDIUM);
 
   new TextButton(box, rect_t{}, STR_CANCEL, [=]() -> int8_t {
     this->deleteLater();
@@ -948,8 +979,6 @@ void RxOptions::update()
     this->writeSettings();
     return 0;
   });
-
-  content->updateSize();
 }
 
 void RxOptions::writeSettings()
@@ -960,4 +989,4 @@ void RxOptions::writeSettings()
   }
 }
 
-};
+};  // namespace pxx2

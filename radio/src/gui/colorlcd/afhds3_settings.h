@@ -21,13 +21,13 @@
 
 #pragma once
 
-#include "form.h"
+#include "window.h"
 #include "choice.h"
 #include "module_setup.h"
 
 struct ModuleData;
 
-class AFHDS3Settings : public FormWindow, public ModuleOptions
+class AFHDS3Settings : public Window, public ModuleOptions
 {
   uint8_t moduleIdx;
   ModuleData* md;
@@ -37,7 +37,7 @@ class AFHDS3Settings : public FormWindow, public ModuleOptions
   Window* afhds3StatusLabel = nullptr;
   Window* afhds3StatusText = nullptr;
   Window* afhds3TypeLabel = nullptr;
-  FormWindow* afhds3TypeForm = nullptr;
+  Window* afhds3TypeForm = nullptr;
   Choice *afhds3PhyMode = nullptr;
   Choice *afhds3Emi = nullptr;
   Choice *afhds3RfPower = nullptr;

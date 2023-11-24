@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "font.h"
+#include "fonts.h"
 #include "libopenui/thirdparty/lz4/lz4.h"
 #include "libopenui_defines.h"
 #include "lz4_fonts.h"

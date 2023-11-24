@@ -84,8 +84,6 @@ void deleteExpo(uint8_t idx)
 
 // TODO port: avoid global s_currCh on ARM boards (as done here)...
 int8_t s_currCh;
-uint8_t s_copyMode;
-int8_t s_copySrcRow;
 
 void insertExpo(uint8_t idx, uint8_t input)
 {
@@ -165,12 +163,8 @@ class InputLineButton : public InputMixButton
   bool isActive() const override { return isExpoActive(index); }
 };
 
-ModelInputsPage::ModelInputsPage() : PageTab(STR_MENUINPUTS, ICON_MODEL_INPUTS)
+ModelInputsPage::ModelInputsPage() : InputMixPageBase(STR_MENUINPUTS, ICON_MODEL_INPUTS)
 {
-  setOnSetVisibleHandler([=]() {
-    // reset clipboard
-    _copyMode = 0;
-  });
 }
 
 bool ModelInputsPage::reachExposLimit()
@@ -182,24 +176,13 @@ bool ModelInputsPage::reachExposLimit()
   return false;
 }
 
-InputMixGroup* ModelInputsPage::getGroupBySrc(mixsrc_t src)
-{
-  auto g = std::find_if(
-      groups.begin(), groups.end(),
-      [=](InputMixGroup* g) -> bool { return g->getMixSrc() == src; });
-
-  if (g != groups.end()) return *g;
-
-  return nullptr;
-}
-
-InputMixGroup* ModelInputsPage::getGroupByIndex(uint8_t index)
+InputGroup* ModelInputsPage::getGroupByIndex(uint8_t index)
 {
   ExpoData* expo = expoAddress(index);
   if (!EXPO_VALID(expo)) return nullptr;
 
   int input = expo->chn;
-  return getGroupBySrc(MIXSRC_FIRST_INPUT + input);
+  return (InputGroup*)getGroupBySrc(MIXSRC_FIRST_INPUT + input);
 }
 
 InputMixButton* ModelInputsPage::getLineByIndex(uint8_t index)
@@ -211,13 +194,6 @@ InputMixButton* ModelInputsPage::getLineByIndex(uint8_t index)
   if (l != lines.end()) return *l;
 
   return nullptr;
-}
-
-void ModelInputsPage::removeGroup(InputMixGroup* g)
-{
-  auto group = std::find_if(groups.begin(), groups.end(),
-                            [=](InputMixGroup* lh) -> bool { return lh == g; });
-  if (group != groups.end()) groups.erase(group);
 }
 
 void ModelInputsPage::removeLine(InputMixButton* l)
@@ -233,12 +209,12 @@ void ModelInputsPage::removeLine(InputMixButton* l)
   }
 }
 
-InputMixGroup* ModelInputsPage::createGroup(FormWindow* form, mixsrc_t src)
+InputGroup* ModelInputsPage::createGroup(Window* form, mixsrc_t src)
 {
-  return new InputMixGroup(form, src);
+  return new InputGroup(form, src);
 }
 
-InputMixButton* ModelInputsPage::createLineButton(InputMixGroup* group,
+InputMixButton* ModelInputsPage::createLineButton(InputGroup* group,
                                                   uint8_t index)
 {
   auto button = new InputLineButton(group, index);
@@ -303,7 +279,7 @@ void ModelInputsPage::addLineButton(uint8_t index)
 
 void ModelInputsPage::addLineButton(mixsrc_t src, uint8_t index)
 {
-  InputMixGroup* group_w = getGroupBySrc(src);
+  InputGroup* group_w = (InputGroup*)getGroupBySrc(src);
   if (!group_w) {
     group_w = createGroup(form, src);
     // insertion sort
@@ -390,12 +366,10 @@ void ModelInputsPage::editInput(uint8_t input, uint8_t index)
   auto line = getLineByIndex(index);
   if (!line) return;
 
-  auto line_obj = line->getLvObj();
-  auto group_obj = group->getLvObj();
   auto edit = new InputEditWindow(input, index);
   edit->setCloseHandler([=]() {
-    lv_event_send(line_obj, LV_EVENT_VALUE_CHANGED, nullptr);
-    lv_event_send(group_obj, LV_EVENT_VALUE_CHANGED, nullptr);
+    line->refresh();
+    group->refresh();
   });
 }
 
@@ -420,11 +394,10 @@ void ModelInputsPage::deleteInput(uint8_t index)
   if (group->getLineCount() == 0) {
     group->deleteLater();
     removeGroup(group);
-    removeLine(line);
   } else {
     line->deleteLater();
-    removeLine(line);
   }
+  removeLine(line);
 
   ::deleteExpo(index);
 }
@@ -464,11 +437,14 @@ void ModelInputsPage::pasteInputAfter(uint8_t dst_idx)
   pasteInput(dst_idx + 1, input);
 }
 
-void ModelInputsPage::build(FormWindow* window)
+void ModelInputsPage::build(Window* window)
 {
+  // reset clipboard
+  _copyMode = 0;
+
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
-  form = new FormWindow(window, rect_t{});
+  form = new Window(window, rect_t{});
   form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
 
   auto btn = new TextButton(window, rect_t{}, LV_SYMBOL_PLUS, [=]() {

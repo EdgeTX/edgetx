@@ -23,10 +23,14 @@
 
 #include "button_matrix.h"
 #include "channel_bar.h"
+#include "list_line_button.h"
 #include "opentx.h"
+#include "themes/etx_lv_theme.h"
 #include "usb_joystick.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
+
+#define ETX_STATE_COLLISION_WARN LV_STATE_USER_1
 
 #if LCD_W > LCD_H  // Landscape
 
@@ -46,7 +50,7 @@ static const lv_coord_t ch_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
 #define USBCH_CHN_ROWS 1
 #define USBCH_BTN_MODE_COL 4
 #define USBCH_BTN_MODE_ROW 0
-#define USBCH_LINE_HEIGHT PAGE_LINE_HEIGHT + 12
+#define USBCH_LINE_HEIGHT 32
 
 static const lv_coord_t b_col_dsc[] = {LV_GRID_FR(10),       20,
                                        LV_GRID_FR(10),       LV_GRID_FR(12),
@@ -71,7 +75,7 @@ static const lv_coord_t ch_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
 #define USBCH_CHN_ROWS 2
 #define USBCH_BTN_MODE_COL 2
 #define USBCH_BTN_MODE_ROW 1
-#define USBCH_LINE_HEIGHT 2 * PAGE_LINE_HEIGHT + 8
+#define USBCH_LINE_HEIGHT 48
 
 static const lv_coord_t b_col_dsc[] = {LV_GRID_FR(1), 20, LV_GRID_FR(1),
                                        LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
@@ -95,10 +99,7 @@ class USBChannelEditStatusBar : public Window
         this,
         {USBCH_EDIT_STATUS_BAR_MARGIN, 0,
          rect.w - (USBCH_EDIT_STATUS_BAR_MARGIN * 2), rect.h},
-        channel);
-    channelBar->setLeftMargin(15);
-    channelBar->setTextColor(COLOR_THEME_PRIMARY2);
-    channelBar->setOutputChannelBarLimitColor(COLOR_THEME_EDIT);
+        channel, true);
   }
 
  protected:
@@ -135,7 +136,7 @@ class USBChannelButtonSel : public ButtonMatrix
     }
     update();
 
-    lv_obj_set_style_radius(lvobj, LV_RADIUS_CIRCLE, LV_PART_ITEMS);
+    etx_obj_add_style(lvobj, styles->circle, LV_PART_ITEMS);
 
     lv_obj_add_event_cb(lvobj, btnsel_event_cb, LV_EVENT_DRAW_PART_BEGIN, this);
 
@@ -223,21 +224,19 @@ static void btnsel_event_cb(lv_event_t* e)
 class USBChannelEditWindow : public Page
 {
  public:
-  USBChannelEditWindow(uint8_t channel) : Page(ICON_MODEL_USB), channel(channel)
+  USBChannelEditWindow(uint8_t channel) : Page(ICON_MODEL_USB, PAD_TINY), channel(channel)
   {
-    auto form = new FormWindow(&body, rect_t{});
-    form->padAll(2);
-    form->padLeft(8);
-    form->padRight(8);
+    body->padLeft(8);
+    body->padRight(8);
 
-    buildHeader(&header);
-    buildBody(form);
+    buildHeader(header);
+    buildBody(body);
   }
 
  protected:
   uint8_t channel;
   USBChannelEditStatusBar* statusBar = nullptr;
-  FormWindow* m_btnModeFrame = nullptr;
+  Window* m_btnModeFrame = nullptr;
   Window* m_axisModeLine = nullptr;
   Window* m_simModeLine = nullptr;
   USBChannelButtonSel* _BtnNumSel = nullptr;
@@ -249,15 +248,9 @@ class USBChannelEditWindow : public Page
   {
     USBJoystickChData* cch = usbJChAddress(channel);
 
-    lv_obj_add_flag(m_btnModeFrame->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(m_axisModeLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(m_simModeLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    if (cch->mode == USBJOYS_CH_BUTTON)
-      lv_obj_clear_flag(m_btnModeFrame->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    else if (cch->mode == USBJOYS_CH_AXIS)
-      lv_obj_clear_flag(m_axisModeLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    else if (cch->mode == USBJOYS_CH_SIM)
-      lv_obj_clear_flag(m_simModeLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    m_btnModeFrame->show(cch->mode == USBJOYS_CH_BUTTON);
+    m_axisModeLine->show(cch->mode == USBJOYS_CH_AXIS);
+    m_simModeLine->show(cch->mode == USBJOYS_CH_SIM);
 
     if (m_btnPosChoice)
       m_btnPosChoice->enable((cch->param != USBJOYS_BTN_MODE_SW_EMU) &&
@@ -265,21 +258,21 @@ class USBChannelEditWindow : public Page
 
     if (collisionText) {
       collisionText->setText("");
-      lv_obj_add_flag(collisionText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      collisionText->hide();
       if (cch->mode == USBJOYS_CH_BUTTON) {
         if (isUSBBtnNumCollision(channel)) {
           collisionText->setText(STR_USBJOYSTICK_BTN_COLLISION);
-          lv_obj_clear_flag(collisionText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+          collisionText->show();
         }
       } else if (cch->mode == USBJOYS_CH_AXIS) {
         if (isUSBAxisCollision(channel)) {
           collisionText->setText(STR_USBJOYSTICK_AXIS_COLLISION);
-          lv_obj_clear_flag(collisionText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+          collisionText->show();
         }
       } else if (cch->mode == USBJOYS_CH_SIM) {
         if (isUSBSimCollision(channel)) {
           collisionText->setText(STR_USBJOYSTICK_AXIS_COLLISION);
-          lv_obj_clear_flag(collisionText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+          collisionText->show();
         }
       }
     }
@@ -289,8 +282,8 @@ class USBChannelEditWindow : public Page
 
   void buildHeader(Window* window)
   {
-    header.setTitle(STR_USBJOYSTICK_LABEL);
-    header.setTitle2(getSourceString(MIXSRC_FIRST_CH + channel));
+    header->setTitle(STR_USBJOYSTICK_LABEL);
+    header->setTitle2(getSourceString(MIXSRC_FIRST_CH + channel));
 
     statusBar = new USBChannelEditStatusBar(
         window,
@@ -300,35 +293,32 @@ class USBChannelEditWindow : public Page
         channel);
   }
 
-  void buildBody(FormWindow* form)
+  void buildBody(Window* form)
   {
-    FlexGridLayout grid(ch_col_dsc, row_dsc, 2);
-    form->setFlexLayout();
+    FlexGridLayout grid(ch_col_dsc, row_dsc, PAD_TINY);
+    form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
     USBJoystickChData* cch = usbJChAddress(channel);
 
-    auto line = form->newLine(&grid);
+    auto line = form->newLine(grid);
 
-    new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_MODE, 0,
-                   COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_MODE);
     new Choice(line, rect_t{}, STR_VUSBJOYSTICK_CH_MODE, 0, USBJOYS_CH_LAST,
                GET_DEFAULT(cch->mode), SET_VALUE_WUPDATE(cch->mode));
 
 #if LCD_H > LCD_W
-    line = form->newLine(&grid);
+    line = form->newLine(grid);
 #endif
 
-    new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_INVERSION, 0,
-                   COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_INVERSION);
     new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(cch->inversion));
 
-    line = form->newLine(&grid);
-    m_btnModeFrame = new FormWindow(line, rect_t{});
+    line = form->newLine(grid);
+    m_btnModeFrame = new Window(line, rect_t{});
     m_btnModeFrame->setFlexLayout();
 
-    line = m_btnModeFrame->newLine(&grid);
-    new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_BTNMODE, 0,
-                   COLOR_THEME_PRIMARY1);
+    line = m_btnModeFrame->newLine(grid);
+    new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_BTNMODE);
     new Choice(line, rect_t{}, STR_VUSBJOYSTICK_CH_BTNMODE, 0,
                USBJOYS_BTN_MODE_LAST, GET_DEFAULT(cch->param),
                [=](int32_t newValue) {
@@ -342,45 +332,41 @@ class USBChannelEditWindow : public Page
                });
 
 #if LCD_H > LCD_W
-    line = m_btnModeFrame->newLine(&grid);
+    line = m_btnModeFrame->newLine(grid);
 #endif
 
-    new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_SWPOS, 0,
-                   COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_SWPOS);
     m_btnPosChoice = new Choice(line, rect_t{}, STR_VUSBJOYSTICK_CH_SWPOS, 0, 7,
                                 GET_DEFAULT(cch->switch_npos),
                                 SET_VALUE_WUPDATE(cch->switch_npos));
 
-    line = m_btnModeFrame->newLine(&grid);
-    new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_BTNNUM, 0,
-                   COLOR_THEME_PRIMARY1);
+    line = m_btnModeFrame->newLine(grid);
+    new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_BTNNUM);
 #if LCD_H > LCD_W
-    line = m_btnModeFrame->newLine(&grid);
+    line = m_btnModeFrame->newLine(grid);
 #endif
     _BtnNumSel = new USBChannelButtonSel(line, rect_t{}, channel,
                                          SET_VALUE_WUPDATE(cch->btn_num));
 
-    m_axisModeLine = form->newLine(&grid);
-    new StaticText(m_axisModeLine, rect_t{}, STR_USBJOYSTICK_CH_AXIS, 0,
-                   COLOR_THEME_PRIMARY1);
+    m_axisModeLine = form->newLine(grid);
+    new StaticText(m_axisModeLine, rect_t{}, STR_USBJOYSTICK_CH_AXIS);
     new Choice(m_axisModeLine, rect_t{}, STR_VUSBJOYSTICK_CH_AXIS, 0,
                USBJOYS_AXIS_LAST, GET_DEFAULT(cch->param),
                SET_VALUE_WUPDATE(cch->param));
 
-    m_simModeLine = form->newLine(&grid);
-    new StaticText(m_simModeLine, rect_t{}, STR_USBJOYSTICK_CH_SIM, 0,
-                   COLOR_THEME_PRIMARY1);
+    m_simModeLine = form->newLine(grid);
+    new StaticText(m_simModeLine, rect_t{}, STR_USBJOYSTICK_CH_SIM);
     new Choice(m_simModeLine, rect_t{}, STR_VUSBJOYSTICK_CH_SIM, 0,
                USBJOYS_SIM_LAST, GET_DEFAULT(cch->param),
                SET_VALUE_WUPDATE(cch->param));
 
-    line = form->newLine(&grid);
+    line = form->newLine(grid);
     line->padTop(0);
     line->padBottom(0);
     collisionText =
-        new StaticText(line, rect_t{}, "", OPAQUE,
+        new StaticText(line, rect_t{}, "",
                        FONT(BOLD) | COLOR_THEME_PRIMARY2 | CENTERED);
-    collisionText->setBackgroundColor(COLOR_THEME_WARNING);
+    etx_bg_color(collisionText->getLvObj(), COLOR_THEME_WARNING_INDEX);
     lv_obj_set_grid_cell(collisionText->getLvObj(), LV_GRID_ALIGN_STRETCH, 0,
                          USBCH_COLS, LV_GRID_ALIGN_CENTER, 0, 1);
 
@@ -388,12 +374,11 @@ class USBChannelEditWindow : public Page
   }
 };
 
-class USBChannelLineButton : public Button
+class USBChannelLineButton : public ListLineButton
 {
  public:
   USBChannelLineButton(Window* parent, uint8_t index) :
-      Button(parent, rect_t{}, nullptr, 0, 0, input_mix_line_create),
-      index(index)
+      ListLineButton(parent, index)
   {
     setHeight(USBCH_LINE_HEIGHT);
 #if LCD_W > LCD_H
@@ -428,8 +413,8 @@ class USBChannelLineButton : public Button
                          0, USBCH_CHN_ROWS);
 
     m_inverse =
-        new StaticBitmap(this, rect_t{0, 0, 11, 16}, chanMonInvertedBitmap,
-                         COLOR_THEME_SECONDARY1, false);
+        new StaticIcon(this, 0, 0, ICON_CHAN_MONITOR_INVERTED,
+                         COLOR_THEME_SECONDARY1);
     lv_obj_set_grid_cell(m_inverse->getLvObj(), LV_GRID_ALIGN_START, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
@@ -438,6 +423,8 @@ class USBChannelLineButton : public Button
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
     m_param = lv_label_create(lvobj);
+    etx_txt_color(m_param, COLOR_THEME_WARNING_INDEX, ETX_STATE_COLLISION_WARN);
+    etx_font(m_param, FONT_BOLD_INDEX, ETX_STATE_COLLISION_WARN);
     lv_obj_set_grid_cell(m_param, LV_GRID_ALIGN_START, 3, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
@@ -457,6 +444,7 @@ class USBChannelLineButton : public Button
 
     init = true;
     refresh();
+
     lv_obj_update_layout(lvobj);
 
     if (e) {
@@ -465,7 +453,7 @@ class USBChannelLineButton : public Button
     }
   }
 
-  void refresh()
+  void refresh() override
   {
     if (!init) return;
 
@@ -473,34 +461,30 @@ class USBChannelLineButton : public Button
 
     lv_label_set_text(m_mode, STR_VUSBJOYSTICK_CH_MODE[cch->mode]);
 
-    if (cch->inversion)
-      lv_obj_clear_flag(m_inverse->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    else
-      lv_obj_add_flag(m_inverse->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    m_inverse->show(cch->inversion);
 
-    LcdFlags warn = COLOR_THEME_SECONDARY1;
-    LcdFlags font = FONT(STD);
     const char* param = "";
-
+    bool hasCollision = false;
+  
     if (cch->mode == USBJOYS_CH_BUTTON) {
       param = STR_VUSBJOYSTICK_CH_BTNMODE[cch->param];
     } else if (cch->mode == USBJOYS_CH_AXIS) {
       param = STR_VUSBJOYSTICK_CH_AXIS[cch->param];
       if (isUSBAxisCollision(index)) {
-        warn = COLOR_THEME_WARNING;
-        font = FONT(BOLD);
+        hasCollision = true;
       }
     } else if (cch->mode == USBJOYS_CH_SIM) {
       param = STR_VUSBJOYSTICK_CH_SIM[cch->param];
       if (isUSBSimCollision(index)) {
-        warn = COLOR_THEME_WARNING;
-        font = FONT(BOLD);
+        hasCollision = true;
       }
     }
 
     lv_label_set_text(m_param, param);
-    lv_obj_set_style_text_color(m_param, makeLvColor(warn), 0);
-    lv_obj_set_style_text_font(m_param, getFont(font), 0);
+    if (hasCollision)
+      lv_obj_add_state(m_param, ETX_STATE_COLLISION_WARN);
+    else
+      lv_obj_clear_state(m_param, ETX_STATE_COLLISION_WARN);
 
     if (cch->mode == USBJOYS_CH_BUTTON) {
       lv_label_set_text(m_btn_mode,
@@ -514,69 +498,64 @@ class USBChannelLineButton : public Button
       else
         snprintf(str, 20, "%u", cch->btn_num);
       lv_label_set_text(m_btns, str);
-      if (isUSBBtnNumCollision(index)) {
-        warn = COLOR_THEME_WARNING;
-        font = FONT(BOLD);
-      }
-      lv_obj_set_style_text_color(m_btns, makeLvColor(warn), 0);
-      lv_obj_set_style_text_font(m_btns, getFont(font), 0);
+      if (isUSBBtnNumCollision(index))
+        lv_obj_add_state(m_param, ETX_STATE_COLLISION_WARN);
+      else
+        lv_obj_clear_state(m_param, ETX_STATE_COLLISION_WARN);
     } else {
       lv_label_set_text(m_btn_mode, "");
       lv_label_set_text(m_btns, "");
     }
   }
 
+  bool isActive() const override { return false; }
+
  protected:
   bool init = false;
-  uint8_t index;
 
   lv_obj_t* m_chn;
   lv_obj_t* m_mode;
   lv_obj_t* m_param;
   lv_obj_t* m_btn_mode;
   lv_obj_t* m_btns;
-  StaticBitmap* m_inverse;
+  StaticIcon* m_inverse;
 };
 
 ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB)
 {
-  header.setTitle(STR_MENU_MODEL_SETUP);
-  header.setTitle2(STR_USBJOYSTICK_LABEL);
+  header->setTitle(STR_MENU_MODEL_SETUP);
+  header->setTitle2(STR_USBJOYSTICK_LABEL);
 
-  auto form = new FormWindow(&body, rect_t{});
-  form->padAll(lv_dpx(8));
-  form->setFlexLayout();
-  FlexGridLayout grid(line_col_dsc, row_dsc, 2);
+  body->setFlexLayout();
+  FlexGridLayout grid(line_col_dsc, row_dsc, PAD_TINY);
 
   // Extended mode
-  auto line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_USBJOYSTICK_EXTMODE, 0,
-                 COLOR_THEME_PRIMARY1);
+  auto line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_USBJOYSTICK_EXTMODE);
   new Choice(line, rect_t{}, STR_VUSBJOYSTICK_EXTMODE, 0, 1,
              GET_DEFAULT(g_model.usbJoystickExtMode),
              SET_VALUE_WUPDATE(g_model.usbJoystickExtMode));
 
 #if LCD_H > LCD_W
-  line = form->newLine(&grid);
+  line = body->newLine(grid);
 #endif
 
-  _IfModeLabel = new StaticText(line, rect_t{}, STR_USBJOYSTICK_IF_MODE, 0,
-                                COLOR_THEME_PRIMARY1);
+  _IfModeLabel = new StaticText(line, rect_t{}, STR_USBJOYSTICK_IF_MODE);
   _IfMode = new Choice(line, rect_t{}, STR_VUSBJOYSTICK_IF_MODE, 0,
                        USBJOYS_LAST, GET_DEFAULT(g_model.usbJoystickIfMode),
                        SET_VALUE_WUPDATE(g_model.usbJoystickIfMode));
 
-  line = form->newLine(&grid);
+  line = body->newLine(grid);
 
   _CircCoutoutLabel = new StaticText(
-      line, rect_t{}, STR_USBJOYSTICK_CIRC_COUTOUT, 0, COLOR_THEME_PRIMARY1);
+      line, rect_t{}, STR_USBJOYSTICK_CIRC_COUTOUT, COLOR_THEME_PRIMARY1);
   _CircCoutout =
       new Choice(line, rect_t{}, STR_VUSBJOYSTICK_CIRC_COUTOUT, 0, USBJOYS_LAST,
                  GET_DEFAULT(g_model.usbJoystickCircularCut),
                  SET_VALUE_WUPDATE(g_model.usbJoystickCircularCut));
 
 #if LCD_H > LCD_W
-  line = form->newLine(&grid);
+  line = body->newLine(grid);
 #endif
 
   _ApplyBtn =
@@ -586,10 +565,11 @@ ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB)
         return 0;
       });
 
-  auto btngrp = new FormWindow(form, rect_t{});
+  auto btngrp = new Window(body, rect_t{});
+  btngrp->padAll(PAD_TINY);
   _ChannelsGroup = btngrp;
   btngrp->setFlexLayout();
-  btngrp->padRow(lv_dpx(4));
+  btngrp->padRow(PAD_SMALL);
   for (uint8_t ch = 0; ch < USBJ_MAX_JOYSTICK_CHANNELS; ch++) {
     // Channel settings
     auto btn = new USBChannelLineButton(btngrp, ch);
@@ -604,7 +584,6 @@ ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB)
         menu->addLine(STR_CLEAR, [=]() {
           memset(cch, 0, sizeof(USBJoystickChData));
           SET_DIRTY();
-          btn->invalidate();
         });
       }
       return 0;
@@ -621,13 +600,10 @@ void ModelUSBJoystickPage::update()
                                _CircCoutout, _ApplyBtn, _ChannelsGroup};
 
   for (uint8_t i = 0; i < usbj_ctrls; i++) {
-    if (usbJoystickExtMode()) {
-      lv_obj_clear_flag(ctrls[i]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-      _ApplyBtn->enable(usbJoystickSettingsChanged());
-    } else {
-      lv_obj_add_flag(ctrls[i]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    }
+    ctrls[i]->show(usbJoystickExtMode());
   }
+
+  _ApplyBtn->enable(usbJoystickSettingsChanged());
 }
 
 void ModelUSBJoystickPage::editChannel(uint8_t channel,

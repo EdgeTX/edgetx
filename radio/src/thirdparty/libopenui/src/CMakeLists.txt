@@ -9,6 +9,8 @@ endif()
 set(LIBOPENUI_SRC
   libopenui_file.cpp
   bitmapbuffer.cpp
+  bitmapbuffer_fileio.cpp
+  bitmapbuffer_draw_extra.cpp
   window.cpp
   layer.cpp
   form.cpp

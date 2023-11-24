@@ -31,24 +31,23 @@
 
 #include "board.h"
 #include "hal/adc_driver.h"
+#include "themes/etx_lv_theme.h"
 
 static Window* create_layout_box(Window* parent, lv_align_t align,
                                  lv_flex_flow_t flow)
 {
-  lv_obj_t* lv_parent = parent->getLvObj();
+  auto w = new Window(parent, rect_t{0, 0, LV_SIZE_CONTENT, LV_SIZE_CONTENT});
 
-  auto box = window_create(lv_parent);
-  lv_obj_set_size(box, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-  lv_obj_set_align(box, align);
-  lv_obj_set_flex_flow(box, flow);
+  lv_obj_set_align(w->getLvObj(), align);
+  lv_obj_set_flex_flow(w->getLvObj(), flow);
 
   if (_LV_FLEX_COLUMN & flow) {
-    lv_obj_set_style_pad_row(box, 0, 0);
+    lv_obj_set_style_pad_row(w->getLvObj(), 0, 0);
   } else {
-    lv_obj_set_style_pad_column(box, 0, 0);
+    lv_obj_set_style_pad_column(w->getLvObj(), 0, 0);
   }
 
-  return new Window(parent, box);
+  return w;
 }
 
 ViewMainDecoration::ViewMainDecoration(Window* parent) :
@@ -73,10 +72,9 @@ ViewMainDecoration::ViewMainDecoration(Window* parent) :
 
 void ViewMainDecoration::setSlidersVisible(bool visible)
 {
-  auto fct = !visible ? lv_obj_add_flag : lv_obj_clear_flag;
   for (int i=0; i < SLIDERS_MAX; i++) {
     if (sliders[i]) {
-      fct(sliders[i]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      sliders[i]->show(visible);
     }
   }
 }
@@ -92,20 +90,8 @@ void ViewMainDecoration::setTrimsVisible(bool visible)
 
 void ViewMainDecoration::setFlightModeVisible(bool visible)
 {
-  auto fct = !visible ? lv_obj_add_flag : lv_obj_clear_flag;
-  if (flightMode) {
-    fct(flightMode->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  }
-}
-
-void ViewMainDecoration::updateFromTheme()
-{
-  // Hack to fix flight mode color on main view
-  // Required because theme is loaded after the main view has been created
-  if (flightMode) {
-    lv_obj_set_style_text_color(flightMode->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY1), 0);
-    flightMode->invalidate();
-  }
+  if (flightMode)
+    flightMode->show(visible);
 }
 
 rect_t ViewMainDecoration::getMainZone() const
@@ -130,22 +116,35 @@ rect_t ViewMainDecoration::getMainZone() const
 
 void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br)
 {
-  sliders[0] = new MainViewHorizontalSlider(bl, 0);
+  int pot = 0, sl = 0;
 
-  if (!IS_POT_AVAILABLE(2))
-    bc = br;
-  
-  if (IS_POT_MULTIPOS(1))
-    sliders[1] = new MainView6POS(bc, 1);
-  else if (IS_POT_AVAILABLE(1))
-    sliders[1] = new MainViewHorizontalSlider(bc, 1);
+  // Bottom left horizontal slider
+  if (IS_POT_AVAILABLE(pot)) {
+    sliders[sl] = new MainViewHorizontalSlider(bl, pot);
+    sl += 1;
+  }
+  pot += 1;
 
-  if (IS_POT_AVAILABLE(2))
-    sliders[2] = new MainViewHorizontalSlider(br, 2);
+  // Bottom center 6POS
+  if (IS_POT_AVAILABLE(pot)) {
+    if (IS_POT_MULTIPOS(pot)) {
+      // Has 6POS - place bottom center
+      sliders[sl] = new MainView6POS(bc, pot);
+      pot += 1; sl += 1;
+    }
+  } else {
+    pot += 1;
+  }
 
-  // TODO: check how many pots are configured instead
+  // Bottom right horizontal slider
+  if (IS_POT_AVAILABLE(pot)) {
+    sliders[sl] = new MainViewHorizontalSlider(br, pot);
+    sl += 1;
+  }
+  pot += 1;
+
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
-  if (max_pots > 3) {
+  if (max_pots > pot) {
     // create containers for the sliders, so that they are at the borders of the display
     // on top of each other, when there are two sliders to display per side
     auto leftPots = create_layout_box(ml, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_COLUMN);
@@ -154,20 +153,30 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
     auto rightPots = create_layout_box(mr, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_COLUMN);
     rightPots->setHeight(VERTICAL_SLIDERS_HEIGHT);
 
-    coord_t lsh = (IS_POT_AVAILABLE(5)) ? VERTICAL_SLIDERS_HEIGHT / 2 : VERTICAL_SLIDERS_HEIGHT;
-    coord_t rsh = (IS_POT_AVAILABLE(6)) ? VERTICAL_SLIDERS_HEIGHT / 2 : VERTICAL_SLIDERS_HEIGHT;
+    coord_t lsh = (IS_POT_AVAILABLE(pot + 2)) ? VERTICAL_SLIDERS_HEIGHT / 2 : VERTICAL_SLIDERS_HEIGHT;
+    coord_t rsh = (IS_POT_AVAILABLE(pot + 3)) ? VERTICAL_SLIDERS_HEIGHT / 2 : VERTICAL_SLIDERS_HEIGHT;
 
-    if (IS_POT_AVAILABLE(3))
-      sliders[3] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, TRIM_SQUARE_SIZE, lsh}, 3);
+    if (IS_POT_AVAILABLE(pot)) {
+      sliders[sl] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, TRIM_SQUARE_SIZE, lsh}, pot);
+      sl += 1;
+    }
+    pot += 1;
 
-    if (IS_POT_AVAILABLE(4))
-      sliders[4] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, TRIM_SQUARE_SIZE, rsh}, 4);
+    if (IS_POT_AVAILABLE(pot)) {
+      sliders[sl] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, TRIM_SQUARE_SIZE, rsh}, pot);
+      sl += 1;
+    }
+    pot += 1;
 
-    if (IS_POT_AVAILABLE(5))
-      sliders[5] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, TRIM_SQUARE_SIZE, lsh}, 5);
+    if (IS_POT_AVAILABLE(pot)) {
+      sliders[sl] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, TRIM_SQUARE_SIZE, lsh}, pot);
+      sl += 1;
+    }
+    pot += 1;
 
-    if (IS_POT_AVAILABLE(6))
-      sliders[6] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, TRIM_SQUARE_SIZE, rsh}, 6);
+    if (IS_POT_AVAILABLE(pot)) {
+      sliders[sl] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, TRIM_SQUARE_SIZE, rsh}, pot);
+    }
   }
 }
 

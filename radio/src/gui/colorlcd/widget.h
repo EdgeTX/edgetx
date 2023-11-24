@@ -21,178 +21,145 @@
 
 #pragma once
 
-#include <list>
 #include <string.h>
+
+#include <list>
+
 #include "button.h"
 #include "widgets_container.h"
-#include "debug.h"
-
-// YAML_GENERATOR defs
-#if !defined(USE_IDX)
-#define USE_IDX
-#endif
 
 class WidgetFactory;
 
-class Widget : public Button
+class Widget : public ButtonBase
 {
-  public:
+ public:
+  typedef WidgetPersistentData PersistentData;
 
-    typedef WidgetPersistentData PersistentData;
+  Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
+         WidgetPersistentData* persistentData);
 
-    Widget(const WidgetFactory *factory, Window* parent, const rect_t &rect,
-           WidgetPersistentData *persistentData);
+  ~Widget() override = default;
 
-    ~Widget() override = default;
+  const WidgetFactory* getFactory() const { return factory; }
 
-    inline const WidgetFactory * getFactory() const
-    {
-        return factory;
-    }
+  const ZoneOption* getOptions() const;
 
-    inline const ZoneOption * getOptions() const;
+  virtual const char* getErrorMessage() const { return nullptr; }
 
-    virtual const char * getErrorMessage() const
-    {
-      return nullptr;
-    }
+  ZoneOptionValue* getOptionValue(unsigned int index) const
+  {
+    return &persistentData->options[index].value;
+  }
 
-    inline ZoneOptionValue * getOptionValue(unsigned int index) const
-    {
-      return &persistentData->options[index].value;
-    }
+  //
+  // TODO: for some reason, this one crashes on the radio...
+  //
+  // inline void setOptionValue(unsigned int index, const ZoneOptionValue&
+  // value)
+  // {
+  //   persistentData->options[index].value = value;
+  // }
 
-    // 
-    // TODO: for some reason, this one crashes on the radio...
-    //
-    // inline void setOptionValue(unsigned int index, const ZoneOptionValue& value)
-    // {
-    //   persistentData->options[index].value = value;
-    // }
-
-    inline PersistentData * getPersistentData()
-    {
-      return persistentData;
-    }
+  PersistentData* getPersistentData() { return persistentData; }
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "Widget";
-    }
+  std::string getName() const override { return "Widget"; }
 #endif
 
-    // Window interface
+  // Window interface
 #if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
+  void onEvent(event_t event) override;
 #endif
-    void paint(BitmapBuffer * dc) override;
 
-    // Widget interface
+  // Widget interface
 
-    // Set/unset fullscreen mode
-    void setFullscreen(bool enable);
+  // Set/unset fullscreen mode
+  void setFullscreen(bool enable);
 
-    // Disable setting fullscreen mode
-    void disableFullscreen();
-    bool isFullscreenAllowed() { return fsAllowed; }
-  
-    // Called when the widget options have changed
-    virtual void update();
+  // Disable setting fullscreen mode
+  void disableFullscreen();
+  bool isFullscreenAllowed() { return fsAllowed; }
 
-    // Called when the widget should redraw
-    virtual void refresh(BitmapBuffer* dc) = 0;
+  // Called when the widget options have changed
+  virtual void update();
 
-    // Called at regular time interval, even if the widget cannot be seen
-    virtual void background() {}
+  // Called at regular time interval, even if the widget cannot be seen
+  virtual void background() {}
 
-    // Update widget 'zone' data (for Lua widgets)
-    virtual void updateZoneRect(rect_t rect) {}
+  // Update widget 'zone' data (for Lua widgets)
+  virtual void updateZoneRect(rect_t rect) {}
 
-  protected:
-    const WidgetFactory * factory;
-    PersistentData * persistentData;
-    uint32_t focusGainedTS = 0;
-    bool fullscreen = false;
-    bool fsAllowed = true;
+ protected:
+  const WidgetFactory* factory;
+  PersistentData* persistentData;
+  bool fullscreen = false;
+  bool fsAllowed = true;
 
-    void onCancel() override;
-    void onLongPress() override;
+  void onCancel() override;
+  void onLongPress() override;
 
-    virtual void onFullscreen(bool enable) {}
-    void openMenu();
+  virtual void onFullscreen(bool enable) {}
+  void openMenu();
 };
-
-void registerWidget(const WidgetFactory * factory);
-void unregisterWidget(const WidgetFactory * factory);
 
 class WidgetFactory
 {
-  public:
-    explicit WidgetFactory(const char * name, const ZoneOption * options = nullptr, const char * displayName = nullptr):
-      name(name),
-      displayName(displayName),
-      options(options)
-    {
-      registerWidget(this);
-    }
+ public:
+  explicit WidgetFactory(const char* name, const ZoneOption* options = nullptr,
+                         const char* displayName = nullptr) :
+      name(name), displayName(displayName), options(options)
+  {
+    registerWidget(this);
+  }
 
-    virtual ~WidgetFactory() {}
+  virtual ~WidgetFactory() {}
 
-    inline const char * getName() const
-    {
-        return name;
-    }
+  const char* getName() const { return name; }
 
-    inline const ZoneOption * getOptions() const
-    {
-      return options;
-    }
+  const ZoneOption* getOptions() const { return options; }
 
-    inline const char * getDisplayName() const
-    {
-        if (displayName)
-          return displayName;
-        else
-          return name;
-    }
+  const char* getDisplayName() const
+  {
+    return displayName ? displayName : name;
+  }
 
-    void initPersistentData(Widget::PersistentData * persistentData, bool setDefault) const
-    {
-      if (setDefault) {
-        memset(persistentData, 0, sizeof(Widget::PersistentData));
-      }
-      if (options) {
-        int i = 0;
-        for (const ZoneOption * option = options; option->name; option++, i++) {
-          TRACE("WidgetFactory::initPersistentData() setting option '%s'", option->name);
-          // TODO compiler bug? The CPU freezes ... persistentData->options[i++] = option->deflt;
-          auto optVal = &persistentData->options[i];
-          auto optType = zoneValueEnumFromType(option->type);
-          if (setDefault || optVal->type != optType) {
-            // reset to default value
-            memcpy(&optVal->value, &option->deflt, sizeof(ZoneOptionValue));
-            optVal->type = optType;
-          }
-        }
-      }
-    }
+  void initPersistentData(Widget::PersistentData* persistentData,
+                          bool setDefault) const;
 
-    virtual Widget * create(Window* parent, const rect_t & rect, Widget::PersistentData * persistentData, bool init = true) const = 0;
+  virtual Widget* create(Window* parent, const rect_t& rect,
+                         Widget::PersistentData* persistentData,
+                         bool init = true) const = 0;
 
-    virtual bool isLuaWidgetFactory() const { return false; }
+  virtual bool isLuaWidgetFactory() const { return false; }
 
-  protected:
-    const char * name;
-    const char * displayName;
-    const ZoneOption * options;
+  static std::list<const WidgetFactory*>& getRegisteredWidgets();
+  static void registerWidget(const WidgetFactory* factory);
+  static void unregisterWidget(const WidgetFactory* factory);
+  static const WidgetFactory* getWidgetFactory(const char* name);
+  static Widget* newWidget(const char* name, Window* parent, const rect_t& rect,
+                           Widget::PersistentData* persistentData);
+
+ protected:
+  const char* name;
+  const char* displayName;
+  const ZoneOption* options;
 };
 
-inline const ZoneOption * Widget::getOptions() const
+template <class T>
+class BaseWidgetFactory : public WidgetFactory
 {
-  return getFactory()->getOptions();
-}
+ public:
+  BaseWidgetFactory(const char* name, const ZoneOption* options,
+                    const char* displayName = nullptr) :
+      WidgetFactory(name, options, displayName)
+  {
+  }
 
-Widget * loadWidget(const char * name, Window* parent, const rect_t & rect, Widget::PersistentData * persistentData);
-
-std::list<const WidgetFactory *> & getRegisteredWidgets();
+  Widget* create(Window* parent, const rect_t& rect,
+                 Widget::PersistentData* persistentData,
+                 bool init = true) const override
+  {
+    initPersistentData(persistentData, init);
+    return new T(this, parent, rect, persistentData);
+  }
+};

@@ -38,17 +38,17 @@
 const uint8_t __bmp_plug_usb[] {
 #include "bmp_plug_usb.lbm"
 };
-LZ4Bitmap BMP_PLUG_USB(BMP_ARGB4444, __bmp_plug_usb);
+LZ4BitmapBuffer BMP_PLUG_USB(BMP_ARGB4444, (LZ4Bitmap*)__bmp_plug_usb);
 
 const uint8_t __bmp_usb_plugged[] {
 #include "bmp_usb_plugged.lbm"
 };
-LZ4Bitmap BMP_USB_PLUGGED(BMP_ARGB4444, __bmp_usb_plugged);
+LZ4BitmapBuffer BMP_USB_PLUGGED(BMP_ARGB4444, (LZ4Bitmap*)__bmp_usb_plugged);
 
 #define BL_GREEN      COLOR2FLAGS(RGB(73, 219, 62))
 #define BL_RED        COLOR2FLAGS(RGB(229, 32, 30))
-#define BL_BACKGROUND COLOR2FLAGS(BLACK)
-#define BL_FOREGROUND COLOR2FLAGS(WHITE)
+#define BL_BACKGROUND COLOR_BLACK
+#define BL_FOREGROUND COLOR_WHITE
 #define BL_SELECTED   COLOR2FLAGS(RGB(11, 65, 244)) // deep blue
 
 extern BitmapBuffer * lcd;

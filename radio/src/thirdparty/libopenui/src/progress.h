@@ -20,20 +20,18 @@
 
 #include "window.h"
 
-class Progress: public Window {
-  public:
-    Progress(Window * parent, const rect_t & rect);
+class Progress : public Window
+{
+ public:
+  Progress(Window* parent, const rect_t& rect);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "Progress";
-    }
+  std::string getName() const override { return "Progress"; }
 #endif
 
-    void setValue(int newValue);
+  void setValue(int newValue);
 
-  protected:
-    int value = -1;
-    lv_obj_t* bar;
+ protected:
+  int value = -1;
+  lv_obj_t* bar;
 };

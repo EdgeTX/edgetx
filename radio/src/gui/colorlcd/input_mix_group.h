@@ -21,45 +21,47 @@
 
 #pragma once
 
-#include "window.h"
+#include "tabsgroup.h"
 #include "opentx_types.h"
 
 #include <list>
 
 class MixerChannelBar;
 
-class InputMixGroup : public Window
+class InputMixGroupBase : public Window
 {
-  struct Line {
-    Window*        win;
-    const uint8_t* symbol;
-
-    Line(Window* w, const uint8_t* s) :
-      win(w), symbol(s)
-    {}
-  };
-
-  mixsrc_t idx;
-  std::list<Line> lines;
-
-  lv_obj_t* label;
-  lv_obj_t* line_container;
-
-  MixerChannelBar* monitor = nullptr;
-  
-  static void value_changed(lv_event_t* e);
-  
  public:
-  InputMixGroup(Window* parent, mixsrc_t idx);
-
-  void enableMixerMonitor(uint8_t channel);
-  void disableMixerMonitor();
-
-  bool mixerMonitorEnabled() { return monitor != nullptr; }
+  InputMixGroupBase(Window* parent, mixsrc_t idx,
+                    const lv_coord_t* gridCols = nullptr);
     
   mixsrc_t getMixSrc() { return idx; }
   size_t getLineCount() { return lines.size(); }
   
-  void addLine(Window* line, const uint8_t* symbol = nullptr);
+  void addLine(Window* line);
   bool removeLine(Window* line);
+  
+  void refresh();
+
+ protected:
+  mixsrc_t idx;
+  std::list<Window*> lines;
+
+  lv_obj_t* label;
+  lv_obj_t* line_container;
+};
+
+class InputMixPageBase : public PageTab
+{
+ public:
+  InputMixPageBase(std::string title, EdgeTxIcon icon) :
+    PageTab(title, icon) {}
+
+ protected:
+  Window* form = nullptr;
+  uint8_t _copyMode = 0;
+  std::list<InputMixGroupBase*> groups;
+
+  InputMixGroupBase* getGroupBySrc(mixsrc_t src);
+
+  void removeGroup(InputMixGroupBase* g);
 };

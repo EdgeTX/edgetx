@@ -22,11 +22,11 @@
 #include "layout.h"
 #include "layout_factory_impl.h"
 
-static uint8_t zmap[] = {
+static const uint8_t zmap[] = {
     LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_FULL,
     LAYOUT_MAP_HALF, LAYOUT_MAP_0, LAYOUT_MAP_HALF, LAYOUT_MAP_FULL,
 };
 
 BaseLayoutFactory<Layout> Layout2x1("Layout2x1", "2 x 1",
                                     defaultZoneOptions,
-                                    2, zmap);
+                                    2, (uint8_t*)zmap);

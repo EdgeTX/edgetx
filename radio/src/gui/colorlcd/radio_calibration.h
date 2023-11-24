@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
 #include "page.h"
 
 class StaticText;
@@ -37,7 +39,7 @@ class RadioCalibrationPage: public Page {
     bool initial;
     void nextStep();
     void buildHeader(Window * window);
-    void buildBody(FormWindow * window);
+    void buildBody(Window * window);
 };
 
 void startCalibration();

@@ -21,62 +21,57 @@
 
 #pragma once
 
-// TODO: hotfix, through FatFS out of libopenui instead
-#if !defined(YAML_GENERATOR)
-#include "ffconf.h"
-#else
-#define FF_MAX_LFN 255
-#endif
+#include "opentx.h"
+#include "bitmaps.h"
 
 class BitmapBuffer;
 
 class EdgeTxTheme
 {
-  public:
-    EdgeTxTheme();
+ public:
+  EdgeTxTheme();
 
-    static EdgeTxTheme * instance();
+  static EdgeTxTheme *instance();
 
-    const char * getFilePath(const char * filename) const;
+  virtual void load();
+  void update();
 
-    void createIcons();
-    void loadColors() const;
-    void loadIcons() const;
-    virtual void load();
-    void update();
+  void setBackgroundImageFileName(const char *fileName);
 
-    void setBackgroundImageFileName(const char *fileName);
+ protected:
+  static EdgeTxTheme *_instance;
 
-    void drawBackground(BitmapBuffer * dc) const;
+  char backgroundImageFileName[FF_MAX_LFN + 1];
 
-    void drawPageHeaderBackground(BitmapBuffer *dc, uint8_t icon, const char *title) const;
+  const BitmapBuffer *backgroundBitmap = nullptr;
+};
 
-    void drawMenuIcon(BitmapBuffer *dc, uint8_t icon, bool checked) const;
+class HeaderDateTime
+{
+ public:
+  HeaderDateTime(lv_obj_t *parent, int x, int y);
+  void update();
+  void setColor(uint32_t color);
 
-    void drawMenuDatetime(BitmapBuffer * dc, coord_t x, coord_t y, LcdFlags color) const;
+ protected:
+  lv_obj_t *date = nullptr;
+  lv_obj_t *time = nullptr;
+  int8_t lastMinute = -1;
+};
 
-    void drawHeaderIcon(BitmapBuffer * dc, uint8_t icon) const;
+class HeaderIcon
+{
+ public:
+  HeaderIcon(Window *parent, EdgeTxIcon icon);
+};
 
-    void drawUsbPluggedScreen(BitmapBuffer * dc) const;
+class UsbSDConnected : public Window
+{
+ public:
+  UsbSDConnected();
 
-    const BitmapBuffer * getIconMask(uint8_t index) const;
+  void checkEvents() override;
 
-    uint16_t* getDefaultColors() const { return defaultColors; }
-
-  protected:
-    bool iconsLoaded = false;
-    const char * name;
-    char backgroundImageFileName[FF_MAX_LFN + 1];
-
-    const BitmapBuffer * backgroundBitmap = nullptr;
-    const BitmapBuffer * topleftBitmap = nullptr;
-    BitmapBuffer * currentMenuBackground = nullptr;
-    BitmapBuffer ** iconMask = nullptr;
-
-    static uint16_t defaultColors[LCD_COLOR_COUNT];
-
-  public:
-    const BitmapBuffer * error = nullptr;
-    const BitmapBuffer * busy = nullptr;
-    const BitmapBuffer * shutdown = nullptr;
+ protected:
+  HeaderDateTime* dateTime = nullptr;
 };

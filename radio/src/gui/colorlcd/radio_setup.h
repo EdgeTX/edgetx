@@ -19,11 +19,13 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
 #include "tabsgroup.h"
 
 class RadioSetupPage: public PageTab {
   public:
     RadioSetupPage();
 
-    void build(FormWindow * window) override;
+    void build(Window * window) override;
 };

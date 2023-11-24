@@ -19,73 +19,91 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "radio_ghost_module_config.h"
+
 #include "libopenui.h"
+#include "opentx.h"
 #include "telemetry/ghost.h"
 #include "telemetry/ghost_menu.h"
 
-class GhostModuleConfigWindow: public Window
+class GhostModuleConfigWindow : public Window
 {
-  public:
-    GhostModuleConfigWindow(Window * parent, const rect_t & rect) :
-    Window(parent, rect, REFRESH_ALWAYS)
-    {
-      // setFocus(SET_FOCUS_DEFAULT);
-    }
-
-    void paint(BitmapBuffer * dc) override
-    {
+ public:
+  GhostModuleConfigWindow(Window* parent, const rect_t& rect) :
+      Window(parent, rect)
+  {
 #if LCD_H > LCD_W
-      constexpr coord_t xOffset = 20;
-      constexpr coord_t xOffset2 = 140;
+    constexpr coord_t xOffset = 20;
+    constexpr coord_t xOffset2 = 140;
 #else
-      constexpr coord_t xOffset = 140;
-      constexpr coord_t xOffset2 = 260;
+    constexpr coord_t xOffset = 140;
+    constexpr coord_t xOffset2 = 260;
 #endif
-      constexpr coord_t yOffset = 20;
-      constexpr coord_t lineSpacing = 25;
+    constexpr coord_t yOffset = 20;
+    constexpr coord_t lineSpacing = 25;
+    coord_t h = getFontHeight(FONT(L));
 
-      for (uint8_t line = 0; line < GHST_MENU_LINES; line++) {
-        if (reusableBuffer.ghostMenu.line[line].splitLine) {
-          if (reusableBuffer.ghostMenu.line[line].lineFlags & GHST_LINE_FLAGS_LABEL_SELECT) {
-            dc->drawSolidFilledRect(xOffset, yOffset + line * lineSpacing, getTextWidth(reusableBuffer.ghostMenu.line[line].menuText, 0,FONT(L)), getFontHeight(FONT(L)), FONT(L) | COLOR_THEME_FOCUS);
-            dc->drawText(xOffset, yOffset + line * lineSpacing, reusableBuffer.ghostMenu.line[line].menuText, FONT(L) | COLOR_THEME_SECONDARY3);
-          }
-          else {
-            dc->drawText(xOffset, yOffset + line * lineSpacing, reusableBuffer.ghostMenu.line[line].menuText, FONT(L));
-          }
+    for (int i = 0; i < GHST_MENU_LINES; i += 1) {
+      menuLines[i][0] = new StaticText(
+          this, {xOffset, yOffset + i * lineSpacing, LV_SIZE_CONTENT, h}, "",
+          FONT(L));
+      etx_txt_color(menuLines[i][0]->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
+                    LV_PART_MAIN);
+      etx_solid_bg(menuLines[i][0]->getLvObj(), COLOR_THEME_FOCUS_INDEX,
+                   LV_STATE_USER_1);
+      etx_txt_color(menuLines[i][0]->getLvObj(), COLOR_THEME_SECONDARY3_INDEX,
+                    LV_STATE_USER_1);
 
-          if (reusableBuffer.ghostMenu.line[line].lineFlags & GHST_LINE_FLAGS_VALUE_SELECT) {
-            dc->drawSolidFilledRect(xOffset, yOffset + line * lineSpacing, getTextWidth( &reusableBuffer.ghostMenu.line[line].menuText[reusableBuffer.ghostMenu.line[line].splitLine], 0,FONT(L)), getFontHeight(0), COLOR_THEME_FOCUS);
-            dc->drawText(xOffset, yOffset + line * lineSpacing,  &reusableBuffer.ghostMenu.line[line].menuText[reusableBuffer.ghostMenu.line[line].splitLine], FONT(L) | COLOR_THEME_SECONDARY3);
-          }
-          else {
-            dc->drawText(xOffset2, yOffset + line * lineSpacing, &reusableBuffer.ghostMenu.line[line].menuText[reusableBuffer.ghostMenu.line[line].splitLine], FONT(L) | COLOR_THEME_SECONDARY1);
-          }
-        }
-        else {
-          if (reusableBuffer.ghostMenu.line[line].lineFlags & GHST_LINE_FLAGS_LABEL_SELECT) {
-            dc->drawSolidFilledRect(xOffset, yOffset + line * lineSpacing, getTextWidth(reusableBuffer.ghostMenu.line[line].menuText, 0, FONT(L)), getFontHeight(FONT(L)), COLOR_THEME_FOCUS);
-            dc->drawText(xOffset, yOffset + line * lineSpacing, reusableBuffer.ghostMenu.line[line].menuText, FONT(L) | COLOR_THEME_SECONDARY3);
-          }
-          else if (reusableBuffer.ghostMenu.line[line].lineFlags & GHST_LINE_FLAGS_VALUE_EDIT) {
-            if (BLINK_ON_PHASE) {
-              dc->drawText(xOffset, yOffset + line * lineSpacing, reusableBuffer.ghostMenu.line[line].menuText, FONT(L));
-            }
-          }
-          else {
-            dc->drawText(xOffset, yOffset + line * lineSpacing, reusableBuffer.ghostMenu.line[line].menuText, FONT(L) | COLOR_THEME_SECONDARY1);
-          }
-        }
+      menuLines[i][1] = new StaticText(
+          this, {xOffset2, yOffset + i * lineSpacing, LV_SIZE_CONTENT, h}, "",
+          FONT(L));
+      etx_txt_color(menuLines[i][1]->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
+                    LV_PART_MAIN);
+      etx_solid_bg(menuLines[i][1]->getLvObj(), COLOR_THEME_FOCUS_INDEX,
+                   LV_STATE_USER_1);
+      etx_txt_color(menuLines[i][1]->getLvObj(), COLOR_THEME_SECONDARY3_INDEX,
+                    LV_STATE_USER_1);
+    }
+  }
+
+ protected:
+  StaticText* menuLines[GHST_MENU_LINES][2];
+
+  void checkEvents() override
+  {
+    for (uint8_t i = 0; i < GHST_MENU_LINES; i += 1) {
+      if (reusableBuffer.ghostMenu.line[i].splitLine) {
+        menuLines[i][0]->setText(reusableBuffer.ghostMenu.line[i].menuText);
+        if (reusableBuffer.ghostMenu.line[i].lineFlags &
+            GHST_LINE_FLAGS_LABEL_SELECT)
+          lv_obj_add_state(menuLines[i][0]->getLvObj(), LV_STATE_USER_1);
+
+        menuLines[i][1]->setText(reusableBuffer.ghostMenu.line[i].menuText +
+                                 reusableBuffer.ghostMenu.line[i].splitLine);
+        if (reusableBuffer.ghostMenu.line[i].lineFlags &
+            GHST_LINE_FLAGS_VALUE_SELECT)
+          lv_obj_add_state(menuLines[i][1]->getLvObj(), LV_STATE_USER_1);
+      } else {
+        if (reusableBuffer.ghostMenu.line[i].lineFlags &
+                GHST_LINE_FLAGS_VALUE_EDIT &&
+            BLINK_ON_PHASE)
+          menuLines[i][0]->setText("");
+        else
+          menuLines[i][0]->setText(reusableBuffer.ghostMenu.line[i].menuText);
+        if (reusableBuffer.ghostMenu.line[i].lineFlags &
+            GHST_LINE_FLAGS_LABEL_SELECT)
+          lv_obj_add_state(menuLines[i][0]->getLvObj(), LV_STATE_USER_1);
+
+        menuLines[i][1]->setText("");
       }
     }
-  protected:
+  }
 };
 
 static void ghostmoduleconfig_cb(lv_event_t* e)
 {
-  RadioGhostModuleConfig* ghostmoduleconfig = (RadioGhostModuleConfig*)lv_event_get_user_data(e);
+  RadioGhostModuleConfig* ghostmoduleconfig =
+      (RadioGhostModuleConfig*)lv_event_get_user_data(e);
   if (!ghostmoduleconfig || ghostmoduleconfig->deleted()) return;
 
   uint32_t key = lv_event_get_key(e);
@@ -120,12 +138,11 @@ void RadioGhostModuleConfig::onCancel()
 #endif
 
 RadioGhostModuleConfig::RadioGhostModuleConfig(uint8_t moduleIdx) :
-  Page(ICON_RADIO_TOOLS),
-  moduleIdx(moduleIdx)
+    Page(ICON_RADIO_TOOLS), moduleIdx(moduleIdx)
 {
   init();
-  buildHeader(&header);
-  buildBody(&body);
+  buildHeader(header);
+  buildBody(body);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
   lv_group_add_obj(lv_group_get_default(), lvobj);
@@ -136,14 +153,16 @@ RadioGhostModuleConfig::RadioGhostModuleConfig(uint8_t moduleIdx) :
 #endif
 }
 
-void RadioGhostModuleConfig::buildHeader(Window * window)
+void RadioGhostModuleConfig::buildHeader(Window* window)
 {
-  header.setTitle("GHOST MODULE");
+  header->setTitle("GHOST MODULE");
 }
 
-void RadioGhostModuleConfig::buildBody(FormWindow * window)
+void RadioGhostModuleConfig::buildBody(Window* window)
 {
-  new GhostModuleConfigWindow(window, {0, 0, LCD_W, LCD_H - MENU_HEADER_HEIGHT - 5});
+  window->padAll(PAD_ZERO);
+  new GhostModuleConfigWindow(window,
+                              {0, 0, LCD_W, LCD_H - MENU_HEADER_HEIGHT - 5});
 }
 
 #if defined(HARDWARE_KEYS) && !defined(PCBPL18)
@@ -168,12 +187,13 @@ void RadioGhostModuleConfig::checkEvents()
 {
   Page::checkEvents();
 
-  if (reusableBuffer.ghostMenu.menuStatus == GHST_MENU_STATUS_UNOPENED) { // Handles situation where module is plugged after tools start
+  if (reusableBuffer.ghostMenu.menuStatus ==
+      GHST_MENU_STATUS_UNOPENED) {  // Handles situation where module is
+                                    // plugged after tools start
     reusableBuffer.ghostMenu.buttonAction = GHST_BTN_NONE;
     reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_OPEN;
     moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
-  }
-  else if (reusableBuffer.ghostMenu.menuStatus == GHST_MENU_STATUS_CLOSING) {
+  } else if (reusableBuffer.ghostMenu.menuStatus == GHST_MENU_STATUS_CLOSING) {
     RTOS_WAIT_MS(10);
     deleteLater();
 #if defined(TRIMS_EMULATE_BUTTONS)
@@ -190,4 +210,3 @@ void RadioGhostModuleConfig::init()
   reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_OPEN;
   moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
 }
-

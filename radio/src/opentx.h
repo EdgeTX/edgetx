@@ -174,7 +174,13 @@ struct CustomFunctionsContext {
 };
 
 #include "strhelpers.h"
+#if defined(COLORLCD)
+#include "gui_common.h"
+#include "menus.h"
+#include "popups.h"
+#else
 #include "gui.h"
+#endif
 
 #if !defined(SIMU)
   #define assert(x)
@@ -193,6 +199,10 @@ inline bool SPLASH_NEEDED()
 #endif
 
 #define SPLASH_TIMEOUT (g_eeGeneral.splashMode == -4 ? 1500 : (g_eeGeneral.splashMode <= 0 ? (400-g_eeGeneral.splashMode * 200) : (400 - g_eeGeneral.splashMode * 100)))
+
+extern void startSplash();
+extern void waitSplash();
+extern void cancelSplash();
 
 extern uint8_t heartbeat;
 

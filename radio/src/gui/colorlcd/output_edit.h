@@ -22,14 +22,7 @@
 #pragma once
 
 #include "page.h"
-#include "form.h"
 #include "gvar_numberedit.h"
-#include "static.h"
-
-// deadband in % for switching direction of Min/Max text and value field highlighting
-// 0 = no deadband
-// 1..100 = [-DEADBAND; DEADBAND]
-#define DEADBAND 0
 
 class OutputEditStatusBar;
 
@@ -49,5 +42,5 @@ class OutputEditWindow : public Page
 
   void checkEvents() override;
   void buildHeader(Window *window);
-  void buildBody(FormWindow *window);
+  void buildBody(Window *window);
 };

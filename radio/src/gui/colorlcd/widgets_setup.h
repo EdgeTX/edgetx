@@ -22,12 +22,11 @@
 #pragma once
 
 #include "button.h"
-#include "form.h"
 
 class ScreenMenu;
 class WidgetsContainer;
 
-class SetupWidgetsPage : public FormWindow
+class SetupWidgetsPage : public Window
 {
  public:
   SetupWidgetsPage(uint8_t customScreenIdx);
@@ -49,14 +48,18 @@ class SetupWidgetsPage : public FormWindow
   void onEvent(event_t event) override;
 };
 
-class SetupWidgetsPageSlot : public Button
+class SetupWidgetsPageSlot : public ButtonBase
 {
  public:
-  SetupWidgetsPageSlot(FormWindow* parent, const rect_t& rect,
+  SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
                        WidgetsContainer* container, uint8_t slotIndex);
 
-  void paint(BitmapBuffer* dc) override;
-
  protected:
+  lv_style_t borderStyle;
+  lv_point_t borderPts[5];
+  lv_obj_t* border;
+
+  void setFocusState();
+
   void addNewWidget(WidgetsContainer* container, uint8_t slotIndex);
 };

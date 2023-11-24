@@ -22,6 +22,7 @@
 #include "fm_matrix.h"
 
 #include "opentx.h"
+#include "themes/etx_lv_theme.h"
 
 template <class T>
 FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
@@ -47,9 +48,7 @@ FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
   lv_obj_set_height(lvobj, 108);
 #endif
 
-  lv_obj_set_style_pad_all(lvobj, lv_dpx(4), LV_PART_MAIN);
-  lv_obj_set_style_pad_row(lvobj, lv_dpx(4), LV_PART_MAIN);
-  lv_obj_set_style_pad_column(lvobj, lv_dpx(4), LV_PART_MAIN);
+  padAll(PAD_SMALL);
 }
 
 template <class T>

@@ -20,6 +20,7 @@
  */
 
 #pragma once
+
 #include "libopenui.h"
 
 class MultiRfProtocols;

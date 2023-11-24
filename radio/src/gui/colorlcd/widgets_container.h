@@ -19,12 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _WIDGETS_CONTAINER_H_
-#define _WIDGETS_CONTAINER_H_
+#pragma once
 
-#include <stdlib.h>
-#include "opentx_types.h"
-#include "form.h"
+#include "window.h"
 #include "zone.h"
 
 #define WIDGET_NAME_LEN     12
@@ -50,7 +47,6 @@ enum {
 
 class Widget;
 class WidgetFactory;
-class LayoutFactory;
 
 struct WidgetPersistentData {
   ZoneOptionValueTyped options[MAX_WIDGET_OPTIONS] USE_IDX;
@@ -88,12 +84,10 @@ class WidgetsContainer: public Window
     virtual void removeWidget(unsigned int index) = 0;
     virtual void adjustLayout() = 0;
     virtual void updateZones() = 0;
-    virtual void updateFromTheme() = 0;
+    virtual void showWidgets(bool visible = true) = 0;
+    virtual void hideWidgets() { showWidgets(false); }
     virtual void runBackground() = 0;
 
     virtual bool isLayout() { return false; }
     bool isWidgetsContainer() override { return true; }
 };
-
-
-#endif // _WIDGETS_CONTAINER_H_

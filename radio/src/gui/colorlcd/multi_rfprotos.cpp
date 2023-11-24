@@ -49,6 +49,6 @@ void RfScanDialog::checkEvents()
     lastUpdate = RTOS_GET_MS();
   }
   
-  Dialog::checkEvents();
+  ProgressDialog::checkEvents();
 }
 

@@ -52,6 +52,7 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL
     ${BOOTLOADER_SRC}
     ../../../../../gui/colorlcd/fonts.cpp
     ../../../../../gui/colorlcd/colors.cpp
+    ../../../../../gui/colorlcd/bitmaps.cpp
     ../../../../../fonts/lvgl/lv_font_roboto_bl_16.c
     ../../../../../thirdparty/libopenui/src/bitmapbuffer.cpp
     ../../../../../thirdparty/libopenui/thirdparty/lz4/lz4.c

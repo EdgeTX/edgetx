@@ -20,25 +20,19 @@
  */
 
 #include "opentx.h"
-#include "view_main.h"
-#include "topbar_impl.h"
 #include "theme.h"
+#include "topbar_impl.h"
+#include "view_main.h"
 
-WidgetsContainer * customScreens[MAX_CUSTOM_SCREENS] = {};
+WidgetsContainer* customScreens[MAX_CUSTOM_SCREENS] = {};
 
-std::list<const LayoutFactory *> & getRegisteredLayouts()
+std::list<const LayoutFactory*>& LayoutFactory::getRegisteredLayouts()
 {
-  static std::list<const LayoutFactory *> layouts;
+  static std::list<const LayoutFactory*> layouts;
   return layouts;
 }
 
-void registerLayout(const LayoutFactory * factory)
-{
-  TRACE("register layout %s", factory->getId());
-  getRegisteredLayouts().push_back(factory);
-}
-
-const LayoutFactory * getLayoutFactory(const char * name)
+const LayoutFactory* LayoutFactory::getLayoutFactory(const char* name)
 {
   auto it = getRegisteredLayouts().cbegin();
   for (; it != getRegisteredLayouts().cend(); ++it) {
@@ -52,10 +46,10 @@ const LayoutFactory * getLayoutFactory(const char * name)
 //
 // Loads a layout, but does not attach it to any window
 //
-WidgetsContainer *
-loadLayout(Window* parent, const char * name, LayoutPersistentData * persistentData)
+WidgetsContainer* LayoutFactory::loadLayout(
+    Window* parent, const char* name, LayoutPersistentData* persistentData)
 {
-  const LayoutFactory * factory = getLayoutFactory(name);
+  const LayoutFactory* factory = getLayoutFactory(name);
   if (factory) {
     return factory->load(parent, persistentData);
   }
@@ -65,7 +59,7 @@ loadLayout(Window* parent, const char * name, LayoutPersistentData * persistentD
 //
 // Detaches and deletes all custom screens
 //
-void deleteCustomScreens()
+void LayoutFactory::deleteCustomScreens()
 {
   for (auto& screen : customScreens) {
     if (screen) {
@@ -75,15 +69,12 @@ void deleteCustomScreens()
   }
 }
 
-extern const LayoutFactory * defaultLayout;
-
-void loadDefaultLayout()
+void LayoutFactory::loadDefaultLayout()
 {
   auto& screen = customScreens[0];
   auto& screenData = g_model.screenData[0];
 
   if (screen == nullptr && defaultLayout != nullptr) {
-
     strcpy(screenData.LayoutId, defaultLayout->getId());
 
     auto viewMain = ViewMain::instance();
@@ -103,13 +94,12 @@ void loadDefaultLayout()
 //
 // Loads and attaches all configured custom screens
 //
-void loadCustomScreens()
+void LayoutFactory::loadCustomScreens()
 {
   unsigned i = 0;
   auto viewMain = ViewMain::instance();
 
   while (i < MAX_CUSTOM_SCREENS) {
-
     auto& screen = customScreens[i];
     screen = loadLayout(viewMain, g_model.screenData[i].LayoutId,
                         &g_model.screenData[i].layoutData);
@@ -137,7 +127,7 @@ void loadCustomScreens()
   // else {
   //   TODO: load some default view?
   // }
-  
+
   viewMain->updateTopbarVisibility();
 }
 
@@ -147,11 +137,10 @@ void loadCustomScreens()
 //  - new screen is configured into g_model
 //  - the new screen is returned (not attached)
 //
-WidgetsContainer *
-createCustomScreen(const LayoutFactory* factory, unsigned customScreenIndex)
+WidgetsContainer* LayoutFactory::createCustomScreen(
+    unsigned customScreenIndex) const
 {
-  if (!factory || (customScreenIndex >= MAX_CUSTOM_SCREENS))
-    return nullptr;
+  if (customScreenIndex >= MAX_CUSTOM_SCREENS) return nullptr;
 
   auto& screen = customScreens[customScreenIndex];
   auto& screenData = g_model.screenData[customScreenIndex];
@@ -162,19 +151,19 @@ createCustomScreen(const LayoutFactory* factory, unsigned customScreenIndex)
   }
 
   auto viewMain = ViewMain::instance();
-  screen = factory->create(viewMain, &screenData.layoutData);
+  screen = create(viewMain, &screenData.layoutData);
 
   if (!screen) return nullptr;
   viewMain->addMainView(screen, customScreenIndex);
-  
+
   auto dst = g_model.screenData[customScreenIndex].LayoutId;
-  auto src = factory->getId();
+  auto src = getId();
   strncpy(dst, src, sizeof(CustomScreenData::LayoutId));
-  
+
   return screen;
 }
 
-void disposeCustomScreen(unsigned idx)
+void LayoutFactory::disposeCustomScreen(unsigned idx)
 {
   // move custom screen data
   if (idx >= MAX_CUSTOM_SCREENS) {
@@ -191,10 +180,9 @@ void disposeCustomScreen(unsigned idx)
   memset(dst, 0, len);
 }
 
-LayoutFactory::LayoutFactory(const char * id, const char * name):
-  id(id),
-  name(name)
+LayoutFactory::LayoutFactory(const char* id, const char* name) :
+    id(id), name(name)
 {
-  registerLayout(this);
+  TRACE("register layout %s", getId());
+  getRegisteredLayouts().push_back(this);
 }
-

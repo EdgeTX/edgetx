@@ -20,25 +20,17 @@
  */
 
 #pragma once
+
 #include "libopenui.h"
 
-class FilePreview : public Window
+class FilePreview : public StaticImage
 {
  public:
-  FilePreview(Window *parent, const rect_t &rect, bool drawCentered = true);
-  ~FilePreview();
+  FilePreview(Window *parent, const rect_t &rect);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "FilePreview"; }
 #endif
 
   void setFile(const char *filename);
-  coord_t getBitmapWidth() const;
-  coord_t getBitmapHeight() const;
-
-  void paint(BitmapBuffer *dc) override;
-
- protected:
-  BitmapBuffer *bitmap = nullptr;
-  bool _drawCentered = true;
 };

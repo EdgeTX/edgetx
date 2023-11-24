@@ -30,14 +30,14 @@
 
 CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
                                      uint8_t moduleIdx) :
-    FormWindow(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
+    Window(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
 {
   FlexGridLayout grid(g);
   setFlexLayout();
 
   if (moduleIdx == EXTERNAL_MODULE) {
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_BAUDRATE, 0, COLOR_THEME_PRIMARY1);
+    auto line = newLine(grid);
+    new StaticText(line, rect_t{}, STR_BAUDRATE);
     new Choice(
         line, rect_t{}, STR_CRSF_BAUDRATE, 0, CROSSFIRE_MAX_INTERNAL_BAUDRATE,
         [=]() -> int {
@@ -57,8 +57,8 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
     //                  0, COLOR_THEME_PRIMARY1);
   }
 
-  auto line = newLine(&grid);
-  new StaticText(line, rect_t{}, STR_STATUS, 0, COLOR_THEME_PRIMARY1);
+  auto line = newLine(grid);
+  new StaticText(line, rect_t{}, STR_STATUS);
   new DynamicText(line, rect_t{}, [=] {
     char msg[64] = "";
     // sprintf(msg, "%d Hz %" PRIu32 " Err", 1000000 / getMixerSchedulerPeriod(),

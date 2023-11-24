@@ -19,23 +19,21 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-#include "layer.h"
-#include "view_main.h"
-#include "storage/storage.h"
 #include "topbar.h"
-#include "topbar_impl.h"
+
+#include "layer.h"
 #include "menu_screen.h"
+#include "opentx.h"
+#include "storage/storage.h"
+#include "themes/etx_lv_theme.h"
+#include "topbar_impl.h"
+#include "view_main.h"
 #include "widgets_setup.h"
 
+TopBar* TopbarFactory::create(Window* parent) { return new TopBar(parent); }
 
-TopBar * TopbarFactory::create(Window * parent)
-{
-  return new TopBar(parent);
-}
-
-SetupTopBarWidgetsPage::SetupTopBarWidgetsPage():
-  FormWindow(ViewMain::instance(), rect_t{})
+SetupTopBarWidgetsPage::SetupTopBarWidgetsPage() :
+    Window(ViewMain::instance(), rect_t{})
 {
   // remember focus
   Layer::push(this);
@@ -55,13 +53,7 @@ SetupTopBarWidgetsPage::SetupTopBarWidgetsPage():
   }
 
 #if defined(HARDWARE_TOUCH)
-  new Button(
-      this, {0, 0, MENU_HEADER_BUTTON_WIDTH, MENU_HEADER_BUTTON_WIDTH},
-      [this]() -> uint8_t {
-        this->deleteLater();
-        return 1;
-      },
-      NO_FOCUS, 0, window_create);
+  addBackButton();
 #endif
 }
 
@@ -70,17 +62,14 @@ void SetupTopBarWidgetsPage::onClicked()
   // block event forwarding (window is transparent)
 }
 
-void SetupTopBarWidgetsPage::onCancel()
-{
-  deleteLater();  
-}
+void SetupTopBarWidgetsPage::onCancel() { deleteLater(); }
 
 void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
 {
   Layer::pop(this);
 
   // and continue async deletion...
-  FormWindow::deleteLater(detach, trash);
+  Window::deleteLater(detach, trash);
 
   // restore screen setting tab on top
   new ScreenMenu(0);
@@ -97,9 +86,9 @@ void SetupTopBarWidgetsPage::onEvent(event_t event)
   } else if (event == EVT_KEY_FIRST(KEY_TELE)) {
     onCancel();
   } else {
-    FormWindow::onEvent(event);
+    Window::onEvent(event);
   }
 #else
-  FormWindow::onEvent(event);
+  Window::onEvent(event);
 #endif
 }

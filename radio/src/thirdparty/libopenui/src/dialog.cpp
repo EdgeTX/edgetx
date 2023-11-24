@@ -17,85 +17,69 @@
  */
 
 #include "dialog.h"
+
 #include "mainwindow.h"
-#include "theme.h"
 #include "progress.h"
+#include "theme.h"
+#include "themes/etx_lv_theme.h"
 
-DialogWindowContent::DialogWindowContent(Dialog* parent, const rect_t& rect) :
-    ModalWindowContent(parent, rect),
-    form(this, rect_t{})
-{
-  form.setFlexLayout();
-  lv_obj_set_style_max_height(form.getLvObj(), LCD_H * 0.8, 0);
-  lv_obj_set_style_pad_all(form.getLvObj(), lv_dpx(8), 0);
-  lv_obj_set_scrollbar_mode(form.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
-}
+//-----------------------------------------------------------------------------
 
-void DialogWindowContent::setTitle(const std::string& text)
+class BaseDialogForm : public Window
 {
-  ModalWindowContent::setTitle(text);
-  if (title) {
-    lv_coord_t title_h = lv_obj_get_height(title);
-    lv_obj_set_y(form.getLvObj(), title_h);
+ public:
+  BaseDialogForm(Window* parent, lv_coord_t width) : Window(parent, rect_t{})
+  {
+    etx_scrollbar(lvobj);
+    padAll(PAD_MEDIUM);
+    setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_MEDIUM, width, LV_SIZE_CONTENT);
   }
+
+ protected:
+  void onClicked() override { Keyboard::hide(false); }
+};
+
+BaseDialog::BaseDialog(Window* parent, const char* title,
+                       bool closeIfClickedOutside, lv_coord_t width,
+                       lv_coord_t maxHeight) :
+    ModalWindow(parent, closeIfClickedOutside)
+{
+  auto content = new Window(this, rect_t{});
+  content->setWindowFlag(OPAQUE);
+  content->padAll(PAD_ZERO);
+  content->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, width, LV_SIZE_CONTENT);
+  etx_solid_bg(content->getLvObj());
+  lv_obj_center(content->getLvObj());
+
+  header = new StaticText(content, {0, 0, LV_PCT(100), 0}, title ? title : "", COLOR_THEME_PRIMARY2);
+  etx_solid_bg(header->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
+  header->padAll(PAD_SMALL);
+  header->show(title != nullptr);
+
+  form = new BaseDialogForm(content, width);
+  if (maxHeight != LV_SIZE_CONTENT)
+    lv_obj_set_style_max_height(form->getLvObj(), maxHeight - 32, LV_PART_MAIN);
 }
 
-void DialogWindowContent::deleteLater(bool detach, bool trash)
+void BaseDialog::setTitle(const char* title)
 {
-  if (_deleted) return;
-  form.deleteLater(true, false);
-  ModalWindowContent::deleteLater(detach, trash);
-}
-
-void DialogWindowContent::updateSize()
-{
-  lv_obj_center(lvobj);
-  ModalWindowContent::updateSize();
-}
-
-#if defined(DEBUG_WINDOWS)
-std::string DialogWindowContent::getName() const
-{
-  return "DialogWindowContent";
-}
-#endif
-
-Dialog::Dialog(Window* parent, std::string title, const rect_t& rect) :
-    ModalWindow(parent), content(new DialogWindowContent(this, rect))
-{
-  bringToTop();
-  if (!title.empty()) content->setTitle(std::move(title));
-}
-
-void Dialog::onCancel()
-{
-  deleteLater();
-}
-
-void Dialog::onEvent(event_t event)
-{
-  // block key events 
-  (void)event;
+  header->setText(title);
 }
 
 //-----------------------------------------------------------------------------
 
-ProgressDialog::ProgressDialog(Window *parent, std::string title,
+ProgressDialog::ProgressDialog(Window* parent, const char* title,
                                std::function<void()> onClose) :
-    Dialog(parent, title, rect_t{}),
-    progress(new Progress(&content->form, rect_t{})),
-    onClose(std::move(onClose))
+    BaseDialog(parent, title, false), onClose(std::move(onClose))
 {
-  progress->setHeight(LV_DPI_DEF / 4);
+  progress = new Progress(form, rect_t{0, 0, LV_PCT(100), 32});
+  updateProgress(0);
+}
 
-  content->setWidth(LCD_W * 0.8);
-  content->updateSize();
-
-  auto content_w = lv_obj_get_content_width(content->form.getLvObj());
-  progress->setWidth(content_w);
-
-  // disable canceling dialog
-  setCloseWhenClickOutside(false);
+void ProgressDialog::setTitle(std::string title)
+{
+  header->setText(title);
+  header->show();
 }
 
 void ProgressDialog::updateProgress(int percentage)
@@ -108,4 +92,76 @@ void ProgressDialog::closeDialog()
 {
   deleteLater();
   onClose();
+}
+
+//-----------------------------------------------------------------------------
+
+MessageDialog::MessageDialog(Window* parent, const char* title,
+                             const char* message, const char* info,
+                             LcdFlags messageFlags, LcdFlags infoFlags) :
+    BaseDialog(parent, title, true)
+{
+  messageWidget = new StaticText(form, {0, 0, LV_PCT(100), LV_SIZE_CONTENT},
+                                 message, messageFlags);
+
+  if (info) {
+    infoWidget = new StaticText(form, {0, 0, LV_PCT(100), LV_SIZE_CONTENT},
+                                info, infoFlags);
+  }
+}
+
+void MessageDialog::onClicked() { deleteLater(); }
+
+//-----------------------------------------------------------------------------
+
+DynamicMessageDialog::DynamicMessageDialog(
+    Window* parent, const char* title, std::function<std::string()> textHandler,
+    const char* message, const int lineHeight, const LcdFlags textFlags) :
+    BaseDialog(parent, title, true)
+{
+  messageWidget = new StaticText(form, {0, 0, LV_PCT(100), LV_SIZE_CONTENT},
+                                 message, CENTERED | COLOR_THEME_PRIMARY1);
+
+  infoWidget = new DynamicText(form, {0, 0, LV_PCT(100), LV_SIZE_CONTENT},
+                               textHandler, textFlags);
+}
+
+void DynamicMessageDialog::onClicked() { deleteLater(); }
+
+//-----------------------------------------------------------------------------
+
+ConfirmDialog::ConfirmDialog(Window* parent, const char* title,
+                             const char* message,
+                             std::function<void(void)> confirmHandler,
+                             std::function<void(void)> cancelHandler) :
+    BaseDialog(parent, title, false),
+    confirmHandler(std::move(confirmHandler)),
+    cancelHandler(std::move(cancelHandler))
+{
+  if (message) {
+    new StaticText(form, {0, 0, LV_PCT(100), 0}, message, CENTERED);
+  }
+
+  auto box = new Window(form, rect_t{});
+  box->padAll(PAD_TINY);
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, 40, LV_PCT(100), LV_SIZE_CONTENT);
+  lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_CENTER,
+                        LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
+
+  new TextButton(box, rect_t{0, 0, 96, 0}, STR_NO, [=]() -> int8_t {
+    onCancel();
+    return 0;
+  });
+
+  new TextButton(box, rect_t{0, 0, 96, 0}, STR_YES, [=]() -> int8_t {
+    this->deleteLater();
+    this->confirmHandler();
+    return 0;
+  });
+}
+
+void ConfirmDialog::onCancel()
+{
+  deleteLater();
+  if (cancelHandler) cancelHandler();
 }

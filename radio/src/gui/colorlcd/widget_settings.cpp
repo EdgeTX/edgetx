@@ -19,20 +19,22 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-#include "libopenui.h"
-
 #include "widget_settings.h"
-#include "view_main.h"
-#include "color_picker.h"
 
-#define SET_DIRTY()     storageDirty(EE_MODEL)
+#include "color_picker.h"
+#include "libopenui.h"
+#include "opentx.h"
+#include "sourcechoice.h"
+#include "switchchoice.h"
+#include "view_main.h"
+
+#define SET_DIRTY() storageDirty(EE_MODEL)
 
 static const rect_t widgetSettingsDialogRect = {
-  LCD_W / 10, // x
-  LCD_H / 5,  // y
-  LCD_W - 2 * LCD_W / 10, // width
-  LCD_H - 2 * LCD_H / 5   // height
+    LCD_W / 10,              // x
+    LCD_H / 5,               // y
+    LCD_W - 2 * LCD_W / 10,  // width
+    LCD_H - 2 * LCD_H / 5    // height
 };
 
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
@@ -40,37 +42,35 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
-WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
-  Dialog(ViewMain::instance(), STR_WIDGET_SETTINGS, widgetSettingsDialogRect)
+WidgetSettings::WidgetSettings(Window* parent, Widget* w) :
+    BaseDialog(ViewMain::instance(), STR_WIDGET_SETTINGS, true), widget(w)
 {
-
-  setCloseWhenClickOutside(true);
-
-  auto form = &content->form;
-
   FlexGridLayout grid(line_col_dsc, line_row_dsc);
-  
+  form->padAll(PAD_SMALL);
+  form->padRow(PAD_ZERO);
+
   uint8_t optIdx = 0;
   auto optPtr = widget->getOptions();
   while (optPtr && optPtr->name != nullptr) {
-
-    auto line = form->newLine(&grid);
+    auto line = form->newLine(grid);
 
     auto option = *optPtr;
-    new StaticText(line, rect_t{}, option.displayName ? option.displayName : option.name, 0, COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{},
+                   option.displayName ? option.displayName : option.name);
 
     switch (option.type) {
       case ZoneOption::Integer:
         (new NumberEdit(
-            line, rect_t{}, option.min.signedValue,
-            option.max.signedValue,
-            [=]() -> int {
-              return widget->getOptionValue(optIdx)->signedValue;
-            },
-            [=](int32_t newValue) {
-              widget->getOptionValue(optIdx)->signedValue = newValue;
-              SET_DIRTY();
-            }))->setDefault(option.deflt.signedValue);
+             line, rect_t{0, 0, 96, 0}, option.min.signedValue,
+             option.max.signedValue,
+             [=]() -> int {
+               return widget->getOptionValue(optIdx)->signedValue;
+             },
+             [=](int32_t newValue) {
+               widget->getOptionValue(optIdx)->signedValue = newValue;
+               SET_DIRTY();
+             }))
+            ->setDefault(option.deflt.signedValue);
         break;
 
       case ZoneOption::Source:
@@ -99,7 +99,7 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
         break;
 
       case ZoneOption::String:
-        new ModelTextEdit(line, rect_t{},
+        new ModelTextEdit(line, rect_t{0, 0, 96, 0},
                           widget->getOptionValue(optIdx)->stringValue,
                           sizeof(widget->getOptionValue(optIdx)->stringValue));
         break;
@@ -182,7 +182,10 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
     optIdx++;
     optPtr++;
   }
+}
 
-  content->updateSize();
-  setCloseHandler([=]() { widget->update(); });
+void WidgetSettings::onCancel()
+{
+  widget->update();
+  deleteLater();
 }

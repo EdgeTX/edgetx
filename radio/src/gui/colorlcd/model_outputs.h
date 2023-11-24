@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_OUTPUTS_H_
-#define _MODEL_OUTPUTS_H_
+#pragma once
 
 #include "tabsgroup.h"
 
@@ -30,10 +29,8 @@ class ModelOutputsPage : public PageTab
 {
  public:
   ModelOutputsPage();
-  void build(FormWindow* window) override;
+  void build(Window* window) override;
 
  protected:
   void editOutput(uint8_t channel, OutputLineButton* btn);
 };
-
-#endif // _MODEL_OUTPUTS_H_

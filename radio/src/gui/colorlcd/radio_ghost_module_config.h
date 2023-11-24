@@ -38,7 +38,7 @@ class RadioGhostModuleConfig: public Page
     uint8_t moduleIdx;
 
     void buildHeader(Window * window);
-    void buildBody(FormWindow * window);
+    void buildBody(Window * window);
     void init();
 };
 

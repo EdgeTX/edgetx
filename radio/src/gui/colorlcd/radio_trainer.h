@@ -19,11 +19,17 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
 #include "tabsgroup.h"
+#include "opentx.h"
 
 class RadioTrainerPage : public PageTab
 {
  public:
   RadioTrainerPage();
-  void build(FormWindow* window) override;
+
+  bool isVisible() const override { return radioTrainerEnabled(); }
+
+  void build(Window* window) override;
 };

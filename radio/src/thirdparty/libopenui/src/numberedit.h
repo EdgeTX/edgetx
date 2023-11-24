@@ -19,8 +19,6 @@
 #pragma once
 
 #include "form.h"
-#include "strhelpers.h"
-#include <string>
 
 class NumberEdit: public FormField
 {
@@ -28,7 +26,7 @@ class NumberEdit: public FormField
     NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
                std::function<int()> getValue,
                std::function<void(int)> setValue = nullptr,
-               WindowFlags windowFlags = 0, LcdFlags textFlags = 0);
+               LcdFlags textFlags = 0);
 
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override
@@ -105,28 +103,7 @@ class NumberEdit: public FormField
       return accelFactor;
     }
 
-    void setValue(int value)
-    {
-      auto newValue = limit(vmin, value, vmax);
-      if (newValue != currentValue) {
-        currentValue = newValue;
-        if (_setValue != nullptr) {
-          _setValue(currentValue);
-        }
-      }
-      if (lvobj != nullptr) {
-        std::string str;
-        if (displayFunction != nullptr) {
-          str = displayFunction(currentValue);
-        } else if (!zeroText.empty() && currentValue==0) {
-          str = zeroText;
-        } else {
-          str = formatNumberAsString(currentValue, textFlags, 0, prefix.c_str(),
-                                     suffix.c_str());
-        }
-        lv_textarea_set_text(lvobj, str.c_str());
-      }
-    }
+    void setValue(int value);
 
     void setPrefix(std::string value)
     {
@@ -167,26 +144,7 @@ class NumberEdit: public FormField
       update();
     }
 
-    virtual void update()
-    {
-      if (_getValue == nullptr) return;
-      auto newValue = _getValue();
-      if (newValue != currentValue) {
-        currentValue = newValue;
-      }
-      if (lvobj != nullptr) {
-        std::string str;
-        if (displayFunction != nullptr) {
-          str = displayFunction(currentValue);
-        } else if (!zeroText.empty() && currentValue==0) {
-          str = zeroText;
-        } else {
-          str = formatNumberAsString(currentValue, textFlags, 0, prefix.c_str(),
-                                     suffix.c_str());
-        }
-        lv_textarea_set_text(lvobj, str.c_str());
-      }
-    }
+    virtual void update();
 
   protected:
     int vdefault = 0;
@@ -203,4 +161,6 @@ class NumberEdit: public FormField
     std::function<void(int)> _setValue;
     std::function<std::string(int)> displayFunction;
     std::function<bool(int)> isValueAvailable;
+
+    void updateDisplay();
 };

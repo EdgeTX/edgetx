@@ -22,35 +22,37 @@
 #pragma once
 
 #include "tabsgroup.h"
+#include "input_mix_group.h"
 
-class InputMixGroup;
 class InputMixButton;
 
-class ModelInputsPage : public PageTab
+class InputGroup : public InputMixGroupBase
+{
+ public:
+  InputGroup(Window* parent, mixsrc_t idx) :
+    InputMixGroupBase(parent, idx) {}
+};
+
+class ModelInputsPage : public InputMixPageBase
 {
  public:
   ModelInputsPage();
 
-  void build(FormWindow *window) override;
+  void build(Window *window) override;
 
  protected:
-  FormWindow* form = nullptr;
-  std::list<InputMixGroup*> groups;
   std::list<InputMixButton*> lines;
   InputMixButton* _copySrc = nullptr;
-  uint8_t _copyMode = 0;
 
-  InputMixGroup* getGroupBySrc(mixsrc_t src);
-  virtual InputMixGroup* getGroupByIndex(uint8_t index);
+  InputGroup* getGroupByIndex(uint8_t index);
   InputMixButton* getLineByIndex(uint8_t index);
 
-  void removeGroup(InputMixGroup* g);
   void removeLine(InputMixButton* l);
   
-  virtual void addLineButton(uint8_t index);
-  virtual void addLineButton(mixsrc_t src, uint8_t index);
-  virtual InputMixGroup* createGroup(FormWindow* form, mixsrc_t src);
-  virtual InputMixButton* createLineButton(InputMixGroup *group, uint8_t index);
+  void addLineButton(uint8_t index);
+  void addLineButton(mixsrc_t src, uint8_t index);
+  InputGroup* createGroup(Window* form, mixsrc_t src);
+  InputMixButton* createLineButton(InputGroup *group, uint8_t index);
 
   void newInput();
   void editInput(uint8_t input, uint8_t index);

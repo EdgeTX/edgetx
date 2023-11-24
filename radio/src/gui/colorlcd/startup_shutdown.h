@@ -21,28 +21,11 @@
 
 #pragma once
 
-#include "libopenui.h"
-#include "textedit.h"
-#include "storage/storage.h"
+void drawFatalErrorScreen(const char* message);
+void runFatalErrorScreen(const char* message);
 
-class ModelTextEdit : public TextEdit
-{
- public:
-  ModelTextEdit(Window* parent, const rect_t& rect, char* value, uint8_t length,
-                LcdFlags windowFlags = 0) :
-      TextEdit(parent, rect, value, length, windowFlags)
-  {
-    setChangeHandler([]() { storageDirty(EE_MODEL); });
-  }
-};
-
-class RadioTextEdit : public TextEdit
-{
- public:
-  RadioTextEdit(Window* parent, const rect_t& rect, char* value, uint8_t length,
-                LcdFlags windowFlags = 0) :
-      TextEdit(parent, rect, value, length, windowFlags)
-  {
-    setChangeHandler([]() { storageDirty(EE_GENERAL); });
-  }
-};
+// Screen templates
+void drawSleepBitmap();
+void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
+                           const char* message);
+void cancelShutdownAnimation();

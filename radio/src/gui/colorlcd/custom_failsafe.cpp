@@ -20,62 +20,51 @@
  */
 
 #include "custom_failsafe.h"
-#include "opentx.h"
 
-#define SET_DIRTY()     storageDirty(EE_MODEL)
+#include "channel_bar.h"
+#include "opentx.h"
+#include "themes/etx_lv_theme.h"
+
+#define SET_DIRTY() storageDirty(EE_MODEL)
 
 class ChannelFailsafeBargraph : public Window
 {
  public:
-  ChannelFailsafeBargraph(Window* parent, const rect_t& rect, uint8_t moduleIdx,
-                          uint8_t channel) :
-      Window(parent, rect), moduleIdx(moduleIdx), channel(channel)
+  ChannelFailsafeBargraph(Window* parent, const rect_t& rect, uint8_t channel) :
+      Window(parent, rect), channel(channel)
   {
+    etx_obj_add_style(lvobj, styles->border_thin, LV_PART_MAIN);
+    etx_obj_add_style(lvobj, styles->border_color_black, LV_PART_MAIN);
+
+    outputsBar = new OutputChannelBar(this, {0, 1, width() - 2, BAR_HEIGHT},
+                                      channel, false, false);
+    outputsBar->hide();
+
+    failsafeBar = new ChannelBar(
+        this, {0, BAR_HEIGHT + 3, width() - 2, BAR_HEIGHT},
+        [=] { return calcRESXto100(g_model.failsafeChannels[channel]); },
+        COLOR_THEME_WARNING, COLOR_THEME_WARNING);
+    failsafeBar->hide();
   }
 
   void checkEvents() override
   {
-    invalidate();
     Window::checkEvents();
-  }
 
-  void paint(BitmapBuffer* dc) override
-  {
-    int32_t failsafeValue = g_model.failsafeChannels[channel];
-    int32_t channelValue = channelOutputs[channel];
+    outputsBar->show(
+        g_model.failsafeChannels[channel] != FAILSAFE_CHANNEL_HOLD &&
+        g_model.failsafeChannels[channel] != FAILSAFE_CHANNEL_NOPULSE);
 
-    const int lim = g_model.extendedLimits ? 1024 * LIMIT_EXT_PERCENT / 100 : 1024;
-
-    coord_t x = 0;
-    dc->drawRect(x, 0, width(), height());
-
-    if (failsafeValue == FAILSAFE_CHANNEL_HOLD ||
-        failsafeValue == FAILSAFE_CHANNEL_NOPULSE)
-      return;
-    
-    const coord_t lenChannel = limit(
-        (uint8_t)1, uint8_t((abs(channelValue) * width() / 2 + lim / 2) / lim),
-        uint8_t(width() / 2));
-
-    const coord_t lenFailsafe = limit(
-        (uint8_t)1, uint8_t((abs(failsafeValue) * width() / 2 + lim / 2) / lim),
-        uint8_t(width() / 2));
-
-    x += width() / 2;
-
-    const coord_t xChannel = (channelValue > 0) ? x : x + 1 - lenChannel;
-    const coord_t xFailsafe = (failsafeValue > 0) ? x : x + 1 - lenFailsafe;
-
-    dc->drawSolidFilledRect(xChannel, +2, lenChannel, (height() / 2) - 3,
-                            COLOR_THEME_SECONDARY1);
-
-    dc->drawSolidFilledRect(xFailsafe, (height() / 2) + 1, lenFailsafe,
-                            (height() / 2) - 3, COLOR_THEME_WARNING);
+    failsafeBar->show(
+        g_model.failsafeChannels[channel] != FAILSAFE_CHANNEL_HOLD &&
+        g_model.failsafeChannels[channel] != FAILSAFE_CHANNEL_NOPULSE);
   }
 
  protected:
-  uint8_t moduleIdx;
   uint8_t channel;
+
+  OutputChannelBar* outputsBar = nullptr;
+  ChannelBar* failsafeBar = nullptr;
 };
 
 class ChannelFailsafeEdit : public NumberEdit
@@ -94,12 +83,13 @@ class ChannelFailsafeEdit : public NumberEdit
       return formatNumberAsString(value, PREC1, 0, "", "%");
     }
   }
-  
-public:
+
+ public:
   ChannelFailsafeEdit(Window* parent, uint8_t ch, int vmin, int vmax) :
-    NumberEdit(parent, rect_t{}, vmin, vmax, nullptr), channel(ch)
+      NumberEdit(parent, rect_t{}, vmin, vmax, nullptr), channel(ch)
   {
-    setGetValueHandler([=]() { return calcRESXto1000(g_model.failsafeChannels[ch]); });
+    setGetValueHandler(
+        [=]() { return calcRESXto1000(g_model.failsafeChannels[ch]); });
     setDisplayHandler([=](int) -> std::string { return getString(); });
     update();
   }
@@ -112,11 +102,11 @@ public:
         g_model.failsafeChannels[channel] = calc1000toRESX(value);
         SET_DIRTY();
       });
-      lv_obj_clear_state(lvobj, LV_STATE_DISABLED);
+      enable();
     } else {
       // disable setter to avoid overwritting the value limited by vmin/vmax
       setSetValueHandler(nullptr);
-      lv_obj_add_state(lvobj, LV_STATE_DISABLED);
+      disable();
     }
     SET_DIRTY();
     NumberEdit::update();
@@ -154,17 +144,16 @@ public:
   }
 };
 
-class ChannelFSCombo : public FormWindow
+class ChannelFSCombo : public Window
 {
   ChannelFailsafeEdit* edit = nullptr;
-  
-public:
+
+ public:
   ChannelFSCombo(Window* parent, uint8_t ch, int vmin, int vmax) :
-    FormWindow(parent, rect_t{})
+      Window(parent, rect_t{})
   {
-    setFlexLayout(LV_FLEX_FLOW_ROW);
-    lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
-    
+    setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY, LV_SIZE_CONTENT);
+
     lv_obj_set_style_pad_column(lvobj, lv_dpx(4), 0);
     lv_obj_set_style_flex_cross_place(lvobj, LV_FLEX_ALIGN_CENTER, 0);
 
@@ -187,9 +176,8 @@ public:
   void update() { edit->update(); }
 };
 
-
-static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3), LV_GRID_FR(3),
-                                          LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
+                                          LV_GRID_FR(3), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
@@ -200,27 +188,22 @@ static void set_failsafe(lv_event_t* e)
 }
 
 #if LCD_H > LCD_W
-  #define FS_BARGRAPH_WIDTH (LV_DPI_DEF / 2)
-#else 
-  #define FS_BARGRAPH_WIDTH (LV_DPI_DEF)
+#define FS_BARGRAPH_WIDTH (LV_DPI_DEF / 2)
+#else
+#define FS_BARGRAPH_WIDTH (LV_DPI_DEF)
 #endif
 
-
-FailSafePage::FailSafePage(uint8_t moduleIdx) :
-    Page(ICON_STATS_ANALOGS)
+FailSafePage::FailSafePage(uint8_t moduleIdx) : Page(ICON_STATS_ANALOGS)
 {
-  header.setTitle(STR_FAILSAFESET);
+  header->setTitle(STR_FAILSAFESET);
 
-  auto form = new FormWindow(&body, rect_t{});
-  form->setFlexLayout();
-  form->padAll(lv_dpx(8));
-  form->padRow(lv_dpx(8));
+  body->setFlexLayout();
 
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 0);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
 
-  auto btn = new TextButton(form, rect_t{}, STR_CHANNELS2FAILSAFE);
+  auto btn = new TextButton(body, rect_t{}, STR_CHANNELS2FAILSAFE);
   lv_obj_set_width(btn->getLvObj(), lv_pct(100));
-  
+
   btn->setPressHandler([=]() {
     setCustomFailsafe(moduleIdx);
     AUDIO_WARNING1();
@@ -236,20 +219,18 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) :
       g_model.extendedLimits ? 1024 * LIMIT_EXT_PERCENT / 100 : 1024);
 
   for (int ch = start_ch; ch < end_ch; ch++) {
-
     // Channel name
-    auto line = form->newLine(&grid);
+    auto line = body->newLine(grid);
     const char* ch_label = getSourceString(MIXSRC_FIRST_CH + ch);
-    new StaticText(line, rect_t{}, ch_label, 0, COLOR_THEME_PRIMARY1);
+    new StaticText(line, rect_t{}, ch_label);
 
     // Channel value
     auto combo = new ChannelFSCombo(line, ch, -lim, lim);
     lv_obj_add_event_cb(btn->getLvObj(), set_failsafe, LV_EVENT_CLICKED, combo);
-    
+
     // Channel bargraph
-    auto bar = new ChannelFailsafeBargraph(line, rect_t{}, moduleIdx, ch);
-    bar->setWidth(FS_BARGRAPH_WIDTH);
-    bar->setHeight(LV_DPI_DEF / 5);
+    auto bar = new ChannelFailsafeBargraph(
+        line, rect_t{0, 0, FS_BARGRAPH_WIDTH, 32}, ch);
     lv_obj_set_style_grid_cell_x_align(bar->getLvObj(), LV_GRID_ALIGN_END, 0);
   }
 }

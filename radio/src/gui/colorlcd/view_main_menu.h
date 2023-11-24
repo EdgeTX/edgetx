@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "form.h"
+#include "window.h"
 
 class ViewMainMenu : public Window
 {

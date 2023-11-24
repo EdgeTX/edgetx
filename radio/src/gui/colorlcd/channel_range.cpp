@@ -20,55 +20,55 @@
  */
 
 #include "channel_range.h"
+
 #include "opentx.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-inline int16_t ppmFrameLen(int8_t chCount) {
-  #define PPM_PULSE_LEN_MAX   (4 * PPM_STEP_SIZE)           // let's assume roughly 2ms max pulse length
-
-  if(chCount > 0)
-    return((PPM_PULSE_LEN_MAX * chCount) + PPM_DEF_PERIOD); // for more than 8 channels update frame length
-  else  
-    return(PPM_DEF_PERIOD);                                 // else leave frame Length at default (22.5ms)
-}
-
-void cb_value_changed(lv_event_t* e) {
-  ChannelRange* chRangeEditObject = (ChannelRange*)lv_event_get_user_data(e);
-  if(!chRangeEditObject)
-    return;
-
-  NumberEdit* ppmFrameLenEditObject = chRangeEditObject->getPpmFrameLenEditObject();
-  if(!ppmFrameLenEditObject)
-    return;
-
-  ppmFrameLenEditObject->setValue(ppmFrameLen(chRangeEditObject->getChannelsCount()));
-}
-
-ChannelRange::ChannelRange(Window* parent) :
-    FormWindow(parent, rect_t{})
+inline int16_t ppmFrameLen(int8_t chCount)
 {
-  setFlexLayout(LV_FLEX_FLOW_ROW);
-  lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
+#define PPM_PULSE_LEN_MAX \
+  (4 * PPM_STEP_SIZE)  // let's assume roughly 2ms max pulse length
+
+  if (chCount > 0)
+    return ((PPM_PULSE_LEN_MAX * chCount) +
+            PPM_DEF_PERIOD);  // for more than 8 channels update frame length
+  else
+    return (PPM_DEF_PERIOD);  // else leave frame Length at default (22.5ms)
+}
+
+void cb_value_changed(lv_event_t* e)
+{
+  ChannelRange* chRangeEditObject = (ChannelRange*)lv_event_get_user_data(e);
+  if (!chRangeEditObject) return;
+
+  NumberEdit* ppmFrameLenEditObject =
+      chRangeEditObject->getPpmFrameLenEditObject();
+  if (!ppmFrameLenEditObject) return;
+
+  ppmFrameLenEditObject->setValue(
+      ppmFrameLen(chRangeEditObject->getChannelsCount()));
+}
+
+ChannelRange::ChannelRange(Window* parent) : Window(parent, rect_t{})
+{
+  padAll(PAD_TINY);
+  setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL, LV_SIZE_CONTENT);
 }
 
 void ChannelRange::build()
 {
-  chStart = new NumberEdit(this, rect_t{}, 1, 1, GET_DEFAULT(1 + getChannelsStart()));
+  chStart = new NumberEdit(this, rect_t{0, 0, 80, 0}, 1, 1,
+                           GET_DEFAULT(1 + getChannelsStart()));
   chStart->setSetValueHandler([=](int newValue) { setStart(newValue); });
   chStart->setPrefix(STR_CH);
-#if LCD_H > LCD_W
-  chStart->setWidth(LCD_W/3-10);
-#endif
 
-  chEnd = new NumberEdit(this, rect_t{}, 8, 8,
-                         GET_DEFAULT(getChannelsStart() + 8 + getChannelsCount()));
+  chEnd =
+      new NumberEdit(this, rect_t{0, 0, 80, 0}, 8, 8,
+                     GET_DEFAULT(getChannelsStart() + 8 + getChannelsCount()));
 
   chEnd->setPrefix(STR_CH);
   chEnd->setSetValueHandler([=](int newValue) { setEnd(newValue); });
-#if LCD_H > LCD_W
-  chEnd->setWidth(LCD_W/3-10);
-#endif
 }
 
 void ChannelRange::setStart(uint8_t newValue)
@@ -110,11 +110,13 @@ void ChannelRange::update()
   updateEnd();
 }
 
-NumberEdit* ChannelRange::getPpmFrameLenEditObject() {
+NumberEdit* ChannelRange::getPpmFrameLenEditObject()
+{
   return this->ppmFrameLenEditObject;
 }
 
-void ChannelRange::setPpmFrameLenEditObject(NumberEdit* ppmFrameLenEditObject) {
+void ChannelRange::setPpmFrameLenEditObject(NumberEdit* ppmFrameLenEditObject)
+{
   this->ppmFrameLenEditObject = ppmFrameLenEditObject;
 }
 
@@ -125,7 +127,8 @@ ModuleChannelRange::ModuleChannelRange(Window* parent, uint8_t moduleIdx) :
   update();
 
   // add callback to be notified when channel count changes
-  lv_obj_add_event_cb(chEnd->getLvObj(), cb_value_changed, LV_EVENT_VALUE_CHANGED, (void *)this);
+  lv_obj_add_event_cb(chEnd->getLvObj(), cb_value_changed,
+                      LV_EVENT_VALUE_CHANGED, (void*)this);
 }
 
 void ModuleChannelRange::update()
@@ -136,8 +139,7 @@ void ModuleChannelRange::update()
   auto max_mod_ch = maxModuleChannels(moduleIdx);
   chEnd->enable(min_mod_ch < max_mod_ch);
 
-  if (chEnd->getValue() > chEnd->getMax())
-    chEnd->setValue(chEnd->getMax());
+  if (chEnd->getValue() > chEnd->getMax()) chEnd->setValue(chEnd->getMax());
 
   if (!isModulePXX2(moduleIdx)) {
     chEnd->setAvailableHandler(nullptr);
@@ -165,7 +167,7 @@ void ModuleChannelRange::setChannelsStart(uint8_t val)
 int8_t ModuleChannelRange::getChannelsCount()
 {
   ModuleData* md = &g_model.moduleData[moduleIdx];
-  return md->channelsCount;    
+  return md->channelsCount;
 }
 
 void ModuleChannelRange::setChannelsCount(int8_t val)
@@ -189,14 +191,14 @@ uint8_t ModuleChannelRange::getChannelsMax()
   return maxModuleChannels(moduleIdx);
 }
 
-TrainerChannelRange::TrainerChannelRange(Window* parent) :
-    ChannelRange(parent)
+TrainerChannelRange::TrainerChannelRange(Window* parent) : ChannelRange(parent)
 {
   build();
   update();
 
   // add callback to be notified when channel count changes
-  lv_obj_add_event_cb(chEnd->getLvObj(), cb_value_changed, LV_EVENT_VALUE_CHANGED, (void *)this);
+  lv_obj_add_event_cb(chEnd->getLvObj(), cb_value_changed,
+                      LV_EVENT_VALUE_CHANGED, (void*)this);
 }
 
 uint8_t TrainerChannelRange::getChannelsStart()
@@ -224,12 +226,6 @@ uint8_t TrainerChannelRange::getChannelsUsed()
   return 8 + getChannelsCount();
 }
 
-uint8_t TrainerChannelRange::getChannelsMin()
-{
-  return MIN_TRAINER_CHANNELS;
-}
+uint8_t TrainerChannelRange::getChannelsMin() { return MIN_TRAINER_CHANNELS; }
 
-uint8_t TrainerChannelRange::getChannelsMax()
-{
-  return MAX_TRAINER_CHANNELS;
-}
+uint8_t TrainerChannelRange::getChannelsMax() { return MAX_TRAINER_CHANNELS; }

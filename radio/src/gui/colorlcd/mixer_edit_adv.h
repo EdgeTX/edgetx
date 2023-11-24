@@ -25,7 +25,7 @@
 #include "form.h"
 #include "curve.h"
 
-class FormWindow;
+class Window;
 class NumberEdit;
 
 class MixEditAdvanced : public Page
@@ -40,5 +40,5 @@ class MixEditAdvanced : public Page
   NumberEdit* slowDn;
 
   void buildHeader(Window *window);
-  void buildBody(FormWindow *window);
+  void buildBody(Window *window);
 };

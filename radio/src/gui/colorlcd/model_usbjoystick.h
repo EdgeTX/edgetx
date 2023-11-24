@@ -23,7 +23,7 @@
 
 #include "page.h"
 
-class FormWindow;
+class Window;
 class USBChannelLineButton;
 
 class ModelUSBJoystickPage : public Page

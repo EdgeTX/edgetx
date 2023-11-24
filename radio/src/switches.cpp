@@ -821,6 +821,7 @@ void checkSwitches()
     if (!isSwitchWarningRequired(bad_pots))
       break;
 
+    cancelSplash();
     LED_ERROR_BEGIN();
     resetBacklightTimeout();
 

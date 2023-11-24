@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SOURCECHOICE_H_
-#define _SOURCECHOICE_H_
+#pragma once
 
 #include "choice.h"
 #include "form.h"
@@ -32,17 +31,16 @@ bool isSourceAvailable(int source);
 class SourceChoice : public Choice
 {
  public:
-  SourceChoice(Window* parent, const rect_t& rect, int16_t vmin,
-               int16_t vmax, std::function<int16_t()> getValue,
-               std::function<void(int16_t)> setValue,
-               WindowFlags windowFlags = 0, LcdFlags textFlags = 0);
+  SourceChoice(Window* parent, const rect_t& rect, int16_t vmin, int16_t vmax,
+               std::function<int16_t()> getValue,
+               std::function<void(int16_t)> setValue);
 
  protected:
   friend SourceChoiceMenuToolbar;
+
+  void openMenu() override;
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "SourceChoice"; }
 #endif
 };
-
-#endif  // _SOURCECHOICE_H_

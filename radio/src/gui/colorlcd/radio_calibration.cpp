@@ -19,73 +19,86 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "radio_calibration.h"
+
+#include "hal/adc_driver.h"
+#include "opentx.h"
 #include "sliders.h"
 #include "view_main_decoration.h"
-#include "hal/adc_driver.h"
 
-#define XPOT_DELTA                     10
-#define XPOT_DELAY                     5 /* cycles */
+#include <memory>
 
 uint8_t menuCalibrationState;
 
-class StickCalibrationWindow: public Window {
-  public:
-   StickCalibrationWindow(Window *parent, const rect_t &rect, uint8_t stickX,
-                          uint8_t stickY) :
-       Window(parent, rect, REFRESH_ALWAYS), stickX(stickX), stickY(stickY)
-   {
-     setLeft(rect.x - calibStickBackground->width() / 2);
-     setTop(rect.y - calibStickBackground->height() / 2);
-     setWidth(calibStickBackground->width());
-     setHeight(calibStickBackground->height());
-    }
-
-    void paint(BitmapBuffer * dc) override
-    {
-      dc->drawBitmap(0, 0, calibStickBackground);
-      int16_t x = calibratedAnalogs[stickX];
-      int16_t y = calibratedAnalogs[stickY];
-      dc->drawBitmap(width() / 2 - 9 + (bitmapSize / 2 * x) / RESX,
-                     height() / 2 - 9 - (bitmapSize / 2 * y) / RESX,
-                     calibStick);
-    }
-
-  protected:
-    static constexpr coord_t bitmapSize = 68;
-    uint8_t stickX, stickY;
+static const uint8_t stick_pointer[] = {
+#include "alpha_stick_pointer.lbm"
+};
+static const uint8_t stick_background[] = {
+#include "alpha_stick_background.lbm"
 };
 
-RadioCalibrationPage::RadioCalibrationPage(bool initial):
-  Page(ICON_RADIO_CALIBRATION),
-  initial(initial)
+class StickCalibrationWindow : public Window
 {
-  buildHeader(&header);
-  buildBody(&body);
+ public:
+  StickCalibrationWindow(Window *parent, const rect_t &rect, uint8_t stickX,
+                         uint8_t stickY) :
+      Window(parent, rect), stickX(stickX), stickY(stickY)
+  {
+    new StaticLZ4Image(this, 0, 0, (LZ4Bitmap *)stick_background);
+    calibStick = new StaticLZ4Image(this, 0, 0, (LZ4Bitmap *)stick_pointer);
+  }
+
+  void checkEvents() override
+  {
+    int32_t x = calibratedAnalogs[stickX];
+    int32_t y = calibratedAnalogs[stickY];
+    coord_t dx = width() / 2 - 9 + (bitmapSize / 2 * x) / RESX;
+    coord_t dy = height() / 2 - 9 - (bitmapSize / 2 * y) / RESX;
+    lv_obj_set_pos(calibStick->getLvObj(), dx, dy);
+  }
+
+ protected:
+  static constexpr coord_t bitmapSize = 68;
+  uint8_t stickX, stickY;
+  StaticLZ4Image *calibStick = nullptr;
+};
+
+RadioCalibrationPage::RadioCalibrationPage(bool initial) :
+    Page(ICON_RADIO_CALIBRATION), initial(initial)
+{
+  buildHeader(header);
+  buildBody(body);
 }
 
-void RadioCalibrationPage::buildHeader(Window * window)
+void RadioCalibrationPage::buildHeader(Window *window)
 {
-  header.setTitle(STR_MENUCALIBRATION);
-  text = header.setTitle2(STR_MENUTOSTART);
+  header->setTitle(STR_MENUCALIBRATION);
+  text = header->setTitle2(STR_MENUTOSTART);
 }
 
-void RadioCalibrationPage::buildBody(FormWindow * window)
+void RadioCalibrationPage::buildBody(Window *window)
 {
+  window->padAll(PAD_ZERO);
+
   menuCalibrationState = CALIB_START;
 
   // The two sticks
 
-  //TODO: dynamic placing
+  LZ4Bitmap *bg = (LZ4Bitmap *)stick_background;
+
   new StickCalibrationWindow(
-      window, {window->width() / 3, window->height() / 2, 0, 0}, 0, 1);
+      window,
+      {window->width() / 3 - bg->width / 2,
+       window->height() / 2 - bg->height / 2, bg->width, bg->height},
+      0, 1);
 
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   if (max_sticks > 2) {
-      new StickCalibrationWindow(
-          window, {(2 * window->width()) / 3, window->height() / 2, 0, 0}, 3,
-          2);
+    new StickCalibrationWindow(
+        window,
+        {window->width() * 2 / 3 - bg->width / 2,
+         window->height() / 2 - bg->height / 2, bg->width, bg->height},
+        3, 2);
   }
 
   std::unique_ptr<ViewMainDecoration> deco(new ViewMainDecoration(window));
@@ -95,10 +108,10 @@ void RadioCalibrationPage::buildBody(FormWindow * window)
 
 #if defined(PCBNV14) || defined(PCBPL18)
   new TextButton(window, {LCD_W - 120, LCD_H - 140, 90, 40}, "Next",
-                    [=]() -> uint8_t {
-                        nextStep();
-                        return 0;
-                    }, OPAQUE | NO_FOCUS);
+                 [=]() -> uint8_t {
+                   nextStep();
+                   return 0;
+                 });
 #endif
 }
 
@@ -108,16 +121,12 @@ void RadioCalibrationPage::checkEvents()
 
   if (menuCalibrationState == CALIB_SET_MIDPOINT) {
     adcCalibSetMidPoint();
-  }
-  else if (menuCalibrationState == CALIB_MOVE_STICKS) {
+  } else if (menuCalibrationState == CALIB_MOVE_STICKS) {
     adcCalibSetMinMax();
   }
 }
 
-void RadioCalibrationPage::onClicked()
-{
-  nextStep();
-}
+void RadioCalibrationPage::onClicked() { nextStep(); }
 
 void RadioCalibrationPage::onCancel()
 {
@@ -132,8 +141,7 @@ void RadioCalibrationPage::onCancel()
 
 void RadioCalibrationPage::nextStep()
 {
-  if (menuCalibrationState == CALIB_FINISHED)
-    deleteLater();
+  if (menuCalibrationState == CALIB_FINISHED) deleteLater();
 
   menuCalibrationState++;
 
@@ -153,8 +161,7 @@ void RadioCalibrationPage::nextStep()
 
       // initial calibration completed
       // -> exit
-      if (initial)
-        deleteLater();
+      if (initial) deleteLater();
       break;
 
     default:
@@ -164,7 +171,4 @@ void RadioCalibrationPage::nextStep()
   }
 }
 
-void startCalibration()
-{
-  new RadioCalibrationPage(true);
-}
+void startCalibration() { new RadioCalibrationPage(true); }

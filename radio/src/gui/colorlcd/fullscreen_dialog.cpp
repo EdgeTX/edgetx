@@ -20,59 +20,64 @@
  */
 
 #include "fullscreen_dialog.h"
+
 #include "LvglWrapper.h"
+#include "libopenui.h"
 #include "mainwindow.h"
 #include "opentx.h"
-#include "libopenui.h"
 #include "theme.h"
-
+#include "themes/etx_lv_theme.h"
+#include "view_main.h"
 #include "hal/watchdog_driver.h"
 
 #if LCD_W > LCD_H
-constexpr uint32_t ALERT_FRAME_TOP =               50;
-constexpr uint32_t ALERT_FRAME_HEIGHT =            (LCD_H - 120);
-constexpr uint32_t ALERT_BITMAP_TOP =              ALERT_FRAME_TOP + 25;
-constexpr uint32_t ALERT_BITMAP_LEFT =             20;
-constexpr uint32_t ALERT_TITLE_TOP =               ALERT_FRAME_TOP + 5;
-constexpr uint32_t ALERT_TITLE_LEFT =              146;
-constexpr uint32_t ALERT_MESSAGE_TOP =             ALERT_TITLE_TOP + 85;
-constexpr uint32_t ALERT_MESSAGE_LEFT =            ALERT_TITLE_LEFT;
+constexpr uint32_t ALERT_FRAME_TOP = 50;
+constexpr uint32_t ALERT_FRAME_HEIGHT = (LCD_H - 120);
+constexpr uint32_t ALERT_BITMAP_TOP = ALERT_FRAME_TOP + 25;
+constexpr uint32_t ALERT_BITMAP_LEFT = 20;
+constexpr uint32_t ALERT_TITLE_TOP = ALERT_FRAME_TOP + 5;
+constexpr uint32_t ALERT_TITLE_LEFT = 146;
+constexpr uint32_t ALERT_MESSAGE_TOP = ALERT_TITLE_TOP + 85;
+constexpr uint32_t ALERT_MESSAGE_LEFT = ALERT_TITLE_LEFT;
 #else
-constexpr uint32_t ALERT_FRAME_TOP =               70;
-constexpr uint32_t ALERT_FRAME_HEIGHT =            (LCD_H - 2 * ALERT_FRAME_TOP);
-constexpr uint32_t ALERT_BITMAP_TOP =              ALERT_FRAME_TOP + 15;
-constexpr uint32_t ALERT_BITMAP_LEFT =             15;
-constexpr uint32_t ALERT_TITLE_TOP =               ALERT_FRAME_TOP + 10;
-constexpr uint32_t ALERT_TITLE_LEFT =              140;
-constexpr uint32_t ALERT_MESSAGE_TOP =             ALERT_TITLE_TOP + 130;
-constexpr uint32_t ALERT_MESSAGE_LEFT =            15;
+constexpr uint32_t ALERT_FRAME_TOP = 70;
+constexpr uint32_t ALERT_FRAME_HEIGHT = (LCD_H - 2 * ALERT_FRAME_TOP);
+constexpr uint32_t ALERT_BITMAP_TOP = ALERT_FRAME_TOP + 15;
+constexpr uint32_t ALERT_BITMAP_LEFT = 15;
+constexpr uint32_t ALERT_TITLE_TOP = ALERT_FRAME_TOP + 10;
+constexpr uint32_t ALERT_TITLE_LEFT = 140;
+constexpr uint32_t ALERT_MESSAGE_TOP = ALERT_TITLE_TOP + 130;
+constexpr uint32_t ALERT_MESSAGE_LEFT = 15;
 #endif
-
-static Window* _get_parent()
-{
-  Window* p = Layer::back();
-  if (!p) p = MainWindow::instance();
-  return p;
-}
 
 FullScreenDialog::FullScreenDialog(
     uint8_t type, std::string title, std::string message, std::string action,
     const std::function<void(void)>& confirmHandler) :
-    Window(_get_parent(), {0, 0, LCD_W, LCD_H}, OPAQUE),
+    Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H}),
     type(type),
     title(std::move(title)),
     message(std::move(message)),
     action(std::move(action)),
     confirmHandler(confirmHandler)
 {
+  setWindowFlag(OPAQUE);
+
+  // In case alert raised while splash screen is showing.
+  cancelSplash();
+
+  Window* p = Layer::back();
+  if (p) p->hide();
+
   Layer::push(this);
 
   bringToTop();
 
   build();
 
-  lv_obj_add_event_cb(lvobj, FullScreenDialog::long_pressed, LV_EVENT_LONG_PRESSED, nullptr);
-  lv_obj_add_event_cb(lvobj, FullScreenDialog::on_draw, LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+  lv_obj_add_event_cb(lvobj, FullScreenDialog::long_pressed,
+                      LV_EVENT_LONG_PRESSED, nullptr);
+  lv_obj_add_event_cb(lvobj, FullScreenDialog::on_draw,
+                      LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
 }
 
 void FullScreenDialog::on_draw(lv_event_t* e)
@@ -88,9 +93,20 @@ void FullScreenDialog::on_draw(lv_event_t* e)
 
 void FullScreenDialog::build()
 {
+  auto div = new Window(this, {0, ALERT_FRAME_TOP, LCD_W, ALERT_FRAME_HEIGHT});
+  div->setWindowFlag(NO_FOCUS);
+  etx_bg_color(div->getLvObj(), COLOR_THEME_PRIMARY2_INDEX);
+  etx_obj_add_style(div->getLvObj(), styles->bg_opacity_50, LV_PART_MAIN);
+
+  new StaticIcon(
+      this, ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
+      (type == WARNING_TYPE_INFO) ? ICON_BUSY : ICON_ERROR,
+      COLOR_THEME_WARNING);
+
   std::string t;
   if (type == WARNING_TYPE_ALERT) {
-#if defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_IT) || defined(TRANSLATIONS_CZ)
+#if defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_IT) || \
+    defined(TRANSLATIONS_CZ)
     t = std::string(STR_WARNING) + "\n" + title;
 #else
     t = title + "\n" + STR_WARNING;
@@ -98,69 +114,54 @@ void FullScreenDialog::build()
   } else if (!title.empty()) {
     t = title;
   }
-  new StaticText(this, 
-                 rect_t{ALERT_TITLE_LEFT, ALERT_TITLE_TOP, LCD_W - ALERT_TITLE_LEFT - PAGE_PADDING, LCD_H - ALERT_TITLE_TOP - PAGE_PADDING},
-                 t.c_str(), 0, COLOR_THEME_WARNING | FONT(XL));
+  new StaticText(this,
+                 rect_t{ALERT_TITLE_LEFT, ALERT_TITLE_TOP,
+                        LCD_W - ALERT_TITLE_LEFT - PAD_MEDIUM,
+                        LCD_H - ALERT_TITLE_TOP - PAD_MEDIUM},
+                 t.c_str(), COLOR_THEME_WARNING | FONT(XL));
 
-  messageLabel = new StaticText(this, 
-                 rect_t{ALERT_MESSAGE_LEFT, ALERT_MESSAGE_TOP, LCD_W - ALERT_MESSAGE_LEFT - PAGE_PADDING, LCD_H - ALERT_MESSAGE_TOP - PAGE_PADDING},
-                 message.c_str(), 0, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+  messageLabel =
+      new StaticText(this,
+                     rect_t{ALERT_MESSAGE_LEFT, ALERT_MESSAGE_TOP,
+                            LCD_W - ALERT_MESSAGE_LEFT - PAD_MEDIUM,
+                            LCD_H - ALERT_MESSAGE_TOP - PAD_MEDIUM},
+                     message.c_str(), COLOR_THEME_PRIMARY1 | FONT(BOLD));
 
   if (!action.empty()) {
-    auto btn = new TextButton(this, { (LCD_W - 280) / 2, LCD_H - 48, 280, 40 }, action.c_str(),
-                   [=]() {
-                     closeDialog();
-                     return 0;
-                   }, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-    lv_obj_set_style_bg_color(btn->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
-    lv_obj_set_style_bg_opa(btn->getLvObj(), LV_OPA_COVER, 0);
-    lv_obj_set_style_text_color(btn->getLvObj(), makeLvColor(COLOR_THEME_PRIMARY1), 0);
+    auto btn = new TextButton(
+        this, {(LCD_W - 280) / 2, LCD_H - 48, 280, 40}, action.c_str(),
+        [=]() {
+          closeDialog();
+          return 0;
+        });
+    etx_bg_color(btn->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
+    etx_txt_color(btn->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
   } else {
     if (type == WARNING_TYPE_CONFIRM) {
-      auto btn = new TextButton(this, { LCD_W / 3 - 50, LCD_H - 48, 100, 40 }, STR_EXIT,
-                     [=]() {
-                       deleteLater();
-                       return 0;
-                     }, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-      lv_obj_set_style_bg_color(btn->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
-      lv_obj_set_style_bg_opa(btn->getLvObj(), LV_OPA_COVER, 0);
-      lv_obj_set_style_text_color(btn->getLvObj(), makeLvColor(COLOR_THEME_PRIMARY1), 0);
-      btn = new TextButton(this, { LCD_W * 2 / 3 - 50, LCD_H - 48, 100, 40 }, STR_OK,
-                     [=]() {
-                       closeDialog();
-                       return 0;
-                     }, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-      lv_obj_set_style_bg_color(btn->getLvObj(), makeLvColor(COLOR_THEME_SECONDARY3), 0);
-      lv_obj_set_style_bg_opa(btn->getLvObj(), LV_OPA_COVER, 0);
-      lv_obj_set_style_text_color(btn->getLvObj(), makeLvColor(COLOR_THEME_PRIMARY1), 0);
+      auto btn = new TextButton(
+          this, {LCD_W / 3 - 50, LCD_H - 48, 100, 40}, STR_EXIT,
+          [=]() {
+            deleteLater();
+            return 0;
+          });
+      etx_bg_color(btn->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
+      etx_txt_color(btn->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
+      btn = new TextButton(
+          this, {LCD_W * 2 / 3 - 50, LCD_H - 48, 100, 40}, STR_OK,
+          [=]() {
+            closeDialog();
+            return 0;
+          });
+      etx_bg_color(btn->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
+      etx_txt_color(btn->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
     }
-  }
-}
-
-void FullScreenDialog::paint(BitmapBuffer * dc)
-{
-  EdgeTxTheme::instance()->drawBackground(dc);
-
-  dc->drawFilledRect(0, ALERT_FRAME_TOP, LCD_W, ALERT_FRAME_HEIGHT, SOLID,
-                     COLOR_THEME_PRIMARY2, OPACITY(8));
-
-  if (type == WARNING_TYPE_ALERT || type == WARNING_TYPE_ASTERISK) {
-    dc->drawMask(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
-                 EdgeTxTheme::instance()->error, COLOR_THEME_WARNING);
-  } else if (type == WARNING_TYPE_INFO) {
-    dc->drawMask(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
-                 EdgeTxTheme::instance()->busy, COLOR_THEME_WARNING);
-  } else { // confirmation
-    dc->drawMask(ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
-                 EdgeTxTheme::instance()->error, COLOR_THEME_WARNING);
   }
 }
 
 void FullScreenDialog::closeDialog()
 {
- if (confirmHandler)
-   confirmHandler();
- deleteLater();
+  if (confirmHandler) confirmHandler();
+  deleteLater();
 }
 
 void FullScreenDialog::long_pressed(lv_event_t* e)
@@ -183,10 +184,7 @@ void FullScreenDialog::onEvent(event_t event)
   }
 }
 
-void FullScreenDialog::onCancel()
-{
-  deleteLater();
-}
+void FullScreenDialog::onCancel() { deleteLater(); }
 
 void FullScreenDialog::checkEvents()
 {
@@ -200,11 +198,12 @@ void FullScreenDialog::deleteLater(bool detach, bool trash)
 {
   if (running) {
     running = false;
-  }
-  else {
+  } else {
     Layer::pop(this);
     Window::deleteLater(detach, trash);
   }
+  Window* p = Layer::back();
+  if (p) p->show();
 }
 
 void FullScreenDialog::setMessage(std::string text)
@@ -229,7 +228,7 @@ void FullScreenDialog::runForever(bool checkPwr)
   // reset input devices to avoid
   // RELEASED/CLICKED to be called in a loop
   lv_indev_reset(nullptr, nullptr);
-  
+
   while (running) {
     resetBacklightTimeout();
 
@@ -253,7 +252,8 @@ void FullScreenDialog::runForever(bool checkPwr)
   deleteLater();
 }
 
-void raiseAlert(const char * title, const char * msg, const char * action, uint8_t sound)
+void raiseAlert(const char* title, const char* msg, const char* action,
+                uint8_t sound)
 {
   TRACE("raiseAlert('%s')", msg);
   AUDIO_ERROR_MESSAGE(sound);

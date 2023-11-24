@@ -21,24 +21,9 @@
 
 #pragma once
 
-#include "opentx.h"
 #include "tabsgroup.h"
 
 class ModelMenu;
-
-class ChannelsViewPage: public PageTab
-{
-  public:
-    explicit ChannelsViewPage(uint8_t pageIndex = 0):
-      PageTab(STR_MONITOR_CHANNELS[pageIndex], ICON_MONITOR_CHANNELS1 + pageIndex),
-      pageIndex(pageIndex)
-    {
-    }
-
-  protected:
-    void build(FormWindow * window) override;
-    uint8_t pageIndex = 0;
-};
 
 class ChannelsViewMenu: public TabsGroup {
   public:
