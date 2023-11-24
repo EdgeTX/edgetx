@@ -58,7 +58,7 @@ static lv_obj_t* etx_modal_dialog_create(lv_obj_t* parent)
   return etx_create(&etx_modal_dialog_class, parent);
 }
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 #define VM_W (FAB_BUTTON_WIDTH * 4 + 16)
 #define VM_H (FAB_BUTTON_HEIGHT * 2 + 16)
 #else
@@ -76,7 +76,7 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
   coord_t width = VM_W;
   bool hasNotes = modelHasNotes();
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   if (hasNotes)
     width += FAB_BUTTON_WIDTH;
 #endif

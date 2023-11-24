@@ -29,7 +29,7 @@
 #include "strhelpers.h"
 #include "switches.h"
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 #define FILTER_COLUMNS 3
 #else
 #define FILTER_COLUMNS 2

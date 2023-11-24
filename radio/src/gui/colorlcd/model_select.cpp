@@ -33,8 +33,6 @@
 
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
-constexpr int BUTTONS_HEIGHT = 36;
-
 struct ModelButtonLayout {
   uint16_t width;
   uint16_t height;
@@ -43,33 +41,33 @@ struct ModelButtonLayout {
   uint16_t font;
 };
 
+LAYOUT_VAL2(L0_W, 165, 147)
+LAYOUT_VAL1(L0_H, 92)
+LAYOUT_VAL2(L1_W, 108, 96)
+LAYOUT_VAL1(L1_H, 61)
+LAYOUT_VAL2(L3_W, 336, 300)
+LAYOUT_VAL3(MODEL_CELL_PADDING, 4, 3, 4)
+
 ModelButtonLayout modelLayouts[] = {
-#if LCD_W > LCD_H  // Landscape
-    {165, 92, 6, true, FONT(STD)},
-    {108, 61, 6, true, FONT(XS)},
-    {165, 32, 4, false, FONT(STD)},
-    {336, 32, 4, false, FONT(STD)},
-#else  // Portrait
-    {147, 92, 6, true, FONT(STD)},
-    {96, 61, 6, true, FONT(XS)},
-    {147, 32, 4, false, FONT(STD)},
-    {300, 32, 4, false, FONT(STD)},
-#endif
+    {L0_W, L0_H, MODEL_CELL_PADDING, true, FONT(STD)},
+    {L1_W, L1_H, MODEL_CELL_PADDING, true, FONT(XS)},
+    {L0_W, UI_ELEMENT_HEIGHT, MODEL_CELL_PADDING, false, FONT(STD)},
+    {L3_W, UI_ELEMENT_HEIGHT, MODEL_CELL_PADDING, false, FONT(STD)},
 };
 
-#if LCD_W > LCD_H  // Landscape
-constexpr int LABELS_ROW = 0;
-constexpr int MODELS_COL = 1;
+LAYOUT_VAL3(BUTTONS_HEIGHT, 36, 26, 36)
+LAYOUT_VAL2(LABELS_WIDTH, 132, 0)
+LAYOUT_VAL2(LABELS_HEIGHT, 0, 152)
+LAYOUT_VAL3(LABELS_ROW, 0, 0, 1)
+LAYOUT_VAL3(MODELS_COL, 1, 1, 0)
 constexpr int MODELS_ROW = 0;
-constexpr int MODELS_ROW_CNT = 2;
-constexpr int BUTTONS_ROW = 1;
-#else  // Portrait
-constexpr int LABELS_ROW = 1;
-constexpr int MODELS_COL = 0;
-constexpr int MODELS_ROW = 0;
-constexpr int MODELS_ROW_CNT = 1;
-constexpr int BUTTONS_ROW = 2;
-#endif
+LAYOUT_VAL3(MODELS_ROW_CNT, 2, 2, 1)
+LAYOUT_VAL3(BUTTONS_ROW, 1, 1, 2)
+LAYOUT_VAL3(NAME_H, 17, 12, 17)
+LAYOUT_VAL3(NAME_PAD_TOP, -3, -1, -3)
+LAYOUT_VAL1(NEW_BTN_W, 60)
+LAYOUT_VAL3(LAYOUT_BTN_XO, 105, 75, 105)
+LAYOUT_VAL3(LAYOUT_BTN_YO, 6, 3, 6)
 
 class ModelButton : public Button
 {
@@ -682,7 +680,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
   setTitle();
 
   // new model button
-  auto btn = new TextButton(hdr, rect_t{0, 0, 60, 32}, STR_NEW, [=]() {
+  auto btn = new TextButton(hdr, rect_t{0, 0, NEW_BTN_W, UI_ELEMENT_HEIGHT}, STR_NEW, [=]() {
     auto menu = new Menu(this);
     menu->setTitle(STR_CREATE_NEW);
     menu->addLine(STR_NEW_MODEL, [=]() { newModel(); });
@@ -705,17 +703,15 @@ void ModelLabelsWindow::buildHead(Window *hdr)
     mdlselector->update();
     return 0;
   });
-  lv_obj_set_pos(mdlLayout->getLvObj(), LCD_W - 105, 6);
+  lv_obj_set_pos(mdlLayout->getLvObj(), LCD_W - LAYOUT_BTN_XO, LAYOUT_BTN_YO);
 }
 
-#if LCD_W > LCD_H
-constexpr int LABELS_WIDTH = 132;
+#if !PORTRAIT_LCD
 static const lv_coord_t col_dsc[] = {LABELS_WIDTH, LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), BUTTONS_HEIGHT,
                                      LV_GRID_TEMPLATE_LAST};
 #else
-constexpr int LABELS_HEIGHT = 140;
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), LABELS_HEIGHT,
                                      BUTTONS_HEIGHT, LV_GRID_TEMPLATE_LAST};
@@ -742,7 +738,7 @@ void ModelLabelsWindow::buildBody(Window *window)
   auto box = new Window(window, rect_t{});
   box->padAll(PAD_ZERO);
   box->padLeft(6);
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
   box->padRight(6);
   box->padTop(6);
   box->padBottom(6);

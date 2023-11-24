@@ -21,6 +21,8 @@
 #include "theme.h"
 #include "themes/etx_lv_theme.h"
 
+LAYOUT_VAL3(TOGGLE_W, 52, 40, 52)
+
 // Animation
 LV_STYLE_CONST_SINGLE_INIT(anim_fast, LV_STYLE_ANIM_TIME, 120);
 
@@ -55,8 +57,8 @@ static const lv_obj_class_t switch_class = {
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
-    .width_def = 0,
-    .height_def = 32,
+    .width_def = TOGGLE_W,
+    .height_def = UI_ELEMENT_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_switch_t),

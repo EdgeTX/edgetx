@@ -23,10 +23,12 @@
 #include "button.h"
 #include "themes/etx_lv_theme.h"
 
-constexpr int BAR_MARGIN = 5;
-
-constexpr int BAR_TOP_MARGIN = 5;
-constexpr int BAR_HEIGHT_OFFSET = BAR_TOP_MARGIN + 25;
+LAYOUT_VAL3(BAR_MARGIN, 5, 4, 5)
+LAYOUT_VAL3(BAR_TOP_MARGIN, 5, 4, 5)
+LAYOUT_VAL3(BAR_HEIGHT_OFFSET, 25, 16, 25)
+LAYOUT_VAL3(LBL_YO, 9, 5, 9)
+LAYOUT_VAL3(VAL_XO, 10, 6, 10)
+LAYOUT_VAL1(VAL_YO, 3)
 
 static const char* const RGBChars[MAX_BARS] = {"R", "G", "B"};
 static const char* const HSVChars[MAX_BARS] = {"H", "S", "V"};
@@ -276,7 +278,7 @@ BarColorType::BarColorType(Window* parent)
   rect_t r;
   r.y = BAR_TOP_MARGIN;
   r.w = spacePerBar - BAR_MARGIN - 5;
-  r.h = parent->height() - BAR_HEIGHT_OFFSET;
+  r.h = parent->height() - (BAR_TOP_MARGIN + BAR_HEIGHT_OFFSET);
 
   for (int i = 0; i < MAX_BARS; i++) {
     r.x = leftPos + BAR_MARGIN;
@@ -289,8 +291,8 @@ BarColorType::BarColorType(Window* parent)
     auto x = bar->left();
     auto y = bar->bottom();
 
-    barLabels[i] = create_bar_label(parent->getLvObj(), x, y + 9);
-    barValLabels[i] = create_bar_value_label(parent->getLvObj(), x + 10, y + 3);
+    barLabels[i] = create_bar_label(parent->getLvObj(), x, y + LBL_YO);
+    barValLabels[i] = create_bar_value_label(parent->getLvObj(), x + VAL_XO, y + VAL_YO);
   }
 }
 

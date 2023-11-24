@@ -24,8 +24,8 @@
 #include "form.h"
 #include "bitmaps.h"
 
-constexpr coord_t FAB_BUTTON_WIDTH = 80;
-constexpr coord_t FAB_BUTTON_HEIGHT = 114;
+LAYOUT_VAL3(FAB_BUTTON_WIDTH, 80, 54, 80)
+LAYOUT_VAL3(FAB_BUTTON_HEIGHT, 114, 78, 114)
 
 class SelectFabCarousel : public Window
 {

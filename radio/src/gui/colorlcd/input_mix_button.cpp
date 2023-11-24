@@ -23,11 +23,13 @@
 #include "opentx.h"
 #include "bitmaps.h"
 
-// total: 92 x 17
-#define FM_CANVAS_HEIGHT 17
-#define FM_CANVAS_WIDTH  92
+LAYOUT_VAL3(FM_CANVAS_WIDTH, 92, 66, 92)
+LAYOUT_VAL3(FM_CANVAS_HEIGHT, 17, 12, 17)
+LAYOUT_VAL1(FM_BTN_W, 20)
+LAYOUT_VAL1(FM_LBL_W, 8)
+LAYOUT_VAL1(FM_BAR_Y, 3)
 
-#if LCD_W > LCD_H // Landscape
+#if !PORTRAIT_LCD // Landscape
 static const lv_coord_t col_dsc[] = {
   LV_GRID_FR(7),   // weight
   LV_GRID_FR(12),   // source
@@ -64,7 +66,7 @@ InputMixButton::InputMixButton(Window* parent, uint8_t index) :
   lv_obj_set_grid_cell(source, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 0, 1);
 
   opts = lv_label_create(lvobj);
-#if LCD_W > LCD_H // Landscape
+#if !PORTRAIT_LCD // Landscape
   lv_obj_set_grid_cell(opts, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_START, 0, 1);
 #else
   lv_obj_set_grid_cell(opts, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_START, 0, 2);
@@ -110,7 +112,7 @@ void InputMixButton::setFlightModes(uint16_t modes)
     lv_canvas_set_buffer(fm_canvas, fm_buffer, FM_CANVAS_WIDTH,
                          FM_CANVAS_HEIGHT, LV_IMG_CF_ALPHA_8BIT);
 
-#if LCD_W > LCD_H // Landscape
+#if !PORTRAIT_LCD // Landscape
     lv_obj_set_grid_cell(fm_canvas, LV_GRID_ALIGN_START, 3, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 #else
@@ -130,7 +132,7 @@ void InputMixButton::setFlightModes(uint16_t modes)
 
   coord_t x = 0;
   lv_canvas_copy_buf(fm_canvas, mask->data, x, 0, w, h);
-  x += 20;
+  x += FM_BTN_W;
 
   lv_draw_label_dsc_t label_dsc;
   lv_draw_label_dsc_init(&label_dsc);
@@ -148,10 +150,10 @@ void InputMixButton::setFlightModes(uint16_t modes)
     if (fm_modes & (1 << i)) {
       label_dsc.color = lv_color_make(0x7f, 0x7f, 0x7f);
     } else {
-      lv_canvas_draw_rect(fm_canvas, x, 0, 8, 3, &rect_dsc);
+      lv_canvas_draw_rect(fm_canvas, x, 0, FM_LBL_W, FM_BAR_Y, &rect_dsc);
       label_dsc.color = lv_color_white();
     }
-    lv_canvas_draw_text(fm_canvas, x, 0, 8, &label_dsc, s);
-    x += 8;
+    lv_canvas_draw_text(fm_canvas, x, 0, FM_LBL_W, &label_dsc, s);
+    x += FM_LBL_W;
   }
 }

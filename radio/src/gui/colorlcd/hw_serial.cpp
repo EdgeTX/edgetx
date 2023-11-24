@@ -24,6 +24,9 @@
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
+LAYOUT_VAL1(WARN_PADL, 20);
+LAYOUT_VAL1(WARN_PADB, 6);
+
 SerialConfigWindow::SerialConfigWindow(Window *parent, FlexGridLayout& grid)
 {
   for (uint8_t port_nr = 0; port_nr < MAX_SERIAL_PORTS; port_nr++) {
@@ -63,8 +66,8 @@ SerialConfigWindow::SerialConfigWindow(Window *parent, FlexGridLayout& grid)
     if (port_nr != SP_VCP) {
         grid.setColSpan(2);
         auto line = parent->newLine(grid);
-        line->padLeft(20);
-        line->padBottom(6);
+        line->padLeft(WARN_PADL);
+        line->padBottom(WARN_PADB);
         new StaticText(line, rect_t{}, STR_TTL_WARNING, COLOR_THEME_WARNING);
         grid.setColSpan(1);
     }

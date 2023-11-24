@@ -180,11 +180,12 @@ struct ToolButton : public TextButton {
         return 0;
       })
   {
-    if (LCD_W > LCD_H)
-      setWidth((LCD_W - 24) / 3);  // 3 columns on landscape
-    else
-      setWidth((LCD_W - 18) / 2);  // 2 columns on portrait
-    setHeight(48);
+#if !PORTRAIT_LCD
+    setWidth((LCD_W - 24) / 3);  // 3 columns on landscape
+#else
+    setWidth((LCD_W - 18) / 2);  // 2 columns on portrait
+#endif      
+    setHeight(TOOLS_BTN_H);
 
     lv_obj_set_width(label, lv_pct(100));
     etx_obj_add_style(label, styles->text_align_center, LV_PART_MAIN);

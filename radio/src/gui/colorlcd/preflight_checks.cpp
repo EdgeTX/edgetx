@@ -212,13 +212,9 @@ static std::string switchWarninglabel(swsrc_t index)
          std::string(getSwitchWarnSymbol(warn_pos));
 }
 
-#if LCD_W > LCD_H
-#define SW_BTNS 8
-#define SW_BTN_W 56
-#else
-#define SW_BTNS 4
-#define SW_BTN_W 72
-#endif
+LAYOUT_VAL3(SW_BTNS, 8, 8, 4)
+LAYOUT_VAL3(SW_BTN_W, 56, 38, 72)
+LAYOUT_VAL1(SW_BTN_H, 36)
 
 SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
     ButtonMatrix(parent, r)
@@ -244,10 +240,10 @@ SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
 
   update();
 
-  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
+  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + PAD_SMALL);
 
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
-  lv_obj_set_height(lvobj, (rows * 36) + 4);
+  lv_obj_set_height(lvobj, (rows * SW_BTN_H) + PAD_SMALL);
 
   padAll(PAD_SMALL);
 }
@@ -306,10 +302,10 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
 
   update();
 
-  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
+  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + PAD_SMALL);
 
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
-  lv_obj_set_height(lvobj, (rows * 36) + 4);
+  lv_obj_set_height(lvobj, (rows * SW_BTN_H) + PAD_SMALL);
 
   padAll(PAD_SMALL);
 }
@@ -372,10 +368,10 @@ CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
 
   update();
 
-  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
+  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + PAD_SMALL);
 
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
-  lv_obj_set_height(lvobj, (rows * 36) + 4);
+  lv_obj_set_height(lvobj, (rows * SW_BTN_H) + PAD_SMALL);
 
   padAll(PAD_SMALL);
 }

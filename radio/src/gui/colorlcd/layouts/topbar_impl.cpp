@@ -41,12 +41,12 @@ unsigned int TopBar::getZonesCount() const
 rect_t TopBar::getZone(unsigned int index) const
 {
   if (index == MAX_TOPBAR_ZONES - 1) {
-    coord_t size = LCD_W - 48 - (MAX_TOPBAR_ZONES - 1) * (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN);
+    coord_t size = LCD_W - HDR_DATE_XO - (MAX_TOPBAR_ZONES - 1) * (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN);
     return {LCD_W - size, TOPBAR_ZONE_VMARGIN, size, TOPBAR_ZONE_HEIGHT};
   }
 
   return {
-    coord_t(48 + (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN) * index),
+    coord_t(MENU_HEADER_BUTTONS_LEFT + 1 + (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN) * index),
     TOPBAR_ZONE_VMARGIN,
     TOPBAR_ZONE_WIDTH,
     TOPBAR_ZONE_HEIGHT

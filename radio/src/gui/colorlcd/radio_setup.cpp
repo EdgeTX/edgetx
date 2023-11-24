@@ -40,15 +40,9 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 // Absolute layout for date/time setion due to slow performance
 // of lv_textarea in a flex layout.
-#if LCD_W > LCD_H
-#define DT_EDT_W 80
-#define DT_EDT_X 220
-#define DT_LBL_W 200
-#else
-#define DT_EDT_W 52
-#define DT_EDT_X 144
-#define DT_LBL_W 140
-#endif
+LAYOUT_VAL2(DT_EDT_W, 80, 52)
+LAYOUT_VAL3(DT_EDT_X, 220, 144, 144)
+LAYOUT_VAL2(DT_LBL_W, 200, 140)
 
 class DateTimeWindow : public Window
 {
@@ -768,10 +762,7 @@ class ManageModelsSetupPage : public SubPage
   Window* favSelectMatch = nullptr;
 };
 
-RadioSetupPage::RadioSetupPage():
-  PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP)
-{
-}
+RadioSetupPage::RadioSetupPage() : PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP) {}
 
 void RadioSetupPage::build(Window* window)
 {

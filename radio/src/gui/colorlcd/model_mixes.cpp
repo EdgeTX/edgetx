@@ -31,14 +31,21 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
+LAYOUT_VAL1(NAM_W, 45)
+LAYOUT_VAL1(MPLEX_W, 26)
+LAYOUT_VAL1(MPLEX_ICON_W, 25)
+LAYOUT_VAL3(MPLEX_ICON_H, 29, 22, 29)
+LAYOUT_VAL1(MIX_MON_W, 100)
+LAYOUT_VAL1(MIX_MON_H, 14)
+
 static const lv_coord_t col_dsc[] = {
-    45,
+    NAM_W,
     LV_GRID_FR(1),
     LV_GRID_TEMPLATE_LAST,
 };
 
 static const lv_coord_t col_dsc2[] = {
-    26,
+    MPLEX_W,
     LV_GRID_FR(1),
     LV_GRID_TEMPLATE_LAST,
 };
@@ -72,7 +79,7 @@ MixGroup::MixGroup(Window* parent, mixsrc_t idx) :
   lv_obj_set_style_pad_all(outer, PAD_ZERO, LV_PART_MAIN);
   lv_obj_set_style_pad_row(outer, PAD_ZERO, LV_PART_MAIN);
 
-  monitor = new MixerChannelBar(this, {0, 0, 100, 14}, idx - MIXSRC_FIRST_CH);
+  monitor = new MixerChannelBar(this, {0, 0, MIX_MON_W, MIX_MON_H}, idx - MIXSRC_FIRST_CH);
   lv_obj_set_parent(monitor->getLvObj(), outer); 
   lv_obj_set_style_translate_x(monitor->getLvObj(), -6, LV_PART_MAIN);
   lv_obj_set_grid_cell(monitor->getLvObj(), LV_GRID_ALIGN_END, 0, 1, LV_GRID_ALIGN_START,
@@ -125,7 +132,7 @@ class MPlexIcon : public Window
 {
  public:
   MPlexIcon(Window* parent, uint8_t index) :
-    Window(parent, {0, 0, 25, 29}),
+    Window(parent, {0, 0, MPLEX_ICON_W, MPLEX_ICON_H}),
     index(index)
     {
       MixData* mix = mixAddress(index);

@@ -29,7 +29,7 @@
 constexpr lv_coord_t COLOR_PAD_WIDTH = (4 * LV_DPI_DEF) / 10;
 constexpr lv_coord_t COLOR_PAD_HEIGHT = 32;
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 // Landscape
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};

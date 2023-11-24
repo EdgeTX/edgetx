@@ -25,9 +25,10 @@
 #include "button.h"
 #include "static.h"
 
-constexpr coord_t FAB_BUTTON_INNER_WIDTH = FAB_BUTTON_WIDTH - 4;
-constexpr coord_t FAB_ICON_SIZE = 52;
-constexpr coord_t FAB_ICON_INNER_SIZE = 52 - 4;
+LAYOUT_VAL3(FAB_ICON_SIZE, 52, 36, 52)
+LAYOUT_VAL1(FAB_TXT_YO, 48)
+LAYOUT_VAL3(FAB_PAD, 4, 2, 4)
+constexpr coord_t FAB_BUTTON_INNER_WIDTH = FAB_BUTTON_WIDTH - PAD_MEDIUM;
 
 static void etx_quick_button_constructor(const lv_obj_class_t* class_p,
                                          lv_obj_t* obj)
@@ -35,7 +36,7 @@ static void etx_quick_button_constructor(const lv_obj_class_t* class_p,
   etx_obj_add_style(obj, styles->border_transparent, LV_PART_MAIN);
   etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
   etx_txt_color(obj, COLOR_WHITE_INDEX, LV_PART_MAIN);
-  etx_obj_add_style(obj, styles->pad_large, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->pad_medium, LV_PART_MAIN);
 
   etx_obj_add_style(obj, styles->border, LV_PART_MAIN | LV_STATE_FOCUSED);
   etx_obj_add_style(obj, styles->border_color_white,
@@ -108,9 +109,9 @@ class SelectFabButton : public ButtonBase
     iconLayout->setWindowFlag(NO_FOCUS);
 
     (new StaticIcon(iconLayout, 0, 0, icon, COLOR_WHITE))
-        ->center(FAB_ICON_INNER_SIZE, FAB_ICON_INNER_SIZE);
+        ->center(FAB_ICON_SIZE - 4, FAB_ICON_SIZE - 4);
 
-    new StaticText(this, {0, FAB_BUTTON_HEIGHT - 48, FAB_BUTTON_INNER_WIDTH, 0},
+    new StaticText(this, {0, FAB_BUTTON_HEIGHT - FAB_TXT_YO, FAB_BUTTON_INNER_WIDTH, 0},
                    title, COLOR_WHITE | CENTERED);
   }
 

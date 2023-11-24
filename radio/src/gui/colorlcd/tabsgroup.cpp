@@ -29,6 +29,12 @@
 #include "keyboard_base.h"
 #endif
 
+LAYOUT_VAL3(SEL_DOT_X, 10, 6, 10)
+LAYOUT_VAL1(SEL_DOT_Y, 39)
+LAYOUT_VAL1(ICON_Y, 7)
+LAYOUT_VAL1(DATE_XO, 48)
+LAYOUT_VAL1(DATE_Y, 6)
+
 class SelectedTabIcon : public StaticIcon
 {
  public:
@@ -36,7 +42,7 @@ class SelectedTabIcon : public StaticIcon
       StaticIcon(parent, 0, 0, ICON_CURRENTMENU_SHADOW, COLOR_THEME_PRIMARY1)
   {
     new StaticIcon(this, 0, 0, ICON_CURRENTMENU_BG, COLOR_THEME_FOCUS);
-    new StaticIcon(this, 10, 39, ICON_CURRENTMENU_DOT, COLOR_THEME_PRIMARY2);
+    new StaticIcon(this, SEL_DOT_X, SEL_DOT_Y, ICON_CURRENTMENU_DOT, COLOR_THEME_PRIMARY2);
   }
 
 #if defined(DEBUG_WINDOWS)
@@ -54,7 +60,7 @@ class TabCarouselButton : public ButtonBase
     selected->hide();
 
     lastIcon = getIcon();
-    icon = new StaticIcon(this, 2, 7, lastIcon, COLOR_THEME_PRIMARY2);
+    icon = new StaticIcon(this, 2, ICON_Y,lastIcon, COLOR_THEME_PRIMARY2);
 
     show(isVisible());
   }
@@ -84,7 +90,7 @@ class TabCarouselButton : public ButtonBase
     if (lastIcon != getIcon()) {
       lastIcon = getIcon();
       icon->deleteLater();
-      icon = new StaticIcon(this, 2, 7, lastIcon, COLOR_THEME_PRIMARY2);
+      icon = new StaticIcon(this, 2, ICON_Y, lastIcon, COLOR_THEME_PRIMARY2);
     }
     ButtonBase::checkEvents();
   }
@@ -96,12 +102,12 @@ class TabsCarousel : public Window
   TabsCarousel(Window* parent, TabsGroup* menu) :
       Window(parent,
              {MENU_HEADER_BUTTONS_LEFT, 0,
-              LCD_W - 51 - MENU_HEADER_BUTTONS_LEFT, MENU_HEADER_HEIGHT + 10}),
+              LCD_W - HDR_DATE_FULL_WIDTH - MENU_HEADER_BUTTONS_LEFT, MENU_HEADER_HEIGHT + 10}),
       menu(menu)
   {
     setWindowFlag(NO_FOCUS);
 
-    lv_obj_set_style_max_width(lvobj, LCD_W - 51 - MENU_HEADER_BUTTONS_LEFT,
+    lv_obj_set_style_max_width(lvobj, LCD_W - HDR_DATE_FULL_WIDTH - MENU_HEADER_BUTTONS_LEFT,
                                LV_PART_MAIN);
 
     padAll(PAD_ZERO);
@@ -211,7 +217,8 @@ class TabsGroupHeader : public Window
 
  public:
   TabsGroupHeader(TabsGroup* menu, EdgeTxIcon icon) :
-      Window(menu, {0, 0, LCD_W, MENU_BODY_TOP}), icon(icon)
+      Window(menu, {0, 0, LCD_W, MENU_BODY_TOP}),
+      icon(icon)
   {
     setWindowFlag(NO_FOCUS | OPAQUE);
 
@@ -234,7 +241,7 @@ class TabsGroupHeader : public Window
 
     carousel = new TabsCarousel(this, menu);
 
-    dateTime = new HeaderDateTime(lvobj, LCD_W - 48, 6);
+    dateTime = new HeaderDateTime(lvobj, LCD_W - DATE_XO, DATE_Y);
   }
 
   void setTitle(const char* title) { lv_label_set_text(titleLabel, title); }
@@ -263,7 +270,8 @@ TabsGroup::TabsGroup(EdgeTxIcon icon) :
     NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
 {
   header = new TabsGroupHeader(this, icon);
-  body = new Window(this, {0, MENU_BODY_TOP, LCD_W, MENU_BODY_HEIGHT});
+  body =
+      new Window(this, {0, MENU_BODY_TOP, LCD_W, MENU_BODY_HEIGHT});
   body->setWindowFlag(NO_FOCUS);
 
   etx_solid_bg(lvobj);

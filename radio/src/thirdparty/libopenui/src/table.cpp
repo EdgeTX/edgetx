@@ -23,13 +23,23 @@
 static void table_event(const lv_obj_class_t* class_p, lv_event_t* e);
 
 // Table
+#if LANDSCAPE_LCD_SMALL
+const lv_style_const_prop_t table_cell_props[] = {
+    LV_STYLE_CONST_BORDER_WIDTH(1),
+    LV_STYLE_CONST_BORDER_SIDE(LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM),
+    LV_STYLE_CONST_PAD_TOP(3),  LV_STYLE_CONST_PAD_BOTTOM(3),
+    LV_STYLE_CONST_PAD_LEFT(5), LV_STYLE_CONST_PAD_RIGHT(5),
+    LV_STYLE_PROP_INV,
+};
+#else
 const lv_style_const_prop_t table_cell_props[] = {
     LV_STYLE_CONST_BORDER_WIDTH(1),
     LV_STYLE_CONST_BORDER_SIDE(LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM),
     LV_STYLE_CONST_PAD_TOP(7),  LV_STYLE_CONST_PAD_BOTTOM(7),
-    LV_STYLE_CONST_PAD_LEFT(4), LV_STYLE_CONST_PAD_RIGHT(4),
+    LV_STYLE_CONST_PAD_LEFT(8), LV_STYLE_CONST_PAD_RIGHT(8),
     LV_STYLE_PROP_INV,
 };
+#endif
 LV_STYLE_CONST_MULTI_INIT(table_cell, table_cell_props);
 
 static void table_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)

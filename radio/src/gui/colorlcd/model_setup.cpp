@@ -103,7 +103,7 @@ class SubScreenButton : public TextButton
       m_isActive(std::move(checkActive))
   {
     // Room for two lines of text
-    setHeight(62);
+    setHeight(SUBSCR_BTN_H);
     setWidth((LCD_W - 30) / 3);
 
     lv_obj_set_width(label, lv_pct(100));

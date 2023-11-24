@@ -22,7 +22,7 @@
 #include "themes/etx_lv_theme.h"
 #include "translations.h"
 
-constexpr uint32_t MENUS_TOOLBAR_BUTTON_WIDTH =    32;
+LAYOUT_VAL3(MENUS_TOOLBAR_BUTTON_WIDTH, 32, 24, 32)
 
 static const lv_obj_class_t menu_button_class = {
     .base_class = &button_class,
@@ -64,7 +64,7 @@ MenuToolbarButton::MenuToolbarButton(Window* parent, const rect_t& rect,
 }
 
 MenuToolbar::MenuToolbar(Choice* choice, Menu* menu, const int columns) :
-    Window(menu, {0, 0, 76, MENUS_MAX_HEIGHT}),
+    Window(menu, {0, 0, 0, MENUS_MAX_HEIGHT}),
     choice(choice),
     menu(menu),
     filterColumns(columns),

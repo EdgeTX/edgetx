@@ -30,6 +30,9 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
+LAYOUT_VAL3(TR_BTN_W, 65, 44, 65)
+LAYOUT_VAL1(TR_MODE_W, 70)
+
 static std::string getFMTrimStr(uint8_t mode, bool spacer)
 {
   mode &= 0x1F;
@@ -49,7 +52,7 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 #define TRIMS_PER_LINE 2
 static const lv_coord_t trims_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                            LV_GRID_TEMPLATE_LAST};
@@ -75,7 +78,7 @@ class TrimEdit : public Window
     lastTrim = tr->value;
 
     auto tr_btn = new TextButton(
-        this, rect_t{0, 0, 65, 0}, getSourceString(MIXSRC_FIRST_TRIM + trimId),
+        this, rect_t{0, 0, TR_BTN_W, 0}, getSourceString(MIXSRC_FIRST_TRIM + trimId),
         [=]() {
           tr->mode = (tr->mode == TRIM_MODE_NONE) ? 0 : TRIM_MODE_NONE;
           tr_mode->setValue(tr->mode);
@@ -86,7 +89,7 @@ class TrimEdit : public Window
 
     if (tr->mode != TRIM_MODE_NONE) tr_btn->check();
 
-    tr_mode = new Choice(this, rect_t{0, 0, 70, 0}, 0, 2 * MAX_FLIGHT_MODES,
+    tr_mode = new Choice(this, rect_t{0, 0, TR_MODE_W, 0}, 0, 2 * MAX_FLIGHT_MODES,
                          GET_DEFAULT(tr->mode), [=](int val) {
                            tr->mode = val;
                            showControls();
@@ -102,7 +105,7 @@ class TrimEdit : public Window
     });
 
     tr_value = new NumberEdit(
-        this, rect_t{0, 0, 70, 0}, g_model.extendedTrims ? -512 : -128,
+        this, rect_t{0, 0, TR_MODE_W, 0}, g_model.extendedTrims ? -512 : -128,
         g_model.extendedTrims ? 512 : 128, GET_SET_DEFAULT(tr->value));
 
     showControls();
@@ -197,31 +200,16 @@ class FlightModeEdit : public Page
   uint8_t index;
 };
 
-#if LCD_W > LCD_H  // Landscape
-
-#define BTN_H 36
-#define TRIM_W 30
-#define FMID_W 36
-#define NAME_W 95
-#define SWTCH_W 50
-#define FADE_W 45
-#define TRIMC_W 180
-#define FMID_TOP 6
-#define LBL_TOP 6
-
-#else  // Portrait
-
-#define BTN_H 58
-#define TRIM_W 40
-#define FMID_W 46
-#define NAME_W 160
-#define SWTCH_W 50
-#define FADE_W 45
-#define TRIMC_W 160
-#define FMID_TOP 24
-#define LBL_TOP 0
-
-#endif
+LAYOUT_VAL3(BTN_H, 36, 26, 58)
+LAYOUT_VAL2(TRIM_W, 30, 40)
+LAYOUT_VAL1(TRIM_H, 16)
+LAYOUT_VAL2(FMID_W, 36, 46)
+LAYOUT_VAL2(NAME_W, 95, 160)
+LAYOUT_VAL1(SWTCH_W, 50)
+LAYOUT_VAL1(FADE_W, 45)
+LAYOUT_VAL2(TRIMC_W, 180, 160)
+LAYOUT_VAL2(FMID_TOP, 6, 24)
+LAYOUT_VAL2(LBL_TOP, 6, 0)
 
 static void fm_group_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
@@ -260,7 +248,7 @@ static const lv_obj_class_t fm_trims_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = TRIMC_W,
-    .height_def = 32,
+    .height_def = UI_ELEMENT_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_obj_t),
@@ -353,7 +341,7 @@ static const lv_obj_class_t fm_trim_mode_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = TRIM_W,
-    .height_def = 16,
+    .height_def = TRIM_H,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -373,7 +361,7 @@ static const lv_obj_class_t fm_trim_value_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = TRIM_W,
-    .height_def = 16,
+    .height_def = TRIM_H,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -427,7 +415,7 @@ class FlightModeBtn : public ListLineButton
       fmTrimMode[i] = etx_create(&fm_trim_mode_class, trims_cont);
       lv_obj_set_pos(fmTrimMode[i], i * TRIM_W, 0);
       fmTrimValue[i] = etx_create(&fm_trim_value_class, trims_cont);
-      lv_obj_set_pos(fmTrimValue[i], i * TRIM_W, 16);
+      lv_obj_set_pos(fmTrimValue[i], i * TRIM_W, TRIM_H);
     }
 
     fmFadeIn = etx_create(&fm_fade_class, container);

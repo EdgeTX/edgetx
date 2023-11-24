@@ -30,7 +30,7 @@
 #include "view_main.h"
 #include "hal/watchdog_driver.h"
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 constexpr uint32_t ALERT_FRAME_TOP = 50;
 constexpr uint32_t ALERT_FRAME_HEIGHT = (LCD_H - 120);
 constexpr uint32_t ALERT_BITMAP_TOP = ALERT_FRAME_TOP + 25;

@@ -32,7 +32,7 @@ class GhostModuleConfigWindow : public Window
   GhostModuleConfigWindow(Window* parent, const rect_t& rect) :
       Window(parent, rect)
   {
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     constexpr coord_t xOffset = 20;
     constexpr coord_t xOffset2 = 140;
 #else

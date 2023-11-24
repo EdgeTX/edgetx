@@ -23,12 +23,8 @@
 
 #include "libopenui.h"
 
-#if LCD_H > LCD_W
-constexpr uint8_t SLIDER_TICKS_COUNT = 30;
-#else
-constexpr uint8_t SLIDER_TICKS_COUNT = 40;
-#endif
-constexpr coord_t SLIDER_TICK_SPACING = 4;
+LAYOUT_VAL3(SLIDER_TICKS_COUNT, 40, 36, 30)
+LAYOUT_VAL1(SLIDER_TICK_SPACING, 4)
 constexpr coord_t HORIZONTAL_SLIDERS_WIDTH =
     SLIDER_TICKS_COUNT * SLIDER_TICK_SPACING + TRIM_SQUARE_SIZE;
 constexpr coord_t VERTICAL_SLIDERS_HEIGHT =

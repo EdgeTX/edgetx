@@ -32,11 +32,7 @@
 
 #define SET_DIRTY() setDirty()
 
-#if LCD_W > LCD_H
-#define SF_BUTTON_H 34
-#else
-#define SF_BUTTON_H 45
-#endif
+LAYOUT_VAL3(SF_BUTTON_H, 34, 26, 45)
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                      LV_GRID_TEMPLATE_LAST};
@@ -44,7 +40,7 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 //-----------------------------------------------------------------------------
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 
 static const lv_coord_t b_col_dsc[] = {43, 70, LV_GRID_FR(1),
                                        40, 30, LV_GRID_TEMPLATE_LAST};
@@ -117,7 +113,7 @@ FunctionLineButton::FunctionLineButton(Window *parent, const rect_t &rect,
     ListLineButton(parent, index), cfn(cfn), prefix(prefix)
 {
   setHeight(SF_BUTTON_H);
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
   padTop(PAD_ZERO);
 #else
   padTop(PAD_SMALL);
@@ -789,7 +785,7 @@ void FunctionsPage::plusPopup(Window *window)
 
 void FunctionsPage::build(Window *window)
 {
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 #define PER_ROW 6
   static const lv_coord_t l_col_dsc[] = {
       LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),        LV_GRID_FR(1),
@@ -862,8 +858,6 @@ void FunctionsPage::build(Window *window)
           menu->addLine(STR_ENABLE, [=]() {
             CFN_ACTIVE(cfn) = 1;
             SET_DIRTY();
-            if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT || CFN_FUNC(cfn) == FUNC_RGB_LED)
-              LUA_LOAD_MODEL_SCRIPTS();
             rebuild(window);
           });
         }

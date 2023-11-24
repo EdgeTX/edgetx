@@ -187,7 +187,7 @@ static void set_failsafe(lv_event_t* e)
   if (combo) combo->update();
 }
 
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
 #define FS_BARGRAPH_WIDTH (LV_DPI_DEF / 2)
 #else
 #define FS_BARGRAPH_WIDTH (LV_DPI_DEF)

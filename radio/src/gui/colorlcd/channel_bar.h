@@ -23,9 +23,9 @@
 
 #include "opentx.h"
 
-constexpr coord_t ROW_HEIGHT = 42;
-constexpr coord_t BAR_HEIGHT = 13;
-constexpr coord_t LMARGIN = 15;
+LAYOUT_VAL1(ROW_HEIGHT, 42)
+LAYOUT_VAL3(BAR_HEIGHT, 13, 9, 13)
+LAYOUT_VAL1(LMARGIN, 15)
 constexpr coord_t TMARGIN = 2;
 
 class ChannelBar : public Window

@@ -26,6 +26,8 @@
 #include "opentx.h"
 #include "themes/etx_lv_theme.h"
 
+LAYOUT_VAL1(NAM_W, 71)
+
 static void input_mix_group_constructor(const lv_obj_class_t* class_p,
                                         lv_obj_t* obj)
 {
@@ -51,7 +53,7 @@ static lv_obj_t* input_mix_group_create(lv_obj_t* parent)
 }
 
 static const lv_coord_t col_dsc[] = {
-    71,
+    lv_coord_t(NAM_W),
     LV_GRID_FR(1),
     LV_GRID_TEMPLATE_LAST,
 };

@@ -294,20 +294,13 @@ void getsEdgeDelayParam(char* s, LogicalSwitchData* ls)
                                 .c_str());
 }
 
-#if LCD_W > LCD_H  // Landscape
+LAYOUT_VAL2(LS_BUTTON_H, 34, 45)
+LAYOUT_VAL3(NM_ROW_CNT, 1, 1, 2)
+LAYOUT_VAL3(V2_COL_CNT, 1, 1, 2)
+LAYOUT_VAL3(ANDSW_ROW, 0, 0, 1)
+LAYOUT_VAL3(ANDSW_COL, 4, 4, 2)
 
-static const lv_coord_t b_col_dsc[] = {30, 50, 88, 110,
-                                       88, 40, 40, LV_GRID_TEMPLATE_LAST};
-
-static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-
-#define NM_ROW_CNT 1
-#define V2_COL_CNT 1
-#define ANDSW_ROW 0
-#define ANDSW_COL 4
-#define LS_BUTTON_H 34
-
-#else  // Portrait
+#if PORTRAIT_LCD
 
 static const lv_coord_t b_col_dsc[] = {36, 58, 88,
                                        54, 54, LV_GRID_TEMPLATE_LAST};
@@ -315,11 +308,19 @@ static const lv_coord_t b_col_dsc[] = {36, 58, 88,
 static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                        LV_GRID_TEMPLATE_LAST};
 
-#define NM_ROW_CNT 2
-#define V2_COL_CNT 2
-#define ANDSW_ROW 1
-#define ANDSW_COL 2
-#define LS_BUTTON_H 45
+#elif LANDSCAPE_LCD_SMALL
+
+static const lv_coord_t b_col_dsc[] = {20, 33, 59, 73,
+                                       59, 27, 27, LV_GRID_TEMPLATE_LAST};
+
+static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+#else // Landscape
+
+static const lv_coord_t b_col_dsc[] = {30, 50, 88, 110,
+                                       88, 40, 40, LV_GRID_TEMPLATE_LAST};
+
+static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 #endif
 
@@ -330,7 +331,7 @@ class LogicalSwitchButton : public ListLineButton
       ListLineButton(parent, lsIndex)
   {
     setHeight(LS_BUTTON_H);
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     padTop(PAD_ZERO);
 #else
     padTop(PAD_SMALL);

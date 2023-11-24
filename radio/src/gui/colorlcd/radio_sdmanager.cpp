@@ -273,7 +273,7 @@ ModuleCallback onUpdateStateChangedCallbackFor(FrskyOtaFlashDialog* dialog) {
 
 #endif  // PXX2
 
-#if LCD_W > LCD_H // landscape
+#if !PORTRAIT_LCD // landscape
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(3), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 #else // portrait
@@ -302,7 +302,7 @@ void RadioSdManagerPage::build(Window * window)
   // Adjust file browser width
   browser->adjustWidth();
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   preview = new FilePreview(form, rect_t{0, 0, LCD_W * 2 / 5 - 8, LCD_H - 68});
 #else
   preview = new FilePreview(form, rect_t{0, 0, LCD_W - 12, (LCD_H - 68) / 3 });

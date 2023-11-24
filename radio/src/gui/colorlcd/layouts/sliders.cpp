@@ -26,9 +26,12 @@
 #include "opentx.h"
 #include "switches.h"
 
+LAYOUT_VAL3(SL_SZ, 15, 11, 15)
+LAYOUT_VAL1(SL_TK, 2)
+
 static const lv_style_const_prop_t shadow1_props[] = {
     // LV_STYLE_CONST_SHADOW_COLOR does not compile in GitHub ???
-    {.prop = LV_STYLE_SHADOW_COLOR, .value {.color {.full = 0}}},
+    {.prop = LV_STYLE_SHADOW_COLOR, .value = {.color = {.full = 0}}},
     LV_STYLE_CONST_SHADOW_OPA(LV_OPA_20),
     LV_STYLE_CONST_SHADOW_OFS_X(1),
     LV_STYLE_CONST_SHADOW_OFS_Y(1),
@@ -39,7 +42,7 @@ static LV_STYLE_CONST_MULTI_INIT(shadow1_style, shadow1_props);
 
 static const lv_style_const_prop_t shadow2_props[] = {
     // LV_STYLE_CONST_SHADOW_COLOR does not compile in GitHub ???
-    {.prop = LV_STYLE_SHADOW_COLOR, .value {.color {.full = 0}}},
+    {.prop = LV_STYLE_SHADOW_COLOR, .value = {.color = {.full = 0}}},
     LV_STYLE_CONST_SHADOW_OPA(LV_OPA_40),
     LV_STYLE_CONST_SHADOW_OFS_X(1),
     LV_STYLE_CONST_SHADOW_OFS_Y(1),
@@ -49,19 +52,19 @@ static const lv_style_const_prop_t shadow2_props[] = {
 static LV_STYLE_CONST_MULTI_INIT(shadow2_style, shadow2_props);
 
 SliderIcon::SliderIcon(Window* parent) :
-    Window(parent, rect_t{0, 0, 17, 17})
+    Window(parent, rect_t{0, 0, SL_SZ + 2, SL_SZ + 2})
 {
   setWindowFlag(NO_FOCUS);
 
   auto shad = lv_obj_create(lvobj);
   etx_obj_add_style(shad, shadow1_style, LV_PART_MAIN);
   lv_obj_set_pos(shad, 1, 1);
-  lv_obj_set_size(shad, 15, 15);
+  lv_obj_set_size(shad, SL_SZ, SL_SZ);
 
   fill = lv_obj_create(lvobj);
   etx_obj_add_style(fill, shadow2_style, LV_PART_MAIN);
   lv_obj_set_pos(fill, 0, 0);
-  lv_obj_set_size(fill, 15, 15);
+  lv_obj_set_size(fill, SL_SZ, SL_SZ);
   etx_solid_bg(fill, COLOR_THEME_FOCUS_INDEX);
 }
 
@@ -76,11 +79,11 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
     lv_coord_t y = TRIM_SQUARE_SIZE / 2;
     for (uint8_t i = 0; i <= sliderTicksCount; i++) {
       if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount) {
-        tickPoints[i * 2] = {2, y};
-        tickPoints[i * 2 + 1] = {15, y};
+        tickPoints[i * 2] = {SL_TK, y};
+        tickPoints[i * 2 + 1] = {SL_SZ, y};
       } else {
-        tickPoints[i * 2] = {4, y};
-        tickPoints[i * 2 + 1] = {13, y};
+        tickPoints[i * 2] = {SL_TK + 2, y};
+        tickPoints[i * 2 + 1] = {SL_SZ - 2, y};
       }
       auto line = lv_line_create(lvobj);
       etx_obj_add_style(line, styles->div_line, LV_PART_MAIN);
@@ -94,11 +97,11 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
     lv_coord_t x = TRIM_SQUARE_SIZE / 2;
     for (uint8_t i = 0; i <= sliderTicksCount; i++) {
       if (i == 0 || i == sliderTicksCount / 2 || i == SLIDER_TICKS_COUNT) {
-        tickPoints[i * 2] = {x, 2};
-        tickPoints[i * 2 + 1] = {x, 15};
+        tickPoints[i * 2] = {x, SL_TK};
+        tickPoints[i * 2 + 1] = {x, SL_SZ};
       } else {
-        tickPoints[i * 2] = {x, 4};
-        tickPoints[i * 2 + 1] = {x, 13};
+        tickPoints[i * 2] = {x, SL_TK + 2};
+        tickPoints[i * 2 + 1] = {x, SL_SZ - 2};
       }
       auto line = lv_line_create(lvobj);
       etx_obj_add_style(line, styles->div_line, LV_PART_MAIN);
@@ -162,8 +165,11 @@ MainViewVerticalSlider::MainViewVerticalSlider(Window* parent,
 {
 }
 
-constexpr coord_t MULTIPOS_H = 18;
-constexpr coord_t MULTIPOS_W_SPACING = 12;
+LAYOUT_VAL3(MULTIPOS_H, 18, 13, 18)
+LAYOUT_VAL1(MULTIPOS_W_SPACING, 12)
+LAYOUT_VAL1(MULTIPOS_SZ, 12)
+LAYOUT_VAL1(MULTIPOS_XO, 3)
+
 constexpr coord_t MULTIPOS_W = (6 + 1) * MULTIPOS_W_SPACING;
 
 MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
@@ -175,7 +181,7 @@ MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
     num[0] = value + '1';
     auto p = lv_label_create(lvobj);
     lv_label_set_text(p, num);
-    lv_obj_set_size(p, 12, 12);
+    lv_obj_set_size(p, MULTIPOS_SZ, MULTIPOS_SZ);
     lv_obj_set_pos(p, x, 0);
     etx_txt_color(p, COLOR_THEME_SECONDARY1_INDEX, LV_PART_MAIN);
     etx_font(p, FONT_XS_INDEX, LV_PART_MAIN);
@@ -184,8 +190,8 @@ MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
 
   posIcon = new SliderIcon(this);
   posVal = lv_label_create(posIcon->getLvObj());
-  lv_obj_set_pos(posVal, 3, -2);
-  lv_obj_set_size(posVal, 12, 12);
+  lv_obj_set_pos(posVal, MULTIPOS_XO, -2);
+  lv_obj_set_size(posVal, MULTIPOS_SZ, MULTIPOS_SZ);
   etx_txt_color(posVal, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
   etx_font(posVal, FONT_BOLD_INDEX, LV_PART_MAIN);
 

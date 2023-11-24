@@ -25,33 +25,15 @@
 #include "switches.h"
 #include "themes/etx_lv_theme.h"
 
-#if LCD_W > LCD_H  // Landscape
+LAYOUT_VAL2(FOOTER_HEIGHT, 20, 40)
+LAYOUT_VAL3(BTN_HEIGHT, 20, 18, 21)
+LAYOUT_VAL3(BTN_PAD, 1, 2, 2)
+LAYOUT_VAL3(BTN_MATRIX_COL, 8, 8, 4)
+LAYOUT_VAL3(V2_COL_CNT, 1, 1, 2)
+LAYOUT_VAL3(ANDSW_ROW, 0, 0, 1)
+LAYOUT_VAL3(ANDSW_COL, 3, 3, 1)
 
-#define BTN_MATRIX_COL 8
-#define BTN_HEIGHT 20
-#define FOOTER_HEIGHT 20
-#define V2_COL_CNT 1
-#define ANDSW_ROW 0
-#define ANDSW_COL 3
-
-// Switch grid
-static const lv_coord_t col_dsc[] = {
-    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
-    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
-    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-
-// Footer grid
-static const lv_coord_t f_col_dsc[] = {
-    60, LV_GRID_FR(1), 112, LV_GRID_FR(1), 50, 50, LV_GRID_TEMPLATE_LAST};
-
-#else  // Portrait
-
-#define BTN_MATRIX_COL 4
-#define BTN_HEIGHT 21
-#define FOOTER_HEIGHT 40
-#define V2_COL_CNT 2
-#define ANDSW_ROW 1
-#define ANDSW_COL 1
+#if PORTRAIT_LCD
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_FR(1), LV_GRID_FR(1),
@@ -61,6 +43,23 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t f_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                        LV_GRID_FR(1), LV_GRID_FR(1),
                                        LV_GRID_TEMPLATE_LAST};
+
+#else  // Landscape
+
+// Switch grid
+static const lv_coord_t col_dsc[] = {
+    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+
+// Footer grid
+#if LANDSCAPE_LCD_SMALL
+static const lv_coord_t f_col_dsc[] = {
+    40, LV_GRID_FR(1), 75, LV_GRID_FR(1), 33, 33, LV_GRID_TEMPLATE_LAST};
+#else
+static const lv_coord_t f_col_dsc[] = {
+    60, LV_GRID_FR(1), 112, LV_GRID_FR(1), 50, 50, LV_GRID_TEMPLATE_LAST};
+#endif
 
 #endif
 
@@ -78,8 +77,8 @@ class LogicalSwitchDisplayFooter : public Window
     setWindowFlag(OPAQUE);
 
     padAll(PAD_ZERO);
-    padLeft(4);
-    padRight(4);
+    padLeft(PAD_SMALL);
+    padRight(PAD_SMALL);
     etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
@@ -276,9 +275,9 @@ void LogicalSwitchesViewPage::build(Window* window)
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
     if ((i % BTN_MATRIX_COL) == 0) {
       line = form->newLine(grid);
-      lv_obj_set_style_pad_all(line->getLvObj(), 1, 0);
-      line->padLeft(4);
-      line->padRight(4);
+      lv_obj_set_style_pad_all(line->getLvObj(), BTN_PAD, LV_PART_MAIN);
+      line->padLeft(PAD_SMALL);
+      line->padRight(PAD_SMALL);
     }
 
     LogicalSwitchData* ls = lswAddress(i);

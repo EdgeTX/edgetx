@@ -28,9 +28,11 @@
 
 #define MAX_LAYOUT_ZONES 10
 #define MAX_LAYOUT_OPTIONS 10
-constexpr coord_t TRIM_LINE_WIDTH = 8;
-constexpr coord_t TRIM_SQUARE_SIZE = 17;
-constexpr coord_t MAIN_ZONE_BORDER = 10;
+
+LAYOUT_VAL1(TRIM_LINE_WIDTH, 8)
+LAYOUT_VAL3(TRIM_SQUARE_SIZE, 17, 13, 17)
+LAYOUT_VAL3(MAIN_ZONE_BORDER, 10, 6, 10)
+
 constexpr uint32_t LAYOUT_REFRESH = 1000 / 2;  // 2 Hz
 
 #if !defined(YAML_GENERATOR)

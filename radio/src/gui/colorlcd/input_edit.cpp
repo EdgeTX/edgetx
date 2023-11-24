@@ -32,13 +32,8 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-#if LCD_W > LCD_H
-constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 140;
-constexpr coord_t INPUT_EDIT_CURVE_HEIGHT = INPUT_EDIT_CURVE_WIDTH;
-#else
-constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 176;
-constexpr coord_t INPUT_EDIT_CURVE_HEIGHT = 132;
-#endif
+LAYOUT_VAL3(INPUT_EDIT_CURVE_WIDTH, 140, 110, 176)
+LAYOUT_VAL3(INPUT_EDIT_CURVE_HEIGHT, INPUT_EDIT_CURVE_WIDTH, INPUT_EDIT_CURVE_WIDTH, 132)
 
 InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
     Page(ICON_MODEL_INPUTS), input(input), index(index)
@@ -48,7 +43,7 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
   header->setTitle2(title2);
 
   auto body_obj = body->getLvObj();
-#if LCD_H > LCD_W  // portrait
+#if PORTRAIT_LCD  // portrait
   lv_obj_set_flex_flow(body_obj, LV_FLEX_FLOW_COLUMN);
 #else  // landscape
   lv_obj_set_flex_flow(body_obj, LV_FLEX_FLOW_ROW);
@@ -60,7 +55,7 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
   lv_obj_set_flex_grow(box_obj, 2);
   etx_scrollbar(box_obj);
 
-#if LCD_H > LCD_W  // portrait
+#if PORTRAIT_LCD  // portrait
   box->setWidth(body->width() - 2 * lv_dpx(8));
 #else  // landscape
   box->setHeight(body->height() - 2 * lv_dpx(8));

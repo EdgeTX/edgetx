@@ -32,27 +32,23 @@
 #define ETX_STATE_MINMAX_BOLD LV_STATE_USER_1
 #define ETX_STATE_NAME_FONT_SMALL LV_STATE_USER_1
 
-#define CH_BAR_WIDTH 92
-#define CH_BAR_HEIGHT 14
+LAYOUT_VAL1(CH_BAR_WIDTH, 92)
+LAYOUT_VAL1(CH_BAR_HEIGHT, 14)
+LAYOUT_VAL3(CH_LINE_H, 32, 24, 50)
+LAYOUT_VAL3(CH_BAR_COL, 7, 7, 3)
+LAYOUT_VAL3(CH_BAR_COLSPAN, 1, 1, 3)
 
-#if LCD_W > LCD_H  // Landscape
-
-#define CH_LINE_H 32
-
-#define CH_BAR_COL 7
-#define CH_BAR_COLSPAN 1
-
+#if LANDSCAPE_LCD
 static const lv_coord_t col_dsc[] = {
     80, 50, 54, 44, 60, 18, 18, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-#else  // Portrait
+#elif LANDSCAPE_LCD_SMALL
+static const lv_coord_t col_dsc[] = {
+    53, 33, 36, 29, 40, 12, 12, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 
-#define CH_LINE_H 50
-
-#define CH_BAR_COL 3
-#define CH_BAR_COLSPAN 3
-
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+#else
 static const lv_coord_t col_dsc[] = {
     80, 50, 60, 18, 18, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 
@@ -98,7 +94,7 @@ class OutputLineButton : public ListLineButton
     lv_obj_set_grid_cell(max, LV_GRID_ALIGN_END, col++, 1, LV_GRID_ALIGN_START,
                          row, 1);
 
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     col = 1;
     row++;
 #endif
@@ -144,7 +140,7 @@ class OutputLineButton : public ListLineButton
       ListLineButton(parent, channel)
   {
     setHeight(CH_LINE_H);
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
     padTop(4);
 #endif
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
@@ -152,7 +148,7 @@ class OutputLineButton : public ListLineButton
 
     source = lv_label_create(lvobj);
 
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     lv_obj_set_grid_cell(source, LV_GRID_ALIGN_START, 0, 1,
                          LV_GRID_ALIGN_CENTER, 0, 2);
 

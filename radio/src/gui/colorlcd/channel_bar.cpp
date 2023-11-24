@@ -41,8 +41,10 @@ ChannelBar::ChannelBar(Window* parent, const rect_t& rect,
   lv_obj_set_pos(bar, width() / 2, 0);
   lv_obj_set_size(bar, 0, height());
 
+  coord_t yo = (height() < 10) ? -1 : -2;
+
   valText = lv_label_create(lvobj);
-  lv_obj_set_pos(valText, width() / 2 + 5, -2);
+  lv_obj_set_pos(valText, width() / 2 + 5, yo);
   lv_obj_set_size(valText, 45, 12);
   etx_obj_add_style(valText, styles->text_align_left, LV_PART_MAIN);
   lv_obj_set_style_translate_x(valText, -54, LV_STATE_USER_1);
@@ -206,6 +208,10 @@ void OutputChannelBar::checkEvents()
 
 //-----------------------------------------------------------------------------
 
+LAYOUT_VAL1(VAL_W, 45)
+LAYOUT_VAL1(VAL_H, 12)
+LAYOUT_VAL3(ICON_SZ, 25, 16, 25)
+
 ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
                                  uint8_t _channel, bool isInHeader) :
     Window(parent, rect), channel(_channel)
@@ -232,13 +238,13 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
   if (g_model.limitData[channel].name[0]) {
     char nm[LEN_CHANNEL_NAME + 1];
     strAppend(nm, g_model.limitData[channel].name, LEN_CHANNEL_NAME);
-    new StaticText(this, {LMARGIN + 45, 0, LV_SIZE_CONTENT, 12}, nm, 
+    new StaticText(this, {LMARGIN + VAL_W, 0, LV_SIZE_CONTENT, VAL_H}, nm, 
                    textColor | FONT(XS) | LEFT);
   }
 
   // Channel value in µS
   new DynamicNumber<int16_t>(
-      this, {width() - 45, 0, 45, 12},
+      this, {width() - VAL_W, 0, VAL_W, VAL_H},
       [=] { return PPM_CH_CENTER(channel) + channelOutputs[channel] / 2; },
       textColor | FONT(XS) | RIGHT, "", STR_US);
 
@@ -252,7 +258,7 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
   // Channel reverted icon
   LimitData* ld = limitAddress(channel);
   if (ld && ld->revert) {
-    new StaticIcon(this, 0, 25, ICON_CHAN_MONITOR_INVERTED,
+    new StaticIcon(this, 0, ICON_SZ, ICON_CHAN_MONITOR_INVERTED,
                    textColor);
   }
 }

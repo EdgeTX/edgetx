@@ -24,23 +24,6 @@
 #include "keys.h"
 #include "opentx_types.h"
 
-constexpr uint32_t MENU_HEADER_BUTTON_WIDTH =      33;
-constexpr uint32_t MENU_HEADER_BUTTONS_LEFT =      47;
-
-constexpr uint32_t MENU_HEADER_HEIGHT =            45;
-constexpr uint32_t MENU_TITLE_TOP =                48;
-constexpr uint32_t MENU_TITLE_HEIGHT =             21;
-constexpr uint32_t MENU_BODY_TOP =                 MENU_TITLE_TOP + MENU_TITLE_HEIGHT;
-constexpr uint32_t MENU_BODY_HEIGHT =              LCD_H - MENU_BODY_TOP;
-constexpr uint32_t MENUS_MARGIN_LEFT =             6;
-
-constexpr uint32_t PAGE_LINE_HEIGHT =              20;
-constexpr uint32_t FH =                            PAGE_LINE_HEIGHT;
-constexpr uint32_t NUM_BODY_LINES =                MENU_BODY_HEIGHT / PAGE_LINE_HEIGHT;
-
-constexpr uint32_t PAGE_TITLE_TOP =                2;
-constexpr uint32_t PAGE_TITLE_LEFT =               50;
-
 // Used by Lua API
 #define INVERS                         0x01u
 #define BLINK                          0x1000u
@@ -65,11 +48,3 @@ constexpr uint32_t PAGE_TITLE_LEFT =               50;
 #define NO_UNIT                        0x40u
 
 #define LV_OBJ_FLAG_ENCODER_ACCEL LV_OBJ_FLAG_USER_1
-
-constexpr coord_t MENUS_LINE_HEIGHT = 35;
-
-#if LCD_W > LCD_H
-constexpr coord_t MENUS_MAX_HEIGHT = (MENUS_LINE_HEIGHT * 7) + 8;
-#else
-constexpr coord_t MENUS_MAX_HEIGHT = (MENUS_LINE_HEIGHT * 10);
-#endif

@@ -30,16 +30,16 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-#define GVAR_NAME_SIZE 44
-#define GVAR_VAL_H (PAGE_LINE_HEIGHT * 2 - 6)
-#if LCD_W > LCD_H
-#define BTN_H 38
-#define GVAR_VAL_W 45
+LAYOUT_VAL3(BTN_H, 38, 26, 72)
+LAYOUT_VAL2(GVAR_VAL_W, 45, 50)
+LAYOUT_VAL1(GVAR_NAME_SIZE, 44)
+
+#define GVAR_VAL_H (PAGE_LINE_HEIGHT * 2 - PAD_MEDIUM)
+
+#if !PORTRAIT_LCD
 #define GVAR_COLS MAX_FLIGHT_MODES
 #define GVAR_H GVAR_VAL_H
 #else
-#define BTN_H 72
-#define GVAR_VAL_W 50
 #define GVAR_COLS 5
 #define GVAR_H (GVAR_VAL_H * 2)
 #endif
@@ -231,7 +231,7 @@ class GVarButton : public ListLineButton
     lv_obj_set_flex_align(
         lvobj, !modelFMEnabled() ? LV_FLEX_ALIGN_CENTER : LV_FLEX_ALIGN_START,
         LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-    if (!modelFMEnabled()) padLeft(8);
+    if (!modelFMEnabled()) padLeft(PAD_LARGE);
 
     lv_obj_add_event_cb(lvobj, GVarButton::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
                         nullptr);

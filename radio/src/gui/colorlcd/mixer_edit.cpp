@@ -34,15 +34,9 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-#if (LCD_W > LCD_H)
-#define MIX_STATUS_BAR_WIDTH 250
-#define MIX_STATUS_BAR_MARGIN 3
-#define MIX_RIGHT_MARGIN 0
-#else
-#define MIX_STATUS_BAR_WIDTH 180
-#define MIX_STATUS_BAR_MARGIN 0
-#define MIX_RIGHT_MARGIN 3
-#endif
+LAYOUT_VAL2(MIX_STATUS_BAR_WIDTH, 250, 180)
+LAYOUT_VAL2(MIX_STATUS_BAR_MARGIN, 3, 0)
+LAYOUT_VAL2(MIX_RIGHT_MARGIN, 0, 3)
 
 class MixerEditStatusBar : public Window
 {
@@ -82,7 +76,7 @@ void MixEditWindow::buildHeader(Window *window)
       channel);
 }
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_FR(1), LV_GRID_FR(3),
                                      LV_GRID_TEMPLATE_LAST};

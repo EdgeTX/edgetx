@@ -36,7 +36,7 @@
 
 std::string getSensorCustomValue(uint8_t sensor, int32_t value, LcdFlags flags);
 
-#if (LCD_H > LCD_W) || defined(TRANSLATIONS_CZ)
+#if (PORTRAIT_LCD) || defined(TRANSLATIONS_CZ)
 #define TWOCOLBUTTONS 1
 #else
 #define TWOCOLBUTTONS 0
@@ -64,9 +64,11 @@ static const lv_coord_t e_col_dsc2[] = {LV_GRID_FR(4), LV_GRID_FR(3),
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-#define BTN_H 32
-#define NUM_W 36
-#define NAME_W 56
+LAYOUT_VAL1(NUM_W, 36)
+LAYOUT_VAL1(NAME_W, 56)
+LAYOUT_VAL1(ID_H, 11)
+LAYOUT_VAL1(NUM_H1, 14)
+LAYOUT_VAL1(NUM_H2, 22)
 
 class TSStyle
 {
@@ -115,7 +117,7 @@ static const lv_obj_class_t ts_group_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = NUM_W,
-    .height_def = BTN_H - 4,
+    .height_def = UI_ELEMENT_HEIGHT - PAD_SMALL,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_obj_t),
@@ -174,7 +176,7 @@ static const lv_obj_class_t ts_id_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = NUM_W,
-    .height_def = 11,
+    .height_def = ID_H,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -279,7 +281,7 @@ class SensorButton : public ListLineButton
   {
     padAll(PAD_ZERO);
     padColumn(PAD_SMALL);
-    setHeight(BTN_H);
+    setHeight(UI_ELEMENT_HEIGHT);
     lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
     lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER,
                           LV_FLEX_ALIGN_SPACE_AROUND);
@@ -319,11 +321,11 @@ class SensorButton : public ListLineButton
     if (showId) {
       lv_obj_clear_flag(idLabel, LV_OBJ_FLAG_HIDDEN);
       lv_obj_add_state(numLabel, ETX_STATE_VALUE_SMALL_FONT);
-      lv_obj_set_height(numLabel, 14);
+      lv_obj_set_height(numLabel, NUM_H1);
     } else {
       lv_obj_add_flag(idLabel, LV_OBJ_FLAG_HIDDEN);
       lv_obj_clear_state(numLabel, ETX_STATE_VALUE_SMALL_FONT);
-      lv_obj_set_height(numLabel, 22);
+      lv_obj_set_height(numLabel, NUM_H2);
     }
   }
 
@@ -667,7 +669,7 @@ class SensorEditWindow : public Page
     new StaticText(paramLines[P_ID], rect_t{}, STR_ID);
     auto num = new NumberEdit(paramLines[P_ID], rect_t{}, 0, 0xFFFF,
                               GET_SET_DEFAULT(sensor->id));
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     // Portrait layout - need to limit width of edit box
     num->setWidth((lv_pct(28)));
 #endif
@@ -681,7 +683,7 @@ class SensorEditWindow : public Page
     });
     num = new NumberEdit(paramLines[P_ID], rect_t{}, 0, 0xff,
                          GET_SET_DEFAULT(sensor->instance));
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     // Portrait layout - need to limit width of edit box
     num->setWidth(lv_pct(28));
 #endif
@@ -927,11 +929,7 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
   deleteAll->show(sensorsCount > 0);
 }
 
-#if LCD_W > LCD_H
-#define NUM_EDIT_W 100
-#else
-#define NUM_EDIT_W 65
-#endif
+LAYOUT_VAL2(NUM_EDIT_W, 100, 65)
 
 void ModelTelemetryPage::build(Window* window)
 {

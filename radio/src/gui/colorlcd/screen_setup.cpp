@@ -171,7 +171,7 @@ void ScreenAddPage::build(Window* window)
                  });
 }
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1),
                                           LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
 #else
@@ -236,7 +236,7 @@ void ScreenSetupPage::build(Window* window)
 
   Window* btn = new LayoutChoice(line, getFactory, setLayout);
 
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
   line = window->newLine(grid);
   grid.nextCell();
 #endif

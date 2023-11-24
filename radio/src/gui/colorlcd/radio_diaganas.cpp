@@ -32,7 +32,7 @@
 
 #define STATSDEPTH 8  // ideally a value of power of 2
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 
 #define GRIDCOLS 10
 #define TSI2CEventsCol 5
@@ -83,7 +83,7 @@ class AnaViewWindow : public Window
       if (i >= pot_offset && (POT_CONFIG(i - pot_offset) == FLEX_NONE))
         continue;
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
       if ((i & 1) == 0) line = newLine(grid);
 #else
       line = newLine(grid);
@@ -116,7 +116,7 @@ class AnaViewWindow : public Window
             },
             COLOR_THEME_PRIMARY1);
         etx_obj_add_style(lbl->getLvObj(), (column4size() == 2) ? styles->text_align_left : styles->text_align_right, LV_PART_MAIN);
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
         lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_STRETCH,
                              3 + (i & 1) * 5, column4size(),
                              LV_GRID_ALIGN_CENTER, 0, 1);
@@ -172,7 +172,7 @@ class AnaCalibratedViewWindow : public AnaViewWindow
     lv_obj_add_flag(touchLines[1], LV_OBJ_FLAG_HIDDEN);
 
     line = newLine(grid);
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     line->padTop(20);
 #else
     line->padTop(2);
@@ -202,7 +202,7 @@ class AnaCalibratedViewWindow : public AnaViewWindow
     lv_obj_set_grid_cell(lbl2->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 5,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     line = newLine(grid);
 #endif
     lbl2 = new StaticText(line, rect_t{},
