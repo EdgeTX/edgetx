@@ -626,7 +626,6 @@ void ModelLabelsWindow::newModel()
       snprintf(path + len, LEN_BUFFER - len, "/%s%s", name.c_str(), SCRIPT_EXT);
       if (f_stat(path, 0) == FR_OK) {
         luaExec(path);
-        StandaloneLuaWindow::instance()->attach();
       }
 #endif
     }

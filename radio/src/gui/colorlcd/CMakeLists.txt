@@ -134,6 +134,7 @@ if(LUA)
     lua/lua_widget.cpp
     lua/lua_widget_factory.cpp
     lua/widgets.cpp
+    lua/lua_lvgl_widget.cpp
     )
 endif()
 

@@ -22,3 +22,4 @@
 #include "definitions.h"
 
 EXTERN_C(LUALIB_API int luaopen_bitmap(lua_State * L));
+EXTERN_C(LUALIB_API int luaopen_lvgl(lua_State * L));

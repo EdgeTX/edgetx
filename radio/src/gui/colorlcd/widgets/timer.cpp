@@ -121,7 +121,7 @@ class TimerWidget : public Widget
 
       int val = lastValue;
       if (lastStartValue && timerData.showElapsed &&
-          lastStartValue != lastValue)
+          (int)lastStartValue != lastValue)
         val = (int)lastStartValue - lastValue;
 
       if (isLarge) {

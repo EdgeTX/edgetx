@@ -30,17 +30,18 @@
 #include "theme.h"
 
 #include "lua_api.h"
+#include "lua_widget.h"
 #include "api_colorlcd.h"
 
 #define BITMAP_METATABLE "BITMAP*"
 
 constexpr coord_t INVERT_BOX_MARGIN = 2;
-constexpr int8_t text_horizontal_offset[7] {-2,-1,-2,-2,-2,-2,-2};
-constexpr int8_t text_vertical_offset[7] {0,0,0,0,0,-1,7};
+constexpr int8_t text_horizontal_offset[7] = {-2,-1,-2,-2,-2,-2,-2};
+constexpr int8_t text_vertical_offset[7] = {0,0,0,0,0,-1,7};
 
 BitmapBuffer* luaLcdBuffer  = nullptr;
-Widget* runningFS = nullptr;
- 
+LuaWidget *runningFS = nullptr;
+
 static int8_t getTextHorizontalOffset(LcdFlags flags)
 {
   // no need to adjust if not right aligned
@@ -1413,7 +1414,7 @@ Exit full screen widget mode.
 static int luaLcdExitFullScreen(lua_State *L)
 {
   if (runningFS) {
-    Widget* rfs = runningFS;
+    auto rfs = runningFS;
     runningFS = nullptr;
     rfs->setFullscreen(false);
   }

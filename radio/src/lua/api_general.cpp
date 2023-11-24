@@ -2165,7 +2165,11 @@ Get percent of already used Lua instructions in current script execution cycle.
 */
 static int luaGetUsage(lua_State * L)
 {
-  lua_pushinteger(L, instructionsPercent);
+  if (luaLvglManager && luaLvglManager->useLvglLayout()) {
+    lua_pushinteger(L, luaLvglManager->refreshInstructionsPercent);
+  } else {
+    lua_pushinteger(L, instructionsPercent);
+  }
   return 1;
 }
 

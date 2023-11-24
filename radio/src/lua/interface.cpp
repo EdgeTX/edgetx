@@ -35,6 +35,10 @@
 #include "api_filesystem.h"
 #include "switches.h"
 
+#if defined(COLORLCD)
+  #include "standalone_lua.h"
+#endif
+
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #else
@@ -725,42 +729,11 @@ void displayLuaError(bool firstCall = false)
   }
 
 #if defined(COLORLCD)
-  static bool drewBackground = false;
-  
-  if (firstCall)
-    drewBackground = false;
-  
-  if (!luaLcdAllowed || luaLcdBuffer == nullptr)
-    return;
-  
-  coord_t w = 0.75 * LCD_W;
-  coord_t left = (LCD_W - w) / 2;
-#if (!PORTRAIT_LCD)
-  coord_t hh = getFontHeight(FONT(XL)) + 4;
-#else
-  coord_t hh = getFontHeight(FONT(L)) + 4;
-#endif
-  coord_t h = 0.75 * LCD_H - hh;
-  coord_t top = (LCD_H - h + hh / 2) / 2;
-  
-  if (!drewBackground) {
-    drewBackground = true;
-    luaLcdBuffer->drawFilledRect(0, 0, LCD_W, LCD_H, SOLID, COLOR_BLACK, OPACITY(6));
-  }
-
-  luaLcdBuffer->drawSolidFilledRect(left, top - hh, w, hh, COLOR_THEME_SECONDARY1);
-  luaLcdBuffer->drawSolidFilledRect(left, top, w, h, COLOR_THEME_SECONDARY3);
-#if (!PORTRAIT_LCD)
-  luaLcdBuffer->drawText(left + 10, top - hh + 2, title, FONT(XL) | COLOR_THEME_PRIMARY2);
-  luaLcdBuffer->drawTextLines(left + 10, top + 5, w - 20, h - 10, lua_warning_info, FONT(L) | COLOR_THEME_PRIMARY1);
-#else
-  luaLcdBuffer->drawText(left + 10, top - hh + 2, title, FONT(L) | COLOR_THEME_PRIMARY2);
-  luaLcdBuffer->drawTextLines(left + 10, top + 5, w - 20, h - 10, lua_warning_info, FONT(STD) | COLOR_THEME_PRIMARY1);
-#endif
+  StandaloneLuaWindow::instance()->showError(firstCall, title, lua_warning_info);
 #else
   if (!luaLcdAllowed)
     return;
-  
+
   drawMessageBox(title);
   coord_t y = WARNING_LINE_Y + FH + 4;
   
@@ -955,6 +928,13 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
             sid.run = luaRegisterFunction("run");
             sid.background = luaRegisterFunction("background");
             initFunction = luaRegisterFunction("init");
+#if defined(COLORLCD)
+            if (sid.reference == SCRIPT_STANDALONE) {
+              lua_getfield(lsScripts, -1, "useLvgl");
+              sid.useLvgl = lua_toboolean(lsScripts, -1);
+              lua_pop(lsScripts, 1);
+            }
+#endif
             if (sid.run == LUA_NOREF) {
               snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%.*s): No run function\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
               sid.state = SCRIPT_SYNTAX_ERROR;
@@ -985,7 +965,12 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
           // If init(), push it on the stack
           if (initFunction != LUA_NOREF) {
             lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, initFunction);
-            if (ref == SCRIPT_STANDALONE) luaLcdAllowed = true;
+            if (ref == SCRIPT_STANDALONE) {
+              luaLcdAllowed = true;
+#if defined(COLORLCD)
+              StandaloneLuaWindow::setup(sid.useLvgl);
+#endif
+            }
           }
         }
       }

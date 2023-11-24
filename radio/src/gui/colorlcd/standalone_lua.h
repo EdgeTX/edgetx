@@ -33,14 +33,15 @@ struct LuaPopup
   void paint(BitmapBuffer* dc, uint8_t type, const char* text, const char* info);
 };
 
-class StandaloneLuaWindow : public Window, public LuaEventHandler
+class StandaloneLuaWindow : public Window, public LuaEventHandler, public LuaLvglManager
 {
   static StandaloneLuaWindow* _instance;
 
-  explicit StandaloneLuaWindow();
+  explicit StandaloneLuaWindow(bool useLvgl);
 
 public:
   static StandaloneLuaWindow* instance();
+  static void setup(bool useLvgl);
 
   void attach();
   void deleteLater(bool detach = true, bool trash = true) override;
@@ -52,8 +53,24 @@ public:
   bool displayPopup(event_t event, uint8_t type, const char* text,
                     const char* info, bool& result);
 
+  Window* getCurrentParent() const override { return tempParent ? tempParent : (Window*)this; }
+
+  void clear() override;
+  bool useLvglLayout() const override { return useLvgl; }
+
+  void luaShowError() override;
+
+  void showError(bool firstCall, const char* title, const char* msg);
+
+  bool isWidget() override { return false; }
+
 protected:
   lv_obj_t* prevScreen = nullptr;
+  lv_obj_t* errorModal = nullptr;
+  lv_obj_t* errorTitle = nullptr;
+  lv_obj_t* errorMsg = nullptr;
+  bool hasError = false;
+  bool useLvgl = false;
 
   // GFX
   BitmapBuffer lcdBuffer;

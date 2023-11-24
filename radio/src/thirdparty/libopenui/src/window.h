@@ -74,7 +74,7 @@ class Window
   typedef std::function<void(bool)> FocusHandler;
   void setFocusHandler(FocusHandler h) { focusHandler = std::move(h); }
 
-  void clear();
+  virtual void clear();
   virtual void deleteLater(bool detach = true, bool trash = true);
 
   bool hasFocus() const;

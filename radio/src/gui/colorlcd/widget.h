@@ -83,7 +83,9 @@ class Widget : public ButtonBase
   virtual void background() {}
 
   // Update widget 'zone' data (for Lua widgets)
-  virtual void updateZoneRect(rect_t rect) {}
+  virtual void updateZoneRect(rect_t rect, bool updateUI = true) {}
+
+  void enableFocus(bool enable);
 
   void enableFocus(bool enable);
 
