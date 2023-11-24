@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=Simulator @VERSION@
+Name=EdgeTX Simulator @VERSION@
 GenericName=Transmitter Simulator App
 Comment=The Ultimate Transmitter Simulator
 Icon=@COMPANION_NAME@
