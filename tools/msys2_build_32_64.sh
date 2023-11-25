@@ -62,8 +62,8 @@ QT_ROOT_DIR="${HOME}/qt"
 ROOT_DIR="${HOME}"
 SOURCE_DIR="${REPO_OWNER}/${REPO_NAME}"
 
-OUTPUT_DIR_PREFIX="build-output"
-OUTPUT_TARGET_PLACEHOLDER="-<target>"
+OUTPUT_DIR_PREFIX="build-"
+OUTPUT_TARGET_PLACEHOLDER="<target>"
 OUTPUT_DIR="${SOURCE_DIR}"
 OUTPUT_APPEND_TARGET=1
 OUTPUT_DELETE=0
@@ -178,7 +178,11 @@ function build_output_path() {
 	#	1 - Target
 
   outpath="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
-  if [[ $OUTPUT_APPEND_TARGET -eq 1 ]]; then outpath+="-${1}"; fi
+  if [[ $OUTPUT_APPEND_TARGET -eq 1 ]]; then
+    outpath+="${1}";
+  else
+    outpath+="output";
+  fi
   echo ${outpath}
 }
 
@@ -367,6 +371,8 @@ OUTPUT_PATH="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
 
 if [[ $OUTPUT_APPEND_TARGET -eq 1 ]]; then
   OUTPUT_PATH+="${OUTPUT_TARGET_PLACEHOLDER}"
+else
+  OUTPUT_PATH+="output"
 fi
 
 validate_edgetx_version
