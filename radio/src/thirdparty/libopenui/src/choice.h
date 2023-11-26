@@ -181,6 +181,8 @@ class Choice : public ChoiceBase
  protected:
   friend class MenuToolbar;
 
+  bool inverted = false;
+
   std::string getLabelText() override;
   std::vector<std::string> values;
   int vmin = 0;
