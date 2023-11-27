@@ -48,10 +48,7 @@ ModalWindowContent::ModalWindowContent(ModalWindow* parent,
 {
 }
 
-void ModalWindowContent::onClicked()
-{
-  Keyboard::hide();
-}
+void ModalWindowContent::onClicked() { Keyboard::hide(false); }
 
 void ModalWindowContent::setTitle(const std::string& text)
 {
