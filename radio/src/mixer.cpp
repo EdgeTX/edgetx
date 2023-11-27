@@ -38,8 +38,8 @@ int16_t trims[MAX_TRIMS] = {0};
 int32_t chans[MAX_OUTPUT_CHANNELS] = {0};
 BeepANACenter bpanaCenter = 0;
 
-int32_t act   [MAX_MIXERS] = {0};
-SwOn    swOn  [MAX_MIXERS]; // TODO better name later...
+int32_t act [MAX_MIXERS] = {0};
+MixState mixState [MAX_MIXERS];
 
 uint8_t mixWarning;
 
@@ -158,7 +158,7 @@ void applyExpos(int16_t * anas, uint8_t mode, uint8_t ovwrIdx, int16_t ovwrValue
   int8_t cur_chn = -1;
 
   for (uint8_t i=0; i<MAX_EXPOS; i++) {
-    if (mode == e_perout_mode_normal) swOn[i].activeExpo = false;
+    if (mode == e_perout_mode_normal) mixState[i].activeExpo = false;
     ExpoData * ed = expoAddress(i);
     if (!EXPO_VALID(ed)) break; // end of list
     if (ed->chn == cur_chn)
@@ -180,7 +180,7 @@ void applyExpos(int16_t * anas, uint8_t mode, uint8_t ovwrIdx, int16_t ovwrValue
         v = limit<int32_t>(-1024, v, 1024);
       }
       if (EXPO_MODE_ENABLE(ed, v)) {
-        if (mode == e_perout_mode_normal) swOn[i].activeExpo = true;
+        if (mode == e_perout_mode_normal) mixState[i].activeExpo = true;
         cur_chn = ed->chn;
 
         //========== CURVE=================
@@ -635,7 +635,7 @@ static inline bitfield_channels_t channel_dirty(bitfield_channels_t mask, uint16
 
 static inline bitfield_channels_t upper_channels_mask(uint16_t ch)
 {
-  // take the 2's complement to generate a bit pattern
+  // take the 1's complement to generate a bit pattern
   // that has all bits of 'ch' order and above set
   //
   // Examples (mask for max 8 channels):
@@ -731,12 +731,15 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
   uint8_t lv_mixWarning = 0;
   bitfield_channels_t dirtyChannels = all_channels_dirty;
 
+  // Calculate locally and then copy to mixState array - prevent UI seeing phantom values while calculating
+  bool activeMixes[MAX_MIXERS];
+
   do {
     bitfield_channels_t passDirtyChannels = 0;
 
     for (uint8_t i=0; i<MAX_MIXERS; i++) {
       if (mode == e_perout_mode_normal && pass == 0)
-        swOn[i].activeMix = 0;
+        activeMixes[i] = 0;
 
       MixData * md = mixAddress(i);
 
@@ -758,7 +761,8 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
       //========== FLIGHT MODE && SWITCH =====
       bool fmEnabled = (md->flightModes & (1 << mixerCurrentFlightMode)) == 0;
-      bool mixLineActive = fmEnabled && getSwitch(md->swtch);
+      bool mixLineSwitchActive = getSwitch(md->swtch);
+      bool mixLineActive = fmEnabled && mixLineSwitchActive;
 
       if (mixLineActive) {
         // disable mixer using trainer channels if not connected
@@ -816,24 +820,24 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       bool applyOffsetAndCurve = true;
 
       //========== DELAYS ===============
-      delayval_t _swOn = swOn[i].now;
-      delayval_t _swPrev = swOn[i].prev;
+      bool lastSwitchState = mixState[i].lastSwitchState;
 
-      delayval_t v_active = mixLineActive ? v : 0;
-
-      bool swTog = (v_active > _swOn + DELAY_POS_MARGIN || v_active < _swOn - DELAY_POS_MARGIN);
+      // Has switch state changed
+      bool swTog = fmEnabled && (mixLineSwitchActive != lastSwitchState);
       if (mode == e_perout_mode_normal && swTog) {
-        if (!swOn[i].delay) { swOn[i].prev = _swOn; }
-        swOn[i].now = v_active;
-        swOn[i].delay = (v_active > _swOn ? md->delayUp : md->delayDown) * 10;
+        mixState[i].lastSwitchState = mixLineSwitchActive;
+        mixState[i].delay = (lastSwitchState ? md->delayUp : md->delayDown) * 10;
       }
-      if (mode == e_perout_mode_normal && swOn[i].delay > 0) {
-        swOn[i].delay = max<int16_t>(0, (int16_t)swOn[i].delay - tick10ms);
-        v = _swPrev;
+      if (mode == e_perout_mode_normal && mixState[i].delay > 0) {
+        mixState[i].delay = max<int16_t>(0, (int16_t)mixState[i].delay - tick10ms);
+        // Freeze value until delay expires
+        v = mixState[i].lastValue;
+        if (mixLineActive)
+          continue;
       }
       else {
         if (mode == e_perout_mode_normal) {
-          swOn[i].now = swOn[i].prev = v_active;
+          mixState[i].lastSwitchState = mixLineSwitchActive;
         }
         if (!mixLineActive) {
           if ((md->speedDown || md->speedUp) && md->mltpx != MLTPX_REPL) {
@@ -845,9 +849,9 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         }
       }
 
-      if (mode == e_perout_mode_normal && (mixLineActive || swOn[i].delay)) {
+      if (mode == e_perout_mode_normal && (mixLineActive || mixState[i].delay)) {
         if (md->mixWarn) lv_mixWarning |= 1 << (md->mixWarn - 1);
-        swOn[i].activeMix = true;
+        activeMixes[i] = true;
       }
 
       if (applyOffsetAndCurve) {
@@ -932,8 +936,8 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         case MLTPX_REPL:
           *ptr = dv;
           if (mode == e_perout_mode_normal) {
-            for (uint8_t m=i-1; m<MAX_MIXERS && mixAddress(m)->destCh==md->destCh; m--)
-              swOn[m].activeMix = false;
+            for (int8_t m = i - 1; m >= 0 && mixAddress(m)->destCh == md->destCh; m--)
+              activeMixes[m] = false;
           }
           break;
         case MLTPX_MUL:
@@ -988,12 +992,16 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       // *ptr=limit( int32_t((-32767+RESXl)<<8), *ptr, int32_t((32767-RESXl)<<8));  // limit code cost 80 bytes
 #endif
 
+      mixState[i].lastValue = v;
     } //endfor mixers
 
     tick10ms = 0;
     dirtyChannels &= passDirtyChannels;
 
   } while (++pass < 5 && dirtyChannels);
+
+  for (uint8_t i=0; i<MAX_MIXERS; i++)
+    mixState[i].activeMix = activeMixes[i];
 
   mixWarning = lv_mixWarning;
 }
