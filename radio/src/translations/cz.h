@@ -1260,3 +1260,7 @@
 #define TR_SELECT_MENU_ALL        "All"
 #define TR_SELECT_MENU_CLR        "Clear"
 #define TR_SELECT_MENU_INV        "Invert"
+
+#define TR_SORT_ORDERS            "Název A-Z","Název Z-A","Nejméne používané","Nejvíce používané"
+#define TR_SORT_MODELS_BY         "Seřadit modely podle"
+#define TR_CREATE_NEW             "Vytvořit"

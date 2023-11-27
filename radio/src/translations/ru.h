@@ -1250,3 +1250,7 @@
 #define TR_SELECT_MENU_ALL        "Все"
 #define TR_SELECT_MENU_CLR        "Чисто"
 #define TR_SELECT_MENU_INV        "Инверт"
+
+#define TR_SORT_ORDERS            "Имя A-Z","Имя Z-A","Редко использ","Часто использ"
+#define TR_SORT_MODELS_BY         "Сортировка моделей"
+#define TR_CREATE_NEW             "Создать"

@@ -21,12 +21,7 @@
 
 #include "model_select.h"
 
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
 #include "libopenui.h"
-#include "listbox.h"
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
@@ -35,32 +30,11 @@
 #include "standalone_lua.h"
 #include "view_channels.h"
 
-// bitmaps for toolbar
-const uint8_t _mask_sort_alpha_up[] = {
-#include "mask_sort_alpha_up.lbm"
-};
-STATIC_LZ4_BITMAP(mask_sort_alpha_up);
-
-const uint8_t _mask_sort_alpha_down[] = {
-#include "mask_sort_alpha_down.lbm"
-};
-STATIC_LZ4_BITMAP(mask_sort_alpha_down);
-
-const uint8_t _mask_sort_date_up[] = {
-#include "mask_sort_date_up.lbm"
-};
-STATIC_LZ4_BITMAP(mask_sort_date_up);
-
-const uint8_t _mask_sort_date_down[] = {
-#include "mask_sort_date_down.lbm"
-};
-STATIC_LZ4_BITMAP(mask_sort_date_down);
-
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
 constexpr coord_t MODEL_CELL_PADDING = 6;
 constexpr coord_t MODEL_SELECT_CELL_HEIGHT = 92;
-constexpr int BUTTONS_HEIGHT = 30;
+constexpr int BUTTONS_HEIGHT = 32;
 constexpr int MODEL_CELLS_PER_LINE = 2;
 
 #if LCD_W > LCD_H  // Landscape
@@ -69,253 +43,87 @@ constexpr int LAY_MARGIN = 5;
 constexpr coord_t MODEL_SELECT_CELL_WIDTH =
     (LCD_W - LABELS_WIDTH - (MODEL_CELLS_PER_LINE + 1) * MODEL_CELL_PADDING) /
     MODEL_CELLS_PER_LINE;
+constexpr int LABELS_ROW = 0;
+constexpr int MODELS_COL = 1;
+constexpr int MODELS_ROW = 0;
+constexpr int MODELS_ROW_CNT = 2;
+constexpr int BUTTONS_ROW = 1;
 #else  // Portrait
 constexpr int LAY_MARGIN = 8;
 constexpr int LABELS_HEIGHT = 140;
 constexpr coord_t MODEL_SELECT_CELL_WIDTH =
     (LCD_W - LAY_MARGIN - (MODEL_CELLS_PER_LINE + 1) * MODEL_CELL_PADDING) /
     MODEL_CELLS_PER_LINE;
+constexpr int LABELS_ROW = 1;
+constexpr int MODELS_COL = 0;
+constexpr int MODELS_ROW = 0;
+constexpr int MODELS_ROW_CNT = 1;
+constexpr int BUTTONS_ROW = 2;
 #endif
-
-class ToolbarButton : public Button
-{
- public:
-  ToolbarButton(FormWindow *parent, const rect_t &rect, const uint8_t *bitmap,
-                std::function<uint8_t()> pressHandler = nullptr) :
-      Button(parent, rect, pressHandler, 0), _bitmap(bitmap)
-  {
-    lv_obj_set_style_border_width(lvobj, lv_dpx(2), 0);
-    lv_obj_set_style_border_opa(lvobj, LV_OPA_TRANSP, 0);
-
-    lv_obj_set_style_border_color(lvobj, makeLvColor(COLOR_THEME_FOCUS),
-                                  LV_STATE_FOCUSED);
-    lv_obj_set_style_border_opa(lvobj, LV_OPA_100, LV_STATE_FOCUSED);
-  }
-
-  inline bool getSelected() { return _selected; }
-  void setSelected(bool selected)
-  {
-    _selected = selected;
-    invalidate();
-  }
-
-  void setBitmap(const uint8_t *bitmap)
-  {
-    _bitmap = bitmap;
-    invalidate();
-  }
-
-  void paint(BitmapBuffer *dc) override
-  {
-    int width;
-    uint32_t bgColor =
-        !_selected ? COLOR_THEME_SECONDARY3 : COLOR_THEME_SECONDARY2;
-    auto bm = getBitmap(_bitmap, bgColor, COLOR_THEME_PRIMARY1, &width);
-    dc->drawScaledBitmap(bm, 2, 2, this->width() - 4, this->height() - 4);
-    delete bm;
-  }
-
- protected:
-  const uint8_t *_bitmap;
-  bool _selected = false;
-
-  BitmapBuffer *getBitmap(const uint8_t *maskData, uint32_t bgColor,
-                          uint32_t fgColor, int *width)
-  {
-    auto mask = BitmapBuffer::load8bitMask(maskData);
-    BitmapBuffer *newBm =
-        new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
-    newBm->clear(bgColor);
-    newBm->drawMask(0, 0, mask, fgColor);
-    delete mask;
-    return newBm;
-  }
-};
-
-class ButtonHolder : public FormWindow
-{
- public:
-  struct ButtonInfo {
-    ToolbarButton *button;
-    const uint8_t *states[2];
-    int sortState;
-  };
-
-  ButtonHolder(Window *parent, const rect_t &rect) : FormWindow(parent, rect)
-  {
-    setHeight(25);
-    addButton(mask_sort_alpha_up, mask_sort_alpha_down);
-    addButton(mask_sort_date_up, mask_sort_date_down);
-
-    // New label button
-    auto btn = new TextButton(this, rect_t{},
-#if LCD_W > LCD_H
-                              STR_NEW,
-#else
-                              STR_NEW_LABEL,
-#endif
-                              [=]() {
-                                if (_newLabelHandler) _newLabelHandler();
-                                return 0;
-                              });
-
-    btn->padAll(lv_dpx(4));
-    lv_obj_align(btn->getLvObj(), LV_ALIGN_RIGHT_MID, 0, 0);
-
-    switch (modelslabels.sortOrder()) {
-      case NAME_ASC:
-        _buttons[0].button->setSelected(true);
-        break;
-      case NAME_DES:
-        _buttons[0].button->setSelected(true);
-        _buttons[0].sortState = 1;
-        _buttons[0].button->setBitmap(_buttons[0].states[1]);
-        break;
-      case DATE_ASC:
-        _buttons[1].button->setSelected(true);
-        break;
-      case DATE_DES:
-        _buttons[1].button->setSelected(true);
-        _buttons[1].sortState = 0;
-        _buttons[1].button->setBitmap(_buttons[1].states[1]);
-        break;
-      default:
-        break;
-    }
-  }
-
-  inline void setPressHandler(
-      std::function<void(int index, ButtonInfo *button)> pressHandler)
-  {
-    _pressHandler = std::move(pressHandler);
-  }
-
-  inline void setNewLabelHandler(std::function<void()> newLabelHandler)
-  {
-    _newLabelHandler = std::move(newLabelHandler);
-  }
-
-  void addButton(const uint8_t *state1Bm, const uint8_t *state2Bm)
-  {
-    int buttonNumber = _buttons.size();
-    auto tb = new ToolbarButton(
-        this, {buttonNumber * (height() + 4), 0, height(), height()}, state1Bm);
-    tb->setPressHandler([=]() {
-      bool isSelected = tb->getSelected();
-
-      ButtonInfo *b = nullptr;
-      int buttonIndex = -1;
-      for (int i = 0; i < (int)_buttons.size(); i++) {
-        _buttons[i].button->setSelected(false);
-        if (tb == _buttons[i].button) {
-          b = &_buttons[i];
-          buttonIndex = i;
-        }
-      }
-      tb->setSelected(true);
-
-      if (isSelected && b != nullptr) {
-        if (b->sortState == 0)
-          b->sortState = 1;
-        else
-          b->sortState = 0;
-
-        tb->setBitmap(b->states[b->sortState]);
-      }
-
-      if (_pressHandler != nullptr && b != nullptr)
-        _pressHandler(buttonIndex, b);
-
-      return 0;
-    });
-
-    ButtonInfo bi = {tb, state1Bm, state2Bm, 0};
-    _buttons.push_back(bi);
-  }
-
- protected:
-  std::vector<ButtonInfo> _buttons;
-  std::function<void(int index, ButtonInfo *button)> _pressHandler;
-  std::function<void()> _newLabelHandler;
-};
 
 class ModelButton : public Button
 {
  public:
   ModelButton(FormWindow *parent, const rect_t &rect, ModelCell *modelCell,
               std::function<void()> setSelected) :
-      Button(parent, rect), modelCell(modelCell)
+      Button(parent, rect, nullptr, 0, 0, etx_button_create),
+      modelCell(modelCell)
   {
+    padAll(0);
+
     m_setSelected = std::move(setSelected);
 
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
     setWidth(MODEL_SELECT_CELL_WIDTH);
     setHeight(MODEL_SELECT_CELL_HEIGHT);
+
+    LcdFlags bg_color = modelCell == modelslist.getCurrentModel()
+                            ? COLOR_THEME_ACTIVE
+                            : COLOR_THEME_PRIMARY2;
+
+    coord_t w = width() - 8;
+    coord_t h = height() - 8;
+
+    GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
+    const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);
+
+    if (bitmap) {
+      buffer = new BitmapBuffer(BMP_RGB565, w, h);
+      if (buffer) {
+        buffer->clear(bg_color);
+        buffer->drawScaledBitmap(bitmap, 0, 0, w, h);
+        delete bitmap;
+
+        lv_obj_t *bm = lv_canvas_create(lvobj);
+        lv_obj_center(bm);
+        lv_canvas_set_buffer(bm, buffer->getData(), buffer->width(),
+                             buffer->height(), LV_IMG_CF_TRUE_COLOR);
+      }
+    }
+
+    if (!buffer) {
+      std::string errorMsg = "(";
+      errorMsg += STR_NO_PICTURE;
+      errorMsg += ")";
+      new StaticText(this, {2, h / 2, w, 17}, errorMsg, 0,
+                     CENTERED | COLOR_THEME_SECONDARY1 | FONT(XS));
+    }
+
+    auto name =
+        new StaticText(this, {2, 2, width() - 8, 17}, modelCell->modelName, 0,
+                       CENTERED | COLOR_THEME_SECONDARY1);
+    name->setHeight(17);
+    name->setBackgroudOpacity(LV_OPA_80);
+    name->setBackgroundColor(bg_color);
+    name->padTop(-3);
+
+    check(modelCell == modelslist.getCurrentModel());
   }
 
   ~ModelButton()
   {
     if (buffer) {
       delete buffer;
-    }
-  }
-
-  void load()
-  {
-    const char *error = nullptr;
-
-    delete buffer;
-    buffer = new BitmapBuffer(BMP_RGB565, width(), height());
-    if (buffer == nullptr) {
-      return;
-    }
-    buffer->clear(COLOR_THEME_PRIMARY2);
-
-    if (error) {
-      std::string errorMsg = "(";
-      errorMsg += STR_INVALID_MODEL;
-      errorMsg += ")";
-      buffer->drawText(width() / 2, height() / 2, errorMsg.c_str(),
-                       COLOR_THEME_SECONDARY1 | CENTERED);
-    } else {
-      GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
-      const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);
-      if (bitmap) {
-        buffer->drawScaledBitmap(bitmap, 0, 0, width(), height());
-        delete bitmap;
-      } else {
-        std::string errorMsg = "(";
-        errorMsg += STR_NO_PICTURE;
-        errorMsg += ")";
-        buffer->drawText(width() / 2, 56, errorMsg.c_str(),
-                         FONT(XXS) | COLOR_THEME_SECONDARY1 | CENTERED);
-      }
-    }
-  }
-
-  void paint(BitmapBuffer *dc) override
-  {
-    if (!loaded) {  // Load them on the fly
-      load();
-      loaded = true;
-    }
-    FormField::paint(dc);
-
-    if (buffer) dc->drawBitmap(0, 0, buffer);
-
-    if (modelCell == modelslist.getCurrentModel()) {
-      dc->drawSolidFilledRect(0, 0, width(), 20, COLOR_THEME_ACTIVE);
-    } else {
-      dc->drawFilledRect(0, 0, width(), 20, SOLID, COLOR_THEME_PRIMARY2);
-    }
-    dc->drawSizedText(width() / 2, 2, modelCell->modelName, LEN_MODEL_NAME,
-                      COLOR_THEME_SECONDARY1 | CENTERED);
-
-    if (!hasFocus()) {
-      dc->drawSolidRect(0, 0, width(), height(), 1, COLOR_THEME_SECONDARY2);
-    } else {
-      dc->drawSolidRect(0, 0, width(), height(), 2, COLOR_THEME_FOCUS);
-      if (m_setSelected) m_setSelected();
     }
   }
 
@@ -339,253 +147,270 @@ class ModelButton : public Button
   {
     setFocused();
     Button::onClicked();
+    if (m_setSelected) m_setSelected();
   }
 };
 
 //-----------------------------------------------------------------------------
 
-class MyMenu : public Menu
+class ModelsPageBody : public FormWindow
 {
  public:
-  using Menu::Menu;
-  void setFinishHandler(std::function<void()> finishHandler)
+  ModelsPageBody(Window *parent, const rect_t &rect) : FormWindow(parent, rect)
   {
-    _finishHandler = std::move(finishHandler);
+    padAll(0);
+#if LCD_W > LCD_H
+    padRight(LAY_MARGIN);
+#else
+    padLeft(LAY_MARGIN);
+#endif
+    setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, MODEL_CELL_PADDING);
+    padRow(MODEL_CELL_PADDING);
   }
 
-  void deleteLater(bool detach = true, bool trash = true) override
+  void update()
   {
-    Menu::deleteLater(detach, trash);
-    if (_finishHandler != nullptr) {
-      _finishHandler();
+    clear();
+
+    ModelsVector models;
+    if (selectedLabels.size()) {
+      models = modelslabels.getModelsInLabels(selectedLabels);
+    } else {
+      models = modelslabels.getAllModels();
     }
+
+    // Used to work out which button to set focus to.
+    // Priority -
+    //     current active model
+    //     previously selected model
+    //     first model in the list
+    ModelButton *firstButton = nullptr;
+    ModelButton *focusedButton = nullptr;
+
+    for (auto &model : models) {
+      auto button = new ModelButton(this, rect_t{}, model,
+                                    [=]() { focusedModel = model; });
+
+      if (!firstButton) firstButton = button;
+      if (model == modelslist.getCurrentModel()) focusedButton = button;
+      if (model == focusedModel && !focusedButton) focusedButton = button;
+
+      // Press Handler for Models
+      button->setPressHandler([=]() -> uint8_t {
+        if (model == focusedModel) {
+          if (g_eeGeneral.modelQuickSelect)
+            selectModel(model);
+          else
+            openMenu();
+        } else {
+          focusedModel = model;
+        }
+        return 0;
+      });
+
+      // Long Press Handler for Models
+      button->setLongPressHandler([=]() -> uint8_t {
+        button->setFocused();
+        focusedModel = model;
+        openMenu();
+        return 0;
+      });
+    }
+
+    if (!focusedButton) focusedButton = firstButton;
+
+    if (focusedButton) {
+      focusedButton->setFocused();
+      focusedModel = focusedButton->getModelCell();
+    }
+  }
+
+  void setLabels(LabelsVector labels)
+  {
+    selectedLabels = labels;
+    update();
+  }
+
+  inline void setSortOrder(ModelsSortBy sortOrder)
+  {
+    modelslabels.setSortOrder(sortOrder);
+    update();
+  }
+
+  ModelsSortBy getSortOrder() const { return modelslabels.sortOrder(); }
+
+  void setLblRefreshFunc(std::function<void()> fnc)
+  {
+    refreshLabels = std::move(fnc);
   }
 
  protected:
-  std::function<void()> _finishHandler = nullptr;
-};
+  ModelsSortBy _sortOrder;
+  bool isDirty = false;
+  bool refresh = false;
+  std::string selectedLabel;
+  LabelsVector selectedLabels;
+  ModelCell *focusedModel = nullptr;
+  std::function<void()> refreshLabels = nullptr;
 
-//-----------------------------------------------------------------------------
-
-ModelsPageBody::ModelsPageBody(Window *parent, const rect_t &rect) :
-    FormWindow(parent, rect)
-{
-  setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, MODEL_CELL_PADDING);
-  padRow(MODEL_CELL_PADDING);
-}
-
-void ModelsPageBody::selectModel(ModelCell *model)
-{
-  // Don't need to check connection to receiver if re-selecting the active model
-  if (model != modelslist.getCurrentModel()) {
-    bool modelConnected =
-        TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm;
-    if (modelConnected) {
-      AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
-      if (!confirmationDialog(STR_MODEL_STILL_POWERED, nullptr, false, []() {
-            tmr10ms_t startTime = getTicks();
-            while (!TELEMETRY_STREAMING()) {
-              if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
-            }
-            return !TELEMETRY_STREAMING() ||
-                   g_eeGeneral.disableRssiPoweroffAlarm;
-          })) {
-        return;  // stop if connected but not confirmed
-      }
+  void openMenu()
+  {
+    Menu *menu = new Menu(this);
+    menu->setTitle(focusedModel->modelName);
+    if (g_eeGeneral.modelQuickSelect ||
+        focusedModel != modelslist.getCurrentModel()) {
+      menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(focusedModel); });
+    }
+    menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(focusedModel); });
+    menu->addLine(STR_LABEL_MODEL, [=]() { editLabels(focusedModel); });
+    menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(focusedModel); });
+    if (focusedModel != modelslist.getCurrentModel()) {
+      menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(focusedModel); });
     }
   }
 
-  // Exit to main view
-  auto w = Layer::back();
-  if (w) w->onCancel();
+  void selectModel(ModelCell *model)
+  {
+    // Don't need to check connection to receiver if re-selecting the active
+    // model
+    if (model != modelslist.getCurrentModel()) {
+      bool modelConnected =
+          TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm;
+      if (modelConnected) {
+        AUDIO_ERROR_MESSAGE(AU_MODEL_STILL_POWERED);
+        if (!confirmationDialog(STR_MODEL_STILL_POWERED, nullptr, false, []() {
+              tmr10ms_t startTime = getTicks();
+              while (!TELEMETRY_STREAMING()) {
+                if (getTicks() - startTime > TELEMETRY_CHECK_DELAY10ms) break;
+              }
+              return !TELEMETRY_STREAMING() ||
+                     g_eeGeneral.disableRssiPoweroffAlarm;
+            })) {
+          return;  // stop if connected but not confirmed
+        }
+      }
+    }
 
-  // Skip reloading model if re-selecting the active model
-  if (model != modelslist.getCurrentModel()) {
-    // store changes (if any) and load selected model
-    storageFlushCurrentModel();
-    storageCheck(true);
-    memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
-           LEN_MODEL_FILENAME);
+    // Exit to main view
+    auto w = Layer::back();
+    if (w) w->onCancel();
 
-    loadModel(g_eeGeneral.currModelFilename, true);
-    modelslist.setCurrentModel(model);
+    // Skip reloading model if re-selecting the active model
+    if (model != modelslist.getCurrentModel()) {
+      // store changes (if any) and load selected model
+      storageFlushCurrentModel();
+      storageCheck(true);
+      memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
+             LEN_MODEL_FILENAME);
 
-    storageDirty(EE_GENERAL);
-    storageCheck(true);
+      loadModel(g_eeGeneral.currModelFilename, true);
+      modelslist.setCurrentModel(model);
+
+      storageDirty(EE_GENERAL);
+      storageCheck(true);
+    }
   }
-}
 
-void ModelsPageBody::duplicateModel(ModelCell *model)
-{
-  new ConfirmDialog(
-      parent, STR_DUPLICATE_MODEL,
-      std::string(model->modelName, sizeof(model->modelName)).c_str(), [=] {
-        storageFlushCurrentModel();
-        storageCheck(true);
+  void duplicateModel(ModelCell *model)
+  {
+    new ConfirmDialog(
+        parent, STR_DUPLICATE_MODEL,
+        std::string(model->modelName, sizeof(model->modelName)).c_str(), [=] {
+          storageFlushCurrentModel();
+          storageCheck(true);
 
-        char duplicatedFilename[LEN_MODEL_FILENAME + 1];
-        memcpy(duplicatedFilename, model->modelFilename,
-               sizeof(duplicatedFilename));
-        if (findNextFileIndex(duplicatedFilename, LEN_MODEL_FILENAME,
-                              MODELS_PATH)) {
-          sdCopyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
-                     MODELS_PATH);
-          // Make a new model which is a copy of the selected one, set the same
-          // labels
-          auto new_model = modelslist.addModel(duplicatedFilename, true, model);
-          for (const auto &lbl : modelslabels.getLabelsByModel(model)) {
-            modelslabels.addLabelToModel(lbl, new_model);
+          char duplicatedFilename[LEN_MODEL_FILENAME + 1];
+          memcpy(duplicatedFilename, model->modelFilename,
+                 sizeof(duplicatedFilename));
+          if (findNextFileIndex(duplicatedFilename, LEN_MODEL_FILENAME,
+                                MODELS_PATH)) {
+            sdCopyFile(model->modelFilename, MODELS_PATH, duplicatedFilename,
+                       MODELS_PATH);
+            // Make a new model which is a copy of the selected one, set the
+            // same labels
+            auto new_model =
+                modelslist.addModel(duplicatedFilename, true, model);
+            for (const auto &lbl : modelslabels.getLabelsByModel(model)) {
+              modelslabels.addLabelToModel(lbl, new_model);
+            }
+            update();
+          } else {
+            TRACE("ModelsListError: Invalid File");
           }
+        });
+  }
+
+  void deleteModel(ModelCell *model)
+  {
+    new ConfirmDialog(
+        parent, STR_DELETE_MODEL,
+        std::string(model->modelName, sizeof(model->modelName)).c_str(), [=] {
+          modelslist.removeModel(model);
+          if (refreshLabels != nullptr) refreshLabels();
+
           update();
-        } else {
-          TRACE("ModelsListError: Invalid File");
+        });
+  }
+
+  void editLabels(ModelCell *model)
+  {
+    auto labels = modelslabels.getLabels();
+
+    // dont display menu if there will be no labels
+    if (labels.size()) {
+      auto menu = new Menu(getParent(), true);
+      menu->setTitle(model->modelName);
+      menu->setCloseHandler([=]() {
+        if (isDirty) {
+          isDirty = false;
+          update();
         }
       });
-}
 
-void ModelsPageBody::deleteModel(ModelCell *model)
-{
-  new ConfirmDialog(
-      parent, STR_DELETE_MODEL,
-      std::string(model->modelName, sizeof(model->modelName)).c_str(), [=] {
-        modelslist.removeModel(model);
-        if (refreshLabels != nullptr) refreshLabels();
+      for (auto &label : modelslabels.getLabels()) {
+        menu->addLineBuffered(
+            label,
+            [=]() {
+              if (!modelslabels.isLabelSelected(label, model))
+                modelslabels.addLabelToModel(label, model, true);
+              else
+                modelslabels.removeLabelFromModel(label, model, true);
+              isDirty = true;
+              if (refreshLabels != nullptr) refreshLabels();
+            },
+            [=]() { return modelslabels.isLabelSelected(label, model); });
+      }
+      menu->updateLines();
+    }
+  }
 
-        update();
-      });
-}
-
-void ModelsPageBody::saveAsTemplate(ModelCell *model)
-{
-  new ConfirmDialog(
-      parent, STR_SAVE_TEMPLATE,
-      std::string(model->modelName, sizeof(model->modelName)).c_str(), [=] {
-        storageDirty(EE_MODEL);
-        storageCheck(true);
-        constexpr size_t size = sizeof(model->modelName) + sizeof(YAML_EXT);
-        char modelName[size];
-        snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
-        char templatePath[FF_MAX_LFN];
-        snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/',
-                 modelName);
-        sdCheckAndCreateDirectory(TEMPLATES_PATH);
-        sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
-        if (isFileAvailable(templatePath)) {
-          new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE, [=] {
+  void saveAsTemplate(ModelCell *model)
+  {
+    new ConfirmDialog(
+        parent, STR_SAVE_TEMPLATE,
+        std::string(model->modelName, sizeof(model->modelName)).c_str(), [=] {
+          storageDirty(EE_MODEL);
+          storageCheck(true);
+          constexpr size_t size = sizeof(model->modelName) + sizeof(YAML_EXT);
+          char modelName[size];
+          snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
+          char templatePath[FF_MAX_LFN];
+          snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/',
+                   modelName);
+          sdCheckAndCreateDirectory(TEMPLATES_PATH);
+          sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
+          if (isFileAvailable(templatePath)) {
+            new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE, [=] {
+              sdCopyFile(model->modelFilename, MODELS_PATH, modelName,
+                         PERS_TEMPL_PATH);
+            });
+          } else {
             sdCopyFile(model->modelFilename, MODELS_PATH, modelName,
                        PERS_TEMPL_PATH);
-          });
-        } else {
-          sdCopyFile(model->modelFilename, MODELS_PATH, modelName,
-                     PERS_TEMPL_PATH);
-        }
-      });
-}
-
-void ModelsPageBody::editLabels(ModelCell *model)
-{
-  auto labels = modelslabels.getLabels();
-
-  // dont display menu if there will be no labels
-  if (labels.size()) {
-    MyMenu *menu = new MyMenu(getParent(), true);
-    menu->setTitle(model->modelName);
-    menu->setFinishHandler([=]() {
-      if (isDirty) {
-        isDirty = false;
-        update();
-      }
-    });
-
-    for (auto &label : modelslabels.getLabels()) {
-      menu->addLineBuffered(
-          label,
-          [=]() {
-            if (!modelslabels.isLabelSelected(label, model))
-              modelslabels.addLabelToModel(label, model, true);
-            else
-              modelslabels.removeLabelFromModel(label, model, true);
-            isDirty = true;
-            if (refreshLabels != nullptr) refreshLabels();
-          },
-          [=]() { return modelslabels.isLabelSelected(label, model); });
-    }
-    menu->updateLines();
+          }
+        });
   }
-}
-
-void ModelsPageBody::openMenu()
-{
-  Menu *menu = new Menu(this);
-  menu->setTitle(focusedModel->modelName);
-  if (g_eeGeneral.modelQuickSelect ||
-      focusedModel != modelslist.getCurrentModel()) {
-    menu->addLine(STR_SELECT_MODEL, [=]() { selectModel(focusedModel); });
-  }
-  menu->addLine(STR_DUPLICATE_MODEL, [=]() { duplicateModel(focusedModel); });
-  menu->addLine(STR_LABEL_MODEL, [=]() { editLabels(focusedModel); });
-  menu->addLine(STR_SAVE_TEMPLATE, [=]() { saveAsTemplate(focusedModel); });
-  if (focusedModel != modelslist.getCurrentModel()) {
-    menu->addLine(STR_DELETE_MODEL, [=]() { deleteModel(focusedModel); });
-  }
-}
-
-void ModelsPageBody::update()
-{
-  clear();
-
-  ModelsVector models;
-  if (selectedLabels.size()) {
-    models = modelslabels.getModelsInLabels(selectedLabels);
-  } else {
-    models = modelslabels.getAllModels();
-  }
-
-  // Used to work out which button to set focus to.
-  // Priority -
-  //     current active model
-  //     previously selected model
-  //     first model in the list
-  ModelButton *firstButton = nullptr;
-  ModelButton *focusedButton = nullptr;
-
-  for (auto &model : models) {
-    auto button =
-        new ModelButton(this, rect_t{}, model, [=]() { focusedModel = model; });
-
-    if (!firstButton) firstButton = button;
-    if (model == modelslist.getCurrentModel()) focusedButton = button;
-    if (model == focusedModel && !focusedButton) focusedButton = button;
-
-    // Press Handler for Models
-    button->setPressHandler([=]() -> uint8_t {
-      if (model == focusedModel) {
-        if (g_eeGeneral.modelQuickSelect)
-          selectModel(model);
-        else
-          openMenu();
-      } else {
-        focusedModel = model;
-      }
-      return 0;
-    });
-
-    // Long Press Handler for Models
-    button->setLongPressHandler([=]() -> uint8_t {
-      button->setFocused();
-      focusedModel = model;
-      openMenu();
-      return 0;
-    });
-  }
-
-  if (!focusedButton) focusedButton = firstButton;
-
-  if (focusedButton) {
-    focusedButton->setFocused();
-    focusedModel = focusedButton->getModelCell();
-  }
-}
+};
 
 //-----------------------------------------------------------------------------
 
@@ -619,13 +444,13 @@ class LabelDialog : public Dialog
       deleteLater();
       return 0;
     });
-    btn->setWidth(LV_DPI_DEF);
+    btn->setWidth(100);
 
     btn = new TextButton(box, rect_t{}, STR_CANCEL, [=]() {
       deleteLater();
       return 0;
     });
-    btn->setWidth(LV_DPI_DEF);
+    btn->setWidth(100);
 
     content->setWidth(LCD_W * 0.8);
     content->updateSize();
@@ -785,8 +610,11 @@ void ModelLabelsWindow::buildHead(PageHeader *hdr)
   setTitle();
 
   // new model button
-  auto btn = new TextButton(hdr, rect_t{}, STR_NEW_MODEL, [=]() {
-    newModel();
+  auto btn = new TextButton(hdr, rect_t{}, STR_NEW, [=]() {
+    auto menu = new Menu(this);
+    menu->setTitle(STR_CREATE_NEW);
+    menu->addLine(STR_NEW_MODEL, [=]() { newModel(); });
+    menu->addLine(STR_NEW_LABEL, [=]() { newLabel(); });
     return 0;
   });
 
@@ -810,69 +638,48 @@ static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), LABELS_HEIGHT,
 
 void ModelLabelsWindow::buildBody(FormWindow *window)
 {
-  auto win_obj = window->getLvObj();
+  window->padAll(LAY_MARGIN);
+  window->padRow(LAY_MARGIN);
+  window->padColumn(LAY_MARGIN);
+  window->padLeft(0);
+  window->padRight(0);
 
-  lv_obj_set_grid_dsc_array(win_obj, col_dsc, row_dsc);
+  lv_obj_set_grid_dsc_array(window->getLvObj(), col_dsc, row_dsc);
 
   // Models List
   mdlselector = new ModelsPageBody(window, rect_t{});
   mdlselector->setLblRefreshFunc([=]() { labelRefreshRequest(); });
   auto mdl_obj = mdlselector->getLvObj();
+  lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, MODELS_COL, 1,
+                       LV_GRID_ALIGN_STRETCH, MODELS_ROW, MODELS_ROW_CNT);
 
   // Labels
-  lblselector = new ListBox(window, rect_t{}, getLabels());
+  auto box = new Window(window, rect_t{});
+  box->padAll(0);
+  box->padLeft(LAY_MARGIN);
+#if LCD_H > LCD_W
+  box->padRight(LAY_MARGIN);
+#endif
+  lv_obj_set_grid_cell(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1,
+                       LV_GRID_ALIGN_STRETCH, LABELS_ROW, 1);
+  lblselector = new ListBox(box, rect_t{0, 0, LV_PCT(100), LV_PCT(100)}, getLabels());
   auto lbl_obj = lblselector->getLvObj();
 
   // Sort Buttons
-  auto btnh = new ButtonHolder(window, rect_t{});
-  btnh->setNewLabelHandler(std::bind(&ModelLabelsWindow::newLabel, this));
-  auto buth_obj = btnh->getLvObj();
-
-  window->padAll(LAY_MARGIN);
-  window->padRow(LAY_MARGIN);
-  window->padColumn(LAY_MARGIN);
-
-#if LCD_W > LCD_H
-  // Labels top left
-  lv_obj_set_grid_cell(lbl_obj, LV_GRID_ALIGN_STRETCH, 0, 1,
-                       LV_GRID_ALIGN_STRETCH, 0, 1);
-
-  // Buttons bottom left
-  lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, 1, 1,
-                       LV_GRID_ALIGN_STRETCH, 0, 2);
-  lv_obj_set_width(mdl_obj, lv_pct(100));
-  window->padRight(0);
-
-  // Models right
-  lv_obj_set_grid_cell(buth_obj, LV_GRID_ALIGN_STRETCH, 0, 1,
-                       LV_GRID_ALIGN_STRETCH, 1, 1);
-#else
-  // Models top
-  lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, 0, 1,
-                       LV_GRID_ALIGN_STRETCH, 0, 1);
-  lv_obj_set_width(mdl_obj, lv_pct(100));
-
-  // Labels middle
-  lv_obj_set_grid_cell(lbl_obj, LV_GRID_ALIGN_STRETCH, 0, 1,
-                       LV_GRID_ALIGN_STRETCH, 1, 1);
-
-  // Buttons bottom
-  lv_obj_set_grid_cell(buth_obj, LV_GRID_ALIGN_STRETCH, 0, 1,
-                       LV_GRID_ALIGN_STRETCH, 2, 1);
-#endif
+  box = new Window(window, rect_t{});
+  box->padAll(0);
+  box->padLeft(LAY_MARGIN);
+  box->padRight(LAY_MARGIN);
+  lv_obj_set_grid_cell(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1,
+                       LV_GRID_ALIGN_STRETCH, BUTTONS_ROW, 1);
+  auto sortOrder = new Choice(
+      box, {}, STR_SORT_ORDERS, NAME_ASC, DATE_DES,
+      [=]() { return mdlselector->getSortOrder(); },
+      [=](int newValue) { mdlselector->setSortOrder((ModelsSortBy)newValue); });
+  sortOrder->setMenuTitle(STR_SORT_MODELS_BY);
 
   lv_obj_update_layout(mdl_obj);
   lblselector->setColumnWidth(0, lv_obj_get_content_width(lbl_obj));
-
-  btnh->setPressHandler([=](int index, ButtonHolder::ButtonInfo *button) {
-    if (index == 0) {  // alpha
-      sort = button->sortState == 0 ? NAME_ASC : NAME_DES;
-    } else {
-      sort = button->sortState == 0 ? DATE_ASC : DATE_DES;
-    }
-    // Update the list asynchronously
-    mdlselector->setSortOrder(sort);
-  });
 
   lblselector->setMultiSelect(true);
   lblselector->setSelected(modelslabels.filteredLabels());

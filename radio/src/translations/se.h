@@ -1287,3 +1287,7 @@
 #define TR_SELECT_MENU_ALL        "All"
 #define TR_SELECT_MENU_CLR        "Clear"
 #define TR_SELECT_MENU_INV        "Invert"
+
+#define TR_SORT_ORDERS            "Namn A-Z","Namn Z-A","Minst använda","Mest använda"
+#define TR_SORT_MODELS_BY         "Sortera modeller"
+#define TR_CREATE_NEW             "Skapa"

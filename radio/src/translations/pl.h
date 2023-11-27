@@ -1247,3 +1247,7 @@
 #define TR_SELECT_MENU_ALL        "All"
 #define TR_SELECT_MENU_CLR        "Clear"
 #define TR_SELECT_MENU_INV        "Invert"
+
+#define TR_SORT_ORDERS            "Nazwa A-Z","Nazwa Z-A","Najrzadziej użyty","Najczęściej użyty"
+#define TR_SORT_MODELS_BY         "Sortuj modele"
+#define TR_CREATE_NEW             "Utwórz"

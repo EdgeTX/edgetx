@@ -1267,5 +1267,11 @@ extern const char STR_SELECT_MENU_ALL[];
 extern const char STR_SELECT_MENU_CLR[];
 extern const char STR_SELECT_MENU_INV[];
 
+#if defined(COLORLCD)
+extern const char* const STR_SORT_ORDERS[];
+extern const char STR_SORT_MODELS_BY[];
+extern const char STR_CREATE_NEW[];
+#endif
+
 #endif // _TRANSLATIONS_H_
 

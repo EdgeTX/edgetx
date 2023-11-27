@@ -1265,3 +1265,7 @@
 #define TR_SELECT_MENU_ALL        "Alle"
 #define TR_SELECT_MENU_CLR        "Slet"
 #define TR_SELECT_MENU_INV        "Invers"
+
+#define TR_SORT_ORDERS            "Navn A-Z","Navn Z-A","Sidst anvendt","Mest anvendt"
+#define TR_SORT_MODELS_BY         "Sorter modeller"
+#define TR_CREATE_NEW             "Opret"
