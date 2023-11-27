@@ -92,11 +92,14 @@ void usbInit()
   LL_GPIO_InitTypeDef GPIO_InitStruct;
   LL_GPIO_StructInit(&GPIO_InitStruct);
 
-  GPIO_InitStruct.Pin = USB_GPIO_PIN_VBUS;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+
+#if defined(USB_GPIO_PIN_VBUS)
+  GPIO_InitStruct.Pin = USB_GPIO_PIN_VBUS;
   LL_GPIO_Init(USB_GPIO, &GPIO_InitStruct);
+#endif
 
   GPIO_InitStruct.Pin = USB_GPIO_PIN_DM | USB_GPIO_PIN_DP;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;

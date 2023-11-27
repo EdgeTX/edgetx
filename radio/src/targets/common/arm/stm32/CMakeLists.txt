@@ -82,7 +82,6 @@ if(NOT NATIVE_BUILD)
     ${STM32_DRIVER_DIR}/timers_driver.cpp
     ${STM32_DRIVER_DIR}/sdcard_spi.cpp
     ${STM32_DRIVER_DIR}/diskio_spi.cpp
-    ${STM32_DRIVER_DIR}/diskio_sdio.cpp
     ${STM32_DRIVER_DIR}/stm32_exti_driver.cpp
     ${STM32_DRIVER_DIR}/stm32_serial_driver.cpp
     ${STM32_DRIVER_DIR}/stm32_usart_driver.cpp
@@ -93,6 +92,12 @@ if(NOT NATIVE_BUILD)
     ${STM32_DRIVER_DIR}/stm32_spi.cpp
     ${STM32_DRIVER_DIR}/stm32_adc.cpp
   )
+  
+  if (STORAGE_USE_SDIO)
+    add_library(stm32_drivers OBJECT EXCLUDE_FROM_ALL
+      ${STM32_DRIVER_DIR}/diskio_sdio.cpp
+    )
+  endif()
 
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_drivers>)
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_drivers>)
