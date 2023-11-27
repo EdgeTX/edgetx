@@ -31,6 +31,8 @@ class Keyboard : public Window
   void clearField(bool wasCancelled);
   static void hide(bool wasCancelled);
 
+  static Keyboard* keyboardWindow() { return activeKeyboard; }
+
  protected:
   static Keyboard *activeKeyboard;
 

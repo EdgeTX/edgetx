@@ -147,6 +147,8 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
     bool is_lvgl_evt = evt_to_indev_data(evt, data);
     if (!is_lvgl_evt) {
       auto w = (Window*)lv_obj_get_user_data(obj);
+      // If no window, check for keyboard window
+      if (!w) w = Keyboard::keyboardWindow();
       dispatch_kb_event(w, evt);
       return;
     }
