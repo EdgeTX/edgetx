@@ -201,7 +201,7 @@ void Choice::fillMenu(Menu* menu, const FilterFct& filter)
   selectedIx0 = -1;
   for (int i = vmin; i <= vmax; ++i) {
     if (filter && !filter(i)) continue;
-    if (isValueAvailable && !isValueAvailable(i)) continue;
+    if (isValueAvailable && !isValueAvailable(inverted ? -i : i)) continue;
     if (textHandler) {
       menu->addLineBuffered(textHandler(i), [=]() { setValue(i); });
     } else if (unsigned(i - vmin) < values.size()) {

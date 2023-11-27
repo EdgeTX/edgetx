@@ -39,11 +39,12 @@ class SwitchChoice : public Choice
  protected:
   friend SwitchChoiceMenuToolbar;
 
-  bool inverted = false;
   bool inMenu = false;
 
   void setValue(int value) override;
   int getIntValue() const override;
+
+  void invertChoice();
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "SwitchChoice"; }

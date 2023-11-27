@@ -76,13 +76,13 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
 
     invertBtn->setPressHandler([=]() {
       lv_obj_clear_state(invertBtn->getLvObj(), LV_STATE_FOCUSED);
-      longPress();
+      invertChoice();
       return choice->inverted;
     });
 #endif
   }
 
-  void longPress()
+  void invertChoice()
   {
     SwitchChoice* switchChoice = (SwitchChoice*)choice;
     switchChoice->inverted = !switchChoice->inverted;
@@ -92,6 +92,14 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
 #if defined(HARDWARE_TOUCH)
     invertBtn->check(switchChoice->inverted);
 #endif
+  }
+
+  void longPress()
+  {
+    lv_indev_t* indev = lv_indev_get_act();
+    if (indev->driver->type == LV_INDEV_TYPE_KEYPAD) {
+      invertChoice();
+    }
   }
 
  protected:
@@ -153,7 +161,6 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
           val = swtch;
         }
         if (val && (!isValueAvailable || isValueAvailable(val))) {
-          // if (filtered) fillMenu(menu);
           tb->resetFilter();
           menu->select(getIndexFromValue(val));
         }
