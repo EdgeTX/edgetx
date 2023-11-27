@@ -96,6 +96,7 @@
 #define TR_SF_FAILSAFE                 "SetFailsafe"
 #define TR_SF_RANGE_CHECK              "RangeCheck"
 #define TR_SF_MOD_BIND                 "ModuleBind"
+#define TR_SF_RGBLEDS                  "RGB leds"
 
 #define TR_SOUND                       "Play Sound"
 #define TR_PLAY_TRACK                  "Play Track"
@@ -1257,6 +1258,6 @@
 #define TR_SELECT_MENU_CLR        "Clear"
 #define TR_SELECT_MENU_INV        "Invert"
 
-#define TR_SORT_ORDERS            "סידור A-Z","סידור Z-A","יותר בשימוש","פחות בשימוש"
+#define TR_SORT_ORDERS            "A-Z סידור","Z-A סידור","יותר בשימוש","פחות בשימוש"
 #define TR_SORT_MODELS_BY         "סדר תצוגה"
 #define TR_CREATE_NEW             "יצירה חדשה"
