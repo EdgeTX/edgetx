@@ -20,7 +20,6 @@ set(LVGL_SOURCES_MINIMAL
   draw/sw/lv_draw_sw_gradient.c
   draw/sw/lv_draw_sw.c
   draw/sw/lv_draw_sw_blend.c
-  draw/sw/lv_draw_sw_layer.c
   draw/sw/lv_draw_sw_letter.c
   draw/sw/lv_draw_sw_arc.c
   draw/sw/lv_draw_sw_polygon.c
@@ -28,10 +27,7 @@ set(LVGL_SOURCES_MINIMAL
   draw/sw/lv_draw_sw_line.c
   draw/sw/lv_draw_sw_dither.c
   draw/sw/lv_draw_sw_rect.c
-  draw/sw/lv_draw_sw_transform.c
-  draw/lv_draw_layer.c
   draw/lv_draw_line.c
-  draw/lv_draw_transform.c
   draw/lv_draw.c
   draw/lv_img_buf.c
   draw/lv_draw_rect.c
