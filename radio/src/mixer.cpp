@@ -826,7 +826,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       bool swTog = fmEnabled && (mixLineSwitchActive != lastSwitchState);
       if (mode == e_perout_mode_normal && swTog) {
         mixState[i].lastSwitchState = mixLineSwitchActive;
-        mixState[i].delay = (lastSwitchState ? md->delayUp : md->delayDown) * 10;
+        mixState[i].delay = (lastSwitchState ? md->delayDown : md->delayUp) * 10;
       }
       if (mode == e_perout_mode_normal && mixState[i].delay > 0) {
         mixState[i].delay = max<int16_t>(0, (int16_t)mixState[i].delay - tick10ms);
