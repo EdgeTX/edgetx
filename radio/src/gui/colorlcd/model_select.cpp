@@ -67,11 +67,10 @@ class ModelButton : public Button
   ModelButton(FormWindow *parent, const rect_t &rect, ModelCell *modelCell,
               std::function<void()> setSelected) :
       Button(parent, rect, nullptr, 0, 0, etx_button_create),
-      modelCell(modelCell)
+      modelCell(modelCell),
+      m_setSelected(std::move(setSelected))
   {
     padAll(0);
-
-    m_setSelected = std::move(setSelected);
 
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
     setWidth(MODEL_SELECT_CELL_WIDTH);
@@ -134,6 +133,8 @@ class ModelButton : public Button
   {
     if (!lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
       lv_group_focus_obj(lvobj);
+    } else {
+      if (m_setSelected) m_setSelected();
     }
   }
 
@@ -533,6 +534,7 @@ void ModelLabelsWindow::onPressPG(bool isNext)
 
   sellist.insert(select);
   lblselector->setSelected(sellist);  // Check the items
+  lblselector->setSelected(-1);       // Force update
   lblselector->setSelected(select);   // Causes the list to scroll
   updateFilteredLabels(sellist);      // Update the models
 }
@@ -662,7 +664,8 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
 #endif
   lv_obj_set_grid_cell(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1,
                        LV_GRID_ALIGN_STRETCH, LABELS_ROW, 1);
-  lblselector = new ListBox(box, rect_t{0, 0, LV_PCT(100), LV_PCT(100)}, getLabels());
+  lblselector =
+      new ListBox(box, rect_t{0, 0, LV_PCT(100), LV_PCT(100)}, getLabels());
   auto lbl_obj = lblselector->getLvObj();
 
   // Sort Buttons
