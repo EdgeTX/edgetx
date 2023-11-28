@@ -86,6 +86,7 @@ const uint8_t bootloaderVersion[] __attribute__ ((section(".version"), used)) =
 
 #define SOFTRESET_REQUEST 0xCAFEDEAD
   
+volatile tmr10ms_t g_tmr10ms;
 volatile uint8_t tenms = 1;
 
 uint32_t firmwareSize;
@@ -105,6 +106,7 @@ void per5ms() {} // make linker happy
 void per10ms()
 {
   tenms |= 1u; // 10 mS has passed
+  g_tmr10ms++;
 
   keysPollingCycle();
 
