@@ -203,15 +203,14 @@ LV_STYLE_CONST_MULTI_INIT(modal_title, modal_title_props);
 
 // Check Box
 const lv_style_const_prop_t cb_marker_props[] = {
-    LV_STYLE_CONST_PAD_TOP(3),  LV_STYLE_CONST_PAD_BOTTOM(3),
-    LV_STYLE_CONST_PAD_LEFT(3), LV_STYLE_CONST_PAD_RIGHT(3),
+    LV_STYLE_CONST_PAD_TOP(2),  LV_STYLE_CONST_PAD_BOTTOM(2),
+    LV_STYLE_CONST_PAD_LEFT(2), LV_STYLE_CONST_PAD_RIGHT(2),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(cb_marker, cb_marker_props);
 
 const lv_style_const_prop_t cb_marker_checked_props[] = {
     LV_STYLE_CONST_BG_IMG_SRC(LV_SYMBOL_OK),
-    LV_STYLE_CONST_TEXT_FONT(LV_FONT_DEFAULT),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(cb_marker_checked, cb_marker_checked_props);
@@ -693,7 +692,6 @@ void etx_checkbox_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   etx_add_border(obj, LV_PART_INDICATOR);
   lv_obj_add_style(obj, (lv_style_t*)&bg_opacity_cover, LV_PART_INDICATOR);
   lv_obj_add_style(obj, (lv_style_t*)&rounded, LV_PART_INDICATOR);
-  lv_obj_add_style(obj, (lv_style_t*)&pad_zero, LV_PART_INDICATOR);
   lv_obj_add_style(obj, (lv_style_t*)&cb_marker, LV_PART_INDICATOR);
   lv_obj_add_style(obj, &styles->bg_color[COLOR_THEME_PRIMARY2_INDEX],
                    LV_PART_INDICATOR);
@@ -710,6 +708,8 @@ void etx_checkbox_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 
   lv_obj_add_style(obj, (lv_style_t*)&disabled,
                    LV_PART_INDICATOR | LV_STATE_DISABLED);
+
+  lv_checkbox_set_text_static(obj, "");
 }
 
 void bubble_popup_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
@@ -963,8 +963,8 @@ const lv_obj_class_t etx_checkbox_class = {
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
-    .width_def = LV_PCT(100),
-    .height_def = LV_PCT(100),
+    .width_def = 25,
+    .height_def = 25,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_checkbox_t),
