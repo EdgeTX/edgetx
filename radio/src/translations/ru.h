@@ -46,7 +46,7 @@
 #define TR_OFFON                       "Выкл","Вкл"
 #define TR_MMMINV                      "---","Инв"
 #define TR_VBEEPMODE                   "Тихо","Сигн","Без клав","Все"
-#define TR_VBLMODE                     "Выкл","Клав",TR("Стики","Стики"), "Двойн","Вкл"
+#define TR_VBLMODE                     "Выкл","Клав",TR("Стики","Стики"),"Двойн","Вкл"
 #define TR_TRNMODE                     "Вык",TR("+=","Добав"),TR(":=","Замен")
 #define TR_TRNCHN                      "КН1","КН2","КН3","КН4"
 
@@ -125,7 +125,7 @@
 #define TR_FSW_RESET_TELEM             TR("Телем", "Телеметрия")
 #define TR_FSW_RESET_TIMERS            "Тмр1","Трм2","Трм3"
 
-#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS, TR("Все", "Полетн"), TR_FSW_RESET_TELEM
+#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS, TR("Все","Полетн"), TR_FSW_RESET_TELEM
 
 #define TR_FUNCSOUNDS                  TR("Bp1","Beep1"),TR("Bp2","Beep2"),TR("Bp3","Beep3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
@@ -134,7 +134,7 @@
 #define LENGTH_UNIT_METR               "м"
 #define SPEED_UNIT_METR                "кмч"
 
-#define TR_VUNITSSYSTEM                "метрич","импер"
+#define TR_VUNITSSYSTEM                "Метрич","Импер"
 #define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","ms","us","km","dBm"
 
 #define STR_V                          (STR_VTELEMUNIT[1])
@@ -207,7 +207,7 @@
 #define TR_VFORMULAS                   "Добав","Средн","Мин","Макс","Умнож","Суммир","Ячейка","Расх","Дист"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
 #define TR_VCELLINDEX                  "Низ","1","2","3","4","5","6","7","8","Выс","Дельта"
-#define TR_TEXT_SIZE                   "Стд", "Крошеч", "Мален", "Сред", "Двойной"
+#define TR_TEXT_SIZE                   "Стд","Крошеч","Мален","Сред","Двойной"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (Тол цен)", "= (Симметр)"
 #define TR_TIMER_DIR                   TR("Остал", "Остал"), TR("Прошло", "Прошед")
 #define TR_PPMUNIT                     "0.--","0.0","us"
@@ -242,7 +242,7 @@
   #define TR_POPUPS_ENTER_EXIT         TR_ENTER "\010" TR_EXIT
 #endif
 
-#define TR_FREE                        "Свободн."
+#define TR_FREE                        "Свободн"
 #define TR_YES                         "Да"
 #define TR_NO                          "Нет"
 #define TR_DELETEMODEL                 "Удалить модель"
@@ -505,7 +505,7 @@
 #define TR_MONITOR_SWITCHES            "МОНИТОР ЛОГИЧ ТУМБЛЕРОВ"
 #define TR_MONITOR_OUTPUT_DESC         "Выходы"
 #define TR_MONITOR_MIXER_DESC          "Микшеры"
-  #define TR_RECEIVER_NUM              TR("RxNum", "Номер")
+  #define TR_RECEIVER_NUM              TR("RxНом", "Номер")
   #define TR_RECEIVER                  "Приемник"
 #define TR_MULTI_RFTUNE                TR("Наст частоты", "Наст частоты")
 #define TR_MULTI_RFPOWER               "Мощность RF"
@@ -530,7 +530,7 @@
 #define TR_MODULE_WAITFORBIND          "Привязка для загруж протокола"
 #define TR_MODULE_BINDING              TR("Привязка...", "Привязка")
 #define TR_MODULE_UPGRADE_ALERT        TR3("Треб обновл", "Треб обновл", "Треб\nобновл модуля")
-#define TR_MODULE_UPGRADE              TR("Реком обновл", "Реком обновл")
+#define TR_MODULE_UPGRADE              TR("Рекомд обновл", "Рекомд обновл")
 #define TR_REBIND                      "Треб повтор привязка"
 #define TR_REG_OK                      "Усп регистрация"
 #define TR_BIND_OK                     "Усп привязка"
@@ -545,7 +545,7 @@
 #define TR_MULTI_MAX_THROW             TR("Макс. ход", "Вкл макс. ход")
 #define TR_MULTI_RFCHAN                TR("RF Канал", "Выбр RF канал")
 #define TR_AFHDS3_RX_FREQ              TR("Частота RX", "Частота RX")
-#define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Одноадрес./Телем", "Одноадрес./Телем")
+#define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Одноадрес/Телем", "Одноадрес/Телем")
 #define TR_AFHDS3_ONE_TO_MANY          "Мультикаст"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Акт. мощность", "Фактич мощность")
 #define TR_AFHDS3_POWER_SOURCE         TR("Источ питания", "Источ питания")
@@ -586,7 +586,7 @@
 #define TR_BACKUP_MODEL                "Резер копия модели"
 #define TR_DELETE_MODEL                "Удалить модель"
 #define TR_RESTORE_MODEL               "Восстан модель"
-#define TR_DELETE_ERROR                "удалить ошибку"
+#define TR_DELETE_ERROR                "Удалить ошибку"
 #define TR_SDCARD_ERROR                TR("Ошибка SD карты", "Ошибка SD карты")
 #define TR_SDCARD                      "SD карта"
 #define TR_NO_FILES_ON_SD              "Нет данных на SD карте!"
@@ -673,7 +673,7 @@
 #define TR_NO_MODELS_ON_SD             "Нет модели на SD карте"
 #define TR_NO_BITMAPS_ON_SD            "Нет изобр на SD карте"
 #define TR_NO_SCRIPTS_ON_SD            "Нет скриптов на SD карте"
-#define TR_SCRIPT_SYNTAX_ERROR         TR("Синтак ошибка", "Синтак Ошибка")
+#define TR_SCRIPT_SYNTAX_ERROR         TR("Синтак ошибка", "Синтак ошибка")
 #define TR_SCRIPT_PANIC                "Аварийное заверш сценария"
 #define TR_SCRIPT_KILLED               "Сценарий остановлен"
 #define TR_SCRIPT_ERROR                "Неизвестная ошибка"
@@ -691,7 +691,7 @@
 #define TR_FORMATTING                  "Формат..."
 #define TR_TEMP_CALIB                  "Калиб темп"
 #define TR_TIME                        "Время"
-#define TR_MAXBAUDRATE                 "Макс. скорость"
+#define TR_MAXBAUDRATE                 "Макс скорость"
 #define TR_BAUDRATE                    "Скор пер"
 #define TR_SAMPLE_MODE                 TR("Реж выб","Реж выб")
 #define TR_SAMPLE_MODES                "Обыч","Один бит"
@@ -717,7 +717,7 @@
 
 #define TR_BLUETOOTH                   "Bluetooth"
 #define TR_BLUETOOTH_DISC              "Найти"
-#define TR_BLUETOOTH_INIT              "Init"
+#define TR_BLUETOOTH_INIT              "Инициал"
 #define TR_BLUETOOTH_DIST_ADDR         "Адрес назначения"
 #define TR_BLUETOOTH_LOCAL_ADDR        "Локальный адрес"
 #define TR_BLUETOOTH_PIN_CODE          "PIN код"
@@ -744,7 +744,7 @@
 #define TR_DATE                        "Дата"
 #define TR_MONTHS                      { "Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек" }
 #define TR_ROTARY_ENCODER              "R.E."
-#define TR_ROTARY_ENC_MODE             TR("Режим пов энк","Режим энк")
+#define TR_ROTARY_ENC_MODE             TR("Режим энкод","Режим энкод")
 #define TR_CHANNELS_MONITOR            "МОНИТОР КАНАЛОВ"
 #define TR_MIXERS_MONITOR              "МОНИТОР МИКСЕРОВ"
 #define TR_PATH_TOO_LONG               "Путь слишком длинный"
@@ -840,7 +840,7 @@
 #define TR_ANADIAGS_MOVE               "Двигайте аналоговые датчики!"
 #define TR_SPEAKER                     INDENT "Динамик"
 #define TR_BUZZER                      INDENT "Звук сигнал"
-#define TR_BYTES                       "байты"
+#define TR_BYTES                       "Байты"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_POWERMETER_ATTN_NEEDED      "Требуется аттенюатор"
 #define TR_PXX2_SELECT_RX              "Выбор RX"
@@ -884,7 +884,7 @@
 #define TR_UNIT                        "Единица"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "Добавить новый"
 #define TR_CHANNELRANGE                TR(INDENT "Диапазон", INDENT "Диапазон кан")
-#define TR_ANTENNACONFIRM1             "НАР. Антенна"
+#define TR_ANTENNACONFIRM1             "ВНЕШ АНТЕННА"
 #if defined(PCBX12S)
   #define TR_ANTENNA_MODES             "Внут","Запрос","На модель","Внутр + Внеш"
 #else
@@ -1141,10 +1141,10 @@
 #if LCD_W > LCD_H
   #define TR_OPEN_CHANNEL_MONITORS      "Монитор откр кан"
 #else
-  #define TR_OPEN_CHANNEL_MONITORS      "Мон. открыт кан"
+  #define TR_OPEN_CHANNEL_MONITORS      "Мон открыт кан"
 #endif
 #define TR_DUPLICATE                    "Дублировать"
-#define TR_ACTIVATE                     "Включить"
+#define TR_ACTIVATE                     "Активация"
 #define TR_RED                          "Красная"
 #define TR_BLUE                         "Синяяя"
 #define TR_GREEN                        "Зеленая"
