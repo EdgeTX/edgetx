@@ -209,7 +209,7 @@
 
 
 #define TR_SRC_BATT                    "Batt"
-#define TR_SRC_TIME                    "Time"
+#define TR_SRC_TIME                    "Tid"
 #define TR_SRC_GPS                     "GPS"
 #define TR_SRC_TIMER                   "Tmr"
 
