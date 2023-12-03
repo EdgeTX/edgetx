@@ -323,8 +323,12 @@ void logsWrite()
       for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
         if (isTelemetryFieldAvailable(i)) {
           TelemetrySensor & sensor = g_model.telemetrySensors[i];
-          TelemetryItem & telemetryItem = telemetryItems[i];
+          TelemetryItem telemetryItem = {};
+          
           if (sensor.logs) {
+            if(TELEMETRY_STREAMING())
+              telemetryItem = telemetryItems[i];
+
             if (sensor.unit == UNIT_GPS) {
               if (telemetryItem.gps.longitude && telemetryItem.gps.latitude) {
                 div_t qr = div((int)telemetryItem.gps.latitude, 1000000);
