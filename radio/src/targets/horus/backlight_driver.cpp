@@ -36,7 +36,7 @@ void backlightInit()
   GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStructure.Pull = LL_GPIO_PULL_NO;
-  GPIO_InitStructure.Alternate = LL_GPIO_AF_1;
+  GPIO_InitStructure.Alternate = BACKLIGHT_GPIO_AF;
   LL_GPIO_Init(BACKLIGHT_GPIO, &GPIO_InitStructure);
 
 #if defined(KEYS_BACKLIGHT_GPIO)

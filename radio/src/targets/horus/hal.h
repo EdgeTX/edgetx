@@ -590,7 +590,7 @@
     #define BACKLIGHT_GPIO_PinSource           GPIO_PinSource3
     #define BACKLIGHT_RCC_APB1Periph           LL_APB2_GRP1_PERIPH_TIM5
     #define BACKLIGHT_RCC_APB2Periph           0
-    #define BACKLIGHT_GPIO_AF                  GPIO_AF_TIM5
+    #define BACKLIGHT_GPIO_AF                  LL_GPIO_AF_2
     #define BACKLIGHT_TIMER_FREQ               (PERI1_FREQUENCY * TIMER_MULT_APB1)
   #else
     #define BACKLIGHT_TIMER                    TIM8
@@ -598,7 +598,7 @@
     #define BACKLIGHT_GPIO_PinSource           GPIO_PinSource5
     #define BACKLIGHT_RCC_APB1Periph           0
     #define BACKLIGHT_RCC_APB2Periph           LL_APB2_GRP1_PERIPH_TIM8
-    #define BACKLIGHT_GPIO_AF                  GPIO_AF_TIM8
+    #define BACKLIGHT_GPIO_AF                  LL_GPIO_AF_3
     #define BACKLIGHT_TIMER_FREQ               (PERI2_FREQUENCY * TIMER_MULT_APB2)
   #endif
 #elif defined(PCBX10)
@@ -609,7 +609,7 @@
   #define BACKLIGHT_GPIO_PinSource             GPIO_PinSource1
   #define BACKLIGHT_RCC_APB1Periph             0
   #define BACKLIGHT_RCC_APB2Periph             LL_APB2_GRP1_PERIPH_TIM8
-  #define BACKLIGHT_GPIO_AF                    GPIO_AF_TIM8
+  #define BACKLIGHT_GPIO_AF                    LL_GPIO_AF_3
   #define BACKLIGHT_TIMER_FREQ                 (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #endif
 #if defined(RADIO_T18)
@@ -622,7 +622,7 @@
 #endif
 
 // SD
-#define SD_RCC_AHB1Periph               (LL_AHB1_GRP1_PERIPH_GPIOC | LL_AHB1_GRP1_PERIPH_GPIOd | LL_AHB1_GRP1_PERIPH_DMA2)
+#define SD_RCC_AHB1Periph               (LL_AHB1_GRP1_PERIPH_GPIOC | LL_AHB1_GRP1_PERIPH_GPIOD | LL_AHB1_GRP1_PERIPH_DMA2)
 #define SD_RCC_APB1Periph               0
 #define SD_PRESENT_GPIO                 GPIOC
 #define SD_PRESENT_GPIO_PIN             LL_GPIO_PIN_5  // PC.05

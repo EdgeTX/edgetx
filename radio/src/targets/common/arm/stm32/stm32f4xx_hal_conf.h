@@ -101,7 +101,7 @@
 #endif /* HSE_VALUE */
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
-  #define HSE_STARTUP_TIMEOUT    100U      /*!< Time out for HSE start up, in ms */
+  #define HSE_STARTUP_TIMEOUT    2000U      /*!< Time out for HSE start up, in cycles through a loop, normal values seem to bs around 900 */
 #endif /* HSE_STARTUP_TIMEOUT */
 
 /**
