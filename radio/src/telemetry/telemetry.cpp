@@ -393,6 +393,11 @@ void telemetryWakeup()
         telemetryState = TELEMETRY_OK;
       } else if (telemetryState == TELEMETRY_OK) {
         telemetryState = TELEMETRY_KO;
+
+        for (auto & telemetryItem : telemetryItems) {
+          telemetryItem.clear();
+        }
+
         if (!isModuleInBeepMode()) {
           AUDIO_TELEMETRY_LOST();
         }
