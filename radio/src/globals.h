@@ -27,12 +27,11 @@
 #include "opentx_types.h"
 
 PACK(struct GlobalData {
-  uint8_t unexpectedShutdown:1;
   uint8_t externalAntennaEnabled:1;
   uint8_t authenticationCount:2;
   uint8_t upgradeModulePopup:1;
   uint8_t internalModuleVersionChecked:1;
-  uint8_t spare:2;
+  uint8_t spare:3;
 });
 
 extern GlobalData globalData;

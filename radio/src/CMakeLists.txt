@@ -229,8 +229,8 @@ if(ASTERISK)
   add_definitions(-DASTERISK)
 endif()
 
-if(WATCHDOG)
-  add_definitions(-DWATCHDOG)
+if(WATCHDOG AND NOT NATIVE_BUILD)
+  add_definitions(-DUSE_WATCHDOG)
 endif()
 
 if(SIMU_AUDIO)
@@ -499,8 +499,10 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_FLAGS} -Wimplicit")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_FLAGS} -fno-rtti")
 
 # these are in addition to CMAKE_CXX_FLAGS
-set(CMAKE_EXE_LINKER_FLAGS "-lm -T${RADIO_SRC_DIR}/${LINKER_SCRIPT}")
+set(LINKER_DIR ${RADIO_SRC_DIR}/boards/generic_stm32/linker)
+set(CMAKE_EXE_LINKER_FLAGS "-lm -T${LINKER_DIR}/firmware.ld -L${LINKER_DIR} -L${LINKER_DIR}/${TARGET_LINKER_DIR}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map=firmware.map,--cref,--no-warn-mismatch,--gc-sections")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${TARGET_LINKER_PARAMS}")
 
 if(SEMIHOSTING)
   add_definitions(-DSEMIHOSTING)
@@ -538,6 +540,13 @@ add_executable(firmware ${SRC})
 link_libraries(firmware -lstdc++)
 add_dependencies(firmware ${RADIO_DEPENDENCIES})
 set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+if (DEFINED TARGET_FLASH_SIZE)
+  message("TARGET_FLASH_SIZE = ${TARGET_FLASH_SIZE}")
+  target_link_options(firmware PRIVATE
+    -Wl,--defsym=__flash_size=${TARGET_FLASH_SIZE}
+  )
+endif()
 
 if(ACCESS_DENIED)
   add_subdirectory(thirdparty/AccessDenied)

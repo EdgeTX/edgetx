@@ -59,6 +59,22 @@
 #define CLOCK_X       53
 #define CLOCK_Y       57
 
+#if defined(ASTERISK) || !defined(USE_WATCHDOG) || defined(LOG_TELEMETRY) || \
+    defined(LOG_BLUETOOTH) || defined(DEBUG_LATENCY)
+
+static bool isAsteriskDisplayed() {
+  return true;
+}
+
+#else
+
+#include "hal/abnormal_reboot.h"
+
+static bool isAsteriskDisplayed() {
+  return UNEXPECTED_SHUTDOWN();
+}
+#endif
+
 void drawExternalAntennaAndRSSI()
 {
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)

@@ -958,15 +958,6 @@ enum JackMode {
 extern uint8_t latencyToggleSwitch;
 #endif
 
-inline bool isAsteriskDisplayed()
-{
-#if defined(ASTERISK) || !defined(WATCHDOG) || defined(LOG_TELEMETRY) || defined(LOG_BLUETOOTH) || defined(DEBUG_LATENCY)
-  return true;
-#endif
-
-  return globalData.unexpectedShutdown;
-}
-
 #include "module.h"
 
 extern CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;

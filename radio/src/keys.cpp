@@ -28,7 +28,7 @@
 #include "definitions.h"
 
 #include "timers_driver.h"
-#include "watchdog_driver.h"
+#include "hal/watchdog_driver.h"
 #include "hal/rotary_encoder.h"
 
 // required by watchdog macro..

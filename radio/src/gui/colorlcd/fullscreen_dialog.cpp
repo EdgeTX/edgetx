@@ -26,7 +26,7 @@
 #include "libopenui.h"
 #include "theme.h"
 
-#include "watchdog_driver.h"
+#include "hal/watchdog_driver.h"
 
 #if LCD_W > LCD_H
 constexpr uint32_t ALERT_FRAME_TOP =               50;
