@@ -182,3 +182,10 @@ const char * const debugTimerNames[DEBUG_TIMERS_COUNT] = {
 };
 
 #endif
+
+#if !defined(SIMU)
+  #include <version>
+  #if defined(_LIBCPP_VERSION)
+  void std::__libcpp_verbose_abort(char const* format, ...) { std::abort(); }
+  #endif
+#endif  

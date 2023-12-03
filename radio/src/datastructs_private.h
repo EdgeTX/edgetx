@@ -393,7 +393,7 @@ PACK(struct TelemetrySensor {
   uint8_t  persistent:1;
   uint8_t  onlyPositive:1;
   uint8_t  spare2:1 SKIP;
-  union {
+  PACK(union {
     NOBACKUP(PACK(struct {
       uint16_t ratio;
       int16_t  offset;
@@ -416,7 +416,7 @@ PACK(struct TelemetrySensor {
       uint16_t spare SKIP;
     }) dist);
     uint32_t param;
-  } NAME(cfg) FUNC(select_sensor_cfg);
+  }) NAME(cfg) FUNC(select_sensor_cfg);
   NOBACKUP(
     void init(const char *label, uint8_t unit=UNIT_RAW, uint8_t prec=0);
     void init(uint16_t id);

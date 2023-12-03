@@ -28,10 +28,10 @@
 #include "watchdog_driver.h"
 
 RTOS_TASK_HANDLE menusTaskId;
-RTOS_DEFINE_STACK(menusTaskId, menusStack, MENUS_STACK_SIZE);
+RTOS_DEFINE_STACK(menusStack, MENUS_STACK_SIZE);
 
 RTOS_TASK_HANDLE audioTaskId;
-RTOS_DEFINE_STACK(audioTaskId, audioStack, AUDIO_STACK_SIZE);
+RTOS_DEFINE_STACK(audioStack, AUDIO_STACK_SIZE);
 
 RTOS_MUTEX_HANDLE audioMutex;
 

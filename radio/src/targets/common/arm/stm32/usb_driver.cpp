@@ -123,7 +123,7 @@ void usbStop()
   USBD_DeInit(&USB_OTG_dev);
 }
 
-#if defined(USBJ_EX)
+#if defined(USBJ_EX) && !defined(BOOT)
 void usbJoystickRestart()
 {
   if (getSelectedUsbMode() != USB_JOYSTICK_MODE) return;

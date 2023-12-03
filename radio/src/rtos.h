@@ -81,33 +81,12 @@ extern "C++" {
       pthread_mutex_unlock(&mutex);
   }
 
-  template<int SIZE>
-  class TaskStack
-  {
-    public:
-      TaskStack()
-      {
-      }
+  #define RTOS_DEFINE_STACK(name, size)
+  #define RTOS_DECLARE_STACK(name, size)
 
-      void paint()
-      {
-      }
+  #define TASK_FUNCTION(task) void* task(void *)
 
-      uint32_t size()
-      {
-        return SIZE;
-      }
-
-      uint32_t available()
-      {
-        return SIZE / 2;
-      }
-  };
-  #define RTOS_DEFINE_STACK(taskHandle, name, size) TaskStack<size> name
-
-  #define TASK_FUNCTION(task)           void* task(void *)
-
-  inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const char * name)
+  inline void _RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const char * name)
   {
     pthread_create(&taskId, nullptr, task, nullptr);
 #ifdef __linux__
@@ -115,15 +94,8 @@ extern "C++" {
 #endif
   }
 
-  template <int SIZE>
-  inline void RTOS_CREATE_TASK(pthread_t &taskId, void *(*task)(void *),
-                               const char *name, TaskStack<SIZE> &,
-                               unsigned size = 0, unsigned priority = 0)
-  {
-    (void)size;
-    (void)priority;
-    RTOS_CREATE_TASK(taskId, task, name);
-  }
+  #define RTOS_CREATE_TASK(h,task,name,stack,stackSize,prio) \
+    _RTOS_CREATE_TASK(h,task,name)
 
 #define TASK_RETURN()                 return nullptr
 
@@ -201,8 +173,8 @@ extern "C++" {
         puxStackBuffer, &h->task_struct);
   }
 
-  #define RTOS_CREATE_TASK(h,task,name,stackStruct,stackSize,prio) \
-    _RTOS_CREATE_TASK(&h,task,name,stackStruct.stack,stackSize,prio)
+  #define RTOS_CREATE_TASK(h,task,name,stack,stackSize,prio) \
+    _RTOS_CREATE_TASK(&h,task,name,stack,stackSize,prio)
   
   static inline void _RTOS_CREATE_MUTEX(RTOS_MUTEX_HANDLE* h)
   {
@@ -227,32 +199,6 @@ extern "C++" {
 
   #define RTOS_UNLOCK_MUTEX(handle) _RTOS_UNLOCK_MUTEX(&handle)
 
-  static inline uint32_t getStackAvailable(void * address, uint32_t size)
-  {
-    uint32_t * array = (uint32_t *)address;
-    uint32_t i = 0;
-    while (i < size && array[i] == 0x55555555) {
-      i++;
-    }
-    return i;
-  }
-
-  extern int _estack;
-  extern int _main_stack_start;
-  static inline uint32_t stackSize()
-  {
-    return ((unsigned char *)&_estack - (unsigned char *)&_main_stack_start) / 4;
-  }
-
-  static inline uint32_t mainStackAvailable()
-  {
-    return getStackAvailable(&_main_stack_start, stackSize());
-  }
-
-  //#define RTOS_CREATE_FLAG(flag)        flag = CoCreateFlag(false, false)
-  //#define RTOS_SET_FLAG(flag)           (void)CoSetFlag(flag)
-  //#define RTOS_CLEAR_FLAG(flag)         (void)CoClearFlag(flag)
-
   // returns true if timeout
   static inline bool _RTOS_WAIT_FLAG(RTOS_FLAG_HANDLE* flag, uint32_t timeout)
   {
@@ -275,31 +221,6 @@ extern "C++" {
 
   #define RTOS_ISR_SET_FLAG(flag) _RTOS_ISR_SET_FLAG(&flag)
 
-#ifdef __cplusplus
-  template<int SIZE>
-  class TaskStack
-  {
-    public:
-      TaskStack(RTOS_TASK_HANDLE *h) {
-        this->h = h;
-      }
-
-      uint32_t size()
-      {
-        return SIZE * 4;
-      }
-
-      uint32_t available()
-      {
-        return uxTaskGetStackHighWaterMark(h->rtos_handle);
-      }
-
-      StackType_t stack[SIZE];
-    protected:
-      RTOS_TASK_HANDLE *h;
-  };
-#endif // __cplusplus
-
   static inline TickType_t RTOS_GET_TIME(void)
   {
     return xTaskGetTickCount();
@@ -311,7 +232,8 @@ extern "C++" {
   }
 
   // stack must be aligned to 8 bytes otherwise printf for %f does not work!
-  #define RTOS_DEFINE_STACK(taskHandle, name, size) TaskStack<size> __ALIGNED(8) name __CCMRAM (&taskHandle) 
+  #define RTOS_DEFINE_STACK(name, size) StackType_t __ALIGNED(8) name[size] __CCMRAM
+  #define RTOS_DECLARE_STACK(name, size) extern StackType_t name[size]
 
   #define TASK_FUNCTION(task)           void task(void *)
   #define TASK_RETURN()                 vTaskDelete(nullptr)

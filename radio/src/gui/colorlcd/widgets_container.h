@@ -62,10 +62,10 @@ struct ZonePersistentData {
 };
 
 template<int N, int O>
-struct WidgetsContainerPersistentData {
+PACK(struct WidgetsContainerPersistentData {
   ZonePersistentData   zones[N];
   ZoneOptionValueTyped options[O];
-};
+});
 
 #if !defined(YAML_GENERATOR)
 typedef WidgetsContainerPersistentData<MAX_TOPBAR_ZONES, MAX_TOPBAR_OPTIONS> TopBarPersistentData;

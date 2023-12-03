@@ -29,7 +29,7 @@
 #include "watchdog_driver.h"
 
 RTOS_TASK_HANDLE mixerTaskId;
-RTOS_DEFINE_STACK(mixerTaskId, mixerStack, MIXER_STACK_SIZE);
+RTOS_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
 
 // mixer hold this mutex while computing
 // channels and sending them out

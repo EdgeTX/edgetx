@@ -20,22 +20,22 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
 #include "debug.h"
 
-#undef errno
-extern int errno;
-extern int _end;
-extern int _heap_end;
+#if !defined(__PICOLIBC__)
+extern char __heap_start[];
+extern char __heap_end[];
 
-unsigned char * heap = (unsigned char *)&_end;
+static char* heap = __heap_start;
 
 extern caddr_t _sbrk(int nbytes)
 {
-  if (heap + nbytes < (unsigned char *)&_heap_end) {
-    unsigned char * prev_heap = heap;
+  if (heap + nbytes < __heap_end) {
+    char* prev_heap = heap;
     heap += nbytes;
     return (caddr_t)prev_heap;
   }
@@ -44,11 +44,44 @@ extern caddr_t _sbrk(int nbytes)
     return ((void *)-1);
   }
 }
+#endif
 
 #if defined(THREADSAFE_MALLOC) && !defined(BOOT)
 
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/task.h>
+
+#if defined(__PICOLIBC__)
+
+#define _LOCK_T void*
+
+_LOCK_T __lock___libc_recursive_mutex;
+
+void __retarget_lock_init(_LOCK_T* lock) {}
+void __retarget_lock_init_recursive(_LOCK_T* lock) {}
+
+void __retarget_lock_close(_LOCK_T lock) {}
+void __retarget_lock_close_recursive(_LOCK_T lock) {}
+
+void __retarget_lock_acquire(_LOCK_T lock) {}
+
+void __retarget_lock_acquire_recursive(_LOCK_T lock)
+{
+  (void)(lock);
+  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
+    vTaskSuspendAll();
+}
+
+void __retarget_lock_release(_LOCK_T lock) {}
+
+void __retarget_lock_release_recursive(_LOCK_T lock)
+{
+  (void)(lock);
+  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
+    (void)xTaskResumeAll();  
+}
+
+#else // __PICOLIBC__
 
 void __malloc_lock(struct _reent *r)
 {
@@ -63,13 +96,14 @@ void __malloc_unlock(struct _reent *r)
   if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
     (void)xTaskResumeAll();
 };
-#endif
+
+#endif // __PICOLIBC__
+
+#endif // THREADSAFE_MALLOC && !BOOT
 
 #if !defined(SEMIHOSTING)
-extern int _gettimeofday(void *p1, void *p2)
-{
-  return 0;
-}
+extern int _gettimeofday(void *p1, void *p2) { return 0; }
+extern int gettimeofday(void *p1, void *p2) { return 0; }
 
 extern int _link(char *old, char *nw)
 {
@@ -117,10 +151,29 @@ extern int _write(int file, char *ptr, int len)
   return 0;
 }
 
-extern int _getpid()
+extern int _getpid() { return -1; }
+
+#if defined(__PICOLIBC__)
+
+#include <stdio.h>
+
+static int fake_putc(char c, FILE *file)
 {
-  return -1;
+  (void) file;
+  return c;
 }
+
+static const FILE __stdio = FDEV_SETUP_STREAM(fake_putc,
+                                              NULL,
+                                              NULL,
+                                              _FDEV_SETUP_READ);
+
+FILE *const stdin = (FILE *const)&__stdio;
+__strong_reference(stdin, stdout);
+__strong_reference(stdin, stderr);
+
+#endif // USE_PICOLIBC
+
 #endif
 
 extern void _exit(int status)

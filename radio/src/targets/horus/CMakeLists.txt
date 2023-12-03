@@ -27,14 +27,10 @@ set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(ROTARY_ENCODER YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
 
-if(BOOTLOADER)
-  set(LINKER_SCRIPT targets/horus/stm32f4_flash_bootloader.ld)
-else()
-  set(LINKER_SCRIPT targets/horus/stm32f4_flash.ld)
-endif()
+set(CPU_TYPE_FULL STM32F429xI)
+set(TARGET_LINKER_DIR stm32f429_sdram)
 
 # for size report script
-set(CPU_TYPE_FULL STM32F429xI)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM2=8192")
 
 add_definitions(-DPCBFRSKY)

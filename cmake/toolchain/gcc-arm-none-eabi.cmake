@@ -31,16 +31,20 @@ set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 set(CMAKE_EXECUTABLE_SUFFIX_C ".elf")
 set(CMAKE_EXECUTABLE_SUFFIX_CXX ".elf")
 
+# Optimize for code size by default
+set(C_FLAGS_INIT "-Os -Wall -fdata-sections -ffunction-sections -fomit-frame-pointer -fno-asynchronous-unwind-tables")
+set(CXX_FLAGS_INIT "${C_FLAGS_INIT} -fno-rtti -fno-exceptions -fno-unwind-tables -fno-threadsafe-statics")
+
 # Default C compiler flags
-set(CMAKE_C_FLAGS_DEBUG_INIT "-g3 -Og -Wall -pedantic -DDEBUG")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG_INIT}" CACHE STRING "" FORCE)
-set(CMAKE_C_FLAGS_RELEASE_INIT "-O3 -Wall")
+set(CMAKE_C_FLAGS_INIT "${C_FLAGS_INIT} -g3")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_INIT}" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE_INIT "${C_FLAGS_INIT}")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE_INIT}" CACHE STRING "" FORCE)
 
 # Default C++ compiler flags
-set(CMAKE_CXX_FLAGS_DEBUG_INIT "-g3 -Og -Wall -pedantic -DDEBUG")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG_INIT}" CACHE STRING "" FORCE)
-set(CMAKE_CXX_FLAGS_RELEASE_INIT "-O3 -Wall")
+set(CMAKE_CXX_FLAGS_INIT "${CXX_FLAGS_INIT}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_INIT}" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_RELEASE_INIT "${CXX_FLAGS_INIT}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE_INIT}" CACHE STRING "" FORCE)
 
 # customize linker command

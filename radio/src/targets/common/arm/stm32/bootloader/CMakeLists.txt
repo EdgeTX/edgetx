@@ -41,7 +41,6 @@ set(BOOTLOADER_SRC
   ../stm32_gpio_driver.cpp
   ../stm32_timer.cpp
   ../stm32_dma.cpp
-  init.c
   boot.cpp
   bin_files.cpp
   )
@@ -141,12 +140,13 @@ remove_definitions(-DWATCHDOG)
 
 add_definitions(-DBOOT)
 
-set(CMAKE_EXE_LINKER_FLAGS "-mcpu=${MCU} -mthumb -nostartfiles -lm -T${RADIO_SRC_DIR}/targets/${TARGET_DIR}/stm32_ramboot.ld -Wl,-Map=bootloader.map,--cref,--no-warn-mismatch,--gc-sections")
-# use smaller nano libc
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
-
 add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})
 add_dependencies(bootloader ${BITMAPS_TARGET})
+
+target_link_options(bootloader PRIVATE
+  -lm -T${LINKER_DIR}/bootloader.ld
+  -Wl,-Map=bootloader.map,--cref,--no-warn-mismatch,--gc-sections
+)
 
 target_include_directories(bootloader
   PRIVATE ${CMAKE_CURRENT_BINARY_DIR}

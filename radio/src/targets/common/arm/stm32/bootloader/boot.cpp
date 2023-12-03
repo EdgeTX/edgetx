@@ -575,6 +575,6 @@ int  bootloaderMain()
   return 0;
 }
 
-#if !defined(SIMU) && (defined(PCBHORUS) || defined(PCBNV14))
-void *__dso_handle = nullptr;
-#endif
+// #if !defined(SIMU) && (defined(PCBHORUS) || defined(PCBNV14))
+// void *__dso_handle = nullptr;
+// #endif

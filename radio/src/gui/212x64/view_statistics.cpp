@@ -186,15 +186,15 @@ void menuStatisticsDebug(event_t event)
   lcdDrawText(lcdLastRightPos, y, STR_MS);
   y += FH;
 
-  lcdDrawTextAlignedLeft(y, STR_FREE_STACK);
-  lcdDrawText(MENU_DEBUG_COL1_OFS, y+1, "[M]", SMLSIZE);
-  lcdDrawNumber(lcdLastRightPos, y, menusStack.available(), LEFT);
-  lcdDrawText(lcdLastRightPos+2, y+1, "[X]", SMLSIZE);
-  lcdDrawNumber(lcdLastRightPos, y, mixerStack.available(), LEFT);
-  lcdDrawText(lcdLastRightPos+2, y+1, "[A]", SMLSIZE);
-  lcdDrawNumber(lcdLastRightPos, y, audioStack.available(), LEFT);
-  lcdDrawText(lcdLastRightPos+2, y+1, "[I]", SMLSIZE);
-  lcdDrawNumber(lcdLastRightPos, y, mainStackAvailable(), LEFT);
+  // lcdDrawTextAlignedLeft(y, STR_FREE_STACK);
+  // lcdDrawText(MENU_DEBUG_COL1_OFS, y+1, "[M]", SMLSIZE);
+  // lcdDrawNumber(lcdLastRightPos, y, menusStack.available(), LEFT);
+  // lcdDrawText(lcdLastRightPos+2, y+1, "[X]", SMLSIZE);
+  // lcdDrawNumber(lcdLastRightPos, y, mixerStack.available(), LEFT);
+  // lcdDrawText(lcdLastRightPos+2, y+1, "[A]", SMLSIZE);
+  // lcdDrawNumber(lcdLastRightPos, y, audioStack.available(), LEFT);
+  // lcdDrawText(lcdLastRightPos+2, y+1, "[I]", SMLSIZE);
+  // lcdDrawNumber(lcdLastRightPos, y, mainStackAvailable(), LEFT);
   y += FH;
 
 #if defined(DEBUG_LATENCY)
