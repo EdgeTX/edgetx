@@ -304,6 +304,11 @@ Profile::Profile() : CompStoreObj(), index(-1)
   CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
+Profile::Profile(const Profile & rhs) : CompStoreObj(), index(-1)
+{
+  *this = rhs;
+}
+
 // The default copy operator can not be used since the index variable would be destroyed
 Profile & Profile::operator= (const Profile & rhs)
 {
@@ -663,8 +668,8 @@ QMap<int, QString> AppData::getActiveProfiles() const
 
 void AppData::moveCurrentProfileToTop()
 {
-  if (m_sessionId > 0) {
-    tmpProfile = g.profile[m_sessionId];
+  if (g.sortProfiles() && m_sessionId > 0) {
+    Profile tmpProfile(g.profile[m_sessionId]);
     for (int i = m_sessionId; i > 0; i -= 1) {
       g.profile[i] = g.profile[i - 1];
     }

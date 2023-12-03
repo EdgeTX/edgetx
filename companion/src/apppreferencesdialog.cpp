@@ -76,6 +76,7 @@ void AppPreferencesDialog::accept()
   Profile & profile = g.currentProfile();
 
   g.showSplash(ui->showSplash->isChecked());
+  g.sortProfiles(ui->sortProfiles->isChecked());
   g.promptProfile(ui->chkPromptProfile->isChecked());
   g.simuSW(ui->simuSW->isChecked());
   g.disableJoystickWarning(ui->joystickWarningCB->isChecked());
@@ -232,6 +233,7 @@ void AppPreferencesDialog::initSettings()
   }
 
   ui->showSplash->setChecked(g.showSplash());
+  ui->sortProfiles->setChecked(g.sortProfiles());
   ui->chkPromptProfile->setChecked(g.promptProfile());
   ui->historySize->setValue(g.historySize());
   ui->backLightColor->setCurrentIndex(g.backLight());

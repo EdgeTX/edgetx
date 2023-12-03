@@ -472,6 +472,7 @@ class Profile: public CompStoreObj
 
   protected:
     explicit Profile();
+    explicit Profile(const Profile & rhs);
     void setIndex(int idx) { index = idx; }
     inline QString propertyGroup() const override { return QStringLiteral("Profiles"); }
     inline QString settingsPath()  const override { return QString("%1/profile%2/").arg(propertyGroup()).arg(index); }
@@ -706,7 +707,6 @@ class AppData: public CompStoreObj
     bool exportSettings(QSettings * toSettings, bool clearDestination = true);
     bool exportSettingsToFile(const QString & expFile, QString & resultMsg);
 
-    Profile    tmpProfile;
     Profile    profile[MAX_PROFILES];
     JStickData joystick[MAX_JS_AXES];
     JButtonData jsButton[MAX_JS_BUTTONS];
@@ -794,6 +794,7 @@ class AppData: public CompStoreObj
 
     PROPERTY4(bool, jsSupport,            "js_support",               false)
     PROPERTY4(bool, showSplash,           "show_splash",              true)
+    PROPERTY4(bool, sortProfiles,         "sort_profiles",            false)
     PROPERTY4(bool, snapToClpbrd,         "snapshot_to_clipboard",    false)
 
     PROPERTY(UpdateCheckFreq, updateCheckFreq, UPDATE_CHECK_MANUAL)
