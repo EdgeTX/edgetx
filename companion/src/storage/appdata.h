@@ -685,6 +685,8 @@ class AppData: public CompStoreObj
     const Profile & getProfile(int index) const;
     //! List of all active profiles mapped by index.
     QMap<int, QString> getActiveProfiles() const;
+    // Move the currently selected profile to the top of the list
+    void moveCurrentProfileToTop();
 
     //! Get a modifiable (non-const) reference to the ComponentData at \a index. Returns component[0] if \a index is invalid.
     ComponentData & getComponent(int index);
@@ -704,6 +706,7 @@ class AppData: public CompStoreObj
     bool exportSettings(QSettings * toSettings, bool clearDestination = true);
     bool exportSettingsToFile(const QString & expFile, QString & resultMsg);
 
+    Profile    tmpProfile;
     Profile    profile[MAX_PROFILES];
     JStickData joystick[MAX_JS_AXES];
     JButtonData jsButton[MAX_JS_BUTTONS];

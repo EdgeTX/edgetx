@@ -661,6 +661,18 @@ QMap<int, QString> AppData::getActiveProfiles() const
   return active;
 }
 
+void AppData::moveCurrentProfileToTop()
+{
+  if (m_sessionId > 0) {
+    tmpProfile = g.profile[m_sessionId];
+    for (int i = m_sessionId; i > 0; i -= 1) {
+      g.profile[i] = g.profile[i - 1];
+    }
+    g.profile[0] = tmpProfile;
+    id(0);
+  }
+}
+
 void AppData::convertSettings(QSettings & settings)
 {
   quint32 savedVer = settings.value(SETTINGS_VERSION_KEY, 0).toUInt();

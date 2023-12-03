@@ -1248,6 +1248,7 @@ void MainWindow::onChangeWindowAction(QAction * act)
 
 void MainWindow::onCurrentProfileChanged()
 {
+  g.moveCurrentProfileToTop();
   Firmware::setCurrentVariant(Firmware::getFirmwareForId(g.currentProfile().fwType()));
   emit firmwareChanged();
   QApplication::clipboard()->clear();
@@ -1259,8 +1260,10 @@ int MainWindow::newProfile(bool loadProfile)
   int i;
   for (i=0; i < MAX_PROFILES && g.profile[i].existsOnDisk(); i++)
     ;
-  if (i == MAX_PROFILES)  //Failed to find free slot
+  if (i == MAX_PROFILES) {  //Failed to find free slot
+    QMessageBox::warning(this, tr("Cannot add profile"), tr("There is no space left to add a new profile. Delete an exsting profile before adding a new one."));
     return -1;
+  }
 
   Firmware *newfw = Firmware::getDefaultVariant();
   g.profile[i].init();
