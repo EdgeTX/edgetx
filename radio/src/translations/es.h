@@ -98,10 +98,10 @@
 #define TR_SF_RGBLEDS                  "RGB leds"
  
 #define TR_SOUND                       "Oir sonido"
-#define TR_PLAY_TRACK                  "Oir pista"
+#define TR_PLAY_TRACK                  TR("Ply Trk", "Oir pista")
 #define TR_PLAY_VALUE                  "Oir valor"
 #define TR_SF_HAPTIC                   "Haptic"
-#define TR_SF_PLAY_SCRIPT              "Lua Script"
+#define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua Script")
 #define TR_SF_BG_MUSIC                 "BgMúsica"
 #define TR_SF_BG_MUSIC_PAUSE           "BgMúsica||"
 #define TR_SF_LOGS                     "SD Logs"

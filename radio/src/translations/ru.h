@@ -98,10 +98,10 @@
 #define TR_SF_RGBLEDS                  "RGB"
  
 #define TR_SOUND                       "Воспр звук"
-#define TR_PLAY_TRACK                  "Воспр трек"
+#define TR_PLAY_TRACK                  TR("Ply Trk","Воспр трек")
 #define TR_PLAY_VALUE                  TR("Play Val","Play Value")
 #define TR_SF_HAPTIC                   "Вибро"
-#define TR_SF_PLAY_SCRIPT              "Lua скрипт"
+#define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua скрипт")
 #define TR_SF_BG_MUSIC                 "Муз фон"
 #define TR_SF_BG_MUSIC_PAUSE           "Муз ||"
 #define TR_SF_LOGS                     "SD логи"

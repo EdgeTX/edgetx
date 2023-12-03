@@ -107,10 +107,10 @@
 #define TR_SF_RGBLEDS                  "RGB leds"
  
 #define TR_SOUND                       "Spela ljud"
-#define TR_PLAY_TRACK                  "Spela upp"
+#define TR_PLAY_TRACK                  TR("Ply Trk", "Spela upp")
 #define TR_PLAY_VALUE                  "Säg värdet"
 #define TR_SF_HAPTIC                   "Haptisk"
-#define TR_SF_PLAY_SCRIPT              "Lua-skript"
+#define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua-skript")
 #define TR_SF_BG_MUSIC                 "Musik"
 #define TR_SF_BG_MUSIC_PAUSE           "Pausa Musik"
 #define TR_SF_LOGS                     "Logga data"

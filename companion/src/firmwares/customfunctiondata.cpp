@@ -229,16 +229,8 @@ QString CustomFunctionData::repeatToString(const int value, const bool abbrev)
 
 QString CustomFunctionData::enabledToString() const
 {
-  if ((func >= FuncOverrideCH1 && func <= FuncOverrideCHLast) ||
-      (func >= FuncAdjustGV1 && func <= FuncAdjustGVLast) ||
-      (func == FuncReset) ||
-      (func >= FuncSetTimer1 && func <= FuncSetTimerLast) ||
-      (func == FuncVolume) ||
-      (func == FuncBacklight) ||
-      (func <= FuncInstantTrim)) {
-    if (!enabled) {
-      return tr("DISABLED");
-    }
+  if (!enabled) {
+    return tr("DISABLED");
   }
   return "";
 }

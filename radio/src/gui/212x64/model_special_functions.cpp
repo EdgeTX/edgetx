@@ -24,7 +24,7 @@
 #define MODEL_SPECIAL_FUNC_1ST_COLUMN          (4*FW+2)
 #define MODEL_SPECIAL_FUNC_2ND_COLUMN          (8*FW+2)
 #define MODEL_SPECIAL_FUNC_3RD_COLUMN          (21*FW)
-#define MODEL_SPECIAL_FUNC_4TH_COLUMN          (33*FW-3)
+#define MODEL_SPECIAL_FUNC_4TH_COLUMN          (31*FW-3)
 #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF    (34*FW-3)
 
 #define SD_LOGS_PERIOD_MIN      1     // 0.1s  fastest period 
@@ -145,8 +145,9 @@ enum CustomFunctionsItems {
   ITEM_CUSTOM_FUNCTIONS_PARAM1,
   ITEM_CUSTOM_FUNCTIONS_PARAM2,
   ITEM_CUSTOM_FUNCTIONS_REPEAT,
+  ITEM_CUSTOM_FUNCTIONS_ENABLE,
   ITEM_CUSTOM_FUNCTIONS_COUNT,
-  ITEM_CUSTOM_FUNCTIONS_LAST = ITEM_CUSTOM_FUNCTIONS_COUNT-1
+  ITEM_CUSTOM_FUNCTIONS_LAST = ITEM_CUSTOM_FUNCTIONS_COUNT - 1
 };
 
 void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomFunctionsContext * functionsContext)
@@ -181,11 +182,12 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 
     CustomFunctionData * cfn = &functions[k];
     uint8_t func = CFN_FUNC(cfn);
-    for (uint8_t j=0; j<5; j++) {
+    for (uint8_t j=0; j<6; j++) {
       uint8_t attr = ((sub==k && menuHorizontalPosition==j) ? ((s_editMode>0) ? BLINK|INVERS : INVERS) : 0);
       uint8_t active = (attr && s_editMode>0);
       switch (j) {
         case ITEM_CUSTOM_FUNCTIONS_SWITCH:
+          if(CFN_SWITCH(cfn) == SWSRC_NONE) CFN_ACTIVE(cfn) = 0; // Disable new function by default
           drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, CFN_SWITCH(cfn), attr | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
           if (active || AUTOSWITCH_ENTER_LONG()) CHECK_INCDEC_SWITCH(event, CFN_SWITCH(cfn), SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
           if (func == FUNC_OVERRIDE_CHANNEL && functions != g_model.customFn) {
@@ -411,11 +413,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
         }
 
         case ITEM_CUSTOM_FUNCTIONS_REPEAT:
-          if (HAS_ENABLE_PARAM(func)) {
-            drawCheckBox(MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF, y, CFN_ACTIVE(cfn), attr);
-            if (active) CFN_ACTIVE(cfn) = checkIncDec(event, CFN_ACTIVE(cfn), 0, 1, eeFlags);
-          }
-          else if (HAS_REPEAT_PARAM(func)) {
+          if (HAS_REPEAT_PARAM(func)) {
             if (func == FUNC_PLAY_SCRIPT) {
               lcdDrawText(MODEL_SPECIAL_FUNC_4TH_COLUMN+2, y, (CFN_PLAY_REPEAT(cfn) == 0) ? "On" : "1x", attr);
               if (active) CFN_PLAY_REPEAT(cfn) = checkIncDec(event, CFN_PLAY_REPEAT(cfn), 0, 1, eeFlags);
@@ -439,6 +437,13 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             repeatLastCursorMove(event);
           }
           break;
+
+        case ITEM_CUSTOM_FUNCTIONS_ENABLE:
+          drawCheckBox(MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF, y, CFN_ACTIVE(cfn),
+                       attr);
+          if (active)
+            CFN_ACTIVE(cfn) = checkIncDec(event, CFN_ACTIVE(cfn), 0, 1, eeFlags);
+          break;
       }
     }
   }
@@ -446,6 +451,6 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 
 void menuModelSpecialFunctions(event_t event)
 {
-  MENU(STR_MENUCUSTOMFUNC, menuTabModel, MENU_MODEL_SPECIAL_FUNCTIONS, MAX_SPECIAL_FUNCTIONS, { NAVIGATION_LINE_BY_LINE|4/*repeated*/ });
+  MENU(STR_MENUCUSTOMFUNC, menuTabModel, MENU_MODEL_SPECIAL_FUNCTIONS, MAX_SPECIAL_FUNCTIONS, { NAVIGATION_LINE_BY_LINE|5/*repeated*/ });
   return menuSpecialFunctions(event, g_model.customFn, &modelFunctionsContext);
 }

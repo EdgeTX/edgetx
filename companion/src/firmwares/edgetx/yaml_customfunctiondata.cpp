@@ -23,15 +23,6 @@
 #include "yaml_rawsource.h"
 #include "eeprominterface.h"
 
-static bool fnHasEnable(AssignFunc fn)
-{
-  return (fn <= FuncInstantTrim)
-    || (fn >= FuncReset && fn <= FuncSetTimerLast)
-    || (fn >= FuncAdjustGV1 && fn <= FuncBindExternalModule)
-    || (fn == FuncVolume)
-    || (fn == FuncBacklight);
-}
-
 static bool fnHasRepeat(AssignFunc fn)
 {
   return (fn == FuncPlayPrompt)
@@ -226,15 +217,15 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
     break;
   }
 
-  if (fnHasEnable(rhs.func)) {
-    if (add_comma) {
-      def += ",";
-    }
-    def += std::to_string((int)rhs.enabled);
-  } else if(fnHasRepeat(rhs.func)) {
-    if (add_comma) {
-      def += ",";
-    }
+  if (add_comma) {
+    def += ",";
+  }
+
+  def += std::to_string((int)rhs.enabled);
+
+  if(fnHasRepeat(rhs.func)) {
+    def += ",";
+
     if (rhs.func == FuncPlayScript || rhs.func == FuncRGBLed) {
       def += ((rhs.repeatParam == 0) ? "On" : "1x");
     } else if (rhs.repeatParam == 0) {
@@ -385,13 +376,27 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     def.ignore();
   }
 
-  if (fnHasEnable(rhs.func)) {
-    int en = 0;
-    def >> en;
-    rhs.enabled = en;
-  } else if(fnHasRepeat(rhs.func)) {
-    std::string repeat;
-    getline(def, repeat);
+  // Need to handle older YAML files where only one of enabled/repeat was present
+  std::string en, repeat;
+  getline(def, en, ',');
+  getline(def, repeat);
+
+  if (repeat.empty()) {
+    // Only one value left to parse
+    if (fnHasRepeat(rhs.func)) {
+      // Assume it is repeat and set enabled to true
+      repeat = en;
+      rhs.enabled = 1;
+    } else {
+      // Func does not have repeat
+      rhs.enabled = en[0] == '1' ? 1 : 0;
+    }
+  } else {
+    // Two values - first is 'enabled' flag
+    rhs.enabled = en[0] == '1' ? 1 : 0;
+  }
+
+  if(fnHasRepeat(rhs.func)) {
     if (rhs.func == FuncPlayScript || rhs.func == FuncRGBLed) {
       rhs.repeatParam = (repeat == "1x") ? 1 : 0;
     } else if (repeat == "1x") {

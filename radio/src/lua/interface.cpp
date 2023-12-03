@@ -1129,15 +1129,16 @@ static bool resumeLua(bool init, bool allowLcdUsage)
             functionsContext = &globalFunctionsContext;
           }
 
-          tmr10ms_t tmr10ms = get_tmr10ms();
-
-          if (getSwitch(fn->swtch) && (functionsContext->lastFunctionTime[idx] == 0 || CFN_PLAY_REPEAT(fn) == 0)) {
-            lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.run);
-            functionsContext->lastFunctionTime[idx] = tmr10ms;
-          }
-          else {
-            if (sid.background == LUA_NOREF) continue;
-            lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.background);
+          if (CFN_ACTIVE(fn)) {
+            tmr10ms_t tmr10ms = get_tmr10ms();
+            if (getSwitch(fn->swtch) && (functionsContext->lastFunctionTime[idx] == 0 || CFN_PLAY_REPEAT(fn) == 0)) {
+              lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.run);
+              functionsContext->lastFunctionTime[idx] = tmr10ms;
+            }
+            else {
+              if (sid.background == LUA_NOREF) continue;
+              lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.background);
+            }
           }
         }
 #if defined(PCBTARANIS)

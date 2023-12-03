@@ -101,10 +101,10 @@
 #define TR_SF_RGBLEDS                  "RGB leds"
  
 #define TR_SOUND                       "Suona"
-#define TR_PLAY_TRACK                  "Suona Traccia"
+#define TR_PLAY_TRACK                  TR("Ply Trk", "Suona Traccia")
 #define TR_PLAY_VALUE                  TR("LeggiVal","Leggi Valore")
 #define TR_SF_HAPTIC                   "Vibrazione"
-#define TR_SF_PLAY_SCRIPT              "Script Lua"
+#define TR_SF_PLAY_SCRIPT              TR("Lua", "Script Lua")
 #define TR_SF_BG_MUSIC                 "Musica Sf"
 #define TR_SF_BG_MUSIC_PAUSE           "Musica Sf ||"
 #define TR_SF_LOGS                     "Logs SDCard"

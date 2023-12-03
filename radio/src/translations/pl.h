@@ -97,10 +97,10 @@
 #define TR_SF_RGBLEDS         "RGB leds"
  
 #define TR_SOUND              "GrajDźwięk"
-#define TR_PLAY_TRACK         "GrajŚcieżk"
+#define TR_PLAY_TRACK         TR("Ply Trk", "GrajŚcieżk")
 #define TR_PLAY_VALUE         TR("Graj Wart","GrajWartoś")
 #define TR_SF_HAPTIC          "Wibracje"
-#define TR_SF_PLAY_SCRIPT     "SkryptyLua"
+#define TR_SF_PLAY_SCRIPT     TR("Lua", "SkryptyLua")
 #define TR_SF_BG_MUSIC        "Muz. tła"
 #define TR_SF_BG_MUSIC_PAUSE  "Muz. tła ||"
 #define TR_SF_LOGS            "Logi->SD"

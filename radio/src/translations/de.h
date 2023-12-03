@@ -100,10 +100,10 @@
 #define TR_SF_RGBLEDS                  "RGB leds"
 
 #define TR_SOUND                       "Spiel Töne"
-#define TR_PLAY_TRACK                  "Sag Text"
+#define TR_PLAY_TRACK                  TR("Ply Trk", "Sag Text")
 #define TR_PLAY_VALUE                  "Sag Wert"
 #define TR_SF_HAPTIC                   "Haptik"
-#define TR_SF_PLAY_SCRIPT              "Lua Skript"
+#define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua Skript")
 #define TR_SF_BG_MUSIC                 "StartMusik"
 #define TR_SF_BG_MUSIC_PAUSE           "Stop Musik"
 #define TR_SF_LOGS                     "SD-Aufz."

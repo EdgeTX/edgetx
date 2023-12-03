@@ -114,7 +114,7 @@ bool isRepeatDelayElapsed(const CustomFunctionData * functions, CustomFunctionsC
 {
   const CustomFunctionData * cfn = &functions[index];
   tmr10ms_t tmr10ms = get_tmr10ms();
-  uint8_t repeatParam = CFN_PLAY_REPEAT(cfn);
+  int8_t repeatParam = CFN_PLAY_REPEAT(cfn);
   if (!IS_SILENCE_PERIOD_ELAPSED() && repeatParam == CFN_PLAY_REPEAT_NOSTART) {
     functionsContext.lastFunctionTime[index] = tmr10ms;
   }
@@ -156,12 +156,9 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
     if (swtch) {
       MASK_CFN_TYPE switch_mask = ((MASK_CFN_TYPE)1 << i);
 
-      bool active = getSwitch(
-          swtch, IS_PLAY_FUNC(CFN_FUNC(cfn)) ? GETSWITCH_MIDPOS_DELAY : 0);
-
-      if (HAS_ENABLE_PARAM(CFN_FUNC(cfn))) {
-        active &= (bool)CFN_ACTIVE(cfn);
-      }
+      bool active = getSwitch(swtch, IS_PLAY_FUNC(CFN_FUNC(cfn)) ? GETSWITCH_MIDPOS_DELAY : 0);
+      if (CFN_ACTIVE(cfn) == 0)
+        active = false;
 
       if (active) {
         switch (CFN_FUNC(cfn)) {

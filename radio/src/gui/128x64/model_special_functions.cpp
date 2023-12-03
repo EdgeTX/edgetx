@@ -21,14 +21,17 @@
 
 #include "opentx.h"
 
-#define MODEL_SPECIAL_FUNC_1ST_COLUMN          (0)
-#define MODEL_SPECIAL_FUNC_2ND_COLUMN          (4*FW-1)
-#define MODEL_SPECIAL_FUNC_3RD_COLUMN          (15*FW-3)
-#define MODEL_SPECIAL_FUNC_4TH_COLUMN          (20*FW)
+#define MODEL_SPECIAL_FUNC_1ST_COLUMN           (0)
+#define MODEL_SPECIAL_FUNC_2ND_COLUMN           (4*FW-1)
+#define MODEL_SPECIAL_FUNC_3RD_COLUMN           (15*FW-3)
 #if defined(GRAPHICS)
-  #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF  (20*FW)
+  #define MODEL_SPECIAL_FUNC_4TH_COLUMN         (19 * FW - 3)
+  #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF   (19 * FW - 3)
+  #define MODEL_SPECIAL_FUNC_5TH_COLUMN_ONOFF   (20 * FW + 1)
 #else
-  #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF  (18*FW+2)
+  #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF   (17 * FW)
+  #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF   (17 * FW)
+  #define MODEL_SPECIAL_FUNC_5TH_COLUMN_ONOFF   (18 * FW + 3)
 #endif
 
 #if defined(SDCARD)
@@ -186,12 +189,13 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 
     CustomFunctionData * cfn = &functions[k];
     uint8_t func = CFN_FUNC(cfn);
-    for (uint8_t j=0; j<5; j++) {
+    for (uint8_t j=0; j<6; j++) {
       uint8_t attr = ((sub==k && menuHorizontalPosition==j) ? ((s_editMode>0) ? BLINK|INVERS : INVERS) : 0);
       uint8_t active = (attr && s_editMode > 0);
       switch (j) {
         case 0:
           if (sub==k && menuHorizontalPosition < 1 && CFN_SWITCH(cfn) == SWSRC_NONE) {
+            CFN_ACTIVE(cfn) = 0; // Default is disabled
             drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, CFN_SWITCH(cfn), attr | INVERS | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
             if (active) CHECK_INCDEC_SWITCH(event, CFN_SWITCH(cfn), SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
           }
@@ -213,7 +217,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             }
           }
           else {
-            j = 4; // skip other fields
+            j = 5; // skip other fields
             if (sub==k && menuHorizontalPosition > 0) {
               repeatLastCursorMove(event);
             }
@@ -308,9 +312,14 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #endif
 #if defined(SDCARD)
-          else if (func == FUNC_PLAY_TRACK || func == FUNC_BACKGND_MUSIC || func == FUNC_PLAY_SCRIPT || func==FUNC_RGB_LED) {
+          else if (func == FUNC_PLAY_TRACK || func == FUNC_BACKGND_MUSIC || func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED) {
+            coord_t x = MODEL_SPECIAL_FUNC_3RD_COLUMN - 6;
+            if (func == FUNC_PLAY_SCRIPT)
+              x = x - 5 * FW;
+            else if (func == FUNC_PLAY_TRACK)
+              x = x - 2 * FW;
             if (ZEXIST(cfn->play.name))
-              lcdDrawSizedText(MODEL_SPECIAL_FUNC_3RD_COLUMN-6, y, cfn->play.name, sizeof(cfn->play.name), attr);
+              lcdDrawSizedText(x, y, cfn->play.name, sizeof(cfn->play.name), attr);
             else
               lcdDrawTextAtIndex(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_VCSWFUNC, 0, attr);
             if (active && event==EVT_KEY_BREAK(KEY_ENTER)) {
@@ -439,11 +448,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
         }
 
         case 4:
-          if (HAS_ENABLE_PARAM(func)) {
-            drawCheckBox(MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF, y, CFN_ACTIVE(cfn), attr);
-            if (active) CFN_ACTIVE(cfn) = checkIncDec(event, CFN_ACTIVE(cfn), 0, 1, eeFlags);
-          }
-          else if (HAS_REPEAT_PARAM(func)) {
+          if (HAS_REPEAT_PARAM(func)) {
             if (func == FUNC_PLAY_SCRIPT) {
               lcdDrawText(MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF-3, y, (CFN_PLAY_REPEAT(cfn) == 0) ? "On" : "1x", attr);
               if (active) CFN_PLAY_REPEAT(cfn) = checkIncDec(event, CFN_PLAY_REPEAT(cfn), 0, 1, eeFlags);
@@ -465,6 +470,11 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             repeatLastCursorMove(event);
           }
           break;
+        
+        case 5:
+            drawCheckBox(MODEL_SPECIAL_FUNC_5TH_COLUMN_ONOFF, y, CFN_ACTIVE(cfn), attr);
+            if (active) CFN_ACTIVE(cfn) = checkIncDec(event, CFN_ACTIVE(cfn), 0, 1, eeFlags);      
+            break;
       }
     }
 #if defined(NAVIGATION_X7)
@@ -483,7 +493,7 @@ void menuModelSpecialFunctions(event_t event)
     menuHorizontalPosition = 0;
   }
 #endif
-  MENU(STR_MENUCUSTOMFUNC, menuTabModel, MENU_MODEL_SPECIAL_FUNCTIONS, HEADER_LINE+MAX_SPECIAL_FUNCTIONS, { HEADER_LINE_COLUMNS NAVIGATION_LINE_BY_LINE|4/*repeated*/ });
+  MENU(STR_MENUCUSTOMFUNC, menuTabModel, MENU_MODEL_SPECIAL_FUNCTIONS, HEADER_LINE+MAX_SPECIAL_FUNCTIONS, { HEADER_LINE_COLUMNS NAVIGATION_LINE_BY_LINE|5/*repeated*/ });
 
   menuSpecialFunctions(event, g_model.customFn, &modelFunctionsContext);
 
