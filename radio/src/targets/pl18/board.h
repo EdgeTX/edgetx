@@ -28,8 +28,7 @@
 #include "board_common.h"
 #include "hal.h"
 #include "hal/serial_port.h"
-
-#include "watchdog_driver.h"
+#include "hal/watchdog_driver.h"
 
 #define FLASHSIZE                       0x200000
 #define BOOTLOADER_SIZE                 0x20000
@@ -100,17 +99,6 @@ void SDRAM_Init();
 #define BATTERY_MAX                   43 // 4.3V
 #define BATTERY_DIVIDER               962
 
-enum EnumPowerupState
-{
-  BOARD_POWER_OFF = 0xCAFEDEAD,
-  BOARD_POWER_ON = 0xDEADBEEF,
-  BOARD_STARTED = 0xBAADF00D,
-  BOARD_REBOOT = 0xC00010FF,
-};
-
-bool UNEXPECTED_SHUTDOWN();
-void SET_POWER_REASON(uint32_t value);
-
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
 #endif
@@ -169,22 +157,19 @@ void backlightEnable(uint8_t dutyCycle);
 void backlightFullOn();
 bool isBacklightEnabled();
 
-#define BACKLIGHT_ENABLE()                                               \
-  {                                                                      \
-    boardBacklightOn = true;                                             \
-    backlightEnable(globalData.unexpectedShutdown                        \
-                        ? BACKLIGHT_LEVEL_MAX                            \
-                        : BACKLIGHT_LEVEL_MAX - currentBacklightBright); \
+#define BACKLIGHT_ENABLE()                                         \
+  {                                                                \
+    boardBacklightOn = true;                                       \
+    backlightEnable(BACKLIGHT_LEVEL_MAX - currentBacklightBright); \
   }
 
-#define BACKLIGHT_DISABLE()                                                 \
-  {                                                                         \
-    boardBacklightOn = false;                                               \
-    backlightEnable(globalData.unexpectedShutdown ? BACKLIGHT_LEVEL_MAX     \
-                    : ((g_eeGeneral.blOffBright == BACKLIGHT_LEVEL_MIN) &&  \
-                       (g_eeGeneral.backlightMode != e_backlight_mode_off)) \
-                        ? 0                                                 \
-                        : g_eeGeneral.blOffBright);                         \
+#define BACKLIGHT_DISABLE()                                               \
+  {                                                                       \
+    boardBacklightOn = false;                                             \
+    backlightEnable(((g_eeGeneral.blOffBright == BACKLIGHT_LEVEL_MIN) &&  \
+                     (g_eeGeneral.backlightMode != e_backlight_mode_off)) \
+                        ? 0                                               \
+                        : g_eeGeneral.blOffBright);                       \
   }
 
 #if !defined(SIMU)
