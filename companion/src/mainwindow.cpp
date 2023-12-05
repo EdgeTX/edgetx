@@ -1303,9 +1303,14 @@ void MainWindow::deleteProfile(const int pid)
     QMessageBox::warning(this, tr("Companion :: Open files warning"), tr("Please save or close modified file(s) before deleting the active profile."));
     return;
   }
+  int newPid = 0;
   if (pid == 0) {
-    QMessageBox::warning(this, tr("Not possible to remove profile"), tr("The default profile can not be removed."));
-    return;
+    // Find valid profile
+    for (newPid = 1; newPid < MAX_PROFILES && !g.profile[newPid].existsOnDisk(); newPid += 1);
+    if (newPid == MAX_PROFILES) {
+      QMessageBox::warning(this, tr("Not possible to remove profile"), tr("The default profile can not be removed."));
+      return;
+    }
   }
   int ret = QMessageBox::question(this,
                                   tr("Confirm Delete Profile"),
@@ -1314,7 +1319,8 @@ void MainWindow::deleteProfile(const int pid)
     return;
 
   g.getProfile(pid).resetAll();
-  loadProfileId(0);
+  loadProfileId(newPid);
+  g.moveCurrentProfileToTop();
 }
 
 void MainWindow::deleteCurrentProfile()
