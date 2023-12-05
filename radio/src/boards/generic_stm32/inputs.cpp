@@ -43,7 +43,7 @@ __weak uint32_t readTrims()
 {
   uint32_t trims = _read_trims();
 
-  #if defined(PCBXLITE)
+#if defined(PCBXLITE)
   if (_read_keys() & (1 << KEY_SHIFT))
     return ((trims & 0x03) << 6) | ((trims & 0x0c) << 2);
 #endif

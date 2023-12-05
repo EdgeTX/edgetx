@@ -545,7 +545,7 @@ void sdMount()
 void sdDone()
 {
   TRACE("sdDone");
-  
+
   if (sdMounted()) {
     audioQueue.stopSD();
 
@@ -557,7 +557,7 @@ void sdDone()
     f_close(&g_bluetoothFile);
 #endif
 
-    f_mount(nullptr, "", 0); // unmount SD
+    f_mount(nullptr, "", 0);  // unmount SD
   }
 
   storageDeInit();

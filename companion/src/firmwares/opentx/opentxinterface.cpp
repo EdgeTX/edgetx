@@ -1251,7 +1251,7 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
 
   /* FlySky PL18 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("pl18"), QCoreApplication::translate("Firmware", "FlySky PL18"), BOARD_FLYSKY_PL18);
+  firmware = new OpenTxFirmware(FIRMWAREID("pl18"), Firmware::tr("FlySky PL18"), BOARD_FLYSKY_PL18);
   addOpenTxFrskyOptions(firmware);
   firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
   addOpenTxRfOptions(firmware, FLEX + AFHDS3);

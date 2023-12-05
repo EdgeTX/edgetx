@@ -203,10 +203,6 @@ extern uint8_t heartbeat;
 #include "keys.h"
 #include "pwr.h"
 
-// #if defined(PCBFRSKY) || defined(PCBNV14) || defined(PCBPL18)
-// extern uint8_t potsPos[NUM_XPOTS];
-// #endif
-
 bool trimDown(uint8_t idx);
 
 #if defined(KEYS_GPIO_REG_BIND)

@@ -396,7 +396,7 @@ class SimulatedUIWidgetNV14: public SimulatedUIWidget
     Ui::SimulatedUIWidgetNV14 * ui;
 };
 
-class SimulatedUIWidgetEL18 : public SimulatedUIWidget
+class SimulatedUIWidgetEL18: public SimulatedUIWidget
 {
   Q_OBJECT
 

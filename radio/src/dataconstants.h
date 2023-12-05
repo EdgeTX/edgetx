@@ -409,9 +409,9 @@ enum PotsWarnMode {
 #endif
 
 #if NUM_TRIMS > 6
-  #define MAX_TRIMS 8
+#define MAX_TRIMS 8
 #else
-  #define MAX_TRIMS 6
+#define MAX_TRIMS 6
 #endif
 
 #define MAX_XPOTS_POSITIONS (MAX_POTS * XPOTS_MULTIPOS_COUNT)
