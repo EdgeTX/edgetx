@@ -180,20 +180,21 @@ class SpecialFunctionEditPage : public Page
       case FUNC_PLAY_TRACK:
       case FUNC_BACKGND_MUSIC:
       case FUNC_PLAY_SCRIPT:
+      case FUNC_RGB_LED:
         new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
         new FileChoice(
             line, rect_t{},
-            func == FUNC_PLAY_SCRIPT
-                ? SCRIPTS_FUNCS_PATH
+            func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED
+                ? (func == FUNC_PLAY_SCRIPT ? SCRIPTS_FUNCS_PATH : SCRIPTS_RGB_PATH)
                 : std::string(SOUNDS_PATH, SOUNDS_PATH_LNG_OFS) +
                       std::string(currentLanguagePack->id, 2),
-            func == FUNC_PLAY_SCRIPT ? SCRIPTS_EXT : SOUNDS_EXT,
+            (func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED) ? SCRIPTS_EXT : SOUNDS_EXT,
             sizeof(cfn->play.name),
             [=]() { return std::string(cfn->play.name, ZLEN(cfn->play.name)); },
             [=](std::string newValue) {
               strncpy(cfn->play.name, newValue.c_str(), sizeof(cfn->play.name));
               SET_DIRTY();
-              if (func == FUNC_PLAY_SCRIPT)
+              if (func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED)
                 LUA_LOAD_MODEL_SCRIPTS();
             },
             true);  // strip extension

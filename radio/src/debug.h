@@ -46,8 +46,8 @@ EXTERN_C(extern volatile uint32_t g_tmr10ms);
   #define debugPrintf(...)
 #endif
 
-#define TRACE_TIME_FORMAT     "%0.2fs: "
-#define TRACE_TIME_VALUE      ((float)g_tmr10ms / 100.0)
+#define TRACE_TIME_FORMAT     "%dms: "
+#define TRACE_TIME_VALUE      (g_tmr10ms * 10)
 
 #define TRACE_NOCRLF(...)     debugPrintf(__VA_ARGS__)
 #define TRACE(f_, ...)        debugPrintf((TRACE_TIME_FORMAT f_ CRLF), TRACE_TIME_VALUE, ##__VA_ARGS__)

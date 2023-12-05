@@ -124,6 +124,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for FlySky NV14";
     case BOARD_FLYSKY_EL18:
       return "EdgeTX for FlySky EL18";
+    case BOARD_FLYSKY_PL18:
+      return "EdgeTX for FlySky PL18";
     case BOARD_BETAFPV_LR3PRO:
       return "EdgeTx for BETAFPV LR3PRO";
     case BOARD_IFLIGHT_COMMANDO8:
@@ -664,6 +666,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case LcdWidth:
       if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return 320;
+      else if (IS_FLYSKY_PL18(board))
+        return 480;
       else if (IS_FAMILY_HORUS_OR_T16(board))
         return 480;
       else if (IS_TARANIS_SMALL(board))
@@ -675,6 +679,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case LcdHeight:
       if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return 480;
+      else if (IS_FLYSKY_PL18(board))
+        return 320;
       else if (IS_FAMILY_HORUS_OR_T16(board))
         return 272;
       else
@@ -777,7 +783,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
              IS_JUMPER_TPRO(board) || IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_POCKET(board);
     case HasBluetooth:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) ||
-              IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)) ? true : false;
+              IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PL18(board)) ? true : false;
     case HasADCJitterFilter:
       return IS_HORUS_OR_TARANIS(board);
     case HasTelemetryBaudrate:
@@ -1242,6 +1248,13 @@ void registerOpenTxFirmwares()
   addOpenTxFrskyOptions(firmware);
   firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
   addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
+  registerOpenTxFirmware(firmware);
+
+  /* FlySky PL18 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("pl18"), Firmware::tr("FlySky PL18"), BOARD_FLYSKY_PL18);
+  addOpenTxFrskyOptions(firmware);
+  firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
+  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
   registerOpenTxFirmware(firmware);
 
   /* FrSky Horus X10 board */

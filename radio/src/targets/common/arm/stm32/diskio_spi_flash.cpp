@@ -30,6 +30,7 @@
 #include "drivers/frftl.h"
 
 static FrFTL _frftl;
+static bool frftlInitDone = false;
 
 static bool flashRead(uint32_t addr, uint8_t* buf, uint32_t len)
 {
@@ -89,6 +90,7 @@ static DSTATUS spi_flash_initialize(BYTE lun)
   if (!ftlInit(&_frftl, &_frftl_cb, flashSizeMB)) {
     return STA_NOINIT;
   }
+  frftlInitDone = true;
 #endif
 
   return 0;
@@ -102,7 +104,7 @@ static DSTATUS spi_flash_status (BYTE lun)
 static DRESULT spi_flash_read(BYTE lun, BYTE * buff, DWORD sector, UINT count)
 {
 #if defined(USE_FLASH_FTL)
-  while(count) {
+  while(frftlInitDone && count) {
 
     if(!ftlRead(&_frftl, sector, (uint8_t*)buff)) {
       return RES_ERROR;
@@ -122,7 +124,7 @@ static DRESULT spi_flash_read(BYTE lun, BYTE * buff, DWORD sector, UINT count)
 static DRESULT spi_flash_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 {
 #if defined(USE_FLASH_FTL)
-  if (!ftlWrite(&_frftl, sector, count, (uint8_t*)buff)) {
+  if (frftlInitDone && !ftlWrite(&_frftl, sector, count, (uint8_t*)buff)) {
     return RES_ERROR;
   }
 #else
@@ -166,7 +168,7 @@ static DRESULT spi_flash_ioctl(BYTE lun, BYTE ctrl, void *buff)
 
   case CTRL_SYNC:
 #if defined(USE_FLASH_FTL)
-    if (!ftlSync(&_frftl)) {
+    if (frftlInitDone && !ftlSync(&_frftl)) {
       res = RES_ERROR;
     }
 #else
@@ -176,7 +178,7 @@ static DRESULT spi_flash_ioctl(BYTE lun, BYTE ctrl, void *buff)
 
   case CTRL_TRIM:
 #if defined(USE_FLASH_FTL)
-    if (!ftlTrim(&_frftl, *(DWORD*)buff, 1 + *((DWORD*)buff + 1) - *(DWORD*)buff)) {
+    if (frftlInitDone && !ftlTrim(&_frftl, *(DWORD*)buff, 1 + *((DWORD*)buff + 1) - *(DWORD*)buff)) {
       res = RES_ERROR;
     }
 #endif

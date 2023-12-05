@@ -77,13 +77,14 @@ class VersionDialog : public Dialog
     memclear(&reusableBuffer.hardwareAndSettings.modules,
              sizeof(reusableBuffer.hardwareAndSettings.modules));
     reusableBuffer.hardwareAndSettings.updateTime = get_tmr10ms();
-
+#if defined(HARDWARE_INTERNAL_MODULE)
     // Query modules
     if (isModulePXX2(INTERNAL_MODULE) && modulePortPowered(INTERNAL_MODULE)) {
       moduleState[INTERNAL_MODULE].readModuleInformation(
           &reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE],
           PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
     }
+#endif
 
     if (isModulePXX2(EXTERNAL_MODULE) && modulePortPowered(EXTERNAL_MODULE)) {
       moduleState[EXTERNAL_MODULE].readModuleInformation(
@@ -165,11 +166,13 @@ class VersionDialog : public Dialog
 
   void update()
   {
+#if defined(HARDWARE_INTERNAL_MODULE)
     updateModule(INTERNAL_MODULE, 
                  int_name, 
                  int_module_status_w, int_status, 
                  int_rx_name_w, int_rx_name, 
                  int_rx_status_w, int_rx_status);
+#endif
     updateModule(EXTERNAL_MODULE, 
                  ext_name, 
                  ext_module_status_w, ext_status, 
@@ -309,11 +312,13 @@ class VersionDialog : public Dialog
   {
     if (get_tmr10ms() >= reusableBuffer.hardwareAndSettings.updateTime) {
       // Query modules
+#if defined(HARDWARE_INTERNAL_MODULE)
       if (isModulePXX2(INTERNAL_MODULE) && modulePortPowered(INTERNAL_MODULE)) {
         moduleState[INTERNAL_MODULE].readModuleInformation(
             &reusableBuffer.hardwareAndSettings.modules[INTERNAL_MODULE],
             PXX2_HW_INFO_TX_ID, PXX2_MAX_RECEIVERS_PER_MODULE - 1);
       }
+#endif
       if (isModulePXX2(EXTERNAL_MODULE) && modulePortPowered(EXTERNAL_MODULE)) {
         moduleState[EXTERNAL_MODULE].readModuleInformation(
             &reusableBuffer.hardwareAndSettings.modules[EXTERNAL_MODULE],
@@ -332,7 +337,7 @@ RadioVersionPage::RadioVersionPage():
 {
 }
 
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
 extern const char* boardLcdType;
 #endif
 
@@ -355,7 +360,7 @@ void RadioVersionPage::build(FormWindow * window)
     version += options[i];
   }
 
-#if defined(PCBNV14) && !defined(SIMU)
+#if (defined(PCBNV14) || defined(PCBPL18)) && !defined(SIMU)
   version += nl;
   version += "LCD: ";
   version += boardLcdType;

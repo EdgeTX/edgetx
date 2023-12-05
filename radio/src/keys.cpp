@@ -30,11 +30,7 @@
 #include "timers_driver.h"
 #include "hal/watchdog_driver.h"
 #include "hal/rotary_encoder.h"
-
-// required by watchdog macro..
-#if !defined(SIMU)
-#include "stm32_cmsis.h"
-#endif
+#include "dataconstants.h"
 
 // long key press minimum duration (x10ms),
 // must be less than KEY_REPEAT_DELAY

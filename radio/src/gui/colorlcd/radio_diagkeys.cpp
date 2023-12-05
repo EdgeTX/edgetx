@@ -25,7 +25,11 @@
 
 #include "hal/rotary_encoder.h"
 
+#if defined(PCBPL18)
+static const uint8_t _trimMap[MAX_TRIMS * 2] = {8, 9, 10, 11, 12, 13, 14, 15, 2, 3, 4, 5, 0, 1, 6, 7};
+#else
 static const uint8_t _trimMap[MAX_TRIMS * 2] = {6, 7, 4, 5, 2, 3, 0, 1, 8, 9, 10, 11};
+#endif
 
 static EnumKeys get_ith_key(uint8_t i)
 {
@@ -122,8 +126,13 @@ class RadioKeyDiagsWindow : public Window
       for (uint8_t i = 0; i < keysGetMaxTrims() * 2; i++) {
         coord_t y = 1 + FH + FH * (i / 2);
         if (i & 1) {
+#if defined(PCBPL18)
+          dc->drawText(TRIM_COLUMN, y, "TR", COLOR_THEME_PRIMARY1);
+          dc->drawNumber(TRIM_COLUMN + 20, y, i / 2 + 1, COLOR_THEME_PRIMARY1);
+#else
           dc->drawText(TRIM_COLUMN, y, "T", COLOR_THEME_PRIMARY1);
           dc->drawNumber(TRIM_COLUMN + 10, y, i / 2 + 1, COLOR_THEME_PRIMARY1);
+#endif
         }
         displayTrimState(dc, i & 1 ? TRIM_PLUS_COLUMN : TRIM_MINUS_COLUMN, y, _trimMap[i]);
       }

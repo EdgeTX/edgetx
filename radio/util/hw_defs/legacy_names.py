@@ -339,6 +339,142 @@ LEGACY_NAMES = [
         }
     },
     {
+        "targets": {
+            "pl18"
+        },
+        "inputs": {
+            "LH": {
+                "yaml": "Rud"
+            },
+            "LV": {
+                "yaml": "Ele"
+            },
+            "RV": {
+                "yaml": "Thr"
+            },
+            "RH": {
+                "yaml": "Ail"
+            },
+            "P1": {
+                "yaml": "POT1",
+                "lua": "s1",
+                "label": "S1",
+                "short_label": "1",
+                "description": "Potentiometer 1"
+            },
+            "P2": {
+                "yaml": "POT2",
+                "lua": "s2",
+                "label": "S2",
+                "short_label": "2",
+                "description": "Potentiometer 2"
+            },
+            "P3": {
+                "yaml": "POT3",
+                "lua": "s3",
+                "label": "S3",
+                "short_label": "3",
+                "description": "Potentiometer 3"
+            },
+            "SL1": {
+                "yaml": "LS",
+                "lua": "ls",
+                "label": "LS",
+                "short_label": "L",
+                "description": "Left slider"
+            },
+            "SL2": {
+                "yaml": "RS",
+                "lua": "rs",
+                "label": "RS",
+                "short_label": "R",
+                "description": "Right slider"
+            },
+        }
+    },
+    {
+        "targets": {
+            "pl18ev"
+        },
+        "inputs": {
+            "LH": {
+                "yaml": "Rud"
+            },
+            "LV": {
+                "yaml": "Ele"
+            },
+            "RV": {
+                "yaml": "Thr"
+            },
+            "RH": {
+                "yaml": "Ail"
+            },
+            "P1": {
+                "yaml": "POT1",
+                "lua": "s1",
+                "label": "S1",
+                "short_label": "1",
+                "description": "Potentiometer 1"
+            },
+            "P2": {
+                "yaml": "POT2",
+                "lua": "s2",
+                "label": "S2",
+                "short_label": "2",
+                "description": "Potentiometer 2"
+            },
+            "P3": {
+                "yaml": "POT3",
+                "lua": "s3",
+                "label": "S3",
+                "short_label": "3",
+                "description": "Potentiometer 3"
+            },
+            "SL1": {
+                "yaml": "LS",
+                "lua": "ls",
+                "label": "LS",
+                "short_label": "L",
+                "description": "Left slider"
+            },
+            "SL2": {
+                "yaml": "RS",
+                "lua": "rs",
+                "label": "RS",
+                "short_label": "R",
+                "description": "Right slider"
+            },
+            "EXT1": {
+                "yaml": "EXT1",
+                "lua": "ext1",
+                "label": "EXT1",
+                "short_label": "E1",
+                "description": "Ext 1"
+            },
+            "EXT2": {
+                "yaml": "EXT2",
+                "lua": "ext2",
+                "label": "EXT2",
+                "short_label": "E2",
+                "description": "Ext 2"
+            },
+            "EXT3": {
+                "yaml": "EXT3",
+                "lua": "ext3",
+                "label": "EXT3",
+                "short_label": "E3",
+                "description": "Ext 3"
+            },
+            "EXT4": {
+                "yaml": "EXT4",
+                "lua": "ext4",
+                "label": "EXT4",
+                "short_label": "E4",
+                "description": "Ext 4"
+            }
+        }
+    },
+    {
         "targets": {"t20"},
         "inputs": {
             "LH": {

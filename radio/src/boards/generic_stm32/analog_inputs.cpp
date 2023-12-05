@@ -47,6 +47,9 @@ constexpr uint8_t n_ADC_spi = DIM(_ADC_spi);
 constexpr uint8_t n_GPIO = DIM(_ADC_GPIOs);
 constexpr uint8_t n_inputs = DIM(_ADC_inputs);
 
+static_assert(n_inputs <= MAX_ADC_INPUTS, "Too many ADC inputs");
+static_assert(n_inputs <= MAX_ANALOG_INPUTS, "Too many analog inputs");
+
 static bool adc_init()
 {
   bool success = stm32_hal_adc_init(_ADC_adc, n_ADC, _ADC_inputs, _ADC_GPIOs, n_GPIO);

@@ -16,6 +16,7 @@ jobs:
       matrix:
         target:
           - nv14;el18
+          - pl18;pl18ev
           - t12
           - t16
           - t18

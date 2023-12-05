@@ -28,6 +28,7 @@
 #include "board.h"
 #include "dataconstants.h"
 
+#if defined (HARDWARE_INTERNAL_MODULE)
 #if defined(INTMODULE_USART)
 
 #define INTMODULE_USART_IRQ_PRIORITY 5
@@ -110,7 +111,8 @@ extern "C" void INTMODULE_TIMER_IRQHandler()
 
 DEFINE_STM32_SOFTSERIAL_PORT(InternalModule, intmoduleTimer);
 
-#endif
+#endif // INTMODULE_USART
+#endif // HARDWARE_INTERNAL_MODULE
 
 #include "module_timer_driver.h"
 

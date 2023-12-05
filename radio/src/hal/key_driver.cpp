@@ -22,6 +22,8 @@
 #include "key_driver.h"
 
 #include "definitions.h"
+#include "dataconstants.h"
+
 #include "hal_keys.inc"
 
 uint32_t keysGetSupported()

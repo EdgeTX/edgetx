@@ -26,23 +26,27 @@
 
 #include "stm32_keys.inc"
 
-void keysInit()
+#define __weak __attribute__((weak))
+
+__weak void keysInit()
 {
   _init_keys();
   _init_trims();
 }
 
-uint32_t readKeys()
+__weak uint32_t readKeys()
 {
   return _read_keys();
 }
 
-uint32_t readTrims()
+__weak uint32_t readTrims()
 {
   uint32_t trims = _read_trims();
+
 #if defined(PCBXLITE)
   if (_read_keys() & (1 << KEY_SHIFT))
     return ((trims & 0x03) << 6) | ((trims & 0x0c) << 2);
 #endif
+
   return trims;
 }

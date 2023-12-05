@@ -293,6 +293,10 @@
     <file>images/simulator/NV14/right.png</file>
     <file>images/simulator/NV14/top.png</file>
     <file>images/simulator/NV14/bottom.png</file>
+    <file>images/simulator/PL18/left.png</file>
+    <file>images/simulator/PL18/right.png</file>
+    <file>images/simulator/PL18/top.png</file>
+    <file>images/simulator/PL18/bottom.png</file>
     <file>images/wizard/ailerons.png</file>
     <file>images/wizard/airbrakes.png</file>
     <file>images/wizard/elevons.png</file>

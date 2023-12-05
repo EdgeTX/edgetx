@@ -40,6 +40,7 @@ set(${PROJECT_NAME}_SRCS
   simulateduiwidgetJumperTPRO.cpp
   simulateduiwidgetLR3PRO.cpp
   simulateduiwidgetNV14.cpp
+  simulateduiwidgetPL18.cpp
   simulateduiwidgetT8.cpp
   simulateduiwidgetTX12.cpp
   simulateduiwidgetTX16S.cpp

@@ -616,6 +616,7 @@ FRESULT f_getfree (const TCHAR* path, DWORD* nclst, FATFS** fatfs)
 #include "hal/storage.h"
 
 void storageInit() {}
+void storageDeInit() {}
 void storagePreMountHook() {}
 bool storageIsPresent() { return true; }
 

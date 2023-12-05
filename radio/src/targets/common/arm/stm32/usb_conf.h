@@ -29,6 +29,8 @@
   #include "stm32f2xx.h"
 #endif
 
+#include "hal.h"
+
 /* USB Core and PHY interface configuration.
    Tip: To avoid modifying these defines each time you need to change the USB
         configuration, you can declare the needed define in your toolchain
@@ -97,7 +99,9 @@
 #endif
 
 /****************** USB OTG MISC CONFIGURATION ********************************/
+#if defined(USB_GPIO_PIN_VBUS)
 #define VBUS_SENSING_ENABLED
+#endif
 
 /****************** USB OTG MODE CONFIGURATION ********************************/
 //#define USE_HOST_MODE

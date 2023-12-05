@@ -38,7 +38,7 @@
 // ========
 //
 //  If any of these static_assert() fails, you need to check that
-//  the functions bellow are still applicable.
+//  the functions below are still applicable.
 //
 //  Please note that the sizes used here are those from the v220 format
 //  (see storage/conversions/yaml/datastructs_220.h)

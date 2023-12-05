@@ -110,12 +110,14 @@ static void ghostmoduleconfig_cb(lv_event_t* e)
   }
 }
 
+#if defined(HARDWARE_KEYS) && !defined(PCBPL18)
 void RadioGhostModuleConfig::onCancel()
 {
   reusableBuffer.ghostMenu.buttonAction = GHST_BTN_JOYLEFT;
   reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_NONE;
   moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
 }
+#endif
 
 RadioGhostModuleConfig::RadioGhostModuleConfig(uint8_t moduleIdx) :
   Page(ICON_RADIO_TOOLS),
@@ -144,7 +146,7 @@ void RadioGhostModuleConfig::buildBody(FormWindow * window)
   new GhostModuleConfigWindow(window, {0, 0, LCD_W, LCD_H - MENU_HEADER_HEIGHT - 5});
 }
 
-#if defined(HARDWARE_KEYS)
+#if defined(HARDWARE_KEYS) && !defined(PCBPL18)
 void RadioGhostModuleConfig::onEvent(event_t event)
 {
   switch (event) {
