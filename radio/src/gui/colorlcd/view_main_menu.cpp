@@ -47,8 +47,10 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
   Layer::push(this);
 
   coord_t width = VM_W;
+  bool hasNotes = modelHasNotes();
+
 #if LCD_W > LCD_H
-  if (modelHasNotes())
+  if (hasNotes)
     width += FAB_BUTTON_SIZE;
 #endif
 
@@ -65,7 +67,7 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
                         return 0;
                       });
 
-  if (modelHasNotes()) {
+  if (hasNotes) {
     carousel->addButton(ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES,
                         [=]() -> uint8_t {
                           deleteLater();
