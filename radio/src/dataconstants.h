@@ -605,7 +605,7 @@ enum Functions {
 #if defined(DEBUG)
   FUNC_MAX SKIP
 #else
-  FUNC_MAX SKIP = FUNC_TEST - 1
+  FUNC_MAX SKIP = FUNC_TEST
 #endif
 };
 
