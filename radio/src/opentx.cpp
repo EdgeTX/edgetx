@@ -1567,7 +1567,7 @@ int main()
 
 #if !defined(SIMU)
   /* Ensure all priority bits are assigned as preemption priority bits. */
-  HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4 );
+  NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4 );
 #endif
 
   // G: The WDT remains active after a WDT reset -- at maximum clock speed. So it's

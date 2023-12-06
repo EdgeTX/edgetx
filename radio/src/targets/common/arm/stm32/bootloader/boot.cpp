@@ -205,7 +205,9 @@ void writeEepromBlock()
 void bootloaderInitApp()
 {
   LL_AHB1_GRP1_EnableClock(LCD_RCC_AHB1Periph);
+#if defined(LCD_RCC_APB2Periph)
   LL_APB2_GRP1_EnableClock(LCD_RCC_APB2Periph);
+#endif
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 
 #if defined(HAVE_BOARD_BOOTLOADER_INIT)

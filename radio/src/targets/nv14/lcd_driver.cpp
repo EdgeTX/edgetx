@@ -1077,7 +1077,7 @@ unsigned int LCD_ST7796S_ReadID(void) {
 
   lcdWriteCommand( 0XD3 );
 
-  LCD_MOSI_AS_INPUT();
+  SET_LCD_DATA_INPUT();
   LCD_SCK_LOW();
   LCD_DELAY();
   LCD_DELAY();

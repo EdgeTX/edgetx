@@ -23,7 +23,6 @@
 #include "stm32_hal_ll.h"
 
 #include "board.h"
-#include "stm32f4xx_fmc.h"
 
 #define SDRAM_MODEREG_BURST_LENGTH_1             ((uint16_t)0x0000)
 #define SDRAM_MODEREG_BURST_LENGTH_2             ((uint16_t)0x0001)

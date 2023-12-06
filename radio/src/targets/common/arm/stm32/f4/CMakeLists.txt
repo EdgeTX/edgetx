@@ -60,13 +60,10 @@ endif()
 
 # StdPeriph library
 set(STM32LIB_DIR ${THIRDPARTY_DIR})
-#include_directories(${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/inc)
 include_directories(${STM32LIB_DIR}/CMSIS/Device/ST/STM32F4xx/Include)
 include_directories(${STM32LIB_DIR}/CMSIS/Include)
 
 add_definitions(-DSTM32F4)
-
-set(STM32_STDPERIPH_DIR ${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver)
 
 set(STM32_STDPERIPH_SRC
   targets/common/arm/stm32/f4/system_stm32f4xx.c
