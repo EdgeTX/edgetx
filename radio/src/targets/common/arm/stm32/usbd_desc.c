@@ -25,6 +25,7 @@
 
 /* USER CODE BEGIN INCLUDE */
 #include "hal/usb_driver.h"
+#include "usb_descriptor.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -61,12 +62,6 @@
   * @brief Private defines.
   * @{
   */
-
-// TODO: remove hack
-#define USB_NAME                     "RM TX16S"
-#define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
-#define USB_PRODUCT                  'R', 'M', ' ', 'T', 'X', '1', '6', 'S'  /* 8 Bytes */
-
 
 #define USBD_VID_STM                        0x0483    // STM Vendor ID
 #define USBD_VID_PID_CODES                  0x1209    // https://pid.codes
@@ -128,8 +123,8 @@
   * @{
   */
 
-static void Get_SerialNum(void);
-static void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len);
+//static void Get_SerialNum(void);
+//static void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len);
 
 /**
   * @}
@@ -462,24 +457,24 @@ uint8_t * USBD_FS_USR_BOSDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   * @param  None
   * @retval None
   */
-static void Get_SerialNum(void)
-{
-  uint32_t deviceserial0;
-  uint32_t deviceserial1;
-  uint32_t deviceserial2;
-
-  deviceserial0 = *(uint32_t *) DEVICE_ID1;
-  deviceserial1 = *(uint32_t *) DEVICE_ID2;
-  deviceserial2 = *(uint32_t *) DEVICE_ID3;
-
-  deviceserial0 += deviceserial2;
-
-  if (deviceserial0 != 0)
-  {
-    IntToUnicode(deviceserial0, &USBD_StringSerial[2], 8);
-    IntToUnicode(deviceserial1, &USBD_StringSerial[18], 4);
-  }
-}
+//static void Get_SerialNum(void)
+//{
+//  uint32_t deviceserial0;
+//  uint32_t deviceserial1;
+//  uint32_t deviceserial2;
+//
+//  deviceserial0 = *(uint32_t *) DEVICE_ID1;
+//  deviceserial1 = *(uint32_t *) DEVICE_ID2;
+//  deviceserial2 = *(uint32_t *) DEVICE_ID3;
+//
+//  deviceserial0 += deviceserial2;
+//
+//  if (deviceserial0 != 0)
+//  {
+//    IntToUnicode(deviceserial0, &USBD_StringSerial[2], 8);
+//    IntToUnicode(deviceserial1, &USBD_StringSerial[18], 4);
+//  }
+//}
 
 /**
   * @brief  Convert Hex 32Bits value into char
@@ -488,26 +483,26 @@ static void Get_SerialNum(void)
   * @param  len: buffer length
   * @retval None
   */
-static void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len)
-{
-  uint8_t idx = 0;
-
-  for (idx = 0; idx < len; idx++)
-  {
-    if (((value >> 28)) < 0xA)
-    {
-      pbuf[2 * idx] = (value >> 28) + '0';
-    }
-    else
-    {
-      pbuf[2 * idx] = (value >> 28) + 'A' - 10;
-    }
-
-    value = value << 4;
-
-    pbuf[2 * idx + 1] = 0;
-  }
-}
+//static void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len)
+//{
+//  uint8_t idx = 0;
+//
+//  for (idx = 0; idx < len; idx++)
+//  {
+//    if (((value >> 28)) < 0xA)
+//    {
+//      pbuf[2 * idx] = (value >> 28) + '0';
+//    }
+//    else
+//    {
+//      pbuf[2 * idx] = (value >> 28) + 'A' - 10;
+//    }
+//
+//    value = value << 4;
+//
+//    pbuf[2 * idx + 1] = 0;
+//  }
+//}
 /**
   * @}
   */

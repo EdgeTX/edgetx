@@ -414,7 +414,7 @@ static uint8_t USBD_HID_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *re
           {
 #if !defined(USBJ_EX)
             len = MIN(sizeof(HID_JOYSTICK_ReportDesc) , req->wLength);
-            pbuf = HID_JOYSTICK_ReportDesc; // wiiccReportDescriptor; //
+            pbuf = (uint8_t*)HID_JOYSTICK_ReportDesc; // wiiccReportDescriptor; //
 #else
             struct usbReport_t ret = usbReportDesc();
             len = MIN(ret.size, req->wLength);
