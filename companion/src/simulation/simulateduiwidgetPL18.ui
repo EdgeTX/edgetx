@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>520</width>
-    <height>500</height>
+    <width>580</width>
+    <height>420</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,14 +18,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>520</width>
-    <height>500</height>
+    <width>580</width>
+    <height>420</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>520</width>
-    <height>500</height>
+    <width>580</width>
+    <height>420</height>
    </size>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -54,14 +54,14 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>100</width>
-       <height>500</height>
+       <width>50</width>
+       <height>420</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>100</width>
-       <height>500</height>
+       <width>50</width>
+       <height>420</height>
       </size>
      </property>
      <property name="styleSheet">
@@ -106,14 +106,14 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>100</width>
-       <height>500</height>
+       <width>50</width>
+       <height>420</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>100</width>
-       <height>500</height>
+       <width>50</width>
+       <height>420</height>
       </size>
      </property>
      <property name="mouseTracking">
@@ -134,14 +134,14 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>320</width>
-       <height>10</height>
+       <width>480</width>
+       <height>50</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>320</width>
-       <height>10</height>
+       <width>480</width>
+       <height>50</height>
       </size>
      </property>
      <property name="font">
@@ -164,14 +164,14 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>320</width>
-       <height>10</height>
+       <width>480</width>
+       <height>50</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>320</width>
-       <height>10</height>
+       <width>480</width>
+       <height>50</height>
       </size>
      </property>
      <property name="font">
