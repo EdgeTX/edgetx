@@ -25,15 +25,15 @@
 #include "opentx_types.h"
 #include "dma2d.h"
 #include "hal.h"
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
 #include "delays_driver.h"
 #include "debug.h"
 #include "lcd.h"
 #include "lcd_driver.h"
 
 static LTDC_HandleTypeDef hltdc;
-#include "stm32f4xx_dma2d.h"
 static void* initialFrameBuffer = nullptr;
-#include "stm32f4xx_dma2d.h"
 
 #define GPIO_AF_LTDC GPIO_AF14
 

@@ -76,8 +76,7 @@ int stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
   if (stm32_timer_is_clock_enabled(tim->TIMx)) return -1;
 
   // .. and GPIO pin is not used
-  uint32_t pin_mode = LL_GPIO_GetPinMode(tim->GPIOx, tim->GPIO_Pin);
-  if (pin_mode != LL_GPIO_MODE_INPUT) return -1;
+  if(gpio_get_mode(tim->GPIO) != GPIO_IN) return -1;
 
   if (tim->DMA_TC_CallbackPtr) {
     memset(tim->DMA_TC_CallbackPtr, 0, sizeof(stm32_pulse_dma_tc_cb_t));

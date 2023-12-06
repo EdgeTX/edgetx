@@ -54,38 +54,8 @@ bool boardBacklightOn = false;
 
 void boardInit()
 {
-  RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph |
-                         PCBREV_RCC_AHB1Periph |
-                         LED_RCC_AHB1Periph |
-                         LCD_RCC_AHB1Periph |
-                         BACKLIGHT_RCC_AHB1Periph |
-                         KEYS_BACKLIGHT_RCC_AHB1Periph |
-                         SD_RCC_AHB1Periph |
-                         AUDIO_RCC_AHB1Periph |
-                         TELEMETRY_RCC_AHB1Periph |
-                         TRAINER_RCC_AHB1Periph |
-                         BT_RCC_AHB1Periph |
-                         AUDIO_RCC_AHB1Periph |
-                         HAPTIC_RCC_AHB1Periph |
-                         INTMODULE_RCC_AHB1Periph |
-                         EXTMODULE_RCC_AHB1Periph |
-                         SPORT_UPDATE_RCC_AHB1Periph,
-                         ENABLE);
-
-  RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph |
-                         AUDIO_RCC_APB1Periph |
-                         TELEMETRY_RCC_APB1Periph |
-                         AUDIO_RCC_APB1Periph |
-                         BACKLIGHT_RCC_APB1Periph,
-                         ENABLE);
-
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG |
-                         LCD_RCC_APB2Periph |
-                         HAPTIC_RCC_APB2Periph |
-                         TELEMETRY_RCC_APB2Periph |
-                         BT_RCC_APB2Periph |
-                         BACKLIGHT_RCC_APB2Periph,
-                         ENABLE);
+  LL_AHB1_GRP1_EnableClock(LCD_RCC_AHB1Periph);
+  LL_APB2_GRP1_EnableClock(LCD_RCC_APB2Periph);
 
 #if defined(RADIO_FAMILY_T16)
   void board_set_bor_level();

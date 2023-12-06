@@ -189,7 +189,7 @@ static_assert(__STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(EXTMODULE_TIMER_Channel),
               "Unsupported timer channel");
 
 // Make sure the DMA channel is supported
-static_assert(__STM32_DMA_IS_STREAM_SUPPORTED(EXTMODULE_TIMER_DMA_STREAM_LL),
+static_assert(__STM32_DMA_IS_STREAM_SUPPORTED(EXTMODULE_TIMER_DMA_STREAM),
               "Unsupported DMA stream");
 
 #if !defined(EXTMODULE_TIMER_DMA_IRQHandler)

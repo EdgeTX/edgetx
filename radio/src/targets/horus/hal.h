@@ -508,9 +508,9 @@
 #define LCD_RCC_AHB1Periph              LL_AHB1_GRP1_PERIPH_DMA2D
 #define LCD_RCC_APB2Periph              LL_APB2_GRP1_PERIPH_LTDC
 #if defined(PCBX12S)
-  #define LCD_GPIO_PIN_NRST             GPIO_Pin_10 // PF.10
+  #define LCD_GPIO_NRST                 GPIO_PIN(GPIOF, 10) // PF.10
 #elif defined(PCBX10)
-  #define LCD_GPIO_PIN_NRST             GPIO_Pin_10 // PI.10
+  #define LCD_GPIO_NRST                 GPIO_PIN(GPIOI, 10) // PI.10
 #endif
 #if defined(PCBX10) && !defined(RADIO_T18)
   #define LCD_VERTICAL_INVERT

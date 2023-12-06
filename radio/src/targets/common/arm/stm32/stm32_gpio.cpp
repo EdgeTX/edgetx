@@ -54,6 +54,14 @@ static inline void _set_mode(GPIO_TypeDef* port, int pin_num, unsigned mode)
   port->MODER = tmp;
 }
 
+static inline unsigned _get_mode(GPIO_TypeDef* port, int pin_num)
+{
+  uint32_t tmp = port->MODER;
+  tmp >>= (2 * pin_num);
+  return tmp = 0x03;
+}
+
+
 void gpio_init(gpio_t pin, gpio_mode_t mode)
 {
   GPIO_TypeDef* port = _port(pin);
@@ -106,6 +114,8 @@ void gpio_init_af(gpio_t pin, gpio_af_t af)
   // set selected function
   port->AFR[(pin_num > 7) ? 1 : 0] &= ~(0xf << ((pin_num & 0x07) * 4));
   port->AFR[(pin_num > 7) ? 1 : 0] |= (af << ((pin_num & 0x07) * 4));
+  // pin speed to max
+  port->OSPEEDR |= (3 << (2 * pin_num));
 }
 
 void gpio_init_analog(gpio_t pin)
@@ -118,6 +128,11 @@ void gpio_init_analog(gpio_t pin)
 
   // PUPD has to be 0b00
   port->PUPDR &= ~(0x3 << (2 * pin_num));
+}
+
+gpio_mode_t gpio_get_mode(gpio_t pin)
+{
+  return _get_mode(_port(pin), _pin_num(pin));
 }
 
 int gpio_read(gpio_t pin)

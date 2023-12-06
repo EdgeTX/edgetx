@@ -35,6 +35,9 @@ extern "C" {
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
 
+#include "stm32_gpio.h"
+
+#include "hal/gpio.h"
 #include "hal/usb_driver.h"
 
 #include "hal.h"
@@ -59,14 +62,14 @@ void setSelectedUsbMode(int mode)
   selectedUsbMode = usbMode(mode);
 }
 
-#if defined(USB_GPIO_PIN_VBUS)
+#if defined(USB_GPIO_VBUS)
 int usbPlugged()
 {
   static uint8_t debouncedState = 0;
   static uint8_t lastState = 0;
 
-  uint8_t state = LL_GPIO_IsInputPinSet(USB_GPIO, USB_GPIO_PIN_VBUS);
-
+  // uint8_t state = GPIO_ReadInputDataBit(USB_GPIO, USB_GPIO_PIN_VBUS);
+  uint8_t state = gpio_read(USB_GPIO_VBUS) ? 1 : 0;
   if (state == lastState)
     debouncedState = state;
   else
@@ -86,27 +89,15 @@ extern "C" void OTG_FS_IRQHandler()
 
 void usbInit()
 {
-  // Initialize hardware
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-
-  LL_GPIO_InitTypeDef GPIO_InitStruct;
-  LL_GPIO_StructInit(&GPIO_InitStruct);
-
+  gpio_init_af(USB_GPIO_DM, USB_GPIO_AF);
+  gpio_init_af(USB_GPIO_DP, USB_GPIO_AF);
+  
 #if defined(USB_GPIO_PIN_VBUS)
-  GPIO_InitStruct.Pin = USB_GPIO_PIN_VBUS;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(USB_GPIO, &GPIO_InitStruct);
+  gpio_init(USB_GPIO_VBUS, GPIO_IN);
 #endif
-
-  GPIO_InitStruct.Pin = USB_GPIO_PIN_DM | USB_GPIO_PIN_DP;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = LL_GPIO_AF_10; // USB
-  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_OTGFS);
 
   usbDriverStarted = false;
 }

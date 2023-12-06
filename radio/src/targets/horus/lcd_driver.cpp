@@ -31,7 +31,6 @@
 
 #include "lcd.h"
 #include <lvgl/lvgl.h>
-#include "stm32f4xx_rcc.h"
 
 #if defined(RADIO_T18)
   #define HBP  43

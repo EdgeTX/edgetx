@@ -23,6 +23,7 @@
 #include "stm32_exti_driver.h"
 #include "stm32_timer.h"
 #include "stm32_gpio.h"
+#include "hal/gpio.h"
 
 #include <string.h>
 
@@ -72,8 +73,7 @@ static bool _softserial_init_rx(const stm32_softserial_rx_port* port,
                                 const etx_serial_init* params)
 {
   // Test if pin is in reset state
-  uint32_t mode = LL_GPIO_GetPinMode(port->GPIOx, port->GPIO_Pin);
-  if (mode != LL_GPIO_MODE_INPUT) return false;
+  if(gpio_get_mode(port->GPIO) != GPIO_IN) return false;
 
   rxBitCount = 0;
   rxBuffer = port->buffer.buffer;

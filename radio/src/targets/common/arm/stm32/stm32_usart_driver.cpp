@@ -211,12 +211,9 @@ void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart)
 bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
 {
   // Test if the GPIO pins are in reset state
-  uint32_t pins = usart->GPIO_Pin;
-  while(pins != 0) {
-    uint32_t pin = 1 << POSITION_VAL(pins);
-    uint32_t mode = LL_GPIO_GetPinMode(usart->GPIOx, pin);
-    if (mode != LL_GPIO_MODE_INPUT) return false;
-    pins ^= pin;
+  if(gpio_get_mode(usart->txGPIO) != GPIO_IN || gpio_get_mode(usart->rxGPIO) != GPIO_IN)
+  {
+    return false;
   }
 
   enable_usart_clock(usart->USARTx);
