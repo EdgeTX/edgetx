@@ -292,7 +292,7 @@ class FMStyle
       lv_obj_set_style_flex_grow(obj, 2, LV_PART_MAIN);
       lv_obj_set_style_pad_all(obj, 0, LV_PART_MAIN);
       lv_obj_set_height(obj, LV_SIZE_CONTENT);
-      lv_obj_add_flag(obj, LV_OBJ_FLAG_EVENT_BUBBLE);
+      lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICKABLE);
       lv_obj_set_flex_align(obj, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
       return obj;
@@ -318,7 +318,7 @@ class FMStyle
     {
       auto obj = lv_obj_create(parent);
       lv_obj_add_style(obj, &fmTrimContStyle, LV_PART_MAIN);
-      lv_obj_add_flag(obj, LV_OBJ_FLAG_EVENT_BUBBLE);
+      lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICKABLE);
 
       return obj;
     }
@@ -403,13 +403,11 @@ class FlightModeBtn : public Button
     fmID = fmStyle.newId(lvobj);
 
     lv_obj_t* container = fmStyle.newGroup(lvobj);
-    lv_obj_set_user_data(container, this);
 
     fmName = fmStyle.newName(container);
     fmSwitch = fmStyle.newSwitch(container);
 
     lv_obj_t* trims_cont = fmStyle.newTrimCont(container);
-    lv_obj_set_user_data(trims_cont, this);
 
     for (int i = 0; i < keysGetMaxTrims(); i += 1) {
       fmTrimMode[i] = fmStyle.newTrimMode(trims_cont, i);

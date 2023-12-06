@@ -106,7 +106,7 @@ class GVarStyle
       lv_obj_set_width(obj, GVAR_VAL_W * GVAR_COLS);
       lv_obj_set_height(obj, GVAR_H);
       lv_obj_set_style_pad_all(obj, 0, LV_PART_MAIN);
-      lv_obj_add_flag(obj, LV_OBJ_FLAG_EVENT_BUBBLE);
+      lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICKABLE);
 
       return obj;
     }
@@ -117,7 +117,7 @@ class GVarStyle
       lv_obj_add_style(obj, &fmContStyle, LV_PART_MAIN);
       lv_obj_add_style(obj, &fmContStyleChecked, LV_PART_MAIN|LV_STATE_CHECKED);
       lv_obj_set_pos(obj, (flightMode%GVAR_COLS)*GVAR_VAL_W, (flightMode/GVAR_COLS)*GVAR_VAL_H);
-      lv_obj_add_flag(obj, LV_OBJ_FLAG_EVENT_BUBBLE);
+      lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICKABLE);
 
       return obj;
     }
@@ -176,12 +176,7 @@ class GVarButton : public Button
     lv_obj_t* target = lv_event_get_target(e);
     auto line = (GVarButton*)lv_obj_get_user_data(target);
     if (line)
-      line->build();
-
-    if (e) {
-      auto param = lv_event_get_param(e);
-      lv_event_send(line->getLvObj(), LV_EVENT_DRAW_MAIN, param);
-    }
+      line->build(e);
   }
 
  protected:
@@ -217,7 +212,7 @@ class GVarButton : public Button
     }
   }
 
-  void build()
+  void build(lv_event_t* e)
   {
     if (init) return;
 
@@ -228,11 +223,10 @@ class GVarButton : public Button
     gvarStyle.newName(lvobj, getGVarString(gvarIdx));
 
     if (modelFMEnabled()) {
-      auto container = gvarStyle.newGroup(lvobj);
+      lv_obj_t* container = gvarStyle.newGroup(lvobj);
 
       for (int flightMode = 0; flightMode < MAX_FLIGHT_MODES; flightMode++) {
         fmCont[flightMode] = gvarStyle.newFMCont(container, flightMode);
-        lv_obj_set_user_data(fmCont[flightMode], this);
         if (flightMode == currentFlightMode) {
           lv_obj_add_state(fmCont[flightMode], LV_STATE_CHECKED);
         }
@@ -251,11 +245,16 @@ class GVarButton : public Button
       updateValueText(0);
     }
 
+    init = true;
+
     lv_obj_enable_style_refresh(true);
 
     lv_obj_update_layout(lvobj);
 
-    init = true;
+    if (e) {
+      auto param = lv_event_get_param(e);
+      lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
+    }
   }
 
   void updateValueText(uint8_t flightMode)
