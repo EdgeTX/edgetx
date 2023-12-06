@@ -65,11 +65,7 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL
     ../../../../../targets/${TARGET_DIR}/haptic_driver.cpp
     )
 
-  if(NOT PCB STREQUAL PL18)
-    set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
-      ../../../../../targets/common/arm/stm32/diskio_sdio.cpp
-    )
-  else()
+  if(PCB STREQUAL PL18)
     set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
       ../../../../../targets/pl18/key_driver.cpp
     )    
