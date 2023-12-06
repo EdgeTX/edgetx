@@ -1248,6 +1248,7 @@ void MainWindow::onChangeWindowAction(QAction * act)
 
 void MainWindow::onCurrentProfileChanged()
 {
+  g.moveCurrentProfileToTop();
   Firmware::setCurrentVariant(Firmware::getFirmwareForId(g.currentProfile().fwType()));
   emit firmwareChanged();
   QApplication::clipboard()->clear();
@@ -1259,8 +1260,10 @@ int MainWindow::newProfile(bool loadProfile)
   int i;
   for (i=0; i < MAX_PROFILES && g.profile[i].existsOnDisk(); i++)
     ;
-  if (i == MAX_PROFILES)  //Failed to find free slot
+  if (i == MAX_PROFILES) {  //Failed to find free slot
+    QMessageBox::warning(this, tr("Cannot add profile"), tr("There is no space left to add a new profile. Delete an exsting profile before adding a new one."));
     return -1;
+  }
 
   Firmware *newfw = Firmware::getDefaultVariant();
   g.profile[i].init();
@@ -1300,9 +1303,14 @@ void MainWindow::deleteProfile(const int pid)
     QMessageBox::warning(this, tr("Companion :: Open files warning"), tr("Please save or close modified file(s) before deleting the active profile."));
     return;
   }
+  int newPid = 0;
   if (pid == 0) {
-    QMessageBox::warning(this, tr("Not possible to remove profile"), tr("The default profile can not be removed."));
-    return;
+    // Find valid profile
+    for (newPid = 1; newPid < MAX_PROFILES && !g.profile[newPid].existsOnDisk(); newPid += 1);
+    if (newPid == MAX_PROFILES) {
+      QMessageBox::warning(this, tr("Not possible to remove profile"), tr("The default profile can not be removed."));
+      return;
+    }
   }
   int ret = QMessageBox::question(this,
                                   tr("Confirm Delete Profile"),
@@ -1311,7 +1319,8 @@ void MainWindow::deleteProfile(const int pid)
     return;
 
   g.getProfile(pid).resetAll();
-  loadProfileId(0);
+  loadProfileId(newPid);
+  g.moveCurrentProfileToTop();
 }
 
 void MainWindow::deleteCurrentProfile()
