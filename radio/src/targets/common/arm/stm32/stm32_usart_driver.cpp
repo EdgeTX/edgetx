@@ -24,6 +24,8 @@
 #include "stm32_dma.h"
 #include "hal/gpio.h"
 
+#include "stm32_hal_ll.h"
+
 #include <string.h>
 
 // WARNING:
@@ -36,7 +38,7 @@
 // The new CMSIS can be used when StdPeriph is gone, as it mandates
 // the old version located in "${STM32LIB_DIR}/CMSIS/Include"
 //
-#if 0
+#if !defined(NVIC_GetEnableIRQ)
 static inline uint32_t NVIC_GetEnableIRQ(IRQn_Type IRQn)
 {
   if ((int32_t)(IRQn) >= 0) {
@@ -49,6 +51,7 @@ static inline uint32_t NVIC_GetEnableIRQ(IRQn_Type IRQn)
   }
 }
 #endif
+
 static void _enable_usart_irq(const stm32_usart_t* usart)
 {
   NVIC_SetPriority(usart->IRQn, usart->IRQ_Prio);
@@ -114,9 +117,12 @@ static void enable_usart_clock(USART_TypeDef* USARTx)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART3);
   } else if (USARTx == UART4) {
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_UART4);
-  } else if (USARTx == USART6) {
+  }
+#if defined(USART6)
+  else if (USARTx == USART6) {
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART6);
   }
+#endif
 #if defined(UART7) // does not exist on F2
   else if (USARTx == UART7) {
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_UART7);
@@ -134,9 +140,12 @@ static void disable_usart_clock(USART_TypeDef* USARTx)
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_USART3);
   } else if (USARTx == UART4) {
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_UART4);
-  } else if (USARTx == USART6) {
+  }
+#if defined(USART6)
+  else if (USARTx == USART6) {
     LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_USART6);
   }
+#endif
 #if defined(UART7) // does not exist on F2
   else if (USARTx == UART7) {
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_UART7);
@@ -160,13 +169,17 @@ static gpio_speed_t _get_pin_speed(uint32_t baudrate)
   return GPIO_PIN_SPEED_LOW;
 }
 
+#if defined(USART6)
+#define _AF7_USART(x) \
+  (x == USART1 || x == USART2 || x == USART3 || x == USART6)
+#else
+#define _AF7_USART(x) \
+  (x == USART1 || x == USART2 || x == USART3)
+#endif
+
 static gpio_af_t _get_usart_af(USART_TypeDef* USARTx)
 {
-  if (USARTx == USART1 || USARTx == USART2 || USARTx == USART3) {
-    return GPIO_AF7;
-  } else {
-    return GPIO_AF8;
-  }
+  return _AF7_USART(USARTx) ? GPIO_AF7 : GPIO_AF8;
 }
 
 void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uint32_t length)
@@ -186,8 +199,22 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uin
 
   LL_DMA_InitTypeDef dmaInit;
   LL_DMA_StructInit(&dmaInit);
+
+#if defined(STM32H7RS)
+  // TODO
+#else // STM32H7RS
+
+#if defined(STM32H7)
+  dmaInit.PeriphRequest = usart->rxDMA_Channel;
+#else
   dmaInit.Channel = usart->rxDMA_Channel;
-  dmaInit.PeriphOrM2MSrcAddress = (uint32_t)&usart->USARTx->DR;
+#endif
+
+#if defined(LL_USART_DMA_REG_DATA_RECEIVE)
+  dmaInit.PeriphOrM2MSrcAddress = LL_USART_DMA_GetRegAddr(usart->USARTx, LL_USART_DMA_REG_DATA_RECEIVE);
+#else
+  dmaInit.PeriphOrM2MSrcAddress = LL_USART_DMA_GetRegAddr(usart->USARTx);
+#endif
   dmaInit.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
   dmaInit.MemoryOrM2MDstAddress = (uint32_t)buffer;
   dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
@@ -197,8 +224,14 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uin
   LL_DMA_Init(usart->rxDMA, usart->rxDMA_Stream, &dmaInit);
   LL_USART_EnableDMAReq_RX(usart->USARTx);
 
+#endif // !STM32H7RS
+
   // Stream can be enable as the USART has alread been enabled
+#if defined(STM32H7RS)
+  LL_DMA_EnableChannel(usart->rxDMA, usart->rxDMA_Stream);
+#else
   LL_DMA_EnableStream(usart->rxDMA, usart->rxDMA_Stream);
+#endif
 }
 
 void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart)
@@ -226,10 +259,12 @@ void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart)
 bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
 {
   // Test if the GPIO pins are in reset state
-  if(gpio_get_mode(usart->txGPIO) != GPIO_IN || gpio_get_mode(usart->rxGPIO) != GPIO_IN)
-  {
-    return false;
-  }
+  // if (((usart->txGPIO != GPIO_UNDEF) &&
+  //      (gpio_get_mode(usart->txGPIO) != GPIO_IN)) ||
+  //     ((usart->rxGPIO != GPIO_UNDEF) &&
+  //      (gpio_get_mode(usart->rxGPIO) != GPIO_IN))) {
+  //   return false;
+  // }
 
   enable_usart_clock(usart->USARTx);
   LL_USART_DeInit(usart->USARTx);
@@ -360,13 +395,19 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
     LL_DMA_InitTypeDef dmaInit;
     LL_DMA_StructInit(&dmaInit);
 
+#if !defined(STM32H7RS)
     dmaInit.Channel = usart->txDMA_Channel;
-    dmaInit.PeriphOrM2MSrcAddress = (uint32_t)&usart->USARTx->DR;
+#if defined(LL_USART_DMA_REG_DATA_RECEIVE)
+    dmaInit.PeriphOrM2MSrcAddress =
+        LL_USART_DMA_GetRegAddr(usart->USARTx, LL_USART_DMA_REG_DATA_RECEIVE);
+#else
+    dmaInit.PeriphOrM2MSrcAddress = LL_USART_DMA_GetRegAddr(usart->USARTx);
+#endif
     dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
     dmaInit.MemoryOrM2MDstAddress = (uint32_t)data;
     dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
     dmaInit.NbData = size;
-    dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH; // TODO: make it configurable
+    dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;  // TODO: make it configurable
 
     LL_DMA_Init(usart->txDMA, usart->txDMA_Stream, &dmaInit);
 
@@ -374,6 +415,7 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
       LL_DMA_EnableIT_TC(usart->txDMA, usart->txDMA_Stream);
     }
     LL_DMA_EnableStream(usart->txDMA, usart->txDMA_Stream);
+#endif
 
     return;
   } else {
@@ -387,10 +429,12 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
 uint8_t stm32_usart_tx_completed(const stm32_usart_t* usart)
 {
   if (LL_USART_IsEnabledDMAReq_TX(usart->USARTx)) {
+#if !defined(STM32H7RS)
     // TX DMA is configured, let's check if the stream is currently enabled
     if (LL_DMA_IsEnabledStream(usart->txDMA, usart->txDMA_Stream) ||
         !LL_USART_IsActiveFlag_TXE(usart->USARTx))
       return 0;
+#endif
   } else if (LL_USART_IsEnabledIT_TXE(usart->USARTx)) {
     return 0;
   }
@@ -402,6 +446,7 @@ void stm32_usart_wait_for_tx_dma(const stm32_usart_t* usart)
 {
   // TODO: check if everything is properly initialised, this seems to block when
   //       the port has been initialised with a zero baudrate
+#if !defined(STM32H7RS)
   if (LL_DMA_IsEnabledStream(usart->txDMA, usart->txDMA_Stream)) {
 
     switch(usart->txDMA_Stream) {
@@ -427,6 +472,7 @@ void stm32_usart_wait_for_tx_dma(const stm32_usart_t* usart)
       break;
     }
   }
+#endif
 }
 
 void stm32_usart_enable_rx(const stm32_usart_t* usart)
@@ -494,14 +540,22 @@ uint32_t stm32_usart_get_baudrate(const stm32_usart_t* usart)
 {
   auto periphclk = _get_usart_periph_clock(usart->USARTx);
   auto oversampling = LL_USART_GetOverSampling(usart->USARTx);
+#if defined(LL_USART_PRESCALER_DIV1)
+  return LL_USART_GetBaudRate(usart->USARTx, periphclk, LL_USART_PRESCALER_DIV1, oversampling);
+#else
   return LL_USART_GetBaudRate(usart->USARTx, periphclk, oversampling);
+#endif
 }
 
 void stm32_usart_set_baudrate(const stm32_usart_t* usart, uint32_t baudrate)
 {
   auto periphclk = _get_usart_periph_clock(usart->USARTx);
   auto oversampling = LL_USART_GetOverSampling(usart->USARTx);
+#if defined(LL_USART_PRESCALER_DIV1)
+  LL_USART_SetBaudRate(usart->USARTx, periphclk, LL_USART_PRESCALER_DIV1, oversampling, baudrate);
+#else
   LL_USART_SetBaudRate(usart->USARTx, periphclk, oversampling, baudrate);
+#endif
 }
 
 void stm32_usart_set_hw_option(const stm32_usart_t* usart, uint32_t option)
@@ -520,19 +574,34 @@ void stm32_usart_set_hw_option(const stm32_usart_t* usart, uint32_t option)
   }
 }
 
-#define USART_FLAG_ERRORS \
-  (LL_USART_SR_ORE | LL_USART_SR_NE | LL_USART_SR_FE | LL_USART_SR_PE)
+#if defined(STM32H7) || defined(STM32H7RS)
+# define USART_STATUS_REG ISR
+# define USART_IDLE USART_ISR_IDLE
+# define USART_TXE USART_ISR_TXFE
+# define USART_TC USART_ISR_TC
+# define USART_RXNE USART_ISR_RXNE_RXFNE
+# define USART_FLAG_ERRORS \
+  (USART_ISR_ORE | USART_ISR_NE | USART_ISR_FE | USART_ISR_PE)
+#else
+# define USART_STATUS_REG SR
+# define USART_IDLE USART_SR_IDLE
+# define USART_TXE USART_SR_TXE
+# define USART_TC USART_SR_TC
+# define USART_RXNE USART_SR_RXNE
+# define USART_FLAG_ERRORS \
+  (USART_SR_ORE | USART_SR_NE | USART_SR_FE | USART_SR_PE)
+#endif
 
 void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
 {
-  uint32_t status = LL_USART_ReadReg(usart->USARTx, SR);
+  uint32_t status = LL_USART_ReadReg(usart->USARTx, USART_STATUS_REG);
 
-  // cache these first, as RXNE might clear SR
-  uint32_t idle = (status & LL_USART_SR_IDLE);
-  uint32_t txe = (status & LL_USART_SR_TXE);
+  // cache these first, as RXNE might clear ISR
+  uint32_t idle = (status & USART_IDLE);
+  uint32_t txe = (status & USART_TXE);
 
   // TC is only enabled with 2-wire half-duplex when TX DMA was in use
-  if (LL_USART_IsEnabledIT_TC(usart->USARTx) && (status & LL_USART_SR_TC)) {
+  if (LL_USART_IsEnabledIT_TC(usart->USARTx) && (status & USART_TC)) {
 
     // disable TC IRQ
     LL_USART_DisableIT_TC(usart->USARTx);
@@ -541,9 +610,9 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
     _half_duplex_input(usart);
 
     // and drain RX side first
-    while (status & LL_USART_SR_RXNE) {
-      status = LL_USART_ReadReg(usart->USARTx, DR);
-      status = LL_USART_ReadReg(usart->USARTx, SR);
+    while (status & USART_RXNE) {
+      status = LL_USART_ReceiveData8(usart->USARTx);
+      status = LL_USART_ReadReg(usart->USARTx, USART_STATUS_REG);
     }
   }
   
@@ -551,22 +620,25 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
   if (LL_USART_IsEnabledIT_RXNE(usart->USARTx)) {
 
     // Drain RX
-    while (status & (LL_USART_SR_RXNE | USART_FLAG_ERRORS)) {
+    while (status & (USART_RXNE | USART_FLAG_ERRORS)) {
 
       // This will clear the RXNE/error bits in USART_SR register
-      uint8_t data = LL_USART_ReadReg(usart->USARTx, DR);
+      uint8_t data = LL_USART_ReceiveData8(usart->USARTx);
 
       if (status & USART_FLAG_ERRORS) {
+#if defined(STM32H7) || defined(STM32H7RS)
+        WRITE_REG(usart->USARTx->ICR, status & USART_FLAG_ERRORS);
+#endif
         if (cb->on_error)
           cb->on_error();
       }
 
-      if (status & LL_USART_SR_RXNE) {
+      if (status & USART_RXNE) {
         if (cb->on_receive)
           cb->on_receive(data);
       }
 
-      status = LL_USART_ReadReg(usart->USARTx, SR);
+      status = LL_USART_ReadReg(usart->USARTx, USART_STATUS_REG);
     }
   }
 
@@ -582,8 +654,9 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
   }
 
   if (LL_USART_IsEnabledIT_IDLE(usart->USARTx) && idle) {
-    // SR clear sequence
-    status = LL_USART_ReadReg(usart->USARTx, DR);
+    // ISR clear sequence
+    status = LL_USART_ReceiveData8(usart->USARTx);
+    LL_USART_ClearFlag_IDLE(usart->USARTx);
     if (cb->on_idle) cb->on_idle(cb->on_idle_ctx);
   }
 }

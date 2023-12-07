@@ -175,10 +175,15 @@
 #else //SIMU
   #define LV_USE_GPU_STM32_DMA2D 1
 #endif
+
 #if LV_USE_GPU_STM32_DMA2D
     /*Must be defined to include path of CMSIS header of target processor
     e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
+#ifdef STM32H7
+    #define LV_GPU_DMA2D_CMSIS_INCLUDE "stm32h7xx.h"
+#else
     #define LV_GPU_DMA2D_CMSIS_INCLUDE "stm32f4xx.h"
+#endif
 //    #if !defined(DMA2D_NLR_PL_Pos)
 //      #define DMA2D_NLR_PL_Pos 16
 //    #endif

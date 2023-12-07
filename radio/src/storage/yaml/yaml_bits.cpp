@@ -27,6 +27,8 @@
 
 #include <limits.h>     /* CHAR_BIT */
 
+#define _IS_ALIGNED(addr) (((intptr_t)addr & 0x3) == 0)
+
 #define BIT_MASK(__TYPE__, __ONE_COUNT__) \
     ((__TYPE__) (-((__ONE_COUNT__) != 0))) \
     & (((__TYPE__) -1) >> ((sizeof(__TYPE__) * CHAR_BIT) - (__ONE_COUNT__)))
@@ -107,10 +109,12 @@ bool yaml_is_zero(uint8_t* data, uint32_t bitoffs, uint32_t bits)
     return !yaml_get_bits(data, bitoffs, bits);
   }
 
-  while (bits >= 32) {
-    if (*(uint32_t*)data) return false;
-    data += 4;
-    bits -= 32;
+  if(_IS_ALIGNED(data)) {
+    while (bits >= 32) {
+      if (*(uint32_t*)data) return false;
+      data += 4;
+      bits -= 32;
+    }
   }
 
   while (bits >= 8) {

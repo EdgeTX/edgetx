@@ -69,7 +69,7 @@ static lv_disp_drv_t* refr_disp = nullptr;
 static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
                      lv_color_t* color_p)
 {
-#if (!defined(LCD_VERTICAL_INVERT) || defined(RADIO_F16)) && !defined(BOOT) 
+#if (!defined(LCD_VERTICAL_INVERT) || defined(RADIO_F16)) && !defined(BOOT)
 #if defined(RADIO_F16)
   if (hardwareOptions.pcbrev > 0)
 #endif
@@ -124,9 +124,6 @@ static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
       DMACopyBitmap(dst, LCD_W, LCD_H, refr_area.x1, refr_area.y1, src, LCD_W,
                     LCD_H, refr_area.x1, refr_area.y1, area_w, area_h);
     }
-    DMAWait();  // wait for the last DMACopyBitmap to be completed before
-                // sending completion message
-}
 #endif
   }
 

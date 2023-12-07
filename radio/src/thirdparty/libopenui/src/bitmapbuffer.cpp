@@ -181,7 +181,6 @@ void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const BitmapBuffer *bmp,
     return;
   }
 
-  DMAWait();
   if (scale == 0) {
     if (bmp->getFormat() == BMP_ARGB4444) {
       DMACopyAlphaBitmap(data, _width, _height, x, y, bmp->getData(), bmpw,
@@ -191,6 +190,10 @@ void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const BitmapBuffer *bmp,
                     srcx, srcy, srcw, srch);
     }
     DMAWait();
+
+#if __CORTEX_M >= 0x07
+    SCB_CleanInvalidateDCache();
+#endif
   } else {
     int scaledw = srcw * scale;
     int scaledh = srch * scale;
@@ -306,7 +309,6 @@ void BitmapBuffer::drawHorizontalLineAbs(coord_t x, coord_t y, coord_t w,
   }
 #if !defined(BOOT)
   else if (canvas) {
-    DMAWait();
     lv_canvas_draw_line(canvas, p, 2, &line_dsc);
   }
 #endif
@@ -351,7 +353,6 @@ void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h,
   }
 #if !defined(BOOT)
   else if (canvas) {
-    DMAWait();
     lv_canvas_draw_line(canvas, p, 2, &line_dsc);
   }
 #endif
@@ -484,7 +485,6 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
   }
 #if !defined(BOOT)
   else if (canvas) {
-    DMAWait();
     lv_canvas_draw_text(canvas, coords.x1, coords.y1, coords.x2 - coords.x1 + 1,
                         &label_draw_dsc, buffer);
   }
@@ -493,6 +493,7 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
   RESTORE_OFFSET();
 
   pos += p.x;
+
   return ((flags & RIGHT) ? orig_pos : pos) - offsetX;
 }
 
