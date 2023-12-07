@@ -19,11 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
 #include "hal/gpio.h"
 #include "stm32_gpio.h"
 #include "stm32_timer.h"
 
+#include "board.h"
 
 void hapticOff(void)
 {

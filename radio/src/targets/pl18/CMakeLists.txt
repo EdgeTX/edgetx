@@ -115,6 +115,7 @@ set(FIRMWARE_TARGET_SRC
   battery_driver.cpp
   backlight_driver.cpp
   led_driver.cpp
+  haptic_driver.cpp
   )
 
 set(FIRMWARE_SRC

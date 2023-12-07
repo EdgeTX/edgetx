@@ -21,7 +21,6 @@ set(BOOTLOADER_SRC
   ../flash_driver.cpp
   ../watchdog_driver.cpp
   ../abnormal_reboot.cpp
-  init.c
   boot.cpp
   bin_files.cpp
   )
@@ -138,7 +137,7 @@ add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})
 add_dependencies(bootloader ${BITMAPS_TARGET})
 
 target_link_options(bootloader PRIVATE
-  -lm -nostartfiles -T${LINKER_DIR}/bootloader.ld
+  -lm -T${LINKER_DIR}/bootloader.ld
   -Wl,-Map=bootloader.map,--cref,--no-warn-mismatch,--gc-sections
   --specs=nano.specs
 )

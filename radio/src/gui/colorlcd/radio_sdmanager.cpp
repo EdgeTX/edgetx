@@ -266,6 +266,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
         audioQueue.playFile(fullpath, 0, ID_PLAY_FROM_SD_MANAGER);
       });
     }
+#if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
 #if defined(MULTIMODULE) && !defined(DISABLE_MULTI_UPDATE)
     if (!strcasecmp(ext, MULTI_FIRMWARE_EXT)) {
       MultiFirmwareInformation information;
@@ -409,6 +410,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
 #endif  // _NYI_
       }
     }
+#endif
 #if defined(LUA)
     else if (isExtensionMatching(ext, SCRIPTS_EXT)) {
       menu->addLine(STR_EXECUTE_FILE, [=]() {
