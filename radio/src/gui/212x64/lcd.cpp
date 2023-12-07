@@ -39,13 +39,7 @@
   #include "switches.h"
 #endif
 
-#if (defined(PCBX9E) || defined(PCBX9DP)) && defined(LCD_DUAL_BUFFER)
-  pixel_t displayBuf1[DISPLAY_BUFFER_SIZE] __DMA;
-  pixel_t displayBuf2[DISPLAY_BUFFER_SIZE] __DMA;
-  pixel_t * displayBuf = displayBuf1;
-#else
-  pixel_t displayBuf[DISPLAY_BUFFER_SIZE] __DMA;
-#endif
+pixel_t displayBuf[DISPLAY_BUFFER_SIZE] __DMA;
 
 inline bool lcdIsPointOutside(coord_t x, coord_t y)
 {
