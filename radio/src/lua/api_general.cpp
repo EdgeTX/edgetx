@@ -2915,31 +2915,24 @@ static int luaGetAlternateData(lua_State * const L)
   const uint8_t id = luaL_checkunsigned(L, 1);
   
   if (id < AlternateData::container.size()) {
-      lua_pushinteger(L, AlternateData::container[id].toInt());
+      lua_pushinteger(L, AlternateData::container[id]);
       return 1;
   }
   return 0;
 }
 
 static int luaGetAlternateNextChunk(lua_State* const L) {
-    const uint8_t numberOfValues = luaL_checkunsigned(L, 1);
-
+    const uint8_t sizeOfChunk = luaL_checkunsigned(L, 1);
     lua_newtable(L);
-
-//    TRACE("chunk: %d", numberOfValues);
     uint8_t i = 0;
-    const uint8_t startIndex = AlternateData::container.pushNextData(numberOfValues, 
+    const uint8_t startIndex = AlternateData::container.pushNextChunk(sizeOfChunk, 
                                                                      [&](const uint8_t value){
-//        TRACE_NOCRLF(" %d ", value);
         ++i;
         lua_pushinteger(L, i);
         lua_pushinteger(L, value);
         lua_settable(L, -3);
     });
-//    TRACE("\n *** %d", startIndex);
-
     lua_pushinteger(L, startIndex);
-    
     return 2;
 }
 
