@@ -48,8 +48,8 @@ struct stm32_serial_port {
 extern const etx_serial_driver_t STM32SerialDriver;
 
 #define DEFINE_STM32_SERIAL_PORT(p,usart,rx_buf_len,tx_buf_len) \
-  static uint8_t p ## _RXBuffer[rx_buf_len] __DMA;              \
-  static uint8_t p ## _TXBuffer[tx_buf_len] __DMA;              \
+  static uint8_t p ## _RXBuffer[rx_buf_len] __attribute__((__section__(".sram2")));              \
+  static uint8_t p ## _TXBuffer[tx_buf_len] __attribute__((__section__(".sram2")));              \
   static const stm32_serial_port p ## _STM32Serial = {          \
     &usart,                                                     \
     { p ## _RXBuffer, rx_buf_len },                             \

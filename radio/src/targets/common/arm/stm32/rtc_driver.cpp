@@ -60,7 +60,7 @@ void rtcGetTime(struct gtm * t)
 void rtcInit()
 {
   rtc.Instance = RTC;
-  __HAL_RCC_PWR_CLK_ENABLE();
+//  __HAL_RCC_PWR_CLK_ENABLE();
   HAL_PWR_EnableBkUpAccess();
 
   // Enable LSE Oscillator
@@ -92,7 +92,7 @@ void rtcInit()
   g_rtcTime = gmktime(&utm);
 #endif
 
-#if defined(RTC_BACKUP_RAM) && !defined(BOOT)
+#if defined(RTC_BACKUP_RAM) && !defined(BOOT) && !defined(STM32H7)
   __HAL_RCC_BKPSRAM_CLK_ENABLE();
   HAL_PWREx_EnableBkUpReg();
 #endif
@@ -101,7 +101,8 @@ void rtcInit()
 void rtcDisableBackupReg()
 {
 #if defined(RTC_BACKUP_RAM)
-  __HAL_RCC_BKPSRAM_CLK_DISABLE();
+  __HAL_RCC_BKPRAM_CLKAM_DISABLE();
+//  __HAL_RCC_BKPSRAM_CLK_DISABLE();
   HAL_PWREx_DisableBkUpReg();
 #endif
 }

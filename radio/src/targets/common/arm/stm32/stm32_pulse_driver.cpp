@@ -64,7 +64,9 @@ static void init_dma_arr_mode(const stm32_pulse_timer_t* tim)
     dmaInit.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_HALFWORD;
   }
 
+#ifndef STM32H7
   dmaInit.Channel = tim->DMA_Channel;
+#endif
   dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;
 
   stm32_dma_enable_clock(tim->DMAx);

@@ -107,10 +107,13 @@ bool yaml_is_zero(uint8_t* data, uint32_t bitoffs, uint32_t bits)
     return !yaml_get_bits(data, bitoffs, bits);
   }
 
-  while (bits >= 32) {
-    if (*(uint32_t*)data) return false;
-    data += 4;
-    bits -= 32;
+  if(((intptr_t)data&0x03) == 0)
+  {
+    while (bits >= 32) {
+      if (*(uint32_t*)data) return false;
+      data += 4;
+      bits -= 32;
+    }
   }
 
   while (bits >= 8) {

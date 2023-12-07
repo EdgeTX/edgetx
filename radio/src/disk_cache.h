@@ -24,7 +24,7 @@
 #include "hal/fatfs_diskio.h"
 
 // tunable parameters
-#define DISK_CACHE_BLOCKS_NUM      32   // no cache blocks
+#define DISK_CACHE_BLOCKS_NUM      1 //32   // no cache blocks
 #define DISK_CACHE_BLOCK_SECTORS   16   // no sectors
 
 struct DiskCacheStats

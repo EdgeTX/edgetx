@@ -115,8 +115,6 @@ static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
       DMACopyBitmap(dst, LCD_W, LCD_H, refr_area.x1, refr_area.y1, src, LCD_W,
                     LCD_H, refr_area.x1, refr_area.y1, area_w, area_h);
     }
-    DMAWait();  // wait for the last DMACopyBitmap to be completed before
-                // sending completion message
 #endif
   }
 

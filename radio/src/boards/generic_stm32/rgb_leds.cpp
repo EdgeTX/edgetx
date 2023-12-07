@@ -91,7 +91,9 @@ const stm32_pulse_timer_t _led_timer = {
   .TIM_IRQn = (IRQn_Type)-1,
   .DMAx = LED_STRIP_TIMER_DMA,
   .DMA_Stream = LED_STRIP_TIMER_DMA_STREAM,
+#ifndef STM32H7
   .DMA_Channel = LED_STRIP_TIMER_DMA_CHANNEL,
+#endif
   .DMA_IRQn = LED_STRIP_TIMER_DMA_IRQn,
   .DMA_TC_CallbackPtr = nullptr,
 };

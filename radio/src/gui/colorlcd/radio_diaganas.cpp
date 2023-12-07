@@ -193,23 +193,23 @@ class AnaCalibratedViewWindow : public AnaViewWindow
     lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 5,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-#if !defined(SIMU) && !defined(PCBNV14) && !defined(PCBPL18)
-    line = newLine(grid);
-    auto lbl2 = new StaticText(
-        line, rect_t{},
-        std::string("Touch GT911 FW ver: ") + std::to_string(touchGT911fwver),
-        COLOR_THEME_PRIMARY1);
-    lv_obj_set_grid_cell(lbl2->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 5,
-                         LV_GRID_ALIGN_CENTER, 0, 1);
+// #if !defined(SIMU) && !defined(PCBNV14) && !defined(PCBPL18)
+//     line = newLine(grid);
+//     auto lbl2 = new StaticText(
+//         line, rect_t{},
+//         std::string("Touch GT911 FW ver: ") + std::to_string(touchGT911fwver),
+//         COLOR_THEME_PRIMARY1);
+//     lv_obj_set_grid_cell(lbl2->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 5,
+//                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-#if PORTRAIT_LCD
-    line = newLine(grid);
-#endif
-    lbl2 = new StaticText(line, rect_t{},
-                          "TSI2CEvents: " + std::to_string(touchGT911hiccups));
-    lv_obj_set_grid_cell(lbl2->getLvObj(), LV_GRID_ALIGN_STRETCH,
-                         TSI2CEventsCol, 5, LV_GRID_ALIGN_CENTER, 0, 1);
-#endif
+// #if PORTRAIT_LCD
+//     line = newLine(grid);
+// #endif
+//     lbl2 = new StaticText(line, rect_t{},
+//                           "TSI2CEvents: " + std::to_string(touchGT911hiccups));
+//     lv_obj_set_grid_cell(lbl2->getLvObj(), LV_GRID_ALIGN_STRETCH,
+//                          TSI2CEventsCol, 5, LV_GRID_ALIGN_CENTER, 0, 1);
+// #endif
 #endif  // defined(HARDWARE_TOUCH)
 
     setHeight(parent->height());

@@ -36,7 +36,7 @@
 static const stm32_usart_t fsUSART = {
   .USARTx = FLYSKY_HALL_SERIAL_USART,
   .txGPIO = GPIO_UNDEF,
-  .rxGPIO = FLYSKY_HALL_SERIAL_RX_GPIO,
+  .rxGPIO = (gpio_t)FLYSKY_HALL_SERIAL_RX_GPIO,
   .IRQn = FLYSKY_HALL_SERIAL_USART_IRQn,
   .IRQ_Prio = 6,
   .txDMA = nullptr,

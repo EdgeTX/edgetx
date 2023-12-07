@@ -265,9 +265,9 @@ class DateTimeWidget : public TopBarWidget
   void update() override
   {
     // get color from options
-    LcdFlags color =
-        COLOR2FLAGS(persistentData->options[0].value.unsignedValue);
-    dateTime->setColor(color);
+    uint32_t buf;
+    memcpy(&buf, &persistentData->options[0].value.unsignedValue, sizeof(buf));
+    dateTime->setColor(COLOR2FLAGS(buf));
   }
 
   HeaderDateTime* dateTime = nullptr;

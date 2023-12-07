@@ -665,7 +665,8 @@ static const TValue* rotable_findentry(ROTable *t, TString *key, unsigned *ppos)
   lu_int32 name4 = *(lu_int32 *)strkey;
   lu_int32 mask4 = l > 2 ? (~0u) : (~0u)>>((3-l)*8);
   lua_assert(*(int*)"abcd" == 0x64636261);
-#define eq4(s)   (((*(lu_int32 *)s ^ name4) & mask4) == 0)
+//#define eq4(s)   (((*(lu_int32 *)s ^ name4) & mask4) == 0)
+#define eq4(s)   (1)
 #define ismeta(s) ((*(lu_int32 *)s & 0xffff) == *(lu_int32 *)"__\0")
 
   if (ismeta(&name4)) {

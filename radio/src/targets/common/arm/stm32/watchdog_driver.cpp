@@ -22,19 +22,23 @@
 #include "hal/watchdog_driver.h"
 #include "stm32_hal_ll.h"
 
+#ifdef IWDG1
+  #define IWDG IWDG1
+#endif
+
 void watchdogInit(unsigned int duration)
 {
-  LL_IWDG_EnableWriteAccess(IWDG);
-  LL_IWDG_SetPrescaler(IWDG, LL_IWDG_PRESCALER_32);
+  // LL_IWDG_EnableWriteAccess(IWDG);
+  // LL_IWDG_SetPrescaler(IWDG, LL_IWDG_PRESCALER_32);
 
-  LL_IWDG_EnableWriteAccess(IWDG);
-  LL_IWDG_SetReloadCounter(IWDG, duration);
+  // LL_IWDG_EnableWriteAccess(IWDG);
+  // LL_IWDG_SetReloadCounter(IWDG, duration);
 
-  LL_IWDG_ReloadCounter(IWDG);
-  LL_IWDG_Enable(IWDG);
+  // LL_IWDG_ReloadCounter(IWDG);
+  // LL_IWDG_Enable(IWDG);
 }
 
 void watchdogReset()
 {
-  LL_IWDG_ReloadCounter(IWDG);  
+  // LL_IWDG_ReloadCounter(IWDG);  
 }

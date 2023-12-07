@@ -19,9 +19,16 @@
  * GNU General Public License for more details.
  */
 
+#if !defined(SIMU)
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
 #include "stm32_timer.h"
+#include "stm32_i2c_driver.h"
+# if defined(FIRMWARE_QSPI)
+#   include "stm32_qspi.h"
+# endif
+#endif
+
 #include "hal/usb_driver.h"
 
 #if defined(BLUETOOTH)
@@ -55,7 +62,11 @@
   #define SECONDARY_BOOTLOADER_KEYS       0x1200
 #endif
 
-#define APP_START_ADDRESS (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
+#if defined(FIRMWARE_QSPI)
+#  define APP_START_ADDRESS (uint32_t)(FIRMWARE_ADDRESS)
+#else
+#  define APP_START_ADDRESS (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
+#endif
 
 #if defined(EEPROM) || defined(SPI_FLASH)
   #define MAIN_MENU_LEN 3
@@ -170,10 +181,24 @@ void flashWriteBlock()
 {
   // TODO: use some board provided driver instead
   uint32_t blockOffset = 0;
-  while (BlockCount) {
 #if !defined(SIMU)
+#ifdef FIRMWARE_QSPI
+  while(BlockCount)
+  {
+    qspiWriteBlock((intptr_t)firmwareAddress, &Block_buffer[blockOffset]);
+    blockOffset += 4096;
+    firmwareAddress += 4096;
+    if (BlockCount > 4096) {
+      BlockCount -= 4096;
+    }
+    else {
+      BlockCount = 0;
+    }
+  }
+
+#else
+  while (BlockCount) {
     flashWrite((uint32_t *)firmwareAddress, (uint32_t *)&Block_buffer[blockOffset]);
-#endif
     blockOffset += FLASH_PAGESIZE;
     firmwareAddress += FLASH_PAGESIZE;
     if (BlockCount > FLASH_PAGESIZE) {
@@ -183,6 +208,8 @@ void flashWriteBlock()
       BlockCount = 0;
     }
   }
+#endif
+#endif // SIMU
 }
 
 #if defined(EEPROM)
@@ -225,7 +252,7 @@ void bootloaderInitApp()
   // wait a bit for the inputs to stabilize...
   if (!WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
     for (uint32_t i = 0; i < 150000; i++) {
-      __ASM volatile ("nop");
+      __ASM volatile("nop");
     }
   }
 
@@ -238,9 +265,9 @@ void bootloaderInitApp()
   // TODO: move all this into board specifics
   pwrOn();
 
-#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
-  rotaryEncoderInit();
-#endif
+// #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
+//   rotaryEncoderInit();
+// #endif
 
   delaysInit(); // needed for lcdInit()
 
@@ -453,8 +480,13 @@ int  bootloaderMain()
           // confirmed
 
           if (memoryType == MEM_FLASH) {
+#ifdef FIRMWARE_QSPI
+            firmwareSize = binFiles[vpos].size ;
+            firmwareAddress = 0;
+#else
             firmwareSize = binFiles[vpos].size - BOOTLOADER_SIZE;
             firmwareAddress = FIRMWARE_ADDRESS + BOOTLOADER_SIZE;
+#endif
             firmwareWritten = 0;
           }
 #if defined(EEPROM)
@@ -463,16 +495,21 @@ int  bootloaderMain()
             eepromWritten = 0;
           }
 #endif
+#ifdef FIRMWARE_QSPI
           state = ST_FLASHING;
+#else
+          state = ST_FLASHING;
+#endif
         }
       }
       else if (state == ST_FLASHING) {
+#ifndef FIRMWARE_QSPI
         // commit to flashing
         if (!unlocked && (memoryType == MEM_FLASH)) {
           unlocked = 1;
           unlockFlash();
         }
-
+#endif
         int progress = 0;
         if (memoryType == MEM_FLASH) {
           flashWriteBlock();
@@ -493,7 +530,11 @@ int  bootloaderMain()
         if (BlockCount == 0) {
           state = ST_FLASH_DONE; // EOF
         }
+#ifdef FIRMWARE_QSPI
+        else if (memoryType == MEM_FLASH && firmwareWritten >= FLASHSIZE) {
+#else
         else if (memoryType == MEM_FLASH && firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
+#endif
           state = ST_FLASH_DONE; // Backstop
         }
 #if defined(EEPROM)
@@ -542,11 +583,12 @@ int  bootloaderMain()
       }
 
       if (state == ST_FLASH_DONE) {
+#ifdef FIRMWARE_QSPI
         if (unlocked) {
           lockFlash();
           unlocked = 0;
         }
-
+#endif
         if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
           state = ST_START;
           vpos = 0;
@@ -585,6 +627,6 @@ int  bootloaderMain()
   return 0;
 }
 
-#if !defined(SIMU) && (defined(PCBHORUS) || defined(PCBFLYSKY))
+#if !defined(SIMU) && (defined(PCBHORUS) || defined(PCBFLYSKY) || defined(STM32H747xx))
 void *__dso_handle = nullptr;
 #endif

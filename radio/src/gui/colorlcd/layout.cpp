@@ -34,6 +34,8 @@ std::list<const LayoutFactory*>& LayoutFactory::getRegisteredLayouts()
 
 const LayoutFactory* LayoutFactory::getLayoutFactory(const char* name)
 {
+  if(name[0] == 0)
+    return nullptr;
   auto it = getRegisteredLayouts().cbegin();
   for (; it != getRegisteredLayouts().cend(); ++it) {
     if (!strcmp(name, (*it)->getId())) {

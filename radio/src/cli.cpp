@@ -1583,39 +1583,39 @@ int cliCrypt(const char ** argv)
 }
 #endif
 
-#if defined(HARDWARE_TOUCH) && !defined(PCBNV14) && !defined(PCBPL18)
+// #if defined(HARDWARE_TOUCH) && !defined(PCBNV14) && !defined(PCBPL18)
 
-// from tp_gt911.cpp
-extern uint8_t tp_gt911_cfgVer;
+// // from tp_gt911.cpp
+// extern uint8_t tp_gt911_cfgVer;
 
-int cliResetGT911(const char** argv)
-{
-    (void)argv;
+// int cliResetGT911(const char** argv)
+// {
+//     (void)argv;
 
-    if (!touchGT911Flag) {
-        cliSerialPrint("GT911 not detected: exit\n");
-        return 0;
-    }
+//     if (!touchGT911Flag) {
+//         cliSerialPrint("GT911 not detected: exit\n");
+//         return 0;
+//     }
 
-    // stop pulses & suspend RTOS scheduler
-    watchdogSuspend(200/*2s*/);
-    pulsesStop();
-    vTaskSuspendAll();
+//     // stop pulses & suspend RTOS scheduler
+//     watchdogSuspend(200/*2s*/);
+//     pulsesStop();
+//     vTaskSuspendAll();
 
-    // reset touch controller
-    touchPanelDeInit();
-    cliSerialPrintf("GT911: old config version is %u\n", tp_gt911_cfgVer);
-    tp_gt911_cfgVer = 0;
-    touchPanelInit();
-    cliSerialPrintf("GT911: new config version is %u\n", tp_gt911_cfgVer);
+//     // reset touch controller
+//     touchPanelDeInit();
+//     cliSerialPrintf("GT911: old config version is %u\n", tp_gt911_cfgVer);
+//     tp_gt911_cfgVer = 0;
+//     touchPanelInit();
+//     cliSerialPrintf("GT911: new config version is %u\n", tp_gt911_cfgVer);
 
-    // restart pulses & RTOS scheduler
-    pulsesStart();
-    xTaskResumeAll();
+//     // restart pulses & RTOS scheduler
+//     pulsesStart();
+//     xTaskResumeAll();
 
-    return 0;
-}
-#endif
+//     return 0;
+// }
+// #endif
 
 const CliCommand cliCommands[] = {
   { "beep", cliBeep, "[<frequency>] [<duration>]" },
@@ -1655,9 +1655,9 @@ const CliCommand cliCommands[] = {
 #if defined(ACCESS_DENIED) && defined(DEBUG_CRYPT)
   { "crypt", cliCrypt, "<string to be encrypted>" },
 #endif
-#if defined(HARDWARE_TOUCH) && !defined(PCBNV14) && !defined(PCBPL18)
-  { "reset_gt911", cliResetGT911, ""},
-#endif
+// #if defined(HARDWARE_TOUCH) && !defined(PCBNV14) && !defined(PCBPL18)
+//   { "reset_gt911", cliResetGT911, ""},
+// #endif
   { nullptr, nullptr, nullptr }  /* sentinel */
 };
 

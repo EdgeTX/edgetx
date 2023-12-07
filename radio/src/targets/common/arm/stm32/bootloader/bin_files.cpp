@@ -36,7 +36,7 @@ static FIL FlashFile;
 
 // 'public' variables
 BinFileInfo binFiles[MAX_BIN_FILES];
-uint8_t     Block_buffer[BLOCK_LEN];
+uint8_t     Block_buffer[BLOCK_LEN] /*__attribute__((section(".SDBUF")))*/;
 UINT        BlockCount;
 
 void sdInit(void)
@@ -148,12 +148,12 @@ FRESULT openBinFile(MemoryType mt, unsigned int index)
   // open the file
   if ((fr = f_open(&FlashFile, full_path, FA_READ)) != FR_OK)
     return fr;
-
+#ifndef FIRMWARE_QSPI
   // skip bootloader in firmware
   if (mt == MEM_FLASH &&
       ((fr = f_lseek(&FlashFile, BOOTLOADER_SIZE)) != FR_OK))
       return fr;
-
+#endif
   // ... and fetch BLOCK_LEN bytes
   fr = f_read(&FlashFile, Block_buffer, BLOCK_LEN, &BlockCount);
 

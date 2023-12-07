@@ -74,6 +74,8 @@
  * See https://fastcompression.blogspot.fr/2015/08/accessing-unaligned-memory.html for details.
  * Prefer these methods in priority order (0 > 1 > 2)
  */
+
+#define LZ4_FORCE_MEMORY_ACCESS 0
 #ifndef LZ4_FORCE_MEMORY_ACCESS   /* can be defined externally */
 #  if defined(__GNUC__) && \
   ( defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_6J__) || defined(__ARM_ARCH_6K__) \
@@ -455,7 +457,12 @@ void LZ4_wildCopy8(void* dstPtr, const void* srcPtr, void* dstEnd)
     const BYTE* s = (const BYTE*)srcPtr;
     BYTE* const e = (BYTE*)dstEnd;
 
-    do { LZ4_memcpy(d,s,8); d+=8; s+=8; } while (d<e);
+    while(((((intptr_t)d&0x03) != 0) || (((intptr_t)s&0x03) !=0)) && (e-d != 0))
+    {
+      *d++ = *s++;
+    }
+    //do { LZ4_memcpy(d,s,8); d+=8; s+=8; } while (d<e);
+    memcpy(d, s, e-d);
 }
 
 static const unsigned inc32table[8] = {0, 1, 2,  1,  0,  4, 4, 4};

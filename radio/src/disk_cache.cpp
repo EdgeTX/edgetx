@@ -52,7 +52,7 @@ class DiskCacheBlock
   bool empty() const;
 
  private:
-  uint8_t data[DISK_CACHE_BLOCK_SIZE];
+  uint8_t data[DISK_CACHE_BLOCK_SIZE] __attribute__((aligned(4)));
   DWORD startSector;
   DWORD endSector;
 };
@@ -65,6 +65,11 @@ DiskCacheBlock::DiskCacheBlock():
 
 bool DiskCacheBlock::read(BYTE * buff, DWORD sector, UINT count)
 {
+  if(endSector && endSector-startSector != DISK_CACHE_BLOCK_SECTORS)
+  {
+    asm("BKPT");
+    return false;
+  }
   if (sector >= startSector && (sector+count) <= endSector) {
     TRACE_DISK_CACHE("\tcache read(%u, %u) from %p", (uint32_t)sector, (uint32_t)count, this);
     memcpy(buff, data + ((sector - startSector) * BLOCK_SIZE), count * BLOCK_SIZE);

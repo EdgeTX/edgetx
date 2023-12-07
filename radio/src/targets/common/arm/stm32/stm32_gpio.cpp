@@ -23,6 +23,7 @@
 #include "stm32_gpio.h"
 #include "stm32_exti_driver.h"
 #include "stm32_gpio_driver.h"
+#include "stm32_hal.h"
 #include "stm32_hal_ll.h"
 
 static inline GPIO_TypeDef* _port(gpio_t pin)
@@ -37,8 +38,16 @@ static inline int _port_num(gpio_t pin)
 
 static inline void _enable_clock(GPIO_TypeDef* port)
 {
-  uint32_t reg_idx = (((uint32_t)port) - GPIOA_BASE) >> 10;
-  LL_AHB1_GRP1_EnableClock(RCC_AHB1ENR_GPIOAEN << reg_idx);
+  uint32_t reg_idx = (((uint32_t)port) - GPIOA_BASE) / 0x0400UL;
+#if defined(RCC_AHB4ENR_GPIOAEN)
+  uint32_t reg_msk = RCC_AHB4ENR_GPIOAEN << reg_idx;
+  LL_AHB4_GRP1_EnableClock(reg_msk);
+#elif defined(RCC_AHB1ENR_GPIOAEN)
+  uint32_t reg_msk = RCC_AHB1ENR_GPIOAEN << reg_idx;
+  LL_AHB1_GRP1_EnableClock(reg_msk);
+#else
+  #error "Unsupported GPIO clock"
+#endif
 }
 
 static inline int _pin_num(gpio_t pin)
@@ -90,7 +99,17 @@ void gpio_init_int(gpio_t pin, gpio_mode_t mode, gpio_flank_t flank, gpio_cb_t c
   gpio_init(pin, mode, GPIO_PIN_SPEED_LOW);
 
   // enable specific pin as exti sources
+#if defined(LL_APB4_GRP1_PERIPH_SYSCFG)
+  LL_APB4_GRP1_EnableClock(LL_APB4_GRP1_PERIPH_SYSCFG);
+#elif defined(LL_APB2_GRP1_PERIPH_SYSCFG)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+#elif defined(LL_APB4_GRP1_PERIPH_SBS)
+# define SYSCFG SBS
+  LL_APB4_GRP1_EnableClock(LL_APB4_GRP1_PERIPH_SBS);
+#else
+  #error "Unsupported SYSCFG clock"
+#endif
+
   SYSCFG->EXTICR[pin_num >> 2] &= ~(0xf << ((pin_num & 0x03) * 4));
   SYSCFG->EXTICR[pin_num >> 2] |= (port_num << ((pin_num & 0x03) * 4));
 
@@ -109,6 +128,8 @@ void gpio_init_af(gpio_t pin, gpio_af_t af, gpio_speed_t speed)
   int pin_num = _pin_num(pin);
 
   _enable_clock(port);
+
+  port->PUPDR &= ~(0x3 << (2 * pin_num));
 
   // set selected function
   port->AFR[(pin_num > 7) ? 1 : 0] &= ~(0xf << ((pin_num & 0x07) * 4));

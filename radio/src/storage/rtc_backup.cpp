@@ -40,11 +40,14 @@ Backup::RamBackupUncompressed ramBackupUncompressed __DMA;
 RamBackup _ramBackup;
 RamBackup * ramBackup = &_ramBackup;
 #else
+#ifndef STM32H7
 RamBackup * ramBackup = (RamBackup *)BKPSRAM_BASE;
+#endif
 #endif
 
 void rambackupWrite()
 {
+#ifndef STM32H7
   copyRadioData(&ramBackupUncompressed.radio, &g_eeGeneral);
   copyModelData(&ramBackupUncompressed.model, &g_model);
   ramBackup->size = compress(ramBackup->data, sizeof(ramBackup->data),
@@ -54,10 +57,12 @@ void rambackupWrite()
   TRACE("RamBackupWrite sdsize=%d backupsize=%d rlcsize=%d",
         sizeof(ModelData) + sizeof(RadioData),
         sizeof(Backup::RamBackupUncompressed), ramBackup->size);
+#endif
 }
 
 bool rambackupRestore()
 {
+#ifndef STM32H7
   if (ramBackup->size == 0)
     return false;
 
@@ -69,4 +74,7 @@ bool rambackupRestore()
   copyRadioData(&g_eeGeneral, &ramBackupUncompressed.radio);
   copyModelData(&g_model, &ramBackupUncompressed.model);
   return true;
+#else
+  return false;
+#endif
 }

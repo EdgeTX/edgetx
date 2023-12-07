@@ -102,7 +102,6 @@ static const stick_pwm_timer_t _sticks_timer = {
 #if !defined(PWM_IRQHandler)
   #error "Missing PWM_IRQHandler"
 #endif
-
 extern "C" void PWM_IRQHandler(void)
 {
   sticks_pwm_isr(&_sticks_timer, _PWM_inputs, DIM(_PWM_inputs));

@@ -92,6 +92,7 @@ extern "C" void OTG_FS_IRQHandler()
   DEBUG_INTERRUPT(INT_OTG_FS);
   HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
 }
+// extern RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
 
 void usbInit()
 {
@@ -101,9 +102,13 @@ void usbInit()
 #if defined(USB_GPIO_VBUS)
   gpio_init(USB_GPIO_VBUS, GPIO_IN, GPIO_PIN_SPEED_LOW);
 #endif
-  
-  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
-  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_OTGFS);
+
+  // TODO: check if this is necessary
+  // __HAL_RCC_SYSCFG_CLK_ENABLE();
+  // __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+
+  NVIC_SetPriority(OTG_FS_IRQn, 11);
+  NVIC_EnableIRQ(OTG_FS_IRQn);
 
   usbDriverStarted = false;
 }

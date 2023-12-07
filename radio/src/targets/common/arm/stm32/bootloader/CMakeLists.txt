@@ -52,6 +52,14 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL
     ../../../../../drivers/frftl.cpp
     ../../../../../crc.cpp
     )
+  if(PCB STREQUAL H7TEST)
+    set(BOOTLOADER_SRC
+      ${BOOTLOADER_SRC}
+      ../../../../../targets/common/arm/stm32/nca9555pw.cpp
+#      ../../../../../targets/common/arm/stm32/stm32_qspi.cpp
+      ../../../../../targets/h7test/key_driver.cpp
+    )
+  endif()
 
   if(PCB STREQUAL PL18)
     set(BOOTLOADER_SRC ${BOOTLOADER_SRC}

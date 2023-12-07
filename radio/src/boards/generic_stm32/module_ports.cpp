@@ -81,7 +81,9 @@ static const stm32_pulse_timer_t intmoduleTimer = {
   .TIM_IRQn = INTMODULE_TIMER_IRQn,
   .DMAx = INTMODULE_TIMER_DMA,
   .DMA_Stream = INTMODULE_TIMER_DMA_STREAM,
+#ifndef STM32H7
   .DMA_Channel = INTMODULE_TIMER_DMA_CHANNEL,
+#endif
   .DMA_IRQn = INTMODULE_TIMER_DMA_STREAM_IRQn,
   .DMA_TC_CallbackPtr = &_int_timer_DMA_TC_Callback,
 };
@@ -156,10 +158,14 @@ static const stm32_usart_t extmoduleUSART = {
   .IRQ_Prio = EXTMODULE_USART_IRQ_PRIORITY,
   .txDMA = EXTMODULE_USART_TX_DMA,
   .txDMA_Stream = EXTMODULE_USART_TX_DMA_STREAM,
+#ifndef STM32H7
   .txDMA_Channel = EXTMODULE_USART_TX_DMA_CHANNEL,
+#endif
   .rxDMA = EXTMODULE_USART_TX_DMA,
   .rxDMA_Stream = EXTMODULE_USART_RX_DMA_STREAM,
+#ifndef STM32H7
   .rxDMA_Channel = EXTMODULE_USART_RX_DMA_CHANNEL,
+#endif
   .set_input = nullptr,
   .txDMA_IRQn = (IRQn_Type)0,
   .txDMA_IRQ_Prio = 0,
@@ -197,7 +203,9 @@ static const stm32_pulse_timer_t extmoduleTimer = {
   .TIM_IRQn = EXTMODULE_TIMER_IRQn,
   .DMAx = EXTMODULE_TIMER_DMA,
   .DMA_Stream = EXTMODULE_TIMER_DMA_STREAM,
+#ifndef STM32H7
   .DMA_Channel = EXTMODULE_TIMER_DMA_CHANNEL,
+#endif
   .DMA_IRQn = EXTMODULE_TIMER_DMA_STREAM_IRQn,
   .DMA_TC_CallbackPtr = &_ext_timer_DMA_TC_Callback,
 };
@@ -258,11 +266,15 @@ static const stm32_pulse_timer_t trainerModuleTimer = {
 
 static void _set_sport_input(uint8_t enable)
 {
+#if defined(TELEMETRY_DIR_GPIO)
   if (TELEMETRY_SET_INPUT) {
     gpio_write(TELEMETRY_DIR_GPIO, enable);
   } else {
     gpio_write(TELEMETRY_DIR_GPIO, !enable);
   }
+#else
+  (void)enable;
+#endif
 }
 
 #if defined(TELEMETRY_TX_REV_GPIO) && defined(TELEMETRY_RX_REV_GPIO)
@@ -283,6 +295,7 @@ static void _sport_init_inverter()
 }
 #endif
 
+#if defined(TELEMETRY_USART)
 static const stm32_usart_t sportUSART = {
   .USARTx = TELEMETRY_USART,
   .txGPIO = TELEMETRY_TX_GPIO,
@@ -291,7 +304,9 @@ static const stm32_usart_t sportUSART = {
   .IRQ_Prio = TELEMETRY_USART_IRQ_PRIORITY,
   .txDMA = TELEMETRY_DMA,
   .txDMA_Stream = TELEMETRY_DMA_Stream_TX,
+#ifndef STM32H7
   .txDMA_Channel = TELEMETRY_DMA_Channel_TX,
+#endif
   .rxDMA = nullptr,
   .rxDMA_Stream = 0,
   .rxDMA_Channel = 0,
@@ -311,6 +326,7 @@ static void _sport_direction_init()
 {
   gpio_init(TELEMETRY_DIR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
 }
+#endif
 
 #if defined(TELEMETRY_TIMER)
 static const stm32_softserial_rx_port sportSoftRX = {
@@ -551,7 +567,10 @@ uint32_t __pxx1_get_inverter_comp() { return 1; }
 
 void boardInitModulePorts()
 {
+#if defined(TELEMETRY_USART)
   _sport_direction_init();
+#endif
+
 #if defined(SPORT_UPDATE_PWR_GPIO)
   sportUpdateInit();
 #endif

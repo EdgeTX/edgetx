@@ -107,9 +107,9 @@ void tasksStart()
 {
   RTOS_CREATE_MUTEX(audioMutex);
 
-#if defined(CLI) && !defined(SIMU)
-  cliStart();
-#endif
+// #if defined(CLI) && !defined(SIMU)
+//   cliStart();
+// #endif
 
   RTOS_CREATE_TASK(menusTaskId, menusTask, "menus", menusStack,
                    MENUS_STACK_SIZE, MENUS_TASK_PRIO);

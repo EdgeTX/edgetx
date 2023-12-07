@@ -941,6 +941,10 @@ char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
 
   return dest;
 }
+#endif
+#endif
+#define LEADING0                       0x10u
+#define MODE(flags)                    ((((int8_t)(flags) & 0x30) - 0x10) >> 4)
 
 void formatNumberAsString(char *buffer, uint8_t buffer_size, int32_t val,
                           LcdFlags flags, uint8_t len, const char *prefix,
@@ -984,7 +988,8 @@ void formatNumberAsString(char *buffer, uint8_t buffer_size, int32_t val,
     strncpy(buffer, s, buffer_size);
   }
 }
-
+#if !defined(BOOT)
+#if defined(LIBOPENUI)
 std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len,
                                  const char *prefix, const char *suffix)
 {

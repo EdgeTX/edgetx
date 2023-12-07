@@ -27,6 +27,8 @@
 #include "telemetry/telemetry_sensors.h"
 #include "translations.h"
 
+#include <math.h>
+
 // Drawing functions used by Lua API
 
 void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h,
@@ -43,6 +45,10 @@ void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h,
   RGB_SPLIT(bg_color, bgRed, bgGreen, bgBlue);
 
   DMAWait();
+#if __CORTEX_M >= 0x07
+  SCB_CleanInvalidateDCache();
+#endif
+
   for (int i = y; i < y + h; i++) {
     pixel_t *p = getPixelPtrAbs(x, i);
     for (int j = 0; j < w; j++) {
@@ -355,6 +361,10 @@ void BitmapBuffer::drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2,
   int py = y1;
 
   DMAWait();
+#if __CORTEX_M >= 0x07
+  SCB_CleanInvalidateDCache();
+#endif
+
   if (dxabs >= dyabs) {
     /* the line is more horizontal than vertical */
     for (int i = 0; i <= dxabs; i++) {
@@ -650,6 +660,10 @@ void BitmapBuffer::drawBitmapPatternPie(coord_t x, coord_t y,
   int h2 = height / 2;
 
   DMAWait();
+#if __CORTEX_M >= 0x07
+  SCB_CleanInvalidateDCache();
+#endif
+
   for (int y1 = h2 - 1; y1 >= 0; y1--) {
     for (int x1 = w2 - 1; x1 >= 0; x1--) {
       Slope slope(false, x1 == 0 ? 99000 : y1 * 100 / x1);

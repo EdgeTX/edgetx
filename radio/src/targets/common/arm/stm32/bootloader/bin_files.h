@@ -48,7 +48,8 @@ enum MemoryType {
 #define MAX_BIN_FILES         (MAX_NAMES_ON_SCREEN+1)
 
 // Size of the block read when checking / writing BIN files
-#define BLOCK_LEN 4096
+//#define BLOCK_LEN 4096
+#define BLOCK_LEN 131072
 
 // File info struct while browsing files on SD card
 struct BinFileInfo {

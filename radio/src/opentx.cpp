@@ -1419,7 +1419,7 @@ void edgeTxInit()
 #if defined(COLORLCD) && defined(LUA)
   if (!UNEXPECTED_SHUTDOWN()) {
     // lua widget state must be prepared before the call to storageReadAll()
-    luaInitThemesAndWidgets();
+ //   luaInitThemesAndWidgets();
   }
 #endif
 

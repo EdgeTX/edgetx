@@ -185,7 +185,7 @@ class DateTimeWindow : public Window
         [](int value) { return formatNumberAsString(value, LEADING0, 2); });
   }
 };
-
+#if defined(AUDIO)
 static SetupLineDef soundPageSetupLines[] = {
   {
     // Beeps mode
@@ -252,6 +252,7 @@ static SetupLineDef soundPageSetupLines[] = {
     }
   },
 };
+#endif
 
 #if defined(VARIO)
 static SetupLineDef varioPageSetupLines[] = {
@@ -917,7 +918,9 @@ void RadioSetupPage::build(Window* window)
 
   // Sub-pages
   w = new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, {
+#if defined(AUDIO)
     {STR_SOUND_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_SOUND_LABEL, soundPageSetupLines, DIM(soundPageSetupLines)); }},
+#endif
 #if defined(VARIO)
     {STR_VARIO, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_VARIO, varioPageSetupLines, DIM(varioPageSetupLines)); }},
 #endif

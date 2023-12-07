@@ -26,7 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-
+#if 0
 #if !defined(SPI_DISABLE_DMA)
 #define USE_SPI_DMA
 #endif
@@ -343,3 +343,4 @@ uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
   return stm32_spi_transfer_bytes(spi, data, 0, length);
 #endif
 }
+#endif

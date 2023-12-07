@@ -538,19 +538,25 @@ void r_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
   auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
 
   auto rgb24 = yaml_hex2uint(val, val_len);
-  p_val->unsignedValue =
-      RGB((rgb24 & 0xFF0000) >> 16, (rgb24 & 0xFF00) >> 8, rgb24 & 0xFF);
+  uint32_t buf = RGB((rgb24 & 0xFF0000) >> 16, (rgb24 & 0xFF00) >> 8, rgb24 & 0xFF);
+  ((uint8_t*)(&p_val->unsignedValue))[3] = ((uint8_t*)(&buf))[3];
+  ((uint8_t*)(&p_val->unsignedValue))[2] = ((uint8_t*)(&buf))[2];
+  ((uint8_t*)(&p_val->unsignedValue))[1] = ((uint8_t*)(&buf))[1];
+  ((uint8_t*)(&p_val->unsignedValue))[0] = ((uint8_t*)(&buf))[0];
+
 }
 
 bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
                  yaml_writer_func wf, void* opaque)
 {
   data += bitoffs >> 3UL;
-  auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
+//  auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
+  ZoneOptionValue p_val;
+  memcpy(&p_val, data, sizeof(ZoneOptionValue));
 
-  uint32_t color = (uint32_t)GET_RED(p_val->unsignedValue) << 16 |
-                   (uint32_t)GET_GREEN(p_val->unsignedValue) << 8 |
-                   (uint32_t)GET_BLUE(p_val->unsignedValue);
+  uint32_t color = (uint32_t)GET_RED(p_val.unsignedValue) << 16 |
+                   (uint32_t)GET_GREEN(p_val.unsignedValue) << 8 |
+                   (uint32_t)GET_BLUE(p_val.unsignedValue);
 
   if (!wf(opaque, "0x", 2)) return false;
   return wf(opaque, yaml_rgb2hex(color), 3 * 2);

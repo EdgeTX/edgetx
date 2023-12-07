@@ -26,11 +26,27 @@
 #include "hal/watchdog_driver.h"
 
 
+#if defined(STM32H7)
+  #define FLASH_CR FLASH->CR1
+  #define FLASH_SR FLASH->SR1
+#else
+  #define FLASH_CR FLASH->CR
+  #define FLASH_SR FLASH->SR
+#endif
+
+#if !defined(FLASH_CR_START)
+#  define FLASH_CR_START FLASH_CR_STRT
+#endif
+
+#if !defined(FLASH_SR_BUSY)
+#  define FLASH_SR_BUSY FLASH_SR_BSY
+#endif
+
 void waitFlashIdle()
 {
   do {
     WDG_RESET();
-  } while (FLASH->SR & FLASH_SR_BSY);
+  } while (FLASH_SR & FLASH_SR_BUSY);
 }
 
 //After reset, write is not allowed in the Flash control register (FLASH_CR) to protect the
@@ -44,17 +60,22 @@ void waitFlashIdle()
 //FLASH_CR register.
 void unlockFlash()
 {
-  FLASH->KEYR = 0x45670123;
-  FLASH->KEYR = 0xCDEF89AB;
+#if defined(STM32H7)
+  FLASH->KEYR1 = FLASH_KEY1;
+  FLASH->KEYR1 = FLASH_KEY2;
+#else
+  FLASH->KEYR = FLASH_KEY1;
+  FLASH->KEYR = FLASH_KEY2;
+#endif
 }
 
 void lockFlash()
 {
   waitFlashIdle();
-  FLASH->CR |= FLASH_CR_LOCK;
+  FLASH_CR |= FLASH_CR_LOCK;
 }
 
-#define SECTOR_MASK               ((uint32_t)0xFFFFFF07)
+#define SECTOR_MASK ((uint32_t)0xFFFFFF07)
 
 void eraseSector(uint32_t sector)
 {
@@ -62,18 +83,20 @@ void eraseSector(uint32_t sector)
 
   waitFlashIdle();
 
-  FLASH->CR &= ~FLASH_CR_PSIZE;
-  FLASH->CR |= FLASH_CR_PSIZE_1;
-  FLASH->CR &= SECTOR_MASK;
-  FLASH->CR |= FLASH_CR_SER | (sector << 3);
-  FLASH->CR |= FLASH_CR_STRT;
+#if defined(FLASH_CR_PSIZE)
+  FLASH_CR &= ~FLASH_CR_PSIZE;
+  FLASH_CR |= FLASH_CR_PSIZE_1;
+#endif
+  FLASH_CR &= SECTOR_MASK;
+  FLASH_CR |= FLASH_CR_SER | (sector << 3);
+  FLASH_CR |= FLASH_CR_START;
 
   /* Wait for operation to be completed */
   waitFlashIdle();
 
   /* if the erase operation is completed, disable the SER Bit */
-  FLASH->CR &= (~FLASH_CR_SER);
-  FLASH->CR &= SECTOR_MASK;
+  FLASH_CR &= (~FLASH_CR_SER);
+  FLASH_CR &= SECTOR_MASK;
 
   WDG_ENABLE(WDG_DURATION);
 }
@@ -142,15 +165,17 @@ void flashWrite(uint32_t * address, const uint32_t * buffer) // page size is 256
     // Wait for last operation to be completed
     waitFlashIdle();
 
-    FLASH->CR &= ~FLASH_CR_PSIZE;
-    FLASH->CR |= FLASH_CR_PSIZE_1;
-    FLASH->CR |= FLASH_CR_PG;
+#if defined(FLASH_CR_PSIZE)
+    FLASH_CR &= ~FLASH_CR_PSIZE;
+    FLASH_CR |= FLASH_CR_PSIZE_1;
+#endif
+    FLASH_CR |= FLASH_CR_PG;
 
     *address = *buffer;
 
     /* Wait for operation to be completed */
     waitFlashIdle();
-    FLASH->CR &= ~FLASH_CR_PG;
+    FLASH_CR &= ~FLASH_CR_PG;
 
     /* Check the written value */
     if (*address != *buffer) {
@@ -178,6 +203,21 @@ uint32_t isFirmwareStart(const uint8_t * buffer)
   }
   // Second ISR pointer in FLASH
   if ((block[2] & 0xFFC00000) != 0x08000000) {
+    return 0;
+  }
+#elif defined(STM32H7)
+//  // Stack pointer in D1 RAM
+//  if ((block[0] & 0xFFFC0000) != 0x24080000) {
+  // Stack pointer in DTCM RAM
+  if ((block[0] & 0xFFFF0000) != 0x20020000) {
+    return 0;
+  }
+  // First ISR pointer in FLASH
+  if ((block[1] & 0xF0000000) != 0x90000000) {
+    return 0;
+  }
+  // Second ISR pointer in FLASH
+  if ((block[2] & 0xF0000000) != 0x90000000) {
     return 0;
   }
 #else

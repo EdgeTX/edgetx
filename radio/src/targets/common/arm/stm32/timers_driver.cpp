@@ -31,6 +31,7 @@ static volatile uint32_t _ms_ticks;
 static void _init_1ms_timer()
 {
   stm32_timer_enable_clock(MS_TIMER);
+  if ((MS_TIMER->CR1 & TIM_CR1_CEN) == TIM_CR1_CEN) return;
 
   _ms_ticks = 0;
   MS_TIMER->ARR = 999; // 1mS in uS
