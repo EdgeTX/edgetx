@@ -55,7 +55,7 @@ option(IMRC_RELEASE "Used to build IMRC released firmware" OFF)
 option(HARDWARE_TRAINER_MULTI "Allow multi trainer" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
 option(FWDRIVE "Attach also firmware drive with USB" OFF)
-option(ALTDATA "Add support for alternate data" ON)
+option(ALTDATA "Add support for alternate data" OFF)
 
 if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
   option(USBJ_EX "Enable USB Joystick Extension" OFF)
