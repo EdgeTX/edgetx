@@ -107,7 +107,7 @@
 #define TR_SF_RGBLEDS                  "RGB leds"
  
 #define TR_SOUND                       "Spela ljud"
-#define TR_PLAY_TRACK                  TR("Ply Trk", "Spela upp")
+#define TR_PLAY_TRACK                  TR("Sp. upp", "Spela upp")
 #define TR_PLAY_VALUE                  "Säg värdet"
 #define TR_SF_HAPTIC                   "Haptisk"
 #define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua-skript")
@@ -209,7 +209,7 @@
 
 
 #define TR_SRC_BATT                    "Batt"
-#define TR_SRC_TIME                    "Tid"
+#define TR_SRC_TIME                    "Time"
 #define TR_SRC_GPS                     "GPS"
 #define TR_SRC_TIMER                   "Tmr"
 
@@ -1084,13 +1084,13 @@
 #elif defined(PCBPL18)
    // Bootloader PL18 specific - Ascii only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
-  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
-  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
-  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
-  #define TR_BL_SELECT_KEY            " [TR4 Dn] to select file"
-  #define TR_BL_FLASH_KEY             " Hold [TR4 Dn] long to flash"
-  #define TR_BL_ERASE_KEY             " Hold [TR4 Dn] long to erase"
-  #define TR_BL_EXIT_KEY              " [TR4 Up] to exit"
+  #define TR_BL_ERASE_INT_FLASH       "Radera interna flashminnet"
+  #define TR_BL_ERASE_FLASH           "Radera flashminnet"
+  #define TR_BL_ERASE_FLASH_MSG       "Detta kan ta upp till 200s"
+  #define TR_BL_SELECT_KEY            " Tryck [TR4 Ner] foer att vaelja fil"
+  #define TR_BL_FLASH_KEY             " Haall [TR4 Ner] foer att flasha"
+  #define TR_BL_ERASE_KEY             " Haall [TR4 Ner] foer att radera"
+  #define TR_BL_EXIT_KEY              " Tryck [TR4 Upp] foer att avbryta"
 #endif
 
 // About screen
@@ -1304,9 +1304,9 @@
 #define TR_RADIO_MENU_TABS              "Radiomenyflikar"
 #define TR_MODEL_MENU_TABS              "Modellmenyflikar"
 
-#define TR_SELECT_MENU_ALL        "All"
-#define TR_SELECT_MENU_CLR        "Clear"
-#define TR_SELECT_MENU_INV        "Invert"
+#define TR_SELECT_MENU_ALL        "Allt"
+#define TR_SELECT_MENU_CLR        "Rensa"
+#define TR_SELECT_MENU_INV        "Invertera"
 
 #define TR_SORT_ORDERS            "Namn A-Z","Namn Z-A","Minst använda","Mest använda"
 #define TR_SORT_MODELS_BY         "Sortera modeller"
