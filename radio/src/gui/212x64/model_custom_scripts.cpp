@@ -116,7 +116,7 @@ void menuModelCustomScriptOne(event_t event)
 
     for (int i=0; i<scriptInputsOutputs[s_currIdx].outputsCount; i++) {
       drawSource(SCRIPT_ONE_3RD_COLUMN_POS+INDENT_WIDTH, FH+1+FH+i*FH, MIXSRC_FIRST_LUA+(s_currIdx*MAX_SCRIPT_OUTPUTS)+i, 0);
-      lcdDrawNumber(SCRIPT_ONE_3RD_COLUMN_POS+11*FW+3, FH+1+FH+i*FH, calcRESXto1000(scriptInputsOutputs[s_currIdx].outputs[i].value), PREC1|RIGHT);
+      lcdDrawNumber(SCRIPT_ONE_3RD_COLUMN_POS+11*FW+3, FH+1+FH+i*FH, scriptInputsOutputs[s_currIdx].outputs[i].value, RIGHT);
     }
   }
 }
