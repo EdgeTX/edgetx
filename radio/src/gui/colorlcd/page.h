@@ -63,6 +63,7 @@ class Page : public NavWindow
   PageHeader header;
   FormWindow body;
 
+  void checkEvents() override;
   bool bubbleEvents() override { return false; }
 };
 

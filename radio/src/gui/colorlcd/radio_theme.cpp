@@ -401,7 +401,7 @@ class ThemeEditPage : public Page
         started = true;
         _themeName->setText(_theme.getName());
       }
-      Window::checkEvents();
+      Page::checkEvents();
     }
 
     void editColorPage()

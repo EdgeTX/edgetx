@@ -24,6 +24,7 @@
 #include "keyboard_base.h"
 #include "opentx.h"
 #include "theme.h"
+#include "view_main.h"
 
 PageHeader::PageHeader(Page * parent, uint8_t icon):
   FormWindow(parent, { 0, 0, LCD_W, MENU_HEADER_HEIGHT }, OPAQUE),
@@ -94,3 +95,9 @@ void Page::onCancel()
 }
 
 void Page::onClicked() { Keyboard::hide(false); }
+
+void Page::checkEvents()
+{
+  ViewMain::instance()->runBackground();
+  NavWindow::checkEvents();
+}

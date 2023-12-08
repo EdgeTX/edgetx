@@ -116,6 +116,7 @@ void BluetoothTrainerWindow::checkEvents()
     refresh();
   lastbtstate = bluetooth.state;
   devcount = reusableBuffer.moduleSetup.bt.devicesCount;
+  Window::checkEvents();
 }
 
 void BluetoothTrainerWindow::refresh()

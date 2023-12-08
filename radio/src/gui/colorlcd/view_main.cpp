@@ -379,3 +379,12 @@ void ViewMain::long_pressed(lv_event_t* e)
     lv_indev_wait_release(lv_indev_get_act());
   }
 }
+
+void ViewMain::runBackground()
+{
+  topbar->runBackground();
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
+    if (customScreens[i])
+      customScreens[i]->runBackground();
+  }
+}

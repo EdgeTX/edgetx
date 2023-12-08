@@ -78,6 +78,8 @@ class ViewMain : public NavWindow
   void onClicked() override;
   void onCancel() override;
 
+  void runBackground();
+
  protected:
   static ViewMain* _instance;
 
