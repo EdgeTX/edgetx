@@ -204,12 +204,10 @@ void lcdWriteAddress(uint8_t x, uint8_t y)
 
 volatile bool lcd_busy;
 
-#if !defined(LCD_DUAL_BUFFER)
 void lcdRefreshWait()
 {
   WAIT_FOR_DMA_END();
 }
-#endif
 
 void lcdRefresh(bool wait)
 {
@@ -256,12 +254,6 @@ void lcdRefresh(bool wait)
 
   LCD_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA
   LCD_DMA->HIFCR = LCD_DMA_FLAGS; // Write ones to clear bits
-
-#if defined(LCD_DUAL_BUFFER)
-  // Switch LCD buffer
-  LCD_DMA_Stream->M0AR = (uint32_t)displayBuf;
-  displayBuf = (displayBuf == displayBuf1) ? displayBuf2 : displayBuf1;
-#endif
 
   LCD_DMA_Stream->CR |= DMA_SxCR_EN | DMA_SxCR_TCIE; // Enable DMA & TC interrupts
   LCD_SPI->CR2 |= SPI_CR2_TXDMAEN;

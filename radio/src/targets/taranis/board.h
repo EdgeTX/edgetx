@@ -421,8 +421,8 @@ void lcdInit();
 void lcdInitFinish();
 void lcdOff();
 
-// TODO lcdRefreshWait() stub in simpgmspace and remove LCD_DUAL_BUFFER
-#if defined(LCD_DMA) && !defined(LCD_DUAL_BUFFER) && !defined(SIMU)
+// TODO lcdRefreshWait() stub in simpgmspace
+#if defined(LCD_DMA) && !defined(SIMU)
 void lcdRefreshWait();
 #else
 #define lcdRefreshWait()

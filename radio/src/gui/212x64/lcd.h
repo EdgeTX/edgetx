@@ -88,14 +88,7 @@
 
 #define DISPLAY_BUFFER_SIZE            (LCD_W*LCD_H*4/8)
 
-#if (defined(PCBX9E) || defined(PCBX9DP)) && defined(LCD_DUAL_BUFFER)
-  extern pixel_t displayBuf1[DISPLAY_BUFFER_SIZE];
-  extern pixel_t displayBuf2[DISPLAY_BUFFER_SIZE];
-  extern pixel_t * displayBuf;
-#else
-  extern pixel_t displayBuf[DISPLAY_BUFFER_SIZE];
-#endif
-
+extern pixel_t displayBuf[DISPLAY_BUFFER_SIZE];
 extern coord_t lcdLastRightPos;
 extern coord_t lcdLastLeftPos;
 extern coord_t lcdNextPos;

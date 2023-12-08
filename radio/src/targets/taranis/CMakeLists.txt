@@ -1,5 +1,4 @@
 option(SHUTDOWN_CONFIRMATION "Shutdown confirmation" OFF)
-option(LCD_DUAL_BUFFER "Dual LCD Buffer" OFF)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
 option(AFHDS3 "AFHDS3 TX Module" OFF)
@@ -613,9 +612,5 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/sdcard_spi.cpp
   targets/common/arm/stm32/diskio_spi.cpp
   )
-
-if(LCD_DUAL_BUFFER)
-  add_definitions(-DLCD_DUAL_BUFFER)
-endif()
 
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
