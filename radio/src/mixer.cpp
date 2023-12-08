@@ -30,6 +30,8 @@
 #include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
 
+#define DELAY_POS_MARGIN   3
+
 uint8_t s_mixer_first_run_done = false;
 
 int8_t  virtualInputsTrims[MAX_INPUTS];
@@ -760,15 +762,17 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         chans[md->destCh] = 0;
 
       //========== FLIGHT MODE && SWITCH =====
+      bool mixCondition = (md->flightModes != 0 || md->swtch);
       bool fmEnabled = (md->flightModes & (1 << mixerCurrentFlightMode)) == 0;
-      bool mixLineSwitchActive = getSwitch(md->swtch);
-      bool mixLineActive = fmEnabled && mixLineSwitchActive;
+      bool mixLineActive = fmEnabled && getSwitch(md->swtch);
+      delayval_t mixEnabled = (mixLineActive) ? DELAY_POS_MARGIN+1 : 0;
 
       if (mixLineActive) {
         // disable mixer using trainer channels if not connected
         if (md->srcRaw >= MIXSRC_FIRST_TRAINER &&
             md->srcRaw <= MIXSRC_LAST_TRAINER && !is_trainer_connected()) {
-          mixLineActive = false;
+          mixCondition = true;
+          mixEnabled = 0;
         }
 
 #if defined(LUA_MODEL_SCRIPTS)
@@ -776,7 +780,8 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         if (md->srcRaw >= MIXSRC_FIRST_LUA && md->srcRaw <= MIXSRC_LAST_LUA) {
           div_t qr = div(md->srcRaw - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
           if (scriptInternalData[qr.quot].state != SCRIPT_OK) {
-            mixLineActive = false;
+            mixCondition = true;
+            mixEnabled = 0;
           }
         }
 #endif
@@ -786,8 +791,10 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       getvalue_t v = 0;
 
       if (mode > e_perout_mode_inactive_flight_mode) {
-        if (!mixLineActive) continue;
-        v = getValue(md->srcRaw);
+        if (mixEnabled)
+          v = getValue(md->srcRaw);
+        else
+          continue;
       } else {
         mixsrc_t srcRaw = md->srcRaw;
         v = getValue(srcRaw);
@@ -815,41 +822,49 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
             }
           }
         }
+        if (!mixCondition)
+          mixEnabled = v;
       }
 
       bool applyOffsetAndCurve = true;
 
       //========== DELAYS ===============
-      bool lastSwitchState = mixState[i].lastSwitchState;
+      delayval_t _swOn = mixState[i].now;
+      delayval_t _swPrev = mixState[i].prev;
+      bool swTog = (mixEnabled > _swOn+DELAY_POS_MARGIN || mixEnabled < _swOn-DELAY_POS_MARGIN);
 
-      // Has switch state changed
-      bool swTog = fmEnabled && (mixLineSwitchActive != lastSwitchState);
       if (mode == e_perout_mode_normal && swTog) {
-        mixState[i].lastSwitchState = mixLineSwitchActive;
-        mixState[i].delay = (lastSwitchState ? md->delayDown : md->delayUp) * 10;
+        if (!mixState[i].delay)
+          _swPrev = _swOn;
+        mixState[i].delay = (mixEnabled > _swOn ? md->delayUp : md->delayDown) * 10;
+        mixState[i].now = mixEnabled;
+        mixState[i].prev = _swPrev;
       }
       if (mode == e_perout_mode_normal && mixState[i].delay > 0) {
         mixState[i].delay = max<int16_t>(0, (int16_t)mixState[i].delay - tick10ms);
         // Freeze value until delay expires
-        v = mixState[i].lastValue;
-        if (mixLineActive)
+        if (!mixCondition)
+          v = _swPrev;
+        else if (mixEnabled)
           continue;
       }
       else {
         if (mode == e_perout_mode_normal) {
-          mixState[i].lastSwitchState = mixLineSwitchActive;
+          mixState[i].now = mixState[i].prev = mixEnabled;
         }
-        if (!mixLineActive) {
+        if (!mixEnabled) {
           if ((md->speedDown || md->speedUp) && md->mltpx != MLTPX_REPL) {
-            v = (md->mltpx == MLTPX_ADD ? 0 : RESX);
-            applyOffsetAndCurve = false;
-          } else  {
+            if (mixCondition) {
+              v = (md->mltpx == MLTPX_ADD ? 0 : RESX);
+              applyOffsetAndCurve = false;
+            }
+          } else if (mixCondition) {
             continue;
           }
         }
       }
 
-      if (mode == e_perout_mode_normal && (mixLineActive || mixState[i].delay)) {
+      if (mode == e_perout_mode_normal && (!mixCondition || mixEnabled || mixState[i].delay)) {
         if (md->mixWarn) lv_mixWarning |= 1 << (md->mixWarn - 1);
         activeMixes[i] = true;
       }
@@ -991,8 +1006,6 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       // *ptr=limit( int32_t(int32_t(-1)<<23), *ptr, int32_t(int32_t(1)<<23));  // limit code cost 72 bytes
       // *ptr=limit( int32_t((-32767+RESXl)<<8), *ptr, int32_t((32767-RESXl)<<8));  // limit code cost 80 bytes
 #endif
-
-      mixState[i].lastValue = v;
     } //endfor mixers
 
     tick10ms = 0;

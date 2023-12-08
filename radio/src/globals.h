@@ -62,11 +62,11 @@ enum MainRequest {
 extern uint8_t mainRequestFlags;
 
 PACK(struct MixState {
-  int32_t  lastValue;
-  uint16_t delay:13; // max = 2550
+  uint16_t delay:14; // max = 2550
   uint8_t  activeMix:1;
   uint8_t  activeExpo:1;
-  bool     lastSwitchState:1;
+  int16_t  now;  // timer trigger source -> off, abs, stk, stk%, sw/!sw, !m_sw/!m_sw
+  int16_t  prev;
 });
 
 extern MixState mixState[MAX_MIXERS];
