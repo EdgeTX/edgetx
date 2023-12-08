@@ -97,13 +97,7 @@ PLAY_FUNCTION(playValue, source_t idx)
     PLAY_DURATION(val * 60, PLAY_TIME);
   } else if (idx == MIXSRC_TX_VOLTAGE) {
     PLAY_NUMBER(val, UNIT_VOLTS, PREC1);
-  } 
-#if defined(LUA_INPUTS)
-    else if (idx >= MIXSRC_FIRST_LUA && idx <= MIXSRC_LAST_LUA) {
-    PLAY_NUMBER(val, 0, 0);
-  } 
-#endif  
-    else {
+  } else {
     if (idx <= MIXSRC_LAST_CH) {
       val = calcRESXto100(val);
     }
