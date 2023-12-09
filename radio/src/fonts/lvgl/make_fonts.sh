@@ -43,6 +43,29 @@ function make_font() {
                --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format ${arg}
 }
 
+function compress_font() {
+  local name=$1
+
+  gcc -I ../../thirdparty/libopenui/thirdparty lz4_font.cpp ../../thirdparty/libopenui/thirdparty/lz4/lz4hc.c ../../thirdparty/libopenui/thirdparty/lz4/lz4.c -o lz4_font
+  ./lz4_font ${name}
+}
+
+function make_font_lz4() {
+  local name=$1
+  local ttf=$2
+  local size=$3
+  local chars=$4
+  local arg=$5
+
+  lv_font_conv --no-prefilter --bpp 4 --size ${size} \
+               --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE},${BULLET},${COMPARE}${chars} \
+               --font EdgeTX/extra.ttf -r ${EXTRA_SYM} \
+               --font ${ARROWS_FONT} -r ${ARROWS} \
+               --font ${SYMBOLS_FONT} -r ${SYMBOLS} \
+               --format lvgl -o lv_font.inc --force-fast-kern-format ${arg}
+  compress_font lv_font_${name}_${size}
+}
+
 function make_font_w_extra_sym() {
   local name=$1
   local ttf=$2
@@ -53,7 +76,8 @@ function make_font_w_extra_sym() {
   lv_font_conv --no-prefilter --bpp 4 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE}${chars} \
                --font EdgeTX/extra.ttf -r ${EXTRA_SYM} \
-               --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format ${arg}
+               --format lvgl -o lv_font.inc --force-fast-kern-format ${arg}
+  compress_font lv_font_${name}_${size}
 }
 
 function make_font_no_sym() {
@@ -65,7 +89,8 @@ function make_font_no_sym() {
 
   lv_font_conv --no-prefilter --bpp 4 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE}${chars} \
-               --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format ${arg}
+               --format lvgl -o lv_font.inc --force-fast-kern-format ${arg}
+  compress_font lv_font_${name}_${size}
 }
 
 # LV_SYMBOL_CHARGE, LV_SYMBOL_NEW_LINE, LV_SYMBOL_SD_CARD, LV_SYMBOL_CLOSE
@@ -88,10 +113,10 @@ function make_font_set() {
   local ttf_bold=$3
   local chars=$4
 
-  make_font "${name}" "${ttf_normal}" 9 ${chars} --no-compress
-  make_font "${name}" "${ttf_normal}" 13 ${chars} --no-compress
+  make_font_lz4 "${name}" "${ttf_normal}" 9 ${chars} --no-compress
+  make_font_lz4 "${name}" "${ttf_normal}" 13 ${chars} --no-compress
   make_font "${name}" "${ttf_normal}" 16 ${chars} --no-compress
-  make_font "${name}_bold" "${ttf_bold}" 16 ${chars}
+  make_font_lz4 "${name}_bold" "${ttf_bold}" 16 ${chars}
   make_font_w_extra_sym "${name}" "${ttf_normal}" 24 ${chars}
   make_font_no_sym "${name}_bold" "${ttf_bold}" 32 ${chars}
   make_font_no_sym "${name}_bold" "${ttf_bold}" 64
@@ -109,3 +134,6 @@ make_font_set "noto_cn" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bol
 make_font_set "noto_jp" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" ",${JP_SYMBOLS}"
 make_font_set "arimo_he" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${HE_SYMBOLS}"
 make_font_set "arimo_ru" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${RU_SYMBOLS}"
+
+rm lv_font.inc
+rm lz4_font
