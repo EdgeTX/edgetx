@@ -3,6 +3,12 @@ set(MCU cortex-m4)
 set(FPU_FLAGS "-mfloat-abi=hard -mfpu=fpv4-sp-d16")
 
 if(NOT NATIVE_BUILD)
+
+  # Add MCU specific flags
+  add_link_options(
+    -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+  )
+
   # STM32 HAL/LL library
   set(STM32CUBE_DIR ${THIRDPARTY_DIR}/STM32F4xx_HAL_Driver)
   include_directories(${STM32CUBE_DIR}/Inc)

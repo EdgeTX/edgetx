@@ -12,8 +12,8 @@ BOOTLOADER_SIZE = 0x20000;
 MIN_HEAP_SIZE = 4096K;
 
 /* SDRAM definitions */
-SDRAM_START = DEFINED(__SDRAM_START__) ? __SDRAM_START__ : 0xD0000000;
-SDRAM_SIZE = DEFINED(__SDRAM_SIZE__) ? __SDRAM_SIZE__ : 8192K;
+SDRAM_START = DEFINED(__sdram_start) ? __sdram_start : 0xD0000000;
+SDRAM_SIZE = DEFINED(__sdram_size) ? __sdram_size : 8192K;
 
 /* Highest heap address */
 HEAP_ADDRESS = SDRAM_START + SDRAM_SIZE;

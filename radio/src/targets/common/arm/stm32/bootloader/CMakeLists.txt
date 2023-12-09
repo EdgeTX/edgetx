@@ -151,18 +151,21 @@ remove_definitions(-DUSE_WATCHDOG)
 
 add_definitions(-DBOOT)
 
-set(CMAKE_EXE_LINKER_FLAGS "-mcpu=${MCU} -mthumb -nostartfiles -lm")
-
-set(LINKER_DIR ${RADIO_SRC_DIR}/boards/generic_stm32/linker)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T${LINKER_DIR}/bootloader.ld -L${LINKER_DIR} -L${LINKER_DIR}/${TARGET_LINKER_DIR}")
-
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map=bootloader.map,--cref,--no-warn-mismatch,--gc-sections")
-
-# use smaller nano libc
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
-
 add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})
 add_dependencies(bootloader ${BITMAPS_TARGET})
+
+target_link_options(bootloader PRIVATE
+  -lm -nostartfiles -T${LINKER_DIR}/bootloader.ld
+  -Wl,-Map=bootloader.map,--cref,--no-warn-mismatch,--gc-sections
+  --specs=nano.specs
+)
+
+if (DEFINED TARGET_SDRAM_START)
+  # message("TARGET_SDRAM_START = ${TARGET_SDRAM_START}")
+  target_link_options(bootloader PRIVATE
+    -Wl,--defsym=__sdram_start=${TARGET_SDRAM_START}
+  )
+endif()
 
 target_include_directories(bootloader
   PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
