@@ -38,4 +38,6 @@ class InputEditWindow : public Page
   Curve* preview;
 
   void buildBody(FormWindow *window);
+
+  void deleteLater(bool detach = true, bool trash = true) override;
 };
