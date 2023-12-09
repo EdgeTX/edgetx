@@ -446,7 +446,7 @@ static int luaLcdDrawSwitch(lua_State *L)
   int s = luaL_checkinteger(L, 3);
   LcdFlags flags = luaL_optinteger(L, 4, 0);
   flags = colorToRGB(flags);
-  drawSwitch(luaLcdBuffer, x, y, s, flags);
+  luaLcdBuffer->drawSwitch(x, y, s, flags);
 
   return 0;
 }
@@ -474,7 +474,7 @@ static int luaLcdDrawSource(lua_State *L)
   int s = luaL_checkinteger(L, 3);
   LcdFlags flags = luaL_optinteger(L, 4, 0);
   flags = colorToRGB(flags);
-  drawSource(luaLcdBuffer, x, y, s, flags);
+  luaLcdBuffer->drawSource(x, y, s, flags);
 
   return 0;
 }
@@ -728,7 +728,7 @@ static int luaLcdDrawBitmapPattern(lua_State *L)
     auto y = luaL_checkinteger(L, 3);
     auto flags = (LcdFlags)luaL_optinteger(L, 4, 0);
     flags = colorToRGB(flags);
-    luaLcdBuffer->drawBitmapPattern(x, y, reinterpret_cast<const uint8_t*>(m), flags);
+    luaLcdBuffer->drawBitmapPattern(x, y, reinterpret_cast<const MaskBitmap*>(m), flags);
   }
 
   return 0;
@@ -767,8 +767,7 @@ static int luaLcdDrawBitmapPatternPie(lua_State *L)
     int endAngle = luaL_checkinteger(L, 5);
     LcdFlags flags = luaL_optinteger(L, 6, 0);
     flags = colorToRGB(flags);
-    luaLcdBuffer->drawBitmapPatternPie(x, y, reinterpret_cast<const uint8_t*>(m),
-                                       flags, startAngle, endAngle);
+    luaLcdBuffer->drawBitmapPatternPie(x, y, reinterpret_cast<const MaskBitmap*>(m), flags, startAngle, endAngle);
   }
 
   return 0;

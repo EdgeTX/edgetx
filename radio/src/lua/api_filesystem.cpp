@@ -21,10 +21,9 @@
 
 #define LUA_LIB
 
+#include "edgetx.h"
 #include "lua_api.h"
 #include "api_filesystem.h"
-
-#include "FatFs/ff.h"
 
 // garbage collector for luaDir
 static int dir_gc(lua_State* L)
