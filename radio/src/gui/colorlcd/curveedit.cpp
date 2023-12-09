@@ -230,7 +230,6 @@ CurveEditWindow::CurveEditWindow(uint8_t index):
   Page(ICON_MODEL_CURVES),
   index(index)
 {
-  CurveEdit::SetCurrentSource(0);
   buildBody(&body);
   buildHeader(&header);
 }

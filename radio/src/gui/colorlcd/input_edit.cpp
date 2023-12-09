@@ -159,3 +159,11 @@ void InputEditWindow::buildBody(FormWindow* form)
   });
   lv_obj_set_width(btn->getLvObj(), lv_pct(100));
 }
+
+void InputEditWindow::deleteLater(bool detach, bool trash)
+{
+  if (!deleted()) {
+    CurveEdit::SetCurrentSource(0);
+    Page::deleteLater(detach, trash);
+  }
+}

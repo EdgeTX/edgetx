@@ -113,6 +113,7 @@ void MixEditWindow::buildBody(FormWindow* form)
   new StaticText(line, rect_t{}, STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST,
                    GET_SET_DEFAULT(mix->srcRaw));
+  CurveEdit::SetCurrentSource(mix->srcRaw);
 
   // Weight
   line = form->newLine(&grid);
@@ -144,4 +145,12 @@ void MixEditWindow::buildBody(FormWindow* form)
     return 0;
   });
   lv_obj_set_width(btn->getLvObj(), lv_pct(100));
+}
+
+void MixEditWindow::deleteLater(bool detach, bool trash)
+{
+  if (!deleted()) {
+    CurveEdit::SetCurrentSource(0);
+    Page::deleteLater(detach, trash);
+  }
 }
