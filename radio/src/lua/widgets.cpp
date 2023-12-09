@@ -158,6 +158,16 @@ ZoneOption *createOptionsArray(int reference, uint8_t maxOptions)
               option->deflt.signedValue = SWSRC_NONE;
               option->min.signedValue = SWSRC_FIRST;
               option->max.signedValue = SWSRC_LAST;
+            } else if (option->type == ZoneOption::Timer) {
+              option->deflt.unsignedValue = 0;
+              option->min.unsignedValue = 0;
+              option->max.unsignedValue = MAX_TIMERS - 1;
+            } else if (option->type == ZoneOption::TextSize) {
+              option->deflt.unsignedValue = FONT_STD_INDEX;
+              option->min.unsignedValue = FONT_STD_INDEX;
+              option->max.unsignedValue = FONTS_COUNT - 1;
+            } else if (option->type == ZoneOption::String) {
+              option->deflt.stringValue[0] = 0;
             }
             break;
           case 2:
@@ -168,6 +178,7 @@ ZoneOption *createOptionsArray(int reference, uint8_t maxOptions)
               // TRACE("default signed = %d", option->deflt.signedValue);
             } else if (option->type == ZoneOption::Source ||
                        option->type == ZoneOption::TextSize ||
+                       option->type == ZoneOption::Timer ||
                        option->type == ZoneOption::Align) {
               luaL_checktype(lsWidgets, -1, LUA_TNUMBER);  // value is number
               option->deflt.unsignedValue = lua_tounsigned(lsWidgets, -1);
