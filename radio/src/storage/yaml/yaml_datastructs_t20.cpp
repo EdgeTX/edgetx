@@ -157,6 +157,10 @@ const struct YamlIdStr enum_SwashType[] = {
 };
 const struct YamlIdStr enum_SwitchSources[] = {
   {  SWSRC_NONE, "NONE"  },
+  {  SWSRC_TrimT7Down, "TrimT7Down"  },
+  {  SWSRC_TrimT7Up, "TrimT7Up"  },
+  {  SWSRC_TrimT8Down, "TrimT8Down"  },
+  {  SWSRC_TrimT8Up, "TrimT8Up"  },
   {  SWSRC_ON, "ON"  },
   {  SWSRC_ONE, "ONE"  },
   {  SWSRC_TELEMETRY_STREAMING, "TELEMETRY_STREAMING"  },
@@ -272,7 +276,8 @@ static const struct YamlNode struct_CustomFunctionData[] = {
   YAML_ENUM("func", 6, enum_Functions),
   YAML_CUSTOM("def",r_customFn,w_customFn),
   YAML_PADDING( 64 ),
-  YAML_PADDING( 8 ),
+  YAML_PADDING( 1 ),
+  YAML_PADDING( 7 ),
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {
@@ -357,7 +362,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "backlightColor", 8 ),
   YAML_STRING("ownerRegistrationID", 8),
   YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
-  YAML_UNSIGNED( "rotEncMode", 2 ),
+  YAML_UNSIGNED( "rotEncMode", 3 ),
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_PADDING( 3 ),
   YAML_UNSIGNED( "audioMuteEnable", 1 ),

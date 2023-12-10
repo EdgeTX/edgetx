@@ -283,7 +283,8 @@ static const struct YamlNode struct_CustomFunctionData[] = {
   YAML_ENUM("func", 6, enum_Functions),
   YAML_CUSTOM("def",r_customFn,w_customFn),
   YAML_PADDING( 48 ),
-  YAML_PADDING( 8 ),
+  YAML_PADDING( 1 ),
+  YAML_PADDING( 7 ),
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {
