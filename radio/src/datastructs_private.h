@@ -931,7 +931,11 @@ PACK(struct RadioData {
   char ownerRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
   CUST_ATTR(rotEncDirection, r_rotEncDirection, nullptr);
+#if defined(COLORLCD)
+  NOBACKUP(uint8_t  rotEncMode:2);
+#else
   NOBACKUP(uint8_t  rotEncMode:3);
+#endif
 
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
 
