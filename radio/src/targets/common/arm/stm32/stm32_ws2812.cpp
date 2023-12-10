@@ -93,8 +93,8 @@ static uint8_t _led_seq_cnt;
 static void _fill_byte(uint8_t c, led_timer_value_t* dma_buffer)
 {
   for (int i = 0; i < 8; i++) {
-    dma_buffer[i] = c & 1 ? WS2812_ONE : WS2812_ZERO;
-    c >>= 1;
+    dma_buffer[i] = c & 0x80 ? WS2812_ONE : WS2812_ZERO;
+    c <<= 1;
   }
 }
 
