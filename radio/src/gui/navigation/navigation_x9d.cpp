@@ -53,11 +53,12 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
   int newval = val;
   event_t evt_rot_inc = EVT_ROTARY_RIGHT;
   event_t evt_rot_dec = EVT_ROTARY_LEFT;
-
+#if defined(ROTARY_ENCODER_NAVIGATION)
   if (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_VERT_NORM_HORZ_INVERT) {
     evt_rot_inc = EVT_ROTARY_LEFT;
     evt_rot_dec = EVT_ROTARY_RIGHT;
   }
+#endif
 
   if (s_editMode > 0) {
     if (event == evt_rot_inc || event == EVT_KEY_FIRST(KEY_PLUS) ||
