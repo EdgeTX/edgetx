@@ -110,10 +110,10 @@ void MainViewHorizontalTrim::drawMarkerLines(BitmapBuffer * dc, coord_t x, coord
 {
   // Small lines on the square
   if (value >= 0) {
-    dc->drawSolidVerticalLine(x + 4, 3, 9, COLOR_THEME_PRIMARY2);
+    dc->drawSolidVerticalLine(x + 10, 3, 9, COLOR_THEME_PRIMARY2);
   }
   if (value <= 0) {
-    dc->drawSolidVerticalLine(x + 10, 3, 9, COLOR_THEME_PRIMARY2);
+    dc->drawSolidVerticalLine(x + 4, 3, 9, COLOR_THEME_PRIMARY2);
   }
 }
 
