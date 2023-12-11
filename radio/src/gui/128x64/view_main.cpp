@@ -59,7 +59,7 @@
 #define CLOCK_X       53
 #define CLOCK_Y       57
 
-#if defined(ASTERISK) || !defined(USE_WATCHDOG) || defined(LOG_TELEMETRY) || \
+#if defined(ASTERISK) || (!defined(USE_WATCHDOG) && !defined(SIMU)) || defined(LOG_TELEMETRY) || \
     defined(LOG_BLUETOOTH) || defined(DEBUG_LATENCY)
 
 static bool isAsteriskDisplayed() {
