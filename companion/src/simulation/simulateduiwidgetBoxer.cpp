@@ -25,10 +25,10 @@ SimulatedUIWidgetBoxer::SimulatedUIWidgetBoxer(SimulatorInterface *simulator, QW
   act = new RadioUiAction(13, QList<int>() << Qt::Key_Right, SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE);
   addRadioWidget(ui->leftbuttons->addArea(QRect(72, 149, 62, 24), "Boxer/left-tele.png", act));
 
-  act = new RadioUiAction(4, QList<int>() << Qt::Key_PageDown, SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN);
+  act = new RadioUiAction(5, QList<int>() << Qt::Key_PageDown, SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN);
   addRadioWidget(ui->leftbuttons->addArea(QRect(72, 79, 62, 24), "Boxer/left-pagedn.png", act));
 
-  act = new RadioUiAction(5, QList<int>() << Qt::Key_PageUp, SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP);
+  act = new RadioUiAction(4, QList<int>() << Qt::Key_PageUp, SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP);
   addRadioWidget(ui->leftbuttons->addArea(QRect(72, 114, 62, 24), "Boxer/left-pageup.png", act));
 
   act = new RadioUiAction(1, QList<int>() << Qt::Key_Down << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
