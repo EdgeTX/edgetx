@@ -544,6 +544,13 @@ if (DEFINED TARGET_SDRAM_START)
   )
 endif()
 
+if (DEFINED TARGET_SDRAM_SIZE)
+  # message("TARGET_SDRAM_SIZE = ${TARGET_SDRAM_SIZE}")
+  target_link_options(firmware PRIVATE
+    -Wl,--defsym=__sdram_size=${TARGET_SDRAM_SIZE}
+  )
+endif()
+
 if (LUA)
   # Lua needs %g and %f
   target_link_options(firmware PRIVATE

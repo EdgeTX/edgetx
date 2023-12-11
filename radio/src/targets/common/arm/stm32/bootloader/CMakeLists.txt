@@ -167,6 +167,13 @@ if (DEFINED TARGET_SDRAM_START)
   )
 endif()
 
+if (DEFINED TARGET_SDRAM_SIZE)
+  # message("TARGET_SDRAM_SIZE = ${TARGET_SDRAM_SIZE}")
+  target_link_options(bootloader PRIVATE
+    -Wl,--defsym=__sdram_size=${TARGET_SDRAM_SIZE}
+  )
+endif()
+
 target_include_directories(bootloader
   PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
 )
