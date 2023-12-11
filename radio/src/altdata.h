@@ -14,7 +14,6 @@ namespace AlternateData {
     template<uint8_t N, typename S = uint8_t>
     struct Container {
         using value_t = S;
-        using chunk_t = std::array<S, 4>;
         constexpr uint8_t size() const {
             return N;
         }
