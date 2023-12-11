@@ -530,8 +530,8 @@ void GeneralSetupPanel::on_faimode_CB_stateChanged(int)
 void GeneralSetupPanel::populateRotEncModeCB()
 {
   QComboBox * b = ui->rotEncMode_CB;
-  QString strings[] = { tr("Normal"), tr("Inverted"), tr("Vertical Inverted, Horizontal Normal"), tr("Vertical Inverted, Horizontal Alternate") };
-  int itemCount = 4;
+  QString strings[] = { tr("Normal"), tr("Inverted"), tr("Vertical Inverted, Horizontal Normal"), tr("Vertical Inverted, Horizontal Alternate"),  tr("Normal, Edit Inverted") };
+  int itemCount = 5;
 
   if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
     itemCount = 2;

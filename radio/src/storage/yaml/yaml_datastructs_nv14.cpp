@@ -283,7 +283,8 @@ static const struct YamlNode struct_CustomFunctionData[] = {
   YAML_ENUM("func", 6, enum_Functions),
   YAML_CUSTOM("def",r_customFn,w_customFn),
   YAML_PADDING( 48 ),
-  YAML_PADDING( 8 ),
+  YAML_PADDING( 1 ),
+  YAML_PADDING( 7 ),
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {
@@ -370,8 +371,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "blOffBright", 7 ),
   YAML_STRING("bluetoothName", 10),
   YAML_STRING("ownerRegistrationID", 8),
-  YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
-  YAML_UNSIGNED( "rotEncMode", 2 ),
+  YAML_PADDING( 3 ),
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_UNSIGNED( "stickDeadZone", 3 ),
   YAML_UNSIGNED( "audioMuteEnable", 1 ),

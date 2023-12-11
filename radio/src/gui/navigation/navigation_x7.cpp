@@ -51,9 +51,17 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
                 const CheckIncDecStops &stops)
 {
   int newval = val;
+  event_t evt_rot_inc = EVT_ROTARY_RIGHT;
+  event_t evt_rot_dec = EVT_ROTARY_LEFT;
+#if defined(ROTARY_ENCODER_NAVIGATION)
+  if (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_VERT_NORM_HORZ_INVERT) {
+    evt_rot_inc = EVT_ROTARY_LEFT;
+    evt_rot_dec = EVT_ROTARY_RIGHT;
+  }
+#endif
 
   if (s_editMode > 0) {
-    if (event == EVT_ROTARY_RIGHT || event == EVT_KEY_FIRST(KEY_PLUS) ||
+    if (event == evt_rot_inc || event == EVT_KEY_FIRST(KEY_PLUS) ||
         event == EVT_KEY_REPT(KEY_PLUS)) {
 
       if (IS_KEY_REPT(event) && (i_flags & INCDEC_REP10)) {
@@ -70,7 +78,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
         newval = val;
         AUDIO_KEY_ERROR();
       }
-    } else if (event == EVT_ROTARY_LEFT || event == EVT_KEY_FIRST(KEY_MINUS) ||
+    } else if (event == evt_rot_dec || event == EVT_KEY_FIRST(KEY_MINUS) ||
                event == EVT_KEY_REPT(KEY_MINUS)) {
 
       if (IS_KEY_REPT(event) && (i_flags & INCDEC_REP10)) {
@@ -375,8 +383,8 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
 
       do {
 #if defined(ROTARY_ENCODER_NAVIGATION)
-        if (g_eeGeneral.rotEncMode >=
-            ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_NORM) {
+        if (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_NORM || \
+            g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_ALT) {
           DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);
         } else {
           INC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);
@@ -417,8 +425,8 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
 
       do {
 #if defined(ROTARY_ENCODER_NAVIGATION)
-        if (g_eeGeneral.rotEncMode >=
-            ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_NORM) {
+        if (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_NORM || \
+            g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_ALT) {
           INC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);
         } else {
           DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);

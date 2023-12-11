@@ -673,7 +673,7 @@ void menuRadioSetup(event_t event)
           CHECK_INCDEC_GENVAR(event,
                               reusableBuffer.generalSettings.rotaryEncoderMode,
                               ROTARY_ENCODER_MODE_NORMAL,
-                              ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_ALT);
+                              ROTARY_ENCODER_MODE_LAST);
         } else if (reusableBuffer.generalSettings.rotaryEncoderMode !=
                    g_eeGeneral.rotEncMode) {
           g_eeGeneral.rotEncMode =
