@@ -1342,6 +1342,6 @@
     <file alias="lr3pro.json">hw_defs/lr3pro.json</file>
     <file alias="commando8.json">hw_defs/commando8.json</file>
     <file alias="nv14.json">hw_defs/nv14.json</file>
-    <file alias="el18.json">hw_defs/el18.json</file>
+    <file alias="pl18.json">hw_defs/pl18.json</file>
   </qresource>
 </RCC>

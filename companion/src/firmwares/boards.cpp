@@ -415,6 +415,14 @@ StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board)
                               {tr("TILT_X").toStdString(), "TILT_X"},
                               {tr("TILT_Y").toStdString(), "TILT_Y"},
                           });
+  } else if (IS_FLYSKY_PL18(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "POT1"},
+                              {tr("P2").toStdString(), "POT2"},
+                              {tr("P3").toStdString(), "POT3"},
+                              {tr("SL1").toStdString(), "LS"},
+                              {tr("SL2").toStdString(), "RS"},
+                          });
   } else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
     tbl.insert(tbl.end(), {
                               {tr("P1").toStdString(), "S1"},
@@ -525,9 +533,6 @@ QString Boards::getBoardName(Board::Type board)
       return "BETAFPV LR3PRO";
     case BOARD_IFLIGHT_COMMANDO8:
       return "iFlight Commando 8";
-    // not supported yet
-    //case BOARD_FLYSKY_EL18:
-    //  return "FlySky EL18";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }

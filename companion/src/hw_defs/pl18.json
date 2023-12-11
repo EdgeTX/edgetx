@@ -27,33 +27,33 @@
         "name": "LH",
         "type": "STICK",
         "adc": "MAIN",
-        "gpio": "GPIOA",
-        "pin": "LL_GPIO_PIN_2",
-        "channel": "LL_ADC_CHANNEL_2"
+        "gpio": null,
+        "pin": null,
+        "channel": null
       },
       {
         "name": "LV",
         "type": "STICK",
         "adc": "MAIN",
-        "gpio": "GPIOA",
-        "pin": "LL_GPIO_PIN_3",
-        "channel": "LL_ADC_CHANNEL_3"
+        "gpio": null,
+        "pin": null,
+        "channel": null
       },
       {
         "name": "RV",
         "type": "STICK",
         "adc": "MAIN",
-        "gpio": "GPIOA",
-        "pin": "LL_GPIO_PIN_5",
-        "channel": "LL_ADC_CHANNEL_5"
+        "gpio": null,
+        "pin": null,
+        "channel": null
       },
       {
         "name": "RH",
         "type": "STICK",
         "adc": "MAIN",
-        "gpio": "GPIOA",
-        "pin": "LL_GPIO_PIN_4",
-        "channel": "LL_ADC_CHANNEL_4"
+        "gpio": null,
+        "pin": null,
+        "channel": null
       },
       {
         "name": "P1",
@@ -62,10 +62,9 @@
         "gpio": "GPIOA",
         "pin": "LL_GPIO_PIN_6",
         "channel": "LL_ADC_CHANNEL_6",
-        "inverted": true,
         "label": "S1",
         "short_label": "1",
-        "default": "POT_CENTER"
+        "default": "POT"
       },
       {
         "name": "P2",
@@ -76,7 +75,42 @@
         "channel": "LL_ADC_CHANNEL_14",
         "label": "S2",
         "short_label": "2",
-        "default": "POT_CENTER"
+        "default": "POT"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "adc": "EXT",
+        "gpio": "GPIOF",
+        "pin": "LL_GPIO_PIN_8",
+        "channel": "LL_ADC_CHANNEL_6",
+        "label": "S3",
+        "short_label": "3",
+        "default": "POT"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "adc": "EXT",
+        "gpio": "GPIOF",
+        "pin": "LL_GPIO_PIN_9",
+        "channel": "LL_ADC_CHANNEL_7",
+        "inverted": true,
+        "label": "LS",
+        "short_label": "L",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_7",
+        "channel": "LL_ADC_CHANNEL_7",
+        "inverted": true,
+        "label": "RS",
+        "short_label": "R",
+        "default": "SLIDER"
       },
       {
         "name": "VBAT",
@@ -95,7 +129,41 @@
         "channel": "LL_ADC_CHANNEL_VBAT"
       },
       {
-        "name": "SWA",
+        "name": "SWB",
+        "type": "SWITCH",
+        "adc": "EXT",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_1",
+        "channel": "LL_ADC_CHANNEL_11",
+        "inverted": true
+      },
+      {
+        "name": "SWD",
+        "type": "SWITCH",
+        "adc": "EXT",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_0",
+        "channel": "LL_ADC_CHANNEL_10",
+        "inverted": true
+      },
+      {
+        "name": "SWE",
+        "type": "SWITCH",
+        "adc": "EXT",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_2",
+        "channel": "LL_ADC_CHANNEL_12"
+      },
+      {
+        "name": "SWF",
+        "type": "SWITCH",
+        "adc": "MAIN",
+        "gpio": "GPIOB",
+        "pin": "LL_GPIO_PIN_0",
+        "channel": "LL_ADC_CHANNEL_8"
+      },
+      {
+        "name": "SWG",
         "type": "SWITCH",
         "adc": "MAIN",
         "gpio": "GPIOB",
@@ -103,71 +171,22 @@
         "channel": "LL_ADC_CHANNEL_9"
       },
       {
-        "name": "SWB",
+        "name": "SWH",
         "type": "SWITCH",
         "adc": "EXT",
         "gpio": "GPIOF",
         "pin": "LL_GPIO_PIN_10",
         "channel": "LL_ADC_CHANNEL_8"
-      },
-      {
-        "name": "SWC",
-        "type": "SWITCH",
-        "adc": "MAIN",
-        "gpio": "GPIOB",
-        "pin": "LL_GPIO_PIN_0",
-        "channel": "LL_ADC_CHANNEL_8"
-      },
-      {
-        "name": "SWD",
-        "type": "SWITCH",
-        "adc": "EXT",
-        "gpio": "GPIOF",
-        "pin": "LL_GPIO_PIN_8",
-        "channel": "LL_ADC_CHANNEL_6"
-      },
-      {
-        "name": "SWE",
-        "type": "SWITCH",
-        "adc": "MAIN",
-        "gpio": "GPIOC",
-        "pin": "LL_GPIO_PIN_0",
-        "channel": "LL_ADC_CHANNEL_10"
-      },
-      {
-        "name": "SWF",
-        "type": "SWITCH",
-        "adc": "MAIN",
-        "gpio": "GPIOC",
-        "pin": "LL_GPIO_PIN_1",
-        "channel": "LL_ADC_CHANNEL_11",
-        "inverted": true
-      },
-      {
-        "name": "SWG",
-        "type": "SWITCH",
-        "adc": "MAIN",
-        "gpio": "GPIOC",
-        "pin": "LL_GPIO_PIN_2",
-        "channel": "LL_ADC_CHANNEL_12",
-        "inverted": true
-      },
-      {
-        "name": "SWH",
-        "type": "SWITCH",
-        "adc": "MAIN",
-        "gpio": "GPIOA",
-        "pin": "LL_GPIO_PIN_7",
-        "channel": "LL_ADC_CHANNEL_7"
       }
     ]
   },
   "switches": [
     {
       "name": "SA",
-      "type": "ADC",
+      "type": "2POS",
       "flags": 0,
-      "adc_input": "SWA",
+      "gpio": "GPIOC",
+      "pin": "LL_GPIO_PIN_9",
       "default": "2POS",
       "display": null
     },
@@ -181,10 +200,11 @@
     },
     {
       "name": "SC",
-      "type": "ADC",
+      "type": "2POS",
       "flags": 0,
-      "adc_input": "SWC",
-      "default": "TOGGLE",
+      "gpio": "GPIOC",
+      "pin": "LL_GPIO_PIN_11",
+      "default": "2POS",
       "display": null
     },
     {
@@ -192,7 +212,7 @@
       "type": "ADC",
       "flags": 0,
       "adc_input": "SWD",
-      "default": "2POS",
+      "default": "3POS",
       "display": null
     },
     {
@@ -200,7 +220,7 @@
       "type": "ADC",
       "flags": 0,
       "adc_input": "SWE",
-      "default": "TOGGLE",
+      "default": "3POS",
       "display": null
     },
     {
@@ -208,7 +228,7 @@
       "type": "ADC",
       "flags": 0,
       "adc_input": "SWF",
-      "default": "3POS",
+      "default": "2POS",
       "display": null
     },
     {
@@ -228,80 +248,31 @@
       "display": null
     }
   ],
-  "keys": [
-    {
-      "gpio": "GPIOG",
-      "pin": "LL_GPIO_PIN_11",
-      "active_low": false,
-      "key": "KEY_EXIT",
-      "name": "EXIT",
-      "label": "Exit"
-    },
-    {
-      "gpio": "GPIOC",
-      "pin": "LL_GPIO_PIN_13",
-      "active_low": false,
-      "key": "KEY_ENTER",
-      "name": "ENTER",
-      "label": "Enter"
-    }
-  ],
+  "keys": [],
   "trims": [
     {
-      "name": "T1",
-      "dec": {
-        "gpio": "GPIOH",
-        "pin": "LL_GPIO_PIN_2",
-        "active_low": false
-      },
-      "inc": {
-        "gpio": "GPIOG",
-        "pin": "LL_GPIO_PIN_2",
-        "active_low": false
-      },
-      "active_low": true
+      "name": "T1"
     },
     {
-      "name": "T2",
-      "dec": {
-        "gpio": "GPIOJ",
-        "pin": "LL_GPIO_PIN_12",
-        "active_low": false
-      },
-      "inc": {
-        "gpio": "GPIOH",
-        "pin": "LL_GPIO_PIN_7",
-        "active_low": false
-      },
-      "active_low": true
+      "name": "T2"
     },
     {
-      "name": "T3",
-      "dec": {
-        "gpio": "GPIOJ",
-        "pin": "LL_GPIO_PIN_0",
-        "active_low": false
-      },
-      "inc": {
-        "gpio": "GPIOB",
-        "pin": "LL_GPIO_PIN_15",
-        "active_low": false
-      },
-      "active_low": true
+      "name": "T3"
     },
     {
-      "name": "T4",
-      "dec": {
-        "gpio": "GPIOD",
-        "pin": "LL_GPIO_PIN_7",
-        "active_low": false
-      },
-      "inc": {
-        "gpio": "GPIOG",
-        "pin": "LL_GPIO_PIN_10",
-        "active_low": false
-      },
-      "active_low": true
+      "name": "T4"
+    },
+    {
+      "name": "T5"
+    },
+    {
+      "name": "T6"
+    },
+    {
+      "name": "T7"
+    },
+    {
+      "name": "T8"
     }
   ]
 }

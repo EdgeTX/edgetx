@@ -56,8 +56,7 @@ static const StringTagMappingTable boardTypeJsonFileLookupTable = {
     {std::to_string(Board::BOARD_BETAFPV_LR3PRO),       "lr3pro"},
     {std::to_string(Board::BOARD_IFLIGHT_COMMANDO8),    "commando8"},
     {std::to_string(Board::BOARD_FLYSKY_NV14),          "nv14"},
-//    {std::to_string(BOARD_FLYSKY_PL18),                 "pl18"},
-//    {std::to_string(BOARD_FLYSKY_PL18EX),               "pl18ev"},
+    {std::to_string(Board::BOARD_FLYSKY_PL18),          "pl18"},
 };
 
 static const StringTagMappingTable inputTypesLookupTable = {
