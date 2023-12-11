@@ -237,7 +237,7 @@ class WavContext {
 
     void setFragment(const char * filename, uint8_t repeat, int8_t fragmentVolume, uint8_t id)
     {
-      fragment = AudioFragment(filename, repeat, id, fragmentVolume);
+      fragment = AudioFragment(filename, repeat, fragmentVolume, id);
     }
 
     void stop(uint8_t id)
