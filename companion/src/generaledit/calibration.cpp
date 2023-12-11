@@ -26,37 +26,36 @@ CalibrationPanel::CalibrationPanel(QWidget * parent, GeneralSettings & generalSe
   GeneralPanel(parent, generalSettings, firmware)
 {
   Board::Type board = getCurrentBoard();
-  int rows = Boards::getCapability(board, Board::MaxAnalogs);
+  int maxrows = Boards::getInputsCalibrated(board);
+  int maxinputs = Boards::getCapability(board, Board::Inputs);
 
   QStringList headerLabels;
   headerLabels << "" << tr("Negative span") << tr("Mid value") << tr("Positive span");
 
-  TableLayout * tableLayout = new TableLayout(this, rows, headerLabels);
+  TableLayout * tableLayout = new TableLayout(this, maxrows, headerLabels);
 
-  for (int i = 0, row = 0; i < rows; i++) {
-    int col = 0;
-    if (firmware->getCapability(HasFlySkyGimbals) &&
-        i >= (Boards::getCapability(board, Board::Sticks) + 5) &&
-        i < (Boards::getCapability(board, Board::Sticks) + 7))
+  for (int i = 0, row = 0; i < maxinputs; i++) {
+    if (!Boards::isInputCalibrated(board, i))
       continue;
 
+    int col = 0;
     row++;
     QLabel * label = new QLabel(this);
-    label->setText(firmware->getAnalogInputName(i));
+    label->setText(Boards::getInputInfo(board, i).label.c_str());
     tableLayout->addWidget(i, col++, label);
 
     QLineEdit * leNeg = new QLineEdit(this);
-    leNeg->setText(QString("%1").arg(generalSettings.calibSpanNeg[i]));
+    leNeg->setText(QString("%1").arg(generalSettings.inputConfig[i].calib.spanNeg));
     leNeg->setReadOnly(true);
     tableLayout->addWidget(i, col++, leNeg);
 
     QLineEdit * leMid = new QLineEdit(this);
-    leMid->setText(QString("%1").arg(generalSettings.calibMid[i]));
+    leMid->setText(QString("%1").arg(generalSettings.inputConfig[i].calib.mid));
     leMid->setReadOnly(true);
     tableLayout->addWidget(i, col++, leMid);
 
     QLineEdit * lePos = new QLineEdit(this);
-    lePos->setText(QString("%1").arg(generalSettings.calibSpanPos[i]));
+    lePos->setText(QString("%1").arg(generalSettings.inputConfig[i].calib.spanPos));
     lePos->setReadOnly(true);
     tableLayout->addWidget(i, col++, lePos);
   }
@@ -65,5 +64,5 @@ CalibrationPanel::CalibrationPanel(QWidget * parent, GeneralSettings & generalSe
   tableLayout->resizeColumnsToContents();
   tableLayout->setColumnWidth(0, QString(15, ' '));
   tableLayout->pushColumnsLeft(headerLabels.count());
-  tableLayout->pushRowsUp(rows + 1);
+  tableLayout->pushRowsUp(maxrows + 1);
 }

@@ -23,6 +23,7 @@
 #include "compounditemmodels.h"
 #include "moduledata.h"
 #include "helpers.h"
+#include "boardfactories.h"
 
 // TODO remove all those constants
 // Update: These are now all only used within this class.
@@ -43,12 +44,19 @@
 
 using namespace Board;
 
+Boards::Boards(Board::Type board)
+{
+  setBoardType(board);
+}
+
 void Boards::setBoardType(const Type & board)
 {
-  if (board >= BOARD_UNKNOWN && board <= BOARD_TYPE_MAX)
+  if (board < BOARD_TYPE_MAX)
     m_boardType = board;
   else
     m_boardType = BOARD_UNKNOWN;
+
+  m_boardJson = getBoardJson(m_boardType);
 }
 
 uint32_t Boards::getFourCC(Type board)
@@ -218,390 +226,17 @@ int Boards::getFlashSize(Type board)
   }
 }
 
-SwitchInfo Boards::getSwitchInfo(Board::Type board, int index)
-{
-  if (index < 0)
-    return {SWITCH_NOT_AVAILABLE, CPN_STR_UNKNOWN_ITEM};
-
-  if (IS_TARANIS_XLITES(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_3POS,   "SA"},
-      {SWITCH_3POS,   "SB"},
-      {SWITCH_2POS,   "SC"},
-      {SWITCH_2POS,   "SD"},
-      {SWITCH_TOGGLE, "SE"},
-      {SWITCH_TOGGLE, "SF"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_JUMPER_TPROV2(board)) {
-    const Board::SwitchInfo switches[] = {
-        {SWITCH_3POS,   "SA"},
-        {SWITCH_3POS,   "SB"},
-        {SWITCH_2POS,   "SC"},
-        {SWITCH_2POS,   "SD"},
-        {SWITCH_2POS,   "SE"},
-        {SWITCH_2POS,   "SF"},
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_TARANIS_XLITE(board) || IS_JUMPER_TLITE(board) || IS_JUMPER_TPROV1(board) || IS_BETAFPV_LR3PRO(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_3POS,   "SA"},
-      {SWITCH_3POS,   "SB"},
-      {SWITCH_2POS,   "SC"},
-      {SWITCH_2POS,   "SD"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (board == BOARD_TARANIS_X7_ACCESS) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_3POS,   "SA"},
-      {SWITCH_3POS,   "SB"},
-      {SWITCH_3POS,   "SC"},
-      {SWITCH_3POS,   "SD"},
-      {SWITCH_2POS,   "SF"},
-      {SWITCH_TOGGLE, "SH"},
-      {SWITCH_2POS,   "SI"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (board == BOARD_TARANIS_X7) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_3POS,   "SA"},
-      {SWITCH_3POS,   "SB"},
-      {SWITCH_3POS,   "SC"},
-      {SWITCH_3POS,   "SD"},
-      {SWITCH_2POS,   "SF"},
-      {SWITCH_TOGGLE, "SH"},
-      {SWITCH_2POS,   "SI"},
-      {SWITCH_2POS,   "SJ"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_RADIOMASTER_TX12(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_TOGGLE,   "SA"},
-      {SWITCH_3POS,     "SB"},
-      {SWITCH_3POS,     "SC"},
-      {SWITCH_TOGGLE,   "SD"},
-      {SWITCH_3POS,     "SE"},
-      {SWITCH_3POS,     "SF"},
-      {SWITCH_2POS,     "SI"},
-      {SWITCH_2POS,     "SJ"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_RADIOMASTER_TX12_MK2(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_TOGGLE,   "SA"},
-      {SWITCH_3POS,     "SB"},
-      {SWITCH_3POS,     "SC"},
-      {SWITCH_TOGGLE,   "SD"},
-      {SWITCH_3POS,     "SE"},
-      {SWITCH_3POS,     "SF"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_RADIOMASTER_ZORRO(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_TOGGLE,   "SA"},
-      {SWITCH_3POS,     "SB"},
-      {SWITCH_3POS,     "SC"},
-      {SWITCH_TOGGLE,   "SD"},
-      {SWITCH_2POS,     "SE"},
-      {SWITCH_2POS,     "SF"},
-      {SWITCH_TOGGLE,   "SG"},
-      {SWITCH_TOGGLE,   "SH"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_RADIOMASTER_BOXER(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_2POS,     "SA"},
-      {SWITCH_3POS,     "SB"},
-      {SWITCH_3POS,     "SC"},
-      {SWITCH_3POS,     "SD"},
-      {SWITCH_2POS,     "SE"},
-      {SWITCH_TOGGLE,   "SF"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_RADIOMASTER_POCKET(board)) {
-    const Board::SwitchInfo switches[] = {
-        {SWITCH_2POS,     "SA"},
-        {SWITCH_3POS,     "SB"},
-        {SWITCH_3POS,     "SC"},
-        {SWITCH_2POS,     "SD"},
-        {SWITCH_TOGGLE,   "SE"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_RADIOMASTER_T8(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_TOGGLE,   "SA"},
-      {SWITCH_3POS,     "SB"},
-      {SWITCH_3POS,     "SC"},
-      {SWITCH_TOGGLE,   "SD"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_IFLIGHT_COMMANDO8(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_2POS,   "SA"},
-      {SWITCH_3POS,   "SB"},
-      {SWITCH_3POS,   "SC"},
-      {SWITCH_2POS,   "SD"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_JUMPER_T12(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_3POS, "SA"},
-      {SWITCH_3POS, "SB"},
-      {SWITCH_3POS, "SC"},
-      {SWITCH_3POS, "SD"},
-      {SWITCH_2POS, "SG"},
-      {SWITCH_2POS, "SH"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_JUMPER_T20(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_2POS, "SA"},
-      {SWITCH_2POS, "SB"},
-      {SWITCH_3POS, "SC"},
-      {SWITCH_3POS, "SD"},
-      {SWITCH_2POS, "SE"},
-      {SWITCH_2POS, "SF"},
-      {SWITCH_TOGGLE, "SG"},
-      {SWITCH_TOGGLE, "SH"},
-      {SWITCH_TOGGLE, "SI"},
-      {SWITCH_TOGGLE, "SJ"},
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_FLYSKY_NV14(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_2POS,   "SA"},
-      {SWITCH_3POS,   "SB"},
-      {SWITCH_TOGGLE, "SC"},
-      {SWITCH_2POS,   "SD"},
-      {SWITCH_TOGGLE, "SE"},
-      {SWITCH_3POS,   "SF"},
-      {SWITCH_3POS,   "SG"},
-      {SWITCH_TOGGLE, "SH"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_FLYSKY_EL18(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_2POS,   "SA"},
-      {SWITCH_3POS,   "SB"},
-      {SWITCH_3POS,   "SC"},
-      {SWITCH_2POS,   "SD"},
-      {SWITCH_2POS,   "SE"},
-      {SWITCH_3POS,   "SF"},
-      {SWITCH_3POS,   "SG"},
-      {SWITCH_TOGGLE, "SH"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_FLYSKY_PL18(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_2POS,   "SA"},
-      {SWITCH_3POS,   "SB"},
-      {SWITCH_2POS,   "SC"},
-      {SWITCH_3POS,   "SD"},
-      {SWITCH_3POS,   "SE"},
-      {SWITCH_2POS,   "SF"},
-      {SWITCH_3POS,   "SG"},
-      {SWITCH_3POS,   "SH"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else if (IS_FAMILY_HORUS_OR_T16(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_3POS,   "SA"},
-      {SWITCH_3POS,   "SB"},
-      {SWITCH_3POS,   "SC"},
-      {SWITCH_3POS,   "SD"},
-      {SWITCH_3POS,   "SE"},
-      {SWITCH_2POS,   "SF"},
-      {SWITCH_3POS,   "SG"},
-      {SWITCH_TOGGLE, "SH"},
-      {SWITCH_2POS,   "SI"},
-      {SWITCH_2POS,   "SJ"}
-  };
-  if (index < DIM(switches))
-    return switches[index];
-  }
-  else if (IS_TARANIS(board)) {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_3POS,   "SA"},
-      {SWITCH_3POS,   "SB"},
-      {SWITCH_3POS,   "SC"},
-      {SWITCH_3POS,   "SD"},
-      {SWITCH_3POS,   "SE"},
-      {SWITCH_2POS,   "SF"},
-      {SWITCH_3POS,   "SG"},
-      {SWITCH_TOGGLE, "SH"},
-      {board == Board::BOARD_TARANIS_X9DP_2019 ? SWITCH_TOGGLE : SWITCH_3POS,   "SI"},
-      {SWITCH_3POS,   "SJ"},
-      {SWITCH_3POS,   "SK"},
-      {SWITCH_3POS,   "SL"},
-      {SWITCH_3POS,   "SM"},
-      {SWITCH_3POS,   "SN"},
-      {SWITCH_3POS,   "SO"},
-      {SWITCH_3POS,   "SP"},
-      {SWITCH_3POS,   "SQ"},
-      {SWITCH_3POS,   "SR"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-  else {
-    const Board::SwitchInfo switches[] = {
-      {SWITCH_3POS,   "3POS"},
-      {SWITCH_2POS,   "THR"},
-      {SWITCH_2POS,   "RUD"},
-      {SWITCH_2POS,   "ELE"},
-      {SWITCH_2POS,   "AIL"},
-      {SWITCH_2POS,   "GEA"},
-      {SWITCH_TOGGLE, "TRN"}
-    };
-    if (index < DIM(switches))
-      return switches[index];
-  }
-
-  return {SWITCH_NOT_AVAILABLE, CPN_STR_UNKNOWN_ITEM};
-}
-
+// static
 int Boards::getCapability(Board::Type board, Board::Capability capability)
 {
+  // TODO investigate usage of any that should be covered in BoardJson::getCapability or are no longer required
+  //      some could be used when importing pre v2.10 configurations
   switch (capability) {
-    case Sticks:
-      return 4;
-
-    case Pots:
-      if (IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_POCKET(board))
-        return 1;
-      else if (IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board))
-        return 0;
-      else if (IS_RADIOMASTER_BOXER(board))
-        return 3;
-      else if (IS_TARANIS_SMALL(board) || IS_JUMPER_TPRO(board) || IS_FLYSKY_NV14(board) || IS_JUMPER_T20(board))
-        return 2;
-      else if (IS_TARANIS_X9E(board))
-        return 4;
-      else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board))
-        return 7;
-      else if (IS_HORUS_X12S(board))
-        return 3;
-      else if (IS_FLYSKY_PL18(board))
-        return 3;
-      else
-        return 3;
-
     case FactoryInstalledPots:
       if (IS_TARANIS_X9(board))
         return 2;
       else
         return getCapability(board, Pots);
-
-    case Sliders:
-      if (IS_HORUS_X12S(board) || IS_TARANIS_X9E(board) || IS_JUMPER_T20(board))
-        return 4;
-      else if (IS_TARANIS_X9D(board) || IS_HORUS_X10(board) || IS_FAMILY_T16(board) || IS_FLYSKY_PL18(board))
-        return 2;
-      else
-        return 0;
-
-    case MouseAnalogs:
-      if (IS_FAMILY_HORUS_OR_T16(board))
-        return 2;
-      else
-        return 0;
-
-    case GyroAnalogs:
-      if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board))
-        return 2;
-      else
-        return 0;
-
-    case MaxAnalogs:
-      return getCapability(board, Board::Sticks) + getCapability(board, Board::Pots) + getCapability(board, Board::Sliders) +
-             getCapability(board, Board::MouseAnalogs) + getCapability(board, Board::GyroAnalogs);
-
-    case MultiposPots:
-      if (IS_HORUS_OR_TARANIS(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PL18(board)))
-        return getCapability(board, Board::Pots);
-      else
-        return 0;
-
-    case MultiposPotsPositions:
-      return IS_HORUS_OR_TARANIS(board) ? 6 : 0;
-
-    case Board::Switches:
-      if (IS_TARANIS_X9E(board))
-        return 18;
-      else if (board == Board::BOARD_TARANIS_X9LITE)
-        return 5;
-      else if (board == Board::BOARD_TARANIS_X9LITES)
-        return 7;
-      else if (board == BOARD_TARANIS_X7_ACCESS)
-        return 7;
-      else if (board == BOARD_TARANIS_X7)
-        return 8;
-      else if (board == BOARD_JUMPER_TLITE || board == BOARD_JUMPER_TLITE_F4 ||
-               board == BOARD_JUMPER_TPRO || board == BOARD_BETAFPV_LR3PRO ||
-               board == BOARD_IFLIGHT_COMMANDO8)
-        return 4;
-      else if (board == BOARD_JUMPER_TPROV2)
-        return 6;
-      else if (board == BOARD_FLYSKY_NV14 || board == BOARD_FLYSKY_EL18)
-        return 8;
-      else if (board == BOARD_FLYSKY_PL18)
-        return 8;
-      else if (board == BOARD_RADIOMASTER_TX12_MK2 || board == BOARD_RADIOMASTER_BOXER || board == BOARD_JUMPER_TPRO)
-        return 6;
-      else if (board == BOARD_RADIOMASTER_POCKET)
-        return 5;
-      else if (IS_FAMILY_T12(board))
-        return 8;
-      else if (IS_TARANIS_XLITE(board))
-        return 6;
-      else if (board == Board::BOARD_TARANIS_X9DP_2019)
-        return 9;
-      else if (IS_TARANIS(board))
-        return 8;
-      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_JUMPER_T20(board))
-        return 10;
-      else
-        return 7;
-
-    case FunctionSwitches:
-       if (board == BOARD_JUMPER_TPRO || board == BOARD_JUMPER_TPROV2 || board == BOARD_JUMPER_T20)
-        return 6;
-       else
-        return 0;
 
     case FactoryInstalledSwitches:
       if (IS_TARANIS_X9E(board))
@@ -621,61 +256,26 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       else
         return getCapability(board, Board::Switches);
 
-    case SwitchPositions:
-      if (IS_HORUS_OR_TARANIS(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PL18(board))
-        return getCapability(board, Board::Switches) * 3;
-      else
-        return 9;
-
-    case NumFunctionSwitchesPositions:
-       return getCapability(board, Board::FunctionSwitches) * 3;
-
-
-    case NumTrims:
-      if (IS_FLYSKY_PL18(board))
-          return 8;
-      else if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board))
-        return 6;
-      else if (IS_IFLIGHT_COMMANDO8(board))
-        return 0;
-      else if (IS_JUMPER_T20(board))
-        return 8;
-      else
-        return 4;
-
-    case NumTrimSwitches:
-      return getCapability(board, Board::NumTrims) * 2;
-
-    case HasRTC:
-      return IS_STM32(board) ? true : false;
-
-    case HasColorLcd:
-      return IS_FAMILY_HORUS_OR_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board);
-
-    case HasSDCard:
-      return IS_STM32(board);
-
-    case HasInternalModuleSupport:
-      return (IS_STM32(board) && !IS_TARANIS_X9(board));
-
-    case HasExternalModuleSupport:
-      return (IS_STM32(board) && !IS_RADIOMASTER_T8(board));
-
     case HasAudioMuteGPIO:
       // All color lcd (including NV14 and EL18) except Horus X12S
       // TX12, TX12MK2, ZORRO, BOXER, T8, TLITE, TPRO, LR3PRO, COMMANDO8
       return (IS_FAMILY_HORUS_OR_T16(board) && !IS_HORUS_X12S(board)) || IS_FAMILY_T12(board);
 
+    case HasColorLcd:
+      return IS_FAMILY_HORUS_OR_T16(board);
+
+    case HasExternalModuleSupport:
+      return (IS_STM32(board) && !IS_RADIOMASTER_T8(board));
+
+    case HasInternalModuleSupport:
+      return (IS_STM32(board) && !IS_TARANIS_X9(board));
+
     case HasLedStripGPIO:
       // No current radio do support that feature
       return false;
 
-    case SportMaxBaudRate:
-      if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PL18(board) ||IS_TARANIS_X7_ACCESS(board) ||
-         (IS_TARANIS(board) && !IS_TARANIS_XLITE(board) && !IS_TARANIS_X7(board) && !IS_TARANIS_X9LITE(board)))
-        return 400000;  //  400K and higher
-      else
-        return 250000;  //  less than 400K
+    case HasSDCard:
+      return IS_STM32(board);
 
     case HasTrainerModuleCPPM:
       return (getCapability(board, HasTrainerModuleSBUS) || IS_FAMILY_HORUS_OR_T16(board));
@@ -686,8 +286,40 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
               IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_POCKET(board)) ||
               (getCapability(board, HasExternalModuleSupport) && (IS_TARANIS(board) && !IS_FAMILY_T12(board))));
 
+    case MaxAnalogs:
+      return getCapability(board, Board::Sticks) + getCapability(board, Board::Pots) + getCapability(board, Board::Sliders) +
+             getCapability(board, Board::Joysticks) + getCapability(board, Board::GyroAnalogs);
+
+    case MultiposPots:
+      if (IS_HORUS_OR_TARANIS(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)))
+        return getCapability(board, Board::Pots);
+      else
+        return 0;
+
+    case MultiposPotsPositions:
+      return IS_HORUS_OR_TARANIS(board) ? 6 : 0;
+
+    case NumFunctionSwitchesPositions:
+       return getCapability(board, Board::FunctionSwitches) * 3;
+
+    case NumTrimSwitches:
+      return getCapability(board, Board::NumTrims) * 2;
+
+    case SportMaxBaudRate:
+      if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_TARANIS_X7_ACCESS(board) ||
+         (IS_TARANIS(board) && !IS_TARANIS_XLITE(board) && !IS_TARANIS_X7(board) && !IS_TARANIS_X9LITE(board)))
+        return 400000;  //  400K and higher
+      else
+        return 250000;  //  less than 400K
+
+    case SwitchPositions:
+      if (IS_HORUS_OR_TARANIS(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
+        return getCapability(board, Board::Switches) * 3;
+      else
+        return 9;
+
     default:
-      return 0;
+      return getBoardJson(board)->getCapability(capability);
   }
 }
 
@@ -707,219 +339,110 @@ QString Boards::getAxisName(int index)
     return CPN_STR_UNKNOWN_ITEM;
 }
 
-StringTagMappingTable Boards::getAnalogNamesLookupTable(Board::Type board, const QString strVersion)
+// mapping json name (1st entry) to legacy tag (2nd entry)
+// json name then used to find inputs index
+// only used to decode pre v2.10 yaml configs
+StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board)
 {
-  SemanticVersion version(strVersion);
-  SemanticVersion adcVersion(QString(CPN_ADC_REFACTOR_VERSION));
-
   StringTagMappingTable tbl;
 
   if (getBoardCapability(board, Board::Sticks)) {
-    if (version < adcVersion) {
-      tbl.insert(tbl.end(), {
-                                {tr("Rud").toStdString(), "Rud"},
-                                {tr("Ele").toStdString(), "Ele"},
-                                {tr("Thr").toStdString(), "Thr"},
-                                {tr("Ail").toStdString(), "Ail"},
-                            });
-    } else {
-      tbl.insert(tbl.end(), {
-                                {tr("Rud").toStdString(), "LH", 0},
-                                {tr("Ele").toStdString(), "LV", 1},
-                                {tr("Thr").toStdString(), "RH", 2},
-                                {tr("Ail").toStdString(), "RV", 3},
-                            });
-    }
+    tbl.insert(tbl.end(), {
+                              {tr("LH").toStdString(), "Rud"},
+                              {tr("LV").toStdString(), "Ele"},
+                              {tr("RH").toStdString(), "Thr"},
+                              {tr("RV").toStdString(), "Ail"},
+                          });
   }
 
-  if (IS_SKY9X(board)) {
+  if (IS_TARANIS_X9LITE(board)) {
     tbl.insert(tbl.end(), {
-                              {tr("P1").toStdString(), "P1"},
-                              {tr("P2").toStdString(), "P2"},
-                              {tr("P3").toStdString(), "P3"},
-                          });
-  } else if (IS_TARANIS_X9LITE(board)) {
-    if (version < adcVersion) {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "S1"},
-                                {tr("POT1").toStdString(), "POT1"},
+                              {tr("SL1").toStdString(), "S1"},
+                              {tr("P1").toStdString(), "POT1"},
                             });
-    } else {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "P1", 4},
-                            });
-    }
   } else if (IS_TARANIS_X9E(board)) {
-    if (version < adcVersion) {
-      tbl.insert(tbl.end(), {
-                                {tr("F1").toStdString(), "POT1"},
-                                {tr("F2").toStdString(), "POT2"},
-                                {tr("F3").toStdString(), "POT3"},
-                                {tr("F4").toStdString(), "POT4"},
-                                {tr("S1").toStdString(), "SLIDER1"},
-                                {tr("S2").toStdString(), "SLIDER2"},
-                                {tr("LS").toStdString(), "SLIDER3"},
-                                {tr("RS").toStdString(), "SLIDER4"},
-                            });
-    } else {
-      tbl.insert(tbl.end(), {
-                                {tr("F1").toStdString(), "P1", 4},
-                                {tr("F2").toStdString(), "P2", 5},
-                                {tr("S1").toStdString(), "SL3", 8},
-                                {tr("S2").toStdString(), "SL4", 9},
-                                {tr("LS").toStdString(), "SL1", 6},
-                                {tr("RS").toStdString(), "SL2", 7},
-                            });
-    }
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "POT1"},
+                              {tr("P2").toStdString(), "POT2"},
+                              {tr("P3").toStdString(), "POT3"},
+                              {tr("P4").toStdString(), "POT4"},
+                              {tr("SL1").toStdString(), "SLIDER1"},
+                              {tr("SL2").toStdString(), "SLIDER2"},
+                              {tr("SL3").toStdString(), "SLIDER3"},
+                              {tr("SL4").toStdString(), "SLIDER4"},
+                          });
   } else if (IS_TARANIS_XLITES(board)) {
-    if (version < adcVersion) {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "POT1"},
-                                {tr("S2").toStdString(), "POT2"},
-                                {tr("TltX").toStdString(), "TILT_X"},
-                                {tr("TltY").toStdString(), "TILT_Y"},
-                            });
-    } else {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "P1", 4},
-                                {tr("S2").toStdString(), "P2", 5},
-                                {tr("TltX").toStdString(), "TILT_X", 6},
-                                {tr("TltY").toStdString(), "TILT_Y", 7},
-                            });
-    }
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "POT1"},
+                              {tr("P2").toStdString(), "POT2"},
+                              {tr("TILT_X").toStdString(), "TILT_X"},
+                              {tr("TILT_Y").toStdString(), "TILT_Y"},
+                          });
   } else if (IS_RADIOMASTER_BOXER(board)) {
     tbl.insert(tbl.end(), {
-                              {tr("S1").toStdString(), "POT1"},
-                              {tr("S2").toStdString(), "POT2"},
-                              {tr("S3").toStdString(), "POT3"},
+                              {tr("P1").toStdString(), "POT1"},
+                              {tr("P2").toStdString(), "POT2"},
+                              {tr("P3").toStdString(), "POT3"},
                           });
   } else if (IS_RADIOMASTER_POCKET(board)) {
     tbl.insert(tbl.end(), {
-                              {tr("S1").toStdString(), "P1", 4},
+                              {tr("P1").toStdString(), "P1"},
                           });
   } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board) && !IS_JUMPER_T20(board)) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)) {
-    if (version < adcVersion) {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "POT1"},
-                                {tr("S2").toStdString(), "POT2"},
-                            });
-    } else {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "P1", 4},
-                                {tr("S2").toStdString(), "P2", 5},
-                            });
-    }
-  } else if (IS_TARANIS_X9(board)) {
-    if (version < adcVersion) {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "POT1"},
-                                {tr("S2").toStdString(), "POT2"},
-                                {tr("S3").toStdString(), "POT3"},
-                                {tr("LS").toStdString(), "SLIDER1"},
-                                {tr("RS").toStdString(), "SLIDER2"},
-                            });
-    } else {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "P1", 4},
-                                {tr("S2").toStdString(), "P2", 5},
-                                {tr("S3").toStdString(), "P3", 6},
-                                {tr("LS").toStdString(), "SL1", 7},
-                                {tr("RS").toStdString(), "SL2", 8},
-                            });
-    }
-  } else if (IS_HORUS_X12S(board)) {
-    if (version < adcVersion) {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "S1"},
-                                {tr("6P").toStdString(), "6POS"},
-                                {tr("S2").toStdString(), "S2"},
-                                {tr("L1").toStdString(), "S3"},
-                                {tr("L2").toStdString(), "S4"},
-                                {tr("LS").toStdString(), "LS"},
-                                {tr("RS").toStdString(), "RS"},
-                                {tr("JSx").toStdString(), "MOUSE1"},
-                                {tr("JSy").toStdString(), "MOUSE2"},
-                                {tr("TltX").toStdString(), "TILT_X"},
-                                {tr("TltY").toStdString(), "TILT_Y"},
-                            });
-    } else {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "P1", 4},
-                                {tr("6POS").toStdString(), "P2", 5},
-                                {tr("S2").toStdString(), "P3", 6},
-                                {tr("L1").toStdString(), "SL3", 9},
-                                {tr("L2").toStdString(), "SL4", 10},
-                                {tr("LS").toStdString(), "SL1", 7},
-                                {tr("RS").toStdString(), "SL2", 8},
-                                {tr("JSx").toStdString(), "JSx", 11},
-                                {tr("JSy").toStdString(), "JSy", 12},
-                                {tr("TltX").toStdString(), "TILT_X", 13},
-                                {tr("TltY").toStdString(), "TILT_Y", 14},
-                            });
-    }
-  } else if (IS_FLYSKY_PL18(board)) {
     tbl.insert(tbl.end(), {
-                              {tr("VRA").toStdString(), "POT1"},
-                              {tr("VRB").toStdString(), "POT2"},
-                              {tr("VRC").toStdString(), "POT3"},
-                              {tr("LS").toStdString(), "LS"},
-                              {tr("RS").toStdString(), "RS"},
+                              {tr("P1").toStdString(), "POT1"},
+                              {tr("P2").toStdString(), "POT2"},
+                          });
+  } else if (IS_TARANIS_X9(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "POT1"},
+                              {tr("P2").toStdString(), "POT2"},
+                              {tr("P3").toStdString(), "POT3"},
+                              {tr("SL1").toStdString(), "SLIDER1"},
+                              {tr("SL2").toStdString(), "SLIDER2"},
+                          });
+  } else if (IS_HORUS_X12S(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "S1"},
+                              {tr("P2").toStdString(), "6POS"},
+                              {tr("P3").toStdString(), "S2"},
+                              {tr("P4").toStdString(), "S3"},
+                              {tr("P5").toStdString(), "S4"},
+                              {tr("SL1").toStdString(), "LS"},
+                              {tr("SL2").toStdString(), "RS"},
+                              {tr("JSx").toStdString(), "MOUSE1"},
+                              {tr("JSy").toStdString(), "MOUSE2"},
+                              {tr("TILT_X").toStdString(), "TILT_X"},
+                              {tr("TILT_Y").toStdString(), "TILT_Y"},
                           });
   } else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
-    if (version < adcVersion) {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "S1"},
-                                {tr("6P").toStdString(), "6POS"},
-                                {tr("S2").toStdString(), "S2"},
-                                {tr("EX1").toStdString(), "EXT1"},
-                                {tr("EX2").toStdString(), "EXT2"},
-                                {tr("EX3").toStdString(), "EXT3"},
-                                {tr("EX4").toStdString(), "EXT4"},
-                                {tr("LS").toStdString(), "LS"},
-                                {tr("RS").toStdString(), "RS"},
-                                {tr("JSx").toStdString(), "MOUSE1"},
-                                {tr("JSy").toStdString(), "MOUSE2"},
-                                {tr("TltX").toStdString(), "TILT_X"},
-                                {tr("TltY").toStdString(), "TILT_Y"},
-                            });
-    } else {
-      tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "P1", 4},
-                                {tr("6POS").toStdString(), "P2", 5},
-                                {tr("S2").toStdString(), "P3", 6},
-                                {tr("EXT1").toStdString(), "EXT1", 9},
-                                {tr("EXT2").toStdString(), "EXT2", 10},
-                                {tr("EXT3").toStdString(), "EXT3", 11},
-                                {tr("EXT4").toStdString(), "EXT4", 12},
-                                {tr("LS").toStdString(), "SL1", 7},
-                                {tr("RS").toStdString(), "SL2", 8},
-                                {tr("JSx").toStdString(), "JSx", 13},
-                                {tr("JSy").toStdString(), "JSy", 14},
-                                {tr("TltX").toStdString(), "TILT_X", 15},
-                                {tr("TltY").toStdString(), "TILT_Y", 16},
-                            });
-    }
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "S1"},
+                              {tr("P2").toStdString(), "6POS"},
+                              {tr("P3").toStdString(), "S2"},
+                              {tr("EXT1").toStdString(), "EXT1"},
+                              {tr("EXT2").toStdString(), "EXT2"},
+                              {tr("EXT3").toStdString(), "EXT3"},
+                              {tr("EXT4").toStdString(), "EXT4"},
+                              {tr("SL1").toStdString(), "LS"},
+                              {tr("SL2").toStdString(), "RS"},
+                              {tr("JSx").toStdString(), "MOUSE1"},
+                              {tr("JSy").toStdString(), "MOUSE2"},
+                              {tr("TILT_X").toStdString(), "TILT_X"},
+                              {tr("TILT_Y").toStdString(), "TILT_Y"},
+                          });
   } else if (IS_JUMPER_T20(board)) {
       tbl.insert(tbl.end(), {
-                                {tr("S1").toStdString(), "P1", 4},
-                                {tr("S2").toStdString(), "P2", 5},
-                                {tr("S3").toStdString(), "SL1", 6},
-                                {tr("S4").toStdString(), "SL2", 7},
-                                {tr("SL").toStdString(), "SL3", 8},
-                                {tr("SR").toStdString(), "SL4", 9},
+                              {tr("P1").toStdString(), "P1"},
+                              {tr("P2").toStdString(), "P2"},
+                              {tr("SL1").toStdString(), "SL1"},
+                              {tr("SL2").toStdString(), "SL2"},
+                              {tr("SL3").toStdString(), "SL3"},
+                              {tr("SL4").toStdString(), "SL4"},
                             });
   }
 
   return tbl;
-}
-
-QString Boards::getAnalogInputName(Board::Type board, int index)
-{
-  const StringTagMappingTable& lut = getAnalogNamesLookupTable(board);
-  if (index < (int)lut.size())
-    return QString::fromStdString(lut[index].name);
-
-  return CPN_STR_UNKNOWN_ITEM;
 }
 
 bool Boards::isBoardCompatible(Type board1, Type board2)
@@ -1011,39 +534,6 @@ QString Boards::getBoardName(Board::Type board)
 }
 
 //  static
-QString Boards::potTypeToString(int value)
-{
-  switch(value) {
-    case POT_NONE:
-      return tr("None");
-    case POT_WITH_DETENT:
-      return tr("Pot with detent");
-    case POT_MULTIPOS_SWITCH:
-      return tr("Multi pos switch");
-    case POT_WITHOUT_DETENT:
-      return tr("Pot without detent");
-    case POT_SLIDER_WITH_DETENT:
-      return tr("slider");
-    default:
-      return CPN_STR_UNKNOWN_ITEM;
-  }
-}
-
-
-//  static
-QString Boards::sliderTypeToString(int value)
-{
-  switch(value) {
-    case SLIDER_NONE:
-      return tr("None");
-    case SLIDER_WITH_DETENT:
-      return tr("Slider with detent");
-    default:
-      return CPN_STR_UNKNOWN_ITEM;
-  }
-}
-
-//  static
 QString Boards::switchTypeToString(int value)
 {
   switch(value) {
@@ -1055,37 +545,11 @@ QString Boards::switchTypeToString(int value)
       return tr("2 Positions");
     case SWITCH_3POS:
       return tr("3 Positions");
+    case SWITCH_FSWITCH:
+      return tr("Function");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
-}
-
-//  static
-AbstractStaticItemModel * Boards::potTypeItemModel()
-{
-  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-  mdl->setName(AIM_BOARDS_POT_TYPE);
-
-  for (int i = 0; i < POT_TYPE_COUNT; i++) {
-    mdl->appendToItemList(potTypeToString(i), i);
-  }
-
-  mdl->loadItemList();
-  return mdl;
-}
-
-//  static
-AbstractStaticItemModel * Boards::sliderTypeItemModel()
-{
-  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-  mdl->setName(AIM_BOARDS_SLIDER_TYPE);
-
-  for (int i = 0; i < SLIDER_TYPE_COUNT; i++) {
-    mdl->appendToItemList(sliderTypeToString(i), i);
-  }
-
-  mdl->loadItemList();
-  return mdl;
 }
 
 //  static
@@ -1109,8 +573,8 @@ StringTagMappingTable Boards::getSwitchesLookupTable(Board::Type board)
 
   for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
     SwitchInfo si = Boards::getSwitchInfo(board, i);
-    if (si.config != SWITCH_NOT_AVAILABLE) //  safety check in case Switches does not align
-      tbl.insert(tbl.end(), si.name.toStdString());
+    if (si.type != SWITCH_NOT_AVAILABLE) //  safety check in case Switches does not align
+      tbl.insert(tbl.end(), si.name);
   }
 
   return tbl;
@@ -1311,26 +775,142 @@ AbstractStaticItemModel * Boards::externalModuleSizeItemModel()
   return mdl;
 }
 
-//  EdgeTX 2.10.0 ADC refactor changed order of pots and sliders that affected interpretation of model warnings
-//  This conversion needs to be revisited when Companion is refactored to use ADC radio defns
-//  Make ADC orders backwards compatible
+QString Boards::flexTypeToString(int value)
+{
+  switch(value) {
+    case FLEX_NONE:
+      return tr("None");
+    case FLEX_POT:
+      return tr("Pot");
+    case FLEX_POT_CENTER:
+      return tr("Pot with detent");
+    case FLEX_SLIDER:
+      return tr("Slider");
+    case FLEX_MULTIPOS:
+      return tr("Multipos Switch");
+    case FLEX_AXIS_X:
+      return tr("Axis X");
+    case FLEX_AXIS_Y:
+      return tr("Axis Y");
+    case FLEX_SWITCH:
+      return tr("Switch");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
 
-//  the values below are based on radio\src\util\hw_defns\pots_config.py
+AbstractStaticItemModel * Boards::flexTypeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_BOARDS_FLEX_TYPE);
+
+  for (int i = 0; i < FLEX_TYPE_COUNT; i++) {
+    mdl->appendToItemList(flexTypeToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+BoardJson* Boards::getBoardJson(Board::Type board)
+{
+  return gBoardFactories->instance(board);
+}
+
+QString Boards::getInputName(Board::Type board, int index)
+{
+  if (index < 0 || index >= getCapability(board, Board::MaxAnalogs))
+    return CPN_STR_UNKNOWN_ITEM;
+
+  return getBoardJson(board)->getInputLabel(index); // json hwdef label holds display name
+}
 
 // static
-int Boards::adcPotsBeforeSliders(Board::Type board, SemanticVersion version)
+QString Boards::getInputTag(Board::Type board, int index)
 {
-  if (version >= SemanticVersion(CPN_ADC_REFACTOR_VERSION)) {
-    if (IS_TARANIS_X9(board) || IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || IS_RADIOMASTER_BOXER(board))
-      return 3;
-    else if (IS_TARANIS_X9LITE(board))
-      return 1;
-    else if (IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board))
-      return 0;
-    else
-      return 2;
-  }
-  else {
-    return getCapability(board, Board::Pots);
-  }
+  if (index < 0 || index >= getCapability(board, Board::MaxAnalogs))
+    return CPN_STR_UNKNOWN_ITEM;
+
+  return getBoardJson(board)->getInputName(index); // json name holds yaml tag
+}
+
+// static
+int Boards::getInputNameOffset(Board::Type board, QString name)
+{
+  return getBoardJson(board)->getInputNameOffset(name);
+}
+
+// static
+int Boards::getInputTypeOffset(Board::Type board, Board::AnalogInputType type)
+{
+  return getBoardJson(board)->getInputTypeOffset(type);
+}
+
+int Boards::getInputPotIndex(Board::Type board, int index)
+{
+  return getBoardJson(board)->getInputPotIndex(index);
+}
+
+int Boards::getInputSliderIndex(Board::Type board, int index)
+{
+  return getBoardJson(board)->getInputSliderIndex(index);
+}
+
+int Boards::getInputsCalibrated(Board::Type board)
+{
+  return getBoardJson(board)->getInputsCalibrated();
+}
+
+Board::InputInfo Boards::getInputInfo(Board::Type board, int index)
+{
+  return getBoardJson(board)->getInputInfo(index);
+}
+
+Board::SwitchInfo Boards::getSwitchInfo(Board::Type board, int index)
+{
+  return getBoardJson(board)->getSwitchInfo(index);
+}
+
+bool Boards::isInputCalibrated(Board::Type board, int index)
+{
+  return getBoardJson(board)->isInputCalibrated(index);
+}
+
+bool Boards::isInputConfigurable(Board::Type board, int index)
+{
+  return getBoardJson(board)->isInputConfigurable(index);
+}
+
+bool Boards::isInputPot(Board::Type board, int index)
+{
+  return getBoardJson(board)->isInputPot(index);
+}
+
+bool Boards::isInputStick(Board::Type board, int index)
+{
+  return getBoardJson(board)->isInputStick(index);
+}
+
+int Boards::getInputIndex(Board::Type board, QString name)
+{
+  return getBoardJson(board)->getInputIndex(name);
+}
+
+int Boards::getSwitchIndex(Board::Type board, QString name)
+{
+  return getBoardJson(board)->getSwitchIndex(name);
+}
+
+QString Boards::getSwitchName(Board::Type board, int index)
+{
+  return getBoardJson(board)->getSwitchName(index);
+}
+
+// static
+QString Boards::getSwitchTag(Board::Type board, int index)
+{
+  if (index < 0 || index >= getCapability(board, Board::Switches))
+    return CPN_STR_UNKNOWN_ITEM;
+
+  return getBoardJson(board)->getSwitchName(index);
 }

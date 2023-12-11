@@ -1500,15 +1500,14 @@ QString ModelData::thrTraceSrcToString() const
 
 QString ModelData::thrTraceSrcToString(const int index) const
 {
-  Firmware * firmware = getCurrentFirmware();
-  const Boards board = Boards(getCurrentBoard());
-  const int pscnt = board.getCapability(Board::Pots) + board.getCapability(Board::Sliders);
+  const Board::Type board = getCurrentBoard();
+  const int pscnt = Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders);
 
   if (index == 0)
     return tr("THR");
   else if (index <= pscnt)
-    return board.getAnalogInputName(index + board.getCapability(Board::Sticks) - 1);
-  else if (index <= pscnt + firmware->getCapability(Outputs))
+    return Boards::getInputName(board, index + Boards::getCapability(board, Board::Sticks) - 1);
+  else if (index <= pscnt + getCurrentFirmware()->getCapability(Outputs))
     return RawSource(SOURCE_TYPE_CH, index - pscnt - 1).toString(this);
 
   return QString(CPN_STR_UNKNOWN_ITEM);
@@ -1516,18 +1515,18 @@ QString ModelData::thrTraceSrcToString(const int index) const
 
 int ModelData::thrTraceSrcCount() const
 {
-  const Boards board = Boards(getCurrentBoard());
   Firmware * firmware = getCurrentFirmware();
+  const Board::Type board = firmware->getBoard();
 
-  return 1 + board.getCapability(Board::Pots) + board.getCapability(Board::Sliders) + firmware->getCapability(Outputs);
+  return 1 + Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders) + firmware->getCapability(Outputs);
 }
 
 bool ModelData::isThrTraceSrcAvailable(const GeneralSettings * generalSettings, const int index) const
 {
-  const Boards board = Boards(getCurrentBoard());
+  const Board::Type board = getCurrentBoard();
 
-  if (index > 0 && index <= board.getCapability(Board::Pots) + board.getCapability(Board::Sliders))
-    return RawSource(SOURCE_TYPE_STICK, index + board.getCapability(Board::Sticks) - 1).isAvailable(this, generalSettings, board.getBoardType());
+  if (index > 0 && index <= Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders))
+    return RawSource(SOURCE_TYPE_STICK, index + Boards::getCapability(board, Board::Sticks) - 1).isAvailable(this, generalSettings, board);
   else
     return true;
 }

@@ -57,8 +57,7 @@ class HardwarePanel : public GeneralPanel
     int row;
 
     void addStick(int index);
-    void addPot(int index);
-    void addSlider(int index);
+    void addFlex(int index);
     void addSwitch(int index);
     void addLabel(QString text);
     void addLine();

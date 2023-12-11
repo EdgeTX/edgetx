@@ -47,7 +47,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_STICK:
-      src_str = getCurrentFirmware()->getAnalogInputTag(rhs.index);
+      src_str = Boards::getInputTag(getCurrentBoard(), rhs.index).toStdString();
       break;
     case SOURCE_TYPE_TRIM:
       src_str = getCurrentFirmware()->getTrimSourcesTag(rhs.index);
@@ -59,7 +59,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += "MAX";
       break;
     case SOURCE_TYPE_SWITCH:
-      src_str += getCurrentFirmware()->getSwitchesTag(rhs.index);
+      src_str += Boards::getSwitchTag(getCurrentBoard(), rhs.index).toStdString();
       break;
     case SOURCE_TYPE_CUSTOM_SWITCH:
       src_str += "ls(";
@@ -269,9 +269,10 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
       }
     }
 
-    int ana_idx = getCurrentFirmware()->getAnalogInputIndex(ana_str.c_str());
-    if (ana_idx < 0)
-      ana_idx = getCurrentFirmware()->getAnalogInputIndexADC(ana_str.c_str());
+    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
+      ana_str = getCurrentFirmware()->getLegacyAnalogsName(ana_str.c_str());
+
+    int ana_idx = Boards::getInputIndex(getCurrentBoard(), ana_str.c_str());
     if (ana_idx >= 0) {
       rhs.type = SOURCE_TYPE_STICK;
       rhs.index = ana_idx;

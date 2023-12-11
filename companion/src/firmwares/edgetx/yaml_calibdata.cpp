@@ -26,33 +26,36 @@ YamlCalibData::YamlCalibData()
   memset(calib, 0, sizeof(calib));
 }
 
-YamlCalibData::YamlCalibData(const int* calibMid, const int* calibSpanNeg,
-                             const int* calibSpanPos)
+YamlCalibData::YamlCalibData(const GeneralSettings::InputConfig* rhs)
 {
-  for (int i = 0; i < CPN_MAX_ANALOGS; i++) {
-    int seq = getCurrentFirmware()->getAnalogInputSeqADC(i);
-    if (seq >= 0 && seq < CPN_MAX_ANALOGS) {
-      calib[seq].mid = calibMid[i];
-      calib[seq].spanNeg = calibSpanNeg[i];
-      calib[seq].spanPos = calibSpanPos[i];
+  Board::Type board = getCurrentBoard();
+
+  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
+    if (Boards::isInputCalibrated(board, i)) {
+      calib[i].mid = rhs[i].calib.mid;
+      calib[i].spanNeg = rhs[i].calib.spanNeg;
+      calib[i].spanPos = rhs[i].calib.spanPos;
     }
   }
 }
 
-void YamlCalibData::copy(int* calibMid, int* calibSpanNeg,
-                         int* calibSpanPos) const
+void YamlCalibData::copy(GeneralSettings::InputConfig* rhs) const
 {
-  for (int i = 0; i < CPN_MAX_ANALOGS; i++) {
-    calibMid[i] = calib[i].mid;
-    calibSpanNeg[i] = calib[i].spanNeg;
-    calibSpanPos[i] = calib[i].spanPos;
+  Board::Type board = getCurrentBoard();
+
+  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
+    if (Boards::isInputCalibrated(board, i)) {
+      rhs[i].calib.mid = calib[i].mid;
+      rhs[i].calib.spanNeg = calib[i].spanNeg;
+      rhs[i].calib.spanPos = calib[i].spanPos;
+    }
   }
 }
 
 namespace YAML
 {
 
-Node convert<CalibData>::encode(const CalibData& rhs)
+Node convert<GeneralSettings::InputCalib>::encode(const GeneralSettings::InputCalib& rhs)
 {
   Node node;
   node["mid"] = rhs.mid;
@@ -61,7 +64,7 @@ Node convert<CalibData>::encode(const CalibData& rhs)
   return node;
 }
 
-bool convert<CalibData>::decode(const Node& node, CalibData& rhs)
+bool convert<GeneralSettings::InputCalib>::decode(const Node& node, GeneralSettings::InputCalib& rhs)
 {
   if (!node.IsMap()) return false;
   node["mid"] >> rhs.mid;
@@ -73,22 +76,16 @@ bool convert<CalibData>::decode(const Node& node, CalibData& rhs)
 Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 {
   Node node;
-  auto fw = getCurrentFirmware();
-  auto board = fw->getBoard();
-  const auto* calibIdxLut = fw->getAnalogIndexNamesLookupTableADC();
-  const int calibs = Boards::getCapability(board, Board::Sticks) +
-                     Boards::getCapability(board, Board::Pots) +
-                     Boards::getCapability(board, Board::Sliders);
-  for (int i = 0; i < calibs; i++) {
-    for (int j = 0; j < (int)calibIdxLut->size(); j++) {
-      int seq = getCurrentFirmware()->getAnalogInputSeqADC(j);
-      if (seq == i) {
-        std::string tag = getCurrentFirmware()->getAnalogInputTagADC(j);
-        node[tag] = rhs.calib[seq];
-        break;
-      }
+  Board::Type board = getCurrentBoard();
+  const int analogs = Boards::getCapability(board, Board::Inputs);
+
+  for (int i = 0; i < analogs; i++) {
+    if (Boards::isInputCalibrated(board, i)) {
+      std::string tag = Boards::getInputName(board, i).toStdString();
+      node[tag] = rhs.calib[i];
     }
   }
+
   return node;
 }
 
@@ -96,19 +93,21 @@ bool convert<YamlCalibData>::decode(const Node& node, YamlCalibData& rhs)
 {
   if (!node.IsMap()) return false;
 
+  Board::Type board = getCurrentBoard();
+
   for (const auto& kv : node) {
     std::string tag;
     kv.first >> tag;
-    int idx = 0;
 
     if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
-      idx = getCurrentFirmware()->getAnalogInputIndex(tag.c_str());
-    else
-      idx = getCurrentFirmware()->getAnalogInputIndexADC(tag.c_str());
+      tag = getCurrentFirmware()->getLegacyAnalogsName(tag.c_str());
+
+    int idx = Boards::getInputIndex(board, tag.c_str());
 
     if (idx >= 0)
       kv.second >> rhs.calib[idx];
   }
+
   return true;
 }
 

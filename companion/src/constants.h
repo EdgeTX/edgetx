@@ -49,6 +49,7 @@
 #define CPN_MAX_SCRIPTS                9
 #define CPN_MAX_SCRIPT_INPUTS          10
 #define CPN_MAX_SPACEMOUSE             6
+#define CPN_MAX_INPUTS                 32
 
 #define CPN_STR_APP_NAME               QCoreApplication::translate("Companion", "EdgeTX Companion")
 #define CPN_STR_SIMU_NAME              QCoreApplication::translate("Companion", "EdgeTX Simulator")

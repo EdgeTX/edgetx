@@ -3173,7 +3173,7 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
     if (IS_FAMILY_HORUS_OR_T16(board)) {
       for (int i=0; i<SWITCHES_CONFIG_SIZE(board, version) / 2; i++) {
         if (i < MAX_SWITCHES(board, version))
-          internalField.Append(new UnsignedField<2>(this, generalData.switchConfig[i]));
+          internalField.Append(new UnsignedField<2>(this, generalData.swtchConfig[i]));
         else
           internalField.Append(new SpareBitsField<2>(this));
       }
@@ -3231,9 +3231,9 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
   if (IS_FAMILY_HORUS_OR_T16(board)) {
     for (int i = 0; i < MAX_SWITCHES(board, version); ++i) {
       if (version >= 220)
-        internalField.Append(new CharField<3>(this, generalData.switchName[i], "Switch name"));
+        internalField.Append(new CharField<3>(this, generalData.swtchName[i], "Switch name"));
       else
-        internalField.Append(new ZCharField<3>(this, generalData.switchName[i], "Switch name"));
+        internalField.Append(new ZCharField<3>(this, generalData.swtchName[i], "Switch name"));
     }
     for (int i = 0; i < CPN_MAX_STICKS; ++i) {
       if (version >= 220)
@@ -3261,15 +3261,15 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
   else if (IS_TARANIS(board)) {
     for (int i = 0; i < SWITCHES_CONFIG_SIZE(board, version) / 2; i++) {
       if (i < MAX_SWITCHES(board, version))
-        internalField.Append(new UnsignedField<2>(this, generalData.switchConfig[i]));
+        internalField.Append(new UnsignedField<2>(this, generalData.swtchConfig[i]));
       else
         internalField.Append(new SpareBitsField<2>(this));
     }
     for (int i = 0; i < MAX_SWITCHES(board, version); ++i) {
       if (version >= 220)
-        internalField.Append(new CharField<3>(this, generalData.switchName[i], "Switch name"));
+        internalField.Append(new CharField<3>(this, generalData.swtchName[i], "Switch name"));
       else
-        internalField.Append(new ZCharField<3>(this, generalData.switchName[i], "Switch name"));
+        internalField.Append(new ZCharField<3>(this, generalData.swtchName[i], "Switch name"));
     }
     for (int i = 0; i < CPN_MAX_STICKS; ++i) {
       if (version >= 220)

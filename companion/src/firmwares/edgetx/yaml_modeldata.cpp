@@ -155,40 +155,12 @@ struct YamlThrTrace {
   }
 };
 
-//  EdgeTX 2.10.0 ADC refactor changed order of pots and sliders that affected interpretation of model warnings
-//  This conversion needs to be revisited when Companion is refactored to use ADC radio defns
-//  Make ADC orders backwards compatible
-
-//  the values below are based on radio\src\util\hw_defns\pots_config.py
-
-int adcPotsBeforeSliders()
-{
-  auto board = getCurrentBoard();
-
-  if (version >= SemanticVersion("2.10.0")) {
-    if (IS_TARANIS_X9(board) || IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || IS_RADIOMASTER_BOXER(board))
-      return 3;
-    else if (IS_TARANIS_X9LITE(board))
-      return 1;
-    else if (IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board))
-      return 0;
-    else
-      return 2;
-  }
-  else {
-    return Boards::getCapability(board, Board::Pots);
-  }
-}
-
 struct YamlPotsWarnEnabled {
   unsigned int value;
 
   const Board::Type board = getCurrentBoard();
   const int maxradio = 8 * (int)(Boards::getCapability(board, Board::HasColorLcd) ? sizeof(uint16_t) : sizeof(uint8_t));
-  const int maxcpn = CPN_MAX_POTS + CPN_MAX_SLIDERS;
-  const int slidersStart = Boards::adcPotsBeforeSliders(board, modelSettingsVersion);
-  const int numpots = Boards::getCapability(board, Board::Pots);
-  const int offset = numpots - slidersStart;
+  const int maxcpn = Boards::getCapability(board, Board::FlexInputs);
 
   YamlPotsWarnEnabled() = default;
 
@@ -196,37 +168,17 @@ struct YamlPotsWarnEnabled {
   {
     value = 0;
 
-    int idx = 0;
-
-    for (int i = 0; i < maxcpn; i++) {
-      if (i < slidersStart)
-        idx = i;
-      else if (i >= numpots)
-        idx = i - offset;
-      else
-        continue;
-      if (idx >= 0 && idx < maxradio) {
-        value |= (*(potsWarnEnabled + i)) << idx;
-        //qDebug() << "i:" << i << "idx:" << idx << "value:" << *(potsWarnEnabled + i);
-      }
+    for (int i = 0; i < maxcpn && i < maxradio; i++) {
+      value |= (*(potsWarnEnabled + i)) << i;
     }
   }
 
   void toCpn(bool * potsWarnEnabled)
   {
-    memset(potsWarnEnabled, 0, sizeof(bool) * maxcpn);
+    memset(potsWarnEnabled, 0, sizeof(bool) * CPN_MAX_INPUTS);
 
-    int idx = 0;
-
-    for (int i = 0; i < maxradio; i++) {
-      if (i >= slidersStart)
-        idx = i + offset;
-      else
-        idx = i;
-      if (idx >= 0 && idx <= maxcpn) {
-        *(potsWarnEnabled + idx) = (bool)((value >> i) & 1);
-        //qDebug() << "i:" << i << "idx:" << idx << "value:" << (bool)((value >> i) & 1);
-      }
+    for (int i = 0; i < maxradio && i < maxcpn; i++) {
+      *(potsWarnEnabled + i) = (bool)((value >> i) & 1);
     }
   }
 };
@@ -234,48 +186,26 @@ struct YamlPotsWarnEnabled {
 struct YamlBeepANACenter {
   unsigned int value;
 
-  const Board::Type board = getCurrentBoard();
   const int maxradio = 8 * (int)sizeof(uint16_t);
-  const int numstickspots = CPN_MAX_STICKS + Boards::getCapability(board, Board::Pots);
-  const int maxcpn = numstickspots + getBoardCapability(board, Board::Sliders);
-  const int slidersStart = CPN_MAX_STICKS + Boards::adcPotsBeforeSliders(board, modelSettingsVersion);
-  const int offset = numstickspots - slidersStart;
+  const int maxcpn = 8 * (int)sizeof(unsigned int);
 
   YamlBeepANACenter() = default;
 
   YamlBeepANACenter(unsigned int beepANACenter)
   {
     value = 0;
-    int idx = 0;
 
-    for (int i = 0; i < maxcpn; i++) {
-      if (i < slidersStart)
-        idx = i;
-      else if (i >= numstickspots)
-        idx = i - offset;
-      else
-        continue;
-      if (idx >= 0 && idx < maxradio) {
-        Helpers::setBitmappedValue(value, Helpers::getBitmappedValue(beepANACenter, i), idx);
-        //qDebug() << "i:" << i << "bit:" << Helpers::getBitmappedValue(beepANACenter, i) << "idx:" << idx << "value:" << value;
-      }
+    for (int i = 0; i < maxcpn && i < maxradio; i++) {
+      Helpers::setBitmappedValue(value, Helpers::getBitmappedValue(beepANACenter, i), i);
     }
   }
 
   unsigned int toCpn()
   {
     unsigned int beepANACenter = 0;
-    int idx = 0;
 
-    for (int i = 0; i < maxradio; i++) {
-      if (i >= slidersStart)
-        idx = i + offset;
-      else
-        idx = i;
-      if (idx >= 0 && idx < maxcpn) {
-        Helpers::setBitmappedValue(beepANACenter, Helpers::getBitmappedValue(value, i), idx);
-        //qDebug() << "i:" << i << "bit:" << Helpers::getBitmappedValue(value, i) << "idx:" << idx << "beepANACenter:" << beepANACenter;
-      }
+    for (int i = 0; i < maxradio && i < maxcpn; i++) {
+      Helpers::setBitmappedValue(beepANACenter, Helpers::getBitmappedValue(value, i), i);
     }
 
     return beepANACenter;
@@ -1009,10 +939,10 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   node["thrTrimSw"] = rhs.thrTrimSwitch;
   node["potsWarnMode"] = potsWarningModeLut << rhs.potsWarningMode;
-  node["jitterFilter"] = globalOnOffFilterLut << rhs.jitterFilter;
-
   YamlPotsWarnEnabled potsWarnEnabled(&rhs.potsWarnEnabled[0]);
   node["potsWarnEnabled"] = potsWarnEnabled.value;
+
+  node["jitterFilter"] = globalOnOffFilterLut << rhs.jitterFilter;
 
   for (int i = 0; i < CPN_MAX_POTS + CPN_MAX_SLIDERS; i++) {
     if (rhs.potsWarnPosition[i] != 0)

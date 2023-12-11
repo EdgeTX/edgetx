@@ -85,7 +85,7 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
   // The trims
   QString labels[CPN_MAX_TRIMS];
   for(int i = 0; i < CPN_MAX_STICKS; i++) {
-    labels[i] = firmware->getAnalogInputName(i);
+    labels[i] = Boards::getInputName(board, i);
   }
   labels[4] = "T5";   //  TODO firmware function
   labels[5] = "T6";   //  TODO firmware function

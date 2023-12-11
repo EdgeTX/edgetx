@@ -151,7 +151,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   }
 
   QString result;
-  int genAryIdx = 0;
+//  int genAryIdx = 0;
   switch (type) {
     case SOURCE_TYPE_NONE:
       return QString(CPN_STR_NONE_ITEM);
@@ -169,15 +169,18 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
 
     case SOURCE_TYPE_STICK:
       if (generalSettings) {
-        if (isPot(&genAryIdx))
-          result = QString(generalSettings->potName[genAryIdx]);
-        else if (isSlider(&genAryIdx))
-          result = QString(generalSettings->sliderName[genAryIdx]);
-        else if (isStick(&genAryIdx))
-          result = QString(generalSettings->stickName[genAryIdx]);
+        result = QString(generalSettings->inputConfig[index].name);
+//        if (isPot(&genAryIdx))
+//          result = QString(generalSettings->potName[genAryIdx]);
+//        else if (isSlider(&genAryIdx))
+//          result = QString(generalSettings->sliderName[genAryIdx]);
+//        else if (isStick(&genAryIdx))
+//          result = QString(generalSettings->stickName[genAryIdx]);
       }
+
       if (result.trimmed().isEmpty())
-        result = Boards::getAnalogInputName(board, index);
+        result = Boards::getInputName(board, index);
+
       return result;
 
     case SOURCE_TYPE_TRIM:
@@ -194,9 +197,9 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
 
     case SOURCE_TYPE_SWITCH:
       if (generalSettings)
-        result = QString(generalSettings->switchName[index]).trimmed();
+        result = QString(generalSettings->switchConfig[index].name).trimmed();
       if (result.isEmpty())
-        result = Boards::getSwitchInfo(board, index).name;
+        result = Boards::getSwitchInfo(board, index).name.c_str();
       return result;
 
     case SOURCE_TYPE_FUNCTIONSWITCH:
@@ -357,8 +360,9 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
   }
 
   if (gs) {
-    int gsIdx = 0;
-    if (type == SOURCE_TYPE_STICK && ((isPot(&gsIdx) && !gs->isPotAvailable(gsIdx)) || (isSlider(&gsIdx) && !gs->isSliderAvailable(gsIdx))))
+    if (type == SOURCE_TYPE_STICK && !gs->isInputAvailable(index))
+//    int gsIdx = 0;
+//    if (type == SOURCE_TYPE_STICK && ((isPot(&gsIdx) && !gs->isPotAvailable(gsIdx)) || (isSlider(&gsIdx) && !gs->isSliderAvailable(gsIdx))))
       return false;
 
     if (type == SOURCE_TYPE_SWITCH && IS_HORUS_OR_TARANIS(board) && !gs->switchSourceAllowedTaranis(index))
@@ -384,8 +388,8 @@ RawSource RawSource::convert(RadioDataConversionState & cstate)
   RadioDataConversionState::LogField oldData(index, toString(cstate.fromModel(), cstate.fromGS(), cstate.fromType));
 
   if (type == SOURCE_TYPE_STICK) {
-    QStringList fromStickList(getStickList(cstate.fromBoard));
-    QStringList toStickList(getStickList(cstate.toBoard));
+    QStringList fromStickList(getStickList(cstate.fromType));
+    QStringList toStickList(getStickList(cstate.toType));
     if (oldData.id < fromStickList.count())
       index = toStickList.indexOf(fromStickList.at(oldData.id));
     else
@@ -394,8 +398,8 @@ RawSource RawSource::convert(RadioDataConversionState & cstate)
   }
 
   if (type == SOURCE_TYPE_SWITCH) {
-    QStringList fromSwitchList(getSwitchList(cstate.fromBoard));
-    QStringList toSwitchList(getSwitchList(cstate.toBoard));
+    QStringList fromSwitchList(getSwitchList(cstate.fromType));
+    QStringList toSwitchList(getSwitchList(cstate.toType));
     // index set to -1 if no match found
     if (oldData.id < fromSwitchList.count())
       index = toSwitchList.indexOf(fromSwitchList.at(oldData.id));
@@ -435,22 +439,22 @@ RawSource RawSource::convert(RadioDataConversionState & cstate)
   return *this;
 }
 
-QStringList RawSource::getStickList(Boards board) const
+QStringList RawSource::getStickList(Board::Type board) const
 {
   QStringList ret;
 
-  for (int i = 0; i < board.getCapability(Board::MaxAnalogs); i++) {
-    ret.append(board.getAnalogInputName(i));
+  for (int i = 0; i < Boards::getCapability(board, Board::MaxAnalogs); i++) {
+    ret.append(Boards::getInputInfo(board, i).name.c_str());
   }
   return ret;
 }
 
-QStringList RawSource::getSwitchList(Boards board) const
+QStringList RawSource::getSwitchList(Board::Type board) const
 {
   QStringList ret;
 
-  for (int i = 0; i < board.getCapability(Board::Switches); i++) {
-    ret.append(board.getSwitchInfo(i).name);
+  for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
+    ret.append(Boards::getSwitchInfo(board, i).name.c_str());
   }
   return ret;
 }

@@ -77,9 +77,9 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
         if (IS_HORUS_OR_TARANIS(board)) {
           qr = div(index - 1, 3);
           if (generalSettings)
-            swName = QString(generalSettings->switchName[qr.quot]).trimmed();
+            swName = QString(generalSettings->switchConfig[qr.quot].name).trimmed();
           if (swName.isEmpty())
-            swName = Boards::getSwitchInfo(board, qr.quot).name;
+            swName = Boards::getSwitchInfo(board, qr.quot).name.c_str();
           return swName + directionIndicators.at(qr.rem > -1 && qr.rem < directionIndicators.size() ? qr.rem : 1);
         }
         else {
@@ -106,10 +106,10 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
         if (!Boards::getCapability(board, Board::MultiposPotsPositions))
           return CPN_STR_UNKNOWN_ITEM;
         qr = div(index - 1, Boards::getCapability(board, Board::MultiposPotsPositions));
-        if (generalSettings && qr.quot < (int)DIM(generalSettings->potConfig))
-          swName = QString(generalSettings->potName[qr.quot]);
+        if (generalSettings && qr.quot < (int)DIM(generalSettings->inputConfig))
+          swName = QString(generalSettings->inputConfig[qr.quot].name);
         if (swName.isEmpty())
-          swName = Boards::getAnalogInputName(board, qr.quot + Boards::getCapability(board, Board::Sticks));
+          swName = Boards::getInputName(board, qr.quot + Boards::getCapability(board, Board::Sticks));
         return swName + "_" + QString::number(qr.rem + 1);
 
       case SWITCH_TYPE_TRIM:
@@ -259,7 +259,7 @@ QStringList RawSwitch::getSwitchList(Boards board) const
   QStringList ret;
 
   for (int i = 0; i < board.getCapability(Board::Switches); i++) {
-    ret.append(board.getSwitchInfo(i).name);
+    ret.append(board.getSwitchInfo(i).name.c_str());
   }
   return ret;
 }

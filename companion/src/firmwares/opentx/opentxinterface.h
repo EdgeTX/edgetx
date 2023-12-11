@@ -131,7 +131,11 @@ class OpenTxFirmware: public Firmware
 
     virtual QString getCapabilityStr(Capability);
 
-    virtual QString getAnalogInputName(unsigned int index);
+    virtual QString getAnalogInputName(unsigned int index)
+    {
+      qDebug() << "WARNING: Depreciate function called. Always returns empty string!";
+      return QString();
+    }
 
     virtual QTime getMaxTimerStart();
 

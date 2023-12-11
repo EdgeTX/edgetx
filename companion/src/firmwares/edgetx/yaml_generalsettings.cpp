@@ -43,7 +43,7 @@ enum BacklightMode {
   e_backlight_mode_off  = 0,
   e_backlight_mode_keys = 1,
   e_backlight_mode_sticks = 2,
-  e_backlight_mode_all = e_backlight_mode_keys+e_backlight_mode_sticks,
+  e_backlight_mode_all = e_backlight_mode_keys + e_backlight_mode_sticks,
   e_backlight_mode_on
 };
 
@@ -165,7 +165,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   std::string strboard = fw->getFlavour().toStdString();
   node["board"] = strboard;
 
-  YamlCalibData calib(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
+  YamlCalibData calib(rhs.inputConfig);
   node["calib"] = calib;
 
   node["currModel"] = rhs.currModelIndex;
@@ -262,48 +262,20 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
     }
   }
 
-  Node sticksConfig;
-  sticksConfig = YamlStickConfig(rhs.stickName);
-  if (sticksConfig && sticksConfig.IsMap()) {
-    node["sticksConfig"] = sticksConfig;
-  }
-
   Node switchConfig;
-  switchConfig = YamlSwitchConfig(rhs.switchName, rhs.switchConfig);
+  switchConfig = YamlSwitchConfig(rhs.switchConfig);
   if (switchConfig && switchConfig.IsMap()) {
     node["switchConfig"] = switchConfig;
   }
 
-  //  TODO revisit when Companion refactored for adc
-  //  adc encoding requires pots and sliders to be merged in a prescribed sequence as defined in radio json
-  int maxPots = CPN_MAX_POTS + CPN_MAX_SLIDERS;
-  char potName[maxPots][HARDWARE_NAME_LEN + 1];
-  unsigned int potConfig[maxPots];
-
-  const int sticks = Boards::getCapability(board, Board::Sticks);
-  int adcoffset = sticks;
-  int seq = 0;
-
-  for (int i = 0; i < Boards::getCapability(board, Board::Pots); i++) {
-    seq = getCurrentFirmware()->getAnalogInputSeqADC(adcoffset + i) - sticks;
-    if (seq >= 0 && seq < maxPots) {
-      strcpy(potName[seq], rhs.potName[i]);
-      potConfig[seq] = rhs.potConfig[i];
-    }
-  }
-
-  adcoffset += Boards::getCapability(board, Board::Pots);
-
-  for (int i = 0; i < Boards::getCapability(board, Board::Sliders); i++) {
-    seq = getCurrentFirmware()->getAnalogInputSeqADC(adcoffset + i) - sticks;
-    if (seq >= 0 && seq < maxPots) {
-      strcpy(potName[seq], rhs.sliderName[i]);
-      potConfig[seq] = ((rhs.sliderConfig[i] == Board::SLIDER_WITH_DETENT) ? Board::POT_SLIDER_WITH_DETENT : Board::POT_NONE);
-    }
+  Node sticksConfig;
+  sticksConfig = YamlStickConfig(rhs.inputConfig);
+  if (sticksConfig && sticksConfig.IsMap()) {
+    node["sticksConfig"] = sticksConfig;
   }
 
   Node potsConfig;
-  potsConfig = YamlPotConfig(potName, potConfig);
+  potsConfig = YamlPotConfig(rhs.inputConfig);
   if (potsConfig && potsConfig.IsMap()) {
     node["potsConfig"] = potsConfig;
   }
@@ -323,6 +295,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   // Radio level tabs control (global settings)
   if (hasColorLcd)
     node["radioThemesDisabled"] = (int)rhs.radioThemesDisabled;
+
   node["radioGFDisabled"] = (int)rhs.radioGFDisabled;
   node["radioTrainerDisabled"] = (int)rhs.radioTrainerDisabled;
   // Model level tabs control (global setting)
@@ -389,7 +362,6 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["board"] >> flavour;
 
   auto fw = getCurrentFirmware();
-  auto board = fw->getBoard();
 
   qDebug() << "Settings version:" << rhs.semver << "File flavour:" << flavour.c_str() << "Firmware flavour:" << fw->getFlavour();
 
@@ -419,7 +391,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   YamlCalibData calib;
   node["calib"] >> calib;
-  calib.copy(rhs.calibMid, rhs.calibSpanNeg, rhs.calibSpanPos);
+  calib.copy(rhs.inputConfig);
 
   node["currModel"] >> rhs.currModelIndex;
   node["currModelFilename"] >> rhs.currModelFilename;
@@ -545,41 +517,23 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   node["customFn"] >> rhs.customFn;
 
-  YamlStickConfig stickConfig;
-  node["sticksConfig"] >> stickConfig;
-  stickConfig.copy(rhs.stickName);
-
   YamlSwitchConfig switchConfig;
   node["switchConfig"] >> switchConfig;
-  switchConfig.copy(rhs.switchName, rhs.switchConfig);
+  switchConfig.copy(rhs.switchConfig);
 
-  //  TODO: revisit when Companion refactored to support adc
-  //  adc pots and sliders decoded into a single array but Compapanion has separate arrays
-  int maxPots = CPN_MAX_POTS + CPN_MAX_SLIDERS; // must match YamlPotConfig declaration
-  char potName[maxPots][HARDWARE_NAME_LEN + 1];
-  unsigned int potConfig[maxPots];
+  YamlStickConfig stickConfig;
+  node["sticksConfig"] >> stickConfig;
+  stickConfig.copy(rhs.inputConfig);
 
   YamlPotConfig potsConfig;
   node["potsConfig"] >> potsConfig;
-  potsConfig.copy(potName, potConfig);
+  potsConfig.copy(rhs.inputConfig);
 
-  int numPots = Boards::getCapability(board, Board::Pots);
-
-  for (int i = 0; i < numPots; i++) {
-    strcpy(rhs.potName[i], potName[i]);
-    rhs.potConfig[i] = potConfig[i];
-  }
-
-  if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
+  // pre v2.10
+  if (node["slidersConfig"]) {
     YamlSliderConfig slidersConfig;
     node["slidersConfig"] >> slidersConfig;
-    slidersConfig.copy(rhs.sliderName, rhs.sliderConfig);
-  }
-  else {
-    for (int i = 0; i < Boards::getCapability(board, Board::Sliders); i++) {
-      strcpy(rhs.sliderName[i], potName[numPots + i]);
-      rhs.sliderConfig[i] = ((potConfig[numPots + i] == Board::POT_SLIDER_WITH_DETENT) ? Board::SLIDER_WITH_DETENT : Board::SLIDER_NONE);
-    }
+    slidersConfig.copy(rhs.inputConfig);
   }
 
   node["ownerRegistrationID"] >> rhs.registrationId;

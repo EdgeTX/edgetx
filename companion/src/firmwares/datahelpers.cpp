@@ -92,24 +92,31 @@ std::string DataHelpers::getStringTagMappingTag(const StringTagMappingTable& lut
   return std::string();
 }
 
-int DataHelpers::getStringTagMappingSeq(const StringTagMappingTable& lut, unsigned int index)
+std::string DataHelpers::getStringNameMappingTag(const StringTagMappingTable& lut, const char * name)
 {
-  if (index < lut.size())
-    return lut[index].seq;
-
-  return -1;
-}
-
-std::string DataHelpers::getStringSeqMappingTag(const StringTagMappingTable& lut, unsigned int seq)
-{
-  const auto it =
+  auto it =
     find_if(lut.begin(), lut.end(), [=](const StringTagMapping& elmt) {
-      if (elmt.seq == seq) return true;
+      if (elmt.name == name) return true;
       return false;
     });
 
   if (it != lut.end()) {
     return it->tag;
+  }
+
+  return std::string();
+}
+
+std::string DataHelpers::getStringTagMappingName(const StringTagMappingTable& lut, const char * tag)
+{
+  auto it =
+    find_if(lut.begin(), lut.end(), [=](const StringTagMapping& elmt) {
+      if (elmt.tag == tag) return true;
+      return false;
+    });
+
+  if (it != lut.end()) {
+    return it->name;
   }
 
   return std::string();

@@ -3,6 +3,8 @@ project(firmwares)
 
 set(${PROJECT_NAME}_NAMES
   adjustmentreference
+  boardfactories
+  boardjson
   boards
   curvedata
   curvereference

@@ -26,6 +26,8 @@
 #include "autocheckbox.h"
 #include "autospinbox.h"
 #include "autodoublespinbox.h"
+#include "autobitmappedcombobox.h"
+#include "autobitmappedcheckbox.h"
 
 #include <QLabel>
 #include <QGridLayout>
@@ -90,8 +92,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   params(new QList<QWidget *>),
   row(0)
 {
-  editorItemModels->registerItemModel(Boards::potTypeItemModel());
-  editorItemModels->registerItemModel(Boards::sliderTypeItemModel());
+  editorItemModels->registerItemModel(Boards::flexTypeItemModel());
   int id = editorItemModels->registerItemModel(Boards::switchTypeItemModel());
 
   tabFilteredModels = new FilteredItemModelFactory();
@@ -113,10 +114,10 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   grid = new QGridLayout(this);
   int count;
 
-  addSection(tr("Sticks"));
+  addSection(tr("Axis"));
 
   count = Boards::getCapability(board, Board::Sticks);
-  if (count) {
+  if (count > 0) {
     for (int i = 0; i < count; i++) {
       addStick(i);
     }
@@ -131,27 +132,21 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  count = Boards::getCapability(board, Board::Pots);
+  count = Boards::getCapability(board, Board::Sticks) + Boards::getCapability(board, Board::FlexInputs);
   count -= firmware->getCapability(HasFlySkyGimbals) ? 2 : 0;
   if (count > 0) {
     addSection(tr("Pots"));
-    for (int i = 0; i < count; i++) {
-      addPot(i);
-    }
-  }
-
-  count = Boards::getCapability(board, Board::Sliders);
-  if (count) {
-    addSection(tr("Sliders"));
-    for (int i = 0; i < count; i++) {
-      addSlider(i);
+    for (int i = Boards::getCapability(board, Board::Sticks); i < count; i++) {
+      if (Boards::isInputConfigurable(board, i))
+        addFlex(i);
     }
   }
 
   count = Boards::getCapability(board, Board::Switches);
+
   if (count) {
     addSection(tr("Switches"));
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count && i < CPN_MAX_SWITCHES; i++) {
       addSwitch(i);
     }
   }
@@ -383,60 +378,49 @@ void HardwarePanel::on_internalModuleChanged()
 
 void HardwarePanel::addStick(int index)
 {
-  addLabel(Boards::getAnalogInputName(board, index));
+  addLabel(Boards::getInputInfo(board, index).label.c_str());
 
   AutoLineEdit *name = new AutoLineEdit(this);
-  name->setField(generalSettings.stickName[index], HARDWARE_NAME_LEN, this);
+  name->setField(generalSettings.inputConfig[index].name, HARDWARE_NAME_LEN, this);
   params->append(name);
   addParams();
 }
 
-void HardwarePanel::addPot(int index)
+void HardwarePanel::addFlex(int index)
 {
-  addLabel(Boards::getAnalogInputName(board, Boards::getCapability(board, Board::Sticks) + index));
+  addLabel(Boards::getInputInfo(board, index).label.c_str());
 
   AutoLineEdit *name = new AutoLineEdit(this);
-  name->setField(generalSettings.potName[index], HARDWARE_NAME_LEN, this);
+  name->setField(generalSettings.inputConfig[index].name, HARDWARE_NAME_LEN, this);
   params->append(name);
 
   AutoComboBox *type = new AutoComboBox(this);
-  type->setModel(editorItemModels->getItemModel(AIM_BOARDS_POT_TYPE));
-  type->setField(generalSettings.potConfig[index], this);
+  type->setModel(editorItemModels->getItemModel(AIM_BOARDS_FLEX_TYPE));
+  int & flexType = (int &)generalSettings.inputConfig[index].flexType;
+  type->setField(flexType, this);
   params->append(type);
 
-  addParams();
-}
-
-void HardwarePanel::addSlider(int index)
-{
-  addLabel(Boards::getAnalogInputName(board, Boards::getCapability(board, Board::Sticks) +
-                                             Boards::getCapability(board, Board::Pots) + index));
-
-  AutoLineEdit *name = new AutoLineEdit(this);
-  name->setField(generalSettings.sliderName[index], HARDWARE_NAME_LEN, this);
-  params->append(name);
-
-  AutoComboBox *type = new AutoComboBox(this);
-  type->setModel(editorItemModels->getItemModel(AIM_BOARDS_SLIDER_TYPE));
-  type->setField(generalSettings.sliderConfig[index], this);
-  params->append(type);
+  AutoCheckBox *inverted = new AutoCheckBox(this);
+  inverted->setField(generalSettings.inputConfig[index].inverted, this);
+  params->append(inverted);
 
   addParams();
 }
 
 void HardwarePanel::addSwitch(int index)
 {
-  addLabel(Boards::getSwitchInfo(board, index).name);
+  addLabel(Boards::getSwitchInfo(board, index).name.c_str());
 
   AutoLineEdit *name = new AutoLineEdit(this);
-  name->setField(generalSettings.switchName[index], HARDWARE_NAME_LEN, this);
+  name->setField(generalSettings.switchConfig[index].name, HARDWARE_NAME_LEN, this);
   params->append(name);
 
   AutoComboBox *type = new AutoComboBox(this);
   Board::SwitchInfo switchInfo = Boards::getSwitchInfo(board, index);
-  type->setModel(switchInfo.config < Board::SWITCH_3POS ? tabFilteredModels->getItemModel(FIM_SWITCHTYPE2POS) :
-                                                          tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
-  type->setField(generalSettings.switchConfig[index], this);
+  type->setModel(switchInfo.type < Board::SWITCH_3POS ? tabFilteredModels->getItemModel(FIM_SWITCHTYPE2POS) :
+                                                        tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
+  int & swtype = (int &)generalSettings.switchConfig[index].type;
+  type->setField(swtype, this);
   params->append(type);
 
   addParams();

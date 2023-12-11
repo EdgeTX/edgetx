@@ -840,11 +840,6 @@ QString OpenTxFirmware::getCapabilityStr(::Capability capability)
   }
 }
 
-QString OpenTxFirmware::getAnalogInputName(unsigned int index)
-{
-  return Boards::getAnalogInputName(board, index);
-}
-
 QTime OpenTxFirmware::getMaxTimerStart()
 {
   if (IS_HORUS_OR_TARANIS(board))
@@ -1501,22 +1496,22 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
 
-  /* 9XR-Pro */
-  firmware = new OpenTxFirmware(FIRMWAREID("9xrpro"), Firmware::tr("Turnigy 9XR-PRO"), BOARD_9XRPRO);
-  addOpenTxArm9xOptions(firmware, false);
-  registerOpenTxFirmware(firmware, true);
-
-  /* ar9x board */
-  firmware = new OpenTxFirmware(FIRMWAREID("ar9x"), Firmware::tr("9X with AR9X board"), BOARD_AR9X);
-  addOpenTxArm9xOptions(firmware, true);
-  //firmware->addOption("rtc", Firmware::tr("Optional RTC added"));
-  //firmware->addOption("volume", Firmware::tr("i2c volume control added"));
-  registerOpenTxFirmware(firmware, true);
-
-  /* Sky9x board */
-  firmware = new OpenTxFirmware(FIRMWAREID("sky9x"), Firmware::tr("9X with Sky9x board"), BOARD_SKY9X);
-  addOpenTxArm9xOptions(firmware);
-  registerOpenTxFirmware(firmware, true);
+//  /* 9XR-Pro */
+//  firmware = new OpenTxFirmware(FIRMWAREID("9xrpro"), Firmware::tr("Turnigy 9XR-PRO"), BOARD_9XRPRO);
+//  addOpenTxArm9xOptions(firmware, false);
+//  registerOpenTxFirmware(firmware, true);
+//
+//  /* ar9x board */
+//  firmware = new OpenTxFirmware(FIRMWAREID("ar9x"), Firmware::tr("9X with AR9X board"), BOARD_AR9X);
+//  addOpenTxArm9xOptions(firmware, true);
+//  //firmware->addOption("rtc", Firmware::tr("Optional RTC added"));
+//  //firmware->addOption("volume", Firmware::tr("i2c volume control added"));
+//  registerOpenTxFirmware(firmware, true);
+//
+//  /* Sky9x board */
+//  firmware = new OpenTxFirmware(FIRMWAREID("sky9x"), Firmware::tr("9X with Sky9x board"), BOARD_SKY9X);
+//  addOpenTxArm9xOptions(firmware);
+//  registerOpenTxFirmware(firmware, true);
 
   Firmware::sortRegisteredFirmwares();
   Firmware::setDefaultVariant(Firmware::getFirmwareForFlavour("tx16s"));

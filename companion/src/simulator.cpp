@@ -41,6 +41,7 @@
 #include "storage.h"
 #include "translations.h"
 #include "version.h"
+#include "boardfactories.h"
 
 using namespace Simulator;
 
@@ -276,6 +277,7 @@ int main(int argc, char *argv[])
   }
 #endif
 
+  gBoardFactories = new BoardFactories();
   registerStorageFactories();
   registerOpenTxFirmwares();
   SimulatorLoader::registerSimulators();
@@ -375,6 +377,7 @@ int finish(int exitCode)
   SimulatorLoader::unregisterSimulators();
   unregisterOpenTxFirmwares();
   unregisterStorageFactories();
+  gBoardFactories->unregisterBoardFactories();
 
 #if defined(JOYSTICKS) || defined(SIMU_AUDIO)
   SDL_Quit();

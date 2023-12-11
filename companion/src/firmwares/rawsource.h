@@ -276,8 +276,8 @@ class RawSource {
     bool isAvailable(const ModelData * const model = NULL, const GeneralSettings * const gs = NULL, Board::Type board = Board::BOARD_UNKNOWN) const;
     bool isSet() const { return type != SOURCE_TYPE_NONE || index != 0; }
     void clear() { type = SOURCE_TYPE_NONE; index = 0; }
-    QStringList getStickList(Boards board) const;
-    QStringList getSwitchList(Boards board) const;
+    QStringList getStickList(Board::Type board) const;
+    QStringList getSwitchList(Board::Type board) const;
     static StringTagMappingTable getSpecialTypesLookupTable();
     static StringTagMappingTable getCyclicLookupTable();
 

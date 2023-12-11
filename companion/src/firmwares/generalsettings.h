@@ -200,9 +200,6 @@ class GeneralSettings {
     char semver[8 + 1];
     unsigned int version;
     unsigned int variant;
-    int calibMid[CPN_MAX_ANALOGS];
-    int calibSpanNeg[CPN_MAX_ANALOGS];
-    int calibSpanPos[CPN_MAX_ANALOGS];
     unsigned int currModelIndex;
     char currModelFilename[CURR_MODEL_FILENAME_LEN + 1];
     unsigned int contrast;
@@ -287,13 +284,6 @@ class GeneralSettings {
     unsigned int backlightColor;
     bool modelQuickSelect;
     CustomFunctionData customFn[CPN_MAX_SPECIAL_FUNCTIONS];
-    char switchName[CPN_MAX_SWITCHES][HARDWARE_NAME_LEN + 1];
-    unsigned int switchConfig[CPN_MAX_SWITCHES];
-    char stickName[CPN_MAX_STICKS][HARDWARE_NAME_LEN + 1];
-    char potName[CPN_MAX_POTS][HARDWARE_NAME_LEN + 1];
-    unsigned int potConfig[CPN_MAX_POTS];
-    char sliderName[CPN_MAX_SLIDERS][HARDWARE_NAME_LEN + 1];
-    unsigned int sliderConfig[CPN_MAX_SLIDERS];
 
     char registrationId[REGISTRATION_ID_LEN + 1];
     int gyroMax;
@@ -319,10 +309,66 @@ class GeneralSettings {
     bool modelCustomScriptsDisabled;
     bool modelTelemetryDisabled;
 
+    // v 2.10 ADC refactor
+    // earlier version data is read into legacy fields to maintain older version compatibility
+    // post reading the legacy fields are manipulated into the new fields
+    // An opportunity was taken group related fields
+    // Companion gui only references the ADC fields
+
+    // pre v2.10 legacy
+    // TODO remove when importing and conversion no longer neceesary
+    int calibMid[CPN_MAX_ANALOGS];
+    int calibSpanNeg[CPN_MAX_ANALOGS];
+    int calibSpanPos[CPN_MAX_ANALOGS];
+    char swtchName[CPN_MAX_SWITCHES][HARDWARE_NAME_LEN + 1];
+    unsigned int swtchConfig[CPN_MAX_SWITCHES];
+    char stickName[CPN_MAX_STICKS][HARDWARE_NAME_LEN + 1];
+    char potName[CPN_MAX_POTS][HARDWARE_NAME_LEN + 1];
+    unsigned int potConfig[CPN_MAX_POTS];
+    char sliderName[CPN_MAX_SLIDERS][HARDWARE_NAME_LEN + 1];
+    unsigned int sliderConfig[CPN_MAX_SLIDERS];
+
+    // ===================================================================================
+    // IMPORTANT: starting v2.10 this function MUST be called after importing non-yaml formats
+    bool convertLegacyConfiguration(Board::Type board);
+    // ===================================================================================
+
+    // default values are retrieved from the radio json file
+
+    struct InputCalib {
+      int mid;
+      int spanNeg;
+      int spanPos;
+    };
+
+    struct InputConfig {
+      Board::AnalogInputType type;
+      char name[HARDWARE_NAME_LEN + 1];
+      Board::FlexType flexType;
+      bool inverted;
+      InputCalib calib;
+    };
+
+    InputConfig inputConfig[CPN_MAX_INPUTS];
+
+    struct SwitchConfig {
+      char name[HARDWARE_NAME_LEN + 1];
+      Board::SwitchType type;
+      bool inverted;
+    };
+
+    SwitchConfig switchConfig[CPN_MAX_SWITCHES];
+
     bool switchPositionAllowedTaranis(int index) const;
     bool switchSourceAllowedTaranis(int index) const;
+    bool isInputAvailable(int index) const;
+    bool isInputMultiPosPot(int index) const;
+    bool isInputPot(int index) const;
+    bool isInputSlider(int index) const;
+    bool isInputStick(int index) const;
     bool isPotAvailable(int index) const;
     bool isSliderAvailable(int index) const;
+    bool isSwitchAvailable(int index) const;
     bool isMultiPosPot(int index) const;
     QString antennaModeToString() const;
     QString bluetoothModeToString() const;

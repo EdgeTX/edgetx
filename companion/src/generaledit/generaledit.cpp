@@ -114,17 +114,18 @@ void GeneralEdit::on_tabWidget_currentChanged(int index)
 void GeneralEdit::on_calretrieve_PB_clicked()
 {
   Board::Type board = getCurrentBoard();
-  int profile_id=ui->profile_CB->itemData(ui->profile_CB->currentIndex()).toInt();
-  QString calib=g.profile[profile_id].stickPotCalib();
-  int potsnum=getBoardCapability(board, Board::Pots)+getBoardCapability(board, Board::Sliders);
-  int numSwPots=getBoardCapability(board, Board::Switches)+getBoardCapability(board, Board::Pots)+getBoardCapability(board, Board::Sliders);
+  int profile_id = ui->profile_CB->itemData(ui->profile_CB->currentIndex()).toInt();
+  QString calib = g.profile[profile_id].stickPotCalib();
+  int ttlSticks = getBoardCapability(board, Board::Sticks);
+  int ttlInputs = getBoardCapability(board, Board::Inputs);
+  int ttlSwitches = getBoardCapability(board, Board::Switches);
   if (calib.isEmpty()) {
     return;
   }
   else {
     QString trainercalib = g.profile[profile_id].trainerCalib();
     QString hwtypes = g.profile[profile_id].controlTypes();
-    QString controlNames=g.profile[profile_id].controlNames();
+    QString controlNames = g.profile[profile_id].controlNames();
     int8_t txVoltageCalibration = (int8_t)g.profile[profile_id].txVoltageCalibration();
     int8_t txCurrentCalibration = (int8_t)g.profile[profile_id].txCurrentCalibration();
     int8_t PPM_Multiplier = (int8_t)g.profile[profile_id].ppmMultiplier();
@@ -136,74 +137,60 @@ void GeneralEdit::on_calretrieve_PB_clicked()
     QString SpeakerSet = g.profile[profile_id].speaker();
     QString CountrySet = g.profile[profile_id].countryCode();
 
-    if ((calib.length()==(CPN_MAX_STICKS+potsnum)*12) && (trainercalib.length()==16)) {
+    if ((calib.length() == (Boards::getInputsCalibrated(board) * 12)) && (trainercalib.length() == 16)) {
       QString Byte;
       int16_t byte16;
       bool ok;
-      for (int i=0; i<(CPN_MAX_STICKS+potsnum); i++) {
-        Byte=calib.mid(i*12,4);
-        byte16=(int16_t)Byte.toInt(&ok,16);
-        if (ok) generalSettings.calibMid[i]=byte16;
-        Byte=calib.mid(4+i*12,4);
-        byte16=(int16_t)Byte.toInt(&ok,16);
-        if (ok) generalSettings.calibSpanNeg[i]=byte16;
-        Byte=calib.mid(8+i*12,4);
-        byte16=(int16_t)Byte.toInt(&ok,16);
-        if (ok) generalSettings.calibSpanPos[i]=byte16;
+      for (int i = 0; i < ttlInputs; i++) {
+        if (Boards::isInputCalibrated(board, i)) {
+          Byte = calib.mid(i * 12, 4);
+          byte16 = (int16_t)Byte.toInt(&ok, 16);
+          if (ok) generalSettings.inputConfig[i].calib.mid = byte16;
+          Byte = calib.mid(4 + i * 12, 4);
+          byte16 = (int16_t)Byte.toInt(&ok, 16);
+          if (ok) generalSettings.inputConfig[i].calib.spanNeg = byte16;
+          Byte = calib.mid(8 + i * 12, 4);
+          byte16 = (int16_t)Byte.toInt(&ok, 16);
+          if (ok) generalSettings.inputConfig[i].calib.spanPos = byte16;
+        }
       }
-      for (int i=0; i<4; i++) {
-        Byte=trainercalib.mid(i*4,4);
-        byte16=(int16_t)Byte.toInt(&ok,16);
-        if (ok) generalSettings.trainer.calib[i]=byte16;
+      for (int i = 0; i < ttlSticks; i++) {
+        Byte = trainercalib.mid(i * 4, 4);
+        byte16 = (int16_t)Byte.toInt(&ok, 16);
+        if (ok) generalSettings.trainer.calib[i] = byte16;
       }
-      generalSettings.txCurrentCalibration=txCurrentCalibration;
-      generalSettings.txVoltageCalibration=txVoltageCalibration;
+      generalSettings.txCurrentCalibration = txCurrentCalibration;
+      generalSettings.txVoltageCalibration = txVoltageCalibration;
       generalSettings.vBatWarn=vBatWarn;
       if (getCurrentFirmware()->getCapability(HasBatMeterRange)) {
         generalSettings.vBatMin = (int8_t) g.profile[profile_id].vBatMin();
         generalSettings.vBatMax = (int8_t) g.profile[profile_id].vBatMax();
       }
-      generalSettings.PPM_Multiplier=PPM_Multiplier;
+      generalSettings.PPM_Multiplier = PPM_Multiplier;
     } else {
       QMessageBox::critical(this, CPN_STR_TTL_WARNING, tr("Wrong data in profile, radio calibration was not retrieved"));
     }
-    if (hwtypes.length()==numSwPots) {
+    if (hwtypes.length() == ttlSwitches + ttlInputs) {
       QString Byte;
       int16_t byte16;
       QByteArray qba;
-      int16_t offset;
       bool ok;
-      for (int i=0; i<CPN_MAX_STICKS; i++) {
-        qba = controlNames.mid(3*i,3).toLatin1();
-        strcpy(generalSettings.stickName[i], qba.data());
-      }
-      for (int i=0; i<getBoardCapability(board, Board::Switches); i++) {
+      for (int i = 0; i < ttlSwitches; i++) {
         Byte = hwtypes.mid(i, 1);
-        byte16=(int16_t)Byte.toInt(&ok,16);
-        qba=controlNames.mid(3*(i+CPN_MAX_STICKS),3).toLatin1();
+        byte16 = (int16_t)Byte.toInt(&ok, 16);
+        qba = controlNames.mid(3 * i, 3).toLatin1();
         if (ok) {
-          generalSettings.switchConfig[i]=byte16;
-          strcpy(generalSettings.switchName[i], qba.data());
+          generalSettings.switchConfig[i].type = (Board::SwitchType)byte16;
+          strcpy(generalSettings.switchConfig[i].name, qba.data());
         }
       }
-      offset = getBoardCapability(board, Board::Switches);
-      for (int i=0; i<getBoardCapability(board, Board::Pots); i++) {
-        Byte=hwtypes.mid(i+offset,1);
-        byte16=(int16_t)Byte.toInt(&ok,16);
-        qba=controlNames.mid(3*(i+CPN_MAX_STICKS+offset),3).toLatin1();
+      for (int i = 0; i < getBoardCapability(board, Board::Inputs); i++) {
+        Byte = hwtypes.mid(i + ttlSwitches, 1);
+        byte16 = (int16_t)Byte.toInt(&ok, 16);
+        qba = controlNames.mid(3 * (i + ttlSwitches), 3).toLatin1();
         if (ok) {
-          generalSettings.potConfig[i]=byte16;
-          strcpy(generalSettings.potName[i], qba.data());
-        }
-      }
-      offset += getBoardCapability(board, Board::Pots);
-      for (int i=0; i<getBoardCapability(board, Board::Sliders); i++) {
-        Byte=hwtypes.mid(i+offset,1);
-        byte16=(int16_t)Byte.toInt(&ok,16);
-        qba=controlNames.mid(3*(i+CPN_MAX_STICKS+offset),3).toLatin1();
-        if (ok) {
-          generalSettings.sliderConfig[i]=byte16;
-          strcpy(generalSettings.sliderName[i], qba.data());
+          generalSettings.inputConfig[i].flexType = (Board::FlexType)byte16;
+          strcpy(generalSettings.inputConfig[i].name, qba.data());
         }
       }
     } else {
@@ -215,36 +202,36 @@ void GeneralEdit::on_calretrieve_PB_clicked()
       int8_t byte8;
       QString chars;
       bool ok;
-      byte8=(int8_t)DisplaySet.mid(0,2).toInt(&ok,16);
-      if (ok) generalSettings.optrexDisplay=(byte8==1 ? true : false);
-      byte8u=(uint8_t)DisplaySet.mid(2,2).toUInt(&ok,16);
-      if (ok) generalSettings.contrast=byte8u;
-      byte8u=(uint8_t)DisplaySet.mid(4,2).toUInt(&ok,16);
-      if (ok) generalSettings.backlightBright=byte8u;
-      byte8=(int8_t)BeeperSet.mid(0,2).toUInt(&ok,16);
+      byte8 = (int8_t)DisplaySet.mid(0,2).toInt(&ok, 16);
+      if (ok) generalSettings.optrexDisplay = (byte8 == 1 ? true : false);
+      byte8u = (uint8_t)DisplaySet.mid(2,2).toUInt(&ok, 16);
+      if (ok) generalSettings.contrast = byte8u;
+      byte8u = (uint8_t)DisplaySet.mid(4,2).toUInt(&ok, 16);
+      if (ok) generalSettings.backlightBright = byte8u;
+      byte8 = (int8_t)BeeperSet.mid(0,2).toUInt(&ok, 16);
       if (ok) generalSettings.beeperMode = (GeneralSettings::BeeperMode)byte8;
-      byte8=(int8_t)BeeperSet.mid(2,2).toInt(&ok,16);
-      if (ok) generalSettings.beeperLength=byte8;
-      byte8=(int8_t)HapticSet.mid(0,2).toUInt(&ok,16);
-      if (ok) generalSettings.hapticMode=(GeneralSettings::BeeperMode)byte8;
-      byte8=(int8_t)HapticSet.mid(2,2).toInt(&ok,16);
-      if (ok) generalSettings.hapticStrength=byte8;
-      byte8=(int8_t)HapticSet.mid(4,2).toInt(&ok,16);
-      if (ok) generalSettings.hapticLength=byte8;
-      byte8u=(uint8_t)SpeakerSet.mid(0,2).toUInt(&ok,16);
-      if (ok) generalSettings.speakerMode=byte8u;
-      byte8u=(uint8_t)SpeakerSet.mid(2,2).toUInt(&ok,16);
-      if (ok) generalSettings.speakerPitch=byte8u;
-      byte8u=(uint8_t)SpeakerSet.mid(4,2).toUInt(&ok,16);
-      if (ok) generalSettings.speakerVolume=byte8u;
-      if (CountrySet.length()==6) {
-        byte8u=(uint8_t)CountrySet.mid(0,2).toUInt(&ok,16);
-        if (ok) generalSettings.countryCode=byte8u;
-        byte8u=(uint8_t)CountrySet.mid(2,2).toUInt(&ok,16);
-        if (ok) generalSettings.imperial=byte8u;
-        chars=CountrySet.mid(4,2);
-        generalSettings.ttsLanguage[0]=chars[0].toLatin1();
-        generalSettings.ttsLanguage[1]=chars[1].toLatin1();
+      byte8 = (int8_t)BeeperSet.mid(2,2).toInt(&ok, 16);
+      if (ok) generalSettings.beeperLength = byte8;
+      byte8 = (int8_t)HapticSet.mid(0,2).toUInt(&ok, 16);
+      if (ok) generalSettings.hapticMode = (GeneralSettings::BeeperMode)byte8;
+      byte8 = (int8_t)HapticSet.mid(2,2).toInt(&ok, 16);
+      if (ok) generalSettings.hapticStrength = byte8;
+      byte8 = (int8_t)HapticSet.mid(4,2).toInt(&ok, 16);
+      if (ok) generalSettings.hapticLength = byte8;
+      byte8u = (uint8_t)SpeakerSet.mid(0,2).toUInt(&ok, 16);
+      if (ok) generalSettings.speakerMode = byte8u;
+      byte8u = (uint8_t)SpeakerSet.mid(2,2).toUInt(&ok, 16);
+      if (ok) generalSettings.speakerPitch = byte8u;
+      byte8u = (uint8_t)SpeakerSet.mid(4,2).toUInt(&ok, 16);
+      if (ok) generalSettings.speakerVolume = byte8u;
+      if (CountrySet.length() == 6) {
+        byte8u = (uint8_t)CountrySet.mid(0,2).toUInt(&ok, 16);
+        if (ok) generalSettings.countryCode = byte8u;
+        byte8u = (uint8_t)CountrySet.mid(2,2).toUInt(&ok, 16);
+        if (ok) generalSettings.imperial = byte8u;
+        chars = CountrySet.mid(4,2);
+        generalSettings.ttsLanguage[0] = chars[0].toLatin1();
+        generalSettings.ttsLanguage[1] = chars[1].toLatin1();
       }
     }
     else {
@@ -257,18 +244,18 @@ void GeneralEdit::on_calretrieve_PB_clicked()
 
 void GeneralEdit::on_calstore_PB_clicked()
 {
-  int profile_id=ui->profile_CB->itemData(ui->profile_CB->currentIndex()).toInt();
+  Board::Type board = getCurrentBoard();
+  int profile_id = ui->profile_CB->itemData(ui->profile_CB->currentIndex()).toInt();
 
-  QString name=g.profile[profile_id].name();
-  int potsnum=getBoardCapability(getCurrentBoard(), Board::Pots)+getBoardCapability(getCurrentBoard(), Board::Sliders);
+  QString name = g.profile[profile_id].name();
   if (name.isEmpty()) {
     ui->calstore_PB->setDisabled(true);
     return;
   }
   else {
-    QString calib=g.profile[profile_id].stickPotCalib();
-    QString hwtypes=g.profile[profile_id].controlTypes();
-    QString controlNames=g.profile[profile_id].controlNames();
+    QString calib = g.profile[profile_id].stickPotCalib();
+    QString hwtypes = g.profile[profile_id].controlTypes();
+    QString controlNames = g.profile[profile_id].controlNames();
     if (!(calib.isEmpty())) {
       int ret = QMessageBox::question(this, CPN_STR_APP_NAME,
                       tr("Do you want to store calibration in %1 profile<br>overwriting existing calibration?").arg(name) ,
@@ -277,34 +264,34 @@ void GeneralEdit::on_calstore_PB_clicked()
         return;
       }
     }
+
+    int ttlSticks = getBoardCapability(board, Board::Sticks);
+    int ttlInputs = getBoardCapability(board, Board::Inputs);
+    int ttlSwitches = getBoardCapability(board, Board::Switches);
     calib.clear();
-    for (int i=0; i< (CPN_MAX_STICKS+potsnum); i++) {
-      calib.append(QString("%1").arg((uint16_t)generalSettings.calibMid[i], 4, 16, QChar('0')));
-      calib.append(QString("%1").arg((uint16_t)generalSettings.calibSpanNeg[i], 4, 16, QChar('0')));
-      calib.append(QString("%1").arg((uint16_t)generalSettings.calibSpanPos[i], 4, 16, QChar('0')));
+
+    for (int i = 0; i < ttlInputs; i++) {
+      if (Boards::isInputCalibrated(board, i)) {
+        calib.append(QString("%1").arg((uint16_t)generalSettings.inputConfig[i].calib.mid, 4, 16, QChar('0')));
+        calib.append(QString("%1").arg((uint16_t)generalSettings.inputConfig[i].calib.spanNeg, 4, 16, QChar('0')));
+        calib.append(QString("%1").arg((uint16_t)generalSettings.inputConfig[i].calib.spanPos, 4, 16, QChar('0')));
+      }
     }
     g.profile[profile_id].stickPotCalib( calib );
     calib.clear();
-    for (int i=0; i< 4; i++) {
+    for (int i = 0; i < ttlSticks; i++) {
       calib.append(QString("%1").arg((uint16_t)generalSettings.trainer.calib[i], 4, 16, QChar('0')));
     }
     g.profile[profile_id].trainerCalib( calib );
     hwtypes.clear();
     controlNames.clear();
-    for (int i=0; i<CPN_MAX_STICKS; i++) {
-      controlNames.append(QString("%1").arg(generalSettings.stickName[i], -3));
+    for (int i = 0; i < ttlSwitches; i++) {
+      hwtypes.append(QString("%1").arg((uint16_t)generalSettings.switchConfig[i].type, 1));
+      controlNames.append(QString("%1").arg(generalSettings.switchConfig[i].name, -3));
     }
-    for (int i=0; i<getBoardCapability(getCurrentBoard(), Board::Switches); i++) {
-      hwtypes.append(QString("%1").arg((uint16_t)generalSettings.switchConfig[i], 1));
-      controlNames.append(QString("%1").arg(generalSettings.switchName[i], -3));
-    }
-    for (int i=0; i<getBoardCapability(getCurrentBoard(), Board::Pots); i++) {
-      hwtypes.append(QString("%1").arg((uint16_t)generalSettings.potConfig[i], 1));
-      controlNames.append(QString("%1").arg(generalSettings.potName[i], -3));
-    }
-    for (int i=0; i<getBoardCapability(getCurrentBoard(), Board::Sliders); i++) {
-      hwtypes.append(QString("%1").arg((uint16_t)generalSettings.sliderConfig[i], 1));
-      controlNames.append(QString("%1").arg(generalSettings.sliderName[i], -3));
+    for (int i = 0; i < ttlInputs; i++) {
+      hwtypes.append(QString("%1").arg((uint16_t)generalSettings.inputConfig[i].flexType, 1));
+      controlNames.append(QString("%1").arg(generalSettings.inputConfig[i].name, -3));
     }
     g.profile[profile_id].controlTypes( hwtypes );
     g.profile[profile_id].controlNames( controlNames );

@@ -575,8 +575,7 @@ void SimulatorWidget::setupRadioWidgets()
   int i, midpos;
   const int ttlSticks = Boards::getCapability(m_board, Board::Sticks);
   const int ttlSwitches = Boards::getCapability(m_board, Board::Switches);
-  const int ttlKnobs = Boards::getCapability(m_board, Board::Pots);
-  const int ttlFaders = Boards::getCapability(m_board, Board::Sliders);
+  const int ttlInputs = Boards::getCapability(m_board, Board::Inputs);
   const int extraTrims = Boards::getCapability(m_board, Board::NumTrims) - ttlSticks;
 
   // First clear out any existing widgets.
@@ -604,10 +603,10 @@ void SimulatorWidget::setupRadioWidgets()
   // switches
   Board::SwitchType swcfg;
   for (i = 0; i < ttlSwitches; ++i) {
-    if (radioSettings.switchConfig[i] == Board::SWITCH_NOT_AVAILABLE)
+    if (!radioSettings.isSwitchAvailable(i))
       continue;
 
-    swcfg = Board::SwitchType(radioSettings.switchConfig[i]);
+    swcfg = Board::SwitchType(radioSettings.switchConfig[i].type);
     wname = RawSource(RawSourceType::SOURCE_TYPE_SWITCH, i).toString(nullptr, &radioSettings);
     RadioSwitchWidget * sw = new RadioSwitchWidget(swcfg, wname, -1, ui->radioWidgetsHT);
     sw->setIndex(i);
@@ -619,12 +618,12 @@ void SimulatorWidget::setupRadioWidgets()
   midpos = (int)floorf(m_radioWidgets.size() / 2.0f);
 
   // pots in middle of switches
-  for (i = 0; i < ttlKnobs; ++i) {
-    if (!radioSettings.isPotAvailable(i))
+  for (i = 0; i < ttlInputs; ++i) {
+    if (!(radioSettings.isInputAvailable(i) && radioSettings.isInputPot(i)))
       continue;
 
-    wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, ttlSticks + i).toString(nullptr, &radioSettings);
-    RadioKnobWidget * pot = new RadioKnobWidget(Board::PotType(radioSettings.potConfig[i]), wname, 0, ui->radioWidgetsHT);
+    wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, i).toString(nullptr, &radioSettings);
+    RadioKnobWidget * pot = new RadioKnobWidget(radioSettings.inputConfig[i].flexType, wname, 0, ui->radioWidgetsHT);
     pot->setIndex(i);
     ui->radioWidgetsHTLayout->insertWidget(midpos++, pot);
     m_radioWidgets.append(pot);
@@ -632,15 +631,15 @@ void SimulatorWidget::setupRadioWidgets()
 
   // faders between sticks
   int fc = extraTrims / 2;  // leave space for any extra trims
-  for (i = 0; i < ttlFaders; ++i) {
-    if (!radioSettings.isSliderAvailable(i))
+
+  for (i = 0; i < ttlInputs; ++i) {
+    if (!(radioSettings.isInputAvailable(i) && radioSettings.isInputSlider(i)))
       continue;
 
-    wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, ttlSticks + ttlKnobs + i).toString(nullptr, &radioSettings);
+    wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, i).toString(nullptr, &radioSettings);
     RadioFaderWidget * sl = new RadioFaderWidget(wname, 0, ui->radioWidgetsVC);
     sl->setIndex(i);
     ui->VCGridLayout->addWidget(sl, 0, fc++, 1, 1);
-
     m_radioWidgets.append(sl);
   }
 

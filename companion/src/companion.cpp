@@ -39,6 +39,7 @@
 #include "storage.h"
 #include "translations.h"
 #include "helpers.h"
+#include "boardfactories.h"
 
 #ifdef __APPLE__
 #include <QProxyStyle>
@@ -231,6 +232,7 @@ int main(int argc, char *argv[])
   }
 #endif
 
+  gBoardFactories = new BoardFactories();
   registerStorageFactories();
   registerOpenTxFirmwares();
   SimulatorLoader::registerSimulators();
@@ -264,6 +266,7 @@ int main(int argc, char *argv[])
   SimulatorLoader::unregisterSimulators();
   unregisterOpenTxFirmwares();
   unregisterStorageFactories();
+  gBoardFactories->unregisterBoardFactories();
 
 #if defined(JOYSTICKS) || defined(SIMU_AUDIO)
   SDL_Quit();

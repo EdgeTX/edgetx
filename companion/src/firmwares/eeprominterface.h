@@ -299,8 +299,7 @@ class Firmware
       eepromInterface(nullptr),
       downloadId(downloadId),
       simulatorId(simulatorId),
-      analogInputNamesLookupTable(Boards::getAnalogNamesLookupTable(board)),
-      analogInputNamesLookupTableADC(Boards::getAnalogNamesLookupTable(board, QString(CPN_ADC_REFACTOR_VERSION))),
+      legacyAnalogsLookupTable(Boards::getLegacyAnalogsLookupTable(board)),
       switchesLookupTable(Boards::getSwitchesLookupTable(board)),
       trimSwitchesLookupTable(Boards::getTrimSwitchesLookupTable(board)),
       trimSourcesLookupTable(Boards::getTrimSourcesLookupTable(board)),
@@ -433,15 +432,10 @@ class Firmware
 
     const StringTagMappingTable* getAnalogIndexNamesLookupTable()
     {
-      return &analogInputNamesLookupTable;
+      return &legacyAnalogsLookupTable;
     }
 
-    const StringTagMappingTable* getAnalogIndexNamesLookupTableADC()
-    {
-      return &analogInputNamesLookupTableADC;
-    }
-
-    STRINGTAGMAPPINGFUNCS_ADC(analogInputNamesLookupTable, analogInputNamesLookupTableADC, AnalogInput);
+    STRINGTAGMAPPINGFUNCS(legacyAnalogsLookupTable, LegacyAnalogs);
     STRINGTAGMAPPINGFUNCS(switchesLookupTable, Switches);
     STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitches);
     STRINGTAGMAPPINGFUNCS(trimSourcesLookupTable, TrimSources);
@@ -463,8 +457,7 @@ class Firmware
     QString simulatorId;
 
     //  used by YAML encode and decode
-    const StringTagMappingTable analogInputNamesLookupTable;
-    const StringTagMappingTable analogInputNamesLookupTableADC;
+    const StringTagMappingTable legacyAnalogsLookupTable; //  pre v2.10
     const StringTagMappingTable switchesLookupTable;
     const StringTagMappingTable trimSwitchesLookupTable;
     const StringTagMappingTable trimSourcesLookupTable;

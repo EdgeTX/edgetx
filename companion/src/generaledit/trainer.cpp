@@ -50,9 +50,9 @@ TrainerPanel::TrainerPanel(QWidget * parent, GeneralSettings & generalSettings, 
     addLabel(tr("Weight"), row, 2);
     addLabel(tr("Source"), row++, 3);
 
-    for (int i = 0; i < 4; i++, row++) {  //  TODO constant
+    for (int i = 0; i < CPN_MAX_STICKS; i++, row++) {
       col = 0;
-      addLabel(Boards::getAnalogInputName(board, i), row, col++);
+      addLabel(Boards::getInputName(board, i), row, col++);
 
       AutoComboBox *mode = new AutoComboBox(this);
       mode->setModel(editorItemModels->getItemModel(modeid));
