@@ -173,7 +173,7 @@
 #if defined(COLORLCD)
   #define TR_ROTARY_ENC_OPT             "Normal","Inverterad"
 #else
-  #define TR_ROTARY_ENC_OPT             "Normal","Inverterad","V-I H-N","V-I H-A","V-N-E-I"
+  #define TR_ROTARY_ENC_OPT             "Normal","Inverterad","V-I H-N","V-I H-A","V-N E-I"
 #endif
 
 #define TR_ON_ONE_SWITCHES              "PÅ","Ett"

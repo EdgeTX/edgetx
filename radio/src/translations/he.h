@@ -174,7 +174,7 @@
 #if defined(COLORLCD)
   #define TR_ROTARY_ENC_OPT         "רגיל","הפוך"
 #else
-  #define TR_ROTARY_ENC_OPT         "רגיל","הפוך","V-I H-N","V-I H-A","V-N-E-I"
+  #define TR_ROTARY_ENC_OPT         "רגיל","הפוך","V-I H-N","V-I H-A","V-N E-I"
 #endif
 
 #if defined(IMU)
