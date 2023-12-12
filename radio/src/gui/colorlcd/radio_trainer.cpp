@@ -119,6 +119,6 @@ void RadioTrainerPage::build(FormWindow * form)
 #if LCD_H > LCD_W
   lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 2, LV_GRID_ALIGN_CENTER, 0, 1);
 #else
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 4, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_START, 3, 2, LV_GRID_ALIGN_CENTER, 0, 1);
 #endif
 }
