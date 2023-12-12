@@ -183,16 +183,16 @@
   #define TR_HATSOPT                    "Endast trimm","Endast knapp","Ändringsbar","Global"
   #define TR_HATSMODE_TRIMS             "Hattläge: Trimmar"
   #define TR_HATSMODE_KEYS              "Hattläge: Knappar"
-#define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
-                                       "   Right = MDL\n"\
-                                       "   Up = SYS\n"\
-                                       "   Down = TELE\n"\
+  #define TR_HATSMODE_KEYS_HELP        "Vänster sida:\n"\
+                                       "   Höger = MDL\n"\
+                                       "   Upp = SYS\n"\
+                                       "   Ner = TELE\n"\
                                        "\n"\
-                                       "Right side:\n"\
-                                       "   Left = PAGE<\n"\
-                                       "   Right = PAGE>\n"\
-                                       "   Up = PREV/INC\n"\
-                                       "   Down = NEXT/DEC"
+                                       "Höger sida:\n"\
+                                       "   Vänster = PAGE<\n"\
+                                       "   Höger = PAGE>\n"\
+                                       "   Upp = PREV/INC\n"\
+                                       "   Ner = NEXT/DEC"
 #endif
 
 #if defined(IMU)
