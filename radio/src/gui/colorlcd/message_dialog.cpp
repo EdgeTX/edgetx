@@ -42,6 +42,25 @@ void MessageDialog::onClicked()
   deleteLater();
 }
 
+HelpDialog::HelpDialog(Window* parent, rect_t rect, const char* title,
+                             const char* message,
+                             LcdFlags messageFlags) :
+    Dialog(parent, title, rect)
+{
+  messageWidget = new StaticText(
+      content,
+      {0, 33, content->width(), content->height() - 33},
+      message, 0, messageFlags);
+  messageWidget->padAll(6);
+
+  setCloseWhenClickOutside(true);
+}
+
+void HelpDialog::onClicked()
+{
+  deleteLater();
+}
+
 DynamicMessageDialog::DynamicMessageDialog(
     Window* parent, const char* title, std::function<std::string()> textHandler,
     const char* message, const int lineHeight,

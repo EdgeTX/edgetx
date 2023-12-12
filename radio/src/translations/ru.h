@@ -167,6 +167,16 @@
 #define TR_HATSOPT                     "Тримы","Кнопки","Тумбл","Глоб"
 #define TR_HATSMODE_TRIMS              "Hats mode: Тримы"
 #define TR_HATSMODE_KEYS               "Hats mode: Кнопки"
+#define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
+                                       "   Right = MDL\n"\
+                                       "   Up = SYS\n"\
+                                       "   Down = TELE\n"\
+                                       "\n"\
+                                       "Right side:\n"\
+                                       "   Left = PAGE<\n"\
+                                       "   Right = PAGE>\n"\
+                                       "   Up = PREV/INC\n"\
+                                       "   Down = NEXT/DEC"
 #endif
 
 #if defined(COLORLCD)

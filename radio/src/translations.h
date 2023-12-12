@@ -181,6 +181,7 @@ extern const char STR_HATSMODE[];
 extern const char* const STR_HATSOPT[];
 extern const char STR_HATSMODE_TRIMS[];
 extern const char STR_HATSMODE_KEYS[];
+extern const char STR_HATSMODE_KEYS_HELP[];
 #endif
 
 extern const char* const STR_VTMRMODES[];

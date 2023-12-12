@@ -170,6 +170,16 @@
 #define TR_HATSOPT                     "Trims uniquement","Touches uniquement","Commutable","Global"
 #define TR_HATSMODE_TRIMS              "Mode joystick: trims"
 #define TR_HATSMODE_KEYS               "Mode joystick: touches"
+#define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
+                                       "   Right = MDL\n"\
+                                       "   Up = SYS\n"\
+                                       "   Down = TELE\n"\
+                                       "\n"\
+                                       "Right side:\n"\
+                                       "   Left = PAGE<\n"\
+                                       "   Right = PAGE>\n"\
+                                       "   Up = PREV/INC\n"\
+                                       "   Down = NEXT/DEC"
 #endif
 
 #if defined(COLORLCD)
