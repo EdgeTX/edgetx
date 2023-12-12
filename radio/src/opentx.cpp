@@ -306,7 +306,7 @@ void generalDefault()
 
 #if defined(SURFACE_RADIO)
   g_eeGeneral.stickMode = 0;
-  g_eeGeneral.templateSetup = 1;
+  g_eeGeneral.templateSetup = 0;
 #elif defined(DEFAULT_MODE)
   g_eeGeneral.stickMode = DEFAULT_MODE - 1;
   g_eeGeneral.templateSetup = DEFAULT_TEMPLATE_SETUP;
