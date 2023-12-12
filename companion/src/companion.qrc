@@ -1310,38 +1310,4 @@
     <file alias="mask_layout4p2.png">images/layouts/mask_layout4+2.png</file>
     <file alias="mask_layout4p2b.png">images/layouts/mask_layout4+2b.png</file>
   </qresource>
-  <qresource prefix="/hw_defs/">
-    <file alias="x7.json">hw_defs/x7.json</file>
-    <file alias="x7access.json">hw_defs/x7access.json</file>
-    <file alias="x9d.json">hw_defs/x9d.json</file>
-    <file alias="x9d+.json">hw_defs/x9d+.json</file>
-    <file alias="x9d+2019.json">hw_defs/x9d+2019.json</file>
-    <file alias="x9e.json">hw_defs/x9e.json</file>
-    <file alias="x9lite.json">hw_defs/x9lite.json</file>
-    <file alias="x9lites.json">hw_defs/x9lites.json</file>
-    <file alias="x10.json">hw_defs/x10.json</file>
-    <file alias="x10express.json">hw_defs/x10express.json</file>
-    <file alias="x12s.json">hw_defs/x12s.json</file>
-    <file alias="xlite.json">hw_defs/xlite.json</file>
-    <file alias="xlites.json">hw_defs/xlites.json</file>
-    <file alias="t12.json">hw_defs/t12.json</file>
-    <file alias="t16.json">hw_defs/t16.json</file>
-    <file alias="t18.json">hw_defs/t18.json</file>
-    <file alias="t20.json">hw_defs/t20.json</file>
-    <file alias="tlite.json">hw_defs/tlite.json</file>
-    <file alias="tlitef4.json">hw_defs/tlitef4.json</file>
-    <file alias="tpro.json">hw_defs/tpro.json</file>
-    <file alias="tprov2.json">hw_defs/tprov2.json</file>
-    <file alias="boxer.json">hw_defs/boxer.json</file>
-    <file alias="t8.json">hw_defs/t8.json</file>
-    <file alias="tx12.json">hw_defs/tx12.json</file>
-    <file alias="tx12mk2.json">hw_defs/tx12mk2.json</file>
-    <file alias="tx16s.json">hw_defs/tx16s.json</file>
-    <file alias="zorro.json">hw_defs/zorro.json</file>
-    <file alias="pocket.json">hw_defs/pocket.json</file>
-    <file alias="lr3pro.json">hw_defs/lr3pro.json</file>
-    <file alias="commando8.json">hw_defs/commando8.json</file>
-    <file alias="nv14.json">hw_defs/nv14.json</file>
-    <file alias="pl18.json">hw_defs/pl18.json</file>
-  </qresource>
 </RCC>

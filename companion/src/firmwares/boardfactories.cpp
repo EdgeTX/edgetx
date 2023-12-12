@@ -50,11 +50,14 @@ void BoardFactories::registerBoardFactories()
 {
   QStringList regList;
 
+  //  BOARD_UNKNOWN is used as the default and avoid the need to check the pointer
   for (int i = Board::BOARD_UNKNOWN; i < Board::Type::BOARD_TYPE_COUNT; i++) {
     BoardFactory *bf = new BoardFactory((Board::Type)i);
     if (bf->instance()->loadDefinition()) {
-      if (registerBoardFactory(bf))
-        regList.append(Boards::getBoardName((Board::Type)i));
+      if (registerBoardFactory(bf)) {
+        if (i != Board::BOARD_UNKNOWN)
+          regList.append(Boards::getBoardName((Board::Type)i));
+      }
       else
         delete bf;
     }
@@ -64,7 +67,7 @@ void BoardFactories::registerBoardFactories()
 
   m_default = instance(Board::BOARD_UNKNOWN);
 
-//  qDebug() << "Registered board factories:" << regList;
+  qDebug() << "Registered board factories:" << regList;
 }
 
 void BoardFactories::unregisterBoardFactories()

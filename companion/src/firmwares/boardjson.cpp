@@ -102,7 +102,7 @@ BoardJson::BoardJson(Board::Type board) :
   m_vbat(false)
 {
   m_jsonFile = DataHelpers::getStringNameMappingTag(boardTypeJsonFileLookupTable, std::to_string(board).c_str());
-  qDebug() << Boards::getBoardName(m_board);
+//  qDebug() << Boards::getBoardName(m_board);
 }
 
 BoardJson::~BoardJson()
@@ -555,18 +555,19 @@ bool BoardJson::loadDefinition()
       m_inputs->at(i).label = setStickLabel(i);
   }
 
-  qDebug() << "inputs:" << getCapability(Board::Inputs) <<
-              "sticks:" << getCapability(Board::Sticks) <<
-              "flex:" << getCapability(Board::FlexInputs) <<
-              "pots:" << getCapability(Board::Pots) <<
-              "sliders:" << getCapability(Board::Sliders) <<
-              "gyros:" << getCapability(Board::GyroAnalogs) <<
-              "joysticks:" << getCapability(Board::Joysticks) <<
-              "trims:" << getCapability(Board::NumTrims) <<
-              "switches:" << getCapability(Board::Switches) <<
-              "funcswitches:" << getCapability(Board::FunctionSwitches) <<
-              "rtcbat:" << getCapability(Board::HasRTC) <<
-              "vbat:" << getCapability(Board::HasVBat);
+//  qDebug() << "inputs:" << getCapability(Board::Inputs) <<
+//              "sticks:" << getCapability(Board::Sticks) <<
+//              "flex:" << getCapability(Board::FlexInputs) <<
+//              "pots:" << getCapability(Board::Pots) <<
+//              "sliders:" << getCapability(Board::Sliders) <<
+//              "gyros:" << getCapability(Board::GyroAnalogs) <<
+//              "joysticks:" << getCapability(Board::Joysticks) <<
+//              "trims:" << getCapability(Board::NumTrims) <<
+//              "switches:" << getCapability(Board::Switches) <<
+//              "funcswitches:" << getCapability(Board::FunctionSwitches) <<
+//              "rtcbat:" << getCapability(Board::HasRTC) <<
+//              "vbat:" << getCapability(Board::HasVBat);
+
   return true;
 }
 
@@ -574,21 +575,21 @@ bool BoardJson::loadDefinition()
 bool BoardJson::loadFile(Board::Type board, std::string jsonFile, InputsTable * inputs, SwitchesTable * switches, TrimsTable * trims)
 {
   if (board == Board::BOARD_UNKNOWN) {
-    qDebug() << "No board definition for board id:" << board;
+//    qDebug() << "No board definition for board id:" << board;
     return false;
   }
 
   if (jsonFile.empty()) {
-    qDebug() << "No json filename for board:" << Boards::getBoardName(board);
+//    qDebug() << "No json filename for board:" << Boards::getBoardName(board);
     return false;
   }
 
   //  retrieve from application resources
-  QString path = QString(":/hw_defs/%1.json").arg(jsonFile.c_str());
+  QString path = QString(":/hwdefs/%1.json").arg(jsonFile.c_str());
   QFile file(path);
 
   if (!file.exists()) {
-    qDebug() << "File not found:" << path;
+//    qDebug() << "File not found:" << path;
     return false;
   }
 
