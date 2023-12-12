@@ -479,7 +479,7 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="1146"/>
         <source>Move selected Radio Profile to the top of the list</source>
-        <translation>Flytta vald radioprofil överst</translation>
+        <translation>Flytta vald radioprofil längst upp</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1249"/>
@@ -6339,6 +6339,11 @@ att fungera. Detta går inte att ändra från radion.
         <translation>Vertikal inverterad, Horisontell alternativ</translation>
     </message>
     <message>
+        <location filename="../generaledit/generalsetup.cpp" line="533"/>
+        <source>Normal, Edit Inverted</source>
+        <translation>Normal, Redigera inverterad</translation>
+    </message>
+    <message>
         <location filename="../generaledit/generalsetup.cpp" line="379"/>
         <source>Chinese</source>
         <translation>Kinesiska</translation>
@@ -7890,12 +7895,12 @@ Vill du fortsätta?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="1264"/>
         <source>Cannot add profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan inte lägga till radioprofil</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1264"/>
         <source>There is no space left to add a new profile. Delete an exsting profile before adding a new one.</source>
-        <translation type="unfinished"></translation>
+        <translation>Det finns inte plats för ännu en radioprofil. Radera en befintlig profil innan du lägger till en ny.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1294"/>
@@ -7945,7 +7950,7 @@ Vill du fortsätta?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="849"/>
         <source>Export Application Settings..</source>
-        <translation>Exportera programinställningar...</translation>
+        <translation>Exportera programinställningar.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="849"/>
@@ -7955,7 +7960,7 @@ Vill du fortsätta?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="850"/>
         <source>Import Application Settings..</source>
-        <translation>Importera programinställningar...</translation>
+        <translation>Importera programinställningar.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="850"/>
