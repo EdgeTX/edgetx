@@ -67,7 +67,7 @@ void BoardFactories::registerBoardFactories()
 
   m_default = instance(Board::BOARD_UNKNOWN);
 
-  qDebug() << "Registered board factories:" << regList;
+  qDebug() << "Registered boards:" << regList;
 }
 
 void BoardFactories::unregisterBoardFactories()

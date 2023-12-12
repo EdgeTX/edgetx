@@ -142,14 +142,15 @@ endif()
 ############# Radio hardware definitions ###############
 
 # Find all the json files
-file(GLOB hwdefs_json "${CMAKE_CURRENT_BINARY_DIR}/hwdefs/*.json")
+set(HWDEFS_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../radio/src")
+file(GLOB hwdefs_json "${HWDEFS_DIR}/*.json")
 set(HWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/hwdefs.qrc")
 
 # Dynamically update companion.qrc file (XML) adding collected hwdef json files.
 foreach(hwdef_json ${hwdefs_json})
   get_filename_component(hwdef_json_name ${hwdef_json} NAME)
   # Add file with full path and file name (w/out path) as alias to be used in actual code
-  set(HWDEF_JSON_LIST "${HWDEF_JSON_LIST}    <file alias=\"${hwdef_json_name}\">hwdefs/${hwdef_json_name}</file>\n")
+  set(HWDEF_JSON_LIST "${HWDEF_JSON_LIST}    <file alias=\"${hwdef_json_name}\">${HWDEFS_DIR}/${hwdef_json_name}</file>\n")
 endforeach()
 configure_file(${COMPANION_SRC_DIRECTORY}/hwdefs.qrc.in ${HWDEFS_QRC} @ONLY)
 
