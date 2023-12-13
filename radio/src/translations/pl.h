@@ -1227,6 +1227,7 @@
 #define TR_VOICE_TAIWANESE              "Tajwański"
 #define TR_VOICE_JAPANESE               "Japonês"
 #define TR_VOICE_HEBREW                 "Hebrajski"
+#define TR_VOICE_UKRAINIAN               "Ukrainian"
 
 #define TR_USBJOYSTICK_LABEL           "Dżojstik USB"
 #define TR_USBJOYSTICK_EXTMODE         "Tryb"

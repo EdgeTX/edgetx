@@ -426,6 +426,12 @@
   /*Always set a default font*/
   #define LV_FONT_DEFAULT &lv_font_arimo_he_16
 
+#elif defined(TRANSLATIONS_UA)
+  #define LV_FONT_CUSTOM_DECLARE                  \
+    LV_FONT_DECLARE(lv_font_arimo_ua_16)
+  /*Always set a default font*/
+  #define LV_FONT_DEFAULT &lv_font_arimo_ua_16
+
 #else
   #define LV_FONT_CUSTOM_DECLARE                \
     LV_FONT_DECLARE(lv_font_roboto_16)

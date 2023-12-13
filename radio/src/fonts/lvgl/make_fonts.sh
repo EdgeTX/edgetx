@@ -21,7 +21,8 @@ TW_SYMBOLS=$(python3 get_char_ck.py ../../translations/tw.h)
 CN_SYMBOLS=$(python3 get_char_ck.py ../../translations/cn.h)
 JP_SYMBOLS=$(python3 get_char_jp.py ../../translations/jp.h)
 HE_SYMBOLS=$(python3 get_char_he.py ../../translations/he.h)
-RU_SYMBOLS=$(python3 get_char_ru.py ../../translations/ru.h)
+RU_SYMBOLS=$(python3 get_char_cyrillic.py ../../translations/ru.h)
+UA_SYMBOLS=$(python3 get_char_cyrillic.py ../../translations/ua.h)
 
 # https://yeun.github.io/open-arrow/
 ARROWS_FONT="EdgeTX/OpenArrow-Regular.woff"
@@ -134,6 +135,7 @@ make_font_set "noto_cn" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bol
 make_font_set "noto_jp" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" ",${JP_SYMBOLS}"
 make_font_set "arimo_he" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${HE_SYMBOLS}"
 make_font_set "arimo_ru" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${RU_SYMBOLS}"
+make_font_set "arimo_ua" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${UA_SYMBOLS}"
 
 rm lv_font.inc
 rm lz4_font

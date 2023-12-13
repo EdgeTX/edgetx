@@ -1240,6 +1240,7 @@
 #define TR_VOICE_TAIWANESE              "Tchajwanština"
 #define TR_VOICE_JAPANESE               "Japonština"
 #define TR_VOICE_HEBREW                 "Hebrejština"
+#define TR_VOICE_UKRAINIAN               "Ukrainian"
 
 #define TR_USBJOYSTICK_LABEL           "USB Joystick"
 #define TR_USBJOYSTICK_EXTMODE         "Mode"

@@ -65,6 +65,8 @@ FONT_TABLE(noto_jp);
 FONT_TABLE(arimo_he);
 #elif defined(TRANSLATIONS_RU)
 FONT_TABLE(arimo_ru);
+#elif defined(TRANSLATIONS_UA)
+FONT_TABLE(arimo_ua);
 #else
 FONT_TABLE(roboto);
 #endif
