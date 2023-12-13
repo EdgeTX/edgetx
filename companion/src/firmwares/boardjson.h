@@ -76,10 +76,11 @@ class BoardJson
 
     typedef std::vector<TrimDefn> TrimsTable;
 
-    explicit BoardJson(Board::Type board);
+    explicit BoardJson(Board::Type board, QString hwdefn);
     virtual ~BoardJson();
 
     Board::Type board() const { return m_board; }
+    QString hwdefn() const { return m_hwdefn; }
 
     bool loadDefinition();
 
@@ -107,7 +108,7 @@ class BoardJson
 
 private:
     Board::Type m_board;
-    std::string m_jsonFile;
+    QString m_hwdefn;
 
     InputsTable *m_inputs;
     SwitchesTable *m_switches;
@@ -124,7 +125,7 @@ private:
     bool m_rtcbat;
     bool m_vbat;
 
-    static bool loadFile(Board::Type board, std::string jsonFile, InputsTable * inputs, SwitchesTable * switches, TrimsTable * trims);
+    static bool loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches, TrimsTable * trims);
     // post loadFile fix ups
     static void addJoysticksGyros(Board::Type board, InputsTable * inputs);
     static std::string setStickLabel(int index);

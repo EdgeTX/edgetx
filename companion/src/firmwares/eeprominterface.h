@@ -286,28 +286,14 @@ class Firmware
     typedef QList<OptionsGroup> OptionsList;
 
 
-    explicit Firmware(const QString & id, const QString & name, Board::Type board, const QString & downloadId = QString(), const QString & simulatorId = QString()) :
-      Firmware(nullptr, id, name, board, downloadId, simulatorId)
+    explicit Firmware(const QString & id, const QString & name, Board::Type board, const QString & downloadId = QString(),
+                      const QString & simulatorId = QString(), const QString & hwdefnId = QString()) :
+      Firmware(nullptr, id, name, board, downloadId, simulatorId, hwdefnId)
     { }
 
-    explicit Firmware(Firmware * base, const QString & id, const QString & name, Board::Type board, const QString & downloadId = QString(), const QString & simulatorId = QString()) :
-      id(id),
-      name(name),
-      board(board),
-      variantBase(0),
-      base(base),
-      eepromInterface(nullptr),
-      downloadId(downloadId),
-      simulatorId(simulatorId),
-      legacyAnalogsLookupTable(Boards::getLegacyAnalogsLookupTable(board)),
-      switchesLookupTable(Boards::getSwitchesLookupTable(board)),
-      trimSwitchesLookupTable(Boards::getTrimSwitchesLookupTable(board)),
-      trimSourcesLookupTable(Boards::getTrimSourcesLookupTable(board)),
-      rawSwitchTypesLookupTable(RawSwitch::getRawSwitchTypesLookupTable()),
-      rawSourceSpecialTypesLookupTable(RawSource::getSpecialTypesLookupTable()),
-      rawSourceCyclicLookupTable(RawSource::getCyclicLookupTable())
-    {
-    }
+    explicit Firmware(Firmware * base, const QString & id, const QString & name, Board::Type board,
+                      const QString & downloadId = QString(), const QString & simulatorId = QString(),
+                      const QString & hwdefnId = QString());
 
     virtual ~Firmware() { }
 
@@ -445,6 +431,7 @@ class Firmware
 
     const QString getDownloadId() { return getFirmwareBase()->downloadId.isEmpty() ? getFlavour() : getFirmwareBase()->downloadId; }
     const QString getSimulatorId() { return getFirmwareBase()->simulatorId.isEmpty() ? getId() : getFirmwareBase()->simulatorId; }
+    const QString getHwDefnId() { return getFirmwareBase()->hwdefnId.isEmpty() ? getFlavour() : getFirmwareBase()->hwdefnId; }
 
   protected:
     QString id;
@@ -455,6 +442,7 @@ class Firmware
     EEPROMInterface * eepromInterface;
     QString downloadId;
     QString simulatorId;
+    QString hwdefnId;
 
     //  used by YAML encode and decode
     const StringTagMappingTable legacyAnalogsLookupTable; //  pre v2.10

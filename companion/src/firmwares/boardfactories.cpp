@@ -23,57 +23,16 @@
 
 BoardFactories* gBoardFactories = nullptr;
 
-BoardFactories::BoardFactories()
+BoardFactories::BoardFactories() :
+  m_default(nullptr)
 {
-  registerBoardFactories();
+  if (registerBoard(Board::BOARD_UNKNOWN, ""))
+    m_default = instance(Board::BOARD_UNKNOWN);
 }
 
 BoardFactories::~BoardFactories()
 {
   unregisterBoardFactories();
-}
-
-bool BoardFactories::registerBoardFactory(BoardFactory * factory)
-{
-  for (auto *registeredFactory : registeredBoardFactories) {
-    if (registeredFactory->instance()->board() == factory->instance()->board()) {
-      qDebug() << "Error - Duplicate board factory:" << Boards::getBoardName(factory->instance()->board());
-      return false;
-    }
-  }
-
-  registeredBoardFactories.append(factory);
-  return true;
-}
-
-void BoardFactories::registerBoardFactories()
-{
-  QStringList regList;
-
-  //  BOARD_UNKNOWN is used as the default and avoid the need to check the pointer
-  for (int i = Board::BOARD_UNKNOWN; i < Board::Type::BOARD_TYPE_COUNT; i++) {
-    BoardFactory *bf = new BoardFactory((Board::Type)i);
-    if (bf->instance()->loadDefinition()) {
-      if (registerBoardFactory(bf)) {
-        if (i != Board::BOARD_UNKNOWN)
-          regList.append(Boards::getBoardName((Board::Type)i));
-      }
-      else
-        delete bf;
-    }
-    else
-      delete bf;
-  }
-
-  m_default = instance(Board::BOARD_UNKNOWN);
-
-  qDebug() << "Registered boards:" << regList;
-}
-
-void BoardFactories::unregisterBoardFactories()
-{
-  for (auto *registeredFactory : registeredBoardFactories)
-    delete registeredFactory;
 }
 
 BoardJson* BoardFactories::instance(Board::Type board) const
@@ -84,4 +43,53 @@ BoardJson* BoardFactories::instance(Board::Type board) const
   }
 
   return m_default;
+}
+
+//  Registering firmware triggers registering the associated board
+bool BoardFactories::registerBoard(Board::Type board, QString hwdefn)
+{
+  if (board < Board::BOARD_UNKNOWN || board >= Board::BOARD_TYPE_COUNT)
+    return false;
+
+  if (m_default || board != Board::BOARD_UNKNOWN) {
+    BoardJson* regboard = instance(board);
+
+    if (regboard->board() == board) {
+      if (regboard->hwdefn() == hwdefn) {
+        //qDebug() << "Warning - Board" << Boards::getBoardName(regboard->board()) << "already registered";
+        return true;
+      }
+      else {
+        qDebug() << "Error - Board" << Boards::getBoardName(regboard->board()) << "already registered with"
+                 << regboard->hwdefn() << "hwdefn!";
+        return false;
+      }
+    }
+  }
+
+  BoardFactory *bf = new BoardFactory(board, hwdefn);
+  if (bf->instance()->loadDefinition()) {
+    if (registerBoardFactory(bf)) {
+      qDebug() << "Registered board:" << (board != Board::BOARD_UNKNOWN ? Boards::getBoardName(board) : "UNKNOWN (default)");
+      return true;
+    }
+    else
+      delete bf;
+  }
+  else
+    delete bf;
+
+  return false;
+}
+
+bool BoardFactories::registerBoardFactory(BoardFactory * factory)
+{
+  registeredBoardFactories.append(factory);
+  return true;
+}
+
+void BoardFactories::unregisterBoardFactories()
+{
+  for (auto *registeredFactory : registeredBoardFactories)
+    delete registeredFactory;
 }

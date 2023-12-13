@@ -26,8 +26,8 @@
 class BoardFactory
 {
   public:
-    explicit BoardFactory(Board::Type board) :
-      m_instance(new BoardJson(board))
+    explicit BoardFactory(Board::Type board, QString hwdefn) :
+      m_instance(new BoardJson(board, hwdefn))
       {}
 
     virtual ~BoardFactory() {}
@@ -44,11 +44,11 @@ class BoardFactories
     explicit BoardFactories();
     virtual ~BoardFactories();
 
-    void registerBoardFactories();
+    BoardJson* instance(Board::Type board) const;
+
+    bool registerBoard(Board::Type board, QString hwdefn);
     bool registerBoardFactory(BoardFactory * factory);
     void unregisterBoardFactories();
-
-    BoardJson* instance(Board::Type board) const;
 
   private:
     QList<BoardFactory *> registeredBoardFactories;

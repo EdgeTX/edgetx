@@ -23,42 +23,6 @@
 #include "datahelpers.h"
 #include "constants.h"
 
-static const StringTagMappingTable boardTypeJsonFileLookupTable = {
-    {std::to_string(Board::BOARD_UNKNOWN),              ""},       // this must be the first entry
-    {std::to_string(Board::BOARD_TARANIS_X7),           "x7"},
-    {std::to_string(Board::BOARD_TARANIS_X7_ACCESS),    "x7access"},
-    {std::to_string(Board::BOARD_TARANIS_X9D),          "x9d"},
-    {std::to_string(Board::BOARD_TARANIS_X9DP),         "x9d+"},
-    {std::to_string(Board::BOARD_TARANIS_X9DP_2019),    "x9d+2019"},
-    {std::to_string(Board::BOARD_TARANIS_X9E),          "x9e"},
-    {std::to_string(Board::BOARD_TARANIS_X9LITE),       "x9lite"},
-    {std::to_string(Board::BOARD_TARANIS_X9LITES),      "x9lites"},
-    {std::to_string(Board::BOARD_X10),                  "x10"},
-    {std::to_string(Board::BOARD_X10_EXPRESS),          "x10express"},
-    {std::to_string(Board::BOARD_HORUS_X12S),           "x12s"},
-    {std::to_string(Board::BOARD_TARANIS_XLITE),        "xlite"},
-    {std::to_string(Board::BOARD_TARANIS_XLITES),       "xlites"},
-    {std::to_string(Board::BOARD_JUMPER_T12),           "t12"},
-    {std::to_string(Board::BOARD_JUMPER_T16),           "t16"},
-    {std::to_string(Board::BOARD_JUMPER_T18),           "t18"},
-    {std::to_string(Board::BOARD_JUMPER_T20),           "t20"},
-    {std::to_string(Board::BOARD_JUMPER_TLITE),         "tlite"},
-    {std::to_string(Board::BOARD_JUMPER_TLITE_F4),      "tlitef4"},
-    {std::to_string(Board::BOARD_JUMPER_TPRO),          "tpro"},
-    {std::to_string(Board::BOARD_JUMPER_TPROV2),        "tprov2"},
-    {std::to_string(Board::BOARD_RADIOMASTER_BOXER),    "boxer"},
-    {std::to_string(Board::BOARD_RADIOMASTER_T8),       "t8"},
-    {std::to_string(Board::BOARD_RADIOMASTER_TX12),     "tx12"},
-    {std::to_string(Board::BOARD_RADIOMASTER_TX12_MK2), "tx12mk2"},
-    {std::to_string(Board::BOARD_RADIOMASTER_TX16S),    "tx16s"},
-    {std::to_string(Board::BOARD_RADIOMASTER_ZORRO),    "zorro"},
-    {std::to_string(Board::BOARD_RADIOMASTER_POCKET),   "pocket"},
-    {std::to_string(Board::BOARD_BETAFPV_LR3PRO),       "lr3pro"},
-    {std::to_string(Board::BOARD_IFLIGHT_COMMANDO8),    "commando8"},
-    {std::to_string(Board::BOARD_FLYSKY_NV14),          "nv14"},
-    {std::to_string(Board::BOARD_FLYSKY_PL18),          "pl18"},
-};
-
 static const StringTagMappingTable inputTypesLookupTable = {
     {std::to_string(Board::AIT_STICK),   "STICK"},
     {std::to_string(Board::AIT_FLEX),    "FLEX"},
@@ -85,8 +49,9 @@ static const StringTagMappingTable switchTypesLookupTable = {
     {std::to_string(Board::SWITCH_FSWITCH),       "FSWITCH"},
 };
 
-BoardJson::BoardJson(Board::Type board) :
+BoardJson::BoardJson(Board::Type board, QString hwdefn) :
   m_board(board),
+  m_hwdefn(hwdefn),
   m_inputs(new InputsTable),
   m_switches(new SwitchesTable),
   m_trims(new TrimsTable),
@@ -101,8 +66,7 @@ BoardJson::BoardJson(Board::Type board) :
   m_rtcbat(false),
   m_vbat(false)
 {
-  m_jsonFile = DataHelpers::getStringNameMappingTag(boardTypeJsonFileLookupTable, std::to_string(board).c_str());
-//  qDebug() << Boards::getBoardName(m_board);
+
 }
 
 BoardJson::~BoardJson()
@@ -532,7 +496,7 @@ bool BoardJson::loadDefinition()
   if (m_board == Board::BOARD_UNKNOWN)
     return true;
 
-  if (!loadFile(m_board, m_jsonFile, m_inputs, m_switches, m_trims))
+  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_trims))
     return false;
 
   // json files do not normally define joysticks or gyros
@@ -555,7 +519,8 @@ bool BoardJson::loadDefinition()
       m_inputs->at(i).label = setStickLabel(i);
   }
 
-//  qDebug() << "inputs:" << getCapability(Board::Inputs) <<
+//  qDebug() << "Board:" << Boards::getBoardName(m_board) <<
+//              "inputs:" << getCapability(Board::Inputs) <<
 //              "sticks:" << getCapability(Board::Sticks) <<
 //              "flex:" << getCapability(Board::FlexInputs) <<
 //              "pots:" << getCapability(Board::Pots) <<
@@ -572,20 +537,20 @@ bool BoardJson::loadDefinition()
 }
 
 // static
-bool BoardJson::loadFile(Board::Type board, std::string jsonFile, InputsTable * inputs, SwitchesTable * switches, TrimsTable * trims)
+bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches, TrimsTable * trims)
 {
   if (board == Board::BOARD_UNKNOWN) {
 //    qDebug() << "No board definition for board id:" << board;
     return false;
   }
 
-  if (jsonFile.empty()) {
+  if (hwdefn.isEmpty()) {
 //    qDebug() << "No json filename for board:" << Boards::getBoardName(board);
     return false;
   }
 
   //  retrieve from application resources
-  QString path = QString(":/hwdefs/%1.json").arg(jsonFile.c_str());
+  QString path = QString(":/hwdefs/%1.json").arg(hwdefn);
   QFile file(path);
 
   if (!file.exists()) {
