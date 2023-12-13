@@ -37,8 +37,6 @@
 #define LCD_ILI9488_ID      ( 0x9488 )
 #define LCD_HX8357D_ID      ( 0x99 )
 
-#define LCD_DELAY()         LCD_Delay()
-
 typedef void (*lcdSpiInitFucPtr)(void);
 typedef unsigned int  LcdReadIDFucPtr( void );
 

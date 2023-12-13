@@ -63,14 +63,6 @@ uint32_t lcdPixelClock;
 
 volatile uint8_t LCD_ReadBuffer[24] = { 0, 0 };
 
-static void LCD_Delay(void) {
-  volatile unsigned int i;
-
-  for (i = 0; i < 20; i++) {
-    ;
-  }
-}
-
 enum ENUM_IO_SPEED
 {
     IO_SPEED_LOW,
@@ -138,9 +130,6 @@ static void lcdSpiConfig(void) {
   LL_GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
 
   GPIO_InitStructure.Pin        = LCD_SPI_CS_GPIO_PIN;
-  GPIO_InitStructure.Speed      = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStructure.Mode       = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStructure.Pull       = LL_GPIO_PULL_UP;
   LL_GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
 
@@ -174,15 +163,15 @@ unsigned char LCD_ReadByteOnFallingEdge(void) {
   LCD_MOSI_AS_INPUT();
 
   for (i = 0; i < 8; i++) {
-    LCD_DELAY();
+    lcdDelay();
     LCD_SCK_HIGH();
-    LCD_DELAY();
-    LCD_DELAY();
+    lcdDelay();
+    lcdDelay();
     ReceiveData <<= 1;
 
     LCD_SCK_LOW();
-    LCD_DELAY();
-    LCD_DELAY();
+    lcdDelay();
+    lcdDelay();
     if (LCD_READ_DATA_PIN()) {
       ReceiveData |= 0x01;
     }
@@ -196,7 +185,6 @@ unsigned char LCD_ReadByteOnFallingEdge(void) {
 static void lcdWriteByte(uint8_t data_enable, uint8_t byte) {
 
   LCD_SCK_LOW();
-  lcdDelay();
 
   if (data_enable) {
     LCD_MOSI_HIGH();
@@ -204,12 +192,12 @@ static void lcdWriteByte(uint8_t data_enable, uint8_t byte) {
     LCD_MOSI_LOW();
   }
 
-  LCD_SCK_HIGH();
   lcdDelay();
+  LCD_SCK_HIGH();
 
   for (int i = 0; i < 8; i++) {
-    LCD_SCK_LOW();
     lcdDelay();
+    LCD_SCK_LOW();
 
     if (byte & 0x80) {
       LCD_MOSI_HIGH();
@@ -217,12 +205,12 @@ static void lcdWriteByte(uint8_t data_enable, uint8_t byte) {
       LCD_MOSI_LOW();
     }
 
+    lcdDelay();
     LCD_SCK_HIGH();
     byte <<= 1;
-
-    lcdDelay();
   }
 
+  lcdDelay();
   LCD_SCK_LOW();
 }
 
@@ -250,19 +238,28 @@ unsigned char LCD_ReadByte(void) {
 unsigned char LCD_ReadRegister(unsigned char Register) {
   unsigned char ReadData = 0;
 
+  LCD_CS_LOW();
   lcdWriteByte(0, Register);
   lcdDelay();
   lcdDelay();
   ReadData = LCD_ReadByte();
+  LCD_CS_HIGH();
+  lcdDelay();
   return (ReadData);
 }
 
 void lcdWriteCommand(uint8_t command) {
+  LCD_CS_LOW();
   lcdWriteByte(0, command);
+  LCD_CS_HIGH();
+  lcdDelay();
 }
 
 void lcdWriteData(uint8_t data) {
+  LCD_CS_LOW();
   lcdWriteByte(1, data);
+  LCD_CS_HIGH();
+  lcdDelay();
 }
 
 void LCD_HX8357D_Init(void) {
@@ -634,7 +631,7 @@ void LCD_HX8357D_Init(void) {
 }
 
 void LCD_HX8357D_On(void) {
-  lcdWriteCommand(0x28);
+//  lcdWriteCommand(0x28);
   lcdWriteCommand(0x29);
 }
 
@@ -774,9 +771,9 @@ unsigned int LCD_ILI9481_ReadID(void) {
   Data = LCD_ReadByteOnFallingEdge();
   Data = LCD_ReadByteOnFallingEdge();
 
-  LCD_DELAY();
-  LCD_DELAY();
-  LCD_DELAY();
+  lcdDelay();
+  lcdDelay();
+  lcdDelay();
 
   lcdWriteCommand(0xC6);
   lcdWriteData(0x82);
@@ -1289,8 +1286,8 @@ unsigned int LCD_ST7796S_ReadID(void) {
   ID += (uint16_t)(LCD_ReadByte())<<8;
   ID += LCD_ReadByte();
 
-   return (ID);
- }
+  return (ID);
+}
 
 
 unsigned int LCD_NT35310_ReadID( void )
