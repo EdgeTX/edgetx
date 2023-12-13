@@ -91,6 +91,7 @@ class BoardJson
     const Board::InputInfo getInputInfo(int index) const;
     const QString getInputName(int index) const;
     const QString getInputLabel(int index) const;
+    const QString getInputTag(int index) const;
     const int getInputNameOffset(QString name);
     const int getInputTypeOffset(Board::AnalogInputType type);
     const bool isInputCalibrated(int index) const;
@@ -101,6 +102,7 @@ class BoardJson
     const Board::SwitchInfo getSwitchInfo(int index) const;
     const int getSwitchIndex(const QString name) const;
     const QString getSwitchName(int index) const;
+    const QString getSwitchTag(int index) const;
 
     // legacy
     const int getInputPotIndex(int index);
@@ -134,8 +136,8 @@ private:
 
     static int getInputIndex(const InputsTable * inputs, QString name);
     static Board::InputInfo getInputInfo(const InputsTable * inputs, int index);
-    static QString getInputName(const InputsTable * inputs, int index);
     static QString getInputLabel(const InputsTable * inputs, int index);
+    static QString getInputName(const InputsTable * inputs, int index);
     static int getInputNameOffset(const InputsTable * inputs, QString name);
     static int getInputTypeOffset(const InputsTable * inputs, Board::AnalogInputType type);
 

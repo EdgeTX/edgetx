@@ -23,6 +23,8 @@
 #include "datahelpers.h"
 #include "constants.h"
 
+#include <QMessageBox>
+
 static const StringTagMappingTable inputTypesLookupTable = {
     {std::to_string(Board::AIT_STICK),   "STICK"},
     {std::to_string(Board::AIT_FLEX),    "FLEX"},
@@ -230,6 +232,11 @@ QString BoardJson::getInputLabel(const InputsTable * inputs, int index)
   return CPN_STR_UNKNOWN_ITEM;
 }
 
+const QString BoardJson::getInputTag(int index) const
+{
+  return getInputName(m_inputs, index);
+}
+
 const int BoardJson::getSwitchIndex(const QString name) const
 {
   return getSwitchIndex(m_switches, name);
@@ -258,6 +265,11 @@ QString BoardJson::getSwitchName(const SwitchesTable * switches, int index)
     return switches->at(index).name.c_str();
 
   return CPN_STR_UNKNOWN_ITEM;
+}
+
+const QString BoardJson::getSwitchTag(int index) const
+{
+  return getSwitchName(m_switches, index);
 }
 
 const int BoardJson::getInputsCalibrated() const
@@ -540,26 +552,26 @@ bool BoardJson::loadDefinition()
 bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches, TrimsTable * trims)
 {
   if (board == Board::BOARD_UNKNOWN) {
-//    qDebug() << "No board definition for board id:" << board;
     return false;
   }
 
+  // required because of the way the Firmware class is used
   if (hwdefn.isEmpty()) {
-//    qDebug() << "No json filename for board:" << Boards::getBoardName(board);
     return false;
   }
 
-  //  retrieve from application resources
   QString path = QString(":/hwdefs/%1.json").arg(hwdefn);
   QFile file(path);
 
   if (!file.exists()) {
-//    qDebug() << "File not found:" << path;
+    QMessageBox::critical(nullptr, tr("Load Board Hardware Definition"),
+                          tr("Board: %1\nError: Unable to load file %2").arg(Boards::getBoardName(board)).arg(path));
     return false;
   }
 
   if (!file.open(QIODevice::ReadOnly)) {
-    qDebug() << "Unable to open:" << path;
+    QMessageBox::critical(nullptr, tr("Load Board Hardware Definition"),
+                          tr("Board: %1\nError: Unable to open file %2").arg(Boards::getBoardName(board)).arg(path));
     return false;
   }
 
@@ -567,7 +579,8 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
   file.close();
 
   if (buffer.isEmpty()) {
-    qDebug() << "Unable to read:" << path;
+    QMessageBox::critical(nullptr, tr("Load Board Hardware Definition"),
+                          tr("Board: %1\nError: Unable to read file %2").arg(Boards::getBoardName(board)).arg(path));
     return false;
   }
 
@@ -576,7 +589,8 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
   *json = QJsonDocument::fromJson(buffer, &res);
 
   if (res.error || json->isNull() || !json->isObject()) {
-    qDebug() << path << "is not a valid json formatted file. Error:" << res.error << res.errorString();
+    QMessageBox::critical(nullptr, tr("Load Board Hardware Definition"),
+                          tr("Board: %1\nError: %2 is not a valid json formatted file.\nError code: %3\nError description: %4").arg(Boards::getBoardName(board)).arg(path).arg(res.error).arg(res.errorString()));
     delete json;
     return false;
   }
