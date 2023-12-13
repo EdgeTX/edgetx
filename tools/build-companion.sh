@@ -131,6 +131,9 @@ do
         t14)
            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T14"
            ;;
+        t20v2)
+           BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20V2"
+            ;;
         xlite)
             BUILD_OPTIONS+="-DPCB=XLITE"
             ;;

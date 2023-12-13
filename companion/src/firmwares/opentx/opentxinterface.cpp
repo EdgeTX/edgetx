@@ -1424,6 +1424,13 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, NONE);
   registerOpenTxFirmware(firmware);
 
+  /* Jumper T20 Pro board */
+  firmware = new OpenTxFirmware(FIRMWAREID("t20v2"), Firmware::tr("Jumper T20 PRO"), BOARD_JUMPER_T20V2);
+  addOpenTxFrskyOptions(firmware);
+  firmware->addOption("internalelrs", Firmware::tr("Select if internal ELRS module is installed"));
+  addOpenTxRfOptions(firmware, NONE);
+  registerOpenTxFirmware(firmware);
+
   /* Radiomaster Boxer board */
   firmware = new OpenTxFirmware(FIRMWAREID("boxer"), QCoreApplication::translate("Firmware", "Radiomaster Boxer"), Board::BOARD_RADIOMASTER_BOXER);
   addOpenTxCommonOptions(firmware);
