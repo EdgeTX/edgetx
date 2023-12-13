@@ -3,6 +3,12 @@ set(MCU cortex-m3)
 set(FPU_FLAGS "")
 
 if(NOT NATIVE_BUILD)
+
+  # Add MCU specific flags
+  add_link_options(
+    -mcpu=cortex-m3 -mfloat-abi=soft
+  )
+
   # STM32 HAL/LL library
   set(STM32CUBE_DIR ${THIRDPARTY_DIR}/STM32F2xx_HAL_Driver)
   include_directories(${STM32CUBE_DIR}/Inc)
