@@ -1210,7 +1210,7 @@
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Vybrat\nmodel"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Nastavení\nmodelu"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Správa\nmodelů"
 #define TR_MAIN_MENU_MODEL_NOTES        "Poznámky\nmodelu"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nkanálů"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Nastavení\nmodelu"
