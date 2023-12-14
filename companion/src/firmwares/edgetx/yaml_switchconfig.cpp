@@ -60,11 +60,13 @@ YamlPotConfig::YamlPotConfig(const GeneralSettings::InputConfig* rhs)
   Board::Type board = getCurrentBoard();
 
   for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-    potConfig[i].tag = Boards::getInputName(board, i).toStdString();
-    potConfig[i].type = rhs[i].type;
-    memcpy(potConfig[i].name, rhs[i].name, sizeof(HARDWARE_NAME_LEN));
-    potConfig[i].flexType = rhs[i].flexType;
-    potConfig[i].inverted = rhs[i].inverted;
+    if (Boards::isInputConfigurable(board, i)) {
+      potConfig[i].tag = Boards::getInputTag(board, i).toStdString();
+      potConfig[i].type = rhs[i].type;
+      memcpy(potConfig[i].name, rhs[i].name, sizeof(HARDWARE_NAME_LEN));
+      potConfig[i].flexType = rhs[i].flexType;
+      potConfig[i].inverted = rhs[i].inverted;
+    }
   }
 }
 
@@ -121,7 +123,7 @@ YamlSwitchConfig::YamlSwitchConfig(const GeneralSettings::SwitchConfig* rhs)
   Board::Type board = getCurrentBoard();
 
   for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
-    switchConfig[i].tag = Boards::getSwitchName(board, i).toStdString();
+    switchConfig[i].tag = Boards::getSwitchTag(board, i).toStdString();
     switchConfig[i].type = rhs[i].type;
     memcpy(switchConfig[i].name, rhs[i].name, sizeof(HARDWARE_NAME_LEN));
     // switchConfig[i].inverted = rhs[i].inverted;
@@ -278,7 +280,7 @@ bool convert<YamlSliderConfig>::decode(const Node& node, YamlSliderConfig& rhs)
 
     if (idx >= 0 && idx < maxcnt) {
       kv.second >> rhs.sliderConfig[idx];
-      rhs.sliderConfig[idx].tag = Boards::getInputName(board, idx).toStdString();
+      rhs.sliderConfig[idx].tag = Boards::getInputTag(board, idx).toStdString();
       rhs.sliderConfig[idx].type = Board::AIT_FLEX;
     }
 

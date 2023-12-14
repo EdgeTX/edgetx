@@ -310,10 +310,10 @@ class GeneralSettings {
     bool modelTelemetryDisabled;
 
     // v 2.10 ADC refactor
-    // earlier version data is read into legacy fields to maintain older version compatibility
-    // post reading the legacy fields are manipulated into the new fields
-    // An opportunity was taken group related fields
-    // Companion gui only references the ADC fields
+    // earlier version data is read into legacy structs to maintain older version compatibility
+    // post reading the legacy structs are manipulated into the new structs
+    // An opportunity was taken group related structs
+    // Companion gui only references the new structs
 
     // pre v2.10 legacy
     // TODO remove when importing and conversion no longer neceesary
@@ -330,6 +330,7 @@ class GeneralSettings {
 
     // ===================================================================================
     // IMPORTANT: starting v2.10 this function MUST be called after importing non-yaml formats
+    //            yaml conversion is performed on the fly
     bool convertLegacyConfiguration(Board::Type board);
     // ===================================================================================
 

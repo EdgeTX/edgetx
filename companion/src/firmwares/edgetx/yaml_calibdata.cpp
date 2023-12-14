@@ -81,7 +81,7 @@ Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 
   for (int i = 0; i < analogs; i++) {
     if (Boards::isInputCalibrated(board, i)) {
-      std::string tag = Boards::getInputName(board, i).toStdString();
+      std::string tag = Boards::getInputTag(board, i).toStdString();
       node[tag] = rhs.calib[i];
     }
   }

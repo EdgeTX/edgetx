@@ -36,14 +36,12 @@ class BoardJson
 
   public:
     struct InputDefn {
-      std::string name               = "";
-      std::string stype              = "";
-      Board::AnalogInputType type    = AIT_UNKNOWN;
-      std::string label              = "";
-      std::string shortLabel         = "";
-      std::string dflt               = "";
-      Board::FlexType flexType       = FLEX_NONE;
-      bool inverted                  = false;
+      Board::AnalogInputType type = AIT_UNKNOWN;
+      std::string tag             = "";
+      std::string name            = "";
+      std::string shortName       = "";
+      Board::FlexType flexType    = FLEX_NONE;
+      bool inverted               = false;
 
       InputDefn() = default;
     };
@@ -56,12 +54,11 @@ class BoardJson
     };
 
     struct SwitchDefn {
-      std::string name       = "";
-      std::string stype      = "";
       Board::SwitchType type = Board::SWITCH_NOT_AVAILABLE;
+      std::string tag        = "";
+      std::string name       = "";
       int flags              = 0;
       bool inverted          = false;
-      std::string sdflt      = "";
       Board::SwitchType dflt = Board::SWITCH_NOT_AVAILABLE;
       Display display;
 
@@ -71,7 +68,10 @@ class BoardJson
     typedef std::vector<SwitchDefn> SwitchesTable;
 
     struct TrimDefn {
-      std::string name;
+      std::string tag  = "";
+      std::string name = "";
+
+      TrimDefn() = default;
     };
 
     typedef std::vector<TrimDefn> TrimsTable;
@@ -87,26 +87,24 @@ class BoardJson
     const int getCapability(const Board::Capability capability) const;
     const int getInputsCalibrated() const;
 
-    const int getInputIndex(const QString name) const;
+    const int getInputIndex(const QString tag) const;
     const Board::InputInfo getInputInfo(int index) const;
     const QString getInputName(int index) const;
-    const QString getInputLabel(int index) const;
+    const int getInputPotIndex(int index);
+    const int getInputSliderIndex(int index);
     const QString getInputTag(int index) const;
-    const int getInputNameOffset(QString name);
+    const int getInputTagOffset(QString tag);
     const int getInputTypeOffset(Board::AnalogInputType type);
+
     const bool isInputCalibrated(int index) const;
     const bool isInputConfigurable(int index) const;
     const bool isInputPot(int index) const;
     const bool isInputStick(int index) const;
 
+    const int getSwitchIndex(const QString tag) const;
     const Board::SwitchInfo getSwitchInfo(int index) const;
-    const int getSwitchIndex(const QString name) const;
     const QString getSwitchName(int index) const;
     const QString getSwitchTag(int index) const;
-
-    // legacy
-    const int getInputPotIndex(int index);
-    const int getInputSliderIndex(int index);
 
 private:
     Board::Type m_board;
@@ -130,20 +128,21 @@ private:
     static bool loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches, TrimsTable * trims);
     // post loadFile fix ups
     static void addJoysticksGyros(Board::Type board, InputsTable * inputs);
-    static std::string setStickLabel(int index);
+    static std::string setStickName(int index);
 
     static int getInputsCalibrated(const InputsTable * inputs);
 
-    static int getInputIndex(const InputsTable * inputs, QString name);
+    static int getInputIndex(const InputsTable * inputs, QString tag);
     static Board::InputInfo getInputInfo(const InputsTable * inputs, int index);
-    static QString getInputLabel(const InputsTable * inputs, int index);
     static QString getInputName(const InputsTable * inputs, int index);
-    static int getInputNameOffset(const InputsTable * inputs, QString name);
+    static QString getInputTag(const InputsTable * inputs, int index);
+    static int getInputTagOffset(const InputsTable * inputs, QString tag);
     static int getInputTypeOffset(const InputsTable * inputs, Board::AnalogInputType type);
 
-    static int getSwitchIndex(const SwitchesTable * switches, QString name);
+    static int getSwitchIndex(const SwitchesTable * switches, QString tag);
     static Board::SwitchInfo getSwitchInfo(const SwitchesTable * switches, int index);
     static QString getSwitchName(const SwitchesTable * switches, int index);
+    static QString getSwitchTag(const SwitchesTable * switches, int index);
 
     static bool isInputCalibrated(const InputDefn & defn);
     static bool isInputConfigurable(const InputDefn & defn);

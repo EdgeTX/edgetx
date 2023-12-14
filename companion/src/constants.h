@@ -37,19 +37,22 @@
 #define CPN_MAX_MODULES                2
 #define CPN_MAX_STICKS                 Board::STICK_AXIS_COUNT
 #define CPN_MAX_TRIMS                  Board::TRIM_AXIS_COUNT
-#define CPN_MAX_POTS                   8
-#define CPN_MAX_SLIDERS                4
 #define CPN_MAX_CYC                    3
 #define CPN_MAX_SWITCHES               32
 #define CPN_MAX_FUNCTION_SWITCHES      6
-#define CPN_MAX_MOUSE_ANALOGS          2
-#define CPN_MAX_GYRO_ANALOGS           2
-#define CPN_MAX_ANALOGS                (CPN_MAX_STICKS + CPN_MAX_POTS + CPN_MAX_SLIDERS + CPN_MAX_MOUSE_ANALOGS + CPN_MAX_GYRO_ANALOGS)
 #define CPN_MAX_SENSORS                60
 #define CPN_MAX_SCRIPTS                9
 #define CPN_MAX_SCRIPT_INPUTS          10
 #define CPN_MAX_SPACEMOUSE             6
-#define CPN_MAX_INPUTS                 32
+#define CPN_MAX_INPUTS                 32 // v2.10 replaces CPN_MAX_ANALOGS - the value is abitary as radio ADC refactor is still a WIP
+
+// pre v2.10
+#define CPN_MAX_POTS                   8
+#define CPN_MAX_SLIDERS                4
+#define CPN_MAX_MOUSE_ANALOGS          2
+#define CPN_MAX_GYRO_ANALOGS           2
+#define CPN_MAX_ANALOGS                (CPN_MAX_STICKS + CPN_MAX_POTS + CPN_MAX_SLIDERS + CPN_MAX_MOUSE_ANALOGS + CPN_MAX_GYRO_ANALOGS)
+// =========
 
 #define CPN_STR_APP_NAME               QCoreApplication::translate("Companion", "EdgeTX Companion")
 #define CPN_STR_SIMU_NAME              QCoreApplication::translate("Companion", "EdgeTX Simulator")

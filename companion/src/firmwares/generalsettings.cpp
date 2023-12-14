@@ -56,140 +56,91 @@ bool GeneralSettings::isInputAvailable(int index) const
 {
   Board::Type board = getCurrentBoard();
 
-  if (index < 0 || index >= Boards::getCapability(board, Board::MaxAnalogs))
+  if (index < 0 || index >= Boards::getCapability(board, Board::Inputs))
     return false;
 
-  if (index < Boards::getCapability(board, Board::Inputs)) {
-    InputConfig config = inputConfig[index];
-    return (config.type == Board::AIT_STICK || (config.type == Board::AIT_FLEX && config.flexType != Board::FLEX_NONE));
-  }
-  else
-    return true;
+  const InputConfig &config = inputConfig[index];
+
+  return (config.type == Board::AIT_STICK || (config.type == Board::AIT_FLEX && config.flexType != Board::FLEX_NONE));
 }
 
 bool GeneralSettings::isInputMultiPosPot(int index) const
 {
-  Board::Type board = getCurrentBoard();
+  if (isInputAvailable(index)) {
+    const InputConfig &config = inputConfig[index];
 
-  if (index < 0 || index >= Boards::getCapability(board, Board::Inputs))
-    return false;
-
-  InputConfig config = inputConfig[index];
-
-  if (config.type == Board::AIT_FLEX && config.flexType == Board::FLEX_MULTIPOS)
-    return true;
+    return (config.type == Board::AIT_FLEX &&
+            config.flexType == Board::FLEX_MULTIPOS);
+  }
 
   return false;
 }
 
 bool GeneralSettings::isInputPot(int index) const
 {
-  Board::Type board = getCurrentBoard();
+  if (isInputAvailable(index)) {
+    const InputConfig &config = inputConfig[index];
 
-  if (index < 0 || index >= Boards::getCapability(board, Board::Inputs))
-    return false;
-
-  InputConfig config = inputConfig[index];
-
-  if (config.type == Board::AIT_FLEX && (config.flexType == Board::FLEX_POT || config.flexType == Board::FLEX_POT_CENTER ||
-                                         config.flexType == Board::FLEX_MULTIPOS))
-    return true;
+    return (config.type == Board::AIT_FLEX &&
+           (config.flexType == Board::FLEX_POT ||
+            config.flexType == Board::FLEX_POT_CENTER ||
+            config.flexType == Board::FLEX_MULTIPOS));
+  }
 
   return false;
 }
 
 bool GeneralSettings::isInputSlider(int index) const
 {
-  Board::Type board = getCurrentBoard();
+  if (isInputAvailable(index)) {
+    const InputConfig &config = inputConfig[index];
 
-  if (index < 0 || index >= Boards::getCapability(board, Board::Inputs))
-    return false;
-
-  InputConfig config = inputConfig[index];
-
-  if (config.type == Board::AIT_FLEX && config.flexType == Board::FLEX_SLIDER)
-    return true;
-
+    return (config.type == Board::AIT_FLEX &&
+            config.flexType == Board::FLEX_SLIDER);
+  }
   return false;
 }
 
 bool GeneralSettings::isInputStick(int index) const
 {
-  Board::Type board = getCurrentBoard();
+  if (isInputAvailable(index)) {
+    const InputConfig &config = inputConfig[index];
 
-  if (index < 0 || index >= Boards::getCapability(board, Board::Inputs))
-    return false;
-
-  InputConfig config = inputConfig[index];
-
-  if (config.type == Board::AIT_STICK)
-    return true;
+    return config.type == Board::AIT_STICK;
+  }
 
   return false;
 }
 
-bool GeneralSettings::isPotAvailable(int index) const
+// pre v2.10 support
+// post refactor clean up - where do we call this from?
+bool GeneralSettings::isMultiPosPot(int index) const
 {
-  Board::Type board = getCurrentBoard();
-  int numPots = Boards::getCapability(board, Board::Pots);
-
-  if (getCurrentFirmware()->getCapability(HasFlySkyGimbals))
-    numPots -= 2;
-
-  if (numPots < 0 || index >= numPots)
-    return false;
-
-  int idx = Boards::getInputPotIndex(board, index);
-
-  if (idx < 0)
-    return false;
-
-  InputConfig config = inputConfig[idx];
-
-  return (config.type == Board::AIT_FLEX &&
-                         !(config.flexType == Board::FLEX_NONE || config.flexType == Board::FLEX_SLIDER ||
-                           config.flexType == Board::FLEX_SWITCH));
+  return isInputMultiPosPot(Boards::getInputPotIndex(getCurrentBoard(), index));
 }
 
+// pre v2.10 support
+// post refactor clean up - where do we call this from?
+bool GeneralSettings::isPotAvailable(int index) const
+{
+  return isInputPot(Boards::getInputPotIndex(getCurrentBoard(), index));
+}
+
+// pre v2.10 support
+// post refactor clean up - where do we call this from?
 bool GeneralSettings::isSliderAvailable(int index) const
 {
-  Board::Type board = getCurrentBoard();
-  int idx = Boards::getInputSliderIndex(board, index);
-
-  if (idx < 0)
-    return false;
-
-  InputConfig config = inputConfig[idx];
-
-  return config.type == Board::AIT_FLEX && config.flexType == Board::FLEX_SLIDER;
+  return isInputSlider(Boards::getInputSliderIndex(getCurrentBoard(), index));
 }
 
 bool GeneralSettings::isSwitchAvailable(int index) const
 {
-  if (index < 0)
+  if (index < 0 || index >= Boards::getCapability(getCurrentBoard(), Board::Sticks))
     return false;
 
-  SwitchConfig config = switchConfig[index];
+  const SwitchConfig &config = switchConfig[index];
 
   return config.type != Board::SWITCH_NOT_AVAILABLE;
-}
-
-bool GeneralSettings::isMultiPosPot(int index) const
-{
-  if (isPotAvailable(index)) {
-    Board::Type board = getCurrentBoard();
-    int idx = Boards::getInputPotIndex(board, index);
-
-    if (idx < 0)
-      return false;
-
-    InputConfig config = inputConfig[idx];
-
-    if (config.type == Board::AIT_FLEX && config.flexType == Board::FLEX_MULTIPOS)
-      return true;
-  }
-
-  return false;
 }
 
 void GeneralSettings::clear()
@@ -818,6 +769,7 @@ AbstractStaticItemModel * GeneralSettings::hatsModeItemModel(bool radio_setup)
   return mdl;
 }
 
+// Legacy mapping
 static const StringTagMappingTable potTypesConversionTable = {
     {std::to_string(Board::POT_NONE),               std::to_string(Board::FLEX_NONE)},
     {std::to_string(Board::POT_WITH_DETENT),        std::to_string(Board::FLEX_POT_CENTER)},

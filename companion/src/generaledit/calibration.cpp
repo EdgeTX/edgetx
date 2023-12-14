@@ -38,24 +38,25 @@ CalibrationPanel::CalibrationPanel(QWidget * parent, GeneralSettings & generalSe
     if (!Boards::isInputCalibrated(board, i))
       continue;
 
+    GeneralSettings::InputCalib &calib = generalSettings.inputConfig[i].calib;
     int col = 0;
     row++;
     QLabel * label = new QLabel(this);
-    label->setText(Boards::getInputInfo(board, i).label.c_str());
+    label->setText(Boards::getInputName(board, i));
     tableLayout->addWidget(i, col++, label);
 
     QLineEdit * leNeg = new QLineEdit(this);
-    leNeg->setText(QString("%1").arg(generalSettings.inputConfig[i].calib.spanNeg));
+    leNeg->setText(QString("%1").arg(calib.spanNeg));
     leNeg->setReadOnly(true);
     tableLayout->addWidget(i, col++, leNeg);
 
     QLineEdit * leMid = new QLineEdit(this);
-    leMid->setText(QString("%1").arg(generalSettings.inputConfig[i].calib.mid));
+    leMid->setText(QString("%1").arg(calib.mid));
     leMid->setReadOnly(true);
     tableLayout->addWidget(i, col++, leMid);
 
     QLineEdit * lePos = new QLineEdit(this);
-    lePos->setText(QString("%1").arg(generalSettings.inputConfig[i].calib.spanPos));
+    lePos->setText(QString("%1").arg(calib.spanPos));
     lePos->setReadOnly(true);
     tableLayout->addWidget(i, col++, lePos);
   }

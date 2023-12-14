@@ -378,30 +378,34 @@ void HardwarePanel::on_internalModuleChanged()
 
 void HardwarePanel::addStick(int index)
 {
-  addLabel(Boards::getInputInfo(board, index).label.c_str());
+  GeneralSettings::InputConfig &config = generalSettings.inputConfig[index];
+
+  addLabel(Boards::getInputName(board, index));
 
   AutoLineEdit *name = new AutoLineEdit(this);
-  name->setField(generalSettings.inputConfig[index].name, HARDWARE_NAME_LEN, this);
+  name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
   addParams();
 }
 
 void HardwarePanel::addFlex(int index)
 {
-  addLabel(Boards::getInputInfo(board, index).label.c_str());
+  GeneralSettings::InputConfig &config = generalSettings.inputConfig[index];
+
+  addLabel(Boards::getInputName(board, index));
 
   AutoLineEdit *name = new AutoLineEdit(this);
-  name->setField(generalSettings.inputConfig[index].name, HARDWARE_NAME_LEN, this);
+  name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
 
   AutoComboBox *type = new AutoComboBox(this);
   type->setModel(editorItemModels->getItemModel(AIM_BOARDS_FLEX_TYPE));
-  int & flexType = (int &)generalSettings.inputConfig[index].flexType;
+  int & flexType = (int &)config.flexType;
   type->setField(flexType, this);
   params->append(type);
 
   AutoCheckBox *inverted = new AutoCheckBox(this);
-  inverted->setField(generalSettings.inputConfig[index].inverted, this);
+  inverted->setField(config.inverted, this);
   params->append(inverted);
 
   addParams();
@@ -409,17 +413,19 @@ void HardwarePanel::addFlex(int index)
 
 void HardwarePanel::addSwitch(int index)
 {
-  addLabel(Boards::getSwitchInfo(board, index).name.c_str());
+  GeneralSettings::SwitchConfig &config = generalSettings.switchConfig[index];
+
+  addLabel(Boards::getSwitchName(board, index));
 
   AutoLineEdit *name = new AutoLineEdit(this);
-  name->setField(generalSettings.switchConfig[index].name, HARDWARE_NAME_LEN, this);
+  name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
 
   AutoComboBox *type = new AutoComboBox(this);
   Board::SwitchInfo switchInfo = Boards::getSwitchInfo(board, index);
   type->setModel(switchInfo.type < Board::SWITCH_3POS ? tabFilteredModels->getItemModel(FIM_SWITCHTYPE2POS) :
                                                         tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
-  int & swtype = (int &)generalSettings.switchConfig[index].type;
+  int & swtype = (int &)config.type;
   type->setField(swtype, this);
   params->append(type);
 

@@ -87,12 +87,10 @@ void BoardJson::addJoysticksGyros(Board::Type board, InputsTable * inputs)
   if (IS_FAMILY_HORUS_OR_T16(board)) {
     if (getInputIndex(inputs, "JSx") < 0) {
       InputDefn defn;
-      defn.name = "JSx";
-      defn.stype = "FLEX";
       defn.type = AIT_FLEX;
-      defn.label = "JSx";
-      defn.shortLabel = "X";
-      defn.dflt = "AXIS_X";
+      defn.tag = "JSx";
+      defn.name = "JSx";
+      defn.shortName = "X";
       defn.flexType = FLEX_AXIS_X;
       defn.inverted = false;
       inputs->insert(inputs->end(), defn);
@@ -100,12 +98,10 @@ void BoardJson::addJoysticksGyros(Board::Type board, InputsTable * inputs)
 
     if (getInputIndex(inputs, "JSy") < 0) {
       InputDefn defn;
-      defn.name = "JSy";
-      defn.stype = "FLEX";
       defn.type = AIT_FLEX;
-      defn.label = "JSy";
-      defn.shortLabel = "Y";
-      defn.dflt = "AXIS_Y";
+      defn.tag = "JSy";
+      defn.name = "JSy";
+      defn.shortName = "Y";
       defn.flexType = FLEX_AXIS_Y;
       defn.inverted = false;
       inputs->insert(inputs->end(), defn);
@@ -117,12 +113,10 @@ void BoardJson::addJoysticksGyros(Board::Type board, InputsTable * inputs)
   if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board)) {
     if (getInputIndex(inputs, "TILT_X") < 0) {
       InputDefn defn;
-      defn.name = "TILT_X";
-      defn.stype = "FLEX";
       defn.type = AIT_FLEX;
-      defn.label = "Tltx";
-      defn.shortLabel = "X";
-      defn.dflt = "AXIS_X";
+      defn.tag = "TILT_X";
+      defn.name = "Tltx";
+      defn.shortName = "X";
       defn.flexType = FLEX_AXIS_X;
       defn.inverted = false;
       inputs->insert(inputs->end(), defn);
@@ -130,12 +124,10 @@ void BoardJson::addJoysticksGyros(Board::Type board, InputsTable * inputs)
 
     if (getInputIndex(inputs, "TILT_Y") < 0) {
       InputDefn defn;
-      defn.name = "TILT_Y";
-      defn.stype = "FLEX";
       defn.type = AIT_FLEX;
-      defn.label = "Tlty";
-      defn.shortLabel = "Y";
-      defn.dflt = "AXIS_Y";
+      defn.tag = "TILT_Y";
+      defn.name = "Tlty";
+      defn.shortName = "Y";
       defn.flexType = FLEX_AXIS_Y;
       defn.inverted = false;
       inputs->insert(inputs->end(), defn);
@@ -188,16 +180,16 @@ const int BoardJson::getCapability(const Board::Capability capability) const
   }
 }
 
-const int BoardJson::getInputIndex(const QString name) const
+const int BoardJson::getInputIndex(const QString tag) const
 {
-  return getInputIndex(m_inputs, name);
+  return getInputIndex(m_inputs, tag);
 }
 
 // static
-int BoardJson::getInputIndex(const InputsTable * inputs, QString name)
+int BoardJson::getInputIndex(const InputsTable * inputs, QString tag)
 {
   for (int i = 0; i < (int)inputs->size(); i++) {
-    if (inputs->at(i).name.c_str() == name)
+    if (inputs->at(i).tag.c_str() == tag)
       return i;
   }
 
@@ -218,35 +210,30 @@ QString BoardJson::getInputName(const InputsTable * inputs, int index)
   return CPN_STR_UNKNOWN_ITEM;
 }
 
-const QString BoardJson::getInputLabel(int index) const
+const QString BoardJson::getInputTag(int index) const
 {
-  return getInputLabel(m_inputs, index);
+  return getInputTag(m_inputs, index);
 }
 
 // static
-QString BoardJson::getInputLabel(const InputsTable * inputs, int index)
+QString BoardJson::getInputTag(const InputsTable * inputs, int index)
 {
   if (index > -1 && index < (int)inputs->size())
-    return inputs->at(index).label.c_str();
+    return inputs->at(index).tag.c_str();
 
   return CPN_STR_UNKNOWN_ITEM;
 }
 
-const QString BoardJson::getInputTag(int index) const
+const int BoardJson::getSwitchIndex(const QString tag) const
 {
-  return getInputName(m_inputs, index);
-}
-
-const int BoardJson::getSwitchIndex(const QString name) const
-{
-  return getSwitchIndex(m_switches, name);
+  return getSwitchIndex(m_switches, tag);
 }
 
 // static
-int BoardJson::getSwitchIndex(const SwitchesTable * switches, QString name)
+int BoardJson::getSwitchIndex(const SwitchesTable * switches, QString tag)
 {
   for (int i = 0; i < (int)switches->size(); i++) {
-    if (switches->at(i).name.c_str() == name)
+    if (switches->at(i).tag.c_str() == tag)
       return i;
   }
 
@@ -272,6 +259,15 @@ const QString BoardJson::getSwitchTag(int index) const
   return getSwitchName(m_switches, index);
 }
 
+// static
+QString BoardJson::getSwitchTag(const SwitchesTable * switches, int index)
+{
+  if (index > -1 && index < (int)switches->size())
+    return switches->at(index).tag.c_str();
+
+  return CPN_STR_UNKNOWN_ITEM;
+}
+
 const int BoardJson::getInputsCalibrated() const
 {
   return getInputsCalibrated(m_inputs);
@@ -289,16 +285,16 @@ int BoardJson::getInputsCalibrated(const InputsTable * inputs)
   return cnt;
 }
 
-const int BoardJson::getInputNameOffset(QString name)
+const int BoardJson::getInputTagOffset(QString tag)
 {
-  return getInputNameOffset(m_inputs, name);
+  return getInputTagOffset(m_inputs, tag);
 }
 
 // static
-int BoardJson::getInputNameOffset(const InputsTable * inputs, QString name)
+int BoardJson::getInputTagOffset(const InputsTable * inputs, QString tag)
 {
   for (int i = 0; i < (int)inputs->size(); i++) {
-    if (name == inputs->at(i).name.c_str())
+    if (tag == inputs->at(i).tag.c_str())
       return i;
   }
 
@@ -308,7 +304,7 @@ int BoardJson::getInputNameOffset(const InputsTable * inputs, QString name)
 const int BoardJson::getInputPotIndex(int index)
 {
   if (getCapability(Board::Pots) > 0)
-    return getInputNameOffset(m_inputs, QString("P%1").arg(index));
+    return getInputTagOffset(m_inputs, QString("P%1").arg(index));
 
   return -1;
 }
@@ -316,7 +312,7 @@ const int BoardJson::getInputPotIndex(int index)
 const int BoardJson::getInputSliderIndex(int index)
 {
   if (getCapability(Board::Sliders) > 0)
-    return getInputNameOffset(m_inputs, QString("SL%1").arg(index));
+    return getInputTagOffset(m_inputs, QString("SL%1").arg(index));
 
   return -1;
 }
@@ -349,10 +345,10 @@ Board::InputInfo BoardJson::getInputInfo(const InputsTable * inputs, int index)
 
   if (index >= 0 && index < (int)inputs->size()) {
     InputDefn defn = inputs->at(index);
-    info.name = defn.name;
     info.type = defn.type;
-    info.label = defn.label;
-    info.shortLabel = defn.shortLabel;
+    info.tag = defn.tag;
+    info.name = defn.name;
+    info.shortName = defn.shortName;
     info.flexType = defn.flexType;
     info.inverted = defn.inverted;
   }
@@ -373,6 +369,7 @@ Board::SwitchInfo BoardJson::getSwitchInfo(const SwitchesTable * switches, int i
   if (index >= 0 && index < (int)switches->size()) {
     SwitchDefn defn = switches->at(index);
     info.type = defn.type;
+    info.tag = defn.tag;
     info.name = defn.name;
     info.inverted = defn.inverted;
   }
@@ -428,8 +425,8 @@ bool BoardJson::isMultipos(const InputDefn & defn)
 // static
 bool BoardJson::isPot(const InputDefn & defn)
 {
-  const char* val = defn.name.data();
-  size_t len = defn.name.size();
+  const char* val = defn.tag.data();
+  size_t len = defn.tag.size();
 
   return (defn.type == Board::AIT_FLEX &&
           ((len > 1 && val[0] == 'P' && val[1] >= '0' && val[1] <= '9') ||
@@ -439,8 +436,8 @@ bool BoardJson::isPot(const InputDefn & defn)
 // static
 bool BoardJson::isSlider(const InputDefn & defn)
 {
-  const char* val = defn.name.data();
-  size_t len = defn.name.size();
+  const char* val = defn.tag.data();
+  size_t len = defn.tag.size();
 
   return (defn.type == Board::AIT_FLEX && len > 2 &&
           val[0] == 'S' && val[1] == 'L' && val[2] >= '0' && val[2] <= '9');
@@ -461,8 +458,8 @@ bool BoardJson::isFuncSwitch(const SwitchDefn & defn)
 // static
 bool BoardJson::isGyro(const InputDefn & defn)
 {
-  const char* val = defn.name.data();
-  size_t len = defn.name.size();
+  const char* val = defn.tag.data();
+  size_t len = defn.tag.size();
 
   return (defn.type == Board::AIT_FLEX && len > 5 &&
           val[0] == 'T' && val[1] == 'I'  && val[2] == 'L' && val[3] == 'T' && val[4] == '_' && (val[5] == 'X' || val[5] == 'Y'));
@@ -471,8 +468,8 @@ bool BoardJson::isGyro(const InputDefn & defn)
 // static
 bool BoardJson::isJoystick(const InputDefn & defn)
 {
-  const char* val = defn.name.data();
-  size_t len = defn.name.size();
+  const char* val = defn.tag.data();
+  size_t len = defn.tag.size();
 
   return (defn.type == Board::AIT_FLEX && len > 2 &&
           val[0] == 'J' && val[1] == 'S' && (val[2] == 'x' || val[2] == 'y'));
@@ -527,8 +524,8 @@ bool BoardJson::loadDefinition()
 
   // json files do not normally specify stick labels so load legacy labels
   for (int i = 0; i < getCapability(Board::Sticks); i++) {
-    if (m_inputs->at(i).label.empty())
-      m_inputs->at(i).label = setStickLabel(i);
+    if (m_inputs->at(i).name.empty())
+      m_inputs->at(i).name = setStickName(i);
   }
 
 //  qDebug() << "Board:" << Boards::getBoardName(m_board) <<
@@ -610,26 +607,26 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
           InputDefn defn;
 
           if (!o.value("name").isUndefined())
-            defn.name = o.value("name").toString().toStdString();
+            defn.tag = o.value("name").toString().toStdString();
 
           if (!o.value("type").isUndefined()) {
-            defn.stype = o.value("type").toString().toStdString();
-            defn.type = (AnalogInputType)DataHelpers::getStringTagMappingIndex(inputTypesLookupTable, defn.stype.c_str());
+            std::string type = o.value("type").toString().toStdString();
+            defn.type = (AnalogInputType)DataHelpers::getStringTagMappingIndex(inputTypesLookupTable, type.c_str());
           }
 
           if (!o.value("inverted").isUndefined())
             defn.inverted = o.value("inverted").toBool();
 
           if (!o.value("label").isUndefined())
-            defn.label = o.value("label").toString().toStdString();
+            defn.name = o.value("label").toString().toStdString();
 
           if (!o.value("short_label").isUndefined())
-            defn.shortLabel = o.value("short_label").toString().toStdString();
+            defn.shortName = o.value("short_label").toString().toStdString();
 
           if (!o.value("default").isUndefined()) {
-            defn.dflt = o.value("default").toString().toStdString();
+            std::string dflt = o.value("default").toString().toStdString();
             if (defn.type == AIT_FLEX) {
-              int idx = DataHelpers::getStringTagMappingIndex(flexTypesLookupTable, defn.dflt.c_str());
+              int idx = DataHelpers::getStringTagMappingIndex(flexTypesLookupTable, dflt.c_str());
               defn.flexType = (FlexType)(idx < 0 ? FLEX_NONE : idx);
             }
           }
@@ -656,12 +653,14 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
         const QJsonObject &o = swtch.toObject();
         SwitchDefn sw;
 
-        if (!o.value("name").isUndefined())
+        if (!o.value("name").isUndefined()) {
           sw.name = o.value("name").toString().toStdString();
+          sw.tag = sw.name;
+        }
 
         if (!o.value("type").isUndefined()) {
-          sw.stype = o.value("type").toString().toStdString();
-          int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable, sw.stype.c_str());
+          std::string type = o.value("type").toString().toStdString();
+          int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable, type.c_str());
           sw.type = idx < 0 ? Board::SWITCH_NOT_AVAILABLE : (Board::SwitchType)idx;
         }
 
@@ -672,8 +671,8 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
           sw.inverted = o.value("inverted").toBool();
 
         if (!o.value("default").isUndefined()) {
-          sw.sdflt = o.value("default").toString().toStdString();
-          int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable, sw.sdflt.c_str());
+          std::string dflt = o.value("default").toString().toStdString();
+          int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable, dflt.c_str());
           sw.dflt = idx < 0 ? Board::SWITCH_NOT_AVAILABLE : (Board::SwitchType)idx;
         }
 
@@ -701,8 +700,10 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
         const QJsonObject &o = trm.toObject();
         TrimDefn t;
 
-        if (!o.value("name").isUndefined())
+        if (!o.value("name").isUndefined()) {
           t.name = o.value("name").toString().toStdString();
+          t.tag = t.name;
+        }
 
         trims->insert(trims->end(), t);
 
@@ -810,7 +811,7 @@ unsigned int BoardJson::setFuncSwitchesCount(const SwitchesTable * switches)
 }
 
 // static
-std::string BoardJson::setStickLabel(int index)
+std::string BoardJson::setStickName(int index)
 {
   QStringList strl = { tr("Rud"), tr("Ele"), tr("Thr"), tr("Ail") };
   return strl.value(index, CPN_STR_UNKNOWN_ITEM).toStdString();

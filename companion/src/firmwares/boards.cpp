@@ -822,33 +822,19 @@ BoardJson* Boards::getBoardJson(Board::Type board)
   return gBoardFactories->instance(board);
 }
 
+Board::InputInfo Boards::getInputInfo(Board::Type board, int index)
+{
+  return getBoardJson(board)->getInputInfo(index);
+}
+
+int Boards::getInputIndex(Board::Type board, QString tag)
+{
+  return getBoardJson(board)->getInputIndex(tag);
+}
+
 QString Boards::getInputName(Board::Type board, int index)
 {
-  if (index < 0 || index >= getCapability(board, Board::MaxAnalogs))
-    return CPN_STR_UNKNOWN_ITEM;
-
-  return getBoardJson(board)->getInputLabel(index); // json hwdef label holds display name
-}
-
-// static
-QString Boards::getInputTag(Board::Type board, int index)
-{
-  if (index < 0 || index >= getCapability(board, Board::MaxAnalogs))
-    return CPN_STR_UNKNOWN_ITEM;
-
-  return getBoardJson(board)->getInputName(index); // json name holds yaml tag
-}
-
-// static
-int Boards::getInputNameOffset(Board::Type board, QString name)
-{
-  return getBoardJson(board)->getInputNameOffset(name);
-}
-
-// static
-int Boards::getInputTypeOffset(Board::Type board, Board::AnalogInputType type)
-{
-  return getBoardJson(board)->getInputTypeOffset(type);
+  return getBoardJson(board)->getInputName(index);
 }
 
 int Boards::getInputPotIndex(Board::Type board, int index)
@@ -861,19 +847,44 @@ int Boards::getInputSliderIndex(Board::Type board, int index)
   return getBoardJson(board)->getInputSliderIndex(index);
 }
 
+QString Boards::getInputTag(Board::Type board, int index)
+{
+  return getBoardJson(board)->getInputTag(index);
+}
+
+int Boards::getInputTagOffset(Board::Type board, QString tag)
+{
+  return getBoardJson(board)->getInputTagOffset(tag);
+}
+
+int Boards::getInputTypeOffset(Board::Type board, Board::AnalogInputType type)
+{
+  return getBoardJson(board)->getInputTypeOffset(type);
+}
+
 int Boards::getInputsCalibrated(Board::Type board)
 {
   return getBoardJson(board)->getInputsCalibrated();
 }
 
-Board::InputInfo Boards::getInputInfo(Board::Type board, int index)
-{
-  return getBoardJson(board)->getInputInfo(index);
-}
-
 Board::SwitchInfo Boards::getSwitchInfo(Board::Type board, int index)
 {
   return getBoardJson(board)->getSwitchInfo(index);
+}
+
+int Boards::getSwitchIndex(Board::Type board, QString tag)
+{
+  return getBoardJson(board)->getSwitchIndex(tag);
+}
+
+QString Boards::getSwitchName(Board::Type board, int index)
+{
+  return getBoardJson(board)->getSwitchName(index);
+}
+
+QString Boards::getSwitchTag(Board::Type board, int index)
+{
+  return getBoardJson(board)->getSwitchTag(index);
 }
 
 bool Boards::isInputCalibrated(Board::Type board, int index)
@@ -894,28 +905,4 @@ bool Boards::isInputPot(Board::Type board, int index)
 bool Boards::isInputStick(Board::Type board, int index)
 {
   return getBoardJson(board)->isInputStick(index);
-}
-
-int Boards::getInputIndex(Board::Type board, QString name)
-{
-  return getBoardJson(board)->getInputIndex(name);
-}
-
-int Boards::getSwitchIndex(Board::Type board, QString name)
-{
-  return getBoardJson(board)->getSwitchIndex(name);
-}
-
-QString Boards::getSwitchName(Board::Type board, int index)
-{
-  return getBoardJson(board)->getSwitchName(index);
-}
-
-// static
-QString Boards::getSwitchTag(Board::Type board, int index)
-{
-  if (index < 0 || index >= getCapability(board, Board::Switches))
-    return CPN_STR_UNKNOWN_ITEM;
-
-  return getBoardJson(board)->getSwitchName(index);
 }

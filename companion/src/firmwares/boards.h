@@ -233,17 +233,18 @@ namespace Board {
   struct InputInfo {
     InputInfo() :
       type(AIT_UNKNOWN),
+      tag(""),
       name(""),
-      label(""),
-      shortLabel(""),
+      shortName(""),
       flexType(FLEX_NONE),
       inverted(false)
     {}
 
     AnalogInputType type;
+    std::string tag;
     std::string name;
     std::string label;
-    std::string shortLabel;
+    std::string shortName;
     FlexType flexType;
     bool inverted;
   };
@@ -251,17 +252,20 @@ namespace Board {
   struct SwitchInfo {
     SwitchInfo() :
       type(SWITCH_NOT_AVAILABLE),
+      tag(""),
       name(""),
       inverted(false)
     {}
 
-    SwitchInfo(SwitchType type, std::string name) :
-      type(type),
-      name(name),
-      inverted(false)
-    {}
+//    SwitchInfo(SwitchType type, std::string tag, std::string name) :
+//      type(type),
+//      tag(tag)
+//      name(name),
+//      inverted(false)
+//    {}
 
     SwitchType type;
+    std::string tag;
     std::string name;
     bool inverted;
   };
@@ -312,10 +316,18 @@ class Boards
     static BoardJson* getBoardJson(Board::Type board);
 
     static int getInputsCalibrated(Board::Type board);
-    static int getInputIndex(Board::Type board, QString name);
+
+    static Board::InputInfo getInputInfo(Board::Type board, int index);
+    static int getInputIndex(Board::Type board, QString tag);
     static QString getInputName(Board::Type board, int index);
+    static int getInputPotIndex(Board::Type board, int index);
+    static int getInputSliderIndex(Board::Type board, int index);
     static QString getInputTag(Board::Type board, int index);
-    static int getSwitchIndex(Board::Type board, QString name);
+    static int getInputTagOffset(Board::Type board, QString tag);
+    static int getInputTypeOffset(Board::Type board, Board::AnalogInputType type);
+
+    static Board::SwitchInfo getSwitchInfo(Board::Type board, int index);
+    static int getSwitchIndex(Board::Type board, QString tag);
     static QString getSwitchName(Board::Type board, int index);
     static QString getSwitchTag(Board::Type board, int index);
 
@@ -323,16 +335,9 @@ class Boards
     static bool isInputConfigurable(Board::Type board, int index);
     static bool isInputPot(Board::Type board, int index);
     static bool isInputStick(Board::Type board, int index);
-    static Board::InputInfo getInputInfo(Board::Type board, int index);
-    static Board::SwitchInfo getSwitchInfo(Board::Type board, int index);
 
     static QString flexTypeToString(int value);
     static AbstractStaticItemModel * flexTypeItemModel();
-
-    static int getInputNameOffset(Board::Type board, QString name);
-    static int getInputTypeOffset(Board::Type board, Board::AnalogInputType type);
-    static int getInputPotIndex(Board::Type board, int index);
-    static int getInputSliderIndex(Board::Type board, int index);
 
   private:
 
