@@ -44,7 +44,6 @@ struct YamlSliderConfig {
   InputConfig sliderConfig[CPN_MAX_INPUTS];
 
   YamlSliderConfig() = default;
-  YamlSliderConfig(const GeneralSettings::InputConfig* rhs);
   void copy(GeneralSettings::InputConfig* rhs) const;
 };
 
@@ -93,7 +92,6 @@ struct convert<YamlPotConfig> {
 
 template <>
 struct convert<YamlSliderConfig> {
-  static Node encode(const YamlSliderConfig& rhs);
   static bool decode(const Node& node, YamlSliderConfig& rhs);
 };
 

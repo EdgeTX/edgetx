@@ -254,13 +254,7 @@ bool convert<YamlPotConfig>::decode(const Node& node, YamlPotConfig& rhs)
   return true;
 }
 
-Node convert<YamlSliderConfig>::encode(const YamlSliderConfig& rhs)
-{
-  //  legacy function should not be called
-  Node node;
-  return node;
-}
-
+//
 bool convert<YamlSliderConfig>::decode(const Node& node, YamlSliderConfig& rhs)
 {
   if (!node.IsMap()) return false;
