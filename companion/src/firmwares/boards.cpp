@@ -571,20 +571,6 @@ AbstractStaticItemModel * Boards::switchTypeItemModel()
   return mdl;
 }
 
-//  static
-StringTagMappingTable Boards::getSwitchesLookupTable(Board::Type board)
-{
-  StringTagMappingTable tbl;
-
-  for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
-    SwitchInfo si = Boards::getSwitchInfo(board, i);
-    if (si.type != SWITCH_NOT_AVAILABLE) //  safety check in case Switches does not align
-      tbl.insert(tbl.end(), si.name);
-  }
-
-  return tbl;
-}
-
 // static
 StringTagMappingTable Boards::getTrimSwitchesLookupTable(Board::Type board)
 {

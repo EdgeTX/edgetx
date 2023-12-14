@@ -122,6 +122,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
 
 RawSource YamlRawSourceDecode(const std::string& src_str)
 {
+  Board::Type board = getCurrentBoard();
   RawSource rhs;
   const char* val = src_str.data();
   size_t val_len = src_str.size();
@@ -138,16 +139,16 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              && val[1] >= 'A'
              && val[1] <= 'Z') {
 
-    int idx = getCurrentFirmware()->getSwitchesIndex(src_str.c_str());
+    int idx = Boards::getSwitchIndex(board, src_str.c_str());
     if (idx >= 0 && idx < CPN_MAX_SWITCHES) {
       rhs = RawSource(SOURCE_TYPE_SWITCH, idx);
 
-    } else if (IS_JUMPER_TPRO(getCurrentBoard())) {
-      int numSw = Boards::getCapability(getCurrentBoard(), Board::Switches);
+    } else if (IS_JUMPER_TPRO(board)) {
+      int numSw = Boards::getCapability(board, Board::Switches);
       idx = val[1] - 'A';
       idx -= numSw;
 
-      if(idx >= 0 and idx < Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
+      if(idx >= 0 and idx < Boards::getCapability(board, Board::FunctionSwitches)) {
         rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, idx);
       }
     }
@@ -155,7 +156,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              && val[0] == 'S'
              && val[1] == 'W'
              && (val[2] >= '1' && val[2] <= '6')
-             && Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
+             && Boards::getCapability(board, Board::FunctionSwitches)) {
     // Customisable switches
     int idx = val[2] - '1';
     rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, idx);

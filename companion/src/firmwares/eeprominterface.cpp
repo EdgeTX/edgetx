@@ -132,7 +132,6 @@ Firmware::Firmware(Firmware * base, const QString & id, const QString & name, Bo
   simulatorId(simulatorId),
   hwdefnId(hwdefnId),
   legacyAnalogsLookupTable(Boards::getLegacyAnalogsLookupTable(board)),
-  switchesLookupTable(Boards::getSwitchesLookupTable(board)),
   trimSwitchesLookupTable(Boards::getTrimSwitchesLookupTable(board)),
   trimSourcesLookupTable(Boards::getTrimSourcesLookupTable(board)),
   rawSwitchTypesLookupTable(RawSwitch::getRawSwitchTypesLookupTable()),

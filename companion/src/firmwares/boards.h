@@ -294,12 +294,9 @@ class Boards
     static uint32_t getFourCC(Board::Type board);
     static int getEEpromSize(Board::Type board);
     static int getFlashSize(Board::Type board);
-//    static Board::SwitchInfo getLegacySwitchInfo(Board::Type board, int index);
-    static StringTagMappingTable getSwitchesLookupTable(Board::Type board);
     static int getCapability(Board::Type board, Board::Capability capability);
     static QString getAxisName(int index);
     static StringTagMappingTable getLegacyAnalogsLookupTable(Board::Type board);
-//    static QString getAnalogInputName(Board::Type board, int index);
     static bool isBoardCompatible(Board::Type board1, Board::Type board2);
     static QString getBoardName(Board::Type board);
     static QString switchTypeToString(int value);
