@@ -33,6 +33,7 @@ static const YamlLookupTable spacemouseLut = {
 
 std::string YamlRawSourceEncode(const RawSource& rhs)
 {
+  Board::Type board = getCurrentBoard();
   std::string src_str;
   char c = 'A';
   switch (rhs.type) {
@@ -47,10 +48,10 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_STICK:
-      src_str = Boards::getInputTag(getCurrentBoard(), rhs.index).toStdString();
+      src_str = Boards::getInputTag(board, rhs.index).toStdString();
       break;
     case SOURCE_TYPE_TRIM:
-      src_str = getCurrentFirmware()->getTrimSourcesTag(rhs.index);
+      src_str = Boards::getTrimSourceTag(board, rhs.index);
       break;
     case SOURCE_TYPE_MIN:
       src_str += "MIN";
@@ -59,7 +60,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += "MAX";
       break;
     case SOURCE_TYPE_SWITCH:
-      src_str += Boards::getSwitchTag(getCurrentBoard(), rhs.index).toStdString();
+      src_str += Boards::getSwitchTag(board, rhs.index).toStdString();
       break;
     case SOURCE_TYPE_CUSTOM_SWITCH:
       src_str += "ls(";
@@ -67,7 +68,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_FUNCTIONSWITCH:
-      if (Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
+      if (Boards::getCapability(board, Board::FunctionSwitches)) {
         src_str += "SW";
         src_str += std::to_string(rhs.index + 1);
       }
@@ -273,13 +274,13 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
       ana_str = getCurrentFirmware()->getLegacyAnalogsName(ana_str.c_str());
 
-    int ana_idx = Boards::getInputIndex(getCurrentBoard(), ana_str.c_str());
+    int ana_idx = Boards::getInputIndex(board, ana_str.c_str());
     if (ana_idx >= 0) {
       rhs.type = SOURCE_TYPE_STICK;
       rhs.index = ana_idx;
     }
 
-    int trm_idx = getCurrentFirmware()->getTrimSourcesIndex(src_str.c_str());
+    int trm_idx = Boards::getTrimSourceIndex(board, src_str.c_str());
     if (trm_idx >= 0) {
       rhs.type = SOURCE_TYPE_TRIM;
       rhs.index = trm_idx;

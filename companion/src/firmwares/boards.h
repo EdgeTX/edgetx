@@ -328,6 +328,11 @@ class Boards
     static QString getSwitchName(Board::Type board, int index);
     static QString getSwitchTag(Board::Type board, int index);
 
+    static int getTrimSourceIndex(Board::Type board, const char * tag);
+    static std::string getTrimSourceTag(Board::Type board, int index);
+    static int getTrimSwitchIndex(Board::Type board, const char * tag);
+    static std::string getTrimSwitchTag(Board::Type board, int index);
+
     static bool isInputCalibrated(Board::Type board, int index);
     static bool isInputConfigurable(Board::Type board, int index);
     static bool isInputPot(Board::Type board, int index);

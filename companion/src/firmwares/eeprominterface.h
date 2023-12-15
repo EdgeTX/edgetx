@@ -422,8 +422,6 @@ class Firmware
     }
 
     STRINGTAGMAPPINGFUNCS(legacyAnalogsLookupTable, LegacyAnalogs);
-    STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitches);
-    STRINGTAGMAPPINGFUNCS(trimSourcesLookupTable, TrimSources);
     STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchTypes);
     STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialTypes);
     STRINGTAGMAPPINGFUNCS(rawSourceCyclicLookupTable, RawSourceCyclic);
@@ -445,8 +443,6 @@ class Firmware
 
     //  used by YAML encode and decode
     const StringTagMappingTable legacyAnalogsLookupTable; //  pre v2.10
-    const StringTagMappingTable trimSwitchesLookupTable;
-    const StringTagMappingTable trimSourcesLookupTable;
     const StringTagMappingTable rawSwitchTypesLookupTable;
     const StringTagMappingTable rawSourceSpecialTypesLookupTable;
     const StringTagMappingTable rawSourceCyclicLookupTable;

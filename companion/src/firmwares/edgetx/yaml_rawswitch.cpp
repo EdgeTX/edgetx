@@ -23,14 +23,13 @@
 
 std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 {
+  Board::Type board = getCurrentBoard();
   std::string sw_str;
   int32_t sval = rhs.index;
   if (rhs.index < 0) {
     sval = -sval;
     sw_str += "!";
   }
-
-  Board::Type board = getCurrentBoard();
 
   int multiposcnt = Boards::getCapability(board, Board::MultiposPotsPositions);
 
@@ -60,7 +59,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     break;
 
   case SWITCH_TYPE_TRIM:
-    sw_str += getCurrentFirmware()->getTrimSwitchesTag(sval - 1);
+    sw_str += Boards::getTrimSwitchTag(board, sval - 1);
     break;
 
   case SWITCH_TYPE_FLIGHT_MODE:
@@ -83,7 +82,6 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 {
   Board::Type board = getCurrentBoard();
-
   RawSwitch rhs;  // constructor sets to SWITCH_TYPE_NONE
   const char* val = sw_str.data();
   size_t val_len = sw_str.size();
@@ -137,7 +135,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 
   } else if (sw_str_tmp.substr(0, 4) == std::string("Trim")) {
 
-    int tsw_idx = getCurrentFirmware()->getTrimSwitchesIndex(sw_str_tmp.c_str());
+    int tsw_idx = Boards::getTrimSwitchIndex(board, sw_str_tmp.c_str());
     if (tsw_idx >= 0) {
       rhs.type = SWITCH_TYPE_TRIM;
       rhs.index = tsw_idx + 1;

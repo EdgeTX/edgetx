@@ -571,65 +571,70 @@ AbstractStaticItemModel * Boards::switchTypeItemModel()
   return mdl;
 }
 
-// static
-StringTagMappingTable Boards::getTrimSwitchesLookupTable(Board::Type board)
+static const StringTagMappingTable trimSwitchesLookupTable = {
+    {std::to_string(TRIM_SW_LH_DEC), "TrimRudLeft"},
+    {std::to_string(TRIM_SW_LH_INC), "TrimRudRight"},
+    {std::to_string(TRIM_SW_LV_DEC), "TrimEleDown"},
+    {std::to_string(TRIM_SW_LV_INC), "TrimEleUp"},
+    {std::to_string(TRIM_SW_RV_DEC), "TrimThrDown"},
+    {std::to_string(TRIM_SW_RV_INC), "TrimThrUp"},
+    {std::to_string(TRIM_SW_RH_DEC), "TrimAilLeft"},
+    {std::to_string(TRIM_SW_RH_INC), "TrimAilRight"},
+    {std::to_string(TRIM_SW_T5_DEC), "TrimT5Down"},
+    {std::to_string(TRIM_SW_T5_INC), "TrimT5Up"},
+    {std::to_string(TRIM_SW_T6_DEC), "TrimT6Down"},
+    {std::to_string(TRIM_SW_T6_INC), "TrimT6Up"},
+    {std::to_string(TRIM_SW_T7_INC), "TrimT7Up"},
+    {std::to_string(TRIM_SW_T7_DEC), "TrimT7Down"},
+    {std::to_string(TRIM_SW_T8_INC), "TrimT8Up"},
+    {std::to_string(TRIM_SW_T8_DEC), "TrimT8Down"},
+};
+
+int Boards::getTrimSwitchIndex(Board::Type board, const char * tag)
 {
-  StringTagMappingTable tbl;
+  int index = DataHelpers::getStringTagMappingIndex(trimSwitchesLookupTable, tag);
 
-  tbl.insert(tbl.end(), {
-                          {std::to_string(TRIM_SW_LH_DEC), "TrimRudLeft"},
-                          {std::to_string(TRIM_SW_LH_INC), "TrimRudRight"},
-                          {std::to_string(TRIM_SW_LV_DEC), "TrimEleDown"},
-                          {std::to_string(TRIM_SW_LV_INC), "TrimEleUp"},
-                          {std::to_string(TRIM_SW_RV_DEC), "TrimThrDown"},
-                          {std::to_string(TRIM_SW_RV_INC), "TrimThrUp"},
-                          {std::to_string(TRIM_SW_RH_DEC), "TrimAilLeft"},
-                          {std::to_string(TRIM_SW_RH_INC), "TrimAilRight"},
-                        });
+  if (index < 0 || index >= (getCapability(board, Board::NumTrims) * 2))
+    return -1;
 
-  if (getCapability(board, Board::NumTrims) > 4)
-    tbl.insert(tbl.end(), {
-                            {std::to_string(TRIM_SW_T5_DEC), "TrimT5Down"},
-                            {std::to_string(TRIM_SW_T5_INC), "TrimT5Up"},
-                            {std::to_string(TRIM_SW_T6_DEC), "TrimT6Down"},
-                            {std::to_string(TRIM_SW_T6_INC), "TrimT6Up"},
-                          });
-
-if (getCapability(board, Board::NumTrims) > 6)
-    tbl.insert(tbl.end(), {
-                            {std::to_string(TRIM_SW_T7_INC), "TrimT7Up"},
-                            {std::to_string(TRIM_SW_T7_DEC), "TrimT7Down"},
-                            {std::to_string(TRIM_SW_T8_INC), "TrimT8Up"},
-                            {std::to_string(TRIM_SW_T8_DEC), "TrimT8Down"},
-                          });
-
-  return tbl;
+  return index;
 }
 
-// static
-StringTagMappingTable Boards::getTrimSourcesLookupTable(Board::Type board)
+std::string Boards::getTrimSwitchTag(Board::Type board, int index)
 {
-  StringTagMappingTable tbl;
+  if (index < 0 || index >= (getCapability(board, Board::NumTrims) * 2))
+    return std::string();
 
-  tbl.insert(tbl.end(), {
-                          {std::to_string(TRIM_AXIS_LH), "TrimRud"},
-                          {std::to_string(TRIM_AXIS_LV), "TrimEle"},
-                          {std::to_string(TRIM_AXIS_RV), "TrimThr"},
-                          {std::to_string(TRIM_AXIS_RH), "TrimAil"},
-                        });
+  return DataHelpers::getStringTagMappingTag(trimSwitchesLookupTable, index);
+}
 
-  if (getCapability(board, Board::NumTrims) > 4)
-    tbl.insert(tbl.end(), {
-                            {std::to_string(TRIM_AXIS_T5), "TrimT5"},
-                            {std::to_string(TRIM_AXIS_T6), "TrimT6"},
-                          });
+static const StringTagMappingTable trimSourcesLookupTable = {
+    {std::to_string(TRIM_AXIS_LH), "TrimRud"},
+    {std::to_string(TRIM_AXIS_LV), "TrimEle"},
+    {std::to_string(TRIM_AXIS_RV), "TrimThr"},
+    {std::to_string(TRIM_AXIS_RH), "TrimAil"},
+    {std::to_string(TRIM_AXIS_T5), "TrimT5"},
+    {std::to_string(TRIM_AXIS_T6), "TrimT6"},
+    {std::to_string(TRIM_AXIS_T7), "TrimT7"},
+    {std::to_string(TRIM_AXIS_T8), "TrimT8"},
+};
 
-  if (getCapability(board, Board::NumTrims) > 6)
-    tbl.insert(tbl.end(), {
-                            {std::to_string(TRIM_AXIS_T7), "TrimT7"},
-                            {std::to_string(TRIM_AXIS_T8), "TrimT8"},
-                          });
-  return tbl;
+int Boards::getTrimSourceIndex(Board::Type board, const char * tag)
+{
+  int index = DataHelpers::getStringTagMappingIndex(trimSourcesLookupTable, tag);
+
+  if (index < 0 || index >= getCapability(board, Board::NumTrims))
+    return -1;
+
+  return index;
+}
+
+std::string Boards::getTrimSourceTag(Board::Type board, int index)
+{
+  if (index < 0 || index >= getCapability(board, Board::NumTrims))
+    return std::string();
+
+  return DataHelpers::getStringTagMappingTag(trimSourcesLookupTable, index);
 }
 
 QList<int> Boards::getSupportedInternalModules(Board::Type board)
