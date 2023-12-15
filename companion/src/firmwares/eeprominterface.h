@@ -416,11 +416,6 @@ class Firmware
       return getFirmwareForId(FIRMWARE_ID_PREFIX + flavour);
     }
 
-    const StringTagMappingTable* getAnalogIndexNamesLookupTable()
-    {
-      return &legacyAnalogsLookupTable;
-    }
-
     STRINGTAGMAPPINGFUNCS(legacyAnalogsLookupTable, LegacyAnalogs);
     STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchTypes);
     STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialTypes);

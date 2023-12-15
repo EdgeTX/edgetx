@@ -257,13 +257,6 @@ namespace Board {
       inverted(false)
     {}
 
-//    SwitchInfo(SwitchType type, std::string tag, std::string name) :
-//      type(type),
-//      tag(tag)
-//      name(name),
-//      inverted(false)
-//    {}
-
     SwitchType type;
     std::string tag;
     std::string name;
@@ -288,7 +281,6 @@ class Boards
     const int getFlashSize() const { return getFlashSize(m_boardType); }
     const Board::SwitchInfo getSwitchInfo(int index) const { return getSwitchInfo(m_boardType, index); }
     const int getCapability(Board::Capability capability) const { return getCapability(m_boardType, capability); }
-//    const QString getAnalogInputName(int index) const { return getAnalogInputName(m_boardType, index); }
     const bool isBoardCompatible(Board::Type board2) const { return isBoardCompatible(m_boardType, board2); }
 
     static uint32_t getFourCC(Board::Type board);
@@ -302,8 +294,6 @@ class Boards
     static QString switchTypeToString(int value);
     static AbstractStaticItemModel * switchTypeItemModel();
     static AbstractStaticItemModel * intModuleTypeItemModel();
-    static StringTagMappingTable getTrimSwitchesLookupTable(Board::Type board);
-    static StringTagMappingTable getTrimSourcesLookupTable(Board::Type board);
     static QList<int> getSupportedInternalModules(Board::Type board);
     static int getDefaultInternalModules(Board::Type board);
     static int getDefaultExternalModuleSize(Board::Type board);
