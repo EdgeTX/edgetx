@@ -130,11 +130,7 @@ Firmware::Firmware(Firmware * base, const QString & id, const QString & name, Bo
   eepromInterface(nullptr),
   downloadId(downloadId),
   simulatorId(simulatorId),
-  hwdefnId(hwdefnId),
-  legacyAnalogsLookupTable(Boards::getLegacyAnalogsLookupTable(board)),
-  rawSwitchTypesLookupTable(RawSwitch::getRawSwitchTypesLookupTable()),
-  rawSourceSpecialTypesLookupTable(RawSource::getSpecialTypesLookupTable()),
-  rawSourceCyclicLookupTable(RawSource::getCyclicLookupTable())
+  hwdefnId(hwdefnId)
 {
   gBoardFactories->registerBoard(board, hwdefnId);
 }

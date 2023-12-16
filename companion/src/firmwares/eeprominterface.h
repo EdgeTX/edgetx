@@ -416,11 +416,6 @@ class Firmware
       return getFirmwareForId(FIRMWARE_ID_PREFIX + flavour);
     }
 
-    STRINGTAGMAPPINGFUNCS(legacyAnalogsLookupTable, LegacyAnalogs);
-    STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchTypes);
-    STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialTypes);
-    STRINGTAGMAPPINGFUNCS(rawSourceCyclicLookupTable, RawSourceCyclic);
-
     const QString getDownloadId() { return getFirmwareBase()->downloadId.isEmpty() ? getFlavour() : getFirmwareBase()->downloadId; }
     const QString getSimulatorId() { return getFirmwareBase()->simulatorId.isEmpty() ? getId() : getFirmwareBase()->simulatorId; }
     const QString getHwDefnId() { return getFirmwareBase()->hwdefnId.isEmpty() ? getFlavour() : getFirmwareBase()->hwdefnId; }
@@ -435,12 +430,6 @@ class Firmware
     QString downloadId;
     QString simulatorId;
     QString hwdefnId;
-
-    //  used by YAML encode and decode
-    const StringTagMappingTable legacyAnalogsLookupTable; //  pre v2.10
-    const StringTagMappingTable rawSwitchTypesLookupTable;
-    const StringTagMappingTable rawSourceSpecialTypesLookupTable;
-    const StringTagMappingTable rawSourceCyclicLookupTable;
 
     QList<const char *> languages;
     //QList<const char *> ttslanguages;

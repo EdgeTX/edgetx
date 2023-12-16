@@ -240,7 +240,7 @@ bool convert<YamlPotConfig>::decode(const Node& node, YamlPotConfig& rhs)
     kv.first >> tag;
 
     if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
-      tag = getCurrentFirmware()->getLegacyAnalogsName(tag.c_str());
+      tag = Boards::getLegacyAnalogMappedInputTag(board, tag.c_str());
 
     int idx = Boards::getInputIndex(board, tag.c_str());
 

@@ -288,7 +288,6 @@ class Boards
     static int getFlashSize(Board::Type board);
     static int getCapability(Board::Type board, Board::Capability capability);
     static QString getAxisName(int index);
-    static StringTagMappingTable getLegacyAnalogsLookupTable(Board::Type board);
     static bool isBoardCompatible(Board::Type board1, Board::Type board2);
     static QString getBoardName(Board::Type board);
     static QString switchTypeToString(int value);
@@ -318,10 +317,11 @@ class Boards
     static QString getSwitchName(Board::Type board, int index);
     static QString getSwitchTag(Board::Type board, int index);
 
-    static int getTrimSourceIndex(Board::Type board, const char * tag);
-    static std::string getTrimSourceTag(Board::Type board, int index);
-    static int getTrimSwitchIndex(Board::Type board, const char * tag);
-    static std::string getTrimSwitchTag(Board::Type board, int index);
+    STRINGTAGMAPPINGFUNCS(trimSourcesLookupTable, TrimSource);
+    STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitch);
+    STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchType);
+    STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialType);
+    STRINGTAGMAPPINGFUNCS(rawSourceCyclicLookupTable, RawSourceCyclic);
 
     static bool isInputCalibrated(Board::Type board, int index);
     static bool isInputConfigurable(Board::Type board, int index);
@@ -331,10 +331,20 @@ class Boards
     static QString flexTypeToString(int value);
     static AbstractStaticItemModel * flexTypeItemModel();
 
+    static std::string getLegacyAnalogMappedInputTag(Board::Type board, const char * legacytag);
+
   private:
 
     Board::Type m_boardType = Board::BOARD_UNKNOWN;
     BoardJson* m_boardJson = nullptr;
+
+    const StringTagMappingTable trimSourcesLookupTable;
+    const StringTagMappingTable trimSwitchesLookupTable;
+    const StringTagMappingTable rawSwitchTypesLookupTable;
+    const StringTagMappingTable rawSourceSpecialTypesLookupTable;
+    const StringTagMappingTable rawSourceCyclicLookupTable;
+
+    static StringTagMappingTable getLegacyAnalogsLookupTable(Board::Type board);
 };
 
 // temporary aliases for transition period, use Boards class instead.
