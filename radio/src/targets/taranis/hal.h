@@ -2171,7 +2171,7 @@
 #endif
 
 // Serial Port
-#if (defined(PCBX7) && !defined(RADIO_ZORRO) && !defined(RADIO_TX12MK2)) && !defined(RADIO_BOXER) && !defined(RADIO_POCKET) || defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019)
+#if (defined(PCBX7) && !defined(AUX_SERIAL)) || defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019)
 #else
   #define HARDWARE_TRAINER_AUX_SERIAL
   #define AUX_SERIAL_GPIO                   GPIOB
