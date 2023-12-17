@@ -146,12 +146,12 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
 
   static const QString rotary[]  = { tr("REa"), tr("REb") };
 
-  if (index<0) {
+  if (index < 0) {
     return QString(CPN_STR_UNKNOWN_ITEM);
   }
 
   QString result;
-//  int genAryIdx = 0;
+
   switch (type) {
     case SOURCE_TYPE_NONE:
       return QString(CPN_STR_NONE_ITEM);
@@ -168,19 +168,10 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return tr("LUA%1%2").arg(index / 16 + 1).arg(QChar('a' + index % 16));
 
     case SOURCE_TYPE_STICK:
-      if (generalSettings) {
-        result = QString(generalSettings->inputConfig[index].name);
-//        if (isPot(&genAryIdx))
-//          result = QString(generalSettings->potName[genAryIdx]);
-//        else if (isSlider(&genAryIdx))
-//          result = QString(generalSettings->sliderName[genAryIdx]);
-//        else if (isStick(&genAryIdx))
-//          result = QString(generalSettings->stickName[genAryIdx]);
-      }
-
-      if (result.trimmed().isEmpty())
+      if (generalSettings)
+        result = QString(generalSettings->inputConfig[index].name).trimmed();
+      if (result.isEmpty())
         result = Boards::getInputName(board, index);
-
       return result;
 
     case SOURCE_TYPE_TRIM:
@@ -220,15 +211,16 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
 
     case SOURCE_TYPE_CH:
       if (model)
-        return model->limitData[index].nameToString(index);
-      else
+        result = QString(model->limitData[index].nameToString(index)).trimmed();
+      if (result.isEmpty())
         return LimitData().nameToString(index);
+      return result;
 
     case SOURCE_TYPE_SPECIAL:
       if (index >= SOURCE_TYPE_SPECIAL_FIRST_TIMER && index <= SOURCE_TYPE_SPECIAL_LAST_TIMER) {
         if (model)
-          result = model->timers[index - SOURCE_TYPE_SPECIAL_FIRST_TIMER].nameToString(index - SOURCE_TYPE_SPECIAL_FIRST_TIMER);
-        else
+          result = QString(model->timers[index - SOURCE_TYPE_SPECIAL_FIRST_TIMER].nameToString(index - SOURCE_TYPE_SPECIAL_FIRST_TIMER)).trimmed();
+        if (result.isEmpty())
           result = TimerData().nameToString(index - SOURCE_TYPE_SPECIAL_FIRST_TIMER);
       }
       else
@@ -240,8 +232,8 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       {
         div_t qr = div(index, 3);
         if (model)
-          result = model->sensorData[qr.quot].nameToString(qr.quot);
-        else
+          result = QString(model->sensorData[qr.quot].nameToString(qr.quot)).trimmed();
+        if (result.isEmpty())
           result = SensorData().nameToString(qr.quot);
         if (qr.rem)
           result += (qr.rem == 1 ? "-" : "+");
@@ -250,9 +242,10 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
 
     case SOURCE_TYPE_GVAR:
       if (model)
-        return model->gvarData[index].nameToString(index);
-      else
-        return GVarData().nameToString(index);
+        result = QString(model->gvarData[index].nameToString(index)).trimmed();
+      if (result.isEmpty())
+        result = GVarData().nameToString(index);
+      return result;
 
     case SOURCE_TYPE_SPACEMOUSE:
       return tr("sm%1").arg(QChar('A' + index));
@@ -262,46 +255,12 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   }
 }
 
-bool RawSource::isStick(int * stickIndex, Board::Type board) const
+bool RawSource::isStick(Board::Type board) const
 {
   if (board == Board::BOARD_UNKNOWN)
     board = getCurrentBoard();
 
   if (type == SOURCE_TYPE_STICK && index < Boards::getCapability(board, Board::Sticks)) {
-    if (stickIndex)
-      *stickIndex = index;
-    return true;
-  }
-  return false;
-}
-
-bool RawSource::isPot(int * potsIndex, Board::Type board) const
-{
-  if (board == Board::BOARD_UNKNOWN)
-    board = getCurrentBoard();
-
-  Boards b(board);
-  if (type == SOURCE_TYPE_STICK &&
-          index >= b.getCapability(Board::Sticks) &&
-          index < b.getCapability(Board::Sticks) + b.getCapability(Board::Pots)) {
-    if (potsIndex)
-      *potsIndex = index - b.getCapability(Board::Sticks);
-    return true;
-  }
-  return false;
-}
-
-bool RawSource::isSlider(int * sliderIndex, Board::Type board) const
-{
-  if (board == Board::BOARD_UNKNOWN)
-    board = getCurrentBoard();
-
-  Boards b(board);
-  if (type == SOURCE_TYPE_STICK &&
-          index >= b.getCapability(Board::Sticks) + b.getCapability(Board::Pots) &&
-          index < b.getCapability(Board::Sticks) + b.getCapability(Board::Pots) + b.getCapability(Board::Sliders)) {
-    if (sliderIndex)
-      *sliderIndex = index - b.getCapability(Board::Sticks) - b.getCapability(Board::Pots);
     return true;
   }
   return false;
@@ -361,8 +320,6 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
 
   if (gs) {
     if (type == SOURCE_TYPE_STICK && !gs->isInputAvailable(index))
-//    int gsIdx = 0;
-//    if (type == SOURCE_TYPE_STICK && ((isPot(&gsIdx) && !gs->isPotAvailable(gsIdx)) || (isSlider(&gsIdx) && !gs->isSliderAvailable(gsIdx))))
       return false;
 
     if (type == SOURCE_TYPE_SWITCH && IS_HORUS_OR_TARANIS(board) && !gs->switchSourceAllowedTaranis(index))
@@ -443,7 +400,7 @@ QStringList RawSource::getStickList(Board::Type board) const
 {
   QStringList ret;
 
-  for (int i = 0; i < Boards::getCapability(board, Board::MaxAnalogs); i++) {
+  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
     ret.append(Boards::getInputInfo(board, i).name.c_str());
   }
   return ret;
