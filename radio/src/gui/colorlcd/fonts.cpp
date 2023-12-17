@@ -87,103 +87,99 @@ void decompressFont(int idx)
              etxFont->cmap_num * sizeof(lv_font_fmt_txt_cmap_t);
   if (etxFont->kern_classes) size += sizeof(lv_font_fmt_txt_kern_classes_t);
 
-  uint8_t* data = (uint8_t*)malloc(size);
-  if (data) {
-    memset(data, 0, size);
-    // Pointer to next free area in data block
-    uint8_t* next = data;
+  // Init SDRAM buffer
+  uint8_t* data = etxFont->lvglFontBuf;
+  memset(data, 0, etxFont->lvglFontBufSize);
 
-    // 'Create' lv_font_t structure
-    lv_font_t* lvglFont = (lv_font_t*)next;
-    next += sizeof(lv_font_t);
+  // Pointer to next free area in data block
+  uint8_t* next = data;
 
-    // 'Create' lv_font_fmt_txt_dsc_t structure
-    lv_font_fmt_txt_dsc_t* lvglFontDsc = (lv_font_fmt_txt_dsc_t*)next;
-    next += sizeof(lv_font_fmt_txt_dsc_t);
+  // 'Create' lv_font_t structure
+  lv_font_t* lvglFont = (lv_font_t*)next;
+  next += sizeof(lv_font_t);
 
-    // 'Create' lv_font_fmt_txt_glyph_cache_t structure
-    lv_font_fmt_txt_glyph_cache_t* lvglCache =
-        (lv_font_fmt_txt_glyph_cache_t*)next;
-    next += sizeof(lv_font_fmt_txt_glyph_cache_t);
+  // 'Create' lv_font_fmt_txt_dsc_t structure
+  lv_font_fmt_txt_dsc_t* lvglFontDsc = (lv_font_fmt_txt_dsc_t*)next;
+  next += sizeof(lv_font_fmt_txt_dsc_t);
 
-    // 'Create' lv_font_fmt_txt_kern_classes_t structure (optional)
-    lv_font_fmt_txt_kern_classes_t* lvglKernClasses = nullptr;
-    if (etxFont->kern_classes) {
-      lvglKernClasses = (lv_font_fmt_txt_kern_classes_t*)next;
-      next += sizeof(lv_font_fmt_txt_kern_classes_t);
-    }
+  // 'Create' lv_font_fmt_txt_glyph_cache_t structure
+  lv_font_fmt_txt_glyph_cache_t* lvglCache =
+      (lv_font_fmt_txt_glyph_cache_t*)next;
+  next += sizeof(lv_font_fmt_txt_glyph_cache_t);
 
-    // 'Create' lv_font_fmt_txt_cmap_t structure array
-    lv_font_fmt_txt_cmap_t* lvglCmaps = (lv_font_fmt_txt_cmap_t*)next;
-    next += sizeof(lv_font_fmt_txt_cmap_t) * etxFont->cmap_num;
-
-    // Decompress the compressed data into the remaining space
-    // 'next' is now the start of the uncompressed data
-    LZ4_decompress_safe((const char*)etxFont->compressed, (char*)next,
-                        etxFont->comp_size, etxFont->uncomp_size);
-
-    // Rebuild the lv_font_t structure
-    // Relocate pointers
-    lvglFont->get_glyph_dsc = lv_font_get_glyph_dsc_fmt_txt;
-    lvglFont->get_glyph_bitmap = lv_font_get_bitmap_fmt_txt;
-    lvglFont->dsc = lvglFontDsc;
-    // Fill in other properties
-    lvglFont->line_height = etxFont->line_height;
-    lvglFont->base_line = etxFont->base_line;
-    lvglFont->subpx = etxFont->subpx;
-    lvglFont->underline_position = etxFont->underline_position;
-    lvglFont->underline_thickness = etxFont->underline_thickness;
-
-    // Rebuild the lv_font_fmt_txt_dsc_t structure
-    // Relocate pointers
-    lvglFontDsc->glyph_bitmap = &next[etxFont->glyph_bitmap];
-    lvglFontDsc->glyph_dsc = (lv_font_fmt_txt_glyph_dsc_t*)&next[0];
-    lvglFontDsc->cmaps = lvglCmaps;
-    lvglFontDsc->kern_dsc = lvglKernClasses;
-    lvglFontDsc->kern_classes = etxFont->kern_classes;
-    lvglFontDsc->bitmap_format = etxFont->bitmap_format;
-    lvglFontDsc->cache = lvglCache;
-    // Fill in other properties
-    lvglFontDsc->kern_scale = etxFont->kern_scale;
-    lvglFontDsc->cmap_num = etxFont->cmap_num;
-    lvglFontDsc->bpp = etxFont->bpp;
-
-    // Rebuild the lv_font_fmt_txt_kern_classes_t structure
-    if (etxFont->kern_classes) {
-      // Relocate pointers
-      lvglKernClasses->class_pair_values =
-          (int8_t*)&next[etxFont->class_pair_values];
-      lvglKernClasses->left_class_mapping = &next[etxFont->left_class_mapping];
-      lvglKernClasses->right_class_mapping =
-          &next[etxFont->right_class_mapping];
-      // Fill in other properties
-      lvglKernClasses->left_class_cnt = etxFont->left_class_cnt;
-      lvglKernClasses->right_class_cnt = etxFont->right_class_cnt;
-    }
-
-    // Rebuild the lv_font_t lv_font_fmt_txt_cmap_t structure array
-    for (int i = 0; i < etxFont->cmap_num; i += 1) {
-      // Relocate pointers
-      if (etxFont->cmaps[i].unicode_list)
-        lvglCmaps[i].unicode_list =
-            (uint16_t*)&next[etxFont->cmaps[i].unicode_list];
-      if (etxFont->cmaps[i].glyph_id_ofs_list)
-        lvglCmaps[i].glyph_id_ofs_list =
-            &next[etxFont->cmaps[i].glyph_id_ofs_list];
-      // Fill in other properties
-      lvglCmaps[i].range_start = etxFont->cmaps[i].range_start;
-      lvglCmaps[i].range_length = etxFont->cmaps[i].range_length;
-      lvglCmaps[i].glyph_id_start = etxFont->cmaps[i].glyph_id_start;
-      lvglCmaps[i].list_length = etxFont->cmaps[i].list_length;
-      lvglCmaps[i].type = etxFont->cmaps[i].type;
-    }
-
-    // Save LVGL font to lookup array
-    lvglFontTable[idx] = lvglFont;
-  } else {
-    TRACE("No memory to decompress font %d", idx);
-    lvglFontTable[idx] = lvglFontTable[0];
+  // 'Create' lv_font_fmt_txt_kern_classes_t structure (optional)
+  lv_font_fmt_txt_kern_classes_t* lvglKernClasses = nullptr;
+  if (etxFont->kern_classes) {
+    lvglKernClasses = (lv_font_fmt_txt_kern_classes_t*)next;
+    next += sizeof(lv_font_fmt_txt_kern_classes_t);
   }
+
+  // 'Create' lv_font_fmt_txt_cmap_t structure array
+  lv_font_fmt_txt_cmap_t* lvglCmaps = (lv_font_fmt_txt_cmap_t*)next;
+  next += sizeof(lv_font_fmt_txt_cmap_t) * etxFont->cmap_num;
+
+  // Decompress the compressed data into the remaining space
+  // 'next' is now the start of the uncompressed data
+  LZ4_decompress_safe((const char*)etxFont->compressed, (char*)next,
+                      etxFont->comp_size, etxFont->uncomp_size);
+
+  // Rebuild the lv_font_t structure
+  // Relocate pointers
+  lvglFont->get_glyph_dsc = lv_font_get_glyph_dsc_fmt_txt;
+  lvglFont->get_glyph_bitmap = lv_font_get_bitmap_fmt_txt;
+  lvglFont->dsc = lvglFontDsc;
+  // Fill in other properties
+  lvglFont->line_height = etxFont->line_height;
+  lvglFont->base_line = etxFont->base_line;
+  lvglFont->subpx = etxFont->subpx;
+  lvglFont->underline_position = etxFont->underline_position;
+  lvglFont->underline_thickness = etxFont->underline_thickness;
+
+  // Rebuild the lv_font_fmt_txt_dsc_t structure
+  // Relocate pointers
+  lvglFontDsc->glyph_bitmap = &next[etxFont->glyph_bitmap];
+  lvglFontDsc->glyph_dsc = (lv_font_fmt_txt_glyph_dsc_t*)&next[0];
+  lvglFontDsc->cmaps = lvglCmaps;
+  lvglFontDsc->kern_dsc = lvglKernClasses;
+  lvglFontDsc->kern_classes = etxFont->kern_classes;
+  lvglFontDsc->bitmap_format = etxFont->bitmap_format;
+  lvglFontDsc->cache = lvglCache;
+  // Fill in other properties
+  lvglFontDsc->kern_scale = etxFont->kern_scale;
+  lvglFontDsc->cmap_num = etxFont->cmap_num;
+  lvglFontDsc->bpp = etxFont->bpp;
+
+  // Rebuild the lv_font_fmt_txt_kern_classes_t structure
+  if (etxFont->kern_classes) {
+    // Relocate pointers
+    lvglKernClasses->class_pair_values =
+        (int8_t*)&next[etxFont->class_pair_values];
+    lvglKernClasses->left_class_mapping = &next[etxFont->left_class_mapping];
+    lvglKernClasses->right_class_mapping = &next[etxFont->right_class_mapping];
+    // Fill in other properties
+    lvglKernClasses->left_class_cnt = etxFont->left_class_cnt;
+    lvglKernClasses->right_class_cnt = etxFont->right_class_cnt;
+  }
+
+  // Rebuild the lv_font_t lv_font_fmt_txt_cmap_t structure array
+  for (int i = 0; i < etxFont->cmap_num; i += 1) {
+    // Relocate pointers
+    if (etxFont->cmaps[i].unicode_list)
+      lvglCmaps[i].unicode_list =
+          (uint16_t*)&next[etxFont->cmaps[i].unicode_list];
+    if (etxFont->cmaps[i].glyph_id_ofs_list)
+      lvglCmaps[i].glyph_id_ofs_list =
+          &next[etxFont->cmaps[i].glyph_id_ofs_list];
+    // Fill in other properties
+    lvglCmaps[i].range_start = etxFont->cmaps[i].range_start;
+    lvglCmaps[i].range_length = etxFont->cmaps[i].range_length;
+    lvglCmaps[i].glyph_id_start = etxFont->cmaps[i].glyph_id_start;
+    lvglCmaps[i].list_length = etxFont->cmaps[i].list_length;
+    lvglCmaps[i].type = etxFont->cmaps[i].type;
+  }
+
+  // Save LVGL font to lookup array
+  lvglFontTable[idx] = lvglFont;
 }
 
 #endif  // BOOT

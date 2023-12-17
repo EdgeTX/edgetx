@@ -1,3 +1,4 @@
+#include "definitions.h"
 #include "lz4_fonts.h"
 
 static const uint8_t lz4FontData[] ={
@@ -1152,6 +1153,8 @@ static const etxFontCmap cmaps[] = {
 { .range_start = 176, .range_length = 1, .glyph_id_start = 96, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 };
 
+static uint8_t etxUncompBuf[63281] __SDRAM;
+
 const etxLz4Font lv_font_roboto_bold_64 = {
 .uncomp_size = 63081,
 .comp_size = 18295,
@@ -1173,4 +1176,6 @@ const etxLz4Font lv_font_roboto_bold_64 = {
 .right_class_mapping = 62984,
 .cmaps = cmaps,
 .compressed = lz4FontData,
+.lvglFontBuf = etxUncompBuf,
+.lvglFontBufSize = 63281,
 };
