@@ -34,7 +34,7 @@ static const YamlLookupTable spacemouseLut = {
 std::string YamlRawSourceEncode(const RawSource& rhs)
 {
   Board::Type board = getCurrentBoard();
-  Boards bds = Boards(board);
+  Boards b = Boards(board);
   std::string src_str;
   char c = 'A';
   switch (rhs.type) {
@@ -52,7 +52,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str = Boards::getInputTag(board, rhs.index).toStdString();
       break;
     case SOURCE_TYPE_TRIM:
-      src_str = bds.getTrimSourceTag(rhs.index);
+      src_str = b.getTrimSourceTag(rhs.index);
       break;
     case SOURCE_TYPE_MIN:
       src_str += "MIN";
@@ -75,7 +75,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       }
       break;
     case SOURCE_TYPE_CYC:
-      src_str = bds.getRawSourceCyclicTag(rhs.index);
+      src_str = b.getRawSourceCyclicTag(rhs.index);
       break;
     case SOURCE_TYPE_PPM:
       src_str += "tr(";
@@ -93,7 +93,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_SPECIAL:
-      src_str = bds.getRawSourceSpecialTypeTag(rhs.index);
+      src_str = b.getRawSourceSpecialTypeTag(rhs.index);
       break;
     case SOURCE_TYPE_TELEMETRY:
       src_str = "tele(";
@@ -125,7 +125,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
 RawSource YamlRawSourceDecode(const std::string& src_str)
 {
   Board::Type board = getCurrentBoard();
-  Boards bds = Boards(board);
+  Boards b = Boards(board);
   RawSource rhs;
   const char* val = src_str.data();
   size_t val_len = src_str.size();
@@ -282,13 +282,13 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
       rhs.index = ana_idx;
     }
 
-    int trm_idx = bds.getTrimSourceIndex(src_str.c_str());
+    int trm_idx = b.getTrimSourceIndex(src_str.c_str());
     if (trm_idx >= 0) {
       rhs.type = SOURCE_TYPE_TRIM;
       rhs.index = trm_idx;
     }
 
-    int cyc_idx = bds.getRawSourceCyclicIndex(src_str.c_str());
+    int cyc_idx = b.getRawSourceCyclicIndex(src_str.c_str());
     if (cyc_idx >= 0) {
       rhs.type = SOURCE_TYPE_CYC;
       rhs.index = cyc_idx;
@@ -310,7 +310,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
       }
     }
 
-    int sp_idx = bds.getRawSourceSpecialTypeIndex(special_str.c_str());
+    int sp_idx = b.getRawSourceSpecialTypeIndex(special_str.c_str());
     if (sp_idx >= 0) {
       rhs.type = SOURCE_TYPE_SPECIAL;
       rhs.index = sp_idx;
