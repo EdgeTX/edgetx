@@ -74,7 +74,9 @@ typedef struct {
     uint32_t left_class_mapping;        // lv_font_fmt_txt_kern_classes_t.left_class_mapping
     uint32_t right_class_mapping;       // lv_font_fmt_txt_kern_classes_t.right_class_mapping
 
-    // Pointers to cmaps and compressed data
+    // Pointers to cmaps, compressed data and buffer for uncompressed data
     const etxFontCmap* cmaps;
     const uint8_t* compressed;
+    uint8_t* lvglFontBuf;
+    uint32_t lvglFontBufSize;
 } etxLz4Font;

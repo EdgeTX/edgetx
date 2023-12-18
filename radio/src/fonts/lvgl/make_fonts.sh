@@ -116,10 +116,10 @@ function make_font_set() {
   make_font_lz4 "${name}" "${ttf_normal}" 9 ${chars} --no-compress
   make_font_lz4 "${name}" "${ttf_normal}" 13 ${chars} --no-compress
   make_font "${name}" "${ttf_normal}" 16 ${chars} --no-compress
-  make_font_lz4 "${name}_bold" "${ttf_bold}" 16 ${chars}
-  make_font_w_extra_sym "${name}" "${ttf_normal}" 24 ${chars}
-  make_font_no_sym "${name}_bold" "${ttf_bold}" 32 ${chars}
-  make_font_no_sym "${name}_bold" "${ttf_bold}" 64
+  make_font_lz4 "${name}_bold" "${ttf_bold}" 16 ${chars} --no-compress
+  make_font_w_extra_sym "${name}" "${ttf_normal}" 24 ${chars} --no-compress
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 32 ${chars} --no-compress
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 64 "" --no-compress
 }
 
 # Regular fonts

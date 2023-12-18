@@ -1,3 +1,4 @@
+#include "definitions.h"
 #include "lz4_fonts.h"
 
 static const uint8_t lz4FontData[] ={
@@ -681,6 +682,8 @@ static const etxFontCmap cmaps[] = {
 { .range_start = 1105, .range_length = 62546, .glyph_id_start = 177, .list_length = 63, .type = 3, .unicode_list = 1920, .glyph_id_ofs_list = 0 },
 };
 
+static uint8_t etxUncompBuf[17343] __SDRAM;
+
 const etxLz4Font lv_font_arimo_ru_13 = {
 .uncomp_size = 16983,
 .comp_size = 10683,
@@ -702,4 +705,6 @@ const etxLz4Font lv_font_arimo_ru_13 = {
 .right_class_mapping = 16743,
 .cmaps = cmaps,
 .compressed = lz4FontData,
+.lvglFontBuf = etxUncompBuf,
+.lvglFontBufSize = 17343,
 };
