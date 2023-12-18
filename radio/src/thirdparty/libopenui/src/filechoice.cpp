@@ -17,23 +17,24 @@
  */
 
 #include "filechoice.h"
+
+#include <algorithm>
+
 #include "libopenui_file.h"
 #include "menu.h"
 #include "theme.h"
 #include "message_dialog.h"
 
-#include <algorithm>
-
 #if !defined(STR_SDCARD)
-  #define STR_SDCARD "SD"
+#define STR_SDCARD "SD"
 #endif
 
 #if !defined(STR_NO_FILES_ON_SD)
-  #define STR_NO_FILES_ON_SD "No files on SD Card!"
+#define STR_NO_FILES_ON_SD "No files on SD Card!"
 #endif
 
-FileChoice::FileChoice(Window* parent, const rect_t &rect,
-                       std::string folder, const char *extension, int maxlen,
+FileChoice::FileChoice(Window *parent, const rect_t &rect, std::string folder,
+                       const char *extension, int maxlen,
                        std::function<std::string()> getValue,
                        std::function<void(std::string)> setValue,
                        bool stripExtension) :
@@ -48,11 +49,7 @@ FileChoice::FileChoice(Window* parent, const rect_t &rect,
   lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
-std::string FileChoice::getLabelText()
-{
-  return getValue();
-}
-
+std::string FileChoice::getLabelText() { return getValue(); }
 
 bool FileChoice::openMenu()
 {
@@ -68,10 +65,11 @@ bool FileChoice::openMenu()
     for (;;) {
       res = sdReadDir(&dir, &fno, firstTime);
       if (res != FR_OK || fno.fname[0] == 0)
-        break;                             // break on error or end of dir
-      if (fno.fattrib & AM_DIR) continue;  // skip subfolders
-      if (fno.fattrib & AM_HID) continue;  // skip hidden files
-      if (fno.fattrib & AM_SYS) continue;  // skip system files
+        break;  // break on error or end of dir
+      if (fno.fattrib & (AM_HID | AM_SYS | AM_DIR))
+        continue;  // Ignore subfolders, hidden files and system files
+      if (fno.fname[0] == '.' && fno.fname[1] != '.')
+        continue;  // Ignore hidden files under UNIX, but not ..
 
       fnExt = getFileExtension(fno.fname, 0, 0, &fnLen, &extLen);
 
@@ -101,8 +99,8 @@ bool FileChoice::openMenu()
       std::string value = getValue();
       for (const auto &file : files) {
         menu->addLineBuffered(file, [=]() {
-            setValue(file);
-            lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+          setValue(file);
+          lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
         });
         // TRACE("%s %d %s %d", value.c_str(), value.size(), file.c_str(),
         // file.size());
@@ -132,7 +130,4 @@ bool FileChoice::openMenu()
   return false;
 }
 
-void FileChoice::onClicked()
-{
-  openMenu();
-}
+void FileChoice::onClicked() { openMenu(); }
