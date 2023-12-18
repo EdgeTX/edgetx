@@ -180,7 +180,7 @@
 #if defined(COLORLCD)
   #define TR_ROTARY_ENC_OPT         "標準","リバース"
 #else
-  #define TR_ROTARY_ENC_OPT         "標準","リバース","V-I H-N","V-I H-A","V-N-E-I"
+  #define TR_ROTARY_ENC_OPT         "標準","リバース","V-I H-N","V-I H-A","V-N E-I"
 #endif
 
 #if defined(IMU)

@@ -301,7 +301,8 @@ void OpenTxSimulator::rotaryEncoderEvent(int steps)
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
   static uint32_t last_tick = 0;
   if (steps != 0) {
-    if (g_eeGeneral.rotEncMode >= ROTARY_ENCODER_MODE_INVERT_BOTH) steps *= -1;
+    if (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_BOTH)
+      steps *= -1;
     rotencValue += steps * ROTARY_ENCODER_GRANULARITY;
     // TODO: set rotencDt
     uint32_t now = RTOS_GET_MS();

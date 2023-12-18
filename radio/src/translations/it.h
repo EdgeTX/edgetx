@@ -181,7 +181,7 @@
 #if defined(COLORLCD)
   #define TR_ROTARY_ENC_OPT            "Normale","Invertito"
 #else
-  #define TR_ROTARY_ENC_OPT            "Normale","Invertito","V-I H-N","V-I H-A","V-N-E-I"
+  #define TR_ROTARY_ENC_OPT            "Normale","Invertito","V-I H-N","V-I H-A","V-N E-I"
 #endif
 
 #if defined(IMU)
