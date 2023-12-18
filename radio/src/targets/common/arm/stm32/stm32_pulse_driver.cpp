@@ -302,12 +302,18 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
   // Enable TC IRQ
   LL_DMA_EnableIT_TC(tim->DMAx, tim->DMA_Stream);
 
-  // Reset counter
-  LL_TIM_SetCounter(tim->TIMx, 0x00);
-
-  // only on PWM (preloads the first period)
-  if (ocmode == LL_TIM_OCMODE_PWM1)
+  if (ocmode == LL_TIM_OCMODE_PWM1) {
+    // preloads first period for PWM)
+    LL_TIM_SetCounter(tim->TIMx, 0x00);
     LL_TIM_GenerateEvent_UPDATE(tim->TIMx);
+  } else {
+    // Reset counter close to overflow
+    if (IS_TIM_32B_COUNTER_INSTANCE(tim->TIMx)) {
+      LL_TIM_SetCounter(tim->TIMx, 0xFFFFFFFF);
+    } else {
+      LL_TIM_SetCounter(tim->TIMx, 0xFFFF);
+    }
+  }
 
   LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
   LL_DMA_EnableStream(tim->DMAx, tim->DMA_Stream);
