@@ -60,7 +60,6 @@ defined in linker script */
   .type  Reset_Handler, %function
 Reset_Handler:  
   ldr   sp, =_estack    /* set stack pointer */
-  bl pwrResetHandler    /* jump to soft power control as soon as possible */
 
 /* Copy the data segment initializers from flash to SRAM */
   ldr r0, =_sdata
@@ -78,6 +77,9 @@ LoopCopyDataInit:
   adds r4, r0, r3
   cmp r4, r1
   bcc CopyDataInit
+
+/* jump to soft power control as soon as possible */
+  bl pwrResetHandler
 
 /* Zero fill the bss segment. */  
   ldr  r2, =_sbss
