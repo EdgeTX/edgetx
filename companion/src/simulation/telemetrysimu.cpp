@@ -1388,13 +1388,13 @@ void TelemetrySimulator::on_loadTelemetryvalues_clicked()
 
 void TelemetrySimulator::on_GPSpushButton_clicked()
 {
-  if (ui->GPSpushButton->text() == "Run") {
-    ui->GPSpushButton->setText("Stop");
+  if (ui->GPSpushButton->text() == tr("Run")) {
+    ui->GPSpushButton->setText(tr("Stop"));
     gpsTimer.start();
   }
   else
   {
-    ui->GPSpushButton->setText("Run");
+    ui->GPSpushButton->setText(tr("Run"));
     gpsTimer.stop();
   }
 }
