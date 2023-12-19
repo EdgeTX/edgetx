@@ -61,7 +61,8 @@ bool GeneralSettings::isInputAvailable(int index) const
 
   const InputConfig &config = inputConfig[index];
 
-  return (config.type == Board::AIT_STICK || (config.type == Board::AIT_FLEX && config.flexType != Board::FLEX_NONE));
+  return (config.type == Board::AIT_STICK ||
+          (config.type == Board::AIT_FLEX && config.flexType != Board::FLEX_NONE));
 }
 
 bool GeneralSettings::isInputMultiPosPot(int index) const
@@ -345,10 +346,12 @@ void GeneralSettings::init()
 void GeneralSettings::setDefaultControlTypes(Board::Type board)
 {
   for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-    Board::InputInfo info =  Boards::getInputInfo(board, i);
-    inputConfig[i].type = info.type;
-    inputConfig[i].flexType = info.flexType;
-    inputConfig[i].inverted = info.inverted;
+    if (!Boards::isInputIgnored(board, i)) {
+      Board::InputInfo info =  Boards::getInputInfo(board, i);
+      inputConfig[i].type = info.type;
+      inputConfig[i].flexType = info.flexType;
+      inputConfig[i].inverted = info.inverted;
+    }
   }
 
   for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {

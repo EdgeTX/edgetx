@@ -156,7 +156,8 @@ namespace Board {
     FactoryInstalledSwitches,
     FlexInputs,
     FunctionSwitches,
-    GyroAnalogs,
+    Gyros,
+    GyroAxes,
     HasAudioMuteGPIO,
     HasColorLcd,
     HasExternalModuleSupport,
@@ -171,6 +172,7 @@ namespace Board {
     MaxAnalogs,
     Inputs,
     Joysticks,
+    JoystickAxes,
     MultiposPots,
     MultiposPotsPositions,
     NumFunctionSwitchesPositions,
@@ -211,7 +213,7 @@ namespace Board {
 
   enum AnalogInputType
   {
-    AIT_UNKNOWN = -1, // to align with getStringTagMappingIndex
+    AIT_NONE,
     AIT_STICK,
     AIT_FLEX,
     AIT_VBAT,
@@ -232,7 +234,7 @@ namespace Board {
 
   struct InputInfo {
     InputInfo() :
-      type(AIT_UNKNOWN),
+      type(AIT_NONE),
       tag(""),
       name(""),
       shortName(""),
@@ -323,8 +325,10 @@ class Boards
     STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialType);
     STRINGTAGMAPPINGFUNCS(rawSourceCyclicLookupTable, RawSourceCyclic);
 
+    static bool isInputAvailable(Board::Type board, int index);
     static bool isInputCalibrated(Board::Type board, int index);
     static bool isInputConfigurable(Board::Type board, int index);
+    static bool isInputIgnored(Board::Type board, int index);
     static bool isInputPot(Board::Type board, int index);
     static bool isInputStick(Board::Type board, int index);
 

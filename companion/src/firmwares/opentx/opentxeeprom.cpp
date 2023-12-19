@@ -196,7 +196,7 @@ inline int MAX_GYRO_ANALOGS(Board::Type board, int version)
       return 0;
   }
 
-  return Boards::getCapability(board, Board::GyroAnalogs);
+  return Boards::getCapability(board, Board::GyroAxes);
 }
 
 #define MAX_ROTARY_ENCODERS(board)            0

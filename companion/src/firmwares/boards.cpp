@@ -323,7 +323,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
 
     case MaxAnalogs:
       return getCapability(board, Board::Sticks) + getCapability(board, Board::Pots) + getCapability(board, Board::Sliders) +
-             getCapability(board, Board::Joysticks) + getCapability(board, Board::GyroAnalogs);
+             getCapability(board, Board::JoystickAxes) + getCapability(board, Board::GyroAxes);
 
     case MultiposPots:
       if (IS_HORUS_OR_TARANIS(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)))
@@ -374,21 +374,25 @@ QString Boards::getAxisName(int index)
     return CPN_STR_UNKNOWN_ITEM;
 }
 
-// mapping json name (1st entry) to legacy tag (2nd entry)
-// json name then used to find inputs index
+// mapping json tag (1st entry) to legacy tag (2nd entry)
+// json tag then used to find inputs index
 // only used to decode pre v2.10 yaml configs
 StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board)
 {
-  StringTagMappingTable tbl;
-
-  if (getBoardCapability(board, Board::Sticks)) {
-    tbl.insert(tbl.end(), {
+  StringTagMappingTable tbl = {
                               {tr("LH").toStdString(), "Rud"},
                               {tr("LV").toStdString(), "Ele"},
                               {tr("RH").toStdString(), "Thr"},
                               {tr("RV").toStdString(), "Ail"},
-                          });
-  }
+                              {tr("JSx").toStdString(), "MOUSE1"},
+                              {tr("JSy").toStdString(), "MOUSE2"},
+                              {tr("JSx").toStdString(), "JSx"},
+                              {tr("JSy").toStdString(), "JSy"},
+                              {tr("TILT_X").toStdString(), "TILT_X"},
+                              {tr("TILT_Y").toStdString(), "TILT_Y"},
+                              {tr("TILT_X").toStdString(), "GYRO1"},
+                              {tr("TILT_Y").toStdString(), "GYRO2"},
+  };
 
   if (IS_TARANIS_X9LITE(board)) {
     tbl.insert(tbl.end(), {
@@ -410,8 +414,6 @@ StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board)
     tbl.insert(tbl.end(), {
                               {tr("P1").toStdString(), "POT1"},
                               {tr("P2").toStdString(), "POT2"},
-                              {tr("TILT_X").toStdString(), "TILT_X"},
-                              {tr("TILT_Y").toStdString(), "TILT_Y"},
                           });
   } else if (IS_RADIOMASTER_BOXER(board)) {
     tbl.insert(tbl.end(), {
@@ -445,10 +447,6 @@ StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board)
                               {tr("P5").toStdString(), "S4"},
                               {tr("SL1").toStdString(), "LS"},
                               {tr("SL2").toStdString(), "RS"},
-                              {tr("JSx").toStdString(), "MOUSE1"},
-                              {tr("JSy").toStdString(), "MOUSE2"},
-                              {tr("TILT_X").toStdString(), "TILT_X"},
-                              {tr("TILT_Y").toStdString(), "TILT_Y"},
                           });
   } else if (IS_FLYSKY_PL18(board)) {
     tbl.insert(tbl.end(), {
@@ -469,10 +467,6 @@ StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board)
                               {tr("EXT4").toStdString(), "EXT4"},
                               {tr("SL1").toStdString(), "LS"},
                               {tr("SL2").toStdString(), "RS"},
-                              {tr("JSx").toStdString(), "MOUSE1"},
-                              {tr("JSy").toStdString(), "MOUSE2"},
-                              {tr("TILT_X").toStdString(), "TILT_X"},
-                              {tr("TILT_Y").toStdString(), "TILT_Y"},
                           });
   } else if (IS_JUMPER_T20(board)) {
       tbl.insert(tbl.end(), {
@@ -852,6 +846,11 @@ QString Boards::getSwitchTag(Board::Type board, int index)
   return getBoardJson(board)->getSwitchTag(index);
 }
 
+bool Boards::isInputAvailable(Board::Type board, int index)
+{
+  return getBoardJson(board)->isInputAvailable(index);
+}
+
 bool Boards::isInputCalibrated(Board::Type board, int index)
 {
   return getBoardJson(board)->isInputCalibrated(index);
@@ -860,6 +859,11 @@ bool Boards::isInputCalibrated(Board::Type board, int index)
 bool Boards::isInputConfigurable(Board::Type board, int index)
 {
   return getBoardJson(board)->isInputConfigurable(index);
+}
+
+bool Boards::isInputIgnored(Board::Type board, int index)
+{
+  return getBoardJson(board)->isInputIgnored(index);
 }
 
 bool Boards::isInputPot(Board::Type board, int index)

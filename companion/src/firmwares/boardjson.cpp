@@ -26,6 +26,7 @@
 #include <QMessageBox>
 
 static const StringTagMappingTable inputTypesLookupTable = {
+    {std::to_string(Board::AIT_NONE),    "NONE"},
     {std::to_string(Board::AIT_STICK),   "STICK"},
     {std::to_string(Board::AIT_FLEX),    "FLEX"},
     {std::to_string(Board::AIT_VBAT),    "VBAT"},
@@ -59,14 +60,14 @@ BoardJson::BoardJson(Board::Type board, QString hwdefn) :
   m_trims(new TrimsTable),
   m_flexCnt(0),
   m_funcSwitchesCnt(0),
-  m_gyrosCnt(0),
-  m_joysticksCnt(0),
+  m_gyroAxesCnt(0),
+  m_joystickAxesCnt(0),
   m_potsCnt(0),
   m_slidersCnt(0),
   m_sticksCnt(0),
   m_switchesCnt(0),
-  m_rtcbat(false),
-  m_vbat(false)
+  m_rtcbatCnt(0),
+  m_vbatCnt(0)
 {
 
 }
@@ -79,37 +80,10 @@ BoardJson::~BoardJson()
 }
 
 // static
-void BoardJson::addJoysticksGyros(Board::Type board, InputsTable * inputs)
+void BoardJson::addGyroAxes(Board::Type board, InputsTable * inputs)
 {
-  // TODO which is to be trusted as they are not the same as Horis X12S json is only one with JSx & JSy!!!!!
-  // if compiler directive then use better to use firmware options
-  // from old Boards::getCapability - use this until decision
-  if (IS_FAMILY_HORUS_OR_T16(board)) {
-    if (getInputIndex(inputs, "JSx") < 0) {
-      InputDefn defn;
-      defn.type = AIT_FLEX;
-      defn.tag = "JSx";
-      defn.name = "JSx";
-      defn.shortName = "X";
-      defn.flexType = FLEX_AXIS_X;
-      defn.inverted = false;
-      inputs->insert(inputs->end(), defn);
-    }
-
-    if (getInputIndex(inputs, "JSy") < 0) {
-      InputDefn defn;
-      defn.type = AIT_FLEX;
-      defn.tag = "JSy";
-      defn.name = "JSy";
-      defn.shortName = "Y";
-      defn.flexType = FLEX_AXIS_Y;
-      defn.inverted = false;
-      inputs->insert(inputs->end(), defn);
-    }
-  }
   // TODO json files do not contain gyro defs
-  // if compiler directive then use better to use firmware options
-  // from old Boards::getCapability - use this until decision
+  // Radio cmake directive IMU is currently used
   if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board)) {
     if (getInputIndex(inputs, "TILT_X") < 0) {
       InputDefn defn;
@@ -145,20 +119,20 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::FunctionSwitches:
       return m_funcSwitchesCnt;
 
-    case GyroAnalogs:
-      return m_gyrosCnt;
+    case GyroAxes:
+      return m_gyroAxesCnt;
+
+    case Gyros:
+      return getCapability(Board::GyroAxes) / 2;
 
     case HasRTC:
-      return m_rtcbat;
+      return m_rtcbatCnt;
 
     case HasVBat:
-      return m_vbat;
+      return m_vbatCnt;
 
     case Board::Inputs:
       return m_inputs->size();
-
-    case Joysticks:
-      return m_joysticksCnt;
 
     case Board::NumTrims:
       return m_trims->size();
@@ -377,6 +351,18 @@ Board::SwitchInfo BoardJson::getSwitchInfo(const SwitchesTable * switches, int i
   return info;
 }
 
+const bool BoardJson::isInputAvailable(int index) const
+{
+  return isInputAvailable(m_inputs->at(index));
+}
+
+// static
+bool BoardJson::isInputAvailable(const InputDefn & defn)
+{
+  return (defn.type == Board::AIT_STICK ||
+          (defn.type == Board::AIT_FLEX && defn.flexType != Board::FLEX_NONE && !isJoystickAxis(defn)));
+}
+
 const bool BoardJson::isInputCalibrated(int index) const
 {
   return isInputCalibrated(m_inputs->at(index));
@@ -385,8 +371,7 @@ const bool BoardJson::isInputCalibrated(int index) const
 // static
 bool BoardJson::isInputCalibrated(const InputDefn & defn)
 {
-  return ((defn.type == Board::AIT_STICK ||
-          (defn.type == Board::AIT_FLEX && defn.flexType > Board::FLEX_NONE && defn.flexType < Board::FLEX_AXIS_X)));
+  return (isStick(defn) || isPot(defn) || isSlider(defn));
 }
 
 const bool BoardJson::isInputConfigurable(int index) const
@@ -397,7 +382,18 @@ const bool BoardJson::isInputConfigurable(int index) const
 // static
 bool BoardJson::isInputConfigurable(const InputDefn & defn)
 {
-  return isStick(defn) || isPot(defn) || isSlider(defn);
+  return (isStick(defn) || isPot(defn) || isSlider(defn));
+}
+
+const bool BoardJson::isInputIgnored(int index) const
+{
+  return isInputIgnored(m_inputs->at(index));
+}
+
+// static
+bool BoardJson::isInputIgnored(const InputDefn & defn)
+{
+  return isJoystickAxis(defn);
 }
 
 const bool BoardJson::isInputPot(int index) const
@@ -414,6 +410,38 @@ const bool BoardJson::isInputStick(int index) const
 bool BoardJson::isFlex(const InputDefn & defn)
 {
   return defn.type == Board::AIT_FLEX;
+}
+
+// static
+bool BoardJson::isFlexSwitch(const InputDefn & defn)
+{
+  return defn.type == Board::AIT_FLEX && defn.flexType == Board::FLEX_SWITCH;
+}
+
+// static
+bool BoardJson::isFuncSwitch(const SwitchDefn & defn)
+{
+  return defn.type == Board::SWITCH_FSWITCH;
+}
+
+// static
+bool BoardJson::isGyroAxis(const InputDefn & defn)
+{
+  const char* val = defn.tag.data();
+  size_t len = defn.tag.size();
+
+  return (defn.type == Board::AIT_FLEX && len > 5 &&
+          val[0] == 'T' && val[1] == 'I'  && val[2] == 'L' && val[3] == 'T' && val[4] == '_' && (val[5] == 'X' || val[5] == 'Y'));
+}
+
+// static
+bool BoardJson::isJoystickAxis(const InputDefn & defn)
+{
+  const char* val = defn.tag.data();
+  size_t len = defn.tag.size();
+
+  return (defn.type == Board::AIT_FLEX && len > 2 &&
+          val[0] == 'J' && val[1] == 'S' && (val[2] == 'x' || val[2] == 'y'));
 }
 
 // static
@@ -441,38 +469,6 @@ bool BoardJson::isSlider(const InputDefn & defn)
 
   return (defn.type == Board::AIT_FLEX && len > 2 &&
           val[0] == 'S' && val[1] == 'L' && val[2] >= '0' && val[2] <= '9');
-}
-
-// static
-bool BoardJson::isFlexSwitch(const InputDefn & defn)
-{
-  return defn.type == Board::AIT_FLEX && defn.flexType == Board::FLEX_SWITCH;
-}
-
-// static
-bool BoardJson::isFuncSwitch(const SwitchDefn & defn)
-{
-  return defn.type == Board::SWITCH_FSWITCH;
-}
-
-// static
-bool BoardJson::isGyro(const InputDefn & defn)
-{
-  const char* val = defn.tag.data();
-  size_t len = defn.tag.size();
-
-  return (defn.type == Board::AIT_FLEX && len > 5 &&
-          val[0] == 'T' && val[1] == 'I'  && val[2] == 'L' && val[3] == 'T' && val[4] == '_' && (val[5] == 'X' || val[5] == 'Y'));
-}
-
-// static
-bool BoardJson::isJoystick(const InputDefn & defn)
-{
-  const char* val = defn.tag.data();
-  size_t len = defn.tag.size();
-
-  return (defn.type == Board::AIT_FLEX && len > 2 &&
-          val[0] == 'J' && val[1] == 'S' && (val[2] == 'x' || val[2] == 'y'));
 }
 
 // static
@@ -509,18 +505,18 @@ bool BoardJson::loadDefinition()
     return false;
 
   // json files do not normally define joysticks or gyros
-  addJoysticksGyros(m_board, m_inputs);
+  addGyroAxes(m_board, m_inputs);
 
   m_flexCnt = setFlexCount(m_inputs);
-  m_gyrosCnt = setGyrosCount(m_inputs);
-  m_joysticksCnt = setJoysticksCount(m_inputs);
+  m_gyroAxesCnt = setGyroAxesCount(m_inputs);
+  m_joystickAxesCnt = setJoystickAxesCount(m_inputs);
   m_potsCnt = setPotsCount(m_inputs);
   m_slidersCnt = setSlidersCount(m_inputs);
   m_sticksCnt = setSticksCount(m_inputs);
   m_funcSwitchesCnt = setFuncSwitchesCount(m_switches);
   m_switchesCnt = setSwitchesCount(m_switches);
-  m_rtcbat = setRTCBat(m_inputs);
-  m_vbat = setVBat(m_inputs);
+  m_rtcbatCnt = setRTCBatCount(m_inputs);
+  m_vbatCnt = setVBatCount(m_inputs);
 
   // json files do not normally specify stick labels so load legacy labels
   for (int i = 0; i < getCapability(Board::Sticks); i++) {
@@ -528,19 +524,19 @@ bool BoardJson::loadDefinition()
       m_inputs->at(i).name = setStickName(i);
   }
 
-//  qDebug() << "Board:" << Boards::getBoardName(m_board) <<
-//              "inputs:" << getCapability(Board::Inputs) <<
-//              "sticks:" << getCapability(Board::Sticks) <<
-//              "flex:" << getCapability(Board::FlexInputs) <<
-//              "pots:" << getCapability(Board::Pots) <<
-//              "sliders:" << getCapability(Board::Sliders) <<
-//              "gyros:" << getCapability(Board::GyroAnalogs) <<
-//              "joysticks:" << getCapability(Board::Joysticks) <<
-//              "trims:" << getCapability(Board::NumTrims) <<
-//              "switches:" << getCapability(Board::Switches) <<
-//              "funcswitches:" << getCapability(Board::FunctionSwitches) <<
-//              "rtcbat:" << getCapability(Board::HasRTC) <<
-//              "vbat:" << getCapability(Board::HasVBat);
+  qDebug() << "Board:" << Boards::getBoardName(m_board) <<
+              "inputs:" << getCapability(Board::Inputs) <<
+              "sticks:" << getCapability(Board::Sticks) <<
+              "flex:" << getCapability(Board::FlexInputs) <<
+              "pots:" << getCapability(Board::Pots) <<
+              "sliders:" << getCapability(Board::Sliders) <<
+              "gyro axes:" << getCapability(Board::GyroAxes) <<
+              "joystick axes:" << getCapability(Board::JoystickAxes) <<
+              "trims:" << getCapability(Board::NumTrims) <<
+              "switches:" << getCapability(Board::Switches) <<
+              "funcswitches:" << getCapability(Board::FunctionSwitches) <<
+              "rtcbat:" << getCapability(Board::HasRTC) <<
+              "vbat:" << getCapability(Board::HasVBat);
 
   return true;
 }
@@ -729,24 +725,24 @@ unsigned int BoardJson::setFlexCount(const InputsTable * inputs)
 }
 
 // static
-unsigned int BoardJson::setGyrosCount(const InputsTable * inputs)
+unsigned int BoardJson::setGyroAxesCount(const InputsTable * inputs)
 {
   unsigned int cnt = 0;
 
   for (const auto &defn : *inputs) {
-    if (isGyro(defn)) cnt++;
+    if (isGyroAxis(defn)) cnt++;
   }
 
   return cnt;
 }
 
 // static
-unsigned int BoardJson::setJoysticksCount(const InputsTable * inputs)
+unsigned int BoardJson::setJoystickAxesCount(const InputsTable * inputs)
 {
   unsigned int cnt = 0;
 
   for (const auto &defn : *inputs) {
-    if (isJoystick(defn)) cnt++;
+    if (isJoystickAxis(defn)) cnt++;
   }
 
   return cnt;
@@ -765,7 +761,7 @@ unsigned int BoardJson::setPotsCount(const InputsTable * inputs)
 }
 
 // static
-bool BoardJson::setRTCBat(const InputsTable * inputs)
+unsigned int BoardJson::setRTCBatCount(const InputsTable * inputs)
 {
   for (const auto &defn : *inputs) {
     if (isRTCBat(defn)) return true;
@@ -830,7 +826,7 @@ unsigned int BoardJson::setSwitchesCount(const SwitchesTable * switches)
 }
 
 // static
-bool BoardJson::setVBat(const InputsTable * inputs)
+unsigned int BoardJson::setVBatCount(const InputsTable * inputs)
 {
   for (const auto &defn : *inputs) {
     if (isVBat(defn)) return true;

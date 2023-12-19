@@ -108,7 +108,7 @@ RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSett
   for (int i = 0; i < firmware->getCapability(LuaScripts); i++)
     addItems(SOURCE_TYPE_LUA_OUTPUT,   RawSource::ScriptsGroup,  firmware->getCapability(LuaOutputsPerScript), i * 16);
   addItems(SOURCE_TYPE_VIRTUAL_INPUT,  RawSource::InputsGroup,   firmware->getCapability(VirtualInputs));
-  addItems(SOURCE_TYPE_STICK,          RawSource::SourcesGroup,  board->getCapability(Board::MaxAnalogs));
+  addItems(SOURCE_TYPE_STICK,          RawSource::SourcesGroup,  board->getCapability(Board::Inputs));
   addItems(SOURCE_TYPE_TRIM,           RawSource::TrimsGroup,    board->getCapability(Board::NumTrims));
   addItems(SOURCE_TYPE_SPACEMOUSE,     RawSource::SourcesGroup,  CPN_MAX_SPACEMOUSE);
   addItems(SOURCE_TYPE_MIN,            RawSource::SourcesGroup,  1);

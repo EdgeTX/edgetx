@@ -278,7 +278,7 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
 
   Boards b(board);
 
-  if (type == SOURCE_TYPE_STICK && index >= b.getCapability(Board::MaxAnalogs))
+  if (type == SOURCE_TYPE_STICK && index >= b.getCapability(Board::Inputs))
     return false;
 
   if (type == SOURCE_TYPE_SWITCH && index >= b.getCapability(Board::Switches))

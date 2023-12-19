@@ -132,8 +132,8 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  count = Boards::getCapability(board, Board::Sticks) + Boards::getCapability(board, Board::FlexInputs);
-  count -= firmware->getCapability(HasFlySkyGimbals) ? 2 : 0;
+  count = Boards::getCapability(board, Board::Inputs);
+
   if (count > 0) {
     addSection(tr("Pots"));
     for (int i = Boards::getCapability(board, Board::Sticks); i < count; i++) {
