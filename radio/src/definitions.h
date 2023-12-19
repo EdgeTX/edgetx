@@ -69,10 +69,13 @@
 #if defined(SDRAM) && !defined(SIMU)
   #define __SDRAM   __attribute__((section(".sdram"), aligned(4)))
 #if defined(COLORLCD)
-  #define __SDRAMFONTS  __attribute__((section(".sdram_fonts"), aligned(4)))
+  #define __SDRAMFONTS __attribute__((section(".sdram_fonts"), aligned(4)))
 #endif
 #else
   #define __SDRAM   __DMA
+#if defined(COLORLCD)
+  #define __SDRAMFONTS __DMA
+#endif
 #endif
 
 #if __GNUC__
