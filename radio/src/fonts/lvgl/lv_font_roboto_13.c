@@ -816,7 +816,7 @@ static const etxFontCmap cmaps[] = {
 { .range_start = 8226, .range_length = 55425, .glyph_id_start = 306, .list_length = 62, .type = 3, .unicode_list = 2944, .glyph_id_ofs_list = 0 },
 };
 
-static uint8_t etxUncompBuf[21439] __SDRAM;
+static uint8_t etxUncompBuf[21439] __SDRAMFONTS;
 
 const etxLz4Font lv_font_roboto_13 = {
 .uncomp_size = 21111,

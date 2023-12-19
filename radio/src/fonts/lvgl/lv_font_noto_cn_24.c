@@ -5980,7 +5980,7 @@ static const etxFontCmap cmaps[] = {
 { .range_start = 176, .range_length = 40609, .glyph_id_start = 109, .list_length = 565, .type = 3, .unicode_list = 5392, .glyph_id_ofs_list = 0 },
 };
 
-static uint8_t etxUncompBuf[165378] __SDRAM;
+static uint8_t etxUncompBuf[165378] __SDRAMFONTS;
 
 const etxLz4Font lv_font_noto_cn_24 = {
 .uncomp_size = 165146,

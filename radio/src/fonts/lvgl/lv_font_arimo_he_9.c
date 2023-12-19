@@ -370,7 +370,7 @@ static const etxFontCmap cmaps[] = {
 { .range_start = 1524, .range_length = 62127, .glyph_id_start = 141, .list_length = 63, .type = 3, .unicode_list = 1632, .glyph_id_ofs_list = 0 },
 };
 
-static uint8_t etxUncompBuf[7418] __SDRAM;
+static uint8_t etxUncompBuf[7418] __SDRAMFONTS;
 
 const etxLz4Font lv_font_arimo_he_9 = {
 .uncomp_size = 7090,

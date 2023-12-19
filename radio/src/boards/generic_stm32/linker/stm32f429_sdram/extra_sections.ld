@@ -14,6 +14,8 @@ INCLUDE section_ccm.ld
   . = ALIGN(4);
   *(.sdram)
   *(.sdram*)
+  *(.sdram_fonts)
+  *(.sdram_fonts*)
   *(.sdram_rodata)
   *(.sdram_rodata*)
 

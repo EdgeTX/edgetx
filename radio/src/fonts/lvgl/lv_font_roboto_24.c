@@ -1040,7 +1040,7 @@ static const etxFontCmap cmaps[] = {
 { .range_start = 192, .range_length = 192, .glyph_id_start = 110, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 };
 
-static uint8_t etxUncompBuf[38742] __SDRAM;
+static uint8_t etxUncompBuf[38742] __SDRAMFONTS;
 
 const etxLz4Font lv_font_roboto_24 = {
 .uncomp_size = 38478,
