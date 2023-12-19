@@ -7417,7 +7417,7 @@ fält</translation>
     <message>
         <location filename="../mainwindow.cpp" line="659"/>
         <source>If you&apos;ve found this program useful, please support by &lt;a href=&apos;%1&apos;&gt;donating&lt;/a&gt;</source>
-        <translation>Om du tycker att programet är användbart kan du stödja utvecklingen genom en &lt;a href=&apos;%1&apos;&gt;gåva.&lt;/a&gt;</translation>
+        <translation>Om du tycker att programet är användbart kan du stödja utvecklingen med en &lt;a href=&apos;%1&apos;&gt;gåva.&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="817"/>
@@ -7558,7 +7558,7 @@ fält</translation>
     <message>
         <location filename="../mainwindow.cpp" line="1165"/>
         <source>%2</source>
-        <translation>%2</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="284"/>
@@ -14578,6 +14578,10 @@ hh:mm:ss</translation>
         <location filename="../simulation/telemetrysimu.ui" line="1418"/>
         <source>Run</source>
         <translation>Kör</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Stoppa</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="1425"/>
