@@ -161,12 +161,12 @@ void TelemetryItem::setValue(const TelemetrySensor &sensor, int32_t val,
 #if defined(INTERNAL_GPS)
     if (gpsData.fix  && gpsData.hdop < PILOTPOS_MIN_HDOP) {
       pilotLatitude = gpsData.latitude;
-      distFromEarthAxis = getDistFromEarthAxis(pilotLatitude);
+      gps.pilotDistFromEarthAxis = getDistFromEarthAxis(pilotLatitude);
     }
 #endif
     if (!pilotLatitude) {
       pilotLatitude = newVal;
-      distFromEarthAxis = getDistFromEarthAxis(newVal);
+      gps.pilotDistFromEarthAxis = getDistFromEarthAxis(newVal);
     }
     gps.latitude = newVal;
     setFresh();
@@ -380,7 +380,7 @@ void TelemetryItem::eval(const TelemetrySensor & sensor)
         uint32_t result = dist * dist;
 
         angle = abs(gpsItem.gps.longitude - gpsItem.pilotLongitude);
-        dist = uint64_t(gpsItem.distFromEarthAxis) * angle / 1000000;
+        dist = uint64_t(gpsItem.gps.pilotDistFromEarthAxis) * angle / 1000000;
         result += dist * dist;
 
         // Length on ground (ignoring curvature of the earth)
