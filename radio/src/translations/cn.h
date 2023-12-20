@@ -391,6 +391,7 @@
 #define TR_PLAY_HELLO                  "开机语音"
 #define TR_PWR_ON_DELAY                "开机延迟"
 #define TR_PWR_OFF_DELAY               "关机延迟"
+#define TR_PWR_AUTO_OFF                "Pwr Auto Off"
 #define TR_PWR_ON_OFF_HAPTIC           TR("开关机震动","开关机震动提示")
 #define TR_THROTTLE_WARNING            TR("油门状态", "油门状态")
 #define TR_CUSTOM_THROTTLE_WARNING     TR("自定位置", "自定油门位置?")
