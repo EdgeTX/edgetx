@@ -283,6 +283,8 @@ ui(new Ui::GeneralSetup)
     ui->pwrOnDelay->hide();
     ui->pwrOffDelayLabel->hide();
     ui->pwrOffDelay->hide();
+    ui->pwrOffIfInactiveLabel->hide();
+    ui->pwrOffIfInactiveSB->hide();
   }
   else if (!IS_TARANIS(board)) {
     ui->pwrOnDelayLabel->hide();
@@ -523,6 +525,7 @@ void GeneralSetupPanel::setValues()
 
   ui->pwrOnDelay->setCurrentIndex(pwrDelayFromYaml(generalSettings.pwrOnSpeed));
   ui->pwrOffDelay->setCurrentIndex(pwrDelayFromYaml(generalSettings.pwrOffSpeed));
+  ui->pwrOffIfInactiveSB->setValue(generalSettings.pwrOffIfInactive);
 
   ui->registrationId->setText(generalSettings.registrationId);
 
@@ -827,6 +830,12 @@ void GeneralSetupPanel::on_adjustRTC_stateChanged(int)
 void GeneralSetupPanel::on_inactimerSB_editingFinished()
 {
   generalSettings.inactivityTimer = ui->inactimerSB->value();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_pwrOffIfInactiveSB_editingFinished()
+{
+  generalSettings.pwrOffIfInactive = ui->pwrOffIfInactiveSB->value();
   emit modified();
 }
 
