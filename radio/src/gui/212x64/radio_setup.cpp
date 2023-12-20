@@ -82,6 +82,7 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_START_SOUND,
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_OFF_SPEED)
+  CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_AUTO_OFF)
   CASE_HAPTIC(ITEM_RADIO_SETUP_PWR_ON_OFF_HAPTIC)
 #if defined(PXX2)
   ITEM_RADIO_SETUP_OWNER_ID,
@@ -195,6 +196,7 @@ void menuRadioSetup(event_t event)
     0,
     CASE_PWR_BUTTON_PRESS(0) // pwr on speed
     CASE_PWR_BUTTON_PRESS(0) // pwr off speed
+    CASE_PWR_BUTTON_PRESS(0) // pwr auto off
     CASE_HAPTIC(0) // power on/off haptic
     CASE_PXX2(0) // owner registration ID
     CASE_GPS(LABEL(GPS))
@@ -554,6 +556,13 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_PWR_OFF_SPEED:
         g_eeGeneral.pwrOffSpeed = pwrDelayToYaml(editChoice(LCD_W-2, y, STR_PWR_OFF_DELAY, STR_PWR_OFF_DELAYS, pwrDelayFromYaml(g_eeGeneral.pwrOffSpeed), 0, 4, attr|RIGHT, event));
+        break;
+
+      case ITEM_RADIO_SETUP_PWR_AUTO_OFF:
+        lcdDrawTextAlignedLeft(y, STR_PWR_AUTO_OFF);
+        lcdDrawNumber(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.pwrOffIfInactive, attr|LEFT);
+        lcdDrawChar(lcdLastRightPos, y, 'm');
+        if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.pwrOffIfInactive, 0, 255);
         break;
 #endif
 
