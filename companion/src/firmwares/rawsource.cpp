@@ -319,11 +319,23 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
   }
 
   if (gs) {
-    if (type == SOURCE_TYPE_STICK && !gs->isInputAvailable(index))
-      return false;
+    if (type == SOURCE_TYPE_STICK) {
+      if (!gs->isInputAvailable(index))
+        return false;
+      if (gs->inputConfig[index].flexType == Board::FLEX_SWITCH)
+        return false;
+    }
 
     if (type == SOURCE_TYPE_SWITCH && IS_HORUS_OR_TARANIS(board) && !gs->switchSourceAllowedTaranis(index))
       return false;
+  }
+  else {
+    if (type == SOURCE_TYPE_STICK) {
+      if (!Boards::isInputAvailable(board, index))
+        return false;
+      if (Boards::getInputInfo(board, index).flexType == Board::FLEX_SWITCH)
+        return false;
+    }
   }
 
   if (type == SOURCE_TYPE_TRIM && index >= b.getCapability(Board::NumTrims))
