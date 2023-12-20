@@ -814,7 +814,7 @@ static const etxFontCmap cmaps[] = {
 { .range_start = 1105, .range_length = 1, .glyph_id_start = 173, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 };
 
-static uint8_t etxUncompBuf[24426] __SDRAM;
+static uint8_t etxUncompBuf[24426] __SDRAMFONTS;
 
 const etxLz4Font lv_font_arimo_ru_24 = {
 .uncomp_size = 24098,
