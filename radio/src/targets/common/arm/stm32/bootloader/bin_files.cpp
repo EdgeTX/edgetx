@@ -73,6 +73,10 @@ static FRESULT findNextBinFile(FILINFO* fno)
 
     if (fr != FR_OK || fno->fname[0] == 0)
       break;
+    if (fno->fattrib & (AM_HID | AM_SYS | AM_DIR))
+      continue;  // Skip folders and hidden files
+    if (fno->fname[0] == '.' && fno->fname[1] != '.')
+      continue;  // Ignore hidden files under UNIX, but not ..
 
     int32_t len = strlen(fno->fname) - 4;
     if (len < 0)
