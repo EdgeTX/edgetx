@@ -32,10 +32,7 @@ constexpr uint8_t TELEMETRY_SENSOR_TEXT_LENGTH = 16;
 class TelemetryItem
 {
   public:
-    union {
-      int32_t  value;           // value, stored as uint32_t but interpreted accordingly to type
-      uint32_t distFromEarthAxis;
-    };
+    int32_t  value;           // value, stored as uint32_t but interpreted accordingly to type
 
     union {
       int32_t valueMin;         // min store
@@ -72,9 +69,9 @@ class TelemetryItem
       struct {
         int32_t latitude;
         int32_t longitude;
-        // pilot longitude is stored in min
-        // pilot latitude is stored in max
-        // distFromEarthAxis is stored in value
+        uint32_t pilotDistFromEarthAxis;  // pilot distance from earth axis
+                                          // pilot longitude is stored in min
+                                          // pilot latitude is stored in max
       } gps;
       char text[TELEMETRY_SENSOR_TEXT_LENGTH];
     };
