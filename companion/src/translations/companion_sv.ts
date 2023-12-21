@@ -14576,10 +14576,13 @@ hh:mm:ss</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="1418"/>
+        <location filename="../simulation/telemetrysimu.cpp" line="1391"/>
+        <location filename="../simulation/telemetrysimu.cpp" line="1397"/>
         <source>Run</source>
         <translation>Kör</translation>
     </message>
     <message>
+        <location filename="../simulation/telemetrysimu.cpp" line="1392"/>
         <source>Stop</source>
         <translation>Stoppa</translation>
     </message>
