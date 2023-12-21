@@ -35,6 +35,6 @@ const MenuHandler menuTabGeneral[MENU_RADIO_PAGES_COUNT] = {
 
 void menuRadioSpecialFunctions(event_t event)
 {
-  MENU(STR_MENUSPECIALFUNCS, menuTabGeneral, MENU_RADIO_SPECIAL_FUNCTIONS, MAX_SPECIAL_FUNCTIONS, { NAVIGATION_LINE_BY_LINE|4/*repeated*/ });
+  MENU(STR_MENUSPECIALFUNCS, menuTabGeneral, MENU_RADIO_SPECIAL_FUNCTIONS, MAX_SPECIAL_FUNCTIONS, { NAVIGATION_LINE_BY_LINE|5/*repeated*/ });
   return menuSpecialFunctions(event, g_eeGeneral.customFn, &globalFunctionsContext);
 }
