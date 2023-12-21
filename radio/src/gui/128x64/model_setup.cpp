@@ -313,8 +313,9 @@ uint8_t VIEWOPT_ROW(uint8_t value)
     PREFLIGHT_ROW(uint8_t(NAVIGATION_LINE_BY_LINE|getSwitchWarningsCount())), \
     PREFLIGHT_ROW(uint8_t(getSwitchWarningsCount() > 4 ? TITLE_ROW : HIDDEN_ROW))
 #else
+  // Handle special case when there is only one switch that can trigger a warning (MT12)
   #define SW_WARN_ROWS \
-    PREFLIGHT_ROW(uint8_t(NAVIGATION_LINE_BY_LINE|(getSwitchWarningsCount()-1))), \
+    PREFLIGHT_ROW(uint8_t(NAVIGATION_LINE_BY_LINE|((getSwitchWarningsCount() == 1) ? 1 : getSwitchWarningsCount()-1))), \
     PREFLIGHT_ROW(uint8_t(getSwitchWarningsCount() > MAX_SWITCH_PER_LINE ? TITLE_ROW : HIDDEN_ROW))
 #endif
 
@@ -961,7 +962,9 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_SWITCHES_WARNING1:
         {
           uint8_t switchWarningsCount = getSwitchWarningsCount();
-          //uint8_t length = STR_VSRCRAW[0];
+          // Fix for case when there is only one switch that can trigger a warning (MT12)
+          if (switchWarningsCount == 1 && menuHorizontalPosition >= 1)
+            menuHorizontalPosition = 0;
           horzpos_t l_posHorz = menuHorizontalPosition;
 
           if (i>=NUM_BODY_LINES-2 && getSwitchWarningsCount() > MAX_SWITCH_PER_LINE*(NUM_BODY_LINES-i)) {
