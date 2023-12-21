@@ -61,9 +61,7 @@ enum MainRequest {
 
 extern uint8_t mainRequestFlags;
 
-#define DELAY_POS_MARGIN   3
-
-PACK(struct SwOn {
+PACK(struct MixState {
   uint16_t delay:14; // max = 2550
   uint8_t  activeMix:1;
   uint8_t  activeExpo:1;
@@ -71,7 +69,7 @@ PACK(struct SwOn {
   int16_t  prev;
 });
 
-extern SwOn   swOn[MAX_MIXERS];
+extern MixState mixState[MAX_MIXERS];
 extern int32_t act[MAX_MIXERS];
 
 // static variables used in evalFlightModeMixes - moved here so they don't interfere with the stack

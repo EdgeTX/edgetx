@@ -461,12 +461,12 @@ void moveTrimsToOffsets();
 
 inline bool isExpoActive(uint8_t expo)
 {
-  return swOn[expo].activeExpo;
+  return mixState[expo].activeExpo;
 }
 
 inline bool isMixActive(uint8_t mix)
 {
-  return swOn[mix].activeMix;
+  return mixState[mix].activeMix;
 }
 
 enum FunctionsActive {
