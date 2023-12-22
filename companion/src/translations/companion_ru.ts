@@ -1113,7 +1113,7 @@ Mode 4:
         <location filename="../firmwares/boards.cpp" line="834"/>
         <location filename="../firmwares/boards.cpp" line="872"/>
         <source>6P</source>
-        <translation type="unfinished">15 сек. {6P?}</translation>
+        <translation type="unfinished">6P</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="836"/>
