@@ -42,7 +42,7 @@
 // #endif
 
 #define US_PER_MS                   (1000UL)
-#define INIT_CMD_RETRY_US           (500 * US_PER_MS)
+#define INIT_CMD_RETRY_US           (750 * US_PER_MS)
 #define INIT_CMD0_RETRY_US          (100UL)
 #define R1_POLLING_RETRY_US         (100 * US_PER_MS)
 #define SD_DATA_TOKEN_RETRY_US      (100 * US_PER_MS)
