@@ -584,7 +584,7 @@ QString Boards::switchTypeToString(int value)
       return tr("2 Positions");
     case SWITCH_3POS:
       return tr("3 Positions");
-    case SWITCH_FSWITCH:
+    case SWITCH_FUNC:
       return tr("Function");
     default:
       return CPN_STR_UNKNOWN_ITEM;
@@ -846,6 +846,11 @@ QString Boards::getSwitchTag(Board::Type board, int index)
   return getBoardJson(board)->getSwitchTag(index);
 }
 
+int Boards::getSwitchTagNum(Board::Type board, int index)
+{
+  return getBoardJson(board)->getSwitchTagNum(index);
+}
+
 bool Boards::isInputAvailable(Board::Type board, int index)
 {
   return getBoardJson(board)->isInputAvailable(index);
@@ -868,10 +873,20 @@ bool Boards::isInputIgnored(Board::Type board, int index)
 
 bool Boards::isInputPot(Board::Type board, int index)
 {
-  return getBoardJson(board)->isInputPot(index);
+  return getBoardJson(board)->isInputFlexPot(index);
 }
 
 bool Boards::isInputStick(Board::Type board, int index)
 {
   return getBoardJson(board)->isInputStick(index);
+}
+
+bool Boards::isSwitchConfigurable(Board::Type board, int index)
+{
+  return getBoardJson(board)->isSwitchConfigurable(index);
+}
+
+bool Boards::isSwitchFlex(Board::Type board, int index)
+{
+  return getBoardJson(board)->isSwitchFlex(index);
 }

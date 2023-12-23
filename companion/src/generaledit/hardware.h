@@ -26,6 +26,7 @@ class CompoundItemModelFactory;
 class FilteredItemModelFactory;
 class QGridLayout;
 class AutoComboBox;
+class ExclusiveComboGroup;
 
 class HardwarePanel : public GeneralPanel
 {
@@ -55,6 +56,7 @@ class HardwarePanel : public GeneralPanel
     AutoComboBox *antennaMode;
     QList<QWidget *> *params;
     int row;
+    ExclusiveComboGroup *exclFlexSwitchesGroup;
 
     void addStick(int index);
     void addFlex(int index);

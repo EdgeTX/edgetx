@@ -356,6 +356,7 @@ class GeneralSettings {
       char name[HARDWARE_NAME_LEN + 1];
       Board::SwitchType type;
       bool inverted;
+      int inputIdx;  //  used if switch tag = FLn, value -1 = none selected
     };
 
     SwitchConfig switchConfig[CPN_MAX_SWITCHES];
@@ -367,10 +368,13 @@ class GeneralSettings {
     bool isInputPot(int index) const;
     bool isInputSlider(int index) const;
     bool isInputStick(int index) const;
+    bool isInputFlexSwitchAvailable(int index) const;
     bool isPotAvailable(int index) const;
     bool isSliderAvailable(int index) const;
     bool isSwitchAvailable(int index) const;
+    bool isSwitchFlex(int index) const;
     bool isMultiPosPot(int index) const;
+
     QString antennaModeToString() const;
     QString bluetoothModeToString() const;
     QString serialPortModeToString(int port_nr) const;
@@ -394,4 +398,6 @@ class GeneralSettings {
     static AbstractStaticItemModel * stickDeadZoneItemModel();
     static AbstractStaticItemModel * uartSampleModeItemModel();
     static AbstractStaticItemModel * hatsModeItemModel(bool radio_setup = true);
+
+    void validateFlexSwitches();
 };

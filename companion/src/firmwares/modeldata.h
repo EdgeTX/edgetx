@@ -230,7 +230,7 @@ class ModelData {
     unsigned int functionSwitchGroup;
     unsigned int functionSwitchStartConfig;
     unsigned int functionSwitchLogicalState;
-    char functionSwitchNames[CPN_MAX_FUNCTION_SWITCHES][HARDWARE_NAME_LEN + 1];
+    char functionSwitchNames[CPN_MAX_SWITCHES_FUNCTION][HARDWARE_NAME_LEN + 1];
 
     // Custom USB joytsick mapping
     unsigned int usbJoystickExtMode;

@@ -197,7 +197,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     std::stringstream src(src_str.substr(3));
     int fs = 0;
     src >> fs;
-    if (fs > 0 && fs <= CPN_MAX_FUNCTION_SWITCHES)
+    if (fs > 0 && fs <= CPN_MAX_SWITCHES_FUNCTION)
       rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, fs - 1);
 
   } else if (val_len > 3 &&

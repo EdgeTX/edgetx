@@ -1704,7 +1704,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
  unsigned int ModelData::getFuncSwitchConfig(unsigned int index) const
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES)
+   if (index < CPN_MAX_SWITCHES_FUNCTION)
      return Helpers::getBitmappedValue(functionSwitchConfig, index, 2);
    else
      return FUNC_SWITCH_CONFIG_NONE;
@@ -1712,7 +1712,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
  void ModelData::setFuncSwitchConfig(unsigned int index, unsigned int value)
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES)
+   if (index < CPN_MAX_SWITCHES_FUNCTION)
      Helpers::setBitmappedValue(functionSwitchConfig, value, index, 2);
  }
 
@@ -1747,7 +1747,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
  unsigned int ModelData::getFuncSwitchGroup(unsigned int index) const
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES)
+   if (index < CPN_MAX_SWITCHES_FUNCTION)
      return Helpers::getBitmappedValue(functionSwitchGroup, index, 2);
    else
      return 0;
@@ -1755,13 +1755,13 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
  void ModelData::setFuncSwitchGroup(unsigned int index, unsigned int value)
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES)
+   if (index < CPN_MAX_SWITCHES_FUNCTION)
      Helpers::setBitmappedValue(functionSwitchGroup, value, index, 2);
  }
 
  unsigned int ModelData::getFuncSwitchAlwaysOnGroup(unsigned int index) const
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES) {
+   if (index < CPN_MAX_SWITCHES_FUNCTION) {
      unsigned int grp = getFuncSwitchGroup(index);
      unsigned int switchcnt = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches);
      return Helpers::getBitmappedValue(functionSwitchGroup, grp, 1, 2 * switchcnt);
@@ -1772,7 +1772,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
  void ModelData::setFuncSwitchAlwaysOnGroup(unsigned int index, unsigned int value)
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES) {
+   if (index < CPN_MAX_SWITCHES_FUNCTION) {
      unsigned int grp = getFuncSwitchGroup(index);
      unsigned int switchcnt = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches);
      Helpers::setBitmappedValue(functionSwitchGroup, value, grp, 1, 2 * switchcnt);
@@ -1781,7 +1781,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
  unsigned int ModelData::getFuncSwitchStart(unsigned int index) const
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES)
+   if (index < CPN_MAX_SWITCHES_FUNCTION)
      return Helpers::getBitmappedValue(functionSwitchStartConfig, index, 2);
    else
      return FUNC_SWITCH_START_INACTIVE;
@@ -1789,7 +1789,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
  void ModelData::setFuncSwitchStart(unsigned int index, unsigned int value)
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES)
+   if (index < CPN_MAX_SWITCHES_FUNCTION)
      Helpers::setBitmappedValue(functionSwitchStartConfig, value, index, 2);
  }
 

@@ -1055,7 +1055,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     node["functionSwitchStartConfig"] = rhs.functionSwitchStartConfig;
     node["functionSwitchLogicalState"] = rhs.functionSwitchLogicalState;
 
-    for (int i = 0; i < CPN_MAX_FUNCTION_SWITCHES; i++) {
+    for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i++) {
       if (strlen(rhs.functionSwitchNames[i]) > 0) {
         node["switchNames"][std::to_string(i)]["val"] = rhs.functionSwitchNames[i];
       }

@@ -65,6 +65,18 @@ bool GeneralSettings::isInputAvailable(int index) const
           (config.type == Board::AIT_FLEX && config.flexType != Board::FLEX_NONE));
 }
 
+bool GeneralSettings::isInputFlexSwitchAvailable(int index) const
+{
+  Board::Type board = getCurrentBoard();
+
+  if (index < 0 || index >= Boards::getCapability(board, Board::Inputs))
+    return false;
+
+  const InputConfig &config = inputConfig[index];
+
+  return (config.type == Board::AIT_FLEX && config.flexType == Board::FLEX_SWITCH);
+}
+
 bool GeneralSettings::isInputMultiPosPot(int index) const
 {
   if (isInputAvailable(index)) {
@@ -136,12 +148,17 @@ bool GeneralSettings::isSliderAvailable(int index) const
 
 bool GeneralSettings::isSwitchAvailable(int index) const
 {
-  if (index < 0 || index >= Boards::getCapability(getCurrentBoard(), Board::Sticks))
+  if (index < 0 || index >= Boards::getCapability(getCurrentBoard(), Board::Switches))
     return false;
 
   const SwitchConfig &config = switchConfig[index];
 
   return config.type != Board::SWITCH_NOT_AVAILABLE;
+}
+
+bool GeneralSettings::isSwitchFlex(int index) const
+{
+  return Boards::isSwitchFlex(getCurrentBoard(), index);
 }
 
 void GeneralSettings::clear()
@@ -358,6 +375,7 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
     Board::SwitchInfo info =  Boards::getSwitchInfo(board, i);
     switchConfig[i].type = info.type;
     switchConfig[i].inverted = info.inverted;
+    switchConfig[i].inputIdx = -1;
   }
 }
 
@@ -828,6 +846,22 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
   }
 
   return true;
+}
+
+void GeneralSettings::validateFlexSwitches()
+{
+  Board::Type board = getCurrentBoard();
+
+  for (int i = 0; i < CPN_MAX_SWITCHES_FLEX; i++) {
+    if (inputConfig[switchConfig[i].inputIdx].flexType != Board::FLEX_SWITCH)
+      switchConfig[i].inputIdx = 0;
+
+    int idx = Boards::getSwitchIndex(board, QString("FL%").arg(i));
+    if (idx >= 0) {
+      if (switchConfig[idx].type == Board::SWITCH_NOT_AVAILABLE)
+        switchConfig[i].inputIdx = 0;
+    }
+  }
 }
 
 /*

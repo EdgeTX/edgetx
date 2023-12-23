@@ -45,6 +45,7 @@ class AbstractItemModel: public QStandardItemModel
       IMID_TeleSource,
       IMID_CurveRefType,
       IMID_CurveRefFunc,
+      IMID_FlexSwitches,
       IMID_ReservedCount,
       IMID_Custom
     };
@@ -331,6 +332,22 @@ class PrecisionItemModel : public AbstractStaticItemModel
     explicit PrecisionItemModel(const int minDecimals, const int maxDecimals, const QString suffix = "", const bool placeholders = false);
     virtual ~PrecisionItemModel() {};
 };
+
+class FlexSwitchesItemModel: public AbstractDynamicItemModel
+{
+    Q_OBJECT
+  public:
+    explicit FlexSwitchesItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
+                                      Firmware * firmware, const Boards * const board, const Board::Type boardType);
+    virtual ~FlexSwitchesItemModel() {};
+
+  public slots:
+    virtual void update(const int event = IMUE_SystemRefresh) override;
+
+  protected:
+    virtual void setDynamicItemData(QStandardItem * item, const int value) const;
+};
+
 
 //
 //  CompoundItemModelFactory

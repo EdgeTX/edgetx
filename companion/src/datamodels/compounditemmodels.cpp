@@ -50,6 +50,8 @@ QString AbstractItemModel::idToString(const int value)
       return "CurveRefType";
     case IMID_CurveRefFunc:
       return "CurveRefFunc";
+    case IMID_FlexSwitches:
+      return "FlexSwitches";
     default:
       return "Custom";
   }
@@ -572,6 +574,57 @@ PrecisionItemModel::PrecisionItemModel(const int minDecimals, const int maxDecim
 }
 
 //
+// FlexSwitchesItemModel
+//
+
+FlexSwitchesItemModel::FlexSwitchesItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
+                                                   Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+    AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
+{
+  setId(IMID_FlexSwitches);
+
+  if (!generalSettings)
+    return;
+
+  setUpdateMask(IMUE_FunctionSwitches);
+  const int count = Boards::getCapability(boardType, Board::Inputs);
+
+  {
+    QStandardItem * modelItem = new QStandardItem();
+    modelItem->setData(-1, IMDR_Id);
+    modelItem->setText(tr("None"));
+    modelItem->setData(true, IMDR_Available);
+    appendRow(modelItem);
+  }
+
+  for (int i = 0; i <= count; ++i) {
+    QStandardItem * modelItem = new QStandardItem();
+    modelItem->setData(i, IMDR_Id);
+    setDynamicItemData(modelItem, i);
+    appendRow(modelItem);
+  }
+}
+
+void FlexSwitchesItemModel::setDynamicItemData(QStandardItem * item, const int value) const
+{
+  item->setText(Boards::getInputName(boardType, value));
+  item->setData(generalSettings->isInputFlexSwitchAvailable(value), IMDR_Available);
+}
+
+void FlexSwitchesItemModel::update(const int event)
+{
+  if (doUpdate(event)) {
+    emit aboutToBeUpdated();
+
+    for (int i = 1; i < rowCount(); ++i) {  // skip None
+      setDynamicItemData(item(i), item(i)->data(IMDR_Id).toInt());
+    }
+
+    emit updateComplete();
+  }
+}
+
+//
 // CompoundItemModelFactory
 //
 
@@ -622,6 +675,9 @@ void CompoundItemModelFactory::addItemModel(const int id)
       break;
     case AbstractItemModel::IMID_CurveRefFunc:
       registerItemModel(new CurveRefFuncItemModel(generalSettings, modelData, firmware, board, boardType));
+      break;
+    case AbstractItemModel::IMID_FlexSwitches:
+      registerItemModel(new FlexSwitchesItemModel(generalSettings, modelData, firmware, board, boardType));
       break;
     default:
       qDebug() << "Error: unknown item model: id";

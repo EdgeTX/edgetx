@@ -100,13 +100,18 @@ class BoardJson
     const bool isInputCalibrated(int index) const;
     const bool isInputConfigurable(int index) const;
     const bool isInputIgnored(int index) const;
-    const bool isInputPot(int index) const;
+    const bool isInputFlexPot(int index) const;
+    const bool isInputFlexSwitch(int index) const;
     const bool isInputStick(int index) const;
 
     const int getSwitchIndex(const QString tag) const;
     const Board::SwitchInfo getSwitchInfo(int index) const;
     const QString getSwitchName(int index) const;
     const QString getSwitchTag(int index) const;
+    const int getSwitchTagNum(int index) const;
+
+    const bool isSwitchConfigurable(int index) const;
+    const bool isSwitchFlex(int index) const;
 
 private:
     Board::Type m_board;
@@ -116,20 +121,29 @@ private:
     SwitchesTable *m_switches;
     TrimsTable *m_trims;
 
-    unsigned int m_flexCnt;
-    unsigned int m_funcSwitchesCnt;
-    unsigned int m_gyroAxesCnt;
-    unsigned int m_joystickAxesCnt;
-    unsigned int m_potsCnt;
-    unsigned int m_slidersCnt;
-    unsigned int m_sticksCnt;
-    unsigned int m_switchesCnt;
-    unsigned int m_rtcbatCnt;
-    unsigned int m_vbatCnt;
+    struct InputCounts {
+      unsigned int flexGyroAxes;
+      unsigned int flexJoystickAxes;
+      unsigned int flexPots;
+      unsigned int flexSliders;
+      unsigned int flexSwitches;
+      unsigned int sticks;
+      unsigned int rtcbat;
+      unsigned int vbat;
+    };
+
+    InputCounts m_inputCnt;
+
+    struct SwitchCounts {
+      unsigned int std;
+      unsigned int flex;
+      unsigned int func;
+    };
+
+    SwitchCounts m_switchCnt;
 
     static bool loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches, TrimsTable * trims);
-    // post loadFile fix ups
-    static void addGyroAxes(Board::Type board, InputsTable * inputs);
+    static void afterLoadFixups(Board::Type board, InputsTable * inputs, SwitchesTable * switches);
     static std::string setStickName(int index);
 
     static int getInputsCalibrated(const InputsTable * inputs);
@@ -145,33 +159,29 @@ private:
     static Board::SwitchInfo getSwitchInfo(const SwitchesTable * switches, int index);
     static QString getSwitchName(const SwitchesTable * switches, int index);
     static QString getSwitchTag(const SwitchesTable * switches, int index);
+    static int getSwitchTagNum(const SwitchesTable * switches, int index);
 
     static bool isInputAvailable(const InputDefn & defn);
     static bool isInputCalibrated(const InputDefn & defn);
     static bool isInputConfigurable(const InputDefn & defn);
+    static bool isInputFlex(const InputDefn & defn);
+    static bool isInputFlexGyroAxis(const InputDefn & defn);
+    static bool isInputFlexJoystickAxis(const InputDefn & defn);
+    static bool isInputFlexPot(const InputDefn & defn);
+    static bool isInputFlexPotMultipos(const InputDefn & defn);
+    static bool isInputFlexSlider(const InputDefn & defn);
+    static bool isInputFlexSwitch(const InputDefn & defn);
     static bool isInputIgnored(const InputDefn & defn);
+    static bool isInputRTCBat(const InputDefn & defn);
+    static bool isInputStick(const InputDefn & defn);
+    static bool isInputVBat(const InputDefn & defn);
 
-    static bool isFlex(const InputDefn & defn);
-    static bool isGyroAxis(const InputDefn & defn);
-    static bool isJoystickAxis(const InputDefn & defn);
-    static bool isMultipos(const InputDefn & defn);
-    static bool isPot(const InputDefn & defn);
-    static bool isSlider(const InputDefn & defn);
-    static bool isFlexSwitch(const InputDefn & defn);
-    static bool isFuncSwitch(const SwitchDefn & defn);
-    static bool isRTCBat(const InputDefn & defn);
-    static bool isStick(const InputDefn & defn);
-    static bool isSwitch(const SwitchDefn & defn);
-    static bool isVBat(const InputDefn & defn);
+    static bool isSwitchStd(const SwitchDefn & defn);
+    static bool isSwitchFlex(const SwitchDefn & defn);
+    static bool isSwitchFunc(const SwitchDefn & defn);
 
-    static unsigned int setFlexCount(const InputsTable * inputs);
-    static unsigned int setFuncSwitchesCount(const SwitchesTable * switches);
-    static unsigned int setGyroAxesCount(const InputsTable * inputs);
-    static unsigned int setJoystickAxesCount(const InputsTable * inputs);
-    static unsigned int setPotsCount(const InputsTable * inputs);
-    static unsigned int setSlidersCount(const InputsTable * inputs);
-    static unsigned int setSticksCount(const InputsTable * inputs);
-    static unsigned int setSwitchesCount(const SwitchesTable * switches);
-    static unsigned int setRTCBatCount(const InputsTable * inputs);
-    static unsigned int setVBatCount(const InputsTable * inputs);
+    static void setInputCounts(const InputsTable * inputs, InputCounts & inputCounts);
+    static void setSwitchCounts(const SwitchesTable * switches, SwitchCounts & switchCounts);
+
+    static int getNumericSuffix(const std::string str);
 };

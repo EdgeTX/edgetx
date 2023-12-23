@@ -49,7 +49,7 @@ static const StringTagMappingTable switchTypesLookupTable = {
     {std::to_string(Board::SWITCH_TOGGLE),        "TOGGLE"},
     {std::to_string(Board::SWITCH_2POS),          "2POS"},
     {std::to_string(Board::SWITCH_3POS),          "3POS"},
-    {std::to_string(Board::SWITCH_FSWITCH),       "FSWITCH"},
+    {std::to_string(Board::SWITCH_FUNC),          "FSWITCH"},
 };
 
 BoardJson::BoardJson(Board::Type board, QString hwdefn) :
@@ -58,16 +58,8 @@ BoardJson::BoardJson(Board::Type board, QString hwdefn) :
   m_inputs(new InputsTable),
   m_switches(new SwitchesTable),
   m_trims(new TrimsTable),
-  m_flexCnt(0),
-  m_funcSwitchesCnt(0),
-  m_gyroAxesCnt(0),
-  m_joystickAxesCnt(0),
-  m_potsCnt(0),
-  m_slidersCnt(0),
-  m_sticksCnt(0),
-  m_switchesCnt(0),
-  m_rtcbatCnt(0),
-  m_vbatCnt(0)
+  m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0}),
+  m_switchCnt({0, 0, 0})
 {
 
 }
@@ -80,7 +72,7 @@ BoardJson::~BoardJson()
 }
 
 // static
-void BoardJson::addGyroAxes(Board::Type board, InputsTable * inputs)
+void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, SwitchesTable * switches)
 {
   // TODO json files do not contain gyro defs
   // Radio cmake directive IMU is currently used
@@ -107,6 +99,19 @@ void BoardJson::addGyroAxes(Board::Type board, InputsTable * inputs)
       inputs->insert(inputs->end(), defn);
     }
   }
+
+  //  Flex switches are not listed in json file
+  int count = IS_RADIOMASTER_TX16S(board) ? 2 : 0;
+
+  for (int i = 1; i <= count; i++) {
+    QString tag = QString("FL%1").arg(i);
+    if (getSwitchIndex(switches, tag) < 0) {
+      SwitchDefn defn;
+      defn.tag = tag.toStdString();
+      defn.name = defn.tag;
+      switches->insert(switches->end(), defn);
+    }
+  }
 }
 
 // called from Boards::getCapability if no capability match
@@ -114,22 +119,26 @@ const int BoardJson::getCapability(const Board::Capability capability) const
 {
   switch (capability) {
     case Board::FlexInputs:
-      return m_flexCnt;
+      return (m_inputCnt.flexGyroAxes +
+              m_inputCnt.flexJoystickAxes +
+              m_inputCnt.flexPots +
+              m_inputCnt.flexSliders +
+              m_inputCnt.flexSwitches);
 
-    case Board::FunctionSwitches:
-      return m_funcSwitchesCnt;
+    case FunctionSwitches:  // TODO legacy pre v2.10
+      return getCapability(Board::SwitchesFunction);
 
-    case GyroAxes:
-      return m_gyroAxesCnt;
+    case Board::GyroAxes:
+      return m_inputCnt.flexGyroAxes;
 
-    case Gyros:
+    case Board::Gyros:
       return getCapability(Board::GyroAxes) / 2;
 
-    case HasRTC:
-      return m_rtcbatCnt;
+    case Board::HasRTC:
+      return m_inputCnt.rtcbat;
 
-    case HasVBat:
-      return m_vbatCnt;
+    case Board::HasVBat:
+      return m_inputCnt.vbat;
 
     case Board::Inputs:
       return m_inputs->size();
@@ -138,16 +147,27 @@ const int BoardJson::getCapability(const Board::Capability capability) const
       return m_trims->size();
 
     case Board::Pots:
-      return m_potsCnt;
+      return m_inputCnt.flexPots;
 
     case Board::Sliders:
-      return m_slidersCnt;
+      return m_inputCnt.flexSliders;
 
     case Board::Sticks:
-      return m_sticksCnt;
+      return m_inputCnt.sticks;
 
     case Board::Switches:
-      return m_switchesCnt;
+      return (m_switchCnt.std +
+              m_switchCnt.flex +
+              m_switchCnt.func);
+
+    case Board::SwitchesStd:
+      return m_switchCnt.std;
+
+    case Board::SwitchesFunction:
+      return m_switchCnt.func;
+
+    case Board::SwitchesFlex:
+      return m_switchCnt.flex;
 
     default:
       return 0;
@@ -194,50 +214,6 @@ QString BoardJson::getInputTag(const InputsTable * inputs, int index)
 {
   if (index > -1 && index < (int)inputs->size())
     return inputs->at(index).tag.c_str();
-
-  return CPN_STR_UNKNOWN_ITEM;
-}
-
-const int BoardJson::getSwitchIndex(const QString tag) const
-{
-  return getSwitchIndex(m_switches, tag);
-}
-
-// static
-int BoardJson::getSwitchIndex(const SwitchesTable * switches, QString tag)
-{
-  for (int i = 0; i < (int)switches->size(); i++) {
-    if (switches->at(i).tag.c_str() == tag)
-      return i;
-  }
-
-  return -1;
-}
-
-const QString BoardJson::getSwitchName(int index) const
-{
-  return getSwitchName(m_switches, index);
-}
-
-// static
-QString BoardJson::getSwitchName(const SwitchesTable * switches, int index)
-{
-  if (index > -1 && index < (int)switches->size())
-    return switches->at(index).name.c_str();
-
-  return CPN_STR_UNKNOWN_ITEM;
-}
-
-const QString BoardJson::getSwitchTag(int index) const
-{
-  return getSwitchName(m_switches, index);
-}
-
-// static
-QString BoardJson::getSwitchTag(const SwitchesTable * switches, int index)
-{
-  if (index > -1 && index < (int)switches->size())
-    return switches->at(index).tag.c_str();
 
   return CPN_STR_UNKNOWN_ITEM;
 }
@@ -330,6 +306,38 @@ Board::InputInfo BoardJson::getInputInfo(const InputsTable * inputs, int index)
   return info;
 }
 
+// static
+int BoardJson::getNumericSuffix(const std::string str)
+{
+  std::string suffix = std::string();
+
+  for (int i = 0; i < (int)str.size(); i++) {
+    if (str.substr(i, 1) >= "0" && str.substr(i, 1) <= "9")
+      suffix.append(str.substr(i, 1));
+  }
+
+  if (!suffix.empty())
+    return std::stoi(suffix);
+
+  return -1;
+}
+
+const int BoardJson::getSwitchIndex(const QString tag) const
+{
+  return getSwitchIndex(m_switches, tag);
+}
+
+// static
+int BoardJson::getSwitchIndex(const SwitchesTable * switches, QString tag)
+{
+  for (int i = 0; i < (int)switches->size(); i++) {
+    if (switches->at(i).tag.c_str() == tag)
+      return i;
+  }
+
+  return -1;
+}
+
 const Board::SwitchInfo BoardJson::getSwitchInfo(int index) const
 {
   return getSwitchInfo(m_switches, index);
@@ -351,6 +359,48 @@ Board::SwitchInfo BoardJson::getSwitchInfo(const SwitchesTable * switches, int i
   return info;
 }
 
+const QString BoardJson::getSwitchName(int index) const
+{
+  return getSwitchName(m_switches, index);
+}
+
+// static
+QString BoardJson::getSwitchName(const SwitchesTable * switches, int index)
+{
+  if (index > -1 && index < (int)switches->size())
+    return switches->at(index).name.c_str();
+
+  return CPN_STR_UNKNOWN_ITEM;
+}
+
+const QString BoardJson::getSwitchTag(int index) const
+{
+  return getSwitchName(m_switches, index);
+}
+
+// static
+QString BoardJson::getSwitchTag(const SwitchesTable * switches, int index)
+{
+  if (index > -1 && index < (int)switches->size())
+    return switches->at(index).tag.c_str();
+
+  return CPN_STR_UNKNOWN_ITEM;
+}
+
+const int BoardJson::getSwitchTagNum(int index) const
+{
+  return getSwitchTagNum(m_switches, index);
+}
+
+// static
+int BoardJson::getSwitchTagNum(const SwitchesTable * switches, int index)
+{
+  if (index > -1 && index < (int)switches->size())
+    return getNumericSuffix(switches->at(index).tag.c_str());
+
+  return -1;
+}
+
 const bool BoardJson::isInputAvailable(int index) const
 {
   return isInputAvailable(m_inputs->at(index));
@@ -360,7 +410,7 @@ const bool BoardJson::isInputAvailable(int index) const
 bool BoardJson::isInputAvailable(const InputDefn & defn)
 {
   return (defn.type == Board::AIT_STICK ||
-          (defn.type == Board::AIT_FLEX && defn.flexType != Board::FLEX_NONE && !isJoystickAxis(defn)));
+          (defn.type == Board::AIT_FLEX && defn.flexType != Board::FLEX_NONE && !isInputFlexJoystickAxis(defn)));
 }
 
 const bool BoardJson::isInputCalibrated(int index) const
@@ -371,7 +421,7 @@ const bool BoardJson::isInputCalibrated(int index) const
 // static
 bool BoardJson::isInputCalibrated(const InputDefn & defn)
 {
-  return (isStick(defn) || isPot(defn) || isSlider(defn));
+  return (isInputStick(defn) || isInputFlexPot(defn) || isInputFlexSlider(defn));
 }
 
 const bool BoardJson::isInputConfigurable(int index) const
@@ -382,7 +432,7 @@ const bool BoardJson::isInputConfigurable(int index) const
 // static
 bool BoardJson::isInputConfigurable(const InputDefn & defn)
 {
-  return (isStick(defn) || isPot(defn) || isSlider(defn));
+  return (isInputStick(defn) || isInputFlexPot(defn) || isInputFlexSlider(defn));
 }
 
 const bool BoardJson::isInputIgnored(int index) const
@@ -393,65 +443,40 @@ const bool BoardJson::isInputIgnored(int index) const
 // static
 bool BoardJson::isInputIgnored(const InputDefn & defn)
 {
-  return isJoystickAxis(defn);
-}
-
-const bool BoardJson::isInputPot(int index) const
-{
-  return !isStick(m_inputs->at(index));
-}
-
-const bool BoardJson::isInputStick(int index) const
-{
-  return isStick(m_inputs->at(index));
+  return isInputFlexJoystickAxis(defn);
 }
 
 // static
-bool BoardJson::isFlex(const InputDefn & defn)
+bool BoardJson::isInputFlex(const InputDefn & defn)
 {
   return defn.type == Board::AIT_FLEX;
 }
 
 // static
-bool BoardJson::isFlexSwitch(const InputDefn & defn)
-{
-  return defn.type == Board::AIT_FLEX && defn.flexType == Board::FLEX_SWITCH;
-}
-
-// static
-bool BoardJson::isFuncSwitch(const SwitchDefn & defn)
-{
-  return defn.type == Board::SWITCH_FSWITCH;
-}
-
-// static
-bool BoardJson::isGyroAxis(const InputDefn & defn)
+bool BoardJson::isInputFlexGyroAxis(const InputDefn & defn)
 {
   const char* val = defn.tag.data();
-  size_t len = defn.tag.size();
 
-  return (defn.type == Board::AIT_FLEX && len > 5 &&
+  return (defn.type == Board::AIT_FLEX && defn.tag.size() > 5 &&
           val[0] == 'T' && val[1] == 'I'  && val[2] == 'L' && val[3] == 'T' && val[4] == '_' && (val[5] == 'X' || val[5] == 'Y'));
 }
 
 // static
-bool BoardJson::isJoystickAxis(const InputDefn & defn)
+bool BoardJson::isInputFlexJoystickAxis(const InputDefn & defn)
 {
   const char* val = defn.tag.data();
-  size_t len = defn.tag.size();
 
-  return (defn.type == Board::AIT_FLEX && len > 2 &&
+  return (defn.type == Board::AIT_FLEX && defn.tag.size() > 2 &&
           val[0] == 'J' && val[1] == 'S' && (val[2] == 'x' || val[2] == 'y'));
 }
 
-// static
-bool BoardJson::isMultipos(const InputDefn & defn)
+const bool BoardJson::isInputFlexPot(int index) const
 {
-  return defn.type == Board::AIT_FLEX && defn.flexType == Board::FLEX_MULTIPOS;
+  return isInputFlexPot(m_inputs->at(index));
 }
 
 // static
-bool BoardJson::isPot(const InputDefn & defn)
+bool BoardJson::isInputFlexPot(const InputDefn & defn)
 {
   const char* val = defn.tag.data();
   size_t len = defn.tag.size();
@@ -462,37 +487,90 @@ bool BoardJson::isPot(const InputDefn & defn)
 }
 
 // static
-bool BoardJson::isSlider(const InputDefn & defn)
+bool BoardJson::isInputFlexPotMultipos(const InputDefn & defn)
+{
+  return defn.type == Board::AIT_FLEX && defn.flexType == Board::FLEX_MULTIPOS;
+}
+
+// static
+bool BoardJson::isInputFlexSlider(const InputDefn & defn)
 {
   const char* val = defn.tag.data();
-  size_t len = defn.tag.size();
 
-  return (defn.type == Board::AIT_FLEX && len > 2 &&
+  return (defn.type == Board::AIT_FLEX && defn.tag.size() > 2 &&
           val[0] == 'S' && val[1] == 'L' && val[2] >= '0' && val[2] <= '9');
 }
 
 // static
-bool BoardJson::isRTCBat(const InputDefn & defn)
+bool BoardJson::isInputFlexSwitch(const InputDefn & defn)
+{
+  return defn.type == Board::AIT_FLEX && defn.flexType == Board::FLEX_SWITCH;
+}
+
+// static
+bool BoardJson::isInputRTCBat(const InputDefn & defn)
 {
   return defn.type == Board::AIT_RTC_BAT;
 }
 
+const bool BoardJson::isInputStick(int index) const
+{
+  return isInputStick(m_inputs->at(index));
+}
+
 // static
-bool BoardJson::isStick(const InputDefn & defn)
+bool BoardJson::isInputStick(const InputDefn & defn)
 {
   return defn.type == Board::AIT_STICK;
 }
 
 // static
-bool BoardJson::isSwitch(const SwitchDefn & defn)
+bool BoardJson::isInputVBat(const InputDefn & defn)
 {
-  return defn.type != Board::SWITCH_FSWITCH;
+  return defn.type == Board::AIT_VBAT;
+}
+
+const bool BoardJson::isSwitchConfigurable(int index) const
+{
+  if (index >= 0 && index < getCapability(Board::Switches)) {
+    SwitchDefn &defn = m_switches->at(index);
+    if (isSwitchStd(defn))
+      return true;
+
+    if (isSwitchFlex(defn)) {
+      int sfx = getNumericSuffix(defn.tag);
+      if (sfx > 0 && sfx <= getCapability(Board::SwitchesFlex))
+        return true;
+    }
+  }
+
+  return false;
 }
 
 // static
-bool BoardJson::isVBat(const InputDefn & defn)
+bool BoardJson::isSwitchStd(const SwitchDefn & defn)
 {
-  return defn.type == Board::AIT_VBAT;
+  return !(isSwitchFlex(defn) || isSwitchFunc(defn));
+}
+
+const bool BoardJson::isSwitchFlex(int index) const
+{
+  return isSwitchFlex(m_switches->at(index));
+}
+
+// static
+bool BoardJson::isSwitchFlex(const SwitchDefn & defn)
+{
+  const char* val = defn.tag.data();
+
+  return (defn.tag.size() > 2 &&
+          val[0] == 'F' && val[1] == 'L' && val[2] >= '0' && val[2] <= '9');
+}
+
+// static
+bool BoardJson::isSwitchFunc(const SwitchDefn & defn)
+{
+  return defn.type == Board::SWITCH_FUNC;
 }
 
 bool BoardJson::loadDefinition()
@@ -504,19 +582,10 @@ bool BoardJson::loadDefinition()
   if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_trims))
     return false;
 
-  // json files do not normally define joysticks or gyros
-  addGyroAxes(m_board, m_inputs);
+  afterLoadFixups(m_board, m_inputs, m_switches);
 
-  m_flexCnt = setFlexCount(m_inputs);
-  m_gyroAxesCnt = setGyroAxesCount(m_inputs);
-  m_joystickAxesCnt = setJoystickAxesCount(m_inputs);
-  m_potsCnt = setPotsCount(m_inputs);
-  m_slidersCnt = setSlidersCount(m_inputs);
-  m_sticksCnt = setSticksCount(m_inputs);
-  m_funcSwitchesCnt = setFuncSwitchesCount(m_switches);
-  m_switchesCnt = setSwitchesCount(m_switches);
-  m_rtcbatCnt = setRTCBatCount(m_inputs);
-  m_vbatCnt = setVBatCount(m_inputs);
+  setInputCounts(m_inputs, m_inputCnt);
+  setSwitchCounts(m_switches, m_switchCnt);
 
   // json files do not normally specify stick labels so load legacy labels
   for (int i = 0; i < getCapability(Board::Sticks); i++) {
@@ -527,14 +596,15 @@ bool BoardJson::loadDefinition()
   qDebug() << "Board:" << Boards::getBoardName(m_board) <<
               "inputs:" << getCapability(Board::Inputs) <<
               "sticks:" << getCapability(Board::Sticks) <<
-              "flex:" << getCapability(Board::FlexInputs) <<
               "pots:" << getCapability(Board::Pots) <<
               "sliders:" << getCapability(Board::Sliders) <<
               "gyro axes:" << getCapability(Board::GyroAxes) <<
               "joystick axes:" << getCapability(Board::JoystickAxes) <<
+              "flex inputs:" << getCapability(Board::FlexInputs) <<
               "trims:" << getCapability(Board::NumTrims) <<
-              "switches:" << getCapability(Board::Switches) <<
-              "funcswitches:" << getCapability(Board::FunctionSwitches) <<
+              "switches std:" << getCapability(Board::SwitchesStd) <<
+              "switches flex:" << getCapability(Board::SwitchesFlex) <<
+              "switches func:" << getCapability(Board::SwitchesFunction) <<
               "rtcbat:" << getCapability(Board::HasRTC) <<
               "vbat:" << getCapability(Board::HasVBat);
 
@@ -713,97 +783,39 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
 }
 
 // static
-unsigned int BoardJson::setFlexCount(const InputsTable * inputs)
+void BoardJson::setInputCounts(const InputsTable * inputs, InputCounts & inputCounts)
 {
-  unsigned int cnt = 0;
-
   for (const auto &defn : *inputs) {
-    if (isFlex(defn)) cnt++;
+    if (isInputStick(defn))
+      inputCounts.sticks++;
+    else if (isInputFlexPot(defn))
+      inputCounts.flexPots++;
+    else if (isInputFlexSlider(defn))
+      inputCounts.flexSliders++;
+    else if (isInputFlexGyroAxis(defn))
+      inputCounts.flexGyroAxes++;
+    else if (isInputFlexJoystickAxis(defn))
+      inputCounts.flexJoystickAxes++;
+    else if (isInputFlexSwitch(defn))
+      inputCounts.flexSwitches++;
+    else if (isInputRTCBat(defn))
+      inputCounts.rtcbat++;
+    else if (isInputVBat(defn))
+      inputCounts.vbat++;
   }
-
-  return cnt;
 }
 
 // static
-unsigned int BoardJson::setGyroAxesCount(const InputsTable * inputs)
+void BoardJson::setSwitchCounts(const SwitchesTable * switches, SwitchCounts & switchCounts)
 {
-  unsigned int cnt = 0;
-
-  for (const auto &defn : *inputs) {
-    if (isGyroAxis(defn)) cnt++;
-  }
-
-  return cnt;
-}
-
-// static
-unsigned int BoardJson::setJoystickAxesCount(const InputsTable * inputs)
-{
-  unsigned int cnt = 0;
-
-  for (const auto &defn : *inputs) {
-    if (isJoystickAxis(defn)) cnt++;
-  }
-
-  return cnt;
-}
-
-// static
-unsigned int BoardJson::setPotsCount(const InputsTable * inputs)
-{
-  unsigned int cnt = 0;
-
-  for (const auto &defn : *inputs) {
-    if (isPot(defn)) cnt++;
-  }
-
-  return cnt;
-}
-
-// static
-unsigned int BoardJson::setRTCBatCount(const InputsTable * inputs)
-{
-  for (const auto &defn : *inputs) {
-    if (isRTCBat(defn)) return true;
-  }
-
-  return false;
-}
-
-// static
-unsigned int BoardJson::setSlidersCount(const InputsTable * inputs)
-{
-  unsigned int cnt = 0;
-
-  for (const auto &defn : *inputs) {
-    if (isSlider(defn)) cnt++;
-  }
-
-  return cnt;
-}
-
-// static
-unsigned int BoardJson::setSticksCount(const InputsTable * inputs)
-{
-  unsigned int cnt = 0;
-
-  for (const auto &defn : *inputs) {
-    if (isStick(defn)) cnt++;
-  }
-
-  return cnt;
-}
-
-// static
-unsigned int BoardJson::setFuncSwitchesCount(const SwitchesTable * switches)
-{
-  unsigned int cnt = 0;
-
   for (const auto &swtch : *switches) {
-    if (isFuncSwitch(swtch)) cnt++;
+    if (isSwitchStd(swtch))
+      switchCounts.std++;
+    else if (isSwitchFlex(swtch))
+      switchCounts.flex++;
+    else if (isSwitchFunc(swtch))
+      switchCounts.func++;
   }
-
-  return cnt;
 }
 
 // static
@@ -811,26 +823,4 @@ std::string BoardJson::setStickName(int index)
 {
   QStringList strl = { tr("Rud"), tr("Ele"), tr("Thr"), tr("Ail") };
   return strl.value(index, CPN_STR_UNKNOWN_ITEM).toStdString();
-}
-
-// static
-unsigned int BoardJson::setSwitchesCount(const SwitchesTable * switches)
-{
-  unsigned int cnt = 0;
-
-  for (const auto &swtch : *switches) {
-    if (isSwitch(swtch)) cnt++;
-  }
-
-  return cnt;
-}
-
-// static
-unsigned int BoardJson::setVBatCount(const InputsTable * inputs)
-{
-  for (const auto &defn : *inputs) {
-    if (isVBat(defn)) return true;
-  }
-
-  return false;
 }

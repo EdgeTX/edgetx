@@ -22,6 +22,7 @@
 
 #include "boards.h"
 #include "eeprominterface.h"
+#include "generalsettings.h"
 
 const YamlLookupTable switchConfigLut = {
     {Board::SWITCH_NOT_AVAILABLE, "none"},
@@ -143,6 +144,27 @@ void YamlSwitchConfig::copy(GeneralSettings::SwitchConfig* rhs) const
   }
 }
 
+YamlSwitchesFlex::YamlSwitchesFlex(const GeneralSettings::SwitchConfig* rhs, const GeneralSettings::InputConfig* config)
+{
+  Board::Type board = getCurrentBoard();
+
+  for (int i = 0; i < Boards::getCapability(board, Board::SwitchesFlex); i++) {
+    if (config[rhs[i].inputIdx].flexType == Board::FLEX_SWITCH) {
+      std::string tag = std::string("FL") + std::to_string(i);
+      switchFlex[i].channel = Boards::getInputTag(board, rhs[i].inputIdx).toStdString();
+    }
+  }
+}
+
+void YamlSwitchesFlex::copy(GeneralSettings::SwitchConfig* rhs) const
+{
+ Board::Type board = getCurrentBoard();
+
+  for (int i = 0; i < Boards::getCapability(board, Board::SwitchesFlex); i++) {
+    rhs[i].inputIdx = Boards::getInputIndex(board, switchFlex[i].channel.c_str());
+  }
+}
+
 namespace YAML
 {
 
@@ -208,6 +230,22 @@ bool convert<SwitchConfig>::decode(const Node& node, SwitchConfig& rhs)
       rhs.inverted = info.inverted;
     }
   }
+
+  return true;
+}
+
+Node convert<SwitchFlex>::encode(const SwitchFlex& rhs)
+{
+  Node node;
+  node["channel"] = rhs.channel;
+  return node;
+}
+
+bool convert<SwitchFlex>::decode(const Node& node, SwitchFlex& rhs)
+{
+  if (!node.IsMap()) return false;
+
+  node["channel"] >> rhs.channel;
 
   return true;
 }
@@ -333,7 +371,7 @@ Node convert<YamlSwitchConfig>::encode(const YamlSwitchConfig& rhs)
 
   for (int i = 0; i < maxcnt; i++) {
     if (rhs.switchConfig[i].type != Board::SWITCH_NOT_AVAILABLE) {
-      std::string tag = Boards::getSwitchName(board, i).toStdString();
+      std::string tag = Boards::getSwitchTag(board, i).toStdString();
       node[tag] = rhs.switchConfig[i];
     }
   }
@@ -356,6 +394,47 @@ bool convert<YamlSwitchConfig>::decode(const Node& node, YamlSwitchConfig& rhs)
     if (idx >= 0 && idx < maxcnt) {
       kv.second >> rhs.switchConfig[idx];
       rhs.switchConfig[idx].tag = tag;
+    }
+  }
+
+  return true;
+}
+
+Node convert<YamlSwitchesFlex>::encode(const YamlSwitchesFlex& rhs)
+{
+  Node node;
+  Board::Type board = getCurrentBoard();
+  const int maxcnt = Boards::getCapability(board, Board::SwitchesFlex);
+
+  for (int i = 0; i < maxcnt; i++) {
+    if (!rhs.switchFlex[i].tag.empty())
+      node[rhs.switchFlex[i].tag] = rhs.switchFlex[i];
+  }
+
+  return node;
+}
+
+bool convert<YamlSwitchesFlex>::decode(const Node& node, YamlSwitchesFlex& rhs)
+{
+  if (!node.IsMap()) return false;
+
+  Board::Type board = getCurrentBoard();
+  const int maxcnt = Boards::getCapability(board, Board::SwitchesFlex);
+
+  for (const auto& kv : node) {
+    std::string tag;
+    kv.first >> tag;
+
+    const char* val = tag.data();
+    size_t len = tag.size();
+
+    if (len > 2 && val[0] == 'F' && val[1] == 'L'  && val[2] > '0' && val[2] <= '9') {
+      int idx = std::stoi(tag.substr(2, len - 2));
+
+      if (idx >= 0 && idx < maxcnt) {
+        kv.second >> rhs.switchFlex[idx];
+        rhs.switchFlex[idx].tag = tag;
+      }
     }
   }
 

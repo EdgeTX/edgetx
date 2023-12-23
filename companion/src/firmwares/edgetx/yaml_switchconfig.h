@@ -24,6 +24,8 @@
 #include "generalsettings.h"
 #include <string.h>
 
+class GeneralSettings;
+
 struct InputConfig {
   std::string tag = std::string();
   unsigned int type = 0;
@@ -70,6 +72,20 @@ struct YamlSwitchConfig {
   void copy(GeneralSettings::SwitchConfig* rhs) const;
 };
 
+struct SwitchFlex {
+  std::string tag = std::string();
+  std::string channel = std::string();
+  int inputIndx = 0;
+};
+
+struct YamlSwitchesFlex {
+  SwitchFlex switchFlex[CPN_MAX_SWITCHES_FLEX];
+
+  YamlSwitchesFlex() = default;
+  YamlSwitchesFlex(const GeneralSettings::SwitchConfig* rhs, const GeneralSettings::InputConfig* config);
+  void copy(GeneralSettings::SwitchConfig* rhs) const;
+};
+
 namespace YAML
 {
 template <>
@@ -82,6 +98,12 @@ template <>
 struct convert<SwitchConfig> {
   static Node encode(const SwitchConfig& rhs);
   static bool decode(const Node& node, SwitchConfig& rhs);
+};
+
+template <>
+struct convert<SwitchFlex> {
+  static Node encode(const SwitchFlex& rhs);
+  static bool decode(const Node& node, SwitchFlex& rhs);
 };
 
 template <>
@@ -105,6 +127,12 @@ template <>
 struct convert<YamlSwitchConfig> {
   static Node encode(const YamlSwitchConfig& rhs);
   static bool decode(const Node& node, YamlSwitchConfig& rhs);
+};
+
+template <>
+struct convert<YamlSwitchesFlex> {
+  static Node encode(const YamlSwitchesFlex& rhs);
+  static bool decode(const Node& node, YamlSwitchesFlex& rhs);
 };
 
 }  // namespace YAML

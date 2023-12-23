@@ -106,7 +106,7 @@ namespace Board {
     SWITCH_TOGGLE,
     SWITCH_2POS,
     SWITCH_3POS,
-    SWITCH_FSWITCH,
+    SWITCH_FUNC,
     SWITCH_TYPE_COUNT
   };
 
@@ -155,7 +155,6 @@ namespace Board {
     FactoryInstalledPots,
     FactoryInstalledSwitches,
     FlexInputs,
-    FunctionSwitches,
     Gyros,
     GyroAxes,
     HasAudioMuteGPIO,
@@ -183,6 +182,10 @@ namespace Board {
     SportMaxBaudRate,
     Sticks,
     Switches,
+    SwitchesFlex,
+    SwitchesFunction,
+    FunctionSwitches,   // TODO legacy use SwitchesFunction
+    SwitchesStd,
     SwitchPositions,
   };
 
@@ -318,6 +321,7 @@ class Boards
     static int getSwitchIndex(Board::Type board, QString tag);
     static QString getSwitchName(Board::Type board, int index);
     static QString getSwitchTag(Board::Type board, int index);
+    static int getSwitchTagNum(Board::Type board, int index);
 
     STRINGTAGMAPPINGFUNCS(trimSourcesLookupTable, TrimSource);
     STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitch);
@@ -331,6 +335,9 @@ class Boards
     static bool isInputIgnored(Board::Type board, int index);
     static bool isInputPot(Board::Type board, int index);
     static bool isInputStick(Board::Type board, int index);
+
+    static bool isSwitchConfigurable(Board::Type board, int index);
+    static bool isSwitchFlex(Board::Type board, int index);
 
     static QString flexTypeToString(int value);
     static AbstractStaticItemModel * flexTypeItemModel();
