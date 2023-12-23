@@ -175,7 +175,7 @@ void menuTextView(event_t event)
         lcdDrawText(8, i*FH+FH+1, reusableBuffer.viewText.lines[i], FIXEDWIDTH);
       }
       else {
-        lcdDrawText(8, i*FH+FH+1, &reusableBuffer.viewText.lines[i][1], FIXEDWIDTH);
+        lcdDrawText(8, i*FH+FH+1, &reusableBuffer.viewText.lines[i][0], FIXEDWIDTH);
         if (i == checklistPosition-(int)menuVerticalOffset){
           ++checklistPosition;
           if (checklistPosition-(int)menuVerticalOffset == LCD_LINES-1 && menuVerticalOffset+LCD_LINES-1 < reusableBuffer.viewText.linesCount) {
