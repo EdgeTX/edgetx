@@ -117,6 +117,7 @@ void boardInit()
     FLASH_OB_Launch();
     FLASH_OB_Lock();
   }
+  FLASH_PrefetchBufferCmd(DISABLE);
 #endif
 
   init_trainer();
