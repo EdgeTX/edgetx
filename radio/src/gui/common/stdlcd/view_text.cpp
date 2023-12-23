@@ -99,8 +99,24 @@ void readModelNotes()
   LED_ERROR_BEGIN();
 
   strcpy(reusableBuffer.viewText.filename, MODELS_PATH "/");
-  char *buf = strcat_currentmodelname(&reusableBuffer.viewText.filename[sizeof(MODELS_PATH)], 0);
+  char *buf = strcat_currentmodelname(
+      &reusableBuffer.viewText.filename[sizeof(MODELS_PATH)], 0);
   strcpy(buf, TEXT_EXT);
+
+  if (!isFileAvailable(reusableBuffer.viewText.filename)) {
+    buf = strcat_currentmodelname(
+        &reusableBuffer.viewText.filename[sizeof(MODELS_PATH)], ' ');
+    strcpy(buf, TEXT_EXT);
+
+#if defined(STORAGE_MODELSLIST)
+    if (!isFileAvailable(reusableBuffer.viewText.filename)) {
+      buf = strAppendFilename(
+          &reusableBuffer.viewText.filenam[sizeof(MODELS_PATH)],
+          g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME);
+      strcpy(buf, TEXT_EXT);
+    }
+#endif
+  }
 
   waitKeysReleased();
   event_t event = EVT_ENTRY;
