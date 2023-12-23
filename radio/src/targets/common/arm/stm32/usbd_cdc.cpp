@@ -123,8 +123,6 @@ bool cdcConnected = false;
 static int8_t VCP_Init_FS(void)
 {
   cdcConnected = true;
-  receiveDataCb = nullptr;
-  baudRateCb = nullptr;
   USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
   return USBD_OK;
@@ -138,6 +136,8 @@ static int8_t VCP_DeInit_FS(void)
 {
   /* USER CODE BEGIN 4 */
   cdcConnected = false;
+  receiveDataCb = nullptr;
+  baudRateCb = nullptr;
   APP_Tx_ptr_in = 0;
   APP_Tx_ptr_out = 0;
   return (USBD_OK);
