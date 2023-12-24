@@ -161,6 +161,18 @@ bool GeneralSettings::isSwitchFlex(int index) const
   return Boards::isSwitchFlex(getCurrentBoard(), index);
 }
 
+bool GeneralSettings::unassignedInputFlexSwitches() const
+{
+  Board::Type board = getCurrentBoard();
+  int cnt = 0;
+
+  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
+    if (inputConfig[i].flexType == Board::FLEX_SWITCH)
+      cnt++;
+  }
+  return cnt < Boards::getCapability(board, Board::SwitchesFlex);
+}
+
 void GeneralSettings::clear()
 {
   memset(reinterpret_cast<void *>(this), 0, sizeof(GeneralSettings));

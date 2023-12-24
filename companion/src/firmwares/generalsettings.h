@@ -363,6 +363,7 @@ class GeneralSettings {
 
     bool switchPositionAllowedTaranis(int index) const;
     bool switchSourceAllowedTaranis(int index) const;
+
     bool isInputAvailable(int index) const;
     bool isInputMultiPosPot(int index) const;
     bool isInputPot(int index) const;
@@ -374,6 +375,7 @@ class GeneralSettings {
     bool isSwitchAvailable(int index) const;
     bool isSwitchFlex(int index) const;
     bool isMultiPosPot(int index) const;
+    bool unassignedInputFlexSwitches() const;
 
     QString antennaModeToString() const;
     QString bluetoothModeToString() const;

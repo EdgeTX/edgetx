@@ -28,6 +28,7 @@
 class AbstractStaticItemModel;
 class SemanticVersion;
 class BoardJson;
+class GeneralSettings;
 
 // identiying names of static abstract item models
 constexpr char AIM_BOARDS_POT_TYPE[]        {"boards.pottype"};
@@ -235,6 +236,13 @@ namespace Board {
     FLEX_AXIS_Y,
     FLEX_SWITCH,
     FLEX_TYPE_COUNT
+  };
+
+  enum FlexTypeMasks {
+    FlexTypeFlagNotSwitch   = 1 << 1,
+    FlexTypeFlagSwitch      = 1 << 2,
+    FlexTypeContextNoSwitch = FlexTypeFlagNotSwitch,
+    FlexTypeContextSwitch   = FlexTypeContextNoSwitch | FlexTypeFlagSwitch
   };
 
   struct InputInfo {

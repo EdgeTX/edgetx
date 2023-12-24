@@ -24,6 +24,7 @@
 #include "moduledata.h"
 #include "helpers.h"
 #include "boardfactories.h"
+#include "generalsettings.h"
 
 // TODO remove all those constants
 // Update: These are now all only used within this class.
@@ -770,7 +771,7 @@ AbstractStaticItemModel * Boards::flexTypeItemModel()
   mdl->setName(AIM_BOARDS_FLEX_TYPE);
 
   for (int i = 0; i < FLEX_TYPE_COUNT; i++) {
-    mdl->appendToItemList(flexTypeToString(i), i);
+    mdl->appendToItemList(flexTypeToString(i), i, true, 0, (i == (int)FLEX_SWITCH ? FlexTypeFlagSwitch : FlexTypeFlagNotSwitch));
   }
 
   mdl->loadItemList();
