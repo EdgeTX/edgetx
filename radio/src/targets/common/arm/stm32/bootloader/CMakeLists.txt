@@ -11,36 +11,14 @@ set(BOOTLOADER_SRC
   ../../../../../strhelpers.cpp
   ../../../../../stamp.cpp
   ../../../../../syscalls.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_OTG_Driver/src/usb_core.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_OTG_Driver/src/usb_dcd.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_OTG_Driver/src/usb_dcd_int.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_Device_Library/Core/src/usbd_core.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_Device_Library/Core/src/usbd_ioreq.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_Device_Library/Core/src/usbd_req.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_Device_Library/Class/msc/src/usbd_msc_data.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_Device_Library/Class/msc/src/usbd_msc_scsi.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_Device_Library/Class/msc/src/usbd_msc_bot.c
-  ../../../../../${STM32USB_DIR}/STM32_USB_Device_Library/Class/msc/src/usbd_msc_core.c
   ../../../../../targets/${TARGET_DIR}/${LCD_DRIVER}
   ../../../../../targets/${TARGET_DIR}/backlight_driver.cpp
   ../../../../../targets/${TARGET_DIR}/board.cpp
   ../../../../../targets/${TARGET_DIR}/bootloader/boot_menu.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/hal_keys.inc
   ../pwr_driver.cpp
-  ../usbd_usr.cpp
-  ../usbd_storage_msd.cpp
   ../delays_driver.cpp
-  ../timers_driver.cpp
-  ../usbd_desc.c
-  ../usb_bsp.c
-  ../usb_driver.cpp
   ../flash_driver.cpp
-  ../stm32_exti_driver.cpp
-  ../stm32_serial_driver.cpp
-  ../stm32_usart_driver.cpp
-  ../stm32_gpio_driver.cpp
-  ../stm32_timer.cpp
-  ../stm32_dma.cpp
   ../watchdog_driver.cpp
   ../abnormal_reboot.cpp
   init.c
@@ -81,18 +59,13 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL
     ../../../../../targets/common/arm/stm32/rtc_driver.cpp
     ../../../../../targets/common/arm/stm32/diskio_spi_flash.cpp
     ../../../../../targets/common/arm/stm32/spi_flash.cpp
-    ../../../../../targets/common/arm/stm32/stm32_spi.cpp
     ../../../../../drivers/frftl.cpp
     ../../../../../crc.cpp
     ../../../../../targets/${TARGET_DIR}/sdram_driver.c
     ../../../../../targets/${TARGET_DIR}/haptic_driver.cpp
     )
 
-  if(NOT PCB STREQUAL PL18)
-    set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
-      ../../../../../targets/common/arm/stm32/diskio_sdio.cpp
-    )
-  else()
+  if(PCB STREQUAL PL18)
     set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
       ../../../../../targets/pl18/key_driver.cpp
     )    
@@ -123,9 +96,6 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL
       ${BOOTLOADER_SRC}
       ../../../../../serial.cpp
       ../../../../../boards/generic_stm32/aux_ports.cpp
-      ../../../../../targets/common/arm/stm32/stm32_serial_driver.cpp
-      ../../../../../targets/common/arm/stm32/stm32_usart_driver.cpp
-      ../../../../../targets/common/arm/stm32/stm32_dma.cpp
       )
   endif()
 else()
@@ -133,10 +103,6 @@ else()
     ${BOOTLOADER_SRC}
     ../../../../../gui/common/stdlcd/fonts.cpp
     ../../../../../gui/common/stdlcd/utf8.cpp
-    ../../../../../targets/common/arm/stm32/stm32_gpio_driver.cpp
-    ../../../../../targets/common/arm/stm32/stm32_spi.cpp
-    ../../../../../targets/common/arm/stm32/sdcard_spi.cpp
-    ../../../../../targets/common/arm/stm32/diskio_spi.cpp
     ../../../../../crc.cpp
     )
   remove_definitions(-DDEBUG)
@@ -151,6 +117,14 @@ remove_definitions(-DUSE_WATCHDOG)
 
 add_definitions(-DBOOT)
 
+if(NOT NO_LTO)
+  message("-- Use LTO to compile bootloader")
+  target_compile_options(stm32cube_ll PRIVATE -flto)
+  target_compile_options(stm32usb PRIVATE -flto)
+  target_compile_options(stm32usb_device_bl PRIVATE -flto)
+  target_compile_options(stm32usb_device_fw PRIVATE -flto)
+  target_compile_options(stm32_drivers PRIVATE -flto)
+endif()
 add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})
 add_dependencies(bootloader ${BITMAPS_TARGET})
 

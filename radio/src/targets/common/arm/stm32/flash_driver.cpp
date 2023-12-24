@@ -22,6 +22,12 @@
 #include "board.h"
 #include "hal/watchdog_driver.h"
 
+#if defined(STM32F4)
+#include "stm32f4xx_flash.h"
+#elif defined(STM32F2)
+#include "stm32f2xx_flash.h"
+#endif
+
 void waitFlashIdle()
 {
   do {

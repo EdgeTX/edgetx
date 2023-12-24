@@ -20,6 +20,7 @@
  */
 
 #include "stm32_hal_ll.h"
+#include "hal/usb_driver.h"
 
 #if defined(BLUETOOTH)
   #include "bluetooth_driver.h"
@@ -29,9 +30,7 @@
 #include "board.h"
 #include "boot.h"
 #include "bin_files.h"
-#include "dataconstants.h"
 #include "lcd.h"
-// #include "keys.h"
 #include "debug.h"
 
 #include "timers_driver.h"
@@ -100,11 +99,9 @@ FlashCheckRes valid;
 MemoryType memoryType;
 uint32_t unlocked = 0;
 
-volatile uint32_t timer10MsCount;
-
+void per5ms() {} // make linker happy
 void per10ms()
 {
-  timer10MsCount++;
   tenms |= 1u; // 10 mS has passed
   g_tmr10ms++;
 
@@ -121,12 +118,6 @@ void per10ms()
   }
 #endif
 }
-
-extern "C" uint32_t HAL_GetTick(void)
-{
-    return timer10MsCount * 10;
-}
-
 
 uint32_t isValidBufferStart(const uint8_t * buffer)
 {

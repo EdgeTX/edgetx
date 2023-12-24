@@ -26,6 +26,7 @@
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
 #include "hal/abnormal_reboot.h"
+#include "hal/usb_driver.h"
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
@@ -52,15 +53,6 @@
 
 #if defined(BLUETOOTH)
   #include "bluetooth_driver.h"
-#endif
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
-#include "usb_dcd_int.h"
-#include "usb_bsp.h"
-#if defined(__cplusplus)
-}
 #endif
 
 HardwareOptions hardwareOptions;
@@ -109,14 +101,8 @@ void boardInit()
 #endif
 
 #if defined(MANUFACTURER_RADIOMASTER) && defined(STM32F407xx)
-    
-  if (FLASH_OB_GetBOR() != OB_BOR_LEVEL3)
-  {
-    FLASH_OB_Unlock();
-    FLASH_OB_BORConfig(OB_BOR_LEVEL3);
-    FLASH_OB_Launch();
-    FLASH_OB_Lock();
-  }
+  void board_set_bor_level();
+  board_set_bor_level();
 #endif
 
   init_trainer();

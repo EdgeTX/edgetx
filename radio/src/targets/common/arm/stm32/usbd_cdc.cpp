@@ -19,19 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#ifdef USB_OTG_HS_INTERNAL_DMA_ENABLED
-#pragma     data_alignment = 4
-#endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
-
-// include STM32 headers and generic board defs
-#include "board_common.h"
-#include "usb_driver.h"
-
 extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "usb_conf.h"
-#include "usbd_cdc_core.h"
+#include "usbd_cdc.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -51,29 +43,64 @@ typedef struct __attribute__ ((packed))
 
 static LINE_CODING g_lc;
 
-/* These are external variables imported from CDC core to be used for IN
-   transfer management. */
-extern uint8_t  APP_Rx_Buffer []; /* Write CDC received data in this buffer.
-                                     These data will be sent over USB IN endpoint
-                                     in the CDC core functions. */
-extern volatile uint32_t APP_Rx_ptr_in;    /* Increment this pointer or roll it back to
-                                     start address when writing received data
-                                     in the buffer APP_Rx_Buffer. */
-extern volatile uint32_t APP_Rx_ptr_out;
+#if defined(USE_USB_HS)
+uint8_t UserRxBufferFS[CDC_DATA_HS_OUT_PACKET_SIZE];
+#else
+uint8_t UserRxBufferFS[CDC_DATA_FS_OUT_PACKET_SIZE];
+#endif
 
-/* Private function prototypes -----------------------------------------------*/
-static uint16_t VCP_Init     (void);
-static uint16_t VCP_DeInit   (void);
-static uint16_t VCP_Ctrl     (uint32_t Cmd, uint8_t* Buf, uint32_t Len);
-static uint16_t VCP_DataRx   (uint8_t* Buf, uint32_t Len);
+/** Data to send over USB CDC are stored in this buffer   */
+uint8_t  UserTxBufferFS[APP_TX_DATA_SIZE];
+volatile uint32_t APP_Tx_ptr_in = 0;
+volatile uint32_t APP_Tx_ptr_out = 0;
 
-extern "C" const CDC_IF_Prop_TypeDef VCP_fops =
+/**
+  * @}
+  */
+
+/** @defgroup USBD_VCP_IF_Exported_Variables USBD_VCP_IF_Exported_Variables
+  * @brief Public variables.
+  * @{
+  */
+
+extern USBD_HandleTypeDef hUsbDeviceFS;
+
+/* USER CODE BEGIN EXPORTED_VARIABLES */
+
+/* USER CODE END EXPORTED_VARIABLES */
+
+/**
+  * @}
+  */
+
+/** @defgroup USBD_VCP_IF_Private_FunctionPrototypes USBD_VCP_IF_Private_FunctionPrototypes
+  * @brief Private functions declaration.
+  * @{
+  */
+
+static int8_t VCP_Init_FS(void);
+static int8_t VCP_DeInit_FS(void);
+static int8_t VCP_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length);
+static int8_t VCP_Receive_FS(uint8_t* pbuf, uint32_t *Len);
+static int8_t VCP_TransmitCplt_FS(uint8_t *pbuf, uint32_t *Len, uint8_t epnum);
+static int8_t VCP_StartOfFrame_FS();
+
+/* USER CODE BEGIN PRIVATE_FUNCTIONS_DECLARATION */
+
+/* USER CODE END PRIVATE_FUNCTIONS_DECLARATION */
+
+/**
+  * @}
+  */
+
+USBD_CDC_ItfTypeDef USBD_Interface_fops_FS =
 {
-  VCP_Init,
-  VCP_DeInit,
-  VCP_Ctrl,
-  0,
-  VCP_DataRx
+  VCP_Init_FS,
+  VCP_DeInit_FS,
+  VCP_Control_FS,
+  VCP_Receive_FS,
+  VCP_TransmitCplt_FS,
+  VCP_StartOfFrame_FS,
 };
 
 }   // extern "C"
@@ -90,33 +117,31 @@ bool cdcConnected = false;
 
 /* Private functions ---------------------------------------------------------*/
 /**
-  * @brief  VCP_Init
-  *         Initializes the Media on the STM32
-  * @param  None
-  * @retval Result of the opeartion (USBD_OK in all cases)
+  * @brief  Initializes the CDC media low layer over the FS USB IP
+  * @retval USBD_OK if all operations are OK else USBD_FAIL
   */
-static uint16_t VCP_Init(void)
+static int8_t VCP_Init_FS(void)
 {
   cdcConnected = true;
-  // receiveDataCb = nullptr;
-  // baudRateCb = nullptr;
-
+  USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
+  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
   return USBD_OK;
 }
 
 /**
-  * @brief  VCP_DeInit
-  *         DeInitializes the Media on the STM32
-  * @param  None
-  * @retval Result of the opeartion (USBD_OK in all cases)
+  * @brief  DeInitializes the CDC media low layer
+  * @retval USBD_OK if all operations are OK else USBD_FAIL
   */
-static uint16_t VCP_DeInit(void)
+static int8_t VCP_DeInit_FS(void)
 {
+  /* USER CODE BEGIN 4 */
   cdcConnected = false;
   receiveDataCb = nullptr;
   baudRateCb = nullptr;
-
-  return USBD_OK;
+  APP_Tx_ptr_in = 0;
+  APP_Tx_ptr_out = 0;
+  return (USBD_OK);
+  /* USER CODE END 4 */
 }
 
 void ust_cpy(LINE_CODING* plc2, const LINE_CODING* plc1)
@@ -128,43 +153,43 @@ void ust_cpy(LINE_CODING* plc2, const LINE_CODING* plc1)
 }
 
 /**
-  * @brief  VCP_Ctrl
-  *         Manage the CDC class requests
-  * @param  Cmd: Command code
-  * @param  Buf: Buffer containing command data (request parameters)
-  * @param  Len: Number of data to be sent (in bytes)
-  * @retval Result of the opeartion (USBD_OK in all cases)
+  * @brief  Manage the CDC class requests
+  * @param  cmd: Command code
+  * @param  pbuf: Buffer containing command data (request parameters)
+  * @param  length: Number of data to be sent (in bytes)
+  * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
   */
-static uint16_t VCP_Ctrl (uint32_t Cmd, uint8_t* Buf, uint32_t Len)
+static int8_t VCP_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 {
-  LINE_CODING* plc = (LINE_CODING*)Buf;
+  LINE_CODING* plc = (LINE_CODING*)pbuf;
 
+  /* USER CODE BEGIN 5 */
   assert_param(Len>=sizeof(LINE_CODING));
-
-  switch (Cmd)
+  
+  switch(cmd)
   {
-  case SEND_ENCAPSULATED_COMMAND:
+  case CDC_SEND_ENCAPSULATED_COMMAND:
     /* Not  needed for this driver */
     break;
 
-  case GET_ENCAPSULATED_RESPONSE:
+  case CDC_GET_ENCAPSULATED_RESPONSE:
     /* Not  needed for this driver */
     break;
 
-  case SET_COMM_FEATURE:
+  case CDC_SET_COMM_FEATURE:
     /* Not  needed for this driver */
     break;
 
-  case GET_COMM_FEATURE:
+  case CDC_GET_COMM_FEATURE:
     /* Not  needed for this driver */
     break;
 
-  case CLEAR_COMM_FEATURE:
+  case CDC_CLEAR_COMM_FEATURE:
     /* Not  needed for this driver */
     break;
 
-  case SET_LINE_CODING:
-    if (plc && (Len == sizeof (*plc))) {
+  case CDC_SET_LINE_CODING:
+    if (plc && (length == sizeof (*plc))) {
       // If a callback is provided, tell the upper driver of changes in baud rate
       auto _cb = baudRateCb;
       // auto _ctx = baudRateCbCtx;
@@ -176,13 +201,13 @@ static uint16_t VCP_Ctrl (uint32_t Cmd, uint8_t* Buf, uint32_t Len)
     }
     break;
 
-  case GET_LINE_CODING:
-    if (plc && (Len == sizeof (*plc))) {
+  case CDC_GET_LINE_CODING:
+    if (plc && (length == sizeof (*plc))) {
       ust_cpy(plc, &g_lc);
     }
     break;
 
-  case SET_CONTROL_LINE_STATE:
+  case CDC_SET_CONTROL_LINE_STATE:
     // If a callback is provided, tell the upper driver of changes in DTR/RTS state
     // if (plc && (Len == sizeof (uint16_t))) {
     //   if (ctrlLineStateCb) {
@@ -191,7 +216,7 @@ static uint16_t VCP_Ctrl (uint32_t Cmd, uint8_t* Buf, uint32_t Len)
     // }
     break;
 
-  case SEND_BREAK:
+  case CDC_SEND_BREAK:
     /* Not  needed for this driver */
     break;
 
@@ -199,21 +224,88 @@ static uint16_t VCP_Ctrl (uint32_t Cmd, uint8_t* Buf, uint32_t Len)
     break;
   }
 
-  return USBD_OK;
+  return (USBD_OK);
+  /* USER CODE END 5 */
 }
+
+/**
+  * @brief  VCP_TransmitCplt_FS
+  *         Data transmitted callback
+  *
+  *         @note
+  *         This function is IN transfer complete callback used to inform user that
+  *         the submitted Data is successfully sent over USB.
+  *
+  * @param  Buf: Buffer of data to be received
+  * @param  Len: Number of data received (in bytes)
+  * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
+  */
+static int8_t VCP_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
+{
+  uint8_t result = USBD_OK;
+  /* USER CODE BEGIN 13 */
+  UNUSED(Buf);
+  UNUSED(Len);
+  UNUSED(epnum);
+  /* USER CODE END 13 */
+  return result;
+}
+
+static int8_t VCP_StartOfFrame_FS()
+{
+  uint8_t result = USBD_OK;
+  static uint8_t FrameCount = 0;    // modified by OpenTX
+
+  if (FrameCount++ >= CDC_IN_FRAME_INTERVAL)     // modified by OpenTX
+  {
+    /* Reset the frame counter */
+    FrameCount = 0;
+
+    /* Check the data to be sent through IN pipe */
+    USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
+
+    if (hcdc->TxState != 0)
+      return USBD_OK;
+
+    if (APP_Tx_ptr_out == APP_TX_DATA_SIZE)
+      APP_Tx_ptr_out = 0;
+
+    if(APP_Tx_ptr_out == APP_Tx_ptr_in)
+      return USBD_OK;
+
+    size_t length = 0;
+
+    if(APP_Tx_ptr_out > APP_Tx_ptr_in) /* rollback */
+    {
+      length = APP_TX_DATA_SIZE - APP_Tx_ptr_out;
+    }
+    else
+    {
+      length = APP_Tx_ptr_in - APP_Tx_ptr_out;
+    }
+
+    USBD_CDC_SetTxBuffer(&hUsbDeviceFS, &UserTxBufferFS[APP_Tx_ptr_out], length);
+    result = USBD_CDC_TransmitPacket(&hUsbDeviceFS);
+    if(result == USBD_OK)
+      APP_Tx_ptr_out += length;
+  }
+
+  return result;
+}
+
 
 // return the bytes free in the circular buffer
 uint32_t usbSerialFreeSpace()
 {
   // functionally equivalent to:
   //
-  //      (APP_Rx_ptr_out > APP_Rx_ptr_in ? APP_Rx_ptr_out - APP_Rx_ptr_in :
-  //      APP_RX_DATA_SIZE - APP_Rx_ptr_in + APP_Rx_ptr_in)
+  //      (APP_Tx_ptr_out > APP_Tx_ptr_in ? APP_Tx_ptr_out - APP_Tx_ptr_in :
+  //      APP_TX_DATA_SIZE - APP_Tx_ptr_in + APP_Tx_ptr_in)
   //
   //  but without the impact of the condition check.
 
-  return ((APP_Rx_ptr_out - APP_Rx_ptr_in) +
-          (-((int)(APP_Rx_ptr_out <= APP_Rx_ptr_in)) & APP_RX_DATA_SIZE)) -
+  return ((APP_Tx_ptr_out - APP_Tx_ptr_in) +
+          (-((int)(APP_Tx_ptr_out <= APP_Tx_ptr_in)) & APP_TX_DATA_SIZE)) -
          1;
 }
 
@@ -230,7 +322,7 @@ void usbSerialPutc(void*, uint8_t c)
   if (!cdcConnected) return;
 
   /*
-    APP_Rx_Buffer and associated variables must be modified
+    k and associated variables must be modified
     atomically, because they are used from the interrupt
   */
 
@@ -240,37 +332,44 @@ void usbSerialPutc(void*, uint8_t c)
   uint32_t prim = __get_PRIMASK();
   __disable_irq();
 
-  APP_Rx_Buffer[APP_Rx_ptr_in] = c;
-  APP_Rx_ptr_in = (APP_Rx_ptr_in + 1) % APP_RX_DATA_SIZE;
+  UserTxBufferFS[APP_Tx_ptr_in] = c;
+  APP_Tx_ptr_in = (APP_Tx_ptr_in + 1) % APP_TX_DATA_SIZE;
 
   if (!prim) __enable_irq();
+  /* USER CODE BEGIN 7 */
+  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
+  while (hcdc->TxState != 0);
+  /* USER CODE END 7 */
 }
 
 /**
-  * @brief  VCP_DataRx
-  *         Data received over USB OUT endpoint is available here
+  * @brief  Data received over USB OUT endpoint are sent over CDC interface
+  *         through this function.
   *
   *         @note
-  *         This function will block any OUT packet reception on USB endpoint
-  *         until exiting this function. If you exit this function before transfer
-  *         is complete on CDC interface (ie. using DMA controller) it will result
-  *         in receiving more data while previous ones are still not sent.
+  *         This function will issue a NAK packet on any OUT packet received on
+  *         USB endpoint until exiting this function. If you exit this function
+  *         before transfer is complete on CDC interface (ie. using DMA controller)
+  *         it will result in receiving more data while previous ones are still
+  *         not sent.
   *
-  *         @note
-  *         This function is executed inside the USBD_OTG_ISR_Handler() interrupt handler!
-
   * @param  Buf: Buffer of data to be received
   * @param  Len: Number of data received (in bytes)
-  * @retval Result of the opeartion: USBD_OK if all operations are OK else VCP_FAIL
+  * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
   */
-static uint16_t VCP_DataRx (uint8_t* Buf, uint32_t Len)
+static int8_t VCP_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   auto _rxCb = receiveDataCb;
   // auto _ctx = receiveDataCbCtx;
 
-  if (_rxCb) _rxCb(/*_ctx,*/ Buf, Len);
+  if (_rxCb) _rxCb(/*_ctx,*/ Buf, *Len);
+
+  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
+  USBD_CDC_ReceivePacket(&hUsbDeviceFS);
   return USBD_OK;
 }
+
+#include "hal/usb_driver.h"
 
 uint32_t usbSerialBaudRate(void*)
 {

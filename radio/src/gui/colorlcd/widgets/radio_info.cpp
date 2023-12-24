@@ -20,6 +20,8 @@
  */
 
 #include "opentx.h"
+#include "hal/usb_driver.h"
+
 #include "widgets_container_impl.h"
 #include "theme.h"
 

@@ -24,7 +24,6 @@
 #include <stdint.h>
 #include "serial_driver.h"
 #include "timer_driver.h"
-#include "definitions.h"
 
 //
 // Module ports

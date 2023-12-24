@@ -28,6 +28,7 @@
 #include <string.h>
 
 #include "hal/serial_port.h"
+#include "hal/usb_driver.h"
 
 #if defined(CONFIGURABLE_MODULE_PORT) and !defined(BOOT)
   #include "hal/module_port.h"

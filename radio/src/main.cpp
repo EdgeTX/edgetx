@@ -24,6 +24,7 @@
 #include "hal/adc_driver.h"
 #include "hal/storage.h"
 #include "hal/abnormal_reboot.h"
+#include "hal/usb_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"

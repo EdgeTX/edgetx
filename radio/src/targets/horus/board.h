@@ -253,31 +253,6 @@ bool isBacklightEnabled();
                         : g_eeGeneral.blOffBright);                       \
   }
 
-#if !defined(SIMU)
-void usbJoystickUpdate();
-#endif
-#if defined(PCBX12S)
-  #define USB_NAME                     "FrSky Horus"
-  #define USB_MANUFACTURER             'F', 'r', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
-  #define USB_PRODUCT                  'H', 'o', 'r', 'u', 's', ' ', ' ', ' '  /* 8 Bytes */
-#elif defined(RADIO_T16)
-  #define USB_NAME                     "Jumper T16"
-  #define USB_MANUFACTURER             'J', 'u', 'm', 'p', 'e', 'r', ' ', ' '  /* 8 bytes */
-  #define USB_PRODUCT                  'T', '1', '6', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */  
-#elif defined(RADIO_T18)
-  #define USB_NAME                     "Jumper T18"
-  #define USB_MANUFACTURER             'J', 'u', 'm', 'p', 'e', 'r', ' ', ' '  /* 8 bytes */
-  #define USB_PRODUCT                  'T', '1', '8', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
-#elif defined(RADIO_TX16S)
-  #define USB_NAME                     "RM TX16S"
-  #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
-  #define USB_PRODUCT                  'R', 'M', ' ', 'T', 'X', '1', '6', 'S'  /* 8 Bytes */
-#elif defined(PCBX10)
-  #define USB_NAME                     "FrSky X10"
-  #define USB_MANUFACTURER             'F', 'r', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
-  #define USB_PRODUCT                  'X', '1', '0', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
-#endif
-
 #if defined(__cplusplus) && !defined(SIMU)
 }
 #endif

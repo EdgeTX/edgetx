@@ -2413,12 +2413,9 @@
 // USB
 #define USB_RCC_AHB1Periph_GPIO         RCC_AHB1Periph_GPIOA
 #define USB_GPIO                        GPIOA
-#define USB_GPIO_PIN_VBUS               GPIO_Pin_9  // PA.09
-#define USB_GPIO_PIN_DM                 GPIO_Pin_11 // PA.11
-#define USB_GPIO_PIN_DP                 GPIO_Pin_12 // PA.12
-#define USB_GPIO_PinSource_DM           GPIO_PinSource11
-#define USB_GPIO_PinSource_DP           GPIO_PinSource12
-#define USB_GPIO_AF                     GPIO_AF_OTG1_FS
+#define USB_GPIO_PIN_VBUS               LL_GPIO_PIN_9  // PA.09
+#define USB_GPIO_PIN_DM                 LL_GPIO_PIN_11 // PA.11
+#define USB_GPIO_PIN_DP                 LL_GPIO_PIN_12 // PA.12
 
 // BackLight
 #if defined(PCBX9E)

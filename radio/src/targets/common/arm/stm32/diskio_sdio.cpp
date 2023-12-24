@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+
 #include "diskio_sdio.h"
 
 #include "stm32_dma.h"
@@ -27,6 +28,8 @@
 #include "stm32_gpio_driver.h"
 
 #include "hal.h"
+
+#if !defined(SD_SPI)
 
 // #include "delays_driver.h"
 #include "debug.h"
@@ -429,3 +432,5 @@ extern "C" void SD_SDIO_DMA_IRQHANDLER(void)
   DEBUG_INTERRUPT(INT_SDIO_DMA);
   HAL_DMA_IRQHandler(&sdioTxDma);
 }
+#endif
+

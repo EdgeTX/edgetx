@@ -20,6 +20,7 @@
  */
 
 #include "board.h"
+#include "hal/usb_driver.h"
 
 void usbChargerInit()
 {
