@@ -443,7 +443,7 @@
 #define TR_MEM_USED_SCRIPT             "Script(B): "
 #define TR_MEM_USED_WIDGET             "Widget(B): "
 #define TR_MEM_USED_EXTRA              "Extra(B): "
-#define TR_STACK_MIX                   "Mix: "
+#define TR_STACK_MIX                   "Mixeurs: "
 #define TR_STACK_AUDIO                 "Audio: "
 #define TR_GPS_FIX_YES                 "Fix: Oui"
 #define TR_GPS_FIX_NO                  "Fix: Non"
@@ -567,10 +567,10 @@
 #define TR_PITCH_AT_ZERO               "Tonalité min"
 #define TR_PITCH_AT_MAX                "Tonalité max"
 #define TR_REPEAT_AT_ZERO              TR("Répét. zéro", "Répéter zéro")
-#define TR_BATT_CALIB                  "Calib. batt"
+#define TR_BATT_CALIB                  TR("Calib. batt", "Calib. batterie")
 #define TR_CURRENT_CALIB               "Calib. cour"
 #define TR_VOLTAGE                     TR(INDENT "Tension",INDENT "Source tension")
-#define TR_SELECT_MODEL                "Sélect. modèle"
+#define TR_SELECT_MODEL                "Sélection Modèle"
 #define TR_MANAGE_MODELS               "GESTION MODÈLES"
 #define TR_MODELS                      "Modèles"
 #define TR_SELECT_MODE                 "Sélection mode"
@@ -673,7 +673,7 @@
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "Temp. CM \016>"
 #define TR_TEMPWARNING                 INDENT "Surchauffe"
-#define TR_TTL_WARNING                 "Attention: utiliser val. logique 3.3V"
+#define TR_TTL_WARNING                 "Attention: utiliser valeur logique 3.3 V"
 #define TR_FUNC                        "Fonction"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
