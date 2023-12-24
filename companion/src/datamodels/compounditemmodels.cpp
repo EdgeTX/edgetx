@@ -597,7 +597,7 @@ FlexSwitchesItemModel::FlexSwitchesItemModel(const GeneralSettings * const gener
     appendRow(modelItem);
   }
 
-  for (int i = 0; i <= count; ++i) {
+  for (int i = 0; i < count; ++i) {
     QStandardItem * modelItem = new QStandardItem();
     modelItem->setData(i, IMDR_Id);
     setDynamicItemData(modelItem, i);

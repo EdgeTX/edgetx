@@ -200,10 +200,12 @@ namespace Board {
   };
 
   enum SwitchTypeMasks {
-    SwitchTypeFlag2Pos    = 0x01,
-    SwitchTypeFlag3Pos    = 0x02,
-    SwitchTypeContext2Pos = SwitchTypeFlag2Pos,
-    SwitchTypeContext3Pos = SwitchTypeFlag2Pos | SwitchTypeFlag3Pos
+    SwitchTypeFlagNone    = 1 << 1,
+    SwitchTypeFlag2Pos    = 1 << 2,
+    SwitchTypeFlag3Pos    = 1 << 3,
+    SwitchTypeContextNone = SwitchTypeFlagNone,
+    SwitchTypeContext2Pos = SwitchTypeContextNone | SwitchTypeFlag2Pos,
+    SwitchTypeContext3Pos = SwitchTypeContext2Pos | SwitchTypeFlag3Pos
   };
 
   enum ExternalModuleSizes {

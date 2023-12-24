@@ -33,9 +33,9 @@
 #include <QGridLayout>
 #include <QFrame>
 
+constexpr char FIM_SWITCHTYPENONE[]   {"Switch Type None"};
 constexpr char FIM_SWITCHTYPE2POS[]   {"Switch Type 2 Pos"};
 constexpr char FIM_SWITCHTYPE3POS[]   {"Switch Type 3 Pos"};
-constexpr char FIM_SWITCHTYPESWITCH[] {"Switch Type Switch"};
 constexpr char FIM_INTERNALMODULES[]  {"Internal Modules"};
 constexpr char FIM_AUX1SERIALMODES[]  {"AUX1 Modes"};
 constexpr char FIM_AUX2SERIALMODES[]  {"AUX2 Modes"};
@@ -108,6 +108,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   int id = editorItemModels->registerItemModel(Boards::switchTypeItemModel());
 
   tabFilteredModels = new FilteredItemModelFactory();
+  tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContextNone), FIM_SWITCHTYPENONE);
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContext2Pos), FIM_SWITCHTYPE2POS);
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContext3Pos), FIM_SWITCHTYPE3POS);
 
@@ -159,9 +160,9 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   count = Boards::getCapability(board, Board::Switches);
 
   if (count) {
-    // All values except 0 are mutually exclusive
+    // All values except -1 (None) are mutually exclusive
     exclFlexSwitchesGroup = new ExclusiveComboGroup(
-        this, [=](const QVariant &value) { return value == 0; });
+        this, [=](const QVariant &value) { return value == -1; });
 
     addSection(tr("Switches"));
     for (int i = 0; i < count && i < CPN_MAX_SWITCHES; i++) {
@@ -424,7 +425,7 @@ void HardwarePanel::addFlex(int index)
   connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
           AbstractItemModel *mdl = editorItemModels->getItemModel(AbstractItemModel::IMID_FlexSwitches);
           if (mdl)
-            mdl->update();
+            mdl->update(AbstractItemModel::IMUE_FunctionSwitches);
   });
   params->append(type);
 
@@ -438,6 +439,7 @@ void HardwarePanel::addFlex(int index)
 void HardwarePanel::addSwitch(int index)
 {
   GeneralSettings::SwitchConfig &config = generalSettings.switchConfig[index];
+  Board::SwitchInfo info = Boards::getSwitchInfo(board, index);
 
   addLabel(Boards::getSwitchName(board, index));
 
@@ -445,24 +447,49 @@ void HardwarePanel::addSwitch(int index)
   name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
 
+  AutoComboBox *input = nullptr;
+
   if (generalSettings.isSwitchFlex(index)) {
     int id = tabFilteredModels->registerItemModel(
                new FilteredItemModel(editorItemModels->getItemModel(AbstractItemModel::IMID_FlexSwitches)),
                                                   QString("%1 %2").arg(FIM_FLEXSWITCHES).arg(index));
-    AutoComboBox *input = new AutoComboBox(this);
+    input = new AutoComboBox(this);
     input->setModel(tabFilteredModels->getItemModel(id));
-    input->setField(generalSettings.switchConfig[index].inputIdx, this);  // TODO when changed need to trigger update to inputConfig
+    input->setField(config.inputIdx, this);
     exclFlexSwitchesGroup->addCombo(input);
     params->append(input);
   }
 
   AutoComboBox *type = new AutoComboBox(this);
-  Board::SwitchInfo switchInfo = Boards::getSwitchInfo(board, index);
-  type->setModel(switchInfo.type < Board::SWITCH_3POS ? tabFilteredModels->getItemModel(FIM_SWITCHTYPE2POS) :
-                                                        tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
+
+  FilteredItemModel *fim = nullptr;
+  if (generalSettings.isSwitchFlex(index)) {
+    if (config.type == Board::SWITCH_NOT_AVAILABLE)
+      fim = tabFilteredModels->getItemModel(FIM_SWITCHTYPENONE);
+    else
+      fim = tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS);
+  }
+  else if (info.type < Board::SWITCH_3POS)
+    fim = tabFilteredModels->getItemModel(FIM_SWITCHTYPE2POS);
+  else
+    fim = tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS);
+
+  type->setModel(fim);
   int & swtype = (int &)config.type;
   type->setField(swtype, this);
   params->append(type);
+
+  if (generalSettings.isSwitchFlex(index)) {
+    connect(input, &AutoComboBox::currentDataChanged, [=] (int val) {
+            if (val < 0) {
+              generalSettings.switchConfig[index].type = Board::SWITCH_NOT_AVAILABLE;
+              type->setModel(tabFilteredModels->getItemModel(FIM_SWITCHTYPENONE));
+              type->updateValue();
+            }
+            else
+              type->setModel(tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
+    });
+  }
 
   addParams();
 }

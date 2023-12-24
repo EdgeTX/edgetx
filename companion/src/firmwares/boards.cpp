@@ -597,8 +597,9 @@ AbstractStaticItemModel * Boards::switchTypeItemModel()
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_BOARDS_SWITCH_TYPE);
 
-  for (int i = 0; i < SWITCH_TYPE_COUNT; i++) {
-    mdl->appendToItemList(switchTypeToString(i), i, true, 0, (i < SWITCH_3POS ? SwitchTypeFlag2Pos : SwitchTypeFlag3Pos));
+  for (int i = 0; i < SWITCH_FUNC; i++) { // Function not required in lists
+    mdl->appendToItemList(switchTypeToString(i), i, true, 0,
+                          (i == SWITCH_NOT_AVAILABLE ? SwitchTypeFlagNone : (i < SWITCH_3POS ? SwitchTypeFlag2Pos : SwitchTypeFlag3Pos)));
   }
 
   mdl->loadItemList();
