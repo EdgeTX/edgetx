@@ -281,7 +281,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   }
 
   Node flexSwitches;
-  flexSwitches = YamlSwitchesFlex(rhs.switchConfig, rhs.inputConfig);
+  flexSwitches = YamlSwitchesFlex(rhs.switchConfig);
   if (flexSwitches && flexSwitches.IsMap()) {
     node["flexSwitches"] = flexSwitches;
   }

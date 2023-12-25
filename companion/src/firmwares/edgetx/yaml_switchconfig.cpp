@@ -144,7 +144,7 @@ void YamlSwitchConfig::copy(GeneralSettings::SwitchConfig* rhs) const
   }
 }
 
-YamlSwitchesFlex::YamlSwitchesFlex(const GeneralSettings::SwitchConfig* rhs, const GeneralSettings::InputConfig* config)
+YamlSwitchesFlex::YamlSwitchesFlex(const GeneralSettings::SwitchConfig* rhs)
 {
   Board::Type board = getCurrentBoard();
 

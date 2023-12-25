@@ -75,14 +75,14 @@ struct YamlSwitchConfig {
 struct SwitchFlex {
   std::string tag = std::string();
   std::string channel = std::string();
-  int inputIndx = 0;
+  int inputIndx = -1;
 };
 
 struct YamlSwitchesFlex {
   SwitchFlex switchFlex[CPN_MAX_SWITCHES_FLEX];
 
   YamlSwitchesFlex() = default;
-  YamlSwitchesFlex(const GeneralSettings::SwitchConfig* rhs, const GeneralSettings::InputConfig* config);
+  YamlSwitchesFlex(const GeneralSettings::SwitchConfig* rhs);
   void copy(GeneralSettings::SwitchConfig* rhs) const;
 };
 
