@@ -148,10 +148,13 @@ YamlSwitchesFlex::YamlSwitchesFlex(const GeneralSettings::SwitchConfig* rhs, con
 {
   Board::Type board = getCurrentBoard();
 
-  for (int i = 0; i < Boards::getCapability(board, Board::SwitchesFlex); i++) {
-    if (config[rhs[i].inputIdx].flexType == Board::FLEX_SWITCH) {
-      std::string tag = std::string("FL") + std::to_string(i);
-      switchFlex[i].channel = Boards::getInputTag(board, rhs[i].inputIdx).toStdString();
+  for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
+    if (Boards::isSwitchFlex(board, i) && rhs[i].inputIdx >= 0) {
+      int idx = Boards::getSwitchTagNum(board, i) - 1;
+      if (idx >= 0 && idx < CPN_MAX_SWITCHES_FLEX) {
+        switchFlex[idx].tag = Boards::getSwitchTag(board, i).toStdString();
+        switchFlex[idx].channel = Boards::getInputTag(board, rhs[i].inputIdx).toStdString();
+      }
     }
   }
 }
