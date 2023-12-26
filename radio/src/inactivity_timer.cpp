@@ -56,11 +56,12 @@ bool inactivityCheckInputs()
 {
   uint8_t sum = 0;
 
-  auto max_inputs = adcGetMaxInputs(ADC_INPUT_MAIN)
-    + adcGetMaxInputs(ADC_INPUT_FLEX);
+  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
+  auto max_inputs = max_sticks + adcGetMaxInputs(ADC_INPUT_FLEX);
 
   for (uint8_t i = 0; i < max_inputs; i++) {
-    sum += getAnalogValue(i) >> INAC_STICKS_SHIFT;
+    if (i < max_sticks || IS_POT_AVAILABLE(i - max_sticks))
+      sum += getAnalogValue(i) >> INAC_STICKS_SHIFT;
   }
 
   for (uint8_t i = 0; i < getSwitchCount(); i++)
