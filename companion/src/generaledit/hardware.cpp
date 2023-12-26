@@ -157,7 +157,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   if (count > 0) {
     addSection(tr("Pots"));
     for (int i = Boards::getCapability(board, Board::Sticks); i < count; i++) {
-      if (Boards::isInputConfigurable(board, i))
+      if (Boards::isInputConfigurable(i, board))
         addFlex(i);
     }
   }
@@ -171,7 +171,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
     addSection(tr("Switches"));
     for (int i = 0; i < count && i < CPN_MAX_SWITCHES; i++) {
-      if (Boards::isSwitchConfigurable(board, i))
+      if (Boards::isSwitchConfigurable(i, board))
         addSwitch(i);
     }
 
@@ -411,7 +411,7 @@ void HardwarePanel::addStick(int index)
 {
   GeneralSettings::InputConfig &config = generalSettings.inputConfig[index];
 
-  addLabel(Boards::getInputName(board, index));
+  addLabel(Boards::getInputName(index, board));
 
   AutoLineEdit *name = new AutoLineEdit(this);
   name->setField(config.name, HARDWARE_NAME_LEN, this);
@@ -423,7 +423,7 @@ void HardwarePanel::addFlex(int index)
 {
   GeneralSettings::InputConfig &config = generalSettings.inputConfig[index];
 
-  addLabel(Boards::getInputName(board, index));
+  addLabel(Boards::getInputName(index, board));
 
   AutoLineEdit *name = new AutoLineEdit(this);
   name->setField(config.name, HARDWARE_NAME_LEN, this);
@@ -462,9 +462,9 @@ void HardwarePanel::setFlexTypeModel(AutoComboBox * cb, int index)
 void HardwarePanel::addSwitch(int index)
 {
   GeneralSettings::SwitchConfig &config = generalSettings.switchConfig[index];
-  Board::SwitchInfo info = Boards::getSwitchInfo(board, index);
+  Board::SwitchInfo info = Boards::getSwitchInfo(index, board);
 
-  addLabel(Boards::getSwitchName(board, index));
+  addLabel(Boards::getSwitchName(index, board));
 
   AutoLineEdit *name = new AutoLineEdit(this);
   name->setField(config.name, HARDWARE_NAME_LEN, this);

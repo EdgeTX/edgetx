@@ -216,8 +216,6 @@ struct YamlBeepANACenter {
 //  Yaml switchWarningState: AuBuEuFuG-IuJu
 struct YamlSwitchWarningState {
 
-  Board::Type board = getCurrentBoard();
-
   static constexpr size_t MASK_LEN = 2;
   static constexpr size_t MASK = (1 << MASK_LEN) - 1;
 
@@ -232,10 +230,10 @@ struct YamlSwitchWarningState {
     uint64_t states = cpn_value;
 
     std::stringstream ss;
-    for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
+    for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
       //TODO: exclude 2-pos toggle from switch warnings
       if (enabled & (1 << i)) {
-        std::string tag = Boards::getSwitchTag(board, i).toStdString();
+        std::string tag = Boards::getSwitchTag(i).toStdString();
         const char *sw = tag.data();
 
         if (tag.size() >= 2 && sw[0] == 'S') {
@@ -273,7 +271,7 @@ struct YamlSwitchWarningState {
       }
 
       std::string sw = std::string("S") + (char)c;
-      int index = Boards::getSwitchIndex(board, sw.c_str());
+      int index = Boards::getSwitchIndex(sw.c_str());
       if (index < 0) {
         ss.ignore();
         continue;

@@ -607,7 +607,7 @@ FlexSwitchesItemModel::FlexSwitchesItemModel(const GeneralSettings * const gener
 
 void FlexSwitchesItemModel::setDynamicItemData(QStandardItem * item, const int value) const
 {
-  item->setText(Boards::getInputName(boardType, value));
+  item->setText(Boards::getInputName(value, boardType));
   item->setData(generalSettings->isInputFlexSwitchAvailable(value), IMDR_Available);
 }
 

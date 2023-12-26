@@ -28,10 +28,8 @@ YamlCalibData::YamlCalibData()
 
 YamlCalibData::YamlCalibData(const GeneralSettings::InputConfig* rhs)
 {
-  Board::Type board = getCurrentBoard();
-
-  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-    if (Boards::isInputCalibrated(board, i)) {
+  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Inputs); i++) {
+    if (Boards::isInputCalibrated(i)) {
       calib[i].mid = rhs[i].calib.mid;
       calib[i].spanNeg = rhs[i].calib.spanNeg;
       calib[i].spanPos = rhs[i].calib.spanPos;
@@ -41,10 +39,8 @@ YamlCalibData::YamlCalibData(const GeneralSettings::InputConfig* rhs)
 
 void YamlCalibData::copy(GeneralSettings::InputConfig* rhs) const
 {
-  Board::Type board = getCurrentBoard();
-
-  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-    if (Boards::isInputCalibrated(board, i)) {
+  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Inputs); i++) {
+    if (Boards::isInputCalibrated(i)) {
       rhs[i].calib.mid = calib[i].mid;
       rhs[i].calib.spanNeg = calib[i].spanNeg;
       rhs[i].calib.spanPos = calib[i].spanPos;
@@ -76,12 +72,11 @@ bool convert<GeneralSettings::InputCalib>::decode(const Node& node, GeneralSetti
 Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 {
   Node node;
-  Board::Type board = getCurrentBoard();
-  const int analogs = Boards::getCapability(board, Board::Inputs);
+  const int analogs = Boards::getCapability(getCurrentBoard(), Board::Inputs);
 
   for (int i = 0; i < analogs; i++) {
-    if (Boards::isInputCalibrated(board, i)) {
-      std::string tag = Boards::getInputTag(board, i).toStdString();
+    if (Boards::isInputCalibrated(i)) {
+      std::string tag = Boards::getInputTag(i).toStdString();
       node[tag] = rhs.calib[i];
     }
   }
@@ -93,16 +88,14 @@ bool convert<YamlCalibData>::decode(const Node& node, YamlCalibData& rhs)
 {
   if (!node.IsMap()) return false;
 
-  Board::Type board = getCurrentBoard();
-
   for (const auto& kv : node) {
     std::string tag;
     kv.first >> tag;
 
     if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
-      tag = Boards::getLegacyAnalogMappedInputTag(board, tag.c_str());
+      tag = Boards::getLegacyAnalogMappedInputTag(tag.c_str());
 
-    int idx = Boards::getInputIndex(board, tag.c_str());
+    int idx = Boards::getInputIndex(tag.c_str());
 
     if (idx >= 0)
       kv.second >> rhs.calib[idx];

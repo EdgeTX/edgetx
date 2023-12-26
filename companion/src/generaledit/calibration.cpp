@@ -25,9 +25,8 @@
 CalibrationPanel::CalibrationPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
   GeneralPanel(parent, generalSettings, firmware)
 {
-  Board::Type board = getCurrentBoard();
-  int maxrows = Boards::getInputsCalibrated(board);
-  int maxinputs = Boards::getCapability(board, Board::Inputs);
+  int maxrows = Boards::getInputsCalibrated();
+  int maxinputs = Boards::getCapability(getCurrentBoard(), Board::Inputs);
 
   QStringList headerLabels;
   headerLabels << "" << tr("Negative span") << tr("Mid value") << tr("Positive span");
@@ -35,14 +34,14 @@ CalibrationPanel::CalibrationPanel(QWidget * parent, GeneralSettings & generalSe
   TableLayout * tableLayout = new TableLayout(this, maxrows, headerLabels);
 
   for (int i = 0, row = 0; i < maxinputs; i++) {
-    if (!Boards::isInputCalibrated(board, i))
+    if (!Boards::isInputCalibrated(i))
       continue;
 
     GeneralSettings::InputCalib &calib = generalSettings.inputConfig[i].calib;
     int col = 0;
     row++;
     QLabel * label = new QLabel(this);
-    label->setText(Boards::getInputName(board, i));
+    label->setText(Boards::getInputName(i));
     tableLayout->addWidget(i, col++, label);
 
     QLineEdit * leNeg = new QLineEdit(this);

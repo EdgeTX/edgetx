@@ -1506,7 +1506,7 @@ QString ModelData::thrTraceSrcToString(const int index) const
   if (index == 0)
     return tr("THR");
   else if (index <= pscnt)
-    return Boards::getInputName(board, index + Boards::getCapability(board, Board::Sticks) - 1);
+    return Boards::getInputName(index + Boards::getCapability(board, Board::Sticks) - 1, board);
   else if (index <= pscnt + getCurrentFirmware()->getCapability(Outputs))
     return RawSource(SOURCE_TYPE_CH, index - pscnt - 1).toString(this);
 

@@ -86,7 +86,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
 
   if (!firmware->getCapability(VirtualInputs)) {
     for(int i = 0; i < CPN_MAX_STICKS; i++) {
-      ui->trimCB->addItem(Boards::getInputName(board, i));
+      ui->trimCB->addItem(Boards::getInputName(i, board));
     }
   }
 

@@ -129,21 +129,21 @@ bool GeneralSettings::isInputStick(int index) const
 // post refactor clean up - where do we call this from?
 bool GeneralSettings::isMultiPosPot(int index) const
 {
-  return isInputMultiPosPot(Boards::getInputPotIndex(getCurrentBoard(), index));
+  return isInputMultiPosPot(Boards::getInputPotIndex(index));
 }
 
 // pre v2.10 support
 // post refactor clean up - where do we call this from?
 bool GeneralSettings::isPotAvailable(int index) const
 {
-  return isInputPot(Boards::getInputPotIndex(getCurrentBoard(), index));
+  return isInputPot(Boards::getInputPotIndex(index));
 }
 
 // pre v2.10 support
 // post refactor clean up - where do we call this from?
 bool GeneralSettings::isSliderAvailable(int index) const
 {
-  return isInputSlider(Boards::getInputSliderIndex(getCurrentBoard(), index));
+  return isInputSlider(Boards::getInputSliderIndex(index));
 }
 
 bool GeneralSettings::isSwitchAvailable(int index) const
@@ -158,7 +158,7 @@ bool GeneralSettings::isSwitchAvailable(int index) const
 
 bool GeneralSettings::isSwitchFlex(int index) const
 {
-  return Boards::isSwitchFlex(getCurrentBoard(), index);
+  return Boards::isSwitchFlex(index);
 }
 
 bool GeneralSettings::unassignedInputFlexSwitches() const
@@ -214,10 +214,10 @@ void GeneralSettings::init()
   setDefaultControlTypes(board);
 
   for (int i = 0; i < Boards::getCapability(board, Board::Inputs); ++i) {
-    if (!Boards::isInputCalibrated(board, i))
+    if (!Boards::isInputCalibrated(i, board))
       continue;
 
-    Board::InputInfo info = Boards::getInputInfo(board, i);
+    Board::InputInfo info = Boards::getInputInfo(i, board);
 
     if (info.type == Board::AIT_FLEX && info.flexType == Board::FLEX_MULTIPOS) {
       inputConfig[i].calib.mid     = 773;;
@@ -291,7 +291,7 @@ void GeneralSettings::init()
       int16_t byte16;
       bool ok;
       for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-        if (Boards::isInputCalibrated(board, i)) {
+        if (Boards::isInputCalibrated(i, board)) {
           Byte = t_calib.mid(i * 12, 4);
           byte16 = (int16_t)Byte.toInt(&ok, 16);
           if (ok) inputConfig[i].calib.mid = byte16;
@@ -375,8 +375,8 @@ void GeneralSettings::init()
 void GeneralSettings::setDefaultControlTypes(Board::Type board)
 {
   for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-    if (!Boards::isInputIgnored(board, i)) {
-      Board::InputInfo info =  Boards::getInputInfo(board, i);
+    if (!Boards::isInputIgnored(i, board)) {
+      Board::InputInfo info =  Boards::getInputInfo(i, board);
       inputConfig[i].type = info.type;
       inputConfig[i].flexType = info.flexType;
       inputConfig[i].inverted = info.inverted;
@@ -384,7 +384,7 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
   }
 
   for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
-    Board::SwitchInfo info =  Boards::getSwitchInfo(board, i);
+    Board::SwitchInfo info =  Boards::getSwitchInfo(i, board);
     switchConfig[i].type = info.type;
     switchConfig[i].inverted = info.inverted;
     switchConfig[i].inputIdx = -1;
@@ -760,7 +760,7 @@ bool GeneralSettings::fix6POSCalibration()
 {
   bool changed = false;
   // Fix default 6POS calibration
-  for (int i = CPN_MAX_STICKS; i < CPN_MAX_STICKS+CPN_MAX_POTS; i += 1) {
+  for (int i = CPN_MAX_STICKS; i < CPN_MAX_STICKS + CPN_MAX_POTS; i += 1) {
     if ((potConfig[i-CPN_MAX_STICKS] == Board::POT_MULTIPOS_SWITCH) && (calibMid[i] == 0x200) && (calibSpanNeg[i] == 0x180) && (calibSpanPos[i] == 0x180)) {
       calibMid[i] = 773;;
       calibSpanNeg[i] = 5388;
@@ -825,7 +825,7 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
   }
 
   for (int i = 0; i < CPN_MAX_POTS && i < Boards::getCapability(board, Board::Pots); i++) {
-    int idx = Boards::getInputPotIndex(board, i);
+    int idx = Boards::getInputPotIndex(i, board);
     if (idx >= 0) {
       inputConfig[idx].type = Board::AIT_FLEX;
       strncpy(inputConfig[idx].name, potName[i], HARDWARE_NAME_LEN);
@@ -836,7 +836,7 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
   }
 
   for (int i = 0; i < CPN_MAX_SLIDERS && i < Boards::getCapability(board, Board::Sliders); i++) {
-    int idx = Boards::getInputSliderIndex(board, i);
+    int idx = Boards::getInputSliderIndex(i, board);
     if (idx >= 0) {
       inputConfig[idx].type = Board::AIT_FLEX;
       strncpy(inputConfig[idx].name, sliderName[i], HARDWARE_NAME_LEN);
@@ -862,13 +862,11 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
 
 void GeneralSettings::validateFlexSwitches()
 {
-  Board::Type board = getCurrentBoard();
-
   for (int i = 0; i < CPN_MAX_SWITCHES_FLEX; i++) {
     if (inputConfig[switchConfig[i].inputIdx].flexType != Board::FLEX_SWITCH)
       switchConfig[i].inputIdx = 0;
 
-    int idx = Boards::getSwitchIndex(board, QString("FL%1").arg(i));
+    int idx = Boards::getSwitchIndex(QString("FL%1").arg(i));
     if (idx >= 0) {
       if (switchConfig[idx].type == Board::SWITCH_NOT_AVAILABLE)
         switchConfig[i].inputIdx = 0;

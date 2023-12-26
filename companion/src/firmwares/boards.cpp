@@ -483,9 +483,9 @@ StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board)
   return tbl;
 }
 
-std::string Boards::getLegacyAnalogMappedInputTag(Board::Type board, const char * legacytag)
+std::string Boards::getLegacyAnalogMappedInputTag(const char * legacytag, Board::Type board)
 {
-  return DataHelpers::getStringTagMappingName(getLegacyAnalogsLookupTable(board), legacytag);
+  return DataHelpers::getStringTagMappingName(getLegacyAnalogsLookupTable(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : board), legacytag);
 }
 
 bool Boards::isBoardCompatible(Type board1, Type board2)
@@ -780,45 +780,45 @@ AbstractStaticItemModel * Boards::flexTypeItemModel()
 
 BoardJson* Boards::getBoardJson(Board::Type board)
 {
-  return gBoardFactories->instance(board);
+  return gBoardFactories->instance(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : board);
 }
 
-Board::InputInfo Boards::getInputInfo(Board::Type board, int index)
+Board::InputInfo Boards::getInputInfo(int index, Board::Type board)
 {
   return getBoardJson(board)->getInputInfo(index);
 }
 
-int Boards::getInputIndex(Board::Type board, QString tag)
+int Boards::getInputIndex(QString tag, Board::Type board)
 {
   return getBoardJson(board)->getInputIndex(tag);
 }
 
-QString Boards::getInputName(Board::Type board, int index)
+QString Boards::getInputName(int index, Board::Type board)
 {
   return getBoardJson(board)->getInputName(index);
 }
 
-int Boards::getInputPotIndex(Board::Type board, int index)
+int Boards::getInputPotIndex(int index, Board::Type board)
 {
   return getBoardJson(board)->getInputPotIndex(index);
 }
 
-int Boards::getInputSliderIndex(Board::Type board, int index)
+int Boards::getInputSliderIndex(int index, Board::Type board)
 {
   return getBoardJson(board)->getInputSliderIndex(index);
 }
 
-QString Boards::getInputTag(Board::Type board, int index)
+QString Boards::getInputTag(int index, Board::Type board)
 {
   return getBoardJson(board)->getInputTag(index);
 }
 
-int Boards::getInputTagOffset(Board::Type board, QString tag)
+int Boards::getInputTagOffset(QString tag, Board::Type board)
 {
   return getBoardJson(board)->getInputTagOffset(tag);
 }
 
-int Boards::getInputTypeOffset(Board::Type board, Board::AnalogInputType type)
+int Boards::getInputTypeOffset(Board::AnalogInputType type, Board::Type board)
 {
   return getBoardJson(board)->getInputTypeOffset(type);
 }
@@ -828,67 +828,67 @@ int Boards::getInputsCalibrated(Board::Type board)
   return getBoardJson(board)->getInputsCalibrated();
 }
 
-Board::SwitchInfo Boards::getSwitchInfo(Board::Type board, int index)
+Board::SwitchInfo Boards::getSwitchInfo(int index, Board::Type board)
 {
   return getBoardJson(board)->getSwitchInfo(index);
 }
 
-int Boards::getSwitchIndex(Board::Type board, QString tag)
+int Boards::getSwitchIndex(QString tag, Board::Type board)
 {
   return getBoardJson(board)->getSwitchIndex(tag);
 }
 
-QString Boards::getSwitchName(Board::Type board, int index)
+QString Boards::getSwitchName(int index, Board::Type board)
 {
   return getBoardJson(board)->getSwitchName(index);
 }
 
-QString Boards::getSwitchTag(Board::Type board, int index)
+QString Boards::getSwitchTag(int index, Board::Type board)
 {
   return getBoardJson(board)->getSwitchTag(index);
 }
 
-int Boards::getSwitchTagNum(Board::Type board, int index)
+int Boards::getSwitchTagNum(int index, Board::Type board)
 {
   return getBoardJson(board)->getSwitchTagNum(index);
 }
 
-bool Boards::isInputAvailable(Board::Type board, int index)
+bool Boards::isInputAvailable(int index, Board::Type board)
 {
   return getBoardJson(board)->isInputAvailable(index);
 }
 
-bool Boards::isInputCalibrated(Board::Type board, int index)
+bool Boards::isInputCalibrated(int index, Board::Type board)
 {
   return getBoardJson(board)->isInputCalibrated(index);
 }
 
-bool Boards::isInputConfigurable(Board::Type board, int index)
+bool Boards::isInputConfigurable(int index, Board::Type board)
 {
   return getBoardJson(board)->isInputConfigurable(index);
 }
 
-bool Boards::isInputIgnored(Board::Type board, int index)
+bool Boards::isInputIgnored(int index, Board::Type board)
 {
   return getBoardJson(board)->isInputIgnored(index);
 }
 
-bool Boards::isInputPot(Board::Type board, int index)
+bool Boards::isInputPot(int index, Board::Type board)
 {
   return getBoardJson(board)->isInputFlexPot(index);
 }
 
-bool Boards::isInputStick(Board::Type board, int index)
+bool Boards::isInputStick(int index, Board::Type board)
 {
   return getBoardJson(board)->isInputStick(index);
 }
 
-bool Boards::isSwitchConfigurable(Board::Type board, int index)
+bool Boards::isSwitchConfigurable(int index, Board::Type board)
 {
   return getBoardJson(board)->isSwitchConfigurable(index);
 }
 
-bool Boards::isSwitchFlex(Board::Type board, int index)
+bool Boards::isSwitchFlex(int index, Board::Type board)
 {
   return getBoardJson(board)->isSwitchFlex(index);
 }

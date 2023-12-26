@@ -49,7 +49,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_STICK:
-      src_str = Boards::getInputTag(board, rhs.index).toStdString();
+      src_str = Boards::getInputTag(rhs.index).toStdString();
       break;
     case SOURCE_TYPE_TRIM:
       src_str = b.getTrimSourceTag(rhs.index);
@@ -61,7 +61,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += "MAX";
       break;
     case SOURCE_TYPE_SWITCH:
-      src_str += Boards::getSwitchTag(board, rhs.index).toStdString();
+      src_str += Boards::getSwitchTag(rhs.index).toStdString();
       break;
     case SOURCE_TYPE_CUSTOM_SWITCH:
       src_str += "ls(";
@@ -142,7 +142,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              && val[1] >= 'A'
              && val[1] <= 'Z') {
 
-    int idx = Boards::getSwitchIndex(board, src_str.c_str());
+    int idx = Boards::getSwitchIndex(src_str.c_str());
     if (idx >= 0 && idx < CPN_MAX_SWITCHES) {
       rhs = RawSource(SOURCE_TYPE_SWITCH, idx);
 
@@ -274,9 +274,9 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     }
 
     if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
-      ana_str = Boards::getLegacyAnalogMappedInputTag(board, ana_str.c_str());
+      ana_str = Boards::getLegacyAnalogMappedInputTag(ana_str.c_str());
 
-    int ana_idx = Boards::getInputIndex(board, ana_str.c_str());
+    int ana_idx = Boards::getInputIndex(ana_str.c_str());
     if (ana_idx >= 0) {
       rhs.type = SOURCE_TYPE_STICK;
       rhs.index = ana_idx;

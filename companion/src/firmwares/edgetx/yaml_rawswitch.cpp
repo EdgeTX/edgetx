@@ -36,7 +36,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 
   switch (rhs.type) {
   case SWITCH_TYPE_SWITCH:
-    sw_str += Boards::getSwitchTag(board, (sval - 1) / 3).toStdString();
+    sw_str += Boards::getSwitchTag((sval - 1) / 3).toStdString();
     sw_str += std::to_string((sval - 1) % 3);
     break;
 
@@ -154,7 +154,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
              (val[1] >= 'A' && val[1] <= 'Z') &&
              (val[2] >= '0' && val[2] <= '2')) {
 
-    int sw_idx = Boards::getSwitchIndex(board, sw_str_tmp.substr(0, 2).c_str());
+    int sw_idx = Boards::getSwitchIndex(sw_str_tmp.substr(0, 2).c_str());
     if (sw_idx >= 0) {
       rhs.type = SWITCH_TYPE_SWITCH;
       rhs.index = sw_idx * 3 + (val[2] - '0' + 1);

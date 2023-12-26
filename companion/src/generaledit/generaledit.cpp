@@ -137,12 +137,12 @@ void GeneralEdit::on_calretrieve_PB_clicked()
     QString SpeakerSet = g.profile[profile_id].speaker();
     QString CountrySet = g.profile[profile_id].countryCode();
 
-    if ((calib.length() == (Boards::getInputsCalibrated(board) * 12)) && (trainercalib.length() == 16)) {
+    if ((calib.length() == (Boards::getInputsCalibrated() * 12)) && (trainercalib.length() == 16)) {
       QString Byte;
       int16_t byte16;
       bool ok;
       for (int i = 0; i < ttlInputs; i++) {
-        if (Boards::isInputCalibrated(board, i)) {
+        if (Boards::isInputCalibrated(i)) {
           Byte = calib.mid(i * 12, 4);
           byte16 = (int16_t)Byte.toInt(&ok, 16);
           if (ok) generalSettings.inputConfig[i].calib.mid = byte16;
@@ -271,7 +271,7 @@ void GeneralEdit::on_calstore_PB_clicked()
     calib.clear();
 
     for (int i = 0; i < ttlInputs; i++) {
-      if (Boards::isInputCalibrated(board, i)) {
+      if (Boards::isInputCalibrated(i)) {
         calib.append(QString("%1").arg((uint16_t)generalSettings.inputConfig[i].calib.mid, 4, 16, QChar('0')));
         calib.append(QString("%1").arg((uint16_t)generalSettings.inputConfig[i].calib.spanNeg, 4, 16, QChar('0')));
         calib.append(QString("%1").arg((uint16_t)generalSettings.inputConfig[i].calib.spanPos, 4, 16, QChar('0')));

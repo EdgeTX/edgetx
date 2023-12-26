@@ -35,8 +35,7 @@ TrainerPanel::TrainerPanel(QWidget * parent, GeneralSettings & generalSettings, 
   int modeid = editorItemModels->registerItemModel(TrainerMix::modeItemModel());
   int srcid = editorItemModels->registerItemModel(TrainerMix::srcItemModel());
 
-  Board::Type board = getCurrentBoard();
-  const int stickcnt = Boards::getCapability(board, Board::Sticks);
+  const int stickcnt = Boards::getCapability(getCurrentBoard(), Board::Sticks);
 
   const FieldRange weightrng = TrainerMix::getWeightRange();
 
@@ -52,7 +51,7 @@ TrainerPanel::TrainerPanel(QWidget * parent, GeneralSettings & generalSettings, 
 
     for (int i = 0; i < CPN_MAX_STICKS; i++, row++) {
       col = 0;
-      addLabel(Boards::getInputName(board, i), row, col++);
+      addLabel(Boards::getInputName(i), row, col++);
 
       AutoComboBox *mode = new AutoComboBox(this);
       mode->setModel(editorItemModels->getItemModel(modeid));

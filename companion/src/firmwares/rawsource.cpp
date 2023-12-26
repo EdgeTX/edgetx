@@ -171,7 +171,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       if (generalSettings)
         result = QString(generalSettings->inputConfig[index].name).trimmed();
       if (result.isEmpty())
-        result = Boards::getInputName(board, index);
+        result = Boards::getInputName(index, board);
       return result;
 
     case SOURCE_TYPE_TRIM:
@@ -190,7 +190,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       if (generalSettings)
         result = QString(generalSettings->switchConfig[index].name).trimmed();
       if (result.isEmpty())
-        result = Boards::getSwitchInfo(board, index).name.c_str();
+        result = Boards::getSwitchInfo(index, board).name.c_str();
       return result;
 
     case SOURCE_TYPE_FUNCTIONSWITCH:
@@ -331,9 +331,9 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
   }
   else {
     if (type == SOURCE_TYPE_STICK) {
-      if (!Boards::isInputAvailable(board, index))
+      if (!Boards::isInputAvailable(index, board))
         return false;
-      if (Boards::getInputInfo(board, index).flexType == Board::FLEX_SWITCH)
+      if (Boards::getInputInfo(index, board).flexType == Board::FLEX_SWITCH)
         return false;
     }
   }
@@ -413,7 +413,7 @@ QStringList RawSource::getStickList(Board::Type board) const
   QStringList ret;
 
   for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-    ret.append(Boards::getInputInfo(board, i).name.c_str());
+    ret.append(Boards::getInputInfo(i, board).name.c_str());
   }
   return ret;
 }
@@ -423,7 +423,7 @@ QStringList RawSource::getSwitchList(Board::Type board) const
   QStringList ret;
 
   for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
-    ret.append(Boards::getSwitchInfo(board, i).name.c_str());
+    ret.append(Boards::getSwitchInfo(i, board).name.c_str());
   }
   return ret;
 }

@@ -742,7 +742,7 @@ QString ModelPrinter::printSwitchWarnings()
   uint64_t value;
 
   for (int i = 0; i < Boards::getCapability(board, Board::Switches) + Boards::getCapability(board, Board::FunctionSwitches); i++) {
-    Board::SwitchInfo switchInfo = Boards::getSwitchInfo(board, i);
+    Board::SwitchInfo switchInfo = Boards::getSwitchInfo(i, board);
     if (switchInfo.type == Board::SWITCH_NOT_AVAILABLE || switchInfo.type == Board::SWITCH_TOGGLE) {
       continue;
     }
@@ -857,7 +857,7 @@ QString ModelPrinter::printThrottleSource(int idx)
   if (idx == 0)
     return "THR";
   else if (idx <= pscnt)
-    return Boards::getInputName(board, idx + Boards::getCapability(board, Board::Sticks) - 1);
+    return Boards::getInputName(idx + Boards::getCapability(board, Board::Sticks) - 1, board);
   else if (idx <= pscnt + getCurrentFirmware()->getCapability(Outputs))
     return RawSource(SOURCE_TYPE_CH, idx - pscnt - 1).toString(&model, &generalSettings);
 

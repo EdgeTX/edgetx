@@ -1628,7 +1628,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
 
   // Startup switches warnings
   for (int i = 0; i < Boards::getBoardCapability(board, Board::Switches); i++) {
-    Board::SwitchInfo switchInfo = Boards::getSwitchInfo(board, i);
+    Board::SwitchInfo switchInfo = Boards::getSwitchInfo(i, board);
     if (switchInfo.type == Board::SWITCH_NOT_AVAILABLE || switchInfo.type == Board::SWITCH_TOGGLE) {
       model.switchWarningEnable |= (1 << i);
       continue;

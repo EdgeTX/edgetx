@@ -294,7 +294,7 @@ class Boards
     const uint32_t getFourCC() const { return getFourCC(m_boardType); }
     const int getEEpromSize() const { return getEEpromSize(m_boardType); }
     const int getFlashSize() const { return getFlashSize(m_boardType); }
-    const Board::SwitchInfo getSwitchInfo(int index) const { return getSwitchInfo(m_boardType, index); }
+    const Board::SwitchInfo getSwitchInfo(int index) const { return getSwitchInfo(index, m_boardType); }
     const int getCapability(Board::Capability capability) const { return getCapability(m_boardType, capability); }
     const bool isBoardCompatible(Board::Type board2) const { return isBoardCompatible(m_boardType, board2); }
 
@@ -314,24 +314,24 @@ class Boards
     static QString externalModuleSizeToString(int value);
     static AbstractStaticItemModel * externalModuleSizeItemModel();
 
-    static BoardJson* getBoardJson(Board::Type board);
+    static BoardJson* getBoardJson(Board::Type board = Board::BOARD_UNKNOWN);
 
-    static int getInputsCalibrated(Board::Type board);
+    static int getInputsCalibrated(Board::Type board = Board::BOARD_UNKNOWN);
 
-    static Board::InputInfo getInputInfo(Board::Type board, int index);
-    static int getInputIndex(Board::Type board, QString tag);
-    static QString getInputName(Board::Type board, int index);
-    static int getInputPotIndex(Board::Type board, int index);
-    static int getInputSliderIndex(Board::Type board, int index);
-    static QString getInputTag(Board::Type board, int index);
-    static int getInputTagOffset(Board::Type board, QString tag);
-    static int getInputTypeOffset(Board::Type board, Board::AnalogInputType type);
+    static Board::InputInfo getInputInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputIndex(QString tag, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getInputName(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputPotIndex(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputSliderIndex(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getInputTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputTagOffset(QString tag, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputTypeOffset(Board::AnalogInputType type, Board::Type board = Board::BOARD_UNKNOWN);
 
-    static Board::SwitchInfo getSwitchInfo(Board::Type board, int index);
-    static int getSwitchIndex(Board::Type board, QString tag);
-    static QString getSwitchName(Board::Type board, int index);
-    static QString getSwitchTag(Board::Type board, int index);
-    static int getSwitchTagNum(Board::Type board, int index);
+    static Board::SwitchInfo getSwitchInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchIndex(QString tag, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getSwitchName(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getSwitchTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchTagNum(int index, Board::Type board = Board::BOARD_UNKNOWN);
 
     STRINGTAGMAPPINGFUNCS(trimSourcesLookupTable, TrimSource);
     STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitch);
@@ -339,20 +339,20 @@ class Boards
     STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialType);
     STRINGTAGMAPPINGFUNCS(rawSourceCyclicLookupTable, RawSourceCyclic);
 
-    static bool isInputAvailable(Board::Type board, int index);
-    static bool isInputCalibrated(Board::Type board, int index);
-    static bool isInputConfigurable(Board::Type board, int index);
-    static bool isInputIgnored(Board::Type board, int index);
-    static bool isInputPot(Board::Type board, int index);
-    static bool isInputStick(Board::Type board, int index);
+    static bool isInputAvailable(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputCalibrated(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputConfigurable(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputIgnored(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputPot(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputStick(int index, Board::Type board = Board::BOARD_UNKNOWN);
 
-    static bool isSwitchConfigurable(Board::Type board, int index);
-    static bool isSwitchFlex(Board::Type board, int index);
+    static bool isSwitchConfigurable(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isSwitchFlex(int index, Board::Type board = Board::BOARD_UNKNOWN);
 
     static QString flexTypeToString(int value);
     static AbstractStaticItemModel * flexTypeItemModel();
 
-    static std::string getLegacyAnalogMappedInputTag(Board::Type board, const char * legacytag);
+    static std::string getLegacyAnalogMappedInputTag(const char * legacytag, Board::Type board = Board::BOARD_UNKNOWN);
 
   private:
 
@@ -365,7 +365,7 @@ class Boards
     const StringTagMappingTable rawSourceSpecialTypesLookupTable;
     const StringTagMappingTable rawSourceCyclicLookupTable;
 
-    static StringTagMappingTable getLegacyAnalogsLookupTable(Board::Type board);
+    static StringTagMappingTable getLegacyAnalogsLookupTable(Board::Type board = Board::BOARD_UNKNOWN);
 };
 
 // temporary aliases for transition period, use Boards class instead.
