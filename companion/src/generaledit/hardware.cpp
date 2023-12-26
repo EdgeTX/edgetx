@@ -54,9 +54,9 @@ class ExclusiveComboGroup: public QObject
 
     typedef QList<QComboBox*> ComboBoxes;
 
-    ComboBoxes getComboBoxes()
+    ComboBoxes* getComboBoxes()
     {
-     return combos;
+     return &combos;
     }
 
     void addCombo(QComboBox *comboBox)
@@ -173,6 +173,12 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     for (int i = 0; i < count && i < CPN_MAX_SWITCHES; i++) {
       if (Boards::isSwitchConfigurable(board, i))
         addSwitch(i);
+    }
+
+    // if multiple combo boxes force update to lists
+    if (exclFlexSwitchesGroup->getComboBoxes()->count() > 1) {
+      QComboBox *cb = exclFlexSwitchesGroup->getComboBoxes()->at(0);
+      exclFlexSwitchesGroup->handleActivated(cb, cb->currentIndex());
     }
   }
 
