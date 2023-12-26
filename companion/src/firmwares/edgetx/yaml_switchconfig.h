@@ -26,6 +26,34 @@
 
 class GeneralSettings;
 
+#define ENCODE_DECODE_CONFIG(cfgstruct)                     \
+  namespace YAML                                            \
+  {                                                         \
+  template <>                                               \
+  struct convert<cfgstruct> {                               \
+    static Node encode(const cfgstruct& rhs);               \
+    static bool decode(const Node& node, cfgstruct& rhs);   \
+  };                                                        \
+  }
+
+#define INPUT_SWITCH_CONFIG(name, cfgsize, cfgstruct, gsstruct) \
+  struct name {                                                 \
+    cfgstruct config[cfgsize];                                  \
+                                                                \
+    name() = default;                                           \
+    name(const GeneralSettings::gsstruct* rhs);                 \
+    void copy(GeneralSettings::gsstruct* rhs) const;            \
+  };                                                            \
+                                                                \
+  namespace YAML                                                \
+  {                                                             \
+  template <>                                                   \
+  struct convert<name> {                                        \
+    static Node encode(const name& rhs);                        \
+    static bool decode(const Node& node, name& rhs);            \
+  };                                                            \
+  }
+
 struct InputConfig {
   std::string tag = std::string();
   unsigned int type = 0;
@@ -34,28 +62,7 @@ struct InputConfig {
   bool inverted = false;
 };
 
-struct YamlPotConfig {
-  InputConfig potConfig[CPN_MAX_INPUTS];
-
-  YamlPotConfig() = default;
-  YamlPotConfig(const GeneralSettings::InputConfig* rhs);
-  void copy(GeneralSettings::InputConfig* rhs) const;
-};
-
-struct YamlSliderConfig {
-  InputConfig sliderConfig[CPN_MAX_INPUTS];
-
-  YamlSliderConfig() = default;
-  void copy(GeneralSettings::InputConfig* rhs) const;
-};
-
-struct YamlStickConfig {
-  InputConfig stickConfig[CPN_MAX_INPUTS];
-
-  YamlStickConfig() = default;
-  YamlStickConfig(const GeneralSettings::InputConfig* rhs);
-  void copy(GeneralSettings::InputConfig* rhs) const;
-};
+ENCODE_DECODE_CONFIG(InputConfig)
 
 struct SwitchConfig {
   std::string tag = std::string();
@@ -64,13 +71,7 @@ struct SwitchConfig {
   bool inverted = false;
 };
 
-struct YamlSwitchConfig {
-  SwitchConfig switchConfig[CPN_MAX_SWITCHES];
-
-  YamlSwitchConfig() = default;
-  YamlSwitchConfig(const GeneralSettings::SwitchConfig* rhs);
-  void copy(GeneralSettings::SwitchConfig* rhs) const;
-};
+ENCODE_DECODE_CONFIG(SwitchConfig)
 
 struct SwitchFlex {
   std::string tag = std::string();
@@ -78,61 +79,10 @@ struct SwitchFlex {
   int inputIndx = -1;
 };
 
-struct YamlSwitchesFlex {
-  SwitchFlex switchFlex[CPN_MAX_SWITCHES_FLEX];
+ENCODE_DECODE_CONFIG(SwitchFlex)
 
-  YamlSwitchesFlex() = default;
-  YamlSwitchesFlex(const GeneralSettings::SwitchConfig* rhs);
-  void copy(GeneralSettings::SwitchConfig* rhs) const;
-};
-
-namespace YAML
-{
-template <>
-struct convert<InputConfig> {
-  static Node encode(const InputConfig& rhs);
-  static bool decode(const Node& node, InputConfig& rhs);
-};
-
-template <>
-struct convert<SwitchConfig> {
-  static Node encode(const SwitchConfig& rhs);
-  static bool decode(const Node& node, SwitchConfig& rhs);
-};
-
-template <>
-struct convert<SwitchFlex> {
-  static Node encode(const SwitchFlex& rhs);
-  static bool decode(const Node& node, SwitchFlex& rhs);
-};
-
-template <>
-struct convert<YamlPotConfig> {
-  static Node encode(const YamlPotConfig& rhs);
-  static bool decode(const Node& node, YamlPotConfig& rhs);
-};
-
-template <>
-struct convert<YamlSliderConfig> {
-  static bool decode(const Node& node, YamlSliderConfig& rhs);
-};
-
-template <>
-struct convert<YamlStickConfig> {
-  static Node encode(const YamlStickConfig& rhs);
-  static bool decode(const Node& node, YamlStickConfig& rhs);
-};
-
-template <>
-struct convert<YamlSwitchConfig> {
-  static Node encode(const YamlSwitchConfig& rhs);
-  static bool decode(const Node& node, YamlSwitchConfig& rhs);
-};
-
-template <>
-struct convert<YamlSwitchesFlex> {
-  static Node encode(const YamlSwitchesFlex& rhs);
-  static bool decode(const Node& node, YamlSwitchesFlex& rhs);
-};
-
-}  // namespace YAML
+INPUT_SWITCH_CONFIG(YamlPotConfig, CPN_MAX_INPUTS, InputConfig, InputConfig)
+INPUT_SWITCH_CONFIG(YamlSliderConfig, CPN_MAX_INPUTS, InputConfig, InputConfig)
+INPUT_SWITCH_CONFIG(YamlStickConfig, CPN_MAX_INPUTS, InputConfig, InputConfig)
+INPUT_SWITCH_CONFIG(YamlSwitchConfig, CPN_MAX_SWITCHES, SwitchConfig, SwitchConfig)
+INPUT_SWITCH_CONFIG(YamlSwitchesFlex, CPN_MAX_SWITCHES_FLEX, SwitchFlex, SwitchConfig)

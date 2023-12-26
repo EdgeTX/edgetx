@@ -62,11 +62,11 @@ YamlPotConfig::YamlPotConfig(const GeneralSettings::InputConfig* rhs)
 
   for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
     if (Boards::isInputConfigurable(board, i)) {
-      potConfig[i].tag = Boards::getInputTag(board, i).toStdString();
-      potConfig[i].type = rhs[i].type;
-      memcpy(potConfig[i].name, rhs[i].name, sizeof(HARDWARE_NAME_LEN));
-      potConfig[i].flexType = rhs[i].flexType;
-      potConfig[i].inverted = rhs[i].inverted;
+      config[i].tag = Boards::getInputTag(board, i).toStdString();
+      config[i].type = rhs[i].type;
+      memcpy(config[i].name, rhs[i].name, sizeof(HARDWARE_NAME_LEN));
+      config[i].flexType = rhs[i].flexType;
+      config[i].inverted = rhs[i].inverted;
     }
   }
 }
@@ -76,10 +76,10 @@ void YamlPotConfig::copy(GeneralSettings::InputConfig* rhs) const
   Board::Type board = getCurrentBoard();
 
   for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-    if (potConfig[i].type == (unsigned int)Board::AIT_FLEX) {
-      memcpy(rhs[i].name, potConfig[i].name, sizeof(HARDWARE_NAME_LEN));
-      rhs[i].flexType = (Board::FlexType)potConfig[i].flexType;
-      rhs[i].inverted = potConfig[i].inverted;
+    if (config[i].type == (unsigned int)Board::AIT_FLEX) {
+      memcpy(rhs[i].name, config[i].name, sizeof(HARDWARE_NAME_LEN));
+      rhs[i].flexType = (Board::FlexType)config[i].flexType;
+      rhs[i].inverted = config[i].inverted;
     }
   }
 }
@@ -89,10 +89,10 @@ void YamlSliderConfig::copy(GeneralSettings::InputConfig* rhs) const
   Board::Type board = getCurrentBoard();
 
   for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-    if (sliderConfig[i].type == (unsigned int)Board::AIT_FLEX) {
-      memcpy(rhs[i].name, sliderConfig[i].name, sizeof(HARDWARE_NAME_LEN));
-      rhs[i].flexType = (Board::FlexType)sliderConfig[i].flexType;
-      rhs[i].inverted = sliderConfig[i].inverted;
+    if (config[i].type == (unsigned int)Board::AIT_FLEX) {
+      memcpy(rhs[i].name, config[i].name, sizeof(HARDWARE_NAME_LEN));
+      rhs[i].flexType = (Board::FlexType)config[i].flexType;
+      rhs[i].inverted = config[i].inverted;
     }
   }
 }
@@ -102,9 +102,9 @@ YamlStickConfig::YamlStickConfig(const GeneralSettings::InputConfig* rhs)
   Board::Type board = getCurrentBoard();
 
   for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-    stickConfig[i].tag = std::to_string(i);
-    stickConfig[i].type = rhs[i].type;
-    memcpy(stickConfig[i].name, rhs[i].name, sizeof(HARDWARE_NAME_LEN));
+    config[i].tag = std::to_string(i);
+    config[i].type = rhs[i].type;
+    memcpy(config[i].name, rhs[i].name, sizeof(HARDWARE_NAME_LEN));
   }
 }
 
@@ -113,8 +113,8 @@ void YamlStickConfig::copy(GeneralSettings::InputConfig* rhs) const
   Board::Type board = getCurrentBoard();
 
   for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-    if (stickConfig[i].type == (unsigned int)Board::AIT_STICK) {
-      memcpy(rhs[i].name, stickConfig[i].name, sizeof(HARDWARE_NAME_LEN));
+    if (config[i].type == (unsigned int)Board::AIT_STICK) {
+      memcpy(rhs[i].name, config[i].name, sizeof(HARDWARE_NAME_LEN));
     }
   }
 }
@@ -124,10 +124,10 @@ YamlSwitchConfig::YamlSwitchConfig(const GeneralSettings::SwitchConfig* rhs)
   Board::Type board = getCurrentBoard();
 
   for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
-    switchConfig[i].tag = Boards::getSwitchTag(board, i).toStdString();
-    switchConfig[i].type = rhs[i].type;
-    memcpy(switchConfig[i].name, rhs[i].name, sizeof(HARDWARE_NAME_LEN));
-    // switchConfig[i].inverted = rhs[i].inverted;
+    config[i].tag = Boards::getSwitchTag(board, i).toStdString();
+    config[i].type = rhs[i].type;
+    memcpy(config[i].name, rhs[i].name, sizeof(HARDWARE_NAME_LEN));
+    // config[i].inverted = rhs[i].inverted;
   }
 }
 
@@ -136,10 +136,10 @@ void YamlSwitchConfig::copy(GeneralSettings::SwitchConfig* rhs) const
  Board::Type board = getCurrentBoard();
 
   for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
-    if (switchConfig[i].type != (unsigned int)Board::SWITCH_NOT_AVAILABLE) {
-      memcpy(rhs[i].name, switchConfig[i].name, sizeof(HARDWARE_NAME_LEN));
-      rhs[i].type = (Board::SwitchType)switchConfig[i].type;
-      // rhs[i].inverted = switchConfig[i].inverted;
+    if (config[i].type != (unsigned int)Board::SWITCH_NOT_AVAILABLE) {
+      memcpy(rhs[i].name, config[i].name, sizeof(HARDWARE_NAME_LEN));
+      rhs[i].type = (Board::SwitchType)config[i].type;
+      // rhs[i].inverted = config[i].inverted;
     }
   }
 }
@@ -152,8 +152,8 @@ YamlSwitchesFlex::YamlSwitchesFlex(const GeneralSettings::SwitchConfig* rhs)
     if (Boards::isSwitchFlex(board, i) && rhs[i].inputIdx >= 0) {
       int idx = Boards::getSwitchTagNum(board, i) - 1;
       if (idx >= 0 && idx < CPN_MAX_SWITCHES_FLEX) {
-        switchFlex[idx].tag = Boards::getSwitchTag(board, i).toStdString();
-        switchFlex[idx].channel = Boards::getInputTag(board, rhs[i].inputIdx).toStdString();
+        config[idx].tag = Boards::getSwitchTag(board, i).toStdString();
+        config[idx].channel = Boards::getInputTag(board, rhs[i].inputIdx).toStdString();
       }
     }
   }
@@ -164,7 +164,8 @@ void YamlSwitchesFlex::copy(GeneralSettings::SwitchConfig* rhs) const
  Board::Type board = getCurrentBoard();
 
   for (int i = 0; i < Boards::getCapability(board, Board::SwitchesFlex); i++) {
-    rhs[i].inputIdx = Boards::getInputIndex(board, switchFlex[i].channel.c_str());
+    int idx = Boards::getSwitchIndex(board, config[i].tag.c_str());
+    rhs[idx].inputIdx = config[i].inputIndx;
   }
 }
 
@@ -248,7 +249,10 @@ bool convert<SwitchFlex>::decode(const Node& node, SwitchFlex& rhs)
 {
   if (!node.IsMap()) return false;
 
+  Board::Type board = getCurrentBoard();
+
   node["channel"] >> rhs.channel;
+  rhs.inputIndx = Boards::getInputIndex(board, rhs.channel.c_str());
 
   return true;
 }
@@ -260,9 +264,9 @@ Node convert<YamlPotConfig>::encode(const YamlPotConfig& rhs)
   const int maxcnt = Boards::getCapability(board, Board::Inputs);
 
   for (int i = 0; i < maxcnt; i++) {
-    if (rhs.potConfig[i].type == (unsigned int)Board::AIT_FLEX && rhs.potConfig[i].flexType != (unsigned int)Board::FLEX_NONE) {
-      std::string tag = rhs.potConfig[i].tag;
-      node[tag] = rhs.potConfig[i];
+    if (rhs.config[i].type == (unsigned int)Board::AIT_FLEX && rhs.config[i].flexType != (unsigned int)Board::FLEX_NONE) {
+      std::string tag = rhs.config[i].tag;
+      node[tag] = rhs.config[i];
     }
   }
 
@@ -286,9 +290,9 @@ bool convert<YamlPotConfig>::decode(const Node& node, YamlPotConfig& rhs)
     int idx = Boards::getInputIndex(board, tag.c_str());
 
     if (idx >= 0 && idx < maxcnt) {
-      kv.second >> rhs.potConfig[idx];
-      rhs.potConfig[idx].tag = tag;
-      rhs.potConfig[idx].type = Board::AIT_FLEX;
+      kv.second >> rhs.config[idx];
+      rhs.config[idx].tag = tag;
+      rhs.config[idx].type = Board::AIT_FLEX;
     }
   }
 
@@ -314,9 +318,9 @@ bool convert<YamlSliderConfig>::decode(const Node& node, YamlSliderConfig& rhs)
     int idx = Boards::getInputSliderIndex(board, i);
 
     if (idx >= 0 && idx < maxcnt) {
-      kv.second >> rhs.sliderConfig[idx];
-      rhs.sliderConfig[idx].tag = Boards::getInputTag(board, idx).toStdString();
-      rhs.sliderConfig[idx].type = Board::AIT_FLEX;
+      kv.second >> rhs.config[idx];
+      rhs.config[idx].tag = Boards::getInputTag(board, idx).toStdString();
+      rhs.config[idx].type = Board::AIT_FLEX;
     }
 
     i++;
@@ -332,9 +336,9 @@ Node convert<YamlStickConfig>::encode(const YamlStickConfig& rhs)
   const int maxcnt = Boards::getCapability(board, Board::Inputs);
 
   for (int i = 0; i < maxcnt; i++) {
-    if (rhs.stickConfig[i].type == (unsigned int)Board::AIT_STICK) {
-      std::string tag = rhs.stickConfig[i].tag;
-      node[tag] = rhs.stickConfig[i];
+    if (rhs.config[i].type == (unsigned int)Board::AIT_STICK) {
+      std::string tag = rhs.config[i].tag;
+      node[tag] = rhs.config[i];
     }
   }
 
@@ -356,9 +360,9 @@ bool convert<YamlStickConfig>::decode(const Node& node, YamlStickConfig& rhs)
       int idx = std::stoi(tag);
 
       if (idx >= 0 && idx < maxcnt) {
-        kv.second >> rhs.stickConfig[idx];
-        rhs.stickConfig[idx].tag = tag;
-        rhs.stickConfig[idx].type = Board::AIT_STICK;
+        kv.second >> rhs.config[idx];
+        rhs.config[idx].tag = tag;
+        rhs.config[idx].type = Board::AIT_STICK;
       }
     }
   }
@@ -373,9 +377,9 @@ Node convert<YamlSwitchConfig>::encode(const YamlSwitchConfig& rhs)
   const int maxcnt = Boards::getCapability(board, Board::Switches);
 
   for (int i = 0; i < maxcnt; i++) {
-    if (rhs.switchConfig[i].type != Board::SWITCH_NOT_AVAILABLE) {
+    if (rhs.config[i].type != Board::SWITCH_NOT_AVAILABLE) {
       std::string tag = Boards::getSwitchTag(board, i).toStdString();
-      node[tag] = rhs.switchConfig[i];
+      node[tag] = rhs.config[i];
     }
   }
 
@@ -395,8 +399,8 @@ bool convert<YamlSwitchConfig>::decode(const Node& node, YamlSwitchConfig& rhs)
     int idx = Boards::getSwitchIndex(board, tag.c_str());
 
     if (idx >= 0 && idx < maxcnt) {
-      kv.second >> rhs.switchConfig[idx];
-      rhs.switchConfig[idx].tag = tag;
+      kv.second >> rhs.config[idx];
+      rhs.config[idx].tag = tag;
     }
   }
 
@@ -410,8 +414,8 @@ Node convert<YamlSwitchesFlex>::encode(const YamlSwitchesFlex& rhs)
   const int maxcnt = Boards::getCapability(board, Board::SwitchesFlex);
 
   for (int i = 0; i < maxcnt; i++) {
-    if (!rhs.switchFlex[i].tag.empty())
-      node[rhs.switchFlex[i].tag] = rhs.switchFlex[i];
+    if (!rhs.config[i].tag.empty())
+      node[rhs.config[i].tag] = rhs.config[i];
   }
 
   return node;
@@ -432,11 +436,11 @@ bool convert<YamlSwitchesFlex>::decode(const Node& node, YamlSwitchesFlex& rhs)
     size_t len = tag.size();
 
     if (len > 2 && val[0] == 'F' && val[1] == 'L'  && val[2] > '0' && val[2] <= '9') {
-      int idx = std::stoi(tag.substr(2, len - 2));
+      int idx = std::stoi(tag.substr(2, len - 2)) - 1;
 
       if (idx >= 0 && idx < maxcnt) {
-        kv.second >> rhs.switchFlex[idx];
-        rhs.switchFlex[idx].tag = tag;
+        kv.second >> rhs.config[idx];
+        rhs.config[idx].tag = tag;
       }
     }
   }

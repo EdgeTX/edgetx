@@ -868,7 +868,7 @@ void GeneralSettings::validateFlexSwitches()
     if (inputConfig[switchConfig[i].inputIdx].flexType != Board::FLEX_SWITCH)
       switchConfig[i].inputIdx = 0;
 
-    int idx = Boards::getSwitchIndex(board, QString("FL%").arg(i));
+    int idx = Boards::getSwitchIndex(board, QString("FL%1").arg(i));
     if (idx >= 0) {
       if (switchConfig[idx].type == Board::SWITCH_NOT_AVAILABLE)
         switchConfig[i].inputIdx = 0;
