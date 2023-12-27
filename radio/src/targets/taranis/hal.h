@@ -408,9 +408,9 @@
   #define TRIMS_GPIO_REG_T4L            GPIOE
   #define TRIMS_GPIO_PIN_T4L            LL_GPIO_PIN_8 // PE.08
   #define TRIMS_GPIO_REG_T5R            GPIOE
-  #define TRIMS_GPIO_PIN_T5R            LL_GPIO_PIN_14 // PE.14
+  #define TRIMS_GPIO_PIN_T5R            LL_GPIO_PIN_15 // PE.15
   #define TRIMS_GPIO_REG_T5L            GPIOE
-  #define TRIMS_GPIO_PIN_T5L            LL_GPIO_PIN_15 // PE.15
+  #define TRIMS_GPIO_PIN_T5L            LL_GPIO_PIN_14 // PE.14
 #elif defined(PCBX7) && !defined(RADIO_COMMANDO8)
   #define TRIMS_GPIO_REG_LHL            GPIOD
   #define TRIMS_GPIO_PIN_LHL            LL_GPIO_PIN_15 // PD.15
