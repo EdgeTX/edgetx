@@ -474,12 +474,12 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="1139"/>
         <source>Radio Profiles</source>
-        <translation type="unfinished">Radioprofiler</translation>
+        <translation>Radioprofiler</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1146"/>
         <source>Move selected Radio Profile to the top of the list</source>
-        <translation type="unfinished"></translation>
+        <translation>Flyt valgte Radioprofiler til toppen af listen</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1249"/>
@@ -1215,17 +1215,17 @@ Mode 4:
     <message>
         <location filename="../firmwares/boards.cpp" line="862"/>
         <source>VRA</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="863"/>
         <source>VRB</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="864"/>
         <source>VRC</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="874"/>
@@ -2496,12 +2496,12 @@ Vil du indlæse indstillinger fra en fil?</translation>
     <message>
         <location filename="../modeledit/customfunctions.cpp" line="115"/>
         <source>Repeat</source>
-        <translation type="unfinished">Gentag</translation>
+        <translation>Gentag</translation>
     </message>
     <message>
         <location filename="../modeledit/customfunctions.cpp" line="115"/>
         <source>Enable</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiver</translation>
     </message>
     <message>
         <location filename="../modeledit/customfunctions.cpp" line="611"/>
@@ -3822,12 +3822,12 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1254"/>
         <source>FlySky PL18</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1443"/>
         <source>Radiomaster Pocket</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1510"/>
@@ -6341,7 +6341,7 @@ Er du sikker?</translation>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="533"/>
         <source>Normal, Edit Inverted</source>
-        <translation type="unfinished"></translation>
+        <translation>Normal, rediger invers</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="379"/>
@@ -7311,7 +7311,7 @@ Kolumnerna for højde (GAlt) og hastighed (GSpd) er valgfrie</translation>
     <message>
         <location filename="../logsdialog.cpp" line="77"/>
         <source>Time (hh:mm:ss.ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tid (hh:mm:ss.ms)</translation>
     </message>
     <message>
         <location filename="../logsdialog.cpp" line="497"/>
@@ -7889,12 +7889,12 @@ Vil du fortsætte?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="1264"/>
         <source>Cannot add profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke tilføje profil</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1264"/>
         <source>There is no space left to add a new profile. Delete an exsting profile before adding a new one.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der er ikke plads til at tilføje en ny profil. Slet først eksisterende profil.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1294"/>
@@ -14648,7 +14648,7 @@ tt:mm:ss</translation>
     <message>
         <location filename="../simulation/telemetrysimu.cpp" line="1392"/>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Stop</translation>
     </message>
 </context>
 <context>
