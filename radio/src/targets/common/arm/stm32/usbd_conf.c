@@ -331,7 +331,11 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   hpcd_USB_OTG_FS.Init.Sof_enable = ENABLE;
   hpcd_USB_OTG_FS.Init.low_power_enable = DISABLE;
   hpcd_USB_OTG_FS.Init.lpm_enable = DISABLE;
+#if defined(VBUS_SENSING_ENABLED)
   hpcd_USB_OTG_FS.Init.vbus_sensing_enable = ENABLE;
+#else
+  hpcd_USB_OTG_FS.Init.vbus_sensing_enable = DISABLE;
+#endif
   hpcd_USB_OTG_FS.Init.use_dedicated_ep1 = DISABLE;
   if (HAL_PCD_Init(&hpcd_USB_OTG_FS) != HAL_OK)
   {
