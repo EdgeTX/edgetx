@@ -603,7 +603,7 @@ void SimulatorWidget::setupRadioWidgets()
   // switches
   Board::SwitchType swcfg;
   for (i = 0; i < ttlSwitches; ++i) {
-    if (!radioSettings.isSwitchAvailable(i))
+    if (!radioSettings.isSwitchAvailable(i) || Boards::isSwitchFunc(i))
       continue;
 
     swcfg = Board::SwitchType(radioSettings.switchConfig[i].type);

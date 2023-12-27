@@ -567,6 +567,11 @@ bool BoardJson::isSwitchFlex(const SwitchDefn & defn)
           val[0] == 'F' && val[1] == 'L' && val[2] >= '0' && val[2] <= '9');
 }
 
+const bool BoardJson::isSwitchFunc(int index) const
+{
+  return isSwitchFunc(m_switches->at(index));
+}
+
 // static
 bool BoardJson::isSwitchFunc(const SwitchDefn & defn)
 {

@@ -112,6 +112,7 @@ class BoardJson
 
     const bool isSwitchConfigurable(int index) const;
     const bool isSwitchFlex(int index) const;
+    const bool isSwitchFunc(int index) const;
 
 private:
     Board::Type m_board;

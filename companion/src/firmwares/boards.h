@@ -348,6 +348,7 @@ class Boards
 
     static bool isSwitchConfigurable(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static bool isSwitchFlex(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isSwitchFunc(int index, Board::Type board = Board::BOARD_UNKNOWN);
 
     static QString flexTypeToString(int value);
     static AbstractStaticItemModel * flexTypeItemModel();

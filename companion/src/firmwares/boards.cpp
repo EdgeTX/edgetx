@@ -892,3 +892,8 @@ bool Boards::isSwitchFlex(int index, Board::Type board)
 {
   return getBoardJson(board)->isSwitchFlex(index);
 }
+
+bool Boards::isSwitchFunc(int index, Board::Type board)
+{
+  return getBoardJson(board)->isSwitchFunc(index);
+}
