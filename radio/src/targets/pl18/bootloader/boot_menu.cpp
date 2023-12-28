@@ -25,8 +25,8 @@
 
 #include "translations.h"
 
-#include "../../common/arm/stm32/bootloader/boot.h"
-#include "../../common/arm/stm32/bootloader/bin_files.h"
+#include "targets/common/arm/stm32/bootloader/boot.h"
+#include "targets/common/arm/stm32/bootloader/bin_files.h"
 
 #include <lvgl/lvgl.h>
 
@@ -56,8 +56,6 @@ extern BitmapBuffer * lcd;
 void bootloaderInitScreen()
 {
   lcdInitDisplayDriver();
-  backlightInit();
-  backlightEnable(100);
   setHatsAsKeys(true);
 }
 
@@ -79,8 +77,14 @@ static void bootloaderDrawBackground()
 
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 {
+    static bool _first_screen = true;
     lcdInitDirectDrawing();
     bootloaderDrawBackground();
+
+    if (!_first_screen) {
+        // ... and turn backlight ON
+        backlightEnable(BACKLIGHT_LEVEL_MAX);
+    }
 
     int center = LCD_W/2;
     if (st == ST_START) {
@@ -231,6 +235,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
                       LV_SYMBOL_NEW_LINE TR_BL_EXIT_KEY, BL_FOREGROUND);
       }
     }
+    _first_screen = false;
 }
 
 void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)

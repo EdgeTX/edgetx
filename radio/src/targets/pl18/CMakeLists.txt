@@ -104,32 +104,7 @@ file(GLOB THEMES_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gui
 file(GLOB LAYOUTS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gui/colorlcd/layouts/*.cpp)
 file(GLOB WIDGETS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gui/colorlcd/widgets/*.cpp)
 
-set(SRC
-  ${SRC}
-  io/frsky_firmware_update.cpp
-  )
-
 set(GVAR_SCREEN model_gvars.cpp)
-
-if(BOOTLOADER)
-  set(FIRMWARE_TARGET_SRC
-    ${FIRMWARE_TARGET_SRC}
-    ../common/arm/loadboot.cpp
-    )
-endif()
-
-set(SRC
-  ${SRC}
-  io/frsky_firmware_update.cpp
-  io/multi_firmware_update.cpp
-  )
-
-if (MULTIMODULE)
-  add_definitions(-DMULTI_PROTOLIST)
-  set(SRC ${SRC}
-    io/multi_protolist.cpp
-    )
-endif()
 
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
@@ -154,6 +129,25 @@ set(FIRMWARE_SRC
   drivers/frftl.cpp
   )
 
+if(BOOTLOADER)
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    targets/common/arm/loadboot.cpp
+  )
+endif()
+
+set(SRC ${SRC}
+  io/frsky_firmware_update.cpp
+  io/multi_firmware_update.cpp
+  )
+
+if (MULTIMODULE)
+  add_definitions(-DMULTI_PROTOLIST)
+  set(SRC ${SRC}
+    io/multi_protolist.cpp
+  )
+endif()
+
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)
 
@@ -162,6 +156,5 @@ set(STM32LIB_SRC
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fmc.c
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_ltdc.c
   STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma2d.c
   )
 
