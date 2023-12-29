@@ -140,6 +140,7 @@ class FlightModeEdit : public Page
                                 [=](int val) {
                                   tr->mode = val;
                                   showControls(t, tr->mode);
+                                  SET_DIRTY();
                                 });
         tr_mode[t]->setTextHandler([=](uint8_t mode) { return getFMTrimStr(mode, true); });
         tr_mode[t]->setAvailableHandler([=](int mode) {
