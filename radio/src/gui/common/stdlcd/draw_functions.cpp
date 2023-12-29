@@ -77,8 +77,9 @@ void drawTrimMode(coord_t x, coord_t y, uint8_t flightMode, uint8_t idx, LcdFlag
 
   if (mode == TRIM_MODE_NONE) {
     lcdDrawText(x, y, "--", att);
-  }
-  else {
+  } else if (mode == TRIM_MODE_3POS) {
+    lcdDrawText(x, y, "3P", att);
+  } else {
     if (mode % 2 == 0)
       lcdDrawChar(x, y, ':', att|FIXEDWIDTH);
     else

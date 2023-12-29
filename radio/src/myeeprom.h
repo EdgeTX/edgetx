@@ -272,6 +272,7 @@ enum SwashType {
 
 #define TRIMS_ARRAY_SIZE  8
 #define TRIM_MODE_NONE  0x1F  // 0b11111
+#define TRIM_MODE_3POS  (2 * MAX_FLIGHT_MODES)
 
 #define IS_MANUAL_RESET_TIMER(idx)     (g_model.timers[idx].persistent == 2)
 

@@ -46,7 +46,9 @@ enum FlightModesItems {
 
 bool isTrimModeAvailable(int mode)
 {
-  return (mode < 0 || (mode%2) == 0 || (mode/2) != menuVerticalPosition);
+  if (mode < 0 || mode == TRIM_MODE_3POS) return true;
+  if (menuVerticalPosition == 0) return mode == 0;
+  return (mode%2) == 0 || (mode/2) != menuVerticalPosition;
 }
 
 void menuModelFlightModesAll(event_t event)
@@ -123,7 +125,7 @@ void menuModelFlightModesAll(event_t event)
           drawTrimMode((4+LEN_FLIGHT_MODE_NAME)*FW+j*(5*FW/2), y, k, t, attr);
           if (active) {
             trim_t & v = p->trim[t];
-            v.mode = checkIncDec(event, v.mode==TRIM_MODE_NONE ? -1 : v.mode, -1, k==0 ? 0 : 2*MAX_FLIGHT_MODES-1, EE_MODEL, isTrimModeAvailable);
+            v.mode = checkIncDec(event, v.mode==TRIM_MODE_NONE ? -1 : v.mode, -1, 2*MAX_FLIGHT_MODES, EE_MODEL, isTrimModeAvailable);
           }
           break;
         }

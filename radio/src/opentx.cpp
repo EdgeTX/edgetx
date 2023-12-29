@@ -471,7 +471,7 @@ int getTrimValue(uint8_t phase, uint8_t idx)
   int result = 0;
   for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
     trim_t v = getRawTrimValue(phase, idx);
-    if (v.mode == TRIM_MODE_NONE) {
+    if (v.mode == TRIM_MODE_NONE || v.mode == TRIM_MODE_3POS) {
       return result;
     }
     else {
@@ -494,7 +494,7 @@ bool setTrimValue(uint8_t phase, uint8_t idx, int trim)
 {
   for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
     trim_t & v = flightModeAddress(phase)->trim[idx];
-    if (v.mode == TRIM_MODE_NONE)
+    if (v.mode == TRIM_MODE_NONE || v.mode == TRIM_MODE_3POS)
       return false;
     unsigned int p = v.mode >> 1;
     if (p == phase || phase == 0) {

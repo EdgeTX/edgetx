@@ -59,7 +59,9 @@ enum MenuModelFlightModeItems {
 
 bool isTrimModeAvailable(int mode)
 {
-  return (mode < 0 || (mode%2) == 0 || (mode/2) != s_currIdx);
+  if (mode < 0 || mode == TRIM_MODE_3POS) return true;
+  if (s_currIdx == 0) return mode == 0;
+  return (mode%2) == 0 || (mode/2) != s_currIdx;
 }
 
 void menuModelFlightModeOne(event_t event)
@@ -127,7 +129,7 @@ void menuModelFlightModeOne(event_t event)
             drawTrimMode(MIXES_2ND_COLUMN + (t*2*FW), y, s_currIdx, t, menuHorizontalPosition == t ? attr : 0);
             if (s_editMode > 0 && attr && menuHorizontalPosition == t) {
               trim_t & v = fm->trim[t];
-              v.mode = checkIncDec(event, v.mode==TRIM_MODE_NONE ? -1 : v.mode, -1, k==0 ? 0 : 2*MAX_FLIGHT_MODES-1, EE_MODEL, isTrimModeAvailable);
+              v.mode = checkIncDec(event, v.mode==TRIM_MODE_NONE ? -1 : v.mode, -1, 2*MAX_FLIGHT_MODES, EE_MODEL, isTrimModeAvailable);
             }
           }
         }
@@ -143,7 +145,7 @@ void menuModelFlightModeOne(event_t event)
             if (s_editMode > 0 && attr && menuHorizontalPosition == t - 4) {
               trim_t& v = fm->trim[t];
               v.mode = checkIncDec(event, v.mode == TRIM_MODE_NONE ? -1 : v.mode,
-                                   -1, k == 0 ? 0 : 2 * MAX_FLIGHT_MODES - 1,
+                                   -1, 2 * MAX_FLIGHT_MODES,
                                    EE_MODEL, isTrimModeAvailable);
             }
           }
