@@ -415,8 +415,13 @@
   #define TR_MOVESTICKSPOTS            "MOVE AXIS/POTS"
 #else
   #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " TO START"
-  #define TR_SETMIDPOINT               TR(CENTER "\004SET AXIS MIDPOINT", CENTER "\004CENTER AXIS/SLIDERS")
-  #define TR_MOVESTICKSPOTS            CENTER "\006MOVE AXIS/POTS"
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT               CENTER "\006SET POTS MIDPOINT"
+  #define TR_MOVESTICKSPOTS            CENTER "\002MOVE ST/TH/POTS/AXIS"
+#else
+  #define TR_SETMIDPOINT               TR(CENTER "\006SET AXIS MIDPOINT", CENTER "\004CENTER AXIS/SLIDERS")
+  #define TR_MOVESTICKSPOTS            CENTER "\007MOVE AXIS/POTS"
+#endif
   #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " WHEN DONE"
 #endif
 #define TR_TXnRX                       "Tx:\0Rx:"
