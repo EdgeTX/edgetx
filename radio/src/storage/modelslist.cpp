@@ -856,11 +856,11 @@ void ModelMap::sortModelsBy(ModelsVector &mv, ModelsSortBy sortby)
     });
   } else if (sortby == NAME_ASC) {
     std::sort(mv.begin(), mv.end(), [](ModelCell *a, ModelCell *b) -> bool {
-      return strcmp(a->modelName, b->modelName) < 0;
+      return strcasecmp(a->modelName, b->modelName) < 0;
     });
   } else if (sortby == NAME_DES) {
     std::sort(mv.begin(), mv.end(), [](ModelCell *a, ModelCell *b) -> bool {
-      return strcmp(a->modelName, b->modelName) > 0;
+      return strcasecmp(a->modelName, b->modelName) > 0;
     });
   }
 }
