@@ -52,6 +52,11 @@ TASK_FUNCTION(menusTask)
 
   mixerTaskInit();
 
+#if !defined(COLORLCD)
+  // Ensure correct init on B&W if starting on 'Channels Monitor' page.
+  pushEvent(EVT_ENTRY);
+#endif
+
 #if defined(PWR_BUTTON_PRESS)
   while (true) {
     uint32_t pwr_check = pwrCheck();
