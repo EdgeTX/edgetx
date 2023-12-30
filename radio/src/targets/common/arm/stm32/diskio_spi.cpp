@@ -45,6 +45,7 @@ static const stm32_spi_t _sd_spi_hw = {
     .DMA_Channel = SD_SPI_DMA_CHANNEL,
     .txDMA_Stream = SD_SPI_DMA_TX_STREAM,
     .rxDMA_Stream = SD_SPI_DMA_RX_STREAM,
+    .useFIFO = true,
 };
 
 static uint32_t _sdcard_sectors;
