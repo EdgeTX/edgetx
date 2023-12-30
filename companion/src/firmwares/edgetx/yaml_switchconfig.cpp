@@ -208,7 +208,7 @@ bool convert<SwitchConfig>::decode(const Node& node, SwitchConfig& rhs)
   if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
     int idx = Boards::getSwitchIndex(rhs.tag.c_str());
     if (idx >= 0) {
-      Board::SwitchInfo info = Boards::getSwitchInfo(idx, getCurrentBoard());
+      Board::SwitchInfo info = Boards::getSwitchInfo(idx);
       rhs.inverted = info.inverted;
     }
   }

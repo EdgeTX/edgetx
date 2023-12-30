@@ -742,7 +742,7 @@ QString ModelPrinter::printSwitchWarnings()
   uint64_t value;
 
   for (int i = 0; i < Boards::getCapability(board, Board::Switches) + Boards::getCapability(board, Board::FunctionSwitches); i++) {
-    Board::SwitchInfo switchInfo = Boards::getSwitchInfo(i, board);
+    Board::SwitchInfo switchInfo = Boards::getSwitchInfo(i);
     if (switchInfo.type == Board::SWITCH_NOT_AVAILABLE || switchInfo.type == Board::SWITCH_TOGGLE) {
       continue;
     }

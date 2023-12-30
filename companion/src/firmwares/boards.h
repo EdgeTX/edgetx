@@ -294,7 +294,6 @@ class Boards
     const uint32_t getFourCC() const { return getFourCC(m_boardType); }
     const int getEEpromSize() const { return getEEpromSize(m_boardType); }
     const int getFlashSize() const { return getFlashSize(m_boardType); }
-    const Board::SwitchInfo getSwitchInfo(int index) const { return getSwitchInfo(index, m_boardType); }
     const int getCapability(Board::Capability capability) const { return getCapability(m_boardType, capability); }
     const bool isBoardCompatible(Board::Type board2) const { return isBoardCompatible(m_boardType, board2); }
 

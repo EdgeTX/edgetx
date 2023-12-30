@@ -462,9 +462,9 @@ void HardwarePanel::setFlexTypeModel(AutoComboBox * cb, int index)
 void HardwarePanel::addSwitch(int index)
 {
   GeneralSettings::SwitchConfig &config = generalSettings.switchConfig[index];
-  Board::SwitchInfo info = Boards::getSwitchInfo(index, board);
+  Board::SwitchInfo info = Boards::getSwitchInfo(index);
 
-  addLabel(Boards::getSwitchName(index, board));
+  addLabel(Boards::getSwitchName(index));
 
   AutoLineEdit *name = new AutoLineEdit(this);
   name->setField(config.name, HARDWARE_NAME_LEN, this);

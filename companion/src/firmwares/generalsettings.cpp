@@ -214,10 +214,10 @@ void GeneralSettings::init()
   setDefaultControlTypes(board);
 
   for (int i = 0; i < Boards::getCapability(board, Board::Inputs); ++i) {
-    if (!Boards::isInputCalibrated(i, board))
+    if (!Boards::isInputCalibrated(i))
       continue;
 
-    Board::InputInfo info = Boards::getInputInfo(i, board);
+    Board::InputInfo info = Boards::getInputInfo(i);
 
     if (info.type == Board::AIT_FLEX && info.flexType == Board::FLEX_MULTIPOS) {
       inputConfig[i].calib.mid     = 773;;
@@ -286,12 +286,12 @@ void GeneralSettings::init()
     QString t_SpeakerSet=g.profile[g.sessionId()].speaker();
     QString t_CountrySet=g.profile[g.sessionId()].countryCode();
 
-    if ((t_calib.length() == (Boards::getInputsCalibrated(board) * 12)) && (t_trainercalib.length() == 16)) {
+    if ((t_calib.length() == (Boards::getInputsCalibrated() * 12)) && (t_trainercalib.length() == 16)) {
       QString Byte;
       int16_t byte16;
       bool ok;
       for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-        if (Boards::isInputCalibrated(i, board)) {
+        if (Boards::isInputCalibrated(i)) {
           Byte = t_calib.mid(i * 12, 4);
           byte16 = (int16_t)Byte.toInt(&ok, 16);
           if (ok) inputConfig[i].calib.mid = byte16;
