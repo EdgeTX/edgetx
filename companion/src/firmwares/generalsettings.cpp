@@ -213,23 +213,6 @@ void GeneralSettings::init()
 
   setDefaultControlTypes(board);
 
-  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); ++i) {
-    if (!Boards::isInputCalibrated(i))
-      continue;
-
-    Board::InputInfo info = Boards::getInputInfo(i);
-
-    if (info.type == Board::AIT_FLEX && info.flexType == Board::FLEX_MULTIPOS) {
-      inputConfig[i].calib.mid     = 773;;
-      inputConfig[i].calib.spanNeg = 5388;
-      inputConfig[i].calib.spanPos = 9758;
-    } else {
-      inputConfig[i].calib.mid     = 0x200;
-      inputConfig[i].calib.spanNeg = 0x180;
-      inputConfig[i].calib.spanPos = 0x180;
-    }
-  }
-
   backlightMode = 3; // keys and sticks
   backlightDelay = 2; // 2 * 5 = 10 secs
   inactivityTimer = 10;
@@ -383,6 +366,23 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
     }
   }
 
+  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); ++i) {
+    if (!Boards::isInputCalibrated(i, board))
+      continue;
+
+    Board::InputInfo info = Boards::getInputInfo(i, board);
+
+    if (info.type == Board::AIT_FLEX && info.flexType == Board::FLEX_MULTIPOS) {
+      inputConfig[i].calib.mid     = 773;
+      inputConfig[i].calib.spanNeg = 5388;
+      inputConfig[i].calib.spanPos = 9758;
+    } else {
+      inputConfig[i].calib.mid     = 0x200;
+      inputConfig[i].calib.spanNeg = 0x180;
+      inputConfig[i].calib.spanPos = 0x180;
+    }
+  }
+
   for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
     Board::SwitchInfo info =  Boards::getSwitchInfo(i, board);
     switchConfig[i].type = info.type;
@@ -417,22 +417,14 @@ int GeneralSettings::getDefaultChannel(unsigned int stick) const
   return -1;
 }
 
-//======================================================================
-//
-// TODO this needs to reference the v2.10 structs
-//      however must be called after config is loaded and migrated
-//
-//======================================================================
 void GeneralSettings::convert(RadioDataConversionState & cstate)
 {
   // Here we can add explicit conversions when moving from one board to another
 
   cstate.setOrigin(tr("Radio Settings"));
 
-  setDefaultControlTypes(cstate.toType);  // start with default switches/pots/sliders
-
-  cstate.setComponent("Hardware");
-  cstate.setItemType("Int. Module");
+  cstate.setComponent(tr("Hardware"));
+  cstate.setSubComp(tr("Internal Module"));
   RadioDataConversionState::LogField oldData(internalModule, ModuleData::typeToString(internalModule));
 
   if (internalModule != MODULE_TYPE_NONE && (int)internalModule != g.currentProfile().defaultInternalModule()) {
@@ -440,74 +432,71 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
     cstate.setInvalid(oldData);
   }
 
-  // Try to intelligently copy any custom control names
+  //  Try to intelligently copy any custom controls
+  //  step 1 backup current config
+  InputConfig fromInputConfig[CPN_MAX_INPUTS];
+  SwitchConfig fromSwitchConfig[CPN_MAX_SWITCHES];
+  memcpy(&fromInputConfig, &inputConfig, sizeof(InputConfig) * CPN_MAX_INPUTS);
+  memcpy(&fromSwitchConfig, &switchConfig, sizeof(SwitchConfig) * CPN_MAX_SWITCHES);
+  //  step 2 clear current config
+  memset(&inputConfig, '0', sizeof(InputConfig) * CPN_MAX_INPUTS);
+  memset(&switchConfig, '0', sizeof(SwitchConfig) * CPN_MAX_SWITCHES);
+  //  step 3 load default config
+  setDefaultControlTypes(cstate.toType);
+  //  step 4 copy matching config based on tags
 
-  //==============================================================================================
-  //  TODO rethink moving and should it even be done when so arbitary
-  //  From v2.10 switches and inputs(sticks, pots, sliders, etc) are loaded from json files
-  //  therefore there is no longer any guarantee as into which indexes entries will be loaded
-  //  so moving config between indexes based on from and to board is no so trivial
-  //  There is now a greater risk of unexpected consequences
-  //==============================================================================================
+  cstate.setSubComp("");
 
-  // SE and SG are skipped on X7 board
-  if (IS_TARANIS_X7(cstate.toType)) {
-    if (IS_TARANIS_X9(cstate.fromType) || IS_FAMILY_HORUS_OR_T16(cstate.fromType)) {
-      strncpy(swtchName[4], swtchName[5], sizeof(swtchName[4]));
-      strncpy(swtchName[5], swtchName[7], sizeof(swtchName[5]));
+  for (int i = 0; i < Boards::getCapability(cstate.fromType, Board::Inputs); i++) {
+    cstate.setItemType(Boards::isInputStick(i, cstate.fromType) ? tr("Axis") : tr("Pot"));
+    RadioDataConversionState::LogField oldData(i, Boards::getInputName(i, cstate.fromType));
+    const int idx = Boards::getInputIndex(Boards::getInputTag(i, cstate.fromType), cstate.toType);
+
+    if (idx > -1) {
+      InputConfig &fromcfg = fromInputConfig[i];
+      InputConfig &tocfg = inputConfig[idx];
+      strncpy(tocfg.name, fromcfg.name, sizeof(inputConfig[0].name));
+      tocfg.type = fromcfg.type;
+      tocfg.flexType = fromcfg.flexType;
+      tocfg.inverted = fromcfg.inverted;
+      // do not copy calibration - use defaults as safer though not fail safe
     }
-  }
-  else if (IS_TARANIS_X7(cstate.fromType)) {
-    if (IS_TARANIS_X9(cstate.toType) || IS_FAMILY_HORUS_OR_T16(cstate.toType)) {
-      strncpy(swtchName[5], swtchName[4], sizeof(swtchName[5]));
-      strncpy(swtchName[7], swtchName[5], sizeof(swtchName[7]));
-    }
-  }
-
-  if (IS_FAMILY_T12(cstate.toType)) {
-    if (IS_TARANIS_X9(cstate.fromType) || IS_FAMILY_HORUS_OR_T16(cstate.fromType)) {
-      strncpy(swtchName[4], swtchName[5], sizeof(swtchName[0]));
-      strncpy(swtchName[5], swtchName[7], sizeof(swtchName[0]));
-    }
-  }
-
-  else if (IS_FAMILY_T12(cstate.fromType)) {
-    if (IS_TARANIS_X9(cstate.toType) || IS_FAMILY_HORUS_OR_T16(cstate.toType)) {
-      strncpy(swtchName[5], swtchName[4], sizeof(swtchName[0]));
-      strncpy(swtchName[7], swtchName[5], sizeof(swtchName[0]));
+    else if (fromInputConfig[i].type == Board::AIT_FLEX && fromInputConfig[i].flexType != Board::FLEX_NONE) {
+      cstate.setInvalid(oldData);
     }
   }
 
-  // LS and RS sliders are after 2 aux sliders on X12 and X9E
-  if ((IS_HORUS_X12S(cstate.toType) || IS_TARANIS_X9E(cstate.toType)) && !IS_HORUS_X12S(cstate.fromType) && !IS_TARANIS_X9E(cstate.fromType)) {
-    strncpy(sliderName[0], sliderName[2], sizeof(sliderName[0]));
-    strncpy(sliderName[1], sliderName[3], sizeof(sliderName[1]));
-  }
-  else if (!IS_TARANIS_X9E(cstate.toType) && !IS_HORUS_X12S(cstate.toType) && (IS_HORUS_X12S(cstate.fromType) || IS_TARANIS_X9E(cstate.fromType))) {
-    strncpy(sliderName[2], sliderName[0], sizeof(sliderName[2]));
-    strncpy(sliderName[3], sliderName[1], sizeof(sliderName[3]));
-  }
+  for (int i = 0; i < Boards::getCapability(cstate.fromType, Board::Switches); i++) {
+    cstate.setItemType(Boards::isSwitchFlex(i, cstate.fromType) ? tr("Flex Switch") :
+                       Boards::isSwitchFunc(i, cstate.fromType) ? tr("Function Switch") : tr("Switch"));
+    RadioDataConversionState::LogField oldData(i, Boards::getSwitchName(i, cstate.fromType));
+    const int idx = Boards::getSwitchIndex(Boards::getSwitchTag(i, cstate.fromType), cstate.toType);
 
-  if (IS_FAMILY_HORUS_OR_T16(cstate.toType)) {
-    // 6P switch is only on Horus (by default)
-    if (cstate.fromBoard.getCapability(Board::FactoryInstalledPots) == 2) {
-      strncpy(potName[2], potName[1], sizeof(potName[2]));
-      potName[1][0] = '\0';
+    if (idx > -1) {
+      SwitchConfig &fromcfg = fromSwitchConfig[i];
+      SwitchConfig &tocfg = switchConfig[idx];
+      strncpy(tocfg.name, fromcfg.name, sizeof(switchConfig[0].name));
+      tocfg.type = fromcfg.type;
+      tocfg.inverted = fromcfg.inverted;
+      if (Boards::getCapability(cstate.toType, Board::SwitchesFlex))
+        tocfg.inputIdx = fromcfg.inputIdx;
+    }
+    else if (fromSwitchConfig[i].type != Board::SWITCH_NOT_AVAILABLE) {
+      cstate.setInvalid(oldData);
     }
   }
+
+  // conversion may have broken linkages so ensure integrity
+  validateFlexSwitches();
 
   if (IS_TARANIS(cstate.toType)) {
-    // No S3 pot on Taranis boards by default
-    if (cstate.fromBoard.getCapability(Board::FactoryInstalledPots) > 2)
-      strncpy(potName[1], potName[2], sizeof(potName[1]));
-
     contrast = qBound<int>(getCurrentFirmware()->getCapability(MinContrast), contrast, getCurrentFirmware()->getCapability(MaxContrast));
   }
 
   // TODO: Would be nice at this point to have GUI pause and ask the user to set up any custom hardware they have on the destination radio.
 
   // Convert all global functions (do this after HW adjustments)
-  for (int i=0; i<CPN_MAX_SPECIAL_FUNCTIONS; i++) {
+  for (int i = 0; i < CPN_MAX_SPECIAL_FUNCTIONS; i++) {
     customFn[i].convert(cstate.withComponentIndex(i));
   }
 
@@ -864,12 +853,12 @@ void GeneralSettings::validateFlexSwitches()
 {
   for (int i = 0; i < CPN_MAX_SWITCHES_FLEX; i++) {
     if (inputConfig[switchConfig[i].inputIdx].flexType != Board::FLEX_SWITCH)
-      switchConfig[i].inputIdx = 0;
+      switchConfig[i].inputIdx = -1;
 
     int idx = Boards::getSwitchIndex(QString("FL%1").arg(i));
     if (idx >= 0) {
       if (switchConfig[idx].type == Board::SWITCH_NOT_AVAILABLE)
-        switchConfig[i].inputIdx = 0;
+        switchConfig[i].inputIdx = -1;
     }
   }
 }
