@@ -448,41 +448,45 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
   cstate.setSubComp("");
 
   for (int i = 0; i < Boards::getCapability(cstate.fromType, Board::Inputs); i++) {
-    cstate.setItemType(Boards::isInputStick(i, cstate.fromType) ? tr("Axis") : tr("Pot"));
-    RadioDataConversionState::LogField oldData(i, Boards::getInputName(i, cstate.fromType));
-    const int idx = Boards::getInputIndex(Boards::getInputTag(i, cstate.fromType), cstate.toType);
+    if (Boards::isInputConfigurable(i, cstate.fromType)) {
+      cstate.setItemType(Boards::isInputStick(i, cstate.fromType) ? tr("Axis") : tr("Pot"));
+      RadioDataConversionState::LogField oldData(i, Boards::getInputName(i, cstate.fromType));
+      const int idx = Boards::getInputIndex(Boards::getInputTag(i, cstate.fromType), cstate.toType);
 
-    if (idx > -1) {
-      InputConfig &fromcfg = fromInputConfig[i];
-      InputConfig &tocfg = inputConfig[idx];
-      strncpy(tocfg.name, fromcfg.name, sizeof(inputConfig[0].name));
-      tocfg.type = fromcfg.type;
-      tocfg.flexType = fromcfg.flexType;
-      tocfg.inverted = fromcfg.inverted;
-      // do not copy calibration - use defaults as safer though not fail safe
-    }
-    else if (fromInputConfig[i].type == Board::AIT_FLEX && fromInputConfig[i].flexType != Board::FLEX_NONE) {
-      cstate.setInvalid(oldData);
+      if (idx > -1) {
+        InputConfig &fromcfg = fromInputConfig[i];
+        InputConfig &tocfg = inputConfig[idx];
+        strncpy(tocfg.name, fromcfg.name, sizeof(inputConfig[0].name));
+        tocfg.type = fromcfg.type;
+        tocfg.flexType = fromcfg.flexType;
+        tocfg.inverted = fromcfg.inverted;
+        // do not copy calibration - use defaults as safer
+      }
+      else if (fromInputConfig[i].type == Board::AIT_FLEX && fromInputConfig[i].flexType != Board::FLEX_NONE) {
+        cstate.setInvalid(oldData);
+      }
     }
   }
 
   for (int i = 0; i < Boards::getCapability(cstate.fromType, Board::Switches); i++) {
-    cstate.setItemType(Boards::isSwitchFlex(i, cstate.fromType) ? tr("Flex Switch") :
-                       Boards::isSwitchFunc(i, cstate.fromType) ? tr("Function Switch") : tr("Switch"));
-    RadioDataConversionState::LogField oldData(i, Boards::getSwitchName(i, cstate.fromType));
-    const int idx = Boards::getSwitchIndex(Boards::getSwitchTag(i, cstate.fromType), cstate.toType);
+    if (Boards::isSwitchConfigurable(i, cstate.fromType)) {
+      cstate.setItemType(Boards::isSwitchFlex(i, cstate.fromType) ? tr("Flex Switch") :
+                         Boards::isSwitchFunc(i, cstate.fromType) ? tr("Function Switch") : tr("Switch"));
+      RadioDataConversionState::LogField oldData(i, Boards::getSwitchName(i, cstate.fromType));
+      const int idx = Boards::getSwitchIndex(Boards::getSwitchTag(i, cstate.fromType), cstate.toType);
 
-    if (idx > -1) {
-      SwitchConfig &fromcfg = fromSwitchConfig[i];
-      SwitchConfig &tocfg = switchConfig[idx];
-      strncpy(tocfg.name, fromcfg.name, sizeof(switchConfig[0].name));
-      tocfg.type = fromcfg.type;
-      tocfg.inverted = fromcfg.inverted;
-      if (Boards::getCapability(cstate.toType, Board::SwitchesFlex))
-        tocfg.inputIdx = fromcfg.inputIdx;
-    }
-    else if (fromSwitchConfig[i].type != Board::SWITCH_NOT_AVAILABLE) {
-      cstate.setInvalid(oldData);
+      if (idx > -1) {
+        SwitchConfig &fromcfg = fromSwitchConfig[i];
+        SwitchConfig &tocfg = switchConfig[idx];
+        strncpy(tocfg.name, fromcfg.name, sizeof(switchConfig[0].name));
+        tocfg.type = fromcfg.type;
+        tocfg.inverted = fromcfg.inverted;
+        if (Boards::getCapability(cstate.toType, Board::SwitchesFlex))
+          tocfg.inputIdx = fromcfg.inputIdx;
+      }
+      else if (fromSwitchConfig[i].type != Board::SWITCH_NOT_AVAILABLE) {
+        cstate.setInvalid(oldData);
+      }
     }
   }
 
