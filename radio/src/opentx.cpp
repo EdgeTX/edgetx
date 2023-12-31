@@ -1137,8 +1137,9 @@ void instantTrim()
   evalInputs(e_perout_mode_notrainer);
 
   auto controls = adcGetMaxInputs(ADC_INPUT_MAIN);
-  for (uint8_t stick = 0; stick < controls; stick++) {
-    if (stick != inputMappingConvertMode(inputMappingGetThrottle())) { // don't instant trim the throttle stick
+  for (uint8_t st = 0; st < controls; st++) {
+    uint8_t stick = inputMappingConvertMode(st);
+    if (stick != inputMappingGetThrottle()) { // don't instant trim the throttle stick
       bool addTrim = false;
       int16_t delta = 0;
       uint8_t trimFlightMode = getTrimFlightMode(mixerCurrentFlightMode, stick);
