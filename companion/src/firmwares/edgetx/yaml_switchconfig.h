@@ -76,7 +76,7 @@ ENCODE_DECODE_CONFIG(SwitchConfig)
 struct SwitchFlex {
   std::string tag = std::string();
   std::string channel = std::string();
-  int inputIndx = -1;
+  int inputIndx = SWITCH_INPUTINDEX_NONE;
 };
 
 ENCODE_DECODE_CONFIG(SwitchFlex)

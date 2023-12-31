@@ -133,7 +133,7 @@ void YamlSwitchConfig::copy(GeneralSettings::SwitchConfig* rhs) const
 YamlSwitchesFlex::YamlSwitchesFlex(const GeneralSettings::SwitchConfig* rhs)
 {
   for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
-    if (Boards::isSwitchFlex(i) && rhs[i].inputIdx >= 0) {
+    if (Boards::isSwitchFlex(i) && rhs[i].inputIdx != SWITCH_INPUTINDEX_NONE) {
       int idx = Boards::getSwitchTagNum(i) - 1;
       if (idx >= 0 && idx < CPN_MAX_SWITCHES_FLEX) {
         config[idx].tag = Boards::getSwitchTag(i).toStdString();
