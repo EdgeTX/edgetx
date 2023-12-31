@@ -387,7 +387,7 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
     Board::SwitchInfo info =  Boards::getSwitchInfo(i, board);
     switchConfig[i].type = info.type;
     switchConfig[i].inverted = info.inverted;
-    switchConfig[i].inputIdx = -1;
+    switchConfig[i].inputIdx = SWITCH_INPUTINDEX_NONE;
   }
 }
 
@@ -433,19 +433,13 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
   }
 
   //  Try to intelligently copy any custom controls
-  //  step 1 backup current config
-  InputConfig fromInputConfig[CPN_MAX_INPUTS];
-  SwitchConfig fromSwitchConfig[CPN_MAX_SWITCHES];
-  memcpy(&fromInputConfig, &inputConfig, sizeof(InputConfig) * CPN_MAX_INPUTS);
-  memcpy(&fromSwitchConfig, &switchConfig, sizeof(SwitchConfig) * CPN_MAX_SWITCHES);
-  //  step 2 clear current config
-  memset(&inputConfig, '0', sizeof(InputConfig) * CPN_MAX_INPUTS);
-  memset(&switchConfig, '0', sizeof(SwitchConfig) * CPN_MAX_SWITCHES);
-  //  step 3 load default config
+  //  step 1 clear current config
+  memset(&inputConfig[0], '0', sizeof(InputConfig) * CPN_MAX_INPUTS);
+  memset(&switchConfig[0], '0', sizeof(SwitchConfig) * CPN_MAX_SWITCHES);
+  //  step 2 load default config
   setDefaultControlTypes(cstate.toType);
-  //  step 4 copy matching config based on tags
-
-  cstate.setSubComp("");
+  //  step 3 copy matching config based on tags
+  cstate.setSubComp(tr("Axis & Pots"));
 
   for (int i = 0; i < Boards::getCapability(cstate.fromType, Board::Inputs); i++) {
     if (Boards::isInputConfigurable(i, cstate.fromType)) {
@@ -454,19 +448,31 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
       const int idx = Boards::getInputIndex(Boards::getInputTag(i, cstate.fromType), cstate.toType);
 
       if (idx > -1) {
-        InputConfig &fromcfg = fromInputConfig[i];
+        const InputConfig &fromcfg = cstate.fromGS()->inputConfig[i];
         InputConfig &tocfg = inputConfig[idx];
         strncpy(tocfg.name, fromcfg.name, sizeof(inputConfig[0].name));
         tocfg.type = fromcfg.type;
-        tocfg.flexType = fromcfg.flexType;
+
+        if (tocfg.type == Board::AIT_FLEX && !Boards::getCapability(cstate.toType, Board::SwitchesFlex) &&
+            fromcfg.flexType == Board::FLEX_SWITCH) {
+          cstate.withComponentField(Boards::getInputName(i, cstate.fromType));
+          RadioDataConversionState::LogField oldFT(i, Boards::flexTypeToString(fromcfg.flexType));
+          tocfg.flexType = Board::FLEX_NONE;
+          cstate.setConverted(oldFT, RadioDataConversionState::LogField(i, Boards::flexTypeToString(tocfg.flexType)));
+        }
+        else
+          tocfg.flexType = fromcfg.flexType;
+
         tocfg.inverted = fromcfg.inverted;
         // do not copy calibration - use defaults as safer
       }
-      else if (fromInputConfig[i].type == Board::AIT_FLEX && fromInputConfig[i].flexType != Board::FLEX_NONE) {
+      else if (cstate.fromGS()->inputConfig[i].type == Board::AIT_FLEX && cstate.fromGS()->inputConfig[i].flexType != Board::FLEX_NONE) {
         cstate.setInvalid(oldData);
       }
     }
   }
+
+  cstate.setSubComp(tr("Switches"));
 
   for (int i = 0; i < Boards::getCapability(cstate.fromType, Board::Switches); i++) {
     if (Boards::isSwitchConfigurable(i, cstate.fromType)) {
@@ -476,22 +482,38 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
       const int idx = Boards::getSwitchIndex(Boards::getSwitchTag(i, cstate.fromType), cstate.toType);
 
       if (idx > -1) {
-        SwitchConfig &fromcfg = fromSwitchConfig[i];
+        const SwitchConfig &fromcfg = cstate.fromGS()->switchConfig[i];
         SwitchConfig &tocfg = switchConfig[idx];
         strncpy(tocfg.name, fromcfg.name, sizeof(switchConfig[0].name));
-        tocfg.type = fromcfg.type;
+
+        if (Boards::getSwitchInfo(i, cstate.fromType).type > Boards::getSwitchInfo(idx, cstate.toType).type) {
+          cstate.withComponentField(Boards::getSwitchName(i, cstate.fromType));
+          RadioDataConversionState::LogField oldSWT(i, Boards::switchTypeToString(fromcfg.type));
+          tocfg.type = Board::SWITCH_NOT_AVAILABLE;
+          cstate.setConverted(oldSWT, RadioDataConversionState::LogField(i, Boards::switchTypeToString(fromcfg.type)));
+        }
+        else
+          tocfg.type = fromcfg.type;
+
         tocfg.inverted = fromcfg.inverted;
-        if (Boards::getCapability(cstate.toType, Board::SwitchesFlex))
-          tocfg.inputIdx = fromcfg.inputIdx;
+
+        if (fromcfg.inputIdx != SWITCH_INPUTINDEX_NONE) {
+          if (!Boards::getCapability(cstate.toType, Board::SwitchesFlex) ||
+              Boards::getInputIndex(Boards::getInputTag(fromcfg.inputIdx, cstate.fromType), cstate.toType) < 0) {
+            cstate.withComponentField(Boards::getSwitchName(i, cstate.fromType));
+            RadioDataConversionState::LogField oldFT(i, Boards::getInputName(fromcfg.inputIdx, cstate.fromType));
+            tocfg.inputIdx = SWITCH_INPUTINDEX_NONE;
+            cstate.setConverted(oldFT, RadioDataConversionState::LogField(i, tr("None")));
+          }
+          else
+            tocfg.inputIdx = fromcfg.inputIdx;
+        }
       }
-      else if (fromSwitchConfig[i].type != Board::SWITCH_NOT_AVAILABLE) {
+      else if (cstate.fromGS()->switchConfig[i].type != Board::SWITCH_NOT_AVAILABLE) {
         cstate.setInvalid(oldData);
       }
     }
   }
-
-  // conversion may have broken linkages so ensure integrity
-  validateFlexSwitches();
 
   if (IS_TARANIS(cstate.toType)) {
     contrast = qBound<int>(getCurrentFirmware()->getCapability(MinContrast), contrast, getCurrentFirmware()->getCapability(MaxContrast));

@@ -103,6 +103,7 @@ constexpr int TTS_LANGUAGE_LEN        {2};
 constexpr int HARDWARE_NAME_LEN       {3};
 constexpr int REGISTRATION_ID_LEN     {8};
 constexpr int SELECTED_THEME_NAME_LEN {26};
+constexpr int SWITCH_INPUTINDEX_NONE  {-1};
 
 class GeneralSettings {
   Q_DECLARE_TR_FUNCTIONS(GeneralSettings)
