@@ -250,7 +250,7 @@ uint8_t audioSoftReset(void)
   audioSpiReadWriteByte(0x00); // start the transfer
 
   uint8_t retry = 0;
-  uint16_t mode = SM_SDINEW | SM_EARSPEAKER_LO;
+  uint16_t mode = SM_SDINEW;
   while (audioSpiReadReg(SPI_MODE) != mode && retry < 100) {
     retry++;
     audioSpiWriteCmd(SPI_MODE, mode | SM_RESET);
