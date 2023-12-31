@@ -1615,7 +1615,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   if (HAS_REPEAT_PARAM(func)) {
     // Check for 2 values to be parsed
     uint8_t l_sep = find_sep(val, val_len);
-    if (!l_sep) {
+    if (l_sep == val_len) {
       // only one more value - assume it is repeat
       read_enable_flag = false;
       // Set 'enabled'
