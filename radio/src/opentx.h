@@ -806,12 +806,6 @@ union ReusableBuffer
 #endif
 
   struct {
-    bool longNames;
-    bool secondPage;
-    bool mixersView;
-  } viewChannels;
-
-  struct {
     uint8_t maxNameLen;
   } modelFailsafe;
 
