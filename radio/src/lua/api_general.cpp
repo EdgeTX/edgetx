@@ -2258,24 +2258,13 @@ Set baudrate for serial port(s) affected to LUA
 */
 static int luaSetSerialBaudrate(lua_State * L)
 {
-// #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-//   unsigned int baudrate = luaL_checkunsigned(L, 1);
-// #endif
+  int port_nr = serialGetModePort(UART_MODE_LUA);
+  if (port_nr < 0) return 0;
 
-// TODO: add some callbacks for serial settings
-// #if defined(AUX_SERIAL)
-//   if (auxSerialMode == UART_MODE_LUA) {
-//     auxSerialStop();
-//     auxSerialSetup(baudrate, false);
-//   }
-// #endif
-// #if defined(AUX2_SERIAL)
-//   if (aux2SerialMode == UART_MODE_LUA) {
-//     aux2SerialStop();
-//     aux2SerialSetup(baudrate, false);
-//   }
-// #endif
-  return 1;
+  uint32_t baudrate = luaL_checkunsigned(L, 1);
+  serialSetBaudrate(port_nr, baudrate);
+
+  return 0;
 }
 
 /*luadoc

@@ -356,7 +356,7 @@ void DebugViewPage::build(FormWindow* window)
 #endif
 
 #if defined(INTERNAL_GPS)
-  if (hasSerialMode(UART_MODE_GPS) != -1) {
+  if (serialGetModePort(UART_MODE_GPS) >= 0) {
     line = form->newLine(&grid);
     line->padAll(2);
 
