@@ -72,6 +72,11 @@ void saveTimers()
 }
 
 #define THR_TRG_TRESHOLD    13      // approximately 10% full throttle
+#if defined(SURFACE_RADIO)
+    #define THR_TRG_POS    (RESX >> (RESX_SHIFT-6))
+#else
+    #define THR_TRG_POS    0
+#endif
 
 void evalTimers(int16_t throttle, uint8_t tick10ms)
 {
@@ -94,7 +99,7 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
 
       if (timerMode == TMRMODE_THR_REL) {
         timerState->cnt++;
-        timerState->sum += throttle;
+        timerState->sum += 2 * abs(throttle - THR_TRG_POS);
       }
 
       if ((timerState->val_10ms += tick10ms) >= 100) {
@@ -121,7 +126,7 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
           if (timerMode == TMRMODE_ON) {
             newTimerVal++;
           } else if (timerMode == TMRMODE_THR) {
-            if (throttle) newTimerVal++;
+            if (throttle - THR_TRG_POS) newTimerVal++;
           } else if (timerMode == TMRMODE_THR_REL) {
             // throttle was normalized to 0 to 128 value
             // (throttle/64*2 (because - range is added as well)
@@ -134,7 +139,7 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
             // we can't rely on (throttle || newTimerVal > 0) as a detection if
             // timer should be running because having persistent timer brakes
             // this rule
-            if ((throttle > THR_TRG_TRESHOLD) && timerState->state == TMR_OFF) {
+            if ((abs(throttle - THR_TRG_POS) > THR_TRG_TRESHOLD) && timerState->state == TMR_OFF) {
               timerState->state = TMR_RUNNING;  // start timer running
               timerState->cnt = 0;
               timerState->sum = 0;
