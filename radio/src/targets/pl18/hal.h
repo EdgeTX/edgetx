@@ -592,6 +592,8 @@
 #define INTMODULE_TIMER_IRQn            TIM3_IRQn
 #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
 #define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
+#else
+#define INTMODULE_RCC_AHB1Periph        0
 #endif
 
 // External Module

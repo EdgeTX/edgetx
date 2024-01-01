@@ -62,8 +62,6 @@ static bool rfUsbAccess = false;
 void bootloaderInitScreen()
 {
   lcdInitDisplayDriver();
-  backlightInit();
-  backlightEnable(100);
   setHatsAsKeys(true);
 }
 
@@ -85,8 +83,15 @@ static void bootloaderDrawBackground()
 
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 {
+    static bool _first_screen = true;
+
     lcdInitDirectDrawing();
     bootloaderDrawBackground();
+
+    if (!_first_screen) {
+        // ... and turn backlight ON
+        backlightEnable(BACKLIGHT_LEVEL_MAX);
+    }
 
     int center = LCD_W/2;
     if (st == ST_START) {
@@ -225,6 +230,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       pos -= 79;
       lcd->drawSolidRect(79, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
     }
+
+    _first_screen = false;
 }
 
 void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
