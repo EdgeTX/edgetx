@@ -99,7 +99,11 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
 
       if (timerMode == TMRMODE_THR_REL) {
         timerState->cnt++;
+#if defined(SURFACE_RADIO)
         timerState->sum += 2 * abs(throttle - THR_TRG_POS);
+#else
+        timerState->sum += throttle - THR_TRG_POS;
+#endif
       }
 
       if ((timerState->val_10ms += tick10ms) >= 100) {
