@@ -282,7 +282,7 @@ static DRESULT _write_dma(const BYTE *buff, DWORD sector, UINT count)
     return RES_ERROR;
   }
 
-  // Wait that the reading process is completed or a timeout occurs
+  // Wait that the writing process is completed or a timeout occurs
   uint32_t timeout = HAL_GetTick();
   while((WriteStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT));
 
@@ -312,6 +312,10 @@ static DRESULT sdio_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
       res = _write_dma((BYTE *)scratch, sector++, 1);
       if (res != RES_OK) break;
       buff += BLOCK_SIZE;
+ 
+      if (sdio_check_card_state_with_timeout(SD_TIMEOUT) < 0) {
+        return RES_ERROR;
+      }
     }
     return res;
   }
