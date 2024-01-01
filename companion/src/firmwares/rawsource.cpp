@@ -353,79 +353,20 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
 RawSource RawSource::convert(RadioDataConversionState & cstate)
 {
   cstate.setItemType(tr("SRC"), 1);
-  RadioDataConversionState::EventType evt = RadioDataConversionState::EVT_NONE;
   RadioDataConversionState::LogField oldData(index, toString(cstate.fromModel(), cstate.fromGS(), cstate.fromType));
 
-  if (type == SOURCE_TYPE_STICK) {
-    QStringList fromStickList(getStickList(cstate.fromType));
-    QStringList toStickList(getStickList(cstate.toType));
-    if (oldData.id < fromStickList.count())
-      index = toStickList.indexOf(fromStickList.at(oldData.id));
-    else
-      index = -1;
-    // perform forced mapping
-  }
-
-  if (type == SOURCE_TYPE_SWITCH) {
-    QStringList fromSwitchList(getSwitchList(cstate.fromType));
-    QStringList toSwitchList(getSwitchList(cstate.toType));
-    // index set to -1 if no match found
-    if (oldData.id < fromSwitchList.count())
-      index = toSwitchList.indexOf(fromSwitchList.at(oldData.id));
-    else
-      index = -1;
-    // perform forced mapping
-    if (index < 0) {
-      if (IS_TARANIS_X7(cstate.toType) && (IS_TARANIS_X9(cstate.fromType) || IS_FAMILY_HORUS_OR_T16(cstate.fromType))) {
-        // No SE and SG on X7 board
-        index = toSwitchList.indexOf("SD");
-        if (index >= 0)
-          evt = RadioDataConversionState::EVT_CVRT;
-      }
-      else if (IS_FAMILY_T12(cstate.toType) && (IS_TARANIS_X9(cstate.fromType) || IS_FAMILY_HORUS_OR_T16(cstate.fromType))) {
-        // No SE and SG on T12 board
-        index = toSwitchList.indexOf("SD");
-        if (index >= 0)
-          evt = RadioDataConversionState::EVT_CVRT;
-      }
-    }
-  }
+  if (type == SOURCE_TYPE_STICK)
+    index = Boards::getInputIndex(Boards::getInputTag(oldData.id, cstate.fromType), cstate.toType);
+  else if (type == SOURCE_TYPE_SWITCH)
+    index = Boards::getSwitchIndex(Boards::getSwitchTag(oldData.id, cstate.fromType), cstate.toType);
 
   // final validation (we do not pass model to isAvailable() because we don't know what has or hasn't been converted)
-  if (index < 0 || !isAvailable(NULL, cstate.toGS(), cstate.toType)) {
+  if (index < 0 || !isAvailable(nullptr, cstate.toGS(), cstate.toType)) {
     cstate.setInvalid(oldData);
-    // no source is safer than an invalid one
-    clear();
-  }
-  else if (evt == RadioDataConversionState::EVT_CVRT) {
-    cstate.setConverted(oldData, RadioDataConversionState::LogField(index, toString(cstate.toModel(), cstate.toGS(), cstate.toType)));
-  }
-  else if (oldData.id != index) {
-    // provide info by default if anything changed
-    cstate.setMoved(oldData, RadioDataConversionState::LogField(index, toString(cstate.toModel(), cstate.toGS(), cstate.toType)));
+    clear();  // no source is safer than an invalid one
   }
 
   return *this;
-}
-
-QStringList RawSource::getStickList(Board::Type board) const
-{
-  QStringList ret;
-
-  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-    ret.append(Boards::getInputInfo(i, board).name.c_str());
-  }
-  return ret;
-}
-
-QStringList RawSource::getSwitchList(Board::Type board) const
-{
-  QStringList ret;
-
-  for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
-    ret.append(Boards::getSwitchInfo(i, board).name.c_str());
-  }
-  return ret;
 }
 
 // static

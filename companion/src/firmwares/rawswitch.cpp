@@ -203,65 +203,25 @@ RawSwitch RawSwitch::convert(RadioDataConversionState & cstate)
     return *this;
 
   cstate.setItemType(tr("SW"), 2);
-  RadioDataConversionState::EventType evt = RadioDataConversionState::EVT_NONE;
   RadioDataConversionState::LogField oldData(index, toString(cstate.fromType, cstate.fromGS(), cstate.fromModel()));
 
   int newIdx = 0;
 
   if (type == SWITCH_TYPE_SWITCH) {
-    div_t swtch = div(abs(index) - 1, 3);  // rawsource index
-    QStringList fromSwitchList(getSwitchList(cstate.fromBoard));
-    QStringList toSwitchList(getSwitchList(cstate.toBoard));
-    // set to -1 if no match found
-    if (swtch.quot < fromSwitchList.count())
-      newIdx = toSwitchList.indexOf(fromSwitchList.at(swtch.quot));
-    else
-      newIdx = -1;
-    // perform forced mapping
-    if (newIdx < 0) {
-      if (IS_TARANIS_X7(cstate.toType) && (IS_TARANIS_X9(cstate.fromType) || IS_FAMILY_HORUS_OR_T16(cstate.fromType))) {
-        // No SE and SG on X7 board
-        newIdx = toSwitchList.indexOf("SD");
-        if (newIdx >= 0)
-          evt = RadioDataConversionState::EVT_CVRT;
-      }
-      else if (IS_FAMILY_T12(cstate.toType) && (IS_TARANIS_X9(cstate.fromType) || IS_FAMILY_HORUS_OR_T16(cstate.fromType))) {
-        // No SE and SG on T12 board
-        newIdx = toSwitchList.indexOf("SD");
-        if (newIdx >= 0)
-          evt = RadioDataConversionState::EVT_CVRT;
-      }
-    }
+    div_t swtch = div(abs(index) - 1, 3);
+    newIdx = Boards::getSwitchIndex(Boards::getSwitchTag(swtch.quot, cstate.fromType), cstate.toType);
 
     if (newIdx >= 0)
       index = (newIdx * 3 + 1 + swtch.rem) * (index < 0 ? -1 : 1);
-  }  // SWITCH_TYPE_SWITCH
+  }
 
   // final validation (we do not pass model to isAvailable() because we don't know what has or hasn't been converted)
-  if (newIdx < 0 || !isAvailable(NULL, cstate.toGS(), cstate.toType)) {
+  if (newIdx < 0 || !isAvailable(nullptr, cstate.toGS(), cstate.toType)) {
     cstate.setInvalid(oldData);
-    // no switch is safer than an invalid one
-    clear();
-  }
-  else if (evt == RadioDataConversionState::EVT_CVRT) {
-    cstate.setConverted(oldData, RadioDataConversionState::LogField(index, toString(cstate.toType, cstate.toGS(), cstate.toModel())));
-  }
-  else if (oldData.id != index) {
-    // provide info by default if anything changed
-    cstate.setMoved(oldData, RadioDataConversionState::LogField(index, toString(cstate.toType, cstate.toGS(), cstate.toModel())));
+    clear();  // no switch is safer than an invalid one
   }
 
   return *this;
-}
-
-QStringList RawSwitch::getSwitchList(Boards board) const
-{
-  QStringList ret;
-
-  for (int i = 0; i < Boards::getCapability(board.getBoardType(), Board::Switches); i++) {
-    ret.append(Boards::getSwitchInfo(i, board.getBoardType()).name.c_str());
-  }
-  return ret;
 }
 
 // static

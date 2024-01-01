@@ -288,6 +288,4 @@ class RawSource {
     int index;
 
   private:
-    QStringList getStickList(Board::Type board) const;
-    QStringList getSwitchList(Board::Type board) const;
 };
