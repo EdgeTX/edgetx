@@ -137,28 +137,23 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     if (idx < CPN_MAX_INPUTS) {
       rhs = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, idx);
     }
-  } else if (val_len == 2
-             && val[0] == 'S'
-             && val[1] >= 'A'
-             && val[1] <= 'Z') {
+  } else if ((val_len == 2
+              && val[0] == 'S'
+              && val[1] >= 'A'
+              && val[1] <= 'Z') ||
+             (val_len == 3
+              && val[0] == 'F'
+              && val[1] == 'L'
+              && val[2] >= '1' && val[2] <= '9')) {
 
     int idx = Boards::getSwitchIndex(src_str.c_str());
-    if (idx >= 0 && idx < CPN_MAX_SWITCHES) {
+    if (idx >= 0) {
       rhs = RawSource(SOURCE_TYPE_SWITCH, idx);
-
-    } else if (IS_JUMPER_TPRO(board)) {
-      int numSw = Boards::getCapability(board, Board::Switches);
-      idx = val[1] - 'A';
-      idx -= numSw;
-
-      if(idx >= 0 and idx < Boards::getCapability(board, Board::FunctionSwitches)) {
-        rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, idx);
-      }
     }
   } else if (val_len == 3
              && val[0] == 'S'
              && val[1] == 'W'
-             && (val[2] >= '1' && val[2] <= '6')
+             && (val[2] >= '1' && val[2] <= '9')
              && Boards::getCapability(board, Board::FunctionSwitches)) {
     // Customisable switches
     int idx = val[2] - '1';

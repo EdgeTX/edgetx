@@ -142,32 +142,28 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
       rhs.type = SWITCH_TYPE_TRIM;
       rhs.index = tsw_idx + 1;
     }
+
   } else if (val_len >= 3 && val[0] == 'S' && val[1] == 'W' &&
-             (val[2] >= '1' && val[2] <= '6') &&
+             (val[2] >= '1' && val[2] <= '9') &&
              (val[3] >= '0' && val[3] <= '2') &&
              Boards::getCapability(board, Board::FunctionSwitches)) {
     // Customisable switches
     int idx = val[2] - '1';
     idx = idx * 3 + (val[3] - '0' + 1);
     rhs = RawSwitch(SWITCH_TYPE_FUNCTIONSWITCH, idx);
-  } else if (val_len >= 3 && val[0] == 'S' &&
-             (val[1] >= 'A' && val[1] <= 'Z') &&
-             (val[2] >= '0' && val[2] <= '2')) {
 
-    int sw_idx = Boards::getSwitchIndex(sw_str_tmp.substr(0, 2).c_str());
+  } else if ((val_len >= 3 && val[0] == 'S' &&
+              val[1] >= 'A' && val[1] <= 'Z' &&
+              val[2] >= '0' && val[2] <= '2') ||
+             (val_len >= 4 &&
+              val[0] == 'F' && val[1] == 'L' &&
+              val[2] >= '1' && val[2] <= '9' &&
+              val[val_len - 1] >= '0' && val[val_len - 1] <= '2')) {
+
+    int sw_idx = Boards::getSwitchIndex(sw_str_tmp.substr(0, val_len - 1).c_str());
     if (sw_idx >= 0) {
       rhs.type = SWITCH_TYPE_SWITCH;
-      rhs.index = sw_idx * 3 + (val[2] - '0' + 1);
-
-    } else if (IS_JUMPER_TPRO(getCurrentBoard())) {
-      int numSw = Boards::getCapability(board, Board::Switches);
-      int idx = val[1] - 'A';
-      idx =  idx - numSw;
-
-      if(idx >= 0 and idx < Boards::getCapability(board, Board::FunctionSwitches)) {
-        idx = idx * 3 + (val[2] - '0' + 1);
-        rhs = RawSwitch(SWITCH_TYPE_FUNCTIONSWITCH, idx);
-      }
+      rhs.index = sw_idx * 3 + (val[val_len - 1] - '0' + 1);
     }
 
   } else {
