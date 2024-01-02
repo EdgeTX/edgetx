@@ -72,14 +72,14 @@ void saveTimers()
 }
 
 #define THR_TRG_TRESHOLD    13      // approximately 10% full throttle
-#if defined(SURFACE_RADIO)
-    #define THR_TRG_POS    (RESX >> (RESX_SHIFT-6))
-#else
-    #define THR_TRG_POS    0
-#endif
 
 void evalTimers(int16_t throttle, uint8_t tick10ms)
 {
+
+#if defined(SURFACE_RADIO)
+  // For surface radio throttle off position is at 0%
+  throttle = 2 * abs(throttle - (RESX >> (RESX_SHIFT-6)));
+#endif
   for (uint8_t i=0; i<TIMERS; i++) {
     tmrmode_t timerMode = g_model.timers[i].mode;
     tmrstart_t timerStart = g_model.timers[i].start;
@@ -99,11 +99,7 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
 
       if (timerMode == TMRMODE_THR_REL) {
         timerState->cnt++;
-#if defined(SURFACE_RADIO)
-        timerState->sum += 2 * abs(throttle - THR_TRG_POS);
-#else
-        timerState->sum += throttle - THR_TRG_POS;
-#endif
+        timerState->sum += throttle;
       }
 
       if ((timerState->val_10ms += tick10ms) >= 100) {
@@ -130,7 +126,7 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
           if (timerMode == TMRMODE_ON) {
             newTimerVal++;
           } else if (timerMode == TMRMODE_THR) {
-            if (throttle - THR_TRG_POS) newTimerVal++;
+            if (throttle) newTimerVal++;
           } else if (timerMode == TMRMODE_THR_REL) {
             // throttle was normalized to 0 to 128 value
             // (throttle/64*2 (because - range is added as well)
@@ -143,7 +139,7 @@ void evalTimers(int16_t throttle, uint8_t tick10ms)
             // we can't rely on (throttle || newTimerVal > 0) as a detection if
             // timer should be running because having persistent timer brakes
             // this rule
-            if ((abs(throttle - THR_TRG_POS) > THR_TRG_TRESHOLD) && timerState->state == TMR_OFF) {
+            if ((throttle > THR_TRG_TRESHOLD) && timerState->state == TMR_OFF) {
               timerState->state = TMR_RUNNING;  // start timer running
               timerState->cnt = 0;
               timerState->sum = 0;
