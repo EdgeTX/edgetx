@@ -21,9 +21,17 @@
 
 #include "gtests.h"
 
-#define THR_100    128      // approximately 10% full throttle
-#define THR_50      64      // approximately 10% full throttle
+#if defined(SURFACE_RADIO)
+#define THR_100    128      // approximately 100% full throttle
+#define THR_50      96      // approximately 50% full throttle
+#define THR_10      71      // approximately 10% full throttle
+#define THR_0       64      // approximately 0% full throttle
+#else
+#define THR_100    128      // approximately 100% full throttle
+#define THR_50      64      // approximately 50% full throttle
 #define THR_10      13      // approximately 10% full throttle
+#define THR_0        0      // approximately 0% full throttle
+#endif
 
 #define TEST_AB_EQUAL(a, b) if (a != b) { return ::testing::AssertionFailure() << \
                             #a "= " << (uint32_t)a << ", " << #b "= " << (uint32_t)b; };
@@ -113,7 +121,7 @@ TEST(Timers, timerAbsolute)
 
   EXPECT_TRUE(evalTimersForNSecondsAndTest(1,   THR_100, 0, TMR_RUNNING,    1));
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100, THR_100, 0, TMR_RUNNING,  101));
-  EXPECT_TRUE(evalTimersForNSecondsAndTest(100,       0, 0, TMR_RUNNING,  201));
+  EXPECT_TRUE(evalTimersForNSecondsAndTest(100,   THR_0, 0, TMR_RUNNING,  201));
 
   // max timer value test
   timerSet(0, TIMER_MAX-10);
@@ -135,16 +143,16 @@ TEST(Timers, timerThrottle)
   initModelTimer(0, TMRMODE_THR, 0);
   timerReset(0);
 
-  EXPECT_TRUE(evalTimersForNSecondsAndTest(1,         0, 0, TMR_RUNNING,   0));
+  EXPECT_TRUE(evalTimersForNSecondsAndTest(1,     THR_0, 0, TMR_RUNNING,   0));
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100, THR_100, 0, TMR_RUNNING, 100));
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100,  THR_10, 0, TMR_RUNNING, 200));
-  EXPECT_TRUE(evalTimersForNSecondsAndTest(100,       0, 0, TMR_RUNNING, 200));
+  EXPECT_TRUE(evalTimersForNSecondsAndTest(100,   THR_0, 0, TMR_RUNNING, 200));
 
   // test down-running
   g_model.timers[0].start = 200;
   timerReset(0);
   EXPECT_TRUE(evalTimersForNSecondsAndTest(1,   THR_100, 0, TMR_RUNNING, 199));
-  EXPECT_TRUE(evalTimersForNSecondsAndTest(1,         0, 0, TMR_RUNNING, 199));
+  EXPECT_TRUE(evalTimersForNSecondsAndTest(1,     THR_0, 0, TMR_RUNNING, 199));
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100, THR_100, 0, TMR_RUNNING,  99));
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100,  THR_50, 0, TMR_NEGATIVE, -1));
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100, THR_100, 0, TMR_STOPPED,-101));
@@ -155,17 +163,17 @@ TEST(Timers, timerThrottleRelative)
   initModelTimer(0, TMRMODE_THR_REL, 0);
 
   timerReset(0);
-  EXPECT_TRUE(evalTimersForNSecondsAndTest(1,         0, 0, TMR_RUNNING,   0));
+  EXPECT_TRUE(evalTimersForNSecondsAndTest(1,     THR_0, 0, TMR_RUNNING,   0));
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100, THR_100, 0, TMR_RUNNING, 100));
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100,  THR_50, 0, TMR_RUNNING, 150)); // 50% throttle == 50s
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100,  THR_10, 0, TMR_RUNNING, 160)); // 10% throttle == 10s
-  EXPECT_TRUE(evalTimersForNSecondsAndTest(100,       0, 0, TMR_RUNNING, 160));
+  EXPECT_TRUE(evalTimersForNSecondsAndTest(100,   THR_0, 0, TMR_RUNNING, 160));
 
   // test down-running
   initModelTimer(0, TMRMODE_THR_REL, 200);
   timerReset(0);
   EXPECT_TRUE(evalTimersForNSecondsAndTest(1,   THR_100, 0, TMR_RUNNING, 199));
-  EXPECT_TRUE(evalTimersForNSecondsAndTest(1,         0, 0, TMR_RUNNING, 199));
+  EXPECT_TRUE(evalTimersForNSecondsAndTest(1,     THR_0, 0, TMR_RUNNING, 199));
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100, THR_100, 0, TMR_RUNNING,  99));
   EXPECT_TRUE(evalTimersForNSecondsAndTest(200,  THR_50, 0, TMR_NEGATIVE, -1)); // 50% throttle == 100s
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100,  THR_10, 0, TMR_NEGATIVE,-11)); // 10% throttle == 10s
@@ -177,19 +185,19 @@ TEST(Timers, timerThrottleTriggered)
   initModelTimer(0, TMRMODE_THR_START, 0);
 
   timerReset(0);
-  EXPECT_TRUE(evalTimersForNSecondsAndTest(1,          0, 0, TMR_OFF,       0));
+  EXPECT_TRUE(evalTimersForNSecondsAndTest(1,      THR_0, 0, TMR_OFF,       0));
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100, THR_10-1, 0, TMR_OFF,       0));  // below threshold
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100,   THR_50, 0, TMR_RUNNING, 100));
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100,  THR_100, 0, TMR_RUNNING, 200));
-  EXPECT_TRUE(evalTimersForNSecondsAndTest(100,        0, 0, TMR_RUNNING, 300));
+  EXPECT_TRUE(evalTimersForNSecondsAndTest(100,    THR_0, 0, TMR_RUNNING, 300));
 
   // test down-running
   initModelTimer(0, TMRMODE_THR_START, 200);
   timerReset(0);
-  EXPECT_TRUE(evalTimersForNSecondsAndTest(1,          0, 0, TMR_OFF,     200));
+  EXPECT_TRUE(evalTimersForNSecondsAndTest(1,      THR_0, 0, TMR_OFF,     200));
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100, THR_10-1, 0, TMR_OFF,     200));  // below threshold
   EXPECT_TRUE(evalTimersForNSecondsAndTest(100,  THR_100, 0, TMR_RUNNING, 100));
   EXPECT_TRUE(evalTimersForNSecondsAndTest(101,   THR_50, 0, TMR_NEGATIVE, -1));
-  EXPECT_TRUE(evalTimersForNSecondsAndTest(10,         0, 0, TMR_NEGATIVE,-11));
-  EXPECT_TRUE(evalTimersForNSecondsAndTest(100,        0, 0, TMR_STOPPED,-111));
+  EXPECT_TRUE(evalTimersForNSecondsAndTest(10,     THR_0, 0, TMR_NEGATIVE,-11));
+  EXPECT_TRUE(evalTimersForNSecondsAndTest(100,    THR_0, 0, TMR_STOPPED,-111));
 }
