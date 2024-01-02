@@ -65,16 +65,36 @@ class MixerTest : public OpenTxTest {};
       } \
     } while (0)
 
-#define MIXSRC_Ele     (MIXSRC_FIRST_STICK + 1)
-#define MIXSRC_Ail     (MIXSRC_FIRST_STICK + 3)
-
-#define MIXSRC_TrimEle (MIXSRC_FIRST_TRIM + 1)
-#define MIXSRC_TrimThr (MIXSRC_FIRST_TRIM + 2)
-
 #define MIXSRC_CYC1    (MIXSRC_FIRST_HELI)
 #define MIXSRC_CYC2    (MIXSRC_FIRST_HELI + 1)
 #define MIXSRC_CYC3    (MIXSRC_FIRST_HELI + 2)
 
+#if defined(SURFACE_RADIO)
+  #define ELE_STICK         STE_STICK
+  #define THR_CHAN          1
+  #define ELE_CHAN          0
+  #define THR_TRIM_SOURCE   TRIM_THR
+  #define ELE_TRIM_SOURCE   TRIM_STE
+  #define MIXSRC_Ele        (MIXSRC_FIRST_STICK + 0)
+  #define MIXSRC_Ail        (MIXSRC_FIRST_STICK + 3)
+  #define MIXSRC_TRIMELE    (MIXSRC_TrimSte)
+  #define MIXSRC_TRIMTHR    (MIXSRC_TrimThr)
+  #define ELE_THRTRIMSW     1
+  #define THR_STICK_MIN_THR_POS 0
+  #define TRIM_SCALE(x) (x / 2)
+#else
+  #define THR_CHAN          2
+  #define ELE_CHAN          1
+  #define THR_TRIM_SOURCE   TRIM_THR
+  #define ELE_TRIM_SOURCE   TRIM_ELE
+  #define MIXSRC_Ele        (MIXSRC_FIRST_STICK + 1)
+  #define MIXSRC_Ail        (MIXSRC_FIRST_STICK + 3)
+  #define MIXSRC_TRIMELE    (MIXSRC_TrimEle)
+  #define MIXSRC_TRIMTHR    (MIXSRC_TrimThr)
+  #define ELE_THRTRIMSW     (MIXSRC_TrimEle - MIXSRC_FIRST_TRIM)
+  #define THR_STICK_MIN_THR_POS -1024
+  #define TRIM_SCALE(x) (x)
+#endif
 TEST_F(MixerTest, throttleInvert)
 {
   // Mode 1 / reversed
@@ -82,51 +102,117 @@ TEST_F(MixerTest, throttleInvert)
   g_model.throttleReversed = 1;
   anaSetFiltered(inputMappingConvertMode(THR_STICK), -1024);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], +1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
 
   // Mode 2 / reversed
   g_eeGeneral.stickMode = 1;
   g_model.throttleReversed = 1;
   anaSetFiltered(inputMappingConvertMode(THR_STICK), -1024);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], +1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
 
   // Mode 2 / normal
   g_eeGeneral.stickMode = 1;
   g_model.throttleReversed = 0;
   anaSetFiltered(inputMappingConvertMode(THR_STICK), -1024);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
 }
 
 TEST_F(TrimsTest, throttleTrim)
 {
+#if defined(SURFACE_RADIO)
   g_model.thrTrim = 1;
   // stick max + trim max
   anaSetFiltered(THR_STICK, +1024);
   setTrimValue(0, THR_STICK, TRIM_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
   // stick max + trim min
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, TRIM_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
+  // stick mid + trim max
+  anaSetFiltered(THR_STICK,  0);
+  setTrimValue(0, THR_STICK, TRIM_MAX);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0 + 256);
+  // stick mid + trim mid
+  anaSetFiltered(THR_STICK,  0);
+  setTrimValue(0, THR_STICK, 0);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0 + 128);
+  // stick mid + trim min
+  anaSetFiltered(THR_STICK,  0);
+  setTrimValue(0, THR_STICK, TRIM_MIN);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0 + 0);
+  // stick bellow 0  + trim max :no trim in reverse
+  anaSetFiltered(THR_STICK,  -512);
+  setTrimValue(0, THR_STICK, TRIM_MAX);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -512);
+
+  // now the same tests with extended Trims
+  g_model.extendedTrims = 1;
+  // stick max + trim max
+  anaSetFiltered(THR_STICK, +1024);
+  setTrimValue(0, THR_STICK, TRIM_EXTENDED_MAX);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
+  // stick max + trim min
+  anaSetFiltered(THR_STICK,  +1024);
+  setTrimValue(0, THR_STICK, TRIM_EXTENDED_MIN);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
+  // stick mid + trim max
+  anaSetFiltered(THR_STICK,  0);
+  setTrimValue(0, THR_STICK, TRIM_EXTENDED_MAX);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0 + 1024);
+  // stick mid + trim mid
+  anaSetFiltered(THR_STICK,  0);
+  setTrimValue(0, THR_STICK, 0);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0 + 512);
+  // stick mid + trim min
+  anaSetFiltered(THR_STICK,  0);
+  setTrimValue(0, THR_STICK, TRIM_EXTENDED_MIN);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0 + 0);
+  // stick bellow 0  + trim max :no trim in reverse
+  anaSetFiltered(THR_STICK,  -512);
+  setTrimValue(0, THR_STICK, TRIM_EXTENDED_MAX);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -512);
+#else
+  g_model.thrTrim = 1;
+  // stick max + trim max
+  anaSetFiltered(THR_STICK, +1024);
+  setTrimValue(0, THR_STICK, TRIM_MAX);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
+  // stick max + trim min
+  anaSetFiltered(THR_STICK,  +1024);
+  setTrimValue(0, THR_STICK, TRIM_MIN);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
   // stick min + trim max
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, TRIM_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024+512);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024+512);
   // stick min + trim mid
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, 0);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024+256);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024+256);
   // stick min + trim min
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, TRIM_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
 
   // now the same tests with extended Trims
   g_model.extendedTrims = 1;
@@ -134,59 +220,116 @@ TEST_F(TrimsTest, throttleTrim)
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
   // stick max + trim min
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
   // stick min + trim max
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024+2048);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024+2048);
   // stick min + trim mid
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, 0);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024+1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024+1024);
   // stick min + trim min
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024);
-
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
+#endif
 }
 
 TEST_F(TrimsTest, invertedThrottlePlusThrottleTrim)
 {
+#if defined(SURFACE_RADIO)
+  g_model.throttleReversed = 1;
+  g_model.thrTrim = 1;
+  // stick max + trim max : no effect since we are in reverse mode
+  anaSetFiltered(THR_STICK,  +1024);
+  setTrimValue(0, THR_STICK, TRIM_MAX);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
+  // stick max + trim mid: no effect since we are in reverse mode
+  anaSetFiltered(THR_STICK,  +1024);
+  setTrimValue(0, THR_STICK, 0);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
+  // stick max + trim min: no effect since we are in reverse mode
+  anaSetFiltered(THR_STICK,  +1024);
+  setTrimValue(0, THR_STICK, TRIM_MIN);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
+  // stick min + trim max
+  anaSetFiltered(THR_STICK,  -1024);
+  setTrimValue(0, THR_STICK, TRIM_MAX);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
+  // stick min + trim min
+  anaSetFiltered(THR_STICK,  -1024);
+  setTrimValue(0, THR_STICK, TRIM_MIN);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
+
+  // now the same tests with extended Trims
+  g_model.extendedTrims = 1;
+  // stick max + trim max : no effect since we are in reverse mode
+  anaSetFiltered(THR_STICK,  +1024);
+  setTrimValue(0, THR_STICK, TRIM_EXTENDED_MAX);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
+  // stick max + trim min: no effect since we are in reverse mode
+  anaSetFiltered(THR_STICK,  +1024);
+  setTrimValue(0, THR_STICK, TRIM_EXTENDED_MIN);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
+  // stick min + trim max
+  anaSetFiltered(THR_STICK,  -1024);
+  setTrimValue(0, THR_STICK, TRIM_EXTENDED_MAX);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
+  // stick min + trim mid
+  anaSetFiltered(THR_STICK,  -1024);
+  setTrimValue(0, THR_STICK, 0);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
+  // stick min + trim min
+  anaSetFiltered(THR_STICK,  -1024);
+  setTrimValue(0, THR_STICK, TRIM_EXTENDED_MIN);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
+#else
   g_model.throttleReversed = 1;
   g_model.thrTrim = 1;
   // stick max + trim max
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, TRIM_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
   // stick max + trim mid
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, 0);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024+256);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024+256);
   // stick max + trim min
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, TRIM_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024+512);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024+512);
   // stick min + trim max
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, TRIM_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], +1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
   // stick min + trim min
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, TRIM_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], +1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
 
   // now the same tests with extended Trims
   g_model.extendedTrims = 1;
@@ -194,27 +337,28 @@ TEST_F(TrimsTest, invertedThrottlePlusThrottleTrim)
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
   // stick max + trim mid
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, 0);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024+1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024+1024);
   // stick max + trim min
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024+2048);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024+2048);
   // stick min + trim max
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], +1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
   // stick min + trim min
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], +1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
+#endif
 }
 
 TEST_F(TrimsTest, throttleTrimWithZeroWeightOnThrottle)
@@ -227,32 +371,32 @@ TEST_F(TrimsTest, throttleTrimWithZeroWeightOnThrottle)
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, TRIM_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 256);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 256);
   // stick max + trim mid
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, 0);
   evalMixes(1);
-  EXPECT_LE(abs(channelOutputs[2] - 128), 1);  //can't use precise comparison here because of lower precision math on 9X
+  EXPECT_LE(abs(channelOutputs[THR_CHAN] - 128), 1);  //can't use precise comparison here because of lower precision math on 9X
   // stick max + trim min
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, TRIM_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0);
   // stick min + trim max
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, TRIM_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 256);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 256);
   // stick min + trim mid
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, 0);
   evalMixes(1);
-  EXPECT_LE(abs(channelOutputs[2] - 128), 1);
+  EXPECT_LE(abs(channelOutputs[THR_CHAN] - 128), 1);
   // stick min + trim min
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, TRIM_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0);
 
   // now some tests with extended Trims
   g_model.extendedTrims = 1;
@@ -260,31 +404,31 @@ TEST_F(TrimsTest, throttleTrimWithZeroWeightOnThrottle)
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MIN);
   anaSetFiltered(THR_STICK,  -1024);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0);
   anaSetFiltered(THR_STICK,  -300);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0);
   anaSetFiltered(THR_STICK,  +300);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0);
   anaSetFiltered(THR_STICK,  +1024);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0);
 
   // trim max + various stick positions = should always be same value
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MAX);
   anaSetFiltered(THR_STICK,  -1024);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
   anaSetFiltered(THR_STICK,  -300);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
   anaSetFiltered(THR_STICK,  +300);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
   anaSetFiltered(THR_STICK,  +1024);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
 }
 
 TEST_F(TrimsTest, invertedThrottlePlusthrottleTrimWithZeroWeightOnThrottle)
@@ -298,32 +442,32 @@ TEST_F(TrimsTest, invertedThrottlePlusthrottleTrimWithZeroWeightOnThrottle)
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, TRIM_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0);
   // stick max + trim mid
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, 0);
   evalMixes(1);
-  EXPECT_LE(abs(channelOutputs[2] - 128), 1);
+  EXPECT_LE(abs(channelOutputs[THR_CHAN] - 128), 1);
   // stick max + trim min
   anaSetFiltered(THR_STICK,  +1024);
   setTrimValue(0, THR_STICK, TRIM_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 256);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 256);
   // stick min + trim max
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, TRIM_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0);
   // stick min + trim mid
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, 0);
   evalMixes(1);
-  EXPECT_LE(abs(channelOutputs[2] - 128), 1);
+  EXPECT_LE(abs(channelOutputs[THR_CHAN] - 128), 1);
   // stick min + trim min
   anaSetFiltered(THR_STICK,  -1024);
   setTrimValue(0, THR_STICK, TRIM_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 256);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 256);
 
   // now some tests with extended Trims
   g_model.extendedTrims = 1;
@@ -331,51 +475,51 @@ TEST_F(TrimsTest, invertedThrottlePlusthrottleTrimWithZeroWeightOnThrottle)
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MIN);
   anaSetFiltered(THR_STICK,  -1024);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
   anaSetFiltered(THR_STICK,  -300);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
   anaSetFiltered(THR_STICK,  +300);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
   anaSetFiltered(THR_STICK,  +1024);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
 
   // trim max + various stick positions = should always be same value
   setTrimValue(0, THR_STICK, TRIM_EXTENDED_MAX);
   anaSetFiltered(THR_STICK,  -1024);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0);
   anaSetFiltered(THR_STICK,  -300);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0);
   anaSetFiltered(THR_STICK,  +300);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0);
   anaSetFiltered(THR_STICK,  +1024);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 0);
 }
 
 TEST_F(TrimsTest, CopyTrimsToOffset)
 {
-  setTrimValue(0, ELE_STICK, -100); // -100 on elevator
+  setTrimValue(0, ELE_STICK, -100); // -100 on elevator/steering
   evalFunctions(g_model.customFn, modelFunctionsContext); // it disables all safety channels
-  copyTrimsToOffset(1);
+  copyTrimsToOffset(ELE_CHAN);
   EXPECT_EQ(getTrimValue(0, ELE_STICK), -100); // unchanged
-  EXPECT_EQ(g_model.limitData[1].offset, -195);
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, TRIM_SCALE(-195));
 }
 
 TEST_F(TrimsTest, CopySticksToOffset)
 {
   anaSetFiltered(ELE_STICK, -100);
   evalMixes(1);
-  copySticksToOffset(1);
+  copySticksToOffset(ELE_CHAN);
 #if defined(STICK_DEAD_ZONE)
-  EXPECT_EQ(g_model.limitData[1].offset, -93);
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -93);
 #else
-  EXPECT_EQ(g_model.limitData[1].offset, -97);
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -97);
 #endif
 }
 
@@ -384,41 +528,55 @@ TEST_F(TrimsTest, MoveTrimsToOffsets)
   // No trim idle only
   g_model.thrTrim = 0;
   anaSetFiltered(THR_STICK,  0);
-  setTrimValue(0, MIXSRC_TrimThr - MIXSRC_FIRST_TRIM, 100);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, -100);
+  setTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM, 100);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, -100);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 200);  // THR output value is reflecting 100 trim
+  EXPECT_EQ(channelOutputs[THR_CHAN], TRIM_SCALE(200));  // THR output value is reflecting 100 trim
   moveTrimsToOffsets();
-  EXPECT_EQ(getTrimValue(0, MIXSRC_TrimThr - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[2].offset, 195); // value transferred
-  EXPECT_EQ(getTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[1].offset, -195); // value transferred
+  EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 0);  // back to neutral
+  EXPECT_EQ(g_model.limitData[THR_CHAN].offset, TRIM_SCALE(195)); // value transferred
+  EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, TRIM_SCALE(-195)); // value transferred
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 200); // THR output value is still reflecting 100 trim
+#if defined(SURFACE_RADIO)
+  EXPECT_EQ(channelOutputs[THR_CHAN], 99); // THR output value is still reflecting 100 trim
+#else
+  EXPECT_EQ(channelOutputs[THR_CHAN], 200); // THR output value is still reflecting 100 trim
+#endif
 }
 
 TEST_F(TrimsTest, MoveTrimsToOffsetsWithTrimIdle)
 {
   // Trim idle only
   g_model.thrTrim = 1;
-  anaSetFiltered(THR_STICK,  -1024);  // Min stick
-  g_model.limitData[2].offset = 0;
-  g_model.limitData[1].offset = 0;
-  setTrimValue(0, MIXSRC_TrimThr - MIXSRC_FIRST_TRIM, 100);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, -100);
+  anaSetFiltered(THR_STICK,  THR_STICK_MIN_THR_POS);  // Min stick
+  g_model.limitData[THR_CHAN].offset = 0;
+  g_model.limitData[ELE_CHAN].offset = 0;
+  setTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM, 100);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, -100);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -568);  // THR output value is reflecting 100 trim idle
+#if defined(SURFACE_RADIO)
+  EXPECT_EQ(channelOutputs[THR_CHAN], 228);  // THR output value is reflecting 100 trim idle
+#else
+  EXPECT_EQ(channelOutputs[THR_CHAN], -568);  // THR output value is reflecting 100 trim idle
+#endif
   moveTrimsToOffsets();
 
   // Trim affecting Throttle should not be affected
-  EXPECT_EQ(getTrimValue(0, MIXSRC_TrimThr - MIXSRC_FIRST_TRIM), 100);  // unchanged
+  EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 100);  // unchanged
   EXPECT_EQ(g_model.limitData[2].offset, 0); // unchanged
 
   // Other trims should
-  EXPECT_EQ(getTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[1].offset, -195); // value transferred
+  EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
+#if defined(SURFACE_RADIO)
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -97); // value transferred
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -568);  // THR output value is still reflecting 100 trim idle
+  EXPECT_EQ(channelOutputs[THR_CHAN], 228);  // THR output value is reflecting 100 trim idle
+#else
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -568);  // THR output value is reflecting 100 trim idle
+#endif
 }
 
 TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrossTrims)
@@ -426,59 +584,73 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrossTrims)
   // No trim idle only
   // Cross trims
   g_model.thrTrim = 0;
-  g_model.limitData[2].offset = 0;
-  g_model.limitData[1].offset = 0;
-  g_model.thrTrimSw = MIXSRC_TrimEle - MIXSRC_FIRST_TRIM;
-  ExpoData *expo = expoAddress(THR_STICK);
-  expo->trimSource = TRIM_ELE;
-  expo = expoAddress(ELE_STICK);
-  expo->trimSource = TRIM_THR;
+  g_model.limitData[THR_CHAN].offset = 0;
+  g_model.limitData[ELE_CHAN].offset = 0;
+  g_model.thrTrimSw = MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM;
+  ExpoData *expo = expoAddress(THR_CHAN);
+  expo->trimSource = ELE_TRIM_SOURCE;
+  expo = expoAddress(ELE_CHAN);
+  expo->trimSource = THR_TRIM_SOURCE;
 
   anaSetFiltered(THR_STICK,  0);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, 100);
-  setTrimValue(0, MIXSRC_TrimThr - MIXSRC_FIRST_TRIM, -100);
+  anaSetFiltered(ELE_STICK,  0);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, 100);
+  setTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM, -100);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 200);  // THR output value is reflecting 100 Ele trim
+  EXPECT_EQ(channelOutputs[THR_CHAN], TRIM_SCALE(200));  // THR output value is reflecting 100 Ele trim
+  EXPECT_EQ(channelOutputs[ELE_CHAN], TRIM_SCALE(-200)); // ELE output value is reflecting -100 Thr trim
   moveTrimsToOffsets();
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 200);  // THR output value remains unchanged
-  EXPECT_EQ(getTrimValue(0, MIXSRC_TrimThr - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[2].offset, 195); // value transferred
-  EXPECT_EQ(getTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[1].offset, -195); // value transferred
+#if defined(SURFACE_RADIO)
+  EXPECT_EQ(channelOutputs[THR_CHAN], 99);  // THR output value remains unchanged
+#else
+  EXPECT_EQ(channelOutputs[THR_CHAN], 200);  // THR output value remains unchanged
+#endif
+  EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 0);  // back to neutral
+  EXPECT_EQ(g_model.limitData[THR_CHAN].offset, TRIM_SCALE(195)); // value transferred
+  EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, TRIM_SCALE(-195)); // value transferred
 }
 
 TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrosstrimsAndTrimIdle)
 {
   // Trim idle only
   // Cross trims
-  g_model.limitData[2].offset = 0;
-  g_model.limitData[1].offset = 0;
+  g_model.limitData[THR_CHAN].offset = 0;
+  g_model.limitData[ELE_CHAN].offset = 0;
   g_model.thrTrim = 1;
-  g_model.thrTrimSw = MIXSRC_TrimEle - MIXSRC_FIRST_TRIM;
-  ExpoData *expo = expoAddress(THR_STICK);
-  expo->trimSource = TRIM_ELE;
-  expo = expoAddress(ELE_STICK);
-  expo->trimSource = TRIM_THR;
-
-  anaSetFiltered(THR_STICK,  -1024);  // Min stick
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, 100);
-  setTrimValue(0, MIXSRC_TrimThr - MIXSRC_FIRST_TRIM, -100);
+  g_model.thrTrimSw = ELE_THRTRIMSW;
+  ExpoData *expo = expoAddress(THR_CHAN);
+  expo->trimSource = ELE_TRIM_SOURCE;
+  expo = expoAddress(ELE_CHAN);
+  expo->trimSource = THR_TRIM_SOURCE;
+  anaSetFiltered(THR_STICK,  THR_STICK_MIN_THR_POS);  // Min throttle
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, 100);
+  setTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM, -100);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -568);  // THR output value is reflecting 100 ele trim idle
+#if defined(SURFACE_RADIO)
+  EXPECT_EQ(channelOutputs[THR_CHAN], 228);  // THR output value is reflecting 100 ele trim idle
+#else
+  EXPECT_EQ(channelOutputs[THR_CHAN], -568);  // THR output value is reflecting 100 ele trim idle
+#endif
   moveTrimsToOffsets();
 
   // Trim affecting Throttle (now Ele because of crosstrims) should not be affected
-  EXPECT_EQ(getTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM), 100);  // unchanged
+  EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 100);  // unchanged
   EXPECT_EQ(g_model.limitData[2].offset, 0); // THR chan offset unchanged
 
   // Other trims should
-  EXPECT_EQ(getTrimValue(0, MIXSRC_TrimThr - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[1].offset, -195); // Ele chan offset transfered
+  EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 0);  // back to neutral
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, TRIM_SCALE(-195)); // Ele chan offset transferred
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -568);  // THR output value is still reflecting 100 trim idle
+#if defined(SURFACE_RADIO)
+  EXPECT_EQ(channelOutputs[THR_CHAN], 228);  // THR output value is still reflecting 100 trim idle
+#else
+  EXPECT_EQ(channelOutputs[THR_CHAN], -568);  // THR output value is still reflecting 100 trim idle
+#endif
 }
 
+#if !defined(SURFACE_RADIO)
 TEST_F(TrimsTest, InstantTrim)
 {
   anaSetFiltered(AIL_STICK, 50);
@@ -508,6 +680,7 @@ TEST_F(TrimsTest, InstantTrimNegativeCurve)
   EXPECT_EQ(128, getTrimValue(0, AIL_STICK));
 #endif
 }
+#endif
 
 TEST(Curves, LinearIntpol)
 {
@@ -754,7 +927,7 @@ TEST_F(TrimsTest, throttleTrimEle) {
   anaSetFiltered(ELE_STICK, +1024);
   setTrimValue(0, ELE_STICK, TRIM_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024 - 256);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024 - TRIM_SCALE(256));
   SYSTEM_RESET();
   MODEL_RESET();
   MIXER_RESET();
@@ -901,152 +1074,168 @@ TEST_F(MixerTest, flightModeOverflow)
 TEST_F(TrimsTest, throttleTrimWithCrossTrims)
 {
   g_model.thrTrim = 1;
-  g_model.thrTrimSw = MIXSRC_TrimEle - MIXSRC_FIRST_TRIM;
+  g_model.thrTrimSw = ELE_THRTRIMSW;
 
   ExpoData *expo = expoAddress(THR_STICK);
-  expo->trimSource = TRIM_ELE;
+  expo->trimSource = ELE_TRIM_SOURCE;
 
   expo = expoAddress(ELE_STICK);
-  expo->trimSource = TRIM_THR;
+  expo->trimSource = THR_TRIM_SOURCE;
 
   // stick max + trim max
   anaSetFiltered(THR_STICK,  +1024);
   anaSetFiltered(ELE_STICK,  0);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_MAX);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick max + trim min
   anaSetFiltered(THR_STICK,  +1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_MIN);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick min + trim max
-  anaSetFiltered(THR_STICK,  -1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_MAX);
+  anaSetFiltered(THR_STICK, THR_STICK_MIN_THR_POS);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024 + 512);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], THR_STICK_MIN_THR_POS + TRIM_SCALE(512));
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick min + trim mid
-  anaSetFiltered(THR_STICK,  -1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, 0);
+  anaSetFiltered(THR_STICK, THR_STICK_MIN_THR_POS);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, 0);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024 + 256);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], THR_STICK_MIN_THR_POS + TRIM_SCALE(256));
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick min + trim min
-  anaSetFiltered(THR_STICK,  -1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_MIN);
+  anaSetFiltered(THR_STICK, THR_STICK_MIN_THR_POS);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], THR_STICK_MIN_THR_POS);
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
 
   // now the same tests with extended Trims
   g_model.extendedTrims = 1;
   // stick max + trim max
   anaSetFiltered(THR_STICK,  +1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MAX);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick max + trim min
   anaSetFiltered(THR_STICK,  +1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MIN);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], 1024);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024);
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick min + trim max
-  anaSetFiltered(THR_STICK,  -1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MAX);
+  anaSetFiltered(THR_STICK,  THR_STICK_MIN_THR_POS);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024+2048);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024+2048);
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick min + trim mid
-  anaSetFiltered(THR_STICK,  -1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, 0);
+  anaSetFiltered(THR_STICK, THR_STICK_MIN_THR_POS);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, 0);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024+1024);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], THR_STICK_MIN_THR_POS + TRIM_SCALE(1024));
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick min + trim min
-  anaSetFiltered(THR_STICK,  -1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MIN);
+  anaSetFiltered(THR_STICK,  THR_STICK_MIN_THR_POS);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], THR_STICK_MIN_THR_POS);
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
 }
 
 TEST_F(TrimsTest, invertedThrottlePlusThrottleTrimWithCrossTrims)
 {
   g_model.throttleReversed = 1;
   g_model.thrTrim = 1;
-  g_model.thrTrimSw = MIXSRC_TrimEle - MIXSRC_FIRST_TRIM;
+  g_model.thrTrimSw = ELE_THRTRIMSW;
   ExpoData *expo = expoAddress(THR_STICK);
-  expo->trimSource = TRIM_ELE;
+  expo->trimSource = ELE_TRIM_SOURCE;
   expo = expoAddress(ELE_STICK);
-  expo->trimSource = TRIM_THR;
+  expo->trimSource = THR_TRIM_SOURCE;
 
   // stick max + trim max
   anaSetFiltered(THR_STICK,  +1024);
   anaSetFiltered(ELE_STICK,  0);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_MAX);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick max + trim mid
   anaSetFiltered(THR_STICK,  +1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, 0);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, 0);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024+256);
-  EXPECT_EQ(channelOutputs[1], 0);
+#if defined(SURFACE_RADIO)
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024); // no effect since we are in reverse mode
+#else
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024+256);
+#endif
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick max + trim min
   anaSetFiltered(THR_STICK,  +1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_MIN);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024+512);
-  EXPECT_EQ(channelOutputs[1], 0);
+#if defined(SURFACE_RADIO)
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024); // no effect since we are in reverse mode
+#else
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024+512);
+#endif
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick min + trim max
   anaSetFiltered(THR_STICK,  -1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_MAX);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], +1024);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick min + trim min
   anaSetFiltered(THR_STICK,  -1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_MIN);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], +1024);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
 
   // now the same tests with extended Trims
   g_model.extendedTrims = 1;
   // stick max + trim max
   anaSetFiltered(THR_STICK,  +1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MAX);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024);
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick max + trim mid
   anaSetFiltered(THR_STICK,  +1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, 0);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, 0);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024+1024);
-  EXPECT_EQ(channelOutputs[1], 0);
+#if defined(SURFACE_RADIO)
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024); // no effect since we are in reverse mode
+#else
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024+1024);
+#endif
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick max + trim min
   anaSetFiltered(THR_STICK,  +1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MIN);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], -1024+2048);
-  EXPECT_EQ(channelOutputs[1], 0);
+#if defined(SURFACE_RADIO)
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024); // no effect since we are in reverse mode
+#else
+  EXPECT_EQ(channelOutputs[THR_CHAN], -1024+2048);
+#endif
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick min + trim max
   anaSetFiltered(THR_STICK,  -1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MAX);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MAX);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], +1024);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
   // stick min + trim min
   anaSetFiltered(THR_STICK,  -1024);
-  setTrimValue(0, MIXSRC_TrimEle - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MIN);
+  setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, TRIM_EXTENDED_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[2], +1024);
-  EXPECT_EQ(channelOutputs[1], 0);
+  EXPECT_EQ(channelOutputs[THR_CHAN], +1024);
+  EXPECT_EQ(channelOutputs[ELE_CHAN], 0);
 }

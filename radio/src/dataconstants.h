@@ -388,7 +388,11 @@ enum PotsWarnMode {
 #define MAX_GVARS                    9
 
 // Maximum number analog inputs by type
-#define MAX_STICKS        4
+#if defined(SURFACE_RADIO)
+  #define MAX_STICKS        2
+#else
+  #define MAX_STICKS        4
+#endif
 
 #if defined(COLORLCD)
   #define MAX_POTS        16
@@ -515,10 +519,18 @@ enum MixSources {
   MIXSRC_LAST_HELI SKIP = MIXSRC_FIRST_HELI + 2,
 
   MIXSRC_FIRST_TRIM SKIP,
+#if defined(SURFACE_RADIO)
+  MIXSRC_TrimSte = MIXSRC_FIRST_TRIM,
+  MIXSRC_TrimThr,
+  MIXSRC_TrimT3,
+  MIXSRC_TrimT4,
+#else
   MIXSRC_TrimRud = MIXSRC_FIRST_TRIM,
   MIXSRC_TrimEle,
   MIXSRC_TrimThr,
   MIXSRC_TrimAil,
+#endif
+
   //#if defined(PCBHORUS)
   MIXSRC_TrimT5,
   MIXSRC_TrimT6,
@@ -528,7 +540,6 @@ enum MixSources {
   //#else
   //MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimAil,
   //#endif
-
   MIXSRC_FIRST_SWITCH SKIP,
   MIXSRC_LAST_SWITCH SKIP = MIXSRC_FIRST_SWITCH + MAX_SWITCHES - 1,
 
@@ -560,8 +571,11 @@ enum MixSources {
 #define INPUTSRC_FIRST              MIXSRC_FIRST_STICK
 #define INPUTSRC_LAST               MIXSRC_LAST_TELEM
 
-// TODO: this won't work forever (what about ground radios?)
-#define MIXSRC_Thr                  (MIXSRC_FIRST_STICK + 2)
+#if defined(SURFACE_RADIO)
+  #define MIXSRC_Thr                  (MIXSRC_FIRST_STICK + 1)
+#else
+  #define MIXSRC_Thr                  (MIXSRC_FIRST_STICK + 2)
+#endif
 
 #if defined(FUNCTION_SWITCHES)
 #define MIXSRC_LAST_REGULAR_SWITCH  (MIXSRC_FIRST_SWITCH + switchGetMaxSwitches() - 1)

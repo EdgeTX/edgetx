@@ -111,7 +111,11 @@ TEST(Lua, testModelInputs)
   luaExecStr("if noInputs > 0 then error('getInputsCount()') end");
 
   // add one line on Input4
+#if defined(SURFACE_RADIO)
+  luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_TH, weight=56, offset=3, switch=2})");
+#else
   luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_Thr, weight=56, offset=3, switch=2})");
+#endif
   EXPECT_EQ(3, (int)g_model.expoData[0].chn);
   EXPECT_STRNEQ("test1", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_Thr, g_model.expoData[0].srcRaw);
@@ -120,7 +124,11 @@ TEST(Lua, testModelInputs)
   EXPECT_EQ(2, g_model.expoData[0].swtch);
 
   // add another one before existing line on Input4
+#if defined(SURFACE_RADIO)
+  luaExecStr("model.insertInput(3, 0, {name='test2', source=MIXSRC_ST, weight=-56})");
+#else
   luaExecStr("model.insertInput(3, 0, {name='test2', source=MIXSRC_Rud, weight=-56})");
+#endif
   EXPECT_EQ(3, (int)g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
@@ -136,7 +144,11 @@ TEST(Lua, testModelInputs)
   EXPECT_EQ(2, g_model.expoData[1].swtch);
 
   // add another line after existing lines on Input4
+ #if defined(SURFACE_RADIO)
+  luaExecStr("model.insertInput(3, model.getInputsCount(3), {name='test3', source=MIXSRC_TH, weight=100})");
+#else
   luaExecStr("model.insertInput(3, model.getInputsCount(3), {name='test3', source=MIXSRC_Ail, weight=100})");
+#endif
   EXPECT_EQ(3, (int)g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
