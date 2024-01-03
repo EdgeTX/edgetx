@@ -425,12 +425,13 @@ void ModelMixesPage::build(FormWindow * window)
   MixData* line = g_model.mixData;
   for (uint8_t ch = 0; (ch < MAX_OUTPUT_CHANNELS) && (index < MAX_MIXERS); ch++) {
 
-    if (line->destCh == ch) {
+    bool skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
+    if (line->destCh == ch && !skip_mix) {
 
       // one group for the complete mixer channel
       auto group = createGroup(form, MIXSRC_FIRST_CH + ch);
       groups.emplace_back(group);
-      while (index < MAX_MIXERS && (line->destCh == ch)) {
+      while (index < MAX_MIXERS && (line->destCh == ch) && !skip_mix) {
         // one button per input line
         auto btn = createLineButton(group, index);
         if (!focusSet) {
@@ -439,6 +440,7 @@ void ModelMixesPage::build(FormWindow * window)
         }
         ++index;
         ++line;
+        skip_mix = (ch == 0 && is_memclear(line, sizeof(MixData)));
       }
     }
   }
