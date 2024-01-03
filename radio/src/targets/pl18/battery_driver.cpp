@@ -21,6 +21,7 @@
 
 #include "opentx.h"
 #include "battery_driver.h"
+#include "boards/generic_stm32/rgb_leds.h"
 
 #define  __BATTERY_DRIVER_C__
 
@@ -311,6 +312,22 @@ void battery_charge_init()
 #endif
 }
 
+void ledChargingInfo(uint16_t chargeState) {
+  static int ledIdx = 0;
+  ledIdx--;
+  if (ledIdx < 0) {
+    ledIdx = LED_STRIP_LENGTH - 1;
+  }
+  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
+    if (CHARGE_FINISHED == chargeState || ledIdx == i) {
+      rgbSetLedColor(i, 0, 20, 0);
+    } else {
+      rgbSetLedColor(i, 0, 0, 0);
+    }
+  }
+  rgbLedColorApply();
+}
+
 void drawChargingInfo(uint16_t chargeState) {
   static int progress = 0;
   const char* text = chargeState == CHARGE_STARTED ? STR_BATTERYCHARGING : STR_BATTERYFULL;
@@ -381,55 +398,54 @@ void handle_battery_charge(uint32_t last_press_time)
     lastState = chargeState;
   }
 
-
-  if(now > info_until) {
-    info_until = 0;
-    lcd->clear();
-    BACKLIGHT_DISABLE();
-    if(lcdInited) {
-      lcdOff();
-    }
-    return;
-  }
-
-
   if (updateTime == 0 || ((get_tmr10ms() - updateTime) >= 50))
   {
-    if (!lcdInited) {
-      backlightInit();
-      lcdInit();
-      lcdInitDisplayDriver();
-      lcdInited = true;
-    }
-    else {
-      lcdOn();
-    }
     updateTime = get_tmr10ms();
-    lcdInitDirectDrawing();
-    lcd->clear();
-    drawChargingInfo(chargeState);
+    ledChargingInfo(chargeState);
 
-    // DEBUG INFO
+    if(now > info_until) {
+      info_until = 0;
+      lcd->clear();
+      BACKLIGHT_DISABLE();
+      if(lcdInited) {
+        lcdOff();
+      }
+    } else {
+      if (!lcdInited) {
+        backlightInit();
+        lcdInit();
+        lcdInitDisplayDriver();
+        lcdInited = true;
+      } else {
+        lcdOn();
+      }
+      lcdInitDirectDrawing();
+      lcd->clear();
+      drawChargingInfo(chargeState);
+
+      // DEBUG INFO
 #if 0
-    char buffer[1024];
+      char buffer[1024];
 
-    sprintf(buffer, "%d,%d,%d,%d", uCharger.isChargerDetectionReady, uCharger.hasCharger, IS_UCHARGER_ACTIVE(), uCharger.chargerSamplingCount);
-    lcd->drawSizedText(100, 10, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
+      sprintf(buffer, "%d,%d,%d,%d", uCharger.isChargerDetectionReady, uCharger.hasCharger, IS_UCHARGER_ACTIVE(), uCharger.chargerSamplingCount);
+      lcd->drawSizedText(100, 10, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
     
-    sprintf(buffer, "%d,%d,%d,%d,%d,", uCharger.isChargingDetectionReady, uCharger.isChargeEnd, IS_UCHARGER_CHARGE_END_ACTIVE(), uCharger.chargingSamplingCount, uCharger.chargeEndSamplingCount);
-    lcd->drawSizedText(100, 40, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
+      sprintf(buffer, "%d,%d,%d,%d,%d,", uCharger.isChargingDetectionReady, uCharger.isChargeEnd, IS_UCHARGER_CHARGE_END_ACTIVE(), uCharger.chargingSamplingCount, uCharger.chargeEndSamplingCount);
+      lcd->drawSizedText(100, 40, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
 
-    sprintf(buffer, "%d,%d,%d,%d,%d", wCharger.isChargerDetectionReady, wCharger.hasCharger, IS_WCHARGER_ACTIVE(), wCharger.chargerSamplingCount, wCharger.isHighCurrent);
-    lcd->drawSizedText(100, 70, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
+      sprintf(buffer, "%d,%d,%d,%d,%d", wCharger.isChargerDetectionReady, wCharger.hasCharger, IS_WCHARGER_ACTIVE(), wCharger.chargerSamplingCount, wCharger.isHighCurrent);
+      lcd->drawSizedText(100, 70, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
     
-    sprintf(buffer, "%d,%d,%d,%d,%d,", wCharger.isChargingDetectionReady, wCharger.isChargeEnd, IS_WCHARGER_CHARGE_END_ACTIVE(), wCharger.chargingSamplingCount, wCharger.chargeEndSamplingCount);
-    lcd->drawSizedText(100, 100, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
+      sprintf(buffer, "%d,%d,%d,%d,%d,", wCharger.isChargingDetectionReady, wCharger.isChargeEnd, IS_WCHARGER_CHARGE_END_ACTIVE(), wCharger.chargingSamplingCount, wCharger.chargeEndSamplingCount);
+      lcd->drawSizedText(100, 100, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
 
-    sprintf(buffer, "%d", isChargerActive());
-    lcd->drawSizedText(100, 130, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
+      sprintf(buffer, "%d", isChargerActive());
+      lcd->drawSizedText(100, 130, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
 #endif
 
-    lcdRefresh();
+      lcdRefresh();
+    }
+
   }
 #endif
 }
