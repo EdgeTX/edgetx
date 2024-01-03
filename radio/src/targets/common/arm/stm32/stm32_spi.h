@@ -36,7 +36,7 @@ struct stm32_spi_t {
   uint32_t       DMA_Channel;
   uint32_t       txDMA_Stream;
   uint32_t       rxDMA_Stream;
-  bool           useFIFO;
+  uint32_t       DMA_FIFOMode;
 };
 
 void stm32_spi_enable_clock(SPI_TypeDef *SPIx);

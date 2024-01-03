@@ -78,7 +78,7 @@ const stm32_spi_t _flash_spi = {
   .DMA_Channel = FLASH_SPI_DMA_CHANNEL,
   .txDMA_Stream = FLASH_SPI_DMA_TX_STREAM,
   .rxDMA_Stream = FLASH_SPI_DMA_RX_STREAM,
-  .useFIFO = false,
+  .DMA_FIFOMode = LL_DMA_FIFOMODE_DISABLE,
 };
 
 static SpiFlashDescriptor _flashDescriptor;
