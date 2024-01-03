@@ -253,7 +253,7 @@ class InternalGPSWidget: public TopBarWidget
 
     void refresh(BitmapBuffer * dc) override
     {
-      if (hasSerialMode(UART_MODE_GPS) != -1) {
+      if (serialGetModePort(UART_MODE_GPS) >= 0) {
         if (gpsData.fix) {
           char s[10];
           sprintf(s, "%d", gpsData.numSat);

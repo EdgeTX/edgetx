@@ -203,7 +203,7 @@ bool isSourceAvailable(int source)
   if (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE)
     return false;
 #elif defined(PCBHORUS) && defined(SPACEMOUSE)
-  if ((hasSerialMode(UART_MODE_SPACEMOUSE) == -1) &&
+  if ((serialGetModePort(UART_MODE_SPACEMOUSE) < 0) &&
       (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE))
     return false;
 #endif
@@ -425,14 +425,6 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
   return true;
 }
 
-int hasSerialMode(int mode)
-{
-  for (int p = 0; p < MAX_SERIAL_PORTS; p++) {
-    if (serialGetMode(p) == mode) return p;
-  }
-  return -1;
-}
-
 bool isSerialModeAvailable(uint8_t port_nr, int mode)
 {
 #if defined(USB_SERIAL)
@@ -493,7 +485,7 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
     return false;
 #endif
 
-  auto p = hasSerialMode(mode);
+  auto p = serialGetModePort(mode);
   if (p >= 0 && p != port_nr) return false;
   return true;
 }
@@ -1016,7 +1008,11 @@ bool isTrainerModeAvailable(int mode)
 #endif
 
   if (mode == TRAINER_MODE_MASTER_SERIAL) {
-    return hasSerialMode(UART_MODE_SBUS_TRAINER) >= 0;
+#if defined(SBUS_TRAINER)
+    return serialGetModePort(UART_MODE_SBUS_TRAINER) >= 0;
+#else
+    return false;
+#endif
   }
 
   if ((mode == TRAINER_MODE_MASTER_BLUETOOTH ||
