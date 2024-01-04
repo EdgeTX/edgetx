@@ -52,7 +52,7 @@
 
 #define TR_AUX_SERIAL_MODES            "Выкл","Зерк телем","Телем вход","SBUS Тренаж","LUA","CLI","GPS","Отлад","SpaceMouse","Внеш модуль"
 #define TR_SWTYPES                     "Нет","тумбл","2Х-поз пер","3Х-поз пер"
-#define TR_POTTYPES                    "Нет",TR("Потен с шаг","Потен с шагом"),TR("Мнг поз пер","Мнг тумбл"),"Потенц","Тумб"
+#define TR_POTTYPES                    "Нет","Пот",TR("Пот с шагом","Пот с шагом"),"Слайдер",TR("Многопоз","Многопоз тумблер"),"Ось X","Ось Y","Тумблер"
 #define TR_VPERSISTENT                 "Выкл","Полет","Руч сброс"
 #define TR_COUNTRY_CODES               TR("US","США"),TR("JP","Япония"),TR("EU","Евро")
 #define TR_USBMODES                    "Выбор",TR("Джойс","Джойстик"),TR("SD-карта","Хранил"),"Серийн"
@@ -693,7 +693,7 @@
 #define TR_RENAME_FILE                 "ПЕРЕИМЕНОВАТЬ"
 #define TR_ASSIGN_BITMAP               "Назначить изображ"
 #define TR_ASSIGN_SPLASH               "Экран приветствия"
-#define TR_EXECUTE_FILE                "Запустить"
+#define TR_EXECUTE_FILE                "ЗАПУСТИТЬ"
 #define TR_REMOVED                     "Удалено"
 #define TR_SD_INFO                     "Инфо"
 #define TR_NA                          "Н/Д"
@@ -758,7 +758,7 @@
 #define TR_CHANNELS_MONITOR            "МОНИТОР КАНАЛОВ"
 #define TR_MIXERS_MONITOR              "МОНИТОР МИКСЕРОВ"
 #define TR_PATH_TOO_LONG               "Путь слишком длинный"
-#define TR_VIEW_TEXT                   "Просмотр текста"
+#define TR_VIEW_TEXT                   "ПРОСМОТР ТЕКСТА"
 #define TR_FLASH_BOOTLOADER            "ПРОШИТЬ ПО"
 #define TR_FLASH_DEVICE                TR("Прошить устр","Прошить устр")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Записать S.Port", "Записать устройство S.Port")
