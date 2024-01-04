@@ -326,33 +326,12 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return getCapability(board, Board::Sticks) + getCapability(board, Board::Pots) + getCapability(board, Board::Sliders) +
              getCapability(board, Board::JoystickAxes) + getCapability(board, Board::GyroAxes);
 
-    case MultiposPots:
-      if (IS_HORUS_OR_TARANIS(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)))
-        return getCapability(board, Board::Pots);
-      else
-        return 0;
-
-    case MultiposPotsPositions:
-      return IS_HORUS_OR_TARANIS(board) ? 6 : 0;
-
-    case NumFunctionSwitchesPositions:
-       return getCapability(board, Board::FunctionSwitches) * 3;
-
-    case NumTrimSwitches:
-      return getCapability(board, Board::NumTrims) * 2;
-
     case SportMaxBaudRate:
       if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_TARANIS_X7_ACCESS(board) ||
          (IS_TARANIS(board) && !IS_TARANIS_XLITE(board) && !IS_TARANIS_X7(board) && !IS_TARANIS_X9LITE(board)))
         return 400000;  //  400K and higher
       else
         return 250000;  //  less than 400K
-
-    case SwitchPositions:
-      if (IS_HORUS_OR_TARANIS(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
-        return getCapability(board, Board::Switches) * 3;
-      else
-        return 9;
 
     default:
       return getBoardJson(board)->getCapability(capability);

@@ -45,17 +45,9 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     sw_str += std::to_string(sval);
     break;
 
-  case SWITCH_TYPE_FUNCTIONSWITCH:
-    if (Boards::getCapability(board, Board::FunctionSwitches)) {
-      sw_str += "SW";
-      sw_str += std::to_string(1 + ((sval - 1) / 3));
-      sw_str += std::to_string((sval - 1) % 3);
-    }
-    break;
-
   case SWITCH_TYPE_MULTIPOS_POT:
     sw_str += "6P";
-    sw_str += std::to_string((sval - 1) / multiposcnt);
+    sw_str += std::to_string((sval - 1) / multiposcnt - Boards::getCapability(board, Board::Sticks));
     sw_str += std::to_string((sval - 1) % multiposcnt);
     break;
 
@@ -103,7 +95,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
     sw_str_tmp = sw_str_tmp.substr(1);
   }
 
-  int multiposcnt = Boards::getCapability(board, Board::MultiposPotsPositions);
+  const int multiposcnt = Boards::getCapability(board, Board::MultiposPotsPositions);
 
   //  TODO: validate all expected numeric chars are numeric not just first
 
@@ -114,12 +106,22 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
       rhs = RawSwitch(SWITCH_TYPE_VIRTUAL, sw_idx);
     }
 
+  //  format 6Piip where ii = input index - number sticks and p = pos index 0-5
   } else if (val_len > 3 && val[0] == '6' && val[1] == 'P' &&
              (val[2] >= '0' && val[2] <= '9') &&
-             (val[3] >= '0' && val[3] < (multiposcnt + '0'))) {
+             (val[val_len - 1] >= '0' && val[val_len - 1] < (multiposcnt + '0'))) {
 
-    rhs = RawSwitch(SWITCH_TYPE_MULTIPOS_POT,
-                    (val[2] - '0') * multiposcnt + (val[3] - '0') + 1);
+    RawSwitchType mp_type = SWITCH_TYPE_MULTIPOS_POT;
+    int mp_index = 0;
+    try {
+      mp_index = (std::stoi(sw_str_tmp.substr(2, val_len - 3)) + Boards::getCapability(board, Board::Sticks)) *
+                 multiposcnt + (val[val_len - 1] - '0') + 1;
+    } catch(...) {
+      mp_type = SWITCH_TYPE_NONE;
+      mp_index = 0;
+    }
+
+    rhs = RawSwitch(mp_type, mp_index);
 
   } else if (val_len == 3 && val[0] == 'F' && val[1] == 'M' &&
              (val[2] >= '0' && val[2] <= '9')) {
@@ -143,22 +145,14 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
       rhs.index = tsw_idx + 1;
     }
 
-  } else if (val_len >= 3 && val[0] == 'S' && val[1] == 'W' &&
-             (val[2] >= '1' && val[2] <= '9') &&
-             (val[3] >= '0' && val[3] <= '2') &&
-             Boards::getCapability(board, Board::FunctionSwitches)) {
-    // Customisable switches
-    int idx = val[2] - '1';
-    idx = idx * 3 + (val[3] - '0' + 1);
-    rhs = RawSwitch(SWITCH_TYPE_FUNCTIONSWITCH, idx);
-
-  } else if ((val_len >= 3 && val[0] == 'S' &&
-              val[1] >= 'A' && val[1] <= 'Z' &&
-              val[2] >= '0' && val[2] <= '2') ||
-             (val_len >= 4 &&
-              val[0] == 'F' && val[1] == 'L' &&
+  } else if ((val_len >= 4 && (
+              (val[0] == 'F' && val[1] == 'L') ||
+              (val[0] == 'S' && val[1] == 'W')) &&
               val[2] >= '1' && val[2] <= '9' &&
-              val[val_len - 1] >= '0' && val[val_len - 1] <= '2')) {
+              val[val_len - 1] >= '0' && val[val_len - 1] <= '2') ||
+             (val_len >= 3 && val[0] == 'S' &&
+              val[1] >= 'A' && val[1] <= 'Z' &&
+              val[2] >= '0' && val[2] <= '2')) {
 
     int sw_idx = Boards::getSwitchIndex(sw_str_tmp.substr(0, val_len - 1).c_str());
     if (sw_idx >= 0) {

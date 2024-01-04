@@ -362,8 +362,8 @@ class GeneralSettings {
 
     SwitchConfig switchConfig[CPN_MAX_SWITCHES];
 
-    bool switchPositionAllowedTaranis(int index) const;
-    bool switchSourceAllowedTaranis(int index) const;
+    bool switchPositionAllowed(int index) const;
+    bool switchSourceAllowed(int index) const;
 
     bool isInputAvailable(int index) const;
     bool isInputMultiPosPot(int index) const;

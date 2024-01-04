@@ -115,6 +115,7 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
 }
 
 // called from Boards::getCapability if no capability match
+// WARNING - potential for infinite loop if Boards::getCapability(m_board, capability) called from here!!!!!
 const int BoardJson::getCapability(const Board::Capability capability) const
 {
   switch (capability) {
@@ -125,7 +126,7 @@ const int BoardJson::getCapability(const Board::Capability capability) const
               m_inputCnt.flexSliders +
               m_inputCnt.flexSwitches);
 
-    case FunctionSwitches:  // TODO legacy pre v2.10
+    case Board::FunctionSwitches:  // TODO legacy pre v2.10
       return getCapability(Board::SwitchesFunction);
 
     case Board::GyroAxes:
@@ -143,8 +144,23 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::Inputs:
       return m_inputs->size();
 
+    case Board::MultiposPots:
+      // assumes every input has potential to be one
+      // index used for mapping 6 pos switches back to input
+      // TODO better way as this generates inputs x 6 switches most of which are hidden in switch lists
+      return getCapability(Board::Inputs);
+
+    case Board::MultiposPotsPositions:
+      return 6;
+
+    case Board::NumFunctionSwitchesPositions:
+       return getCapability(Board::FunctionSwitches) * 3;
+
     case Board::NumTrims:
       return m_trims->size();
+
+    case Board::NumTrimSwitches:
+      return getCapability(Board::NumTrims) * 2;
 
     case Board::Pots:
       return m_inputCnt.flexPots;
@@ -168,6 +184,9 @@ const int BoardJson::getCapability(const Board::Capability capability) const
 
     case Board::SwitchesFlex:
       return m_switchCnt.flex;
+
+    case Board::SwitchPositions:
+      return getCapability(Board::Switches) * 3;
 
     default:
       return 0;

@@ -187,17 +187,16 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return tr("MAX");
 
     case SOURCE_TYPE_SWITCH:
-      if (generalSettings)
-        result = QString(generalSettings->switchConfig[index].name).trimmed();
+      if (Boards::isSwitchFunc(index, board)) {
+        if (model)
+          result = QString(model->functionSwitchNames[index]).trimmed();
+      }
+      else {
+        if (generalSettings)
+          result = QString(generalSettings->switchConfig[index].name).trimmed();
+      }
       if (result.isEmpty())
         result = Boards::getSwitchInfo(index, board).name.c_str();
-      return result;
-
-    case SOURCE_TYPE_FUNCTIONSWITCH:
-      if (model)
-        result = QString(model->functionSwitchNames[index]).trimmed();
-      if (result.isEmpty())
-        result = tr("SW%1").arg(index + 1);
       return result;
 
     case SOURCE_TYPE_CUSTOM_SWITCH:
@@ -284,10 +283,6 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
   if (type == SOURCE_TYPE_SWITCH && index >= b.getCapability(Board::Switches))
     return false;
 
-  if (type == SOURCE_TYPE_FUNCTIONSWITCH)
-    if (!model || index >= b.getCapability(Board::FunctionSwitches))
-      return false;
-
   if (type == SOURCE_TYPE_SPECIAL && index >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED && index <= SOURCE_TYPE_SPECIAL_LAST_RESERVED)
       return false;
 
@@ -296,7 +291,8 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
         model->timers[index - SOURCE_TYPE_SPECIAL_FIRST_TIMER].isModeOff())
       return false;
 
-    if (type == SOURCE_TYPE_FUNCTIONSWITCH && !model->isFunctionSwitchSourceAllowed(index))
+    if (type == SOURCE_TYPE_SWITCH && b.isSwitchFunc(index, board) &&
+        !model->isFunctionSwitchSourceAllowed(b.getSwitchTagNum(index, board) - 1))
       return false;
 
     if (type == SOURCE_TYPE_VIRTUAL_INPUT && !model->isInputValid(index))
@@ -326,7 +322,8 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
         return false;
     }
 
-    if (type == SOURCE_TYPE_SWITCH && IS_HORUS_OR_TARANIS(board) && !gs->switchSourceAllowedTaranis(index))
+    if (type == SOURCE_TYPE_SWITCH && !b.isSwitchFunc(index, board) && IS_HORUS_OR_TARANIS(board) &&
+        !gs->switchSourceAllowed(index))
       return false;
   }
   else {

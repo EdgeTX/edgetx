@@ -68,12 +68,6 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += std::to_string(rhs.index + 1);
       src_str += ")";
       break;
-    case SOURCE_TYPE_FUNCTIONSWITCH:
-      if (Boards::getCapability(board, Board::FunctionSwitches)) {
-        src_str += "SW";
-        src_str += std::to_string(rhs.index + 1);
-      }
-      break;
     case SOURCE_TYPE_CYC:
       src_str = b.getRawSourceCyclicTag(rhs.index);
       break;
@@ -137,27 +131,19 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     if (idx < CPN_MAX_INPUTS) {
       rhs = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, idx);
     }
-  } else if ((val_len == 2
-              && val[0] == 'S'
-              && val[1] >= 'A'
-              && val[1] <= 'Z') ||
-             (val_len == 3
-              && val[0] == 'F'
-              && val[1] == 'L'
-              && val[2] >= '1' && val[2] <= '9')) {
+
+  } else if ((val_len == 2 &&
+              val[0] == 'S' &&
+              val[1] >= 'A' && val[1] <= 'Z') ||
+             (val_len == 3 && (
+              (val[0] == 'F' && val[1] == 'L') ||
+              (val[0] == 'S' && val[1] == 'W')) &&
+              val[2] >= '1' && val[2] <= '9')) {
 
     int idx = Boards::getSwitchIndex(src_str.c_str());
     if (idx >= 0) {
       rhs = RawSource(SOURCE_TYPE_SWITCH, idx);
     }
-  } else if (val_len == 3
-             && val[0] == 'S'
-             && val[1] == 'W'
-             && (val[2] >= '1' && val[2] <= '9')
-             && Boards::getCapability(board, Board::FunctionSwitches)) {
-    // Customisable switches
-    int idx = val[2] - '1';
-    rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, idx);
 
   } else if (val_len > 4 &&
              val[0] == 'l' &&
@@ -184,6 +170,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     if (ls > 0 && ls <= CPN_MAX_LOGICAL_SWITCHES)
       rhs = RawSource(SOURCE_TYPE_CUSTOM_SWITCH, ls - 1);
 
+    // appears depreciated - maybe early support for T20 as SWn the current std and no match in encode
   } else if (val_len > 3 &&
              val[0] == 'f' &&
              val[1] == 's' &&
@@ -192,8 +179,11 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     std::stringstream src(src_str.substr(3));
     int fs = 0;
     src >> fs;
-    if (fs > 0 && fs <= CPN_MAX_SWITCHES_FUNCTION)
-      rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, fs - 1);
+    if (fs > 0) {
+      int fsidx = Boards::getSwitchIndex(QString("SW%1").arg(fs));
+      if (fsidx >= 0)
+        rhs = RawSource(SOURCE_TYPE_SWITCH, fsidx);
+    }
 
   } else if (val_len > 3 &&
              val[0] == 't' &&

@@ -76,8 +76,14 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
       case SWITCH_TYPE_SWITCH:
         if (IS_HORUS_OR_TARANIS(board)) {
           qr = div(index - 1, 3);
-          if (generalSettings)
-            swName = QString(generalSettings->switchConfig[qr.quot].name).trimmed();
+          if (Boards::isSwitchFunc(qr.quot, board)) {
+            if (modelData)
+              swName = QString(modelData->functionSwitchNames[qr.quot]).trimmed();
+          }
+          else {
+            if (generalSettings)
+              swName = QString(generalSettings->switchConfig[qr.quot].name).trimmed();
+          }
           if (swName.isEmpty())
             swName = Boards::getSwitchInfo(qr.quot, board).name.c_str();
           return swName + directionIndicators.at(qr.rem > -1 && qr.rem < directionIndicators.size() ? qr.rem : 1);
@@ -92,16 +98,6 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
         else
           return LogicalSwitchData().nameToString(index-1);
 
-      case SWITCH_TYPE_FUNCTIONSWITCH:
-        if (!Boards::getCapability(board, Board::FunctionSwitches))
-          return CPN_STR_UNKNOWN_ITEM;
-        qr = div(index - 1, 3);
-        if (modelData)
-          swName = QString(modelData->functionSwitchNames[qr.quot]).trimmed();
-        if (swName.isEmpty())
-          swName = tr("SW%1").arg(qr.quot + 1);
-        return swName + directionIndicators.at(qr.rem > -1 && qr.rem < directionIndicators.size() ? qr.rem : 1);
-
       case SWITCH_TYPE_MULTIPOS_POT:
         if (!Boards::getCapability(board, Board::MultiposPotsPositions))
           return CPN_STR_UNKNOWN_ITEM;
@@ -109,11 +105,12 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
         if (generalSettings && qr.quot < (int)DIM(generalSettings->inputConfig))
           swName = QString(generalSettings->inputConfig[qr.quot].name);
         if (swName.isEmpty())
-          swName = Boards::getInputName(qr.quot + Boards::getCapability(board, Board::Sticks), board);
+          swName = Boards::getInputName(qr.quot, board);
         return swName + "_" + QString::number(qr.rem + 1);
 
       case SWITCH_TYPE_TRIM:
-        return (Boards::getCapability(board, Board::NumTrims) == 2 ? CHECK_IN_ARRAY(trimsSwitches2, index-1) : CHECK_IN_ARRAY(trimsSwitches, index-1));
+        return (Boards::getCapability(board, Board::NumTrims) == 2 ?
+                CHECK_IN_ARRAY(trimsSwitches2, index-1) : CHECK_IN_ARRAY(trimsSwitches, index-1));
 
       case SWITCH_TYPE_ROTARY_ENCODER:
         return CHECK_IN_ARRAY(rotaryEncoders, index-1);
@@ -166,33 +163,36 @@ bool RawSwitch::isAvailable(const ModelData * const model, const GeneralSettings
     board = getCurrentBoard();
 
   Boards b(board);
+  div_t sw;
 
   if (type == SWITCH_TYPE_SWITCH && abs(index) > b.getCapability(Board::SwitchPositions))
     return false;
 
-  if (type == SWITCH_TYPE_FUNCTIONSWITCH) {
-    if (!model || abs(index) > b.getCapability(Board::NumFunctionSwitchesPositions))
-      return false;
-    else if (!model->isFunctionSwitchPositionAvailable(abs(index)))
-        return false;
-  }
-
   if (type == SWITCH_TYPE_TRIM && abs(index) > b.getCapability(Board::NumTrimSwitches))
     return false;
 
+  if (type == SWITCH_TYPE_SWITCH)
+    sw = div(abs(index) - 1, 3);
+
   if (gs) {
-    if (type == SWITCH_TYPE_SWITCH && IS_HORUS_OR_TARANIS(board) && !gs->switchPositionAllowedTaranis(abs(index)))
+    if (type == SWITCH_TYPE_SWITCH && !b.isSwitchFunc(sw.quot, board) && !gs->switchPositionAllowed(abs(index)))
       return false;
 
     if (type == SWITCH_TYPE_MULTIPOS_POT) {
-      int pot = div(abs(index) - 1, b.getCapability(Board::MultiposPotsPositions)).quot;
-      if (!gs->isPotAvailable(pot) || gs->potConfig[pot] != Board::POT_MULTIPOS_SWITCH)
+      int idx = div(abs(index) - 1, b.getCapability(Board::MultiposPotsPositions)).quot;
+      if (!gs->isInputAvailable(idx) || gs->inputConfig[idx].flexType != Board::FLEX_MULTIPOS)
         return false;
     }
   }
 
-  if (model && !model->isAvailable(*this))
-    return false;
+  if (model) {
+    if (type == SWITCH_TYPE_SWITCH && b.isSwitchFunc(sw.quot, board)) {
+      int fsindex = (((Boards::getSwitchTagNum(sw.quot, board) - 1) * 3) + sw.rem + 1) * ( index < 0 ? -1 : 1);
+      return model->isFunctionSwitchPositionAvailable(fsindex);
+    }
+    else
+      return model->isAvailable(*this);
+  }
 
   return true;
 }
@@ -232,7 +232,6 @@ StringTagMappingTable RawSwitch::getRawSwitchTypesLookupTable()
   tbl.insert(tbl.end(), {
                           {std::to_string(SWITCH_TYPE_NONE),            "NONE"},
                           {std::to_string(SWITCH_TYPE_SWITCH),          "Sxn"},
-                          {std::to_string(SWITCH_TYPE_FUNCTIONSWITCH),  "Sxn"},
                           {std::to_string(SWITCH_TYPE_VIRTUAL),         "Ln"},
                           {std::to_string(SWITCH_TYPE_MULTIPOS_POT),    "6Pn"},
                           {std::to_string(SWITCH_TYPE_TRIM),            "Trim"},

@@ -387,25 +387,28 @@ int ModelData::getChannelsMax(bool forceExtendedLimits) const
 }
 
 bool ModelData::isFunctionSwitchPositionAvailable(int index) const
- {
-   if (index == 0)
-     return true;
+{
+  if (index == 0)
+    return true;
 
-   div_t qr = div(abs(index) - 1, 3);
-   int fs = getFuncSwitchConfig(qr.quot);
+  div_t qr = div(abs(index) - 1, 3);
+  int fs = getFuncSwitchConfig(qr.quot);
 
-   if (qr.rem == 1) {
-     return false;
-   }
-   else {
-     return fs != Board::SWITCH_NOT_AVAILABLE;
-   }
- }
+  if (qr.rem == 1) {
+    return false;
+  }
+  else {
+    return fs != Board::SWITCH_NOT_AVAILABLE;
+  }
+}
 
- bool ModelData::isFunctionSwitchSourceAllowed(int index) const
- {
-   return (int)getFuncSwitchConfig(index) != Board::SWITCH_NOT_AVAILABLE;
- }
+bool ModelData::isFunctionSwitchSourceAllowed(int index) const
+{
+  if (index < 0 || index >= Boards::getCapability(getCurrentBoard(), Board::SwitchesFunction))
+    return (int)getFuncSwitchConfig(index) != Board::SWITCH_NOT_AVAILABLE;
+
+  return false;
+}
 
 
 bool ModelData::isAvailable(const RawSwitch & swtch) const
@@ -420,9 +423,6 @@ bool ModelData::isAvailable(const RawSwitch & swtch) const
   }
   else if (swtch.type == SWITCH_TYPE_SENSOR) {
     return strlen(sensorData[index].label) > 0;
-  }
-  else if (swtch.type == SWITCH_TYPE_FUNCTIONSWITCH) {
-     return isFunctionSwitchPositionAvailable(index + 1);
   }
   else {
     return true;

@@ -32,7 +32,7 @@ const uint8_t chout_ar[] = { // First number is 0..23 -> template setup,  Second
   4,1,2,3 , 4,1,3,2 , 4,2,1,3 , 4,2,3,1 , 4,3,1,2 , 4,3,2,1
 };
 
-bool GeneralSettings::switchPositionAllowedTaranis(int index) const
+bool GeneralSettings::switchPositionAllowed(int index) const
 {
   if (index == 0)
     return true;
@@ -47,7 +47,7 @@ bool GeneralSettings::switchPositionAllowedTaranis(int index) const
     return switchConfig[qr.quot].type != Board::SWITCH_NOT_AVAILABLE;
 }
 
-bool GeneralSettings::switchSourceAllowedTaranis(int index) const
+bool GeneralSettings::switchSourceAllowed(int index) const
 {
   return switchConfig[index].type != Board::SWITCH_NOT_AVAILABLE;
 }

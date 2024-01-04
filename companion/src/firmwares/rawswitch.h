@@ -34,7 +34,7 @@ class RadioDataConversionState;
 enum RawSwitchType {
   SWITCH_TYPE_NONE,
   SWITCH_TYPE_SWITCH,
-  SWITCH_TYPE_FUNCTIONSWITCH,
+  SWITCH_TYPE_FUNCTIONSWITCH, // v2.10 only used for reading binary files
   SWITCH_TYPE_VIRTUAL,
   SWITCH_TYPE_MULTIPOS_POT,
   SWITCH_TYPE_TRIM,
