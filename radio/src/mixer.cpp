@@ -584,6 +584,12 @@ void evalInputs(uint8_t mode)
   }
 }
 
+#if defined(SURFACE_RADIO)
+  constexpr int IDLE_TRIM_SCALE = 1;
+#else
+  constexpr int IDLE_TRIM_SCALE = 2;
+#endif
+
 int getStickTrimValue(int stick, int stickValue)
 {
   if (stick < 0)
@@ -594,9 +600,14 @@ int getStickTrimValue(int stick, int stickValue)
   if (stick == thrTrimSw) {
     if (g_model.throttleReversed) trim = -trim;
     if (g_model.thrTrim) {
-      trim = (g_model.extendedTrims) ? 2 * TRIM_EXTENDED_MAX + trim
-                                     : 2 * TRIM_MAX + trim;
-      trim = trim * (1024 - stickValue) / (2 * RESX);
+#if defined(SURFACE_RADIO)
+      // Throttle trim should affect only forward stick (0 to 1024)
+      // Return no trim for reverse side when throttle trim is enabled
+      if (stickValue < 0) return 0;
+#endif
+      trim = (g_model.extendedTrims) ? IDLE_TRIM_SCALE * TRIM_EXTENDED_MAX + trim
+                                     : IDLE_TRIM_SCALE * TRIM_MAX + trim;
+      trim = trim * (1024 - stickValue) / (IDLE_TRIM_SCALE * RESX);
     }
   }
   return trim;
