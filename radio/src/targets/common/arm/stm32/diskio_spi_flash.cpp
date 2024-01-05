@@ -64,6 +64,12 @@ static bool flashErase(uint32_t addr)
   return true;
 }
 
+static bool flashBlockErase(uint32_t addr)
+{
+  flashSpiBlockErase(addr);
+  return true;
+}
+
 static bool isFlashErased(uint32_t addr)
 {
   return flashSpiIsErased(addr);
@@ -73,6 +79,7 @@ static const FrFTLOps _frftl_cb = {
   .flashRead = flashRead,
   .flashProgram = flashWrite,
   .flashErase = flashErase,
+  .flashBlockErase = flashBlockErase,
   .isFlashErased = isFlashErased,
 };
 #endif  // USE_FLASH_FTL
