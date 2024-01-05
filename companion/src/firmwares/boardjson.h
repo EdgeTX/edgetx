@@ -103,6 +103,7 @@ class BoardJson
     const bool isInputFlexPot(int index) const;
     const bool isInputFlexSwitch(int index) const;
     const bool isInputStick(int index) const;
+    const bool isInputSwitch(int index) const;
 
     const int getSwitchIndex(const QString tag) const;
     const Board::SwitchInfo getSwitchInfo(int index) const;
@@ -128,8 +129,9 @@ private:
       unsigned int flexPots;
       unsigned int flexSliders;
       unsigned int flexSwitches;
-      unsigned int sticks;
       unsigned int rtcbat;
+      unsigned int sticks;
+      unsigned int switches;
       unsigned int vbat;
     };
 
@@ -145,7 +147,6 @@ private:
 
     static bool loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches, TrimsTable * trims);
     static void afterLoadFixups(Board::Type board, InputsTable * inputs, SwitchesTable * switches);
-    static std::string setStickName(int index);
 
     static int getInputsCalibrated(const InputsTable * inputs);
 
@@ -175,6 +176,7 @@ private:
     static bool isInputIgnored(const InputDefn & defn);
     static bool isInputRTCBat(const InputDefn & defn);
     static bool isInputStick(const InputDefn & defn);
+    static bool isInputSwitch(const InputDefn & defn);
     static bool isInputVBat(const InputDefn & defn);
 
     static bool isSwitchStd(const SwitchDefn & defn);

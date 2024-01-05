@@ -171,6 +171,7 @@ namespace Board {
     HasVBat,
     MaxAnalogs,
     Inputs,
+    InputSwitches,
     Joysticks,
     JoystickAxes,
     MultiposPots,
@@ -224,6 +225,7 @@ namespace Board {
     AIT_FLEX,
     AIT_VBAT,
     AIT_RTC_BAT,
+    AIT_SWITCH,
   };
 
   enum FlexType {

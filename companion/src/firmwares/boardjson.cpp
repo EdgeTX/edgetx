@@ -31,6 +31,7 @@ static const StringTagMappingTable inputTypesLookupTable = {
     {std::to_string(Board::AIT_FLEX),    "FLEX"},
     {std::to_string(Board::AIT_VBAT),    "VBAT"},
     {std::to_string(Board::AIT_RTC_BAT), "RTC_BAT"},
+    {std::to_string(Board::AIT_SWITCH),  "SWITCH"},
 };
 
 static const StringTagMappingTable flexTypesLookupTable = {
@@ -52,13 +53,22 @@ static const StringTagMappingTable switchTypesLookupTable = {
     {std::to_string(Board::SWITCH_FUNC),          "FSWITCH"},
 };
 
+static const StringTagMappingTable stickNamesLookupTable = {
+    {QCoreApplication::translate("BoardJson", "Rud").toStdString(), "LH"},  // air
+    {QCoreApplication::translate("BoardJson", "Ele").toStdString(), "LV"},  // air
+    {QCoreApplication::translate("BoardJson", "Thr").toStdString(), "RH"},  // air
+    {QCoreApplication::translate("BoardJson", "Ail").toStdString(), "RV"},  // air
+    {QCoreApplication::translate("BoardJson", "Str").toStdString(), "ST"},  // surface
+    {QCoreApplication::translate("BoardJson", "Thr").toStdString(), "TH"},  // surface
+};
+
 BoardJson::BoardJson(Board::Type board, QString hwdefn) :
   m_board(board),
   m_hwdefn(hwdefn),
   m_inputs(new InputsTable),
   m_switches(new SwitchesTable),
   m_trims(new TrimsTable),
-  m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0}),
+  m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0, 0}),
   m_switchCnt({0, 0, 0})
 {
 
@@ -143,6 +153,9 @@ const int BoardJson::getCapability(const Board::Capability capability) const
 
     case Board::Inputs:
       return m_inputs->size();
+
+    case Board::InputSwitches:
+      return m_inputCnt.switches;
 
     case Board::MultiposPots:
       // assumes every input has potential to be one
@@ -462,7 +475,7 @@ const bool BoardJson::isInputIgnored(int index) const
 // static
 bool BoardJson::isInputIgnored(const InputDefn & defn)
 {
-  return isInputFlexJoystickAxis(defn);
+  return (isInputFlexJoystickAxis(defn) || isInputSwitch(defn));
 }
 
 // static
@@ -543,6 +556,17 @@ bool BoardJson::isInputStick(const InputDefn & defn)
   return defn.type == Board::AIT_STICK;
 }
 
+const bool BoardJson::isInputSwitch(int index) const
+{
+  return isInputSwitch(m_inputs->at(index));
+}
+
+// static
+bool BoardJson::isInputSwitch(const InputDefn & defn)
+{
+  return defn.type == Board::AIT_SWITCH;
+}
+
 // static
 bool BoardJson::isInputVBat(const InputDefn & defn)
 {
@@ -614,7 +638,7 @@ bool BoardJson::loadDefinition()
   // json files do not normally specify stick labels so load legacy labels
   for (int i = 0; i < getCapability(Board::Sticks); i++) {
     if (m_inputs->at(i).name.empty())
-      m_inputs->at(i).name = setStickName(i);
+      m_inputs->at(i).name = DataHelpers::getStringTagMappingName(stickNamesLookupTable, m_inputs->at(i).tag.c_str());
   }
 
   qDebug() << "Board:" << Boards::getBoardName(m_board) <<
@@ -625,6 +649,7 @@ bool BoardJson::loadDefinition()
               "gyro axes:" << getCapability(Board::GyroAxes) <<
               "joystick axes:" << getCapability(Board::JoystickAxes) <<
               "flex inputs:" << getCapability(Board::FlexInputs) <<
+              "input switches:" << getCapability(Board::InputSwitches) <<
               "trims:" << getCapability(Board::NumTrims) <<
               "switches std:" << getCapability(Board::SwitchesStd) <<
               "switches flex:" << getCapability(Board::SwitchesFlex) <<
@@ -826,6 +851,8 @@ void BoardJson::setInputCounts(const InputsTable * inputs, InputCounts & inputCo
       inputCounts.rtcbat++;
     else if (isInputVBat(defn))
       inputCounts.vbat++;
+    else if (isInputSwitch(defn))
+      inputCounts.switches++;
   }
 }
 
@@ -840,11 +867,4 @@ void BoardJson::setSwitchCounts(const SwitchesTable * switches, SwitchCounts & s
     else if (isSwitchFunc(swtch))
       switchCounts.func++;
   }
-}
-
-// static
-std::string BoardJson::setStickName(int index)
-{
-  QStringList strl = { tr("Rud"), tr("Ele"), tr("Thr"), tr("Ail") };
-  return strl.value(index, CPN_STR_UNKNOWN_ITEM).toStdString();
 }
