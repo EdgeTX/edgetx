@@ -156,6 +156,8 @@ namespace Board {
     FactoryInstalledPots,
     FactoryInstalledSwitches,
     FlexInputs,
+    FlexSwitches,
+    FunctionSwitches,
     Gyros,
     GyroAxes,
     HasAudioMuteGPIO,
@@ -182,13 +184,10 @@ namespace Board {
     Pots,
     Sliders,
     SportMaxBaudRate,
+    StandardSwitches,
     Sticks,
     Switches,
-    SwitchesFlex,
-    SwitchesFunction,
-    FunctionSwitches,   // TODO legacy use SwitchesFunction
-    SwitchesStd,
-    SwitchPositions,
+    SwitchesPositions,
   };
 
   struct SwitchPosition {

@@ -136,8 +136,11 @@ const int BoardJson::getCapability(const Board::Capability capability) const
               m_inputCnt.flexSliders +
               m_inputCnt.flexSwitches);
 
-    case Board::FunctionSwitches:  // TODO legacy pre v2.10
-      return getCapability(Board::SwitchesFunction);
+    case Board::FlexSwitches:
+      return m_switchCnt.flex;
+
+    case Board::FunctionSwitches:
+      return m_switchCnt.func;
 
     case Board::GyroAxes:
       return m_inputCnt.flexGyroAxes;
@@ -181,6 +184,9 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::Sliders:
       return m_inputCnt.flexSliders;
 
+    case Board::StandardSwitches:
+      return m_switchCnt.std;
+
     case Board::Sticks:
       return m_inputCnt.sticks;
 
@@ -189,16 +195,7 @@ const int BoardJson::getCapability(const Board::Capability capability) const
               m_switchCnt.flex +
               m_switchCnt.func);
 
-    case Board::SwitchesStd:
-      return m_switchCnt.std;
-
-    case Board::SwitchesFunction:
-      return m_switchCnt.func;
-
-    case Board::SwitchesFlex:
-      return m_switchCnt.flex;
-
-    case Board::SwitchPositions:
+    case Board::SwitchesPositions:
       return getCapability(Board::Switches) * 3;
 
     default:
@@ -582,7 +579,7 @@ const bool BoardJson::isSwitchConfigurable(int index) const
 
     if (isSwitchFlex(defn)) {
       int sfx = getNumericSuffix(defn.tag);
-      if (sfx > 0 && sfx <= getCapability(Board::SwitchesFlex))
+      if (sfx > 0 && sfx <= getCapability(Board::FlexSwitches))
         return true;
     }
   }
@@ -651,9 +648,9 @@ bool BoardJson::loadDefinition()
               "flex inputs:" << getCapability(Board::FlexInputs) <<
               "input switches:" << getCapability(Board::InputSwitches) <<
               "trims:" << getCapability(Board::NumTrims) <<
-              "switches std:" << getCapability(Board::SwitchesStd) <<
-              "switches flex:" << getCapability(Board::SwitchesFlex) <<
-              "switches func:" << getCapability(Board::SwitchesFunction) <<
+              "std switches:" << getCapability(Board::StandardSwitches) <<
+              "flex switches:" << getCapability(Board::FlexSwitches) <<
+              "func switches:" << getCapability(Board::FunctionSwitches) <<
               "rtcbat:" << getCapability(Board::HasRTC) <<
               "vbat:" << getCapability(Board::HasVBat);
 

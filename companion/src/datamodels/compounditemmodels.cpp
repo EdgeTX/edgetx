@@ -176,11 +176,11 @@ RawSwitchItemModel::RawSwitchItemModel(const GeneralSettings * const generalSett
   addItems(SWITCH_TYPE_VIRTUAL,        -firmware->getCapability(LogicalSwitches));
   addItems(SWITCH_TYPE_TRIM,           -board->getCapability(Board::NumTrimSwitches));
   addItems(SWITCH_TYPE_MULTIPOS_POT,   -(board->getCapability(Board::MultiposPots) * board->getCapability(Board::MultiposPotsPositions)));
-  addItems(SWITCH_TYPE_SWITCH,         -board->getCapability(Board::SwitchPositions));
+  addItems(SWITCH_TYPE_SWITCH,         -board->getCapability(Board::SwitchesPositions));
 
   // Ascending switch direction (including zero)
   addItems(SWITCH_TYPE_NONE, 1);
-  addItems(SWITCH_TYPE_SWITCH,         board->getCapability(Board::SwitchPositions));
+  addItems(SWITCH_TYPE_SWITCH,         board->getCapability(Board::SwitchesPositions));
   addItems(SWITCH_TYPE_MULTIPOS_POT,   board->getCapability(Board::MultiposPots) * board->getCapability(Board::MultiposPotsPositions));
   addItems(SWITCH_TYPE_TRIM,           board->getCapability(Board::NumTrimSwitches));
   addItems(SWITCH_TYPE_VIRTUAL,        firmware->getCapability(LogicalSwitches));

@@ -170,7 +170,7 @@ bool GeneralSettings::unassignedInputFlexSwitches() const
     if (inputConfig[i].flexType == Board::FLEX_SWITCH)
       cnt++;
   }
-  return cnt < Boards::getCapability(board, Board::SwitchesFlex);
+  return cnt < Boards::getCapability(board, Board::FlexSwitches);
 }
 
 void GeneralSettings::clear()
@@ -453,7 +453,7 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
         strncpy(tocfg.name, fromcfg.name, sizeof(inputConfig[0].name));
         tocfg.type = fromcfg.type;
 
-        if (tocfg.type == Board::AIT_FLEX && !Boards::getCapability(cstate.toType, Board::SwitchesFlex) &&
+        if (tocfg.type == Board::AIT_FLEX && !Boards::getCapability(cstate.toType, Board::FlexSwitches) &&
             fromcfg.flexType == Board::FLEX_SWITCH) {
           cstate.withComponentField(Boards::getInputName(i, cstate.fromType));
           RadioDataConversionState::LogField oldFT(i, Boards::flexTypeToString(fromcfg.flexType));
@@ -498,7 +498,7 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
         tocfg.inverted = fromcfg.inverted;
 
         if (fromcfg.inputIdx != SWITCH_INPUTINDEX_NONE) {
-          if (!Boards::getCapability(cstate.toType, Board::SwitchesFlex) ||
+          if (!Boards::getCapability(cstate.toType, Board::FlexSwitches) ||
               Boards::getInputIndex(Boards::getInputTag(fromcfg.inputIdx, cstate.fromType), cstate.toType) < 0) {
             cstate.withComponentField(Boards::getSwitchName(i, cstate.fromType));
             RadioDataConversionState::LogField oldFT(i, Boards::getInputName(fromcfg.inputIdx, cstate.fromType));

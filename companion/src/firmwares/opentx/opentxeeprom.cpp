@@ -69,11 +69,11 @@ inline int MAX_SWITCHES_SOURCE(Board::Type board, int version)
 inline int MAX_SWITCHES_POSITION(Board::Type board, int version)
 {
     if (IS_JUMPER_TPRO(board))
-    return Boards::getCapability(board, Board::SwitchPositions);
+    return Boards::getCapability(board, Board::SwitchesPositions);
   else if (IS_HORUS_OR_TARANIS(board))
     return MAX_SWITCHES(board, version) * 3;
   else
-    return Boards::getCapability(board, Board::SwitchPositions);
+    return Boards::getCapability(board, Board::SwitchesPositions);
   }
 
 inline int MAX_FUNCTIONSWITCHES(Board::Type board, int version)

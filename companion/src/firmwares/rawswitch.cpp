@@ -165,7 +165,7 @@ bool RawSwitch::isAvailable(const ModelData * const model, const GeneralSettings
   Boards b(board);
   div_t sw;
 
-  if (type == SWITCH_TYPE_SWITCH && abs(index) > b.getCapability(Board::SwitchPositions))
+  if (type == SWITCH_TYPE_SWITCH && abs(index) > b.getCapability(Board::SwitchesPositions))
     return false;
 
   if (type == SWITCH_TYPE_TRIM && abs(index) > b.getCapability(Board::NumTrimSwitches))

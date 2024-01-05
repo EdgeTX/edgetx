@@ -145,7 +145,7 @@ YamlSwitchesFlex::YamlSwitchesFlex(const GeneralSettings::SwitchConfig* rhs)
 
 void YamlSwitchesFlex::copy(GeneralSettings::SwitchConfig* rhs) const
 {
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::SwitchesFlex); i++) {
+  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::FlexSwitches); i++) {
     int idx = Boards::getSwitchIndex(config[i].tag.c_str());
     rhs[idx].inputIdx = config[i].inputIndx;
   }
@@ -379,7 +379,7 @@ bool convert<YamlSwitchConfig>::decode(const Node& node, YamlSwitchConfig& rhs)
 Node convert<YamlSwitchesFlex>::encode(const YamlSwitchesFlex& rhs)
 {
   Node node;
-  const int maxcnt = Boards::getCapability(getCurrentBoard(), Board::SwitchesFlex);
+  const int maxcnt = Boards::getCapability(getCurrentBoard(), Board::FlexSwitches);
 
   for (int i = 0; i < maxcnt; i++) {
     if (!rhs.config[i].tag.empty())
@@ -393,7 +393,7 @@ bool convert<YamlSwitchesFlex>::decode(const Node& node, YamlSwitchesFlex& rhs)
 {
   if (!node.IsMap()) return false;
 
-  const int maxcnt = Boards::getCapability(getCurrentBoard(), Board::SwitchesFlex);
+  const int maxcnt = Boards::getCapability(getCurrentBoard(), Board::FlexSwitches);
 
   for (const auto& kv : node) {
     std::string tag;

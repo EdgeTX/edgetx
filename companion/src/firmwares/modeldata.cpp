@@ -404,7 +404,7 @@ bool ModelData::isFunctionSwitchPositionAvailable(int index) const
 
 bool ModelData::isFunctionSwitchSourceAllowed(int index) const
 {
-  if (index < 0 || index >= Boards::getCapability(getCurrentBoard(), Board::SwitchesFunction))
+  if (index < 0 || index >= Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches))
     return (int)getFuncSwitchConfig(index) != Board::SWITCH_NOT_AVAILABLE;
 
   return false;
