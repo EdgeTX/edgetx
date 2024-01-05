@@ -163,7 +163,6 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::MultiposPots:
       // assumes every input has potential to be one
       // index used for mapping 6 pos switches back to input
-      // TODO better way as this generates inputs x 6 switches most of which are hidden in switch lists
       return getCapability(Board::Inputs);
 
     case Board::MultiposPotsPositions:
