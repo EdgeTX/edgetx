@@ -287,6 +287,8 @@ QString ModelPrinter::printTrim(int flightModeIndex, int stickIndex)
 
   if (fm.trimMode[stickIndex] == -1) {
     return tr("OFF");
+  } else if (fm.trimMode[stickIndex] == CPN_MAX_FLIGHT_MODES * 2) {
+    return tr("3POS");
   }
   else {
     if (fm.trimRef[stickIndex] == flightModeIndex) {

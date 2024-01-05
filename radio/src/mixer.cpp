@@ -384,6 +384,13 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
 
   else if (i <= MIXSRC_LAST_TRIM) {
     i -= MIXSRC_FIRST_TRIM;
+    if (getRawTrimValue(mixerCurrentFlightMode, i).mode == TRIM_MODE_3POS) {
+      // Trim set as 3POS toggle switch in FM
+      uint8_t tidx = inputMappingConvertMode(i) * 2;
+      if (trimDown(tidx)) return -RESX;
+      else if (trimDown(tidx + 1)) return RESX;
+      return 0;
+    }
     auto trim_value = getTrimValue(mixerCurrentFlightMode, i);
     return calc1000toRESX((int16_t)8 * trim_value);
   }

@@ -283,8 +283,9 @@ void drawTrimMode(BitmapBuffer * dc, coord_t x, coord_t y, uint8_t phase, uint8_
 
   if (mode == TRIM_MODE_NONE) {
     dc->drawText(x, y, "--", att);
-  }
-  else {
+  } else if (mode == TRIM_MODE_3POS) {
+    dc->drawText(x, y, "3P", att);
+  } else {
     char s[2];
     s[0] = (mode % 2 == 0) ? ':' : '+';
     s[1] = '0'+p;

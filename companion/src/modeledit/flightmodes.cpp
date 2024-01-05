@@ -110,6 +110,7 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
     cb->setProperty("index", i);
     if (IS_HORUS_OR_TARANIS(board)) {
       cb->addItem(tr("Trim disabled"), -1);
+      cb->addItem(tr("3POS toggle switch"), TRIM_MODE_3POS);
     }
     for (int m = 0; m < fmCount; m++) {
       if (m == phaseIdx) {
@@ -435,10 +436,14 @@ void FlightModePanel::trimUpdate(unsigned int trim)
     trimsUse[trim]->setCurrentIndex(0);
     trimsValue[trim]->setEnabled(false);
     trimsSlider[trim]->setEnabled(false);
+  } else if (phase.trimMode[chn] == TRIM_MODE_3POS) {
+    trimsUse[trim]->setCurrentIndex(1);
+    trimsValue[trim]->setEnabled(false);
+    trimsSlider[trim]->setEnabled(false);
   }
   else {
     if (IS_HORUS_OR_TARANIS(board))
-      trimsUse[trim]->setCurrentIndex(1 + 2 * phase.trimRef[chn] + phase.trimMode[chn] - (phase.trimRef[chn] > phaseIdx ? 1 : 0));
+      trimsUse[trim]->setCurrentIndex(2 + 2 * phase.trimRef[chn] + phase.trimMode[chn] - (phase.trimRef[chn] > phaseIdx ? 1 : 0));
     else
       trimsUse[trim]->setCurrentIndex(phase.trimRef[chn]);
     if (phaseIdx == 0 || phase.trimRef[chn] == phaseIdx || (IS_HORUS_OR_TARANIS(board) && phase.trimMode[chn] != 0)) {
@@ -613,6 +618,10 @@ void FlightModePanel::phaseTrimUse_currentIndexChanged(int index)
     int data = comboBox->itemData(index).toInt();
     if (data < 0) {
       phase.trimMode[chn] = -1;
+      phase.trimRef[chn] = 0;
+      phase.trim[chn] = 0;
+    } else if (data == TRIM_MODE_3POS) {
+      phase.trimMode[chn] = TRIM_MODE_3POS;
       phase.trimRef[chn] = 0;
       phase.trim[chn] = 0;
     }
