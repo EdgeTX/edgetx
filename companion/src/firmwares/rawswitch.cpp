@@ -77,8 +77,10 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
         if (IS_HORUS_OR_TARANIS(board)) {
           qr = div(index - 1, 3);
           if (Boards::isSwitchFunc(qr.quot, board)) {
-            if (modelData)
-              swName = QString(modelData->functionSwitchNames[qr.quot]).trimmed();
+            if (modelData) {
+              int fsindex = Boards::getSwitchTagNum(qr.quot, board) - 1;
+              swName = QString(modelData->functionSwitchNames[fsindex]).trimmed();
+            }
           }
           else {
             if (generalSettings)
