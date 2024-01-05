@@ -37,14 +37,14 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
   };
 
   static const QString trimsSwitches[] = {
-    tr("RudTrim Left"), tr("RudTrim Right"),
-    tr("EleTrim Down"), tr("EleTrim Up"),
-    tr("ThrTrim Down"), tr("ThrTrim Up"),
-    tr("AilTrim Left"), tr("AilTrim Right"),
-    tr("Trim 5 Down"), tr("Trim 5 Up"),
-    tr("Trim 6 Down"), tr("Trim 6 Up"),
-    tr("Trim 7 Down"), tr("Trim 7 Up"),
-    tr("Trim 8 Down"), tr("Trim 8 Up")
+    tr("Rud-"), tr("Rud+"),
+    tr("Ele-"), tr("Ele+"),
+    tr("Thr-"), tr("Thr+"),
+    tr("Ail-"), tr("Ail+"),
+    tr("T5-"), tr("T5+"),
+    tr("T6-"), tr("T6+"),
+    tr("T7-"), tr("T7+"),
+    tr("T8-"), tr("T8+")
   };
 
   static const QString trimsSwitches2[] = {
@@ -110,7 +110,7 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
 
       case SWITCH_TYPE_TRIM:
         return (Boards::getCapability(board, Board::NumTrims) == 2 ?
-                CHECK_IN_ARRAY(trimsSwitches2, index-1) : CHECK_IN_ARRAY(trimsSwitches, index-1));
+                CHECK_IN_ARRAY(trimsSwitches2, index -1) : CHECK_IN_ARRAY(trimsSwitches, index - 1));
 
       case SWITCH_TYPE_ROTARY_ENCODER:
         return CHECK_IN_ARRAY(rotaryEncoders, index-1);
@@ -141,7 +141,7 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
 
       case SWITCH_TYPE_SENSOR:
         if (modelData)
-          return modelData->sensorData[index-1].nameToString(index-1);
+          return modelData->sensorData[index - 1].nameToString(index - 1);
         else
           return SensorData().nameToString(index-1);
 
