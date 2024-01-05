@@ -1204,7 +1204,7 @@
 #define TR_VOICE_ITALIANO               "Італійська"
 #define TR_VOICE_POLISH                 "Польська"
 #define TR_VOICE_PORTUGUES              "Португальська"
-#define TR_VOICE_RUSSIAN                "кцп"
+#define TR_VOICE_RUSSIAN                "Pосійський"
 #define TR_VOICE_SLOVAK                 "Словацька"
 #define TR_VOICE_SWEDISH                "Шведська"
 #define TR_VOICE_TAIWANESE              "Тайська"
