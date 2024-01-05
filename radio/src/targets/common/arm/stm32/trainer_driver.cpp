@@ -20,49 +20,21 @@
  */
 
 #include "stm32_pulse_driver.h"
+#include "stm32_serial_driver.h"
+
 #include "hal/trainer_driver.h"
+#include "hal/module_port.h"
+
 #include "hal.h"
 
 #include "opentx.h"
-
-#define __IS_TRAINER_TIMER_OUT_CHANNEL_SUPPORTED(ch)             \
-  (((ch) == LL_TIM_CHANNEL_CH1 || (ch) == LL_TIM_CHANNEL_CH2 ||  \
-    (ch) == LL_TIM_CHANNEL_CH3 || (ch) == LL_TIM_CHANNEL_CH4) && \
-   __STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(ch))
-
-#define __IS_TRAINER_TIMER_IN_CHANNEL_SUPPORTED(ch)            \
-  ((ch) == LL_TIM_CHANNEL_CH1 || (ch) == LL_TIM_CHANNEL_CH2 || \
-   (ch) == LL_TIM_CHANNEL_CH3 || (ch) == LL_TIM_CHANNEL_CH4)
-
-#if defined(TRAINER_GPIO)
-
-static_assert(__IS_TRAINER_TIMER_OUT_CHANNEL_SUPPORTED(TRAINER_OUT_TIMER_Channel),
-              "Unsupported trainer timer output channel");
-
-static_assert(__IS_TRAINER_TIMER_IN_CHANNEL_SUPPORTED(TRAINER_IN_TIMER_Channel),
-              "Unsupported trainer timer input channel");
-#else
-void init_trainer_ppm() {}
-void stop_trainer_ppm() {}
-void init_trainer_capture() {}
-void stop_trainer_capture() {}
-#endif
+#include "trainer.h"
 
 static void (*_trainer_timer_isr)();
 static const stm32_pulse_timer_t* _trainer_timer;
 
-void init_trainer()
+void trainer_init()
 {
-#if defined(TRAINER_DETECT_GPIO_PIN)
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-
-  pinInit.Pin = TRAINER_DETECT_GPIO_PIN;
-  pinInit.Mode = LL_GPIO_MODE_INPUT;
-  pinInit.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(TRAINER_DETECT_GPIO, &pinInit);
-#endif  
-
   _trainer_timer = nullptr;
   _trainer_timer_isr = nullptr;
 }
@@ -102,6 +74,37 @@ static inline bool trainer_check_isr_flag(const stm32_pulse_timer_t* tim)
   return false;
 }
 
+static inline void capture_pulse(uint16_t capture)
+{
+  static uint16_t lastCapt = 0;
+  static uint8_t channel = MAX_TRAINER_CHANNELS;
+
+  uint16_t val = (uint16_t)(capture - lastCapt) / 2;
+  lastCapt = capture;
+
+  if (val > 4000 && val < 19000) {
+    // blanking period in [4..19] milliseconds
+    channel = 0;
+    return;
+  }
+
+  if (channel >= MAX_TRAINER_CHANNELS) {
+    return;
+  }
+
+  if (val < 800 || val > 2200) {
+    // invalid pulse width
+    channel = MAX_TRAINER_CHANNELS;
+    return;
+  }
+  
+  trainerInput[channel++] =
+    // +-500 != 512, but close enough.
+    (int16_t)(val - 1500) * (g_eeGeneral.PPM_Multiplier + 10) / 10;
+
+  trainerResetTimer();
+}
+
 static void trainer_in_isr()
 {
   // proceed only if the channel flag was set
@@ -127,17 +130,17 @@ static void trainer_in_isr()
     return;
   }
 
-  captureTrainerPulses(capture);
+  capture_pulse(capture);
 }
 
-static void _stop_trainer(const stm32_pulse_timer_t* tim)
+void trainer_stop()
 {
-  stm32_pulse_deinit(tim);
+  stm32_pulse_deinit(_trainer_timer);
   _trainer_timer_isr = nullptr;
   _trainer_timer = nullptr;
 }
 
-static void _init_trainer_capture(const stm32_pulse_timer_t* tim)
+void trainer_init_capture(const stm32_pulse_timer_t* tim)
 {
   // set proper ISR handler first
   _trainer_timer = tim;
@@ -164,44 +167,27 @@ static void _init_trainer_capture(const stm32_pulse_timer_t* tim)
   LL_TIM_EnableCounter(tim->TIMx);
 }
 
-#if defined(TRAINER_GPIO)
-
-static const stm32_pulse_timer_t trainerOutputTimer = {
-  .GPIOx = TRAINER_GPIO,
-  .GPIO_Pin = TRAINER_OUT_GPIO_PIN,
-  .GPIO_Alternate = TRAINER_GPIO_AF,
-  .TIMx = TRAINER_TIMER,
-  .TIM_Freq = TRAINER_TIMER_FREQ,
-  .TIM_Channel = TRAINER_OUT_TIMER_Channel,
-  .TIM_IRQn = TRAINER_TIMER_IRQn,
-  .DMAx = nullptr,
-  .DMA_Stream = 0,
-  .DMA_Channel = 0,
-  .DMA_IRQn = (IRQn_Type)0,
-  .DMA_TC_CallbackPtr = nullptr,
-};
-
-static void trainerSendNextFrame()
+static void trainer_send_next_frame(const stm32_pulse_timer_t* tim)
 {
-  stm32_pulse_set_polarity(&trainerOutputTimer, GET_TRAINER_PPM_POLARITY());
-  stm32_pulse_set_cmp_val(&trainerOutputTimer, GET_TRAINER_PPM_DELAY() * 2);
+  stm32_pulse_set_polarity(tim, GET_TRAINER_PPM_POLARITY());
+  stm32_pulse_set_cmp_val(tim, GET_TRAINER_PPM_DELAY() * 2);
   
   // load the first period: next reload when CC compare event triggers
   trainerPulsesData.ppm.ptr = trainerPulsesData.ppm.pulses;
   TRAINER_TIMER->ARR = *(trainerPulsesData.ppm.ptr++);
 
-  switch (trainerOutputTimer.TIM_Channel) {
+  switch (tim->TIM_Channel) {
   case LL_TIM_CHANNEL_CH1:
-    LL_TIM_EnableIT_CC1(trainerOutputTimer.TIMx);
+    LL_TIM_EnableIT_CC1(tim->TIMx);
     break;
   case LL_TIM_CHANNEL_CH2:
-    LL_TIM_EnableIT_CC2(trainerOutputTimer.TIMx);
+    LL_TIM_EnableIT_CC2(tim->TIMx);
     break;
   case LL_TIM_CHANNEL_CH3:
-    LL_TIM_EnableIT_CC3(trainerOutputTimer.TIMx);
+    LL_TIM_EnableIT_CC3(tim->TIMx);
     break;
   case LL_TIM_CHANNEL_CH4:
-    LL_TIM_EnableIT_CC4(trainerOutputTimer.TIMx);
+    LL_TIM_EnableIT_CC4(tim->TIMx);
     break;
   }
 }
@@ -219,220 +205,29 @@ static void trainer_out_isr()
                          *(trainerPulsesData.ppm.ptr++));
   } else {
     setupPulsesPPMTrainer();
-    trainerSendNextFrame();
+    trainer_send_next_frame(_trainer_timer);
   }  
 }
 
-void init_trainer_ppm()
+void trainer_init_output(const stm32_pulse_timer_t* tim)
 {
   // set proper ISR handler first
-  _trainer_timer = &trainerOutputTimer;
+  _trainer_timer = tim;
   _trainer_timer_isr = trainer_out_isr;
 
-  stm32_pulse_init(&trainerOutputTimer, 0);
-  stm32_pulse_config_output(&trainerOutputTimer, GET_TRAINER_PPM_POLARITY(),
+  stm32_pulse_init(_trainer_timer, 0);
+  stm32_pulse_config_output(_trainer_timer, GET_TRAINER_PPM_POLARITY(),
                             LL_TIM_OCMODE_PWM1, GET_TRAINER_PPM_DELAY() * 2);
 
   setupPulsesPPMTrainer();
-  trainerSendNextFrame();
+  trainer_send_next_frame(_trainer_timer);
 
-  LL_TIM_EnableCounter(trainerOutputTimer.TIMx);
+  LL_TIM_EnableCounter(_trainer_timer->TIMx);
 }
 
-void stop_trainer_ppm()
+void trainer_timer_isr()
 {
-  _stop_trainer(&trainerOutputTimer);
-}
-
-static const stm32_pulse_timer_t trainerInputTimer = {
-  .GPIOx = TRAINER_GPIO,
-  .GPIO_Pin = TRAINER_IN_GPIO_PIN,
-  .GPIO_Alternate = TRAINER_GPIO_AF,
-  .TIMx = TRAINER_TIMER,
-  .TIM_Freq = TRAINER_TIMER_FREQ,
-  .TIM_Channel = TRAINER_IN_TIMER_Channel,
-  .TIM_IRQn = TRAINER_TIMER_IRQn,
-  .DMAx = nullptr,
-  .DMA_Stream = 0,
-  .DMA_Channel = 0,
-  .DMA_IRQn = (IRQn_Type)0,
-  .DMA_TC_CallbackPtr = nullptr,
-};
-
-void init_trainer_capture()
-{
-  _init_trainer_capture(&trainerInputTimer);
-}
-
-void stop_trainer_capture()
-{
-  _stop_trainer(&trainerInputTimer);
-}
-
-#endif // TRAINER_GPIO
-
-bool is_trainer_dsc_connected()
-{
-#if defined(TRAINER_DETECT_GPIO_PIN)
-  bool set = LL_GPIO_IsInputPinSet(TRAINER_DETECT_GPIO, TRAINER_DETECT_GPIO_PIN);
-#if defined(TRAINER_DETECT_INVERTED)
-  return !set;
-#else
-  return set;
-#endif
-#else // TRAINER_DETECT_GPIO_PIN
-  return true;
-#endif
-}
-
-#if defined(TRAINER_GPIO) || (defined(TRAINER_MODULE_CPPM) && \
-                              !defined(TRAINER_MODULE_CPPM_TIMER_IRQHandler))
-
-#if !defined(TRAINER_TIMER_IRQHandler)
-  #error "Missing TRAINER_TIMER_IRQHandler definition"
-#endif
-
-extern "C" void TRAINER_TIMER_IRQHandler()
-{
-  DEBUG_INTERRUPT(INT_TRAINER);
-
   if (_trainer_timer && _trainer_timer_isr)
     _trainer_timer_isr();
 }
-#endif
 
-#if defined(TRAINER_MODULE_CPPM)
-
-#include "hal/module_port.h"
-
-static_assert(__IS_TRAINER_TIMER_IN_CHANNEL_SUPPORTED(TRAINER_MODULE_CPPM_TIMER_Channel),
-              "Unsupported trainer timer input channel");
-
-static const stm32_pulse_timer_t trainerModuleTimer = {
-  .GPIOx = TRAINER_MODULE_CPPM_GPIO,
-  .GPIO_Pin = TRAINER_MODULE_CPPM_GPIO_PIN,
-  .GPIO_Alternate = TRAINER_MODULE_CPPM_GPIO_AF,
-  .TIMx = TRAINER_MODULE_CPPM_TIMER,
-  .TIM_Freq = TRAINER_MODULE_CPPM_FREQ,
-  .TIM_Channel = TRAINER_MODULE_CPPM_TIMER_Channel,
-  .TIM_IRQn = TRAINER_MODULE_CPPM_TIMER_IRQn,
-  .DMAx = nullptr,
-  .DMA_Stream = 0,
-  .DMA_Channel = 0,
-  .DMA_IRQn = (IRQn_Type)0,
-  .DMA_TC_CallbackPtr = nullptr,
-};
-
-void init_trainer_module_cppm()
-{
-  modulePortSetPower(EXTERNAL_MODULE,true);
-  _init_trainer_capture(&trainerModuleTimer);
-}
-
-void stop_trainer_module_cppm()
-{
-  _stop_trainer(&trainerModuleTimer);
-  modulePortSetPower(EXTERNAL_MODULE,false);
-}
-
-#if defined(TRAINER_MODULE_CPPM_TIMER_IRQHandler)
-extern "C" void TRAINER_MODULE_CPPM_TIMER_IRQHandler()
-{
-  DEBUG_INTERRUPT(INT_TRAINER);
-
-  if (_trainer_timer && _trainer_timer_isr)
-    _trainer_timer_isr();
-}
-#endif
-
-#endif // TRAINER_MODULE_CPPM
-
-#if defined(TRAINER_MODULE_SBUS)
-
-const etx_serial_init sbusTrainerParams = {
-    .baudrate = SBUS_BAUDRATE,
-    .encoding = ETX_Encoding_8E2,
-    .direction = ETX_Dir_RX,
-    .polarity = ETX_Pol_Normal,
-};
-
-// external module may have a full-duplex USART
-#if defined(EXTMODULE_USART) || defined(CONFIGURABLE_MODULE_PORT)
-
-#include "hal/module_port.h"
-
-static etx_module_state_t* sbus_trainer_mod_st = nullptr;
-
-void init_trainer_module_sbus()
-{
-  if (sbus_trainer_mod_st) return;
-  modulePortSetPower(EXTERNAL_MODULE,true);
-
-  sbus_trainer_mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_UART,
-                                             &sbusTrainerParams, false);
-}
-
-void stop_trainer_module_sbus()
-{
-  if (!sbus_trainer_mod_st) return;
-  modulePortDeInit(sbus_trainer_mod_st);
-  modulePortSetPower(EXTERNAL_MODULE,false);
-  sbus_trainer_mod_st = nullptr;
-}
-
-int trainerModuleSbusGetByte(uint8_t* data)
-{
-  if (!sbus_trainer_mod_st) return 0;
-
-  auto serial_driver = modulePortGetSerialDrv(sbus_trainer_mod_st->rx);
-  auto ctx = modulePortGetCtx(sbus_trainer_mod_st->rx);
-
-  if (ctx) {
-    return serial_driver->getByte(ctx, data);
-  }
-
-  return 0;
-}
-
-#elif defined(TRAINER_MODULE_SBUS_USART)
-#include "stm32_serial_driver.h"
-
-static const stm32_usart_t sbus_trainer_USART = {
-  .USARTx = TRAINER_MODULE_SBUS_USART,
-  .GPIOx = TRAINER_MODULE_SBUS_GPIO,
-  .GPIO_Pin = TRAINER_MODULE_SBUS_GPIO_PIN,
-  .IRQn = (IRQn_Type)-1,
-  .IRQ_Prio = 0,
-  .txDMA = nullptr,
-  .txDMA_Stream = 0,
-  .txDMA_Channel = 0,
-  .rxDMA = TRAINER_MODULE_SBUS_DMA,
-  .rxDMA_Stream = TRAINER_MODULE_SBUS_DMA_STREAM_LL,
-  .rxDMA_Channel = TRAINER_MODULE_SBUS_DMA_CHANNEL,
-};
-
-DEFINE_STM32_SERIAL_PORT(SbusTrainer, sbus_trainer_USART, 32, 0);
-
-static void* _sbus_trainer_ctx = nullptr;
-
-void init_trainer_module_sbus()
-{
-  _sbus_trainer_ctx = STM32SerialDriver.init(REF_STM32_SERIAL_PORT(SbusTrainer),
-                                             &sbusTrainerParams);
-}
-
-void stop_trainer_module_sbus()
-{
-  STM32SerialDriver.deinit(_sbus_trainer_ctx);
-  _sbus_trainer_ctx = nullptr;
-}
-
-int trainerModuleSbusGetByte(uint8_t* data)
-{
-  return STM32SerialDriver.getByte(_sbus_trainer_ctx, data);
-}
-
-#else
-  #error "No available SBUS trainer implementation"
-#endif
-#endif // TRAINER_MODULE_SBUS

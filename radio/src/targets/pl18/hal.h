@@ -653,7 +653,6 @@
 #define EXTMODULE_RX_INVERTED()            EXTMODULE_RX_INVERT_GPIO->BSRRL = EXTMODULE_RX_INVERT_GPIO_PIN
 
 // Trainer Port
-#define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOD)
 #define TRAINER_GPIO                    GPIOD
 
 #define TRAINER_IN_GPIO_PIN             LL_GPIO_PIN_12 // PD.12

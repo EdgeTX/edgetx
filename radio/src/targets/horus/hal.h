@@ -975,7 +975,6 @@
 #endif
 
 // Trainer Port
-#define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_DMA1)
 #define TRAINER_GPIO                    GPIOC
 
 #define TRAINER_IN_GPIO_PIN             LL_GPIO_PIN_6  // PC.06
@@ -997,7 +996,6 @@
 #define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // Trainer CPPM input on heartbeat pin
-#define TRAINER_MODULE_CPPM
 #define TRAINER_MODULE_CPPM_TIMER            TIM4
 #define TRAINER_MODULE_CPPM_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #define TRAINER_MODULE_CPPM_GPIO             INTMODULE_HEARTBEAT_GPIO

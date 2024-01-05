@@ -45,18 +45,15 @@ void extmoduleSendNextFramePxx1(void const*, unsigned short) {}
 void extmoduleSendNextFrameSoftSerial(void const*, unsigned short, bool) {}
 void extmoduleSendNextFramePpm(void*, unsigned short, unsigned short, bool) {}
 
-void init_trainer_ppm() {}
-void stop_trainer_ppm() {}
-void init_trainer_capture() {}
-void stop_trainer_capture() {}
+bool trainer_dsc_available() { return true; }
+void trainer_init_dsc_out() {}
+void trainer_init_dsc_in() {}
+void trainer_stop_dsc() {}
 
 bool is_trainer_dsc_connected() { return false; }
 
-void init_trainer_module_cppm() {}
-void stop_trainer_module_cppm() {}
-
-void init_trainer_module_sbus() {}
-void stop_trainer_module_sbus() {}
+void trainer_init_module_cppm() {}
+void trainer_stop_module_cppm() {}
 
 void init_intmodule_heartbeat() {}
 void stop_intmodule_heartbeat() {}
@@ -188,6 +185,15 @@ const etx_module_port_t _external_ports[] = {
     .drv = { .serial = &_fakeSerialDriver },
     .hw_def = nullptr,
   },
+#elif defined(TRAINER_MODULE_SBUS_USART)
+  // RX on HEARTBEAT
+  {
+    .port = ETX_MOD_PORT_UART,
+    .type = ETX_MOD_TYPE_SERIAL,
+    .dir_flags = ETX_MOD_DIR_RX,
+    .drv = { .serial = &_fakeSerialDriver },
+    .hw_def = nullptr,
+  },  
 #endif
   // Timer output on PPM
   {
@@ -205,6 +211,16 @@ const etx_module_port_t _external_ports[] = {
     .drv = { .serial = &_fakeSerialDriver },
     .hw_def = nullptr,
   },
+#if defined(TRAINER_MODULE_CPPM_TIMER)
+  // Timer input on HEARTBEAT
+  {
+    .port = ETX_MOD_PORT_TIMER,
+    .type = ETX_MOD_TYPE_TIMER,
+    .dir_flags = ETX_MOD_DIR_RX,
+    .drv = { .timer = nullptr },
+    .hw_def = nullptr,
+  },
+#endif
   // TX/RX half-duplex on S.PORT
   {
     .port = ETX_MOD_PORT_SPORT,

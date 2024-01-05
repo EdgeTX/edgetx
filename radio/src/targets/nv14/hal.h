@@ -515,7 +515,6 @@
 #define HEARTBEAT_GPIO_PIN              GPIO_Pin_12 // PD.12
 
 // Trainer Port
-#define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOD)
 #define TRAINER_GPIO                    GPIOD
 
 #define TRAINER_IN_GPIO_PIN             LL_GPIO_PIN_12 // PD.12
@@ -529,7 +528,6 @@
 #define TRAINER_TIMER_IRQHandler        TIM4_IRQHandler
 #define TRAINER_GPIO_AF                 LL_GPIO_AF_2
 #define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
-
 
 //BLUETOOTH
 #define BLUETOOTH_ON_RCC_AHB1Periph     RCC_AHB1Periph_GPIOI

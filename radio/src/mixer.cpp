@@ -167,7 +167,7 @@ void applyExpos(int16_t * anas, uint8_t mode, uint8_t ovwrIdx, int16_t ovwrValue
       continue;
     if (ed->flightModes & (1<<mixerCurrentFlightMode))
       continue;
-    if (ed->srcRaw >= MIXSRC_FIRST_TRAINER && ed->srcRaw <= MIXSRC_LAST_TRAINER && !is_trainer_connected())
+    if (ed->srcRaw >= MIXSRC_FIRST_TRAINER && ed->srcRaw <= MIXSRC_LAST_TRAINER && !isTrainerValid())
       continue;
     if (getSwitch(ed->swtch)) {
       int32_t v;
@@ -240,7 +240,7 @@ int16_t applyLimits(uint8_t channel, int32_t value)
   }
 #endif
 
-  if (isFunctionActive(FUNCTION_TRAINER_CHANNELS) && is_trainer_connected()) {
+  if (isFunctionActive(FUNCTION_TRAINER_CHANNELS) && isTrainerValid()) {
     return trainerInput[channel] * 2;
   }
 
@@ -546,7 +546,7 @@ void evalInputs(uint8_t mode)
 
       if (mode <= e_perout_mode_inactive_flight_mode &&
           isFunctionActive(FUNCTION_TRAINER_STICK1 + ch) &&
-          is_trainer_connected()) {
+          isTrainerValid()) {
         // trainer mode
         TrainerMix* td = &g_eeGeneral.trainer.mix[ch];
         if (td->mode) {
@@ -770,7 +770,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       if (mixLineActive) {
         // disable mixer using trainer channels if not connected
         if (md->srcRaw >= MIXSRC_FIRST_TRAINER &&
-            md->srcRaw <= MIXSRC_LAST_TRAINER && !is_trainer_connected()) {
+            md->srcRaw <= MIXSRC_LAST_TRAINER && !isTrainerValid()) {
           mixCondition = true;
           mixEnabled = 0;
         }

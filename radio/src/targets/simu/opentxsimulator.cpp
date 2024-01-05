@@ -242,7 +242,6 @@ void OpenTxSimulator::setTrim(unsigned int idx, int value)
 void OpenTxSimulator::setTrainerInput(unsigned int inputNumber, int16_t value)
 {
   static unsigned dim = DIM(trainerInput);
-  //setTrainerTimeout(100);
   if (inputNumber < dim)
     trainerInput[inputNumber] = qMin(qMax((int16_t)-512, value), (int16_t)512);
 }
@@ -412,7 +411,7 @@ void OpenTxSimulator::lcdFlushed()
 
 void OpenTxSimulator::setTrainerTimeout(uint16_t ms)
 {
-  trainerInputValidityTimer = ms;
+  trainerSetTimer(ms);
 }
 
 void OpenTxSimulator::sendTelemetry(const QByteArray data)

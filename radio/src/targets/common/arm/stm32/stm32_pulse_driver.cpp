@@ -20,6 +20,7 @@
  */
 
 #include "stm32_pulse_driver.h"
+#include "stm32_gpio_driver.h"
 #include "stm32_timer.h"
 #include "stm32_dma.h"
 
@@ -87,6 +88,7 @@ int stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
   pinInit.Pin = tim->GPIO_Pin;
   pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
   pinInit.Alternate = tim->GPIO_Alternate;
+  stm32_gpio_enable_clock(tim->GPIOx);
   LL_GPIO_Init(tim->GPIOx, &pinInit);
 
   LL_TIM_InitTypeDef timInit;

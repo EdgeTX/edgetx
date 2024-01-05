@@ -19,13 +19,36 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "hal/trainer_driver.h"
-#include "heartbeat_driver.h"
+
+#include "opentx.h"
+
+// Timer gets decremented in per10ms()
+#define TRAINER_IN_VALID_TIMEOUT 100 // 1s
 
 int16_t trainerInput[MAX_TRAINER_CHANNELS];
 uint8_t trainerInputValidityTimer;
 uint8_t currentTrainerMode = 0xff;
+
+void (*_on_change_cb)(uint8_t, uint8_t) = nullptr;
+
+// Active signal received
+bool isTrainerValid() { return trainerInputValidityTimer != 0; }
+
+void trainerResetTimer()
+{
+  trainerInputValidityTimer = TRAINER_IN_VALID_TIMEOUT;
+}
+
+void trainerDecTimer()
+{
+  if (trainerInputValidityTimer) trainerInputValidityTimer--;
+}
+
+void trainerSetTimer(uint16_t t)
+{
+  trainerInputValidityTimer = t;
+}
 
 enum {
   TRAINER_NOT_CONNECTED = 0,
@@ -67,46 +90,35 @@ void checkTrainerSignalWarning()
   }
 }
 
+static void trainer_init_module_sbus();
+static void trainer_stop_module_sbus();
+static int sbus_trainer_get_byte(uint8_t* data);
+
 void stopTrainer()
 {
   switch (currentTrainerMode) {
     case TRAINER_MODE_MASTER_TRAINER_JACK:
-      stop_trainer_capture();
-      break;
-
     case TRAINER_MODE_SLAVE:
-      stop_trainer_ppm();
+      trainer_stop_dsc();
       break;
 
-#if defined(SBUS_TRAINER)
     case TRAINER_MODE_MASTER_SERIAL:
       sbusSetGetByte(nullptr);
       break;
-#endif
 
-#if defined(TRAINER_MODULE_CPPM)
     case TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE:
-      stop_trainer_module_cppm();
+      trainer_stop_module_cppm();
       break;
-#endif
 
-#if defined(TRAINER_MODULE_SBUS)
     case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
       sbusSetGetByte(nullptr);
-      stop_trainer_module_sbus();
+      trainer_stop_module_sbus();
       break;
-#endif
   }
 
-#if defined(INTMODULE_HEARTBEAT_GPIO) && !defined(SIMU) && \
-    (defined(TRAINER_MODULE_CPPM) || defined(TRAINER_MODULE_SBUS))
-  if ((currentTrainerMode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE ||
-       currentTrainerMode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE)
-      && (isModulePXX2(INTERNAL_MODULE) || isModulePXX1(INTERNAL_MODULE))) {
-    init_intmodule_heartbeat();
+  if (_on_change_cb) {
+    _on_change_cb(currentTrainerMode, 0xFF);
   }
-#endif
-
   currentTrainerMode = 0xFF;
 }
 
@@ -119,43 +131,81 @@ void checkTrainerSettings()
       stopTrainer();
     }
 
-    currentTrainerMode = requiredTrainerMode;
-
     switch (requiredTrainerMode) {
       case TRAINER_MODE_MASTER_TRAINER_JACK:
-        init_trainer_capture();
+        trainer_init_dsc_in();
         break;
 
       case TRAINER_MODE_SLAVE:
-        init_trainer_ppm();
+        trainer_init_dsc_out();
         break;
 
-#if defined(SBUS_TRAINER)
       case TRAINER_MODE_MASTER_SERIAL:
         sbusSetGetByte(sbusAuxGetByte);
         break;
-#endif
 
-#if defined(TRAINER_MODULE_CPPM)
       case TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE:
-        init_trainer_module_cppm();
+        trainer_init_module_cppm();
         break;
-#endif
 
-#if defined(TRAINER_MODULE_SBUS)
       case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
-        init_trainer_module_sbus();
-        sbusSetGetByte(trainerModuleSbusGetByte);
+        trainer_init_module_sbus();
+        sbusSetGetByte(sbus_trainer_get_byte);
         break;
-#endif
     }
 
-#if defined(INTMODULE_HEARTBEAT_GPIO) && !defined(SIMU) && \
-    (defined(TRAINER_MODULE_CPPM) || defined(TRAINER_MODULE_SBUS))
-    if (requiredTrainerMode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE ||
-        requiredTrainerMode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
-      stop_intmodule_heartbeat();
+    if (_on_change_cb) {
+      _on_change_cb(currentTrainerMode, requiredTrainerMode);
     }
-#endif
+    currentTrainerMode = requiredTrainerMode;
   }
+}
+
+void trainerSetChangeCb(void (*changeCb)(uint8_t, uint8_t))
+{
+  _on_change_cb = changeCb;
+}
+
+
+static const etx_serial_init sbusTrainerParams = {
+    .baudrate = SBUS_BAUDRATE,
+    .encoding = ETX_Encoding_8E2,
+    .direction = ETX_Dir_RX,
+    .polarity = ETX_Pol_Normal,
+};
+
+static etx_module_state_t* sbus_trainer_mod_st = nullptr;
+
+static void trainer_init_module_sbus()
+{
+  if (sbus_trainer_mod_st) return;
+
+  sbus_trainer_mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_UART,
+                                             &sbusTrainerParams, false);
+
+  if (sbus_trainer_mod_st) {
+    modulePortSetPower(EXTERNAL_MODULE,true);
+  }
+}
+
+static void trainer_stop_module_sbus()
+{
+  if (!sbus_trainer_mod_st) return;
+  modulePortDeInit(sbus_trainer_mod_st);
+  modulePortSetPower(EXTERNAL_MODULE,false);
+  sbus_trainer_mod_st = nullptr;
+}
+
+static int sbus_trainer_get_byte(uint8_t* data)
+{
+  if (!sbus_trainer_mod_st) return 0;
+
+  auto serial_driver = modulePortGetSerialDrv(sbus_trainer_mod_st->rx);
+  auto ctx = modulePortGetCtx(sbus_trainer_mod_st->rx);
+
+  if (ctx) {
+    return serial_driver->getByte(ctx, data);
+  }
+
+  return 0;
 }

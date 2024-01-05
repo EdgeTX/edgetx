@@ -278,7 +278,6 @@ add_definitions(-g)
 add_definitions(-DCPUARM)
 add_definitions(-DGPS)
 add_definitions(-DBATTGRAPH -DTHRTRACE)
-add_definitions(-DSBUS_TRAINER)
 
 foreach(LANGUAGE ${TTS_LANGUAGES})
   string(TOLOWER ${LANGUAGE} lang_lower)

@@ -21,16 +21,21 @@
 
 #pragma once
 
-#include <stdint.h>
+#define __IS_TRAINER_TIMER_OUT_CHANNEL_SUPPORTED(ch)             \
+  (((ch) == LL_TIM_CHANNEL_CH1 || (ch) == LL_TIM_CHANNEL_CH2 ||  \
+    (ch) == LL_TIM_CHANNEL_CH3 || (ch) == LL_TIM_CHANNEL_CH4) && \
+   __STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(ch))
 
-struct HeartbeatCapture {
-  uint8_t valid;
-#if defined(DEBUG_LATENCY)
-  uint32_t count;
-#endif
-};
+#define __IS_TRAINER_TIMER_IN_CHANNEL_SUPPORTED(ch)            \
+  ((ch) == LL_TIM_CHANNEL_CH1 || (ch) == LL_TIM_CHANNEL_CH2 || \
+   (ch) == LL_TIM_CHANNEL_CH3 || (ch) == LL_TIM_CHANNEL_CH4)
 
-extern volatile HeartbeatCapture heartbeatCapture;
+struct stm32_pulse_timer_t;
 
-void init_intmodule_heartbeat();
-void stop_intmodule_heartbeat();
+void trainer_init();
+void trainer_init_capture(const stm32_pulse_timer_t* tim);
+void trainer_init_output(const stm32_pulse_timer_t* tim);
+void trainer_stop();
+
+// Call this from the timer's IRQ
+void trainer_timer_isr();

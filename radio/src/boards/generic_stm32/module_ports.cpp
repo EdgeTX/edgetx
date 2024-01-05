@@ -23,6 +23,7 @@
 #include "stm32_serial_driver.h"
 #include "stm32_softserial_driver.h"
 #include "stm32_dma.h"
+#include "trainer_driver.h"
 
 #include "module_ports.h"
 #include "board.h"
@@ -177,6 +178,24 @@ static const stm32_usart_t extmoduleUSART = {
 
 DEFINE_STM32_SERIAL_PORT(ExternalModule, extmoduleUSART, INTMODULE_FIFO_SIZE, 0);
 
+#elif defined(TRAINER_MODULE_SBUS_USART)
+
+static const stm32_usart_t sbus_trainer_USART = {
+  .USARTx = TRAINER_MODULE_SBUS_USART,
+  .GPIOx = TRAINER_MODULE_SBUS_GPIO,
+  .GPIO_Pin = TRAINER_MODULE_SBUS_GPIO_PIN,
+  .IRQn = (IRQn_Type)-1,
+  .IRQ_Prio = 0,
+  .txDMA = nullptr,
+  .txDMA_Stream = 0,
+  .txDMA_Channel = 0,
+  .rxDMA = TRAINER_MODULE_SBUS_DMA,
+  .rxDMA_Stream = TRAINER_MODULE_SBUS_DMA_STREAM_LL,
+  .rxDMA_Channel = TRAINER_MODULE_SBUS_DMA_CHANNEL,
+};
+
+DEFINE_STM32_SERIAL_PORT(SbusTrainer, sbus_trainer_USART, 32, 0);
+
 #endif
 
 static stm32_pulse_dma_tc_cb_t _ext_timer_DMA_TC_Callback;
@@ -223,7 +242,30 @@ extern "C" void EXTMODULE_TIMER_IRQHandler()
 }
 
 DEFINE_STM32_SOFTSERIAL_PORT(ExternalModule, extmoduleTimer);
-#endif
+
+#if defined(TRAINER_MODULE_CPPM_TIMER)
+
+static_assert(__IS_TRAINER_TIMER_IN_CHANNEL_SUPPORTED(TRAINER_MODULE_CPPM_TIMER_Channel),
+              "Unsupported trainer timer input channel");
+
+static const stm32_pulse_timer_t trainerModuleTimer = {
+  .GPIOx = TRAINER_MODULE_CPPM_GPIO,
+  .GPIO_Pin = TRAINER_MODULE_CPPM_GPIO_PIN,
+  .GPIO_Alternate = TRAINER_MODULE_CPPM_GPIO_AF,
+  .TIMx = TRAINER_MODULE_CPPM_TIMER,
+  .TIM_Freq = TRAINER_MODULE_CPPM_FREQ,
+  .TIM_Channel = TRAINER_MODULE_CPPM_TIMER_Channel,
+  .TIM_IRQn = TRAINER_MODULE_CPPM_TIMER_IRQn,
+  .DMAx = nullptr,
+  .DMA_Stream = 0,
+  .DMA_Channel = 0,
+  .DMA_IRQn = (IRQn_Type)0,
+  .DMA_TC_CallbackPtr = nullptr,
+};
+
+#endif // TRAINER_MODULE_CPPM_TIMER
+
+#endif // HARDWARE_EXTERNAL_MODULE
 
 #define TELEMETRY_USART_IRQ_PRIORITY 0
 #define TELEMETRY_DMA_IRQ_PRIORITY   0
@@ -456,6 +498,28 @@ static const etx_module_port_t _external_ports[] = {
     .set_inverted = nullptr,
 #endif
   },
+#if !defined(EXTMODULE_USART) && defined(TRAINER_MODULE_SBUS_USART)
+  // RX on HEARTBEAT
+  {
+    .port = ETX_MOD_PORT_UART,
+    .type = ETX_MOD_TYPE_SERIAL,
+    .dir_flags = ETX_MOD_DIR_RX,
+    .drv = { .serial = &STM32SerialDriver },
+    .hw_def = REF_STM32_SERIAL_PORT(SbusTrainer),
+    .set_inverted = nullptr,
+  },
+#endif
+#if defined(TRAINER_MODULE_CPPM_TIMER)
+  // Timer input on HEARTBEAT
+  {
+    .port = ETX_MOD_PORT_TIMER,
+    .type = ETX_MOD_TYPE_TIMER,
+    .dir_flags = ETX_MOD_DIR_RX,
+    .drv = { .timer = nullptr },
+    .hw_def = (void*)&trainerModuleTimer,
+    .set_inverted = nullptr,
+  },
+#endif
   // TX/RX half-duplex on S.PORT
   {
     .port = ETX_MOD_PORT_SPORT,

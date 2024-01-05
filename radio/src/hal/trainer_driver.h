@@ -22,33 +22,23 @@
 #pragma once
 
 // Startup init
-void init_trainer();
+void board_trainer_init();
 
+// DSC port available?
+bool trainer_dsc_available();
+    
 // Output mode
-void init_trainer_ppm();
-void stop_trainer_ppm();
+void trainer_init_dsc_out();
 
 // Input mode
-void init_trainer_capture();
-void stop_trainer_capture();
+void trainer_init_dsc_in();
+
+// Stop input/output
+void trainer_stop_dsc();
 
 // Cable inserted?
 bool is_trainer_dsc_connected();
 
-// Active signal received
-extern uint8_t trainerInputValidityTimer;
-inline bool is_trainer_connected()
-{
-  return (trainerInputValidityTimer != 0);
-}
-
-#if defined(TRAINER_MODULE_CPPM)
-void init_trainer_module_cppm();
-void stop_trainer_module_cppm();
-#endif
-
-#if defined(TRAINER_MODULE_SBUS)
-void init_trainer_module_sbus();
-void stop_trainer_module_sbus();
-int trainerModuleSbusGetByte(uint8_t* byte);
-#endif
+// Start/stop CPPM from module bay
+void trainer_init_module_cppm();
+void trainer_stop_module_cppm();

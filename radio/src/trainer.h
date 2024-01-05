@@ -27,48 +27,21 @@
 // Trainer input channels
 extern int16_t trainerInput[MAX_TRAINER_CHANNELS];
 
-// Timer gets decremented in per10ms()
-#define TRAINER_IN_VALID_TIMEOUT 100 // 1s
-extern uint8_t trainerInputValidityTimer;
-
 extern uint8_t currentTrainerMode;
 
-void checkTrainerSignalWarning();
-void checkTrainerSettings();
-void stopTrainer();
-void forceResetTrainerSettings();
 bool isTrainerConnected();
+void checkTrainerSignalWarning();
 
-// Needs to be inlined to avoid slow function calls in ISR routines
-inline void captureTrainerPulses(uint16_t capture)
-{
-  static uint16_t lastCapt = 0;
-  static int8_t channelNumber = -1;
+bool isTrainerValid();
+void trainerResetTimer();
+void trainerDecTimer();
+void trainerSetTimer(uint16_t t);
 
-  uint16_t val = (uint16_t)(capture - lastCapt) / 2;
-  lastCapt = capture;
+void checkTrainerSettings();
+void forceResetTrainerSettings();
+void stopTrainer();
 
-  // We process trainerInput right here to make servo movement as smooth as possible
-  //    while under trainee control
-  //
-  // G: Prioritize reset pulse. (Needed when less than 16 incoming pulses)
-  //
-  if (val > 4000 && val < 19000) {
-    channelNumber = 0; // triggered
-  }
-  else {
-    if (channelNumber >= 0 && channelNumber < MAX_TRAINER_CHANNELS) {
-      if (val > 800 && val < 2200) {
-        trainerInputValidityTimer = TRAINER_IN_VALID_TIMEOUT;
-        trainerInput[channelNumber++] =
-          // +-500 != 512, but close enough.
-          (int16_t)(val - 1500) * (g_eeGeneral.PPM_Multiplier+10) / 10;
-      }
-      else {
-        channelNumber = -1; // not triggered
-      }
-    }
-  }
-}
+// Allows notifications on trainer setting change (old_mode, new_mode)
+void trainerSetChangeCb(void (*changeCb)(uint8_t, uint8_t));
 
 #endif // _TRAINER_H_

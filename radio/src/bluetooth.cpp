@@ -23,6 +23,7 @@
 #include "opentx.h"
 #include "io/frsky_firmware_update.h"
 #include "bluetooth_driver.h"
+#include "trainer.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -145,7 +146,7 @@ void Bluetooth::processTrainerFrame(const uint8_t * buffer)
     trainerInput[channel+1] = ((buffer[i+1] & 0x0f) << 4) + ((buffer[i+2] & 0xf0) >> 4) + ((buffer[i+2] & 0x0f) << 8) - 1500;
   }
 
-  trainerInputValidityTimer = TRAINER_IN_VALID_TIMEOUT;
+  trainerResetTimer();
 }
 
 void Bluetooth::appendTrainerByte(uint8_t data)

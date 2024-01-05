@@ -29,6 +29,7 @@
 #include "hitec.h"
 #include "hott.h"
 #include "mlink.h"
+#include "trainer.h"
 
 constexpr int32_t MULTI_DESIRED_VERSION = (1 << 24) | (3 << 16) | (3 << 8)  | 0;
 #define MULTI_CHAN_BITS 11
@@ -306,8 +307,7 @@ static void processMultiRxChannels(const uint8_t * data, uint8_t len)
       break;
   }
 
-  if (ch == maxCh)
-    trainerInputValidityTimer = TRAINER_IN_VALID_TIMEOUT;
+  if (ch == maxCh) { trainerResetTimer(); }
 }
 #endif
 

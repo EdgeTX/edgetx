@@ -22,6 +22,7 @@
 #include "gtests.h"
 #include "hal/module_driver.h"
 #include "hal/module_port.h"
+#include "hal/serial_driver.h"
 #include "pulses/modules_constants.h"
 #include "pulses/pulses.h"
 #include "translations.h"
@@ -38,7 +39,8 @@ TEST(ports, softserialFallback)
   };
 
   bool has_softserial = modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
-				       ETX_MOD_PORT_SPORT_INV, ETX_Pol_Inverted);
+                                       ETX_MOD_PORT_SPORT_INV, ETX_Pol_Inverted,
+                                       ETX_Dir_RX);
   if (has_softserial) {
     auto mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT,
                                        &serialCfg, false);

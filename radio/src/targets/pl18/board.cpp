@@ -78,7 +78,6 @@ void delay_self(int count)
                               )
 #define RCC_AHB1PeriphOther   (AUDIO_RCC_AHB1Periph |\
                                TELEMETRY_RCC_AHB1Periph |\
-                               TRAINER_RCC_AHB1Periph |\
                                HAPTIC_RCC_AHB1Periph |\
                                INTMODULE_RCC_AHB1Periph |\
                                EXTMODULE_RCC_AHB1Periph \
@@ -127,7 +126,7 @@ void boardInit()
   pwrInit();
   boardInitModulePorts();
 
-  init_trainer();
+  board_trainer_init();
   battery_charge_init();
   flysky_gimbal_init();
   timersInit();

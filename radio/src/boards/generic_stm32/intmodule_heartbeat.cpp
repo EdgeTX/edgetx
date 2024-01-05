@@ -24,7 +24,12 @@
 #include "heartbeat_driver.h"
 #include "mixer_scheduler.h"
 #include "dataconstants.h"
+
 #include "pulses/pxx.h"
+#include "trainer.h"
+
+#include "opentx.h"
+#include "pulses/pulses.h"
 
 #if defined(PXX1)
   #include "pulses/pxx1.h"
@@ -40,9 +45,21 @@
   #define isPxx2Driver(drv) (false)
 #endif
 
+static bool _trainer_mode_uses_ext_module(uint8_t mode)
+{
+  return mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE ||
+    mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE;
+}
+
 void _intmodule_heartbeat_init(uint8_t module, const etx_proto_driver_t* drv)
 {
   if (module == INTERNAL_MODULE && (isPxx1Driver(drv) || isPxx2Driver(drv))) {
+
+    // heartbeat cannot be used if the trainer is using the module bay
+    if (_trainer_mode_uses_ext_module(currentTrainerMode)) {
+      return;
+    }
+
     init_intmodule_heartbeat();
     if (isPxx1Driver(drv)) {
       // XJT / iXJT
@@ -59,5 +76,23 @@ void _intmodule_heartbeat_deinit(uint8_t module, const etx_proto_driver_t* drv)
 {
   if (module == INTERNAL_MODULE) {
     stop_intmodule_heartbeat();
+  }
+}
+
+void _intmodule_heartbeat_trainer_hook(uint8_t old_mode, uint8_t new_mode)
+{
+  bool restart_int_module = false;
+  
+  if (_trainer_mode_uses_ext_module(new_mode)) {
+    restart_int_module = true;
+  } else if (_trainer_mode_uses_ext_module(old_mode)) {
+    restart_int_module = true;
+  }
+
+  if (restart_int_module) {
+    auto pdrv = pulsesGetModuleDriver(INTERNAL_MODULE);
+    if (pdrv && (isPxx2Driver(pdrv->drv) || isPxx1Driver(pdrv->drv))) {
+      restartModule(INTERNAL_MODULE);
+    }
   }
 }
