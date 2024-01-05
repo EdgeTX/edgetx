@@ -386,7 +386,7 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
     i -= MIXSRC_FIRST_TRIM;
     if (getRawTrimValue(mixerCurrentFlightMode, i).mode == TRIM_MODE_3POS) {
       // Trim set as 3POS toggle switch in FM
-      uint8_t tidx = i * 2;
+      uint8_t tidx = inputMappingConvertMode(i) * 2;
       if (trimDown(tidx)) return -RESX;
       else if (trimDown(tidx + 1)) return RESX;
       return 0;
