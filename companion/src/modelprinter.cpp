@@ -507,20 +507,25 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
 {
   QString result = "";
   const LogicalSwitchData & ls = model.logicalSw[idx];
-  const QString sw1Name = RawSwitch(ls.val1).toString(getCurrentBoard(), &generalSettings);
-  const QString sw2Name = RawSwitch(ls.val2).toString(getCurrentBoard(), &generalSettings);
 
   if (ls.isEmpty())
     return result;
+
+  QString sw1Name;
+  QString sw2Name;
 
   if (ls.andsw!=0) {
     result +="( ";
   }
   switch (ls.getFunctionFamily()) {
     case LS_FAMILY_EDGE:
-      result += tr("Edge") + QString("(%1, [%2:%3])").arg(sw1Name).arg(ValToTim(ls.val2)).arg(ls.val3<0 ? tr("instant") : QString("%1").arg(ValToTim(ls.val2+ls.val3)));
+      sw1Name = RawSwitch(ls.val1).toString(getCurrentBoard(), &generalSettings);
+      result += tr("Edge") + QString("(%1, [%2:%3])").arg(sw1Name).arg(ValToTim(ls.val2)).arg(ls.val3 < 0 ?
+                tr("instant") : (ls.val3 == 0 ? tr("infinite") : QString("%1").arg(ValToTim(ls.val2 + ls.val3))));
       break;
     case LS_FAMILY_STICKY:
+      sw1Name = RawSwitch(ls.val1).toString(getCurrentBoard(), &generalSettings);
+      sw2Name = RawSwitch(ls.val2).toString(getCurrentBoard(), &generalSettings);
       result += tr("Sticky") + QString("(%1, %2)").arg(sw1Name).arg(sw2Name);
       break;
     case LS_FAMILY_TIMER:
@@ -553,9 +558,12 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
       else
         result += tr(" missing");
       result += QString::number(range.step * (ls.val2 /*TODO+ source.getRawOffset(model)*/) + range.offset);
+      result += range.unit;
       break;
     }
     case LS_FAMILY_VBOOL:
+      sw1Name = RawSwitch(ls.val1).toString(getCurrentBoard(), &generalSettings);
+      sw2Name = RawSwitch(ls.val2).toString(getCurrentBoard(), &generalSettings);
       result += sw1Name;
       switch (ls.func) {
         case LS_FN_AND:
@@ -603,8 +611,12 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
           result += " foo ";
           break;
       }
-      if (ls.val2)
-        result += RawSource(ls.val2).toString(&model, &generalSettings);
+      if (ls.val2) {
+        RawSource source = RawSource(ls.val2);
+        RawSourceRange range = source.getRange(&model, generalSettings);
+        result += source.toString(&model, &generalSettings);
+        result += range.unit;
+      }
       else
         result += "0";
       break;
@@ -741,7 +753,7 @@ QString ModelPrinter::printSwitchWarnings()
   uint64_t switchStates = model.switchWarningStates;
   uint64_t value;
 
-  for (int i = 0; i < Boards::getCapability(board, Board::Switches) + Boards::getCapability(board, Board::FunctionSwitches); i++) {
+  for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
     Board::SwitchInfo switchInfo = Boards::getSwitchInfo(i);
     if (switchInfo.type == Board::SWITCH_NOT_AVAILABLE || switchInfo.type == Board::SWITCH_TOGGLE) {
       continue;
