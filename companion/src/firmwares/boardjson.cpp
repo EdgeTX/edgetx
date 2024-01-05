@@ -56,8 +56,8 @@ static const StringTagMappingTable switchTypesLookupTable = {
 static const StringTagMappingTable stickNamesLookupTable = {
     {QCoreApplication::translate("BoardJson", "Rud").toStdString(), "LH"},  // air
     {QCoreApplication::translate("BoardJson", "Ele").toStdString(), "LV"},  // air
-    {QCoreApplication::translate("BoardJson", "Thr").toStdString(), "RH"},  // air
-    {QCoreApplication::translate("BoardJson", "Ail").toStdString(), "RV"},  // air
+    {QCoreApplication::translate("BoardJson", "Thr").toStdString(), "RV"},  // air
+    {QCoreApplication::translate("BoardJson", "Ail").toStdString(), "RH"},  // air
     {QCoreApplication::translate("BoardJson", "ST").toStdString(),  "ST"},  // surface
     {QCoreApplication::translate("BoardJson", "TH").toStdString(),  "TH"},  // surface
 };
