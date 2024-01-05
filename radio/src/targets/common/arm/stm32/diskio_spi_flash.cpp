@@ -75,7 +75,7 @@ static const FrFTLOps _frftl_cb = {
   .flashErase = flashErase,
   .isFlashErased = isFlashErased,
 };
-#endif
+#endif  // USE_FLASH_FTL
 
 static DSTATUS spi_flash_initialize(BYTE lun)
 {
@@ -186,6 +186,17 @@ static DRESULT spi_flash_ioctl(BYTE lun, BYTE ctrl, void *buff)
   }
 
   return res;
+}
+
+void spiFlashDiskEraseAll()
+{
+#if defined(USE_FLASH_FTL)
+  if (frftlInitDone) {
+    ftlDeInit(&_frftl);
+    frftlInitDone = false;
+  }
+#endif
+  flashSpiEraseAll();
 }
 
 const diskio_driver_t spi_flash_diskio_driver = {

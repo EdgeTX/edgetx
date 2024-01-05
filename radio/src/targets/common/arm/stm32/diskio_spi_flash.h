@@ -23,4 +23,6 @@
 
 #include "hal/fatfs_diskio.h"
 
+void spiFlashDiskEraseAll();
+
 extern const diskio_driver_t spi_flash_diskio_driver;
