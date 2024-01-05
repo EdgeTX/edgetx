@@ -1628,11 +1628,13 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
 
   // Startup switches warnings
   for (int i = 0; i < Boards::getBoardCapability(board, Board::Switches); i++) {
-    Board::SwitchInfo switchInfo = Boards::getSwitchInfo(i);
-    if (switchInfo.type == Board::SWITCH_NOT_AVAILABLE || switchInfo.type == Board::SWITCH_TOGGLE) {
+    GeneralSettings::SwitchConfig &swcfg = generalSettings.switchConfig[i];
+
+    if (Boards::isSwitchFunc(i, board) || !generalSettings.isSwitchAvailable(i) || swcfg.type == Board::SWITCH_TOGGLE) {
       model.switchWarningEnable |= (1 << i);
       continue;
     }
+
     RawSource src(RawSourceType::SOURCE_TYPE_SWITCH, i);
     QLabel * label = new QLabel(this);
     QSlider * slider = new QSlider(this);
@@ -1649,7 +1651,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     slider->setPageStep(1);
     slider->setTickInterval(1);
     label->setText(src.toString(&model, &generalSettings));
-    slider->setMaximum(switchInfo.type == Board::SWITCH_3POS ? 2 : 1);
+    slider->setMaximum(swcfg.type == Board::SWITCH_3POS ? 2 : 1);
     cb->setProperty("index", i);
     ui->switchesStartupLayout->addWidget(label, 0, i + 1);
     ui->switchesStartupLayout->setAlignment(label, Qt::AlignCenter);
