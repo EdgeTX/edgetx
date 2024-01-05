@@ -188,8 +188,10 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
 
     case SOURCE_TYPE_SWITCH:
       if (Boards::isSwitchFunc(index, board)) {
-        if (model)
-          result = QString(model->functionSwitchNames[index]).trimmed();
+        if (model) {
+          int fsindex = Boards::getSwitchTagNum(index, board) - 1;
+          result = QString(model->functionSwitchNames[fsindex]).trimmed();
+        }
       }
       else {
         if (generalSettings)
