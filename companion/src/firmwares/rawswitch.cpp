@@ -96,9 +96,9 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
 
       case SWITCH_TYPE_VIRTUAL:
         if (modelData)
-          return modelData->logicalSw[index].nameToString(index-1);
+          return modelData->logicalSw[index].nameToString(index - 1);
         else
-          return LogicalSwitchData().nameToString(index-1);
+          return LogicalSwitchData().nameToString(index - 1);
 
       case SWITCH_TYPE_MULTIPOS_POT:
         if (!Boards::getCapability(board, Board::MultiposPotsPositions))
@@ -112,10 +112,10 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
 
       case SWITCH_TYPE_TRIM:
         return (Boards::getCapability(board, Board::NumTrims) == 2 ?
-                CHECK_IN_ARRAY(trimsSwitches2, index -1) : CHECK_IN_ARRAY(trimsSwitches, index - 1));
+                CHECK_IN_ARRAY(trimsSwitches2, index - 1) : CHECK_IN_ARRAY(trimsSwitches, index - 1));
 
       case SWITCH_TYPE_ROTARY_ENCODER:
-        return CHECK_IN_ARRAY(rotaryEncoders, index-1);
+        return CHECK_IN_ARRAY(rotaryEncoders, index - 1);
 
       case SWITCH_TYPE_ON:
         return tr("ON");
@@ -131,7 +131,7 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
 
       case SWITCH_TYPE_FLIGHT_MODE:
         if (modelData)
-          return modelData->flightModeData[index-1].nameToString(index - 1);
+          return modelData->flightModeData[index - 1].nameToString(index - 1);
         else
           return FlightModeData().nameToString(index - 1);
 
@@ -145,7 +145,7 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
         if (modelData)
           return modelData->sensorData[index - 1].nameToString(index - 1);
         else
-          return SensorData().nameToString(index-1);
+          return SensorData().nameToString(index - 1);
 
       case SWITCH_TYPE_TELEMETRY:
         return tr("Telemetry");
