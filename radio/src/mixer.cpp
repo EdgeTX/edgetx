@@ -602,7 +602,7 @@ int getStickTrimValue(int stick, int stickValue)
     if (g_model.thrTrim) {
 #if defined(SURFACE_RADIO)
       // Throttle Idle trim (g_model.thrTrim) should affect only forward stick (0 to 1024)
-      // Return no trim for reverse side when throttle trim is enabled
+      // Return no trim for reverse side when throttle idle trim is enabled
       if (stickValue < 0) return 0;
 #endif
       trim = (g_model.extendedTrims) ? IDLE_TRIM_SCALE * TRIM_EXTENDED_MAX + trim
