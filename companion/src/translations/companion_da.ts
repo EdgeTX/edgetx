@@ -6016,7 +6016,7 @@ Tilstand 4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2512"/>
         <source>us</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1100"/>
@@ -6026,7 +6026,7 @@ Tilstand 4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="730"/>
         <source>Stick reverse</source>
-        <translation>Inverterad spak</translation>
+        <translation>Inverteret pind</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="941"/>
@@ -7969,7 +7969,7 @@ Vil du fortsætte?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="1342"/>
         <source>&lt;html&gt;&lt;p&gt;%1 and Simulator settings can be imported (restored) from a previosly saved export (backup) file. This will replace current settings with any settings found in the file.&lt;/p&gt;&lt;p&gt;An automatic backup of the current settings will be attempted. But if the current settings are useful then it is recommended that you make a manual backup first.&lt;/p&gt;&lt;p&gt;For best results when importing settings, &lt;b&gt;close any other %1 windows you may have open, and make sure the standalone Simulator application is not running.&lt;/p&gt;&lt;p&gt;Do you wish to continue?&lt;/p&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;p&gt;%1 og simulatorindsillingerne kan importeras (genskabes) fra en tidigare gemt eksportfil (sikkerhedskopi). Dette erstatter nuværende indstillinger med dem som findes i filen.&lt;/p&gt;&lt;p&gt;Et forsøg for sikkerhedskopiering af aktuelle indstillinger udføres straks, men det anbafales at du først tager en manuel sikkerhedskopi, særligt hvis din model er godt konfigureret.&lt;/p&gt;&lt;p&gt;Skal du importere indstillinger, fås det bedste resultat ved imprott af indstillinger, &lt;b&gt;luk alle %1 åbne vinduer - særligt simulator inden import.&lt;/p&gt;&lt;p&gt;Vil du fortsætte?&lt;/p&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;p&gt;%1 og simulatorindsillingerne kan importeres (genskabes) fra en tidigere gemt eksportfil (sikkerhedskopi). Dette erstatter nuværende indstillinger med dem som importeres.&lt;/p&gt;&lt;p&gt;Det forsøges at tage en sikkerhedskopiering af aktuelle indstillinger inden import, men det anbafales at du selv først tager en manuel sikkerhedskopi, særligt hvis din model er godt konfigureret/god at gemme.&lt;/p&gt;&lt;p&gt;Skal du importere indstillinger, gives det bedste resultat ved ved import at du &lt;b&gt;lukker alle %1 vinduer - især simulator - inden import.&lt;/p&gt;&lt;p&gt;Vil du fortsætte?&lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1350"/>
