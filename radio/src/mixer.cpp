@@ -598,6 +598,11 @@ int getStickTrimValue(int stick, int stickValue)
   int trim = trims[stick];
   uint8_t thrTrimSw = g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM;
   if (stick == thrTrimSw) {
+#if defined(SURFACE_RADIO
+    // divide throtle trim by two since since the full extend
+    // of forward/reverse chan is only 1024 instead of 2048
+    trim >>= 1;
+#endif
     if (g_model.throttleReversed) trim = -trim;
     if (g_model.thrTrim) {
 #if defined(SURFACE_RADIO)
