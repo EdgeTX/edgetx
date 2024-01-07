@@ -704,6 +704,7 @@ int32_t convertTelemetryValue(int32_t value, uint8_t unit, uint8_t prec, uint8_t
 int32_t TelemetrySensor::getValue(int32_t value, uint8_t unit, uint8_t prec) const
 {
   if (type == TELEM_TYPE_CUSTOM && custom.ratio) {
+    /*  farzu:  Not needed, scaling work properly for the 3 types of prec without it  
     if (this->prec == 2) {
       value *= 10;
       prec = 2;
@@ -711,7 +712,9 @@ int32_t TelemetrySensor::getValue(int32_t value, uint8_t unit, uint8_t prec) con
     else {
       prec = 1;
     }
-    value = (custom.ratio * value + 122) / 255;
+    */
+    
+    value = (custom.ratio * value + 122) / 255;  //  122/255 (0.48) is to aproximate up (ceiling) 
   }
 
   value = convertTelemetryValue(value, unit, prec, this->unit, this->prec);
