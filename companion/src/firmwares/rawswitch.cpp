@@ -71,23 +71,28 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
   }
   else {
     QString swName;
+    QString custName;
     div_t qr;
     switch(type) {
       case SWITCH_TYPE_SWITCH:
         if (IS_HORUS_OR_TARANIS(board)) {
           qr = div(index - 1, 3);
+          swName = Boards::getSwitchInfo(qr.quot, board).name.c_str();
           if (Boards::isSwitchFunc(qr.quot, board)) {
             if (modelData) {
               int fsindex = Boards::getSwitchTagNum(qr.quot, board) - 1;
-              swName = QString(modelData->functionSwitchNames[fsindex]).trimmed();
+              custName = QString(modelData->functionSwitchNames[fsindex]).trimmed();
+              if (!custName.isEmpty())
+                swName.append(":" + custName);
             }
           }
           else {
-            if (generalSettings)
-              swName = QString(generalSettings->switchConfig[qr.quot].name).trimmed();
+            if (generalSettings) {
+              custName = QString(generalSettings->switchConfig[qr.quot].name).trimmed();
+              if (!custName.isEmpty())
+                swName.append(":" + custName);
+            }
           }
-          if (swName.isEmpty())
-            swName = Boards::getSwitchInfo(qr.quot, board).name.c_str();
           return swName + directionIndicators.at(qr.rem > -1 && qr.rem < directionIndicators.size() ? qr.rem : 1);
         }
         else {

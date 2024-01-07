@@ -151,6 +151,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   }
 
   QString result;
+  QString custName;
 
   switch (type) {
     case SOURCE_TYPE_NONE:
@@ -168,10 +169,11 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return tr("LUA%1%2").arg(index / 16 + 1).arg(QChar('a' + index % 16));
 
     case SOURCE_TYPE_STICK:
+      result = Boards::getInputName(index, board);
       if (generalSettings)
-        result = QString(generalSettings->inputConfig[index].name).trimmed();
-      if (result.isEmpty())
-        result = Boards::getInputName(index, board);
+        custName = QString(generalSettings->inputConfig[index].name).trimmed();
+      if (!custName.isEmpty())
+        result.append(":" + custName);
       return result;
 
     case SOURCE_TYPE_TRIM:
@@ -187,18 +189,22 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return tr("MAX");
 
     case SOURCE_TYPE_SWITCH:
+      result = Boards::getSwitchInfo(index, board).name.c_str();
       if (Boards::isSwitchFunc(index, board)) {
         if (model) {
           int fsindex = Boards::getSwitchTagNum(index, board) - 1;
-          result = QString(model->functionSwitchNames[fsindex]).trimmed();
+          custName = QString(model->functionSwitchNames[fsindex]).trimmed();
+          if (!custName.isEmpty())
+            result.append(":" + custName);
         }
       }
       else {
-        if (generalSettings)
-          result = QString(generalSettings->switchConfig[index].name).trimmed();
+        if (generalSettings) {
+          custName = QString(generalSettings->switchConfig[index].name).trimmed();
+          if (!custName.isEmpty())
+            result.append(":" + custName);
+        }
       }
-      if (result.isEmpty())
-        result = Boards::getSwitchInfo(index, board).name.c_str();
       return result;
 
     case SOURCE_TYPE_CUSTOM_SWITCH:
