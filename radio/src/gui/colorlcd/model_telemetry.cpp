@@ -671,7 +671,8 @@ class SensorEditWindow : public Page {
 
       paramLines[P_RATIO] = form->newLine(&grid);
       new StaticText(paramLines[P_RATIO], rect_t{}, STR_RATIO, 0, COLOR_THEME_PRIMARY1);
-      auto edit = new NumberEdit(paramLines[P_RATIO], rect_t{}, 0, 30000, GET_SET_DEFAULT(sensor->custom.ratio));
+      auto edit = new NumberEdit(paramLines[P_RATIO], rect_t{}, 0, 30000, GET_SET_DEFAULT(sensor->custom.ratio),
+                                  0, PREC1);
       edit->setZeroText("-");
 
       paramLines[P_CELLINDEX] = form->newLine(&grid);
