@@ -328,7 +328,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
 #if defined(LUA_INPUTS)
   else if (i <= MIXSRC_LAST_LUA) {
 #if defined(LUA_MODEL_SCRIPTS)
-    div_t qr = div(i-MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
+    div_t qr = div((uint16_t)(i-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
     return scriptInputsOutputs[qr.quot].outputs[qr.rem].value;
 #else
     if (valid != nullptr) *valid = false;
@@ -467,7 +467,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
       return 0;
     }
     i -= MIXSRC_FIRST_TELEM;
-    div_t qr = div(i, 3);
+    div_t qr = div((uint16_t)i, 3);
     TelemetryItem & telemetryItem = telemetryItems[qr.quot];
     switch (qr.rem) {
       case 1:

@@ -640,7 +640,7 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
 #if defined(LUA_INPUTS)
   else if (idx <= MIXSRC_LAST_LUA) {
 #if defined(LUA_MODEL_SCRIPTS)
-    div_t qr = div(idx - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
+    div_t qr = div((uint16_t)(idx - MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
     if (qr.quot < MAX_SCRIPTS &&
         qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
 
@@ -768,7 +768,7 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
     }
   } else {
     idx -= MIXSRC_FIRST_TELEM;
-    div_t qr = div(idx, 3);
+    div_t qr = div((uint16_t)idx, 3);
     char* pos = strAppend(dest, STR_CHAR_TELEMETRY, 2);
     pos = strAppend(pos, g_model.telemetrySensors[qr.quot].label,
                     sizeof(g_model.telemetrySensors[qr.quot].label));

@@ -649,7 +649,7 @@ void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
   }
 
   else if (idx <= MIXSRC_LAST_LUA) {
-    div_t qr = div(idx-MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
+    div_t qr = div((uint16_t)(idx-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
 #if defined(LUA_MODEL_SCRIPTS)
     if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
       lcdDrawChar(x+2, y+1, '1'+qr.quot, TINSIZE);
@@ -718,7 +718,7 @@ void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
   }
   else {
     idx -= MIXSRC_FIRST_TELEM;
-    div_t qr = div(idx, 3);
+    div_t qr = div((uint16_t)idx, 3);
     lcdDrawSizedText(x, y, g_model.telemetrySensors[qr.quot].label, TELEM_LABEL_LEN, att);
     if (qr.rem) lcdDrawChar(lcdLastRightPos, y, qr.rem==2 ? '+' : '-', att);
   }
