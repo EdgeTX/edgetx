@@ -57,9 +57,9 @@ jobs:
                                 mingw-w64-i686-clang \
                                 mingw-w64-i686-nsis \
                                 mingw-w64-i686-dfu-util \
-                                mingw-w64-i686-openssl 
+                                mingw-w64-i686-openssl
           python -m pip install clang jinja2
-          python -m pip install lz4 --no-binary --no-cache-dir
+          pip install --no-binary --no-cache-dir lz4
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
