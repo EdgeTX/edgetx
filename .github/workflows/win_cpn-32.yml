@@ -52,7 +52,6 @@ jobs:
           pacman -S --noconfirm mingw-w64-i686-cmake \
                                 mingw-w64-i686-python-pip \
                                 mingw-w64-i686-python-pillow \
-                                mingw-w64-i686-python-lz4 \
                                 mingw-w64-i686-libjpeg-turbo \
                                 mingw-w64-i686-zlib \
                                 mingw-w64-i686-libtiff \
@@ -66,7 +65,8 @@ jobs:
                                 mingw-w64-i686-clang \
                                 mingw-w64-i686-openssl \
                                 mingw-w64-i686-nsis
-          python -m pip install clang
+          SETUPTOOLS_USE_DISTUTILS=stdlib pip install lz4
+          python -m pip install clang lz4
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
