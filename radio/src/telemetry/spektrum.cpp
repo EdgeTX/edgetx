@@ -505,6 +505,10 @@ static void processGPSLocPacket(const uint8_t *packet, const uint16_t pseudoId, 
   min = bcdToInt8(packetData[8]);
   deg = bcdToInt8(packetData[9]);
 
+  if (gpsFlags & GPS_INFO_FLAGS_LONGITUDE_GREATER_99 != 0) {
+    deg = deg + 100;
+  }
+
   // formula from code in gps.cpp
   value = deg * 1000000UL + (min * 100000UL + fmin * 10UL) / 6;
 
