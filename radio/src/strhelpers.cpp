@@ -612,7 +612,13 @@ const char* getPotLabel(uint8_t idx)
 template <size_t L>
 char *getSourceString(char (&dest)[L], mixsrc_t idx)
 {
+  bool inverted = false;
   size_t dest_len = L;
+
+  if (idx < 0) {
+    idx = -idx;
+    inverted = true;
+  }
 
   if (idx == MIXSRC_NONE) {
     strncpy(dest, STR_EMPTY, dest_len - 1);
@@ -768,6 +774,10 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
                     sizeof(g_model.telemetrySensors[qr.quot].label));
     if (qr.rem) *pos = (qr.rem == 2 ? '+' : '-');
     *++pos = '\0';
+  }
+  if (inverted) {
+    memcpy(&dest[1], &dest[0], L-1);
+    dest[0] = '!';
   }
   dest[L - 1] = '\0'; // assert the termination
   return dest; 

@@ -115,7 +115,7 @@ class LogicalSwitchEditPage : public Page
         break;
       case LS_FAMILY_COMP:
         new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
-                         GET_SET_DEFAULT(cs->v1));
+                         GET_SET_DEFAULT(cs->v1), true);
         break;
       case LS_FAMILY_TIMER:
         timer =
@@ -184,7 +184,7 @@ class LogicalSwitchEditPage : public Page
       } break;
       case LS_FAMILY_COMP:
         new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
-                         GET_SET_DEFAULT(cs->v2));
+                         GET_SET_DEFAULT(cs->v2), true);
         break;
       case LS_FAMILY_TIMER:
         timer =

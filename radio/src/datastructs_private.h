@@ -74,7 +74,7 @@ PACK(struct CurveRef {
 PACK(struct MixData {
   int16_t  weight:11 CUST(in_read_weight,in_write_weight);       // GV1=-1024, -GV1=1023
   uint16_t destCh:5;
-  uint16_t srcRaw:10 CUST(r_mixSrcRaw,w_mixSrcRaw); // srcRaw=0 means not used
+  int16_t  srcRaw:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx); // srcRaw=0 means not used
   uint16_t carryTrim:1;
   uint16_t mixWarn:2;       // mixer warning
   uint16_t mltpx:2 ENUM(MixerMultiplex);
@@ -99,7 +99,7 @@ PACK(struct ExpoData {
   uint16_t scale:14;
   CUST_ATTR(carryTrim, r_carryTrim, nullptr); //pre 2.9
   int16_t  trimSource:6;
-  uint16_t srcRaw:10 ENUM(MixSources) CUST(r_mixSrcRaw,w_mixSrcRaw);
+  int16_t  srcRaw:10 ENUM(MixSources) CUST(r_mixSrcRawEx,w_mixSrcRawEx);
   uint32_t chn:5;
   int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
   uint32_t flightModes:9 CUST(r_flightModes, w_flightModes);

@@ -170,7 +170,7 @@ int getChannelsUsed()
 bool isSourceAvailable(int source)
 {
   if (source < 0)
-    return false;
+    source = -source;
 
   if (source >= MIXSRC_FIRST_INPUT && source <= MIXSRC_LAST_INPUT) {
     return isInputAvailable(source - MIXSRC_FIRST_INPUT);
