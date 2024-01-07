@@ -664,7 +664,7 @@ void putsVBat(coord_t x, coord_t y, LcdFlags att)
   putsVolts(x, y, g_vbat100mV, att);
 }
 
-void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
+void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
 {
   if (idx == MIXSRC_NONE) {
     lcdDrawText(x, y, STR_EMPTY, att);

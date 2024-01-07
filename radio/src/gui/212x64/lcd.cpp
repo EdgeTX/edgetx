@@ -634,7 +634,7 @@ void drawMainControlLabel(coord_t x, coord_t y, uint8_t idx, LcdFlags att)
   lcdDrawSizedText(x, y, getMainControlLabel(idx), UINT8_MAX, att);
 }
 
-void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
+void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
 {
   if (idx == MIXSRC_NONE) {
     lcdDrawText(x, y, STR_EMPTY, att);
