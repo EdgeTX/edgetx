@@ -918,7 +918,6 @@ void menuModelSetup(event_t event)
         if (attr)
           CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTrimSw, keysGetMaxTrims() - 1);
         drawSource(MODEL_SETUP_2ND_COLUMN+20, y, g_model.getThrottleStickTrimSource(), attr);
-        TRACE("thrTrimSw:%d getThrottleStickTrimSource:%d", g_model.thrTrimSw, g_model.getThrottleStickTrimSource());
         break;
 
       case ITEM_MODEL_SETUP_PREFLIGHT_LABEL:
