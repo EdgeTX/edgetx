@@ -505,6 +505,10 @@ static void processGPSLocPacket(const uint8_t *packet, const uint16_t pseudoId, 
   min = bcdToInt8(packetData[8]);
   deg = bcdToInt8(packetData[9]);
 
+  if ((gpsFlags & GPS_INFO_FLAGS_LONGITUDE_GREATER_99) != 0) {
+    deg = deg + 100;
+  }
+
   // formula from code in gps.cpp
   value = deg * 1000000UL + (min * 100000UL + fmin * 10UL) / 6;
 
@@ -1020,8 +1024,11 @@ static bool real0x34 = false;
 // Example 0x16:          0  1    2  3  4  5    6  7  8  9    10 11   12   13
 //                16 00 | 97 00 | 54 71 12 28 | 40 80 09 82 | 85 14 | 13 | B9
 //                Alt: 009.7, LAT: 28o 12'7154, LON: -82 09 8040 Course: 148.5, HDOP 1.3 Flags= B9
+//static char test16data[] = {0x16, 0x00, 0x97, 0x00, 0x54, 0x71, 0x12, 0x28,
+//                            0x40, 0x80, 0x09, 0x82, 0x85, 0x14, 0x13, 0xB9};
+
 static char test16data[] = {0x16, 0x00, 0x97, 0x00, 0x54, 0x71, 0x12, 0x28,
-                            0x40, 0x80, 0x09, 0x82, 0x85, 0x14, 0x13, 0xB9};
+                            0x40, 0x80, 0x09, 0x11, 0x85, 0x14, 0x13, 0xBD}; // > 99 Flag
 
 // *********** GPS STAT (BCD) *****************************
 // Example 0x17:          0  1    2  3  4  5    6    7
