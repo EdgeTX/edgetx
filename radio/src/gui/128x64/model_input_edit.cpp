@@ -79,7 +79,7 @@ void menuModelExpoOne(event_t event)
   uint8_t old_editMode = s_editMode;
 
   SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX,
-          {0, 0, 0, ed->srcRaw >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, LABEL(Curve), 1,
+          {0, 0, 0, abs(ed->srcRaw) >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, LABEL(Curve), 1,
            CASE_FLIGHT_MODES(FM_ROW(LABEL(Flight Mode))) CASE_FLIGHT_MODES(FM_ROW((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE)) 0 /*, ...*/});
 
   int8_t sub = menuVerticalPosition;
@@ -112,14 +112,14 @@ void menuModelExpoOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_SOURCE);
         drawSource(EXPO_ONE_2ND_COLUMN, y, ed->srcRaw, RIGHT|STREXPANDED|attr);
         if (attr)
-          ed->srcRaw = checkIncDec(event, ed->srcRaw, INPUTSRC_FIRST, INPUTSRC_LAST, EE_MODEL|INCDEC_SOURCE|NO_INCDEC_MARKS, isSourceAvailableInInputs);
+          ed->srcRaw = checkIncDec(event, ed->srcRaw, INPUTSRC_FIRST, INPUTSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailableInInputs);
         break;
 
       case EXPO_FIELD_SCALE:
         lcdDrawTextAlignedLeft(y, STR_SCALE);
-        drawSensorCustomValue(EXPO_ONE_2ND_COLUMN, y, (ed->srcRaw - MIXSRC_FIRST_TELEM)/3, convertTelemValue(ed->srcRaw - MIXSRC_FIRST_TELEM + 1, ed->scale),  RIGHT | attr);
+        drawSensorCustomValue(EXPO_ONE_2ND_COLUMN, y, (abs(ed->srcRaw) - MIXSRC_FIRST_TELEM)/3, convertTelemValue(abs(ed->srcRaw) - MIXSRC_FIRST_TELEM + 1, ed->scale),  RIGHT | attr);
         if (attr)
-          ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(ed->srcRaw - MIXSRC_FIRST_TELEM + 1), EE_MODEL);
+          ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(abs(ed->srcRaw) - MIXSRC_FIRST_TELEM + 1), EE_MODEL);
         break;
 
       case EXPO_FIELD_WEIGHT:
@@ -161,13 +161,13 @@ void menuModelExpoOne(event_t event)
       case EXPO_FIELD_TRIM:
         lcdDrawTextAlignedLeft(y, STR_TRIM);
         {
-          const char* trim_str = getTrimSourceLabel(ed->srcRaw, ed->trimSource);
+          const char* trim_str = getTrimSourceLabel(abs(ed->srcRaw), ed->trimSource);
           LcdFlags flags = RIGHT | (menuHorizontalPosition==0 ? attr : 0);
           lcdDrawText(EXPO_ONE_2ND_COLUMN, y, trim_str, flags);
 
           if (attr) {
             int8_t min = TRIM_ON;
-            if (ed->srcRaw >= MIXSRC_FIRST_STICK && ed->srcRaw <= MIXSRC_LAST_STICK) {
+            if (abs(ed->srcRaw) >= MIXSRC_FIRST_STICK && abs(ed->srcRaw) <= MIXSRC_LAST_STICK) {
               min = -TRIM_OFF;
             }
             ed->trimSource = -checkIncDecModel(event, -ed->trimSource, min, keysGetMaxTrims());

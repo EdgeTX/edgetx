@@ -636,20 +636,24 @@ void drawMainControlLabel(coord_t x, coord_t y, uint8_t idx, LcdFlags att)
 
 void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
 {
-  if (idx == MIXSRC_NONE) {
+  uint16_t aidx = abs(idx);
+
+  // TODO: Handle negative cases
+
+  if (aidx == MIXSRC_NONE) {
     lcdDrawText(x, y, STR_EMPTY, att);
   }
-  else if (idx <= MIXSRC_LAST_INPUT) {
+  else if (aidx <= MIXSRC_LAST_INPUT) {
     lcdDrawChar(x+2, y+1, CHR_INPUT, TINSIZE);
     lcdDrawFilledRect(x, y, 7, 7);
-    if (ZEXIST(g_model.inputNames[idx-MIXSRC_FIRST_INPUT]))
-      lcdDrawSizedText(x+8, y, g_model.inputNames[idx-MIXSRC_FIRST_INPUT], LEN_INPUT_NAME, att);
+    if (ZEXIST(g_model.inputNames[aidx-MIXSRC_FIRST_INPUT]))
+      lcdDrawSizedText(x+8, y, g_model.inputNames[aidx-MIXSRC_FIRST_INPUT], LEN_INPUT_NAME, att);
     else
-      lcdDrawNumber(x+8, y, idx, att|LEADING0|LEFT, 2);
+      lcdDrawNumber(x+8, y, aidx, att|LEADING0|LEFT, 2);
   }
 
-  else if (idx <= MIXSRC_LAST_LUA) {
-    div_t qr = div((uint16_t)(idx-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
+  else if (aidx <= MIXSRC_LAST_LUA) {
+    div_t qr = div((uint16_t)(aidx-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
 #if defined(LUA_MODEL_SCRIPTS)
     if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
       lcdDrawChar(x+2, y+1, '1'+qr.quot, TINSIZE);
@@ -664,34 +668,34 @@ void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
     }
   }
 
-  else if (idx <= MIXSRC_LAST_POT) {
+  else if (aidx <= MIXSRC_LAST_POT) {
     lcdDrawText(x, y, getSourceString(idx), att);
   }
-  else if (idx >= MIXSRC_FIRST_SWITCH && idx <= MIXSRC_LAST_SWITCH) {
+  else if (aidx >= MIXSRC_FIRST_SWITCH && aidx <= MIXSRC_LAST_SWITCH) {
     lcdDrawText(x, y, getSourceString(idx), att);
   }
-  else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH) {
-    idx -= MIXSRC_FIRST_LOGICAL_SWITCH;
-    drawSwitch(x, y, idx + SWSRC_FIRST_LOGICAL_SWITCH, att);
-  } else if (idx <= MIXSRC_LAST_TRAINER) {
-    idx -= MIXSRC_FIRST_TRAINER;
-    drawStringWithIndex(x, y, STR_PPM_TRAINER, idx + 1, att);
-  } else if (idx <= MIXSRC_LAST_CH) {
-    idx -= MIXSRC_FIRST_CH;
-    drawStringWithIndex(x, y, STR_CH, idx + 1, att);
-    if (ZEXIST(g_model.limitData[idx].name) && (att & STREXPANDED)) {
+  else if (aidx <= MIXSRC_LAST_LOGICAL_SWITCH) {
+    aidx -= MIXSRC_FIRST_LOGICAL_SWITCH;
+    drawSwitch(x, y, aidx + SWSRC_FIRST_LOGICAL_SWITCH, att);
+  } else if (aidx <= MIXSRC_LAST_TRAINER) {
+    aidx -= MIXSRC_FIRST_TRAINER;
+    drawStringWithIndex(x, y, STR_PPM_TRAINER, aidx + 1, att);
+  } else if (aidx <= MIXSRC_LAST_CH) {
+    aidx -= MIXSRC_FIRST_CH;
+    drawStringWithIndex(x, y, STR_CH, aidx + 1, att);
+    if (ZEXIST(g_model.limitData[aidx].name) && (att & STREXPANDED)) {
       lcdDrawChar(lcdLastRightPos, y, ' ', att|SMLSIZE);
-      lcdDrawSizedText(lcdLastRightPos+3, y, g_model.limitData[idx].name, LEN_CHANNEL_NAME, att|SMLSIZE);
+      lcdDrawSizedText(lcdLastRightPos+3, y, g_model.limitData[aidx].name, LEN_CHANNEL_NAME, att|SMLSIZE);
     }
   }
-  else if (idx <= MIXSRC_LAST_GVAR) {
-    idx -= MIXSRC_FIRST_GVAR - 1;
-    drawStringWithIndex(x, y, STR_GV, idx, att);
+  else if (aidx <= MIXSRC_LAST_GVAR) {
+    aidx -= MIXSRC_FIRST_GVAR - 1;
+    drawStringWithIndex(x, y, STR_GV, aidx, att);
   }
-  else if (idx < MIXSRC_FIRST_TIMER) {
+  else if (aidx < MIXSRC_FIRST_TIMER) {
     // Built-in sources: TX Voltage, Time, GPS (+ reserved)
     const char* src_str;
-    switch(idx) {
+    switch(aidx) {
     case MIXSRC_TX_VOLTAGE:
       src_str = STR_SRC_BATT;
       break;
@@ -707,18 +711,18 @@ void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
     }
     lcdDrawText(x, y, src_str, att);
   }
-  else if (idx <= MIXSRC_LAST_TIMER) {
-    idx -= MIXSRC_FIRST_TIMER;
-    if(g_model.timers[idx].name[0]) {
-      lcdDrawSizedText(x, y, g_model.timers[idx].name, LEN_TIMER_NAME, att);
+  else if (aidx <= MIXSRC_LAST_TIMER) {
+    aidx -= MIXSRC_FIRST_TIMER;
+    if(g_model.timers[aidx].name[0]) {
+      lcdDrawSizedText(x, y, g_model.timers[aidx].name, LEN_TIMER_NAME, att);
     }
     else {
-      drawStringWithIndex(x, y, STR_SRC_TIMER, idx + 1, att);
+      drawStringWithIndex(x, y, STR_SRC_TIMER, aidx + 1, att);
     }
   }
   else {
-    idx -= MIXSRC_FIRST_TELEM;
-    div_t qr = div((uint16_t)idx, 3);
+    aidx -= MIXSRC_FIRST_TELEM;
+    div_t qr = div((uint16_t)aidx, 3);
     lcdDrawSizedText(x, y, g_model.telemetrySensors[qr.quot].label, TELEM_LABEL_LEN, att);
     if (qr.rem) lcdDrawChar(lcdLastRightPos, y, qr.rem==2 ? '+' : '-', att);
   }
