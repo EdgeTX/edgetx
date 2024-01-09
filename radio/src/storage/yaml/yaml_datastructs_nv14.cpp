@@ -375,6 +375,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_UNSIGNED( "stickDeadZone", 3 ),
   YAML_STRING("selectedTheme", 26),
+  YAML_UNSIGNED( "modelSelectLayout", 2 ),
   YAML_UNSIGNED( "radioThemesDisabled", 1 ),
   YAML_UNSIGNED( "radioGFDisabled", 1 ),
   YAML_UNSIGNED( "radioTrainerDisabled", 1 ),

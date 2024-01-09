@@ -964,6 +964,7 @@ PACK(struct RadioData {
 
   // Radio level tabs control (global settings)
 #if defined(COLORLCD)
+  uint8_t modelSelectLayout:2;
   uint8_t radioThemesDisabled:1;
 #endif
   uint8_t radioGFDisabled:1;
