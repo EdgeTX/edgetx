@@ -366,7 +366,9 @@ void generalDefault()
   // disable Custom Script
   g_eeGeneral.modelCustomScriptsDisabled = true;
 
- g_eeGeneral.hatsMode = HATSMODE_SWITCHABLE;
+#if defined(USE_HATS_AS_KEYS)
+  g_eeGeneral.hatsMode = HATSMODE_SWITCHABLE;
+#endif
 
   g_eeGeneral.chkSum = 0xFFFF;
 }
