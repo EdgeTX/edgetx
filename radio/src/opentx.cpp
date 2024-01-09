@@ -57,6 +57,10 @@
   #include "gui/colorlcd/LvglWrapper.h"
 #endif
 
+#if defined(CROSSFIRE)
+#include "telemetry/crossfire.h"
+#endif
+
 #if !defined(SIMU)
 #include <malloc.h>
 #endif
@@ -288,6 +292,8 @@ void generalDefault()
 
 #if defined(DEFAULT_INTERNAL_MODULE)
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
+    if (g_eeGeneral.internalModule == MODULE_TYPE_CROSSFIRE)
+      g_eeGeneral.internalModuleBaudrate = CROSSFIRE_MAX_INTERNAL_BAUDRATE;
 #endif
 
   adcCalibDefaults();
