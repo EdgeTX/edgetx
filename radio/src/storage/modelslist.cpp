@@ -840,7 +840,7 @@ bool ModelMap::updateModelFile(ModelCell *cell)
 /**
  * @brief Sorts a ModelsVector by sortby
  *
- * @param mv ModeslVector to sort
+ * @param mv ModelsVector to sort
  * @param sortby NO_SORT, NAME_ASC, NAME_DES, DATE_ASC, DATE_DES,
  */
 

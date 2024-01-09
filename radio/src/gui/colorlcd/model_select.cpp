@@ -740,6 +740,9 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
   lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, MODELS_COL, 1,
                        LV_GRID_ALIGN_STRETCH, MODELS_ROW, MODELS_ROW_CNT);
 
+  if (mdlselector->getSortOrder() == NO_SORT)
+    mdlselector->setSortOrder(NAME_ASC);
+
   // Labels
   auto box = new Window(window, rect_t{});
   box->padAll(0);

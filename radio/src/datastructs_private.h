@@ -964,20 +964,20 @@ PACK(struct RadioData {
 
   // Radio level tabs control (global settings)
 #if defined(COLORLCD)
-  uint8_t modelSelectLayout:2;
-  uint8_t radioThemesDisabled:1;
+  NOBACKUP(uint8_t modelSelectLayout:2);
+  NOBACKUP(uint8_t radioThemesDisabled:1);
 #endif
-  uint8_t radioGFDisabled:1;
-  uint8_t radioTrainerDisabled:1;
+  NOBACKUP(uint8_t radioGFDisabled:1);
+  NOBACKUP(uint8_t radioTrainerDisabled:1);
   // Model level tabs control (global setting)
-  uint8_t modelHeliDisabled:1;
-  uint8_t modelFMDisabled:1;
-  uint8_t modelCurvesDisabled:1;
-  uint8_t modelGVDisabled:1;
-  uint8_t modelLSDisabled:1;
-  uint8_t modelSFDisabled:1;
-  uint8_t modelCustomScriptsDisabled:1;
-  uint8_t modelTelemetryDisabled:1;
+  NOBACKUP(uint8_t modelHeliDisabled:1);
+  NOBACKUP(uint8_t modelFMDisabled:1);
+  NOBACKUP(uint8_t modelCurvesDisabled:1);
+  NOBACKUP(uint8_t modelGVDisabled:1);
+  NOBACKUP(uint8_t modelLSDisabled:1);
+  NOBACKUP(uint8_t modelSFDisabled:1);
+  NOBACKUP(uint8_t modelCustomScriptsDisabled:1);
+  NOBACKUP(uint8_t modelTelemetryDisabled:1);
 
   NOBACKUP(uint8_t getBrightness() const
   {
