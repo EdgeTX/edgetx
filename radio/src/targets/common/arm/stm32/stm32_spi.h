@@ -37,6 +37,9 @@ struct stm32_spi_t {
   uint32_t       txDMA_Stream;
   uint32_t       rxDMA_Stream;
   uint32_t       DMA_FIFOMode;
+  uint32_t       DMA_FIFOThreshold;
+  uint32_t       DMA_MemoryOrM2MDstDataSize;
+  uint32_t       DMA_MemBurst;         
 };
 
 void stm32_spi_enable_clock(SPI_TypeDef *SPIx);

@@ -78,7 +78,10 @@ const stm32_spi_t _flash_spi = {
   .DMA_Channel = FLASH_SPI_DMA_CHANNEL,
   .txDMA_Stream = FLASH_SPI_DMA_TX_STREAM,
   .rxDMA_Stream = FLASH_SPI_DMA_RX_STREAM,
-  .DMA_FIFOMode = LL_DMA_FIFOMODE_DISABLE,
+  .DMA_FIFOMode = LL_DMA_FIFOMODE_ENABLE,
+  .DMA_FIFOThreshold = LL_DMA_FIFOTHRESHOLD_1_2,
+  .DMA_MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_HALFWORD,
+  .DMA_MemBurst = LL_DMA_MBURST_INC4,
 };
 
 static SpiFlashDescriptor _flashDescriptor;

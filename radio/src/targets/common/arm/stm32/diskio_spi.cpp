@@ -46,6 +46,9 @@ static const stm32_spi_t _sd_spi_hw = {
     .txDMA_Stream = SD_SPI_DMA_TX_STREAM,
     .rxDMA_Stream = SD_SPI_DMA_RX_STREAM,
     .DMA_FIFOMode = LL_DMA_FIFOMODE_ENABLE,
+    .DMA_FIFOThreshold = LL_DMA_FIFOTHRESHOLD_FULL,
+    .DMA_MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_BYTE,
+    .DMA_MemBurst = LL_DMA_MBURST_SINGLE,
 };
 
 static uint32_t _sdcard_sectors;
