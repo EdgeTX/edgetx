@@ -813,17 +813,25 @@ void SimulatorWidget::onPhaseChanged(qint32 phase, const QString & name)
   setWindowTitle(windowName + tr(" - Flight Mode %1 (#%2)").arg(name).arg(phase));
 }
 
-void SimulatorWidget::onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, const int index, int value)
+void SimulatorWidget::onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, int index, int value)
 {
   //qDebug() << type << index << value;
   if (!simulator || index < 0)
     return;
 
   SimulatorInterface::InputSourceType inpType = SimulatorInterface::INPUT_SRC_NONE;
+  GeneralSettings::SwitchConfig *cfg = nullptr;
 
   switch (type) {
     case RadioWidget::RADIO_WIDGET_SWITCH :
-      inpType = SimulatorInterface::INPUT_SRC_SWITCH;
+      cfg = &radioSettings.switchConfig[index];
+      if (cfg->inputIdx != SWITCH_INPUTINDEX_NONE) {
+        inpType = SimulatorInterface::INPUT_SRC_STICK;
+        index = cfg->inputIdx;
+        value = value * 1024;
+      }
+      else
+        inpType = SimulatorInterface::INPUT_SRC_SWITCH;
       break;
 
     case RadioWidget::RADIO_WIDGET_KNOB :
