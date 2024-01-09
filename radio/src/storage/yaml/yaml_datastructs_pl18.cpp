@@ -294,8 +294,8 @@ static const struct YamlNode struct_CustomFunctionData[] = {
 static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "manuallyEdited", 1 ),
   YAML_SIGNED( "timezoneMinutes", 3 ),
-  YAML_ENUM("hatsMode", 2, enum_HatsMode),
   YAML_UNSIGNED( "ppmunit", 2 ),
+  YAML_ENUM("hatsMode", 2, enum_HatsMode),
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_CUSTOM("board",nullptr,w_board),
   YAML_ARRAY("calib", 48, 20, struct_CalibData, NULL),
