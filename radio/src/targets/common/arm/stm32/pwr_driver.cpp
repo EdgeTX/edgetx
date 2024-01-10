@@ -70,6 +70,10 @@ void pwrInit()
   #endif
   GPIO_InitStructure.GPIO_Pin = PCBREV_GPIO_PIN;
   GPIO_Init(PCBREV_GPIO, &GPIO_InitStructure);
+  #if defined(PCBREV_TOUCH_GPIO_PIN)
+    GPIO_InitStructure.GPIO_Pin = PCBREV_TOUCH_GPIO_PIN;
+    GPIO_Init(PCBREV_TOUCH_GPIO, &GPIO_InitStructure);
+  #endif
   hardwareOptions.pcbrev = PCBREV_VALUE();
 #endif
 }
