@@ -509,7 +509,13 @@ class ModelLayoutButton : public TextButton
   {
   }
 
+  ~ModelLayoutButton()
+  {
+    if (bmBuffer) delete bmBuffer;
+  }
+
   uint8_t getLayout() const { return layout; }
+
   void setLayout(uint8_t newLayout)
   {
     layout = newLayout;
@@ -520,17 +526,17 @@ class ModelLayoutButton : public TextButton
   {
     auto maskData = getBuiltinIcon((MenuIcons)(ICON_MODEL_GRID_LARGE + layout));
     auto mask = BitmapBuffer::load8bitMaskLZ4(maskData);
-    BitmapBuffer *newBm =
-        new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
-    newBm->clear(COLOR_THEME_PRIMARY2);
-    newBm->drawMask(0, 0, mask, COLOR_THEME_SECONDARY1);
-    dc->drawBitmap(2, 2, newBm);
+    if (!bmBuffer)
+      bmBuffer = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
+    bmBuffer->clear(COLOR_THEME_PRIMARY2);
+    bmBuffer->drawMask(0, 0, mask, COLOR_THEME_SECONDARY1);
     delete mask;
-    delete newBm;
+    dc->drawBitmap(3, 3, bmBuffer);
   }
 
  protected:
   uint8_t layout;
+  BitmapBuffer *bmBuffer = nullptr;
 };
 
 //-----------------------------------------------------------------------------
