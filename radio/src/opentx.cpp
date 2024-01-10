@@ -901,6 +901,7 @@ void checkTrims()
     uint8_t phase;
     int before;
     bool thro;
+    trim_t tmode = getRawTrimValue(mixerCurrentFlightMode, idx);
 
     trimsDisplayTimer = 200; // 2 seconds
     trimsDisplayMask |= (1<<idx);
@@ -922,17 +923,17 @@ void checkTrims()
     thro = (idx==inputMappingConvertMode(inputMappingGetThrottle()) && g_model.thrTrim);
 #endif
     int8_t trimInc = g_model.trimInc + 1;
-    int8_t v = (trimInc==-1) ? min(32, abs(before)/4+1) : (1 << trimInc); // TODO flash saving if (trimInc < 0)
+    int16_t v = (trimInc==-1) ? min(32, abs(before)/4+1) : (1 << trimInc); // TODO flash saving if (trimInc < 0)
     if (thro) v = 4; // if throttle trim and trim throttle then step=4
 #if defined(GVARS)
-    if (TRIM_REUSED(idx)) v = 1;
+    if (TRIM_REUSED(idx)) v = tmode.mode == TRIM_MODE_3POS ? RESX : 1;
 #endif
     int16_t after = (k&1) ? before + v : before - v;   // positive = k&1
     bool beepTrim = true;
 
-    if (!thro && before!=0 && ((!(after < 0) == (before < 0)) || after==0)) { //forcing a stop at centered trim when changing sides
+    if (!thro && before!=0 && tmode.mode != TRIM_MODE_3POS &&
+        ((!(after < 0) == (before < 0)) || after==0)) { //forcing a stop at centered trim when changing sides
       after = 0;
-      beepTrim = true;
       AUDIO_TRIM_MIDDLE();
       pauseTrimEvents(event);
     }
