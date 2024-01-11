@@ -455,12 +455,12 @@ LabelsVector ModelMap::fromCSV(const char* str)
     c = strchr(c, ',');
   }
 
-  {
-    std::string lbl(prev_c);
+  std::string lbl(prev_c);
+  if (!lbl.empty()) {
     unEscapeCSV(lbl);
     lbls.push_back(lbl);
   }
-  
+
   return lbls;
 }
 
