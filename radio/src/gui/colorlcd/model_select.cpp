@@ -701,32 +701,67 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
   lv_obj_update_layout(mdl_obj);
   lblselector->setColumnWidth(0, lv_obj_get_content_width(lbl_obj));
 
-  lblselector->setMultiSelect(true);
+  lblselector->setMultiSelect(g_eeGeneral.labelSingleSelect == 0);
   lblselector->setSelected(modelslabels.filteredLabels());
   updateFilteredLabels(modelslabels.filteredLabels(), false);
   lv_obj_set_scrollbar_mode(lbl_obj, LV_SCROLLBAR_MODE_AUTO);
   lv_obj_set_scrollbar_mode(mdl_obj, LV_SCROLLBAR_MODE_AUTO);
 
-  lblselector->setMultiSelectHandler([=](std::set<uint32_t> selected,
-                                         std::set<uint32_t> oldselection) {
-    if (modelslabels.getUnlabeledModels().size() != 0) {
-      // Special case for mutually exclusive Unsorted
-      bool unsrt_is_selected =
-          selected.find(lblselector->getRowCount() - 1) != selected.end();
-      bool unsrt_was_selected = oldselection.find(lblselector->getRowCount() -
-                                                  1) != oldselection.end();
+  if (g_eeGeneral.labelSingleSelect == 0) {
+    lblselector->setMultiSelectHandler([=](std::set<uint32_t> selected,
+                                           std::set<uint32_t> oldselection) {
+      if (modelslabels.getUnlabeledModels().size() != 0) {
+        // Special case for mutually exclusive Unsorted
+        bool unsrt_is_selected =
+            selected.find(lblselector->getRowCount() - 1) != selected.end();
+        bool unsrt_was_selected = oldselection.find(lblselector->getRowCount() -
+                                                    1) != oldselection.end();
 
-      // Unsorted was just picked
-      if (unsrt_is_selected && !unsrt_was_selected) {
-        selected.clear();
-        selected.insert(lblselector->getRowCount() - 1);
-      } else if (unsrt_is_selected && unsrt_was_selected) {
-        selected.erase(selected.find(lblselector->getRowCount() - 1));
+        // Unsorted was just picked
+        if (unsrt_is_selected && !unsrt_was_selected) {
+          selected.clear();
+          selected.insert(lblselector->getRowCount() - 1);
+        } else if (unsrt_is_selected && unsrt_was_selected) {
+          selected.erase(selected.find(lblselector->getRowCount() - 1));
+        }
       }
-    }
 
-    lblselector->setSelected(selected);
-    updateFilteredLabels(selected);
+      lblselector->setSelected(selected);
+      updateFilteredLabels(selected);
+    });
+  } else {
+    lblselector->setPressHandler([=]() {
+      int item = lblselector->getActiveItem();
+      int selected = lblselector->getSelected();
+      lblselector->setActiveItem(selected);
+      std::set<uint32_t> newset;
+      // Clicking active label unselects it and selects all models
+      if (selected == item) {
+        lblselector->setActiveItem(-1);
+      } else
+        newset.insert(selected);
+      updateFilteredLabels(newset);
+    });
+  }
+
+  lblselector->setGetSelectedSymbol([=](uint16_t row) {
+    if (g_eeGeneral.labelSingleSelect)
+      return LV_SYMBOL_OK;
+    if (lblselector->getSelection().size() == 1)
+      return LV_SYMBOL_OK;
+    bool hasMoreSelections = false;
+    for (uint16_t i = row + 1; i < lblselector->getRowCount(); i += 1)
+      if (lblselector->isRowSelected(i)) {
+        hasMoreSelections = true;
+        break;
+      }
+    if (!hasMoreSelections)
+      return LV_SYMBOL_OK;
+    if (row == 0 && (g_eeGeneral.labelMultiMode == 0 || g_eeGeneral.favMultiMode == 0))
+      return STR_VCSWFUNC[7]; // AND
+    if (g_eeGeneral.labelMultiMode == 0)
+      return STR_VCSWFUNC[7]; // AND
+    return STR_VCSWFUNC[8]; // OR
   });
 
   lblselector->setLongPressHandler([=]() {

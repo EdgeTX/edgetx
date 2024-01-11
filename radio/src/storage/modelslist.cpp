@@ -210,7 +210,7 @@ ModelsVector ModelMap::getModelsByLabels(const LabelsVector &lbls)
 }
 
 /**
- * @brief Returns all models that are in multiple labels (AND function)
+ * @brief Returns all models that match the selected labels
  *
  * @param lbls Labels to search
  * @return ModelsVector aka vector<ModelCell*> of all models belonging to a
@@ -229,17 +229,37 @@ ModelsVector ModelMap::getModelsInLabels(const LabelsVector &lbls)
 
   for (const auto &mdl : modelslist) {
     bool hasAllLabels = true;
+    bool hasAnyLabels = false;
+    bool favLabelIncluded = false;
+    bool hasFavLabel = false;
     LabelsVector mdllables = getLabelsByModel(mdl);
     for (const auto &lbl : lbls) {
       if (lbl == STR_UNLABELEDMODEL)  // If requesting unlabeled model ignore it
         break;
-      if (std::find(mdllables.begin(), mdllables.end(), lbl) ==
-          mdllables.end()) {
-        hasAllLabels = false;
-        break;
+      bool hasLabel = std::find(mdllables.begin(), mdllables.end(), lbl) != mdllables.end();
+      if (lbl == STR_FAVORITE_LABEL) {
+        favLabelIncluded = true;
+        hasFavLabel = hasLabel;
+      } else {
+        if (hasLabel) {
+          hasAnyLabels = true;
+        } else {
+          hasAllLabels = false;
+        }
       }
     }
-    if (hasAllLabels) rv.push_back(mdl);
+    if (favLabelIncluded) {
+      if (g_eeGeneral.favMultiMode == 0) {
+        hasAnyLabels = hasAnyLabels && hasFavLabel;
+        hasAllLabels = hasAllLabels && hasFavLabel;
+      } else if (g_eeGeneral.favMultiMode == 1) {
+        hasAnyLabels = hasAnyLabels || hasFavLabel;
+        hasAllLabels = hasAllLabels && hasFavLabel;
+      }
+    }
+    if (((g_eeGeneral.labelMultiMode == 0) && hasAllLabels) ||
+        ((g_eeGeneral.labelMultiMode == 1) && hasAnyLabels))
+      rv.push_back(mdl);
   }
 
   sortModelsBy(rv, _sortOrder);

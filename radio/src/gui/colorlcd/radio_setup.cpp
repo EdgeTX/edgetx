@@ -677,6 +677,66 @@ class ViewOptionsPage : public SubPage
     }
 };
 
+class ManageModelsSetupPage : public SubPage
+{
+ public:
+  ManageModelsSetupPage() : SubPage(ICON_MODEL, STR_MANAGE_MODELS, false)
+  {
+    FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+
+    auto form = new FormWindow(&body, rect_t{});
+    form->setFlexLayout();
+    form->padAll(0);
+
+    // Model quick select
+    auto line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_MODEL_QUICK_SELECT, 0,
+                   COLOR_THEME_PRIMARY1);
+    new ToggleSwitch(line, rect_t{},
+                     GET_SET_DEFAULT(g_eeGeneral.modelQuickSelect));
+
+    // Label single/multi select
+    line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_LABELS_SELECT, 0, COLOR_THEME_PRIMARY1);
+    new Choice(line, rect_t{}, STR_LABELS_SELECT_MODE, 0, 1,
+               GET_SET_DEFAULT(g_eeGeneral.labelSingleSelect));
+
+    // Label multi select matching mode
+    multiSelectMatch = form->newLine(&grid);
+    new StaticText(multiSelectMatch, rect_t{}, STR_LABELS_MATCH, 0,
+                   COLOR_THEME_PRIMARY1);
+    new Choice(multiSelectMatch, rect_t{}, STR_LABELS_MATCH_MODE, 0, 1,
+               GET_SET_DEFAULT(g_eeGeneral.labelMultiMode));
+
+    // Favorites multi select matching mode
+    favSelectMatch = form->newLine(&grid);
+    new StaticText(favSelectMatch, rect_t{}, STR_FAV_MATCH, 0,
+                   COLOR_THEME_PRIMARY1);
+    new Choice(favSelectMatch, rect_t{}, STR_FAV_MATCH_MODE, 0, 1,
+               GET_SET_DEFAULT(g_eeGeneral.favMultiMode));
+
+    checkEvents();
+  }
+
+  void checkEvents() override
+  {
+    if (g_eeGeneral.labelSingleSelect) {
+      lv_obj_add_flag(multiSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(favSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    } else {
+      lv_obj_clear_flag(multiSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      if (g_eeGeneral.labelMultiMode == 0)
+        lv_obj_add_flag(favSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      else
+        lv_obj_clear_flag(favSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    }
+  }
+
+ protected:
+  Window* multiSelectMatch = nullptr;
+  Window* favSelectMatch = nullptr;
+};
+
 RadioSetupPage::RadioSetupPage():
   PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP)
 {
@@ -703,6 +763,7 @@ void RadioSetupPage::build(FormWindow * window)
       {STR_BACKLIGHT_LABEL, []() { new BacklightPage(); }},
       {STR_GPS, [](){new GpsPage();}},
       {STR_ENABLED_FEATURES, [](){new ViewOptionsPage();}},
+      {STR_MANAGE_MODELS, []() { new ManageModelsSetupPage(); }},
 });
 
   // Splash screen
@@ -867,9 +928,4 @@ void RadioSetupPage::build(FormWindow * window)
            std::string(getMainControlLabel(stick0)) + "+" +
            std::string(getMainControlLabel(stick1));
   });
-
-  // Model quick select
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_MODEL_QUICK_SELECT, 0, COLOR_THEME_PRIMARY1);
-  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.modelQuickSelect));
 }

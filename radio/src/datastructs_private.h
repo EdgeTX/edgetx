@@ -978,6 +978,12 @@ PACK(struct RadioData {
   uint8_t modelCustomScriptsDisabled:1;
   uint8_t modelTelemetryDisabled:1;
 
+#if defined(COLORLCD)
+  uint8_t labelSingleSelect:1;  // 0 = multi-select, 1 = single select labels
+  uint8_t labelMultiMode:1;     // 0 = match all labels (AND), 1 = match any labels (OR)
+  uint8_t favMultiMode:1;       // 0 = match all (AND), 1 = match any (OR)
+#endif
+
   NOBACKUP(uint8_t getBrightness() const
   {
 #if defined(OLED_SCREEN)

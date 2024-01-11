@@ -127,6 +127,11 @@ int ListBase::getSelected() const
   return -1;
 }
 
+bool ListBase::isRowSelected(uint16_t row)
+{
+  return lv_table_has_cell_ctrl(lvobj, row, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
+}
+
 std::set<uint32_t> ListBase::getSelection()
 {
   if(!multiSelect) return std::set<uint32_t>();
@@ -212,9 +217,13 @@ void ListBase::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc
   lv_coord_t font_h = getFontHeight(FONT(STD));
 
   coords.x1 = dsc->draw_area->x2 - cell_right - font_h;
-  coords.x2 = coords.x1 + font_h;
+  coords.x2 = coords.x1 + 36;
   coords.y1 = dsc->draw_area->y1 + (area_h - font_h) / 2;
   coords.y2 = coords.y1 + font_h - 1;
 
-  lv_draw_label(dsc->draw_ctx, dsc->label_dsc, &coords, LV_SYMBOL_OK, nullptr);
+  const char* sym = LV_SYMBOL_OK;
+  if (getSelectedSymbol)
+    sym = getSelectedSymbol(row);
+
+  lv_draw_label(dsc->draw_ctx, dsc->label_dsc, &coords, sym, nullptr);
 }

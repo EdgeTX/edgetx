@@ -810,6 +810,12 @@ extern const char STR_SAVE_THEME[];
 extern const char STR_EDIT_COLOR[];
 extern const char STR_NO_THEME_IMAGE[];
 extern const char STR_BACKLIGHT_TIMER[];
+extern const char STR_LABELS_SELECT[];
+extern const char STR_LABELS_MATCH[];
+extern const char STR_FAV_MATCH[];
+extern const char* const STR_LABELS_SELECT_MODE[];
+extern const char* const STR_LABELS_MATCH_MODE[];
+extern const char* const STR_FAV_MATCH_MODE[];
 #endif
 extern const char STR_EXECUTE_FILE[];
 extern const char STR_DELETE_FILE[];
