@@ -54,7 +54,6 @@ jobs:
           rm /etc/apt/sources.list.d/kitware.list && apt-get update
           apt-get install --yes --no-install-recommends libssl-dev && \
           rm -rf /var/lib/apt/lists/*
-          LIBSSL1_ROOT_DIR=/usr/lib/x86_64-linux-gnu && \
           mkdir output && \
           tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
 
