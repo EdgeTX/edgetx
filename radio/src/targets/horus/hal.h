@@ -1265,6 +1265,12 @@
   #define BT_EN_GPIO_PIN                LL_GPIO_PIN_10 // PG.10
 #endif
 
+// Video switch
+#if defined(RADIO_F16)
+#define VIDEO_SWITCH_GPIO               GPIOH
+#define VIDEO_SWITCH_GPIO_PIN           LL_GPIO_PIN_15 // PH.15
+#endif
+
 #if defined(RADIO_T15)
 #define LCD_W                          480
 #define LCD_H                          320

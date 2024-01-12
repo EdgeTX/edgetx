@@ -46,6 +46,15 @@
 HardwareOptions hardwareOptions;
 bool boardBacklightOn = false;
 
+#if defined(RADIO_F16)
+#include "videoswitch_driver.h"
+
+void boardBootloaderInit()
+{
+  videoSwitchInit();
+}
+#endif
+
 #if !defined(BOOT)
 #include "opentx.h"
 

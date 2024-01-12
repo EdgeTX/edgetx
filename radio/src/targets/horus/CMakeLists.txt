@@ -124,6 +124,7 @@ if (PCB STREQUAL X10)
     add_definitions(-DMANUFACTURER_FATFISH)
     set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
     set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
+    set(VIDEO_SWITCH ON)
   elseif (PCBREV STREQUAL T18)
     set(FLAVOUR t18)
     add_definitions(-DRADIO_T18)
@@ -285,6 +286,14 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/diskio_spi_flash.cpp
   drivers/frftl.cpp
   )
+
+if (VIDEO_SWITCH)
+  add_definitions(-DVIDEO_SWITCH)
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    targets/horus/videoswitch_driver.cpp
+  )
+endif()
 
 if(BOOTLOADER)
   set(FIRMWARE_SRC
