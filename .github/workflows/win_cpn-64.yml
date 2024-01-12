@@ -71,7 +71,9 @@ jobs:
                                 mingw-w64-x86_64-libraqm \
                                 mingw-w64-x86_64-SDL2 \
                                 mingw-w64-x86_64-clang \
-                                mingw-w64-x86_64-nsis
+                                mingw-w64-x86_64-nsis \
+                                mingw-w64-x86_64-dfu-util \
+                                mingw-w64-x86_64-openssl
           python -m pip install clang
 
       - name: Install Qt

@@ -356,7 +356,8 @@ if(POLICY CMP0026)
   cmake_policy(SET CMP0026 OLD)  # https://cmake.org/cmake/help/v3.0/policy/CMP0026.html
 endif()
 
-# OpenSSL
+include(FindDfuutil)
+include(FindLibusb1)
 include(FindOpenSSL)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -401,13 +402,25 @@ elseif(WIN32)
   install(TARGETS ${COMPANION_NAME} DESTINATION ${INSTALL_DESTINATION})
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${INSTALL_DESTINATION})
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${INSTALL_DESTINATION})
-  # supporting utilities
-  set(INSTALL_TEMP_FILES dfu-util.exe libusb0.dll libusb-1.0.dll license.txt)
-  foreach(tmpfile ${INSTALL_TEMP_FILES})
-    install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/${tmpfile}" DESTINATION ${INSTALL_DESTINATION})
-  endforeach()
 
- if(OPENSSL_FOUND)
+  # supporting utilities
+  if(LIBUSB1_FOUND)
+    if(MINGW)
+      set(LIBUSB1_LIBRARY_DIR "${LIBUSB1_LIBRARY_DIR}/../bin")
+    endif()
+
+    set(LIBUSB1_LIBRARY_FILE "${LIBUSB1_LIBRARY_DIR}/libusb-1.0.dll")
+
+    if(EXISTS "${LIBUSB1_LIBRARY_FILE}")
+      install(FILES "${LIBUSB1_LIBRARY_FILE}" DESTINATION ${INSTALL_DESTINATION})
+    endif()
+
+    if(DFU_UTIL_FOUND)
+      install(FILES "${DFU_UTIL_PATH}" DESTINATION ${INSTALL_DESTINATION})
+    endif()
+  endif()
+
+  if(OPENSSL_FOUND)
     if ((OPENSSL_VERSION VERSION_LESS "1.2.0" AND Qt5Core_VERSION VERSION_LESS "6.0.0") OR (OPENSSL_VERSION VERSION_GREATER "3.0.0" AND Qt5Core_VERSION VERSION_GREATER_EQUAL "6.0.0"))
       get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
       if(MINGW)
@@ -432,6 +445,12 @@ elseif(WIN32)
     endif()
   endif()
 
+  install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/license.txt" DESTINATION ${INSTALL_DESTINATION})
+
+  if(SDL2_FOUND AND DEFINED SDL2_LIB_PATH)
+    install(FILES "${SDL2_LIB_PATH}" DESTINATION ${INSTALL_DESTINATION})
+  endif()
+
   # Qt dlls (using windeployqt)
   ## Qt translations are already packaged into our custom qrc. Also don't need software rendering engines.
   set(wdqtopts --no-translations --no-opengl-sw --no-system-d3d-compiler --no-angle)
@@ -443,25 +462,6 @@ elseif(WIN32)
 
   # Add installer command to execute windeployqt
   message(STATUS "windeployqt command: ${QT_BIN_DIR}/windeployqt.exe ${wdqtopts}")
-
-  # SDL2 dll
-  if(SDL2_FOUND AND EXISTS "${SDL2_LIBRARY_PATH}/SDL2.dll")
-    set(SDL2_DIR ${SDL2_LIBRARY_PATH})  # this is also used by NSIS installer script
-    install(FILES ${SDL2_DIR}/SDL2.dll DESTINATION ${INSTALL_DESTINATION})
-  elseif(SDL2_FOUND)
-    message(WARNING "Installer: SDL2.dll not found, set SDL2_LIBRARY_PATH manually.")
-  endif()
-
-  if (OPENSSL_FOUND)
-    get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
-    set(OPENSSL_BIN_DIR "${OPENSSL_SSL_LIBRARY_DIR}/../bin")
-    if (EXISTS "${OPENSSL_BIN_DIR}")
-      # install only files Qt networking requires
-      install(DIRECTORY ${OPENSSL_BIN_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "*.dll")
-    else()
-  	  message(STATUS "Installer: OpenSSL bin directory not found, dlls not bundled.")
-    endif()
-  endif()
 endif() # WIN32 install
 
 ############# Packaging ####################
@@ -554,11 +554,18 @@ IF(APPLE)
   install(FILES ${MAC_ICON_FILE} DESTINATION ${companion_res_dir} COMPONENT Runtime)
 
   # Copy dfu-util, resolve symlink first
-  get_filename_component(DFU_UTIL_ABSOLUTE_PATH ${DFU_UTIL_PATH} REALPATH)
-  install(PROGRAMS ${DFU_UTIL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
+  if(DFU_UTIL_FOUND)
+    get_filename_component(DFU_UTIL_ABSOLUTE_PATH ${DFU_UTIL_PATH} REALPATH)
+    install(PROGRAMS ${DFU_UTIL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
 
-  set(bundle_tools_path "\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/dfu-util;")
+    set(bundle_tools_path "\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/dfu-util;")
+  endif()
 
+  if(OPENSSL_FOUND)
+    # Copy openssl, resolve symlink first
+    #get_filename_component(OPENSSL_ABSOLUTE_PATH ${OPENSSL_SSL_LIBRARY} REALPATH)
+    #install(FILES ${OPENSSL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
+  endif()
 
   # Include depencies (adding frameworks, fixing the embbeded libraries)
   # I get write errors without setting BU_CHMOD_BUNDLE_ITEMS even though it is
