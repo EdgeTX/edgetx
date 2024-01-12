@@ -1,16 +1,19 @@
 set(SIMULATOR_INSTALL_PREFIX "" CACHE STRING "Alternative simulator library search path")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "(Linux|FreeBSD)")
-  set(C9X_NAME_SUFFIX ${VERSION_MAJOR}${VERSION_MINOR})
-  set(COMPANION_NAME "companion${C9X_NAME_SUFFIX}")
-  set(SIMULATOR_NAME "simulator${C9X_NAME_SUFFIX}")
+  set(APP_NAME_SUFFIX ${VERSION_MAJOR}${VERSION_MINOR})
+  set(COMPANION_NAME "companion${APP_NAME_SUFFIX}")
+  set(SIMULATOR_NAME "simulator${APP_NAME_SUFFIX}")
+  # by default cmake sets CMAKE_INSTALL_PREFIX to /usr/local however linuxdeploy works best with '/usr' as base directory
+  if (${CMAKE_INSTALL_PREFIX} MATCHES "/usr/local")
+    set(CMAKE_INSTALL_PREFIX "/usr")
+  endif()
   if (NOT ${SIMULATOR_INSTALL_PREFIX} STREQUAL "")
     set(SIMULATOR_LIB_PATH ${SIMULATOR_INSTALL_PREFIX}/lib/${COMPANION_NAME})
   else()
     set(SIMULATOR_LIB_PATH "../lib/${COMPANION_NAME}")
   endif()
   message(STATUS "Simulators library search path: " ${SIMULATOR_LIB_PATH})
-  set(SIMULATOR_LIB_INSTALL_PATH ${CMAKE_INSTALL_PREFIX}/lib/${COMPANION_NAME})
 else()
   set(COMPANION_NAME "companion")
   set(SIMULATOR_NAME "simulator")
@@ -357,32 +360,33 @@ endif()
 include(FindOpenSSL)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  message(STATUS "install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX}/bin)
+  message(STATUS "install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX})
   install(TARGETS ${COMPANION_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${SIMULATOR_LIB_INSTALL_PATH})
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/companion.desktop DESTINATION share/applications RENAME companion${C9X_NAME_SUFFIX}.desktop)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/simulator.desktop DESTINATION share/applications RENAME simulator${C9X_NAME_SUFFIX}.desktop)
-  if(${CMAKE_INSTALL_PREFIX} MATCHES "/usr/local")
-    set(INSTALL_TEMP_SHR_PFX "/usr/")
-    set(INSTALL_TEMP_LIB_PFX "/")
-  endif()
-  install(FILES images/linuxicons/16x16/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/16x16/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/22x22/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/22x22/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/24x24/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/24x24/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/32x32/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/32x32/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/48x48/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/48x48/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/128x128/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/128x128/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/256x256/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/256x256/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/512x512/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/512x512/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/scalable/companion.svg DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/scalable/apps RENAME companion${C9X_NAME_SUFFIX}.svg)
-  install(FILES ../targets/linux/45-companion-taranis.rules DESTINATION ${INSTALL_TEMP_LIB_PFX}lib/udev/rules.d RENAME 45-companion${C9X_NAME_SUFFIX}-taranis.rules)
-  install(FILES ../targets/linux/45-usbasp.rules DESTINATION ${INSTALL_TEMP_LIB_PFX}lib/udev/rules.d RENAME 45-companion${C9X_NAME_SUFFIX}-usbasp.rules)
+ install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${COMPANION_NAME})
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/companion.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications RENAME companion${APP_NAME_SUFFIX}.desktop)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/simulator.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications RENAME simulator${APP_NAME_SUFFIX}.desktop)
+  install(FILES images/linuxicons/16x16/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/16x16/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/22x22/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/22x22/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/24x24/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/24x24/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/32x32/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/32x32/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/48x48/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/48x48/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/128x128/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/128x128/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/256x256/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/256x256/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/512x512/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/512x512/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/scalable/companion.svg DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/scalable/apps RENAME companion${APP_NAME_SUFFIX}.svg)
+  install(FILES ../targets/linux/45-companion-taranis.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-taranis.rules)
+  install(FILES ../targets/linux/45-usbasp.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-usbasp.rules)
 
-  if (OPENSSL_FOUND)
-    get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
-    # install only files Qt networking requires
-    install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "engines*" EXCLUDE PATTERN "pkg*" EXCLUDE PATTERN "*.so*")
+  if(LIBSSL1_FOUND)
+    install(DIRECTORY ${LIBSSL1_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libcrypto.so.*" PATTERN "libssl.so.*")
+  endif()
+
+  if(LIBUSB1_FOUND)
+    install(DIRECTORY ${LIBUSB1_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libusb-1.0.so*")
+    if(DFU_UTIL_FOUND)
+      install(FILES "${DFU_UTIL_PATH}" DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+    endif()
   endif()
 
   # Linux specific code
@@ -403,7 +407,7 @@ elseif(WIN32)
     install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/${tmpfile}" DESTINATION ${INSTALL_DESTINATION})
   endforeach()
 
-  if(OPENSSL_FOUND)
+ if(OPENSSL_FOUND)
     if ((OPENSSL_VERSION VERSION_LESS "1.2.0" AND Qt5Core_VERSION VERSION_LESS "6.0.0") OR (OPENSSL_VERSION VERSION_GREATER "3.0.0" AND Qt5Core_VERSION VERSION_GREATER_EQUAL "6.0.0"))
       get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
       if(MINGW)
@@ -487,7 +491,7 @@ if(WIN32)
   endif()
 endif()
 
-set(CPACK_PACKAGE_NAME "companion${C9X_NAME_SUFFIX}")
+set(CPACK_PACKAGE_NAME "companion${APP_NAME_SUFFIX}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Models and settings editor for the EdgeTX open source firmware")
 string(TOLOWER "${CPACK_PACKAGE_NAME}" CPACK_PACKAGE_NAME_LOWERCASE)
 
@@ -578,38 +582,55 @@ if(APPLE)
   set(CPACK_PACKAGE_FILE_NAME "edgetx-${CPACK_PACKAGE_NAME_LOWERCASE}-${VERSION}")
 endif(APPLE)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  get_filename_component(_qt_bin_dir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
-  find_program(LINUXDEPLOY_EXECUTABLE linuxdeployqt HINTS "${_qt_bin_dir}")
+if(LINUX)
+  set(LINUXDEPLOY_APPIMAGE "linuxdeploy-x86_64.AppImage")
+  set(LINUXDEPLOY_PLUGIN_QT "linuxdeploy-plugin-qt-x86_64.AppImage")
+  set(LINUXDEPLOY_URL "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous")
+  set(LINUXDEPLOY_PLUGIN_QT_URL "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous")
+  set(LINUXDEPLOY_DIRECTORY "${CMAKE_BINARY_DIR}/linuxdeploy")
+  set(LINUXDEPLOY_APP "${LINUXDEPLOY_DIRECTORY}/usr/bin/linuxdeploy")
 
-  if(NOT LINUXDEPLOY_EXECUTABLE)
-    message(STATUS "linuxdeployqt will be downloaded")
+  if (NOT EXISTS "${LINUXDEPLOY_DIRECTORY}")
+    message(STATUS "Downloading linuxdeploy and plugins...")
 
-    set(LINUXDEPLOY_EXECUTABLE "${CMAKE_BINARY_DIR}/deployqt/AppRun")
-    set(LINUXDEPLOY_URL "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage")
-    set(LINUXDEPLOY_BUNDLE "${CMAKE_BINARY_DIR}/linuxdeployqt.AppImage")
+    file(DOWNLOAD "${LINUXDEPLOY_URL}/${LINUXDEPLOY_APPIMAGE}" "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_APPIMAGE}")
+    file(DOWNLOAD "${LINUXDEPLOY_PLUGIN_QT_URL}/${LINUXDEPLOY_PLUGIN_QT}" "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_PLUGIN_QT}")
 
-    if (NOT EXISTS "${LINUXDEPLOY_EXECUTABLE}")
-      file(DOWNLOAD "${LINUXDEPLOY_URL}" "${LINUXDEPLOY_BUNDLE}")
+    message(STATUS "Downloading linuxdeploy and plugins finished")
+
+    # for security reasons by default AppImages are prohibited from running in Docker containers
+    # so extract Appimage contents and run as normal apps
+
+    file(GLOB linuxdeployfiles ${CMAKE_BINARY_DIR}/linuxdeploy*.AppImage)
+
+    foreach(file ${linuxdeployfiles})
       execute_process(
-        COMMAND chmod +x "${LINUXDEPLOY_BUNDLE}"
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
-      execute_process(
-        COMMAND "${LINUXDEPLOY_BUNDLE}" --appimage-extract
+        COMMAND chmod +x "${file}"
         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
-      file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/deployqt")
       execute_process(
-        COMMAND mv "${CMAKE_BINARY_DIR}/squashfs-root" deployqt
+        COMMAND "${file}" --appimage-extract
         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
-      file(REMOVE "${LINUXDEPLOY_BUNDLE}")
-    endif()
+
+      file(REMOVE "${file}")
+    endforeach()
+
+    file(REMOVE_RECURSE "${LINUXDEPLOY_DIRECTORY}")
+
+    execute_process(
+      COMMAND mv "${CMAKE_BINARY_DIR}/squashfs-root" "${LINUXDEPLOY_DIRECTORY}"
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+    # test installation
+    #execute_process(
+    #  COMMAND ${LINUXDEPLOY_APP} --list-plugins
+    #  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
   endif()
 
   set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}")
   set(CPACK_GENERATOR "External")
 
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CPackLinuxDeployQt.cmake.in "${CMAKE_BINARY_DIR}/CPackExternal.cmake" @ONLY)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CPackLinuxDeploy.cmake.in "${CMAKE_BINARY_DIR}/CPackExternal.cmake" @ONLY)
   set(CPACK_EXTERNAL_PACKAGE_SCRIPT "${CMAKE_BINARY_DIR}/CPackExternal.cmake")
 endif()
 
