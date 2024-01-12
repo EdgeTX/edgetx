@@ -701,13 +701,14 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
   lv_obj_update_layout(mdl_obj);
   lblselector->setColumnWidth(0, lv_obj_get_content_width(lbl_obj));
 
-  lblselector->setMultiSelect(g_eeGeneral.labelSingleSelect == 0);
-  lblselector->setSelected(modelslabels.filteredLabels());
-  updateFilteredLabels(modelslabels.filteredLabels(), false);
   lv_obj_set_scrollbar_mode(lbl_obj, LV_SCROLLBAR_MODE_AUTO);
   lv_obj_set_scrollbar_mode(mdl_obj, LV_SCROLLBAR_MODE_AUTO);
 
+  std::set<uint32_t> filteredLabels = modelslabels.filteredLabels();
+
   if (g_eeGeneral.labelSingleSelect == 0) {
+    lblselector->setMultiSelect(true);
+    lblselector->setSelected(filteredLabels);
     lblselector->setMultiSelectHandler([=](std::set<uint32_t> selected,
                                            std::set<uint32_t> oldselection) {
       if (modelslabels.getUnlabeledModels().size() != 0) {
@@ -730,19 +731,24 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
       updateFilteredLabels(selected);
     });
   } else {
+    if (filteredLabels.size() > 0)
+      lblselector->setActiveItem(*filteredLabels.begin());
     lblselector->setPressHandler([=]() {
       int item = lblselector->getActiveItem();
       int selected = lblselector->getSelected();
-      lblselector->setActiveItem(selected);
       std::set<uint32_t> newset;
       // Clicking active label unselects it and selects all models
       if (selected == item) {
         lblselector->setActiveItem(-1);
-      } else
+      } else {
+        lblselector->setActiveItem(selected);
         newset.insert(selected);
+      }
       updateFilteredLabels(newset);
     });
   }
+
+  updateFilteredLabels(filteredLabels, false);
 
   lblselector->setGetSelectedSymbol([=](uint16_t row) {
     if (g_eeGeneral.labelSingleSelect)

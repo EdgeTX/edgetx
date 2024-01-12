@@ -25,6 +25,7 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "input_mapping.h"
+#include "storage/modelslist.h"
 
 #include "tasks/mixer_task.h"
 #include "hal/adc_driver.h"
@@ -699,7 +700,12 @@ class ManageModelsSetupPage : public SubPage
     line = form->newLine(&grid);
     new StaticText(line, rect_t{}, STR_LABELS_SELECT, 0, COLOR_THEME_PRIMARY1);
     new Choice(line, rect_t{}, STR_LABELS_SELECT_MODE, 0, 1,
-               GET_SET_DEFAULT(g_eeGeneral.labelSingleSelect));
+               GET_DEFAULT(g_eeGeneral.labelSingleSelect),
+               [=](int newValue) {
+                 g_eeGeneral.labelSingleSelect = newValue;
+                 modelslabels.clearFilter();
+                 SET_DIRTY();
+               });
 
     // Label multi select matching mode
     multiSelectMatch = form->newLine(&grid);
