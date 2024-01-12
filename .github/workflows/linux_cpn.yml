@@ -51,8 +51,8 @@ jobs:
         working-directory: ${{github.workspace}}
         shell: bash
         run: |
-          apt-get update && \
-          apt-get install --yes --no-install-recommends openssl libssl-dev && \
+          apt-get update
+          apt-get install --yes --no-install-recommends libssl-dev && \
           rm -rf /var/lib/apt/lists/*
           LIBSSL1_ROOT_DIR=/usr/lib/x86_64-linux-gnu && \
           mkdir output && \
