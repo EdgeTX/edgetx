@@ -1078,6 +1078,12 @@
   #define BT_EN_GPIO                    GPIO_PIN(GPIOG, 10) // PG.10
 #endif
 
+// Video switch
+#if defined(RADIO_F16)
+#define VIDEO_SWITCH_GPIO               GPIOH
+#define VIDEO_SWITCH_GPIO_PIN           LL_GPIO_PIN_15 // PH.15
+#endif
+
 // SDRAM
 #define SDRAM_BANK2
 

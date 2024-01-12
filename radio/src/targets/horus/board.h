@@ -61,6 +61,12 @@ extern uint16_t sessionTimer;
 
 #define SLAVE_MODE()                   (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
 
+#if defined(RADIO_F16)
+// initilizes the board for the bootloader
+#define HAVE_BOARD_BOOTLOADER_INIT 1
+void boardBootloaderInit();
+#endif
+
 // Board driver
 void boardInit();
 void boardOff();
