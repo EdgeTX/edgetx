@@ -134,7 +134,9 @@ void applyDefaultTemplate()
   }
 #endif
 
+#if defined(USE_HATS_AS_KEYS)
   g_model.hatsMode = HATSMODE_GLOBAL;
+#endif
 }
 
 void setModelDefaults(uint8_t id)
