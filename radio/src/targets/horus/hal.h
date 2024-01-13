@@ -241,8 +241,8 @@
     #define SWITCHES_E_INVERTED
   #endif
 
-  #if defined(PCBX10)
-  // Gimbal switch left
+  #if defined(PCBX10) && !defined(RADIO_FAMILY_T16)
+    // Gimbal switch left
     #define STORAGE_SWITCH_I
     #define HARDWARE_SWITCH_I
     #define SWITCHES_GPIO_REG_I           GPIOH
@@ -253,7 +253,7 @@
     #define SWITCHES_GPIO_REG_J           GPIOH
     #define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_15 // PH.15
   #elif defined(PCBX12S)
-  // Gimbal switch left
+    // Gimbal switch left
     #define STORAGE_SWITCH_I
     #define HARDWARE_SWITCH_I
     #define SWITCHES_GPIO_REG_I           GPIOB
