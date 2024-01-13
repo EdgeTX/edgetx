@@ -20,6 +20,7 @@ on:
       - '2.6'
       - '2.7'
       - '2.8'
+      - '2.9'
       - 'main'
     paths:
       - '.github/workflows/win_cpn-64.yml'
