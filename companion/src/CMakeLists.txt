@@ -24,10 +24,6 @@ endif()
 # different versions for different eeproms easier, i.e. without manually renaming
 set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_MAJOR}.${VERSION_MINOR}")
 
-# On OS X we copy dfu-util to the application bundle. This the path from which we copy
-# the binary (default homebrew path)
-set(DFU_UTIL_PATH "/usr/local/bin/dfu-util")
-
 option(DEBUG_STORAGE_IMPORT "Turn on debug output for storage import") # Disabled by default
 if(DEBUG_STORAGE_IMPORT)
   add_definitions(-DDEBUG_STORAGE_IMPORT)
@@ -360,11 +356,11 @@ include(FindDfuutil)
 include(FindLibusb1)
 include(FindOpenSSL)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if(LINUX)
   message(STATUS "install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX})
   install(TARGETS ${COMPANION_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
- install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${COMPANION_NAME})
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${COMPANION_NAME})
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/companion.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications RENAME companion${APP_NAME_SUFFIX}.desktop)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/simulator.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications RENAME simulator${APP_NAME_SUFFIX}.desktop)
   install(FILES images/linuxicons/16x16/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/16x16/apps RENAME companion${APP_NAME_SUFFIX}.png)
@@ -386,7 +382,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   if(LIBUSB1_FOUND)
     install(DIRECTORY ${LIBUSB1_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libusb-1.0.so*")
     if(DFU_UTIL_FOUND)
-      install(FILES "${DFU_UTIL_PATH}" DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+      install(
+        FILES "${DFU_UTIL_PATH}" 
+        PERMISSIONS OWNER_EXECUTE 
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+      )
     endif()
   endif()
 
