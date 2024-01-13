@@ -84,7 +84,6 @@ jobs:
           cache-key-prefix: 'install-qt-action-win64'
           version: ${{ env.QT_VERSION }}
           arch: ${{ env.MINGW_VERSION }}
-          tools: 'tools_openssl_x64'
 
       - name: Check out the repo
         uses: actions/checkout@v3
