@@ -177,11 +177,10 @@ void TableField::select(uint16_t row, uint16_t col)
   if (row >= table->row_cnt || col >= table->col_cnt) {    
     table->col_act = LV_TABLE_CELL_NONE;
     table->row_act = LV_TABLE_CELL_NONE;
-    return;
+  } else {
+   table->row_act = row;
+    table->col_act = col;
   }
-
-  table->row_act = row;
-  table->col_act = col;
 
   lv_obj_invalidate(lvobj);
   adjustScroll();

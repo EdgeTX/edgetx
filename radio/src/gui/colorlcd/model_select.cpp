@@ -533,26 +533,49 @@ void ModelLabelsWindow::onLongPressTELE()
 }
 void ModelLabelsWindow::onPressPG(bool isNext)
 {
-  std::set<uint32_t> curSel = lblselector->getSelection();
+  int rowcount = lblselector->getRowCount();
   std::set<uint32_t> sellist;
   int select = 0;
-  int rowcount = lblselector->getRowCount();
 
-  if (isNext) {
-    if (curSel.size()) select = (*curSel.rbegin() + 1) % rowcount;
-  } else {
-    if (curSel.size()) {
-      select = (int)*curSel.begin() - 1;
-      if (select < 0) select += rowcount;
+  if (g_eeGeneral.labelSingleSelect) {
+    int curSel = lblselector->getActiveItem();
+    if (isNext) {
+      select = curSel + 1;
+      // Select past last --> select all
+      if (select >= rowcount) select = -1;
     } else {
-      select = rowcount - 1;
+      if (curSel < 0) {
+        select = rowcount - 1;
+      } else {
+        select = curSel - 1;
+      }
+    }
+
+    lblselector->setActiveItem(select);
+  } else {
+    std::set<uint32_t> curSel = lblselector->getSelection();
+
+    if (isNext) {
+      if (curSel.size()) {
+        select = *curSel.rbegin() + 1;
+        // Select past last --> select all
+        if (select >= rowcount) select = -1;
+      }
+    } else {
+      if (curSel.size()) {
+        select = (int)*curSel.begin() - 1;
+      } else {
+        select = rowcount - 1;
+      }
     }
   }
 
-  sellist.insert(select);
+  if (select >= 0)
+    sellist.insert(select);
   lblselector->setSelected(sellist);  // Check the items
   lblselector->setSelected(-1);       // Force update
   lblselector->setSelected(select);   // Causes the list to scroll
+
   updateFilteredLabels(sellist);      // Update the models
 }
 void ModelLabelsWindow::onPressPGUP() { onPressPG(false); }
