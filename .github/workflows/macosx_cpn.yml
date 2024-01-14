@@ -65,23 +65,13 @@ jobs:
         run: python3 -m pip install --upgrade pip Pillow lz4 clang
 
       - name: Patch GitHub macOS build
-        run: brew install pkg-config
+        run:  brew install pkg-config
 
       - name: Install libusb
-        run:   wget https://github.com/libusb/libusb/releases/download/v1.0.20/libusb-1.0.20.tar.bz2 &&
-          export MACOSX_DEPLOYMENT_TARGET=10.9 &&
-          tar xfv libusb-1.0.20.tar.bz2 &&
-          cd libusb-1.0.20 &&
-          ./configure &&
-          make install &&
-          cd ..
+        run:  brew install libusb
 
       - name: Install dfu-util
-        run:   wget https://downloads.sourceforge.net/project/dfu-util/dfu-util-0.9.tar.gz &&
-          tar xfv dfu-util-0.9.tar.gz &&
-          cd dfu-util-0.9 &&
-          ./configure &&
-          make install
+        run:  brew install dfu-util
 
       - name: Select XCode version
         uses: maxim-lobanov/setup-xcode@v1

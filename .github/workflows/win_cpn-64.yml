@@ -20,6 +20,7 @@ on:
       - '2.6'
       - '2.7'
       - '2.8'
+      - '2.9'
       - 'main'
     paths:
       - '.github/workflows/win_cpn-64.yml'
@@ -71,7 +72,9 @@ jobs:
                                 mingw-w64-x86_64-libraqm \
                                 mingw-w64-x86_64-SDL2 \
                                 mingw-w64-x86_64-clang \
-                                mingw-w64-x86_64-nsis
+                                mingw-w64-x86_64-nsis \
+                                mingw-w64-x86_64-dfu-util \
+                                mingw-w64-x86_64-openssl
           python -m pip install clang
 
       - name: Install Qt
@@ -81,7 +84,6 @@ jobs:
           cache-key-prefix: 'install-qt-action-win64'
           version: ${{ env.QT_VERSION }}
           arch: ${{ env.MINGW_VERSION }}
-          tools: 'tools_openssl_x64'
 
       - name: Check out the repo
         uses: actions/checkout@v3

@@ -1,0 +1,13 @@
+set(APP_DIR "@CPACK_PACKAGE_DIRECTORY@/_CPack_Packages/Linux/External/AppImage")
+
+execute_process(COMMAND @CMAKE_MAKE_PROGRAM@ DESTDIR=${APP_DIR} install
+                WORKING_DIRECTORY @CMAKE_BINARY_DIR@)
+
+set(cpn_desktop_file ${APP_DIR}@CMAKE_INSTALL_PREFIX@/share/applications/@COMPANION_NAME@.desktop)
+#set(icon_file ${APP_DIR}@CMAKE_INSTALL_PREFIX@/share/applications/@COMPANION_NAME@.desktop)
+
+# This is done by cmake install target
+# setup Companion application
+# add -v0 to linuxdeploy for debug info
+execute_process(COMMAND env NO_APPSTREAM=1 @LINUXDEPLOY_APP@ --appdir ${APP_DIR} -e @COMPANION_NAME@ -d ${cpn_desktop_file} --plugin qt --output appimage
+                WORKING_DIRECTORY @CMAKE_BINARY_DIR@)

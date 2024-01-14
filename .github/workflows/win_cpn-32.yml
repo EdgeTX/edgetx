@@ -64,7 +64,9 @@ jobs:
                                 mingw-w64-i686-SDL2 \
                                 mingw-w64-i686-clang \
                                 mingw-w64-i686-openssl \
-                                mingw-w64-i686-nsis
+                                mingw-w64-i686-nsis \
+                                mingw-w64-i686-dfu-util \
+                                mingw-w64-i686-openssl
           SETUPTOOLS_USE_DISTUTILS=stdlib pip install lz4
           python -m pip install clang lz4
 
