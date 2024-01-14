@@ -24,9 +24,8 @@
 
 #if defined(LUA)
 
-#define SWAP_DEFINED
 #include "opentx.h"
-
+#include "lua/lua_states.h"
 
 ::testing::AssertionResult __luaExecStr(const char * str)
 {
@@ -168,6 +167,7 @@ TEST(Lua, Switches)
 {
   luaExecStr("if MIXSRC_SA == nil then error('failed') end");
   luaExecStr("if MIXSRC_SB == nil then error('failed') end");
+  luaExecStr("if getSwitchIndex('Rud-') == nil then error('failed') end");
 }
 
 #endif   // #if defined(LUA)

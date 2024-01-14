@@ -21,10 +21,12 @@
 
 #include "lua_widget.h"
 #include "lua_widget_factory.h"
+#include "draw_functions.h"
 
 #include "lua_api.h"
 #include "lua_event.h"
-#include "draw_functions.h"
+#include "lua_states.h"
+
 #include "touch.h"
 
 #define MAX_INSTRUCTIONS       (20000/100)

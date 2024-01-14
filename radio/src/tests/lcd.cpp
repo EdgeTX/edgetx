@@ -27,7 +27,6 @@
 #include <math.h>
 #include <gtest/gtest.h>
 
-#define SWAP_DEFINED
 #include "opentx.h"
 #include "location.h"
 #include "targets/simu/simulcd.h"

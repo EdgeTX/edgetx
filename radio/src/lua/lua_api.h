@@ -19,20 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LUA_API_H_
-#define _LUA_API_H_
+#pragma once
 
 #if defined(LUA)
 
 // prevent C++ code to be included from lua.h
 #include "rtos.h"
 
-extern "C" {
-  #include <lua.h>
-  #include <lauxlib.h>
-  #include <lualib.h>
-  #include <lgc.h>
-}
 
 #include "dataconstants.h"
 #include "opentx_types.h"
@@ -56,7 +49,6 @@ void luaReceiveData(uint8_t* buf, uint32_t len);
 void luaSetSendCb(void* ctx, void (*cb)(void*, uint8_t));
 void luaSetGetSerialByte(void* ctx, int (*fct)(void*, uint8_t*));
 
-extern lua_State * lsScripts;
 
 extern bool luaLcdAllowed;
 
@@ -84,35 +76,14 @@ extern Widget* runningFS;
 
 LcdFlags flagsRGB(LcdFlags flags);
 
-extern lua_State* lsWidgets;
 extern uint32_t luaExtraMemoryUsage;
 void luaInitThemesAndWidgets();
 #endif
 
 void luaInit();
+void luaClose();
+
 void luaEmptyEventBuffer();
-
-#define LUA_INIT_THEMES_AND_WIDGETS()  luaInitThemesAndWidgets()
-#define lua_registernumber(L, n, i)    (lua_pushnumber(L, (i)), lua_setglobal(L, (n)))
-#define lua_registerint(L, n, i)       (lua_pushinteger(L, (i)), lua_setglobal(L, (n)))
-#define lua_pushtableboolean(L, k, v)  (lua_pushstring(L, (k)), lua_pushboolean(L, (v)), lua_settable(L, -3))
-#define lua_pushtableinteger(L, k, v)  (lua_pushstring(L, (k)), lua_pushinteger(L, (v)), lua_settable(L, -3))
-#define lua_pushtablenumber(L, k, v)   (lua_pushstring(L, (k)), lua_pushnumber(L, (v)), lua_settable(L, -3))
-
-// size based string (possibly no null-termination)
-#define __lua_strncpy(s)              \
-  char tmp[sizeof(s) + 1];            \
-  strncpy(tmp, (s), sizeof(tmp) - 1); \
-  tmp[sizeof(s)] = '\0';
-
-// size based string (possibly no null-termination)
-#define lua_pushnstring(L, s)          { __lua_strncpy(s); lua_pushstring(L, tmp); }
-#define lua_pushtablenstring(L, k, v)  { __lua_strncpy(v); lua_pushstring(L, (k)); lua_pushstring(L, tmp); lua_settable(L, -3); }
-
-// null-terminated string
-#define lua_pushtablestring(L, k, v)   (lua_pushstring(L, (k)), lua_pushstring(L, (v)), lua_settable(L, -3))
-
-#define lua_registerlib(L, name, tab)  (luaL_newmetatable(L, name), luaL_setfuncs(L, tab, 0), lua_setglobal(L, name))
 
 enum luaScriptInputType {
   INPUT_TYPE_FIRST = 0,
@@ -188,13 +159,9 @@ extern bool    luaLcdAllowed;
 extern ScriptInternalData scriptInternalData[MAX_SCRIPTS];
 extern ScriptInputsOutputs scriptInputsOutputs[MAX_SCRIPTS];
 
-void luaClose(lua_State ** L);
 bool luaTask(bool allowLcdUsage);
 void checkLuaMemoryUsage();
 void luaExec(const char * filename);
-void luaDoGc(lua_State * L, bool full);
-uint32_t luaGetMemUsed(lua_State * L);
-void luaGetValueAndPush(lua_State * L, int src);
 bool isTelemetryScriptAvailable();
 
 #define luaGetCpuUsed(idx) scriptInternalData[idx].instructions
@@ -231,12 +198,6 @@ struct LuaField {
 bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags=0);
 bool luaFindFieldById(int id, LuaField & field, unsigned int flags=0);
 void luaLoadThemes();
-void luaRegisterLibraries(lua_State * L);
-void registerBitmapClass(lua_State * L);
-void luaSetInstructionsLimit(lua_State* L, int count);
-int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * mode);
-void luaPushDateTime(lua_State * L, uint32_t year, uint32_t mon, uint32_t day,
-                            uint32_t hour, uint32_t min, uint32_t sec);
 
 // Unregister LUA widget factories
 void luaUnregisterWidgets();
@@ -267,5 +228,3 @@ void * tracer_alloc(void * ud, void * ptr, size_t osize, size_t nsize);
 #define LUA_LOAD_MODEL_SCRIPTS()
 
 #endif // defined(LUA)
-
-#endif // _LUA_API_H_

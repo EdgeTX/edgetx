@@ -21,10 +21,11 @@
 
 #define LUA_LIB
 
-#include <cstdio>
-
+#include "opentx.h"
 #include "lua_api.h"
 #include "api_filesystem.h"
+
+#include "FatFs/ff.h"
 
 // garbage collector for luaDir
 static int dir_gc(lua_State* L)
@@ -82,6 +83,9 @@ int luaDir(lua_State* L)
   lua_pushcclosure(L, dir_iter, 1);
   return 1;
 }
+
+void luaPushDateTime(lua_State * L, uint32_t year, uint32_t mon, uint32_t day,
+                     uint32_t hour, uint32_t min, uint32_t sec);
 
 /*luadoc
 @function fstat(path)
@@ -179,7 +183,7 @@ int luaDelete(lua_State* L)
     return 0;
   }
 
-  lua_pushunsigned(L, res);
+  lua_pushinteger(L, res);
   return 1;
 }
 

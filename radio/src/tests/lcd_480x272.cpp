@@ -22,9 +22,8 @@
 #include <gtest/gtest.h>
 #include <math.h>
 
-#define SWAP_DEFINED
-#include "location.h"
 #include "opentx.h"
+#include "location.h"
 
 #if defined(COLORLCD)
 

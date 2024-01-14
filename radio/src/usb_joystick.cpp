@@ -25,6 +25,8 @@
 #include "hal/usb_driver.h"
 #include "usb_joystick.h"
 
+#include <cmath>
+
 #define MAX_HID_REPORTDESC 160
 #define MAX_HID_REPORT 80
 

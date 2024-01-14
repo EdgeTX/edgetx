@@ -32,6 +32,8 @@
 #include "lua_widget.h"
 #include "lua_widget_factory.h"
 
+#include "lua_states.h"
+
 #define MAX_INSTRUCTIONS       (20000/100)
 #define LUA_WARNING_INFO_LEN    64
 
@@ -181,16 +183,16 @@ ZoneOption *createOptionsArray(int reference, uint8_t maxOptions)
                        option->type == ZoneOption::Timer ||
                        option->type == ZoneOption::Align) {
               luaL_checktype(lsWidgets, -1, LUA_TNUMBER);  // value is number
-              option->deflt.unsignedValue = lua_tounsigned(lsWidgets, -1);
+              option->deflt.unsignedValue = lua_tointeger(lsWidgets, -1);
               // TRACE("default unsigned = %u", option->deflt.unsignedValue);
             } else if (option->type == ZoneOption::Color) {
               luaL_checktype(lsWidgets, -1, LUA_TNUMBER);  // value is number
               option->deflt.unsignedValue =
-                  COLOR_VAL(flagsRGB(lua_tounsigned(lsWidgets, -1)));
+                  COLOR_VAL(flagsRGB(lua_tointeger(lsWidgets, -1)));
               // TRACE("default unsigned = %u", option->deflt.unsignedValue);
             } else if (option->type == ZoneOption::Bool) {
               luaL_checktype(lsWidgets, -1, LUA_TNUMBER);  // value is number
-              option->deflt.boolValue = (lua_tounsigned(lsWidgets, -1) != 0);
+              option->deflt.boolValue = (lua_tointeger(lsWidgets, -1) != 0);
               // TRACE("default bool = %d", (int)(option->deflt.boolValue));
             } else if (option->type == ZoneOption::String) {
               strncpy(option->deflt.stringValue, lua_tostring(lsWidgets, -1),
@@ -360,7 +362,7 @@ void luaInitThemesAndWidgets()
   lsWidgetsTrace.script = "lua_newstate(widgets)";
   lsWidgets = lua_newstate(tracer_alloc, &lsWidgetsTrace);   //we use tracer allocator
 #else
-  lsWidgets = lua_newstate(l_alloc, NULL);   //we use Lua default allocator
+  lsWidgets = luaL_newstate();   //we use Lua default allocator
 #endif
   if (lsWidgets) {
     // install our panic handler

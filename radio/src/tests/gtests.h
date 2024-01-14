@@ -26,7 +26,6 @@
 #include <math.h>
 #include <gtest/gtest.h>
 
-#define SWAP_DEFINED
 #include "opentx.h"
 #include "model_init.h"
 #include "switches.h"
