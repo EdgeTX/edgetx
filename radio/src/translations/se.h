@@ -728,12 +728,12 @@
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT         "Snabbval av modell"
-  #define TR_LABELS_SELECT             "Label select"
-  #define TR_LABELS_MATCH              "Label matching"
-  #define TR_FAV_MATCH                 "Favorites matching"
-  #define TR_LABELS_SELECT_MODE        "Multi select","Single select"
-  #define TR_LABELS_MATCH_MODE         "Match all","Match any"
-  #define TR_FAV_MATCH_MODE            "Must match","Optional match"
+  #define TR_LABELS_SELECT              "Etikettval"
+  #define TR_LABELS_MATCH               "Etikettmatchning"
+  #define TR_FAV_MATCH                  "Matcha favoriter"
+  #define TR_LABELS_SELECT_MODE         "Flerval","Enskilt val"
+  #define TR_LABELS_MATCH_MODE          "Matcha alla","Matcha någon"
+  #define TR_FAV_MATCH_MODE             "Måste matcha","Alternativt matcha"
 #endif
 
 #define TR_SELECT_TEMPLATE_FOLDER       "VÄLJ MALLKATALOG"
