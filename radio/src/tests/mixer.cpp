@@ -421,7 +421,7 @@ TEST_F(TrimsTest, CopyTrimsToOffset)
   evalFunctions(g_model.customFn, modelFunctionsContext); // it disables all safety channels
   copyTrimsToOffset(ELE_CHAN);
   EXPECT_EQ(getTrimValue(0, ELE_STICK), -100); // unchanged
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, TRIM_SCALE(-195));
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195);
 }
 
 TEST_F(TrimsTest, CopySticksToOffset)
@@ -449,7 +449,7 @@ TEST_F(TrimsTest, MoveTrimsToOffsets)
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 0);  // back to neutral
   EXPECT_EQ(g_model.limitData[THR_CHAN].offset, TRIM_SCALE(195)); // value transferred
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, TRIM_SCALE(-195)); // value transferred
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
   evalMixes(1);
 #if defined(SURFACE_RADIO)
   EXPECT_EQ(channelOutputs[THR_CHAN], 99); // THR output value is still reflecting 100 trim
@@ -482,7 +482,7 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithTrimIdle)
   // Other trims should
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
 #if defined(SURFACE_RADIO)
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -97); // value transferred
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
   evalMixes(1);
   EXPECT_EQ(channelOutputs[THR_CHAN], 228);  // THR output value is reflecting 100 trim idle
 #else
@@ -499,7 +499,7 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrossTrims)
   g_model.thrTrim = 0;
   g_model.limitData[THR_CHAN].offset = 0;
   g_model.limitData[ELE_CHAN].offset = 0;
-  g_model.thrTrimSw = MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM;
+  g_model.setThrottleStickTrimSource(MIXSRC_TRIMELE);
   ExpoData *expo = expoAddress(THR_CHAN);
   expo->trimSource = ELE_TRIM_SOURCE;
   expo = expoAddress(ELE_CHAN);
@@ -511,7 +511,7 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrossTrims)
   setTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM, -100);
   evalMixes(1);
   EXPECT_EQ(channelOutputs[THR_CHAN], TRIM_SCALE(200));  // THR output value is reflecting 100 Ele trim
-  EXPECT_EQ(channelOutputs[ELE_CHAN], TRIM_SCALE(-200)); // ELE output value is reflecting -100 Thr trim
+  EXPECT_EQ(channelOutputs[ELE_CHAN], -200);             // ELE output value is reflecting -100 Thr trim
   moveTrimsToOffsets();
   evalMixes(1);
 #if defined(SURFACE_RADIO)
@@ -522,7 +522,7 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrossTrims)
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 0);  // back to neutral
   EXPECT_EQ(g_model.limitData[THR_CHAN].offset, TRIM_SCALE(195)); // value transferred
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, TRIM_SCALE(-195)); // value transferred
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
 }
 
 TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrosstrimsAndTrimIdle)
@@ -554,7 +554,7 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrosstrimsAndTrimIdle)
 
   // Other trims should
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, TRIM_SCALE(-195)); // Ele chan offset transferred
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // Ele chan offset transferred
   evalMixes(1);
 #if defined(SURFACE_RADIO)
   EXPECT_EQ(channelOutputs[THR_CHAN], 228);  // THR output value is still reflecting 100 trim idle
@@ -832,15 +832,15 @@ TEST_F(TrimsTest, throttleTrimEle) {
   MODEL_RESET();
   MIXER_RESET();
   setModelDefaults();
-  g_eeGeneral.templateSetup = 17;
+  g_eeGeneral.templateSetup = 17; // WARNING: NOT RETA (TAER or TH/ST)
   applyDefaultTemplate();
   g_model.thrTrim = 1;
-// checks ELE sticks are not affected by throttleTrim
-// stick max + trim min
+  // checks ELE sticks are not affected by throttleTrim
+  // stick max + trim min
   anaSetFiltered(ELE_STICK, +1024);
   setTrimValue(0, ELE_STICK, TRIM_MIN);
   evalMixes(1);
-  EXPECT_EQ(channelOutputs[THR_CHAN], 1024 - TRIM_SCALE(256));
+  EXPECT_EQ(channelOutputs[THR_CHAN], 1024 - 256);
   SYSTEM_RESET();
   MODEL_RESET();
   MIXER_RESET();
