@@ -368,16 +368,6 @@ struct LuaSingleField {
 };
 
 const LuaSingleField luaSingleFields[] = {
-#if defined(SURFACE_RADIO)
-    {MIXSRC_FIRST_STICK,     "ste", "Steering"},
-    {MIXSRC_FIRST_STICK + 1, "thr", "Throttle"},
-#else
-    {MIXSRC_FIRST_STICK,     "rud", "Rudder"},
-    {MIXSRC_FIRST_STICK + 1, "ele", "Elevator"},
-    {MIXSRC_FIRST_STICK + 2, "thr", "Throttle"},
-    {MIXSRC_FIRST_STICK + 3, "ail", "Aileron"},
-#endif
-
 #if defined(IMU)
     {MIXSRC_TILT_X, "tiltx", "Tilt X"},
     {MIXSRC_TILT_Y, "tilty", "Tilt Y"},
@@ -394,20 +384,6 @@ const LuaSingleField luaSingleFields[] = {
 
     {MIXSRC_MAX, "min", "MIN"},
     {MIXSRC_MAX, "max", "MAX"},
-#if defined(SURFACE_RADIO)
-    {MIXSRC_TrimSte, "trim-ste", "Steering trim"},
-    {MIXSRC_TrimThr, "trim-thr", "Throttle trim"},
-#else
-    {MIXSRC_TrimRud, "trim-rud", "Rudder trim"},
-    {MIXSRC_TrimEle, "trim-ele", "Elevator trim"},
-    {MIXSRC_TrimThr, "trim-thr", "Throttle trim"},
-    {MIXSRC_TrimAil, "trim-ail", "Aileron trim"},
-#endif
-
-#if MAX_TRIMS > 4
-    {MIXSRC_TrimT5, "trim-t5", "Aux trim T5"},
-    {MIXSRC_TrimT6, "trim-t6", "Aux trim T6"},
-#endif
 
     {MIXSRC_TX_VOLTAGE, "tx-voltage", "Transmitter battery voltage [volts]"},
     {MIXSRC_TX_TIME, "clock", "RTC clock [minutes from midnight]"},

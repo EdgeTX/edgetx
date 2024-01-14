@@ -5,16 +5,24 @@ LEGACY_NAMES = [
         "targets": {"x10", "x10express", "t16", "tx16s", "t18"},
         "inputs": {
             "LH": {
-                "yaml": "Rud"
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
             },
             "LV": {
-                "yaml": "Ele"
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
             },
             "RV": {
-                "yaml": "Thr"
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "RH": {
-                "yaml": "Ail"
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
             },
             "P1": {
                 "yaml": "S1",
@@ -85,16 +93,24 @@ LEGACY_NAMES = [
         "targets": {"x12s"},
         "inputs": {
             "LH": {
-                "yaml": "Rud"
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
             },
             "LV": {
-                "yaml": "Ele"
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
             },
             "RV": {
-                "yaml": "Thr"
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "RH": {
-                "yaml": "Ail"
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
             },
             "P1": {
                 "yaml": "S1",
@@ -165,16 +181,24 @@ LEGACY_NAMES = [
         "targets": {"x9e"},
         "inputs": {
             "LH": {
-                "yaml": "Rud"
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
             },
             "LV": {
-                "yaml": "Ele"
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
             },
             "RV": {
-                "yaml": "Thr"
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "RH": {
-                "yaml": "Ail"
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
             },
             "P1": {
                 "yaml": "POT1",
@@ -224,16 +248,24 @@ LEGACY_NAMES = [
         "targets": {"boxer"},
         "inputs": {
             "LH": {
-                "yaml": "Rud"
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
             },
             "LV": {
-                "yaml": "Ele"
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
             },
             "RV": {
-                "yaml": "Thr"
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "RH": {
-                "yaml": "Ail"
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
             },
             "P1": {
                 "yaml": "POT1",
@@ -262,10 +294,14 @@ LEGACY_NAMES = [
         "targets": {"mt12"},
         "inputs": {
             "ST": {
-                "yaml": "ST"
+                "yaml": "ST",
+                "lua": "ste",
+                "description": "Steering"
             },
             "TH": {
-                "yaml": "TH"
+                "yaml": "TH",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "P1": {
                 "yaml": "POT1",
@@ -311,16 +347,24 @@ LEGACY_NAMES = [
         },
         "inputs": {
             "LH": {
-                "yaml": "Rud"
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
             },
             "LV": {
-                "yaml": "Ele"
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
             },
             "RV": {
-                "yaml": "Thr"
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "RH": {
-                "yaml": "Ail"
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
             },
             "P1": {
                 "yaml": "POT1",
@@ -344,16 +388,24 @@ LEGACY_NAMES = [
         },
         "inputs": {
             "LH": {
-                "yaml": "Rud"
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
             },
             "LV": {
-                "yaml": "Ele"
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
             },
             "RV": {
-                "yaml": "Thr"
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "RH": {
-                "yaml": "Ail"
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
             },
             "P1": {
                 "yaml": "POT1",
@@ -398,16 +450,24 @@ LEGACY_NAMES = [
         },
         "inputs": {
             "LH": {
-                "yaml": "Rud"
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
             },
             "LV": {
-                "yaml": "Ele"
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
             },
             "RV": {
-                "yaml": "Thr"
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "RH": {
-                "yaml": "Ail"
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
             },
             "P1": {
                 "yaml": "POT1",
@@ -478,16 +538,24 @@ LEGACY_NAMES = [
         "targets": {"t20"},
         "inputs": {
             "LH": {
-                "yaml": "Rud"
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
             },
             "LV": {
-                "yaml": "Ele"
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
             },
             "RV": {
-                "yaml": "Thr"
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "RH": {
-                "yaml": "Ail"
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
             },
             "P1": {
                 "yaml": "POT1",
@@ -537,16 +605,24 @@ LEGACY_NAMES = [
         "targets": {"pocket"},
         "inputs": {
             "LH": {
-                "yaml": "Rud"
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
             },
             "LV": {
-                "yaml": "Ele"
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
             },
             "RV": {
-                "yaml": "Thr"
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "RH": {
-                "yaml": "Ail"
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
             },
             "P1": {
                 "yaml": "POT1",
@@ -561,16 +637,24 @@ LEGACY_NAMES = [
         "targets": {"x9lite", "x9lites"},
         "inputs": {
             "LH": {
-                "yaml": "Rud"
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
             },
             "LV": {
-                "yaml": "Ele"
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
             },
             "RV": {
-                "yaml": "Thr"
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "RH": {
-                "yaml": "Ail"
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
             },
             "P1": {
                 "yaml": "POT1",
@@ -585,16 +669,24 @@ LEGACY_NAMES = [
         "targets": {"x9d", "x9d+", "x9d+2019"},
         "inputs": {
             "LH": {
-                "yaml": "Rud"
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
             },
             "LV": {
-                "yaml": "Ele"
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
             },
             "RV": {
-                "yaml": "Thr"
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "RH": {
-                "yaml": "Ail"
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
             },
             "P1": {
                 "yaml": "POT1",
