@@ -4,7 +4,7 @@ project(EdgeTX)
 
 set(VERSION_MAJOR "2")
 set(VERSION_MINOR "9")
-set(VERSION_REVISION "2")
+set(VERSION_REVISION "3")
 set(CODENAME "Providence")
 
 if(MINGW OR WIN32)
