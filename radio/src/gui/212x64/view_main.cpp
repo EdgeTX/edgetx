@@ -96,13 +96,17 @@ static bool isAsteriskDisplayed() {
 void doMainScreenGraphics()
 {
   int16_t calibStickVert = calibratedAnalogs[ADC_MAIN_LV];
-  if (g_model.throttleReversed && inputMappingConvertMode(ADC_MAIN_LV) == THR_STICK)
+  if (g_model.throttleReversed &&
+      inputMappingConvertMode(ADC_MAIN_LV) == inputMappingGetThrottle()) {
     calibStickVert = -calibStickVert;
+  }
   drawStick(LBOX_CENTERX, calibratedAnalogs[ADC_MAIN_LH], calibStickVert);
 
   calibStickVert = calibratedAnalogs[ADC_MAIN_RV];
-  if (g_model.throttleReversed && inputMappingConvertMode(ADC_MAIN_RV) == THR_STICK)
+  if (g_model.throttleReversed &&
+      inputMappingConvertMode(ADC_MAIN_RV) == inputMappingGetThrottle()) {
     calibStickVert = -calibStickVert;
+  }
   drawStick(RBOX_CENTERX, calibratedAnalogs[ADC_MAIN_RH], calibStickVert);
 }
 

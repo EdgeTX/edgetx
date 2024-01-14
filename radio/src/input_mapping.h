@@ -23,16 +23,6 @@
 
 #include <stdint.h>
 
-#if defined(SURFACE_RADIO)
-  #define STE_STICK 0
-  #define THR_STICK 1
-#else
-// Air radios / input order in mode 1
-#define RUD_STICK 0
-#define ELE_STICK 1
-#define THR_STICK 2
-#define AIL_STICK 3
-#endif
 
 #define MAX_INPUT_MODES 4
 

@@ -70,31 +70,33 @@ class MixerTest : public OpenTxTest {};
 #define MIXSRC_CYC3    (MIXSRC_FIRST_HELI + 2)
 
 #if defined(SURFACE_RADIO)
-  #define ELE_STICK         STE_STICK
-  #define THR_CHAN          1
   #define ELE_CHAN          0
-  #define THR_TRIM_SOURCE   TRIM_THR
-  #define ELE_TRIM_SOURCE   TRIM_STE
-  #define MIXSRC_Ele        (MIXSRC_FIRST_STICK + 0)
-  #define MIXSRC_Ail        (MIXSRC_FIRST_STICK + 3)
-  #define MIXSRC_TRIMELE    (MIXSRC_TrimSte)
-  #define MIXSRC_TRIMTHR    (MIXSRC_TrimThr)
   #define ELE_THRTRIMSW     1
   #define THR_STICK_MIN_THR_POS 0
   #define TRIM_SCALE(x) (x / 2)
 #else
-  #define THR_CHAN          2
   #define ELE_CHAN          1
-  #define THR_TRIM_SOURCE   TRIM_THR
-  #define ELE_TRIM_SOURCE   TRIM_ELE
-  #define MIXSRC_Ele        (MIXSRC_FIRST_STICK + 1)
-  #define MIXSRC_Ail        (MIXSRC_FIRST_STICK + 3)
-  #define MIXSRC_TRIMELE    (MIXSRC_TrimEle)
-  #define MIXSRC_TRIMTHR    (MIXSRC_TrimThr)
-  #define ELE_THRTRIMSW     (MIXSRC_TrimEle - MIXSRC_FIRST_TRIM)
+  #define ELE_THRTRIMSW     1
   #define THR_STICK_MIN_THR_POS -1024
   #define TRIM_SCALE(x) (x)
 #endif
+
+#define THR_CHAN          inputMappingGetThrottle()
+#define THR_STICK         THR_CHAN
+#define ELE_STICK         ELE_CHAN
+#define AIL_STICK         3
+
+#define MIXSRC_ELE        (MIXSRC_FIRST_STICK + ELE_CHAN)
+#define MIXSRC_THR        (MIXSRC_FIRST_STICK + THR_CHAN)
+#define MIXSRC_AIL        (MIXSRC_FIRST_STICK + AIL_STICK)
+
+#define MIXSRC_TRIMELE    (MIXSRC_FIRST_TRIM + ELE_CHAN)
+#define MIXSRC_TRIMTHR    (MIXSRC_FIRST_TRIM + THR_CHAN)
+
+#define ELE_TRIM_SOURCE   (-1 -ELE_CHAN)
+#define THR_TRIM_SOURCE   (-1 -THR_CHAN)
+
+
 TEST_F(MixerTest, throttleInvert)
 {
   // Mode 1 / reversed
@@ -854,9 +856,9 @@ TEST(Heli, BasicTest)
   MODEL_RESET();
   MIXER_RESET();
   setModelDefaults();
-  g_model.swashR.collectiveSource = MIXSRC_Thr;
-  g_model.swashR.elevatorSource = MIXSRC_Ele;
-  g_model.swashR.aileronSource = MIXSRC_Ail;
+  g_model.swashR.collectiveSource = MIXSRC_THR;
+  g_model.swashR.elevatorSource = MIXSRC_ELE;
+  g_model.swashR.aileronSource = MIXSRC_AIL;
   g_model.swashR.collectiveWeight = 100;
   g_model.swashR.elevatorWeight = 100;
   g_model.swashR.aileronWeight = 100;
@@ -890,9 +892,9 @@ TEST(Heli, Mode2Test)
   setModelDefaults();
   g_eeGeneral.templateSetup = 2;
   applyDefaultTemplate();
-  g_model.swashR.collectiveSource = MIXSRC_Thr;
-  g_model.swashR.elevatorSource = MIXSRC_Ele;
-  g_model.swashR.aileronSource = MIXSRC_Ail;
+  g_model.swashR.collectiveSource = MIXSRC_THR;
+  g_model.swashR.elevatorSource = MIXSRC_ELE;
+  g_model.swashR.aileronSource = MIXSRC_AIL;
   g_model.swashR.collectiveWeight = 100;
   g_model.swashR.elevatorWeight = 100;
   g_model.swashR.aileronWeight = 100;
