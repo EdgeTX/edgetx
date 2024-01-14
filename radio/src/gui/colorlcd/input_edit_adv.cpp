@@ -59,7 +59,8 @@ InputEditAdvanced::InputEditAdvanced(uint8_t input_n, uint8_t index) :
   // Trim
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_TRIM, 0, COLOR_THEME_PRIMARY1);
-  auto c = new Choice(line, rect_t{}, -TRIM_OFF, -TRIM_LAST,
+  const auto trimLast = TRIM_OFF + keysGetMaxTrims() - 1;
+  auto c = new Choice(line, rect_t{}, -TRIM_OFF, -trimLast,
                       GET_VALUE(-input->trimSource),
                       SET_VALUE(input->trimSource, -newValue));
 

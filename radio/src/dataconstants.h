@@ -388,11 +388,7 @@ enum PotsWarnMode {
 #define MAX_GVARS                    9
 
 // Maximum number analog inputs by type
-#if defined(SURFACE_RADIO)
-  #define MAX_STICKS        2
-#else
-  #define MAX_STICKS        4
-#endif
+#define MAX_STICKS        4
 
 #if defined(COLORLCD)
   #define MAX_POTS        16
@@ -431,13 +427,6 @@ enum SwitchSources {
 
   SWSRC_FIRST_TRIM SKIP,
   SWSRC_LAST_TRIM SKIP = SWSRC_FIRST_TRIM + 2 * MAX_TRIMS - 1,
-
-#if NUM_TRIMS > 6
-  SWSRC_TrimT7Down,
-  SWSRC_TrimT7Up,
-  SWSRC_TrimT8Down,
-  SWSRC_TrimT8Up,
-#endif
 
   SWSRC_FIRST_LOGICAL_SWITCH SKIP,
   SWSRC_LAST_LOGICAL_SWITCH SKIP = SWSRC_FIRST_LOGICAL_SWITCH + MAX_LOGICAL_SWITCHES - 1,
@@ -486,7 +475,8 @@ enum MixSources {
 
 #if defined(LUA_INPUTS)
   MIXSRC_FIRST_LUA SKIP,
-  MIXSRC_LAST_LUA SKIP = MIXSRC_FIRST_LUA + (MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS) - 1,
+  MIXSRC_LAST_LUA SKIP =
+      MIXSRC_FIRST_LUA + (MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS) - 1,
 #endif
 
   // Semantic sticks
@@ -519,27 +509,8 @@ enum MixSources {
   MIXSRC_LAST_HELI SKIP = MIXSRC_FIRST_HELI + 2,
 
   MIXSRC_FIRST_TRIM SKIP,
-#if defined(SURFACE_RADIO)
-  MIXSRC_TrimSte = MIXSRC_FIRST_TRIM,
-  MIXSRC_TrimThr,
-  MIXSRC_TrimT3,
-  MIXSRC_TrimT4,
-#else
-  MIXSRC_TrimRud = MIXSRC_FIRST_TRIM,
-  MIXSRC_TrimEle,
-  MIXSRC_TrimThr,
-  MIXSRC_TrimAil,
-#endif
+  MIXSRC_LAST_TRIM SKIP = MIXSRC_FIRST_TRIM + MAX_TRIMS - 1,
 
-  //#if defined(PCBHORUS)
-  MIXSRC_TrimT5,
-  MIXSRC_TrimT6,
-  MIXSRC_TrimT7,
-  MIXSRC_TrimT8,
-  MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimT8,
-  //#else
-  //MIXSRC_LAST_TRIM SKIP = MIXSRC_TrimAil,
-  //#endif
   MIXSRC_FIRST_SWITCH SKIP,
   MIXSRC_LAST_SWITCH SKIP = MIXSRC_FIRST_SWITCH + MAX_SWITCHES - 1,
 
@@ -570,12 +541,6 @@ enum MixSources {
 #define MIXSRC_LAST                 MIXSRC_LAST_CH
 #define INPUTSRC_FIRST              MIXSRC_FIRST_STICK
 #define INPUTSRC_LAST               MIXSRC_LAST_TELEM
-
-#if defined(SURFACE_RADIO)
-  #define MIXSRC_Thr                  (MIXSRC_FIRST_STICK + 1)
-#else
-  #define MIXSRC_Thr                  (MIXSRC_FIRST_STICK + 2)
-#endif
 
 #if defined(FUNCTION_SWITCHES)
 #define MIXSRC_LAST_REGULAR_SWITCH  (MIXSRC_FIRST_SWITCH + switchGetMaxSwitches() - 1)

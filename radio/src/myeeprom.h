@@ -159,30 +159,6 @@ enum CurveRefType {
 
 #define TRIM_OFF    (1)
 #define TRIM_ON     (0)
-#if defined(SURFACE_RADIO)
-  #define TRIM_STE    (-1)
-  #define TRIM_THR    (-2)
-  #define TRIM_T3     (-3)
-  #define TRIM_T4     (-4)
-#else
-  #define TRIM_RUD    (-1)
-  #define TRIM_ELE    (-2)
-  #define TRIM_THR    (-3)
-  #define TRIM_AIL    (-4)
-#endif
-#if defined(PCBPL18)
-  #define TRIM_T5   (-5)
-  #define TRIM_T6   (-6)
-  #define TRIM_T7   (-7)
-  #define TRIM_T8   (-8)
-  #define TRIM_LAST TRIM_T8
-#elif defined(PCBHORUS)
-  #define TRIM_T5   (-5)
-  #define TRIM_T6   (-6)
-  #define TRIM_LAST TRIM_T6
-#else
-  #define TRIM_LAST TRIM_AIL
-#endif
 
 enum MixerMultiplex {
   MLTPX_ADD  = 0,
