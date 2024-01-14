@@ -50,7 +50,7 @@ class ListBase : public TableField
   void setNames(const std::vector<std::string>& names);
   void setLineHeight(uint8_t height);
 
-  virtual void setSelected(int selected);
+  virtual void setSelected(int selected, bool force = false);
   virtual void setSelected(std::set<uint32_t> selected);
 
   int getSelected() const;

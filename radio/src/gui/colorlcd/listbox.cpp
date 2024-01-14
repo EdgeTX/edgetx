@@ -102,9 +102,9 @@ void ListBase::setLineHeight(uint8_t height)
   lv_obj_set_style_max_height(lvobj, height, LV_PART_ITEMS);
 }
 
-void ListBase::setSelected(int selected)
+void ListBase::setSelected(int selected, bool force)
 {
-  select(selected, 0);
+  select(selected, 0, force);
 }
 
 void ListBase::setSelected(std::set<uint32_t> selected)

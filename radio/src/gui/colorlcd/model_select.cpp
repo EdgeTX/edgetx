@@ -573,8 +573,7 @@ void ModelLabelsWindow::onPressPG(bool isNext)
   if (select >= 0)
     sellist.insert(select);
   lblselector->setSelected(sellist);  // Check the items
-  lblselector->setSelected(-1);       // Force update
-  lblselector->setSelected(select);   // Causes the list to scroll
+  lblselector->setSelected(select, true); // Causes the list to scroll
 
   updateFilteredLabels(sellist);      // Update the models
 }

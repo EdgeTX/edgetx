@@ -169,16 +169,16 @@ coord_t TableField::getColumnWidth(uint16_t col) const
   return lv_table_get_col_width(lvobj, col);
 }
 
-void TableField::select(uint16_t row, uint16_t col)
+void TableField::select(uint16_t row, uint16_t col, bool force)
 {
   lv_table_t* table = (lv_table_t*)lvobj;
-  if (table->row_act == row && table->col_act == row) return;
+  if (!force && table->row_act == row && table->col_act == row) return;
 
   if (row >= table->row_cnt || col >= table->col_cnt) {    
     table->col_act = LV_TABLE_CELL_NONE;
     table->row_act = LV_TABLE_CELL_NONE;
   } else {
-   table->row_act = row;
+    table->row_act = row;
     table->col_act = col;
   }
 
