@@ -439,7 +439,7 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             }
             break;
 #endif
-#if defined(RADIO_F16)
+#if defined(VIDEO_SWITCH)
           case FUNC_LCD_TO_VIDEO:
             switchToVideo();
             break;
@@ -549,18 +549,16 @@ const char* funcGetLabel(uint8_t func)
   case FUNC_SET_SCREEN:
     return STR_SF_SET_SCREEN;
 #endif
-#if defined(RADIO_F16)
-  case FUNC_LCD_TO_VIDEO:
-    return STR_SF_LCD_TO_VIDEO;
-  case FUNC_LCD_TO_RADIO:
-    return STR_SF_LCD_TO_RADIO;  
-#endif
 #if defined(AUDIO_MUTE_GPIO)
     case FUNC_DISABLE_AUDIO_AMP:
       return STR_SF_DISABLE_AUDIO_AMP;
 #endif
   case FUNC_RGB_LED:
     return STR_SF_RGBLEDS;
+  case FUNC_LCD_TO_VIDEO:
+    return STR_SF_LCD_TO_VIDEO;
+  case FUNC_LCD_TO_RADIO:
+    return STR_SF_LCD_TO_RADIO;  
 #if defined(DEBUG)
   case FUNC_TEST:
     return STR_SF_TEST;
