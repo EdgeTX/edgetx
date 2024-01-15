@@ -535,40 +535,30 @@ void ModelLabelsWindow::onPressPG(bool isNext)
 {
   int rowcount = lblselector->getRowCount();
   std::set<uint32_t> sellist;
-  int select = 0;
+  int select = -1;
 
   if (g_eeGeneral.labelSingleSelect) {
-    int curSel = lblselector->getActiveItem();
-    if (isNext) {
-      select = curSel + 1;
-      // Select past last --> select all
-      if (select >= rowcount) select = -1;
-    } else {
-      if (curSel < 0) {
-        select = rowcount - 1;
-      } else {
-        select = curSel - 1;
-      }
-    }
-
-    lblselector->setActiveItem(select);
+    select = lblselector->getActiveItem();
   } else {
-    std::set<uint32_t> curSel = lblselector->getSelection();
-
-    if (isNext) {
-      if (curSel.size()) {
-        select = *curSel.rbegin() + 1;
-        // Select past last --> select all
-        if (select >= rowcount) select = -1;
-      }
-    } else {
-      if (curSel.size()) {
-        select = (int)*curSel.begin() - 1;
-      } else {
-        select = rowcount - 1;
-      }
+    std::set<uint32_t> sel = lblselector->getSelection();
+    if (sel.size()) {
+      if (isNext)
+        select = *sel.rbegin();
+      else
+        select = *sel.begin();
     }
   }
+
+  if (isNext) {
+    select = (select + 1) % rowcount;
+  } else {
+    select = select - 1;
+    if (select < 0)
+      select = rowcount - 1;
+  }
+
+  if (g_eeGeneral.labelSingleSelect)
+    lblselector->setActiveItem(select);
 
   if (select >= 0)
     sellist.insert(select);
