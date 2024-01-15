@@ -149,6 +149,7 @@ set(HWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/hwdefs.qrc")
 # Dynamically update companion.qrc file (XML) adding collected hwdef json files.
 foreach(hwdef_json ${hwdefs_json})
   get_filename_component(hwdef_json_name ${hwdef_json} NAME)
+  message(STATUS "Hardware definition found: ${hwdef_json_name}")
   # Add file with full path and file name (w/out path) as alias to be used in actual code
   set(HWDEF_JSON_LIST "${HWDEF_JSON_LIST}    <file alias=\"${hwdef_json_name}\">${HWDEFS_DIR}/${hwdef_json_name}</file>\n")
 endforeach()
