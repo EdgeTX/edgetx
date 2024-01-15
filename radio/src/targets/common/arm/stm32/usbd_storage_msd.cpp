@@ -33,6 +33,7 @@
 #include "hal.h"
 #include "debug.h"
 
+#include "usb_descriptor.h"
 #include "usbd_storage_msd.h"
 
 #include <string.h>
@@ -63,13 +64,6 @@ enum MassstorageLuns {
 #endif
   STORAGE_LUN_NBR
 };
-
-
-// TODO: remove hack
-#define USB_NAME                     "RM TX16S"
-#define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
-#define USB_PRODUCT                  'R', 'M', ' ', 'T', 'X', '1', '6', 'S'  /* 8 Bytes */
-
 
 /** USB Mass storage Standard Inquiry Data. */
 const uint8_t STORAGE_Inquirydata_FS[] = {/* 36 */
