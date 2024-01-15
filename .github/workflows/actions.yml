@@ -54,6 +54,7 @@ jobs:
           - t8
           - tlite
           - t20
+          - t14
           - tx12
           - x10
           - x12s
@@ -98,6 +99,7 @@ jobs:
           - t8;zorro;pocket;mt12;commando8
           - tlite;tpro;tprov2;lr3pro
           - t20
+          - t14
           - tx12;tx12mk2;boxer
           - tx16s
           - x10;x10-access
