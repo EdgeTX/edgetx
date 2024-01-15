@@ -65,13 +65,6 @@ enum MassstorageLuns {
   STORAGE_LUN_NBR
 };
 
-
-// TODO: remove hack
-//#define USB_NAME                     "RM TX16S"
-//#define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
-//#define USB_PRODUCT                  'R', 'M', ' ', 'T', 'X', '1', '6', 'S'  /* 8 Bytes */
-
-
 /** USB Mass storage Standard Inquiry Data. */
 const uint8_t STORAGE_Inquirydata_FS[] = {/* 36 */
   /* LUN 0 */
