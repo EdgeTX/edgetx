@@ -91,6 +91,7 @@ extern coord_t lcdLastLeftPos;
 extern coord_t lcdNextPos;
 
 #define DISPLAY_END                    (displayBuf + DISPLAY_BUFFER_SIZE)
+#define IS_IN_DISPLAY(p)               ((p) >= displayBuf && (p) < DISPLAY_END)
 #define ASSERT_IN_DISPLAY(p)           assert((p) >= displayBuf && (p) < DISPLAY_END)
 
 
