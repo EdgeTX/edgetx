@@ -114,4 +114,5 @@ namespace DataHelpers
   std::string getStringTagMappingTag(const StringTagMappingTable& lut, unsigned int index);
   std::string getStringNameMappingTag(const StringTagMappingTable& lut, const char * name);
   std::string getStringTagMappingName(const StringTagMappingTable& lut, const char * tag);
+  QString getCompositeName(const QString defaultName, const QString customName, const bool prefixCustom);
 }

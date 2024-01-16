@@ -24,7 +24,7 @@
 #include "radiodata.h"
 #include "radiodataconversionstate.h"
 
-QString RawSwitch::toString(Board::Type board, const GeneralSettings * const generalSettings, const ModelData * const modelData) const
+QString RawSwitch::toString(Board::Type board, const GeneralSettings * const generalSettings, const ModelData * const modelData, bool prefixCustomName) const
 {
   if (board == Board::BOARD_UNKNOWN) {
     board = getCurrentBoard();
@@ -82,18 +82,15 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
             if (modelData) {
               int fsindex = Boards::getSwitchTagNum(qr.quot, board) - 1;
               custName = QString(modelData->functionSwitchNames[fsindex]).trimmed();
-              if (!custName.isEmpty())
-                swName.append(":" + custName);
             }
           }
           else {
             if (generalSettings) {
               custName = QString(generalSettings->switchConfig[qr.quot].name).trimmed();
-              if (!custName.isEmpty())
-                swName.append(":" + custName);
             }
           }
-          return swName + directionIndicators.at(qr.rem > -1 && qr.rem < directionIndicators.size() ? qr.rem : 1);
+          return DataHelpers::getCompositeName(swName, custName, prefixCustomName) +
+                 directionIndicators.at(qr.rem > -1 && qr.rem < directionIndicators.size() ? qr.rem : 1);
         }
         else {
           return CHECK_IN_ARRAY(switches9X, index - 1);

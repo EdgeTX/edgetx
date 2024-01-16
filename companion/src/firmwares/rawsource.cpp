@@ -126,7 +126,7 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
   return result;
 }
 
-QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings, Board::Type board) const
+QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings, Board::Type board, bool prefixCustomName) const
 {
   if (board == Board::BOARD_UNKNOWN) {
     board = getCurrentBoard();
@@ -151,6 +151,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   }
 
   QString result;
+  QString dfltName;
   QString custName;
 
   switch (type) {
@@ -169,12 +170,10 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return tr("LUA%1%2").arg(index / 16 + 1).arg(QChar('a' + index % 16));
 
     case SOURCE_TYPE_STICK:
-      result = Boards::getInputName(index, board);
+      dfltName = Boards::getInputName(index, board);
       if (generalSettings)
         custName = QString(generalSettings->inputConfig[index].name).trimmed();
-      if (!custName.isEmpty())
-        result.append(":" + custName);
-      return result;
+      return DataHelpers::getCompositeName(dfltName, custName, prefixCustomName);
 
     case SOURCE_TYPE_TRIM:
       return (Boards::getCapability(board, Board::NumTrims) == 2 ? CHECK_IN_ARRAY(trims2, index) : CHECK_IN_ARRAY(trims, index));
@@ -189,23 +188,20 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return tr("MAX");
 
     case SOURCE_TYPE_SWITCH:
-      result = Boards::getSwitchInfo(index, board).name.c_str();
+      dfltName = Boards::getSwitchInfo(index, board).name.c_str();
       if (Boards::isSwitchFunc(index, board)) {
         if (model) {
           int fsindex = Boards::getSwitchTagNum(index, board) - 1;
           custName = QString(model->functionSwitchNames[fsindex]).trimmed();
-          if (!custName.isEmpty())
-            result.append(":" + custName);
         }
       }
       else {
         if (generalSettings) {
           custName = QString(generalSettings->switchConfig[index].name).trimmed();
-          if (!custName.isEmpty())
-            result.append(":" + custName);
         }
       }
-      return result;
+
+      return DataHelpers::getCompositeName(dfltName, custName, prefixCustomName);
 
     case SOURCE_TYPE_CUSTOM_SWITCH:
       return RawSwitch(SWITCH_TYPE_VIRTUAL, index + 1).toString();

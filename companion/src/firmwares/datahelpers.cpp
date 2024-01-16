@@ -121,3 +121,19 @@ std::string DataHelpers::getStringTagMappingName(const StringTagMappingTable& lu
 
   return std::string();
 }
+
+QString DataHelpers::getCompositeName(const QString defaultName, const QString customName, const bool prefixCustom)
+{
+  QString result;
+
+  if (customName.trimmed().isEmpty() || prefixCustom)
+    result = defaultName;
+
+  if (!customName.trimmed().isEmpty()) {
+    if (prefixCustom)
+      result.append(":");
+    result.append(customName.trimmed());
+  }
+
+  return result;
+}
