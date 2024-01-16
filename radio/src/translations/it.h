@@ -1055,8 +1055,12 @@
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
   #define TR_BL_SELECT_KEY            "[ENT] per scegliere il file"
   #define TR_BL_FLASH_KEY             "Tenere premuto [ENT] per scrivere"
+  #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
   #define TR_BL_EXIT_KEY              "[RTN] per uscire"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific
