@@ -76,7 +76,7 @@ Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 
   for (int i = 0; i < analogs; i++) {
     if (Boards::isInputCalibrated(i)) {
-      std::string tag = Boards::getInputTag(i).toStdString();
+      std::string tag = Boards::getInputYamlConfigName(i).toStdString();
       node[tag] = rhs.calib[i];
     }
   }
@@ -95,7 +95,7 @@ bool convert<YamlCalibData>::decode(const Node& node, YamlCalibData& rhs)
     if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
       tag = Boards::getLegacyAnalogMappedInputTag(tag.c_str());
 
-    int idx = Boards::getInputIndex(tag.c_str());
+    int idx = Boards::getInputYamlConfigIndex(tag.c_str());
 
     if (idx >= 0)
       kv.second >> rhs.calib[idx];

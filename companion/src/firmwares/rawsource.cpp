@@ -361,9 +361,9 @@ RawSource RawSource::convert(RadioDataConversionState & cstate)
   RadioDataConversionState::LogField oldData(index, toString(cstate.fromModel(), cstate.fromGS(), cstate.fromType));
 
   if (type == SOURCE_TYPE_STICK)
-    index = Boards::getInputIndex(Boards::getInputTag(oldData.id, cstate.fromType), cstate.toType);
+    index = Boards::getInputIndex(Boards::getInputTag(oldData.id, cstate.fromType), Board::LVT_TAG, cstate.toType);
   else if (type == SOURCE_TYPE_SWITCH)
-    index = Boards::getSwitchIndex(Boards::getSwitchTag(oldData.id, cstate.fromType), cstate.toType);
+    index = Boards::getSwitchIndex(Boards::getSwitchTag(oldData.id, cstate.fromType), Board::LVT_TAG, cstate.toType);
 
   // final validation (we do not pass model to isAvailable() because we don't know what has or hasn't been converted)
   if (index < 0 || !isAvailable(nullptr, cstate.toGS(), cstate.toType)) {

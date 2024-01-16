@@ -531,7 +531,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["potsConfig"] >> potsConfig;
   potsConfig.copy(rhs.inputConfig);
 
-  // pre v2.10
+  // for parsing pre v2.10 config - this is not encoded
   if (node["slidersConfig"]) {
     YamlSliderConfig slidersConfig;
     node["slidersConfig"] >> slidersConfig;

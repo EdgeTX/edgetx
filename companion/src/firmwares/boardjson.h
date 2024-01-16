@@ -37,11 +37,13 @@ class BoardJson
   public:
     struct InputDefn {
       Board::AnalogInputType type = AIT_NONE;
-      std::string tag             = "";
-      std::string name            = "";
-      std::string shortName       = "";
-      Board::FlexType flexType    = FLEX_NONE;
-      bool inverted               = false;
+      std::string tag                  = "";
+      std::string name                 = "";
+      std::string shortName            = "";
+      Board::FlexType flexType         = FLEX_NONE;
+      bool inverted                    = false;
+      Board::LookupValueType cfgYaml   = Board::LVT_TAG;
+      Board::LookupValueType refYaml   = Board::LVT_NAME;
 
       InputDefn() = default;
     };
@@ -55,12 +57,14 @@ class BoardJson
 
     struct SwitchDefn {
       Board::SwitchType type = Board::SWITCH_NOT_AVAILABLE;
-      std::string tag        = "";
-      std::string name       = "";
-      int flags              = 0;
-      bool inverted          = false;
-      Board::SwitchType dflt = Board::SWITCH_NOT_AVAILABLE;
+      std::string tag                  = "";
+      std::string name                 = "";
+      int flags                        = 0;
+      bool inverted                    = false;
+      Board::SwitchType dflt           = Board::SWITCH_NOT_AVAILABLE;
       Display display;
+      Board::LookupValueType cfgYaml   = Board::LVT_TAG;
+      Board::LookupValueType refYaml   = Board::LVT_NAME;
 
       SwitchDefn() = default;
     };
@@ -87,7 +91,7 @@ class BoardJson
     const int getCapability(const Board::Capability capability) const;
     const int getInputsCalibrated() const;
 
-    const int getInputIndex(const QString tag) const;
+    const int getInputIndex(const QString val, Board::LookupValueType lvt) const;
     const Board::InputInfo getInputInfo(int index) const;
     const QString getInputName(int index) const;
     const int getInputPotIndex(int index);
@@ -95,6 +99,10 @@ class BoardJson
     const QString getInputTag(int index) const;
     const int getInputTagOffset(QString tag);
     const int getInputTypeOffset(Board::AnalogInputType type);
+    const int getInputYamlConfigIndex(const QString val) const;
+    const QString getInputYamlConfigName(int index) const;
+    const int getInputYamlRefIndex(const QString val) const;
+    const QString getInputYamlRefName(int index) const;
 
     const bool isInputAvailable(int index) const;
     const bool isInputCalibrated(int index) const;
@@ -105,11 +113,15 @@ class BoardJson
     const bool isInputStick(int index) const;
     const bool isInputSwitch(int index) const;
 
-    const int getSwitchIndex(const QString tag) const;
+    const int getSwitchIndex(const QString val, Board::LookupValueType lvt) const;
     const Board::SwitchInfo getSwitchInfo(int index) const;
     const QString getSwitchName(int index) const;
     const QString getSwitchTag(int index) const;
     const int getSwitchTagNum(int index) const;
+    const int getSwitchYamlConfigIndex(const QString val) const;
+    const QString getSwitchYamlConfigName(int index) const;
+    const int getSwitchYamlRefIndex(const QString val) const;
+    const QString getSwitchYamlRefName(int index) const;
 
     const bool isSwitchConfigurable(int index) const;
     const bool isSwitchFlex(int index) const;
@@ -150,18 +162,26 @@ private:
 
     static int getInputsCalibrated(const InputsTable * inputs);
 
-    static int getInputIndex(const InputsTable * inputs, QString tag);
+    static int getInputIndex(const InputsTable * inputs, QString val, Board::LookupValueType lvt);
     static Board::InputInfo getInputInfo(const InputsTable * inputs, int index);
     static QString getInputName(const InputsTable * inputs, int index);
     static QString getInputTag(const InputsTable * inputs, int index);
     static int getInputTagOffset(const InputsTable * inputs, QString tag);
     static int getInputTypeOffset(const InputsTable * inputs, Board::AnalogInputType type);
+    static int getInputYamlConfigIndex(const InputsTable * inputs, QString val);
+    static QString getInputYamlConfigName(const InputsTable * inputs, int index);
+    static int getInputYamlRefIndex(const InputsTable * inputs, QString val);
+    static QString getInputYamlRefName(const InputsTable * inputs, int index);
 
-    static int getSwitchIndex(const SwitchesTable * switches, QString tag);
+    static int getSwitchIndex(const SwitchesTable * switches, QString val, Board::LookupValueType lvt);
     static Board::SwitchInfo getSwitchInfo(const SwitchesTable * switches, int index);
     static QString getSwitchName(const SwitchesTable * switches, int index);
     static QString getSwitchTag(const SwitchesTable * switches, int index);
     static int getSwitchTagNum(const SwitchesTable * switches, int index);
+    static int getSwitchYamlConfigIndex(const SwitchesTable * switches, QString val);
+    static QString getSwitchYamlConfigName(const SwitchesTable * switches, int index);
+    static int getSwitchYamlRefIndex(const SwitchesTable * switches, QString val);
+    static QString getSwitchYamlRefName(const SwitchesTable * switches, int index);
 
     static bool isInputAvailable(const InputDefn & defn);
     static bool isInputCalibrated(const InputDefn & defn);

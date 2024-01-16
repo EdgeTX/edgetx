@@ -87,7 +87,7 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
   // TODO json files do not contain gyro defs
   // Radio cmake directive IMU is currently used
   if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board)) {
-    if (getInputIndex(inputs, "TILT_X") < 0) {
+    if (getInputIndex(inputs, "TILT_X", Board::LVT_TAG) < 0) {
       InputDefn defn;
       defn.type = AIT_FLEX;
       defn.tag = "TILT_X";
@@ -95,10 +95,12 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
       defn.shortName = "X";
       defn.flexType = FLEX_AXIS_X;
       defn.inverted = false;
+      defn.cfgYaml = Board::LVT_TAG;
+      defn.refYaml = Board::LVT_TAG;  //  non-default
       inputs->insert(inputs->end(), defn);
     }
 
-    if (getInputIndex(inputs, "TILT_Y") < 0) {
+    if (getInputIndex(inputs, "TILT_Y", Board::LVT_TAG) < 0) {
       InputDefn defn;
       defn.type = AIT_FLEX;
       defn.tag = "TILT_Y";
@@ -106,6 +108,8 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
       defn.shortName = "Y";
       defn.flexType = FLEX_AXIS_Y;
       defn.inverted = false;
+      defn.cfgYaml = Board::LVT_TAG;
+      defn.refYaml = Board::LVT_TAG;  //  non-default
       inputs->insert(inputs->end(), defn);
     }
   }
@@ -115,7 +119,7 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
 
   for (int i = 1; i <= count; i++) {
     QString tag = QString("FL%1").arg(i);
-    if (getSwitchIndex(switches, tag) < 0) {
+    if (getSwitchIndex(switches, tag, Board::LVT_TAG) < 0) {
       SwitchDefn defn;
       defn.tag = tag.toStdString();
       defn.name = defn.tag;
@@ -202,16 +206,17 @@ const int BoardJson::getCapability(const Board::Capability capability) const
   }
 }
 
-const int BoardJson::getInputIndex(const QString tag) const
+const int BoardJson::getInputIndex(const QString val, Board::LookupValueType lvt) const
 {
-  return getInputIndex(m_inputs, tag);
+  return getInputIndex(m_inputs, val, lvt);
 }
 
 // static
-int BoardJson::getInputIndex(const InputsTable * inputs, QString tag)
+int BoardJson::getInputIndex(const InputsTable * inputs, QString val, Board::LookupValueType lvt)
 {
   for (int i = 0; i < (int)inputs->size(); i++) {
-    if (inputs->at(i).tag.c_str() == tag)
+    if ((lvt == Board::LVT_TAG && inputs->at(i).tag.c_str() == val) ||
+        (lvt == Board::LVT_NAME && inputs->at(i).name.c_str() == val))
       return i;
   }
 
@@ -242,6 +247,76 @@ QString BoardJson::getInputTag(const InputsTable * inputs, int index)
 {
   if (index > -1 && index < (int)inputs->size())
     return inputs->at(index).tag.c_str();
+
+  return CPN_STR_UNKNOWN_ITEM;
+}
+
+const int BoardJson::getInputYamlConfigIndex(const QString val) const
+{
+  return getInputYamlConfigIndex(m_inputs, val);
+}
+
+// static
+int BoardJson::getInputYamlConfigIndex(const InputsTable * inputs, QString val)
+{
+  for (int i = 0; i < (int)inputs->size(); i++) {
+    if ((inputs->at(i).cfgYaml == Board::LVT_TAG && inputs->at(i).tag.c_str() == val) ||
+        (inputs->at(i).cfgYaml == Board::LVT_NAME && inputs->at(i).name.c_str() == val))
+      return i;
+  }
+
+  return -1;
+}
+
+const QString BoardJson::getInputYamlConfigName(int index) const
+{
+  return getInputYamlConfigName(m_inputs, index);
+}
+
+// static
+QString BoardJson::getInputYamlConfigName(const InputsTable * inputs, int index)
+{
+  if (index > -1 && index < (int)inputs->size()) {
+    if (inputs->at(index).cfgYaml == Board::LVT_TAG)
+      return inputs->at(index).tag.c_str();
+    else if (inputs->at(index).cfgYaml == Board::LVT_NAME)
+      return inputs->at(index).name.c_str();
+  }
+
+  return CPN_STR_UNKNOWN_ITEM;
+}
+
+const int BoardJson::getInputYamlRefIndex(const QString val) const
+{
+  return getInputYamlRefIndex(m_inputs, val);
+}
+
+// static
+int BoardJson::getInputYamlRefIndex(const InputsTable * inputs, QString val)
+{
+  for (int i = 0; i < (int)inputs->size(); i++) {
+    if ((inputs->at(i).refYaml == Board::LVT_TAG && inputs->at(i).tag.c_str() == val) ||
+        (inputs->at(i).refYaml == Board::LVT_NAME && inputs->at(i).name.c_str() == val))
+      return i;
+  }
+
+  return -1;
+}
+
+const QString BoardJson::getInputYamlRefName(int index) const
+{
+  return getInputYamlRefName(m_inputs, index);
+}
+
+// static
+QString BoardJson::getInputYamlRefName(const InputsTable * inputs, int index)
+{
+  if (index > -1 && index < (int)inputs->size()) {
+    if (inputs->at(index).refYaml == Board::LVT_TAG)
+      return inputs->at(index).tag.c_str();
+    else if (inputs->at(index).refYaml == Board::LVT_NAME)
+      return inputs->at(index).name.c_str();
+  }
 
   return CPN_STR_UNKNOWN_ITEM;
 }
@@ -350,16 +425,17 @@ int BoardJson::getNumericSuffix(const std::string str)
   return -1;
 }
 
-const int BoardJson::getSwitchIndex(const QString tag) const
+const int BoardJson::getSwitchIndex(const QString val, Board::LookupValueType lvt) const
 {
-  return getSwitchIndex(m_switches, tag);
+  return getSwitchIndex(m_switches, val, lvt);
 }
 
 // static
-int BoardJson::getSwitchIndex(const SwitchesTable * switches, QString tag)
+int BoardJson::getSwitchIndex(const SwitchesTable * switches, QString val, Board::LookupValueType lvt)
 {
   for (int i = 0; i < (int)switches->size(); i++) {
-    if (switches->at(i).tag.c_str() == tag)
+    if ((lvt == Board::LVT_TAG && switches->at(i).tag.c_str() == val) ||
+        (lvt == Board::LVT_NAME && switches->at(i).name.c_str() == val))
       return i;
   }
 
@@ -403,7 +479,7 @@ QString BoardJson::getSwitchName(const SwitchesTable * switches, int index)
 
 const QString BoardJson::getSwitchTag(int index) const
 {
-  return getSwitchName(m_switches, index);
+  return getSwitchTag(m_switches, index);
 }
 
 // static
@@ -427,6 +503,76 @@ int BoardJson::getSwitchTagNum(const SwitchesTable * switches, int index)
     return getNumericSuffix(switches->at(index).tag.c_str());
 
   return -1;
+}
+
+const int BoardJson::getSwitchYamlConfigIndex(const QString val) const
+{
+  return getSwitchYamlConfigIndex(m_switches, val);
+}
+
+// static
+int BoardJson::getSwitchYamlConfigIndex(const SwitchesTable * switches, QString val)
+{
+  for (int i = 0; i < (int)switches->size(); i++) {
+    if ((switches->at(i).cfgYaml == Board::LVT_TAG && switches->at(i).tag.c_str() == val) ||
+        (switches->at(i).cfgYaml == Board::LVT_NAME && switches->at(i).name.c_str() == val))
+      return i;
+  }
+
+  return -1;
+}
+
+const QString BoardJson::getSwitchYamlConfigName(int index) const
+{
+  return getSwitchYamlConfigName(m_switches, index);
+}
+
+// static
+QString BoardJson::getSwitchYamlConfigName(const SwitchesTable * switches, int index)
+{
+  if (index > -1 && index < (int)switches->size()) {
+    if (switches->at(index).cfgYaml == Board::LVT_TAG)
+      return switches->at(index).tag.c_str();
+    else if (switches->at(index).cfgYaml == Board::LVT_NAME)
+      return switches->at(index).name.c_str();
+  }
+
+  return CPN_STR_UNKNOWN_ITEM;
+}
+
+const int BoardJson::getSwitchYamlRefIndex(const QString val) const
+{
+  return getSwitchYamlRefIndex(m_switches, val);
+}
+
+// static
+int BoardJson::getSwitchYamlRefIndex(const SwitchesTable * switches, QString val)
+{
+  for (int i = 0; i < (int)switches->size(); i++) {
+    if ((switches->at(i).refYaml == Board::LVT_TAG && switches->at(i).tag.c_str() == val) ||
+        (switches->at(i).refYaml == Board::LVT_NAME && switches->at(i).name.c_str() == val))
+      return i;
+  }
+
+  return -1;
+}
+
+const QString BoardJson::getSwitchYamlRefName(int index) const
+{
+  return getSwitchYamlRefName(m_switches, index);
+}
+
+// static
+QString BoardJson::getSwitchYamlRefName(const SwitchesTable * switches, int index)
+{
+  if (index > -1 && index < (int)switches->size()) {
+    if (switches->at(index).refYaml == Board::LVT_TAG)
+      return switches->at(index).tag.c_str();
+    else if (switches->at(index).refYaml == Board::LVT_NAME)
+      return switches->at(index).name.c_str();
+  }
+
+  return CPN_STR_UNKNOWN_ITEM;
 }
 
 const bool BoardJson::isInputAvailable(int index) const

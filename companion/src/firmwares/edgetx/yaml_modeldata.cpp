@@ -271,7 +271,7 @@ struct YamlSwitchWarningState {
       }
 
       std::string sw = std::string("S") + (char)c;
-      int index = Boards::getSwitchIndex(sw.c_str());
+      int index = Boards::getSwitchIndex(sw.c_str(), Board::LVT_NAME);
       if (index < 0) {
         ss.ignore();
         continue;

@@ -246,6 +246,11 @@ namespace Board {
     FlexTypeContextSwitch   = FlexTypeContextNoSwitch | FlexTypeFlagSwitch
   };
 
+  enum LookupValueType {
+    LVT_TAG = 0,
+    LVT_NAME
+  };
+
   struct InputInfo {
     InputInfo() :
       type(AIT_NONE),
@@ -319,19 +324,27 @@ class Boards
     static int getInputsCalibrated(Board::Type board = Board::BOARD_UNKNOWN);
 
     static Board::InputInfo getInputInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
-    static int getInputIndex(QString tag, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputIndex(QString val, Board::LookupValueType lvt, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getInputName(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputPotIndex(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputSliderIndex(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getInputTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputTagOffset(QString tag, Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputTypeOffset(Board::AnalogInputType type, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputYamlConfigIndex(QString val, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getInputYamlConfigName(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputYamlRefIndex(QString val, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getInputYamlRefName(int index, Board::Type board = Board::BOARD_UNKNOWN);
 
     static Board::SwitchInfo getSwitchInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
-    static int getSwitchIndex(QString tag, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchIndex(QString val, Board::LookupValueType lvt, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getSwitchName(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getSwitchTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getSwitchTagNum(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchYamlConfigIndex(QString val, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getSwitchYamlConfigName(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchYamlRefIndex(QString val, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getSwitchYamlRefName(int index, Board::Type board = Board::BOARD_UNKNOWN);
 
     STRINGTAGMAPPINGFUNCS(trimSourcesLookupTable, TrimSource);
     STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitch);

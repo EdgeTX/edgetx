@@ -216,7 +216,7 @@ RawSwitch RawSwitch::convert(RadioDataConversionState & cstate)
 
   if (type == SWITCH_TYPE_SWITCH) {
     div_t swtch = div(abs(index) - 1, 3);
-    newIdx = Boards::getSwitchIndex(Boards::getSwitchTag(swtch.quot, cstate.fromType), cstate.toType);
+    newIdx = Boards::getSwitchIndex(Boards::getSwitchTag(swtch.quot, cstate.fromType), Board::LVT_TAG, cstate.toType);
 
     if (newIdx >= 0)
       index = (newIdx * 3 + 1 + swtch.rem) * (index < 0 ? -1 : 1);

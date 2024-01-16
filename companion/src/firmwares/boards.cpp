@@ -767,9 +767,9 @@ Board::InputInfo Boards::getInputInfo(int index, Board::Type board)
   return getBoardJson(board)->getInputInfo(index);
 }
 
-int Boards::getInputIndex(QString tag, Board::Type board)
+int Boards::getInputIndex(QString val, Board::LookupValueType lvt, Board::Type board)
 {
-  return getBoardJson(board)->getInputIndex(tag);
+  return getBoardJson(board)->getInputIndex(val, lvt);
 }
 
 QString Boards::getInputName(int index, Board::Type board)
@@ -802,6 +802,26 @@ int Boards::getInputTypeOffset(Board::AnalogInputType type, Board::Type board)
   return getBoardJson(board)->getInputTypeOffset(type);
 }
 
+int Boards::getInputYamlConfigIndex(QString val, Board::Type board)
+{
+  return getBoardJson(board)->getInputYamlConfigIndex(val);
+}
+
+QString Boards::getInputYamlConfigName(int index, Board::Type board)
+{
+  return getBoardJson(board)->getInputYamlConfigName(index);
+}
+
+int Boards::getInputYamlRefIndex(QString val, Board::Type board)
+{
+  return getBoardJson(board)->getInputYamlRefIndex(val);
+}
+
+QString Boards::getInputYamlRefName(int index, Board::Type board)
+{
+  return getBoardJson(board)->getInputYamlRefName(index);
+}
+
 int Boards::getInputsCalibrated(Board::Type board)
 {
   return getBoardJson(board)->getInputsCalibrated();
@@ -812,9 +832,9 @@ Board::SwitchInfo Boards::getSwitchInfo(int index, Board::Type board)
   return getBoardJson(board)->getSwitchInfo(index);
 }
 
-int Boards::getSwitchIndex(QString tag, Board::Type board)
+int Boards::getSwitchIndex(QString val, Board::LookupValueType lvt, Board::Type board)
 {
-  return getBoardJson(board)->getSwitchIndex(tag);
+  return getBoardJson(board)->getSwitchIndex(val, lvt);
 }
 
 QString Boards::getSwitchName(int index, Board::Type board)
@@ -830,6 +850,26 @@ QString Boards::getSwitchTag(int index, Board::Type board)
 int Boards::getSwitchTagNum(int index, Board::Type board)
 {
   return getBoardJson(board)->getSwitchTagNum(index);
+}
+
+int Boards::getSwitchYamlConfigIndex(QString val, Board::Type board)
+{
+  return getBoardJson(board)->getSwitchYamlConfigIndex(val);
+}
+
+QString Boards::getSwitchYamlConfigName(int index, Board::Type board)
+{
+  return getBoardJson(board)->getSwitchYamlConfigName(index);
+}
+
+int Boards::getSwitchYamlRefIndex(QString val, Board::Type board)
+{
+  return getBoardJson(board)->getSwitchYamlRefIndex(val);
+}
+
+QString Boards::getSwitchYamlRefName(int index, Board::Type board)
+{
+  return getBoardJson(board)->getSwitchYamlRefName(index);
 }
 
 bool Boards::isInputAvailable(int index, Board::Type board)

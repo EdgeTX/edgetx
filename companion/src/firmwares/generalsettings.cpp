@@ -445,7 +445,7 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
     if (Boards::isInputConfigurable(i, cstate.fromType)) {
       cstate.setItemType(Boards::isInputStick(i, cstate.fromType) ? tr("Axis") : tr("Pot"));
       RadioDataConversionState::LogField oldData(i, Boards::getInputName(i, cstate.fromType));
-      const int idx = Boards::getInputIndex(Boards::getInputTag(i, cstate.fromType), cstate.toType);
+      const int idx = Boards::getInputIndex(Boards::getInputTag(i, cstate.fromType), Board::LVT_TAG, cstate.toType);
 
       if (idx > -1) {
         const InputConfig &fromcfg = cstate.fromGS()->inputConfig[i];
@@ -479,7 +479,7 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
       cstate.setItemType(Boards::isSwitchFlex(i, cstate.fromType) ? tr("Flex Switch") :
                          Boards::isSwitchFunc(i, cstate.fromType) ? tr("Function Switch") : tr("Switch"));
       RadioDataConversionState::LogField oldData(i, Boards::getSwitchName(i, cstate.fromType));
-      const int idx = Boards::getSwitchIndex(Boards::getSwitchTag(i, cstate.fromType), cstate.toType);
+      const int idx = Boards::getSwitchIndex(Boards::getSwitchTag(i, cstate.fromType), Board::LVT_TAG, cstate.toType);
 
       if (idx > -1) {
         const SwitchConfig &fromcfg = cstate.fromGS()->switchConfig[i];
@@ -499,7 +499,7 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
 
         if (fromcfg.inputIdx != SWITCH_INPUTINDEX_NONE) {
           if (!Boards::getCapability(cstate.toType, Board::FlexSwitches) ||
-              Boards::getInputIndex(Boards::getInputTag(fromcfg.inputIdx, cstate.fromType), cstate.toType) < 0) {
+              Boards::getInputIndex(Boards::getInputTag(fromcfg.inputIdx, cstate.fromType), Board::LVT_TAG, cstate.toType) < 0) {
             cstate.withComponentField(Boards::getSwitchName(i, cstate.fromType));
             RadioDataConversionState::LogField oldFT(i, Boards::getInputName(fromcfg.inputIdx, cstate.fromType));
             tocfg.inputIdx = SWITCH_INPUTINDEX_NONE;
@@ -881,7 +881,7 @@ void GeneralSettings::validateFlexSwitches()
     if (inputConfig[switchConfig[i].inputIdx].flexType != Board::FLEX_SWITCH)
       switchConfig[i].inputIdx = -1;
 
-    int idx = Boards::getSwitchIndex(QString("FL%1").arg(i));
+    int idx = Boards::getSwitchIndex(QString("FL%1").arg(i), Board::LVT_TAG);
     if (idx >= 0) {
       if (switchConfig[idx].type == Board::SWITCH_NOT_AVAILABLE)
         switchConfig[i].inputIdx = -1;
