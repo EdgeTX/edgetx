@@ -251,71 +251,25 @@ QString BoardJson::getInputTag(const InputsTable * inputs, int index)
   return CPN_STR_UNKNOWN_ITEM;
 }
 
-const int BoardJson::getInputYamlConfigIndex(const QString val) const
+const int BoardJson::getInputYamlIndex(const QString val, YamlLookupType ylt) const
 {
-  return getInputYamlConfigIndex(m_inputs, val);
-}
-
-// static
-int BoardJson::getInputYamlConfigIndex(const InputsTable * inputs, QString val)
-{
-  for (int i = 0; i < (int)inputs->size(); i++) {
-    if ((inputs->at(i).cfgYaml == Board::LVT_TAG && inputs->at(i).tag.c_str() == val) ||
-        (inputs->at(i).cfgYaml == Board::LVT_NAME && inputs->at(i).name.c_str() == val))
-      return i;
+  for (int i = 0; i < (int)m_inputs->size(); i++) {
+    Board::LookupValueType type = (ylt == YLT_CONFIG ? m_inputs->at(i).cfgYaml : m_inputs->at(i).refYaml);
+    QString tmp = (type == Board::LVT_NAME ? getInputName(m_inputs, i) : getInputTag(m_inputs, i));
+    if (val == tmp)
+      return getInputIndex(m_inputs, val, type);
   }
 
   return -1;
 }
 
-const QString BoardJson::getInputYamlConfigName(int index) const
+const QString BoardJson::getInputYamlName(int index, YamlLookupType ylt) const
 {
-  return getInputYamlConfigName(m_inputs, index);
-}
-
-// static
-QString BoardJson::getInputYamlConfigName(const InputsTable * inputs, int index)
-{
-  if (index > -1 && index < (int)inputs->size()) {
-    if (inputs->at(index).cfgYaml == Board::LVT_TAG)
-      return inputs->at(index).tag.c_str();
-    else if (inputs->at(index).cfgYaml == Board::LVT_NAME)
-      return inputs->at(index).name.c_str();
-  }
-
-  return CPN_STR_UNKNOWN_ITEM;
-}
-
-const int BoardJson::getInputYamlRefIndex(const QString val) const
-{
-  return getInputYamlRefIndex(m_inputs, val);
-}
-
-// static
-int BoardJson::getInputYamlRefIndex(const InputsTable * inputs, QString val)
-{
-  for (int i = 0; i < (int)inputs->size(); i++) {
-    if ((inputs->at(i).refYaml == Board::LVT_TAG && inputs->at(i).tag.c_str() == val) ||
-        (inputs->at(i).refYaml == Board::LVT_NAME && inputs->at(i).name.c_str() == val))
-      return i;
-  }
-
-  return -1;
-}
-
-const QString BoardJson::getInputYamlRefName(int index) const
-{
-  return getInputYamlRefName(m_inputs, index);
-}
-
-// static
-QString BoardJson::getInputYamlRefName(const InputsTable * inputs, int index)
-{
-  if (index > -1 && index < (int)inputs->size()) {
-    if (inputs->at(index).refYaml == Board::LVT_TAG)
-      return inputs->at(index).tag.c_str();
-    else if (inputs->at(index).refYaml == Board::LVT_NAME)
-      return inputs->at(index).name.c_str();
+  if (index > -1 && index < (int)m_inputs->size()) {
+    if (ylt == YLT_CONFIG)
+      return m_inputs->at(index).cfgYaml == Board::LVT_NAME ? getInputName(m_inputs, index) : getInputTag(m_inputs, index);
+    else
+      return m_inputs->at(index).refYaml == Board::LVT_NAME ? getInputName(m_inputs, index) : getInputTag(m_inputs, index);
   }
 
   return CPN_STR_UNKNOWN_ITEM;
@@ -505,71 +459,25 @@ int BoardJson::getSwitchTagNum(const SwitchesTable * switches, int index)
   return -1;
 }
 
-const int BoardJson::getSwitchYamlConfigIndex(const QString val) const
+const int BoardJson::getSwitchYamlIndex(const QString val, YamlLookupType ylt) const
 {
-  return getSwitchYamlConfigIndex(m_switches, val);
-}
-
-// static
-int BoardJson::getSwitchYamlConfigIndex(const SwitchesTable * switches, QString val)
-{
-  for (int i = 0; i < (int)switches->size(); i++) {
-    if ((switches->at(i).cfgYaml == Board::LVT_TAG && switches->at(i).tag.c_str() == val) ||
-        (switches->at(i).cfgYaml == Board::LVT_NAME && switches->at(i).name.c_str() == val))
-      return i;
+  for (int i = 0; i < (int)m_switches->size(); i++) {
+    Board::LookupValueType type = (ylt == YLT_CONFIG ? m_switches->at(i).cfgYaml : m_switches->at(i).refYaml);
+    QString tmp = (type == Board::LVT_NAME ? getSwitchName(m_switches, i) : getSwitchTag(m_switches, i));
+    if (val == tmp)
+      return getSwitchIndex(m_switches, val, type);
   }
 
   return -1;
 }
 
-const QString BoardJson::getSwitchYamlConfigName(int index) const
+const QString BoardJson::getSwitchYamlName(int index, YamlLookupType ylt) const
 {
-  return getSwitchYamlConfigName(m_switches, index);
-}
-
-// static
-QString BoardJson::getSwitchYamlConfigName(const SwitchesTable * switches, int index)
-{
-  if (index > -1 && index < (int)switches->size()) {
-    if (switches->at(index).cfgYaml == Board::LVT_TAG)
-      return switches->at(index).tag.c_str();
-    else if (switches->at(index).cfgYaml == Board::LVT_NAME)
-      return switches->at(index).name.c_str();
-  }
-
-  return CPN_STR_UNKNOWN_ITEM;
-}
-
-const int BoardJson::getSwitchYamlRefIndex(const QString val) const
-{
-  return getSwitchYamlRefIndex(m_switches, val);
-}
-
-// static
-int BoardJson::getSwitchYamlRefIndex(const SwitchesTable * switches, QString val)
-{
-  for (int i = 0; i < (int)switches->size(); i++) {
-    if ((switches->at(i).refYaml == Board::LVT_TAG && switches->at(i).tag.c_str() == val) ||
-        (switches->at(i).refYaml == Board::LVT_NAME && switches->at(i).name.c_str() == val))
-      return i;
-  }
-
-  return -1;
-}
-
-const QString BoardJson::getSwitchYamlRefName(int index) const
-{
-  return getSwitchYamlRefName(m_switches, index);
-}
-
-// static
-QString BoardJson::getSwitchYamlRefName(const SwitchesTable * switches, int index)
-{
-  if (index > -1 && index < (int)switches->size()) {
-    if (switches->at(index).refYaml == Board::LVT_TAG)
-      return switches->at(index).tag.c_str();
-    else if (switches->at(index).refYaml == Board::LVT_NAME)
-      return switches->at(index).name.c_str();
+  if (index > -1 && index < (int)m_switches->size()) {
+    if (ylt == YLT_CONFIG)
+      return m_switches->at(index).cfgYaml == Board::LVT_NAME ? getSwitchName(m_switches, index) : getSwitchTag(m_switches, index);
+    else
+      return m_switches->at(index).refYaml == Board::LVT_NAME ? getSwitchName(m_switches, index) : getSwitchTag(m_switches, index);
   }
 
   return CPN_STR_UNKNOWN_ITEM;

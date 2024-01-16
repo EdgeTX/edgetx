@@ -20,6 +20,7 @@
 
 #include "yaml_rawswitch.h"
 #include "eeprominterface.h"
+#include "boardjson.h"
 
 std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 {
@@ -36,7 +37,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 
   switch (rhs.type) {
   case SWITCH_TYPE_SWITCH:
-    sw_str += Boards::getSwitchYamlRefName((sval - 1) / 3).toStdString();
+    sw_str += Boards::getSwitchYamlName((sval - 1) / 3, BoardJson::YLT_REF).toStdString();
     sw_str += std::to_string((sval - 1) % 3);
     break;
 
@@ -154,7 +155,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
               val[1] >= 'A' && val[1] <= 'Z' &&
               val[2] >= '0' && val[2] <= '2')) {
 
-    int sw_idx = Boards::getSwitchYamlRefIndex(sw_str_tmp.substr(0, val_len - 1).c_str());
+    int sw_idx = Boards::getSwitchYamlIndex(sw_str_tmp.substr(0, val_len - 1).c_str(), BoardJson::YLT_REF);
     if (sw_idx >= 0) {
       rhs.type = SWITCH_TYPE_SWITCH;
       rhs.index = sw_idx * 3 + (val[val_len - 1] - '0' + 1);

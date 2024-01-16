@@ -802,24 +802,14 @@ int Boards::getInputTypeOffset(Board::AnalogInputType type, Board::Type board)
   return getBoardJson(board)->getInputTypeOffset(type);
 }
 
-int Boards::getInputYamlConfigIndex(QString val, Board::Type board)
+int Boards::getInputYamlIndex(QString val, int ylt, Board::Type board)
 {
-  return getBoardJson(board)->getInputYamlConfigIndex(val);
+  return getBoardJson(board)->getInputYamlIndex(val, (BoardJson::YamlLookupType)ylt);
 }
 
-QString Boards::getInputYamlConfigName(int index, Board::Type board)
+QString Boards::getInputYamlName(int index, int ylt, Board::Type board)
 {
-  return getBoardJson(board)->getInputYamlConfigName(index);
-}
-
-int Boards::getInputYamlRefIndex(QString val, Board::Type board)
-{
-  return getBoardJson(board)->getInputYamlRefIndex(val);
-}
-
-QString Boards::getInputYamlRefName(int index, Board::Type board)
-{
-  return getBoardJson(board)->getInputYamlRefName(index);
+  return getBoardJson(board)->getInputYamlName(index, (BoardJson::YamlLookupType)ylt);
 }
 
 int Boards::getInputsCalibrated(Board::Type board)
@@ -852,24 +842,14 @@ int Boards::getSwitchTagNum(int index, Board::Type board)
   return getBoardJson(board)->getSwitchTagNum(index);
 }
 
-int Boards::getSwitchYamlConfigIndex(QString val, Board::Type board)
+int Boards::getSwitchYamlIndex(QString val, int ylt, Board::Type board)
 {
-  return getBoardJson(board)->getSwitchYamlConfigIndex(val);
+  return getBoardJson(board)->getSwitchYamlIndex(val, (BoardJson::YamlLookupType)ylt);
 }
 
-QString Boards::getSwitchYamlConfigName(int index, Board::Type board)
+QString Boards::getSwitchYamlName(int index, int ylt, Board::Type board)
 {
-  return getBoardJson(board)->getSwitchYamlConfigName(index);
-}
-
-int Boards::getSwitchYamlRefIndex(QString val, Board::Type board)
-{
-  return getBoardJson(board)->getSwitchYamlRefIndex(val);
-}
-
-QString Boards::getSwitchYamlRefName(int index, Board::Type board)
-{
-  return getBoardJson(board)->getSwitchYamlRefName(index);
+  return getBoardJson(board)->getSwitchYamlName(index, (BoardJson::YamlLookupType)ylt);
 }
 
 bool Boards::isInputAvailable(int index, Board::Type board)

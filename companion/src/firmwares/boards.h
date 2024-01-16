@@ -331,20 +331,16 @@ class Boards
     static QString getInputTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputTagOffset(QString tag, Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputTypeOffset(Board::AnalogInputType type, Board::Type board = Board::BOARD_UNKNOWN);
-    static int getInputYamlConfigIndex(QString val, Board::Type board = Board::BOARD_UNKNOWN);
-    static QString getInputYamlConfigName(int index, Board::Type board = Board::BOARD_UNKNOWN);
-    static int getInputYamlRefIndex(QString val, Board::Type board = Board::BOARD_UNKNOWN);
-    static QString getInputYamlRefName(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getInputYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
 
     static Board::SwitchInfo getSwitchInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getSwitchIndex(QString val, Board::LookupValueType lvt, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getSwitchName(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getSwitchTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getSwitchTagNum(int index, Board::Type board = Board::BOARD_UNKNOWN);
-    static int getSwitchYamlConfigIndex(QString val, Board::Type board = Board::BOARD_UNKNOWN);
-    static QString getSwitchYamlConfigName(int index, Board::Type board = Board::BOARD_UNKNOWN);
-    static int getSwitchYamlRefIndex(QString val, Board::Type board = Board::BOARD_UNKNOWN);
-    static QString getSwitchYamlRefName(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getSwitchYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
 
     STRINGTAGMAPPINGFUNCS(trimSourcesLookupTable, TrimSource);
     STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitch);

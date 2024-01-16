@@ -35,6 +35,11 @@ class BoardJson
   Q_DECLARE_TR_FUNCTIONS(BoardJson)
 
   public:
+    enum YamlLookupType {
+      YLT_CONFIG,
+      YLT_REF
+    };
+
     struct InputDefn {
       Board::AnalogInputType type = AIT_NONE;
       std::string tag                  = "";
@@ -99,10 +104,8 @@ class BoardJson
     const QString getInputTag(int index) const;
     const int getInputTagOffset(QString tag);
     const int getInputTypeOffset(Board::AnalogInputType type);
-    const int getInputYamlConfigIndex(const QString val) const;
-    const QString getInputYamlConfigName(int index) const;
-    const int getInputYamlRefIndex(const QString val) const;
-    const QString getInputYamlRefName(int index) const;
+    const int getInputYamlIndex(const QString val, YamlLookupType ylt) const;
+    const QString getInputYamlName(int index, YamlLookupType ylt) const;
 
     const bool isInputAvailable(int index) const;
     const bool isInputCalibrated(int index) const;
@@ -118,10 +121,8 @@ class BoardJson
     const QString getSwitchName(int index) const;
     const QString getSwitchTag(int index) const;
     const int getSwitchTagNum(int index) const;
-    const int getSwitchYamlConfigIndex(const QString val) const;
-    const QString getSwitchYamlConfigName(int index) const;
-    const int getSwitchYamlRefIndex(const QString val) const;
-    const QString getSwitchYamlRefName(int index) const;
+    const int getSwitchYamlIndex(const QString val, YamlLookupType ylt) const;
+    const QString getSwitchYamlName(int index, YamlLookupType ylt) const;
 
     const bool isSwitchConfigurable(int index) const;
     const bool isSwitchFlex(int index) const;
@@ -168,20 +169,12 @@ private:
     static QString getInputTag(const InputsTable * inputs, int index);
     static int getInputTagOffset(const InputsTable * inputs, QString tag);
     static int getInputTypeOffset(const InputsTable * inputs, Board::AnalogInputType type);
-    static int getInputYamlConfigIndex(const InputsTable * inputs, QString val);
-    static QString getInputYamlConfigName(const InputsTable * inputs, int index);
-    static int getInputYamlRefIndex(const InputsTable * inputs, QString val);
-    static QString getInputYamlRefName(const InputsTable * inputs, int index);
 
     static int getSwitchIndex(const SwitchesTable * switches, QString val, Board::LookupValueType lvt);
     static Board::SwitchInfo getSwitchInfo(const SwitchesTable * switches, int index);
     static QString getSwitchName(const SwitchesTable * switches, int index);
     static QString getSwitchTag(const SwitchesTable * switches, int index);
     static int getSwitchTagNum(const SwitchesTable * switches, int index);
-    static int getSwitchYamlConfigIndex(const SwitchesTable * switches, QString val);
-    static QString getSwitchYamlConfigName(const SwitchesTable * switches, int index);
-    static int getSwitchYamlRefIndex(const SwitchesTable * switches, QString val);
-    static QString getSwitchYamlRefName(const SwitchesTable * switches, int index);
 
     static bool isInputAvailable(const InputDefn & defn);
     static bool isInputCalibrated(const InputDefn & defn);

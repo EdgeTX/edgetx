@@ -20,6 +20,7 @@
 
 #include "yaml_rawsource.h"
 #include "eeprominterface.h"
+#include "boardjson.h"
 
 static const YamlLookupTable spacemouseLut = {
   {  0, "SPACEMOUSE_A"  },
@@ -49,7 +50,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_STICK:
-      src_str = Boards::getInputYamlRefName(rhs.index).toStdString();
+      src_str = Boards::getInputYamlName(rhs.index, BoardJson::YLT_REF).toStdString();
       break;
     case SOURCE_TYPE_TRIM:
       src_str = b.getTrimSourceTag(rhs.index);
@@ -61,7 +62,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += "MAX";
       break;
     case SOURCE_TYPE_SWITCH:
-      src_str += Boards::getSwitchYamlRefName(rhs.index).toStdString();
+      src_str += Boards::getSwitchYamlName(rhs.index, BoardJson::YLT_REF).toStdString();
       break;
     case SOURCE_TYPE_CUSTOM_SWITCH:
       src_str += "ls(";
@@ -140,7 +141,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
               (val[0] == 'S' && val[1] == 'W')) &&
               val[2] >= '1' && val[2] <= '9')) {
 
-    int idx = Boards::getSwitchYamlRefIndex(src_str.c_str());
+    int idx = Boards::getSwitchYamlIndex(src_str.c_str(), BoardJson::YLT_REF);
     if (idx >= 0) {
       rhs = RawSource(SOURCE_TYPE_SWITCH, idx);
     }
@@ -180,7 +181,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     int fs = 0;
     src >> fs;
     if (fs > 0) {
-      int fsidx = Boards::getSwitchYamlRefIndex(QString("SW%1").arg(fs));
+      int fsidx = Boards::getSwitchYamlIndex(QString("SW%1").arg(fs), BoardJson::YLT_REF);
       if (fsidx >= 0)
         rhs = RawSource(SOURCE_TYPE_SWITCH, fsidx);
     }
@@ -261,7 +262,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
       ana_str = Boards::getLegacyAnalogMappedInputTag(ana_str.c_str());
 
-    int ana_idx = Boards::getInputYamlRefIndex(ana_str.c_str());
+    int ana_idx = Boards::getInputYamlIndex(ana_str.c_str(), BoardJson::YLT_REF);
     if (ana_idx >= 0) {
       rhs.type = SOURCE_TYPE_STICK;
       rhs.index = ana_idx;
