@@ -191,9 +191,6 @@ do
     cmake --build native -j"${JOBS}" --target libsimulator
 done                              
 
-rm -f CMakeCache.txt native/CMakeCache.txt
-cmake ${COMMON_OPTIONS} -DPCB=X10 -DPCBREV=TX16S "${SRCDIR}"
-
 cmake --build . --target native-configure
 if [ "$(uname)" = "Darwin" ]; then
     cmake --build native -j"${JOBS}" --target package
