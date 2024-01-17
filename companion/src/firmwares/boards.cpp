@@ -357,13 +357,29 @@ QString Boards::getAxisName(int index)
 // mapping json tag (1st entry) to legacy tag (2nd entry)
 // json tag then used to find inputs index
 // only used to decode pre v2.10 yaml configs
-StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board)
+StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board, bool forSource)
 {
-  StringTagMappingTable tbl = {
+  StringTagMappingTable tbl;
+
+  if (forSource) {
+    tbl.insert(tbl.end(), {
+                              {tr("Rud").toStdString(), "Rud"},
+                              {tr("Ele").toStdString(), "Ele"},
+                              {tr("Thr").toStdString(), "Thr"},
+                              {tr("Ail").toStdString(), "Ail"},
+    });
+  }
+  else {
+    tbl.insert(tbl.end(), {
                               {tr("LH").toStdString(), "Rud"},
                               {tr("LV").toStdString(), "Ele"},
                               {tr("RH").toStdString(), "Thr"},
                               {tr("RV").toStdString(), "Ail"},
+    });
+  }
+
+  tbl.insert(tbl.end(), {
+
                               {tr("JSx").toStdString(), "MOUSE1"},
                               {tr("JSy").toStdString(), "MOUSE2"},
                               {tr("JSx").toStdString(), "JSx"},
@@ -372,7 +388,7 @@ StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board)
                               {tr("TILT_Y").toStdString(), "TILT_Y"},
                               {tr("TILT_X").toStdString(), "GYRO1"},
                               {tr("TILT_Y").toStdString(), "GYRO2"},
-  };
+  });
 
   if (IS_TARANIS_X9LITE(board)) {
     tbl.insert(tbl.end(), {
@@ -462,9 +478,9 @@ StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board)
   return tbl;
 }
 
-std::string Boards::getLegacyAnalogMappedInputTag(const char * legacytag, Board::Type board)
+std::string Boards::getLegacyAnalogMappedInputTag(const char * legacytag, Board::Type board, bool forSource)
 {
-  return DataHelpers::getStringTagMappingName(getLegacyAnalogsLookupTable(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : board), legacytag);
+  return DataHelpers::getStringTagMappingName(getLegacyAnalogsLookupTable(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : board, forSource), legacytag);
 }
 
 bool Boards::isBoardCompatible(Type board1, Type board2)

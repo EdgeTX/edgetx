@@ -260,7 +260,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     }
 
     if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
-      ana_str = Boards::getLegacyAnalogMappedInputTag(ana_str.c_str());
+      ana_str = Boards::getLegacyAnalogMappedInputTag(ana_str.c_str(), Board::BOARD_UNKNOWN, true);
 
     int ana_idx = Boards::getInputYamlIndex(ana_str.c_str(), BoardJson::YLT_REF);
     if (ana_idx >= 0) {

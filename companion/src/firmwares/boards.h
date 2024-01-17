@@ -362,7 +362,7 @@ class Boards
     static QString flexTypeToString(int value);
     static AbstractStaticItemModel * flexTypeItemModel();
 
-    static std::string getLegacyAnalogMappedInputTag(const char * legacytag, Board::Type board = Board::BOARD_UNKNOWN);
+    static std::string getLegacyAnalogMappedInputTag(const char * legacytag, Board::Type board = Board::BOARD_UNKNOWN, bool forSource = false);
 
   private:
 
@@ -375,7 +375,7 @@ class Boards
     const StringTagMappingTable rawSourceSpecialTypesLookupTable;
     const StringTagMappingTable rawSourceCyclicLookupTable;
 
-    static StringTagMappingTable getLegacyAnalogsLookupTable(Board::Type board = Board::BOARD_UNKNOWN);
+    static StringTagMappingTable getLegacyAnalogsLookupTable(Board::Type board = Board::BOARD_UNKNOWN, bool forSource = false);
 };
 
 // temporary aliases for transition period, use Boards class instead.
