@@ -953,7 +953,7 @@ void lcdMaskPoint(uint8_t * p, uint8_t mask, LcdFlags att)
 void lcdDrawPoint(coord_t x, coord_t y, LcdFlags att)
 {
   uint8_t * p = &displayBuf[ y / 8 * LCD_W + x ];
-  if (p < DISPLAY_END) {
+  if (IS_IN_DISPLAY(p)) {
     lcdMaskPoint(p, bfBit<uint8_t>(y % 8), att);
   }
 }

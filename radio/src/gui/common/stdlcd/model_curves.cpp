@@ -156,6 +156,8 @@ void drawFunction(FnFuncP fn, uint8_t offset)
 
   for (int xv = -CURVE_SIDE_WIDTH; xv <= CURVE_SIDE_WIDTH; xv++) {
     coord_t yv = -(fn((xv * RESX) / CURVE_SIDE_WIDTH) * (CURVE_SIDE_WIDTH*2+1) / (RESX*2));
+    if (yv < -CURVE_SIDE_WIDTH) yv = -CURVE_SIDE_WIDTH;
+    if (yv > CURVE_SIDE_WIDTH) yv = CURVE_SIDE_WIDTH;
     if ((xv > -CURVE_SIDE_WIDTH) && (abs((int8_t)yv-prev_yv) > 1)) {
       int len = 0;
       if (yv > prev_yv) {
