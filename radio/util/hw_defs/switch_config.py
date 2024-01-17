@@ -95,6 +95,16 @@ SWITCH_CONFIG = {
         "SD": {"default": "3POS",   "display": [1, 1]},
         "SH": {"default": "2POS",   "display": [1, 3]}
     },
+    "t14": {
+        # left side
+        "SA": {"default": "2POS",   "display": [0, 0]},
+        "SC": {"default": "3POS",   "display": [0, 1]},
+        "SE": {"default": "2POS",   "display": [0, 2]},
+        # right side
+        "SB": {"default": "2POS",   "display": [1, 0]},
+        "SD": {"default": "3POS",   "display": [1, 1]},
+        "SF": {"default": "TOGGLE", "display": [1, 2]}
+    },
     "t16": {
         "SA": {"default": "3POS"},
         "SB": {"default": "3POS"},
