@@ -22,7 +22,7 @@ jobs:
           - t18
           - t8;zorro;pocket;mt12;commando8
           - tlite;tpro;tprov2;lr3pro
-          - t20
+          - t20;t14
           - tx12;tx12mk2;boxer
           - tx16s
           - x10;x10-access

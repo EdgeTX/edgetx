@@ -27,7 +27,7 @@
 #define ROTENC_MIDSPEED   5
 #define ROTENC_HIGHSPEED 50
 
-#if defined(RADIO_T20)
+#if defined(RADIO_T20) || defined(RADIO_T14)
 #define ROTARY_ENCODER_GRANULARITY 4
 #else
 #define ROTARY_ENCODER_GRANULARITY 2

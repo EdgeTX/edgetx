@@ -58,6 +58,10 @@ POT_CONFIG = {
         "P1": {"default": "POT"},
         "P2": {"default": "POT"}
     },
+    "t14": {
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"}
+    },
     "tx12": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"}
