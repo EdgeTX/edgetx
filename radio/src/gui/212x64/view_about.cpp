@@ -29,7 +29,7 @@ const char ABOUT_VERSION_1[] = "EdgeTX " "\"" CODENAME "\"" " (" VERSION_TAG ")"
 #else
 const char ABOUT_VERSION_1[] = "EdgeTX " "(" VERSION "-" VERSION_SUFFIX ")";
 #endif
-const char ABOUT_VERSION_2[] = "Copyright (C) 2023 EdgeTX";
+const char ABOUT_VERSION_2[] = "Copyright (C) 2024 EdgeTX";
 const char ABOUT_VERSION_3[] = "https://edgetx.org";
 
 void menuAboutView(event_t event)
