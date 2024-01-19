@@ -139,21 +139,21 @@ else()
   message(STATUS "Qt lupdate not found, 'translations' target will not be availabe.")
 endif()
 
-############# Radio hardware definitions ###############
+############# Import radio hardware definitions ###############
 
-# Find all the json files
 set(HWDEFS_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../radio/src")
-file(GLOB hwdefs_json "${HWDEFS_DIR}/*.json")
+set(HWDEFS_TMPL "${COMPANION_SRC_DIRECTORY}/hwdefs.qrc.in")
+set(HWDEFS_PHDR "HWDEF_JSON_LIST")
 set(HWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/hwdefs.qrc")
+set(HWDEFS_CMD "${COMPANION_SRC_DIRECTORY}/../util/generate_hwdefs_qrc.py")
 
-# Dynamically update companion.qrc file (XML) adding collected hwdef json files.
-foreach(hwdef_json ${hwdefs_json})
-  get_filename_component(hwdef_json_name ${hwdef_json} NAME)
-  message(STATUS "Hardware definition found: ${hwdef_json_name}")
-  # Add file with full path and file name (w/out path) as alias to be used in actual code
-  set(HWDEF_JSON_LIST "${HWDEF_JSON_LIST}    <file alias=\"${hwdef_json_name}\">${HWDEFS_DIR}/${hwdef_json_name}</file>\n")
-endforeach()
-configure_file(${COMPANION_SRC_DIRECTORY}/hwdefs.qrc.in ${HWDEFS_QRC} @ONLY)
+add_custom_command(OUTPUT ${HWDEFS_QRC}
+  COMMAND ${HWDEFS_CMD} -d ${HWDEFS_DIR}
+                        -t ${HWDEFS_TMPL}
+                        -p ${HWDEFS_PHDR}
+                        -o ${HWDEFS_QRC}
+  DEPENDS ${HWDEFS_TMPL}
+  )
 
 ############# Common lib ###############
 
