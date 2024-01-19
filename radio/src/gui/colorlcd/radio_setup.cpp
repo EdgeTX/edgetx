@@ -756,6 +756,10 @@ void RadioSetupPage::build(FormWindow * window)
   // Date & time picker including labels
   new DateTimeWindow(window, rect_t{});
 
+  // TODO: sort out all caps title strings VS quick menu strings
+  std::string manageModelsTitle(STR_MAIN_MENU_MANAGE_MODELS);
+  std::replace(manageModelsTitle.begin(), manageModelsTitle.end(), '\n', ' ');
+
   // Sub-pages
   new WindowButtonGroup(window, rect_t{}, {
       {STR_SOUND_LABEL, []() { new SoundPage(); }},
@@ -769,7 +773,7 @@ void RadioSetupPage::build(FormWindow * window)
       {STR_BACKLIGHT_LABEL, []() { new BacklightPage(); }},
       {STR_GPS, [](){new GpsPage();}},
       {STR_ENABLED_FEATURES, [](){new ViewOptionsPage();}},
-      {STR_MANAGE_MODELS, []() { new ManageModelsSetupPage(); }},
+      {manageModelsTitle.c_str(), []() { new ManageModelsSetupPage(); }},
 });
 
   // Splash screen
