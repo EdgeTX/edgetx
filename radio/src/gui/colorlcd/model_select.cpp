@@ -76,6 +76,21 @@ class ModelButton : public Button
     setWidth(MODEL_SELECT_CELL_WIDTH);
     setHeight(MODEL_SELECT_CELL_HEIGHT);
 
+    check(modelCell == modelslist.getCurrentModel());
+
+    lv_obj_add_event_cb(lvobj, ModelButton::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
+                        nullptr);
+  }
+
+  ~ModelButton()
+  {
+    if (buffer) {
+      delete buffer;
+    }
+  }
+
+  void addDetails()
+  {
     LcdFlags bg_color = modelCell == modelslist.getCurrentModel()
                             ? COLOR_THEME_ACTIVE
                             : COLOR_THEME_PRIMARY2;
@@ -115,14 +130,16 @@ class ModelButton : public Button
     name->setBackgroudOpacity(LV_OPA_80);
     name->setBackgroundColor(bg_color);
     name->padTop(-3);
-
-    check(modelCell == modelslist.getCurrentModel());
   }
 
-  ~ModelButton()
+  static void on_draw(lv_event_t *e)
   {
-    if (buffer) {
-      delete buffer;
+    auto btn = (ModelButton *)lv_obj_get_user_data(lv_event_get_target(e));
+    if (btn) {
+      if (!btn->loaded) {
+        btn->loaded = true;
+        btn->addDetails();
+      }
     }
   }
 
