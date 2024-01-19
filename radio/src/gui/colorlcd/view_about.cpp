@@ -29,7 +29,7 @@ const std::string about_str = "EdgeTX" " (" VERSION_TAG ")\n" "\"" CODENAME "\""
 #else
 const std::string about_str = "EdgeTX" " (" VERSION "-" VERSION_SUFFIX ")";
 #endif
-const std::string copyright_str = "Copyright (C) 2023 EdgeTX";
+const std::string copyright_str = "Copyright (C) 2024 EdgeTX";
 const std::string edgetx_url = "https://edgetx.org";
 
 AboutUs::AboutUs() :
