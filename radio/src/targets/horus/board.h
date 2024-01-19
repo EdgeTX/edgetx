@@ -226,7 +226,7 @@ void lcdCopy(void * dest, void * src);
 #define BACKLIGHT_FORCED_ON     BACKLIGHT_LEVEL_MAX + 1
 #if defined(PCBX12S)
 #define BACKLIGHT_LEVEL_MIN   5
-#elif defined(RADIO_FAMILY_T16)
+#elif defined(RADIO_FAMILY_T16) || defined(RADIO_X10E)
 #define BACKLIGHT_LEVEL_MIN   1
 #else
 #define BACKLIGHT_LEVEL_MIN   46
