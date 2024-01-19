@@ -189,12 +189,7 @@ do
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
     cmake --build . --target native-configure
     cmake --build native -j"${JOBS}" --target libsimulator
-done
-
-rm -f CMakeCache.txt native/CMakeCache.txt
-BUILD_OPTIONS="${COMMON_OPTIONS} "
-BUILD_OPTIONS+="-DPCB=X9D+ -DPCBREV=2019"
-cmake ${BUILD_OPTIONS} "${SRCDIR}"
+done                              
 
 cmake --build . --target native-configure
 if [ "$(uname)" = "Darwin" ]; then
