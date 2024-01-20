@@ -383,6 +383,7 @@
 #define TR_PLAY_HELLO                  "起動時サウンド"
 #define TR_PWR_ON_DELAY                "電源ON遅延"
 #define TR_PWR_OFF_DELAY               "電源OFF遅延"
+#define TR_PWR_AUTO_OFF                "Pwr Auto Off"
 #define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "Throttle状態")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Cust-Pos", INDENT INDENT INDENT INDENT "カスタム位置？")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "位置 %")

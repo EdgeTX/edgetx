@@ -387,6 +387,7 @@
 #define TR_PLAY_HELLO                  "צליל אתחול"
 #define TR_PWR_ON_DELAY                "השהיית הפעלה פעיל"
 #define TR_PWR_OFF_DELAY               "משך לחיצה לכיבוי השלט"
+#define TR_PWR_AUTO_OFF                "Pwr Auto Off"
 #define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "התראת מצערת פתוחה")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Cust-Pos", INDENT INDENT INDENT INDENT "עריכת מיקום ידנית")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")

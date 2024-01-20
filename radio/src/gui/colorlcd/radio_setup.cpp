@@ -736,6 +736,14 @@ void RadioSetupPage::build(FormWindow * window)
                    SET_DIRTY();
                });
   }
+
+  // Pwr Off If Inactive
+  {
+    auto line = window->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_PWR_AUTO_OFF, 0, COLOR_THEME_PRIMARY1);
+    auto edit = new NumberEdit(line, rect_t{}, 0, 255, GET_SET_DEFAULT(g_eeGeneral.pwrOffIfInactive));
+    edit->setSuffix(" min");
+  }
 #endif
 
 #if defined(PXX2)

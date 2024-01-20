@@ -882,6 +882,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ENUM("modelSFDisabled", 2, enum_ModelOverridableEnable),
   YAML_ENUM("modelCustomScriptsDisabled", 2, enum_ModelOverridableEnable),
   YAML_ENUM("modelTelemetryDisabled", 2, enum_ModelOverridableEnable),
+  YAML_PADDING( 5 ),
+  YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
   YAML_END
 };
 static const struct YamlNode struct_PartialModel[] = {

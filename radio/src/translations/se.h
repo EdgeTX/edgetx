@@ -397,6 +397,7 @@
 #define TR_PLAY_HELLO                   "Startljud"
 #define TR_PWR_ON_DELAY                 "Fördröj start"
 #define TR_PWR_OFF_DELAY                "Fördröj avslut"
+#define TR_PWR_AUTO_OFF                 "Pwr Auto Off"
 #define TR_BLCOLOR                      "Färg"
 #define TR_THROTTLE_WARNING             TR(INDENT "Gasvarn.", INDENT "Gasvarning")
 #define TR_CUSTOM_THROTTLE_WARNING      TR(INDENT INDENT INDENT INDENT "Egen pos", INDENT INDENT INDENT INDENT "Egen position?")

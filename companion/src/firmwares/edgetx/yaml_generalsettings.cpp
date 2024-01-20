@@ -334,6 +334,8 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["modelSFDisabled"] = (int)rhs.modelSFDisabled;
   node["modelCustomScriptsDisabled"] = (int)rhs.modelCustomScriptsDisabled;
   node["modelTelemetryDisabled"] = (int)rhs.modelTelemetryDisabled;
+  // Power off after inactivity
+  node["pwrOffIfInactive"] = rhs.pwrOffIfInactive;
 
   return node;
 }
@@ -590,6 +592,9 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   // OneBit sampling (X9D only?)
   node["uartSampleMode"] >> rhs.uartSampleMode;
+
+  // Power off after inactivity
+  node["pwrOffIfInactive"] >> rhs.pwrOffIfInactive;
 
   //  override critical settings after import
   //  TODO: for consistency move up call stack to use existing eeprom and profile conversions

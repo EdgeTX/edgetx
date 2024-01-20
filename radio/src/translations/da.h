@@ -388,6 +388,7 @@
 #define TR_PLAY_HELLO                  "Startop lyd"
 #define TR_PWR_ON_DELAY                "Forsinkelse ved tænd"
 #define TR_PWR_OFF_DELAY               "Forsinkelse ved sluk"
+#define TR_PWR_AUTO_OFF                "Pwr Auto Off"
 #define TR_THROTTLE_WARNING            TR(INDENT "Gas adv", INDENT "Gas advarsel")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Tilp-Pos", INDENT INDENT INDENT INDENT "Tilpasset position?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")

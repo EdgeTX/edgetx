@@ -96,6 +96,8 @@ class GeneralSetupPanel : public GeneralPanel
     void on_modelQuickSelect_CB_stateChanged(int);
     void on_startSoundCB_stateChanged(int);
 
+    void on_pwrOffIfInactiveSB_editingFinished();
+
   private:
     Ui::GeneralSetup *ui;
 

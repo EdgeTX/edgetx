@@ -381,6 +381,7 @@
 #define TR_PLAY_HELLO                  "Startup Sound"
 #define TR_PWR_ON_DELAY        "Pwr On delay"
 #define TR_PWR_OFF_DELAY       "Pwr Off delay"
+#define TR_PWR_AUTO_OFF        "Pwr Auto Off"
 #define TR_THROTTLE_WARNING    TR(INDENT "T-Warning", INDENT "Throttle Status")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Cust-Pos", INDENT INDENT INDENT INDENT "Custom position?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
