@@ -277,6 +277,7 @@ int main(int argc, char *argv[])
   }
 #endif
 
+  Q_INIT_RESOURCE(hwdefs);
   gBoardFactories = new BoardFactories();
   registerStorageFactories();
   registerOpenTxFirmwares();
