@@ -591,6 +591,12 @@ void evalInputs(uint8_t mode)
   }
 }
 
+#if defined(SURFACE_RADIO)
+  constexpr int IDLE_TRIM_SCALE = 1;
+#else
+  constexpr int IDLE_TRIM_SCALE = 2;
+#endif
+
 int getStickTrimValue(int stick, int stickValue)
 {
   if (stick < 0)
@@ -598,13 +604,26 @@ int getStickTrimValue(int stick, int stickValue)
 
   int trim = trims[stick];
   uint8_t thrTrimSw = g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM;
-  if (stick == thrTrimSw) {
+  if (stick == thrTrimSw) {  // trim for throttle
     if (g_model.throttleReversed) trim = -trim;
-    if (g_model.thrTrim) {
+    if (g_model.thrTrim) {   // throttle idle ON
+      // evalTrims() store 2 * trim value in trims[]
+      // so here, trim values range from -256 to 256
+      // and extended trim values range from -1024 to 1024
       trim = (g_model.extendedTrims) ? 2 * TRIM_EXTENDED_MAX + trim
                                      : 2 * TRIM_MAX + trim;
-      trim = trim * (1024 - stickValue) / (2 * RESX);
+      trim = trim * (1024 - stickValue) / (IDLE_TRIM_SCALE * RESX);
+#if defined(SURFACE_RADIO)
+      // Throttle Idle trim (g_model.thrTrim) should affect only forward stick (0 to 1024)
+      // Return no trim for reverse side when throttle idle trim is enabled
+      if (stickValue < 0) return 0;
+#endif
     }
+#if defined(SURFACE_RADIO)
+    // divide throtle trim by two since since the full extend
+    // of forward/reverse chan is only 1024 instead of 2048
+    trim >>= 1;
+#endif
   }
   return trim;
 }

@@ -66,6 +66,7 @@ jobs:
           - x9lites
           - xlite
           - xlites
+          - mt12
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -109,6 +110,7 @@ jobs:
           - x9e;x9e-hall
           - x9lite;x9lites
           - xlite;xlites
+          - mt12
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:

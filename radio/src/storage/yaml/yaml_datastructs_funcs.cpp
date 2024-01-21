@@ -252,7 +252,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
                val[1] == 'm' &&
                val[2] == 'r' &&
                val[3] >= '1' &&
-               val[3] <= ('1' + MAX_TIMERS)) {
+               val[3] <= ('0' + MAX_TIMERS)) {
 
       return MIXSRC_FIRST_TIMER + (val[3] - '1');
 
@@ -263,15 +263,16 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
                val[3] == 'E' &&
                val[4] == 'R' &&
                val[5] >= '1' &&
-               val[5] <= ('1' + MAX_TIMERS)) {
+               val[5] <= ('0' + MAX_TIMERS)) {
 
       return MIXSRC_FIRST_TIMER + (val[5] - '1');
 
     } else if (val_len > 1 &&
                val[0] == 'T' &&
                val[1] >= '1' &&
-               val[1] <= '9') {
-      return yaml_str2uint(val + 1, val_len - 1) + MIXSRC_FIRST_TRIM - 1;
+               val[1] <= ('0' + MAX_TRIMS)) {
+
+      return MIXSRC_FIRST_TRIM + (val[1] - '1');
     }
 
     auto idx = analogLookupCanonicalIdx(ADC_INPUT_MAIN, val, val_len);
@@ -342,6 +343,11 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
              && val <= MIXSRC_LAST_HELI) {
         if (!wf(opaque, "CYC", 3)) return false;
         str = yaml_unsigned2str(val - MIXSRC_FIRST_HELI + 1);
+    }
+    else if (val >= MIXSRC_FIRST_TRIM
+             && val <= MIXSRC_LAST_TRIM) {
+        if (!wf(opaque, "T", 1)) return false;
+        str = yaml_unsigned2str(val - MIXSRC_FIRST_TRIM + 1);
     }
     else if (val >= MIXSRC_FIRST_SWITCH
              && val <= MIXSRC_LAST_SWITCH) {

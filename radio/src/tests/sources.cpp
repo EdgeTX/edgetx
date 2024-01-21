@@ -111,8 +111,12 @@ TEST(Sources, getSourceString)
   EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI + 1), "[C2]");
   EXPECT_STREQ(getSourceString(MIXSRC_FIRST_HELI + 2), "[C3]");
 #endif
-
-  EXPECT_STREQ(getSourceString(MIXSRC_TrimRud), STR_CHAR_TRIM "Rud");
-  EXPECT_STREQ(getSourceString(MIXSRC_TrimEle), STR_CHAR_TRIM "Ele");
-  EXPECT_STREQ(getSourceString(MIXSRC_TrimThr), STR_CHAR_TRIM "Thr");
+#if defined(SURFACE_RADIO)
+  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM), STR_CHAR_TRIM "ST");
+  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM + 1), STR_CHAR_TRIM "TH");
+#else
+  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM), STR_CHAR_TRIM "Rud");
+  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM + 1), STR_CHAR_TRIM "Ele");
+  EXPECT_STREQ(getSourceString(MIXSRC_FIRST_TRIM + 2), STR_CHAR_TRIM "Thr");
+#endif
 }

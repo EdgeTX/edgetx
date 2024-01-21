@@ -23,11 +23,6 @@
 
 #include <stdint.h>
 
-// Air radios / input order in mode 1
-#define RUD_STICK 0
-#define ELE_STICK 1
-#define THR_STICK 2
-#define AIL_STICK 3
 
 #define MAX_INPUT_MODES 4
 

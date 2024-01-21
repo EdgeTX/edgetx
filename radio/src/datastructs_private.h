@@ -824,16 +824,9 @@ PACK(struct TrainerData {
     NOBACKUP(uint8_t blOffBright:7); \
     NOBACKUP(char bluetoothName[LEN_BLUETOOTH_NAME]);
 #else
-  #if defined(STORAGE_BLUETOOTH)
-    #define BLUETOOTH_FIELDS \
-      uint8_t spare6 SKIP; \
-      char bluetoothName[LEN_BLUETOOTH_NAME];
-  #else
-    #define BLUETOOTH_FIELDS
-  #endif
   #define EXTRA_GENERAL_FIELDS \
     uint8_t  backlightColor; \
-    BLUETOOTH_FIELDS
+    char bluetoothName[LEN_BLUETOOTH_NAME];
 #endif
 
 #if defined(BUZZER)

@@ -3,11 +3,33 @@
 //   This file has been generated from the target's JSON hardware description
 //
 
-{% set inputs = adc_inputs.inputs | selectattr('type', '==', 'FLEX') | list %}
+{% macro lua_input(first, offset, input) %}
+  {% set li = legacy_inputs[input.name] %}
+{ {{ first }} + {{ offset }}, "{{ li.lua }}", "{{ li.description }}" },
+{%- endmacro %}
+
+{% macro lua_inputs(first, inputs) %}
+  {% for input in inputs %}
+  {{ lua_input(first, loop.index0, input) }}
+  {% endfor %}
+{%- endmacro %}
 
 static const LuaSingleField _lua_inputs[] = {
-  {% for input in inputs %}
-    {% set li = legacy_inputs[input.name] %}
-    { MIXSRC_FIRST_POT + {{ loop.index0 }}, "{{ li.lua }}", "{{ li.description }}" },
+  // main inputs
+  {% set main_inputs = adc_inputs.inputs | selectattr('type', '==', 'STICK') | list %}
+{{ lua_inputs('MIXSRC_FIRST_STICK', main_inputs) }}
+  // flex inputs
+  {% set inputs = adc_inputs.inputs | selectattr('type', '==', 'FLEX') | list %}
+{{ lua_inputs('MIXSRC_FIRST_POT', inputs) }}
+  // trims
+  {% set trims_count =  trims | count %}
+  {% for n in range(trims_count) %}
+    {% if n < (main_inputs | length) %}
+      {% set input = main_inputs[loop.index0] %}
+      {% set li = legacy_inputs[input.name] %}
+  { MIXSRC_FIRST_TRIM + {{ loop.index0 }}, "trim-{{ li.lua }}", "{{ li.description}} trim" },
+    {% else %}
+  { MIXSRC_FIRST_TRIM + {{ loop.index0 }}, "trim-t{{ loop.index }}", "Aux trim T{{ loop.index }}" },
+    {% endif %}
   {% endfor %}
 };
