@@ -377,11 +377,11 @@
 #define TR_PWR_OFF_DELAY               "Pwr Off затримка"
 #define TR_THROTTLE_WARNING            TR(INDENT "Г-попер.", INDENT "Стан Газу")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Користув. полож.", INDENT INDENT INDENT INDENT "Користувацьке положення?")
-#define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Пол. %", "Положення %")
+#define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Полож. %", "Положення %")
 #define TR_SWITCHWARNING               TR(INDENT "Позиц. перемик.", INDENT "Позиції пермикача")		/*need to be crarifyed by context*/
-#define TR_POTWARNINGSTATE             TR(INDENT "Пот&жвиж.", INDENT "Пот & движки")			/*need to be crarifyed by context*/
+#define TR_POTWARNINGSTATE             TR(INDENT "Потенц.&Повзун.", INDENT "Потенціометри & Повзунки")
 #define TR_SLIDERWARNING               TR(INDENT "Позиц. повзунк.", INDENT "Позиція повзунків")		/*need to be crarifyed by context*/
-#define TR_POTWARNING                  TR(INDENT "Пот.", INDENT "Поз. потенц.")		/*need to be crarifyed by context*/
+#define TR_POTWARNING                  TR(INDENT "Потенц.", INDENT "Позиц. потенц.")		/*need to be crarifyed by context*/
 #define TR_TIMEZONE                    "Часовий пояс"
 #define TR_ADJUST_RTC                  "налаштувати RTC"
 #define TR_GPS                         "GPS"		/* use english */
@@ -394,7 +394,7 @@
 #define TR_MODESRC                     "Mode\006% Source"		/* use english */
 #define TR_MULTIPLIER                  "Множник"	
 #define TR_CAL                         "Калібрув."
-#define TR_CALIBRATION                 "Калібровка"
+#define TR_CALIBRATION                 "Калібрування"
 #define TR_VTRIM                       "Трим - +"
 #define TR_CALIB_DONE                  "Калібрування завершене"
 #if defined(PCBHORUS)
@@ -863,7 +863,7 @@
 #define TR_ANALOGS_BTN                 BUTTON(TR("Анл.", "Аналоги"))
 #define TR_FS_BTN                      BUTTON(TR("Користув.перемик.", TR_FUNCTION_SWITCHES))
 #define TR_TOUCH_NOTFOUND              "Сенсорний екран не знайдено"
-#define TR_TOUCH_EXIT                  "Тицніть екран щоб вийти"
+#define TR_TOUCH_EXIT                  "Натисніть на екран щоб вийти"
 #define TR_SET                         BUTTON("Встановл.")
 #define TR_TRAINER                     "Трейнер"
 #define TR_CHANS                       "Канали"
