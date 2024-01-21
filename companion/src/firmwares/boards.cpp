@@ -373,8 +373,8 @@ StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board, boo
     tbl.insert(tbl.end(), {
                               {tr("LH").toStdString(), "Rud"},
                               {tr("LV").toStdString(), "Ele"},
-                              {tr("RH").toStdString(), "Thr"},
-                              {tr("RV").toStdString(), "Ail"},
+                              {tr("RV").toStdString(), "Thr"},
+                              {tr("RH").toStdString(), "Ail"},
     });
   }
 
