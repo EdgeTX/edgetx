@@ -261,7 +261,7 @@
 #define TR_TIMER                       TR("Таймер", "Таймер ")
 #define TR_START                       "Start"	/* use english */
 #define TR_ELIMITS                     TR("Розш.Ліміт", "Розширені Ліміти")
-#define TR_ETRIMS                      TR("Розш.Трим.", "Розширене Обрізання")  /* ned to be clarifyed by context */
+#define TR_ETRIMS                      TR("Розш.Трим.", "Розширене Обрізання")  /* ned to be clarified by context */
 #define TR_TRIMINC                     "Крок Тримув."
 #define TR_DISPLAY_TRIMS               TR("Показ. трим.", "Показати трими")
 #define TR_TTRACE                      TR("T-Джерело", INDENT "Джерело")
@@ -318,7 +318,7 @@
 #define TR_MULTPX                      "Multiplex"		/* use english */
 #define TR_DELAYDOWN                   TR("Затрим менше", "Затримка менше")
 #define TR_DELAYUP                     "Затримка більше"
-#define TR_SLOWDOWN                    TR("Пов.", "Повільно")	/*need to be crarifyed by context*/
+#define TR_SLOWDOWN                    TR("Пов.", "Повільно")	/*need to be clarified by context*/
 #define TR_SLOWUP                      "Повільно"
 #define TR_MIXES                       "MIXES"
 #define TR_CV                          "CV"
@@ -330,15 +330,15 @@
 #define TR_RANGE                       INDENT "Діапазон"
 #define TR_CENTER                      INDENT "Центр"
 #define TR_ALARM                       "Тривога"
-#define TR_BLADES                      "Леза/Піни"	/*need to be crarifyed by context*/
+#define TR_BLADES                      "Леза/Піни"	/*need to be clarified by context*/
 #define TR_SCREEN                      "Екран\001"
 #define TR_SOUND_LABEL                 "Звук"
 #define TR_LENGTH                      "Довжина"
 #define TR_BEEP_LENGTH                 "Довжина сигналу"
-#define TR_BEEP_PITCH                  "Тон сигналу"	/*need to be crarifyed by context*/
+#define TR_BEEP_PITCH                  "Тон сигналу"	/*need to be clarified by context*/
 #define TR_HAPTIC_LABEL                "Вібро"
 #define TR_STRENGTH                    "Інтенсивність"
-#define TR_IMU_LABEL                   "IMU"		/*need to be crarifyed by context*/
+#define TR_IMU_LABEL                   "IMU"		/*need to be clarified by context*/
 #define TR_IMU_OFFSET                  "Зсув"
 #define TR_IMU_MAX                     "Max"
 #define TR_CONTRAST                    "Контраст"
@@ -351,7 +351,7 @@
 #define TR_INACTIVITYALARM             "Бездіяльність"
 #define TR_MEMORYWARNING               "Пам'ять закінч."
 #define TR_ALARMWARNING                "Звук вимк."
-#define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI вимк.", "Перевір RSSI при вимкн.")		/*need to be crarifyed by context*/
+#define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI вимк.", "Перевір RSSI при вимкн.")		/*need to be clarified by context*/
 #define TR_MODEL_STILL_POWERED         "МОжель досі під живленням"
 #define TR_TRAINER_STILL_CONNECTED     "Трейн. досі підключено"
 #define TR_USB_STILL_CONNECTED         "USB досі підключено"
@@ -378,10 +378,10 @@
 #define TR_THROTTLE_WARNING            TR(INDENT "Г-попер.", INDENT "Стан Газу")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Користув. полож.", INDENT INDENT INDENT INDENT "Користувацьке положення?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Полож. %", "Положення %")
-#define TR_SWITCHWARNING               TR(INDENT "Позиц. перемик.", INDENT "Позиції пермикача")		/*need to be crarifyed by context*/
+#define TR_SWITCHWARNING               TR(INDENT "Позиц. перемик.", INDENT "Позиції пермикача")		/*need to be clarified by context*/
 #define TR_POTWARNINGSTATE             TR(INDENT "Потенц.&Повзун.", INDENT "Потенціометри & Повзунки")
-#define TR_SLIDERWARNING               TR(INDENT "Позиц. повзунк.", INDENT "Позиція повзунків")		/*need to be crarifyed by context*/
-#define TR_POTWARNING                  TR(INDENT "Потенц.", INDENT "Позиц. потенц.")		/*need to be crarifyed by context*/
+#define TR_SLIDERWARNING               TR(INDENT "Позиц. повзунк.", INDENT "Позиція повзунків")		/*need to be clarified by context*/
+#define TR_POTWARNING                  TR(INDENT "Потенц.", INDENT "Позиц. потенц.")		/*need to be clarified by context*/
 #define TR_TIMEZONE                    "Часовий пояс"
 #define TR_ADJUST_RTC                  "налаштувати RTC"
 #define TR_GPS                         "GPS"		/* use english */
@@ -631,8 +631,8 @@
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Логи і скріншоти" LCDW_128_480_LINEBREAK "вимкнені"
 #endif
 #define TR_NEEDS_FILE                  "ПОТРІБЕН ФАЙЛ"
-#define TR_EXT_MULTI_SPEC              "opentx-inv"				/*need to be crarifyed by context*/
-#define TR_INT_MULTI_SPEC              "stm-opentx-noinv"				/*need to be crarifyed by context*/
+#define TR_EXT_MULTI_SPEC              "opentx-inv"				/*need to be clarified by context*/
+#define TR_INT_MULTI_SPEC              "stm-opentx-noinv"				/*need to be clarified by context*/
 #define TR_INCOMPATIBLE                "Несумісне"
 #define TR_WARNING                     "ПОПЕРЕДЖЕННЯ"
 #define TR_EEPROMWARN                  "EEPROM"		/*use english*/
