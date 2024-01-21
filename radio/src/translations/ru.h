@@ -1230,7 +1230,7 @@
 #define TR_VOICE_TAIWANESE              "Тайваньский"
 #define TR_VOICE_JAPANESE               "Японский"
 #define TR_VOICE_HEBREW                 "Иврит"
-#define TR_VOICE_UKRAINIAN               "Ukrainian"
+#define TR_VOICE_UKRAINIAN              "Украинский"
 
 #define TR_USBJOYSTICK_LABEL           "USB Джойс"
 #define TR_USBJOYSTICK_EXTMODE         "Режим"
