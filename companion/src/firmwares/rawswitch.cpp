@@ -236,6 +236,7 @@ StringTagMappingTable RawSwitch::getRawSwitchTypesLookupTable()
   tbl.insert(tbl.end(), {
                           {std::to_string(SWITCH_TYPE_NONE),            "NONE"},
                           {std::to_string(SWITCH_TYPE_SWITCH),          "Sxn"},
+                          {std::to_string(SWITCH_TYPE_FUNCTIONSWITCH),  "FSn"},
                           {std::to_string(SWITCH_TYPE_VIRTUAL),         "Ln"},
                           {std::to_string(SWITCH_TYPE_MULTIPOS_POT),    "6Pn"},
                           {std::to_string(SWITCH_TYPE_TRIM),            "Trim"},
