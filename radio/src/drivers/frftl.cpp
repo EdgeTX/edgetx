@@ -63,6 +63,10 @@
 
 #define SECTOR_SIZE                    512
 #define PAGE_SIZE                      4096
+#define BLOCK_SIZE                     32768
+#define BLOCK_MASK                     (BLOCK_SIZE - 1)
+#define PAGES_PER_BLOCK                (BLOCK_SIZE / PAGE_SIZE)
+#define USE_BLOCK_ERASE_THRESHOLD      4
 #define SECTORS_PER_PAGE               (PAGE_SIZE / SECTOR_SIZE)
 #define TT_PAGE_MAGIC                  0xEF87364A
 #define TT_RECORDS_PER_PAGE            1024
@@ -541,6 +545,42 @@ static uint16_t allocatePhysicalPage(FrFTL* ftl)
   return physicalPageNo;
 }
 
+static bool quickErase(FrFTL* ftl, uint32_t addr)
+{
+
+  const FrFTLOps* cb = ftl->callbacks;
+  if ((addr & BLOCK_MASK) == 0) {
+    // Block aligned
+
+    uint16_t ppn = addr / PAGE_SIZE;
+    uint8_t count = 0;
+    bool hasUsed = false;
+
+    // Check state of the whole jumbo page
+    for (uint8_t i = 0; i < PAGES_PER_BLOCK; i++) {
+      PhysicalPageState state = getPhysicalPageState(ftl, ppn + i);
+      if (state == UNKNOWN || state == ERASE_REQUIRED) {
+        count++;
+      }
+      if (state == USED) {
+        hasUsed = true;
+        break;  // Cannot use block erase
+      }
+    }
+
+    if (!hasUsed && count >= USE_BLOCK_ERASE_THRESHOLD) {
+      bool ret = cb->flashBlockErase(addr);
+      if (ret) {
+        for (uint8_t i = 0; i < PAGES_PER_BLOCK; i++) {
+          setPhysicalPageState(ftl, ppn + i, ERASED);
+        }
+      }
+      return ret;
+    }
+  }
+  return cb->flashErase(addr);
+}
+
 static bool programPage(FrFTL* ftl, PageBuffer* buffer, bool doErase)
 {
   const FrFTLOps* cb = ftl->callbacks;
@@ -548,7 +588,7 @@ static bool programPage(FrFTL* ftl, PageBuffer* buffer, bool doErase)
         
   if (doErase && getPhysicalPageState(ftl, buffer->physicalPageNo) != ERASED) {
     // Do erase on the fly
-    if (!cb->flashErase(pageAddr)) {
+    if (!quickErase(ftl, pageAddr)) {
       return false;
     }
   }
@@ -991,7 +1031,7 @@ void createFTL(FrFTL* ftl)
   const FrFTLOps* cb = ftl->callbacks;
   do {
     if (getPhysicalPageState(ftl, i) != ERASED) {
-      cb->flashErase(addr);
+      quickErase(ftl, addr);
     }
     cb->flashProgram(addr, (const uint8_t*)&tt, PAGE_SIZE);
     setPhysicalPageState(ftl, i, USED);
@@ -1010,7 +1050,7 @@ void createFTL(FrFTL* ftl)
   } while(++i < ftl->ttPageCount);
 
   if (getPhysicalPageState(ftl, 0) != ERASED) {
-    cb->flashErase(0);
+    quickErase(ftl, 0);
   }
 
   cb->flashProgram(0, (const uint8_t*)&tt, PAGE_SIZE);

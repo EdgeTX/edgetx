@@ -256,7 +256,7 @@ int8_t STORAGE_Read_FS (uint8_t lun,
   */
 int8_t STORAGE_Write_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len)
 {
-  WATCHDOG_SUSPEND(100/*1s*/);
+  WATCHDOG_SUSPEND(500/*5s*/);
 
 #if defined(FWDRIVE)
   if (lun == STORAGE_EEPROM_LUN)	{

@@ -649,6 +649,10 @@
   #define FLASH_SPI_SCK_GPIO_PIN         LL_GPIO_PIN_5  // PA.05
   #define FLASH_SPI_MISO_GPIO_PIN        LL_GPIO_PIN_6  // PA.06
   #define FLASH_SPI_MOSI_GPIO_PIN        LL_GPIO_PIN_7  // PA.07
+  #define FLASH_SPI_DMA                  DMA2
+  #define FLASH_SPI_DMA_CHANNEL          LL_DMA_CHANNEL_3
+  #define FLASH_SPI_DMA_TX_STREAM        LL_DMA_STREAM_3
+  #define FLASH_SPI_DMA_RX_STREAM        LL_DMA_STREAM_5
   // SPI1_TX: DMA2 Stream 3 (SDIO) / Stream 5 (Ext. module timer)
   // #define FLASH_SPI_TX_DMA_CHANNEL       DMA_Channel_3
   // #define FLASH_SPI_TX_DMA_STREAM        DMA2_Stream3
@@ -671,6 +675,10 @@
   #define FLASH_SPI_SCK_GPIO_PIN         LL_GPIO_PIN_1  // PI.01
   #define FLASH_SPI_MISO_GPIO_PIN        LL_GPIO_PIN_2  // PI.02
   #define FLASH_SPI_MOSI_GPIO_PIN        LL_GPIO_PIN_3  // PI.03
+  #define FLASH_SPI_DMA                  DMA1
+  #define FLASH_SPI_DMA_CHANNEL          LL_DMA_CHANNEL_0
+  #define FLASH_SPI_DMA_TX_STREAM        LL_DMA_STREAM_4
+  #define FLASH_SPI_DMA_RX_STREAM        LL_DMA_STREAM_3
   // #define FLASH_SPI_TX_DMA_CHANNEL       DMA_Channel_0
   // #define FLASH_SPI_TX_DMA_STREAM        DMA1_Stream4
   // #define FLASH_SPI_TX_DMA_IRQn          DMA1_Stream4_IRQn

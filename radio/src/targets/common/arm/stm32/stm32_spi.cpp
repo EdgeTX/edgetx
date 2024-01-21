@@ -151,8 +151,10 @@ static void _config_dma_streams(const stm32_spi_t* spi)
   dmaInit.PeriphOrM2MSrcAddress = (uint32_t)&spi->SPIx->DR;
   dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
   dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;
-  dmaInit.FIFOMode = LL_DMA_FIFOMODE_ENABLE;
-  dmaInit.FIFOThreshold = LL_DMA_FIFOTHRESHOLD_FULL;
+  dmaInit.FIFOMode = spi->DMA_FIFOMode;
+  dmaInit.FIFOThreshold = spi->DMA_FIFOThreshold;
+  dmaInit.MemoryOrM2MDstDataSize = spi->DMA_MemoryOrM2MDstDataSize;
+  dmaInit.MemBurst = spi->DMA_MemBurst;
 
   dmaInit.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
   LL_DMA_Init(spi->DMA, spi->rxDMA_Stream, &dmaInit);

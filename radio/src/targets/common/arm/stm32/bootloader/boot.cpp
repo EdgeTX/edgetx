@@ -62,7 +62,7 @@
 #endif
 
 #if defined(SPI_FLASH)
-  #include "spi_flash.h"
+  #include "diskio_spi_flash.h"
   #define SEL_CLEAR_FLASH_STORAGE_MENU_LEN 2
 #endif
 
@@ -537,7 +537,9 @@ int  bootloaderMain()
         lcdRefresh();
         if(event != EVT_KEY_BREAK(KEY_ENTER))
           continue;
-        flashSpiEraseAll();
+        sdDone();
+        spiFlashDiskEraseAll();
+        sdInit();
         vpos = 0;
         state = ST_START;
 #endif

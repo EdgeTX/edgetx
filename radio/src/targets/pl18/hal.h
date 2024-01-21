@@ -465,14 +465,10 @@
 #define FLASH_SPI_SCK_GPIO_PIN         LL_GPIO_PIN_13 // PG.13
 #define FLASH_SPI_MISO_GPIO_PIN        LL_GPIO_PIN_12 // PG.12
 #define FLASH_SPI_MOSI_GPIO_PIN        LL_GPIO_PIN_14 // PG.14
-// #define FLASH_SPI_DMA                  DMA2
-// #define FLASH_SPI_DMA_CHANNEL          LL_DMA_CHANNEL_1
-// #define FLASH_SPI_DMA_TX_STREAM        LL_DMA_STREAM_5
-// #define FLASH_SPI_DMA_TX_IRQn          DMA2_Stream5_IRQn
-// #define FLASH_SPI_DMA_TX_IRQHandler    DMA2_Stream5_IRQHandler
-// #define FLASH_SPI_DMA_RX_STREAM        LL_DMA_STREAM_6
-// #define FLASH_SPI_DMA_RX_IRQn          DMA2_Stream6_IRQn
-// #define FLASH_SPI_DMA_RX_IRQHandler    DMA2_Stream6_IRQHandler
+#define FLASH_SPI_DMA                  DMA2
+#define FLASH_SPI_DMA_CHANNEL          LL_DMA_CHANNEL_1
+#define FLASH_SPI_DMA_TX_STREAM        LL_DMA_STREAM_5
+#define FLASH_SPI_DMA_RX_STREAM        LL_DMA_STREAM_6
 #define STORAGE_USE_SPI_FLASH
 
 // SDRAM

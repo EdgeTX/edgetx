@@ -48,6 +48,7 @@ typedef struct {
   bool (*flashRead)(uint32_t addr, uint8_t* buf, uint32_t len);
   bool (*flashProgram)(uint32_t addr, const uint8_t* buf, uint32_t len);
   bool (*flashErase)(uint32_t addr);
+  bool (*flashBlockErase)(uint32_t addr);
   bool (*isFlashErased)(uint32_t addr);
 } FrFTLOps;
 

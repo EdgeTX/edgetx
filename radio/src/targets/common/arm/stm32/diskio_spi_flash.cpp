@@ -64,6 +64,12 @@ static bool flashErase(uint32_t addr)
   return true;
 }
 
+static bool flashBlockErase(uint32_t addr)
+{
+  flashSpiBlockErase(addr);
+  return true;
+}
+
 static bool isFlashErased(uint32_t addr)
 {
   return flashSpiIsErased(addr);
@@ -73,9 +79,10 @@ static const FrFTLOps _frftl_cb = {
   .flashRead = flashRead,
   .flashProgram = flashWrite,
   .flashErase = flashErase,
+  .flashBlockErase = flashBlockErase,
   .isFlashErased = isFlashErased,
 };
-#endif
+#endif  // USE_FLASH_FTL
 
 static DSTATUS spi_flash_initialize(BYTE lun)
 {
@@ -186,6 +193,17 @@ static DRESULT spi_flash_ioctl(BYTE lun, BYTE ctrl, void *buff)
   }
 
   return res;
+}
+
+void spiFlashDiskEraseAll()
+{
+#if defined(USE_FLASH_FTL)
+  if (frftlInitDone) {
+    ftlDeInit(&_frftl);
+    frftlInitDone = false;
+  }
+#endif
+  flashSpiEraseAll();
 }
 
 const diskio_driver_t spi_flash_diskio_driver = {

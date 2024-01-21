@@ -74,10 +74,14 @@ const stm32_spi_t _flash_spi = {
   .SPI_Pins = FLASH_SPI_SCK_GPIO_PIN | FLASH_SPI_MISO_GPIO_PIN | FLASH_SPI_MOSI_GPIO_PIN,
   .CS_GPIOx = FLASH_SPI_CS_GPIO,
   .CS_Pin = FLASH_SPI_CS_GPIO_PIN,
-  .DMA = nullptr,
-  .DMA_Channel = 0,
-  .txDMA_Stream = 0,
-  .rxDMA_Stream = 0,
+  .DMA = FLASH_SPI_DMA,
+  .DMA_Channel = FLASH_SPI_DMA_CHANNEL,
+  .txDMA_Stream = FLASH_SPI_DMA_TX_STREAM,
+  .rxDMA_Stream = FLASH_SPI_DMA_RX_STREAM,
+  .DMA_FIFOMode = LL_DMA_FIFOMODE_ENABLE,
+  .DMA_FIFOThreshold = LL_DMA_FIFOTHRESHOLD_1_2,
+  .DMA_MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_HALFWORD,
+  .DMA_MemBurst = LL_DMA_MBURST_INC4,
 };
 
 static SpiFlashDescriptor _flashDescriptor;
@@ -95,9 +99,19 @@ static inline uint8_t flash_read_byte()
   return flash_rw_byte(0xFF);
 }
 
-static void flash_rw_bytes(const uint8_t* tx, uint8_t* rx, uint16_t count)
+static inline void flash_rw_bytes(const uint8_t* tx, uint8_t* rx, uint16_t count)
 {
   stm32_spi_transfer_bytes(&_flash_spi, tx, rx, count);
+}
+
+static inline void flash_dma_read_bytes(uint8_t* buffer, uint16_t count)
+{
+  stm32_spi_dma_receive_bytes(&_flash_spi, buffer, count);
+}
+
+static inline void flash_dma_write_bytes(const uint8_t* buffer, uint16_t count)
+{
+  stm32_spi_dma_transmit_bytes(&_flash_spi, buffer, count);
 }
 
 static inline void flash_put_cmd_addr(uint8_t cmd, uint32_t addr)
@@ -293,7 +307,7 @@ uint32_t flashSpiRead(uint32_t address, uint8_t* data, uint32_t size)
   } else {
     flash_put_cmd_addr(FLASH_CMD_READ, address);
   }
-  flash_rw_bytes(0, data, size);
+  flash_dma_read_bytes(data, size);
 
   flash_unselect();
   return size;
@@ -317,7 +331,7 @@ uint32_t flashSpiWrite(uint32_t address, const uint8_t* data, uint32_t size)
   } else {
     flash_put_cmd_addr(FLASH_CMD_WRITE, address);
   }
-  flash_rw_bytes(data, 0, size);
+  flash_dma_write_bytes(data, size);
   flash_unselect();
   
   flash_wait_for_not_busy();
