@@ -23,13 +23,6 @@
 
 // GVars have one value per flight mode
 #define GVAR_VALUE(gv, fm)           g_model.flightModeData[fm].gvars[gv]
-#define SET_GVAR_VALUE(idx, phase, value) \
-  GVAR_VALUE(idx, phase) = value; \
-  storageDirty(EE_MODEL); \
-  if (g_model.gvars[idx].popup) { \
-    gvarLastChanged = idx; \
-    gvarDisplayTimer = GVAR_DISPLAY_TIME; \
-  }
 
 #if defined(GVARS)
     uint8_t getGVarFlightMode(uint8_t fm, uint8_t gv);

@@ -493,6 +493,11 @@ class GVarEditWindow : public Page
     max->setAccelFactor(16);
 
     line = window->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_POPUP, 0, COLOR_THEME_PRIMARY1);
+    grid.nextCell();
+    new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(gvar->popup));
+
+    line = window->newLine(&grid);
     char flightModeName[16];
     FlightModeData* fmData;
 

@@ -115,8 +115,8 @@ void POPUP_WARNING_ON_UI_TASK(const char * message, const char * info, bool wait
 class BubbleDialog : public Window
 {
   public:
-    BubbleDialog(const char* message, int timeout) :
-      Window(MainWindow::instance(), rect_t{50, LCD_H - 100, LCD_W - 100, 50}, OPAQUE, 0, etx_bubble_popup_create)
+    BubbleDialog(const char* message, int timeout, coord_t width) :
+      Window(MainWindow::instance(), rect_t{(LCD_W - width) / 2, LCD_H - 100, width, 50}, OPAQUE, 0, etx_bubble_popup_create)
     {
       lv_obj_set_parent(lvobj, lv_layer_top());
 
@@ -143,7 +143,7 @@ class BubbleDialog : public Window
     uint32_t endTime;
 };
 
-void POPUP_BUBBLE(const char* message, uint32_t timeout)
+void POPUP_BUBBLE(const char* message, uint32_t timeout, coord_t width)
 {
-  new BubbleDialog(message, timeout);
+  new BubbleDialog(message, timeout, width);
 }
