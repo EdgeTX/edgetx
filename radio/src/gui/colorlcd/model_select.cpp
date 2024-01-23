@@ -39,19 +39,20 @@ struct ModelButtonLayout {
   uint16_t height;
   uint16_t padding;
   bool hsaImage;
+  uint16_t font;
 };
 
 ModelButtonLayout modelLayouts[] = {
 #if LCD_W > LCD_H  // Landscape
-    {165, 92, 6, true},
-    {108, 61, 6, true},
-    {165, 32, 4, false},
-    {336, 32, 4, false},
+    {165, 92, 6, true, FONT(STD)},
+    {108, 61, 6, true, FONT(XS)},
+    {165, 32, 4, false, FONT(STD)},
+    {336, 32, 4, false, FONT(STD)},
 #else  // Portrait
-    {147, 92, 6, true},
-    {96, 61, 6, true},
-    {147, 32, 4, false},
-    {300, 32, 4, false},
+    {147, 92, 6, true, FONT(STD)},
+    {96, 61, 6, true, FONT(XS)},
+    {147, 32, 4, false, FONT(STD)},
+    {300, 32, 4, false, FONT(STD)},
 #endif
 };
 
@@ -109,6 +110,10 @@ class ModelButton : public Button
     coord_t w = width() - 8;
     coord_t h = height() - 8;
 
+    LcdFlags font = modelLayouts[layout].font;
+    if ((getTextWidth(modelCell->modelName, 0, font) > w)) 
+      font = (font == FONT(STD)) ? FONT(XS) : FONT(XXS);
+
     if (modelLayouts[layout].hsaImage) {
       GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
       const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);
@@ -135,16 +140,22 @@ class ModelButton : public Button
                        CENTERED | COLOR_THEME_SECONDARY1 | FONT(XS));
       }
 
-      auto name =
-          new StaticText(this, {2, 2, width() - 8, 17}, modelCell->modelName, 0,
-                         CENTERED | COLOR_THEME_SECONDARY1);
+      coord_t fh = (font == FONT(STD)) ? 17 : (font == FONT(XS)) ? 14 : 11;
+      coord_t fo = (font == FONT(STD)) ? -3 : (font == FONT(XS)) ? -3 : -1;
+
+      auto name = new StaticText(this, {2, 2, w, fh}, modelCell->modelName, 0,
+                                 CENTERED | COLOR_THEME_SECONDARY1 | font);
+      lv_label_set_long_mode(name->getLvObj(), LV_LABEL_LONG_DOT);
+      name->setWidth(w);
+      name->setHeight(fh);
       name->setBackgroudOpacity(LV_OPA_80);
       name->setBackgroundColor(bg_color);
-      name->padTop(-3);
+      name->padTop(fo);
     } else {
-      auto name =
-          new StaticText(this, {2, 4, width() - 8, 24}, modelCell->modelName, 0,
-                         COLOR_THEME_SECONDARY1);
+      auto name = new StaticText(this, {2, 4, w, 24}, modelCell->modelName, 0,
+                                 COLOR_THEME_SECONDARY1 | font);
+      lv_label_set_long_mode(name->getLvObj(), LV_LABEL_LONG_DOT);
+      name->setWidth(w);
     }
   }
 
