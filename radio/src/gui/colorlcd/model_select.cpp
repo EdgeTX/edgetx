@@ -769,7 +769,7 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
                     new ProgressDialog(this, STR_DELETE_LABEL, [=]() {});
                 modelslabels.removeLabel(
                     labelToDelete, [=](const char *name, int percentage) {
-                      deldialog->setTitle(std::string(STR_RENAME_LABEL) + " " +
+                      deldialog->setTitle(std::string(STR_DELETE_LABEL) + " " +
                                           name);
                       deldialog->updateProgress(percentage);
                       if (percentage >= 100) deldialog->closeDialog();
