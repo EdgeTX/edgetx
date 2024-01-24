@@ -152,7 +152,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   auto max_switches = switchGetMaxSwitches();
   for (int i = ITEM_RADIO_HARDWARE_SWITCH; i <= ITEM_RADIO_HARDWARE_SWITCH_END; i++) {
     uint8_t idx = i - ITEM_RADIO_HARDWARE_SWITCH;
-    tab[i] = (idx < max_switches && idx < max_switches + MAX_FLEX_SWITCHES) ? 2 : idx < max_switches ? 1 : HIDDEN_ROW;
+    tab[i] = switchIsFlex(idx) ? 2 : idx < max_switches ? 1 : HIDDEN_ROW;
   }
 
   tab[ITEM_RADIO_HARDWARE_BATTERY_CALIB] = 0;
