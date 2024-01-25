@@ -266,7 +266,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
       ana_str = Boards::getLegacyAnalogMappedInputTag(ana_str.c_str());
       int idx = Boards::getInputIndex(ana_str.c_str(), Board::LVT_TAG);
-      if (idx > -1 && Boards::isInputStick(idx))
+      if (idx >= 0 && Boards::isInputStick(idx))
         ana_str = Boards::getInputName(idx).toStdString();
     }
 
@@ -284,13 +284,6 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
       return rhs;
     }
 
-    int cyc_idx = b.getRawSourceCyclicIndex(src_str.c_str());
-    if (cyc_idx >= 0) {
-      rhs.type = SOURCE_TYPE_CYC;
-      rhs.index = cyc_idx;
-      return rhs;
-    }
-
     std::string special_str;
     node >> special_str;
 
@@ -304,6 +297,13 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     if (sp_idx >= 0) {
       rhs.type = SOURCE_TYPE_SPECIAL;
       rhs.index = sp_idx;
+      return rhs;
+    }
+
+    int cyc_idx = b.getRawSourceCyclicIndex(src_str.c_str());
+    if (cyc_idx >= 0) {
+      rhs.type = SOURCE_TYPE_CYC;
+      rhs.index = cyc_idx;
       return rhs;
     }
 
