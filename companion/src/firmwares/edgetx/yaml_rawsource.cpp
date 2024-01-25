@@ -247,13 +247,26 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
   } else {
 
     YAML::Node node(src_str);
+
+    if (node.IsScalar() && node.as<std::string>() == "MAX") {
+      rhs.type = SOURCE_TYPE_MAX;
+      rhs.index = 0;
+      return rhs;
+    }
+
+    if (node.IsScalar() && node.as<std::string>() == "MIN") {
+      rhs.type = SOURCE_TYPE_MIN;
+      rhs.index = 0;
+      return rhs;
+    }
+
     std::string ana_str;
     node >> ana_str;
 
     if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
       ana_str = Boards::getLegacyAnalogMappedInputTag(ana_str.c_str());
       int idx = Boards::getInputIndex(ana_str.c_str(), Board::LVT_TAG);
-      if (Boards::isInputStick(idx))
+      if (idx > -1 && Boards::isInputStick(idx))
         ana_str = Boards::getInputName(idx).toStdString();
     }
 
@@ -261,33 +274,29 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     if (ana_idx >= 0) {
       rhs.type = SOURCE_TYPE_STICK;
       rhs.index = ana_idx;
+      return rhs;
     }
 
     int trm_idx = b.getTrimSourceIndex(src_str.c_str());
     if (trm_idx >= 0) {
       rhs.type = SOURCE_TYPE_TRIM;
       rhs.index = trm_idx;
+      return rhs;
     }
 
     int cyc_idx = b.getRawSourceCyclicIndex(src_str.c_str());
     if (cyc_idx >= 0) {
       rhs.type = SOURCE_TYPE_CYC;
       rhs.index = cyc_idx;
+      return rhs;
     }
 
     std::string special_str;
     node >> special_str;
 
-    // 2.10 conversion of TIMERx to Tmrx
-    if (special_str.size() == 6) {
-      if (special_str.substr(0, 6) == "TIMER1") {
-        special_str = "Tmr1";
-      }
-      else if (special_str.substr(0, 6) == "TIMER2") {
-        special_str = "Tmr2";
-      }
-      else if (special_str.substr(0, 6) == "TIMER3") {
-        special_str = "Tmr3";
+    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
+      if (special_str.size() == 6 && special_str.substr(0, 5) == "TIMER") {
+        special_str = "Tmr" + special_str.substr(5, 1);
       }
     }
 
@@ -295,6 +304,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     if (sp_idx >= 0) {
       rhs.type = SOURCE_TYPE_SPECIAL;
       rhs.index = sp_idx;
+      return rhs;
     }
 
     if (node.IsScalar() && node.as<std::string>().size() == 12 && node.as<std::string>().substr(0, 11) == "SPACEMOUSE_") {
@@ -303,17 +313,8 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
       if (sm_idx >= 0) {
         rhs.type = SOURCE_TYPE_SPACEMOUSE;
         rhs.index = sm_idx;
+        return rhs;
       }
-    }
-
-    if (node.IsScalar() && node.as<std::string>() == "MIN") {
-      rhs.type = SOURCE_TYPE_MIN;
-      rhs.index = 0;
-    }
-
-    if (node.IsScalar() && node.as<std::string>() == "MAX") {
-      rhs.type = SOURCE_TYPE_MAX;
-      rhs.index = 0;
     }
   }
 
