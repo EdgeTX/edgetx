@@ -777,6 +777,8 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
           if (!o.value("type").isUndefined()) {
             std::string type = o.value("type").toString().toStdString();
             defn.type = (AnalogInputType)DataHelpers::getStringTagMappingIndex(inputTypesLookupTable, type.c_str());
+            if (defn.type == AIT_STICK)
+              defn.refYaml = LVT_NAME;
           }
 
           if (!o.value("inverted").isUndefined())

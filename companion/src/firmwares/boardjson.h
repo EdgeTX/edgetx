@@ -48,7 +48,7 @@ class BoardJson
       Board::FlexType flexType         = FLEX_NONE;
       bool inverted                    = false;
       Board::LookupValueType cfgYaml   = Board::LVT_TAG;
-      Board::LookupValueType refYaml   = Board::LVT_NAME;
+      Board::LookupValueType refYaml   = Board::LVT_TAG;
 
       InputDefn() = default;
     };
