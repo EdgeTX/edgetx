@@ -299,6 +299,7 @@ static bool adc_init_dma_stream(ADC_TypeDef* adc, DMA_TypeDef* DMAx,
   // disable direct mode, half full FIFO
   LL_DMA_EnableFifoMode(DMAx, stream);
   LL_DMA_SetFIFOThreshold(DMAx, stream, LL_DMA_FIFOTHRESHOLD_1_2);
+  LL_DMA_SetMemoryBurstxfer(DMAx, stream, LL_DMA_MBURST_INC4);
 
   return true;
 }
