@@ -46,6 +46,8 @@ const unsigned char font_5x7[]  = {
 #include "font_ru_05x07.lbm"
 #elif defined(TRANSLATIONS_SE)
 #include "font_se_05x07.lbm"
+#elif defined(TRANSLATIONS_UA)
+#include "font_ua_05x07.lbm"
 #endif
 };
 
@@ -78,6 +80,8 @@ const unsigned char font_10x14[]  = {
   #include "font_ru_10x14.lbm"
   #elif defined(TRANSLATIONS_SE)
   #include "font_se_10x14.lbm"
+  #elif defined(TRANSLATIONS_UA)
+  #include "font_ua_10x14.lbm"
   #endif
 };
 
@@ -109,6 +113,8 @@ const unsigned char font_4x6[]  = {
 #include "font_ru_04x06.lbm"
 #elif defined(TRANSLATIONS_SE)
 #include "font_se_04x06.lbm"
+#elif defined(TRANSLATIONS_UA)
+#include "font_ua_04x06.lbm"
 #endif
 };
 
@@ -136,6 +142,8 @@ const unsigned char font_8x10[]  = {
 #include "font_ru_08x10.lbm"
 #elif defined(TRANSLATIONS_SE)
 #include "font_se_08x10.lbm"
+#elif defined(TRANSLATIONS_UA)
+#include "font_ua_08x10.lbm"
 #endif
 };
 

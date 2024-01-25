@@ -1231,6 +1231,7 @@
 #define TR_VOICE_TAIWANESE              "Taiwanes"
 #define TR_VOICE_JAPANESE               "Japones"
 #define TR_VOICE_HEBREW                 "Hebraico"
+#define TR_VOICE_UKRAINIAN               "Ukrainian"
 
 #define TR_USBJOYSTICK_LABEL           "Joystick USB"
 #define TR_USBJOYSTICK_EXTMODE         "Modo"

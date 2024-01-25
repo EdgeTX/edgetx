@@ -374,19 +374,32 @@ void GeneralSetupPanel::populateBacklightCB()
 void GeneralSetupPanel::populateVoiceLangCB()
 {
   QComboBox * b = ui->voiceLang_CB;
-  QString strings[] = { tr("English"), tr("Danish"), tr("Dutch"), tr("French"), tr("Italian"), tr("German"),
-                        tr("Czech"), tr("Slovak"), tr("Spanish"), tr("Polish"), tr("Portuguese"), tr("Russian"),
-                        tr("Swedish"), tr("Hungarian"), tr("Chinese"), tr("Japanese"), tr("Hebrew"), NULL};
-
   //  Note: these align with the radio NOT computer locales - TODO harmonise with ISO and one list!!!
-  QString langcode[] = { "en", "da", "nl","fr", "it", "de",
-                         "cz", "sk", "es", "pl", "pt", "ru",
-                         "se", "hu", "cn", "jp", "he", NULL};
+  static QString strings[][2] = { 
+    { tr("Chinese"), "cn" },
+    { tr("Czech"), "cz" },
+    { tr("Danish"), "da" },
+    { tr("Dutch"), "nl" },
+    { tr("English"), "en" },
+    { tr("French"), "fr" },
+    { tr("German"), "de" },
+    { tr("Hebrew"), "he" },
+    { tr("Hungarian"), "hu" },
+    { tr("Italian"), "it" },
+    { tr("Japanese"), "jp" },
+    { tr("Polish"), "pl" },
+    { tr("Portuguese"), "pt" },
+    { tr("Russian"), "ru" },
+    { tr("Slovak"), "sk" },
+    { tr("Spanish"), "es" },
+    { tr("Swedish"), "se" },
+    { tr("Ukrainian"), "ua" },
+    { NULL, NULL }};
 
   b->clear();
-  for (int i=0; strings[i]!=NULL; i++) {
-    b->addItem(strings[i],langcode[i]);
-    if (generalSettings.ttsLanguage == langcode[i]) {
+  for (int i=0; strings[i][0]!=NULL; i++) {
+    b->addItem(strings[i][0],strings[i][1]);
+    if (generalSettings.ttsLanguage == strings[i][1]) {
       b->setCurrentIndex(b->count()-1);
     }
   }

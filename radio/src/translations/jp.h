@@ -1223,6 +1223,7 @@
 #define TR_VOICE_TAIWANESE              "中文-TW"
 #define TR_VOICE_JAPANESE               "日本-JP"
 #define TR_VOICE_HEBREW                 "ヘブライ語"
+#define TR_VOICE_UKRAINIAN               "Ukrainian"
 
 #define TR_USBJOYSTICK_LABEL           "USB Joystick"
 #define TR_USBJOYSTICK_EXTMODE         "モード"

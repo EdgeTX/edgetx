@@ -1220,6 +1220,7 @@
 #define TR_VOICE_TAIWANESE            "中文-台湾国语"
 #define TR_VOICE_JAPANESE             "日文"
 #define TR_VOICE_HEBREW               "希伯来语"
+#define TR_VOICE_UKRAINIAN               "Ukrainian"
 
 #define TR_USBJOYSTICK_LABEL           "USB 游戏柄"
 #define TR_USBJOYSTICK_EXTMODE         "模式"

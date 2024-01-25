@@ -1236,6 +1236,7 @@
 #define TR_VOICE_SWEDISH                "Swedish"
 #define TR_VOICE_TAIWANESE              "Taiwanese"
 #define TR_VOICE_JAPANESE               "Japanese"
+#define TR_VOICE_UKRAINIAN               "Ukrainian"
 
 #define TR_USBJOYSTICK_LABEL            "חיבור מצב משחק"
 #define TR_USBJOYSTICK_EXTMODE          "מצב"
