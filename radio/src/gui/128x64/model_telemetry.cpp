@@ -115,6 +115,18 @@ void onDeleteAllSensorsConfirm(const char * result)
   }
 }
 
+uint8_t getTelemetrySensorCount()
+{
+  uint8_t count = 0;
+
+  for (uint8_t index = 0; index <= MAX_TELEMETRY_SENSORS; index++) {
+    if (isTelemetryFieldAvailable(index)) {
+      count++;
+    }
+  }
+  return count;
+}
+
 void menuModelTelemetry(event_t event)
 {
   MENU(STR_MENUTELEMETRY, menuTabModel, MENU_MODEL_TELEMETRY, HEADER_LINE+ITEM_TELEMETRY_MAX, { HEADER_LINE_COLUMNS SENSORS_ROWS RSSI_ROWS VARIO_ROWS });
@@ -176,8 +188,16 @@ void menuModelTelemetry(event_t event)
 
     switch (k) {
       case ITEM_TELEMETRY_SENSORS_LABEL:
+      {
         telemExpandState.sensors = expandableSection(y, STR_TELEMETRY_SENSORS, telemExpandState.sensors, attr, event);
+        uint8_t sensorCount = getTelemetrySensorCount();
+        if (sensorCount && !telemExpandState.sensors) {
+          lcdDrawChar(TELEM_COL3, y, '(', 0);
+          lcdDrawNumber(lcdNextPos, y, sensorCount, 0);
+          lcdDrawChar(lcdNextPos, y, ')', 0);
+        }
         break;
+      }
 
       case ITEM_TELEMETRY_DISCOVER_SENSORS:
         lcdDrawText(INDENT_WIDTH, y, allowNewSensors ? STR_STOP_DISCOVER_SENSORS : STR_DISCOVER_SENSORS, attr);
