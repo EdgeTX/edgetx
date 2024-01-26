@@ -152,8 +152,6 @@ jobs:
         with:
           name: "${{ env.artifact_name }}"
           pattern: firmare-*
-          path: |
-            fw.json
-            LICENSE
-            *.bin
           delete-merged: true
+          retention-days: 15
+          if-no-files-found: error
