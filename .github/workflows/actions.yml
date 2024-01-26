@@ -128,7 +128,7 @@ jobs:
           echo "Running firmware build"
           ./tools/build-gh.sh
 
-      - name: Package firmware ${{ matrix.target }}
+      - name: Upload ${{ matrix.target }}
         uses: actions/upload-artifact@v4
         with:
           name: firmare-${{ matrix.target }}
@@ -139,8 +139,8 @@ jobs:
           retention-days: 15
           if-no-files-found: error
 
-  merge:
-    name: Merge builds into one artifact
+  package:
+    name: Package firmwares
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -148,7 +148,7 @@ jobs:
         # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
         run: echo "artifact_name=edgetx-firmware-${GITHUB_REF##*/}" >> $GITHUB_ENV
 
-      - name: Merge Artifacts
+      - name: Merge firmware artifact packages
         uses: actions/upload-artifact/merge@v4
         with:
           name: "${{ env.artifact_name }}"
