@@ -712,6 +712,12 @@
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "schnelle Modellauswahl"
+  #define TR_LABELS_SELECT             "Labelauswahl"
+  #define TR_LABELS_MATCH              "Labelvergleich"
+  #define TR_FAV_MATCH                 "Favoriten vergleichen"
+  #define TR_LABELS_SELECT_MODE        "Mehrfachauswahl", "Einfachauswahl"
+  #define TR_LABELS_MATCH_MODE         "Alle", "Beliebig"
+  #define TR_FAV_MATCH_MODE            "Muss übereinstimmen", "Alternative Übereinstimmung"
 #endif
 
 #define TR_SELECT_TEMPLATE_FOLDER      "WÄHLE VORLAGENVERZEICHNIS:"

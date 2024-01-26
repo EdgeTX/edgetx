@@ -25,6 +25,7 @@
 #include "opentx.h"
 #include "libopenui.h"
 #include "input_mapping.h"
+#include "storage/modelslist.h"
 
 #include "tasks/mixer_task.h"
 #include "hal/adc_driver.h"
@@ -677,6 +678,71 @@ class ViewOptionsPage : public SubPage
     }
 };
 
+class ManageModelsSetupPage : public SubPage
+{
+ public:
+  ManageModelsSetupPage() : SubPage(ICON_MODEL, STR_MANAGE_MODELS, false)
+  {
+    FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+
+    auto form = new FormWindow(&body, rect_t{});
+    form->setFlexLayout();
+    form->padAll(0);
+
+    // Model quick select
+    auto line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_MODEL_QUICK_SELECT, 0,
+                   COLOR_THEME_PRIMARY1);
+    new ToggleSwitch(line, rect_t{},
+                     GET_SET_DEFAULT(g_eeGeneral.modelQuickSelect));
+
+    // Label single/multi select
+    line = form->newLine(&grid);
+    new StaticText(line, rect_t{}, STR_LABELS_SELECT, 0, COLOR_THEME_PRIMARY1);
+    new Choice(line, rect_t{}, STR_LABELS_SELECT_MODE, 0, 1,
+               GET_DEFAULT(g_eeGeneral.labelSingleSelect),
+               [=](int newValue) {
+                 g_eeGeneral.labelSingleSelect = newValue;
+                 modelslabels.clearFilter();
+                 SET_DIRTY();
+               });
+
+    // Label multi select matching mode
+    multiSelectMatch = form->newLine(&grid);
+    new StaticText(multiSelectMatch, rect_t{}, STR_LABELS_MATCH, 0,
+                   COLOR_THEME_PRIMARY1);
+    new Choice(multiSelectMatch, rect_t{}, STR_LABELS_MATCH_MODE, 0, 1,
+               GET_SET_DEFAULT(g_eeGeneral.labelMultiMode));
+
+    // Favorites multi select matching mode
+    favSelectMatch = form->newLine(&grid);
+    new StaticText(favSelectMatch, rect_t{}, STR_FAV_MATCH, 0,
+                   COLOR_THEME_PRIMARY1);
+    new Choice(favSelectMatch, rect_t{}, STR_FAV_MATCH_MODE, 0, 1,
+               GET_SET_DEFAULT(g_eeGeneral.favMultiMode));
+
+    checkEvents();
+  }
+
+  void checkEvents() override
+  {
+    if (g_eeGeneral.labelSingleSelect) {
+      lv_obj_add_flag(multiSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(favSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    } else {
+      lv_obj_clear_flag(multiSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      if (g_eeGeneral.labelMultiMode == 0)
+        lv_obj_add_flag(favSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      else
+        lv_obj_clear_flag(favSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    }
+  }
+
+ protected:
+  Window* multiSelectMatch = nullptr;
+  Window* favSelectMatch = nullptr;
+};
+
 RadioSetupPage::RadioSetupPage():
   PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP)
 {
@@ -689,6 +755,10 @@ void RadioSetupPage::build(FormWindow * window)
 
   // Date & time picker including labels
   new DateTimeWindow(window, rect_t{});
+
+  // TODO: sort out all caps title strings VS quick menu strings
+  std::string manageModelsTitle(STR_MAIN_MENU_MANAGE_MODELS);
+  std::replace(manageModelsTitle.begin(), manageModelsTitle.end(), '\n', ' ');
 
   // Sub-pages
   new WindowButtonGroup(window, rect_t{}, {
@@ -703,6 +773,7 @@ void RadioSetupPage::build(FormWindow * window)
       {STR_BACKLIGHT_LABEL, []() { new BacklightPage(); }},
       {STR_GPS, [](){new GpsPage();}},
       {STR_ENABLED_FEATURES, [](){new ViewOptionsPage();}},
+      {manageModelsTitle.c_str(), []() { new ManageModelsSetupPage(); }},
 });
 
   // Splash screen
@@ -867,9 +938,4 @@ void RadioSetupPage::build(FormWindow * window)
            std::string(getMainControlLabel(stick0)) + "+" +
            std::string(getMainControlLabel(stick1));
   });
-
-  // Model quick select
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_MODEL_QUICK_SELECT, 0, COLOR_THEME_PRIMARY1);
-  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.modelQuickSelect));
 }

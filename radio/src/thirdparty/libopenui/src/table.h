@@ -39,7 +39,7 @@ class TableField : public Window
   void setColumnWidth(uint16_t col, coord_t w);
   coord_t getColumnWidth(uint16_t col) const;
 
-  void select(uint16_t row, uint16_t col);
+  void select(uint16_t row, uint16_t col, bool force = false);
   virtual void onPress(uint16_t row, uint16_t col) {}
 
  protected:

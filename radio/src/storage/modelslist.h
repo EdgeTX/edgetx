@@ -157,6 +157,7 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
   {
     this->filtlbls = std::move(filtlbls);
   }
+  void clearFilter() { filtlbls.clear(); }
   void addFilteredLabel(const std::string &lbl);
   bool isLabelFiltered(const std::string &lbl);
   std::set<uint32_t> filteredLabels() { return filtlbls; }
