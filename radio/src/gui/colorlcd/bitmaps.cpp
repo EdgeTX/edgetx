@@ -191,7 +191,6 @@ static const uint8_t stick_pointer[] = {
 static const uint8_t stick_background[] = {
 #include "alpha_stick_background.lbm"
 };
-
 static const uint8_t mask_model_grid_large[] = {
 #include "mask_model_grid_large.lbm"
 };
