@@ -27,6 +27,7 @@
 #include "tabsgroup.h"
 
 class ModelsPageBody;
+class ModelLayoutButton;
 
 class ModelLabelsWindow : public Page
 {
@@ -38,6 +39,7 @@ class ModelLabelsWindow : public Page
   char tmpLabel[LABEL_LENGTH + 1] = "\0";
   ListBox *lblselector;
   ModelsPageBody *mdlselector;
+  ModelLayoutButton *mldLayout;
   std::string currentLabel;
 
   LabelsVector getLabels()

@@ -32,17 +32,32 @@
 
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
-constexpr coord_t MODEL_CELL_PADDING = 6;
-constexpr coord_t MODEL_SELECT_CELL_HEIGHT = 92;
 constexpr int BUTTONS_HEIGHT = 32;
-constexpr int MODEL_CELLS_PER_LINE = 2;
+
+struct ModelButtonLayout {
+  uint16_t width;
+  uint16_t height;
+  uint16_t padding;
+  bool hsaImage;
+  uint16_t font;
+};
+
+ModelButtonLayout modelLayouts[] = {
+#if LCD_W > LCD_H  // Landscape
+    {165, 92, 6, true, FONT(STD)},
+    {108, 61, 6, true, FONT(XS)},
+    {165, 32, 4, false, FONT(STD)},
+    {336, 32, 4, false, FONT(STD)},
+#else  // Portrait
+    {147, 92, 6, true, FONT(STD)},
+    {96, 61, 6, true, FONT(XS)},
+    {147, 32, 4, false, FONT(STD)},
+    {300, 32, 4, false, FONT(STD)},
+#endif
+};
 
 #if LCD_W > LCD_H  // Landscape
-constexpr int LABELS_WIDTH = 132;
 constexpr int LAY_MARGIN = 5;
-constexpr coord_t MODEL_SELECT_CELL_WIDTH =
-    (LCD_W - LABELS_WIDTH - (MODEL_CELLS_PER_LINE + 1) * MODEL_CELL_PADDING) /
-    MODEL_CELLS_PER_LINE;
 constexpr int LABELS_ROW = 0;
 constexpr int MODELS_COL = 1;
 constexpr int MODELS_ROW = 0;
@@ -50,10 +65,6 @@ constexpr int MODELS_ROW_CNT = 2;
 constexpr int BUTTONS_ROW = 1;
 #else  // Portrait
 constexpr int LAY_MARGIN = 8;
-constexpr int LABELS_HEIGHT = 140;
-constexpr coord_t MODEL_SELECT_CELL_WIDTH =
-    (LCD_W - LAY_MARGIN - (MODEL_CELLS_PER_LINE + 1) * MODEL_CELL_PADDING) /
-    MODEL_CELLS_PER_LINE;
 constexpr int LABELS_ROW = 1;
 constexpr int MODELS_COL = 0;
 constexpr int MODELS_ROW = 0;
@@ -65,16 +76,17 @@ class ModelButton : public Button
 {
  public:
   ModelButton(FormWindow *parent, const rect_t &rect, ModelCell *modelCell,
-              std::function<void()> setSelected) :
+              std::function<void()> setSelected, uint8_t layout) :
       Button(parent, rect, nullptr, 0, 0, etx_button_create),
+      layout(layout),
       modelCell(modelCell),
       m_setSelected(std::move(setSelected))
   {
     padAll(0);
 
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
-    setWidth(MODEL_SELECT_CELL_WIDTH);
-    setHeight(MODEL_SELECT_CELL_HEIGHT);
+    setWidth(modelLayouts[layout].width);
+    setHeight(modelLayouts[layout].height);
 
     check(modelCell == modelslist.getCurrentModel());
 
@@ -98,38 +110,53 @@ class ModelButton : public Button
     coord_t w = width() - 8;
     coord_t h = height() - 8;
 
-    GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
-    const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);
+    LcdFlags font = modelLayouts[layout].font;
+    if ((getTextWidth(modelCell->modelName, 0, font) > w)) 
+      font = (font == FONT(STD)) ? FONT(XS) : FONT(XXS);
 
-    if (bitmap) {
-      buffer = new BitmapBuffer(BMP_RGB565, w, h);
-      if (buffer) {
-        buffer->clear(bg_color);
-        buffer->drawScaledBitmap(bitmap, 0, 0, w, h);
-        delete bitmap;
+    if (modelLayouts[layout].hsaImage) {
+      GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
+      const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);
 
-        lv_obj_t *bm = lv_canvas_create(lvobj);
-        lv_obj_center(bm);
-        lv_canvas_set_buffer(bm, buffer->getData(), buffer->width(),
-                             buffer->height(), LV_IMG_CF_TRUE_COLOR);
+      if (bitmap) {
+        buffer = new BitmapBuffer(BMP_RGB565, w, h);
+        if (buffer) {
+          buffer->clear(bg_color);
+          buffer->drawScaledBitmap(bitmap, 0, 0, w, h);
+          delete bitmap;
+
+          lv_obj_t *bm = lv_canvas_create(lvobj);
+          lv_obj_center(bm);
+          lv_canvas_set_buffer(bm, buffer->getData(), buffer->width(),
+                               buffer->height(), LV_IMG_CF_TRUE_COLOR);
+        }
       }
-    }
 
-    if (!buffer) {
-      std::string errorMsg = "(";
-      errorMsg += STR_NO_PICTURE;
-      errorMsg += ")";
-      new StaticText(this, {2, h / 2, w, 17}, errorMsg, 0,
-                     CENTERED | COLOR_THEME_SECONDARY1 | FONT(XS));
-    }
+      if (!buffer) {
+        std::string errorMsg = "(";
+        errorMsg += STR_NO_PICTURE;
+        errorMsg += ")";
+        new StaticText(this, {2, h / 2, w, 17}, errorMsg, 0,
+                       CENTERED | COLOR_THEME_SECONDARY1 | FONT(XS));
+      }
 
-    auto name =
-        new StaticText(this, {2, 2, width() - 8, 17}, modelCell->modelName, 0,
-                       CENTERED | COLOR_THEME_SECONDARY1);
-    name->setHeight(17);
-    name->setBackgroudOpacity(LV_OPA_80);
-    name->setBackgroundColor(bg_color);
-    name->padTop(-3);
+      coord_t fh = (font == FONT(STD)) ? 17 : (font == FONT(XS)) ? 14 : 11;
+      coord_t fo = (font == FONT(STD)) ? -3 : (font == FONT(XS)) ? -3 : -1;
+
+      auto name = new StaticText(this, {2, 2, w, fh}, modelCell->modelName, 0,
+                                 CENTERED | COLOR_THEME_SECONDARY1 | font);
+      lv_label_set_long_mode(name->getLvObj(), LV_LABEL_LONG_DOT);
+      name->setWidth(w);
+      name->setHeight(fh);
+      name->setBackgroudOpacity(LV_OPA_80);
+      name->setBackgroundColor(bg_color);
+      name->padTop(fo);
+    } else {
+      auto name = new StaticText(this, {2, 4, w, 24}, modelCell->modelName, 0,
+                                 COLOR_THEME_SECONDARY1 | font);
+      lv_label_set_long_mode(name->getLvObj(), LV_LABEL_LONG_DOT);
+      name->setWidth(w);
+    }
   }
 
   static void on_draw(lv_event_t *e)
@@ -157,6 +184,7 @@ class ModelButton : public Button
 
  protected:
   bool loaded = false;
+  uint8_t layout;
   ModelCell *modelCell;
   BitmapBuffer *buffer = nullptr;
   std::function<void()> m_setSelected = nullptr;
@@ -182,13 +210,15 @@ class ModelsPageBody : public FormWindow
 #else
     padLeft(LAY_MARGIN);
 #endif
-    setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, MODEL_CELL_PADDING);
-    padRow(MODEL_CELL_PADDING);
   }
 
   void update()
   {
     clear();
+
+    setFlexLayout(LV_FLEX_FLOW_ROW_WRAP,
+                  modelLayouts[g_eeGeneral.modelSelectLayout].padding);
+    padRow(modelLayouts[g_eeGeneral.modelSelectLayout].padding);
 
     ModelsVector models;
     if (selectedLabels.size()) {
@@ -206,8 +236,9 @@ class ModelsPageBody : public FormWindow
     ModelButton *focusedButton = nullptr;
 
     for (auto &model : models) {
-      auto button = new ModelButton(this, rect_t{}, model,
-                                    [=]() { focusedModel = model; });
+      auto button = new ModelButton(
+          this, rect_t{}, model, [=]() { focusedModel = model; },
+          g_eeGeneral.modelSelectLayout);
 
       if (!firstButton) firstButton = button;
       if (model == modelslist.getCurrentModel()) focusedButton = button;
@@ -481,6 +512,46 @@ class LabelDialog : public Dialog
 
 //-----------------------------------------------------------------------------
 
+class ModelLayoutButton : public TextButton
+{
+ public:
+  ModelLayoutButton(Window *parent, std::function<uint8_t(void)> pressHandler) :
+      TextButton(parent, {0, 0, 32, 32}, "", pressHandler)
+  {
+  }
+
+  ~ModelLayoutButton()
+  {
+    if (bmBuffer) delete bmBuffer;
+  }
+
+  uint8_t getLayout() const { return layout; }
+
+  void setLayout(uint8_t newLayout)
+  {
+    layout = newLayout;
+    invalidate();
+  }
+
+  void paint(BitmapBuffer *dc) override
+  {
+    auto maskData = getBuiltinIcon((MenuIcons)(ICON_MODEL_GRID_LARGE + layout));
+    auto mask = BitmapBuffer::load8bitMaskLZ4(maskData);
+    if (!bmBuffer)
+      bmBuffer = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
+    bmBuffer->clear(COLOR_THEME_PRIMARY2);
+    bmBuffer->drawMask(0, 0, mask, COLOR_THEME_SECONDARY1);
+    delete mask;
+    dc->drawBitmap(3, 3, bmBuffer);
+  }
+
+ protected:
+  uint8_t layout;
+  BitmapBuffer *bmBuffer = nullptr;
+};
+
+//-----------------------------------------------------------------------------
+
 ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
 {
   buildHead(&header);
@@ -629,7 +700,7 @@ void ModelLabelsWindow::buildHead(PageHeader *hdr)
   setTitle();
 
   // new model button
-  auto btn = new TextButton(hdr, rect_t{}, STR_NEW, [=]() {
+  auto btn = new TextButton(hdr, rect_t{0, 0, 60, 32}, STR_NEW, [=]() {
     auto menu = new Menu(this);
     menu->setTitle(STR_CREATE_NEW);
     menu->addLine(STR_NEW_MODEL, [=]() { newModel(); });
@@ -642,14 +713,28 @@ void ModelLabelsWindow::buildHead(PageHeader *hdr)
   // button placement
   hdr->padRight(lv_dpx(8));
   lv_obj_align(btn->getLvObj(), LV_ALIGN_RIGHT_MID, 0, 0);
+
+  mldLayout = new ModelLayoutButton(this, [=]() {
+    uint8_t l = mldLayout->getLayout();
+    l = (l + 1) & 3;
+    mldLayout->setLayout(l);
+    g_eeGeneral.modelSelectLayout = l;
+    storageDirty(EE_GENERAL);
+    mdlselector->update();
+    return 0;
+  });
+  mldLayout->setLayout(g_eeGeneral.modelSelectLayout);
+  lv_obj_set_pos(mldLayout->getLvObj(), LCD_W - 105, 6);
 }
 
 #if LCD_W > LCD_H
+constexpr int LABELS_WIDTH = 132;
 static const lv_coord_t col_dsc[] = {LABELS_WIDTH, LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), BUTTONS_HEIGHT,
                                      LV_GRID_TEMPLATE_LAST};
 #else
+constexpr int LABELS_HEIGHT = 140;
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), LABELS_HEIGHT,
                                      BUTTONS_HEIGHT, LV_GRID_TEMPLATE_LAST};
@@ -671,6 +756,9 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
   auto mdl_obj = mdlselector->getLvObj();
   lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, MODELS_COL, 1,
                        LV_GRID_ALIGN_STRETCH, MODELS_ROW, MODELS_ROW_CNT);
+
+  if (mdlselector->getSortOrder() == NO_SORT)
+    mdlselector->setSortOrder(NAME_ASC);
 
   // Labels
   auto box = new Window(window, rect_t{});

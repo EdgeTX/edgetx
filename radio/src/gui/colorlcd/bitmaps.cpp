@@ -191,6 +191,18 @@ static const uint8_t stick_pointer[] = {
 static const uint8_t stick_background[] = {
 #include "alpha_stick_background.lbm"
 };
+static const uint8_t mask_model_grid_large[] = {
+#include "mask_model_grid_large.lbm"
+};
+static const uint8_t mask_model_grid_small[] = {
+#include "mask_model_grid_small.lbm"
+};
+static const uint8_t mask_model_list_one[] = {
+#include "mask_model_list_one.lbm"
+};
+static const uint8_t mask_model_list_two[] = {
+#include "mask_model_list_two.lbm"
+};
 
 BitmapBuffer * calibStick = nullptr;
 BitmapBuffer * calibStickBackground = nullptr;
@@ -285,6 +297,10 @@ static const _BuiltinIcon _builtinIcons[] = {
     {ICON_MONITOR_CHANNELS3, mask_monitor_channels3},
     {ICON_MONITOR_CHANNELS4, mask_monitor_channels4},
     {ICON_MONITOR_LOGICAL_SWITCHES, mask_monitor_logsw},
+    {ICON_MODEL_GRID_LARGE, mask_model_grid_large},
+    {ICON_MODEL_GRID_SMALL, mask_model_grid_small},
+    {ICON_MODEL_LIST_TWO, mask_model_list_two},
+    {ICON_MODEL_LIST_ONE, mask_model_list_one},
 };
 
 const uint8_t* getBuiltinIcon(MenuIcons id)
