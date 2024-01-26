@@ -61,7 +61,12 @@ void setGVarValue(uint8_t gv, int16_t value, int8_t fm)
 {
   fm = getGVarFlightMode(fm, gv);
   if (GVAR_VALUE(gv, fm) != value) {
-    SET_GVAR_VALUE(gv, fm, value);
+    GVAR_VALUE(gv, fm) = value;
+    storageDirty(EE_MODEL);
+    if (g_model.gvars[gv].popup) {
+      gvarLastChanged = gv;
+      gvarDisplayTimer = GVAR_DISPLAY_TIME;
+    }
   }
 }
 

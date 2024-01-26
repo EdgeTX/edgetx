@@ -958,7 +958,7 @@ void checkTrims()
         killTrimEvents(event);
       }
 
-      SET_GVAR_VALUE(gvar, phase, after);
+      setGVarValue(gvar, after, mixerCurrentFlightMode);
     }
     else
 #endif

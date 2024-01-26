@@ -626,6 +626,17 @@ void perMain()
   guiMain(0);
   // For color screens show a popup deferred from another task
   show_ui_popup();
+  // Show GVAR popup
+  if (gvarDisplayTimer > 0) {
+    char s[30], *p;
+    p = strAppendStringWithIndex(s, STR_GV, gvarLastChanged + 1);
+    p = strAppend(p, " ", 1);
+    p = strAppend(p, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME);
+    p = strAppend(p, " = ", 3);
+    p = strAppendSigned(p, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)));
+    POPUP_BUBBLE(s, gvarDisplayTimer * 10, 200);
+    gvarDisplayTimer = 0;
+  }
 #else
   guiMain(evt);
 #endif
