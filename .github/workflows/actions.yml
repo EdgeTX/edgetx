@@ -155,4 +155,3 @@ jobs:
           pattern: firmare-*
           delete-merged: true
           retention-days: 15
-          if-no-files-found: error
