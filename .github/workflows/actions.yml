@@ -140,8 +140,9 @@ jobs:
           if-no-files-found: error
 
   merge:
-    runs-on: ubuntu-latest
+    name: Merge builds into one artifact
     needs: build
+    runs-on: ubuntu-latest
     steps:
       - name: Compose release filename
         # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
