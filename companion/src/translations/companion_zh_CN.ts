@@ -2252,7 +2252,7 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="226"/>
         <source>%1s</source>
-        <translation type="unfinished">1s</translation>
+        <translation type="unfinished">%1s</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="342"/>
