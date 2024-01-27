@@ -418,7 +418,10 @@ elseif(WIN32)
     endif()
   endif()
 
-  install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/license.txt" DESTINATION ${INSTALL_DESTINATION})
+  string(TIMESTAMP BUILD_YEAR "%Y")
+  set(LICENSE_FILE "${CMAKE_CURRENT_BINARY_DIR}/license.txt")
+  configure_file("${COMPANION_SRC_DIRECTORY}/../targets/windows/license.txt.in" ${LICENSE_FILE} @ONLY)
+  install(FILES "${LICENSE_FILE}" DESTINATION ${INSTALL_DESTINATION})
 
   if(SDL2_FOUND AND DEFINED SDL2_LIB_PATH)
     install(FILES "${SDL2_LIB_PATH}" DESTINATION ${INSTALL_DESTINATION})
