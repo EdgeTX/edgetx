@@ -64,7 +64,7 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
   if (func >= FuncOverrideCH1 && func <= FuncOverrideCHLast)
     return tr("Override %1").arg(RawSource(SOURCE_TYPE_CH, func).toString(model));
   else if (func == FuncTrainer)
-    return tr("Trainer Sticks");
+    return tr("Trainer Axis");
   else if (func == FuncTrainerRUD)
     return tr("Trainer RUD");
   else if (func == FuncTrainerELE)
