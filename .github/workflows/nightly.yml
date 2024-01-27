@@ -18,8 +18,7 @@ jobs:
           - nv14;el18
           - pl18;pl18ev
           - t12
-          - t16
-          - t18
+          - t16;t18
           - t8;zorro;pocket;mt12;commando8
           - tlite;tpro;tprov2;lr3pro
           - t20;t14
@@ -32,13 +31,14 @@ jobs:
           - x9e;x9e-hall
           - x9lite;x9lites
           - xlite;xlites
+          - mt12
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
         - ${{ github.workspace }}:/src
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -49,9 +49,9 @@ jobs:
         run: ./tools/build-gh.sh
 
       - name: Package firmware ${{ matrix.target }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: edgetx-firmware-nightly
+          name: edgetx-firmware-nightly-${{ matrix.target }}
           path: |
             fw.json
             LICENSE
@@ -65,10 +65,10 @@ jobs:
     needs: build
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: edgetx-firmware-nightly
-          path: edgetx-firmware-nightly
+          pattern: edgetx-firmware-nightly-*
+          merge-multiple: true
 
       - name: Compose release filename
         run: echo "release_filename=edgetx-firmware-nightly-${GITHUB_SHA::8}.zip" >> $GITHUB_ENV

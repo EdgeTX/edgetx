@@ -73,7 +73,7 @@ jobs:
         - ${{ github.workspace }}:/src
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
           # fetch-depth: 0 # https://github.com/actions/checkout#Fetch-all-history-for-all-tags-and-branches
@@ -99,8 +99,7 @@ jobs:
           - t16;t18
           - t8;zorro;pocket;mt12;commando8
           - tlite;tpro;tprov2;lr3pro
-          - t20
-          - t14
+          - t20;t14
           - tx12;tx12mk2;boxer
           - tx16s
           - x10;x10-access
@@ -117,7 +116,7 @@ jobs:
         - ${{ github.workspace }}:/src
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -128,17 +127,30 @@ jobs:
           echo "Running firmware build"
           ./tools/build-gh.sh
 
-      - name: Compose release filename
-        # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
-        run: echo "artifact_name=edgetx-firmware-${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Package firmware ${{ matrix.target }}
-        uses: actions/upload-artifact@v3
+      - name: Upload ${{ matrix.target }}
+        uses: actions/upload-artifact@v4
         with:
-          name: "${{ env.artifact_name }}"
+          name: firmare-${{ matrix.target }}
           path: |
             fw.json
             LICENSE
             *.bin
           retention-days: 15
           if-no-files-found: error
+
+  package:
+    name: Package firmwares
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compose release filename
+        # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
+        run: echo "artifact_name=edgetx-firmware-${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Merge firmware artifact packages
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: "${{ env.artifact_name }}"
+          pattern: firmare-*
+          delete-merged: true
+          retention-days: 15
