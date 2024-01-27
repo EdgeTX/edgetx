@@ -11765,22 +11765,22 @@ E</translation>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="46"/>
         <source>Trim 7 Down</source>
-        <translation type="unfinished">Trim 6 Bas {7 ?}</translation>
+        <translation type="unfinished">Trim 7 Bas</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="46"/>
         <source>Trim 7 Up</source>
-        <translation type="unfinished">Trim 6 Haut {7 ?}</translation>
+        <translation type="unfinished">Trim 7 Haut</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="47"/>
         <source>Trim 8 Down</source>
-        <translation type="unfinished">Trim 6 Bas {8 ?}</translation>
+        <translation type="unfinished">Trim 8 Bas</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="47"/>
         <source>Trim 8 Up</source>
-        <translation type="unfinished">Trim 6 Haut {8 ?}</translation>
+        <translation type="unfinished">Trim 8 Haut</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="51"/>

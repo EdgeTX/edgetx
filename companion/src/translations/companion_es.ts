@@ -5763,7 +5763,7 @@ Acceptable values are 3v..12v</source>
         <translation type="unfinished">Voltaje de aviso de la batería.
 Este es el umbral cuando la batería emite sonidos de aviso.
 
-Los valores aceptables son 5v..10v {3v?} {12v?}</translation>
+Los valores aceptables son 3v..12v</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2160"/>
@@ -11759,22 +11759,22 @@ s</source>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="46"/>
         <source>Trim 7 Down</source>
-        <translation type="unfinished">Trim 6 abajo {7 ?}</translation>
+        <translation type="unfinished">Trim 7 abajo</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="46"/>
         <source>Trim 7 Up</source>
-        <translation type="unfinished">Trim 6 arriba {7 ?}</translation>
+        <translation type="unfinished">Trim 7 arriba</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="47"/>
         <source>Trim 8 Down</source>
-        <translation type="unfinished">Trim 6 abajo {8 ?}</translation>
+        <translation type="unfinished">Trim 8 abajo</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="47"/>
         <source>Trim 8 Up</source>
-        <translation type="unfinished">Trim 6 arriba {8 ?}</translation>
+        <translation type="unfinished">Trim 8 arriba</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="51"/>

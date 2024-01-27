@@ -2294,7 +2294,7 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="226"/>
         <source>%1s</source>
-        <translation type="unfinished">%1ss {1s?}</translation>
+        <translation type="unfinished">%1s</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="233"/>
@@ -7258,7 +7258,7 @@ The columns for altitude &quot;GAlt&quot; and for speed &quot;GSpd&quot; are opt
     <message>
         <location filename="../mainwindow.cpp" line="1165"/>
         <source>%2</source>
-        <translation type="unfinished">%1s {2?}</translation>
+        <translation type="unfinished">%2</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="284"/>
@@ -15152,7 +15152,7 @@ Timestamp</source>
     <message>
         <location filename="../updates/updateoptionsdialog.cpp" line="46"/>
         <source>%1 %2</source>
-        <translation type="unfinished">%1s {1 %2?}</translation>
+        <translation type="unfinished">%1 %2</translation>
     </message>
     <message>
         <location filename="../updates/updateoptionsdialog.cpp" line="46"/>

@@ -1210,7 +1210,7 @@ Mode 4:
         <location filename="../firmwares/boards.cpp" line="848"/>
         <location filename="../firmwares/boards.cpp" line="888"/>
         <source>6POS</source>
-        <translation>2 positioner {6P?}</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="862"/>
@@ -4958,7 +4958,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../firmwares/gvardata.cpp" line="43"/>
         <source>0.0</source>
-        <translation>6P {0.0?}</translation>
+        <translation>0.0</translation>
     </message>
     <message>
         <location filename="../firmwares/gvardata.cpp" line="45"/>
@@ -5724,37 +5724,37 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2418"/>
         <source>2s</source>
-        <translation>9X {2s?}</translation>
+        <translation>2s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2423"/>
         <source>3s</source>
-        <translation>9X {3s?}</translation>
+        <translation>3s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2428"/>
         <source>4s</source>
-        <translation>9X {4s?}</translation>
+        <translation>4s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2433"/>
         <source>6s</source>
-        <translation>9X {6s?}</translation>
+        <translation>6s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2438"/>
         <source>8s</source>
-        <translation>9X {8s?}</translation>
+        <translation>8s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2443"/>
         <source>10s</source>
-        <translation>9X {10s?}</translation>
+        <translation>10s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2448"/>
         <source>15s</source>
-        <translation>9X {15s?}</translation>
+        <translation>15s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1823"/>

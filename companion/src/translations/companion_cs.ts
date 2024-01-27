@@ -5713,7 +5713,7 @@ This is the threashhold where the battery warning sounds.
 
 Acceptable values are 3v..12v</source>
         <translation type="unfinished">Hodnoto pro varování při nízkém stavu baterie rádia.
-Použitelné hodnoty jsou 5v..10v {3v?} {12v?}</translation>
+Použitelné hodnoty jsou 3v..12v</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2160"/>

@@ -6042,7 +6042,7 @@ Acceptable values are 3v..12v</source>
         <translation type="unfinished">Ostrzeżenie o napięciu zasilania.
 Ustala próg ostrzeżenia.
 
-Dopuszczalne wartości 5v-10v {3v?} {12v?}</translation>
+Dopuszczalne wartości 3v-12v</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2160"/>
@@ -6149,7 +6149,7 @@ Dopuszczalne wartości 5v-10v {3v?} {12v?}</translation>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="276"/>
         <source>1s</source>
-        <translation type="unfinished">5x {1s?}</translation>
+        <translation type="unfinished">1s</translation>
     </message>
 </context>
 <context>
@@ -15323,7 +15323,7 @@ hh:mm:ss</translation>
     <message>
         <location filename="../updates/updateoptionsdialog.cpp" line="46"/>
         <source>%1 %2</source>
-        <translation type="unfinished">%1s {1 %2?}</translation>
+        <translation type="unfinished">%1 %2</translation>
     </message>
     <message>
         <location filename="../updates/updateoptionsdialog.cpp" line="46"/>
