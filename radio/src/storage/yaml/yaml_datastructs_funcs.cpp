@@ -1458,7 +1458,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
                && val[4] == 's') {
       CFN_CH_INDEX(cfn) = MAX_STICKS + 1;
     } else {
-      auto stick = analogLookupCanonicalIdx(ADC_INPUT_MAIN, val, val_len);
+      auto stick = analogLookupCanonicalIdx(ADC_INPUT_MAIN, val, l_sep);
       if (stick >= 0) {
         CFN_CH_INDEX(cfn) = stick + 1;
       }
