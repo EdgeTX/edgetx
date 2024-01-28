@@ -158,6 +158,8 @@ class RadioLayout
 
     struct CustomScreens {
       CustomScreenData customScreenData[MAX_CUSTOM_SCREENS];
+
+      void clear();
     };
 
     static void init(const char * layoutId, CustomScreens & customScreens);
