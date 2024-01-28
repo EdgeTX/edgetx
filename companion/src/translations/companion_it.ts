@@ -4530,7 +4530,7 @@ state attualmente utilizzando:
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="387"/>
         <source>0.0</source>
-        <translation type="unfinished">9X {6P?} {0.0?}</translation>
+        <translation type="unfinished">0.0</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="492"/>
@@ -4943,7 +4943,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../firmwares/gvardata.cpp" line="43"/>
         <source>0.0</source>
-        <translation type="unfinished">9X {6P?} {0.0?}</translation>
+        <translation type="unfinished">0.0</translation>
     </message>
     <message>
         <location filename="../firmwares/gvardata.cpp" line="45"/>
@@ -5660,13 +5660,13 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2101"/>
         <source>Battery warning voltage.
-This is the threashhold where the battery warning sounds.
+This is the threshold where the battery warning sounds.
 
 Acceptable values are 3v..12v</source>
         <translation type="unfinished">Valore di allarme per batteria scarica.
 Al di sotto di questo valore verrà generato un seganle di allarme.
 
-Valori accettabili da 5v a 10v {3v?} {12v?}</translation>
+Valori accettabili da 3v a 12v</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2477"/>
@@ -5687,7 +5687,7 @@ Valori accettabili da 5v a 10v {3v?} {12v?}</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2507"/>
         <source>0.0</source>
-        <translation type="unfinished">9X {6P?} {0.0?}</translation>
+        <translation type="unfinished">0.0</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2512"/>
@@ -14287,12 +14287,12 @@ Timestamp</source>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="3117"/>
         <source>1/5x</source>
-        <translation type="unfinished">9X {1/5x?}</translation>
+        <translation type="unfinished">1/5x</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="3133"/>
         <source>5x</source>
-        <translation type="unfinished">9X {5x?}</translation>
+        <translation type="unfinished">5x</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="3145"/>
@@ -15306,7 +15306,7 @@ hh:mm:ss</source>
     <message>
         <location filename="../updates/updateoptionsdialog.cpp" line="46"/>
         <source>%1 %2</source>
-        <translation type="unfinished">%1s {1 %2?}</translation>
+        <translation type="unfinished">%1 %2</translation>
     </message>
     <message>
         <location filename="../updates/updateoptionsdialog.cpp" line="46"/>

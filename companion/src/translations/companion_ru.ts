@@ -2236,7 +2236,7 @@ Do you want to import settings from a file?</source>
         <location filename="../firmwares/customfunctiondata.cpp" line="223"/>
         <location filename="../firmwares/customfunctiondata.cpp" line="404"/>
         <source>1x</source>
-        <translation type="unfinished">15 сек. {1x?}</translation>
+        <translation type="unfinished">1x</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="226"/>
@@ -2776,22 +2776,22 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../wizarddialog.cpp" line="796"/>
         <source>90</source>
-        <translation type="unfinished">15 сек. {90?}</translation>
+        <translation type="unfinished">90</translation>
     </message>
     <message>
         <location filename="../wizarddialog.cpp" line="798"/>
         <source>120</source>
-        <translation type="unfinished">15 сек. {120?}</translation>
+        <translation type="unfinished">120</translation>
     </message>
     <message>
         <location filename="../wizarddialog.cpp" line="799"/>
         <source>120x</source>
-        <translation type="unfinished">15 сек. {120x?}</translation>
+        <translation type="unfinished">120x</translation>
     </message>
     <message>
         <location filename="../wizarddialog.cpp" line="800"/>
         <source>140</source>
-        <translation type="unfinished">15 сек. {140?}</translation>
+        <translation type="unfinished">140</translation>
     </message>
 </context>
 <context>
@@ -4527,7 +4527,7 @@ You are currently using:
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="387"/>
         <source>0.0</source>
-        <translation type="unfinished">15 сек. {0.0?}</translation>
+        <translation type="unfinished">0.0</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="492"/>
@@ -4896,7 +4896,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../firmwares/gvardata.cpp" line="43"/>
         <source>0.0</source>
-        <translation type="unfinished">15 сек. {0.0?}</translation>
+        <translation type="unfinished">0.0</translation>
     </message>
     <message>
         <location filename="../firmwares/gvardata.cpp" line="45"/>
@@ -5669,13 +5669,13 @@ Mode 4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2101"/>
         <source>Battery warning voltage.
-This is the threashhold where the battery warning sounds.
+This is the threshold where the battery warning sounds.
 
 Acceptable values are 3v..12v</source>
         <translation type="unfinished">Предупреждение о разряде аккумулятора.
 Значение при котором сработает сигнализация.
 
-Диапазон 5В..10В {3v?} {12v?}</translation>
+Диапазон 3В..12В</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2160"/>
@@ -5706,7 +5706,7 @@ Acceptable values are 3v..12v</source>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2507"/>
         <source>0.0</source>
-        <translation type="unfinished">15 сек. {0.0?}</translation>
+        <translation type="unfinished">0.0</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2512"/>
@@ -6104,7 +6104,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="276"/>
         <source>1s</source>
-        <translation type="unfinished">15 сек. {1s?}</translation>
+        <translation type="unfinished">1s</translation>
     </message>
 </context>
 <context>
@@ -6454,22 +6454,22 @@ Are you sure ?</source>
     <message>
         <location filename="../modeledit/heli.ui" line="29"/>
         <source>120</source>
-        <translation type="unfinished">15 сек. {120?}</translation>
+        <translation type="unfinished">120</translation>
     </message>
     <message>
         <location filename="../modeledit/heli.ui" line="34"/>
         <source>120X</source>
-        <translation type="unfinished">15 сек. {120X?}</translation>
+        <translation type="unfinished">120X</translation>
     </message>
     <message>
         <location filename="../modeledit/heli.ui" line="39"/>
         <source>140</source>
-        <translation type="unfinished">15 сек. {140?}</translation>
+        <translation type="unfinished">140</translation>
     </message>
     <message>
         <location filename="../modeledit/heli.ui" line="44"/>
         <source>90</source>
-        <translation type="unfinished">15 сек. {90?}</translation>
+        <translation type="unfinished">90</translation>
     </message>
     <message>
         <location filename="../modeledit/heli.ui" line="77"/>
@@ -9440,22 +9440,22 @@ This determines how mixer values are added.
     <message>
         <location filename="../modelprinter.cpp" line="254"/>
         <source>90</source>
-        <translation type="unfinished">15 сек. {90?}</translation>
+        <translation type="unfinished">90</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="256"/>
         <source>120</source>
-        <translation type="unfinished">15 сек. {120?}</translation>
+        <translation type="unfinished">120</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="258"/>
         <source>120X</source>
-        <translation type="unfinished">15 сек. {120X?}</translation>
+        <translation type="unfinished">120X</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="260"/>
         <source>140</source>
-        <translation type="unfinished">15 сек. {140?}</translation>
+        <translation type="unfinished">140</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="364"/>
@@ -14372,7 +14372,7 @@ hh:mm:ss</source>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="2157"/>
         <source>25.9973,-97.1572</source>
-        <translation type="unfinished">15 сек. {25.9973,-97.1572?}</translation>
+        <translation type="unfinished">25.9973,-97.1572</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="2308"/>
@@ -14433,12 +14433,12 @@ Timestamp</source>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="3117"/>
         <source>1/5x</source>
-        <translation type="unfinished">15 сек. {1/5x?}</translation>
+        <translation type="unfinished">1/5x</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="3133"/>
         <source>5x</source>
-        <translation type="unfinished">15 сек. {5x?}</translation>
+        <translation type="unfinished">5x</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="3145"/>
@@ -14622,7 +14622,7 @@ Timestamp</source>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="127"/>
         <source>5s</source>
-        <translation type="unfinished">15 сек. {5s?}</translation>
+        <translation type="unfinished">5 сек.</translation>
     </message>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="129"/>
@@ -14632,12 +14632,12 @@ Timestamp</source>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="131"/>
         <source>20s</source>
-        <translation type="unfinished">15 сек. {20s?}</translation>
+        <translation type="unfinished">20 сек.</translation>
     </message>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="133"/>
         <source>30s</source>
-        <translation type="unfinished">15 сек. {30s?}</translation>
+        <translation type="unfinished">30 сек.</translation>
     </message>
     <message>
         <location filename="../firmwares/timerdata.cpp" line="144"/>

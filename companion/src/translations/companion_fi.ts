@@ -4530,7 +4530,7 @@ Käytät nyt:
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="387"/>
         <source>0.0</source>
-        <translation type="unfinished">6P {0.0?}</translation>
+        <translation type="unfinished">0.0</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="492"/>
@@ -4943,7 +4943,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../firmwares/gvardata.cpp" line="43"/>
         <source>0.0</source>
-        <translation type="unfinished">6P {0.0?}</translation>
+        <translation type="unfinished">0.0</translation>
     </message>
     <message>
         <location filename="../firmwares/gvardata.cpp" line="45"/>
@@ -5736,13 +5736,13 @@ Tila 4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2101"/>
         <source>Battery warning voltage.
-This is the threashhold where the battery warning sounds.
+This is the threshold where the battery warning sounds.
 
 Acceptable values are 3v..12v</source>
         <translation type="unfinished">Akun varoitus jännite.
 Tämä on jännitealue jolloin akun varoitus ääni annetaan.
 
-Hyväksytty arvo: 5v - 10v {3v?} {12v?}</translation>
+Hyväksytty arvo: 3v - 12v</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2160"/>
@@ -5773,7 +5773,7 @@ Hyväksytty arvo: 5v - 10v {3v?} {12v?}</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2507"/>
         <source>0.0</source>
-        <translation type="unfinished">6P {0.0?}</translation>
+        <translation type="unfinished">0.0</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2512"/>
@@ -15300,7 +15300,7 @@ hh:mm:ss</source>
     <message>
         <location filename="../updates/updateoptionsdialog.cpp" line="46"/>
         <source>%1 %2</source>
-        <translation type="unfinished">%1s {1 %2?}</translation>
+        <translation type="unfinished">%1 %2</translation>
     </message>
     <message>
         <location filename="../updates/updateoptionsdialog.cpp" line="46"/>

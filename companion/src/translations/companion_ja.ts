@@ -1100,7 +1100,7 @@ Mode 4:
         <location filename="../firmwares/boards.cpp" line="834"/>
         <location filename="../firmwares/boards.cpp" line="872"/>
         <source>6P</source>
-        <translation type="unfinished">30秒 {6P?}</translation>
+        <translation type="unfinished">6P</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="836"/>
@@ -2213,7 +2213,7 @@ Do you want to import settings from a file?</source>
         <location filename="../firmwares/customfunctiondata.cpp" line="223"/>
         <location filename="../firmwares/customfunctiondata.cpp" line="404"/>
         <source>1x</source>
-        <translation type="unfinished">30秒 {1x?}</translation>
+        <translation type="unfinished">1x</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="226"/>
@@ -6024,7 +6024,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2101"/>
         <source>Battery warning voltage.
-This is the threashhold where the battery warning sounds.
+This is the threshold where the battery warning sounds.
 
 Acceptable values are 3v..12v</source>
         <translation>バッテリー警告電圧
@@ -6162,7 +6162,7 @@ Mode 4:
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="276"/>
         <source>1s</source>
-        <translation type="unfinished">30秒 {1s?}</translation>
+        <translation type="unfinished">1s</translation>
     </message>
 </context>
 <context>
@@ -11750,22 +11750,22 @@ X
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="46"/>
         <source>Trim 7 Down</source>
-        <translation type="unfinished">トリム6 下 {7 ?}</translation>
+        <translation type="unfinished">トリム7 下</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="46"/>
         <source>Trim 7 Up</source>
-        <translation type="unfinished">トリム6 上 {7 ?}</translation>
+        <translation type="unfinished">トリム7 上</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="47"/>
         <source>Trim 8 Down</source>
-        <translation type="unfinished">トリム6 下 {8 ?}</translation>
+        <translation type="unfinished">トリム8 下</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="47"/>
         <source>Trim 8 Up</source>
-        <translation type="unfinished">トリム6 上 {8 ?}</translation>
+        <translation type="unfinished">トリム8 上</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="51"/>
@@ -14248,7 +14248,7 @@ Too many errors, giving up.</source>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="2157"/>
         <source>25.9973,-97.1572</source>
-        <translation type="unfinished">30秒 {25.9973,-97.1572?}</translation>
+        <translation type="unfinished">25.9973,-97.1572</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="2308"/>

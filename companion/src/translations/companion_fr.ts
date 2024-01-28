@@ -5745,7 +5745,7 @@ Mode 4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2101"/>
         <source>Battery warning voltage.
-This is the threashhold where the battery warning sounds.
+This is the threshold where the battery warning sounds.
 
 Acceptable values are 3v..12v</source>
         <translation>Tension d&apos;alerte de batterie.
@@ -11765,22 +11765,22 @@ E</translation>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="46"/>
         <source>Trim 7 Down</source>
-        <translation type="unfinished">Trim 6 Bas {7 ?}</translation>
+        <translation type="unfinished">Trim 7 Bas</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="46"/>
         <source>Trim 7 Up</source>
-        <translation type="unfinished">Trim 6 Haut {7 ?}</translation>
+        <translation type="unfinished">Trim 7 Haut</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="47"/>
         <source>Trim 8 Down</source>
-        <translation type="unfinished">Trim 6 Bas {8 ?}</translation>
+        <translation type="unfinished">Trim 8 Bas</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="47"/>
         <source>Trim 8 Up</source>
-        <translation type="unfinished">Trim 6 Haut {8 ?}</translation>
+        <translation type="unfinished">Trim 8 Haut</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="51"/>

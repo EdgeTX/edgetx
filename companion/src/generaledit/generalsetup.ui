@@ -2099,7 +2099,7 @@ Mode 4:
        </property>
        <property name="whatsThis">
         <string>Battery warning voltage.
-This is the threashhold where the battery warning sounds.
+This is the threshold where the battery warning sounds.
 
 Acceptable values are 3v..12v</string>
        </property>

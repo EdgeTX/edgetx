@@ -5683,13 +5683,13 @@ Mode 4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2101"/>
         <source>Battery warning voltage.
-This is the threashhold where the battery warning sounds.
+This is the threshold where the battery warning sounds.
 
 Acceptable values are 3v..12v</source>
         <translation type="unfinished">Akku Unterspannungswarnung.
 Legt die Schaltschwelle fest wann die Warnung für die Akku-Unterspannungmeldung kommt.
 
-Werte liegen zwischen 5-10V {3v?} {12v?}</translation>
+Werte liegen zwischen 3-12V</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2160"/>
@@ -5970,7 +5970,7 @@ Werte liegen zwischen 5-10V {3v?} {12v?}</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1210"/>
         <source>9600 Baud</source>
-        <translation>115200 Baud {9600 ?}</translation>
+        <translation>9600 Baud</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1215"/>
@@ -11707,22 +11707,22 @@ r</translation>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="46"/>
         <source>Trim 7 Down</source>
-        <translation type="unfinished">Trimmer 6 runter {7 ?}</translation>
+        <translation type="unfinished">Trimmer 7 runter</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="46"/>
         <source>Trim 7 Up</source>
-        <translation type="unfinished">Trimmer 6 hoch {7 ?}</translation>
+        <translation type="unfinished">Trimmer 7 hoch</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="47"/>
         <source>Trim 8 Down</source>
-        <translation type="unfinished">Trimmer 6 runter {8 ?}</translation>
+        <translation type="unfinished">Trimmer 8 runter</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="47"/>
         <source>Trim 8 Up</source>
-        <translation type="unfinished">Trimmer 6 hoch {8 ?}</translation>
+        <translation type="unfinished">Trimmer 8 hoch</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="51"/>
@@ -15283,7 +15283,7 @@ Timestamp</source>
     <message>
         <location filename="../updates/updateoptionsdialog.cpp" line="46"/>
         <source>%1 %2</source>
-        <translation type="unfinished">%1s {1 %2?}</translation>
+        <translation type="unfinished">%1 %2</translation>
     </message>
     <message>
         <location filename="../updates/updateoptionsdialog.cpp" line="46"/>

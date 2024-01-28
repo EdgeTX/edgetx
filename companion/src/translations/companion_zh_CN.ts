@@ -2252,7 +2252,7 @@ Do you want to import settings from a file?</source>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="226"/>
         <source>%1s</source>
-        <translation type="unfinished">每%1s秒播放一次 {1s?}</translation>
+        <translation type="unfinished">%1s</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="342"/>
@@ -5789,13 +5789,13 @@ MODE4 模式4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2101"/>
         <source>Battery warning voltage.
-This is the threashhold where the battery warning sounds.
+This is the threshold where the battery warning sounds.
 
 Acceptable values are 3v..12v</source>
         <translation type="unfinished">遥控器电池警告电压 
 当电压低于此数值时电量告警响起
 
-允许值是5V - 10V {3v?} {12v?}</translation>
+允许值是3V - 12V</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2160"/>
@@ -15414,7 +15414,7 @@ hh:mm:ss</source>
     <message>
         <location filename="../updates/updateoptionsdialog.cpp" line="46"/>
         <source>%1 %2</source>
-        <translation type="unfinished">每%1秒播放一次 {1 %2?}</translation>
+        <translation type="unfinished">%1 %2</translation>
     </message>
     <message>
         <location filename="../updates/updateoptionsdialog.cpp" line="46"/>
