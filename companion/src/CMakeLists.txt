@@ -92,7 +92,6 @@ include_directories(
 )
 
 ############# Do macro replacements on input files #############
-string(TIMESTAMP BUILD_YEAR "%Y")
 
 configure_file(${COMPANION_SRC_DIRECTORY}/version.h.in ${CMAKE_BINARY_DIR}/version.h @ONLY)
 configure_file(${COMPANION_SRC_DIRECTORY}/companion.desktop.in ${CMAKE_CURRENT_BINARY_DIR}/companion.desktop @ONLY)
@@ -420,7 +419,6 @@ elseif(WIN32)
     endif()
   endif()
 
-  string(TIMESTAMP BUILD_YEAR "%Y")
   set(LICENSE_FILE "${CMAKE_CURRENT_BINARY_DIR}/license.txt")
   configure_file("${COMPANION_SRC_DIRECTORY}/../targets/windows/license.txt.in" ${LICENSE_FILE} @ONLY)
   install(FILES "${LICENSE_FILE}" DESTINATION ${INSTALL_DESTINATION})

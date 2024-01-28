@@ -9,3 +9,4 @@
 #define VERSION_MINOR     @VERSION_MINOR@
 #define VERSION_REVISION  @VERSION_REVISION@
 #define GIT_STR           "@GIT_STR@"
+#define BUILD_YEAR        "@BUILD_YEAR@"
