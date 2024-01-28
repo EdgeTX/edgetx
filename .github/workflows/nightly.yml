@@ -3,6 +3,7 @@ name: Build and deploy nightly release
 on:
   schedule:
     - cron: '0 2 * * *' # run at 2 AM UTC
+  workflow_dispatch:
 
 concurrency: 
   group: 'nightly'
@@ -68,6 +69,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: edgetx-firmware-nightly-*
+          path: edgetx-firmware-nightly
           merge-multiple: true
 
       - name: Compose release filename
