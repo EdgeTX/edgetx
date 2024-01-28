@@ -400,14 +400,14 @@
   #define TRIMS_GPIO_REG_T8U            GPIOB
   #define TRIMS_GPIO_PIN_T8U            LL_GPIO_PIN_4  // PB.04
 #elif defined(RADIO_MT12)
-  #define TRIMS_GPIO_REG_T1R            GPIOC
-  #define TRIMS_GPIO_PIN_T1R            LL_GPIO_PIN_1 // PC.01
-  #define TRIMS_GPIO_REG_T1L            GPIOC
-  #define TRIMS_GPIO_PIN_T1L            LL_GPIO_PIN_2 // PC.02
-  #define TRIMS_GPIO_REG_T2R            GPIOE
-  #define TRIMS_GPIO_PIN_T2R            LL_GPIO_PIN_3 // PE.03
-  #define TRIMS_GPIO_REG_T2L            GPIOE
-  #define TRIMS_GPIO_PIN_T2L            LL_GPIO_PIN_4 // PE.04
+  #define TRIMS_GPIO_REG_T1R            GPIOE
+  #define TRIMS_GPIO_PIN_T1R            LL_GPIO_PIN_3 // PE.03
+  #define TRIMS_GPIO_REG_T1L            GPIOE
+  #define TRIMS_GPIO_PIN_T1L            LL_GPIO_PIN_4 // PE.04
+  #define TRIMS_GPIO_REG_T2R            GPIOC
+  #define TRIMS_GPIO_PIN_T2R            LL_GPIO_PIN_1 // PC.01
+  #define TRIMS_GPIO_REG_T2L            GPIOC
+  #define TRIMS_GPIO_PIN_T2L            LL_GPIO_PIN_2 // PC.02
   #define TRIMS_GPIO_REG_T3R            GPIOE
   #define TRIMS_GPIO_PIN_T3R            LL_GPIO_PIN_5 // PE.05
   #define TRIMS_GPIO_REG_T3L            GPIOE
