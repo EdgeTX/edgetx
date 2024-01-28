@@ -299,6 +299,7 @@ static bool adc_init_dma_stream(ADC_TypeDef* adc, DMA_TypeDef* DMAx,
   // disable direct mode, half full FIFO
   LL_DMA_EnableFifoMode(DMAx, stream);
   LL_DMA_SetFIFOThreshold(DMAx, stream, LL_DMA_FIFOTHRESHOLD_1_2);
+  LL_DMA_SetMemoryBurstxfer(DMAx, stream, LL_DMA_MBURST_INC4);
 
   return true;
 }
@@ -405,7 +406,7 @@ static void adc_start_dma_conversion(ADC_TypeDef* ADCx, DMA_TypeDef* DMAx, uint3
   SET_BIT(dma_stream->CR, DMA_SxCR_EN);
 
   // Trigger ADC start
-  SET_BIT(ADCx->CR2, ADC_CR2_SWSTART);
+  SET_BIT(ADCx->CR2, ADC_CR2_DMA | ADC_CR2_SWSTART);
 }
 
 static bool adc_disable_dma(DMA_TypeDef* DMAx, uint32_t stream)
@@ -580,6 +581,9 @@ void stm32_hal_adc_dma_isr(const stm32_adc_t* adc)
 {
   // Disable IRQ
   adc_dma_clear_flags(adc->DMAx, adc->DMA_Stream);
+
+  // Disable DMA
+  CLEAR_BIT(adc->ADCx->CR2, ADC_CR2_DMA);
 
   uint16_t* dma_buffer = _adc_dma_buffer + adc->offset;
   copy_adc_values(dma_buffer, adc, _adc_inputs);

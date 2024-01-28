@@ -222,8 +222,6 @@
 #define ADC_CHANNEL_STICK_RV
 #define ADC_CHANNEL_STICK_RH
 
-// Each ADC cannot map more than 8 channels, otherwise it will cause problems
-
 #define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_6    // ADC12_IN6   -> ADC1_IN6
 #define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_14   // ADC12_IN14  -> ADC1_IN14
 #define ADC_CHANNEL_POT3                LL_ADC_CHANNEL_6    // ADC3_IN6    -> ADC3_IN6
@@ -249,11 +247,7 @@
 #define ADC_CHANNEL_SWH                 LL_ADC_CHANNEL_8    // ADC3_IN8    -> ADC3_IN8
 
 #define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_15   // ADC12_IN15  -> ADC1_IN15
-
-#if !defined(RADIO_PL18EV)
-// Disabled for PL18EV because 2 ADC 16 channels are fully mapped already
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC1_IN18
-#endif
 
 #define ADC_MAIN                        ADC1
 #define ADC_EXT                         ADC3
@@ -286,6 +280,7 @@
     -1,-1,   /* sliders */    \
     0,0,0,0, /* ext1-4 */     \
     0,	     /* vbat */       \
+    0,       /* rtc_bat */    \
     -1,      /* SWB */        \
     -1,      /* SWD */        \
     0,       /* SWE */        \
