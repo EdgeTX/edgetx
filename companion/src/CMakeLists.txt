@@ -571,15 +571,17 @@ endif(APPLE)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(LINUXDEPLOY_APPIMAGE "linuxdeploy-x86_64.AppImage")
   set(LINUXDEPLOY_PLUGIN_QT "linuxdeploy-plugin-qt-x86_64.AppImage")
+  set(LINUXDEPLOY_PLUGIN_GSTREAMER "linuxdeploy-plugin-gstreamer.sh")
   set(LINUXDEPLOY_URL "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous")
+  set(LINUXDEPLOY_PLUGIN_GSTREAMER_URL "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gstreamer/master")
   set(LINUXDEPLOY_PLUGIN_QT_URL "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous")
   set(LINUXDEPLOY_DIRECTORY "${CMAKE_BINARY_DIR}/linuxdeploy")
   set(LINUXDEPLOY_APP "${LINUXDEPLOY_DIRECTORY}/usr/bin/linuxdeploy")
 
   if (NOT EXISTS "${LINUXDEPLOY_DIRECTORY}")
     message(STATUS "Downloading linuxdeploy and plugins...")
-
     file(DOWNLOAD "${LINUXDEPLOY_URL}/${LINUXDEPLOY_APPIMAGE}" "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_APPIMAGE}")
+    file(DOWNLOAD "${LINUXDEPLOY_PLUGIN_GSTREAMER_URL}/${LINUXDEPLOY_PLUGIN_GSTREAMER}" "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_PLUGIN_GSTREAMER}")
     file(DOWNLOAD "${LINUXDEPLOY_PLUGIN_QT_URL}/${LINUXDEPLOY_PLUGIN_QT}" "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_PLUGIN_QT}")
 
     message(STATUS "Downloading linuxdeploy and plugins finished")
@@ -605,6 +607,14 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
     execute_process(
       COMMAND mv "${CMAKE_BINARY_DIR}/squashfs-root" "${LINUXDEPLOY_DIRECTORY}"
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+    execute_process(
+      COMMAND chmod +x "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_PLUGIN_GSTREAMER}"
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+    execute_process(
+      COMMAND mv "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_PLUGIN_GSTREAMER}" "${LINUXDEPLOY_DIRECTORY}/usr/bin"
       WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
     # test installation
