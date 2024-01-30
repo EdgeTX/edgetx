@@ -114,9 +114,20 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 
     RawSwitchType mp_type = SWITCH_TYPE_MULTIPOS_POT;
     int mp_index = 0;
+    int mp_input_index = 0;
+
     try {
-      mp_index = (std::stoi(sw_str_tmp.substr(2, val_len - 3)) + Boards::getCapability(board, Board::Sticks)) *
-                 multiposcnt + (val[val_len - 1] - '0') + 1;
+      mp_input_index = std::stoi(sw_str_tmp.substr(2, val_len - 3));
+
+      if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
+        if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
+          if (mp_input_index > 2)
+            mp_input_index += 2;
+        }
+      }
+
+      mp_index = (mp_input_index + Boards::getCapability(board, Board::Sticks)) * multiposcnt + (val[val_len - 1] - '0') + 1;
+
     } catch(...) {
       mp_type = SWITCH_TYPE_NONE;
       mp_index = 0;
