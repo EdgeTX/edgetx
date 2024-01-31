@@ -321,6 +321,11 @@ bool convert<CustomFunctionData>::decode(const Node& node,
   case FuncBacklight: {
     std::string src_str;
     getline(def, src_str, ',');
+    if (def_str.size() >= 4 && def_str.substr(0, 4) == "lua(") {
+      std::string tmp_str;
+      getline(def, tmp_str, ',');
+      src_str += ("," + tmp_str);
+    }
     rhs.param = YamlRawSourceDecode(src_str).toValue();
   } break;
   case FuncAdjustGV1: {
