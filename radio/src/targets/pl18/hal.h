@@ -662,7 +662,6 @@
 #define ROTARY_ENCODER_NAVIGATION
 
 //BLUETOOTH
-#define BLUETOOTH_ON_RCC_AHB1Periph     RCC_AHB1Periph_GPIOI
 #define BT_EN_GPIO                      GPIOI
 #define BT_EN_GPIO_PIN                  GPIO_Pin_8 // PI.8
 
