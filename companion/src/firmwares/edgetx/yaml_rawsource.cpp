@@ -281,7 +281,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     node >> trim_str;
 
     if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
-      int idx = b.getTrimSourceIndex(src_str.c_str());
+      int idx = b.getLegacyTrimSourceIndex(src_str.c_str());
       if (idx >= 0)
         trim_str = Boards::getTrimYamlName(idx, BoardJson::YLT_REF).toStdString();
     }

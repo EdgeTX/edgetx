@@ -43,7 +43,8 @@
 #define FSIZE_HORUS                    (2048*1024)
 #define FSIZE_MAX                      FSIZE_HORUS
 
-static const StringTagMappingTable trimSourcesLut = {
+// pre v2.10
+static const StringTagMappingTable legacyTrimSourcesLut = {
     {std::to_string(TRIM_AXIS_LH), "TrimRud"},
     {std::to_string(TRIM_AXIS_LV), "TrimEle"},
     {std::to_string(TRIM_AXIS_RV), "TrimThr"},
@@ -76,7 +77,7 @@ static const StringTagMappingTable trimSwitchesLut = {
 using namespace Board;
 
 Boards::Boards(Board::Type board) :
-  trimSourcesLookupTable(trimSourcesLut),
+  legacyTrimSourcesLookupTable(legacyTrimSourcesLut),
   trimSwitchesLookupTable(trimSwitchesLut),
   rawSwitchTypesLookupTable(RawSwitch::getRawSwitchTypesLookupTable()),
   rawSourceSpecialTypesLookupTable(RawSource::getSpecialTypesLookupTable()),

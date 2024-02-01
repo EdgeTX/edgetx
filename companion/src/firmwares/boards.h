@@ -345,7 +345,7 @@ class Boards
     static int getTrimYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getTrimYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
 
-    STRINGTAGMAPPINGFUNCS(trimSourcesLookupTable, TrimSource);
+    STRINGTAGMAPPINGFUNCS(legacyTrimSourcesLookupTable, LegacyTrimSource);
     STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitch);
     STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchType);
     STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialType);
@@ -372,7 +372,7 @@ class Boards
     Board::Type m_boardType = Board::BOARD_UNKNOWN;
     BoardJson* m_boardJson = nullptr;
 
-    const StringTagMappingTable trimSourcesLookupTable;
+    const StringTagMappingTable legacyTrimSourcesLookupTable;
     const StringTagMappingTable trimSwitchesLookupTable;
     const StringTagMappingTable rawSwitchTypesLookupTable;
     const StringTagMappingTable rawSourceSpecialTypesLookupTable;
