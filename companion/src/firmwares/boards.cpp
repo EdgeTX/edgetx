@@ -858,6 +858,16 @@ QString Boards::getSwitchYamlName(int index, int ylt, Board::Type board)
   return getBoardJson(board)->getSwitchYamlName(index, (BoardJson::YamlLookupType)ylt);
 }
 
+int Boards::getTrimYamlIndex(QString val, int ylt, Board::Type board)
+{
+  return getBoardJson(board)->getTrimYamlIndex(val, (BoardJson::YamlLookupType)ylt);
+}
+
+QString Boards::getTrimYamlName(int index, int ylt, Board::Type board)
+{
+  return getBoardJson(board)->getTrimYamlName(index, (BoardJson::YamlLookupType)ylt);
+}
+
 bool Boards::isInputAvailable(int index, Board::Type board)
 {
   return getBoardJson(board)->isInputAvailable(index);

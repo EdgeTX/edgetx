@@ -79,6 +79,8 @@ class BoardJson
     struct TrimDefn {
       std::string tag  = "";
       std::string name = "";
+      Board::LookupValueType cfgYaml   = Board::LVT_TAG;
+      Board::LookupValueType refYaml   = Board::LVT_NAME;
 
       TrimDefn() = default;
     };
@@ -124,10 +126,15 @@ class BoardJson
     const int getSwitchYamlIndex(const QString val, YamlLookupType ylt) const;
     const QString getSwitchYamlName(int index, YamlLookupType ylt) const;
 
+    const int getTrimIndex(const QString val, Board::LookupValueType lvt) const;
+    const QString getTrimName(int index) const;
+    const QString getTrimTag(int index) const;
+    const int getTrimYamlIndex(const QString val, YamlLookupType ylt) const;
+    const QString getTrimYamlName(int index, YamlLookupType ylt) const;
+
     const bool isSwitchConfigurable(int index) const;
     const bool isSwitchFlex(int index) const;
     const bool isSwitchFunc(int index) const;
-
 private:
     Board::Type m_board;
     QString m_hwdefn;
@@ -175,6 +182,10 @@ private:
     static QString getSwitchName(const SwitchesTable * switches, int index);
     static QString getSwitchTag(const SwitchesTable * switches, int index);
     static int getSwitchTagNum(const SwitchesTable * switches, int index);
+
+    static int getTrimIndex(const TrimsTable * trims, QString val, Board::LookupValueType lvt);
+    static QString getTrimName(const TrimsTable * trims, int index);
+    static QString getTrimTag(const TrimsTable * trims, int index);
 
     static bool isInputAvailable(const InputDefn & defn);
     static bool isInputCalibrated(const InputDefn & defn);

@@ -53,7 +53,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str = Boards::getInputYamlName(rhs.index, BoardJson::YLT_REF).toStdString();
       break;
     case SOURCE_TYPE_TRIM:
-      src_str = b.getTrimSourceTag(rhs.index);
+      src_str = Boards::getTrimYamlName(rhs.index, BoardJson::YLT_REF).toStdString();
       break;
     case SOURCE_TYPE_MIN:
       src_str += "MIN";
@@ -277,7 +277,16 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
       return rhs;
     }
 
-    int trm_idx = b.getTrimSourceIndex(src_str.c_str());
+    std::string trim_str;
+    node >> trim_str;
+
+    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
+      int idx = b.getTrimSourceIndex(src_str.c_str());
+      if (idx >= 0)
+        trim_str = Boards::getTrimYamlName(idx, BoardJson::YLT_REF).toStdString();
+    }
+
+    int trm_idx = Boards::getTrimYamlIndex(trim_str.c_str(), BoardJson::YLT_REF);
     if (trm_idx >= 0) {
       rhs.type = SOURCE_TYPE_TRIM;
       rhs.index = trm_idx;

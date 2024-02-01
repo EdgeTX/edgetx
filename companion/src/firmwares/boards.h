@@ -342,6 +342,9 @@ class Boards
     static int getSwitchYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getSwitchYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
 
+    static int getTrimYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getTrimYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+
     STRINGTAGMAPPINGFUNCS(trimSourcesLookupTable, TrimSource);
     STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitch);
     STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchType);

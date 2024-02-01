@@ -483,6 +483,75 @@ const QString BoardJson::getSwitchYamlName(int index, YamlLookupType ylt) const
   return CPN_STR_UNKNOWN_ITEM;
 }
 
+const int BoardJson::getTrimIndex(const QString val, Board::LookupValueType lvt) const
+{
+  return getTrimIndex(m_trims, val, lvt);
+}
+
+// static
+int BoardJson::getTrimIndex(const TrimsTable * trims, QString val, Board::LookupValueType lvt)
+{
+  for (int i = 0; i < (int)trims->size(); i++) {
+    if ((lvt == Board::LVT_TAG && trims->at(i).tag.c_str() == val) ||
+        (lvt == Board::LVT_NAME && trims->at(i).name.c_str() == val))
+      return i;
+  }
+
+  return -1;
+}
+
+const QString BoardJson::getTrimName(int index) const
+{
+  return getTrimName(m_trims, index);
+}
+
+// static
+QString BoardJson::getTrimName(const TrimsTable * trims, int index)
+{
+  if (index > -1 && index < (int)trims->size())
+    return trims->at(index).name.c_str();
+
+  return CPN_STR_UNKNOWN_ITEM;
+}
+
+const QString BoardJson::getTrimTag(int index) const
+{
+  return getTrimTag(m_trims, index);
+}
+
+// static
+QString BoardJson::getTrimTag(const TrimsTable * trims, int index)
+{
+  if (index > -1 && index < (int)trims->size())
+    return trims->at(index).tag.c_str();
+
+  return CPN_STR_UNKNOWN_ITEM;
+}
+
+const int BoardJson::getTrimYamlIndex(const QString val, YamlLookupType ylt) const
+{
+  for (int i = 0; i < (int)m_trims->size(); i++) {
+    Board::LookupValueType type = (ylt == YLT_CONFIG ? m_trims->at(i).cfgYaml : m_trims->at(i).refYaml);
+    QString tmp = (type == Board::LVT_NAME ? getTrimName(m_trims, i) : getTrimTag(m_trims, i));
+    if (val == tmp)
+      return getTrimIndex(m_trims, val, type);
+  }
+
+  return -1;
+}
+
+const QString BoardJson::getTrimYamlName(int index, YamlLookupType ylt) const
+{
+  if (index > -1 && index < (int)m_trims->size()) {
+    if (ylt == YLT_CONFIG)
+      return m_trims->at(index).cfgYaml == Board::LVT_NAME ? getTrimName(m_trims, index) : getTrimTag(m_trims, index);
+    else
+      return m_trims->at(index).refYaml == Board::LVT_NAME ? getTrimName(m_trims, index) : getTrimTag(m_trims, index);
+  }
+
+  return CPN_STR_UNKNOWN_ITEM;
+}
+
 const bool BoardJson::isInputAvailable(int index) const
 {
   return isInputAvailable(m_inputs->at(index));
