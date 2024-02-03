@@ -670,20 +670,26 @@ void processSpektrumPacket(const uint8_t *packet)
       value = value * 196791 / 100000;
     } // I2C_HIGH_CURRENT
 
-    // Check if this looks like a LemonRX Transceiver, they use QoS Frame loss A as RSSI indicator(0-100)
-    else if (i2cAddress == I2C_QOS && sensor->startByte == 0) {
-      if (spektrumGetValue(packet + 4, 2, uint16) == 0x8000 &&
-          spektrumGetValue(packet + 4, 4, uint16) == 0x8000 &&
-          spektrumGetValue(packet + 4, 6, uint16) == 0x8000 &&
-          spektrumGetValue(packet + 4, 8, uint16) == 0x8000) {
-        telemetryData.rssi.set(value);
+    else if (i2cAddress == I2C_QOS) {
+      if (sensor->startByte == 0) {  // FdeA
+        // Check if this looks like a LemonRX Transceiver, they use QoS Frame loss A as RSSI indicator(0-100)
+        if (spektrumGetValue(packet + 4, 2, uint16) == 0x8000 &&
+            spektrumGetValue(packet + 4, 4, uint16) == 0x8000 &&
+            spektrumGetValue(packet + 4, 6, uint16) == 0x8000 &&
+            spektrumGetValue(packet + 4, 8, uint16) == 0x8000) {
+          telemetryData.rssi.set(value);
+        }
+        else {
+          // Otherwise use the received signal strength of the telemetry packet as indicator
+          // Range is 0-31, multiply by 3 to get an almost full reading for 0x1f, the maximum the cyrf chip reports
+          telemetryData.rssi.set(packet[1] * 3);
+        }
+        telemetryStreaming = TELEMETRY_TIMEOUT10ms;
+      } // FdeA
+      else if (sensor->startByte == 8 || sensor->startByte == 10) { // Flss and Hold
+        // Lemon-RX: F and H = 0x7FFF (alternative N0-DATA)
+        if (value == 0x7FFF) continue; 
       }
-      else {
-        // Otherwise use the received signal strength of the telemetry packet as indicator
-        // Range is 0-31, multiply by 3 to get an almost full reading for 0x1f, the maximum the cyrf chip reports
-        telemetryData.rssi.set(packet[1] * 3);
-      }
-      telemetryStreaming = TELEMETRY_TIMEOUT10ms;
     } // I2C_QOS
 
     else if (sensor->i2caddress == I2C_GPS_STAT && sensor->unit == UNIT_DATETIME) {
@@ -723,6 +729,19 @@ void processSpektrumPacket(const uint8_t *packet)
         continue; // setTelemetryValue handled
       }
     } // I2C_GPS_BIN
+
+    else if (i2cAddress == I2C_FP_BATT) {
+      // Lemon-RX G2: No Bat2: Current (-1.0 A)
+      if (sensor->startByte == 6 && ((int16_t) value) == -10) continue;  
+    } // I2C_FP_BATT
+
+    else if (i2cAddress == I2C_PBOX) {
+      // No Bat Voltage, hide Voltage and Consumption
+      if ((sensor->startByte == 0 || sensor->startByte == 4) && // Bat1 Voltage
+          spektrumGetValue(packet + 4, 0, uint16) == 0) continue;
+      if ((sensor->startByte == 2 || sensor->startByte == 6) && // Bat2 Voltage
+          spektrumGetValue(packet + 4, 2, uint16) == 0) continue;
+    }
 
     setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, sensor->unit, sensor->precision);
   } // FOR
