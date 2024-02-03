@@ -533,11 +533,6 @@
 #define TRAINER_GPIO_AF                 LL_GPIO_AF_2
 #define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
-//BLUETOOTH
-#define BLUETOOTH_ON_RCC_AHB1Periph     RCC_AHB1Periph_GPIOI
-#define BLUETOOTH_ON_GPIO               GPIOI
-#define BLUETOOTH_ON_GPIO_PIN           GPIO_Pin_8 // PI.8
-
 //ROTARY emulation for trims as buttons
 #define ROTARY_ENCODER_NAVIGATION
 
@@ -559,8 +554,8 @@
 #define BT_EN_GPIO                      GPIOI
 #define BT_EN_GPIO_PIN                  GPIO_Pin_8 // PI.08
 
-#define  BT_CONNECTED_GPIO              GPIOJ
-#define  BT_CONNECTED_GPIO_PIN          GPIO_Pin_1 // PJ.10
+#define BT_CONNECTED_GPIO               GPIOJ
+#define BT_CONNECTED_GPIO_PIN           GPIO_Pin_1 // PJ.10
 
 #define BT_CMD_MODE_GPIO                GPIOH
 #define BT_CMD_MODE_GPIO_PIN            GPIO_Pin_6 // PH.6
