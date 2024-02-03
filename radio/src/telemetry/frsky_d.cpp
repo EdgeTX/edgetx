@@ -71,8 +71,8 @@ void frskyDProcessPacket(uint8_t module, const uint8_t *packet, uint8_t len)
     // A1/A2/RSSI values
     case LINKPKT:
     {
-      setTelemetryValue(proto, D_A1_ID, 0, 0, packet[1], UNIT_VOLTS, 0);
-      setTelemetryValue(proto, D_A2_ID, 0, 0, packet[2], UNIT_VOLTS, 0);
+      setTelemetryValue(proto, D_A1_ID, 0, 0, packet[1], UNIT_VOLTS, 1);
+      setTelemetryValue(proto, D_A2_ID, 0, 0, packet[2], UNIT_VOLTS, 1);
       setTelemetryValue(proto, D_RSSI_ID, 0, 0, packet[3], UNIT_RAW, 0);
       
       if (len >= 7) {
