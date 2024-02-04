@@ -286,29 +286,14 @@ class Firmware
     typedef QList<OptionsGroup> OptionsList;
 
 
-    explicit Firmware(const QString & id, const QString & name, Board::Type board, const QString & downloadId = QString(), const QString & simulatorId = QString()) :
-      Firmware(nullptr, id, name, board, downloadId, simulatorId)
+    explicit Firmware(const QString & id, const QString & name, Board::Type board, const QString & downloadId = QString(),
+                      const QString & simulatorId = QString(), const QString & hwdefnId = QString()) :
+      Firmware(nullptr, id, name, board, downloadId, simulatorId, hwdefnId)
     { }
 
-    explicit Firmware(Firmware * base, const QString & id, const QString & name, Board::Type board, const QString & downloadId = QString(), const QString & simulatorId = QString()) :
-      id(id),
-      name(name),
-      board(board),
-      variantBase(0),
-      base(base),
-      eepromInterface(nullptr),
-      downloadId(downloadId),
-      simulatorId(simulatorId),
-      analogInputNamesLookupTable(Boards::getAnalogNamesLookupTable(board)),
-      analogInputNamesLookupTableADC(Boards::getAnalogNamesLookupTable(board, QString(CPN_ADC_REFACTOR_VERSION))),
-      switchesLookupTable(Boards::getSwitchesLookupTable(board)),
-      trimSwitchesLookupTable(Boards::getTrimSwitchesLookupTable(board)),
-      trimSourcesLookupTable(Boards::getTrimSourcesLookupTable(board)),
-      rawSwitchTypesLookupTable(RawSwitch::getRawSwitchTypesLookupTable()),
-      rawSourceSpecialTypesLookupTable(RawSource::getSpecialTypesLookupTable()),
-      rawSourceCyclicLookupTable(RawSource::getCyclicLookupTable())
-    {
-    }
+    explicit Firmware(Firmware * base, const QString & id, const QString & name, Board::Type board,
+                      const QString & downloadId = QString(), const QString & simulatorId = QString(),
+                      const QString & hwdefnId = QString());
 
     virtual ~Firmware() { }
 
@@ -431,26 +416,9 @@ class Firmware
       return getFirmwareForId(FIRMWARE_ID_PREFIX + flavour);
     }
 
-    const StringTagMappingTable* getAnalogIndexNamesLookupTable()
-    {
-      return &analogInputNamesLookupTable;
-    }
-
-    const StringTagMappingTable* getAnalogIndexNamesLookupTableADC()
-    {
-      return &analogInputNamesLookupTableADC;
-    }
-
-    STRINGTAGMAPPINGFUNCS_ADC(analogInputNamesLookupTable, analogInputNamesLookupTableADC, AnalogInput);
-    STRINGTAGMAPPINGFUNCS(switchesLookupTable, Switches);
-    STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitches);
-    STRINGTAGMAPPINGFUNCS(trimSourcesLookupTable, TrimSources);
-    STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchTypes);
-    STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialTypes);
-    STRINGTAGMAPPINGFUNCS(rawSourceCyclicLookupTable, RawSourceCyclic);
-
     const QString getDownloadId() { return getFirmwareBase()->downloadId.isEmpty() ? getFlavour() : getFirmwareBase()->downloadId; }
     const QString getSimulatorId() { return getFirmwareBase()->simulatorId.isEmpty() ? getId() : getFirmwareBase()->simulatorId; }
+    const QString getHwDefnId() { return getFirmwareBase()->hwdefnId.isEmpty() ? getFlavour() : getFirmwareBase()->hwdefnId; }
 
   protected:
     QString id;
@@ -461,16 +429,7 @@ class Firmware
     EEPROMInterface * eepromInterface;
     QString downloadId;
     QString simulatorId;
-
-    //  used by YAML encode and decode
-    const StringTagMappingTable analogInputNamesLookupTable;
-    const StringTagMappingTable analogInputNamesLookupTableADC;
-    const StringTagMappingTable switchesLookupTable;
-    const StringTagMappingTable trimSwitchesLookupTable;
-    const StringTagMappingTable trimSourcesLookupTable;
-    const StringTagMappingTable rawSwitchTypesLookupTable;
-    const StringTagMappingTable rawSourceSpecialTypesLookupTable;
-    const StringTagMappingTable rawSourceCyclicLookupTable;
+    QString hwdefnId;
 
     QList<const char *> languages;
     //QList<const char *> ttslanguages;

@@ -26,60 +26,75 @@
 #include "autocheckbox.h"
 #include "autospinbox.h"
 #include "autodoublespinbox.h"
+#include "autobitmappedcombobox.h"
+#include "autobitmappedcheckbox.h"
 
 #include <QLabel>
 #include <QGridLayout>
 #include <QFrame>
 
-constexpr char FIM_SWITCHTYPE2POS[]  {"Switch Type 2 Pos"};
-constexpr char FIM_SWITCHTYPE3POS[]  {"Switch Type 3 Pos"};
-constexpr char FIM_INTERNALMODULES[] {"Internal Modules"};
-constexpr char FIM_AUX1SERIALMODES[] {"AUX1 Modes"};
-constexpr char FIM_AUX2SERIALMODES[] {"AUX2 Modes"};
-constexpr char FIM_VCPSERIALMODES[]  {"VCP Modes"};
+constexpr char FIM_SWITCHTYPENONE[]    {"Switch Type None"};
+constexpr char FIM_SWITCHTYPE2POS[]    {"Switch Type 2 Pos"};
+constexpr char FIM_SWITCHTYPE3POS[]    {"Switch Type 3 Pos"};
+constexpr char FIM_INTERNALMODULES[]   {"Internal Modules"};
+constexpr char FIM_AUX1SERIALMODES[]   {"AUX1 Modes"};
+constexpr char FIM_AUX2SERIALMODES[]   {"AUX2 Modes"};
+constexpr char FIM_VCPSERIALMODES[]    {"VCP Modes"};
+constexpr char FIM_FLEXSWITCHES[]      {"Flex Switches"};
+constexpr char FIM_FLEXTYPE_SWITCH[]   {"Flex Type Switch"};
+constexpr char FIM_FLEXTYPE_NOSWITCH[] {"Flex Type No Switch"};
 
 class ExclusiveComboGroup: public QObject
 {
-  static constexpr auto _role = Qt::UserRole + 500;
+  public:
+    ExclusiveComboGroup(QObject *parent, std::function<bool(const QVariant&)> filter) :
+      QObject(parent), filter(std::move(filter))
+    {
+    }
 
-  QList<QComboBox*> combos;
-  std::function<bool(const QVariant&)> filter;
+    typedef QList<QComboBox*> ComboBoxes;
 
-public:
- ExclusiveComboGroup(QObject *parent, std::function<bool(const QVariant&)> filter) :
-   QObject(parent), filter(std::move(filter))
- {
- }
+    ComboBoxes* getComboBoxes()
+    {
+     return &combos;
+    }
 
- void addCombo(QComboBox *comboBox)
- {
-   connect(comboBox, QOverload<int>::of(&QComboBox::activated),
-           [=](int index) { this->handleActivated(comboBox, index); });
-   combos.append(comboBox);
-  }
+    void addCombo(QComboBox *comboBox)
+    {
+      connect(comboBox, QOverload<int>::of(&QComboBox::activated),
+              [=](int index) { this->handleActivated(comboBox, index); });
+      combos.append(comboBox);
+    }
 
-  void handleActivated(QComboBox* target, int index) {
-    auto data = target->itemData(index);
-    auto targetidx = combos.indexOf(target);
-    for (auto combo : combos) {
-      if (target == combo) continue;
-      auto view = dynamic_cast<QListView*>(combo->view());
-      Q_ASSERT(view);
+    void handleActivated(QComboBox* target, int index) {
+      auto data = target->itemData(index);
+      auto targetidx = combos.indexOf(target);
+      for (auto combo : combos) {
+        if (target == combo) continue;
+        auto view = dynamic_cast<QListView*>(combo->view());
+        Q_ASSERT(view);
 
-      auto previous = combo->findData(targetidx, _role);
-      if (previous >= 0) {
-        view->setRowHidden(previous, false);
-        combo->setItemData(previous, QVariant(), _role);
-      }
-      if (!filter(data)) {
-        auto idx = combo->findData(data);
-        if (idx >= 0) {
-          view->setRowHidden(idx, true);
-          combo->setItemData(idx, targetidx, _role);
+        auto previous = combo->findData(targetidx, _role);
+        if (previous >= 0) {
+          view->setRowHidden(previous, false);
+          combo->setItemData(previous, QVariant(), _role);
+        }
+        if (!filter(data)) {
+          auto idx = combo->findData(data);
+          if (idx >= 0) {
+            view->setRowHidden(idx, true);
+            combo->setItemData(idx, targetidx, _role);
+          }
         }
       }
     }
-  }
+
+  private:
+    static constexpr auto _role = Qt::UserRole + 500;
+
+    ComboBoxes combos;
+    std::function<bool(const QVariant&)> filter;
+
 };
 
 HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * sharedItemModels):
@@ -88,13 +103,17 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   editorItemModels(sharedItemModels),
   serialPortUSBVCP(nullptr),
   params(new QList<QWidget *>),
-  row(0)
+  row(0),
+  exclFlexSwitchesGroup(nullptr)
 {
-  editorItemModels->registerItemModel(Boards::potTypeItemModel());
-  editorItemModels->registerItemModel(Boards::sliderTypeItemModel());
-  int id = editorItemModels->registerItemModel(Boards::switchTypeItemModel());
-
   tabFilteredModels = new FilteredItemModelFactory();
+
+  int id = editorItemModels->registerItemModel(Boards::flexTypeItemModel());
+  tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::FlexTypeContextSwitch), FIM_FLEXTYPE_SWITCH);
+  tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::FlexTypeContextNoSwitch), FIM_FLEXTYPE_NOSWITCH);
+
+  id = editorItemModels->registerItemModel(Boards::switchTypeItemModel());
+  tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContextNone), FIM_SWITCHTYPENONE);
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContext2Pos), FIM_SWITCHTYPE2POS);
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContext3Pos), FIM_SWITCHTYPE3POS);
 
@@ -110,13 +129,15 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   id = editorItemModels->registerItemModel(ModuleData::internalModuleItemModel());
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id)), FIM_INTERNALMODULES);
 
+  editorItemModels->addItemModel(AbstractItemModel::IMID_FlexSwitches);
+
   grid = new QGridLayout(this);
   int count;
 
-  addSection(tr("Sticks"));
+  addSection(tr("Axis"));
 
   count = Boards::getCapability(board, Board::Sticks);
-  if (count) {
+  if (count > 0) {
     for (int i = 0; i < count; i++) {
       addStick(i);
     }
@@ -131,28 +152,33 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  count = Boards::getCapability(board, Board::Pots);
-  count -= firmware->getCapability(HasFlySkyGimbals) ? 2 : 0;
+  count = Boards::getCapability(board, Board::Inputs);
+
   if (count > 0) {
     addSection(tr("Pots"));
-    for (int i = 0; i < count; i++) {
-      addPot(i);
-    }
-  }
-
-  count = Boards::getCapability(board, Board::Sliders);
-  if (count) {
-    addSection(tr("Sliders"));
-    for (int i = 0; i < count; i++) {
-      addSlider(i);
+    for (int i = Boards::getCapability(board, Board::Sticks); i < count; i++) {
+      if (Boards::isInputConfigurable(i, board))
+        addFlex(i);
     }
   }
 
   count = Boards::getCapability(board, Board::Switches);
+
   if (count) {
+    // All values except -1 (None) are mutually exclusive
+    exclFlexSwitchesGroup = new ExclusiveComboGroup(
+        this, [=](const QVariant &value) { return value == -1; });
+
     addSection(tr("Switches"));
-    for (int i = 0; i < count; i++) {
-      addSwitch(i);
+    for (int i = 0; i < count && i < CPN_MAX_SWITCHES; i++) {
+      if (Boards::isSwitchConfigurable(i, board))
+        addSwitch(i);
+    }
+
+    // if multiple combo boxes force update to lists
+    if (exclFlexSwitchesGroup->getComboBoxes()->count() > 1) {
+      QComboBox *cb = exclFlexSwitchesGroup->getComboBoxes()->at(0);
+      exclFlexSwitchesGroup->handleActivated(cb, cb->currentIndex());
     }
   }
 
@@ -383,61 +409,108 @@ void HardwarePanel::on_internalModuleChanged()
 
 void HardwarePanel::addStick(int index)
 {
-  addLabel(Boards::getAnalogInputName(board, index));
+  GeneralSettings::InputConfig &config = generalSettings.inputConfig[index];
+
+  addLabel(Boards::getInputName(index, board));
 
   AutoLineEdit *name = new AutoLineEdit(this);
-  name->setField(generalSettings.stickName[index], HARDWARE_NAME_LEN, this);
+  name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
   addParams();
 }
 
-void HardwarePanel::addPot(int index)
+void HardwarePanel::addFlex(int index)
 {
-  addLabel(Boards::getAnalogInputName(board, Boards::getCapability(board, Board::Sticks) + index));
+  GeneralSettings::InputConfig &config = generalSettings.inputConfig[index];
+
+  addLabel(Boards::getInputName(index, board));
 
   AutoLineEdit *name = new AutoLineEdit(this);
-  name->setField(generalSettings.potName[index], HARDWARE_NAME_LEN, this);
+  name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
 
   AutoComboBox *type = new AutoComboBox(this);
-  type->setModel(editorItemModels->getItemModel(AIM_BOARDS_POT_TYPE));
-  type->setField(generalSettings.potConfig[index], this);
+  setFlexTypeModel(type, index);
+  int & flexType = (int &)config.flexType;
+  type->setField(flexType, this);
+
+  connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
+          AbstractItemModel *mdl = editorItemModels->getItemModel(AbstractItemModel::IMID_FlexSwitches);
+          if (mdl)
+            mdl->update(AbstractItemModel::IMUE_FunctionSwitches);
+          emit InputFlexTypeChanged();
+  });
+
+  connect(this, &HardwarePanel::InputFlexTypeChanged, [=]() { setFlexTypeModel(type, index); });
+
   params->append(type);
+
+  AutoCheckBox *inverted = new AutoCheckBox(this);
+  inverted->setField(config.inverted, this);
+  params->append(inverted);
 
   addParams();
 }
 
-void HardwarePanel::addSlider(int index)
+void HardwarePanel::setFlexTypeModel(AutoComboBox * cb, int index)
 {
-  addLabel(Boards::getAnalogInputName(board, Boards::getCapability(board, Board::Sticks) +
-                                             Boards::getCapability(board, Board::Pots) + index));
-
-  AutoLineEdit *name = new AutoLineEdit(this);
-  name->setField(generalSettings.sliderName[index], HARDWARE_NAME_LEN, this);
-  params->append(name);
-
-  AutoComboBox *type = new AutoComboBox(this);
-  type->setModel(editorItemModels->getItemModel(AIM_BOARDS_SLIDER_TYPE));
-  type->setField(generalSettings.sliderConfig[index], this);
-  params->append(type);
-
-  addParams();
+  cb->setModel((generalSettings.inputConfig[index].flexType == Board::FLEX_SWITCH || generalSettings.unassignedInputFlexSwitches()) ?
+                 tabFilteredModels->getItemModel(FIM_FLEXTYPE_SWITCH) :
+                 tabFilteredModels->getItemModel(FIM_FLEXTYPE_NOSWITCH));
 }
 
 void HardwarePanel::addSwitch(int index)
 {
-  addLabel(Boards::getSwitchInfo(board, index).name);
+  GeneralSettings::SwitchConfig &config = generalSettings.switchConfig[index];
+  Board::SwitchInfo info = Boards::getSwitchInfo(index);
+
+  addLabel(Boards::getSwitchName(index));
 
   AutoLineEdit *name = new AutoLineEdit(this);
-  name->setField(generalSettings.switchName[index], HARDWARE_NAME_LEN, this);
+  name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
 
+  AutoComboBox *input = nullptr;
+
+  if (generalSettings.isSwitchFlex(index)) {
+    int id = tabFilteredModels->registerItemModel(
+               new FilteredItemModel(editorItemModels->getItemModel(AbstractItemModel::IMID_FlexSwitches)),
+                                                  QString("%1 %2").arg(FIM_FLEXSWITCHES).arg(index));
+    input = new AutoComboBox(this);
+    input->setModel(tabFilteredModels->getItemModel(id));
+    input->setField(config.inputIdx, this);
+    exclFlexSwitchesGroup->addCombo(input);
+    params->append(input);
+  }
+
   AutoComboBox *type = new AutoComboBox(this);
-  Board::SwitchInfo switchInfo = Boards::getSwitchInfo(board, index);
-  type->setModel(switchInfo.config < Board::SWITCH_3POS ? tabFilteredModels->getItemModel(FIM_SWITCHTYPE2POS) :
-                                                          tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
-  type->setField(generalSettings.switchConfig[index], this);
+  type->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+
+  if (generalSettings.isSwitchFlex(index))
+    if (config.type == Board::SWITCH_NOT_AVAILABLE)
+      type->setModel(tabFilteredModels->getItemModel(FIM_SWITCHTYPENONE));
+    else
+      type->setModel(tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
+  else if (info.type < Board::SWITCH_3POS)
+    type->setModel(tabFilteredModels->getItemModel(FIM_SWITCHTYPE2POS));
+  else
+    type->setModel(tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
+
+  int & swtype = (int &)config.type;
+  type->setField(swtype, this);
   params->append(type);
+
+  if (generalSettings.isSwitchFlex(index)) {
+    connect(input, &AutoComboBox::currentDataChanged, [=] (int val) {
+            if (val < 0) {
+              generalSettings.switchConfig[index].type = Board::SWITCH_NOT_AVAILABLE;
+              type->setModel(tabFilteredModels->getItemModel(FIM_SWITCHTYPENONE));
+              type->updateValue();
+            }
+            else
+              type->setModel(tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
+    });
+  }
 
   addParams();
 }

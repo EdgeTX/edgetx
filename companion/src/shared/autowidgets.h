@@ -30,3 +30,5 @@
 #include "autoslider.h"
 #include "autospinbox.h"
 #include "autotimeedit.h"
+#include "autobitmappedcheckbox.h"
+#include "autobitmappedcombobox.h"

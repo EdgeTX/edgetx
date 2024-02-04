@@ -110,7 +110,7 @@ class SimulatorWidget : public QWidget
     void onSimulatorHeartbeat(qint32 loops, qint64 timestamp);
     void onPhaseChanged(qint32 phase, const QString & name);
     void onSimulatorError(const QString & error);
-    void onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, const int index, int value);
+    void onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, int index, int value);
     void onjoystickAxisValueChanged(int axis, int value);
     void onjoystickButtonValueChanged(int button, bool state);
 

@@ -34,7 +34,7 @@ class RadioDataConversionState;
 enum RawSwitchType {
   SWITCH_TYPE_NONE,
   SWITCH_TYPE_SWITCH,
-  SWITCH_TYPE_FUNCTIONSWITCH,
+  SWITCH_TYPE_FUNCTIONSWITCH, // depreciated kept to preserve following enums
   SWITCH_TYPE_VIRTUAL,
   SWITCH_TYPE_MULTIPOS_POT,
   SWITCH_TYPE_TRIM,
@@ -86,11 +86,10 @@ class RawSwitch {
     }
 
     RawSwitch convert(RadioDataConversionState & cstate);
-    QString toString(Board::Type board = Board::BOARD_UNKNOWN, const GeneralSettings * const generalSettings = NULL, const ModelData * const modelData = NULL) const;
-    bool isAvailable(const ModelData * const model = NULL, const GeneralSettings * const gs = NULL, Board::Type board = Board::BOARD_UNKNOWN) const;
+    QString toString(Board::Type board = Board::BOARD_UNKNOWN, const GeneralSettings * const generalSettings = nullptr, const ModelData * const modelData = nullptr, bool prefixCustomName = true) const;
+    bool isAvailable(const ModelData * const model = nullptr, const GeneralSettings * const gs = nullptr, Board::Type board = Board::BOARD_UNKNOWN) const;
     bool isSet() const { return type != SWITCH_TYPE_NONE || index != 0; }
     void clear() { type = SWITCH_TYPE_NONE; index = 0; }
-    QStringList getSwitchList(Boards board) const;
     static StringTagMappingTable getRawSwitchTypesLookupTable();
 
     bool operator== ( const RawSwitch& other) const {

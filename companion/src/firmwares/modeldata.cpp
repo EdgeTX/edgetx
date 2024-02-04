@@ -387,25 +387,28 @@ int ModelData::getChannelsMax(bool forceExtendedLimits) const
 }
 
 bool ModelData::isFunctionSwitchPositionAvailable(int index) const
- {
-   if (index == 0)
-     return true;
+{
+  if (index == 0)
+    return true;
 
-   div_t qr = div(abs(index) - 1, 3);
-   int fs = getFuncSwitchConfig(qr.quot);
+  div_t qr = div(abs(index) - 1, 3);
+  int fs = getFuncSwitchConfig(qr.quot);
 
-   if (qr.rem == 1) {
-     return false;
-   }
-   else {
-     return fs != Board::SWITCH_NOT_AVAILABLE;
-   }
- }
+  if (qr.rem == 1) {
+    return false;
+  }
+  else {
+    return fs != Board::SWITCH_NOT_AVAILABLE;
+  }
+}
 
- bool ModelData::isFunctionSwitchSourceAllowed(int index) const
- {
-   return (int)getFuncSwitchConfig(index) != Board::SWITCH_NOT_AVAILABLE;
- }
+bool ModelData::isFunctionSwitchSourceAllowed(int index) const
+{
+  if (index >= 0 && index < Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches))
+    return (int)getFuncSwitchConfig(index) != Board::SWITCH_NOT_AVAILABLE;
+
+  return false;
+}
 
 
 bool ModelData::isAvailable(const RawSwitch & swtch) const
@@ -420,9 +423,6 @@ bool ModelData::isAvailable(const RawSwitch & swtch) const
   }
   else if (swtch.type == SWITCH_TYPE_SENSOR) {
     return strlen(sensorData[index].label) > 0;
-  }
-  else if (swtch.type == SWITCH_TYPE_FUNCTIONSWITCH) {
-     return isFunctionSwitchPositionAvailable(index + 1);
   }
   else {
     return true;
@@ -1500,15 +1500,14 @@ QString ModelData::thrTraceSrcToString() const
 
 QString ModelData::thrTraceSrcToString(const int index) const
 {
-  Firmware * firmware = getCurrentFirmware();
-  const Boards board = Boards(getCurrentBoard());
-  const int pscnt = board.getCapability(Board::Pots) + board.getCapability(Board::Sliders);
+  const Board::Type board = getCurrentBoard();
+  const int pscnt = Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders);
 
   if (index == 0)
     return tr("THR");
   else if (index <= pscnt)
-    return board.getAnalogInputName(index + board.getCapability(Board::Sticks) - 1);
-  else if (index <= pscnt + firmware->getCapability(Outputs))
+    return Boards::getInputName(index + Boards::getCapability(board, Board::Sticks) - 1, board);
+  else if (index <= pscnt + getCurrentFirmware()->getCapability(Outputs))
     return RawSource(SOURCE_TYPE_CH, index - pscnt - 1).toString(this);
 
   return QString(CPN_STR_UNKNOWN_ITEM);
@@ -1516,18 +1515,18 @@ QString ModelData::thrTraceSrcToString(const int index) const
 
 int ModelData::thrTraceSrcCount() const
 {
-  const Boards board = Boards(getCurrentBoard());
   Firmware * firmware = getCurrentFirmware();
+  const Board::Type board = firmware->getBoard();
 
-  return 1 + board.getCapability(Board::Pots) + board.getCapability(Board::Sliders) + firmware->getCapability(Outputs);
+  return 1 + Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders) + firmware->getCapability(Outputs);
 }
 
 bool ModelData::isThrTraceSrcAvailable(const GeneralSettings * generalSettings, const int index) const
 {
-  const Boards board = Boards(getCurrentBoard());
+  const Board::Type board = getCurrentBoard();
 
-  if (index > 0 && index <= board.getCapability(Board::Pots) + board.getCapability(Board::Sliders))
-    return RawSource(SOURCE_TYPE_STICK, index + board.getCapability(Board::Sticks) - 1).isAvailable(this, generalSettings, board.getBoardType());
+  if (index > 0 && index <= Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders))
+    return RawSource(SOURCE_TYPE_STICK, index + Boards::getCapability(board, Board::Sticks) - 1).isAvailable(this, generalSettings, board);
   else
     return true;
 }
@@ -1705,7 +1704,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
  unsigned int ModelData::getFuncSwitchConfig(unsigned int index) const
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES)
+   if (index < CPN_MAX_SWITCHES_FUNCTION)
      return Helpers::getBitmappedValue(functionSwitchConfig, index, 2);
    else
      return FUNC_SWITCH_CONFIG_NONE;
@@ -1713,7 +1712,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
  void ModelData::setFuncSwitchConfig(unsigned int index, unsigned int value)
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES)
+   if (index < CPN_MAX_SWITCHES_FUNCTION)
      Helpers::setBitmappedValue(functionSwitchConfig, value, index, 2);
  }
 
@@ -1748,7 +1747,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
  unsigned int ModelData::getFuncSwitchGroup(unsigned int index) const
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES)
+   if (index < CPN_MAX_SWITCHES_FUNCTION)
      return Helpers::getBitmappedValue(functionSwitchGroup, index, 2);
    else
      return 0;
@@ -1756,13 +1755,13 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
  void ModelData::setFuncSwitchGroup(unsigned int index, unsigned int value)
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES)
+   if (index < CPN_MAX_SWITCHES_FUNCTION)
      Helpers::setBitmappedValue(functionSwitchGroup, value, index, 2);
  }
 
  unsigned int ModelData::getFuncSwitchAlwaysOnGroup(unsigned int index) const
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES) {
+   if (index < CPN_MAX_SWITCHES_FUNCTION) {
      unsigned int grp = getFuncSwitchGroup(index);
      unsigned int switchcnt = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches);
      return Helpers::getBitmappedValue(functionSwitchGroup, grp, 1, 2 * switchcnt);
@@ -1773,7 +1772,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
  void ModelData::setFuncSwitchAlwaysOnGroup(unsigned int index, unsigned int value)
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES) {
+   if (index < CPN_MAX_SWITCHES_FUNCTION) {
      unsigned int grp = getFuncSwitchGroup(index);
      unsigned int switchcnt = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches);
      Helpers::setBitmappedValue(functionSwitchGroup, value, grp, 1, 2 * switchcnt);
@@ -1782,7 +1781,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
  unsigned int ModelData::getFuncSwitchStart(unsigned int index) const
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES)
+   if (index < CPN_MAX_SWITCHES_FUNCTION)
      return Helpers::getBitmappedValue(functionSwitchStartConfig, index, 2);
    else
      return FUNC_SWITCH_START_INACTIVE;
@@ -1790,7 +1789,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 
  void ModelData::setFuncSwitchStart(unsigned int index, unsigned int value)
  {
-   if (index < CPN_MAX_FUNCTION_SWITCHES)
+   if (index < CPN_MAX_SWITCHES_FUNCTION)
      Helpers::setBitmappedValue(functionSwitchStartConfig, value, index, 2);
  }
 

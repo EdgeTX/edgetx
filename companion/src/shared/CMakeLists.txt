@@ -2,6 +2,8 @@
 project(shared)
 
 set(${PROJECT_NAME}_NAMES
+  autobitmappedcheckbox
+  autobitmappedcombobox
   autobitsetcheckbox
   autocheckbox
   autocombobox

@@ -103,6 +103,7 @@ constexpr int TTS_LANGUAGE_LEN        {2};
 constexpr int HARDWARE_NAME_LEN       {3};
 constexpr int REGISTRATION_ID_LEN     {8};
 constexpr int SELECTED_THEME_NAME_LEN {26};
+constexpr int SWITCH_INPUTINDEX_NONE  {-1};
 
 class GeneralSettings {
   Q_DECLARE_TR_FUNCTIONS(GeneralSettings)
@@ -200,9 +201,6 @@ class GeneralSettings {
     char semver[8 + 1];
     unsigned int version;
     unsigned int variant;
-    int calibMid[CPN_MAX_ANALOGS];
-    int calibSpanNeg[CPN_MAX_ANALOGS];
-    int calibSpanPos[CPN_MAX_ANALOGS];
     unsigned int currModelIndex;
     char currModelFilename[CURR_MODEL_FILENAME_LEN + 1];
     unsigned int contrast;
@@ -287,13 +285,6 @@ class GeneralSettings {
     unsigned int backlightColor;
     bool modelQuickSelect;
     CustomFunctionData customFn[CPN_MAX_SPECIAL_FUNCTIONS];
-    char switchName[CPN_MAX_SWITCHES][HARDWARE_NAME_LEN + 1];
-    unsigned int switchConfig[CPN_MAX_SWITCHES];
-    char stickName[CPN_MAX_STICKS][HARDWARE_NAME_LEN + 1];
-    char potName[CPN_MAX_POTS][HARDWARE_NAME_LEN + 1];
-    unsigned int potConfig[CPN_MAX_POTS];
-    char sliderName[CPN_MAX_SLIDERS][HARDWARE_NAME_LEN + 1];
-    unsigned int sliderConfig[CPN_MAX_SLIDERS];
 
     char registrationId[REGISTRATION_ID_LEN + 1];
     int gyroMax;
@@ -319,11 +310,74 @@ class GeneralSettings {
     bool modelCustomScriptsDisabled;
     bool modelTelemetryDisabled;
 
-    bool switchPositionAllowedTaranis(int index) const;
-    bool switchSourceAllowedTaranis(int index) const;
+    // v 2.10 ADC refactor
+    // earlier version data is read into legacy structs to maintain older version compatibility
+    // post reading the legacy structs are manipulated into the new structs
+    // An opportunity was taken group related structs
+    // Companion gui only references the new structs
+
+    // pre v2.10 legacy
+    // TODO remove when importing and conversion no longer neceesary
+    int calibMid[CPN_MAX_ANALOGS];
+    int calibSpanNeg[CPN_MAX_ANALOGS];
+    int calibSpanPos[CPN_MAX_ANALOGS];
+    char swtchName[CPN_MAX_SWITCHES][HARDWARE_NAME_LEN + 1];
+    unsigned int swtchConfig[CPN_MAX_SWITCHES];
+    char stickName[CPN_MAX_STICKS][HARDWARE_NAME_LEN + 1];
+    char potName[CPN_MAX_POTS][HARDWARE_NAME_LEN + 1];
+    unsigned int potConfig[CPN_MAX_POTS];
+    char sliderName[CPN_MAX_SLIDERS][HARDWARE_NAME_LEN + 1];
+    unsigned int sliderConfig[CPN_MAX_SLIDERS];
+
+    // ===================================================================================
+    // IMPORTANT: starting v2.10 this function MUST be called after importing non-yaml formats
+    //            yaml conversion is performed on the fly
+    bool convertLegacyConfiguration(Board::Type board);
+    // ===================================================================================
+
+    // default values are retrieved from the radio json file
+
+    struct InputCalib {
+      int mid;
+      int spanNeg;
+      int spanPos;
+    };
+
+    struct InputConfig {
+      Board::AnalogInputType type;
+      char name[HARDWARE_NAME_LEN + 1];
+      Board::FlexType flexType;
+      bool inverted;
+      InputCalib calib;
+    };
+
+    InputConfig inputConfig[CPN_MAX_INPUTS];
+
+    struct SwitchConfig {
+      char name[HARDWARE_NAME_LEN + 1];
+      Board::SwitchType type;
+      bool inverted;
+      int inputIdx;  //  used if switch tag = FLn, value -1 = none selected
+    };
+
+    SwitchConfig switchConfig[CPN_MAX_SWITCHES];
+
+    bool switchPositionAllowed(int index) const;
+    bool switchSourceAllowed(int index) const;
+
+    bool isInputAvailable(int index) const;
+    bool isInputMultiPosPot(int index) const;
+    bool isInputPot(int index) const;
+    bool isInputSlider(int index) const;
+    bool isInputStick(int index) const;
+    bool isInputFlexSwitchAvailable(int index) const;
     bool isPotAvailable(int index) const;
     bool isSliderAvailable(int index) const;
+    bool isSwitchAvailable(int index) const;
+    bool isSwitchFlex(int index) const;
     bool isMultiPosPot(int index) const;
+    bool unassignedInputFlexSwitches() const;
+
     QString antennaModeToString() const;
     QString bluetoothModeToString() const;
     QString serialPortModeToString(int port_nr) const;
@@ -347,4 +401,6 @@ class GeneralSettings {
     static AbstractStaticItemModel * stickDeadZoneItemModel();
     static AbstractStaticItemModel * uartSampleModeItemModel();
     static AbstractStaticItemModel * hatsModeItemModel(bool radio_setup = true);
+
+    void validateFlexSwitches();
 };

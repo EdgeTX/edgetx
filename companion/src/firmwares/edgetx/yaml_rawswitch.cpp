@@ -20,9 +20,12 @@
 
 #include "yaml_rawswitch.h"
 #include "eeprominterface.h"
+#include "boardjson.h"
 
 std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 {
+  Board::Type board = getCurrentBoard();
+  Boards b = Boards(board);
   std::string sw_str;
   int32_t sval = rhs.index;
   if (rhs.index < 0) {
@@ -30,11 +33,11 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     sw_str += "!";
   }
 
-  int multiposcnt = Boards::getCapability(getCurrentBoard(), Board::MultiposPotsPositions);
+  int multiposcnt = Boards::getCapability(board, Board::MultiposPotsPositions);
 
   switch (rhs.type) {
   case SWITCH_TYPE_SWITCH:
-    sw_str += getCurrentFirmware()->getSwitchesTag((sval - 1) / 3);
+    sw_str += Boards::getSwitchYamlName((sval - 1) / 3, BoardJson::YLT_REF).toStdString();
     sw_str += std::to_string((sval - 1) % 3);
     break;
 
@@ -43,22 +46,14 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     sw_str += std::to_string(sval);
     break;
 
-  case SWITCH_TYPE_FUNCTIONSWITCH:
-    if (Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
-      sw_str += "SW";
-      sw_str += std::to_string(1 + ((sval - 1) / 3));
-      sw_str += std::to_string((sval - 1) % 3);
-    }
-    break;
-
   case SWITCH_TYPE_MULTIPOS_POT:
     sw_str += "6P";
-    sw_str += std::to_string((sval - 1) / multiposcnt);
+    sw_str += std::to_string((sval - 1) / multiposcnt - Boards::getCapability(board, Board::Sticks));
     sw_str += std::to_string((sval - 1) % multiposcnt);
     break;
 
   case SWITCH_TYPE_TRIM:
-    sw_str += getCurrentFirmware()->getTrimSwitchesTag(sval - 1);
+    sw_str += b.getTrimSwitchTag(sval - 1);
     break;
 
   case SWITCH_TYPE_FLIGHT_MODE:
@@ -72,7 +67,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     break;
 
   default:
-    sw_str += getCurrentFirmware()->getRawSwitchTypesTag(rhs.type);
+    sw_str += b.getRawSwitchTypeTag(rhs.type);
     break;
   }
   return sw_str;
@@ -80,6 +75,8 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 
 RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 {
+  Board::Type board = getCurrentBoard();
+  Boards b = Boards(board);
   RawSwitch rhs;  // constructor sets to SWITCH_TYPE_NONE
   const char* val = sw_str.data();
   size_t val_len = sw_str.size();
@@ -99,7 +96,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
     sw_str_tmp = sw_str_tmp.substr(1);
   }
 
-  int multiposcnt = Boards::getCapability(getCurrentBoard(), Board::MultiposPotsPositions);
+  const int multiposcnt = Boards::getCapability(board, Board::MultiposPotsPositions);
 
   //  TODO: validate all expected numeric chars are numeric not just first
 
@@ -110,12 +107,33 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
       rhs = RawSwitch(SWITCH_TYPE_VIRTUAL, sw_idx);
     }
 
+  //  format 6Piip where ii = input index - number sticks and p = pos index 0-5
   } else if (val_len > 3 && val[0] == '6' && val[1] == 'P' &&
              (val[2] >= '0' && val[2] <= '9') &&
-             (val[3] >= '0' && val[3] < (multiposcnt + '0'))) {
+             (val[val_len - 1] >= '0' && val[val_len - 1] < (multiposcnt + '0'))) {
 
-    rhs = RawSwitch(SWITCH_TYPE_MULTIPOS_POT,
-                    (val[2] - '0') * multiposcnt + (val[3] - '0') + 1);
+    RawSwitchType mp_type = SWITCH_TYPE_MULTIPOS_POT;
+    int mp_index = 0;
+    int mp_input_index = 0;
+
+    try {
+      mp_input_index = std::stoi(sw_str_tmp.substr(2, val_len - 3));
+
+      if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
+        if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
+          if (mp_input_index > 2)
+            mp_input_index += 2;
+        }
+      }
+
+      mp_index = (mp_input_index + Boards::getCapability(board, Board::Sticks)) * multiposcnt + (val[val_len - 1] - '0') + 1;
+
+    } catch(...) {
+      mp_type = SWITCH_TYPE_NONE;
+      mp_index = 0;
+    }
+
+    rhs = RawSwitch(mp_type, mp_index);
 
   } else if (val_len == 3 && val[0] == 'F' && val[1] == 'M' &&
              (val[2] >= '0' && val[2] <= '9')) {
@@ -133,41 +151,29 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 
   } else if (sw_str_tmp.substr(0, 4) == std::string("Trim")) {
 
-    int tsw_idx = getCurrentFirmware()->getTrimSwitchesIndex(sw_str_tmp.c_str());
+    int tsw_idx = b.getTrimSwitchIndex(sw_str_tmp.c_str());
     if (tsw_idx >= 0) {
       rhs.type = SWITCH_TYPE_TRIM;
       rhs.index = tsw_idx + 1;
     }
-  } else if (val_len >= 3 && val[0] == 'S' && val[1] == 'W' &&
-             (val[2] >= '1' && val[2] <= '6') &&
-             (val[3] >= '0' && val[3] <= '2') &&
-             Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
-    // Customisable switches
-    int idx = val[2] - '1';
-    idx = idx * 3 + (val[3] - '0' + 1);
-    rhs = RawSwitch(SWITCH_TYPE_FUNCTIONSWITCH, idx);
-  } else if (val_len >= 3 && val[0] == 'S' &&
-             (val[1] >= 'A' && val[1] <= 'Z') &&
-             (val[2] >= '0' && val[2] <= '2')) {
 
-    int sw_idx = getCurrentFirmware()->getSwitchesIndex(sw_str_tmp.substr(0, 2).c_str());
+  } else if ((val_len >= 4 && (
+              (val[0] == 'F' && val[1] == 'L') ||
+              (val[0] == 'S' && val[1] == 'W')) &&
+              val[2] >= '1' && val[2] <= '9' &&
+              val[val_len - 1] >= '0' && val[val_len - 1] <= '2') ||
+             (val_len >= 3 && val[0] == 'S' &&
+              val[1] >= 'A' && val[1] <= 'Z' &&
+              val[2] >= '0' && val[2] <= '2')) {
+
+    int sw_idx = Boards::getSwitchYamlIndex(sw_str_tmp.substr(0, val_len - 1).c_str(), BoardJson::YLT_REF);
     if (sw_idx >= 0) {
       rhs.type = SWITCH_TYPE_SWITCH;
-      rhs.index = sw_idx * 3 + (val[2] - '0' + 1);
-
-    } else if (IS_JUMPER_TPRO(getCurrentBoard())) {
-      int numSw = Boards::getCapability(getCurrentBoard(), Board::Switches);
-      int idx = val[1] - 'A';
-      idx =  idx - numSw;
-
-      if(idx >= 0 and idx < Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
-        idx = idx * 3 + (val[2] - '0' + 1);
-        rhs = RawSwitch(SWITCH_TYPE_FUNCTIONSWITCH, idx);
-      }
+      rhs.index = sw_idx * 3 + (val[val_len - 1] - '0' + 1);
     }
 
   } else {
-    int sw_type = getCurrentFirmware()->getRawSwitchTypesIndex(sw_str_tmp.c_str());
+    int sw_type = b.getRawSwitchTypeIndex(sw_str_tmp.c_str());
     if (sw_type >= 0) {
       rhs.type = (RawSwitchType)sw_type;
       if (rhs.type == SWITCH_TYPE_TELEMETRY || rhs.type == SWITCH_TYPE_TRAINER  || rhs.type == SWITCH_TYPE_ACT || rhs.type == SWITCH_TYPE_ONE)

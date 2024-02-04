@@ -82,8 +82,8 @@ void joystickDialog::loadGrid()
   }
 
   memset(sliders, 0, sizeof(sliders));
-  memset(sticks, 0, sizeof(sliders));
-  memset(invert, 0, sizeof(sliders));
+  memset(sticks, 0, sizeof(sticks));
+  memset(invert, 0, sizeof(invert));
 
   int row = 0;
   int col = 0;
@@ -151,29 +151,19 @@ void joystickDialog::populateSourceCombo(QComboBox * cb)
   Board::Type m_board = getCurrentBoard();
   GeneralSettings radioSettings = GeneralSettings();
 
-  int ttlSticks = Boards::getCapability(m_board, Board::Sticks);
-  int ttlKnobs = Boards::getCapability(m_board, Board::Pots);
-  int ttlFaders = Boards::getCapability(m_board, Board::Sliders);
+  int ttlInputs = Boards::getCapability(m_board, Board::Inputs);
 
   cb->clear();
   cb->addItem(tr("Not Assigned"), -1);
 
-  for (i=0; i < ttlSticks; ++i) {
-    wname = Boards::getAxisName(i);
-    cb->addItem(wname, i);
-  }
-
-  for (i = 0; i < ttlKnobs; ++i) {
-    if (radioSettings.isPotAvailable(i)) {
-      wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, ttlSticks + i).toString(nullptr, &radioSettings);
-      cb->addItem(wname, i + ttlSticks);
-    }
-  }
-
-  for (i = 0; i < ttlFaders; ++i) {
-    if (radioSettings.isSliderAvailable(i)) {
-      wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, ttlSticks + ttlKnobs + i).toString(nullptr, &radioSettings);
-      cb->addItem(wname, i + ttlSticks + ttlKnobs);
+  for (i = 0; i < ttlInputs; ++i) {
+    if (radioSettings.isInputAvailable(i) &&
+        (radioSettings.isInputStick(i) || radioSettings.isInputPot(i) || radioSettings.isInputSlider(i))) {
+      if (radioSettings.isInputStick(i))
+        wname = Boards::getAxisName(i);
+      else
+        wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, i).toString(nullptr, &radioSettings);
+      cb->addItem(wname, i);
     }
   }
 }
@@ -192,12 +182,12 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
   cb->clear();
   cb->addItem(tr("Not Assigned"), -1);
 
-  Board::SwitchType swcfg;
+  Board::SwitchType swtype;
   for (i = 0; i < ttlSwitches; ++i) {
-    if (radioSettings.switchConfig[i] != Board::SWITCH_NOT_AVAILABLE) {
-      swcfg = Board::SwitchType(radioSettings.switchConfig[i]);
+    if (radioSettings.switchConfig[i].type != Board::SWITCH_NOT_AVAILABLE) {
+      swtype = Board::SwitchType(radioSettings.switchConfig[i].type);
       wname = RawSource(RawSourceType::SOURCE_TYPE_SWITCH, i).toString(nullptr, &radioSettings);
-      if (swcfg == Board::SWITCH_3POS) {
+      if (swtype == Board::SWITCH_3POS) {
         cb->addItem(wname + CPN_STR_SW_INDICATOR_UP, i | JS_BUTTON_3POS_UP);
         cb->addItem(wname + CPN_STR_SW_INDICATOR_DN, i | JS_BUTTON_3POS_DN);
       } else {

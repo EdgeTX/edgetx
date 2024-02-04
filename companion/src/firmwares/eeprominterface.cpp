@@ -21,6 +21,7 @@
 #include "eeprominterface.h"
 #include "firmwares/opentx/opentxeeprom.h"
 #include "firmwareinterface.h"
+#include "boardfactories.h"
 
 #include <QtCore>
 #include <QMessageBox>
@@ -118,6 +119,21 @@ QString EEPROMInterface::getEepromWarnings(unsigned long errorsFound)
 /*
  * Firmware
  */
+
+Firmware::Firmware(Firmware * base, const QString & id, const QString & name, Board::Type board,
+                  const QString & downloadId, const QString & simulatorId, const QString & hwdefnId) :
+  id(id),
+  name(name),
+  board(board),
+  variantBase(0),
+  base(base),
+  eepromInterface(nullptr),
+  downloadId(downloadId),
+  simulatorId(simulatorId),
+  hwdefnId(hwdefnId)
+{
+  gBoardFactories->registerBoard(board, hwdefnId);
+}
 
 // static
 QVector<Firmware *> Firmware::registeredFirmwares;

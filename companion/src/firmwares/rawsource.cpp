@@ -126,7 +126,7 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
   return result;
 }
 
-QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings, Board::Type board) const
+QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings, Board::Type board, bool prefixCustomName) const
 {
   if (board == Board::BOARD_UNKNOWN) {
     board = getCurrentBoard();
@@ -146,12 +146,14 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
 
   static const QString rotary[]  = { tr("REa"), tr("REb") };
 
-  if (index<0) {
+  if (index < 0) {
     return QString(CPN_STR_UNKNOWN_ITEM);
   }
 
   QString result;
-  int genAryIdx = 0;
+  QString dfltName;
+  QString custName;
+
   switch (type) {
     case SOURCE_TYPE_NONE:
       return QString(CPN_STR_NONE_ITEM);
@@ -168,17 +170,10 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return tr("LUA%1%2").arg(index / 16 + 1).arg(QChar('a' + index % 16));
 
     case SOURCE_TYPE_STICK:
-      if (generalSettings) {
-        if (isPot(&genAryIdx))
-          result = QString(generalSettings->potName[genAryIdx]);
-        else if (isSlider(&genAryIdx))
-          result = QString(generalSettings->sliderName[genAryIdx]);
-        else if (isStick(&genAryIdx))
-          result = QString(generalSettings->stickName[genAryIdx]);
-      }
-      if (result.trimmed().isEmpty())
-        result = Boards::getAnalogInputName(board, index);
-      return result;
+      dfltName = Boards::getInputName(index, board);
+      if (generalSettings)
+        custName = QString(generalSettings->inputConfig[index].name).trimmed();
+      return DataHelpers::getCompositeName(dfltName, custName, prefixCustomName);
 
     case SOURCE_TYPE_TRIM:
       return (Boards::getCapability(board, Board::NumTrims) == 2 ? CHECK_IN_ARRAY(trims2, index) : CHECK_IN_ARRAY(trims, index));
@@ -193,18 +188,20 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return tr("MAX");
 
     case SOURCE_TYPE_SWITCH:
-      if (generalSettings)
-        result = QString(generalSettings->switchName[index]).trimmed();
-      if (result.isEmpty())
-        result = Boards::getSwitchInfo(board, index).name;
-      return result;
+      dfltName = Boards::getSwitchInfo(index, board).name.c_str();
+      if (Boards::isSwitchFunc(index, board)) {
+        if (model) {
+          int fsindex = Boards::getSwitchTagNum(index, board) - 1;
+          custName = QString(model->functionSwitchNames[fsindex]).trimmed();
+        }
+      }
+      else {
+        if (generalSettings) {
+          custName = QString(generalSettings->switchConfig[index].name).trimmed();
+        }
+      }
 
-    case SOURCE_TYPE_FUNCTIONSWITCH:
-      if (model)
-        result = QString(model->functionSwitchNames[index]).trimmed();
-      if (result.isEmpty())
-        result = tr("SW%1").arg(index + 1);
-      return result;
+      return DataHelpers::getCompositeName(dfltName, custName, prefixCustomName);
 
     case SOURCE_TYPE_CUSTOM_SWITCH:
       return RawSwitch(SWITCH_TYPE_VIRTUAL, index + 1).toString();
@@ -217,15 +214,16 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
 
     case SOURCE_TYPE_CH:
       if (model)
-        return model->limitData[index].nameToString(index);
-      else
+        result = QString(model->limitData[index].nameToString(index)).trimmed();
+      if (result.isEmpty())
         return LimitData().nameToString(index);
+      return result;
 
     case SOURCE_TYPE_SPECIAL:
       if (index >= SOURCE_TYPE_SPECIAL_FIRST_TIMER && index <= SOURCE_TYPE_SPECIAL_LAST_TIMER) {
         if (model)
-          result = model->timers[index - SOURCE_TYPE_SPECIAL_FIRST_TIMER].nameToString(index - SOURCE_TYPE_SPECIAL_FIRST_TIMER);
-        else
+          result = QString(model->timers[index - SOURCE_TYPE_SPECIAL_FIRST_TIMER].nameToString(index - SOURCE_TYPE_SPECIAL_FIRST_TIMER)).trimmed();
+        if (result.isEmpty())
           result = TimerData().nameToString(index - SOURCE_TYPE_SPECIAL_FIRST_TIMER);
       }
       else
@@ -237,8 +235,8 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       {
         div_t qr = div(index, 3);
         if (model)
-          result = model->sensorData[qr.quot].nameToString(qr.quot);
-        else
+          result = QString(model->sensorData[qr.quot].nameToString(qr.quot)).trimmed();
+        if (result.isEmpty())
           result = SensorData().nameToString(qr.quot);
         if (qr.rem)
           result += (qr.rem == 1 ? "-" : "+");
@@ -247,9 +245,10 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
 
     case SOURCE_TYPE_GVAR:
       if (model)
-        return model->gvarData[index].nameToString(index);
-      else
-        return GVarData().nameToString(index);
+        result = QString(model->gvarData[index].nameToString(index)).trimmed();
+      if (result.isEmpty())
+        result = GVarData().nameToString(index);
+      return result;
 
     case SOURCE_TYPE_SPACEMOUSE:
       return tr("sm%1").arg(QChar('A' + index));
@@ -259,46 +258,12 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   }
 }
 
-bool RawSource::isStick(int * stickIndex, Board::Type board) const
+bool RawSource::isStick(Board::Type board) const
 {
   if (board == Board::BOARD_UNKNOWN)
     board = getCurrentBoard();
 
   if (type == SOURCE_TYPE_STICK && index < Boards::getCapability(board, Board::Sticks)) {
-    if (stickIndex)
-      *stickIndex = index;
-    return true;
-  }
-  return false;
-}
-
-bool RawSource::isPot(int * potsIndex, Board::Type board) const
-{
-  if (board == Board::BOARD_UNKNOWN)
-    board = getCurrentBoard();
-
-  Boards b(board);
-  if (type == SOURCE_TYPE_STICK &&
-          index >= b.getCapability(Board::Sticks) &&
-          index < b.getCapability(Board::Sticks) + b.getCapability(Board::Pots)) {
-    if (potsIndex)
-      *potsIndex = index - b.getCapability(Board::Sticks);
-    return true;
-  }
-  return false;
-}
-
-bool RawSource::isSlider(int * sliderIndex, Board::Type board) const
-{
-  if (board == Board::BOARD_UNKNOWN)
-    board = getCurrentBoard();
-
-  Boards b(board);
-  if (type == SOURCE_TYPE_STICK &&
-          index >= b.getCapability(Board::Sticks) + b.getCapability(Board::Pots) &&
-          index < b.getCapability(Board::Sticks) + b.getCapability(Board::Pots) + b.getCapability(Board::Sliders)) {
-    if (sliderIndex)
-      *sliderIndex = index - b.getCapability(Board::Sticks) - b.getCapability(Board::Pots);
     return true;
   }
   return false;
@@ -316,15 +281,11 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
 
   Boards b(board);
 
-  if (type == SOURCE_TYPE_STICK && index >= b.getCapability(Board::MaxAnalogs))
+  if (type == SOURCE_TYPE_STICK && index >= b.getCapability(Board::Inputs))
     return false;
 
   if (type == SOURCE_TYPE_SWITCH && index >= b.getCapability(Board::Switches))
     return false;
-
-  if (type == SOURCE_TYPE_FUNCTIONSWITCH)
-    if (!model || index >= b.getCapability(Board::FunctionSwitches))
-      return false;
 
   if (type == SOURCE_TYPE_SPECIAL && index >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED && index <= SOURCE_TYPE_SPECIAL_LAST_RESERVED)
       return false;
@@ -334,7 +295,8 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
         model->timers[index - SOURCE_TYPE_SPECIAL_FIRST_TIMER].isModeOff())
       return false;
 
-    if (type == SOURCE_TYPE_FUNCTIONSWITCH && !model->isFunctionSwitchSourceAllowed(index))
+    if (type == SOURCE_TYPE_SWITCH && b.isSwitchFunc(index, board) &&
+        !model->isFunctionSwitchSourceAllowed(b.getSwitchTagNum(index, board) - 1))
       return false;
 
     if (type == SOURCE_TYPE_VIRTUAL_INPUT && !model->isInputValid(index))
@@ -357,12 +319,24 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
   }
 
   if (gs) {
-    int gsIdx = 0;
-    if (type == SOURCE_TYPE_STICK && ((isPot(&gsIdx) && !gs->isPotAvailable(gsIdx)) || (isSlider(&gsIdx) && !gs->isSliderAvailable(gsIdx))))
-      return false;
+    if (type == SOURCE_TYPE_STICK) {
+      if (!gs->isInputAvailable(index))
+        return false;
+      if (gs->inputConfig[index].flexType == Board::FLEX_SWITCH)
+        return false;
+    }
 
-    if (type == SOURCE_TYPE_SWITCH && IS_HORUS_OR_TARANIS(board) && !gs->switchSourceAllowedTaranis(index))
+    if (type == SOURCE_TYPE_SWITCH && !b.isSwitchFunc(index, board) && IS_HORUS_OR_TARANIS(board) &&
+        !gs->switchSourceAllowed(index))
       return false;
+  }
+  else {
+    if (type == SOURCE_TYPE_STICK) {
+      if (!Boards::isInputAvailable(index, board))
+        return false;
+      if (Boards::getInputInfo(index, board).flexType == Board::FLEX_SWITCH)
+        return false;
+    }
   }
 
   if (type == SOURCE_TYPE_TRIM && index >= b.getCapability(Board::NumTrims))
@@ -380,79 +354,20 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
 RawSource RawSource::convert(RadioDataConversionState & cstate)
 {
   cstate.setItemType(tr("SRC"), 1);
-  RadioDataConversionState::EventType evt = RadioDataConversionState::EVT_NONE;
   RadioDataConversionState::LogField oldData(index, toString(cstate.fromModel(), cstate.fromGS(), cstate.fromType));
 
-  if (type == SOURCE_TYPE_STICK) {
-    QStringList fromStickList(getStickList(cstate.fromBoard));
-    QStringList toStickList(getStickList(cstate.toBoard));
-    if (oldData.id < fromStickList.count())
-      index = toStickList.indexOf(fromStickList.at(oldData.id));
-    else
-      index = -1;
-    // perform forced mapping
-  }
-
-  if (type == SOURCE_TYPE_SWITCH) {
-    QStringList fromSwitchList(getSwitchList(cstate.fromBoard));
-    QStringList toSwitchList(getSwitchList(cstate.toBoard));
-    // index set to -1 if no match found
-    if (oldData.id < fromSwitchList.count())
-      index = toSwitchList.indexOf(fromSwitchList.at(oldData.id));
-    else
-      index = -1;
-    // perform forced mapping
-    if (index < 0) {
-      if (IS_TARANIS_X7(cstate.toType) && (IS_TARANIS_X9(cstate.fromType) || IS_FAMILY_HORUS_OR_T16(cstate.fromType))) {
-        // No SE and SG on X7 board
-        index = toSwitchList.indexOf("SD");
-        if (index >= 0)
-          evt = RadioDataConversionState::EVT_CVRT;
-      }
-      else if (IS_FAMILY_T12(cstate.toType) && (IS_TARANIS_X9(cstate.fromType) || IS_FAMILY_HORUS_OR_T16(cstate.fromType))) {
-        // No SE and SG on T12 board
-        index = toSwitchList.indexOf("SD");
-        if (index >= 0)
-          evt = RadioDataConversionState::EVT_CVRT;
-      }
-    }
-  }
+  if (type == SOURCE_TYPE_STICK)
+    index = Boards::getInputIndex(Boards::getInputTag(oldData.id, cstate.fromType), Board::LVT_TAG, cstate.toType);
+  else if (type == SOURCE_TYPE_SWITCH)
+    index = Boards::getSwitchIndex(Boards::getSwitchTag(oldData.id, cstate.fromType), Board::LVT_TAG, cstate.toType);
 
   // final validation (we do not pass model to isAvailable() because we don't know what has or hasn't been converted)
-  if (index < 0 || !isAvailable(NULL, cstate.toGS(), cstate.toType)) {
+  if (index < 0 || !isAvailable(nullptr, cstate.toGS(), cstate.toType)) {
     cstate.setInvalid(oldData);
-    // no source is safer than an invalid one
-    clear();
-  }
-  else if (evt == RadioDataConversionState::EVT_CVRT) {
-    cstate.setConverted(oldData, RadioDataConversionState::LogField(index, toString(cstate.toModel(), cstate.toGS(), cstate.toType)));
-  }
-  else if (oldData.id != index) {
-    // provide info by default if anything changed
-    cstate.setMoved(oldData, RadioDataConversionState::LogField(index, toString(cstate.toModel(), cstate.toGS(), cstate.toType)));
+    clear();  // no source is safer than an invalid one
   }
 
   return *this;
-}
-
-QStringList RawSource::getStickList(Boards board) const
-{
-  QStringList ret;
-
-  for (int i = 0; i < board.getCapability(Board::MaxAnalogs); i++) {
-    ret.append(board.getAnalogInputName(i));
-  }
-  return ret;
-}
-
-QStringList RawSource::getSwitchList(Boards board) const
-{
-  QStringList ret;
-
-  for (int i = 0; i < board.getCapability(Board::Switches); i++) {
-    ret.append(board.getSwitchInfo(i).name);
-  }
-  return ret;
 }
 
 // static

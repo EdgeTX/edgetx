@@ -139,6 +139,22 @@ else()
   message(STATUS "Qt lupdate not found, 'translations' target will not be availabe.")
 endif()
 
+############# Import radio hardware definitions ###############
+
+set(HWDEFS_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../radio/src")
+set(HWDEFS_TMPL "${COMPANION_SRC_DIRECTORY}/hwdefs.qrc.in")
+set(HWDEFS_PHDR "HWDEF_JSON_LIST")
+set(HWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/hwdefs.qrc")
+set(HWDEFS_CMD "${COMPANION_SRC_DIRECTORY}/../util/generate_hwdefs_qrc.py")
+
+add_custom_command(OUTPUT ${HWDEFS_QRC}
+  COMMAND ${HWDEFS_CMD} -d ${HWDEFS_DIR}
+                        -t ${HWDEFS_TMPL}
+                        -p ${HWDEFS_PHDR}
+                        -o ${HWDEFS_QRC}
+  DEPENDS ${HWDEFS_TMPL}
+  )
+
 ############# Common lib ###############
 
 set(common_SRCS
@@ -157,6 +173,7 @@ set(common_MOC_HDRS
 set(common_RESOURCES
   companion.qrc
   ${TRANSLATIONS_QRC}
+  ${HWDEFS_QRC}
   )
 
 qt5_wrap_cpp(common_SRCS ${common_MOC_HDRS})

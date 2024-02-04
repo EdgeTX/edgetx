@@ -163,8 +163,8 @@ class ModelData {
     unsigned int switchWarningEnable;
     unsigned int thrTrimSwitch;
     unsigned int potsWarningMode;
-    bool potsWarnEnabled[CPN_MAX_POTS + CPN_MAX_SLIDERS];
-    int potsWarnPosition[CPN_MAX_POTS + CPN_MAX_SLIDERS];
+    bool potsWarnEnabled[CPN_MAX_INPUTS];
+    int potsWarnPosition[CPN_MAX_INPUTS];
     bool displayChecklist;
 
     GVarData gvarData[CPN_MAX_GVARS];
@@ -230,7 +230,7 @@ class ModelData {
     unsigned int functionSwitchGroup;
     unsigned int functionSwitchStartConfig;
     unsigned int functionSwitchLogicalState;
-    char functionSwitchNames[CPN_MAX_FUNCTION_SWITCHES][HARDWARE_NAME_LEN + 1];
+    char functionSwitchNames[CPN_MAX_SWITCHES_FUNCTION][HARDWARE_NAME_LEN + 1];
 
     // Custom USB joytsick mapping
     unsigned int usbJoystickExtMode;

@@ -72,7 +72,10 @@ bool LabelsStorageFormat::loadBin(RadioData & radioData)
     return false;
   }
 
+
   board = loadInterface->getBoard();
+
+  radioData.generalSettings.convertLegacyConfiguration(board);
 
   QByteArray modelsListBuffer;
   if (!loadFile(modelsListBuffer, "RADIO/models.txt")) {

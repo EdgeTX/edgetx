@@ -575,8 +575,7 @@ void SimulatorWidget::setupRadioWidgets()
   int i, midpos;
   const int ttlSticks = Boards::getCapability(m_board, Board::Sticks);
   const int ttlSwitches = Boards::getCapability(m_board, Board::Switches);
-  const int ttlKnobs = Boards::getCapability(m_board, Board::Pots);
-  const int ttlFaders = Boards::getCapability(m_board, Board::Sliders);
+  const int ttlInputs = Boards::getCapability(m_board, Board::Inputs);
   const int extraTrims = Boards::getCapability(m_board, Board::NumTrims) - ttlSticks;
 
   // First clear out any existing widgets.
@@ -604,11 +603,11 @@ void SimulatorWidget::setupRadioWidgets()
   // switches
   Board::SwitchType swcfg;
   for (i = 0; i < ttlSwitches; ++i) {
-    if (radioSettings.switchConfig[i] == Board::SWITCH_NOT_AVAILABLE)
+    if (!radioSettings.isSwitchAvailable(i) || Boards::isSwitchFunc(i))
       continue;
 
-    swcfg = Board::SwitchType(radioSettings.switchConfig[i]);
-    wname = RawSource(RawSourceType::SOURCE_TYPE_SWITCH, i).toString(nullptr, &radioSettings);
+    swcfg = Board::SwitchType(radioSettings.switchConfig[i].type);
+    wname = RawSource(RawSourceType::SOURCE_TYPE_SWITCH, i).toString(nullptr, &radioSettings, Board::BOARD_UNKNOWN, false);
     RadioSwitchWidget * sw = new RadioSwitchWidget(swcfg, wname, -1, ui->radioWidgetsHT);
     sw->setIndex(i);
     ui->radioWidgetsHTLayout->addWidget(sw);
@@ -619,12 +618,12 @@ void SimulatorWidget::setupRadioWidgets()
   midpos = (int)floorf(m_radioWidgets.size() / 2.0f);
 
   // pots in middle of switches
-  for (i = 0; i < ttlKnobs; ++i) {
-    if (!radioSettings.isPotAvailable(i))
+  for (i = 0; i < ttlInputs; ++i) {
+    if (!(radioSettings.isInputAvailable(i) && radioSettings.isInputPot(i)))
       continue;
 
-    wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, ttlSticks + i).toString(nullptr, &radioSettings);
-    RadioKnobWidget * pot = new RadioKnobWidget(Board::PotType(radioSettings.potConfig[i]), wname, 0, ui->radioWidgetsHT);
+    wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, i).toString(nullptr, &radioSettings, Board::BOARD_UNKNOWN, false);
+    RadioKnobWidget * pot = new RadioKnobWidget(radioSettings.inputConfig[i].flexType, wname, 0, ui->radioWidgetsHT);
     pot->setIndex(i);
     ui->radioWidgetsHTLayout->insertWidget(midpos++, pot);
     m_radioWidgets.append(pot);
@@ -632,15 +631,15 @@ void SimulatorWidget::setupRadioWidgets()
 
   // faders between sticks
   int fc = extraTrims / 2;  // leave space for any extra trims
-  for (i = 0; i < ttlFaders; ++i) {
-    if (!radioSettings.isSliderAvailable(i))
+
+  for (i = 0; i < ttlInputs; ++i) {
+    if (!(radioSettings.isInputAvailable(i) && radioSettings.isInputSlider(i)))
       continue;
 
-    wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, ttlSticks + ttlKnobs + i).toString(nullptr, &radioSettings);
+    wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, i).toString(nullptr, &radioSettings, Board::BOARD_UNKNOWN, false);
     RadioFaderWidget * sl = new RadioFaderWidget(wname, 0, ui->radioWidgetsVC);
     sl->setIndex(i);
     ui->VCGridLayout->addWidget(sl, 0, fc++, 1, 1);
-
     m_radioWidgets.append(sl);
   }
 
@@ -648,7 +647,7 @@ void SimulatorWidget::setupRadioWidgets()
   int tc = 0;
   int tridx = ttlSticks;
   for (i = 0; i < extraTrims; i += 1, tridx += 1) {
-    wname = RawSource(RawSourceType::SOURCE_TYPE_TRIM, tridx).toString(nullptr, &radioSettings);
+    wname = RawSource(RawSourceType::SOURCE_TYPE_TRIM, tridx).toString(nullptr, &radioSettings, Board::BOARD_UNKNOWN, false);
     wname = wname.left(1) % wname.right(1);
     RadioTrimWidget * tw = new RadioTrimWidget(Qt::Vertical, ui->radioWidgetsVC);
     tw->setIndices(tridx, tridx * 2, tridx * 2 + 1);
@@ -814,17 +813,25 @@ void SimulatorWidget::onPhaseChanged(qint32 phase, const QString & name)
   setWindowTitle(windowName + tr(" - Flight Mode %1 (#%2)").arg(name).arg(phase));
 }
 
-void SimulatorWidget::onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, const int index, int value)
+void SimulatorWidget::onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, int index, int value)
 {
   //qDebug() << type << index << value;
   if (!simulator || index < 0)
     return;
 
   SimulatorInterface::InputSourceType inpType = SimulatorInterface::INPUT_SRC_NONE;
+  GeneralSettings::SwitchConfig *cfg = nullptr;
 
   switch (type) {
     case RadioWidget::RADIO_WIDGET_SWITCH :
-      inpType = SimulatorInterface::INPUT_SRC_SWITCH;
+      cfg = &radioSettings.switchConfig[index];
+      if (cfg->inputIdx != SWITCH_INPUTINDEX_NONE) {
+        inpType = SimulatorInterface::INPUT_SRC_STICK;
+        index = cfg->inputIdx;
+        value = value * 1024;
+      }
+      else
+        inpType = SimulatorInterface::INPUT_SRC_SWITCH;
       break;
 
     case RadioWidget::RADIO_WIDGET_KNOB :

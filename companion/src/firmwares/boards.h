@@ -27,12 +27,15 @@
 
 class AbstractStaticItemModel;
 class SemanticVersion;
+class BoardJson;
+class GeneralSettings;
 
 // identiying names of static abstract item models
 constexpr char AIM_BOARDS_POT_TYPE[]        {"boards.pottype"};
 constexpr char AIM_BOARDS_SLIDER_TYPE[]     {"boards.slidertype"};
 constexpr char AIM_BOARDS_SWITCH_TYPE[]     {"boards.switchtype"};
 constexpr char AIM_BOARDS_MODULE_SIZE[]     {"boards.extmodulesize"};
+constexpr char AIM_BOARDS_FLEX_TYPE[]       {"boards.flextype"};
 
 // TODO create a Board class with all these functions
 
@@ -104,6 +107,7 @@ namespace Board {
     SWITCH_TOGGLE,
     SWITCH_2POS,
     SWITCH_3POS,
+    SWITCH_FUNC,
     SWITCH_TYPE_COUNT
   };
 
@@ -149,39 +153,41 @@ namespace Board {
   };
 
   enum Capability {
-    Sticks,
-    Pots,
     FactoryInstalledPots,
-    Sliders,
-    MouseAnalogs,
-    GyroAnalogs,
-    MaxAnalogs,
-    MultiposPots,
-    MultiposPotsPositions,
-    Switches,
-    FunctionSwitches,
-    SwitchPositions,
-    NumFunctionSwitchesPositions,
     FactoryInstalledSwitches,
-    NumTrims,
-    NumTrimSwitches,
-    HasRTC,
-    HasColorLcd,
-    HasSDCard,
-    HasInternalModuleSupport,
-    HasExternalModuleSupport,
+    FlexInputs,
+    FlexSwitches,
+    FunctionSwitches,
+    Gyros,
+    GyroAxes,
     HasAudioMuteGPIO,
-    SportMaxBaudRate,
+    HasColorLcd,
+    HasExternalModuleSupport,
+    HasInternalModuleSupport,
     HasIntModuleHeartbeatGPIO,
+    HasLedStripGPIO,
+    HasRTC,
+    HasSDCard,
     HasTrainerModuleCPPM,
     HasTrainerModuleSBUS,
-    HasLedStripGPIO
-  };
-
-  struct SwitchInfo
-  {
-    SwitchType config;
-    QString name;
+    HasVBat,
+    MaxAnalogs,
+    Inputs,
+    InputSwitches,
+    Joysticks,
+    JoystickAxes,
+    MultiposPots,
+    MultiposPotsPositions,
+    NumFunctionSwitchesPositions,
+    NumTrims,
+    NumTrimSwitches,
+    Pots,
+    Sliders,
+    SportMaxBaudRate,
+    StandardSwitches,
+    Sticks,
+    Switches,
+    SwitchesPositions,
   };
 
   struct SwitchPosition {
@@ -195,10 +201,12 @@ namespace Board {
   };
 
   enum SwitchTypeMasks {
-    SwitchTypeFlag2Pos    = 0x01,
-    SwitchTypeFlag3Pos    = 0x02,
-    SwitchTypeContext2Pos = SwitchTypeFlag2Pos,
-    SwitchTypeContext3Pos = SwitchTypeFlag2Pos | SwitchTypeFlag3Pos
+    SwitchTypeFlagNone    = 1 << 1,
+    SwitchTypeFlag2Pos    = 1 << 2,
+    SwitchTypeFlag3Pos    = 1 << 3,
+    SwitchTypeContextNone = SwitchTypeFlagNone,
+    SwitchTypeContext2Pos = SwitchTypeContextNone | SwitchTypeFlag2Pos,
+    SwitchTypeContext3Pos = SwitchTypeContext2Pos | SwitchTypeFlag3Pos
   };
 
   enum ExternalModuleSizes {
@@ -209,6 +217,72 @@ namespace Board {
     EXTMODSIZE_COUNT
   };
 
+  enum AnalogInputType
+  {
+    AIT_NONE,
+    AIT_STICK,
+    AIT_FLEX,
+    AIT_VBAT,
+    AIT_RTC_BAT,
+    AIT_SWITCH,
+  };
+
+  enum FlexType {
+    FLEX_NONE = 0,
+    FLEX_POT,
+    FLEX_POT_CENTER,
+    FLEX_SLIDER,
+    FLEX_MULTIPOS,
+    FLEX_AXIS_X,
+    FLEX_AXIS_Y,
+    FLEX_SWITCH,
+    FLEX_TYPE_COUNT
+  };
+
+  enum FlexTypeMasks {
+    FlexTypeFlagNotSwitch   = 1 << 1,
+    FlexTypeFlagSwitch      = 1 << 2,
+    FlexTypeContextNoSwitch = FlexTypeFlagNotSwitch,
+    FlexTypeContextSwitch   = FlexTypeContextNoSwitch | FlexTypeFlagSwitch
+  };
+
+  enum LookupValueType {
+    LVT_TAG = 0,
+    LVT_NAME
+  };
+
+  struct InputInfo {
+    InputInfo() :
+      type(AIT_NONE),
+      tag(""),
+      name(""),
+      shortName(""),
+      flexType(FLEX_NONE),
+      inverted(false)
+    {}
+
+    AnalogInputType type;
+    std::string tag;
+    std::string name;
+    std::string label;
+    std::string shortName;
+    FlexType flexType;
+    bool inverted;
+  };
+
+  struct SwitchInfo {
+    SwitchInfo() :
+      type(SWITCH_NOT_AVAILABLE),
+      tag(""),
+      name(""),
+      inverted(false)
+    {}
+
+    SwitchType type;
+    std::string tag;
+    std::string name;
+    bool inverted;
+  };
 }
 
 class Boards
@@ -217,10 +291,8 @@ class Boards
 
   public:
 
-    Boards(Board::Type board)
-    {
-      setBoardType(board);
-    }
+    Boards(Board::Type board);
+    virtual ~Boards() {}
 
     void setBoardType(const Board::Type & board);
     Board::Type getBoardType() const { return m_boardType; }
@@ -228,43 +300,85 @@ class Boards
     const uint32_t getFourCC() const { return getFourCC(m_boardType); }
     const int getEEpromSize() const { return getEEpromSize(m_boardType); }
     const int getFlashSize() const { return getFlashSize(m_boardType); }
-    const Board::SwitchInfo getSwitchInfo(int index) const { return getSwitchInfo(m_boardType, index); }
     const int getCapability(Board::Capability capability) const { return getCapability(m_boardType, capability); }
-    const QString getAnalogInputName(int index) const { return getAnalogInputName(m_boardType, index); }
     const bool isBoardCompatible(Board::Type board2) const { return isBoardCompatible(m_boardType, board2); }
 
     static uint32_t getFourCC(Board::Type board);
     static int getEEpromSize(Board::Type board);
     static int getFlashSize(Board::Type board);
-    static Board::SwitchInfo getSwitchInfo(Board::Type board, int index);
-    static StringTagMappingTable getSwitchesLookupTable(Board::Type board);
     static int getCapability(Board::Type board, Board::Capability capability);
     static QString getAxisName(int index);
-    static StringTagMappingTable getAnalogNamesLookupTable(Board::Type board, const QString strVersion = "0.0.0");
-    static QString getAnalogInputName(Board::Type board, int index);
     static bool isBoardCompatible(Board::Type board1, Board::Type board2);
     static QString getBoardName(Board::Type board);
-    static QString potTypeToString(int value);
-    static QString sliderTypeToString(int value);
     static QString switchTypeToString(int value);
-    static AbstractStaticItemModel * potTypeItemModel();
-    static AbstractStaticItemModel * sliderTypeItemModel();
     static AbstractStaticItemModel * switchTypeItemModel();
     static AbstractStaticItemModel * intModuleTypeItemModel();
-    static StringTagMappingTable getTrimSwitchesLookupTable(Board::Type board);
-    static StringTagMappingTable getTrimSourcesLookupTable(Board::Type board);
     static QList<int> getSupportedInternalModules(Board::Type board);
     static int getDefaultInternalModules(Board::Type board);
     static int getDefaultExternalModuleSize(Board::Type board);
     static QString externalModuleSizeToString(int value);
     static AbstractStaticItemModel * externalModuleSizeItemModel();
 
-    // TODO replace when refactored to support json defns
-    static int adcPotsBeforeSliders(Board::Type board, SemanticVersion version);
+    static BoardJson* getBoardJson(Board::Type board = Board::BOARD_UNKNOWN);
 
-  protected:
+    static int getInputsCalibrated(Board::Type board = Board::BOARD_UNKNOWN);
 
-    Board::Type m_boardType;
+    static Board::InputInfo getInputInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputIndex(QString val, Board::LookupValueType lvt, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getInputName(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputPotIndex(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputSliderIndex(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getInputTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputTagOffset(QString tag, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputTypeOffset(Board::AnalogInputType type, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getInputYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+
+    static Board::SwitchInfo getSwitchInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchIndex(QString val, Board::LookupValueType lvt, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getSwitchName(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getSwitchTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchTagNum(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getSwitchYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+
+    static int getTrimYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getTrimYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+
+    STRINGTAGMAPPINGFUNCS(legacyTrimSourcesLookupTable, LegacyTrimSource);
+    STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitch);
+    STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchType);
+    STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialType);
+    STRINGTAGMAPPINGFUNCS(rawSourceCyclicLookupTable, RawSourceCyclic);
+
+    static bool isInputAvailable(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputCalibrated(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputConfigurable(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputIgnored(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputPot(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputStick(int index, Board::Type board = Board::BOARD_UNKNOWN);
+
+    static bool isSwitchConfigurable(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isSwitchFlex(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isSwitchFunc(int index, Board::Type board = Board::BOARD_UNKNOWN);
+
+    static QString flexTypeToString(int value);
+    static AbstractStaticItemModel * flexTypeItemModel();
+
+    static std::string getLegacyAnalogMappedInputTag(const char * legacytag, Board::Type board = Board::BOARD_UNKNOWN);
+
+  private:
+
+    Board::Type m_boardType = Board::BOARD_UNKNOWN;
+    BoardJson* m_boardJson = nullptr;
+
+    const StringTagMappingTable legacyTrimSourcesLookupTable;
+    const StringTagMappingTable trimSwitchesLookupTable;
+    const StringTagMappingTable rawSwitchTypesLookupTable;
+    const StringTagMappingTable rawSourceSpecialTypesLookupTable;
+    const StringTagMappingTable rawSourceCyclicLookupTable;
+
+    static StringTagMappingTable getLegacyAnalogsLookupTable(Board::Type board = Board::BOARD_UNKNOWN);
 };
 
 // temporary aliases for transition period, use Boards class instead.

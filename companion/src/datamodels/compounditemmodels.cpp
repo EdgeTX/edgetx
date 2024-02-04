@@ -50,6 +50,8 @@ QString AbstractItemModel::idToString(const int value)
       return "CurveRefType";
     case IMID_CurveRefFunc:
       return "CurveRefFunc";
+    case IMID_FlexSwitches:
+      return "FlexSwitches";
     default:
       return "Custom";
   }
@@ -108,13 +110,12 @@ RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSett
   for (int i = 0; i < firmware->getCapability(LuaScripts); i++)
     addItems(SOURCE_TYPE_LUA_OUTPUT,   RawSource::ScriptsGroup,  firmware->getCapability(LuaOutputsPerScript), i * 16);
   addItems(SOURCE_TYPE_VIRTUAL_INPUT,  RawSource::InputsGroup,   firmware->getCapability(VirtualInputs));
-  addItems(SOURCE_TYPE_STICK,          RawSource::SourcesGroup,  board->getCapability(Board::MaxAnalogs));
+  addItems(SOURCE_TYPE_STICK,          RawSource::SourcesGroup,  board->getCapability(Board::Inputs));
   addItems(SOURCE_TYPE_TRIM,           RawSource::TrimsGroup,    board->getCapability(Board::NumTrims));
   addItems(SOURCE_TYPE_SPACEMOUSE,     RawSource::SourcesGroup,  CPN_MAX_SPACEMOUSE);
   addItems(SOURCE_TYPE_MIN,            RawSource::SourcesGroup,  1);
   addItems(SOURCE_TYPE_MAX,            RawSource::SourcesGroup,  1);
   addItems(SOURCE_TYPE_SWITCH,         RawSource::SwitchesGroup, board->getCapability(Board::Switches));
-  addItems(SOURCE_TYPE_FUNCTIONSWITCH, RawSource::SwitchesGroup, board->getCapability(Board::FunctionSwitches));
   addItems(SOURCE_TYPE_CUSTOM_SWITCH,  RawSource::SwitchesGroup, firmware->getCapability(LogicalSwitches));
   addItems(SOURCE_TYPE_CYC,            RawSource::SourcesGroup,  CPN_MAX_CYC);
   addItems(SOURCE_TYPE_PPM,            RawSource::SourcesGroup,  firmware->getCapability(TrainerInputs));
@@ -175,13 +176,11 @@ RawSwitchItemModel::RawSwitchItemModel(const GeneralSettings * const generalSett
   addItems(SWITCH_TYPE_VIRTUAL,        -firmware->getCapability(LogicalSwitches));
   addItems(SWITCH_TYPE_TRIM,           -board->getCapability(Board::NumTrimSwitches));
   addItems(SWITCH_TYPE_MULTIPOS_POT,   -(board->getCapability(Board::MultiposPots) * board->getCapability(Board::MultiposPotsPositions)));
-  addItems(SWITCH_TYPE_FUNCTIONSWITCH, -board->getCapability(Board::NumFunctionSwitchesPositions));
-  addItems(SWITCH_TYPE_SWITCH,         -board->getCapability(Board::SwitchPositions));
+  addItems(SWITCH_TYPE_SWITCH,         -board->getCapability(Board::SwitchesPositions));
 
   // Ascending switch direction (including zero)
   addItems(SWITCH_TYPE_NONE, 1);
-  addItems(SWITCH_TYPE_SWITCH,         board->getCapability(Board::SwitchPositions));
-  addItems(SWITCH_TYPE_FUNCTIONSWITCH, board->getCapability(Board::NumFunctionSwitchesPositions));
+  addItems(SWITCH_TYPE_SWITCH,         board->getCapability(Board::SwitchesPositions));
   addItems(SWITCH_TYPE_MULTIPOS_POT,   board->getCapability(Board::MultiposPots) * board->getCapability(Board::MultiposPotsPositions));
   addItems(SWITCH_TYPE_TRIM,           board->getCapability(Board::NumTrimSwitches));
   addItems(SWITCH_TYPE_VIRTUAL,        firmware->getCapability(LogicalSwitches));
@@ -572,6 +571,57 @@ PrecisionItemModel::PrecisionItemModel(const int minDecimals, const int maxDecim
 }
 
 //
+// FlexSwitchesItemModel
+//
+
+FlexSwitchesItemModel::FlexSwitchesItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
+                                                   Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+    AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
+{
+  setId(IMID_FlexSwitches);
+
+  if (!generalSettings)
+    return;
+
+  setUpdateMask(IMUE_FunctionSwitches);
+  const int count = Boards::getCapability(boardType, Board::Inputs);
+
+  {
+    QStandardItem * modelItem = new QStandardItem();
+    modelItem->setData(-1, IMDR_Id);
+    modelItem->setText(tr("None"));
+    modelItem->setData(true, IMDR_Available);
+    appendRow(modelItem);
+  }
+
+  for (int i = 0; i < count; ++i) {
+    QStandardItem * modelItem = new QStandardItem();
+    modelItem->setData(i, IMDR_Id);
+    setDynamicItemData(modelItem, i);
+    appendRow(modelItem);
+  }
+}
+
+void FlexSwitchesItemModel::setDynamicItemData(QStandardItem * item, const int value) const
+{
+  item->setText(Boards::getInputName(value, boardType));
+  item->setData(generalSettings->isInputFlexSwitchAvailable(value), IMDR_Available);
+}
+
+void FlexSwitchesItemModel::update(const int event)
+{
+  if (doUpdate(event)) {
+    emit aboutToBeUpdated();
+
+    for (int i = 1; i < rowCount(); ++i) {  // skip None
+      setDynamicItemData(item(i), item(i)->data(IMDR_Id).toInt());
+    }
+
+    emit updateComplete();
+  }
+}
+
+//
 // CompoundItemModelFactory
 //
 
@@ -622,6 +672,9 @@ void CompoundItemModelFactory::addItemModel(const int id)
       break;
     case AbstractItemModel::IMID_CurveRefFunc:
       registerItemModel(new CurveRefFuncItemModel(generalSettings, modelData, firmware, board, boardType));
+      break;
+    case AbstractItemModel::IMID_FlexSwitches:
+      registerItemModel(new FlexSwitchesItemModel(generalSettings, modelData, firmware, board, boardType));
       break;
     default:
       qDebug() << "Error: unknown item model: id";

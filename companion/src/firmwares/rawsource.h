@@ -18,8 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef RAWSOURCE_H
-#define RAWSOURCE_H
+#pragma once
 
 #include "boards.h"
 #include "constants.h"
@@ -164,13 +163,13 @@ enum RawSourceType {
   SOURCE_TYPE_NONE,
   SOURCE_TYPE_VIRTUAL_INPUT,
   SOURCE_TYPE_LUA_OUTPUT,
-  SOURCE_TYPE_STICK, // and POTS
+  SOURCE_TYPE_STICK, // and POTS and Flex pots  TODO rename to more appropriate
   SOURCE_TYPE_ROTARY_ENCODER,
   SOURCE_TYPE_TRIM,
   SOURCE_TYPE_MIN,
   SOURCE_TYPE_MAX,
   SOURCE_TYPE_SWITCH,
-  SOURCE_TYPE_FUNCTIONSWITCH,
+  SOURCE_TYPE_FUNCTIONSWITCH, // v2.10 only used for reading binary files
   SOURCE_TYPE_CUSTOM_SWITCH,
   SOURCE_TYPE_CYC,
   SOURCE_TYPE_PPM,
@@ -267,17 +266,13 @@ class RawSource {
     }
 
     RawSource convert(RadioDataConversionState & cstate);
-    QString toString(const ModelData * model = NULL, const GeneralSettings * const generalSettings = NULL, Board::Type board = Board::BOARD_UNKNOWN) const;
+    QString toString(const ModelData * model = nullptr, const GeneralSettings * const generalSettings = nullptr, Board::Type board = Board::BOARD_UNKNOWN, bool prefixCustomName = true) const;
     RawSourceRange getRange(const ModelData * model, const GeneralSettings & settings, unsigned int flags=0) const;
-    bool isStick(int * potsIndex = NULL, Board::Type board = Board::BOARD_UNKNOWN) const;
-    bool isPot(int * potsIndex = NULL, Board::Type board = Board::BOARD_UNKNOWN) const;
-    bool isSlider(int * sliderIndex = NULL, Board::Type board = Board::BOARD_UNKNOWN) const;
+    bool isStick(Board::Type board = Board::BOARD_UNKNOWN) const;
     bool isTimeBased(Board::Type board = Board::BOARD_UNKNOWN) const;
-    bool isAvailable(const ModelData * const model = NULL, const GeneralSettings * const gs = NULL, Board::Type board = Board::BOARD_UNKNOWN) const;
+    bool isAvailable(const ModelData * const model = nullptr, const GeneralSettings * const gs = nullptr, Board::Type board = Board::BOARD_UNKNOWN) const;
     bool isSet() const { return type != SOURCE_TYPE_NONE || index != 0; }
     void clear() { type = SOURCE_TYPE_NONE; index = 0; }
-    QStringList getStickList(Boards board) const;
-    QStringList getSwitchList(Boards board) const;
     static StringTagMappingTable getSpecialTypesLookupTable();
     static StringTagMappingTable getCyclicLookupTable();
 
@@ -291,6 +286,6 @@ class RawSource {
 
     RawSourceType type;
     int index;
-};
 
-#endif // RAWSOURCE_H
+  private:
+};

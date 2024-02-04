@@ -20,6 +20,7 @@
 
 #include "yaml_rawsource.h"
 #include "eeprominterface.h"
+#include "boardjson.h"
 
 static const YamlLookupTable spacemouseLut = {
   {  0, "SPACEMOUSE_A"  },
@@ -33,6 +34,8 @@ static const YamlLookupTable spacemouseLut = {
 
 std::string YamlRawSourceEncode(const RawSource& rhs)
 {
+  Board::Type board = getCurrentBoard();
+  Boards b = Boards(board);
   std::string src_str;
   char c = 'A';
   switch (rhs.type) {
@@ -47,10 +50,10 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_STICK:
-      src_str = getCurrentFirmware()->getAnalogInputTag(rhs.index);
+      src_str = Boards::getInputYamlName(rhs.index, BoardJson::YLT_REF).toStdString();
       break;
     case SOURCE_TYPE_TRIM:
-      src_str = getCurrentFirmware()->getTrimSourcesTag(rhs.index);
+      src_str = Boards::getTrimYamlName(rhs.index, BoardJson::YLT_REF).toStdString();
       break;
     case SOURCE_TYPE_MIN:
       src_str += "MIN";
@@ -59,21 +62,15 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += "MAX";
       break;
     case SOURCE_TYPE_SWITCH:
-      src_str += getCurrentFirmware()->getSwitchesTag(rhs.index);
+      src_str += Boards::getSwitchYamlName(rhs.index, BoardJson::YLT_REF).toStdString();
       break;
     case SOURCE_TYPE_CUSTOM_SWITCH:
       src_str += "ls(";
       src_str += std::to_string(rhs.index + 1);
       src_str += ")";
       break;
-    case SOURCE_TYPE_FUNCTIONSWITCH:
-      if (Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
-        src_str += "SW";
-        src_str += std::to_string(rhs.index + 1);
-      }
-      break;
     case SOURCE_TYPE_CYC:
-      src_str = getCurrentFirmware()->getRawSourceCyclicTag(rhs.index);
+      src_str = b.getRawSourceCyclicTag(rhs.index);
       break;
     case SOURCE_TYPE_PPM:
       src_str += "tr(";
@@ -91,7 +88,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_SPECIAL:
-      src_str = getCurrentFirmware()->getRawSourceSpecialTypesTag(rhs.index);
+      src_str = b.getRawSourceSpecialTypeTag(rhs.index);
       break;
     case SOURCE_TYPE_TELEMETRY:
       src_str = "tele(";
@@ -122,6 +119,8 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
 
 RawSource YamlRawSourceDecode(const std::string& src_str)
 {
+  Board::Type board = getCurrentBoard();
+  Boards b = Boards(board);
   RawSource rhs;
   const char* val = src_str.data();
   size_t val_len = src_str.size();
@@ -133,32 +132,19 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     if (idx < CPN_MAX_INPUTS) {
       rhs = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, idx);
     }
-  } else if (val_len == 2
-             && val[0] == 'S'
-             && val[1] >= 'A'
-             && val[1] <= 'Z') {
 
-    int idx = getCurrentFirmware()->getSwitchesIndex(src_str.c_str());
-    if (idx >= 0 && idx < CPN_MAX_SWITCHES) {
+  } else if ((val_len == 2 &&
+              val[0] == 'S' &&
+              val[1] >= 'A' && val[1] <= 'Z') ||
+             (val_len == 3 && (
+              (val[0] == 'F' && val[1] == 'L') ||
+              (val[0] == 'S' && val[1] == 'W')) &&
+              val[2] >= '1' && val[2] <= '9')) {
+
+    int idx = Boards::getSwitchYamlIndex(src_str.c_str(), BoardJson::YLT_REF);
+    if (idx >= 0) {
       rhs = RawSource(SOURCE_TYPE_SWITCH, idx);
-
-    } else if (IS_JUMPER_TPRO(getCurrentBoard())) {
-      int numSw = Boards::getCapability(getCurrentBoard(), Board::Switches);
-      idx = val[1] - 'A';
-      idx -= numSw;
-
-      if(idx >= 0 and idx < Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
-        rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, idx);
-      }
     }
-  } else if (val_len == 3
-             && val[0] == 'S'
-             && val[1] == 'W'
-             && (val[2] >= '1' && val[2] <= '6')
-             && Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
-    // Customisable switches
-    int idx = val[2] - '1';
-    rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, idx);
 
   } else if (val_len > 4 &&
              val[0] == 'l' &&
@@ -185,6 +171,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     if (ls > 0 && ls <= CPN_MAX_LOGICAL_SWITCHES)
       rhs = RawSource(SOURCE_TYPE_CUSTOM_SWITCH, ls - 1);
 
+    // appears depreciated - maybe early support for T20 as SWn the current std and no match in encode
   } else if (val_len > 3 &&
              val[0] == 'f' &&
              val[1] == 's' &&
@@ -193,8 +180,11 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     std::stringstream src(src_str.substr(3));
     int fs = 0;
     src >> fs;
-    if (fs > 0 && fs <= CPN_MAX_FUNCTION_SWITCHES)
-      rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH, fs - 1);
+    if (fs > 0) {
+      int fsidx = Boards::getSwitchYamlIndex(QString("SW%1").arg(fs), BoardJson::YLT_REF);
+      if (fsidx >= 0)
+        rhs = RawSource(SOURCE_TYPE_SWITCH, fsidx);
+    }
 
   } else if (val_len > 3 &&
              val[0] == 't' &&
@@ -257,58 +247,73 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
   } else {
 
     YAML::Node node(src_str);
+
+    if (node.IsScalar() && node.as<std::string>() == "MAX") {
+      rhs.type = SOURCE_TYPE_MAX;
+      rhs.index = 0;
+      return rhs;
+    }
+
+    if (node.IsScalar() && node.as<std::string>() == "MIN") {
+      rhs.type = SOURCE_TYPE_MIN;
+      rhs.index = 0;
+      return rhs;
+    }
+
     std::string ana_str;
     node >> ana_str;
 
-    // 2.8 conversion of GYRO1 and GYRO2 to TILT_X and TILT_Y respectively
-    if (ana_str.size() == 5) {
-      if (ana_str.substr(0, 5) == "GYRO1") {
-        ana_str = "TILT_X";
-      } else if (ana_str.substr(0, 5) == "GYRO2") {
-        ana_str = "TILT_Y";
-      }
+    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
+      ana_str = Boards::getLegacyAnalogMappedInputTag(ana_str.c_str());
+      int idx = Boards::getInputIndex(ana_str.c_str(), Board::LVT_TAG);
+      if (idx >= 0 && Boards::isInputStick(idx))
+        ana_str = Boards::getInputName(idx).toStdString();
     }
 
-    int ana_idx = getCurrentFirmware()->getAnalogInputIndex(ana_str.c_str());
-    if (ana_idx < 0)
-      ana_idx = getCurrentFirmware()->getAnalogInputIndexADC(ana_str.c_str());
+    int ana_idx = Boards::getInputYamlIndex(ana_str.c_str(), BoardJson::YLT_REF);
     if (ana_idx >= 0) {
       rhs.type = SOURCE_TYPE_STICK;
       rhs.index = ana_idx;
+      return rhs;
     }
 
-    int trm_idx = getCurrentFirmware()->getTrimSourcesIndex(src_str.c_str());
+    std::string trim_str;
+    node >> trim_str;
+
+    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
+      int idx = b.getLegacyTrimSourceIndex(src_str.c_str());
+      if (idx >= 0)
+        trim_str = Boards::getTrimYamlName(idx, BoardJson::YLT_REF).toStdString();
+    }
+
+    int trm_idx = Boards::getTrimYamlIndex(trim_str.c_str(), BoardJson::YLT_REF);
     if (trm_idx >= 0) {
       rhs.type = SOURCE_TYPE_TRIM;
       rhs.index = trm_idx;
-    }
-
-    int cyc_idx = getCurrentFirmware()->getRawSourceCyclicIndex(src_str.c_str());
-    if (cyc_idx >= 0) {
-      rhs.type = SOURCE_TYPE_CYC;
-      rhs.index = cyc_idx;
+      return rhs;
     }
 
     std::string special_str;
     node >> special_str;
 
-    // 2.10 conversion of TIMERx to Tmrx
-    if (special_str.size() == 6) {
-      if (special_str.substr(0, 6) == "TIMER1") {
-        special_str = "Tmr1";
-      }
-      else if (special_str.substr(0, 6) == "TIMER2") {
-        special_str = "Tmr2";
-      }
-      else if (special_str.substr(0, 6) == "TIMER3") {
-        special_str = "Tmr3";
+    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
+      if (special_str.size() == 6 && special_str.substr(0, 5) == "TIMER") {
+        special_str = "Tmr" + special_str.substr(5, 1);
       }
     }
 
-    int sp_idx = getCurrentFirmware()->getRawSourceSpecialTypesIndex(special_str.c_str());
+    int sp_idx = b.getRawSourceSpecialTypeIndex(special_str.c_str());
     if (sp_idx >= 0) {
       rhs.type = SOURCE_TYPE_SPECIAL;
       rhs.index = sp_idx;
+      return rhs;
+    }
+
+    int cyc_idx = b.getRawSourceCyclicIndex(src_str.c_str());
+    if (cyc_idx >= 0) {
+      rhs.type = SOURCE_TYPE_CYC;
+      rhs.index = cyc_idx;
+      return rhs;
     }
 
     if (node.IsScalar() && node.as<std::string>().size() == 12 && node.as<std::string>().substr(0, 11) == "SPACEMOUSE_") {
@@ -317,17 +322,8 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
       if (sm_idx >= 0) {
         rhs.type = SOURCE_TYPE_SPACEMOUSE;
         rhs.index = sm_idx;
+        return rhs;
       }
-    }
-
-    if (node.IsScalar() && node.as<std::string>() == "MIN") {
-      rhs.type = SOURCE_TYPE_MIN;
-      rhs.index = 0;
-    }
-
-    if (node.IsScalar() && node.as<std::string>() == "MAX") {
-      rhs.type = SOURCE_TYPE_MAX;
-      rhs.index = 0;
     }
   }
 
