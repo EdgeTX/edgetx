@@ -515,9 +515,42 @@ void GeneralSetupPanel::setValues()
 
   if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
     ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
+    ui->modelSelectLayout_CB->setCurrentIndex(generalSettings.modelSelectLayout);
+    ui->labelSingleSelect_CB->setCurrentIndex(generalSettings.labelSingleSelect);
+    ui->labelMultiMode_CB->setCurrentIndex(generalSettings.labelMultiMode);
+    ui->favMultiMode_CB->setCurrentIndex(generalSettings.favMultiMode);
+    showLabelSelectOptions();
   } else {
     ui->label_modelQuickSelect->hide();
     ui->modelQuickSelect_CB->hide();
+    ui->label_modelSelectLayout->hide();
+    ui->modelSelectLayout_CB->hide();
+    ui->label_labelSingleSelect->hide();
+    ui->labelSingleSelect_CB->hide();
+    ui->label_labelMultiMode->hide();
+    ui->labelMultiMode_CB->hide();
+    ui->label_favMultiMode->hide();
+    ui->favMultiMode_CB->hide();
+  }
+}
+
+void GeneralSetupPanel::showLabelSelectOptions()
+{
+  if (generalSettings.labelSingleSelect == 0) {
+    ui->label_labelMultiMode->show();
+    ui->labelMultiMode_CB->show();
+    if (generalSettings.labelMultiMode == 1) {
+      ui->label_favMultiMode->show();
+      ui->favMultiMode_CB->show();
+    } else {
+      ui->label_favMultiMode->hide();
+      ui->favMultiMode_CB->hide();
+    }
+  } else {
+    ui->label_labelMultiMode->hide();
+    ui->labelMultiMode_CB->hide();
+    ui->label_favMultiMode->hide();
+    ui->favMultiMode_CB->hide();
   }
 }
 
@@ -854,6 +887,32 @@ void GeneralSetupPanel::stickReverseEdited()
 void GeneralSetupPanel::on_modelQuickSelect_CB_stateChanged(int)
 {
   generalSettings.modelQuickSelect = ui->modelQuickSelect_CB->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_modelSelectLayout_CB_currentIndexChanged(int index)
+{
+  generalSettings.modelSelectLayout = index;
+  emit modified();
+}
+
+void GeneralSetupPanel::on_labelSingleSelect_CB_currentIndexChanged(int index)
+{
+  generalSettings.labelSingleSelect = index;
+  showLabelSelectOptions();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_labelMultiMode_CB_currentIndexChanged(int index)
+{
+  generalSettings.labelMultiMode = index;
+  showLabelSelectOptions();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_favMultiMode_CB_currentIndexChanged(int index)
+{
+  generalSettings.favMultiMode = index;
   emit modified();
 }
 

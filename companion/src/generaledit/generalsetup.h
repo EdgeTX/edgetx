@@ -95,9 +95,15 @@ class GeneralSetupPanel : public GeneralPanel
 
     void on_modelQuickSelect_CB_stateChanged(int);
     void on_startSoundCB_stateChanged(int);
+    void on_modelSelectLayout_CB_currentIndexChanged(int);
+    void on_labelSingleSelect_CB_currentIndexChanged(int);
+    void on_labelMultiMode_CB_currentIndexChanged(int);
+    void on_favMultiMode_CB_currentIndexChanged(int);
 
   private:
     Ui::GeneralSetup *ui;
+
+    void showLabelSelectOptions();
 
     void setValues();
     void populateBacklightCB();
