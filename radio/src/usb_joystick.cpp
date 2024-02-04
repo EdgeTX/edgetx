@@ -410,6 +410,13 @@ extern "C" struct usbReport_t usbReportDesc()
   return res;
 }
 
+static void setBatteryBits(int hid_pos){
+  // vBatMin / vBatMax are encoded with offsets 90 / 120
+  uint8_t percent = limit<uint8_t>(0, divRoundClosest((g_vbat100mV - g_eeGeneral.vBatMin - 90) * 100, g_eeGeneral.vBatMax - g_eeGeneral.vBatMin + 30), 100);
+
+  _hidReport[hid_pos] = percent;
+}
+
 void usbClassicStateUpdate()
 {
   if (_hidReport == nullptr) return;
@@ -443,6 +450,9 @@ void usbClassicStateUpdate()
     _hidReport[i*2 +4] = static_cast<uint8_t>((value >> 8) & 0x07);
 
   }
+
+  //battery values
+  setBatteryBits(8*2 +3);
 }
 
 static void setBtnBits(uint8_t ix, uint8_t value, uint8_t size)
@@ -630,6 +640,9 @@ void usbStateUpdate()
     _hidReport[i*2 + axis_ix] = static_cast<uint8_t>(value & 0xFF);
     _hidReport[i*2 + axis_ix+1] = static_cast<uint8_t>((value >> 8) & 0x07);
   }  
+
+  //battery values
+  setBatteryBits(_usbJoystickAxisCount*2 + axis_ix);
 }
 
 uint8_t usbReportSize()
