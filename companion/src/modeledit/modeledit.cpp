@@ -59,6 +59,7 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
 
   sharedItemModels = new CompoundItemModelFactory(&generalSettings, &model);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_RawSource);
+  sharedItemModels->addItemModel(AbstractItemModel::IMID_RawSourceWithInvert);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_RawSwitch);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_Curve);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_GVarRef);

@@ -60,6 +60,7 @@ GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * fir
   editorItemModels = new CompoundItemModelFactory(&generalSettings, nullptr);
   // tabs created below expect these item models to be pre-registered
   editorItemModels->addItemModel(AbstractItemModel::IMID_RawSource);
+  editorItemModels->addItemModel(AbstractItemModel::IMID_RawSourceWithInvert);
   editorItemModels->addItemModel(AbstractItemModel::IMID_RawSwitch);
   editorItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncAction);
   editorItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncResetParam);

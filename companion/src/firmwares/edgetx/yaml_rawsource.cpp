@@ -37,6 +37,9 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
   Board::Type board = getCurrentBoard();
   Boards b = Boards(board);
   std::string src_str;
+  if (rhs.inverted) {
+    src_str += "!";
+  }
   char c = 'A';
   switch (rhs.type) {
     case SOURCE_TYPE_VIRTUAL_INPUT:
@@ -50,10 +53,10 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_STICK:
-      src_str = Boards::getInputYamlName(rhs.index, BoardJson::YLT_REF).toStdString();
+      src_str += Boards::getInputYamlName(rhs.index, BoardJson::YLT_REF).toStdString();
       break;
     case SOURCE_TYPE_TRIM:
-      src_str = Boards::getTrimYamlName(rhs.index, BoardJson::YLT_REF).toStdString();
+      src_str += Boards::getTrimYamlName(rhs.index, BoardJson::YLT_REF).toStdString();
       break;
     case SOURCE_TYPE_MIN:
       src_str += "MIN";
@@ -70,7 +73,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_CYC:
-      src_str = b.getRawSourceCyclicTag(rhs.index);
+      src_str += b.getRawSourceCyclicTag(rhs.index);
       break;
     case SOURCE_TYPE_PPM:
       src_str += "tr(";
@@ -88,10 +91,10 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_SPECIAL:
-      src_str = b.getRawSourceSpecialTypeTag(rhs.index);
+      src_str += b.getRawSourceSpecialTypeTag(rhs.index);
       break;
     case SOURCE_TYPE_TELEMETRY:
-      src_str = "tele(";
+      src_str += "tele(";
       switch (rhs.index % 3) {
         case 0:
           break;
@@ -106,7 +109,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_SPACEMOUSE:
-      src_str = "SPACEMOUSE_";
+      src_str += "SPACEMOUSE_";
       c += rhs.index;
       src_str += c;
       break;
@@ -124,13 +127,22 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
   RawSource rhs;
   const char* val = src_str.data();
   size_t val_len = src_str.size();
+  std::string src_str_tmp = src_str;
+
+  bool neg = false;
+  if (val_len > 0 && val[0] == '!') {
+    neg = true;
+    val += 1;
+    val_len -= 1;
+    src_str_tmp = src_str_tmp.substr(1);
+  }
 
   if (val_len > 1 && val[0] == 'I'
       && (val[1] >= '0') && (val[1] <= '9')) {
 
-    int idx = std::stoi(src_str.substr(1));
+    int idx = std::stoi(src_str_tmp.substr(1));
     if (idx < CPN_MAX_INPUTS) {
-      rhs = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, idx);
+      rhs = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, idx, neg);
     }
 
   } else if ((val_len == 2 &&
@@ -141,9 +153,9 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
               (val[0] == 'S' && val[1] == 'W')) &&
               val[2] >= '1' && val[2] <= '9')) {
 
-    int idx = Boards::getSwitchYamlIndex(src_str.c_str(), BoardJson::YLT_REF);
+    int idx = Boards::getSwitchYamlIndex(src_str_tmp.c_str(), BoardJson::YLT_REF);
     if (idx >= 0) {
-      rhs = RawSource(SOURCE_TYPE_SWITCH, idx);
+      rhs = RawSource(SOURCE_TYPE_SWITCH, idx, neg);
     }
 
   } else if (val_len > 4 &&
@@ -152,24 +164,24 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              val[2] == 'a' &&
              val[3] == '(') {
 
-    std::stringstream src(src_str.substr(4));
+    std::stringstream src(src_str_tmp.substr(4));
     int script = 0, output = 0;                   //  TODO: check rename outputs to inputs???
     src >> script;
     src.ignore();
     src >> output;
     if (script < CPN_MAX_SCRIPTS && output < CPN_MAX_SCRIPT_INPUTS)
-      rhs = RawSource(SOURCE_TYPE_LUA_OUTPUT, script * 16 + output);
+      rhs = RawSource(SOURCE_TYPE_LUA_OUTPUT, script * 16 + output, neg);
 
   } else if (val_len > 3 &&
              val[0] == 'l' &&
              val[1] == 's' &&
              val[2] == '(') {
 
-    std::stringstream src(src_str.substr(3));
+    std::stringstream src(src_str_tmp.substr(3));
     int ls = 0;
     src >> ls;
     if (ls > 0 && ls <= CPN_MAX_LOGICAL_SWITCHES)
-      rhs = RawSource(SOURCE_TYPE_CUSTOM_SWITCH, ls - 1);
+      rhs = RawSource(SOURCE_TYPE_CUSTOM_SWITCH, ls - 1, neg);
 
     // appears depreciated - maybe early support for T20 as SWn the current std and no match in encode
   } else if (val_len > 3 &&
@@ -177,13 +189,13 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              val[1] == 's' &&
              val[2] == '(') {
 
-    std::stringstream src(src_str.substr(3));
+    std::stringstream src(src_str_tmp.substr(3));
     int fs = 0;
     src >> fs;
     if (fs > 0) {
       int fsidx = Boards::getSwitchYamlIndex(QString("SW%1").arg(fs), BoardJson::YLT_REF);
       if (fsidx >= 0)
-        rhs = RawSource(SOURCE_TYPE_SWITCH, fsidx);
+        rhs = RawSource(SOURCE_TYPE_SWITCH, fsidx, neg);
     }
 
   } else if (val_len > 3 &&
@@ -191,33 +203,33 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              val[1] == 'r' &&
              val[2] == '(') {
 
-    std::stringstream src(src_str.substr(3));
+    std::stringstream src(src_str_tmp.substr(3));
     int tr = 0;
     src >> tr;
     if (tr < getCurrentFirmware()->getCapability(TrainerInputs))
-      rhs = RawSource(SOURCE_TYPE_PPM, tr);
+      rhs = RawSource(SOURCE_TYPE_PPM, tr, neg);
 
   } else if (val_len > 3 &&
              val[0] == 'c' &&
              val[1] == 'h' &&
              val[2] == '(') {
 
-    std::stringstream src(src_str.substr(3));
+    std::stringstream src(src_str_tmp.substr(3));
     int ch = 0;
     src >> ch;
     if (ch < CPN_MAX_CHNOUT)
-      rhs = RawSource(SOURCE_TYPE_CH, ch);
+      rhs = RawSource(SOURCE_TYPE_CH, ch, neg);
 
   } else if (val_len > 3 &&
              val[0] == 'g' &&
              val[1] == 'v' &&
              val[2] == '(') {
 
-    std::stringstream src(src_str.substr(3));
+    std::stringstream src(src_str_tmp.substr(3));
     int gv = 0;
     src >> gv;
     if (gv < CPN_MAX_GVARS)
-      rhs = RawSource(SOURCE_TYPE_GVAR, gv);
+      rhs = RawSource(SOURCE_TYPE_GVAR, gv, neg);
 
   } else if (val_len > 5 &&
              val[0] == 't' &&
@@ -226,7 +238,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
              val[3] == 'e' &&
              val[4] == '(') {
 
-    std::stringstream src(src_str.substr(5));
+    std::stringstream src(src_str_tmp.substr(5));
 
     // parse sign
     uint8_t sign = 0;
@@ -242,21 +254,19 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     int sensor = 0;
     src >> sensor;
     if (sensor < CPN_MAX_SENSORS)
-      rhs = RawSource(SOURCE_TYPE_TELEMETRY, sensor * 3 + sign);
+      rhs = RawSource(SOURCE_TYPE_TELEMETRY, sensor * 3 + sign, neg);
 
   } else {
 
-    YAML::Node node(src_str);
+    YAML::Node node(src_str_tmp);
 
     if (node.IsScalar() && node.as<std::string>() == "MAX") {
-      rhs.type = SOURCE_TYPE_MAX;
-      rhs.index = 0;
+      rhs = RawSource(SOURCE_TYPE_MAX, 0, neg);
       return rhs;
     }
 
     if (node.IsScalar() && node.as<std::string>() == "MIN") {
-      rhs.type = SOURCE_TYPE_MIN;
-      rhs.index = 0;
+      rhs = RawSource(SOURCE_TYPE_MIN, 0, neg);
       return rhs;
     }
 
@@ -272,8 +282,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
 
     int ana_idx = Boards::getInputYamlIndex(ana_str.c_str(), BoardJson::YLT_REF);
     if (ana_idx >= 0) {
-      rhs.type = SOURCE_TYPE_STICK;
-      rhs.index = ana_idx;
+      rhs = RawSource(SOURCE_TYPE_STICK, ana_idx, neg);
       return rhs;
     }
 
@@ -281,15 +290,14 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     node >> trim_str;
 
     if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
-      int idx = b.getLegacyTrimSourceIndex(src_str.c_str());
+      int idx = b.getLegacyTrimSourceIndex(src_str_tmp.c_str());
       if (idx >= 0)
         trim_str = Boards::getTrimYamlName(idx, BoardJson::YLT_REF).toStdString();
     }
 
     int trm_idx = Boards::getTrimYamlIndex(trim_str.c_str(), BoardJson::YLT_REF);
     if (trm_idx >= 0) {
-      rhs.type = SOURCE_TYPE_TRIM;
-      rhs.index = trm_idx;
+      rhs = RawSource(SOURCE_TYPE_TRIM, trm_idx, neg);
       return rhs;
     }
 
@@ -304,15 +312,13 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
 
     int sp_idx = b.getRawSourceSpecialTypeIndex(special_str.c_str());
     if (sp_idx >= 0) {
-      rhs.type = SOURCE_TYPE_SPECIAL;
-      rhs.index = sp_idx;
+      rhs = RawSource(SOURCE_TYPE_SPECIAL, sp_idx, neg);
       return rhs;
     }
 
-    int cyc_idx = b.getRawSourceCyclicIndex(src_str.c_str());
+    int cyc_idx = b.getRawSourceCyclicIndex(src_str_tmp.c_str());
     if (cyc_idx >= 0) {
-      rhs.type = SOURCE_TYPE_CYC;
-      rhs.index = cyc_idx;
+      rhs = RawSource(SOURCE_TYPE_CYC, cyc_idx, neg);
       return rhs;
     }
 
@@ -320,8 +326,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
       int sm_idx = 0;
       node >> spacemouseLut >> sm_idx;
       if (sm_idx >= 0) {
-        rhs.type = SOURCE_TYPE_SPACEMOUSE;
-        rhs.index = sm_idx;
+        rhs = RawSource(SOURCE_TYPE_SPACEMOUSE, sm_idx, neg);
         return rhs;
       }
     }

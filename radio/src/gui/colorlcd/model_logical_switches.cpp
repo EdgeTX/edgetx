@@ -137,7 +137,7 @@ class LogicalSwitchEditPage : public Page
                              v2Edit->setValue(cs->v2);
                            }
                            SET_DIRTY();
-                         });
+                         }, true);
         break;
     }
 

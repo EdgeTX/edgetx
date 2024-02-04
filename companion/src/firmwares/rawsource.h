@@ -250,19 +250,21 @@ class RawSource {
 
     explicit RawSource(int value):
       type(RawSourceType(abs(value)/65536)),
-      index(value >= 0 ? abs(value)%65536 : -(abs(value)%65536))
+      index(abs(value)%65536),
+      inverted(value < 0)
     {
     }
 
-    RawSource(RawSourceType type, int index=0):
+    RawSource(RawSourceType type, int index=0, bool inverted = false):
       type(type),
-      index(index)
+      index(index),
+      inverted(inverted)
     {
     }
 
     inline const int toValue() const
     {
-      return index >= 0 ? (type * 65536 + index) : -(type * 65536 - index);
+      return inverted ? -(type * 65536 + index) : (type * 65536 + index);
     }
 
     RawSource convert(RadioDataConversionState & cstate);
@@ -276,16 +278,17 @@ class RawSource {
     static StringTagMappingTable getSpecialTypesLookupTable();
     static StringTagMappingTable getCyclicLookupTable();
 
-    bool operator == ( const RawSource & other) const {
-      return (this->type == other.type) && (this->index == other.index);
+    bool operator == (const RawSource & other) const {
+      return (this->type == other.type) && (this->index == other.index) && (this->inverted == other.inverted);
     }
 
     bool operator != ( const RawSource & other) const {
-      return (this->type != other.type) || (this->index != other.index);
+      return (this->type != other.type) || (this->index != other.index) || (this->inverted != other.inverted);
     }
 
     RawSourceType type;
     int index;
+    bool inverted;
 
   private:
 };
