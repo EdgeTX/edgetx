@@ -743,25 +743,34 @@ void processSpektrumPacket(const uint8_t *packet)
     else if (i2cAddress == I2C_FP_BATT) {
       flightPackTelemetry = true;
       // Lemon-RX G2: No Bat2: Current (-1.0 A)
-      if (sensor->startByte == 6 && ((int16_t) value) == -10) continue;  
+      if (sensor->startByte == 6 && ((int16_t) value) == -10) {
+        continue;
+      }  
     } // I2C_FP_BATT
 
     else if (i2cAddress == I2C_PBOX) {
-      // hide mAh Consumption already reported in Fligh Pack message 
-      // No Bat Voltage, hide Voltage and Consumption
-      if (flightPackTelemetry && (sensor->startByte == 4 ||  sensor->startByte == 6)) 
+      if (flightPackTelemetry && (sensor->startByte == 4 ||  sensor->startByte == 6)) {
+          // hide mAh Consumption already reported in Fligh Pack message 
           continue;
-      else if ((sensor->startByte == 0 || sensor->startByte == 4) && // Bat1 Voltage
-          spektrumGetValue(packet + 4, 0, uint16) == 0) continue;
-      else if ((sensor->startByte == 2 || sensor->startByte == 6) && // Bat2 Voltage
-          spektrumGetValue(packet + 4, 2, uint16) == 0) continue;
+      }
+      else if ((sensor->startByte == 0 || sensor->startByte == 4) && 
+          spektrumGetValue(packet + 4, 0, uint16) == 0) {
+          // No Bat1 Voltage, hide Voltage and Consumption
+          continue;
+      }
+      else if ((sensor->startByte == 2 || sensor->startByte == 6) && 
+          spektrumGetValue(packet + 4, 2, uint16) == 0) {
+          // No Bat2 Voltage, hide Voltage and Consumption
+          continue;
+      }
     } // I2C_PBOX
 
     else if (i2cAddress == I2C_VARIO) {
       varioTelemetry = true;
     }
     else if (i2cAddress == I2C_ALTITUDE && varioTelemetry) {
-      continue; // Altitude already reported in vario
+      // Altitude already reported in vario
+      continue; 
     }
 
     setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, sensor->unit, sensor->precision);
