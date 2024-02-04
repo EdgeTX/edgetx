@@ -749,7 +749,7 @@ void processSpektrumPacket(const uint8_t *packet)
     else if (i2cAddress == I2C_PBOX) {
       // hide mAh Consumption already reported in Fligh Pack message 
       // No Bat Voltage, hide Voltage and Consumption
-      if (flightPackTelemetry && (sensor->startByte == 4 ||  sensor->startByte == 6)) {
+      if (flightPackTelemetry && (sensor->startByte == 4 ||  sensor->startByte == 6)) 
           continue;
       else if ((sensor->startByte == 0 || sensor->startByte == 4) && // Bat1 Voltage
           spektrumGetValue(packet + 4, 0, uint16) == 0) continue;
