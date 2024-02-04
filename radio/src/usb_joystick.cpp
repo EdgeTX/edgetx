@@ -395,7 +395,7 @@ int setupUSBJoystick()
 
     // end of report desc
 
-    _hidReportSize = ((USBJ_BUTTON_SIZE+7) / 8) + (_usbJoystickAxisCount * 2);
+    _hidReportSize = ((USBJ_BUTTON_SIZE+7) / 8) + (_usbJoystickAxisCount * 2) + 1;
   }
 
   //compare with the old description
