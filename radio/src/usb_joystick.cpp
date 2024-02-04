@@ -105,6 +105,13 @@ static const uint8_t HID_JOYSTICK_ReportDesc[] =
     0x75, 0x10,                    //         REPORT_SIZE (16)
     0x95, 0x08,                    //         REPORT_COUNT (8)
     0x81, 0x02,                    //         INPUT (Data,Var,Abs)
+    0x05, 0x06,                    //         USAGE_PAGE (Generic Dev Ctrls)
+    0x09, 0x20,                    //         USAGE (Battery Strength)
+    0x16, 0x00, 0x00,              //         LOGICAL_MINIMUM (0)
+    0x26, 0x64, 0x00,              //         LOGICAL_MAXIMUM (100)
+    0x75, 0x08,                    //         REPORT_SIZE (8)
+    0x95, 0x01,                    //         REPORT_COUNT (1)
+    0x81, 0x02,                    //         INPUT (Data,Var,Abs)
     0xc0,                          //       END_COLLECTION
     0xc0                           //     END_COLLECTION
 };
@@ -189,7 +196,7 @@ int setupUSBJoystick()
     // Classic USB Joystick report description
     memcpy(_hidReportDesc, HID_JOYSTICK_ReportDesc, sizeof(HID_JOYSTICK_ReportDesc));
     _hidReportDescSize = sizeof(HID_JOYSTICK_ReportDesc);
-    _hidReportSize = 19;
+    _hidReportSize = 20;
 
   } else {
 
