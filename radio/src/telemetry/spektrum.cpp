@@ -355,6 +355,8 @@ const SpektrumSensor spektrumSensors[] = {
 
 // Alt Low and High needs to be combined (in 2 diff packets)
 static uint8_t gpsAltHigh = 0;
+static bool    varioTelemetry = false;
+static bool    flightPackTelemetry = false;
 
 // Helper function declared later
 static void processAS3XPacket(const uint8_t *packet);
@@ -543,6 +545,12 @@ void processSpektrumPacket(const uint8_t *packet)
 
   uint8_t instance = packet[3];
 
+  if (telemetryState==TELEMETRY_INIT) { // Telemetry Reset?
+    gpsAltHigh = 0;
+    varioTelemetry = false;
+    flightPackTelemetry = false;
+  }
+
   if (i2cAddress == I2C_NODATA) {
     // Not a Sensor.. Telemetry is alive, but no data  (avoid creation of fake 0000,0002.. sensors)
     return; 
@@ -673,6 +681,8 @@ void processSpektrumPacket(const uint8_t *packet)
     else if (i2cAddress == I2C_QOS) {
       if (sensor->startByte == 0) {  // FdeA
         // Check if this looks like a LemonRX Transceiver, they use QoS Frame loss A as RSSI indicator(0-100)
+        // farzu: new G2s has different signature, but i think using the Cyrf chip strenght is
+        //        more consistent across brands
         if (spektrumGetValue(packet + 4, 2, uint16) == 0x8000 &&
             spektrumGetValue(packet + 4, 4, uint16) == 0x8000 &&
             spektrumGetValue(packet + 4, 6, uint16) == 0x8000 &&
@@ -684,7 +694,7 @@ void processSpektrumPacket(const uint8_t *packet)
           // Range is 0-31, multiply by 3 to get an almost full reading for 0x1f, the maximum the cyrf chip reports
           telemetryData.rssi.set(packet[1] * 3);
         }
-        telemetryStreaming = TELEMETRY_TIMEOUT10ms;
+        telemetryStreaming = TELEMETRY_TIMEOUT10ms; // Telemery Alive
       } // FdeA
       else if (sensor->startByte == 8 || sensor->startByte == 10) { // Flss and Hold
         // Lemon-RX: F and H = 0x7FFF (alternative N0-DATA)
@@ -731,16 +741,27 @@ void processSpektrumPacket(const uint8_t *packet)
     } // I2C_GPS_BIN
 
     else if (i2cAddress == I2C_FP_BATT) {
+      flightPackTelemetry = true;
       // Lemon-RX G2: No Bat2: Current (-1.0 A)
       if (sensor->startByte == 6 && ((int16_t) value) == -10) continue;  
     } // I2C_FP_BATT
 
     else if (i2cAddress == I2C_PBOX) {
+      // hide mAh Consumption already reported in Fligh Pack message 
       // No Bat Voltage, hide Voltage and Consumption
-      if ((sensor->startByte == 0 || sensor->startByte == 4) && // Bat1 Voltage
+      if (flightPackTelemetry && (sensor->startByte == 4 ||  sensor->startByte == 6)) {
+          continue;
+      else if ((sensor->startByte == 0 || sensor->startByte == 4) && // Bat1 Voltage
           spektrumGetValue(packet + 4, 0, uint16) == 0) continue;
-      if ((sensor->startByte == 2 || sensor->startByte == 6) && // Bat2 Voltage
+      else if ((sensor->startByte == 2 || sensor->startByte == 6) && // Bat2 Voltage
           spektrumGetValue(packet + 4, 2, uint16) == 0) continue;
+    } // I2C_PBOX
+
+    else if (i2cAddress == I2C_VARIO) {
+      varioTelemetry = true;
+    }
+    else if (i2cAddress == I2C_ALTITUDE && varioTelemetry) {
+      continue; // Altitude already reported in vario
     }
 
     setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, sensor->unit, sensor->precision);
