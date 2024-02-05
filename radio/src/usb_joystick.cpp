@@ -355,37 +355,8 @@ int setupUSBJoystick()
     }
 
     // battery status
-
-    // USAGE_PAGE (Generic Dev Ctrls)
-    _hidReportDesc[_hidReportDescSize++] = 0x05;
-    _hidReportDesc[_hidReportDescSize++] = 0x06;
-
-    // USAGE (Battery Strength)
-    _hidReportDesc[_hidReportDescSize++] = 0x09;
-    _hidReportDesc[_hidReportDescSize++] = 0x20;
-
-    // LOGICAL_MINIMUM (0)
-    _hidReportDesc[_hidReportDescSize++] = 0x16;
-    _hidReportDesc[_hidReportDescSize++] = 0x00;
-    _hidReportDesc[_hidReportDescSize++] = 0x00;
-
-    // LOGICAL_MAXIMUM (100)
-    _hidReportDesc[_hidReportDescSize++] = 0x26;
-    _hidReportDesc[_hidReportDescSize++] = 0x64;
-    _hidReportDesc[_hidReportDescSize++] = 0x00;
-
-    // REPORT_SIZE (8)
-    _hidReportDesc[_hidReportDescSize++] = 0x75;
-    _hidReportDesc[_hidReportDescSize++] = 0x08;
-
-    // REPORT_COUNT (1)
-    _hidReportDesc[_hidReportDescSize++] = 0x95;
-    _hidReportDesc[_hidReportDescSize++] = 0x01;
-
-    // INPUT (Data,Var,Abs)
-    _hidReportDesc[_hidReportDescSize++] = 0x81;
-    _hidReportDesc[_hidReportDescSize++] = 0x02;
-
+    memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+54, 16);
+    _hidReportDescSize += 16;
 
     // END_COLLECTION
     _hidReportDesc[_hidReportDescSize++] = 0xc0;
