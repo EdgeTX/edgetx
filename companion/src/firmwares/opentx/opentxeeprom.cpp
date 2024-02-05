@@ -2940,7 +2940,7 @@ void OpenTxModelData::afterImport()
     if (version < 220) {  //  re-initialise as no conversion possible
       const char * layoutId = "Layout2P1";  // currently all using same default though might change for NV14
       RadioLayout::init(layoutId, modelData.customScreens);
-      memset(&modelData.topBarData, 0, sizeof(TopBarPersistentData));
+      modelData.topBarData = TopBarPersistentData();
     }
   }
 
