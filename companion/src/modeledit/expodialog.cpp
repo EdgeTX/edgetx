@@ -109,6 +109,8 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
                                                      flags), "RawSource");
     ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(id));
     ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(ed->srcRaw.toValue()));
+    if (ui->sourceCB->currentIndex() < 0)
+      ui->sourceCB->setCurrentIndex(ui->sourceCB->count() / 2);
     ui->inputName->setValidator(new NameValidator(board, this));
     ui->inputName->setText(inputName);
   }

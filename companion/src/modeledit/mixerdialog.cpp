@@ -55,6 +55,8 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
                                                    "RawSource");
   ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(id));
   ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(md->srcRaw.toValue()));
+  if (ui->sourceCB->currentIndex() < 0)
+    ui->sourceCB->setCurrentIndex(ui->sourceCB->count() / 2);
 
   int limit = firmware->getCapability(OffsetWeight);
 

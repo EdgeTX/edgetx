@@ -663,6 +663,7 @@ void CustomFunctionsPanel::populateFuncParamCB(QComboBox *b, uint function, unsi
 {
   QStringList qs;
   b->setModel(new QStandardItemModel(b));  // clear combo box but not any shared item model
+  bool setIdx = false;
   if (function == FuncPlaySound) {
     b->setModel(tabModelFactory->getItemModel(playSoundId));
     b->setCurrentIndex(b->findData(value));
@@ -677,30 +678,31 @@ void CustomFunctionsPanel::populateFuncParamCB(QComboBox *b, uint function, unsi
   }
   else if (function == FuncVolume || function == FuncBacklight) {
     b->setModel(tabFilterFactory->getItemModel(rawSourceInputsId));
-    b->setCurrentIndex(b->findData(value));
+    setIdx = true;
   }
   else if (function == FuncPlayValue) {
     b->setModel(tabFilterFactory->getItemModel(rawSourceAllId));
-    b->setCurrentIndex(b->findData(value));
+    setIdx = true;
   }
   else if (function >= FuncAdjustGV1 && function <= FuncAdjustGVLast) {
     switch (adjustmode) {
       case 1:
         b->setModel(tabFilterFactory->getItemModel(rawSourceInputsId));
-        b->setCurrentIndex(b->findData(value));
-        if (b->currentIndex() < 0)
-          b->setCurrentIndex(0);
+        setIdx = true;
         break;
       case 2:
         b->setModel(tabFilterFactory->getItemModel(rawSourceGVarsId));
-        b->setCurrentIndex(b->findData(value));
-        if (b->currentIndex() < 0)
-          b->setCurrentIndex(0);
+        setIdx = true;
         break;
     }
   }
   else {
     b->hide();
+  }
+  if (setIdx) {
+    b->setCurrentIndex(b->findData(value));
+    if (b->currentIndex() < 0)
+      b->setCurrentIndex(b->count() / 2);
   }
 }
 
