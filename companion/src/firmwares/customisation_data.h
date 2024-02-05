@@ -35,9 +35,9 @@ constexpr int MAX_THEME_OPTIONS       {5};
 constexpr int LEN_ZONE_OPTION_STRING  {8};
 constexpr int MAX_LAYOUT_ZONES        {10};
 constexpr int MAX_LAYOUT_OPTIONS      {10};
-constexpr int WIDGET_NAME_LEN         {10};
+constexpr int WIDGET_NAME_LEN         {12};
 constexpr int MAX_WIDGET_OPTIONS      {5};
-constexpr int MAX_TOPBAR_ZONES        {4};
+constexpr int MAX_TOPBAR_ZONES        {6};  //  max 4 used for portrait
 constexpr int MAX_TOPBAR_OPTIONS      {1};
 constexpr int LAYOUT_ID_LEN           {12};
 
@@ -79,8 +79,6 @@ enum ZoneOptionAlign
   ALIGN_LEFT,
   ALIGN_CENTER,
   ALIGN_RIGHT,
-
-  // this one MUST be last
   ALIGN_COUNT
 };
 
@@ -160,6 +158,8 @@ class RadioLayout
 
     struct CustomScreens {
       CustomScreenData customScreenData[MAX_CUSTOM_SCREENS];
+
+      void clear();
     };
 
     static void init(const char * layoutId, CustomScreens & customScreens);

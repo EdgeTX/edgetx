@@ -132,9 +132,16 @@ bool RadioLayout::CustomScreenData::isEmpty() const
   return strlen(layoutId) == 0;
 }
 
+void RadioLayout::CustomScreens::clear()
+{
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
+    customScreenData[i] = CustomScreenData();
+  }
+}
+
 void RadioLayout::init(const char* layoutId, CustomScreens& customScreens)
 {
-  memset(&customScreens, 0, sizeof(CustomScreens));
+  customScreens.clear();
 
   for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
     if (i == 0)
