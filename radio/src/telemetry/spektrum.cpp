@@ -967,11 +967,30 @@ void spektrumSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
       if (!IS_IMPERIAL_ENABLE()) {
         telemetrySensor.unit = UNIT_CELSIUS;
       }
-
+    }
+    else if (unit == UNIT_CELSIUS) {
+      if (IS_IMPERIAL_ENABLE()) {
+        telemetrySensor.unit = UNIT_FAHRENHEIT;
+      }
     }
     else if (unit == UNIT_METERS) {
       if (IS_IMPERIAL_ENABLE()) {
         telemetrySensor.unit = UNIT_FEET;
+      }
+    }
+    else if (unit == UNIT_KMH) {
+      if (IS_IMPERIAL_ENABLE()) {
+        telemetrySensor.unit = UNIT_KTS;
+      }
+    }
+    else if (unit == UNIT_METERS_PER_SECOND) {
+      if (IS_IMPERIAL_ENABLE()) {
+        telemetrySensor.unit = UNIT_FEET_PER_SECOND;
+      }
+    }
+    else if (unit == UNIT_KTS) {
+      if (!IS_IMPERIAL_ENABLE()) {
+        telemetrySensor.unit = UNIT_KMH;
       }
     }
   }
