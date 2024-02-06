@@ -442,6 +442,10 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
     scale = 1;
   if (mix.delayDown || mix.delayUp)
     str += " " + tr("Delay(u%1:d%2)").arg((double)mix.delayUp / scale).arg((double)mix.delayDown / scale).toHtmlEscaped();
+  if (mix.speedPrec) {
+    scale = scale * 10;
+    str += " " + tr("Slow precision(0.00)").toHtmlEscaped();
+  }
   if (mix.speedDown || mix.speedUp)
     str += " " + tr("Slow(u%1:d%2)").arg((double)mix.speedUp / scale).arg((double)mix.speedDown / scale).toHtmlEscaped();
   if (mix.mixWarn)

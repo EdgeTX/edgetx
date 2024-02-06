@@ -1285,5 +1285,7 @@ extern const char STR_SORT_MODELS_BY[];
 extern const char STR_CREATE_NEW[];
 #endif
 
+extern const char STR_MIX_SLOW_PREC[];
+
 #endif // _TRANSLATIONS_H_
 

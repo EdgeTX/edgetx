@@ -1279,3 +1279,5 @@
 #define TR_SORT_ORDERS            "Nome A-Z","Nome Z-A","Meno utilizzato","Più utilizzato"
 #define TR_SORT_MODELS_BY         "Ordina modelli per"
 #define TR_CREATE_NEW             "Crea"
+
+#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
