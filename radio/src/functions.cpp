@@ -27,6 +27,9 @@
 void setRequestedMainView(uint8_t view);
 #endif
 
+#if defined(RADIO_F16)
+#include "videoswitch_driver.h"
+#endif
 CustomFunctionsContext modelFunctionsContext = { 0 };
 
 CustomFunctionsContext globalFunctionsContext = { 0 };
@@ -434,6 +437,14 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             }
             break;
 #endif
+#if defined(VIDEO_SWITCH)
+          case FUNC_LCD_TO_VIDEO:
+            switchToVideo();
+            break;
+          case FUNC_LCD_TO_RADIO:
+            switchToRadio();
+            break;
+#endif
 #if defined(DEBUG)
           case FUNC_TEST:
             testFunc();
@@ -538,6 +549,10 @@ const char* funcGetLabel(uint8_t func)
 #endif
   case FUNC_RGB_LED:
     return STR_SF_RGBLEDS;
+  case FUNC_LCD_TO_VIDEO:
+    return STR_SF_LCD_TO_VIDEO;
+  case FUNC_LCD_TO_RADIO:
+    return STR_SF_LCD_TO_RADIO;  
 #if defined(DEBUG)
   case FUNC_TEST:
     return STR_SF_TEST;

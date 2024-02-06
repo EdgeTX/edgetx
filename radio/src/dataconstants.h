@@ -587,6 +587,8 @@ enum Functions {
 #endif
   FUNC_DISABLE_AUDIO_AMP,
   FUNC_RGB_LED,
+  FUNC_LCD_TO_VIDEO,
+  FUNC_LCD_TO_RADIO,
   FUNC_TEST, // MUST remain last
 #if defined(DEBUG)
   FUNC_MAX SKIP

@@ -123,6 +123,8 @@
 #define TR_SF_DISABLE_TOUCH            "Deaktivace dotyku"
 #define TR_SF_DISABLE_AUDIO_AMP        "Vypnutí zesilovače zvuku"
 #define TR_SF_SET_SCREEN               "Vybrat hlavní obrazovku"
+#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
+#define TR_SF_LCD_TO_RADIO             "LCD to Radio"
 
 #define TR_FSW_RESET_TELEM             TR("Telm","Telemetrie")
 

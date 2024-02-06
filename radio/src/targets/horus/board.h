@@ -59,6 +59,12 @@ extern uint16_t sessionTimer;
 
 #define SLAVE_MODE()                   (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
 
+#if defined(RADIO_F16)
+// initilizes the board for the bootloader
+#define HAVE_BOARD_BOOTLOADER_INIT 1
+void boardBootloaderInit();
+#endif
+
 // Board driver
 void boardInit();
 void boardOff();
@@ -152,7 +158,7 @@ void SDRAM_Init();
 #endif
 
 // POTS and SLIDERS default configuration
-#if defined(RADIO_TX16S)
+#if defined(RADIO_TX16S) || defined(RADIO_F16)
 #define XPOS_CALIB_DEFAULT  {0x3, 0xc, 0x15, 0x1e, 0x26}
 #endif
 
@@ -291,7 +297,7 @@ void telemetryPortInvertedInit(uint32_t baudrate);
 
 
 // Aux serial port driver
-#if defined(RADIO_TX16S)
+#if defined(RADIO_TX16S) || defined(RADIO_F16)
   #define DEBUG_BAUDRATE                  400000
   #define LUA_DEFAULT_BAUDRATE            115200
 #else
@@ -318,7 +324,7 @@ void bluetoothWriteWakeup();
 uint8_t bluetoothIsWriting();
 void bluetoothDisable();
 
-#if defined (RADIO_TX16S)
+#if defined(RADIO_TX16S) || defined(RADIO_F16)
   #define BATTERY_DIVIDER 1495
 #else
   #define BATTERY_DIVIDER 1629
