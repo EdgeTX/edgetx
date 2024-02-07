@@ -1251,7 +1251,7 @@
 #define TR_VOICE_TAIWANESE             "Taiwanesisk"
 #define TR_VOICE_JAPANESE              "Japansk"
 #define TR_VOICE_HEBREW                "Hebraisk"
-#define TR_VOICE_UKRAINIAN               "Ukrainian"
+#define TR_VOICE_UKRAINIAN             "Ukrainisk"
 
 #define TR_USBJOYSTICK_LABEL           "USB joystik"
 #define TR_USBJOYSTICK_EXTMODE         "Tilstand"
@@ -1263,8 +1263,8 @@
 #define TR_VUSBJOYSTICK_CH_MODE        "Ingen","Knap","Akse","Sim"
 #define TR_VUSBJOYSTICK_CH_MODE_S      "-","B","A","S"
 #define TR_USBJOYSTICK_CH_BTNMODE      "Knap tilstand"
-#define TR_VUSBJOYSTICK_CH_BTNMODE     "Normal","Pulse","SWEmu","Delta","Companion"
-#define TR_VUSBJOYSTICK_CH_BTNMODE_S   TR("Norm","Normal"),TR("Puls","Pulse"),TR("SWEm","SWEmul"),TR("Delt","Delta"),TR("CPN","Companion")
+#define TR_VUSBJOYSTICK_CH_BTNMODE     "Normal","Puls","SWEmu","Delta","Companion"
+#define TR_VUSBJOYSTICK_CH_BTNMODE_S   TR("Norm","Normal"),TR("Puls","Puls"),TR("SWEm","SWEmul"),TR("Delt","Delta"),TR("CPN","Companion")
 #define TR_USBJOYSTICK_CH_SWPOS        "Positioner"
 #define TR_VUSBJOYSTICK_CH_SWPOS       "Skub","2POS","3POS","4POS","5POS","6POS","7POS","8POS"
 #define TR_USBJOYSTICK_CH_AXIS         "Akse"
