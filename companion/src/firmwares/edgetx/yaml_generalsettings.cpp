@@ -235,8 +235,12 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["varioRepeat"] = rhs.varioRepeat;
   node["backgroundVolume"] = rhs.backgroundVolume + 2;
   node["dontPlayHello"] = (int)rhs.dontPlayHello;
-  if (Boards::getCapability(fw->getBoard(), Board::HasColorLcd)) {
+  if (hasColorLcd) {
     node["modelQuickSelect"] = (int)rhs.modelQuickSelect;
+    node["modelSelectLayout"] = rhs.modelSelectLayout;
+    node["labelSingleSelect"] = rhs.labelSingleSelect;
+    node["labelMultiMode"] = rhs.labelMultiMode;
+    node["favMultiMode"] = rhs.favMultiMode;
   }
 
   Node serialPort;
@@ -579,6 +583,11 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["modelSFDisabled"] >> rhs.modelSFDisabled;
   node["modelCustomScriptsDisabled"] >> rhs.modelCustomScriptsDisabled;
   node["modelTelemetryDisabled"] >> rhs.modelTelemetryDisabled;
+
+  node["modelSelectLayout"] >> rhs.modelSelectLayout;
+  node["labelSingleSelect"] >> rhs.labelSingleSelect;
+  node["labelMultiMode"] >> rhs.labelMultiMode;
+  node["favMultiMode"] >> rhs.favMultiMode;
 
   // fix ups
   rhs.validateFlexSwitches();
