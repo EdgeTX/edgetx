@@ -37,20 +37,20 @@
 // If the number of minutes is above this value PLURAL2 is used
 #define TR_USE_PLURAL2 INT_MAX
 
-#define TR_MINUTE_SINGULAR             "minute"
-#define TR_MINUTE_PLURAL1              "minutes"
-#define TR_MINUTE_PLURAL2              "minutes"
+#define TR_MINUTE_SINGULAR             "分"
+#define TR_MINUTE_PLURAL1              "分間"
+#define TR_MINUTE_PLURAL2              "分間"
 
 #define TR_OFFON                       "OFF","ON"
 #define TR_MMMINV                      "---","リバース"
 #define TR_VBEEPMODE                   "消音","アラームのみ","キー音なし","すべて"
 #define TR_VBLMODE                     "OFF","クリック時",TR("Ctrl","操作時"),"両方","ON"
-#define TR_TRNMODE                     "OFF","加算","置換"
+#define TR_TRNMODE                     "OFF",TR("+=","加算"),TR(":=","置換")
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
-#define TR_AUX_SERIAL_MODES            "OFF","テレメトリーミラー","テレメトリーIN","SBUSトレーナー","LUAスクリプト","CLI","GPS","デバッグ","外部モジュール"
+#define TR_AUX_SERIAL_MODES            "OFF","テレメトリーミラー","テレメトリーIN","SBUSトレーナー","LUAスクリプト","CLI","GPS","デバッグ","SpaceMouse","外部モジュール"
 #define TR_SWTYPES                     "なし","トグル","2POS","3POS"
-#define TR_POTTYPES                    "なし","ダイヤル",TR("Pot w. det","ダイヤル(ノッチ有)"),"スライダー",TR("Multipos","マルチPOSスイッチ"),"Axis X","Axis Y","Switch"
+#define TR_POTTYPES                    "なし","ダイヤル",TR("Pot w. det","ダイヤル(ノッチ)"),"スライダー",TR("Multipos","マルチPOS-Sw"),"X軸","Y軸","スイッチ"
 #define TR_VPERSISTENT                 "無効","飛行時","手動リセット"
 #define TR_COUNTRY_CODES               TR("US","アメリカ"),TR("JP","日本"),TR("EU","ヨーロッパ")
 #define TR_USBMODES                    "確認",TR("Joyst","JoyStick"),TR("SDカード","ストレージ"),"シリアル"
@@ -58,9 +58,9 @@
 
 #define TR_SBUS_INVERSION_VALUES       "標準","リバースなし"
 #define TR_MULTI_CUSTOM                "カスタム"
-#define TR_VTRIMINC                    "ステップExpo","ステップ極小","ステップ小","ステップ中","ステップ大"
+#define TR_VTRIMINC                    "ステップExpo","ステップ微小","ステップ小","ステップ中","ステップ大"
 #define TR_VDISPLAYTRIMS               "非表示","変更時","常時表示"
-#define TR_VBEEPCOUNTDOWN              "消音","ビープ","音声","バイブレート",TR2_2("B & H","Beeps & Haptic"),TR("V & H","Voice & Haptic")
+#define TR_VBEEPCOUNTDOWN              "消音","ビープ","音声","バイブレート",TR2_2("B & H","ビープ & バイブ"),TR("V & H","音声 & バイブ")
 #define TR_COUNTDOWNVALUES             "5秒","10秒","20秒","30秒"
 #define TR_VVARIOCENTER                "トーン","消音"
 #define TR_CURVE_TYPES                 "スタンダード","カスタム"
@@ -90,7 +90,7 @@
 #define TR_SF_RESET                    "リセット"
 #define TR_SF_SET_TIMER                "設定"
 #define TR_SF_VOLUME                   "ダイヤル"
-#define TR_SF_FAILSAFE                 "フェイルセーフ"
+#define TR_SF_FAILSAFE                 "Failsafe設定"
 #define TR_SF_RANGE_CHECK              "レンジチェック"
 #define TR_SF_MOD_BIND                 "モジュールバインド"
 #define TR_SF_RGBLEDS                  "RGB leds"
@@ -107,21 +107,21 @@
 #define TR_SF_BACKLIGHT                "バックライト"
 #define TR_SF_VARIO                    "バリオ"
 #define TR_SF_TEST                     "テスト"
-#define TR_SF_SAFETY                   TR("Overr.","上書き")
+
+#if LCD_W >= 212
+  #define TR_SF_SAFETY                 "上書き"
+#else
+  #define TR_SF_SAFETY                 "Overr."
+#endif
 
 #define TR_SF_SCREENSHOT               "画面キャプチャ"
 #define TR_SF_RACING_MODE              "レースモード"
 #define TR_SF_DISABLE_TOUCH            "非タッチ"
 #define TR_SF_DISABLE_AUDIO_AMP        "オーディオアンプ OFF"
-#define TR_SF_SET_SCREEN               "メインスクリーン設定"
+#define TR_SF_SET_SCREEN               "メイン画面設定"
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "テレメトリー")
-
-#if LCD_W >= 212
-  #define TR_FSW_RESET_TIMERS          "タイマー1","タイマー2","タイマー3"
-#else
-  #define TR_FSW_RESET_TIMERS          "Tmr1","Tmr2","Tmr3"
-#endif
+#define TR_FSW_RESET_TIMERS            "Tmr1","Tmr2","Tmr3"
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("すべて","飛行時"),TR_FSW_RESET_TELEM
 
@@ -152,7 +152,7 @@
 #define TR_SURFACE_NAMES1              "TH"
 
 #if defined(PCBNV14)
-#define  TR_RFPOWER_AFHDS2             "Default","High"
+#define  TR_RFPOWER_AFHDS2             "初期値","高出力"
 #endif
 
 #define TR_ROTARY_ENCODERS
@@ -215,7 +215,7 @@
 #define TR_VFORMULAS                   "加算値","平均値","最小値","最大値","乗算値","合計値","セル","消費量","距離"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
 #define TR_VCELLINDEX                  "最低値","1","2","3","4","5","6","最高値","差分"
-#define TR_TEXT_SIZE                   "標準","極小","小","中","2倍"
+#define TR_TEXT_SIZE                   "標準","微小","小","中","2倍"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (中央)","= (全体)"
 #define TR_TIMER_DIR                   TR("Remain", "残り時間表示"), TR("Elaps.", "経過時間表示")
 #define TR_PPMUNIT                     "0.--","0.0","us"
@@ -251,8 +251,8 @@
 #endif
 
 #define TR_FREE                        "フリー"
-#define TR_YES                         "Yes"
-#define TR_NO                          "No"
+#define TR_YES                         "はい"
+#define TR_NO                          "いいえ"
 #define TR_DELETEMODEL                 "モデルを削除"
 #define TR_COPYINGMODEL                "モデルをコピー..."
 #define TR_MOVINGMODEL                 "モデルを移動..."
@@ -275,7 +275,7 @@
 #define TR_TTRACE                      TR("T-Source", INDENT "ソース")
 #define TR_TTRIM                       TR("T-Trim-Idle", INDENT "アイドル時トリム")
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "トリムスイッチ")
-#define TR_BEEPCTR                     TR("Ctr Beep", "センタービープ")
+#define TR_BEEPCTR                     TR("Ctr Beep", "中央値でビープ")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funcs", "グローバルFuncs利用")
 #define TR_PROTOCOL                    TR("Proto", "プロトコル")
   #define TR_PPMFRAME                  INDENT "PPMフレーム"
@@ -284,8 +284,8 @@
 #define TR_WARN_5VOLTS                 "警告: 出力レベル 5V"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "スイッチ"
-#define TR_FUNCTION_SWITCHES           "Customizable switches"
-#define TR_SF_SWITCH                   "Trigger"
+#define TR_FUNCTION_SWITCHES           "カスタマイズ スイッチ"
+#define TR_SF_SWITCH                   "トリガー"
 #define TR_TRIMS                       "トリム"
 #define TR_FADEIN                      "フェードイン"
 #define TR_FADEOUT                     "フェードアウト"
@@ -303,9 +303,9 @@
 #define TR_SWASHRING                   "スワッシュリング"
 #define TR_MODE                        "モード"
 #if LCD_W > LCD_H
-  #define TR_LEFT_STICK                "Left"
+  #define TR_LEFT_STICK                "左スティック"
 #else
-  #define TR_LEFT_STICK                "Left"
+  #define TR_LEFT_STICK                "左スティック"
 #endif
 #define TR_SUBTYPE                     INDENT "サブタイプ"
 #define TR_NOFREEEXPO                  "Expoが未設定です!!"
@@ -330,7 +330,7 @@
 #define TR_SLOWUP                      "スローアップ"
 #define TR_MIXES                       "ミキサー"
 #define TR_CV                          "CV"
-#if defined(PCBNV14)
+#if defined(PCBNV14) || defined(PCBPL18)
 #define TR_GV                          "GV"
 #else
 #define TR_GV                          TR("G", "GV")
@@ -356,7 +356,7 @@
 #define TR_BATTERYFULL                 "フル充電"
 #define TR_BATTERYNONE                 "バッテリー空!!"
 #define TR_BATTERYWARNING              "バッテリー低値"
-#define TR_INACTIVITYALARM             "無効化"
+#define TR_INACTIVITYALARM             "無効な状態"
 #define TR_MEMORYWARNING               "メモリ低"
 #define TR_ALARMWARNING                "音声OFF"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI shutdown", "シャットダウン時 RSSIを確認")
@@ -366,7 +366,7 @@
 #define TR_MODEL_SHUTDOWN              "シャットダウンしますか？"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Enterを押して確認してください"
 #define TR_THROTTLE_LABEL              "Throttle"
-#define TR_THROTTLE_START              "Throttle Start"
+#define TR_THROTTLE_START              "Throttle アップ"
 #define TR_THROTTLEREVERSE             TR("T-Reverse", INDENT "リバース")
 #define TR_MINUTEBEEP                  TR("Minute", "分単位コール")
 #define TR_BEEPCOUNTDOWN               INDENT "カウントダウン"
@@ -391,7 +391,7 @@
 #define TR_SLIDERWARNING               TR(INDENT "Slid. pos.", INDENT "スライダー位置")
 #define TR_POTWARNING                  TR(INDENT "Pot warn.", INDENT "ダイヤル位置")
 #define TR_TIMEZONE                    "タイムゾーン"
-#define TR_ADJUST_RTC                  "内蔵時計修正"
+#define TR_ADJUST_RTC                  "時計の修正"
 #define TR_GPS                         "GPS"
 #define TR_DEF_CHAN_ORD                TR("Def chan order", "チャンネルマップ初期値")
 #define TR_STICKS                      "スティック"
@@ -415,18 +415,23 @@
   #define TR_MOVESTICKSPOTS            "スティック/スライダーを動かします"
 #else
   #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " TO START"
-  #define TR_SETMIDPOINT               TR(CENTER "\004SET STICKS MIDPOINT", CENTER "\004CENTER STICKS/SLIDERS")
-  #define TR_MOVESTICKSPOTS            CENTER "\006MOVE STICKS/POTS"
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT               CENTER "\006SET POTS MIDPOINT"
+  #define TR_MOVESTICKSPOTS            CENTER "\002MOVE ST/TH/POTS/AXIS"
+#else
+  #define TR_SETMIDPOINT               TR(CENTER "\006SET AXIS MIDPOINT", CENTER "\004CENTER AXIS/SLIDERS")
+  #define TR_MOVESTICKSPOTS            CENTER "\007MOVE AXIS/POTS"
+#endif
   #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " WHEN DONE"
 #endif
 #define TR_TXnRX                       "Tx:\0Rx:"
 #define OFS_RX                         4
-#define TR_NODATA                      CENTER "データなし"
+#define TR_NODATA                      CENTER "NO DATA"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
 #define TR_TMIXMAXMS                   "Tmix max"
 #define TR_FREE_STACK                  "Free stack"
-#define TR_INT_GPS_LABEL               "内蔵GPS"
+#define TR_INT_GPS_LABEL               "Internal GPS"
 #define TR_HEARTBEAT_LABEL             "Heartbeat"
 #define TR_LUA_SCRIPTS_LABEL           "Lua scripts"
 #define TR_FREE_MEM_LABEL              "Free mem"
@@ -476,26 +481,31 @@
 #define TR_MENU_RADIO_ANALOGS_CALIB    "アナログ キャリブレーション"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW アナログ (5 Hz)"
 #define TR_MENUCALIBRATION             "キャリブレーション"
-#define TR_MENU_FSWITCH                "CUSTOMIZABLE SWITCHES"
+#define TR_MENU_FSWITCH                "カスタマイズ スイッチ"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "トリム => サブトリム"
 #else
   #define TR_TRIMS2OFFSETS             "\006トリム => サブトリム"
 #endif
-#define TR_CHANNELS2FAILSAFE           "チャンネル群=>フェイルセーフ"
-#define TR_CHANNEL2FAILSAFE            "チャンネル=>フェイルセーフ"
+#define TR_CHANNELS2FAILSAFE           "チャンネル=>Failsafe"
+#define TR_CHANNEL2FAILSAFE            "チャンネル=>Failsafe"
 #define TR_MENUMODELSEL                TR("MODELSEL", "モデル選択")
 #define TR_MENU_MODEL_SETUP            TR("SETUP", "モデル設定")
-#define TR_MENUFLIGHTMODES             "飛行モード群"
+#if defined(SURFACE_RADIO)
+#define TR_MENUFLIGHTMODES             "ドライブモード"
+#define TR_MENUFLIGHTMODE              "ドライブモード"
+#else
+#define TR_MENUFLIGHTMODES             "飛行モード"
 #define TR_MENUFLIGHTMODE              "飛行モード"
+#endif
 #define TR_MENUHELISETUP               "ヘリ セットアップ"
 
   #define TR_MENUINPUTS                "入力"
   #define TR_MENULIMITS                "出力"
-#define TR_MENUCURVES                  "カーブ群"
+#define TR_MENUCURVES                  "カーブ"
 #define TR_MENUCURVE                   "カーブ"
 #define TR_MENULOGICALSWITCH           "論理スイッチ"
-#define TR_MENULOGICALSWITCHES         "論理スイッチ群"
+#define TR_MENULOGICALSWITCHES         "論理スイッチ"
 #define TR_MENUCUSTOMFUNC              "スペシャルファンクション"
 #define TR_MENUCUSTOMSCRIPTS           "カスタムスクリプト"
 #define TR_MENUTELEMETRY               "テレメトリー"
@@ -510,7 +520,7 @@
 #define TR_MONITOR_MIXER_DESC          "ミキサー"
   #define TR_RECEIVER_NUM              TR("RxNum", "受信機 No.")
   #define TR_RECEIVER                  "受信機"
-#define TR_MULTI_RFTUNE                TR("Freq tune", "周波数微調整")
+#define TR_MULTI_RFTUNE                TR("Freq tune", "周波数チューニング")
 #define TR_MULTI_RFPOWER               "送信出力"
 #define TR_MULTI_WBUS                  "出力"
 #define TR_MULTI_TELEMETRY             "テレメトリー"
@@ -537,14 +547,14 @@
 #define TR_REBIND                      "再バインドが必要"
 #define TR_REG_OK                      "レジストレーションOK"
 #define TR_BIND_OK                     "バインド成功"
-#define TR_BINDING_CH1_8_TELEM_ON      "Ch1-8 Telemetry ON"
-#define TR_BINDING_CH1_8_TELEM_OFF     "Ch1-8 Telemetry OFF"
+#define TR_BINDING_CH1_8_TELEM_ON      "Ch1- 8 Telemetry ON"
+#define TR_BINDING_CH1_8_TELEM_OFF     "Ch1- 8 Telemetry OFF"
 #define TR_BINDING_CH9_16_TELEM_ON     "Ch9-16 Telemetry ON"
 #define TR_BINDING_CH9_16_TELEM_OFF    "Ch9-16 Telemetry OFF"
 #define TR_PROTOCOL_INVALID            TR("Prot. invalid", "プロトコル無効")
-#define TR_MODULE_STATUS               TR(INDENT "Status", INDENT "モジュール状態")
-#define TR_MODULE_SYNC                 TR(INDENT "Sync", INDENT "Proto 同期ステータス")
-#define TR_MULTI_SERVOFREQ             TR("Servo rate", "サーボアップデートレート")
+#define TR_MODULE_STATUS               TR(INDENT "Status", INDENT "モジュールの状態")
+#define TR_MODULE_SYNC                 TR(INDENT "Sync", INDENT "同期ステータス")
+#define TR_MULTI_SERVOFREQ             TR("Servo rate", "サーボ レート")
 #define TR_MULTI_MAX_THROW             TR("Max. Throw", "Max. throw有効")
 #define TR_MULTI_RFCHAN                TR("RF Channel", "送信チャンネル選択")
 #define TR_AFHDS3_RX_FREQ              TR("RX freq.", "受信周波数")
@@ -612,7 +622,7 @@
 #define TR_UPDATE_RX_OPTIONS           "受信オプションをアップデートしますか ?"
 #define TR_UPDATE_TX_OPTIONS           "送信オプションをアップデートしますか ?"
 #define TR_MODULES_RX_VERSION          "モジュール / 受信機バージョン"
-#define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
+#define TR_SHOW_MIXER_MONITORS         "チャンネルミキサーの表示"
 #define TR_MENU_MODULES_RX_VERSION     "モジュール / 受信機バージョン"
 #define TR_MENU_FIRM_OPTIONS           "ファームウェアオプション"
 #define TR_IMU                         "IMU"
@@ -646,7 +656,7 @@
 #define TR_THROTTLE_UPPERCASE          "THROTTLE"
 #define TR_ALARMSWARN                  "アラーム"
 #define TR_SWITCHWARN                  TR("スイッチ", "コントロール")
-#define TR_FAILSAFEWARN                "フェイルセーフ"
+#define TR_FAILSAFEWARN                "FAILSAFE"
 #define TR_TEST_WARNING                TR("テスト中", "テストビルド")
 #define TR_TEST_NOTSAFE                "テストのみで使用"
 #define TR_WRONG_SDCARDVERSION         TR("Expected ver: ", "想定バージョン: ")
@@ -654,8 +664,8 @@
 #define TR_WARN_MULTI_LOWPOWER         "低出力モード"
 #define TR_BATTERY                     "バッテリー"
 #define TR_WRONG_PCBREV                "不正なPCBを検出しました"
-#define TR_EMERGENCY_MODE              "エネルギーモード"
-#define TR_NO_FAILSAFE                 "フェイルセーフが設定されていません"
+#define TR_EMERGENCY_MODE              "緊急低電力モード"
+#define TR_NO_FAILSAFE                 "Failsafeが設定されていません"
 #define TR_KEYSTUCK                    "キー不良"
 #define TR_VOLUME                      "音量"
 #define TR_LCD                         "LCD"
@@ -665,7 +675,7 @@
 #define TR_COPROC_TEMP                 "MB温度"
 #define TR_TEMPWARNING                 INDENT "オーバーヒートです"
 #define TR_TTL_WARNING                 "警告: 論理値3.3Vを使用します"
-#define TR_FUNC                        TR("機能", "ファンクション")
+#define TR_FUNC                        "ファンクション"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
 #define TR_DURATION                    "持続時間"
@@ -706,13 +716,13 @@
 #define TR_BACKLIGHT_TIMER             "持続時間"
 
 #if defined(COLORLCD)
-  #define TR_MODEL_QUICK_SELECT        "モデル クイックセレクト"
-  #define TR_LABELS_SELECT             "Label select"
-  #define TR_LABELS_MATCH              "Label matching"
-  #define TR_FAV_MATCH                 "Favorites matching"
-  #define TR_LABELS_SELECT_MODE        "Multi select","Single select"
-  #define TR_LABELS_MATCH_MODE         "Match all","Match any"
-  #define TR_FAV_MATCH_MODE            "Must match","Optional match"
+  #define TR_MODEL_QUICK_SELECT        "モデル クイック選択"
+  #define TR_LABELS_SELECT             "ラベル選択"
+  #define TR_LABELS_MATCH              "ラベルマッチング"
+  #define TR_FAV_MATCH                 "お気に入りマッチング"
+  #define TR_LABELS_SELECT_MODE        "複数選択","単一選択"
+  #define TR_LABELS_MATCH_MODE         "すべてにマッチング","いずれかにマッチング"
+  #define TR_FAV_MATCH_MODE            "必ずマッチング","任意にマッチング"
 #endif
 
 #define TR_SELECT_TEMPLATE_FOLDER      "テンプレートフォルダを選択:"
@@ -727,8 +737,8 @@
 #define TR_BLUETOOTH                   "Bluetooth"
 #define TR_BLUETOOTH_DISC              "検索"
 #define TR_BLUETOOTH_INIT              "初期化"
-#define TR_BLUETOOTH_DIST_ADDR         "ターゲットaddr"
-#define TR_BLUETOOTH_LOCAL_ADDR        "ローカルaddr"
+#define TR_BLUETOOTH_DIST_ADDR         "通信先アドレス"
+#define TR_BLUETOOTH_LOCAL_ADDR        "通信元アドレス"
 #define TR_BLUETOOTH_PIN_CODE          "PINコード"
 #define TR_BLUETOOTH_NODEVICES         "デバイスが見つかりません"
 #define TR_BLUETOOTH_SCANNING          "検索中..."
@@ -739,7 +749,7 @@
 #define TR_BLUETOOTH_MODES             "---","テレメトリー","トレーナー"
 #endif
 
-#define TR_SD_INFO_TITLE               "SD INFO"
+#define TR_SD_INFO_TITLE               "SDカード詳細"
 #define TR_SD_TYPE                     "タイプ:"
 #define TR_SD_SPEED                    "速度:"
 #define TR_SD_SECTORS                  "セクタ:"
@@ -748,7 +758,7 @@
 #define TR_GLOBAL_VARS                 "グローバル変数"
 #define TR_GVARS                       "G変数"
 #define TR_GLOBAL_VAR                  "グローバル変数"
-#define TR_MENU_GLOBAL_VARS            "グローバル変数群"
+#define TR_MENU_GLOBAL_VARS            "グローバル変数"
 #define TR_OWN                         "Own"
 #define TR_DATE                        "日付"
 #define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
@@ -767,14 +777,14 @@
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA "OTAにて外部FCに書き込み"
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "OTAにて内部FCに書き込み"
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Flash BT module", "Bluetoothモジュールに書き込み")
-#define TR_FLASH_POWER_MANAGEMENT_UNIT "Flash pwr mngt unit"
+#define TR_FLASH_POWER_MANAGEMENT_UNIT "電源ユニットに書き込み"
 #define TR_DEVICE_NO_RESPONSE          TR("Device not responding", "デバイスが応答しません")
 #define TR_DEVICE_FILE_ERROR           TR("Device file prob.", "デバイスファイルに問題があります")
 #define TR_DEVICE_DATA_REFUSED         TR("Device data refused", "デバイスデータが拒否しました")
 #define TR_DEVICE_WRONG_REQUEST        TR("Device access problem", "デバイスアクセスに問題があります")
 #define TR_DEVICE_FILE_REJECTED        TR("Device file refused", "デバイスファイルが拒否しました")
-#define TR_DEVICE_FILE_WRONG_SIG       TR("Device file sig.", "デバイスファイル sig.")
-#define TR_CURRENT_VERSION             TR("Curr Vers: ", "現バージョン: ")
+#define TR_DEVICE_FILE_WRONG_SIG       TR("Device file sig.", "無効な署名です")
+#define TR_CURRENT_VERSION             TR("Curr Vers: ", "現行バージョン: ")
 #define TR_FLASH_INTERNAL_MODULE       TR("Flash int. module", "内部モジュールに書き込み")
 #define TR_FLASH_INTERNAL_MULTI        TR("Flash Int. Multi", "内部マルチモジュールに書き込み")
 #define TR_FLASH_EXTERNAL_MODULE       TR("Flash ext. module", "外部モジュールに書き込み")
@@ -788,14 +798,14 @@
 #define TR_INTERNAL_MODULE             TR("Int. module", "内部モジュール")
 #define TR_EXTERNAL_MODULE             TR("Ext. module", "外部モジュール")
 #define TR_OPENTX_UPGRADE_REQUIRED     "OpenTXアップグレードが必要です"
-#define TR_TELEMETRY_DISABLED          "Telem. 無効"
+#define TR_TELEMETRY_DISABLED          "テレメトリー無効"
 #define TR_MORE_OPTIONS_AVAILABLE      "その他のオプション"
 #define TR_NO_MODULE_INFORMATION       "モジュール情報なし"
 #define TR_EXTERNALRF                  "外部RFモジュール"
-#define TR_FAILSAFE                    TR(INDENT "Failsafe", INDENT "フェイルセーフモード")
-#define TR_FAILSAFESET                 "フェイルセーフ設定"
-#define TR_REG_ID                      "Reg. ID"
-#define TR_OWNER_ID                    "オーナー ID"
+#define TR_FAILSAFE                    TR(INDENT "Failsafe", INDENT "Failsafeモード")
+#define TR_FAILSAFESET                 "FAILSAFE設定"
+#define TR_REG_ID                      "登録ID"
+#define TR_OWNER_ID                    "オーナーID"
 #define TR_HOLD                        "ホールド"
 #define TR_HOLD_UPPERCASE              "ホールド"
 #define TR_NONE                        "なし"
@@ -837,20 +847,20 @@
 #define TR_USB_JOYSTICK                "USB Joystick(HID)"
 #define TR_USB_MASS_STORAGE            "USB ストレージ(SD)"
 #define TR_USB_SERIAL                  "USB シリアル(デバッグ)"
-#define TR_SETUP_SCREENS               "スクリーン設定"
+#define TR_SETUP_SCREENS               "画面設定"
 #define TR_MONITOR_SCREENS             "モニター"
 #define TR_AND_SWITCH                  "＆スイッチ"
 #define TR_SF                          "SF"
 #define TR_GF                          "GF"
-#define TR_ANADIAGS_CALIB              "アナログ信号をキャリブレーションした値を表示"
-#define TR_ANADIAGS_FILTRAWDEV         "素のアナログ信号(偏差含)をフィルターした値を表示"
-#define TR_ANADIAGS_UNFILTRAW          "素のアナログ信号をフィルターしない値を表示"
+#define TR_ANADIAGS_CALIB              "アナログ信号をキャリブレーションした値で表示"
+#define TR_ANADIAGS_FILTRAWDEV         "素の状態のアナログ信号(偏差含)をフィルターした値で表示"
+#define TR_ANADIAGS_UNFILTRAW          "素の状態のアナログ信号をフィルターしない値で表示"
 #define TR_ANADIAGS_MINMAX             "最低値、最高値、範囲を表示"
-#define TR_ANADIAGS_MOVE               "アナログ信号を極端まで動かした値を表示"
+#define TR_ANADIAGS_MOVE               "アナログ信号を末端まで動かした値を表示"
 #define TR_SPEAKER                     INDENT "スピーカー"
 #define TR_BUZZER                      INDENT "ブザー"
 #define TR_BYTES                       "バイト"
-#define TR_MODULE_BIND                 BUTTON(TR("Bnd", "バインド"))
+#define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_POWERMETER_ATTN_NEEDED      "減衰器が必要です"
 #define TR_PXX2_SELECT_RX              "受信機選択"
 #define TR_PXX2_DEFAULT                "<default>"
@@ -863,19 +873,19 @@
 #define TR_SHARE                       "共有"
 #define TR_BIND                        "Bind"
 #define TR_REGISTER                    TR("Reg", "登録")
-#define TR_MODULE_RANGE                BUTTON(TR("Rng", "レンジテスト"))
+#define TR_MODULE_RANGE                BUTTON(TR("Rng", "受信強度"))
 #define TR_RANGE_TEST                  "受信強度テスト"
 #define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "受信機オプション")
 #define TR_RESET_BTN                   BUTTON("リセット")
 #define TR_DEBUG                       "デバッグ"
 #define TR_KEYS_BTN                    BUTTON("キー")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "アナログ"))
-#define TR_FS_BTN                      BUTTON(TR("Custom sw", "Customizable switches"))
+#define TR_FS_BTN                      BUTTON(TR("Custom sw", "カスタマイズ スイッチ"))
 #define TR_TOUCH_NOTFOUND              "タッチパネルは見つかりませんでした"
 #define TR_TOUCH_EXIT                  "画面をタップして終了します"
 #define TR_SET                         BUTTON("設定")
 #define TR_TRAINER                     "トレーナー"
-#define TR_CHANS                       "アクセス"
+#define TR_CHANS                       "チャンネル"
 #define TR_ANTENNAPROBLEM              CENTER "送信アンテナに問題があります!!"
 #define TR_MODELIDUSED                 "使用するID:"
 #define TR_MODELIDUNIQUE               "IDはユニークです"
@@ -888,7 +898,7 @@
 #define TR_INTERVAL                    "インターバル"
 #define TR_REPEAT                      "リピート"
 #define TR_ENABLE                      "有効"
-#define TR_DISABLE                     "Disable"
+#define TR_DISABLE                     "無効"
 #define TR_TOPLCDTIMER                 "上部LCDタイマー"
 #define TR_UNIT                        "ユニット"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "新規追加"
@@ -912,10 +922,10 @@
 #define TR_POPUP                       "ポップアップ"
 #define TR_MIN                         "最小"
 #define TR_MAX                         "最大"
-#define TR_CURVE_PRESET                "リセット..."
-#define TR_PRESET                      "リセット"
+#define TR_CURVE_PRESET                "プリセット..."
+#define TR_PRESET                      "プリセット"
 #define TR_MIRROR                      "ミラー"
-#define TR_CLEAR                       "クリア"
+#define TR_CLEAR                       "消去"
 #define TR_RESET                       "リセット"
 #define TR_RESET_SUBMENU               "リセット..."
 #define TR_COUNT                       "カウント"
@@ -931,8 +941,8 @@
 #define TR_CONSTANT                    "変化なし"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "OFF","ON","自動"
 #define TR_PREFLIGHT                   "飛行前チェック"
-#define TR_CHECKLIST                   TR(INDENT "Checklist", INDENT "チェックリスト表示")
-#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "C-Interact", INDENT "Interact. checklist", INDENT "Interactive checklist")
+#define TR_CHECKLIST                   TR(INDENT "Checklist", INDENT "チェックリストの表示")
+#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "C-Interact", INDENT "Interact. checklist", INDENT "インタラクティブ チェック")
 #define TR_AUX_SERIAL_MODE             "シリアルポート"
 #define TR_AUX2_SERIAL_MODE            "シリアルポート 2"
 #define TR_AUX_SERIAL_PORT_POWER       "ポート出力"
@@ -1021,12 +1031,12 @@
 #define TR_BL_WRITING_COMPL           "Writing Complete"
 
 #if LCD_W >= 480
-  #define TR_BL_INVALID_FIRMWARE       "Not a valid firmware file"
+  #define TR_BL_INVALID_FIRMWARE       "有効なファームウェアではありません"
 #elif LCD_W >= 212
   #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN_MASS_STORE
-  #define TR_BL_HOLD_ENTER_TO_START    "\012Hold [ENT] to start writing"
-  #define TR_BL_INVALID_FIRMWARE       "\011Not a valid firmware file!        "
-  #define TR_BL_INVALID_EEPROM         "\011Not a valid EEPROM file!          "
+  #define TR_BL_HOLD_ENTER_TO_START    "\012[ENT]を長押しし書き込み開始"
+  #define TR_BL_INVALID_FIRMWARE       "\011有効なファームウェアではありません"
+  #define TR_BL_INVALID_EEPROM         "\011有効なEEPROMファイルではありません"
 #else
   #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
   #define TR_BL_HOLD_ENTER_TO_START    "\006Hold [ENT] to start"
@@ -1043,26 +1053,26 @@
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific - Ascii only
-  #define TR_BL_SELECT_KEY            "[ENT] to select file"
-  #define TR_BL_FLASH_KEY             "Hold [ENT] long to flash"
-  #define TR_BL_EXIT_KEY              "[RTN] to exit"
+  #define TR_BL_SELECT_KEY            "[ENT]でファイルを選択"
+  #define TR_BL_FLASH_KEY             "[ENT]を長押しし書き込み"
+  #define TR_BL_EXIT_KEY              "[RTN]で終了"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific - Ascii only
-  #define TR_BL_RF_USB_ACCESS         "RF USB access"
-  #define TR_BL_CURRENT_FW            "Current Firmware:"
-  #define TR_BL_SELECT_KEY            "[R TRIM] to select file"
-  #define TR_BL_FLASH_KEY             "Hold [R TRIM] long to flash"
-  #define TR_BL_EXIT_KEY              " [L TRIM] to exit"
+  #define TR_BL_RF_USB_ACCESS         "RF USB アクセス"
+  #define TR_BL_CURRENT_FW            "現ファームウェア:"
+  #define TR_BL_SELECT_KEY            "[R TRIM]でファイルを選択"
+  #define TR_BL_FLASH_KEY             "[R TRIM]を長押しし書き込み"
+  #define TR_BL_EXIT_KEY              " [L TRIM]で終了"
 #elif defined(PCBPL18)
    // Bootloader PL18 specific - Ascii only
-  #define TR_BL_RF_USB_ACCESS         "RF USB access"
-  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
-  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
-  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
-  #define TR_BL_SELECT_KEY            " [TR4 Dn] to select file"
-  #define TR_BL_FLASH_KEY             " Hold [TR4 Dn] long to flash"
-  #define TR_BL_ERASE_KEY             " Hold [TR4 Dn] long to erase"
-  #define TR_BL_EXIT_KEY              " [TR4 Up] to exit"
+  #define TR_BL_RF_USB_ACCESS         "RF USB アクセス"
+  #define TR_BL_ERASE_INT_FLASH       "内蔵フラッシュストレージの消去"
+  #define TR_BL_ERASE_FLASH           "フラッシュストレージの消去"
+  #define TR_BL_ERASE_FLASH_MSG       "最大200秒かかります"
+  #define TR_BL_SELECT_KEY            " [TR4 Dn]でファイルを選択"
+  #define TR_BL_FLASH_KEY             " [TR4 Dn]を長押しし書き込み"
+  #define TR_BL_ERASE_KEY             " [TR4 Dn]を長押しし消去"
+  #define TR_BL_EXIT_KEY              " [TR4 Up]で終了"
 #endif
 
 // About screen
@@ -1114,10 +1124,10 @@
 #define TR_DELETE_ALL_SENSORS          "すべて削除"
 #define TR_CONFIRMDELETE               "本当に " LCDW_128_480_LINEBREAK "すべて削除しますか？"
 #define TR_SELECT_WIDGET               "ウィジェット選択"
-#define TR_WIDGET_FULLSCREEN           "フルスクリーン"
+#define TR_WIDGET_FULLSCREEN           "全画面表示"
 #define TR_REMOVE_WIDGET               "ウィジェット削除"
 #define TR_WIDGET_SETTINGS             "ウィジェット設定"
-#define TR_REMOVE_SCREEN               "スクリーン削除"
+#define TR_REMOVE_SCREEN               "ビュー画面削除"
 #define TR_SETUP_WIDGETS               "ウィジェット設定"
 #define TR_USER_INTERFACE              "ユーザインターフェイス"
 #define TR_THEME                       "テーマ"
@@ -1147,7 +1157,7 @@
 #define TR_MENU_DISPLAY                "表示"
 #define TR_MENU_OTHER                  "その他"
 #define TR_MENU_INVERT                 "リバース"
-#define TR_AUDIO_MUTE                  TR("Audio mute","Mute if no sound")
+#define TR_AUDIO_MUTE                  TR("Audio mute","音源ミュート")
 #define TR_JITTER_FILTER               "ADCフィルター"
 #define TR_DEAD_ZONE                   "デッドゾーン"
 #define TR_RTC_CHECK                   TR("Check RTC", "内蔵電池チェック")
@@ -1201,11 +1211,11 @@
 #define TR_MAIN_MENU_SELECT_MODEL       "モデル\n選択"
 #define TR_MAIN_MENU_MANAGE_MODELS      "モデル\n管理"
 #define TR_MAIN_MENU_MODEL_NOTES        "モデル\nノート"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "チャンネル\nモニター"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel\nモニター"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "モデル\n設定"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "送信機\n設定"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "スクリーン\n設定"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "リセット\nテレメトリ"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "画面設定"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "リセット\nTelemetry"
 #define TR_MAIN_MENU_STATISTICS         "統計情報"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "EdgeTX\nについて"
 // End Main menu
@@ -1228,38 +1238,38 @@
 #define TR_VOICE_SWEDISH                "スウェーデン-SV"
 #define TR_VOICE_TAIWANESE              "中文-TW"
 #define TR_VOICE_JAPANESE               "日本-JP"
-#define TR_VOICE_HEBREW                 "ヘブライ語"
-#define TR_VOICE_UKRAINIAN               "Ukrainian"
+#define TR_VOICE_HEBREW                 "ヘブライ-HE"
+#define TR_VOICE_UKRAINIAN              "ウクライナ-UK"
 
 #define TR_USBJOYSTICK_LABEL           "USB Joystick"
 #define TR_USBJOYSTICK_EXTMODE         "モード"
-#define TR_VUSBJOYSTICK_EXTMODE        "クラシック","アドバンス"
+#define TR_VUSBJOYSTICK_EXTMODE        "標準","詳細"
 #define TR_USBJOYSTICK_SETTINGS        "チャンネル設定"
-#define TR_USBJOYSTICK_IF_MODE         TR("If. mode","インターフェイスモード")
-#define TR_VUSBJOYSTICK_IF_MODE        "Joystick","Gamepad","MultiAxis"
+#define TR_USBJOYSTICK_IF_MODE         TR("If. mode","Interface mode")
+#define TR_VUSBJOYSTICK_IF_MODE        "Joystick","ゲームPad","マルチ軸"
 #define TR_USBJOYSTICK_CH_MODE         "モード"
-#define TR_VUSBJOYSTICK_CH_MODE        "None","Btn","Axis","Sim"
+#define TR_VUSBJOYSTICK_CH_MODE        "なし","ボタン","軸","シミュ"
 #define TR_VUSBJOYSTICK_CH_MODE_S      "-","B","A","S"
-#define TR_USBJOYSTICK_CH_BTNMODE      "ボタンモード"
-#define TR_VUSBJOYSTICK_CH_BTNMODE     "Normal","Pulse","SWEmu","Delta","Companion"
-#define TR_VUSBJOYSTICK_CH_BTNMODE_S   TR("Norm","Normal"),TR("Puls","Pulse"),TR("SWEm","SWEmul"),TR("Delt","Delta"),TR("CPN","Companion")
-#define TR_USBJOYSTICK_CH_SWPOS        "ポジション"
+#define TR_USBJOYSTICK_CH_BTNMODE      "ボタン"
+#define TR_VUSBJOYSTICK_CH_BTNMODE     "標準","パルス","SWエミュ","デルタ","コンパニオン"
+#define TR_VUSBJOYSTICK_CH_BTNMODE_S   TR("Norm","標準"),TR("Puls","パルス"),TR("SWEm","SWエミュ"),TR("Delt","デルタ"),TR("CPN","コンパニオン")
+#define TR_USBJOYSTICK_CH_SWPOS        "Sw-POS"
 #define TR_VUSBJOYSTICK_CH_SWPOS       "Push","2POS","3POS","4POS","5POS","6POS","7POS","8POS"
-#define TR_USBJOYSTICK_CH_AXIS         "Axis"
-#define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","rotX","rotY","rotZ","Slider","Dial","Wheel"
-#define TR_USBJOYSTICK_CH_SIM          "Sim axis"
+#define TR_USBJOYSTICK_CH_AXIS         "軸"
+#define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","Xロール","Yロール","Zロール","スライダー","ダイヤル","ホイール"
+#define TR_USBJOYSTICK_CH_SIM          "シミュ軸"
 #define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr"
 #define TR_USBJOYSTICK_CH_INVERSION    "リバース"
 #define TR_USBJOYSTICK_CH_BTNNUM       "ボタンNo."
 #define TR_USBJOYSTICK_BTN_COLLISION   "!ボタンNo.の衝突!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!軸設定の衝突!"
-#define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Circ. cut", "円形カットアウト")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "None","X-Y, Z-rX","X-Y, rX-rY"
+#define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Circ. cut", "円形カット")
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "なし","X-Y, Z-rX","X-Y, rX-rY"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "変更を適用"
 
 #define TR_DIGITAL_SERVO          "Servo333HZ"
 #define TR_ANALOG_SERVO           "Servo 50HZ"
-#define TR_SIGNAL_OUTPUT          "Signal出力"
+#define TR_SIGNAL_OUTPUT          "シグナル出力"
 #define TR_SERIAL_BUS             "シリアルバス"
 #define TR_SYNC                   "同期"
 
@@ -1267,9 +1277,9 @@
 #define TR_RADIO_MENU_TABS        "送信機メニュータブ"
 #define TR_MODEL_MENU_TABS        "モデルメニュータブ"
 
-#define TR_SELECT_MENU_ALL        "All"
-#define TR_SELECT_MENU_CLR        "Clear"
-#define TR_SELECT_MENU_INV        "Invert"
+#define TR_SELECT_MENU_ALL        "すべて"
+#define TR_SELECT_MENU_CLR        "消去"
+#define TR_SELECT_MENU_INV        "リバース"
 
 #define TR_SORT_ORDERS            "名称 A-Z順","名称 Z-A順","利用の少ない順","利用の多い順"
 #define TR_SORT_MODELS_BY         "モデルをソート"
