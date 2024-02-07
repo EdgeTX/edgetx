@@ -168,16 +168,16 @@
 #define TR_HATSOPT                     "Kun trim","Kun knap","Trim / Knap", "Global"
 #define TR_HATSMODE_TRIMS              "Joystik: Trim"
 #define TR_HATSMODE_KEYS               "Joystik: Knap"
-#define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
-                                       "   Right = MDL\n"\
-                                       "   Up = SYS\n"\
+#define TR_HATSMODE_KEYS_HELP          "Venstre side:\n"\
+                                       "   Højre = MDL\n"\
+                                       "   Up    = SYS\n"\
                                        "   Down = TELE\n"\
                                        "\n"\
-                                       "Right side:\n"\
-                                       "   Left = PAGE<\n"\
-                                       "   Right = PAGE>\n"\
-                                       "   Up = PREV/INC\n"\
-                                       "   Down = NEXT/DEC"
+                                       "Højre side:\n"\
+                                       "   Venstre = PAGE<\n"\
+                                       "   Højre   = PAGE>\n"\
+                                       "   Op  = PREV/INC\n"\
+                                       "   Ned = NEXT/DEC"
 #endif
 
 #if defined(COLORLCD)
@@ -199,10 +199,10 @@
 #endif
 
 
-#define TR_SRC_BATT                    "Batt"
+#define TR_SRC_BATT                    "Bat."
 #define TR_SRC_TIME                    "Time"
 #define TR_SRC_GPS                     "GPS"
-#define TR_SRC_TIMER                   "Tmr"
+#define TR_SRC_TIMER                   "Tid"
 
 #define TR_VTMRMODES                   "FRA","TIL","Strt","THs","TH%","THt"
 #define TR_VTRAINER_MASTER_OFF         "FRA"
@@ -299,11 +299,11 @@
   #define TR_CHECKTRIMS                CENTER "\006Kontroller\012trim"
 #endif
 #define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
-#define TR_SWASHTYPE                   "Swash Type"
+#define TR_SWASHTYPE                   "Swash type"
 #define TR_COLLECTIVE                  TR("Collective", "Coll. pitch kilde")
 #define TR_AILERON                     TR("Lateral cyc.", "Lateral cyc. kilde")
 #define TR_ELEVATOR                    TR("Long. cyc.", "Long. cyc. kilde")
-#define TR_SWASHRING                   "Swash Ring"
+#define TR_SWASHRING                   "Swash ring"
 #define TR_MODE                        TR("Tils.","Tilstand")
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Venstre"
@@ -529,8 +529,8 @@
 #define TR_MULTI_FIXEDID               TR("LåstID", "Låst ID")
 #define TR_MULTI_OPTION                TR("Tilvalg", "Tilvalg værdi")
 #define TR_MULTI_AUTOBIND              TR(INDENT "Bind Ka.", INDENT "Bind til kanal")
-#define TR_DISABLE_CH_MAP              TR("No Ch. map", "Deaktiver Ch. map")
-#define TR_DISABLE_TELEM               TR("No Telem", "Deaktiver telemetri")
+#define TR_DISABLE_CH_MAP              TR("% ka. kort", "Deaktiver kanal kort")
+#define TR_DISABLE_TELEM               TR("% Telem.", "Deaktiver telemetri")
 #define TR_MULTI_DSM_AUTODTECT         TR(INDENT "Automatisk", INDENT "Automatisk format")
 #define TR_MULTI_LOWPOWER              TR(INDENT "Lav strøm", INDENT "Lav strøm tilstand")
 #define TR_MULTI_LNA_DISABLE           INDENT "LNA deaktiver"
@@ -633,8 +633,8 @@
 #define TR_POWER                       "Strøm"
 #define TR_NO_TX_OPTIONS               "Ingen TX tilvalg"
 #define TR_RTC_BATT                    "RTC Bat."
-#define TR_POWER_METER_EXT             "Strøm Meter (EXT)"
-#define TR_POWER_METER_INT             "Strøm Meter (INT)"
+#define TR_POWER_METER_EXT             "Strøm meter (EXT)"
+#define TR_POWER_METER_INT             "Strøm meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
 #define TR_SDCARD_FULL                 "SD kort fuldt"
@@ -1053,25 +1053,25 @@
 #elif defined(PCBHORUS)
    // Bootloader Horus specific - Ascii only
   #define TR_BL_SELECT_KEY            "[ENT] for at bruge fil"
-  #define TR_BL_FLASH_KEY             "[ENT] lang tid for at starte"
+  #define TR_BL_FLASH_KEY             "[ENT] længe, for at starte"
   #define TR_BL_EXIT_KEY              "[RTN] for at forlade"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific - Ascii only
   #define TR_BL_RF_USB_ACCESS         "RF USB adgang"
   #define TR_BL_CURRENT_FW            "Firmware version:"
   #define TR_BL_SELECT_KEY            "[R TRIM] for at bruge fil"
-  #define TR_BL_FLASH_KEY             "[R TRIM] lang til for at starte"
+  #define TR_BL_FLASH_KEY             "[R TRIM] længe, for at starte"
   #define TR_BL_EXIT_KEY              "[L TRIM] for at forlade"
 #elif defined(PCBPL18)
    // Bootloader PL18 specific - Ascii only
-  #define TR_BL_RF_USB_ACCESS         "RF USB access"
-  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
-  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
-  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
-  #define TR_BL_SELECT_KEY            " [TR4 Dn] to select file"
-  #define TR_BL_FLASH_KEY             " Hold [TR4 Dn] long to flash"
-  #define TR_BL_ERASE_KEY             " Hold [TR4 Dn] long to erase"
-  #define TR_BL_EXIT_KEY              " [TR4 Up] to exit"
+  #define TR_BL_RF_USB_ACCESS         "RF USB adgang"
+  #define TR_BL_ERASE_INT_FLASH       "Slet intern flash lager"
+  #define TR_BL_ERASE_FLASH           "Slet flash lager"
+  #define TR_BL_ERASE_FLASH_MSG       "Dette kan vare op til 200s"
+  #define TR_BL_SELECT_KEY            " [TR4 Dn] for at bruge fil"
+  #define TR_BL_FLASH_KEY             " Hold [TR4 Dn] længe, for brænding"
+  #define TR_BL_ERASE_KEY             " Hold [TR4 Dn] længe, for sletning"
+  #define TR_BL_EXIT_KEY              " [TR4 Up] for at forlade"
 #endif
 
 // About screen
