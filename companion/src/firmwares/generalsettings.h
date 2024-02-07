@@ -310,6 +310,11 @@ class GeneralSettings {
     bool modelCustomScriptsDisabled;
     bool modelTelemetryDisabled;
 
+    int modelSelectLayout;
+    int labelSingleSelect;
+    int labelMultiMode;
+    int favMultiMode;
+
     // v 2.10 ADC refactor
     // earlier version data is read into legacy structs to maintain older version compatibility
     // post reading the legacy structs are manipulated into the new structs
