@@ -76,6 +76,9 @@ void onCustomFunctionsFileSelectionMenu(const char * result)
     // The user choosed a file in the list
     memcpy(cfn->play.name, result, sizeof(cfn->play.name));
     storageDirty(eeFlags);
+    if (func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED) {
+      LUA_LOAD_MODEL_SCRIPTS();
+    }
   }
 }
 #endif // SDCARD
@@ -473,7 +476,12 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
         
         case 5:
             drawCheckBox(MODEL_SPECIAL_FUNC_5TH_COLUMN_ONOFF, y, CFN_ACTIVE(cfn), attr);
-            if (active) CFN_ACTIVE(cfn) = checkIncDec(event, CFN_ACTIVE(cfn), 0, 1, eeFlags);      
+            if (active) {
+              CFN_ACTIVE(cfn) = checkIncDec(event, CFN_ACTIVE(cfn), 0, 1, eeFlags);
+              if (checkIncDec_Ret && (func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED)) {
+                LUA_LOAD_MODEL_SCRIPTS();
+              }
+            }
             break;
       }
     }
