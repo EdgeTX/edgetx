@@ -76,7 +76,7 @@ void onCustomFunctionsFileSelectionMenu(const char * result)
     // The user choosed a file in the list
     memcpy(cfn->play.name, result, sizeof(cfn->play.name));
     storageDirty(eeFlags);
-    if (func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED) {
+    if (CFN_ACTIVE(cfn)  && (func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED)) {
       LUA_LOAD_MODEL_SCRIPTS();
     }
   }
