@@ -59,7 +59,8 @@ static uint8_t _usbJoystickAxisPairs[3][2] = { };
 /*
   This USB HID endpoint report description defines a device with:
     * 24 digital buttons
-    * 8 analog axes with 8bit resolution
+    * 8 analog axes with 16bit resolution
+    * remaining battery capacity
 
   Report packet described as C struct is:
 
@@ -67,14 +68,15 @@ static uint8_t _usbJoystickAxisPairs[3][2] = { };
     uint8_t buttons1; //bit 0 - button 1, bit 1 - button 2, ..., mapped to channels 9-16, on if channel > 0
     uint8_t buttons2; // mapped to channels 17-24, on if channel > 0
     uint8_t buttons3; // mapped to channels 25-32, on if channel > 0
-    uint8_t X;  //analog value, mapped to channel 1
-    uint8_t Y;  //analog value, mapped to channel 2
-    uint8_t Z;  //analog value, mapped to channel 3
-    uint8_t Rx; //analog value, mapped to channel 4
-    uint8_t Ry  //analog value, mapped to channel 5
-    uint8_t Rz; //analog value, mapped to channel 6
-    uint8_t S1; //analog value, mapped to channel 7
-    uint8_t S2; //analog value, mapped to channel 8
+    uint16_t X;  //analog value, mapped to channel 1
+    uint16_t Y;  //analog value, mapped to channel 2
+    uint16_t Z;  //analog value, mapped to channel 3
+    uint16_t Rx; //analog value, mapped to channel 4
+    uint16_t Ry  //analog value, mapped to channel 5
+    uint16_t Rz; //analog value, mapped to channel 6
+    uint16_t S1; //analog value, mapped to channel 7
+    uint16_t S2; //analog value, mapped to channel 8
+    uint8_t system; // remaining battery capacity
   }
 */
 static const uint8_t HID_JOYSTICK_ReportDesc[] =
