@@ -443,6 +443,9 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
                        attr);
           if (active)
             CFN_ACTIVE(cfn) = checkIncDec(event, CFN_ACTIVE(cfn), 0, 1, eeFlags);
+            if (checkIncDec_Ret && (func == FUNC_PLAY_SCRIPT)) {
+              LUA_LOAD_MODEL_SCRIPTS();
+            }
           break;
       }
     }
