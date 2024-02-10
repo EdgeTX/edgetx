@@ -309,20 +309,33 @@ int setupUSBJoystick()
     _hidReportDescSize = 25;
 
     // USAGE (Joystick=0x04, Gamepad=0x05,  Multi-axis Controller=0x08)
-    uint8_t joystickType = 0x04;
-    if (_usbJoystickIfMode == USBJOYS_GAMEPAD) joystickType = 0x05;
-    else if (_usbJoystickIfMode == USBJOYS_MULTIAXIS) joystickType = 0x08;
+    uint8_t joystickType;
+    if (_usbJoystickIfMode == USBJOYS_GAMEPAD) {
+      joystickType = 0x05;
 
-    buttonCount = buttonCount ? buttonCount : 1;
+      // USB HID Usage Tables 1.21 page 33 : at least 4 buttons
+      buttonCount = buttonCount >= 4 ? buttonCount : 4;
+    } else if (_usbJoystickIfMode == USBJOYS_MULTIAXIS) {
+      joystickType = 0x08;
+    } else {
+      joystickType = 0x04;
+
+      // USB HID Usage Tables 1.21 page 33 : at least 2 buttons
+      buttonCount = buttonCount >= 2 ? buttonCount : 2;
+    }
 
     _hidReportDesc[3] = joystickType;
     _hidReportDesc[15] = buttonCount;
     _hidReportDesc[20] = buttonCount;
 
-    // add padding for missing buttons
+    if (buttonCount == 0) _hidReportDescSize -= 15;
+
+    // padding for missing buttons
     if (buttonCount < USBJ_BUTTON_SIZE) {
-      _hidReportDesc[_hidReportDescSize++] = 0x95;
+      _hidReportDesc[_hidReportDescSize++] = 0x75;
       _hidReportDesc[_hidReportDescSize++] = USBJ_BUTTON_SIZE - buttonCount;
+      _hidReportDesc[_hidReportDescSize++] = 0x95;
+      _hidReportDesc[_hidReportDescSize++] = 0x01;
       _hidReportDesc[_hidReportDescSize++] = 0x81;
       _hidReportDesc[_hidReportDescSize++] = 0x03;
     }
