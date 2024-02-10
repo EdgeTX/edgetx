@@ -359,8 +359,13 @@ class SpecialFunctionEditPage : public Page
 
     line = specialFunctionOneWindow->newLine(&grid);
     new StaticText(line, rect_t{}, STR_ENABLE, 0, COLOR_THEME_PRIMARY1);
-    new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
-
+    new ToggleSwitch(line, rect_t{}, GET_DEFAULT(CFN_ACTIVE(cfn)),
+                     [=](int newValue) {
+                      CFN_ACTIVE(cfn) = newValue;
+                      SET_DIRTY();
+                      if (func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED)
+                        LUA_LOAD_MODEL_SCRIPTS();
+                     });
   }
 
   void buildBody(FormWindow *window)
@@ -756,12 +761,12 @@ void SpecialFunctionsPage::newSF(FormWindow * window, bool pasteSF)
 void SpecialFunctionsPage::pasteSpecialFunction(FormWindow * window, uint8_t index, Button* button)
 {
   CustomFunctionData *cfn = &functions[index];
-  if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
+  if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT || CFN_FUNC(cfn) == FUNC_RGB_LED)
     LUA_LOAD_MODEL_SCRIPTS();
   *cfn = clipboard.data.cfn;
-  if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
+  if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT || CFN_FUNC(cfn) == FUNC_RGB_LED)
     LUA_LOAD_MODEL_SCRIPTS();
-  storageDirty(EE_MODEL);
+  SET_DIRTY();
   focusIndex = index;
   if (button)
     lv_event_send(button->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
@@ -879,6 +884,8 @@ void SpecialFunctionsPage::build(FormWindow *window)
           menu->addLine(STR_ENABLE, [=]() {
             CFN_ACTIVE(cfn) = 1;
             SET_DIRTY();
+            if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT || CFN_FUNC(cfn) == FUNC_RGB_LED)
+              LUA_LOAD_MODEL_SCRIPTS();
             rebuild(window);
           });
         }
@@ -898,7 +905,7 @@ void SpecialFunctionsPage::build(FormWindow *window)
         }
         if (isActive) {
           menu->addLine(STR_CLEAR, [=]() {
-            if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
+            if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT || CFN_FUNC(cfn) == FUNC_RGB_LED)
               LUA_LOAD_MODEL_SCRIPTS();
             memset(cfn, 0, sizeof(CustomFunctionData));
             SET_DIRTY();
@@ -908,7 +915,7 @@ void SpecialFunctionsPage::build(FormWindow *window)
         for (int j = i; j < MAX_SPECIAL_FUNCTIONS; j++) {
           if (!functions[j].isEmpty()) {
             menu->addLine(STR_DELETE, [=]() {
-              if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT)
+              if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT || CFN_FUNC(cfn) == FUNC_RGB_LED)
                 LUA_LOAD_MODEL_SCRIPTS();
               memmove(
                   cfn, cfn + 1,
