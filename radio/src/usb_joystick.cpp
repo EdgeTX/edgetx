@@ -111,7 +111,7 @@ static const uint8_t HID_JOYSTICK_ReportDesc[] =
     0xc0,                          //       END_COLLECTION
     0x05, 0x06,                    //       USAGE_PAGE (Generic Dev Ctrls)
     0x09, 0x20,                    //       USAGE (Battery Strength)
-    0x15, 0x00,                    //       LOGICAL_MINIMUM (0)
+    0x14,                          //       LOGICAL_MINIMUM (0)
     0x25, 0x64,                    //       LOGICAL_MAXIMUM (100)
     0x75, 0x08,                    //       REPORT_SIZE (8)
     0x95, 0x01,                    //       REPORT_COUNT (1)
@@ -361,8 +361,8 @@ int setupUSBJoystick()
     _hidReportDesc[_hidReportDescSize++] = 0xc0;
 
     // battery status
-    memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+57, 14);
-    _hidReportDescSize += 14;
+    memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+57, 13);
+    _hidReportDescSize += 13;
 
     // END_COLLECTION
     _hidReportDesc[_hidReportDescSize++] = 0xc0;
