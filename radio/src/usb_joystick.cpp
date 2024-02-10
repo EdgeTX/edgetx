@@ -313,9 +313,19 @@ int setupUSBJoystick()
     if (_usbJoystickIfMode == USBJOYS_GAMEPAD) joystickType = 0x05;
     else if (_usbJoystickIfMode == USBJOYS_MULTIAXIS) joystickType = 0x08;
 
+    buttonCount = buttonCount ? buttonCount : 1;
+
     _hidReportDesc[3] = joystickType;
-    _hidReportDesc[15] = buttonCount ? buttonCount : 1;
-    _hidReportDesc[20] = USBJ_BUTTON_SIZE;
+    _hidReportDesc[15] = buttonCount;
+    _hidReportDesc[20] = buttonCount;
+
+    // add padding for missing buttons
+    if (buttonCount < USBJ_BUTTON_SIZE) {
+      _hidReportDesc[_hidReportDescSize++] = 0x95;
+      _hidReportDesc[_hidReportDescSize++] = USBJ_BUTTON_SIZE - buttonCount;
+      _hidReportDesc[_hidReportDescSize++] = 0x81;
+      _hidReportDesc[_hidReportDescSize++] = 0x03;
+    }
 
     // generic axis types
     if (genAxisCount > 0) {
