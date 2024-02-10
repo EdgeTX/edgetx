@@ -103,7 +103,7 @@ static const uint8_t HID_JOYSTICK_ReportDesc[] =
     0x09, 0x35,                    //         USAGE (Rz)
     0x09, 0x36,                    //         USAGE (Slider)
     0x09, 0x37,                    //         USAGE (Dial)
-    0x16, 0x00, 0x00,              //         LOGICAL_MINIMUM (0)
+    0x14,                          //         LOGICAL_MINIMUM (0)
     0x26, 0xFF, 0x07,              //         LOGICAL_MAXIMUM (2047)
     0x75, 0x10,                    //         REPORT_SIZE (16)
     0x95, 0x08,                    //         REPORT_COUNT (8)
@@ -332,9 +332,9 @@ int setupUSBJoystick()
         }
       }
 
-      memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+44, 12);
-      _hidReportDesc[_hidReportDescSize+9] = genAxisCount;
-      _hidReportDescSize += 12;
+      memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+44, 10);
+      _hidReportDesc[_hidReportDescSize+7] = genAxisCount;
+      _hidReportDescSize += 10;
     }
 
     // sim axis types
@@ -352,16 +352,16 @@ int setupUSBJoystick()
         }
       }
 
-      memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+44, 12);
-      _hidReportDesc[_hidReportDescSize+9] = simAxisCount;
-      _hidReportDescSize += 12;
+      memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+44, 10);
+      _hidReportDesc[_hidReportDescSize+7] = simAxisCount;
+      _hidReportDescSize += 10;
     }
 
     // END_COLLECTION
     _hidReportDesc[_hidReportDescSize++] = 0xc0;
 
     // battery status
-    memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+57, 13);
+    memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+55, 13);
     _hidReportDescSize += 13;
 
     // END_COLLECTION
