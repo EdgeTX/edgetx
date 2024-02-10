@@ -89,7 +89,7 @@ static const uint8_t HID_JOYSTICK_ReportDesc[] =
     0x05, 0x09,                    //         USAGE_PAGE (Button)
     0x19, 0x01,                    //         USAGE_MINIMUM (Button 1)
     0x29, 0x18,                    //         USAGE_MAXIMUM (Button 24)
-    0x15, 0x00,                    //         LOGICAL_MINIMUM (0)
+    0x14,                          //         LOGICAL_MINIMUM (0)
     0x25, 0x01,                    //         LOGICAL_MAXIMUM (1)
     0x95, 0x18,                    //         REPORT_COUNT (24)
     0x75, 0x01,                    //         REPORT_SIZE (1)
@@ -305,8 +305,8 @@ int setupUSBJoystick()
     // generate report desc
 
     // USAGE_PAGE (Generic Desktop)
-    memcpy(_hidReportDesc, HID_JOYSTICK_ReportDesc, 26);
-    _hidReportDescSize = 26;
+    memcpy(_hidReportDesc, HID_JOYSTICK_ReportDesc, 25);
+    _hidReportDescSize = 25;
 
     // USAGE (Joystick=0x04, Gamepad=0x05,  Multi-axis Controller=0x08)
     uint8_t joystickType = 0x04;
@@ -315,7 +315,7 @@ int setupUSBJoystick()
 
     _hidReportDesc[3] = joystickType;
     _hidReportDesc[15] = buttonCount ? buttonCount : 1;
-    _hidReportDesc[21] = USBJ_BUTTON_SIZE;
+    _hidReportDesc[20] = USBJ_BUTTON_SIZE;
 
     // generic axis types
     if (genAxisCount > 0) {
@@ -332,7 +332,7 @@ int setupUSBJoystick()
         }
       }
 
-      memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+44, 10);
+      memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+43, 10);
       _hidReportDesc[_hidReportDescSize+7] = genAxisCount;
       _hidReportDescSize += 10;
     }
@@ -352,7 +352,7 @@ int setupUSBJoystick()
         }
       }
 
-      memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+44, 10);
+      memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+43, 10);
       _hidReportDesc[_hidReportDescSize+7] = simAxisCount;
       _hidReportDescSize += 10;
     }
@@ -361,7 +361,7 @@ int setupUSBJoystick()
     _hidReportDesc[_hidReportDescSize++] = 0xc0;
 
     // battery status
-    memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+55, 13);
+    memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+54, 13);
     _hidReportDescSize += 13;
 
     // END_COLLECTION
