@@ -110,6 +110,8 @@ class BaseNumberEdit: public FormField
         std::string str;
         if (displayFunction != nullptr) {
           str = displayFunction(currentValue);
+        } else if (!zeroText.empty() && currentValue==0) {
+          str = zeroText;
         } else {
           str = formatNumberAsString(currentValue, textFlags, 0, prefix.c_str(),
                                      suffix.c_str());
@@ -194,6 +196,8 @@ class BaseNumberEdit: public FormField
         std::string str;
         if (displayFunction != nullptr) {
           str = displayFunction(currentValue);
+        } else if (!zeroText.empty() && currentValue==0) {
+          str = zeroText;
         } else {
           str = formatNumberAsString(currentValue, textFlags, 0, prefix.c_str(),
                                      suffix.c_str());
