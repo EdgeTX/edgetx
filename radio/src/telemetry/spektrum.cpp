@@ -353,6 +353,8 @@ const SpektrumSensor spektrumSensors[] = {
 
 // Alt Low and High needs to be combined (in 2 diff packets)
 static uint8_t gpsAltHigh = 0;
+static bool varioTelemetry = false;
+static bool flightPackTelemetry = false;
 
 // Helper function declared later
 static void processAS3XPacket(const uint8_t *packet);
@@ -541,6 +543,12 @@ void processSpektrumPacket(const uint8_t *packet)
 
   uint8_t instance = packet[3];
 
+  if (telemetryState == TELEMETRY_INIT) {  // Telemetry Reset?
+    gpsAltHigh = 0;
+    varioTelemetry = false;
+    flightPackTelemetry = false;
+  }
+
   if (i2cAddress == I2C_NODATA) {
     // Not a Sensor.. Telemetry is alive, but no data  (avoid creation of fake 0000,0002.. sensors)
     return; 
@@ -668,20 +676,28 @@ void processSpektrumPacket(const uint8_t *packet)
       value = value * 196791 / 100000;
     } // I2C_HIGH_CURRENT
 
-    // Check if this looks like a LemonRX Transceiver, they use QoS Frame loss A as RSSI indicator(0-100)
-    else if (i2cAddress == I2C_QOS && sensor->startByte == 0) {
-      if (spektrumGetValue(packet + 4, 2, uint16) == 0x8000 &&
-          spektrumGetValue(packet + 4, 4, uint16) == 0x8000 &&
-          spektrumGetValue(packet + 4, 6, uint16) == 0x8000 &&
-          spektrumGetValue(packet + 4, 8, uint16) == 0x8000) {
-        telemetryData.rssi.set(value);
+    else if (i2cAddress == I2C_QOS) {
+      if (sensor->startByte == 0) {  // FdeA
+        // Check if this looks like a LemonRX Transceiver, they use QoS Frame loss A as RSSI indicator(0-100)
+        // farzu: new G2s has different signature, but i think using the Cyrf chip strength is
+        //        more consistent across brands
+        if (spektrumGetValue(packet + 4, 2, uint16) == 0x8000 &&
+            spektrumGetValue(packet + 4, 4, uint16) == 0x8000 &&
+            spektrumGetValue(packet + 4, 6, uint16) == 0x8000 &&
+            spektrumGetValue(packet + 4, 8, uint16) == 0x8000) {
+          telemetryData.rssi.set(value);
+        }
+        else {
+          // Otherwise use the received signal strength of the telemetry packet as indicator
+          // Range is 0-31, multiply by 3 to get an almost full reading for 0x1f, the maximum the cyrf chip reports
+          telemetryData.rssi.set(packet[1] * 3);
+        }
+        telemetryStreaming = TELEMETRY_TIMEOUT10ms; // Telemery Alive
+      } // FdeA
+      else if (sensor->startByte == 8 || sensor->startByte == 10) { // Flss and Hold
+        // Lemon-RX: F and H = 0x7FFF (alternative N0-DATA)
+        if (value == 0x7FFF) continue; 
       }
-      else {
-        // Otherwise use the received signal strength of the telemetry packet as indicator
-        // Range is 0-31, multiply by 3 to get an almost full reading for 0x1f, the maximum the cyrf chip reports
-        telemetryData.rssi.set(packet[1] * 3);
-      }
-      telemetryStreaming = TELEMETRY_TIMEOUT10ms;
     } // I2C_QOS
 
     else if (sensor->i2caddress == I2C_GPS_STAT && sensor->unit == UNIT_DATETIME) {
@@ -721,6 +737,39 @@ void processSpektrumPacket(const uint8_t *packet)
         continue; // setTelemetryValue handled
       }
     } // I2C_GPS_BIN
+
+    else if (i2cAddress == I2C_FP_BATT) {
+      flightPackTelemetry = true;
+      // Lemon-RX G2: No Bat2: Current (-1.0 A)
+      if (sensor->startByte == 6 && ((int16_t) value) == -10) {
+        continue;
+      }  
+    } // I2C_FP_BATT
+
+    else if (i2cAddress == I2C_PBOX) {
+      if (flightPackTelemetry && (sensor->startByte == 4 ||  sensor->startByte == 6)) {
+          // hide mAh Consumption already reported in Fligh Pack message 
+          continue;
+      }
+      else if ((sensor->startByte == 0 || sensor->startByte == 4) && 
+          spektrumGetValue(packet + 4, 0, uint16) == 0) {
+          // No Bat1 Voltage, hide Voltage and Consumption
+          continue;
+      }
+      else if ((sensor->startByte == 2 || sensor->startByte == 6) && 
+          spektrumGetValue(packet + 4, 2, uint16) == 0) {
+          // No Bat2 Voltage, hide Voltage and Consumption
+          continue;
+      }
+    } // I2C_PBOX
+
+    else if (i2cAddress == I2C_VARIO) {
+      varioTelemetry = true;
+    }
+    else if (i2cAddress == I2C_ALTITUDE && varioTelemetry) {
+      // Altitude already reported in vario
+      continue; 
+    }
 
     setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, sensor->unit, sensor->precision);
   } // FOR
@@ -884,9 +933,10 @@ void processSpektrumTelemetryData(uint8_t module, uint8_t data,
 
 const SpektrumSensor *getSpektrumSensor(uint16_t pseudoId)
 {
-  uint8_t startByte = (uint8_t) (pseudoId & 0xff);
-  uint8_t i2cadd = (uint8_t) (pseudoId >> 8);
-  for (const SpektrumSensor * sensor = spektrumSensors; sensor->i2caddress; sensor++) {
+  uint8_t startByte = (uint8_t)(pseudoId & 0xff);
+  uint8_t i2cadd = (uint8_t)(pseudoId >> 8);
+  for (const SpektrumSensor *sensor = spektrumSensors; sensor->i2caddress;
+       sensor++) {
     if (i2cadd == sensor->i2caddress && startByte == sensor->startByte) {
       return sensor;
     }
@@ -910,20 +960,32 @@ void spektrumSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
     if (unit == UNIT_RPMS) {
       telemetrySensor.custom.ratio = 1;
       telemetrySensor.custom.offset = 1;
-    }
-    else if (unit == UNIT_FAHRENHEIT) {
+    } else if (unit == UNIT_FAHRENHEIT) {
       if (!IS_IMPERIAL_ENABLE()) {
         telemetrySensor.unit = UNIT_CELSIUS;
       }
-
-    }
-    else if (unit == UNIT_METERS) {
+    } else if (unit == UNIT_CELSIUS) {
+      if (IS_IMPERIAL_ENABLE()) {
+        telemetrySensor.unit = UNIT_FAHRENHEIT;
+      }
+    } else if (unit == UNIT_METERS) {
       if (IS_IMPERIAL_ENABLE()) {
         telemetrySensor.unit = UNIT_FEET;
       }
+    } else if (unit == UNIT_KMH) {
+      if (IS_IMPERIAL_ENABLE()) {
+        telemetrySensor.unit = UNIT_KTS;
+      }
+    } else if (unit == UNIT_METERS_PER_SECOND) {
+      if (IS_IMPERIAL_ENABLE()) {
+        telemetrySensor.unit = UNIT_FEET_PER_SECOND;
+      }
+    } else if (unit == UNIT_KTS) {
+      if (!IS_IMPERIAL_ENABLE()) {
+        telemetrySensor.unit = UNIT_KMH;
+      }
     }
-  }
-  else {
+  } else {
     telemetrySensor.init(id);
   }
 
