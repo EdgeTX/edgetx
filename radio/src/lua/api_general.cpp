@@ -1194,38 +1194,15 @@ static int luaCrossfireTelemetryPush(lua_State * L)
     uint8_t command = luaL_checkunsigned(L, 1);
     luaL_checktype(L, 2, LUA_TTABLE);
     uint8_t length = luaL_len(L, 2);
-    
-    // 1st byte - DEVICE_ADDRESS (sender device address)
     outputTelemetryBuffer.pushByte(MODULE_ADDRESS);
-    
-    // 2nd byte - FRAME_LENGTH (counted from COMMAND)
-    if (command == COMMAND_ID) {
-      outputTelemetryBuffer.pushByte(3 + length); // 1(COMMAND) + length(DATA) + 1(CRC_BA) + 1(CRC_D5)
-    } else {
-      outputTelemetryBuffer.pushByte(2 + length); // 1(COMMAND) + length(DATA) + 1(CRC_D5)
-    }
-    
-    // 3rd byte COMMAND (CRSF frame type ID)
-    outputTelemetryBuffer.pushByte(command);
-    
-    // x bytes DATA (Payload)
-    for (int i = 0; i < length; i++) {
-      lua_rawgeti(L, 2, i + 1);
+    outputTelemetryBuffer.pushByte(2 + length); // 1(COMMAND) + data length + 1(CRC)
+    outputTelemetryBuffer.pushByte(command); // COMMAND
+    for (int i=0; i<length; i++) {
+      lua_rawgeti(L, 2, i+1);
       outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
     }
-    
-    // CRC
-    if (command == COMMAND_ID) {
-      // 1 byte CRC8_BA (counted from COMMAND byte)
-      outputTelemetryBuffer.pushByte(crc8_BA(outputTelemetryBuffer.data + 2, 1 + length));
-      // 1 byte CRC8_D5 (counted from COMMAND byte including CRC8_BA byte)
-      outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data + 2, 2 + length));
-    } else {
-      // 1 byte CRC8_D5 (counted from COMMAND byte)
-      outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data + 2, 1 + length));
-    }
-    
-    outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
+    outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data + 2, 1 + length));
+    outputTelemetryBuffer.setDestination(internal ? 0 : TELEMETRY_ENDPOINT_SPORT);
     lua_pushboolean(L, true);
   }
   else {
