@@ -214,7 +214,7 @@
 #define TR_VSENSORTYPES                "カスタム","演算"
 #define TR_VFORMULAS                   "加算値","平均値","最小値","最大値","乗算値","合計値","セル","消費量","距離"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
-#define TR_VCELLINDEX                  "最低値","1","2","3","4","5","6","最高値","差分"
+#define TR_VCELLINDEX                  "最低値","1","2","3","4","5","6","7","8","最高値","差分"
 #define TR_TEXT_SIZE                   "標準","微小","小","中","2倍"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (中央)","= (全体)"
 #define TR_TIMER_DIR                   TR("Remain", "残り時間表示"), TR("Elaps.", "経過時間表示")
