@@ -355,8 +355,8 @@ const SpektrumSensor spektrumSensors[] = {
 
 // Alt Low and High needs to be combined (in 2 diff packets)
 static uint8_t gpsAltHigh = 0;
-static bool    varioTelemetry = false;
-static bool    flightPackTelemetry = false;
+static bool varioTelemetry = false;
+static bool flightPackTelemetry = false;
 
 // Helper function declared later
 static void processAS3XPacket(const uint8_t *packet);
@@ -545,7 +545,7 @@ void processSpektrumPacket(const uint8_t *packet)
 
   uint8_t instance = packet[3];
 
-  if (telemetryState==TELEMETRY_INIT) { // Telemetry Reset?
+  if (telemetryState == TELEMETRY_INIT) {  // Telemetry Reset?
     gpsAltHigh = 0;
     varioTelemetry = false;
     flightPackTelemetry = false;
@@ -681,7 +681,7 @@ void processSpektrumPacket(const uint8_t *packet)
     else if (i2cAddress == I2C_QOS) {
       if (sensor->startByte == 0) {  // FdeA
         // Check if this looks like a LemonRX Transceiver, they use QoS Frame loss A as RSSI indicator(0-100)
-        // farzu: new G2s has different signature, but i think using the Cyrf chip strenght is
+        // farzu: new G2s has different signature, but i think using the Cyrf chip strength is
         //        more consistent across brands
         if (spektrumGetValue(packet + 4, 2, uint16) == 0x8000 &&
             spektrumGetValue(packet + 4, 4, uint16) == 0x8000 &&
@@ -936,9 +936,10 @@ void processSpektrumTelemetryData(uint8_t module, uint8_t data,
 
 const SpektrumSensor *getSpektrumSensor(uint16_t pseudoId)
 {
-  uint8_t startByte = (uint8_t) (pseudoId & 0xff);
-  uint8_t i2cadd = (uint8_t) (pseudoId >> 8);
-  for (const SpektrumSensor * sensor = spektrumSensors; sensor->i2caddress; sensor++) {
+  uint8_t startByte = (uint8_t)(pseudoId & 0xff);
+  uint8_t i2cadd = (uint8_t)(pseudoId >> 8);
+  for (const SpektrumSensor *sensor = spektrumSensors; sensor->i2caddress;
+       sensor++) {
     if (i2cadd == sensor->i2caddress && startByte == sensor->startByte) {
       return sensor;
     }
@@ -962,39 +963,32 @@ void spektrumSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
     if (unit == UNIT_RPMS) {
       telemetrySensor.custom.ratio = 1;
       telemetrySensor.custom.offset = 1;
-    }
-    else if (unit == UNIT_FAHRENHEIT) {
+    } else if (unit == UNIT_FAHRENHEIT) {
       if (!IS_IMPERIAL_ENABLE()) {
         telemetrySensor.unit = UNIT_CELSIUS;
       }
-    }
-    else if (unit == UNIT_CELSIUS) {
+    } else if (unit == UNIT_CELSIUS) {
       if (IS_IMPERIAL_ENABLE()) {
         telemetrySensor.unit = UNIT_FAHRENHEIT;
       }
-    }
-    else if (unit == UNIT_METERS) {
+    } else if (unit == UNIT_METERS) {
       if (IS_IMPERIAL_ENABLE()) {
         telemetrySensor.unit = UNIT_FEET;
       }
-    }
-    else if (unit == UNIT_KMH) {
+    } else if (unit == UNIT_KMH) {
       if (IS_IMPERIAL_ENABLE()) {
         telemetrySensor.unit = UNIT_KTS;
       }
-    }
-    else if (unit == UNIT_METERS_PER_SECOND) {
+    } else if (unit == UNIT_METERS_PER_SECOND) {
       if (IS_IMPERIAL_ENABLE()) {
         telemetrySensor.unit = UNIT_FEET_PER_SECOND;
       }
-    }
-    else if (unit == UNIT_KTS) {
+    } else if (unit == UNIT_KTS) {
       if (!IS_IMPERIAL_ENABLE()) {
         telemetrySensor.unit = UNIT_KMH;
       }
     }
-  }
-  else {
+  } else {
     telemetrySensor.init(id);
   }
 
