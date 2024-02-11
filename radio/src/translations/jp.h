@@ -29,13 +29,13 @@
  *  \0               -ends current string
  */
 
-#define TR_MIN_PLURAL2 2
-#define TR_MAX_PLURAL2 2
+#define TR_MIN_PLURAL2  2
+#define TR_MAX_PLURAL2  2
 // For this number of minute in the last decimal place singular form is used in plural
-#define TR_USE_SINGULAR_IN_PLURAL 1
-#define TR_USE_PLURAL2_SPECIAL_CASE 0
+#define TR_USE_SINGULAR_IN_PLURAL   1
+#define TR_USE_PLURAL2_SPECIAL_CASE  0
 // If the number of minutes is above this value PLURAL2 is used
-#define TR_USE_PLURAL2 INT_MAX
+#define TR_USE_PLURAL2  INT_MAX
 
 #define TR_MINUTE_SINGULAR             "分"
 #define TR_MINUTE_PLURAL1              "分間"
@@ -103,7 +103,7 @@
 #endif
 
 #define TR_CSWEQUAL                    "a=x"
-#define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA,"≥x","|",STR_CHAR_DELTA,"|≥x",TR_CSWTIMER,TR_CSWSTICKY
+#define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x",TR_CSWRANGE,"|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
 #define TR_SF_TRAINER                  "トレーナー"
 #define TR_SF_INST_TRIM                "Inst.トリム"
@@ -187,7 +187,7 @@
 #define SPEED_UNIT_METR                "kmh"
 
 #define TR_VUNITSSYSTEM                "メートル法","ヤードポンド法"
-#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","@C","@F","%","mAh","W","mW","dB","rpm","g","@","rad","ml","fOz","mlm","Hz","ms","us","km","dBm"
+#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","ms","us","km","dBm"
 
 #define STR_V                          (STR_VTELEMUNIT[1])
 #define STR_A                          (STR_VTELEMUNIT[2])
@@ -588,8 +588,8 @@
 #define TR_REBIND                      "再バインドが必要"
 #define TR_REG_OK                      "レジストレーションOK"
 #define TR_BIND_OK                     "バインド成功"
-#define TR_BINDING_CH1_8_TELEM_ON      "Ch1- 8 Telemetry ON"
-#define TR_BINDING_CH1_8_TELEM_OFF     "Ch1- 8 Telemetry OFF"
+#define TR_BINDING_CH1_8_TELEM_ON      "Ch1-8 Telemetry ON"
+#define TR_BINDING_CH1_8_TELEM_OFF     "Ch1-8 Telemetry OFF"
 #define TR_BINDING_CH9_16_TELEM_ON     "Ch9-16 Telemetry ON"
 #define TR_BINDING_CH9_16_TELEM_OFF    "Ch9-16 Telemetry OFF"
 #define TR_PROTOCOL_INVALID            TR("Prot. invalid", "プロトコル無効")
@@ -610,7 +610,7 @@
 #define TR_PITCH_AT_MAX                "最大 ピッチ"
 #define TR_REPEAT_AT_ZERO              "ゼロ リピート"
 #define TR_BATT_CALIB                  TR("Batt. calib", "バッテリー\nキャリブレーション")
-#define TR_CURRENT_CALIB               "Current calib"
+#define TR_CURRENT_CALIB               "現在のキャリブレーション"
 #define TR_VOLTAGE                     TR(INDENT "Voltage", INDENT "電圧ソース")
 #define TR_SELECT_MODEL                "モデル選択"
 #define TR_MANAGE_MODELS               "モデル管理"
@@ -682,7 +682,7 @@
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogs and Screenshots disabled"
 #else
-#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Logs and " LCDW_128_480_LINEBREAK "Screenshots disabled"
+#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Logs & Screenshots" LCDW_128_480_LINEBREAK "disabled"
 #endif
 #define TR_NEEDS_FILE                  "を含むファイルが必要です"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
@@ -881,9 +881,9 @@
 #define TR_RESET_TELEMETRY             "テレメトリーリセット"
 #define TR_STATISTICS                  "統計情報"
 #define TR_ABOUT_US                    "概要"
-#define TR_USB_JOYSTICK                "USB Joystick(HID)"
-#define TR_USB_MASS_STORAGE            "USB ストレージ(SD)"
-#define TR_USB_SERIAL                  "USB シリアル(デバッグ)"
+#define TR_USB_JOYSTICK                "USB Joystick (HID)"
+#define TR_USB_MASS_STORAGE            "USB ストレージ (SD)"
+#define TR_USB_SERIAL                  "USB シリアル (VCP)"
 #define TR_SETUP_SCREENS               "画面設定"
 #define TR_MONITOR_SCREENS             "モニター"
 #define TR_AND_SWITCH                  "＆スイッチ"
@@ -991,7 +991,7 @@
 #define TR_CONFIRMRESET                TR("Erase ALL", "全モデルと全設定を消去しますか？")
 #define TR_TOO_MANY_LUA_SCRIPTS        "LUAスクリプトが多すぎます!!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP 電源"
-#define TR_SPORT_UPDATE_POWER_MODES    "AUTO","ON"
+#define TR_SPORT_UPDATE_POWER_MODES    "自動","ON"
 #define TR_NO_TELEMETRY_SCREENS        "テレメトリー表示なし"
 #define TR_TOUCH_PANEL                 "タッチパネル:"
 #define TR_FILE_SIZE                   "ファイルサイズ"
@@ -1063,8 +1063,8 @@
 #define TR_BL_EXIT                    "Exit"
 #define TR_BL_DIR_MISSING             " Directory is missing"
 #define TR_BL_DIR_EMPTY               " Directory is empty"
-#define TR_BL_WRITING_FW              "Writing Firmware ..."
-#define TR_BL_WRITING_COMPL           "Writing Complete"
+#define TR_BL_WRITING_FW              "Writing..."
+#define TR_BL_WRITING_COMPL           "Writing complete"
 
 #if LCD_W >= 480
   #define TR_BL_INVALID_FIRMWARE       "有効なファームウェアではありません"
