@@ -696,7 +696,10 @@ When called without parameters, it will only return the status of the output buf
 */
 static int luaCrossfireTelemetryPush(lua_State * L)
 {
-  if (telemetryProtocol != PROTOCOL_TELEMETRY_CROSSFIRE) {
+  bool external = (moduleState[EXTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_CROSSFIRE);
+  bool internal = (moduleState[INTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_CROSSFIRE);
+
+  if (!internal && !external) {
     lua_pushnil(L);
     return 1;
   }
@@ -712,29 +715,30 @@ static int luaCrossfireTelemetryPush(lua_State * L)
     uint8_t command = luaL_checkunsigned(L, 1);
     luaL_checktype(L, 2, LUA_TTABLE);
     uint8_t length = luaL_len(L, 2);
-    if (command == COMMAND_ID) {
-      outputTelemetryBuffer.pushByte(3 + length);
-      outputTelemetryBuffer.pushByte(COMMAND_ID);
-      for (int i = 0; i < length; i++) {
-        lua_rawgeti(L, 2, i + 1);
-        outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
-      }
-      outputTelemetryBuffer.pushByte(
-          crc8_BA(outputTelemetryBuffer.data + 1, 1 + length));
-      outputTelemetryBuffer.pushByte(
-          crc8(outputTelemetryBuffer.data + 1, 2 + length));
+    
+    outputTelemetryBuffer.pushByte(MODULE_ADDRESS);
+    
+    if (command == COMMAND_ID) { // length 
+      outputTelemetryBuffer.pushByte(3 + length); // 1(COMMAND) + length(data) + 1(CRC_BA) + 1(CRC_D5)
     } else {
-      outputTelemetryBuffer.pushByte(MODULE_ADDRESS);
-      outputTelemetryBuffer.pushByte(
-          2 + length);  // 1(COMMAND) + data length + 1(CRC)
-      outputTelemetryBuffer.pushByte(command);  // COMMAND
-      for (int i = 0; i < length; i++) {
-        lua_rawgeti(L, 2, i + 1);
-        outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
-      }
-      outputTelemetryBuffer.pushByte(
-          crc8(outputTelemetryBuffer.data + 2, 1 + length));
+      outputTelemetryBuffer.pushByte(2 + length); // 1(COMMAND) + length(data) + 1(CRC_D5)
     }
+    
+    outputTelemetryBuffer.pushByte(command); // COMMAND
+
+    // payload    
+    for (int i = 0; i < length; i++) {
+      lua_rawgeti(L, 2, i + 1);
+      outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
+    }
+    // CRC
+    if (command == COMMAND_ID) {
+      outputTelemetryBuffer.pushByte(crc8_BA(outputTelemetryBuffer.data + 2, 1 + length)); // 1 byte CRC8_BA (counted from COMMAND byte)
+      outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data + 2, 2 + length)); // 1 byte CRC8_D5 (counted from COMMAND byte including CRC8_BA byte)
+    } else {
+      outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data + 2, 1 + length)); // 1 byte CRC8_D5 (counted from COMMAND byte)
+    }
+    
     outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
     lua_pushboolean(L, true);
   }
