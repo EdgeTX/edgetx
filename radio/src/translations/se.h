@@ -1318,3 +1318,5 @@
 #define TR_SORT_ORDERS            "Namn A-Z","Namn Z-A","Minst använda","Mest använda"
 #define TR_SORT_MODELS_BY         "Sortera modeller"
 #define TR_CREATE_NEW             "Skapa"
+
+#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")

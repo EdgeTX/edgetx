@@ -1287,3 +1287,5 @@
 #define TR_SORT_ORDERS            "A-Z סידור","Z-A סידור","יותר בשימוש","פחות בשימוש"
 #define TR_SORT_MODELS_BY         "סדר תצוגה"
 #define TR_CREATE_NEW             "יצירה חדשה"
+
+#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")

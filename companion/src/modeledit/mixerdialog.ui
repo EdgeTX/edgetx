@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>531</width>
-    <height>571</height>
+    <width>556</width>
+    <height>623</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,24 +29,226 @@
    </property>
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0,0">
-     <item row="5" column="0">
-      <widget class="QLabel" name="trimLabel">
-       <property name="text">
-        <string>Include Trim</string>
+     <item row="8" column="1" colspan="2">
+      <widget class="QComboBox" name="switchesCB">
+       <property name="whatsThis">
+        <string>Switch used by the mix.
+If blank then the mix is considered to be &quot;ON&quot; all the time.</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Offset</string>
+     <item row="1" column="1" colspan="2">
+      <widget class="QComboBox" name="sourceCB">
+       <property name="whatsThis">
+        <string>The source for the mixer</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_curve">
        <property name="text">
-        <string>Weight</string>
+        <string>Curve</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="2">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,1">
+       <item>
+        <widget class="QCheckBox" name="weightGV">
+         <property name="text">
+          <string>GV</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="weightCB">
+         <property name="whatsThis">
+          <string>The source for the mixer</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="weightSB"/>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="10" column="1" colspan="2">
+      <widget class="QComboBox" name="mltpxCB">
+       <property name="whatsThis">
+        <string>Multiplexer
+
+This determines how mixer values are added.
+
+&quot;+&quot; means the value of the current mix is added to the previous mixes in the same channel.
+&quot;*&quot; means the value of the current mix is amultiplied with the previous mixes in the same channel.
+&quot;R&quot; means the value replaces the previous values.  If the switch is off the value will be ignored.</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>ADD</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>MULTIPLY</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>REPLACE</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="2">
+      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,1">
+       <item>
+        <widget class="QCheckBox" name="offsetGV">
+         <property name="text">
+          <string>GV</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="offsetCB">
+         <property name="whatsThis">
+          <string>The source for the mixer</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="offsetSB"/>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="5" column="1">
+      <widget class="QComboBox" name="trimCB">
+       <item>
+        <property name="text">
+         <string>No</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Yes</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="9" column="1" colspan="2">
+      <widget class="QComboBox" name="warningCB">
+       <property name="whatsThis">
+        <string>Mixer warning.
+Setting this value will cause a beep to be emmitted when this value is active.</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>OFF</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1 Beep</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2 Beep</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3 Beep</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QCheckBox" name="MixDR_CB">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Switch</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_phases">
+       <property name="text">
+        <string>Flight modes</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_MixDR">
+       <property name="text">
+        <string>Include DR/Expo</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>Warning</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QComboBox" name="curveTypeCB">
+       <property name="whatsThis">
+        <string>The curve used by the mix</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="label_9">
+       <property name="text">
+        <string>Multiplex</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Source</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_name">
+       <property name="text">
+        <string>Name</string>
        </property>
       </widget>
      </item>
@@ -207,226 +409,24 @@
        </item>
       </layout>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_name">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Name</string>
+        <string>Weight</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Source</string>
+        <string>Offset</string>
        </property>
       </widget>
      </item>
-     <item row="10" column="0">
-      <widget class="QLabel" name="label_9">
+     <item row="5" column="0">
+      <widget class="QLabel" name="trimLabel">
        <property name="text">
-        <string>Multiplex</string>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="0">
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>Warning</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QComboBox" name="curveTypeCB">
-       <property name="whatsThis">
-        <string>The curve used by the mix</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_MixDR">
-       <property name="text">
-        <string>Include DR/Expo</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_phases">
-       <property name="text">
-        <string>Flight modes</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Switch</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
-      <widget class="QCheckBox" name="MixDR_CB">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="1" colspan="2">
-      <widget class="QComboBox" name="warningCB">
-       <property name="whatsThis">
-        <string>Mixer warning.
-Setting this value will cause a beep to be emmitted when this value is active.</string>
-       </property>
-       <item>
-        <property name="text">
-         <string>OFF</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>1 Beep</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>2 Beep</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>3 Beep</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QComboBox" name="trimCB">
-       <item>
-        <property name="text">
-         <string>No</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Yes</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="3" column="1" colspan="2">
-      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,1">
-       <item>
-        <widget class="QCheckBox" name="offsetGV">
-         <property name="text">
-          <string>GV</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="offsetCB">
-         <property name="whatsThis">
-          <string>The source for the mixer</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="offsetSB"/>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-     <item row="10" column="1" colspan="2">
-      <widget class="QComboBox" name="mltpxCB">
-       <property name="whatsThis">
-        <string>Multiplexer
-
-This determines how mixer values are added.
-
-&quot;+&quot; means the value of the current mix is added to the previous mixes in the same channel.
-&quot;*&quot; means the value of the current mix is amultiplied with the previous mixes in the same channel.
-&quot;R&quot; means the value replaces the previous values.  If the switch is off the value will be ignored.</string>
-       </property>
-       <item>
-        <property name="text">
-         <string>ADD</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>MULTIPLY</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>REPLACE</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="1" column="1" colspan="2">
-      <widget class="QComboBox" name="sourceCB">
-       <property name="whatsThis">
-        <string>The source for the mixer</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_curve">
-       <property name="text">
-        <string>Curve</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1" colspan="2">
-      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,1">
-       <item>
-        <widget class="QCheckBox" name="weightGV">
-         <property name="text">
-          <string>GV</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="weightCB">
-         <property name="whatsThis">
-          <string>The source for the mixer</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="weightSB"/>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-     <item row="8" column="1" colspan="2">
-      <widget class="QComboBox" name="switchesCB">
-       <property name="whatsThis">
-        <string>Switch used by the mix.
-If blank then the mix is considered to be &quot;ON&quot; all the time.</string>
+        <string>Include Trim</string>
        </property>
       </widget>
      </item>
@@ -477,7 +477,44 @@ If blank then the mix is considered to be &quot;ON&quot; all the time.</string>
        </item>
       </layout>
      </item>
+     <item row="11" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Slow up/dn prec</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="1" colspan="2">
+      <widget class="QComboBox" name="speedPrecCB">
+       <item>
+        <property name="text">
+         <string>0.0</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0.00</string>
+        </property>
+       </item>
+      </widget>
+     </item>
     </layout>
+   </item>
+   <item row="2" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
    </item>
    <item row="1" column="0">
     <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0">
@@ -620,22 +657,6 @@ p, li { white-space: pre-wrap; }
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="2" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

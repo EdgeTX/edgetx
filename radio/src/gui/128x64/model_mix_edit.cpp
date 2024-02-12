@@ -35,6 +35,7 @@ enum MixFields {
   MIX_FIELD_MLTPX,
   MIX_FIELD_DELAY_UP,
   MIX_FIELD_DELAY_DOWN,
+  MIX_FIELD_SLOW_PREC,
   MIX_FIELD_SLOW_UP,
   MIX_FIELD_SLOW_DOWN,
   MIX_FIELD_COUNT
@@ -194,19 +195,23 @@ void menuModelMixOne(event_t event)
         break;
 
       case MIX_FIELD_DELAY_UP:
-        md2->delayUp = EDIT_DELAY(0, y, event, attr, STR_DELAYUP, md2->delayUp);
+        md2->delayUp = EDIT_DELAY(0, y, event, attr, STR_DELAYUP, md2->delayUp, PREC1);
         break;
 
       case MIX_FIELD_DELAY_DOWN:
-        md2->delayDown = EDIT_DELAY(0, y, event, attr, STR_DELAYDOWN, md2->delayDown);
+        md2->delayDown = EDIT_DELAY(0, y, event, attr, STR_DELAYDOWN, md2->delayDown, PREC1);
+        break;
+
+      case MIX_FIELD_SLOW_PREC:
+        md2->speedPrec = editChoice(MIXES_2ND_COLUMN, y, STR_MIX_SLOW_PREC, &STR_VPREC[1], md2->speedPrec, 0, 1, attr, event);
         break;
 
       case MIX_FIELD_SLOW_UP:
-        md2->speedUp = EDIT_DELAY(0, y, event, attr, STR_SLOWUP, md2->speedUp);
+        md2->speedUp = EDIT_DELAY(0, y, event, attr, STR_SLOWUP, md2->speedUp, (md2->speedPrec ? PREC2 : PREC1));
         break;
 
       case MIX_FIELD_SLOW_DOWN:
-        md2->speedDown = EDIT_DELAY(0, y, event, attr, STR_SLOWDOWN, md2->speedDown);
+        md2->speedDown = EDIT_DELAY(0, y, event, attr, STR_SLOWDOWN, md2->speedDown, (md2->speedPrec ? PREC2 : PREC1));
         break;
     }
     y += FH;

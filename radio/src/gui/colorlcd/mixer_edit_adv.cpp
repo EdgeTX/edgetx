@@ -98,16 +98,36 @@ void MixEditAdvanced::buildBody(FormWindow* form)
                         SET_VALUE(mix->delayDown, newValue), 0, PREC1);
   edit->setSuffix("s");
 
+  // Slow up/down precision
+#if LCD_W > LCD_H
+  grid.setColSpan(2);
+#endif
+  line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_MIX_SLOW_PREC, 0, COLOR_THEME_PRIMARY1);
+  new Choice(line, rect_t{}, &STR_VPREC[1], 0, 1,
+             GET_DEFAULT(mix->speedPrec),
+             [=](int newValue) {
+              mix->speedPrec = newValue;
+              slowUp->setTextFlags(mix->speedPrec ? PREC2 : PREC1);
+              slowUp->update();
+              slowDn->setTextFlags(mix->speedPrec ? PREC2 : PREC1);
+              slowDn->update();
+              SET_DIRTY();
+             });
+#if LCD_W > LCD_H
+  grid.setColSpan(1);
+#endif
+
   // Slow up
   line = form->newLine(&grid);
   new StaticText(line, rect_t{}, STR_SLOWUP, 0, COLOR_THEME_PRIMARY1);
-  edit = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->speedUp),
-                        SET_VALUE(mix->speedUp, newValue), 0, PREC1);
-  edit->setSuffix("s");
+  slowUp = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->speedUp),
+                          SET_VALUE(mix->speedUp, newValue), 0, mix->speedPrec ? PREC2 : PREC1);
+  slowUp->setSuffix("s");
 
   // Slow down
   new StaticText(line, rect_t{}, STR_SLOWDOWN, 0, COLOR_THEME_PRIMARY1);
-  edit = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->speedDown),
-                        SET_VALUE(mix->speedDown, newValue), 0, PREC1);
-  edit->setSuffix("s");
+  slowDn = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->speedDown),
+                          SET_VALUE(mix->speedDown, newValue), 0, mix->speedPrec ? PREC2 : PREC1);
+  slowDn->setSuffix("s");
 }

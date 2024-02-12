@@ -930,17 +930,18 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
             // rate equals a full range for one second; if less time is passed rate is accordingly smaller
             // if one second passed, rate would be 2048 (full motion)*256(recalculated weight)*100(100 ticks needed for one second)
             int32_t currentValue = ((int32_t) v<<DEL_MULT_SHIFT);
+            int32_t precMult = md->speedPrec ? 1 : 10;
             if (diff > 0) {
               if (s_mixer_first_run_done && md->speedUp > 0) {
                 // if a speed upwards is defined recalculate the new value according configured speed; the higher the speed the smaller the add value is
-                int32_t newValue = tact+rate/((int16_t)10*md->speedUp);
+                int32_t newValue = tact+rate/((int16_t)precMult*md->speedUp);
                 if (newValue<currentValue) currentValue = newValue; // Endposition; prevent toggling around the destination
               }
             }
             else {  // if is <0 because ==0 is not possible
               if (s_mixer_first_run_done && md->speedDown > 0) {
                 // see explanation in speedUp
-                int32_t newValue = tact-rate/((int16_t)10*md->speedDown);
+                int32_t newValue = tact-rate/((int16_t)precMult*md->speedDown);
                 if (newValue>currentValue) currentValue = newValue; // Endposition; prevent toggling around the destination
               }
             }

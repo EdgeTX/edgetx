@@ -1255,3 +1255,5 @@
 #define TR_SORT_ORDERS            "Назва A-Z","Назва Z-A","Найменш використ.","Найбільш використ."
 #define TR_SORT_MODELS_BY         "Сортувати моделі за"
 #define TR_CREATE_NEW             "Створити"
+
+#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")

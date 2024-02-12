@@ -1271,3 +1271,5 @@
 #define TR_SORT_ORDERS            "名称 A-Z","名称 Z-A","不常用","常用"
 #define TR_SORT_MODELS_BY         "排序"
 #define TR_CREATE_NEW             "新建"
+
+#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
