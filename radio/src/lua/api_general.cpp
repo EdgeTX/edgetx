@@ -1197,7 +1197,8 @@ static int luaCrossfireTelemetryPush(lua_State* L)
 
     outputTelemetryBuffer.pushByte(MODULE_ADDRESS);
 
-    if (command == COMMAND_ID) {  // length
+    // LENGTH
+    if (command == COMMAND_ID) {
       // 1(COMMAND) + length(data) + 1(CRC_BA) + 1(CRC_D5)
       outputTelemetryBuffer.pushByte(3 + length);
     } else {
@@ -1228,7 +1229,7 @@ static int luaCrossfireTelemetryPush(lua_State* L)
           crc8(outputTelemetryBuffer.data + 2, 1 + length));
     }
 
-    outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
+    outputTelemetryBuffer.setDestination(internal ? 0 : TELEMETRY_ENDPOINT_SPORT);
     lua_pushboolean(L, true);
   } else {
     lua_pushboolean(L, false);
