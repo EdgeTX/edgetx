@@ -50,7 +50,8 @@ enum LogicalSwitchContextState {
 PACK(struct LogicalSwitchContext {
   uint8_t state:1;
   uint8_t timerState:2;
-  uint8_t spare:5;
+  uint8_t spare:1;
+  uint8_t deltaTimer:4; // Timer for holding delta function state change active
   uint8_t timer;
   int16_t lastValue;
 });
@@ -394,6 +395,7 @@ PACK(typedef struct {
 bool getLogicalSwitch(uint8_t idx)
 {
   LogicalSwitchData * ls = lswAddress(idx);
+  LogicalSwitchContext &context = lswFm[mixerCurrentFlightMode].lsw[idx];
   bool result;
 
   swsrc_t s = ls->andsw;
@@ -401,7 +403,7 @@ bool getLogicalSwitch(uint8_t idx)
   if (ls->func == LS_FUNC_NONE || (s && !getSwitch(s))) {
     if (ls->func != LS_FUNC_STICKY && ls->func != LS_FUNC_EDGE ) {
       // AND switch must not affect STICKY and EDGE processing
-      LS_LAST_VALUE(mixerCurrentFlightMode, idx) = CS_LAST_VALUE_INIT;
+      context.lastValue = CS_LAST_VALUE_INIT;
     }
     result = false;
   }
@@ -422,13 +424,13 @@ bool getLogicalSwitch(uint8_t idx)
     }
   }
   else if (s == LS_FAMILY_TIMER) {
-    result = (LS_LAST_VALUE(mixerCurrentFlightMode, idx) <= 0);
+    result = (context.lastValue <= 0);
   }
   else if (s == LS_FAMILY_STICKY) {
-    result = (LS_LAST_VALUE(mixerCurrentFlightMode, idx) & (1<<0));
+    result = (context.lastValue & (1<<0));
   }
   else if (s == LS_FAMILY_EDGE) {
-    result = (LS_LAST_VALUE(mixerCurrentFlightMode, idx) & (1<<0));
+    result = (context.lastValue & (1<<0));
   }
   else {
     getvalue_t x = getValueForLogicalSwitch(ls->v1);
@@ -494,10 +496,10 @@ bool getLogicalSwitch(uint8_t idx)
           break;
         default:
         {
-          if (LS_LAST_VALUE(mixerCurrentFlightMode, idx) == CS_LAST_VALUE_INIT) {
-            LS_LAST_VALUE(mixerCurrentFlightMode, idx) = x;
+          if (context.lastValue == CS_LAST_VALUE_INIT) {
+            context.lastValue = x;
           }
-          int16_t diff = x - LS_LAST_VALUE(mixerCurrentFlightMode, idx);
+          int16_t diff = x - context.lastValue;
           bool update = false;
           if (ls->func == LS_FUNC_DIFFEGREATER) {
             if (y >= 0) {
@@ -514,8 +516,15 @@ bool getLogicalSwitch(uint8_t idx)
           else {
             result = (abs(diff) >= y);
           }
+          if (result) {
+            context.deltaTimer = 10;
+          } else if (context.deltaTimer > 0) {
+            // Hold active state for 100ms to ensure state change is seen
+            context.deltaTimer -= 1;
+            result = true;
+          }
           if (result || update) {
-            LS_LAST_VALUE(mixerCurrentFlightMode, idx) = x;
+            context.lastValue = x;
           }
           break;
         }
@@ -526,7 +535,6 @@ bool getLogicalSwitch(uint8_t idx)
 DurationAndDelayProcessing:
 
     if (ls->delay || ls->duration) {
-      LogicalSwitchContext &context = lswFm[mixerCurrentFlightMode].lsw[idx];
       if (result) {
         if (context.timerState == SWITCH_START) {
           // set delay timer
