@@ -337,9 +337,9 @@
 #define TR_ANTENNA                      "Antenn"
 #define TR_NO_INFORMATION               TR("Ingen info", "Ingen information")
 #define TR_MULTPX                       "Multiplex"
-#define TR_DELAYDOWN                    TR("Dröj ned","Fördröj ned")
+#define TR_DELAYDOWN                    TR("Dröj ner","Fördröj ner")
 #define TR_DELAYUP                      TR("Dröj upp","Fördröj upp")
-#define TR_SLOWDOWN                     "Trög ned"
+#define TR_SLOWDOWN                     "Trög ner"
 #define TR_SLOWUP                       "Trög upp"
 #define TR_MIXES                        "MIXAR"
 #define TR_CV                           "KU"
@@ -1292,7 +1292,7 @@
 #define TR_USBJOYSTICK_CH_AXIS          "Axis"
 #define TR_VUSBJOYSTICK_CH_AXIS         "X","Y","Z","rotX","rotY","rotZ","Reglage","Vred","Hjul"
 #define TR_USBJOYSTICK_CH_SIM           "Sim.axlar"
-#define TR_VUSBJOYSTICK_CH_SIM          "Ske","Hjd","Rod","Gas"
+#define TR_VUSBJOYSTICK_CH_SIM          "Ske","Hjd","Rod","Gas","Acc","Brms","dpad"
 #define TR_USBJOYSTICK_CH_INVERSION     "Invertering"
 #define TR_USBJOYSTICK_CH_BTNNUM        "Knapp nr."
 #define TR_USBJOYSTICK_BTN_COLLISION    "!Knappnr. krockar!"
@@ -1319,4 +1319,4 @@
 #define TR_SORT_MODELS_BY         "Sortera modeller"
 #define TR_CREATE_NEW             "Skapa"
 
-#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
+#define TR_MIX_SLOW_PREC          TR("Dröj preci.", "Fördröj upp/ner precision")
