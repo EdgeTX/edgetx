@@ -411,6 +411,7 @@ Board::SwitchInfo BoardJson::getSwitchInfo(const SwitchesTable * switches, int i
     info.type = defn.type;
     info.tag = defn.tag;
     info.name = defn.name;
+    info.dflt = defn.dflt;
     info.inverted = defn.inverted;
   }
 
@@ -920,8 +921,8 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
 
         switches->insert(switches->end(), sw);
 
-//        qDebug() << "name:" << sw.name.c_str() << "type:" << sw.stype.c_str() << ">" << Boards::switchTypeToString(sw.type) <<
-//                    "flags:" << sw.flags << "default:" << sw.sdflt.c_str() << ">" << Boards::switchTypeToString(sw.dflt) <<
+//        qDebug() << "tag:" << sw.tag.c_str() << "name:" << sw.name.c_str() << "type:" << sw.type << ">" << Boards::switchTypeToString(sw.type) <<
+//                    "flags:" << sw.flags << "default:" << sw.dflt << ">" << Boards::switchTypeToString(sw.dflt) <<
 //                    "inverted:" << sw.inverted << "display:" << QString("%1").arg(sw.display.x) << "," << QString("%1").arg(sw.display.y);
       }
     }

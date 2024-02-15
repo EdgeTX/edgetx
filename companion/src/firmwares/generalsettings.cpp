@@ -385,7 +385,7 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
 
   for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
     Board::SwitchInfo info =  Boards::getSwitchInfo(i, board);
-    switchConfig[i].type = info.type;
+    switchConfig[i].type = info.dflt;
     switchConfig[i].inverted = info.inverted;
     switchConfig[i].inputIdx = SWITCH_INPUTINDEX_NONE;
   }
