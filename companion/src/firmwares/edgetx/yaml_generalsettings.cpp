@@ -165,17 +165,24 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   std::string strboard = fw->getFlavour().toStdString();
   node["board"] = strboard;
 
+  if (rhs.manuallyEdited)
+    node["manuallyEdited"] = (int)rhs.manuallyEdited;
+
   YamlCalibData calib(rhs.inputConfig);
   node["calib"] = calib;
 
-  node["currModel"] = rhs.currModelIndex;
   node["currModelFilename"] = patchFilenameToYaml(rhs.currModelFilename);
-  node["contrast"] = rhs.contrast;
   node["vBatWarn"] = rhs.vBatWarn;
   node["txVoltageCalibration"] = rhs.txVoltageCalibration;
 
   node["vBatMin"] = rhs.vBatMin + 90;
   node["vBatMax"] = rhs.vBatMax + 120;
+
+  if (!Boards::getCapability(board, Board::HasColorLcd)) {
+    node["backlightColor"] = rhs.backlightColor;
+    node["contrast"] = rhs.contrast;
+    node["currModel"] = rhs.currModelIndex;
+  }
 
   node["backlightMode"] = backlightModeLut << std::abs(rhs.backlightMode);
   node["trainer"] = rhs.trainer;
@@ -184,7 +191,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["fai"] = (int)rhs.fai;
   node["disableMemoryWarning"] = (int)rhs.disableMemoryWarning;
   node["beepMode"] = rhs.beeperMode;
-  node["alarmsFlash"] = (int)rhs.flashBeep;
+  node["alarmsFlash"] = (int)rhs.alarmsFlash;
   node["disableAlarmWarning"] = (int)rhs.disableAlarmWarning;
   node["disableRssiPoweroffAlarm"] = (int)rhs.disableRssiPoweroffAlarm;
   node["USBMode"] = rhs.usbMode;
@@ -251,7 +258,6 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
     node["serialPort"] = serialPort;
 
   node["antennaMode"] = antennaModeLut << rhs.antennaMode;
-  node["backlightColor"] = rhs.backlightColor;
   node["pwrOnSpeed"] = rhs.pwrOnSpeed;
   node["pwrOffSpeed"] = rhs.pwrOffSpeed;
 
@@ -288,9 +294,10 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 
   node["ownerRegistrationID"] = rhs.registrationId;
 
-  // Gyro (for now only xlites)
-  node["gyroMax"] = rhs.gyroMax;
-  node["gyroOffset"] = rhs.gyroOffset;
+  if (Boards::getCapability(board, Board::HasIMU)) {
+    node["imuMax"] = rhs.imuMax;
+    node["imuOffset"] = rhs.imuOffset;
+  }
 
   // OneBit sampling (X9D only?)
   node["uartSampleMode"] = rhs.uartSampleMode;
@@ -415,7 +422,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["fai"] >> rhs.fai;
   node["disableMemoryWarning"] >> rhs.disableMemoryWarning;
   node["beepMode"] >> rhs.beeperMode;
-  node["alarmsFlash"] >> rhs.flashBeep;
+  node["alarmsFlash"] >> rhs.alarmsFlash;
   node["disableAlarmWarning"] >> rhs.disableAlarmWarning;
   node["disableRssiPoweroffAlarm"] >> rhs.disableRssiPoweroffAlarm;
   node["USBMode"] >> rhs.usbMode;
@@ -553,8 +560,12 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["ownerRegistrationID"] >> rhs.registrationId;
 
   // Gyro (for now only xlites)
-  node["gyroMax"] >> rhs.gyroMax;
-  node["gyroOffset"] >> rhs.gyroOffset;
+  // pre v2.11
+  node["gyroMax"] >> rhs.imuMax;
+  node["gyroOffset"] >> rhs.imuOffset;
+
+  node["imuMax"] >> rhs.imuMax;
+  node["imuOffset"] >> rhs.imuOffset;
 
   // OneBit sampling (X9D only?)
   node["uartSampleMode"] >> rhs.uartSampleMode;

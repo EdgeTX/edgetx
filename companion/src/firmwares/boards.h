@@ -163,6 +163,7 @@ namespace Board {
     HasAudioMuteGPIO,
     HasColorLcd,
     HasExternalModuleSupport,
+    HasIMU,
     HasInternalModuleSupport,
     HasIntModuleHeartbeatGPIO,
     HasLedStripGPIO,
