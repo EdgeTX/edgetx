@@ -305,7 +305,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return (IS_STM32(board) && !IS_RADIOMASTER_T8(board));
 
     case HasIMU:
-      return IS_TARANIS_XLITES(board);
+      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board));
 
     case HasInternalModuleSupport:
       return (IS_STM32(board) && !IS_TARANIS_X9(board));

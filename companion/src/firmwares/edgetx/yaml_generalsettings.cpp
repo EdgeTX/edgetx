@@ -559,8 +559,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   node["ownerRegistrationID"] >> rhs.registrationId;
 
-  // Gyro (for now only xlites)
-  // pre v2.11
+  // depreciated in 2.11
   node["gyroMax"] >> rhs.imuMax;
   node["gyroOffset"] >> rhs.imuOffset;
 
