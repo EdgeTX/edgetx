@@ -403,7 +403,7 @@ class SensorRatioEdit : FormWindow
       if (value == 0) { 
         percentText->setText("");
       } else {
-        std:string ratioPercentstr = formatNumberAsString((value*1000)/255, PREC1, 0, 0, "%");
+        std::string ratioPercentstr = formatNumberAsString((value*1000)/255, PREC1, 0, 0, "%");
         percentText->setText(ratioPercent);
       }
     }
