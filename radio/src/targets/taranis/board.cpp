@@ -136,34 +136,60 @@ void boardInit()
 #endif
 #endif
 
+
+// If the radio was powered on by USB, halt
+// the boot process and charge the battery
+#if defined(PWR_BUTTON_PRESS)
+  // This is needed to prevent radio from starting when usb is plugged to charge
+  usbInit();
+  // prime debounce state...
+  usbPlugged();
+
+  if (usbPlugged()) {
+    delaysInit();
+    adcInit(&_adc_driver);
+    getADC();
+    pwrOn();  // required to get bat adc reads
+    INTERNAL_MODULE_OFF();
+    EXTERNAL_MODULE_OFF();
+
+    while (usbPlugged()) {
+      //    // Let it charge ...
+      delay_ms(20);
+    }
+    pwrOff();
+  }
+#endif
+
+
 // Support for FS Led to indicate battery charge level
 #if defined(FUNCTION_SWITCHES)
   // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();
   // prime debounce state...
-   usbPlugged();
+  usbPlugged();
 
-   if (usbPlugged()) {
-     delaysInit();
-     adcInit(&_adc_driver);
-     getADC();
+  if (usbPlugged()) {
+    delaysInit();
+    adcInit(&_adc_driver);
+    getADC();
     pwrOn();  // required to get bat adc reads
-     INTERNAL_MODULE_OFF();
-     EXTERNAL_MODULE_OFF();
+    INTERNAL_MODULE_OFF();
+    EXTERNAL_MODULE_OFF();
 
-     while (usbPlugged()) {
-       // Let it charge ...
+    while (usbPlugged()) {
+      // Let it charge ...
       getADC();  // Warning: the value read does not include VBAT calibration
-       delay_ms(20);
+      delay_ms(20);
       if (getBatteryVoltage() >= 660) fsLedOn(0);
       if (getBatteryVoltage() >= 700) fsLedOn(1);
       if (getBatteryVoltage() >= 740) fsLedOn(2);
       if (getBatteryVoltage() >= 780) fsLedOn(3);
       if (getBatteryVoltage() >= 820) fsLedOn(4);
       if (getBatteryVoltage() >= 842) fsLedOn(5);
-     }
-     pwrOff();
-   }
+    }
+    pwrOff();
+  }
 #endif
 
   keysInit();
