@@ -136,8 +136,7 @@ void boardInit()
 #endif
 #endif
 
-// If the radio was powered on by USB, halt
-// the boot process and charge the battery
+// If the radio was powered on by USB, halt the boot process, let battery charge
 #if defined(PWR_BUTTON_PRESS)
   // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();
