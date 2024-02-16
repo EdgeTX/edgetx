@@ -147,26 +147,20 @@ void boardInit()
      delaysInit();
      adcInit(&_adc_driver);
      getADC();
-     pwrOn(); // required to get bat adc reads
+    pwrOn();  // required to get bat adc reads
      INTERNAL_MODULE_OFF();
      EXTERNAL_MODULE_OFF();
 
      while (usbPlugged()) {
        // Let it charge ...
-       getADC(); // Warning: the value read does not include VBAT calibration
+      getADC();  // Warning: the value read does not include VBAT calibration
        delay_ms(20);
-       if (getBatteryVoltage() >= 660)
-         fsLedOn(0);
-       if (getBatteryVoltage() >= 700)
-         fsLedOn(1);
-       if (getBatteryVoltage() >= 740)
-         fsLedOn(2);
-       if (getBatteryVoltage() >= 780)
-         fsLedOn(3);
-       if (getBatteryVoltage() >= 820)
-         fsLedOn(4);
-       if (getBatteryVoltage() >= 842)
-         fsLedOn(5);
+      if (getBatteryVoltage() >= 660) fsLedOn(0);
+      if (getBatteryVoltage() >= 700) fsLedOn(1);
+      if (getBatteryVoltage() >= 740) fsLedOn(2);
+      if (getBatteryVoltage() >= 780) fsLedOn(3);
+      if (getBatteryVoltage() >= 820) fsLedOn(4);
+      if (getBatteryVoltage() >= 842) fsLedOn(5);
      }
      pwrOff();
    }
