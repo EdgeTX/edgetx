@@ -403,8 +403,8 @@ class SensorRatioEdit : FormWindow
       if (value == 0) { 
         percentText->setText("");
       } else {
-        std::string ratioPercentstr = formatNumberAsString((value*1000)/255, PREC1, 0, 0, "%");
-        percentText->setText(ratioPercent);
+        std::string str = formatNumberAsString((value*1000)/255, PREC1, 0, 0, "%");
+        percentText->setText(str);
       }
     }
 };
@@ -714,7 +714,7 @@ class SensorEditWindow : public Page {
       new StaticText(paramLines[P_BLADES], rect_t{}, STR_BLADES, 0, COLOR_THEME_PRIMARY1);
       new NumberEdit(paramLines[P_BLADES], rect_t{}, 1, 30000, GET_SET_DEFAULT(sensor->custom.ratio));
 
-      paramLines[P_RATIO] = form->newLine(&grid2);
+      paramLines[P_RATIO] = form->newLine(&grid);
       new StaticText(paramLines[P_RATIO], rect_t{}, STR_RATIO, 0, COLOR_THEME_PRIMARY1);
       new SensorRatioEdit(paramLines[P_RATIO], rect_t{}, 0, 30000, GET_SET_DEFAULT(sensor->custom.ratio));
 
