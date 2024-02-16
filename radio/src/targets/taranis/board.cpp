@@ -194,9 +194,6 @@ void boardInit()
   }
 #endif
 
-
-
-
   keysInit();
   switchInit();
 
