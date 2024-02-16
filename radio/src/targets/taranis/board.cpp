@@ -155,6 +155,7 @@ void boardInit()
       //    // Let it charge ...
       getADC();  // Warning: the value read does not include VBAT calibration
       delay_ms(20);
+#if defined(STATUS_LEDS)
       if (getBatteryVoltage() <= 660) {
         for (auto i = 0; i < 2; i++) {
           ledRed();
@@ -178,6 +179,7 @@ void boardInit()
         }
       }
       delay_ms(1000);
+#endif
     }
     pwrOff();
   }
