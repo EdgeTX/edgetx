@@ -42,7 +42,7 @@ enum SensorFields {
 };
 
 constexpr coord_t SENSOR_2ND_COLUMN  = 12 * FW;
-constexpr coord_t SENSOR_3RD_COLUMN = 18 * FW;
+constexpr coord_t SENSOR_3RD_COLUMN = 17 * FW - 2;
 
 void menuModelSensor(event_t event)
 {
@@ -220,10 +220,13 @@ void menuModelSensor(event_t event)
           else {
             lcdDrawTextAlignedLeft(y, STR_RATIO);
             if (attr) CHECK_INCDEC_MODELVAR(event, sensor->custom.ratio, 0, 30000);
-            if (sensor->custom.ratio == 0)
+            if (sensor->custom.ratio == 0) {
               lcdDrawChar(SENSOR_2ND_COLUMN, y, '-', attr);
-            else
+            } else {  // Ratio + Ratio Percent
               lcdDrawNumber(SENSOR_2ND_COLUMN, y, sensor->custom.ratio, LEFT|attr|PREC1);
+              lcdDrawNumber(SENSOR_3RD_COLUMN, y, (sensor->custom.ratio * 1000) / 255, LEFT|PREC1);
+              lcdDrawChar(SENSOR_3RD_COLUMN+(FWNUM*4)+3, y, '%', 0);
+            }
             break;
           }
         }
