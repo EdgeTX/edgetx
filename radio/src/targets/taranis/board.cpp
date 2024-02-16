@@ -136,7 +136,6 @@ void boardInit()
 #endif
 #endif
 
-
 // If the radio was powered on by USB, halt
 // the boot process and charge the battery
 #if defined(PWR_BUTTON_PRESS)
@@ -184,7 +183,6 @@ void boardInit()
     pwrOff();
   }
 #endif
-
 
 // Support for FS Led to indicate battery charge level
 #if defined(FUNCTION_SWITCHES)
