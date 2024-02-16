@@ -136,8 +136,8 @@ void boardInit()
 #endif
 #endif
 
-// If the radio was powered on by USB, halt the boot process, let battery charge
-#if defined(PWR_BUTTON_PRESS)
+// If the radio was powered on by dual use USB, halt the boot process, let battery charge
+#if defined(PWR_BUTTON_PRESS) && !defined(USB_CHARGER)
   // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();
   // prime debounce state...
@@ -165,28 +165,9 @@ void boardInit()
       if (getBatteryVoltage() >= 842) fsLedOn(5);
 #elif defined(STATUS_LEDS)
       // Use Status LED to indicate battery charge level instead
-      if (getBatteryVoltage() <= 660) {
-        for (auto i = 0; i < 2; i++) {
-          ledRed();
-          delay_ms(200);
-          ledOff();
-          delay_ms(300);
-        }
-      } else if (getBatteryVoltage() <= 842) {
-        for (auto i = 0; i < 2; i++) {
-          ledBlue();
-          delay_ms(200);
-          ledOff();
-          delay_ms(300);
-        }
-      } else {
-        for (auto i = 0; i < 2; i++) {
-          ledGreen();
-          delay_ms(200);
-          ledOff();
-          delay_ms(300);
-        }
-      }
+      if (getBatteryVoltage() <= 660) ledRed();         // low discharge
+      else if (getBatteryVoltage() <= 842) ledBlue();   // charging
+      else ledGreen();                                  // charging done
       delay_ms(1000);
 #endif
     }
