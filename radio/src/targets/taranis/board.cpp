@@ -155,7 +155,31 @@ void boardInit()
 
     while (usbPlugged()) {
       //    // Let it charge ...
+      getADC();  // Warning: the value read does not include VBAT calibration
       delay_ms(20);
+      if (getBatteryVoltage() <= 660) {
+        for (auto i = 0; i < 2; i++) {
+          ledRed();
+          delay_ms(200);
+          ledOff();
+          delay_ms(300);
+        }
+      } else if (getBatteryVoltage() <= 842) {
+        for (auto i = 0; i < 2; i++) {
+          ledBlue();
+          delay_ms(200);
+          ledOff();
+          delay_ms(300);
+        }
+      } else {
+        for (auto i = 0; i < 2; i++) {
+          ledGreen();
+          delay_ms(200);
+          ledOff();
+          delay_ms(300);
+        }
+      }
+      delay_ms(1000);
     }
     pwrOff();
   }
