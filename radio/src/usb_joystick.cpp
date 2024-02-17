@@ -620,9 +620,9 @@ void usbStateUpdate()
          || (g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_ON_PULSE)) {
 
         if (swpos == 1) {
-          setBtnBits(i, btnval, 1);
+          setBtnBits(g_model.usbJoystickCh[chix].btn_num, btnval, 1);
         } else {
-          setBtnBits(i, 1 << btnval, swpos);
+          setBtnBits(g_model.usbJoystickCh[chix].btn_num, 1 << btnval, swpos);
         }
 
         // Timer
@@ -633,16 +633,16 @@ void usbStateUpdate()
       }
       else if (g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_SW_EMU) {
         if ((_usbJS->_usbLastChannelOutput[chix] != 0xffff) && (_usbJS->_usbLastChannelOutput[chix] < btnval)) {
-          toggleBtnBit(i);
+          toggleBtnBit(g_model.usbJoystickCh[chix].btn_num);
         }
       }
       else if (g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_DELTA) {
         if (_usbJS->_usbLastChannelOutput[chix] != 0xffff) {
           if (_usbJS->_usbLastChannelOutput[chix] < btnval) {
-            setBtnBits(i, 2, 2);
+            setBtnBits(g_model.usbJoystickCh[chix].btn_num, 2, 2);
           }
           else if (_usbJS->_usbLastChannelOutput[chix] > btnval) {
-            setBtnBits(i, 1, 2);
+            setBtnBits(g_model.usbJoystickCh[chix].btn_num, 1, 2);
           }
           _usbJS->_usbChannelTimerActive[chix] = 1;
           _usbJS->_usbChannelTimer[chix] = g_usbTmr10ms;
@@ -650,11 +650,11 @@ void usbStateUpdate()
       }
       else if (g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_COMPANION) {
         if (swpos == 1 || swpos == 2) {
-          setBtnBits(i, btnval, 1);
+          setBtnBits(g_model.usbJoystickCh[chix].btn_num, btnval, 1);
         } else if (swpos == 3) {
-          setBtnBits(i, btnval, 2);
+          setBtnBits(g_model.usbJoystickCh[chix].btn_num, btnval, 2);
         } else {
-          setBtnBits(i, 1 << btnval, swpos);
+          setBtnBits(g_model.usbJoystickCh[chix].btn_num, 1 << btnval, swpos);
         }
       }
 
@@ -666,10 +666,10 @@ void usbStateUpdate()
       _usbJS->_usbChannelTimerActive[chix] = 0;
 
       if(g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_ON_PULSE) {
-        setBtnBits(i, 0, swpos);
+        setBtnBits(g_model.usbJoystickCh[chix].btn_num, 0, swpos);
       }
       else if (g_model.usbJoystickCh[chix].param == USBJOYS_BTN_MODE_DELTA) {
-        setBtnBits(i, 0, 2);
+        setBtnBits(g_model.usbJoystickCh[chix].btn_num, 0, 2);
       }
     }
   }
