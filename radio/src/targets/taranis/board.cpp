@@ -137,7 +137,10 @@ void boardInit()
 #endif
 
 // If the radio was powered on by dual use USB, halt the boot process, let battery charge
-#if defined(PWR_BUTTON_PRESS) && !defined(USB_CHARGER)
+// TODO: needs refactoring if any other manufacturer implements either of the following:
+// - function switches and the radio supports charging
+// - single USB for data + charge which powers on radio
+#if defined(MANUFACTURER_JUMPER)
   // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();
   // prime debounce state...
