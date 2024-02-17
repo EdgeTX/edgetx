@@ -49,6 +49,7 @@ class MixData {
     CurveReference curve;
     unsigned int delayUp;
     unsigned int delayDown;
+    unsigned int speedPrec;
     unsigned int speedUp;
     unsigned int speedDown;
     int  carryTrim;

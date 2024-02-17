@@ -21,10 +21,10 @@
 
 #include "opentx.h"
 
-uint8_t editDelay(coord_t y, event_t event, uint8_t attr, const char * str, uint8_t delay)
+uint8_t editDelay(coord_t y, event_t event, uint8_t attr, const char * str, uint8_t delay, uint8_t prec)
 {
   lcdDrawTextAlignedLeft(y, str);
-  lcdDrawNumber(MIXES_2ND_COLUMN, y, delay, attr|PREC1|LEFT);
+  lcdDrawNumber(MIXES_2ND_COLUMN, y, delay, attr|prec|LEFT);
   if (attr) CHECK_INCDEC_MODELVAR_ZERO(event, delay, DELAY_MAX);
   return delay;
 }

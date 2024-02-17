@@ -132,9 +132,9 @@ void editSingleName(coord_t x, coord_t y, const char *label, char *name,
                     uint8_t size, event_t event, uint8_t active,
                     uint8_t old_editMode);
 
-uint8_t editDelay(coord_t y, event_t event, uint8_t attr, const char * str, uint8_t delay);
+uint8_t editDelay(coord_t y, event_t event, uint8_t attr, const char * str, uint8_t delay, uint8_t prec);
 
-#define EDIT_DELAY(y, event, attr, str, delay) editDelay(y, event, attr, str, delay)
+#define EDIT_DELAY(y, event, attr, str, delay, prec) editDelay(y, event, attr, str, delay, prec)
 
 void copySelection(char * dst, const char * src, uint8_t size);
 

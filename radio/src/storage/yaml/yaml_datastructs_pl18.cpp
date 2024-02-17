@@ -424,7 +424,7 @@ static const struct YamlNode struct_MixData[] = {
   YAML_UNSIGNED( "carryTrim", 1 ),
   YAML_UNSIGNED( "mixWarn", 2 ),
   YAML_ENUM("mltpx", 2, enum_MixerMultiplex),
-  YAML_PADDING( 1 ),
+  YAML_UNSIGNED( "speedPrec", 1 ),
   YAML_SIGNED_CUST( "offset", 13, in_read_weight, in_write_weight ),
   YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),

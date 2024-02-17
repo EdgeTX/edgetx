@@ -37,7 +37,7 @@ jobs:
         with:
           msystem: MINGW32
           update: true
-          install: git make mingw-w64-i686-toolchain
+          install: git make curl tar mingw-w64-i686-toolchain
 
       - name: Install Dependencies
         run: |
@@ -56,10 +56,17 @@ jobs:
                                 mingw-w64-i686-SDL2 \
                                 mingw-w64-i686-clang \
                                 mingw-w64-i686-nsis \
-                                mingw-w64-i686-dfu-util \
                                 mingw-w64-i686-openssl
           SETUPTOOLS_USE_DISTUTILS=stdlib pip install lz4
           python -m pip install clang jinja2 lz4
+
+      - name: Download and unpack dfu-util
+        run: |
+          curl -LO https://dfu-util.sourceforge.net/releases/dfu-util-0.11-binaries.tar.xz && \
+          tar -xf dfu-util-0.11-binaries.tar.xz
+          cp dfu-util-0.11-binaries/win32/dfu-util-static.exe /mingw32/bin/dfu-util.exe
+          cp dfu-util-0.11-binaries/win32/libusb-1.0.dll /mingw32/bin/libusb-1.0.dll
+          cp dfu-util-0.11-binaries/win32/libusb-1.0.dll.a /mingw32/bin/libusb-1.0.dll.a
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3

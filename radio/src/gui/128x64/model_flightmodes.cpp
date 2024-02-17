@@ -155,11 +155,11 @@ void menuModelFlightModeOne(event_t event)
         break;
 #endif
       case ITEM_MODEL_FLIGHT_MODE_FADE_IN:
-        fm->fadeIn = EDIT_DELAY(0, y, event, attr, STR_FADEIN, fm->fadeIn);
+        fm->fadeIn = EDIT_DELAY(0, y, event, attr, STR_FADEIN, fm->fadeIn, PREC1);
         break;
 
       case ITEM_MODEL_FLIGHT_MODE_FADE_OUT:
-        fm->fadeOut = EDIT_DELAY(0, y, event, attr, STR_FADEOUT, fm->fadeOut);
+        fm->fadeOut = EDIT_DELAY(0, y, event, attr, STR_FADEOUT, fm->fadeOut, PREC1);
         break;
 
 #if defined(GVARS)

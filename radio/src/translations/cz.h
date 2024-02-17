@@ -1291,3 +1291,5 @@
 #define TR_SORT_ORDERS            "Název A-Z","Název Z-A","Nejméne používané","Nejvíce používané"
 #define TR_SORT_MODELS_BY         "Seřadit modely podle"
 #define TR_CREATE_NEW             "Vytvořit"
+
+#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")

@@ -1281,3 +1281,5 @@
 #define TR_SORT_ORDERS            "Имя A-Z","Имя Z-A","Редко испол","Часто испол"
 #define TR_SORT_MODELS_BY         "Сортировка моделей"
 #define TR_CREATE_NEW             "Создать"
+
+#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")

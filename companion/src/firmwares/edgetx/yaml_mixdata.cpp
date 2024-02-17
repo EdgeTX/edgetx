@@ -134,6 +134,7 @@ Node convert<MixData>::encode(const MixData& rhs)
   node["curve"] = rhs.curve;
   node["delayUp"] = rhs.delayUp;
   node["delayDown"] = rhs.delayDown;
+  node["speedPrec"] = rhs.speedPrec;
   node["speedUp"] = rhs.speedUp;
   node["speedDown"] = rhs.speedDown;
   node["carryTrim"] = rhs.carryTrim;
@@ -156,6 +157,7 @@ bool convert<MixData>::decode(const Node& node, MixData& rhs)
   node["curve"] >> rhs.curve;
   node["delayUp"] >> rhs.delayUp;
   node["delayDown"] >> rhs.delayDown;
+  node["speedPrec"] >> rhs.speedPrec;
   node["speedUp"] >> rhs.speedUp;
   node["speedDown"] >> rhs.speedDown;
   node["carryTrim"] >> rhs.carryTrim;

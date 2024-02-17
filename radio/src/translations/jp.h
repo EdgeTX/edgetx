@@ -1284,3 +1284,5 @@
 #define TR_SORT_ORDERS            "名称 A-Z順","名称 Z-A順","利用の少ない順","利用の多い順"
 #define TR_SORT_MODELS_BY         "モデルをソート"
 #define TR_CREATE_NEW             "作成"
+
+#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
