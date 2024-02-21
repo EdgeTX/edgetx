@@ -969,7 +969,9 @@ void logicalSwitchesTimerTick()
             *lastValue = lswTimerValue(ls->v2);
         }
         else { // if (*lastValue > 0)
-          *lastValue -= 1;
+          if (--(*lastValue) == 0) {
+            *lastValue = -lswTimerValue(ls->v1);
+          }
         }
       }
       else if (ls->func == LS_FUNC_STICKY) {
