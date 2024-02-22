@@ -180,8 +180,16 @@ static void trainer_init_module_sbus()
 {
   if (sbus_trainer_mod_st) return;
 
+#if defined(TRAINER_MODULE_SBUS_USART)
+  // check if UART with inverter on heartbeat pin is required and available for (some Taranis radios)
   sbus_trainer_mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_UART,
                                              &sbusTrainerParams, false);
+#else
+  // check if UART with inverter on S.Port pin is available for SBUS (e.g. TX16s, NV14)
+  if(sbus_trainer_mod_st == nullptr)
+    sbus_trainer_mod_st = modulePortInitSerial(EXTERNAL_MODULE, ETX_MOD_PORT_SPORT,
+                                               &sbusTrainerParams, false);
+#endif
 
   if (sbus_trainer_mod_st) {
     modulePortSetPower(EXTERNAL_MODULE,true);

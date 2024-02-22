@@ -1041,9 +1041,20 @@ bool isTrainerModeAvailable(int mode)
     }
     
     if (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
-      auto port =  modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
-                                  ETX_MOD_PORT_UART, ETX_Pol_Normal,
-                                  ETX_MOD_DIR_RX);
+      const etx_module_port_t *port = nullptr;
+
+#if defined(TRAINER_MODULE_SBUS_USART)
+      // check if UART with inverter on heartbeat pin is required and available for (some Taranis radios)
+      port = modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
+                            ETX_MOD_PORT_UART, ETX_Pol_Normal,
+                            ETX_MOD_DIR_RX);
+#else
+      //check if UART with imverter on S.Port pin is available for SBUS (e.g. TX16s, NV14)
+      port = modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
+                            ETX_MOD_PORT_SPORT, ETX_Pol_Normal,
+                            ETX_MOD_DIR_RX);
+#endif
+
       return port != nullptr;
     }
   }
