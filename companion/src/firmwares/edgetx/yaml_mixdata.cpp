@@ -170,6 +170,7 @@ bool convert<MixData>::decode(const Node& node, MixData& rhs)
     rhs.sOffset = YamlReadMixWeight(node["offset"]);
   }
   node["name"] >> rhs.name;
+  YamlValidateName(rhs.name);
   return true;
 }
 }

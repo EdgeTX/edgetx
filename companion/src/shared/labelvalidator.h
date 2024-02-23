@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -20,33 +21,21 @@
 
 #pragma once
 
-#include "autowidget.h"
+#include <QRegularExpressionValidator>
 
-#include <QLineEdit>
-#include <QRegExpValidator>
-
-class AutoLineEdit: public QLineEdit, public AutoWidget
+class LabelValidator : public QRegularExpressionValidator
 {
   Q_OBJECT
 
   public:
-    explicit AutoLineEdit(QWidget * parent = nullptr, bool updateOnChange = false);
-    virtual ~AutoLineEdit();
+    explicit LabelValidator(QObject * parent = nullptr);
+    virtual ~LabelValidator() {}
 
-    virtual void updateValue() override;
-
-    void setField(char * field, int len, GenericPanel * panel = nullptr);
-    void setField(QString & field, int len = 0, GenericPanel * panel = nullptr);
-
-  signals:
-    void currentDataChanged();
-
-  protected slots:
-    void onEdited();
+    void fixup(QString &input) const;
+    void fixup(char *input) const;
+    bool isValid(const QString &input) const;
+    bool isValid(const char *input) const;
 
   private:
-    char *m_charField;
-    QString *m_strField;
-
-    void setFieldInit(int len, GenericPanel * panel);
+    QRegularExpression regexp;
 };

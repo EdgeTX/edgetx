@@ -343,6 +343,7 @@ bool convert<TimerData>::decode(const Node& node, TimerData& rhs)
   node["swtch"] >> rhs.swtch;
   node["mode"] >> timerModeLut >> rhs.mode;
   node["name"] >> rhs.name;
+  YamlValidateName(rhs.name);
   node["minuteBeep"] >> rhs.minuteBeep;
   node["countdownBeep"] >> rhs.countdownBeep;
   node["start"] >> rhs.val;
@@ -431,6 +432,7 @@ struct convert<LimitData> {
     node["ppmCenter"] >> rhs.ppmCenter;
     node["symetrical"] >> rhs.symetrical;
     node["name"] >> rhs.name;
+    YamlValidateName(rhs.name);
     node["curve"] >> rhs.curve.value;
     return true;
   }
@@ -519,6 +521,7 @@ bool convert<FlightModeData>::decode(const Node& node,
   }
   node["swtch"] >> rhs.swtch;
   node["name"] >> rhs.name;
+  YamlValidateName(rhs.name);
   node["fadeIn"] >> rhs.fadeIn;
   node["fadeOut"] >> rhs.fadeOut;
   node["gvars"] >> rhs.gvars;
@@ -572,6 +575,7 @@ struct convert<GVarData> {
   static bool decode(const Node& node, GVarData& rhs)
   {
     node["name"] >> rhs.name;
+    YamlValidateName(rhs.name);
     node["min"] >> rhs.min;
     node["max"] >> rhs.max;
     node["popup"] >> rhs.popup;
@@ -813,6 +817,17 @@ struct convert<FrSkyScreenData> {
     return true;
   }
 };
+
+void YamlValidateLabels(char * labels)
+{
+  QStringList lst = QString(labels).split(',', Qt::SkipEmptyParts);
+
+  for (int i = 0; i < lst.count(); i++) {
+    YamlValidateLabel(lst[i]);
+  }
+
+  strcpy(labels, QString(lst.join(',')).toLatin1().data());
+}
 
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
@@ -1117,8 +1132,10 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     const auto& header = node["header"];
     if (header.IsMap()) {
       header["name"] >> rhs.name;
+      YamlValidateName(rhs.name);
       header["bitmap"] >> rhs.bitmap;
       header["labels"] >> rhs.labels;
+      YamlValidateLabels(rhs.labels);
       header["modelId"] >> modelIds;
     }
   }
@@ -1151,6 +1168,10 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["limitData"] >> rhs.limitData;
 
   node["inputNames"] >> rhs.inputNames;
+  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+    YamlValidateName(rhs.inputNames[i]);
+  }
+
   node["expoData"] >> rhs.expoData;
 
   node["curves"] >> rhs.curves;
@@ -1291,6 +1312,9 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["functionSwitchStartConfig"] >> rhs.functionSwitchStartConfig;
   node["functionSwitchLogicalState"] >> rhs.functionSwitchLogicalState;
   node["switchNames"] >> rhs.functionSwitchNames;
+  for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i++) {
+    YamlValidateName(rhs.functionSwitchNames[i]);
+  }
 
   // Custom USB joytsick mapping
   node["usbJoystickExtMode"] >> rhs.usbJoystickExtMode;

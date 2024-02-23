@@ -66,6 +66,7 @@ if (node["carryTrim"]) { // 2.9 - change bugged carryTrim to trimSource
   node["trimSource"] >> rhs.carryTrim;
 }
   node["name"] >> rhs.name;
+  YamlValidateName(rhs.name);
   return true;
 }
 }  // namespace YAML

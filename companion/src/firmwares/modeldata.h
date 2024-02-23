@@ -46,10 +46,6 @@ class AbstractStaticItemModel;
 constexpr char AIM_MODELDATA_TRAINERMODE[]  {"modeldata.trainermode"};
 constexpr char AIM_MODELDATA_FUNCSWITCHCONFIG[]  {"modeldata.funcswitchconfig"};
 constexpr char AIM_MODELDATA_FUNCSWITCHSTART[]  {"modeldata.funcswitchstart"};
-constexpr int LABEL_LENGTH=16;
-
-#define CHAR_FOR_NAMES " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-."
-#define CHAR_FOR_NAMES_REGEX "[ A-Za-z0-9_.-,\"]*"
 
 class RSSIAlarmData {
   public:

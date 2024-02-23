@@ -19,6 +19,8 @@
  */
 
 #include "yaml_ops.h"
+#include "labelvalidator.h"
+#include "namevalidator.h"
 
 SemanticVersion radioSettingsVersion;
 SemanticVersion modelSettingsVersion;
@@ -55,6 +57,30 @@ void operator >> (const YAML::Node& node, bool& value)
   if (node && node.IsScalar()) {
     value = node.as<int>();
   }
+}
+
+void YamlValidateLabel(QString &input)
+{
+  LabelValidator *lv = new LabelValidator();
+  if (!lv->isValid(input))
+    lv->fixup(input);
+  delete lv;
+}
+
+void YamlValidateLabel(char *input)
+{
+  LabelValidator *lv = new LabelValidator();
+  if (!lv->isValid(input))
+    lv->fixup(input);
+  delete lv;
+}
+
+void YamlValidateName(char *input)
+{
+  NameValidator *nv = new NameValidator(getCurrentBoard());
+  if (!nv->isValid(input))
+    nv->fixup(input);
+  delete nv;
 }
 
 namespace YAML {

@@ -122,6 +122,10 @@ void operator>>(const YAML::Node& node, T (&value)[N])
   }
 }
 
+void YamlValidateName(char *input);
+void YamlValidateLabel(char *input);
+void YamlValidateLabel(QString &input);
+
 namespace YAML {
 
 std::string LookupValue(const YamlLookupTable& lut, const int& value);

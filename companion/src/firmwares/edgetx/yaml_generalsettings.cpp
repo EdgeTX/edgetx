@@ -461,6 +461,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["switchesDelay"] >> rhs.switchesDelay;
   node["globalTimer"] >> rhs.globalTimer;
   node["bluetoothName"] >> rhs.bluetoothName;
+  YamlValidateName(rhs.bluetoothName);
   node["bluetoothBaudrate"] >> rhs.bluetoothBaudrate;
   node["bluetoothMode"] >> bluetoothModeLut >> rhs.bluetoothMode;
   node["countryCode"] >> rhs.countryCode;

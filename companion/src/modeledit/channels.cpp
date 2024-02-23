@@ -22,6 +22,7 @@
 #include "helpers.h"
 #include "filtereditemmodels.h"
 #include "curveimagewidget.h"
+#include "namevalidator.h"
 
 LimitsGroup::LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row, int col, int & value, const ModelData & model, GeneralSettings & generalSettings,
                          int min, int max, int deflt, FilteredItemModel * gvarModel, ModelPanel * panel):
@@ -91,6 +92,8 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
   ModelPanel(parent, model, generalSettings, firmware),
   sharedItemModels(sharedItemModels)
 {
+  Board::Type board = firmware->getBoard();
+
   chnCapability = firmware->getCapability(Outputs);
   int channelNameMaxLen = firmware->getCapability(ChannelsName);
 
@@ -107,7 +110,7 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
     headerLabels << tr("Name");
   }
   headerLabels << tr("Subtrim") << tr("Min") << tr("Max") << tr("Direction");
-  if (IS_HORUS_OR_TARANIS(firmware->getBoard()))
+  if (IS_HORUS_OR_TARANIS(board))
     headerLabels << tr("Curve") << tr("Plot");
   if (firmware->getCapability(PPMCenter))
     headerLabels << tr("PPM Center");
@@ -134,8 +137,7 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
       name[i] = new QLineEdit(this);
       name[i]->setProperty("index", i);
       name[i]->setMaxLength(channelNameMaxLen);
-      QRegExp rx(CHAR_FOR_NAMES_REGEX);
-      name[i]->setValidator(new QRegExpValidator(rx, this));
+      name[i]->setValidator(new NameValidator(board, this));
       connect(name[i], SIGNAL(editingFinished()), this, SLOT(nameEdited()));
       tableLayout->addWidget(i, col++, name[i]);
     }

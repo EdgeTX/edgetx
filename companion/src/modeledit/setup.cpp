@@ -29,6 +29,7 @@
 #include "checklistdialog.h"
 #include "helpers.h"
 #include "moduledata.h"
+#include "namevalidator.h"
 
 #include <QDir>
 
@@ -55,6 +56,7 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, G
   if (length == 0)
     ui->name->hide();
   else {
+    ui->name->setValidator(new NameValidator(firmware->getBoard(), this));
     ui->name->setField(timer.name, length, this);
     connect(ui->name, SIGNAL(currentDataChanged()), this, SLOT(onNameChanged()));
   }
@@ -1253,11 +1255,11 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
   AbstractStaticItemModel *fsConfig = ModelData::funcSwitchConfigItemModel();
   AbstractStaticItemModel *fsStart = ModelData::funcSwitchStartItemModel();
 
+  Board::Type board = firmware->getBoard();
+
   lock = true;
 
-  QRegExp rx(CHAR_FOR_NAMES_REGEX);
-
-  switchcnt = Boards::getCapability(firmware->getBoard(), Board::FunctionSwitches);
+  switchcnt = Boards::getCapability(board, Board::FunctionSwitches);
 
   for (int i = 0; i < switchcnt; i++) {
     QLabel * lblSwitchId = new QLabel(this);
@@ -1265,7 +1267,7 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
 
     AutoLineEdit * aleName = new AutoLineEdit(this);
     aleName->setProperty("index", i);
-    aleName->setValidator(new QRegExpValidator(rx, this));
+    aleName->setValidator(new NameValidator(board, this));
     aleName->setField((char *)model.functionSwitchNames[i], 3);
 
     QComboBox * cboConfig = new QComboBox(this);
@@ -1481,8 +1483,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
 
   memset(modules, 0, sizeof(modules));
 
-  QRegExp rx(CHAR_FOR_NAMES_REGEX);
-  ui->name->setValidator(new QRegExpValidator(rx, this));
+  ui->name->setValidator(new NameValidator(board, this));
   ui->name->setMaxLength(firmware->getCapability(ModelName));
 
   if (firmware->getCapability(HasModelImage)) {

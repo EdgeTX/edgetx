@@ -19,6 +19,8 @@ set(${PROJECT_NAME}_NAMES
   curvedialog
   genericpanel
   verticalscrollarea
+  namevalidator
+  labelvalidator
 )
 
 AddHeadersSources()
