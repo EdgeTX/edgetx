@@ -232,7 +232,7 @@
 
 #if defined(PCBFRSKY)
   #define TR_ENTER                     "[ENT]"
-#elif defined(PCBNV14)
+#elif defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[ДАЛЕЕ]"
 #else
   #define TR_ENTER                     "[МЕНЮ]"
