@@ -19,7 +19,6 @@
  */
 
 #include "yaml_sensordata.h"
-#include "namevalidator.h"
 
 static const YamlLookupTable sensorType = {
     {SensorData::TELEM_TYPE_CUSTOM, "TYPE_CUSTOM"},
@@ -131,8 +130,6 @@ bool convert<SensorData>::decode(const Node& node, SensorData& rhs)
   }
 
   node["label"] >> rhs.label;
-  YamlValidateName(rhs.label);
-
   node["unit"] >> rhs.unit;
   node["prec"] >> rhs.prec;
   node["autoOffset"] >> rhs.autoOffset;

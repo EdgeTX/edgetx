@@ -62,24 +62,26 @@ void operator >> (const YAML::Node& node, bool& value)
 void YamlValidateLabel(QString &input)
 {
   LabelValidator *lv = new LabelValidator();
-  if (!lv->isValid(input))
+
+  if (!lv->isValid(input)) {
     lv->fixup(input);
+    input = input.trimmed();
+  }
+
   delete lv;
 }
 
-void YamlValidateLabel(char *input)
+void YamlValidateName(char *input, Board::Type board)
 {
-  LabelValidator *lv = new LabelValidator();
-  if (!lv->isValid(input))
-    lv->fixup(input);
-  delete lv;
-}
+  NameValidator *nv = new NameValidator(board);
+  QString in(input);
 
-void YamlValidateName(char *input)
-{
-  NameValidator *nv = new NameValidator(getCurrentBoard());
-  if (!nv->isValid(input))
-    nv->fixup(input);
+  if (!nv->isValid(in)) {
+    nv->fixup(in);
+    in = in.trimmed();
+  }
+
+  strcpy(input, in.toLatin1().data());
   delete nv;
 }
 

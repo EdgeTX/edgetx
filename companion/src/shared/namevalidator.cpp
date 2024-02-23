@@ -41,25 +41,15 @@ void NameValidator::fixup(QString &input) const
 {
   for (int i = 0; i < input.size(); i++) {
     QRegularExpressionMatch match = regexp.match(input.at(i));
-    // qDebug() << input.at(i) << match.hasMatch() << match.captured();
     if (match.captured() != input.at(i))  // cannot rely on hasMatch as the regexp accepts 0 or more matches
       input.replace(i, 1, " ");           // replacement character MUST be valid for regexp to avoid possible loop condition
   }
+
+  input = input.trimmed();
 }
 
-void NameValidator::fixup(char *input) const
+bool NameValidator::isValid(const QString &input) const
 {
-  QString in(input);
-  int len = in.size();
-  fixup(in);
-  in.truncate(len);
-  strcpy(input, in.toLatin1().data());
-}
-
-bool NameValidator::isValid(const char *input) const
-{
-  QString in(input);
-  QRegularExpressionMatch match = regexp.match(in);
-  // qDebug() << in << match.hasMatch() << match.captured();
-  return in == match.captured();
+  QRegularExpressionMatch match = regexp.match(input);
+  return input == match.captured();
 }

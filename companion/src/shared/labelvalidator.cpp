@@ -41,29 +41,15 @@ void LabelValidator::fixup(QString &input) const
 {
   for (int i = 0; i < input.size(); i++) {
     QRegularExpressionMatch match = regexp.match(input.at(i));
-//    qDebug() << input.at(i) << match.hasMatch() << match.captured();
     if (match.captured() != input.at(i))  // cannot rely on hasMatch as the regexp accepts 0 or more matches
       input.replace(i, 1, " ");           // replacement character MUST be valid for regexp to avoid possible loop condition
   }
-}
 
-void LabelValidator::fixup(char *input) const
-{
-  QString in(input);
-  int len = in.size();
-  fixup(in);
-  in.truncate(len);
-  strcpy(input, in.toLatin1().data());
+  input = input.trimmed();
 }
 
 bool LabelValidator::isValid(const QString &input) const
 {
   QRegularExpressionMatch match = regexp.match(input);
-  // qDebug() << input << match.hasMatch() << match.captured();
   return input == match.captured();
-}
-
-bool LabelValidator::isValid(const char *input) const
-{
-  return isValid(QString(input));
 }

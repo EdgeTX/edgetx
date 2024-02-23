@@ -41,6 +41,21 @@
 
 SemanticVersion version;  // used for data conversions
 
+void YamlValidateLabelsNames(ModelData& model, Board::Type board)
+{
+  QStringList lst = QString(model.labels).split(',', Qt::SkipEmptyParts);
+
+  for (int i = lst.count() - 1; i >= 0; i--) {
+    YamlValidateLabel(lst[i]);
+    if (lst.at(i).isEmpty())
+      lst.removeAt(i);
+  }
+
+  strcpy(model.labels, QString(lst.join(',')).toLatin1().data());
+
+
+}
+
 static const YamlLookupTable timerModeLut = {
     {TimerData::TIMERMODE_OFF, "OFF"},
     {TimerData::TIMERMODE_ON, "ON"},
@@ -343,7 +358,6 @@ bool convert<TimerData>::decode(const Node& node, TimerData& rhs)
   node["swtch"] >> rhs.swtch;
   node["mode"] >> timerModeLut >> rhs.mode;
   node["name"] >> rhs.name;
-  YamlValidateName(rhs.name);
   node["minuteBeep"] >> rhs.minuteBeep;
   node["countdownBeep"] >> rhs.countdownBeep;
   node["start"] >> rhs.val;
@@ -432,7 +446,6 @@ struct convert<LimitData> {
     node["ppmCenter"] >> rhs.ppmCenter;
     node["symetrical"] >> rhs.symetrical;
     node["name"] >> rhs.name;
-    YamlValidateName(rhs.name);
     node["curve"] >> rhs.curve.value;
     return true;
   }
@@ -521,7 +534,6 @@ bool convert<FlightModeData>::decode(const Node& node,
   }
   node["swtch"] >> rhs.swtch;
   node["name"] >> rhs.name;
-  YamlValidateName(rhs.name);
   node["fadeIn"] >> rhs.fadeIn;
   node["fadeOut"] >> rhs.fadeOut;
   node["gvars"] >> rhs.gvars;
@@ -575,7 +587,6 @@ struct convert<GVarData> {
   static bool decode(const Node& node, GVarData& rhs)
   {
     node["name"] >> rhs.name;
-    YamlValidateName(rhs.name);
     node["min"] >> rhs.min;
     node["max"] >> rhs.max;
     node["popup"] >> rhs.popup;
@@ -817,17 +828,6 @@ struct convert<FrSkyScreenData> {
     return true;
   }
 };
-
-void YamlValidateLabels(char * labels)
-{
-  QStringList lst = QString(labels).split(',', Qt::SkipEmptyParts);
-
-  for (int i = 0; i < lst.count(); i++) {
-    YamlValidateLabel(lst[i]);
-  }
-
-  strcpy(labels, QString(lst.join(',')).toLatin1().data());
-}
 
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
@@ -1107,6 +1107,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 {
   if (!node.IsMap()) return false;
 
+  Board::Type board = getCurrentBoard();
+
   unsigned int modelIds[CPN_MAX_MODULES];
   memset(modelIds, 0, sizeof(modelIds));
 
@@ -1132,10 +1134,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     const auto& header = node["header"];
     if (header.IsMap()) {
       header["name"] >> rhs.name;
-      YamlValidateName(rhs.name);
       header["bitmap"] >> rhs.bitmap;
       header["labels"] >> rhs.labels;
-      YamlValidateLabels(rhs.labels);
       header["modelId"] >> modelIds;
     }
   }
@@ -1168,9 +1168,6 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["limitData"] >> rhs.limitData;
 
   node["inputNames"] >> rhs.inputNames;
-  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
-    YamlValidateName(rhs.inputNames[i]);
-  }
 
   node["expoData"] >> rhs.expoData;
 
@@ -1312,9 +1309,6 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["functionSwitchStartConfig"] >> rhs.functionSwitchStartConfig;
   node["functionSwitchLogicalState"] >> rhs.functionSwitchLogicalState;
   node["switchNames"] >> rhs.functionSwitchNames;
-  for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i++) {
-    YamlValidateName(rhs.functionSwitchNames[i]);
-  }
 
   // Custom USB joytsick mapping
   node["usbJoystickExtMode"] >> rhs.usbJoystickExtMode;
@@ -1350,7 +1344,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   }
 
   // perform integrity checks and fix-ups
-
+  YamlValidateLabelsNames(rhs, board);
   rhs.sortMixes();  // critical for Companion and radio that mix lines are in sequence
 
   return true;

@@ -34,8 +34,7 @@ class NameValidator : public QRegularExpressionValidator
     virtual ~NameValidator() {}
 
     void fixup(QString &input) const;
-    void fixup(char *input) const;
-    bool isValid(const char *input) const;
+    bool isValid(const QString &input) const;
 
   private:
     QRegularExpression regexp;

@@ -96,7 +96,6 @@ bool convert<CurveData>::decode(const Node& node, CurveData& rhs)
   node["smooth"] >> rhs.smooth;
   node["points"] >> ioffset_int(rhs.count, -5);
   node["name"] >> rhs.name;
-  YamlValidateName(rhs.name);
   return true;
 }
 }

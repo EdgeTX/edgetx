@@ -32,9 +32,7 @@ class LabelValidator : public QRegularExpressionValidator
     virtual ~LabelValidator() {}
 
     void fixup(QString &input) const;
-    void fixup(char *input) const;
     bool isValid(const QString &input) const;
-    bool isValid(const char *input) const;
 
   private:
     QRegularExpression regexp;
