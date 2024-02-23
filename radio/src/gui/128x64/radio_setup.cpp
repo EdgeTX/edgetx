@@ -117,6 +117,7 @@ enum {
   ITEM_VIEW_OPTIONS_MODEL_TAB,
   CASE_HELI(ITEM_VIEW_OPTIONS_HELI)
   CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
+  CASE_GVARS(ITEM_VIEW_OPTIONS_GV)
   ITEM_VIEW_OPTIONS_CURVES,
   ITEM_VIEW_OPTIONS_LS,
   ITEM_VIEW_OPTIONS_SF,
@@ -215,6 +216,7 @@ void menuRadioSetup(event_t event)
       CASE_HELI(0)
       CASE_FLIGHT_MODES(0)
       0,
+      CASE_GVARS(0)
       0,
       0,
       CASE_LUA_MODEL_SCRIPTS(0)
@@ -793,6 +795,11 @@ void menuRadioSetup(event_t event)
       case ITEM_VIEW_OPTIONS_CURVES:
         g_eeGeneral.modelCurvesDisabled = viewOptCheckBox(y, STR_MENUCURVES, g_eeGeneral.modelCurvesDisabled, attr, event, g_model.modelCurvesDisabled);
         break;
+#if defined(GVARS)
+        case ITEM_VIEW_OPTIONS_GV:
+        g_model.modelGVDisabled = viewOptCheckBox(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event, g_model.modelGVDisabled);
+        break;
+#endif
       case ITEM_VIEW_OPTIONS_LS:
         g_eeGeneral.modelLSDisabled = viewOptCheckBox(y, STR_MENULOGICALSWITCHES, g_eeGeneral.modelLSDisabled, attr, event, g_model.modelLSDisabled);
         break;

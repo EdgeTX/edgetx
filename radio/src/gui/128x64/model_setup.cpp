@@ -212,6 +212,7 @@ enum MenuModelSetupItems {
   ITEM_VIEW_OPTIONS_MODEL_TAB,
   CASE_HELI(ITEM_VIEW_OPTIONS_HELI)
   CASE_FLIGHT_MODES(ITEM_VIEW_OPTIONS_FM)
+  CASE_GVARS(ITEM_VIEW_OPTIONS_GV)
   ITEM_VIEW_OPTIONS_CURVES,
   ITEM_VIEW_OPTIONS_LS,
   ITEM_VIEW_OPTIONS_SF,
@@ -615,6 +616,7 @@ void menuModelSetup(event_t event)
      VIEWOPT_ROW(LABEL(ModelMenuTabs)),
       CASE_HELI(VIEWOPT_ROW(0))
       CASE_FLIGHT_MODES(VIEWOPT_ROW(0))
+      CASE_GVARS(VIEWOPT_ROW(0))
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
       VIEWOPT_ROW(0),
@@ -2257,6 +2259,11 @@ void menuModelSetup(event_t event)
       case ITEM_VIEW_OPTIONS_CURVES:
         g_model.modelCurvesDisabled = viewOptChoice(y, STR_MENUCURVES, g_model.modelCurvesDisabled, attr, event);
         break;
+#if defined(GVARS)
+        case ITEM_VIEW_OPTIONS_GV:
+        g_model.modelGVDisabled = viewOptChoice(y, STR_MENU_GLOBAL_VARS, g_model.modelGVDisabled, attr, event);
+        break;
+#endif
       case ITEM_VIEW_OPTIONS_LS:
         g_model.modelLSDisabled = viewOptChoice(y, STR_MENULOGICALSWITCHES, g_model.modelLSDisabled, attr, event);
         break;
