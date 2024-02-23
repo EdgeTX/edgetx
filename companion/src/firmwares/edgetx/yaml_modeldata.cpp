@@ -43,6 +43,8 @@ SemanticVersion version;  // used for data conversions
 
 void YamlValidateLabelsNames(ModelData& model, Board::Type board)
 {
+  YamlValidateName(model.name, board);
+
   QStringList lst = QString(model.labels).split(',', Qt::SkipEmptyParts);
 
   for (int i = lst.count() - 1; i >= 0; i--) {
@@ -53,7 +55,41 @@ void YamlValidateLabelsNames(ModelData& model, Board::Type board)
 
   strcpy(model.labels, QString(lst.join(',')).toLatin1().data());
 
+  for (int i = 0; i < CPN_MAX_CURVES; i++) {
+    YamlValidateName(model.curves[i].name, board);
+  }
 
+  for (int i = 0; i < CPN_MAX_EXPOS; i++) {
+    YamlValidateName(model.expoData[i].name, board);
+  }
+
+  for (int i = 0; i < CPN_MAX_GVARS; i++) {
+    YamlValidateName(model.gvarData[i].name, board);
+  }
+
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+    YamlValidateName(model.flightModeData[i].name, board);
+  }
+
+  for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i++) {
+    YamlValidateName(model.functionSwitchNames[i], board);
+  }
+
+  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+    YamlValidateName(model.inputNames[i], board);
+  }
+
+  for (int i = 0; i < CPN_MAX_CHNOUT; i++) {
+    YamlValidateName(model.limitData[i].name, board);
+  }
+
+  for (int i = 0; i < CPN_MAX_MIXERS; i++) {
+    YamlValidateName(model.mixData[i].name, board);
+  }
+
+  for (int i = 0; i < CPN_MAX_SENSORS; i++) {
+    YamlValidateName(model.sensorData[i].label, board);
+  }
 }
 
 static const YamlLookupTable timerModeLut = {
