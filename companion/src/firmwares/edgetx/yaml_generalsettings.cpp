@@ -32,6 +32,17 @@
 
 #include <QMessageBox>
 
+void YamlValidateNames(GeneralSettings& gs, Board::Type board)
+{
+  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+    YamlValidateName(gs.inputConfig[i].name, board);
+  }
+
+  for (int i = 0; i < CPN_MAX_SWITCHES; i++) {
+    YamlValidateName(gs.switchConfig[i].name, board);
+  }
+}
+
 const YamlLookupTable beeperModeLut = {
   {  GeneralSettings::BEEPER_QUIET, "mode_quiet" },
   {  GeneralSettings::BEEPER_ALARMS_ONLY, "mode_alarms" },
@@ -589,7 +600,8 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["labelMultiMode"] >> rhs.labelMultiMode;
   node["favMultiMode"] >> rhs.favMultiMode;
 
-  // fix ups
+  // perform integrity checks and fix-ups
+  YamlValidateNames(rhs, fw->getBoard());
   rhs.validateFlexSwitches();
 
   return true;
