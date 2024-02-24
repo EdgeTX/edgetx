@@ -19,36 +19,38 @@
  * GNU General Public License for more details.
  */
 
-#include "labelvalidator.h"
+#include "textvalidator.h"
 
 #include <QDebug>
 
-// Note: this regexp does not include all the characters permitted for colour names
-constexpr char REGEX[] {"[ A-Za-z0-9\\_\\,\\.\\+\\/\\*\\=\\%\\!\\?\\#\\<\\>\\@\\$\\(\\)\\{\\}\\[\\]\\;]*"};
-
-LabelValidator::LabelValidator(QObject * parent):
-  QRegularExpressionValidator(parent)
+TextValidator::TextValidator(QObject * parent, const QString &pattern, const QChar invalidRepl, QRegularExpression::PatternOptions options):
+  QRegularExpressionValidator(parent),
+  invalidRepl(invalidRepl)
 {
-  regexp.setPattern(REGEX);
+  regexp.setPattern(pattern);
+  regexp.setPatternOptions(options);
 
   if (!regexp.isValid())
     qDebug() << "Error - Pattern:" << regexp.pattern() << "Error msg:" << regexp.errorString() << "Error offset:" << regexp.patternErrorOffset();
 
+  if (!isValid(invalidRepl))
+    qDebug() << "Error - Replacement character: '" << invalidRepl << "' is not valid for pattern:" << regexp.pattern;
+
   setRegularExpression(regexp);
 }
 
-void LabelValidator::fixup(QString &input) const
+void TextValidator::fixup(QString &input) const
 {
   for (int i = 0; i < input.size(); i++) {
     QRegularExpressionMatch match = regexp.match(input.at(i));
-    if (match.captured() != input.at(i))  // cannot rely on hasMatch as the regexp accepts 0 or more matches
-      input.replace(i, 1, " ");           // replacement character MUST be valid for regexp to avoid possible loop condition
+    if (match.captured() != input.at(i))  // cannot rely on hasMatch
+      input.replace(i, 1, invalidRepl);   // replacement character MUST be valid for regexp to avoid possible loop condition
   }
 
   input = input.trimmed();
 }
 
-bool LabelValidator::isValid(const QString &input) const
+bool TextValidator::isValid(const QString &input) const
 {
   QRegularExpressionMatch match = regexp.match(input);
   return input == match.captured();

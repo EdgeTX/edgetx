@@ -21,19 +21,15 @@
 
 #pragma once
 
-#include <QRegularExpressionValidator>
+#include "textvalidator.h"
 
-class LabelValidator : public QRegularExpressionValidator
+constexpr char LABEL_VALID_PATTERN[] {"[ A-Za-z0-9\\_\\,\\.\\+\\/\\*\\=\\%\\!\\?\\#\\<\\>\\@\\$\\(\\)\\{\\}\\[\\]\\;]*"};
+
+class LabelValidator : public TextValidator
 {
   Q_OBJECT
 
   public:
-    explicit LabelValidator(QObject * parent = nullptr);
+    explicit LabelValidator(QObject * parent = nullptr) : TextValidator(parent, LABEL_VALID_PATTERN) {}
     virtual ~LabelValidator() {}
-
-    void fixup(QString &input) const;
-    bool isValid(const QString &input) const;
-
-  private:
-    QRegularExpression regexp;
 };

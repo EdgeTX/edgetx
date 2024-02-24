@@ -22,20 +22,23 @@
 #pragma once
 
 #include "boards.h"
-#include "textvalidator.h"
 
-// characters supportd by B&W radio firmware gui editor
-constexpr char NAME_VALID_PATTERN_BW[]    {"[ A-Za-z0-9\\-]*"};
-// characters supported by color radio firmware keyboard widget
-constexpr char NAME_VALID_PATTERN_COLOR[] {"[ A-Za-z0-9\\-\\_\\,\\.\"\\+\\/\\*\\=\\%\\!\\?\\#\\<\\>\\@\\$\\(\\)\\{\\}\\[\\]\\;\\:\\']*"};
+#include <QRegularExpressionValidator>
 
-class NameValidator : public TextValidator
+class TextValidator : public QRegularExpressionValidator
 {
   Q_OBJECT
 
   public:
-    explicit NameValidator(Board::Type board, QObject * parent = nullptr) :
-       TextValidator(parent, Boards::getCapability(board, Board::HasColorLcd) ? NAME_VALID_PATTERN_COLOR : NAME_VALID_PATTERN_BW) {}
-    virtual ~NameValidator() {}
+    explicit TextValidator(QObject * parent, const QString &pattern, const QChar invalidRepl = QChar(' '),
+                           QRegularExpression::PatternOptions options = QRegularExpression::NoPatternOption);
+    virtual ~TextValidator() {}
+
+    void fixup(QString &input) const;
+    virtual bool isValid(const QString &input) const;
+
+  private:
+    QChar invalidRepl;
+    QRegularExpression regexp;
 };
 
