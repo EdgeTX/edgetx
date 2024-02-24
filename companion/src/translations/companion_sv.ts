@@ -8032,7 +8032,7 @@ Vill du fortsätta?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="848"/>
         <source>Export Application Settings..</source>
-        <translation>Exportera programinställningar.</translation>
+        <translation>Exportera programinställningar...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="848"/>
@@ -8042,7 +8042,7 @@ Vill du fortsätta?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="849"/>
         <source>Import Application Settings..</source>
-        <translation>Importera programinställningar.</translation>
+        <translation>Importera programinställningar...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="849"/>
