@@ -34,7 +34,7 @@ TextValidator::TextValidator(QObject * parent, const QString &pattern, const QCh
     qDebug() << "Error - Pattern:" << regexp.pattern() << "Error msg:" << regexp.errorString() << "Error offset:" << regexp.patternErrorOffset();
 
   if (!isValid(invalidRepl))
-    qDebug() << "Error - Replacement character: '" << invalidRepl << "' is not valid for pattern:" << regexp.pattern;
+    qDebug() << "Error - Replacement character: '" << invalidRepl << "' is not valid for pattern:" << regexp.pattern();
 
   setRegularExpression(regexp);
 }
