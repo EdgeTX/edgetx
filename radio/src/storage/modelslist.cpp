@@ -685,6 +685,7 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
     if(curlen + csvto.size() - csvfrom.size() > LABELS_LENGTH - 1) {
       TRACE("Labels: Rename Error! Labels too long on %s", model->modelName);
       if (progress != nullptr) progress("", 100); // Kill progress dialog
+      free(modeldata);
       return true;
     }
   }

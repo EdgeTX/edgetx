@@ -232,7 +232,7 @@
 
 #if defined(PCBFRSKY)
   #define TR_ENTER                     "[ENT]"
-#elif defined(PCBNV14)
+#elif defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[ДАЛЕЕ]"
 #else
   #define TR_ENTER                     "[МЕНЮ]"
@@ -1255,7 +1255,7 @@
 #define TR_USBJOYSTICK_CH_AXIS         "Ось"
 #define TR_VUSBJOYSTICK_CH_AXIS         "X","Y","Z","rotX","rotY","rotZ","Slider","Dial","Wheel"
 #define TR_USBJOYSTICK_CH_SIM          "Симуляция оси"
-#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr"
+#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr","Acc","Brk","Dpad"
 #define TR_USBJOYSTICK_CH_INVERSION    "Инверсия"
 #define TR_USBJOYSTICK_CH_BTNNUM       "Номер кнопки"
 #define TR_USBJOYSTICK_BTN_COLLISION   "!Конфликт ном кнопок!"

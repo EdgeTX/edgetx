@@ -1252,7 +1252,7 @@
 #define TR_USBJOYSTICK_CH_AXIS         "Assi"
 #define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","rotX","rotY","rotZ","Slider","Dial","Wheel"
 #define TR_USBJOYSTICK_CH_SIM          "Sim assi"
-#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr"
+#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr","Acc","Brk","Dpad"
 #define TR_USBJOYSTICK_CH_INVERSION    "Inversione"
 #define TR_USBJOYSTICK_CH_BTNNUM       "Pulsante no."
 #define TR_USBJOYSTICK_BTN_COLLISION   "!Collisione pulsante no.!"
