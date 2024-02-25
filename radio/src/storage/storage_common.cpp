@@ -79,6 +79,12 @@ void preModelLoad()
 
 void postRadioSettingsLoad()
 {
+#if LCD_W == 128
+  // Prevent GVARS to be off when imported or manually modified yaml
+  // Since there is no way to have those back
+  g_eeGeneral.modelGVDisabled = false;
+#endif
+
 #if defined(PXX2)
   if (is_memclear(g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID)) {
     setDefaultOwnerId();
@@ -169,6 +175,10 @@ void postModelLoad(bool alarms)
     storageDirty(EE_MODEL);
   }
 #endif
+#elif LCD_W == 128
+  // Prevent GVARS to be off when imported or manually modified yaml
+  // Since there is no way to have those back
+  g_model.modelGVDisabled = false;
 #endif
 
   // Convert 'noGlobalFunctions' to 'radioGFDisabled'
