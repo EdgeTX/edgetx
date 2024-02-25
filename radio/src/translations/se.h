@@ -243,7 +243,7 @@
 
 #if defined(PCBFRSKY)
   #define TR_ENTER                      "[ENTER]"
-#elif defined(PCBNV14)
+#elif defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                      "[NÄSTA]"
 #else
   #define TR_ENTER                      "[MENY]"
