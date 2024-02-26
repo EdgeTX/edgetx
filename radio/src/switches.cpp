@@ -1077,22 +1077,15 @@ void logicalSwitchesTimerTick()
     for (uint8_t i=0; i<MAX_LOGICAL_SWITCHES; i++) {
       LogicalSwitchData * ls = lswAddress(i);
       if (ls->func == LS_FUNC_TIMER) {
-        int16_t * lastValue = &LS_LAST_VALUE(fm, i);
+        int16_t *lastValue = &LS_LAST_VALUE(fm, i);
         if (*lastValue == 0 || *lastValue == CS_LAST_VALUE_INIT) {
           *lastValue = -lswTimerValue(ls->v1);
+        } else if (*lastValue < 0) {
+          if (++(*lastValue) == 0) *lastValue = lswTimerValue(ls->v2);
+        } else {  // if (*lastValue > 0)
+          if (--(*lastValue) == 0) *lastValue = -lswTimerValue(ls->v1);
         }
-
-        else if (*lastValue < 0) {
-          if (++(*lastValue) == 0)
-            *lastValue = lswTimerValue(ls->v2);
-        }
-        else { // if (*lastValue > 0)
-          if (--(*lastValue) == 0) {
-            *lastValue = -lswTimerValue(ls->v1);
-          }
-        }
-      }
-      else if (ls->func == LS_FUNC_STICKY) {
+      } else if (ls->func == LS_FUNC_STICKY) {
         ls_sticky_struct & lastValue = (ls_sticky_struct &)LS_LAST_VALUE(fm, i);
         bool before = lastValue.last & 0x01;
         if (lastValue.state) {
@@ -1117,8 +1110,7 @@ void logicalSwitchesTimerTick()
                 }
             }
         }
-      }
-      else if (ls->func == LS_FUNC_EDGE) {
+      } else if (ls->func == LS_FUNC_EDGE) {
         ls_stay_struct & lastValue = (ls_stay_struct &)LS_LAST_VALUE(fm, i);
         // if this ls was reset by the logicalSwitchesReset() the lastValue will be set to CS_LAST_VALUE_INIT(0x8000)
         // when it is unpacked into ls_stay_struct the lastValue.duration will have a value of 0x4000
