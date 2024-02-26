@@ -109,7 +109,8 @@ rect_t MenuToolbar::getButtonRect(bool wideButton)
 }
 
 bool MenuToolbar::filterMenu(MenuToolbarButton* btn, int16_t filtermin,
-                             int16_t filtermax, const Choice::FilterFct& filterFunc,
+                             int16_t filtermax,
+                             const Choice::FilterFct& filterFunc,
                              const char* title)
 {
   btn->check(!btn->checked());
@@ -133,20 +134,9 @@ bool MenuToolbar::filterMenu(MenuToolbarButton* btn, int16_t filtermin,
   return btn->checked();
 }
 
-typedef std::function<bool(int)> IsValueAvailable;
-static bool checkFirstAvailable(int min, int max,
-                                IsValueAvailable isValueAvailable)
-{
-  for (int i = min; i <= max; i++) {
-    if (isValueAvailable(i)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 void MenuToolbar::addButton(const char* picto, int16_t filtermin,
-                            int16_t filtermax, const Choice::FilterFct& filterFunc,
+                            int16_t filtermax,
+                            const Choice::FilterFct& filterFunc,
                             const char* title, bool wideButton)
 {
   int vmin = choice->vmin;
@@ -154,9 +144,18 @@ void MenuToolbar::addButton(const char* picto, int16_t filtermin,
 
   if (vmin > filtermin || vmax < filtermin) return;
 
-  if (choice->isValueAvailable &&
-      !checkFirstAvailable(filtermin, filtermax, choice->isValueAvailable))
-    return;
+  if (choice->isValueAvailable) {
+    bool found = false;
+    for (int i = filtermin; i <= filtermax; i += 1) {
+      if (choice->isValueAvailable(i)) {
+        if (filterFunc && !filterFunc(i))
+          continue;
+        found = true;
+        break;
+      }
+    }
+    if (!found) return;
+  }
 
   rect_t r = getButtonRect(wideButton);
   auto button = new MenuToolbarButton(this, r, picto);
