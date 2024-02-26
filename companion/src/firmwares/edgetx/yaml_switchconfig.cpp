@@ -361,7 +361,18 @@ bool convert<YamlSwitchConfig>::decode(const Node& node, YamlSwitchConfig& rhs)
 {
   if (!node.IsMap()) return false;
 
-  const int maxcnt = Boards::getCapability(getCurrentBoard(), Board::Switches);
+  Board::Type board = getCurrentBoard();
+
+  const int maxcnt = Boards::getCapability(board, Board::Switches);
+
+  // load defaults in case values not in yaml file
+  for (int i = 0; i < maxcnt; i++) {
+    Board::SwitchInfo info =  Boards::getSwitchInfo(i, board);
+    rhs.config[i].tag = info.tag;
+    memset(rhs.config[i].name, 0, sizeof(rhs.config[i].name));
+    rhs.config[i].type = info.dflt;
+    rhs.config[i].inverted = info.inverted;
+  }
 
   for (const auto& kv : node) {
     std::string tag;

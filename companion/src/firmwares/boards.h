@@ -275,12 +275,14 @@ namespace Board {
       type(SWITCH_NOT_AVAILABLE),
       tag(""),
       name(""),
+      dflt(SWITCH_NOT_AVAILABLE),
       inverted(false)
     {}
 
     SwitchType type;
     std::string tag;
     std::string name;
+    SwitchType dflt;
     bool inverted;
   };
 }
