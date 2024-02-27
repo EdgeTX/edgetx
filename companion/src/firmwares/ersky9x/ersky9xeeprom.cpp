@@ -140,7 +140,7 @@ Ersky9xGeneral::operator GeneralSettings ()
   result.inactivityTimer = inactivityTimer + 10;
   result.minuteBeep = minuteBeep;
   result.preBeep = preBeep;
-  result.flashBeep = flashBeep;
+  result.alarmsFlash = alarmsFlash;
   result.splashMode = disableSplashScreen;
   result.templateSetup = templateSetup;
   result.PPM_Multiplier = PPM_Multiplier;

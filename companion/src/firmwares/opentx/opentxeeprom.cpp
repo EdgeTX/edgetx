@@ -3039,7 +3039,7 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
   internalField.Append(new SpareBitsField<2>(this)); // TODO buzzerMode?
   internalField.Append(new BoolField<1>(this, generalData.fai));
   internalField.Append(new SignedField<2>(this, (int &)generalData.beeperMode));
-  internalField.Append(new BoolField<1>(this, generalData.flashBeep));
+  internalField.Append(new BoolField<1>(this, generalData.alarmsFlash));
   internalField.Append(new BoolField<1>(this, generalData.disableMemoryWarning));
   internalField.Append(new BoolField<1>(this, generalData.disableAlarmWarning));
 
@@ -3315,8 +3315,8 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
   }
 
   if (version >= 219 && IS_TARANIS_XLITES(board)) {
-    internalField.Append(new SignedField<8>(this, generalData.gyroMax, "Gyro full scale"));
-    internalField.Append(new SignedField<8>(this, generalData.gyroOffset, "Gyro Offset"));
+    internalField.Append(new SignedField<8>(this, generalData.imuMax, "Gyro full scale"));
+    internalField.Append(new SignedField<8>(this, generalData.imuOffset, "Gyro Offset"));
   }
 
   if (version >= 220) {

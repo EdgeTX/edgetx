@@ -40,7 +40,7 @@ extern RawSwitch getEr9xTimerMode(int mode);
 #define ERSKY9X_NUM_CHNOUT_V10    16 //number of real outputchannels CH1-CH8
 #define ERSKY9X_NUM_CHNOUT_V11    24 //number of real outputchannels CH1-CH8
 #define ERSKY9X_NUM_CSW_V10         12 //number of custom switches
-#define ERSKY9X_NUM_CSW_V11         24 
+#define ERSKY9X_NUM_CSW_V11         24
 #define ERSKY9X_NUM_FSW                 16
 #define ERSKY9X_NUM_VOICE	         8
 #define ERSKY9X_MAX_GVARS	         7
@@ -89,7 +89,7 @@ PACK(typedef struct t_Ersky9xGeneral {
   uint8_t   throttleReversed:1;
   uint8_t   minuteBeep:1;
   uint8_t   preBeep:1;
-  uint8_t   flashBeep:1;
+  uint8_t   alarmsFlash:1;
   uint8_t   disableSplashScreen:1;
   uint8_t   disablePotScroll:1;
   uint8_t   disableBG:1;
@@ -219,7 +219,7 @@ PACK(typedef struct t_Ersky9xSafetySwData_v10 { // Custom Switches data
 
 PACK(typedef struct t_Ersky9xSafetySwData_v11 { // Custom Switches data
   union opt {
-    struct ss {	
+    struct ss {
       int8_t  swtch ;
       uint8_t mode ;
       int8_t  val ;
@@ -279,13 +279,13 @@ PACK(typedef struct t_Ersky9xFrSkyData_v10 {
 
 PACK(typedef struct t_Ersky9xFrSkyChannelData_v11 {
   uint8_t   ratio ;               // 0.0 means not used, 0.1V steps EG. 6.6 Volts = 66. 25.1V = 251, etc.
-  uint8_t   offset ;              // 
-  uint8_t   gain ;                // 
+  uint8_t   offset ;              //
+  uint8_t   gain ;                //
   uint8_t   alarms_value[2] ;     // 0.1V steps EG. 6.6 Volts = 66. 25.1V = 251, etc.
   uint8_t   alarms_level ;
   uint8_t   alarms_greater ;      // 0=LT(<), 1=GT(>)
   uint8_t   type ;                // 0=volts, 1=raw, 2=volts*2, 3=Amps
-  
+
   operator FrSkyChannelData();
   t_Ersky9xFrSkyChannelData_v11();
 }) Ersky9xFrSkyChannelData_v11;
