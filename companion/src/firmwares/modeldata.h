@@ -83,6 +83,7 @@ enum TrainerMode {
   TRAINER_MODE_LAST = TRAINER_MODE_MULTI
 };
 
+#define MODEL_NAME_LEN 15
 #define INPUT_NAME_LEN 4
 #define CPN_MAX_BITMAP_LEN 14
 
@@ -121,7 +122,7 @@ class ModelData {
 
     char      semver[8 + 1];
     bool      used;
-    char      name[15+1];
+    char      name[MODEL_NAME_LEN + 1];
     char      filename[16+1];
     char      labels[100];
     int       modelIndex;      // Companion only, temporary index position managed by data model.
