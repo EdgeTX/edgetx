@@ -442,8 +442,10 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
 #endif
 
 #if !defined(CLI)
-  if (mode == UART_MODE_CLI)
-    return false;
+  if (mode == UART_MODE_CLI) return false;
+#else
+  // CLI is only supported on VCP
+  if (port_nr != SP_VCP && mode == UART_MODE_CLI) return false;
 #endif
 
 #if !defined(INTERNAL_GPS)
