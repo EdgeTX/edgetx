@@ -22,6 +22,8 @@
 
 #include "eeprominterface.h"
 
+#include <QtCore>
+
 #define WIZ_MAX_CHANNELS 8
 
 enum Input {
@@ -86,8 +88,10 @@ class Channel
     void clear();
 };
 
-class WizMix
+class WizMix : public QObject
 {
+  Q_OBJECT
+
   public:
     bool complete;
     char name[MODEL_NAME_LEN + 1];
