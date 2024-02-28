@@ -1252,7 +1252,7 @@
 #define TR_USBJOYSTICK_CH_AXIS         "Oś"
 #define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","rotX","rotY","rotZ","Suwak","Wyb.","Koło"
 #define TR_USBJOYSTICK_CH_SIM          "Oś sym."
-#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr","Acc","Brk","Dpad"
+#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr","Acc","Brk","Steer","Dpad"
 #define TR_USBJOYSTICK_CH_INVERSION    "Odwróć"
 #define TR_USBJOYSTICK_CH_BTNNUM       "Guzik nr."
 #define TR_USBJOYSTICK_BTN_COLLISION   "!Kolizja nr. guzika!"

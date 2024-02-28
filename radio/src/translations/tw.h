@@ -1250,7 +1250,7 @@
 #define TR_USBJOYSTICK_CH_AXIS         "轴"
 #define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","旋轉X","旋轉Y","旋轉Z","推桿","撥輪","方向盤"
 #define TR_USBJOYSTICK_CH_SIM          "模擬軸"
-#define TR_VUSBJOYSTICK_CH_SIM         "橫滾Ail","俯仰Ele","方向Rud","油門Thr","Acc","Brk","Dpad"
+#define TR_VUSBJOYSTICK_CH_SIM         "橫滾Ail","俯仰Ele","方向Rud","油門Thr","Acc","Brk","Steer","Dpad"
 #define TR_USBJOYSTICK_CH_INVERSION    "反轉"
 #define TR_USBJOYSTICK_CH_BTNNUM       "按鈕編號."
 #define TR_USBJOYSTICK_BTN_COLLISION   "!按鈕編號衝突!"

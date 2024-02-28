@@ -1292,7 +1292,7 @@
 #define TR_USBJOYSTICK_CH_AXIS          "Axis"
 #define TR_VUSBJOYSTICK_CH_AXIS         "X","Y","Z","rotX","rotY","rotZ","Reglage","Vred","Hjul"
 #define TR_USBJOYSTICK_CH_SIM           "Sim.axlar"
-#define TR_VUSBJOYSTICK_CH_SIM          "Ske","Hjd","Rod","Gas","Acc","Brms","dpad"
+#define TR_VUSBJOYSTICK_CH_SIM          "Ske","Hjd","Rod","Gas","Acc","Brms","Steer","dpad"
 #define TR_USBJOYSTICK_CH_INVERSION     "Invertering"
 #define TR_USBJOYSTICK_CH_BTNNUM        "Knapp nr."
 #define TR_USBJOYSTICK_BTN_COLLISION    "!Knappnr. krockar!"

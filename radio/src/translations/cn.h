@@ -1245,7 +1245,7 @@
 #define TR_USBJOYSTICK_CH_AXIS         "轴"
 #define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","旋转X","旋转Y","旋转Z","推杆","拨轮","方向盘"
 #define TR_USBJOYSTICK_CH_SIM          "模拟轴"
-#define TR_VUSBJOYSTICK_CH_SIM         "横滚Ail","俯仰Ele","方向Rud","油门Thr","Acc","Brk","Dpad"
+#define TR_VUSBJOYSTICK_CH_SIM         "横滚Ail","俯仰Ele","方向Rud","油门Thr","Acc","Brk","Steer","Dpad"
 #define TR_USBJOYSTICK_CH_INVERSION    "反转"
 #define TR_USBJOYSTICK_CH_BTNNUM       "按钮编号."
 #define TR_USBJOYSTICK_BTN_COLLISION   "!按钮编号冲突!"

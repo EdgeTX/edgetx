@@ -175,7 +175,7 @@ int setupUSBJoystick()
   static const uint8_t axisTypeCodes[USBJOYS_AXIS_LAST + 1] =
     { 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38 };
   static const uint8_t simTypeCodes[USBJOYS_SIM_LAST + 1] =
-    { 0xb0, 0xb8, 0xba, 0xbb, 0xc4, 0xc5, 0x00 };
+    { 0xb0, 0xb8, 0xba, 0xbb, 0xc4, 0xc5, 0xc8, 0x00 };
 
   if (_hidReportDesc == nullptr) {
     _hidReportDesc = (uint8_t*)malloc(MAX_HID_REPORTDESC);
@@ -451,16 +451,12 @@ static void setDpadBits(int hid_pos, int channelIx){
   // a span of 121 results in a too small top range
   // -> use 120 and slightly enlarge top and button ranges
 
-  value += 3;
-  if (value < 4 ) {
-    // underflow
-    value = 0;
-  } else if (value > 2039) {
-      // overflow
-      value = 7;
-  } else {
-    value = (value / 120) % 9;
+  if (value > 2039){
+    value = 7;
+  }else{
+    value = ( (value - 3) / 120 ) % 9;
   }
+
   _hidReport[hid_pos] = static_cast<uint8_t>(value & 0x0F);
 }
 

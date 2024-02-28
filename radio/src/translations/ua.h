@@ -1229,7 +1229,7 @@
 #define TR_USBJOYSTICK_CH_AXIS         "Вісь"
 #define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","rotX","rotY","rotZ","Slider","Dial","Wheel"
 #define TR_USBJOYSTICK_CH_SIM          "Сим. вісі"
-#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr","Acc","Brk","Dpad"
+#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr","Acc","Brk","Steer","Dpad"
 #define TR_USBJOYSTICK_CH_INVERSION    "Інверсія"
 #define TR_USBJOYSTICK_CH_BTNNUM       "Номер Кнопки"
 #define TR_USBJOYSTICK_BTN_COLLISION   "!Конфлікт номерів кнопок!"
