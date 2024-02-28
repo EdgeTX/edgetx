@@ -23,6 +23,7 @@
 #include "radiodata.h"
 #include "filtereditemmodels.h"
 #include "helpers.h"
+#include "namevalidator.h"
 
 MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, GeneralSettings & generalSettings, Firmware * firmware,
                          CompoundItemModelFactory * sharedItemModels) :
@@ -41,7 +42,6 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   dialogFilteredItemModels = new FilteredItemModelFactory();
   int id;
 
-  QRegExp rx(CHAR_FOR_NAMES_REGEX);
   QLabel * lb_fp[CPN_MAX_FLIGHT_MODES] = {ui->lb_FP0, ui->lb_FP1, ui->lb_FP2, ui->lb_FP3, ui->lb_FP4, ui->lb_FP5, ui->lb_FP6, ui->lb_FP7, ui->lb_FP8 };
   QCheckBox * tmp[CPN_MAX_FLIGHT_MODES] = {ui->cb_FP0, ui->cb_FP1, ui->cb_FP2, ui->cb_FP3, ui->cb_FP4, ui->cb_FP5, ui->cb_FP6, ui->cb_FP7, ui->cb_FP8 };
   for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
@@ -100,7 +100,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   else {
     ui->mixerName->setMaxLength(namelength);
   }
-  ui->mixerName->setValidator(new QRegExpValidator(rx, this));
+  ui->mixerName->setValidator(new NameValidator(board, this));
   ui->mixerName->setText(md->name);
 
   if (!firmware->getCapability(FlightModes)) {

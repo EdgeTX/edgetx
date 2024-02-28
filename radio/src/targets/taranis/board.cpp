@@ -136,40 +136,46 @@ void boardInit()
 #endif
 #endif
 
-// Support for FS Led to indicate battery charge level
-#if defined(FUNCTION_SWITCHES)
+// If the radio was powered on by dual use USB, halt the boot process, let battery charge
+// TODO: needs refactoring if any other manufacturer implements either of the following:
+// - function switches and the radio supports charging
+// - single USB for data + charge which powers on radio
+#if defined(MANUFACTURER_JUMPER)
   // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();
   // prime debounce state...
-   usbPlugged();
+  usbPlugged();
 
-   if (usbPlugged()) {
-     delaysInit();
-     adcInit(&_adc_driver);
-     getADC();
-     pwrOn(); // required to get bat adc reads
-     INTERNAL_MODULE_OFF();
-     EXTERNAL_MODULE_OFF();
+  if (usbPlugged()) {
+    delaysInit();
+    adcInit(&_adc_driver);
+    getADC();
+    pwrOn();  // required to get bat adc reads
+    INTERNAL_MODULE_OFF();
+    EXTERNAL_MODULE_OFF();
 
-     while (usbPlugged()) {
-       // Let it charge ...
-       getADC(); // Warning: the value read does not include VBAT calibration
-       delay_ms(20);
-       if (getBatteryVoltage() >= 660)
-         fsLedOn(0);
-       if (getBatteryVoltage() >= 700)
-         fsLedOn(1);
-       if (getBatteryVoltage() >= 740)
-         fsLedOn(2);
-       if (getBatteryVoltage() >= 780)
-         fsLedOn(3);
-       if (getBatteryVoltage() >= 820)
-         fsLedOn(4);
-       if (getBatteryVoltage() >= 842)
-         fsLedOn(5);
-     }
-     pwrOff();
-   }
+    while (usbPlugged()) {
+      //    // Let it charge ...
+      getADC();  // Warning: the value read does not include VBAT calibration
+      delay_ms(20);
+#if defined(FUNCTION_SWITCHES)
+      // Support for FS Led to indicate battery charge level
+      if (getBatteryVoltage() >= 660) fsLedOn(0);
+      if (getBatteryVoltage() >= 700) fsLedOn(1);
+      if (getBatteryVoltage() >= 740) fsLedOn(2);
+      if (getBatteryVoltage() >= 780) fsLedOn(3);
+      if (getBatteryVoltage() >= 820) fsLedOn(4);
+      if (getBatteryVoltage() >= 842) fsLedOn(5);
+#elif defined(STATUS_LEDS)
+      // Use Status LED to indicate battery charge level instead
+      if (getBatteryVoltage() <= 660) ledRed();         // low discharge
+      else if (getBatteryVoltage() <= 842) ledBlue();   // charging
+      else ledGreen();                                  // charging done
+      delay_ms(1000);
+#endif
+    }
+    pwrOff();
+  }
 #endif
 
   keysInit();

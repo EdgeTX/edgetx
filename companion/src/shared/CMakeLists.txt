@@ -19,9 +19,17 @@ set(${PROJECT_NAME}_NAMES
   curvedialog
   genericpanel
   verticalscrollarea
+  textvalidator
 )
 
 AddHeadersSources()
+
+# these have no cpp
+set(${PROJECT_NAME}_HDRS
+  ${${PROJECT_NAME}_HDRS}
+  namevalidator.h
+  labelvalidator.h
+)
 
 # AUTOMOC does not detect so manually process
 qt5_wrap_cpp(${PROJECT_NAME}_SRCS

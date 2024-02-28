@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -20,33 +21,15 @@
 
 #pragma once
 
-#include "autowidget.h"
+#include "textvalidator.h"
 
-#include <QLineEdit>
-#include <QRegExpValidator>
+constexpr char LABEL_VALID_PATTERN[] {"[ A-Za-z0-9\\_\\,\\.\\+\\/\\*\\=\\%\\!\\?\\#\\<\\>\\@\\$\\(\\)\\{\\}\\[\\]\\;]*"};
 
-class AutoLineEdit: public QLineEdit, public AutoWidget
+class LabelValidator : public TextValidator
 {
   Q_OBJECT
 
   public:
-    explicit AutoLineEdit(QWidget * parent = nullptr, bool updateOnChange = false);
-    virtual ~AutoLineEdit();
-
-    virtual void updateValue() override;
-
-    void setField(char * field, int len, GenericPanel * panel = nullptr);
-    void setField(QString & field, int len = 0, GenericPanel * panel = nullptr);
-
-  signals:
-    void currentDataChanged();
-
-  protected slots:
-    void onEdited();
-
-  private:
-    char *m_charField;
-    QString *m_strField;
-
-    void setFieldInit(int len, GenericPanel * panel);
+    explicit LabelValidator(QObject * parent = nullptr) : TextValidator(parent, LABEL_VALID_PATTERN) {}
+    virtual ~LabelValidator() {}
 };

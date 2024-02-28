@@ -23,6 +23,7 @@
 #include "compounditemmodels.h"
 #include "filtereditemmodels.h"
 #include "autocombobox.h"
+#include "namevalidator.h"
 
 GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
 GeneralPanel(parent, generalSettings, firmware),
@@ -287,8 +288,7 @@ ui(new Ui::GeneralSetup)
     ui->pwrOnDelay->hide();
   }
 
-  QRegExp rx(CHAR_FOR_NAMES_REGEX);
-  ui->registrationId->setValidator(new QRegExpValidator(rx, this));
+  ui->registrationId->setValidator(new NameValidator(board, this));
   ui->registrationId->setMaxLength(REGISTRATION_ID_LEN);
 
   setValues();
@@ -328,7 +328,7 @@ ui(new Ui::GeneralSetup)
   }
 
   ui->switchesDelay->setValue(10*(generalSettings.switchesDelay+15));
-  ui->blAlarm_ChkB->setChecked(generalSettings.flashBeep);
+  ui->blAlarm_ChkB->setChecked(generalSettings.alarmsFlash);
 
   if (!firmware->getCapability(HasBatMeterRange)) {
     ui->batMeterRangeLabel->hide();
@@ -375,7 +375,7 @@ void GeneralSetupPanel::populateVoiceLangCB()
 {
   QComboBox * b = ui->voiceLang_CB;
   //  Note: these align with the radio NOT computer locales - TODO harmonise with ISO and one list!!!
-  static QString strings[][2] = { 
+  static QString strings[][2] = {
     { tr("Chinese"), "cn" },
     { tr("Czech"), "cz" },
     { tr("Danish"), "da" },
@@ -868,7 +868,7 @@ void GeneralSetupPanel::unlockSwitchEdited()
 
 void GeneralSetupPanel::on_blAlarm_ChkB_stateChanged()
 {
-  generalSettings.flashBeep = ui->blAlarm_ChkB->isChecked();
+  generalSettings.alarmsFlash = ui->blAlarm_ChkB->isChecked();
   emit modified();
 }
 

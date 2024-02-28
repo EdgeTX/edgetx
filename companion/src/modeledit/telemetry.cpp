@@ -23,6 +23,7 @@
 #include "ui_telemetry_sensor.h"
 #include "helpers.h"
 #include "appdata.h"
+#include "namevalidator.h"
 
 constexpr char FIM_RAWSOURCE[]       {"Raw Source"};
 constexpr char FIM_TELEALLSRC[]      {"Tele All Source"};
@@ -64,6 +65,7 @@ TelemetrySensorPanel::TelemetrySensorPanel(QWidget *parent, SensorData & sensor,
   ui->numLabel->setToolTip(tr("Popup menu available"));
   ui->numLabel->setMouseTracking(true);
   connect(ui->numLabel, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(on_customContextMenuRequested(QPoint)));
+  ui->name->setValidator(new NameValidator(firmware->getBoard(), this));
   ui->name->setField(sensor.label, SENSOR_LABEL_LEN);
   connect(ui->name, SIGNAL(currentDataChanged()), this, SLOT(on_nameDataChanged()));
   ui->id->setField(sensor.id, this);

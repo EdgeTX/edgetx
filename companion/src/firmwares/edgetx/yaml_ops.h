@@ -21,9 +21,11 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
+#include "helpers.h"
+#include "boards.h"
+
 #include <algorithm>
 #include <QString>
-#include "helpers.h"
 
 typedef std::pair<int, std::string> YamlLookupTableElmt;
 typedef std::vector<YamlLookupTableElmt> YamlLookupTable;
@@ -121,6 +123,9 @@ void operator>>(const YAML::Node& node, T (&value)[N])
     }
   }
 }
+
+void YamlValidateName(char *input, Board::Type board);
+void YamlValidateLabel(QString &input);
 
 namespace YAML {
 

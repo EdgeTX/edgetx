@@ -22,6 +22,7 @@
 #include "ui_expodialog.h"
 #include "filtereditemmodels.h"
 #include "helpers.h"
+#include "namevalidator.h"
 
 ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, GeneralSettings & generalSettings,
                        Firmware * firmware, QString & inputName, CompoundItemModelFactory * sharedItemModels) :
@@ -37,6 +38,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
 {
   ui->setupUi(this);
 
+  Board::Type board = firmware->getBoard();
   dialogFilteredItemModels = new FilteredItemModelFactory();
   int id;
 
@@ -48,7 +50,6 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
 
   RawSourceType srcType = (firmware->getCapability(VirtualInputs) ? SOURCE_TYPE_VIRTUAL_INPUT : SOURCE_TYPE_STICK);
   setWindowTitle(tr("Edit %1").arg(RawSource(srcType, ed->chn).toString(&model, &generalSettings)));
-  QRegExp rx(CHAR_FOR_NAMES_REGEX);
 
   id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_GVarRef)), "GVarRef");
   gvWeightGroup = new GVarGroup(ui->weightGV, ui->weightSB, ui->weightCB, ed->weight, model, 100, -100, 100, 1.0,
@@ -108,7 +109,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
                                                      flags), "RawSource");
     ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(id));
     ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(ed->srcRaw.toValue()));
-    ui->inputName->setValidator(new QRegExpValidator(rx, this));
+    ui->inputName->setValidator(new NameValidator(board, this));
     ui->inputName->setText(inputName);
   }
   else {
@@ -140,7 +141,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
     ui->lineName->setMaxLength(expolength);
   }
 
-  ui->lineName->setValidator(new QRegExpValidator(rx, this));
+  ui->lineName->setValidator(new NameValidator(board, this));
   ui->lineName->setText(ed->name);
 
   updateScale();

@@ -442,8 +442,10 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
 #endif
 
 #if !defined(CLI)
-  if (mode == UART_MODE_CLI)
-    return false;
+  if (mode == UART_MODE_CLI) return false;
+#else
+  // CLI is only supported on VCP
+  if (port_nr != SP_VCP && mode == UART_MODE_CLI) return false;
 #endif
 
 #if !defined(INTERNAL_GPS)
@@ -1041,9 +1043,20 @@ bool isTrainerModeAvailable(int mode)
     }
     
     if (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
-      auto port =  modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
-                                  ETX_MOD_PORT_UART, ETX_Pol_Normal,
-                                  ETX_MOD_DIR_RX);
+      const etx_module_port_t *port = nullptr;
+
+#if defined(TRAINER_MODULE_SBUS_USART)
+      // check if UART with inverter on heartbeat pin is required and available for SBUS (some Taranis radios)
+      port = modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
+                            ETX_MOD_PORT_UART, ETX_Pol_Normal,
+                            ETX_MOD_DIR_RX);
+#else
+      //check if UART with inverter on S.Port pin is available for SBUS (e.g. TX16s, NV14)
+      port = modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
+                            ETX_MOD_PORT_SPORT, ETX_Pol_Normal,
+                            ETX_MOD_DIR_RX);
+#endif
+
       return port != nullptr;
     }
   }

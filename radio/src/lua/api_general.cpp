@@ -2321,7 +2321,6 @@ Reads characters from the serial port. The string is allowed to contain any char
 */
 static int luaSerialRead(lua_State * L)
 {
-#if defined(LUA) && !defined(CLI)
   int num = luaL_optunsigned(L, 1, 0);
 
   uint8_t str[LUA_FIFO_SIZE];
@@ -2350,9 +2349,6 @@ static int luaSerialRead(lua_State * L)
     }
   }
   lua_pushlstring(L, (const char*)str, p - str);
-#else
-  lua_pushlstring(L, "", 0);
-#endif
 
   return 1;
 }

@@ -903,7 +903,9 @@ static const char* trimSwitchNames[] = {
   "TrimThrDown", "TrimThrUp",
   "TrimAilLeft", "TrimAilRight",
   "TrimT5Down", "TrimT5Up",
-  "TrimT6Down", "TrimT6Up"
+  "TrimT6Down", "TrimT6Up",
+  "TrimT7Down", "TrimT7Up",
+  "TrimT8Down", "TrimT8Up",
 };
 
 static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_len)

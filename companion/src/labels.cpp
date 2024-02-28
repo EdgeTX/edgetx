@@ -1,4 +1,26 @@
+/*
+ * Copyright (C) EdgeTX
+ *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 #include "labels.h"
+#include "radiodata.h"
 
 LabelsModel::LabelsModel(QSortFilterProxyModel * modelsListProxyModel,
                          QItemSelectionModel *selectionModel,
@@ -241,48 +263,10 @@ QModelIndex LabelsModel::getDataIndex(QModelIndex viewIndex) const
   return modelsListProxyModel->mapToSource(viewIndex);
 }
 
-
-QValidator::State LabelValidator::validate(QString &label, int &pos) const
+QWidget * LabelEditTextDelegate::createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const
 {
-  Q_UNUSED(pos)
-  QString lbl = RadioData::escapeCSV(label);
-
-  if (lbl.toUtf8().size() > LABEL_LENGTH)
-    return QValidator::Invalid;
-
-  if(lbl.contains('\\') || // TODO: Fix me to allow all, requires FW changes
-     lbl.contains('\"') ||
-     lbl.contains(':') ||
-     lbl.contains('-') ||
-     lbl.contains('\''))
-    return QValidator::Invalid;
-
-  if(lbl.size() == 0)
-    return QValidator::Intermediate;
-
-  return QValidator::Acceptable;
-}
-
-void LabelValidator::fixup(QString &input) const
-{
-  QByteArray output = input.toUtf8();
-
-  if (output.size() > LABEL_LENGTH) {
-    int truncateAt = 0;
-    for (int i = LABEL_LENGTH; i > 0; i--) {
-      if ((output[i] & 0xC0) != 0x80) {
-        truncateAt = i;
-        break;
-      }
-    }
-
-    output.truncate(truncateAt);
-  }
-
-  input = QString(output);
-  input.remove('\\'); // TODO: Fix me to allow all, requires FW changes
-  input.remove('\"');
-  input.remove(':');
-  input.remove('-');
-  input.remove('\'');
+  QLineEdit *editor = new QLineEdit(parent);
+  editor->setValidator(new LabelValidator(parent));
+  editor->setMaxLength(LABEL_LENGTH);
+  return editor;
 }

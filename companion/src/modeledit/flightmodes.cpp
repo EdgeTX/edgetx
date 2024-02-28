@@ -23,6 +23,7 @@
 #include "filtereditemmodels.h"
 #include "helpers.h"
 #include "customdebug.h"
+#include "namevalidator.h"
 
 FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseIdx, GeneralSettings & generalSettings, Firmware * firmware,
                                  FilteredItemModel * rawSwitchFilteredModel):
@@ -45,9 +46,8 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
   trimCount = Boards::getCapability(board, Board::NumTrims);
 
   // Flight mode name
-  QRegExp rx(CHAR_FOR_NAMES_REGEX);
   if (fmCount) {
-    ui->name->setValidator(new QRegExpValidator(rx, this));
+    ui->name->setValidator(new NameValidator(board, this));
     ui->name->setMaxLength(firmware->getCapability(FlightModesName));
     connect(ui->name, SIGNAL(editingFinished()), this, SLOT(phaseName_editingFinished()));
   }
@@ -231,6 +231,7 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
       if (nameLen > 0) {
         gvNames[i] = new QLineEdit(ui->gvGB);
         gvNames[i]->setProperty("index", i);
+        gvNames[i]->setValidator(new NameValidator(board, this));
         gvNames[i]->setMaxLength(nameLen);
         connect(gvNames[i], SIGNAL(editingFinished()), this, SLOT(GVName_editingFinished()));
         gvLayout->addWidget(gvNames[i], i + 1, col++, 1, 1);

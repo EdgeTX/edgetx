@@ -198,6 +198,8 @@ class GeneralSettings {
     int getDefaultChannel(unsigned int stick) const;
     bool fix6POSCalibration();
 
+    bool manuallyEdited;
+
     char semver[8 + 1];
     unsigned int version;
     unsigned int variant;
@@ -234,7 +236,7 @@ class GeneralSettings {
     unsigned int internalModuleBaudrate;
     bool minuteBeep;
     bool preBeep;
-    bool flashBeep;
+    bool alarmsFlash;
     int splashMode;
     bool dontPlayHello;
     unsigned int backlightDelay;
@@ -287,8 +289,8 @@ class GeneralSettings {
     CustomFunctionData customFn[CPN_MAX_SPECIAL_FUNCTIONS];
 
     char registrationId[REGISTRATION_ID_LEN + 1];
-    int gyroMax;
-    int gyroOffset;
+    int imuMax;
+    int imuOffset;
     int uartSampleMode;
 
     int pwrOnSpeed;
