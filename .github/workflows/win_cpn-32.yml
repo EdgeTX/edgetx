@@ -3,7 +3,7 @@ name: Windows Companion 32-bit
 on:
   push:
     branches:
-      - 'main'
+      - '2.10'
     tags:
       - v*
     paths:

@@ -3,7 +3,7 @@ name: Linux Companion
 on:
   push:
     branches:
-      - 'main'
+      - '2.10'
     tags:
       - v*
     paths:
@@ -13,7 +13,7 @@ on:
 
   pull_request:
     branches:
-      - 'main'
+      - '2.10'
     paths:
       - '.github/workflows/linux_cpn.yml'
       - 'companion/**'
