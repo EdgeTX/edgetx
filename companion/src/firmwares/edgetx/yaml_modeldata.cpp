@@ -41,6 +41,57 @@
 
 SemanticVersion version;  // used for data conversions
 
+void YamlValidateLabelsNames(ModelData& model, Board::Type board)
+{
+  YamlValidateName(model.name, board);
+
+  QStringList lst = QString(model.labels).split(',', Qt::SkipEmptyParts);
+
+  for (int i = lst.count() - 1; i >= 0; i--) {
+    YamlValidateLabel(lst[i]);
+    if (lst.at(i).isEmpty())
+      lst.removeAt(i);
+  }
+
+  strcpy(model.labels, QString(lst.join(',')).toLatin1().data());
+
+  for (int i = 0; i < CPN_MAX_CURVES; i++) {
+    YamlValidateName(model.curves[i].name, board);
+  }
+
+  for (int i = 0; i < CPN_MAX_EXPOS; i++) {
+    YamlValidateName(model.expoData[i].name, board);
+  }
+
+  for (int i = 0; i < CPN_MAX_GVARS; i++) {
+    YamlValidateName(model.gvarData[i].name, board);
+  }
+
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+    YamlValidateName(model.flightModeData[i].name, board);
+  }
+
+  for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i++) {
+    YamlValidateName(model.functionSwitchNames[i], board);
+  }
+
+  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+    YamlValidateName(model.inputNames[i], board);
+  }
+
+  for (int i = 0; i < CPN_MAX_CHNOUT; i++) {
+    YamlValidateName(model.limitData[i].name, board);
+  }
+
+  for (int i = 0; i < CPN_MAX_MIXERS; i++) {
+    YamlValidateName(model.mixData[i].name, board);
+  }
+
+  for (int i = 0; i < CPN_MAX_SENSORS; i++) {
+    YamlValidateName(model.sensorData[i].label, board);
+  }
+}
+
 static const YamlLookupTable timerModeLut = {
     {TimerData::TIMERMODE_OFF, "OFF"},
     {TimerData::TIMERMODE_ON, "ON"},
@@ -1092,6 +1143,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 {
   if (!node.IsMap()) return false;
 
+  Board::Type board = getCurrentBoard();
+
   unsigned int modelIds[CPN_MAX_MODULES];
   memset(modelIds, 0, sizeof(modelIds));
 
@@ -1151,6 +1204,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["limitData"] >> rhs.limitData;
 
   node["inputNames"] >> rhs.inputNames;
+
   node["expoData"] >> rhs.expoData;
 
   node["curves"] >> rhs.curves;
@@ -1326,7 +1380,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   }
 
   // perform integrity checks and fix-ups
-
+  YamlValidateLabelsNames(rhs, board);
   rhs.sortMixes();  // critical for Companion and radio that mix lines are in sequence
 
   return true;

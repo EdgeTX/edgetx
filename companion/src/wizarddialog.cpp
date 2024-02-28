@@ -19,8 +19,8 @@
  */
 
 #include "wizarddialog.h"
-#include "wizarddata.h"
 #include "helpers.h"
+#include "namevalidator.h"
 
 WizardDialog::WizardDialog(const GeneralSettings & settings, unsigned int modelId, const ModelData & modelData, QWidget *parent):
   QWizard(parent),
@@ -276,7 +276,10 @@ int StandardPage::nextId() const
 ModelSelectionPage::ModelSelectionPage(WizardDialog *dlg, QString image, QString title, QString text)
   : StandardPage(Page_Models, dlg, image, title, text)
 {
+  Firmware *fw = getCurrentFirmware();
   nameLineEdit = new QLineEdit;
+  nameLineEdit->setValidator(new NameValidator(fw->getBoard()));
+  nameLineEdit->setMaxLength(fw->getCapability(ModelName));
   planeRB = new QRadioButton(tr("Plane"));
   planeRB->setChecked(true);
   multirotorRB = new QRadioButton(tr("Multirotor"));
@@ -301,12 +304,8 @@ void ModelSelectionPage::initializePage()
 
 bool ModelSelectionPage::validatePage()
 {
-  //Filter and insert model name in mix data
-  QString newName(nameLineEdit->text());
-  newName = (newName.normalized(QString::NormalizationForm_D));
-  newName = newName.replace(QRegExp("[^ A-Za-z0-9_.-,\\s]"), "");
   memset(wizDlg->mix.name, 0, sizeof(wizDlg->mix.name));
-  strncpy( wizDlg->mix.name, newName.toLatin1(), sizeof(wizDlg->mix.name)-1);
+  strncpy( wizDlg->mix.name, nameLineEdit->text().toLatin1(), sizeof(wizDlg->mix.name) - 1);
 
   if (multirotorRB->isChecked())
     wizDlg->mix.vehicle = MULTICOPTER;

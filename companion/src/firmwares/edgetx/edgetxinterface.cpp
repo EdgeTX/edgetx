@@ -26,6 +26,7 @@
 #include "yaml_ops.h"
 #include "yaml_generalsettings.h"
 #include "yaml_modeldata.h"
+#include "labelvalidator.h"
 
 #include <QMessageBox>
 
@@ -113,11 +114,14 @@ bool loadLabelsListFromYaml(RadioData::ModelLabels& labels,
       std::string lbl = it->first.as<std::string>();
       RadioData::LabelData ld;
       ld.name = QString::fromStdString(lbl);
-      if (lbls[lbl]["selected"])
-        ld.selected = lbls[lbl]["selected"].as<bool>();
-      else
-        ld.selected = false;
-      labels.append(ld);
+      YamlValidateLabel(ld.name);
+      if (!ld.name.isEmpty()) {
+        if (lbls[lbl]["selected"])
+          ld.selected = lbls[lbl]["selected"].as<bool>();
+        else
+          ld.selected = false;
+        labels.append(ld);
+      }
     }
   }
 

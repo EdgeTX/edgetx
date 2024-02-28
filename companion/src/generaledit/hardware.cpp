@@ -28,6 +28,7 @@
 #include "autodoublespinbox.h"
 #include "autobitmappedcombobox.h"
 #include "autobitmappedcheckbox.h"
+#include "namevalidator.h"
 
 #include <QLabel>
 #include <QGridLayout>
@@ -212,6 +213,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addLabel(tr("Bluetooth"));
 
     AutoComboBox *bluetoothMode = new AutoComboBox(this);
+    bluetoothMode->setValidator(new NameValidator(board, this));
     bluetoothMode->setModel(editorItemModels->getItemModel(btmodelid));
     bluetoothMode->setField(generalSettings.bluetoothMode, this);
     params->append(bluetoothMode);
@@ -414,6 +416,7 @@ void HardwarePanel::addStick(int index)
   addLabel(Boards::getInputName(index, board));
 
   AutoLineEdit *name = new AutoLineEdit(this);
+  name->setValidator(new NameValidator(board, this));
   name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
   addParams();
@@ -426,6 +429,7 @@ void HardwarePanel::addFlex(int index)
   addLabel(Boards::getInputName(index, board));
 
   AutoLineEdit *name = new AutoLineEdit(this);
+  name->setValidator(new NameValidator(board, this));
   name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
 
@@ -467,6 +471,7 @@ void HardwarePanel::addSwitch(int index)
   addLabel(Boards::getSwitchName(index));
 
   AutoLineEdit *name = new AutoLineEdit(this);
+  name->setValidator(new NameValidator(board, this));
   name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
 

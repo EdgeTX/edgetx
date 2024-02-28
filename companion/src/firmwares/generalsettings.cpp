@@ -24,6 +24,7 @@
 #include "eeprominterface.h"
 #include "radiodataconversionstate.h"
 #include "compounditemmodels.h"
+#include "yaml_ops.h"
 
 const uint8_t chout_ar[] = { // First number is 0..23 -> template setup,  Second is relevant channel out
   1,2,3,4 , 1,2,4,3 , 1,3,2,4 , 1,3,4,2 , 1,4,2,3 , 1,4,3,2,
@@ -836,6 +837,7 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
 {
   for (int i = 0; i < CPN_MAX_STICKS && i < Boards::getCapability(board, Board::Sticks); i++) {
     inputConfig[i].type = Board::AIT_STICK;
+    YamlValidateName(stickName[i], board);
     strncpy(inputConfig[i].name, stickName[i], HARDWARE_NAME_LEN);
   }
 
@@ -843,6 +845,7 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
     int idx = Boards::getInputPotIndex(i, board);
     if (idx >= 0) {
       inputConfig[idx].type = Board::AIT_FLEX;
+      YamlValidateName(potName[i], board);
       strncpy(inputConfig[idx].name, potName[i], HARDWARE_NAME_LEN);
       int ft = std::stoi(DataHelpers::getStringTagMappingTag(potTypesConversionTable, potConfig[i]));
       if (ft > -1)
@@ -854,6 +857,7 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
     int idx = Boards::getInputSliderIndex(i, board);
     if (idx >= 0) {
       inputConfig[idx].type = Board::AIT_FLEX;
+      YamlValidateName(sliderName[i], board);
       strncpy(inputConfig[idx].name, sliderName[i], HARDWARE_NAME_LEN);
       int ft = std::stoi(DataHelpers::getStringTagMappingTag(sliderTypesConversionTable, sliderConfig[i]));
       if (ft > -1)
@@ -869,6 +873,7 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
 
   for (int i = 0; i < CPN_MAX_SWITCHES && i < Boards::getCapability(board, Board::Switches); i++) {
     switchConfig[i].type = (Board::SwitchType)swtchConfig[i];
+    YamlValidateName(swtchName[i], board);
     strncpy(switchConfig[i].name, swtchName[i], HARDWARE_NAME_LEN);
   }
 

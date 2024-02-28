@@ -18,8 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _WIZARDDIALOG_H_
-#define _WIZARDDIALOG_H_
+#pragma once
 
 #include <QtWidgets>
 #include "wizarddata.h"
@@ -370,7 +369,3 @@ private:
   QString vehicleName( Vehicle );
   QString printChannel( Input, int, Input, int );
 };
-#endif // _WIZARDDIALOG_H_
-
-
-

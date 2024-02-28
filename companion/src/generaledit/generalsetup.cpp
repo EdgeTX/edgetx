@@ -23,6 +23,7 @@
 #include "compounditemmodels.h"
 #include "filtereditemmodels.h"
 #include "autocombobox.h"
+#include "namevalidator.h"
 
 GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
 GeneralPanel(parent, generalSettings, firmware),
@@ -287,8 +288,7 @@ ui(new Ui::GeneralSetup)
     ui->pwrOnDelay->hide();
   }
 
-  QRegExp rx(CHAR_FOR_NAMES_REGEX);
-  ui->registrationId->setValidator(new QRegExpValidator(rx, this));
+  ui->registrationId->setValidator(new NameValidator(board, this));
   ui->registrationId->setMaxLength(REGISTRATION_ID_LEN);
 
   setValues();
