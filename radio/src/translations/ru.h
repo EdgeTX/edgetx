@@ -1261,7 +1261,7 @@
 #define TR_USBJOYSTICK_BTN_COLLISION   "!Конфликт ном кнопок!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!Конфликт осей!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Круг. вырез", "Круглый вырез")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "нет","X-Y, Z-rotX","X-Y, rotX-rotY"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "нет","X-Y, Z-rotX","X-Y, rotX-rotY","X-Y, Z-rotZ"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "Применить изменения"
 
 #define TR_DIGITAL_SERVO          "Серво 333HZ"

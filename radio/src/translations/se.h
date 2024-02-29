@@ -1298,7 +1298,7 @@
 #define TR_USBJOYSTICK_BTN_COLLISION    "!Knappnr. krockar!"
 #define TR_USBJOYSTICK_AXIS_COLLISION   "!Axlar krockar!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT     TR("Cirk. klipp", "Cirkulärt klipp")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT    "Ingen","X-Y, Z-rX","X-Y, rX-rY"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT    "Ingen","X-Y, Z-rX","X-Y, rX-rY","X-Y, Z-rZ"
 #define TR_USBJOYSTICK_APPLY_CHANGES    "Tillämpa ändringar"
 
 #define TR_DIGITAL_SERVO                "Servo333Hz"

@@ -1258,7 +1258,7 @@
 #define TR_USBJOYSTICK_BTN_COLLISION   "!Kolizja nr. guzika!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!Kolizja osi!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Circ. cut", "Circular cutout")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "None","X-Y, Z-rX","X-Y, rX-rY"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "None","X-Y, Z-rX","X-Y, rX-rY","X-Y, Z-rZ"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "Zastosuj zmiany"
 
 #define TR_DIGITAL_SERVO          "Serwo 333HZ"

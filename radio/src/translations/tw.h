@@ -1256,7 +1256,7 @@
 #define TR_USBJOYSTICK_BTN_COLLISION   "!按鈕編號衝突!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!軸衝突!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("圓口行程", "圓口行程")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "禁用","X-Y, Z-旋轉X","X-Y, 旋轉X-旋轉Y"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "禁用","X-Y, Z-旋轉X","X-Y, 旋轉X-旋轉Y","X-Y, Z-旋轉Z"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "應用更改"
 
 #define TR_DIGITAL_SERVO          "數字舵機333HZ"

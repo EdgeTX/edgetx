@@ -1264,7 +1264,7 @@
 #define TR_USBJOYSTICK_BTN_COLLISION   "!ボタンNo.の衝突!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!軸設定の衝突!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Circ. cut", "円形カット")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "なし","X-Y, Z-rX","X-Y, rX-rY"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "なし","X-Y, Z-rX","X-Y, rX-rY","X-Y, Z-rZ"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "変更を適用"
 
 #define TR_DIGITAL_SERVO          "Servo333HZ"

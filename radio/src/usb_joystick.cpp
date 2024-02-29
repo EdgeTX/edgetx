@@ -48,13 +48,10 @@ static uint8_t _buttonState[(USBJ_BUTTON_SIZE+7) >> 3] = { };
 static uint8_t _usbJoystickIfMode = 0;
 static uint8_t _usbJoystickCircularCut = 0;
 
-#define USBJ_CC_XYZrX   1
-#define USBJ_CC_XYrXrZ  2
-
 static uint8_t _usbJoystickButtonCount = 0;
 static uint8_t _usbJoystickAxisCount = 0;
 
-static uint8_t _usbJoystickAxisPairs[3][2] = { };
+static uint8_t _usbJoystickAxisPairs[2][2] = { };
 static int8_t _usbJoystickDpadChannel = -1;
 
 /*
@@ -229,24 +226,73 @@ int setupUSBJoystick()
 
       if (mode == USBJOYS_CH_AXIS) {
         uint8_t submode = g_model.usbJoystickCh[i].param;
-        if (submode <= USBJOYS_AXIS_LAST) {
-          // save axis pairs
-          if(submode == USBJOYS_AXIS_X) {
-            _usbJoystickAxisPairs[0][0] = i;
-          }
-          else if(submode == USBJOYS_AXIS_Y) {
-            _usbJoystickAxisPairs[0][1] = i;
-          }
-          else if(submode == USBJOYS_AXIS_Z) {
-            _usbJoystickAxisPairs[1][0] = i;
-          }
-          else if(submode == USBJOYS_AXIS_RX) {
-            _usbJoystickAxisPairs[1][1] = i;
-            _usbJoystickAxisPairs[2][0] = i;
-          }
-          else if(submode == USBJOYS_AXIS_RY) {
-            _usbJoystickAxisPairs[2][1] = i;
-          }
+
+        // save axis pairs - not pretty but "if" is even more unreadeable
+        switch (submode) {
+          case USBJOYS_AXIS_X:
+            switch (_usbJoystickCircularCut) {
+              case USBJOYS_CC_XYZrX:
+              case USBJOYS_CC_XYrXrY:
+              case USBJOYS_CC_XYZrZ:
+                _usbJoystickAxisPairs[0][0] = i;
+                break;
+              default:
+                break;
+            }
+            break;
+          case USBJOYS_AXIS_Y:
+            switch (_usbJoystickCircularCut) {
+              case USBJOYS_CC_XYZrX:
+              case USBJOYS_CC_XYrXrY:
+              case USBJOYS_CC_XYZrZ:
+                _usbJoystickAxisPairs[0][1] = i;
+                break;
+              default:
+                break;
+            }
+            break;
+          case USBJOYS_AXIS_Z:
+            switch (_usbJoystickCircularCut) {
+              case USBJOYS_CC_XYZrX:
+              case USBJOYS_CC_XYZrZ:
+                _usbJoystickAxisPairs[1][0] = i;
+                break;
+              default:
+                break;
+            }
+            break;
+          case USBJOYS_AXIS_RX:
+            switch (_usbJoystickCircularCut) {
+              case USBJOYS_CC_XYZrX:
+                _usbJoystickAxisPairs[1][1] = i;
+                break;
+              case USBJOYS_CC_XYrXrY:
+                _usbJoystickAxisPairs[1][0] = i;
+                break;
+              default:
+                break;
+            }
+            break;
+          case USBJOYS_AXIS_RY:
+            switch (_usbJoystickCircularCut) {
+              case USBJOYS_CC_XYrXrY:
+                _usbJoystickAxisPairs[1][1] = i;
+                break;
+              default:
+                break;
+            }
+            break;
+          case USBJOYS_AXIS_RZ:
+            switch (_usbJoystickCircularCut) {
+              case USBJOYS_CC_XYZrZ:
+                _usbJoystickAxisPairs[1][1] = i;
+                break;
+              default:
+                break;
+            }
+            break;
+          default:
+            break;
         }
       }
     }
@@ -261,7 +307,7 @@ int setupUSBJoystick()
     // b) in addition to a) some reverse the HID descriptor order
     // c) yet others correctly use the button IDs
     //
-    // USAGE_MINIMUM / USAGE_MAXIMUM might result in some dummy buttons
+    // USAGE_MINIMUM / USAGE_MAXIMUM might result in some ghost buttons
     // without mixer input but everyone seems to process that consistently
 
     _usbJoystickButtonCount = 0;
@@ -528,18 +574,10 @@ static int16_t circularCutoutValue(uint8_t chix)
   uint8_t chpair = 0xff;
   const int32_t limit = 1048576; /* 1024^2 */
 
-  if(_usbJoystickCircularCut == USBJ_CC_XYZrX) {
-    if(chix == _usbJoystickAxisPairs[0][0]) chpair = _usbJoystickAxisPairs[0][1];
-    else if(chix == _usbJoystickAxisPairs[0][1]) chpair = _usbJoystickAxisPairs[0][0];
-    else if(chix == _usbJoystickAxisPairs[1][0]) chpair = _usbJoystickAxisPairs[1][1];
-    else if(chix == _usbJoystickAxisPairs[1][1]) chpair = _usbJoystickAxisPairs[1][0];
-  }
-  else if(_usbJoystickCircularCut == USBJ_CC_XYrXrZ) {
-    if(chix == _usbJoystickAxisPairs[0][0]) chpair = _usbJoystickAxisPairs[0][1];
-    else if(chix == _usbJoystickAxisPairs[0][1]) chpair = _usbJoystickAxisPairs[0][0];
-    else if(chix == _usbJoystickAxisPairs[2][0]) chpair = _usbJoystickAxisPairs[2][1];
-    else if(chix == _usbJoystickAxisPairs[2][1]) chpair = _usbJoystickAxisPairs[2][0];
-  }
+  if (chix == _usbJoystickAxisPairs[0][0]) chpair = _usbJoystickAxisPairs[0][1];
+  else if(chix == _usbJoystickAxisPairs[0][1]) chpair = _usbJoystickAxisPairs[0][0];
+  else if(chix == _usbJoystickAxisPairs[1][0]) chpair = _usbJoystickAxisPairs[1][1];
+  else if(chix == _usbJoystickAxisPairs[1][1]) chpair = _usbJoystickAxisPairs[1][0];
 
   if(chpair != 0xff) {
     int32_t pval = channelOutputs[chpair];

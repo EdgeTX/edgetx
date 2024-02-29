@@ -1276,7 +1276,7 @@
 #define TR_USBJOYSTICK_BTN_COLLISION   "!Knap # kollision!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!Akse kollision!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Cirk. klip", "Cikulær klip")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "Ingen","X-Y, Z-rX","X-Y, rX-rY"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "Ingen","X-Y, Z-rX","X-Y, rX-rY","X-Y, Z-rZ"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "Gem ændringer"
 
 #define TR_DIGITAL_SERVO               "Servo333HZ"

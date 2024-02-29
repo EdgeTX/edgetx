@@ -1267,7 +1267,7 @@
 #define TR_USBJOYSTICK_BTN_COLLISION    "!Button no. collision!"
 #define TR_USBJOYSTICK_AXIS_COLLISION   "!Axis collision!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT     TR("Circ. cut", "Circular cutout")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT    "None","X-Y, Z-rX","X-Y, rX-rY"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT    "None","X-Y, Z-rX","X-Y, rX-rY","X-Y, Z-rZ"
 #define TR_USBJOYSTICK_APPLY_CHANGES    "החל שינויים"
 
 #define TR_DIGITAL_SERVO          "333HZ סרוו דיגיטאלי"
