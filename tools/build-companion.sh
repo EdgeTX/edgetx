@@ -70,7 +70,7 @@ declare -a simulator_plugins=(x9lite x9lites
                               tlite tpro tprov2 lr3pro
                               x9d x9dp x9dp2019 x9e
                               xlite xlites
-                              nv14 pl18 pl18ev
+                              nv14 el18 pl18 pl18ev
                               x10 x10-access x12s
                               t16 t18 tx16s)
 
@@ -172,6 +172,9 @@ do
             ;;
         nv14)
             BUILD_OPTIONS+="-DPCB=NV14"
+            ;;
+        el18)
+            BUILD_OPTIONS+="-DPCB=NV14 -DPCBREV=EL18"
             ;;
         commando8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
