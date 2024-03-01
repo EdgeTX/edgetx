@@ -67,7 +67,7 @@ const char * OpenTxEepromInterface::getName()
     case BOARD_JUMPER_TPRO:
       return "EdgeTX for Jumper T-Pro";
     case BOARD_JUMPER_TPROV2:
-      return "EdgeTX for Jumper T-Pro V2";
+      return "EdgeTX for Jumper T-Pro v2";
     case BOARD_JUMPER_T16:
       return "EdgeTX for Jumper T16";
     case BOARD_JUMPER_T18:
