@@ -40,9 +40,11 @@
 #include "opentx.h"
 #include "gps.h"
 #include "gps_nmea.h"
+#include "gps_ubx.h"
 #include <ctype.h>
 
 gpsdata_t gpsData;
+static int gpsProtocol = -1;
 
 #define DIGIT_TO_VAL(_x)    (_x - '0')
 
@@ -89,7 +91,14 @@ uint32_t GPS_coord_to_degrees(const char * coordinateString)
 
 void gpsNewData(uint8_t c)
 {
-  gpsNewFrameNMEA(c);
+  switch (gpsProtocol) {
+    case GPS_PROTOCOL_NMEA:
+      gpsNewFrameNMEA(c);
+      break;
+    case GPS_PROTOCOL_UBX:
+      gpsNewFrameUBX(c);
+      break;
+  }
 }
 
 const etx_serial_driver_t* gpsSerialDrv = nullptr;
@@ -99,8 +108,9 @@ void* gpsSerialCtx = nullptr;
 uint8_t gpsTraceEnabled = false;
 #endif
 
-void gpsSetSerialDriver(void* ctx, const etx_serial_driver_t* drv)
+void gpsSetSerialDriver(void* ctx, const etx_serial_driver_t* drv, int protocol)
 {
+  gpsProtocol = protocol;
   gpsSerialCtx = ctx;
   gpsSerialDrv = drv;
 }
@@ -125,5 +135,9 @@ void gpsWakeup()
 
 void gpsSendFrame(const char * frame)
 {
-  gpsSendFrameNMEA(frame);
+  switch (gpsProtocol) {
+    case GPS_PROTOCOL_NMEA:
+      gpsSendFrameNMEA(frame);
+      break;
+  }
 }

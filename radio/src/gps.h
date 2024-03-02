@@ -22,6 +22,7 @@
 #ifndef _GPS_H_
 #define _GPS_H_
 
+#include "opentx.h"
 #include <inttypes.h>
 
 struct gpsdata_t
@@ -44,8 +45,11 @@ extern gpsdata_t gpsData;
 extern uint8_t gpsTraceEnabled;
 #endif
 
+#define GPS_PROTOCOL_NMEA 1
+#define GPS_PROTOCOL_UBX 2
+
 // Setup GPS serial port
-void gpsSetSerialDriver(void* ctx, const etx_serial_driver_t* drv);
+void gpsSetSerialDriver(void* ctx, const etx_serial_driver_t* drv, int protocol);
 
 // Periodic processing
 void gpsWakeup();
