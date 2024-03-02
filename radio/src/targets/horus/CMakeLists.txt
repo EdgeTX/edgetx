@@ -199,7 +199,7 @@ if(DISK_CACHE)
 endif()
 
 if(INTERNAL_GPS)
-  set(SRC ${SRC} gps.cpp)
+  set(SRC ${SRC} gps.cpp gps_nmea.cpp)
   add_definitions(-DINTERNAL_GPS)
   message("-- Internal GPS enabled")
 endif()
