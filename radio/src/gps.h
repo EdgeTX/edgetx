@@ -33,7 +33,7 @@ struct gpsdata_t
   uint8_t numSat;
   uint32_t packetCount;
   uint32_t errorCount;
-  uint16_t altitude;              // altitude in 0.1m
+  int32_t altitude;               // altitude in 0.1m
   uint16_t speed;                 // speed in 0.1m/s
   uint16_t groundCourse;          // degrees * 10
   uint16_t hdop;
