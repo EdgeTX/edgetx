@@ -66,7 +66,7 @@ cd build
 declare -a simulator_plugins=(x9lite x9lites
                               x7 x7-access
                               t8 t12 tx12 tx12mk2
-                              zorro commando8 boxer
+                              zorro commando8 boxer pocket
                               tlite tpro tprov2 lr3pro
                               x9d x9dp x9dp2019 x9e
                               xlite xlites
@@ -194,7 +194,7 @@ do
     rm -f CMakeCache.txt native/CMakeCache.txt
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
     cmake --build . --target native-configure
-    cmake --build native -j"${JOBS}" --target libsimulator
+    cmake --build native -j`nproc` --target libsimulator
 done                              
 
 cmake --build . --target native-configure

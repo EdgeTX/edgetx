@@ -122,6 +122,7 @@ namespace Ui {
   class SimulatedUIWidgetTX12;
   class SimulatedUIWidgetZorro;
   class SimulatedUIWidgetBoxer;
+  class SimulatedUIWidgetPocket;
   class SimulatedUIWidgetT8;
   class SimulatedUIWidgetNV14;
   class SimulatedUIWidgetEL18;
@@ -358,6 +359,18 @@ class SimulatedUIWidgetBoxer: public SimulatedUIWidget
 
   private:
     Ui::SimulatedUIWidgetBoxer * ui;
+};
+
+class SimulatedUIWidgetPocket: public SimulatedUIWidget
+{
+  Q_OBJECT
+
+  public:
+    explicit SimulatedUIWidgetPocket(SimulatorInterface * simulator, QWidget * parent = nullptr);
+    virtual ~SimulatedUIWidgetPocket();
+
+  private:
+    Ui::SimulatedUIWidgetPocket * ui;
 };
 
 class SimulatedUIWidgetT8: public SimulatedUIWidget
