@@ -36,6 +36,9 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <string>
+#ifdef SIMU_COM_PORT
+  #include "rs232.h"
+#endif
 
 #if !defined (_MSC_VER) || defined (__GNUC__)
   #include <chrono>
@@ -600,11 +603,45 @@ const etx_serial_port_t UsbSerialPort = { "USB-VCP", nullptr, nullptr };
 #endif
 
 #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-static void* _fake_drv_init(void*, const etx_serial_init*) { return (void*)1; }
-static void _fake_drv_fct1(void*) {}
-static void _fake_drv_send_byte(void*, uint8_t) {}
-static void _fake_drv_send_buffer(void*, const uint8_t*, uint32_t) {}
-static int _fake_drv_get_byte(void*, uint8_t*) { return 0; }
+static void* _fake_drv_init(void* n, const etx_serial_init* dev) {
+#ifdef SIMU_COM_PORT
+  static bool init = false;
+  if (!init) {
+    comEnumerate();
+    init=true;
+  }
+  comOpen(SIMU_COM_PORT, dev->baudrate);
+#endif
+  return (void*)1;
+  }
+static void _fake_drv_fct1(void*) {
+#ifdef SIMU_COM_PORT
+  comClose(SIMU_COM_PORT);
+#endif
+}
+static void _fake_drv_send_byte(void*, uint8_t b) {
+#ifdef SIMU_COM_PORT
+  comWrite(SIMU_COM_PORT, (char*)&b, 1);
+#endif
+}
+static void _fake_drv_send_buffer(void*, const uint8_t* b, uint32_t l) {
+#ifdef SIMU_COM_PORT
+  comWrite(SIMU_COM_PORT, (char*)b, l);
+#endif
+}
+static int _fake_drv_get_byte(void*, uint8_t* b) {
+#ifdef SIMU_COM_PORT
+  return comRead(SIMU_COM_PORT, (char*)b, 1);
+#else
+  return 0;
+#endif
+  }
+static void _fake_drv_set_baudrate(void*, uint32_t baudrate) {
+#ifdef SIMU_COM_PORT
+  comClose(SIMU_COM_PORT);
+  comOpen(SIMU_COM_PORT, baudrate);
+#endif
+}
 static const etx_serial_driver_t _fake_drv = {
   .init = _fake_drv_init,
   .deinit = _fake_drv_fct1,
@@ -619,7 +656,7 @@ static const etx_serial_driver_t _fake_drv = {
   .copyRxBuffer = nullptr,
   .clearRxBuffer = nullptr,
   .getBaudrate = nullptr,
-  .setBaudrate = nullptr,
+  .setBaudrate = _fake_drv_set_baudrate,
   .setPolarity = nullptr,
   .setHWOption = nullptr,
   .setReceiveCb = nullptr,
