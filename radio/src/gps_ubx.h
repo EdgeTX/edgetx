@@ -18,6 +18,6 @@
 
 #include <inttypes.h>
 
-bool gpsNewFrameUBX(uint8_t c);
+bool gpsNewFrameUBX(uint8_t c, bool detect);
 
 #endif // _GPS_UBX_H_

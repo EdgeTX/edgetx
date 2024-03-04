@@ -45,6 +45,8 @@
 
 gpsdata_t gpsData;
 static int gpsProtocol = -1;
+const etx_serial_driver_t* gpsSerialDrv = nullptr;
+void* gpsSerialCtx = nullptr;
 
 #define DIGIT_TO_VAL(_x)    (_x - '0')
 
@@ -89,20 +91,76 @@ uint32_t GPS_coord_to_degrees(const char * coordinateString)
   return degrees * 1000000UL + (minutes * 100000UL + fractionalMinutes * 10UL) / 6;
 }
 
+static void changeBaudrate()
+{
+  const int baudrates_count = 5;
+  const uint32_t baudrates[] = {9600, 57600, 115200, 19200, 38400};
+  static uint8_t current_rate = 0;
+
+  auto setBaudrate = gpsSerialDrv->setBaudrate;
+  if (setBaudrate == nullptr) return;
+  setBaudrate(gpsSerialCtx, baudrates[++current_rate % baudrates_count]);
+}
+
+static void autodetectProtocol(uint8_t c)
+{
+  static tmr10ms_t time;
+  static uint8_t state = 0;
+
+  switch (state)  {
+    case 0: // Init
+      time = get_tmr10ms();
+      state = 1;
+    case 1: // Wait for a valid packet
+      if (gpsNewFrameNMEA(c)) {
+        gpsProtocol = GPS_PROTOCOL_NMEA;
+        state = 0;
+        return;
+      }
+
+      if (gpsNewFrameUBX(c, true)) {
+        gpsProtocol = GPS_PROTOCOL_UBX;
+        state = 0;
+        return;
+      }
+
+      uint32_t new_time = get_tmr10ms();
+      if (new_time - time > 20)  {
+        // No message received
+        changeBaudrate();
+        time = new_time;
+      }
+  }
+}
+
+static void detectDisconnected(bool has_frame)
+{
+  static tmr10ms_t time = 0;
+
+  if (has_frame) {
+    time = get_tmr10ms();
+  } else if (time > 0 && get_tmr10ms() - time > 500) {
+    gpsProtocol = GPS_PROTOCOL_AUTO;
+    time = get_tmr10ms();
+  }
+}
+
+
 void gpsNewData(uint8_t c)
 {
   switch (gpsProtocol) {
     case GPS_PROTOCOL_NMEA:
-      gpsNewFrameNMEA(c);
+      detectDisconnected(gpsNewFrameNMEA(c));
       break;
     case GPS_PROTOCOL_UBX:
-      gpsNewFrameUBX(c);
+      detectDisconnected(gpsNewFrameUBX(c, false));
+      break;
+    case GPS_PROTOCOL_AUTO:
+      autodetectProtocol(c);
       break;
   }
 }
 
-const etx_serial_driver_t* gpsSerialDrv = nullptr;
-void* gpsSerialCtx = nullptr;
 
 #if defined(DEBUG)
 uint8_t gpsTraceEnabled = false;
@@ -122,6 +180,7 @@ void gpsWakeup()
   auto _getByte = gpsSerialDrv->getByte;
   if (!_getByte) return;
 
+  static tmr10ms_t time = get_tmr10ms();
   uint8_t byte;
   while (_getByte(gpsSerialCtx, &byte)) {
 #if defined(DEBUG)
@@ -130,6 +189,12 @@ void gpsWakeup()
     }
 #endif
     gpsNewData(byte);
+    time = get_tmr10ms();
+  }
+
+  if (get_tmr10ms() - time > 20) {
+    changeBaudrate();
+    time = get_tmr10ms();
   }
 }
 

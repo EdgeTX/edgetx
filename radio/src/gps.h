@@ -45,6 +45,7 @@ extern gpsdata_t gpsData;
 extern uint8_t gpsTraceEnabled;
 #endif
 
+#define GPS_PROTOCOL_AUTO 0
 #define GPS_PROTOCOL_NMEA 1
 #define GPS_PROTOCOL_UBX 2
 

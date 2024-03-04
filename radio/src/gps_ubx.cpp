@@ -125,9 +125,14 @@ static void gpsSendMessage(uint16_t msg_type, uint16_t msg_len,
   gpsSerialDrv->sendByte(gpsSerialCtx, ck_b);
 }
 
-static void configureGps()
+static void configureGps(bool detect)
 {
   static int state = 0;
+
+  if (detect) {
+    state = 0;
+    return;
+  }
 
   auto txCompleted = gpsSerialDrv->txCompleted;
   if (txCompleted && !txCompleted(gpsSerialCtx)) return;
@@ -177,9 +182,9 @@ static void gpsProcessMessage(uint16_t msg_type, uint16_t msg_len,
   }
 }
 
-bool gpsNewFrameUBX(uint8_t c)
+bool gpsNewFrameUBX(uint8_t c, bool detect)
 {
-  configureGps();
+  configureGps(detect);
 
   const auto BUFFER_SIZE = 100u;
   static int state = 0;
@@ -260,6 +265,7 @@ bool gpsNewFrameUBX(uint8_t c)
       state = 0;
       break;
     case 9:  // Discard message
+      ck_b += (ck_a += c);
       msg_pos++;
       if (msg_pos >= msg_len) {
         state = 10;
