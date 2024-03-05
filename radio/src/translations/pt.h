@@ -1289,3 +1289,5 @@
 #define TR_CREATE_NEW             "Criar"
 
 #define TR_MIX_SLOW_PREC          TR("Prec. Lento", "Prec. mais/menos lento")
+
+#define TR_THEME_EXISTS           "A theme directory with the same name already exists."

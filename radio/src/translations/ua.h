@@ -1278,3 +1278,5 @@
 #define TR_CREATE_NEW             "Створити"
 
 #define TR_MIX_SLOW_PREC          TR("Точн. уповільн.", "Точність уповільнення")
+
+#define TR_THEME_EXISTS           "A theme directory with the same name already exists."
