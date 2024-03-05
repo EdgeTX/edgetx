@@ -1360,6 +1360,7 @@ Get Custom Function parameters
  * `mode` (number) mode (only returned only returned if action is **not** play track, sound or script)
  * `param` (number) parameter (only returned only returned if action is **not** play track, sound or script)
  * `active` (number) 0 = disabled, 1 = enabled
+ * `repetition` (number) -1 to 60, range and meaning depend on function
 
 @status current Introduced in 2.0.0, TODO rename function
 */
@@ -1380,6 +1381,7 @@ static int luaModelGetCustomFunction(lua_State *L)
       lua_pushtableinteger(L, "param", cfn->all.param);
     }
     lua_pushtableinteger(L, "active", CFN_ACTIVE(cfn));
+    lua_pushtableinteger(L, "repetition", cfn->repeat);
   }
   else {
     lua_pushnil(L);
@@ -1432,6 +1434,9 @@ static int luaModelSetCustomFunction(lua_State *L)
       }
       else if (!strcmp(key, "active")) {
         CFN_ACTIVE(cfn) = luaL_checkinteger(L, -1);
+      }
+      else if (!strcmp(key, "repetition")) {
+        cfn->repeat = luaL_checkinteger(L, -1);
       }
     }
     storageDirty(EE_MODEL);
