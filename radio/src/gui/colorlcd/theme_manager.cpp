@@ -409,6 +409,11 @@ bool ThemePersistance::deleteThemeByIndex(int index)
     strAppend(newFile, theme->getPath().c_str(), FF_MAX_LFN);
     strcat(newFile, ".deleted");
 
+    if (isFileAvailable(newFile, true)) {
+      // .deleted file already exists, remove it
+      f_unlink(newFile);
+    }
+
     // for now we are just renaming the file so we don't find it
     FRESULT status = f_rename(theme->getPath().c_str(), newFile);
     refresh();
@@ -434,9 +439,14 @@ bool ThemePersistance::createNewTheme(std::string name, ThemeFile& theme)
   }
 
   FRESULT result = f_mkdir(fullPath);
-  if (result != FR_OK) return false;
   s = strAppend(s, "/", FF_MAX_LFN - (s - fullPath));
   strAppend(s, "theme.yml", FF_MAX_LFN - (s - fullPath));
+  if (result == FR_EXIST) {
+    if (isFileAvailable(fullPath, true)) {
+      POPUP_WARNING(STR_THEME_EXISTS);
+      return false;
+    }
+  } else if (result != FR_OK) return false;
   theme.setPath(fullPath);
   theme.serialize();
   return true;

@@ -1285,3 +1285,5 @@
 #define TR_CREATE_NEW             "Utwórz"
 
 #define TR_MIX_SLOW_PREC          TR("Wolna prec.", "Wolna prec. góra/dół")
+
+#define TR_THEME_EXISTS           "A theme directory with the same name already exists."

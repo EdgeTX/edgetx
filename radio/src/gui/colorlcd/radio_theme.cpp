@@ -123,7 +123,7 @@ class ThemeDetailsDialog : public BaseDialog
  public:
   ThemeDetailsDialog(
       Window *parent, ThemeFile theme,
-      std::function<void(ThemeFile theme)> saveHandler = nullptr) :
+      std::function<bool(ThemeFile theme)> saveHandler = nullptr) :
       BaseDialog(parent, STR_EDIT_THEME_DETAILS, false, DIALOG_DEFAULT_WIDTH,
                  LV_SIZE_CONTENT),
       theme(theme),
@@ -175,7 +175,9 @@ class ThemeDetailsDialog : public BaseDialog
 
     button =
         new TextButton(line, rect_t{0, 0, lv_pct(30), 32}, STR_SAVE, [=]() {
-          if (saveHandler != nullptr) saveHandler(this->theme);
+          if (saveHandler != nullptr)
+            if (!saveHandler(this->theme))
+              return 0;
           deleteLater();
           return 0;
         });
@@ -396,7 +398,44 @@ class ThemeEditPage : public Page
 
         // update the theme name
         _themeName->setText(_theme.getName());
-        _dirty = true;
+      }
+      Page::checkEvents();
+    }
+
+    void editColorPage()
+    {
+      auto colorEntry = _cList->getSelectedColor();
+      new ColorEditPage(&_theme, colorEntry.colorNumber, 
+          [=] () {
+            _dirty = true;
+            _cList->setColorList(_theme.getColorList());
+            _previewWindow->setColorList(_theme.getColorList());
+          });
+    }
+
+    void buildHeader(FormWindow *window)
+    {
+      // page title
+      header.setTitle(STR_EDIT_THEME);
+      _themeName = header.setTitle2(_theme.getName());
+#if LCD_H > LCD_W
+      _themeName->setFont(FONT(XS));
+#endif
+
+      // save and cancel
+      rect_t r = {LCD_W - (BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };
+      new TextButton(window, r, STR_DETAILS, [=] () {
+        new ThemeDetailsDialog(page, _theme, [=] (ThemeFile t) {
+          _theme.setAuthor(t.getAuthor());
+          _theme.setInfo(t.getInfo());
+          _theme.setName(t.getName());
+
+          // update the theme name
+          _themeName->setText(_theme.getName());
+          _dirty = true;
+          return true;
+        });
+        return 0;
       });
       return 0;
     });
@@ -544,19 +583,22 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 
         // use the selected themes color list to make the new theme
         auto themeIdx = listBox->getSelected();
-        if (themeIdx < 0) return;
+        if (themeIdx < 0) return true;
 
         auto selTheme = tp->getThemeByIndex(themeIdx);
-        if (selTheme == nullptr) return;
+        if (selTheme == nullptr) return true;
 
         for (auto color : selTheme->getColorList())
           theme.setColor(color.colorNumber, color.colorValue);
 
-        tp->createNewTheme(name, theme);
+        if (!tp->createNewTheme(name, theme))
+          return false;
+
         tp->refresh();
         listBox->setNames(tp->getNames());
         listBox->setSelected(currentTheme);
       }
+      return true;
     });
   });
 

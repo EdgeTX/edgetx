@@ -1322,3 +1322,5 @@
 #define TR_CREATE_NEW                   "Skapa"
 
 #define TR_MIX_SLOW_PREC                TR("Dröj preci.", "Fördröj upp/ner precision")
+
+#define TR_THEME_EXISTS                 "A theme directory with the same name already exists."
