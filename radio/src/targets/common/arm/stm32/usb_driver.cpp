@@ -200,7 +200,7 @@ extern int16_t channelOutputs[MAX_OUTPUT_CHANNELS];
 void usbJoystickUpdate()
 {
 #if !defined(USBJ_EX)
-   static uint8_t HID_Buffer[0/*HID_IN_PACKET*/];
+   static uint8_t HID_Buffer[HID_IN_PACKET];
 
    //buttons
    HID_Buffer[0] = 0;
