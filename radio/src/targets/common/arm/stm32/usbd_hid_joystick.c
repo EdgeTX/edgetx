@@ -83,22 +83,22 @@ static uint8_t *USBD_HID_GetDeviceQualifierDesc(uint16_t *length);
 /*
   This USB HID endpoint report description defines a device with:
     * 24 digital buttons
-    * 8 analog axes with 8bit resolution
+    * 8 analog axes with 11bit resolution
 
-  Repot packet described as C struct is:
+  Report packet described as C struct is:
 
   struct {
     uint8_t buttons1; //bit 0 - button 1, bit 1 - button 2, ..., mapped to channels 9-16, on if channel > 0
     uint8_t buttons2; // mapped to channels 17-24, on if channel > 0
     uint8_t buttons3; // mapped to channels 25-32, on if channel > 0
-    uint8_t X;  //analog value, mapped to channel 1
-    uint8_t Y;  //analog value, mapped to channel 2
-    uint8_t Z;  //analog value, mapped to channel 3
-    uint8_t Rx; //analog value, mapped to channel 4
-    uint8_t Ry  //analog value, mapped to channel 5
-    uint8_t Rz; //analog value, mapped to channel 6
-    uint8_t S1; //analog value, mapped to channel 7
-    uint8_t S2; //analog value, mapped to channel 8
+    uint16_t X;  //analog value, mapped to channel 1
+    uint16_t Y;  //analog value, mapped to channel 2
+    uint16_t Z;  //analog value, mapped to channel 3
+    uint16_t Rx; //analog value, mapped to channel 4
+    uint16_t Ry  //analog value, mapped to channel 5
+    uint16_t Rz; //analog value, mapped to channel 6
+    uint16_t S1; //analog value, mapped to channel 7
+    uint16_t S2; //analog value, mapped to channel 8
   }
 */ 
 __ALIGN_BEGIN static const uint8_t HID_JOYSTICK_ReportDesc[] __ALIGN_END =
@@ -167,6 +167,7 @@ USBD_ClassTypeDef USBD_HID =
 /* USB HID device FS Configuration Descriptor */
 __ALIGN_BEGIN static uint8_t USBD_HID_CfgDesc[USB_HID_CONFIG_DESC_SIZ] __ALIGN_END =
 {
+  /************** Configuration Descriptor ****************/
   0x09,                                               /* bLength: Configuration Descriptor size */
   USB_DESC_TYPE_CONFIGURATION,                        /* bDescriptorType: Configuration */
   USB_HID_CONFIG_DESC_SIZ,                            /* wTotalLength: Bytes returned */
@@ -178,7 +179,7 @@ __ALIGN_BEGIN static uint8_t USBD_HID_CfgDesc[USB_HID_CONFIG_DESC_SIZ] __ALIGN_E
   0xE0,                                               /* bmAttributes: Bus Powered according to user configuration */
   USBD_MAX_POWER,                                     /* MaxPower (mA) */
   
-  /************** Descriptor of Joystick Mouse interface ****************/
+  /************** Interface Descriptor for Joystick ****************/
   /* 09 */
   0x09,                                               /* bLength: Interface Descriptor size */
   USB_DESC_TYPE_INTERFACE,                            /* bDescriptorType: Interface descriptor type */
@@ -189,7 +190,7 @@ __ALIGN_BEGIN static uint8_t USBD_HID_CfgDesc[USB_HID_CONFIG_DESC_SIZ] __ALIGN_E
   0x00,                                               /* bInterfaceSubClass : 1=BOOT, 0=no boot */
   0x00,                                               /* nInterfaceProtocol : 0=none, 1=keyboard, 2=mouse */
   0,                                                  /* iInterface: Index of string descriptor */
-  /******************** Descriptor of Joystick Mouse HID ********************/
+  /******************** HID Descriptor for Joystick ********************/
   /* 18 */
   0x09,                                               /* bLength: HID Descriptor size */
   HID_DESCRIPTOR_TYPE,                                /* bDescriptorType: HID */
@@ -204,7 +205,7 @@ __ALIGN_BEGIN static uint8_t USBD_HID_CfgDesc[USB_HID_CONFIG_DESC_SIZ] __ALIGN_E
   0,                                                  /*wItemLength: Total length of Report descriptor*/
 #endif
   0x00,
-  /******************** Descriptor of Mouse endpoint ********************/
+  /******************** Endpoint Descriptor for Joystick ********************/
   /* 27 */
   0x07,                                               /* bLength: Endpoint Descriptor size */
   USB_DESC_TYPE_ENDPOINT,                             /* bDescriptorType:*/
@@ -212,9 +213,9 @@ __ALIGN_BEGIN static uint8_t USBD_HID_CfgDesc[USB_HID_CONFIG_DESC_SIZ] __ALIGN_E
   HID_EPIN_ADDR,                                      /* bEndpointAddress: Endpoint Address (IN) */
   0x03,                                               /* bmAttributes: Interrupt endpoint */
 #if !defined(USBJ_EX)
-  HID_EPIN_SIZE,                                      /*wMaxPacketSize: 4 Byte max */
+  HID_IN_PACKET,                                      /* wMaxPacketSize */
 #else
-  0,                                                  /*HID_IN_PACKET,*/ /*wMaxPacketSize*/
+  0,                                                  /* wMaxPacketSize */
 #endif
   0x00,
   0x01,                                               /*bInterval: Polling Interval (1 ms)*/
@@ -277,7 +278,7 @@ static uint8_t USBD_HID_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 #if defined(USBJ_EX)
   uint8_t hid_in_pkt_size = usbReportSize();
 #else
-  uint8_t hid_in_pkt_size = HID_EPIN_SIZE;
+  uint8_t hid_in_pkt_size = HID_IN_PACKET;
 #endif
 
   USBD_HID_HandleTypeDef *hhid;
