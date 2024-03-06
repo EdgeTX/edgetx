@@ -360,9 +360,13 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
   }
 #endif
 
-#if defined(SPACEMOUSE)
+#if defined(PCBHORUS)
   else if (i >= MIXSRC_FIRST_SPACEMOUSE && i <= MIXSRC_LAST_SPACEMOUSE) {
+#if defined(SPACEMOUSE)
     return get_spacemouse_value(i - MIXSRC_FIRST_SPACEMOUSE);
+#else
+    return 0;
+#endif
   }
 #endif
 
