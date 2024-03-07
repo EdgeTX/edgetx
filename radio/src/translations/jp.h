@@ -673,7 +673,7 @@
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "MB温度"
 #define TR_TEMPWARNING                 INDENT "オーバーヒートです"
-#define TR_TTL_WARNING                 "警告: 論理値3.3Vを使用します"
+#define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
 #define TR_FUNC                        "ファンクション"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"

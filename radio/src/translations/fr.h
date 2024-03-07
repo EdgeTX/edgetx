@@ -673,7 +673,7 @@
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "Temp. CM \016>"
 #define TR_TEMPWARNING                 INDENT "Surchauffe"
-#define TR_TTL_WARNING                 "Attention: utiliser valeur logique 3.3 V"
+#define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
 #define TR_FUNC                        "Fonction"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"

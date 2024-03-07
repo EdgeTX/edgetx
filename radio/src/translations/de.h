@@ -674,7 +674,7 @@
 #define TR_COPROC                      "CoProz."
 #define TR_COPROC_TEMP                 "MB Temp. \016>"
 #define TR_TEMPWARNING                 INDENT "Temp.   größer"  //wg 9XR-Pro
-#define TR_TTL_WARNING                 "Warning: use 3.3V logic levels"
+#define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
 #define TR_FUNC                        "Funktion"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"

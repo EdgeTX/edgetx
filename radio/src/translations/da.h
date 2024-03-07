@@ -674,7 +674,7 @@
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "MB Temp."
 #define TR_TEMPWARNING                 INDENT "For varm"
-#define TR_TTL_WARNING                 "Advarsel: brug 3.3V logisk niveau"
+#define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
 #define TR_FUNC                        "Funktion"
 #define TR_V1                          TR("V1", "Værdi 1")
 #define TR_V2                          TR("V2", "Værdi 2")
