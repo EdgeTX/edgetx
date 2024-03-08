@@ -1426,7 +1426,7 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, NONE);
   registerOpenTxFirmware(firmware);
 
-  /* Jumper T20 Pro board */
+  /* Jumper T20V2 board */
   firmware = new OpenTxFirmware(FIRMWAREID("t20v2"), Firmware::tr("Jumper T20V2"), BOARD_JUMPER_T20V2);
   addOpenTxFrskyOptions(firmware);
   firmware->addOption("internalelrs", Firmware::tr("Select if internal ELRS module is installed"));
