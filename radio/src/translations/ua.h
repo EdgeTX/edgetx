@@ -704,6 +704,12 @@
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Швидкий вибір моделі"
+  #define TR_LABELS_SELECT             "Вибір мітки"
+  #define TR_LABELS_MATCH              "Співпад. мітки"
+  #define TR_FAV_MATCH                 "Співпад. улюблен."
+  #define TR_LABELS_SELECT_MODE        "Вибір багат.","Вибір одного"
+  #define TR_LABELS_MATCH_MODE         "Співпад. усіх","Співпад. одного"
+  #define TR_FAV_MATCH_MODE            "Обов'язк. співпад.","Необов'язк. співпад."
 #endif
 
 #define TR_SELECT_TEMPLATE_FOLDER      "Обрати теку моделі"
