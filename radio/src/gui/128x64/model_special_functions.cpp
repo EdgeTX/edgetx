@@ -413,6 +413,8 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
                 break;
             }
 
+#if !defined(NAVIGATION_X7)
+            // For X7 type navigation the ENTER long press is handled below
             if (attr && event==EVT_KEY_LONG(KEY_ENTER)) {
               killEvents(event);
               s_editMode = !s_editMode;
@@ -421,6 +423,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               CFN_GVAR_MODE(cfn) &= 0x03;
               val_displayed = 0;
             }
+#endif
           }
 #endif // GVARS
           else if (attr) {
