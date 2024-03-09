@@ -75,7 +75,7 @@ const char * OpenTxEepromInterface::getName()
     case BOARD_JUMPER_T20:
       return "EdgeTX for Jumper T20";
     case BOARD_JUMPER_T20V2:
-      return "EdgeTX for Jumper T20V2";
+      return "EdgeTX for Jumper T20 V2";
     case BOARD_RADIOMASTER_TX16S:
       return "EdgeTX for Radiomaster TX16S";
     case BOARD_RADIOMASTER_TX12:
@@ -1426,8 +1426,8 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, NONE);
   registerOpenTxFirmware(firmware);
 
-  /* Jumper T20V2 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("t20v2"), Firmware::tr("Jumper T20V2"), BOARD_JUMPER_T20V2);
+  /* Jumper T20 V2 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("t20v2"), Firmware::tr("Jumper T20 V2"), BOARD_JUMPER_T20V2);
   addOpenTxFrskyOptions(firmware);
   firmware->addOption("internalelrs", Firmware::tr("Select if internal ELRS module is installed"));
   addOpenTxRfOptions(firmware, NONE);

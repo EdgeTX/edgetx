@@ -71,7 +71,7 @@
   #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'T', '2', '0', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
 #elif defined(RADIO_T20V2)
-  #define USB_NAME                     "Jumper T20V2"
+  #define USB_NAME                     "Jumper T20 V2"
   #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'T', '2', '0', 'V', '2', ' ', ' ', ' '  /* 8 Bytes */
 #elif defined(RADIO_COMMANDO8)

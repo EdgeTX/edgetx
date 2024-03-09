@@ -536,7 +536,7 @@ QString Boards::getBoardName(Board::Type board)
     case BOARD_JUMPER_T20:
       return "Jumper T20";
     case BOARD_JUMPER_T20V2:
-      return "Jumper T20V2";
+      return "Jumper T20 V2";
     case BOARD_RADIOMASTER_TX16S:
       return "Radiomaster TX16S";
     case BOARD_RADIOMASTER_TX12:
