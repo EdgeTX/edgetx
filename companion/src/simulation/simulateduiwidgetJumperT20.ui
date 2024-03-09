@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>682</width>
-    <height>194</height>
+    <width>627</width>
+    <height>164</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,14 +18,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>682</width>
-    <height>194</height>
+    <width>627</width>
+    <height>164</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>726</width>
-    <height>447</height>
+    <width>627</width>
+    <height>164</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -39,8 +39,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>215</width>
-     <height>194</height>
+     <width>184</width>
+     <height>164</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -51,14 +51,14 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>215</width>
-     <height>194</height>
+     <width>184</width>
+     <height>164</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>215</width>
-     <height>194</height>
+     <width>184</width>
+     <height>164</height>
     </size>
    </property>
    <property name="styleSheet">
@@ -68,8 +68,8 @@
   <widget class="LcdWidget" name="lcd" native="true">
    <property name="geometry">
     <rect>
-     <x>215</x>
-     <y>31</y>
+     <x>184</x>
+     <y>19</y>
      <width>256</width>
      <height>128</height>
     </rect>
@@ -99,10 +99,10 @@
   <widget class="ButtonsWidget" name="rightbuttons" native="true">
    <property name="geometry">
     <rect>
-     <x>470</x>
+     <x>440</x>
      <y>0</y>
-     <width>212</width>
-     <height>194</height>
+     <width>184</width>
+     <height>164</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -113,14 +113,14 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>212</width>
-     <height>194</height>
+     <width>184</width>
+     <height>164</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>212</width>
-     <height>194</height>
+     <width>184</width>
+     <height>164</height>
     </size>
    </property>
    <property name="styleSheet">
@@ -130,10 +130,10 @@
   <widget class="QWidget" name="top" native="true">
    <property name="geometry">
     <rect>
-     <x>215</x>
+     <x>184</x>
      <y>0</y>
-     <width>255</width>
-     <height>31</height>
+     <width>256</width>
+     <height>19</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -144,14 +144,14 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>255</width>
-     <height>31</height>
+     <width>256</width>
+     <height>19</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>255</width>
-     <height>31</height>
+     <width>256</width>
+     <height>19</height>
     </size>
    </property>
    <property name="styleSheet">
@@ -161,10 +161,10 @@
   <widget class="QWidget" name="bottom" native="true">
    <property name="geometry">
     <rect>
-     <x>215</x>
-     <y>159</y>
-     <width>255</width>
-     <height>35</height>
+     <x>184</x>
+     <y>147</y>
+     <width>256</width>
+     <height>17</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -175,14 +175,14 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>255</width>
-     <height>35</height>
+     <width>256</width>
+     <height>17</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>255</width>
-     <height>35</height>
+     <width>256</width>
+     <height>17</height>
     </size>
    </property>
    <property name="styleSheet">
