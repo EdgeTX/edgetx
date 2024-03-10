@@ -1136,6 +1136,13 @@ void evalMixes(uint8_t tick10ms)
     } else {
       modelFunctionsContext.reset();
     }
+#if defined(OVERRIDE_CHANNEL_FUNCTION)
+    if (!radioGFEnabled() && !modelSFEnabled()) {
+      for (uint8_t i = 0; i < MAX_OUTPUT_CHANNELS; i++) {
+        safetyCh[i] = OVERRIDE_CHANNEL_UNDEFINED;
+      }
+    }
+#endif
   }
 
   //========== LIMITS ===============
