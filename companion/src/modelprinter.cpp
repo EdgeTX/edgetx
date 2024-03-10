@@ -159,7 +159,7 @@ QString ModelPrinter::printEEpromSize()
 
 QString ModelPrinter::printChannelName(int idx)
 {
-  QString str = RawSource(SOURCE_TYPE_CH, idx).toString(&model, &generalSettings);
+  QString str = RawSource(SOURCE_TYPE_CH, idx + 1).toString(&model, &generalSettings);
   if (firmware->getCapability(ChannelsName)) {
     str = str.leftJustified(firmware->getCapability(ChannelsName) + 5, ' ', false);
   }
@@ -273,7 +273,7 @@ QString ModelPrinter::printCenterBeep()
 
   for (int i = 0; i < inputs + firmware->getCapability(RotaryEncoders); i++) {
     if (model.beepANACenter & (0x01 << i)) {
-      RawSource src((i < inputs) ? SOURCE_TYPE_STICK : SOURCE_TYPE_ROTARY_ENCODER, (i < inputs) ? i : inputs - i);
+      RawSource src((i < inputs) ? SOURCE_TYPE_INPUT : SOURCE_TYPE_ROTARY_ENCODER, (i < inputs) ? i : inputs - i);
       strl << src.toString(&model, &generalSettings);
     }
   }
@@ -338,8 +338,8 @@ QString ModelPrinter::printRotaryEncoder(int flightModeIndex, int reIndex)
 
 QString ModelPrinter::printInputName(int idx)
 {
-  RawSourceType srcType = (firmware->getCapability(VirtualInputs) ? SOURCE_TYPE_VIRTUAL_INPUT : SOURCE_TYPE_STICK);
-  return RawSource(srcType, idx).toString(&model, &generalSettings).toHtmlEscaped();
+  RawSourceType srcType = (firmware->getCapability(VirtualInputs) ? SOURCE_TYPE_VIRTUAL_INPUT : SOURCE_TYPE_INPUT);
+  return RawSource(srcType, idx + 1).toString(&model, &generalSettings).toHtmlEscaped();
 }
 
 QString ModelPrinter::printInputLine(int idx)
@@ -785,7 +785,7 @@ QString ModelPrinter::printPotWarnings()
     for (int i = Boards::getCapability(board, Board::Sticks); i < Boards::getCapability(board, Board::Inputs); i++) {
       if (generalSettings.isInputAvailable(i) && (generalSettings.isInputPot(i) || generalSettings.isInputSlider(i))) {
         if (model.potsWarnEnabled[i]) {
-          RawSource src(SOURCE_TYPE_STICK, i);
+          RawSource src(SOURCE_TYPE_INPUT, i);
           str += src.toString(&model, &generalSettings);
         }
       }
@@ -1075,7 +1075,7 @@ QString ModelPrinter::printTelemetryScreen(unsigned int idx, unsigned int line, 
     QString unit;
     QString minstr;
     QString maxstr;
-    if (source.isTimeBased()){
+    if (source.type == SOURCE_TYPE_TIMER) {
       minstr = printTimeValue((float)screen.body.bars[line].barMin, MASK_TIMEVALUE_HRSMINS);
       maxstr = printTimeValue((float)screen.body.bars[line].barMax, MASK_TIMEVALUE_HRSMINS);
     }

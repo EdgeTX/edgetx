@@ -59,7 +59,7 @@ AbstractStaticItemModel * ExpoData::carryTrimItemModel()
   mdl->setName(AIM_EXPO_CARRYTRIM);
   ExpoData tmp = ExpoData();
 
-  tmp.srcRaw = RawSource(SOURCE_TYPE_STICK, 0);
+  tmp.srcRaw = RawSource(SOURCE_TYPE_INPUT, 0);
 
   for (int i = -CARRYTRIM_STICK_OFF; i <= Boards::getBoardCapability(getCurrentBoard(), Board::NumTrims); i++) {
     tmp.carryTrim = -i;

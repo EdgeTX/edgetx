@@ -277,7 +277,7 @@ bool LogicalSwitchesPanel::offsetChangedAt(int index)
     {
       RawSource source = RawSource(model->logicalSw[index].val1);
       RawSourceRange range = source.getRange(model, generalSettings, model->logicalSw[index].getRangeFlags());
-      double currVal = source.isTimeBased() ? teOffset[index]->timeInSeconds() : dsbOffset[index]->value();
+      double currVal = source.type == SOURCE_TYPE_TIMER ? teOffset[index]->timeInSeconds() : dsbOffset[index]->value();
       value = round((currVal - range.offset) / range.step);
       mod = (mod || value != model->logicalSw[index].val2);
       model->logicalSw[index].val2 = value;
@@ -366,7 +366,7 @@ void LogicalSwitchesPanel::updateLine(int i)
         double value = range.step * model->logicalSw[i].val2 + range.offset;  /* TODO+source.getRawOffset(model)*/
         cbSource1[i]->setModel(rawSourceFilteredModel);
         cbSource1[i]->setCurrentIndex(cbSource1[i]->findData(source.toValue()));
-        if (source.isTimeBased()) {
+        if (source.type == SOURCE_TYPE_TIMER) {
           mask |= VALUE_TO_VISIBLE;
           teOffset[i]->setTimeRange(range.min, range.max);
           teOffset[i]->setSingleStep(range.step);

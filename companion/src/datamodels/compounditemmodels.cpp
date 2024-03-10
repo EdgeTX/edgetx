@@ -106,11 +106,31 @@ RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSett
   setId(IMID_RawSource);
   setUpdateMask(IMUE_All &~ (IMUE_Curves | IMUE_Scripts));
 
+  // Descending source direction: inverted (!) sources
+  addItems(SOURCE_TYPE_TELEMETRY,      RawSource::TelemGroup,    -firmware->getCapability(Sensors) * 3);
+  addItems(SOURCE_TYPE_TIMER,          RawSource::TelemGroup,    -firmware->getCapability(Timers));
+  addItems(SOURCE_TYPE_SPECIAL,        RawSource::TelemGroup,    -(SOURCE_TYPE_SPECIAL_COUNT - 1));
+  addItems(SOURCE_TYPE_GVAR,           RawSource::GVarsGroup,    -firmware->getCapability(Gvars));
+  addItems(SOURCE_TYPE_CH,             RawSource::SourcesGroup,  -firmware->getCapability(Outputs));
+  addItems(SOURCE_TYPE_PPM,            RawSource::SourcesGroup,  -firmware->getCapability(TrainerInputs));
+  addItems(SOURCE_TYPE_CYC,            RawSource::SourcesGroup,  -CPN_MAX_CYC);
+  addItems(SOURCE_TYPE_CUSTOM_SWITCH,  RawSource::SwitchesGroup, -firmware->getCapability(LogicalSwitches));
+  addItems(SOURCE_TYPE_SWITCH,         RawSource::SwitchesGroup, -board->getCapability(Board::Switches));
+  addItems(SOURCE_TYPE_MAX,            RawSource::SourcesGroup,  -1);
+  addItems(SOURCE_TYPE_MIN,            RawSource::SourcesGroup,  -1);
+  addItems(SOURCE_TYPE_SPACEMOUSE,     RawSource::SourcesGroup,  -CPN_MAX_SPACEMOUSE);
+  addItems(SOURCE_TYPE_TRIM,           RawSource::TrimsGroup,    -board->getCapability(Board::NumTrims));
+  addItems(SOURCE_TYPE_INPUT,          RawSource::SourcesGroup,  -board->getCapability(Board::Inputs));
+  addItems(SOURCE_TYPE_VIRTUAL_INPUT,  RawSource::InputsGroup,   -firmware->getCapability(VirtualInputs));
+  for (int i = firmware->getCapability(LuaScripts) - 1; i >= 0; i--)
+    addItems(SOURCE_TYPE_LUA_OUTPUT,   RawSource::ScriptsGroup,  -firmware->getCapability(LuaOutputsPerScript), -i * 16);
+
+  // Ascending source direction (including zero)
   addItems(SOURCE_TYPE_NONE,           RawSource::NoneGroup,     1);
   for (int i = 0; i < firmware->getCapability(LuaScripts); i++)
     addItems(SOURCE_TYPE_LUA_OUTPUT,   RawSource::ScriptsGroup,  firmware->getCapability(LuaOutputsPerScript), i * 16);
   addItems(SOURCE_TYPE_VIRTUAL_INPUT,  RawSource::InputsGroup,   firmware->getCapability(VirtualInputs));
-  addItems(SOURCE_TYPE_STICK,          RawSource::SourcesGroup,  board->getCapability(Board::Inputs));
+  addItems(SOURCE_TYPE_INPUT,          RawSource::SourcesGroup,  board->getCapability(Board::Inputs));
   addItems(SOURCE_TYPE_TRIM,           RawSource::TrimsGroup,    board->getCapability(Board::NumTrims));
   addItems(SOURCE_TYPE_SPACEMOUSE,     RawSource::SourcesGroup,  CPN_MAX_SPACEMOUSE);
   addItems(SOURCE_TYPE_MIN,            RawSource::SourcesGroup,  1);
@@ -121,7 +141,8 @@ RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSett
   addItems(SOURCE_TYPE_PPM,            RawSource::SourcesGroup,  firmware->getCapability(TrainerInputs));
   addItems(SOURCE_TYPE_CH,             RawSource::SourcesGroup,  firmware->getCapability(Outputs));
   addItems(SOURCE_TYPE_GVAR,           RawSource::GVarsGroup,    firmware->getCapability(Gvars));
-  addItems(SOURCE_TYPE_SPECIAL,        RawSource::TelemGroup,    SOURCE_TYPE_SPECIAL_COUNT);
+  addItems(SOURCE_TYPE_SPECIAL,        RawSource::TelemGroup,    SOURCE_TYPE_SPECIAL_COUNT - 1);
+  addItems(SOURCE_TYPE_TIMER,          RawSource::TelemGroup,    firmware->getCapability(Timers));
   addItems(SOURCE_TYPE_TELEMETRY,      RawSource::TelemGroup,    firmware->getCapability(Sensors) * 3);
 }
 
@@ -131,14 +152,19 @@ void RawSourceItemModel::setDynamicItemData(QStandardItem * item, const RawSourc
   item->setData(src.isAvailable(modelData, generalSettings, boardType), IMDR_Available);
 }
 
-void RawSourceItemModel::addItems(const RawSourceType & type, const int group, const int count, const int start)
+void RawSourceItemModel::addItems(const RawSourceType & type, const int group, int count, const int start)
 {
-  for (int i = start; i < start + count; i++) {
-    const RawSource src = RawSource(type, i);
+  const int idxAdj = (type == SOURCE_TYPE_NONE ? -1 : 0);
+
+  int first = start + count < 0 ? start + count : start + 1;
+  int last = start + count < 0 ? start : start + count + 1;
+
+  for (int i = first; i < last; ++i) {
+    const RawSource src = RawSource(type, i + idxAdj);
     QStandardItem * modelItem = new QStandardItem();
     modelItem->setData(src.toValue(), IMDR_Id);
     modelItem->setData(type, IMDR_Type);
-    modelItem->setData(group, IMDR_Flags);
+    modelItem->setData((group | (i + idxAdj < 0 ? RawSource::NegativeGroup : i > 0 ? RawSource::PositiveGroup : 0)), IMDR_Flags);
     setDynamicItemData(modelItem, src);
     appendRow(modelItem);
   }

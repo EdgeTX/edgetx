@@ -92,6 +92,8 @@
 #define CPN_STR_SW_INDICATOR_NEUT      QCoreApplication::translate("RawSwitch", "-")             // Switch neutral (middle) position indicator.
 #define CPN_STR_SW_INDICATOR_REV       QCoreApplication::translate("RawSwitch", "!")             // Switch reversed logic (NOT) indicator.
 
+#define CPN_STR_SRC_INDICATOR_INVERT   QCoreApplication::translate("RawSource", "!")             // Source inverted logic indicator.
+
 #define EDGETX_HOME_PAGE_URL           "https://edgetx.org"
 
 #define CPN_ADC_REFACTOR_VERSION       "2.10.0"

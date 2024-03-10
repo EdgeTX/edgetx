@@ -355,7 +355,6 @@ class Boards
     STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitch);
     STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchType);
     STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialType);
-    STRINGTAGMAPPINGFUNCS(rawSourceCyclicLookupTable, RawSourceCyclic);
 
     static bool isInputAvailable(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static bool isInputCalibrated(int index, Board::Type board = Board::BOARD_UNKNOWN);
@@ -382,7 +381,6 @@ class Boards
     const StringTagMappingTable trimSwitchesLookupTable;
     const StringTagMappingTable rawSwitchTypesLookupTable;
     const StringTagMappingTable rawSourceSpecialTypesLookupTable;
-    const StringTagMappingTable rawSourceCyclicLookupTable;
 
     static StringTagMappingTable getLegacyAnalogsLookupTable(Board::Type board = Board::BOARD_UNKNOWN);
 };

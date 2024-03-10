@@ -80,8 +80,7 @@ Boards::Boards(Board::Type board) :
   legacyTrimSourcesLookupTable(legacyTrimSourcesLut),
   trimSwitchesLookupTable(trimSwitchesLut),
   rawSwitchTypesLookupTable(RawSwitch::getRawSwitchTypesLookupTable()),
-  rawSourceSpecialTypesLookupTable(RawSource::getSpecialTypesLookupTable()),
-  rawSourceCyclicLookupTable(RawSource::getCyclicLookupTable())
+  rawSourceSpecialTypesLookupTable(RawSource::getSpecialTypesLookupTable())
 {
   setBoardType(board);
 }

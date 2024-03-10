@@ -383,7 +383,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
   if (!cfn.isEmpty()) {
     widgetsMask |= CUSTOM_FUNCTION_SHOW_FUNC | CUSTOM_FUNCTION_ENABLE;
 
-    if (func >= FuncOverrideCH1 && func <= FuncOverrideCH32) {
+    if (func >= FuncOverrideCH1 && func <= FuncOverrideCHLast) {
       if (model) {
         int channelsMax = model->getChannelsMax(true);
         fswtchParam[i]->setDecimals(0);
@@ -445,10 +445,10 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
       populateFuncParamCB(fswtchParamT[i], func, cfn.param);
       widgetsMask |= CUSTOM_FUNCTION_SOURCE_PARAM;
     }
-    else if (func >= FuncSetTimer1 && func <= FuncSetTimer3) {
+    else if (func >= FuncSetTimer1 && func <= FuncSetTimerLast) {
       if (modified)
         cfn.param = fswtchParamTime[i]->timeInSeconds();
-      RawSourceRange range = RawSource(SOURCE_TYPE_SPECIAL, func - FuncSetTimer1 + 2).getRange(model, generalSettings);
+      RawSourceRange range = RawSource(SOURCE_TYPE_TIMER, func - FuncSetTimer1 + 1).getRange(model, generalSettings);
       fswtchParamTime[i]->setTimeRange((int)range.min, (int)range.max);
       fswtchParamTime[i]->setTime(cfn.param);
       widgetsMask |= CUSTOM_FUNCTION_TIME_PARAM;
@@ -663,39 +663,50 @@ void CustomFunctionsPanel::populateFuncParamCB(QComboBox *b, uint function, unsi
 {
   QStringList qs;
   b->setModel(new QStandardItemModel(b));  // clear combo box but not any shared item model
+
   if (function == FuncPlaySound) {
     b->setModel(tabModelFactory->getItemModel(playSoundId));
     b->setCurrentIndex(b->findData(value));
+    if (b->currentIndex() < 0)
+      b->setCurrentIndex(0);
   }
   else if (function == FuncPlayHaptic) {
     b->setModel(tabModelFactory->getItemModel(harpicId));
     b->setCurrentIndex(b->findData(value));
+    if (b->currentIndex() < 0)
+      b->setCurrentIndex(0);
   }
   else if (function == FuncReset) {
     b->setModel(tabFilterFactory->getItemModel(funcResetParamId));
     b->setCurrentIndex(b->findData(value));
+    if (b->currentIndex() < 0)
+      b->setCurrentIndex(0);
   }
   else if (function == FuncVolume || function == FuncBacklight) {
     b->setModel(tabFilterFactory->getItemModel(rawSourceInputsId));
     b->setCurrentIndex(b->findData(value));
+    if (b->currentIndex() < 0 && value == 0)
+      b->setCurrentIndex(b->count() / 2); // '----' not in list so set to first positive value
   }
   else if (function == FuncPlayValue) {
     b->setModel(tabFilterFactory->getItemModel(rawSourceAllId));
     b->setCurrentIndex(b->findData(value));
+    if (b->currentIndex() < 0 && value == 0)
+      b->setCurrentIndex(b->count() / 2); // '----' not in list so set to first positive value
   }
   else if (function >= FuncAdjustGV1 && function <= FuncAdjustGVLast) {
     switch (adjustmode) {
       case 1:
         b->setModel(tabFilterFactory->getItemModel(rawSourceInputsId));
         b->setCurrentIndex(b->findData(value));
-        if (b->currentIndex() < 0)
-          b->setCurrentIndex(0);
+        if (b->currentIndex() < 0 && value == 0)
+          b->setCurrentIndex(b->count() / 2); // '----' not in list so set to first positive value
         break;
       case 2:
         b->setModel(tabFilterFactory->getItemModel(rawSourceGVarsId));
         b->setCurrentIndex(b->findData(value));
-        if (b->currentIndex() < 0)
-          b->setCurrentIndex(0);
+        if (b->currentIndex() < 0 && value == 0)
+          b->setCurrentIndex(b->count() / 2); // '----' not in list so set to first positive value
         break;
     }
   }

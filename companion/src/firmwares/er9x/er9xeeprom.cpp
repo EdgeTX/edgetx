@@ -187,14 +187,14 @@ t_Er9xMixData::operator MixData ()
     c9x.sOffset=gvar;
   } else {
     c9x.sOffset=sOffset;
-  }  
+  }
   c9x.swtch = er9xToSwitch(swtch);
 
   if (srcRaw == 0) {
     c9x.srcRaw = RawSource(SOURCE_TYPE_NONE);
   }
   else if (srcRaw <= 7) {
-    c9x.srcRaw = RawSource(SOURCE_TYPE_STICK, srcRaw-1);
+    c9x.srcRaw = RawSource(SOURCE_TYPE_INPUT, srcRaw-1);
   }
   else if (srcRaw == 8) {
     c9x.srcRaw = RawSource(SOURCE_TYPE_MAX);
@@ -221,9 +221,9 @@ t_Er9xMixData::operator MixData ()
   }
   else if (srcRaw <=37) {
     c9x.srcRaw = RawSource(SOURCE_TYPE_CH, srcRaw-21);
-  } 
+  }
   else {
-    c9x.srcRaw = RawSource(SOURCE_TYPE_GVAR, srcRaw-38);    
+    c9x.srcRaw = RawSource(SOURCE_TYPE_GVAR, srcRaw-38);
   }
 
   if (differential==1) {
@@ -257,7 +257,7 @@ RawSource er9xToSource(int8_t value)
     return RawSource(SOURCE_TYPE_NONE);
   }
   else if (value <= 7) {
-    return RawSource(SOURCE_TYPE_STICK, value - 1);
+    return RawSource(SOURCE_TYPE_INPUT, value - 1);
   }
   else if (value == 8) {
     return RawSource(SOURCE_TYPE_MAX);
@@ -285,7 +285,7 @@ Er9xLogicalSwitchData::operator LogicalSwitchData ()
   c9x.func = func;
   c9x.val1 = v1;
   c9x.val2 = v2;
-  
+
   if ((c9x.func >= LS_FN_VPOS && c9x.func <= LS_FN_ANEG) || c9x.func >= LS_FN_EQUAL) {
     c9x.val1 = er9xToSource(v1).toValue();
   }

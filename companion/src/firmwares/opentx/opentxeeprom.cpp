@@ -55,73 +55,37 @@ inline int MAX_SWITCHES(Board::Type board, int version)
   if (IS_TARANIS_X7(board))
     return 8;
 
-  //return Boards::getCapability(board, Board::Switches);
-  if (IS_TARANIS_X9E(board))
-    return 18;
-  else if (board == Board::BOARD_TARANIS_X9LITE)
-    return 5;
-  else if (board == Board::BOARD_TARANIS_X9LITES)
-    return 7;
-  else if (board == BOARD_TARANIS_X7_ACCESS)
-    return 7;
-  else if (board == BOARD_TARANIS_X7)
-    return 8;
-  else if (board == BOARD_JUMPER_TLITE || board == BOARD_JUMPER_TLITE_F4 ||
-           board == BOARD_JUMPER_TPRO || board == BOARD_BETAFPV_LR3PRO ||
-           board == BOARD_IFLIGHT_COMMANDO8)
-    return 4;
-  else if (board == BOARD_FLYSKY_NV14)
-    return 8;
-  else if (board == BOARD_RADIOMASTER_TX12_MK2 || board == BOARD_RADIOMASTER_BOXER)
-    return 6;
-  else if (IS_FAMILY_T12(board))
-    return 8;
-  else if (IS_TARANIS_XLITE(board))
-    return 6;
-  else if (board == Board::BOARD_TARANIS_X9DP_2019)
-    return 9;
-  else if (IS_TARANIS(board))
-    return 8;
-  else if (IS_FAMILY_HORUS_OR_T16(board))
-    return 10;
-  else
-    return 7;
+  return Boards::getCapability(board, Board::Switches)
+         - Boards::getCapability(board, Board::FlexSwitches)
+         - Boards::getCapability(board, Board::FunctionSwitches);
 }
 
 inline int MAX_SWITCHES_SOURCE(Board::Type board, int version)
 {
-  //if (IS_JUMPER_TPRO(board))  // 10 switches are allocated in EEprom but 6 are reserved for FS
-  //return Boards::getCapability(board, Board::Switches);
-  //else
+  if (IS_JUMPER_TPRO(board))  // 10 switches are allocated in EEprom but 6 are reserved for FS
+    return Boards::getCapability(board, Board::Switches);
+  else
     return MAX_SWITCHES(board, version);
 }
 
 inline int MAX_SWITCHES_POSITION(Board::Type board, int version)
 {
-    //if (IS_JUMPER_TPRO(board))
-    //return Boards::getCapability(board, Board::SwitchesPositions);
-  //else
-  if (IS_HORUS_OR_TARANIS(board) || IS_FLYSKY_NV14(board))
+  if (IS_JUMPER_TPRO(board))
+    return Boards::getCapability(board, Board::SwitchesPositions);
+  else if (IS_HORUS_OR_TARANIS(board))
     return MAX_SWITCHES(board, version) * 3;
-  else {
-    //return Boards::getCapability(board, Board::SwitchesPositions);
-    //if (IS_HORUS_OR_TARANIS(board) || IS_FLYSKY_NV14(board))
-    //  return getCapability(board, Board::Switches) * 3;
-    //else
-      return 9;
+  else
+    return Boards::getCapability(board, Board::SwitchesPositions);
   }
-}
 
 inline int MAX_FUNCTIONSWITCHES(Board::Type board, int version)
 {
-  //return Boards::getCapability(board, Board::FunctionSwitches);
-  return (IS_JUMPER_TPRO(board) ? 6 : 0);
+  return Boards::getCapability(board, Board::FunctionSwitches);
 }
 
 inline int MAX_FUNCTIONSWITCHES_POSITION(Board::Type board, int version)
 {
-  //return Boards::getCapability(board, Board::NumFunctionSwitchesPositions);
-  return MAX_FUNCTIONSWITCHES(board, version) * 3;
+  return Boards::getCapability(board, Board::NumFunctionSwitchesPositions);
 }
 
 inline int POTS_CONFIG_SIZE(Board::Type board, int version)
@@ -140,26 +104,7 @@ inline int MAX_POTS(Board::Type board, int version)
     return 5;
   if (IS_FAMILY_T12(board))
     return 2;
-
-  //return Boards::getCapability(board, Board::Pots);
-  if (IS_TARANIS_X9LITE(board))
-    return 1;
-  else if (IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board))
-    return 0;
-  else if (IS_RADIOMASTER_BOXER(board))
-    return 3;
-  else if (IS_TARANIS_SMALL(board) || IS_JUMPER_TPRO(board))
-    return 2;
-  else if (IS_TARANIS_X9E(board))
-    return 4;
-  else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board))
-    return 7;
-  else if (IS_HORUS_X12S(board))
-    return 3;
-  else if (IS_FLYSKY_NV14(board))
-    return 2;
-  else
-    return 3;
+  return Boards::getCapability(board, Board::Pots);
 }
 
 inline int MAX_FUNCTION_SWITCHES(Board::Type board, int version)
@@ -177,8 +122,7 @@ inline int MAX_POTS_STORAGE(Board::Type board, int version)
     return 5;
   if (IS_FAMILY_T12(board))
     return 2;
-  //return Boards::getCapability(board, Board::Pots);
-  return MAX_POTS(board, version);
+  return Boards::getCapability(board, Board::Pots);
 }
 
 inline int MAX_POTS_SOURCES(Board::Type board, int version)
@@ -189,8 +133,7 @@ inline int MAX_POTS_SOURCES(Board::Type board, int version)
     return 5;
   if (IS_FAMILY_T12(board))
     return 2;
-  //return Boards::getCapability(board, Board::Pots);
-  return MAX_POTS(board, version);
+  return Boards::getCapability(board, Board::Pots);
 }
 
 inline int MAX_XPOTS(Board::Type board, int version)
@@ -201,40 +144,21 @@ inline int MAX_XPOTS(Board::Type board, int version)
     return 5;
   if (IS_FAMILY_T12(board))
     return 2;
-  //return Boards::getCapability(board, Board::MultiposPots);
-  if (IS_HORUS_OR_TARANIS(board) && !IS_FLYSKY_NV14(board)) {
-    //return getCapability(board, Board::Pots);
-    return MAX_POTS(board, version);
-  }
-  else
-    return 0;
-
+  return Boards::getCapability(board, Board::MultiposPots);
 }
 
 inline int MAX_SLIDERS_STORAGE(Board::Type board, int version)
 {
   if (version >= 219 && (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_PL18(board)))
     return 4;
-  //return Boards::getCapability(board, Board::Sliders);
-  if (IS_HORUS_X12S(board) || IS_TARANIS_X9E(board))
-    return 4;
-  else if (IS_TARANIS_X9D(board) || IS_HORUS_X10(board) || IS_FAMILY_T16(board))
-    return 2;
-  else
-    return 0;
+  return Boards::getCapability(board, Board::Sliders);
 }
 
 inline int MAX_SLIDERS_SOURCES(Board::Type board, int version)
 {
   if (version <= 218 && IS_FAMILY_HORUS_OR_T16(board))
     return 2;
-  //return Boards::getCapability(board, Board::Sliders);
-  if (IS_HORUS_X12S(board) || IS_TARANIS_X9E(board))
-    return 4;
-  else if (IS_TARANIS_X9D(board) || IS_HORUS_X10(board) || IS_FAMILY_T16(board))
-    return 2;
-  else
-    return 0;
+  return Boards::getCapability(board, Board::Sliders);
 }
 
 inline int SLIDERS_CONFIG_SIZE(Board::Type board, int version)
@@ -274,11 +198,7 @@ inline int MAX_GYRO_ANALOGS(Board::Type board, int version)
       return 0;
   }
 
-  //return Boards::getCapability(board, Board::GyroAxes);
-  if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board))
-    return 2;
-  else
-    return 0;
+  return Boards::getCapability(board, Board::GyroAxes);
 }
 
 #define MAX_ROTARY_ENCODERS(board)            0
@@ -286,16 +206,7 @@ inline int MAX_GYRO_ANALOGS(Board::Type board, int version)
 #define MAX_TIMERS(board, version)            3
 #define MAX_MIXERS(board, version)            64
 #define MAX_CHANNELS(board, version)          32
-//#define MAX_TRIMS(board)                      (Boards::getCapability(board, Board::NumTrims))
-inline int MAX_TRIMS(Board::Type board)
-{
-  if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board))
-    return 6;
-  else if (IS_IFLIGHT_COMMANDO8(board))
-    return 0;
-  else
-    return 4;
-}
+#define MAX_TRIMS(board)                      (Boards::getCapability(board, Board::NumTrims))
 #define MAX_EXPOS(board, version)             (IS_HORUS_OR_TARANIS(board) ? 64 : 32)
 #define MAX_LOGICAL_SWITCHES(board, version)  (version >= 218 ? 64 : 32)
 #define MAX_CUSTOM_FUNCTIONS(board, version)  64
@@ -307,6 +218,7 @@ inline int MAX_TRIMS(Board::Type board)
 #define ROTENC_COUNT(board, version)          ((IS_STM32(board) && version >= 218) ? 0 : 1)
 #define MAX_AUX_TRIMS(board)                  ((IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_PL18(board)) ? 2 : 0)
 #define MAX_SOURCE_TYPE_SPECIAL(board, version)    SOURCE_TYPE_SPECIAL_COUNT
+#define MAX_TIMERS(board, version)            3
 
 inline int switchIndex(int i, Board::Type board, unsigned int version)
 {
@@ -450,6 +362,8 @@ class SourcesConversionTable: public ConversionTable {
   public:
     SourcesConversionTable(Board::Type board, unsigned int version, unsigned int variant, unsigned long flags=0)
     {
+//      qDebug() << "version:" << version;
+
       int val=0;
 
       if (!(flags & FLAG_NONONE)) {
@@ -457,7 +371,7 @@ class SourcesConversionTable: public ConversionTable {
       }
 
       if (version >= 218 || IS_STM32(board)) {
-        for (int i=0; i<32; i++) {
+        for (int i=1; i<=32; i++) {
           addConversion(RawSource(SOURCE_TYPE_VIRTUAL_INPUT, i), val++);
         }
       }
@@ -465,84 +379,84 @@ class SourcesConversionTable: public ConversionTable {
       if (IS_STM32(board)) {
         for (int i = 0; i < MAX_SCRIPTS(board); i++) {
           for (int j = 0; j < 6; j++) {
-            addConversion(RawSource(SOURCE_TYPE_LUA_OUTPUT, i * 16 + j), val++);
+            addConversion(RawSource(SOURCE_TYPE_LUA_OUTPUT, i * 16 + j + 1), val++);
           }
         }
       }
 
-//      qDebug() << "bd:" << Boards::getBoardName(board)
-//               << "ptsrc:" << MAX_POTS_SOURCES(board, version) << "ptstore:" << MAX_POTS_STORAGE(board, version)
-//               << "slsrcs:" << MAX_SLIDERS_SOURCES(board, version) << "slstore:" << MAX_SLIDERS_STORAGE(board, version)
-//               << "ms:" << MAX_MOUSE_ANALOG_SOURCES(board, version)
+//      qDebug() << "sticks:" << CPN_MAX_STICKS
+//               << "pots:" << MAX_POTS_SOURCES(board, version)
+//               << "pots storage:" << MAX_POTS_STORAGE(board, version)
+//               << "sliders:" << MAX_SLIDERS_SOURCES(board, version)
+//               << "sliders storage:" << MAX_SLIDERS_STORAGE(board, version)
+//               << "mouse:" << MAX_MOUSE_ANALOG_SOURCES(board, version)
 //               << "gyro:" << MAX_GYRO_ANALOGS(board, version);
 
-      for (int i = 0; i < CPN_MAX_STICKS +
-                          MAX_POTS_SOURCES(board, version) +
-                          MAX_SLIDERS_SOURCES(board, version) +
-                          MAX_MOUSE_ANALOG_SOURCES(board, version) +
-                          MAX_GYRO_ANALOGS(board, version); i++) {
+      for (int i=1; i<=CPN_MAX_STICKS + MAX_POTS_SOURCES(board, version) + MAX_SLIDERS_SOURCES(board, version) + MAX_MOUSE_ANALOG_SOURCES(board, version) + MAX_GYRO_ANALOGS(board, version); i++) {
         int offset = 0;
         if (version <= 218 && IS_HORUS_X10(board) && i >= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
           offset += 2;
-        //if (version <= 220 && (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) && i >= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
-        //  offset += 2;
+        if (version <= 220 && (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) && i >= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
+          offset += 2;
 
-        //  ADC refactor shuffles
-        if (IS_FAMILY_HORUS_OR_T16(board)) {
-          if (i >= 7 && i <= 8)
+        //  ADC refactor shuffle of LS RS EXT1 and EXT2
+        if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
+          if (i > CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) - MAX_SLIDERS_SOURCES(board, version) &&
+              i < CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
             offset += 2;
-          else if (i >= 9 && i <= 10)
+          else if (i > CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) &&
+                   i <= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) + MAX_SLIDERS_SOURCES(board, version))
+            offset -= 4;
+          else if (i > CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) + MAX_SLIDERS_SOURCES(board, version))
             offset -= 2;
         }
-        else if (IS_TARANIS_X9E(board)) {
-          if (i >= 8 && i <= 9)
-            offset += 2;
-          else if (i >= 10 && i <= 11)
-            offset -= 2;
-        }
-        //  end ADC refactor shuffles
+        //  end ADC refactor shuffle of LS RS EXT1 and EXT2
 
-        addConversion(RawSource(SOURCE_TYPE_STICK, i + offset), val++);
-        //qDebug() << "i:" << i << "offset:" << offset << "index:" << i + offset << "desc:" << RawSource(SOURCE_TYPE_STICK, i + offset).toString() << "val:" << val;
+        addConversion(RawSource(SOURCE_TYPE_INPUT, i + offset), val++);
+//        qDebug() << "i:" << i << "offset:" << offset << "Input:" << RawSource(SOURCE_TYPE_INPUT, i + offset).toString() << "val:" << val;
+//        qDebug() << "Input no offset:" << RawSource(SOURCE_TYPE_INPUT, i).toString() << "val:" << val;
       }
 
-      for (int i=0; i<MAX_ROTARY_ENCODERS(board); i++) {
+      for (int i=1; i<=MAX_ROTARY_ENCODERS(board); i++) {
         addConversion(RawSource(SOURCE_TYPE_ROTARY_ENCODER, 0), val++);
       }
 
       addConversion(RawSource(SOURCE_TYPE_MAX), val++);
 
-      for (int i=0; i<3; i++)
+      for (int i=1; i<=3; i++)
         addConversion(RawSource(SOURCE_TYPE_CYC, i), val++);
 
-      for (int i=0; i<MAX_TRIMS(board); i++)
+      for (int i=1; i<=MAX_TRIMS(board); i++)
         addConversion(RawSource(SOURCE_TYPE_TRIM, i), val++);
 
-      addConversion(RawSource(SOURCE_TYPE_SWITCH, 0), val++);
-
       if (!(flags & FLAG_NOSWITCHES)) {
-        for (int i=1; i<MAX_SWITCHES_SOURCE(board, version); i++)
+        for (int i=1; i<=MAX_SWITCHES_SOURCE(board, version); i++) {
           addConversion(RawSource(SOURCE_TYPE_SWITCH, i), val++);
-        for (int i=0; i<MAX_FUNCTIONSWITCHES(board, version); i++)
-           addConversion(RawSource(SOURCE_TYPE_FUNCTIONSWITCH, i), val++);
-        for (int i=0; i<MAX_LOGICAL_SWITCHES(board, version); i++)
+        }
+        for (int i=1; i<=MAX_FUNCTIONSWITCHES(board, version); i++) {
+          addConversion(RawSource(SOURCE_TYPE_FUNCTIONSWITCH, i), val++);
+        }
+        for (int i=1; i<=MAX_LOGICAL_SWITCHES(board, version); i++) {
           addConversion(RawSource(SOURCE_TYPE_CUSTOM_SWITCH, i), val++);
+        }
       }
 
-      for (int i=0; i<NUM_PPM_INPUTS(board, version); i++) {
+      for (int i=1; i<=NUM_PPM_INPUTS(board, version); i++) {
         addConversion(RawSource(SOURCE_TYPE_PPM, i), val++);
       }
 
-      for (int i=0; i<MAX_CHANNELS(board, version); i++) {
+      for (int i=1; i<=MAX_CHANNELS(board, version); i++) {
         addConversion(RawSource(SOURCE_TYPE_CH, i), val++);
       }
 
       if (!(flags & FLAG_NOTELEMETRY)) {
-        for (int i=0; i<MAX_GVARS(board, version); i++)
+        for (int i=1; i<=MAX_GVARS(board, version); i++)
           addConversion(RawSource(SOURCE_TYPE_GVAR, i), val++);
-        for (int i=0; i<MAX_SOURCE_TYPE_SPECIAL(board, version); i++)
+        for (int i=1; i<=MAX_SOURCE_TYPE_SPECIAL(board, version); i++)
           addConversion(RawSource(SOURCE_TYPE_SPECIAL, i), val++);
-        for (int i=0; i<MAX_TELEMETRY_SENSORS(board, version)*3; ++i) {
+        for (int i=1; i<=MAX_TIMERS(board, version); i++)
+          addConversion(RawSource(SOURCE_TYPE_TIMER, i), val++);
+        for (int i=1; i<=MAX_TELEMETRY_SENSORS(board, version)*3; ++i) {
           addConversion(RawSource(SOURCE_TYPE_TELEMETRY, i), val++);
         }
       }
@@ -1211,7 +1125,7 @@ class InputField: public TransformedField {
     void afterImport() override
     {
       if (!IS_STM32(board) && expo.mode) {
-        expo.srcRaw = RawSource(SOURCE_TYPE_STICK, expo.chn);
+        expo.srcRaw = RawSource(SOURCE_TYPE_INPUT, expo.chn);
       }
 
       expo.weight = smallGvarExport(_weight);
@@ -1609,12 +1523,11 @@ class CustomFunctionsConversionTable: public ConversionTable {
       addConversion(FuncInstantTrim, val++);
 
       addConversion(FuncReset, val++);
-      addConversion(FuncSetTimer1, val);
-      addConversion(FuncSetTimer2, val);
-      addConversion(FuncSetTimer3, val);
+      for (int i = 0; i < MAX_TIMERS(board, version); i++)
+        addConversion(FuncSetTimer1 + i, val);
       val++;
-      for (int i=0; i<MAX_GVARS(board, version); i++)
-        addConversion(FuncAdjustGV1+i, val);
+      for (int i = 0; i < MAX_GVARS(board, version); i++)
+        addConversion(FuncAdjustGV1 + i, val);
       val++;
       addConversion(FuncVolume, val++);
       addConversion(FuncSetFailsafe, val++);
@@ -1723,14 +1636,14 @@ class ArmCustomFunctionField: public TransformedField {
         else
           _active = (fn.enabled ? 1 : 0);
 
-        if (fn.func >= FuncOverrideCH1 && fn.func <= FuncOverrideCH32) {
+        if (fn.func >= FuncOverrideCH1 && fn.func <= FuncOverrideCHLast) {
           *((uint16_t *)_param) = fn.param;
           *((uint8_t *)(_param+3)) = fn.func - FuncOverrideCH1;
         }
         else if (fn.func >= FuncTrainer && fn.func <= FuncTrainerChannels) {
           *((uint8_t *)(_param+3)) = fn.func - FuncTrainer;
         }
-        else if (fn.func >= FuncSetTimer1 && fn.func <= FuncSetTimer3) {
+        else if (fn.func >= FuncSetTimer1 && fn.func <= FuncSetTimerLast) {
           *((uint16_t *)_param) = fn.param;
           *((uint8_t *)(_param+3)) = fn.func - FuncSetTimer1;
         }
@@ -1783,11 +1696,11 @@ class ArmCustomFunctionField: public TransformedField {
       mode = *((uint8_t *)(_param+2));
       index = *((uint8_t *)(_param+3));
 
-      if (fn.func >= FuncOverrideCH1 && fn.func <= FuncOverrideCH32) {
+      if (fn.func >= FuncOverrideCH1 && fn.func <= FuncOverrideCHLast) {
         fn.func = AssignFunc(fn.func + index);
         fn.param = (int16_t)(uint16_t)value;
       }
-      else if (fn.func >= FuncSetTimer1 && fn.func <= FuncSetTimer3) {
+      else if (fn.func >= FuncSetTimer1 && fn.func <= FuncSetTimerLast) {
         fn.func = AssignFunc(fn.func + index);
         fn.param = (int)value;
       }
@@ -2687,7 +2600,7 @@ class ZonePersistentDataField: public StructField {
       StructField(this, "Zone Persistent")
     {
       Append(new CharField<WIDGET_NAME_LEN>(this, persistentData.widgetName, "Widget name"));
-      //Append(new SpareBitsField<16>(this));   //  pad to word boundary
+      Append(new SpareBitsField<16>(this));   //  pad to word boundary
       Append(new WidgetPersistentDataField(this, persistentData.widgetData, board, version));
     }
 };
@@ -2974,7 +2887,7 @@ OpenTxModelData::OpenTxModelData(ModelData & modelData, Board::Type board, unsig
   }
 
   if (IS_FAMILY_HORUS_OR_T16(board)) {
-    if (version > 220) {  //  data from earlier versions cannot be converted so fields initialised in afterImport
+    if (version >= 220) {  //  data from earlier versions cannot be converted so fields initialised in afterImport
       for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
         internalField.Append(new CustomScreenField(this, modelData.customScreens.customScreenData[i], board, version));
       }
@@ -3054,7 +2967,7 @@ void OpenTxModelData::afterImport()
     }
     modelData.switchWarningStates = newSwitchWarningStates;
 
-    if (version <= 220) {  //  re-initialise as no conversion possible
+    if (version < 220) {  //  re-initialise as no conversion possible
       const char * layoutId = "Layout2P1";  // currently all using same default though might change for NV14
       RadioLayout::init(layoutId, modelData.customScreens);
       modelData.topBarData = TopBarPersistentData();
