@@ -189,6 +189,7 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
       wname = RawSource(RawSourceType::SOURCE_TYPE_SWITCH, i).toString(nullptr, &radioSettings);
       if (swtype == Board::SWITCH_3POS) {
         cb->addItem(wname + CPN_STR_SW_INDICATOR_UP, i | JS_BUTTON_3POS_UP);
+        cb->addItem(wname + CPN_STR_SW_INDICATOR_NEUT, i | JS_BUTTON_3POS_NEUT);
         cb->addItem(wname + CPN_STR_SW_INDICATOR_DN, i | JS_BUTTON_3POS_DN);
       } else {
         cb->addItem(wname, i | JS_BUTTON_TOGGLE);
