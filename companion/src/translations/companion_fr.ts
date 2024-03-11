@@ -928,7 +928,7 @@ Manche Droit:  Profondeur, Direction
     <message>
         <location filename="../firmwares/boards.cpp" line="583"/>
         <source>Aux. 1</source>
-        <translation><Aux. 1/translation>
+        <translation>Aux. 1</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="584"/>
