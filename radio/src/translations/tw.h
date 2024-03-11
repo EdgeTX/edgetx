@@ -486,8 +486,13 @@
 #define TR_CHANNEL2FAILSAFE            "導入當前通道值"
 #define TR_MENUMODELSEL                TR("模型選擇", "模型選擇")
 #define TR_MENU_MODEL_SETUP            TR("模型設置", "模型設置")
-#define TR_MENUFLIGHTMODES             "飛行模式設置"
-#define TR_MENUFLIGHTMODE              "飛行模式"
+#if defined(SURFACE_RADIO)
+  #define TR_MENUFLIGHTMODES           "DRIVE MODES"
+  #define TR_MENUFLIGHTMODE            "DRIVE MODE"
+#else
+  #define TR_MENUFLIGHTMODES           "飛行模式設置"
+  #define TR_MENUFLIGHTMODE            "飛行模式"
+#endif
 #define TR_MENUHELISETUP               "直升機設置"
 
 #define TR_MENUINPUTS                  "輸入設置"
