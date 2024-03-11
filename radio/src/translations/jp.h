@@ -640,7 +640,7 @@
 #if defined(COLORLCD)
   #define TR_SDCARD_FULL_EXT           TR_SDCARD_FULL "\nログとスクリーンショット保存が無効"
 #else
-#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Logs & Screenshots" LCDW_128_480_LINEBREAK "disabled"
+  #define TR_SDCARD_FULL_EXT           TR_SDCARD_FULL "\036Logs & Screenshots" LCDW_128_480_LINEBREAK "disabled"
 #endif
 #define TR_NEEDS_FILE                  "を含むファイルが必要です"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
