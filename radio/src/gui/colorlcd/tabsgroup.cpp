@@ -255,6 +255,7 @@ void TabsGroup::checkEvents()
   if (currentTab) {
     currentTab->checkEvents();
   }
+  ViewMain::instance()->runBackground();
 
   static uint32_t lastRefresh = 0;
   uint32_t now = RTOS_GET_MS();
