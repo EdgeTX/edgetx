@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 #include "hal/serial_driver.h"
+#include "hal/gpio.h"
 #include "stm32_hal_ll.h"
 
 typedef void (*pin_setter_t)(uint8_t enable);
@@ -31,8 +32,8 @@ struct stm32_usart_t {
 
     // USART defs
     USART_TypeDef*             USARTx;
-    GPIO_TypeDef*              GPIOx;
-    uint32_t                   GPIO_Pin;
+    gpio_t                     txGPIO;
+    gpio_t                     rxGPIO;
 
     // USART IRQ
     IRQn_Type                  IRQn;

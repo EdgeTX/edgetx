@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 #include "stm32_hal_ll.h"
+#include "hal/gpio.h"
 
 struct stm32_pulse_timer_t;
 typedef bool (*stm32_pulse_dma_tc_fct)(void*);
@@ -34,8 +35,7 @@ struct stm32_pulse_dma_tc_cb_t {
 
 struct stm32_pulse_timer_t {
 
-  GPIO_TypeDef*              GPIOx;
-  uint32_t                   GPIO_Pin;
+  gpio_t                     GPIO;
   uint32_t                   GPIO_Alternate;
 
   TIM_TypeDef*               TIMx;

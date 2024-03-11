@@ -1,3 +1,4 @@
+#if 0
 /*
  * Copyright (C) EdgeTX
  *
@@ -160,4 +161,5 @@ typedef struct
 #define DWT_BASE            (0xE0001000UL)                            /*!< DWT Base Address                   */
 
 #define DWT                 ((DWT_Type       *)     DWT_BASE      )   /*!< DWT configuration struct           */
+#endif
 

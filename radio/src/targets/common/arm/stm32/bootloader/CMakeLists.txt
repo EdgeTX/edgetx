@@ -61,7 +61,7 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL
     ../../../../../targets/common/arm/stm32/spi_flash.cpp
     ../../../../../drivers/frftl.cpp
     ../../../../../crc.cpp
-    ../../../../../targets/${TARGET_DIR}/sdram_driver.c
+    ../../../../../targets/${TARGET_DIR}/sdram_driver.cpp
     ../../../../../targets/${TARGET_DIR}/haptic_driver.cpp
     )
 

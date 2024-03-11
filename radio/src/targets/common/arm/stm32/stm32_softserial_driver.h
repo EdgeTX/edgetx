@@ -21,6 +21,7 @@
 
 #include "stm32_serial_driver.h"
 #include "stm32_pulse_driver.h"
+#include "hal/gpio.h"
 
 //
 // RX soft-serial
@@ -33,8 +34,7 @@
 //
 struct stm32_softserial_rx_port {
 
-  GPIO_TypeDef* GPIOx;
-  uint32_t      GPIO_Pin;
+  gpio_t        GPIO;
   TIM_TypeDef*  TIMx;
   uint32_t      TIM_Freq;
   IRQn_Type     TIM_IRQn;
@@ -43,8 +43,7 @@ struct stm32_softserial_rx_port {
   uint32_t      EXTI_Line;
 
   // Input/output direction pin
-  GPIO_TypeDef* dir_GPIOx;
-  uint32_t      dir_Pin;
+  gpio_t        dir_GPIO;
   uint32_t      dir_Input;
 
   const stm32_serial_buffer buffer;

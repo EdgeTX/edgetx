@@ -19,6 +19,10 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+#include "stm32_timer.h"
+
 #include "board.h"
 
 #if defined(HAPTIC_PWM)
@@ -38,16 +42,9 @@ void hapticOn(uint32_t pwmPercent)
 
 void hapticInit()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = HAPTIC_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(HAPTIC_GPIO, &GPIO_InitStructure);
+  gpio_init_af(HAPTIC_GPIO, HAPTIC_GPIO_AF, GPIO_PIN_SPEED_LOW);
 
-  GPIO_PinAFConfig(HAPTIC_GPIO, HAPTIC_GPIO_PinSource, HAPTIC_GPIO_AF);
-
+  stm32_timer_enable_clock(HAPTIC_TIMER);
   HAPTIC_TIMER->ARR = 100;
   HAPTIC_TIMER->PSC = HAPTIC_TIMER_FREQ / 10000 - 1;
 #if defined(HAPTIC_CCMR1)
@@ -67,23 +64,17 @@ void hapticInit()
 // No PWM before X9D+
 void hapticInit()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = HAPTIC_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(HAPTIC_GPIO, &GPIO_InitStructure);
+  gpio_init(HAPTIC_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 }
 
 void hapticOff()
 {
-  GPIO_ResetBits(HAPTIC_GPIO, HAPTIC_GPIO_PIN);
+  gpio_clear(HAPTIC_GPIO);
 }
 
 void hapticOn()
 {
-  GPIO_SetBits(HAPTIC_GPIO, HAPTIC_GPIO_PIN);
+  gpio_set(HAPTIC_GPIO);
 }
 
 #endif

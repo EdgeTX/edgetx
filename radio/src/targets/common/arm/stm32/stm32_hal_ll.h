@@ -34,6 +34,7 @@ extern "C" {
 
 #if defined(STM32F4)
   #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_bus.h"
+  #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_fmc.h"
   #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma2d.h"
   #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h"
   #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h"

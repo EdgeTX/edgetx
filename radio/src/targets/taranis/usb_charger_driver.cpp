@@ -19,25 +19,18 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
 #include "board.h"
 #include "hal/usb_driver.h"
 
 void usbChargerInit()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = USB_CHARGER_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(USB_CHARGER_GPIO, &GPIO_InitStructure);
+  gpio_init(USB_CHARGER_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
 }
 
 bool usbChargerLed()
 {
-#if defined(SIMU)
-  return true;
-#else
-  return (GPIO_ReadInputDataBit(USB_CHARGER_GPIO, USB_CHARGER_GPIO_PIN) == Bit_RESET && usbPlugged());
-#endif
+  return (!gpio_read(USB_CHARGER_GPIO) && usbPlugged());
 }
