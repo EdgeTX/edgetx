@@ -780,15 +780,7 @@ void processSpektrumPacket(const uint8_t *packet)
       continue; 
     }
 
-
-    uint8_t prec = sensor->precision;
-    if ((sensor->unit == UNIT_CELSIUS || sensor->unit == UNIT_FAHRENHEIT) && sensor->precision == 1) {   
-        // Eliminate decimals, otherwise Temp conversions will not work
-        value = value / 10;
-        prec = 0;
-    }
-
-    setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, sensor->unit, prec);
+    setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, pseudoId, 0, instance, value, sensor->unit, sensor->precision);
   } // FOR
 
   if (!handled) {
@@ -979,12 +971,10 @@ void spektrumSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
       telemetrySensor.custom.ratio = 1;
       telemetrySensor.custom.offset = 1;
     } else if (unit == UNIT_FAHRENHEIT) {
-      telemetrySensor.prec = 0;
       if (!IS_IMPERIAL_ENABLE()) {
         telemetrySensor.unit = UNIT_CELSIUS;
       }
     } else if (unit == UNIT_CELSIUS) {
-      telemetrySensor.prec = 0;
       if (IS_IMPERIAL_ENABLE()) {
         telemetrySensor.unit = UNIT_FAHRENHEIT;
       }
