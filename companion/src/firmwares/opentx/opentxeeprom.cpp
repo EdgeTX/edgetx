@@ -362,8 +362,6 @@ class SourcesConversionTable: public ConversionTable {
   public:
     SourcesConversionTable(Board::Type board, unsigned int version, unsigned int variant, unsigned long flags=0)
     {
-//      qDebug() << "version:" << version;
-
       int val=0;
 
       if (!(flags & FLAG_NONONE)) {
@@ -383,14 +381,6 @@ class SourcesConversionTable: public ConversionTable {
           }
         }
       }
-
-//      qDebug() << "sticks:" << CPN_MAX_STICKS
-//               << "pots:" << MAX_POTS_SOURCES(board, version)
-//               << "pots storage:" << MAX_POTS_STORAGE(board, version)
-//               << "sliders:" << MAX_SLIDERS_SOURCES(board, version)
-//               << "sliders storage:" << MAX_SLIDERS_STORAGE(board, version)
-//               << "mouse:" << MAX_MOUSE_ANALOG_SOURCES(board, version)
-//               << "gyro:" << MAX_GYRO_ANALOGS(board, version);
 
       for (int i=1; i<=CPN_MAX_STICKS + MAX_POTS_SOURCES(board, version) + MAX_SLIDERS_SOURCES(board, version) + MAX_MOUSE_ANALOG_SOURCES(board, version) + MAX_GYRO_ANALOGS(board, version); i++) {
         int offset = 0;
@@ -413,8 +403,6 @@ class SourcesConversionTable: public ConversionTable {
         //  end ADC refactor shuffle of LS RS EXT1 and EXT2
 
         addConversion(RawSource(SOURCE_TYPE_INPUT, i + offset), val++);
-//        qDebug() << "i:" << i << "offset:" << offset << "Input:" << RawSource(SOURCE_TYPE_INPUT, i + offset).toString() << "val:" << val;
-//        qDebug() << "Input no offset:" << RawSource(SOURCE_TYPE_INPUT, i).toString() << "val:" << val;
       }
 
       for (int i=1; i<=MAX_ROTARY_ENCODERS(board); i++) {
