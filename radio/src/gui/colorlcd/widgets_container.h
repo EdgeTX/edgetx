@@ -89,6 +89,7 @@ class WidgetsContainer: public Window
     virtual void adjustLayout() = 0;
     virtual void updateZones() = 0;
     virtual void updateFromTheme() = 0;
+    virtual void runBackground() = 0;
 
     virtual bool isLayout() { return false; }
     bool isWidgetsContainer() override { return true; }
