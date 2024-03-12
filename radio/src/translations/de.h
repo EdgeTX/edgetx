@@ -163,15 +163,15 @@
 #define TR_HATSOPT                     "nur Trimmer","nur Tasten","Umschaltbar","Global"
 #define TR_HATSMODE_TRIMS              "Joystick Modus: Trimmer"
 #define TR_HATSMODE_KEYS               "Joystick Modus: Tasten"
-#define TR_HATSMODE_KEYS_HELP          "Linke Seite:\n"
-                                       " Rechts = MDL\n"
-                                       " Oben = SYS\n"
-                                       " Unten = TELE\n"
-                                       "\n"
-                                       "Rechte Seite:\n"
-                                       " Links = PAGE<\n"
-                                       " Rechts = PAGE>\n"
-                                       " Oben = PREV/INC\n"
+#define TR_HATSMODE_KEYS_HELP          "Linke Seite:\n"\
+                                       " Rechts = MDL\n"\
+                                       " Oben = SYS\n"\
+                                       " Unten = TELE\n"\
+                                       "\n"\
+                                       "Rechte Seite:\n"\
+                                       " Links = PAGE<\n"\
+                                       " Rechts = PAGE>\n"\
+                                       " Oben = PREV/INC\n"\
                                        " Unten = NEXT/DEC"
 #endif
 

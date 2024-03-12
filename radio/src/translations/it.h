@@ -166,15 +166,15 @@
 #define TR_HATSOPT                      "Solo trims","Solo keys","Commutabile","Globale"
 #define TR_HATSMODE_TRIMS               "Modo joystick: trims"
 #define TR_HATSMODE_KEYS                "Modo joystick: keys"
-#define TR_HATSMODE_KEYS_HELP           "Lato sinistro:\n"
-                                        " Destra = MDL\n"
-                                        " Su = SYS\n"
-                                        " Giù = TELE\n"
-                                        "\n"
-                                        "Lato destro:\n"
-                                        " Sinistra = PAGINA<\n"
-                                        " Destra = PAGINA>\n"
-                                        " Su = PREC/AUM\n"
+#define TR_HATSMODE_KEYS_HELP           "Lato sinistro:\n"\
+                                        " Destra = MDL\n"\
+                                        " Su = SYS\n"\
+                                        " Giù = TELE\n"\
+                                        "\n"\
+                                        "Lato destro:\n"\
+                                        " Sinistra = PAGINA<\n"\
+                                        " Destra = PAGINA>\n"\
+                                        " Su = PREC/AUM\n"\
                                         " Giù = PROS/DIM"
 #endif
 

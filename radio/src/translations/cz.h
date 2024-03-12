@@ -173,15 +173,15 @@
 #define TR_HATSOPT                     "Pouze trimy","Pouze tlačítka","Přepinatelné","Globální"
 #define TR_HATSMODE_TRIMS              "Režim kloboučků: Trimy"
 #define TR_HATSMODE_KEYS               "Režim kloboučků: Tlačítka"
-#define TR_HATSMODE_KEYS_HELP          "Levá strana:\n"
-                                       " Vpravo = MDL\n"
-                                       " Nahoru = SYS\n"
-                                       " Dolů = TELE\n"
-                                       "\n"
-                                       "Pravá strana:\n"
-                                       " Vlevo = LIST<\n"
-                                       " Vpravo = LIST>\n"
-                                       " Nahoru = PŘED/ZVÝŠ\n"
+#define TR_HATSMODE_KEYS_HELP          "Levá strana:\n"\
+                                       " Vpravo = MDL\n"\
+                                       " Nahoru = SYS\n"\
+                                       " Dolů = TELE\n"\
+                                       "\n"\
+                                       "Pravá strana:\n"\
+                                       " Vlevo = LIST<\n"\
+                                       " Vpravo = LIST>\n"\
+                                       " Nahoru = PŘED/ZVÝŠ\n"\
                                        " Dolů = DALŠÍ/SNÍŽ"
 #endif
 

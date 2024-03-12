@@ -164,15 +164,15 @@
   #define TR_HATSOPT                   "トリムのみ","キーのみ","スイッチ","すべて"
   #define TR_HATSMODE_TRIMS            "アナログスティック: トリム"
   #define TR_HATSMODE_KEYS             "アナログスティック: キー"
-  #define TR_HATSMODE_KEYS_HELP        "左側:\n"
-                                       " 右 = MDL\n"
-                                       " 上 = SYS\n"
-                                       " 下 = TELE\n"
-                                       "\n"
-                                       "右側:\n"
-                                       " 左 = PAGE<\n"
-                                       " 右 = PAGE>\n"
-                                       " 上 = PREV/INC\n"
+  #define TR_HATSMODE_KEYS_HELP        "左側:\n"\
+                                       " 右 = MDL\n"\
+                                       " 上 = SYS\n"\
+                                       " 下 = TELE\n"\
+                                       "\n"\
+                                       "右側:\n"\
+                                       " 左 = PAGE<\n"\
+                                       " 右 = PAGE>\n"\
+                                       " 上 = PREV/INC\n"\
                                        " 下 = NEXT/DEC"
 #endif
 
