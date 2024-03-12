@@ -672,29 +672,30 @@ const UnitConversionRule unitConversionTable[] = {
   { 0, 0, 0, 0}   // termination
 };
 
-const int16_t power10[] = {1,10,100,1000};
+// The MAX precision used in sensors is 3..support up to Prec4. 
+const int16_t power10[] = { 1, 10, 100, 1000, 10000 };
 
 int32_t convertTelemetryValue(int32_t value, uint8_t unit, uint8_t prec, uint8_t destUnit, uint8_t destPrec)
 {
-  int8_t tmp_prec = prec; 
+  // if we need to do Temperature conversions, we need to convert the constant 32 from 
+  // Prec0 to max(prec,destPrec).
+  int8_t temp_prec = prec; 
 
+  // Ex:  Converting from Prec1 -> Prec2.. need to * 10 the value.
+  // Ex:  Converting from Prec0 -> Prec2.. need to * 100 the value. 
   if (prec < destPrec) {
-      value   *= power10[destPrec-prec];
-      tmp_prec = destPrec;
+      value    *= power10[destPrec-prec];
+      temp_prec = destPrec;
   }
   
-  //for (int i=prec; i<destPrec; i++) {
-  //  value *= 10;
-  //}
-
   if (unit == UNIT_CELSIUS) {
     if (destUnit == UNIT_FAHRENHEIT) {
       // T(°F) = T(°C)×1,8 + 32
-      value = (32*power10[tmp_prec]) + (value*18) / 10;
+      value = (32*power10[temp_prec]) + (value*18) / 10;
     }
   } else if (unit == UNIT_FAHRENHEIT) {
     if (destUnit == UNIT_CELSIUS) {
-      value = (value - (32*power10[tmp_prec])) * 10/18;
+      value = (value - (32*power10[temp_prec])) * 10/18;
     }
   }
   else {
@@ -708,11 +709,11 @@ int32_t convertTelemetryValue(int32_t value, uint8_t unit, uint8_t prec, uint8_t
     }
   }
 
-  if (destPrec < prec) 
+  // Ex:  Converting from Prec2 -> Prec1.. need to / 10 the value.
+  // Ex:  Converting from Prec2 -> Prec0.. need to / 100 the value. 
+  if (destPrec < prec) {
       value = value / power10[prec - destPrec];
-
-  //for (int i=destPrec; i<prec; i++)
-  //  value /= 10;
+  }
 
   return value;
 }
@@ -733,7 +734,10 @@ int32_t TelemetrySensor::getValue(int32_t value, uint8_t unit, uint8_t prec) con
     value = (custom.ratio * value + 122) / 255;  //  122/255 (0.48) is to aproximate up (ceiling) 
   }
 
-  value = convertTelemetryValue(value, unit, prec, this->unit, this->prec);
+  // Does it needs any conversion ? 
+  if ((unit != this->unit) || (prec != this->prec)) {
+    value = convertTelemetryValue(value, unit, prec, this->unit, this->prec);
+  }
 
   if (type == TELEM_TYPE_CUSTOM) {
     value += custom.offset;
@@ -762,7 +766,7 @@ bool TelemetrySensor::isConfigurable() const
 
 bool TelemetrySensor::isPrecConfigurable() const
 {
-  if (unit == UNIT_FAHRENHEIT) {
+  if (unit == UNIT_FAHRENHEIT) { // use Prec0
     return false;
   } 
   else if (isConfigurable()) {
