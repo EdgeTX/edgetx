@@ -2178,12 +2178,12 @@ Vil du indlæse indstillinger fra en fil?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="119"/>
         <source>Bind Int. Module</source>
-        <translation>Parring til int. modul</translation>
+        <translation>Tilslutning til int. modul</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="121"/>
         <source>Bind Ext. Module</source>
-        <translation>Parring til ext. modul</translation>
+        <translation>Tilslutning til ext. modul</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="131"/>
@@ -3898,7 +3898,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1456"/>
         <source>Allow bind using bind key</source>
-        <translation>Tillad forbind med forbind tast</translation>
+        <translation>Tillad tilslutning med tilslut tast</translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1479"/>
@@ -10246,7 +10246,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modeledit/setup_module.ui" line="772"/>
         <source>WARNING: changing RF Output Power needs RE-BIND</source>
-        <translation>Advarsel: Ændring af RF udgangseffekt kræver ny parring</translation>
+        <translation>Advarsel: Ændring af RF udgangseffekt kræver ny tilslutning</translation>
     </message>
     <message>
         <location filename="../modeledit/setup_module.ui" line="163"/>
@@ -10640,7 +10640,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modeledit/setup.cpp" line="696"/>
         <source>Bind on channel</source>
-        <translation>Forbind kanal</translation>
+        <translation>Tilslut kanal</translation>
     </message>
     <message>
         <location filename="../modeledit/setup.cpp" line="783"/>
