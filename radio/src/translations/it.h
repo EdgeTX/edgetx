@@ -1280,4 +1280,4 @@
 #define TR_SORT_MODELS_BY         "Ordina modelli per"
 #define TR_CREATE_NEW             "Crea"
 
-#define TR_MIX_SLOW_PREC          TR("Rallenta", "Acellera/dn prec")
+#define TR_MIX_SLOW_PREC          TR("Prec. lenta", "Prec. su/giù lenta")
