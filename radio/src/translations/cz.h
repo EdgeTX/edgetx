@@ -54,7 +54,7 @@
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "VYP","Telemetrie zrcadlení","Telemetrie vstup","SBUS Trenér","LUA","CLI","GPS","Debug","SpaceMouse","Externí modul"
 #define TR_SWTYPES                     "Žádný","Bez aretace","2-polohový","3-polohový"
-#define TR_POTTYPES                    "Žádný",TR("Pot","Potenciometr"),TR("Pot s aret.","Pot s aretací"),"Slider",TR("Vícepol př.","Vícepol. přep."),"Axis X","Axis Y","Switch"
+#define TR_POTTYPES                    "Žádný",TR("Pot","Potenciometr"),TR("Pot s aret.","Pot s aretací"),"Slider",TR("Vícepol př.","Vícepol. přep."),"Osa X","Osa Y","Přepínač"
 #define TR_VPERSISTENT                 "Ne","V rámci letu","Reset ručně"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japonsko"),TR("EU","Evropa")
 #define TR_USBMODES                    TR("Zeptat","Zeptat se"),TR("Joyst","Joystick"),TR("SDkarta","Úložiště"),"Serial"
@@ -102,7 +102,7 @@
 #define TR_SF_FAILSAFE                 "Nastavit Failsafe"
 #define TR_SF_RANGE_CHECK              "Kontrola dosahu"
 #define TR_SF_MOD_BIND                 "ModuleBind"
-#define TR_SF_RGBLEDS                  "RGB leds"
+#define TR_SF_RGBLEDS                  "RGB světlo"
 
 #define TR_SOUND                       TR3("\200\201Zvuk", "\200\201Zvuk", "Hrát zvuk")
 #define TR_PLAY_TRACK                  TR3("\200\201Stopa", "\200\201Stopa", "Přehrát wav")
@@ -172,17 +172,17 @@
 #define TR_HATSMODE                    "Režim kloboučků"
 #define TR_HATSOPT                     "Pouze trimy","Pouze tlačítka","Přepinatelné","Globální"
 #define TR_HATSMODE_TRIMS              "Režim kloboučků: Trimy"
-#define TR_HATSMODE_KEYS                "Režim kloboučků: Tlačítka"
-#define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
-                                       "   Right = MDL\n"\
-                                       "   Up = SYS\n"\
-                                       "   Down = TELE\n"\
-                                       "\n"\
-                                       "Right side:\n"\
-                                       "   Left = PAGE<\n"\
-                                       "   Right = PAGE>\n"\
-                                       "   Up = PREV/INC\n"\
-                                       "   Down = NEXT/DEC"
+#define TR_HATSMODE_KEYS               "Režim kloboučků: Tlačítka"
+#define TR_HATSMODE_KEYS_HELP          "Levá strana:\n"
+                                       " Vpravo = MDL\n"
+                                       " Nahoru = SYS\n"
+                                       " Dolů = TELE\n"
+                                       "\n"
+                                       "Pravá strana:\n"
+                                       " Vlevo = LIST<\n"
+                                       " Vpravo = LIST>\n"
+                                       " Nahoru = PŘED/ZVÝŠ\n"
+                                       " Dolů = DALŠÍ/SNÍŽ"
 #endif
 
 #if defined(COLORLCD)
@@ -405,7 +405,7 @@
 #define TR_ADJUST_RTC                  TR3("Čas z GPS", "Použít čas z GPS", "Použít čas z GPS")
 #define TR_GPS                         "GPS"
 #define TR_DEF_CHAN_ORD                TR("Def řaz kanálu", "Defaultní řazení kanálu")
-#define TR_STICKS                      "Páky"
+#define TR_STICKS                      "Osy"
 #define TR_POTS                        "Potenciometry"
 #define TR_SWITCHES                    "Spínače"
 #define TR_SWITCHES_DELAY              TR3("Filtr přepínače", "Filtr přepínače", "Filtr poloh přepínače")
@@ -419,15 +419,20 @@
 #if defined(PCBHORUS)
   #define TR_MENUTOSTART               "Stiskem [ENTER] začneme"
   #define TR_SETMIDPOINT               "Vycentruj páky/poty/slidery a stiskni [ENTER]"
-  #define TR_MOVESTICKSPOTS            "Hýbej pákami/poty/slidery pak stiskni [ENTER]"
+  #define TR_MOVESTICKSPOTS            "Hýbat osy/poty/slidery a stisknout [Enter]"
 #elif defined(COLORLCD)
   #define TR_MENUTOSTART               TR_ENTER "= START"
-  #define TR_SETMIDPOINT               "Nastav páky na střed"
-  #define TR_MOVESTICKSPOTS            "Hýbej pákami/poty"
+  #define TR_SETMIDPOINT               "VYCENTROVAT OSY/SLIDERY"
+  #define TR_MOVESTICKSPOTS            "HÝBAT OSY/POTY"
 #else
   #define TR_MENUTOSTART               CENTER "\011" TR_ENTER " = START"
-  #define TR_SETMIDPOINT               CENTER "\004Nastav páky na střed"
-  #define TR_MOVESTICKSPOTS            TR(CENTER "\006Hýbej pákami/poty", "\014Hýbej pákami i potenciometry")
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT               CENTER "\006NASTAVIT STŘED POTU"
+  #define TR_MOVESTICKSPOTS            CENTER "\002HÝBAT TOČIT/PLYN/POTY/OSY"
+#else
+  #define TR_SETMIDPOINT               TR(CENTER "\006NASTAVIT STŘED OSY", STŘED "\004STŘED OSY/SLIDERU")
+  #define TR_MOVESTICKSPOTS            CENTER "\007HÝBAT OSY/POTY"
+#endif
 #endif
 #define TR_TXnRX                       "Tx:\0Rx:"
 #define OFS_RX                         4
@@ -499,8 +504,8 @@
 #define TR_MENUMODELSEL                "MODEL"
 #define TR_MENU_MODEL_SETUP            "NASTAVENÍ"
 #if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES             "DRIVE MODES"
-#define TR_MENUFLIGHTMODE              "DRIVE MODE"
+#define TR_MENUFLIGHTMODES             "REŽIM JÍZDA"
+#define TR_MENUFLIGHTMODE              "REŽIM JÍZDA"
 #else
 #define TR_MENUFLIGHTMODE              "LETOVÝ REŽIM"
 #define TR_MENUFLIGHTMODES             "LETOVÉ REŽIMY"
@@ -628,8 +633,8 @@
 #define TR_MENU_MODULES_RX_VERSION     "VERZE MODULU A RX"
 #define TR_MENU_FIRM_OPTIONS           "MOŽNOSTI FIRMWARE"
 #define TR_IMU                         "IMU"
-#define TR_STICKS_POTS_SLIDERS         "páky/pot./slidery"
-#define TR_PWM_STICKS_POTS_SLIDERS     "PWM páky/pot./slidery"
+#define TR_STICKS_POTS_SLIDERS         "Osa/Pot/Slider"
+#define TR_PWM_STICKS_POTS_SLIDERS     "PWM Osa/Pot/Slider"
 #define TR_RF_PROTOCOL                 "RF Protokol"
 #define TR_MODULE_OPTIONS              "Možnosti modulu"
 #define TR_POWER                       "Výkon"
@@ -827,7 +832,7 @@
 #define TR_JACK_MODE                   "Režim Jack"
 #define TR_VOICE_LANGUAGE              "Jazyk hlasu"
 #define TR_UNITS_SYSTEM                "Jednotky"
-#define TR_UNITS_PPM                   "PPM Units"
+#define TR_UNITS_PPM                   "PPM jednotky"
 #define TR_EDIT                        "Upravit"
 #define TR_INSERT_BEFORE               "Vložit před"
 #define TR_INSERT_AFTER                "Vložit za"
@@ -838,7 +843,7 @@
 #define TR_PASTE_BEFORE                "Vložit před"
 #define TR_DELETE                      "Odstranit"
 #define TR_INSERT                      "Přidat"
-#define TR_RESET_FLIGHT                "Let"
+#define TR_RESET_FLIGHT                "Reset relace"
 #define TR_RESET_TIMER1                "Čas1"
 #define TR_RESET_TIMER2                "Čas2"
 #define TR_RESET_TIMER3                "Čas3"
@@ -938,7 +943,7 @@
 #define TR_PT                          "č."
 #define TR_PTS                         "b."
 #define TR_SMOOTH                      "Hladká"
-#define TR_COPY_STICKS_TO_OFS          TR("Páky do subtrimu", "Kopie pák do subtrimu")
+#define TR_COPY_STICKS_TO_OFS          TR("Kop. osy->subtrim", "Kopírovat osy do subtrimu")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Kopie min/max do všech",  "Kopírovat min/max/střed do všech výstupů")
 #define TR_COPY_TRIMS_TO_OFS           TR("Trimy do subtrimu", "Kopírovat trimy do subtrimů")
 #define TR_INCDEC                      "Zvětšit/Zmenšit"
@@ -948,7 +953,7 @@
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Vyp","Zap","Auto"
 #define TR_PREFLIGHT                   "Předletová kontrola"
 #define TR_CHECKLIST                   TR(INDENT "Poznámky", INDENT "Zobrazit poznámky")
-#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "C-Interact", INDENT "Interact. checklist", INDENT "Interactive checklist")
+#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "S-interkativni", INDENT "Interaktivní seznam", INDENT "Interaktivní seznam")
 #define TR_AUX_SERIAL_MODE             "Seriový port"
 #define TR_AUX2_SERIAL_MODE            "Seriový port 2"
 #define TR_AUX_SERIAL_PORT_POWER       "Výkon portu"
@@ -1149,7 +1154,7 @@
 
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "Vstupy"
 #define TR_MENU_LUA                    STR_CHAR_LUA "Lua skripty"
-#define TR_MENU_STICKS                 STR_CHAR_STICK "Páky"
+#define TR_MENU_STICKS                 STR_CHAR_STICK "Osa"
 #define TR_MENU_POTS                   STR_CHAR_POT "Potenciometry"
 #define TR_MENU_MIN                    STR_CHAR_FUNCTION "MIN"
 #define TR_MENU_MAX                    STR_CHAR_FUNCTION "MAX"
@@ -1246,7 +1251,7 @@
 #define TR_VOICE_TAIWANESE              "Tchajwanština"
 #define TR_VOICE_JAPANESE               "Japonština"
 #define TR_VOICE_HEBREW                 "Hebrejština"
-#define TR_VOICE_UKRAINIAN               "Ukrainian"
+#define TR_VOICE_UKRAINIAN              "Ukrainština"
 
 #define TR_USBJOYSTICK_LABEL           "USB Joystick"
 #define TR_USBJOYSTICK_EXTMODE         "Mode"
@@ -1284,12 +1289,12 @@
 #define TR_RADIO_MENU_TABS             "Rádiové menu záložky"
 #define TR_MODEL_MENU_TABS             "Model menu záložky"
 
-#define TR_SELECT_MENU_ALL        "All"
-#define TR_SELECT_MENU_CLR        "Clear"
-#define TR_SELECT_MENU_INV        "Invert"
+#define TR_SELECT_MENU_ALL        "Vše"
+#define TR_SELECT_MENU_CLR        "Vymazat"
+#define TR_SELECT_MENU_INV        "Invertovat"
 
 #define TR_SORT_ORDERS            "Název A-Z","Název Z-A","Nejméne používané","Nejvíce používané"
 #define TR_SORT_MODELS_BY         "Seřadit modely podle"
 #define TR_CREATE_NEW             "Vytvořit"
 
-#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
+#define TR_MIX_SLOW_PREC          TR("Přesnost zpomal", "Přesnost zpomalení")
