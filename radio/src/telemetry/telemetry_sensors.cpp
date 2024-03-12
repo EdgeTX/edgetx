@@ -672,19 +672,29 @@ const UnitConversionRule unitConversionTable[] = {
   { 0, 0, 0, 0}   // termination
 };
 
+const int16_t power10[] = {1,10,100,1000};
+
 int32_t convertTelemetryValue(int32_t value, uint8_t unit, uint8_t prec, uint8_t destUnit, uint8_t destPrec)
 {
-  for (int i=prec; i<destPrec; i++)
-    value *= 10;
+  int8_t tmp_prec = prec; 
+
+  if (prec < destPrec) {
+      value   *= power10[destPrec-prec];
+      tmp_prec = destPrec;
+  }
+  
+  //for (int i=prec; i<destPrec; i++) {
+  //  value *= 10;
+  //}
 
   if (unit == UNIT_CELSIUS) {
     if (destUnit == UNIT_FAHRENHEIT) {
       // T(°F) = T(°C)×1,8 + 32
-      value = 32 + (value*18) / 10;
+      value = (32*power10[tmp_prec]) + (value*18) / 10;
     }
   } else if (unit == UNIT_FAHRENHEIT) {
     if (destUnit == UNIT_CELSIUS) {
-      value = (value - 32) * 10/18;
+      value = (value - (32*power10[tmp_prec])) * 10/18;
     }
   }
   else {
@@ -698,8 +708,11 @@ int32_t convertTelemetryValue(int32_t value, uint8_t unit, uint8_t prec, uint8_t
     }
   }
 
-  for (int i=destPrec; i<prec; i++)
-    value /= 10;
+  if (destPrec < prec) 
+      value = value / power10[prec - destPrec];
+
+  //for (int i=destPrec; i<prec; i++)
+  //  value /= 10;
 
   return value;
 }
@@ -749,7 +762,10 @@ bool TelemetrySensor::isConfigurable() const
 
 bool TelemetrySensor::isPrecConfigurable() const
 {
-  if (isConfigurable()) {
+  if (unit == UNIT_FAHRENHEIT) {
+    return false;
+  } 
+  else if (isConfigurable()) {
     return true;
   }
   else if (unit == UNIT_CELLS) {
