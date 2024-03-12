@@ -54,7 +54,7 @@
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "AUS","Telem weiterl.","Telemetrie In","SBUS Eingang","LUA","CLI","GPS","Debug","SpaceMouse","Externes Modul"
 #define TR_SWTYPES                     "Kein","Taster","2POS","3POS"
-#define TR_POTTYPES                    "Kein","Poti", TR("Pot w. Ras","Poti mit Raste"),"Schieber",TR("Multipos.","Multipos. Schalter"),"Knüppel X","Knüppel Y","Schalter"
+#define TR_POTTYPES                    "Kein","Poti", TR("Pot o. Ras","Poti mit Raste"),"Schieber",TR("Multipos.","Multipos. Schalter"),"Knüppel X","Knüppel Y","Schalter"
 #define TR_VPERSISTENT                 "AUS","Flugzeit","Manuell Rück"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
 #define TR_USBMODES                    "Fragen",TR("Joyst","Joystick"),TR("SDCard","Speicher"),TR("Serial","Seriell")
@@ -717,11 +717,11 @@
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "schnelle Modellauswahl"
-  #define TR_LABELS_SELECT             "Label Auswahl"
-  #define TR_LABELS_MATCH              "Label Übereinstim."
-  #define TR_FAV_MATCH                 "Favoriten Übereinstim."
-  #define TR_LABELS_SELECT_MODE        "Mehrfachauswahl","Einfachauswahl"
-  #define TR_LABELS_MATCH_MODE         "muss übereinst.","Optionale Übereinst."
+  #define TR_LABELS_SELECT             "Labelauswahl"
+  #define TR_LABELS_MATCH              "Labelvergleich"
+  #define TR_FAV_MATCH                 "Favoriten vergleichen"
+  #define TR_LABELS_SELECT_MODE        "Mehrfachauswahl", "Einfachauswahl"
+  #define TR_LABELS_MATCH_MODE         "Alle", "Beliebig"
   #define TR_FAV_MATCH_MODE            "Muss übereinstimmen", "Alternative Übereinstimmung"
 #endif
 
@@ -836,7 +836,7 @@
 #define TR_PASTE_BEFORE                "Einfügen davor"
 #define TR_DELETE                      "Zeile löschen"
 #define TR_INSERT                      "Neue Zeile"
-#define TR_RESET_FLIGHT                "Reset Flug"
+#define TR_RESET_FLIGHT                "Reset Flugdaten"
 #define TR_RESET_TIMER1                "Reset Timer1"
 #define TR_RESET_TIMER2                "Reset Timer2"
 #define TR_RESET_TIMER3	               "Reset Timer3"
@@ -945,7 +945,7 @@
 #define TR_MIXSOURCE                   "Mixer Quelle"
 #define TR_CONSTANT                    "Konstant"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Aus","Ein","Auto"
-#define TR_PREFLIGHT                   "Vorflug Kontrolle"
+#define TR_PREFLIGHT                   "Vorflug-Checkliste"
 #define TR_CHECKLIST                   TR(INDENT "Checkliste", INDENT "Checkliste anzeigen") //9XR-Pro
 #define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "C-Interaktiv", INDENT "Interakt. Checkl.", INDENT "Interaktive Checkliste")
 #define TR_AUX_SERIAL_MODE             "Serieller Port"
