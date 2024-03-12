@@ -93,7 +93,7 @@
 #define TR_SF_FAILSAFE                 "Failsafe設定"
 #define TR_SF_RANGE_CHECK              "レンジチェック"
 #define TR_SF_MOD_BIND                 "モジュールバインド"
-#define TR_SF_RGBLEDS                  "RGB leds"
+#define TR_SF_RGBLEDS                  "RGB LED"
 
 #define TR_SOUND                       "サウンド再生"
 #define TR_PLAY_TRACK                  "音源再生"
@@ -164,16 +164,16 @@
   #define TR_HATSOPT                   "トリムのみ","キーのみ","スイッチ","すべて"
   #define TR_HATSMODE_TRIMS            "アナログスティック: トリム"
   #define TR_HATSMODE_KEYS             "アナログスティック: キー"
-  #define TR_HATSMODE_KEYS_HELP        "Left side:\n"\
-                                       "   Right = MDL\n"\
-                                       "   Up = SYS\n"\
-                                       "   Down = TELE\n"\
-                                       "\n"\
-                                       "Right side:\n"\
-                                       "   Left = PAGE<\n"\
-                                       "   Right = PAGE>\n"\
-                                       "   Up = PREV/INC\n"\
-                                       "   Down = NEXT/DEC"
+  #define TR_HATSMODE_KEYS_HELP        "左側:\n"
+                                       " 右 = MDL\n"
+                                       " 上 = SYS\n"
+                                       " 下 = TELE\n"
+                                       "\n"
+                                       "右側:\n"
+                                       " 左 = PAGE<\n"
+                                       " 右 = PAGE>\n"
+                                       " 上 = PREV/INC\n"
+                                       " 下 = NEXT/DEC"
 #endif
 
 #if defined(COLORLCD)
