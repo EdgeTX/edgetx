@@ -143,6 +143,7 @@ struct SpektrumSensor {
 
 #define SS(i2caddress,startByte,dataType,name,unit,precision) {i2caddress,startByte,dataType,precision,unit,name}
 
+// IMPORTANT: Keep the sensor table incremtally sorted by i2caddress
 const SpektrumSensor spektrumSensors[] = {
   // 0x01 High voltage internal sensor
   SS(I2C_VOLTAGE,      0,  int16,     STR_SENSOR_A1,                UNIT_VOLTS,     2), // 0.01V increments 
@@ -627,11 +628,13 @@ void processSpektrumPacket(const uint8_t *packet)
 
   bool handled = false;
   for (const SpektrumSensor * sensor = spektrumSensors; sensor->i2caddress; sensor++) {
-    uint16_t pseudoId = (sensor->i2caddress << 8 | sensor->startByte);
-
-    if (i2cAddress != sensor->i2caddress)  // Not the sensor for current packet
+    // Optimization... the sensor table is sorted incrementally by i2cAddress
+    if (sensor->i2caddress < i2cAddress)  // haven't reach the sesnor def. keep going
       continue;
-  
+    if (sensor->i2caddress > i2cAddress)  // We past it, done
+      break;  
+
+    uint16_t pseudoId = (sensor->i2caddress << 8 | sensor->startByte);  
     handled = true;
 
     // Extract value, skip header
