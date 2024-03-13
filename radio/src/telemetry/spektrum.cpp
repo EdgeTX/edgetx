@@ -49,6 +49,7 @@
 #define I2C_PSEUDO_TX_RSSI   (I2C_PSEUDO_TX << 8 | 0)
 #define I2C_PSEUDO_TX_BIND   (I2C_PSEUDO_TX << 8 | 4)
 #define I2C_PSEUDO_TX_FM     (I2C_PSEUDO_TX << 8 | 8)
+#define I2C_PSEUDO_TX_CELLS  (I2C_PSEUDO_TX << 8 | 10)
 
 #define SPEKTRUM_TELEMETRY_LENGTH 18
 #define DSM_BIND_PACKET_LENGTH 12
@@ -142,6 +143,7 @@ struct SpektrumSensor {
 
 #define SS(i2caddress,startByte,dataType,name,unit,precision) {i2caddress,startByte,dataType,precision,unit,name}
 
+// IMPORTANT: Keep the sensor table incremtally sorted by i2caddress
 const SpektrumSensor spektrumSensors[] = {
   // 0x01 High voltage internal sensor
   SS(I2C_VOLTAGE,      0,  int16,     STR_SENSOR_A1,                UNIT_VOLTS,     2), // 0.01V increments 
@@ -268,13 +270,13 @@ const SpektrumSensor spektrumSensors[] = {
 //SS(0x38,              0,  uint16,    STR_SENSOR_PRESSSURE,        UNIT_PSI,       1),
 
   // 0x3A Lipo 6s Monitor Cells
-  SS(I2C_CELLS,        0,  uint16,    STR_SENSOR_CELLS,             UNIT_VOLTS,     2), // Voltage across cell 1, .01V steps
-  SS(I2C_CELLS,        2,  uint16,    STR_SENSOR_CELLS,             UNIT_VOLTS,     2),
-  SS(I2C_CELLS,        4,  uint16,    STR_SENSOR_CELLS,             UNIT_VOLTS,     2),
-  SS(I2C_CELLS,        6,  uint16,    STR_SENSOR_CELLS,             UNIT_VOLTS,     2),
-  SS(I2C_CELLS,        8,  uint16,    STR_SENSOR_CELLS,             UNIT_VOLTS,     2),
-  SS(I2C_CELLS,       10,  uint16,    STR_SENSOR_CELLS,             UNIT_VOLTS,     2),
-  SS(I2C_CELLS,       12,  uint16,    STR_SENSOR_TEMP2,             UNIT_CELSIUS,   2), // Temperature, 0.1C (0-655.34C)
+  SS(I2C_CELLS,        0,  uint16,    STR_SENSOR_CL01,              UNIT_VOLTS,     2), // Voltage across cell 1, .01V steps
+  SS(I2C_CELLS,        2,  uint16,    STR_SENSOR_CL02,              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,        4,  uint16,    STR_SENSOR_CL03,              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,        6,  uint16,    STR_SENSOR_CL04,              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,        8,  uint16,    STR_SENSOR_CL05,              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,       10,  uint16,    STR_SENSOR_CL06,              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,       12,  uint16,    STR_SENSOR_TEMP2,             UNIT_CELSIUS,   1), // Temperature, 0.1C (0-655.34C)
 
   // 0x40 Vario-S
   SS(I2C_VARIO,         0,  int16,     STR_SENSOR_ALT,               UNIT_METERS,            1),
@@ -350,6 +352,7 @@ const SpektrumSensor spektrumSensors[] = {
   SS(I2C_PSEUDO_TX,    0,  uint8,     STR_SENSOR_TX_RSSI,           UNIT_RAW,       0),
   SS(I2C_PSEUDO_TX,    4,  uint32,    STR_SENSOR_BIND,              UNIT_RAW,       0),
   SS(I2C_PSEUDO_TX,    8,  uint32,    STR_SENSOR_FLIGHT_MODE,       UNIT_TEXT,      0),
+  SS(I2C_PSEUDO_TX,    10, uint32,    STR_SENSOR_CELLS,             UNIT_CELLS,     2),
   SS(0,                0,  int16,     NULL,                   UNIT_RAW,             0) //sentinel
 };
 
@@ -625,11 +628,13 @@ void processSpektrumPacket(const uint8_t *packet)
 
   bool handled = false;
   for (const SpektrumSensor * sensor = spektrumSensors; sensor->i2caddress; sensor++) {
-    uint16_t pseudoId = (sensor->i2caddress << 8 | sensor->startByte);
-
-    if (i2cAddress != sensor->i2caddress)  // Not the sensor for current packet
+    // Optimization... the sensor table is sorted incrementally by i2cAddress
+    if (sensor->i2caddress < i2cAddress)  // haven't reach the sesnor def. keep going
       continue;
-  
+    if (sensor->i2caddress > i2cAddress)  // We past it, done
+      break;  
+
+    uint16_t pseudoId = (sensor->i2caddress << 8 | sensor->startByte);  
     handled = true;
 
     // Extract value, skip header
@@ -666,9 +671,14 @@ void processSpektrumPacket(const uint8_t *packet)
     } // I2C_ESC
 
     else if (i2cAddress == I2C_CELLS && sensor->unit == UNIT_VOLTS) {
-      // Map to FrSky style cell values
+      if (value == 0x7FFF) continue;  // ignore NO-DATA
+
+      // Map to FrSky style cell values (All Cells in a single Sensor)
       int cellIndex = (sensor->startByte / 2) << 16;
-      value = value | cellIndex;
+      uint32_t valueCells = cellIndex | value;
+      setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_CELLS, 0, instance, valueCells, UNIT_CELLS, 2);
+      
+      // Continue to process regular Single Cell value
     } // I2C_CELLS
 
     else if (sensor->i2caddress == I2C_HIGH_CURRENT && sensor->unit == UNIT_AMPS) {
@@ -1081,6 +1091,7 @@ static int testStep = 0;
 static bool real0x16 = false;
 static bool real0x17 = false;
 static bool real0x34 = false;
+static bool real0x3A = false;
 
 // *********** GPS LOC (BCD) ******************************
 // Example 0x16:          0  1    2  3  4  5    6  7  8  9    10 11   12   13
@@ -1106,6 +1117,15 @@ static char test17data[] = {0x17, 0x00, 0x25, 0x00, 0x00,
 static char test34data[] = {0x34, 0x00, 0x2F, 0x00, 0x30, 0x09, 0x85, 0x01, 
                                         0x2B, 0x00, 0x07, 0x0A, 0x81, 0x01 };
 
+// *********** Lipo monitor (Big-Endian)***************
+// Example 0x3A:          0  1    2  3    4  5    6  7    8  9    10 11   12 13
+//                3A 00 | 01 9A | 01 9B | 01 9C | 01 9D | 7F FF | 7F FF | 0F AC 
+//                         4.10V   4.11V   4.12V   4.12v   --      --     40.1C
+static char test3Adata[] = {0x3A, 0x00, 0x01, 0x9A, 0x01, 0x9B, 0x01, 0x9C, 
+                                        0x01, 0x9D, 0x7F, 0xFF, 0x7F, 0xFF,
+                                        0x01, 0x91 };
+
+
 static uint8_t replaceForTestingPackage(const uint8_t *packet)
 {
   uint8_t i2cAddress = packet[2] & 0x7f;
@@ -1114,6 +1134,7 @@ static uint8_t replaceForTestingPackage(const uint8_t *packet)
   if (i2cAddress == I2C_GPS_LOC) real0x16 = true;
   else if (i2cAddress == I2C_GPS_STAT) real0x17 = true;
   else if (i2cAddress == I2C_FP_BATT) real0x34 = true;
+  else if (i2cAddress == I2C_CELLS) real0x3A = true;
   
   // Only Substiture AS3X/SAFE I2C_FLITECTRL packages, since they are constantly brodcast
   if (i2cAddress != I2C_FLITECTRL) {  
@@ -1137,9 +1158,12 @@ static uint8_t replaceForTestingPackage(const uint8_t *packet)
     case 3: // Return Dual Bat monitor
         if (!real0x34) memcpy((char *)packet + 2, test34data, 14);
         break;
+    case 4: // Return LIPO monitor
+        if (!real0x3A) memcpy((char *)packet + 2, test3Adata, 16);
+        break;
   }
 
-  testStep = (testStep + 1) % 4;
+  testStep = (testStep + 1) % 5;
   
 
   return packet[2] & 0x7f;
