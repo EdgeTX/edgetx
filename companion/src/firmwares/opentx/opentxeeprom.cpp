@@ -55,35 +55,73 @@ inline int MAX_SWITCHES(Board::Type board, int version)
   if (IS_TARANIS_X7(board))
     return 8;
 
-  return Boards::getCapability(board, Board::Switches);
+  //return Boards::getCapability(board, Board::Switches);
+  if (IS_TARANIS_X9E(board))
+    return 18;
+  else if (board == Board::BOARD_TARANIS_X9LITE)
+    return 5;
+  else if (board == Board::BOARD_TARANIS_X9LITES)
+    return 7;
+  else if (board == BOARD_TARANIS_X7_ACCESS)
+    return 7;
+  else if (board == BOARD_TARANIS_X7)
+    return 8;
+  else if (board == BOARD_JUMPER_TLITE || board == BOARD_JUMPER_TLITE_F4 ||
+           board == BOARD_JUMPER_TPRO || board == BOARD_BETAFPV_LR3PRO ||
+           board == BOARD_IFLIGHT_COMMANDO8)
+    return 4;
+  else if (board == BOARD_FLYSKY_NV14)
+    return 8;
+  else if (board == BOARD_RADIOMASTER_TX12_MK2 || board == BOARD_RADIOMASTER_BOXER)
+    return 6;
+  else if (IS_FAMILY_T12(board))
+    return 8;
+  else if (IS_TARANIS_XLITE(board))
+    return 6;
+  else if (board == Board::BOARD_TARANIS_X9DP_2019)
+    return 9;
+  else if (IS_TARANIS(board))
+    return 8;
+  else if (IS_FAMILY_HORUS_OR_T16(board))
+    return 10;
+  else
+    return 7;
 }
 
 inline int MAX_SWITCHES_SOURCE(Board::Type board, int version)
 {
-  if (IS_JUMPER_TPRO(board))  // 10 switches are allocated in EEprom but 6 are reserved for FS
-  return Boards::getCapability(board, Board::Switches);
-  else
+  //if (IS_JUMPER_TPRO(board))  // 10 switches are allocated in EEprom but 6 are reserved for FS
+  //return Boards::getCapability(board, Board::Switches);
+  //else
     return MAX_SWITCHES(board, version);
 }
 
 inline int MAX_SWITCHES_POSITION(Board::Type board, int version)
 {
-    if (IS_JUMPER_TPRO(board))
-    return Boards::getCapability(board, Board::SwitchesPositions);
-  else if (IS_HORUS_OR_TARANIS(board))
+    //if (IS_JUMPER_TPRO(board))
+    //return Boards::getCapability(board, Board::SwitchesPositions);
+  //else
+  if (IS_HORUS_OR_TARANIS(board) || IS_FLYSKY_NV14(board))
     return MAX_SWITCHES(board, version) * 3;
-  else
-    return Boards::getCapability(board, Board::SwitchesPositions);
+  else {
+    //return Boards::getCapability(board, Board::SwitchesPositions);
+    //if (IS_HORUS_OR_TARANIS(board) || IS_FLYSKY_NV14(board))
+    //  return getCapability(board, Board::Switches) * 3;
+    //else
+      return 9;
   }
+}
 
 inline int MAX_FUNCTIONSWITCHES(Board::Type board, int version)
 {
-  return Boards::getCapability(board, Board::FunctionSwitches);
+  //return Boards::getCapability(board, Board::FunctionSwitches);
+  return (IS_JUMPER_TPRO(board) ? 6 : 0);
 }
 
 inline int MAX_FUNCTIONSWITCHES_POSITION(Board::Type board, int version)
 {
-  return Boards::getCapability(board, Board::NumFunctionSwitchesPositions);
+  //return Boards::getCapability(board, Board::NumFunctionSwitchesPositions);
+  return MAX_FUNCTIONSWITCHES(board, version) * 3;
 }
 
 inline int POTS_CONFIG_SIZE(Board::Type board, int version)
@@ -102,7 +140,26 @@ inline int MAX_POTS(Board::Type board, int version)
     return 5;
   if (IS_FAMILY_T12(board))
     return 2;
-  return Boards::getCapability(board, Board::Pots);
+
+  //return Boards::getCapability(board, Board::Pots);
+  if (IS_TARANIS_X9LITE(board))
+    return 1;
+  else if (IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board))
+    return 0;
+  else if (IS_RADIOMASTER_BOXER(board))
+    return 3;
+  else if (IS_TARANIS_SMALL(board) || IS_JUMPER_TPRO(board))
+    return 2;
+  else if (IS_TARANIS_X9E(board))
+    return 4;
+  else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board))
+    return 7;
+  else if (IS_HORUS_X12S(board))
+    return 3;
+  else if (IS_FLYSKY_NV14(board))
+    return 2;
+  else
+    return 3;
 }
 
 inline int MAX_FUNCTION_SWITCHES(Board::Type board, int version)
@@ -120,7 +177,8 @@ inline int MAX_POTS_STORAGE(Board::Type board, int version)
     return 5;
   if (IS_FAMILY_T12(board))
     return 2;
-  return Boards::getCapability(board, Board::Pots);
+  //return Boards::getCapability(board, Board::Pots);
+  return MAX_POTS(board, version);
 }
 
 inline int MAX_POTS_SOURCES(Board::Type board, int version)
@@ -131,7 +189,8 @@ inline int MAX_POTS_SOURCES(Board::Type board, int version)
     return 5;
   if (IS_FAMILY_T12(board))
     return 2;
-  return Boards::getCapability(board, Board::Pots);
+  //return Boards::getCapability(board, Board::Pots);
+  return MAX_POTS(board, version);
 }
 
 inline int MAX_XPOTS(Board::Type board, int version)
@@ -142,21 +201,40 @@ inline int MAX_XPOTS(Board::Type board, int version)
     return 5;
   if (IS_FAMILY_T12(board))
     return 2;
-  return Boards::getCapability(board, Board::MultiposPots);
+  //return Boards::getCapability(board, Board::MultiposPots);
+  if (IS_HORUS_OR_TARANIS(board) && !IS_FLYSKY_NV14(board)) {
+    //return getCapability(board, Board::Pots);
+    return MAX_POTS(board, version);
+  }
+  else
+    return 0;
+
 }
 
 inline int MAX_SLIDERS_STORAGE(Board::Type board, int version)
 {
   if (version >= 219 && (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_PL18(board)))
     return 4;
-  return Boards::getCapability(board, Board::Sliders);
+  //return Boards::getCapability(board, Board::Sliders);
+  if (IS_HORUS_X12S(board) || IS_TARANIS_X9E(board))
+    return 4;
+  else if (IS_TARANIS_X9D(board) || IS_HORUS_X10(board) || IS_FAMILY_T16(board))
+    return 2;
+  else
+    return 0;
 }
 
 inline int MAX_SLIDERS_SOURCES(Board::Type board, int version)
 {
   if (version <= 218 && IS_FAMILY_HORUS_OR_T16(board))
     return 2;
-  return Boards::getCapability(board, Board::Sliders);
+  //return Boards::getCapability(board, Board::Sliders);
+  if (IS_HORUS_X12S(board) || IS_TARANIS_X9E(board))
+    return 4;
+  else if (IS_TARANIS_X9D(board) || IS_HORUS_X10(board) || IS_FAMILY_T16(board))
+    return 2;
+  else
+    return 0;
 }
 
 inline int SLIDERS_CONFIG_SIZE(Board::Type board, int version)
@@ -196,7 +274,11 @@ inline int MAX_GYRO_ANALOGS(Board::Type board, int version)
       return 0;
   }
 
-  return Boards::getCapability(board, Board::GyroAxes);
+  //return Boards::getCapability(board, Board::GyroAxes);
+  if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board))
+    return 2;
+  else
+    return 0;
 }
 
 #define MAX_ROTARY_ENCODERS(board)            0
@@ -204,7 +286,16 @@ inline int MAX_GYRO_ANALOGS(Board::Type board, int version)
 #define MAX_TIMERS(board, version)            3
 #define MAX_MIXERS(board, version)            64
 #define MAX_CHANNELS(board, version)          32
-#define MAX_TRIMS(board)                      (Boards::getCapability(board, Board::NumTrims))
+//#define MAX_TRIMS(board)                      (Boards::getCapability(board, Board::NumTrims))
+inline int MAX_TRIMS(Board::Type board)
+{
+  if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board))
+    return 6;
+  else if (IS_IFLIGHT_COMMANDO8(board))
+    return 0;
+  else
+    return 4;
+}
 #define MAX_EXPOS(board, version)             (IS_HORUS_OR_TARANIS(board) ? 64 : 32)
 #define MAX_LOGICAL_SWITCHES(board, version)  (version >= 218 ? 64 : 32)
 #define MAX_CUSTOM_FUNCTIONS(board, version)  64
@@ -385,6 +476,19 @@ class SourcesConversionTable: public ConversionTable {
           offset += 2;
         if (version <= 220 && (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) && i >= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
           offset += 2;
+
+        //  ADC refactor shuffle of LS RS EXT1 and EXT2
+        if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
+          if (i > CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) - MAX_SLIDERS_SOURCES(board, version) &&
+              i < CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
+            offset += 2;
+          else if (i > CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) &&
+                   i <= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) + MAX_SLIDERS_SOURCES(board, version))
+            offset -= 4;
+          else if (i > CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) + MAX_SLIDERS_SOURCES(board, version))
+            offset -= 2;
+        }
+        //  end ADC refactor shuffle of LS RS EXT1 and EXT2
 
         addConversion(RawSource(SOURCE_TYPE_STICK, i + offset), val++);
       }
