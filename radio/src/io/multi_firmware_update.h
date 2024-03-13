@@ -81,9 +81,19 @@ class MultiFirmwareInformation
 
     bool isMultiExternalFirmware() const
     {
-      return ((telemetryInversion || boardType == FIRMWARE_MULTI_STM) &&
-              optibootSupport && bootloaderCheck &&
-              telemetryType == FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY);
+      switch(boardType) {
+        case FIRMWARE_MULTI_STM:
+        case FIRMWARE_MULTI_AVR:
+          return (telemetryInversion && optibootSupport && bootloaderCheck &&
+                  telemetryType == FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY );
+
+        case FIRMWARE_MULTI_ORX:
+          return (telemetryInversion && bootloaderCheck &&
+                  telemetryType == FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY );
+
+        default:
+          return false;
+      }
     }
 
     const char * readMultiFirmwareInformation(const char * filename);
