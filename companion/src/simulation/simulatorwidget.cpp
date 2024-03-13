@@ -907,15 +907,15 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
     emit stickValueChange(stick, stickval);
   }
   else {
-    stick -= ttlSticks;
-    if (stick < ttlKnobs) {
-      GeneralSettings radioSettings = GeneralSettings();
-      if (Board::PotType(radioSettings.potConfig[stick]) == Board::POT_MULTIPOS_SWITCH)
-        stickval += 1024;
-      emit widgetValueChange(RadioWidget::RADIO_WIDGET_KNOB, stick, stickval);
-    } else {
-      stick -= ttlKnobs;
-      emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick, stickval);
+    GeneralSettings radioSettings = GeneralSettings();
+    if (radioSettings.isInputAvailable(stick)) {
+      if (radioSettings.isInputPot(stick)) {
+        if (radioSettings.inputConfig[stick].flexType == Board::FlexType::FLEX_MULTIPOS)
+          stickval += 1024;
+        emit widgetValueChange(RadioWidget::RADIO_WIDGET_KNOB, stick, stickval);
+      } else if (radioSettings.isInputSlider(stick)) {
+        emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick, stickval);
+      }
     }
   }
 
