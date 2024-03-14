@@ -502,19 +502,6 @@ class SourcesConversionTable: public ConversionTable {
         }
         //  end ADC refactor shuffles
 
-        //  ADC refactor shuffle of LS RS EXT1 and EXT2
-        if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
-          if (i > CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) - MAX_SLIDERS_SOURCES(board, version) &&
-              i < CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
-            offset += 2;
-          else if (i > CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) &&
-                   i <= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) + MAX_SLIDERS_SOURCES(board, version))
-            offset -= 4;
-          else if (i > CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) + MAX_SLIDERS_SOURCES(board, version))
-            offset -= 2;
-        }
-        //  end ADC refactor shuffle of LS RS EXT1 and EXT2
-
         addConversion(RawSource(SOURCE_TYPE_STICK, i + offset), val++);
 //        qDebug() << "i:" << i << "offset:" << offset << "index:" << i + offset << "desc:" << RawSource(SOURCE_TYPE_STICK, i + offset).toString() << "val:" << val;
       }
