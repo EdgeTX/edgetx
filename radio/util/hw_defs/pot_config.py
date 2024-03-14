@@ -32,6 +32,13 @@ POT_CONFIG = {
         "EXT3": {"default": "MULTIPOS"},
         "EXT4": {"default": "MULTIPOS"}
     },
+    "v16": {
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "MULTIPOS"},
+        "P3": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
+    },
     "mt12": {
         "P1": {"default": "POT"},
         "P2": {"default": "POT"},

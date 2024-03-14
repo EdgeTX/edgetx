@@ -50,6 +50,10 @@
   #define USB_NAME                     "FrSky X10"
   #define USB_MANUFACTURER             'F', 'r', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'X', '1', '0', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#elif defined(RADIO_V16)
+  #define USB_NAME                     "HelloRadioSky V16"
+  #define USB_MANUFACTURER             'H', 'R', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'V', '1', '6', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
 #endif
 
 #endif // _USB_DESCRIPTOR_H_

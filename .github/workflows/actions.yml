@@ -106,6 +106,7 @@ jobs:
           - tx12;tx12mk2;boxer
           - tx16s
           - f16
+          - v16
           - x10;x10-access
           - x12s
           - x7;x7-access

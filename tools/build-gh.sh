@@ -218,6 +218,9 @@ do
         pl18ev)
             BUILD_OPTIONS+="-DPCB=PL18 -DPCBREV=PL18EV"
             ;;
+        v16)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=V16"
+            ;;
         commando8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
             ;;
