@@ -566,7 +566,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"t20"},
+        "targets": {"t20","t20v2"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",

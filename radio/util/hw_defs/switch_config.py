@@ -177,6 +177,20 @@ SWITCH_CONFIG = {
         "SH": {"default": "TOGGLE", "display": [1, 3]},
         "SJ": {"default": "TOGGLE", "display": [1, 4]}
     },
+    "t20v2": {
+        # left side
+        "SA": {"default": "2POS",   "display": [0, 0]},
+        "SC": {"default": "3POS",   "display": [0, 1]},
+        "SE": {"default": "2POS",   "display": [0, 2]},
+        "SG": {"default": "TOGGLE", "display": [0, 3]},
+        "SI": {"default": "TOGGLE", "display": [0, 4]},
+        # right side
+        "SB": {"default": "2POS",   "display": [1, 0]},
+        "SD": {"default": "3POS",   "display": [1, 1]},
+        "SF": {"default": "2POS",   "display": [1, 2]},
+        "SH": {"default": "TOGGLE", "display": [1, 3]},
+        "SJ": {"default": "TOGGLE", "display": [1, 4]}
+    },
     "tx12": {
         # left side
         "SA": {"default": "TOGGLE", "display": [0, 0]},
