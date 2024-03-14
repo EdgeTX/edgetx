@@ -184,6 +184,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_BETAFPV_LR3PRO:
     case BOARD_IFLIGHT_COMMANDO8:
     case BOARD_JUMPER_T12:
+    case BOARD_JUMPER_T14:
     case BOARD_JUMPER_T20:
     case BOARD_JUMPER_T20V2:
     case BOARD_JUMPER_TLITE:
@@ -235,6 +236,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_BETAFPV_LR3PRO:
     case BOARD_IFLIGHT_COMMANDO8:
     case BOARD_JUMPER_T12:
+    case BOARD_JUMPER_T14:
     case BOARD_JUMPER_T20:
     case BOARD_JUMPER_T20V2:
     case BOARD_JUMPER_TLITE:
@@ -529,6 +531,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Jumper T-Pro";
     case BOARD_JUMPER_TPROV2:
       return "Jumper T-Pro V2";
+    case BOARD_JUMPER_T14:
+      return "Jumper T14";
     case BOARD_JUMPER_T16:
       return "Jumper T16";
     case BOARD_JUMPER_T18:
@@ -664,6 +668,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_RADIOMASTER_POCKET:
   case BOARD_RADIOMASTER_TX12_MK2:
   case BOARD_IFLIGHT_COMMANDO8:
+  case BOARD_JUMPER_T14:
   case BOARD_JUMPER_T20:
   case BOARD_JUMPER_T20V2:
     return (int)MODULE_TYPE_CROSSFIRE;
