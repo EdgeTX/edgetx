@@ -51,7 +51,7 @@
 
 #define TR_AUX_SERIAL_MODES            "调试","回传镜像","回传输入","SBUS教练","LUA脚本","CLI","GPS","Debug","SpaceMouse","外置发射"
 #define TR_SWTYPES                     "无","回弹","2段","3段"
-#define TR_POTTYPES                    "无","无中点旋钮","有中点旋钮","侧滑块","多段旋钮","Axis X","Axis Y","Switch"
+#define TR_POTTYPES                    "无","无中点旋钮",TR("中点旋钮","有中点旋钮"),"侧滑块",TR("多段","多段按键"),"X 轴","Y 轴","开关"
 #define TR_VPERSISTENT                 "禁用","随飞行记录复位","随手动复位"
 #define TR_COUNTRY_CODES               "美国","日本","欧洲"
 #define TR_USBMODES                    "询问","游戏柄","U盘","串行"
@@ -89,7 +89,7 @@
 #define TR_SF_FAILSAFE                 "设置失控保护"
 #define TR_SF_RANGE_CHECK              "测距模式"
 #define TR_SF_MOD_BIND                 "模块对频"
-#define TR_SF_RGBLEDS                  "RGB leds"
+#define TR_SF_RGBLEDS                  "RGB led灯"
 
 #define TR_SOUND                       "播放声音"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "播放音频文件")
@@ -161,16 +161,16 @@
 #define TR_HATSOPT                     "微调","导航键","可切换","全局"
 #define TR_HATSMODE_TRIMS              "按键帽: 微调"
 #define TR_HATSMODE_KEYS               "按键帽: 导航键"
-#define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
-                                       "   Right = MDL\n"\
-                                       "   Up = SYS\n"\
-                                       "   Down = TELE\n"\
+#define TR_HATSMODE_KEYS_HELP          "左侧按键帽:\n"\
+                                       "   右 = MDL\n"\
+                                       "   上 = SYS\n"\
+                                       "   下 = TELE\n"\
                                        "\n"\
-                                       "Right side:\n"\
-                                       "   Left = PAGE<\n"\
-                                       "   Right = PAGE>\n"\
-                                       "   Up = PREV/INC\n"\
-                                       "   Down = NEXT/DEC"
+                                       "右侧按键帽:\n"\
+                                       "   左 = PAGE<\n"\
+                                       "   右 = PAGE>\n"\
+                                       "   上 = PREV/INC\n"\
+                                       "   下 = NEXT/DEC"
 #endif
 
 #if defined(COLORLCD)
@@ -389,7 +389,7 @@
 #define TR_ADJUST_RTC                  "时钟设置"
 #define TR_GPS                         "GPS"
 #define TR_DEF_CHAN_ORD                TR("通道顺序", "默认通道顺序")
-#define TR_STICKS                      "摇杆"
+#define TR_STICKS                      "摇杆(轴)"
 #define TR_POTS                        "电位器"
 #define TR_SWITCHES                    "开关"
 #define TR_SWITCHES_DELAY              TR("开关经过延时", "延时播放(开关经过)")
@@ -401,18 +401,23 @@
 #define TR_VTRIM                       "微调-+"
 #define TR_CALIB_DONE                  "校准完成"
 #if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "按[Enter]键开始"
-  #define TR_SETMIDPOINT               "将摇杆、旋钮、滑块居中后按[Enter]开始"
-  #define TR_MOVESTICKSPOTS            "转动摇杆、旋钮、滑块到最大边界后按[Enter]结束"
+  #define TR_MENUTOSTART               "按[Enter]键开始校准"
+  #define TR_SETMIDPOINT               "校准中点：摇杆(轴)、旋钮、滑块，按[Enter]保存"
+  #define TR_MOVESTICKSPOTS            "校准边界：摇杆(轴)、旋钮、滑块，按[Enter]保存并完成"
 #elif defined(COLORLCD)
   #define TR_MENUTOSTART               "按[Enter]键开始"
-  #define TR_SETMIDPOINT               "将摇杆、旋钮、滑块居中后按[Enter]开始"
-  #define TR_MOVESTICKSPOTS            "转动摇杆、旋钮、滑块到最大边界后按[Enter]结束"
+  #define TR_SETMIDPOINT               "校准中点，按[Enter]保存"
+  #define TR_MOVESTICKSPOTS            "校准边界，按[Enter]保存并完成"
 #else
-  #define TR_MENUTOSTART               CENTER "\010按[Enter]键开始"
-  #define TR_SETMIDPOINT               TR(CENTER "\004摇杆、旋钮和滑块居中", CENTER "\004摇杆、旋钮和滑块居中")
-  #define TR_MOVESTICKSPOTS            CENTER "\006摇杆、旋钮和滑块最大边界"
-  #define TR_MENUWHENDONE              CENTER "\006按[Enter]键完成"
+  #define TR_MENUTOSTART               CENTER "\010按" TR_ENTER " 开始"
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT               CENTER "\006校准中点"
+  #define TR_MOVESTICKSPOTS            CENTER "\002校准边界"
+#else
+  #define TR_SETMIDPOINT               TR(CENTER "\006校准中点", CENTER "\004校准中点")
+  #define TR_MOVESTICKSPOTS            CENTER "\007校准边界"
+#endif
+  #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " 完成"
 #endif
 #define TR_TXnRX                       "Tx:\0Rx:"
 #define OFS_RX                         4
@@ -482,8 +487,8 @@
 #define TR_MENUMODELSEL                TR("模型选择", "模型选择")
 #define TR_MENU_MODEL_SETUP            TR("模型设置", "模型设置")
 #if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES           "DRIVE MODES"
-  #define TR_MENUFLIGHTMODE            "DRIVE MODE"
+  #define TR_MENUFLIGHTMODES           "驾驶模式"
+  #define TR_MENUFLIGHTMODE            "驾驶模式"
 #else
   #define TR_MENUFLIGHTMODES           "飞行模式设置"
   #define TR_MENUFLIGHTMODE            "飞行模式"
@@ -616,8 +621,8 @@
 #define TR_MENU_MODULES_RX_VERSION     "模块/接收机版本"
 #define TR_MENU_FIRM_OPTIONS           "固件选项"
 #define TR_IMU                         "陀螺仪"
-#define TR_STICKS_POTS_SLIDERS         "摇杆/旋钮/滑块"
-#define TR_PWM_STICKS_POTS_SLIDERS     "PWM 摇杆/旋钮/滑块"
+#define TR_STICKS_POTS_SLIDERS         "摇杆(轴)/旋钮/滑块"
+#define TR_PWM_STICKS_POTS_SLIDERS     "PWM摇杆(轴)/旋钮/滑块"
 #define TR_RF_PROTOCOL                 "射频协议"
 #define TR_MODULE_OPTIONS              "选项"
 #define TR_POWER                       "功率"
@@ -707,12 +712,12 @@
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "快速选择模型"
-  #define TR_LABELS_SELECT             "Label select"
-  #define TR_LABELS_MATCH              "Label matching"
-  #define TR_FAV_MATCH                 "Favorites matching"
-  #define TR_LABELS_SELECT_MODE        "Multi select","Single select"
-  #define TR_LABELS_MATCH_MODE         "Match all","Match any"
-  #define TR_FAV_MATCH_MODE            "Must match","Optional match"
+  #define TR_LABELS_SELECT             "标签类型选择"
+  #define TR_LABELS_MATCH              "标签匹配类型"
+  #define TR_FAV_MATCH                 "收藏夹匹配类型"
+  #define TR_LABELS_SELECT_MODE        "复选项","单选项"
+  #define TR_LABELS_MATCH_MODE         "全部匹配","任意匹配"
+  #define TR_FAV_MATCH_MODE            "必须匹配","可选匹配"
 #endif
 
 #define TR_SELECT_TEMPLATE_FOLDER      "选择一个模板文件夹:"
@@ -816,7 +821,7 @@
 #define TR_JACK_MODE                   "教练插口模式"
 #define TR_VOICE_LANGUAGE              "播报语言"
 #define TR_UNITS_SYSTEM                "单位"
-#define TR_UNITS_PPM                   "PPM Units"
+#define TR_UNITS_PPM                   "PPM 单位"
 #define TR_EDIT                        "编辑"
 #define TR_INSERT_BEFORE               "在本条前插入"
 #define TR_INSERT_AFTER                "在本条后插入"
@@ -827,7 +832,7 @@
 #define TR_PASTE_BEFORE                "粘贴到本条之前"
 #define TR_DELETE                      "删除"
 #define TR_INSERT                      "插入"
-#define TR_RESET_FLIGHT                "复位飞行记录"
+#define TR_RESET_FLIGHT                "复位飞行数据"
 #define TR_RESET_TIMER1                "复位计时器1"
 #define TR_RESET_TIMER2                "复位计时器2"
 #define TR_RESET_TIMER3                "复位计时器3"
@@ -888,7 +893,7 @@
 #define TR_INTERVAL                    "间隔"
 #define TR_REPEAT                      "循环"
 #define TR_ENABLE                      "启用"
-#define TR_DISABLE                     "Disable"
+#define TR_DISABLE                     "禁用"
 #define TR_TOPLCDTIMER                 "Top LCD Timer"
 #define TR_UNIT                        "单位"
 #define TR_TELEMETRY_NEWSENSOR         INDENT "添加新传感器..."
@@ -930,9 +935,9 @@
 #define TR_MIXSOURCE                   "混控源"
 #define TR_CONSTANT                    "固定值"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "关闭","开启","自动"
-#define TR_PREFLIGHT                   "初始位置检查"
+#define TR_PREFLIGHT                   "初始检查"
 #define TR_CHECKLIST                   TR(INDENT "显示列表", INDENT "显示列表")
-#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "C-Interact", INDENT "Interact. checklist", INDENT "Interactive checklist")
+#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "检查列表", INDENT "自定义检查列表", INDENT "自定义检查列表")
 #define TR_AUX_SERIAL_MODE             "串口"
 #define TR_AUX2_SERIAL_MODE            "串口 2"
 #define TR_AUX_SERIAL_PORT_POWER       "串口供电"
@@ -1132,7 +1137,7 @@
 #define TR_TEXT_VIEWER                 "文本视图"
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "输入"
 #define TR_MENU_LUA                    STR_CHAR_LUA "LUA脚本"
-#define TR_MENU_STICKS                 STR_CHAR_STICK "摇杆"
+#define TR_MENU_STICKS                 STR_CHAR_STICK "摇杆(轴)"
 #define TR_MENU_POTS                   STR_CHAR_POT "旋钮"
 #define TR_MENU_MIN                    STR_CHAR_FUNCTION "最小"
 #define TR_MENU_MAX                    STR_CHAR_FUNCTION "最大"
@@ -1231,7 +1236,7 @@
 #define TR_VOICE_TAIWANESE            "中文-台湾国语"
 #define TR_VOICE_JAPANESE             "日文"
 #define TR_VOICE_HEBREW               "希伯来语"
-#define TR_VOICE_UKRAINIAN               "Ukrainian"
+#define TR_VOICE_UKRAINIAN            "乌克兰语"
 
 #define TR_USBJOYSTICK_LABEL           "USB 游戏柄"
 #define TR_USBJOYSTICK_EXTMODE         "模式"
@@ -1269,12 +1274,12 @@
 #define TR_RADIO_MENU_TABS        "系统功能选项卡"
 #define TR_MODEL_MENU_TABS        "模型功能选项卡"
 
-#define TR_SELECT_MENU_ALL        "All"
-#define TR_SELECT_MENU_CLR        "Clear"
-#define TR_SELECT_MENU_INV        "Invert"
+#define TR_SELECT_MENU_ALL        "全部"
+#define TR_SELECT_MENU_CLR        "清除"
+#define TR_SELECT_MENU_INV        "反向"
 
 #define TR_SORT_ORDERS            "名称 A-Z","名称 Z-A","不常用","常用"
 #define TR_SORT_MODELS_BY         "排序"
 #define TR_CREATE_NEW             "新建"
 
-#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
+#define TR_MIX_SLOW_PREC          TR("慢放精度", "慢放精度 上行/下行")
