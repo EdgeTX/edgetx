@@ -145,11 +145,11 @@ SWITCH_CONFIG = {
         # left side
         "SA": {"default": "3POS",   "display": [0, 0]},
         "SC": {"default": "TOGGLE", "display": [0, 1]},
-        "SE": {"default": "TOGGLE", "display": [0, 2]},
+        "SE": {"default": "NONE",   "display": [0, 2]},
         # right side
         "SB": {"default": "3POS",   "display": [1, 0]},
         "SD": {"default": "TOGGLE", "display": [1, 1]},
-        "SF": {"default": "TOGGLE", "display": [1, 2]},
+        "SF": {"default": "NONE",   "display": [1, 2]},
     },
     "tprov2": {
         # left side
