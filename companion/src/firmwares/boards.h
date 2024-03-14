@@ -61,6 +61,7 @@ namespace Board {
     BOARD_TARANIS_X9LITE,
     BOARD_TARANIS_X9LITES,
     BOARD_JUMPER_T12,
+    BOARD_JUMPER_T14,
     BOARD_JUMPER_T16,
     BOARD_RADIOMASTER_TX16S,
     BOARD_JUMPER_T18,
@@ -438,6 +439,11 @@ inline bool IS_JUMPER_T16(Board::Type board)
   return board == Board::BOARD_JUMPER_T16;
 }
 
+inline bool IS_JUMPER_T14(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T14;
+}
+
 inline bool IS_JUMPER_T18(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T18;
@@ -492,6 +498,7 @@ inline bool IS_FAMILY_T16(Board::Type board)
 inline bool IS_FAMILY_T12(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T12 ||
+         board == Board::BOARD_JUMPER_T14 ||
          board == Board::BOARD_JUMPER_T20 ||
          board == Board::BOARD_JUMPER_T20V2 ||
          board == Board::BOARD_JUMPER_TLITE ||
