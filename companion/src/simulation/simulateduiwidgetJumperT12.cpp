@@ -14,7 +14,7 @@ SimulatedUIWidgetJumperT12::SimulatedUIWidgetJumperT12(SimulatorInterface *simul
   act = new RadioUiAction(6, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP);
   addRadioWidget(ui->rightbuttons->addArea(QRect(69, 11, 60, 25), "JumperT12/right_up.png", act));
 
-  act = new RadioUiAction(6, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN);
+  act = new RadioUiAction(7, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN);
   addRadioWidget(ui->rightbuttons->addArea(QRect(61, 115, 60, 25), "JumperT12/right_down.png", act));
 
   act = new RadioUiAction(9, QList<int>() << Qt::Key_Right << Qt::Key_Plus, SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS);
