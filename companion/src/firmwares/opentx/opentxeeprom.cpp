@@ -470,27 +470,40 @@ class SourcesConversionTable: public ConversionTable {
         }
       }
 
-      for (int i=0; i<CPN_MAX_STICKS + MAX_POTS_SOURCES(board, version) + MAX_SLIDERS_SOURCES(board, version) + MAX_MOUSE_ANALOG_SOURCES(board, version) + MAX_GYRO_ANALOGS(board, version); i++) {
+//      qDebug() << "bd:" << Boards::getBoardName(board)
+//               << "ptsrc:" << MAX_POTS_SOURCES(board, version) << "ptstore:" << MAX_POTS_STORAGE(board, version)
+//               << "slsrcs:" << MAX_SLIDERS_SOURCES(board, version) << "slstore:" << MAX_SLIDERS_STORAGE(board, version)
+//               << "ms:" << MAX_MOUSE_ANALOG_SOURCES(board, version)
+//               << "gyro:" << MAX_GYRO_ANALOGS(board, version);
+
+      for (int i = 0; i < CPN_MAX_STICKS +
+                          MAX_POTS_SOURCES(board, version) +
+                          MAX_SLIDERS_SOURCES(board, version) +
+                          MAX_MOUSE_ANALOG_SOURCES(board, version) +
+                          MAX_GYRO_ANALOGS(board, version); i++) {
         int offset = 0;
         if (version <= 218 && IS_HORUS_X10(board) && i >= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
           offset += 2;
-        if (version <= 220 && (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) && i >= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
-          offset += 2;
+        //if (version <= 220 && (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) && i >= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
+        //  offset += 2;
 
-        //  ADC refactor shuffle of LS RS EXT1 and EXT2
-        if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
-          if (i > CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) - MAX_SLIDERS_SOURCES(board, version) &&
-              i < CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
+        //  ADC refactor shuffles
+        if (IS_FAMILY_HORUS_OR_T16(board)) {
+          if (i >= 7 && i <= 8)
             offset += 2;
-          else if (i > CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) &&
-                   i <= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) + MAX_SLIDERS_SOURCES(board, version))
-            offset -= 4;
-          else if (i > CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version) + MAX_SLIDERS_SOURCES(board, version))
+          else if (i >= 9 && i <= 10)
             offset -= 2;
         }
-        //  end ADC refactor shuffle of LS RS EXT1 and EXT2
+        else if (IS_TARANIS_X9E(board)) {
+          if (i == 6)
+            offset -= 2;  // F3 -> F1 as F3 dropped at version 2.?? and F3 not on factory radio or included in radio hw json
+          else if (i >= 10 && i <= 11)  // this range could be affected if F3 dropped whilst still supporting binaries
+            offset -= 4;
+        }
+        //  end ADC refactor shuffles
 
         addConversion(RawSource(SOURCE_TYPE_STICK, i + offset), val++);
+//        qDebug() << "i:" << i << "offset:" << offset << "index:" << i + offset << "desc:" << RawSource(SOURCE_TYPE_STICK, i + offset).toString() << "val:" << val;
       }
 
       for (int i=0; i<MAX_ROTARY_ENCODERS(board); i++) {
@@ -2674,7 +2687,7 @@ class ZonePersistentDataField: public StructField {
       StructField(this, "Zone Persistent")
     {
       Append(new CharField<WIDGET_NAME_LEN>(this, persistentData.widgetName, "Widget name"));
-      Append(new SpareBitsField<16>(this));   //  pad to word boundary
+      //Append(new SpareBitsField<16>(this));   //  pad to word boundary
       Append(new WidgetPersistentDataField(this, persistentData.widgetData, board, version));
     }
 };
@@ -2961,7 +2974,7 @@ OpenTxModelData::OpenTxModelData(ModelData & modelData, Board::Type board, unsig
   }
 
   if (IS_FAMILY_HORUS_OR_T16(board)) {
-    if (version >= 220) {  //  data from earlier versions cannot be converted so fields initialised in afterImport
+    if (version > 220) {  //  data from earlier versions cannot be converted so fields initialised in afterImport
       for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
         internalField.Append(new CustomScreenField(this, modelData.customScreens.customScreenData[i], board, version));
       }
@@ -3041,7 +3054,7 @@ void OpenTxModelData::afterImport()
     }
     modelData.switchWarningStates = newSwitchWarningStates;
 
-    if (version < 220) {  //  re-initialise as no conversion possible
+    if (version <= 220) {  //  re-initialise as no conversion possible
       const char * layoutId = "Layout2P1";  // currently all using same default though might change for NV14
       RadioLayout::init(layoutId, modelData.customScreens);
       modelData.topBarData = TopBarPersistentData();
