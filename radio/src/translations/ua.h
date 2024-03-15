@@ -167,6 +167,16 @@
 #define TR_HATSOPT                     "Тільки Трим.","Тільки Кнопки","Перемик.","Global"	/* for untranslated - use english */
 #define TR_HATSMODE_TRIMS              "Hats mode: Трим."
 #define TR_HATSMODE_KEYS               "Hats mode: Кнопки"
+#define TR_HATSMODE_KEYS_HELP          "Ліва сторона:\n"\
+                                       "   Праворуч = MDL\n"\
+                                       "   Вгору = SYS\n"\
+                                       "   Вниз = TELE\n"\
+                                       "\n"\
+                                       "Права сторона:\n"\
+                                       "   Ліворуч = PAGE<\n"\
+                                       "   Праворуч = PAGE>\n"\
+                                       "   Вгору = PREV/INC\n"\
+                                       "   Вниз = NEXT/DEC"
 #endif
 
 #if defined(COLORLCD)
@@ -400,15 +410,20 @@
 #if defined(PCBHORUS)
   #define TR_MENUTOSTART               "Тисни [Enter] для старту"
   #define TR_SETMIDPOINT               "Центруй важіль/потенц./повзунки та тисни [Enter]"
-  #define TR_MOVESTICKSPOTS            "Рухай важелі/потенц./повзунки та тисни [Enter]"
+  #define TR_MOVESTICKSPOTS            "Рухайте вісі/потенц./повзунки та тисніть [Enter]"
 #elif defined(COLORLCD)
   #define TR_MENUTOSTART               TR_ENTER " ДЛЯ СТАРТУ"
   #define TR_SETMIDPOINT               "ЦЕНТРУВАТИ ВАЖЕЛІ/ПОВЗУНКИ"
-  #define TR_MOVESTICKSPOTS            "РУХАТИ ВІСІ/ПОТЕНЦ."
+  #define TR_MOVESTICKSPOTS            "РУХАЙТЕ ВІСІ/ПОТЕНЦ."
 #else
   #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " ДЛЯ СТАРТУ"
-  #define TR_SETMIDPOINT               TR(CENTER "\004ВСТАН ЦНТР ВАЖЕЛІВ", CENTER "\004ЦЕНТР ВАЖЕЛІ/ПОВЗУНКИ")
-  #define TR_MOVESTICKSPOTS            CENTER "\006РУХ ВІСЕЙ/ПОТЕНЦ."
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT               CENTER "\006ВІДЦЕНТР. ПОТЕНЦ."
+  #define TR_MOVESTICKSPOTS            CENTER "\002РУХАЙТЕ ST/TH/ПОТЕНЦ./ВІСІ"
+#else
+  #define TR_SETMIDPOINT               TR(CENTER "\006ВІДЦЕНТР. ВІСІ", CENTER "\004ВІДЦЕНТР. ВІСІ/ПОВЗУНКИ")
+  #define TR_MOVESTICKSPOTS            CENTER "\007РУХАЙТЕ ВІСІ/ПОТЕНЦ."
+#endif
   #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " КОЛИ ЗАКІНЧЕНО"
 #endif
 #define TR_TXnRX                       "Tx:\0Rx:"
@@ -612,9 +627,9 @@
 #define TR_SHOW_MIXER_MONITORS         "Показати монітори мікшеру"
 #define TR_MENU_MODULES_RX_VERSION     "МОДУЛІ / RX ВЕРСІЯ"
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE ОПЦІЇ"
-#define TR_IMU                        "IMU"
-#define TR_STICKS_POTS_SLIDERS         "Важелі/Потенц./Повзунки"
-#define TR_PWM_STICKS_POTS_SLIDERS     "PWM Важелі/Потенц./Повзунки"
+#define TR_IMU                         "IMU"
+#define TR_STICKS_POTS_SLIDERS         "Вісі/Потенц./Повзунки"
+#define TR_PWM_STICKS_POTS_SLIDERS     "PWM Вісі/Потенц./Повзунки"
 #define TR_RF_PROTOCOL                 "RF протокол"
 #define TR_MODULE_OPTIONS              "Опції модулю"
 #define TR_POWER                       "Потужність"
@@ -919,7 +934,7 @@
 #define TR_PT                          "шт"
 #define TR_PTS                         "штк"
 #define TR_SMOOTH                      "Плавно"
-#define TR_COPY_STICKS_TO_OFS          TR("Коп важ->обріз", "Копіюівати важелі до обрізання")
+#define TR_COPY_STICKS_TO_OFS          TR("Коп.вісі->обріз.", "Копіювати вісі до обрізання")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Коп min/max до всіх",  "Копіювати min/max/center до всіх виходів")
 #define TR_COPY_TRIMS_TO_OFS           TR("Коп трим->субтрим", "Копіювати трим до субтрим")
 #define TR_INCDEC                      "Збільш/Зменш"
@@ -927,7 +942,7 @@
 #define TR_MIXSOURCE                   "Джерело мікшеру"
 #define TR_CONSTANT                    "Постійна"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "OFF","ON","AUTO"
-#define TR_PREFLIGHT                   "Стартовий самотест"
+#define TR_PREFLIGHT                   "Стартові перевірки"
 #define TR_CHECKLIST                   TR(INDENT "Чекліст", INDENT "Чекліст Дисплею")
 #define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "Інт. спис.", INDENT "Інтеракт. список", INDENT "Інтерактивний список")
 #define TR_AUX_SERIAL_MODE             "Послідовний порт"
@@ -1262,4 +1277,4 @@
 #define TR_SORT_MODELS_BY         "Сортувати моделі за"
 #define TR_CREATE_NEW             "Створити"
 
-#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
+#define TR_MIX_SLOW_PREC          TR("Точн. уповільн.", "Точність уповільнення")

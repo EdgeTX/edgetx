@@ -52,7 +52,7 @@
 
 #define TR_AUX_SERIAL_MODES            "Выкл","Зерк телем","Телем вход","SBUS Тренаж","LUA","CLI","GPS","Отлад","SpaceMouse","Внеш модуль"
 #define TR_SWTYPES                     "Нет","тумбл","2Х-поз пер","3Х-поз пер"
-#define TR_POTTYPES                    "Нет","Пот",TR("Пот с шагом","Пот с шагом"),"Слайдер",TR("Многопоз","Многопоз тумблер"),"Ось X","Ось Y","Тумблер"
+#define TR_POTTYPES                    "None","Pot",TR("Pot w. det","Pot with detent"),"Slider",TR("Multipos","Multipos Switch"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                 "Выкл","Полет","Руч сброс"
 #define TR_COUNTRY_CODES               TR("US","США"),TR("JP","Япония"),TR("EU","Евро")
 #define TR_USBMODES                    "Выбор",TR("Джойс","Джойстик"),TR("SD-карта","Хранил"),"Серийн"
@@ -95,7 +95,7 @@
 #define TR_SF_FAILSAFE                 "Авар управ"
 #define TR_SF_RANGE_CHECK              "Пров диапаз"
 #define TR_SF_MOD_BIND                 "Bind модуль"
-#define TR_SF_RGBLEDS                  "RGB"
+#define TR_SF_RGBLEDS                  "RGB подсветка"
  
 #define TR_SOUND                       "Воспр звук"
 #define TR_PLAY_TRACK                  TR("Ply Trk","Воспр трек")
@@ -396,7 +396,7 @@
 #define TR_ADJUST_RTC                  "Настроить RTC"
 #define TR_GPS                         "GPS"
 #define TR_DEF_CHAN_ORD                TR("Пор. Кн. По Ум.", "Порядок кан по умолч")
-#define TR_STICKS                      "Стики"
+#define TR_STICKS                      "Axis"
 #define TR_POTS                        "Потенциом"
 #define TR_SWITCHES                    "Тумблеры"
 #define TR_SWITCHES_DELAY              TR("Зад воспр", "Задерж воспр (средн. полож. тумбл.)")
@@ -408,18 +408,23 @@
 #define TR_VTRIM                       "Трим - +"
 #define TR_CALIB_DONE                  "Калибровка заверш"
 #if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Надмите [Enter] для продолжения"
-  #define TR_SETMIDPOINT               "По центру стики/потен/тублеры и нажмите [Enter]"
-  #define TR_MOVESTICKSPOTS            "Двигайте стики/потен/тумблеры и нажмите [Enter]"
+  #define TR_MENUTOSTART               "Наж [Enter] для прод"
+  #define TR_SETMIDPOINT               "Выставить по центру стики/потенц/слайдеры и нажать [Enter]"
+  #define TR_MOVESTICKSPOTS            "Перемещ axis/потенц/слайдеры и нажать [Enter]"
 #elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " Начать"
-  #define TR_SETMIDPOINT               "Центрировать стики/тумблеры"
-  #define TR_MOVESTICKSPOTS            "Переместить стики/потенц"
+  #define TR_MENUTOSTART               TR_ENTER " СТАРТ"
+  #define TR_SETMIDPOINT               "ЦЕНТР AXIS/СЛАЙДЕРЫ"
+  #define TR_MOVESTICKSPOTS            "Перемещ AXIS/ПОТЕНЦ"
 #else
-  #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " Начать"
-  #define TR_SETMIDPOINT               TR(CENTER "\004УСТ СЕР СТИКОВ", CENTER "\004СЕРЕД СТИКОВ/ТУМБЛЕРОВ")
-  #define TR_MOVESTICKSPOTS            CENTER "\006ПЕРЕМ СТИКИ/ПОТЕНЦ"
-  #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " ПО ГОТОВН"
+  #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " СТАРТ"
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT               CENTER "\006ВЫБ СЕРЕД ПОТЕНЦ"
+  #define TR_MOVESTICKSPOTS            CENTER "\002ДВИГ ST/TH/POTS/AXIS"
+#else
+  #define TR_SETMIDPOINT               TR(CENTER "\006ВЫБ AXIS СЕРЕД", CENTER "\004ЦЕНТР AXIS/СЛАЙДЕРЫ")
+  #define TR_MOVESTICKSPOTS            CENTER "\007ДВИГ AXIS/Потенц"
+#endif
+  #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " ПО ОКОНЧАНИЮ"
 #endif
 #define TR_TXnRX                       "Tx:\0Rx:"
 #define OFS_RX                         4
@@ -623,8 +628,8 @@
 #define TR_MENU_MODULES_RX_VERSION     "МОДУЛИ / ВЕРСИЯ ПУЛЬТА"
 #define TR_MENU_FIRM_OPTIONS           "ОПЦИИ ПО"
 #define TR_IMU                         "IMU"
-#define TR_STICKS_POTS_SLIDERS         "Джойс/Потенц/Тублеры"
-#define TR_PWM_STICKS_POTS_SLIDERS     "PWM Джойс/Потенц/Тумблеры"
+#define TR_STICKS_POTS_SLIDERS         "Axis/Потенц/Слайдеры"
+#define TR_PWM_STICKS_POTS_SLIDERS     "PWM Axis/Потенц/Слайдеры"
 #define TR_RF_PROTOCOL                 "RF Протокол"
 #define TR_MODULE_OPTIONS              "Опции модуля"
 #define TR_POWER                       "Питание"
@@ -823,7 +828,7 @@
 #define TR_JACK_MODE                   "Режим разъема"
 #define TR_VOICE_LANGUAGE              "Язык озвучки"
 #define TR_UNITS_SYSTEM                "Единицы"
-#define TR_UNITS_PPM                   "PPM Единицы"
+#define TR_UNITS_PPM                   "PPM Един"
 #define TR_EDIT                        "Редактировать"
 #define TR_INSERT_BEFORE               "Вставить перед"
 #define TR_INSERT_AFTER                "Вставить после"
@@ -834,7 +839,7 @@
 #define TR_PASTE_BEFORE                "Вставить перед"
 #define TR_DELETE                      "Удалить"
 #define TR_INSERT                      "Вставить"
-#define TR_RESET_FLIGHT                "Сбросить полет"
+#define TR_RESET_FLIGHT                "Сброс сесии"
 #define TR_RESET_TIMER1                "Сбросить таймер1"
 #define TR_RESET_TIMER2                "Сбросить таймер2"
 #define TR_RESET_TIMER3                "Сбросить таймер3"
@@ -929,7 +934,7 @@
 #define TR_PT                          "Шт"
 #define TR_PTS                         "Штк"
 #define TR_SMOOTH                      "Плавно"
-#define TR_COPY_STICKS_TO_OFS          TR("Коп стики->субтрим", "Коп стики в субтрим")
+#define TR_COPY_STICKS_TO_OFS          TR("Копир стик->субтрим", "Копир axis в субтрим")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("Коп мин/макс во все вых", "Коп мин/макс/центр во все вых")
 #define TR_COPY_TRIMS_TO_OFS           TR("Коп трим->субтрим", "Коп тримы в субтрим")
 #define TR_INCDEC                      "Увел/Умен"
@@ -937,9 +942,9 @@
 #define TR_MIXSOURCE                   "Источник микшера"
 #define TR_CONSTANT                    "Постоянное значение"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Выкл","Вкл","Авто"
-#define TR_PREFLIGHT                   "Предполет проверки"
+#define TR_PREFLIGHT                   "Предстарт проверки"
 #define TR_CHECKLIST                   TR(INDENT "Контр список", INDENT "Контр список")
-#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "КС-Интерак", INDENT "Интер контр список", INDENT "Интерак список")
+#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "C-интерактив", INDENT "Интерактив checklist", INDENT "Интерактивный checklist")
 #define TR_AUX_SERIAL_MODE             "Послед порт"
 #define TR_AUX2_SERIAL_MODE            "Послед порт 2"
 #define TR_AUX_SERIAL_PORT_POWER       "Мощность порта"
@@ -1139,7 +1144,7 @@
 #define TR_TEXT_VIEWER                 "Текстовый"
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "Входы"
 #define TR_MENU_LUA                    STR_CHAR_LUA "Скрипты Lua"
-#define TR_MENU_STICKS                 STR_CHAR_STICK "Стики"
+#define TR_MENU_STICKS                 STR_CHAR_STICK "Axis"
 #define TR_MENU_POTS                   STR_CHAR_POT "Потенц"
 #define TR_MENU_MIN                    STR_CHAR_FUNCTION "Мин"
 #define TR_MENU_MAX                    STR_CHAR_FUNCTION "Макс"
@@ -1275,8 +1280,8 @@
 #define TR_MODEL_MENU_TABS        "Вкладки меню модели"
 
 #define TR_SELECT_MENU_ALL        "Все"
-#define TR_SELECT_MENU_CLR        "Нет"
-#define TR_SELECT_MENU_INV        "Инверт"
+#define TR_SELECT_MENU_CLR        "Очист"
+#define TR_SELECT_MENU_INV        "Перев"
 
 #define TR_SORT_ORDERS            "Имя A-Z","Имя Z-A","Редко испол","Часто испол"
 #define TR_SORT_MODELS_BY         "Сортировка моделей"

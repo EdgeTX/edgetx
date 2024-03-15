@@ -129,14 +129,14 @@ foreach(qm_file ${companion_QM} ${qt_QM} ${qtbase_QM})
 endforeach()
 configure_file(${COMPANION_SRC_DIRECTORY}/translations.qrc.in ${TRANSLATIONS_QRC} @ONLY)
 
-### Add optional "translations" target for updating .ts files
+### Add optional "companion_translations" target for updating .ts files
 if(QT_LUPDATE_EXECUTABLE)
   add_custom_target(companion_translations
     WORKING_DIRECTORY ${COMPANION_SRC_DIRECTORY}
-    COMMAND ${QT_LUPDATE_EXECUTABLE} ${CMAKE_SOURCE_DIR} -no-obsolete -ts ${companion_TS}
+    COMMAND ${QT_LUPDATE_EXECUTABLE} ${COMPANION_SRC_DIRECTORY} -no-obsolete -ts ${companion_TS}
     )
 else()
-  message(STATUS "Qt lupdate not found, 'translations' target will not be availabe.")
+  message(STATUS "Qt lupdate not found, 'companion_translations' target will not be availabe.")
 endif()
 
 ############# Import radio hardware definitions ###############

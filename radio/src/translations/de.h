@@ -54,7 +54,7 @@
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "AUS","Telem weiterl.","Telemetrie In","SBUS Eingang","LUA","CLI","GPS","Debug","SpaceMouse","Externes Modul"
 #define TR_SWTYPES                     "Kein","Taster","2POS","3POS"
-#define TR_POTTYPES                    "Kein",TR("Pot","Poti ohne Raste"),TR("Poti m.Ras","Poti mit Raste"),"Schieber",TR("Stufens.","Stufen-Schalter"),"Axis X","Axis Y","Switch"
+#define TR_POTTYPES                    "Kein","Poti", TR("Pot o. Ras","Poti mit Raste"),"Schieber",TR("Multipos.","Multipos. Schalter"),"Knüppel X","Knüppel Y","Schalter"
 #define TR_VPERSISTENT                 "AUS","Flugzeit","Manuell Rück"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
 #define TR_USBMODES                    "Fragen",TR("Joyst","Joystick"),TR("SDCard","Speicher"),TR("Serial","Seriell")
@@ -69,7 +69,7 @@
 #define TR_VVARIOCENTER                "Ton","Ruhe"
 #define TR_CURVE_TYPES                 "Nur Y","X und Y" // "Standard","Custom"
 
-#define TR_ADCFILTERVALUES           "Global","Aus","Ein"
+#define TR_ADCFILTERVALUES             "Global","Aus","Ein"
 
 #define TR_VCURVETYPE                  "Diff","Expo","Funk","Ind."
 #define TR_VCURVEFUNC                  "---","x>0","x<0","|x|","f>0","f<0","|f|"
@@ -87,7 +87,7 @@
 #endif
 
 #define TR_CSWEQUAL                    "a=x"
-#define TR_VCSWFUNC            			"---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
+#define TR_VCSWFUNC            	       "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
 #define TR_SF_TRAINER                  "Lehrer"
 #define TR_SF_INST_TRIM                "Inst. Trim"
@@ -97,7 +97,7 @@
 #define TR_SF_FAILSAFE                 "SetFailsafe"
 #define TR_SF_RANGE_CHECK              "RangeCheck"
 #define TR_SF_MOD_BIND                 "ModuleBind"
-#define TR_SF_RGBLEDS                  "RGB leds"
+#define TR_SF_RGBLEDS                  "RGB LED"
 
 #define TR_SOUND                       "Spiel Töne"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "Sag Text")
@@ -116,16 +116,16 @@
 #define TR_SF_SCREENSHOT               "Screenshot"
 #define TR_SF_RACING_MODE              "RacingMode"
 #define TR_SF_DISABLE_TOUCH            "Kein Touch"
-#define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp AUS"
+#define TR_SF_DISABLE_AUDIO_AMP        "Audio Verst. Aus"
 #define TR_SF_SET_SCREEN               "Set Main Screen"
 
 #define TR_FSW_RESET_TELEM             TR("Telm","Telemetrie")
-#define TR_FSW_RESET_TIMERS           "Tmr1","Tmr2","Tmr3"
+#define TR_FSW_RESET_TIMERS            "Tmr1","Tmr2","Tmr3"
 
 
-#define TR_VFSWRESET 	      		   TR_FSW_RESET_TIMERS,"All",TR_FSW_RESET_TELEM
+#define TR_VFSWRESET 	      		       TR_FSW_RESET_TIMERS,"All",TR_FSW_RESET_TELEM
 
-#define TR_FUNCSOUNDS         		   TR("Bp1","Piep1"),TR("Bp2","Piep2"),TR("Bp3","Piep3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
+#define TR_FUNCSOUNDS         		     TR("Bp1","Piep1"),TR("Bp2","Piep2"),TR("Bp3","Piep3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
 #define LENGTH_UNIT_IMP                "ft"
 #define SPEED_UNIT_IMP                 "mph"
@@ -160,19 +160,19 @@
 
 #if defined(USE_HATS_AS_KEYS)
 #define TR_HATSMODE                    "Joystick Modus"
-#define TR_HATSOPT                     "Nur Trimmung","Nur Tasten","Umschaltbar","Global"
-#define TR_HATSMODE_TRIMS              "Joystick Modus: Trimmung"
+#define TR_HATSOPT                     "nur Trimmer","nur Tasten","Umschaltbar","Global"
+#define TR_HATSMODE_TRIMS              "Joystick Modus: Trimmer"
 #define TR_HATSMODE_KEYS               "Joystick Modus: Tasten"
-#define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
-                                       "   Right = MDL\n"\
-                                       "   Up = SYS\n"\
-                                       "   Down = TELE\n"\
+#define TR_HATSMODE_KEYS_HELP          "Linke Seite:\n"\
+                                       " Rechts = MDL\n"\
+                                       " Oben = SYS\n"\
+                                       " Unten = TELE\n"\
                                        "\n"\
-                                       "Right side:\n"\
-                                       "   Left = PAGE<\n"\
-                                       "   Right = PAGE>\n"\
-                                       "   Up = PREV/INC\n"\
-                                       "   Down = NEXT/DEC"
+                                       "Rechte Seite:\n"\
+                                       " Links = PAGE<\n"\
+                                       " Rechts = PAGE>\n"\
+                                       " Oben = PREV/INC\n"\
+                                       " Unten = NEXT/DEC"
 #endif
 
 #if defined(COLORLCD)
@@ -408,17 +408,22 @@
 #define TR_CALIB_DONE                  "Kalibrierung fertig"
 #if defined(PCBHORUS)
   #define TR_MENUTOSTART               "Drücke [Enter] zum Start"
-  #define TR_SETMIDPOINT               "Knüppel/Potis/Sliders auf Mitte [Enter]"
-  #define TR_MOVESTICKSPOTS            "Knüppel/Potis/Sliders bewegen [Enter]"
+  #define TR_SETMIDPOINT               "Knüppel/Schieber zentrieren und [Enter]"
+  #define TR_MOVESTICKSPOTS            "Bewege Knüppel/Poti/Schieber und drücke [Enter]"
 #elif defined(COLORLCD)
   #define TR_MENUTOSTART               TR_ENTER " Zum Start"
-  #define TR_SETMIDPOINT               "STICKS/SLIDERS/POTIS auf Mitte"
-  #define TR_MOVESTICKSPOTS            "STICKS/SLIDERS/POTIS bewegen"
+  #define TR_SETMIDPOINT               "Knüppel/Schieber zentrieren"
+  #define TR_MOVESTICKSPOTS            "Knüppel/Schieber bewegen"
   #define TR_MENUWHENDONE              TR_ENTER " wenn fertig"
 #else
   #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " Zum START"
-  #define TR_SETMIDPOINT               TR(CENTER "\004Mitte Knüppel/Sliders", CENTER "\004Mitte Knüppel/Potis")
-  #define TR_MOVESTICKSPOTS            CENTER "\004Bewege Knüppel/POTIS"
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT               CENTER "\006SCHIEBER AUF MITTE"
+  #define TR_MOVESTICKSPOTS            CENTER "\002BEWEGE LENK/GAS/POTI/KNÜPPEL"
+#else
+  #define TR_SETMIDPOINT               TR(CENTER "\006KNÜPPEL AUF MITTE", CENTER "\004ZENTRIERE KNÜPPEL/SCHIEBER")
+  #define TR_MOVESTICKSPOTS            CENTER "\007BEWEGE KNÜPPEL/SCHIEBER"
+#endif
   #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " wenn fertig"
 #endif
 #define TR_TXnRX                       "Tx:\0Rx:"
@@ -494,11 +499,11 @@
 #define TR_MENUMODELSEL        		   TR("MODELLE", "MODELL WÄHLEN")
 #define TR_MENU_MODEL_SETUP            TR("MODELL-EINSTELLUNG", "MODELL-EINSTELLUNGEN")
 #if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES             "DRIVE MODES"
-#define TR_MENUFLIGHTMODE              "DRIVE MODE"
+  #define TR_MENUFLIGHTMODES           "FAHRMODI"
+  #define TR_MENUFLIGHTMODE            "FAHRMODUS"
 #else
-#define TR_MENUFLIGHTMODE    		   "FLUGPHASE"
-#define TR_MENUFLIGHTMODES   		   "FLUGPHASEN"
+  #define TR_MENUFLIGHTMODE            "FLUGPHASE"
+  #define TR_MENUFLIGHTMODES   		     "FLUGPHASEN"
 #endif
 #define TR_MENUHELISETUP               TR("HELI TS-Mischer", "HELI TS-Mischer CYC1-3")
 #define TR_MENUINPUTS                  "INPUTS"  //"Inputs=Geber"
@@ -620,9 +625,9 @@
 #define TR_SHOW_MIXER_MONITORS         "Zeige Mischermonitor"
 #define TR_MENU_MODULES_RX_VERSION     "MODUL / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE OPTIONEN"
-#define TR_IMU                        "IMU"
-#define TR_STICKS_POTS_SLIDERS         "Sticks/Pots/Sliders"
-#define TR_PWM_STICKS_POTS_SLIDERS     "PWM Sticks/Pots/Sliders"
+#define TR_IMU                         "IMU"
+#define TR_STICKS_POTS_SLIDERS         "Knüppel/Poti/Schieber"
+#define TR_PWM_STICKS_POTS_SLIDERS     "PWM Knüppel/Poti/Schieber"
 #define TR_RF_PROTOCOL                 "RF Protokoll"
 #define TR_MODULE_OPTIONS              "Modul Optionen"
 #define TR_POWER                       "Power"
@@ -820,7 +825,7 @@
 #define TR_JACK_MODE                   "Jack Mode"
 #define TR_VOICE_LANGUAGE              "Sprachansagen"
 #define TR_UNITS_SYSTEM                "Einheiten"
-#define TR_UNITS_PPM                   "PPM Units"
+#define TR_UNITS_PPM                   "PPM Einheiten"
 #define TR_EDIT                        "Zeile Editieren"
 #define TR_INSERT_BEFORE               "Neue Zeile davor"
 #define TR_INSERT_AFTER                "Neue Zeile danach"
@@ -932,7 +937,7 @@
 #define TR_PT                          "Pt"
 #define TR_PTS                         "Pts"
 #define TR_SMOOTH                      "Runden"
-#define TR_COPY_STICKS_TO_OFS          TR3("Copy Stk ->Subtrim", "Kopiere Stick zu Subtrim", "Kopiere Knüppelposition auf Subtrim")
+#define TR_COPY_STICKS_TO_OFS          TR("Kop. Knüppel->Subtrim", "Kopiere Knüppel zu Subtrim")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR3("Cpy min/max to all", "Kopiere min/max zu allen" , "Kopiere Limits & Mitte auf alle Kanäle")
 #define TR_COPY_TRIMS_TO_OFS           TR3("Copy Trim->Subtrim",  "Kopiere Trimm zu Subtrim" , "Kopiere Trimmposition auf Subtrim")  // "Trim to Subtrim"
 #define TR_INCDEC                      "Inc/Decrement"
@@ -942,7 +947,7 @@
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Aus","Ein","Auto"
 #define TR_PREFLIGHT                   "Vorflug-Checkliste"
 #define TR_CHECKLIST                   TR(INDENT "Checkliste", INDENT "Checkliste anzeigen") //9XR-Pro
-#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "C-Interact", INDENT "Interact. checklist", INDENT "Interactive checklist")
+#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "C-Interaktiv", INDENT "Interakt. Checkl.", INDENT "Interaktive Checkliste")
 #define TR_AUX_SERIAL_MODE             "Serieller Port"
 #define TR_AUX2_SERIAL_MODE            "Serieller Port 2"
 #define TR_AUX_SERIAL_PORT_POWER       "Versorgung"
@@ -1242,7 +1247,7 @@
 #define TR_VOICE_TAIWANESE             "Taiwanese"
 #define TR_VOICE_JAPANESE              "Japanisch"
 #define TR_VOICE_HEBREW                "Hebräisch"
-#define TR_VOICE_UKRAINIAN               "Ukrainian"
+#define TR_VOICE_UKRAINIAN             "Ukrainisch"
 
 #define TR_USBJOYSTICK_LABEL           "USB Joystick"
 #define TR_USBJOYSTICK_EXTMODE         "Modus"
@@ -1280,12 +1285,12 @@
 #define TR_RADIO_MENU_TABS        "Sender Menüpunkte"
 #define TR_MODEL_MENU_TABS        "Modell Menüpunkte"
 
-#define TR_SELECT_MENU_ALL        "All"
-#define TR_SELECT_MENU_CLR        "Clear"
-#define TR_SELECT_MENU_INV        "Invert"
+#define TR_SELECT_MENU_ALL        "Alle"
+#define TR_SELECT_MENU_CLR        "Löschen"
+#define TR_SELECT_MENU_INV        "Invertiert"
 
 #define TR_SORT_ORDERS            "Name A-Z","Name Z-A","Wenig benutzt","Meist benutzt"
 #define TR_SORT_MODELS_BY         "Modelle sortieren nach"
 #define TR_CREATE_NEW             "Erstelle"
 
-#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
+#define TR_MIX_SLOW_PREC          TR("Langs. Vorlauf", "Langs. Vor-/Rücklauf")
