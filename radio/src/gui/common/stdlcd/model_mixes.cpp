@@ -286,7 +286,7 @@ void menuModelMixAll(event_t event)
     }
     else {
       // only swap the mix with its neighbor
-      moveMix(s_currIdx, IS_PREVIOUS_EVENT(event));
+      s_currIdx = moveMix(s_currIdx, IS_PREVIOUS_EVENT(event));
     }
 
     s_copyTgtOfs = next_ofs;
