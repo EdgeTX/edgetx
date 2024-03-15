@@ -43,6 +43,7 @@ jobs:
         working-directory: ${{github.workspace}}
         shell: bash
         run: |
+          sysctl vm.mmap_rnd_bits=28 &&
           mkdir output && \
           tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
 

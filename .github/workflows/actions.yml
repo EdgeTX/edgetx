@@ -84,6 +84,7 @@ jobs:
           FLAVOR: ${{ matrix.target }}
         run: |
           echo "Running commit tests"
+          sysctl vm.mmap_rnd_bits=28
           ./tools/commit-tests.sh
 
 
@@ -126,6 +127,7 @@ jobs:
           FLAVOR: ${{ matrix.target }}
         run: |
           echo "Running firmware build"
+          sysctl vm.mmap_rnd_bits=28
           ./tools/build-gh.sh
 
       - name: Upload ${{ matrix.target }}

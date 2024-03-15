@@ -47,7 +47,9 @@ jobs:
         env:
           FLAVOR: ${{ matrix.target }}
           EDGETX_VERSION_SUFFIX: nightly
-        run: ./tools/build-gh.sh
+        run: |
+          sysctl vm.mmap_rnd_bits=28
+          ./tools/build-gh.sh
 
       - name: Package firmware ${{ matrix.target }}
         uses: actions/upload-artifact@v4
