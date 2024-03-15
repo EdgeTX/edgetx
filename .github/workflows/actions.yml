@@ -73,6 +73,7 @@ jobs:
       volumes:
         - ${{ github.workspace }}:/src
     steps:
+      - run: sudo sysctl -w vm.mmap_rnd_bits=28
       - name: Check out the repo
         uses: actions/checkout@v4
         with:
@@ -84,7 +85,6 @@ jobs:
           FLAVOR: ${{ matrix.target }}
         run: |
           echo "Running commit tests"
-          sysctl vm.mmap_rnd_bits=28
           ./tools/commit-tests.sh
 
 
@@ -117,6 +117,7 @@ jobs:
       volumes:
         - ${{ github.workspace }}:/src
     steps:
+      - run: sudo sysctl -w vm.mmap_rnd_bits=28
       - name: Check out the repo
         uses: actions/checkout@v4
         with:
@@ -127,7 +128,6 @@ jobs:
           FLAVOR: ${{ matrix.target }}
         run: |
           echo "Running firmware build"
-          sysctl vm.mmap_rnd_bits=28
           ./tools/build-gh.sh
 
       - name: Upload ${{ matrix.target }}

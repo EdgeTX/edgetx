@@ -38,6 +38,7 @@ jobs:
       volumes:
         - ${{ github.workspace }}:/src
     steps:
+      - run: sudo sysctl -w vm.mmap_rnd_bits=28
       - name: Check out the repo
         uses: actions/checkout@v4
         with:
@@ -48,7 +49,6 @@ jobs:
           FLAVOR: ${{ matrix.target }}
           EDGETX_VERSION_SUFFIX: nightly
         run: |
-          sysctl vm.mmap_rnd_bits=28
           ./tools/build-gh.sh
 
       - name: Package firmware ${{ matrix.target }}
