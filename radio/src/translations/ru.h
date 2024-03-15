@@ -719,12 +719,12 @@
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Быстрый выбор модели"
-  #define TR_LABELS_SELECT             "Label select"
-  #define TR_LABELS_MATCH              "Label matching"
-  #define TR_FAV_MATCH                 "Favorites matching"
-  #define TR_LABELS_SELECT_MODE        "Multi select","Single select"
-  #define TR_LABELS_MATCH_MODE         "Match all","Match any"
-  #define TR_FAV_MATCH_MODE            "Must match","Optional match"
+  #define TR_LABELS_SELECT             "Выбор"
+  #define TR_LABELS_MATCH              "Cоответствие"
+  #define TR_FAV_MATCH                 "Избранное"
+  #define TR_LABELS_SELECT_MODE        "Мультивыбор","Одиноч выбор"
+  #define TR_LABELS_MATCH_MODE         "Все","Любой"
+  #define TR_FAV_MATCH_MODE            "Совпадает","Не совпадает"
 #endif
 
 #define TR_SELECT_TEMPLATE_FOLDER      "Выберите папку шаблона"
@@ -1287,4 +1287,4 @@
 #define TR_SORT_MODELS_BY         "Сортировка моделей"
 #define TR_CREATE_NEW             "Создать"
 
-#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
+#define TR_MIX_SLOW_PREC          TR("Точн замедл", "Точность замедления")
