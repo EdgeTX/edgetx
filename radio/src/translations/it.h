@@ -98,7 +98,7 @@
 #define TR_SF_FAILSAFE                 "SetFailsafe"
 #define TR_SF_RANGE_CHECK              "RangeCheck"
 #define TR_SF_MOD_BIND                 "BindModulo"
-#define TR_SF_RGBLEDS                  "RGB leds"
+#define TR_SF_RGBLEDS                  "Leds RGB"
  
 #define TR_SOUND                       "Suona"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "Suona Traccia")
@@ -117,30 +117,30 @@
 #define TR_SF_SCREENSHOT               "Screenshot"
 #define TR_SF_RACING_MODE              "Modo Racing"
 #define TR_SF_DISABLE_TOUCH            "No Touch"
-#define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
+#define TR_SF_DISABLE_AUDIO_AMP        "Amp Audio Off"
 #define TR_SF_SET_SCREEN               "Setta Schermo Princ."
 
-#define TR_FSW_RESET_TELEM               TR("Telm", "Telemetria")
-#define TR_FSW_RESET_TIMERS              "Tmr1","Tmr2","Tmr3"
+#define TR_FSW_RESET_TELEM             TR("Telm", "Telemetria")
+#define TR_FSW_RESET_TIMERS            "Tmr1","Tmr2","Tmr3"
 
 
-#define TR_VFSWRESET                     TR_FSW_RESET_TIMERS,TR("All","Tutto"),TR_FSW_RESET_TELEM
+#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("All","Tutto"),TR_FSW_RESET_TELEM
 
-#define TR_FUNCSOUNDS                    TR("Bp1","Beep1"),TR("Bp2","Beep2"),TR("Bp3","Beep3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
+#define TR_FUNCSOUNDS                  TR("Bp1","Beep1"),TR("Bp2","Beep2"),TR("Bp3","Beep3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
-#define LENGTH_UNIT_IMP                 "ft"
-#define SPEED_UNIT_IMP                  "mph"
-#define LENGTH_UNIT_METR                "m"
-#define SPEED_UNIT_METR                 "kmh"
+#define LENGTH_UNIT_IMP                "ft"
+#define SPEED_UNIT_IMP                 "mph"
+#define LENGTH_UNIT_METR               "m"
+#define SPEED_UNIT_METR                "kmh"
 
-#define TR_VUNITSSYSTEM                 TR("Metric","Metriche"),TR("Imper.","Imperiali")
-#define TR_VTELEMUNIT                   "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","ms","us","km","dBm"
+#define TR_VUNITSSYSTEM                TR("Metric","Metriche"),TR("Imper.","Imperiali")
+#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","ms","us","km","dBm"
 
-#define STR_V                           (STR_VTELEMUNIT[1])
-#define STR_A                           (STR_VTELEMUNIT[2])
+#define STR_V                          (STR_VTELEMUNIT[1])
+#define STR_A                          (STR_VTELEMUNIT[2])
 
-#define TR_VTELEMSCREENTYPE             "Niente","Valori","Barre","Script"
-#define TR_GPSFORMAT                    "DMS","NMEA"
+#define TR_VTELEMSCREENTYPE            "Niente","Valori","Barre","Script"
+#define TR_GPSFORMAT                   "DMS","NMEA"
 
 
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
@@ -166,16 +166,16 @@
 #define TR_HATSOPT                      "Solo trims","Solo keys","Commutabile","Globale"
 #define TR_HATSMODE_TRIMS               "Modo joystick: trims"
 #define TR_HATSMODE_KEYS                "Modo joystick: keys"
-#define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
-                                       "   Right = MDL\n"\
-                                       "   Up = SYS\n"\
-                                       "   Down = TELE\n"\
-                                       "\n"\
-                                       "Right side:\n"\
-                                       "   Left = PAGE<\n"\
-                                       "   Right = PAGE>\n"\
-                                       "   Up = PREV/INC\n"\
-                                       "   Down = NEXT/DEC"
+#define TR_HATSMODE_KEYS_HELP           "Lato sinistro:\n"\
+                                        " Destra = MDL\n"\
+                                        " Su = SYS\n"\
+                                        " Giù = TELE\n"\
+                                        "\n"\
+                                        "Lato destro:\n"\
+                                        " Sinistra = PAGINA<\n"\
+                                        " Destra = PAGINA>\n"\
+                                        " Su = PREC/AUM\n"\
+                                        " Giù = PROS/DIM"
 #endif
 
 #if defined(COLORLCD)
@@ -487,11 +487,11 @@
 #define TR_MENUMODELSEL                 "MODELLI"
 #define TR_MENU_MODEL_SETUP             "CONFIGURA"
 #if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES             "DRIVE MODES"
-#define TR_MENUFLIGHTMODE              "DRIVE MODE"
+  #define TR_MENUFLIGHTMODES            "MODI DI PILOTAGGIO"
+  #define TR_MENUFLIGHTMODE             "MODO DI PILOTAGGIO"
 #else
-#define TR_MENUFLIGHTMODES              "FASI DI VOLO"
-#define TR_MENUFLIGHTMODE               "FASE DI VOLO"
+  #define TR_MENUFLIGHTMODES            "FASI DI VOLO"
+  #define TR_MENUFLIGHTMODE             "FASE DI VOLO"
 #endif
 #define TR_MENUHELISETUP                "CONFIGURA ELI"
 #define TR_MENUINPUTS                   "INGRESSI"
@@ -711,12 +711,12 @@
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT       "Selezione rapida modello"
-  #define TR_LABELS_SELECT             "Label select"
-  #define TR_LABELS_MATCH              "Label matching"
-  #define TR_FAV_MATCH                 "Favorites matching"
-  #define TR_LABELS_SELECT_MODE        "Multi select","Single select"
-  #define TR_LABELS_MATCH_MODE         "Match all","Match any"
-  #define TR_FAV_MATCH_MODE            "Must match","Optional match"
+  #define TR_LABELS_SELECT            "Seleziona etichette"
+  #define TR_LABELS_MATCH             "Abbinamento etichette"
+  #define TR_FAV_MATCH                "Abbinamento favoriti"
+  #define TR_LABELS_SELECT_MODE       "Selezione multipla","Selezione singola"
+  #define TR_LABELS_MATCH_MODE        "Abbina tutti","Abbina qualsiasi"
+  #define TR_FAV_MATCH_MODE           "Deve coincidere","Abbinamento facoltativo"
 #endif
 
 #define TR_SELECT_TEMPLATE_FOLDER     "Seleziona Cartella Template:"
@@ -820,7 +820,7 @@
 #define TR_JACK_MODE                    "Modo JACK"
 #define TR_VOICE_LANGUAGE               "Lingua vocale"
 #define TR_UNITS_SYSTEM                 "Unità"
-#define TR_UNITS_PPM                   "PPM Units"
+#define TR_UNITS_PPM                    "Unità PPM"
 #define TR_EDIT                         "Modifica"
 #define TR_INSERT_BEFORE                "Inserisci prima"
 #define TR_INSERT_AFTER                 "Inserisci dopo"
@@ -936,7 +936,7 @@
 #define TR_PREFLIGHT_POTSLIDER_CHECK       "Off","On","Auto"
 #define TR_PREFLIGHT                       "Controlli Prevolo"
 #define TR_CHECKLIST                       INDENT "Mostra Checklist"
-#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "C-Interact", INDENT "Interact. checklist", INDENT "Interactive checklist")
+#define TR_CHECKLIST_INTERACTIVE           TR3(INDENT "Interatt-C", INDENT "Interact. checklist", INDENT "Checklist interattiva")
 #define TR_AUX_SERIAL_MODE                 "Porta Seriale"
 #define TR_AUX2_SERIAL_MODE                "Porta Seriale 2"
 #define TR_AUX_SERIAL_PORT_POWER           "Potenza porta AUX"
@@ -1233,7 +1233,7 @@
 #define TR_VOICE_TAIWANESE              "Taiwanese"
 #define TR_VOICE_JAPANESE               "Giapponese"
 #define TR_VOICE_HEBREW                 "Ebraico"
-#define TR_VOICE_UKRAINIAN               "Ukrainian"
+#define TR_VOICE_UKRAINIAN              "Ucraino"
 
 #define TR_USBJOYSTICK_LABEL           "Joystick USB"
 #define TR_USBJOYSTICK_EXTMODE         "Modo"
@@ -1272,12 +1272,12 @@
 #define TR_MODEL_MENU_TABS             "Schede del Menu Modello"
 
 
-#define TR_SELECT_MENU_ALL        "All"
-#define TR_SELECT_MENU_CLR        "Clear"
-#define TR_SELECT_MENU_INV        "Invert"
+#define TR_SELECT_MENU_ALL        "Tutto"
+#define TR_SELECT_MENU_CLR        "Pulisci"
+#define TR_SELECT_MENU_INV        "Inverti"
 
 #define TR_SORT_ORDERS            "Nome A-Z","Nome Z-A","Meno utilizzato","Più utilizzato"
 #define TR_SORT_MODELS_BY         "Ordina modelli per"
 #define TR_CREATE_NEW             "Crea"
 
-#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
+#define TR_MIX_SLOW_PREC          TR("Prec. lenta", "Prec. su/giù lenta")
