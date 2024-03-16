@@ -781,6 +781,39 @@
 #endif
 
 // Telemetry
+#if defined(RADIO_V16)
+#define TELEMETRY_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOJ | RCC_AHB1Periph_DMA1)
+#define TELEMETRY_RCC_APB1Periph        RCC_APB1Periph_USART2
+#define TELEMETRY_RCC_APB2Periph        0
+#define TELEMETRY_REV_GPIO              GPIOH
+#define TELEMETRY_RX_REV_GPIO_PIN       GPIO_Pin_7  // PH.07
+#define TELEMETRY_TX_REV_GPIO_PIN       GPIO_Pin_7  // PH.07
+#define TELEMETRY_DIR_GPIO              GPIOD
+#define TELEMETRY_DIR_GPIO_PIN          GPIO_Pin_4 // PD.04
+#define TELEMETRY_SET_INPUT             0
+#define TELEMETRY_GPIO                  GPIOD
+#define TELEMETRY_TX_GPIO_PIN           GPIO_Pin_5  // PD.05
+#define TELEMETRY_RX_GPIO_PIN           GPIO_Pin_6  // PD.06
+#define TELEMETRY_GPIO_PinSource_TX     GPIO_PinSource5
+#define TELEMETRY_GPIO_PinSource_RX     GPIO_PinSource6
+#define TELEMETRY_GPIO_AF               GPIO_AF_USART2
+#define TELEMETRY_USART                 USART2
+#define TELEMETRY_DMA                   DMA1
+#define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_6
+#define TELEMETRY_DMA_Channel_TX        DMA_Channel_4
+#define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream6_IRQn
+#define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream6_IRQHandler
+#define TELEMETRY_DMA_TX_FLAG_TC        DMA_IT_TCIF6
+#define TELEMETRY_USART_IRQHandler      USART2_IRQHandler
+#define TELEMETRY_USART_IRQn            USART2_IRQn
+
+#define TELEMETRY_DIR_OUTPUT()          TELEMETRY_DIR_GPIO->BSRRH = TELEMETRY_DIR_GPIO_PIN
+#define TELEMETRY_DIR_INPUT()           TELEMETRY_DIR_GPIO->BSRRL = TELEMETRY_DIR_GPIO_PIN
+#define TELEMETRY_TX_POL_NORM()         TELEMETRY_REV_GPIO->BSRRH = TELEMETRY_TX_REV_GPIO_PIN
+#define TELEMETRY_TX_POL_INV()          TELEMETRY_REV_GPIO->BSRRL = TELEMETRY_TX_REV_GPIO_PIN
+#define TELEMETRY_RX_POL_NORM()         TELEMETRY_REV_GPIO->BSRRH = TELEMETRY_RX_REV_GPIO_PIN
+#define TELEMETRY_RX_POL_INV()          TELEMETRY_REV_GPIO->BSRRL = TELEMETRY_RX_REV_GPIO_PIN
+#else
 #define TELEMETRY_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_DMA1)
 #define TELEMETRY_RCC_APB1Periph        RCC_APB1Periph_USART2
 #define TELEMETRY_RCC_APB2Periph        RCC_APB2Periph_TIM11
@@ -821,6 +854,8 @@
 #define TELEMETRY_TIMER                 TIM11
 #define TELEMETRY_TIMER_IRQn            TIM1_TRG_COM_TIM11_IRQn
 #define TELEMETRY_TIMER_IRQHandler      TIM1_TRG_COM_TIM11_IRQHandler
+
+#endif
 
 // Software IRQ (Prio 5 -> FreeRTOS compatible)
 #define TELEMETRY_RX_FRAME_EXTI_LINE    LL_EXTI_LINE_4
@@ -1193,7 +1228,7 @@
 #define EXTMODULE_PWR_GPIO                 GPIOB
 #define EXTMODULE_PWR_GPIO_PIN             GPIO_Pin_3  // PB.03
 #define EXTERNAL_MODULE_PWR_OFF()          GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
-#if defined(PCBX10) && defined(PCBREV_EXPRESS)
+#if (defined(PCBX10) && defined(PCBREV_EXPRESS)) || defined(RADIO_V16)
   #define EXTMODULE_RCC_AHB1Periph         (RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_DMA1)
   #define EXTMODULE_TX_GPIO                GPIOB
   #define EXTMODULE_USART_GPIO             EXTMODULE_TX_GPIO
@@ -1226,6 +1261,17 @@
   #define EXTMODULE_USART_RX_DMA_CHANNEL   LL_DMA_CHANNEL_4
   #define EXTMODULE_USART_RX_DMA_STREAM    DMA1_Stream1
   #define EXTMODULE_USART_RX_DMA_STREAM_LL LL_DMA_STREAM_1
+  #if defined(RADIO_V16)
+    #define EXTMODULE_TX_INVERT_GPIO           GPIOI
+    #define EXTMODULE_TX_INVERT_GPIO_PIN       GPIO_Pin_2  // PI.02
+    #define EXTMODULE_RX_INVERT_GPIO           GPIOI
+    #define EXTMODULE_RX_INVERT_GPIO_PIN       GPIO_Pin_9 // PI.09
+
+    #define EXTMODULE_TX_NORMAL()              EXTMODULE_TX_INVERT_GPIO->BSRRH = EXTMODULE_TX_INVERT_GPIO_PIN
+    #define EXTMODULE_TX_INVERTED()            EXTMODULE_TX_INVERT_GPIO->BSRRL = EXTMODULE_TX_INVERT_GPIO_PIN
+    #define EXTMODULE_RX_NORMAL()              EXTMODULE_RX_INVERT_GPIO->BSRRH = EXTMODULE_RX_INVERT_GPIO_PIN
+    #define EXTMODULE_RX_INVERTED()            EXTMODULE_RX_INVERT_GPIO->BSRRL = EXTMODULE_RX_INVERT_GPIO_PIN
+  #endif
 #elif defined(PCBX10) || PCBREV >= 13
   #define EXTMODULE_RCC_AHB1Periph         (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_DMA2)
   #define EXTMODULE_TX_GPIO                GPIOA
