@@ -129,14 +129,14 @@ foreach(qm_file ${companion_QM} ${qt_QM} ${qtbase_QM})
 endforeach()
 configure_file(${COMPANION_SRC_DIRECTORY}/translations.qrc.in ${TRANSLATIONS_QRC} @ONLY)
 
-### Add optional "translations" target for updating .ts files
+### Add optional "companion_translations" target for updating .ts files
 if(QT_LUPDATE_EXECUTABLE)
   add_custom_target(companion_translations
     WORKING_DIRECTORY ${COMPANION_SRC_DIRECTORY}
-    COMMAND ${QT_LUPDATE_EXECUTABLE} ${CMAKE_SOURCE_DIR} -no-obsolete -ts ${companion_TS}
+    COMMAND ${QT_LUPDATE_EXECUTABLE} ${COMPANION_SRC_DIRECTORY} -no-obsolete -ts ${companion_TS}
     )
 else()
-  message(STATUS "Qt lupdate not found, 'translations' target will not be availabe.")
+  message(STATUS "Qt lupdate not found, 'companion_translations' target will not be availabe.")
 endif()
 
 ############# Import radio hardware definitions ###############
@@ -308,6 +308,8 @@ elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TPROV2)
   set(FLAVOUR tprov2)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T20)
   set(FLAVOUR t20)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T20V2)
+  set(FLAVOUR t20v2)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TX12)
   set(FLAVOUR tx12)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TX12MK2)
@@ -330,10 +332,12 @@ elseif(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
   set(FLAVOUR x9d+2019)
 elseif(PCB STREQUAL X10 AND PCBREV STREQUAL EXPRESS)
   set(FLAVOUR x10express)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL T16)
-  set(FLAVOUR t16)
 elseif(PCB STREQUAL X10 AND PCBREV STREQUAL TX16S)
   set(FLAVOUR tx16s)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T14)
+  set(FLAVOUR t14)
+elseif(PCB STREQUAL X10 AND PCBREV STREQUAL T16)
+  set(FLAVOUR t16)
 elseif(PCB STREQUAL X10 AND PCBREV STREQUAL T18)
   set(FLAVOUR t18)
 elseif(PCB STREQUAL NV14 AND PCBREV STREQUAL EL18)

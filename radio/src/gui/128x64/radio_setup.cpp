@@ -89,7 +89,7 @@ enum {
   CASE_PWM_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_BRIGHTNESS_OFF)
   CASE_PWM_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_BRIGHTNESS_ON)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_FLASH_BEEP)
-  ITEM_RADIO_SETUP_CONTRAST,
+  CASE_CONTRAST(ITEM_RADIO_SETUP_CONTRAST)
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
   ITEM_RADIO_SETUP_START_SOUND,
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
@@ -189,7 +189,7 @@ void menuRadioSetup(event_t event)
     CASE_PWM_BACKLIGHT(0)
     CASE_PWM_BACKLIGHT(0)
     CASE_BACKLIGHT(0)
-    0, // Contrast
+    CASE_CONTRAST(0)
     CASE_SPLASH_PARAM(0)
     0,
     CASE_PWR_BUTTON_PRESS(0)
@@ -471,18 +471,16 @@ void menuRadioSetup(event_t event)
         break;
 #endif
 
+#if !defined(OLED_SCREEN)
       case ITEM_RADIO_SETUP_CONTRAST:
-#if defined(OLED_SCREEN)
-        lcdDrawTextAlignedLeft(y, STR_BRIGHTNESS);
-#else
         lcdDrawTextAlignedLeft(y, STR_CONTRAST);
-#endif
         lcdDrawNumber(LCD_W-2, y, g_eeGeneral.contrast, attr|RIGHT);
         if (attr) {
           CHECK_INCDEC_GENVAR(event, g_eeGeneral.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
           lcdSetContrast();
         }
         break;
+#endif
 
       case ITEM_RADIO_SETUP_ALARMS_LABEL:
         lcdDrawTextAlignedLeft(y, STR_ALARMS_LABEL);
@@ -525,9 +523,13 @@ void menuRadioSetup(event_t event)
         if(attr) g_eeGeneral.inactivityTimer = checkIncDec(event, g_eeGeneral.inactivityTimer, 0, 250, EE_GENERAL); //0..250minutes
         break;
 
-#if defined(BACKLIGHT_GPIO)
+#if defined(BACKLIGHT_GPIO) || defined(OLED_SCREEN)
       case ITEM_RADIO_SETUP_BACKLIGHT_LABEL:
+#if defined(OLED_SCREEN)
+        lcdDrawTextAlignedLeft(y, STR_BRIGHTNESS);
+#else
         lcdDrawTextAlignedLeft(y, STR_BACKLIGHT_LABEL);
+#endif
         break;
 
       case ITEM_RADIO_SETUP_BACKLIGHT_MODE:
@@ -549,11 +551,18 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_BRIGHTNESS:
         lcdDrawText(INDENT_WIDTH, y, STR_BRIGHTNESS);
+#if defined(OLED_SCREEN)
+        lcdDrawNumber(LCD_W-2, y, g_eeGeneral.contrast, attr|RIGHT);
+        if (attr) {
+          CHECK_INCDEC_GENVAR(event, g_eeGeneral.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
+          lcdSetContrast();
+#else
         lcdDrawNumber(LCD_W-2, y, 100-g_eeGeneral.backlightBright, attr|RIGHT) ;
         if (attr) {
           uint8_t b = 100 - g_eeGeneral.backlightBright;
           CHECK_INCDEC_GENVAR(event, b, 0, 100);
           g_eeGeneral.backlightBright = 100 - b;
+#endif
         }
         break;
 #endif

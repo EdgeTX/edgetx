@@ -61,6 +61,8 @@
 #define CPN_STR_TTL_INFO               QCoreApplication::translate("Companion", "Information")        // shared Title Case words, eg. for a window title or section heading
 #define CPN_STR_TTL_WARNING            QCoreApplication::translate("Companion", "Warning")
 #define CPN_STR_TTL_ERROR              QCoreApplication::translate("Companion", "Error")
+#define CPN_STR_TTL_ACCEPT             QCoreApplication::translate("Companion", "Accept")
+#define CPN_STR_TTL_DECLINE            QCoreApplication::translate("Companion", "Decline")
 
 #define CPN_STR_FILES                  QCoreApplication::translate("Companion", "files")
 #define CPN_STR_RAD_MOD_SETTINGS       QCoreApplication::translate("Companion", "Radio and Models settings")

@@ -217,6 +217,7 @@ struct HottSensor
   const char * name;
 };
 
+// clang-format off
 #define HS(id,name,unit,precision) {id,unit,precision,name}
 
 const HottSensor hottSensors[] = {
@@ -256,7 +257,7 @@ const HottSensor hottSensors[] = {
   HS( HOTT_ID_ESC_BEC_VLT,  STR_SENSOR_HOTT_ID_ESC_BEC_VLT, UNIT_VOLTS, 1 ),            	// ESC BEC voltage
   HS( HOTT_ID_ESC_BEC_CUR,  STR_SENSOR_HOTT_ID_ESC_BEC_CUR, UNIT_AMPS, 1 ),             	// ESC BEC current
   HS( HOTT_ID_ESC_BEC_TMP,  STR_SENSOR_HOTT_ID_ESC_BEC_TMP, UNIT_CELSIUS, 0 ),          	// BEC BEC temperature
-  HS( HOTT_ID_ESC_MOT_TMP,  STR_SENSOR_HOTT_ID_ESC_MOT_TMP, UNIT_CELSIUS, 0 ),         	// ESC motor or external temperature
+  HS( HOTT_ID_ESC_MOT_TMP,  STR_SENSOR_HOTT_ID_ESC_MOT_TMP, UNIT_CELSIUS, 0 ),         	  // ESC motor or external temperature
 
   // GAM
   HS( HOTT_ID_GAM_CELS,     STR_SENSOR_HOTT_ID_GAM_CELS,    UNIT_CELLS, 2),             	// GAM Cels L
@@ -286,12 +287,13 @@ const HottSensor hottSensors[] = {
   HS( HOTT_ID_EAM_VLT3,     STR_SENSOR_HOTT_ID_EAM_VLT3,    UNIT_VOLTS, 1 ),            	// EAM battery voltage 3
   HS( HOTT_ID_EAM_CAP,      STR_SENSOR_HOTT_ID_EAM_CAP,     UNIT_MAH, 0 ),              	// EAM Batt capacity
   HS( HOTT_ID_EAM_VV,       STR_SENSOR_HOTT_ID_EAM_VV,      UNIT_METERS_PER_SECOND, 2 ),	// EAM vertical velcocity
-  HS( HOTT_ID_EAM_RPM,      STR_SENSOR_HOTT_ID_EAM_RPM,    UNIT_RPMS, 0 ),              	// EAM rpm  
+  HS( HOTT_ID_EAM_RPM,      STR_SENSOR_HOTT_ID_EAM_RPM,     UNIT_RPMS, 0 ),              	// EAM rpm  
   HS( HOTT_ID_EAM_SPEED,    STR_SENSOR_HOTT_ID_EAM_SPEED,   UNIT_KMH,  0 ) ,            	// EAM speed
   
   // sentinel
-  HS(0x00,                  NULL,                     UNIT_RAW, 0)                // sentinel
+  HS(0x00,                  NULL,                           UNIT_RAW, 0)                  // sentinel
 };
+// clang-format on
 
 const HottSensor * getHottSensor(uint16_t id)
 {

@@ -153,7 +153,7 @@ void RepoAssets::dumpItemModel(const QString modelName, const QAbstractItemModel
 
 bool RepoAssets::getJson(QJsonDocument * json)
 {
-  network()->downloadJson(urlAsset(id()), json);
+  network()->downloadJsonAsset(urlAsset(id()), json);
 
   if (!network()->isSuccess()) {
     status()->reportProgress("Unable to download json data", QtDebugMsg);

@@ -31,6 +31,7 @@
 #include "helpers.h"
 
 #include <QMessageBox>
+#include <QPushButton>
 
 void YamlValidateNames(GeneralSettings& gs, Board::Type board)
 {
@@ -363,11 +364,20 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   qDebug() << "Settings version:" << radioSettingsVersion.toString();
 
   if (radioSettingsVersion > SemanticVersion(VERSION)) {
-    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Warning: Radio settings file version %1 is not supported by this version of Companion!\n\nModel and radio settings may be corrupted if you continue.\n\nI acknowledge and accept the consequences.");
-    if (QMessageBox::warning(NULL, CPN_STR_APP_NAME, prmpt.arg(radioSettingsVersion.toString()), (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) != QMessageBox::Yes) {
-      //  TODO: this triggers an error in the calling code so we need a graceful way to handle
+    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Warning: File version %1 is not supported by this version of Companion!\n\nModel and radio settings may be corrupted if you continue.");
+    prmpt = prmpt.arg(radioSettingsVersion.toString());
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(QCoreApplication::translate("YamlGeneralSettings", "Read Radio Settings"));
+    msgBox.setText(prmpt);
+    msgBox.setIcon(QMessageBox::Warning);
+    QPushButton *pbAccept = new QPushButton(CPN_STR_TTL_ACCEPT);
+    QPushButton *pbDecline = new QPushButton(CPN_STR_TTL_DECLINE);
+    msgBox.addButton(pbAccept, QMessageBox::AcceptRole);
+    msgBox.addButton(pbDecline, QMessageBox::RejectRole);
+    msgBox.setDefaultButton(pbDecline);
+    msgBox.exec();
+    if (msgBox.clickedButton() == pbDecline)
       return false;
-    }
   }
 
   rhs.version = CPN_CURRENT_SETTINGS_VERSION; // depreciated in EdgeTX however data conversions use

@@ -39,6 +39,7 @@ class UpdateNetwork : public QObject
       DDT_Content,
       DDT_SaveToFile,
       DDT_MetaData,
+      DDT_Raw,
     };
     Q_ENUM(DownloadDataType)
 
@@ -48,6 +49,8 @@ class UpdateNetwork : public QObject
     void convertBufferToJson(QJsonDocument * json);
     void downloadMetaData(const QString & url, QJsonDocument * json);
     void downloadJson(const QString & url, QJsonDocument * json);
+    void downloadJsonAsset(const QString & url, QJsonDocument * json);
+    void downloadJsonContent(const QString & url, QJsonDocument * json);
     void downloadToFile(const QString & url, const QString & filePath);
     void downloadToBuffer(const DownloadDataType type, const QString & url);
     void download(const DownloadDataType type, const QString & urlStr, const char * header, const QString & filePath);

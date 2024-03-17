@@ -114,9 +114,9 @@ void drawPotsBars()
   for (uint8_t i = 0; i < max_pots; i++) {
     if (IS_POT_SLIDER_AVAILABLE(i)) {
       coord_t x = xstart + (i % cols) * 5;
-      coord_t y = lines == 1 ? (LCD_H - 8) : i >= cols ? (LCD_H - 8) : (LCD_H - 8 - BAR_HEIGHT / 2);
+      coord_t y = lines == 1 ? (LCD_H - 8) : i >= cols ? (LCD_H - 8) : (LCD_H - 8 - BAR_HEIGHT / 2 - 1);
       auto v = calibratedAnalogs[offset + i] + RESX;
-      uint8_t len = (v * BAR_HEIGHT / (RESX * 2 * lines)) + 1l;
+      uint8_t len = (v * (BAR_HEIGHT - (lines - 1)) / (RESX * 2 * lines)) + 1l;
       V_BAR(x, y, len);
     }
   }
@@ -162,7 +162,7 @@ void displayTrims(uint8_t phase)
     uint8_t att = ROUND;
     int16_t val = getTrimValue(phase, i);
 
-    if (getRawTrimValue(phase, i).mode == TRIM_MODE_NONE)
+    if (getRawTrimValue(phase, i).mode == TRIM_MODE_NONE || getRawTrimValue(phase, i).mode == TRIM_MODE_3POS)
       continue;
 
     int16_t dir = val;
@@ -354,14 +354,19 @@ void displayBattVoltage()
 #define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_DOWN)
 #define EVT_KEY_STATISTICS             EVT_KEY_LONG(KEY_UP)
 #else
+#if defined(NAVIGATION_9X)
+#define EVT_KEY_CONTEXT_MENU           EVT_KEY_BREAK(KEY_ENTER)
+#define EVT_KEY_LAST_MENU              EVT_KEY_LONG(KEY_ENTER)
+#else
 #define EVT_KEY_CONTEXT_MENU           EVT_KEY_BREAK(KEY_MENU)
+#define EVT_KEY_LAST_MENU              EVT_KEY_LONG(KEY_MENU)
+#endif
 #define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_UP)
 #define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_DOWN)
 #define EVT_KEY_NEXT_PAGE              EVT_KEY_BREAK(KEY_RIGHT)
 #define EVT_KEY_PREVIOUS_PAGE          EVT_KEY_BREAK(KEY_LEFT)
 #define EVT_KEY_MODEL_MENU             EVT_KEY_LONG(KEY_RIGHT)
 #define EVT_KEY_GENERAL_MENU           EVT_KEY_LONG(KEY_LEFT)
-#define EVT_KEY_LAST_MENU              EVT_KEY_LONG(KEY_MENU)
 #define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_DOWN)
 #define EVT_KEY_STATISTICS             EVT_KEY_LONG(KEY_UP)
 #endif

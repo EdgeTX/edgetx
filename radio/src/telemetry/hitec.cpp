@@ -160,6 +160,7 @@ enum
   HITEC_ID_TX_LQI = 0xFF01,    // Pseudo id outside 1 byte range of Hitec sensors
 };
 
+// clang-format off
 #define HS(id,name,unit,precision) {id,unit,precision,name}
 
 const HitecSensor hitecSensors[] = {
@@ -177,19 +178,19 @@ const HitecSensor hitecSensors[] = {
   //frame 15
   HS(HITEC_ID_FUEL,         STR_SENSOR_FUEL,       UNIT_PERCENT,           0),  // Fuel
   HS(HITEC_ID_RPM1,         STR_SENSOR_RPM,        UNIT_RPMS,              0),  // RPM1
-  HS(HITEC_ID_RPM2,   STR_SENSOR_RPM2,             UNIT_RPMS,              0),  // RPM2
+  HS(HITEC_ID_RPM2,         STR_SENSOR_RPM2,       UNIT_RPMS,              0),  // RPM2
   //frame 16
   HS(HITEC_ID_GPS_DATETIME, STR_SENSOR_GPS,        UNIT_DATETIME,          0),  // GPS date time
   //frame 17
   HS(HITEC_ID_GPS_HEADING,  STR_SENSOR_HDG,        UNIT_DEGREE,            0),  // GPS Heading
   HS(HITEC_ID_GPS_COUNT,    STR_SENSOR_SATELLITES, UNIT_RAW,               0),  // GPS count
-  HS(HITEC_ID_TEMP3,  STR_SENSOR_TEMP3,            UNIT_CELSIUS,           0),  // Temperature sensor 3
-  HS(HITEC_ID_TEMP4,  STR_SENSOR_TEMP4,            UNIT_CELSIUS,           0),  // Temperature sensor 4
+  HS(HITEC_ID_TEMP3,        STR_SENSOR_TEMP3,      UNIT_CELSIUS,           0),  // Temperature sensor 3
+  HS(HITEC_ID_TEMP4,        STR_SENSOR_TEMP4,      UNIT_CELSIUS,           0),  // Temperature sensor 4
   //frame 18
   HS(HITEC_ID_VOLTAGE,      STR_SENSOR_A1,         UNIT_VOLTS,             1),  // Voltage sensor
   HS(HITEC_ID_AMP,          STR_SENSOR_CURR,       UNIT_AMPS,              0),  // Amp sensor
-  HS(HITEC_ID_C50,    STR_SENSOR_C50,              UNIT_AMPS,              1),  // Amp sensor C50
-  HS(HITEC_ID_C200,   STR_SENSOR_C200,             UNIT_AMPS,              0),  // Amp sensor C200
+  HS(HITEC_ID_C50,          STR_SENSOR_C50,        UNIT_AMPS,              1),  // Amp sensor C50
+  HS(HITEC_ID_C200,         STR_SENSOR_C200,       UNIT_AMPS,              0),  // Amp sensor C200
   //frame 19
   HS(HITEC_ID_AMP_S1, STR_SENSOR_CURR_SERVO1,      UNIT_AMPS,              1),  // Amp sensor
   HS(HITEC_ID_AMP_S2, STR_SENSOR_CURR_SERVO2,      UNIT_AMPS,              1),  // Amp sensor
@@ -203,8 +204,9 @@ const HitecSensor hitecSensors[] = {
 
   HS(HITEC_ID_TX_RSSI,      STR_SENSOR_TX_RSSI,    UNIT_RAW,               0),  // Pseudo id outside 1 byte range of Hitec sensors
   HS(HITEC_ID_TX_LQI,       STR_SENSOR_TX_QUALITY, UNIT_RAW,               0),  // Pseudo id outside 1 byte range of Hitec sensors// Pseudo sensor for TLQI
-  HS(0x00,                  NULL,            UNIT_RAW,               0),  // sentinel
+  HS(0x00,                  NULL,                  UNIT_RAW,               0),  // sentinel
 };
+// clang-format on
 
 const HitecSensor * getHitecSensor(uint16_t id)
 {
