@@ -172,10 +172,10 @@ typedef struct
 #if (USBD_CMPSIT_ACTIVATE_CDC == 1) || (USBD_CMPSIT_ACTIVATE_RNDIS == 1) || (USBD_CMPSIT_ACTIVATE_CDC_ECM == 1)
 typedef struct
 {
-/*
- * CDC Class specification revision 1.2
- * Table 15: Class-Specific Descriptor Header Format
- */
+  /*
+   * CDC Class specification revision 1.2
+   * Table 15: Class-Specific Descriptor Header Format
+   */
   /* Header Functional Descriptor */
   uint8_t           bLength;
   uint8_t           bDescriptorType;
@@ -204,10 +204,10 @@ typedef struct
 
 typedef struct
 {
-/*
- * CDC Class specification revision 1.2
- * Table 16: Union Interface Functional Descriptor
- */
+  /*
+   * CDC Class specification revision 1.2
+   * Table 16: Union Interface Functional Descriptor
+   */
   /* Union Functional Descriptor */
   uint8_t           bLength;
   uint8_t           bDescriptorType;
@@ -249,7 +249,7 @@ uint8_t USBD_CMPST_ClearConfDesc(USBD_HandleTypeDef *pdev);
     pEpDesc->bDescriptorType    = USB_DESC_TYPE_ENDPOINT; \
     pEpDesc->bEndpointAddress   = (epadd); \
     pEpDesc->bmAttributes       = (eptype); \
-    pEpDesc->wMaxPacketSize     = (epsize); \
+    pEpDesc->wMaxPacketSize     = (uint16_t)(epsize); \
     if(speed == (uint8_t)USBD_SPEED_HIGH) \
     { \
       pEpDesc->bInterval        = HSinterval; \

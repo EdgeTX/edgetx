@@ -454,7 +454,7 @@ static void USBD_GetDescriptor(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *r
 #ifdef USE_USBD_COMPOSITE
         if ((uint8_t)(pdev->NumClasses) > 0U)
         {
-          pbuf   = (uint8_t *)USBD_CMPSIT.GetHSConfigDescriptor(&len);
+          pbuf = (uint8_t *)USBD_CMPSIT.GetHSConfigDescriptor(&len);
         }
         else
 #endif /* USE_USBD_COMPOSITE */
@@ -468,12 +468,12 @@ static void USBD_GetDescriptor(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *r
 #ifdef USE_USBD_COMPOSITE
         if ((uint8_t)(pdev->NumClasses) > 0U)
         {
-          pbuf   = (uint8_t *)USBD_CMPSIT.GetFSConfigDescriptor(&len);
+          pbuf = (uint8_t *)USBD_CMPSIT.GetFSConfigDescriptor(&len);
         }
         else
 #endif /* USE_USBD_COMPOSITE */
         {
-          pbuf   = (uint8_t *)pdev->pClass[0]->GetFSConfigDescriptor(&len);
+          pbuf = (uint8_t *)pdev->pClass[0]->GetFSConfigDescriptor(&len);
         }
         pbuf[1] = USB_DESC_TYPE_CONFIGURATION;
       }
@@ -558,7 +558,6 @@ static void USBD_GetDescriptor(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *r
 #if (USBD_SUPPORT_USER_STRING_DESC == 1U)
           pbuf = NULL;
 
-
           for (uint32_t idx = 0U; (idx < pdev->NumClasses); idx++)
           {
             if (pdev->pClass[idx]->GetUsrStrDescriptor != NULL)
@@ -576,13 +575,12 @@ static void USBD_GetDescriptor(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *r
               }
             }
           }
-
 #endif /* USBD_SUPPORT_USER_STRING_DESC  */
 
 #if (USBD_CLASS_USER_STRING_DESC == 1U)
           if (pdev->pDesc->GetUserStrDescriptor != NULL)
           {
-            pbuf = pdev->pDesc->GetUserStrDescriptor(pdev->dev_speed, (req->wValue), &len);
+            pbuf = pdev->pDesc->GetUserStrDescriptor(pdev->dev_speed, LOBYTE(req->wValue), &len);
           }
           else
           {
@@ -751,6 +749,13 @@ static USBD_StatusTypeDef USBD_SetConfig(USBD_HandleTypeDef *pdev, USBD_SetupReq
         {
           (void)USBD_CtlSendStatus(pdev);
           pdev->dev_state = USBD_STATE_CONFIGURED;
+
+#if (USBD_USER_REGISTER_CALLBACK == 1U)
+          if (pdev->DevStateCallback != NULL)
+          {
+            pdev->DevStateCallback(USBD_STATE_CONFIGURED, cfgidx);
+          }
+#endif /* USBD_USER_REGISTER_CALLBACK */
         }
       }
       else
@@ -895,7 +900,7 @@ static void USBD_SetFeature(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
   }
   else if (req->wValue == USB_FEATURE_TEST_MODE)
   {
-    pdev->dev_test_mode = req->wIndex >> 8;
+    pdev->dev_test_mode = (uint8_t)(req->wIndex >> 8);
     (void)USBD_CtlSendStatus(pdev);
   }
   else
