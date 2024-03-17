@@ -485,10 +485,12 @@ class SourcesConversionTable: public ConversionTable {
         int offset = 0;
         if (version <= 218 && IS_HORUS_X10(board) && i >= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
           offset += 2;
+
+        //  ADC refactor shuffles
+
         //if (version <= 220 && (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) && i >= CPN_MAX_STICKS + MAX_POTS_STORAGE(board, version))
         //  offset += 2;
 
-        //  ADC refactor shuffles
         if (IS_FAMILY_HORUS_OR_T16(board)) {
           if (i >= 7 && i <= 8)
             offset += 2;
@@ -503,8 +505,8 @@ class SourcesConversionTable: public ConversionTable {
         }
         //  end ADC refactor shuffles
 
-        addConversion(RawSource(SOURCE_TYPE_STICK, i + offset), val++);
-//        qDebug() << "i:" << i << "offset:" << offset << "index:" << i + offset << "desc:" << RawSource(SOURCE_TYPE_STICK, i + offset).toString() << "val:" << val;
+        addConversion(RawSource(SOURCE_TYPE_INPUT, i + offset + 1), val++);
+//        qDebug() << "i:" << i << "offset:" << offset << "index:" << i + offset + 1 << "desc:" << RawSource(SOURCE_TYPE_STICK, i + offset).toString() << "val:" << val;
       }
 
       for (int i=1; i<=MAX_ROTARY_ENCODERS(board); i++) {
