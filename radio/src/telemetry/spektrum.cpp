@@ -141,6 +141,7 @@ struct SpektrumSensor {
   const char *name;
 };
 
+// clang-format off
 #define SS(i2caddress,startByte,dataType,name,unit,precision) {i2caddress,startByte,dataType,precision,unit,name}
 
 // IMPORTANT: Keep the sensor table incremtally sorted by i2caddress
@@ -353,8 +354,9 @@ const SpektrumSensor spektrumSensors[] = {
   SS(I2C_PSEUDO_TX,    4,  uint32,    STR_SENSOR_BIND,              UNIT_RAW,       0),
   SS(I2C_PSEUDO_TX,    8,  uint32,    STR_SENSOR_FLIGHT_MODE,       UNIT_TEXT,      0),
   SS(I2C_PSEUDO_TX,    10, uint32,    STR_SENSOR_CELLS,             UNIT_CELLS,     2),
-  SS(0,                0,  int16,     NULL,                   UNIT_RAW,             0) //sentinel
+  SS(0,                0,  int16,     NULL,                         UNIT_RAW,       0) //sentinel
 };
+// clang-format on
 
 // Alt Low and High needs to be combined (in 2 diff packets)
 static uint8_t gpsAltHigh = 0;

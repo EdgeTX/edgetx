@@ -30,6 +30,7 @@ struct FrSkySportSensor {
   const char * name;
 };
 
+// clang-format off
 #define FS(firstId,lastId,subId,name,unit,prec) {firstId,lastId-firstId,subId,prec,unit,name}
 
 const FrSkySportSensor sportSensors[] = {
@@ -105,6 +106,7 @@ const FrSkySportSensor sportSensors[] = {
   FS( SERVO_FIRST_ID,             SERVO_LAST_ID,            3, STR_SENSOR_SERVO_STATUS,       UNIT_TEXT,        0 ),
   FS( 0,                          0,                        0, nullptr,                       UNIT_RAW,         0 ) // sentinel
 };
+// clang-format on
 
 const FrSkySportSensor * getFrSkySportSensor(uint16_t id, uint8_t subId=0)
 {

@@ -60,6 +60,7 @@ union nv14SensorData {
 
 FlyskyNv14Sensor defaultNv14Sensor = {0, 0, "UNKNOWN", UNIT_RAW, 0, 0, 2, false};
 
+// clang-format off
 const FlyskyNv14Sensor Nv14Sensor[]=
 {
     {FLYSKY_FIXED_RX_VOLTAGE,  0, STR_SENSOR_A1,          UNIT_VOLTS,         2, 0, 2, false},
@@ -84,7 +85,7 @@ const FlyskyNv14Sensor Nv14Sensor[]=
 //    {FLYSKY_SENSOR_SYNC,       0, "Sync",                 UNIT_RAW,           0, 0,  2, false},
     defaultNv14Sensor
 };
-
+// clang-format on
 
 extern uint32_t NV14internalModuleFwVersion;
 
