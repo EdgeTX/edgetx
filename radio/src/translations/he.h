@@ -1290,4 +1290,4 @@
 
 #define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
 
-#define TR_THEME_EXISTS           "A theme directory with the same name already exists."
+#define TR_THEME_EXISTS           "כבר קיימת ערכת נושא עם אותו שם"
