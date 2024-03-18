@@ -8428,7 +8428,7 @@ Vil du gemme ændringer?</translation>
     <message>
         <location filename="../mdichild.cpp" line="1429"/>
         <source>Choose &lt;i&gt;Apply&lt;/i&gt; to convert the file, or &lt;i&gt;Close&lt;/i&gt; to close it without conversion.</source>
-        <translation>Vælg &lt;i&gt;Ok&lt;/i&gt; for at konvertere;i&gt;Luk&lt;/i&gt; for at afbryde uden at konvertere.</translation>
+        <translation>Vælg &lt;i&gt;Anvend&lt;/i&gt; for at konvertere;i&gt;Luk&lt;/i&gt; for at afbryde uden at konvertere.</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1456"/>
