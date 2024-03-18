@@ -669,7 +669,7 @@
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "主板温度"
 #define TR_TEMPWARNING                 INDENT "过热"
-#define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
+#define TR_TTL_WARNING                 "警告: TX和RX引脚电平不能超过3.3V !"
 #define TR_FUNC                        "功能"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
