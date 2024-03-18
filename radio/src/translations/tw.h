@@ -276,7 +276,7 @@
 #define TR_TTRACE                      TR("輸入源", INDENT "輸入源")
 #define TR_TTRIM                       TR("油門微調僅怠速", INDENT "油門微調只調整怠速")
 #define TR_TTRIM_SW                    TR("微調選擇", INDENT "微調選擇")
-#define TR_BEEPCTR                     TR("中點蜂鳴", "中點蜂鳴")
+#define TR_BEEPCTR                     TR("中點提示音", "中點蜂鳴提示音")
 #define TR_USE_GLOBAL_FUNCS            TR("全局功能", "全局功能可介入")
 #define TR_PPMFRAME INDENT             "PPM幀"
 #define TR_REFRESHRATE                 TR(INDENT "刷新率", INDENT "刷新速率")
@@ -1114,7 +1114,7 @@
 #define TR_CURRENTSENSOR               "傳感器"
 #define TR_AUTOOFFSET                  "自動偏移值"
 #define TR_ONLYPOSITIVE                "正向"
-#define TR_FILTER                      "濾波"
+#define TR_FILTER                      "濾波器"
 #define TR_TELEMETRYFULL               TR("項目已滿!", "回傳項目已滿!")
 #define TR_INVERTED_SERIAL             INDENT "反向"
 #define TR_IGNORE_INSTANCE             TR(INDENT "忽略ID", INDENT "忽略ID鑑別")
@@ -1158,7 +1158,7 @@
 #define TR_MENU_OTHER                  "其它"
 #define TR_MENU_INVERT                 "反向"
 #define TR_AUDIO_MUTE                  TR("自動靜音","音頻停播時自動靜音")
-#define TR_JITTER_FILTER               "類比輸入濾波"
+#define TR_JITTER_FILTER               "ADC濾波器"
 #define TR_DEAD_ZONE                   "死區"
 #define TR_RTC_CHECK                   TR("檢查時間電池", "檢查時間驅動電池電壓")
 #define TR_AUTH_FAILURE                "驗證失敗"
