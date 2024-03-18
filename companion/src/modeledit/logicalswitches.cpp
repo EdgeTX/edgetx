@@ -366,8 +366,6 @@ void LogicalSwitchesPanel::updateLine(int i)
         double value = range.step * model->logicalSw[i].val2 + range.offset;  /* TODO+source.getRawOffset(model)*/
         cbSource1[i]->setModel(rawSourceFilteredModel);
         cbSource1[i]->setCurrentIndex(cbSource1[i]->findData(source.toValue()));
-        if (cbSource1[i]->currentIndex() < 0)
-          cbSource1[i]->setCurrentIndex(cbSource1[i]->count() / 2);
         if (source.isTimeBased()) {
           mask |= VALUE_TO_VISIBLE;
           teOffset[i]->setTimeRange(range.min, range.max);
@@ -415,12 +413,8 @@ void LogicalSwitchesPanel::updateLine(int i)
         mask |= SOURCE1_VISIBLE | SOURCE2_VISIBLE;
         cbSource1[i]->setModel(rawSourceFilteredModel);
         cbSource1[i]->setCurrentIndex(cbSource1[i]->findData(model->logicalSw[i].val1));
-        if (cbSource1[i]->currentIndex() < 0)
-          cbSource1[i]->setCurrentIndex(cbSource1[i]->count() / 2);
         cbSource2[i]->setModel(rawSourceFilteredModel);
         cbSource2[i]->setCurrentIndex(cbSource2[i]->findData(model->logicalSw[i].val2));
-        if (cbSource2[i]->currentIndex() < 0)
-          cbSource2[i]->setCurrentIndex(cbSource2[i]->count() / 2);
         break;
 
       case LS_FAMILY_TIMER:
