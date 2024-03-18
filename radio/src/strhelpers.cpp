@@ -610,16 +610,14 @@ const char* getPotLabel(uint8_t idx)
 // this should be declared in header, but it used so much foreign symbols that
 // we declare it in cpp-file and pre-instantiate it for the uses
 template <size_t L>
-char *getSourceString(char (&destRef)[L], mixsrc_t idx)
+char *getSourceString(char (&dest)[L], mixsrc_t idx)
 {
+  bool inverted = false;
   size_t dest_len = L;
-  char* dest = destRef;
 
   if (idx < 0) {
     idx = -idx;
-    dest[0] = '!';
-    dest += 1;
-    dest_len -= 1;
+    inverted = true;
   }
 
   if (idx == MIXSRC_NONE) {
@@ -662,7 +660,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
       }
     }
 #else
-    strncpy(dest, "N/A", dest_len-1);
+    strncpy(dest, "N/A", L-1);
 #endif
   }
 #endif
@@ -728,7 +726,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
   } else if (idx <= MIXSRC_LAST_CH) {
     auto ch = idx - MIXSRC_FIRST_CH;
     if (g_model.limitData[ch].name[0] != '\0') {
-      strAppend(dest, g_model.limitData[ch].name, LEN_CHANNEL_NAME);
+      copyToTerminated(dest, g_model.limitData[ch].name);
     } else {
       strAppendStringWithIndex(dest, STR_CH, ch + 1);
     }
@@ -764,7 +762,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
   } else if (idx <= MIXSRC_LAST_TIMER) {
     idx -= MIXSRC_FIRST_TIMER;
     if (g_model.timers[idx].name[0] != '\0') {
-      strAppend(dest, g_model.timers[idx].name, LEN_TIMER_NAME);
+      copyToTerminated(dest, g_model.timers[idx].name);
     } else {
       strAppendStringWithIndex(dest, STR_SRC_TIMER, idx + 1);
     }
@@ -777,8 +775,12 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
     if (qr.rem) *pos = (qr.rem == 2 ? '+' : '-');
     *++pos = '\0';
   }
-  destRef[L - 1] = '\0'; // assert the termination
-  return destRef; 
+  if (inverted) {
+    memcpy(&dest[1], &dest[0], L-1);
+    dest[0] = '!';
+  }
+  dest[L - 1] = '\0'; // assert the termination
+  return dest; 
 }
 
 // pre-instantiate for use from external

@@ -105,7 +105,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
     ui->inputName->setMaxLength(firmware->getCapability(InputsLength));
     int flags = RawSource::InputSourceGroups & ~RawSource::NoneGroup & ~RawSource::InputsGroup;
     flags |= RawSource::GVarsGroup | RawSource::TelemGroup;
-    id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSourceWithInvert),
+    id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
                                                      flags), "RawSource");
     ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(id));
     ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(ed->srcRaw.toValue()));

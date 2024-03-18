@@ -49,7 +49,7 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
   switch (type) {
     case SOURCE_TYPE_TELEMETRY:
       {
-        div_t qr = div(abs(index), 3);
+        div_t qr = div(index, 3);
         const SensorData & sensor = model->sensorData[qr.quot];
         if (sensor.prec == 2)
           result.step = 0.01;
@@ -75,7 +75,7 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
       break;
 
     case SOURCE_TYPE_GVAR: {
-      GVarData gv = model->gvarData[abs(index)];
+      GVarData gv = model->gvarData[index];
       result.step = gv.multiplierGet();
       result.decimals = gv.prec;
       result.max = gv.getMaxPrec();
@@ -85,18 +85,18 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
     }
 
     case SOURCE_TYPE_SPECIAL:
-      if (abs(index) == 0)  {  //Batt
+      if (index == 0)  {  //Batt
         result.step = 0.1;
         result.decimals = 1;
         result.max = 25.5;
         result.unit = tr("V");
       }
-      else if (abs(index) == 1) {   //Time
+      else if (index == 1) {   //Time
         result.step = 60;
         result.max = 24 * 60 * result.step - 60;  // 23:59:00 with 1-minute resolution
         result.unit = tr("s");
       }
-      else if (abs(index) == 2) {   //GPS
+      else if (index == 2) {   //GPS
         result.max = 30000;
         result.min = -result.max;
       }
@@ -146,8 +146,8 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
 
   static const QString rotary[]  = { tr("REa"), tr("REb") };
 
-  if (inverted) {
-    return CPN_STR_SW_INDICATOR_REV % RawSource(type, index, false).toString(model, generalSettings, board, prefixCustomName);
+  if (index < 0) {
+    return QString(CPN_STR_UNKNOWN_ITEM);
   }
 
   QString result;
@@ -263,7 +263,7 @@ bool RawSource::isStick(Board::Type board) const
   if (board == Board::BOARD_UNKNOWN)
     board = getCurrentBoard();
 
-  if (type == SOURCE_TYPE_STICK && abs(index) < Boards::getCapability(board, Board::Sticks)) {
+  if (type == SOURCE_TYPE_STICK && index < Boards::getCapability(board, Board::Sticks)) {
     return true;
   }
   return false;
@@ -271,7 +271,7 @@ bool RawSource::isStick(Board::Type board) const
 
 bool RawSource::isTimeBased(Board::Type board) const
 {
-  return (type == SOURCE_TYPE_SPECIAL && abs(index) >= SOURCE_TYPE_SPECIAL_FIRST_TIMER && abs(index) <= SOURCE_TYPE_SPECIAL_LAST_TIMER);
+  return (type == SOURCE_TYPE_SPECIAL && index >= SOURCE_TYPE_SPECIAL_FIRST_TIMER && index <= SOURCE_TYPE_SPECIAL_LAST_TIMER);
 }
 
 bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings * const gs, Board::Type board) const
@@ -281,69 +281,69 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
 
   Boards b(board);
 
-  if (type == SOURCE_TYPE_STICK && abs(index) >= b.getCapability(Board::Inputs))
+  if (type == SOURCE_TYPE_STICK && index >= b.getCapability(Board::Inputs))
     return false;
 
-  if (type == SOURCE_TYPE_SWITCH && abs(index) >= b.getCapability(Board::Switches))
+  if (type == SOURCE_TYPE_SWITCH && index >= b.getCapability(Board::Switches))
     return false;
 
-  if (type == SOURCE_TYPE_SPECIAL && abs(index) >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED && abs(index) <= SOURCE_TYPE_SPECIAL_LAST_RESERVED)
+  if (type == SOURCE_TYPE_SPECIAL && index >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED && index <= SOURCE_TYPE_SPECIAL_LAST_RESERVED)
       return false;
 
   if (model) {
-    if (type == SOURCE_TYPE_SPECIAL && abs(index) >= SOURCE_TYPE_SPECIAL_FIRST_TIMER && abs(index) <= SOURCE_TYPE_SPECIAL_LAST_TIMER &&
-        model->timers[abs(index) - SOURCE_TYPE_SPECIAL_FIRST_TIMER].isModeOff())
+    if (type == SOURCE_TYPE_SPECIAL && index >= SOURCE_TYPE_SPECIAL_FIRST_TIMER && index <= SOURCE_TYPE_SPECIAL_LAST_TIMER &&
+        model->timers[index - SOURCE_TYPE_SPECIAL_FIRST_TIMER].isModeOff())
       return false;
 
-    if (type == SOURCE_TYPE_SWITCH && b.isSwitchFunc(abs(index), board) &&
-        !model->isFunctionSwitchSourceAllowed(b.getSwitchTagNum(abs(index), board) - 1))
+    if (type == SOURCE_TYPE_SWITCH && b.isSwitchFunc(index, board) &&
+        !model->isFunctionSwitchSourceAllowed(b.getSwitchTagNum(index, board) - 1))
       return false;
 
-    if (type == SOURCE_TYPE_VIRTUAL_INPUT && !model->isInputValid(abs(index)))
+    if (type == SOURCE_TYPE_VIRTUAL_INPUT && !model->isInputValid(index))
       return false;
 
     if (type == SOURCE_TYPE_PPM && model->trainerMode == TRAINER_MODE_OFF)
       return false;
 
-    if (type == SOURCE_TYPE_CUSTOM_SWITCH && model->logicalSw[abs(index)].isEmpty())
+    if (type == SOURCE_TYPE_CUSTOM_SWITCH && model->logicalSw[index].isEmpty())
       return false;
 
     if (type == SOURCE_TYPE_TELEMETRY) {
-      if (!model->sensorData[div(abs(index), 3).quot].isAvailable()) {
+      if (!model->sensorData[div(index, 3).quot].isAvailable()) {
         return false;
       }
     }
 
-    if (type == SOURCE_TYPE_CH && !model->hasMixes(abs(index)))
+    if (type == SOURCE_TYPE_CH && !model->hasMixes(index))
       return false;
   }
 
   if (gs) {
     if (type == SOURCE_TYPE_STICK) {
-      if (!gs->isInputAvailable(abs(index)))
+      if (!gs->isInputAvailable(index))
         return false;
-      if (gs->inputConfig[abs(index)].flexType == Board::FLEX_SWITCH)
+      if (gs->inputConfig[index].flexType == Board::FLEX_SWITCH)
         return false;
     }
 
-    if (type == SOURCE_TYPE_SWITCH && !b.isSwitchFunc(abs(index), board) && IS_HORUS_OR_TARANIS(board) &&
-        !gs->switchSourceAllowed(abs(index)))
+    if (type == SOURCE_TYPE_SWITCH && !b.isSwitchFunc(index, board) && IS_HORUS_OR_TARANIS(board) &&
+        !gs->switchSourceAllowed(index))
       return false;
   }
   else {
     if (type == SOURCE_TYPE_STICK) {
-      if (!Boards::isInputAvailable(abs(index), board))
+      if (!Boards::isInputAvailable(index, board))
         return false;
-      if (Boards::getInputInfo(abs(index), board).flexType == Board::FLEX_SWITCH)
+      if (Boards::getInputInfo(index, board).flexType == Board::FLEX_SWITCH)
         return false;
     }
   }
 
-  if (type == SOURCE_TYPE_TRIM && abs(index) >= b.getCapability(Board::NumTrims))
+  if (type == SOURCE_TYPE_TRIM && index >= b.getCapability(Board::NumTrims))
     return false;
 
   if (type == SOURCE_TYPE_SPACEMOUSE &&
-     (abs(index) >= CPN_MAX_SPACEMOUSE ||
+     (index >= CPN_MAX_SPACEMOUSE ||
      (!(gs->serialPort[GeneralSettings::SP_AUX1] == GeneralSettings::AUX_SERIAL_SPACEMOUSE ||
         gs->serialPort[GeneralSettings::SP_AUX2] == GeneralSettings::AUX_SERIAL_SPACEMOUSE))))
     return false;

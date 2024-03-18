@@ -58,16 +58,16 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
                                                     "RawSwitch");
   connectItemModelEvents(tabFilterFactory->getItemModel(rawSwitchId));
 
-  rawSourceAllId = tabFilterFactory->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSourceWithInvert)),
+  rawSourceAllId = tabFilterFactory->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource)),
                                                        "RawSource All");
   connectItemModelEvents(tabFilterFactory->getItemModel(rawSourceAllId));
 
-  rawSourceInputsId = tabFilterFactory->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSourceWithInvert),
+  rawSourceInputsId = tabFilterFactory->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
                                                                                 RawSource::InputSourceGroups),
                                                           "RawSource Inputs");
   connectItemModelEvents(tabFilterFactory->getItemModel(rawSourceInputsId));
 
-  rawSourceGVarsId = tabFilterFactory->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSourceWithInvert),
+  rawSourceGVarsId = tabFilterFactory->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
                                                                                RawSource::GVarsGroup),
                                                          "RawSource GVars");
   connectItemModelEvents(tabFilterFactory->getItemModel(rawSourceGVarsId));

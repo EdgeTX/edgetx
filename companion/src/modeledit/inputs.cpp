@@ -31,7 +31,6 @@ InputsPanel::InputsPanel(QWidget *parent, ModelData & model, GeneralSettings & g
   modelsUpdateCnt(0)
 {
   connectItemModelEvents(AbstractItemModel::IMID_RawSource);
-  connectItemModelEvents(AbstractItemModel::IMID_RawSourceWithInvert);
   connectItemModelEvents(AbstractItemModel::IMID_RawSwitch);
   connectItemModelEvents(AbstractItemModel::IMID_Curve);
   connectItemModelEvents(AbstractItemModel::IMID_GVarRef);

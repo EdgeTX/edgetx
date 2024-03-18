@@ -36,7 +36,6 @@ class AbstractItemModel: public QStandardItemModel
     enum ItemModelId {
       IMID_Unknown,
       IMID_RawSource,
-      IMID_RawSourceWithInvert,
       IMID_RawSwitch,
       IMID_Curve,
       IMID_GVarRef,
@@ -199,22 +198,6 @@ class RawSourceItemModel: public AbstractDynamicItemModel
   protected:
     virtual void setDynamicItemData(QStandardItem * item, const RawSource & src) const;
     void addItems(const RawSourceType & type, const int group, const int count, const int start = 0);
-};
-
-class RawSourceItemWithInvertModel: public AbstractDynamicItemModel
-{
-    Q_OBJECT
-  public:
-    explicit RawSourceItemWithInvertModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                Firmware * firmware, const Boards * const board, const Board::Type boardType);
-    virtual ~RawSourceItemWithInvertModel() {};
-
-  public slots:
-    virtual void update(const int event = IMUE_SystemRefresh) override;
-
-  protected:
-    virtual void setDynamicItemData(QStandardItem * item, const RawSource & src) const;
-    void addItems(const RawSourceType & type, const int group, const int count, const bool inverted = false, const int start = 0);
 };
 
 class RawSwitchItemModel: public AbstractDynamicItemModel

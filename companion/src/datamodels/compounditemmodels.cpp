@@ -32,8 +32,6 @@ QString AbstractItemModel::idToString(const int value)
       return "Unknown";
     case IMID_RawSource:
       return "RawSource";
-    case IMID_RawSourceWithInvert:
-      return "RawSourceWithInvert";
     case IMID_RawSwitch:
       return "RawSwitch";
     case IMID_Curve:
@@ -147,88 +145,6 @@ void RawSourceItemModel::addItems(const RawSourceType & type, const int group, c
 }
 
 void RawSourceItemModel::update(const int event)
-{
-  if (doUpdate(event)) {
-    emit aboutToBeUpdated();
-
-    for (int i = 0; i < rowCount(); ++i)
-      setDynamicItemData(item(i), RawSource(item(i)->data(IMDR_Id).toInt()));
-
-    emit updateComplete();
-  }
-}
-
-//
-// RawSourceItemWithInvertModel
-//
-
-RawSourceItemWithInvertModel::RawSourceItemWithInvertModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                       Firmware * firmware, const Boards * const board, const Board::Type boardType) :
-  AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
-{
-  setId(IMID_RawSourceWithInvert);
-  setUpdateMask(IMUE_All &~ (IMUE_Curves | IMUE_Scripts));
-
-  addItems(SOURCE_TYPE_TELEMETRY,      RawSource::TelemGroup,    firmware->getCapability(Sensors) * 3, true);
-  addItems(SOURCE_TYPE_SPECIAL,        RawSource::TelemGroup,    SOURCE_TYPE_SPECIAL_COUNT, true);
-  addItems(SOURCE_TYPE_GVAR,           RawSource::GVarsGroup,    firmware->getCapability(Gvars), true);
-  addItems(SOURCE_TYPE_CH,             RawSource::SourcesGroup,  firmware->getCapability(Outputs), true);
-  addItems(SOURCE_TYPE_PPM,            RawSource::SourcesGroup,  firmware->getCapability(TrainerInputs), true);
-  addItems(SOURCE_TYPE_CYC,            RawSource::SourcesGroup,  CPN_MAX_CYC, true);
-  addItems(SOURCE_TYPE_CUSTOM_SWITCH,  RawSource::SwitchesGroup, firmware->getCapability(LogicalSwitches), true);
-  addItems(SOURCE_TYPE_SWITCH,         RawSource::SwitchesGroup, board->getCapability(Board::Switches), true);
-  addItems(SOURCE_TYPE_MAX,            RawSource::SourcesGroup,  1, true);
-  addItems(SOURCE_TYPE_MIN,            RawSource::SourcesGroup,  1, true);
-  addItems(SOURCE_TYPE_SPACEMOUSE,     RawSource::SourcesGroup,  CPN_MAX_SPACEMOUSE, true);
-  addItems(SOURCE_TYPE_TRIM,           RawSource::TrimsGroup,    board->getCapability(Board::NumTrims), true);
-  addItems(SOURCE_TYPE_STICK,          RawSource::SourcesGroup,  board->getCapability(Board::Inputs), true);
-  addItems(SOURCE_TYPE_VIRTUAL_INPUT,  RawSource::InputsGroup,   firmware->getCapability(VirtualInputs), true);
-  for (int i = firmware->getCapability(LuaScripts) - 1; i >= 0; i -= 1)
-    addItems(SOURCE_TYPE_LUA_OUTPUT,   RawSource::ScriptsGroup,  firmware->getCapability(LuaOutputsPerScript), true, i * 16);
-
-  addItems(SOURCE_TYPE_NONE,           RawSource::NoneGroup,     1);
-  for (int i = 0; i < firmware->getCapability(LuaScripts); i++)
-    addItems(SOURCE_TYPE_LUA_OUTPUT,   RawSource::ScriptsGroup,  firmware->getCapability(LuaOutputsPerScript), false, i * 16);
-  addItems(SOURCE_TYPE_VIRTUAL_INPUT,  RawSource::InputsGroup,   firmware->getCapability(VirtualInputs));
-  addItems(SOURCE_TYPE_STICK,          RawSource::SourcesGroup,  board->getCapability(Board::Inputs));
-  addItems(SOURCE_TYPE_TRIM,           RawSource::TrimsGroup,    board->getCapability(Board::NumTrims));
-  addItems(SOURCE_TYPE_SPACEMOUSE,     RawSource::SourcesGroup,  CPN_MAX_SPACEMOUSE);
-  addItems(SOURCE_TYPE_MIN,            RawSource::SourcesGroup,  1);
-  addItems(SOURCE_TYPE_MAX,            RawSource::SourcesGroup,  1);
-  addItems(SOURCE_TYPE_SWITCH,         RawSource::SwitchesGroup, board->getCapability(Board::Switches));
-  addItems(SOURCE_TYPE_CUSTOM_SWITCH,  RawSource::SwitchesGroup, firmware->getCapability(LogicalSwitches));
-  addItems(SOURCE_TYPE_CYC,            RawSource::SourcesGroup,  CPN_MAX_CYC);
-  addItems(SOURCE_TYPE_PPM,            RawSource::SourcesGroup,  firmware->getCapability(TrainerInputs));
-  addItems(SOURCE_TYPE_CH,             RawSource::SourcesGroup,  firmware->getCapability(Outputs));
-  addItems(SOURCE_TYPE_GVAR,           RawSource::GVarsGroup,    firmware->getCapability(Gvars));
-  addItems(SOURCE_TYPE_SPECIAL,        RawSource::TelemGroup,    SOURCE_TYPE_SPECIAL_COUNT);
-  addItems(SOURCE_TYPE_TELEMETRY,      RawSource::TelemGroup,    firmware->getCapability(Sensors) * 3);
-}
-
-void RawSourceItemWithInvertModel::setDynamicItemData(QStandardItem * item, const RawSource & src) const
-{
-  item->setText(src.toString(modelData, generalSettings, boardType));
-  item->setData(src.isAvailable(modelData, generalSettings, boardType), IMDR_Available);
-}
-
-void RawSourceItemWithInvertModel::addItems(const RawSourceType & type, const int group, const int count, const bool inverted, const int start)
-{
-  int first = inverted ? start + count - 1 : start;
-  int last = inverted ? start - 1 : start + count;
-  int inc = inverted ? -1 : 1;
-
-  for (int i = first; i != last; i += inc) {
-    const RawSource src = RawSource(type, i, inverted);
-    QStandardItem * modelItem = new QStandardItem();
-    modelItem->setData(src.toValue(), IMDR_Id);
-    modelItem->setData(type, IMDR_Type);
-    modelItem->setData(group, IMDR_Flags);
-    setDynamicItemData(modelItem, src);
-    appendRow(modelItem);
-  }
-}
-
-void RawSourceItemWithInvertModel::update(const int event)
 {
   if (doUpdate(event)) {
     emit aboutToBeUpdated();
@@ -729,9 +645,6 @@ void CompoundItemModelFactory::addItemModel(const int id)
   switch (id) {
     case AbstractItemModel::IMID_RawSource:
       registerItemModel(new RawSourceItemModel(generalSettings, modelData, firmware, board, boardType));
-      break;
-    case AbstractItemModel::IMID_RawSourceWithInvert:
-      registerItemModel(new RawSourceItemWithInvertModel(generalSettings, modelData, firmware, board, boardType));
       break;
     case AbstractItemModel::IMID_RawSwitch:
       registerItemModel(new RawSwitchItemModel(generalSettings, modelData, firmware, board, boardType));
