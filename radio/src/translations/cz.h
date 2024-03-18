@@ -681,7 +681,7 @@
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "Tepl. MB \016>"
 #define TR_TEMPWARNING                 INDENT "Přehřátí"
-#define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
+#define TR_TTL_WARNING                 "Varování: Nepřekračovat napětí 3.3V u pinů pro TX/RX!"
 #define TR_FUNC                        "Funkce"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
