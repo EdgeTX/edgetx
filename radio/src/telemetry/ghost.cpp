@@ -35,6 +35,7 @@ struct GhostSensor
   const char * name;
 };
 
+// clang-format off
 #define GS(id,name,unit,precision) {id,unit,precision,name}
 
 // telemetry sensors ID
@@ -90,8 +91,9 @@ const GhostSensor ghostSensors[] = {
   GS(GHOST_ID_GPS_ALT,         STR_SENSOR_GPSALT,           UNIT_METERS,            0),
   GS(GHOST_ID_GPS_SATS,        STR_SENSOR_SATELLITES,       UNIT_RAW,               0),
 
-  GS(0x00,                     NULL,                  UNIT_RAW,               0),
+  GS(0x00,                     NULL,                        UNIT_RAW,               0),
 };
+// clang-format on
 
 const GhostSensor *getGhostSensor(uint8_t id)
 {
