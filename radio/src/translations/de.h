@@ -276,7 +276,7 @@
 #define TR_TTRACE                      TR("Gasquelle", INDENT "Gas-Timerquelle")
 #define TR_TTRIM 	       	             TR("Gastrim", INDENT "Gas-Leerlauftrim")
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
-#define TR_BEEPCTR                     TR("MittePieps", "Mittelstell. -Pieps")
+#define TR_BEEPCTR                     TR("MittePieps", "Pieps in Mittelstellung")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob. Funkt.", "Globale Funkt verw.")
 #define TR_PROTOCOL          		       TR("Protok.", "Protokoll")
 #define TR_PPMFRAME          	  	     INDENT "PPM-Frame"
