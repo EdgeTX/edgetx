@@ -80,7 +80,6 @@ def findLibClang():
         knownPaths = os.environ.get("PATH").split(os.pathsep)
         libSuffix = ".dll"
     else:
-        print("findLibClang - Unsupported platform:", sys.platform)
         return None
         
     for path in knownPaths:
@@ -89,7 +88,6 @@ def findLibClang():
             return path
     
     # If no known path is found
-    print("findLibClang - No known path found.")
     return None
 
 def initLibClang():
@@ -108,7 +106,8 @@ def initLibClang():
     try:
         index = Index.create()
     except Exception as e:
-        print("ERROR: could not load libclang from '%s'." % library_path, file=sys.stderr)
+        print("ERROR (find_clang): could not load libclang from '%s'." % library_path, file=sys.stderr)
+        print("                  : detected platform '%s'." % sys.platform, file=sys.stderr)
         return False
 
     global builtin_hdr_path
