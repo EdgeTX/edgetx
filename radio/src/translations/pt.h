@@ -148,7 +148,7 @@
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
 #define TR_STICK_NAMES0                "Lem"
-#define TR_STICK_NAMES1                "Mot"
+#define TR_STICK_NAMES1                "Pfd"
 #define TR_STICK_NAMES2                "Thr"
 #define TR_STICK_NAMES3                "Ail"
 #define TR_SURFACE_NAMES0              "Dir"
@@ -1122,9 +1122,9 @@
 #define TR_INVERTED_SERIAL             INDENT "Invert"
 #define TR_IGNORE_INSTANCE             TR(INDENT "No inst.", INDENT "Ignore instances")
 #define TR_SHOW_INSTANCE_ID            "Show instance ID"
-#define TR_DISCOVER_SENSORS            "Discover new"
+#define TR_DISCOVER_SENSORS            "Detect. novos"
 #define TR_STOP_DISCOVER_SENSORS       "Stop"
-#define TR_DELETE_ALL_SENSORS          "Delete all"
+#define TR_DELETE_ALL_SENSORS          "Apagar todos"
 #define TR_CONFIRMDELETE               "Really " LCDW_128_480_LINEBREAK "delete all ?"
 #define TR_SELECT_WIDGET               "Select widget"
 #define TR_WIDGET_FULLSCREEN           "Full screen"
@@ -1246,19 +1246,19 @@
 
 #define TR_USBJOYSTICK_LABEL           "Joystick USB"
 #define TR_USBJOYSTICK_EXTMODE         "Modo"
-#define TR_VUSBJOYSTICK_EXTMODE        "Classic","Advanced"
-#define TR_USBJOYSTICK_SETTINGS        "Channel Settings"
-#define TR_USBJOYSTICK_IF_MODE         TR("If. mode","Interface mode")
+#define TR_VUSBJOYSTICK_EXTMODE        "Clássico","Avançado"
+#define TR_USBJOYSTICK_SETTINGS        "Conf. de Canais"
+#define TR_USBJOYSTICK_IF_MODE         TR("Modo If.","Modo Interface")
 #define TR_VUSBJOYSTICK_IF_MODE        "Joystick","Gamepad","MultiAxis"
 #define TR_USBJOYSTICK_CH_MODE         "Mode"
-#define TR_VUSBJOYSTICK_CH_MODE        "None","Btn","Axis","Sim"
+#define TR_VUSBJOYSTICK_CH_MODE        "Nenhum","Btn","Eixo","Sim"
 #define TR_VUSBJOYSTICK_CH_MODE_S      "-","B","A","S"
-#define TR_USBJOYSTICK_CH_BTNMODE      "Button Mode"
-#define TR_VUSBJOYSTICK_CH_BTNMODE     "Normal","Pulse","SWEmu","Delta","Companion"
+#define TR_USBJOYSTICK_CH_BTNMODE      "Modo Botão"
+#define TR_VUSBJOYSTICK_CH_BTNMODE     "Normal","Pulso","SWEmu","Delta","Companion"
 #define TR_VUSBJOYSTICK_CH_BTNMODE_S   TR("Norm","Normal"),TR("Puls","Pulse"),TR("SWEm","SWEmul"),TR("Delt","Delta"),TR("CPN","Companion")
-#define TR_USBJOYSTICK_CH_SWPOS        "Positions"
+#define TR_USBJOYSTICK_CH_SWPOS        "Posição"
 #define TR_VUSBJOYSTICK_CH_SWPOS       "Push","2POS","3POS","4POS","5POS","6POS","7POS","8POS"
-#define TR_USBJOYSTICK_CH_AXIS         "Axis"
+#define TR_USBJOYSTICK_CH_AXIS         "Eixo"
 #define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","rotX","rotY","rotZ","Slider","Dial","Wheel"
 #define TR_USBJOYSTICK_CH_SIM          "Sim axis"
 #define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr"
@@ -1268,7 +1268,7 @@
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!Axis collision!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Circ. cut", "Circular cutout")
 #define TR_VUSBJOYSTICK_CIRC_COUTOUT   "None","X-Y, Z-rX","X-Y, rX-rY"
-#define TR_USBJOYSTICK_APPLY_CHANGES   "Apply changes"
+#define TR_USBJOYSTICK_APPLY_CHANGES   "Appl mudanças"
 
 #define TR_DIGITAL_SERVO          "Servo333HZ"
 #define TR_ANALOG_SERVO           "Servo 50HZ"
