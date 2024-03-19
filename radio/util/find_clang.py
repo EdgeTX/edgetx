@@ -80,7 +80,7 @@ def findLibClang():
         knownPaths = os.environ.get("PATH").split(os.pathsep)
         libSuffix = ".dll"
     else:
-        print("findLibClang: Unsupported platform:", sys.platform)
+        print("findLibClang - Unsupported platform:", sys.platform)
         return None
         
     for path in knownPaths:
@@ -89,7 +89,7 @@ def findLibClang():
             return path
     
     # If no known path is found
-    print("findLibClang(): No known path found.")
+    print("findLibClang - No known path found.")
     return None
 
 def initLibClang():
