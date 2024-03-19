@@ -304,7 +304,8 @@ class TelemetrySourceItemModel: public AbstractDynamicItemModel
     virtual void update(const int event = IMUE_SystemRefresh) override;
 
   protected:
-    virtual void setDynamicItemData(QStandardItem * item, const int value) const;
+    virtual void setDynamicItemData(QStandardItem * item) const;
+    void addItems(const RawSourceType & type, int count);
 };
 
 class CurveRefTypeItemModel : public AbstractStaticItemModel

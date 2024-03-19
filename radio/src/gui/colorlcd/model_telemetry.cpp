@@ -341,27 +341,108 @@ class SensorButton : public Button {
     }
 };
 
-class SensorSourceChoice : public SourceChoice
+class TelemetrySourceChoice : public Choice
 {
- public:
-  SensorSourceChoice(Window *window, const rect_t &rect, uint8_t *source,
-                     IsValueAvailable isValueAvailable) :
-      SourceChoice(window, rect, MIXSRC_NONE, MIXSRC_LAST_TELEM,
-                   GET_DEFAULT(*source ? MIXSRC_FIRST_TELEM + 3 * (*source - 1)
-                                       : MIXSRC_NONE),
-                   [=](uint16_t newValue) {
-                     *source = newValue == MIXSRC_NONE
-                                   ? 0
-                                   : (newValue - MIXSRC_FIRST_TELEM) / 3 + 1;
-                   })
-  {
-    setAvailableHandler([=](int16_t value) {
-      if (value == MIXSRC_NONE) return true;
-      if (value < MIXSRC_FIRST_TELEM) return false;
-      auto qr = div(value - MIXSRC_FIRST_TELEM, 3);
-      return qr.rem == 0 && isValueAvailable(qr.quot + 1);
-    });
-  }
+public:
+    TelemetrySourceChoice(Window *window, const rect_t &rect, uint8_t *source, IsValueAvailable isValueAvailable) :
+        Choice(window, rect, 0, 127, GET_DEFAULT(static_cast<int8_t>(*source)), [=](int16_t newValue){*source=newValue;})
+    {
+        setAvailableHandler([=](int16_t value) -> bool {
+            if (value == 0) return true;
+            if (negativeGVarPrefix!=0){
+                //gvars allowed
+                //negative values allowed
+                int8_t gvindex = static_cast<int8_t>(GV_INDEX_CALCULATION(value, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS));
+                if(-MAX_GVARS <= gvindex && gvindex < MAX_GVARS) {
+                    return true;
+                }
+            }
+            //not a gvar, negative can be allowed
+            int index = abs(value);
+            return index <= MAX_TELEMETRY_SENSORS && isValueAvailable(index);
+        });
+        setTextHandler([=](int value) {
+            if(GV_IS_GV_VALUE(value, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS)) {
+                int index = GV_INDEX_CALCULATION(value, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS);
+                std::string ret(getGVarString(index));
+                fprintf(stderr,">>>>>> GV %d %d %s\n",value,index,ret.c_str());
+                if(value>0) {
+                    ret[0] = negativeGVarPrefix;
+                }
+                return ret;
+            } else if (value == 0) {
+                return std::string(getSourceString(0));
+            } else if (value < 0) {
+                std::string ret(getSourceString(MIXSRC_FIRST_TELEM+((-value)-1)*3));
+                ret.insert(0, 1, '-');
+                return ret;
+            } else {
+                return std::string(getSourceString(MIXSRC_FIRST_TELEM+(value-1)*3));
+            }
+        });
+        setRangeMapHandler([=](int n) {
+          // Map range of choice values so GVars are in correct order.
+          if (n <= -120)
+            n += GV1_SMALL * 2 - MAX_GVARS;
+          else if (n >= 119)
+            n -= GV1_SMALL * 2 - MAX_GVARS;
+          return n;
+        });
+    }
+
+    void setGVPrefix(char prefix)
+    {
+      if (modelGVEnabled()) {
+        negativeGVarPrefix = prefix;
+        setMin(negativeGVarPrefix != 0 ? -128 : 0);
+        if (getIntValue() < getMin())
+          setValue(getMin());
+      }
+    }
+    
+  protected:
+    char negativeGVarPrefix;
+};
+
+class SensorLiveValue: public Window {
+  public:
+    explicit SensorLiveValue(Window * parent, const rect_t & rect,  int index):
+      Window(parent, rect, OPAQUE),
+      index(index)
+    {
+    }
+
+    void checkEvents() override
+    {
+      uint32_t now = RTOS_GET_MS();
+      if (now - lastRefresh >= 200) {
+        // update at least every 200ms
+        invalidate();
+      }
+
+      TelemetryItem & telemetryItem = telemetryItems[index];
+      if (telemetryItem.isFresh()) {
+        invalidate();
+      }
+
+      Window::checkEvents();
+    }
+
+    void paint(BitmapBuffer * dc) override
+    {
+      TelemetryItem &telemetryItem = telemetryItems[index];
+
+      dc->drawSolidFilledRect(0, 0, width(), height(), COLOR_THEME_SECONDARY1);
+      if (telemetryItem.isAvailable()) {
+        LcdFlags color = telemetryItem.isOld() ? COLOR_THEME_WARNING : COLOR_THEME_PRIMARY2;
+        drawSensorCustomValue(dc, 0, 1, index, getValue(MIXSRC_FIRST_TELEM + 3 * index), LEFT | color);
+      } else {
+        dc->drawText(0, 1, "---", COLOR_THEME_PRIMARY2);
+      }
+    }
+  protected:
+    uint8_t index;
+    uint32_t lastRefresh = 0;
 };
 
 class SensorEditWindow : public Page {
@@ -406,6 +487,7 @@ class SensorEditWindow : public Page {
     };
 
     FormWindow::Line* paramLines[P_COUNT] = {};
+    TelemetrySourceChoice* calcSource[4] = {};
 
     void buildHeader(Window * window)
     {
@@ -441,6 +523,16 @@ class SensorEditWindow : public Page {
                                STR_NA);
         }
       }
+    }
+
+    void setGVPrefix(int n, uint8_t formula)
+    {
+      if (formula == TELEM_FORMULA_MULTIPLY)
+         calcSource[n]->setGVPrefix('/');
+      else if (formula < TELEM_FORMULA_MULTIPLY)
+         calcSource[n]->setGVPrefix('-');
+      else
+         calcSource[n]->setGVPrefix(0);
     }
 
     void updateSensorParameters()
@@ -486,6 +578,7 @@ class SensorEditWindow : public Page {
           }
           else {
             lv_obj_clear_flag(paramLines[P_CALC0]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+            setGVPrefix(0, sensor->formula);
           }
         }
         else {
@@ -509,6 +602,7 @@ class SensorEditWindow : public Page {
           }
           else {
             lv_obj_clear_flag(paramLines[P_CALC1]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+            setGVPrefix(1, sensor->formula);
           }
         }
         else if (sensor->unit == UNIT_RPMS) {
@@ -521,7 +615,9 @@ class SensorEditWindow : public Page {
 
       if ((sensor->type == TELEM_TYPE_CALCULATED && sensor->formula < TELEM_FORMULA_MULTIPLY)) {
         lv_obj_clear_flag(paramLines[P_CALC2]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        setGVPrefix(2, sensor->formula);
         lv_obj_clear_flag(paramLines[P_CALC3]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        setGVPrefix(3, sensor->formula);
       }
 
       // Auto Offset
@@ -647,23 +743,23 @@ class SensorEditWindow : public Page {
 
       paramLines[P_CELLSENSOR] = form->newLine(&grid);
       new StaticText(paramLines[P_CELLSENSOR], rect_t{}, STR_CELLSENSOR, 0, COLOR_THEME_PRIMARY1);
-      new SensorSourceChoice(paramLines[P_CELLSENSOR], rect_t{}, &sensor->cell.source, isCellsSensor);
+      new TelemetrySourceChoice(paramLines[P_CELLSENSOR], rect_t{}, &sensor->cell.source, isCellsSensor);
 
       paramLines[P_GPSSENSOR] = form->newLine(&grid);
       new StaticText(paramLines[P_GPSSENSOR], rect_t{}, STR_GPSSENSOR, 0, COLOR_THEME_PRIMARY1);
-      new SensorSourceChoice(paramLines[P_GPSSENSOR], rect_t{}, &sensor->dist.gps, isGPSSensor);
+      new TelemetrySourceChoice(paramLines[P_GPSSENSOR], rect_t{}, &sensor->dist.gps, isGPSSensor);
 
       paramLines[P_CURRENTSENSOR] = form->newLine(&grid);
       new StaticText(paramLines[P_CURRENTSENSOR], rect_t{}, STR_CURRENTSENSOR, 0, COLOR_THEME_PRIMARY1);
-      new SensorSourceChoice(paramLines[P_CURRENTSENSOR], rect_t{}, &sensor->consumption.source, isSensorAvailable);
+      new TelemetrySourceChoice(paramLines[P_CURRENTSENSOR], rect_t{}, &sensor->consumption.source, isSensorAvailable);
 
       paramLines[P_CONSUMPTIONSOURCE] = form->newLine(&grid);
       new StaticText(paramLines[P_CONSUMPTIONSOURCE], rect_t{}, STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
-      new SensorSourceChoice(paramLines[P_CONSUMPTIONSOURCE], rect_t{}, &sensor->consumption.source, isSensorAvailable);
+      new TelemetrySourceChoice(paramLines[P_CONSUMPTIONSOURCE], rect_t{}, &sensor->consumption.source, isSensorAvailable);
 
       paramLines[P_CALC0] = form->newLine(&grid);
       new StaticText(paramLines[P_CALC0], rect_t{}, STR_SOURCE + std::to_string(1), 0, COLOR_THEME_PRIMARY1);
-      new SensorSourceChoice(paramLines[P_CALC0], rect_t{}, (uint8_t *) &sensor->calc.sources[0], isSensorAvailable);
+      calcSource[0] = new TelemetrySourceChoice(paramLines[P_CALC0], rect_t{}, (uint8_t *) &sensor->calc.sources[0], isSensorAvailable);
 
       paramLines[P_BLADES] = form->newLine(&grid);
       new StaticText(paramLines[P_BLADES], rect_t{}, STR_BLADES, 0, COLOR_THEME_PRIMARY1);
@@ -681,11 +777,11 @@ class SensorEditWindow : public Page {
 
       paramLines[P_ALTSENSOR] = form->newLine(&grid);
       new StaticText(paramLines[P_ALTSENSOR], rect_t{}, STR_ALTSENSOR, 0, COLOR_THEME_PRIMARY1);
-      new SensorSourceChoice(paramLines[P_ALTSENSOR], rect_t{}, &sensor->dist.alt, isAltSensor);
+      new TelemetrySourceChoice(paramLines[P_ALTSENSOR], rect_t{}, &sensor->dist.alt, isAltSensor);
 
       paramLines[P_CALC1] = form->newLine(&grid);
       new StaticText(paramLines[P_CALC1], rect_t{}, STR_SOURCE + std::to_string(2), 0, COLOR_THEME_PRIMARY1);
-      new SensorSourceChoice(paramLines[P_CALC1], rect_t{}, (uint8_t *) &sensor->calc.sources[1], isSensorAvailable);
+      calcSource[1] = new TelemetrySourceChoice(paramLines[P_CALC1], rect_t{}, (uint8_t *) &sensor->calc.sources[1], isSensorAvailable);
 
       paramLines[P_MULT] = form->newLine(&grid);
       new StaticText(paramLines[P_MULT], rect_t{}, STR_MULTIPLIER, 0, COLOR_THEME_PRIMARY1);
@@ -698,11 +794,11 @@ class SensorEditWindow : public Page {
 
       paramLines[P_CALC2] = form->newLine(&grid);
       new StaticText(paramLines[P_CALC2], rect_t{}, STR_SOURCE + std::to_string(3), 0, COLOR_THEME_PRIMARY1);
-      new SensorSourceChoice(paramLines[P_CALC2], rect_t{}, (uint8_t *) &sensor->calc.sources[2], isSensorAvailable);
+      calcSource[2] = new TelemetrySourceChoice(paramLines[P_CALC2], rect_t{}, (uint8_t *) &sensor->calc.sources[2], isSensorAvailable);
 
       paramLines[P_CALC3] = form->newLine(&grid);
       new StaticText(paramLines[P_CALC3], rect_t{}, STR_SOURCE + std::to_string(4), 0, COLOR_THEME_PRIMARY1);
-      new SensorSourceChoice(paramLines[P_CALC3], rect_t{}, (uint8_t *) &sensor->calc.sources[3], isSensorAvailable);
+      calcSource[3] = new TelemetrySourceChoice(paramLines[P_CALC3], rect_t{}, (uint8_t *) &sensor->calc.sources[3], isSensorAvailable);
 
       paramLines[P_AUTOOFFSET] = form->newLine(&grid);
       new StaticText(paramLines[P_AUTOOFFSET], rect_t{}, STR_AUTOOFFSET, 0, COLOR_THEME_PRIMARY1);

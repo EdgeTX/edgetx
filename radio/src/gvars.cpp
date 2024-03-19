@@ -73,7 +73,7 @@ void setGVarValue(uint8_t gv, int16_t value, int8_t fm)
 int16_t getGVarFieldValue(int16_t val, int16_t min, int16_t max, int8_t fm)
 {
   if (GV_IS_GV_VALUE(val, min, max)) {
-    int8_t gv = GV_INDEX_CALCULATION(val, max);
+    int8_t gv = GV_INDEX_CALCULATION(val, min, max);
     val = getGVarValue(gv, fm);
   }
   return limit(min, val, max);
@@ -82,7 +82,7 @@ int16_t getGVarFieldValue(int16_t val, int16_t min, int16_t max, int8_t fm)
 int32_t getGVarFieldValuePrec1(int16_t val, int16_t min, int16_t max, int8_t fm)
 {
   if (GV_IS_GV_VALUE(val, min, max)) {
-    int8_t gv = GV_INDEX_CALCULATION(val, max);
+    int8_t gv = GV_INDEX_CALCULATION(val, min, max);
     val = getGVarValuePrec1(gv, fm);
   }
   else {
