@@ -288,7 +288,7 @@
 #define TR_TTRACE                       TR("Källa", INDENT "Källa")
 #define TR_TTRIM                        TR("Gastrimm", INDENT "Trimma endast tomgång")
 #define TR_TTRIM_SW                     TR("Trimmknp", INDENT "Trimmknapp")
-#define TR_BEEPCTR                      TR("Cent.pip", "Centerpip")
+#define TR_BEEPCTR                      TR("Cntr. pip", "Pip när centrerad")
 #define TR_USE_GLOBAL_FUNCS             TR("Glob.funk.", "Anv. globala funk.")
 #define TR_PROTOCOL                     TR("Proto.", "Protokoll")
 #define TR_PPMFRAME                     INDENT "PPM-paket"
