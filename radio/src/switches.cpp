@@ -457,6 +457,16 @@ PACK(typedef struct {
   uint16_t duration:15;
 }) ls_stay_struct;
 
+void logicalSwitchesInit()
+{
+  for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
+    LogicalSwitchData * ls = lswAddress(idx);
+    if (ls->func == LS_FUNC_STICKY) {
+      lswFm[mixerCurrentFlightMode].lsw[idx].lastValue = ls->lsState;
+    }
+  }
+}
+
 bool getLogicalSwitch(uint8_t idx)
 {
   LogicalSwitchData * ls = lswAddress(idx);
@@ -745,6 +755,10 @@ void evalLogicalSwitches(bool isCurrentFlightmode)
       }
     }
     context.state = result;
+    if ((g_model.logicalSw[idx].func == LS_FUNC_STICKY) && (g_model.logicalSw[idx].lsState != result)) {
+      g_model.logicalSw[idx].lsState = result;
+      storageDirty(EE_MODEL);
+    }
   }
 }
 

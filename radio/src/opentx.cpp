@@ -1434,6 +1434,8 @@ void edgeTxInit()
     // SDCARD not available, try to restore last model from RAM
     TRACE("rambackupRestore");
     rambackupRestore();
+    extern void logicalSwitchesInit();
+    logicalSwitchesInit();
   }
   else {
     storageReadAll();

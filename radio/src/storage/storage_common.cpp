@@ -244,6 +244,9 @@ if(g_model.rssiSource) {
 
   customFunctionsReset();
 
+  extern void logicalSwitchesInit();
+  logicalSwitchesInit();
+
   restoreTimers();
 
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
