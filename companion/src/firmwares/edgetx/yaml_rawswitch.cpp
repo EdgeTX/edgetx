@@ -119,7 +119,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
     try {
       mp_input_index = std::stoi(sw_str_tmp.substr(2, val_len - 3));
 
-      if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
+      if (modelSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
         if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
           if (mp_input_index > 2)
             mp_input_index += 2;
