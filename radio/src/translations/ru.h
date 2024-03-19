@@ -1289,4 +1289,4 @@
 
 #define TR_MIX_SLOW_PREC          TR("Точн замедл", "Точность замедления")
 
-#define TR_THEME_EXISTS           "A theme directory with the same name already exists."
+#define TR_THEME_EXISTS           "Уже есть каталог с таким названием"
