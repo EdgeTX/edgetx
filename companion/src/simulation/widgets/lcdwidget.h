@@ -46,7 +46,8 @@ class LcdWidget : public QWidget
       QWidget(parent),
       localBuf(NULL),
       lightEnable(false),
-      bgDefaultColor(QColor(198, 208, 199))
+      bgDefaultColor(QColor(198, 208, 199)),
+      fgDefaultColor(QColor(0, 0, 0))
   {
   }
 
@@ -59,6 +60,7 @@ class LcdWidget : public QWidget
 
   void setData(int width, int height, int depth = 1);
   void setBgDefaultColor(const QColor &color);
+  void setFgDefaultColor(const QColor &color);
   void setBackgroundColor(const QColor &color);
 
   void makeScreenshot(const QString &fileName);
@@ -79,6 +81,7 @@ class LcdWidget : public QWidget
   bool lightEnable;
   QColor bgColor;
   QColor bgDefaultColor;
+  QColor fgDefaultColor;
   QMutex lcdMtx;
   QElapsedTimer redrawTimer;
 

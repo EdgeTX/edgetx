@@ -37,6 +37,9 @@ SimulatedUIWidgetLR3PRO::SimulatedUIWidgetLR3PRO(SimulatorInterface *simulator, 
   m_backlightColors << QColor(255,195,151);
   m_backlightColors << QColor(247,242,159);
 
+  ui->lcd->setBgDefaultColor(QColor(0, 0, 0));
+  ui->lcd->setFgDefaultColor(QColor(255, 255, 255));
+
   setLcd(ui->lcd);
 
   QString css = "#radioUiWidget {"
