@@ -99,12 +99,12 @@ void frskyDProcessPacket(uint8_t module, const uint8_t *packet, uint8_t len)
   }
 }
 
-struct FrSkyDSensor {
+PACK(struct FrSkyDSensor {
   const uint8_t id;
-  const TelemetryUnit unit;
-  const uint8_t prec;
+  const TelemetryUnit unit:6;
+  const uint8_t prec:2;
   const char * name;
-};
+});
 
 #define FS(id,name,unit,prec) {id,unit,prec,name}
 

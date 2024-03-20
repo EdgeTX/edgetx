@@ -174,10 +174,7 @@ void menuModelTelemetry(event_t event)
         s_currIdx = index;
         if (event == EVT_KEY_LONG(KEY_ENTER)) {
           killEvents(event);
-          POPUP_MENU_ADD_ITEM(STR_EDIT);
-          POPUP_MENU_ADD_ITEM(STR_COPY);
-          POPUP_MENU_ADD_ITEM(STR_DELETE);
-          POPUP_MENU_START(onSensorMenu);
+          POPUP_MENU_START(onSensorMenu, 3, STR_EDIT, STR_COPY, STR_DELETE);
         }
         else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
           pushMenu(menuModelSensor);

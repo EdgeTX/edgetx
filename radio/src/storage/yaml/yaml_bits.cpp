@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include <cinttypes>
+
 #include <stdio.h>
 #include "yaml_bits.h"
 #include "yaml_parser.h"
@@ -192,53 +194,29 @@ uint32_t yaml_hex2uint(const char* val, uint8_t val_len)
     return i_val;
 }
 
-static char int2str_buffer[MAX_STR] = {0};
-static const char _int2str_lookup[] = { '0', '1', '2', '3', '4', '5', '6' , '7', '8', '9' };
+static char int2str_buffer[16] = {0};
 
 char* yaml_unsigned2str(uint32_t i)
 {
-    char* c = &(int2str_buffer[MAX_STR-2]);
-    do {
-        *(c--) = _int2str_lookup[i % 10];
-        i = i / 10;
-    } while((c > int2str_buffer) && i);
-
-    return (c + 1);
+  sprintf(int2str_buffer, "%" PRIu32, i);
+  return int2str_buffer;
 }
 
 char* yaml_signed2str(int32_t i)
 {
-    if (i < 0) {
-        char* c = yaml_unsigned2str(-i);
-        *(--c) = '-';
-        return c;
-    }
-
-    return yaml_unsigned2str((uint32_t)i);
+  sprintf(int2str_buffer, "%" PRId32, i);
+  return int2str_buffer;
 }
-
-static const char _int2hex_lookup[] = {'0', '1', '2', '3',
-                                       '4', '5', '6', '7',
-                                       '8', '9', 'A', 'B',
-                                       'C', 'D', 'E', 'F'};
 
 char* yaml_unsigned2hex(uint32_t i)
 {
-  char* c = int2str_buffer;
-  for (int n = sizeof(uint32_t) * 2; n > 0; n--) {
-    *(c++) = _int2hex_lookup[(i >> ((n - 1) * 4)) & 0xF];
-  }
-  *c = '\0';
+  sprintf(int2str_buffer, "%08" PRIX32, i);
   return int2str_buffer;
 }
 
 char* yaml_rgb2hex(uint32_t i)
 {
-  char* c = int2str_buffer;
-  for (int n = 3 * 2; n > 0; n--) {
-    *(c++) = _int2hex_lookup[(i >> ((n - 1) * 4)) & 0xF];
-  }
-  *c = '\0';
+  sprintf(int2str_buffer, "%06" PRIX32, i);
   return int2str_buffer;
 }
 
