@@ -105,11 +105,18 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
     case Board::BOARD_JUMPER_TPROV2:
       radioUiWidget = new SimulatedUIWidgetJumperTPRO(simulator, this);
       break;
+    case Board::BOARD_JUMPER_T14:
+      radioUiWidget = new SimulatedUIWidgetJumperT14(simulator, this);
+      break;
     case Board::BOARD_JUMPER_T16:
       radioUiWidget = new SimulatedUIWidgetJumperT16(simulator, this);
       break;
     case Board::BOARD_JUMPER_T18:
       radioUiWidget = new SimulatedUIWidgetJumperT18(simulator, this);
+      break;
+    case Board::BOARD_JUMPER_T20:
+    case Board::BOARD_JUMPER_T20V2:
+      radioUiWidget = new SimulatedUIWidgetJumperT20(simulator, this);
       break;
     case Board::BOARD_RADIOMASTER_TX12:
     case Board::BOARD_RADIOMASTER_TX12_MK2:
@@ -135,6 +142,9 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
       break;
     case Board::BOARD_FLYSKY_PL18:
       radioUiWidget = new SimulatedUIWidgetPL18(simulator, this);
+      break;
+    case Board::BOARD_RADIOMASTER_POCKET:
+      radioUiWidget = new SimulatedUIWidgetPocket(simulator, this);
       break;
     default:
       radioUiWidget = new SimulatedUIWidget9X(simulator, this);
@@ -907,15 +917,15 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
     emit stickValueChange(stick, stickval);
   }
   else {
-    stick -= ttlSticks;
-    if (stick < ttlKnobs) {
-      GeneralSettings radioSettings = GeneralSettings();
-      if (Board::PotType(radioSettings.potConfig[stick]) == Board::POT_MULTIPOS_SWITCH)
-        stickval += 1024;
-      emit widgetValueChange(RadioWidget::RADIO_WIDGET_KNOB, stick, stickval);
-    } else {
-      stick -= ttlKnobs;
-      emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick, stickval);
+    GeneralSettings radioSettings = GeneralSettings();
+    if (radioSettings.isInputAvailable(stick)) {
+      if (radioSettings.isInputPot(stick)) {
+        if (radioSettings.inputConfig[stick].flexType == Board::FlexType::FLEX_MULTIPOS)
+          stickval += 1024;
+        emit widgetValueChange(RadioWidget::RADIO_WIDGET_KNOB, stick, stickval);
+      } else if (radioSettings.isInputSlider(stick)) {
+        emit widgetValueChange(RadioWidget::RADIO_WIDGET_FADER, stick, stickval);
+      }
     }
   }
 

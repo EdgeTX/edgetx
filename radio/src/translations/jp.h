@@ -93,8 +93,8 @@
 #define TR_SF_FAILSAFE                 "Failsafe設定"
 #define TR_SF_RANGE_CHECK              "レンジチェック"
 #define TR_SF_MOD_BIND                 "モジュールバインド"
-#define TR_SF_RGBLEDS                  "RGB leds"
- 
+#define TR_SF_RGBLEDS                  "RGB LED"
+
 #define TR_SOUND                       "サウンド再生"
 #define TR_PLAY_TRACK                  "音源再生"
 #define TR_PLAY_VALUE                  TR("Play Val","再生値")
@@ -141,7 +141,6 @@
 #define TR_VTELEMSCREENTYPE            "無効","数値","バー","スクリプト"
 #define TR_GPSFORMAT                   "DMS","NMEA"
 
-
 #define TR_VSWASHTYPE                  "---","120","120X","140","90"
 
 #define TR_STICK_NAMES0                "Rud"
@@ -152,7 +151,7 @@
 #define TR_SURFACE_NAMES1              "TH"
 
 #if defined(PCBNV14)
-#define  TR_RFPOWER_AFHDS2             "初期値","高出力"
+  #define  TR_RFPOWER_AFHDS2           "初期値","高出力"
 #endif
 
 #define TR_ROTARY_ENCODERS
@@ -161,20 +160,20 @@
 #define TR_ON_ONE_SWITCHES             "ON","One"
 
 #if defined(USE_HATS_AS_KEYS)
-#define TR_HATSMODE                    "アナログスティック"
-#define TR_HATSOPT                     "トリムのみ","キーのみ","スイッチ","すべて"
-#define TR_HATSMODE_TRIMS              "アナログスティック: トリム"
-#define TR_HATSMODE_KEYS               "アナログスティック: キー"
-#define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
-                                       "   Right = MDL\n"\
-                                       "   Up = SYS\n"\
-                                       "   Down = TELE\n"\
+  #define TR_HATSMODE                  "アナログスティック"
+  #define TR_HATSOPT                   "トリムのみ","キーのみ","スイッチ","すべて"
+  #define TR_HATSMODE_TRIMS            "アナログスティック: トリム"
+  #define TR_HATSMODE_KEYS             "アナログスティック: キー"
+  #define TR_HATSMODE_KEYS_HELP        "左側:\n"\
+                                       " 右 = MDL\n"\
+                                       " 上 = SYS\n"\
+                                       " 下 = TELE\n"\
                                        "\n"\
-                                       "Right side:\n"\
-                                       "   Left = PAGE<\n"\
-                                       "   Right = PAGE>\n"\
-                                       "   Up = PREV/INC\n"\
-                                       "   Down = NEXT/DEC"
+                                       "右側:\n"\
+                                       " 左 = PAGE<\n"\
+                                       " 右 = PAGE>\n"\
+                                       " 上 = PREV/INC\n"\
+                                       " 下 = NEXT/DEC"
 #endif
 
 #if defined(COLORLCD)
@@ -278,9 +277,9 @@
 #define TR_BEEPCTR                     TR("Ctr Beep", "中央値でビープ")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funcs", "グローバルFuncs利用")
 #define TR_PROTOCOL                    TR("Proto", "プロトコル")
-  #define TR_PPMFRAME                  INDENT "PPMフレーム"
-  #define TR_REFRESHRATE               TR(INDENT "Refresh", INDENT "リフレッシュレート")
-  #define STR_WARN_BATTVOLTAGE         TR(INDENT "Output is VBAT: ", INDENT "警告: 出力レベル VBAT: ")
+#define TR_PPMFRAME                    INDENT "PPMフレーム"
+#define TR_REFRESHRATE                 TR(INDENT "Refresh", INDENT "リフレッシュレート")
+#define STR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "警告: 出力レベル VBAT: ")
 #define TR_WARN_5VOLTS                 "警告: 出力レベル 5V"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "スイッチ"
@@ -331,9 +330,9 @@
 #define TR_MIXES                       "ミキサー"
 #define TR_CV                          "CV"
 #if defined(PCBNV14) || defined(PCBPL18)
-#define TR_GV                          "GV"
+  #define TR_GV                        "GV"
 #else
-#define TR_GV                          TR("G", "GV")
+  #define TR_GV                        TR("G", "GV")
 #endif
 #define TR_RANGE                       INDENT "範囲"
 #define TR_CENTER                      INDENT "中央値"
@@ -456,9 +455,9 @@
 #define TR_CH                          "CH"
 #define TR_MODEL                       "モデル名"
 #if defined(SURFACE_RADIO)
-#define TR_FM                          "DM"
+  #define TR_FM                        "DM"
 #else
-#define TR_FM                          "FM"
+  #define TR_FM                        "FM"
 #endif
 #define TR_EEPROMLOWMEM                "EEPROMメモリ低"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "任意のキーを押してスキップします"
@@ -492,16 +491,16 @@
 #define TR_MENUMODELSEL                TR("MODELSEL", "モデル選択")
 #define TR_MENU_MODEL_SETUP            TR("SETUP", "モデル設定")
 #if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES             "ドライブモード"
-#define TR_MENUFLIGHTMODE              "ドライブモード"
+  #define TR_MENUFLIGHTMODES           "ドライブモード"
+  #define TR_MENUFLIGHTMODE            "ドライブモード"
 #else
-#define TR_MENUFLIGHTMODES             "飛行モード"
-#define TR_MENUFLIGHTMODE              "飛行モード"
+  #define TR_MENUFLIGHTMODES           "飛行モード"
+  #define TR_MENUFLIGHTMODE            "飛行モード"
 #endif
 #define TR_MENUHELISETUP               "ヘリ セットアップ"
 
-  #define TR_MENUINPUTS                "入力"
-  #define TR_MENULIMITS                "出力"
+#define TR_MENUINPUTS                  "入力"
+#define TR_MENULIMITS                  "出力"
 #define TR_MENUCURVES                  "カーブ"
 #define TR_MENUCURVE                   "カーブ"
 #define TR_MENULOGICALSWITCH           "論理スイッチ"
@@ -518,8 +517,8 @@
 #define TR_MONITOR_SWITCHES            "論理スイッチモニター"
 #define TR_MONITOR_OUTPUT_DESC         "出力"
 #define TR_MONITOR_MIXER_DESC          "ミキサー"
-  #define TR_RECEIVER_NUM              TR("RxNum", "受信機 No.")
-  #define TR_RECEIVER                  "受信機"
+#define TR_RECEIVER_NUM                TR("RxNum", "受信機 No.")
+#define TR_RECEIVER                    "受信機"
 #define TR_MULTI_RFTUNE                TR("Freq tune", "周波数チューニング")
 #define TR_MULTI_RFPOWER               "送信出力"
 #define TR_MULTI_WBUS                  "出力"
@@ -639,9 +638,9 @@
 #define TR_SPECTRUM_ANALYSER_INT       "スペクトラム\n(内部)"
 #define TR_SDCARD_FULL                 "SDカード空き容量なし"
 #if defined(COLORLCD)
-#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nログとスクリーンショット保存が無効"
+  #define TR_SDCARD_FULL_EXT           TR_SDCARD_FULL "\nログとスクリーンショット保存が無効"
 #else
-#define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\036Logs & Screenshots" LCDW_128_480_LINEBREAK "disabled"
+  #define TR_SDCARD_FULL_EXT           TR_SDCARD_FULL "\036Logs & Screenshots" LCDW_128_480_LINEBREAK "disabled"
 #endif
 #define TR_NEEDS_FILE                  "を含むファイルが必要です"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"

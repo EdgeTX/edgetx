@@ -99,8 +99,8 @@
 #define TR_SF_VOLUME                   "Lydstyrke"
 #define TR_SF_FAILSAFE                 TR("Sæt fejlsik", "Sæt fejlsikring")
 #define TR_SF_RANGE_CHECK              TR("Afst. check", "Afstand kontrol")
-#define TR_SF_MOD_BIND                 "Modul Bind"
-#define TR_SF_RGBLEDS                  "RGB leds"
+#define TR_SF_MOD_BIND                 "Modul tilslut"
+#define TR_SF_RGBLEDS                  "RGB led"
 
 #define TR_SOUND                       "Spil lyd"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "Afspil lydfil")
@@ -416,7 +416,7 @@
   #define TR_MOVESTICKSPOTS            "Flyt pinde/drejekontakter/skydere og tryk [Enter]"
 #elif defined(COLORLCD)
   #define TR_MENUTOSTART               TR_ENTER " FOR START"
-  #define TR_SETMIDPOINT               "CENTER PINDE/SKYDER"
+  #define TR_SETMIDPOINT               "CENTRER PINDE/SKYDER"
   #define TR_MOVESTICKSPOTS            "FLYT PINDE/DREJEKONTAKT"
 #else
   #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " FOR START"
@@ -528,7 +528,7 @@
 #define TR_RF_POWER                    "RF Strøm"
 #define TR_MULTI_FIXEDID               TR("LåstID", "Låst ID")
 #define TR_MULTI_OPTION                TR("Tilvalg", "Tilvalg værdi")
-#define TR_MULTI_AUTOBIND              TR(INDENT "Bind Ka.", INDENT "Bind til kanal")
+#define TR_MULTI_AUTOBIND              TR(INDENT "Tilslut ka.", INDENT "Tilslut kanal")
 #define TR_DISABLE_CH_MAP              TR("% ka. kort", "Deaktiver kanal kort")
 #define TR_DISABLE_TELEM               TR("% Telem.", "Deaktiver telemetri")
 #define TR_MULTI_DSM_AUTODTECT         TR(INDENT "Automatisk", INDENT "Automatisk format")
@@ -540,13 +540,13 @@
 #define TR_MODULE_NO_SERIAL_MODE       TR("!seriel tilstand", "Ikke i seriel tilstand")
 #define TR_MODULE_NO_INPUT             TR("Ingen indgang", "Ingen seriel indgang")
 #define TR_MODULE_NO_TELEMETRY         TR3("Uden telemetri", "Uden MULTI_TELEMETRI", "Ingen MULTI_TELEMETRI opdaget")
-#define TR_MODULE_WAITFORBIND          "Bind for at indlæse protokol"
-#define TR_MODULE_BINDING              TR("Parko...","Parkobler")
+#define TR_MODULE_WAITFORBIND          "Tilslut for at indlæse protokol"
+#define TR_MODULE_BINDING              TR("Tilslut..","Tilslutter")
 #define TR_MODULE_UPGRADE_ALERT        TR3("Opg. krævet", "Modul opdatering krævet", "Module\nopdatering krævet")
 #define TR_MODULE_UPGRADE              TR("Opg. anbefalet", "Modul opdatering anbefalet")
-#define TR_REBIND                      "Rebinding påkrævet"
+#define TR_REBIND                      "Tilslutning påkrævet"
 #define TR_REG_OK                      "Registration ok"
-#define TR_BIND_OK                     "Bind lykkes"
+#define TR_BIND_OK                     "Tilslut lykkes"
 #define TR_BINDING_CH1_8_TELEM_ON      "KA1-8 Telem TIL"
 #define TR_BINDING_CH1_8_TELEM_OFF     "KA1-8 Telem FRA"
 #define TR_BINDING_CH9_16_TELEM_ON     "KA9-16 Telem TIL"
@@ -826,7 +826,7 @@
 #define TR_JACK_MODE                   "Jack tilstand"
 #define TR_VOICE_LANGUAGE              "Stemme sprog"
 #define TR_UNITS_SYSTEM                "Enheder"
-#define TR_UNITS_PPM                   "PPM Units"
+#define TR_UNITS_PPM                   "PPM enheder"
 #define TR_EDIT                        "Rediger"
 #define TR_INSERT_BEFORE               "Insæt før"
 #define TR_INSERT_AFTER                "Insæt efter"
@@ -860,7 +860,7 @@
 #define TR_SPEAKER                     INDENT "Højttaler"
 #define TR_BUZZER                      INDENT "Biper"
 #define TR_BYTES                       "bytes"
-#define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
+#define TR_MODULE_BIND                 BUTTON(TR("Tils", "Tilslut"))
 #define TR_POWERMETER_ATTN_NEEDED      "Attestering nødvendig"
 #define TR_PXX2_SELECT_RX              "Vælg RX"
 #define TR_PXX2_DEFAULT                "<default>"
@@ -871,7 +871,7 @@
 #define TR_RECEIVER_DELETE             "Slet modtager?"
 #define TR_RECEIVER_RESET              "Nulstil modtager?"
 #define TR_SHARE                       "Del"
-#define TR_BIND                        "Bind"
+#define TR_BIND                        "Tilslut"
 #define TR_REGISTER                    TR("Reg", "Registrer")
 #define TR_MODULE_RANGE                BUTTON(TR("Ræk", "Rækkevidde"))
 #define TR_RANGE_TEST                  "Test af rækkevidde"
@@ -1297,4 +1297,4 @@
 #define TR_SORT_MODELS_BY         "Sorter modeller"
 #define TR_CREATE_NEW             "Opret"
 
-#define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
+#define TR_MIX_SLOW_PREC          TR("Træg præc", "Træg op/ned præcision")

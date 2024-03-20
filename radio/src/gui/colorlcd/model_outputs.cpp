@@ -232,7 +232,7 @@ class OutputLineButton : public ListLineButton
 
   void checkEvents() override
   {
-    Window::checkEvents();
+    ListLineButton::checkEvents();
     if (!init) return;
 
     int newValue = channelOutputs[index];

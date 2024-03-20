@@ -104,7 +104,7 @@
 #define TR_SF_FAILSAFE                 "Sätt failsafe"
 #define TR_SF_RANGE_CHECK              "Range check"
 #define TR_SF_MOD_BIND                 "Bind modul"
-#define TR_SF_RGBLEDS                  "RGB leds"
+#define TR_SF_RGBLEDS                  "RGB ledljus"
  
 #define TR_SOUND                       "Spela ljud"
 #define TR_PLAY_TRACK                  TR("Sp. upp", "Spela upp")
@@ -409,7 +409,7 @@
 #define TR_ADJUST_RTC                   "Justera RTC"
 #define TR_GPS                          "GPS"
 #define TR_DEF_CHAN_ORD                 TR("Kanalordning","Förvald kanalordning")
-#define TR_STICKS                       "Spakar"
+#define TR_STICKS                       "Axlar"
 #define TR_POTS                         "Vred"
 #define TR_SWITCHES                     "Brytare"
 #define TR_SWITCHES_DELAY               TR("Fördröj ljud", "Fördröj ljuduppspelning")
@@ -423,19 +423,21 @@
 
 #if defined(PCBHORUS)
   #define TR_MENUTOSTART                "Tryck [Enter] för att börja"
-  #define TR_SETMIDPOINT                "Centrera spakar/vred/reglage och tryck [Enter]"
-  #define TR_MOVESTICKSPOTS             "Rör spakar/vred/reglage och tryck [Enter]"
+  #define TR_SETMIDPOINT                "Centrera axlar/vred/reglage och tryck [Enter]"
+  #define TR_MOVESTICKSPOTS             "Rör axlar/vred/reglage och tryck [Enter]"
 #elif defined(COLORLCD)
   #define TR_MENUTOSTART                TR_ENTER " FÖR ATT STARTA"
-  #define TR_SETMIDPOINT                "CENTRERA ALLT"
-  #define TR_MOVESTICKSPOTS             "RÖR SPAKAR/REGLAGE"
+  #define TR_SETMIDPOINT                "CENTRERA AXLAR/REGLAGE"
+  #define TR_MOVESTICKSPOTS             "RÖR AXLAR/VRED"
 #else
-  #define TR_MENUTOSTART                CENTER TR_ENTER " FÖR ATT STARTA"
-//  #define TR_MENUTOSTART                CENTER "\010" TR_ENTER " FÖR ATT STARTA"
-  #define TR_SETMIDPOINT                TR(CENTER "\006CENTRERA ALLT", CENTER "\004CENTRERA SPAKAR/VRED/REGLAGE")
-//  #define TR_SETMIDPOINT                TR(CENTER "\004CENTRERA ALLT", CENTER "\004CENTRERA SPAKAR/VRED/REGLAGE")
-  #define TR_MOVESTICKSPOTS             CENTER "RÖR SPAKAR/VRED/REGLAGE"
-//  #define TR_MOVESTICKSPOTS             CENTER "\006RÖR SPAKAR/VRED/REGLAGE"
+  #define TR_MENUTOSTART                CENTER "\010" TR_ENTER " FÖR ATT STARTA"
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT                CENTER "\006CENTRERA VRED"
+  #define TR_MOVESTICKSPOTS             CENTER "\002RÖR ST/GA/VRED/AXLAR"
+#else
+  #define TR_SETMIDPOINT                TR(CENTER "\006CENTRERA AXLAR", CENTER "\004CENTRERA AXLAR/REGLAGE")
+  #define TR_MOVESTICKSPOTS             CENTER "\007RÖR AXLAR/VRED"
+#endif
   #define TR_MENUWHENDONE               CENTER "\006" TR_ENTER " AVSLUTAR"
 #endif
 
@@ -472,7 +474,7 @@
 #define TR_CH                           "KA"
 #define TR_MODEL                        "MODELL"
 #if defined(SURFACE_RADIO)
-#define TR_FM                           "DM"
+#define TR_FM                           "KL"
 #else
 #define TR_FM                           "FL"
 #endif
@@ -508,11 +510,11 @@
 #define TR_MENUMODELSEL                 TR("MODELL","VÄLJ MODELL")
 #define TR_MENU_MODEL_SETUP             TR("MODELLINSTÄLLNING","MODELLINSTÄLLNINGAR")
 #if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES              "KÖRLÄGEN"
-#define TR_MENUFLIGHTMODE               "KÖRLÄGE"
+  #define TR_MENUFLIGHTMODES            "KÖRLÄGEN"
+  #define TR_MENUFLIGHTMODE             "KÖRLÄGE"
 #else
-#define TR_MENUFLIGHTMODE               "FLYGLÄGE"
-#define TR_MENUFLIGHTMODES              "FLYGLÄGEN"
+  #define TR_MENUFLIGHTMODE             "FLYGLÄGE"
+  #define TR_MENUFLIGHTMODES            "FLYGLÄGEN"
 #endif
 #define TR_MENUHELISETUP                "HELIKOPTER"
 
@@ -637,8 +639,8 @@
 #define TR_MENU_MODULES_RX_VERSION      "MODULER / RX VERSION"
 #define TR_MENU_FIRM_OPTIONS            "FIRMWAREFUNKTIONER"
 #define TR_IMU                          "IMU"
-#define TR_STICKS_POTS_SLIDERS          "Spakar/Vred/Reglage"
-#define TR_PWM_STICKS_POTS_SLIDERS      "PWM Spakar/Vred/Reglage"
+#define TR_STICKS_POTS_SLIDERS          "Axlar/Vred/Reglage"
+#define TR_PWM_STICKS_POTS_SLIDERS      "PWM Axlar/Vred/Reglage"
 #define TR_RF_PROTOCOL                  "RF Protokoll"
 #define TR_MODULE_OPTIONS               "Modulalternativ"
 #define TR_POWER                        "Power"
@@ -838,7 +840,7 @@
 #define TR_JACK_MODE                    "Uttagsläge"
 #define TR_VOICE_LANGUAGE               "Röstspråk"
 #define TR_UNITS_SYSTEM                 "Enheter"
-#define TR_UNITS_PPM                   "PPM Units"
+#define TR_UNITS_PPM                    "PPM-enheter"
 #define TR_EDIT                         "Redigera"
 #define TR_INSERT_BEFORE                "Addera före"
 #define TR_INSERT_AFTER                 "Addera efter"
@@ -849,7 +851,7 @@
 #define TR_PASTE_BEFORE                 "Klistra in före"
 #define TR_DELETE                       "Radera"
 #define TR_INSERT                       "Addera"
-#define TR_RESET_FLIGHT                 "Återställ flygning"
+#define TR_RESET_FLIGHT                 "Återställ session"
 #define TR_RESET_TIMER1                 "Återställ timer1"
 #define TR_RESET_TIMER2                 "Återställ timer2"
 #define TR_RESET_TIMER3                 "Återställ timer3"
@@ -955,7 +957,7 @@
 #define TR_PT                           "pt"
 #define TR_PTS                          "pkt"
 #define TR_SMOOTH                       "Mjuk"
-#define TR_COPY_STICKS_TO_OFS           TR("Kop. spak->subtrim","Spara spakläge som subtrim")
+#define TR_COPY_STICKS_TO_OFS           TR("Kop. axel->subtrim","Spara axelläge som subtrim")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS      TR("Kop. min/max för allt","Kopiera min/max/center till all output")
 #define TR_COPY_TRIMS_TO_OFS            TR("Kop. trim->subtrim","Spara trimmar som subtrim")
 #define TR_INCDEC                       "Öka/Minska"
@@ -966,7 +968,7 @@
 #define TR_PREFLIGHT                    "Startkontroller"
 #define TR_PREFLIGHT_POTSLIDER_CHECK    "Av","På","Auto"
 #define TR_CHECKLIST                    TR(INDENT "Checklista", INDENT "Visa checklista")
-#define TR_CHECKLIST_INTERACTIVE        TR(INDENT "C-Interact", INDENT "Interactive checklist")
+#define TR_CHECKLIST_INTERACTIVE        TR3(INDENT "C-Interakt", INDENT "Interakt. checklista", INDENT "Interaktiv checklista")
 #define TR_AUX_SERIAL_MODE              "Serieport"
 #define TR_AUX2_SERIAL_MODE             "Serieport 2"
 #define TR_AUX_SERIAL_PORT_POWER        "Strömkälla"
@@ -1174,7 +1176,7 @@
 
 #define TR_MENU_INPUTS                  STR_CHAR_INPUT "Input"
 #define TR_MENU_LUA                     STR_CHAR_LUA "Lua-skript"
-#define TR_MENU_STICKS                  STR_CHAR_STICK "Spakar"
+#define TR_MENU_STICKS                  STR_CHAR_STICK "Axlar"
 #define TR_MENU_POTS                    STR_CHAR_POT "Vred"
 #define TR_MENU_MIN                     STR_CHAR_FUNCTION "MIN"
 #define TR_MENU_MAX                     STR_CHAR_FUNCTION "MAX"
@@ -1273,7 +1275,7 @@
 #define TR_VOICE_TAIWANESE              "Taiwanesiska"
 #define TR_VOICE_JAPANESE               "Japanska"
 #define TR_VOICE_HEBREW                 "Hebreiska"
-#define TR_VOICE_UKRAINIAN               "Ukrainian"
+#define TR_VOICE_UKRAINIAN              "Ukrainska"
 
 #define TR_USBJOYSTICK_LABEL            "USB Joystick"
 #define TR_USBJOYSTICK_EXTMODE          "Läge"
@@ -1311,12 +1313,12 @@
 #define TR_RADIO_MENU_TABS              "Radiomenyflikar"
 #define TR_MODEL_MENU_TABS              "Modellmenyflikar"
 
-#define TR_SELECT_MENU_ALL        "Allt"
-#define TR_SELECT_MENU_CLR        "Rensa"
-#define TR_SELECT_MENU_INV        "Invertera"
+#define TR_SELECT_MENU_ALL              "Allt"
+#define TR_SELECT_MENU_CLR              "Rensa"
+#define TR_SELECT_MENU_INV              "Invertera"
 
-#define TR_SORT_ORDERS            "Namn A-Z","Namn Z-A","Minst använda","Mest använda"
-#define TR_SORT_MODELS_BY         "Sortera modeller"
-#define TR_CREATE_NEW             "Skapa"
+#define TR_SORT_ORDERS                  "Namn A-Z","Namn Z-A","Minst använda","Mest använda"
+#define TR_SORT_MODELS_BY               "Sortera modeller"
+#define TR_CREATE_NEW                   "Skapa"
 
-#define TR_MIX_SLOW_PREC          TR("Dröj preci.", "Fördröj upp/ner precision")
+#define TR_MIX_SLOW_PREC                TR("Dröj preci.", "Fördröj upp/ner precision")

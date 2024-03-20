@@ -163,7 +163,7 @@ extern HardwareOptions hardwareOptions;
   #define BATTERY_WARN                  87 // 8.7V
   #define BATTERY_MIN                   85 // 8.5V
   #define BATTERY_MAX                   115 // 11.5V
-#elif defined(PCBXLITE) || defined(RADIO_T20)
+#elif defined(PCBXLITE) || defined(RADIO_FAMILY_T20)
   // 2 x Li-Ion
   #define BATTERY_WARN                  66 // 6.6V
   #define BATTERY_MIN                   67 // 6.7V
@@ -416,13 +416,13 @@ void setTopBatteryValue(uint32_t volts);
 
 #if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_POCKET)
   #define VOLTAGE_DROP 45
-#elif defined(RADIO_TPROV2) || defined(RADIO_T20)
+#elif defined(RADIO_TPROV2) || defined(RADIO_FAMILY_T20)
   #define VOLTAGE_DROP 60
 #else
   #define VOLTAGE_DROP 20
 #endif
 
-#if defined(RADIO_T20)
+#if defined(RADIO_FAMILY_T20)
 #define NUM_TRIMS                               8
 #else
 #define NUM_TRIMS                               4

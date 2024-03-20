@@ -68,12 +68,16 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for Jumper T-Pro";
     case BOARD_JUMPER_TPROV2:
       return "EdgeTX for Jumper T-Pro V2";
+    case BOARD_JUMPER_T14:
+      return "EdgeTX for Jumper T14";
     case BOARD_JUMPER_T16:
       return "EdgeTX for Jumper T16";
     case BOARD_JUMPER_T18:
       return "EdgeTX for Jumper T18";
     case BOARD_JUMPER_T20:
       return "EdgeTX for Jumper T20";
+    case BOARD_JUMPER_T20V2:
+      return "EdgeTX for Jumper T20 V2";
     case BOARD_RADIOMASTER_TX16S:
       return "EdgeTX for Radiomaster TX16S";
     case BOARD_RADIOMASTER_TX12:
@@ -1382,7 +1386,7 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX);
 
   /* Jumper T-Pro V2 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("tprov2"), QCoreApplication::translate("Firmware", "Jumper T-Pro v2"), BOARD_JUMPER_TPROV2);
+  firmware = new OpenTxFirmware(FIRMWAREID("tprov2"), QCoreApplication::translate("Firmware", "Jumper T-Pro V2"), BOARD_JUMPER_TPROV2);
   addOpenTxCommonOptions(firmware);
   firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
   firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
@@ -1402,6 +1406,13 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
 
+  /* Jumper T14 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("t14"), Firmware::tr("Jumper T14"), BOARD_JUMPER_T14);
+  addOpenTxFrskyOptions(firmware);
+  firmware->addOption("internalelrs", Firmware::tr("Select if internal ELRS module is installed"));
+  addOpenTxRfOptions(firmware, NONE);
+  registerOpenTxFirmware(firmware);
+
   /* Jumper T16 board */
   firmware = new OpenTxFirmware(FIRMWAREID("t16"), Firmware::tr("Jumper T16 / T16+ / T16 Pro"), BOARD_JUMPER_T16);
   addOpenTxFrskyOptions(firmware);
@@ -1419,6 +1430,13 @@ void registerOpenTxFirmwares()
 
   /* Jumper T20 board */
   firmware = new OpenTxFirmware(FIRMWAREID("t20"), Firmware::tr("Jumper T20"), BOARD_JUMPER_T20);
+  addOpenTxFrskyOptions(firmware);
+  firmware->addOption("internalelrs", Firmware::tr("Select if internal ELRS module is installed"));
+  addOpenTxRfOptions(firmware, NONE);
+  registerOpenTxFirmware(firmware);
+
+  /* Jumper T20 V2 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("t20v2"), Firmware::tr("Jumper T20 V2"), BOARD_JUMPER_T20V2);
   addOpenTxFrskyOptions(firmware);
   firmware->addOption("internalelrs", Firmware::tr("Select if internal ELRS module is installed"));
   addOpenTxRfOptions(firmware, NONE);

@@ -145,6 +145,15 @@ class WidgetsContainerImpl : public WidgetsContainer
   void adjustLayout() override {}
   void updateFromTheme() override {};
 
+  void runBackground() override
+  {
+    for (int i = 0; i < N; i++) {
+      if (widgets[i]) {
+        widgets[i]->background();
+      }
+    }
+  }
+
  protected:
   PersistentData* persistentData;
   Widget* widgets[N] = {};
