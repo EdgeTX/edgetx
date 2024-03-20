@@ -521,7 +521,11 @@ const char* funcGetLabel(uint8_t func)
   case FUNC_LOGS:
     return STR_SF_LOGS;
   case FUNC_BACKLIGHT:
+#if defined(OLED_SCREEN)
+    return STR_BRIGHTNESS;
+#else
     return STR_SF_BACKLIGHT;
+#endif
   case FUNC_SCREENSHOT:
     return STR_SF_SCREENSHOT;
   case FUNC_RACING_MODE:
