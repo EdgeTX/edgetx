@@ -1188,6 +1188,23 @@
 
 #endif
 
+#if defined(RADIO_V16)
+  // LED Strip
+  #define LED_STRIP_LENGTH                  40
+  #define LED_STRIP_GPIO                    GPIOA
+  #define LED_STRIP_GPIO_PIN_DATA           LL_GPIO_PIN_10  // PA.10 / TIM1_CH3
+  #define LED_STRIP_GPIO_PIN_AF             LL_GPIO_AF_1    // TIM1/2
+  #define LED_STRIP_TIMER                   TIM1
+  #define LED_STRIP_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
+  #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH3
+  #define LED_STRIP_TIMER_DMA               DMA2
+  #define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMA_CHANNEL_6
+  #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_5
+  #define LED_STRIP_TIMER_DMA_IRQn          DMA2_Stream5_IRQn
+  #define LED_STRIP_TIMER_DMA_IRQHandler    DMA2_Stream5_IRQHandler
+  #define LED_STRIP_REFRESH_PERIOD          50 //ms
+#endif
+
 // Internal PXX1 Module:
 //  -> let's assume all internal XJT modules used are either X10 or X12S type
 #define EXTERNAL_ANTENNA

@@ -25,7 +25,7 @@
 
 // RGB
 #define WS2812_BYTES_PER_LED 3
-#define WS2812_MAX_LEDS 8
+#define WS2812_MAX_LEDS 48
 
 // Number of LED periods used for trailing reset
 #define WS2812_TRAILING_RESET  10

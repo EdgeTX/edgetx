@@ -315,6 +315,14 @@ if (VIDEO_SWITCH)
   )
 endif()
 
+if (PCBREV STREQUAL V16)
+set(FIRMWARE_SRC
+  ${FIRMWARE_SRC}
+  targets/common/arm/stm32/stm32_ws2812.cpp
+  boards/generic_stm32/rgb_leds.cpp
+  )
+endif()
+
 if(BOOTLOADER)
   set(FIRMWARE_SRC
     ${FIRMWARE_SRC}

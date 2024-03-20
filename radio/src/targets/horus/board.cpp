@@ -19,6 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#if defined(RADIO_V16)
+#include "stm32_ws2812.h"
+#include "boards/generic_stm32/rgb_leds.h"
+#endif
+
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
@@ -41,6 +46,19 @@
 
 #if defined(FLYSKY_GIMBAL)
   #include "flysky_gimbal_driver.h"
+#endif
+
+#if defined(RADIO_V16)
+// Common LED driver
+extern const stm32_pulse_timer_t _led_timer;
+
+void ledStripOff()
+{
+  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
+    ws2812_set_color(i, 0, 0, 0);
+  }
+  ws2812_update(&_led_timer);
+}
 #endif
 
 HardwareOptions hardwareOptions;
@@ -189,6 +207,11 @@ void boardInit()
 
   usbInit();
   hapticInit();
+
+#if defined(RADIO_V16)
+  ws2812_init(&_led_timer, LED_STRIP_LENGTH);
+  ledStripOff();
+#endif
 
 #if defined(BLUETOOTH)
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
