@@ -2033,7 +2033,6 @@
   #define INTMODULE_BOOTCMD_DEFAULT     0 // RESET
 #else
   #define INTMODULE_PWR_GPIO_PIN        GPIO_Pin_4  // PC.04
-  #define INTMODULE_BOOTCMD_GPIO        GPIOB
 #if defined(RADIO_T14)
   #define INTMODULE_BOOTCMD_GPIO        GPIOE
   #define INTMODULE_BOOTCMD_GPIO_PIN    GPIO_Pin_14 // PE.14
