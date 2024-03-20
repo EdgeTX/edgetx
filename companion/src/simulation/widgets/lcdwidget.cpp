@@ -40,6 +40,11 @@ void LcdWidget::setBgDefaultColor(const QColor &color)
   bgDefaultColor = color;
 }
 
+void LcdWidget::setFgDefaultColor(const QColor &color)
+{
+  fgDefaultColor = color;
+}
+
 void LcdWidget::setBackgroundColor(const QColor &color) { bgColor = color; }
 
 void LcdWidget::makeScreenshot(const QString &fileName)
@@ -118,7 +123,7 @@ void LcdWidget::doPaint(QPainter &p)
   p.eraseRect(0, 0, 2 * lcdWidth, 2 * lcdHeight);
 
   if (lcdDepth == 1) {
-    rgb = qRgb(0, 0, 0);
+    rgb = fgDefaultColor.rgb();
     p.setPen(rgb);
     p.setBrush(QBrush(rgb));
   }
