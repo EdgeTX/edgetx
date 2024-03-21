@@ -1290,4 +1290,4 @@
 
 #define TR_MIX_SLOW_PREC          TR("Prec. Lento", "Prec. mais/menos lento")
 
-#define TR_THEME_EXISTS           "A theme directory with the same name already exists."
+#define TR_THEME_EXISTS           "Já existe um diretório de tema com o mesmo nome."
