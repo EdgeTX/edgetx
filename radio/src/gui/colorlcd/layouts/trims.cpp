@@ -48,6 +48,18 @@ void MainViewTrim::checkEvents()
 {
   Window::checkEvents();
   int8_t stickIndex = inputMappingConvertMode(idx);
+
+  trim_t v = getRawTrimValue(mixerCurrentFlightMode, stickIndex);
+  if (v.mode == TRIM_MODE_NONE || v.mode == TRIM_MODE_3POS) {
+    // Hide trim if not being used
+    if (!lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN))
+      lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+    return;
+  } else {
+    if (lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN))
+      lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+  }
+
   int newValue = getTrimValue(mixerCurrentFlightMode, stickIndex);
 
   setRange();
