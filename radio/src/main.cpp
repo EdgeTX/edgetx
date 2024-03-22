@@ -130,6 +130,7 @@ void openUsbMenu()
 
 void closeUsbMenu()
 {
+  CLEAR_POPUP();
 }
 
 #endif
