@@ -673,7 +673,7 @@
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "MB Temp."
 #define TR_TEMPWARNING                 INDENT "Overheat"
-#define TR_TTL_WARNING                 "אזהרה חיבורים אלה עם מתח 3.3 וולט !"
+#define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
 #define TR_FUNC                        "Function"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"

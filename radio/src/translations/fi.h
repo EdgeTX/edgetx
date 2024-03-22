@@ -680,7 +680,7 @@
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "MB Temp. \016>"
 #define TR_TEMPWARNING                 INDENT "Ylikuumentunut"
-#define TR_TTL_WARNING                 "Varoitus: käytä 3,3V:n logiikkatasoja"
+#define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
 #define TR_FUNC                        "Func"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
