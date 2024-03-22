@@ -162,7 +162,7 @@ void displayTrims(uint8_t phase)
     uint8_t att = ROUND;
     int16_t val = getTrimValue(phase, i);
 
-    if (getRawTrimValue(phase, i).mode == TRIM_MODE_NONE)
+    if (getRawTrimValue(phase, i).mode == TRIM_MODE_NONE || getRawTrimValue(phase, i).mode == TRIM_MODE_3POS)
       continue;
 
     int16_t dir = val;
