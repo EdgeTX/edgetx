@@ -35,12 +35,9 @@ SerialConfigWindow::SerialConfigWindow(Window *parent, const rect_t &rect) :
   setFlexLayout();
   FlexGridLayout grid(col_dsc, row_dsc, 2);
 
-  bool display_ttl_warning = false;
   for (uint8_t port_nr = 0; port_nr < MAX_SERIAL_PORTS; port_nr++) {
     auto port = serialGetPort(port_nr);
     if (!port || !port->name) continue;
-
-    if (port_nr != SP_VCP) display_ttl_warning = true;
 
     auto line = newLine(&grid);
     new StaticText(line, rect_t{}, port->name, 0, COLOR_THEME_PRIMARY1);
@@ -71,11 +68,14 @@ SerialConfigWindow::SerialConfigWindow(Window *parent, const rect_t &rect) :
             SET_DIRTY();
           });
     }
-  }
 
-  if (display_ttl_warning) {
-    grid.setColSpan(2);
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_TTL_WARNING, 0, COLOR_THEME_WARNING);
+    if (port_nr != SP_VCP) {
+      grid.setColSpan(2);
+      auto line = newLine(&grid);
+      line->padLeft(20);
+      line->padBottom(6);
+      new StaticText(line, rect_t{}, STR_TTL_WARNING, 0, COLOR_THEME_WARNING);
+      grid.setColSpan(1);
+    }
   }
 }
