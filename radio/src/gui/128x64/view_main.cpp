@@ -116,7 +116,7 @@ void drawPotsBars()
       coord_t x = xstart + (i % cols) * 5;
       coord_t y = lines == 1 ? (LCD_H - 8) : i >= cols ? (LCD_H - 8) : (LCD_H - 8 - BAR_HEIGHT / 2 - 1);
       auto v = calibratedAnalogs[offset + i] + RESX;
-      uint8_t len = (v * (BAR_HEIGHT - 1) / (RESX * 2 * lines)) + 1l;
+      uint8_t len = (v * (BAR_HEIGHT - (lines - 1)) / (RESX * 2 * lines)) + 1l;
       V_BAR(x, y, len);
     }
   }
