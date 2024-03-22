@@ -279,6 +279,7 @@ void FileBrowser::onPress(const char* name, bool is_dir)
   const char* fullpath = getFullPath(name);  
   if (is_dir) {
     f_chdir(fullpath);
+    if (fileSelected) fileSelected(nullptr, nullptr, nullptr);
     refresh();
     return;
   }
