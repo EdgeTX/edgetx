@@ -35,8 +35,12 @@ if [ "$(uname)" = "Darwin" ]; then
     COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='10.15'"
 elif [ "$(uname)" != "Linux" ]; then # Assume Windows and MSYS2
     if [ "${MSYSTEM,,}" == "mingw32" ]; then # MSYS 32bit detected
+        ## libclang fix - now includes version number
+        [[ -f /mingw32/bin/libclang-18.1.dll && ! -e /mingw32/bin/libclang.dll ]] && ln -s /mingw32/bin/libclang-18.1.dll /mingw32/bin/libclang.dll
         COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL2_LIBRARY_PATH=/mingw32/bin/"
     else # fallback to 64bit
+        ## libclang fix - now includes version number
+        [[ -f /mingw64/bin/libclang-18.1.dll && ! -e /mingw64/bin/libclang.dll ]] && ln -s /mingw64/bin/libclang-18.1.dll /mingw64/bin/libclang.dll
         COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL2_LIBRARY_PATH=/mingw64/bin/"
     fi
 fi
