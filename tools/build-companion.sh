@@ -63,7 +63,7 @@ rm -rf build
 mkdir build
 cd build
 
-declare -a simulator_plugins=(tx16s x9lite x9lites
+declare -a simulator_plugins=(x9lite x9lites
                               x7 x7-access
                               t8 t12 tx12 tx12mk2
                               zorro commando8 boxer pocket
@@ -72,7 +72,7 @@ declare -a simulator_plugins=(tx16s x9lite x9lites
                               xlite xlites
                               nv14 el18 pl18 pl18ev
                               x10 x10-access x12s
-                              t16 t18 t20)
+                              t16 t18 t20 tx16s)
 
 for plugin in "${simulator_plugins[@]}"
 do

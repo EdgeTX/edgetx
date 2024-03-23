@@ -73,7 +73,7 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           cache: true
-          cache-key-prefix: 'install-qt-action-win64-202403'
+          cache-key-prefix: 'install-qt-action-win64'
           version: ${{ env.QT_VERSION }}
           arch: ${{ env.MINGW_VERSION }}
 
