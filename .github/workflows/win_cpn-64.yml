@@ -82,16 +82,12 @@ jobs:
         with:
           submodules: recursive
 
-      - name: ls the workspace
-        working-directory: ${{github.workspace}}
-        run: |
-          ls -Rlas /mingw64
-
       - name: Build
         working-directory: ${{github.workspace}}
         # Execute the build.  You can specify a specific target with "--target <NAME>"
         run: |
-          [[ "${MSYSTEM,,}" == "mingw32" || "${MSYSTEM,,}" == "mingw64" ]] && export PATH="${PATH}:/$(echo "${MSYSTEM}" | tr '[:upper:]' '[:lower:]')/lib"
+          [[ "${MSYSTEM,,}" == "mingw32" ]] && ln -s /mingw32/bin/libclang-18.1.dll /mingw32/bin/libclang.dll
+          [[ "${MSYSTEM,,}" == "mingw64" ]] && ln -s /mingw64/bin/libclang-18.1.dll /mingw64/bin/libclang.dll
           mkdir output && \
           CMAKE_PREFIX_PATH=$RUNNER_WORKSPACE/Qt/$QT_VERSION/$MINGW_PATH \
           tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
