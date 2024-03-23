@@ -43,7 +43,15 @@ bool isBootloader(const char * filename)
     return false;
   }
 
-  return isBootloaderStart(buffer);
+  // Check firmware is for this radio
+  for (int i = 0; i < 1024; i++) {
+    if (memcmp(buffer + i, FLAVOUR, sizeof(FLAVOUR) - 1) == 0) {
+      if (buffer[i + sizeof(FLAVOUR) - 1] == '-')
+        return isBootloaderStart(buffer);;
+      return false;
+    }
+  }
+  return false;
 }
 
 void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHandler progressHandler)
