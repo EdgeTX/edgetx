@@ -4,6 +4,7 @@
 #
 import os
 import sys
+import re
 
 from clang.cindex import *
 
@@ -81,12 +82,18 @@ def findLibClang():
         libSuffix = ".dll"
     else:
         return None
-        
+
     for path in knownPaths:
         # print("trying " + path)
         if os.path.exists(path + "/libclang" + libSuffix):
             return path
-    
+        elif (sys.platform == "win32" or sys.platform == "msys") and not os.path.isdir(path):
+            # Check for changing libclang version number if on msys
+            pattern = re.compile(r'^libclang-\d+(\.\d+)?\.dll$')
+            for filename in os.listdir(path):
+                if pattern.match(filename):
+                    return path
+
     # If no known path is found
     return None
 
