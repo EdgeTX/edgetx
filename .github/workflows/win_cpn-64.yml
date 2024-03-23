@@ -91,6 +91,7 @@ jobs:
         working-directory: ${{github.workspace}}
         # Execute the build.  You can specify a specific target with "--target <NAME>"
         run: |
+          [[ "${MSYSTEM,,}" == "mingw32" || "${MSYSTEM,,}" == "mingw64" ]] && export PATH="${PATH}:/$(echo "${MSYSTEM}" | tr '[:upper:]' '[:lower:]')/lib"
           mkdir output && \
           CMAKE_PREFIX_PATH=$RUNNER_WORKSPACE/Qt/$QT_VERSION/$MINGW_PATH \
           tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
