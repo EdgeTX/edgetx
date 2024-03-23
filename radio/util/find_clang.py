@@ -92,7 +92,7 @@ def findLibClang():
             pattern = re.compile(r'^libclang-\d+(\.\d+)?\.dll$')
             for filename in os.listdir(path):
                 if pattern.match(filename):
-                    return path
+                    return os.path.join(path, filename)
 
     # If no known path is found
     return None
