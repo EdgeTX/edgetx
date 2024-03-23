@@ -85,7 +85,7 @@ jobs:
       - name: ls the workspace
         working-directory: ${{github.workspace}}
         run: |
-          ls -las /mingw64
+          ls -Rlas /mingw64
 
       - name: Build
         working-directory: ${{github.workspace}}
