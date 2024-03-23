@@ -81,18 +81,20 @@ def findLibClang():
         knownPaths = os.environ.get("PATH").split(os.pathsep)
         libSuffix = ".dll"
     else:
+        # Unsupported platform
         return None
 
     for path in knownPaths:
         # print("trying " + path)
         if os.path.exists(path + "/libclang" + libSuffix):
             return path
-        elif (sys.platform == "win32" or sys.platform == "msys") and not os.path.isdir(path):
-            # Check for changing libclang version number if on msys
-            pattern = re.compile(r'^libclang-\d+(\.\d+)?\.dll$')
-            for filename in os.listdir(path):
-                if pattern.match(filename):
-                    return os.path.join(path, filename)
+        elif (sys.platform == "win32" or sys.platform == "msys"):
+            # Check for versioned and non-versioned libclang.dll if on msys
+            pattern = re.compile(r'^libclang(-\d+(\.\d+)?)?\.dll$')
+            if os.path.exists(path):
+                for filename in os.listdir(path):
+                    if pattern.match(filename):
+                        return os.path.join(path, filename)
 
     # If no known path is found
     return None
