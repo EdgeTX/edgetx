@@ -64,7 +64,7 @@ mkdir build
 cd build
 
 declare -a simulator_plugins=(xlites
-                              nv14 el18 pl18 pl18ev
+                              el18 pl18 pl18ev
                               x10 x10-access x12s
                               t16 t18 t20 tx16s)
 
