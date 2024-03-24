@@ -26,9 +26,9 @@
 #include <QtNetwork/QNetworkProxyFactory>
 
 constexpr char GH_API_VERSION[]               {"2022-11-28"};
-constexpr char GH_ACCEPT_HEADER_CONTENT[]      {"application/octet-stream"};
+constexpr char GH_ACCEPT_HEADER_CONTENT[]     {"application/octet-stream"};
 constexpr char GH_ACCEPT_HEADER_METADATA[]    {"application/vnd.github+json"};
-// constexpr char GH_ACCEPT_HEADER_RAW[]         {"application/vnd.github.raw"};
+constexpr char GH_ACCEPT_HEADER_RAW[]         {"application/vnd.github.raw+json"};
 
 UpdateNetwork::UpdateNetwork(QObject * parent, UpdateStatus * status) :
   QObject(parent),
@@ -59,6 +59,8 @@ QString UpdateNetwork::downloadDataTypeToString(const DownloadDataType val)
       return "Content";
     case DDT_MetaData:
       return "Meta Data";
+    case DDT_Raw:
+      return "Raw";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -78,10 +80,28 @@ void UpdateNetwork::downloadJson(const QString & url, QJsonDocument * json)
     convertBufferToJson(json);
 }
 
+void UpdateNetwork::downloadJsonAsset(const QString & url, QJsonDocument * json)
+{
+  downloadToBuffer(DDT_Content, url);
+  if (m_success)
+    convertBufferToJson(json);
+}
+
+void UpdateNetwork::downloadJsonContent(const QString & url, QJsonDocument * json)
+{
+  downloadToBuffer(DDT_Raw, url);
+  if (m_success)
+    convertBufferToJson(json);
+}
+
 void UpdateNetwork::downloadToBuffer(const DownloadDataType type, const QString & url)
 {
   m_success = false;
-  download(type, url, type == DDT_MetaData ? GH_ACCEPT_HEADER_METADATA : GH_ACCEPT_HEADER_CONTENT, QString());
+  download(type,
+           url,
+           type == DDT_MetaData ? GH_ACCEPT_HEADER_METADATA :
+                                  type == DDT_Raw ? GH_ACCEPT_HEADER_RAW : GH_ACCEPT_HEADER_CONTENT,
+           QString());
 }
 
 void UpdateNetwork::downloadToFile(const QString & url, const QString & filePath)
