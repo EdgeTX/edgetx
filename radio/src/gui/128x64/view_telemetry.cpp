@@ -122,6 +122,12 @@ bool displayNumbersTelemetryScreen(TelemetryScreenData & screen)
           drawTimerWithMode(pos[j+1] + 2, 1+FH+2*FH*i, field - MIXSRC_FIRST_TIMER, RIGHT | DBLSIZE);
           continue;
         }
+        if (field >= MIXSRC_FIRST_GVAR && field <= MIXSRC_LAST_GVAR) {
+          if (g_model.gvars[field - MIXSRC_FIRST_GVAR].name[0])
+            lcdDrawSizedText(pos[j], 1+FH+2*FH*i,g_model.gvars[field - MIXSRC_FIRST_GVAR].name, LEN_GVAR_NAME, 0);
+          else
+            drawSource(pos[j], 1+FH+2*FH*i, field, 0);
+        }
         else if (field >= MIXSRC_FIRST_TELEM && isGPSSensor(1+(field-MIXSRC_FIRST_TELEM)/3) && telemetryItems[(field-MIXSRC_FIRST_TELEM)/3].isAvailable()) {
           // we don't display GPS name, no space for it
           att = RIGHT|DBLSIZE|NO_UNIT;  //DBLSIZE ensure the telem screen specific display for GPS is used
