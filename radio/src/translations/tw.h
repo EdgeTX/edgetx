@@ -674,7 +674,7 @@
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "主板溫度"
 #define TR_TEMPWARNING                 INDENT "過熱"
-#define TR_TTL_WARNING                 "注意串口使用逻辑电平3.3V"
+#define TR_TTL_WARNING                 "警告: TX和RX引腳電平不能超過3.3V !"
 #define TR_FUNC                        "功能"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
