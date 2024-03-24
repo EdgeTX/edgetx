@@ -126,6 +126,12 @@ bool displayNumbersTelemetryScreen(TelemetryScreenData & screen)
             y += FH/2;
           }
         }
+        if (field >= MIXSRC_FIRST_GVAR && field <= MIXSRC_LAST_GVAR) {
+          if (g_model.gvars[field - MIXSRC_FIRST_GVAR].name[0])
+            lcdDrawSizedText(pos[j], 1+FH+2*FH*i,g_model.gvars[field - MIXSRC_FIRST_GVAR].name, LEN_GVAR_NAME, 0);
+          else
+            drawSource(pos[j], 1+FH+2*FH*i, field, 0);
+        }
         else if (field >= MIXSRC_FIRST_TELEM && isGPSSensor(1+(field-MIXSRC_FIRST_TELEM)/3) && telemetryItems[(field-MIXSRC_FIRST_TELEM)/3].isAvailable()) {
           // we don't display GPS name, no space for it, but we shift x by some pixel to allow it to fit on max coord
           x -=2;
