@@ -263,7 +263,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     std::string ana_str;
     node >> ana_str;
 
-    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
+    if (modelSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
       ana_str = Boards::getLegacyAnalogMappedInputTag(ana_str.c_str());
       int idx = Boards::getInputIndex(ana_str.c_str(), Board::LVT_TAG);
       if (idx >= 0 && Boards::isInputStick(idx))
@@ -280,7 +280,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     std::string trim_str;
     node >> trim_str;
 
-    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
+    if (modelSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
       int idx = b.getLegacyTrimSourceIndex(src_str.c_str());
       if (idx >= 0)
         trim_str = Boards::getTrimYamlName(idx, BoardJson::YLT_REF).toStdString();
@@ -296,7 +296,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     std::string special_str;
     node >> special_str;
 
-    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
+    if (modelSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
       if (special_str.size() == 6 && special_str.substr(0, 5) == "TIMER") {
         special_str = "Tmr" + special_str.substr(5, 1);
       }
