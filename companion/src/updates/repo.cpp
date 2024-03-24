@@ -41,7 +41,7 @@ Repo::~Repo()
 
 bool Repo::getJson(const QString filename, QJsonDocument * json)
 {
-  m_network->downloadJson(m_releases->urlContent(filename), json);
+  m_network->downloadJsonContent(m_releases->urlContent(filename), json);
 
   if (!m_network->isSuccess()) {
     m_status->reportProgress("Unable to download json data", QtDebugMsg);

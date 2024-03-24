@@ -38,8 +38,7 @@
 #include "helpers.h"
 
 #include <string>
-
-SemanticVersion version;  // used for data conversions
+#include <QMessageBox>
 
 void YamlValidateLabelsNames(ModelData& model, Board::Type board)
 {
@@ -867,7 +866,7 @@ struct convert<FrSkyScreenData> {
 
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
-  version = SemanticVersion(VERSION);
+  modelSettingsVersion = SemanticVersion(VERSION);
 
   Node node;
   auto board = getCurrentBoard();
@@ -1163,9 +1162,6 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   qDebug() << "Settings version:" << modelSettingsVersion.toString();
 
-  if (modelSettingsVersion > SemanticVersion(VERSION))
-    qDebug() << "Warning: version not supported by Companion!";
-
   if (node["header"]) {
     const auto& header = node["header"];
     if (header.IsMap()) {
@@ -1173,6 +1169,15 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
       header["bitmap"] >> rhs.bitmap;
       header["labels"] >> rhs.labels;
       header["modelId"] >> modelIds;
+    }
+  }
+
+  //  TODO display model filename in preference to model name as easier for user
+  if (modelSettingsVersion > SemanticVersion(VERSION)) {
+    QString prmpt = QCoreApplication::translate("YamlModelSettings", "Warning: Model '%1' has settings version %2 that is not supported by this version of Companion!\n\nModel and radio settings may be corrupted if you continue.\n\nI acknowledge and accept the consequences.");
+    if (QMessageBox::warning(NULL, CPN_STR_APP_NAME, prmpt.arg(rhs.name).arg(modelSettingsVersion.toString()), (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) != QMessageBox::Yes) {
+      //  TODO: this triggers an error in the calling code so we need a graceful way to handle
+      return false;
     }
   }
 
