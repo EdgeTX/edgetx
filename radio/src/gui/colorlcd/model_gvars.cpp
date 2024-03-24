@@ -40,6 +40,19 @@
 #define GVAR_H (GVAR_VAL_H * 2)
 #endif
 
+void getFMExtName(char* dest, int8_t idx)
+{
+  getFlightModeString(dest, idx);
+
+  FlightModeData* fmData = &g_model.flightModeData[idx - 1];
+  int userNameLen = zlen(fmData->name, LEN_FLIGHT_MODE_NAME);
+
+  if (userNameLen > 0) {
+    char* s = strAppend(dest + strlen(dest), ":", 1);
+    strAppend(s, fmData->name, LEN_FLIGHT_MODE_NAME);
+  }
+}
+
 class GVarStyle
 {
   public:
@@ -337,7 +350,7 @@ class GVarEditWindow : public Page
       if (lastGVar > GVAR_MAX) {
         uint8_t fm = lastGVar - GVAR_MAX - 1;
         if (fm >= curFM) fm++;
-        getFlightModeString(label + strlen(label), fm + 1);
+        getFMExtName(label + strlen(label), fm + 1);
       } else {
         strcat(label, getGVarValue(index, lastGVar, 0).c_str());
       }
@@ -505,13 +518,7 @@ class GVarEditWindow : public Page
       fmData = &g_model.flightModeData[flightMode];
 
       if (modelFMEnabled()) {
-        getFlightModeString(flightModeName, flightMode + 1);
-
-        int userNameLen = zlen(fmData->name, LEN_FLIGHT_MODE_NAME);
-
-        if (userNameLen > 0) {
-          strcpy(flightModeName, fmData->name);
-        }
+        getFMExtName(flightModeName, flightMode + 1);
         new StaticText(line, rect_t{}, flightModeName, 0, COLOR_THEME_PRIMARY1);
       } else {
         new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
