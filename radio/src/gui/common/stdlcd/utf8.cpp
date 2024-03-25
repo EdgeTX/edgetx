@@ -81,6 +81,13 @@ static wchar_t _utf8_lut[] = {
   L'Ñ', L'ñ', L'Á', L'á', L'É', L'é', L'Í',
   L'í', L'Ó', L'ó', L'ú',
 };
+#elif defined(TRANSLATIONS_PT)
+static wchar_t _utf8_lut[] = {
+  L'Á', L'á', L'Ã', L'ã', L'Â', L'â', L'Ç',
+  L'ç', L'Ê', L'ê', L'É', L'é', L'Í', L'í',
+  L'Ó', L'ó', L'Ô', L'ô', L'Õ', L'õ', L'Ú',
+  L'ú',
+};
 #elif defined(TRANSLATIONS_FI)
 static wchar_t _utf8_lut[] = {
   L'å', L'ä', L'ö', L'Å', L'Ä', L'Ö',
