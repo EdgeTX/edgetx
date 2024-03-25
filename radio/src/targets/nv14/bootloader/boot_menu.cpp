@@ -167,27 +167,32 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
           memset(&tag, 0, sizeof(tag));
           extractFirmwareVersion(&tag);
 
-          lcd->drawText(LCD_W / 4 + DEFAULT_PADDING,
-                        MESSAGE_TOP - DEFAULT_PADDING,
-                        TR_BL_FORK, RIGHT | BL_FOREGROUND);
-          lcd->drawSizedText(LCD_W / 4 + 6 + DEFAULT_PADDING,
-                             MESSAGE_TOP - DEFAULT_PADDING, tag.fork, 6,
-                             BL_FOREGROUND);
+          if (strcmp(tag.flavour, FLAVOUR)) {
+            lcd->drawText(20, MESSAGE_TOP, LV_SYMBOL_CLOSE " " TR_BL_INVALID_FIRMWARE,
+                    BL_FOREGROUND);
+          } else {
+            lcd->drawText(LCD_W / 4 + DEFAULT_PADDING,
+                          MESSAGE_TOP - DEFAULT_PADDING,
+                          TR_BL_FORK, RIGHT | BL_FOREGROUND);
+            lcd->drawSizedText(LCD_W / 4 + 6 + DEFAULT_PADDING,
+                               MESSAGE_TOP - DEFAULT_PADDING, tag.fork, 6,
+                               BL_FOREGROUND);
 
-          lcd->drawText(LCD_W / 4 + DEFAULT_PADDING, MESSAGE_TOP,
-                        TR_BL_VERSION, RIGHT | BL_FOREGROUND);
-          lcd->drawText(LCD_W / 4 + 6 + DEFAULT_PADDING, MESSAGE_TOP,
-                        tag.version, BL_FOREGROUND);
+            lcd->drawText(LCD_W / 4 + DEFAULT_PADDING, MESSAGE_TOP,
+                          TR_BL_VERSION, RIGHT | BL_FOREGROUND);
+            lcd->drawText(LCD_W / 4 + 6 + DEFAULT_PADDING, MESSAGE_TOP,
+                          tag.version, BL_FOREGROUND);
 
-          lcd->drawText(LCD_W / 4 + DEFAULT_PADDING,
-                        MESSAGE_TOP + DEFAULT_PADDING,
-                        TR_BL_RADIO, RIGHT | BL_FOREGROUND);
-          lcd->drawText(LCD_W / 4 + 6 + DEFAULT_PADDING,
-                        MESSAGE_TOP + DEFAULT_PADDING, tag.flavour,
-                        BL_FOREGROUND);
+            lcd->drawText(LCD_W / 4 + DEFAULT_PADDING,
+                          MESSAGE_TOP + DEFAULT_PADDING,
+                          TR_BL_RADIO, RIGHT | BL_FOREGROUND);
+            lcd->drawText(LCD_W / 4 + 6 + DEFAULT_PADDING,
+                          MESSAGE_TOP + DEFAULT_PADDING, tag.flavour,
+                          BL_FOREGROUND);
 
-          lcd->drawText(LCD_W / 4 + DEFAULT_PADDING - 90, MESSAGE_TOP,
-                        LV_SYMBOL_OK, BL_GREEN);
+            lcd->drawText(LCD_W / 4 + DEFAULT_PADDING - 90, MESSAGE_TOP,
+                          LV_SYMBOL_OK, BL_GREEN);
+          }
         }
       }
 
