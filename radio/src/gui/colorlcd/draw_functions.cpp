@@ -455,7 +455,7 @@ void drawSourceCustomValue(BitmapBuffer * dc, coord_t x, coord_t y, source_t sou
 #endif
 #if defined(LUA_INPUTS)
   else if (source >= MIXSRC_FIRST_LUA && source <= MIXSRC_LAST_LUA) {
-    dc->drawNumber(x, y, value, flags);
+    dc->drawNumber(x, y, calcRESXto100(value), flags);
   }
 #endif
   else if (source < MIXSRC_FIRST_CH) {

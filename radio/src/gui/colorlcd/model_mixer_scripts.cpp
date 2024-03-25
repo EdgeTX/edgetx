@@ -150,7 +150,7 @@ class ScriptEditWindow : public Page {
             return std::string(s, sizeof(s) - 1);
           }, COLOR_THEME_PRIMARY1);
           lbl->padLeft(10);
-          new DynamicNumber<int16_t>(line, rect_t{}, [=]() { return calcRESXto1000(so->value); }, COLOR_THEME_PRIMARY1);
+          new DynamicNumber<int16_t>(line, rect_t{}, [=]() { return calcRESXto100(so->value); }, COLOR_THEME_PRIMARY1);
         }
       }
     }
