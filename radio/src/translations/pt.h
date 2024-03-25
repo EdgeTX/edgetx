@@ -492,7 +492,7 @@
 #endif
 #define TR_CHANNELS2FAILSAFE           "Chanais=>Failsafe"
 #define TR_CHANNEL2FAILSAFE            "Chanal=>Failsafe"
-#define TR_MENUMODELSEL                TR("SEL MODELO", "SELECAO MODELO")
+#define TR_MENUMODELSEL                TR("SEL MODELO", "SELEÇÃO MODELO")
 #define TR_MENU_MODEL_SETUP            TR("CONFIG", "CONFIG. MODELO")
 #if defined(SURFACE_RADIO)
 #define TR_MENUFLIGHTMODES             "MODOS DIR"
@@ -980,7 +980,7 @@
 #define TR_LIMITS_HEADERS_SUBTRIM      "Subtrim"
 #define TR_LIMITS_HEADERS_MIN          "Min"
 #define TR_LIMITS_HEADERS_MAX          "Max"
-#define TR_LIMITS_HEADERS_DIRECTION    "Direcao"
+#define TR_LIMITS_HEADERS_DIRECTION    "Direção"
 #define TR_LIMITS_HEADERS_CURVE        "Curve"
 #define TR_LIMITS_HEADERS_PPMCENTER    "Centro PPM"
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  "Modo subtrim"
