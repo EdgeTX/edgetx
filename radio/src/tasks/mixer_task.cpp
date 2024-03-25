@@ -144,6 +144,8 @@ void execMixerFrequentActions()
 
 TASK_FUNCTION(mixerTask)
 {
+static uint16_t syncCounter = 0;
+
 #if defined(IMU)
   gyroInit();
 #endif
@@ -192,7 +194,21 @@ TASK_FUNCTION(mixerTask)
       mixerTaskLock();
 
       doMixerCalculations();
-      pulsesSendChannels();
+
+      syncCounter++;
+
+      if(getMixerSchedulerSyncedModule() == EXTERNAL_MODULE) {
+        pulsesSendNextFrame(EXTERNAL_MODULE);
+      
+        if((syncCounter % getMixerSchedulerDivider(INTERNAL_MODULE)) == 0)
+          pulsesSendNextFrame(INTERNAL_MODULE);
+      } else {
+        pulsesSendNextFrame(INTERNAL_MODULE);
+
+        if((syncCounter % getMixerSchedulerDivider(EXTERNAL_MODULE)) == 0)
+            pulsesSendNextFrame(EXTERNAL_MODULE);
+      }
+
       doMixerPeriodicUpdates();
 
       // TODO: what are these for???
@@ -217,7 +233,6 @@ TASK_FUNCTION(mixerTask)
         maxMixerDuration = t0;
     }
   }
-
   TASK_RETURN();
 }
 
