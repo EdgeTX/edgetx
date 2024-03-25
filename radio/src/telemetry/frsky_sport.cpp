@@ -420,8 +420,8 @@ void sportProcessTelemetryPacketWithoutCrc(uint8_t module, uint8_t origin, const
           }
         }
         else if (dataId >= ANGLE_FIRST_ID && dataId <= ANGLE_LAST_ID) {
-          sportProcessTelemetryPacket(dataId, 0, instance, data & 0xFFFFu);
-          sportProcessTelemetryPacket(dataId, 1, instance, data >> 16u);
+          sportProcessTelemetryPacket(dataId, 0, instance, (int16_t) (data & 0xFFFFu));
+          sportProcessTelemetryPacket(dataId, 1, instance, (int16_t) (data >> 16u));
         }
         else {
           sportProcessTelemetryPacket(dataId, 0, instance, data);
