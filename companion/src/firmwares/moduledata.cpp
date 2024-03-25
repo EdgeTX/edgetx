@@ -580,6 +580,8 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
               case MODULE_TYPE_FLYSKY_AFHDS2A:
               case MODULE_TYPE_FLYSKY_AFHDS3:
               case MODULE_TYPE_LEMON_DSMP:
+              case MODULE_TYPE_PPM:
+              case MODULE_TYPE_SBUS:
                 return true;
               default:
                 return false;

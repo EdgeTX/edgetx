@@ -140,16 +140,21 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
             memset(&tag, 0, sizeof(tag));
             extractFirmwareVersion(&tag);
 
-            lcd->drawText(168, 138, TR_BL_FORK, RIGHT | BL_FOREGROUND);
-            lcd->drawSizedText(174, 138, tag.fork, 6, BL_FOREGROUND);
+            if (strcmp(tag.flavour, FLAVOUR)) {
+              lcd->drawText(94, 168, LV_SYMBOL_CLOSE " " TR_BL_INVALID_FIRMWARE,
+                      BL_FOREGROUND);
+            } else {
+              lcd->drawText(168, 138, TR_BL_FORK, RIGHT | BL_FOREGROUND);
+              lcd->drawSizedText(174, 138, tag.fork, 6, BL_FOREGROUND);
 
-            lcd->drawText(168, 158, TR_BL_VERSION, RIGHT | BL_FOREGROUND);
-            lcd->drawText(174, 158, tag.version, BL_FOREGROUND);
+              lcd->drawText(168, 158, TR_BL_VERSION, RIGHT | BL_FOREGROUND);
+              lcd->drawText(174, 158, tag.version, BL_FOREGROUND);
 
-            lcd->drawText(168, 178, TR_BL_RADIO, RIGHT | BL_FOREGROUND);
-            lcd->drawText(174, 178, tag.flavour, BL_FOREGROUND);
+              lcd->drawText(168, 178, TR_BL_RADIO, RIGHT | BL_FOREGROUND);
+              lcd->drawText(174, 178, tag.flavour, BL_FOREGROUND);
 
-            lcd->drawText(78, 158, LV_SYMBOL_OK, BL_GREEN);
+              lcd->drawText(78, 158, LV_SYMBOL_OK, BL_GREEN);
+            }
           }
         }
 

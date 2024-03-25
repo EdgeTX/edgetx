@@ -39,6 +39,7 @@
 
 #include <string>
 #include <QMessageBox>
+#include <QPushButton>
 
 void YamlValidateLabelsNames(ModelData& model, Board::Type board)
 {
@@ -1174,11 +1175,20 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   //  TODO display model filename in preference to model name as easier for user
   if (modelSettingsVersion > SemanticVersion(VERSION)) {
-    QString prmpt = QCoreApplication::translate("YamlModelSettings", "Warning: Model '%1' has settings version %2 that is not supported by this version of Companion!\n\nModel and radio settings may be corrupted if you continue.\n\nI acknowledge and accept the consequences.");
-    if (QMessageBox::warning(NULL, CPN_STR_APP_NAME, prmpt.arg(rhs.name).arg(modelSettingsVersion.toString()), (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) != QMessageBox::Yes) {
-      //  TODO: this triggers an error in the calling code so we need a graceful way to handle
+    QString prmpt = QCoreApplication::translate("YamlModelSettings", "Warning: '%1' has settings version %2 that is not supported by this version of Companion!\n\nModel settings may be corrupted if you continue.");
+    prmpt = prmpt.arg(rhs.name).arg(modelSettingsVersion.toString());
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(QCoreApplication::translate("YamlModelSettings", "Read Model Settings"));
+    msgBox.setText(prmpt);
+    msgBox.setIcon(QMessageBox::Warning);
+    QPushButton *pbAccept = new QPushButton(CPN_STR_TTL_ACCEPT);
+    QPushButton *pbDecline = new QPushButton(CPN_STR_TTL_DECLINE);
+    msgBox.addButton(pbAccept, QMessageBox::AcceptRole);
+    msgBox.addButton(pbDecline, QMessageBox::RejectRole);
+    msgBox.setDefaultButton(pbDecline);
+    msgBox.exec();
+    if (msgBox.clickedButton() == pbDecline)
       return false;
-    }
   }
 
   if (node["timers"]) {
