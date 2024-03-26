@@ -364,6 +364,51 @@ class SensorSourceChoice : public SourceChoice
   }
 };
 
+class SensorRatioEdit : FormWindow
+{
+  public:
+    SensorRatioEdit(Window* parent, const rect_t &rect, int vmin, int vmax,
+              std::function<int()> _getValue,
+              std::function<void(int)> _setValue) :
+      FormWindow(parent, rect),
+      m_getValue(std::move(_getValue)),
+      m_setValue(std::move(_setValue))
+    {
+      setFlexLayout(LV_FLEX_FLOW_ROW, 75);
+      lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
+      editRatio = new NumberEdit(this, rect_t{}, vmin, vmax, 
+                      m_getValue,
+                      [=](int32_t newValue) {
+                        m_setValue(newValue);
+                        setPercent();
+                      }, 0, PREC1);
+      editRatio->setZeroText("-");
+      //editRatio->setFastStep(20);
+
+      percentText = new StaticText(this, rect_t{}, "", 0, COLOR_THEME_SECONDARY1);
+      setPercent();
+    }
+
+  protected:
+    int32_t ratioPercent;
+    NumberEdit* editRatio;
+    StaticText* percentText;
+    std::function<int()> m_getValue;
+    std::function<void(int)> m_setValue;
+
+  private:
+    void setPercent() {
+      int32_t value = m_getValue(); 
+      if (value == 0) { 
+        percentText->setText("");
+      } else {
+        std::string str = formatNumberAsString((value*1000)/255, PREC1, 0, 0, "%");
+        percentText->setText(str);
+      }
+    }
+};
+
 class SensorEditWindow : public Page {
   public:
     explicit SensorEditWindow(uint8_t index) :
@@ -671,9 +716,7 @@ class SensorEditWindow : public Page {
 
       paramLines[P_RATIO] = form->newLine(&grid);
       new StaticText(paramLines[P_RATIO], rect_t{}, STR_RATIO, 0, COLOR_THEME_PRIMARY1);
-      auto edit = new NumberEdit(paramLines[P_RATIO], rect_t{}, 0, 30000, GET_SET_DEFAULT(sensor->custom.ratio),
-                                  0, PREC1);
-      edit->setZeroText("-");
+      new SensorRatioEdit(paramLines[P_RATIO], rect_t{}, 0, 30000, GET_SET_DEFAULT(sensor->custom.ratio));
 
       paramLines[P_CELLINDEX] = form->newLine(&grid);
       new StaticText(paramLines[P_CELLINDEX], rect_t{}, STR_CELLINDEX, 0, COLOR_THEME_PRIMARY1);
