@@ -44,23 +44,39 @@ void MainViewTrim::setRange()
   }
 }
 
-void MainViewTrim::checkEvents()
+void MainViewTrim::setVisible(bool visible)
 {
-  Window::checkEvents();
-  int8_t stickIndex = inputMappingConvertMode(idx);
+  hidden = !visible;
+  setDisplayState();
+}
 
-  trim_t v = getRawTrimValue(mixerCurrentFlightMode, stickIndex);
-  if (v.mode == TRIM_MODE_NONE || v.mode == TRIM_MODE_3POS) {
+bool MainViewTrim::setDisplayState()
+{
+  trim_t v = getRawTrimValue(mixerCurrentFlightMode, inputMappingConvertMode(idx));
+  if (hidden || v.mode == TRIM_MODE_NONE || v.mode == TRIM_MODE_3POS) {
     // Hide trim if not being used
     if (!lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN))
       lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
-    return;
+    return false;
   } else {
     if (lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN))
       lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
   }
 
-  int newValue = getTrimValue(mixerCurrentFlightMode, stickIndex);
+  return true;
+}
+
+void MainViewTrim::checkEvents()
+{
+  Window::checkEvents();
+
+  // Do nothing if trims turned off
+  if (hidden) return;
+
+  // Don't update if not visible
+  if (!setDisplayState()) return;
+
+  int newValue = getTrimValue(mixerCurrentFlightMode, inputMappingConvertMode(idx));
 
   setRange();
   newValue = min(max(newValue, trimMin), trimMax);
