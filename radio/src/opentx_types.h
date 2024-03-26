@@ -83,7 +83,7 @@ typedef uint16_t event_t;
 typedef uint32_t tmr10ms_t;
 typedef int32_t rotenc_t;
 typedef int32_t getvalue_t;
-typedef uint32_t mixsrc_t;
+typedef int32_t mixsrc_t;
 typedef int32_t swsrc_t;
 typedef int16_t safetych_t;
 typedef int16_t gvar_t;

@@ -417,6 +417,38 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
     return true;
 }
 
+static uint32_t r_mixSrcRawEx(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  bool invert = false;
+  if (val[0] == '!') {
+    invert = true;
+    val += 1;
+    val_len -= 1;
+  }
+  int32_t rv = r_mixSrcRaw(node, val, val_len);
+  if (invert)
+    rv = -rv;
+  return (uint32_t)rv;
+}
+
+static bool w_mixSrcRawExNoQuote(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+  // Check for negative 10 bit value. TODO: handle this better!
+  val &= 0x3FF;
+  if (val >= 512) {
+    if (!wf(opaque, "!", 1)) return false;
+    val = 1024 - val;
+  }
+  return w_mixSrcRaw(node, val, wf, opaque);
+}
+
+static bool w_mixSrcRawEx(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
+{
+  if (!wf(opaque, "\"", 1)) return false;
+  if (!w_mixSrcRawExNoQuote(node, val, wf, opaque)) return false;
+  return wf(opaque, "\"", 1);
+}
+
 static void r_rssiDisabled(void* user, uint8_t* data, uint32_t bitoffs,
                            const char* val, uint8_t val_len)
 {
@@ -1459,7 +1491,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   case FUNC_BACKLIGHT:
   case FUNC_PLAY_VALUE:
     // find "," and cut val_len
-    CFN_PARAM(cfn) = r_mixSrcRaw(nullptr, val, l_sep);
+    CFN_PARAM(cfn) = r_mixSrcRawEx(nullptr, val, l_sep);
     break;
 
   case FUNC_PLAY_SOUND:
@@ -1557,7 +1589,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       CFN_PARAM(cfn) = r_mixSrcRaw(nullptr, val, l_sep);
       break;
     case FUNC_ADJUST_GVAR_GVAR: {
-      uint32_t gvar = r_mixSrcRaw(nullptr, val, l_sep);
+      uint32_t gvar = r_mixSrcRawEx(nullptr, val, l_sep);
       if (gvar >= MIXSRC_FIRST_GVAR) {
         CFN_PARAM(cfn) = gvar - MIXSRC_FIRST_GVAR;
       }
@@ -1680,7 +1712,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   case FUNC_VOLUME:
   case FUNC_BACKLIGHT:
   case FUNC_PLAY_VALUE:
-    if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn), wf, opaque)) return false;
+    if (!w_mixSrcRawExNoQuote(nullptr, CFN_PARAM(cfn), wf, opaque)) return false;
     break;
 
   case FUNC_PLAY_SOUND:
@@ -1739,10 +1771,10 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       if (!wf(opaque, str, strlen(str))) return false;
       break;
     case FUNC_ADJUST_GVAR_SOURCE:
-      if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn), wf, opaque)) return false;
+      if (!w_mixSrcRawExNoQuote(nullptr, CFN_PARAM(cfn), wf, opaque)) return false;
       break;
     case FUNC_ADJUST_GVAR_GVAR:
-      if (!w_mixSrcRaw(nullptr, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, wf, opaque)) return false;
+      if (!w_mixSrcRawExNoQuote(nullptr, CFN_PARAM(cfn) + MIXSRC_FIRST_GVAR, wf, opaque)) return false;
       break;
     }
     break;
@@ -1837,11 +1869,11 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     break;
     
   case LS_FAMILY_COMP:
-    ls->v1 = r_mixSrcRaw(nullptr, val, l_sep);
+    ls->v1 = r_mixSrcRawEx(nullptr, val, l_sep);
     val += l_sep; val_len -= l_sep;
     if (!val_len || val[0] != ',') return;
     val++; val_len--;
-    ls->v2 = r_mixSrcRaw(nullptr, val, val_len);
+    ls->v2 = r_mixSrcRawEx(nullptr, val, val_len);
     break;
     
   case LS_FAMILY_TIMER:
@@ -1853,7 +1885,7 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     break;
     
   default:
-    ls->v1 = r_mixSrcRaw(nullptr, val, l_sep);
+    ls->v1 = r_mixSrcRawEx(nullptr, val, l_sep);
     val += l_sep; val_len -= l_sep;
     if (!val_len || val[0] != ',') return;
     val++; val_len--;
@@ -1902,9 +1934,9 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     break;
     
   case LS_FAMILY_COMP:
-    if (!w_mixSrcRaw(nullptr, ls->v1, wf, opaque)) return false;
+    if (!w_mixSrcRawExNoQuote(nullptr, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;
-    if (!w_mixSrcRaw(nullptr, ls->v2, wf, opaque)) return false;
+    if (!w_mixSrcRawExNoQuote(nullptr, ls->v2, wf, opaque)) return false;
     break;
     
   case LS_FAMILY_TIMER:
@@ -1916,7 +1948,7 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     break;
     
   default:
-    if (!w_mixSrcRaw(nullptr, ls->v1, wf, opaque)) return false;
+    if (!w_mixSrcRawExNoQuote(nullptr, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;
     // TODO?: ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2
     str = yaml_signed2str(ls->v2);

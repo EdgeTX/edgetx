@@ -110,7 +110,7 @@ void MixEditWindow::buildBody(Window *form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SOURCE);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST,
-                   GET_SET_DEFAULT(mix->srcRaw));
+                   GET_SET_DEFAULT(mix->srcRaw), true);
   CurveEdit::SetCurrentSource(mix->srcRaw);
 
   // Weight

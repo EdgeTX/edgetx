@@ -657,23 +657,34 @@ void putsVBat(coord_t x, coord_t y, LcdFlags att)
   putsVolts(x, y, g_vbat100mV, att);
 }
 
-void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
+void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
 {
-  if (idx == MIXSRC_NONE) {
+  uint16_t aidx = abs(idx);
+  bool inverted = idx < 0;
+
+  if (aidx == MIXSRC_NONE) {
     lcdDrawText(x, y, STR_EMPTY, att);
   }
-  else if (idx <= MIXSRC_LAST_INPUT) {
+  else if (aidx <= MIXSRC_LAST_INPUT) {
+    if (inverted) {
+      lcdDrawChar(x, y, '!');
+      x += 2;
+    }
     lcdDrawChar(x+2, y+1, CHR_INPUT, TINSIZE);
     lcdDrawSolidFilledRect(x, y, 7, 7);
-    if (g_model.inputNames[idx-MIXSRC_FIRST_INPUT][0])
-      lcdDrawSizedText(x+8, y, g_model.inputNames[idx-MIXSRC_FIRST_INPUT], LEN_INPUT_NAME, att);
+    if (g_model.inputNames[aidx-MIXSRC_FIRST_INPUT][0])
+      lcdDrawSizedText(x+8, y, g_model.inputNames[aidx-MIXSRC_FIRST_INPUT], LEN_INPUT_NAME, att);
     else
-      lcdDrawNumber(x+8, y, idx, att|LEADING0|LEFT, 2);
+      lcdDrawNumber(x+8, y, aidx, att|LEADING0|LEFT, 2);
   }
 #if defined(LUA_INPUTS)
-  else if (idx <= MIXSRC_LAST_LUA) {
-    div_t qr = div(idx-MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
+  else if (aidx <= MIXSRC_LAST_LUA) {
+    div_t qr = div((uint16_t)(aidx-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
 #if defined(LUA_MODEL_SCRIPTS)
+    if (inverted) {
+      lcdDrawChar(x, y, '!');
+      x += 2;
+    }
     if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
       lcdDrawChar(x+2, y+1, '1'+qr.quot, TINSIZE);
       lcdDrawFilledRect(x, y, 7, 7, 0);

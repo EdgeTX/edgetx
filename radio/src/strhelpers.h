@@ -151,20 +151,6 @@ void clearStruct(S &s)
 template <size_t N>
 using offset_t = std::integral_constant<size_t, N>;
 
-template <size_t DL, size_t SL, size_t O = 0>
-void copyToTerminated(char (&dest)[DL], const char (&src)[SL],
-                      const offset_t<O> = offset_t<0>{})
-{
-  // unfortinately std::min() isn't constexpr in C++11
-  // static constexpr size_t len = std::min(DL - O - 1, SL);
-  static constexpr size_t dl{DL - O - 1};
-  static_assert(dl > 0, "wrong sizes or offset");
-  static constexpr size_t len = (dl < SL) ? dl : SL;
-  strncpy(&dest[O], &src[0], len);
-  static_assert((len + O) < DL, "wrong sizes of offset");
-  dest[len + O] = '\0';
-}
-
 template <size_t L1, size_t L2>
 int strncasecmp(char (&s1)[L1], const char (&s2)[L2])
 {

@@ -155,29 +155,31 @@ int expo(int x, int k)
   return neg ? -y : y;
 }
 
-void applyExpos(int16_t * anas, uint8_t mode, uint8_t ovwrIdx, int16_t ovwrValue)
+void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue)
 {
   int8_t cur_chn = -1;
 
   for (uint8_t i=0; i<MAX_EXPOS; i++) {
     if (mode == e_perout_mode_normal) mixState[i].activeExpo = false;
     ExpoData * ed = expoAddress(i);
+    mixsrc_t srcRaw = ed->srcRaw;
+    mixsrc_t src = abs(srcRaw);
     if (!EXPO_VALID(ed)) break; // end of list
     if (ed->chn == cur_chn)
       continue;
     if (ed->flightModes & (1<<mixerCurrentFlightMode))
       continue;
-    if (ed->srcRaw >= MIXSRC_FIRST_TRAINER && ed->srcRaw <= MIXSRC_LAST_TRAINER && !isTrainerValid())
+    if (src >= MIXSRC_FIRST_TRAINER && src <= MIXSRC_LAST_TRAINER && !isTrainerValid())
       continue;
     if (getSwitch(ed->swtch)) {
       int32_t v;
-      if (ed->srcRaw == ovwrIdx) {
+      if (srcRaw == ovwrIdx) {
         v = ovwrValue;
       }
       else {
-        v = getValue(ed->srcRaw);
-        if (ed->srcRaw >= MIXSRC_FIRST_TELEM && ed->scale > 0) {
-          v = (v * 1024) / convertTelemValue(ed->srcRaw-MIXSRC_FIRST_TELEM+1, ed->scale);
+        v = getValue(srcRaw);
+        if (src >= MIXSRC_FIRST_TELEM && ed->scale > 0) {
+          v = (v * 1024) / convertTelemValue(src-MIXSRC_FIRST_TELEM+1, ed->scale);
         }
         v = limit<int32_t>(-1024, v, 1024);
       }
@@ -201,11 +203,12 @@ void applyExpos(int16_t * anas, uint8_t mode, uint8_t ovwrIdx, int16_t ovwrValue
         //========== TRIMS ================
         if (ed->trimSource < TRIM_ON)
           virtualInputsTrims[cur_chn] = -ed->trimSource - 1;
-        else if (ed->trimSource == TRIM_ON && ed->srcRaw >= MIXSRC_FIRST_STICK &&
-                 ed->srcRaw <= MIXSRC_LAST_STICK)
-          virtualInputsTrims[cur_chn] = ed->srcRaw - MIXSRC_FIRST_STICK;
+        else if (ed->trimSource == TRIM_ON && src >= MIXSRC_FIRST_STICK &&
+                 src <= MIXSRC_LAST_STICK)
+          virtualInputsTrims[cur_chn] = src - MIXSRC_FIRST_STICK;
         else
           virtualInputsTrims[cur_chn] = -1;
+        // if (srcRaw < 0) v = -v;
         anas[cur_chn] = v;
       }
     }
@@ -313,7 +316,7 @@ static const getvalue_t _switch_3pos_lookup[] = {
 
 // TODO same naming convention than the drawSource
 // *valid added to return status to Lua for invalid sources
-getvalue_t getValue(mixsrc_t i, bool* valid)
+getvalue_t _getValue(mixsrc_t i, bool* valid)
 {
   if (i == MIXSRC_NONE) {
     if (valid != nullptr) *valid = false;
@@ -325,7 +328,7 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
 #if defined(LUA_INPUTS)
   else if (i <= MIXSRC_LAST_LUA) {
 #if defined(LUA_MODEL_SCRIPTS)
-    div_t qr = div(i-MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
+    div_t qr = div((uint16_t)(i-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
     return scriptInputsOutputs[qr.quot].outputs[qr.rem].value;
 #else
     if (valid != nullptr) *valid = false;
@@ -464,7 +467,7 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
       return 0;
     }
     i -= MIXSRC_FIRST_TELEM;
-    div_t qr = div(i, 3);
+    div_t qr = div((uint16_t)i, 3);
     TelemetryItem & telemetryItem = telemetryItems[qr.quot];
     switch (qr.rem) {
       case 1:
@@ -594,6 +597,18 @@ void evalInputs(uint8_t mode)
     bpanaCenter = anaCenter;
   }
 }
+
+getvalue_t getValue(mixsrc_t i, bool* valid)
+{
+  bool invert = false;
+  if (i < 0) {
+    invert = true;
+    i = -i;
+  }
+  getvalue_t v = _getValue(i, valid);
+  if (invert) v = -v;
+  return v;
+}  
 
 #if defined(SURFACE_RADIO)
   constexpr int IDLE_TRIM_SCALE = 1;

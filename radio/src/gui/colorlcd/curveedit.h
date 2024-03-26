@@ -31,7 +31,7 @@ class CurveEdit: public Window
 {
   public:
     CurveEdit(Window * parent, const rect_t & rect, uint8_t index);
-    static void SetCurrentSource(uint32_t source);
+    static void SetCurrentSource(mixsrc_t source);
 
     void deleteLater(bool detach = true, bool trash = true) override
     {

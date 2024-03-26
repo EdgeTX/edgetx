@@ -116,7 +116,7 @@ void menuModelLogicalSwitchOne(event_t event)
         else {
           v1_val = cs->v1;
           drawSource(CSWONE_2ND_COLUMN, y, v1_val, attr);
-          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE);
+          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
           INCDEC_ENABLE_CHECK(isSourceAvailable);
         }
         if (attr) {
@@ -152,7 +152,7 @@ void menuModelLogicalSwitchOne(event_t event)
         }
         else if (cstate == LS_FAMILY_COMP) {
           drawSource(CSWONE_2ND_COLUMN, y, cs->v2, attr);
-          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE);
+          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
           INCDEC_ENABLE_CHECK(isSourceAvailable);
         }
         else {

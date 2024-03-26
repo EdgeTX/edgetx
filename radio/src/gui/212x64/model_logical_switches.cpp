@@ -149,7 +149,7 @@ void menuModelLogicalSwitches(event_t event)
       v1_val = cs->v1;
       drawSource(CSW_2ND_COLUMN, y, v1_val, attr1);
       drawSource(CSW_3RD_COLUMN, y, cs->v2, attr2);
-      INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE);
+      INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
       INCDEC_ENABLE_CHECK(isSourceAvailable);
     }
     else if (cstate == LS_FAMILY_TIMER) {
@@ -164,7 +164,7 @@ void menuModelLogicalSwitches(event_t event)
       v1_val = cs->v1;
       drawSource(CSW_2ND_COLUMN, y, v1_val, attr1);
       if (horz == 1) {
-        INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE);
+        INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
         INCDEC_ENABLE_CHECK(isSourceAvailableInCustomSwitches);
       }
       else {

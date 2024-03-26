@@ -70,5 +70,5 @@ void editSingleName(coord_t x, coord_t y, const char* label, char* name,
 
 uint8_t s_currIdx;
 uint8_t s_currIdxSubMenu;
-uint16_t s_currSrcRaw;
+mixsrc_t s_currSrcRaw;
 uint16_t s_currScale;

@@ -609,9 +609,17 @@ const char *getPotLabel(uint8_t idx)
 // this should be declared in header, but it used so much foreign symbols that
 // we declare it in cpp-file and pre-instantiate it for the uses
 template <size_t L>
-char *getSourceString(char (&dest)[L], mixsrc_t idx)
+char *getSourceString(char (&destRef)[L], mixsrc_t idx)
 {
   size_t dest_len = L;
+  char* dest = destRef;
+
+  if (idx < 0) {
+    idx = -idx;
+    dest[0] = '!';
+    dest += 1;
+    dest_len -= 1;
+  }
 
   if (idx == MIXSRC_NONE) {
     strncpy(dest, STR_EMPTY, dest_len - 1);
@@ -634,7 +642,7 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
 #if defined(LUA_INPUTS)
   else if (idx <= MIXSRC_LAST_LUA) {
 #if defined(LUA_MODEL_SCRIPTS)
-    div_t qr = div(idx - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
+    div_t qr = div((uint16_t)(idx - MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
     if (qr.quot < MAX_SCRIPTS &&
         qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
       static_assert(L > sizeof(STR_CHAR_LUA) - 1, "dest string too small");
@@ -658,7 +666,7 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
       }
     }
 #else
-    strncpy(dest, "N/A", L - 1);
+    strncpy(dest, "N/A", dest_len-1);
 #endif
   }
 #endif
@@ -723,7 +731,7 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
   } else if (idx <= MIXSRC_LAST_CH) {
     auto ch = idx - MIXSRC_FIRST_CH;
     if (g_model.limitData[ch].name[0] != '\0') {
-      copyToTerminated(dest, g_model.limitData[ch].name);
+      strAppend(dest, g_model.limitData[ch].name, LEN_CHANNEL_NAME);
     } else {
       strAppendStringWithIndex(dest, STR_CH, ch + 1);
     }
@@ -759,21 +767,21 @@ char *getSourceString(char (&dest)[L], mixsrc_t idx)
   } else if (idx <= MIXSRC_LAST_TIMER) {
     idx -= MIXSRC_FIRST_TIMER;
     if (g_model.timers[idx].name[0] != '\0') {
-      copyToTerminated(dest, g_model.timers[idx].name);
+      strAppend(dest, g_model.timers[idx].name, LEN_TIMER_NAME);
     } else {
       strAppendStringWithIndex(dest, STR_SRC_TIMER, idx + 1);
     }
   } else {
     idx -= MIXSRC_FIRST_TELEM;
-    div_t qr = div(idx, 3);
-    char *pos = strAppend(dest, STR_CHAR_TELEMETRY, 2);
+    div_t qr = div((uint16_t)idx, 3);
+    char* pos = strAppend(dest, STR_CHAR_TELEMETRY, 2);
     pos = strAppend(pos, g_model.telemetrySensors[qr.quot].label,
                     sizeof(g_model.telemetrySensors[qr.quot].label));
     if (qr.rem) *pos = (qr.rem == 2 ? '+' : '-');
     *++pos = '\0';
   }
-  dest[L - 1] = '\0';  // assert the termination
-  return dest;
+  destRef[L - 1] = '\0'; // assert the termination
+  return destRef; 
 }
 
 // pre-instantiate for use from external
