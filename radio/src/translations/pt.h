@@ -278,7 +278,7 @@
 #define TR_TTRACE                      TR("T-Source", INDENT "Source")
 #define TR_TTRIM                       TR("T-Trim-Idle", INDENT "Trim idle only")
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
-#define TR_BEEPCTR                     TR("Bipe Ctr", "Bipe Centr")
+#define TR_BEEPCTR                     TR("Bip Cntr", "Bipe quando centralizado")
 #define TR_USE_GLOBAL_FUNCS            TR("Funcs.Glob", "Usar func.global")
 #define TR_PROTOCOL                    TR("Proto", "Protocolo")
   #define TR_PPMFRAME                  INDENT "frame PPM"
