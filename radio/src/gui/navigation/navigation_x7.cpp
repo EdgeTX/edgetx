@@ -61,6 +61,13 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
 #endif
 
   if (s_editMode > 0) {
+    bool invert = false;
+    if ((i_flags & INCDEC_SOURCE_INVERT) && (newval < 0)) {
+      invert = true;
+      newval = -newval;
+      val = -val;
+    }
+
     if (event == evt_rot_inc || event == EVT_KEY_FIRST(KEY_PLUS) ||
         event == EVT_KEY_REPT(KEY_PLUS)) {
 
@@ -119,20 +126,17 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
 #endif
     }
 #endif
+
+    if (invert) {
+      newval = -newval;
+      val = -val;
+    }
   }
-  
+
   if (!READ_ONLY() && i_min == 0 && i_max == 1 &&
       event == EVT_KEY_BREAK(KEY_ENTER)) {
     s_editMode = 0;
     newval = !val;
-  }
-
-  if (newval != val) {
-    storageDirty(i_flags & (EE_GENERAL|EE_MODEL));
-    checkIncDec_Ret = (newval > val ? 1 : -1);
-  }
-  else {
-    checkIncDec_Ret = 0;
   }
 
   if (i_flags & INCDEC_SOURCE) {
@@ -178,10 +182,11 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
           }
         }
       }
+      if (i_flags & INCDEC_SOURCE_INVERT) POPUP_MENU_ADD_ITEM(STR_MENU_INVERT);
       POPUP_MENU_START(onSourceLongEnterPress);
     }
     if (checkIncDecSelection != 0) {
-      newval = checkIncDecSelection;
+      newval = (checkIncDecSelection == MIXSRC_INVERT ? -newval : checkIncDecSelection);
       if (checkIncDecSelection != MIXSRC_MIN && checkIncDecSelection != MIXSRC_MAX)
         s_editMode = EDIT_MODIFY_FIELD;
       checkIncDecSelection = 0;
@@ -212,6 +217,15 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
       checkIncDecSelection = 0;
     }
   }
+
+  if (newval != val) {
+    storageDirty(i_flags & (EE_GENERAL|EE_MODEL));
+    checkIncDec_Ret = (newval > val ? 1 : -1);
+  }
+  else {
+    checkIncDec_Ret = 0;
+  }
+
   return newval;
 }
 

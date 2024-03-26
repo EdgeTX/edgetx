@@ -103,7 +103,9 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
   }
 
  protected:
+#if defined(HARDWARE_TOUCH)
   MenuToolbarButton* invertBtn = nullptr;
+#endif
 };
 
 void SwitchChoice::LongPressHandler(void* data)
@@ -148,7 +150,7 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
     menu->setToolbar(tb);
 
 #if defined(AUTOSWITCH)
-    menu->setWaitHandler([menu, this, setValue, tb]() {
+    menu->setWaitHandler([=]() {
       swsrc_t val = 0;
       swsrc_t swtch = getMovedSwitch();
       if (swtch) {
