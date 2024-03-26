@@ -83,10 +83,9 @@ void ViewMainDecoration::setSlidersVisible(bool visible)
 
 void ViewMainDecoration::setTrimsVisible(bool visible)
 {
-  auto fct = !visible ? lv_obj_add_flag : lv_obj_clear_flag;
   for (int i=0; i < TRIMS_MAX; i++) {
     if (trims[i]) {
-      fct(trims[i]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      trims[i]->setVisible(visible);
     }
   }
 }
