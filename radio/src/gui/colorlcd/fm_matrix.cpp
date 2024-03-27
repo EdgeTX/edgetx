@@ -23,15 +23,17 @@
 
 #include "opentx.h"
 
-template <class T>
-FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
+template<class T>
+FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input, uint8_t columns) :
     ButtonMatrix(parent, r), input(input)
 {
 #if LCD_W > LCD_H
-  initBtnMap(5, MAX_FLIGHT_MODES);
+  if (columns == 0) columns = 5;
 #else
-  initBtnMap(3, MAX_FLIGHT_MODES);
+  if (columns == 0) columns = 3;
 #endif
+
+  initBtnMap(columns, MAX_FLIGHT_MODES);
 
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     setTextAndState(i);
@@ -39,17 +41,12 @@ FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
 
   update();
 
-#if LCD_W > LCD_H
-  lv_obj_set_width(lvobj, 258);
-  lv_obj_set_height(lvobj, 73);
-#else
-  lv_obj_set_width(lvobj, 156);
-  lv_obj_set_height(lvobj, 108);
-#endif
+  lv_obj_set_width(lvobj, columns * 51 + 3);
+  lv_obj_set_height(lvobj, ((MAX_FLIGHT_MODES + columns- 1) / columns) * 35 + 3);
 
-  lv_obj_set_style_pad_all(lvobj, lv_dpx(4), LV_PART_MAIN);
-  lv_obj_set_style_pad_row(lvobj, lv_dpx(4), LV_PART_MAIN);
-  lv_obj_set_style_pad_column(lvobj, lv_dpx(4), LV_PART_MAIN);
+  lv_obj_set_style_pad_all(lvobj, 3, LV_PART_MAIN);
+  lv_obj_set_style_pad_row(lvobj, 3, LV_PART_MAIN);
+  lv_obj_set_style_pad_column(lvobj, 3, LV_PART_MAIN);
 }
 
 template <class T>

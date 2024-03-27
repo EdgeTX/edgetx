@@ -36,8 +36,17 @@ class InputEditWindow : public Page
   uint8_t input;
   uint8_t index;
   Curve* preview;
+  bool active = false;
+  StaticText * headerSwitchName = nullptr;
 
-  void buildBody(FormWindow *window);
+  void setTitle();
+  void buildBody(Window *box, ExpoData* inputData);
+  void buildPreview(Window *box, ExpoData* inputData);
 
+  int16_t getExpo(ExpoData* ed, int16_t val);
+
+  bool isActive(ExpoData* inputData);
+  void checkEvents() override;
+    
   void deleteLater(bool detach = true, bool trash = true) override;
 };
