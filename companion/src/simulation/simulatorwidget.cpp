@@ -632,7 +632,7 @@ void SimulatorWidget::setupRadioWidgets()
     if (!(radioSettings.isInputAvailable(i) && radioSettings.isInputPot(i)))
       continue;
 
-    wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, i).toString(nullptr, &radioSettings, Board::BOARD_UNKNOWN, false);
+    wname = RawSource(RawSourceType::SOURCE_TYPE_INPUT, i).toString(nullptr, &radioSettings, Board::BOARD_UNKNOWN, false);
     RadioKnobWidget * pot = new RadioKnobWidget(radioSettings.inputConfig[i].flexType, wname, 0, ui->radioWidgetsHT);
     pot->setIndex(i);
     ui->radioWidgetsHTLayout->insertWidget(midpos++, pot);
@@ -646,7 +646,7 @@ void SimulatorWidget::setupRadioWidgets()
     if (!(radioSettings.isInputAvailable(i) && radioSettings.isInputSlider(i)))
       continue;
 
-    wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, i).toString(nullptr, &radioSettings, Board::BOARD_UNKNOWN, false);
+    wname = RawSource(RawSourceType::SOURCE_TYPE_INPUT, i).toString(nullptr, &radioSettings, Board::BOARD_UNKNOWN, false);
     RadioFaderWidget * sl = new RadioFaderWidget(wname, 0, ui->radioWidgetsVC);
     sl->setIndex(i);
     ui->VCGridLayout->addWidget(sl, 0, fc++, 1, 1);

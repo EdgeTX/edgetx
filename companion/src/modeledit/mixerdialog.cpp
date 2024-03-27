@@ -55,6 +55,8 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
                                                    "RawSource");
   ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(id));
   ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(md->srcRaw.toValue()));
+  if (ui->sourceCB->currentIndex() < 0 && md->srcRaw.toValue() == 0)
+    ui->sourceCB->setCurrentIndex(ui->sourceCB->count() / 2); // '----' not in list so set to first positive entry
 
   int limit = firmware->getCapability(OffsetWeight);
 
@@ -206,7 +208,7 @@ void MixerDialog::valuesChanged()
     lock = true;
     md->srcRaw  = RawSource(ui->sourceCB->itemData(ui->sourceCB->currentIndex()).toInt());
     if (firmware->getCapability(HasNoExpo)) {
-      bool drVisible = (md->srcRaw.type == SOURCE_TYPE_STICK && md->srcRaw.index < CPN_MAX_STICKS);
+      bool drVisible = (md->srcRaw.type == SOURCE_TYPE_INPUT && md->srcRaw.index < CPN_MAX_STICKS);
       ui->MixDR_CB->setEnabled(drVisible);
       ui->label_MixDR->setEnabled(drVisible);
     }

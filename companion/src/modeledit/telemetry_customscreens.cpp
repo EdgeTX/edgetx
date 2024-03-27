@@ -158,7 +158,7 @@ void CustomScreen::updateBar(int line)
     float maxVal = screen.body.bars[line].barMax;
     maxVal = range.getValue(maxVal);
 
-    if (source.isTimeBased()) {
+    if (source.type == SOURCE_TYPE_TIMER) {
       minTime[line]->setVisible(true);
       minTime[line]->setTimeRange(range.min, range.max);
       minTime[line]->setSingleStep(range.step);

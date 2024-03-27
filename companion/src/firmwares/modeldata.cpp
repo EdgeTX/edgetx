@@ -210,7 +210,7 @@ void ModelData::setDefaultMixes(const GeneralSettings & settings)
     MixData * mix = &mixData[i];
     mix->destCh = i + 1;
     mix->weight = 100;
-    mix->srcRaw = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, i);
+    mix->srcRaw = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, i + 1);
   }
 }
 
@@ -446,7 +446,7 @@ void ModelData::convert(RadioDataConversionState & cstate)
   cstate.setComponent("Settings", 0);
   if (thrTraceSrc && (int)thrTraceSrc < cstate.fromBoard.getCapability(Board::Pots) + cstate.fromBoard.getCapability(Board::Sliders)) {
     cstate.setSubComp(tr("Throttle Source"));
-    thrTraceSrc = RawSource(SOURCE_TYPE_STICK, (int)thrTraceSrc + 3).convert(cstate).index - 3;
+    thrTraceSrc = RawSource(SOURCE_TYPE_INPUT, (int)thrTraceSrc + 3).convert(cstate).index - 3;
   }
 
   Firmware *fw = getCurrentFirmware();
@@ -603,12 +603,8 @@ int ModelData::updateReference()
       updRefInfo.occurences = 3;
       break;
     case REF_UPD_TYPE_TIMER:
-      updRefInfo.srcType = SOURCE_TYPE_SPECIAL;
+      updRefInfo.srcType = SOURCE_TYPE_TIMER;
       updRefInfo.maxindex = fw->getCapability(Timers);
-      //  rawsource index offset    TODO refactor timers so be own category
-      updRefInfo.index1 += 2;
-      updRefInfo.index2 += 2;
-      updRefInfo.maxindex += 2;
       break;
     default:
       qDebug() << "Error - unhandled reference type:" << updRefInfo.type;
@@ -1030,7 +1026,7 @@ void ModelData::updateAssignFunc(CustomFunctionData * cfd)
   switch (updRefInfo.type)
   {
     case REF_UPD_TYPE_CHANNEL:
-      if(cfd->func < FuncOverrideCH1 || cfd->func > FuncOverrideCH32) //  TODO refactor to FuncOverrideCHLast
+      if(cfd->func < FuncOverrideCH1 || cfd->func > FuncOverrideCHLast)
         return;
       idxAdj = FuncOverrideCH1;
       break;
@@ -1040,9 +1036,9 @@ void ModelData::updateAssignFunc(CustomFunctionData * cfd)
       idxAdj = FuncAdjustGV1;
       break;
     case REF_UPD_TYPE_TIMER:
-      if (cfd->func < FuncSetTimer1 || cfd->func > FuncSetTimer3) //  TODO refactor to FuncSetTimerLast
+      if (cfd->func < FuncSetTimer1 || cfd->func > FuncSetTimerLast)
         return;
-      idxAdj = FuncSetTimer1 - 2;   //  reverse earlier offset required for rawsource
+      idxAdj = FuncSetTimer1;
       break;
     default:
       return;
@@ -1526,7 +1522,7 @@ bool ModelData::isThrTraceSrcAvailable(const GeneralSettings * generalSettings, 
   const Board::Type board = getCurrentBoard();
 
   if (index > 0 && index <= Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders))
-    return RawSource(SOURCE_TYPE_STICK, index + Boards::getCapability(board, Board::Sticks) - 1).isAvailable(this, generalSettings, board);
+    return RawSource(SOURCE_TYPE_INPUT, index + Boards::getCapability(board, Board::Sticks) - 1).isAvailable(this, generalSettings, board);
   else
     return true;
 }

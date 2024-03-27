@@ -404,7 +404,7 @@ RawSource GeneralSettings::getDefaultSource(unsigned int channel) const
 {
   int stick = getDefaultStick(channel);
   if (stick >= 0)
-    return RawSource(SOURCE_TYPE_STICK, stick);
+    return RawSource(SOURCE_TYPE_INPUT, stick + 1);
   else
     return RawSource(SOURCE_TYPE_NONE);
 }

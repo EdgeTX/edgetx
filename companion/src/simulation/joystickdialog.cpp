@@ -162,7 +162,7 @@ void joystickDialog::populateSourceCombo(QComboBox * cb)
       if (radioSettings.isInputStick(i))
         wname = Boards::getAxisName(i);
       else
-        wname = RawSource(RawSourceType::SOURCE_TYPE_STICK, i).toString(nullptr, &radioSettings);
+        wname = RawSource(RawSourceType::SOURCE_TYPE_INPUT, i).toString(nullptr, &radioSettings);
       cb->addItem(wname, i);
     }
   }

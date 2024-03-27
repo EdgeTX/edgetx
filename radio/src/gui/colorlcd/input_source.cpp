@@ -99,7 +99,7 @@ InputSource::InputSource(Window* parent, ExpoData* input) :
         input->srcRaw = newValue;
         lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
         SET_DIRTY();
-      });
+      }, true);
   lv_obj_add_event_cb(lvobj, InputSource::value_changed, LV_EVENT_VALUE_CHANGED, nullptr);
 
   sensor_form = new FormWindow(this, rect_t{});

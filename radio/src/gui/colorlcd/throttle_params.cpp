@@ -71,8 +71,7 @@ ThrottleParams::ThrottleParams() : Page(ICON_MODEL_SETUP)
   line = body.newLine(&grid);
   new StaticText(line, rect_t{}, STR_TTRACE, 0, COLOR_THEME_PRIMARY1);
   auto sc = new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
-                             getThrottleSource, setThrottleSource,
-                             0, COLOR_THEME_PRIMARY1);
+                             getThrottleSource, setThrottleSource);
   sc->setAvailableHandler(isThrottleSourceAvailable);
 
   // Throttle trim
@@ -85,6 +84,5 @@ ThrottleParams::ThrottleParams() : Page(ICON_MODEL_SETUP)
   new StaticText(line, rect_t{}, STR_TTRIM_SW, 0, COLOR_THEME_PRIMARY1);
   new SourceChoice(
       line, rect_t{}, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM,
-      getThrottleTrimSource, setThrottleTrimSource, 0,
-      COLOR_THEME_PRIMARY1);
+      getThrottleTrimSource, setThrottleTrimSource);
 }

@@ -186,7 +186,7 @@ t_Ersky9xMixData_v10::operator MixData ()
     c9x.srcRaw = RawSource(SOURCE_TYPE_NONE);
   }
   else if (srcRaw <= 7) {
-    c9x.srcRaw = RawSource(SOURCE_TYPE_STICK, srcRaw-1);
+    c9x.srcRaw = RawSource(SOURCE_TYPE_INPUT, srcRaw-1);
   }
   else if (srcRaw == 8) {
     c9x.srcRaw = RawSource(SOURCE_TYPE_MAX);
@@ -256,7 +256,7 @@ t_Ersky9xMixData_v11::operator MixData ()
     c9x.srcRaw = RawSource(SOURCE_TYPE_NONE);
   }
   else if (srcRaw <= 7) {
-    c9x.srcRaw = RawSource(SOURCE_TYPE_STICK, srcRaw-1);
+    c9x.srcRaw = RawSource(SOURCE_TYPE_INPUT, srcRaw-1);
   }
   else if (srcRaw == 8) {
     c9x.srcRaw = RawSource(SOURCE_TYPE_MAX);
@@ -318,7 +318,7 @@ RawSource ersky9xToSource_v10(int8_t value)
     return RawSource(SOURCE_TYPE_NONE);
   }
   else if (value <= 7) {
-    return RawSource(SOURCE_TYPE_STICK, value - 1);
+    return RawSource(SOURCE_TYPE_INPUT, value - 1);
   }
   else if (value == 8) {
     return RawSource(SOURCE_TYPE_MAX);
@@ -346,7 +346,7 @@ RawSource ersky9xToSource_v11(int8_t value)
     return RawSource(SOURCE_TYPE_NONE);
   }
   else if (value <= 7) {
-    return RawSource(SOURCE_TYPE_STICK, value - 1);
+    return RawSource(SOURCE_TYPE_INPUT, value - 1);
   }
   else if (value == 8) {
     return RawSource(SOURCE_TYPE_MAX);

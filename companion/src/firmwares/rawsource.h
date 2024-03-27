@@ -31,6 +31,7 @@ class ModelData;
 class GeneralSettings;
 class RadioDataConversionState;
 
+// TODO remove and refactor to use dynamic board switches
 enum Switches {
   SWITCH_NONE,
 
@@ -101,6 +102,7 @@ enum HeliSwashTypes {
 };
 
 enum TelemetrySource {
+  TELEMETRY_SOURCE_NONE,
   TELEMETRY_SOURCE_TX_BATT,
   TELEMETRY_SOURCE_TX_TIME,
   TELEMETRY_SOURCE_TIMER1,
@@ -163,7 +165,7 @@ enum RawSourceType {
   SOURCE_TYPE_NONE,
   SOURCE_TYPE_VIRTUAL_INPUT,
   SOURCE_TYPE_LUA_OUTPUT,
-  SOURCE_TYPE_STICK, // and POTS and Flex pots  TODO rename to more appropriate
+  SOURCE_TYPE_INPUT,
   SOURCE_TYPE_ROTARY_ENCODER,
   SOURCE_TYPE_TRIM,
   SOURCE_TYPE_MIN,
@@ -178,10 +180,12 @@ enum RawSourceType {
   SOURCE_TYPE_SPECIAL,
   SOURCE_TYPE_TELEMETRY,
   SOURCE_TYPE_SPACEMOUSE,
+  SOURCE_TYPE_TIMER,
   MAX_SOURCE_TYPE
 };
 
 enum RawSourceTypeSpecial {
+  SOURCE_TYPE_SPECIAL_NONE,
   SOURCE_TYPE_SPECIAL_TX_BATT,
   SOURCE_TYPE_SPECIAL_TX_TIME,
   SOURCE_TYPE_SPECIAL_TX_GPS,
@@ -191,15 +195,10 @@ enum RawSourceTypeSpecial {
   SOURCE_TYPE_SPECIAL_RESERVED3,
   SOURCE_TYPE_SPECIAL_RESERVED4,
   SOURCE_TYPE_SPECIAL_LAST_RESERVED = SOURCE_TYPE_SPECIAL_RESERVED4,
-  SOURCE_TYPE_SPECIAL_FIRST_TIMER,
-  SOURCE_TYPE_SPECIAL_TIMER1 = SOURCE_TYPE_SPECIAL_FIRST_TIMER,
-  SOURCE_TYPE_SPECIAL_TIMER2,
-  SOURCE_TYPE_SPECIAL_TIMER3,
-  SOURCE_TYPE_SPECIAL_LAST_TIMER = SOURCE_TYPE_SPECIAL_TIMER3,
   SOURCE_TYPE_SPECIAL_COUNT
 };
 
-constexpr int SOURCE_TYPE_STICK_THR_IDX { 3 };      //  TODO is there a function to determine index?
+constexpr int SOURCE_TYPE_INPUT_THR_IDX { 3 };      //  TODO is there a function to determine index?
 
 class RawSourceRange
 {
@@ -241,6 +240,8 @@ class RawSource {
       TelemGroup     = 0x020,
       InputsGroup    = 0x040,
       ScriptsGroup   = 0x080,
+      NegativeGroup  = 0x100,
+      PositiveGroup  = 0x200,
 
       InputSourceGroups = NoneGroup | SourcesGroup | TrimsGroup | SwitchesGroup | InputsGroup,
       AllSourceGroups   = InputSourceGroups | GVarsGroup | TelemGroup | ScriptsGroup
@@ -249,14 +250,14 @@ class RawSource {
     RawSource() { clear(); }
 
     explicit RawSource(int value):
-      type(RawSourceType(abs(value)/65536)),
-      index(value >= 0 ? abs(value)%65536 : -(abs(value)%65536))
+      type(RawSourceType(abs(value) / 65536)),
+      index(value >= 0 ? abs(value) % 65536 : -(abs(value) % 65536))
     {
     }
 
-    RawSource(RawSourceType type, int index=0):
+    RawSource(RawSourceType type, int index = 0):
       type(type),
-      index(index)
+      index(type != SOURCE_TYPE_NONE && index == 0 ? 1 : index)
     {
     }
 

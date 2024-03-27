@@ -197,7 +197,7 @@ class RawSourceItemModel: public AbstractDynamicItemModel
 
   protected:
     virtual void setDynamicItemData(QStandardItem * item, const RawSource & src) const;
-    void addItems(const RawSourceType & type, const int group, const int count, const int start = 0);
+    void addItems(const RawSourceType & type, const int group, int count, const int start = 0);
 };
 
 class RawSwitchItemModel: public AbstractDynamicItemModel

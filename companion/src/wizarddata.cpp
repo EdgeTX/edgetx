@@ -54,7 +54,7 @@ void WizMix::maxMixSwitch(char *name, MixData &mix, int channel, int sw, int wei
   strncpy(mix.name, name, sizeof(mix.name)-1);
   mix.destCh = channel;
   mix.srcRaw = RawSource(SOURCE_TYPE_MAX);
-  mix.swtch  = RawSwitch(SWITCH_TYPE_SWITCH, sw);
+  mix.swtch  = RawSwitch(SWITCH_TYPE_SWITCH, sw + 1);
   mix.weight = weight;
 }
 
@@ -63,13 +63,13 @@ void WizMix::addMix(ModelData &model, Input input, int weight, int channel, int 
   if (input != NO_INPUT)  {
     if (input >= RUDDER_INPUT && input <= AILERONS_INPUT) {
       MixData & mix = model.mixData[mixIndex++];
-      mix.destCh = channel+1;
+      mix.destCh = channel + 1;
       if (IS_SKY9X(getCurrentBoard())) {
-        mix.srcRaw = RawSource(SOURCE_TYPE_STICK, input-1);
+        mix.srcRaw = RawSource(SOURCE_TYPE_INPUT, input + 1);
       }
       else {
-        int channel = settings.getDefaultChannel(input-1);
-        mix.srcRaw = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, channel);
+        int channel = settings.getDefaultChannel(input - 1);
+        mix.srcRaw = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, channel + 1);
       }
 
       mix.weight = weight;
@@ -118,7 +118,7 @@ WizMix::operator ModelData()
         // Add the Throttle Cut option
         MixData & mix = model.mixData[mixIndex++];
         mix.destCh = i+1;
-        mix.srcRaw = SOURCE_TYPE_MAX;
+        mix.srcRaw = RawSource(SOURCE_TYPE_MAX);
         mix.weight = -100;
         mix.swtch.type = SWITCH_TYPE_SWITCH;
         mix.swtch.index = IS_SKY9X(getCurrentBoard()) ? SWITCH_THR : SWITCH_SF0;

@@ -62,7 +62,7 @@ QString CustomFunctionData::funcToString(const ModelData * model) const
 QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData * model)
 {
   if (func >= FuncOverrideCH1 && func <= FuncOverrideCHLast)
-    return tr("Override %1").arg(RawSource(SOURCE_TYPE_CH, func).toString(model));
+    return tr("Override %1").arg(RawSource(SOURCE_TYPE_CH, func + 1).toString(model));
   else if (func == FuncTrainer)
     return tr("Trainer Axis");
   else if (func == FuncTrainerRUD)
@@ -84,7 +84,7 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
   else if (func == FuncReset)
     return tr("Reset");
   else if (func >= FuncSetTimer1 && func <= FuncSetTimerLast)
-    return tr("Set %1").arg(RawSource(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_FIRST_TIMER + func - FuncSetTimer1).toString(model));
+    return tr("Set %1").arg(RawSource(SOURCE_TYPE_TIMER, func - FuncSetTimer1 + 1).toString(model));
   else if (func == FuncVario)
     return tr("Vario");
   else if (func == FuncPlayPrompt)
@@ -108,7 +108,7 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
   else if (func == FuncBackgroundMusicPause)
     return tr("Background Music Pause");
   else if (func >= FuncAdjustGV1 && func <= FuncAdjustGVLast)
-    return tr("Adjust %1").arg(RawSource(SOURCE_TYPE_GVAR, func - FuncAdjustGV1).toString(model));
+    return tr("Adjust %1").arg(RawSource(SOURCE_TYPE_GVAR, func - FuncAdjustGV1 + 1).toString(model));
   else if (func == FuncSetFailsafe)
     return tr("Set Failsafe");
   else if (func == FuncRangeCheckInternalModule)
@@ -281,7 +281,7 @@ QString CustomFunctionData::resetToString(const int value, const ModelData * mod
 
   if (value < step) {
     if (value < firmware->getCapability(Timers))
-      return RawSource(SOURCE_TYPE_SPECIAL, value + SOURCE_TYPE_SPECIAL_FIRST_TIMER).toString(model);
+      return RawSource(SOURCE_TYPE_TIMER, value).toString(model);
     else
       return QString(CPN_STR_UNKNOWN_ITEM);
   }
@@ -293,7 +293,7 @@ QString CustomFunctionData::resetToString(const int value, const ModelData * mod
     return tr("Telemetry");
 
   if (value < step + firmware->getCapability(Sensors))
-    return RawSource(SOURCE_TYPE_TELEMETRY, 3 * (value - step)).toString(model);
+    return RawSource(SOURCE_TYPE_TELEMETRY, 3 * (value - step + 1)).toString(model);
 
   return QString(CPN_STR_UNKNOWN_ITEM);
 }

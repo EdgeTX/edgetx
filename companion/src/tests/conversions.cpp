@@ -245,7 +245,7 @@ TEST(Conversions, ConversionX10From22)
 
   EXPECT_EQ(RawSwitch(SWITCH_TYPE_ON), settings.customFn[1].swtch);
   EXPECT_EQ(FuncVolume, settings.customFn[1].func);
-  EXPECT_EQ(RawSource(SOURCE_TYPE_STICK, 4+5+1).toValue(), settings.customFn[1].param); // RS
+  EXPECT_EQ(RawSource(SOURCE_TYPE_INPUT, 4+5+1).toValue(), settings.customFn[1].param); // RS
 
   EXPECT_STREQ("Tes", settings.switchName[0]);
   EXPECT_EQ(Board::SWITCH_3POS, settings.switchConfig[0]);
@@ -265,7 +265,7 @@ TEST(Conversions, ConversionX10From22)
   EXPECT_EQ(0, model.beepANACenter);
   EXPECT_EQ(80, model.mixData[0].weight);
   EXPECT_EQ(RawSource(SOURCE_TYPE_MAX), model.mixData[2].srcRaw); // MAX
-  EXPECT_EQ(RawSource(SOURCE_TYPE_STICK, 4+5), model.mixData[3].srcRaw); // LS
+  EXPECT_EQ(RawSource(SOURCE_TYPE_INPUT, 4+5), model.mixData[3].srcRaw); // LS
   EXPECT_EQ(RawSource(SOURCE_TYPE_PPM, 0), model.mixData[5].srcRaw);
   EXPECT_EQ(RawSwitch(SWITCH_TYPE_TELEMETRY, 1), model.mixData[5].swtch);
   EXPECT_EQ(900, model.limitData[0].max); // -100
@@ -321,7 +321,7 @@ TEST(Conversions, ConversionX12SFrom22)
 
   EXPECT_EQ(RawSwitch(SWITCH_TYPE_ON), settings.customFn[1].swtch);
   EXPECT_EQ(FuncVolume, settings.customFn[1].func);
-  EXPECT_EQ(RawSource(SOURCE_TYPE_STICK, 4+5+1).toValue(), settings.customFn[1].param); // RS
+  EXPECT_EQ(RawSource(SOURCE_TYPE_INPUT, 4+5+1).toValue(), settings.customFn[1].param); // RS
 
   EXPECT_STREQ("Tes", settings.switchName[0]);
   EXPECT_EQ(Board::SWITCH_3POS, settings.switchConfig[0]);
@@ -341,7 +341,7 @@ TEST(Conversions, ConversionX12SFrom22)
   EXPECT_EQ(0, model.beepANACenter);
   EXPECT_EQ(80, model.mixData[0].weight);
   EXPECT_EQ(RawSource(SOURCE_TYPE_MAX), model.mixData[2].srcRaw); // MAX
-  EXPECT_EQ(RawSource(SOURCE_TYPE_STICK, 4+5), model.mixData[3].srcRaw); // LS
+  EXPECT_EQ(RawSource(SOURCE_TYPE_INPUT, 4+5), model.mixData[3].srcRaw); // LS
   EXPECT_EQ(RawSource(SOURCE_TYPE_PPM, 0), model.mixData[5].srcRaw);
   EXPECT_EQ(RawSwitch(SWITCH_TYPE_TELEMETRY, 1), model.mixData[5].swtch);
   EXPECT_EQ(900, model.limitData[0].max); // -100

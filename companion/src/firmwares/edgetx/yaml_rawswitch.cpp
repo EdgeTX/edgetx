@@ -84,7 +84,8 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 
   // yaml-cpp does not escape this
   if (val_len > 0 && val[0] == '\\') {
-    val++; val_len--;
+    val++;
+    val_len--;
     sw_str_tmp = sw_str_tmp.substr(1);
   }
 
