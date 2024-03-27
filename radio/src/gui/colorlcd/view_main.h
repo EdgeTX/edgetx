@@ -19,13 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _VIEW_MAIN_H_
-#define _VIEW_MAIN_H_
+#pragma once
 
-#include <memory>
-
-#include "form.h"
 #include "topbar.h"
+#include "window.h"
 
 class SetupWidgetsPage;
 class SetupTopBarWidgetsPage;
@@ -59,9 +56,6 @@ class ViewMain : public NavWindow
   void updateTopbarVisibility();
   bool enableWidgetSelect(bool enable);
 
-  // Update after theme loaded / changed
-  void updateFromTheme();
-
   // Get the available space in the middle of the screen
   // (without topbar)
   rect_t getMainZone(rect_t zone, bool hasTopbar) const;
@@ -77,19 +71,28 @@ class ViewMain : public NavWindow
 
   void onClicked() override;
   void onCancel() override;
+  void openMenu();
+  void longPress();
+
+  void show(bool visible = true) override;
+  void showTopBarEdgeTxButton();
+  void hideTopBarEdgeTxButton();
+
+  bool hasTopbar();
+  bool isAppMode();
 
   void runBackground();
 
  protected:
   static ViewMain* _instance;
 
+  bool isVisible = true;
   lv_obj_t* tile_view = nullptr;
   TopBar* topbar = nullptr;
   bool widget_select = false;
   lv_timer_t* widget_select_timer = nullptr;
   ViewMainMenu* viewMainMenu = nullptr;
 
-  void paint(BitmapBuffer* dc) override;
   void deleteLater(bool detach = true, bool trash = true) override;
 
   // Widget setup requires special permissions ;-)
@@ -99,7 +102,6 @@ class ViewMain : public NavWindow
   // Set topbar visibility [0.0 -> 1.0]
   void setTopbarVisible(float visible);
 
-  void openMenu();
   void refreshWidgetSelectTimer();
 
   static void long_pressed(lv_event_t* e);
@@ -116,5 +118,3 @@ class ViewMain : public NavWindow
   void onPressPGDN() override;
 #endif
 };
-
-#endif  // _VIEW_MAIN_H_

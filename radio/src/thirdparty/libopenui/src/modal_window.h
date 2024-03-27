@@ -40,21 +40,3 @@ class ModalWindow : public Window
  protected:
   bool closeWhenClickOutside;
 };
-
-class ModalWindowContent : public Window
-{
- public:
-  explicit ModalWindowContent(ModalWindow* parent, const rect_t& rect);
-
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "ModalWindowContent"; }
-#endif
-
-  virtual void setTitle(const std::string& text);
-  std::string getTitle() const;
-
-  void onClicked() override;
-
- protected:
-  lv_obj_t* title = nullptr;
-};

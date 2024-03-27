@@ -21,11 +21,11 @@
 
 #pragma once
 
-#include "form.h"
+#include "window.h"
 #include "numberedit.h"
 
 template <typename T>
-struct PpmFrameSettings : public FormWindow {
+struct PpmFrameSettings : public Window {
   private:
     NumberEdit* ppmFrameLenEditObject = nullptr;
 

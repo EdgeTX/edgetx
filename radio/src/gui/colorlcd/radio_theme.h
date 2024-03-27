@@ -18,32 +18,44 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+
+#pragma once
+
 #include "tabsgroup.h"
-#include "file_carosell.h"
+#include "opentx.h"
 
+class ListBox;
+class TabsGroup;
 class ThemeColorPreview;
+class ThemePersistance;
+class ThemeFile;
+class FileCarosell;
 
-class ThemeSetupPage: public PageTab {
-  public:
-    ThemeSetupPage();
+class ThemeSetupPage : public PageTab
+{
+ public:
+  ThemeSetupPage(TabsGroup *tabsGroup);
 
-    void build(FormWindow * window) override;
-    void checkEvents() override;
+  void build(Window *window) override;
+  void checkEvents() override;
 
-  protected:
-    Window *pageWindow = nullptr;
-    Window *previewWindow = nullptr;
-    FileCarosell *fileCarosell = nullptr;
-    ThemeColorPreview *themeColorPreview = nullptr;
-    ListBox *listBox = nullptr;
-    StaticText *authorText = nullptr;
-    StaticText *nameText = nullptr;
-    int currentTheme = 0;
-    bool started = false;
+  bool isVisible() const override { return radioThemesEnabled(); }
 
-    void setupListbox(Window *window, rect_t r, ThemePersistance *tp);
-    void displayThemeMenu(Window *window, ThemePersistance *tp);
-    void setAuthor(ThemeFile *theme);
-    void setName(ThemeFile *theme);
-    void setSelected(ThemePersistance *tp);
+ protected:
+  TabsGroup *tabsGroup = nullptr;
+  Window *pageWindow = nullptr;
+  Window *previewWindow = nullptr;
+  FileCarosell *fileCarosell = nullptr;
+  ThemeColorPreview *themeColorPreview = nullptr;
+  ListBox *listBox = nullptr;
+  StaticText *authorText = nullptr;
+  StaticText *nameText = nullptr;
+  int currentTheme = 0;
+  bool started = false;
+
+  void setupListbox(Window *window, rect_t r, ThemePersistance *tp);
+  void displayThemeMenu(Window *window, ThemePersistance *tp);
+  void setAuthor(ThemeFile *theme);
+  void setName(ThemeFile *theme);
+  void setSelected(ThemePersistance *tp);
 };

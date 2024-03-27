@@ -27,7 +27,6 @@ class ScreenMenu : public TabsGroup
 {
  public:
   ScreenMenu(int8_t tabIdx = -1);
-  void updateTabs(int8_t tabIdx);
 
  protected:
 #if defined(HARDWARE_KEYS)

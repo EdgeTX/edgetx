@@ -22,7 +22,7 @@
 
 class FormField;
 
-class Keyboard : public Window
+class Keyboard : public NavWindow
 {
  public:
   explicit Keyboard(coord_t height);

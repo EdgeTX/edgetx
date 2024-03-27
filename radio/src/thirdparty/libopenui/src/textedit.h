@@ -22,10 +22,8 @@
 
 class TextEdit : public FormField
 {
-
  public:
-  TextEdit(Window* parent, const rect_t& rect, char* value, uint8_t length,
-           LcdFlags windowFlags = 0);
+  TextEdit(Window* parent, const rect_t& rect, char* value, uint8_t length);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "TextEdit"; }
@@ -38,7 +36,7 @@ class TextEdit : public FormField
 
  protected:
   static void event_cb(lv_event_t* e);
-  
+
   char* value;
   uint8_t length;
 
@@ -46,4 +44,18 @@ class TextEdit : public FormField
 
   void changeEnd(bool forceChanged = false) override;
   void onClicked() override;
+};
+
+class ModelTextEdit : public TextEdit
+{
+ public:
+  ModelTextEdit(Window* parent, const rect_t& rect, char* value,
+                uint8_t length);
+};
+
+class RadioTextEdit : public TextEdit
+{
+ public:
+  RadioTextEdit(Window* parent, const rect_t& rect, char* value,
+                uint8_t length);
 };

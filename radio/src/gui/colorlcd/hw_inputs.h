@@ -25,28 +25,28 @@
 #include "dialog.h"
 #include "form.h"
 
-struct HWSticks : public FormWindow {
+struct HWSticks : public Window {
   HWSticks(Window* parent);
 };
 
-struct HWPots : public FormWindow {
+struct HWPots : public Window {
   HWPots(Window* parent);
   bool potsChanged;
 };
 
-struct HWSwitches : public FormWindow {
+struct HWSwitches : public Window {
   HWSwitches(Window* parent);
 };
 
 template <class T>
-struct HWInputDialog : public Dialog {
+struct HWInputDialog : public BaseDialog {
   HWInputDialog(const char* title = nullptr);
 };
 
 template <class T>
 TextButton* makeHWInputButton(Window* parent, const char* title)
 {
-  return new TextButton(parent, rect_t{}, title, [=]() {
+  return new TextButton(parent, rect_t{0, 0, 100, 0}, title, [=]() {
     new HWInputDialog<T>(title);
     return 0;
   });

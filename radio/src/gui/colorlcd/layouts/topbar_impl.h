@@ -24,6 +24,8 @@
 #include "topbar.h"
 #include "layouts/layout_factory_impl.h"
 
+class HeaderIcon;
+
 typedef WidgetsContainerImpl<MAX_TOPBAR_ZONES, MAX_TOPBAR_OPTIONS> TopBarBase;
 
 class TopBar: public TopBarBase
@@ -49,9 +51,9 @@ class TopBar: public TopBarBase
 
     void setVisible(float visible);
     coord_t getVisibleHeight(float visible) const; // 0.0 -> 1.0
+    void showEdgeTxButton();
+    void hideEdgeTxButton();
   
-    void paint(BitmapBuffer * dc) override;
-
     void checkEvents() override;
 
     bool isTopBar() override { return true; }
@@ -60,4 +62,5 @@ class TopBar: public TopBarBase
 
   protected:
     uint32_t lastRefresh = 0;
+    HeaderIcon* headerIcon = nullptr;
 };

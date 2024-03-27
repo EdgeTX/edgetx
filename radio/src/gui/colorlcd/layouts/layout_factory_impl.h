@@ -69,11 +69,9 @@ class Layout: public LayoutBase
     {
       return "Layout";
     }
-
-    void paint(BitmapBuffer * dc) override;
 #endif
 
-    void create() override;
+    void create() override {}
   
     const LayoutFactory * getFactory() const
     {
@@ -105,14 +103,14 @@ class Layout: public LayoutBase
     void setSlidersVisible(bool visible);
     void setFlightModeVisible(bool visible);
 
-    // Update from theme settings
-    void updateFromTheme() override;
-
     // Updates settings for trims, sliders, pots, etc...
     void adjustLayout() override;
+    void show(bool visible = true) override;
 
     bool isLayout() override { return true; }
 
+    bool isAppMode() { return decorationSettings == DECORATION_NONE && zoneCount == 1; }
+  
   protected:
     const LayoutFactory * factory  = nullptr;
     std::unique_ptr<ViewMainDecoration> decoration;

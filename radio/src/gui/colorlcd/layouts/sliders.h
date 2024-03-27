@@ -22,7 +22,6 @@
 #pragma once
 
 #include "libopenui.h"
-#include "trims.h"
 
 #if LCD_H > LCD_W
 constexpr uint8_t SLIDER_TICKS_COUNT = 30;
@@ -30,39 +29,59 @@ constexpr uint8_t SLIDER_TICKS_COUNT = 30;
 constexpr uint8_t SLIDER_TICKS_COUNT = 40;
 #endif
 constexpr coord_t SLIDER_TICK_SPACING = 4;
-constexpr coord_t HORIZONTAL_SLIDERS_WIDTH = SLIDER_TICKS_COUNT * SLIDER_TICK_SPACING + TRIM_SQUARE_SIZE;
-constexpr coord_t VERTICAL_SLIDERS_HEIGHT = SLIDER_TICKS_COUNT * SLIDER_TICK_SPACING + TRIM_SQUARE_SIZE;
+constexpr coord_t HORIZONTAL_SLIDERS_WIDTH =
+    SLIDER_TICKS_COUNT * SLIDER_TICK_SPACING + TRIM_SQUARE_SIZE;
+constexpr coord_t VERTICAL_SLIDERS_HEIGHT =
+    SLIDER_TICKS_COUNT * SLIDER_TICK_SPACING + TRIM_SQUARE_SIZE;
+
+class SliderIcon : public Window
+{
+ public:
+  SliderIcon(Window* parent);
+
+ protected:
+  lv_obj_t* fill = nullptr;
+};
 
 class MainViewSlider : public Window
 {
  public:
-  MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx);
+  MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
+                 bool isVertical);
   void checkEvents() override;
 
  protected:
   uint8_t idx;
-  int16_t value = 0;
+  int16_t value = -10000;
+  bool isVertical;
+  SliderIcon* sliderIcon = nullptr;
+  lv_point_t* tickPoints = nullptr;
+
+  void deleteLater(bool detach = true, bool trash = true) override;
 };
 
 class MainViewHorizontalSlider : public MainViewSlider
 {
  public:
-  using MainViewSlider::MainViewSlider;
   MainViewHorizontalSlider(Window* parent, uint8_t idx);
-  void paint(BitmapBuffer* dc) override;
-};
-
-class MainView6POS : public MainViewSlider
-{
-  public:
-    MainView6POS(Window* parent, uint8_t idx);
-    void paint(BitmapBuffer * dc) override;
-    void checkEvents() override;
 };
 
 class MainViewVerticalSlider : public MainViewSlider
 {
-  public:
-    MainViewVerticalSlider(Window* parent, const rect_t & rect, uint8_t idx);
-    void paint(BitmapBuffer * dc) override;
+ public:
+  MainViewVerticalSlider(Window* parent, const rect_t& rect, uint8_t idx);
+};
+
+class MainView6POS : public Window
+{
+ public:
+  MainView6POS(Window* parent, uint8_t idx);
+
+  void checkEvents() override;
+
+ protected:
+  uint8_t idx;
+  int16_t value = -10000;
+  SliderIcon* posIcon = nullptr;
+  lv_obj_t* posVal = nullptr;
 };

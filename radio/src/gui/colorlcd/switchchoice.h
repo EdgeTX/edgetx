@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SWITCHCHOICE_H_
-#define _SWITCHCHOICE_H_
+#pragma once
 
 #include "choice.h"
 #include "form.h"
@@ -46,9 +45,9 @@ class SwitchChoice : public Choice
 
   void invertChoice();
 
+  void openMenu() override;
+
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "SwitchChoice"; }
 #endif
 };
-
-#endif  // _SWITCHCHOICE_H_

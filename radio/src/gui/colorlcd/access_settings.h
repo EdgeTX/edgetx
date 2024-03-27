@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "menu.h"
 #include "static.h"
 #include "button.h"
 #include "dialog.h"
@@ -29,33 +28,6 @@
 #include "numberedit.h"
 
 namespace pxx2 {
-  
-class BindRxChoiceMenu : public Menu
-{
- public:
-  BindRxChoiceMenu(Window* parent, uint8_t moduleIdx, uint8_t receiverIdx);
-
- protected:
-  uint8_t moduleIdx;
-  uint8_t receiverIdx;
-
-#if defined(HARDWARE_TOUCH)
-  bool onTouchEnd(coord_t x, coord_t y) override;
-#endif  
-};
-
-class BindWaitDialog : public Dialog
-{
- public:
-  BindWaitDialog(Window* parent, uint8_t moduleIdx, uint8_t receiverIdx);
-  void checkEvents() override;
-
-  void deleteLater(bool detach = true, bool trash = true) override;
-  
- protected:
-  uint8_t moduleIdx;
-  uint8_t receiverIdx;
-};
 
 class ReceiverButton : public TextButton
 {
@@ -72,7 +44,7 @@ class ReceiverButton : public TextButton
   uint8_t receiverIdx;
 };
 
-class RegisterDialog : public Dialog
+class RegisterDialog : public BaseDialog
 {
  public:
   RegisterDialog(Window* parent, uint8_t moduleIdx);
@@ -90,7 +62,7 @@ class RegisterDialog : public Dialog
   Window* btn_ok = nullptr;
 };
 
-class ModuleOptions : public Dialog
+class ModuleOptions : public BaseDialog
 {
  public:
   ModuleOptions(Window* parent, uint8_t moduleIdx);
@@ -113,36 +85,6 @@ class ModuleOptions : public Dialog
   std::string statusText;
 
   uint8_t getModuleSettingsState();
-
-  void update();
-  void writeSettings();
-};
-
-class RxOptions : public Dialog
-{
- public:
-  RxOptions(Window* parent, uint8_t moduleIdx, uint8_t rxIdx);
-  void checkEvents() override;
-
- protected:
-
-  enum {
-    RO_Init=0,
-    RO_ReadModuleInfo,
-    RO_ReadModuleSettings,
-    RO_ReadReceiverSettings,
-    RO_DisplaySettings,
-    RO_WriteSettings,
-    RO_WritingSettings,
-  };
-  
-  uint8_t moduleIdx;
-  uint8_t receiverIdx;
-  uint8_t state = RO_Init;
-
-  std::string statusText;
-
-  uint8_t getRxSettingsState();
 
   void update();
   void writeSettings();

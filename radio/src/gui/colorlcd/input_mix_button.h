@@ -26,15 +26,15 @@
 
 class InputMixButton : public ListLineButton
 {
-  lv_obj_t* fm_canvas = nullptr;
-  void* fm_buffer = nullptr;
-  uint16_t fm_modes = 0;
-
  public:
   InputMixButton(Window* parent, uint8_t index);
   ~InputMixButton();
 
  protected:
+  lv_obj_t* fm_canvas = nullptr;
+  void* fm_buffer = nullptr;
+  uint16_t fm_modes = 0;
+
   lv_obj_t* weight;
   lv_obj_t* source;
   lv_obj_t* opts;

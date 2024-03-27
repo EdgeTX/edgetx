@@ -73,10 +73,9 @@ static void pwmfreq_changedV0(lv_event_t* e)
   }
 }
 PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_t channelIdx) :
-  FormWindow(parent, rect_t{})
+  Window(parent, rect_t{})
 {
-  setFlexLayout(LV_FLEX_FLOW_ROW);
-  lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
+  setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY, LV_SIZE_CONTENT);
   uint16_t &pwmvalue_type = _v1_pwmvalue_type[moduleIdx][channelIdx];
   auto cfg = afhds3::getConfig(moduleIdx);
   auto vCfg = &cfg->v1;
@@ -110,10 +109,9 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_
 }
 
 PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx ) :
-  FormWindow(parent, rect_t{})
+  Window(parent, rect_t{})
 {
-  setFlexLayout(LV_FLEX_FLOW_ROW);
-  lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
+  setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY, LV_SIZE_CONTENT);
   uint16_t &pwmvalue_type = _v1_pwmvalue_type[moduleIdx][0];
   auto cfg = afhds3::getConfig(moduleIdx);
   auto vCfg = &cfg->v0;
@@ -154,28 +152,26 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   cfg = afhds3::getConfig(moduleIdx);
   std::string title =
       moduleIdx == INTERNAL_MODULE ? STR_INTERNALRF : STR_EXTERNALRF;
-  header.setTitle(title);
+  header->setTitle(title);
 
   title = "AFHDS3 (";
   title += (moduleIdx == INTERNAL_MODULE ? "INRM301" : "FRM303");
   title += ")";
-  header.setTitle2(title);
+  header->setTitle2(title);
 
-  auto form = new FormWindow(&body, rect_t{});
-  form->setFlexLayout();
-  form->padAll(lv_dpx(8));
+  body->setFlexLayout();
 
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
   if (cfg->version == 0) {
     auto vCfg = &cfg->v0;
 
-    auto line = form->newLine(&grid);
+    auto line = body->newLine(grid);
     std::string temp_str = "PWM";
     temp_str += TR_POWERMETER_FREQ;
     new StaticText(line, rect_t{}, temp_str);
     new PWMfrequencyChoice(line, moduleIdx);
-    line = form->newLine(&grid);
+    line = body->newLine(grid);
 
     temp_str = "PWM";
     temp_str += " ";
@@ -183,7 +179,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
     new StaticText(line, rect_t{}, temp_str);
     new ToggleSwitch(line, rect_t{}, GET_SET_AND_SYNC(cfg, vCfg->PWMFrequency.Synchronized,
                  afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V0));
-    line = form->newLine(&grid);
+    line = body->newLine(grid);
 
     temp_str = STR_CH;
     temp_str += " 1";
@@ -192,7 +188,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
                afhds3::SES_ANALOG_OUTPUT_PWM, afhds3::SES_ANALOG_OUTPUT_PPM,
                GET_SET_AND_SYNC(cfg, vCfg->AnalogOutput, afhds3::DirtyConfig::DC_RX_CMD_OUT_PWM_PPM_MODE));
 
-    line = form->newLine(&grid);
+    line = body->newLine(grid);
     new StaticText(line, rect_t{}, STR_SERIAL_BUS);
     new Choice(line, rect_t{}, _bus_types, 0, 2,
                GET_SET_AND_SYNC(cfg, cfg->others.ExternalBusType, afhds3::DirtyConfig::DC_RX_CMD_BUS_TYPE_V0));
@@ -201,10 +197,10 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
     for (uint8_t i = 0; i < channel_num[vCfg->PhyMode]; i++) {
       std::string temp_str = STR_CH;
       temp_str += " " + std::to_string(i+1);
-      auto line = form->newLine(&grid);
+      auto line = body->newLine(grid);
       new StaticText(line, rect_t{}, temp_str);
       new PWMfrequencyChoice(line, moduleIdx, i);
-      line = form->newLine(&grid);
+      line = body->newLine(grid);
 
       temp_str = "PWM";
       temp_str += " ";
@@ -220,7 +216,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
     }
 
     for (uint8_t i = 0; i < SES_NPT_NB_MAX_PORTS; i++) {
-      auto line = form->newLine(&grid);
+      auto line = body->newLine(grid);
       std::string portName = "NP";
       portName += 'A' + i;
       new StaticText(line, rect_t{}, portName.c_str());
@@ -249,7 +245,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
       });
     }
   }
-  auto line = form->newLine(&grid);
+  auto line = body->newLine(grid);
   new StaticText(line, rect_t{}, STR_SIGNAL_OUTPUT);
   std::vector<std::string> signed_strength_ch;
   signed_strength_ch.emplace_back(STR_OFF);

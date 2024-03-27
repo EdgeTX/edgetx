@@ -22,22 +22,23 @@
 #pragma once
 
 #include <list>
+
+#include "dataconstants.h"
 #include "widgets_container.h"
 
-#define MAX_LAYOUT_ZONES               10
-#define MAX_LAYOUT_OPTIONS             10
+#define MAX_LAYOUT_ZONES 10
+#define MAX_LAYOUT_OPTIONS 10
 constexpr coord_t TRIM_LINE_WIDTH = 8;
 constexpr coord_t TRIM_SQUARE_SIZE = 17;
 constexpr coord_t MAIN_ZONE_BORDER = 10;
-constexpr uint32_t LAYOUT_REFRESH = 1000 / 2; // 2 Hz
-
-class BitmapBuffer;
+constexpr uint32_t LAYOUT_REFRESH = 1000 / 2;  // 2 Hz
 
 #if !defined(YAML_GENERATOR)
-typedef WidgetsContainerPersistentData<MAX_LAYOUT_ZONES,MAX_LAYOUT_OPTIONS> LayoutPersistentData;
+typedef WidgetsContainerPersistentData<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS>
+    LayoutPersistentData;
 #else
 struct LayoutPersistentData {
-  ZonePersistentData   zones[MAX_LAYOUT_ZONES];
+  ZonePersistentData zones[MAX_LAYOUT_ZONES];
   ZoneOptionValueTyped options[MAX_LAYOUT_OPTIONS];
 };
 #endif
@@ -54,39 +55,41 @@ class LayoutFactory
 
   virtual const ZoneOption* getOptions() const = 0;
 
-  virtual WidgetsContainer* create(Window* parent,
-      LayoutPersistentData* persistentData) const = 0;
+  virtual WidgetsContainer* create(
+      Window* parent, LayoutPersistentData* persistentData) const = 0;
 
-  virtual WidgetsContainer* load(Window* parent,
-      LayoutPersistentData* persistentData) const = 0;
+  virtual WidgetsContainer* load(
+      Window* parent, LayoutPersistentData* persistentData) const = 0;
 
   virtual void initPersistentData(LayoutPersistentData* persistentData,
                                   bool setDefault) const = 0;
 
+  // Remove custom screen from the model
+  static void disposeCustomScreen(unsigned idx);
+
+  // delete all custom screens from memory
+  static void deleteCustomScreens();
+
+  // intended for existing models
+  static void loadCustomScreens();
+
+  // intented for new models
+  static void loadDefaultLayout();
+
+  // List of registered layout factories
+  static std::list<const LayoutFactory*>& getRegisteredLayouts();
+
+  WidgetsContainer* createCustomScreen(unsigned customScreenIndex) const;
+
  protected:
   const char* id;
   const char* name;
+
+  static WidgetsContainer* loadLayout(Window* parent, const char* name,
+                                      LayoutPersistentData* persistentData);
+  static const LayoutFactory* getLayoutFactory(const char* name);
 };
 
-WidgetsContainer * loadLayout(Window* parent, const char * name, LayoutPersistentData * persistentData);
+extern const LayoutFactory* defaultLayout;
 
-// intented for new models
-void loadDefaultLayout();
-
-// intended for existing models
-void loadCustomScreens();
-
-// delete all custom screens from memory
-void deleteCustomScreens();
-
-WidgetsContainer *
-createCustomScreen(const LayoutFactory* factory, unsigned customScreenIndex);
-
-// Remove custom screen from the model
-void disposeCustomScreen(unsigned idx);
-
-// Layout must register to be found
-void registerLayout(const LayoutFactory * factory);
-
-// List of registered layout factories
-std::list<const LayoutFactory *> & getRegisteredLayouts();
+extern WidgetsContainer* customScreens[MAX_CUSTOM_SCREENS];

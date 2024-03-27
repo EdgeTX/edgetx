@@ -20,6 +20,32 @@
 
 #include "menu.h"
 #include "theme.h"
+#include "themes/etx_lv_theme.h"
+
+// Choice
+static void choice_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
+{
+  etx_std_style(obj, LV_PART_MAIN, PAD_TINY);
+  lv_obj_set_style_pad_hor(obj, PAD_MEDIUM, LV_PART_MAIN);
+}
+
+static const lv_obj_class_t choice_class = {
+    .base_class = &lv_obj_class,
+    .constructor_cb = choice_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = LV_SIZE_CONTENT,
+    .height_def = 32,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
+    .instance_size = sizeof(lv_obj_t),
+};
+
+static lv_obj_t* choice_create(lv_obj_t* parent)
+{
+  return etx_create(&choice_class, parent);
+}
 
 void choice_changed_cb(lv_event_t* e)
 {
@@ -37,14 +63,13 @@ void choice_changed_cb(lv_event_t* e)
   }
 }
 
-ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
-                       WindowFlags windowFlags) :
-    FormField(parent, rect, windowFlags, 0, etx_choice_create), type(type)
+ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type) :
+    FormField(parent, rect, 0, choice_create), type(type)
 {
-  //   lv_obj_set_height(lvobj, LV_SIZE_CONTENT);
-  //   lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
   lv_obj_set_layout(lvobj, LV_LAYOUT_FLEX);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
+  lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER,
+                        LV_FLEX_ALIGN_SPACE_AROUND);
 
   lv_obj_add_event_cb(lvobj, choice_changed_cb, LV_EVENT_VALUE_CHANGED, lvobj);
   label = lv_label_create(lvobj);
@@ -54,31 +79,27 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type,
     lv_group_add_obj(def_group, lvobj);
   }
 
-  lv_obj_set_style_pad_left(label, FIELD_PADDING_LEFT, LV_PART_MAIN);
-  lv_obj_set_style_pad_top(label, FIELD_PADDING_TOP, LV_PART_MAIN);
-  lv_obj_set_style_pad_right(label, CHOICE_LABEL_MARGIN_RIGHT, LV_PART_MAIN);
-  // lv_obj_set
-
   // add the image
   lv_obj_t* img = lv_img_create(lvobj);
   lv_img_set_src(
       img, type == CHOICE_TYPE_DROPOWN ? LV_SYMBOL_DOWN : LV_SYMBOL_DIRECTORY);
-  lv_obj_set_align(img, LV_ALIGN_RIGHT_MID);
 }
 
 std::string Choice::getLabelText()
 {
   std::string text;
 
-  if (textHandler != nullptr) {
-    if (_getValue) {
-      text = textHandler(_getValue());
-    }
-  } else if (_getValue) {
+  if (_getValue) {
     int val = _getValue();
-    val -= vmin;
-    if (val >= 0 && val < (int)values.size()) {
-      text = values[val];
+    if (textHandler) {
+      text = textHandler(val);
+    } else {
+      val -= vmin;
+      if (val >= 0 && val < (int)values.size()) {
+        text = values[val];
+      } else {
+        text = std::to_string(val);
+      }
     }
   }
 
@@ -87,10 +108,11 @@ std::string Choice::getLabelText()
 
 Choice::Choice(Window* parent, const rect_t& rect, int vmin, int vmax,
                std::function<int()> _getValue,
-               std::function<void(int)> _setValue, WindowFlags windowFlags) :
-    ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
+               std::function<void(int)> _setValue, const char* title) :
+    ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN),
     vmin(vmin),
     vmax(vmax),
+    menuTitle(title),
     _getValue(std::move(_getValue)),
     _setValue(std::move(_setValue)),
     longPressData({})
@@ -100,10 +122,11 @@ Choice::Choice(Window* parent, const rect_t& rect, int vmin, int vmax,
 
 Choice::Choice(Window* parent, const rect_t& rect, const char* const values[],
                int vmin, int vmax, std::function<int()> _getValue,
-               std::function<void(int)> _setValue, WindowFlags windowFlags) :
-    ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
+               std::function<void(int)> _setValue, const char* title) :
+    ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN),
     vmin(vmin),
     vmax(vmax),
+    menuTitle(title),
     _getValue(std::move(_getValue)),
     _setValue(std::move(_setValue)),
     longPressData({})
@@ -115,37 +138,16 @@ Choice::Choice(Window* parent, const rect_t& rect, const char* const values[],
 Choice::Choice(Window* parent, const rect_t& rect,
                std::vector<std::string> values, int vmin, int vmax,
                std::function<int()> _getValue,
-               std::function<void(int)> _setValue, WindowFlags windowFlags) :
-    ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
+               std::function<void(int)> _setValue, const char* title) :
+    ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN),
     values(std::move(values)),
     vmin(vmin),
     vmax(vmax),
+    menuTitle(title),
     _getValue(std::move(_getValue)),
     _setValue(std::move(_setValue)),
     longPressData({})
 {
-  lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
-}
-
-Choice::Choice(Window* parent, const rect_t& rect, const char* values, int vmin,
-               int vmax, std::function<int()> _getValue,
-               std::function<void(int)> _setValue, WindowFlags windowFlags) :
-    ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN, windowFlags),
-    vmin(vmin),
-    vmax(vmax),
-    _getValue(std::move(_getValue)),
-    _setValue(std::move(_setValue)),
-    longPressData({})
-{
-  if (values) {
-    uint8_t len = values[0];
-    const char* value = &values[1];
-    for (int i = vmin; i <= vmax; i++) {
-      this->values.emplace_back(
-          std::string(value, min<uint8_t>(len, strlen(value))));
-      value += len;
-    }
-  }
   lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
@@ -153,13 +155,6 @@ void Choice::addValue(const char* value)
 {
   values.emplace_back(value);
   vmax += 1;
-}
-
-void Choice::addValues(const char* const values[], uint8_t count)
-{
-  this->values.reserve(this->values.size() + count);
-  for (uint8_t i = 0; i < count; i++) this->values.emplace_back(values[i]);
-  vmax += count;
 }
 
 void Choice::setValues(std::vector<std::string> values)
@@ -237,11 +232,7 @@ void Choice::openMenu()
   setEditMode(true);  // this needs to be done first before menu is created.
 
   auto menu = new Menu(this);
-  if (!menuTitle.empty()) menu->setTitle(menuTitle);
-
-  if (beforeDisplayMenuHandler) {
-    beforeDisplayMenuHandler(menu);
-  }
+  if (menuTitle) menu->setTitle(menuTitle);
 
   fillMenu(menu);
 

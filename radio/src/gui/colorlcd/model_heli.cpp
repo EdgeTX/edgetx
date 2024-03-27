@@ -22,6 +22,7 @@
 #include "model_heli.h"
 #include "opentx.h"
 #include "libopenui.h"
+#include "sourcechoice.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -42,56 +43,56 @@ ModelHeliPage::ModelHeliPage():
 {
 }
 
-void ModelHeliPage::build(FormWindow* form)
+void ModelHeliPage::build(Window* form)
 {
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
   form->setFlexLayout();
 
   // Swash type
-  auto line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_SWASHTYPE, 0, COLOR_THEME_PRIMARY1);
+  auto line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_SWASHTYPE);
   new Choice(line, rect_t{}, STR_VSWASHTYPE, 0, SWASH_TYPE_MAX,
              GET_SET_DEFAULT(g_model.swashR.type));
 
   // Swash ring
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_SWASHRING, 0, COLOR_THEME_PRIMARY1);
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_SWASHRING);
   new NumberEdit(line, rect_t{}, 0, 100, GET_SET_DEFAULT(g_model.swashR.value));
 
   // Elevator source
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_ELEVATOR, 0, COLOR_THEME_PRIMARY1);
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_ELEVATOR);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
                    GET_SET_DEFAULT(g_model.swashR.elevatorSource));
 
   // Elevator weight
-  auto w = new StaticText(line, rect_t{}, STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
+  auto w = new StaticText(line, rect_t{}, STR_WEIGHT);
   lv_obj_set_style_grid_cell_x_align(w->getLvObj(), LV_GRID_ALIGN_END, 0);
   lv_obj_set_style_pad_right(w->getLvObj(), lv_dpx(8), 0);
   new NumberEdit(line, rect_t{}, -100, 100,
                  GET_SET_DEFAULT(g_model.swashR.elevatorWeight));
 
   // Aileron source
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_AILERON, 0, COLOR_THEME_PRIMARY1);
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_AILERON);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
                    GET_SET_DEFAULT(g_model.swashR.aileronSource));
 
   // Aileron weight
-  w = new StaticText(line, rect_t{}, STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
+  w = new StaticText(line, rect_t{}, STR_WEIGHT);
   lv_obj_set_style_grid_cell_x_align(w->getLvObj(), LV_GRID_ALIGN_END, 0);
   lv_obj_set_style_pad_right(w->getLvObj(), lv_dpx(8), 0);
   new NumberEdit(line, rect_t{}, -100, 100,
                  GET_SET_DEFAULT(g_model.swashR.aileronWeight));
 
   // Collective source
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_COLLECTIVE, 0, COLOR_THEME_PRIMARY1);
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_COLLECTIVE);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
                    GET_SET_DEFAULT(g_model.swashR.collectiveSource));
 
   // Collective weight
-  w = new StaticText(line, rect_t{}, STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
+  w = new StaticText(line, rect_t{}, STR_WEIGHT);
   lv_obj_set_style_grid_cell_x_align(w->getLvObj(), LV_GRID_ALIGN_END, 0);
   lv_obj_set_style_pad_right(w->getLvObj(), lv_dpx(8), 0);
   new NumberEdit(line, rect_t{}, -100, 100,

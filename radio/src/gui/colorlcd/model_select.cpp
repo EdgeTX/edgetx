@@ -28,17 +28,18 @@
 #include "model_templates.h"
 #include "opentx.h"
 #include "standalone_lua.h"
+#include "themes/etx_lv_theme.h"
 #include "view_channels.h"
 
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
-constexpr int BUTTONS_HEIGHT = 32;
+constexpr int BUTTONS_HEIGHT = 36;
 
 struct ModelButtonLayout {
   uint16_t width;
   uint16_t height;
   uint16_t padding;
-  bool hsaImage;
+  bool hasImage;
   uint16_t font;
 };
 
@@ -57,14 +58,12 @@ ModelButtonLayout modelLayouts[] = {
 };
 
 #if LCD_W > LCD_H  // Landscape
-constexpr int LAY_MARGIN = 5;
 constexpr int LABELS_ROW = 0;
 constexpr int MODELS_COL = 1;
 constexpr int MODELS_ROW = 0;
 constexpr int MODELS_ROW_CNT = 2;
 constexpr int BUTTONS_ROW = 1;
 #else  // Portrait
-constexpr int LAY_MARGIN = 8;
 constexpr int LABELS_ROW = 1;
 constexpr int MODELS_COL = 0;
 constexpr int MODELS_ROW = 0;
@@ -75,14 +74,14 @@ constexpr int BUTTONS_ROW = 2;
 class ModelButton : public Button
 {
  public:
-  ModelButton(FormWindow *parent, const rect_t &rect, ModelCell *modelCell,
+  ModelButton(Window *parent, const rect_t &rect, ModelCell *modelCell,
               std::function<void()> setSelected, uint8_t layout) :
-      Button(parent, rect, nullptr, 0, 0, etx_button_create),
+      Button(parent, rect),
       layout(layout),
       modelCell(modelCell),
       m_setSelected(std::move(setSelected))
   {
-    padAll(0);
+    padAll(PAD_ZERO);
 
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
     setWidth(modelLayouts[layout].width);
@@ -94,69 +93,51 @@ class ModelButton : public Button
                         nullptr);
   }
 
-  ~ModelButton()
-  {
-    if (buffer) {
-      delete buffer;
-    }
-  }
-
   void addDetails()
   {
-    LcdFlags bg_color = modelCell == modelslist.getCurrentModel()
-                            ? COLOR_THEME_ACTIVE
-                            : COLOR_THEME_PRIMARY2;
+    int bg_col_idx = modelCell == modelslist.getCurrentModel()
+                         ? COLOR_THEME_ACTIVE_INDEX
+                         : COLOR_THEME_PRIMARY2_INDEX;
 
     coord_t w = width() - 8;
     coord_t h = height() - 8;
 
     LcdFlags font = modelLayouts[layout].font;
-    if ((getTextWidth(modelCell->modelName, 0, font) > w)) 
+    if ((getTextWidth(modelCell->modelName, 0, font) > w))
       font = (font == FONT(STD)) ? FONT(XS) : FONT(XXS);
 
-    if (modelLayouts[layout].hsaImage) {
+    if (modelLayouts[layout].hasImage) {
       GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
-      const BitmapBuffer *bitmap = BitmapBuffer::loadBitmap(filename);
+      auto bitmap = new StaticBitmap(this, {2, 2, w, h}, filename, COLOR(bg_col_idx));
+      bitmap->show(bitmap->hasImage());
 
-      if (bitmap) {
-        buffer = new BitmapBuffer(BMP_RGB565, w, h);
-        if (buffer) {
-          buffer->clear(bg_color);
-          buffer->drawScaledBitmap(bitmap, 0, 0, w, h);
-          delete bitmap;
-
-          lv_obj_t *bm = lv_canvas_create(lvobj);
-          lv_obj_center(bm);
-          lv_canvas_set_buffer(bm, buffer->getData(), buffer->width(),
-                               buffer->height(), LV_IMG_CF_TRUE_COLOR);
-        }
-      }
-
-      if (!buffer) {
+      if (!bitmap->hasImage()) {
         std::string errorMsg = "(";
         errorMsg += STR_NO_PICTURE;
         errorMsg += ")";
-        new StaticText(this, {2, h / 2, w, 17}, errorMsg, 0,
+        new StaticText(this, {2, h / 2, w, 17}, errorMsg,
                        CENTERED | COLOR_THEME_SECONDARY1 | FONT(XS));
       }
 
       coord_t fh = (font == FONT(STD)) ? 17 : (font == FONT(XS)) ? 14 : 11;
       coord_t fo = (font == FONT(STD)) ? -3 : (font == FONT(XS)) ? -3 : -1;
 
-      auto name = new StaticText(this, {2, 2, w, fh}, modelCell->modelName, 0,
+      auto name = new StaticText(this, {2, 2, w, fh}, modelCell->modelName,
                                  CENTERED | COLOR_THEME_SECONDARY1 | font);
       lv_label_set_long_mode(name->getLvObj(), LV_LABEL_LONG_DOT);
       name->setWidth(w);
       name->setHeight(fh);
-      name->setBackgroudOpacity(LV_OPA_80);
-      name->setBackgroundColor(bg_color);
+      etx_bg_color(name->getLvObj(), (LcdColorIndex)bg_col_idx);
+      etx_obj_add_style(name->getLvObj(), styles->bg_opacity_75, LV_PART_MAIN);
       name->padTop(fo);
     } else {
-      auto name = new StaticText(this, {2, 4, w, 24}, modelCell->modelName, 0,
+      auto name = new StaticText(this, {2, 4, w, 24}, modelCell->modelName,
                                  COLOR_THEME_SECONDARY1 | font);
       lv_label_set_long_mode(name->getLvObj(), LV_LABEL_LONG_DOT);
       name->setWidth(w);
     }
+
+    lv_obj_update_layout(lvobj);
   }
 
   static void on_draw(lv_event_t *e)
@@ -186,30 +167,25 @@ class ModelButton : public Button
   bool loaded = false;
   uint8_t layout;
   ModelCell *modelCell;
-  BitmapBuffer *buffer = nullptr;
   std::function<void()> m_setSelected = nullptr;
 
   void onClicked() override
   {
     setFocused();
-    Button::onClicked();
+    ButtonBase::onClicked();
     if (m_setSelected) m_setSelected();
   }
 };
 
 //-----------------------------------------------------------------------------
 
-class ModelsPageBody : public FormWindow
+class ModelsPageBody : public Window
 {
  public:
-  ModelsPageBody(Window *parent, const rect_t &rect) : FormWindow(parent, rect)
+  ModelsPageBody(Window *parent, const rect_t &rect) : Window(parent, rect)
   {
-    padAll(0);
-#if LCD_W > LCD_H
-    padRight(LAY_MARGIN);
-#else
-    padLeft(LAY_MARGIN);
-#endif
+    padAll(PAD_TINY);
+    padLeft(PAD_MEDIUM);
   }
 
   void update()
@@ -463,66 +439,72 @@ class ModelsPageBody : public FormWindow
 
 //-----------------------------------------------------------------------------
 
-class LabelDialog : public Dialog
+class LabelDialog : public ModalWindow
 {
  public:
   LabelDialog(Window *parent, char *label,
-              std::function<void(std::string label)> _saveHandler = nullptr) :
-      Dialog(parent, STR_ENTER_LABEL, rect_t{}),
-      saveHandler(std::move(_saveHandler))
+              std::function<void(std::string)> _saveHandler = nullptr) :
+      ModalWindow(parent, false), saveHandler(std::move(_saveHandler))
   {
     strncpy(this->label, label, LABEL_LENGTH);
     this->label[LABEL_LENGTH] = '\0';
 
-    auto form = &content->form;
-    form->padRow(lv_dpx(8));
+    auto form = new Window(this, rect_t{});
+    form->padAll(PAD_ZERO);
+    form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, LCD_W * 0.8,
+                        LV_SIZE_CONTENT);
+    etx_solid_bg(form->getLvObj());
+    lv_obj_center(form->getLvObj());
 
-    auto form_obj = form->getLvObj();
-    lv_obj_set_style_flex_cross_place(form_obj, LV_FLEX_ALIGN_CENTER, 0);
+    auto hdr = new StaticText(form, {0, 0, LV_PCT(100), 0}, STR_ENTER_LABEL,
+                              COLOR_THEME_PRIMARY2);
+    etx_solid_bg(hdr->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
+    hdr->padAll(PAD_MEDIUM);
 
-    new TextEdit(form, rect_t{}, label, LABEL_LENGTH);
+    auto box = new Window(form, rect_t{});
+    box->padAll(PAD_MEDIUM);
+    box->setFlexLayout(LV_FLEX_FLOW_ROW, 40, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_CENTER,
+                          LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
 
-    auto box = new FormWindow(form, rect_t{});
-    box->setFlexLayout(LV_FLEX_FLOW_ROW);
+    auto edit = new TextEdit(box, rect_t{0, 0, LV_PCT(100), 0}, this->label,
+                             LABEL_LENGTH);
+    edit->padAll(PAD_MEDIUM);
 
-    auto box_obj = box->getLvObj();
-    lv_obj_set_style_flex_main_place(box_obj, LV_FLEX_ALIGN_SPACE_EVENLY, 0);
+    box = new Window(form, rect_t{});
+    box->padAll(PAD_MEDIUM);
+    box->setFlexLayout(LV_FLEX_FLOW_ROW, 40, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_CENTER,
+                          LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
 
-    auto btn = new TextButton(box, rect_t{}, STR_SAVE, [=]() {
-      if (saveHandler != nullptr) saveHandler(label);
+    new TextButton(box, rect_t{0, 0, 96, 0}, STR_CANCEL, [=]() {
       deleteLater();
       return 0;
     });
-    btn->setWidth(100);
 
-    btn = new TextButton(box, rect_t{}, STR_CANCEL, [=]() {
+    new TextButton(box, rect_t{0, 0, 96, 0}, STR_SAVE, [=]() {
+      if (saveHandler != nullptr) saveHandler(this->label);
       deleteLater();
       return 0;
     });
-    btn->setWidth(100);
-
-    content->setWidth(LCD_W * 0.8);
-    content->updateSize();
   }
 
  protected:
-  std::function<void(std::string label)> saveHandler;
+  std::function<void(std::string)> saveHandler;
   char label[LABEL_LENGTH + 1];
 };
 
 //-----------------------------------------------------------------------------
 
-class ModelLayoutButton : public TextButton
+class ModelLayoutButton : public IconButton
 {
  public:
-  ModelLayoutButton(Window *parent, std::function<uint8_t(void)> pressHandler) :
-      TextButton(parent, {0, 0, 32, 32}, "", pressHandler)
+  ModelLayoutButton(Window *parent, uint8_t layout,
+                    std::function<uint8_t(void)> pressHandler) :
+      IconButton(parent, (EdgeTxIcon)(ICON_MODEL_GRID_LARGE + layout),
+                 pressHandler),
+      layout(layout)
   {
-  }
-
-  ~ModelLayoutButton()
-  {
-    if (bmBuffer) delete bmBuffer;
   }
 
   uint8_t getLayout() const { return layout; }
@@ -530,32 +512,20 @@ class ModelLayoutButton : public TextButton
   void setLayout(uint8_t newLayout)
   {
     layout = newLayout;
-    invalidate();
-  }
-
-  void paint(BitmapBuffer *dc) override
-  {
-    auto maskData = getBuiltinIcon((MenuIcons)(ICON_MODEL_GRID_LARGE + layout));
-    auto mask = BitmapBuffer::load8bitMaskLZ4(maskData);
-    if (!bmBuffer)
-      bmBuffer = new BitmapBuffer(BMP_RGB565, mask->width(), mask->height());
-    bmBuffer->clear(COLOR_THEME_PRIMARY2);
-    bmBuffer->drawMask(0, 0, mask, COLOR_THEME_SECONDARY1);
-    delete mask;
-    dc->drawBitmap(3, 3, bmBuffer);
+    setIcon((EdgeTxIcon)(ICON_MODEL_GRID_LARGE + layout));
+    // invalidate();
   }
 
  protected:
-  uint8_t layout;
-  BitmapBuffer *bmBuffer = nullptr;
+  uint8_t layout = 0;
 };
 
 //-----------------------------------------------------------------------------
 
-ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL)
+ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL, PAD_ZERO)
 {
-  buildHead(&header);
-  buildBody(&body);
+  buildHead(header);
+  buildBody(body);
 
   // find the first label of the current model and make that label active
   auto currentModel = modelslist.getCurrentModel();
@@ -706,7 +676,7 @@ void ModelLabelsWindow::newLabel()
   });
 }
 
-void ModelLabelsWindow::buildHead(PageHeader *hdr)
+void ModelLabelsWindow::buildHead(Window *hdr)
 {
   // page title
   setTitle();
@@ -720,23 +690,22 @@ void ModelLabelsWindow::buildHead(PageHeader *hdr)
     return 0;
   });
 
-  btn->padAll(lv_dpx(4));
+  btn->padAll(PAD_SMALL);
 
   // button placement
   hdr->padRight(lv_dpx(8));
   lv_obj_align(btn->getLvObj(), LV_ALIGN_RIGHT_MID, 0, 0);
 
-  mldLayout = new ModelLayoutButton(this, [=]() {
-    uint8_t l = mldLayout->getLayout();
+  mdlLayout = new ModelLayoutButton(this, g_eeGeneral.modelSelectLayout, [=]() {
+    uint8_t l = mdlLayout->getLayout();
     l = (l + 1) & 3;
-    mldLayout->setLayout(l);
+    mdlLayout->setLayout(l);
     g_eeGeneral.modelSelectLayout = l;
     storageDirty(EE_GENERAL);
     mdlselector->update();
     return 0;
   });
-  mldLayout->setLayout(g_eeGeneral.modelSelectLayout);
-  lv_obj_set_pos(mldLayout->getLvObj(), LCD_W - 105, 6);
+  lv_obj_set_pos(mdlLayout->getLvObj(), LCD_W - 105, 6);
 }
 
 #if LCD_W > LCD_H
@@ -752,13 +721,10 @@ static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), LABELS_HEIGHT,
                                      BUTTONS_HEIGHT, LV_GRID_TEMPLATE_LAST};
 #endif
 
-void ModelLabelsWindow::buildBody(FormWindow *window)
+void ModelLabelsWindow::buildBody(Window *window)
 {
-  window->padAll(LAY_MARGIN);
-  window->padRow(LAY_MARGIN);
-  window->padColumn(LAY_MARGIN);
-  window->padLeft(0);
-  window->padRight(0);
+  window->padTop(6);
+  window->padBottom(6);
 
   lv_obj_set_grid_dsc_array(window->getLvObj(), col_dsc, row_dsc);
 
@@ -774,10 +740,12 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
 
   // Labels
   auto box = new Window(window, rect_t{});
-  box->padAll(0);
-  box->padLeft(LAY_MARGIN);
+  box->padAll(PAD_ZERO);
+  box->padLeft(6);
 #if LCD_H > LCD_W
-  box->padRight(LAY_MARGIN);
+  box->padRight(6);
+  box->padTop(6);
+  box->padBottom(6);
 #endif
   lv_obj_set_grid_cell(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1,
                        LV_GRID_ALIGN_STRETCH, LABELS_ROW, 1);
@@ -785,24 +753,24 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
       new ListBox(box, rect_t{0, 0, LV_PCT(100), LV_PCT(100)}, getLabels());
   auto lbl_obj = lblselector->getLvObj();
 
-  // Sort Buttons
+  // Sort Button
   box = new Window(window, rect_t{});
-  box->padAll(0);
-  box->padLeft(LAY_MARGIN);
-  box->padRight(LAY_MARGIN);
+  box->padAll(PAD_TINY);
+  box->padLeft(6);
+  box->padRight(6);
   lv_obj_set_grid_cell(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1,
                        LV_GRID_ALIGN_STRETCH, BUTTONS_ROW, 1);
-  auto sortOrder = new Choice(
+  new Choice(
       box, {}, STR_SORT_ORDERS, NAME_ASC, DATE_DES,
       [=]() { return mdlselector->getSortOrder(); },
-      [=](int newValue) { mdlselector->setSortOrder((ModelsSortBy)newValue); });
-  sortOrder->setMenuTitle(STR_SORT_MODELS_BY);
+      [=](int newValue) { mdlselector->setSortOrder((ModelsSortBy)newValue); },
+      STR_SORT_MODELS_BY);
 
   lv_obj_update_layout(mdl_obj);
   lblselector->setColumnWidth(0, lv_obj_get_content_width(lbl_obj));
 
-  lv_obj_set_scrollbar_mode(lbl_obj, LV_SCROLLBAR_MODE_AUTO);
-  lv_obj_set_scrollbar_mode(mdl_obj, LV_SCROLLBAR_MODE_AUTO);
+  etx_scrollbar(lbl_obj);
+  etx_scrollbar(mdl_obj);
 
   std::set<uint32_t> filteredLabels = modelslabels.filteredLabels();
 
@@ -984,6 +952,6 @@ void ModelLabelsWindow::setTitle()
   title2 += ": ";
   title2 += modelName;
 
-  header.setTitle(STR_MANAGE_MODELS);
-  header.setTitle2(title2);
+  header->setTitle(STR_MANAGE_MODELS);
+  header->setTitle2(title2);
 }

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LCD_H_
-#define _LCD_H_
+#pragma once
 
 #include "opentx_types.h"
 
@@ -32,7 +31,6 @@
 #if defined(BOOT)
   #define BLINK_ON_PHASE               (0)
 #else
-  #define FAST_BLINK_ON_PHASE          (g_blinkTmr10ms & (1<<5))
   #define BLINK_ON_PHASE               (g_blinkTmr10ms & (1<<6))
   #define SLOW_BLINK_ON_PHASE          (g_blinkTmr10ms & (1<<7))
 #endif
@@ -54,5 +52,3 @@ void lcdClear();
 
 void lcdRefresh();
 void lcdFlushed();
-
-#endif // _LCD_H_

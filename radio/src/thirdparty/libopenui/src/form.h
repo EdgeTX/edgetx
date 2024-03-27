@@ -18,65 +18,103 @@
 
 #pragma once
 
+#include "themes/etx_lv_theme.h"
 #include "window.h"
-#include "flexlayout.h"
+
+class FlexGridLayout
+{
+ public:
+  FlexGridLayout(const lv_coord_t col_dsc[], const lv_coord_t row_dsc[],
+                 PaddingSize padding = PAD_SMALL) :
+      col_dsc(col_dsc), row_dsc(row_dsc), padding(padding)
+  {
+  }
+
+  FlexGridLayout(const FlexGridLayout& g) :
+      col_dsc(g.col_dsc), row_dsc(g.row_dsc), padding(g.padding)
+  {
+  }
+
+  void apply(Window* w);
+
+  void add(Window* w);
+
+  void resetPos()
+  {
+    col_pos = 0;
+    row_pos = 0;
+  }
+
+  void nextColumn() { col_pos += col_span; }
+  void nextRow()
+  {
+    row_pos += row_span;
+    col_pos = 0;
+  }
+
+  void nextCell()
+  {
+    nextColumn();
+    if (col_dsc[col_pos] == LV_GRID_TEMPLATE_LAST) {
+      nextRow();
+    }
+  }
+
+  void setColSpan(uint8_t span) { col_span = span; }
+  void setRowSpan(uint8_t span) { row_span = span; }
+
+ protected:
+  const lv_coord_t* col_dsc = nullptr;
+  const lv_coord_t* row_dsc = nullptr;
+  PaddingSize padding = PAD_ZERO;
+
+  uint8_t col_pos = 0;
+  uint8_t col_span = 1;
+  uint8_t row_pos = 0;
+  uint8_t row_span = 1;
+};
 
 class FormField : public Window
 {
-  public:
-    FormField(Window *parent, const rect_t &rect, WindowFlags windowFlags = 0,
-              LcdFlags textFlags = 0, LvglCreate objConstruct = nullptr);
+ public:
+  FormField(const rect_t& rect, LcdFlags textFlags);
+  FormField(Window* parent, const rect_t& rect, LcdFlags textFlags = 0,
+            LvglCreate objConstruct = nullptr);
 
-    virtual void changeEnd(bool forceChanged = false)
-    {
-      if (changeHandler) { changeHandler(); }
+  void setupLVGL() override;
+
+  virtual void changeEnd(bool forceChanged = false)
+  {
+    if (changeHandler) {
+      changeHandler();
     }
+  }
 
-    void setChangeHandler(std::function<void()> handler)
-    {
-      changeHandler = std::move(handler);
-    }
+  void setChangeHandler(std::function<void()> handler)
+  {
+    changeHandler = std::move(handler);
+  }
 
-    inline bool isEditMode() const { return editMode; }
-    virtual void setEditMode(bool newEditMode);
+  inline bool isEditMode() const { return editMode; }
+  virtual void setEditMode(bool newEditMode);
 
-    void enable(bool value = true);
-    void disable() { enable(false); }
+  void onClicked() override;
+  void onCancel() override;
+  void deleteLater(bool detach = true, bool trash = true) override;
 
-    void onClicked() override;
-    void onCancel() override;
-    void deleteLater(bool detach = true, bool trash = true) override;
-
-  protected:
-    bool editMode = false;
-    bool enabled = true;
-    std::function<void()> changeHandler = nullptr;
+ protected:
+  bool editMode = false;
+  bool enabled = true;
+  std::function<void()> changeHandler = nullptr;
 };
 
-class FormWindow : public Window
+class FormLine : public Window
 {
-  public:
-    class Line : public Window
-    {
-      public:
-        Line(Window *parent, lv_obj_t *obj, FlexGridLayout *layout = nullptr);
-        Line(Window *parent, FlexGridLayout *layout = nullptr);
+ public:
+  FormLine(Window* parent, FlexGridLayout& layout);
 
-        void setLayout(FlexGridLayout *l);
+ protected:
+  FlexGridLayout& layout;
 
-      protected:
-        FlexGridLayout *layout;
-
-        void addChild(Window *window) override;
-        void construct();
-    };
-
-    FormWindow(Window *parent, const rect_t &rect, WindowFlags windowflags = 0);
-
-#if defined(DEBUG_WINDOWS)
-    std::string getName() const override { return "FormWindow"; }
-#endif
-
-    void setFlexLayout(lv_flex_flow_t flow = LV_FLEX_FLOW_COLUMN, lv_coord_t padding = 0);
-    Line* newLine(FlexGridLayout* layout = nullptr, lv_coord_t left_padding = 0);
+  void addChild(Window* window) override;
 };

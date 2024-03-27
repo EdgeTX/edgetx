@@ -18,8 +18,41 @@
 
 #include "button_matrix.h"
 
-#include <stdlib.h>
 #include <string.h>
+
+#include "themes/etx_lv_theme.h"
+
+static void btnmatrix_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
+{
+  etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->bg_opacity_20,
+                    LV_PART_MAIN | LV_STATE_FOCUSED);
+
+  etx_bg_color(obj, COLOR_THEME_FOCUS_INDEX, LV_PART_MAIN | LV_STATE_FOCUSED);
+
+  etx_std_style(obj, LV_PART_ITEMS, PAD_LARGE);
+
+  etx_obj_add_style(obj, styles->border_color_focus,
+                    LV_PART_ITEMS | LV_STATE_EDITED);
+}
+
+static const lv_obj_class_t btnmatrix_class = {
+    .base_class = &lv_btnmatrix_class,
+    .constructor_cb = btnmatrix_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = 0,
+    .height_def = 0,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
+    .instance_size = sizeof(lv_btnmatrix_t),
+};
+
+static lv_obj_t* btnmatrix_create(lv_obj_t* parent)
+{
+  return etx_create(&btnmatrix_class, parent);
+}
 
 static const char _filler[] = "0";
 static const char _newline[] = "\n";
@@ -44,7 +77,7 @@ static void btn_matrix_event(lv_event_t* e)
 }
 
 ButtonMatrix::ButtonMatrix(Window* parent, const rect_t& r) :
-    FormField(parent, r, 0, 0, etx_btnmatrix_create)
+    FormField(parent, r, 0, btnmatrix_create)
 {
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
@@ -125,7 +158,6 @@ void ButtonMatrix::onClicked()
 {
   lv_group_focus_obj(lvobj);
   setEditMode(true);
-  invalidate();
 }
 
 void ButtonMatrix::setChecked(uint8_t btn_id)

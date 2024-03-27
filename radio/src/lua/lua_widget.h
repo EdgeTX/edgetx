@@ -87,14 +87,17 @@ class LuaWidget : public Widget, public LuaEventHandler
   std::string getName() const override { return "LuaWidget"; }
 #endif
 
-  // Window interface
-  void onEvent(event_t event) override;
-
   // Widget interface
   const char* getErrorMessage() const override;
   void update() override;
   void background() override;
 
+ protected:
   // Calls LUA widget 'refresh' method
-  void refresh(BitmapBuffer* dc) override;
+  void refresh(BitmapBuffer* dc);
+
+  // Window interface
+  void onEvent(event_t event) override;
+
+  static void redraw_cb(lv_event_t *e);
 };

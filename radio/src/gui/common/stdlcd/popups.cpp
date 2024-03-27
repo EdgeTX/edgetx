@@ -220,6 +220,7 @@ void runPopupWarning(event_t event)
 
 void showAlertBox(const char * title, const char * text, const char * action , uint8_t sound)
 {
+  cancelSplash();
   drawAlertBox(title, text, action);
   AUDIO_ERROR_MESSAGE(sound);
   lcdRefresh();

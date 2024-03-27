@@ -32,37 +32,13 @@
 
 ScreenMenu::ScreenMenu(int8_t tabIdx) : TabsGroup(ICON_THEME)
 {
-  updateTabs(tabIdx);
-
-  setCloseHandler([] {
-    ViewMain::instance()->updateTopbarVisibility();
-    storageDirty(EE_MODEL);
-  });
-}
-
-void ScreenMenu::updateTabs(int8_t tabIdx)
-{
-  removeAllTabs();
-
   addTab(new ScreenUserInterfacePage(this));
 
   for (int index = 0; index < MAX_CUSTOM_SCREENS; index++) {
     if (customScreens[index]) {
-      auto tab = new ScreenSetupPage(this, getTabs(), index);
-      std::string title(STR_MAIN_VIEW_X);
-      if (index >= 9) {
-        title[title.size() - 2] = '1';
-        title.back() = (index - 9) + '0';
-      } else {
-        title[title.size() - 2] = index + '1';
-        title.back() = ' ';
-      }
-      tab->setTitle(title);
-      tab->setIcon(ICON_THEME_VIEW1 + index);
-
-      addTab(tab);
+      addTab(new ScreenSetupPage(this, index));
     } else {
-      addTab(new ScreenAddPage(this, getTabs()));
+      addTab(new ScreenAddPage(this, tabCount()));
       break;
     }
   }
@@ -76,6 +52,11 @@ void ScreenMenu::updateTabs(int8_t tabIdx)
   }
 
   setCurrentTab(tab);
+
+  setCloseHandler([] {
+    ViewMain::instance()->updateTopbarVisibility();
+    storageDirty(EE_MODEL);
+  });
 }
 
 #if defined(HARDWARE_KEYS)
