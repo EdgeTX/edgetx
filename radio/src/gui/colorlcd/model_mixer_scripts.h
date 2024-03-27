@@ -22,18 +22,19 @@
 #pragma once
 
 #include "tabsgroup.h"
+#include "opentx.h"
 
-class ModelMixerScriptsPage: public PageTab {
-  public:
-    ModelMixerScriptsPage();
+class ModelMixerScriptsPage : public PageTab
+{
+ public:
+  ModelMixerScriptsPage();
 
-    virtual void build(FormWindow * window) override
-    {
-      build(window, 0);
-    }
+  bool isVisible() const override { return modelCustomScriptsEnabled(); }
 
-  protected:
-    void build(FormWindow * window, int8_t focusIdx);
-    void rebuild(FormWindow * window, int8_t focusIdx);
-    void editLine(FormWindow * window, uint8_t idx);
+  virtual void build(Window* window) override { build(window, 0); }
+
+ protected:
+  void build(Window* window, int8_t focusIdx);
+  void rebuild(Window* window, int8_t focusIdx);
+  void editLine(Window* window, uint8_t idx);
 };

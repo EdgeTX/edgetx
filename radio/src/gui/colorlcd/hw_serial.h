@@ -23,8 +23,8 @@
 
 #include "form.h"
 
-class SerialConfigWindow : public FormWindow
+class SerialConfigWindow
 {
  public:
-  SerialConfigWindow(Window *parent, const rect_t &rect);
+  SerialConfigWindow(Window *parent, FlexGridLayout& grid);
 };

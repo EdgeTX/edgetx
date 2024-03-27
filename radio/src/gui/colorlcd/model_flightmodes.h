@@ -19,16 +19,22 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
 #include "tabsgroup.h"
+#include "opentx.h"
 
-class ModelFlightModesPage: public PageTab {
-  public:
-    ModelFlightModesPage();
+class ModelFlightModesPage : public PageTab
+{
+ public:
+  ModelFlightModesPage();
 
-    void checkEvents() override;
+  bool isVisible() const override { return modelFMEnabled(); }
 
-    void build(FormWindow * window) override;
+  void build(Window* window) override;
 
-  protected:
-    TextButton* trimCheck = nullptr;
+ protected:
+  TextButton* trimCheck = nullptr;
+
+  void checkEvents() override;
 };

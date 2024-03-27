@@ -20,17 +20,17 @@
  */
 
 #include "radio_hardware.h"
-#include "radio_calibration.h"
-#include "radio_diagkeys.h"
-#include "radio_diaganas.h"
-#include "opentx.h"
-#include "libopenui.h"
-#include "hal/adc_driver.h"
 
-#include "hw_intmodule.h"
+#include "hal/adc_driver.h"
 #include "hw_extmodule.h"
-#include "hw_serial.h"
 #include "hw_inputs.h"
+#include "hw_intmodule.h"
+#include "hw_serial.h"
+#include "libopenui.h"
+#include "opentx.h"
+#include "radio_calibration.h"
+#include "radio_diaganas.h"
+#include "radio_diagkeys.h"
 
 #if defined(BLUETOOTH)
 #include "hw_bluetooth.h"
@@ -43,164 +43,182 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
-RadioHardwarePage::RadioHardwarePage():
-  PageTab(STR_HARDWARE, ICON_RADIO_HARDWARE)
+static Window* hbox(Window* parent)
+{
+  auto box = new Window(parent, rect_t{});
+  box->padAll(PAD_TINY);
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
+  lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
+  lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_START,
+                        LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
+  return box;
+}
+
+RadioHardwarePage::RadioHardwarePage() :
+    PageTab(STR_HARDWARE, ICON_RADIO_HARDWARE)
 {
 }
 
-void RadioHardwarePage::checkEvents()
-{
-  enableVBatBridge();
-}
+void RadioHardwarePage::checkEvents() { enableVBatBridge(); }
 
-void RadioHardwarePage::build(FormWindow * window)
+class BatCalEdit : public NumberEdit
+{
+ public:
+  BatCalEdit(Window* parent, const rect_t& rect) :
+      NumberEdit(parent, rect, -127, 127,
+                 GET_SET_DEFAULT(g_eeGeneral.txVoltageCalibration))
+  {
+    setDisplayHandler([](int32_t value) {
+      return formatNumberAsString(getBatteryVoltage(), PREC2, 0, nullptr, "V");
+    });
+    lastBatVolts = getBatteryVoltage();
+  }
+
+ protected:
+  uint16_t lastBatVolts = 0;
+
+  void checkEvents() override
+  {
+    if (getBatteryVoltage() != lastBatVolts) {
+      lastBatVolts = getBatteryVoltage();
+      invalidate();
+    }
+  }
+};
+
+void RadioHardwarePage::build(Window* window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
 
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
   // TODO: sub-title?
 
   // Batt meter range - Range 3.0v to 16v
-  auto line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_BATTERY_RANGE, 0, COLOR_THEME_PRIMARY1);
+  auto line = window->newLine(grid);
+  new StaticText(line, rect_t{}, STR_BATTERY_RANGE);
 
-  auto box = new FormWindow(line, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
-  lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
-  lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-
-  auto batMin =
-      new NumberEdit(box, rect_t{0, 0, 80, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
-                     GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), 0, PREC1);
+  auto box = hbox(line);
+  auto batMin = new NumberEdit(
+      box, rect_t{0, 0, 80, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
+      GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), PREC1);
   batMin->setSuffix("V");
   new StaticText(box, rect_t{}, "-");
-  auto batMax =
-      new NumberEdit(box, rect_t{0, 0, 80, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
-                     GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), 0, PREC1);
+  auto batMax = new NumberEdit(
+      box, rect_t{0, 0, 80, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
+      GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), PREC1);
   batMax->setSuffix("V");
 
   batMin->setSetValueHandler([=](int32_t newValue) {
     g_eeGeneral.vBatMin = newValue - 90;
     SET_DIRTY();
     batMax->setMin(g_eeGeneral.vBatMin - 29 + 120);
-    batMax->invalidate();
   });
 
   batMax->setSetValueHandler([=](int32_t newValue) {
     g_eeGeneral.vBatMax = newValue - 120;
     SET_DIRTY();
     batMin->setMax(g_eeGeneral.vBatMax + 29 + 90);
-    batMin->invalidate();
   });
 
   // Bat calibration
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_BATT_CALIB, 0, COLOR_THEME_PRIMARY1);
-  auto batCal =
-      new NumberEdit(line, rect_t{0, 0, 80, 0}, -127, 127,
-                     GET_SET_DEFAULT(g_eeGeneral.txVoltageCalibration));
-  batCal->setDisplayHandler([](int32_t value) {
-    return formatNumberAsString(getBatteryVoltage(), PREC2, 0, nullptr, "V");
-  });
-  batCal->setWindowFlags(REFRESH_ALWAYS);
+  line = window->newLine(grid);
+  new StaticText(line, rect_t{}, STR_BATT_CALIB);
+  box = hbox(line);
+  new BatCalEdit(box, rect_t{0, 0, 80, 0});
 
   // RTC Batt check enable
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_RTC_CHECK, 0, COLOR_THEME_PRIMARY1);
+  line = window->newLine(grid);
+  new StaticText(line, rect_t{}, STR_RTC_CHECK);
 
-  box = new FormWindow(line, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
-  lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
-  lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
-  new ToggleSwitch(box, rect_t{}, GET_SET_INVERTED(g_eeGeneral.disableRtcWarning ));
+  box = hbox(line);
+  new ToggleSwitch(box, rect_t{},
+                   GET_SET_INVERTED(g_eeGeneral.disableRtcWarning));
 
   // RTC Batt display
-  new StaticText(box, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
-  new DynamicNumber<uint16_t>(box, rect_t{}, [] {
-      return getRTCBatteryVoltage();
-  }, COLOR_THEME_PRIMARY1 | PREC2, nullptr, "V");
+  new StaticText(box, rect_t{}, STR_VALUE);
+  new DynamicNumber<uint16_t>(
+      box, rect_t{}, [] { return getRTCBatteryVoltage(); },
+      COLOR_THEME_PRIMARY1 | PREC2, nullptr, "V");
 
   // ADC filter
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
-  new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
+  line = window->newLine(grid);
+  new StaticText(line, rect_t{}, STR_JITTER_FILTER);
+  box = hbox(line);
+  new ToggleSwitch(box, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
 
 #if defined(AUDIO_MUTE_GPIO)
   // Mute audio
-  line = window->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_AUDIO_MUTE, 0, COLOR_THEME_PRIMARY1);
-  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.audioMuteEnable));
+  line = window->newLine(grid);
+  new StaticText(line, rect_t{}, STR_AUDIO_MUTE);
+  box = hbox(line);
+  new ToggleSwitch(box, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.audioMuteEnable));
 #endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)
   new Subtitle(window, STR_INTERNALRF);
-  auto intMod = new InternalModuleWindow(window);
-  intMod->padLeft(lv_dpx(8));
+  line = window->newLine(grid);
+  line->padLeft(PAD_SMALL);
+  new InternalModuleWindow(line, grid);
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
   new Subtitle(window, STR_EXTERNALRF);
-  auto extMod = new ExternalModuleWindow(window);
-  extMod->padLeft(lv_dpx(8));
+  line = window->newLine(grid);
+  line->padLeft(PAD_SMALL);
+  new ExternalModuleWindow(line, grid);
 #endif
 
 #if defined(BLUETOOTH)
   new Subtitle(window, STR_BLUETOOTH);
-  auto bt = new BluetoothConfigWindow(window);
-  bt->padLeft(lv_dpx(8));
+  line = window->newLine(grid);
+  line->padLeft(PAD_SMALL);
+  new BluetoothConfigWindow(window, grid);
 #endif
 
   new Subtitle(window, STR_AUX_SERIAL_MODE);
-  auto serial = new SerialConfigWindow(window, rect_t{});
-  serial->padLeft(lv_dpx(8));
+  new SerialConfigWindow(window, grid);
 
   // Calibration
   new Subtitle(window, STR_INPUTS);
 
-  box = new FormWindow(window, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
-  box->padRow(lv_dpx(8));
-  box->padAll(lv_dpx(8));
-  
-  auto calib = new TextButton(box, rect_t{}, STR_CALIBRATION);
-  calib->setPressHandler([=]() -> uint8_t {
-      new RadioCalibrationPage();
-      return 0;
+  box = new Window(window, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_MEDIUM);
+  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY,
+                                   0);
+  box->padAll(PAD_MEDIUM);
+
+  new TextButton(box, rect_t{0, 0, 100, 0}, STR_CALIBRATION, [=]() -> uint8_t {
+    new RadioCalibrationPage();
+    return 0;
   });
-  lv_obj_set_style_min_width(calib->getLvObj(), LV_DPI_DEF, 0);
 
   // Sticks
-  auto btn = makeHWInputButton<HWSticks>(box, STR_STICKS);
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+  makeHWInputButton<HWSticks>(box, STR_STICKS);
 
   // Pots & Sliders
-  btn = makeHWInputButton<HWPots>(box, STR_POTS);
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+  makeHWInputButton<HWPots>(box, STR_POTS);
 
   // Switches
-  btn = makeHWInputButton<HWSwitches>(box, STR_SWITCHES);
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
-  
+  makeHWInputButton<HWSwitches>(box, STR_SWITCHES);
+
   // Debugs
   new Subtitle(window, STR_DEBUG);
 
-  box = new FormWindow(window, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, lv_dpx(8));
-  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY, 0);
-  box->padRow(lv_dpx(8));
-  box->padAll(lv_dpx(8));
+  box = new Window(window, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_MEDIUM);
+  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY,
+                                   0);
+  box->padAll(PAD_MEDIUM);
 
-  btn = new TextButton(box, rect_t{}, STR_ANALOGS_BTN, [=]() -> uint8_t {
+  new TextButton(box, rect_t{0, 0, 100, 0}, STR_ANALOGS_BTN, [=]() -> uint8_t {
     new RadioAnalogsDiagsViewPageGroup();
     return 0;
   });
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
 
-  btn = new TextButton(box, rect_t{}, STR_KEYS_BTN, [=]() -> uint8_t {
+  new TextButton(box, rect_t{0, 0, 100, 0}, STR_KEYS_BTN, [=]() -> uint8_t {
     new RadioKeyDiagsPage();
     return 0;
   });
-  lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
 }

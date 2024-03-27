@@ -28,7 +28,7 @@
 
 BindChoiceMenu::BindChoiceMenu(Window *parent, uint8_t moduleIdx,
                                std::function<void()> onPress,
-                               std::function<void()> onCancel) :
+                               std::function<void()> onCancelFn) :
     Menu(parent), moduleIdx(moduleIdx), onPressHandler(std::move(onPress))
 {
   if (isTelemAllowedOnBind(moduleIdx)) {
@@ -47,7 +47,7 @@ BindChoiceMenu::BindChoiceMenu(Window *parent, uint8_t moduleIdx,
   setTitle(STR_SELECT_MODE);
   setCancelHandler([=] {
     moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
-    onCancel();
+    onCancelFn();
   });
 }
 

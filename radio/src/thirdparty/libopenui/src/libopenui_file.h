@@ -20,7 +20,6 @@
 
 #include <string>
 #include <cstring>
-#include <cinttypes>
 #include "ff.h"
 
 constexpr uint8_t LEN_FILE_EXTENSION_MAX = 5;  // longest used, including the dot, excluding null term.

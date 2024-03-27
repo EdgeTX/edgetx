@@ -19,27 +19,27 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODEL_LOGICAL_SWITCHES_H
-#define _MODEL_LOGICAL_SWITCHES_H
+#pragma once
 
 #include "tabsgroup.h"
+#include "opentx.h"
 
 class ModelLogicalSwitchesPage : public PageTab
 {
  public:
   ModelLogicalSwitchesPage();
 
-  virtual void build(FormWindow* window) override;
+  bool isVisible() const override { return modelLSEnabled(); }
+
+  virtual void build(Window* window) override;
 
  protected:
   int8_t focusIndex = -1;
   int8_t prevFocusIndex = -1;
   bool isRebuilding = false;
-  Button* addButton = nullptr;
+  ButtonBase* addButton = nullptr;
 
-  void rebuild(FormWindow* window);
-  void newLS(FormWindow* window, bool pasteLS);
-  void plusPopup(FormWindow* window);
+  void rebuild(Window* window);
+  void newLS(Window* window, bool pasteLS);
+  void plusPopup(Window* window);
 };
-
-#endif  //_MODEL_LOGICAL_SWITCHES_H

@@ -21,10 +21,8 @@
 
 #pragma once
 
-#include "widget.h"
-#include "widgets_container.h"
-#include "draw_functions.h"
 #include "strhelpers.h"
+#include "widget.h"
 
 template <int N, int O>
 class WidgetsContainerImpl : public WidgetsContainer
@@ -34,9 +32,9 @@ class WidgetsContainerImpl : public WidgetsContainer
 
   WidgetsContainerImpl(Window* parent, const rect_t& rect,
                        PersistentData* persistentData) :
-      WidgetsContainer(parent, rect, NO_FOCUS),
-      persistentData(persistentData)
+      WidgetsContainer(parent, rect), persistentData(persistentData)
   {
+    setWindowFlag(NO_FOCUS);
   }
 
   Widget* createWidget(unsigned int index,
@@ -49,7 +47,8 @@ class WidgetsContainerImpl : public WidgetsContainer
 
     Widget* widget = nullptr;
     if (factory) {
-      strAppend(persistentData->zones[index].widgetName, factory->getName(), WIDGET_NAME_LEN);
+      strAppend(persistentData->zones[index].widgetName, factory->getName(),
+                WIDGET_NAME_LEN);
       widget = factory->create(this, getZone(index),
                                &persistentData->zones[index].widgetData);
     }
@@ -101,8 +100,8 @@ class WidgetsContainerImpl : public WidgetsContainer
         char name[WIDGET_NAME_LEN + 1];
         memset(name, 0, sizeof(name));
         strAppend(name, persistentData->zones[i].widgetName, WIDGET_NAME_LEN);
-        widgets[i] = loadWidget(name, this, getZone(i),
-                                &persistentData->zones[i].widgetData);
+        widgets[i] = WidgetFactory::newWidget(
+            name, this, getZone(i), &persistentData->zones[i].widgetData);
       }
     }
   }
@@ -142,8 +141,16 @@ class WidgetsContainerImpl : public WidgetsContainer
     }
   }
 
+  void showWidgets(bool visible = true) override
+  {
+    for (int i = 0; i < N; i++) {
+      if (widgets[i]) {
+        widgets[i]->show(visible);
+      }
+    }
+  }
+
   void adjustLayout() override {}
-  void updateFromTheme() override {};
 
   void runBackground() override
   {
@@ -157,23 +164,4 @@ class WidgetsContainerImpl : public WidgetsContainer
  protected:
   PersistentData* persistentData;
   Widget* widgets[N] = {};
-};
-
-template <class T>
-class BaseWidgetFactory : public WidgetFactory
-{
- public:
-  BaseWidgetFactory(const char* name, const ZoneOption* options,
-                    const char* displayName = nullptr) :
-      WidgetFactory(name, options, displayName)
-  {
-  }
-
-  Widget* create(Window* parent, const rect_t& rect,
-                 Widget::PersistentData* persistentData,
-                 bool init = true) const override
-  {
-    initPersistentData(persistentData, init);
-    return new T(this, parent, rect, persistentData);
-  }
 };

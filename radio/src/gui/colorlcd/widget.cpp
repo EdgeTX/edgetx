@@ -19,30 +19,31 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "widget.h"
-#include "menu.h"
-#include "widget_settings.h"
-#include "view_main.h"
-#include "lcd.h"
+
 #include "theme.h"
+#include "themes/etx_lv_theme.h"
+#include "view_main.h"
+#include "widget_settings.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "touch.h"
 #endif
 
-Widget::Widget(const WidgetFactory* factory, Window* parent,
-               const rect_t &rect, WidgetPersistentData* persistentData) :
-    Button(parent, rect, nullptr, 0, 0, window_create),
+Widget::Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
+               WidgetPersistentData* persistentData) :
+    ButtonBase(parent, rect, nullptr, window_create),
     factory(factory),
     persistentData(persistentData)
 {
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
-  if (parent->isTopBar())
-    fsAllowed = false;
-  
+  etx_obj_add_style(lvobj, styles->border, LV_STATE_FOCUSED);
+  etx_obj_add_style(lvobj, styles->border_color_focus, LV_STATE_FOCUSED);
+
+  if (parent->isTopBar()) fsAllowed = false;
+
   setPressHandler([&]() -> uint8_t {
     // When ViewMain is in "widget select mode",
     // the widget is added to a focus group
@@ -59,8 +60,9 @@ Widget::Widget(const WidgetFactory* factory, Window* parent,
 void Widget::openMenu()
 {
   if (getOptions() || fsAllowed) {
-    // Widgets are placed on a full screen window which is underneath the main view menu bar
-    // Find the parent of this so that when the popup loads it covers the main view menu
+    // Widgets are placed on a full screen window which is underneath the main
+    // view menu bar Find the parent of this so that when the popup loads it
+    // covers the main view menu
     Window* w = parent->getFullScreenWindow()->getParent();
     Menu* menu = new Menu(w ? w : this);
     if (fsAllowed) {
@@ -70,21 +72,6 @@ void Widget::openMenu()
       menu->addLine(STR_WIDGET_SETTINGS,
                     [=]() { new WidgetSettings(this, this); });
     }
-  }
-}
-
-void Widget::paint(BitmapBuffer * dc)
-{
-  if (fullscreen) {
-    // Draw background screen bellow
-    EdgeTxTheme::instance()->drawBackground(dc);
-  }
-
-  // refresh the widget
-  refresh(dc);
-  
-  if (hasFocus() && !fullscreen) {
-    dc->drawRect(0, 0, width(), height(), 2, STASHED, COLOR_THEME_FOCUS);
   }
 }
 
@@ -99,56 +86,42 @@ void Widget::onEvent(event_t event)
 
 void Widget::onCancel()
 {
-  if (!fullscreen) Button::onCancel();
+  if (!fullscreen) ButtonBase::onCancel();
 }
 
-void Widget::update()
-{
-}
+void Widget::update() {}
 
 void Widget::setFullscreen(bool enable)
 {
-  if (!fsAllowed) return;
-  if (enable == fullscreen) return;
+  if (!fsAllowed || (enable == fullscreen)) return;
+
+  fullscreen = enable;
+
+  // Show or hide ViewMain widgets and decorations
+  ViewMain::instance()->show(!enable);
 
   // Leave Fullscreen Mode
   if (!enable) {
-
-    // Reset all zones in container
-    if (parent->isWidgetsContainer())
-      ((WidgetsContainer*)parent)->updateZones();
-
-    setWindowFlags(getWindowFlags() & ~OPAQUE);
-    lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_MAIN);
-
-    // and give up focus
-    ViewMain::instance()->enableTopbar();
-    fullscreen = false;
+    clearWindowFlag(OPAQUE);
 
     lv_group_remove_obj(lvobj);
 
     // re-enable scroll chaining (sliding main view)
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
-
-    // exit editing mode
-    lv_group_set_editing(lv_group_get_default(), false);
-
-    onFullscreen(enable);
   }
   // Enter Fullscreen Mode
   else {
+    // ViewMain hidden - re-show this widget
+    show();
 
     // Set window opaque (inhibits redraw from windows below)
-    setWindowFlags(getWindowFlags() | OPAQUE);
-    lv_obj_set_style_bg_opa(lvobj, LV_OPA_MAX, LV_PART_MAIN);
+    setWindowFlag(OPAQUE);
+
     updateZoneRect(parent->getRect());
     setRect(parent->getRect());
-    fullscreen = true;
 
-    auto view = ViewMain::instance();
-    view->enableWidgetSelect(false);
-    view->disableTopbar();
+    ViewMain::instance()->enableWidgetSelect(false);
     bringToTop();
 
     if (!lv_obj_get_group(lvobj)) {
@@ -158,41 +131,44 @@ void Widget::setFullscreen(bool enable)
     // disable scroll chaining (sliding main view)
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
-
-    // set group in editing mode (keys LEFT / RIGHT)
-    lv_group_set_editing(lv_group_get_default(), true);
-
-    onFullscreen(enable);
   }
+
+  // set group in editing mode (keys LEFT / RIGHT)
+  lv_group_set_editing(lv_group_get_default(), enable);
+
+  onFullscreen(enable);
+
+  update();
 }
 
-void Widget::disableFullscreen()
-{
-  fsAllowed = false;
-}
+void Widget::disableFullscreen() { fsAllowed = false; }
 
 void Widget::onLongPress()
 {
-  if (!fullscreen) Button::onLongPress();
+  if (!fullscreen) ButtonBase::onLongPress();
 }
 
-std::list<const WidgetFactory *> & getRegisteredWidgets()
+const ZoneOption* Widget::getOptions() const
 {
-  static std::list<const WidgetFactory *> widgets;
+  return getFactory()->getOptions();
+}
+
+std::list<const WidgetFactory*>& WidgetFactory::getRegisteredWidgets()
+{
+  static std::list<const WidgetFactory*> widgets;
   return widgets;
 }
 
-
-void unregisterWidget(const WidgetFactory * factory)
+void WidgetFactory::unregisterWidget(const WidgetFactory* factory)
 {
   TRACE("unregister widget %s", factory->getName());
   getRegisteredWidgets().remove(factory);
 }
 
-const WidgetFactory * getWidgetFactory(const char * name)
+const WidgetFactory* WidgetFactory::getWidgetFactory(const char* name)
 {
   auto it = getRegisteredWidgets().cbegin();
-  for (; it != getRegisteredWidgets().cend();++it) {
+  for (; it != getRegisteredWidgets().cend(); ++it) {
     if (!strcmp(name, (*it)->getName())) {
       return (*it);
     }
@@ -200,7 +176,7 @@ const WidgetFactory * getWidgetFactory(const char * name)
   return nullptr;
 }
 
-void registerWidget(const WidgetFactory * factory)
+void WidgetFactory::registerWidget(const WidgetFactory* factory)
 {
   auto name = factory->getName();
   auto oldWidget = getWidgetFactory(name);
@@ -208,7 +184,8 @@ void registerWidget(const WidgetFactory * factory)
     unregisterWidget(oldWidget);
   }
   TRACE("register widget %s %s", name, factory->getDisplayName());
-  for (auto it = getRegisteredWidgets().cbegin(); it != getRegisteredWidgets().cend(); ++it) {
+  for (auto it = getRegisteredWidgets().cbegin();
+       it != getRegisteredWidgets().cend(); ++it) {
     if (strcasecmp((*it)->getDisplayName(), factory->getDisplayName()) > 0) {
       getRegisteredWidgets().insert(it, factory);
       return;
@@ -217,12 +194,47 @@ void registerWidget(const WidgetFactory * factory)
   getRegisteredWidgets().push_back(factory);
 }
 
-Widget* loadWidget(const char* name, Window* parent, const rect_t& rect,
-                   WidgetPersistentData* persistentData)
+Widget* WidgetFactory::newWidget(const char* name, Window* parent,
+                                 const rect_t& rect,
+                                 WidgetPersistentData* persistentData)
 {
   const WidgetFactory* factory = getWidgetFactory(name);
   if (factory) {
     return factory->create(parent, rect, persistentData, false);
   }
   return nullptr;
+}
+
+void WidgetFactory::initPersistentData(Widget::PersistentData* persistentData,
+                                       bool setDefault) const
+{
+  if (setDefault) {
+    memset(persistentData, 0, sizeof(Widget::PersistentData));
+  }
+  if (options) {
+    int i = 0;
+    for (const ZoneOption* option = options; option->name; option++, i++) {
+      TRACE("WidgetFactory::initPersistentData() setting option '%s'",
+            option->name);
+      // TODO compiler bug? The CPU freezes ... persistentData->options[i++] =
+      // option->deflt;
+      auto optVal = &persistentData->options[i];
+      auto optType = zoneValueEnumFromType(option->type);
+      if (setDefault || optVal->type != optType) {
+        // reset to default value
+        memcpy(&optVal->value, &option->deflt, sizeof(ZoneOptionValue));
+        optVal->type = optType;
+        if (option->type == ZoneOption::Color) {
+          // If color value is in defaultColors - change it to current theme
+          // color
+          for (int i = 1; i < LCD_COLOR_COUNT - 1; i += 1) {
+            if (optVal->value.unsignedValue == defaultColors[i]) {
+              optVal->value.unsignedValue = lcdColorTable[i];
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
 }

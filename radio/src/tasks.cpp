@@ -28,6 +28,10 @@
 #include "tasks/mixer_task.h"
 
 
+#if defined(LIBOPENUI)
+#include "startup_shutdown.h"
+#endif
+
 RTOS_TASK_HANDLE menusTaskId;
 RTOS_DEFINE_STACK(menusTaskId, menusStack, MENUS_STACK_SIZE);
 
@@ -51,6 +55,8 @@ TASK_FUNCTION(menusTask)
   edgeTxInit();
 
   mixerTaskInit();
+
+  waitSplash();
 
 #if defined(PWR_BUTTON_PRESS)
   while (true) {

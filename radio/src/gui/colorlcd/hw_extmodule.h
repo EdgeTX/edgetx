@@ -23,15 +23,8 @@
 
 #include "form.h"
 
-class ExternalModuleWindow : public FormWindow::Line
+class ExternalModuleWindow
 {
  public:
-  ExternalModuleWindow(Window* parent);
-
- protected:
-  uint8_t lastModule = 0;
-  lv_obj_t* br_box = nullptr;
-
-  static int getSampleMode();
-  static void setSampleMode(int modeValue);
+  ExternalModuleWindow(Window* parent, FlexGridLayout& grid);
 };

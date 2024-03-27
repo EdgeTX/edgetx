@@ -21,10 +21,9 @@
 
 #pragma once
 
-#include "libopenui.h"
 #include "listbox.h"
 #include "storage/modelslist.h"
-#include "tabsgroup.h"
+#include "page.h"
 
 class ModelsPageBody;
 class ModelLayoutButton;
@@ -39,7 +38,7 @@ class ModelLabelsWindow : public Page
   char tmpLabel[LABEL_LENGTH + 1] = "\0";
   ListBox *lblselector;
   ModelsPageBody *mdlselector;
-  ModelLayoutButton *mldLayout;
+  ModelLayoutButton *mdlLayout;
   std::string currentLabel;
 
   LabelsVector getLabels()
@@ -52,8 +51,8 @@ class ModelLabelsWindow : public Page
 
   void newModel();
   void newLabel();
-  void buildHead(PageHeader *window);
-  void buildBody(FormWindow *window);
+  void buildHead(Window *window);
+  void buildBody(Window *window);
   void updateFilteredLabels(std::set<uint32_t> selected, bool setdirty = true);
   void labelRefreshRequest();
   void setTitle();

@@ -19,28 +19,24 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _PAGE_H_
-#define _PAGE_H_
+#pragma once
 
-#include "window.h"
+#include "bitmaps.h"
 #include "button.h"
 #include "static.h"
 
 class Page;
 
-class PageHeader : public FormWindow
+class PageHeader : public Window
 {
  public:
-  PageHeader(Page* parent, uint8_t icon);
+  PageHeader(Page* parent, EdgeTxIcon icon);
 
-  uint8_t getIcon() const { return icon; }
   void setTitle(std::string txt) { title->setText(std::move(txt)); }
   StaticText* setTitle2(std::string txt);
 
-  void paint(BitmapBuffer* dc) override;
-
  protected:
-  uint8_t icon;
+  EdgeTxIcon icon;
   StaticText* title;
   StaticText* title2 = nullptr;
 };
@@ -48,7 +44,7 @@ class PageHeader : public FormWindow
 class Page : public NavWindow
 {
  public:
-  explicit Page(unsigned icon);
+  explicit Page(EdgeTxIcon icon, PaddingSize padding = PAD_MEDIUM);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "Page"; }
@@ -60,11 +56,9 @@ class Page : public NavWindow
   void deleteLater(bool detach = true, bool trash = true) override;
 
  protected:
-  PageHeader header;
-  FormWindow body;
+  PageHeader* header = nullptr;
+  Window* body = nullptr;
 
   void checkEvents() override;
   bool bubbleEvents() override { return false; }
 };
-
-#endif // _PAGE_H_

@@ -26,6 +26,7 @@
 #include "hal/switch_driver.h"
 #include "opentx.h"
 #include "strhelpers.h"
+#include "themes/etx_lv_theme.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -115,24 +116,21 @@ struct CenterBeepsMatrix : public ButtonMatrix {
 
 PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
 {
-  header.setTitle(STR_MENU_MODEL_SETUP);
-  header.setTitle2(STR_PREFLIGHT);
+  header->setTitle(STR_MENU_MODEL_SETUP);
+  header->setTitle2(STR_PREFLIGHT);
 
-  auto form = new FormWindow(&body, rect_t{});
-  form->setFlexLayout();
-  form->padAll(8);
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+  body->setFlexLayout();
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
 
   // Display checklist
-  auto line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_CHECKLIST, 0, COLOR_THEME_PRIMARY1);
+  auto line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_CHECKLIST);
   auto chkList = new ToggleSwitch(line, rect_t{},
                                   GET_SET_DEFAULT(g_model.displayChecklist));
 
   // Interactive checklist
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_CHECKLIST_INTERACTIVE, 0,
-                 COLOR_THEME_PRIMARY1);
+  line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_CHECKLIST_INTERACTIVE);
   auto interactiveChkList = new ToggleSwitch(
       line, rect_t{}, GET_SET_DEFAULT(g_model.checklistInteractive));
   if (!chkList->getValue()) interactiveChkList->disable();
@@ -144,20 +142,19 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   });
 
   // Throttle warning
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_THROTTLE_WARNING, 0, COLOR_THEME_PRIMARY1);
+  line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_THROTTLE_WARNING);
   auto tw = new ToggleSwitch(line, rect_t{},
                              GET_SET_INVERTED(g_model.disableThrottleWarning));
 
   // Custom Throttle warning (conditional on previous field)
-  line = form->newLine(&grid);
+  line = body->newLine(grid);
   make_conditional(line, tw);
 
-  new StaticText(line, rect_t{}, STR_CUSTOM_THROTTLE_WARNING, 0,
-                 COLOR_THEME_PRIMARY1);
-  auto box = new FormWindow::Line(line, window_create(line->getLvObj()));
-  lv_obj_set_layout(box->getLvObj(), LV_LAYOUT_FLEX);
-  box->setWidth(LCD_W / 2 - 15);
+  new StaticText(line, rect_t{}, STR_CUSTOM_THROTTLE_WARNING);
+  auto box = new Window(line, rect_t{});
+  box->padAll(PAD_TINY);
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY, LV_SIZE_CONTENT);
 
   auto cst_tw = new ToggleSwitch(
       box, rect_t{}, GET_SET_DEFAULT(g_model.enableCustomThrottleWarning));
@@ -169,9 +166,9 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   make_conditional(cst_val, cst_tw);
 
   // Switch warnings (TODO: add display switch?)
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_SWITCHES, 0, COLOR_THEME_PRIMARY1);
-  line = form->newLine(&grid);
+  line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_SWITCHES);
+  line = body->newLine(grid);
   line->padTop(0);
   line->padLeft(4);
   new SwitchWarnMatrix(line, rect_t{});
@@ -185,14 +182,13 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
       }
     }
     if (pot_cnt > 0) {
-      line = form->newLine(&grid);
-      new StaticText(line, rect_t{}, STR_POTWARNINGSTATE, 0,
-                     COLOR_THEME_PRIMARY1);
+      line = body->newLine(grid);
+      new StaticText(line, rect_t{}, STR_POTWARNINGSTATE);
       auto pots_wm = new Choice(line, rect_t{}, STR_PREFLIGHT_POTSLIDER_CHECK,
                                 0, 2, GET_SET_DEFAULT(g_model.potsWarnMode));
 
       // Pot warnings
-      line = form->newLine(&grid);
+      line = body->newLine(grid);
       line->padTop(0);
       line->padLeft(4);
       auto pwm = new PotWarnMatrix(line, rect_t{});
@@ -201,10 +197,10 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
   }
 
   // Center beeps
-  line = form->newLine(&grid);
+  line = body->newLine(grid);
   line->padTop(0);
-  new StaticText(line, rect_t{}, STR_BEEPCTR, 0, COLOR_THEME_PRIMARY1);
-  line = form->newLine(&grid);
+  new StaticText(line, rect_t{}, STR_BEEPCTR);
+  line = body->newLine(grid);
   line->padLeft(4);
   new CenterBeepsMatrix(line, rect_t{});
 }
@@ -253,10 +249,7 @@ SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
   lv_obj_set_height(lvobj, (rows * 36) + 4);
 
-  lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
-
-  lv_obj_set_style_pad_row(lvobj, 4, LV_PART_MAIN);
-  lv_obj_set_style_pad_column(lvobj, 4, LV_PART_MAIN);
+  padAll(PAD_SMALL);
 }
 
 void SwitchWarnMatrix::setTextAndState(uint8_t btn_id)
@@ -318,10 +311,7 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
   lv_obj_set_height(lvobj, (rows * 36) + 4);
 
-  lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
-
-  lv_obj_set_style_pad_row(lvobj, 4, LV_PART_MAIN);
-  lv_obj_set_style_pad_column(lvobj, 4, LV_PART_MAIN);
+  padAll(PAD_SMALL);
 }
 
 void PotWarnMatrix::setTextAndState(uint8_t btn_id)
@@ -387,10 +377,7 @@ CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
   lv_obj_set_height(lvobj, (rows * 36) + 4);
 
-  lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
-
-  lv_obj_set_style_pad_row(lvobj, 4, LV_PART_MAIN);
-  lv_obj_set_style_pad_column(lvobj, 4, LV_PART_MAIN);
+  padAll(PAD_SMALL);
 }
 
 void CenterBeepsMatrix::setTextAndState(uint8_t btn_id)

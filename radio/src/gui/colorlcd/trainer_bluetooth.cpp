@@ -75,36 +75,29 @@ void BTDiscoverMenu::selectAddr(const char* addr)
 }
 
 BluetoothTrainerWindow::BluetoothTrainerWindow(Window* parent) :
-    FormWindow(parent, rect_t{})
+    Window(parent, rect_t{})
 {
   setFlexLayout();
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
-  auto line = newLine(&grid);
-  state = new StaticText(line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
-  r_addr = new StaticText(line, rect_t{}, "", 0, COLOR_THEME_PRIMARY1);
+  auto line = newLine(grid);
+  state = new StaticText(line, rect_t{}, "");
+  r_addr = new StaticText(line, rect_t{}, "");
 
-  auto lclline = newLine(&grid);
-  new StaticText(lclline, rect_t{}, STR_BLUETOOTH_LOCAL_ADDR, 0, COLOR_THEME_PRIMARY1);
-  new StaticText(lclline, rect_t{}, bluetooth.localAddr, 0, COLOR_THEME_PRIMARY1);
+  auto lclline = newLine(grid);
+  new StaticText(lclline, rect_t{}, STR_BLUETOOTH_LOCAL_ADDR);
+  new StaticText(lclline, rect_t{}, bluetooth.localAddr);
 
-  btn_line = newLine(&grid);
+  btn_line = newLine(grid);
   grid.nextCell();
 
   btn = new TextButton(btn_line, rect_t{}, "");
-  /*btn->setWidth(LV_DPI_DEF);
-  btn->padAll(lv_dpx(10));*/
 }
 
 void BluetoothTrainerWindow::setMaster(bool master)
 {
-  if (master) {
-    is_master = true;
-    lv_obj_clear_flag(btn_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  } else {
-    is_master = false;
-    lv_obj_add_flag(btn_line->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  }
+  btn_line->show(master);
+  is_master = master;
 }
 
 static const char _empty_addr[] = "---";

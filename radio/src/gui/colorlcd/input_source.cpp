@@ -20,7 +20,10 @@
  */
 
 #include "input_source.h"
+
 #include "opentx.h"
+#include "sourcechoice.h"
+#include "switchchoice.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -40,8 +43,7 @@ class SensorValue : public StaticText
 
   void checkEvents() override
   {
-    if (lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN))
-      return;
+    if (lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN)) return;
 
     // TODO: check for telemetry available
     if (isTelemetryValue()) {
@@ -49,7 +51,7 @@ class SensorValue : public StaticText
       if (lastSensorVal != sensorVal) {
         lastSensorVal = sensorVal;
         setText(std::to_string(lastSensorVal));
-      } 
+      }
     } else {
       setText("---");
     }
@@ -76,7 +78,7 @@ class SensorValue : public StaticText
 void InputSource::value_changed(lv_event_t *e)
 {
   auto obj = lv_event_get_target(e);
-  auto src = (InputSource*)lv_obj_get_user_data(obj);
+  auto src = (InputSource *)lv_obj_get_user_data(obj);
   if (!src) return;
 
   src->update();
@@ -86,39 +88,41 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-InputSource::InputSource(Window* parent, ExpoData* input) :
-  Window(parent, rect_t{}), input(input)
+InputSource::InputSource(Window *parent, ExpoData *input) :
+    Window(parent, rect_t{}), input(input)
 {
+  padAll(PAD_TINY);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_COLUMN);
-  lv_obj_set_style_pad_row(lvobj, lv_dpx(4), 0);
   lv_obj_set_size(lvobj, lv_pct(100), LV_SIZE_CONTENT);
 
-  new SourceChoice(
-      this, rect_t{}, INPUTSRC_FIRST, INPUTSRC_LAST, GET_DEFAULT(input->srcRaw),
-      [=](int32_t newValue) {
-        input->srcRaw = newValue;
-        lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
-        SET_DIRTY();
-      });
-  lv_obj_add_event_cb(lvobj, InputSource::value_changed, LV_EVENT_VALUE_CHANGED, nullptr);
+  new SourceChoice(this, rect_t{}, INPUTSRC_FIRST, INPUTSRC_LAST,
+                   GET_DEFAULT(input->srcRaw), [=](int32_t newValue) {
+                     input->srcRaw = newValue;
+                     lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+                     SET_DIRTY();
+                   });
+  lv_obj_add_event_cb(lvobj, InputSource::value_changed, LV_EVENT_VALUE_CHANGED,
+                      nullptr);
 
-  sensor_form = new FormWindow(this, rect_t{});
+  sensor_form = new Window(this, rect_t{});
+  sensor_form->padAll(PAD_TINY);
   sensor_form->setFlexLayout();
 
   FlexGridLayout grid(col_dsc, row_dsc);
-  auto line = sensor_form->newLine(&grid);
+  auto line = sensor_form->newLine(grid);
+  line->padAll(PAD_ZERO);
 
   // Value
-  new StaticText(line, rect_t{}, STR_VALUE, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_VALUE);
   auto sensor = new SensorValue(line, rect_t{}, input);
 
-
   // Scale
-  line = sensor_form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_SCALE, 0, COLOR_THEME_PRIMARY1);
-  new NumberEdit(line, rect_t{}, 0,
+  line = sensor_form->newLine(grid);
+  line->padAll(PAD_TINY);
+  new StaticText(line, rect_t{}, STR_SCALE);
+  new NumberEdit(line, rect_t{0, 0, 60, 0}, 0,
                  maxTelemValue(input->srcRaw - MIXSRC_FIRST_TELEM + 1),
-                 GET_SET_DEFAULT(input->scale), 0, sensor->getSensorPrec());
+                 GET_SET_DEFAULT(input->scale), sensor->getSensorPrec());
 
   update();
 }
@@ -129,13 +133,7 @@ void InputSource::update()
     input->trimSource = TRIM_OFF;
   }
 
-  if (!sensor_form) return;
-  auto sensor_form_obj = sensor_form->getLvObj();
-  
-  if (input->srcRaw >= MIXSRC_FIRST_TELEM &&
-      input->srcRaw <= MIXSRC_LAST_TELEM) {  
-    lv_obj_clear_flag(sensor_form_obj, LV_OBJ_FLAG_HIDDEN);
-  } else {
-    lv_obj_add_flag(sensor_form_obj, LV_OBJ_FLAG_HIDDEN);
-  }
+  if (sensor_form)
+    sensor_form->show(input->srcRaw >= MIXSRC_FIRST_TELEM &&
+                      input->srcRaw <= MIXSRC_LAST_TELEM);
 }
