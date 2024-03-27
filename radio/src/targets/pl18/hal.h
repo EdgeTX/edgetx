@@ -644,11 +644,18 @@
 // SDRAM
 #define SDRAM_BANK1
 
+#if defined(RADIO_NB4P)
+#define LCD_W                           320
+#define LCD_H                           480
+#define PORTRAIT_LCD true
+#define LANDSCAPE_LCD false
+#else
 #define PORTRAIT_LCD false
 #define LANDSCAPE_LCD true
 
 #define LCD_W                           480
 #define LCD_H                           320
+#endif
 
 #define LCD_PHYS_W                      320
 #define LCD_PHYS_H                      480
