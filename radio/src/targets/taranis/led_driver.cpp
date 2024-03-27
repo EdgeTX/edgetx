@@ -23,6 +23,9 @@
 #include "stm32_gpio.h"
 #include "boards/generic_stm32/rgb_leds.h"
 #include "board.h"
+#if defined(LED_STRIP_GPIO)
+#include "boards/generic_stm32/rgb_leds.h"
+#endif
 
 #define GET_RED(color) (((color) & 0xF800) >> 8)
 #define GET_GREEN(color) (((color) & 0x07E0) >> 3)
@@ -48,7 +51,7 @@ void ledInit()
   gpio_init(LED_BLUE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 
-#if defined(FUNCTION_SWITCHES)
+#if defined(FUNCTION_SWITCHES) && !defined(FSLEDS_USE_RGB)
   for (size_t i = 0; i < DIM(fsLeds); i++) {
     gpio_init(fsLeds[i], GPIO_OUT, GPIO_PIN_SPEED_LOW);
   }
@@ -96,6 +99,7 @@ bool fsLedState(uint8_t index)
 {
   return gpio_read(fsLeds[index]) ? true : false;
 }
+#endif
 #endif
 
 void ledOff()

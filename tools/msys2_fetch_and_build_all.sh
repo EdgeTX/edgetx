@@ -33,6 +33,9 @@ case $RADIO_TYPE in
     mt12)
         BUILD_OPTIONS+=" -DPCB=X7 -DPCBREV=MT12 -DINTERNAL_MODULE_MULTI=ON"
         ;;
+    gx12)
+        BUILD_OPTIONS+=" -DPCB=X7 -DPCBREV=GX12 -DINTERNAL_MODULE_MULTI=ON"
+        ;;
     tx12)
         BUILD_OPTIONS+=" -DPCB=X7 -DPCBREV=TX12"
         ;;

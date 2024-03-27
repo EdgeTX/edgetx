@@ -231,6 +231,14 @@ void ws2812_set_color(uint8_t led, uint8_t r, uint8_t g, uint8_t b)
   pixel[_b_offset] = b;
 }
 
+bool ws2812_get_state(uint8_t led)
+{
+  if (led >= _led_strip_len) return false;
+
+  uint8_t* pixel = &_led_colors[led * WS2812_BYTES_PER_LED];
+  return pixel[0] || pixel[1] || pixel[2];
+}
+
 void ws2812_update(const stm32_pulse_timer_t* tim)
 {
   WS2812_DBG_HIGH;
