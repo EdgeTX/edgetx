@@ -82,7 +82,7 @@ extern "C" {
 #define UNIT_ATTENTION                              6U
 #define DATA_PROTECT                                7U
 #define BLANK_CHECK                                 8U
-#define VENDOR_SPECIFIC                             9U
+#define MSC_VENDOR_SPECIFIC                         9U
 #define COPY_ABORTED                                10U
 #define ABORTED_COMMAND                             11U
 #define VOLUME_OVERFLOW                             13U
