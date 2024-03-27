@@ -309,6 +309,7 @@ void lcdDrawSizedText(coord_t x, coord_t y, const char * s, uint8_t len, LcdFlag
 #if !defined(BOOT)
       // UTF8 detection
       c = map_utf8_char(s, len);
+      if (c >= 0x95 && FONTSIZE(flags)) c -=21;
       if (!c) break;
       
       if (c == 46 && FONTSIZE(flags) == TINSIZE) { // '.' handling
