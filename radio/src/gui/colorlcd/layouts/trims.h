@@ -31,13 +31,18 @@ class MainViewTrim : public Window
     void checkEvents() override;
     void paint(BitmapBuffer * dc) override;
 
+    void setVisible(bool visible);
+
   protected:
     uint8_t idx;
     int value = 0;
     bool showChange = false;
     int trimMin = 0, trimMax = 0;
+    bool hidden = false;
 
     void setRange();
+
+    bool setDisplayState();
 
     virtual coord_t sx() { return 0; }
     virtual coord_t sy() { return 0; }

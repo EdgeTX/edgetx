@@ -181,6 +181,10 @@ void postModelLoad(bool alarms)
   g_model.modelGVDisabled = false;
 #endif
 
+#if defined(FUNCTION_SWITCHES)
+  setFSStartupPosition();
+#endif
+
   // Convert 'noGlobalFunctions' to 'radioGFDisabled'
   // TODO: Remove sometime in the future (and remove 'noGlobalFunctions' property)
   if (g_model.noGlobalFunctions) {

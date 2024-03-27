@@ -262,6 +262,7 @@ uint8_t getTextWidth(const char * s, uint8_t len, LcdFlags flags)
   while (len--) {
 #if !defined(BOOT)
     unsigned char c = map_utf8_char(s, len);
+    if (c >= 0x95 && FONTSIZE(flags)) c -=21;
 #else
     unsigned char c = *s;
 #endif
@@ -305,6 +306,7 @@ void lcdDrawSizedText(coord_t x, coord_t y, const char * s, uint8_t len, LcdFlag
     else if (c >= 0x20) {
       // UTF8 detection
       c = map_utf8_char(s, len);
+      if (c >= 0x95 && fontsize) c -=21;
       if (!c) break;
 
       lcdDrawChar(x, y, c, flags);

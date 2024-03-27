@@ -25,6 +25,8 @@
 
 constexpr coord_t FM_LABEL_HEIGHT = 20;
 
+class MainViewTrim;
+
 class ViewMainDecoration
 {
   public:
@@ -69,7 +71,7 @@ class ViewMainDecoration
     Window* w_br;
   
     Window* sliders[SLIDERS_MAX];
-    Window* trims[TRIMS_MAX];
+    MainViewTrim* trims[TRIMS_MAX];
     Window* flightMode;
 
     void createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br);
