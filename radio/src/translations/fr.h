@@ -282,7 +282,7 @@
 #define TR_TTRACE                      TR("Source gaz", INDENT "Source")
 #define TR_TTRIM                       TR("Trim gaz", INDENT "Trim ralenti uniq.")
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
-#define TR_BEEPCTR                     TR("Bip centr.", "Bip centrage")
+#define TR_BEEPCTR                     TR("Ctr Beep", "Bip quand centré")
 #define TR_USE_GLOBAL_FUNCS            TR("Fonc. glob.", "Fonct. Globales")
 #define TR_PROTOCOL                    TR("Proto.", "Protocole")
 #define TR_PPMFRAME                    INDENT "Trame PPM"

@@ -275,7 +275,7 @@
 #define TR_TTRACE                       TR("Sor. Mot.", INDENT "Sorgente Motore")
 #define TR_TTRIM                        TR("Trim Mot.", INDENT "Trim Motore")
 #define TR_TTRIM_SW                     TR("T-Trim-Sw", INDENT "Trim switch")
-#define TR_BEEPCTR                      TR("Beep al c.", "Beep al centro")
+#define TR_BEEPCTR                      TR("Beep Ctr", "Beep quando centrato")
 #define TR_USE_GLOBAL_FUNCS             TR("Funz. Glob.", "Usa Funz. Globali")
 #define TR_PROTOCOL                     TR("Protoc.", "Protocollo")
 #define TR_PPMFRAME                     INDENT "Frame PPM"

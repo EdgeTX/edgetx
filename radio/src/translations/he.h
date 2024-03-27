@@ -279,7 +279,7 @@
 #define TR_TTRACE                      TR("T-Source", INDENT "מקור")
 #define TR_TTRIM                       TR("T-Trim-Idle", INDENT "Trim idle only")
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "מתג קיזוז")
-#define TR_BEEPCTR                     TR("Ctr Beep", "Center Beep")
+#define TR_BEEPCTR                     TR("Ctr Beep", "ציפצוף במרכז")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funcs", "שימוש בפונקציות גלובליות")
 #define TR_PROTOCOL                    TR("Proto", "Protocol")
 #define TR_PPMFRAME                    INDENT "PPM frame"
