@@ -1281,3 +1281,5 @@
 #define TR_CREATE_NEW             "Crea"
 
 #define TR_MIX_SLOW_PREC          TR("Prec. lenta", "Prec. su/giù lenta")
+
+#define TR_THEME_EXISTS           "Esiste già una cartella di temi con lo stesso nome."

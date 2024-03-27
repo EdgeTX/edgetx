@@ -1294,3 +1294,5 @@
 #define TR_CREATE_NEW             "Erstelle"
 
 #define TR_MIX_SLOW_PREC          TR("Langs. Vorlauf", "Langs. Vor-/Rücklauf")
+
+#define TR_THEME_EXISTS           "Ein Theme-Verzeichnis mit demselben Namen existiert bereits"

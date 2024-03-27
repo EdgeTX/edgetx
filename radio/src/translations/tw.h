@@ -1288,3 +1288,5 @@
 #define TR_CREATE_NEW             "新建"
 
 #define TR_MIX_SLOW_PREC          TR("慢放精度", "慢放精度 上行/下行")
+
+#define TR_THEME_EXISTS           "A theme directory with the same name already exists."

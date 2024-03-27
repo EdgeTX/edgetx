@@ -128,7 +128,7 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
 class ThemeDetailsDialog: public Dialog
 {
   public:
-    ThemeDetailsDialog(Window *parent, ThemeFile theme, std::function<void (ThemeFile theme)> saveHandler = nullptr) :
+    ThemeDetailsDialog(Window *parent, ThemeFile theme, std::function<bool (ThemeFile theme)> saveHandler = nullptr) :
       Dialog(parent, STR_EDIT_THEME_DETAILS, detailsDialogRect),
       theme(theme),
       saveHandler(saveHandler)
@@ -176,7 +176,8 @@ class ThemeDetailsDialog: public Dialog
 
       auto button = new TextButton(line, rect_t{0, 0, lv_pct(30), 32}, STR_SAVE, [=] () {
         if (saveHandler != nullptr)
-          saveHandler(this->theme);
+          if (!saveHandler(this->theme))
+            return 0;
         deleteLater();
         return 0;
       });
@@ -191,7 +192,7 @@ class ThemeDetailsDialog: public Dialog
 
   protected:
     ThemeFile theme;
-    std::function<void(ThemeFile theme)> saveHandler = nullptr;
+    std::function<bool(ThemeFile theme)> saveHandler = nullptr;
 };
 
 class ColorSquare : public Window
@@ -435,6 +436,7 @@ class ThemeEditPage : public Page
           // update the theme name
           _themeName->setText(_theme.getName());
           _dirty = true;
+          return true;
         });
         return 0;
       });
@@ -596,19 +598,22 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 
         // use the selected themes color list to make the new theme
         auto themeIdx = listBox->getSelected();
-        if (themeIdx < 0) return;
+        if (themeIdx < 0) return true;
 
         auto selTheme = tp->getThemeByIndex(themeIdx);
-        if (selTheme == nullptr) return;
+        if (selTheme == nullptr) return true;
 
         for (auto color : selTheme->getColorList())
           theme.setColor(color.colorNumber, color.colorValue);
 
-        tp->createNewTheme(name, theme);
+        if (!tp->createNewTheme(name, theme))
+          return false;
+
         tp->refresh();
         listBox->setNames(tp->getNames());
         listBox->setSelected(currentTheme);
       }
+      return true;
     });
   });
 
