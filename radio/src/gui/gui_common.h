@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _GUI_COMMON_H_
-#define _GUI_COMMON_H_
+#pragma once
 
 #include <functional>
 #include "lcd.h"
@@ -94,7 +93,7 @@ bool isInternalModuleAvailable(int moduleType);
 bool isInternalModuleSupported(int moduleType);
 bool isRfProtocolAvailable(int protocol);
 bool isTrainerModeAvailable(int mode);
-bool isAssignableFunctionAvailable(int function, CustomFunctionData * functions);
+bool isAssignableFunctionAvailable(int function, bool modelFunctions);
 bool isPotTypeAvailable(uint8_t type);
 bool isFlexSwitchSourceValid(int source);
 bool getPotInversion(int index);
@@ -382,5 +381,3 @@ const char *getMultiOptionTitle(uint8_t moduleIdx);
 const char * writeScreenshot();
 
 uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event);
-
-#endif // _GUI_COMMON_H_

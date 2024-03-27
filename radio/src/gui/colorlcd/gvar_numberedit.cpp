@@ -22,6 +22,8 @@
 #include "gvar_numberedit.h"
 #include "opentx.h"
 
+LAYOUT_VAL1(NUM_EDIT_W, 70)
+
 void GVarNumberEdit::value_changed(lv_event_t* e)
 {
   auto obj = lv_event_get_target(e);
@@ -43,8 +45,8 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
     textFlags(textFlags),
     voffset(voffset)
 {
+  padAll(PAD_TINY);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW_WRAP);
-  lv_obj_set_style_pad_column(lvobj, lv_dpx(4), 0);
   lv_obj_set_style_flex_cross_place(lvobj, LV_FLEX_ALIGN_CENTER, 0);
   lv_obj_set_size(lvobj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
   
@@ -64,12 +66,13 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
       });
   gvar_field->setTextHandler(
       [=](int32_t value) { return getGVarString(value); });
-  gvar_field->setWidth(70);
+  gvar_field->setWidth(NUM_EDIT_W);
 
   num_field = new NumberEdit(
       this, rect_t{}, vmin, vmax, [=]() { return getValue() + voffset; },
-      nullptr, windowFlags, textFlags);
-  num_field->setWidth(70);
+      nullptr);
+  num_field->setTextFlag(textFlags);
+  num_field->setWidth(NUM_EDIT_W);
   num_field->setDefault(vdefault);
 
 #if defined(GVARS)
@@ -80,7 +83,6 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
       return GV_IS_GV_VALUE(getValue(), vmin, vmax);
     });
     m_gvBtn->check(GV_IS_GV_VALUE(getValue(), vmin, vmax));
-    lv_obj_set_height(m_gvBtn->getLvObj(), lv_obj_get_height(gvar_field->getLvObj()));
   }
 #endif
 
@@ -131,26 +133,23 @@ void GVarNumberEdit::update()
 {
   bool has_focus = act_field && act_field->hasFocus();
 
-  auto gvar_obj = gvar_field->getLvObj();
-  auto num_obj = num_field->getLvObj();
-
-  lv_obj_add_flag(gvar_obj, LV_OBJ_FLAG_HIDDEN);
-  lv_obj_add_flag(num_obj, LV_OBJ_FLAG_HIDDEN);
+  gvar_field->hide();
+  num_field->hide();
   
   int32_t value = getValue();
   if (GV_IS_GV_VALUE(value, vmin, vmax)) {
     // GVAR mode
     act_field = gvar_field;
     num_field->setSetValueHandler(nullptr);
-    lv_obj_clear_flag(gvar_obj, LV_OBJ_FLAG_HIDDEN);
-    lv_event_send(gvar_obj, LV_EVENT_VALUE_CHANGED, nullptr);
+    gvar_field->show();
+    lv_event_send(gvar_field->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   } else {
     // number edit mode
     act_field = num_field;
     num_field->setSetValueHandler(
         [=](int32_t newValue) { return setValue(newValue - voffset); });
     num_field->setValue(value + voffset);
-    lv_obj_clear_flag(num_obj, LV_OBJ_FLAG_HIDDEN);
+    num_field->show();
   }
 
   if (has_focus) {

@@ -735,7 +735,7 @@ void displayLuaError(bool firstCall = false)
   
   coord_t w = 0.75 * LCD_W;
   coord_t left = (LCD_W - w) / 2;
-#if (LCD_W > LCD_H)
+#if (!PORTRAIT_LCD)
   coord_t hh = getFontHeight(FONT(XL)) + 4;
 #else
   coord_t hh = getFontHeight(FONT(L)) + 4;
@@ -745,17 +745,17 @@ void displayLuaError(bool firstCall = false)
   
   if (!drewBackground) {
     drewBackground = true;
-    luaLcdBuffer->drawFilledRect(0, 0, LCD_W, LCD_H, SOLID, BLACK, OPACITY(6));
+    luaLcdBuffer->drawFilledRect(0, 0, LCD_W, LCD_H, SOLID, COLOR_BLACK, OPACITY(6));
   }
 
   luaLcdBuffer->drawSolidFilledRect(left, top - hh, w, hh, COLOR_THEME_SECONDARY1);
   luaLcdBuffer->drawSolidFilledRect(left, top, w, h, COLOR_THEME_SECONDARY3);
-#if (LCD_W > LCD_H)
+#if (!PORTRAIT_LCD)
   luaLcdBuffer->drawText(left + 10, top - hh + 2, title, FONT(XL) | COLOR_THEME_PRIMARY2);
-  drawTextLines(luaLcdBuffer, left + 10, top + 5, w - 20, h - 10, lua_warning_info, FONT(L) | COLOR_THEME_PRIMARY1);
+  luaLcdBuffer->drawTextLines(left + 10, top + 5, w - 20, h - 10, lua_warning_info, FONT(L) | COLOR_THEME_PRIMARY1);
 #else
   luaLcdBuffer->drawText(left + 10, top - hh + 2, title, FONT(L) | COLOR_THEME_PRIMARY2);
-  drawTextLines(luaLcdBuffer, left + 10, top + 5, w - 20, h - 10, lua_warning_info, FONT(STD) | COLOR_THEME_PRIMARY1);
+  luaLcdBuffer->drawTextLines(left + 10, top + 5, w - 20, h - 10, lua_warning_info, FONT(STD) | COLOR_THEME_PRIMARY1);
 #endif
 #else
   if (!luaLcdAllowed)

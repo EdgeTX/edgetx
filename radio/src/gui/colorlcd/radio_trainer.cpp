@@ -34,36 +34,31 @@ RadioTrainerPage::RadioTrainerPage():
 {
 }
 
-#if LCD_W > LCD_H
+LAYOUT_VAL2(NUM_EDIT_W, 80, 65)
+
+#if !PORTRAIT_LCD
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(7), LV_GRID_FR(13), LV_GRID_FR(10), LV_GRID_FR(10), LV_GRID_FR(10),
                                      LV_GRID_TEMPLATE_LAST};
-                                     
-#define NUM_EDIT_W 80
 #else
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(7), LV_GRID_FR(15), LV_GRID_FR(9), LV_GRID_FR(9),
                                      LV_GRID_TEMPLATE_LAST};
-#define NUM_EDIT_W 65
 #endif
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-void RadioTrainerPage::build(FormWindow * form)
+void RadioTrainerPage::build(Window * form)
 {
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
   form->setFlexLayout();
-  form->padAll(4);
-#if LCD_W > LCD_H
-  form->padLeft(8);
-  form->padRight(8);
-#endif
+  form->padAll(PAD_SMALL);
 
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (uint8_t i = 0; i < max_sticks; i++) {
     uint8_t chan = inputMappingChannelOrder(i);
     TrainerMix* td = &g_eeGeneral.trainer.mix[chan];
 
-    auto line = form->newLine(&grid);
-    new StaticText(line, rect_t{}, getMainControlLabel(chan), 0, COLOR_THEME_PRIMARY1);
+    auto line = form->newLine(grid);
+    new StaticText(line, rect_t{}, getMainControlLabel(chan));
 
     new Choice(line, rect_t{}, STR_TRNMODE, 0, 2, GET_SET_DEFAULT(td->mode));
     new Choice(line, rect_t{}, STR_TRNCHN, 0, 3, GET_SET_DEFAULT(td->srcChn));
@@ -71,8 +66,8 @@ void RadioTrainerPage::build(FormWindow * form)
                                  GET_SET_DEFAULT(td->studWeight));
     weight->setSuffix("%");
 
-#if LCD_H > LCD_W
-    line = form->newLine(&grid);
+#if PORTRAIT_LCD
+    line = form->newLine(grid);
     line->padLeft(30);
     line->padBottom(8);
 #endif
@@ -86,15 +81,15 @@ void RadioTrainerPage::build(FormWindow * form)
         flags);
   }
 
-  auto line = form->newLine(&grid);
-#if LCD_H > LCD_W
+  auto line = form->newLine(grid);
+#if PORTRAIT_LCD
   line->padTop(10);
 #else
   line->padTop(6);
 #endif
 
   // Trainer multiplier
-  auto lbl = new StaticText(line, rect_t{}, STR_MULTIPLIER, 0, COLOR_THEME_PRIMARY1);
+  auto lbl = new StaticText(line, rect_t{}, STR_MULTIPLIER);
   lbl->padRight(4);
   lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_END, 0, 2, LV_GRID_ALIGN_CENTER, 0, 1);
 
@@ -104,8 +99,8 @@ void RadioTrainerPage::build(FormWindow * form)
       [](int32_t value) { return formatNumberAsString(value + 10, PREC1); });
   lv_obj_set_grid_cell(multiplier->getLvObj(), LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-#if LCD_H > LCD_W
-  line = form->newLine(&grid);
+#if PORTRAIT_LCD
+  line = form->newLine(grid);
   line->padTop(10);
 #endif
 
@@ -116,7 +111,7 @@ void RadioTrainerPage::build(FormWindow * form)
     SET_DIRTY();
     return 0;
   });
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
   lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 2, LV_GRID_ALIGN_CENTER, 0, 1);
 #else
   lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_START, 3, 2, LV_GRID_ALIGN_CENTER, 0, 1);

@@ -146,6 +146,9 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
     case Board::BOARD_RADIOMASTER_POCKET:
       radioUiWidget = new SimulatedUIWidgetPocket(simulator, this);
       break;
+    case Board::BOARD_SMALL_LCD:
+      radioUiWidget = new SimulatedUIWidget320x240(simulator, this);
+      break;
     default:
       radioUiWidget = new SimulatedUIWidget9X(simulator, this);
       break;

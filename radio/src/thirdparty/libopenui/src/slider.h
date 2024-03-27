@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "form.h"
+#include "window.h"
 
 class Slider : public Window
 {
@@ -35,14 +35,20 @@ class Slider : public Window
     if (_setValue != nullptr) _setValue(limit(vmin, value, vmax));
   }
 
-  void paint(BitmapBuffer *) override;
-
   void update();
 
  protected:
   int vmin;
   int vmax;
   lv_obj_t* slider;
+  lv_obj_t** tickPts = nullptr;
+  bool loaded = false;
+
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
+
+  static void on_draw(lv_event_t* e);
+  void delayedInit();
+
+  void deleteLater(bool detach, bool trash) override;
 };

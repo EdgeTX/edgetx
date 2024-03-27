@@ -29,46 +29,49 @@
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
+LAYOUT_VAL1(HW_INP_W, 64)
+
 struct HWInputEdit : public RadioTextEdit {
-  HWInputEdit(Window* parent, char* name, size_t len) :
-      RadioTextEdit(parent, rect_t{}, name, len)
+  HWInputEdit(Window* parent, char* name, size_t len, coord_t x = 0,
+              coord_t y = 0) :
+      RadioTextEdit(parent, rect_t{x, y, HW_INP_W, UI_ELEMENT_HEIGHT}, name,
+                    len)
   {
-    setWidth(LV_DPI_DEF / 2);
   }
 };
 
 static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                          LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t col_three_dsc[] = {LV_GRID_FR(8), LV_GRID_FR(12), LV_GRID_FR(20),
-                                         LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_three_dsc[] = {
+    LV_GRID_FR(8), LV_GRID_FR(12), LV_GRID_FR(20), LV_GRID_TEMPLATE_LAST};
 
-#if LCD_W > LCD_H
-static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(2), LV_GRID_FR(5),
-                                          LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
+#if !PORTRAIT_LCD
+static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(2),
+                                          LV_GRID_FR(5), LV_GRID_FR(2),
+                                          LV_GRID_TEMPLATE_LAST};
 #else
-static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(22), LV_GRID_FR(48), LV_GRID_FR(16),
+static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(13), LV_GRID_FR(7),
                                           LV_GRID_TEMPLATE_LAST};
 #endif
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-HWSticks::HWSticks(Window* parent) : FormWindow(parent, rect_t{})
+HWSticks::HWSticks(Window* parent) : Window(parent, rect_t{})
 {
-  FlexGridLayout grid(col_two_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_two_dsc, row_dsc, PAD_TINY);
   setFlexLayout();
 
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (int i = 0; i < max_sticks; i++) {
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, analogGetCanonicalName(ADC_INPUT_MAIN, i), 0,
-                   COLOR_THEME_PRIMARY1);
+    auto line = newLine(grid);
+    new StaticText(line, rect_t{}, analogGetCanonicalName(ADC_INPUT_MAIN, i));
     new HWInputEdit(line, (char*)analogGetCustomLabel(ADC_INPUT_MAIN, i),
                     LEN_ANA_NAME);
   }
 
 #if defined(STICK_DEAD_ZONE)
-  auto line = newLine(&grid);
-  new StaticText(line, rect_t{}, STR_DEAD_ZONE, 0, COLOR_THEME_PRIMARY1);
+  auto line = newLine(grid);
+  new StaticText(line, rect_t{}, STR_DEAD_ZONE);
   auto dz = new Choice(line, rect_t{}, 0, 7,
                        GET_SET_DEFAULT(g_eeGeneral.stickDeadZone));
   dz->setTextHandler([](uint8_t value) {
@@ -77,17 +80,29 @@ HWSticks::HWSticks(Window* parent) : FormWindow(parent, rect_t{})
 #endif
 }
 
-HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
-{
-  FlexGridLayout grid(pots_col_dsc, row_dsc, 2);
-  setFlexLayout();
+// Absolute layout for Pots popup - due to performance issues with lv_textarea
+// in a flex layout
+LAYOUT_VAL1(P_LBL_X, 0)
+LAYOUT_VAL3(P_LBL_W, (DIALOG_DEFAULT_WIDTH - 45) * 2 / 11, (DIALOG_DEFAULT_WIDTH - 30) * 2 / 11, (DIALOG_DEFAULT_WIDTH - 18) * 13 / 21)
+constexpr coord_t P_NM_X = P_LBL_X + P_LBL_W + PAD_MEDIUM;
+LAYOUT_VAL1(P_NM_W, 70)
+LAYOUT_VAL3(P_TYP_X, P_NM_X + P_NM_W, P_NM_X + P_NM_W, 0)
+LAYOUT_VAL2(P_TYP_W, 160, P_LBL_W)
+constexpr coord_t P_INV_X = P_TYP_X + P_TYP_W + PAD_MEDIUM;
+LAYOUT_VAL1(P_INV_W, 52)
+LAYOUT_VAL3(P_ROW_H, 36, 26, 72)
+#define P_Y(i) (i * P_ROW_H + 2)
+LAYOUT_VAL3(P_OFST_Y, 0, 0, 36)
 
+HWPots::HWPots(Window* parent) :
+    Window(parent, rect_t{0, 0, DIALOG_DEFAULT_WIDTH - 12, LV_SIZE_CONTENT})
+{
   potsChanged = false;
 
   setCloseHandler([=]() {
     if (potsChanged) {
-      deleteCustomScreens();
-      loadCustomScreens();
+      LayoutFactory::deleteCustomScreens();
+      LayoutFactory::loadCustomScreens();
     }
   });
 
@@ -100,18 +115,16 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
     // #if !defined(SIMU) && defined(RADIO_FAMILY_T16)
     //     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
     // #endif
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, adcGetInputLabel(ADC_INPUT_FLEX, i), 0,
-                   COLOR_THEME_PRIMARY1);
+    new StaticText(this,
+                   rect_t{P_LBL_X, P_Y(i) + 6, P_LBL_W, UI_ELEMENT_HEIGHT},
+                   adcGetInputLabel(ADC_INPUT_FLEX, i));
 
-#if LCD_H > LCD_W
-    line = newLine(&grid);
-#endif
+    new HWInputEdit(this, (char*)analogGetCustomLabel(ADC_INPUT_FLEX, i),
+                    LEN_ANA_NAME, P_NM_X, P_Y(i));
 
-    new HWInputEdit(line, (char*)analogGetCustomLabel(ADC_INPUT_FLEX, i),
-                    LEN_ANA_NAME);
     auto pot = new Choice(
-        line, rect_t{}, STR_POTTYPES, FLEX_NONE, FLEX_SWITCH,
+        this, rect_t{P_TYP_X, P_Y(i) + P_OFST_Y, P_TYP_W, UI_ELEMENT_HEIGHT},
+        STR_POTTYPES, FLEX_NONE, FLEX_SWITCH,
         [=]() -> int { return getPotType(i); },
         [=](int newValue) {
           setPotType(i, newValue);
@@ -122,7 +135,8 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
     pot->setAvailableHandler([=](int val) { return isPotTypeAvailable(val); });
 
     new ToggleSwitch(
-        line, rect_t{}, [=]() -> uint8_t { return (uint8_t)getPotInversion(i); },
+        this, rect_t{P_INV_X, P_Y(i) + P_OFST_Y, P_INV_W, UI_ELEMENT_HEIGHT},
+        [=]() -> uint8_t { return (uint8_t)getPotInversion(i); },
         [=](int8_t newValue) {
           setPotInversion(i, newValue);
           SET_DIRTY();
@@ -130,11 +144,17 @@ HWPots::HWPots(Window* parent) : FormWindow(parent, rect_t{})
   }
 }
 
+// Absolute layout for Switches popup - due to performance issues with
+// lv_textarea in a flex layout
+LAYOUT_VAL2(SW_CTRL_W, 86, 75)
+LAYOUT_VAL3(SW_CTRL_H, 36, 26, 36)
+
 class SwitchDynamicLabel : public StaticText
 {
  public:
-  SwitchDynamicLabel(Window* parent, uint8_t index) :
-      StaticText(parent, rect_t{}, "", 0, COLOR_THEME_PRIMARY1), index(index)
+  SwitchDynamicLabel(Window* parent, uint8_t index, coord_t x, coord_t y) :
+      StaticText(parent, rect_t{x, y, SW_CTRL_W, UI_ELEMENT_HEIGHT}, ""),
+      index(index)
   {
     checkEvents();
   }
@@ -186,37 +206,36 @@ static void flex_channel_changed(lv_event_t* e)
   }
 }
 
-HWSwitches::HWSwitches(Window* parent) : FormWindow(parent, rect_t{})
+HWSwitches::HWSwitches(Window* parent) :
+    Window(parent, rect_t{0, 0, DIALOG_DEFAULT_WIDTH - 12, LV_SIZE_CONTENT})
 {
-  FlexGridLayout grid(col_three_dsc, row_dsc, 2);
-  setFlexLayout();
-
   auto max_switches = switchGetMaxSwitches();
   for (int i = 0; i < max_switches; i++) {
-    auto line = newLine(&grid);
-    new SwitchDynamicLabel(line, i);
-    new HWInputEdit(line, (char*)switchGetCustomName(i), LEN_SWITCH_NAME);
+    new SwitchDynamicLabel(this, i, 2, i * SW_CTRL_H + 2);
+    new HWInputEdit(this, (char*)switchGetCustomName(i), LEN_SWITCH_NAME,
+                    SW_CTRL_W + 8, i * SW_CTRL_H + 2);
 
-    auto box = new FormWindow(line, rect_t{});
-    box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(4));
-    box->setWidth(lv_pct(45));
-
+    coord_t x = SW_CTRL_W * 2 + 14;
     Choice* channel = nullptr;
     if (switchIsFlex(i)) {
       channel = new Choice(
-          box, rect_t{}, -1, adcGetMaxInputs(ADC_INPUT_FLEX) - 1,
+          this, rect_t{x, i * SW_CTRL_H + 2, SW_CTRL_W, UI_ELEMENT_HEIGHT}, -1,
+          adcGetMaxInputs(ADC_INPUT_FLEX) - 1,
           [=]() -> int { return switchGetFlexConfig(i); },
           [=](int newValue) { switchConfigFlex(i, newValue); });
-      channel->setAvailableHandler(
-          [=](int val) { return val < 0 || switchIsFlexInputAvailable(i, val); });
+      channel->setAvailableHandler([=](int val) {
+        return val < 0 || switchIsFlexInputAvailable(i, val);
+      });
       channel->setTextHandler([=](int val) -> std::string {
         if (val < 0) return STR_NONE;
         return adcGetInputLabel(ADC_INPUT_FLEX, val);
       });
+      x += SW_CTRL_W + 6;
     }
 
     auto sw_cfg = new Choice(
-        box, rect_t{}, STR_SWTYPES, SWITCH_NONE, switchGetMaxType(i),
+        this, rect_t{x, i * SW_CTRL_H + 2, SW_CTRL_W, UI_ELEMENT_HEIGHT},
+        STR_SWTYPES, SWITCH_NONE, switchGetMaxType(i),
         [=]() -> int { return SWITCH_CONFIG(i); },
         [=](int newValue) {
           swconfig_t mask = (swconfig_t)SWITCH_CONFIG_MASK(i);
@@ -228,7 +247,8 @@ HWSwitches::HWSwitches(Window* parent) : FormWindow(parent, rect_t{})
 
     if (channel) {
       lv_obj_t* obj = channel->getLvObj();
-      lv_obj_add_event_cb(obj, flex_channel_changed, LV_EVENT_VALUE_CHANGED, sw_cfg);
+      lv_obj_add_event_cb(obj, flex_channel_changed, LV_EVENT_VALUE_CHANGED,
+                          sw_cfg);
       lv_event_send(obj, LV_EVENT_VALUE_CHANGED, NULL);
     }
   }
@@ -236,17 +256,9 @@ HWSwitches::HWSwitches(Window* parent) : FormWindow(parent, rect_t{})
 
 template <class T>
 HWInputDialog<T>::HWInputDialog(const char* title) :
-    Dialog(Layer::back(), std::string(), rect_t{})
+    BaseDialog(Layer::back(), title, true)
 {
-  setCloseWhenClickOutside(true);
-  if (title) content->setTitle(title);
-  new T(&content->form);
-#if LCD_W > LCD_H
-  content->setWidth(LCD_W * 0.8);
-#else
-  content->setWidth(LCD_W * 0.95);
-#endif
-  content->updateSize();
+  new T(form);
 }
 
 template struct HWInputDialog<HWSticks>;

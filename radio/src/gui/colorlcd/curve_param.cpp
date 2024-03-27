@@ -50,8 +50,8 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
                        std::function<void(int32_t)> setRefValue) :
     Window(parent, rect), ref(ref), setRefValue(setRefValue)
 {
+  padAll(PAD_TINY);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW_WRAP);
-  lv_obj_set_style_pad_column(lvobj, lv_dpx(4), 0);
   lv_obj_set_style_flex_cross_place(lvobj, LV_FLEX_ALIGN_CENTER, 0);
   lv_obj_set_size(lvobj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
@@ -87,34 +87,29 @@ void CurveParam::update()
 {
   bool has_focus = act_field && act_field->hasFocus();
 
-  auto value_obj = value_edit->getLvObj();
-  auto func_obj = func_choice->getLvObj();
-  auto cust_obj = cust_choice->getLvObj();
-
-  lv_obj_add_flag(value_obj, LV_OBJ_FLAG_HIDDEN);
-  lv_obj_add_flag(func_obj, LV_OBJ_FLAG_HIDDEN);
-  lv_obj_add_flag(cust_obj, LV_OBJ_FLAG_HIDDEN);
+  value_edit->hide();
+  func_choice->hide();
+  cust_choice->hide();
 
   switch (ref->type) {
     case CURVE_REF_DIFF:
     case CURVE_REF_EXPO:
-      lv_obj_clear_flag(value_obj, LV_OBJ_FLAG_HIDDEN);
       act_field = value_edit;
       break;
 
     case CURVE_REF_FUNC:
-      lv_obj_clear_flag(func_obj, LV_OBJ_FLAG_HIDDEN);
       act_field = func_choice;
       break;
 
     case CURVE_REF_CUSTOM:
-      lv_obj_clear_flag(cust_obj, LV_OBJ_FLAG_HIDDEN);
       act_field = cust_choice;
       break;
 
     default:
       return;
   }
+
+  act_field->show();
 
   auto act_obj = act_field->getLvObj();
   if (has_focus) {

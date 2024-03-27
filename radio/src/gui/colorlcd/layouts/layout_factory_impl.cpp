@@ -20,38 +20,22 @@
  */
 
 #include "layout_factory_impl.h"
-#include "layouts/trims.h"
+
 #include "layouts/sliders.h"
+#include "layouts/trims.h"
 #include "view_main.h"
 
-Layout::Layout(Window* parent, const LayoutFactory * factory, PersistentData * persistentData, uint8_t zoneCount, uint8_t* zoneMap):
-  LayoutBase(parent, {0, 0, LCD_W, LCD_H}, persistentData),
-  factory(factory),
-  decoration(new ViewMainDecoration(this)),
-  zoneCount(zoneCount),
-  zoneMap(zoneMap)
+Layout::Layout(Window* parent, const LayoutFactory* factory,
+               PersistentData* persistentData, uint8_t zoneCount,
+               uint8_t* zoneMap) :
+    LayoutBase(parent, {0, 0, LCD_W, LCD_H}, persistentData),
+    factory(factory),
+    decoration(new ViewMainDecoration(this)),
+    zoneCount(zoneCount),
+    zoneMap(zoneMap)
 {
   adjustLayout();
 }
-
-void Layout::create()
-{
-  memset(persistentData, 0, sizeof(PersistentData));
-
-  getOptionValue(LAYOUT_OPTION_TOPBAR)->boolValue   = true;
-  getOptionValue(LAYOUT_OPTION_FM)->boolValue       = true;
-  getOptionValue(LAYOUT_OPTION_SLIDERS)->boolValue  = true;
-  getOptionValue(LAYOUT_OPTION_TRIMS)->boolValue    = true;
-  getOptionValue(LAYOUT_OPTION_MIRRORED)->boolValue = false;
-}    
-
-#if defined(DEBUG_WINDOWS)
-void Layout::paint(BitmapBuffer * dc)
-{
-  TRACE_WINDOWS("# painting -> %s", getWindowDebugString().c_str());
-  LayoutBase::paint(dc);
-}
-#endif
 
 void Layout::setTrimsVisible(bool visible)
 {
@@ -68,23 +52,14 @@ void Layout::setFlightModeVisible(bool visible)
   decoration->setFlightModeVisible(visible);
 }
 
-void Layout::updateFromTheme()
-{
-  // Hack to fix flight mode color on main view
-  // Required because theme is loaded after the main view has been created
-  if (decoration)
-    decoration->updateFromTheme();
-}
-
 void Layout::adjustLayout()
 {
   // Check if deco setting are still up-to-date
-  uint8_t checkSettings =
-    (hasTopbar() ? DECORATION_TOPBAR : 0) |
-    (hasSliders() ? DECORATION_SLIDERS : 0) |
-    (hasTrims() ? DECORATION_TRIMS : 0) |
-    (hasFlightMode() ? DECORATION_FLIGHTMODE : 0) |
-    (isMirrored() ? DECORATION_MIRRORED : 0);
+  uint8_t checkSettings = (hasTopbar() ? DECORATION_TOPBAR : 0) |
+                          (hasSliders() ? DECORATION_SLIDERS : 0) |
+                          (hasTrims() ? DECORATION_TRIMS : 0) |
+                          (hasFlightMode() ? DECORATION_FLIGHTMODE : 0) |
+                          (isMirrored() ? DECORATION_MIRRORED : 0);
 
   if (checkSettings == decorationSettings) {
     // everything ok, exit!
@@ -95,18 +70,27 @@ void Layout::adjustLayout()
   decorationSettings = checkSettings;
 
   // Set visible decoration
-  setSlidersVisible(hasSliders());
-  setTrimsVisible(hasTrims());
-  setFlightModeVisible(hasFlightMode());
+  show();
+}
 
-  // and update relevant windows
-  updateZones();
+void Layout::show(bool visible)
+{
+  // Set visible decoration
+  setSlidersVisible(visible && hasSliders());
+  setTrimsVisible(visible && hasTrims());
+  setFlightModeVisible(visible && hasFlightMode());
+
+  if (visible) {
+    // and update relevant windows
+    updateZones();
+  }
 }
 
 rect_t Layout::getMainZone() const
 {
   rect_t zone = decoration->getMainZone();
-  if (decorationSettings & (DECORATION_SLIDERS|DECORATION_TRIMS|DECORATION_FLIGHTMODE)) {
+  if (decorationSettings &
+      (DECORATION_SLIDERS | DECORATION_TRIMS | DECORATION_FLIGHTMODE)) {
     // some decoration activated
     zone.x += MAIN_ZONE_BORDER;
     zone.y += MAIN_ZONE_BORDER;
@@ -114,7 +98,7 @@ rect_t Layout::getMainZone() const
     zone.h -= 2 * MAIN_ZONE_BORDER;
   }
   return ViewMain::instance()->getMainZone(zone, hasTopbar());
-}    
+}
 
 rect_t Layout::getZone(unsigned int index) const
 {
@@ -123,16 +107,14 @@ rect_t Layout::getZone(unsigned int index) const
   unsigned int i = index * 4;
 
   coord_t xo = z.w * zoneMap[i] / LAYOUT_MAP_DIV;
-  coord_t yo = z.h * zoneMap[i+1] / LAYOUT_MAP_DIV;
-  coord_t w = z.w * zoneMap[i+2] / LAYOUT_MAP_DIV;
-  coord_t h = z.h * zoneMap[i+3] / LAYOUT_MAP_DIV;
+  coord_t yo = z.h * zoneMap[i + 1] / LAYOUT_MAP_DIV;
+  coord_t w = z.w * zoneMap[i + 2] / LAYOUT_MAP_DIV;
+  coord_t h = z.h * zoneMap[i + 3] / LAYOUT_MAP_DIV;
 
-  if (isMirrored())
-    xo = z.w - xo - w;
+  if (isMirrored()) xo = z.w - xo - w;
 
-  return { z.x + xo, z.y + yo, w, h };
+  return {z.x + xo, z.y + yo, w, h};
 }
 
 const ZoneOption defaultZoneOptions[] = {LAYOUT_COMMON_OPTIONS,
                                          LAYOUT_OPTIONS_END};
-

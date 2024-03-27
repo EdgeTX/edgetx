@@ -19,118 +19,128 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-#include "widgets_container_impl.h"
-
 #include <memory>
 
-class ModelBitmapWidget: public Widget
+#include "opentx.h"
+#include "widget.h"
+
+#define ETX_STATE_BG_FILL LV_STATE_USER_1
+
+class ModelBitmapWidget : public Widget
 {
-  public:
-    ModelBitmapWidget(const WidgetFactory* factory, Window* parent, const rect_t & rect, Widget::PersistentData* persistentData):
+ public:
+  ModelBitmapWidget(const WidgetFactory* factory, Window* parent,
+                    const rect_t& rect,
+                    Widget::PersistentData* persistentData) :
       Widget(factory, parent, rect, persistentData)
-    {
-      loadBitmap();
+  {
+    lv_style_init(&style);
+    lv_obj_add_style(lvobj, &style, LV_PART_MAIN);
+
+    etx_obj_add_style(lvobj, styles->bg_opacity_transparent, LV_PART_MAIN);
+    etx_obj_add_style(lvobj, styles->bg_opacity_cover,
+                      LV_PART_MAIN | ETX_STATE_BG_FILL);
+
+    label = new StaticText(this, rect_t{}, g_model.header.name);
+    label->hide();
+
+    image = new StaticImage(this, rect_t{0, 0, width(), height()});
+    image->hide();
+
+    update();
+  }
+
+  void checkEvents() override
+  {
+    Widget::checkEvents();
+
+    if (getHash() != deps_hash) {
+      update();
+      // Force bitmap redraw
+      invalidate();
     }
 
-    void refresh(BitmapBuffer * dc) override
-    {
-      std::string filename = std::string(g_model.header.bitmap);
+    if (label->getText() != g_model.header.name)
+      label->setText(g_model.header.name);
+  }
 
-      // set font colour from options[0], if use theme color option off
-      LcdFlags fontColor;
-      if (persistentData->options[4].value.boolValue)
-        fontColor = COLOR_THEME_SECONDARY1;
-      else
-        fontColor = COLOR2FLAGS(persistentData->options[0].value.unsignedValue);
+  void update() override
+  {
+    lv_color_t color;
 
-      // get font size from options[1]
-      LcdFlags fontSize = persistentData->options[1].value.unsignedValue << 8u;
+    isLarge = rect.h >= 96 && rect.w >= 120;
 
-      // fill bg from options[3] if options[2] set
-      if (persistentData->options[2].value.boolValue) {
-        LcdFlags fillColour = COLOR2FLAGS(persistentData->options[3].value.unsignedValue);
-        dc->drawSolidFilledRect(0, 0, width(), height(), fillColour);
-      }
+    // get font size from options[1]
+    etx_font(label->getLvObj(),
+             (FontIndex)persistentData->options[1].value.unsignedValue);
 
-      if (buffer &&
-          ((buffer->width() != width()) || (buffer->height() != height()) ||
-           (deps_hash != getHash()))) {
-
-        loadBitmap();
-        deps_hash = getHash();
-      }
-
-      // big space to draw
-      if (rect.h >= 96 && rect.w >= 120) {
-
-        if (!filename.empty() && buffer) {
-          dc->drawBitmap(0, 38, buffer.get());
-        }
-
-        dc->drawSizedText(5, 5, g_model.header.name, LEN_MODEL_NAME, fontSize | fontColor);
-      }
-      // smaller space to draw
-      else {
-        if (!filename.empty() && buffer) {
-          dc->drawBitmap(0, 0, buffer.get());
-        }
-        else {
-          dc->drawSizedText(0, 0, g_model.header.name, LEN_MODEL_NAME, fontSize | fontColor);
-        }
-      }
+    // set font colour from options[0], if use theme color option off
+    if (persistentData->options[4].value.boolValue) {
+      etx_txt_color(label->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
+                    LV_PART_MAIN);
+    } else {
+      color.full = persistentData->options[0].value.unsignedValue;
+      lv_obj_set_style_text_color(label->getLvObj(), color, LV_PART_MAIN);
     }
 
-    void checkEvents() override
-    {
-      Widget::checkEvents();
-      if (getHash() != deps_hash) {
-        invalidate();
+    // Set label position
+    if (isLarge)
+      lv_obj_set_pos(label->getLvObj(), 5, 5);
+    else
+      lv_obj_set_pos(label->getLvObj(), 0, 0);
+
+    // get font color from options[3]
+    color.full = persistentData->options[3].value.unsignedValue;
+    lv_style_set_bg_color(&style, color);
+
+    // Set background opacity from options[2]
+    if (persistentData->options[2].value.boolValue)
+      lv_obj_add_state(lvobj, ETX_STATE_BG_FILL);
+    else
+      lv_obj_clear_state(lvobj, ETX_STATE_BG_FILL);
+
+    if (!image->hasImage() || deps_hash != getHash()) {
+      if (g_model.header.bitmap[0]) {
+        char filename[LEN_BITMAP_NAME + 1];
+        strAppend(filename, g_model.header.bitmap, LEN_BITMAP_NAME);
+        std::string fullpath =
+            std::string(BITMAPS_PATH PATH_SEPARATOR) + filename;
+
+        image->setSource(fullpath);
+      } else {
+        image->clearSource();
       }
+      deps_hash = getHash();
     }
 
-    static const ZoneOption options[];
+    image->setRect(
+        {0, isLarge ? 38 : 0, width(), height() - (isLarge ? 38 : 0)});
+    image->show(image->hasImage());
+    image->setZoom();
 
-  protected:
-    std::unique_ptr<BitmapBuffer> buffer;
-    uint32_t deps_hash = 0;
+    label->show(isLarge || !image->hasImage());
+  }
 
-    uint32_t getHash()
-    {
-      return hash(g_model.header.bitmap, LEN_BITMAP_NAME);
-    }
-  
-    void loadBitmap()
-    {
-      std::string filename = std::string(g_model.header.bitmap);
-      std::string fullpath = std::string(BITMAPS_PATH PATH_SEPARATOR) + filename;
+  static const ZoneOption options[];
 
-      if (!buffer || (buffer->width() != width()) || (buffer->height() != height())) {
-        buffer.reset(new BitmapBuffer(BMP_ARGB4444, width(), height()));
-      }
+ protected:
+  bool isLarge = false;
+  // std::unique_ptr<BitmapBuffer> buffer;
+  uint32_t deps_hash = 0;
+  lv_style_t style;
+  StaticText* label = nullptr;
+  StaticImage* image = nullptr;
 
-      buffer->clear();
-      if (!filename.empty()) {
-        std::unique_ptr<BitmapBuffer> bitmap(BitmapBuffer::loadBitmap(fullpath.c_str()));
-        if (!bitmap) {
-          TRACE("could not load bitmap '%s'", filename.c_str());
-          return;
-        }
-
-        if (rect.h >= 96 && rect.w >= 120) {
-          buffer->drawScaledBitmap(bitmap.get(), 0, 0, width(), height() - 38);
-        } else {
-          buffer->drawScaledBitmap(bitmap.get(), 0, 0, width(), height());
-        }
-      }
-    }
+  uint32_t getHash() { return hash(g_model.header.bitmap, LEN_BITMAP_NAME); }
 };
 
 const ZoneOption ModelBitmapWidget::options[] = {
-    {STR_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_SECONDARY1>>16)},
+    {STR_COLOR, ZoneOption::Color,
+     OPTION_VALUE_UNSIGNED(COLOR_THEME_SECONDARY1 >> 16)},
     {STR_SIZE, ZoneOption::TextSize, OPTION_VALUE_UNSIGNED(FONT_STD_INDEX)},
     {STR_FILL_BACKGROUND, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
-    {STR_BG_COLOR, ZoneOption::Color, OPTION_VALUE_UNSIGNED(COLOR_THEME_SECONDARY3>>16)},
+    {STR_BG_COLOR, ZoneOption::Color,
+     OPTION_VALUE_UNSIGNED(COLOR_THEME_SECONDARY3 >> 16)},
     {STR_USE_THEME_COLOR, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
     {nullptr, ZoneOption::Bool}};
 

@@ -19,24 +19,26 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RADIO_SPECTRUM_ANALYSER_H
-#define _RADIO_SPECTRUM_ANALYSER_H
+#pragma once
 
 #include "page.h"
 
-class RadioSpectrumAnalyser: public Page
+class RadioSpectrumAnalyser : public Page
 {
-  public:
-    explicit RadioSpectrumAnalyser(uint8_t moduleIdx);
+ public:
+  explicit RadioSpectrumAnalyser(uint8_t moduleIdx);
 
-  protected:
-    uint8_t moduleIdx;
+ protected:
+  uint8_t moduleIdx;
+  lv_point_t trackPts[2];
+  lv_obj_t* trackLine = nullptr;
+  int16_t trackX = -1;
 
-    void buildHeader(Window * window);
-    void buildBody(FormWindow * window);
-    void init();
-    void start();
-    void stop();
+  void buildHeader(Window* window);
+  void buildBody(Window* window);
+  void init();
+  void start();
+  void stop();
+
+  void checkEvents() override;
 };
-
-#endif // _RADIO_SPECTRUM_ANALYSER_H

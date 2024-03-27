@@ -19,22 +19,16 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _WIDGETS_CONTAINER_H_
-#define _WIDGETS_CONTAINER_H_
+#pragma once
 
-#include <stdlib.h>
-#include "opentx_types.h"
-#include "form.h"
+#include "window.h"
 #include "zone.h"
 
 #define WIDGET_NAME_LEN     12
 #define MAX_WIDGET_OPTIONS   5 // Name?
 
-#if LCD_W > LCD_H
-#define MAX_TOPBAR_ZONES     6
-#else
-#define MAX_TOPBAR_ZONES     4
-#endif
+LAYOUT_VAL3(MAX_TOPBAR_ZONES, 6, 6, 4)
+
 #define MAX_TOPBAR_OPTIONS   1 // just because of VC++ which doesn't like 0-size arrays :(
 
 // Common 'ZoneOptionValue's among all layouts
@@ -50,7 +44,6 @@ enum {
 
 class Widget;
 class WidgetFactory;
-class LayoutFactory;
 
 struct WidgetPersistentData {
   ZoneOptionValueTyped options[MAX_WIDGET_OPTIONS] USE_IDX;
@@ -88,12 +81,10 @@ class WidgetsContainer: public Window
     virtual void removeWidget(unsigned int index) = 0;
     virtual void adjustLayout() = 0;
     virtual void updateZones() = 0;
-    virtual void updateFromTheme() = 0;
+    virtual void showWidgets(bool visible = true) = 0;
+    virtual void hideWidgets() { showWidgets(false); }
     virtual void runBackground() = 0;
 
     virtual bool isLayout() { return false; }
     bool isWidgetsContainer() override { return true; }
 };
-
-
-#endif // _WIDGETS_CONTAINER_H_

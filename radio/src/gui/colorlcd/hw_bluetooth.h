@@ -23,8 +23,12 @@
 
 #include "form.h"
 
-class BluetoothConfigWindow : public FormWindow
+class BluetoothConfigWindow
 {
  public:
-  BluetoothConfigWindow(Window* parent);
+  BluetoothConfigWindow(Window* parent, FlexGridLayout& grid);
+
+ protected:
+  Window* settingsBtn = nullptr;
+  Window* nameEdit = nullptr;
 };

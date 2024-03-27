@@ -23,42 +23,75 @@
 #include "menu.h"
 #include "opentx.h"
 #include "sdcard.h"
+#include "themes/etx_lv_theme.h"
+
+// Check Box
+const lv_style_const_prop_t cb_marker_checked_props[] = {
+    LV_STYLE_CONST_BG_IMG_SRC(LV_SYMBOL_OK),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_MULTI_INIT(cb_marker_checked, cb_marker_checked_props);
+
+static void checkbox_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
+{
+  etx_std_style(obj, LV_PART_INDICATOR, PAD_TINY);
+
+  etx_obj_add_style(obj, cb_marker_checked,
+                    LV_PART_INDICATOR | LV_STATE_CHECKED);
+
+  lv_checkbox_set_text_static(obj, "");
+}
+
+static const lv_obj_class_t checkbox_class = {
+    .base_class = &lv_checkbox_class,
+    .constructor_cb = checkbox_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = 25,
+    .height_def = 25,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
+    .instance_size = sizeof(lv_checkbox_t),
+};
+
+static lv_obj_t* checkbox_create(lv_obj_t* parent)
+{
+  return etx_create(&checkbox_class, parent);
+}
 
 constexpr int maxTxtBuffSize = 64 * 1024;
 
 ViewTextWindow::ViewTextWindow(const std::string path, const std::string name,
-                               unsigned int icon) :
-      Page(icon), path(std::move(path)), name(std::move(name))
+                               EdgeTxIcon icon) :
+    Page(icon, PAD_ZERO), path(std::move(path)), name(std::move(name))
 {
   fullPath = this->path + std::string(PATH_SEPARATOR) + this->name;
   extractNameSansExt();
 
-  header.setTitle(this->name);
+  header->setTitle(this->name);
 
-  lv_obj_add_event_cb(lvobj, ViewTextWindow::on_draw, LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+  lv_obj_add_event_cb(lvobj, ViewTextWindow::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
+                      nullptr);
 };
 
-void ViewTextWindow::on_draw(lv_event_t * e)
+void ViewTextWindow::on_draw(lv_event_t* e)
 {
   lv_obj_t* target = lv_event_get_target(e);
   auto view = (ViewTextWindow*)lv_obj_get_user_data(target);
   if (view) {
-    if (view->buffer == nullptr)
-      view->buildBody(&view->body);
+    if (view->buffer == nullptr) view->buildBody(view->body);
   }
 }
 
-void ViewTextWindow::onCancel()
-{
-  Page::onCancel();
-}
+void ViewTextWindow::onCancel() { Page::onCancel(); }
 
 void ViewTextWindow::extractNameSansExt()
 {
   uint8_t nameLength;
   uint8_t extLength;
 
-  const char *ext =
+  const char* ext =
       getFileExtension(name.c_str(), 0, 0, &nameLength, &extLength);
   extension = std::string(ext);
 
@@ -75,12 +108,12 @@ bool ViewTextWindow::openFile()
     bufSize = 0;
   }
 
-  auto res = f_stat((TCHAR *)fullPath.c_str(), &info);
+  auto res = f_stat((TCHAR*)fullPath.c_str(), &info);
   if (res == FR_OK) {
     fileLength = int(info.fsize);
     bufSize = std::min(fileLength, maxTxtBuffSize) + 1;
 
-    buffer = (char *)malloc(bufSize);
+    buffer = (char*)malloc(bufSize);
     if (buffer) {
       offset =
           std::max(int(openFromEnd ? int(info.fsize) - bufSize + 1 : 0), 0);
@@ -95,21 +128,21 @@ bool ViewTextWindow::openFile()
   return false;
 }
 
-void ViewTextWindow::buildBody(Window *window)
+void ViewTextWindow::buildBody(Window* window)
 {
   if (openFile()) {
     auto obj = window->getLvObj();
     lv_obj_add_flag(
         obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW |
                  LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_CLICK_FOCUSABLE);
-    lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_AUTO);
+    etx_scrollbar(obj);
     // prevents resetting the group's edit mode
     lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
     auto g = lv_group_get_default();
     lb = lv_label_create(obj);
     lv_obj_set_size(lb, lv_pct(100), LV_SIZE_CONTENT);
-    lv_obj_set_style_pad_all(lb, lv_dpx(8), 0);
+    etx_obj_add_style(lb, styles->pad_medium, LV_PART_MAIN);
 
     lv_group_add_obj(g, obj);
     lv_group_set_editing(g, true);
@@ -129,13 +162,14 @@ FRESULT ViewTextWindow::sdReadTextFileBlock(const uint32_t bufSize,
   char escape_chars[4];
   int escape = 0;
 
-  auto res = f_open(&file, (TCHAR *)fullPath.c_str(), FA_OPEN_EXISTING | FA_READ);
+  auto res =
+      f_open(&file, (TCHAR*)fullPath.c_str(), FA_OPEN_EXISTING | FA_READ);
   if (res == FR_OK) {
     res = f_lseek(&file, offset);
     if (res == FR_OK) {
       UINT br;
       char c;
-      char *ptr = buffer;
+      char* ptr = buffer;
       for (int i = 0; i < (int)bufSize; i++) {
         res = f_read(&file, &c, 1, &br);
         if (res == FR_OK && br == 1) {
@@ -208,172 +242,171 @@ void ViewTextWindow::onEvent(event_t event)
     lv_label_set_text_static(lb, buffer);
   }
 
-  if(event == EVT_KEY_BREAK(KEY_EXIT))
-    onCancel();
+  if (event == EVT_KEY_BREAK(KEY_EXIT)) onCancel();
 #endif
 }
 
 class ViewChecklistWindow : public ViewTextWindow
 {
-  public:
-    ViewChecklistWindow(const std::string path, const std::string name,
-                        unsigned int icon) :
-        ViewTextWindow(path, name, icon)
-    {
-      header.setTitle(g_model.header.name);
-      header.setTitle2(STR_PREFLIGHT);
-    }
+ public:
+  ViewChecklistWindow(const std::string path, const std::string name,
+                      EdgeTxIcon icon) :
+      ViewTextWindow(path, name, icon)
+  {
+    header->setTitle(g_model.header.name);
+    header->setTitle2(STR_PREFLIGHT);
+  }
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ViewChecklistWindow"; };
 #endif
 
-    void onCancel() override
-    {
-      if (allChecked())
-        ViewTextWindow::onCancel();
-    }
+  void onCancel() override
+  {
+    if (allChecked()) ViewTextWindow::onCancel();
+  }
 
-  protected:
-    TextButton* closeButton = nullptr;
-    std::list<lv_obj_t*> checkBoxes;
+ protected:
+  TextButton* closeButton = nullptr;
+  std::list<lv_obj_t*> checkBoxes;
 
-    void updateCheckboxes()
-    {
-      bool lastState = true;
+  void updateCheckboxes()
+  {
+    bool lastState = true;
 
-      for (auto it = checkBoxes.cbegin(); it != checkBoxes.cend(); ++it) {
-        auto cb = *it;
-        if (lastState)
-        {
-          lv_obj_clear_state(cb, LV_STATE_DISABLED);
-          if (!(lv_obj_get_state(cb) & LV_STATE_CHECKED))
-            lv_group_focus_obj(cb);
-        } else {
-          lv_obj_add_state(cb, LV_STATE_DISABLED);
-          lv_obj_clear_state(cb, LV_STATE_CHECKED);
-        }
-
-        lastState = lv_obj_get_state(cb) & LV_STATE_CHECKED;
-      }
-
-      setCloseState();
-    }
-
-    bool allChecked()
-    {
-      for (auto it = checkBoxes.cbegin(); it != checkBoxes.cend(); ++it) {
-        auto cb = *it;
-        if (!(lv_obj_get_state(cb) & LV_STATE_CHECKED))
-          return false;
-      }
-
-      return true;
-    }
-
-    void setCloseState()
-    {
-      if (allChecked()) {
-        lv_obj_clear_state(closeButton->getLvObj(), LV_STATE_DISABLED);
-        lv_group_focus_obj(closeButton->getLvObj());
+    for (auto it = checkBoxes.cbegin(); it != checkBoxes.cend(); ++it) {
+      auto cb = *it;
+      if (lastState) {
+        lv_obj_clear_state(cb, LV_STATE_DISABLED);
+        if (!(lv_obj_get_state(cb) & LV_STATE_CHECKED)) lv_group_focus_obj(cb);
       } else {
-        lv_obj_add_state(closeButton->getLvObj(), LV_STATE_DISABLED);
+        lv_obj_add_state(cb, LV_STATE_DISABLED);
+        lv_obj_clear_state(cb, LV_STATE_CHECKED);
       }
+
+      lastState = lv_obj_get_state(cb) & LV_STATE_CHECKED;
     }
 
-    void onEvent(event_t event) override
-    {
+    setCloseState();
+  }
+
+  bool allChecked()
+  {
+    for (auto it = checkBoxes.cbegin(); it != checkBoxes.cend(); ++it) {
+      auto cb = *it;
+      if (!(lv_obj_get_state(cb) & LV_STATE_CHECKED)) return false;
+    }
+
+    return true;
+  }
+
+  void setCloseState()
+  {
+    if (allChecked()) {
+      closeButton->enable();
+      lv_group_focus_obj(closeButton->getLvObj());
+    } else {
+      closeButton->disable();
+    }
+  }
+
+  void onEvent(event_t event) override
+  {
 #if defined(HARDWARE_KEYS)
-      if(event == EVT_KEY_BREAK(KEY_EXIT))
-        onCancel();
+    if (event == EVT_KEY_BREAK(KEY_EXIT)) onCancel();
 #endif
-    }
+  }
 
-    static void checkbox_event_handler(lv_event_t* e)
-    {
-      lv_obj_t* target = lv_event_get_target(e);
-      ViewChecklistWindow* vtw = (ViewChecklistWindow*)lv_obj_get_user_data(target);
+  static void checkbox_event_handler(lv_event_t* e)
+  {
+    lv_obj_t* target = lv_event_get_target(e);
+    ViewChecklistWindow* vtw =
+        (ViewChecklistWindow*)lv_obj_get_user_data(target);
 
-      if (vtw) vtw->updateCheckboxes();
-    }
+    if (vtw) vtw->updateCheckboxes();
+  }
 
-    void buildBody(Window* window) override
-    {
-      if (openFile()) {
-        auto obj = window->getLvObj();
-        lv_obj_add_flag(
-            obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW |
-                     LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_CLICK_FOCUSABLE);
-        lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_AUTO);
-        // prevents resetting the group's edit mode
-        lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+  void buildBody(Window* window) override
+  {
+    if (openFile()) {
+      auto obj = window->getLvObj();
+      lv_obj_add_flag(
+          obj, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_WITH_ARROW |
+                   LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_CLICK_FOCUSABLE);
+      etx_scrollbar(obj);
+      // prevents resetting the group's edit mode
+      lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
-        lv_obj_set_layout(obj, LV_LAYOUT_FLEX);
-        lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_COLUMN);
-        lv_obj_set_style_pad_all(obj, 3, LV_PART_MAIN);
-        lv_obj_set_style_pad_row(obj, 0, LV_PART_MAIN);
+      lv_obj_set_layout(obj, LV_LAYOUT_FLEX);
+      lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_COLUMN);
+      lv_obj_set_style_pad_all(obj, 3, LV_PART_MAIN);
+      lv_obj_set_style_pad_row(obj, 0, LV_PART_MAIN);
 
-        auto g = lv_group_get_default();
+      auto g = lv_group_get_default();
 
-        checkBoxes.clear();
+      checkBoxes.clear();
 
-        size_t cur = 0;
+      size_t cur = 0;
 
-        for(size_t i=0; i<bufSize; ++i)
-        {
-          if (buffer[i] == '\n' || buffer[i] == '\r') {
-            buffer[i] = 0;
-            if (buffer[i] == '\r' && buffer[i+1] == '\n')
-              i += 1;
+      for (size_t i = 0; i < bufSize; ++i) {
+        if (buffer[i] == '\n' || buffer[i] == '\r') {
+          buffer[i] = 0;
+          if (buffer[i] == '\r' && buffer[i + 1] == '\n') i += 1;
 
-            lv_obj_t* row = lv_obj_create(obj);
-            lv_obj_set_layout(row, LV_LAYOUT_FLEX);
-            lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
-            lv_obj_set_width(row, lv_pct(100));
-            lv_obj_set_height(row, LV_SIZE_CONTENT);
-            lv_obj_set_style_pad_all(row, 3, 0);
-            lv_obj_set_style_pad_column(row, 6, 0);
-            lv_obj_set_flex_align(row, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_EVENLY);
+          lv_obj_t* row = lv_obj_create(obj);
+          lv_obj_set_layout(row, LV_LAYOUT_FLEX);
+          lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
+          lv_obj_set_width(row, lv_pct(100));
+          lv_obj_set_height(row, LV_SIZE_CONTENT);
+          lv_obj_set_style_pad_all(row, 3, 0);
+          lv_obj_set_style_pad_column(row, 6, 0);
+          lv_obj_set_flex_align(row, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER,
+                                LV_FLEX_ALIGN_SPACE_EVENLY);
 
-            lv_coord_t w = lv_obj_get_content_width(obj) - 6;
+          lv_coord_t w = lv_obj_get_content_width(obj) - 6;
 
-            if (buffer[cur] == '=') {
-              cur++;
-              w -= 46;
+          if (buffer[cur] == '=') {
+            cur++;
+            w -= 46;
 
-              lv_obj_set_style_pad_left(row, 10, 0);
+            lv_obj_set_style_pad_left(row, 10, 0);
 
-              auto cb = etx_checkbox_create(row);
+            auto cb = checkbox_create(row);
 
-              lv_group_add_obj(g, cb);
+            lv_group_add_obj(g, cb);
 
-              lv_obj_add_event_cb(cb, ViewChecklistWindow::checkbox_event_handler, LV_EVENT_VALUE_CHANGED, this);
-              lv_obj_set_user_data(cb, this);
+            lv_obj_add_event_cb(cb, ViewChecklistWindow::checkbox_event_handler,
+                                LV_EVENT_VALUE_CHANGED, this);
+            lv_obj_set_user_data(cb, this);
 
-              checkBoxes.push_back(cb);
-            }
-
-            auto lbl = lv_label_create(row);
-            lv_obj_set_width(lbl, w);
-            lv_label_set_long_mode(lbl, LV_LABEL_LONG_WRAP);
-            lv_label_set_text_static(lbl, &buffer[cur]);
-
-            cur = i + 1;
+            checkBoxes.push_back(cb);
           }
+
+          auto lbl = lv_label_create(row);
+          lv_obj_set_width(lbl, w);
+          lv_label_set_long_mode(lbl, LV_LABEL_LONG_WRAP);
+          lv_label_set_text_static(lbl, &buffer[cur]);
+
+          cur = i + 1;
         }
-
-        auto box = new FormWindow(window, rect_t{0, 0, lv_pct(100), LV_SIZE_CONTENT});
-        box->padAll(8);
-
-        closeButton = new TextButton(box, rect_t{}, STR_EXIT, [=]() -> int8_t { this->onCancel(); return 0; });
-        closeButton->setWidth(lv_pct(100));
-
-        updateCheckboxes();
       }
+
+      auto box =
+          new Window(window, rect_t{0, 0, lv_pct(100), LV_SIZE_CONTENT});
+      box->padAll(PAD_LARGE);
+
+      closeButton = new TextButton(box, rect_t{}, STR_EXIT, [=]() -> int8_t {
+        this->onCancel();
+        return 0;
+      });
+      closeButton->setWidth(lv_pct(100));
+
+      updateCheckboxes();
     }
+  }
 };
 
-static void replaceSpaceWithUnderscore(std::string &name)
+static void replaceSpaceWithUnderscore(std::string& name)
 {
   size_t index;
   do {
@@ -388,7 +421,8 @@ static void replaceSpaceWithUnderscore(std::string &name)
 #define MODEL_FILE_EXT MODELS_EXT
 #endif
 
-static bool openNotes(const char buf[], std::string modelNotesName, bool fromMenu = false)
+static bool openNotes(const char buf[], std::string modelNotesName,
+                      bool fromMenu = false)
 {
   std::string fullPath = std::string(buf) + PATH_SEPARATOR + modelNotesName;
 

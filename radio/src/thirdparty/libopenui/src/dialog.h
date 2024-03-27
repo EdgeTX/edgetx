@@ -18,61 +18,112 @@
 
 #pragma once
 
-#include "modal_window.h"
 #include "form.h"
+#include "modal_window.h"
 
-class Dialog;
-
-class DialogWindowContent : public ModalWindowContent
-{
-  friend class Dialog;
-
- public:
-  DialogWindowContent(Dialog* parent, const rect_t& rect);
-
-  void setTitle(const std::string& text) override;
-
-  void deleteLater(bool detach = true, bool trash = true) override;
-  void updateSize() override;
-
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override;
-#endif
-
- public:
-  FormWindow form;
-};
-
-class Dialog : public ModalWindow
-{
- public:
-  Dialog(Window* parent, std::string title, const rect_t& rect);
-
- protected:
-  DialogWindowContent* content;
-
-  void onCancel() override;
-  void onEvent(event_t event) override;
-};
-
+class StaticText;
+class DynamicText;
 class Progress;
 
-class ProgressDialog : public Dialog
+#define DIALOG_DEFAULT_WIDTH ((coord_t)(LCD_W * 0.8))
+#define DIALOG_DEFAULT_HEIGHT ((coord_t)(LCD_H * 0.8))
+
+//-----------------------------------------------------------------------------
+
+class BaseDialog : public ModalWindow
 {
-  uint32_t lastUpdate = 0;
-  Progress *progress;
-
-  std::function<void()> onClose;
-
  public:
-  ProgressDialog(Window *parent, std::string title,
+  BaseDialog(Window* parent, const char* title, bool closeIfClickedOutside,
+             lv_coord_t width = DIALOG_DEFAULT_WIDTH,
+             lv_coord_t maxHeight = DIALOG_DEFAULT_HEIGHT);
+
+  void setTitle(const char* title);
+
+ protected:
+  Window* form = nullptr;
+  StaticText* header = nullptr;
+
+  void onCancel() override { deleteLater(); }
+  void onEvent(event_t event) override {}
+};
+
+//-----------------------------------------------------------------------------
+
+class ProgressDialog : public BaseDialog
+{
+ public:
+  ProgressDialog(Window* parent, const char* title,
                  std::function<void()> onClose);
 
   void updateProgress(int percentage);
-  void setTitle(std::string title) { content->setTitle(title); }
+  void setTitle(std::string title);
   void closeDialog();
 
  protected:
+  uint32_t lastUpdate = 0;
+  Progress* progress;
+
+  std::function<void()> onClose;
+
   // disable keys
   void onEvent(event_t) override {}
+};
+
+//-----------------------------------------------------------------------------
+
+class MessageDialog : public BaseDialog
+{
+ public:
+  MessageDialog(Window* parent, const char* title, const char* message,
+                const char* info = nullptr, LcdFlags messageFlags = CENTERED,
+                LcdFlags infoFlags = CENTERED);
+
+ protected:
+  StaticText* messageWidget;
+  StaticText* infoWidget;
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "MessageDialog"; }
+#endif
+
+  void onClicked() override;
+};
+
+//-----------------------------------------------------------------------------
+
+class DynamicMessageDialog : public BaseDialog
+{
+ public:
+  DynamicMessageDialog(Window* parent, const char* title,
+                       std::function<std::string()> textHandler,
+                       const char* message = "",
+                       const int lineHeight = PAGE_LINE_HEIGHT,
+                       const LcdFlags textFlags = CENTERED);
+  // Attn.: FONT(XXL) is not supported by DynamicMessageDialog
+
+ protected:
+  StaticText* messageWidget;
+  DynamicText* infoWidget;
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "DynamicMessageDialog"; }
+#endif
+
+  void onClicked() override;
+};
+
+//-----------------------------------------------------------------------------
+
+class ConfirmDialog : public BaseDialog
+{
+ public:
+  ConfirmDialog(Window* parent, const char* title, const char* message,
+                std::function<void(void)> confirmHandler,
+                std::function<void(void)> cancelHandler = nullptr);
+
+ protected:
+  std::function<void(void)> confirmHandler;
+  std::function<void(void)> cancelHandler;
+
+  void onCancel() override;
 };

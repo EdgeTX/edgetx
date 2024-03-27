@@ -21,7 +21,6 @@
 
 #include "opentx.h"
 #include "calibration.h"
-#include "gui.h"
 
 #include "hal/adc_driver.h"
 

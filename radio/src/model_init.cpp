@@ -118,7 +118,7 @@ void applyDefaultTemplate()
 
 #if defined(COLORLCD)
 
-  loadDefaultLayout();
+  LayoutFactory::loadDefaultLayout();
 
   // enable switch warnings
   for (int i = 0; i < MAX_SWITCHES; i++) {

@@ -19,13 +19,15 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
 #include "tabsgroup.h"
 
 class ModelSetupPage: public PageTab {
   public:
     ModelSetupPage();
 
-    void build(FormWindow * window) override;
+    void build(Window * window) override;
   private:
     TextButton *labelTextButton = nullptr;
 };

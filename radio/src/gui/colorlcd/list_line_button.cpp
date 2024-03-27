@@ -20,24 +20,42 @@
  */
 
 #include "list_line_button.h"
-#include "opentx.h"
 
-void ListLineButton::value_changed(lv_event_t* e)
+#include "opentx.h"
+#include "themes/etx_lv_theme.h"
+
+static void input_mix_line_constructor(const lv_obj_class_t* class_p,
+                                       lv_obj_t* obj)
 {
-  auto obj = lv_event_get_target(e);
-  auto btn = (ListLineButton*)lv_obj_get_user_data(obj);
-  if (btn) btn->refresh();
+  etx_std_style(obj, LV_PART_MAIN, PAD_TINY);
+}
+
+static const lv_obj_class_t input_mix_line_class = {
+    .base_class = &lv_btn_class,
+    .constructor_cb = input_mix_line_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = LV_PCT(100),
+    .height_def = LV_SIZE_CONTENT,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
+    .instance_size = sizeof(lv_btn_t),
+};
+
+static lv_obj_t* input_mix_line_create(lv_obj_t* parent)
+{
+  return etx_create(&input_mix_line_class, parent);
 }
 
 ListLineButton::ListLineButton(Window* parent, uint8_t index) :
-    Button(parent, rect_t{}, nullptr, 0, 0, input_mix_line_create),
+    ButtonBase(parent, rect_t{}, nullptr, input_mix_line_create),
     index(index)
 {
-  lv_obj_add_event_cb(lvobj, ListLineButton::value_changed, LV_EVENT_VALUE_CHANGED, nullptr);
 }
 
 void ListLineButton::checkEvents()
 {
   check(isActive());
-  Button::checkEvents();
+  ButtonBase::checkEvents();
 }

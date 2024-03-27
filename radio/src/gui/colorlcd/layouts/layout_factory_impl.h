@@ -69,11 +69,9 @@ class Layout: public LayoutBase
     {
       return "Layout";
     }
-
-    void paint(BitmapBuffer * dc) override;
 #endif
 
-    void create() override;
+    void create() override {}
   
     const LayoutFactory * getFactory() const
     {
@@ -105,11 +103,9 @@ class Layout: public LayoutBase
     void setSlidersVisible(bool visible);
     void setFlightModeVisible(bool visible);
 
-    // Update from theme settings
-    void updateFromTheme() override;
-
     // Updates settings for trims, sliders, pots, etc...
     void adjustLayout() override;
+    void show(bool visible = true) override;
 
     bool isLayout() override { return true; }
 
@@ -142,13 +138,8 @@ class Layout: public LayoutBase
     rect_t getZone(unsigned int index) const override;
 };
 
-#if LCD_W > LCD_H
-#define BM_W    51
-#define BM_H    25
-#else
-#define BM_W    22
-#define BM_H    34
-#endif
+LAYOUT_VAL2(BM_W, 51, 22)
+LAYOUT_VAL2(BM_H, 25, 34)
 
 template<class T>
 class BaseLayoutFactory: public LayoutFactory

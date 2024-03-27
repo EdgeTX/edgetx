@@ -20,74 +20,182 @@
  */
 
 #include "sliders.h"
+
+#include "bitmaps.h"
+#include "hal/adc_driver.h"
 #include "opentx.h"
 #include "switches.h"
 
-#include "hal/adc_driver.h"
+LAYOUT_VAL3(SL_SZ, 15, 11, 15)
+LAYOUT_VAL1(SL_TK, 2)
 
-constexpr coord_t MULTIPOS_H = 18;
-constexpr coord_t MULTIPOS_W_SPACING = 12;
-constexpr coord_t MULTIPOS_W = (6+1)*MULTIPOS_W_SPACING;
+static const lv_style_const_prop_t shadow1_props[] = {
+    // LV_STYLE_CONST_SHADOW_COLOR does not compile in GitHub ???
+    {.prop = LV_STYLE_SHADOW_COLOR, .value = {.color = {.full = 0}}},
+    LV_STYLE_CONST_SHADOW_OPA(LV_OPA_20),
+    LV_STYLE_CONST_SHADOW_OFS_X(1),
+    LV_STYLE_CONST_SHADOW_OFS_Y(1),
+    LV_STYLE_CONST_SHADOW_WIDTH(1),
+    LV_STYLE_PROP_INV,
+};
+static LV_STYLE_CONST_MULTI_INIT(shadow1_style, shadow1_props);
 
-MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect,
-                               uint8_t idx) :
-    Window(parent, rect), idx(idx)
+static const lv_style_const_prop_t shadow2_props[] = {
+    // LV_STYLE_CONST_SHADOW_COLOR does not compile in GitHub ???
+    {.prop = LV_STYLE_SHADOW_COLOR, .value = {.color = {.full = 0}}},
+    LV_STYLE_CONST_SHADOW_OPA(LV_OPA_40),
+    LV_STYLE_CONST_SHADOW_OFS_X(1),
+    LV_STYLE_CONST_SHADOW_OFS_Y(1),
+    LV_STYLE_CONST_SHADOW_WIDTH(1),
+    LV_STYLE_PROP_INV,
+};
+static LV_STYLE_CONST_MULTI_INIT(shadow2_style, shadow2_props);
+
+SliderIcon::SliderIcon(Window* parent) :
+    Window(parent, rect_t{0, 0, SL_SZ + 2, SL_SZ + 2})
 {
+  setWindowFlag(NO_FOCUS);
+
+  auto shad = lv_obj_create(lvobj);
+  etx_obj_add_style(shad, shadow1_style, LV_PART_MAIN);
+  lv_obj_set_pos(shad, 1, 1);
+  lv_obj_set_size(shad, SL_SZ, SL_SZ);
+
+  fill = lv_obj_create(lvobj);
+  etx_obj_add_style(fill, shadow2_style, LV_PART_MAIN);
+  lv_obj_set_pos(fill, 0, 0);
+  lv_obj_set_size(fill, SL_SZ, SL_SZ);
+  etx_solid_bg(fill, COLOR_THEME_FOCUS_INDEX);
+}
+
+MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
+                               bool isVertical) :
+    Window(parent, rect), idx(idx), isVertical(isVertical)
+{
+  if (isVertical) {
+    int sliderTicksCount = (height() - TRIM_SQUARE_SIZE) / SLIDER_TICK_SPACING;
+    tickPoints = new lv_point_t[(sliderTicksCount + 1) * 2];
+
+    lv_coord_t y = TRIM_SQUARE_SIZE / 2;
+    for (uint8_t i = 0; i <= sliderTicksCount; i++) {
+      if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount) {
+        tickPoints[i * 2] = {SL_TK, y};
+        tickPoints[i * 2 + 1] = {SL_SZ, y};
+      } else {
+        tickPoints[i * 2] = {SL_TK + 2, y};
+        tickPoints[i * 2 + 1] = {SL_SZ - 2, y};
+      }
+      auto line = lv_line_create(lvobj);
+      etx_obj_add_style(line, styles->div_line, LV_PART_MAIN);
+      lv_line_set_points(line, &tickPoints[i * 2], 2);
+      y += SLIDER_TICK_SPACING;
+    }
+  } else {
+    int sliderTicksCount = (width() - TRIM_SQUARE_SIZE) / SLIDER_TICK_SPACING;
+    tickPoints = new lv_point_t[(sliderTicksCount + 1) * 2];
+
+    lv_coord_t x = TRIM_SQUARE_SIZE / 2;
+    for (uint8_t i = 0; i <= sliderTicksCount; i++) {
+      if (i == 0 || i == sliderTicksCount / 2 || i == SLIDER_TICKS_COUNT) {
+        tickPoints[i * 2] = {x, SL_TK};
+        tickPoints[i * 2 + 1] = {x, SL_SZ};
+      } else {
+        tickPoints[i * 2] = {x, SL_TK + 2};
+        tickPoints[i * 2 + 1] = {x, SL_SZ - 2};
+      }
+      auto line = lv_line_create(lvobj);
+      etx_obj_add_style(line, styles->div_line, LV_PART_MAIN);
+      lv_line_set_points(line, &tickPoints[i * 2], 2);
+      x += SLIDER_TICK_SPACING;
+    }
+  }
+
+  sliderIcon = new SliderIcon(this);
+  coord_t x = 0, y = 0;
+  if (isVertical)
+    y = (height() - TRIM_SQUARE_SIZE) / 2;
+  else
+    y = (width() - TRIM_SQUARE_SIZE) / 2;
+  lv_obj_set_pos(sliderIcon->getLvObj(), x, y);
+
+  checkEvents();
+}
+
+void MainViewSlider::deleteLater(bool detach, bool trash)
+{
+  if (!deleted()) {
+    if (tickPoints) delete tickPoints;
+    Window::deleteLater(detach, trash);
+  }
 }
 
 void MainViewSlider::checkEvents()
 {
   Window::checkEvents();
+
   auto pot_idx = adcGetInputOffset(ADC_INPUT_FLEX) + idx;
   int16_t newValue = calibratedAnalogs[pot_idx];
   if (value != newValue) {
-  value = newValue;
-  invalidate();
+    value = newValue;
+
+    coord_t x = 0, y = 0;
+    if (isVertical) {
+      y = divRoundClosest((height() - TRIM_SQUARE_SIZE) * (-value + RESX),
+                          2 * RESX);
+    } else {
+      x = divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value + RESX),
+                          2 * RESX);
+    }
+    lv_obj_set_pos(sliderIcon->getLvObj(), x, y);
   }
 }
 
 MainViewHorizontalSlider::MainViewHorizontalSlider(Window* parent,
                                                    uint8_t idx) :
-    MainViewSlider(parent, rect_t{0, 0, HORIZONTAL_SLIDERS_WIDTH, TRIM_SQUARE_SIZE}, idx)
+    MainViewSlider(parent,
+                   rect_t{0, 0, HORIZONTAL_SLIDERS_WIDTH, TRIM_SQUARE_SIZE},
+                   idx, false)
 {
 }
 
-void MainViewHorizontalSlider::paint(BitmapBuffer * dc)
+MainViewVerticalSlider::MainViewVerticalSlider(Window* parent,
+                                               const rect_t& rect,
+                                               uint8_t idx) :
+    MainViewSlider(parent, rect, idx, true)
 {
-  // The ticks
-  int sliderTicksCount = (width() - TRIM_SQUARE_SIZE) / SLIDER_TICK_SPACING;
-  coord_t x = TRIM_SQUARE_SIZE / 2;
-  for (uint8_t i = 0; i <= sliderTicksCount; i++) {
-    if (i == 0 || i == sliderTicksCount / 2 || i == SLIDER_TICKS_COUNT)
-      dc->drawSolidVerticalLine(x, 2, 13, COLOR_THEME_SECONDARY1);
-    else
-      dc->drawSolidVerticalLine(x, 4, 9, COLOR_THEME_SECONDARY1);
-    x += SLIDER_TICK_SPACING;
-  }
-
-  // The square
-  x = divRoundClosest((width() - TRIM_SQUARE_SIZE) * (value + RESX), 2 * RESX);
-  drawTrimSquare(dc, x, 0, COLOR_THEME_FOCUS);
 }
+
+LAYOUT_VAL3(MULTIPOS_H, 18, 13, 18)
+LAYOUT_VAL1(MULTIPOS_W_SPACING, 12)
+LAYOUT_VAL1(MULTIPOS_SZ, 12)
+LAYOUT_VAL1(MULTIPOS_XO, 3)
+
+constexpr coord_t MULTIPOS_W = (6 + 1) * MULTIPOS_W_SPACING;
 
 MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
-    MainViewSlider(parent, rect_t{0, 0, MULTIPOS_W, MULTIPOS_H}, idx)
+    Window(parent, rect_t{0, 0, MULTIPOS_W, MULTIPOS_H}), idx(idx)
 {
-}
-
-void MainView6POS::paint(BitmapBuffer * dc)
-{
-  coord_t x = MULTIPOS_W_SPACING/4;
+  char num[] = " ";
+  coord_t x = MULTIPOS_W_SPACING / 4 + TRIM_SQUARE_SIZE / 4;
   for (uint8_t value = 0; value < XPOTS_MULTIPOS_COUNT; value++) {
-    dc->drawNumber(x+TRIM_SQUARE_SIZE/4, 0, value+1, FONT(XS) | COLOR_THEME_SECONDARY1);
+    num[0] = value + '1';
+    auto p = lv_label_create(lvobj);
+    lv_label_set_text(p, num);
+    lv_obj_set_size(p, MULTIPOS_SZ, MULTIPOS_SZ);
+    lv_obj_set_pos(p, x, 0);
+    etx_txt_color(p, COLOR_THEME_SECONDARY1_INDEX, LV_PART_MAIN);
+    etx_font(p, FONT_XS_INDEX, LV_PART_MAIN);
     x += MULTIPOS_W_SPACING;
   }
 
-  // The square
-  value = getXPotPosition(idx);
-  x = MULTIPOS_W_SPACING / 4 + MULTIPOS_W_SPACING * value;
-  drawTrimSquare(dc, x, 0, COLOR_THEME_FOCUS);
-  dc->drawNumber(x+MULTIPOS_W_SPACING/4, -2, value+1, FONT(BOLD) | COLOR_THEME_PRIMARY2);
+  posIcon = new SliderIcon(this);
+  posVal = lv_label_create(posIcon->getLvObj());
+  lv_obj_set_pos(posVal, MULTIPOS_XO, -2);
+  lv_obj_set_size(posVal, MULTIPOS_SZ, MULTIPOS_SZ);
+  etx_txt_color(posVal, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
+  etx_font(posVal, FONT_BOLD_INDEX, LV_PART_MAIN);
+
+  checkEvents();
 }
 
 void MainView6POS::checkEvents()
@@ -96,29 +204,12 @@ void MainView6POS::checkEvents()
   int16_t newValue = getXPotPosition(idx);
   if (value != newValue) {
     value = newValue;
-    invalidate();
+
+    coord_t x = MULTIPOS_W_SPACING / 4 + MULTIPOS_W_SPACING * value;
+    lv_obj_set_pos(posIcon->getLvObj(), x, 0);
+
+    char num[] = " ";
+    num[0] = value + '1';
+    lv_label_set_text(posVal, num);
   }
-}
-
-MainViewVerticalSlider::MainViewVerticalSlider(Window* parent, const rect_t& rect, uint8_t idx) :
-    MainViewSlider(parent, rect, idx)
-{
-}
-
-void MainViewVerticalSlider::paint(BitmapBuffer * dc)
-{
-  // The ticks
-  int sliderTicksCount = (height() - TRIM_SQUARE_SIZE) / SLIDER_TICK_SPACING;
-  coord_t y = TRIM_SQUARE_SIZE / 2;
-  for (uint8_t i = 0; i <= sliderTicksCount; i++) {
-    if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount)
-       dc->drawSolidHorizontalLine(2, y, 13, COLOR_THEME_SECONDARY1);
-    else
-      dc->drawSolidHorizontalLine(4, y, 9, COLOR_THEME_SECONDARY1);
-    y += SLIDER_TICK_SPACING;
-  }
-
-  // The square
-  y = divRoundClosest((height() - TRIM_SQUARE_SIZE) * (-value + RESX), 2 * RESX);
-  drawTrimSquare(dc, 0, y, COLOR_THEME_FOCUS);
 }

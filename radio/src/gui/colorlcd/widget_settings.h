@@ -24,12 +24,13 @@
 #include "dialog.h"
 #include "widget.h"
 
-class WidgetSettings : public Dialog
+class WidgetSettings : public BaseDialog
 {
  public:
   WidgetSettings(Window* parent, Widget* widget);
 
-// #if defined(HARDWARE_KEYS)
-//   void onEvent(event_t event) override;
-// #endif
+ protected:
+  Widget* widget;
+
+  void onCancel() override;
 };

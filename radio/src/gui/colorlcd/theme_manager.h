@@ -28,8 +28,6 @@
 #include "opentx.h"
 #include "sdcard.h"
 
-#define COLOR_COUNT 13
-
 #define AUTHOR_LENGTH 50
 #define INFO_LENGTH 255
 
@@ -155,11 +153,7 @@ class ThemePersistance
       return nullptr;
     }
 
-    void refresh()
-    {
-        scanForThemes();
-        insertDefaultTheme();
-    }
+    void refresh();
 
   protected:
     std::vector<ThemeFile *> themes;
