@@ -34,7 +34,7 @@ jobs:
           - xlite;xlites
           - mt12
     container:
-      image: ghcr.io/edgetx/edgetx-dev:latest
+      image: ghcr.io/edgetx/edgetx-dev:v2.10.0
       volumes:
         - ${{ github.workspace }}:/src
     steps:
