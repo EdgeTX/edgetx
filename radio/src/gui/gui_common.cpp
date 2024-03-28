@@ -1078,7 +1078,7 @@ bool isTrainerModeAvailable(int mode)
 
 bool modelHasNotes()
 {
-  char filename[sizeof(MODELS_PATH)+1+sizeof(g_model.header.name)+sizeof(TEXT_EXT)] = MODELS_PATH "/";
+  char filename[sizeof(MODELS_PATH)+1+LEN_MODEL_NAME*3+sizeof(TEXT_EXT)] = MODELS_PATH "/";
   char *buf = strcat_currentmodelname(&filename[sizeof(MODELS_PATH)], 0);
   strcpy(buf, TEXT_EXT);
   if (isFileAvailable(filename)) {
