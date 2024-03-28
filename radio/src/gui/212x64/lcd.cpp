@@ -188,14 +188,11 @@ LcdFlags getCharPattern(PatternData * pattern, unsigned char c, LcdFlags flags)
   if (fontsize == DBLSIZE) {
     pattern->width = 10;
     pattern->height = 16;
-    if (c >= 0x80) {
-      pattern->data = &font_10x14_extra[((uint16_t) (c - 0x80)) * 20];
-    }
-    else {
-      if (c >= 0x80)
-        c_remapped = c - 81;
-      pattern->data = &font_10x14[((uint16_t) c_remapped) * 20];
-    }
+    if (c >= 0x95)
+      c_remapped = c - 73; // Adjust for language special characters
+    else if (c >= 0x80)
+      c_remapped = c - 60; // Adjust for 'extra' characters
+    pattern->data = &font_10x14[((uint16_t)c_remapped) * 20];
   }
   else if (fontsize == XXLSIZE) {
     pattern->width = 22;
@@ -205,12 +202,15 @@ LcdFlags getCharPattern(PatternData * pattern, unsigned char c, LcdFlags flags)
   else if (fontsize == MIDSIZE) {
     pattern->width = 8;
     pattern->height = 12;
-    pattern->data = &font_8x10[((uint16_t) c - 0x20) * 16];
+    if (c >= 0x95) c -=21; // Adjust for language special characters
+    pattern->data = &font_8x10[((uint16_t)c-0x20)*16];
   }
   else if (fontsize == SMLSIZE) {
     pattern->width = 5;
     pattern->height = 6;
-    pattern->data = (c < 0x80 ? &font_4x6[(c - 0x20) * 5] : &font_4x6_extra[(c - 0x80) * 5]);
+    if (c >= 0x95)
+      c = c - 13; // Adjust for language special characters
+    pattern->data = &font_4x6[((uint16_t)c - 0x20) * 5];
   }
   else if (fontsize == TINSIZE) {
     pattern->width = 3;
@@ -309,7 +309,6 @@ void lcdDrawSizedText(coord_t x, coord_t y, const char * s, uint8_t len, LcdFlag
 #if !defined(BOOT)
       // UTF8 detection
       c = map_utf8_char(s, len);
-      if (c >= 0x95 && FONTSIZE(flags)) c -=21;
       if (!c) break;
       
       if (c == 46 && FONTSIZE(flags) == TINSIZE) { // '.' handling

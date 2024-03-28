@@ -58,31 +58,32 @@ const unsigned char font_5x7_B[]  = {
 
 const unsigned char font_10x14[]  = {
 #include "font_10x14_compressed.lbm"
-  #if defined(TRANSLATIONS_DE)
-  #include "font_de_10x14.lbm"
-  #elif defined(TRANSLATIONS_DA)
-  #include "font_da_10x14.lbm"
-  #elif defined(TRANSLATIONS_CZ)
-  #include "font_cz_10x14.lbm"
-  #elif defined(TRANSLATIONS_ES)
-  #include "font_es_10x14.lbm"
-  #elif defined(TRANSLATIONS_FI)
-  #include "font_fi_10x14.lbm"
-  #elif defined(TRANSLATIONS_FR)
-  #include "font_fr_10x14.lbm"
-  #elif defined(TRANSLATIONS_IT)
-  #include "font_it_10x14.lbm"
-  #elif defined(TRANSLATIONS_PL)
-  #include "font_pl_10x14.lbm"
-  #elif defined(TRANSLATIONS_PT)
-  #include "font_pt_10x14.lbm"
-  #elif defined(TRANSLATIONS_RU)
-  #include "font_ru_10x14.lbm"
-  #elif defined(TRANSLATIONS_SE)
-  #include "font_se_10x14.lbm"
-  #elif defined(TRANSLATIONS_UA)
-  #include "font_ua_10x14.lbm"
-  #endif
+#include "font_10x14_extra.lbm"
+#if defined(TRANSLATIONS_DE)
+#include "font_de_10x14.lbm"
+#elif defined(TRANSLATIONS_DA)
+#include "font_da_10x14.lbm"
+#elif defined(TRANSLATIONS_CZ)
+#include "font_cz_10x14.lbm"
+#elif defined(TRANSLATIONS_ES)
+#include "font_es_10x14.lbm"
+#elif defined(TRANSLATIONS_FI)
+#include "font_fi_10x14.lbm"
+#elif defined(TRANSLATIONS_FR)
+#include "font_fr_10x14.lbm"
+#elif defined(TRANSLATIONS_IT)
+#include "font_it_10x14.lbm"
+#elif defined(TRANSLATIONS_PL)
+#include "font_pl_10x14.lbm"
+#elif defined(TRANSLATIONS_PT)
+#include "font_pt_10x14.lbm"
+#elif defined(TRANSLATIONS_RU)
+#include "font_ru_10x14.lbm"
+#elif defined(TRANSLATIONS_SE)
+#include "font_se_10x14.lbm"
+#elif defined(TRANSLATIONS_UA)
+#include "font_ua_10x14.lbm"
+#endif
 };
 
 const unsigned char font_3x5[]  = {
@@ -91,6 +92,7 @@ const unsigned char font_3x5[]  = {
 
 const unsigned char font_4x6[]  = {
 #include "font_04x06.lbm"
+#include "font_04x06_extra.lbm"
 #if defined(TRANSLATIONS_DE)
 #include "font_de_04x06.lbm"
 #elif defined(TRANSLATIONS_DA)
@@ -149,14 +151,6 @@ const unsigned char font_8x10[]  = {
 
 const unsigned char font_22x38_num[]  = {
 #include "font_22x38_num.lbm"
-};
-
-const unsigned char font_4x6_extra[]  = {
-#include "font_04x06_extra.lbm"
-};
-
-const unsigned char font_10x14_extra[]  = {
-#include "font_10x14_extra.lbm"
 };
 
 #endif // !defined(BOOT)

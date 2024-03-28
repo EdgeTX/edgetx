@@ -31,8 +31,6 @@ extern const unsigned char font_10x14[];
   extern const unsigned char font_4x6[];
   extern const unsigned char font_8x10[];
   extern const unsigned char font_22x38_num[];
-  extern const unsigned char font_10x14_extra[];
-  extern const unsigned char font_4x6_extra[];
 #endif
 
 #endif // _FONTS_H_
