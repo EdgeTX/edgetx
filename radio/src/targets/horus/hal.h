@@ -638,7 +638,10 @@
 #define SD_SDIO_CLK_DIV(fq)             ((48000000 / (fq)) - 2)
 #define SD_SDIO_INIT_CLK_DIV            SD_SDIO_CLK_DIV(400000)
 #define SD_SDIO_TRANSFER_CLK_DIV        SD_SDIO_CLK_DIV(24000000)
-#define STORAGE_USE_SDIO
+
+// Uncomment only one line below to select which storage to use
+#define STORAGE_USE_SDIO      // Use SD card for storage with SDIO driver
+//#define STORAGE_USE_SPI_FLASH // Use SPI flash for storage instead of SD card
 
 // SPI NOR Flash 
 #if defined(PCBX12S) && PCBREV >= 13

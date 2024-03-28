@@ -515,11 +515,11 @@ int  bootloaderMain()
 #if defined(SPI_FLASH)
       } else if (state == ST_CLEAR_FLASH_CHECK) {
         bootloaderDrawScreen(state, vpos);
-        if (event == EVT_KEY_REPT(KEY_DOWN) || event == EVT_KEY_FIRST(KEY_DOWN)) {
+        if (IS_NEXT_EVENT(event)) {
           if (vpos < SEL_CLEAR_FLASH_STORAGE_MENU_LEN - 1) { vpos++; }
           continue;
         }
-        if (event == EVT_KEY_REPT(KEY_UP) || event == EVT_KEY_FIRST(KEY_UP)) {
+        if (IS_PREVIOUS_EVENT(event)) {
           if (vpos > 0) { vpos--; }
           continue;
         }
