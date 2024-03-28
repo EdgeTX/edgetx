@@ -21,6 +21,31 @@
 
 #include "fonts.h"
 
+/*
+  Strings in EdgeTX are encoded using UTF8. Latin characters are single byte in the range 32 - 127.
+  Special characters for language translations and special symbols are encoded as 2-byte or 3-byte
+  sequences.
+  The UTF8 encoded characters are mapped to single byte characters before display.
+  The single byte characters are mapped to the various font sizes as per the table below:
+
+  Char        3x5         4x6         5x7         5x7 BOLD      8x10        10x14       22x38
+  Range       TINSIZE     SMLSIZE     Standard    BOLD          MDLSIZE     DBLSIZE     XXLSIZE
+  -----       -------     -------     --------    --------      -------     -------     -------
+  0 - 31      not used    not used    not used    not used      not used    not used    not used
+  31 - 127    Latin(1)    Latin       Latin       Latin(2)      Latin       Latin(2)    Latin(3)
+  128 - 148   not used    extra(4)    extra(5)    extra(6)      not used    extra(4)    not used
+  149 - 255   not used    Language    Language    Language(7)   Language    Language    not used
+
+  Notes:
+  (1) - reduced character set, contains only space, upper case letters, numbers, '-' and '.'.
+  (2) - reduced character set, contains only space, alphanumeric, ',', '.', '-', ':' and '_'.
+  (3) - reduced character set, contains only space, numbers, ',', '.', '-', ':' and '_'.
+  (4) - arrows
+  (5) - arrows and symbols (e.g. delta, stick, switch, etc)
+  (6) - uses the 5x7 arrow and symbol font characters (not bold)
+  (7) - uses the 5x7 Language font characters (not bold)
+*/
+
 const unsigned char font_5x7[]  = {
 #include "font_05x07.lbm"
 #include "font_05x07_extra.lbm"
