@@ -188,7 +188,7 @@ LcdFlags getCharPattern(PatternData * pattern, unsigned char c, LcdFlags flags)
     }
     else {
       if (c >= 128)
-        c_remapped = c - 81;
+        c_remapped = c - 60;
       pattern->data = &font_10x14[((uint16_t)c_remapped)*20];
     }
   }
