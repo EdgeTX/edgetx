@@ -53,13 +53,7 @@ SWITCH_CONFIG = {
     },
     "nb4p": {
         "SA": { "default": "2POS"   },
-        "SB": { "default": "3POS"   },
-        "SC": { "default": "2POS"   },
-        "SD": { "default": "3POS"   },
-        "SE": { "default": "3POS"   },
-        "SF": { "default": "2POS"   },
-        "SG": { "default": "3POS"   },
-        "SH": { "default": "TOGGLE" }
+        "SB": { "default": "2POS"   }
     },
     "lr3pro": {
         # left side

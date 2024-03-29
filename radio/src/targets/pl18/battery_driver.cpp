@@ -273,7 +273,9 @@ void battery_charge_init()
 
 
   // USB charger control pins
+#if defined(UCHARGER_EN_GPIO)  
   gpio_init(UCHARGER_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
 
   // USB charger state init
   ENABLE_UCHARGER();
