@@ -1289,6 +1289,6 @@
 
 #define TR_MIX_SLOW_PREC          TR("慢放精度", "慢放精度 上行/下行")
 
-#define TR_THEME_EXISTS           "A theme directory with the same name already exists."
+#define TR_THEME_EXISTS           "已存在同名主題目錄 !"
 
 #define ROTORFLIGHT_LUA_CH        "按敗板半保備閉標表並波補不菜參叉差償超車持池出存打大帶待怠單到等低地點電調定動度舵二翻方放飛副復負高跟關管航號何合后護環緩回混火或機積集幾計加間減件降交角教接階截進救距開控寬饋拉來累類連練量零靈率濾螺落門面敏模目逆爬盤偏頻平其啟器前曲取確然入剎上設身升失時使式釋試數衰水瞬順速縮他態體停通退陀微尾位文穩誤息熄下陷限線相響向消小校斜新心信型行懸旋循壓頁一移儀益翼因應用油右預援源載增針正直值止置制中重軸主轉准子自蹤總最左耦"
