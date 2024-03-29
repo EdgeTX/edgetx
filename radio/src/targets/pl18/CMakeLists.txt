@@ -20,7 +20,6 @@ set(RTC_BACKUP_RAM YES)
 set(PPM_LIMITS_SYMETRICAL YES)
 set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(HARDWARE_EXTERNAL_MODULE YES)
-set(WIRELESS_CHARGER YES)
 
 #option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
 #option(AFHDS2 "Support for AFHDS2" OFF)
@@ -45,12 +44,18 @@ add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 if(PCBREV STREQUAL PL18EV)
   set(FLAVOUR pl18ev)
   add_definitions(-DRADIO_PL18EV)
+  set(WIRELESS_CHARGER YES)
+  set(FLYSKY_GIMBAL ON)
 elseif(PCBREV STREQUAL NB4P)
   set(FLAVOUR nb4p)
   add_definitions(-DRADIO_NB4P)
+  set(WIRELESS_CHARGER NO)
+  set(ROTARY_ENCODER YES)
 else()
   set(FLAVOUR pl18)
   add_definitions(-DRADIO_PL18)
+  set(WIRELESS_CHARGER YES)
+  set(FLYSKY_GIMBAL ON)
 
   # Defines internal modules for PL18 via UART7
   set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
@@ -67,7 +72,6 @@ set(FIRMWARE_DEPENDENCIES datacopy)
 
 set(HARDWARE_TOUCH ON)
 set(SOFTWARE_KEYBOARD ON)
-set(FLYSKY_GIMBAL ON)
 
 add_definitions(
   -DSTM32F429_439xx -DSTM32F429xx
