@@ -40,6 +40,7 @@
   (1) - reduced character set, contains only space, upper case letters, numbers, '-' and '.'.
   (2) - reduced character set, contains only space, alphanumeric, ',', '.', '-', ':' and '_'.
   (3) - reduced character set, contains only space, numbers, ',', '.', '-', ':' and '_'.
+        Note: to display ' ' use '+', to display '_' use '/'.
   (4) - arrows
   (5) - arrows and symbols (e.g. delta, stick, switch, etc)
   (6) - uses the 5x7 arrow and symbol font characters (not bold)
