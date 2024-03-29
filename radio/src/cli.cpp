@@ -1134,7 +1134,7 @@ int cliSerialPassthrough(const char **argv)
       cliReceiveCallBack = spInternalModuleTx;
 
       // loop until cable disconnected
-      while (cdcConnected) {
+      while (usbPlugged()) {
 
         uint32_t cli_br = cliGetBaudRate();
         if (cli_br && (cli_br != (uint32_t)baudrate)) {
