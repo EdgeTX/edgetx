@@ -184,7 +184,7 @@ LcdFlags getCharPattern(PatternData * pattern, unsigned char c, LcdFlags flags)
   }
 
   uint8_t fontIdx = fontsize >> 8;
-  if (flags & BOLD) fontIdx = 6;
+  if (fontIdx == 0 && flags & BOLD) fontIdx = 6;
 
   pattern->width = fontWidth[fontIdx];
   pattern->height = fontHeight[fontIdx];
@@ -195,19 +195,19 @@ LcdFlags getCharPattern(PatternData * pattern, unsigned char c, LcdFlags flags)
       pattern->data = &font_5x7[(c - FONT_BASE_START) * charSize];
       break;
     case 1: // TINSIZE
-      pattern->data = &font_3x5[((uint16_t)c - FONT_BASE_START) * charSize];
+      pattern->data = &font_3x5[(c - FONT_BASE_START) * charSize];
       break;
     case 2: // SMLSIZE
       // Adjust language special characters offset
       if (c >= FONT_LANG_START)
         c = c - (FONT_SYMS_CNT - FONT_SYMS_CNT_4x6);
-      pattern->data = &font_4x6[((uint16_t)c - FONT_BASE_START) * charSize];
+      pattern->data = &font_4x6[(c - FONT_BASE_START) * charSize];
       break;
     case 3: // MDLSIZE
       // Adjust language special characters offset
       if (c >= FONT_LANG_START)
         c = c - FONT_SYMS_CNT;
-      pattern->data = &font_8x10[((uint16_t)c - FONT_BASE_START) * charSize];
+      pattern->data = &font_8x10[(c - FONT_BASE_START) * charSize];
       break;
     case 4: // DBLSIZE
       // Adjust language special characters offset and symbols offset
@@ -215,10 +215,10 @@ LcdFlags getCharPattern(PatternData * pattern, unsigned char c, LcdFlags flags)
         c_remapped = c - (FONT_BASE_CNT - FONT_BASE_CNT_10x14) - (FONT_SYMS_CNT - FONT_SYMS_CNT_10x14) - FONT_BASE_START;
       else if (c >= FONT_SYMS_START)
         c_remapped = c - (FONT_BASE_CNT - FONT_BASE_CNT_10x14) - FONT_BASE_START;
-      pattern->data = &font_10x14[((uint16_t)c_remapped) * charSize];
+      pattern->data = &font_10x14[(c_remapped) * charSize];
       break;
     case 5: // XXLSIZE
-      pattern->data = &font_22x38_num[((uint16_t)c - '0' + 5) * charSize];
+      pattern->data = &font_22x38_num[(c - '0' + 5) * charSize];
       break;
     case 6: // BOLD
       pattern->data = &font_5x7_B[c_remapped * charSize];
