@@ -95,6 +95,14 @@ if(NOT NATIVE_BUILD)
     ${STM32_DRIVER_DIR}/stm32_adc.cpp
   )
 
+  # HAL/LL drivers using TRACE
+  add_library(stm32_drivers_w_dbg_fw OBJECT EXCLUDE_FROM_ALL
+      ${STM32_DRIVER_DIR}/sdcard_spi.cpp
+  )
+  add_library(stm32_drivers_w_dbg_bl OBJECT EXCLUDE_FROM_ALL
+      ${STM32_DRIVER_DIR}/sdcard_spi.cpp
+  )
+
   if(NOT PCB STREQUAL PL18)
     target_sources(stm32_drivers PUBLIC
       ${STM32_DRIVER_DIR}/diskio_sdio.cpp
@@ -102,16 +110,10 @@ if(NOT NATIVE_BUILD)
   endif()
 
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_drivers>)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_drivers_w_dbg_fw>)
+
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_drivers>)
-
-  add_library(stm32_drivers_debug OBJECT EXCLUDE_FROM_ALL
-      ${STM32_DRIVER_DIR}/sdcard_spi.cpp
-  )
-
-  target_compile_options(stm32_drivers_debug PRIVATE -DBOOT)
-
-  set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_drivers_debug>)
-  set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_drivers_debug>)
+  set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_drivers_w_dbg_bl>)
 endif()
 
 set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}

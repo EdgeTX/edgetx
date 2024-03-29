@@ -178,10 +178,6 @@ if(ENABLE_SERIAL_PASSTHROUGH)
   add_definitions(-DENABLE_SERIAL_PASSTHROUGH)
 endif()
 
-if(DEBUG)
-  add_definitions(-DDEBUG)
-endif()
-
 if(HAPTIC)
   add_definitions(-DHAPTIC)
   set(SRC ${SRC} haptic.cpp)

@@ -524,6 +524,11 @@ link_libraries(firmware -lstdc++)
 add_dependencies(firmware ${RADIO_DEPENDENCIES})
 set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
+if(DEBUG)
+  target_compile_definitions(firmware PRIVATE -DDEBUG)
+  target_compile_definitions(stm32_drivers_w_dbg_fw PRIVATE -DDEBUG)
+endif()
+
 target_link_options(firmware PRIVATE
   -lm -T${LINKER_DIR}/firmware.ld
   -Wl,-Map=firmware.map,--cref,--no-warn-mismatch,--gc-sections

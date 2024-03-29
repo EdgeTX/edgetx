@@ -83,7 +83,6 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL
     )
   endif()
 
-  
   if(USB_CHARGER)
     set(BOOTLOADER_SRC
       ${BOOTLOADER_SRC}
@@ -92,6 +91,7 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL
   endif()
 
   if(DEBUG)
+    set(ENABLE_BOOTLOADER_DEBUG true)
     set(BOOTLOADER_SRC
       ${BOOTLOADER_SRC}
       ../../../../../serial.cpp
@@ -105,9 +105,9 @@ else()
     ../../../../../gui/common/stdlcd/utf8.cpp
     ../../../../../crc.cpp
     )
-  remove_definitions(-DDEBUG)
 endif()
 
+# TODO: this shouldn't be needed at all
 remove_definitions(-DDISK_CACHE)
 remove_definitions(-DLUA)
 remove_definitions(-DCLI)
@@ -124,7 +124,9 @@ if(NOT NO_LTO)
   target_compile_options(stm32usb_device_bl PRIVATE -flto)
   target_compile_options(stm32usb_device_fw PRIVATE -flto)
   target_compile_options(stm32_drivers PRIVATE -flto)
+  target_compile_options(stm32_drivers_w_dbg_bl PRIVATE -flto)
 endif()
+
 add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})
 add_dependencies(bootloader ${BITMAPS_TARGET})
 
@@ -146,6 +148,12 @@ if (DEFINED TARGET_SDRAM_SIZE)
   target_link_options(bootloader PRIVATE
     -Wl,--defsym=__sdram_size=${TARGET_SDRAM_SIZE}
   )
+endif()
+
+if (DEFINED ENABLE_BOOTLOADER_DEBUG)
+  target_compile_definitions(bootloader PUBLIC -DDEBUG)
+  # uncomment to enable TRACE in drivers
+  # target_compile_definitions(stm32_drivers_w_dbg_bl PRIVATE -DDEBUG)
 endif()
 
 target_include_directories(bootloader
