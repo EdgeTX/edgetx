@@ -336,10 +336,6 @@ void usbSerialPutc(void*, uint8_t c)
   APP_Tx_ptr_in = (APP_Tx_ptr_in + 1) % APP_TX_DATA_SIZE;
 
   if (!prim) __enable_irq();
-  /* USER CODE BEGIN 7 */
-  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
-  while (hcdc->TxState != 0);
-  /* USER CODE END 7 */
 }
 
 /**
