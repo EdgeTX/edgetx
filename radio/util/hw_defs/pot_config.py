@@ -36,8 +36,7 @@ POT_CONFIG = {
         "P1": {"default": "POT"},
         "P2": {"default": "POT"},
         "P3": {"default": "POT"},
-        "SL1": {"default": "SLIDER"},
-        "SL2": {"default": "SLIDER"}
+        "P4": {"default": "POT"}
     },
     "v12": {
         "P1": {"default": "POT_CENTER"},

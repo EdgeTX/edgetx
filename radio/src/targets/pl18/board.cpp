@@ -42,7 +42,9 @@
 #include "touch.h"
 #include "debug.h"
 
-#include "flysky_gimbal_driver.h"
+#if defined(FLYSKY_GIMBAL)
+  #include "flysky_gimbal_driver.h"
+#endif
 #include "timers_driver.h"
 
 #include "battery_driver.h"
@@ -114,7 +116,11 @@ void boardInit()
 
   board_trainer_init();
   battery_charge_init();
-  flysky_gimbal_init();
+  
+  #if defined(FLYSKY_GIMBAL)
+    flysky_gimbal_init();
+  #endif
+  
   timersInit();
   touchPanelInit();
   usbInit();

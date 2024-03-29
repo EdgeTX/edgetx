@@ -631,25 +631,15 @@ LEGACY_NAMES = [
             "nb4p"
         },
         "inputs": {
-            "LH": {
-                "yaml": "Rud",
-                "lua": "rud",
-                "description": "Rudder"
+            "ST": {
+                "yaml": "ST",
+                "lua": "ste",
+                "description": "Steering"
             },
-            "LV": {
-                "yaml": "Ele",
-                "lua": "ele",
-                "description": "Elevator"
-            },
-            "RV": {
-                "yaml": "Thr",
+            "TH": {
+                "yaml": "TH",
                 "lua": "thr",
                 "description": "Throttle"
-            },
-            "RH": {
-                "yaml": "Ail",
-                "lua": "ail",
-                "description": "Aileron"
             },
             "P1": {
                 "yaml": "POT1",
@@ -670,22 +660,15 @@ LEGACY_NAMES = [
                 "lua": "s3",
                 "label": "S3",
                 "short_label": "3",
-                "description": "Potentiometer 3"
+                "description": "Analog 3"
             },
-            "SL1": {
-                "yaml": "LS",
-                "lua": "ls",
-                "label": "LS",
-                "short_label": "L",
-                "description": "Left slider"
-            },
-            "SL2": {
-                "yaml": "RS",
-                "lua": "rs",
-                "label": "RS",
-                "short_label": "R",
-                "description": "Right slider"
-            },
+            "P4": {
+                "yaml": "POT4",
+                "lua": "s4",
+                "label": "S4",
+                "short_label": "4",
+                "description": "Analog 4"
+            }
         }
     },
     {
