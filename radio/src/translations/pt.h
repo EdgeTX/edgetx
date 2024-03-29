@@ -288,7 +288,7 @@
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Chave"
 #define TR_FUNCTION_SWITCHES           "Chaves customizáveis"
-#define TR_SF_SWITCH                   "Trigger"
+#define TR_SF_SWITCH                   "Disparo"
 #define TR_TRIMS                       "Trims"
 #define TR_FADEIN                      "Aparecer"
 #define TR_FADEOUT                     "Desaparecer"
@@ -501,7 +501,7 @@
 #define TR_MENUFLIGHTMODES             "MODOS VOO"
 #define TR_MENUFLIGHTMODE              "MODO DE VOO"
 #endif
-#define TR_MENUHELISETUP               "CONFIG HELI"
+#define TR_MENUHELISETUP               "CONFIG. HELI"
 
   #define TR_MENUINPUTS                "ENTRADAS"
   #define TR_MENULIMITS                "SAÍDAS"
@@ -683,8 +683,8 @@
 #define TR_V2                          "V2"
 #define TR_DURATION                    "Duração"
 #define TR_DELAY                       "Atraso"
-#define TR_SD_CARD                     "CARTAO SD"
-#define TR_SDHC_CARD                   "CARTAO SD-HC"
+#define TR_SD_CARD                     "CARTÃO SD"
+#define TR_SDHC_CARD                   "CARTÃO SD-HC"
 #define TR_NO_SOUNDS_ON_SD             "Sem Som no SD"
 #define TR_NO_MODELS_ON_SD             "Sem Modelo no SD"
 #define TR_NO_BITMAPS_ON_SD            "No bitmaps on SD"
@@ -1133,7 +1133,7 @@
 #define TR_REMOVE_SCREEN               "Remove screen"
 #define TR_SETUP_WIDGETS               "Setup widgets"
 #define TR_USER_INTERFACE              "User interface"
-#define TR_THEME                       "Theme"
+#define TR_THEME                       "Tema"
 #define TR_SETUP                       "Setup"
 #define TR_LAYOUT                      "Layout"
 #define TR_ADD_MAIN_VIEW               "Add main view"
@@ -1161,7 +1161,7 @@
 #define TR_MENU_OTHER                  "Other"
 #define TR_MENU_INVERT                 "Invert"
 #define TR_AUDIO_MUTE                  TR("Audio mute","Mute if no sound")
-#define TR_JITTER_FILTER               "ADC filter"
+#define TR_JITTER_FILTER               "Filtro ADC"
 #define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC voltage")
 #define TR_AUTH_FAILURE                "Auth-failure"
@@ -1208,18 +1208,18 @@
 #define TR_CANCEL                       "Cancel"
 #define TR_EDIT_THEME                   "EDIT THEME"
 #define TR_DETAILS                      "Details"
-#define TR_THEME_EDITOR                 "THEMES"
+#define TR_THEME_EDITOR                 "TEMAS"
 
 // Main menu
 #define TR_MAIN_MENU_SELECT_MODEL       "Selecionar\nModelo"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Gerenciar\nModelos"
 #define TR_MAIN_MENU_MODEL_NOTES        "Notas\nModelo"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nCanais"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Configuração\nModelo"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Configuração\nRádio"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Configuração\nTela"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset\nTelemetria"
-#define TR_MAIN_MENU_STATISTICS         "Estatísticas"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Config.\nModelo"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Config.\nRádio"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Config.\nTela"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset\nTelem."
+#define TR_MAIN_MENU_STATISTICS         "Estatist."
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Sobre\nEdgeTX"
 // End Main menu
 
