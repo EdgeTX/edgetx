@@ -40,13 +40,12 @@ void backlightInit()
   // PIN init
   gpio_init_af(BACKLIGHT_GPIO, BACKLIGHT_GPIO_AF, GPIO_PIN_SPEED_LOW);
 
-  // TODO review this when the timer will be chosen
   stm32_timer_enable_clock(BACKLIGHT_TIMER);
   BACKLIGHT_TIMER->ARR = 100;
   BACKLIGHT_TIMER->PSC = BACKLIGHT_TIMER_FREQ / 1000000 - 1; // 10kHz (same as FrOS)
   BACKLIGHT_TIMER->CCMR1 = TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1PE; // PWM mode 1
   BACKLIGHT_TIMER->CCER = TIM_CCER_CC1E | TIM_CCER_CC1NE;
-  BACKLIGHT_TIMER->CCR1 = 100; // 100% on init
+  BACKLIGHT_TIMER->CCR1 = 0;
   BACKLIGHT_TIMER->EGR = TIM_EGR_UG;
   BACKLIGHT_TIMER->CR1 |= TIM_CR1_CEN; // Counter enable
   BACKLIGHT_TIMER->BDTR |= TIM_BDTR_MOE;
@@ -66,6 +65,11 @@ void backlightEnable(uint8_t dutyCycle)
     else lcdInit();
   }
   lastDutyCycle = dutyCycle;
+}
+
+void backlightFullOn()
+{
+  backlightEnable(BACKLIGHT_LEVEL_MAX);
 }
 
 void lcdOff() {
