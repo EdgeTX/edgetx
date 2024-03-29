@@ -117,17 +117,43 @@ static wchar_t _utf8_lut[] = {
   L'я', 
 };
 #elif defined(TRANSLATIONS_UA)
+#if !defined(COLORLCD)
+#define UTF8_SUBS_LUT
+// Warning, albeit the following table looks useless
+// It does translate Cyrillic to Latin
+static wchar_t _utf8_substitution_lut[] = {
+    L'А', L'A',
+    L'а', L'a',
+    L'В', L'B',
+    L'С', L'C',
+    L'с', L'c',
+    L'Е', L'E',
+    L'е', L'e',
+    L'Н', L'H',
+    L'К', L'K',
+    L'М', L'M',
+    L'І', L'I',
+    L'і', L'i',
+    L'О', L'O',
+    L'о', L'o',
+    L'о', L'o',
+    L'Р', L'P',
+    L'р', L'p',
+    L'Т', L'T',
+    L'Х', L'X',
+    L'х', L'x',
+    L'у', L'y'
+};
+#endif
+
 static wchar_t _utf8_lut[] = {
-  L'А', L'Б', L'В', L'Г', L'Д', L'Е', L'Ж',
-  L'З', L'И', L'Й', L'К', L'Л', L'М', L'Н', 
-  L'О', L'П', L'Р', L'С', L'Т', L'У', L'Ф',
-  L'Х', L'Ц', L'Ч', L'Ш', L'Щ', L'Ъ', L'Ы',
-  L'Ь', L'Э', L'Ю', L'Я', L'а', L'б', L'в',
-  L'г', L'д', L'е', L'ж', L'з', L'и', L'й',
-  L'к', L'л', L'м', L'н', L'о', L'п', L'р',
-  L'с', L'т', L'у', L'ф', L'х', L'ц', L'ч',
-  L'ш', L'щ', L'ъ', L'ы', L'ь', L'э', L'ю',
-  L'я', 
+  L'Б', L'Г', L'Ґ', L'Д', L'Є', L'Ж', L'З',
+  L'И', L'Ї', L'Й', L'Л', L'П', L'У', L'Ф',
+  L'Ц', L'Ч', L'Ш', L'Щ', L'Ь', L'Ю', L'Я',
+  L'б', L'в', L'г', L'ґ', L'д', L'є', L'ж',
+  L'з', L'и', L'ї', L'й', L'к', L'л', L'м',
+  L'н', L'п', L'т', L'ф', L'ц', L'ч', L'ш',
+  L'щ', L'ь', L'ю', L'я'
 };
 #elif defined(TRANSLATIONS_SE)
 static wchar_t _utf8_lut[] = {
@@ -136,6 +162,9 @@ static wchar_t _utf8_lut[] = {
 #else
   #define NO_UTF8_LUT
 #endif
+
+#define MAX_TRANSLATED_CHARS    107
+static_assert(sizeof(_utf8_lut) / sizeof(_utf8_lut[0]) <= MAX_TRANSLATED_CHARS, "Number of translated chars exceeds the limit");
 
 #if !defined(NO_UTF8_LUT)
 static unsigned char lookup_utf8_mapping(wchar_t w)
