@@ -74,12 +74,20 @@ const char TOUCH_CONTROLLER_STR[][10] = {"", "FT6236", "CST340", "CHSC5448"};
 
 TouchController touchController = TC_NONE;
 
+enum TouchRotate
+{
+  DEG_0,
+  DEG_90,
+  DEG_180,
+  DEG_270
+};
+
 struct TouchControllerDescriptor
 {
   bool (*hasTouchEvent)();
   bool (*touchRead)(uint16_t * X, uint16_t * Y);
   void (*printDebugInfo)();
-  bool needTranspose;
+  TouchRotate rotate;
 };
 
 union rpt_point_t
@@ -131,7 +139,7 @@ static void _i2c_init(void)
 
 static void _i2c_reInit(void)
 {
-  stm32_i2c_deinit(TOUCH_I2C_BUS);
+//  stm32_i2c_deinit(TOUCH_I2C_BUS);
   _i2c_init();
 }
 
@@ -283,7 +291,11 @@ static const TouchControllerDescriptor FT6236 =
   .hasTouchEvent = ft6236HasTouchEvent,
   .touchRead = ft6236TouchRead,
   .printDebugInfo = ft6236PrintDebugInfo,
-  .needTranspose = true,
+#if defined(RADIO_NB4P)
+  .rotate = DEG_180,
+#else
+  .rotate = DEG_270,
+#endif
 };
 
 static const TouchControllerDescriptor CST340 =
@@ -291,7 +303,11 @@ static const TouchControllerDescriptor CST340 =
   .hasTouchEvent = cst340HasTouchEvent,
   .touchRead = cst340TouchRead,
   .printDebugInfo = cst340PrintDebugInfo,
-  .needTranspose = true,
+#if defined(RADIO_NB4P)
+  .rotate = DEG_180,
+#else
+  .rotate = DEG_270,
+#endif
 };
 
 static const TouchControllerDescriptor CHSC5448 =
@@ -299,7 +315,7 @@ static const TouchControllerDescriptor CHSC5448 =
   .hasTouchEvent = chsc5448HasTouchEvent,
   .touchRead = chsc5448TouchRead,
   .printDebugInfo = chsc5448PrintDebugInfo,
-  .needTranspose = false,
+  .rotate = DEG_0,
 };
 
 void _detect_touch_controller()
@@ -315,7 +331,11 @@ void _detect_touch_controller()
   } else {
     touchController = TC_FT6236;
     tcd = &FT6236;
+#if defined(RADIO_NB4P)    
+    TouchControllerType = 0;
+#else
     TouchControllerType = 1;
+#endif
   }
 }
 
@@ -354,11 +374,19 @@ struct TouchState touchPanelRead()
   unsigned short touchY;
   bool hasTouchContact = tcd->touchRead(&touchX, &touchY);
 
-  if (tcd->needTranspose) {
-    // Touch sensor is rotated by 90 deg
-    unsigned short tmp = touchY;
-    touchY = 319 - touchX;
-    touchX = tmp;
+  unsigned short tmp;
+  switch(tcd->rotate) {
+    case DEG_270:
+      tmp = touchY;
+      touchY = 319 - touchX;
+      touchX = tmp;
+      break;
+    case DEG_180:
+      touchY = 479 - touchY;
+      touchX = 319 - touchX;
+      break;
+    default:
+      break;
   }
 
   if (hasTouchContact) {
