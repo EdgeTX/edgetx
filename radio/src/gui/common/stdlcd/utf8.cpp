@@ -163,10 +163,10 @@ static wchar_t _utf8_lut[] = {
   #define NO_UTF8_LUT
 #endif
 
+#if !defined(NO_UTF8_LUT)
 #define MAX_TRANSLATED_CHARS    107
 static_assert(sizeof(_utf8_lut) / sizeof(_utf8_lut[0]) <= MAX_TRANSLATED_CHARS, "Number of translated chars exceeds the limit");
 
-#if !defined(NO_UTF8_LUT)
 static unsigned char lookup_utf8_mapping(wchar_t w)
 {
   for (uint32_t i=0; i < DIM(_utf8_lut); i++) {
