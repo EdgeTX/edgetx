@@ -507,6 +507,10 @@ else()
   message( FATAL_ERROR "Unknown CPU_TYPE_FULL" )
 endif()
 
+if(TRANSLATIONS STREQUAL UA AND NOT TARGET_FLASH_SIZE STREQUAL 1M)
+  set(PXX2 OFF)
+endif()
+
 if(ENABLE_SERIAL_PASSTHROUGH)
   set(CLI ON "Enable CLI")
 endif()
