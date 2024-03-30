@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LCD_H_
-#define _LCD_H_
+#pragma once
 
 #include <inttypes.h>
 
@@ -93,7 +92,6 @@ extern coord_t lcdNextPos;
 #define DISPLAY_END                    (displayBuf + DISPLAY_BUFFER_SIZE)
 #define IS_IN_DISPLAY(p)               ((p) >= displayBuf && (p) < DISPLAY_END)
 #define ASSERT_IN_DISPLAY(p)           assert((p) >= displayBuf && (p) < DISPLAY_END)
-
 
 void lcdDrawChar(coord_t x, coord_t y, uint8_t c);
 void lcdDrawChar(coord_t x, coord_t y, uint8_t c, LcdFlags flags);
@@ -190,5 +188,3 @@ inline pixel_t getPixel(uint8_t x, uint8_t y)
 }
 
 uint8_t getTextWidth(const char * s, uint8_t len=0, LcdFlags flags=0);
-
-#endif // _LCD_H_

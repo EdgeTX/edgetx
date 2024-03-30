@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LCD_H_
-#define _LCD_H_
+#pragma once
 
 #include <inttypes.h>
 
@@ -255,6 +254,3 @@ private:
 
   coord_t pos;
 };
-
-
-#endif // _LCD_H_
