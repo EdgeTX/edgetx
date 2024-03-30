@@ -507,8 +507,17 @@ else()
   message( FATAL_ERROR "Unknown CPU_TYPE_FULL" )
 endif()
 
-if(TRANSLATIONS STREQUAL UA AND NOT TARGET_FLASH_SIZE STREQUAL 1M)
+if(NOT TARGET_FLASH_SIZE STREQUAL 1M AND (TRANSLATIONS STREQUAL RU OR TRANSLATIONS STREQUAL UA))
+if(((PCB STREQUAL X9D+) AND (PCBREV STREQUAL 2019)) OR
+   ((PCB STREQUAL X7) AND (PCBREV STREQUAL ACCESS)) OR
+   (PCB STREQUAL XLITES) OR
+   (PCB STREQUAL X9LITE) OR 
+   (PCB STREQUAL X9LITES))
+   message(FATAL_ERROR "Specified translation will not fit target without disabling internal RF" )
+else()
+  message("Disabling PXX2 so specified translation has a better chance of fitting target")
   set(PXX2 OFF)
+endif()
 endif()
 
 if(ENABLE_SERIAL_PASSTHROUGH)
