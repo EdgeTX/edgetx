@@ -21,6 +21,7 @@
 /* -*- coding: utf-8 -*- */
 
 #include <stdint.h>
+#include "fonts.h"
 #include "definitions.h"
 #include "translations/untranslated.h"
 
@@ -141,7 +142,7 @@ static unsigned char lookup_utf8_mapping(wchar_t w)
 {
   for (uint32_t i=0; i < DIM(_utf8_lut); i++) {
     if (w == _utf8_lut[i])
-      return 0x95 + (uint8_t)i; // TODO: use constant
+      return FONT_LANG_START + (uint8_t)i;
   }
   return 0x20; // return 'space' for unknown chars
 }
@@ -177,8 +178,7 @@ unsigned char map_utf8_char(const char*& s, uint8_t& len)
       len--; s++; c = *s;
       w |= c & 0x3F;
     }
-    // TODO: use constants
-    if (w >= 0x80 && w <= 0x94) { // extra chars
+    if (w >= FONT_SYMS_START && w < FONT_LANG_START) { // extra chars
       return (unsigned char)w;
     }
     if(w == L'≥')
@@ -187,7 +187,7 @@ unsigned char map_utf8_char(const char*& s, uint8_t& len)
       return STR_CHAR_BW_DEGREE;
 #if defined(UTF8_SUBS_LUT)
     auto w_map = lookup_utf8_substitution(w);
-    if (w_map> 0x95)
+    if (w_map> FONT_LANG_START)
       w_map = lookup_utf8_mapping(w_map);
     return w_map;
 #elif !defined(NO_UTF8_LUT)

@@ -19,20 +19,23 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FONTS_H_
-#define _FONTS_H_
+#pragma once
+
+constexpr int FONT_BASE_START = 0x20;
+constexpr int FONT_SYMS_START = 0x80;
+constexpr int FONT_LANG_START = 0x95;
+
+constexpr int FONT_BASE_CNT = 96;       // Number of characters in standard 5x7 font
+constexpr int FONT_BASE_CNT_10x14 = 68; // Number of characters in compressed 10x14 font
+
+constexpr int FONT_SYMS_CNT = 21;       // Max # of extra symbols (based on 5x7 standard font)
+constexpr int FONT_SYMS_CNT_4x6 = 8;    // # of extra symbols in 4x6 font (adjust if font is changed)
+constexpr int FONT_SYMS_CNT_10x14 = 8;  // # of extra symbols in 10x14 font (adjust if font is changed)
 
 extern const unsigned char font_5x7[];
+extern const unsigned char font_5x7_B[];
+extern const unsigned char font_3x5[];
+extern const unsigned char font_4x6[];
+extern const unsigned char font_8x10[];
 extern const unsigned char font_10x14[];
-
-#if !defined(BOOT)
-  extern const unsigned char font_5x7_B[];
-  extern const unsigned char font_3x5[];
-  extern const unsigned char font_4x6[];
-  extern const unsigned char font_8x10[];
-  extern const unsigned char font_22x38_num[];
-  extern const unsigned char font_10x14_extra[];
-  extern const unsigned char font_4x6_extra[];
-#endif
-
-#endif // _FONTS_H_
+extern const unsigned char font_22x38_num[];

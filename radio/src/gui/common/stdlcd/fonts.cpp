@@ -21,6 +21,32 @@
 
 #include "fonts.h"
 
+/*
+  Strings in EdgeTX are encoded using UTF8. Latin characters are single byte in the range 32 - 127.
+  Special characters for language translations and special symbols are encoded as 2-byte or 3-byte
+  sequences.
+  The UTF8 encoded characters are mapped to single byte characters before display.
+  The single byte characters are mapped to the various font sizes as per the table below:
+
+  Char        3x5         4x6         5x7         5x7 BOLD      8x10        10x14       22x38
+  Range       TINSIZE     SMLSIZE     Standard    BOLD          MDLSIZE     DBLSIZE     XXLSIZE
+  -----       -------     -------     --------    --------      -------     -------     -------
+  0 - 31      not used    not used    not used    not used      not used    not used    not used
+  31 - 127    Latin(1)    Latin       Latin       Latin(2)      Latin       Latin(2)    Latin(3)
+  128 - 148   not used    extra(4)    extra(5)    extra(6)      not used    extra(4)    not used
+  149 - 255   not used    Language    Language    Language(7)   Language    Language    not used
+
+  Notes:
+  (1) - reduced character set, contains only space, upper case letters, numbers, '-' and '.'.
+  (2) - reduced character set, contains only space, alphanumeric, ',', '.', '-', ':' and '_'.
+  (3) - reduced character set, contains only space, numbers, ',', '.', '-', ':' and '_'.
+        Note: to display ' ' use '+', to display '_' use '/'.
+  (4) - arrows
+  (5) - arrows and symbols (e.g. delta, stick, switch, etc)
+  (6) - uses the 5x7 arrow and symbol font characters (not bold)
+  (7) - uses the 5x7 Language font characters (not bold)
+*/
+
 const unsigned char font_5x7[]  = {
 #include "font_05x07.lbm"
 #include "font_05x07_extra.lbm"
@@ -58,31 +84,32 @@ const unsigned char font_5x7_B[]  = {
 
 const unsigned char font_10x14[]  = {
 #include "font_10x14_compressed.lbm"
-  #if defined(TRANSLATIONS_DE)
-  #include "font_de_10x14.lbm"
-  #elif defined(TRANSLATIONS_DA)
-  #include "font_da_10x14.lbm"
-  #elif defined(TRANSLATIONS_CZ)
-  #include "font_cz_10x14.lbm"
-  #elif defined(TRANSLATIONS_ES)
-  #include "font_es_10x14.lbm"
-  #elif defined(TRANSLATIONS_FI)
-  #include "font_fi_10x14.lbm"
-  #elif defined(TRANSLATIONS_FR)
-  #include "font_fr_10x14.lbm"
-  #elif defined(TRANSLATIONS_IT)
-  #include "font_it_10x14.lbm"
-  #elif defined(TRANSLATIONS_PL)
-  #include "font_pl_10x14.lbm"
-  #elif defined(TRANSLATIONS_PT)
-  #include "font_pt_10x14.lbm"
-  #elif defined(TRANSLATIONS_RU)
-  #include "font_ru_10x14.lbm"
-  #elif defined(TRANSLATIONS_SE)
-  #include "font_se_10x14.lbm"
-  #elif defined(TRANSLATIONS_UA)
-  #include "font_ua_10x14.lbm"
-  #endif
+#include "font_10x14_extra.lbm"
+#if defined(TRANSLATIONS_DE)
+#include "font_de_10x14.lbm"
+#elif defined(TRANSLATIONS_DA)
+#include "font_da_10x14.lbm"
+#elif defined(TRANSLATIONS_CZ)
+#include "font_cz_10x14.lbm"
+#elif defined(TRANSLATIONS_ES)
+#include "font_es_10x14.lbm"
+#elif defined(TRANSLATIONS_FI)
+#include "font_fi_10x14.lbm"
+#elif defined(TRANSLATIONS_FR)
+#include "font_fr_10x14.lbm"
+#elif defined(TRANSLATIONS_IT)
+#include "font_it_10x14.lbm"
+#elif defined(TRANSLATIONS_PL)
+#include "font_pl_10x14.lbm"
+#elif defined(TRANSLATIONS_PT)
+#include "font_pt_10x14.lbm"
+#elif defined(TRANSLATIONS_RU)
+#include "font_ru_10x14.lbm"
+#elif defined(TRANSLATIONS_SE)
+#include "font_se_10x14.lbm"
+#elif defined(TRANSLATIONS_UA)
+#include "font_ua_10x14.lbm"
+#endif
 };
 
 const unsigned char font_3x5[]  = {
@@ -91,6 +118,7 @@ const unsigned char font_3x5[]  = {
 
 const unsigned char font_4x6[]  = {
 #include "font_04x06.lbm"
+#include "font_04x06_extra.lbm"
 #if defined(TRANSLATIONS_DE)
 #include "font_de_04x06.lbm"
 #elif defined(TRANSLATIONS_DA)
@@ -149,14 +177,6 @@ const unsigned char font_8x10[]  = {
 
 const unsigned char font_22x38_num[]  = {
 #include "font_22x38_num.lbm"
-};
-
-const unsigned char font_4x6_extra[]  = {
-#include "font_04x06_extra.lbm"
-};
-
-const unsigned char font_10x14_extra[]  = {
-#include "font_10x14_extra.lbm"
 };
 
 #endif // !defined(BOOT)
