@@ -26,13 +26,13 @@
 #include "translations/untranslated.h"
 
 #if defined(TRANSLATIONS_FR)
-static wchar_t _utf8_lut[] = {
+static uint16_t _utf8_lut[] = {
   L'é', L'è', L'à', L'î', L'ç',
 };
 
 #if !defined(COLORLCD)
 #define UTF8_SUBS_LUT
-static wchar_t _utf8_substitution_lut[] = {
+static uint16_t _utf8_substitution_lut[] = {
     L'Â', L'A',
     L'À', L'A',
     L'Ê', L'E',
@@ -50,15 +50,15 @@ static wchar_t _utf8_substitution_lut[] = {
 };
 #endif
 #elif defined(TRANSLATIONS_DA)
-static wchar_t _utf8_lut[] = {
+static uint16_t _utf8_lut[] = {
   L'å', L'æ', L'ø', L'Å', L'Æ', L'Ø',
 };
 #elif defined(TRANSLATIONS_DE)
-static wchar_t _utf8_lut[] = {
+static uint16_t _utf8_lut[] = {
   L'Ä', L'ä', L'Ö', L'ö', L'Ü', L'ü', L'ß',
 };
 #elif defined(TRANSLATIONS_CZ)
-static wchar_t _utf8_lut[] = {
+static uint16_t _utf8_lut[] = {
     L'á', L'č', L'é', L'ě', L'í', L'ó', L'ř',
     L'š', L'ú', L'ů', L'ý', L'Á', L'Í', L'Ř',
     L'Ý', L'ž', L'É', L'ň',
@@ -66,7 +66,7 @@ static wchar_t _utf8_lut[] = {
 
 #if !defined(COLORLCD)
 #define UTF8_SUBS_LUT
-static wchar_t _utf8_substitution_lut[] = {
+static uint16_t _utf8_substitution_lut[] = {
     L'Ě', L'ě',
     L'Š', L'š',
     L'Č', L'č',
@@ -78,33 +78,33 @@ static wchar_t _utf8_substitution_lut[] = {
 };
 #endif
 #elif defined(TRANSLATIONS_ES)
-static wchar_t _utf8_lut[] = {
+static uint16_t _utf8_lut[] = {
   L'Ñ', L'ñ', L'Á', L'á', L'É', L'é', L'Í',
   L'í', L'Ó', L'ó', L'ú',
 };
 #elif defined(TRANSLATIONS_PT)
-static wchar_t _utf8_lut[] = {
+static uint16_t _utf8_lut[] = {
   L'Á', L'á', L'Â', L'â', L'Ã', L'ã', L'À',
   L'à', L'Ç', L'ç', L'É', L'é', L'Ê', L'ê',
   L'Í', L'í', L'Ó', L'ó', L'Ô', L'ô', L'Õ',
   L'õ', L'Ú', L'ú',
 };
 #elif defined(TRANSLATIONS_FI)
-static wchar_t _utf8_lut[] = {
+static uint16_t _utf8_lut[] = {
   L'å', L'ä', L'ö', L'Å', L'Ä', L'Ö',
 };
 #elif defined(TRANSLATIONS_IT)
-static wchar_t _utf8_lut[] = {
+static uint16_t _utf8_lut[] = {
   L'à', L'ù',
 };
 #elif defined(TRANSLATIONS_PL)
-static wchar_t _utf8_lut[] = {
+static uint16_t _utf8_lut[] = {
   L'ą', L'ć', L'ę', L'ł', L'ń', L'ó', L'ś',
   L'ż', L'ź', L'Ą', L'Ć', L'Ę', L'Ł', L'Ń',
   L'Ó', L'Ś', L'Ż', L'Ź',
 };
 #elif defined(TRANSLATIONS_RU)
-static wchar_t _utf8_lut[] = {
+static uint16_t _utf8_lut[] = {
   L'А', L'Б', L'В', L'Г', L'Д', L'Е', L'Ж',
   L'З', L'И', L'Й', L'К', L'Л', L'М', L'Н', 
   L'О', L'П', L'Р', L'С', L'Т', L'У', L'Ф',
@@ -121,7 +121,7 @@ static wchar_t _utf8_lut[] = {
 #define UTF8_SUBS_LUT
 // Warning, albeit the following table looks useless
 // It does translate Cyrillic to Latin
-static wchar_t _utf8_substitution_lut[] = {
+static uint16_t _utf8_substitution_lut[] = {
     L'А', L'A',
     L'а', L'a',
     L'В', L'B',
@@ -146,7 +146,7 @@ static wchar_t _utf8_substitution_lut[] = {
 };
 #endif
 
-static wchar_t _utf8_lut[] = {
+static uint16_t _utf8_lut[] = {
   L'Б', L'Г', L'Ґ', L'Д', L'Є', L'Ж', L'З',
   L'И', L'Ї', L'Й', L'Л', L'П', L'У', L'Ф',
   L'Ц', L'Ч', L'Ш', L'Щ', L'Ь', L'Ю', L'Я',
@@ -156,7 +156,7 @@ static wchar_t _utf8_lut[] = {
   L'щ', L'ь', L'ю', L'я'
 };
 #elif defined(TRANSLATIONS_SE)
-static wchar_t _utf8_lut[] = {
+static uint16_t _utf8_lut[] = {
   L'å', L'ä', L'ö', L'Å', L'Ä', L'Ö',
 };
 #else
@@ -178,7 +178,7 @@ static unsigned char lookup_utf8_mapping(wchar_t w)
 #endif
 
 #if defined(UTF8_SUBS_LUT)
-static wchar_t lookup_utf8_substitution(wchar_t w)
+static uint16_t lookup_utf8_substitution(wchar_t w)
 {
   for (uint32_t i=0; i < DIM(_utf8_substitution_lut); i+=2) {
     if (w == _utf8_substitution_lut[i])
