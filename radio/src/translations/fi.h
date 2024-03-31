@@ -372,6 +372,7 @@
 #define TR_MEMORYWARNING               "Memory Low"
 #define TR_ALARMWARNING                "Sound Off"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("Rssi Shutdown", "Check Rssi on Shutdown")
+#define TR_TRAINER_SHUTDOWN_ALARM          TR("Trainer alarm", "check trainer connection")
 #define TR_MODEL_STILL_POWERED         "Model still powered"
 #define TR_TRAINER_STILL_CONNECTED     "Trainer still connected"
 #define TR_USB_STILL_CONNECTED         "USB still connected"

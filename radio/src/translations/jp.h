@@ -359,6 +359,7 @@
 #define TR_MEMORYWARNING               "メモリ低"
 #define TR_ALARMWARNING                "音声OFF"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI shutdown", "シャットダウン時 RSSIを確認")
+#define TR_TRAINER_SHUTDOWN_ALARM          TR("Trainer alarm", "check trainer connection")
 #define TR_MODEL_STILL_POWERED         "電源が入ったままです"
 #define TR_TRAINER_STILL_CONNECTED     "トレーナー通信はまだ継続しています"
 #define TR_USB_STILL_CONNECTED         "USBが接続されたままです"

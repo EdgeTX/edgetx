@@ -82,6 +82,7 @@ enum {
   ITEM_RADIO_SETUP_MEMORY_WARNING,
   ITEM_RADIO_SETUP_ALARM_WARNING,
   ITEM_RADIO_SETUP_RSSI_POWEROFF_ALARM,
+  ITEM_RADIO_SETUP_TRAINER_POWEROFF_ALARM,
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_LABEL)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_MODE)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_DELAY)
@@ -179,7 +180,7 @@ void menuRadioSetup(event_t event)
     CASE_IMU(0)
     CASE_IMU(0)
     LABEL(ALARMS), 0,
-    0, 0, 0, 0, /* ITEM_RADIO_SETUP_INACTIVITY_ALARM ITEM_RADIO_SETUP_MEMORY_WARNING ITEM_RADIO_SETUP_ALARM_WARNING ITEM_RADIO_SETUP_RSSI_POWEROFF_ALARM */
+    0, 0, 0, 0, 0,/* ITEM_RADIO_SETUP_INACTIVITY_ALARM ITEM_RADIO_SETUP_MEMORY_WARNING ITEM_RADIO_SETUP_ALARM_WARNING ITEM_RADIO_SETUP_RSSI_POWEROFF_ALARM ITEM_RADIO_SETUP_TRAINER_POWEROFF_ALARM*/
     CASE_BACKLIGHT(LABEL(BACKLIGHT))
     CASE_BACKLIGHT(0)
     CASE_BACKLIGHT(0)
@@ -509,6 +510,14 @@ void menuRadioSetup(event_t event)
         lcdDrawText(INDENT_WIDTH, y, STR_RSSI_SHUTDOWN_ALARM);
         uint8_t b = 1 - g_eeGeneral.disableRssiPoweroffAlarm;
         g_eeGeneral.disableRssiPoweroffAlarm = 1 - editCheckBox(b, LCD_W-9, y, nullptr, attr, event);
+        break;
+      }
+
+      case ITEM_RADIO_SETUP_TRAINER_POWEROFF_ALARM:
+      {
+        lcdDrawText(INDENT_WIDTH, y, STR_TRAINER_SHUTDOWN_ALARM);
+        uint8_t b = 1 - g_eeGeneral.disableTrainerPoweroffAlarm;
+        g_eeGeneral.disableTrainerPoweroffAlarm = 1 - editCheckBox(b, LCD_W-9, y, nullptr, attr, event);
         break;
       }
 

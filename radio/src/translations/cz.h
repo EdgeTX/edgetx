@@ -371,6 +371,7 @@
 #define TR_ALARMWARNING                TR3("Vypnutý zvuk", "Upozornit na vypnutý zvuk", "Upozornit na vyp. zvuk")
 #define TR_RSSI_SHUTDOWN_ALARM         TR("Rssi při vyp.", "Hlídat RSSI při vypnutí")
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Použít FlySky RSSI hodnotu bez škálování")
+#define TR_TRAINER_SHUTDOWN_ALARM          TR("Trainer alarm", "check trainer connection")
 #define TR_MODEL_STILL_POWERED         "Model stále spuštěn"
 #define TR_TRAINER_STILL_CONNECTED     "Trenér stále připojen"
 #define TR_USB_STILL_CONNECTED         "USB stále připojeno"

@@ -221,6 +221,7 @@ class GeneralSettings {
     BeeperMode beeperMode;
     bool disableAlarmWarning;
     bool disableRssiPoweroffAlarm;
+    bool disableTrainerPoweroffAlarm;
     unsigned int usbMode;
     unsigned int hatsMode;
     unsigned int stickDeadZone;

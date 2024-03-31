@@ -362,6 +362,7 @@
 #define TR_MEMORYWARNING               "Память заканч"
 #define TR_ALARMWARNING                "Звук Выкл"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI выкл", "RSSI выкл")
+#define TR_TRAINER_SHUTDOWN_ALARM          TR("Trainer alarm", "check trainer connection")
 #define TR_MODEL_STILL_POWERED         "Модель работает"
 #define TR_TRAINER_STILL_CONNECTED     "Тренер подкл"
 #define TR_USB_STILL_CONNECTED         "USB подкл"
