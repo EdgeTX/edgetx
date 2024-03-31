@@ -22,8 +22,8 @@
 #include "opentx.h"
 
 
-#define SLEEP_BITMAP_WIDTH             60
-#define SLEEP_BITMAP_HEIGHT            60
+#define SLEEP_BITMAP_WIDTH             42
+#define SLEEP_BITMAP_HEIGHT            47
 
 const unsigned char bmp_sleep[]  = {
 #include "sleep.lbm"

@@ -319,13 +319,7 @@ void menuModelExposAll(event_t event)
           else {
             event = 0;
             s_copyMode = 0;
-            POPUP_MENU_ADD_ITEM(STR_EDIT);
-            POPUP_MENU_ADD_ITEM(STR_INSERT_BEFORE);
-            POPUP_MENU_ADD_ITEM(STR_INSERT_AFTER);
-            POPUP_MENU_ADD_ITEM(STR_COPY);
-            POPUP_MENU_ADD_ITEM(STR_MOVE);
-            POPUP_MENU_ADD_ITEM(STR_DELETE);
-            POPUP_MENU_START(onExposMenu);
+            POPUP_MENU_START(onExposMenu, 6, STR_EDIT, STR_INSERT_BEFORE, STR_INSERT_AFTER, STR_COPY, STR_MOVE, STR_DELETE);
           }
         }
       }

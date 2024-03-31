@@ -42,11 +42,11 @@ enum YamlDataType {
     YDT_CUSTOM
 };
 
-struct YamlIdStr
+PACK_NOT_SIMU(struct YamlIdStr
 {
-    int          id;
+    int16_t      id;
     const char*  str;
-};
+});
 
 // return false if error
 typedef bool (*yaml_writer_func)(void* opaque, const char* str, size_t len);

@@ -21,6 +21,20 @@
 
 #include "opentx.h"
 
+const MenuHandler menuTabGeneral[MENU_RADIO_PAGES_COUNT] = {
+#if defined(RADIO_TOOLS)
+  { menuRadioTools, nullptr },
+#endif
+#if defined(SDCARD)
+  { menuRadioSdManager, nullptr },
+#endif
+  { menuRadioSetup, nullptr },
+  { menuRadioSpecialFunctions, radioGFEnabled },
+  { menuRadioTrainer, radioTrainerEnabled },
+  { menuRadioHardware, nullptr },
+  { menuRadioVersion, nullptr }
+};
+
 void menuRadioSpecialFunctions(event_t event)
 {
 #if defined(NAVIGATION_X7)

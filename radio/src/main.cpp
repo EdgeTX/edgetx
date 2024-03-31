@@ -118,13 +118,12 @@ void onUSBConnectMenu(const char *result)
 void openUsbMenu()
 {
   if (popupMenuHandler != onUSBConnectMenu) {
-    POPUP_MENU_ADD_ITEM(STR_USB_JOYSTICK);
-    POPUP_MENU_ADD_ITEM(STR_USB_MASS_STORAGE);
-#if defined(USB_SERIAL)
-    POPUP_MENU_ADD_ITEM(STR_USB_SERIAL);
-#endif
     POPUP_MENU_TITLE(STR_SELECT_MODE);
-    POPUP_MENU_START(onUSBConnectMenu);
+#if defined(USB_SERIAL)
+    POPUP_MENU_START(onUSBConnectMenu, 3, STR_USB_JOYSTICK, STR_USB_MASS_STORAGE, STR_USB_SERIAL);
+#else
+    POPUP_MENU_START(onUSBConnectMenu, 2, STR_USB_JOYSTICK, STR_USB_MASS_STORAGE);
+#endif
   }
 }
 
@@ -251,9 +250,7 @@ void handleJackConnection()
       enableTrainer();
     }
     else if (popupMenuItemsCount == 0) {
-      POPUP_MENU_ADD_ITEM(STR_JACK_HEADPHONE);
-      POPUP_MENU_ADD_ITEM(STR_JACK_TRAINER);
-      POPUP_MENU_START(onJackConnectMenu);
+      POPUP_MENU_START(onJackConnectMenu, 2, STR_JACK_HEADPHONE, STR_JACK_TRAINER);
     }
   }
   else if (jackState == SPEAKER_ACTIVE && !isJackPlugged() && popupMenuItemsCount > 0 && popupMenuHandler == onJackConnectMenu) {
