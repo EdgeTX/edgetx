@@ -194,29 +194,31 @@ uint32_t yaml_hex2uint(const char* val, uint8_t val_len)
     return i_val;
 }
 
-static char int2str_buffer[16] = {0};
+constexpr int INT2STR_LEN = 16;
+
+static char int2str_buffer[INT2STR_LEN] = {0};
 
 char* yaml_unsigned2str(uint32_t i)
 {
-  sprintf(int2str_buffer, "%" PRIu32, i);
+  snprintf(int2str_buffer, INT2STR_LEN, "%" PRIu32, i);
   return int2str_buffer;
 }
 
 char* yaml_signed2str(int32_t i)
 {
-  sprintf(int2str_buffer, "%" PRId32, i);
+  snprintf(int2str_buffer, INT2STR_LEN, "%" PRId32, i);
   return int2str_buffer;
 }
 
 char* yaml_unsigned2hex(uint32_t i)
 {
-  sprintf(int2str_buffer, "%08" PRIX32, i);
+  snprintf(int2str_buffer, INT2STR_LEN, "%08" PRIX32, i);
   return int2str_buffer;
 }
 
 char* yaml_rgb2hex(uint32_t i)
 {
-  sprintf(int2str_buffer, "%06" PRIX32, i);
+  snprintf(int2str_buffer, INT2STR_LEN, "%06" PRIX32, i);
   return int2str_buffer;
 }
 
@@ -228,4 +230,3 @@ int32_t yaml_to_signed(uint32_t i, uint32_t bits)
 
     return i;
 }
-
