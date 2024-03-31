@@ -8,6 +8,7 @@
 {% set key_shift = keys | selectattr("key","==","KEY_SHIFT") | first %}
 {% set key_page = keys | selectattr("key","==","KEY_PAGE") | first %}
 {% set key_pageup = keys | selectattr("key","==","KEY_PAGEUP") | first %}
+{% set key_pagedn = keys | selectattr("key","==","KEY_PAGEDN") | first %}
 {% set key_model = keys | selectattr("key","==","KEY_MODEL") | first %}
 {% set key_menu = keys | selectattr("key","==","KEY_MENU") | first %}
 {% set key_tele = keys | selectattr("key","==","KEY_TELE") | first %}
@@ -76,14 +77,13 @@ LROT_NUMENTRY( EVT_VIRTUAL_ENTER, EVT_KEY_BREAK(KEY_ENTER) )
 LROT_NUMENTRY( EVT_VIRTUAL_ENTER_LONG, EVT_KEY_LONG(KEY_ENTER) )
 LROT_NUMENTRY( EVT_VIRTUAL_EXIT, EVT_KEY_BREAK(KEY_EXIT) )
 
-
 LROT_NUMENTRY( EVT_EXIT_BREAK, EVT_KEY_BREAK(KEY_EXIT) )
 
 {% macro key_event(name, key) %}
-  { "EVT_{{ name }}_FIRST", LRO_NUMVAL(EVT_KEY_FIRST({{ key }})) },
-  { "EVT_{{ name }}_BREAK", LRO_NUMVAL(EVT_KEY_BREAK({{ key }})) },
-  { "EVT_{{ name }}_LONG", LRO_NUMVAL(EVT_KEY_LONG({{ key }})) },
-  { "EVT_{{ name }}_REPT", LRO_NUMVAL(EVT_KEY_REPT({{ key }})) },
+  LROT_NUMENTRY( EVT_{{ name }}_FIRST, EVT_KEY_FIRST({{ key }}) )
+  LROT_NUMENTRY( EVT_{{ name }}_BREAK, EVT_KEY_BREAK({{ key }}) )
+  LROT_NUMENTRY( EVT_{{ name }}_LONG, EVT_KEY_LONG({{ key }}) )
+  LROT_NUMENTRY( EVT_{{ name }}_REPT, EVT_KEY_REPT({{ key }}) )
 {% endmacro %}
 
 {{ key_event('ENTER','KEY_ENTER') }}
