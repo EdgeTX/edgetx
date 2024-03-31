@@ -149,10 +149,10 @@ void doMainScreenGraphics()
 void displayTrims(uint8_t phase)
 {
 #if defined(SURFACE_RADIO)
-  static coord_t x[] = {TRIM_RH_X, TRIM_LH_X, TRIM_RV_X, TRIM_LV_X, TRIM_LV_X};
+  static uint8_t x[] = {TRIM_RH_X, TRIM_LH_X, TRIM_RV_X, TRIM_LV_X, TRIM_LV_X};
   static uint8_t vert[] = {0, 0, 1, 1, 1};
 #else
-  static coord_t x[] = {TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X, TRIM_LH_X, TRIM_LV_X, TRIM_RH_X, TRIM_RV_X};
+  static uint8_t x[] = {TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X, TRIM_LH_X, TRIM_LV_X, TRIM_RH_X, TRIM_RV_X};
   static uint8_t vert[] = {0, 1, 1, 0, 0, 1, 0, 1};
 #endif
 

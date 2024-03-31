@@ -112,7 +112,7 @@ void doMainScreenGraphics()
 
 void displayTrims(uint8_t phase)
 {
-  static coord_t x[] = { TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X };
+  static uint8_t x[] = { TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X };
   static uint8_t vert[] = { 0, 1, 1, 0 };
 
   for (unsigned int i = 0; i < MAX_STICKS; i++) {
