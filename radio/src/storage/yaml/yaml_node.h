@@ -42,7 +42,7 @@ enum YamlDataType {
     YDT_CUSTOM
 };
 
-PACK(struct YamlIdStr
+PACK_NOT_SIMU(struct YamlIdStr
 {
     int16_t      id;
     const char*  str;

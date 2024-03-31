@@ -99,7 +99,7 @@ void frskyDProcessPacket(uint8_t module, const uint8_t *packet, uint8_t len)
   }
 }
 
-PACK(struct FrSkyDSensor {
+PACK_NOT_SIMU(struct FrSkyDSensor {
   const uint8_t id;
   const TelemetryUnit unit:6;
   const uint8_t prec:2;

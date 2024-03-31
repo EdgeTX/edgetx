@@ -84,7 +84,7 @@ extern uint32_t NV14internalModuleFwVersion;
 
   const uint8_t getMaxMultiOptions();
 
-  PACK(struct mm_protocol_definition {
+  PACK_NOT_SIMU(struct mm_protocol_definition {
     uint8_t protocol;
     uint8_t maxSubtype:6;
     bool failsafe:1;
