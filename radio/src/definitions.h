@@ -87,6 +87,12 @@
 #endif
 
 #if defined(SIMU)
+  #define PACK_NOT_SIMU(__Declaration__) __Declaration__
+#else
+  #define PACK_NOT_SIMU(__Declaration__) PACK(__Declaration__)
+#endif
+
+#if defined(SIMU)
   #define CONVERT_PTR_UINT(x) ((uint32_t)(uint64_t)(x))
   #define CONVERT_UINT_PTR(x) ((uint32_t*)(uint64_t)(x))
 #else

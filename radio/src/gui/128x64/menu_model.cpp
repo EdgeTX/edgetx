@@ -21,6 +21,28 @@
 
 #include "opentx.h"
 
+const MenuHandler menuTabModel[MENU_MODEL_PAGES_COUNT] = {
+  { menuModelSelect, nullptr },
+  { menuModelSetup, nullptr },
+#if defined(HELI)
+  { menuModelHeli, modelHeliEnabled },
+#endif
+#if defined(FLIGHT_MODES)
+  { menuModelFlightModesAll, modelFMEnabled },
+#endif
+  { menuModelExposAll, nullptr },
+  { menuModelMixAll, nullptr },
+  { menuModelLimits, nullptr },
+  { menuModelCurvesAll, modelCurvesEnabled },
+  { menuModelLogicalSwitches, modelLSEnabled },
+  { menuModelSpecialFunctions, modelSFEnabled },
+#if defined(LUA_MODEL_SCRIPTS)
+  { menuModelCustomScripts, modelCustomScriptsEnabled },
+#endif
+  { menuModelTelemetry, modelTelemetryEnabled },
+  { menuModelDisplay, nullptr }
+};
+
 uint8_t editDelay(coord_t y, event_t event, uint8_t attr, const char * str, uint8_t delay, uint8_t prec)
 {
   lcdDrawTextAlignedLeft(y, str);

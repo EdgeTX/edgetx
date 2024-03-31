@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MENUS_H_
-#define _MENUS_H_
+#pragma once
 
 #include "keys.h"
 #include "common/stdlcd/menus.h"
@@ -82,19 +81,7 @@ void menuGhostModuleConfig(event_t event);
 extern bool radioGFEnabled();
 extern bool radioTrainerEnabled();
 
-static const MenuHandler menuTabGeneral[MENU_RADIO_PAGES_COUNT]  = {
-#if defined(RADIO_TOOLS)
-  { menuRadioTools, nullptr },
-#endif
-#if defined(SDCARD)
-  { menuRadioSdManager, nullptr },
-#endif
-  { menuRadioSetup, nullptr },
-  { menuRadioSpecialFunctions, radioGFEnabled },
-  { menuRadioTrainer, radioTrainerEnabled },
-  { menuRadioHardware, nullptr },
-  { menuRadioVersion, nullptr }
-};
+extern const MenuHandler menuTabGeneral[MENU_RADIO_PAGES_COUNT];
 
 enum MenuModelIndexes {
   MENU_MODEL_SELECT,
@@ -150,31 +137,9 @@ extern bool modelSFEnabled();
 extern bool modelCustomScriptsEnabled();
 extern bool modelTelemetryEnabled();
 
-static const MenuHandler menuTabModel[]  = {
-  { menuModelSelect, nullptr },
-  { menuModelSetup, nullptr },
-#if defined(HELI)
-  { menuModelHeli, modelHeliEnabled },
-#endif
-#if defined(FLIGHT_MODES)
-  { menuModelFlightModesAll, modelFMEnabled },
-#endif
-  { menuModelExposAll, nullptr },
-  { menuModelMixAll, nullptr },
-  { menuModelLimits, nullptr },
-  { menuModelCurvesAll, modelCurvesEnabled },
-  { menuModelLogicalSwitches, modelLSEnabled },
-  { menuModelSpecialFunctions, modelSFEnabled },
-#if defined(LUA_MODEL_SCRIPTS)
-  { menuModelCustomScripts, modelCustomScriptsEnabled },
-#endif
-  { menuModelTelemetry, modelTelemetryEnabled },
-  { menuModelDisplay, nullptr }
-};
+extern const MenuHandler menuTabModel[MENU_MODEL_PAGES_COUNT];
 
 void menuStatisticsView(event_t event);
 void menuStatisticsDebug(event_t event);
 void menuStatisticsDebug2(event_t event);
 void menuAboutView(event_t event);
-
-#endif // _MENUS_H_

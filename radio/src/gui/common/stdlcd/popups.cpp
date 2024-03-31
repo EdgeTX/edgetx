@@ -247,3 +247,117 @@ void drawProgressScreen(const char * title, const char * message, int num, int d
   }
   lcdRefresh();
 }
+
+void CLEAR_POPUP()
+{
+  warningText = nullptr;
+  warningInfoText = nullptr;
+  popupMenuTitle = nullptr;
+  popupMenuHandler = nullptr;
+  popupMenuItemsCount = 0;
+}
+
+void POPUP_WAIT(const char * s)
+{
+  warningText = s;
+  warningInfoText = nullptr;
+  warningType = WARNING_TYPE_WAIT;
+  popupFunc = runPopupWarning;
+}
+
+void POPUP_INFORMATION(const char * s)
+{
+  warningText = s;
+  warningInfoText = nullptr;
+  warningType = WARNING_TYPE_INFO;
+  popupFunc = runPopupWarning;
+}
+
+void POPUP_WARNING(const char * message, const char * info, bool waitForClose)
+{
+  (void)waitForClose;
+
+  warningText = message;
+  warningInfoText = info;
+  warningInfoLength = info ? strlen(info) : 0;
+  warningInfoFlags = 0;
+  warningType = WARNING_TYPE_ASTERISK;
+  popupFunc = runPopupWarning;
+}
+
+void SET_WARNING_INFO(const char * info, uint8_t length, uint8_t flags)
+{
+  warningInfoText = info;
+  warningInfoLength = length;
+  warningInfoFlags = flags;
+}
+
+void POPUP_CONFIRMATION(const char * s, PopupMenuHandler handler)
+{
+  if (s != warningText) {
+    killAllEvents();
+    warningText = s;
+    warningInfoText = nullptr;
+    warningType = WARNING_TYPE_CONFIRM;
+    popupFunc = runPopupWarning;
+    popupMenuHandler = handler;
+  }
+}
+
+void POPUP_INPUT(const char * s, PopupFunc func)
+{
+  warningText = s;
+  warningInfoText = nullptr;
+  warningType = WARNING_TYPE_INPUT;
+  popupFunc = func;
+}
+
+bool isEventCaughtByPopup()
+{
+  if (warningText && warningType != WARNING_TYPE_WAIT)
+    return true;
+
+  if (popupMenuItemsCount > 0)
+    return true;
+
+  return false;
+}
+
+void POPUP_MENU_ADD_ITEM(const char * s)
+{
+  popupMenuOffsetType = MENU_OFFSET_INTERNAL;
+  if (popupMenuItemsCount < POPUP_MENU_MAX_LINES) {
+    popupMenuItems[popupMenuItemsCount++] = s;
+  }
+}
+
+void POPUP_MENU_SELECT_ITEM(uint8_t index)
+{
+  popupMenuSelectedItem =  (index > 0 ? (index < popupMenuItemsCount ? index : popupMenuItemsCount) : 0);
+}
+
+void POPUP_MENU_TITLE(const char * s)
+{
+  popupMenuTitle = s;
+}
+
+void POPUP_MENU_START(PopupMenuHandler handler)
+{
+  if (handler != popupMenuHandler) {
+    killAllEvents();
+    AUDIO_KEY_PRESS();
+    popupMenuHandler = handler;
+  }
+}
+
+void POPUP_MENU_START(PopupMenuHandler handler, int count, ...)
+{
+  va_list ap;
+  va_start(ap, count);
+  for(int i = 0; i < count; i += 1) {
+      const char* s = va_arg(ap, const char*);
+      POPUP_MENU_ADD_ITEM(s);
+  }
+  va_end(ap);
+  POPUP_MENU_START(handler);
+}

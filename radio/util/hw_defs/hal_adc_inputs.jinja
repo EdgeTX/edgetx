@@ -15,7 +15,7 @@ static const etx_hal_adc_input_t _main_inputs[] = {
 {% set flex_offset = n_mains %}
 {% set flex_inputs = adc_inputs.inputs | selectattr('type', '==', 'FLEX') | list %}
 {% set n_flex = flex_inputs | count %}
-static etx_hal_adc_input_t _flex_inputs[] = {
+static const etx_hal_adc_input_t _flex_inputs[] = {
   {% for input in flex_inputs %}
     { "{{ input.name }}", "{{ input.label }}", "{{ input.short_label }}" },
   {% endfor %}

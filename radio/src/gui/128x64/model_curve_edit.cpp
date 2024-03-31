@@ -154,10 +154,7 @@ void menuModelCurveOne(event_t event)
     case EVT_KEY_LONG(KEY_ENTER):
       if (menuVerticalPosition > 1) {
         killEvents(event);
-        POPUP_MENU_ADD_ITEM(STR_CURVE_PRESET);
-        POPUP_MENU_ADD_ITEM(STR_MIRROR);
-        POPUP_MENU_ADD_ITEM(STR_CLEAR);
-        POPUP_MENU_START(onCurveOneMenu);
+        POPUP_MENU_START(onCurveOneMenu, 3, STR_CURVE_PRESET, STR_MIRROR, STR_CLEAR);
       }
       break;
 

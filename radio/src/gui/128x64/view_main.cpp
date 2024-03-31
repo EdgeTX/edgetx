@@ -49,10 +49,10 @@
 #define TRIM_LV_X     3
 #define TRIM_RV_X     (LCD_W-4)
 #define TRIM_RH_X     (LCD_W-TRIM_LEN-5)
-#define TRIM_LH_NEG   (TRIM_LH_X+1*FW)
-#define TRIM_LH_POS   (TRIM_LH_X-4*FW)
-#define TRIM_RH_NEG   (TRIM_RH_X+1*FW)
-#define TRIM_RH_POS   (TRIM_RH_X-4*FW)
+#define TRIM_LH_NEG   (TRIM_LH_X+3*FW+1)
+#define TRIM_LH_POS   (TRIM_LH_X-4*FW+3)
+#define TRIM_RH_NEG   (TRIM_RH_X+3*FW+1)
+#define TRIM_RH_POS   (TRIM_RH_X-4*FW+3)
 #define RSSSI_X       (30)
 #define RSSSI_Y       (31)
 #define RSSI_MAX      105
@@ -148,43 +148,48 @@ void doMainScreenGraphics()
 
 void displayTrims(uint8_t phase)
 {
-  for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
 #if defined(SURFACE_RADIO)
-    static coord_t x[] = {TRIM_RH_X, TRIM_LH_X, TRIM_RV_X, TRIM_LV_X, TRIM_LV_X};
-    static uint8_t vert[] = {0, 0, 1, 1, 1};
+  static uint8_t x[] = {TRIM_RH_X, TRIM_LH_X, TRIM_RV_X, TRIM_LV_X, TRIM_LV_X};
+  static uint8_t vert[] = {0, 0, 1, 1, 1};
 #else
-    static coord_t x[] = {TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X, TRIM_LH_X, TRIM_LV_X, TRIM_RH_X, TRIM_RV_X};
-    static uint8_t vert[] = {0, 1, 1, 0, 0, 1, 0, 1};
+  static uint8_t x[] = {TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X, TRIM_LH_X, TRIM_LV_X, TRIM_RH_X, TRIM_RV_X};
+  static uint8_t vert[] = {0, 1, 1, 0, 0, 1, 0, 1};
 #endif
-    coord_t xm, ym;
-    uint8_t stickIndex = inputMappingConvertMode(i);
-    xm = x[stickIndex];
-    uint8_t att = ROUND;
-    int16_t val = getTrimValue(phase, i);
+
+  bool squareMarker = (keysGetMaxTrims() <= 4);
+
+  for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
 
     if (getRawTrimValue(phase, i).mode == TRIM_MODE_NONE || getRawTrimValue(phase, i).mode == TRIM_MODE_3POS)
       continue;
+
+    coord_t ym;
+    uint8_t stickIndex = inputMappingConvertMode(i);
+    coord_t xm = x[stickIndex];
+    uint8_t att = ROUND;
+    int16_t val = getTrimValue(phase, i);
 
     int16_t dir = val;
     bool exttrim = false;
     if (val < TRIM_MIN || val > TRIM_MAX) {
       exttrim = true;
     }
-    if (val < -(TRIM_LEN + 1) * 4) {
-      val = -(TRIM_LEN + 1);
+    val = (val * TRIM_LEN) / TRIM_MAX;
+    if (val < -TRIM_LEN) {
+      val = -TRIM_LEN;
     }
-    else if (val > (TRIM_LEN + 1) * 4) {
-      val = TRIM_LEN + 1;
+    else if (val > TRIM_LEN) {
+      val = TRIM_LEN;
     }
-    else {
-      val /= 4;
-    }
+
+    uint8_t nx, ny;
+    LcdFlags nFlg = TINSIZE;
 
     if (vert[i]) {
       ym = 31;
       if (!getPixel(xm, ym))
         lcdDrawSolidVerticalLine(xm, ym - TRIM_LEN, TRIM_LEN * 2 + 1);
-      if (keysGetMaxTrims() <= 4) {
+      if (squareMarker) {
         if (i != 2 || !g_model.thrTrim) {
           lcdDrawSolidVerticalLine(xm - 1, ym - 1, 3);
           lcdDrawSolidVerticalLine(xm + 1, ym - 1, 3);
@@ -200,14 +205,6 @@ void displayTrims(uint8_t phase)
         if (exttrim) {
           lcdDrawSolidHorizontalLine(xm - 1, ym, 3);
         }
-        if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && dir != 0) {
-          if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS ||
-              (trimsDisplayTimer > 0 && (trimsDisplayMask & (1 << i)))) {
-            lcdDrawNumber(dir > 0 ? 12 : 40, xm - 2, -abs(dir),
-                          TINSIZE | VERTICAL);
-          }
-        }
-        lcdDrawSquare(xm - 3, ym - 3, 7, att);
       }
       else {
         ym -= val;
@@ -221,20 +218,16 @@ void displayTrims(uint8_t phase)
           lcdDrawSolidVerticalLine(xm + 2, ym - 1, 3);
           lcdDrawSolidVerticalLine(xm + 3, ym - 2, 5);
         }
-        if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && dir != 0 && i < 4) {
-          if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS ||
-              (trimsDisplayTimer > 0 && (trimsDisplayMask & (1 << i)))) {
-            lcdDrawNumber(dir > 0 ? 12 : 40, xm - 2, -abs(dir),
-                          TINSIZE | VERTICAL);
-          }
-        }
       }
+      nx = dir > 0 ? 12 : 52;
+      ny = xm - 2;
+      nFlg |= VERTICAL;
     }
     else {
       ym = 60;
       if (!getPixel(xm, ym))
         lcdDrawSolidHorizontalLine(xm - TRIM_LEN, ym, TRIM_LEN * 2 + 1);
-      if (keysGetMaxTrims() <= 4) {
+      if (squareMarker) {
         lcdDrawSolidHorizontalLine(xm - 1, ym - 1, 3);
         lcdDrawSolidHorizontalLine(xm - 1, ym + 1, 3);
         xm += val;
@@ -248,16 +241,6 @@ void displayTrims(uint8_t phase)
         if (exttrim) {
           lcdDrawSolidVerticalLine(xm, ym - 1, 3);
         }
-        if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && dir != 0) {
-          if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS ||
-              (trimsDisplayTimer > 0 && (trimsDisplayMask & (1 << i)))) {
-            lcdDrawNumber(
-                (stickIndex == 0 ? (dir > 0 ? TRIM_LH_POS : TRIM_LH_NEG)
-                                 : (dir > 0 ? TRIM_RH_POS : TRIM_RH_NEG)),
-                ym - 2, -abs(dir), TINSIZE);
-          }
-        }
-        lcdDrawSquare(xm - 3, ym - 3, 7, att);
       }
       else {
         xm += val;
@@ -271,18 +254,19 @@ void displayTrims(uint8_t phase)
           lcdDrawSolidHorizontalLine(xm - 1, ym - 2, 3);
           lcdDrawSolidHorizontalLine(xm - 2, ym - 3, 5);
         }
-        if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && dir != 0 && i < 4) {
-          if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS ||
-              (trimsDisplayTimer > 0 && (trimsDisplayMask & (1 << i)))) {
-            lcdDrawNumber(
-                (xm < LCD_W / 2 ? (dir > 0 ? TRIM_LH_POS : TRIM_LH_NEG)
-                                 : (dir > 0 ? TRIM_RH_POS : TRIM_RH_NEG)),
-                ym - 2, -abs(dir), TINSIZE);
-          }
-        }
+      }
+      nx = xm < LCD_W / 2 ? (dir > 0 ? TRIM_LH_POS : TRIM_LH_NEG)
+                          : (dir > 0 ? TRIM_RH_POS : TRIM_RH_NEG);
+      ny = ym - 2;
+    }
+    if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && dir != 0 && i < 4) {
+      if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS ||
+          (trimsDisplayTimer > 0 && (trimsDisplayMask & (1 << i)))) {
+        lcdDrawNumber(nx, ny, -abs(dir), nFlg | (dir < 0 ? RIGHT : 0));
       }
     }
-
+    if (squareMarker)
+      lcdDrawSquare(xm - 3, ym - 3, 7, att);
   }
 }
 
@@ -388,12 +372,7 @@ void onMainViewMenu(const char * result)
     pushModelNotes();
   }
   else if (result == STR_RESET_SUBMENU) {
-    POPUP_MENU_ADD_ITEM(STR_RESET_FLIGHT);
-    POPUP_MENU_ADD_ITEM(STR_RESET_TIMER1);
-    POPUP_MENU_ADD_ITEM(STR_RESET_TIMER2);
-    POPUP_MENU_ADD_ITEM(STR_RESET_TIMER3);
-    POPUP_MENU_ADD_ITEM(STR_RESET_TELEMETRY);
-    POPUP_MENU_START(onMainViewMenu);
+    POPUP_MENU_START(onMainViewMenu, 5, STR_RESET_FLIGHT, STR_RESET_TIMER1, STR_RESET_TIMER2, STR_RESET_TIMER3, STR_RESET_TELEMETRY);
   }
   else if (result == STR_RESET_TELEMETRY) {
     telemetryReset();
@@ -474,11 +453,7 @@ void menuMainView(event_t event)
         POPUP_MENU_ADD_ITEM(STR_VIEW_NOTES);
       }
 
-      POPUP_MENU_ADD_ITEM(STR_RESET_SUBMENU);
-
-      POPUP_MENU_ADD_ITEM(STR_STATISTICS);
-      POPUP_MENU_ADD_ITEM(STR_ABOUT_US);
-      POPUP_MENU_START(onMainViewMenu);
+      POPUP_MENU_START(onMainViewMenu, 3, STR_RESET_SUBMENU, STR_STATISTICS, STR_ABOUT_US);
       break;
 
 #if defined(EVT_KEY_LAST_MENU)

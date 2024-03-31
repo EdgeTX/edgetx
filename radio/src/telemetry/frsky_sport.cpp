@@ -289,7 +289,7 @@ void sportProcessTelemetryPacketWithoutCrc(uint8_t module, uint8_t origin, const
     }
     else if (dataId == R9_PWR_ID) {
       // convert 'dBm' to 'mW'
-      static const uint32_t r9pwrs[][2] = {{0, 1},    {5, 3},    {10, 10},
+      static const uint16_t r9pwrs[][2] = {{0, 1},    {5, 3},    {10, 10},
                                            {13, 20},  {14, 25},  {20, 100},
                                            {23, 200}, {27, 500}, {30, 1000}};
       uint32_t dBm = SPORT_DATA_U8(packet);

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODULES_HELPERS_H_
-#define _MODULES_HELPERS_H_
+#pragma once
 
 #include "libopenui/src/bitfield.h"
 #include "definitions.h"
@@ -85,14 +84,14 @@ extern uint32_t NV14internalModuleFwVersion;
 
   const uint8_t getMaxMultiOptions();
 
-  struct mm_protocol_definition {
+  PACK_NOT_SIMU(struct mm_protocol_definition {
     uint8_t protocol;
-    uint8_t maxSubtype;
-    bool failsafe;
-    bool disable_ch_mapping;
+    uint8_t maxSubtype:6;
+    bool failsafe:1;
+    bool disable_ch_mapping:1;
     const char* const* subTypeString;
     const char* optionsstr;
-  };
+  });
 
   const mm_protocol_definition *getMultiProtocolDefinition (uint8_t protocol);
 
@@ -461,37 +460,7 @@ static_assert(MODULE_SUBTYPE_PXX1_LAST + 2 == sizeof(maxChannelsXJT_M8),
 constexpr int8_t MAX_TRAINER_CHANNELS_M8 = MAX_TRAINER_CHANNELS - 8;
 constexpr int8_t MAX_EXTRA_MODULE_CHANNELS_M8 = 8; // only 16ch PPM
 
-inline int8_t maxModuleChannels_M8(uint8_t moduleIdx)
-{
-  if (isExtraModule(moduleIdx)) {
-    return MAX_EXTRA_MODULE_CHANNELS_M8;
-  } else if (isModuleXJT(moduleIdx)) {
-    return maxChannelsXJT_M8[1 + g_model.moduleData[moduleIdx].subType];
-  } else if (isModuleISRMD16(moduleIdx)) {
-    return maxChannelsXJT_M8[MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16];
-  } else if (isModuleR9M(moduleIdx)) {
-    if (isModuleR9M_LBT(moduleIdx)) {
-      if (isModuleR9MLite(moduleIdx))
-        return g_model.moduleData[moduleIdx].pxx.power ==
-                       R9M_LITE_LBT_POWER_25_8CH
-                   ? 0
-                   : 8;
-      else
-        return g_model.moduleData[moduleIdx].pxx.power == R9M_LBT_POWER_25_8CH
-                   ? 0
-                   : 8;
-    } else {
-      return 8;  // always 16 channels in FCC / FLEX
-    }
-  } else if (isModuleMultimoduleDSM2(moduleIdx)) {
-    return 4;  // 12 channels
-  } else if (isModuleDSMP(moduleIdx) &&
-             (g_model.moduleData[moduleIdx].dsmp.flags != 0)) {
-    return g_model.moduleData[moduleIdx].channelsCount;
-  } else {
-    return maxChannelsModules_M8[g_model.moduleData[moduleIdx].type];
-  }
-}
+extern int8_t maxModuleChannels_M8(uint8_t moduleIdx);
 
 inline int8_t maxModuleChannels(uint8_t moduleIdx)
 {
@@ -525,19 +494,7 @@ inline uint8_t sentModulePXXChannels(uint8_t idx)
   return 8 + g_model.moduleData[idx].channelsCount;
 }
 
-inline int8_t sentModuleChannels(uint8_t idx)
-{
-  if (isModuleCrossfire(idx))
-    return CROSSFIRE_CHANNELS_COUNT;
-  else if (isModuleGhost(idx))
-    return GHOST_CHANNELS_COUNT;
-  else if (isModuleMultimodule(idx) && !isModuleMultimoduleDSM2(idx))
-    return 16;
-  else if (isModuleSBUS(idx))
-    return 16;
-  else
-    return sentModulePXXChannels(idx);
-}
+extern int8_t sentModuleChannels(uint8_t idx);
 
 inline bool isDefaultModelRegistrationID()
 {
@@ -676,30 +633,7 @@ inline bool isModuleRangeAvailable(uint8_t moduleIdx)
 
 constexpr uint8_t MAX_RXNUM = 63;
 
-inline uint8_t getMaxRxNum(uint8_t idx)
-{
-  if (isModuleDSM2(idx))
-    return 20;
-
-#if defined(MULTIMODULE)
-  if (isModuleMultimodule(idx)) {
-    switch (g_model.moduleData[idx].multi.rfProtocol) {
-      case MODULE_SUBTYPE_MULTI_OLRS:
-        return MODULE_SUBTYPE_MULTI_OLRS_RXNUM;
-      case MODULE_SUBTYPE_MULTI_BUGS:
-        return MODULE_SUBTYPE_MULTI_BUGS_RXNUM;
-      case MODULE_SUBTYPE_MULTI_BUGS_MINI:
-        return MODULE_SUBTYPE_MULTI_BUGS_MINI_RXNUM;
-    }
-  }
-#endif
-
-#if defined(AFHDS3)
-  if (isModuleAFHDS3(idx)) return AFHDS3_MAX_MODEL_ID;
-#endif
-  
-  return MAX_RXNUM;
-}
+extern uint8_t getMaxRxNum(uint8_t idx);
 
 inline const char * getModuleDelay(uint8_t idx)
 {
@@ -827,26 +761,6 @@ inline void resetAfhds2AOptions(uint8_t moduleIdx)
 #endif
 }
 
-inline void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
-{
-  ModuleData & moduleData = g_model.moduleData[moduleIdx];
-  memclear(&moduleData, sizeof(ModuleData));
-  moduleData.type = moduleType;
-  moduleData.channelsCount = defaultModuleChannels_M8(moduleIdx);
-  if (moduleData.type == MODULE_TYPE_SBUS)
-    moduleData.sbus.refreshRate = -31;
-  else if (moduleData.type == MODULE_TYPE_PPM)
-    setDefaultPpmFrameLength(moduleIdx);
-  else if (moduleData.type == MODULE_TYPE_FLYSKY_AFHDS2A) {
-    resetAfhds2AOptions(moduleIdx);
-  }
-  else if (moduleData.type == MODULE_TYPE_FLYSKY_AFHDS3) {
-    resetAfhds3Options(moduleIdx);
-  }
-  else
-    resetAccessAuthenticationCount();
-}
+extern void setModuleType(uint8_t moduleIdx, uint8_t moduleType);
 
 extern bool isExternalAntennaEnabled();
-
-#endif // _MODULES_HELPERS_H_
