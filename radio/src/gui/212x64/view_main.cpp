@@ -112,32 +112,31 @@ void doMainScreenGraphics()
 
 void displayTrims(uint8_t phase)
 {
+  static coord_t x[] = { TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X };
+  static uint8_t vert[] = { 0, 1, 1, 0 };
+
   for (unsigned int i = 0; i < MAX_STICKS; i++) {
-    coord_t x[] = { TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X };
-    uint8_t vert[] = { 0, 1, 1, 0 };
-    coord_t xm, ym;
+    if(getRawTrimValue(phase, i).mode == TRIM_MODE_NONE || getRawTrimValue(phase, i).mode == TRIM_MODE_3POS)
+      continue;
+
+    coord_t ym;
     unsigned int stickIndex = inputMappingConvertMode(i);
-    xm = x[stickIndex];
+    coord_t xm = x[stickIndex];
 
     uint32_t att = ROUND;
     int32_t trim = getTrimValue(phase, i);
     int32_t val = trim;
     bool exttrim = false;
 
-    if(getRawTrimValue(phase, i).mode == TRIM_MODE_NONE || getRawTrimValue(phase, i).mode == TRIM_MODE_3POS)
-      continue;
-
     if (val < TRIM_MIN || val > TRIM_MAX) {
       exttrim = true;
     }
-    if (val < -(TRIM_LEN+1)*4) {
-      val = -(TRIM_LEN+1);
+    val = (val * TRIM_LEN) / TRIM_MAX;
+    if (val < -TRIM_LEN) {
+      val = -TRIM_LEN;
     }
-    else if (val > (TRIM_LEN+1)*4) {
-      val = TRIM_LEN+1;
-    }
-    else {
-      val /= 4;
+    else if (val > TRIM_LEN) {
+      val = TRIM_LEN;
     }
 
     if (vert[i]) {

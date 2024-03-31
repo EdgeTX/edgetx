@@ -148,37 +148,38 @@ void doMainScreenGraphics()
 
 void displayTrims(uint8_t phase)
 {
-  bool squareMarker = (keysGetMaxTrims() <= 4);
-  for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
 #if defined(SURFACE_RADIO)
-    static uint8_t x[] = {TRIM_RH_X, TRIM_LH_X, TRIM_RV_X, TRIM_LV_X, TRIM_LV_X};
-    static uint8_t vert[] = {0, 0, 1, 1, 1};
+  static coord_t x[] = {TRIM_RH_X, TRIM_LH_X, TRIM_RV_X, TRIM_LV_X, TRIM_LV_X};
+  static uint8_t vert[] = {0, 0, 1, 1, 1};
 #else
-    static uint8_t x[] = {TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X, TRIM_LH_X, TRIM_LV_X, TRIM_RH_X, TRIM_RV_X};
-    static uint8_t vert[] = {0, 1, 1, 0, 0, 1, 0, 1};
+  static coord_t x[] = {TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X, TRIM_LH_X, TRIM_LV_X, TRIM_RH_X, TRIM_RV_X};
+  static uint8_t vert[] = {0, 1, 1, 0, 0, 1, 0, 1};
 #endif
-    coord_t xm, ym;
-    uint8_t stickIndex = inputMappingConvertMode(i);
-    xm = x[stickIndex];
-    uint8_t att = ROUND;
-    int16_t val = getTrimValue(phase, i);
+
+  bool squareMarker = (keysGetMaxTrims() <= 4);
+
+  for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
 
     if (getRawTrimValue(phase, i).mode == TRIM_MODE_NONE || getRawTrimValue(phase, i).mode == TRIM_MODE_3POS)
       continue;
+
+    coord_t ym;
+    uint8_t stickIndex = inputMappingConvertMode(i);
+    coord_t xm = x[stickIndex];
+    uint8_t att = ROUND;
+    int16_t val = getTrimValue(phase, i);
 
     int16_t dir = val;
     bool exttrim = false;
     if (val < TRIM_MIN || val > TRIM_MAX) {
       exttrim = true;
     }
-    if (val < -(TRIM_LEN + 1) * 4) {
-      val = -(TRIM_LEN + 1);
+    val = (val * TRIM_LEN) / TRIM_MAX;
+    if (val < -TRIM_LEN) {
+      val = -TRIM_LEN;
     }
-    else if (val > (TRIM_LEN + 1) * 4) {
-      val = TRIM_LEN + 1;
-    }
-    else {
-      val /= 4;
+    else if (val > TRIM_LEN) {
+      val = TRIM_LEN;
     }
 
     uint8_t nx, ny;
