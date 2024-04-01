@@ -1191,6 +1191,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
          
           if (scriptResult != 0) {
             TRACE("Script finished with status %d", scriptResult);
+            killAllEvents();
             luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
           }
           else if (luaDisplayStatistics) {
