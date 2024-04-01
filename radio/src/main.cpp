@@ -438,7 +438,16 @@ bool handleGui(event_t event) {
       menuHandlers[menuLevel] == menuViewTelemetry &&
       TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_SCRIPT;
   bool isStandalone = scriptInternalData[0].reference == SCRIPT_STANDALONE;
-  if (isTelemView || isStandalone) luaPushEvent(event);
+  if ((isTelemView || isStandalone) && event) {
+#if !defined(KEYS_GPIO_REG_PAGEUP)
+    // For radios with a single PAGE key, kill the
+    // EVT_KEY_BREAK event after a long press of the PAGE key.
+    if (event == EVT_KEY_LONG(KEY_PAGE)) {
+      killEvents(KEY_PAGE);
+    }
+#endif
+    luaPushEvent(event);
+  }
   refreshNeeded = luaTask(true);
   if (isTelemView)
     menuHandlers[menuLevel](event);
