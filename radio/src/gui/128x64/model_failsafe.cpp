@@ -65,7 +65,6 @@ void menuModelFailsafe(event_t event)
       wbar -= 6;
 
     if (sub == k && !READ_ONLY() && event == EVT_KEY_LONG(KEY_ENTER)) {
-      killEvents(event);
       POPUP_MENU_START(onFailsafeMenu, 4, STR_NONE, STR_HOLD, STR_CHANNEL2FAILSAFE, STR_CHANNELS2FAILSAFE);
     }
 

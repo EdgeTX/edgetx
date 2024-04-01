@@ -241,7 +241,6 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
 #if !defined(NAVIGATION_XLITE)
           if (v == ' ') {
             s_editMode = 0;
-            killEvents(event);
             break;
           }
           else
@@ -255,7 +254,6 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
 
 #if defined(NAVIGATION_9X)
           if (event==EVT_KEY_LONG(KEY_LEFT))
-            killEvents(KEY_LEFT);
 #endif
           break;
       }

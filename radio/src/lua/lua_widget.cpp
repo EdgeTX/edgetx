@@ -166,14 +166,6 @@ void LuaEventHandler::onCancel() { luaPushEvent(EVT_KEY_BREAK(KEY_EXIT)); }
 
 void LuaEventHandler::onEvent(event_t event)
 {
-  if (event == EVT_KEY_LONG(KEY_EXIT)) {
-    killEvents(KEY_EXIT);
-  }
-#if !defined(KEYS_GPIO_REG_PAGEUP) && !defined(USE_HATS_AS_KEYS)
-  else if (event == EVT_KEY_LONG(KEY_PAGEDN)) {
-    killEvents(KEY_PAGEDN);
-  }
-#endif
   luaPushEvent(event);
 }
 

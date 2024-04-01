@@ -36,8 +36,8 @@ void menuAboutView(event_t event)
 {
   switch(event)
   {
-    case EVT_KEY_FIRST(KEY_ENTER):
-    case EVT_KEY_FIRST(KEY_EXIT):
+    case EVT_KEY_BREAK(KEY_ENTER):
+    case EVT_KEY_BREAK(KEY_EXIT):
       chainMenu(menuMainView);
       break;
   }

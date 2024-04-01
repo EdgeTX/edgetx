@@ -153,7 +153,6 @@ void menuModelCurveOne(event_t event)
 
     case EVT_KEY_LONG(KEY_ENTER):
       if (menuVerticalPosition > 1) {
-        killEvents(event);
         POPUP_MENU_START(onCurveOneMenu, 3, STR_CURVE_PRESET, STR_MIRROR, STR_CLEAR);
       }
       break;

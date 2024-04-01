@@ -119,8 +119,6 @@ void GVarNumberEdit::setSuffix(std::string value)
 void GVarNumberEdit::onEvent(event_t event)
 {
   if (event == EVT_KEY_LONG(KEY_ENTER)) {
-    // TODO: check this...
-    // killEvents(event);
     switchGVarMode();
   } else {
     Window::onEvent(event);

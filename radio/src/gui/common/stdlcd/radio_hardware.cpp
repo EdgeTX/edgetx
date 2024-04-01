@@ -265,7 +265,7 @@ void menuRadioHardware(event_t event)
       case ITEM_RADIO_HARDWARE_LABEL_STICKS:
         lcdDrawTextAlignedLeft(y, STR_STICKS);
         lcdDrawText(HW_SETTINGS_COLUMN2, y, BUTTON(TR_CALIBRATION), attr);
-        if (attr && event == EVT_KEY_FIRST(KEY_ENTER)) {
+        if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
           pushMenu(menuRadioCalibration);
         }
         break;

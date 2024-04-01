@@ -76,10 +76,9 @@ void menuModelFlightModesAll(event_t event)
       drawFlightMode(OFS_CHECKTRIMS, (LCD_LINES-1)*FH+1, mixerCurrentFlightMode+1);
       if (sub == MAX_FLIGHT_MODES) {
         if (!trimsCheckTimer) {
-          if (event == EVT_KEY_FIRST(KEY_ENTER)) {
+          if (event == EVT_KEY_BREAK(KEY_ENTER)) {
             trimsCheckTimer = 200; // 2 seconds trims cancelled
             s_editMode = 1;
-            killEvents(event);
           }
           else {
             lcdInvertLastLine();
@@ -87,10 +86,9 @@ void menuModelFlightModesAll(event_t event)
           }
         }
         else {
-          if (event == EVT_KEY_FIRST(KEY_EXIT)) {
+          if (event == EVT_KEY_BREAK(KEY_EXIT)) {
             trimsCheckTimer = 0;
             s_editMode = 0;
-            killEvents(event);
           }
         }
       }

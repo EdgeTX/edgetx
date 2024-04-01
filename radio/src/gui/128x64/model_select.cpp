@@ -141,7 +141,6 @@ void menuModelSelect(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_EXIT):
-      killEvents(event);
       if (s_copyMode && s_copyTgtOfs == 0 && g_eeGeneral.currModel != sub && modelExists(sub)) {
         POPUP_CONFIRMATION(STR_DELETEMODEL, nullptr);
         SET_WARNING_INFO(modelHeaders[sub].name, sizeof(g_model.header.name), 0);
@@ -208,7 +207,6 @@ void menuModelSelect(event_t event)
                event == EVT_KEY_LONG(KEY_ENTER)) {
 
         s_copyMode = 0;
-        killEvents(event);
         if (g_eeGeneral.currModel != sub) {
           if (modelExists(sub)) {
             POPUP_MENU_ADD_ITEM(STR_SELECT_MODEL);
@@ -241,18 +239,16 @@ void menuModelSelect(event_t event)
       break;
 
 #if defined(KEYS_GPIO_REG_PAGEDN)
-    case EVT_KEY_FIRST(KEY_PAGEUP):
+    case EVT_KEY_BREAK(KEY_PAGEUP):
       chainMenu(menuTabModel[DIM(menuTabModel)-1].menuFunc);
-      killEvents(event);
       break;
 
-    case EVT_KEY_FIRST(KEY_PAGEDN):
+    case EVT_KEY_BREAK(KEY_PAGEDN):
       chainMenu(menuModelSetup);
       break;
 #elif defined(KEYS_GPIO_REG_PAGE)
     case EVT_KEY_LONG(KEY_PAGE):
       chainMenu(menuTabModel[DIM(menuTabModel)-1].menuFunc);
-      killEvents(event);
       break;
 
     case EVT_KEY_BREAK(KEY_PAGE):

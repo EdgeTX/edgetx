@@ -128,7 +128,6 @@ void menuModelLimits(event_t event)
         s_editMode = 0;
         if (event==EVT_KEY_LONG(KEY_ENTER)) {
           START_NO_HIGHLIGHT();
-          killEvents(event);
           moveTrimsToOffsets(); // if highlighted and menu pressed - move trims to offsets
         }
       }
@@ -147,7 +146,6 @@ void menuModelLimits(event_t event)
 
     putsChn(0, y, k+1, (sub==k && menuHorizontalPosition < 0) ? INVERS : 0);
     if (sub==k && menuHorizontalPosition < 0 && event==EVT_KEY_LONG(KEY_ENTER) && !READ_ONLY()) {
-      killEvents(event);
       POPUP_MENU_START(onLimitsMenu, 4, STR_RESET, STR_COPY_TRIMS_TO_OFS, STR_COPY_STICKS_TO_OFS, STR_COPY_MIN_MAX_TO_OUTPUTS);
     }
 

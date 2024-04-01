@@ -51,7 +51,7 @@ void menuChannelsView(event_t event)
       viewChannels.secondPage = !viewChannels.secondPage;
       break;
 
-    case EVT_KEY_FIRST(KEY_ENTER):
+    case EVT_KEY_BREAK(KEY_ENTER):
       viewChannels.mixersView = !viewChannels.mixersView;
       break;
   }

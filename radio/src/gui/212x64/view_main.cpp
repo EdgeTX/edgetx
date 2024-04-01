@@ -472,7 +472,6 @@ void menuMainView(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_ENTER):
-      killEvents(event);
       if (modelHasNotes()) {
         POPUP_MENU_ADD_ITEM(STR_VIEW_NOTES);
       }
@@ -485,7 +484,6 @@ void menuMainView(event_t event)
 
     case EVT_KEY_LONG(KEY_MENU):
       pushMenu(menuTabGeneral[0].menuFunc);
-      killEvents(event);
       break;
 
     case EVT_KEY_BREAK(KEY_PAGE):
@@ -499,7 +497,6 @@ void menuMainView(event_t event)
 
     case EVT_KEY_LONG(KEY_PAGE):
       chainMenu(menuViewTelemetry);
-      killEvents(event);
       break;
 
     case EVT_KEY_FIRST(KEY_EXIT):

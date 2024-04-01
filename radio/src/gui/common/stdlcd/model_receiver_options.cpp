@@ -127,7 +127,6 @@ void menuModelReceiverOptions(event_t event)
   }
 
   if (event == EVT_KEY_LONG(KEY_ENTER) && reusableBuffer.hardwareAndSettings.receiverSettings.dirty) {
-    killEvents(event);
     reusableBuffer.hardwareAndSettings.receiverSettings.dirty = RECEIVER_SETTINGS_OK;
     moduleState[g_moduleIdx].writeReceiverSettings(&reusableBuffer.hardwareAndSettings.receiverSettings);
   }

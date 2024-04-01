@@ -52,11 +52,9 @@ void menuStatisticsView(event_t event)
     case EVT_KEY_FIRST(KEY_DOWN):
 #if defined(KEYS_GPIO_REG_PAGEUP)
     case EVT_KEY_BREAK(KEY_PAGEUP):
-      killEvents(event);
       chainMenu(menuStatisticsDebug2);
 #elif defined(NAVIGATION_X7)
     case EVT_KEY_LONG(KEY_PAGE):
-      killEvents(event);
       chainMenu(menuStatisticsDebug2);
 #else
       chainMenu(menuStatisticsDebug);
@@ -69,7 +67,7 @@ void menuStatisticsView(event_t event)
       sessionTimer = 0;
       break;
 
-    case EVT_KEY_FIRST(KEY_EXIT):
+    case EVT_KEY_BREAK(KEY_EXIT):
       chainMenu(menuMainView);
       break;
   }
@@ -128,10 +126,9 @@ void menuStatisticsDebug(event_t event)
       g_eeGeneral.globalTimer = 0;
       sessionTimer = 0;
       storageDirty(EE_GENERAL);
-      killEvents(event);
       break;
 
-    case EVT_KEY_FIRST(KEY_ENTER):
+    case EVT_KEY_BREAK(KEY_ENTER):
 #if defined(LUA)
       maxLuaInterval = 0;
       maxLuaDuration = 0;
@@ -158,12 +155,11 @@ void menuStatisticsDebug(event_t event)
 #elif defined(NAVIGATION_X7)
     case EVT_KEY_LONG(KEY_PAGE):
 #endif
-      killEvents(event);
       disableVBatBridge();
       chainMenu(menuStatisticsView);
       break;
 
-    case EVT_KEY_FIRST(KEY_EXIT):
+    case EVT_KEY_BREAK(KEY_EXIT):
       disableVBatBridge();
       chainMenu(menuMainView);
       break;
@@ -221,7 +217,7 @@ void menuStatisticsDebug2(event_t event)
   title(STR_MENUDEBUG);
 
   switch(event) {
-    // case EVT_KEY_FIRST(KEY_ENTER):
+    // case EVT_KEY_BREAK(KEY_ENTER):
     //   telemetryErrors  = 0;
     //   break;
 
@@ -240,11 +236,10 @@ void menuStatisticsDebug2(event_t event)
 #elif defined(NAVIGATION_X7)
     case EVT_KEY_LONG(KEY_PAGE):
 #endif
-      killEvents(event);
       chainMenu(menuStatisticsDebug);
       break;
 
-    case EVT_KEY_FIRST(KEY_EXIT):
+    case EVT_KEY_BREAK(KEY_EXIT):
       chainMenu(menuMainView);
       break;
   }

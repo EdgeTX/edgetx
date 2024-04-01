@@ -104,7 +104,6 @@ void MenuToolbar::onEvent(event_t event)
   else if (event == EVT_KEY_BREAK(KEY_PAGEUP)) {
 #else
   else if (event == EVT_KEY_LONG(KEY_PAGEDN)) {
-    killEvents(event);
 #endif
     lv_group_focus_prev(group);
   }

@@ -138,7 +138,6 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
 
   if (i_flags & INCDEC_SOURCE) {
     if (event == EVT_KEY_LONG(KEY_ENTER) && !keysGetState(KEY_SHIFT)) {
-      killEvents(event);
       checkIncDecSelection = MIXSRC_NONE;
 
       if (i_min <= MIXSRC_FIRST_INPUT && i_max >= MIXSRC_FIRST_INPUT) {
@@ -190,7 +189,6 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
   }
   else if (i_flags & INCDEC_SWITCH) {
     if (event == EVT_KEY_LONG(KEY_ENTER) && !keysGetState(KEY_SHIFT)) {
-      killEvents(event);
       checkIncDecSelection = SWSRC_NONE;
       if (i_min <= SWSRC_FIRST_SWITCH && i_max >= SWSRC_LAST_SWITCH)       POPUP_MENU_ADD_ITEM(STR_MENU_SWITCHES);
       if (i_min <= SWSRC_FIRST_TRIM && i_max >= SWSRC_LAST_TRIM)           POPUP_MENU_ADD_ITEM(STR_MENU_TRIMS);

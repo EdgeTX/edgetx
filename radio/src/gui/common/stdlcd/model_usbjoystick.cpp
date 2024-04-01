@@ -198,8 +198,7 @@ void menuModelUSBJoystick(event_t event)
   coord_t y = 0;
   uint8_t k = 0;
 
-  if (event == EVT_KEY_FIRST(KEY_ENTER)) {
-    killEvents(event);
+  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     USBJoystickChData * cch = usbJChAddress(sub);
     s_currIdx = sub;
     if (sub >= 0)

@@ -53,26 +53,21 @@ void menuViewTelemetry(event_t event)
 {
   enum NavigationDirection direction = NAVIGATION_DIRECTION_NONE;
 
-  if (event == EVT_KEY_FIRST(KEY_EXIT) && TELEMETRY_SCREEN_TYPE(s_frsky_view) != TELEMETRY_SCREEN_TYPE_SCRIPT) {
-    killEvents(event);
+  if (event == EVT_KEY_BREAK(KEY_EXIT) && TELEMETRY_SCREEN_TYPE(s_frsky_view) != TELEMETRY_SCREEN_TYPE_SCRIPT) {
     chainMenu(menuMainView);
   }
 #if defined(LUA)
   else if (event == EVT_KEY_LONG(KEY_EXIT)) {
-    killEvents(event);
     chainMenu(menuMainView);
   }
 #endif
   else if (EVT_KEY_PREVIOUS_VIEW(event)) {
-    killEvents(event);
     decrTelemetryScreen();
   }
   else if (EVT_KEY_NEXT_VIEW(event)) {
-    killEvents(event);
     incrTelemetryScreen();
   }
   else if (event == EVT_KEY_LONG(KEY_ENTER)) {
-    killEvents(event);
     POPUP_MENU_START(onMainViewMenu, 2, STR_RESET_TELEMETRY, STR_RESET_FLIGHT);
   }
 

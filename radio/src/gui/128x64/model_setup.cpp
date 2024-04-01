@@ -39,13 +39,6 @@
   #include "telemetry/crossfire.h"
 #endif
 
-// TODO find why we need this (for REGISTER at least)
-#if defined(PCBXLITE)
-  #define EVT_BUTTON_PRESSED() EVT_KEY_FIRST(KEY_ENTER)
-#else
-  #define EVT_BUTTON_PRESSED() EVT_KEY_BREAK(KEY_ENTER)
-#endif
-
 uint8_t g_moduleIdx;
 
 uint8_t getSwitchWarningsCount()
@@ -1010,7 +1003,6 @@ void menuModelSetup(event_t event)
                     AUDIO_WARNING1();
                     storageDirty(EE_MODEL);
                   }
-                  killEvents(event);
                   break;
               }
             }
@@ -1065,7 +1057,6 @@ void menuModelSetup(event_t event)
           if (!READ_ONLY() && menuHorizontalPosition > 0) {
             switch (event) {
               case EVT_KEY_LONG(KEY_ENTER):
-                killEvents(event);
                 if (g_model.potsWarnMode == POTS_WARN_MANUAL) {
                   SAVE_POT_POSITION(menuHorizontalPosition-1);
                   AUDIO_WARNING1();
@@ -1352,7 +1343,6 @@ void menuModelSetup(event_t event)
         //     START_NO_HIGHLIGHT();
         //     telemetryErrors = 0;
         //     AUDIO_WARNING1();
-        //     killEvents(event);
         //   }
         // }
         break;
@@ -1636,7 +1626,7 @@ void menuModelSetup(event_t event)
         lcdDrawText(lcdLastRightPos + 3, y, STR_MODULE_RANGE, (menuHorizontalPosition == 1 ? attr : 0));
         if (attr) {
           if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL && s_editMode > 0) {
-            if (menuHorizontalPosition == 0 && event == EVT_BUTTON_PRESSED()) {
+            if (menuHorizontalPosition == 0 && event == EVT_KEY_BREAK(KEY_ENTER)) {
               startRegisterDialog(moduleIdx);
             }
             else if (menuHorizontalPosition == 1) {
@@ -1739,7 +1729,6 @@ void menuModelSetup(event_t event)
                   modelHeaders[g_eeGeneral.currModel].modelId[moduleIdx] = g_model.header.modelId[moduleIdx];
                 }
                 else if (event == EVT_KEY_LONG(KEY_ENTER)) {
-                  killEvents(event);
                   uint8_t newVal = 0;
 #if defined(STORAGE_MODELSLIST)
                   newVal = modelslist.findNextUnusedModelId(moduleIdx);
@@ -1778,8 +1767,6 @@ void menuModelSetup(event_t event)
                   if (isModuleR9MNonAccess(moduleIdx) || isModuleD16(moduleIdx) || isModuleAFHDS3(moduleIdx)) {
 #if defined(PCBXLITE)
                     if (EVT_KEY_MASK(event) == KEY_ENTER) {
-#elif defined(NAVIGATION_9X)
-                    if (event ==  EVT_KEY_FIRST(KEY_ENTER)) {
 #else
                     if (event == EVT_KEY_BREAK(KEY_ENTER)) {
 #endif
@@ -1874,7 +1861,6 @@ void menuModelSetup(event_t event)
             s_editMode = 0;
             if (moduleData.failsafeMode == FAILSAFE_CUSTOM) {
               if (event == EVT_KEY_LONG(KEY_ENTER)) {
-                killEvents(event);
                 setCustomFailsafe(moduleIdx);
                 AUDIO_WARNING1();
                 SEND_FAILSAFE_NOW(moduleIdx);
@@ -2291,15 +2277,14 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_USBJOYSTICK_CH_BUTTON:
         lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_USBJOYSTICK_SETTINGS), attr);
-        if (attr && event == EVT_KEY_FIRST(KEY_ENTER)) {
+        if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
           pushMenu(menuModelUSBJoystick);
         }
         break;
 
       case ITEM_MODEL_SETUP_USBJOYSTICK_APPLY:
         lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_USBJOYSTICK_APPLY_CHANGES), attr);
-        if (attr && !READ_ONLY() && event == EVT_KEY_FIRST(KEY_ENTER)) {
-          killEvents(event);
+        if (attr && !READ_ONLY() && event == EVT_KEY_BREAK(KEY_ENTER)) {
           onUSBJoystickModelChanged();
         }
         break;

@@ -55,7 +55,7 @@ void menuStatisticsView(event_t event)
       sessionTimer = 0;
       break;
 
-    case EVT_KEY_FIRST(KEY_EXIT):
+    case EVT_KEY_BREAK(KEY_EXIT):
       chainMenu(menuMainView);
       break;
   }
@@ -123,10 +123,9 @@ void menuStatisticsDebug(event_t event)
       g_eeGeneral.globalTimer = 0;
       sessionTimer = 0;
       storageDirty(EE_GENERAL);
-      killEvents(event);
       break;
 
-    case EVT_KEY_FIRST(KEY_ENTER):
+    case EVT_KEY_BREAK(KEY_ENTER):
 #if defined(LUA)
       maxLuaInterval = 0;
       maxLuaDuration = 0;
@@ -147,7 +146,7 @@ void menuStatisticsDebug(event_t event)
       chainMenu(menuStatisticsView);
       break;
 
-    case EVT_KEY_FIRST(KEY_EXIT):
+    case EVT_KEY_BREAK(KEY_EXIT):
       disableVBatBridge();
       chainMenu(menuMainView);
       break;
@@ -232,7 +231,7 @@ void menuStatisticsDebug2(event_t event)
       chainMenu(menuStatisticsDebug);
       break;
 
-    case EVT_KEY_FIRST(KEY_EXIT):
+    case EVT_KEY_BREAK(KEY_EXIT):
       chainMenu(menuMainView);
       break;
 
@@ -257,7 +256,6 @@ void menuTraceBuffer(event_t event)
   {
     case EVT_KEY_LONG(KEY_ENTER):
       dumpTraceBuffer();
-      killEvents(event);
       break;
 
     case EVT_KEY_FIRST(KEY_MINUS):

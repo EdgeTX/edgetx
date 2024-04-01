@@ -400,7 +400,6 @@ void NavWindow::onEvent(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_MODEL):
-      killEvents(KEY_MODEL);
       onLongPressMDL();
       break;
 
@@ -409,7 +408,6 @@ void NavWindow::onEvent(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_SYS):
-      killEvents(event);
       onLongPressSYS();
       break;
 
@@ -418,7 +416,6 @@ void NavWindow::onEvent(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_TELE):
-      killEvents(event);
       onLongPressTELE();
       break;
 
@@ -427,24 +424,11 @@ void NavWindow::onEvent(event_t event)
       break;
 
 #if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)
-    // Radios with both PGUP and PGDN buttons
     case EVT_KEY_BREAK(KEY_PAGEUP):
-      onPressPGUP();
-      break;
-
-    case EVT_KEY_LONG(KEY_PAGEDN):
-      killEvents(event);
-      onLongPressPGDN();
-      break;
-
-    case EVT_KEY_LONG(KEY_PAGEUP):
-      killEvents(event);
-      onLongPressPGUP();
-      break;
 #else
     // Radios witb only a single PGUP/DN button
     case EVT_KEY_LONG(KEY_PAGEDN):
-      killEvents(event);
+#endif
       onPressPGUP();
       break;
 #endif

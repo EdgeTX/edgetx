@@ -173,7 +173,6 @@ void menuModelTelemetry(event_t event)
         s_editMode = 0;
         s_currIdx = index;
         if (event == EVT_KEY_LONG(KEY_ENTER)) {
-          killEvents(event);
           POPUP_MENU_START(onSensorMenu, 3, STR_EDIT, STR_COPY, STR_DELETE);
         }
         else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
@@ -226,7 +225,6 @@ void menuModelTelemetry(event_t event)
         if (attr) {
           s_editMode = 0;
           if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-            killEvents(KEY_ENTER);
             POPUP_CONFIRMATION(STR_CONFIRMDELETE, onDeleteAllSensorsConfirm);
           }
         }

@@ -228,7 +228,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
       s_editMode = EDIT_MODE_INIT;
       break;
 
-    case EVT_KEY_FIRST(KEY_ENTER):
+    case EVT_KEY_BREAK(KEY_ENTER):
       if (!menuTab || l_posVert>0) {
         if (READ_ONLY_UNLOCKED()) {
           s_editMode = (s_editMode <= 0);
