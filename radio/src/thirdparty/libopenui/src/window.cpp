@@ -423,12 +423,7 @@ void NavWindow::onEvent(event_t event)
       onPressPGDN();
       break;
 
-#if defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)
     case EVT_KEY_BREAK(KEY_PAGEUP):
-#else
-    // Radios witb only a single PGUP/DN button
-    case EVT_KEY_LONG(KEY_PAGEDN):
-#endif
       onPressPGUP();
       break;
 #endif

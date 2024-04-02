@@ -439,12 +439,7 @@ void Menu::onEvent(event_t event)
 {
 #if defined(HARDWARE_KEYS)
   if (toolbar && (event == EVT_KEY_BREAK(KEY_PAGEDN) ||
-#if defined(KEYS_GPIO_REG_PAGEUP)
-                  event == EVT_KEY_BREAK(KEY_PAGEUP)
-#else
-                  event == EVT_KEY_LONG(KEY_PAGEDN)
-#endif
-                      )) {
+                  event == EVT_KEY_BREAK(KEY_PAGEUP))) {
     toolbar->onEvent(event);
   }
 #endif

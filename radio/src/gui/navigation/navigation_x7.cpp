@@ -282,7 +282,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
         break;
 
 #if defined(KEYS_GPIO_REG_PAGEDN)
-      case EVT_KEY_FIRST(KEY_PAGEDN):
+      case EVT_KEY_BREAK(KEY_PAGEDN):
 #else
       case EVT_KEY_BREAK(KEY_PAGE):
 #endif
