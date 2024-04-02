@@ -359,6 +359,11 @@
 // Chargers (USB and wireless)
 #define UCHARGER_GPIO               GPIO_PIN(GPIOB, 14) // PB.14 input
 #define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOB, 13) // PB.13 input
+#if defined(RADIO_NB4P)
+  #define UCHARGER_GPIO_PIN_INV
+  #define UCHARGER_CHARGE_END_GPIO_PIN_INV
+#endif
+
 #if defined(RADIO_PL18) || defined(RADIO_PL18EV)
   #define UCHARGER_EN_GPIO          GPIO_PIN(GPIOG, 3)  // PG.03 output
 #endif
