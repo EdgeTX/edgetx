@@ -242,6 +242,10 @@ int usbPlugged()
   static uint8_t lastState = 0;
 
   uint8_t state = gpio_read(UCHARGER_GPIO) ? 1 : 0;
+#if defined(UCHARGER_GPIO_PIN_INV)
+  state = !state;
+#endif
+
   if (state == lastState)
     debouncedState = state;
   else
