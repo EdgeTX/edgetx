@@ -6,7 +6,6 @@
 {% set key_plus = keys | selectattr("key","==","KEY_PLUS") | first %}
 {% set key_up = keys | selectattr("key","==","KEY_UP") | first %}
 {% set key_shift = keys | selectattr("key","==","KEY_SHIFT") | first %}
-{% set key_page = keys | selectattr("key","==","KEY_PAGE") | first %}
 {% set key_pageup = keys | selectattr("key","==","KEY_PAGEUP") | first %}
 {% set key_pagedn = keys | selectattr("key","==","KEY_PAGEDN") | first %}
 {% set key_model = keys | selectattr("key","==","KEY_MODEL") | first %}
@@ -53,13 +52,8 @@
   LROT_NUMENTRY( EVT_VIRTUAL_MENU, EVT_KEY_BREAK(KEY_RIGHT) )
   LROT_NUMENTRY( EVT_VIRTUAL_MENU_LONG, EVT_KEY_LONG(KEY_RIGHT) )
 {% else %}
-  {% if key_page %}
-  LROT_NUMENTRY( EVT_VIRTUAL_PREV_PAGE, EVT_KEY_LONG(KEY_PAGE) )
-  LROT_NUMENTRY( EVT_VIRTUAL_NEXT_PAGE, EVT_KEY_BREAK(KEY_PAGE) )
-  {% else %}
   LROT_NUMENTRY( EVT_VIRTUAL_PREV_PAGE, EVT_KEY_BREAK(KEY_PAGEUP) )
   LROT_NUMENTRY( EVT_VIRTUAL_NEXT_PAGE, EVT_KEY_BREAK(KEY_PAGEDN) )
-  {% endif %}
 
   {% if key_model %}
   LROT_NUMENTRY( EVT_VIRTUAL_MENU, EVT_KEY_BREAK(KEY_MODEL) )
@@ -108,16 +102,13 @@ LROT_NUMENTRY( EVT_EXIT_BREAK, EVT_KEY_BREAK(KEY_EXIT) )
   {{ key_event('RIGHT', 'KEY_RIGHT') }}
 {% endif %}
 
-{% if key_page %}
-  {{ key_event('PAGE', 'KEY_PAGE') }}
-{% endif %}
-
 {% if key_pageup %}
   {{ key_event('PAGEUP', 'KEY_PAGEUP') }}
-{% endif %}
-
-{% if key_pagedn %}
   {{ key_event('PAGEDN', 'KEY_PAGEDN') }}
+{% elif key_pagedn %}
+  LROT_NUMENTRY( EVT_PAGEDN_FIRST, EVT_KEY_FIRST(KEY_PAGEDN) )
+  LROT_NUMENTRY( EVT_PAGEDN_BREAK, EVT_KEY_BREAK(KEY_PAGEDN) )
+  LROT_NUMENTRY( EVT_PAGEUP_BREAK, EVT_KEY_BREAK(KEY_PAGEUP) )
 {% endif %}
 
 {% if key_plus %}

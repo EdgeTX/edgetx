@@ -37,25 +37,25 @@ SimulatedUIWidgetEL18::SimulatedUIWidgetEL18(SimulatorInterface *simulator, QWid
   //        allow for colorlcd key events and see what works
   //        the mouse click areas do not map to visual buttons on the background images
 
-  act = new RadioUiAction(12, QList<int>() << Qt::Key_Up, SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL);
+  act = new RadioUiAction(KEY_MODEL, QList<int>() << Qt::Key_Up, SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL);
   addRadioWidget(ui->rightbuttons->addArea(QRect(10, 1, 80, 35), "NV14/left.png", act));
 
-  m_mouseMidClickAction = new RadioUiAction(2, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
+  m_mouseMidClickAction = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
   addRadioWidget(ui->rightbuttons->addArea(QRect(10, 40, 80, 35), "NV14/left.png", m_mouseMidClickAction));
 
-  act = new RadioUiAction(14, QList<int>() << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS);
+  act = new RadioUiAction(KEY_SYS, QList<int>() << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS);
   addRadioWidget(ui->leftbuttons->addArea(QRect(10, 80, 80, 35), "NV14/left.png", act));
 
-  act = new RadioUiAction(13, QList<int>() << Qt::Key_Right, SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE);
+  act = new RadioUiAction(KEY_TELE, QList<int>() << Qt::Key_Right, SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE);
   addRadioWidget(ui->leftbuttons->addArea(QRect(10, 120, 80, 35), "NV14/left.png", act));
 
-  act = new RadioUiAction(5, QList<int>() << Qt::Key_PageDown, SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN);
+  act = new RadioUiAction(KEY_PAGEDN, QList<int>() << Qt::Key_PageDown, SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN);
   addRadioWidget(ui->leftbuttons->addArea(QRect(10, 160, 80, 35), "NV14/left.png", act));
 
-  act = new RadioUiAction(4, QList<int>() << Qt::Key_PageUp, SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP);
+  act = new RadioUiAction(KEY_PAGEUP, QList<int>() << Qt::Key_PageUp, SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP);
   addRadioWidget(ui->leftbuttons->addArea(QRect(10, 200, 80, 35), "NV14/left.png", act));
 
-  act = new RadioUiAction(1, QList<int>() << Qt::Key_Down << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace,
+  act = new RadioUiAction(KEY_EXIT, QList<int>() << Qt::Key_Down << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace,
                           SIMU_STR_HLP_KEY_DN % "<br>" % SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_RTN);
   addRadioWidget(ui->leftbuttons->addArea(QRect(10, 240, 80, 35), "NV14/left.png", act));
 

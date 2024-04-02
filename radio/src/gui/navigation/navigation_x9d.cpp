@@ -303,14 +303,14 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
         }
         break;
 
-      case EVT_KEY_LONG(KEY_PAGE):
+      case EVT_KEY_BREAK(KEY_PAGEUP):
         if (s_editMode>0)
           break;
 
         cc = chgMenu(curr, menuTab, menuTabSize, -1);
         break;
 
-      case EVT_KEY_BREAK(KEY_PAGE):
+      case EVT_KEY_BREAK(KEY_PAGEDN):
         if (s_editMode>0)
           break;
 

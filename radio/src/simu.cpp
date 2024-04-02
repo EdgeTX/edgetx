@@ -389,9 +389,7 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     KEY_Down,      KEY_MINUS,
 #elif defined(PCBTARANIS)
     KEY_Page_Up,   KEY_MENU,
-  #if defined(KEYS_GPIO_REG_PAGE)
-    KEY_Page_Down, KEY_PAGE,
-  #endif
+    KEY_Page_Down, KEY_PAGEDN,
     KEY_Return,    KEY_ENTER,
     KEY_BackSpace, KEY_EXIT,
     KEY_Up,        KEY_PLUS,

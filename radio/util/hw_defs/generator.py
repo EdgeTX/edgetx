@@ -22,7 +22,6 @@ KEYS_LUT = [
   "KEY_EXIT",
   "KEY_ENTER",
 
-  "KEY_PAGE",
   "KEY_PAGEUP",
   "KEY_PAGEDN",
 

@@ -38,7 +38,7 @@ void menuRadioDiagAnalogs(event_t event)
 
     static int viewpage = ANAVIEW_FIRST;
 
-  if (event == EVT_KEY_BREAK(KEY_PAGE)) {
+  if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
       if (viewpage == ANAVIEW_LAST)
         viewpage = ANAVIEW_FIRST;
       else

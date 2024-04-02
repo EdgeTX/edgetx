@@ -270,22 +270,14 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
   if (menuTab) {
     int cc = curr;
     switch (event) {
-#if defined(KEYS_GPIO_REG_PAGEUP)
       case EVT_KEY_BREAK(KEY_PAGEUP):
-#else
-      case EVT_KEY_LONG(KEY_PAGE):
-#endif
         if (s_editMode>0)
           break;
 
         cc = chgMenu(curr, menuTab, menuTabSize, -1);
         break;
 
-#if defined(KEYS_GPIO_REG_PAGEDN)
       case EVT_KEY_BREAK(KEY_PAGEDN):
-#else
-      case EVT_KEY_BREAK(KEY_PAGE):
-#endif
         if (s_editMode>0)
           break;
 

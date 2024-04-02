@@ -17,22 +17,22 @@ SimulatedUIWidgetX7::SimulatedUIWidgetX7(SimulatorInterface *simulator, QWidget 
   QPoint ctr(70, 91);
   polygon << polyArc(ctr.x(), ctr.y(), 50, -90, 90) << polyArc(ctr.x(), ctr.y(), 22, -90, 90);
 
-  act = new RadioUiAction(0, QList<int>() << Qt::Key_PageUp << Qt::Key_Up, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU_ICN);
+  act = new RadioUiAction(KEY_MENU, QList<int>() << Qt::Key_PageUp << Qt::Key_Up, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU_ICN);
   addRadioWidget(ui->leftbuttons->addArea(polyArc(ctr.x(), ctr.y(), 20), "X7/left_menu.png", act));
 
-  act = new RadioUiAction(3, QList<int>() << Qt::Key_PageDown << Qt::Key_Down, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_PAGE);
+  act = new RadioUiAction(KEY_PAGEDN, QList<int>() << Qt::Key_PageDown << Qt::Key_Down, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_PAGE);
   addRadioWidget(ui->leftbuttons->addArea(polygon, "X7/left_page.png", act));
 
   polygon.clear();
   polygon << polyArc(ctr.x(), ctr.y(), 50, 90, 270) << polyArc(ctr.x(), ctr.y(), 22, 90, 270);
-  act = new RadioUiAction(1, QList<int>() << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
+  act = new RadioUiAction(KEY_EXIT, QList<int>() << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
   addRadioWidget(ui->leftbuttons->addArea(polygon, "X7/left_exit.png", act));
 
   m_scrollUpAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Minus << Qt::Key_Equal << Qt::Key_Left, SIMU_STR_HLP_KEYS_GO_LFT, SIMU_STR_HLP_ACT_ROT_LFT);
   m_scrollDnAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Plus << Qt::Key_Right, SIMU_STR_HLP_KEYS_GO_RGT, SIMU_STR_HLP_ACT_ROT_RGT);
   connectScrollActions();
 
-  m_mouseMidClickAction = new RadioUiAction(2, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
+  m_mouseMidClickAction = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
   addRadioWidget(ui->rightbuttons->addArea(polyArc(88, 92, 33), "X7/right_ent.png", m_mouseMidClickAction));
 
   addRadioWidget(ui->leftbuttons->addArea(QRect(9, 154, 30, 30), "X7/left_scrnshot.png", m_screenshotAction));

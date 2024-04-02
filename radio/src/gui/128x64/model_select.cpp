@@ -238,34 +238,27 @@ void menuModelSelect(event_t event)
       }
       break;
 
-#if defined(KEYS_GPIO_REG_PAGEDN)
+    case EVT_KEY_FIRST(KEY_LEFT):
+      // Page navigation only allowed if cursor on first line (for consistency)
+      if (sub != g_eeGeneral.currModel) {
+        AUDIO_WARNING2();
+        break;
+      }
+      // Fallthrough
     case EVT_KEY_BREAK(KEY_PAGEUP):
       chainMenu(menuTabModel[DIM(menuTabModel)-1].menuFunc);
       break;
 
+    case EVT_KEY_FIRST(KEY_RIGHT):
+      // Page navigation only allowed if cursor on first line (for consistency)
+      if (sub != g_eeGeneral.currModel) {
+        AUDIO_WARNING2();
+        break;
+      }
+      // Fallthrough
     case EVT_KEY_BREAK(KEY_PAGEDN):
       chainMenu(menuModelSetup);
       break;
-#elif defined(KEYS_GPIO_REG_PAGE)
-    case EVT_KEY_LONG(KEY_PAGE):
-      chainMenu(menuTabModel[DIM(menuTabModel)-1].menuFunc);
-      break;
-
-    case EVT_KEY_BREAK(KEY_PAGE):
-      chainMenu(menuModelSetup);
-      break;
-#else
-    case EVT_KEY_FIRST(KEY_LEFT):
-    case EVT_KEY_FIRST(KEY_RIGHT):
-      if (sub == g_eeGeneral.currModel) {
-        bool forward = (event == EVT_KEY_FIRST(KEY_RIGHT));
-        chainMenu(forward ? menuModelSetup
-                          : menuTabModel[DIM(menuTabModel) - 1].menuFunc);
-      } else {
-        AUDIO_WARNING2();
-      }
-      break;
-#endif
   }
 
   if (s_copyMode) {

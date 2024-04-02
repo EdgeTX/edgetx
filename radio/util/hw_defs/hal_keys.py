@@ -37,7 +37,6 @@ KEYS = [
     { "name": "EXIT", "key": "KEY_EXIT", "label": "Exit" },
     { "name": "ENTER", "key": "KEY_ENTER", "label": "Enter" },
 
-    { "name": "PAGE", "key": "KEY_PAGE", "label": "Page" },
     { "name": "PAGEUP", "key": "KEY_PAGEUP", "label": "PgUp" },
     { "name": "PAGEDN", "key": "KEY_PAGEDN", "label": "PgDn" },
 
