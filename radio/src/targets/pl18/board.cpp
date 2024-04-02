@@ -36,11 +36,14 @@
 #include "hal/watchdog_driver.h"
 #include "hal/usb_driver.h"
 #include "hal/gpio.h"
+#include "hal/rotary_encoder.h"
 
 #include "globals.h"
 #include "sdcard.h"
 #include "touch.h"
 #include "debug.h"
+
+#include "stm32_gpio_driver.h"
 
 #if defined(FLYSKY_GIMBAL)
   #include "flysky_gimbal_driver.h"
@@ -86,6 +89,14 @@ void ledStripOff()
   }
   ws2812_update(&_led_timer);
 }
+
+#if defined(RADIO_NB4P)
+void disableVoiceChip()
+{
+  gpio_init(VOICE_CHIP_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_clear(VOICE_CHIP_EN_GPIO);
+}
+#endif
 
 void boardBootloaderInit()
 {
@@ -165,6 +176,12 @@ void boardInit()
 
   keysInit();
   switchInit();
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
+  rotaryEncoderInit();
+#endif
+#if defined(RADIO_NB4P)
+  disableVoiceChip();
+#endif
   audioInit();
   adcInit(&_adc_driver);
   hapticInit();

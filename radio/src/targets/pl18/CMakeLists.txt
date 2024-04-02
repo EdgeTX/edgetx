@@ -43,7 +43,7 @@ add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 
 if(PCBREV STREQUAL PL18EV)
   set(FLAVOUR pl18ev)
-  add_definitions(-DRADIO_PL18EV)
+  add_definitions(-DRADIO_PL18EV -DUSE_HATS_AS_KEYS)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
 elseif(PCBREV STREQUAL NB4P)
@@ -53,7 +53,7 @@ elseif(PCBREV STREQUAL NB4P)
   set(ROTARY_ENCODER YES)
 else()
   set(FLAVOUR pl18)
-  add_definitions(-DRADIO_PL18)
+  add_definitions(-DRADIO_PL18 -DUSE_HATS_AS_KEYS)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
 
@@ -77,7 +77,7 @@ add_definitions(
   -DSTM32F429_439xx -DSTM32F429xx
   -DSDRAM -DCCMRAM -DCOLORLCD -DLIBOPENUI
   -DHARDWARE_TOUCH -DHARDWARE_KEYS
-  -DSOFTWARE_KEYBOARD -DUSE_HATS_AS_KEYS)
+  -DSOFTWARE_KEYBOARD)
 
 set(SDRAM ON)
 
@@ -135,6 +135,13 @@ set(FIRMWARE_SRC
   boards/generic_stm32/rgb_leds.cpp
   drivers/frftl.cpp
   )
+
+if(ROTARY_ENCODER)
+  set(FIRMWARE_SRC
+  ${FIRMWARE_SRC}
+  targets/common/arm/stm32/rotary_encoder_driver.cpp
+  )
+endif()
 
 if(BOOTLOADER)
   set(FIRMWARE_SRC

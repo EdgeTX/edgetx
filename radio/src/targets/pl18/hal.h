@@ -476,10 +476,9 @@
 
 #if defined(RADIO_NB4P)
 // Rotary Encoder
-#define ROTARY_ENCODER_RCC_APB1Periph   RCC_APB1Periph_TIM12
 #define ROTARY_ENCODER_GPIO             GPIOH
-#define ROTARY_ENCODER_GPIO_PIN_A       GPIO_Pin_11 // PH.11
-#define ROTARY_ENCODER_GPIO_PIN_B       GPIO_Pin_10 // PH.10
+#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_11 // PH.11
+#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_10 // PH.10
 #define ROTARY_ENCODER_POSITION()       ((ROTARY_ENCODER_GPIO->IDR >> 10) & 0x03)
 #define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_11
 #define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_10
@@ -493,8 +492,6 @@
 #define ROTARY_ENCODER_TIMER            TIM12
 #define ROTARY_ENCODER_TIMER_IRQn       TIM8_BRK_TIM12_IRQn
 #define ROTARY_ENCODER_TIMER_IRQHandler TIM8_BRK_TIM12_IRQHandler
-#else
-#define ROTARY_ENCODER_RCC_APB1Periph   0
 #endif
 
 // SPI NOR Flash
@@ -528,11 +525,11 @@
 #define AUDIO_DMA                       DMA1
 
 #if defined(RADIO_NB4P)
-  #define AUDIO_MUTE_GPIO               GPIOH
-  #define AUDIO_MUTE_GPIO_PIN           GPIO_Pin_9  // PH.09 audio amp control pin
+  #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOH, 9) // PH.09 audio amp control pin
   #define AUDIO_UNMUTE_DELAY            120  // ms
   #define AUDIO_MUTE_DELAY              500  // ms
   #define INVERTED_MUTE_PIN
+  #define VOICE_CHIP_EN_GPIO            GPIO_PIN(GPIOI, 5) // PI.05
 #endif
 
 // I2C Bus
@@ -649,8 +646,13 @@
 #define EXTMODULE_RX_GPIO_AF_USART      GPIO_AF_USART6
 #define EXTMODULE_TIMER                 TIM8
 #define EXTMODULE_TIMER_Channel         LL_TIM_CHANNEL_CH1
+#if defined(RADIO_NB4P)
+#define EXTMODULE_TIMER_IRQn            TIM5_IRQn
+#define EXTMODULE_TIMER_IRQHandler      TIM5_IRQHandler
+#else
 #define EXTMODULE_TIMER_IRQn            TIM8_UP_TIM13_IRQn
 #define EXTMODULE_TIMER_IRQHandler      TIM8_UP_TIM13_IRQHandler
+#endif
 #define EXTMODULE_TIMER_FREQ            (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #define EXTMODULE_TIMER_TX_GPIO_AF      LL_GPIO_AF_3
 //USART
@@ -730,10 +732,17 @@
 #define MS_TIMER_IRQHandler             TIM8_TRG_COM_TIM14_IRQHandler
 
 // Mixer scheduler timer
+#if defined(RADIO_NB4P)
+#define MIXER_SCHEDULER_TIMER                TIM13
+#define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
+#define MIXER_SCHEDULER_TIMER_IRQn           TIM8_UP_TIM13_IRQn
+#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_UP_TIM13_IRQHandler
+#else
 #define MIXER_SCHEDULER_TIMER                TIM12
 #define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
+#endif
 
 // SDRAM
 #define SDRAM_BANK1
