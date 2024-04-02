@@ -527,6 +527,14 @@
 #define AUDIO_TIMER                     TIM6
 #define AUDIO_DMA                       DMA1
 
+#if defined(RADIO_NB4P)
+  #define AUDIO_MUTE_GPIO               GPIOH
+  #define AUDIO_MUTE_GPIO_PIN           GPIO_Pin_9  // PH.09 audio amp control pin
+  #define AUDIO_UNMUTE_DELAY            120  // ms
+  #define AUDIO_MUTE_DELAY              500  // ms
+  #define INVERTED_MUTE_PIN
+#endif
+
 // I2C Bus
 #define I2C_B1                          I2C1
 #define I2C_B1_GPIO                     GPIOB
