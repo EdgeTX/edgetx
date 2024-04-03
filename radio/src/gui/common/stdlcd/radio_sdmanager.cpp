@@ -331,7 +331,6 @@ void menuRadioSdManager(event_t _event)
           menuVerticalOffset = 0;
           menuVerticalPosition = HEADER_LINE;
           REFRESH_FILES();
-          killEvents(_event);
           return;
         }
       }

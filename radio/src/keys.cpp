@@ -437,8 +437,6 @@ bool keysPollingCycle()
       if (evt == EVT_KEY_LONG(KEY_PAGEDN)) {
         // Convert long press PAGEDN to short press PAGEUP
         evt = EVT_KEY_BREAK(KEY_PAGEUP);
-        // Block REPT and BREAK on KEY_PAGEDN
-        keys[i].killEvents();
       }
 #endif
 #if defined(KEYS_GPIO_REG_SHIFT)

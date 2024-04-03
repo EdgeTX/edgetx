@@ -427,7 +427,6 @@ void NavWindow::onEvent(event_t event)
       onPressPGUP();
       break;
 #endif
-#endif
 
     default:
       if (bubbleEvents()) Window::onEvent(event);
