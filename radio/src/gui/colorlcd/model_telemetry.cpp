@@ -465,7 +465,7 @@ class SensorEditWindow : public Page {
       }
 
       // Precision
-      if (sensor->isPrecConfigurable() && sensor->unit != UNIT_FAHRENHEIT) {
+      if (sensor->isPrecConfigurable()) {
         lv_obj_clear_flag(paramLines[P_PREC]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
       }
 
