@@ -56,7 +56,7 @@ void menuModelSensor(event_t event)
     sensor->type == TELEM_TYPE_CALCULATED ? (uint8_t)0 : (uint8_t)1, // ID / Formula
     // sensor->type == TELEM_TYPE_CALCULATED ? HIDDEN_ROW : READONLY_ROW, // Receiver name
     ((sensor->type == TELEM_TYPE_CALCULATED && (sensor->formula == TELEM_FORMULA_DIST)) || sensor->isConfigurable() ? (uint8_t)0 : HIDDEN_ROW), // Unit
-    (sensor->isPrecConfigurable() && sensor->unit != UNIT_FAHRENHEIT  ? (uint8_t)0 : HIDDEN_ROW), // Precision
+    (sensor->isPrecConfigurable()? (uint8_t)0 : HIDDEN_ROW), // Precision
     (sensor->unit >= UNIT_FIRST_VIRTUAL ? HIDDEN_ROW : (uint8_t)0), // Param1
     (sensor->unit == UNIT_GPS || sensor->unit == UNIT_DATETIME || sensor->unit == UNIT_CELLS || (sensor->type==TELEM_TYPE_CALCULATED && (sensor->formula==TELEM_FORMULA_CONSUMPTION || sensor->formula==TELEM_FORMULA_TOTALIZE)) ? HIDDEN_ROW : (uint8_t)0), // Param2
     (sensor->type == TELEM_TYPE_CALCULATED && sensor->formula < TELEM_FORMULA_MULTIPLY) ? (uint8_t)0 : HIDDEN_ROW, // Param3
