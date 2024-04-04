@@ -443,12 +443,11 @@ ThemeSetupPage::ThemeSetupPage(TabsGroup *tabsGroup) :
 
 void ThemeSetupPage::setAuthor(ThemeFile *theme)
 {
-  char author[256] = "";
+  std::string s("");
   if (theme && (strlen(theme->getAuthor()) > 0)) {
-    strcpy(author, "By: ");
-    strcat(author, theme->getAuthor());
+    s = s + "By: " + theme->getAuthor();
   }
-  authorText->setText(author);
+  authorText->setText(s);
 }
 
 void ThemeSetupPage::setName(ThemeFile *theme)
@@ -474,13 +473,6 @@ void ThemeSetupPage::checkEvents()
   PageTab::checkEvents();
 
   if (fileCarosell) fileCarosell->pause(!isTopWindow(pageWindow));
-
-  if (!started && nameText && authorText) {
-    auto theme = ThemePersistance::instance()->getCurrentTheme();
-    started = true;
-    setName(theme);
-    setAuthor(theme);
-  }
 }
 
 static void removeAllWhiteSpace(char *str)
@@ -681,4 +673,7 @@ void ThemeSetupPage::build(Window *window)
   lv_label_set_long_mode(nameText->getLvObj(), LV_LABEL_LONG_DOT);
   authorText = new StaticText(rw, r, "");
   lv_label_set_long_mode(authorText->getLvObj(), LV_LABEL_LONG_DOT);
+
+  setName(theme);
+  setAuthor(theme);
 }

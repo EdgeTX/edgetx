@@ -46,7 +46,7 @@ class FunctionLineButton : public ListLineButton
 
   static void on_draw(lv_event_t *e);
 
-  void delayed_init(lv_event_t *e);
+  void delayed_init();
 
   void refresh() override;
 

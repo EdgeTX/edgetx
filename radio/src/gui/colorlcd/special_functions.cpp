@@ -138,15 +138,15 @@ void FunctionLineButton::on_draw(lv_event_t *e)
   auto line = (FunctionLineButton *)lv_obj_get_user_data(target);
   if (line) {
     if (!line->init)
-      line->delayed_init(e);
+      line->delayed_init();
     else
       line->refresh();
   }
 }
 
-void FunctionLineButton::delayed_init(lv_event_t *e)
+void FunctionLineButton::delayed_init()
 {
-  check(isActive());
+  init = true;
 
   sfName = lv_label_create(lvobj);
   etx_obj_add_style(sfName, styles->text_align_left, LV_PART_MAIN);
@@ -174,20 +174,16 @@ void FunctionLineButton::delayed_init(lv_event_t *e)
   lv_obj_set_grid_cell(sfEnable, LV_GRID_ALIGN_CENTER, FUNC_COL + 2, 1,
                        LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
 
-  init = true;
   refresh();
 
   lv_obj_update_layout(lvobj);
-
-  if (e) {
-    auto param = lv_event_get_param(e);
-    lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
-  }
 }
 
 void FunctionLineButton::refresh()
 {
   if (!init) return;
+
+  check(isActive());
 
   uint8_t func = CFN_FUNC(cfn);
 

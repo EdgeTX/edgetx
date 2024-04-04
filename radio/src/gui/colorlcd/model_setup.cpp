@@ -273,7 +273,7 @@ void ModelSetupPage::build(Window *window)
   // Model name
   auto line = window->newLine(grid);
   new StaticText(line, rect_t{}, STR_MODELNAME);
-  new ModelNameEdit(line, rect_t{});
+  new ModelNameEdit(line, {0, 0, LCD_W / 2 - 20, 0});
 
   // Model labels
   line = window->newLine(grid);

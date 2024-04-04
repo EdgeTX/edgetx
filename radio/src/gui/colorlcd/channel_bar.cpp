@@ -57,6 +57,8 @@ ChannelBar::ChannelBar(Window* parent, const rect_t& rect,
   lv_obj_t* divLine = lv_line_create(lvobj);
   etx_obj_add_style(divLine, styles->div_line, LV_PART_MAIN);
   lv_line_set_points(divLine, divPoints, 2);
+
+  checkEvents();
 }
 
 void ChannelBar::checkEvents()
@@ -110,7 +112,7 @@ OutputChannelBar::OutputChannelBar(Window* parent, const rect_t& rect,
                                    bool drawLimits) :
     ChannelBar(
         parent, rect,
-        [=] { return calcRESXto100(channelOutputs[this->channel]); },
+        [=] { return calcRESXto100(channelOutputs[channel]); },
         COLOR_THEME_ACTIVE),
     channel(channel),
     drawLimits(drawLimits)

@@ -31,14 +31,13 @@ extern inline tmr10ms_t getTicks()
 FileCarosell::FileCarosell(Window *parent, const rect_t &rect,
                            std::vector<std::string> fileNames) :
     Window(parent, rect),
-    _fileNames(fileNames),
     fp(new FilePreview(this, {0, 0, rect.w, rect.h}))
 {
   setWindowFlag(NO_FOCUS);
 
-  timer = getTicks();
   message = new StaticText(this, {0, rect.h/2, rect.w, PAGE_LINE_HEIGHT}, "", CENTERED | FONT(L) | COLOR_THEME_PRIMARY1);
-  setSelected(0);
+
+  setFileNames(fileNames);
 }
 
 void FileCarosell::setFileNames(std::vector<std::string> fileNames)

@@ -196,12 +196,10 @@ static void on_draw_begin(lv_event_t* e)
 }
 static void on_draw_end(lv_event_t* e)
 {
-  if (timepg) {
-    timepg = false;
-    dems = RTOS_GET_MS();
-    TRACE("tab time: build %ld layout %ld draw %ld total %ld",
-          end_ms - start_ms, dsms - end_ms, dems - dsms, dems - start_ms);
-  }
+  timepg = false;
+  dems = RTOS_GET_MS();
+  TRACE("tab time: build %ld layout %ld draw %ld total %ld",
+        end_ms - start_ms, dsms - end_ms, dems - dsms, dems - start_ms);
 }
 #endif
 
@@ -274,10 +272,8 @@ TabsGroup::TabsGroup(EdgeTxIcon icon) :
   Layer::push(this);
 
 #if defined(DEBUG)
-  lv_obj_add_event_cb(lvobj, on_draw_begin, LV_EVENT_COVER_CHECK,
-                      (void*)">> Start TabsGroup");
-  lv_obj_add_event_cb(lvobj, on_draw_end, LV_EVENT_DRAW_POST_END,
-                      (void*)">> End TabsGroup");
+  lv_obj_add_event_cb(lvobj, on_draw_begin, LV_EVENT_COVER_CHECK, nullptr);
+  lv_obj_add_event_cb(lvobj, on_draw_end, LV_EVENT_DRAW_POST_END, nullptr);
 #endif
 
 #if defined(HARDWARE_TOUCH)
@@ -321,6 +317,8 @@ void TabsGroup::removeTab(unsigned index)
 void TabsGroup::setVisibleTab(PageTab* tab)
 {
   if (tab != currentTab && !deleted()) {
+    header->setTitle(tab->title.c_str());
+
     body->clear();
     currentTab = tab;
 
@@ -339,8 +337,6 @@ void TabsGroup::setVisibleTab(PageTab* tab)
 
     body->padAll(tab->padding);
     tab->build(body);
-
-    header->setTitle(tab->title.c_str());
 
 #if defined(DEBUG)
     end_ms = RTOS_GET_MS();

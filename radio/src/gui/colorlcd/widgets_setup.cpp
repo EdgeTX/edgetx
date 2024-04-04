@@ -73,6 +73,8 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
   lv_obj_add_style(border, &borderStyle, LV_PART_MAIN);
   lv_line_set_points(border, borderPts, 5);
 
+  setFocusState();
+
   setFocusHandler([=](bool) { setFocusState(); });
 }
 

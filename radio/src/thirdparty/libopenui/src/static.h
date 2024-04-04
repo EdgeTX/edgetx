@@ -82,6 +82,7 @@ class DynamicNumber : public StaticText
       prefix(prefix),
       suffix(suffix)
   {
+    value = this->numberHandler();
     updateText();
   }
 

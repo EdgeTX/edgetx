@@ -403,14 +403,15 @@ class FlightModeBtn : public ListLineButton
     auto line = (FlightModeBtn*)lv_obj_get_user_data(target);
     if (line) {
       if (!line->init)
-        line->delayed_init(e);
-      else
-        line->refresh();
+        line->delayed_init();
+      line->refresh();
     }
   }
 
-  void delayed_init(lv_event_t* e)
+  void delayed_init()
   {
+    init = true;
+
     fmID = etx_create(&fm_id_class, lvobj);
     char label[8];
     getFlightModeString(label, index + 1);
@@ -433,15 +434,7 @@ class FlightModeBtn : public ListLineButton
     fmFadeIn = etx_create(&fm_fade_class, container);
     fmFadeOut = etx_create(&fm_fade_class, container);
 
-    init = true;
-    refresh();
-
     lv_obj_update_layout(lvobj);
-
-    if (e) {
-      auto param = lv_event_get_param(e);
-      lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
-    }
   }
 
   bool isActive() const override { return (getFlightMode() == index); }

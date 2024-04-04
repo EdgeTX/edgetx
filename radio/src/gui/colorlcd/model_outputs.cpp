@@ -78,11 +78,11 @@ class OutputLineButton : public ListLineButton
     lv_obj_t* target = lv_event_get_target(e);
     auto line = (OutputLineButton*)lv_obj_get_user_data(target);
     if (line) {
-      if (!line->init) line->delayed_init(e);
+      if (!line->init) line->delayed_init();
     }
   }
 
-  void delayed_init(lv_event_t* e)
+  void delayed_init()
   {
     uint8_t col = 1, row = 0;
 
@@ -132,11 +132,6 @@ class OutputLineButton : public ListLineButton
     refresh();
 
     lv_obj_update_layout(lvobj);
-
-    if (e) {
-      auto param = lv_event_get_param(e);
-      lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
-    }
   }
 
  public:
