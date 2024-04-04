@@ -969,12 +969,13 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t modelTelemetryDisabled:1);
 
   NOBACKUP(uint8_t disableTrainerPoweroffAlarm:1);
+  NOBACKUP(uint8_t  disablePwrOnOffHaptic:1);
 
 #if defined(COLORLCD)
-  NOBACKUP(uint8_t space:7 SKIP);
+  NOBACKUP(uint8_t space:6 SKIP);
 #elif LCD_W == 128
   uint8_t invertLCD:1;          // Invert B&W LCD display
-  NOBACKUP(uint8_t spare:4 SKIP);
+  NOBACKUP(uint8_t spare:3 SKIP);
 #else
   NOBACKUP(uint8_t spare:5 SKIP);
 #endif

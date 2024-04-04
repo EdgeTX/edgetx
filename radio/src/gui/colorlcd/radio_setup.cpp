@@ -769,6 +769,15 @@ static SetupLineDef setupLines[] = {
     }
   },
 #endif
+#if defined(HAPTIC)
+  {
+    // Power on/off haptic alarm
+      STR_PWR_ON_OFF_HAPTIC,
+      [](Window* parent, coord_t x, coord_t y) {
+        new ToggleSwitch(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, GET_SET_INVERTED(g_eeGeneral.disablePwrOnOffHaptic));
+      }
+  },
+#endif
 #if defined(PXX2)
   {
     // Owner ID

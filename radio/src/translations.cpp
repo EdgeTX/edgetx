@@ -829,6 +829,7 @@ const char STR_BEEP_PITCH[] = TR_BEEP_PITCH;
 #endif
 
 #if defined(HAPTIC)
+const char STR_PWR_ON_OFF_HAPTIC[] = TR_PWR_ON_OFF_HAPTIC;
 const char STR_HAPTIC_LABEL[] = TR_HAPTIC_LABEL;
 const char STR_STRENGTH[] = TR_STRENGTH;
 const char STR_IMU_LABEL[] = TR_IMU_LABEL;
