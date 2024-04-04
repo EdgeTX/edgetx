@@ -66,9 +66,9 @@ extern "C++" {
     mutex = PTHREAD_MUTEX_INITIALIZER;
   }
 
-  static inline void RTOS_LOCK_MUTEX(pthread_mutex_t &mutex)
+  static inline bool RTOS_LOCK_MUTEX(pthread_mutex_t &mutex)
   {
-      pthread_mutex_lock(&mutex);
+      return pthread_mutex_lock(&mutex) == 0;
   }
 
   static inline bool RTOS_TRYLOCK_MUTEX(pthread_mutex_t &mutex)
