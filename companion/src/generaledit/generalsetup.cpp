@@ -289,6 +289,8 @@ ui(new Ui::GeneralSetup)
     ui->pwrOnDelay->hide();
   }
 
+  ui->disablePwrOnOffHapticChkB->setChecked(!generalSettings.disablePwrOnOffHaptic); // Default is zero=checked
+
   ui->registrationId->setValidator(new NameValidator(board, this));
   ui->registrationId->setMaxLength(REGISTRATION_ID_LEN);
 
@@ -639,6 +641,12 @@ void GeneralSetupPanel::on_pwrOnDelay_valueChanged(int)
 void GeneralSetupPanel::on_pwrOffDelay_valueChanged(int)
 {
   generalSettings.pwrOffSpeed = 2 - ui->pwrOffDelay->value();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_disablePwrOnOffHapticChkB_stateChanged(int)
+{
+  generalSettings.disablePwrOnOffHaptic = ui->disablePwrOnOffHapticChkB->isChecked() ? 0 : 1;
   emit modified();
 }
 
