@@ -1253,13 +1253,13 @@
 #define TR_USBJOYSTICK_CH_AXIS         "Achse"
 #define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","rotX","rotY","rotZ","Schieber","Dial","Rad"
 #define TR_USBJOYSTICK_CH_SIM          "Sim Achse"
-#define TR_VUSBJOYSTICK_CH_SIM         "Que","Höh","Sei","Gas"
+#define TR_VUSBJOYSTICK_CH_SIM         "Que","Höh","Sei","Gas","Acc","Brk","Steer","Dpad"
 #define TR_USBJOYSTICK_CH_INVERSION    "Invers"
 #define TR_USBJOYSTICK_CH_BTNNUM       "Tastennr."
 #define TR_USBJOYSTICK_BTN_COLLISION   "!Tastennr. Kollision!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!Achsen Kollision!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Circ. cut", "Circular cutout")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "kein","X-Y, Z-rX","X-Y, rX-rY"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "kein","X-Y, Z-rX","X-Y, rX-rY","X-Y, Z-rZ"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "Änd. übernehmen"
 
 #define TR_DIGITAL_SERVO          "Servo333HZ"

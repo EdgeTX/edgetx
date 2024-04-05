@@ -1249,13 +1249,13 @@
 #define TR_USBJOYSTICK_CH_AXIS          "צירים"
 #define TR_VUSBJOYSTICK_CH_AXIS         "X","Y","Z","rotX","rotY","rotZ","Slider","Dial","Wheel"
 #define TR_USBJOYSTICK_CH_SIM           "ציר סימולטור"
-#define TR_VUSBJOYSTICK_CH_SIM          "מאזנות","ה.גובה","ה.כיוון","מנוע"
+#define TR_VUSBJOYSTICK_CH_SIM          "מאזנות","ה.גובה","ה.כיוון","מנוע","Acc","Brk","Steer","Dpad"
 #define TR_USBJOYSTICK_CH_INVERSION     "היפוך"
 #define TR_USBJOYSTICK_CH_BTNNUM        "Button no."
 #define TR_USBJOYSTICK_BTN_COLLISION    "!Button no. collision!"
 #define TR_USBJOYSTICK_AXIS_COLLISION   "!Axis collision!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT     TR("Circ. cut", "Circular cutout")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT    "None","X-Y, Z-rX","X-Y, rX-rY"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT    "None","X-Y, Z-rX","X-Y, rX-rY","X-Y, Z-rZ"
 #define TR_USBJOYSTICK_APPLY_CHANGES    "החל שינויים"
 
 #define TR_DIGITAL_SERVO          "333HZ סרוו דיגיטאלי"
