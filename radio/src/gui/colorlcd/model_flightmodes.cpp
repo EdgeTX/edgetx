@@ -200,75 +200,42 @@ class FlightModeEdit : public Page
 #if LCD_W > LCD_H  // Landscape
 
 #define BTN_H 36
-#define TRIM_W 30
 #define FMID_W 36
 #define NAME_W 95
-#define SWTCH_W 50
-#define FADE_W 45
-#define TRIMC_W 180
-#define FMID_TOP 6
-#define LBL_TOP 6
+#define NAME_Y 8
+#define SWTCH_Y 6
+#define MAX_FMTRIMS 6
+#define TRIM_W 30
+#define TRIM_X (SWTCH_X + SWTCH_W + 2)
+#define TRIM_Y 0
+#define FADE_Y 6
 
 #else  // Portrait
 
-#define BTN_H 58
-#define TRIM_W 40
+#define BTN_H 56
 #define FMID_W 46
 #define NAME_W 160
-#define SWTCH_W 50
-#define FADE_W 45
-#define TRIMC_W 160
-#define FMID_TOP 24
-#define LBL_TOP 0
+#define NAME_Y 0
+#define SWTCH_Y 0
+#define MAX_FMTRIMS 4
+#define TRIM_W 40
+#define TRIM_X (FMID_X + FMID_W + 2)
+#define TRIM_Y 20
+#define FADE_Y 24
 
 #endif
 
-static void fm_group_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
-{
-  etx_obj_add_style(obj, styles->pad_zero, LV_PART_MAIN);
-  lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP);
-  lv_obj_set_style_flex_grow(obj, 2, LV_PART_MAIN);
-  lv_obj_set_height(obj, LV_SIZE_CONTENT);
-  lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICKABLE);
-  lv_obj_set_flex_align(obj, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER,
-                        LV_FLEX_ALIGN_SPACE_AROUND);
-}
-
-static const lv_obj_class_t fm_group_class = {
-    .base_class = &lv_obj_class,
-    .constructor_cb = fm_group_constructor,
-    .destructor_cb = nullptr,
-    .user_data = nullptr,
-    .event_cb = nullptr,
-    .width_def = LCD_W - 12,
-    .height_def = BTN_H,
-    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
-    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
-    .instance_size = sizeof(lv_obj_t),
-};
-
-static void fm_trims_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
-{
-  etx_obj_add_style(obj, styles->pad_zero, LV_PART_MAIN);
-  lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICKABLE);
-}
-
-static const lv_obj_class_t fm_trims_class = {
-    .base_class = &lv_obj_class,
-    .constructor_cb = fm_trims_constructor,
-    .destructor_cb = nullptr,
-    .user_data = nullptr,
-    .event_cb = nullptr,
-    .width_def = TRIMC_W,
-    .height_def = 32,
-    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
-    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
-    .instance_size = sizeof(lv_obj_t),
-};
+#define FMID_X 2
+#define FMID_Y (BTN_H / 2 - 12)
+#define NAME_X (FMID_X + FMID_W + 2)
+#define SWTCH_W 50
+#define SWTCH_X (NAME_X + NAME_W + 2)
+#define TRIMC_W (MAX_FMTRIMS * TRIM_W)
+#define FADE_W 45
+#define FADE_X (TRIM_X + TRIMC_W + 2)
 
 static void fm_id_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  etx_obj_add_style(obj, styles->pad_left_2, LV_PART_MAIN);
   etx_obj_add_style(obj, styles->text_align_left, LV_PART_MAIN);
 }
 
@@ -385,11 +352,8 @@ class FlightModeBtn : public ListLineButton
   FlightModeBtn(Window* parent, int index) : ListLineButton(parent, index)
   {
     padAll(PAD_ZERO);
-    padColumn(PAD_SMALL);
+    padColumn(PAD_ZERO);
     setHeight(BTN_H);
-    lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
-    lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER,
-                          LV_FLEX_ALIGN_SPACE_AROUND);
 
     check(isActive());
 
@@ -413,27 +377,27 @@ class FlightModeBtn : public ListLineButton
     init = true;
 
     fmID = etx_create(&fm_id_class, lvobj);
+    lv_obj_set_pos(fmID, FMID_X, FMID_Y);
     char label[8];
     getFlightModeString(label, index + 1);
     lv_label_set_text(fmID, label);
 
-    lv_obj_t* container = etx_create(&fm_group_class, lvobj);
+    fmName = etx_create(&fm_name_class, lvobj);
+    lv_obj_set_pos(fmName, NAME_X, NAME_Y);
+    fmSwitch = etx_create(&fm_switch_class, lvobj);
+    lv_obj_set_pos(fmSwitch, SWTCH_X, SWTCH_Y);
 
-    fmName = etx_create(&fm_name_class, container);
-    fmSwitch = etx_create(&fm_switch_class, container);
-
-    lv_obj_t* trims_cont = etx_create(&fm_trims_class, container);
-
-    for (int i = 0; i < keysGetMaxTrims(); i += 1) {
-      fmTrimMode[i] = etx_create(&fm_trim_mode_class, trims_cont);
-      lv_obj_set_pos(fmTrimMode[i], i * TRIM_W, 0);
-      fmTrimValue[i] = etx_create(&fm_trim_value_class, trims_cont);
-      lv_obj_set_pos(fmTrimValue[i], i * TRIM_W, 16);
+    for (int i = 0; i < keysGetMaxTrims() && i < MAX_FMTRIMS; i += 1) {
+      fmTrimMode[i] = etx_create(&fm_trim_mode_class, lvobj);
+      lv_obj_set_pos(fmTrimMode[i], TRIM_X + i * TRIM_W, TRIM_Y);
+      fmTrimValue[i] = etx_create(&fm_trim_value_class, lvobj);
+      lv_obj_set_pos(fmTrimValue[i], TRIM_X + i * TRIM_W, TRIM_Y + 16);
     }
 
-    fmFadeIn = etx_create(&fm_fade_class, container);
-    fmFadeOut = etx_create(&fm_fade_class, container);
-
+    fmFadeIn = etx_create(&fm_fade_class, lvobj);
+    lv_obj_set_pos(fmFadeIn, FADE_X, FADE_Y);
+    fmFadeOut = etx_create(&fm_fade_class, lvobj);
+    lv_obj_set_pos(fmFadeOut, FADE_X + FADE_W + 1, FADE_Y);
     lv_obj_update_layout(lvobj);
   }
 
@@ -511,11 +475,11 @@ class FlightModeBtn : public ListLineButton
   lv_obj_t* fmID = nullptr;
   lv_obj_t* fmName = nullptr;
   lv_obj_t* fmSwitch = nullptr;
-  lv_obj_t* fmTrimMode[MAX_TRIMS] = {nullptr};
-  lv_obj_t* fmTrimValue[MAX_TRIMS] = {nullptr};
+  lv_obj_t* fmTrimMode[MAX_FMTRIMS] = {nullptr};
+  lv_obj_t* fmTrimValue[MAX_FMTRIMS] = {nullptr};
   lv_obj_t* fmFadeIn = nullptr;
   lv_obj_t* fmFadeOut = nullptr;
-  int lastTrim[MAX_TRIMS];
+  int lastTrim[MAX_FMTRIMS];
 };
 
 ModelFlightModesPage::ModelFlightModesPage() :
