@@ -103,17 +103,6 @@ struct PotWarnMatrix : public ButtonMatrix {
   uint8_t pot_idx[MAX_POTS];
 };
 
-struct CenterBeepsMatrix : public ButtonMatrix {
-  CenterBeepsMatrix(Window* parent, const rect_t& rect);
-  void onPress(uint8_t btn_id);
-  bool isActive(uint8_t btn_id);
-  void setTextAndState(uint8_t btn_id);
-
- private:
-  uint8_t max_analogs;
-  uint8_t ana_idx[MAX_ANALOG_INPUTS];
-};
-
 PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
 {
   header->setTitle(STR_MENU_MODEL_SETUP);
@@ -195,14 +184,6 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
       make_conditional(pwm, pots_wm);
     }
   }
-
-  // Center beeps
-  line = body->newLine(grid);
-  line->padTop(0);
-  new StaticText(line, rect_t{}, STR_BEEPCTR);
-  line = body->newLine(grid);
-  line->padLeft(4);
-  new CenterBeepsMatrix(line, rect_t{});
 }
 
 static std::string switchWarninglabel(swsrc_t index)
@@ -338,71 +319,4 @@ bool PotWarnMatrix::isActive(uint8_t btn_id)
 {
   if (btn_id >= MAX_POTS) return false;
   return (g_model.potsWarnEnabled & (1 << pot_idx[btn_id])) != 0;
-}
-
-CenterBeepsMatrix::CenterBeepsMatrix(Window* parent, const rect_t& r) :
-    ButtonMatrix(parent, r)
-{
-  // Setup button layout & texts
-  uint8_t btn_cnt = 0;
-
-  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
-  auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
-  max_analogs = max_sticks + max_pots;
-
-  for (uint8_t i = 0; i < max_analogs; i++) {
-    // multipos cannot be centered
-    if (i < max_sticks || (IS_POT_SLIDER_AVAILABLE(i - max_sticks) &&
-                           !IS_POT_MULTIPOS(i - max_sticks))) {
-      ana_idx[btn_cnt] = i;
-      btn_cnt++;
-    }
-  }
-
-  initBtnMap(min((int)btn_cnt, SW_BTNS), btn_cnt);
-
-  uint8_t btn_id = 0;
-  for (uint8_t i = 0; i < max_analogs; i++) {
-    if (i < max_sticks || (IS_POT_SLIDER_AVAILABLE(i - max_sticks) &&
-                           !IS_POT_MULTIPOS(i - max_sticks))) {
-      setTextAndState(btn_id);
-      btn_id++;
-    }
-  }
-
-  update();
-
-  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
-
-  uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
-  lv_obj_set_height(lvobj, (rows * 36) + 4);
-
-  padAll(PAD_SMALL);
-}
-
-void CenterBeepsMatrix::setTextAndState(uint8_t btn_id)
-{
-  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
-  if (ana_idx[btn_id] < max_sticks)
-    setText(btn_id, getAnalogShortLabel(ana_idx[btn_id]));
-  else
-    setText(btn_id,
-            getAnalogLabel(ADC_INPUT_FLEX, ana_idx[btn_id] - max_sticks));
-  setChecked(btn_id);
-}
-
-void CenterBeepsMatrix::onPress(uint8_t btn_id)
-{
-  if (btn_id >= max_analogs) return;
-  uint8_t i = ana_idx[btn_id];
-  BFBIT_FLIP(g_model.beepANACenter, bfBit<BeepANACenter>(i));
-  setTextAndState(btn_id);
-  SET_DIRTY();
-}
-
-bool CenterBeepsMatrix::isActive(uint8_t btn_id)
-{
-  if (btn_id >= max_analogs) return false;
-  uint8_t i = ana_idx[btn_id];
-  return bfSingleBitGet<BeepANACenter>(g_model.beepANACenter, i) != 0;
 }

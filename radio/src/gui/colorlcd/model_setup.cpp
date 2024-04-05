@@ -24,6 +24,14 @@
 #include "button_matrix.h"
 #include "filechoice.h"
 #include "libopenui.h"
+
+#include "hal/adc_driver.h"
+#include "storage/modelslist.h"
+#include "trainer_setup.h"
+#include "module_setup.h"
+#include "timer_setup.h"
+#include "trims_setup.h"
+#include "throttle_params.h"
 #include "preflight_checks.h"
 #include "throttle_params.h"
 #include "timer_setup.h"
@@ -264,7 +272,120 @@ class ModelViewOptions : public Page
   }
 };
 
-void ModelSetupPage::build(Window *window)
+#if LCD_W > LCD_H
+#define SW_BTNS 8
+#define SW_BTN_W 56
+#else
+#define SW_BTNS 4
+#define SW_BTN_W 72
+#endif
+
+struct CenterBeepsMatrix : public ButtonMatrix {
+  CenterBeepsMatrix(Window* parent, const rect_t& rect) :
+    ButtonMatrix(parent, rect)
+  {
+    // Setup button layout & texts
+    uint8_t btn_cnt = 0;
+
+    auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
+    auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
+    max_analogs = max_sticks + max_pots;
+
+    for (uint8_t i = 0; i < max_analogs; i++) {
+      // multipos cannot be centered
+      if (i < max_sticks || (IS_POT_SLIDER_AVAILABLE(i - max_sticks) &&
+                            !IS_POT_MULTIPOS(i - max_sticks))) {
+        ana_idx[btn_cnt] = i;
+        btn_cnt++;
+      }
+    }
+
+    initBtnMap(min((int)btn_cnt, SW_BTNS), btn_cnt);
+
+    uint8_t btn_id = 0;
+    for (uint8_t i = 0; i < max_analogs; i++) {
+      if (i < max_sticks || (IS_POT_SLIDER_AVAILABLE(i - max_sticks) &&
+                            !IS_POT_MULTIPOS(i - max_sticks))) {
+        setTextAndState(btn_id);
+        btn_id++;
+      }
+    }
+
+    update();
+
+    lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
+
+    uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
+    lv_obj_set_height(lvobj, (rows * 36) + 4);
+
+    lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
+
+    lv_obj_set_style_pad_row(lvobj, 4, LV_PART_MAIN);
+    lv_obj_set_style_pad_column(lvobj, 4, LV_PART_MAIN);
+  }
+
+  void onPress(uint8_t btn_id)
+  {
+    if (btn_id >= max_analogs) return;
+    uint8_t i = ana_idx[btn_id];
+    BFBIT_FLIP(g_model.beepANACenter, bfBit<BeepANACenter>(i));
+    setTextAndState(btn_id);
+    SET_DIRTY();
+  }
+
+  bool isActive(uint8_t btn_id)
+  {
+    if (btn_id >= max_analogs) return false;
+    uint8_t i = ana_idx[btn_id];
+    return bfSingleBitGet<BeepANACenter>(g_model.beepANACenter, i) != 0;
+  }
+
+  void setTextAndState(uint8_t btn_id)
+  {
+    auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
+    if (ana_idx[btn_id] < max_sticks)
+      setText(btn_id, getAnalogShortLabel(ana_idx[btn_id]));
+    else
+      setText(btn_id,
+              getAnalogLabel(ADC_INPUT_FLEX, ana_idx[btn_id] - max_sticks));
+    setChecked(btn_id);
+  }
+
+ private:
+  uint8_t max_analogs;
+  uint8_t ana_idx[MAX_ANALOG_INPUTS];
+};
+
+class ModelOtherOptions : public Page
+{
+   public:
+    ModelOtherOptions() : Page(ICON_MODEL_SETUP)
+    {
+      header->setTitle(STR_MENU_MODEL_SETUP);
+      header->setTitle2(STR_MENU_OTHER);
+
+      body->padAll(PAD_SMALL);
+
+      body->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
+
+      FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_SMALL);
+
+      // Model ADC jitter filter
+      auto line = body->newLine(grid);
+      new StaticText(line, rect_t{}, STR_JITTER_FILTER);
+      new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2,
+                GET_SET_DEFAULT(g_model.jitterFilter));
+
+      // Center beeps
+      line = body->newLine(grid);
+      new StaticText(line, rect_t{}, STR_BEEPCTR);
+      line = body->newLine(grid);
+      line->padLeft(4);
+      new CenterBeepsMatrix(line, rect_t{});
+    }
+};
+
+void ModelSetupPage::build(Window * window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
 
@@ -313,14 +434,7 @@ void ModelSetupPage::build(Window *window)
   // TODO: show bitmap thumbnail instead?
   new ModelBitmapEdit(line, rect_t{});
 
-  // Model ADC jitter filter
-  line = window->newLine(grid);
-  new StaticText(line, rect_t{}, STR_JITTER_FILTER);
-  new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2,
-             GET_SET_DEFAULT(g_model.jitterFilter));
-
-  static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                       LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+  static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
   static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
   FlexGridLayout grid2(col_dsc, row_dsc);
@@ -370,4 +484,6 @@ void ModelSetupPage::build(Window *window)
   new SubScreenButton(line, STR_USBJOYSTICK_LABEL,
                       []() { new ModelUSBJoystickPage(); });
 #endif
+
+  new SubScreenButton(line, STR_MENU_OTHER, []() { new ModelOtherOptions(); });
 }

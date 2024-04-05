@@ -272,7 +272,7 @@
 #define TR_TTRACE              TR("Źród gaz", INDENT "Źródło gazu ")
 #define TR_TTRIM               TR("TryGaz", INDENT "TrymWolnObrotó")
 #define TR_TTRIM_SW            TR("T-Trim-Sw", INDENT "Trim switch")
-#define TR_BEEPCTR             TR("ŚrodBeep", "Pikn.Środka")
+#define TR_BEEPCTR             TR("Dźwięk środ.", "Dźwięk środ. położenia")
 #define TR_USE_GLOBAL_FUNCS    TR("Funk.Glb.","Użyj Funkcji Glb")
 #define TR_PROTOCOL            TR("Proto", "Protokół")
 #define TR_PPMFRAME            INDENT "Ramka PPM"

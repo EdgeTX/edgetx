@@ -285,7 +285,7 @@
 #define TR_TTRACE                      TR("StopaPlynu", INDENT "Stopa plynu")
 #define TR_TTRIM                       TR3("TrimVolnob.", INDENT "Trim jen volnoběh", "Trim jen pro volnoběh")
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim spínač")
-#define TR_BEEPCTR                     TR3("Středy \200\201", "Pípat středy \200\201", "Pípat středy")
+#define TR_BEEPCTR                     TR("Pípat střed", "Pípnutí při středové poloze")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funkce", "Použít globální funkce")
 #define TR_PROTOCOL                    "Protokol"
 #define TR_PPMFRAME                    INDENT "PPM modulace"

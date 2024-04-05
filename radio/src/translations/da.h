@@ -278,7 +278,7 @@
 #define TR_TTRACE                      TR("T-kilde", INDENT "kilde")
 #define TR_TTRIM                       TR("T-trim-tomg", INDENT "Trim tomgang alene")
 #define TR_TTRIM_SW                    TR("T-trim-ko", INDENT "Trim kontakt")
-#define TR_BEEPCTR                     TR("Ctr Bip", "Center Bip")
+#define TR_BEEPCTR                     TR("Bip ctr pos", "Bip ved center position")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funk.", "Brug global funk.")
 #define TR_PROTOCOL                    TR("Proto", "Protokol")
 #define TR_PPMFRAME                    INDENT "PPM frame"

@@ -271,7 +271,7 @@
 #define TR_TTRACE                      TR("输入源", INDENT "输入源")
 #define TR_TTRIM                       TR("油门微调仅怠速", INDENT "油门微调只调整怠速")
 #define TR_TTRIM_SW                    TR("微调选择", INDENT "微调选择")
-#define TR_BEEPCTR                     TR("中点蜂鸣", "中点蜂鸣")
+#define TR_BEEPCTR                     TR("中点提示音", "中点蜂鸣提示音")
 #define TR_USE_GLOBAL_FUNCS            TR("全局功能", "全局功能可介入")
 #define TR_PPMFRAME                    INDENT "PPM帧"
 #define TR_REFRESHRATE                 TR(INDENT "刷新率", INDENT "刷新速率")
@@ -1109,7 +1109,7 @@
 #define TR_CURRENTSENSOR               "传感器"
 #define TR_AUTOOFFSET                  "自动偏移值"
 #define TR_ONLYPOSITIVE                "正向"
-#define TR_FILTER                      "滤波"
+#define TR_FILTER                      "滤波器"
 #define TR_TELEMETRYFULL               TR("项目已满!", "回传项目已满!")
 #define TR_INVERTED_SERIAL             INDENT "反向"
 #define TR_IGNORE_INSTANCE             TR(INDENT "忽略ID", INDENT "忽略ID鉴别")
@@ -1153,7 +1153,7 @@
 #define TR_MENU_OTHER                  "其它"
 #define TR_MENU_INVERT                 "反向"
 #define TR_AUDIO_MUTE                  TR("自动静音","音频停播时自动静音")
-#define TR_JITTER_FILTER               "模拟输入滤波"
+#define TR_JITTER_FILTER               "ADC滤波器"
 #define TR_DEAD_ZONE                   "死区"
 #define TR_RTC_CHECK                   TR("检查时间电池", "检查时间驱动电池电压")
 #define TR_AUTH_FAILURE                "验证失败"
