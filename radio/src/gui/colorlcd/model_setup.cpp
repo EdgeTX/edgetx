@@ -22,6 +22,8 @@
 #include "model_setup.h"
 
 #include "button_matrix.h"
+#include "filechoice.h"
+#include "libopenui.h"
 
 #include "hal/adc_driver.h"
 #include "storage/modelslist.h"
@@ -359,33 +361,31 @@ class ModelOtherOptions : public Page
    public:
     ModelOtherOptions() : Page(ICON_MODEL_SETUP)
     {
-      header.setTitle(STR_MENU_MODEL_SETUP);
-      header.setTitle2(STR_MENU_OTHER);
+      header->setTitle(STR_MENU_MODEL_SETUP);
+      header->setTitle2(STR_MENU_OTHER);
 
-      body.padAll(8);
+      body->padAll(PAD_SMALL);
 
-      auto form = new FormWindow(&body, rect_t{});
-      form->setFlexLayout();
-      form->padAll(4);
+      body->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
-      FlexGridLayout grid(line_col_dsc, line_row_dsc, 2);
+      FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_SMALL);
 
       // Model ADC jitter filter
-      auto line = form->newLine(&grid);
-      new StaticText(line, rect_t{}, STR_JITTER_FILTER, 0, COLOR_THEME_PRIMARY1);
+      auto line = body->newLine(grid);
+      new StaticText(line, rect_t{}, STR_JITTER_FILTER);
       new Choice(line, rect_t{}, STR_ADCFILTERVALUES, 0, 2,
                 GET_SET_DEFAULT(g_model.jitterFilter));
 
       // Center beeps
-      line = form->newLine(&grid);
-      new StaticText(line, rect_t{}, STR_BEEPCTR, 0, COLOR_THEME_PRIMARY1);
-      line = form->newLine(&grid);
+      line = body->newLine(grid);
+      new StaticText(line, rect_t{}, STR_BEEPCTR);
+      line = body->newLine(grid);
       line->padLeft(4);
       new CenterBeepsMatrix(line, rect_t{});
     }
 };
 
-void ModelSetupPage::build(FormWindow * window)
+void ModelSetupPage::build(Window * window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
 
