@@ -312,7 +312,7 @@ static uint8_t USBD_HID_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
   (void)USBD_LL_OpenEP(pdev, HIDInEpAdd, USBD_EP_TYPE_INTR, hid_in_pkt_size);
   pdev->ep_in[HIDInEpAdd & 0xFU].is_used = 1U;
 
-  hhid->state = HID_IDLE;
+  hhid->state = USBD_HID_IDLE;
 
   return (uint8_t)USBD_OK;
 }
@@ -373,19 +373,19 @@ static uint8_t USBD_HID_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *re
     case USB_REQ_TYPE_CLASS :
       switch (req->bRequest)
       {
-        case HID_REQ_SET_PROTOCOL:
+        case USBD_HID_REQ_SET_PROTOCOL:
           hhid->Protocol = (uint8_t)(req->wValue);
           break;
 
-        case HID_REQ_GET_PROTOCOL:
+        case USBD_HID_REQ_GET_PROTOCOL:
           (void)USBD_CtlSendData(pdev, (uint8_t *)&hhid->Protocol, 1U);
           break;
 
-        case HID_REQ_SET_IDLE:
+        case USBD_HID_REQ_SET_IDLE:
           hhid->IdleState = (uint8_t)(req->wValue >> 8);
           break;
 
-        case HID_REQ_GET_IDLE:
+        case USBD_HID_REQ_GET_IDLE:
           (void)USBD_CtlSendData(pdev, (uint8_t *)&hhid->IdleState, 1U);
           break;
 
@@ -507,9 +507,9 @@ uint8_t USBD_HID_SendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t 
 
   if (pdev->dev_state == USBD_STATE_CONFIGURED)
   {
-    if (hhid->state == HID_IDLE)
+    if (hhid->state == USBD_HID_IDLE)
     {
-      hhid->state = HID_BUSY;
+      hhid->state = USBD_HID_BUSY;
       (void)USBD_LL_Transmit(pdev, HIDInEpAdd, report, len);
     } else {
       return (uint8_t)USBD_BUSY;
@@ -625,7 +625,7 @@ static uint8_t USBD_HID_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum)
   UNUSED(epnum);
   /* Ensure that the FIFO is empty before a new transfer, this condition could
   be caused by  a new transfer before the end of the previous transfer */
-  ((USBD_HID_HandleTypeDef *)pdev->pClassDataCmsit[pdev->classId])->state = HID_IDLE;
+  ((USBD_HID_HandleTypeDef *)pdev->pClassDataCmsit[pdev->classId])->state = USBD_HID_IDLE;
 
   return (uint8_t)USBD_OK;
 }

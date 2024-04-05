@@ -60,14 +60,14 @@ extern "C" {
 #define HID_FS_BINTERVAL                           0x0AU
 #endif /* HID_FS_BINTERVAL */
 
-#define HID_REQ_SET_PROTOCOL                       0x0BU
-#define HID_REQ_GET_PROTOCOL                       0x03U
+#define USBD_HID_REQ_SET_PROTOCOL                       0x0BU
+#define USBD_HID_REQ_GET_PROTOCOL                       0x03U
 
-#define HID_REQ_SET_IDLE                           0x0AU
-#define HID_REQ_GET_IDLE                           0x02U
+#define USBD_HID_REQ_SET_IDLE                           0x0AU
+#define USBD_HID_REQ_GET_IDLE                           0x02U
 
-#define HID_REQ_SET_REPORT                         0x09U
-#define HID_REQ_GET_REPORT                         0x01U
+#define USBD_HID_REQ_SET_REPORT                         0x09U
+#define USBD_HID_REQ_GET_REPORT                         0x01U
 /**
   * @}
   */
@@ -78,9 +78,9 @@ extern "C" {
   */
 typedef enum
 {
-  HID_IDLE = 0,
-  HID_BUSY,
-} HID_StateTypeDef;
+  USBD_HID_IDLE = 0,
+  USBD_HID_BUSY,
+} USBD_HID_StateTypeDef;
 
 
 typedef struct
@@ -88,7 +88,7 @@ typedef struct
   uint32_t Protocol;
   uint32_t IdleState;
   uint32_t AltSetting;
-  HID_StateTypeDef state;
+  USBD_HID_StateTypeDef state;
 } USBD_HID_HandleTypeDef;
 
 /*
@@ -134,7 +134,11 @@ extern USBD_ClassTypeDef USBD_HID;
 /** @defgroup USB_CORE_Exported_Functions
   * @{
   */
+#ifdef USE_USBD_COMPOSITE
+uint8_t USBD_HID_SendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t len, uint8_t ClassId);
+#else
 uint8_t USBD_HID_SendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t len);
+#endif /* USE_USBD_COMPOSITE */
 uint32_t USBD_HID_GetPollingInterval(USBD_HandleTypeDef *pdev);
 
 /**
