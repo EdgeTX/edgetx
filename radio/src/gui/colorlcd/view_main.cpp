@@ -33,13 +33,13 @@
 
 static void tile_view_deleted_cb(lv_event_t* e)
 {
-  TRACE("CHILD_DELETED tile[%d]", lv_event_get_user_data(e));
   lv_obj_t* target = lv_event_get_target(e);
   lv_obj_t* obj = lv_event_get_current_target(e);
 
   // LV_EVENT_CHILD_DELETED is bubbled to all parents, so
   // we'd better make sure this is one of our own.
   if (obj == target) {
+    TRACE("CHILD_DELETED tile[%d]", lv_event_get_user_data(e));
     lv_obj_del(obj);
   }
 }
@@ -70,14 +70,13 @@ static void tile_view_scroll(lv_event_t* e)
 ViewMain* ViewMain::_instance = nullptr;
 
 ViewMain::ViewMain() :
-    NavWindow(MainWindow::instance(), MainWindow::instance()->getRect(), OPAQUE)
+    NavWindow(MainWindow::instance(), MainWindow::instance()->getRect())
 {
   Layer::push(this);
 
   tile_view = lv_tileview_create(lvobj);
   lv_obj_set_pos(tile_view, rect.x, rect.y);
   lv_obj_set_size(tile_view, rect.w, rect.h);
-  lv_obj_set_style_bg_opa(tile_view, LV_OPA_TRANSP, LV_PART_MAIN);
   lv_obj_set_scrollbar_mode(tile_view, LV_SCROLLBAR_MODE_OFF);
   lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLL_ELASTIC);
 
@@ -125,11 +124,14 @@ unsigned ViewMain::getMainViewsCount() const
 
 rect_t ViewMain::getMainZone(rect_t zone, bool hasTopbar) const
 {
-  auto visibleHeight = topbar->getVisibleHeight(hasTopbar ? 1.0 : 0.0);
-  zone.y += visibleHeight;
-  zone.h -= visibleHeight;
-
-  return zone;
+  if (isVisible) {
+    auto visibleHeight = topbar->getVisibleHeight(hasTopbar ? 1.0 : 0.0);
+    zone.y += visibleHeight;
+    zone.h -= visibleHeight;
+    return zone;
+  } else {
+    return {0, 0, LCD_W, LCD_H};
+  }
 }
 
 unsigned ViewMain::getCurrentMainView() const
@@ -179,16 +181,12 @@ static bool hasTopbar(unsigned view)
 
 void ViewMain::enableTopbar()
 {
-  if (topbar && topbar->getLvObj()) {
-    lv_obj_clear_flag(topbar->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  }
+  if (topbar) topbar->show();
 }
 
 void ViewMain::disableTopbar()
 {
-  if (topbar && topbar->getLvObj()) {
-    lv_obj_add_flag(topbar->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  }
+  if (topbar) topbar->hide();
 }
 
 void ViewMain::updateTopbarVisibility()
@@ -224,14 +222,6 @@ void ViewMain::updateTopbarVisibility()
       customScreens[leftIdx]->adjustLayout();
       customScreens[leftIdx + 1]->adjustLayout();
     }
-  }
-}
-
-// Update screens after theme loaded / changed
-void ViewMain::updateFromTheme()
-{
-  for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
-    if (customScreens[i]) customScreens[i]->updateFromTheme();
   }
 }
 
@@ -320,7 +310,11 @@ bool ViewMain::enableWidgetSelect(bool enable)
     Widget* widget = cont->getWidget(i);
     if (!widget) continue;
     if (enable) {
-      widget->setFocusHandler([=](bool) { refreshWidgetSelectTimer(); });
+      widget->setFocusHandler([=](bool hasFocus) {
+        if (hasFocus)
+          widget->bringToTop();
+        refreshWidgetSelectTimer();
+      });
       lv_group_add_obj(lv_group_get_default(), widget->getLvObj());
     } else {
       widget->setFocusHandler(nullptr);
@@ -351,15 +345,6 @@ void ViewMain::openMenu()
   viewMainMenu = new ViewMainMenu(this, [=]() { viewMainMenu = nullptr; });
 }
 
-void ViewMain::paint(BitmapBuffer* dc)
-{
-  TRACE_WINDOWS("### ViewMain::paint(offset_x=%d;offset_y=%d) ###",
-                dc->getOffsetX(), dc->getOffsetY());
-
-  // TODO: set it as "window background" w/ LVGL
-  EdgeTxTheme::instance()->drawBackground(dc);
-}
-
 void ViewMain::ws_timer(lv_timer_t* t)
 {
   ViewMain* view = (ViewMain*)t->user_data;
@@ -377,6 +362,19 @@ void ViewMain::long_pressed(lv_event_t* e)
     // kill subsequent CLICKED event
     lv_obj_clear_state(obj, LV_STATE_PRESSED);
     lv_indev_wait_release(lv_indev_get_act());
+  }
+}
+
+void ViewMain::show(bool visible)
+{
+  isVisible = visible;
+  coord_t scrollPos = lv_obj_get_scroll_x(tile_view);
+  coord_t pageWidth = width();
+  int view = scrollPos / pageWidth;
+  setTopbarVisible(visible && hasTopbar(view));
+  if (customScreens[view]) {
+    customScreens[view]->show(visible);
+    customScreens[view]->showWidgets(visible);
   }
 }
 

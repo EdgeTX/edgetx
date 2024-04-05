@@ -20,16 +20,100 @@
  */
 
 #include "trims.h"
-#include "sliders.h"
+
+#include "bitmaps.h"
 #include "input_mapping.h"
-
 #include "opentx.h"
+#include "sliders.h"
 
-MainViewTrim::MainViewTrim(Window * parent, const rect_t & rect, uint8_t idx):
-  Window(parent, rect),
-  idx(idx)
+class TrimIcon : public SliderIcon
+{
+ public:
+  TrimIcon(Window* parent, bool isVertical) : SliderIcon(parent)
+  {
+    if (isVertical) {
+      barPoints[0] = {3, 4};
+      barPoints[1] = {12, 4};
+      barPoints[2] = {3, 10};
+      barPoints[3] = {12, 10};
+    } else {
+      barPoints[0] = {10, 3};
+      barPoints[1] = {10, 12};
+      barPoints[2] = {4, 3};
+      barPoints[3] = {4, 12};
+    }
+
+    bar1 = lv_line_create(lvobj);
+    etx_obj_add_style(bar1, styles->div_line_white, LV_PART_MAIN);
+    lv_line_set_points(bar1, &barPoints[0], 2);
+    bar2 = lv_line_create(lvobj);
+    etx_obj_add_style(bar2, styles->div_line_white, LV_PART_MAIN);
+    lv_line_set_points(bar2, &barPoints[2], 2);
+
+    etx_bg_color(fill, COLOR_THEME_ACTIVE_INDEX, LV_STATE_USER_1);
+  }
+
+  void setState(int value)
+  {
+    if (value < TRIM_MIN || value > TRIM_MAX)
+      lv_obj_add_state(fill, LV_STATE_USER_1);
+    else
+      lv_obj_clear_state(fill, LV_STATE_USER_1);
+
+    if (value >= 0)
+      lv_obj_clear_flag(bar1, LV_OBJ_FLAG_HIDDEN);
+    else
+      lv_obj_add_flag(bar1, LV_OBJ_FLAG_HIDDEN);
+
+    if (value <= 0)
+      lv_obj_clear_flag(bar2, LV_OBJ_FLAG_HIDDEN);
+    else
+      lv_obj_add_flag(bar2, LV_OBJ_FLAG_HIDDEN);
+  }
+
+ protected:
+  lv_obj_t* bar1 = nullptr;
+  lv_obj_t* bar2 = nullptr;
+  lv_point_t barPoints[4];
+};
+
+MainViewTrim::MainViewTrim(Window* parent, const rect_t& rect, uint8_t idx,
+                           bool isVertical) :
+    Window(parent, rect), idx(idx), isVertical(isVertical)
 {
   setRange();
+
+  trimBar = lv_obj_create(lvobj);
+  etx_solid_bg(trimBar, COLOR_THEME_SECONDARY1_INDEX);
+  etx_obj_add_style(trimBar, styles->rounded, LV_PART_MAIN);
+  if (isVertical) {
+    lv_obj_set_pos(trimBar, (TRIM_SQUARE_SIZE - TRIM_LINE_WIDTH) / 2,
+                   TRIM_SQUARE_SIZE / 2);
+    lv_obj_set_size(trimBar, TRIM_LINE_WIDTH,
+                    VERTICAL_SLIDERS_HEIGHT - TRIM_SQUARE_SIZE + 1);
+  } else {
+    lv_obj_set_pos(trimBar, TRIM_SQUARE_SIZE / 2,
+                   (TRIM_SQUARE_SIZE - TRIM_LINE_WIDTH - 1) / 2);
+    lv_obj_set_size(trimBar, HORIZONTAL_SLIDERS_WIDTH - TRIM_SQUARE_SIZE + 1,
+                    TRIM_LINE_WIDTH);
+  }
+
+  trimIcon = new TrimIcon(this, isVertical);
+  coord_t x = 0, y = 0;
+  if (isVertical)
+    y = (height() - TRIM_SQUARE_SIZE) / 2;
+  else
+    y = (width() - TRIM_SQUARE_SIZE) / 2;
+  lv_obj_set_pos(trimIcon->getLvObj(), x, y);
+
+  trimValue = new DynamicNumber<int16_t>(
+      this, {0, 0, TRIM_SQUARE_SIZE, 12},
+      [=]() { return divRoundClosest(abs(value) * 100, trimMax); },
+      COLOR_THEME_PRIMARY2 | FONT(XXS) | CENTERED);
+  etx_solid_bg(trimValue->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
+  trimValue->hide();
+
+  setPos();
 }
 
 void MainViewTrim::setRange()
@@ -37,10 +121,43 @@ void MainViewTrim::setRange()
   if (g_model.extendedTrims) {
     trimMin = TRIM_EXTENDED_MIN;
     trimMax = TRIM_EXTENDED_MAX;
-  }
-  else {
+  } else {
     trimMin = TRIM_MIN;
     trimMax = TRIM_MAX;
+  }
+}
+
+void MainViewTrim::setPos()
+{
+  coord_t x = sx();
+  coord_t y = sy();
+
+  lv_obj_set_pos(trimIcon->getLvObj(), x, y);
+  trimIcon->setState(value);
+
+  if ((g_model.displayTrims == DISPLAY_TRIMS_ALWAYS) ||
+      ((g_model.displayTrims == DISPLAY_TRIMS_CHANGE) &&
+       (trimsDisplayTimer > 0) && (trimsDisplayMask & (1 << idx)))) {
+    if (value) {
+      if (isVertical) {
+        x = 0;
+        y = (value > 0) ? VERTICAL_SLIDERS_HEIGHT * 4 / 5
+                        : VERTICAL_SLIDERS_HEIGHT / 5 - 11;
+      } else {
+        x = ((value < 0) ? HORIZONTAL_SLIDERS_WIDTH * 4 / 5
+                         : HORIZONTAL_SLIDERS_WIDTH / 5) -
+            TRIM_SQUARE_SIZE / 2;
+        y = (TRIM_SQUARE_SIZE - 12) / 2;
+      }
+      lv_obj_set_pos(trimValue->getLvObj(), x, y);
+      trimValue->show();
+      showChange = true;
+    } else {
+      trimValue->hide();
+    }
+  } else {
+    showChange = false;
+    trimValue->hide();
   }
 }
 
@@ -55,12 +172,10 @@ bool MainViewTrim::setDisplayState()
   trim_t v = getRawTrimValue(mixerCurrentFlightMode, inputMappingConvertMode(idx));
   if (hidden || v.mode == TRIM_MODE_NONE || v.mode == TRIM_MODE_3POS) {
     // Hide trim if not being used
-    if (!lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN))
-      lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+    hide();
     return false;
   } else {
-    if (lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN))
-      lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+    show();
   }
 
   return true;
@@ -81,115 +196,41 @@ void MainViewTrim::checkEvents()
   setRange();
   newValue = min(max(newValue, trimMin), trimMax);
 
-  if (value != newValue ||
-      (g_model.displayTrims == DISPLAY_TRIMS_CHANGE && showChange && trimsDisplayTimer == 0)) {
+  if (value != newValue || (g_model.displayTrims == DISPLAY_TRIMS_CHANGE &&
+                            showChange && trimsDisplayTimer == 0)) {
     value = newValue;
-    invalidate();
+    setPos();
   }
 }
 
-void MainViewTrim::paint(BitmapBuffer * dc)
+coord_t MainViewTrim::sx()
 {
-  // Trim line
-  drawLine(dc);
+  if (isVertical) return 0;
 
-  coord_t x = sx();
-  coord_t y = sy();
+  return divRoundClosest(
+      (HORIZONTAL_SLIDERS_WIDTH - TRIM_SQUARE_SIZE) * (value - trimMin),
+      trimMax - trimMin);
+}
 
-  // Trim square
-  drawTrimSquare(dc, x, y,
-                 (value < TRIM_MIN || value > TRIM_MAX)
-                     ? COLOR_THEME_ACTIVE /* TODO add a color */
-                     : COLOR_THEME_FOCUS);
-  drawMarkerLines(dc, x, y);
+coord_t MainViewTrim::sy()
+{
+  if (!isVertical) return 0;
 
-  // Trim value / small lines on the square
-  if ((g_model.displayTrims == DISPLAY_TRIMS_ALWAYS) ||
-      ((g_model.displayTrims == DISPLAY_TRIMS_CHANGE) && (trimsDisplayTimer > 0) && (trimsDisplayMask & (1 << idx)))) {
-    if (value) {
-      showChange = true;
-      drawValue(dc);
-    }
-  } else {
-    showChange = false;
-  }
+  return divRoundClosest(
+             (VERTICAL_SLIDERS_HEIGHT - TRIM_SQUARE_SIZE) * (trimMax - value),
+             trimMax - trimMin);
 }
 
 MainViewHorizontalTrim::MainViewHorizontalTrim(Window* parent, uint8_t idx) :
-  MainViewTrim(parent, rect_t{0, 0, HORIZONTAL_SLIDERS_WIDTH, TRIM_SQUARE_SIZE}, idx)
+    MainViewTrim(parent,
+                 rect_t{0, 0, HORIZONTAL_SLIDERS_WIDTH, TRIM_SQUARE_SIZE}, idx,
+                 false)
 {
-}
-
-coord_t MainViewHorizontalTrim::sx()
-{
-  return divRoundClosest((HORIZONTAL_SLIDERS_WIDTH - TRIM_SQUARE_SIZE) * (value - trimMin),
-                         trimMax - trimMin);
-}
-
-void MainViewHorizontalTrim::drawLine(BitmapBuffer * dc)
-{
-  // Trim line
-  dc->drawSolidFilledRect(
-      TRIM_SQUARE_SIZE / 2, (TRIM_SQUARE_SIZE - TRIM_LINE_WIDTH - 1) / 2,
-      HORIZONTAL_SLIDERS_WIDTH - TRIM_SQUARE_SIZE + 1, TRIM_LINE_WIDTH, COLOR_THEME_SECONDARY1);
-}
-
-void MainViewHorizontalTrim::drawMarkerLines(BitmapBuffer * dc, coord_t x, coord_t y)
-{
-  // Small lines on the square
-  if (value >= 0) {
-    dc->drawSolidVerticalLine(x + 10, 3, 9, COLOR_THEME_PRIMARY2);
-  }
-  if (value <= 0) {
-    dc->drawSolidVerticalLine(x + 4, 3, 9, COLOR_THEME_PRIMARY2);
-  }
-}
-
-void MainViewHorizontalTrim::drawValue(BitmapBuffer * dc)
-{
-  coord_t x = (value < 0) ? HORIZONTAL_SLIDERS_WIDTH * 4 / 5 : HORIZONTAL_SLIDERS_WIDTH / 5;
-  dc->drawSolidFilledRect(x - TRIM_SQUARE_SIZE/2, (TRIM_SQUARE_SIZE-12)/2, TRIM_SQUARE_SIZE, 12, COLOR_THEME_SECONDARY1);
-  dc->drawNumber(x, 2,
-                 divRoundClosest(abs(value) * 100, trimMax),
-                 FONT(XXS) | COLOR_THEME_PRIMARY2 | CENTERED);
 }
 
 MainViewVerticalTrim::MainViewVerticalTrim(Window* parent, uint8_t idx) :
-  MainViewTrim(parent, rect_t{0, 0, TRIM_SQUARE_SIZE, VERTICAL_SLIDERS_HEIGHT}, idx)
+    MainViewTrim(parent,
+                 rect_t{0, 0, TRIM_SQUARE_SIZE, VERTICAL_SLIDERS_HEIGHT}, idx,
+                 true)
 {
-}
-
-coord_t MainViewVerticalTrim::sy()
-{
-  return VERTICAL_SLIDERS_HEIGHT - TRIM_SQUARE_SIZE -
-         divRoundClosest((VERTICAL_SLIDERS_HEIGHT - TRIM_SQUARE_SIZE) * (value - trimMin),
-                         trimMax - trimMin);
-}
-
-void MainViewVerticalTrim::drawLine(BitmapBuffer * dc)
-{
-  // Trim line
-  dc->drawSolidFilledRect((TRIM_SQUARE_SIZE - TRIM_LINE_WIDTH) / 2, TRIM_SQUARE_SIZE / 2,
-                          TRIM_LINE_WIDTH, VERTICAL_SLIDERS_HEIGHT - TRIM_SQUARE_SIZE + 1,
-                          COLOR_THEME_SECONDARY1);
-}
-
-void MainViewVerticalTrim::drawMarkerLines(BitmapBuffer * dc, coord_t x, coord_t y)
-{
-  // Small lines on the square
-  if (value >= 0) {
-    dc->drawSolidHorizontalLine(3, y + 4, 9, COLOR_THEME_PRIMARY2);
-  }
-  if (value <= 0) {
-    dc->drawSolidHorizontalLine(3, y + 10, 9, COLOR_THEME_PRIMARY2);
-  }
-}
-
-void MainViewVerticalTrim::drawValue(BitmapBuffer * dc)
-{
-  coord_t y = (value > 0) ? VERTICAL_SLIDERS_HEIGHT * 4 / 5 : VERTICAL_SLIDERS_HEIGHT / 5 - 11;
-  dc->drawSolidFilledRect(0, y, TRIM_SQUARE_SIZE, 11, COLOR_THEME_SECONDARY1);
-  dc->drawNumber(TRIM_SQUARE_SIZE/2, y,
-                 divRoundClosest(abs(value) * 100, trimMax),
-                 FONT(XXS) | COLOR_THEME_PRIMARY2 | CENTERED);
 }

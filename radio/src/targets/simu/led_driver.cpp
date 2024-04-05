@@ -21,7 +21,7 @@
 
 #include <stdint.h>
 
-void usbChargerLed() {}
+bool usbChargerLed() { return true; }
 void ledRed() {}
 void ledGreen() {}
 void ledBlue() {}

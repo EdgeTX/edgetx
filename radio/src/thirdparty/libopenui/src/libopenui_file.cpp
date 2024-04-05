@@ -16,9 +16,10 @@
  * GNU General Public License for more details.
  */
 
-#include <inttypes.h>
-#include <string.h>
 #include "libopenui_file.h"
+
+#include <inttypes.h>
+#include <cinttypes>
 
 const char * getFileExtension(const char * filename, uint8_t size, uint8_t extMaxLen, uint8_t * fnlen, uint8_t * extlen)
 {

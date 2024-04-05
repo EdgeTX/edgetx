@@ -34,8 +34,6 @@ class SwitchWarnDialog : public FullScreenDialog
   std::string getName() const override { return "SwitchWarnDialog"; }
 #endif
 
-  void paint(BitmapBuffer* dc) override;
-
  protected:
   swarnstate_t last_bad_switches;
   uint16_t     last_bad_pots;
@@ -43,6 +41,8 @@ class SwitchWarnDialog : public FullScreenDialog
   bool warningInactive();
   
   void delayedInit() override;
+
+  void checkEvents() override;
 };
 
 class ThrottleWarnDialog : public FullScreenDialog

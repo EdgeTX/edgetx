@@ -24,6 +24,7 @@
 #include <functional>
 
 #include "opentx.h"
+#include "page.h"
 
 class TemplatePage : public Page
 {
@@ -37,11 +38,11 @@ class TemplatePage : public Page
 #endif
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const { return "TemplatePage"; }
+    std::string getName() const override { return "TemplatePage"; }
 #endif
 
   protected:
-    FormWindow* listWindow = nullptr;
+    Window* listWindow = nullptr;
     lv_obj_t* infoLabel = nullptr;
 
     static constexpr size_t LEN_INFO_TEXT = 300;

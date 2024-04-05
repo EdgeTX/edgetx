@@ -20,9 +20,10 @@
  */
 
 #include "trims_setup.h"
+
 #include "opentx.h"
 
-#define SET_DIRTY()     storageDirty(EE_MODEL)
+#define SET_DIRTY() storageDirty(EE_MODEL)
 
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                           LV_GRID_TEMPLATE_LAST};
@@ -38,15 +39,15 @@ static void resetTrims()
 
 TrimsSetup::TrimsSetup() : Page(ICON_MODEL_SETUP)
 {
-  header.setTitle(STR_MENU_MODEL_SETUP);
-  header.setTitle2(STR_TRIMS);
+  header->setTitle(STR_MENU_MODEL_SETUP);
+  header->setTitle2(STR_TRIMS);
 
-  body.setFlexLayout();
-  body.padAll(8);
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, 4);
+  body->setFlexLayout();
+  body->padAll(PAD_LARGE);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc);
 
   // Reset trims
-  auto line = body.newLine();
+  auto line = body->newLine(grid);
   line->padBottom(4);
   auto btn = new TextButton(line, rect_t{}, STR_RESET_BTN, []() -> uint8_t {
     resetTrims();
@@ -57,35 +58,35 @@ TrimsSetup::TrimsSetup() : Page(ICON_MODEL_SETUP)
 
 #if defined(USE_HATS_AS_KEYS)
   // Hats mode for NV14/EL18
-  line = body.newLine(&grid);
-  new StaticText(line, rect_t{}, STR_HATSMODE, 0, COLOR_THEME_PRIMARY1);
-  auto box = new FormWindow(line, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW, 4);
-  new Choice(box, rect_t{}, STR_HATSOPT, HATSMODE_TRIMS_ONLY, HATSMODE_GLOBAL, 
+  line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_HATSMODE);
+  auto box = new Window(line, rect_t{});
+  box->padAll(PAD_TINY);
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY);
+  new Choice(box, rect_t{}, STR_HATSOPT, HATSMODE_TRIMS_ONLY, HATSMODE_GLOBAL,
              GET_SET_DEFAULT(g_model.hatsMode));
   new TextButton(box, rect_t{}, "?", [=]() {
-    new HelpDialog(this, {50, 100, LCD_W - 100, LCD_H - 200},
-                   STR_HATSMODE_KEYS, STR_HATSMODE_KEYS_HELP, LEFT);
+    new MessageDialog(this, STR_HATSMODE_KEYS, STR_HATSMODE_KEYS_HELP, "",
+                      LEFT);
     return 0;
   });
 #endif
 
   // Trim step
-  line = body.newLine(&grid);
-  new StaticText(line, rect_t{}, STR_TRIMINC, 0,
-                 COLOR_THEME_PRIMARY1);
+  line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_TRIMINC);
   new Choice(line, rect_t{}, STR_VTRIMINC, -2, 2,
              GET_SET_DEFAULT(g_model.trimInc));
 
   // Extended trims
-  line = body.newLine(&grid);
-  new StaticText(line, rect_t{}, STR_ETRIMS, 0, COLOR_THEME_PRIMARY1);
+  line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_ETRIMS);
   new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.extendedTrims));
 
   // Display trims
   // TODO: move to "Screen setup" ?
-  line = body.newLine(&grid);
-  new StaticText(line, rect_t{}, STR_DISPLAY_TRIMS, 0, COLOR_THEME_PRIMARY1);
+  line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_DISPLAY_TRIMS);
   new Choice(line, rect_t{}, STR_VDISPLAYTRIMS, 0, 2,
              GET_SET_DEFAULT(g_model.displayTrims));
 }

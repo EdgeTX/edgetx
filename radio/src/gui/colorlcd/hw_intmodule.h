@@ -23,20 +23,14 @@
 
 #include "form.h"
 
-class InternalModuleWindow : public FormWindow::Line
+class InternalModuleWindow
 {
  public:
-  InternalModuleWindow(Window *parent);
+  InternalModuleWindow(Window *parent, FlexGridLayout& grid);
 
  protected:
-  uint8_t lastModule = 0;
-  lv_obj_t* br_box = nullptr;
-  lv_obj_t* ant_box = nullptr;
-
-#if defined(CROSSFIRE)
-  static int getBaudrate();
-  static void setBaudrate(int val);
-#endif
+  Window* br_box = nullptr;
+  Window* ant_box = nullptr;
 
   void setModuleType(int moduleType);
   void updateBaudrateLine();

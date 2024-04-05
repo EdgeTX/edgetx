@@ -18,7 +18,6 @@
 
 #include "keyboard_text.h"
 
-#include "font.h"
 #include "textedit.h"
 
 constexpr coord_t KEYBOARD_HEIGHT = LCD_H * 2 / 5;
@@ -29,139 +28,103 @@ TextKeyboard::TextKeyboard() : Keyboard(KEYBOARD_HEIGHT) {}
 TextKeyboard::~TextKeyboard() { _instance = nullptr; }
 
 #if defined(HARDWARE_KEYS)
-void TextKeyboard::onEvent(event_t event)
+
+void TextKeyboard::changeMode()
+{
+  // Change keyboard mode
+  lv_keyboard_mode_t mode = lv_keyboard_get_mode(keyboard);
+  mode = (mode + 1) & 3;
+  lv_keyboard_set_mode(keyboard, mode);
+}
+
+void TextKeyboard::backspace()
 {
   lv_keyboard_t* kb = (lv_keyboard_t*)keyboard;
-
-#if (defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)) && !defined(PCBX12S)
-  // Radios with both PGUP and PGDN buttons except X12S
-  switch (event) {
-    case EVT_KEY_BREAK(KEY_SYS): {
-      // Change keyboard mode
-      lv_keyboard_mode_t mode = lv_keyboard_get_mode(keyboard);
-      mode = (mode + 1) & 3;
-      lv_keyboard_set_mode(keyboard, mode);
-    } break;
-
-    case EVT_KEY_LONG(KEY_MODEL):
-      killEvents(event);
-      // Backspace
-      lv_textarea_del_char(kb->ta);
-      break;
-
-    case EVT_KEY_BREAK(KEY_PAGEDN):
-      // Cursor right
-      lv_textarea_cursor_right(kb->ta);
-      break;
-
-    case EVT_KEY_BREAK(KEY_PAGEUP):
-      // Cursor left
-      lv_textarea_cursor_left(kb->ta);
-      break;
-
-    case EVT_KEY_LONG(KEY_PAGEDN): {
-      killEvents(event);
-      // Cursor to end
-      int l = strlen(lv_textarea_get_text(kb->ta));
-      while (lv_textarea_get_cursor_pos(kb->ta) < l)
-        lv_textarea_cursor_right(kb->ta);
-    } break;
-
-    case EVT_KEY_LONG(KEY_PAGEUP):
-      killEvents(event);
-      // Cursor to start
-      while (lv_textarea_get_cursor_pos(kb->ta) > 0)
-        lv_textarea_cursor_left(kb->ta);
-      break;
-
-    case EVT_KEY_BREAK(KEY_TELE): {
-      // Toggle case
-      char c = lv_textarea_get_text(kb->ta)[lv_textarea_get_cursor_pos(kb->ta)];
-      if (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z'))) {
-        c ^= 0x20;
-        lv_textarea_del_char_forward(kb->ta);
-        lv_textarea_add_char(kb->ta, c);
-        lv_textarea_cursor_left(kb->ta);
-      }
-    } break;
-
-    case EVT_KEY_LONG(KEY_TELE):
-      killEvents(event);
-      // Delete
-      lv_textarea_del_char_forward(kb->ta);
-      break;
-
-    default:
-      break;
-  }
-
-#else
-  // Radios witb only a single PGUP/DN button or X12S
-  switch (event) {
-    case EVT_KEY_BREAK(KEY_SYS):
-      // Cursor left
-      lv_textarea_cursor_left(kb->ta);
-      break;
-
-    case EVT_KEY_LONG(KEY_SYS):
-      killEvents(event);
-      // Cursor to start
-      while (lv_textarea_get_cursor_pos(kb->ta) > 0)
-        lv_textarea_cursor_left(kb->ta);
-      break;
-
-    case EVT_KEY_BREAK(KEY_MODEL): {
-      // Change keyboard mode
-      lv_keyboard_mode_t mode = lv_keyboard_get_mode(keyboard);
-      mode = (mode + 1) & 3;
-      lv_keyboard_set_mode(keyboard, mode);
-    } break;
-
-    case EVT_KEY_LONG(KEY_MODEL):
-      killEvents(event);
-      // Backspace
-      lv_textarea_del_char(kb->ta);
-      break;
-
-#if defined(PCBX12S)
-    case EVT_KEY_BREAK(KEY_PAGEUP):
-#endif
-    case EVT_KEY_BREAK(KEY_PAGEDN): {
-      // Toggle case
-      char c = lv_textarea_get_text(kb->ta)[lv_textarea_get_cursor_pos(kb->ta)];
-      if (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z'))) {
-        c ^= 0x20;
-        lv_textarea_del_char_forward(kb->ta);
-        lv_textarea_add_char(kb->ta, c);
-        lv_textarea_cursor_left(kb->ta);
-      }
-    } break;
-
-    case EVT_KEY_LONG(KEY_PAGEDN):
-      killEvents(event);
-      // Delete
-      lv_textarea_del_char_forward(kb->ta);
-      break;
-
-    case EVT_KEY_BREAK(KEY_TELE): {
-      // Cursor right
-      lv_textarea_cursor_right(kb->ta);
-    } break;
-
-    case EVT_KEY_LONG(KEY_TELE): {
-      killEvents(event);
-      // Cursor to end
-      int l = strlen(lv_textarea_get_text(kb->ta));
-      while (lv_textarea_get_cursor_pos(kb->ta) < l)
-        lv_textarea_cursor_right(kb->ta);
-    } break;
-
-    default:
-      break;
-  }
-
-#endif
+  // Backspace
+  lv_textarea_del_char(kb->ta);
 }
+
+void TextKeyboard::toggleCase()
+{
+  lv_keyboard_t* kb = (lv_keyboard_t*)keyboard;
+  // Toggle case
+  char c = lv_textarea_get_text(kb->ta)[lv_textarea_get_cursor_pos(kb->ta)];
+  if (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z'))) {
+    c ^= 0x20;
+    lv_textarea_del_char_forward(kb->ta);
+    lv_textarea_add_char(kb->ta, c);
+    lv_textarea_cursor_left(kb->ta);
+  }
+}
+
+void TextKeyboard::deleteChar()
+{
+  lv_keyboard_t* kb = (lv_keyboard_t*)keyboard;
+  // Delete
+  lv_textarea_del_char_forward(kb->ta);
+}
+
+void TextKeyboard::cursorLeft()
+{
+  lv_keyboard_t* kb = (lv_keyboard_t*)keyboard;
+  // Cursor left
+  lv_textarea_cursor_left(kb->ta);
+}
+
+void TextKeyboard::cursorRight()
+{
+  lv_keyboard_t* kb = (lv_keyboard_t*)keyboard;
+  // Cursor right
+  lv_textarea_cursor_right(kb->ta);
+}
+
+void TextKeyboard::cursorStart()
+{
+  lv_keyboard_t* kb = (lv_keyboard_t*)keyboard;
+  // Cursor to start
+  while (lv_textarea_get_cursor_pos(kb->ta) > 0)
+    lv_textarea_cursor_left(kb->ta);
+}
+
+void TextKeyboard::cursorEnd()
+{
+  lv_keyboard_t* kb = (lv_keyboard_t*)keyboard;
+  // Cursor to end
+  size_t l = strlen(lv_textarea_get_text(kb->ta));
+  while (lv_textarea_get_cursor_pos(kb->ta) < l)
+    lv_textarea_cursor_right(kb->ta);
+}
+
+#if (defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)) && \
+    !defined(PCBX12S)
+// Radios with both PGUP and PGDN buttons except X12S
+void TextKeyboard::onPressSYS() { changeMode(); }
+void TextKeyboard::onLongPressSYS() {}
+void TextKeyboard::onPressMDL() {}
+void TextKeyboard::onLongPressMDL() { backspace(); }
+void TextKeyboard::onPressTELE() { toggleCase(); }
+void TextKeyboard::onLongPressTELE() { deleteChar(); }
+void TextKeyboard::onPressPGUP() { cursorLeft(); }
+void TextKeyboard::onPressPGDN() { cursorRight(); }
+void TextKeyboard::onLongPressPGUP() { cursorStart(); }
+void TextKeyboard::onLongPressPGDN() { cursorEnd(); }
+#else
+// Radios witb only a single PGUP/DN button or X12S
+void TextKeyboard::onPressSYS() { cursorLeft(); }
+void TextKeyboard::onLongPressSYS() { cursorStart(); }
+void TextKeyboard::onPressMDL() { changeMode(); }
+void TextKeyboard::onLongPressMDL() { backspace(); }
+void TextKeyboard::onPressTELE() { cursorRight(); }
+void TextKeyboard::onLongPressTELE() { cursorEnd(); }
+#if defined(PCBX12S)
+void TextKeyboard::onPressPGUP() { toggleCase(); }
+#else
+void TextKeyboard::onPressPGUP() { deleteChar(); }
+#endif
+void TextKeyboard::onPressPGDN() { toggleCase(); }
+void TextKeyboard::onLongPressPGUP() {}
+void TextKeyboard::onLongPressPGDN() { deleteChar(); }
+#endif
 #endif
 
 void TextKeyboard::show(FormField* field)

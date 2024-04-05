@@ -20,9 +20,10 @@
  */
 
 #include "input_edit_adv.h"
-#include "fm_matrix.h"
 
+#include "fm_matrix.h"
 #include "opentx.h"
+#include "themes/etx_lv_theme.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -34,20 +35,17 @@ InputEditAdvanced::InputEditAdvanced(uint8_t input_n, uint8_t index) :
     Page(ICON_MODEL_INPUTS)
 {
   std::string title2(getSourceString(MIXSRC_FIRST_INPUT + input_n));
-  header.setTitle(STR_MENUINPUTS);
-  header.setTitle2(title2);
+  header->setTitle(STR_MENUINPUTS);
+  header->setTitle2(title2);
 
-  rect_t r = rect_t{0, 0, body.width(), body.height()};  
-  auto form = new FormWindow(&body, r);
-    
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
-  form->setFlexLayout();
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
+  body->setFlexLayout();
 
   ExpoData* input = expoAddress(index);
 
   // Side
-  auto line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_SIDE, 0, COLOR_THEME_PRIMARY1);
+  auto line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_SIDE);
   new Choice(
       line, rect_t{}, STR_VCURVEFUNC, 1, 3,
       [=]() -> int16_t { return 4 - input->mode; },
@@ -57,8 +55,8 @@ InputEditAdvanced::InputEditAdvanced(uint8_t input_n, uint8_t index) :
       });
 
   // Trim
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_TRIM, 0, COLOR_THEME_PRIMARY1);
+  line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_TRIM);
   const auto trimLast = TRIM_OFF + keysGetMaxTrims() - 1;
   auto c = new Choice(line, rect_t{}, -TRIM_OFF, trimLast,
                       GET_VALUE(-input->trimSource),
@@ -74,8 +72,8 @@ InputEditAdvanced::InputEditAdvanced(uint8_t input_n, uint8_t index) :
 
   // Flight modes
   if (modelFMEnabled()) {
-    line = form->newLine(&grid);
-    new StaticText(line, rect_t{}, STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
+    line = body->newLine(grid);
+    new StaticText(line, rect_t{}, STR_FLMODE);
     new FMMatrix<ExpoData>(line, rect_t{}, input);
   }
 }

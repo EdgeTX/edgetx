@@ -19,163 +19,254 @@
  * GNU General Public License for more details.
  */
 #include "color_editor.h"
-#include "font.h"
+
+#include "button.h"
+#include "themes/etx_lv_theme.h"
 
 constexpr int BAR_MARGIN = 5;
 
 constexpr int BAR_TOP_MARGIN = 5;
 constexpr int BAR_HEIGHT_OFFSET = BAR_TOP_MARGIN + 25;
 
-static const char * const RGBChars[MAX_BARS] = { "R", "G", "B" };
-static const char * const HSVChars[MAX_BARS] = { "H", "S", "V" };
+static const char* const RGBChars[MAX_BARS] = {"R", "G", "B"};
+static const char* const HSVChars[MAX_BARS] = {"H", "S", "V"};
 
-void ColorBar::pressing(lv_event_t* e)
+typedef std::function<uint32_t(int pos)> getRGBFromPos;
+
+class ColorBar : public Window
 {
-  lv_obj_t* target = lv_event_get_target(e);
-  lv_indev_t* click_source = (lv_indev_t*)lv_event_get_param(e);
-  if (!click_source ||
-      (lv_indev_get_type(click_source) != LV_INDEV_TYPE_POINTER))
-    return;
+ public:
+  ColorBar(Window* parent, const rect_t& r, uint32_t value = 0,
+           uint32_t maxValue = 0, bool invert = false) :
+      Window(parent, r)
+  {
+    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
 
-  lv_area_t obj_coords;
-  lv_obj_get_coords(target, &obj_coords);
+    lv_group_add_obj((lv_group_t*)lv_group_get_default(), lvobj);
+    lv_obj_add_event_cb(lvobj, ColorBar::pressing, LV_EVENT_PRESSING, nullptr);
+    lv_obj_add_event_cb(lvobj, ColorBar::on_key, LV_EVENT_KEY, nullptr);
+    lv_obj_add_event_cb(lvobj, ColorBar::draw_end, LV_EVENT_DRAW_PART_END,
+                        nullptr);
 
-  lv_point_t point_act;
-  lv_indev_get_point(click_source, &point_act);
-
-  lv_point_t rel_pos;
-  rel_pos.x = point_act.x - obj_coords.x1;
-  rel_pos.y = point_act.y - obj_coords.y1;
-
-  TRACE("PRESSING [%d,%d]", rel_pos.x, rel_pos.y);
-
-  ColorBar* bar = (ColorBar*)lv_obj_get_user_data(target);
-  if (!bar) return;
-
-  bar->value = bar->screenToValue(rel_pos.y);
-  lv_event_send(target->parent, LV_EVENT_VALUE_CHANGED, nullptr);
-}
-
-void ColorBar::on_key(lv_event_t* e)
-{
-  lv_obj_t* obj = lv_event_get_target(e);
-  ColorBar* bar = (ColorBar*)lv_obj_get_user_data(obj);
-  if (!bar) return;
-
-  uint32_t key = *(uint32_t*)lv_event_get_param(e);
-  if (key == LV_KEY_LEFT) {
-    if (bar->value > 0) {
-      uint32_t accel = rotaryEncoderGetAccel();
-      bar->value--;
-      if (accel > 0) {
-        if (accel > bar->value) bar->value = 0;
-        else bar->value -= accel;
-      }
-      lv_event_send(obj->parent, LV_EVENT_VALUE_CHANGED, nullptr);
-    }
-  } else if (key == LV_KEY_RIGHT) {
-    if (bar->value < bar->maxValue) {
-      uint32_t accel = rotaryEncoderGetAccel();
-      bar->value++;
-      if (accel > 0) {
-        if (accel < bar->maxValue - bar->value) bar->value += accel;
-        else bar->value = bar->maxValue;
-      }
-      lv_event_send(obj->parent, LV_EVENT_VALUE_CHANGED, nullptr);
-    }
-  }
-}
-
-void ColorBar::draw_end(lv_event_t* e)
-{
-  lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
-  if (dsc->type != LV_OBJ_DRAW_PART_RECTANGLE) return;
-  
-  lv_obj_t* obj = lv_event_get_target(e);
-  ColorBar* bar = (ColorBar*)lv_obj_get_user_data(obj);
-  if (!bar) return;
-  
-  lv_draw_line_dsc_t line_dsc;
-  lv_draw_line_dsc_init(&line_dsc);
-
-  line_dsc.width = 1;
-  line_dsc.opa = LV_OPA_100;
-  
-  auto area = dsc->draw_area;
-  lv_point_t p1, p2;
-  p1.x = area->x1;
-  p2.x = area->x2 + 1;
-
-  // draw background gradient
-  for (auto y = area->y1; y <= area->y2; y++) {
-    p1.y = y;
-    p2.y = y;
-    auto c = bar->getRGB(bar->screenToValue(y - area->y1));
-    line_dsc.color = lv_color_make(GET_RED(c), GET_GREEN(c), GET_BLUE(c));
-    lv_draw_line(dsc->draw_ctx, &line_dsc, &p1, &p2);
+    etx_std_style(lvobj, LV_PART_MAIN, PAD_ZERO);
   }
 
-  // draw cursor
-  lv_area_t cursor_area;
-  cursor_area.x1 = area->x1 + (lv_area_get_width(area) / 2) - 5;
-  cursor_area.x2 = cursor_area.x1 + 10 - 1;
+  int valueToScreen(int val)
+  {
+    auto h = height() - 4;  // exclude border
 
-  auto pos = bar->valueToScreen(bar->value);
-  cursor_area.y1 = area->y1 + pos - 5;
-  cursor_area.y2 = cursor_area.y1 + 10 - 1;
+    int scaledValue = (val * h + maxValue / 2) / maxValue;
+    if (invert) scaledValue = h - scaledValue;
+    return scaledValue;
+  }
 
-  lv_draw_rect_dsc_t cursor_dsc;
-  lv_draw_rect_dsc_init(&cursor_dsc);
+  uint32_t screenToValue(int pos)
+  {
+    auto h = height() - 4;  // exclude border
 
-  cursor_dsc.radius = LV_RADIUS_CIRCLE;
-  cursor_dsc.bg_opa = LV_OPA_100;
-  cursor_dsc.bg_color = makeLvColor(COLOR_THEME_PRIMARY2);
-  cursor_dsc.border_opa = LV_OPA_100;
-  cursor_dsc.border_color = makeLvColor(COLOR_THEME_PRIMARY1);
-  cursor_dsc.border_width = 1;
+    // range check
+    pos = min<int>(pos, h);
+    pos = max<int>(pos, 0);
 
-  lv_draw_rect(dsc->draw_ctx, &cursor_dsc, &cursor_area);
-}
-  
-ColorBar::ColorBar(Window* parent, const rect_t& r, uint32_t value,
-                   uint32_t maxValue, bool invert) :
-  FormField(parent, r)
+    uint32_t scaledValue = ((pos * maxValue + h / 2) / h);
+    if (invert) scaledValue = maxValue - scaledValue;
+    return scaledValue;
+  }
+
+  static void pressing(lv_event_t* e)
+  {
+    lv_obj_t* target = lv_event_get_target(e);
+    lv_indev_t* click_source = (lv_indev_t*)lv_event_get_param(e);
+    if (!click_source ||
+        (lv_indev_get_type(click_source) != LV_INDEV_TYPE_POINTER))
+      return;
+
+    ColorBar* bar = (ColorBar*)lv_obj_get_user_data(target);
+    if (!bar) return;
+
+    lv_area_t obj_coords;
+    lv_obj_get_coords(target, &obj_coords);
+
+    lv_point_t point_act;
+    lv_indev_get_point(click_source, &point_act);
+
+    lv_point_t rel_pos;
+    rel_pos.x = point_act.x - obj_coords.x1;
+    rel_pos.y = point_act.y - obj_coords.y1;
+
+    TRACE("PRESSING [%d,%d]", rel_pos.x, rel_pos.y);
+
+    bar->value = bar->screenToValue(rel_pos.y);
+    lv_event_send(target->parent, LV_EVENT_VALUE_CHANGED, nullptr);
+  }
+
+  static void on_key(lv_event_t* e)
+  {
+    lv_obj_t* obj = lv_event_get_target(e);
+    ColorBar* bar = (ColorBar*)lv_obj_get_user_data(obj);
+    if (!bar) return;
+
+    uint32_t key = *(uint32_t*)lv_event_get_param(e);
+    if (key == LV_KEY_LEFT) {
+      if (bar->value > 0) {
+        uint32_t accel = rotaryEncoderGetAccel();
+        bar->value--;
+        if (accel > 0) {
+          if (accel > bar->value)
+            bar->value = 0;
+          else
+            bar->value -= accel;
+        }
+        lv_event_send(obj->parent, LV_EVENT_VALUE_CHANGED, nullptr);
+      }
+    } else if (key == LV_KEY_RIGHT) {
+      if (bar->value < bar->maxValue) {
+        uint32_t accel = rotaryEncoderGetAccel();
+        bar->value++;
+        if (accel > 0) {
+          if (accel < bar->maxValue - bar->value)
+            bar->value += accel;
+          else
+            bar->value = bar->maxValue;
+        }
+        lv_event_send(obj->parent, LV_EVENT_VALUE_CHANGED, nullptr);
+      }
+    }
+  }
+
+  static void draw_end(lv_event_t* e)
+  {
+    lv_obj_draw_part_dsc_t* dsc = lv_event_get_draw_part_dsc(e);
+    if (dsc->type != LV_OBJ_DRAW_PART_RECTANGLE) return;
+
+    lv_obj_t* obj = lv_event_get_target(e);
+    ColorBar* bar = (ColorBar*)lv_obj_get_user_data(obj);
+    if (!bar) return;
+
+    lv_draw_line_dsc_t line_dsc;
+    lv_draw_line_dsc_init(&line_dsc);
+
+    line_dsc.width = 1;
+    line_dsc.opa = LV_OPA_100;
+
+    auto area = dsc->draw_area;
+    lv_point_t p1, p2;
+    int h = area->y2 - area->y1 - 4;
+
+    // draw background gradient
+    for (int i = 0; i <= h; i += 1) {
+      p1.y = p2.y = i + area->y1 + 2;
+      if (i == 0 || i == h) {
+        p1.x = area->x1 + 3;
+        p2.x = area->x2 - 2;
+      } else {
+        p1.x = area->x1 + 2;
+        p2.x = area->x2 - 1;
+      }
+      auto c = bar->getRGB(bar->screenToValue(i));
+      line_dsc.color = lv_color_make(GET_RED(c), GET_GREEN(c), GET_BLUE(c));
+      lv_draw_line(dsc->draw_ctx, &line_dsc, &p1, &p2);
+    }
+
+    // draw cursor
+    lv_area_t cursor_area;
+    cursor_area.x1 = area->x1 + (lv_area_get_width(area) / 2) - 5;
+    cursor_area.x2 = cursor_area.x1 + 10 - 1;
+
+    auto pos = bar->valueToScreen(bar->value);
+    cursor_area.y1 = area->y1 + pos - 3;
+    cursor_area.y2 = cursor_area.y1 + 10 - 1;
+
+    lv_draw_rect_dsc_t cursor_dsc;
+    lv_draw_rect_dsc_init(&cursor_dsc);
+
+    cursor_dsc.radius = LV_RADIUS_CIRCLE;
+    cursor_dsc.bg_opa = LV_OPA_100;
+    cursor_dsc.bg_color = makeLvColor(COLOR_THEME_PRIMARY2);
+    cursor_dsc.border_opa = LV_OPA_100;
+    cursor_dsc.border_color = makeLvColor(COLOR_THEME_PRIMARY1);
+    cursor_dsc.border_width = 1;
+
+    lv_draw_rect(dsc->draw_ctx, &cursor_dsc, &cursor_area);
+  }
+
+  uint32_t maxValue = 0;
+  uint32_t value = 0;
+  bool invert = false;
+  getRGBFromPos getRGB = nullptr;
+};
+
+// ColorTypes()
+// A ColorType implements an editor for selecting a color. Currently we support
+// HSV, RGB and SYS (choose from system defined colors)
+class ColorType
 {
-  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
-  
-  lv_group_add_obj((lv_group_t*)lv_group_get_default(), lvobj);
-  lv_obj_add_event_cb(lvobj, ColorBar::pressing, LV_EVENT_PRESSING, nullptr);
-  lv_obj_add_event_cb(lvobj, ColorBar::on_key, LV_EVENT_KEY, nullptr);
-  lv_obj_add_event_cb(lvobj, ColorBar::draw_end, LV_EVENT_DRAW_PART_END, nullptr);
+ public:
+  ColorType() {}
+  virtual ~ColorType() {}
 
-  // normal
-  lv_obj_set_style_border_width(lvobj, 1, 0);
-  lv_obj_set_style_border_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY1), 0);
-  lv_obj_set_style_border_opa(lvobj, LV_OPA_100, 0);
-  lv_obj_set_style_border_post(lvobj, true, 0);
+  virtual void setText(){};
+  virtual uint32_t getRGB() { return 0; };
 
-  // focused
-  lv_obj_set_style_border_width(lvobj, 2, LV_STATE_FOCUSED);
-  lv_obj_set_style_border_color(lvobj, makeLvColor(COLOR_THEME_FOCUS), LV_STATE_FOCUSED);
-}
+ protected:
+};
 
-int ColorBar::valueToScreen(int val)
+// Color editor with three bars for selecting color value. Base class for HSV
+// and RGB color types.
+class BarColorType : public ColorType
 {
-  int scaledValue = (((float)val / maxValue) * height());
-  if (invert) scaledValue = height() - scaledValue;
-  return scaledValue;
-}
+ public:
+  BarColorType(Window* parent);
+  ~BarColorType() override;
 
-uint32_t ColorBar::screenToValue(int pos)
+  void setText() override;
+
+ protected:
+  ColorBar* bars[MAX_BARS];
+  lv_obj_t* barLabels[MAX_BARS];
+  lv_obj_t* barValLabels[MAX_BARS];
+
+  virtual const char* const* getLabelChars() { return nullptr; };
+
+  lv_obj_t* create_bar_label(lv_obj_t* parent, lv_coord_t x, lv_coord_t y);
+  lv_obj_t* create_bar_value_label(lv_obj_t* parent, lv_coord_t x,
+                                   lv_coord_t y);
+};
+
+// Color editor for HSV color input
+class HSVColorType : public BarColorType
 {
-  // range check
-  pos = min<int>(pos, height());
-  pos = max<int>(pos, 0);
+ public:
+  HSVColorType(Window* parent, uint32_t color);
+  uint32_t getRGB() override;
 
-  uint32_t scaledValue = (((float)pos / height()) * maxValue);
-  if (invert) scaledValue = maxValue - scaledValue;
-  return scaledValue;
-}
+ protected:
+  const char* const* getLabelChars() override;
+};
+
+// Color editor for RGB color input
+class RGBColorType : public BarColorType
+{
+ public:
+  RGBColorType(Window* parent, uint32_t color);
+  uint32_t getRGB() override;
+
+ protected:
+  const char* const* getLabelChars() override;
+};
+
+// Color editor that shows the system theme colors as buttons
+class ThemeColorType : public ColorType
+{
+ public:
+  ThemeColorType(Window* parent, uint32_t color);
+  uint32_t getRGB() override;
+
+ protected:
+  uint32_t m_color;
+  void makeButton(Window* parent, uint16_t color);
+  void makeButtonsRow(Window* parent, uint16_t c1, uint16_t c2, uint16_t c3);
+};
 
 BarColorType::BarColorType(Window* parent)
 {
@@ -187,7 +278,7 @@ BarColorType::BarColorType(Window* parent)
   r.w = spacePerBar - BAR_MARGIN - 5;
   r.h = parent->height() - BAR_HEIGHT_OFFSET;
 
-  for ( int i=0; i < MAX_BARS; i++){
+  for (int i = 0; i < MAX_BARS; i++) {
     r.x = leftPos + BAR_MARGIN;
 
     bars[i] = new ColorBar(parent, r);
@@ -205,25 +296,27 @@ BarColorType::BarColorType(Window* parent)
 
 BarColorType::~BarColorType()
 {
-  for ( int i=0; i < MAX_BARS; i++) {
+  for (int i = 0; i < MAX_BARS; i++) {
     bars[i]->deleteLater();
-  }  
+  }
 };
 
-lv_obj_t* BarColorType::create_bar_label(lv_obj_t* parent, lv_coord_t x, lv_coord_t y)
+lv_obj_t* BarColorType::create_bar_label(lv_obj_t* parent, lv_coord_t x,
+                                         lv_coord_t y)
 {
   lv_obj_t* obj = lv_label_create(parent);
   lv_obj_set_pos(obj, x, y);
-  lv_obj_set_style_text_color(obj, makeLvColor(COLOR_THEME_PRIMARY1), 0);
-  lv_obj_set_style_text_font(obj, getFont(FONT(XXS)), 0);
+  etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX);
+  etx_font(obj, FONT_XXS_INDEX);
   return obj;
 }
 
-lv_obj_t* BarColorType::create_bar_value_label(lv_obj_t* parent, lv_coord_t x, lv_coord_t y)
+lv_obj_t* BarColorType::create_bar_value_label(lv_obj_t* parent, lv_coord_t x,
+                                               lv_coord_t y)
 {
   lv_obj_t* obj = lv_label_create(parent);
   lv_obj_set_pos(obj, x, y);
-  lv_obj_set_style_text_color(obj, makeLvColor(COLOR_THEME_PRIMARY1), 0);
+  etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX);
   return obj;
 }
 
@@ -238,12 +331,12 @@ void BarColorType::setText()
 }
 
 HSVColorType::HSVColorType(Window* parent, uint32_t color) :
-  BarColorType(parent)
+    BarColorType(parent)
 {
   auto r = GET_RED(color), g = GET_GREEN(color), b = GET_BLUE(color);
   float values[MAX_BARS];
   RGBtoHSV(r, g, b, values[0], values[1], values[2]);
-  values[1] *= MAX_SATURATION; // convert the proper base
+  values[1] *= MAX_SATURATION;  // convert the proper base
   values[2] *= MAX_BRIGHTNESS;
 
   for (auto i = 0; i < MAX_BARS; i++) {
@@ -253,19 +346,19 @@ HSVColorType::HSVColorType(Window* parent, uint32_t color) :
   }
 
   // hue
-  bars[0]->getRGB = [=] (int pos) {
+  bars[0]->getRGB = [=](int pos) {
     auto rgb = HSVtoRGB(pos, bars[1]->value, bars[2]->value);
     return rgb;
   };
 
   // saturation
-  bars[1]->getRGB = [=] (int pos) {
+  bars[1]->getRGB = [=](int pos) {
     auto rgb = HSVtoRGB(bars[0]->value, pos, bars[2]->value);
     return rgb;
   };
 
   // brightness
-  bars[2]->getRGB = [=] (int pos) {
+  bars[2]->getRGB = [=](int pos) {
     auto rgb = HSVtoRGB(bars[0]->value, bars[1]->value, pos);
     return rgb;
   };
@@ -276,10 +369,7 @@ uint32_t HSVColorType::getRGB()
   return HSVtoRGB(bars[0]->value, bars[1]->value, bars[2]->value);
 }
 
-const char* const* HSVColorType::getLabelChars()
-{
-  return HSVChars;
-}
+const char* const* HSVColorType::getLabelChars() { return HSVChars; }
 
 RGBColorType::RGBColorType(Window* parent, uint32_t color) :
     BarColorType(parent)
@@ -306,74 +396,65 @@ uint32_t RGBColorType::getRGB()
   return RGB(bars[0]->value, bars[1]->value, bars[2]->value);
 }
 
-const char* const* RGBColorType::getLabelChars()
-{
-  return RGBChars;
-}
+const char* const* RGBColorType::getLabelChars() { return RGBChars; }
 
-void ThemeColorType::makeButton(Window* parent, uint32_t color)
+void ThemeColorType::makeButton(Window* parent, uint16_t color)
 {
   auto btn = new TextButton(parent, rect_t{}, "       ");
+  etx_bg_color(btn->getLvObj(), (LcdColorIndex)color);
   btn->setPressHandler([=]() {
-    auto cv = COLOR_VAL(color);
+    auto cv = lcdColorTable[color];
     m_color = RGB(GET_RED(cv), GET_GREEN(cv), GET_BLUE(cv));
-    lv_event_send(parent->getParent()->getParent()->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+    lv_event_send(parent->getParent()->getParent()->getLvObj(),
+                  LV_EVENT_VALUE_CHANGED, nullptr);
     return 0;
   });
-  btn->padAll(lv_dpx(7));
-  lv_obj_set_style_bg_color(btn->getLvObj(), makeLvColor(color), LV_PART_MAIN);
-  lv_obj_add_style(btn->getLvObj(), &style, 0);
 }
 
-void ThemeColorType::makeButtonsRow(Window* parent, uint32_t c1, uint32_t c2, uint32_t c3)
+void ThemeColorType::makeButtonsRow(Window* parent, uint16_t c1, uint16_t c2,
+                                    uint16_t c3)
 {
-  auto hbox = new FormWindow(parent, rect_t{});
-  hbox->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
-  lv_obj_set_flex_align(hbox->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+  auto hbox = new Window(parent, rect_t{});
+  hbox->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_MEDIUM);
+  lv_obj_set_flex_align(hbox->getLvObj(), LV_FLEX_ALIGN_CENTER,
+                        LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 
   makeButton(hbox, c1);
   makeButton(hbox, c2);
-  if (c3 != c2)
-    makeButton(hbox, c3);
+  if (c3 != c2) makeButton(hbox, c3);
 }
 
-ThemeColorType::ThemeColorType(Window* parent, uint32_t color) :
-    ColorType()
+ThemeColorType::ThemeColorType(Window* parent, uint32_t color) : ColorType()
 {
   m_color = color;
 
-  lv_style_init(&style);
-  lv_style_set_border_opa(&style, LV_OPA_100);
-  lv_style_set_border_width(&style, 2);
-  lv_style_set_border_color(&style, lv_palette_main(LV_PALETTE_GREY));
+  auto vbox = new Window(parent, rect_t{});
+  vbox->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_MEDIUM);
 
-  auto vbox = new FormWindow(parent, rect_t{});
-  vbox->setFlexLayout(LV_FLEX_FLOW_COLUMN, lv_dpx(8));
-
-  makeButtonsRow(vbox, COLOR_THEME_PRIMARY1, COLOR_THEME_PRIMARY2, COLOR_THEME_PRIMARY3);
-  makeButtonsRow(vbox, COLOR_THEME_SECONDARY1, COLOR_THEME_SECONDARY2, COLOR_THEME_SECONDARY3);
-  makeButtonsRow(vbox, COLOR_THEME_FOCUS, COLOR_THEME_EDIT, COLOR_THEME_ACTIVE);
-  makeButtonsRow(vbox, COLOR_THEME_WARNING, COLOR_THEME_DISABLED, COLOR_THEME_DISABLED);
+  makeButtonsRow(vbox, COLOR_THEME_PRIMARY1_INDEX, COLOR_THEME_PRIMARY2_INDEX,
+                 COLOR_THEME_PRIMARY3_INDEX);
+  makeButtonsRow(vbox, COLOR_THEME_SECONDARY1_INDEX,
+                 COLOR_THEME_SECONDARY2_INDEX, COLOR_THEME_SECONDARY3_INDEX);
+  makeButtonsRow(vbox, COLOR_THEME_FOCUS_INDEX, COLOR_THEME_EDIT_INDEX,
+                 COLOR_THEME_ACTIVE_INDEX);
+  makeButtonsRow(vbox, COLOR_THEME_WARNING_INDEX, COLOR_THEME_DISABLED_INDEX,
+                 COLOR_THEME_DISABLED_INDEX);
 }
 
-uint32_t ThemeColorType::getRGB()
-{
-  return m_color;
-}
+uint32_t ThemeColorType::getRGB() { return m_color; }
 
 /////////////////////////////////////////////////////////////////////////
 ////// ColorEditor Base class
 /////////////////////////////////////////////////////////////////////////
-ColorEditor::ColorEditor(Window *parent, const rect_t& rect, uint32_t color,
-                         std::function<void (uint32_t rgb)> setValue) :
-  FormWindow(parent, rect),
-  _setValue(std::move(setValue)),
-  _color(color)
+ColorEditor::ColorEditor(Window* parent, const rect_t& rect, uint32_t color,
+                         std::function<void(uint32_t rgb)> setValue) :
+    Window(parent, rect), _setValue(std::move(setValue)), _color(color)
 {
   _colorType = new HSVColorType(this, color);
   _colorType->setText();
 
-  lv_obj_add_event_cb(lvobj, ColorEditor::value_changed, LV_EVENT_VALUE_CHANGED, nullptr);
+  lv_obj_add_event_cb(lvobj, ColorEditor::value_changed, LV_EVENT_VALUE_CHANGED,
+                      nullptr);
 }
 
 void ColorEditor::setColorEditorType(COLOR_EDITOR_TYPE colorType)
@@ -392,6 +473,7 @@ void ColorEditor::setColorEditorType(COLOR_EDITOR_TYPE colorType)
     _colorType = new ThemeColorType(this, _color);
     setText();
   }
+  // Update color bars
   invalidate();
 }
 
@@ -420,4 +502,3 @@ void ColorEditor::value_changed(lv_event_t* e)
   ColorEditor* edit = (ColorEditor*)lv_obj_get_user_data(target);
   if (edit) edit->setRGB();
 }
-

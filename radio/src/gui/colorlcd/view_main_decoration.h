@@ -36,7 +36,6 @@ class ViewMainDecoration
     void setTrimsVisible(bool visible);
     void setSlidersVisible(bool visible);
     void setFlightModeVisible(bool visible);
-    void updateFromTheme();
 
     // Get the available space in the middle of the screen
     // (without decoration)

@@ -36,16 +36,19 @@ class FileBrowser : public TableField
   void refresh();
 
   void adjustWidth();
-  
- protected:
-  void onSelected(const char* name, bool is_dir);
-  void onPress(const char* name, bool is_dir);
+
+  void onDrawBegin(uint16_t row, uint16_t col,
+                   lv_obj_draw_part_dsc_t* dsc) override;
+  void onDrawEnd(uint16_t row, uint16_t col,
+                 lv_obj_draw_part_dsc_t* dsc) override;
 
   // TableField methods
   void onSelected(uint16_t row, uint16_t col) override;
   void onPress(uint16_t row, uint16_t col) override;
-  void onDrawBegin(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) override;
-  void onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) override;
+
+ protected:
+  void onSelected(const char* name, bool is_dir);
+  void onPress(const char* name, bool is_dir);
 
  private:
   const char* selected = nullptr;

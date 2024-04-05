@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _ZONE_H_
-#define _ZONE_H_
+#pragma once
 
 #include <inttypes.h>
 #include "storage/yaml/yaml_defs.h"
@@ -91,13 +90,11 @@ enum ZoneOptionAlign
   ALIGN_COUNT
 };
 
-
 struct ZoneOptionValueTyped
 {
   ZoneOptionValueEnum type;
   ZoneOptionValue     value FUNC(select_zov);
 };
-
 
 inline ZoneOptionValueEnum zoneValueEnumFromType(ZoneOption::Type type)
 {
@@ -126,5 +123,3 @@ inline ZoneOptionValueEnum zoneValueEnumFromType(ZoneOption::Type type)
     return ZOV_Unsigned;
   }
 }
-
-#endif

@@ -390,7 +390,7 @@ void luaInitThemesAndWidgets()
 
 void luaUnregisterWidgets()
 {
-  std::list<const WidgetFactory *> regWidgets(getRegisteredWidgets());
+  std::list<const WidgetFactory *> regWidgets(WidgetFactory::getRegisteredWidgets());
   for (auto w : regWidgets) {
     if (w->isLuaWidgetFactory()) {
       delete w;

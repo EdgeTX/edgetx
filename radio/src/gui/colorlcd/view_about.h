@@ -21,7 +21,7 @@
 
 #include "libopenui.h"
 
-class AboutUs : public MessageDialog
+class AboutUs : public BaseDialog
 {
  public:
   AboutUs();

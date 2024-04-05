@@ -31,7 +31,7 @@ class ScreenUserInterfacePage : public PageTab
  public:
   ScreenUserInterfacePage(ScreenMenu* menu);
 
-  void build(FormWindow* window) override;
+  void build(Window* window) override;
 
  protected:
   ScreenMenu* menu;

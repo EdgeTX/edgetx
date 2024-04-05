@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
 #include "tabsgroup.h"
 
 class RadioToolsPage : public PageTab
@@ -26,13 +28,13 @@ class RadioToolsPage : public PageTab
  public:
   RadioToolsPage();
 
-  void build(FormWindow* window) override;
+  void build(Window* window) override;
 
   void checkEvents() override;
 
  protected:
-  void rebuild(FormWindow* window);
-  FormWindow* window = nullptr;
+  void rebuild(Window* window);
+  Window* window = nullptr;
   uint8_t waiting = 0;
   uint8_t linesCount = 0;
 };

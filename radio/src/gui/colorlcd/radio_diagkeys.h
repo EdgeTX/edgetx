@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
 #include "page.h"
 
 class RadioKeyDiagsPage: public Page {

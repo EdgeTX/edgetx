@@ -19,18 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FULLSCREEN_DIALOG_H_
-#define _FULLSCREEN_DIALOG_H_
+#pragma once
 
 #include "dialog.h"
-
-enum DialogType {
-  WARNING_TYPE_ALERT,
-  WARNING_TYPE_ASTERISK,
-  WARNING_TYPE_CONFIRM,
-  WARNING_TYPE_INPUT,
-  WARNING_TYPE_INFO
-};
 
 class StaticText;
 
@@ -49,8 +40,6 @@ class FullScreenDialog : public Window
 #endif
 
     void setMessage(std::string text);
-
-    void paint(BitmapBuffer * dc) override;
 
     void onEvent(event_t event) override;
     void onCancel() override;
@@ -85,5 +74,3 @@ class FullScreenDialog : public Window
     static void long_pressed(lv_event_t* e);
     static void on_draw(lv_event_t* e);
 };
-
-#endif // _FULLSCREEN_DIALOG_H_

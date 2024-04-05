@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _OPENTX_CONSTANTS_H_
-#define _OPENTX_CONSTANTS_H_
+#pragma once
 
 enum SwitchConfig {
   SWITCH_NONE,
@@ -53,5 +52,3 @@ enum CalibrationState {
   CALIB_STORE,
   CALIB_FINISHED
 };
-
-#endif // _OPENTX_CONSTANTS_H_

@@ -49,7 +49,25 @@ class TextKeyboard : public Keyboard
 
  protected:
 #if defined(HARDWARE_KEYS)
-  void onEvent(event_t event) override;
+  void changeMode();
+  void cursorLeft();
+  void cursorRight();
+  void cursorStart();
+  void cursorEnd();
+  void toggleCase();
+  void deleteChar();
+  void backspace();
+
+  void onPressSYS() override;
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onPressTELE() override;
+  void onLongPressTELE() override;
+  void onPressPGUP() override;
+  void onPressPGDN() override;
+  void onLongPressPGUP() override;
+  void onLongPressPGDN() override;
 #endif
 
   static TextKeyboard* _instance;

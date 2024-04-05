@@ -20,24 +20,28 @@
  */
 
 #include "mixer_edit.h"
-#include "mixer_edit_adv.h"
-#include "channel_bar.h"
-#include "gvar_numberedit.h"
-#include "curve_param.h"
-#include "mixes.h"
 
+#include "channel_bar.h"
+#include "curve_param.h"
+#include "gvar_numberedit.h"
+#include "mixer_edit_adv.h"
+#include "mixes.h"
 #include "opentx.h"
+#include "themes/etx_lv_theme.h"
+#include "sourcechoice.h"
+#include "switchchoice.h"
+#include "curveedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 #if (LCD_W > LCD_H)
-  #define MIX_STATUS_BAR_WIDTH 250
-  #define MIX_STATUS_BAR_MARGIN 3
-  #define MIX_RIGHT_MARGIN 0
+#define MIX_STATUS_BAR_WIDTH 250
+#define MIX_STATUS_BAR_MARGIN 3
+#define MIX_RIGHT_MARGIN 0
 #else
-  #define MIX_STATUS_BAR_WIDTH 180
-  #define MIX_STATUS_BAR_MARGIN 0
-  #define MIX_RIGHT_MARGIN 3
+#define MIX_STATUS_BAR_WIDTH 180
+#define MIX_STATUS_BAR_MARGIN 0
+#define MIX_RIGHT_MARGIN 3
 #endif
 
 class MixerEditStatusBar : public Window
@@ -50,10 +54,7 @@ class MixerEditStatusBar : public Window
         new ComboChannelBar(this,
                             {MIX_STATUS_BAR_MARGIN, 0,
                              rect.w - (MIX_STATUS_BAR_MARGIN * 2), rect.h},
-                            channel);
-    channelBar->setLeftMargin(15);
-    channelBar->setTextColor(COLOR_THEME_PRIMARY2);
-    channelBar->setOutputChannelBarLimitColor(COLOR_THEME_EDIT);
+                            channel, true);
   }
 
  protected:
@@ -62,20 +63,17 @@ class MixerEditStatusBar : public Window
 };
 
 MixEditWindow::MixEditWindow(int8_t channel, uint8_t index) :
-    Page(ICON_MODEL_MIXER), channel(channel), index(index)
+    Page(ICON_MODEL_MIXER, PAD_MEDIUM), channel(channel), index(index)
 {
-  auto form = new FormWindow(&body, rect_t{});
-  lv_obj_set_style_pad_all(form->getLvObj(), lv_dpx(8), 0);
-
-  buildBody(form);
-  buildHeader(&header);
+  buildBody(body);
+  buildHeader(header);
 }
 
 void MixEditWindow::buildHeader(Window *window)
 {
   std::string title2(getSourceString(MIXSRC_FIRST_CH + channel));
-  header.setTitle(STR_MIXES);
-  header.setTitle2(title2);
+  header->setTitle(STR_MIXES);
+  header->setTitle2(title2);
 
   new MixerEditStatusBar(
       window,
@@ -96,54 +94,55 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 #endif
 
-void MixEditWindow::buildBody(FormWindow* form)
+void MixEditWindow::buildBody(Window *form)
 {
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
   form->setFlexLayout();
 
   MixData *mix = mixAddress(index);
 
   // Mix name
-  auto line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
+  auto line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_NAME);
   new ModelTextEdit(line, rect_t{}, mix->name, sizeof(mix->name));
 
   // Source
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_SOURCE, 0, COLOR_THEME_PRIMARY1);
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_SOURCE);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST,
                    GET_SET_DEFAULT(mix->srcRaw));
   CurveEdit::SetCurrentSource(mix->srcRaw);
 
   // Weight
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_WEIGHT, 0, COLOR_THEME_PRIMARY1);
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_WEIGHT);
   auto gvar = new GVarNumberEdit(line, rect_t{}, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX,
                                  GET_SET_DEFAULT(mix->weight));
   gvar->setSuffix("%");
 
   // Offset
-  new StaticText(line, rect_t{}, STR_OFFSET, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_OFFSET);
   gvar = new GVarNumberEdit(line, rect_t{}, MIX_OFFSET_MIN, MIX_OFFSET_MAX,
                             GET_SET_DEFAULT(mix->offset));
   gvar->setSuffix("%");
 
   // Switch
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_SWITCH, 0, COLOR_THEME_PRIMARY1);
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_SWITCH);
   new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES,
                    GET_SET_DEFAULT(mix->swtch));
 
   // Curve
-  new StaticText(line, rect_t{}, STR_CURVE, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_CURVE);
   new CurveParam(line, rect_t{}, &mix->curve, SET_DEFAULT(mix->curve.value));
 
-  line = form->newLine();
-  lv_obj_set_style_pad_all(line->getLvObj(), lv_dpx(8), 0);
-  auto btn = new TextButton(line, rect_t{}, LV_SYMBOL_SETTINGS, [=]() -> uint8_t {
-    new MixEditAdvanced(channel, index);
-    return 0;
-  });
+  line = form->newLine(grid);
+  line->padAll(PAD_LARGE);
+  auto btn =
+      new TextButton(line, rect_t{}, LV_SYMBOL_SETTINGS, [=]() -> uint8_t {
+        new MixEditAdvanced(channel, index);
+        return 0;
+      });
   lv_obj_set_width(btn->getLvObj(), lv_pct(100));
 }
 

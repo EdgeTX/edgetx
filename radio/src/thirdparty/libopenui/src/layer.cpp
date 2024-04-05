@@ -78,7 +78,7 @@ Window* Layer::getFirstOpaque()
 {
   for (auto layer = stack.crbegin(); layer != stack.crend(); layer++) {
     auto w = layer->window;
-    if (w && (w->getWindowFlags() & OPAQUE)) return w;
+    if (w && w->hasWindowFlag(OPAQUE)) return w;
   }
 
   return nullptr;

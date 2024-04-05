@@ -20,10 +20,41 @@
 
 #include "form.h"
 #include "mainwindow.h"
+#include "themes/etx_lv_theme.h"
 
-Keyboard * Keyboard::activeKeyboard = nullptr;
+static void keyboard_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
+{
+  etx_solid_bg(obj, COLOR_THEME_SECONDARY3_INDEX);
+  etx_obj_add_style(obj, styles->pad_tiny, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
 
-static void keyboard_event_cb(lv_event_t * e)
+  etx_std_style(obj, LV_PART_ITEMS, PAD_SMALL);
+  etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX, LV_PART_ITEMS);
+  etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_ITEMS | LV_STATE_FOCUSED);
+  etx_bg_color(obj, COLOR_THEME_FOCUS_INDEX, LV_PART_ITEMS | LV_STATE_EDITED);
+}
+
+static const lv_obj_class_t keyboard_class = {
+    .base_class = &lv_keyboard_class,
+    .constructor_cb = keyboard_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = 0,
+    .height_def = 0,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
+    .instance_size = sizeof(lv_keyboard_t),
+};
+
+static lv_obj_t* keyboard_create(lv_obj_t* parent)
+{
+  return etx_create(&keyboard_class, parent);
+}
+
+Keyboard* Keyboard::activeKeyboard = nullptr;
+
+static void keyboard_event_cb(lv_event_t* e)
 {
   auto code = lv_event_get_code(e);
   if (code == LV_EVENT_READY) {
@@ -31,7 +62,7 @@ static void keyboard_event_cb(lv_event_t * e)
   } else if (code == LV_EVENT_CANCEL) {
     Keyboard::hide(true);
   } else if (code == LV_EVENT_KEY) {
-    int32_t c = *((int32_t *)lv_event_get_param(e));
+    int32_t c = *((int32_t*)lv_event_get_param(e));
     if (c == LV_KEY_ESC) {
       Keyboard::hide(false);
     }
@@ -50,8 +81,8 @@ static void _assign_lv_group(lv_group_t* g)
   }
 }
 
-Keyboard::Keyboard(coord_t height) : 
-  Window(MainWindow::instance(), {0, LCD_H - height, LCD_W, height}, OPAQUE)
+Keyboard::Keyboard(coord_t height) :
+    NavWindow(MainWindow::instance(), {0, LCD_H - height, LCD_W, height})
 {
   lv_obj_set_parent(lvobj, lv_layer_top());  // the keyboard is always on top
 
@@ -62,7 +93,7 @@ Keyboard::Keyboard(coord_t height) :
   auto old_g = lv_group_get_default();
   lv_group_set_default(group);
 
-  keyboard = etx_keyboard_create(lvobj);
+  keyboard = keyboard_create(lvobj);
   lv_group_set_default(old_g);
 
   lv_obj_add_event_cb(keyboard, keyboard_event_cb, LV_EVENT_ALL, this);
@@ -136,15 +167,12 @@ bool Keyboard::attachKeyboard()
 
 void Keyboard::setField(FormField* newField)
 {
-  if (!attachKeyboard())
-    return;
+  if (!attachKeyboard()) return;
 
   lv_obj_t* obj = newField->getLvObj();
   if (obj) {
-
     fieldContainer = newField->getFullScreenWindow();
     if (fieldContainer) {
-
       attach(fieldContainer);
 
       lv_area_t coords;
@@ -157,13 +185,12 @@ void Keyboard::setField(FormField* newField)
       scroll_pos = lv_obj_get_scroll_y(fieldContainer->getLvObj());
       lv_obj_scroll_to_view(lvobj, LV_ANIM_OFF);
 
-      invalidate();
       newField->setEditMode(true);
 
       lv_keyboard_set_textarea(keyboard, obj);
       lv_obj_add_event_cb(obj, field_focus_leave, LV_EVENT_DEFOCUSED, nullptr);
       _assign_lv_group(group);
-      
+
       field = newField;
       fieldGroup = (lv_group_t*)lv_obj_get_group(obj);
     }

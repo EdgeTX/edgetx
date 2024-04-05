@@ -21,21 +21,16 @@
 
 #pragma once
 
-#include "opentx.h"
 #include "tabsgroup.h"
-#include "switches.h"
 
 class LogicalSwitchDisplayFooter;
 
 class LogicalSwitchesViewPage : public PageTab
 {
  public:
-  LogicalSwitchesViewPage() :
-      PageTab(STR_MONITOR_SWITCHES, ICON_MONITOR_LOGICAL_SWITCHES)
-  {
-  }
+  LogicalSwitchesViewPage();
 
  protected:
-  void build(FormWindow* window) override;
+  void build(Window* window) override;
   LogicalSwitchDisplayFooter* footer = nullptr;
 };

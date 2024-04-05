@@ -61,19 +61,6 @@ extern lua_State * lsScripts;
 extern bool luaLcdAllowed;
 
 #if defined(COLORLCD)
-//
-// Obsoleted definitions:
-//  -> please check against libopenui_defines.h for conflicts
-//  -> here we use the 4 most significant bits for our flags (32 bit unsigned)
-//
-// INVERS & BLINK are used in most scripts, let's offer a compatibility mode.
-//
-#undef INVERS
-#undef BLINK
-
-#define INVERS     0x01u
-#define BLINK    0x1000u
-
 extern bool luaLcdAllowed;
 
 class BitmapBuffer;

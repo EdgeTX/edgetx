@@ -20,18 +20,18 @@
  */
 
 #include "module_setup.h"
-#include "opentx.h"
 
-#include "form.h"
-#include "choice.h"
-#include "button.h"
-
-#include "mixer_scheduler.h"
 #include "bind_menu_d16.h"
-#include "custom_failsafe.h"
-#include "ppm_settings.h"
+#include "button.h"
 #include "channel_range.h"
+#include "choice.h"
+#include "custom_failsafe.h"
+#include "form.h"
+#include "mixer_scheduler.h"
+#include "opentx.h"
+#include "ppm_settings.h"
 #include "storage/modelslist.h"
+#include "themes/etx_lv_theme.h"
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
 #include "pxx1_settings.h"
@@ -42,8 +42,8 @@
 #endif
 
 #if defined(CROSSFIRE)
-#include "telemetry/crossfire.h"
 #include "crossfire_settings.h"
+#include "telemetry/crossfire.h"
 #endif
 
 #if defined(AFHDS2)
@@ -59,21 +59,22 @@
 #endif
 
 #if defined(MULTIMODULE)
+#include "io/multi_protolist.h"
 #include "mpm_settings.h"
 #include "multi_rfprotos.h"
-#include "io/multi_protolist.h"
 #endif
 
-#define SET_DIRTY()     storageDirty(EE_MODEL)
+#define SET_DIRTY() storageDirty(EE_MODEL)
+
+#define ETX_STATE_UNIQUE_ID_WARN LV_STATE_USER_1
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
-                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 struct FailsafeChoice;
 
-class ModuleWindow : public FormWindow
+class ModuleWindow : public Window
 {
  public:
   ModuleWindow(Window* parent, uint8_t moduleIdx);
@@ -89,72 +90,53 @@ class ModuleWindow : public FormWindow
 
   ModuleOptions* modOpts = nullptr;
   ChannelRange* chRange = nullptr;
-  NumberEdit *rxID = nullptr;
-  TextButton *bindButton = nullptr;
-  TextButton *rangeButton = nullptr;
-  TextButton *registerButton = nullptr;
-  Window *fsLine = nullptr;
+  NumberEdit* rxID = nullptr;
+  TextButton* bindButton = nullptr;
+  TextButton* rangeButton = nullptr;
+  TextButton* registerButton = nullptr;
+  Window* fsLine = nullptr;
   FailsafeChoice* fsChoice = nullptr;
-  Choice *rfPower = nullptr;
-  StaticText *idUnique = nullptr;
+  Choice* rfPower = nullptr;
+  StaticText* idUnique = nullptr;
 
   void startRSSIDialog(std::function<void()> closeHandler = nullptr);
 
   void updateIDStaticText(int mdIdx);
 };
 
-struct FailsafeChoice : public FormWindow {
+struct FailsafeChoice : public Window {
   FailsafeChoice(Window* parent, uint8_t moduleIdx);
   void update() const;
 
  private:
-  lv_obj_t* c_obj;
+  uint8_t moduleIdx;
+  TextButton* optsBtn;
 };
 
-static void fs_changed(lv_event_t* e)
-{
-  auto obj = lv_event_get_target(e);
-  auto fs = (Choice*)lv_obj_get_user_data(obj);
-  if (!fs) return;
-
-  auto btn_obj = (lv_obj_t*)lv_event_get_user_data(e);
-  if (!btn_obj) return;
-
-  if (fs->getIntValue() == FAILSAFE_CUSTOM) {
-    lv_obj_clear_flag(btn_obj, LV_OBJ_FLAG_HIDDEN);
-  } else {
-    lv_obj_add_flag(btn_obj, LV_OBJ_FLAG_HIDDEN);
-  }
-}
-
 FailsafeChoice::FailsafeChoice(Window* parent, uint8_t moduleIdx) :
-  FormWindow(parent, rect_t{})
+    Window(parent, rect_t{}), moduleIdx(moduleIdx)
 {
-  setFlexLayout(LV_FLEX_FLOW_ROW);
-  lv_obj_set_width(lvobj, LV_SIZE_CONTENT);
+  padAll(PAD_TINY);
+  setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL, LV_SIZE_CONTENT);
 
   auto md = &g_model.moduleData[moduleIdx];
-  auto choice =
-      new Choice(this, rect_t{}, STR_VFAILSAFE, 0, FAILSAFE_LAST,
-                 GET_DEFAULT(md->failsafeMode), [=](int32_t newValue) {
-                   md->failsafeMode = newValue;
-                   SET_DIRTY();
-                 });
+  new Choice(this, rect_t{}, STR_VFAILSAFE, 0, FAILSAFE_LAST,
+             GET_DEFAULT(md->failsafeMode), [=](int32_t newValue) {
+               md->failsafeMode = newValue;
+               optsBtn->show(newValue == FAILSAFE_CUSTOM);
+               SET_DIRTY();
+             });
 
-  auto btn = new TextButton(this, rect_t{}, STR_SET, [=]() -> uint8_t {
+  optsBtn = new TextButton(this, rect_t{}, STR_SET, [=]() -> uint8_t {
     new FailSafePage(moduleIdx);
     return 0;
   });
-
-  c_obj = choice->getLvObj();
-  auto btn_obj = btn->getLvObj();
-  lv_obj_add_event_cb(c_obj, fs_changed, LV_EVENT_VALUE_CHANGED, btn_obj);
-  lv_event_send(c_obj, LV_EVENT_VALUE_CHANGED, nullptr);
+  optsBtn->show(md->failsafeMode == FAILSAFE_CUSTOM);
 }
 
 void FailsafeChoice::update() const
 {
-  lv_event_send(c_obj, LV_EVENT_VALUE_CHANGED, nullptr);
+  optsBtn->show(g_model.moduleData[moduleIdx].failsafeMode == FAILSAFE_CUSTOM);
 }
 
 static void mw_refresh_cb(lv_event_t* e)
@@ -167,8 +149,7 @@ static void mw_refresh_cb(lv_event_t* e)
 }
 
 ModuleWindow::ModuleWindow(Window* parent, uint8_t moduleIdx) :
-    FormWindow(parent, rect_t{}),
-    moduleIdx(moduleIdx)
+    Window(parent, rect_t{}), moduleIdx(moduleIdx)
 {
   setFlexLayout();
   updateModule();
@@ -177,23 +158,22 @@ ModuleWindow::ModuleWindow(Window* parent, uint8_t moduleIdx) :
 
 void ModuleWindow::updateIDStaticText(int mdIdx)
 {
-  if(idUnique == nullptr)
-    return;
+  if (idUnique == nullptr) return;
   char buffer[50];
   std::string idStr = STR_MODELIDUNIQUE;
-  if(!modelslist.isModelIdUnique(mdIdx, buffer, sizeof(buffer))) {
+  if (!modelslist.isModelIdUnique(mdIdx, buffer, sizeof(buffer))) {
     idStr = STR_MODELIDUSED;
     idStr = idStr + buffer;
-    idUnique->setTextFlags(COLOR_THEME_WARNING);
+    lv_obj_add_state(idUnique->getLvObj(), ETX_STATE_UNIQUE_ID_WARN);
   } else {
-    idUnique->setTextFlags(COLOR_THEME_PRIMARY1);
+    lv_obj_clear_state(idUnique->getLvObj(), ETX_STATE_UNIQUE_ID_WARN);
   }
   idUnique->setText(idStr);
 }
 
 void ModuleWindow::updateModule()
 {
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
   clear();
 
   modOpts = nullptr;
@@ -240,22 +220,22 @@ void ModuleWindow::updateModule()
 #endif
 
   // Channel Range
-  auto line = newLine(&grid);
-  new StaticText(line, rect_t{}, STR_CHANNELRANGE, 0, COLOR_THEME_PRIMARY1);
+  auto line = newLine(grid);
+  new StaticText(line, rect_t{}, STR_CHANNELRANGE);
   chRange = new ModuleChannelRange(line, moduleIdx);
 
   // Failsafe
-  fsLine = newLine(&grid);
-  new StaticText(fsLine, rect_t{}, STR_FAILSAFE, 0, COLOR_THEME_PRIMARY1);
+  fsLine = newLine(grid);
+  new StaticText(fsLine, rect_t{}, STR_FAILSAFE);
   fsChoice = new FailsafeChoice(fsLine, moduleIdx);
 
   // PPM modules
   if (isModulePPM(moduleIdx)) {
     // PPM frame
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_PPMFRAME, 0, COLOR_THEME_PRIMARY1);
+    auto line = newLine(grid);
+    new StaticText(line, rect_t{}, STR_PPMFRAME);
     auto obj = new PpmFrameSettings<PpmModule>(line, &md->ppm);
-  
+
     // copy pointer to frame len edit object to channel range
     chRange->setPpmFrameLenEditObject(obj->getPpmFrameLenEditObject());
   }
@@ -266,22 +246,21 @@ void ModuleWindow::updateModule()
   if (!isModuleRFAccess(moduleIdx) && (isModuleModelIndexAvailable(moduleIdx) ||
                                        isModuleBindRangeAvailable(moduleIdx))) {
     // Is Reciever ID Unique
-    if(isModuleModelIndexAvailable(moduleIdx)) {
-      auto line = newLine(&grid);
-      new StaticText(line, rect_t{},"");
-      auto box = new FormWindow(line, rect_t{});
-      box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
-      lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
-      idUnique = new StaticText(box, rect_t{}, "", 0, 0);
+    if (isModuleModelIndexAvailable(moduleIdx)) {
+      auto line = newLine(grid);
+      new StaticText(line, rect_t{}, "");
+      idUnique = new StaticText(line, rect_t{}, "");
+      etx_txt_color(idUnique->getLvObj(), COLOR_THEME_WARNING_INDEX,
+                    ETX_STATE_UNIQUE_ID_WARN);
       updateIDStaticText(moduleIdx);
     }
 
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_RECEIVER, 0, COLOR_THEME_PRIMARY1);
+    auto line = newLine(grid);
+    new StaticText(line, rect_t{}, STR_RECEIVER);
 
-    auto box = new FormWindow(line, rect_t{});
-    box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
-    lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
+    auto box = new Window(line, rect_t{});
+    box->padAll(PAD_TINY);
+    box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_MEDIUM, LV_SIZE_CONTENT);
 
     // Model index
     auto modelId = &g_model.header.modelId[moduleIdx];
@@ -302,7 +281,7 @@ void ModuleWindow::updateModule()
                           });
 
     if (isModuleBindRangeAvailable(moduleIdx)) {
-      bindButton = new TextButton(box, rect_t{},STR_MODULE_BIND);
+      bindButton = new TextButton(box, rect_t{}, STR_MODULE_BIND);
       bindButton->setPressHandler([=]() -> uint8_t {
         if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
           if (rangeButton) rangeButton->check(false);
@@ -346,7 +325,6 @@ void ModuleWindow::updateModule()
         if (moduleState[moduleIdx].mode != MODULE_MODE_BIND) {
           if (bindButton->checked()) {
             bindButton->check(false);
-            this->invalidate();
           }
         }
 #if defined(MULTIMODULE)
@@ -403,11 +381,12 @@ void ModuleWindow::updateModule()
   else if (isModuleRFAccess(moduleIdx)) {
 
     // Register and Range buttons
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_MODULE, 0, COLOR_THEME_PRIMARY1);
+    auto line = newLine(grid);
+    new StaticText(line, rect_t{}, STR_MODULE);
 
-    auto box = new FormWindow(line, rect_t{});
-    box->setFlexLayout(LV_FLEX_FLOW_ROW, lv_dpx(8));
+    auto box = new Window(line, rect_t{});
+    box->padAll(PAD_TINY);
+    box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_LARGE);
 
     registerButton = new TextButton(box, rect_t{}, STR_REGISTER);
     registerButton->setPressHandler([=]() -> uint8_t {
@@ -434,8 +413,8 @@ void ModuleWindow::updateModule()
     });
 
     // Model index
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_RECEIVER_NUM, 0, COLOR_THEME_PRIMARY1);
+    line = newLine(grid);
+    new StaticText(line, rect_t{}, STR_RECEIVER_NUM);
     auto modelId = &g_model.header.modelId[moduleIdx];
     new NumberEdit(line, rect_t{}, 0, getMaxRxNum(moduleIdx),
                    GET_SET_DEFAULT(*modelId));
@@ -444,12 +423,12 @@ void ModuleWindow::updateModule()
 
   // R9M Power
   if (isModuleR9MNonAccess(moduleIdx)) {
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_RF_POWER, 0, COLOR_THEME_PRIMARY1);
+    auto line = newLine(grid);
+    new StaticText(line, rect_t{}, STR_RF_POWER);
     rfPower = new Choice(line, rect_t{}, 0, 0, GET_SET_DEFAULT(md->pxx.power));
-    line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_MODULE_TELEMETRY, 0, COLOR_THEME_PRIMARY1);
-    new DynamicText(line, rect_t{}, [=] () {
+    line = newLine(grid);
+    new StaticText(line, rect_t{}, STR_MODULE_TELEMETRY);
+    new DynamicText(line, rect_t{}, [=]() {
       if (modulePortHasRx(moduleIdx)) {
         return std::string(STR_MODULE_TELEM_ON);
       } else {
@@ -463,44 +442,43 @@ void ModuleWindow::updateModule()
   if (isModuleRFAccess(moduleIdx)) {
     for (uint8_t receiverIdx = 0; receiverIdx < PXX2_MAX_RECEIVERS_PER_MODULE;
          receiverIdx++) {
-
       char label[] = TR_RECEIVER " X";
       label[sizeof(label) - 2] = '1' + receiverIdx;
 
-      auto line = newLine(&grid);
-      new StaticText(line, rect_t{}, label, 0, COLOR_THEME_PRIMARY1);
+      auto line = newLine(grid);
+      new StaticText(line, rect_t{}, label);
       new pxx2::ReceiverButton(line, rect_t{}, moduleIdx, receiverIdx);
     }
   }
 #endif
   // SBUS refresh rate
   if (isModuleSBUS(moduleIdx)) {
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, STR_REFRESHRATE, 0, COLOR_THEME_PRIMARY1);
+    auto line = newLine(grid);
+    new StaticText(line, rect_t{}, STR_REFRESHRATE);
 
-    auto box = new FormWindow(line, rect_t{});
-    box->setFlexLayout(LV_FLEX_FLOW_ROW);
+    auto box = new Window(line, rect_t{});
+    box->padAll(PAD_TINY);
+    box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
 
     auto edit = new NumberEdit(
         box, rect_t{}, SBUS_MIN_PERIOD, SBUS_MAX_PERIOD,
-        GET_DEFAULT((int16_t)md->sbus.refreshRate *
-                        SBUS_STEPSIZE +
+        GET_DEFAULT((int16_t)md->sbus.refreshRate * SBUS_STEPSIZE +
                     SBUS_DEF_PERIOD),
         SET_VALUE(md->sbus.refreshRate,
                   (newValue - SBUS_DEF_PERIOD) / SBUS_STEPSIZE),
-        0, PREC1);
+        PREC1);
     edit->setSuffix(STR_MS);
     edit->setStep(SBUS_STEPSIZE);
     new Choice(box, rect_t{}, STR_SBUS_INVERSION_VALUES, 0, 1,
                GET_SET_DEFAULT(md->sbus.noninverted));
 #if defined(RADIO_TX16S)
-    new StaticText(this, rect_t{}, STR_WARN_5VOLTS, 0, COLOR_THEME_PRIMARY1);
+    new StaticText(this, rect_t{}, STR_WARN_5VOLTS);
 #endif
   }
 
   if (isModuleGhost(moduleIdx)) {
-    auto line = newLine(&grid);
-    new StaticText(line, rect_t{}, "Raw 12 bits", 0, COLOR_THEME_PRIMARY1);
+    auto line = newLine(grid);
+    new StaticText(line, rect_t{}, "Raw 12 bits");
     new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(md->ghost.raw12bits));
   }
 
@@ -514,7 +492,7 @@ void ModuleWindow::updateSubType()
 
   updateRxID();
   updateFailsafe();
-  
+
   if (rfPower) {
     if (isModuleR9M_LBT(moduleIdx)) {
       rfPower->setMax(R9M_LBT_POWER_MAX);
@@ -531,10 +509,10 @@ void ModuleWindow::updateRxID()
 {
   if (rxID) {
     if (isModuleModelIndexAvailable(moduleIdx)) {
-      lv_obj_clear_flag(rxID->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      rxID->show();
       rxID->update();
     } else {
-      lv_obj_add_flag(rxID->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      rxID->hide();
     }
   }
 }
@@ -543,10 +521,10 @@ void ModuleWindow::updateFailsafe()
 {
   if (fsLine) {
     if (isModuleFailsafeAvailable(moduleIdx)) {
-      lv_obj_clear_flag(fsLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      fsLine->show();
       fsChoice->update();
     } else {
-      lv_obj_add_flag(fsLine->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      fsLine->hide();
     }
   }
 }
@@ -559,7 +537,7 @@ void ModuleWindow::startRSSIDialog(std::function<void()> closeHandler)
         return std::to_string((int)TELEMETRY_RSSI()) + getRxStatLabels()->unit;
       },
       getRxStatLabels()->label, 50,
-      COLOR_THEME_SECONDARY1 | CENTERED | FONT(BOLD) | FONT(XL));
+      COLOR_THEME_SECONDARY1 | CENTERED | FONT(XL));
 
   rssiDialog->setCloseHandler([this, closeHandler]() {
     rangeButton->check(false);
@@ -568,20 +546,20 @@ void ModuleWindow::startRSSIDialog(std::function<void()> closeHandler)
   });
 }
 
-class ModuleSubTypeChoice: public Choice
+class ModuleSubTypeChoice : public Choice
 {
   uint8_t moduleIdx;
 
-public:
+ public:
   ModuleSubTypeChoice(Window* parent, uint8_t moduleIdx);
   void update();
   void openMenu() override;
 };
 
-ModuleSubTypeChoice::ModuleSubTypeChoice(Window *parent, uint8_t moduleIdx) :
+ModuleSubTypeChoice::ModuleSubTypeChoice(Window* parent, uint8_t moduleIdx) :
     Choice(parent, rect_t{}, 0, 0, nullptr), moduleIdx(moduleIdx)
 {
-  ModuleData *md = &g_model.moduleData[moduleIdx];
+  ModuleData* md = &g_model.moduleData[moduleIdx];
   setGetValueHandler(GET_DEFAULT(md->subType));
 }
 
@@ -602,8 +580,7 @@ void ModuleSubTypeChoice::update()
     });
     setAvailableHandler(nullptr);
     setTextHandler(nullptr);
-  }
-  else if (isModuleDSM2(moduleIdx)) {
+  } else if (isModuleDSM2(moduleIdx)) {
     setMin(DSM2_PROTO_LP45);
     setMax(DSM2_PROTO_DSMX);
     setValues(STR_DSM_PROTOCOLS);
@@ -653,7 +630,7 @@ void ModuleSubTypeChoice::update()
     protos->triggerScan();
 
     if (protos->isScanning()) {
-      new RfScanDialog(parent, protos, [=](){ update(); });
+      new RfScanDialog(parent, protos, [=]() { update(); });
     } else {
       TRACE("!protos->isScanning()");
     }
@@ -662,25 +639,26 @@ void ModuleSubTypeChoice::update()
 
     setGetValueHandler(GET_DEFAULT(md->multi.rfProtocol));
     setSetValueHandler([=](int newValue) {
-        md->multi.rfProtocol = newValue;
-        md->subType = 0;
-        resetMultiProtocolsOptions(moduleIdx);
+      md->multi.rfProtocol = newValue;
+      md->subType = 0;
+      resetMultiProtocolsOptions(moduleIdx);
 
-        MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
-        status.invalidate();
+      MultiModuleStatus& status = getMultiModuleStatus(moduleIdx);
+      status.invalidate();
 
-        uint32_t startUpdate = RTOS_GET_MS();
-        while (!status.isValid() && (RTOS_GET_MS() - startUpdate < 250));
-        SET_DIRTY();
-      });
+      uint32_t startUpdate = RTOS_GET_MS();
+      while (!status.isValid() && (RTOS_GET_MS() - startUpdate < 250))
+        ;
+      SET_DIRTY();
+    });
   }
 #endif
   else {
-    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+    hide();
     return;
   }
 
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+  show();
 
   // update choice value
   lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
@@ -692,20 +670,19 @@ void ModuleSubTypeChoice::openMenu()
   if (isModuleMultimodule(moduleIdx)) {
     auto menu = new Menu(this);
 
-    if (!menuTitle.empty()) menu->setTitle(menuTitle);
+    if (menuTitle) menu->setTitle(menuTitle);
     menu->setCloseHandler([=]() { setEditMode(false); });
 
     setEditMode(true);
-    invalidate();
 
     auto protos = MultiRfProtocols::instance(moduleIdx);
-    protos->fillList([=](const MultiRfProtocols::RfProto &p) {
-        addValue(p.label.c_str());
-        menu->addLine(p.label.c_str(), [=]() {
-            setValue(p.proto);
-            lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
-          });
+    protos->fillList([=](const MultiRfProtocols::RfProto& p) {
+      addValue(p.label.c_str());
+      menu->addLine(p.label.c_str(), [=]() {
+        setValue(p.proto);
+        lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
       });
+    });
 
     ModuleData* md = &g_model.moduleData[moduleIdx];
     int idx = protos->getIndex(md->multi.rfProtocol);
@@ -734,29 +711,27 @@ static void update_module_window(lv_event_t* e)
 
 ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 {
-  const char* title2 = moduleIdx == INTERNAL_MODULE ?
-    STR_INTERNALRF : STR_EXTERNALRF;
-  header.setTitle(STR_MENU_MODEL_SETUP);
-  header.setTitle2(title2);
+  const char* title2 =
+      moduleIdx == INTERNAL_MODULE ? STR_INTERNALRF : STR_EXTERNALRF;
+  header->setTitle(STR_MENU_MODEL_SETUP);
+  header->setTitle2(title2);
 
-  auto form = new FormWindow(&body, rect_t{});
-  form->setFlexLayout();
-  form->padAll(lv_dpx(8));
+  body->setFlexLayout();
 
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
   // Module Type
-  auto line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_MODE, 0, COLOR_THEME_PRIMARY1);
+  auto line = body->newLine(grid);
+  new StaticText(line, rect_t{}, STR_MODE);
 
-  auto box = new FormWindow(line, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW);
-  lv_obj_set_width(box->getLvObj(), LV_SIZE_CONTENT);
+  auto box = new Window(line, rect_t{});
+  box->padAll(PAD_TINY);
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL, LV_SIZE_CONTENT);
 
   ModuleData* md = &g_model.moduleData[moduleIdx];
-  auto moduleChoice = new Choice(box, rect_t{}, STR_MODULE_PROTOCOLS,
-                                 MODULE_TYPE_NONE, MODULE_TYPE_COUNT - 1,
-                                 GET_DEFAULT(md->type));
+  auto moduleChoice =
+      new Choice(box, rect_t{}, STR_MODULE_PROTOCOLS, MODULE_TYPE_NONE,
+                 MODULE_TYPE_COUNT - 1, GET_DEFAULT(md->type));
 
   moduleChoice->setAvailableHandler([=](int8_t moduleType) {
     return moduleIdx == INTERNAL_MODULE ? isInternalModuleAvailable(moduleType)
@@ -764,7 +739,7 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   });
 
   auto subTypeChoice = new ModuleSubTypeChoice(box, moduleIdx);
-  auto moduleWindow = new ModuleWindow(form, moduleIdx);
+  auto moduleWindow = new ModuleWindow(body, moduleIdx);
 
   // This needs to be after moduleWindow has been created
   moduleChoice->setSetValueHandler([=](int32_t newValue) {

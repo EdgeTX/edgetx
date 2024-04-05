@@ -22,7 +22,6 @@
 #include "sourcechoice.h"
 
 #include "dataconstants.h"
-#include "draw_functions.h"
 #include "lcd.h"
 #include "menu.h"
 #include "menutoolbar.h"
@@ -111,40 +110,48 @@ class SourceChoiceMenuToolbar : public MenuToolbar
 // defined in gui/gui_common.cpp
 uint8_t switchToMix(uint8_t source);
 
-SourceChoice::SourceChoice(Window *parent, const rect_t &rect, int16_t vmin,
-                           int16_t vmax, std::function<int16_t()> getValue,
-                           std::function<void(int16_t)> setValue,
-                           WindowFlags windowFlags, LcdFlags textFlags) :
-    Choice(parent, rect, vmin, vmax, getValue, setValue)
+void SourceChoice::openMenu()
 {
-  setMenuTitle(STR_SOURCE);
-  setBeforeDisplayMenuHandler([=](Menu *menu) {
-    auto tb = new SourceChoiceMenuToolbar(this, menu);
-    menu->setToolbar(tb);
+  setEditMode(true);  // this needs to be done first before menu is created.
+
+  auto menu = new Menu(this);
+  if (menuTitle) menu->setTitle(menuTitle);
+
+  auto tb = new SourceChoiceMenuToolbar(this, menu);
+  menu->setToolbar(tb);
 
 #if defined(AUTOSOURCE)
-    menu->setWaitHandler([=]() {
-      int16_t val = getMovedSource(vmin);
-      if (val) {
-        tb->resetFilter();
-        menu->select(getIndexFromValue(val));
-      }
+  menu->setWaitHandler([=]() {
+    int16_t val = getMovedSource(vmin);
+    if (val) {
+      tb->resetFilter();
+      menu->select(getIndexFromValue(val));
+    }
 #if defined(AUTOSWITCH)
-      else {
-        swsrc_t swtch = abs(getMovedSwitch());
-        if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
-          val = switchToMix(swtch);
-          if (val && (val >= vmin) && (val <= vmax)) {
-            tb->resetFilter();
-            menu->select(getIndexFromValue(val));
-          }
+    else {
+      swsrc_t swtch = abs(getMovedSwitch());
+      if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
+        val = switchToMix(swtch);
+        if (val && (val >= vmin) && (val <= vmax)) {
+          tb->resetFilter();
+          menu->select(getIndexFromValue(val));
         }
       }
-#endif
-    });
+    }
 #endif
   });
+#endif
 
+  fillMenu(menu);
+
+  menu->setCloseHandler([=]() { setEditMode(false); });
+}
+
+SourceChoice::SourceChoice(Window *parent, const rect_t &rect, int16_t vmin,
+                           int16_t vmax, std::function<int16_t()> getValue,
+                           std::function<void(int16_t)> setValue) :
+    Choice(parent, rect, vmin, vmax, getValue, setValue, STR_SOURCE)
+{
   setTextHandler([=](int value) {
     if (isValueAvailable && !isValueAvailable(value))
       return std::to_string(0);  // we will fix this later

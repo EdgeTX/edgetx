@@ -23,11 +23,25 @@
 
 #include <functional>
 
-typedef std::function<void(const char *, const char *, int, int)> ProgressHandler;
+#include "libopenui.h"
 
-void POPUP_INFORMATION(const char * message);
-void POPUP_WARNING(const char * message, const char * info = nullptr);
-void POPUP_WARNING_ON_UI_TASK(const char * message, const char * info = nullptr, bool waitForClose = true);
-void POPUP_BUBBLE(const char * message, uint32_t timeout, coord_t width = LCD_W - 100);
+enum WarningType
+{
+  WARNING_TYPE_WAIT,
+  WARNING_TYPE_INFO,
+  WARNING_TYPE_ASTERISK,
+  WARNING_TYPE_CONFIRM,
+  WARNING_TYPE_INPUT,
+  WARNING_TYPE_ALERT
+};
+
+typedef std::function<void(const char *, const char *, int, int)>
+    ProgressHandler;
+
+void POPUP_INFORMATION(const char *message);
+void POPUP_WARNING(const char *message, const char *info = nullptr);
+void POPUP_WARNING_ON_UI_TASK(const char *message, const char *info = nullptr,
+                              bool waitForClose = true);
+void POPUP_BUBBLE(const char *message, uint32_t timeout, coord_t width = LCD_W - 100);
 
 void show_ui_popup();

@@ -306,32 +306,6 @@ int8_t rotaryEncoderGetAccel() { return 0; }
 
 #endif // defined(ROTARY_ENCODER_NAVIGATION)
 
-// Return 32 bit version of color (for recolor of buttons)
-uint32_t makeLvColor32(uint32_t colorFlags)
-{
-  auto color = COLOR_VAL(colorFlags);
-  return (GET_RED(color) << 16u) | (GET_GREEN(color) << 8) | GET_BLUE(color);
-}
-
-// Create recolor version of string value
-std::string makeRecolor(std::string value, uint32_t colorFlags)
-{
-  char s[32];
-  snprintf(s, 32, "#%06" PRIx32 " %s#", makeLvColor32(colorFlags), value.c_str());
-  return std::string(s);
-}
-
-/**
- * Helper function to translate a colorFlags value to a lv_color_t suitable
- * for passing to an lv_obj function
- * @param colorFlags a textFlags value.  This value will contain the color shifted by 16 bits.
- */
-lv_color_t makeLvColor(uint32_t colorFlags)
-{
-  auto color = COLOR_VAL(colorFlags);
-  return lv_color_make(GET_RED(color), GET_GREEN(color), GET_BLUE(color));
-}
-
 static void init_lvgl_drivers()
 {
   // Register the driver and save the created display object
@@ -370,6 +344,9 @@ void initLvglTheme()
 LvglWrapper::LvglWrapper()
 {
   init_lvgl_drivers();
+
+  extern void lv_stb_init();
+  lv_stb_init();
 
   // Create main window and load that screen
   auto window = MainWindow::instance();

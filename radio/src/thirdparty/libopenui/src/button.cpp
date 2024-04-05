@@ -17,50 +17,70 @@
  */
 
 #include "button.h"
-#include "font.h"
-#include "theme.h"
 
-static void update_checked_flag(lv_obj_t* obj, WindowFlags flags)
+#include "theme.h"
+#include "themes/etx_lv_theme.h"
+
+static void button_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  if (!(flags & BUTTON_CHECKED))
-    lv_obj_clear_state(obj, LV_STATE_CHECKED);
-  else
-    lv_obj_add_state(obj, LV_STATE_CHECKED);  
+  etx_btn_style(obj, LV_PART_MAIN);
+}
+
+// Must not be static - inherited by menu_button_class
+const lv_obj_class_t button_class = {
+    .base_class = &lv_btn_class,
+    .constructor_cb = button_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = LV_SIZE_CONTENT,
+    .height_def = 32,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
+    .instance_size = sizeof(lv_btn_t),
+};
+
+static lv_obj_t* button_create(lv_obj_t* parent)
+{
+  return etx_create(&button_class, parent);
 }
 
 Button::Button(Window* parent, const rect_t& rect,
-       std::function<uint8_t(void)> pressHandler,
-       WindowFlags windowFlag, LcdFlags textFlags,
-       LvglCreate objConstruct) :
-    FormField(parent, rect, windowFlag, textFlags,
-              objConstruct ? objConstruct : lv_btn_create),
-    pressHandler(std::move(pressHandler))
+               std::function<uint8_t(void)> pressHandler) :
+    ButtonBase(parent, rect, pressHandler, button_create)
 {
-  lv_obj_add_event_cb(lvobj, Button::long_pressed, LV_EVENT_LONG_PRESSED, nullptr);
-  update_checked_flag(lvobj, windowFlags);
 }
 
-void Button::check(bool checked)
+ButtonBase::ButtonBase(Window* parent, const rect_t& rect,
+                       std::function<uint8_t(void)> pressHandler,
+                       LvglCreate objConstruct) :
+    FormField(parent, rect, 0, objConstruct ? objConstruct : lv_btn_create),
+    pressHandler(std::move(pressHandler))
 {
-  if (_deleted) return;
-  if (checked != bool(windowFlags & BUTTON_CHECKED)) {
-    windowFlags ^= BUTTON_CHECKED;
-    update_checked_flag(lvobj, windowFlags);
-    invalidate();
+  lv_obj_add_event_cb(lvobj, ButtonBase::long_pressed, LV_EVENT_LONG_PRESSED,
+                      nullptr);
+}
+
+void ButtonBase::check(bool checked)
+{
+  if (!_deleted) {
+    if (checked != this->checked()) {
+      if (checked)
+        lv_obj_add_state(lvobj, LV_STATE_CHECKED);
+      else
+        lv_obj_clear_state(lvobj, LV_STATE_CHECKED);
+    }
   }
 }
 
-bool Button::checked() const
+bool ButtonBase::checked() const
 {
-  return windowFlags & BUTTON_CHECKED;
+  return lv_obj_get_state(lvobj) & LV_STATE_CHECKED;
 }
 
-void Button::onPress()
-{
-  check(pressHandler && pressHandler());
-}
+void ButtonBase::onPress() { check(pressHandler && pressHandler()); }
 
-void Button::onLongPress()
+void ButtonBase::onLongPress()
 {
   if (longPressHandler) {
     check(longPressHandler());
@@ -69,39 +89,37 @@ void Button::onLongPress()
   }
 }
 
-void Button::onClicked()
-{
-  onPress();
-}
+void ButtonBase::onClicked() { onPress(); }
 
-#if defined(HARDWARE_TOUCH)
-// this needs to stay so that viewmain doesnt get the touch event
-bool Button::onTouchEnd(coord_t x, coord_t y) { return true; }
-#endif
-
-void Button::checkEvents()
+void ButtonBase::checkEvents()
 {
   Window::checkEvents();
   if (checkHandler) checkHandler();
 }
 
-void Button::long_pressed(lv_event_t* e)
+void ButtonBase::long_pressed(lv_event_t* e)
 {
   auto obj = lv_event_get_target(e);
-  auto btn = (Button*)lv_obj_get_user_data(obj);
+  auto btn = (ButtonBase*)lv_obj_get_user_data(obj);
   if (obj) btn->onLongPress();
 }
 
-
 TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,
-                       std::function<uint8_t(void)> pressHandler,
-                       WindowFlags windowFlags) :
-    Button(parent, rect, std::move(pressHandler), windowFlags, 0, etx_button_create),
-    text(std::move(text))
+                       std::function<uint8_t(void)> pressHandler) :
+    ButtonBase(parent, rect, pressHandler, button_create), text(std::move(text))
 {
-  update_checked_flag(lvobj, windowFlags);
-
   label = lv_label_create(lvobj);
   lv_label_set_text(label, this->text.c_str());
   lv_obj_center(label);
 }
+
+IconButton::IconButton(Window* parent, EdgeTxIcon icon,
+                       std::function<uint8_t(void)> pressHandler) :
+    ButtonBase(parent, {0, 0, 32, 32}, pressHandler, button_create)
+{
+  padAll(PAD_ZERO);
+  iconImage = new StaticIcon(this, 0, 0, icon, COLOR_THEME_SECONDARY1);
+  iconImage->center(28, 28);
+}
+
+void IconButton::setIcon(EdgeTxIcon icon) { iconImage->setIcon(icon); }

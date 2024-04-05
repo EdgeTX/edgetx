@@ -20,26 +20,24 @@
  */
 
 #include "mixer_edit_adv.h"
-#include "numberedit.h"
+
 #include "fm_matrix.h"
 #include "mixes.h"
-
+#include "numberedit.h"
 #include "opentx.h"
+#include "themes/etx_lv_theme.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 MixEditAdvanced::MixEditAdvanced(int8_t channel, uint8_t index) :
-    Page(ICON_MODEL_MIXER), channel(channel), index(index)
+    Page(ICON_MODEL_MIXER, PAD_MEDIUM), channel(channel), index(index)
 {
   std::string title(STR_MIXES);
   title += "\n";
   title += getSourceString(MIXSRC_FIRST_CH + channel);
-  header.setTitle(title);
+  header->setTitle(title);
 
-  auto form = new FormWindow(&body, rect_t{});
-  lv_obj_set_style_pad_all(form->getLvObj(), lv_dpx(8), 0);
-
-  buildBody(form);
+  buildBody(body);
 }
 
 #if LCD_W > LCD_H
@@ -54,63 +52,66 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 #endif
 
-void MixEditAdvanced::buildBody(FormWindow* form)
+void MixEditAdvanced::buildBody(Window* form)
 {
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
   form->setFlexLayout();
 
-  MixData *mix = mixAddress(index);
+  MixData* mix = mixAddress(index);
 
   // Advanced...
-  
+
   // Multiplex
-  auto line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_MULTPX, 0, COLOR_THEME_PRIMARY1);
+  auto line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_MULTPX);
   new Choice(line, rect_t{}, STR_VMLTPX, 0, 2, GET_SET_DEFAULT(mix->mltpx));
 
   // Flight modes
   if (modelFMEnabled()) {
-    line = form->newLine(&grid);
-    new StaticText(line, rect_t{}, STR_FLMODE, 0, COLOR_THEME_PRIMARY1);
+    line = form->newLine(grid);
+    new StaticText(line, rect_t{}, STR_FLMODE);
     new FMMatrix<MixData>(line, rect_t{}, mix);
   }
 
   // Trim
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_TRIM, 0, COLOR_THEME_PRIMARY1);
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_TRIM);
   new ToggleSwitch(line, rect_t{}, GET_SET_INVERTED(mix->carryTrim));
 
   // Warning
-  new StaticText(line, rect_t{}, STR_MIXWARNING, 0, COLOR_THEME_PRIMARY1);
-  auto edit = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, 3, GET_SET_DEFAULT(mix->mixWarn));
+  new StaticText(line, rect_t{}, STR_MIXWARNING);
+  auto edit = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, 3,
+                             GET_SET_DEFAULT(mix->mixWarn));
   edit->setZeroText(STR_OFF);
 
   // Delay up
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_DELAYUP, 0, COLOR_THEME_PRIMARY1);
-  edit = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->delayUp),
-                        SET_VALUE(mix->delayUp, newValue), 0, PREC1);
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_DELAYUP);
+  edit = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, DELAY_MAX,
+                        GET_DEFAULT(mix->delayUp),
+                        SET_VALUE(mix->delayUp, newValue), PREC1);
   edit->setSuffix("s");
 
   // Delay down
-  new StaticText(line, rect_t{}, STR_DELAYDOWN, 0, COLOR_THEME_PRIMARY1);
-  edit = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->delayDown),
-                        SET_VALUE(mix->delayDown, newValue), 0, PREC1);
+  new StaticText(line, rect_t{}, STR_DELAYDOWN);
+  edit = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, DELAY_MAX,
+                        GET_DEFAULT(mix->delayDown),
+                        SET_VALUE(mix->delayDown, newValue), PREC1);
   edit->setSuffix("s");
 
   // Slow up/down precision
 #if LCD_W > LCD_H
   grid.setColSpan(2);
 #endif
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_MIX_SLOW_PREC, 0, COLOR_THEME_PRIMARY1);
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_MIX_SLOW_PREC);
   new Choice(line, rect_t{}, &STR_VPREC[1], 0, 1,
              GET_DEFAULT(mix->speedPrec),
              [=](int newValue) {
               mix->speedPrec = newValue;
-              slowUp->setTextFlags(mix->speedPrec ? PREC2 : PREC1);
+              slowUp->setTextFlag(mix->speedPrec ? PREC2 : PREC1);
               slowUp->update();
-              slowDn->setTextFlags(mix->speedPrec ? PREC2 : PREC1);
+              slowDn->setTextFlag(mix->speedPrec ? PREC2 : PREC1);
               slowDn->update();
               SET_DIRTY();
              });
@@ -119,15 +120,15 @@ void MixEditAdvanced::buildBody(FormWindow* form)
 #endif
 
   // Slow up
-  line = form->newLine(&grid);
-  new StaticText(line, rect_t{}, STR_SLOWUP, 0, COLOR_THEME_PRIMARY1);
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_SLOWUP);
   slowUp = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->speedUp),
-                          SET_VALUE(mix->speedUp, newValue), 0, mix->speedPrec ? PREC2 : PREC1);
+                          SET_VALUE(mix->speedUp, newValue), mix->speedPrec ? PREC2 : PREC1);
   slowUp->setSuffix("s");
 
   // Slow down
-  new StaticText(line, rect_t{}, STR_SLOWDOWN, 0, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_SLOWDOWN);
   slowDn = new NumberEdit(line, rect_t{0, 0, 100, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->speedDown),
-                          SET_VALUE(mix->speedDown, newValue), 0, mix->speedPrec ? PREC2 : PREC1);
+                          SET_VALUE(mix->speedDown, newValue), mix->speedPrec ? PREC2 : PREC1);
   slowDn->setSuffix("s");
 }

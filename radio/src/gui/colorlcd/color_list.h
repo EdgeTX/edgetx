@@ -18,21 +18,20 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+
 #pragma once
-#include <algorithm>
+
 #include <vector>
-#include <iostream>
-#include "bitmapbuffer.h"
-#include "libopenui.h"
-#include "theme_manager.h"
+
 #include "listbox.h"
+#include "theme_manager.h"
 
 // a list of color theme names with their color to the right
-class ColorList : public ListBase
+class ColorList : public ListBox
 {
  public:
-  ColorList(Window *parent, const rect_t &rect, std::vector<ColorEntry> colors,
-            WindowFlags windowFlags = 0, LcdFlags lcdFlags = 0);
+  ColorList(Window* parent, const rect_t& rect, std::vector<ColorEntry> colors,
+            LcdFlags lcdFlags = 0);
 
   inline ColorEntry getSelectedColor()
   {
@@ -46,14 +45,22 @@ class ColorList : public ListBase
   inline void setColorList(std::vector<ColorEntry> colorList)
   {
     this->_colorList = colorList;
-    ListBase::setNames(getColorListNames(colorList));
-    invalidate();
+    ListBox::setNames(getColorListNames(colorList));
   }
 
  protected:
   std::vector<ColorEntry> _colorList;
-  ThemePersistance *_tp;
 
   void onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc);
 };
 
+class ColorSwatch : public Window
+{
+ public:
+  ColorSwatch(Window* window, const rect_t& rect, uint32_t color);
+
+  void setColor(uint32_t colorEntry);
+  void setColor(uint8_t r, uint8_t g, uint8_t b);
+
+ protected:
+};

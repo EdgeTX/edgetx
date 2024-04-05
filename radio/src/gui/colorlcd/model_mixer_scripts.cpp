@@ -19,165 +19,170 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-
 #include "model_mixer_scripts.h"
-#include "dataconstants.h"
-#include "lua/lua_api.h"
 
-#include "translations.h"
-#include "menus.h"
+#include "dataconstants.h"
+#include "filechoice.h"
 #include "libopenui.h"
+#include "list_line_button.h"
+#include "lua/lua_api.h"
+#include "menus.h"
+#include "opentx.h"
+#include "page.h"
+#include "sourcechoice.h"
+#include "themes/etx_lv_theme.h"
+#include "translations.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 // Overview grid
-static const lv_coord_t col_dsc[] = {LV_GRID_CONTENT,
-                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t col_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 // Edit grid
 #if LCD_W > LCD_H
 static const lv_coord_t e_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
-                                      LV_GRID_TEMPLATE_LAST};
+                                       LV_GRID_TEMPLATE_LAST};
 #else
 static const lv_coord_t e_col_dsc[] = {LV_GRID_FR(5), LV_GRID_FR(4),
-                                      LV_GRID_TEMPLATE_LAST};
+                                       LV_GRID_TEMPLATE_LAST};
 #endif
 
 // Line button grid
 static const lv_coord_t b_col_dsc[] = {40, 84, 84, LV_GRID_FR(1),
-                                       LV_GRID_TEMPLATE_LAST
-};
+                                       LV_GRID_TEMPLATE_LAST};
 
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
-                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-class ScriptEditWindow : public Page {
-  public:
-    explicit ScriptEditWindow(uint8_t idx) :
-      Page(ICON_MODEL_LUA_SCRIPTS),
-      idx(idx)
-    {
-      buildBody(&body);
-      buildHeader(&header);
+class ScriptEditWindow : public Page
+{
+ public:
+  explicit ScriptEditWindow(uint8_t idx) :
+      Page(ICON_MODEL_LUA_SCRIPTS), idx(idx)
+  {
+    buildBody(body);
+    buildHeader(header);
+  }
+
+ protected:
+  const uint8_t idx;
+  bool update = false;
+
+  void checkEvents() override
+  {
+    if ((update) && (luaState == INTERPRETER_RUNNING)) {
+      TRACE("rebuilding ScriptEditWindow...");
+      rebuildBody(body);
+      update = false;
     }
+    // note: 'update' is set from Page::checkEvents()
+    Page::checkEvents();
+  }
 
-  protected:
-    const uint8_t idx;
-    bool update = false;
+  void buildHeader(Window* window)
+  {
+    header->setTitle(STR_MENUCUSTOMSCRIPTS);
+    header->setTitle2(std::string("LUA") + std::to_string(idx + 1));
+  }
 
-    void checkEvents() override
-    {
-      if ((update) && (luaState == INTERPRETER_RUNNING)) {
-        TRACE("rebuilding ScriptEditWindow...");
-        rebuildBody(&body);
-        update = false;
-      }
-      // note: 'update' is set from Page::checkEvents()
-      Page::checkEvents();
-    }
+  void buildBody(Window* window, bool focusScript = false)
+  {
+    window->setFlexLayout();
 
-    void buildHeader(Window * window)
-    {
-      header.setTitle(STR_MENUCUSTOMSCRIPTS);
-      header.setTitle2(std::string("LUA") + std::to_string(idx + 1));
-    }
+    FlexGridLayout grid(e_col_dsc, row_dsc, PAD_TINY);
 
-    void buildBody(FormWindow * window, bool focusScript = false)
-    {
-      auto form = new FormWindow(window, rect_t{});
-      form->setFlexLayout();
-      form->padAll(4);
+    // the general pattern seems to be using capture-by-value for the closures:
+    // so need to copy the pointers, not the objects
+    ScriptData* const sd = &(g_model.scriptsData[idx]);
+    ScriptInputsOutputs* const sio = &(scriptInputsOutputs[idx]);
 
-      FlexGridLayout grid(e_col_dsc, row_dsc, 2);
-
-      // the general pattern seems to be using capture-by-value for the closures: so need to copy the pointers, not the objects
-      ScriptData* const sd = &(g_model.scriptsData[idx]);
-      ScriptInputsOutputs* const sio = &(scriptInputsOutputs[idx]);
-
-      // File
-      auto line = form->newLine(&grid);
-      new StaticText(line, rect_t{}, STR_SCRIPT, 0, COLOR_THEME_PRIMARY1);
-      new FileChoice(
-          line, rect_t{}, SCRIPTS_MIXES_PATH, SCRIPTS_EXT,
-          LEN_SCRIPT_FILENAME,
-          [=]() { return stringFromNtString(sd->file); },
-          [=](std::string newValue) {
-             clearStruct(*sd);
-             clearStruct(*sio);
-             if (!newValue.empty()) {
-                 copyToUnTerminated(sd->file, newValue);
-             }
-            storageDirty(EE_MODEL);
-            LUA_LOAD_MODEL_SCRIPT(idx); // async reload ...
-            update = true;
-          }, true);
-
-      // Custom name
-      line = form->newLine(&grid);
-      new StaticText(line, rect_t{}, STR_NAME, 0, COLOR_THEME_PRIMARY1);
-      new ModelTextEdit(line, rect_t{}, sd->name, sizeof(sd->name));
-
-      if (sio->inputsCount > 0) {
-        line = form->newLine(&grid);
-        new Subtitle(line, STR_INPUTS);
-
-        for (int i = 0; i < sio->inputsCount; i++) {
-          line = form->newLine(&grid);
-          ScriptInput& si = sio->inputs[i];
-          auto lbl = new StaticText(line, rect_t{}, si.name, 0, COLOR_THEME_PRIMARY1);
-          lbl->padLeft(10);
-          if (si.type == INPUT_TYPE_VALUE) {
-            (new NumberEdit(line, rect_t{}, si.min, si.max,
-                            GET_SET_WITH_OFFSET(sd->inputs[i].value, si.def)))->setDefault(si.def);
-          } else {
-            new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
-                             GET_SET_DEFAULT(sd->inputs[i].source));
+    // File
+    auto line = window->newLine(grid);
+    new StaticText(line, rect_t{}, STR_SCRIPT);
+    new FileChoice(
+        line, rect_t{}, SCRIPTS_MIXES_PATH, SCRIPTS_EXT, LEN_SCRIPT_FILENAME,
+        [=]() { return stringFromNtString(sd->file); },
+        [=](std::string newValue) {
+          clearStruct(*sd);
+          clearStruct(*sio);
+          if (!newValue.empty()) {
+            copyToUnTerminated(sd->file, newValue);
           }
-        }
-      }
+          storageDirty(EE_MODEL);
+          LUA_LOAD_MODEL_SCRIPT(idx);  // async reload ...
+          update = true;
+        },
+        true);
 
-      if (sio->outputsCount > 0) {
-        line = form->newLine(&grid);
-        new Subtitle(line, STR_OUTPUTS);
+    // Custom name
+    line = window->newLine(grid);
+    new StaticText(line, rect_t{}, STR_NAME);
+    new ModelTextEdit(line, rect_t{}, sd->name, sizeof(sd->name));
 
-        for (int i = 0; i < sio->outputsCount; i++) {
-          line = form->newLine(&grid);
-          ScriptOutput* so = &(sio->outputs[i]);
-          auto lbl = new DynamicText(line, rect_t{}, [=]() {
-            char s[16];
-            getSourceString(s, MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
-            return std::string(s, sizeof(s) - 1);
-          }, COLOR_THEME_PRIMARY1);
-          lbl->padLeft(10);
-          new DynamicNumber<int16_t>(line, rect_t{}, [=]() { return calcRESXto1000(so->value); }, COLOR_THEME_PRIMARY1);
+    if (sio->inputsCount > 0) {
+      line = window->newLine(grid);
+      new Subtitle(line, STR_INPUTS);
+
+      for (int i = 0; i < sio->inputsCount; i++) {
+        line = window->newLine(grid);
+        ScriptInput& si = sio->inputs[i];
+        auto lbl =
+            new StaticText(line, rect_t{}, si.name);
+        lbl->padLeft(10);
+        if (si.type == INPUT_TYPE_VALUE) {
+          (new NumberEdit(line, rect_t{}, si.min, si.max,
+                          GET_SET_WITH_OFFSET(sd->inputs[i].value, si.def)))
+              ->setDefault(si.def);
+        } else {
+          new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_TELEM,
+                           GET_SET_DEFAULT(sd->inputs[i].source));
         }
       }
     }
-    
-    void rebuildBody(FormWindow * window)
-    {
-      auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
-      window->clear();
-      buildBody(window);
-      lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
+
+    if (sio->outputsCount > 0) {
+      line = window->newLine(grid);
+      new Subtitle(line, STR_OUTPUTS);
+
+      for (int i = 0; i < sio->outputsCount; i++) {
+        line = window->newLine(grid);
+        ScriptOutput* so = &(sio->outputs[i]);
+        auto lbl = new DynamicText(
+            line, rect_t{},
+            [=]() {
+              char s[16];
+              getSourceString(
+                  s, MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
+              return std::string(s, sizeof(s) - 1);
+            },
+            COLOR_THEME_PRIMARY1);
+        lbl->padLeft(10);
+        new DynamicNumber<int16_t>(
+            line, rect_t{}, [=]() { return calcRESXto1000(so->value); });
+      }
     }
+  }
+
+  void rebuildBody(Window* window)
+  {
+    auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());
+    window->clear();
+    buildBody(window);
+    lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
+  }
 };
 
-class ScriptLineButton : public Button
+class ScriptLineButton : public ListLineButton
 {
  public:
   ScriptLineButton(Window* parent, const rect_t& rect,
                    const ScriptData& scriptData,
-                   const ScriptInternalData* runtimeData,
-                   uint8_t index) :
-      Button(parent, rect, nullptr, 0, 0, input_mix_line_create),
-      index(index),
+                   const ScriptInternalData* runtimeData, uint8_t index) :
+      ListLineButton(parent, index),
       scriptData(scriptData),
       runtimeData(runtimeData)
   {
 #if LCD_H > LCD_W
-  padTop(5);
+    padTop(5);
 #endif
     padLeft(3);
     padRight(3);
@@ -187,12 +192,13 @@ class ScriptLineButton : public Button
     lv_obj_set_style_pad_column(lvobj, 4, 0);
 
     lv_obj_update_layout(parent->getLvObj());
-    if(lv_obj_is_visible(lvobj)) delayed_init(nullptr);
+    if (lv_obj_is_visible(lvobj)) delayed_init(nullptr);
 
-    lv_obj_add_event_cb(lvobj, ScriptLineButton::on_draw, LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+    lv_obj_add_event_cb(lvobj, ScriptLineButton::on_draw,
+                        LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
   }
 
-  static void on_draw(lv_event_t * e)
+  static void on_draw(lv_event_t* e)
   {
     lv_obj_t* target = lv_event_get_target(e);
     auto line = (ScriptLineButton*)lv_obj_get_user_data(target);
@@ -203,37 +209,42 @@ class ScriptLineButton : public Button
         line->refresh();
     }
   }
-  
+
   void delayed_init(lv_event_t* e)
   {
     auto lbl = lv_label_create(lvobj);
-    lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    etx_obj_add_style(lbl, styles->text_align_left, LV_PART_MAIN);
+    lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER,
+                         0, 1);
 
-    lv_label_set_text(lbl, (std::string("LUA") + std::to_string(index + 1)).c_str());
+    lv_label_set_text(lbl,
+                      (std::string("LUA") + std::to_string(index + 1)).c_str());
 
     if (runtimeData) {
       char s[20];
 
       lbl = lv_label_create(lvobj);
-      lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_LEFT, 0);
-      lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+      etx_obj_add_style(lbl, styles->text_align_left, LV_PART_MAIN);
+      lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_CENTER,
+                           0, 1);
 
       strAppend(s, scriptData.name, LEN_SCRIPT_NAME);
       lv_label_set_text(lbl, s);
 
       lbl = lv_label_create(lvobj);
-      lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_LEFT, 0);
-      lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+      etx_obj_add_style(lbl, styles->text_align_left, LV_PART_MAIN);
+      lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER,
+                           0, 1);
 
       strAppend(s, scriptData.file, LEN_SCRIPT_FILENAME);
       lv_label_set_text(lbl, s);
 
       lbl = lv_label_create(lvobj);
-      lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_LEFT, 0);
-      lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 3, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+      etx_obj_add_style(lbl, styles->text_align_left, LV_PART_MAIN);
+      lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 3, 1, LV_GRID_ALIGN_CENTER,
+                           0, 1);
 
-      // TODO: runtimeData->instructions has no value 
+      // TODO: runtimeData->instructions has no value
       switch (runtimeData->state) {
         case SCRIPT_SYNTAX_ERROR:
           lv_label_set_text(lbl, STR_SCRIPT_ERROR);
@@ -252,50 +263,49 @@ class ScriptLineButton : public Button
 
     init = true;
     refresh();
+
     lv_obj_update_layout(lvobj);
 
-    if(e) {
+    if (e) {
       auto param = lv_event_get_param(e);
       lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
     }
   }
 
-  void refresh()
-  {
-  }
+  bool isActive() const override { return false; }
+  void refresh() override {}
 
  protected:
   bool init = false;
-  uint8_t index;
-  const ScriptData&         scriptData;
+  const ScriptData& scriptData;
   const ScriptInternalData* runtimeData;
 };
 
 #define CM_BUTTON_H 34
 
 ModelMixerScriptsPage::ModelMixerScriptsPage() :
-  PageTab(STR_MENUCUSTOMSCRIPTS, ICON_MODEL_LUA_SCRIPTS)
+    PageTab(STR_MENUCUSTOMSCRIPTS, ICON_MODEL_LUA_SCRIPTS)
 {
 }
 
-void ModelMixerScriptsPage::rebuild(FormWindow * window, int8_t focusIdx)
+void ModelMixerScriptsPage::rebuild(Window* window, int8_t focusIdx)
 {
-  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());  
+  auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());
   window->clear();
   build(window, focusIdx);
   lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
 }
 
-void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
+void ModelMixerScriptsPage::build(Window* window, int8_t focusIdx)
 {
-  window->padAll(4);
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
+  window->padAll(PAD_SMALL);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
   int8_t scriptIdx = 0;
   for (int8_t idx = 0; idx < MAX_SCRIPTS; idx++) {
-    auto line = window->newLine(&grid);
+    auto line = window->newLine(grid);
 
     ScriptInternalData* runtimeData = nullptr;
     ScriptData* const sd = &(g_model.scriptsData[idx]);
@@ -304,8 +314,10 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
     if (sd->file[0] != '\0') {
       runtimeData = &(scriptInternalData[scriptIdx++]);
     }
-    
-    Button* const button = new ScriptLineButton(line, rect_t{0, 0, window->width() - 12, CM_BUTTON_H}, *sd, runtimeData, idx);
+
+    auto button = new ScriptLineButton(
+        line, rect_t{0, 0, window->width() - 12, CM_BUTTON_H}, *sd, runtimeData,
+        idx);
 
     button->setPressHandler([=]() -> uint8_t {
       Menu* const menu = new Menu(window);
@@ -313,8 +325,8 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
 
       if (runtimeData != nullptr) {
         menu->addLine(STR_DELETE, [=]() {
-            clearStruct(*sd);
-            clearStruct(*sio);
+          clearStruct(*sd);
+          clearStruct(*sio);
           LUA_LOAD_MODEL_SCRIPTS();
           storageDirty(EE_MODEL);
           rebuild(window, idx);
@@ -326,10 +338,8 @@ void ModelMixerScriptsPage::build(FormWindow * window, int8_t focusIdx)
   }
 }
 
-void ModelMixerScriptsPage::editLine(FormWindow * window, uint8_t idx)
+void ModelMixerScriptsPage::editLine(Window* window, uint8_t idx)
 {
-  Window * editWindow = new ScriptEditWindow(idx);
-  editWindow->setCloseHandler([=]() {
-    rebuild(window, idx);
-  });
+  Window* editWindow = new ScriptEditWindow(idx);
+  editWindow->setCloseHandler([=]() { rebuild(window, idx); });
 }

@@ -20,79 +20,71 @@
  */
 
 #include "page.h"
-#include "mainwindow.h"
-#include "keyboard_base.h"
-#include "opentx.h"
+
 #include "theme.h"
+#include "themes/etx_lv_theme.h"
 #include "view_main.h"
 
-PageHeader::PageHeader(Page * parent, uint8_t icon):
-  FormWindow(parent, { 0, 0, LCD_W, MENU_HEADER_HEIGHT }, OPAQUE),
-  icon(icon)
+PageHeader::PageHeader(Page* parent, EdgeTxIcon icon) :
+    Window(parent, {0, 0, LCD_W, MENU_HEADER_HEIGHT}),
+    icon(icon)
 {
-#if defined(HARDWARE_TOUCH)
-  new Button(this, { 0, 0, MENU_HEADER_BACK_BUTTON_WIDTH, MENU_HEADER_BACK_BUTTON_HEIGHT },
-             [=]() -> uint8_t {
-               parent->onCancel();
-               return 0;
-             }, NO_FOCUS);
-#endif
+  setWindowFlag(NO_FOCUS | OPAQUE);
+
+  etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
+
+  new HeaderIcon(this, icon);
+
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
                           LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                         "", 0, COLOR_THEME_PRIMARY2);
+                         "", COLOR_THEME_PRIMARY2);
 }
 
 StaticText* PageHeader::setTitle2(std::string txt)
 {
   if (title2 == nullptr) {
-    title2 = new StaticText(this, 
+    title2 = new StaticText(this,
                             {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
                              LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
-                             "", 0, COLOR_THEME_PRIMARY2);
+                            "", COLOR_THEME_PRIMARY2);
   }
   title2->setText(std::move(txt));
   return title2;
 }
 
-void PageHeader::paint(BitmapBuffer * dc)
+Page::Page(EdgeTxIcon icon, PaddingSize padding) :
+    NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
 {
-  EdgeTxTheme::instance()->drawPageHeaderBackground(dc, getIcon(), nullptr);
-  dc->drawSolidFilledRect(MENU_HEADER_HEIGHT, 0, LCD_W - MENU_HEADER_HEIGHT,
-                          MENU_HEADER_HEIGHT, COLOR_THEME_SECONDARY1);
-}
+  header = new PageHeader(this, icon);
+  body = new Window(this,
+                    {0, MENU_HEADER_HEIGHT, LCD_W, LCD_H - MENU_HEADER_HEIGHT});
+  body->setWindowFlag(NO_FOCUS);
 
-static constexpr rect_t _get_body_rect()
-{
-  return { 0, MENU_HEADER_HEIGHT, LCD_W, LCD_H - MENU_HEADER_HEIGHT };
-}
+  etx_solid_bg(lvobj);
+  lv_obj_set_style_max_height(body->getLvObj(), LCD_H - MENU_HEADER_HEIGHT,
+                              LV_PART_MAIN);
+  etx_scrollbar(body->getLvObj());
 
-Page::Page(unsigned icon):
-  NavWindow(Layer::back(), {0, 0, LCD_W, LCD_H}, OPAQUE),
-  header(this, icon),
-  body(this, _get_body_rect())
-{
+  Layer::back()->hide();
   Layer::push(this);
 
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_SECONDARY3), 0);
+  body->padAll(padding);
 
-  body.padAll(0);
-  lv_obj_set_scrollbar_mode(body.getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+#if defined(HARDWARE_TOUCH)
+  addBackButton();
+#endif
 }
 
 void Page::deleteLater(bool detach, bool trash)
 {
   Layer::pop(this);
+  Layer::back()->show();
 
-  header.deleteLater(true, false);
-  body.deleteLater(true, false);
   Window::deleteLater(detach, trash);
 }
 
-void Page::onCancel()
-{
-  deleteLater();
-}
+void Page::onCancel() { deleteLater(); }
 
 void Page::onClicked() { Keyboard::hide(false); }
 

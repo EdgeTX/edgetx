@@ -20,11 +20,10 @@
 
 #include "button.h"
 #include "choice.h"
-#include "menu.h"
 
-class Choice;
+class Menu;
 
-class MenuToolbarButton : public Button
+class MenuToolbarButton : public ButtonBase
 {
  public:
   MenuToolbarButton(Window* parent, const rect_t& rect, const char* picto);

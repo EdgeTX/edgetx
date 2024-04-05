@@ -24,21 +24,20 @@
 #include "button.h"
 #include "opentx_types.h"
 
-class ListLineButton : public Button
+class ListLineButton : public ButtonBase
 {
  public:
   ListLineButton(Window* parent, uint8_t index);
 
   uint8_t getIndex() const { return index; }
-  void setIndex(uint8_t i) { index = i; }
+  virtual void setIndex(uint8_t i) { index = i; }
 
   void checkEvents() override;
+
+  virtual void refresh() = 0;
 
  protected:
   uint8_t index;
 
-  static void value_changed(lv_event_t* e);
-
   virtual bool isActive() const = 0;
-  virtual void refresh() = 0;
 };

@@ -23,6 +23,7 @@
 
 #include "page.h"
 
-struct PreflightChecks : public Page {
+class PreflightChecks : public Page {
+ public:
   PreflightChecks();
 };

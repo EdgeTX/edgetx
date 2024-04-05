@@ -21,13 +21,12 @@
 
 #pragma once
 
-#include "form.h"
-#include "choice.h"
+#include "window.h"
 #include "module_setup.h"
 
 struct ModuleData;
 
-class AFHDS2ASettings : public FormWindow, public ModuleOptions
+class AFHDS2ASettings : public Window, public ModuleOptions
 {
   uint8_t moduleIdx;
   ModuleData* md;

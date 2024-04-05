@@ -36,7 +36,7 @@ static const lv_btnmatrix_ctrl_t number_kb_ctrl_map[] = {
 static void on_key(lv_event_t* e)
 {
   lv_obj_t* obj = lv_event_get_target(e);
-  NumberEdit* edit = (NumberEdit*)lv_event_get_user_data(e);
+  NumberKeyboard* edit = (NumberKeyboard*)lv_event_get_user_data(e);
   if (!obj || !edit) return;
 
   uint16_t btn_id = lv_btnmatrix_get_selected_btn(obj);
@@ -46,139 +46,102 @@ static void on_key(lv_event_t* e)
       lv_btnmatrix_get_btn_text(obj, lv_btnmatrix_get_selected_btn(obj));
   if (txt == NULL) return;
 
-  if (strcmp(txt, "<<") == 0) {
-    edit->onEvent(EVT_VIRTUAL_KEY_BACKWARD);
-  } else if (strcmp(txt, "-") == 0) {
-    edit->onEvent(EVT_VIRTUAL_KEY_MINUS);
-  } else if (strcmp(txt, "+") == 0) {
-    edit->onEvent(EVT_VIRTUAL_KEY_PLUS);
-  } else if (strcmp(txt, ">>") == 0) {
-    edit->onEvent(EVT_VIRTUAL_KEY_FORWARD);
-  } else if (strcmp(txt, "MIN") == 0) {
-    edit->onEvent(EVT_VIRTUAL_KEY_MIN);
-  } else if (strcmp(txt, "DEF") == 0) {
-    edit->onEvent(EVT_VIRTUAL_KEY_DEFAULT);
-  } else if (strcmp(txt, "MAX") == 0) {
-    edit->onEvent(EVT_VIRTUAL_KEY_MAX);
-  } else if (strcmp(txt, "+/-") == 0) {
-    edit->onEvent(EVT_VIRTUAL_KEY_SIGN);
-  }
+  edit->handleEvent(txt);
+}
+
+void NumberKeyboard::handleEvent(const char* btn)
+{
+  if (strcmp(btn, "<<") == 0)
+    decLarge();
+  else if (strcmp(btn, "-") == 0)
+    decSmall();
+  else if (strcmp(btn, "+") == 0)
+    incSmall();
+  else if (strcmp(btn, ">>") == 0)
+    incLarge();
+  else if (strcmp(btn, "MIN") == 0)
+    setMIN();
+  else if (strcmp(btn, "DEF") == 0)
+    setDEF();
+  else if (strcmp(btn, "MAX") == 0)
+    setMAX();
+  else if (strcmp(btn, "+/-") == 0)
+    changeSign();
+}
+
+void NumberKeyboard::decLarge()
+{
+  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_BACKWARD);
+}
+
+void NumberKeyboard::decSmall()
+{
+  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_MINUS);
+}
+
+void NumberKeyboard::incSmall()
+{
+  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_PLUS);
+}
+
+void NumberKeyboard::incLarge()
+{
+  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_FORWARD);
+}
+
+void NumberKeyboard::setMIN()
+{
+  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_MIN);
+}
+
+void NumberKeyboard::setMAX()
+{
+  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_MAX);
+}
+
+void NumberKeyboard::setDEF()
+{
+  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_DEFAULT);
+}
+
+void NumberKeyboard::changeSign()
+{
+  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_SIGN);
 }
 
 #if defined(HARDWARE_KEYS)
-void NumberKeyboard::onEvent(event_t event)
-{
-  NumberEdit* edit = (NumberEdit*)field;
 
-#if (defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)) && !defined(PCBX12S)
-  // Radios with both PGUP and PGDN buttons except X12S
-  switch (event) {
-    case EVT_KEY_BREAK(KEY_SYS):
-      // "<<"
-      edit->onEvent(EVT_VIRTUAL_KEY_BACKWARD);
-    break;
-
-    case EVT_KEY_LONG(KEY_SYS):
-      killEvents(event);
-      // "MIN"
-      edit->onEvent(EVT_VIRTUAL_KEY_MIN);
-      break;
-
-    case EVT_KEY_BREAK(KEY_MODEL):
-      // ">>"
-      edit->onEvent(EVT_VIRTUAL_KEY_FORWARD);
-      break;
-
-    case EVT_KEY_LONG(KEY_MODEL):
-      killEvents(event);
-      // "MAX"
-      edit->onEvent(EVT_VIRTUAL_KEY_MAX);
-      break;
-
-    case EVT_KEY_BREAK(KEY_PAGEDN):
-      // "+"
-      edit->onEvent(EVT_VIRTUAL_KEY_PLUS);
-      break;
-
-    case EVT_KEY_BREAK(KEY_PAGEUP):
-      // "-"
-      edit->onEvent(EVT_VIRTUAL_KEY_MINUS);
-      break;
-
-    case EVT_KEY_BREAK(KEY_TELE): 
-      // "+/-"
-      edit->onEvent(EVT_VIRTUAL_KEY_SIGN);
-    break;
-
-    case EVT_KEY_LONG(KEY_TELE):
-      killEvents(event);
-      // "DEF"
-      edit->onEvent(EVT_VIRTUAL_KEY_DEFAULT);
-      break;
-
-    default:
-      break;
-  }
-
+#if (defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)) && \
+    !defined(PCBX12S)
+// Radios with both PGUP and PGDN buttons except X12S
+void NumberKeyboard::onPressSYS() { decLarge(); }
+void NumberKeyboard::onLongPressSYS() { setMIN(); }
+void NumberKeyboard::onPressMDL() { incLarge(); }
+void NumberKeyboard::onLongPressMDL() { setMAX(); }
+void NumberKeyboard::onPressTELE() { changeSign(); }
+void NumberKeyboard::onLongPressTELE() { setDEF(); }
+void NumberKeyboard::onPressPGUP() { decSmall(); }
+void NumberKeyboard::onPressPGDN() { incSmall(); }
+void NumberKeyboard::onLongPressPGUP() {}
+void NumberKeyboard::onLongPressPGDN() {}
 #else
-  // Radios witb only a single PGUP/DN button or X12S
-  switch (event) {
-    case EVT_KEY_BREAK(KEY_SYS):
-      // "-"
-      edit->onEvent(EVT_VIRTUAL_KEY_MINUS);
-      break;
-
-    case EVT_KEY_LONG(KEY_SYS):
-      killEvents(event);
-      // "MIN"
-      edit->onEvent(EVT_VIRTUAL_KEY_MIN);
-      break;
-
-    case EVT_KEY_BREAK(KEY_MODEL):
-      // ">>"
-      edit->onEvent(EVT_VIRTUAL_KEY_FORWARD);
-    break;
-
-    case EVT_KEY_LONG(KEY_MODEL):
-      killEvents(event);
-      // "+/-"
-      edit->onEvent(EVT_VIRTUAL_KEY_SIGN);
-      break;
-
+// Radios witb only a single PGUP/DN button or X12S
+void NumberKeyboard::onPressSYS() { decSmall(); }
+void NumberKeyboard::onLongPressSYS() { setMIN(); }
+void NumberKeyboard::onPressMDL() { incLarge(); }
+void NumberKeyboard::onLongPressMDL() { changeSign(); }
+void NumberKeyboard::onPressTELE() { incSmall(); }
+void NumberKeyboard::onLongPressTELE() { setMAX(); }
 #if defined(PCBX12S)
-    case EVT_KEY_BREAK(KEY_PAGEUP):
+void NumberKeyboard::onPressPGUP() { decLarge(); }
+#else
+void NumberKeyboard::onPressPGUP() { setDEF(); }
 #endif
-    case EVT_KEY_BREAK(KEY_PAGEDN):
-      // "<<"
-      edit->onEvent(EVT_VIRTUAL_KEY_BACKWARD);
-    break;
-
-#if defined(PCBX12S)
-    case EVT_KEY_LONG(KEY_PAGEUP):
+void NumberKeyboard::onPressPGDN() { decLarge(); }
+void NumberKeyboard::onLongPressPGUP() { setDEF(); }
+void NumberKeyboard::onLongPressPGDN() { setDEF(); }
 #endif
-    case EVT_KEY_LONG(KEY_PAGEDN):
-      killEvents(event);
-      // "DEF"
-      edit->onEvent(EVT_VIRTUAL_KEY_DEFAULT);
-      break;
 
-    case EVT_KEY_BREAK(KEY_TELE):
-      // "+"
-      edit->onEvent(EVT_VIRTUAL_KEY_PLUS);
-    break;
-
-    case EVT_KEY_LONG(KEY_TELE):
-      killEvents(event);
-      // "MAX"
-      edit->onEvent(EVT_VIRTUAL_KEY_MAX);
-    break;
-
-    default:
-      break;
-  }
-
-#endif
-}
 #endif
 
 NumberKeyboard::NumberKeyboard() : Keyboard(KEYBOARD_HEIGHT)
@@ -205,5 +168,5 @@ void NumberKeyboard::show(NumberEdit* field)
   lv_keyboard_set_textarea(kb, nullptr);
 
   lv_obj_remove_event_cb(kb, on_key);
-  lv_obj_add_event_cb(kb, on_key, LV_EVENT_VALUE_CHANGED, field);
+  lv_obj_add_event_cb(kb, on_key, LV_EVENT_VALUE_CHANGED, _instance);
 }

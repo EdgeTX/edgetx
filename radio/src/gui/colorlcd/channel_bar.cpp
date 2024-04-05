@@ -21,169 +21,249 @@
 
 #include "channel_bar.h"
 
+#include "bitmaps.h"
+#include "themes/etx_lv_theme.h"
+
 #define VIEW_CHANNELS_LIMIT_PCT \
   (g_model.extendedLimits ? LIMIT_EXT_PERCENT : LIMIT_STD_PERCENT)
+
 #define CHANNELS_LIMIT (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX)
 
-ChannelBar::ChannelBar(Window* parent, const rect_t& rect, uint8_t channel) :
-    Window(parent, rect), channel(channel)
+ChannelBar::ChannelBar(Window* parent, const rect_t& rect,
+                       std::function<int16_t()> getValueFunc, LcdFlags barColor,
+                       LcdFlags txtColor) :
+    Window(parent, rect), getValue(std::move(getValueFunc))
 {
-  lv_obj_set_style_bg_color(lvobj, makeLvColor(COLOR_THEME_PRIMARY2), 0);
-  lv_obj_set_style_bg_opa(lvobj, LV_OPA_COVER, 0);
+  etx_solid_bg(lvobj, COLOR_THEME_PRIMARY2_INDEX);
+
+  bar = lv_obj_create(lvobj);
+  etx_solid_bg(bar, indexFromColor(barColor));
+  lv_obj_set_pos(bar, width() / 2, 0);
+  lv_obj_set_size(bar, 0, height());
+
+  valText = lv_label_create(lvobj);
+  lv_obj_set_pos(valText, width() / 2 + 5, -2);
+  lv_obj_set_size(valText, 45, 12);
+  etx_obj_add_style(valText, styles->text_align_left, LV_PART_MAIN);
+  lv_obj_set_style_translate_x(valText, -54, LV_STATE_USER_1);
+  etx_obj_add_style(valText, styles->text_align_right, LV_STATE_USER_1);
+  etx_font(valText, FONT_XS_INDEX);
+  etx_txt_color(valText, indexFromColor(txtColor));
+  lv_label_set_text(valText, "");
+
+  divPoints[0] = {(lv_coord_t)(width() / 2), 0};
+  divPoints[1] = {(lv_coord_t)(width() / 2), (lv_coord_t)height()};
+
+  lv_obj_t* divLine = lv_line_create(lvobj);
+  etx_obj_add_style(divLine, styles->div_line, LV_PART_MAIN);
+  lv_line_set_points(divLine, divPoints, 2);
+
+  checkEvents();
 }
 
-void MixerChannelBar::paint(BitmapBuffer * dc)
-{
-  int chanVal = calcRESXto100(ex_chans[channel]);
-  const int displayVal = chanVal;
-
-  // this could be handled nicer, but slower, by checking actual range for this
-  // mixer
-  chanVal =
-      limit<int>(-VIEW_CHANNELS_LIMIT_PCT, chanVal, VIEW_CHANNELS_LIMIT_PCT);
-
-  // Draw mixer bar
-  if (chanVal >= 0) {
-    dc->drawSolidFilledRect(
-        0 + width() / 2, 0,
-        divRoundClosest(chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2),
-        height(), COLOR_THEME_FOCUS);
-
-    dc->drawNumber(width() / 2 - 10, -2, displayVal,
-                   FONT(XS) | COLOR_THEME_SECONDARY1 | RIGHT, 0, nullptr, "%");
-
-  } else if (chanVal < 0) {
-    const unsigned endpoint = width() / 2;
-    const unsigned size =
-        divRoundClosest(-chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2);
-
-    dc->drawSolidFilledRect(endpoint - size, 0, size, height(),
-                            COLOR_THEME_FOCUS);
-
-    dc->drawNumber(10 + width() / 2, -2, displayVal,
-                   FONT(XS) | COLOR_THEME_SECONDARY1, 0, nullptr, "%");
-  }
-
-  if (drawMiddleBar) {
-    // Draw middle bar
-    dc->drawSolidVerticalLine(width() / 2, 0, height(), COLOR_THEME_SECONDARY1);
-  }
-}
-
-void MixerChannelBar::checkEvents()
+void ChannelBar::checkEvents()
 {
   Window::checkEvents();
-  int newValue = ex_chans[channel];
+
+  int newValue = getValue();
+
   if (value != newValue) {
     value = newValue;
-    invalidate();
+
+    lv_obj_enable_style_refresh(false);
+
+    lv_label_set_text_fmt(valText, "%d%%", value);
+
+    if (newValue < 0)
+      lv_obj_clear_state(valText, LV_STATE_USER_1);
+    else
+      lv_obj_add_state(valText, LV_STATE_USER_1);
+
+    int chanVal =
+        limit<int>(-VIEW_CHANNELS_LIMIT_PCT, value, VIEW_CHANNELS_LIMIT_PCT);
+
+    uint16_t size =
+        divRoundClosest(abs(chanVal) * width(), VIEW_CHANNELS_LIMIT_PCT * 2);
+
+    int16_t x = width() / 2 - ((chanVal > 0) ? 0 : size);
+
+    lv_obj_set_pos(bar, x, 0);
+    lv_obj_set_size(bar, size, height());
+
+    lv_obj_enable_style_refresh(true);
+    lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
+  }
+}
+
+//-----------------------------------------------------------------------------
+
+MixerChannelBar::MixerChannelBar(Window* parent, const rect_t& rect,
+                                 uint8_t channel) :
+    ChannelBar(
+        parent, rect, [=] { return calcRESXto100(ex_chans[channel]); },
+        COLOR_THEME_FOCUS)
+{
+}
+
+//-----------------------------------------------------------------------------
+
+OutputChannelBar::OutputChannelBar(Window* parent, const rect_t& rect,
+                                   uint8_t channel, bool editColor,
+                                   bool drawLimits) :
+    ChannelBar(
+        parent, rect,
+        [=] { return calcRESXto100(channelOutputs[channel]); },
+        COLOR_THEME_ACTIVE),
+    channel(channel),
+    drawLimits(drawLimits)
+{
+  if (drawLimits) {
+    leftLim = lv_line_create(lvobj);
+    if (editColor)
+      etx_obj_add_style(leftLim, styles->div_line_edit, LV_PART_MAIN);
+    else
+      etx_obj_add_style(leftLim, styles->div_line, LV_PART_MAIN);
+    rightLim = lv_line_create(lvobj);
+    if (editColor)
+      etx_obj_add_style(rightLim, styles->div_line_edit, LV_PART_MAIN);
+    else
+      etx_obj_add_style(rightLim, styles->div_line, LV_PART_MAIN);
+    drawLimitLines(true);
   }
 }
 
 static inline unsigned posOnBar(coord_t width, int value_to100)
 {
-  return divRoundClosest(
-      (value_to100 + VIEW_CHANNELS_LIMIT_PCT) * (width - 1),
-      VIEW_CHANNELS_LIMIT_PCT * 2);
+  return divRoundClosest((value_to100 + VIEW_CHANNELS_LIMIT_PCT) * (width - 1),
+                         VIEW_CHANNELS_LIMIT_PCT * 2);
 }
 
-static void drawOutputBarLimits(BitmapBuffer* dc, coord_t left, coord_t right,
-                                LcdFlags color)
+void OutputChannelBar::drawLimitLines(bool forced)
 {
-  dc->drawSolidVerticalLine(left, 0, BAR_HEIGHT, color);
-  dc->drawSolidHorizontalLine(left, 0, 3, color);
-  dc->drawSolidHorizontalLine(left, BAR_HEIGHT - 1, 3, color);
-
-  dc->drawSolidVerticalLine(right, 0, BAR_HEIGHT, color);
-  dc->drawSolidHorizontalLine(right - 3, 0, 3, color);
-  dc->drawSolidHorizontalLine(right - 3, BAR_HEIGHT - 1, 3, color);
-}
-
-void OutputChannelBar::paint(BitmapBuffer* dc)
-{
-  int chanVal = calcRESXto100(channelOutputs[channel]);
-  int displayVal = chanVal;
-
-  chanVal =
-      limit<int>(-VIEW_CHANNELS_LIMIT_PCT, chanVal, VIEW_CHANNELS_LIMIT_PCT);
-
-  // Draw output bar
-  if (chanVal >= 0) {
-    dc->drawSolidFilledRect(
-        width() / 2, 0,
-        divRoundClosest(chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2),
-        height(), COLOR_THEME_ACTIVE);
-
-    dc->drawNumber(width() / 2 - 10, -2, displayVal,
-                   FONT(XS) | COLOR_THEME_SECONDARY1 | RIGHT, 0, nullptr, "%");
-
-  } else if (chanVal < 0) {
-    unsigned endpoint = width() / 2;
-    unsigned size =
-        divRoundClosest(-chanVal * width(), VIEW_CHANNELS_LIMIT_PCT * 2);
-
-    dc->drawSolidFilledRect(endpoint - size, 0, size, height(),
-                            COLOR_THEME_ACTIVE);
-
-    dc->drawNumber(width() / 2 + 10, -2, displayVal,
-                   FONT(XS) | COLOR_THEME_SECONDARY1, 0, nullptr, "%");
-  }
-
-  // Draw middle bar
-  dc->drawSolidVerticalLine(width() / 2, 0, height(), COLOR_THEME_SECONDARY1);
-
   if (drawLimits) {
     // Draw output limits bars
-    int limit = CHANNELS_LIMIT;
+    bool changed = forced;
     LimitData* ld = limitAddress(channel);
-    int32_t ldMax;
     int32_t ldMin;
+    int32_t ldMax;
 
-    if (GV_IS_GV_VALUE(ld->min, -limit, 0)) {
-      ldMin = limMin;
+    if (GV_IS_GV_VALUE(ld->min, -CHANNELS_LIMIT, 0)) {
+      ldMin =
+          GET_GVAR_PREC1(ld->min, -CHANNELS_LIMIT, 0, mixerCurrentFlightMode) +
+          LIMIT_STD_MAX;
     } else {
       ldMin = ld->min;
     }
+    if (limMin != ldMin) {
+      changed = true;
+      limMin = ldMin;
+    }
 
-    if (GV_IS_GV_VALUE(ld->max, 0, limit)) {
-      ldMax = limMax;
+    if (GV_IS_GV_VALUE(ld->max, 0, CHANNELS_LIMIT)) {
+      ldMax =
+          GET_GVAR_PREC1(ld->max, 0, CHANNELS_LIMIT, mixerCurrentFlightMode) -
+          LIMIT_STD_MAX;
     } else {
       ldMax = ld->max;
     }
+    if (limMax != ldMax) {
+      changed = true;
+      limMax = ldMax;
+    }
 
-    if (ld && ld->revert) {
-      drawOutputBarLimits(dc, posOnBar(width(), -100 - ldMax / 10),
-                          posOnBar(width(), 100 - ldMin / 10),
-                          outputBarLimitsColor);
-    } else if (ld) {
-      drawOutputBarLimits(dc, posOnBar(width(), -100 + ldMin / 10),
-                          posOnBar(width(), 100 + ldMax / 10),
-                          outputBarLimitsColor);
+    if (changed) {
+      lv_coord_t left, right;
+      lv_coord_t h = height() - 1;
+
+      if (ld->revert) {
+        left = posOnBar(width(), -100 - ldMax / 10);
+        right = posOnBar(width(), 100 - ldMin / 10);
+      } else {
+        left = posOnBar(width(), -100 + ldMin / 10);
+        right = posOnBar(width(), 100 + ldMax / 10);
+      }
+
+      limPoints[0] = {(lv_coord_t)(left + 3), 0};
+      limPoints[1] = {(lv_coord_t)(left), 0};
+      limPoints[2] = {(lv_coord_t)(left), h};
+      limPoints[3] = {(lv_coord_t)(left + 3), h};
+      limPoints[4] = {(lv_coord_t)(right - 2), 0};
+      limPoints[5] = {(lv_coord_t)(right), 0};
+      limPoints[6] = {(lv_coord_t)(right), h};
+      limPoints[7] = {(lv_coord_t)(right - 2), h};
+      // Workaround for bugs in LVGL line drawing
+      limPoints[8] = {(lv_coord_t)(right + 1), h};
+
+      lv_line_set_points(leftLim, &limPoints[0], 4);
+      lv_line_set_points(rightLim, &limPoints[4], 5);
     }
   }
 }
 
 void OutputChannelBar::checkEvents()
 {
-  Window::checkEvents();
-  int newValue = channelOutputs[channel];
-  if (value != newValue) {
-    value = newValue;
-    invalidate();
-  }
-  int limit = CHANNELS_LIMIT;
-  LimitData* lim = limitAddress(channel);
+  ChannelBar::checkEvents();
+  drawLimitLines(false);
+}
 
-  if (GV_IS_GV_VALUE(lim->min, -limit, 0)) {
-    int ldMin = GET_GVAR_PREC1(lim->min, -limit, 0, mixerCurrentFlightMode) +
-                LIMIT_STD_MAX;
-    if (limMin != ldMin) invalidate();
-    limMin = ldMin;
+//-----------------------------------------------------------------------------
+
+ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
+                                 uint8_t _channel, bool isInHeader) :
+    Window(parent, rect), channel(_channel)
+{
+  LcdFlags textColor =
+      isInHeader ? COLOR_THEME_PRIMARY2 : COLOR_THEME_SECONDARY1;
+
+  outputChannelBar = new OutputChannelBar(
+      this, {LMARGIN, BAR_HEIGHT + TMARGIN, width() - LMARGIN, BAR_HEIGHT},
+      channel, isInHeader);
+
+  new MixerChannelBar(
+      this,
+      {LMARGIN, (2 * BAR_HEIGHT) + TMARGIN + 1, width() - LMARGIN, BAR_HEIGHT},
+      channel);
+
+  // Channel number
+  char chanString[] = TR_CH "32 ";
+  strAppendSigned(&chanString[2], channel + 1, 2);
+  new StaticText(this, {LMARGIN, 0, LV_SIZE_CONTENT, 12}, chanString, 
+                 textColor | FONT(XS) | LEFT);
+
+  // Channel name
+  if (g_model.limitData[channel].name[0]) {
+    char nm[LEN_CHANNEL_NAME + 1];
+    strAppend(nm, g_model.limitData[channel].name, LEN_CHANNEL_NAME);
+    new StaticText(this, {LMARGIN + 45, 0, LV_SIZE_CONTENT, 12}, nm, 
+                   textColor | FONT(XS) | LEFT);
   }
-  if (GV_IS_GV_VALUE(lim->max, 0, limit)) {
-    int ldMax = GET_GVAR_PREC1(lim->max, 0, limit, mixerCurrentFlightMode) -
-                LIMIT_STD_MAX;
-    if (limMax != ldMax) invalidate();
-    limMax = ldMax;
+
+  // Channel value in µS
+  new DynamicNumber<int16_t>(
+      this, {width() - 45, 0, 45, 12},
+      [=] { return PPM_CH_CENTER(channel) + channelOutputs[channel] / 2; },
+      textColor | FONT(XS) | RIGHT, "", STR_US);
+
+  // Override icon
+#if defined(OVERRIDE_CHANNEL_FUNCTION)
+  overrideIcon = new StaticIcon(
+      this, 0, 5, ICON_CHAN_MONITOR_LOCKED, textColor);
+  overrideIcon->show(safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED);
+#endif
+
+  // Channel reverted icon
+  LimitData* ld = limitAddress(channel);
+  if (ld && ld->revert) {
+    new StaticIcon(this, 0, 25, ICON_CHAN_MONITOR_INVERTED,
+                   textColor);
   }
 }
+
+#if defined(OVERRIDE_CHANNEL_FUNCTION)
+void ComboChannelBar::checkEvents()
+{
+  Window::checkEvents();
+
+  overrideIcon->show(safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED);
+}
+#endif

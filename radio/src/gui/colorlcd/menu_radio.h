@@ -30,12 +30,7 @@ class RadioMenu : public TabsGroup
   ~RadioMenu();
 
  protected:
-  bool _radioThemesEnabled = true;
-  bool _radioGFEnabled = true;
-  bool _radioTrainerEnabled = true;
-
   void build();
-  void checkEvents() override;
 
 #if defined(HARDWARE_KEYS)
   void onPressSYS() override;

@@ -21,7 +21,6 @@
 #include "switchchoice.h"
 
 #include "dataconstants.h"
-#include "draw_functions.h"
 #include "menu.h"
 #include "menutoolbar.h"
 #include "opentx.h"
@@ -65,14 +64,10 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
       addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
 
 #if defined(HARDWARE_TOUCH)
-    coord_t y =
-        height() - MENUS_TOOLBAR_BUTTON_WIDTH - MENUS_TOOLBAR_BUTTON_PADDING;
-    coord_t w = width() - MENUS_TOOLBAR_BUTTON_PADDING * 2;
-
-    invertBtn = new MenuToolbarButton(
-        this, {MENUS_TOOLBAR_BUTTON_PADDING, y, w, MENUS_TOOLBAR_BUTTON_WIDTH},
-        STR_SELECT_MENU_INV);
+    invertBtn = new MenuToolbarButton(this, {0, 0, LV_PCT(100), 0},
+                                      STR_SELECT_MENU_INV);
     invertBtn->check(choice->inverted);
+    lv_obj_align(invertBtn->getLvObj(), LV_ALIGN_BOTTOM_MID, 0, 0);
 
     invertBtn->setPressHandler([=]() {
       lv_obj_clear_state(invertBtn->getLvObj(), LV_STATE_FOCUSED);
@@ -113,7 +108,6 @@ void SwitchChoice::LongPressHandler(void* data)
   int16_t val = swch->_getValue();
   if (swch->isValueAvailable && swch->isValueAvailable(-val)) {
     swch->setValue(-val);
-    swch->invalidate();
   }
 }
 
@@ -133,42 +127,50 @@ int SwitchChoice::getIntValue() const
   return value;
 }
 
+void SwitchChoice::openMenu()
+{
+  setEditMode(true);  // this needs to be done first before menu is created.
+
+  auto menu = new Menu(this);
+  if (menuTitle) menu->setTitle(menuTitle);
+
+  inverted = _getValue() < 0;
+  inMenu = true;
+
+  auto tb = new SwitchChoiceMenuToolbar(this, menu);
+  menu->setToolbar(tb);
+
+#if defined(AUTOSWITCH)
+  menu->setWaitHandler([=]() {
+    swsrc_t val = 0;
+    swsrc_t swtch = getMovedSwitch();
+    if (swtch) {
+      div_t info = switchInfo(swtch);
+      if (IS_CONFIG_TOGGLE(info.quot)) {
+        if (info.rem != 0) {
+          val = (val == swtch ? swtch - 2 : swtch);
+        }
+      } else {
+        val = swtch;
+      }
+      if (val && (!isValueAvailable || isValueAvailable(val))) {
+        tb->resetFilter();
+        menu->select(getIndexFromValue(val));
+      }
+    }
+  });
+#endif
+
+  fillMenu(menu);
+
+  menu->setCloseHandler([=]() { setEditMode(false); });
+}
+
 SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
                            int vmax, std::function<int16_t()> getValue,
                            std::function<void(int16_t)> setValue) :
-    Choice(parent, rect, 0, vmax, getValue, setValue)
+    Choice(parent, rect, 0, vmax, getValue, setValue, STR_SWITCH)
 {
-  setMenuTitle(STR_SWITCH);
-
-  setBeforeDisplayMenuHandler([=](Menu* menu) {
-    inverted = getValue() < 0;
-    inMenu = true;
-
-    auto tb = new SwitchChoiceMenuToolbar(this, menu);
-    menu->setToolbar(tb);
-
-#if defined(AUTOSWITCH)
-    menu->setWaitHandler([menu, this, setValue, tb]() {
-      swsrc_t val = 0;
-      swsrc_t swtch = getMovedSwitch();
-      if (swtch) {
-        div_t info = switchInfo(swtch);
-        if (IS_CONFIG_TOGGLE(info.quot)) {
-          if (info.rem != 0) {
-            val = (val == swtch ? swtch - 2 : swtch);
-          }
-        } else {
-          val = swtch;
-        }
-        if (val && (!isValueAvailable || isValueAvailable(val))) {
-          tb->resetFilter();
-          menu->select(getIndexFromValue(val));
-        }
-      }
-    });
-#endif
-  });
-
   setTextHandler([=](int value) {
     if (inMenu && inverted) value = -value;
 

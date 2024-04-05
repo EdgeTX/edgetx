@@ -19,18 +19,20 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
+#include "datastructs.h"
 #include "menu_screen.h"
 #include "screen_user_interface.h"
-
-#include "layout.h"
-#include "datastructs.h"
 
 class ScreenAddPage : public PageTab
 {
  public:
   ScreenAddPage(ScreenMenu* menu, uint8_t pageIndex);
 
-  void build(FormWindow* window) override;
+  void build(Window* window) override;
+
+  void update(uint8_t index) override;
 
  protected:
   ScreenMenu* menu;
@@ -40,16 +42,16 @@ class ScreenAddPage : public PageTab
 class ScreenSetupPage : public PageTab
 {
  public:
-  ScreenSetupPage(ScreenMenu* menu, unsigned pageIndex,
-                  unsigned customScreenIndex);
+  ScreenSetupPage(ScreenMenu* menu, unsigned customScreenIndex);
 
-  void build(FormWindow* form) override;
+  void build(Window* form) override;
+
+  void update(uint8_t index) override;
 
  protected:
   ScreenMenu* menu;
-  unsigned pageIndex;
   unsigned customScreenIndex;
-  FormWindow* layoutOptions = nullptr;
+  Window* layoutOptions = nullptr;
 
   void clearLayoutOptions();
   void buildLayoutOptions();

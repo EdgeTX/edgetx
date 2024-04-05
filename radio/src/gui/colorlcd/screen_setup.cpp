@@ -18,20 +18,23 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#include <algorithm>
+
 #include "screen_setup.h"
+
+#include <algorithm>
+
+#include "color_picker.h"
+#include "layouts/layout_factory_impl.h"
+#include "libopenui.h"
 #include "opentx.h"
+#include "topbar.h"
 #include "view_main.h"
 #include "widget_settings.h"
-#include "topbar.h"
-#include "libopenui.h"
-#include "layouts/layout_factory_impl.h"
 #include "widgets_setup.h"
-#include "color_picker.h"
 
-#define SET_DIRTY()   storageDirty(EE_MODEL)
+#define SET_DIRTY() storageDirty(EE_MODEL)
 #define BUTTON_HEIGHT 30
-#define BUTTON_WIDTH  75
+#define BUTTON_WIDTH 75
 
 class LayoutChoice : public Button
 {
@@ -39,11 +42,13 @@ class LayoutChoice : public Button
   typedef std::function<const LayoutFactory*()> LayoutFactoryGetter;
   typedef std::function<void(const LayoutFactory*)> LayoutFactorySetter;
 
-  LayoutChoice(Window* parent, LayoutFactoryGetter getValue, LayoutFactorySetter setValue) :
-    Button(parent, rect_t{}, nullptr, 0, 0, etx_button_create),
+  LayoutChoice(Window* parent, LayoutFactoryGetter getValue,
+               LayoutFactorySetter setValue) :
+      Button(parent, {0, 0, BM_W + 12, BM_H + 12}),
       getValue(std::move(getValue)),
       _setValue(std::move(setValue))
   {
+    padAll(PAD_ZERO);
     canvas = lv_canvas_create(lvobj);
     lv_obj_center(canvas);
     update();
@@ -52,17 +57,18 @@ class LayoutChoice : public Button
   void onPress() override
   {
     auto menu = new Menu(parent);
-    for (auto layout : getRegisteredLayouts()) {
+    for (auto layout : LayoutFactory::getRegisteredLayouts()) {
       menu->addLine(layout->getBitmap(), layout->getName(),
                     [=]() { setValue(layout); });
     }
 
-    auto it = std::find(getRegisteredLayouts().begin(),
-                        getRegisteredLayouts().end(), getValue());
-    menu->select(std::distance(getRegisteredLayouts().begin(), it));
+    auto it =
+        std::find(LayoutFactory::getRegisteredLayouts().begin(),
+                  LayoutFactory::getRegisteredLayouts().end(), getValue());
+    menu->select(
+        std::distance(LayoutFactory::getRegisteredLayouts().begin(), it));
 
     menu->setCloseHandler([=]() {
-      editMode = false;
       update();
     });
   }
@@ -95,84 +101,79 @@ class LayoutChoice : public Button
   }
 };
 
-ScreenAddPage::ScreenAddPage(ScreenMenu * menu, uint8_t pageIndex):
-  PageTab(),
-  menu(menu),
-  pageIndex(pageIndex)
+ScreenAddPage::ScreenAddPage(ScreenMenu* menu, uint8_t pageIndex) :
+    PageTab(STR_ADD_MAIN_VIEW, ICON_THEME_ADD_VIEW),
+    menu(menu),
+    pageIndex(pageIndex)
 {
-  setTitle(STR_ADD_MAIN_VIEW);
-  setIcon(ICON_THEME_ADD_VIEW);
 }
 
-extern const LayoutFactory * defaultLayout;
-
-void ScreenAddPage::build(FormWindow * window)
+void ScreenAddPage::update(uint8_t index)
 {
-  rect_t buttonRect = {LCD_W / 2 - 100, (window->height() - 24) / 2, 200, 24};
-  auto button = new TextButton(window, buttonRect, STR_ADD_MAIN_VIEW);
+  pageIndex = index;
+}
 
-  auto pageIndex = this->pageIndex;
-  auto menu      = this->menu;
+void ScreenAddPage::build(Window* window)
+{
+  new TextButton(window,
+                 rect_t{LCD_W / 2 - 100, window->height() / 2 - 32, 200, 32},
+                 STR_ADD_MAIN_VIEW, [this]() -> uint8_t {
+                   // First page is "User interface", subtract it
+                   auto newIdx = pageIndex - 1;
+                   TRACE("ScreenAddPage: add screen: newIdx = %d", newIdx);
 
-  button->setPressHandler([menu, pageIndex]() -> uint8_t {
+                   auto& screen = customScreens[newIdx];
+                   auto& screenData = g_model.screenData[newIdx];
 
-      // First page is "User interface", subtract it
-      auto  newIdx     = pageIndex - 1; 
-      TRACE("ScreenAddPage: add screen: newIdx = %d", newIdx);
+                   TRACE("ScreenAddPage: add screen: screen = %p", screen);
 
-      auto& screen     = customScreens[newIdx];
-      auto& screenData = g_model.screenData[newIdx];
+                   const LayoutFactory* factory = defaultLayout;
+                   if (factory) {
+                     TRACE("ScreenAddPage: add screen: factory = %p", factory);
 
-      TRACE("ScreenAddPage: add screen: screen = %p", screen);
+                     auto viewMain = ViewMain::instance();
+                     screen = factory->create(viewMain, &screenData.layoutData);
+                     viewMain->addMainView(screen, newIdx);
 
-      const LayoutFactory * factory = defaultLayout;
-      if (factory) {
-        TRACE("ScreenAddPage: add screen: factory = %p", factory);
+                     strncpy(screenData.LayoutId, factory->getId(),
+                             sizeof(screenData.LayoutId));
+                     TRACE("ScreenAddPage: add screen: LayoutId = %s",
+                           screenData.LayoutId);
 
-        auto viewMain = ViewMain::instance();
-        screen = factory->create(viewMain, &screenData.layoutData);
-        viewMain->addMainView(screen, newIdx);
+                     auto tab = new ScreenSetupPage(menu, newIdx);
+                     std::string title(STR_MAIN_VIEW_X);
+                     if (newIdx >= 9) {
+                       title[title.size() - 2] = '1';
+                       title.back() = (newIdx - 9) + '0';
+                     } else {
+                       title[title.size() - 2] = newIdx + '1';
+                       title.back() = ' ';
+                     }
+                     tab->setTitle(title);
+                     tab->setIcon((EdgeTxIcon)(ICON_THEME_VIEW1 + newIdx));
 
-        strncpy(screenData.LayoutId, factory->getId(), sizeof(screenData.LayoutId));
-        TRACE("ScreenAddPage: add screen: LayoutId = %s", screenData.LayoutId);
+                     // remove current tab first
+                     menu->setCurrentTab(0);
+                     menu->removeTab(pageIndex);
 
-        auto tab = new ScreenSetupPage(menu, pageIndex, newIdx);
-        std::string title(STR_MAIN_VIEW_X);
-        if (newIdx >= 9)
-        {
-          title[title.size() - 2] = '1';
-          title.back() = (newIdx - 9) + '0';
-        }
-        else
-        {
-          title[title.size() - 2] = newIdx + '1';
-          title.back() = ' ';
-        }
-        tab->setTitle(title);
-        tab->setIcon(ICON_THEME_VIEW1 + newIdx);
+                     // add the new one
+                     menu->addTab(tab);
 
-        // remove current tab first
-        menu->setCurrentTab(0);
-        menu->removeTab(pageIndex);
+                     if (menu->tabCount() <= MAX_CUSTOM_SCREENS) {
+                       menu->addTab(new ScreenAddPage(menu, menu->tabCount()));
+                     }
 
-        // add the new one
-        menu->addTab(tab);
-        menu->setCurrentTab(pageIndex);
-
-        if (menu->getTabs() <= MAX_CUSTOM_SCREENS) {
-          menu->addTab(new ScreenAddPage(menu, menu->getTabs()));
-        }
-      }
-      else {
-        TRACE("Add main view: factory is NULL");
-      }
-      return 0;
-  });
+                     menu->setCurrentTab(pageIndex);
+                   } else {
+                     TRACE("Add main view: factory is NULL");
+                   }
+                   return 0;
+                 });
 }
 
 #if LCD_W > LCD_H
-static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_FR(2),
-                                          LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1),
+                                          LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
 #else
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                           LV_GRID_TEMPLATE_LAST};
@@ -180,65 +181,46 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
-static std::function<uint8_t()> startWidgetsSetup(ScreenMenu* menu,
-                                                  uint8_t screen_idx)
-{
-  return [=]() -> uint8_t {
-    menu->deleteLater();
-    new SetupWidgetsPage(screen_idx);
-    return 0;
-  };
-}
-
-static std::function<uint8_t()> removeScreen(ScreenMenu* menu,
-                                             uint8_t screen_idx)
-{
-  return [=]() -> uint8_t {
-    // Set the current tab to "User interface" to trigger body clearing
-    menu->setCurrentTab(0);
-
-    // Remove this screen from the model
-    disposeCustomScreen(screen_idx);
-
-    // Delete all custom screens
-    deleteCustomScreens();
-
-    // ... and reload
-    loadCustomScreens();
-
-    // Let's try to stay on the same page
-    menu->updateTabs(screen_idx + 1);
-    return 0;
-  };
-}
-
-ScreenSetupPage::ScreenSetupPage(ScreenMenu* menu, unsigned pageIndex,
-                                 unsigned customScreenIndex) :
+ScreenSetupPage::ScreenSetupPage(ScreenMenu* menu, unsigned index) :
     PageTab(),
-    menu(menu),
-    pageIndex(pageIndex),
-    customScreenIndex(customScreenIndex)
+    menu(menu)
 {
+  update(index + 1);
 }
 
-void ScreenSetupPage::build(FormWindow * window)
+void ScreenSetupPage::update(uint8_t index)
 {
-  window->padAll(4);
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
+  customScreenIndex = index - 1;
+
+  std::string title(STR_MAIN_VIEW_X);
+  if (customScreenIndex >= 9) {
+    title[title.size() - 2] = '1';
+    title.back() = (customScreenIndex - 9) + '0';
+  } else {
+    title[title.size() - 2] = customScreenIndex + '1';
+    title.back() = ' ';
+  }
+  setTitle(title);
+  setIcon((EdgeTxIcon)(ICON_THEME_VIEW1 + customScreenIndex));
+}
+
+void ScreenSetupPage::build(Window* window)
+{
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
   FlexGridLayout grid(line_col_dsc, line_row_dsc);
 
   // Layout choice...
-  auto line = window->newLine(&grid);
-  auto label = new StaticText(line, rect_t{}, STR_LAYOUT, 0, COLOR_THEME_PRIMARY1);
+  auto line = window->newLine(grid);
+  auto label = new StaticText(line, rect_t{}, STR_LAYOUT);
 
-  lv_obj_set_style_grid_cell_y_align(label->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
+  lv_obj_set_style_grid_cell_y_align(label->getLvObj(), LV_GRID_ALIGN_CENTER,
+                                     0);
 
   // Dynamic options window...
-  auto idx = customScreenIndex;
-
-  LayoutChoice::LayoutFactoryGetter getFactory = [idx] () -> const LayoutFactory * {
-    auto layout = customScreens[idx];
+  LayoutChoice::LayoutFactoryGetter getFactory =
+      [=]() -> const LayoutFactory* {
+    auto layout = customScreens[customScreenIndex];
     if (!layout->isLayout()) return nullptr;
     return ((Layout*)layout)->getFactory();
   };
@@ -248,46 +230,59 @@ void ScreenSetupPage::build(FormWindow * window)
         // delete any options potentially accessing
         // the old custom screen before re-creating it
         clearLayoutOptions();
-        createCustomScreen(factory, idx);
+        factory->createCustomScreen(customScreenIndex);
         buildLayoutOptions();
       };
 
   Window* btn = new LayoutChoice(line, getFactory, setLayout);
-  auto obj = btn->getLvObj();
-  lv_obj_set_style_min_width(obj, LV_DPI_DEF / 2, LV_PART_MAIN);
-  lv_obj_set_style_min_height(obj, LV_DPI_DEF / 3, LV_PART_MAIN);
-  lv_obj_set_style_pad_all(obj, 8, LV_PART_MAIN);
-  lv_obj_set_style_radius(obj, 8, LV_PART_MAIN);
 
 #if LCD_H > LCD_W
-  line = window->newLine(&grid);
+  line = window->newLine(grid);
   grid.nextCell();
 #endif
   btn = new TextButton(line, rect_t{}, STR_SETUP_WIDGETS,
-                       startWidgetsSetup(menu, idx));
+                       [=]() -> uint8_t {
+    menu->deleteLater();
+    new SetupWidgetsPage(customScreenIndex);
+    return 0;
+  });
   lv_obj_set_style_grid_cell_y_align(btn->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
   lv_group_focus_obj(btn->getLvObj());
 
-  line = window->newLine();
-  layoutOptions = new FormWindow(line, rect_t{});
+  line = window->newLine(grid);
+  layoutOptions = new Window(line, rect_t{});
   buildLayoutOptions();
 
   // Prevent removing the last page
   if (customScreens[1] != nullptr) {
-    line = window->newLine();
-    Window* btn = new TextButton(line, rect_t{}, STR_REMOVE_SCREEN, removeScreen(menu, idx));
+    grid.setColSpan(2);
+    line = window->newLine(grid);
+    Window* btn =
+        new TextButton(line, rect_t{}, STR_REMOVE_SCREEN, [=]() -> uint8_t {
+          // Remove this screen from the model
+          LayoutFactory::disposeCustomScreen(customScreenIndex);
+
+          // Delete all custom screens
+          LayoutFactory::deleteCustomScreens();
+
+          // ... and reload
+          LayoutFactory::loadCustomScreens();
+
+          // Let's try to stay on the same page
+          menu->removeTab(customScreenIndex + 1);
+          menu->setCurrentTab(customScreenIndex);
+          return 0;
+        });
     auto obj = btn->getLvObj();
-    lv_obj_set_width(obj, lv_pct(50));
+    lv_obj_set_width(obj, lv_pct(100));
     lv_obj_center(obj);
   }
-
-  window->updateSize();
 }
 
 void ScreenSetupPage::clearLayoutOptions()
 {
   if (!layoutOptions) return;
-  layoutOptions->clear();  
+  layoutOptions->clear();
 }
 
 void ScreenSetupPage::buildLayoutOptions()
@@ -296,7 +291,7 @@ void ScreenSetupPage::buildLayoutOptions()
 
   FlexGridLayout grid(line_col_dsc, line_row_dsc);
   layoutOptions->setFlexLayout();
-  
+
   // Layout options...
   auto layout = customScreens[customScreenIndex];
   if (!layout->isLayout()) return;
@@ -306,13 +301,12 @@ void ScreenSetupPage::buildLayoutOptions()
 
   int index = 0;
   for (auto* option = factory->getOptions(); option->name; option++, index++) {
-
     auto layoutData = &g_model.screenData[customScreenIndex].layoutData;
     ZoneOptionValue* value = &layoutData->options[index].value;
 
     // Option label
-    auto line = layoutOptions->newLine(&grid);
-    new StaticText(line, rect_t{}, option->name, 0, COLOR_THEME_PRIMARY1);
+    auto line = layoutOptions->newLine(grid);
+    new StaticText(line, rect_t{}, option->name);
 
     // Option value
     switch (option->type) {
@@ -328,9 +322,4 @@ void ScreenSetupPage::buildLayoutOptions()
         break;
     }
   }
-
-  layoutOptions->updateSize();
-
-  auto parent = layoutOptions->getParent();
-  if (parent) parent->updateSize();
 }

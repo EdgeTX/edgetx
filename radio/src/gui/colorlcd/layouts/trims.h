@@ -23,56 +23,47 @@
 
 #include "libopenui.h"
 
+class TrimIcon;
+
 class MainViewTrim : public Window
 {
-  public:
-    MainViewTrim(Window * parent, const rect_t & rect, uint8_t idx);
+ public:
+  MainViewTrim(Window* parent, const rect_t& rect, uint8_t idx,
+               bool isVertical);
+    
+  void setVisible(bool visible);
 
-    void checkEvents() override;
-    void paint(BitmapBuffer * dc) override;
+ protected:
+  uint8_t idx;
+  int value = 0;
+  bool isVertical;
+  bool showChange = false;
+  int trimMin = 0, trimMax = 0;
+  bool hidden = false;
+  TrimIcon* trimIcon = nullptr;
+  DynamicNumber<int16_t>* trimValue = nullptr;
+  lv_obj_t* trimBar = nullptr;
 
-    void setVisible(bool visible);
+  void setRange();
+  void setPos();
+    
+  bool setDisplayState();
 
-  protected:
-    uint8_t idx;
-    int value = 0;
-    bool showChange = false;
-    int trimMin = 0, trimMax = 0;
-    bool hidden = false;
+  void checkEvents() override;
 
-    void setRange();
-
-    bool setDisplayState();
-
-    virtual coord_t sx() { return 0; }
-    virtual coord_t sy() { return 0; }
-
-    virtual void drawLine(BitmapBuffer * dc) = 0;
-    virtual void drawMarkerLines(BitmapBuffer * dc, coord_t x, coord_t y) = 0;
-    virtual void drawValue(BitmapBuffer * dc) = 0;
+  coord_t sx();
+  coord_t sy();
 };
 
 class MainViewHorizontalTrim : public MainViewTrim
 {
-  public:
-    using MainViewTrim::MainViewTrim;
-    MainViewHorizontalTrim(Window* parent, uint8_t idx);
-
-  protected:
-    coord_t sx() override;
-    void drawLine(BitmapBuffer * dc) override;
-    void drawMarkerLines(BitmapBuffer * dc, coord_t x, coord_t y) override;
-    void drawValue(BitmapBuffer * dc) override;
+ public:
+  using MainViewTrim::MainViewTrim;
+  MainViewHorizontalTrim(Window* parent, uint8_t idx);
 };
 
 class MainViewVerticalTrim : public MainViewTrim
 {
-  public:
-    MainViewVerticalTrim(Window* parent, uint8_t idx);
-
-  protected:
-    coord_t sy() override;
-    void drawLine(BitmapBuffer * dc) override;
-    void drawMarkerLines(BitmapBuffer * dc, coord_t x, coord_t y) override;
-    void drawValue(BitmapBuffer * dc) override;
+ public:
+  MainViewVerticalTrim(Window* parent, uint8_t idx);
 };

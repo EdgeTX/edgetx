@@ -26,7 +26,7 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-class FSProtoOpts : public FormWindow
+class FSProtoOpts : public Window
 {
   std::function<uint8_t()> _getMode;
   std::function<void(uint8_t)> _setMode;
@@ -38,7 +38,7 @@ public:
 
 FSProtoOpts::FSProtoOpts(Window* parent, std::function<uint8_t()> getMode,
                          std::function<void(uint8_t)> setMode) :
-  FormWindow(parent, rect_t{}),
+  Window(parent, rect_t{}),
   _getMode(std::move(getMode)),
   _setMode(std::move(setMode))
 {
@@ -65,18 +65,18 @@ FSProtoOpts::FSProtoOpts(Window* parent, std::function<uint8_t()> getMode,
 
 AFHDS2ASettings::AFHDS2ASettings(Window* parent, const FlexGridLayout& g,
                                uint8_t moduleIdx) :
-    FormWindow(parent, rect_t{}),
+    Window(parent, rect_t{}),
     moduleIdx(moduleIdx),
     md(&g_model.moduleData[moduleIdx]),
     grid(g)
 {
   setFlexLayout();
 
-  FormWindow::Line* line;
+  FormLine* line;
 
   // RX options:
-  line = newLine(&grid);
-  afhds2OptionsLabel = new StaticText(line, rect_t{}, STR_OPTIONS, 0, COLOR_THEME_PRIMARY1);
+  line = newLine(grid);
+  afhds2OptionsLabel = new StaticText(line, rect_t{}, STR_OPTIONS);
 
   afhds2ProtoOpts = new FSProtoOpts(
                                     line, [=]() { return md->flysky.mode; },
@@ -84,7 +84,7 @@ AFHDS2ASettings::AFHDS2ASettings(Window* parent, const FlexGridLayout& g,
 
 #if defined(PCBNV14)
   if (getNV14RfFwVersion() >= 0x1000E) {
-    line = newLine(&grid);
+    line = newLine(grid);
     static const char* _rf_power[] = {"Default", "High"};
     afhds2RFPowerText = new StaticText(line, rect_t{}, STR_MULTI_RFPOWER);
     afhds2RFPowerChoice = new Choice(line, rect_t{}, _rf_power, 0, 1,
@@ -101,33 +101,33 @@ AFHDS2ASettings::AFHDS2ASettings(Window* parent, const FlexGridLayout& g,
 
 void AFHDS2ASettings::hideAFHDS2Options()
 {
-  lv_obj_add_flag(afhds2OptionsLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  lv_obj_add_flag(afhds2ProtoOpts->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  afhds2OptionsLabel->hide();
+  afhds2ProtoOpts->hide();
 #if defined(PCBNV14)
   if (afhds2RFPowerText != nullptr)
-    lv_obj_add_flag(afhds2RFPowerText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    afhds2RFPowerText->hide();
   if (afhds2RFPowerChoice != nullptr)
-    lv_obj_add_flag(afhds2RFPowerChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    afhds2RFPowerChoice->hide();
 #endif
 }
 
 void AFHDS2ASettings::showAFHDS2Options()
 {
-  lv_obj_clear_flag(afhds2OptionsLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  lv_obj_clear_flag(afhds2ProtoOpts->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  afhds2OptionsLabel->show();
+  afhds2ProtoOpts->show();
 #if defined(PCBNV14)
   if (afhds2RFPowerText != nullptr)
-    lv_obj_clear_flag(afhds2RFPowerText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    afhds2RFPowerText->show();
   if (afhds2RFPowerChoice != nullptr)
   {
-    lv_obj_clear_flag(afhds2RFPowerChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    afhds2RFPowerChoice->show();
     lv_event_send(afhds2RFPowerChoice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   }
 #endif
 }
 
 void AFHDS2ASettings::checkEvents() {
-  FormWindow::checkEvents();
+  Window::checkEvents();
 }
 
 void AFHDS2ASettings::update()

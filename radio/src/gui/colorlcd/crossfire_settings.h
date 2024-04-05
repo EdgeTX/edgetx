@@ -21,12 +21,12 @@
 
 #pragma once
 
-#include "form.h"
+#include "window.h"
 #include "module_setup.h"
 
 struct ModuleData;
 
-class CrossfireSettings : public FormWindow, public ModuleOptions
+class CrossfireSettings : public Window, public ModuleOptions
 {
   ModuleData* md;
 

@@ -47,23 +47,19 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(7), LV_GRID_FR(15), LV_GRID_FR(9
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-void RadioTrainerPage::build(FormWindow * form)
+void RadioTrainerPage::build(Window * form)
 {
-  FlexGridLayout grid(col_dsc, row_dsc, 2);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
   form->setFlexLayout();
-  form->padAll(4);
-#if LCD_W > LCD_H
-  form->padLeft(8);
-  form->padRight(8);
-#endif
+  form->padAll(PAD_SMALL);
 
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (uint8_t i = 0; i < max_sticks; i++) {
     uint8_t chan = inputMappingChannelOrder(i);
     TrainerMix* td = &g_eeGeneral.trainer.mix[chan];
 
-    auto line = form->newLine(&grid);
-    new StaticText(line, rect_t{}, getMainControlLabel(chan), 0, COLOR_THEME_PRIMARY1);
+    auto line = form->newLine(grid);
+    new StaticText(line, rect_t{}, getMainControlLabel(chan));
 
     new Choice(line, rect_t{}, STR_TRNMODE, 0, 2, GET_SET_DEFAULT(td->mode));
     new Choice(line, rect_t{}, STR_TRNCHN, 0, 3, GET_SET_DEFAULT(td->srcChn));
@@ -72,7 +68,7 @@ void RadioTrainerPage::build(FormWindow * form)
     weight->setSuffix("%");
 
 #if LCD_H > LCD_W
-    line = form->newLine(&grid);
+    line = form->newLine(grid);
     line->padLeft(30);
     line->padBottom(8);
 #endif
@@ -86,7 +82,7 @@ void RadioTrainerPage::build(FormWindow * form)
         flags);
   }
 
-  auto line = form->newLine(&grid);
+  auto line = form->newLine(grid);
 #if LCD_H > LCD_W
   line->padTop(10);
 #else
@@ -94,7 +90,7 @@ void RadioTrainerPage::build(FormWindow * form)
 #endif
 
   // Trainer multiplier
-  auto lbl = new StaticText(line, rect_t{}, STR_MULTIPLIER, 0, COLOR_THEME_PRIMARY1);
+  auto lbl = new StaticText(line, rect_t{}, STR_MULTIPLIER);
   lbl->padRight(4);
   lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_END, 0, 2, LV_GRID_ALIGN_CENTER, 0, 1);
 
@@ -105,7 +101,7 @@ void RadioTrainerPage::build(FormWindow * form)
   lv_obj_set_grid_cell(multiplier->getLvObj(), LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
 #if LCD_H > LCD_W
-  line = form->newLine(&grid);
+  line = form->newLine(grid);
   line->padTop(10);
 #endif
 

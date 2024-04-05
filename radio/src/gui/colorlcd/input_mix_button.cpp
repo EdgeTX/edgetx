@@ -21,12 +21,7 @@
 
 #include "input_mix_button.h"
 #include "opentx.h"
-
-// icon: 17 x 17
-static const uint8_t _mask_textline_fm[] = {
-#include "mask_textline_fm.lbm"
-};
-STATIC_LZ4_BITMAP(mask_textline_fm);
+#include "bitmaps.h"
 
 // total: 92 x 17
 #define FM_CANVAS_HEIGHT 17
@@ -129,13 +124,12 @@ void InputMixButton::setFlightModes(uint16_t modes)
 
   lv_canvas_fill_bg(fm_canvas, lv_color_black(), LV_OPA_TRANSP);
 
-  auto mask = (const uint8_t*)mask_textline_fm;
-  auto mask_hdr = (const uint16_t*)mask;
-  lv_coord_t w = mask_hdr[0];
-  lv_coord_t h = mask_hdr[1];
+  const MaskBitmap* mask = getBuiltinIcon(ICON_TEXTLINE_FM);
+  lv_coord_t w = mask->width;
+  lv_coord_t h = mask->height;
 
   coord_t x = 0;
-  lv_canvas_copy_buf(fm_canvas, mask + 4, x, 0, w, h);
+  lv_canvas_copy_buf(fm_canvas, mask->data, x, 0, w, h);
   x += 20;
 
   lv_draw_label_dsc_t label_dsc;

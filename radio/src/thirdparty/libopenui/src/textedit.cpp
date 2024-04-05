@@ -17,32 +17,49 @@
  */
 
 #include "textedit.h"
-#include "font.h"
 
 #include "keyboard_text.h"
+#include "myeeprom.h"
+#include "storage/storage.h"
+#include "themes/etx_lv_theme.h"
 
 #if defined(HARDWARE_KEYS)
 #include "menu.h"
 #endif
 
-TextEdit::TextEdit(Window *parent, const rect_t &rect, char *value,
-                   uint8_t length, LcdFlags windowFlags) :
-    FormField(parent, rect, windowFlags, 0,
-              etx_text_edit_create),
-    value(value),
-    length(length)
+TextEdit::TextEdit(Window* parent, const rect_t& rect, char* value,
+                   uint8_t length) :
+    FormField(rect, 0), value(value), length(length)
 {
-  lv_textarea_set_placeholder_text(lvobj, "---");
-  lv_textarea_set_max_length(lvobj, length);
+  lv_obj_enable_style_refresh(false);
 
+  // Workaround for performance issues with lv_textarea - create on top layer
+  // not this window then reparent to this window after setup finished
+  this->parent = parent;
+  lvobj = lv_textarea_create(lv_layer_top());
+
+  // Do this first - before any styles are applied, otherwise it is very slow
   update();
+
+  etx_textarea_style(lvobj);
+
+  lv_textarea_set_max_length(lvobj, length);
+  lv_textarea_set_placeholder_text(lvobj, "---");
+
+  lv_obj_set_parent(lvobj, parent->getLvObj());
+  setupLVGL();
+
+  if (rect.w == 0) setWidth(100);
+
+  lv_obj_enable_style_refresh(true);
+  lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
 }
 
 void TextEdit::update()
 {
   // value may not be null-terminated
   std::string txt(value, length);
-  lv_textarea_set_text(lvobj, txt.c_str());  
+  lv_textarea_set_text(lvobj, txt.c_str());
 }
 
 void TextEdit::trim()
@@ -72,7 +89,18 @@ void TextEdit::changeEnd(bool forceChanged)
   }
 }
 
-void TextEdit::onClicked()
+void TextEdit::onClicked() { TextKeyboard::show(this); }
+
+ModelTextEdit::ModelTextEdit(Window* parent, const rect_t& rect, char* value,
+                             uint8_t length) :
+    TextEdit(parent, rect, value, length)
 {
-  TextKeyboard::show(this);
+  setChangeHandler([]() { storageDirty(EE_MODEL); });
+}
+
+RadioTextEdit::RadioTextEdit(Window* parent, const rect_t& rect, char* value,
+                             uint8_t length) :
+    TextEdit(parent, rect, value, length)
+{
+  setChangeHandler([]() { storageDirty(EE_GENERAL); });
 }

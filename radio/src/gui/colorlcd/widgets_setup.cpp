@@ -21,20 +21,19 @@
 
 #include "widgets_setup.h"
 
-#include "gui.h"
 #include "layer.h"
 #include "menu.h"
 #include "menu_screen.h"
-#include "translations.h"
+#include "myeeprom.h"
+#include "storage/storage.h"
+#include "themes/etx_lv_theme.h"
 #include "view_main.h"
-#include "widget.h"
 #include "widget_settings.h"
 
-SetupWidgetsPageSlot::SetupWidgetsPageSlot(FormWindow* parent,
-                                           const rect_t& rect,
+SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
                                            WidgetsContainer* container,
                                            uint8_t slotIndex) :
-    Button(parent, rect)
+    ButtonBase(parent, rect)
 {
   setPressHandler([=]() -> uint8_t {
     if (container->getWidget(slotIndex)) {
@@ -53,6 +52,40 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(FormWindow* parent,
 
     return 0;
   });
+
+  etx_obj_add_style(lvobj, styles->border, LV_STATE_FOCUSED);
+  etx_obj_add_style(lvobj, styles->border_color_focus, LV_STATE_FOCUSED);
+
+  lv_style_init(&borderStyle);
+  lv_style_set_line_width(&borderStyle, 2);
+  lv_style_set_line_opa(&borderStyle, LV_OPA_COVER);
+  lv_style_set_line_dash_width(&borderStyle, 2);
+  lv_style_set_line_dash_gap(&borderStyle, 2);
+  lv_style_set_line_color(&borderStyle, makeLvColor(COLOR_THEME_SECONDARY2));
+
+  borderPts[0] = {1, 1};
+  borderPts[1] = {(lv_coord_t)(width() - 1), 1};
+  borderPts[2] = {(lv_coord_t)(width() - 1), (lv_coord_t)(height() - 1)};
+  borderPts[3] = {1, (lv_coord_t)(height() - 1)};
+  borderPts[4] = {1, 1};
+
+  border = lv_line_create(lvobj);
+  lv_obj_add_style(border, &borderStyle, LV_PART_MAIN);
+  lv_line_set_points(border, borderPts, 5);
+
+  setFocusState();
+
+  setFocusHandler([=](bool) { setFocusState(); });
+}
+
+void SetupWidgetsPageSlot::setFocusState()
+{
+  if (hasFocus()) {
+    bringToTop();
+    lv_obj_add_flag(border, LV_OBJ_FLAG_HIDDEN);
+  } else {
+    lv_obj_clear_flag(border, LV_OBJ_FLAG_HIDDEN);
+  }
 }
 
 void SetupWidgetsPageSlot::addNewWidget(WidgetsContainer* container,
@@ -60,7 +93,7 @@ void SetupWidgetsPageSlot::addNewWidget(WidgetsContainer* container,
 {
   Menu* menu = new Menu(parent);
   menu->setTitle(STR_SELECT_WIDGET);
-  for (auto factory : getRegisteredWidgets()) {
+  for (auto factory : WidgetFactory::getRegisteredWidgets()) {
     menu->addLine(factory->getDisplayName(), [=]() {
       container->createWidget(slotIndex, factory);
       auto widget = container->getWidget(slotIndex);
@@ -70,14 +103,8 @@ void SetupWidgetsPageSlot::addNewWidget(WidgetsContainer* container,
   }
 }
 
-void SetupWidgetsPageSlot::paint(BitmapBuffer* dc)
-{
-  dc->drawRect(0, 0, width(), height(), 2, hasFocus() ? STASHED : SOLID,
-               COLOR_THEME_FOCUS);
-}
-
 SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :
-    FormWindow(ViewMain::instance(), rect_t{}), customScreenIdx(customScreenIdx)
+    Window(ViewMain::instance(), rect_t{}), customScreenIdx(customScreenIdx)
 {
   Layer::push(this);
 
@@ -90,21 +117,17 @@ SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :
     viewMain->setCurrentMainView(customScreenIdx);
   }
 
+  SetupWidgetsPageSlot* firstSlot = nullptr;
   for (unsigned i = 0; i < screen->getZonesCount(); i++) {
     auto rect = screen->getZone(i);
     auto widget_container = customScreens[customScreenIdx];
-    new SetupWidgetsPageSlot(this, rect, widget_container, i);
+    auto slot = new SetupWidgetsPageSlot(this, rect, widget_container, i);
+    if (i == 0) firstSlot = slot;
   }
+  if (firstSlot) lv_group_focus_obj(firstSlot->getLvObj());
 
 #if defined(HARDWARE_TOUCH)
-  new Button(
-      this,
-      {0, 0, MENU_HEADER_BACK_BUTTON_WIDTH, MENU_HEADER_BACK_BUTTON_HEIGHT},
-      [this]() -> uint8_t {
-        this->deleteLater();
-        return 1;
-      },
-      NO_FOCUS, 0, window_create);
+  addBackButton();
 #endif
 }
 
@@ -126,7 +149,7 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
     auto viewMain = ViewMain::instance();
     viewMain->setCurrentMainView(savedView);
   }
-  FormWindow::deleteLater(detach, trash);
+  Window::deleteLater(detach, trash);
   new ScreenMenu(customScreenIdx + 1);
 
   storageDirty(EE_MODEL);
@@ -142,9 +165,9 @@ void SetupWidgetsPage::onEvent(event_t event)
   } else if (event == EVT_KEY_FIRST(KEY_TELE)) {
     onCancel();
   } else {
-    FormWindow::onEvent(event);
+    Window::onEvent(event);
   }
 #else
-  FormWindow::onEvent(event);
+  Window::onEvent(event);
 #endif
 }

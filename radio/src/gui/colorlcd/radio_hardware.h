@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RADIO_HARDWARE_H_
-#define _RADIO_HARDWARE_H_
+#pragma once
 
 #include "tabsgroup.h"
 
@@ -31,7 +30,5 @@ class RadioHardwarePage : public PageTab
  public:
   RadioHardwarePage();
 
-  void build(FormWindow* window) override;
+  void build(Window* window) override;
 };
-
-#endif //_RADIO_HARDWARE_H_

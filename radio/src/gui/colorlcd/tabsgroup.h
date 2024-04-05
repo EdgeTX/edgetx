@@ -17,16 +17,14 @@
  * Lesser General Public License for more details.
  */
 
-#ifndef _TABSGROUP_H_
-#define _TABSGROUP_H_
+#pragma once
 
-#include <vector>
-
+#include "bitmaps.h"
 #include "button.h"
-#include "form.h"
-#include "keyboard_base.h"
 
 class TabsGroup;
+class TabsGroupHeader;
+class TabsCarousel;
 
 class PageTab
 {
@@ -34,119 +32,33 @@ class PageTab
   friend class TabsGroup;
 
  public:
-  PageTab() {}
+  PageTab(PaddingSize padding = PAD_MEDIUM) : padding(padding) {}
 
-  PageTab(std::string title, unsigned icon) :
-      title(std::move(title)), icon(icon)
+  PageTab(std::string title, EdgeTxIcon icon,
+          PaddingSize padding = PAD_MEDIUM) :
+      title(std::move(title)), icon(icon), padding(padding)
   {
   }
+
+  virtual bool isVisible() const { return true; }
 
   virtual ~PageTab() = default;
 
-  virtual void build(FormWindow* window) = 0;
+  virtual void build(Window* window) = 0;
 
   virtual void checkEvents() {}
 
-  void setOnSetVisibleHandler(std::function<void()> handler)
-  {
-    onSetVisible = std::move(handler);
-  }
-
   void setTitle(std::string value) { title = std::move(value); }
 
-  void setIcon(unsigned icon) { this->icon = icon; }
+  void setIcon(EdgeTxIcon icon) { this->icon = icon; }
+  EdgeTxIcon getIcon() const { return icon; }
 
-  unsigned getIcon() const { return icon; }
+  virtual void update(uint8_t index) {}
 
  protected:
   std::string title;
-  unsigned icon = 0;
-  std::function<void()> onSetVisible;
-};
-
-class TabCarouselButton : public Button
-{
- public:
-  TabCarouselButton(Window* parent, const rect_t& rect,
-                    std::vector<PageTab*>& tabs, uint8_t index,
-                    std::function<uint8_t(void)> pressHandler,
-                    WindowFlags flags = 0);
-
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override
-  {
-    return "TabCarouselButton(" + std::to_string(tabs[index]->getIcon()) + ")";
-  }
-#endif
-
-  void paint(BitmapBuffer* dc);
-
-  void check(bool checked = true);
-
- protected:
-  std::vector<PageTab*> tabs;
-  uint8_t index;
-};
-
-class TabsCarousel : public Window
-{
- public:
-  TabsCarousel(Window* parent, TabsGroup* menu);
-
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "TabsCarousel"; }
-#endif
-
-  void setCurrentIndex(uint8_t index);
-
-  inline uint8_t getCurrentIndex() { return currentIndex; }
-
-  void update();
-
-  void paint(BitmapBuffer* dc) override;
-
- protected:
-  std::vector<TabCarouselButton*> buttons;
-  constexpr static uint8_t padding_left = 3;
-  TabsGroup* menu;
-  uint8_t currentIndex = 0;
-#if defined(HARDWARE_TOUCH)
-  bool sliding = false;
-#endif
-};
-
-class TabsGroupHeader : public FormWindow
-{
-  friend class TabsGroup;
-
- public:
-  TabsGroupHeader(TabsGroup* menu, uint8_t icon);
-
-  void setTitle(const char* value) { title = value; }
-
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "TabsGroupHeader"; }
-#endif
-
-  void deleteLater(bool detach = true, bool trash = true) override
-  {
-    if (_deleted) return;
-#if defined(HARDWARE_TOUCH)
-    back.deleteLater(true, false);
-#endif
-    carousel.deleteLater(true, false);
-    FormWindow::deleteLater(detach, trash);
-  }
-
-  void paint(BitmapBuffer* dc) override;
-
- protected:
-#if defined(HARDWARE_TOUCH)
-  Button back;
-#endif
-  uint8_t icon;
-  TabsCarousel carousel;
-  std::string title;
+  EdgeTxIcon icon;
+  PaddingSize padding;
 };
 
 class TabsGroup : public NavWindow
@@ -154,8 +66,7 @@ class TabsGroup : public NavWindow
   friend class TabsCarousel;
 
  public:
-  explicit TabsGroup(uint8_t icon);
-  ~TabsGroup() override;
+  explicit TabsGroup(EdgeTxIcon icon);
 
   void deleteLater(bool detach = true, bool trash = true) override;
 
@@ -163,43 +74,25 @@ class TabsGroup : public NavWindow
   std::string getName() const override { return "TabsGroup"; }
 #endif
 
-  unsigned getTabs() const { return tabs.size(); }
+  uint8_t tabCount() const;
 
   void addTab(PageTab* page);
 
-  // Return the index of the found tab
-  // or -1 if the tab could not be found
-  int removeTab(PageTab* page);
-
   void removeTab(unsigned index);
 
-  void removeAllTabs();
-
-  void setCurrentTab(unsigned index)
-  {
-    if (index < tabs.size()) {
-      header.carousel.setCurrentIndex(index);
-      setVisibleTab(tabs[index]);
-    }
-  }
+  void setCurrentTab(unsigned index);
 
   void checkEvents() override;
 
   void onClicked() override;
   void onCancel() override;
 
-#if defined(HARDWARE_TOUCH)
-  bool onTouchEnd(coord_t x, coord_t y) override;
-#endif
-
-  static void refreshTheme();
+  Window* getHeaderWindow();
 
  protected:
-  TabsGroupHeader header;
-  FormWindow body;
-  std::vector<PageTab*> tabs;
+  TabsGroupHeader* header = nullptr;
+  Window* body = nullptr;
   PageTab* currentTab = nullptr;
-  static TabsGroup* activeTabsGroup;
 
   void setVisibleTab(PageTab* tab);
 
@@ -208,5 +101,3 @@ class TabsGroup : public NavWindow
   void onPressPGDN() override;
 #endif
 };
-
-#endif
