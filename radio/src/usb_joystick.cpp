@@ -59,7 +59,8 @@ static uint8_t _usbJoystickAxisPairs[3][2] = { };
 /*
   This USB HID endpoint report description defines a device with:
     * 24 digital buttons
-    * 8 analog axes with 8bit resolution
+    * 8 analog axes with 16bit resolution
+    * remaining battery capacity
 
   Report packet described as C struct is:
 
@@ -67,14 +68,15 @@ static uint8_t _usbJoystickAxisPairs[3][2] = { };
     uint8_t buttons1; //bit 0 - button 1, bit 1 - button 2, ..., mapped to channels 9-16, on if channel > 0
     uint8_t buttons2; // mapped to channels 17-24, on if channel > 0
     uint8_t buttons3; // mapped to channels 25-32, on if channel > 0
-    uint8_t X;  //analog value, mapped to channel 1
-    uint8_t Y;  //analog value, mapped to channel 2
-    uint8_t Z;  //analog value, mapped to channel 3
-    uint8_t Rx; //analog value, mapped to channel 4
-    uint8_t Ry  //analog value, mapped to channel 5
-    uint8_t Rz; //analog value, mapped to channel 6
-    uint8_t S1; //analog value, mapped to channel 7
-    uint8_t S2; //analog value, mapped to channel 8
+    uint16_t X;  //analog value, mapped to channel 1
+    uint16_t Y;  //analog value, mapped to channel 2
+    uint16_t Z;  //analog value, mapped to channel 3
+    uint16_t Rx; //analog value, mapped to channel 4
+    uint16_t Ry  //analog value, mapped to channel 5
+    uint16_t Rz; //analog value, mapped to channel 6
+    uint16_t S1; //analog value, mapped to channel 7
+    uint16_t S2; //analog value, mapped to channel 8
+    uint8_t system; // remaining battery capacity
   }
 */
 static const uint8_t HID_JOYSTICK_ReportDesc[] =
@@ -82,11 +84,12 @@ static const uint8_t HID_JOYSTICK_ReportDesc[] =
     0x05, 0x01,                    //     USAGE_PAGE (Generic Desktop)
     0x09, 0x05,                    //     USAGE (Game Pad)
     0xa1, 0x01,                    //     COLLECTION (Application)
+    0x09, 0x01,                    //       USAGE (Pointer)
     0xa1, 0x00,                    //       COLLECTION (Physical)
     0x05, 0x09,                    //         USAGE_PAGE (Button)
     0x19, 0x01,                    //         USAGE_MINIMUM (Button 1)
     0x29, 0x18,                    //         USAGE_MAXIMUM (Button 24)
-    0x15, 0x00,                    //         LOGICAL_MINIMUM (0)
+    0x14,                          //         LOGICAL_MINIMUM (0)
     0x25, 0x01,                    //         LOGICAL_MAXIMUM (1)
     0x95, 0x18,                    //         REPORT_COUNT (24)
     0x75, 0x01,                    //         REPORT_SIZE (1)
@@ -100,12 +103,19 @@ static const uint8_t HID_JOYSTICK_ReportDesc[] =
     0x09, 0x35,                    //         USAGE (Rz)
     0x09, 0x36,                    //         USAGE (Slider)
     0x09, 0x37,                    //         USAGE (Dial)
-    0x16, 0x00, 0x00,              //         LOGICAL_MINIMUM (0)
+    0x14,                          //         LOGICAL_MINIMUM (0)
     0x26, 0xFF, 0x07,              //         LOGICAL_MAXIMUM (2047)
     0x75, 0x10,                    //         REPORT_SIZE (16)
     0x95, 0x08,                    //         REPORT_COUNT (8)
     0x81, 0x02,                    //         INPUT (Data,Var,Abs)
     0xc0,                          //       END_COLLECTION
+    0x05, 0x06,                    //       USAGE_PAGE (Generic Dev Ctrls)
+    0x09, 0x20,                    //       USAGE (Battery Strength)
+    0x14,                          //       LOGICAL_MINIMUM (0)
+    0x25, 0x64,                    //       LOGICAL_MAXIMUM (100)
+    0x75, 0x08,                    //       REPORT_SIZE (8)
+    0x95, 0x01,                    //       REPORT_COUNT (1)
+    0x81, 0x02,                    //       INPUT (Data,Var,Abs)
     0xc0                           //     END_COLLECTION
 };
 
@@ -189,7 +199,7 @@ int setupUSBJoystick()
     // Classic USB Joystick report description
     memcpy(_hidReportDesc, HID_JOYSTICK_ReportDesc, sizeof(HID_JOYSTICK_ReportDesc));
     _hidReportDescSize = sizeof(HID_JOYSTICK_ReportDesc);
-    _hidReportSize = 19;
+    _hidReportSize = 20;
 
   } else {
 
@@ -295,17 +305,40 @@ int setupUSBJoystick()
     // generate report desc
 
     // USAGE_PAGE (Generic Desktop)
-    memcpy(_hidReportDesc, HID_JOYSTICK_ReportDesc, 24);
-    _hidReportDescSize = 24;
+    memcpy(_hidReportDesc, HID_JOYSTICK_ReportDesc, 25);
+    _hidReportDescSize = 25;
 
     // USAGE (Joystick=0x04, Gamepad=0x05,  Multi-axis Controller=0x08)
-    uint8_t joystickType = 0x04;
-    if (_usbJoystickIfMode == USBJOYS_GAMEPAD) joystickType = 0x05;
-    else if (_usbJoystickIfMode == USBJOYS_MULTIAXIS) joystickType = 0x08;
+    uint8_t joystickType;
+    if (_usbJoystickIfMode == USBJOYS_GAMEPAD) {
+      joystickType = 0x05;
+
+      // USB HID Usage Tables 1.21 page 33 : at least 4 buttons
+      buttonCount = buttonCount >= 4 ? buttonCount : 4;
+    } else if (_usbJoystickIfMode == USBJOYS_MULTIAXIS) {
+      joystickType = 0x08;
+    } else {
+      joystickType = 0x04;
+
+      // USB HID Usage Tables 1.21 page 33 : at least 2 buttons
+      buttonCount = buttonCount >= 2 ? buttonCount : 2;
+    }
 
     _hidReportDesc[3] = joystickType;
-    _hidReportDesc[13] = buttonCount ? buttonCount : 1;
-    _hidReportDesc[19] = USBJ_BUTTON_SIZE;
+    _hidReportDesc[15] = buttonCount;
+    _hidReportDesc[20] = buttonCount;
+
+    if (buttonCount == 0) _hidReportDescSize -= 15;
+
+    // padding for missing buttons
+    if (buttonCount < USBJ_BUTTON_SIZE) {
+      _hidReportDesc[_hidReportDescSize++] = 0x75;
+      _hidReportDesc[_hidReportDescSize++] = USBJ_BUTTON_SIZE - buttonCount;
+      _hidReportDesc[_hidReportDescSize++] = 0x95;
+      _hidReportDesc[_hidReportDescSize++] = 0x01;
+      _hidReportDesc[_hidReportDescSize++] = 0x81;
+      _hidReportDesc[_hidReportDescSize++] = 0x03;
+    }
 
     // generic axis types
     if (genAxisCount > 0) {
@@ -322,9 +355,9 @@ int setupUSBJoystick()
         }
       }
 
-      memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+42, 12);
-      _hidReportDesc[_hidReportDescSize+9] = genAxisCount;
-      _hidReportDescSize += 12;
+      memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+43, 10);
+      _hidReportDesc[_hidReportDescSize+7] = genAxisCount;
+      _hidReportDescSize += 10;
     }
 
     // sim axis types
@@ -342,20 +375,24 @@ int setupUSBJoystick()
         }
       }
 
-      memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+42, 12);
-      _hidReportDesc[_hidReportDescSize+9] = simAxisCount;
-      _hidReportDescSize += 12;
+      memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+43, 10);
+      _hidReportDesc[_hidReportDescSize+7] = simAxisCount;
+      _hidReportDescSize += 10;
     }
 
     // END_COLLECTION
     _hidReportDesc[_hidReportDescSize++] = 0xc0;
+
+    // battery status
+    memcpy(_hidReportDesc+_hidReportDescSize, HID_JOYSTICK_ReportDesc+54, 13);
+    _hidReportDescSize += 13;
 
     // END_COLLECTION
     _hidReportDesc[_hidReportDescSize++] = 0xc0;
 
     // end of report desc
 
-    _hidReportSize = ((USBJ_BUTTON_SIZE+7) / 8) + (_usbJoystickAxisCount * 2);
+    _hidReportSize = ((USBJ_BUTTON_SIZE+7) / 8) + (_usbJoystickAxisCount * 2) + 1;
   }
 
   //compare with the old description
@@ -368,6 +405,13 @@ extern "C" struct usbReport_t usbReportDesc()
 {
   usbReport_t res = { _hidReportDesc, _hidReportDescSize };
   return res;
+}
+
+static void setBatteryBits(int hid_pos){
+  // vBatMin / vBatMax are encoded with offsets 90 / 120
+  uint8_t percent = limit<uint8_t>(0, divRoundClosest((g_vbat100mV - g_eeGeneral.vBatMin - 90) * 100, g_eeGeneral.vBatMax - g_eeGeneral.vBatMin + 30), 100);
+
+  _hidReport[hid_pos] = percent;
 }
 
 void usbClassicStateUpdate()
@@ -403,6 +447,9 @@ void usbClassicStateUpdate()
     _hidReport[i*2 +4] = static_cast<uint8_t>((value >> 8) & 0x07);
 
   }
+
+  //battery values
+  setBatteryBits(8*2 +3);
 }
 
 static void setBtnBits(uint8_t ix, uint8_t value, uint8_t size)
@@ -590,6 +637,9 @@ void usbStateUpdate()
     _hidReport[i*2 + axis_ix] = static_cast<uint8_t>(value & 0xFF);
     _hidReport[i*2 + axis_ix+1] = static_cast<uint8_t>((value >> 8) & 0x07);
   }  
+
+  //battery values
+  setBatteryBits(_usbJoystickAxisCount*2 + axis_ix);
 }
 
 uint8_t usbReportSize()
