@@ -187,7 +187,7 @@ class ThemeDetailsDialog : public BaseDialog
 
  protected:
   ThemeFile theme;
-  std::function<void(ThemeFile theme)> saveHandler = nullptr;
+  std::function<bool(ThemeFile theme)> saveHandler = nullptr;
 };
 
 class ColorEditPage : public Page
@@ -398,44 +398,8 @@ class ThemeEditPage : public Page
 
         // update the theme name
         _themeName->setText(_theme.getName());
-      }
-      Page::checkEvents();
-    }
-
-    void editColorPage()
-    {
-      auto colorEntry = _cList->getSelectedColor();
-      new ColorEditPage(&_theme, colorEntry.colorNumber, 
-          [=] () {
-            _dirty = true;
-            _cList->setColorList(_theme.getColorList());
-            _previewWindow->setColorList(_theme.getColorList());
-          });
-    }
-
-    void buildHeader(FormWindow *window)
-    {
-      // page title
-      header.setTitle(STR_EDIT_THEME);
-      _themeName = header.setTitle2(_theme.getName());
-#if LCD_H > LCD_W
-      _themeName->setFont(FONT(XS));
-#endif
-
-      // save and cancel
-      rect_t r = {LCD_W - (BUTTON_WIDTH + 5), 6, BUTTON_WIDTH, BUTTON_HEIGHT };
-      new TextButton(window, r, STR_DETAILS, [=] () {
-        new ThemeDetailsDialog(page, _theme, [=] (ThemeFile t) {
-          _theme.setAuthor(t.getAuthor());
-          _theme.setInfo(t.getInfo());
-          _theme.setName(t.getName());
-
-          // update the theme name
-          _themeName->setText(_theme.getName());
-          _dirty = true;
-          return true;
-        });
-        return 0;
+        _dirty = true;
+        return true;
       });
       return 0;
     });
