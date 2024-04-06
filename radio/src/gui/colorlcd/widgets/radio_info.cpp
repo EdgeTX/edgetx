@@ -207,9 +207,9 @@ class RadioInfoWidget : public TopBarWidget
 };
 
 const ZoneOption RadioInfoWidget::options[] = {
-    {"Low batt", ZoneOption::Color, RGB(0xF4, 0x43, 0x36)},
-    {"Med batt", ZoneOption::Color, RGB(0xFF, 0xC1, 0x07)},
-    {"High batt", ZoneOption::Color, RGB(0x4C, 0xAF, 0x50)},
+    {"Low battery", ZoneOption::Color, RGB(0xF4, 0x43, 0x36)},
+    {"Med battery", ZoneOption::Color, RGB(0xFF, 0xC1, 0x07)},
+    {"High battery", ZoneOption::Color, RGB(0x4C, 0xAF, 0x50)},
     {nullptr, ZoneOption::Bool}};
 
 BaseWidgetFactory<RadioInfoWidget> RadioInfoWidget("Radio Info", RadioInfoWidget::options,
