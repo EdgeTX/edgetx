@@ -521,11 +521,11 @@
 // Trainer Port
 #define TRAINER_GPIO                    GPIOD
 
-#define TRAINER_IN_GPIO_PIN             LL_GPIO_PIN_12 // PD.12
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
+#define TRAINER_IN_GPIO_PIN             LL_GPIO_PIN_13 // PD.13
+#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH2
 
-#define TRAINER_OUT_GPIO_PIN            LL_GPIO_PIN_13 // PD.13
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
+#define TRAINER_OUT_GPIO_PIN            LL_GPIO_PIN_12 // PD.12
+#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH1
 
 #define TRAINER_TIMER                   TIM4
 #define TRAINER_TIMER_IRQn              TIM4_IRQn
