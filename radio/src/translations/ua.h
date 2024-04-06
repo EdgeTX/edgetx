@@ -1280,3 +1280,9 @@
 #define TR_MIX_SLOW_PREC          TR("Точн. уповільн.", "Точність уповільнення")
 
 #define TR_THEME_EXISTS           "A theme directory with the same name already exists."
+
+#define TR_DATE_TIME_WIDGET       "Data & Time"
+#define TR_RADIO_INFO_WIDGET      "Radio Info"
+#define TR_LOW_BATT_COLOR         "Low battery"
+#define TR_MID_BATT_COLOR         "Mid battery"
+#define TR_HIGH_BATT_COLOR        "High battery"

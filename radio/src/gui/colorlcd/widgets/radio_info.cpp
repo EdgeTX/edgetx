@@ -207,13 +207,13 @@ class RadioInfoWidget : public TopBarWidget
 };
 
 const ZoneOption RadioInfoWidget::options[] = {
-    {"Low battery", ZoneOption::Color, RGB(0xF4, 0x43, 0x36)},
-    {"Med battery", ZoneOption::Color, RGB(0xFF, 0xC1, 0x07)},
-    {"High battery", ZoneOption::Color, RGB(0x4C, 0xAF, 0x50)},
+    {STR_LOW_BATT_COLOR, ZoneOption::Color, RGB(0xF4, 0x43, 0x36)},
+    {STR_MID_BATT_COLOR, ZoneOption::Color, RGB(0xFF, 0xC1, 0x07)},
+    {STR_HIGH_BATT_COLOR, ZoneOption::Color, RGB(0x4C, 0xAF, 0x50)},
     {nullptr, ZoneOption::Bool}};
 
 BaseWidgetFactory<RadioInfoWidget> RadioInfoWidget("Radio Info", RadioInfoWidget::options,
-                                                   "Radio Info");
+                                                   STR_RADIO_INFO_WIDGET);
 
 // Adjustment to make main view date/time align with model/radio settings views
 #if LCD_W > LCD_H
@@ -267,7 +267,7 @@ const ZoneOption DateTimeWidget::options[] = {
 
 BaseWidgetFactory<DateTimeWidget> DateTimeWidget("Date Time",
                                                  DateTimeWidget::options,
-                                                 "Date Time");
+                                                 STR_DATE_TIME_WIDGET);
 
 #if defined(INTERNAL_GPS)
 
@@ -308,6 +308,6 @@ class InternalGPSWidget : public TopBarWidget
 };
 
 BaseWidgetFactory<InternalGPSWidget> InternalGPSWidget("Internal GPS", nullptr,
-                                                       "Internal GPS");
+                                                       STR_INT_GPS_LABEL);
 
 #endif

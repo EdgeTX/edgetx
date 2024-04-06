@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TRANSLATIONS_H_
-#define _TRANSLATIONS_H_
+#pragma once
 
 #include <limits.h>
 #include "opentx_types.h"
@@ -1286,9 +1285,12 @@ extern const char* const STR_SORT_ORDERS[];
 extern const char STR_SORT_MODELS_BY[];
 extern const char STR_CREATE_NEW[];
 extern const char STR_THEME_EXISTS[];
+
+extern const char STR_DATE_TIME_WIDGET[];
+extern const char STR_RADIO_INFO_WIDGET[];
+extern const char STR_LOW_BATT_COLOR[];
+extern const char STR_MID_BATT_COLOR[];
+extern const char STR_HIGH_BATT_COLOR[];
 #endif
 
 extern const char STR_MIX_SLOW_PREC[];
-
-#endif // _TRANSLATIONS_H_
-
