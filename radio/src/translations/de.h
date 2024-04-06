@@ -1297,7 +1297,7 @@
 
 #define TR_THEME_EXISTS           "Ein Theme-Verzeichnis mit demselben Namen existiert bereits"
 
-#define TR_DATE_TIME_WIDGET       "Data & Time"
+#define TR_DATE_TIME_WIDGET       "Date & Time"
 #define TR_RADIO_INFO_WIDGET      "Radio Info"
 #define TR_LOW_BATT_COLOR         "Farbe Akku fast leer"
 #define TR_MID_BATT_COLOR         "Farbe Akku mittel"

@@ -1325,7 +1325,7 @@
 
 #define TR_THEME_EXISTS                 "Det finns redan ett tema med samma namn"
 
-#define TR_DATE_TIME_WIDGET       "Data & Time"
+#define TR_DATE_TIME_WIDGET       "Date & Time"
 #define TR_RADIO_INFO_WIDGET      "Radio Info"
 #define TR_LOW_BATT_COLOR         "Low battery"
 #define TR_MID_BATT_COLOR         "Mid battery"
