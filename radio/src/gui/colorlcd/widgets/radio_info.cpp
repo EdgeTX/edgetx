@@ -85,13 +85,8 @@ class RadioInfoWidget : public TopBarWidget
     batteryFill = lv_obj_create(lvobj);
     lv_obj_set_pos(batteryFill, W_AUDIO_X + 1, 26);
     lv_obj_set_size(batteryFill, 20, 9);
-    lv_obj_set_style_bg_color(batteryFill, lv_palette_main(LV_PALETTE_GREEN),
-                              LV_PART_MAIN);
-    lv_obj_set_style_bg_color(batteryFill, lv_palette_main(LV_PALETTE_AMBER),
-                              LV_PART_MAIN | LV_STATE_USER_1);
-    lv_obj_set_style_bg_color(batteryFill, lv_palette_main(LV_PALETTE_RED),
-                              LV_PART_MAIN | LV_STATE_USER_2);
     lv_obj_set_style_bg_opa(batteryFill, LV_OPA_COVER, LV_PART_MAIN);
+    update();
 
     // RSSI bars
     const uint8_t rssiBarsHeight[] = {5, 10, 15, 21, 31};
@@ -105,6 +100,21 @@ class RadioInfoWidget : public TopBarWidget
     }
 
     checkEvents();
+  }
+
+  void update() override
+  {
+    lv_color_t color;
+
+    // get colors from options
+    color.full = persistentData->options[2].value.unsignedValue;
+    lv_obj_set_style_bg_color(batteryFill, color, LV_PART_MAIN);
+
+    color.full = persistentData->options[1].value.unsignedValue;
+    lv_obj_set_style_bg_color(batteryFill, color, LV_PART_MAIN | LV_STATE_USER_1);
+
+    color.full = persistentData->options[0].value.unsignedValue;
+    lv_obj_set_style_bg_color(batteryFill, color, LV_PART_MAIN | LV_STATE_USER_2);
   }
 
   void checkEvents() override
@@ -175,6 +185,8 @@ class RadioInfoWidget : public TopBarWidget
     }
   }
 
+  static const ZoneOption options[];
+
  protected:
   uint8_t lastVol = 0;
   uint8_t lastBatt = 0;
@@ -194,7 +206,13 @@ class RadioInfoWidget : public TopBarWidget
 #endif
 };
 
-BaseWidgetFactory<RadioInfoWidget> RadioInfoWidget("Radio Info", nullptr,
+const ZoneOption RadioInfoWidget::options[] = {
+    {"Low batt", ZoneOption::Color, RGB(0xF4, 0x43, 0x36)},
+    {"Med batt", ZoneOption::Color, RGB(0xFF, 0xC1, 0x07)},
+    {"High batt", ZoneOption::Color, RGB(0x4C, 0xAF, 0x50)},
+    {nullptr, ZoneOption::Bool}};
+
+BaseWidgetFactory<RadioInfoWidget> RadioInfoWidget("Radio Info", RadioInfoWidget::options,
                                                    "Radio Info");
 
 // Adjustment to make main view date/time align with model/radio settings views
@@ -212,6 +230,7 @@ class DateTimeWidget : public TopBarWidget
       TopBarWidget(factory, parent, rect, persistentData)
   {
     dateTime = new HeaderDateTime(lvobj, DT_OFFSET, 3);
+    update();
   }
 
   void checkEvents() override
@@ -224,11 +243,15 @@ class DateTimeWidget : public TopBarWidget
     if (t.tm_min != lastMinute) {
       lastMinute = t.tm_min;
       dateTime->update();
-      // get color from options
-      LcdFlags color =
-          COLOR2FLAGS(persistentData->options[0].value.unsignedValue);
-      dateTime->setColor(color);
     }
+  }
+
+  void update() override
+  {
+    // get color from options
+    LcdFlags color =
+        COLOR2FLAGS(persistentData->options[0].value.unsignedValue);
+    dateTime->setColor(color);
   }
 
   HeaderDateTime* dateTime = nullptr;
