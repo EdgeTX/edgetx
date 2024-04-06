@@ -55,7 +55,7 @@ void chainMenu(MenuHandlerFunc newMenu)
 
 void pushMenu(MenuHandlerFunc newMenu)
 {
-  killEvents(KEY_ENTER);
+  killEvents(KEY_ENTER); // TODO: Check if needed.
 
   if (menuLevel == 0) {
     if (newMenu == menuRadioSetup)

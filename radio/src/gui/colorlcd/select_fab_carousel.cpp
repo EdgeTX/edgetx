@@ -123,7 +123,6 @@ class SelectFabButton : public ButtonBase
 #if defined(HARDWARE_KEYS)
     switch (event) {
       case EVT_KEY_BREAK(KEY_EXIT):
-        killEvents(event);
         parent->deleteLater();
         return;
     }

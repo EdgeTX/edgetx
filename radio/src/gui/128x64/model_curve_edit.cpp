@@ -157,24 +157,17 @@ void menuModelCurveOne(event_t event)
       }
       break;
 
-#if defined(KEYS_GPIO_REG_MDL)
-    case EVT_KEY_FIRST(KEY_MODEL):
-      pushMenu(menuChannelsView);
-      killEvents(event);
-      break;
-#elif defined(NAVIGATION_X7)
-    case EVT_KEY_FIRST(KEY_MENU):
-      pushMenu(menuChannelsView);
-      killEvents(event);
-      break;
-#elif defined(NAVIGATION_XLITE)
+#if defined(NAVIGATION_XLITE)
     case EVT_KEY_FIRST(KEY_ENTER):
-      if (keysGetState(KEY_SHIFT)) {
-        pushMenu(menuChannelsView);
-        killEvents(event);
-      }
-      break;
+      if (!keysGetState(KEY_SHIFT))
+        break;
+      killEvents(event);
+#else
+    case EVT_KEY_BREAK(KEY_MODEL):
+    case EVT_KEY_BREAK(KEY_MENU):
 #endif
+      pushMenu(menuChannelsView);
+      break;
   }
 
   drawCurve();

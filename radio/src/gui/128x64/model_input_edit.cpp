@@ -57,20 +57,14 @@ uint8_t FM_ROW(uint8_t value)
 
 void menuModelExpoOne(event_t event)
 {
-#if defined(KEYS_GPIO_REG_MDL)
-  if (event == EVT_KEY_FIRST(KEY_MODEL)) {
-    pushMenu(menuChannelsView);
-    killEvents(event);
-  }
-#elif defined(NAVIGATION_X7)
-  if (event == EVT_KEY_FIRST(KEY_MENU)) {
-    pushMenu(menuChannelsView);
-    killEvents(event);
-  }
-#elif defined(NAVIGATION_XLITE)
+#if defined(NAVIGATION_XLITE)
   if (event == EVT_KEY_FIRST(KEY_ENTER) && keysGetState(KEY_SHIFT)) {
     pushMenu(menuChannelsView);
     killEvents(event);
+  }
+#else
+  if (event == EVT_KEY_BREAK(KEY_MODEL) || event == EVT_KEY_BREAK(KEY_MENU)) {
+    pushMenu(menuChannelsView);
   }
 #endif
   ExpoData * ed = expoAddress(s_currIdx);

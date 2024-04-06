@@ -33,14 +33,13 @@ void menuStatisticsView(event_t event)
   title(STR_MENUSTAT);
 
   switch(event) {
-    case EVT_KEY_FIRST(KEY_PLUS):
+    case EVT_KEY_BREAK(KEY_PLUS):
     case EVT_KEY_BREAK(KEY_PAGEDN):
       chainMenu(menuStatisticsDebug);
       break;
 
-    case EVT_KEY_FIRST(KEY_MINUS):
+    case EVT_KEY_BREAK(KEY_MINUS):
     case EVT_KEY_BREAK(KEY_PAGEUP):
-      killEvents(event);
 #if defined(DEBUG_TRACE_BUFFER)
       chainMenu(menuTraceBuffer);
 #else
@@ -133,15 +132,14 @@ void menuStatisticsDebug(event_t event)
       maxMixerDuration  = 0;
       break;
 
-    case EVT_KEY_FIRST(KEY_PLUS):
+    case EVT_KEY_BREAK(KEY_PLUS):
     case EVT_KEY_BREAK(KEY_PAGEDN):
       disableVBatBridge();
       chainMenu(menuStatisticsDebug2);
       break;
 
-    case EVT_KEY_FIRST(KEY_MINUS):
+    case EVT_KEY_BREAK(KEY_MINUS):
     case EVT_KEY_BREAK(KEY_PAGEUP):
-      killEvents(event);
       disableVBatBridge();
       chainMenu(menuStatisticsView);
       break;
@@ -216,7 +214,7 @@ void menuStatisticsDebug2(event_t event)
   title(STR_MENUDEBUG);
 
   switch(event) {
-    case EVT_KEY_FIRST(KEY_PLUS):
+    case EVT_KEY_BREAK(KEY_PLUS):
     case EVT_KEY_BREAK(KEY_PAGEDN):
 #if defined(DEBUG_TRACE_BUFFER)
       chainMenu(menuTraceBuffer);
@@ -225,9 +223,8 @@ void menuStatisticsDebug2(event_t event)
 #endif
       return;
 
-    case EVT_KEY_FIRST(KEY_MINUS):
+    case EVT_KEY_BREAK(KEY_MINUS):
     case EVT_KEY_BREAK(KEY_PAGEUP):
-      killEvents(event);
       chainMenu(menuStatisticsDebug);
       break;
 
@@ -258,13 +255,12 @@ void menuTraceBuffer(event_t event)
       dumpTraceBuffer();
       break;
 
-    case EVT_KEY_FIRST(KEY_MINUS):
+    case EVT_KEY_BREAK(KEY_MINUS):
     case EVT_KEY_BREAK(KEY_PAGEUP):
-      killEvents(event);
       chainMenu(menuStatisticsDebug2);
       break;
 
-    case EVT_KEY_FIRST(KEY_PLUS):
+    case EVT_KEY_BREAK(KEY_PLUS):
     case EVT_KEY_BREAK(KEY_PAGEDN):
       chainMenu(menuStatisticsView);
       return;

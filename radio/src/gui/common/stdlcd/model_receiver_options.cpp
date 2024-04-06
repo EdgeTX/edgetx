@@ -106,7 +106,7 @@ void menuModelReceiverOptions(event_t event)
   });
 
   if (menuEvent) {
-    killEvents(KEY_EXIT);
+    killEvents(KEY_EXIT); // TODO: Check if needed
     moduleState[g_moduleIdx].mode = MODULE_MODE_NORMAL;
     if (reusableBuffer.hardwareAndSettings.receiverSettings.dirty) {
       abortPopMenu();

@@ -1767,10 +1767,10 @@ void menuModelSetup(event_t event)
                   if (isModuleR9MNonAccess(moduleIdx) || isModuleD16(moduleIdx) || isModuleAFHDS3(moduleIdx)) {
 #if defined(PCBXLITE)
                     if (EVT_KEY_MASK(event) == KEY_ENTER) {
+                      killEvents(event);
 #else
                     if (event == EVT_KEY_BREAK(KEY_ENTER)) {
 #endif
-                      killEvents(event);
 #if defined(AFHDS3)
                       if (isModuleAFHDS3(moduleIdx)) {
                         startBindMenuAfhds3(moduleIdx);
