@@ -127,7 +127,7 @@ function(AddHWGenTarget input template output)
 
   add_custom_command(OUTPUT ${output}
     COMMAND ${GEN_JSON} > ${output}
-    DEPENDS ${INPUT_JSON} ${LEGACY_JSON} ${TEMPLATE}
+    DEPENDS ${INPUT_JSON} ${LEGACY_JSON} ${TEMPLATE} ${RADIO_DIRECTORY}/src/hal/key_driver.h
     )
 endfunction()
 

@@ -494,10 +494,14 @@ static const lv_coord_t fmt_row_dsc[] = {LV_GRID_CONTENT,
 
 void ModelFlightModesPage::build(Window* form)
 {
-  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_SMALL);
+  form->padAll(PAD_ZERO);
+  form->padBottom(PAD_LARGE);
 
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     auto btn = new FlightModeBtn(form, i);
+    lv_obj_set_pos(btn->getLvObj(), 6, i * (BTN_H + 3) + 4);
+    btn->setWidth(LCD_W - 12);
+
     btn->setPressHandler([=]() {
       new FlightModeEdit(i);
       return 0;
@@ -505,7 +509,7 @@ void ModelFlightModesPage::build(Window* form)
   }
 
   trimCheck = new TextButton(
-      form, rect_t{0, 0, lv_pct(100), 40}, STR_CHECKTRIMS, [&]() -> uint8_t {
+      form, rect_t{6, MAX_FLIGHT_MODES * (BTN_H + 3) + 8, LCD_W - 12, 40}, STR_CHECKTRIMS, [&]() -> uint8_t {
         if (trimsCheckTimer)
           trimsCheckTimer = 0;
         else
