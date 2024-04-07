@@ -40,10 +40,12 @@ unsigned int TopBar::getZonesCount() const
 
 rect_t TopBar::getZone(unsigned int index) const
 {
+#if LCD_H > LCD_W
   if (index == MAX_TOPBAR_ZONES - 1) {
     coord_t size = LCD_W - 48 - (MAX_TOPBAR_ZONES - 1) * (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN);
     return {LCD_W - size, TOPBAR_ZONE_VMARGIN, size, TOPBAR_ZONE_HEIGHT};
   }
+#endif
 
   return {
     coord_t(48 + (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN) * index),

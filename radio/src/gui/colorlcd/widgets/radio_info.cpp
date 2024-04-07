@@ -199,9 +199,9 @@ BaseWidgetFactory<RadioInfoWidget> RadioInfoWidget("Radio Info", nullptr,
 
 // Adjustment to make main view date/time align with model/radio settings views
 #if LCD_W > LCD_H
-#define DT_OFFSET 19
+#define DT_OFFSET 24
 #else
-#define DT_OFFSET 5
+#define DT_OFFSET 8
 #endif
 
 class DateTimeWidget : public TopBarWidget
