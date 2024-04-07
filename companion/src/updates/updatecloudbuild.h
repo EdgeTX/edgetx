@@ -21,40 +21,40 @@
 
 #pragma once
 
-#include <QtWidgets>
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkReply>
-#include <QtNetwork/QNetworkRequest>
-#include <QFile>
+#include "updateinterface.h"
 
-namespace Ui {
-  class DownloadDialog;
-}
+#include <QEventLoop>
+#include <QTimer>
 
-class DownloadDialog : public QDialog
+class UpdateCloudBuild: public UpdateInterface
 {
-  Q_OBJECT
+  Q_DECLARE_TR_FUNCTIONS(UpdateCloudBuild)
 
   public:
-    explicit DownloadDialog(QWidget *parent = 0, QString src = "", QString tgt = "", QString contentType = "", QString title = "");
 
-    ~DownloadDialog();
+    explicit UpdateCloudBuild(QWidget * parent);
+    virtual ~UpdateCloudBuild();
 
-  public slots:
-    virtual void reject() override;
+  protected:
+    void assetSettingsInit() override;
+    bool buildFlaggedAsset(const int row) override;
 
   private slots:
-    void fileError();
-    void httpFinished();
-    void httpReadyRead();
-    void updateDataReadProgress(qint64 bytesRead, qint64 totalBytes);
+    void cancel();
+    void checkStatus();
 
   private:
-    Ui::DownloadDialog *ui;
-    QNetworkAccessManager qnam;
-    QNetworkReply *reply;
-    QFile *file;
-    bool aborted;
-    QNetworkRequest request;
-    QUrl url;
+    QJsonObject *m_objBody;
+    QJsonDocument *m_docResp;
+    QEventLoop m_eventLoop;
+    QTimer m_timer;
+    QString m_jobStatus;
+    QString m_radio;
+    QString m_buildFlags;
+
+    void cleanup();
+    bool getStatus();
+    bool isStatusInProgress();
+    bool setAssetDownload();
+    void waitForBuildFinish();
 };

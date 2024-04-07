@@ -23,9 +23,10 @@
 #include "flashfirmwaredialog.h"
 
 UpdateFirmware::UpdateFirmware(QWidget * parent) :
-  UpdateInterface(parent, CID_Firmware, tr("Firmware"))
+  UpdateInterface(parent, CID_Firmware, tr("Firmware"), Repo::REPO_TYPE_GITHUB,
+                  QString(GH_API_REPOS_EDGETX).append("/edgetx"), "nightly")
 {
-  init(QString(GH_API_REPOS_EDGETX).append("/edgetx"), "nightly");
+  init(); // call after UpdateInterface ctor due to virtual functions
 }
 
 void UpdateFirmware::assetSettingsInit()
@@ -50,7 +51,7 @@ void UpdateFirmware::assetSettingsInit()
   qDebug() << "Asset settings initialised";
 }
 
-bool UpdateFirmware::asyncInstall()
+int UpdateFirmware::asyncInstall()
 {
   //status->reportProgress(tr("Write firmware to radio: %1").arg(g.currentProfile().burnFirmware() ? tr("true") : tr("false")), QtDebugMsg);
 

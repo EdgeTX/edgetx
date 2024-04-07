@@ -3,12 +3,14 @@ project(updates)
 
 set(${PROJECT_NAME}_NAMES
   chooserdialog
-  downloaddialog
   repo
   repoassets
+  repobuild
   repodatamodels
+  repogithub
   repometadata
   reporeleases
+  updatecloudbuild
   updatecompanion
   updatefactories
   updatefirmware

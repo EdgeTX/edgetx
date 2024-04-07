@@ -35,7 +35,6 @@ class RepoMetaData
     explicit RepoMetaData(UpdateStatus * status, UpdateNetwork * network);
     virtual ~RepoMetaData() {}
 
-    virtual void init(const QString & repoPath, const QString & nightly, const int resultsPerPage) = 0;
     virtual bool retrieveMetaDataAll() = 0;
     virtual bool retrieveMetaDataOne(const int id) = 0;
     virtual int setId(const int id);
@@ -49,25 +48,18 @@ class RepoMetaData
     int getSetId(const int row);
     int getSetId(QVariant value, Qt::MatchFlags flags = Qt::MatchExactly, int role = Qt::DisplayRole);
     const int id() const;
-    void init(const QString & repoPath, const int resultsPerPage);
     void invalidate();
     const int isEmpty() const;
     const bool isIdValid() const;
     const QStringList list() const;
     const QString name() const;
     UpdateNetwork* const network() const;
-    const QString repoPath() const;
-    const int resultsPerPage() const;
     bool retrieveMetaData(const int mdt, const QString url);
     bool setFlags(int flags);
     void setFilterFlags(int flags);
     void setFilterPattern(const QString & pattern);
     void setModels(RepoRawItemModel * repoRawItemModel, RepoFilteredItemModel * repoFilteredItemModel);
     UpdateStatus* const status() const;
-    const QString urlAsset(const int assetId) const;
-    const QString urlAssets(const int releaseId) const;
-    const QString urlContent(const QString & filename) const;
-    const QString urlReleases() const;
 
   private:
     UpdateStatus* const m_status;
@@ -75,8 +67,6 @@ class RepoMetaData
     RepoRawItemModel* m_rawItemModel;
     RepoFilteredItemModel* m_filteredItemModel;
 
-    QString m_repoPath;
-    int m_resultsPerPage;
     int m_id;
 
     virtual void dumpItemModel(const QString modelName, const QAbstractItemModel * itemModel) const = 0;

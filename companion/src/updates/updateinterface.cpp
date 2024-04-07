@@ -20,13 +20,9 @@
  */
 
 #include "updateinterface.h"
+#include "repobuild.h"
+#include "repogithub.h"
 #include "helpers.h"
-#include "updatefirmware.h"
-#include "updatecompanion.h"
-#include "updatesdcard.h"
-#include "updatesounds.h"
-#include "updatethemes.h"
-#include "updatemultiprotocol.h"
 #include "minizinterface.h"
 
 #include <QMessageBox>
@@ -34,17 +30,20 @@
 #include <QFileInfo>
 #include <QRegularExpression>
 #include <QValidator>
+#include <QEventLoop>
+#include <QTimer>
 
-UpdateInterface::UpdateInterface(QWidget * parent, ComponentIdentity id, QString name) :
+UpdateInterface::UpdateInterface(QWidget * parent, ComponentIdentity id, QString name, Repo::RepoType repoType,
+                                 const QString & path, const QString & nightly, const int resultsPerPage) :
   QWidget(parent),
   m_id(id),
   m_name(name),
   m_params(new UpdateParameters(this)),
   m_status(new UpdateStatus(this)),
   m_network(new UpdateNetwork(this, m_status)),
-  m_repo(new Repo(this, m_status, m_network))
+  m_repo(repoType == Repo::REPO_TYPE_GITHUB ? static_cast<Repo*>(new RepoGitHub(this, m_status, m_network, path, nightly, resultsPerPage)) :
+                                              static_cast<Repo*>(new RepoBuild(this, m_status, m_network, path, nightly, resultsPerPage)))
 {
-
 }
 
 UpdateInterface::~UpdateInterface()
@@ -112,9 +111,39 @@ void UpdateInterface::assetSettingsSave()
   }
 }
 
-bool UpdateInterface::asyncInstall()
+int UpdateInterface::asyncInstall()
 {
   return true;
+}
+
+int UpdateInterface::build()
+{
+  m_status->progressMessage(tr("Building assets"));
+
+  if (!buildFlaggedAssets()) {
+    m_status->reportProgress(tr("Unable to build flagged assets"), QtCriticalMsg);
+    return false;
+  }
+
+  return true;
+}
+
+bool UpdateInterface::buildFlaggedAssets()
+{
+  m_repo->assets()->setFilterFlags(UPDFLG_Build);
+  m_status->reportProgress(tr("Asset filter applied: %1 - %2 found").arg(updateFlagToString(UPDFLG_Build)).arg(m_repo->assets()->count()), QtDebugMsg);
+
+  for (int i = 0; i < m_repo->assets()->count(); ++i) {
+    if (!buildFlaggedAsset(i))
+      return false;
+  }
+
+  return true;
+}
+
+bool UpdateInterface::buildFlaggedAsset(const int row)
+{
+  return m_repo->assets()->build(row);
 }
 
 bool UpdateInterface::checkCreateDirectory(const QString & dir, const UpdateFlags flag)
@@ -358,12 +387,24 @@ bool UpdateInterface::copyStructure()
   return true;
 }
 
-bool UpdateInterface::copyToDestination()
+int UpdateInterface::copyToDestination()
 {
   m_status->progressMessage(tr("Copying to destination"));
 
   if (!copyFlaggedAssets()) {
     m_status->reportProgress(tr("Unable to copy assets"), QtDebugMsg);
+    return false;
+  }
+
+  return true;
+}
+
+int UpdateInterface::decompress()
+{
+  m_status->progressMessage(tr("Decompressing assets"));
+
+  if (!decompressFlaggedAssets()) {
+    m_status->reportProgress(tr("Unable to decompress flagged assets"), QtDebugMsg);
     return false;
   }
 
@@ -441,31 +482,24 @@ bool UpdateInterface::downloadFlaggedAssets()
   m_status->reportProgress(tr("Asset filter applied: %1 - %2 found").arg(updateFlagToString(UPDFLG_Download)).arg(m_repo->assets()->count()), QtDebugMsg);
 
   for (int i = 0; i < m_repo->assets()->count(); ++i) {
-    if (!m_repo->assets()->downloadToFile(i, m_downloadDir))
+    if (!downloadFlaggedAsset(i))
       return false;
   }
 
   return true;
 }
 
-bool UpdateInterface::download()
+bool UpdateInterface::downloadFlaggedAsset(const int row)
+{
+  return m_repo->assets()->downloadToFile(row, m_downloadDir);
+}
+
+int UpdateInterface::download()
 {
   m_status->progressMessage(tr("Downloading assets"));
 
   if (!downloadFlaggedAssets()) {
     m_status->reportProgress(tr("Unable to download flagged assets"), QtDebugMsg);
-    return false;
-  }
-
-  return true;
-}
-
-bool UpdateInterface::decompress()
-{
-  m_status->progressMessage(tr("Decompressing assets"));
-
-  if (!decompressFlaggedAssets()) {
-    m_status->reportProgress(tr("Unable to decompress flagged assets"), QtDebugMsg);
     return false;
   }
 
@@ -504,7 +538,7 @@ bool UpdateInterface::flagAssets()
   return true;
 }
 
-bool UpdateInterface::housekeeping()
+int UpdateInterface::housekeeping()
 {
   m_status->progressMessage(tr("Housekeeping"));
   int cnt = 0;
@@ -554,10 +588,9 @@ const int UpdateInterface::id() const
   return (int)m_id;
 }
 
-void UpdateInterface::init(QString repoPath, QString nightly, int resultsPerPage)
+void UpdateInterface::init()
 {
   appSettingsInit();
-  m_repo->init(repoPath, nightly, resultsPerPage);
   releaseCurrent();
 }
 
@@ -632,12 +665,20 @@ UpdateNetwork* const UpdateInterface::network() const
   return m_network;
 }
 
+void UpdateInterface::onStatusCancelled()
+{
+  m_status->setMaximum(0);
+  m_stopping = true;
+  emit stop();
+  m_status->reportProgress(tr("Update cancelled"), QtWarningMsg);
+}
+
 UpdateParameters* const UpdateInterface::params() const
 {
   return m_params;
 }
 
-bool UpdateInterface::preparation()
+int UpdateInterface::preparation()
 {
   m_status->progressMessage(tr("Preparing"));
   int cnt = 0;
@@ -678,6 +719,12 @@ bool UpdateInterface::preparation()
   return true;
 }
 
+void UpdateInterface::radioProfileChanged()
+{
+  resetEnvironment();
+  m_repo->releases()->invalidate();
+}
+
 void UpdateInterface::releaseClear()
 {
   g.component[m_id].releaseClear();
@@ -698,7 +745,7 @@ const QStringList UpdateInterface::releaseList()
   return m_repo->releases()->list();
 }
 
-bool UpdateInterface::releaseSettingsSave()
+int UpdateInterface::releaseSettingsSave()
 {
   m_status->reportProgress(tr("Save release settings"), QtDebugMsg);
   g.component[m_id].release(m_repo->releases()->name());
@@ -758,6 +805,62 @@ bool UpdateInterface::retrieveAssetsJsonFile(const QString & assetName, QJsonDoc
 bool UpdateInterface::retrieveRepoJsonFile(const QString & filename, QJsonDocument * json)
 {
   return m_repo->getJson(filename, json);
+}
+
+void UpdateInterface::runAsyncInstall()
+{
+  m_result = asyncInstall();
+  if (m_result == PROC_RESULT_FAIL) m_status->reportProgress(tr("%1 start async failed").arg(m_name), QtCriticalMsg);
+  emit finished();
+}
+
+void UpdateInterface::runBuild()
+{
+  m_result = build();
+  if (m_result == PROC_RESULT_FAIL) m_status->reportProgress(tr("%1 preparation failed").arg(m_name), QtCriticalMsg);
+  emit finished();
+}
+
+void UpdateInterface::runCopyToDestination()
+{
+  m_result = copyToDestination();
+  if (m_result == PROC_RESULT_FAIL) m_status->reportProgress(tr("%1 copy to destination failed").arg(m_name), QtCriticalMsg);
+  emit finished();
+}
+
+void UpdateInterface::runDecompress()
+{
+  m_result = decompress();
+  if (m_result == PROC_RESULT_FAIL) m_status->reportProgress(tr("%1 decompress failed").arg(m_name), QtCriticalMsg);
+  emit finished();
+}
+
+void UpdateInterface::runDownload()
+{
+  m_result = download();
+  if (m_result == PROC_RESULT_FAIL) m_status->reportProgress(tr("%1 download failed").arg(m_name), QtCriticalMsg);
+  emit finished();
+}
+
+void UpdateInterface::runHousekeeping()
+{
+  m_result = housekeeping();
+  if (m_result == PROC_RESULT_FAIL) m_status->reportProgress(tr("%1 housekeeping failed").arg(m_name), QtCriticalMsg);
+  emit finished();
+}
+
+void UpdateInterface::runPreparation()
+{
+  m_result = preparation();
+  if (m_result == PROC_RESULT_FAIL) m_status->reportProgress(tr("%1 preparation failed").arg(m_name), QtCriticalMsg);
+  emit finished();
+}
+
+void UpdateInterface::runReleaseSettingsSave()
+{
+  m_result = releaseSettingsSave();
+  if (m_result == PROC_RESULT_FAIL) m_status->reportProgress(tr("%1 save release settings failed").arg(m_name), QtCriticalMsg);
+  emit finished();
 }
 
 bool UpdateInterface::setFilteredAssets(const UpdateParameters::AssetParams & ap)
@@ -917,50 +1020,78 @@ bool UpdateInterface::update(ProgressWidget * progress)
   if (!(m_params->flags & UPDFLG_Update))
     return true;
 
+  m_result = PROC_RESULT_SUCCESS;
+  m_stopping = false;
   m_status->setProgress(progress);
   m_status->setLogLevel(m_params->logLevel);
-
   m_status->setInfo(tr("Processing updates for: %1").arg(m_name));
   m_status->setValue(0);
   m_status->setMaximum(100);
 
-  m_status->reportProgress(tr("Processing updates for: %1").arg(m_name), QtInfoMsg);
+  // the default behaviour of the dialog is to close on clicking the cancel button
+  // but need to keep it open to display the current process until it can be interrupted
+  // and then display close button
+  status()->keepOpen(true);
 
-  if (!preparation()) {
-    m_status->reportProgress(tr("%1 preparation failed").arg(m_name), QtCriticalMsg);
-    return false;
+  connect(m_status, &UpdateStatus::cancelled, this, &UpdateInterface::onStatusCancelled);
+
+  // need to create a separate thread for the processes so that the cancel request can be handled asap
+  QEventLoop loop;
+
+  // EXTREMELY IMPORTANT: every process within the event loop MUST emit finished() otherwise the loop will not exit
+  // Note: finished does not indicate the exit status
+  connect(this, &UpdateInterface::finished, [&]() { if (loop.isRunning()) loop.quit(); });
+
+  if (okToRun()) {
+    // pause before starting next process to allow time for queued events to be processed ie like the cancel request
+    QTimer::singleShot(100, this, &UpdateInterface::runPreparation);
+    // NOTE: this will not exit until the finished signal is detected and processed
+    loop.exec();
   }
 
-  if (!download()) {
-    m_status->reportProgress(tr("%1 download failed").arg(m_name), QtCriticalMsg);
-    return false;
+  if (okToRun()) {
+    QTimer::singleShot(100, this, &UpdateInterface::runBuild);
+    loop.exec();
   }
 
-  if (!decompress()) {
-    m_status->reportProgress(tr("%1 decompress failed").arg(m_name), QtCriticalMsg);
-    return false;
+  if (okToRun()) {
+    QTimer::singleShot(100, this, &UpdateInterface::runDownload);
+    loop.exec();
   }
 
-  if (!copyToDestination()) {
-    m_status->reportProgress(tr("%1 copy to destination failed").arg(m_name), QtCriticalMsg);
-    return false;
+  if (okToRun()) {
+    QTimer::singleShot(100, this, &UpdateInterface::runDecompress);
+    loop.exec();
+  }
+
+  if (okToRun()) {
+    QTimer::singleShot(100, this, &UpdateInterface::runCopyToDestination);
+    loop.exec();
   }
 
   //  perform before async install in case Companion restarted
-  if (!releaseSettingsSave()) {
-    m_status->reportProgress(tr("Failed to save release settings"), QtDebugMsg);
-    return false;
+  if (okToRun()) {
+    QTimer::singleShot(100, this, &UpdateInterface::runReleaseSettingsSave);
+    loop.exec();
   }
 
-  if (!asyncInstall()) {
-    m_status->reportProgress(tr("%1 start async failed").arg(m_name), QtCriticalMsg);
-    return false;
+  if (okToRun()) {
+    QTimer::singleShot(100, this, &UpdateInterface::runAsyncInstall);
+    loop.exec();
   }
 
-  if (!housekeeping()) {
-    m_status->reportProgress(tr("%1 housekeeping failed").arg(m_name), QtCriticalMsg);
-    return false;
+  if (okToRun()) {
+    QTimer::singleShot(100, this, &UpdateInterface::runHousekeeping);
+    loop.exec();
   }
+
+  disconnect(m_status, &UpdateStatus::cancelled, this, &UpdateInterface::onStatusCancelled);
+
+  // allow the dialog to be closed by clicking the close button
+  status()->keepOpen(false);
+
+  if (!okToRun())
+    return false;
 
   m_status->reportProgress(tr("%1 update successful").arg(m_name), QtInfoMsg);
 
@@ -1004,6 +1135,8 @@ const QString UpdateInterface::updateFlagToString(const int flag)
       return "Locked";
     case UPDFLG_Preparation:
       return "Preparation";
+    case UPDFLG_Build:
+      return "Build";
     case UPDFLG_Download:
       return "Download";
     case UPDFLG_Decompress:

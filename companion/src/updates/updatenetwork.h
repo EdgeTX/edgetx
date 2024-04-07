@@ -35,11 +35,18 @@ class UpdateNetwork : public QObject
   public:
 
     enum DownloadDataType {
-      DDT_Binary,
-      DDT_Content,
-      DDT_SaveToFile,
-      DDT_MetaData,
-      DDT_Raw,
+      DDT_Unknown,
+      DDT_GitHub_Binary,
+      DDT_GitHub_First = DDT_GitHub_Binary,
+      DDT_GitHub_Content,
+      DDT_GitHub_MetaData,
+      DDT_GitHub_Raw,
+      DDT_GitHub_SaveToFile,
+      DDT_GitHub_Last = DDT_GitHub_SaveToFile,
+      DDT_Build_MetaData,
+      DDT_Build_First = DDT_Build_MetaData,
+      DDT_Build_SaveToFile,
+      DDT_Build_Last = DDT_Build_SaveToFile,
     };
     Q_ENUM(DownloadDataType)
 
@@ -47,15 +54,17 @@ class UpdateNetwork : public QObject
     virtual ~UpdateNetwork();
 
     void convertBufferToJson(QJsonDocument * json);
-    void downloadMetaData(const QString & url, QJsonDocument * json);
+    void downloadMetaData(const DownloadDataType type, const QString & url, QJsonDocument * json);
     void downloadJson(const QString & url, QJsonDocument * json);
     void downloadJsonAsset(const QString & url, QJsonDocument * json);
     void downloadJsonContent(const QString & url, QJsonDocument * json);
-    void downloadToFile(const QString & url, const QString & filePath);
+    void downloadToFile(const DownloadDataType type, const QString & url, const QString & filePath);
     void downloadToBuffer(const DownloadDataType type, const QString & url);
-    void download(const DownloadDataType type, const QString & urlStr, const char * header, const QString & filePath);
+    void download(const DownloadDataType type, const QString & url, const char * acceptHeader, const QString & filePath);
     QByteArray * getDownloadBuffer();
     const bool isSuccess();
+    void post(const QString & action, const QString & url, QJsonDocument * json);
+    void submitRequest(const QString & action, const QString & url, QJsonDocument * data, QJsonDocument * response);
 
     static QString downloadDataTypeToString(const DownloadDataType val);
 
@@ -72,4 +81,5 @@ class UpdateNetwork : public QObject
     QUrl m_url;
     bool m_success;
 
+    bool init(const QString & url);
 };

@@ -49,47 +49,68 @@ UpdateNetwork::~UpdateNetwork()
     delete m_file;
 }
 
+void UpdateNetwork::convertBufferToJson(QJsonDocument * json)
+{
+  m_success = false;
+  QJsonParseError res;
+
+  *json = QJsonDocument::fromJson(*m_buffer, &res);
+
+  if (res.error || json->isNull()) {
+    m_status->reportProgress(tr("Unable to convert downloaded metadata to json. Error:%1\n%2").arg(res.error).arg(res.errorString()), QtCriticalMsg);
+    return;
+  }
+
+  m_success = true;
+}
+
 //  static
 QString UpdateNetwork::downloadDataTypeToString(const DownloadDataType val)
 {
   switch ((int)val) {
-    case DDT_Binary:
-      return "Binary";
-    case DDT_Content:
-      return "Content";
-    case DDT_MetaData:
-      return "Meta Data";
-    case DDT_Raw:
-      return "Raw";
+    case DDT_GitHub_Binary:
+      return "GitHub Binary";
+    case DDT_GitHub_Content:
+      return "GitHub Content";
+    case DDT_GitHub_MetaData:
+      return "GitHub Meta Data";
+    case DDT_GitHub_Raw:
+      return "GitHub Raw";
+    case DDT_GitHub_SaveToFile:
+      return "GitHub Save to file";
+    case DDT_Build_MetaData:
+      return "Build Meta Data";
+    case DDT_Build_SaveToFile:
+      return "Build Save to file";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
 }
 
-void UpdateNetwork::downloadMetaData(const QString & url, QJsonDocument * json)
-{
-  downloadToBuffer(DDT_MetaData, url);
-  if (m_success)
-    convertBufferToJson(json);
-}
-
 void UpdateNetwork::downloadJson(const QString & url, QJsonDocument * json)
 {
-  downloadToBuffer(DDT_Content, url);
+  downloadToBuffer(DDT_GitHub_Content, url);
   if (m_success)
     convertBufferToJson(json);
 }
 
 void UpdateNetwork::downloadJsonAsset(const QString & url, QJsonDocument * json)
 {
-  downloadToBuffer(DDT_Content, url);
+  downloadToBuffer(DDT_GitHub_Content, url);
   if (m_success)
     convertBufferToJson(json);
 }
 
 void UpdateNetwork::downloadJsonContent(const QString & url, QJsonDocument * json)
 {
-  downloadToBuffer(DDT_Raw, url);
+  downloadToBuffer(DDT_GitHub_Raw, url);
+  if (m_success)
+    convertBufferToJson(json);
+}
+
+void UpdateNetwork::downloadMetaData(const DownloadDataType type, const QString & url, QJsonDocument * json)
+{
+  downloadToBuffer(type, url);
   if (m_success)
     convertBufferToJson(json);
 }
@@ -99,12 +120,12 @@ void UpdateNetwork::downloadToBuffer(const DownloadDataType type, const QString 
   m_success = false;
   download(type,
            url,
-           type == DDT_MetaData ? GH_ACCEPT_HEADER_METADATA :
-                                  type == DDT_Raw ? GH_ACCEPT_HEADER_RAW : GH_ACCEPT_HEADER_CONTENT,
+           type == DDT_GitHub_MetaData ? GH_ACCEPT_HEADER_METADATA :
+                                         type == DDT_GitHub_Raw ? GH_ACCEPT_HEADER_RAW : GH_ACCEPT_HEADER_CONTENT,
            QString());
 }
 
-void UpdateNetwork::downloadToFile(const QString & url, const QString & filePath)
+void UpdateNetwork::downloadToFile(const DownloadDataType type, const QString & url, const QString & filePath)
 {
   m_success = false;
 
@@ -135,56 +156,64 @@ void UpdateNetwork::downloadToFile(const QString & url, const QString & filePath
     return;
   }
 
-  download(DDT_SaveToFile, url, GH_ACCEPT_HEADER_CONTENT, fi.absoluteFilePath());
+  download(type,
+           url,
+           type == DDT_GitHub_SaveToFile ? GH_ACCEPT_HEADER_CONTENT : NULL,
+           fi.absoluteFilePath());
 }
 
-void UpdateNetwork::download(const DownloadDataType type, const QString & urlStr, const char * header, const QString & filePath)
+void UpdateNetwork::download(const DownloadDataType type, const QString & url, const char * acceptHeader, const QString & filePath)
 {
   m_status->setValue(0);
   m_status->setMaximum(100);
 
-  m_buffer->clear();
-  m_success = false;
+  if (!init(url))
+    return;
 
-  if (type == DDT_SaveToFile) {
+  if (type == DDT_GitHub_SaveToFile || type == DDT_Build_SaveToFile) {
     m_file = new QFile(filePath);
     if (!m_file->open(QIODevice::WriteOnly)) {
-      m_status->criticalMsg(tr("Unable to open the download file %1 for writing. Error: %2").arg(filePath).arg(m_file->errorString()));
+      m_status->reportProgress(tr("Unable to open the download file %1 for writing. Error: %2").arg(filePath).arg(m_file->errorString()), QtCriticalMsg);
       return;
     }
   }
   else
     m_file = nullptr;
 
-  m_url.setUrl(urlStr);
-
-  if (!m_url.isValid()) {
-    m_status->criticalMsg(tr("Invalid URL: %1").arg(urlStr));
-    return;
+  if (type >= DDT_GitHub_First && type <= DDT_GitHub_Last) {
+    m_request.setRawHeader(QByteArray("X-GitHub-Api-Version"), GH_API_VERSION);
+    m_request.setRawHeader(QByteArray("Accept"), QByteArray(acceptHeader));
   }
-  else
-    m_status->reportProgress(tr("URL: %1").arg(urlStr), QtDebugMsg);
 
-  m_request.setUrl(m_url);
-  m_request.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferNetwork);
-  m_request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+  // run GET inside event loop with timer interrupts to allow other events to run
+  QEventLoop loop;
 
-  m_request.setRawHeader(QByteArray("X-GitHub-Api-Version"), GH_API_VERSION);
-  m_request.setRawHeader(QByteArray("Accept"), QByteArray(header));
+  QTimer timer;
+  timer.setInterval(1000);
+
+  connect(&timer, &QTimer::timeout, [&]() {
+    m_status->reportProgress(tr("Downloading..."), QtDebugMsg);
+  });
 
   m_reply = m_manager.get(m_request);
 
   connect(m_reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::errorOccurred), [=] (QNetworkReply::NetworkError code) {
-    //  leave it to the finished slot to deal with error condition
-    m_status->criticalMsg(tr("Network error has occurred. Error code: %1").arg(code));
+    m_success = false;
+    m_status->reportProgress(tr("Network error has occurred. Error code: %1").arg(code), QtCriticalMsg);
   });
 
   connect(m_reply, &QNetworkReply::sslErrors, [=]() {
-    m_status->reportProgress(tr("Ssl library version: %1").arg(QSslSocket::sslLibraryVersionString()), QtDebugMsg);
+    m_success = false;
+    m_status->reportProgress(tr("Ssl library version: %1").arg(QSslSocket::sslLibraryVersionString()), QtCriticalMsg);
+  });
+
+  connect(m_reply, &QNetworkReply::downloadProgress, [=](const qint64 bytesRead, const qint64 totalBytes) {
+    m_status->setMaximum(totalBytes);
+    m_status->setValue(bytesRead);
   });
 
   connect(m_reply, &QNetworkReply::readyRead, [=]() {
-    if (type == DDT_SaveToFile) {
+    if (type == DDT_GitHub_SaveToFile || type == DDT_Build_SaveToFile) {
       m_file->write(m_reply->readAll());
     }
     else {
@@ -194,24 +223,45 @@ void UpdateNetwork::download(const DownloadDataType type, const QString & urlStr
   });
 
   connect(m_reply, &QNetworkReply::finished, [&]() {
+    if (timer.isActive())
+      timer.stop();
+
+    if (loop.isRunning())
+      loop.quit();
+
+    disconnect(m_reply, nullptr);
+
     onDownloadFinished(m_reply, type);
   });
 
-  connect(m_reply, &QNetworkReply::downloadProgress, [=](const qint64 bytesRead, const qint64 totalBytes) {
-    m_status->setMaximum(totalBytes);
-    m_status->setValue(bytesRead);
-  });
-
-  while (!m_reply->isFinished()) {
-    qApp->processEvents();
-  }
-
-  return;
+  timer.start();
+  loop.exec();
 }
 
 QByteArray * UpdateNetwork::getDownloadBuffer()
 {
   return m_buffer;
+}
+
+bool UpdateNetwork::init(const QString & urlStr)
+{
+  m_buffer->clear();
+  m_success = false;
+  m_request = QNetworkRequest();
+
+  m_url.setUrl(urlStr);
+
+  if (!m_url.isValid()) {
+    m_status->reportProgress(tr("Invalid URL: %1").arg(urlStr), QtCriticalMsg);
+    return false;
+  }
+  else
+    m_status->reportProgress(tr("URL: %1").arg(urlStr), QtDebugMsg);
+
+  m_request.setUrl(m_url);
+  m_request.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferNetwork);
+  m_request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+  return true;
 }
 
 const bool UpdateNetwork::isSuccess()
@@ -223,38 +273,88 @@ void UpdateNetwork::onDownloadFinished(QNetworkReply * reply, DownloadDataType t
 {
   m_status->setValue(m_status->maximum());
 
-  if (type == DDT_SaveToFile) {
+  if (type == DDT_GitHub_SaveToFile || type == DDT_Build_SaveToFile) {
     m_file->flush();
     m_file->close();
   }
 
   if (m_reply->error()) {
     m_success = false;
-    m_status->criticalMsg(tr("Unable to download %1. Error:%2\n%3").arg(downloadDataTypeToString(type)).arg(m_reply->error()).arg(m_reply->errorString()));
+    m_status->reportProgress(tr("Unable to download %1. GET error:%2\n%3").arg(downloadDataTypeToString(type)).arg(m_reply->error()).arg(m_reply->errorString()), QtCriticalMsg);
 
-    if (type == DDT_SaveToFile)
+    if (type == DDT_GitHub_SaveToFile || type == DDT_Build_SaveToFile)
       m_file->remove();
   }
   else
     m_success = true;
 
-  if (type == DDT_SaveToFile) {
+  if (type == DDT_GitHub_SaveToFile || type == DDT_Build_SaveToFile) {
     delete m_file;
     m_file = nullptr;
   }
 }
 
-void UpdateNetwork::convertBufferToJson(QJsonDocument * json)
+void UpdateNetwork::post(const QString & action, const QString & url, QJsonDocument * data)
 {
-  m_success = false;
-  QJsonParseError res;
+  m_status->setValue(0);
+  m_status->setMaximum(0);  // put progress bar in wait mode
 
-  *json = QJsonDocument::fromJson(*m_buffer, &res);
-
-  if (res.error || json->isNull()) {
-    m_status->criticalMsg(tr("Unable to convert downloaded metadata to json. Error:%1\n%2").arg(res.error).arg(res.errorString()));
+  if (!init(url))
     return;
-  }
 
-  m_success = true;
+  m_request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+  // run POST inside event loop with timer interrupts to allow other events to run
+  QEventLoop loop;
+
+  QTimer timer;
+  timer.setInterval(1000);
+
+  connect(&timer, &QTimer::timeout, [&]() {
+    m_status->reportProgress(QString("%1...").arg(action), QtDebugMsg);
+  });
+
+  m_reply = m_manager.post(m_request, data->toJson(QJsonDocument::Compact));
+
+  connect(m_reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::errorOccurred), [=] (QNetworkReply::NetworkError code) {
+    m_success = false;
+    m_status->reportProgress(tr("Network error has occurred. Error code: %1").arg(code), QtCriticalMsg);
+  });
+
+  connect(m_reply, &QNetworkReply::sslErrors, [=]() {
+    m_success = false;
+    m_status->reportProgress(tr("Ssl library version: %1").arg(QSslSocket::sslLibraryVersionString()), QtCriticalMsg);
+  });
+
+  connect(m_reply, &QNetworkReply::readyRead, [=]() {
+    const QByteArray qba = m_reply->readAll();
+    m_buffer->append(qba);
+  });
+
+  connect(m_reply, &QNetworkReply::finished, [&]() {
+    if (timer.isActive())
+      timer.stop();
+
+    if (loop.isRunning())
+      loop.quit();
+
+    disconnect(m_reply, nullptr);
+
+    if (m_reply->error()) {
+      m_success = false;
+      m_status->reportProgress(tr("POST error: %2\n%3").arg(m_reply->error()).arg(m_reply->errorString()), QtCriticalMsg);
+    }
+
+    m_success = true;
+  });
+
+  timer.start();
+  loop.exec();
+}
+
+void UpdateNetwork::submitRequest(const QString & action, const QString & url, QJsonDocument * data, QJsonDocument * response)
+{
+  post(action, url, data);
+  if (m_success)
+    convertBufferToJson(response);
 }

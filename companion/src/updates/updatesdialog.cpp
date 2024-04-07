@@ -174,7 +174,6 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
     msg->setText(tr("Retrieving latest release information for %1").arg(name));
     chkUpdate[i] = new QCheckBox();
     chkUpdate[i]->setProperty("index", i);
-    chkUpdate[i]->setChecked(!iface->isReleaseLatest());
     grid->addWidget(chkUpdate[i], row, col++);
     grid->setAlignment(chkUpdate[i], Qt::AlignHCenter);
 
@@ -190,31 +189,34 @@ UpdatesDialog::UpdatesDialog(QWidget * parent, UpdateFactories * factories) :
     grid->addWidget(lblCurrentRel[i], row, col++);
 
     cboUpdateRel[i] = new QComboBox();
+    cboUpdateRel[i]->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     cboUpdateRel[i]->addItems(iface->releaseList());
     grid->addWidget(cboUpdateRel[i], row, col++);
 
     connect(cboRelChannel[i], QOverload<int>::of(&QComboBox::currentIndexChanged), [=] (const int index) {
       iface->setReleaseChannel(index);
-      chkUpdate[i]->setChecked(!iface->isReleaseLatest());
       cboUpdateRel[i]->clear();
       cboUpdateRel[i]->addItems(iface->releaseList());
+      chkUpdate[i]->setChecked(cboUpdateRel[i]->currentIndex() != -1 && !iface->isReleaseLatest());
     });
 
     connect(cboUpdateRel[i], QOverload<int>::of(&QComboBox::currentIndexChanged), [=] (const int index) {
-      chkUpdate[i]->setChecked(cboUpdateRel[i]->currentText() != lblCurrentRel[i]->text());
+      chkUpdate[i]->setChecked(cboUpdateRel[i]->currentIndex() != -1 && cboUpdateRel[i]->currentText() != lblCurrentRel[i]->text());
     });
 
     btnOptions[i] = new QPushButton(tr("Options"));
     connect(btnOptions[i], &QPushButton::clicked, [=]() {
       UpdateOptionsDialog *dlg = new UpdateOptionsDialog(this, iface, i, true);
       connect(dlg, &UpdateOptionsDialog::changed, [=](const int i) {
-        chkUpdate[i]->setChecked(!iface->isReleaseLatest());
         lblCurrentRel[i]->setText(iface->releaseCurrent());
         cboUpdateRel[i]->setCurrentText(iface->releaseUpdate());
+        chkUpdate[i]->setChecked(cboUpdateRel[i]->currentIndex() != -1 && !iface->isReleaseLatest());
       });
       dlg->exec();
       dlg->deleteLater();
     });
+
+    chkUpdate[i]->setChecked(cboUpdateRel[i]->currentIndex() != -1 && !iface->isReleaseLatest());
 
     grid->addWidget(btnOptions[i], row, col++);
   }
