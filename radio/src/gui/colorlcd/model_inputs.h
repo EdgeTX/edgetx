@@ -21,17 +21,8 @@
 
 #pragma once
 
-#include "tabsgroup.h"
-#include "input_mix_group.h"
-
-class InputMixButton;
-
-class InputGroup : public InputMixGroupBase
-{
- public:
-  InputGroup(Window* parent, mixsrc_t idx) :
-    InputMixGroupBase(parent, idx) {}
-};
+#include "list_line_button.h"
+#include <list>
 
 class ModelInputsPage : public InputMixPageBase
 {
@@ -41,18 +32,11 @@ class ModelInputsPage : public InputMixPageBase
   void build(Window *window) override;
 
  protected:
-  std::list<InputMixButton*> lines;
-  InputMixButton* _copySrc = nullptr;
-
-  InputGroup* getGroupByIndex(uint8_t index);
-  InputMixButton* getLineByIndex(uint8_t index);
-
-  void removeLine(InputMixButton* l);
+  InputMixGroupBase* getGroupByIndex(uint8_t index) override;
   
-  void addLineButton(uint8_t index);
-  void addLineButton(mixsrc_t src, uint8_t index);
-  InputGroup* createGroup(Window* form, mixsrc_t src);
-  InputMixButton* createLineButton(InputGroup *group, uint8_t index);
+  void addLineButton(uint8_t index) override;
+  InputMixGroupBase* createGroup(Window* form, mixsrc_t src) override;
+  InputMixButtonBase* createLineButton(InputMixGroupBase *group, uint8_t index) override;
 
   void newInput();
   void editInput(uint8_t input, uint8_t index);

@@ -21,24 +21,8 @@
 
 #pragma once
 
-#include "input_mix_group.h"
-
-class MixLineButton;
-
-class MixGroup : public InputMixGroupBase
-{
- public:
-  MixGroup(Window* parent, mixsrc_t idx);
-
-  void enableMixerMonitor();
-  void disableMixerMonitor();
-
-  void addMPlex(Window* mplex);
-
- protected:
-  MixerChannelBar* monitor = nullptr;
-  lv_obj_t* mplex_container;
-};
+#include "list_line_button.h"
+#include <list>
 
 class ModelMixesPage : public InputMixPageBase
 {
@@ -48,20 +32,13 @@ class ModelMixesPage : public InputMixPageBase
   void build(Window* window) override;
 
  protected:
-  std::list<MixLineButton*> lines;
-  MixLineButton* _copySrc = nullptr;
-
   bool showMonitors = false;
 
-  MixGroup* getGroupByIndex(uint8_t index);
-  MixLineButton* getLineByIndex(uint8_t index);
+  InputMixGroupBase* getGroupByIndex(uint8_t index) override;
 
-  void removeLine(MixLineButton* l);
-
-  void addLineButton(uint8_t index);
-  void addLineButton(mixsrc_t src, uint8_t index);
-  MixGroup* createGroup(Window* form, mixsrc_t src);
-  MixLineButton* createLineButton(MixGroup* group, uint8_t index);
+  void addLineButton(uint8_t index) override;
+  InputMixGroupBase* createGroup(Window* form, mixsrc_t src) override;
+  InputMixButtonBase* createLineButton(InputMixGroupBase* group, uint8_t index) override;
 
   void newMix();
   void editMix(uint8_t input, uint8_t index);

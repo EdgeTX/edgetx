@@ -71,8 +71,6 @@ set(GUI_SRC
   gvar_numberedit.cpp
   input_edit_adv.cpp
   input_edit.cpp
-  input_mix_button.cpp
-  input_mix_group.cpp
   input_source.cpp
   mixer_edit_adv.cpp
   mixer_edit.cpp

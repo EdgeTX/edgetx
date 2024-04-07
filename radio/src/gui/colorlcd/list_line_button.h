@@ -23,6 +23,7 @@
 
 #include "button.h"
 #include "opentx_types.h"
+#include "tabsgroup.h"
 
 class ListLineButton : public ButtonBase
 {
@@ -40,4 +41,78 @@ class ListLineButton : public ButtonBase
   uint8_t index;
 
   virtual bool isActive() const = 0;
+};
+
+class InputMixButtonBase : public ListLineButton
+{
+ public:
+  InputMixButtonBase(Window* parent, uint8_t index);
+  ~InputMixButtonBase();
+
+  void setWeight(gvar_t value, gvar_t min, gvar_t max);
+  void setSource(mixsrc_t idx);
+  void setFlightModes(uint16_t modes);
+
+  static constexpr coord_t BTN_H = 29;
+
+  virtual void updatePos(coord_t x, coord_t y) = 0;
+  virtual void swapLvglGroup(InputMixButtonBase* line2) = 0;
+
+ protected:
+
+  lv_obj_t* fm_canvas = nullptr;
+  void* fm_buffer = nullptr;
+  uint16_t fm_modes = 0;
+
+  lv_obj_t* weight = nullptr;
+  lv_obj_t* source = nullptr;
+  lv_obj_t* opts = nullptr;
+};
+
+class InputMixGroupBase : public Window
+{
+ public:
+  InputMixGroupBase(Window* parent, mixsrc_t idx);
+
+  mixsrc_t getMixSrc() { return idx; }
+  size_t getLineCount() { return lines.size(); }
+
+  void adjustHeight();
+  void addLine(InputMixButtonBase* line);
+  bool removeLine(InputMixButtonBase* line);
+
+  void refresh();
+
+ protected:
+  static constexpr coord_t LN_X = 73;
+
+  mixsrc_t idx;
+  lv_obj_t* label;
+  std::list<InputMixButtonBase*> lines;
+};
+
+class InputMixPageBase : public PageTab
+{
+ public:
+  InputMixPageBase(const char* title, EdgeTxIcon icon) : PageTab(title, icon) {}
+
+ protected:
+  std::list<InputMixButtonBase*> lines;
+  InputMixButtonBase* _copySrc = nullptr;
+  Window* form = nullptr;
+  uint8_t _copyMode = 0;
+  std::list<InputMixGroupBase*> groups;
+
+  virtual void addLineButton(uint8_t index) = 0;
+  void addLineButton(mixsrc_t src, uint8_t index);
+
+  InputMixButtonBase* getLineByIndex(uint8_t index);
+  InputMixGroupBase* getGroupBySrc(mixsrc_t src);
+  virtual InputMixGroupBase* getGroupByIndex(uint8_t index) = 0;
+
+  virtual InputMixButtonBase* createLineButton(InputMixGroupBase* group, uint8_t index) = 0;
+  virtual InputMixGroupBase* createGroup(Window* form, mixsrc_t src) = 0;
+
+  void removeLine(InputMixButtonBase* l);
+  void removeGroup(InputMixGroupBase* g);
 };
