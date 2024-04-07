@@ -129,10 +129,7 @@ static void configureGps(bool detect)
 {
   static int state = 0;
 
-  if (detect) {
-    state = 0;
-    return;
-  }
+  if (detect) state = 0;
 
   auto txCompleted = gpsSerialDrv->txCompleted;
   if (txCompleted && !txCompleted(gpsSerialCtx)) return;
