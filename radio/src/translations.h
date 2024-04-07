@@ -1285,6 +1285,7 @@ extern const char STR_SELECT_MENU_INV[];
 extern const char* const STR_SORT_ORDERS[];
 extern const char STR_SORT_MODELS_BY[];
 extern const char STR_CREATE_NEW[];
+extern const char STR_THEME_EXISTS[];
 #endif
 
 extern const char STR_MIX_SLOW_PREC[];

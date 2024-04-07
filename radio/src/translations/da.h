@@ -1298,3 +1298,5 @@
 #define TR_CREATE_NEW             "Opret"
 
 #define TR_MIX_SLOW_PREC          TR("Træg præc", "Træg op/ned præcision")
+
+#define TR_THEME_EXISTS           "Der findes allerede et katalog med samme navn."
