@@ -22,7 +22,7 @@
 #include "opentx.h"
 
 #if !defined(SIMU)
-const AudioBuffer * nextBuffer = 0;
+const AudioBuffer * nextBuffer = nullptr;
 
 void setSampleRate(uint32_t frequency)
 {

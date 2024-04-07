@@ -267,7 +267,7 @@ uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
 {
 #if defined(USE_SPI_DMA)
   if (!spi->DMA) {
-    return stm32_spi_transfer_bytes(spi, 0, data, length);
+    return stm32_spi_transfer_bytes(spi, nullptr, data, length);
   }
 
   if (((uintptr_t)data < SRAM_BASE) || ((uintptr_t)data & 3)) {
@@ -300,7 +300,7 @@ uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
   
   return length;
 #else
-  return stm32_spi_transfer_bytes(spi, 0, data, length);
+  return stm32_spi_transfer_bytes(spi, nullptr, data, length);
 #endif
 }
 
@@ -309,7 +309,7 @@ uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
 {
 #if defined(USE_SPI_DMA)
   if (!spi->DMA) {
-    return stm32_spi_transfer_bytes(spi, data, 0, length);
+    return stm32_spi_transfer_bytes(spi, data, nullptr, length);
   }
 
   if (((uintptr_t)data < SRAM_BASE) || ((uintptr_t)data & 3)) {

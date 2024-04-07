@@ -52,7 +52,7 @@ void sdInit(void)
 void sdDone()
 {
   // unmount
-  f_mount(0, "", 0);
+  f_mount(nullptr, "", 0);
   storageDeInit();
 }
 

@@ -28,7 +28,7 @@
 #define _PR_MASK(first, last) (((1 << (last - first + 1))-1))
 
 #define _DEFINE_EXTI_IRQ_HANDLER(irq_name, first, last)    \
-  static stm32_exti_handler_t _EXTI_HANDLERS(irq_name) [last - first + 1] = { 0 }; \
+  static stm32_exti_handler_t _EXTI_HANDLERS(irq_name) [last - first + 1] = { nullptr }; \
   extern "C" void irq_name ## Handler()                                 \
   {                                                                     \
     /* Read Pending register */                                         \

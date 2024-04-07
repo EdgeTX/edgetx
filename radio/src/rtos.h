@@ -197,7 +197,7 @@ extern "C++" {
                                        UBaseType_t uxPriority)
   {
     h->rtos_handle = xTaskCreateStatic(
-        pxTaskCode, name, ulStackDepth, 0, uxPriority,
+        pxTaskCode, name, ulStackDepth, NULL, uxPriority,
         puxStackBuffer, &h->task_struct);
   }
 

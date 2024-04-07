@@ -53,11 +53,11 @@ public:
   void * malloc(size_t size) {
     if (size > SIZE_SLOT) {
       // TRACE("BinAllocator<%d> malloc [%lu] size > SIZE_SLOT", SIZE_SLOT, size);
-      return 0;
+      return nullptr;
     }
     if (NoUsedBins >= NUM_BINS) {
       // TRACE("BinAllocator<%d> malloc [%lu] no free slots", SIZE_SLOT, size);
-      return 0;
+      return nullptr;
     }
     for (size_t n = 0; n < NUM_BINS; ++n) {
       if (!Bins[n].Used) {
@@ -68,7 +68,7 @@ public:
       }
     }
     // TRACE("BinAllocator<%d> malloc [%lu] no free slots", SIZE_SLOT , size);
-    return 0;
+    return nullptr;
   }
   size_t size(void * ptr) {
     return is_member(ptr) ? SIZE_SLOT : 0;
