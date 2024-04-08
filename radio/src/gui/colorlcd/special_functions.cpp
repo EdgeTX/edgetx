@@ -187,7 +187,7 @@ void FunctionLineButton::refresh()
 
   uint8_t func = CFN_FUNC(cfn);
 
-  char s[32];
+  char s[64];
 
   lv_label_set_text(sfName, (prefix + std::to_string(index + 1)).c_str());
   lv_label_set_text(sfSwitch, getSwitchPositionName(CFN_SWITCH(cfn)));
