@@ -89,11 +89,16 @@ class Widget : public ButtonBase
   // Update widget 'zone' data (for Lua widgets)
   virtual void updateZoneRect(rect_t rect) {}
 
+  void enableFocus(bool enable);
+
  protected:
   const WidgetFactory* factory;
   PersistentData* persistentData;
   bool fullscreen = false;
   bool fsAllowed = true;
+  lv_obj_t* focusBorder = nullptr;
+  lv_style_t borderStyle;
+  lv_point_t borderPts[5];
 
   void onCancel() override;
   void onLongPress() override;

@@ -308,18 +308,8 @@ bool ViewMain::enableWidgetSelect(bool enable)
 
   for (uint32_t i = 0; i < cont->getZonesCount(); i++) {
     Widget* widget = cont->getWidget(i);
-    if (!widget) continue;
-    if (enable) {
-      widget->setFocusHandler([=](bool hasFocus) {
-        if (hasFocus)
-          widget->bringToTop();
-        refreshWidgetSelectTimer();
-      });
-      lv_group_add_obj(lv_group_get_default(), widget->getLvObj());
-    } else {
-      widget->setFocusHandler(nullptr);
-      lv_group_remove_obj(widget->getLvObj());
-    }
+    if (widget)
+      widget->enableFocus(enable);
   }
 
   if (enable) {
