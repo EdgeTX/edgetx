@@ -194,7 +194,7 @@ void drawSleepBitmap()
   } else {
     shutdownWindow = new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
     shutdownWindow->setWindowFlag(OPAQUE);
-    etx_solid_bg(shutdownWindow->getLvObj(), COLOR_BLACK_INDEX);
+    etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
   }
 
   (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2))
@@ -221,7 +221,7 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
   if (shutdownWindow == nullptr) {
     shutdownWindow = new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
     shutdownWindow->setWindowFlag(OPAQUE);
-    etx_solid_bg(shutdownWindow->getLvObj(), COLOR_BLACK_INDEX);
+    etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
 
     if (sdMounted() && !shutdownSplashImg)
       shutdownSplashImg = BitmapBuffer::loadBitmap(
