@@ -575,7 +575,7 @@ class SpecialFunctionButton : public Button
     }
     uint8_t func = CFN_FUNC(cfn);
 
-    char s[32] = "SFxx";
+    char s[64] = "SFxx";
     if (functions == g_eeGeneral.customFn) s[0] = 'G';
     strAppendUnsigned(&s[2], index+1);
 
