@@ -23,6 +23,7 @@
 #include "repo.h"
 #include "appdata.h"
 #include "eeprominterface.h"
+#include "flashfirmwaredialog.h"
 
 UpdateCloudBuild::UpdateCloudBuild(QWidget * parent) :
   UpdateInterface(parent, CID_CloudBuild, tr("CloudBuild"), Repo::REPO_TYPE_BUILD,
@@ -51,16 +52,79 @@ void UpdateCloudBuild::assetSettingsInit()
   ComponentAssetData &cad = g.component[id()].asset[0];
 
   cad.desc("binary");
-  cad.processes((UPDFLG_Common_Asset | UPDFLG_Build) &~ UPDFLG_Decompress);
+  cad.processes((UPDFLG_Common_Asset | UPDFLG_AsyncInstall | UPDFLG_Build) &~ UPDFLG_Decompress);
   cad.flags(cad.processes() | UPDFLG_CopyFiles | UPDFLG_Locked);
   cad.filterType(UpdateParameters::UFT_Exact);
   cad.filter("%FWFLAVOUR%");
   cad.destSubDir("FIRMWARE");
   cad.copyFilterType(UpdateParameters::UFT_Pattern);
-  cad.copyFilter("^%FWFLAVOUR%-%LANGUAGE%.*\\.bin$");
+  cad.copyFilter("^%FWFLAVOUR%-%LANGUAGE%.*-%RELEASE%\\.bin$");
   cad.maxExpected(1);
 
   qDebug() << "Asset settings initialised";
+}
+
+int UpdateCloudBuild::asyncInstall()
+{
+  //status->reportProgress(tr("Write firmware to radio: %1").arg(g.currentProfile().burnFirmware() ? tr("true") : tr("false")), QtDebugMsg);
+
+  if (!g.currentProfile().burnFirmware())
+    return true;
+
+  status()->progressMessage(tr("Install"));
+
+  repo()->assets()->setFilterFlags(UPDFLG_AsyncInstall);
+  //status->reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_AsyncInstall)).arg(assets->count()), QtDebugMsg);
+
+  if (repo()->assets()->count() < 1)
+    return true;
+
+  if (repo()->assets()->count() != params()->assets.at(0).maxExpected) {
+    status()->reportProgress(tr("Expected %1 asset for install but %2 found").arg(params()->assets.at(0).maxExpected).arg(repo()->assets()->count()), QtCriticalMsg);
+    return false;
+  }
+
+  QString destPath = updateDir();
+
+  if (!repo()->assets()->subDirectory().isEmpty())
+    destPath.append("/" % repo()->assets()->subDirectory());
+
+  const UpdateParameters::AssetParams &ap = params()->assets.at(0);
+
+  QString pattern(params()->buildFilterPattern(ap.copyFilterType, ap.copyFilter));
+  QRegularExpression filter(pattern, QRegularExpression::CaseInsensitiveOption);
+
+  QDirIterator it(destPath);
+
+  bool found = false;
+
+  while (it.hasNext())
+  {
+    QFileInfo file(it.next());
+
+    if ((!filter.pattern().isEmpty()) && (!file.fileName().contains(filter)))
+      continue;
+
+    destPath.append("/" % file.fileName());
+    found = true;
+    break;
+  }
+
+  if (!found) {
+    status()->reportProgress(tr("Firmware not found in %1 using filter %2").arg(destPath).arg(filter.pattern()), QtCriticalMsg);
+    return false;
+  }
+
+  g.currentProfile().fwName(destPath);
+
+  int ret = QMessageBox::question(status()->progress(), CPN_STR_APP_NAME, tr("Write the updated firmware to the radio now ?"), QMessageBox::Yes | QMessageBox::No);
+  if (ret == QMessageBox::Yes) {
+    FlashFirmwareDialog *dlg = new FlashFirmwareDialog(this);
+    dlg->exec();
+    dlg->deleteLater();
+  }
+
+  return true;
 }
 
 bool UpdateCloudBuild::buildFlaggedAsset(const int row)

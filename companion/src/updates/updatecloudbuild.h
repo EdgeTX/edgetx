@@ -36,6 +36,7 @@ class UpdateCloudBuild: public UpdateInterface
     virtual ~UpdateCloudBuild();
 
   protected:
+    int asyncInstall() override;
     void assetSettingsInit() override;
     bool buildFlaggedAsset(const int row) override;
 
