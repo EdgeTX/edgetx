@@ -225,6 +225,8 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
 
   m_docResp = new QJsonDocument();
 
+  m_buildStartTime = QTime::currentTime();
+
   network()->submitRequest(tr("Submit firmware build"), repo()->urlJobs(), docBody, m_docResp);
 
   if (!network()->isSuccess()) {
@@ -268,16 +270,22 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
 
 void UpdateCloudBuild::cancel()
 {
-  cleanup();
   status()->reportProgress(tr("Build firmware cancelled"), QtWarningMsg);
+  cleanup();
 }
 
 void UpdateCloudBuild::checkStatus()
 {
+  if (m_buildStartTime.secsTo(QTime::currentTime()) > 180) {
+    status()->reportProgress(tr("Build firmware timeout"), QtWarningMsg);
+    cleanup();
+  }
+
   getStatus();
 
   if (!isStatusInProgress())
     cleanup();
+
 }
 
 void UpdateCloudBuild::cleanup()

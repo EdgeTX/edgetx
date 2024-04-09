@@ -52,6 +52,7 @@ class UpdateCloudBuild: public UpdateInterface
     QString m_jobStatus;
     QString m_radio;
     QString m_buildFlags;
+    QTime m_buildStartTime;
 
     void cleanup();
     bool getStatus();
