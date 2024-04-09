@@ -64,6 +64,42 @@ void UpdateCloudBuild::assetSettingsInit()
   qDebug() << "Asset settings initialised";
 }
 
+bool UpdateCloudBuild::addBuildFlagLang(const QJsonObject & flags, QJsonObject & buildFlags)
+{
+  if (!objectExists(flags, "language")) {
+    status()->reportProgress(tr("Language build flag not found or format unsupported"), QtCriticalMsg);
+    return false;
+  }
+
+  const QJsonObject &language = flags.value("language").toObject();
+  QString buildFlag;
+  QJsonArray values;
+
+  if (!getFlagParams(language, buildFlag, values))
+    return false;
+
+  QString lang;
+
+  if (values.contains(params()->language.toLower()))
+    lang = params()->language.toLower();
+  else if (values.contains(params()->language.toUpper()))
+    lang = params()->language.toUpper();
+  else {
+    status()->reportProgress(tr("Radio profile language '%1' not supported").arg(params()->language), QtCriticalMsg);
+    return false;
+  }
+
+  m_buildFlags.append(QString("-%1").arg(lang));
+  buildFlags.insert(buildFlag, QJsonValue(lang));
+
+  return true;
+}
+
+bool UpdateCloudBuild::arrayExists(const QJsonObject & parent, const QString child)
+{
+  return !parent.value(child).isUndefined() && parent.value(child).isArray();
+}
+
 int UpdateCloudBuild::asyncInstall()
 {
   //status->reportProgress(tr("Write firmware to radio: %1").arg(g.currentProfile().burnFirmware() ? tr("true") : tr("false")), QtDebugMsg);
@@ -139,7 +175,7 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
 
   if (!repo()->config()->value("targets").isUndefined() && repo()->config()->value("targets").isObject()) {
     const QJsonObject &targets = repo()->config()->value("targets").toObject();
-    if (!targets.value(m_radio).isUndefined() && targets.value(m_radio).isObject()) { // use filtered Asset
+    if (objectExists(targets, m_radio)) {
       target = targets.value(m_radio).toObject();
     }
     else {
@@ -152,19 +188,23 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
     return false;
   }
 
-  //g.currentProfile()
-  Firmware *fw = getCurrentFirmware();
-
   QJsonArray arrTags;
 
-  if (!target.value("tags").isUndefined() && target.value("tags").isArray())
+  if (arrayExists(target, "tags"))
     arrTags = target.value("tags").toArray();
   else {
-    status()->reportProgress(tr("Build target %1 has no valid tags").arg(m_radio), QtDebugMsg);
+    status()->reportProgress(tr("Build target %1 has no valid tags").arg(m_radio), QtCriticalMsg);
+    return false;
   }
 
+  Firmware *fw = getCurrentFirmware();
+  QStringList radioProfBldOpts = fw->getId().split("-");
+  // [0] = edgetx
+  // [1] = radio id
+  // [last] = language code
+
   // add tags based on radio profile and do not duplicate defaults
-  if (fw->getCapability(HasBluetooth) && !arrTags.contains(QJsonValue("bluetooth")))
+  if (radioProfBldOpts.contains("bluetooth") && !arrTags.contains(QJsonValue("bluetooth")))
     arrTags.append(QJsonValue("bluetooth"));
 
   //===============================
@@ -174,40 +214,18 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
   QJsonObject objBuildFlags;
   m_buildFlags.clear();
 
-  if (!target.value("build_flags").isUndefined() && target.value("build_flags").isObject())
+  if (objectExists(target, "build_flags"))
     objBuildFlags = target.value("build_flags").toObject();
 
-  // add language based on radio profile
-  if (!repo()->config()->value("flags").isUndefined() && repo()->config()->value("flags").isObject()) {
-    const QJsonObject &flags = repo()->config()->value("flags").toObject();
-    if (!flags.value("language").isUndefined() && flags.value("language").isObject()) {
-      const QJsonObject &language = flags.value("language").toObject();
-      if (language.value("build_flag").isUndefined() || !language.value("build_flag").isString()) {
-        status()->reportProgress(tr("Language build_flag value not found or format unsupported"), QtCriticalMsg);
-        return false;
-      }
-      if (language.value("values").isUndefined() || !language.value("values").isArray()) {
-        status()->reportProgress(tr("Language values not found or format unsupported"), QtCriticalMsg);
-        return false;
-      }
-      if (language.value("values").toArray().contains(params()->language.toUpper())) {
-        objBuildFlags.insert(language.value("build_flag").toString(), QJsonValue(params()->language.toUpper()));
-        m_buildFlags.append(QString("-%1").arg(params()->language.toLower()));
-      }
-      else {
-        status()->reportProgress(tr("Radio profile language %1 not supported").arg(params()->language.toUpper()), QtCriticalMsg);
-        return false;
-      }
-    }
-    else {
-      status()->reportProgress(tr("Language build flag not found or format unsupported"), QtCriticalMsg);
-      return false;
-    }
-  }
-  else {
+  if (repo()->config()->value("flags").isUndefined() && !repo()->config()->value("flags").isObject()) {
     status()->reportProgress(tr("No build flags found or format unsupported"), QtCriticalMsg);
     return false;
   }
+
+  const QJsonObject &flags = repo()->config()->value("flags").toObject();
+
+  if (!addBuildFlagLang(flags, objBuildFlags))
+    return false;
 
   if (m_objBody)
     delete m_objBody;
@@ -237,7 +255,7 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
   if (m_docResp->isObject()) {
     const QJsonObject &obj = m_docResp->object();
 
-    if (!obj.value("error").isUndefined()) {
+    if (stringExists(obj, "error")) {
       status()->reportProgress(tr("Build error: %1").arg(obj.value("error").toString()), QtCriticalMsg);
       return false;
     }
@@ -248,7 +266,7 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
       status()->reportProgress(tr("Process status not returned when submitting build job"), QtCriticalMsg);
       return false;
     }
-    else if (!obj.value("status").isUndefined() && obj.value("status").isString()) {
+    else if (stringExists(obj, "status")) {
       m_jobStatus = obj.value("status").toString();
     }
   }
@@ -297,8 +315,24 @@ void UpdateCloudBuild::cleanup()
    m_eventLoop.quit();
 }
 
+bool UpdateCloudBuild::getFlagParams(const QJsonObject & flag, QString & buildFlag, QJsonArray & values)
+{
+  bool res = false;
+
+  if (stringExists(flag, "build_flag") && arrayExists(flag, "values")) {
+    buildFlag = getString(flag, "build_flag");
+    values = flag.value("values").toArray();
+    res = true;
+  }
+  else
+    status()->reportProgress(tr("build_flag or values not found"), QtWarningMsg);
+
+  return res;
+}
+
 bool UpdateCloudBuild::getStatus()
 {
+  m_jobStatus = "STATUS_UNKNOWN";
   QJsonDocument *docBody = new QJsonDocument(*m_objBody);
 
   if (m_docResp)
@@ -307,20 +341,23 @@ bool UpdateCloudBuild::getStatus()
   m_docResp = new QJsonDocument();
   network()->submitRequest(tr("Submit get build status"), repo()->urlStatus(), docBody, m_docResp);
 
-  if (m_docResp->isObject()) {
-    const QJsonObject &obj = m_docResp->object();
+  if (m_docResp->isObject())
+    m_jobStatus = getString(m_docResp->object(), "status", "STATUS_UNKNOWN");
 
-    if (!obj.value("status").isUndefined() && obj.value("status").isString()) {
-      m_jobStatus = obj.value("status").toString();
-    }
-  }
-  else {
-    m_jobStatus = "STATUS_UNKNOWN";
-    status()->reportProgress(tr("Build status not returned"), QtCriticalMsg);
+  if (m_jobStatus == "STATUS_UNKNOWN") {
+    status()->reportProgress(tr("Build status unknown"), QtCriticalMsg);
     return false;
   }
 
   return true;
+}
+
+QString UpdateCloudBuild::getString(const QJsonObject & parent, const QString child, QString dflt)
+{
+  if (stringExists(parent, child))
+    return parent.value(child).toString();
+
+  return dflt;
 }
 
 bool UpdateCloudBuild::isStatusInProgress()
@@ -331,32 +368,43 @@ bool UpdateCloudBuild::isStatusInProgress()
   return false;
 }
 
+bool UpdateCloudBuild::objectExists(const QJsonObject & parent, const QString child)
+{
+  return !parent.value(child).isUndefined() && parent.value(child).isObject();
+}
+
 bool UpdateCloudBuild::setAssetDownload()
 {
   QString name = QString("%1%2-%3.bin").arg(m_radio).arg(m_buildFlags/* has a leading hyphen*/).arg(repo()->releases()->name());
 
-  repo()->assets()->setDownloadName(name);
+  repo()->assets()->setDownloadName(name.toLower());
 
   const QJsonObject &obj = m_docResp->object();
 
-  if (!obj.value("artifacts").isUndefined() && obj.value("artifacts").isArray()) {
+  if (arrayExists(obj, "artifacts")) {
     const QJsonArray &artifacts = obj.value("artifacts").toArray();
     if (artifacts.count() > 1) {
       status()->reportProgress(tr("Build status contains %1 artifact when only 1 expected").arg(artifacts.count()), QtWarningMsg);
     }
     for (int i = 0; i < artifacts.count(); i++) {
-      const QJsonObject &artifact = artifacts[i].toObject();
-      if (!artifact.value("slug").isUndefined() && artifact.value("slug").isString() && artifact.value("slug").toString() == "firmware") {
-        if (!artifact.value("download_url").isUndefined() && artifact.value("download_url").isString()) {
-          repo()->assets()->setDownloadUrl(artifact.value("download_url").toString());
+      if (artifacts[i].isObject()) {
+        const QJsonObject &artifact = artifacts[i].toObject();
+        if (stringExists(artifact, "slug") && getString(artifact, "slug") == "firmware") {
+          if (stringExists(artifact, "download_url")) {
+            repo()->assets()->setDownloadUrl(getString(artifact, "download_url"));
+          }
+          else {
+            status()->reportProgress(tr("Build status does not contain download url"), QtCriticalMsg);
+            return false;
+          }
         }
         else {
-          status()->reportProgress(tr("Build status does not contain download url"), QtCriticalMsg);
+          status()->reportProgress(tr("Build status does not contain firmware artifact"), QtCriticalMsg);
           return false;
         }
       }
       else {
-        status()->reportProgress(tr("Build status does not contain firmware artifact"), QtCriticalMsg);
+        status()->reportProgress(tr("Build status firmware artifact not in expected format"), QtCriticalMsg);
         return false;
       }
     }
@@ -367,6 +415,11 @@ bool UpdateCloudBuild::setAssetDownload()
   }
 
   return true;
+}
+
+bool UpdateCloudBuild::stringExists(const QJsonObject & parent, const QString child)
+{
+  return !parent.value(child).isUndefined() && parent.value(child).isString();
 }
 
 void UpdateCloudBuild::waitForBuildFinish()
