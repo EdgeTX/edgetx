@@ -327,7 +327,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     std::string timer_str;
     node >> timer_str;
 
-    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
+    if (modelSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
       if (timer_str.size() == 6 && timer_str.substr(0, 5) == "TIMER") {
         timer_str = "Tmr" + timer_str.substr(5, 1);
       }

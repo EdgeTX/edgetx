@@ -48,6 +48,8 @@ class SourceChoice : public Choice
 
   void invertChoice();
 
+  void openMenu() override;
+
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "SourceChoice"; }
 #endif

@@ -21,6 +21,8 @@
 #include "button.h"
 #include "choice.h"
 
+constexpr uint32_t MENUS_TOOLBAR_BUTTON_WIDTH =    32;
+
 class Menu;
 
 class MenuToolbarButton : public ButtonBase

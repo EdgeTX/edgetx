@@ -108,12 +108,12 @@ class SourceChoiceMenuToolbar : public MenuToolbar
 #if defined(HARDWARE_TOUCH)
     if (choice->canInvert) {
       coord_t y =
-          height() - MENUS_TOOLBAR_BUTTON_WIDTH - MENUS_TOOLBAR_BUTTON_PADDING;
-      coord_t w = width() - MENUS_TOOLBAR_BUTTON_PADDING * 2;
+          height() - MENUS_TOOLBAR_BUTTON_WIDTH - PAD_SMALL;
+      coord_t w = width() - PAD_SMALL * 2;
 
       invertBtn = new MenuToolbarButton(
           this,
-          {MENUS_TOOLBAR_BUTTON_PADDING, y, w, MENUS_TOOLBAR_BUTTON_WIDTH},
+          {PAD_SMALL, y, w, MENUS_TOOLBAR_BUTTON_WIDTH},
           STR_SELECT_MENU_INV);
       invertBtn->check(choice->inverted);
 
@@ -185,20 +185,18 @@ int SourceChoice::getIntValue() const
 // defined in gui/gui_common.cpp
 uint8_t switchToMix(uint8_t source);
 
-SourceChoice::SourceChoice(Window* parent, const rect_t& rect, int16_t vmin,
-                           int16_t vmax, std::function<int16_t()> getValue,
-                           std::function<void(int16_t)> setValue,
-                           bool allowInvert) :
-    Choice(parent, rect, vmin, vmax, getValue, setValue), canInvert(allowInvert)
+void SourceChoice::openMenu()
 {
-  setMenuTitle(STR_SOURCE);
+  setEditMode(true);  // this needs to be done first before menu is created.
 
-  setBeforeDisplayMenuHandler([=](Menu* menu) {
-    inverted = getValue() < 0;
-    inMenu = true;
+  inverted = getIntValue() < 0;
+  inMenu = true;
 
-    auto tb = new SourceChoiceMenuToolbar(this, menu);
-    menu->setToolbar(tb);
+  auto menu = new Menu(this);
+  if (menuTitle) menu->setTitle(menuTitle);
+
+  auto tb = new SourceChoiceMenuToolbar(this, menu);
+  menu->setToolbar(tb);
 
 #if defined(AUTOSOURCE)
   menu->setWaitHandler([=]() {
@@ -229,8 +227,8 @@ SourceChoice::SourceChoice(Window* parent, const rect_t& rect, int16_t vmin,
 
 SourceChoice::SourceChoice(Window *parent, const rect_t &rect, int16_t vmin,
                            int16_t vmax, std::function<int16_t()> getValue,
-                           std::function<void(int16_t)> setValue) :
-    Choice(parent, rect, vmin, vmax, getValue, setValue, STR_SOURCE)
+                           std::function<void(int16_t)> setValue, bool allowInvert) :
+    Choice(parent, rect, vmin, vmax, getValue, setValue, STR_SOURCE), canInvert(allowInvert)
 {
   setTextHandler([=](int value) {
     if (inMenu && inverted) value = -value;
