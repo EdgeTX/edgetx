@@ -28,7 +28,7 @@
 
 static const lv_style_const_prop_t shadow1_props[] = {
     // LV_STYLE_CONST_SHADOW_COLOR does not compile in GitHub ???
-    {.prop = LV_STYLE_SHADOW_COLOR, .value {.color {.full = 0}}},
+    {.prop = LV_STYLE_SHADOW_COLOR, .value = {.color = {.full = 0}}},
     LV_STYLE_CONST_SHADOW_OPA(LV_OPA_20),
     LV_STYLE_CONST_SHADOW_OFS_X(1),
     LV_STYLE_CONST_SHADOW_OFS_Y(1),
@@ -39,7 +39,7 @@ static LV_STYLE_CONST_MULTI_INIT(shadow1_style, shadow1_props);
 
 static const lv_style_const_prop_t shadow2_props[] = {
     // LV_STYLE_CONST_SHADOW_COLOR does not compile in GitHub ???
-    {.prop = LV_STYLE_SHADOW_COLOR, .value {.color {.full = 0}}},
+    {.prop = LV_STYLE_SHADOW_COLOR, .value = {.color = {.full = 0}}},
     LV_STYLE_CONST_SHADOW_OPA(LV_OPA_40),
     LV_STYLE_CONST_SHADOW_OFS_X(1),
     LV_STYLE_CONST_SHADOW_OFS_Y(1),
