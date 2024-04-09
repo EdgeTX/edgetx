@@ -106,6 +106,7 @@ static void autodetectProtocol(uint8_t c)
 {
   static tmr10ms_t time;
   static uint8_t state = 0;
+  static tmr10ms_t firstPacketNMEA = 0;
 
   switch (state)  {
     case 0: // Init
@@ -113,7 +114,12 @@ static void autodetectProtocol(uint8_t c)
       state = 1;
     case 1: // Wait for a valid packet
       if (gpsNewFrameNMEA(c)) {
-        gpsProtocol = GPS_PROTOCOL_NMEA;
+        if (!firstPacketNMEA) {
+          firstPacketNMEA = time;
+        } else if (time - firstPacketNMEA > 200) {
+          // continuous stream of NMEA packets for 2 seconds, but no UBX packets
+          gpsProtocol = GPS_PROTOCOL_NMEA;
+        }
         state = 0;
         return;
       }
@@ -125,8 +131,9 @@ static void autodetectProtocol(uint8_t c)
       }
 
       uint32_t new_time = get_tmr10ms();
-      if (new_time - time > 20)  {
+      if (new_time - time > 50) {
         // No message received
+        firstPacketNMEA = 0;
         changeBaudrate();
         time = new_time;
       }
