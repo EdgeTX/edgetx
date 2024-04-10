@@ -352,6 +352,44 @@ void UpdateNetwork::post(const QString & action, const QString & url, QJsonDocum
   loop.exec();
 }
 
+bool UpdateNetwork::saveBufferToFile(const QString & filePath)
+{
+  QFile f(QDir::toNativeSeparators(filePath));
+
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    m_status->reportProgress(tr("Failed to open %1 for writing").arg(QDir::toNativeSeparators(filePath)), QtWarningMsg);
+    return false;
+  }
+
+  QTextStream out(&f);
+  out << *m_buffer;
+  f.close();
+
+  return true;
+}
+
+bool UpdateNetwork::saveJsonDocToFile(QJsonDocument * json, const QString & filePath)
+{
+  QFile f(QDir::toNativeSeparators(filePath));
+
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    m_status->reportProgress(tr("Failed to open %1 for writing").arg(QDir::toNativeSeparators(filePath)), QtWarningMsg);
+    return false;
+  }
+
+  QTextStream out(&f);
+  out << json->toJson();
+  f.close();
+
+  return true;
+}
+
+bool UpdateNetwork::saveJsonObjToFile(QJsonObject & obj, const QString & filePath)
+{
+  saveJsonDocToFile(new QJsonDocument(obj), filePath);
+  return true;
+}
+
 void UpdateNetwork::submitRequest(const QString & action, const QString & url, QJsonDocument * data, QJsonDocument * response)
 {
   post(action, url, data);

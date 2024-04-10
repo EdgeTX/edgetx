@@ -64,6 +64,9 @@ class UpdateNetwork : public QObject
     QByteArray * getDownloadBuffer();
     const bool isSuccess();
     void post(const QString & action, const QString & url, QJsonDocument * json);
+    bool saveBufferToFile(const QString & filePath);
+    bool saveJsonDocToFile(QJsonDocument * json, const QString & filePath);
+    bool saveJsonObjToFile(QJsonObject & obj, const QString & filePath);
     void submitRequest(const QString & action, const QString & url, QJsonDocument * data, QJsonDocument * response);
 
     static QString downloadDataTypeToString(const DownloadDataType val);
