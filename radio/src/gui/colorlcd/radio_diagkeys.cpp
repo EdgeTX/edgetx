@@ -62,6 +62,7 @@ class RadioKeyDiagsWindow : public Window
 
     if (keysGetMaxKeys() > 0) {
       form = new Window(parent, rect_t{x, 6, colWidth, colHeight});
+      etx_txt_color(form->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
       addKeys(form);
       x += colWidth + 6;
     } else {
@@ -69,11 +70,12 @@ class RadioKeyDiagsWindow : public Window
     }
 
     form = new Window(parent, rect_t{x, 6, colWidth, colHeight});
+    etx_txt_color(form->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
     addSwitches(form);
     x += colWidth + 6;
 
-    form =
-        new Window(parent, rect_t{x, 6, colWidth, colHeight});
+    form = new Window(parent, rect_t{x, 6, colWidth, colHeight});
+    etx_txt_color(form->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
     addTrims(form);
   }
 
