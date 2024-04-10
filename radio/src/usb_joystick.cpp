@@ -121,6 +121,9 @@ static const uint8_t HID_JOYSTICK_ReportDesc[] =
   This partial HID description defines an Android compliant dpad / hat switch
 
   https://source.android.com/docs/compatibility/14/android-14-cdd#726_game_controller_support
+
+  In addtion the D-Pad keys are mapped for applications using custom HID raw
+  processing.
 */
 static const uint8_t HID_JOYSTICK_DpadDesc[] =
 {
@@ -134,7 +137,14 @@ static const uint8_t HID_JOYSTICK_DpadDesc[] =
   0x09, 0x39,       // USAGE              Hat switch (Dynamic Value)
   0x65, 0x14,       // UNIT               Rotation in degrees [1° units] (4=System=English Rotation, 1=Rotation=Degrees)
   0x81, 0x42,       // INPUT              (1 field x 4 bits) 1=Variable 1=Null
-  0x81, 0x03,       // INPUT              (1 field x 4 bits) 1=Constant 1=Variable
+  0x19, 0x90,       // USAGE_MINIMUM      0x00010090 D-pad Up
+  0x29, 0x93,       // USAGE_MAXIMUM      0x00010093 D-pad Left
+  0x25, 0x01,       // LOGICAL_MAXIMUM    0x01 (1)
+  0x44,             // PHYSICAL_MAXIMUM   (0)
+  0x64,             // UNIT               No unit (0=None)
+  0x75, 0x01,       // REPORT_SIZE        0x01 (1) Number of bits per field
+  0x95, 0x04,       // REPORT_COUNT       0x04 (4) Number of fields
+  0x81, 0x02,       // INPUT              0x00000002 (4 fields x 1 bit) 0=Data 1=Variable 0=Absolute 0=NoWrap 0=Linear 0=PrefState 0=NoNull 0=NonVolatile 0=Bitmap
 };
 
 static bool isUniqueAxisType(int type) { return type < 6; }
@@ -503,7 +513,26 @@ static void setDpadBits(int hid_pos, int channelIx){
     value = ( (value - 3) / 120 ) % 9;
   }
 
-  _hidReport[hid_pos] = static_cast<uint8_t>(value & 0x0F);
+  // add explicit D-Pad keys for
+  // applications using HID raw processing
+  const uint8_t NORTH = 0x10;
+  const uint8_t SOUTH = 0x20;
+  const uint8_t EAST = 0x40;
+  const uint8_t WEST = 0x80;
+
+  const uint8_t key_lookup[] = {
+    0 | NORTH,
+    1 | NORTH | EAST,
+    2 | EAST,
+    3 | SOUTH | EAST,
+    4 | SOUTH,
+    5 | SOUTH | WEST,
+    6 | WEST,
+    7 | NORTH | WEST,
+    8
+  };
+
+  _hidReport[hid_pos] = key_lookup[value & 0x0F];
 }
 
 void usbClassicStateUpdate()
