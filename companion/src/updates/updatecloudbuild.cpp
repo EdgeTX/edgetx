@@ -25,6 +25,12 @@
 #include "eeprominterface.h"
 #include "flashfirmwaredialog.h"
 
+constexpr char STATUS_UNKNOWN[]            {"STATUS_UNKNOWN"};
+constexpr char STATUS_WAITING_FOR_BUILD[]  {"WAITING_FOR_BUILD"};
+constexpr char STATUS_BUILD_IN_PROGRESS[]  {"BUILD_IN_PROGRESS"};
+constexpr char STATUS_BUILD_SUCCESS[]      {"BUILD_SUCCESS"};
+constexpr char STATUS_BUILD_ERROR[]        {"BUILD_ERROR"};
+
 UpdateCloudBuild::UpdateCloudBuild(QWidget * parent) :
   UpdateInterface(parent, CID_CloudBuild, tr("CloudBuild"), Repo::REPO_TYPE_BUILD,
                   QString("https://cloudbuild.edgetx.org/api"), "nightly"),
@@ -102,7 +108,7 @@ bool UpdateCloudBuild::arrayExists(const QJsonObject & parent, const QString chi
 
 int UpdateCloudBuild::asyncInstall()
 {
-  //status->reportProgress(tr("Write firmware to radio: %1").arg(g.currentProfile().burnFirmware() ? tr("true") : tr("false")), QtDebugMsg);
+  status()->reportProgress(tr("Write firmware to radio: %1").arg(g.currentProfile().burnFirmware() ? tr("true") : tr("false")), QtDebugMsg);
 
   if (!g.currentProfile().burnFirmware())
     return true;
@@ -110,7 +116,7 @@ int UpdateCloudBuild::asyncInstall()
   status()->progressMessage(tr("Install"));
 
   repo()->assets()->setFilterFlags(UPDFLG_AsyncInstall);
-  //status->reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_AsyncInstall)).arg(assets->count()), QtDebugMsg);
+  status()->reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_AsyncInstall)).arg(repo()->assets()->count()), QtDebugMsg);
 
   if (repo()->assets()->count() < 1)
     return true;
@@ -165,6 +171,7 @@ int UpdateCloudBuild::asyncInstall()
 
 bool UpdateCloudBuild::buildFlaggedAsset(const int row)
 {
+  m_buildFlags.clear();
   m_jobStatus.clear();
 
   m_radio = repo()->assets()->name(row);
@@ -173,38 +180,34 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
 
   QJsonObject target;
 
-  if (!repo()->config()->value("targets").isUndefined() && repo()->config()->value("targets").isObject()) {
-    const QJsonObject &targets = repo()->config()->value("targets").toObject();
-    if (objectExists(targets, m_radio)) {
-      target = targets.value(m_radio).toObject();
-    }
-    else {
-      status()->reportProgress(tr("No build support for target %1").arg(m_radio), QtCriticalMsg);
-      return false;
-    }
-  }
-  else {
+  if (!objectExists(*repo()->config(), "targets")) {
     status()->reportProgress(tr("Unexpected format for build targets meta data"), QtCriticalMsg);
     return false;
   }
 
-  QJsonArray arrTags;
+  const QJsonObject &targets = repo()->config()->value("targets").toObject();
+  target = targets.value(m_radio).toObject();
 
-  if (arrayExists(target, "tags"))
-    arrTags = target.value("tags").toArray();
-  else {
+  if (target.isEmpty()) {
+    status()->reportProgress(tr("No build support for target %1").arg(m_radio), QtCriticalMsg);
+    return false;
+  }
+
+  QJsonArray arrTags = target.value("tags").toArray();
+
+  if (arrTags.isEmpty()) {
     status()->reportProgress(tr("Build target %1 has no valid tags").arg(m_radio), QtCriticalMsg);
     return false;
   }
 
   Firmware *fw = getCurrentFirmware();
-  QStringList radioProfBldOpts = fw->getId().split("-");
+  QStringList profileOpts = fw->getId().split("-");
   // [0] = edgetx
   // [1] = radio id
   // [last] = language code
 
   // add tags based on radio profile and do not duplicate defaults
-  if (radioProfBldOpts.contains("bluetooth") && !arrTags.contains(QJsonValue("bluetooth")))
+  if (profileOpts.contains("bluetooth") && !arrTags.contains(QJsonValue("bluetooth")))
     arrTags.append(QJsonValue("bluetooth"));
 
   //===============================
@@ -212,17 +215,14 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
   //===============================
 
   QJsonObject objBuildFlags;
-  m_buildFlags.clear();
+  objBuildFlags = target.value("build_flags").toObject();
 
-  if (objectExists(target, "build_flags"))
-    objBuildFlags = target.value("build_flags").toObject();
+  const QJsonObject flags = repo()->config()->value("flags").toObject();
 
-  if (repo()->config()->value("flags").isUndefined() && !repo()->config()->value("flags").isObject()) {
-    status()->reportProgress(tr("No build flags found or format unsupported"), QtCriticalMsg);
+  if (flags.isEmpty()) {
+    status()->reportProgress(tr("No flag entries found"), QtCriticalMsg);
     return false;
   }
-
-  const QJsonObject &flags = repo()->config()->value("flags").toObject();
 
   if (!addBuildFlagLang(flags, objBuildFlags))
     return false;
@@ -252,27 +252,23 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
     return false;
   }
 
-  if (m_docResp->isObject()) {
-    const QJsonObject &obj = m_docResp->object();
+  if (!m_docResp->isObject()) {
+    status()->reportProgress(tr("Unexpected response format when submitting build job"), QtCriticalMsg);
+    return false;
+  }
 
-    if (stringExists(obj, "error")) {
-      status()->reportProgress(tr("Build error: %1").arg(obj.value("error").toString()), QtCriticalMsg);
-      return false;
-    }
-    else if (obj.value("target").isUndefined() ||
-             (!obj.value("target").isUndefined() && obj.value("target").toString() != m_radio) ||
-             obj.value("release").isUndefined() ||
-             (!obj.value("release").isUndefined() && obj.value("release").toString() != params()->releaseUpdate)) {
-      status()->reportProgress(tr("Process status not returned when submitting build job"), QtCriticalMsg);
-      return false;
-    }
-    else if (stringExists(obj, "status")) {
-      m_jobStatus = obj.value("status").toString();
-    }
+  const QJsonObject &obj = m_docResp->object();
+
+  if (stringExists(obj, "error")) {
+    status()->reportProgress(tr("Build error: %1").arg(obj.value("error").toString()), QtCriticalMsg);
+    return false;
+  }
+  else if (obj.value("target").toString() != m_radio || obj.value("release").toString() != params()->releaseUpdate) {
+    status()->reportProgress(tr("Process status not returned when submitting build job"), QtCriticalMsg);
+    return false;
   }
   else {
-    status()->reportProgress(tr("Unexpected response when submitting build job"), QtCriticalMsg);
-    return false;
+    m_jobStatus = obj.value("status").toString(QString(STATUS_UNKNOWN));
   }
 
   if (isStatusInProgress())
@@ -280,8 +276,8 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
 
   status()->reportProgress(tr("Firmware build finished with status %1").arg(m_jobStatus), QtDebugMsg);
 
-  if (m_jobStatus == "BUILD_SUCCESS" && setAssetDownload())
-    return true;;
+  if (m_jobStatus == QString(STATUS_BUILD_SUCCESS) && setAssetDownload())
+    return true;
 
   return false;
 }
@@ -320,7 +316,7 @@ bool UpdateCloudBuild::getFlagParams(const QJsonObject & flag, QString & buildFl
   bool res = false;
 
   if (stringExists(flag, "build_flag") && arrayExists(flag, "values")) {
-    buildFlag = getString(flag, "build_flag");
+    buildFlag = flag.value("build_flag").toString();
     values = flag.value("values").toArray();
     res = true;
   }
@@ -332,7 +328,7 @@ bool UpdateCloudBuild::getFlagParams(const QJsonObject & flag, QString & buildFl
 
 bool UpdateCloudBuild::getStatus()
 {
-  m_jobStatus = "STATUS_UNKNOWN";
+  m_jobStatus = QString(STATUS_UNKNOWN);
   QJsonDocument *docBody = new QJsonDocument(*m_objBody);
 
   if (m_docResp)
@@ -342,9 +338,9 @@ bool UpdateCloudBuild::getStatus()
   network()->submitRequest(tr("Submit get build status"), repo()->urlStatus(), docBody, m_docResp);
 
   if (m_docResp->isObject())
-    m_jobStatus = getString(m_docResp->object(), "status", "STATUS_UNKNOWN");
+    m_jobStatus = m_docResp->object().value("status").toString(QString(STATUS_UNKNOWN));
 
-  if (m_jobStatus == "STATUS_UNKNOWN") {
+  if (m_jobStatus == QString(STATUS_UNKNOWN)) {
     status()->reportProgress(tr("Build status unknown"), QtCriticalMsg);
     return false;
   }
@@ -352,17 +348,9 @@ bool UpdateCloudBuild::getStatus()
   return true;
 }
 
-QString UpdateCloudBuild::getString(const QJsonObject & parent, const QString child, QString dflt)
-{
-  if (stringExists(parent, child))
-    return parent.value(child).toString();
-
-  return dflt;
-}
-
 bool UpdateCloudBuild::isStatusInProgress()
 {
-  if (m_jobStatus == "WAITING_FOR_BUILD" || m_jobStatus == "BUILD_IN_PROGRESS")
+  if (m_jobStatus == QString(STATUS_WAITING_FOR_BUILD) || m_jobStatus == QString(STATUS_BUILD_IN_PROGRESS))
     return true;
 
   return false;
@@ -375,6 +363,7 @@ bool UpdateCloudBuild::objectExists(const QJsonObject & parent, const QString ch
 
 bool UpdateCloudBuild::setAssetDownload()
 {
+  //  this format MUST align with the asset copy filter
   QString name = QString("%1%2-%3.bin").arg(m_radio).arg(m_buildFlags/* has a leading hyphen*/).arg(repo()->releases()->name());
 
   repo()->assets()->setDownloadName(name.toLower());
@@ -384,14 +373,14 @@ bool UpdateCloudBuild::setAssetDownload()
   if (arrayExists(obj, "artifacts")) {
     const QJsonArray &artifacts = obj.value("artifacts").toArray();
     if (artifacts.count() > 1) {
-      status()->reportProgress(tr("Build status contains %1 artifact when only 1 expected").arg(artifacts.count()), QtWarningMsg);
+      status()->reportProgress(tr("Build status contains %1 artifacts when only 1 expected").arg(artifacts.count()), QtWarningMsg);
     }
     for (int i = 0; i < artifacts.count(); i++) {
       if (artifacts[i].isObject()) {
         const QJsonObject &artifact = artifacts[i].toObject();
-        if (stringExists(artifact, "slug") && getString(artifact, "slug") == "firmware") {
+        if (stringExists(artifact, "slug") && artifact.value("slug").toString() == "firmware") {
           if (stringExists(artifact, "download_url")) {
-            repo()->assets()->setDownloadUrl(getString(artifact, "download_url"));
+            repo()->assets()->setDownloadUrl(artifact.value("download_url").toString());
           }
           else {
             status()->reportProgress(tr("Build status does not contain download url"), QtCriticalMsg);

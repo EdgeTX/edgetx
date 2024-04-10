@@ -53,7 +53,7 @@ void UpdateFirmware::assetSettingsInit()
 
 int UpdateFirmware::asyncInstall()
 {
-  //status->reportProgress(tr("Write firmware to radio: %1").arg(g.currentProfile().burnFirmware() ? tr("true") : tr("false")), QtDebugMsg);
+  status()->reportProgress(tr("Write firmware to radio: %1").arg(g.currentProfile().burnFirmware() ? tr("true") : tr("false")), QtDebugMsg);
 
   if (!g.currentProfile().burnFirmware())
     return true;
@@ -61,7 +61,7 @@ int UpdateFirmware::asyncInstall()
   status()->progressMessage(tr("Install"));
 
   repo()->assets()->setFilterFlags(UPDFLG_AsyncInstall);
-  //status->reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_AsyncInstall)).arg(assets->count()), QtDebugMsg);
+  status()->reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_AsyncInstall)).arg(repo()->assets()->count()), QtDebugMsg);
 
   if (repo()->assets()->count() < 1)
     return true;
