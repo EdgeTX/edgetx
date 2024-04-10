@@ -195,11 +195,18 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
 
   m_radio = repo()->assets()->name(row);
 
+  m_logDir = QString("%1/logs").arg(downloadDir());
+
+  if (!QDir().mkpath(m_logDir)) {
+    status()->reportProgress(tr("Failed to create directory %1!").arg(m_logDir), QtCriticalMsg);
+    return false;
+  }
+
   status()->progressMessage(tr("Building firmware target %1").arg(m_radio));
 
   QJsonObject target;
 
-  network()->saveJsonObjToFile(*repo()->config(), QString("%1/targets.txt").arg(downloadDir()));
+  network()->saveJsonObjToFile(*repo()->config(), QString("%1/targets.txt").arg(m_logDir));
 
   if (!objectExists(*repo()->config(), "targets")) {
     status()->reportProgress(tr("Unexpected format for build targets meta data"), QtCriticalMsg);
@@ -214,7 +221,7 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
     return false;
   }
 
-  network()->saveJsonObjToFile(target, QString("%1/%2_target.txt").arg(downloadDir()).arg(m_radio));
+  network()->saveJsonObjToFile(target, QString("%1/%2_target.txt").arg(m_logDir).arg(m_radio));
 
   QJsonArray arrTags = target.value("tags").toArray();
 
@@ -283,11 +290,11 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
 
   m_buildStartTime = QTime::currentTime();
 
-  network()->saveJsonDocToFile(docBody, QString("%1/%2_body.txt").arg(downloadDir()).arg(m_radio));
+  network()->saveJsonDocToFile(docBody, QString("%1/%2_body.txt").arg(m_logDir).arg(m_radio));
 
   network()->submitRequest(tr("Submit firmware build"), repo()->urlJobs(), docBody, m_docResp);
 
-  network()->saveBufferToFile(QString("%1/%2_buffer.txt").arg(downloadDir()).arg(m_radio));
+  network()->saveBufferToFile(QString("%1/%2_buffer.txt").arg(m_logDir).arg(m_radio));
 
   if (!network()->isSuccess()) {
     status()->reportProgress(tr("Failed to initiate build job"), QtCriticalMsg);
@@ -299,7 +306,7 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
     return false;
   }
 
-  network()->saveJsonDocToFile(m_docResp, QString("%1/%2_response.txt").arg(downloadDir()).arg(m_radio));
+  network()->saveJsonDocToFile(m_docResp, QString("%1/%2_response.txt").arg(m_logDir).arg(m_radio));
 
   const QJsonObject &obj = m_docResp->object();
 
@@ -366,7 +373,7 @@ bool UpdateCloudBuild::getStatus()
   m_docResp = new QJsonDocument();
   network()->submitRequest(tr("Submit get build status"), repo()->urlStatus(), docBody, m_docResp);
 
-  network()->saveJsonDocToFile(m_docResp, QString("%1/%2_status_%3.txt").arg(downloadDir()).arg(m_radio).arg(QTime::currentTime().toString("hhmmss")));
+  network()->saveJsonDocToFile(m_docResp, QString("%1/%2_status_%3.txt").arg(m_logDir).arg(m_radio).arg(QTime::currentTime().toString("hhmmss")));
 
   if (m_docResp->isObject())
     m_jobStatus = m_docResp->object().value("status").toString(QString(STATUS_UNKNOWN));

@@ -49,11 +49,13 @@ class UpdateCloudBuild: public UpdateInterface
     QJsonDocument *m_docResp;
     QEventLoop m_eventLoop;
     QTimer m_timer;
-    QString m_jobStatus;
-    QString m_radio;
+
+    QString m_logDir;
     QString m_buildFlags;
     QTime m_buildStartTime;
+    QString m_jobStatus;
     QStringList m_profileOpts;
+    QString m_radio;
 
     bool arrayExists(const QJsonObject & parent, const QString child);
     bool objectExists(const QJsonObject & parent, const QString child);
