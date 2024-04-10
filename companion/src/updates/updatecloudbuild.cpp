@@ -70,35 +70,53 @@ void UpdateCloudBuild::assetSettingsInit()
   qDebug() << "Asset settings initialised";
 }
 
-bool UpdateCloudBuild::addBuildFlagLang(const QJsonObject & flags, QJsonObject & buildFlags)
+bool UpdateCloudBuild::addBuildLanguage(const QString & flag, const QJsonArray & values, QJsonArray & buildFlags)
 {
-  if (!objectExists(flags, "language")) {
-    status()->reportProgress(tr("Language build flag not found or format unsupported"), QtCriticalMsg);
-    return false;
-  }
-
-  const QJsonObject &language = flags.value("language").toObject();
-  QString buildFlag;
-  QJsonArray values;
-
-  if (!getFlagParams(language, buildFlag, values))
-    return false;
-
-  QString lang;
+  QString val;
 
   if (values.contains(params()->language.toLower()))
-    lang = params()->language.toLower();
+    val = params()->language.toLower();
   else if (values.contains(params()->language.toUpper()))
-    lang = params()->language.toUpper();
+    val = params()->language.toUpper();
   else {
     status()->reportProgress(tr("Radio profile language '%1' not supported").arg(params()->language), QtCriticalMsg);
     return false;
   }
 
-  m_buildFlags.append(QString("-%1").arg(lang));
-  buildFlags.insert(buildFlag, QJsonValue(lang));
+  addBuildFlag(buildFlags, flag, val);
 
   return true;
+}
+
+bool UpdateCloudBuild::addBuildFai(const QString & flag, const QJsonArray & values, QJsonArray & buildFlags)
+{
+  if (!m_profileOpts.contains("faichoice") && !m_profileOpts.contains("faimode"))
+    return true;
+
+  if (!values.contains("CHOICE") && !values.contains("YES")) {
+    status()->reportProgress(tr("fai_mode values do not contain CHOICE and YES"), QtCriticalMsg);
+    return false;
+  }
+
+  QString val;
+
+  if (m_profileOpts.contains("faichoice"))
+    val = "CHOICE";
+  else if (m_profileOpts.contains("faimode"))
+    val = "YES";
+
+  m_buildFlags.append(QString("-%1").arg("fai"));
+  addBuildFlag(buildFlags, flag, val);
+
+  return true;
+}
+
+void UpdateCloudBuild::addBuildFlag(QJsonArray & buildFlags, const QString & flag, const QString & val)
+{
+  QJsonObject bldFlag;
+  bldFlag.insert("name", flag);
+  bldFlag.insert("value", val);
+  buildFlags.append(QJsonValue(bldFlag));
 }
 
 bool UpdateCloudBuild::arrayExists(const QJsonObject & parent, const QString child)
@@ -173,12 +191,15 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
 {
   m_buildFlags.clear();
   m_jobStatus.clear();
+  m_profileOpts.clear();
 
   m_radio = repo()->assets()->name(row);
 
   status()->progressMessage(tr("Building firmware target %1").arg(m_radio));
 
   QJsonObject target;
+
+  network()->saveJsonObjToFile(*repo()->config(), QString("%1/targets.txt").arg(downloadDir()));
 
   if (!objectExists(*repo()->config(), "targets")) {
     status()->reportProgress(tr("Unexpected format for build targets meta data"), QtCriticalMsg);
@@ -193,6 +214,8 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
     return false;
   }
 
+  network()->saveJsonObjToFile(target, QString("%1/%2_target.txt").arg(downloadDir()).arg(m_radio));
+
   QJsonArray arrTags = target.value("tags").toArray();
 
   if (arrTags.isEmpty()) {
@@ -201,21 +224,18 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
   }
 
   Firmware *fw = getCurrentFirmware();
-  QStringList profileOpts = fw->getId().split("-");
+  m_profileOpts = fw->getId().split("-");
   // [0] = edgetx
   // [1] = radio id
   // [last] = language code
 
   // add tags based on radio profile and do not duplicate defaults
-  if (profileOpts.contains("bluetooth") && !arrTags.contains(QJsonValue("bluetooth")))
+  if (m_profileOpts.contains("bluetooth") && !arrTags.contains(QJsonValue("bluetooth")))
     arrTags.append(QJsonValue("bluetooth"));
 
   //===============================
   //  TODO tags more to be added!!!
   //===============================
-
-  QJsonObject objBuildFlags;
-  objBuildFlags = target.value("build_flags").toObject();
 
   const QJsonObject flags = repo()->config()->value("flags").toObject();
 
@@ -224,8 +244,27 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
     return false;
   }
 
-  if (!addBuildFlagLang(flags, objBuildFlags))
-    return false;
+  QJsonArray arrBuildFlags;
+  QStringList flagKeys = flags.keys();
+
+  for (auto i = flagKeys.cbegin(), end = flagKeys.cend(); i != end; ++i) {
+    const QJsonObject &flag = flags.value(*i).toObject();
+    const QJsonArray &fvals = flag.value("values").toArray();
+
+    if (*i == "language") {
+      if (!addBuildLanguage(*i, fvals, arrBuildFlags))
+        return false;
+    }
+    else if (*i == "fai_mode") {
+      if (!addBuildFai(*i, fvals, arrBuildFlags))
+        return false;
+    }
+
+  //===============================
+  //  TODO flags more to be added!!!
+  //===============================
+
+  }
 
   if (m_objBody)
     delete m_objBody;
@@ -233,8 +272,7 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
   m_objBody = new QJsonObject();
   m_objBody->insert("release", QJsonValue(params()->releaseUpdate));
   m_objBody->insert("target", QJsonValue(m_radio));
-  m_objBody->insert("tags", QJsonValue(arrTags));
-  m_objBody->insert("build_flags", QJsonValue(objBuildFlags));
+  m_objBody->insert("flags", QJsonValue(arrBuildFlags));
 
   QJsonDocument *docBody = new QJsonDocument(*m_objBody);
 
@@ -245,7 +283,11 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
 
   m_buildStartTime = QTime::currentTime();
 
+  network()->saveJsonDocToFile(docBody, QString("%1/%2_body.txt").arg(downloadDir()).arg(m_radio));
+
   network()->submitRequest(tr("Submit firmware build"), repo()->urlJobs(), docBody, m_docResp);
+
+  network()->saveBufferToFile(QString("%1/%2_buffer.txt").arg(downloadDir()).arg(m_radio));
 
   if (!network()->isSuccess()) {
     status()->reportProgress(tr("Failed to initiate build job"), QtCriticalMsg);
@@ -256,6 +298,8 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
     status()->reportProgress(tr("Unexpected response format when submitting build job"), QtCriticalMsg);
     return false;
   }
+
+  network()->saveJsonDocToFile(m_docResp, QString("%1/%2_response.txt").arg(downloadDir()).arg(m_radio));
 
   const QJsonObject &obj = m_docResp->object();
 
@@ -311,21 +355,6 @@ void UpdateCloudBuild::cleanup()
    m_eventLoop.quit();
 }
 
-bool UpdateCloudBuild::getFlagParams(const QJsonObject & flag, QString & buildFlag, QJsonArray & values)
-{
-  bool res = false;
-
-  if (stringExists(flag, "build_flag") && arrayExists(flag, "values")) {
-    buildFlag = flag.value("build_flag").toString();
-    values = flag.value("values").toArray();
-    res = true;
-  }
-  else
-    status()->reportProgress(tr("build_flag or values not found"), QtWarningMsg);
-
-  return res;
-}
-
 bool UpdateCloudBuild::getStatus()
 {
   m_jobStatus = QString(STATUS_UNKNOWN);
@@ -336,6 +365,8 @@ bool UpdateCloudBuild::getStatus()
 
   m_docResp = new QJsonDocument();
   network()->submitRequest(tr("Submit get build status"), repo()->urlStatus(), docBody, m_docResp);
+
+  network()->saveJsonDocToFile(m_docResp, QString("%1/%2_status_%3.txt").arg(downloadDir()).arg(m_radio).arg(QTime::currentTime().toString("hhmmss")));
 
   if (m_docResp->isObject())
     m_jobStatus = m_docResp->object().value("status").toString(QString(STATUS_UNKNOWN));
@@ -364,7 +395,7 @@ bool UpdateCloudBuild::objectExists(const QJsonObject & parent, const QString ch
 bool UpdateCloudBuild::setAssetDownload()
 {
   //  this format MUST align with the asset copy filter
-  QString name = QString("%1%2-%3.bin").arg(m_radio).arg(m_buildFlags/* has a leading hyphen*/).arg(repo()->releases()->name());
+  QString name = QString("%1-%2%3-%4.bin").arg(m_radio).arg(params()->language.toLower()).arg(m_buildFlags/* has a leading hyphen*/).arg(repo()->releases()->name());
 
   repo()->assets()->setDownloadName(name.toLower());
 

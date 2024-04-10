@@ -53,14 +53,15 @@ class UpdateCloudBuild: public UpdateInterface
     QString m_radio;
     QString m_buildFlags;
     QTime m_buildStartTime;
+    QStringList m_profileOpts;
 
     bool arrayExists(const QJsonObject & parent, const QString child);
     bool objectExists(const QJsonObject & parent, const QString child);
     bool stringExists(const QJsonObject & parent, const QString child);
 
-    bool getFlagParams(const QJsonObject & flag, QString & buildFlag, QJsonArray & values);
-
-    bool addBuildFlagLang(const QJsonObject & flags, QJsonObject & buildFlags);
+    bool addBuildLanguage(const QString & flag, const QJsonArray & values, QJsonArray & buildFlags);
+    bool addBuildFai(const QString & flag, const QJsonArray & values, QJsonArray & buildFlags);
+    void addBuildFlag(QJsonArray & buildFlags, const QString & flag, const QString & val);
     void cleanup();
     bool getStatus();
     bool isStatusInProgress();
