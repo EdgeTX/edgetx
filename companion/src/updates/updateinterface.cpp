@@ -143,7 +143,7 @@ bool UpdateInterface::buildFlaggedAssets()
 
 bool UpdateInterface::buildFlaggedAsset(const int row)
 {
-  return m_repo->assets()->build(row);
+  return true;
 }
 
 bool UpdateInterface::checkCreateDirectory(const QString & dir, const UpdateFlags flag)
@@ -496,7 +496,7 @@ bool UpdateInterface::downloadFlaggedAsset(const int row)
 
 int UpdateInterface::download()
 {
-  m_status->progressMessage(tr("Downloading assets"));
+  m_status->progressMessage(tr("Downloading..."));
 
   if (!downloadFlaggedAssets()) {
     m_status->reportProgress(tr("Unable to download flagged assets"), QtDebugMsg);

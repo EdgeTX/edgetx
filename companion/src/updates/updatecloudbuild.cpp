@@ -192,21 +192,30 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
   m_buildFlags.clear();
   m_jobStatus.clear();
   m_profileOpts.clear();
-
   m_radio = repo()->assets()->name(row);
 
-  m_logDir = QString("%1/logs").arg(downloadDir());
+  status()->reportProgress(tr("Building firmware for: %1").arg(m_radio));
+  status()->progressMessage(tr("Building firmware for: %1").arg(m_radio));
 
-  if (!QDir().mkpath(m_logDir)) {
-    status()->reportProgress(tr("Failed to create directory %1!").arg(m_logDir), QtCriticalMsg);
-    return false;
+  if (params()->logLevel == QtDebugMsg) {
+    m_logDir = QString("%1/logs").arg(downloadDir());
+
+    if (!QDir().mkpath(m_logDir)) {
+      status()->reportProgress(tr("Failed to create directory %1!").arg(m_logDir), QtCriticalMsg);
+      return false;
+    }
   }
 
-  status()->progressMessage(tr("Building firmware target %1").arg(m_radio));
+  Firmware *fw = getCurrentFirmware();
+  m_profileOpts = fw->getId().split("-");
+  // [0] = edgetx
+  // [1] = radio id
+  // [last] = language code
 
   QJsonObject target;
 
-  network()->saveJsonObjToFile(*repo()->config(), QString("%1/targets.txt").arg(m_logDir));
+  if (params()->logLevel == QtDebugMsg)
+    network()->saveJsonObjToFile(*repo()->config(), QString("%1/targets.txt").arg(m_logDir));
 
   if (!objectExists(*repo()->config(), "targets")) {
     status()->reportProgress(tr("Unexpected format for build targets meta data"), QtCriticalMsg);
@@ -221,28 +230,14 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
     return false;
   }
 
-  network()->saveJsonObjToFile(target, QString("%1/%2_target.txt").arg(m_logDir).arg(m_radio));
+  if (params()->logLevel == QtDebugMsg)
+    network()->saveJsonObjToFile(target, QString("%1/%2_target.txt").arg(m_logDir).arg(m_radio));
 
-  QJsonArray arrTags = target.value("tags").toArray();
+  QJsonArray targetTags = target.value("tags").toArray();
 
-  if (arrTags.isEmpty()) {
-    status()->reportProgress(tr("Build target %1 has no valid tags").arg(m_radio), QtCriticalMsg);
-    return false;
+  if (targetTags.isEmpty()) {
+    status()->reportProgress(tr("Build target %1 has no valid tags").arg(m_radio), QtWarningMsg);
   }
-
-  Firmware *fw = getCurrentFirmware();
-  m_profileOpts = fw->getId().split("-");
-  // [0] = edgetx
-  // [1] = radio id
-  // [last] = language code
-
-  // add tags based on radio profile and do not duplicate defaults
-  if (m_profileOpts.contains("bluetooth") && !arrTags.contains(QJsonValue("bluetooth")))
-    arrTags.append(QJsonValue("bluetooth"));
-
-  //===============================
-  //  TODO tags more to be added!!!
-  //===============================
 
   const QJsonObject flags = repo()->config()->value("flags").toObject();
 
@@ -252,6 +247,7 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
   }
 
   QJsonArray arrBuildFlags;
+
   QStringList flagKeys = flags.keys();
 
   for (auto i = flagKeys.cbegin(), end = flagKeys.cend(); i != end; ++i) {
@@ -267,9 +263,9 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
         return false;
     }
 
-  //===============================
-  //  TODO flags more to be added!!!
-  //===============================
+  //==================================================================================
+  //  TODO flags more to be added including custom hardware target build eg SPACEMOUSE
+  //==================================================================================
 
   }
 
@@ -290,11 +286,13 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
 
   m_buildStartTime = QTime::currentTime();
 
-  network()->saveJsonDocToFile(docBody, QString("%1/%2_body.txt").arg(m_logDir).arg(m_radio));
+  if (params()->logLevel == QtDebugMsg)
+    network()->saveJsonDocToFile(docBody, QString("%1/%2_body.txt").arg(m_logDir).arg(m_radio));
 
   network()->submitRequest(tr("Submit firmware build"), repo()->urlJobs(), docBody, m_docResp);
 
-  network()->saveBufferToFile(QString("%1/%2_buffer.txt").arg(m_logDir).arg(m_radio));
+  if (params()->logLevel == QtDebugMsg)
+    network()->saveBufferToFile(QString("%1/%2_buffer.txt").arg(m_logDir).arg(m_radio));
 
   if (!network()->isSuccess()) {
     status()->reportProgress(tr("Failed to initiate build job"), QtCriticalMsg);
@@ -306,7 +304,8 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
     return false;
   }
 
-  network()->saveJsonDocToFile(m_docResp, QString("%1/%2_response.txt").arg(m_logDir).arg(m_radio));
+  if (params()->logLevel == QtDebugMsg)
+    network()->saveJsonDocToFile(m_docResp, QString("%1/%2_response.txt").arg(m_logDir).arg(m_radio));
 
   const QJsonObject &obj = m_docResp->object();
 
@@ -325,7 +324,7 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
   if (isStatusInProgress())
     waitForBuildFinish();
 
-  status()->reportProgress(tr("Firmware build finished with status %1").arg(m_jobStatus), QtDebugMsg);
+  status()->reportProgress(tr("Firmware build finished status: %1").arg(m_jobStatus));
 
   if (m_jobStatus == QString(STATUS_BUILD_SUCCESS) && setAssetDownload())
     return true;
@@ -373,7 +372,8 @@ bool UpdateCloudBuild::getStatus()
   m_docResp = new QJsonDocument();
   network()->submitRequest(tr("Submit get build status"), repo()->urlStatus(), docBody, m_docResp);
 
-  network()->saveJsonDocToFile(m_docResp, QString("%1/%2_status_%3.txt").arg(m_logDir).arg(m_radio).arg(QTime::currentTime().toString("hhmmss")));
+  if (params()->logLevel == QtDebugMsg)
+    network()->saveJsonDocToFile(m_docResp, QString("%1/%2_status_%3.txt").arg(m_logDir).arg(m_radio).arg(QTime::currentTime().toString("hhmmss")));
 
   if (m_docResp->isObject())
     m_jobStatus = m_docResp->object().value("status").toString(QString(STATUS_UNKNOWN));
