@@ -157,7 +157,6 @@ void AppPreferencesDialog::accept()
   profile.externalModuleSize(ui->externalModuleSizeCB->currentData().toInt());
   profile.channelOrder(ui->channelorderCB->currentIndex());
   profile.defaultMode(ui->stickmodeCB->currentIndex());
-  profile.renameFwFiles(ui->renameFirmware->isChecked());
   profile.burnFirmware(ui->burnFirmware->isChecked());
   profile.sdPath(ui->sdPath->text());
   profile.pBackupDir(ui->profilebackupPath->text());
@@ -307,7 +306,6 @@ void AppPreferencesDialog::initSettings()
   ui->externalModuleSizeCB->setCurrentIndex(ui->externalModuleSizeCB->findData(profile.externalModuleSize()));
   ui->channelorderCB->setCurrentIndex(profile.channelOrder());
   ui->stickmodeCB->setCurrentIndex(profile.defaultMode());
-  ui->renameFirmware->setChecked(profile.renameFwFiles());
   ui->sdPath->setText(profile.sdPath());
   if (!profile.pBackupDir().isEmpty()) {
     if (QDir(profile.pBackupDir()).exists()) {
