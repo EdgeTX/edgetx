@@ -1812,7 +1812,7 @@ class ArmCustomFunctionField: public TransformedField {
         if (fn.adjustMode == 1)
           sourcesConversionTable->importValue(value, (int &)fn.param);
         else if (fn.adjustMode == 2)
-          fn.param = RawSource(SOURCE_TYPE_GVAR, value).toValue();
+          fn.param = RawSource(SOURCE_TYPE_GVAR, value + 1).toValue();
         else
           fn.param = (int16_t)value;
       }
