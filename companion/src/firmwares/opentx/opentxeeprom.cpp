@@ -509,46 +509,46 @@ class SourcesConversionTable: public ConversionTable {
 //        qDebug() << "i:" << i << "offset:" << offset << "index:" << i + offset + 1 << "desc:" << RawSource(SOURCE_TYPE_STICK, i + offset).toString() << "val:" << val;
       }
 
-      for (int i=1; i<=MAX_ROTARY_ENCODERS(board); i++) {
+      for (int i = 1; i <= MAX_ROTARY_ENCODERS(board); i++) {
         addConversion(RawSource(SOURCE_TYPE_ROTARY_ENCODER, 0), val++);
       }
 
       addConversion(RawSource(SOURCE_TYPE_MAX), val++);
 
-      for (int i=1; i<=3; i++)
+      for (int i = 1; i <= 3; i++)
         addConversion(RawSource(SOURCE_TYPE_CYC, i), val++);
 
-      for (int i=1; i<=MAX_TRIMS(board); i++)
+      for (int i = 1; i <= MAX_TRIMS(board); i++)
         addConversion(RawSource(SOURCE_TYPE_TRIM, i), val++);
 
       if (!(flags & FLAG_NOSWITCHES)) {
-        for (int i=1; i<=MAX_SWITCHES_SOURCE(board, version); i++) {
+        for (int i = 1; i <= MAX_SWITCHES_SOURCE(board, version); i++) {
           addConversion(RawSource(SOURCE_TYPE_SWITCH, i), val++);
         }
-        for (int i=1; i<=MAX_FUNCTIONSWITCHES(board, version); i++) {
+        for (int i = 1; i <= MAX_FUNCTIONSWITCHES(board, version); i++) {
           addConversion(RawSource(SOURCE_TYPE_FUNCTIONSWITCH, i), val++);
         }
-        for (int i=1; i<=MAX_LOGICAL_SWITCHES(board, version); i++) {
+        for (int i = 1; i <= MAX_LOGICAL_SWITCHES(board, version); i++) {
           addConversion(RawSource(SOURCE_TYPE_CUSTOM_SWITCH, i), val++);
         }
       }
 
-      for (int i=1; i<=NUM_PPM_INPUTS(board, version); i++) {
+      for (int i = 1; i <= NUM_PPM_INPUTS(board, version); i++) {
         addConversion(RawSource(SOURCE_TYPE_PPM, i), val++);
       }
 
-      for (int i=1; i<=MAX_CHANNELS(board, version); i++) {
+      for (int i = 1; i <= MAX_CHANNELS(board, version); i++) {
         addConversion(RawSource(SOURCE_TYPE_CH, i), val++);
       }
 
       if (!(flags & FLAG_NOTELEMETRY)) {
-        for (int i=1; i<=MAX_GVARS(board, version); i++)
+        for (int i = 1; i <= MAX_GVARS(board, version); i++)
           addConversion(RawSource(SOURCE_TYPE_GVAR, i), val++);
-        for (int i=1; i<=MAX_SOURCE_TYPE_SPECIAL(board, version); i++)
+        for (int i = 1; i <  MAX_SOURCE_TYPE_SPECIAL(board, version); i++) // exception '<' NOT '<=' due to moving TIMERS to own TYPE
           addConversion(RawSource(SOURCE_TYPE_SPECIAL, i), val++);
-        for (int i=1; i<=MAX_TIMERS(board, version); i++)
+        for (int i = 1; i <= MAX_TIMERS(board, version); i++)
           addConversion(RawSource(SOURCE_TYPE_TIMER, i), val++);
-        for (int i=1; i<=MAX_TELEMETRY_SENSORS(board, version)*3; ++i) {
+        for (int i = 1; i <= MAX_TELEMETRY_SENSORS(board, version)*3; ++i) {
           addConversion(RawSource(SOURCE_TYPE_TELEMETRY, i), val++);
         }
       }
