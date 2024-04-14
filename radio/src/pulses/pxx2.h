@@ -71,6 +71,8 @@
 
 #define PXX2_AUTH_REFUSED_FLAG          0xA5
 
+#define PXX2_MAX_CHANNELS               24
+
 // Channel mapping constants
 #define CH_ENABLE_SPORT 4
 #define CH_ENABLE_SBUS  5
