@@ -179,12 +179,14 @@
   #define KEYS_GPIO_REG_ENTER           GPIOA
   #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_13 // PA.13
 #elif defined(RADIO_GX12)
+  #define KEYS_GPIO_REG_SYS             GPIOB
+  #define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_4  // PB.04
   #define KEYS_GPIO_REG_ENTER           GPIOA
   #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_10 // PA.10
   #define KEYS_GPIO_REG_EXIT            GPIOC
   #define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_5  // PC.05
+  #define KEYS_GPIO_REG_MDL             GPIOE
   #define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_11 // PE.11
-  #define KEYS_GPIO_REG_TELE            GPIOD
   #define KEYS_GPIO_REG_PAGEUP          GPIOD
   #define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_7  // PD.03
   #define KEYS_GPIO_REG_PAGEDN          GPIOD
@@ -459,7 +461,7 @@
   #define TRIMS_GPIO_PIN_T5L            LL_GPIO_PIN_14 // PE.14
 #elif defined(RADIO_GX12)
   #define TRIMS_GPIO_REG_LHL            GPIOD
-  #define TRIMS_GPIO_PIN_LHL            LL_GPIO_PIN_12 // PD.15
+  #define TRIMS_GPIO_PIN_LHL            LL_GPIO_PIN_15 // PD.15
   #define TRIMS_GPIO_REG_LHR            GPIOC
   #define TRIMS_GPIO_PIN_LHR            LL_GPIO_PIN_1  // PC.01
   #define TRIMS_GPIO_REG_LVD            GPIOE
@@ -2854,7 +2856,7 @@
   #define LCD_HORIZONTAL_INVERT
   #define OLED_SCREEN
 #endif
-#if defined(RADIO_T14)
+#if defined(RADIO_T14) || defined(RADIO_GX12)
   #define SSD1309_LCD
 #endif
 #if defined(PCBX9E)
