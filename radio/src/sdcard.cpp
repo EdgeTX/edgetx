@@ -401,7 +401,7 @@ const char * sdMoveFile(const char * srcPath, const char * destPath)
 {
   const char *result;
   result = sdCopyFile(srcPath, destPath);
-  if(result != 0) {
+  if(result != nullptr) {
     return result;
   }
 
@@ -417,7 +417,7 @@ const char * sdMoveFile(const char * srcFilename, const char * srcDir, const cha
 {
   const char *result;
   result = sdCopyFile(srcFilename, srcDir, destFilename, destDir);
-  if(result != 0) {
+  if(result != nullptr) {
     return result;
   }
 

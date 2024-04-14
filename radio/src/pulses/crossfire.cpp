@@ -280,7 +280,7 @@ static void* crossfireInit(uint8_t module)
 
 #if !defined(SIMU)
       if (drv && ctx && drv->setIdleCb) {
-        drv->setIdleCb(ctx, _crsf_intmodule_frame_received, 0);
+        drv->setIdleCb(ctx, _crsf_intmodule_frame_received, nullptr);
       }
 #endif
     }
@@ -301,7 +301,7 @@ static void* crossfireInit(uint8_t module)
 
 #if !defined(SIMU)
       if (drv && ctx && drv->setIdleCb) {
-        drv->setIdleCb(ctx, _soft_irq_trigger, 0);
+        drv->setIdleCb(ctx, _soft_irq_trigger, nullptr);
         stm32_exti_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 0,
                           _crsf_extmodule_frame_received);
       }

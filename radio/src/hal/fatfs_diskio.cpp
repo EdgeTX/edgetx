@@ -63,7 +63,7 @@ void fatfsUnregisterDrivers()
   for (uint8_t i = 0; i < _fatfs_n_drives; i++) {
     auto& drive = _fatfs_drives[i];
     if (drive.initialized) {
-      disk_ioctl(i, CTRL_SYNC, 0);
+      disk_ioctl(i, CTRL_SYNC, nullptr);
       if (drive.drv->deinit) {
         drive.drv->deinit(drive.lun);
       }

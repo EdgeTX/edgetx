@@ -491,7 +491,7 @@ class AudioFragmentFifo
         }
         return result;
       }
-      return 0;
+      return nullptr;
     }
 
     void push(const AudioFragment & fragment)

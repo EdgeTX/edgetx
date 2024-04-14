@@ -185,7 +185,7 @@ void logsClose()
   if (g_oLogFile.obj.fs && sdMounted()) {
     if (f_close(&g_oLogFile) != FR_OK) {
       // close failed, forget file
-      g_oLogFile.obj.fs = 0;
+      g_oLogFile.obj.fs = nullptr;
     }
     lastLogTime = 0;
   }
