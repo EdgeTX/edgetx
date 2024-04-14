@@ -1009,7 +1009,7 @@
 
 // Bootloader common - Ascii only
 #define TR_BL_USB_CONNECTED           "USB verbunden"
-#define TR_BL_USB_PLUGIN              "Oder schließen Sie ein USB-Kabel"
+#define TR_BL_USB_PLUGIN              "oder USB-Kabel anschl."
 #define TR_BL_USB_MASS_STORE          "für den SD-Speicher an"
 #define TR_BL_USB_PLUGIN_MASS_STORE   "Oder schließen Sie ein USB-Kabel für den SD-Speicher an"
 #define TR_BL_WRITE_FW                "Schreibe Firmware"
@@ -1020,7 +1020,7 @@
 #define TR_BL_DIR_MISSING             " Verzeichnis fehlt"
 #define TR_BL_DIR_EMPTY               " Verzeichnis leer"
 #define TR_BL_WRITING_FW              "Schreibe..."
-#define TR_BL_WRITING_COMPL           "Schreiben abgeschlossen"
+#define TR_BL_WRITING_COMPL           TR("Schreiben fertig","Schreiben abgeschlossen")
 
 #if LCD_W >= 480
   #define TR_BL_INVALID_FIRMWARE       "Keine gültige Firmwaredatei"
@@ -1031,9 +1031,9 @@
   #define TR_BL_INVALID_EEPROM         "\011Keine gültige EEPROM Datei!         "
 #else
   #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
-  #define TR_BL_HOLD_ENTER_TO_START    "\006Halte [ENT] zum Starten gedrückt"
-  #define TR_BL_INVALID_FIRMWARE       "\004Keine gültige Firmware!        "
-  #define TR_BL_INVALID_EEPROM         "\004Kein gültiges EEPROM!          "
+  #define TR_BL_HOLD_ENTER_TO_START    "Zum Starten [ENT] halten"
+  #define TR_BL_INVALID_FIRMWARE       "Keine gültige Firmware!"
+  #define TR_BL_INVALID_EEPROM         "Kein gültiges EEPROM!"
 #endif
 
 #if defined(PCBTARANIS)
