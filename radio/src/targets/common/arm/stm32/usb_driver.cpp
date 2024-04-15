@@ -226,8 +226,8 @@ void usbJoystickUpdate()
    //uint8_t * p = HID_Buffer + 1;
    for (int i = 0; i < 8; ++i) {
 
-     int16_t value = channelOutputs[i] + 1024;
-     if ( value > 2047 ) value = 2047;
+     int16_t value = channelOutputs[i] + 1023;
+     if ( value > 2046 ) value = 2046;
      else if ( value < 0 ) value = 0;
      HID_Buffer[i*2 +3] = static_cast<uint8_t>(value & 0xFF);
      HID_Buffer[i*2 +4] = static_cast<uint8_t>((value >> 8) & 0x07);

@@ -104,7 +104,7 @@ static const uint8_t HID_JOYSTICK_ReportDesc[] =
     0x09, 0x36,                    //         USAGE (Slider)
     0x09, 0x37,                    //         USAGE (Dial)
     0x14,                          //         LOGICAL_MINIMUM (0)
-    0x26, 0xFF, 0x07,              //         LOGICAL_MAXIMUM (2047)
+    0x26, 0xFE, 0x07,              //         LOGICAL_MAXIMUM (2046)
     0x75, 0x10,                    //         REPORT_SIZE (16)
     0x95, 0x08,                    //         REPORT_COUNT (8)
     0x81, 0x02,                    //         INPUT (Data,Var,Abs)
@@ -440,8 +440,8 @@ void usbClassicStateUpdate()
   //uint8_t * p = HID_Buffer + 1;
   for (int i = 0; i < 8; ++i) {
 
-    int16_t value = channelOutputs[i] + 1024;
-    if ( value > 2047 ) value = 2047;
+    int16_t value = channelOutputs[i] + 1023;
+    if ( value > 2046 ) value = 2046;
     else if ( value < 0 ) value = 0;
     _hidReport[i*2 +3] = static_cast<uint8_t>(value & 0xFF);
     _hidReport[i*2 +4] = static_cast<uint8_t>((value >> 8) & 0x07);
@@ -628,11 +628,11 @@ void usbStateUpdate()
   for (uint8_t i = 0; i < _usbJoystickAxisCount; i++) {
     chix = _usbJS->_usbJoystickAxisChannels[i];
 
-    value = circularCutoutValue(chix) + 1024;
-    if ( value > 2047 ) value = 2047;
+    value = circularCutoutValue(chix) + 1023;
+    if ( value > 2046 ) value = 2046;
     else if ( value < 0 ) value = 0;
 
-    if (g_model.usbJoystickCh[chix].inversion) value = 2047 - value;
+    if (g_model.usbJoystickCh[chix].inversion) value = 2046 - value;
 
     _hidReport[i*2 + axis_ix] = static_cast<uint8_t>(value & 0xFF);
     _hidReport[i*2 + axis_ix+1] = static_cast<uint8_t>((value >> 8) & 0x07);
