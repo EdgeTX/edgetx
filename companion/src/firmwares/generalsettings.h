@@ -378,11 +378,8 @@ class GeneralSettings {
     bool isInputSlider(int index) const;
     bool isInputStick(int index) const;
     bool isInputFlexSwitchAvailable(int index) const;
-    bool isPotAvailable(int index) const;
-    bool isSliderAvailable(int index) const;
     bool isSwitchAvailable(int index) const;
     bool isSwitchFlex(int index) const;
-    bool isMultiPosPot(int index) const;
     bool unassignedInputFlexSwitches() const;
 
     QString antennaModeToString() const;

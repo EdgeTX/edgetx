@@ -305,7 +305,15 @@ int BoardJson::getInputTagOffset(const InputsTable * inputs, QString tag)
       return i;
   }
 
-  return 0;
+  return -1;
+}
+
+const int BoardJson::getInputExtIndex(int index)
+{
+  if (getCapability(Board::Pots) > 0)
+    return getInputTagOffset(m_inputs, QString("EXT%1").arg(index));
+
+  return -1;
 }
 
 const int BoardJson::getInputPotIndex(int index)
