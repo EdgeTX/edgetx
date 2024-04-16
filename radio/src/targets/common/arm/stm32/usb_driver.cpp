@@ -21,6 +21,8 @@
 
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
+#else
+#include "opentx_helpers.h"
 #endif
 
 extern "C" {
