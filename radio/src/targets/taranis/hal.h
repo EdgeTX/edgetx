@@ -90,7 +90,7 @@
   #define KEYS_GPIO_PIN_LEFT            LL_GPIO_PIN_7 // PD.07
   #define KEYS_GPIO_REG_RIGHT           GPIOD
   #define KEYS_GPIO_PIN_RIGHT           LL_GPIO_PIN_3 // PD.03
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_MT12) || defined(RADIO_POCKET)
+#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_MT12) || defined(RADIO_POCKET) || defined(RADIO_GX12)
 #if defined(RADIO_MT12)
   #define KEYS_GPIO_REG_PAGEUP          GPIOD
   #define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_7  // PD.07
@@ -109,7 +109,7 @@
   #define KEYS_GPIO_REG_EXIT            GPIOC
   #define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_5  // PC.05
 #endif
-#if defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12)
+#if defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_GX12)
   #define KEYS_GPIO_REG_ENTER           GPIOA
   #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_10 // PA.10
 #else
@@ -652,6 +652,11 @@
   #define HARDWARE_SWITCH_A
   #define SWITCHES_GPIO_REG_A           GPIOC
   #define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_13  // PC.13
+#elif defined(RADIO_GX12)
+  #define STORAGE_SWITCH_A
+  #define HARDWARE_SWITCH_A
+  #define SWITCHES_GPIO_REG_A           GPIOA
+  #define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_8   // FAKE PA.08 (TRAINER DETECT)
 #elif defined(RADIO_T14) || defined(RADIO_T12MAX)
   #define STORAGE_SWITCH_A
   #define HARDWARE_SWITCH_A
@@ -794,6 +799,10 @@
 #elif defined(RADIO_GX12)
   #define STORAGE_SWITCH_B
   #define HARDWARE_SWITCH_B
+  #define SWITCHES_GPIO_REG_B_H         GPIOA
+  #define SWITCHES_GPIO_PIN_B_H         LL_GPIO_PIN_8   // FAKE PA.08 (TRAINER DETECT)
+  #define SWITCHES_GPIO_REG_B_L         GPIOA
+  #define SWITCHES_GPIO_PIN_B_L         LL_GPIO_PIN_8   // FAKE PA.08 (TRAINER DETECT)
 #elif defined(RADIO_V14) || defined(RADIO_V12)
   // ADC based switch
 #elif defined(PCBX7)
@@ -905,6 +914,10 @@
 #elif defined(RADIO_GX12)
   #define STORAGE_SWITCH_C
   #define HARDWARE_SWITCH_C
+  #define SWITCHES_GPIO_REG_C_H         GPIOA
+  #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_8   // FAKE PA.08 (TRAINER DETECT)
+  #define SWITCHES_GPIO_REG_C_L         GPIOA
+  #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_8   // FAKE PA.08 (TRAINER DETECT)
 #elif defined(RADIO_V14) || defined(RADIO_V12)
   // ADC based switch
 #elif defined(PCBX7)
@@ -1001,6 +1014,8 @@
 #elif defined(RADIO_GX12)
   #define STORAGE_SWITCH_D
   #define HARDWARE_SWITCH_D
+  #define SWITCHES_GPIO_REG_D           GPIOA
+  #define SWITCHES_GPIO_PIN_D           LL_GPIO_PIN_8   // FAKE PA.08 (TRAINER DETECT)
 #elif defined(RADIO_V14) || defined(RADIO_V12)
   // ADC based switch
 #elif defined(PCBX7) && !defined(RADIO_COMMANDO8)
@@ -1110,6 +1125,8 @@
 #elif defined(RADIO_GX12)
   #define STORAGE_SWITCH_E
   #define HARDWARE_SWITCH_E
+  #define SWITCHES_GPIO_REG_E           GPIOA
+  #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_8   // FAKE PA.08 (TRAINER DETECT)
 #elif  defined(RADIO_V14) || defined(RADIO_V12)
   #define STORAGE_SWITCH_E
   #define HARDWARE_SWITCH_E
@@ -1205,6 +1222,8 @@
 #elif defined(RADIO_GX12)
   #define STORAGE_SWITCH_F
   #define HARDWARE_SWITCH_F
+  #define SWITCHES_GPIO_REG_F           GPIOA
+  #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_8   // FAKE PA.08 (TRAINER DETECT)
 #elif defined(RADIO_V14) || defined(RADIO_V12)
   #define STORAGE_SWITCH_F
   #define HARDWARE_SWITCH_F
@@ -1265,8 +1284,6 @@
   #define SWITCHES_GPIO_REG_G           GPIOD
   #define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_15  // PD.15
 #elif defined(RADIO_GX12)
-  #define STORAGE_SWITCH_G
-  #define HARDWARE_SWITCH_G
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)  || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_MT12) || defined(RADIO_POCKET) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS)
   // no SWG
 #else
@@ -1323,8 +1340,6 @@
   // no SWH
   #define STORAGE_SWITCH_H
 #elif defined(RADIO_GX12)
-  #define STORAGE_SWITCH_H
-  #define HARDWARE_SWITCH_H
 #elif defined(PCBX7)
   #define STORAGE_SWITCH_H
   #define HARDWARE_SWITCH_H
@@ -1537,7 +1552,7 @@
   #define SWITCHES_GPIO_PIN_P           LL_GPIO_PIN_15  // PE.15
 #endif
 
-#if defined(RADIO_GX12)
+#if 0 //TODO GX12
   //SW1
   #define FUNCTION_SWITCH_1             SI
   #define STORAGE_SWITCH_I
@@ -1987,6 +2002,10 @@
   #define ADC_RCC_APB1Periph            0
   #define ADC_RCC_APB2Periph            0
   // Serial gimbal only
+  #define ADC_GPIO_PIN_STICK_LH
+  #define ADC_GPIO_PIN_STICK_LV
+  #define ADC_GPIO_PIN_STICK_RV
+  #define ADC_GPIO_PIN_STICK_RH
   #define ADC_CHANNEL_STICK_LH
   #define ADC_CHANNEL_STICK_LV
   #define ADC_CHANNEL_STICK_RV
