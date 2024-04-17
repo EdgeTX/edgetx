@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
+#include "opentx.h"
 
 #if defined(NAVIGATION_X9D)
   #include "navigation_x9d.cpp"
