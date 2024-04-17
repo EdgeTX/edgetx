@@ -28,8 +28,6 @@
 #include "delays_driver.h"
 #include "keys.h"
 
-#if !defined(RADIO_NB4P)
-
 /* The output bit-order has to be:
    0  LHL  TR7L (Left equals down)
    1  LHR  TR7R
@@ -220,5 +218,3 @@ uint32_t readTrims()
 
   return result;
 }
-
-#endif
