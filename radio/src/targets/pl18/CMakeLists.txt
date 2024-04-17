@@ -43,16 +43,19 @@ if(PCBREV STREQUAL NB4P)
   set(FLAVOUR nb4p)
   add_definitions(-DRADIO_NB4P)
   set(ROTARY_ENCODER YES)
+  set(KEY_DRIVER nb4p_key_driver.cpp)
 elseif(PCBREV STREQUAL PL18EV)
   set(FLAVOUR pl18ev)
   add_definitions(-DRADIO_PL18EV -DUSE_HATS_AS_KEYS)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
+  set(KEY_DRIVER key_driver.cpp)
 else()
   set(FLAVOUR pl18)
   add_definitions(-DRADIO_PL18 -DUSE_HATS_AS_KEYS)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
+  set(KEY_DRIVER key_driver.cpp)
 
   # Defines internal modules for PL18 via UART7
   set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
@@ -107,7 +110,7 @@ set(TARGET_SRC_DIR targets/${TARGET_DIR})
 set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/board.cpp
   ${TARGET_SRC_DIR}/led_driver.cpp
-  ${TARGET_SRC_DIR}/key_driver.cpp
+  ${TARGET_SRC_DIR}/${KEY_DRIVER}
   ${TARGET_SRC_DIR}/haptic_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
   ${TARGET_SRC_DIR}/${LCD_DRIVER}

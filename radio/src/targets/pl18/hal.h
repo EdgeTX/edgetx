@@ -313,6 +313,7 @@
   #define ADC_CHANNEL_STICK_TH          LL_ADC_CHANNEL_3    // ADC123_IN3 -> ADC1_IN3
   #define ADC_CHANNEL_STICK_ST          LL_ADC_CHANNEL_2    // ADC123_IN2 -> ADC1_IN2
   #define ADC_GPIO_PIN_SWA              LL_GPIO_PIN_1       //PC.01
+  #define ADC_GPIO_SWB                  GPIOC
   #define ADC_GPIO_PIN_SWB              LL_GPIO_PIN_0       //PC.00
   #define ADC_CHANNEL_SWA               LL_ADC_CHANNEL_11   // ADC123_IN11 -> ADC1_IN11
   #define ADC_CHANNEL_SWB               LL_ADC_CHANNEL_10   // ADC123_IN10 -> ADC1_IN10  

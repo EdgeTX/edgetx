@@ -100,6 +100,13 @@ void boardBLInit()
   gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
 }
 
+#if defined(RADIO_NB4P)
+void boardBLPreJump()
+{
+  LL_ADC_Disable(ADC_MAIN);
+}
+#endif
+
 void boardInit()
 {
 #if defined(SEMIHOSTING)
