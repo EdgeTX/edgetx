@@ -28,8 +28,103 @@
 #include "delays_driver.h"
 #include "keys.h"
 
-#if !defined(RADIO_NB4P)
+#if defined(RADIO_NB4P)
+#define BOOTLOADER_KEYS                 0x42
+#define ADC_COMMON ((ADC_Common_TypeDef *)ADC_BASE)
 
+#if defined(BOOT)
+void keysInit()
+{
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
+  
+  pinInit.Pin = ADC_GPIO_PIN_SWB;
+  pinInit.Mode = LL_GPIO_MODE_ANALOG;
+  pinInit.Pull = LL_GPIO_PULL_NO;
+  stm32_gpio_enable_clock(ADC_GPIO_SWB);
+  LL_GPIO_Init(ADC_GPIO_SWB, &pinInit);
+
+  // Init ADC clock
+  uint32_t adc_idx = (((uint32_t) ADC_MAIN) - ADC1_BASE) / 0x100UL;
+  uint32_t adc_msk = RCC_APB2ENR_ADC1EN << adc_idx;
+  LL_APB2_GRP1_EnableClock(adc_msk);
+
+  // Init common to all ADCs
+  LL_ADC_CommonInitTypeDef commonInit;
+  LL_ADC_CommonStructInit(&commonInit);
+
+  commonInit.CommonClock = LL_ADC_CLOCK_SYNC_PCLK_DIV2;
+  LL_ADC_CommonInit(ADC_COMMON, &commonInit);
+
+  // ADC must be disabled for the functions used here
+  LL_ADC_Disable(ADC_MAIN);
+
+  LL_ADC_InitTypeDef adcInit;
+  LL_ADC_StructInit(&adcInit);
+  adcInit.SequencersScanMode = LL_ADC_SEQ_SCAN_DISABLE;
+  LL_ADC_Init(ADC_MAIN, &adcInit);
+
+  LL_ADC_REG_InitTypeDef adcRegInit;
+  LL_ADC_REG_StructInit(&adcRegInit);
+  adcRegInit.TriggerSource = LL_ADC_REG_TRIG_SOFTWARE;
+  adcRegInit.ContinuousMode = LL_ADC_REG_CONV_SINGLE;
+  LL_ADC_REG_Init(ADC_MAIN, &adcRegInit);
+
+  // Enable ADC
+  LL_ADC_Enable(ADC_MAIN);  
+}
+
+uint16_t _adcRead()
+{
+  // Configure ADC channel
+  LL_ADC_REG_SetSequencerRanks(ADC_MAIN, LL_ADC_REG_RANK_1, ADC_CHANNEL_SWB);
+  LL_ADC_SetChannelSamplingTime(ADC_MAIN, ADC_CHANNEL_SWB, LL_ADC_SAMPLINGTIME_3CYCLES);
+
+  // Start ADC conversion
+  LL_ADC_REG_StartConversionSWStart(ADC_MAIN);
+
+  // Wait until ADC conversion is complete
+  uint32_t timeout = 0;
+  while (!LL_ADC_IsActiveFlag_EOCS(ADC_MAIN));
+
+  // Read ADC converted value
+  return LL_ADC_REG_ReadConversionData12(ADC_MAIN);  
+}
+
+#else // !defined(RADIO_NB4P)
+void keysInit()
+{
+}
+#endif
+
+uint32_t readKeys()
+{
+  uint32_t result = 0;
+
+#if defined(RADIO_NB4P) && defined(BOOT)
+  uint16_t value = _adcRead();
+  if (value >= 3584)
+    result |= 1 << KEY_ENTER;
+  else if (value < 512)
+    result |= 1 << KEY_EXIT;
+#endif
+
+  return result;
+}
+
+uint32_t readTrims()
+{
+  uint32_t result = 0;
+
+#if defined(RADIO_NB4P) && defined(BOOT)
+  uint16_t value = _adcRead();
+  if (value >= 1536 && value < 2560)
+    result = BOOTLOADER_KEYS;
+#endif
+  return result;
+}
+
+#else
 /* The output bit-order has to be:
    0  LHL  TR7L (Left equals down)
    1  LHR  TR7R
