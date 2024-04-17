@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _BOARD_H_
-#define _BOARD_H_
+#pragma once
 
 #include <inttypes.h>
 #include "hal.h"
@@ -31,8 +30,18 @@
 #include "opentx_constants.h"
 #include "board_common.h"
 
-#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)  || defined(RADIO_ZORRO)  || defined(RADIO_POCKET) || defined(RADIO_MT12)
-  #define  NAVIGATION_X7_TX12
+// Define navigation type based on available keys
+#if LCD_W == 212
+  #define NAVIGATION_X9D
+#elif defined(KEYS_GPIO_REG_LEFT)
+  #define NAVIGATION_9X
+#elif defined(KEYS_GPIO_REG_SHIFT)
+  #define NAVIGATION_XLITE
+#elif defined(KEYS_GPIO_REG_PAGEUP) && defined(KEYS_GPIO_REG_TELE)
+  #define NAVIGATION_X7
+  #define NAVIGATION_X7_TX12
+#else
+  #define NAVIGATION_X7
 #endif
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
@@ -430,4 +439,3 @@ void setTopBatteryValue(uint32_t volts);
 
 #define NUM_TRIMS_KEYS                          (NUM_TRIMS * 2)
 
-#endif // _BOARD_H_

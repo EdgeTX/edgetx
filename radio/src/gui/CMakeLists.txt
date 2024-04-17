@@ -5,10 +5,8 @@ if(NOT GUI_DIR STREQUAL colorlcd)
   set(SRC
     ${SRC}
     gui/navigation/common.cpp
-    gui/navigation/navigation_${NAVIGATION_TYPE}.cpp
+    gui/navigation/navigation.cpp
     )
-  string(TOUPPER ${NAVIGATION_TYPE} NAVIGATION_TYPE)
-  add_definitions(-DNAVIGATION_${NAVIGATION_TYPE})
 endif()
 
 set(SRC
