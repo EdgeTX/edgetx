@@ -61,6 +61,11 @@ static int luaLvglArc(lua_State *L)
   return luaLvglObj(L, [=]() { return new LvglWidgetArc(L); });
 }
 
+static int luaLvglImage(lua_State *L)
+{
+  return luaLvglObj(L, [=]() { return new LvglWidgetImage(L); });
+}
+
 static int luaLvglMeter(lua_State *L)
 {
   return luaLvglObj(L, [=]() { return new LvglWidgetMeter(L); });
@@ -200,6 +205,8 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
       lvobj = new LvglWidgetCircle(L, -1);
     else if (strcasecmp(p.type, "arc") == 0)
       lvobj = new LvglWidgetArc(L, -1);
+    else if (strcasecmp(p.type, "image") == 0)
+      lvobj = new LvglWidgetImage(L, -1);
     else if (strcasecmp(p.type, "meter") == 0)
       lvobj = new LvglWidgetMeter(L, -1);
     else if (!luaLvglManager->isWidget()) {
@@ -257,6 +264,7 @@ LROT_FUNCENTRY(label, luaLvglLabel)
 LROT_FUNCENTRY(rectangle, luaLvglRectangle)
 LROT_FUNCENTRY(circle, luaLvglCircle)
 LROT_FUNCENTRY(arc, luaLvglArc)
+LROT_FUNCENTRY(image, luaLvglImage)
 LROT_FUNCENTRY(meter, luaLvglMeter)
 LROT_FUNCENTRY(button, luaLvglButton)
 LROT_FUNCENTRY(toggle, luaLvglToggle)

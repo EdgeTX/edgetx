@@ -183,8 +183,8 @@ void StaticIcon::center(coord_t w, coord_t h)
 // Display image from file system using LVGL with LVGL scaling
 //  - LVGL scaling is slow so don't use this if there are many images
 StaticImage::StaticImage(Window* parent, const rect_t& rect,
-                         const char* filename, bool dontEnlarge) :
-    Window(parent, rect), dontEnlarge(dontEnlarge)
+                         const char* filename, bool fillFrame, bool dontEnlarge) :
+    Window(parent, rect), fillFrame(fillFrame), dontEnlarge(dontEnlarge)
 {
   setWindowFlag(NO_FOCUS);
 
@@ -234,7 +234,7 @@ void StaticImage::setZoom()
   if (img && img->w && img->h) {
     uint16_t zw = (width() * 256) / img->w;
     uint16_t zh = (height() * 256) / img->h;
-    uint16_t z = min(zw, zh);
+    uint16_t z = fillFrame ? max(zw, zh) : min(zw, zh);
     if (dontEnlarge) z = min(z, (uint16_t)256);
     lv_img_set_zoom(image, z);
   }

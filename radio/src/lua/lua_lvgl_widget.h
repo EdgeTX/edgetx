@@ -237,6 +237,22 @@ class LvglWidgetArc : public LvglWidgetRoundObject
 
 //-----------------------------------------------------------------------------
 
+class LvglWidgetImage;
+
+class LvglWidgetImage : public LvglWidgetObject
+{
+ public:
+  LvglWidgetImage(lua_State *L, int index = 1);
+
+ protected:
+  std::string filename;
+  bool fillFrame = false;
+
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
 class LvglWidgetMeterScale;
 
 class LvglWidgetMeter : public LvglWidgetRoundObject

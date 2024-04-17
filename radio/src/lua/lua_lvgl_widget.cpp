@@ -530,6 +530,27 @@ void LvglWidgetArc::clearRefs(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
+LvglWidgetImage::LvglWidgetImage(lua_State *L, int index) :
+    LvglWidgetObject()
+{
+  getParams(L, index);
+  window =
+      new StaticImage(lvglManager->getCurrentParent(), {x, y, w, h}, filename.c_str(), fillFrame);
+}
+
+void LvglWidgetImage::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "file")) {
+    filename = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "fill")) {
+    fillFrame = lua_toboolean(L, -1);
+  } else {
+    LvglWidgetObject::parseParam(L, key);
+  }
+}
+
+//-----------------------------------------------------------------------------
+
 class LvglWidgetScaleIndicator : public LvglWidgetObjectBase
 {
  public:
