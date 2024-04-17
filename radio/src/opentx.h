@@ -97,9 +97,7 @@ enum RotaryEncoderMode {
 #define CASE_JACK_DETECT(x)
 #endif
 
-
 #include "debug.h"
-
 
 #include "myeeprom.h"
 #include "curves.h"
@@ -117,7 +115,6 @@ enum RotaryEncoderMode {
 #else
   #define NAVIGATION_X7
 #endif
-
 
 void memswap(void * a, void * b, uint8_t size);
 
