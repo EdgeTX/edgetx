@@ -1073,10 +1073,18 @@
   #define TR_BL_ENABLE                 "Aktiver"
   #define TR_BL_DISABLE                "Deaktiver"
 #elif defined(PCBPL18)
-  #define TR_BL_SELECT_KEY             " [TR4 Dn] for at bruge fil"
-  #define TR_BL_FLASH_KEY              " Hold [TR4 Dn] længe, for brænding"
-  #define TR_BL_ERASE_KEY              " Hold [TR4 Dn] længe, for sletning"
-  #define TR_BL_EXIT_KEY               " [TR4 Up] for at forlade"
+  // Bootloader PL18/NB4+ specific - ASCII characters only
+  #if defined(RADIO_NB4P)
+    #define TR_BL_SELECT_KEY            "[SW2] for at bruge fil"
+    #define TR_BL_FLASH_KEY             "Hold [SW2] længe, for brænding"
+    #define TR_BL_ERASE_KEY             "Hold [SW2] længe, for sletning"
+    #define TR_BL_EXIT_KEY              "[SW3] for at forlade"
+  #else
+    #define TR_BL_SELECT_KEY            "[TR4 Dn] for at bruge fil"
+    #define TR_BL_FLASH_KEY             "Hold [TR4 Dn] længe, for brænding"
+    #define TR_BL_ERASE_KEY             "Hold [TR4 Dn] længe, for sletning"
+    #define TR_BL_EXIT_KEY              "[TR4 Up] for at forlade"
+  #endif
 #else
   #define TR_BL_SELECT_KEY             "[ENT] for at bruge fil"
   #define TR_BL_FLASH_KEY              "[ENT] længe, for at starte"
