@@ -1078,15 +1078,31 @@
   #define TR_BL_ENABLE                "Aktiver"
   #define TR_BL_DISABLE               "Deaktiver"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - ASCII characters only
+   // Bootloader PL18/NB4+ specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB adgang"
+  #define TR_BL_CURRENT_FW            "Current Firmware:"
   #define TR_BL_ERASE_INT_FLASH       "Slet intern flash lager"
   #define TR_BL_ERASE_FLASH           "Slet flash lager"
   #define TR_BL_ERASE_FLASH_MSG       "Dette kan vare op til 200s"
-  #define TR_BL_SELECT_KEY            " [TR4 Dn] for at bruge fil"
-  #define TR_BL_FLASH_KEY             " Hold [TR4 Dn] længe, for brænding"
-  #define TR_BL_ERASE_KEY             " Hold [TR4 Dn] længe, for sletning"
-  #define TR_BL_EXIT_KEY              " [TR4 Up] for at forlade"
+  #if defined(RADIO_NB4P)
+    #define TR_BL_SELECT_KEY            " [SW2] for at bruge fil"
+    #define TR_BL_FLASH_KEY             " Hold [SW2] længe, for brænding"
+    #define TR_BL_ERASE_KEY             " Hold [SW2] længe, for sletning"
+    #define TR_BL_EXIT_KEY              " [SW3] for at forlade"
+  #else
+    #define TR_BL_SELECT_KEY            " [TR4 Dn] for at bruge fil"
+    #define TR_BL_FLASH_KEY             " Hold [TR4 Dn] længe, for brænding"
+    #define TR_BL_ERASE_KEY             " Hold [TR4 Dn] længe, for sletning"
+    #define TR_BL_EXIT_KEY              " [TR4 Up] for at forlade"
+#endif
+
+
+  // Bootloader PL18/NB4+ specific - Ascii only
+  #define TR_BL_RF_USB_ACCESS         "RF USB access"
+  #define TR_BL_CURRENT_FW            "Current Firmware:"
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
 #endif
 
 // About screen

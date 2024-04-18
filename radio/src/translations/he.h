@@ -1078,15 +1078,23 @@
   #define TR_BL_ENABLE                "Enable"
   #define TR_BL_DISABLE               "Disable"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - ASCII characters only
+   // Bootloader PL18/NB4+ specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
+  #define TR_BL_CURRENT_FW            "Current Firmware:"
   #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
   #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
   #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
-  #define TR_BL_SELECT_KEY            " [TR4 Dn] to select file"
-  #define TR_BL_FLASH_KEY             " Hold [TR4 Dn] long to flash"
-  #define TR_BL_ERASE_KEY             " Hold [TR4 Dn] long to erase"
-  #define TR_BL_EXIT_KEY              " [TR4 Up] to exit"
+  #if defined(RADIO_NB4P)
+    #define TR_BL_SELECT_KEY          "[SW2] to select file"
+    #define TR_BL_FLASH_KEY           "Hold [SW2] long to flash"
+    #define TR_BL_ERASE_KEY           "Hold [SW2] long to erase"
+    #define TR_BL_EXIT_KEY            "[SW3] to exit"
+  #else
+    #define TR_BL_SELECT_KEY          "[TR4 Dn] to select file"
+    #define TR_BL_FLASH_KEY           "Hold [TR4 Dn] long to flash"
+    #define TR_BL_ERASE_KEY           "Hold [TR4 Dn] long to erase"
+    #define TR_BL_EXIT_KEY            "[TR4 Up] to exit"
+  #endif
 #endif
 
 // About screen
