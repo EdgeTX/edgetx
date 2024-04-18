@@ -2062,45 +2062,6 @@ static int luaGetRSSI(lua_State * L)
 }
 
 /*luadoc
-@function chdir(directory)
-
- Change the working directory
-
-@param directory (string) New working directory
-
-@status current Introduced in 2.3.0
-
-*/
-
-static int luaChdir(lua_State * L)
-{
-  const char * directory = luaL_optstring(L, 1, nullptr);
-  f_chdir(directory);
-  return 0;
-}
-
-/*luadoc
-@function mkdir(directory)
-
- Create a directory
-
-@param directory (string) Directory to create
-
-@status current Introduced in 2.11.0
-
- Returns FRESULT (e.g. 0=OK, 6=Path invalid, 8=Directory exists)
-
-*/
-
-static int luaMkdir(lua_State * L)
-{
-  const char * directory = luaL_checkstring(L, 1);
-  FRESULT res = f_mkdir(directory);
-  lua_pushunsigned(L, res);
-  return 1;
-}
-
-/*luadoc
 @function loadScript(file [, mode], [,env])
 
 Load a Lua script file. This is similar to Lua's own [loadfile()](https://www.lua.org/manual/5.2/manual.html#pdf-loadfile)
@@ -2953,8 +2914,6 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( defaultChannel, luaDefaultChannel )
   LROT_FUNCENTRY( getRSSI, luaGetRSSI )
   LROT_FUNCENTRY( killEvents, luaKillEvents )
-  LROT_FUNCENTRY( chdir, luaChdir )
-  LROT_FUNCENTRY( mkdir, luaMkdir )
   LROT_FUNCENTRY( loadScript, luaLoadScript )
   LROT_FUNCENTRY( getUsage, luaGetUsage )
   LROT_FUNCENTRY( getAvailableMemory, luaGetAvailableMemory )
