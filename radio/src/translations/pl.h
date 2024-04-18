@@ -1070,14 +1070,24 @@
   #define TR_BL_ENABLE                 "Enable"
   #define TR_BL_DISABLE                "Disable"
 #elif defined(PCBPL18)
-  #define TR_BL_SELECT_KEY             " [TR4 Dn] to select file"
-  #define TR_BL_FLASH_KEY              " Hold [TR4 Dn] long to flash"
-  #define TR_BL_ERASE_KEY              " Hold [TR4 Dn] long to erase"
-  #define TR_BL_EXIT_KEY               " [TR4 Up] to exit"
+  // Bootloader PL18/NB4+ specific - ASCII characters only
+  #define TR_BL_ENABLE                 "Enable"
+  #define TR_BL_DISABLE                "Disable"
+  #if defined(RADIO_NB4P)
+    #define TR_BL_SELECT_KEY          "[SW2] aby wybrac plik"
+    #define TR_BL_FLASH_KEY           "Przytrzymaj [SW2] aby flashowac"
+    #define TR_BL_ERASE_KEY           "Przytrzymaj [SW2] long to erase"
+    #define TR_BL_EXIT_KEY            "[SW3] aby wyjsc"
+  #else
+    #define TR_BL_SELECT_KEY          "[TR4 Dn] aby wybrac plik"
+    #define TR_BL_FLASH_KEY           "Przytrzymaj [TR4 Dn] aby flashowac"
+    #define TR_BL_ERASE_KEY           "Przytrzymaj [TR4 Dn] long to erase"
+    #define TR_BL_EXIT_KEY            "[TR4 Up] aby wyjsc"
+  #endif
 #else
   #define TR_BL_SELECT_KEY             "[ENT] aby wybrac plik"
   #define TR_BL_FLASH_KEY              "Przytrzymaj [ENT] aby flashowac"
-  #define TR_BL_ERASE_KEY              "Hold [ENT] long to erase"
+  #define TR_BL_ERASE_KEY              "Przytrzymaj [ENT] long to erase"
   #define TR_BL_EXIT_KEY               "[RTN] aby wyjsc"
 #endif
 

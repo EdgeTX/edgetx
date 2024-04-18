@@ -1063,10 +1063,20 @@
   #define TR_BL_ENABLE                 "Aktivieren"
   #define TR_BL_DISABLE                "Deaktivieren"
 #elif defined(PCBPL18)
-  #define TR_BL_SELECT_KEY             " [TR4 Dn] to select file"
-  #define TR_BL_FLASH_KEY              " Hold [TR4 Dn] long to flash"
-  #define TR_BL_ERASE_KEY              " Hold [TR4 Dn] long to erase"
-  #define TR_BL_EXIT_KEY               " [TR4 Up] to exit"
+  // Bootloader PL18/NB4+ specific - ASCII characters only
+  #define TR_BL_ENABLE                 "Aktivieren"
+  #define TR_BL_DISABLE                "Deaktivieren"
+  #if defined(RADIO_NB4P)
+    #define TR_BL_SELECT_KEY          "[SW2] to select file"
+    #define TR_BL_FLASH_KEY           "Hold [SW2] long to flash"
+    #define TR_BL_ERASE_KEY           "Hold [SW2] long to erase"
+    #define TR_BL_EXIT_KEY            "[SW3] to exit"
+  #else
+    #define TR_BL_SELECT_KEY          "[TR4 Dn] to select file"
+    #define TR_BL_FLASH_KEY           "Hold [TR4 Dn] long to flash"
+    #define TR_BL_ERASE_KEY           "Hold [TR4 Dn] long to erase"
+    #define TR_BL_EXIT_KEY            "[TR4 Up] to exit"
+  #endif
 #else
   #define TR_BL_SELECT_KEY             "[ENT] um Datei auszuwählen"
   #define TR_BL_FLASH_KEY              "Halte [ENT] gedrückt, zum schreiben"
