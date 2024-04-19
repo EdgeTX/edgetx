@@ -379,7 +379,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"t14"},
+        "targets": {"t14", "t12max"},
         "inputs": {
             "LH": {
                 "yaml": "Rud"

@@ -77,6 +77,9 @@ do
         t20v2)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20V2"
             ;;
+        t12max)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12MAX"
+            ;;
         t14)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T14"
             ;;
