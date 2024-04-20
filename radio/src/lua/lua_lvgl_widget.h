@@ -23,8 +23,6 @@
 
 #define LVGL_METATABLE "LVGL*"
 
-class ToggleSwitch;
-
 //-----------------------------------------------------------------------------
 
 class LvglWidgetObjectBase
@@ -377,6 +375,24 @@ class LvglWidgetChoice : public LvglWidgetObject
 
   int getFunction = 0;
   int setFunction = 0;
+
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetSlider : public LvglWidgetObject
+{
+ public:
+  LvglWidgetSlider(lua_State *L, int index = 1);
+
+  void clearRefs(lua_State *L) override;
+
+ protected:
+  int32_t vmin = 0;
+  int32_t vmax = 100;
+  int getValueFunction = 0;
+  int setValueFunction = 0;
 
   void parseParam(lua_State *L, const char *key) override;
 };

@@ -22,6 +22,7 @@
 #include "lua_widget.h"
 #include "opentx.h"
 #include "toggleswitch.h"
+#include "slider.h"
 
 //-----------------------------------------------------------------------------
 
@@ -1160,6 +1161,41 @@ void LvglWidgetChoice::clearRefs(lua_State *L)
 {
   clearRef(L, getFunction);
   clearRef(L, setFunction);
+  LvglWidgetObject::clearRefs(L);
+}
+
+//-----------------------------------------------------------------------------
+
+LvglWidgetSlider::LvglWidgetSlider(lua_State *L, int index) :
+    LvglWidgetObject()
+{
+  getParams(L, index);
+  window = new Slider(
+      lvglManager->getCurrentParent(), w, vmin, vmax,
+      [=]() { return pcallGetIntVal(L, getValueFunction); },
+      [=](uint8_t val) { pcallSetIntVal(L, setValueFunction, val); });
+  window->setPos(x, y);
+}
+
+void LvglWidgetSlider::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "get")) {
+    getValueFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "set")) {
+    setValueFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "min")) {
+    vmin = luaL_checkinteger(L, -1);
+  } else if (!strcmp(key, "max")) {
+    vmax = luaL_checkinteger(L, -1);
+  } else {
+    LvglWidgetObject::parseParam(L, key);
+  }
+}
+
+void LvglWidgetSlider::clearRefs(lua_State *L)
+{
+  clearRef(L, getValueFunction);
+  clearRef(L, setValueFunction);
   LvglWidgetObject::clearRefs(L);
 }
 

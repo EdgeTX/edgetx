@@ -96,6 +96,11 @@ static int luaLvglChoice(lua_State *L)
   return luaLvglObj(L, [=]() { return new LvglWidgetChoice(L); }, true);
 }
 
+static int luaLvglSlider(lua_State *L)
+{
+  return luaLvglObj(L, [=]() { return new LvglWidgetSlider(L); }, true);
+}
+
 static int luaLvglConfirm(lua_State *L)
 {
   new LvglWidgetConfirmDialog(L);
@@ -218,9 +223,10 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         lvobj = new LvglWidgetTextEdit(L, -1);
       else if (strcasecmp(p.type, "numberEdit") == 0)
         lvobj = new LvglWidgetNumberEdit(L, -1);
-      else if (strcasecmp(p.type, "choice") == 0) {
+      else if (strcasecmp(p.type, "choice") == 0)
         lvobj = new LvglWidgetChoice(L, -1);
-      }
+      else if (strcasecmp(p.type, "slider") == 0)
+        lvobj = new LvglWidgetSlider(L, -1);
     }
     if (lvobj) {
       auto ref = lvobj->getRef(L);
@@ -272,6 +278,7 @@ LROT_FUNCENTRY(confirm, luaLvglConfirm)
 LROT_FUNCENTRY(textEdit, luaLvglTextEdit)
 LROT_FUNCENTRY(numberEdit, luaLvglNumberEdit)
 LROT_FUNCENTRY(choice, luaLvglChoice)
+LROT_FUNCENTRY(slider, luaLvglSlider)
 // Manipulation functions
 LROT_FUNCENTRY(set, luaLvglSet)
 LROT_FUNCENTRY(show, luaLvglShow)
