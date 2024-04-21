@@ -26,6 +26,7 @@
 /* USER CODE BEGIN INCLUDE */
 #include "hal/usb_driver.h"
 #include "usb_descriptor.h"
+#include "stamp.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -295,6 +296,10 @@ uint8_t * USBD_FS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
       pid = 0;
   }
 
+  /* version has to be bcd coded */
+  uint8_t version_minor = ((VERSION_MINOR / 10) << 4) | (VERSION_MINOR % 10);
+  uint8_t version_major = ((VERSION_MAJOR / 10) << 4) | (VERSION_MAJOR % 10);
+
   /* USB Standard Device Descriptor */
   __ALIGN_BEGIN const uint8_t USBD_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
     {
@@ -310,8 +315,8 @@ uint8_t * USBD_FS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
       HIBYTE(vid),                /*idVendor*/
       LOBYTE(pid),                /*idProduct*/
       HIBYTE(pid),                /*idProduct*/
-      VERSION_MINOR,              /*bcdDevice device release number in binary-coded decimal*/
-      VERSION_MAJOR,
+      version_minor,              /*bcdDevice device release number in binary-coded decimal*/
+      version_major,
       USBD_IDX_MFC_STR,           /*Index of manufacturer string*/
       USBD_IDX_PRODUCT_STR,       /*Index of product string*/
       USBD_IDX_SERIAL_STR,        /*Index of serial number string*/
