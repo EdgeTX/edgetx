@@ -24,6 +24,7 @@
 #include "opentx.h"
 #include "tasks.h"
 #include "tasks/mixer_task.h"
+#include "mixer_scheduler.h"
 
 class StatisticsViewPage : public PageTab
 {
@@ -264,10 +265,15 @@ void DebugViewPage::build(Window* window)
 
   // Mixer data
   static std::string pad_STR_MS = " " + std::string(STR_MS);
+  static std::string pad_STR_PERIOD = std::string(STR_PERIOD) + ": ";
   new StaticText(line, rect_t{}, STR_TMIXMAXMS);
   new DynamicNumber<uint16_t>(
       line, rect_t{}, [] { return DURATION_MS_PREC2(maxMixerDuration); },
       PREC2 | COLOR_THEME_PRIMARY1, nullptr, pad_STR_MS.c_str());
+
+  new DynamicNumber<uint16_t>(
+          line, rect_t{}, [] { return getMixerSchedulerPeriod() / 1000; },
+          COLOR_THEME_PRIMARY1, pad_STR_PERIOD.c_str(), pad_STR_MS.c_str());
 
   line = window->newLine(grid);
   line->padAll(PAD_TINY);
