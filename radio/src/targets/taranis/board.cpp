@@ -153,6 +153,7 @@ void boardInit()
     pwrOn();  // required to get bat adc reads
     INTERNAL_MODULE_OFF();
     EXTERNAL_MODULE_OFF();
+    delay_ms(2000); // let this stabilize
 
     while (usbPlugged()) {
       //    // Let it charge ...
