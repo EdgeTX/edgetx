@@ -298,9 +298,9 @@ uint8_t * USBD_FS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   /* USB Standard Device Descriptor */
   __ALIGN_BEGIN const uint8_t USBD_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
     {
-        USB_LEN_DEV_DESC,         /*bLength */
+      USB_LEN_DEV_DESC,           /*bLength */
       USB_DESC_TYPE_DEVICE,       /*bDescriptorType*/
-      0x00,                       /*bcdUSB */
+      0x00,                       /*bcdUSB USB specification release number in binary-coded decimal*/
       0x02,
       0x00,                       /*bDeviceClass*/
       0x00,                       /*bDeviceSubClass*/
@@ -308,11 +308,11 @@ uint8_t * USBD_FS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
       USB_MAX_EP0_SIZE,           /*bMaxPacketSize*/
       LOBYTE(vid),                /*idVendor*/
       HIBYTE(vid),                /*idVendor*/
-      LOBYTE(pid),                /*idVendor*/
-      HIBYTE(pid),                /*idVendor*/
-      0x00,                       /*bcdDevice rel. 2.00*/
-      0x02,
-      USBD_IDX_MFC_STR,           /*Index of manufacturer  string*/
+      LOBYTE(pid),                /*idProduct*/
+      HIBYTE(pid),                /*idProduct*/
+      VERSION_MINOR,              /*bcdDevice device release number in binary-coded decimal*/
+      VERSION_MAJOR,
+      USBD_IDX_MFC_STR,           /*Index of manufacturer string*/
       USBD_IDX_PRODUCT_STR,       /*Index of product string*/
       USBD_IDX_SERIAL_STR,        /*Index of serial number string*/
       USBD_MAX_NUM_CONFIGURATION  /*bNumConfigurations*/
