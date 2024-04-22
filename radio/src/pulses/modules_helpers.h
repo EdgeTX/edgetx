@@ -607,7 +607,8 @@ inline bool isModuleBindRangeAvailable(uint8_t moduleIdx)
 {
   return isModulePXX2(moduleIdx) || isModulePXX1(moduleIdx) ||
          isModuleDSM2(moduleIdx) || isModuleMultimodule(moduleIdx) ||
-         isModuleFlySky(moduleIdx) || isModuleDSMP(moduleIdx);
+         isModuleFlySky(moduleIdx) || isModuleDSMP(moduleIdx) ||
+         isModuleCrossfire(moduleIdx);
 }
 
 inline uint32_t getNV14RfFwVersion()
@@ -621,7 +622,7 @@ inline uint32_t getNV14RfFwVersion()
 
 inline bool isModuleRangeAvailable(uint8_t moduleIdx)
 {
-  bool ret = isModuleBindRangeAvailable(moduleIdx) && !IS_RX_MULTI(moduleIdx);
+  bool ret = isModuleBindRangeAvailable(moduleIdx) && !IS_RX_MULTI(moduleIdx) && !isModuleCrossfire(moduleIdx);
 #if defined(PCBNV14) && defined(AFHDS2)
   ret = ret &&
         (!isModuleAFHDS2A(moduleIdx) || NV14internalModuleFwVersion >= 0x1000E);

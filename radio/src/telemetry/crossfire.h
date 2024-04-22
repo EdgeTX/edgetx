@@ -50,6 +50,7 @@
 #define UART_SYNC                      0xC8
 #define SUBCOMMAND_CRSF                0x10
 #define COMMAND_MODEL_SELECT_ID        0x05
+#define SUBCOMMAND_CRSF_BIND           0x01
 
 struct CrossfireSensor {
   const uint8_t id;

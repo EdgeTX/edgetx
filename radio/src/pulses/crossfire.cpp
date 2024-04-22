@@ -42,6 +42,21 @@
 
 #define MIN_FRAME_LEN 3
 
+uint8_t createCrossfireBindFrame(uint8_t moduleIdx, uint8_t * frame)
+{
+  uint8_t * buf = frame;
+  *buf++ = MODULE_ADDRESS;                                 /* device address */
+  *buf++ = 7;                                         /* frame length */
+  *buf++ = COMMAND_ID;                                /* cmd type */
+  *buf++ = MODULE_ADDRESS;                            /* Destination Address */
+  *buf++ = RADIO_ADDRESS;                             /* Origin Address */
+  *buf++ = SUBCOMMAND_CRSF;                           /* sub command */
+  *buf++ = SUBCOMMAND_CRSF_BIND;                      /* initiate bind */
+  *buf++ = crc8_BA(frame + 2, 5);
+  *buf++ = crc8(frame + 2, 6);
+  return buf - frame;
+}
+
 uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
 {
   uint8_t * buf = frame;
@@ -98,6 +113,9 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
     if (moduleState[module].counter == CRSF_FRAME_MODELID) {
       p_buf += createCrossfireModelIDFrame(module, p_buf);
       moduleState[module].counter = CRSF_FRAME_MODELID_SENT;
+    } else if (moduleState[module].mode == MODULE_MODE_BIND) {
+      p_buf += createCrossfireBindFrame(module, p_buf);
+      moduleState[module].mode = MODULE_MODE_NORMAL;
     } else {
       /* TODO: nChannels */
       p_buf += createCrossfireChannelsFrame(p_buf, channels);
