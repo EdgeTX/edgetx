@@ -282,6 +282,8 @@ void ModuleWindow::updateModule()
 
     if (isModuleBindRangeAvailable(moduleIdx)) {
       bindButton = new TextButton(box, rect_t{}, STR_MODULE_BIND);
+      if (TELEMETRY_STREAMING() && isModuleCrossfire(moduleIdx))
+        bindButton->setText(STR_MODULE_UNBIND);
       bindButton->setPressHandler([=]() -> uint8_t {
         if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
           if (rangeButton) rangeButton->check(false);

@@ -858,7 +858,8 @@
 #define TR_BUZZER                      "Дзвоник"
 #define TR_BYTES                       "байти"
 #define TR_MODULE_BIND                 BUTTON(TR("Прив.", "Прив'язати"))
-#define TR_POWERMETER_ATTN_NEEDED      "Потрібен атенюатор"
+#define TR_MODULE_UNBIND               BUTTON("Unbind")
+#define TR_POWERMETER_ATTN_NEEDED     "Потрібен атенюатор"
 #define TR_PXX2_SELECT_RX              "Оберіть RX"
 #define TR_PXX2_DEFAULT                "<замовч>"
 #define TR_BT_SELECT_DEVICE            "Оберіть пристрій"

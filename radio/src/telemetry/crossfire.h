@@ -29,6 +29,7 @@
 #define BROADCAST_ADDRESS              0x00
 #define RADIO_ADDRESS                  0xEA
 #define MODULE_ADDRESS                 0xEE
+#define RECEIVER_ADDRESS               0xEC
 
 // Frame id
 #define GPS_ID                         0x02

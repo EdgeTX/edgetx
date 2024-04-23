@@ -850,7 +850,8 @@
 #define TR_BUZZER                      "Summer"
 #define TR_BYTES                       "Bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd","Binden"))   //9XR-Pro
-#define TR_POWERMETER_ATTN_NEEDED      "Dämpfungsgl. nötig"
+#define TR_MODULE_UNBIND               BUTTON("Unbind")
+#define TR_POWERMETER_ATTN_NEEDED     "Dämpfungsgl. nötig"
 #define TR_PXX2_SELECT_RX              "Wähle RX"
 #define TR_PXX2_DEFAULT                "<default>"
 #define TR_BT_SELECT_DEVICE            "Wähle Gerät"

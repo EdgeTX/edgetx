@@ -48,7 +48,10 @@ uint8_t createCrossfireBindFrame(uint8_t moduleIdx, uint8_t * frame)
   *buf++ = MODULE_ADDRESS;                            /* device address */
   *buf++ = 7;                                         /* frame length */
   *buf++ = COMMAND_ID;                                /* cmd type */
-  *buf++ = MODULE_ADDRESS;                            /* Destination Address */
+  if (TELEMETRY_STREAMING())
+    *buf++ = RECEIVER_ADDRESS;                        /* Destination is receiver (unbind) */
+  else
+    *buf++ = MODULE_ADDRESS;                          /* Destination is module */
   *buf++ = RADIO_ADDRESS;                             /* Origin Address */
   *buf++ = SUBCOMMAND_CRSF;                           /* sub command */
   *buf++ = SUBCOMMAND_CRSF_BIND;                      /* initiate bind */

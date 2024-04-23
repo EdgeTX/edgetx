@@ -846,7 +846,8 @@
 #define TR_BUZZER              "Zumbador"
 #define TR_BYTES               "bytes"
 #define TR_MODULE_BIND         "[Enl.]"
-#define TR_POWERMETER_ATTN_NEEDED      "Necesita atenuador"
+#define TR_MODULE_UNBIND               BUTTON("Unbind")
+#define TR_POWERMETER_ATTN_NEEDED     "Necesita atenuador"
 #define TR_PXX2_SELECT_RX              "Selecciona RX..."
 #define TR_PXX2_DEFAULT                "<defecto>"
 #define TR_BT_SELECT_DEVICE            "Selecciona dispositivo"

@@ -858,7 +858,8 @@
 #define TR_BUZZER                      "Звук сигнал"
 #define TR_BYTES                       "Байты"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
-#define TR_POWERMETER_ATTN_NEEDED      "Требуется аттенюатор"
+#define TR_MODULE_UNBIND               BUTTON("Unbind")
+#define TR_POWERMETER_ATTN_NEEDED     "Требуется аттенюатор"
 #define TR_PXX2_SELECT_RX              "Выбор RX"
 #define TR_PXX2_DEFAULT                "<По умолчанию>"
 #define TR_BT_SELECT_DEVICE            "Выбор устройства"
