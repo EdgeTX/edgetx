@@ -494,7 +494,14 @@ void guiMain(event_t evt)
 
   if (menuEvent) {
     // we have a popupMenuActive entry or exit event
-    menuVerticalPosition = (menuEvent == EVT_ENTRY_UP) ? menuVerticalPositions[menuLevel] : 0;
+    if (menuEvent == EVT_ENTRY_UP) {
+      menuVerticalPosition = menuVerticalPositions[menuLevel];
+      menuVerticalOffset = menuVerticalOffsets[menuLevel];
+    } else {
+      menuVerticalPosition = 0;
+      menuVerticalOffset = 0;
+    }
+
     menuHorizontalPosition = 0;
     evt = menuEvent;
     menuEvent = 0;
