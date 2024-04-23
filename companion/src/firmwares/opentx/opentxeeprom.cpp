@@ -3394,13 +3394,13 @@ OpenTxGeneralData::OpenTxGeneralData(GeneralSettings & generalData, Board::Type 
       else
         internalField.Append(new ZCharField<3>(this, generalData.stickName[i], "Stick name"));
     }
-    for (int i = 0; i < Boards::getCapability(board, Board::Pots); ++i) {
+    for (int i = 0; i < MAX_POTS_STORAGE(board, version); ++i) {
       if (version >= 220)
         internalField.Append(new CharField<3>(this, generalData.potName[i], "Pot name"));
       else
         internalField.Append(new ZCharField<3>(this, generalData.potName[i], "Pot name"));
     }
-    for (int i = 0; i < Boards::getCapability(board, Board::Sliders); ++i) {
+    for (int i = 0; i < MAX_SLIDERS_STORAGE(board, version); ++i) {
       if (version >= 220)
         internalField.Append(new CharField<3>(this, generalData.sliderName[i], "Slider name"));
       else

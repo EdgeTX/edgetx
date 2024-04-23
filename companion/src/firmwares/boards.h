@@ -331,6 +331,7 @@ class Boards
     static Board::InputInfo getInputInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputIndex(QString val, Board::LookupValueType lvt, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getInputName(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputExtIndex(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputPotIndex(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputSliderIndex(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getInputTag(int index, Board::Type board = Board::BOARD_UNKNOWN);

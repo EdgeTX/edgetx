@@ -215,6 +215,12 @@ bool OpenTxEepromInterface::loadFromByteArray(T & dest, const QByteArray & data)
       return false;
     }
   }
+
+  if (board != getCurrentBoard()) {
+    qDebug() << QString("%1: not a match to profile %2").arg(getName()).arg(Boards::getBoardName(getCurrentBoard()));
+    return false;
+  }
+
   qDebug() << QString("%1: OK").arg(getName());
   uint8_t version = data[4];
   QByteArray raw = data.right(data.size() - 8);

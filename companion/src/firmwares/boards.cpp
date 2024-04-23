@@ -797,6 +797,11 @@ QString Boards::getInputName(int index, Board::Type board)
   return getBoardJson(board)->getInputName(index);
 }
 
+int Boards::getInputExtIndex(int index, Board::Type board)
+{
+  return getBoardJson(board)->getInputExtIndex(index);
+}
+
 int Boards::getInputPotIndex(int index, Board::Type board)
 {
   return getBoardJson(board)->getInputPotIndex(index);

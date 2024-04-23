@@ -126,27 +126,6 @@ bool GeneralSettings::isInputStick(int index) const
   return false;
 }
 
-// pre v2.10 support
-// post refactor clean up - where do we call this from?
-bool GeneralSettings::isMultiPosPot(int index) const
-{
-  return isInputMultiPosPot(Boards::getInputPotIndex(index));
-}
-
-// pre v2.10 support
-// post refactor clean up - where do we call this from?
-bool GeneralSettings::isPotAvailable(int index) const
-{
-  return isInputPot(Boards::getInputPotIndex(index));
-}
-
-// pre v2.10 support
-// post refactor clean up - where do we call this from?
-bool GeneralSettings::isSliderAvailable(int index) const
-{
-  return isInputSlider(Boards::getInputSliderIndex(index));
-}
-
 bool GeneralSettings::isSwitchAvailable(int index) const
 {
   if (index < 0 || index >= Boards::getCapability(getCurrentBoard(), Board::Switches))
@@ -839,14 +818,32 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
     inputConfig[i].type = Board::AIT_STICK;
     YamlValidateName(stickName[i], board);
     strncpy(inputConfig[i].name, stickName[i], HARDWARE_NAME_LEN);
+    inputConfig[i].calib.mid = calibMid[i];
+    inputConfig[i].calib.spanNeg = calibSpanNeg[i];
+    inputConfig[i].calib.spanPos = calibSpanPos[i];
   }
 
   for (int i = 0; i < CPN_MAX_POTS && i < Boards::getCapability(board, Board::Pots); i++) {
-    int idx = Boards::getInputPotIndex(i, board);
+    int idx = 0;
+    if (IS_FAMILY_HORUS_OR_T16(board)) {
+      //  0 - 2 P1 - P3
+      //  3 - 6 EXT1 - EXT4
+      //  7 - 8 S1 - S2
+      if (i < 3)
+        idx = Boards::getInputPotIndex(i + 1, board);
+      else
+        idx = Boards::getInputExtIndex(i - 3 + 1, board);
+    }
+    else
+      idx = Boards::getInputPotIndex(i + 1, board);
+
     if (idx >= 0) {
       inputConfig[idx].type = Board::AIT_FLEX;
       YamlValidateName(potName[i], board);
       strncpy(inputConfig[idx].name, potName[i], HARDWARE_NAME_LEN);
+      inputConfig[idx].calib.mid = calibMid[i];
+      inputConfig[idx].calib.spanNeg = calibSpanNeg[i];
+      inputConfig[idx].calib.spanPos = calibSpanPos[i];
       int ft = std::stoi(DataHelpers::getStringTagMappingTag(potTypesConversionTable, potConfig[i]));
       if (ft > -1)
         inputConfig[idx].flexType = (Board::FlexType)ft;
@@ -854,21 +851,29 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
   }
 
   for (int i = 0; i < CPN_MAX_SLIDERS && i < Boards::getCapability(board, Board::Sliders); i++) {
-    int idx = Boards::getInputSliderIndex(i, board);
+    int offset = 0;
+    if (IS_TARANIS_X9E(board) || IS_HORUS_X12S(board)) {
+      // 0 - 1  extra sliders eg L1 - L2 or S1 - S2
+      // 2 - 3  LS - RS
+      // hw json flips the pairs
+      if (i < 2)
+        offset = 2;
+      else
+        offset = -2;
+    }
+
+    int idx = Boards::getInputSliderIndex(i + offset + 1, board);
     if (idx >= 0) {
       inputConfig[idx].type = Board::AIT_FLEX;
       YamlValidateName(sliderName[i], board);
       strncpy(inputConfig[idx].name, sliderName[i], HARDWARE_NAME_LEN);
+      inputConfig[idx].calib.mid = calibMid[i];
+      inputConfig[idx].calib.spanNeg = calibSpanNeg[i];
+      inputConfig[idx].calib.spanPos = calibSpanPos[i];
       int ft = std::stoi(DataHelpers::getStringTagMappingTag(sliderTypesConversionTable, sliderConfig[i]));
       if (ft > -1)
         inputConfig[idx].flexType = (Board::FlexType)ft;
     }
-  }
-
-  for (int i = 0; i < CPN_MAX_ANALOGS && i < Boards::getInputsCalibrated(board); i++) {
-    inputConfig[i].calib.mid = calibMid[i];
-    inputConfig[i].calib.spanNeg = calibSpanNeg[i];
-    inputConfig[i].calib.spanPos = calibSpanPos[i];
   }
 
   for (int i = 0; i < CPN_MAX_SWITCHES && i < Boards::getCapability(board, Board::Switches); i++) {
