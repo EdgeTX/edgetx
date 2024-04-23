@@ -102,6 +102,8 @@ class ModuleWindow : public Window
   void startRSSIDialog(std::function<void()> closeHandler = nullptr);
 
   void updateIDStaticText(int mdIdx);
+
+  void checkEvents() override;
 };
 
 struct FailsafeChoice : public Window {
@@ -154,6 +156,14 @@ ModuleWindow::ModuleWindow(Window* parent, uint8_t moduleIdx) :
   setFlexLayout();
   updateModule();
   lv_obj_add_event_cb(lvobj, mw_refresh_cb, LV_EVENT_REFRESH, this);
+}
+
+void ModuleWindow::checkEvents()
+{
+  if (TELEMETRY_STREAMING() && isModuleCrossfire(moduleIdx))
+    bindButton->setText(STR_MODULE_UNBIND);
+  else
+    bindButton->setText(STR_MODULE_BIND);
 }
 
 void ModuleWindow::updateIDStaticText(int mdIdx)
@@ -282,8 +292,6 @@ void ModuleWindow::updateModule()
 
     if (isModuleBindRangeAvailable(moduleIdx)) {
       bindButton = new TextButton(box, rect_t{}, STR_MODULE_BIND);
-      if (TELEMETRY_STREAMING() && isModuleCrossfire(moduleIdx))
-        bindButton->setText(STR_MODULE_UNBIND);
       bindButton->setPressHandler([=]() -> uint8_t {
         if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
           if (rangeButton) rangeButton->check(false);
