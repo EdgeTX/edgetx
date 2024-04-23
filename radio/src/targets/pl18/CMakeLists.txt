@@ -124,6 +124,13 @@ set(FIRMWARE_TARGET_SRC
   led_driver.cpp
   )
 
+if(PCBREV STREQUAL NB4P)
+  set(FIRMWARE_TARGET_SRC  
+    ${FIRMWARE_TARGET_SRC}
+    switch_driver.cpp
+  )
+endif()
+
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
   targets/common/arm/stm32/sdram_driver.cpp
