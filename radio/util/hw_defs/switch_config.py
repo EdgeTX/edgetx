@@ -52,8 +52,10 @@ SWITCH_CONFIG = {
         "SJ": { "default": "3POS"   }
     },
     "nb4p": {
-        "SA": { "default": "3POS"   },
-        "SB": { "default": "3POS"   }
+        "S1A": { "default": "TOGGLE" },
+        "S1B": { "default": "TOGGLE" },
+        "S2" : { "default": "TOGGLE" },
+        "S3" : { "default": "TOGGLE" }
     },
     "lr3pro": {
         # left side
