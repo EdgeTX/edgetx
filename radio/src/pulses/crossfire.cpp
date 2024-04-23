@@ -60,6 +60,18 @@ uint8_t createCrossfireBindFrame(uint8_t moduleIdx, uint8_t * frame)
   return buf - frame;
 }
 
+uint8_t createCrossfirePingFrame(uint8_t moduleIdx, uint8_t * frame)
+{
+  uint8_t * buf = frame;
+  *buf++ = UART_SYNC;                                 /* device address */
+  *buf++ = 4;                                         /* frame length */
+  *buf++ = PING_DEVICES_ID;                           /* cmd type */
+  *buf++ = BROADCAST_ADDRESS;                         /* Destination Address */
+  *buf++ = RADIO_ADDRESS;                             /* Origin Address */
+  *buf++ = crc8(frame + 2, 3);
+  return buf - frame;
+}
+
 uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
 {
   uint8_t * buf = frame;
