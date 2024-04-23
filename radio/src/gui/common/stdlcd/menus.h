@@ -49,6 +49,7 @@ extern vertpos_t menuVerticalOffset;
 extern uint8_t menuCalibrationState;
 extern MenuHandlerFunc menuHandlers[5];
 extern uint8_t menuVerticalPositions[4];
+extern uint8_t menuVerticalOffsets[4];
 extern uint8_t menuLevel;
 extern event_t menuEvent;
 
