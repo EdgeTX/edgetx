@@ -164,6 +164,8 @@ void ModuleWindow::checkEvents()
     bindButton->setText(STR_MODULE_UNBIND);
   else
     bindButton->setText(STR_MODULE_BIND);
+
+  Window::checkEvents();
 }
 
 void ModuleWindow::updateIDStaticText(int mdIdx)
