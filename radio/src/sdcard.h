@@ -38,6 +38,7 @@ extern FIL g_oLogFile;
 #define RADIO_PATH          ROOT_PATH "RADIO"       // no trailing slash = important
 #define TEMPLATES_PATH      ROOT_PATH "TEMPLATES"
 #define PERS_TEMPL_PATH     TEMPLATES_PATH "/2.Personal"
+#define PERS_TEMPL_PATH_OLD TEMPLATES_PATH "/PERSONAL"
 #define LOGS_PATH           ROOT_PATH "LOGS"
 #define SCREENSHOTS_PATH    ROOT_PATH "SCREENSHOTS"
 #define SOUNDS_PATH         ROOT_PATH "SOUNDS/en"

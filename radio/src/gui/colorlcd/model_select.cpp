@@ -420,18 +420,26 @@ class ModelsPageBody : public Window
           char modelName[size];
           snprintf(modelName, size, "%s%s", model->modelName, YAML_EXT);
           char templatePath[FF_MAX_LFN];
-          snprintf(templatePath, FF_MAX_LFN, "%s%c%s", PERS_TEMPL_PATH, '/',
-                   modelName);
           sdCheckAndCreateDirectory(TEMPLATES_PATH);
-          sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
+          const char* persFolder = nullptr;
+          if (isFileAvailable(PERS_TEMPL_PATH)) {
+            persFolder = PERS_TEMPL_PATH;
+          } else if (isFileAvailable(PERS_TEMPL_PATH_OLD)) {
+            persFolder = PERS_TEMPL_PATH_OLD;
+          } else {
+            persFolder = PERS_TEMPL_PATH;
+            sdCheckAndCreateDirectory(PERS_TEMPL_PATH);
+          }
+          snprintf(templatePath, FF_MAX_LFN, "%s%c%s", persFolder, '/',
+                   modelName);
           if (isFileAvailable(templatePath)) {
             new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE, [=] {
               sdCopyFile(model->modelFilename, MODELS_PATH, modelName,
-                         PERS_TEMPL_PATH);
+                         persFolder);
             });
           } else {
             sdCopyFile(model->modelFilename, MODELS_PATH, modelName,
-                       PERS_TEMPL_PATH);
+                       persFolder);
           }
         });
   }
