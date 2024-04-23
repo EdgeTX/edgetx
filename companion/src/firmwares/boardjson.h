@@ -101,6 +101,7 @@ class BoardJson
     const int getInputIndex(const QString val, Board::LookupValueType lvt) const;
     const Board::InputInfo getInputInfo(int index) const;
     const QString getInputName(int index) const;
+    const int getInputExtIndex(int index);
     const int getInputPotIndex(int index);
     const int getInputSliderIndex(int index);
     const QString getInputTag(int index) const;
