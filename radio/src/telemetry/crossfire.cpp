@@ -62,6 +62,8 @@ const CrossfireSensor crossfireSensors[] = {
 };
 // clang-format on
 
+CrossfireModuleStatus crossfireModuleStatus[2] = {0};
+
 const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
 {
   if (id == LINK_ID)
@@ -260,6 +262,15 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
 
 #if defined(LUA)
     default:
+      if (id == DEVICE_INFO_ID) {
+        if (strncmp((const char *) &rxBuffer[15], "ELRS", 4) == 0)
+          crossfireModuleStatus[module].isElrs = true;
+        crossfireModuleStatus[module].major = rxBuffer[24];
+        crossfireModuleStatus[module].minor = rxBuffer[25];
+        crossfireModuleStatus[module].revision = rxBuffer[26];
+        crossfireModuleStatus[module].queryCompleted = true;
+      }
+
       if (luaInputTelemetryFifo && luaInputTelemetryFifo->hasSpace(rxBufferCount - 2)) {
         for (uint8_t i = 1; i < rxBufferCount - 1; i++) {
           // destination address and CRC are skipped

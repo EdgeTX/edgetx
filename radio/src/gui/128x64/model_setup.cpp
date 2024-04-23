@@ -1744,7 +1744,7 @@ void menuModelSetup(event_t event)
             l_posHorz += 1;
           }
           if (isModuleBindRangeAvailable(moduleIdx)) {
-            if (TELEMETRY_STREAMING() && isModuleCrossfire(moduleIdx))
+            if (TELEMETRY_STREAMING() && isModuleELRS(moduleIdx))
               lcdDrawText(bindButtonPos, y, STR_MODULE_UNBIND, l_posHorz == 1 ? attr : 0);
             else
               lcdDrawText(bindButtonPos, y, STR_MODULE_BIND, l_posHorz == 1 ? attr : 0);
@@ -1791,7 +1791,7 @@ void menuModelSetup(event_t event)
                   }
                   else {
                     newFlag = MODULE_MODE_BIND;
-                    if (isModuleCrossfire(moduleIdx))
+                    if (isModuleELRS(moduleIdx))
                        AUDIO_PLAY(AU_SPECIAL_SOUND_CHEEP); // Since ELRS bind is just one frame, we need to play the sound manually
                   }
 

@@ -1261,8 +1261,11 @@ uint8_t MENU_FIRST_LINE_EDIT(const uint8_t * horTab, uint8_t horTabMax)
 
 uint8_t MODULE_BIND_ROWS(int moduleIdx)
 {
-  if (isModuleCrossfire(moduleIdx))
+  if (isModuleELRS(moduleIdx) && crossfireModuleStatus[moduleIdx].major >= 3 && crossfireModuleStatus[moduleIdx].minor >= 4)
     return 1;
+
+  if (isModuleCrossfire(moduleIdx))
+    return 0;
 
   if (isModuleMultimodule(moduleIdx)) {
     if (IS_RX_MULTI(moduleIdx))

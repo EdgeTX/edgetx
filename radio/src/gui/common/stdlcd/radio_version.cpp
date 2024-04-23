@@ -165,6 +165,9 @@ void menuRadioModulesVersion(event_t event)
         sprintf(statusText, "%d Hz"/* %" PRIu32" Err"*/,
                 1000000 / getMixerSchedulerPeriod()/*, UINT32_C(telemetryErrors)*/);
         lcdDrawText(COLUMN2_X, y, statusText);
+        lcdDrawNumber(lcdNextPos + 10, y, crossfireModuleStatus[module].major);
+        lcdDrawChar(lcdNextPos, y, '.');
+        lcdDrawNumber(lcdNextPos, y, crossfireModuleStatus[module].minor);
         y += FH;
         continue;
       }

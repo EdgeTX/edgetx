@@ -125,7 +125,12 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
   } else
 #endif
   {
-    if (moduleState[module].counter == CRSF_FRAME_MODELID) {
+    ModuleSyncStatus& status = getModuleSyncStatus(module);
+
+    if (status.isValid() && crossfireModuleStatus[module].queryCompleted == false) {
+      p_buf += createCrossfirePingFrame(module, p_buf);
+    }
+    else if (moduleState[module].counter == CRSF_FRAME_MODELID) {
       p_buf += createCrossfireModelIDFrame(module, p_buf);
       moduleState[module].counter = CRSF_FRAME_MODELID_SENT;
     } else if (moduleState[module].mode == MODULE_MODE_BIND) {

@@ -93,7 +93,7 @@ enum CrossfireSensorIndexes {
   FLIGHT_MODE_INDEX,
   VERTICAL_SPEED_INDEX,
   BARO_ALTITUDE_INDEX,
-  UNKNOWN_INDEX,
+  UNKNOWN_INDEX,MODU
 };
 
 enum CrossfireFrames{
@@ -101,6 +101,17 @@ enum CrossfireFrames{
   CRSF_FRAME_MODELID,
   CRSF_FRAME_MODELID_SENT
 };
+
+struct CrossfireModuleStatus
+{
+    uint8_t major;
+    uint8_t minor;
+    uint8_t revision;
+    bool queryCompleted;
+    bool isElrs;
+};
+
+extern CrossfireModuleStatus crossfireModuleStatus[2];
 
 void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                                     uint8_t rxBufferCount);
