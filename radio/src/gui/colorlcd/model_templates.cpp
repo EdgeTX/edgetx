@@ -34,20 +34,22 @@ TemplatePage::TemplatePage() : Page(ICON_MODEL_SELECT, PAD_ZERO)
 {
   body->setFlexLayout();
 
-  FlexGridLayout grid(col_dsc, row_dsc, PAD_MEDIUM);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_SMALL);
 
   auto line = body->newLine(grid);
 
   listWindow = new Window(line, rect_t{});
+  etx_scrollbar(listWindow->getLvObj());
   listWindow->padAll(PAD_TINY);
-  listWindow->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_MEDIUM, LV_PCT(100), body->height() - PAD_MEDIUM * 2);
+  listWindow->padRight(PAD_SMALL);
+  listWindow->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_SMALL, LV_PCT(100), body->height() - PAD_SMALL * 2);
   lv_obj_set_flex_align(listWindow->getLvObj(), LV_FLEX_ALIGN_START,
                         LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_SPACE_BETWEEN);
   lv_obj_set_grid_cell(listWindow->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1,
                        LV_GRID_ALIGN_START, 0, 1);
 
   infoLabel = lv_label_create(line->getLvObj());
-  lv_obj_set_height(infoLabel, body->height() - PAD_MEDIUM * 2);
+  lv_obj_set_height(infoLabel, body->height() - PAD_SMALL * 2);
   etx_obj_add_style(infoLabel, styles->text_align_left, LV_PART_MAIN);
   etx_txt_color(infoLabel, COLOR_THEME_PRIMARY1_INDEX);
   etx_txt_color(infoLabel, COLOR_THEME_DISABLED_INDEX, ETX_STATE_NO_INFO_COLOR);
