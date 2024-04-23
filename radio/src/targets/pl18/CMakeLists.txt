@@ -133,6 +133,14 @@ if(ROTARY_ENCODER)
   )
 endif()
 
+if(PCBREV STREQUAL NB4P)
+  set(BOARD_SPECIFIC_SRC
+    ${TARGET_SRC_DIR}/switch_driver.cpp
+  )
+#else()
+#  set(BOARD_SPECIFIC_SRC)
+endif()
+
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
@@ -144,6 +152,7 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
+  ${BOARD_SPECIFIC_SRC}
   ${TARGET_SRC_DIR}/${TOUCH_DRIVER}
   ${TARGET_SRC_DIR}/battery_driver.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
@@ -159,7 +168,9 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/diskio_spi_flash.cpp
   drivers/frftl.cpp
+  
 )
+
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
 set(FIRMWARE_SRC
