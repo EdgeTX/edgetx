@@ -160,9 +160,9 @@ ModuleWindow::ModuleWindow(Window* parent, uint8_t moduleIdx) :
 
 void ModuleWindow::checkEvents()
 {
-  if (TELEMETRY_STREAMING() && isModuleCrossfire(moduleIdx))
+  if (bindButton != nullptr && TELEMETRY_STREAMING() && isModuleELRS(moduleIdx))
     bindButton->setText(STR_MODULE_UNBIND);
-  else
+  else if (bindButton != nullptr && isModuleELRS(moduleIdx))
     bindButton->setText(STR_MODULE_BIND);
 
   Window::checkEvents();

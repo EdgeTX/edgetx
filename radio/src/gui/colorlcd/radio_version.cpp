@@ -126,7 +126,7 @@ class VersionDialog : public BaseDialog
         new StaticText(int_rx_name_w, rect_t{}, "");
     int_rx_name_w->hide();
 
-    // internal reciever status
+    // internal receiver status
     int_rx_status_w = form->newLine(grid);
     new StaticText(int_rx_status_w, rect_t{}, STR_STATUS);
     int_rx_status =
@@ -195,6 +195,10 @@ class VersionDialog : public BaseDialog
       // snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
       snprintf(statusText, 64, "%d Hz", hz);
       status->setText(statusText);
+      if (isModuleELRS) {
+        snprintf(statusText, 64, "ELRS %s V%d.%d", crossfireModuleStatus[module].name, crossfireModuleStatus[module].major, crossfireModuleStatus[module].minor);
+        name->setText(statusText);
+      }
       module_status_w->show();
     }
 #endif
