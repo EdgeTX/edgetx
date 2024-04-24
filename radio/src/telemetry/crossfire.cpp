@@ -20,8 +20,8 @@
  */
 
 #include "crossfire.h"
-
 #include "opentx.h"
+#include "string.h"
 
 // clang-format off
 #define CS(id,subId,name,unit,precision) {id,subId,unit,precision,name}
