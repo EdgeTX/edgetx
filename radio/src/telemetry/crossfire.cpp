@@ -21,7 +21,6 @@
 
 #include "crossfire.h"
 #include "opentx.h"
-#include "string.h"
 
 // clang-format off
 #define CS(id,subId,name,unit,precision) {id,subId,unit,precision,name}
@@ -264,7 +263,8 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
     default:
       if (id == DEVICE_INFO_ID) {
         uint8_t nameSize = rxBuffer[1] - 18;
-        strlcpy((char *)&crossfireModuleStatus[module].name, (const char *)&rxBuffer[5], min(CRSF_NAME_MAXSIZE, nameSize));
+        strncpy((char *)&crossfireModuleStatus[module].name, (const char *)&rxBuffer[5], min(CRSF_NAME_MAXSIZE, nameSize));
+        crossfireModuleStatus[module].name[CRSF_NAME_MAXSIZE -1] = 0; // For some reason, GH din't like strlcpy
         if (strncmp((const char *) &rxBuffer[5 + nameSize], "ELRS", 4) == 0)
           crossfireModuleStatus[module].isELRS = true;
         crossfireModuleStatus[module].major = rxBuffer[14 + nameSize];
