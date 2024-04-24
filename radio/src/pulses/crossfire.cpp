@@ -345,6 +345,8 @@ static void* crossfireInit(uint8_t module)
       }
 #endif
     }
+
+    memset(&crossfireModuleStatus[module], 0, sizeof(crossfireModuleStatus[module]));
   }
 #endif
 
@@ -358,6 +360,8 @@ static void* crossfireInit(uint8_t module)
 static void crossfireDeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
+
+  memset(&crossfireModuleStatus[modulePortGetModule(mod_st)], 0, sizeof(crossfireModuleStatus[modulePortGetModule(mod_st)]));
 
 #if !defined(SIMU)
   if (mod_st && (modulePortGetModule(mod_st) == EXTERNAL_MODULE)) {

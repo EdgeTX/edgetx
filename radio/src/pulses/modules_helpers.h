@@ -228,11 +228,9 @@ inline bool isModuleCrossfire(uint8_t idx)
   return g_model.moduleData[idx].type == MODULE_TYPE_CROSSFIRE;
 }
 
-extern bool isELRS[2];
-
 inline bool isModuleELRS(uint8_t idx)
 {
-  return crossfireModuleStatus[idx].isElrs;
+  return crossfireModuleStatus[idx].isELRS;
 }
 
 inline bool isInternalModuleCrossfire()

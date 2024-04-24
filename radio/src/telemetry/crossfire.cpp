@@ -263,11 +263,13 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
 #if defined(LUA)
     default:
       if (id == DEVICE_INFO_ID) {
-        if (strncmp((const char *) &rxBuffer[15], "ELRS", 4) == 0)
-          crossfireModuleStatus[module].isElrs = true;
-        crossfireModuleStatus[module].major = rxBuffer[24];
-        crossfireModuleStatus[module].minor = rxBuffer[25];
-        crossfireModuleStatus[module].revision = rxBuffer[26];
+        uint8_t nameSize = rxBuffer[1] - 18;
+        memcpy(&crossfireModuleStatus[module].name, &rxBuffer[5], min(CRSF_NAME_MAXSIZE, nameSize));
+        if (strncmp((const char *) &rxBuffer[5 + nameSize], "ELRS", 4) == 0)
+          crossfireModuleStatus[module].isELRS = true;
+        crossfireModuleStatus[module].major = rxBuffer[14 + nameSize];
+        crossfireModuleStatus[module].minor = rxBuffer[15 + nameSize];
+        crossfireModuleStatus[module].revision = rxBuffer[16 + nameSize];
         crossfireModuleStatus[module].queryCompleted = true;
       }
 

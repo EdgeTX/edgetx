@@ -53,6 +53,8 @@
 #define COMMAND_MODEL_SELECT_ID        0x05
 #define SUBCOMMAND_CRSF_BIND           0x01
 
+constexpr uint8_t CRSF_NAME_MAXSIZE = 12;
+
 struct CrossfireSensor {
   const uint8_t id;
   const uint8_t subId;
@@ -93,7 +95,7 @@ enum CrossfireSensorIndexes {
   FLIGHT_MODE_INDEX,
   VERTICAL_SPEED_INDEX,
   BARO_ALTITUDE_INDEX,
-  UNKNOWN_INDEX,MODU
+  UNKNOWN_INDEX,
 };
 
 enum CrossfireFrames{
@@ -107,8 +109,9 @@ struct CrossfireModuleStatus
     uint8_t major;
     uint8_t minor;
     uint8_t revision;
+    char name[CRSF_NAME_MAXSIZE];
     bool queryCompleted;
-    bool isElrs;
+    bool isELRS;
 };
 
 extern CrossfireModuleStatus crossfireModuleStatus[2];
