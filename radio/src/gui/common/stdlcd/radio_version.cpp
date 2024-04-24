@@ -165,15 +165,14 @@ void menuRadioModulesVersion(event_t event)
         sprintf(statusText, "%d Hz"/* %" PRIu32" Err"*/,
                 1000000 / getMixerSchedulerPeriod()/*, UINT32_C(telemetryErrors)*/);
         lcdDrawText(COLUMN2_X, y, statusText);
-        if (isModuleELRS(module)) {
-          y += FH;
-          lcdDrawText(INDENT_WIDTH, y, "ELRS ");
-          lcdDrawText(lcdNextPos, y, crossfireModuleStatus[module].name);
-          lcdDrawChar(lcdNextPos + 5, y, 'V');
-          lcdDrawNumber(lcdNextPos, y, crossfireModuleStatus[module].major);
-          lcdDrawChar(lcdNextPos, y, '.');
-          lcdDrawNumber(lcdNextPos, y, crossfireModuleStatus[module].minor);
-        }
+        y += FH;
+        lcdDrawText(INDENT_WIDTH, y, crossfireModuleStatus[module].name);
+        lcdDrawChar(lcdNextPos + 5, y, 'V');
+        lcdDrawNumber(lcdNextPos, y, crossfireModuleStatus[module].major);
+        lcdDrawChar(lcdNextPos, y, '.');
+        lcdDrawNumber(lcdNextPos, y, crossfireModuleStatus[module].minor);
+        lcdDrawChar(lcdNextPos, y, '.');
+        lcdDrawNumber(lcdNextPos, y, crossfireModuleStatus[module].revision);
         y += FH;
         continue;
       }

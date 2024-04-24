@@ -53,7 +53,7 @@
 #define COMMAND_MODEL_SELECT_ID        0x05
 #define SUBCOMMAND_CRSF_BIND           0x01
 
-constexpr uint8_t CRSF_NAME_MAXSIZE = 12;
+constexpr uint8_t CRSF_NAME_MAXSIZE = 16;
 
 struct CrossfireSensor {
   const uint8_t id;

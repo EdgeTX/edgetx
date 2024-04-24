@@ -264,7 +264,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
     default:
       if (id == DEVICE_INFO_ID) {
         uint8_t nameSize = rxBuffer[1] - 18;
-        memcpy(&crossfireModuleStatus[module].name, &rxBuffer[5], min(CRSF_NAME_MAXSIZE, nameSize));
+        strlcpy((char *)&crossfireModuleStatus[module].name, (const char *)&rxBuffer[5], min(CRSF_NAME_MAXSIZE, nameSize));
         if (strncmp((const char *) &rxBuffer[5 + nameSize], "ELRS", 4) == 0)
           crossfireModuleStatus[module].isELRS = true;
         crossfireModuleStatus[module].major = rxBuffer[14 + nameSize];
