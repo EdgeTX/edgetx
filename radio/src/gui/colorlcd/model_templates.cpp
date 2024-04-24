@@ -27,26 +27,35 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
+#if LCD_W > LCD_H
+#define PAD_SMALL 10
+#define PAD_TINY 3
+#else
+#define PAD_SMALL 8
+#define PAD_TINY 2
+#endif
+
 TemplatePage::TemplatePage() : Page(ICON_MODEL_SELECT)
 {
   auto form = new FormWindow(&body, rect_t{});
   form->setFlexLayout();
   form->padAll(4);
 
-  FlexGridLayout grid(col_dsc, row_dsc, 4);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_SMALL);
 
   auto line = form->newLine(&grid);
 
   listWindow = new FormWindow(line, rect_t{});
-  listWindow->setFlexLayout(LV_FLEX_FLOW_COLUMN, 8);
-  listWindow->setHeight(body.height() - 16);
+  lv_obj_set_scrollbar_mode(listWindow->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
+  listWindow->padAll(PAD_TINY);
+  listWindow->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_SMALL);
   lv_obj_set_flex_align(listWindow->getLvObj(), LV_FLEX_ALIGN_START,
                         LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_SPACE_BETWEEN);
   lv_obj_set_grid_cell(listWindow->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1,
                        LV_GRID_ALIGN_START, 0, 1);
 
   infoLabel = lv_label_create(line->getLvObj());
-  lv_obj_set_height(infoLabel, body.height() - 16);
+  lv_obj_set_height(infoLabel, body.height() - PAD_SMALL * 2);
   lv_obj_set_style_text_align(infoLabel, LV_TEXT_ALIGN_LEFT, 0);
   lv_obj_set_grid_cell(infoLabel, LV_GRID_ALIGN_STRETCH, 1, 1,
                        LV_GRID_ALIGN_CENTER, 0, 1);
