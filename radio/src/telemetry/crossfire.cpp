@@ -263,7 +263,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
     default:
       if (id == DEVICE_INFO_ID && rxBuffer[4]== MODULE_ADDRESS) {
         uint8_t nameSize = rxBuffer[1] - 18;
-        strncpy((char *)&crossfireModuleStatus[module].name, (const char *)&rxBuffer[5], min(CRSF_NAME_MAXSIZE, nameSize));
+        strncpy((char *)&crossfireModuleStatus[module].name, (const char *)&rxBuffer[5], CRSF_NAME_MAXSIZE);
         crossfireModuleStatus[module].name[CRSF_NAME_MAXSIZE -1] = 0; // For some reason, GH din't like strlcpy
         if (strncmp((const char *) &rxBuffer[5 + nameSize], "ELRS", 4) == 0)
           crossfireModuleStatus[module].isELRS = true;
