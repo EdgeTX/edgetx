@@ -261,7 +261,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
 
 #if defined(LUA)
     default:
-      if (id == DEVICE_INFO_ID) {
+      if (id == DEVICE_INFO_ID && rxBuffer[4]== MODULE_ADDRESS) {
         uint8_t nameSize = rxBuffer[1] - 18;
         strncpy((char *)&crossfireModuleStatus[module].name, (const char *)&rxBuffer[5], min(CRSF_NAME_MAXSIZE, nameSize));
         crossfireModuleStatus[module].name[CRSF_NAME_MAXSIZE -1] = 0; // For some reason, GH din't like strlcpy

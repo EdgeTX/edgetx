@@ -45,7 +45,7 @@
 uint8_t createCrossfireBindFrame(uint8_t moduleIdx, uint8_t * frame)
 {
   uint8_t * buf = frame;
-  *buf++ = MODULE_ADDRESS;                            /* device address */
+  *buf++ = UART_SYNC;                                 /* device address */
   *buf++ = 7;                                         /* frame length */
   *buf++ = COMMAND_ID;                                /* cmd type */
   if (TELEMETRY_STREAMING())
