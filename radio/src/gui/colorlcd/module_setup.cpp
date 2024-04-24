@@ -324,6 +324,8 @@ void ModuleWindow::updateModule()
           }
 #endif
           moduleState[moduleIdx].mode = MODULE_MODE_BIND;
+          if (isModuleELRS(moduleIdx))
+            AUDIO_PLAY(AU_SPECIAL_SOUND_CHEEP); // Since ELRS bind is just one frame, we need to play the sound manually
 #if defined(AFHDS2)
           if (isModuleAFHDS2A(moduleIdx)) {
             resetPulsesAFHDS2();
