@@ -130,6 +130,10 @@ const char * createModel()
     storageDirty(EE_GENERAL);
     storageDirty(EE_MODEL);
     storageCheck(true);
+#if defined(COLORLCD)
+    // Default layout loaded when setting model defaults - neeed to remove it.
+    LayoutFactory::deleteCustomScreens();
+#endif
   }
   postModelLoad(false);
 
