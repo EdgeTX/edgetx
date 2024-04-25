@@ -32,33 +32,54 @@
 #define ETX_STATE_MINMAX_BOLD LV_STATE_USER_1
 #define ETX_STATE_NAME_FONT_SMALL LV_STATE_USER_1
 
-#define CH_BAR_WIDTH 92
-#define CH_BAR_HEIGHT 14
+#define CH_BAR_WIDTH 100
+#define CH_BAR_HEIGHT 16
 
 #if LCD_W > LCD_H  // Landscape
 
 #define CH_LINE_H 32
 
-#define CH_BAR_COL 7
-#define CH_BAR_COLSPAN 1
+#define MIN_Y 4
+#define MAX_W 52
+#define OFF_X (MAX_X + MAX_W + 2)
+#define OFF_Y 4
+#define OFF_W 44
+#define BAR_Y 6
 
-static const lv_coord_t col_dsc[] = {
-    80, 50, 54, 44, 60, 18, 18, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 #else  // Portrait
 
 #define CH_LINE_H 50
 
-#define CH_BAR_COL 3
-#define CH_BAR_COLSPAN 3
+#define MIN_Y 2
+#define MAX_W 60
+#define OFF_X (SRC_X + SRC_W + 2)
+#define OFF_Y 24
+#define OFF_W 52
+#define BAR_Y 4
 
-static const lv_coord_t col_dsc[] = {
-    80, 50, 60, 18, 18, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
-                                     LV_GRID_TEMPLATE_LAST};
 #endif
+
+#define SRC_X 2
+#define SRC_Y 1
+#define SRC_W 80
+#define SRC_H (CH_LINE_H - 6)
+#define MIN_X (SRC_X + SRC_W + 2)
+#define MIN_W 52
+#define MIN_H 20
+#define MAX_X (MIN_X + MIN_W + 2)
+#define MAX_Y MIN_Y
+#define MAX_H 20
+#define OFF_H 20
+#define CTR_X (OFF_X + OFF_W + 2)
+#define CTR_Y OFF_Y
+#define CTR_W 60
+#define CTR_H 20
+#define REV_X (CTR_X + CTR_W + 2)
+#define REV_Y CTR_Y
+#define REV_W 16
+#define CRV_X (REV_X + REV_W + 2)
+#define CRV_Y (REV_Y + 1)
+#define BAR_X (LCD_W - CH_BAR_WIDTH - 17)
 
 class OutputLineButton : public ListLineButton
 {
@@ -84,52 +105,42 @@ class OutputLineButton : public ListLineButton
 
   void delayed_init()
   {
-    uint8_t col = 1, row = 0;
+    init = true;
 
     min = lv_label_create(lvobj);
     etx_obj_add_style(min, styles->text_align_right, LV_PART_MAIN);
     etx_font(min, FONT_BOLD_INDEX, ETX_STATE_MINMAX_BOLD);
-    lv_obj_set_grid_cell(min, LV_GRID_ALIGN_END, col++, 1, LV_GRID_ALIGN_START,
-                         row, 1);
+    lv_obj_set_pos(min, MIN_X, MIN_Y);
+    lv_obj_set_size(min, MIN_W, MIN_H);
 
     max = lv_label_create(lvobj);
     etx_obj_add_style(max, styles->text_align_right, LV_PART_MAIN);
     etx_font(max, FONT_BOLD_INDEX, ETX_STATE_MINMAX_BOLD);
-    lv_obj_set_grid_cell(max, LV_GRID_ALIGN_END, col++, 1, LV_GRID_ALIGN_START,
-                         row, 1);
-
-#if LCD_H > LCD_W
-    col = 1;
-    row++;
-#endif
+    lv_obj_set_pos(max, MAX_X, MAX_Y);
+    lv_obj_set_size(max, MAX_W, MAX_H);
 
     offset = lv_label_create(lvobj);
-    lv_obj_set_grid_cell(offset, LV_GRID_ALIGN_END, col++, 1,
-                         LV_GRID_ALIGN_START, row, 1);
+    etx_obj_add_style(offset, styles->text_align_right, LV_PART_MAIN);
+    lv_obj_set_pos(offset, OFF_X, OFF_Y);
+    lv_obj_set_size(offset, OFF_W, OFF_H);
 
     center = lv_label_create(lvobj);
-    lv_obj_set_style_pad_left(center, 8, 0);
-    lv_obj_set_grid_cell(center, LV_GRID_ALIGN_START, col++, 1,
-                         LV_GRID_ALIGN_START, row, 1);
+    etx_obj_add_style(center, styles->text_align_right, LV_PART_MAIN);
+    lv_obj_set_pos(center, CTR_X, CTR_Y);
+    lv_obj_set_size(center, CTR_W, CTR_H);
 
     revert = lv_img_create(lvobj);
     lv_img_set_src(revert, LV_SYMBOL_SHUFFLE);
-    lv_obj_set_grid_cell(revert, LV_GRID_ALIGN_START, col++, 1,
-                         LV_GRID_ALIGN_START, row, 1);
+    lv_obj_set_pos(revert, REV_X, REV_Y);
 
     curve =
-        new StaticIcon(this, 0, 0, ICON_TEXTLINE_CURVE, COLOR_THEME_SECONDARY1);
-    lv_obj_set_grid_cell(curve->getLvObj(), LV_GRID_ALIGN_START, col++, 1,
-                         LV_GRID_ALIGN_START, row, 1);
+        new StaticIcon(this, CRV_X, CRV_Y, ICON_TEXTLINE_CURVE, COLOR_THEME_SECONDARY1);
 
-    bar = new OutputChannelBar(this, rect_t{0, 0, CH_BAR_WIDTH, CH_BAR_HEIGHT},
+    bar = new OutputChannelBar(this, rect_t{BAR_X, BAR_Y, CH_BAR_WIDTH, CH_BAR_HEIGHT},
                                index, false, false);
 
-    lv_obj_set_grid_cell(bar->getLvObj(), LV_GRID_ALIGN_END, CH_BAR_COL,
-                         CH_BAR_COLSPAN, LV_GRID_ALIGN_CENTER, 0, 1);
-
-    init = true;
     refresh();
+    checkEvents();
 
     lv_obj_update_layout(lvobj);
   }
@@ -139,23 +150,15 @@ class OutputLineButton : public ListLineButton
       ListLineButton(parent, channel)
   {
     setHeight(CH_LINE_H);
-#if LCD_W > LCD_H
-    padTop(4);
-#endif
-    lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
-    lv_obj_set_grid_dsc_array(lvobj, col_dsc, row_dsc);
+    padAll(PAD_ZERO);
 
     source = lv_label_create(lvobj);
+    lv_obj_set_pos(source, SRC_X, SRC_Y);
+    lv_obj_set_size(source, SRC_W, SRC_H);
 
-#if LCD_H > LCD_W
-    lv_obj_set_grid_cell(source, LV_GRID_ALIGN_START, 0, 1,
-                         LV_GRID_ALIGN_CENTER, 0, 2);
-
-#else
-    lv_obj_set_grid_cell(source, LV_GRID_ALIGN_START, 0, 1,
-                         LV_GRID_ALIGN_CENTER, 0, 1);
+#if LCD_W > LCD_H
     etx_font(source, FONT_XS_INDEX, ETX_STATE_NAME_FONT_SMALL);
-    lv_obj_set_style_pad_top(source, -5, ETX_STATE_NAME_FONT_SMALL);
+    lv_obj_set_style_pad_top(source, -2, ETX_STATE_NAME_FONT_SMALL);
     lv_obj_set_style_text_line_space(source, -3, ETX_STATE_NAME_FONT_SMALL);
 #endif
 
@@ -203,7 +206,7 @@ class OutputLineButton : public ListLineButton
   }
 
  protected:
-  int value = 0;
+  int value = -10000;
 
   bool isActive() const override { return false; }
 
@@ -239,41 +242,52 @@ ModelOutputsPage::ModelOutputsPage() :
 {
 }
 
+#if LCD_W > LCD_H
+
+#define ADD_TRIMS_W ((LCD_W / 2) - 10)
+#define EXLIM_X (ADD_TRIMS_X + ADD_TRIMS_W + 4)
+#define EXLIM_Y 10
+#define EXLIMCB_Y 4
+
+#else
+
+#define ADD_TRIMS_W (LCD_W - 12)
+#define EXLIM_X 6
+#define EXLIM_Y (ADD_TRIMS_X + ADD_TRIMS_H + 8)
+#define EXLIMCB_Y (ADD_TRIMS_X + ADD_TRIMS_H + 2)
+
+#endif
+
+#define ADD_TRIMS_X 6
+#define ADD_TRIMS_Y 4
+#define ADD_TRIMS_H 32
+#define EXLIM_W (EXLIMCB_X - EXLIM_X - 4)
+#define EXLIM_H 20
+#define EXLIMCB_X (LCD_W - 58)
+#define EXLIMCB_W 52
+#define EXLIMCB_H 32
+#define TRIMB_X 6
+#define TRIMB_Y (EXLIMCB_Y + EXLIMCB_H + 3)
+#define TRIMB_W (LCD_W - 12)
+
 void ModelOutputsPage::build(Window* window)
 {
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
+  window->padAll(PAD_ZERO);
+  window->padBottom(PAD_LARGE);
 
-  lv_obj_set_style_flex_cross_place(window->getLvObj(), LV_FLEX_ALIGN_START, 0);
-
-  auto box = new Window(window, rect_t{});
-  box->padAll(PAD_ZERO);
-  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_ZERO);
-  lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
-
-  auto box2 = new Window(box, rect_t{});
-  box2->padAll(PAD_TINY);
-  box2->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL, LV_SIZE_CONTENT);
-  new TextButton(box2, rect_t{}, STR_ADD_ALL_TRIMS_TO_SUBTRIMS, [=]() {
+  new TextButton(window, {ADD_TRIMS_X, ADD_TRIMS_Y, ADD_TRIMS_W, ADD_TRIMS_H}, STR_ADD_ALL_TRIMS_TO_SUBTRIMS, [=]() {
     moveTrimsToOffsets();
     return 0;
   });
 
-  box2 = new Window(box, rect_t{});
-  box2->padAll(PAD_TINY);
-  box2->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL, LV_SIZE_CONTENT);
-  lv_obj_set_style_flex_cross_place(box2->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
-
-  new StaticText(box2, rect_t{}, STR_ELIMITS);
-  new ToggleSwitch(box2, rect_t{}, GET_SET_DEFAULT(g_model.extendedLimits));
-
-  box = new Window(window, rect_t{});
-  box->padAll(PAD_TINY);
-  box->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
-  lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
+  new StaticText(window, {EXLIM_X, EXLIM_Y, EXLIM_W, EXLIM_H}, STR_ELIMITS, RIGHT);
+  new ToggleSwitch(window, {EXLIMCB_X, EXLIMCB_Y, EXLIMCB_W, EXLIMCB_H}, GET_SET_DEFAULT(g_model.extendedLimits));
 
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
     // Channel settings
-    auto btn = new OutputLineButton(box, ch);
+    auto btn = new OutputLineButton(window, ch);
+    lv_obj_set_pos(btn->getLvObj(), TRIMB_X, TRIMB_Y + (ch * (CH_LINE_H + 2)));
+    btn->setWidth(TRIMB_W);
 
     LimitData* output = limitAddress(ch);
     btn->setPressHandler([=]() -> uint8_t {

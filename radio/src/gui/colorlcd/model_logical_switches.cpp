@@ -296,32 +296,51 @@ void getsEdgeDelayParam(char* s, LogicalSwitchData* ls)
 
 #if LCD_W > LCD_H  // Landscape
 
-static const lv_coord_t b_col_dsc[] = {30, 50, 88, 110,
-                                       88, 40, 40, LV_GRID_TEMPLATE_LAST};
+#define LS_BUTTON_H 32
 
-static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-
-#define NM_ROW_CNT 1
-#define V2_COL_CNT 1
-#define ANDSW_ROW 0
-#define ANDSW_COL 4
-#define LS_BUTTON_H 34
+#define NM_Y 4
+#define NM_W 30
+#define FN_W 50
+#define V1_Y NM_Y
+#define AND_X (V2_X + V2_W + 2)
+#define AND_Y NM_Y
+#define DUR_W 40
 
 #else  // Portrait
 
-static const lv_coord_t b_col_dsc[] = {36, 58, 88,
-                                       54, 54, LV_GRID_TEMPLATE_LAST};
+#define LS_BUTTON_H 44
 
-static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
-                                       LV_GRID_TEMPLATE_LAST};
-
-#define NM_ROW_CNT 2
-#define V2_COL_CNT 2
-#define ANDSW_ROW 1
-#define ANDSW_COL 2
-#define LS_BUTTON_H 45
+#define NM_Y 10
+#define NM_W 36
+#define FN_W 58
+#define V1_Y 0
+#define AND_X (FN_X + FN_W + 2)
+#define AND_Y 20
+#define DUR_W 54
 
 #endif
+
+#define NM_X 2
+#define NM_H 20
+#define FN_X (NM_X + NM_W + 2)
+#define FN_Y NM_Y
+#define FN_H NM_H
+#define V1_X (FN_X + FN_W + 2)
+#define V1_W 88
+#define V1_H NM_H
+#define V2_X (V1_X + V1_W + 2)
+#define V2_Y V1_Y
+#define V2_W 110
+#define V2_H NM_H
+#define AND_W 88
+#define AND_H NM_H
+#define DUR_X (AND_X + AND_W + 2)
+#define DUR_Y AND_Y
+#define DUR_H NM_H
+#define DEL_X (DUR_X + DUR_W + 2)
+#define DEL_Y AND_Y
+#define DEL_H NM_H
+#define DEL_W DUR_W
 
 class LogicalSwitchButton : public ListLineButton
 {
@@ -330,22 +349,9 @@ class LogicalSwitchButton : public ListLineButton
       ListLineButton(parent, lsIndex)
   {
     setHeight(LS_BUTTON_H);
-#if LCD_H > LCD_W
-    padTop(PAD_ZERO);
-#else
-    padTop(PAD_SMALL);
-#endif
-    padLeft(3);
-    padRight(3);
-    lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
-    lv_obj_set_grid_dsc_array(lvobj, b_col_dsc, b_row_dsc);
-    lv_obj_set_style_pad_row(lvobj, 0, 0);
-    lv_obj_set_style_pad_column(lvobj, 2, 0);
+    padAll(PAD_ZERO);
 
     check(isActive());
-
-    lv_obj_update_layout(parent->getLvObj());
-    if (lv_obj_is_visible(lvobj)) delayed_init(nullptr);
 
     lv_obj_add_event_cb(lvobj, LogicalSwitchButton::on_draw,
                         LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
@@ -357,59 +363,52 @@ class LogicalSwitchButton : public ListLineButton
     auto line = (LogicalSwitchButton*)lv_obj_get_user_data(target);
     if (line) {
       if (!line->init)
-        line->delayed_init(e);
-      else
-        line->refresh();
+        line->delayed_init();
+      line->refresh();
     }
   }
 
-  void delayed_init(lv_event_t* e)
+  void delayed_init()
   {
+    init = true;
+
     lsName = lv_label_create(lvobj);
     etx_obj_add_style(lsName, styles->text_align_left, LV_PART_MAIN);
-    lv_obj_set_grid_cell(lsName, LV_GRID_ALIGN_STRETCH, 0, 1,
-                         LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
+    lv_obj_set_pos(lsName, NM_X, NM_Y);
+    lv_obj_set_size(lsName, NM_W, NM_H);
 
     lsFunc = lv_label_create(lvobj);
     etx_obj_add_style(lsFunc, styles->text_align_left, LV_PART_MAIN);
-    lv_obj_set_grid_cell(lsFunc, LV_GRID_ALIGN_STRETCH, 1, 1,
-                         LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
+    lv_obj_set_pos(lsFunc, FN_X, FN_Y);
+    lv_obj_set_size(lsFunc, FN_W, FN_H);
 
     lsV1 = lv_label_create(lvobj);
     etx_obj_add_style(lsV1, styles->text_align_center, LV_PART_MAIN);
     etx_font(lsV1, FONT_XS_INDEX, ETX_STATE_V1_SMALL_FONT);
-    lv_obj_set_grid_cell(lsV1, LV_GRID_ALIGN_STRETCH, 2, 1,
-                         LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_set_pos(lsV1, V1_X, V1_Y);
+    lv_obj_set_size(lsV1, V1_W, V1_H);
 
     lsV2 = lv_label_create(lvobj);
     etx_obj_add_style(lsV2, styles->text_align_center, LV_PART_MAIN);
-    lv_obj_set_grid_cell(lsV2, LV_GRID_ALIGN_STRETCH, 3, V2_COL_CNT,
-                         LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_set_pos(lsV2, V2_X, V2_Y);
+    lv_obj_set_size(lsV2, V2_W, V2_H);
 
     lsAnd = lv_label_create(lvobj);
     etx_obj_add_style(lsAnd, styles->text_align_center, LV_PART_MAIN);
-    lv_obj_set_grid_cell(lsAnd, LV_GRID_ALIGN_STRETCH, ANDSW_COL, 1,
-                         LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
+    lv_obj_set_pos(lsAnd, AND_X, AND_Y);
+    lv_obj_set_size(lsAnd, AND_W, AND_H);
 
     lsDuration = lv_label_create(lvobj);
     etx_obj_add_style(lsDuration, styles->text_align_center, LV_PART_MAIN);
-    lv_obj_set_grid_cell(lsDuration, LV_GRID_ALIGN_STRETCH, ANDSW_COL + 1, 1,
-                         LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
+    lv_obj_set_pos(lsDuration, DUR_X, DUR_Y);
+    lv_obj_set_size(lsDuration, DUR_W, DUR_H);
 
     lsDelay = lv_label_create(lvobj);
     etx_obj_add_style(lsDelay, styles->text_align_center, LV_PART_MAIN);
-    lv_obj_set_grid_cell(lsDelay, LV_GRID_ALIGN_STRETCH, ANDSW_COL + 2, 1,
-                         LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
-
-    init = true;
-    refresh();
+    lv_obj_set_pos(lsDelay, DEL_X, DEL_Y);
+    lv_obj_set_size(lsDelay, DEL_W, DEL_H);
 
     lv_obj_update_layout(lvobj);
-
-    if (e) {
-      auto param = lv_event_get_param(e);
-      lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
-    }
   }
 
   bool isActive() const override

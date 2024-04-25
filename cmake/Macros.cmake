@@ -120,15 +120,17 @@ function(AddHWGenTarget input template output)
   # Inputs
   set(INPUT_JSON ${CMAKE_CURRENT_BINARY_DIR}/${input})
   set(TEMPLATE ${RADIO_DIRECTORY}/util/hw_defs/${template}.jinja)
-  set(LEGACY_JSON ${RADIO_DIRECTORY}/util/hw_defs/legacy_names.py)
+  set(GEN_PY_DEPS
+    ${RADIO_DIRECTORY}/util/hw_defs/generator.py
+    ${RADIO_DIRECTORY}/util/hw_defs/legacy_names.py
+  )
 
   # Command
   set(GEN_JSON ${GEN_JSON} -t ${TEMPLATE} -T ${FLAVOUR} ${INPUT_JSON})
 
   add_custom_command(OUTPUT ${output}
     COMMAND ${GEN_JSON} > ${output}
-    DEPENDS ${INPUT_JSON} ${LEGACY_JSON} ${TEMPLATE}
-    )
+    DEPENDS ${INPUT_JSON} ${TEMPLATE} ${GEN_PY_DEPS})
 endfunction()
 
 macro(AddHeadersSources)

@@ -21,8 +21,6 @@
 
 #include "model_mixes.h"
 #include "opentx.h"
-#include "input_mix_group.h"
-#include "input_mix_button.h"
 #include "mixer_edit.h"
 #include "mixes.h"
 #include "channel_bar.h"
@@ -30,96 +28,6 @@
 #include <algorithm>
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
-
-static const lv_coord_t col_dsc[] = {
-    45,
-    LV_GRID_FR(1),
-    LV_GRID_TEMPLATE_LAST,
-};
-
-static const lv_coord_t col_dsc2[] = {
-    26,
-    LV_GRID_FR(1),
-    LV_GRID_TEMPLATE_LAST,
-};
-
-static const lv_coord_t row_dsc[] = {
-    LV_GRID_CONTENT,
-    LV_GRID_TEMPLATE_LAST,
-};
-
-MixGroup::MixGroup(Window* parent, mixsrc_t idx) :
-  InputMixGroupBase(parent, idx, col_dsc)
-{
-  lv_obj_t* chText = nullptr;
-  if (idx >= MIXSRC_FIRST_CH && idx <= MIXSRC_LAST_CH &&
-      g_model.limitData[idx - MIXSRC_FIRST_CH].name[0] != '\0') {
-    chText = lv_label_create(lvobj);
-    etx_font(chText, FONT_XS_INDEX);
-    lv_label_set_text_fmt(chText, TR_CH "%" PRIu32,
-                          UINT32_C(idx - MIXSRC_FIRST_CH + 1));
-    lv_obj_set_style_pad_left(chText, PAD_TINY, 0);
-    lv_obj_set_grid_cell(chText, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_END,
-                         0, 1);
-  }
-
-  lv_obj_set_style_pad_top(label, -1, 0);
-
-  lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 0, 1,
-                       LV_GRID_ALIGN_START, 0, 1);
-
-  lv_obj_t* outer = line_container;
-  lv_obj_set_style_pad_all(outer, PAD_ZERO, LV_PART_MAIN);
-  lv_obj_set_style_pad_row(outer, PAD_ZERO, LV_PART_MAIN);
-
-  monitor = new MixerChannelBar(this, {0, 0, 100, 14}, idx - MIXSRC_FIRST_CH);
-  lv_obj_set_parent(monitor->getLvObj(), outer); 
-  lv_obj_set_style_translate_x(monitor->getLvObj(), -6, LV_PART_MAIN);
-  lv_obj_set_grid_cell(monitor->getLvObj(), LV_GRID_ALIGN_END, 0, 1, LV_GRID_ALIGN_START,
-                       0, 1);
-  monitor->hide();
-
-  lv_obj_t* inner = window_create(outer);
-  lv_obj_set_size(inner, lv_pct(100), LV_SIZE_CONTENT);
-  lv_obj_set_layout(inner, LV_LAYOUT_GRID);
-  lv_obj_set_grid_dsc_array(inner, col_dsc2, row_dsc);
-  lv_obj_set_style_pad_all(inner, PAD_ZERO, LV_PART_MAIN);
-  lv_obj_set_style_pad_row(inner, PAD_ZERO, LV_PART_MAIN);
-
-  mplex_container = window_create(inner);
-  lv_obj_set_size(mplex_container, lv_pct(100), LV_SIZE_CONTENT);
-  lv_obj_set_flex_flow(mplex_container, LV_FLEX_FLOW_COLUMN);
-  lv_obj_set_style_flex_cross_place(mplex_container, LV_FLEX_ALIGN_END, 0);
-  lv_obj_set_style_pad_ver(mplex_container, PAD_TINY, LV_PART_MAIN);
-  lv_obj_set_style_pad_hor(mplex_container, PAD_ZERO, LV_PART_MAIN);
-  lv_obj_set_style_pad_row(mplex_container, PAD_TINY, LV_PART_MAIN);
-  lv_obj_set_grid_cell(mplex_container, LV_GRID_ALIGN_STRETCH, 0, 1,
-                       LV_GRID_ALIGN_START, 0, 1);
-
-  line_container = window_create(inner);
-  lv_obj_set_size(line_container, lv_pct(100), LV_SIZE_CONTENT);
-  lv_obj_set_flex_flow(line_container, LV_FLEX_FLOW_COLUMN);
-  lv_obj_set_style_flex_cross_place(line_container, LV_FLEX_ALIGN_END, 0);
-  lv_obj_set_style_pad_all(line_container, PAD_TINY, LV_PART_MAIN);
-  lv_obj_set_style_pad_row(line_container, PAD_TINY, LV_PART_MAIN);
-  lv_obj_set_grid_cell(line_container, LV_GRID_ALIGN_STRETCH, 1, 1,
-                       LV_GRID_ALIGN_START, 0, 1);
-}
-
-void MixGroup::enableMixerMonitor()
-{
-  monitor->show();
-}
-
-void MixGroup::disableMixerMonitor()
-{
-  monitor->hide();
-}
-
-void MixGroup::addMPlex(Window* mplex)
-{
-  lv_obj_set_parent(mplex->getLvObj(), mplex_container);
-}
 
 class MPlexIcon : public Window
 {
@@ -164,19 +72,20 @@ class MPlexIcon : public Window
   StaticIcon* icon = nullptr;
 };
 
-class MixLineButton : public InputMixButton
+class MixLineButton : public InputMixButtonBase
 {
  public:
   MixLineButton(Window* parent, uint8_t index, MPlexIcon* mplex) :
-    InputMixButton(parent, index),
+    InputMixButtonBase(parent, index),
     mplex(mplex)
   {
+    check(isActive());
   }
 
   void deleteLater(bool detach = true, bool trash = true) override
   {
     if (mplex) mplex->deleteLater(detach, trash);
-    InputMixButton::deleteLater(detach, trash);
+    ListLineButton::deleteLater(detach, trash);
   }
 
   void refresh() override
@@ -220,15 +129,85 @@ class MixLineButton : public InputMixButton
 
   void setIndex(uint8_t i) override
   {
-    InputMixButton::setIndex(i);
+    ListLineButton::setIndex(i);
     mplex->setIndex(i);
+  }
+
+  void updatePos(coord_t x, coord_t y) override
+  {
+    setPos(x, y);
+    mplex->setPos(x - 28, y);
+    mplex->show(y > BTN_H);
   }
 
   lv_obj_t* mplexLvObj() const { return mplex->getLvObj(); }
 
+  void swapLvglGroup(InputMixButtonBase* line2) override
+  {
+    MixLineButton* swapWith = (MixLineButton*)line2;
+
+    // Swap elements (focus + line list)
+    lv_obj_t* obj1 = getLvObj();
+    lv_obj_t* obj2 = swapWith->getLvObj();
+    if (lv_obj_get_parent(obj1) == lv_obj_get_parent(obj2)) {
+      // same input group: swap obj + focus group
+      lv_obj_swap(obj1, obj2);
+      lv_obj_swap(mplexLvObj(), swapWith->mplexLvObj());
+    } else {
+      // different input group: swap only focus group
+      lv_group_swap_obj(obj1, obj2);
+      lv_group_swap_obj(mplexLvObj(), swapWith->mplexLvObj());
+    }
+  }
+
  protected:
   MPlexIcon* mplex = nullptr;
+
   bool isActive() const override { return isMixActive(index); }
+};
+
+class MixGroup : public InputMixGroupBase
+{
+ public:
+  MixGroup(Window* parent, mixsrc_t idx) :
+    InputMixGroupBase(parent, idx)
+  {
+    adjustHeight();
+
+    lv_obj_set_pos(label, 2, -1);
+
+    lv_obj_t* chText = nullptr;
+    if (idx >= MIXSRC_FIRST_CH && idx <= MIXSRC_LAST_CH &&
+        g_model.limitData[idx - MIXSRC_FIRST_CH].name[0] != '\0') {
+      chText = lv_label_create(lvobj);
+      etx_font(chText, FONT_XS_INDEX);
+      lv_label_set_text_fmt(chText, TR_CH "%" PRIu32,
+                            UINT32_C(idx - MIXSRC_FIRST_CH + 1));
+      lv_obj_set_pos(chText, 2, 17);
+    }
+
+    refresh();
+  }
+
+  void enableMixerMonitor()
+  {
+    if (!monitor)
+      monitor = new MixerChannelBar(this, {LCD_W - 118, 1, 100, 14}, idx - MIXSRC_FIRST_CH);
+    monitorVisible = true;
+    monitor->show();
+    adjustHeight();
+  }
+
+  void disableMixerMonitor()
+  {
+    monitorVisible = false;
+    monitor->hide();
+    adjustHeight();
+  }
+
+ protected:
+  MixerChannelBar* monitor = nullptr;
+  bool monitorVisible = false;
 };
 
 ModelMixesPage::ModelMixesPage() : InputMixPageBase(STR_MIXES, ICON_MODEL_MIXER)
@@ -244,51 +223,25 @@ bool ModelMixesPage::reachMixesLimit()
   return false;
 }
 
-MixGroup* ModelMixesPage::getGroupByIndex(uint8_t index)
+InputMixGroupBase* ModelMixesPage::getGroupByIndex(uint8_t index)
 {
   MixData* mix = mixAddress(index);
   if (is_memclear(mix, sizeof(MixData))) return nullptr;
 
   int ch = mix->destCh;
-  return (MixGroup*)getGroupBySrc(MIXSRC_FIRST_CH + ch);
+  return getGroupBySrc(MIXSRC_FIRST_CH + ch);
 }
 
-MixLineButton* ModelMixesPage::getLineByIndex(uint8_t index)
-{
-  auto l = std::find_if(lines.begin(), lines.end(), [=](MixLineButton* l) {
-    return l->getIndex() == index;
-  });
-
-  if (l != lines.end()) return *l;
-
-  return nullptr;
-}
-
-void ModelMixesPage::removeLine(MixLineButton* l)
-{
-  auto line = std::find_if(lines.begin(), lines.end(),
-                           [=](MixLineButton* lh) -> bool { return lh == l; });
-  if (line == lines.end()) return;
-
-  line = lines.erase(line);
-  while (line != lines.end()) {
-    (*line)->setIndex((*line)->getIndex() - 1);
-    ++line;
-  }
-}
-
-MixGroup* ModelMixesPage::createGroup(Window* form, mixsrc_t src)
+InputMixGroupBase* ModelMixesPage::createGroup(Window* form, mixsrc_t src)
 {
   auto group = new MixGroup(form, src);
   if (showMonitors) group->enableMixerMonitor();
   return group;
 }
 
-MixLineButton* ModelMixesPage::createLineButton(MixGroup *group, uint8_t index)
+InputMixButtonBase* ModelMixesPage::createLineButton(InputMixGroupBase *group, uint8_t index)
 {
   auto mplex = new MPlexIcon(group, index);
-  group->addMPlex(mplex);
-
   auto button = new MixLineButton(group, index, mplex);
   button->refresh();
 
@@ -346,60 +299,7 @@ void ModelMixesPage::addLineButton(uint8_t index)
   if (is_memclear(mix, sizeof(MixData))) return;
   int channel = mix->destCh;
 
-  addLineButton(MIXSRC_FIRST_CH + channel, index);
-}
-
-void ModelMixesPage::addLineButton(mixsrc_t src, uint8_t index)
-{
-  MixGroup* group_w = (MixGroup*)getGroupBySrc(src);
-  if (!group_w) {
-    group_w = createGroup(form, src);
-    // insertion sort
-    groups.emplace_back(group_w);
-    auto g = groups.rbegin();
-    if (g != groups.rend()) {
-      auto g_prev = g;
-      ++g_prev;
-      while (g_prev != groups.rend()) {
-        if ((*g_prev)->getMixSrc() < (*g)->getMixSrc()) break;
-        lv_obj_swap((*g)->getLvObj(), (*g_prev)->getLvObj());
-        std::swap(*g, *g_prev);
-        ++g;
-        ++g_prev;
-      }
-    }
-  }
-
-  // create new line button
-  auto btn = createLineButton(group_w, index);
-  lv_group_focus_obj(btn->getLvObj());
-
-  // insertion sort for the focus group
-  auto l = lines.rbegin();
-  if (l != lines.rend()) {
-    auto l_prev = l;
-    ++l_prev;
-    while (l_prev != lines.rend()) {
-      if ((*l_prev)->getIndex() < (*l)->getIndex()) break;
-      // Swap elements (focus + line list)
-      lv_obj_t* obj1 = (*l)->getLvObj();
-      lv_obj_t* obj2 = (*l_prev)->getLvObj();
-      if (lv_obj_get_parent(obj1) == lv_obj_get_parent(obj2)) {
-        // same input group: swap obj + focus group
-        lv_obj_swap(obj1, obj2);
-        lv_obj_swap((*l)->mplexLvObj(), (*l_prev)->mplexLvObj());
-      } else {
-        // different input group: swap only focus group
-        lv_group_swap_obj(obj1, obj2);
-        lv_group_swap_obj((*l)->mplexLvObj(), (*l_prev)->mplexLvObj());
-      }
-      std::swap(*l, *l_prev);
-      // Inc index of elements after
-      (*l)->setIndex((*l)->getIndex() + 1);
-      ++l;
-      ++l_prev;
-    }
-  }
+  InputMixPageBase::addLineButton(MIXSRC_FIRST_CH + channel, index);
 }
 
 void ModelMixesPage::newMix()
@@ -443,6 +343,7 @@ void ModelMixesPage::editMix(uint8_t channel, uint8_t index)
     } else {
       line->refresh();
     }
+    (getGroupByIndex(index))->adjustHeight();
   });
 }
 
@@ -451,7 +352,7 @@ void ModelMixesPage::insertMix(uint8_t channel, uint8_t index)
   _copyMode = 0;
 
   ::insertMix(index, channel);
-  addLineButton(MIXSRC_FIRST_CH + channel, index);
+  InputMixPageBase::addLineButton(MIXSRC_FIRST_CH + channel, index);
   editMix(channel, index);
 }
 

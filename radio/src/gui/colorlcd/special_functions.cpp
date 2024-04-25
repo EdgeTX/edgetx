@@ -33,41 +33,46 @@
 #define SET_DIRTY() setDirty()
 
 #if LCD_W > LCD_H
-#define SF_BUTTON_H 34
+
+#define SF_BUTTON_H 32
+
+#define NM_X 2
+#define NM_Y 4
+#define NM_W 43
+#define SW_Y NM_Y
+#define SW_W 70
+#define FN_X (SW_X + SW_W + 2)
+#define FN_Y NM_Y
+#define FN_W 277
+#define RP_W 40
+
 #else
-#define SF_BUTTON_H 45
+
+#define SF_BUTTON_H 44
+
+#define NM_X 2
+#define NM_Y 10
+#define NM_W 40
+#define SW_Y 0
+#define SW_W 198
+#define FN_X (NM_X + NM_W + 2)
+#define FN_Y 20
+#define FN_W SW_W
+#define RP_W 34
+
 #endif
 
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
-                                     LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+#define NM_H 20
+#define SW_X (NM_X + NM_W + 2)
+#define SW_H NM_H
+#define FN_H NM_H
+#define RP_X (FN_X + FN_W + 2)
+#define RP_Y NM_Y
+#define RP_H NM_H
+#define EN_X (RP_X + RP_W + 5)
+#define EN_Y NM_Y + 2
 
 //-----------------------------------------------------------------------------
-
-#if LCD_W > LCD_H
-
-static const lv_coord_t b_col_dsc[] = {43, 70, LV_GRID_FR(1),
-                                       40, 30, LV_GRID_TEMPLATE_LAST};
-
-static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-
-#define NM_ROW_CNT 1
-#define FUNC_COL 2
-#define FUNC_ROW 0
-
-#else
-
-static const lv_coord_t b_col_dsc[] = {40, LV_GRID_FR(1), 34, 24,
-                                       LV_GRID_TEMPLATE_LAST};
-
-static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
-                                       LV_GRID_TEMPLATE_LAST};
-
-#define NM_ROW_CNT 2
-#define FUNC_COL 1
-#define FUNC_ROW 1
-
-#endif
 
 static const char *_failsafe_module[] = {
     "Int.",
@@ -117,16 +122,7 @@ FunctionLineButton::FunctionLineButton(Window *parent, const rect_t &rect,
     ListLineButton(parent, index), cfn(cfn), prefix(prefix)
 {
   setHeight(SF_BUTTON_H);
-#if LCD_H > LCD_W
-  padTop(PAD_ZERO);
-#else
-  padTop(PAD_SMALL);
-#endif
-  padLeft(4);
-  lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
-  lv_obj_set_grid_dsc_array(lvobj, b_col_dsc, b_row_dsc);
-  lv_obj_set_style_pad_row(lvobj, 0, 0);
-  lv_obj_set_style_pad_column(lvobj, 4, 0);
+  padAll(PAD_ZERO);
 
   lv_obj_add_event_cb(lvobj, FunctionLineButton::on_draw,
                       LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
@@ -139,8 +135,7 @@ void FunctionLineButton::on_draw(lv_event_t *e)
   if (line) {
     if (!line->init)
       line->delayed_init();
-    else
-      line->refresh();
+    line->refresh();
   }
 }
 
@@ -149,32 +144,25 @@ void FunctionLineButton::delayed_init()
   init = true;
 
   sfName = lv_label_create(lvobj);
-  etx_obj_add_style(sfName, styles->text_align_left, LV_PART_MAIN);
-  lv_obj_set_grid_cell(sfName, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER,
-                       0, NM_ROW_CNT);
+  lv_obj_set_pos(sfName, NM_X, NM_Y);
+  lv_obj_set_size(sfName, NM_W, NM_H);
 
   sfSwitch = lv_label_create(lvobj);
-  etx_obj_add_style(sfSwitch, styles->text_align_center, LV_PART_MAIN);
-  lv_obj_set_grid_cell(sfSwitch, LV_GRID_ALIGN_START, 1, 1,
-                       LV_GRID_ALIGN_CENTER, 0, 1);
+  lv_obj_set_pos(sfSwitch, SW_X, SW_Y);
+  lv_obj_set_size(sfSwitch, SW_W, SW_H);
 
   sfFunc = lv_label_create(lvobj);
-  etx_obj_add_style(sfFunc, styles->text_align_left, LV_PART_MAIN);
-  lv_obj_set_grid_cell(sfFunc, LV_GRID_ALIGN_START, FUNC_COL, 1,
-                       LV_GRID_ALIGN_CENTER, FUNC_ROW, 1);
+  lv_obj_set_pos(sfFunc, FN_X, FN_Y);
+  lv_obj_set_size(sfFunc, FN_W, FN_H);
 
   sfRepeat = lv_label_create(lvobj);
-  etx_obj_add_style(sfRepeat, styles->text_align_left, LV_PART_MAIN);
-  lv_obj_set_grid_cell(sfRepeat, LV_GRID_ALIGN_CENTER, FUNC_COL + 1, 1,
-                       LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
+  lv_obj_set_pos(sfRepeat, RP_X, RP_Y);
+  lv_obj_set_size(sfRepeat, RP_W, RP_H);
 
   sfEnable = sf_enable_state_create(lvobj);
   lv_obj_clear_flag(sfEnable, LV_OBJ_FLAG_CLICKABLE);
   lv_obj_set_user_data(sfEnable, this);
-  lv_obj_set_grid_cell(sfEnable, LV_GRID_ALIGN_CENTER, FUNC_COL + 2, 1,
-                       LV_GRID_ALIGN_CENTER, 0, NM_ROW_CNT);
-
-  refresh();
+  lv_obj_set_pos(sfEnable, EN_X, EN_Y);
 
   lv_obj_update_layout(lvobj);
 }
@@ -321,6 +309,10 @@ void FunctionLineButton::refresh()
 }
 
 //-----------------------------------------------------------------------------
+
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
+                                     LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 #define ETX_STATE_SF_ACTIVE LV_STATE_USER_1
 

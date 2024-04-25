@@ -100,40 +100,6 @@ class TSStyle
 
 static TSStyle tsStyle;
 
-static void ts_group_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
-{
-  etx_obj_add_style(obj, styles->pad_zero, LV_PART_MAIN);
-  lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_COLUMN);
-  lv_obj_set_flex_align(obj, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER,
-                        LV_FLEX_ALIGN_SPACE_AROUND);
-}
-
-static const lv_obj_class_t ts_group_class = {
-    .base_class = &lv_obj_class,
-    .constructor_cb = ts_group_constructor,
-    .destructor_cb = nullptr,
-    .user_data = nullptr,
-    .event_cb = nullptr,
-    .width_def = NUM_W,
-    .height_def = BTN_H - 4,
-    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
-    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
-    .instance_size = sizeof(lv_obj_t),
-};
-
-static const lv_obj_class_t ts_fresh_cont_class = {
-    .base_class = &lv_obj_class,
-    .constructor_cb = nullptr,
-    .destructor_cb = nullptr,
-    .user_data = nullptr,
-    .event_cb = nullptr,
-    .width_def = 8,
-    .height_def = 8,
-    .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
-    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
-    .instance_size = sizeof(lv_obj_t),
-};
-
 static void ts_num_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_obj_add_style(obj, styles->text_align_center, LV_PART_MAIN);
@@ -147,7 +113,7 @@ static const lv_obj_class_t ts_num_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = NUM_W,
-    .height_def = 0,
+    .height_def = 20,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -200,7 +166,7 @@ static const lv_obj_class_t ts_name_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = NAME_W,
-    .height_def = 0,
+    .height_def = 20,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -227,7 +193,7 @@ static const lv_obj_class_t ts_value_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = LV_SIZE_CONTENT,
-    .height_def = 0,
+    .height_def = 20,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -278,11 +244,7 @@ class SensorButton : public ListLineButton
       ListLineButton(parent, index)
   {
     padAll(PAD_ZERO);
-    padColumn(PAD_SMALL);
     setHeight(BTN_H);
-    lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
-    lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER,
-                          LV_FLEX_ALIGN_SPACE_AROUND);
 
     check(isActive());
 
@@ -306,8 +268,7 @@ class SensorButton : public ListLineButton
     if (line) {
       if (!line->init)
         line->delayed_init(e);
-      else
-        line->refresh();
+      line->refresh();
     }
   }
 
@@ -315,15 +276,15 @@ class SensorButton : public ListLineButton
 
   void setNumIdState()
   {
-    showId = g_model.showInstanceIds;
-    if (showId) {
-      lv_obj_clear_flag(idLabel, LV_OBJ_FLAG_HIDDEN);
-      lv_obj_add_state(numLabel, ETX_STATE_VALUE_SMALL_FONT);
-      lv_obj_set_height(numLabel, 14);
-    } else {
-      lv_obj_add_flag(idLabel, LV_OBJ_FLAG_HIDDEN);
-      lv_obj_clear_state(numLabel, ETX_STATE_VALUE_SMALL_FONT);
-      lv_obj_set_height(numLabel, 22);
+    if (idLabel) {
+      showId = g_model.showInstanceIds;
+      if (showId) {
+        lv_obj_clear_flag(idLabel, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_state(numLabel, ETX_STATE_VALUE_SMALL_FONT);
+      } else {
+        lv_obj_add_flag(idLabel, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_state(numLabel, ETX_STATE_VALUE_SMALL_FONT);
+      }
     }
   }
 
@@ -337,39 +298,32 @@ class SensorButton : public ListLineButton
   {
     char s[20];
 
-    auto box = etx_create(&ts_group_class, lvobj);
+    init = true;
 
-    numLabel = tsStyle.newNum(box, index);
+    numLabel = tsStyle.newNum(lvobj, index);
+    lv_obj_set_pos(numLabel, 2, 3);
 
     TelemetrySensor* sensor = &g_model.telemetrySensors[index];
     if (sensor->type == TELEM_TYPE_CUSTOM) {
       sprintf(s, "ID: %d", sensor->instance);
-    } else {
-      s[0] = 0;
-    }
 
-    idLabel = tsStyle.newId(box, s);
+      idLabel = tsStyle.newId(lvobj, s);
+      lv_obj_set_pos(idLabel, 2, 17);
+    }
 
     setNumIdState();
 
     strAppend(s, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN);
-    tsStyle.newName(lvobj, s);
+    lv_obj_t* nm = tsStyle.newName(lvobj, s);
+    lv_obj_set_pos(nm, NUM_W + 4, 3);
 
-    // Reserve space so layout does not change when icon hidden
-    box = etx_create(&ts_fresh_cont_class, lvobj);
-    fresh = etx_create(&ts_fresh_icon_class, box);
+    fresh = etx_create(&ts_fresh_icon_class, lvobj);
+    lv_obj_set_pos(fresh, NUM_W + NAME_W + 6, 10);
 
     valLabel = tsStyle.newValue(lvobj);
-
-    init = true;
-    refresh();
+    lv_obj_set_pos(valLabel, NUM_W + NAME_W + 16, 3);
 
     lv_obj_update_layout(lvobj);
-
-    if (e) {
-      auto param = lv_event_get_param(e);
-      lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
-    }
   }
 
   void refresh() override

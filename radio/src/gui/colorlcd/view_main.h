@@ -75,6 +75,7 @@ class ViewMain : public NavWindow
   void show(bool visible = true) override;
 
   void runBackground();
+  void refreshWidgetSelectTimer();
 
  protected:
   static ViewMain* _instance;
@@ -96,7 +97,6 @@ class ViewMain : public NavWindow
   void setTopbarVisible(float visible);
 
   void openMenu();
-  void refreshWidgetSelectTimer();
 
   static void long_pressed(lv_event_t* e);
   static void ws_timer(lv_timer_t* t);
