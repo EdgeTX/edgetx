@@ -87,8 +87,6 @@ class Widget : public ButtonBase
 
   void enableFocus(bool enable);
 
-  void enableFocus(bool enable);
-
  protected:
   const WidgetFactory* factory;
   PersistentData* persistentData;

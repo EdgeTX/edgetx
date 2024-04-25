@@ -155,50 +155,6 @@ const ZoneOption* Widget::getOptions() const
 {
   return getFactory()->getOptions();
 }
-void Widget::enableFocus(bool enable)
-{
-  if (enable) {
-    if (!focusBorder) {
-      lv_style_init(&borderStyle);
-      lv_style_set_line_width(&borderStyle, 2);
-      lv_style_set_line_opa(&borderStyle, LV_OPA_COVER);
-      lv_style_set_line_color(&borderStyle, makeLvColor(COLOR_THEME_FOCUS));
-
-      borderPts[0] = {1, 1};
-      borderPts[1] = {(lv_coord_t)(width() - 1), 1};
-      borderPts[2] = {(lv_coord_t)(width() - 1), (lv_coord_t)(height() - 1)};
-      borderPts[3] = {1, (lv_coord_t)(height() - 1)};
-      borderPts[4] = {1, 1};
-
-      focusBorder = lv_line_create(lvobj);
-      lv_obj_add_style(focusBorder, &borderStyle, LV_PART_MAIN);
-      lv_line_set_points(focusBorder, borderPts, 5);
-
-      if (!hasFocus()) {
-        lv_obj_add_flag(focusBorder, LV_OBJ_FLAG_HIDDEN);
-      }
-
-      setFocusHandler([=](bool hasFocus) {
-        if (hasFocus) {
-          bringToTop();
-          lv_obj_clear_flag(focusBorder, LV_OBJ_FLAG_HIDDEN);
-        } else {
-          lv_obj_add_flag(focusBorder, LV_OBJ_FLAG_HIDDEN);
-        }
-        ViewMain::instance()->refreshWidgetSelectTimer();
-      });
-
-      lv_group_add_obj(lv_group_get_default(), lvobj);
-    }
-  } else {
-    if (focusBorder) {
-      lv_group_remove_obj(lvobj);
-      setFocusHandler(nullptr);
-      lv_obj_del(focusBorder);
-      focusBorder = nullptr;
-    }
-  }
-}
 
 void Widget::enableFocus(bool enable)
 {
