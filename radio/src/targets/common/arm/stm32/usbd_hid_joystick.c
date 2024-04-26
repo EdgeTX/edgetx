@@ -174,7 +174,7 @@ __ALIGN_BEGIN static uint8_t USBD_HID_CfgDesc[USB_HID_CONFIG_DESC_SIZ] __ALIGN_E
   HIBYTE(USB_HID_CONFIG_DESC_SIZ),
   0x01,                                               /* bNumInterfaces: 1 interface */
   0x01,                                               /* bConfigurationValue: Configuration value */
-  0x00,                                               /* iConfiguration: Index of string descriptor
+  USBD_IDX_CONFIG_STR,                                /* iConfiguration: Index of string descriptor
                                                          describing the configuration */
   0xE0,                                               /* bmAttributes: Bus Powered according to user configuration */
   USBD_MAX_POWER,                                     /* MaxPower (mA) */
@@ -189,7 +189,7 @@ __ALIGN_BEGIN static uint8_t USBD_HID_CfgDesc[USB_HID_CONFIG_DESC_SIZ] __ALIGN_E
   0x03,                                               /* bInterfaceClass: HID */
   0x00,                                               /* bInterfaceSubClass : 1=BOOT, 0=no boot */
   0x00,                                               /* nInterfaceProtocol : 0=none, 1=keyboard, 2=mouse */
-  0,                                                  /* iInterface: Index of string descriptor */
+  USBD_IDX_INTERFACE_STR,                             /* iInterface: Index of string descriptor */
   /******************** HID Descriptor for Joystick ********************/
   /* 18 */
   0x09,                                               /* bLength: HID Descriptor size */
