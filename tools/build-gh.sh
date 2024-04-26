@@ -140,6 +140,9 @@ do
         tprov2)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROV2"
             ;;
+        tpros)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROS"
+            ;;
         t20)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20"
             ;;

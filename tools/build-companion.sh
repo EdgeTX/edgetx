@@ -67,7 +67,7 @@ declare -a simulator_plugins=(x9lite x9lites
                               x7 x7-access
                               t8 t12 t12max tx12 tx12mk2
                               zorro commando8 boxer pocket
-                              tlite tpro tprov2 lr3pro t14
+                              tlite tpro tprov2 tpros lr3pro t14
                               x9d x9dp x9dp2019 x9e
                               xlite xlites
                               nv14 el18 pl18 pl18ev
@@ -127,6 +127,9 @@ do
             ;;
         tprov2)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROV2"
+            ;;
+        tpros)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROS"
             ;;
         t20)
            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20"

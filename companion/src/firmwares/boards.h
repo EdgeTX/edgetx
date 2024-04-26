@@ -82,6 +82,7 @@ namespace Board {
     BOARD_IFLIGHT_COMMANDO8,
     BOARD_FLYSKY_EL18,
     BOARD_JUMPER_TPROV2,
+    BOARD_JUMPER_TPROS,
     BOARD_RADIOMASTER_POCKET,
     BOARD_JUMPER_T20V2,
     BOARD_FATFISH_F16,
@@ -425,7 +426,7 @@ inline bool IS_JUMPER_TLITE(Board::Type board)
 
 inline bool IS_JUMPER_TPRO(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_TPRO || board == Board::BOARD_JUMPER_TPROV2;
+  return board == Board::BOARD_JUMPER_TPRO || board == Board::BOARD_JUMPER_TPROV2 || board == Board::BOARD_JUMPER_TPROS;
 }
 
 inline bool IS_JUMPER_TPROV1(Board::Type board)
@@ -436,6 +437,11 @@ inline bool IS_JUMPER_TPROV1(Board::Type board)
 inline bool IS_JUMPER_TPROV2(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_TPROV2;
+}
+
+inline bool IS_JUMPER_TPROS(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_TPROS;
 }
 
 inline bool IS_JUMPER_T15(Board::Type board)
@@ -525,6 +531,7 @@ inline bool IS_FAMILY_T12(Board::Type board)
          board == Board::BOARD_JUMPER_TLITE_F4 ||
          board == Board::BOARD_JUMPER_TPRO ||
          board == Board::BOARD_JUMPER_TPROV2 ||
+         board == Board::BOARD_JUMPER_TPROS ||
          board == Board::BOARD_RADIOMASTER_TX12 ||
          board == Board::BOARD_RADIOMASTER_TX12_MK2 ||
          board == Board::BOARD_RADIOMASTER_ZORRO ||
