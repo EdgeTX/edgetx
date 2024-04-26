@@ -418,7 +418,7 @@ void setTopBatteryValue(uint32_t volts);
 
 #if defined(RADIO_ZORRO) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_POCKET)
   #define VOLTAGE_DROP 45
-#elif defined(RADIO_TPROV2) || defined(RADIO_FAMILY_T20)
+#elif defined(RADIO_TPROV2) || defined(RADIO_TPROS) || defined(RADIO_FAMILY_T20)
   #define VOLTAGE_DROP 60
 #else
   #define VOLTAGE_DROP 20

@@ -92,6 +92,9 @@ static inline void check_struct()
 
 #if defined(RADIO_TPRO) || defined(RADIO_TPROV2)
   CHKSIZE(ModelData, 6354);
+#elif defined(RADIO_T14) || defined(RADIO_T12MAX)
+  CHKSIZE(RadioData, 869);
+  CHKSIZE(ModelData, 6329);
 #elif defined(RADIO_FAMILY_T20)
   CHKSIZE(ModelData, 6390);
 #elif defined(PCBX9E)
