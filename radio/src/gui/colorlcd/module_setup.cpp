@@ -166,10 +166,7 @@ void ModuleWindow::checkEvents()
     else if (isModuleELRS(moduleIdx))
       bindButton->setText(STR_MODULE_BIND);
 
-    if (isModuleBindRangeAvailable(moduleIdx))
-      bindButton->show();
-    else
-      bindButton->hide();
+    bindButton->show(isModuleBindRangeAvailable(moduleIdx));
   }
   Window::checkEvents();
 }
