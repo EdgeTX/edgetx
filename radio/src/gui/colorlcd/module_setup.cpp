@@ -160,11 +160,17 @@ ModuleWindow::ModuleWindow(Window* parent, uint8_t moduleIdx) :
 
 void ModuleWindow::checkEvents()
 {
-  if (bindButton != nullptr && TELEMETRY_STREAMING() && isModuleELRS(moduleIdx))
-    bindButton->setText(STR_MODULE_UNBIND);
-  else if (bindButton != nullptr && isModuleELRS(moduleIdx))
-    bindButton->setText(STR_MODULE_BIND);
+  if (bindButton != nullptr) {
+    if (TELEMETRY_STREAMING() && isModuleELRS(moduleIdx))
+      bindButton->setText(STR_MODULE_UNBIND);
+    else if (isModuleELRS(moduleIdx))
+      bindButton->setText(STR_MODULE_BIND);
 
+    if (isModuleBindRangeAvailable(moduleIdx))
+      bindButton->show();
+    else
+      bindButton->hide();
+  }
   Window::checkEvents();
 }
 
@@ -292,7 +298,7 @@ void ModuleWindow::updateModule()
                             }
                           });
 
-    if (isModuleBindRangeAvailable(moduleIdx)) {
+    if (isModuleBindRangeAvailable(moduleIdx) || isModuleCrossfire(moduleIdx)) {
       bindButton = new TextButton(box, rect_t{}, STR_MODULE_BIND);
       bindButton->setPressHandler([=]() -> uint8_t {
         if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
