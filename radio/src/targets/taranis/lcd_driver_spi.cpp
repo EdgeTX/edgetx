@@ -411,3 +411,10 @@ void lcdSetRefVolt(uint8_t val)
   lcdWriteCommand(0x81); // Set Vop
   lcdWriteCommand(val+LCD_CONTRAST_OFFSET); // 0-255
 }
+
+#if LCD_W == 128
+void lcdSetInvert(bool invert)
+{
+   lcdWriteCommand(invert ? 0xA7 : 0xA6);
+}
+#endif

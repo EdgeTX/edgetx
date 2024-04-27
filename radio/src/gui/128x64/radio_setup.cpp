@@ -84,6 +84,7 @@ enum {
   ITEM_RADIO_SETUP_RSSI_POWEROFF_ALARM,
   ITEM_RADIO_SETUP_TRAINER_POWEROFF_ALARM,
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_LABEL)
+  CASE_BACKLIGHT(ITEM_RADIO_SETUP_LCD_INVERT)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_MODE)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_DELAY)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BRIGHTNESS)
@@ -528,6 +529,18 @@ void menuRadioSetup(event_t event)
         lcdDrawTextAlignedLeft(y, STR_BACKLIGHT_LABEL);
 #endif
         break;
+
+#if defined(BACKLIGHT_GPIO) || defined(OLED_SCREEN)
+      case ITEM_RADIO_SETUP_LCD_INVERT:
+        {
+          lcdDrawText(INDENT_WIDTH, y, STR_MENU_INVERT);
+          bool inv = g_eeGeneral.invertLCD;
+          g_eeGeneral.invertLCD = editCheckBox(g_eeGeneral.invertLCD, LCD_W-9, y, nullptr, attr, event);
+          if (inv != g_eeGeneral.invertLCD)
+            lcdSetInvert(g_eeGeneral.invertLCD);
+        }
+        break;
+#endif
 
       case ITEM_RADIO_SETUP_BACKLIGHT_MODE:
         g_eeGeneral.backlightMode = editChoice(LCD_W-2, y, STR_MODE, STR_VBLMODE, g_eeGeneral.backlightMode, e_backlight_mode_off, e_backlight_mode_on, attr|RIGHT, event, INDENT_WIDTH);

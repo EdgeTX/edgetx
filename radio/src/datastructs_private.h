@@ -979,8 +979,11 @@ PACK(struct RadioData {
 
 #if defined(COLORLCD)
   NOBACKUP(uint8_t space:7 SKIP);
+#elif LCD_W == 128
+  uint8_t invertLCD:1;          // Invert B&W LCD display
+  NOBACKUP(uint8_t spare:4 SKIP);
 #else
-  NOBACKUP(uint8_t space:5 SKIP);
+  NOBACKUP(uint8_t spare:5 SKIP);
 #endif
 
   NOBACKUP(uint8_t getBrightness() const
