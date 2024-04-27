@@ -426,6 +426,12 @@ void lcdSetRefVolt(uint8_t val)
 }
 #endif
 
+#if LCD_W == 128
+void lcdSetInvert(bool invert)
+{
+}
+#endif
+
 void boardInit()
 {
 }
