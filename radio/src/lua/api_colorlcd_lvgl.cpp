@@ -33,7 +33,10 @@ LuaLvglManager *luaLvglManager = nullptr;
 static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool standalone = false)
 {
   if (luaLvglManager && (!standalone || !luaLvglManager->isWidget())) {
-    create()->push(L);
+    auto obj = create();
+    obj->getParams(L, 1);
+    obj->build(L);
+    obj->push(L);
   } else {
     lua_pushnil(L);
   }
@@ -43,67 +46,69 @@ static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, b
 
 static int luaLvglLabel(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetLabel(L); });
+  return luaLvglObj(L, [=]() { return new LvglWidgetLabel(); });
 }
 
 static int luaLvglRectangle(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetRectangle(L); });
+  return luaLvglObj(L, [=]() { return new LvglWidgetRectangle(); });
 }
 
 static int luaLvglCircle(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetCircle(L); });
+  return luaLvglObj(L, [=]() { return new LvglWidgetCircle(); });
 }
 
 static int luaLvglArc(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetArc(L); });
+  return luaLvglObj(L, [=]() { return new LvglWidgetArc(); });
 }
 
 static int luaLvglImage(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetImage(L); });
+  return luaLvglObj(L, [=]() { return new LvglWidgetImage(); });
 }
 
 static int luaLvglMeter(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetMeter(L); });
+  return luaLvglObj(L, [=]() { return new LvglWidgetMeter(); });
 }
 
 static int luaLvglButton(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetTextButton(L); }, true);
+  return luaLvglObj(L, [=]() { return new LvglWidgetTextButton(); }, true);
 }
 
 static int luaLvglToggle(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetToggleSwitch(L); }, true);
+  return luaLvglObj(L, [=]() { return new LvglWidgetToggleSwitch(); }, true);
 }
 
 static int luaLvglTextEdit(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetTextEdit(L); }, true);
+  return luaLvglObj(L, [=]() { return new LvglWidgetTextEdit(); }, true);
 }
 
 static int luaLvglNumberEdit(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetNumberEdit(L); }, true);
+  return luaLvglObj(L, [=]() { return new LvglWidgetNumberEdit(); }, true);
 }
 
 static int luaLvglChoice(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetChoice(L); }, true);
+  return luaLvglObj(L, [=]() { return new LvglWidgetChoice(); }, true);
 }
 
 static int luaLvglSlider(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetSlider(L); }, true);
+  return luaLvglObj(L, [=]() { return new LvglWidgetSlider(); }, true);
 }
 
 static int luaLvglConfirm(lua_State *L)
 {
-  new LvglWidgetConfirmDialog(L);
+  auto obj = new LvglWidgetConfirmDialog();
+  obj->getParams(L, 1);
+  obj->build(L);
   return 0;
 }
 
@@ -203,32 +208,34 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
     LvglWidgetParams p(L, -1);
     LvglWidgetObject *lvobj = nullptr;
     if (strcasecmp(p.type, "label") == 0)
-      lvobj = new LvglWidgetLabel(L, -1);
+      lvobj = new LvglWidgetLabel();
     else if (strcasecmp(p.type, "rectangle") == 0)
-      lvobj = new LvglWidgetRectangle(L, -1);
+      lvobj = new LvglWidgetRectangle();
     else if (strcasecmp(p.type, "circle") == 0)
-      lvobj = new LvglWidgetCircle(L, -1);
+      lvobj = new LvglWidgetCircle();
     else if (strcasecmp(p.type, "arc") == 0)
-      lvobj = new LvglWidgetArc(L, -1);
+      lvobj = new LvglWidgetArc();
     else if (strcasecmp(p.type, "image") == 0)
-      lvobj = new LvglWidgetImage(L, -1);
+      lvobj = new LvglWidgetImage();
     else if (strcasecmp(p.type, "meter") == 0)
-      lvobj = new LvglWidgetMeter(L, -1);
+      lvobj = new LvglWidgetMeter();
     else if (!luaLvglManager->isWidget()) {
       if (strcasecmp(p.type, "button") == 0)
-        lvobj = new LvglWidgetTextButton(L, -1);
+        lvobj = new LvglWidgetTextButton();
       else if (strcasecmp(p.type, "toggle") == 0)
-        lvobj = new LvglWidgetToggleSwitch(L, -1);
+        lvobj = new LvglWidgetToggleSwitch();
       else if (strcasecmp(p.type, "textEdit") == 0)
-        lvobj = new LvglWidgetTextEdit(L, -1);
+        lvobj = new LvglWidgetTextEdit();
       else if (strcasecmp(p.type, "numberEdit") == 0)
-        lvobj = new LvglWidgetNumberEdit(L, -1);
+        lvobj = new LvglWidgetNumberEdit();
       else if (strcasecmp(p.type, "choice") == 0)
-        lvobj = new LvglWidgetChoice(L, -1);
+        lvobj = new LvglWidgetChoice();
       else if (strcasecmp(p.type, "slider") == 0)
-        lvobj = new LvglWidgetSlider(L, -1);
+        lvobj = new LvglWidgetSlider();
     }
     if (lvobj) {
+      lvobj->getParams(L, -1);
+      lvobj->build(L);
       auto ref = lvobj->getRef(L);
       if (p.name) {
         lua_pushstring(L, p.name);

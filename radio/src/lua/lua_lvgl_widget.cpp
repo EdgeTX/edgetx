@@ -21,8 +21,8 @@
 
 #include "lua_widget.h"
 #include "opentx.h"
-#include "toggleswitch.h"
 #include "slider.h"
+#include "toggleswitch.h"
 
 //-----------------------------------------------------------------------------
 
@@ -155,6 +155,8 @@ void LvglWidgetObjectBase::clearRef(lua_State *L, int ref)
   if (ref) luaL_unref(L, LUA_REGISTRYINDEX, ref);
 }
 
+void LvglWidgetObjectBase::build(lua_State *L) {}
+
 //-----------------------------------------------------------------------------
 
 bool LvglWidgetObject::callRefs(lua_State *L)
@@ -245,9 +247,19 @@ void LvglWidgetObject::refresh()
   setColor(color);
 }
 
-void LvglWidgetObject::setPos(coord_t x, coord_t y) { window->setPos(x, y); }
+void LvglWidgetObject::setPos(coord_t x, coord_t y)
+{
+  this->x = x;
+  this->y = y;
+  if (window) window->setPos(x, y);
+}
 
-void LvglWidgetObject::setSize(coord_t w, coord_t h) { window->setSize(w, h); }
+void LvglWidgetObject::setSize(coord_t w, coord_t h)
+{
+  this->w = w;
+  this->h = h;
+  if (window) window->setSize(w, h);
+}
 
 //-----------------------------------------------------------------------------
 
@@ -259,6 +271,38 @@ void LvglWidgetBorderedObject::parseParam(lua_State *L, const char *key)
     filled = lua_toboolean(L, -1);
   } else {
     LvglWidgetObject::parseParam(L, key);
+  }
+}
+
+void LvglWidgetBorderedObject::setColor(LcdFlags color)
+{
+  if (color != currentColor) {
+    currentColor = color;
+    if (filled)
+      lv_obj_set_style_bg_color(window->getLvObj(),
+                                makeLvColor(flagsRGB(color)), LV_PART_MAIN);
+    else
+      lv_obj_set_style_border_color(window->getLvObj(),
+                                    makeLvColor(flagsRGB(color)), LV_PART_MAIN);
+  }
+}
+
+void LvglWidgetBorderedObject::build(lua_State *L)
+{
+  window =
+      new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_obj_create);
+  lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
+  if (luaLvglManager->isWidget()) {
+    lv_obj_clear_flag(window->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
+  } else {
+    etx_scrollbar(window->getLvObj());
+  }
+  setColor(color);
+  if (filled) {
+    lv_obj_set_style_bg_opa(window->getLvObj(), LV_OPA_COVER, LV_PART_MAIN);
+  } else {
+    lv_obj_set_style_border_opa(window->getLvObj(), LV_OPA_COVER, LV_PART_MAIN);
+    lv_obj_set_style_border_width(window->getLvObj(), thickness, LV_PART_MAIN);
   }
 }
 
@@ -289,17 +333,24 @@ void LvglWidgetRoundObject::clearRefs(lua_State *L)
   LvglWidgetObject::clearRefs(L);
 }
 
-//-----------------------------------------------------------------------------
-
-LvglWidgetLabel::LvglWidgetLabel(lua_State *L, int index) : LvglWidgetObject()
+void LvglWidgetRoundObject::setPos(coord_t x, coord_t y)
 {
-  getParams(L, index);
-  window = new Window(lvglManager->getCurrentParent(), {x, y, w, h},
-                      lv_label_create);
-  setText(txt);
-  setColor(color);
-  setFont(font);
+  LvglWidgetObject::setPos(x - radius, y - radius);
 }
+
+void LvglWidgetRoundObject::setRadius(coord_t r)
+{
+  // Set position to center
+  x += radius;
+  y += radius;
+  radius = r;
+  w = radius * 2;
+  h = radius * 2;
+  setPos(x, y);
+  setSize(w, h);
+}
+
+//-----------------------------------------------------------------------------
 
 void LvglWidgetLabel::parseParam(lua_State *L, const char *key)
 {
@@ -372,29 +423,16 @@ void LvglWidgetLabel::setFont(LcdFlags font)
   lv_obj_set_style_text_font(window->getLvObj(), getFont(font), LV_PART_MAIN);
 }
 
-//-----------------------------------------------------------------------------
-
-LvglWidgetRectangle::LvglWidgetRectangle(lua_State *L, int index) :
-    LvglWidgetBorderedObject()
+void LvglWidgetLabel::build(lua_State *L)
 {
-  getParams(L, index);
-  window =
-      new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_obj_create);
-  lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
-  lv_obj_clear_flag(window->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
+  window = new Window(lvglManager->getCurrentParent(), {x, y, w, h},
+                      lv_label_create);
+  setText(txt);
   setColor(color);
-  if (rounded) {
-    lv_obj_set_style_radius(window->getLvObj(),
-                            (rounded >= thickness) ? rounded : thickness,
-                            LV_PART_MAIN);
-  }
-  if (filled) {
-    lv_obj_set_style_bg_opa(window->getLvObj(), LV_OPA_COVER, LV_PART_MAIN);
-  } else {
-    lv_obj_set_style_border_opa(window->getLvObj(), LV_OPA_COVER, LV_PART_MAIN);
-    lv_obj_set_style_border_width(window->getLvObj(), thickness, LV_PART_MAIN);
-  }
+  setFont(font);
 }
+
+//-----------------------------------------------------------------------------
 
 void LvglWidgetRectangle::parseParam(lua_State *L, const char *key)
 {
@@ -405,75 +443,29 @@ void LvglWidgetRectangle::parseParam(lua_State *L, const char *key)
   }
 }
 
-void LvglWidgetRectangle::setColor(LcdFlags color)
+void LvglWidgetRectangle::build(lua_State *L)
 {
-  if (color != currentColor) {
-    currentColor = color;
-    if (filled)
-      lv_obj_set_style_bg_color(window->getLvObj(),
-                                makeLvColor(flagsRGB(color)), LV_PART_MAIN);
-    else
-      lv_obj_set_style_border_color(window->getLvObj(),
-                                    makeLvColor(flagsRGB(color)), LV_PART_MAIN);
+  LvglWidgetBorderedObject::build(L);
+  if (rounded) {
+    lv_obj_set_style_radius(window->getLvObj(),
+                            (rounded >= thickness) ? rounded : thickness,
+                            LV_PART_MAIN);
   }
 }
 
 //-----------------------------------------------------------------------------
 
-LvglWidgetCircle::LvglWidgetCircle(lua_State *L, int index) :
-    LvglWidgetRoundObject()
+void LvglWidgetCircle::build(lua_State *L)
 {
-  getParams(L, index);
-  window = new Window(lvglManager->getCurrentParent(),
-                      {x - radius, y - radius, radius * 2, radius * 2},
-                      lv_obj_create);
-  lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
-  lv_obj_clear_flag(window->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
-  setColor(color);
+  // Reset position to corner
+  setPos(x, y);
+  // Set width & height
+  setRadius(radius);
+  LvglWidgetBorderedObject::build(L);
   lv_obj_set_style_radius(window->getLvObj(), LV_RADIUS_CIRCLE, LV_PART_MAIN);
-  if (filled) {
-    lv_obj_set_style_bg_opa(window->getLvObj(), LV_OPA_COVER, LV_PART_MAIN);
-  } else {
-    lv_obj_set_style_border_opa(window->getLvObj(), LV_OPA_COVER, LV_PART_MAIN);
-    lv_obj_set_style_border_width(window->getLvObj(), thickness, LV_PART_MAIN);
-  }
-}
-
-void LvglWidgetCircle::setColor(LcdFlags color)
-{
-  if (color != currentColor) {
-    currentColor = color;
-    if (filled)
-      lv_obj_set_style_bg_color(window->getLvObj(),
-                                makeLvColor(flagsRGB(color)), LV_PART_MAIN);
-    else
-      lv_obj_set_style_border_color(window->getLvObj(),
-                                    makeLvColor(flagsRGB(color)), LV_PART_MAIN);
-  }
 }
 
 //-----------------------------------------------------------------------------
-
-LvglWidgetArc::LvglWidgetArc(lua_State *L, int index) : LvglWidgetRoundObject()
-{
-  getParams(L, index);
-  window = new Window(lvglManager->getCurrentParent(),
-                      {x - radius, y - radius, radius * 2, radius * 2},
-                      lv_arc_create);
-  lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
-  lv_obj_clear_flag(window->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
-  setColor(color);
-  lv_arc_set_bg_angles(window->getLvObj(), 0, 360);
-  lv_arc_set_range(window->getLvObj(), 0, 360);
-  lv_arc_set_angles(window->getLvObj(), 0, 360);
-  setStartAngle(startAngle);
-  setEndAngle(endAngle);
-  lv_obj_remove_style(window->getLvObj(), NULL, LV_PART_KNOB);
-  lv_obj_set_style_arc_opa(window->getLvObj(), LV_OPA_TRANSP, LV_PART_MAIN);
-  lv_obj_set_style_arc_width(window->getLvObj(), thickness, LV_PART_MAIN);
-  lv_obj_set_style_arc_opa(window->getLvObj(), LV_OPA_COVER, LV_PART_INDICATOR);
-  lv_obj_set_style_arc_width(window->getLvObj(), thickness, LV_PART_INDICATOR);
-}
 
 void LvglWidgetArc::parseParam(lua_State *L, const char *key)
 {
@@ -529,15 +521,30 @@ void LvglWidgetArc::clearRefs(lua_State *L)
   LvglWidgetRoundObject::clearRefs(L);
 }
 
-//-----------------------------------------------------------------------------
-
-LvglWidgetImage::LvglWidgetImage(lua_State *L, int index) :
-    LvglWidgetObject()
+void LvglWidgetArc::build(lua_State *L)
 {
-  getParams(L, index);
+  // Reset position to corner
+  setPos(x, y);
+  // Set width & height
+  setRadius(radius);
   window =
-      new StaticImage(lvglManager->getCurrentParent(), {x, y, w, h}, filename.c_str(), fillFrame);
+      new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_arc_create);
+  lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
+  lv_obj_clear_flag(window->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
+  setColor(color);
+  lv_arc_set_bg_angles(window->getLvObj(), 0, 360);
+  lv_arc_set_range(window->getLvObj(), 0, 360);
+  lv_arc_set_angles(window->getLvObj(), 0, 360);
+  setStartAngle(startAngle);
+  setEndAngle(endAngle);
+  lv_obj_remove_style(window->getLvObj(), NULL, LV_PART_KNOB);
+  lv_obj_set_style_arc_opa(window->getLvObj(), LV_OPA_TRANSP, LV_PART_MAIN);
+  lv_obj_set_style_arc_width(window->getLvObj(), thickness, LV_PART_MAIN);
+  lv_obj_set_style_arc_opa(window->getLvObj(), LV_OPA_COVER, LV_PART_INDICATOR);
+  lv_obj_set_style_arc_width(window->getLvObj(), thickness, LV_PART_INDICATOR);
 }
+
+//-----------------------------------------------------------------------------
 
 void LvglWidgetImage::parseParam(lua_State *L, const char *key)
 {
@@ -548,6 +555,12 @@ void LvglWidgetImage::parseParam(lua_State *L, const char *key)
   } else {
     LvglWidgetObject::parseParam(L, key);
   }
+}
+
+void LvglWidgetImage::build(lua_State *L)
+{
+  window = new StaticImage(lvglManager->getCurrentParent(), {x, y, w, h},
+                           filename.c_str(), fillFrame);
 }
 
 //-----------------------------------------------------------------------------
@@ -567,7 +580,7 @@ class LvglWidgetScaleIndicator : public LvglWidgetObjectBase
 class LvglWidgetScaleArc : public LvglWidgetScaleIndicator
 {
  public:
-  LvglWidgetScaleArc(lua_State *L, int index = 1) { getParams(L, index); }
+  LvglWidgetScaleArc(lua_State *L) { getParams(L, -1); }
 
   bool callRefs(lua_State *L) override
   {
@@ -637,7 +650,7 @@ class LvglWidgetScaleArc : public LvglWidgetScaleIndicator
 class LvglWidgetScaleLines : public LvglWidgetScaleIndicator
 {
  public:
-  LvglWidgetScaleLines(lua_State *L, int index = 1) { getParams(L, index); }
+  LvglWidgetScaleLines(lua_State *L) { getParams(L, -1); }
 
   bool callRefs(lua_State *L) override
   {
@@ -710,7 +723,7 @@ class LvglWidgetScaleLines : public LvglWidgetScaleIndicator
 class LvglWidgetScaleNeedle : public LvglWidgetScaleIndicator
 {
  public:
-  LvglWidgetScaleNeedle(lua_State *L, int index = 1) { getParams(L, index); }
+  LvglWidgetScaleNeedle(lua_State *L) { getParams(L, -1); }
 
   bool callRefs(lua_State *L) override
   {
@@ -755,7 +768,7 @@ class LvglWidgetScaleNeedle : public LvglWidgetScaleIndicator
 class LvglWidgetMeterScale : public LvglWidgetObjectBase
 {
  public:
-  LvglWidgetMeterScale(lua_State *L, int index = 1) { getParams(L, index); }
+  LvglWidgetMeterScale(lua_State *L) { getParams(L, -1); }
 
   bool callRefs(lua_State *L) override
   {
@@ -853,41 +866,23 @@ class LvglWidgetMeterScale : public LvglWidgetObjectBase
         const char *key = lua_tostring(L, -1);
         lua_pop(L, 1);
         if (!strcmp(key, "arc")) {
-          indicators.push_back(new LvglWidgetScaleArc(L, -1));
+          indicators.push_back(new LvglWidgetScaleArc(L));
         } else if (!strcmp(key, "lines")) {
-          indicators.push_back(new LvglWidgetScaleLines(L, -1));
+          indicators.push_back(new LvglWidgetScaleLines(L));
         } else if (!strcmp(key, "needle")) {
-          indicators.push_back(new LvglWidgetScaleNeedle(L, -1));
+          indicators.push_back(new LvglWidgetScaleNeedle(L));
         }
       }
     }
   }
 };
 
-LvglWidgetMeter::LvglWidgetMeter(lua_State *L, int index) :
-    LvglWidgetRoundObject()
-{
-  getParams(L, index);
-  window = new Window(lvglManager->getCurrentParent(),
-                      {x - radius, y - radius, radius * 2, radius * 2},
-                      lv_meter_create);
-
-  lv_obj_t *meter = window->getLvObj();
-
-  lv_obj_add_flag(meter, LV_OBJ_FLAG_EVENT_BUBBLE);
-  lv_obj_clear_flag(meter, LV_OBJ_FLAG_CLICKABLE);
-
-  for (auto it = scales.cbegin(); it != scales.cend(); ++it) {
-    (*it)->build(meter);
-  }
-}
-
 void LvglWidgetMeter::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "scales")) {
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-      scales.push_back(new LvglWidgetMeterScale(L, -1));
+      scales.push_back(new LvglWidgetMeterScale(L));
     }
   } else {
     LvglWidgetRoundObject::parseParam(L, key);
@@ -910,18 +905,23 @@ void LvglWidgetMeter::clearRefs(lua_State *L)
   LvglWidgetRoundObject::clearRefs(L);
 }
 
-//-----------------------------------------------------------------------------
-
-LvglWidgetTextButton::LvglWidgetTextButton(lua_State *L, int index) :
-    LvglWidgetObject()
+void LvglWidgetMeter::build(lua_State *L)
 {
-  getParams(L, index);
-  window =
-      new TextButton(lvglManager->getCurrentParent(), {x, y, w, h}, txt, [=]() {
-        pcallSimpleFunc(L, pressFunction);
-        return 0;
-      });
+  window = new Window(lvglManager->getCurrentParent(),
+                      {x - radius, y - radius, radius * 2, radius * 2},
+                      lv_meter_create);
+
+  lv_obj_t *meter = window->getLvObj();
+
+  lv_obj_add_flag(meter, LV_OBJ_FLAG_EVENT_BUBBLE);
+  lv_obj_clear_flag(meter, LV_OBJ_FLAG_CLICKABLE);
+
+  for (auto it = scales.cbegin(); it != scales.cend(); ++it) {
+    (*it)->build(meter);
+  }
 }
+
+//-----------------------------------------------------------------------------
 
 void LvglWidgetTextButton::parseParam(lua_State *L, const char *key)
 {
@@ -950,17 +950,16 @@ void LvglWidgetTextButton::setText(const char *s)
   }
 }
 
-//-----------------------------------------------------------------------------
-
-LvglWidgetToggleSwitch::LvglWidgetToggleSwitch(lua_State *L, int index) :
-    LvglWidgetObject()
+void LvglWidgetTextButton::build(lua_State *L)
 {
-  getParams(L, index);
-  window = new ToggleSwitch(
-      lvglManager->getCurrentParent(), {x, y, 0, 0},
-      [=]() { return pcallGetIntVal(L, getStateFunction); },
-      [=](uint8_t val) { pcallSetIntVal(L, setStateFunction, val); });
+  window =
+      new TextButton(lvglManager->getCurrentParent(), {x, y, w, h}, txt, [=]() {
+        pcallSimpleFunc(L, pressFunction);
+        return 0;
+      });
 }
+
+//-----------------------------------------------------------------------------
 
 void LvglWidgetToggleSwitch::parseParam(lua_State *L, const char *key)
 {
@@ -980,17 +979,15 @@ void LvglWidgetToggleSwitch::clearRefs(lua_State *L)
   LvglWidgetObject::clearRefs(L);
 }
 
-//-----------------------------------------------------------------------------
-
-LvglWidgetConfirmDialog::LvglWidgetConfirmDialog(lua_State *L, int index) :
-    LvglWidgetObject()
+void LvglWidgetToggleSwitch::build(lua_State *L)
 {
-  getParams(L, index);
-  window = new ConfirmDialog(
-      MainWindow::instance(), title, message,
-      [=]() { pcallSimpleFunc(L, confirmFunction); },
-      [=]() { pcallSimpleFunc(L, cancelFunction); });
+  window = new ToggleSwitch(
+      lvglManager->getCurrentParent(), {x, y, 0, 0},
+      [=]() { return pcallGetIntVal(L, getStateFunction); },
+      [=](uint8_t val) { pcallSetIntVal(L, setStateFunction, val); });
 }
+
+//-----------------------------------------------------------------------------
 
 void LvglWidgetConfirmDialog::parseParam(lua_State *L, const char *key)
 {
@@ -1014,12 +1011,39 @@ void LvglWidgetConfirmDialog::clearRefs(lua_State *L)
   LvglWidgetObject::clearRefs(L);
 }
 
+void LvglWidgetConfirmDialog::build(lua_State *L)
+{
+  window = new ConfirmDialog(
+      MainWindow::instance(), title, message,
+      [=]() { pcallSimpleFunc(L, confirmFunction); },
+      [=]() { pcallSimpleFunc(L, cancelFunction); });
+}
+
 //-----------------------------------------------------------------------------
 
-LvglWidgetTextEdit::LvglWidgetTextEdit(lua_State *L, int index) :
-    LvglWidgetObject()
+void LvglWidgetTextEdit::parseParam(lua_State *L, const char *key)
 {
-  getParams(L, index);
+  if (!strcmp(key, "value")) {
+    txt = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "length")) {
+    maxLen = luaL_checkinteger(L, -1);
+    if (maxLen > 128) maxLen = 128;
+    if (maxLen <= 0) maxLen = 32;
+  } else if (!strcmp(key, "set")) {
+    setFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else {
+    LvglWidgetObject::parseParam(L, key);
+  }
+}
+
+void LvglWidgetTextEdit::clearRefs(lua_State *L)
+{
+  clearRef(L, setFunction);
+  LvglWidgetObject::clearRefs(L);
+}
+
+void LvglWidgetTextEdit::build(lua_State *L)
+{
   strcpy(value, txt);
   window = new TextEdit(lvglManager->getCurrentParent(), {x, y, w, h}, value,
                         maxLen);
@@ -1045,33 +1069,35 @@ LvglWidgetTextEdit::LvglWidgetTextEdit(lua_State *L, int index) :
   }
 }
 
-void LvglWidgetTextEdit::parseParam(lua_State *L, const char *key)
+//-----------------------------------------------------------------------------
+
+void LvglWidgetNumberEdit::parseParam(lua_State *L, const char *key)
 {
-  if (!strcmp(key, "value")) {
-    txt = luaL_checkstring(L, -1);
-  } else if (!strcmp(key, "length")) {
-    maxLen = luaL_checkinteger(L, -1);
-    if (maxLen > 128) maxLen = 128;
-    if (maxLen <= 0) maxLen = 32;
+  if (!strcmp(key, "min")) {
+    min = luaL_checkinteger(L, -1);
+  } else if (!strcmp(key, "max")) {
+    max = luaL_checkinteger(L, -1);
+  } else if (!strcmp(key, "get")) {
+    getFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else if (!strcmp(key, "set")) {
     setFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "display")) {
+    dispFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else {
     LvglWidgetObject::parseParam(L, key);
   }
 }
 
-void LvglWidgetTextEdit::clearRefs(lua_State *L)
+void LvglWidgetNumberEdit::clearRefs(lua_State *L)
 {
+  clearRef(L, getFunction);
   clearRef(L, setFunction);
+  clearRef(L, dispFunction);
   LvglWidgetObject::clearRefs(L);
 }
 
-//-----------------------------------------------------------------------------
-
-LvglWidgetNumberEdit::LvglWidgetNumberEdit(lua_State *L, int index) :
-    LvglWidgetObject()
+void LvglWidgetNumberEdit::build(lua_State *L)
 {
-  getParams(L, index);
   window = new NumberEdit(
       lvglManager->getCurrentParent(), {x, y, w, h}, min, max,
       [=]() { return pcallGetIntVal(L, getFunction); },
@@ -1102,42 +1128,7 @@ LvglWidgetNumberEdit::LvglWidgetNumberEdit(lua_State *L, int index) :
   }
 }
 
-void LvglWidgetNumberEdit::parseParam(lua_State *L, const char *key)
-{
-  if (!strcmp(key, "min")) {
-    min = luaL_checkinteger(L, -1);
-  } else if (!strcmp(key, "max")) {
-    max = luaL_checkinteger(L, -1);
-  } else if (!strcmp(key, "get")) {
-    getFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else if (!strcmp(key, "set")) {
-    setFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else if (!strcmp(key, "display")) {
-    dispFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else {
-    LvglWidgetObject::parseParam(L, key);
-  }
-}
-
-void LvglWidgetNumberEdit::clearRefs(lua_State *L)
-{
-  clearRef(L, getFunction);
-  clearRef(L, setFunction);
-  clearRef(L, dispFunction);
-  LvglWidgetObject::clearRefs(L);
-}
-
 //-----------------------------------------------------------------------------
-
-LvglWidgetChoice::LvglWidgetChoice(lua_State *L, int index) :
-    LvglWidgetObject(), title("")
-{
-  getParams(L, index);
-  window = new Choice(
-      lvglManager->getCurrentParent(), {x, y, w, h}, values, 0,
-      values.size() - 1, [=]() { return pcallGetIntVal(L, getFunction) - 1; },
-      [=](int val) { pcallSetIntVal(L, setFunction, val + 1); }, title.c_str());
-}
 
 void LvglWidgetChoice::parseParam(lua_State *L, const char *key)
 {
@@ -1164,18 +1155,15 @@ void LvglWidgetChoice::clearRefs(lua_State *L)
   LvglWidgetObject::clearRefs(L);
 }
 
-//-----------------------------------------------------------------------------
-
-LvglWidgetSlider::LvglWidgetSlider(lua_State *L, int index) :
-    LvglWidgetObject()
+void LvglWidgetChoice::build(lua_State *L)
 {
-  getParams(L, index);
-  window = new Slider(
-      lvglManager->getCurrentParent(), w, vmin, vmax,
-      [=]() { return pcallGetIntVal(L, getValueFunction); },
-      [=](uint8_t val) { pcallSetIntVal(L, setValueFunction, val); });
-  window->setPos(x, y);
+  window = new Choice(
+      lvglManager->getCurrentParent(), {x, y, w, h}, values, 0,
+      values.size() - 1, [=]() { return pcallGetIntVal(L, getFunction) - 1; },
+      [=](int val) { pcallSetIntVal(L, setFunction, val + 1); }, title.c_str());
 }
+
+//-----------------------------------------------------------------------------
 
 void LvglWidgetSlider::parseParam(lua_State *L, const char *key)
 {
@@ -1197,6 +1185,15 @@ void LvglWidgetSlider::clearRefs(lua_State *L)
   clearRef(L, getValueFunction);
   clearRef(L, setValueFunction);
   LvglWidgetObject::clearRefs(L);
+}
+
+void LvglWidgetSlider::build(lua_State *L)
+{
+  window = new Slider(
+      lvglManager->getCurrentParent(), w, vmin, vmax,
+      [=]() { return pcallGetIntVal(L, getValueFunction); },
+      [=](uint8_t val) { pcallSetIntVal(L, setValueFunction, val); });
+  window->setPos(x, y);
 }
 
 //-----------------------------------------------------------------------------

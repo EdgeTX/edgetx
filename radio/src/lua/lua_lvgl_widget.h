@@ -33,6 +33,7 @@ class LvglWidgetObjectBase
 
   void getParams(lua_State *L, int index);
 
+  virtual void build(lua_State *L);
   virtual bool callRefs(lua_State *L) = 0;
   virtual void clearRefs(lua_State *L) = 0;
 
@@ -101,12 +102,13 @@ class LvglWidgetObject : public LvglWidgetObjectBase
 class LvglWidgetLabel : public LvglWidgetObject
 {
  public:
-  LvglWidgetLabel(lua_State *L, int index = 1);
+  LvglWidgetLabel() : LvglWidgetObject() {}
 
   void setText(const char *s);
   void setColor(LcdFlags color) override;
   void setFont(LcdFlags font);
 
+  void build(lua_State *L) override;
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
@@ -134,24 +136,13 @@ class LvglWidgetBorderedObject : public LvglWidgetObject
  public:
   LvglWidgetBorderedObject() : LvglWidgetObject() {}
 
+  void setColor(LcdFlags color) override;
+
+  void build(lua_State *L) override;
+
  protected:
   coord_t thickness = 1;
   bool filled = false;
-
-  void parseParam(lua_State *L, const char *key) override;
-};
-
-//-----------------------------------------------------------------------------
-
-class LvglWidgetRectangle : public LvglWidgetBorderedObject
-{
- public:
-  LvglWidgetRectangle(lua_State *L, int index = 1);
-
-  void setColor(LcdFlags color) override;
-
- protected:
-  coord_t rounded = 0;
 
   void parseParam(lua_State *L, const char *key) override;
 };
@@ -163,18 +154,8 @@ class LvglWidgetRoundObject : public LvglWidgetBorderedObject
  public:
   LvglWidgetRoundObject() : LvglWidgetBorderedObject() {}
 
-  void setPos(coord_t x, coord_t y) override
-  {
-    LvglWidgetObject::setPos(x - radius, y - radius);
-  }
-
-  void setRadius(coord_t r)
-  {
-    radius = r;
-    w = radius * 2;
-    h = radius * 2;
-    setSize(w, h);
-  }
+  void setPos(coord_t x, coord_t y) override;
+  void setRadius(coord_t r);
 
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
@@ -194,12 +175,27 @@ class LvglWidgetRoundObject : public LvglWidgetBorderedObject
 
 //-----------------------------------------------------------------------------
 
+class LvglWidgetRectangle : public LvglWidgetBorderedObject
+{
+ public:
+  LvglWidgetRectangle() : LvglWidgetBorderedObject() {}
+
+  void build(lua_State *L) override;
+
+ protected:
+  coord_t rounded = 0;
+
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
 class LvglWidgetCircle : public LvglWidgetRoundObject
 {
  public:
-  LvglWidgetCircle(lua_State *L, int index = 1);
+  LvglWidgetCircle() : LvglWidgetRoundObject() {}
 
-  void setColor(LcdFlags color) override;
+  void build(lua_State *L) override;
 
  protected:
 };
@@ -209,12 +205,13 @@ class LvglWidgetCircle : public LvglWidgetRoundObject
 class LvglWidgetArc : public LvglWidgetRoundObject
 {
  public:
-  LvglWidgetArc(lua_State *L, int index = 1);
+  LvglWidgetArc() : LvglWidgetRoundObject() {}
 
   void setColor(LcdFlags color) override;
   void setStartAngle(coord_t angle);
   void setEndAngle(coord_t angle);
 
+  void build(lua_State *L) override;
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
@@ -235,12 +232,12 @@ class LvglWidgetArc : public LvglWidgetRoundObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetImage;
-
 class LvglWidgetImage : public LvglWidgetObject
 {
  public:
-  LvglWidgetImage(lua_State *L, int index = 1);
+  LvglWidgetImage() : LvglWidgetObject() {}
+
+  void build(lua_State *L) override;
 
  protected:
   std::string filename;
@@ -256,8 +253,9 @@ class LvglWidgetMeterScale;
 class LvglWidgetMeter : public LvglWidgetRoundObject
 {
  public:
-  LvglWidgetMeter(lua_State *L, int index = 1);
+  LvglWidgetMeter() : LvglWidgetRoundObject() {}
 
+  void build(lua_State *L) override;
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
@@ -272,10 +270,11 @@ class LvglWidgetMeter : public LvglWidgetRoundObject
 class LvglWidgetTextButton : public LvglWidgetObject
 {
  public:
-  LvglWidgetTextButton(lua_State *L, int index = 1);
+  LvglWidgetTextButton() : LvglWidgetObject() {}
 
   void setText(const char *s);
 
+  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
@@ -292,8 +291,9 @@ class LvglWidgetTextButton : public LvglWidgetObject
 class LvglWidgetToggleSwitch : public LvglWidgetObject
 {
  public:
-  LvglWidgetToggleSwitch(lua_State *L, int index = 1);
+  LvglWidgetToggleSwitch() : LvglWidgetObject() {}
 
+  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
@@ -308,8 +308,9 @@ class LvglWidgetToggleSwitch : public LvglWidgetObject
 class LvglWidgetConfirmDialog : public LvglWidgetObject
 {
  public:
-  LvglWidgetConfirmDialog(lua_State *L, int index = 1);
+  LvglWidgetConfirmDialog() : LvglWidgetObject() {}
 
+  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
@@ -327,8 +328,9 @@ class LvglWidgetConfirmDialog : public LvglWidgetObject
 class LvglWidgetTextEdit : public LvglWidgetObject
 {
  public:
-  LvglWidgetTextEdit(lua_State *L, int index = 1);
+  LvglWidgetTextEdit() : LvglWidgetObject() {}
 
+  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
@@ -346,8 +348,9 @@ class LvglWidgetTextEdit : public LvglWidgetObject
 class LvglWidgetNumberEdit : public LvglWidgetObject
 {
  public:
-  LvglWidgetNumberEdit(lua_State *L, int index = 1);
+  LvglWidgetNumberEdit() : LvglWidgetObject() {}
 
+  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
@@ -365,8 +368,9 @@ class LvglWidgetNumberEdit : public LvglWidgetObject
 class LvglWidgetChoice : public LvglWidgetObject
 {
  public:
-  LvglWidgetChoice(lua_State *L, int index = 1);
+  LvglWidgetChoice() : LvglWidgetObject() {}
 
+  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
@@ -384,8 +388,9 @@ class LvglWidgetChoice : public LvglWidgetObject
 class LvglWidgetSlider : public LvglWidgetObject
 {
  public:
-  LvglWidgetSlider(lua_State *L, int index = 1);
+  LvglWidgetSlider() : LvglWidgetObject() {}
 
+  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
