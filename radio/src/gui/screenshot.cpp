@@ -117,6 +117,9 @@ const char * writeScreenshot()
   for (int y=LCD_H-1; y>=0; y-=1) {
     for (int x=0; x<8*((LCD_W+7)/8); x+=2) {
       pixel_t byte = getPixel(x+1, y) + (getPixel(x, y) << 4);
+#if defined(OLED_SCREEN)
+      byte ^= 0xFF;
+#endif
       if (f_write(&bmpFile, &byte, 1, &written) != FR_OK || written != 1) {
         f_close(&bmpFile);
         return SDCARD_ERROR(result);
