@@ -77,13 +77,17 @@ void menuRadioDiagKeys(event_t event)
 {
   SIMPLE_SUBMENU(STR_MENU_RADIO_SWITCHES, 1);
 
-  lcdDrawText(14*FW, 1, STR_VTRIM, INVERS);
+  uint8_t trim_yo = 1;
+  if (keysGetMaxTrims() < 8) {
+    lcdDrawText(14*FW, 1, STR_VTRIM, INVERS);
+    trim_yo = MENU_HEADER_HEIGHT + 1;
+  }
 
-  for (uint8_t i = 0; i < 14; i++) {
+  for (uint8_t i = 0; i < 16; i++) {
     coord_t y;
 
     if (i < keysGetMaxTrims() * 2) {
-      y = MENU_HEADER_HEIGHT + 1 + FH * (i / 2);
+      y = trim_yo + FH * (i / 2);
 #if defined(SURFACE_RADIO)
       if (i & 1) {
         lcdDrawText(14 * FW, y, "T");
