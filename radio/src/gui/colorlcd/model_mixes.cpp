@@ -205,6 +205,17 @@ class MixGroup : public InputMixGroupBase
     adjustHeight();
   }
 
+  void adjustHeight() override
+  {
+    coord_t y = monitorVisible ? 17 : 2;
+    for (auto it = lines.cbegin(); it != lines.cend(); ++it) {
+      auto line = *it;
+      line->updatePos(LN_X, y);
+      y += line->height() + 2;
+    }
+    setHeight(y + 4);
+  }
+
  protected:
   MixerChannelBar* monitor = nullptr;
   bool monitorVisible = false;
