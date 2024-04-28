@@ -1292,8 +1292,8 @@
 
 #define TR_THEME_EXISTS           "Já existe um diretório de tema com o mesmo nome."
 
-#define TR_DATE_TIME_WIDGET       "Date & Time"
-#define TR_RADIO_INFO_WIDGET      "Radio Info"
-#define TR_LOW_BATT_COLOR         "Low battery"
-#define TR_MID_BATT_COLOR         "Mid battery"
-#define TR_HIGH_BATT_COLOR        "High battery"
+#define TR_DATE_TIME_WIDGET       "Data & Hora"
+#define TR_RADIO_INFO_WIDGET      "Inf do Rádio"
+#define TR_LOW_BATT_COLOR         "Bateria Baixa"
+#define TR_MID_BATT_COLOR         "Bateria Média"
+#define TR_HIGH_BATT_COLOR        "Bateria Alta"
