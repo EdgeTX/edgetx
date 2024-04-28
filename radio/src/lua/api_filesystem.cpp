@@ -75,7 +75,7 @@ int luaDir(lua_State* L)
 
   FRESULT res = f_opendir(dir, path);
   if (res != FR_OK) {
-    TRACE("luaDir cannot open %s\n", path);
+    TRACE("luaDir cannot open %s", path);
     return 0;
   }
   
@@ -130,7 +130,7 @@ int luaFstat(lua_State* L)
 
   res = f_stat(path, &info);
   if (res != FR_OK) {
-    TRACE("luaFstat cannot open %s\n", path);
+    TRACE("luaFstat cannot open %s", path);
     return 0;
   }
 
@@ -175,14 +175,76 @@ int luaDelete(lua_State* L)
 
   FRESULT res = f_unlink(filename);
   if (res != FR_OK) {
-    TRACE("luaDelete cannot delete file/folder %s\n", filename);
-    return 0;
+    TRACE("luaDelete cannot delete file/folder %s", filename);
   }
 
   lua_pushunsigned(L, res);
   return 1;
 }
 
+/*luadoc
+@function chdir(directory)
+
+ Change the working directory
+
+@param directory (string) New working directory
+
+@status current Introduced in 2.3.0
+
+*/
+
+static int luaChdir(lua_State * L)
+{
+  const char * directory = luaL_optstring(L, 1, nullptr);
+  f_chdir(directory);
+  return 0;
+}
+
+/*luadoc
+@function mkdir(directory)
+
+ Create a directory
+
+@param directory (string) Directory to create
+
+@status current Introduced in 2.11.0
+
+ Returns FRESULT (e.g. 0=OK, 6=Path invalid, 8=Directory exists)
+
+*/
+
+static int luaMkdir(lua_State * L)
+{
+  const char * directory = luaL_checkstring(L, 1);
+  FRESULT res = f_mkdir(directory);
+  lua_pushunsigned(L, res);
+  return 1;
+}
+
+/*luadoc
+@function rename(from_path, to_path)
+
+ Rename a file or directory
+  If the file or directory is being moved to a new parent directory, then the new parent
+  directory must already exist.
+
+@param from_path (string) Current path to rename
+@param to_path (string) Path to rename to
+
+@status current Introduced in 2.11.0
+
+ Returns FRESULT (e.g. 0=OK, 6=Path invalid, 8=Directory exists)
+
+*/
+
+static int luaRename(lua_State * L)
+{
+  const char * from_path = luaL_checkstring(L, 1);
+  const char * to_path = luaL_checkstring(L, 2);
+  FRESULT res = f_rename(from_path, to_path);
+  lua_pushunsigned(L, res);
+  return 1;
+}
 
 LROT_BEGIN(dir_handle, NULL, LROT_MASK_GC)
   LROT_FUNCENTRY( __gc, dir_gc )
@@ -192,6 +254,9 @@ LROT_BEGIN(etxdir, NULL, 0)
   LROT_FUNCENTRY( dir, luaDir )
   LROT_FUNCENTRY( fstat, luaFstat )
   LROT_FUNCENTRY( del, luaDelete )
+  LROT_FUNCENTRY( chdir, luaChdir )
+  LROT_FUNCENTRY( mkdir, luaMkdir )
+  LROT_FUNCENTRY( rename, luaRename )
 LROT_END(etxdir, NULL, 0)
 
 extern "C" {

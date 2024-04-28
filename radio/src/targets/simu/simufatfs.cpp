@@ -511,13 +511,24 @@ FRESULT f_mkdir (const TCHAR * name)
 FRESULT f_unlink (const TCHAR * name)
 {
   std::string path = convertToSimuPath(name);
-  if (unlink(path.c_str())) {
-    TRACE_SIMPGMSPACE("f_unlink(%s) = error %d (%s)", path.c_str(), errno, strerror(errno));
-    return FR_INVALID_NAME;
-  }
-  else {
-    TRACE_SIMPGMSPACE("f_unlink(%s) = OK", path.c_str());
-    return FR_OK;
+  if (isFile(path)) {
+    if (unlink(path.c_str())) {
+      TRACE_SIMPGMSPACE("f_unlink(%s) = error %d (%s)", path.c_str(), errno, strerror(errno));
+      return FR_INVALID_NAME;
+    }
+    else {
+      TRACE_SIMPGMSPACE("f_unlink(%s) = OK", path.c_str());
+      return FR_OK;
+    }
+  } else {
+    if (rmdir(path.c_str())) {
+      TRACE_SIMPGMSPACE("f_unlink(%s) = error %d (%s)", path.c_str(), errno, strerror(errno));
+      return FR_INVALID_NAME;
+    }
+    else {
+      TRACE_SIMPGMSPACE("f_unlink(%s) = OK", path.c_str());
+      return FR_OK;
+    }
   }
 }
 
