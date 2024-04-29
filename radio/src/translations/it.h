@@ -302,6 +302,7 @@
 #define TR_ELEVATOR                     TR("Cic. long.", "Sorg. cic. long.")
 #define TR_SWASHRING                    "Anello Ciclico"
 #define TR_MODE                         "Modo"
+#define TR_MODE_INDENT                  INDENT "Modo"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                 "Sinistro"
 #else

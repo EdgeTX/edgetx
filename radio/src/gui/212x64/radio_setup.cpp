@@ -64,7 +64,6 @@ enum MenuRadioSetupItems {
   CASE_HAPTIC(ITEM_RADIO_SETUP_HAPTIC_MODE)
   CASE_HAPTIC(ITEM_RADIO_SETUP_HAPTIC_LENGTH)
   CASE_HAPTIC(ITEM_RADIO_SETUP_HAPTIC_STRENGTH)
-  ITEM_RADIO_SETUP_CONTRAST,
   ITEM_RADIO_SETUP_ALARMS_LABEL,
   ITEM_RADIO_SETUP_BATTERY_WARNING,
   ITEM_RADIO_SETUP_INACTIVITY_ALARM,
@@ -76,6 +75,7 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_BACKLIGHT_MODE,
   ITEM_RADIO_SETUP_BACKLIGHT_DELAY,
   ITEM_RADIO_SETUP_BRIGHTNESS,
+  ITEM_RADIO_SETUP_CONTRAST,
   CASE_PCBX9E_PCBX9DP(ITEM_RADIO_SETUP_BACKLIGHT_COLOR)
   ITEM_RADIO_SETUP_FLASH_BEEP,
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
@@ -176,7 +176,6 @@ void menuRadioSetup(event_t event)
       CASE_HAPTIC(0) // haptic mode
       CASE_HAPTIC(0) // haptic length
       CASE_HAPTIC(0) // haptic strength
-    0, // contrast
     LABEL(ALARMS),
       0, // battery warning
       0, // inactivity warning
@@ -188,6 +187,7 @@ void menuRadioSetup(event_t event)
       0, // backlight mode
       0, // backlight delay
       0, // brightness
+      0, // contrast
       CASE_PCBX9E_PCBX9DP(0) // backlight color
       0, // flash beep
     CASE_SPLASH_PARAM(0) // disable splash
@@ -435,7 +435,7 @@ void menuRadioSetup(event_t event)
 #endif
 
       case ITEM_RADIO_SETUP_CONTRAST:
-        lcdDrawTextAlignedLeft(y, STR_CONTRAST);
+        lcdDrawText(INDENT_WIDTH, y, STR_CONTRAST);
         lcdDrawNumber(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.contrast, attr|LEFT);
         if (attr) {
           CHECK_INCDEC_GENVAR(event, g_eeGeneral.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);

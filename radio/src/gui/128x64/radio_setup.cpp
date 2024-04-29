@@ -87,8 +87,8 @@ enum {
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_MODE)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_DELAY)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BRIGHTNESS)
-  CASE_BACKLIGHT(ITEM_RADIO_SETUP_FLASH_BEEP)
   CASE_CONTRAST(ITEM_RADIO_SETUP_CONTRAST)
+  CASE_BACKLIGHT(ITEM_RADIO_SETUP_FLASH_BEEP)
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
   ITEM_RADIO_SETUP_START_SOUND,
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
@@ -185,8 +185,8 @@ void menuRadioSetup(event_t event)
     CASE_BACKLIGHT(0)
     CASE_BACKLIGHT(0)
     CASE_BACKLIGHT(0)
-    CASE_BACKLIGHT(0)
     CASE_CONTRAST(0)
+    CASE_BACKLIGHT(0)
     CASE_SPLASH_PARAM(0)
     0,
     CASE_PWR_BUTTON_PRESS(0)
@@ -418,7 +418,7 @@ void menuRadioSetup(event_t event)
         break;
 
       case ITEM_RADIO_SETUP_HAPTIC_MODE:
-        g_eeGeneral.hapticMode = editChoice(LCD_W-2, y, INDENT TR_MODE, STR_VBEEPMODE, g_eeGeneral.hapticMode, -2, 1, attr|RIGHT, event);
+        g_eeGeneral.hapticMode = editChoice(LCD_W-2, y, STR_MODE_INDENT, STR_VBEEPMODE, g_eeGeneral.hapticMode, -2, 1, attr|RIGHT, event);
         break;
 
       case ITEM_RADIO_SETUP_HAPTIC_LENGTH:
@@ -470,7 +470,7 @@ void menuRadioSetup(event_t event)
 
 #if !defined(OLED_SCREEN)
       case ITEM_RADIO_SETUP_CONTRAST:
-        lcdDrawTextAlignedLeft(y, STR_CONTRAST);
+        lcdDrawText(INDENT_WIDTH, y, STR_CONTRAST);
         lcdDrawNumber(LCD_W-2, y, g_eeGeneral.contrast, attr|RIGHT);
         if (attr) {
           CHECK_INCDEC_GENVAR(event, g_eeGeneral.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);

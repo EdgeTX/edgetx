@@ -301,6 +301,7 @@
 #define TR_ELEVATOR                    TR("Long. cyc.", "Long. cyc. ソース")
 #define TR_SWASHRING                   "スワッシュリング"
 #define TR_MODE                        "モード"
+#define TR_MODE_INDENT                 INDENT "モード"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "左スティック"
 #else

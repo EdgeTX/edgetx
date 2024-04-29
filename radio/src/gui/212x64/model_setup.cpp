@@ -1055,7 +1055,7 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_TYPE:
       {
-        lcdDrawTextAlignedLeft(y, INDENT TR_MODE);
+        lcdDrawTextAlignedLeft(y, STR_MODE_INDENT);
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y,
                            STR_MODULE_PROTOCOLS,
                            g_model.moduleData[INTERNAL_MODULE].type,
@@ -1110,7 +1110,7 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_TYPE:
-        lcdDrawTextAlignedLeft(y, INDENT TR_MODE);
+        lcdDrawTextAlignedLeft(y, STR_MODE_INDENT);
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_MODULE_PROTOCOLS, reusableBuffer.moduleSetup.newType, menuHorizontalPosition==0 ? attr : 0);
         if (isModuleXJT(EXTERNAL_MODULE))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS, g_model.moduleData[EXTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
@@ -1349,7 +1349,7 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_TRAINER_MODE:
-        lcdDrawTextAlignedLeft(y, INDENT TR_MODE);
+        lcdDrawTextAlignedLeft(y, STR_MODE_INDENT);
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VTRAINERMODES, g_model.trainerData.mode, attr);
         if (attr) {
           g_model.trainerData.mode = checkIncDec(event, g_model.trainerData.mode, 0, TRAINER_MODE_MAX(), EE_MODEL, isTrainerModeAvailable);

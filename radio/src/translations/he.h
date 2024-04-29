@@ -306,6 +306,7 @@
 #define TR_ELEVATOR                    TR("Long. cyc.", "Long. cyc. source")
 #define TR_SWASHRING                   "Swash Ring"
 #define TR_MODE                        "Mode"
+#define TR_MODE_INDENT                 INDENT "Mode"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Left"
 #else

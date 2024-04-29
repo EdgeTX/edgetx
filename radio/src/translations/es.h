@@ -300,6 +300,7 @@
 #define TR_ELEVATOR            TR("Col. long. ", "Fuente col. longitudinal")
 #define TR_SWASHRING           "Ciclico"
 #define TR_MODE                "Modo"
+#define TR_MODE_INDENT         INDENT "Modo"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK        "Izquierdo"
 #else

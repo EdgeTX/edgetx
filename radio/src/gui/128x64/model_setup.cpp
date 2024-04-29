@@ -1154,7 +1154,7 @@ void menuModelSetup(event_t event)
 #if defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_TYPE:
 #endif
-        lcdDrawTextAlignedLeft(y, INDENT TR_MODE);
+        lcdDrawTextAlignedLeft(y, STR_MODE_INDENT);
         lcdDrawTextAtIndex(
             MODEL_SETUP_2ND_COLUMN, y,
             STR_MODULE_PROTOCOLS,
@@ -1449,7 +1449,7 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_TRAINER_MODE:
-        lcdDrawTextAlignedLeft(y, INDENT TR_MODE);
+        lcdDrawTextAlignedLeft(y, STR_MODE_INDENT);
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VTRAINERMODES, g_model.trainerData.mode, attr);
         if (attr) {
           g_model.trainerData.mode = checkIncDec(event, g_model.trainerData.mode, TRAINER_MODE_MIN(), TRAINER_MODE_MAX(), EE_MODEL, isTrainerModeAvailable);

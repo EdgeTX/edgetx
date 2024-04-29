@@ -304,6 +304,7 @@
 #define TR_ELEVATOR                    TR("Тангаж", "Тангаж")
 #define TR_SWASHRING                   "Поворот"
 #define TR_MODE                        "Режим"
+#define TR_MODE_INDENT                 INDENT "Режим"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Лев"
 #else

@@ -312,6 +312,7 @@
 #define TR_ELEVATOR                    TR3("Podélná cykl.", "Podélná cykl.", "Podélná cyklika")
 #define TR_SWASHRING                   "Cyklika"
 #define TR_MODE                        "Mód"
+#define TR_MODE_INDENT                 INDENT "Mód"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Vlevo"
 #else

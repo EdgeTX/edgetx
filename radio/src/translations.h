@@ -347,13 +347,14 @@ extern const char STR_AILERON[];
 extern const char STR_ELEVATOR[];
 extern const char STR_SWASHRING[];
 extern const char STR_MODE[];
+extern const char STR_MODE_INDENT[];
 
 #if defined(AUDIO) && defined(BUZZER)
 extern const char STR_SPEAKER[];
 extern const char STR_BUZZER[];
 #else
-#define STR_SPEAKER STR_MODE
-#define STR_BUZZER  STR_MODE
+#define STR_SPEAKER STR_MODE_INDENT
+#define STR_BUZZER  STR_MODE_INDENT
 #endif
 
 extern const char STR_NOFREEEXPO[];

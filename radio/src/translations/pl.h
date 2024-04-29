@@ -299,6 +299,7 @@
 #define TR_ELEVATOR            TR("Long. cyc.", "Long. cyc. source")
 #define TR_SWASHRING           "Tarcza    "
 #define TR_MODE                "Tryb"
+#define TR_MODE_INDENT         INDENT "Tryb"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK        "Lewy"
 #else

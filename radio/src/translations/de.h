@@ -303,6 +303,7 @@
 #define TR_ELEVATOR                    "Nick Quelle"
 #define TR_SWASHRING                   TR("Ring   Begrenz", "Ring Begrenzung")
 #define TR_MODE                        "Modus"
+#define TR_MODE_INDENT                 INDENT "Modus"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Links"
 #else

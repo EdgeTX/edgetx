@@ -305,6 +305,7 @@
 #define TR_ELEVATOR                    TR("Arfagem", "Org. cíclico Arfagem")
 #define TR_SWASHRING                   "Swash Ring"
 #define TR_MODE                        "Modo"
+#define TR_MODE_INDENT                 INDENT "Modo"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Esq"
 #else

@@ -309,6 +309,7 @@
 #define TR_ELEVATOR                    "Source cyc. lon."
 #define TR_SWASHRING                   TR("Limite Cycl.", "Limite du cyclique")
 #define TR_MODE                        "Mode"
+#define TR_MODE_INDENT                 INDENT "Mode"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Gauche"
 #else

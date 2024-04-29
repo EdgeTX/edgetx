@@ -302,6 +302,7 @@
 #define TR_ELEVATOR                    TR("俯仰源", "俯仰混控源")
 #define TR_SWASHRING                   "斜盤行程"
 #define TR_MODE                        "模式"
+#define TR_MODE_INDENT                 INDENT "模式"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "左搖桿"
 #else

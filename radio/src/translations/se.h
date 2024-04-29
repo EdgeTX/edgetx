@@ -315,6 +315,7 @@
 #define TR_ELEVATOR                     "Höjdroderkälla"
 #define TR_SWASHRING                    "Swashring"
 #define TR_MODE                         "Typ"
+#define TR_MODE_INDENT                  INDENT "Typ"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                 "Vänster"
 #else
