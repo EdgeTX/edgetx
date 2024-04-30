@@ -25,6 +25,7 @@ FilePreview::FilePreview(Window *parent, const rect_t &rect) :
     StaticImage(parent, rect)
 {
   hide();
+  dontEnlarge = true;
 }
 
 void FilePreview::setFile(const char *filename)

@@ -235,7 +235,9 @@ void StaticImage::setZoom()
   if (img && img->w && img->h) {
     uint16_t zw = (width() * 256) / img->w;
     uint16_t zh = (height() * 256) / img->h;
-    lv_img_set_zoom(image, min(zw, zh));
+    uint16_t z = min(zw, zh);
+    if (dontEnlarge) z = min(z, (uint16_t)256);
+    lv_img_set_zoom(image, z);
   }
 }
 
