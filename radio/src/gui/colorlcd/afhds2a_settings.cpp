@@ -93,8 +93,8 @@ AFHDS2ASettings::AFHDS2ASettings(Window* parent, const FlexGridLayout& g,
                                        md->flysky.rfPower = newValue;
                                        resetPulsesAFHDS2();
                                      });
+  }                                     
 #endif
-  }
 
   hideAFHDS2Options();
 }
