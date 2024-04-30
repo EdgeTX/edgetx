@@ -834,7 +834,7 @@ const char STR_IMU_OFFSET[] = TR_IMU_OFFSET;
 const char STR_IMU_MAX[] = TR_IMU_MAX;
 #endif
 
-#if defined(PWM_BACKLIGHT) || defined(COLORLCD)
+#if defined(COLORLCD)
 const char STR_BLONBRIGHTNESS[] = TR_BLONBRIGHTNESS;
 const char STR_BLOFFBRIGHTNESS[] = TR_BLOFFBRIGHTNESS;
 const char STR_KEYS_BACKLIGHT[]  = TR_KEYS_BACKLIGHT;

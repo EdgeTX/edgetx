@@ -418,7 +418,7 @@ extern const char STR_GHOST_MENU_LABEL[];
 extern const char STR_STATUS[];
 extern const char STR_BLDELAY[];
 
-#if defined(PWM_BACKLIGHT) || defined(COLORLCD)
+#if defined(COLORLCD)
 extern const char STR_BLONBRIGHTNESS[];
 extern const char STR_BLOFFBRIGHTNESS[];
 extern const char STR_KEYS_BACKLIGHT[];

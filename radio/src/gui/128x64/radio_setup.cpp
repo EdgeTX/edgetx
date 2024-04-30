@@ -86,8 +86,6 @@ enum {
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_MODE)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_DELAY)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BRIGHTNESS)
-  CASE_PWM_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_BRIGHTNESS_OFF)
-  CASE_PWM_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_BRIGHTNESS_ON)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_FLASH_BEEP)
   CASE_CONTRAST(ITEM_RADIO_SETUP_CONTRAST)
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
@@ -186,8 +184,6 @@ void menuRadioSetup(event_t event)
     CASE_BACKLIGHT(0)
     CASE_BACKLIGHT(0)
     CASE_BACKLIGHT(0)
-    CASE_PWM_BACKLIGHT(0)
-    CASE_PWM_BACKLIGHT(0)
     CASE_BACKLIGHT(0)
     CASE_CONTRAST(0)
     CASE_SPLASH_PARAM(0)
@@ -564,20 +560,6 @@ void menuRadioSetup(event_t event)
           g_eeGeneral.backlightBright = 100 - b;
 #endif
         }
-        break;
-#endif
-
-#if defined(PWM_BACKLIGHT)
-      case ITEM_RADIO_SETUP_BACKLIGHT_BRIGHTNESS_OFF:
-        lcdDrawText(INDENT_WIDTH, y, STR_BLOFFBRIGHTNESS);
-        lcdDrawNumber(LCD_W-2, y, g_eeGeneral.blOffBright, attr|RIGHT);
-        if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.blOffBright, 0, 15);
-        break;
-
-      case ITEM_RADIO_SETUP_BACKLIGHT_BRIGHTNESS_ON:
-        lcdDrawText(INDENT_WIDTH, y, STR_BLONBRIGHTNESS);
-        lcdDrawNumber(LCD_W-2, y, 15-g_eeGeneral.blOnBright, attr|RIGHT);
-        if (attr) g_eeGeneral.blOnBright = 15 - checkIncDecGen(event, 15-g_eeGeneral.blOnBright, 0, 15);
         break;
 #endif
 
