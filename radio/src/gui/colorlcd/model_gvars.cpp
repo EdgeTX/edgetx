@@ -48,7 +48,7 @@ void getFMExtName(char* dest, int8_t idx)
 class GVarButton : public ListLineButton
 {
  public:
-  GVarButton(Window* parent, const rect_t& rect, uint8_t gvar) :
+  GVarButton(Window* parent, uint8_t gvar) :
       ListLineButton(parent, gvar)
   {
     padAll(PAD_ZERO);
@@ -67,16 +67,20 @@ class GVarButton : public ListLineButton
   }
 
   static LAYOUT_VAL(GVAR_NAME_SIZE, 44, 44)
-  static constexpr coord_t GVAR_VAL_H = EdgeTxStyles::PAGE_LINE_HEIGHT * 2 - PAD_MEDIUM;
+  static constexpr coord_t GVAR_VAL_H = EdgeTxStyles::PAGE_LINE_HEIGHT + 2;
   static LAYOUT_VAL(GVAR_VAL_W, 45, 50)
   static LAYOUT_VAL(GVAR_COLS, MAX_FLIGHT_MODES, 5)
-  static LAYOUT_VAL(BTN_H, 38, 72)
-  static LAYOUT_VAL(GVAR_NM_Y, 7, 24)
+  static LAYOUT_VAL(BTN_H, EdgeTxStyles::UI_ELEMENT_HEIGHT, 50)
+  static LAYOUT_VAL(GVAR_NM_Y, 4, 13)
+  static LAYOUT_VAL(GVAR_YO, 4, 2)
+  static LAYOUT_VAL(HDR_H, EdgeTxStyles::PAGE_LINE_HEIGHT + 2, EdgeTxStyles::PAGE_LINE_HEIGHT * 2 + 2)
+
+  static const lv_obj_class_t gv_label_class;
+  static const lv_obj_class_t gv_value_class;
 
  protected:
   bool init = false;
   uint8_t currentFlightMode = 0;  // used for checking updates
-  lv_obj_t* labelTexts[MAX_FLIGHT_MODES];
   lv_obj_t* valueTexts[MAX_FLIGHT_MODES];
   gvar_t values[MAX_FLIGHT_MODES];
 
@@ -90,9 +94,7 @@ class GVarButton : public ListLineButton
         uint8_t newFM = getFlightMode();
         if (currentFlightMode != newFM) {
           lv_obj_add_state(valueTexts[newFM], LV_STATE_CHECKED);
-          lv_obj_add_state(labelTexts[newFM], LV_STATE_CHECKED);
           lv_obj_clear_state(valueTexts[currentFlightMode], LV_STATE_CHECKED);
-          lv_obj_clear_state(labelTexts[currentFlightMode], LV_STATE_CHECKED);
 
           currentFlightMode = newFM;
         }
@@ -121,23 +123,13 @@ class GVarButton : public ListLineButton
     lv_obj_set_size(nm, GVAR_NAME_SIZE, EdgeTxStyles::PAGE_LINE_HEIGHT);
 
     if (modelFMEnabled()) {
-      char label[16] = {};
-
       for (int flightMode = 0; flightMode < MAX_FLIGHT_MODES; flightMode++) {
-        getFlightModeString(label, flightMode + 1);
-
-        labelTexts[flightMode] = etx_create(&gv_label_class, lvobj);
-        lv_label_set_text(labelTexts[flightMode], label);
-        lv_obj_set_pos(labelTexts[flightMode], (flightMode % GVAR_COLS) * GVAR_VAL_W + GVAR_NAME_SIZE + PAD_SMALL,
-                       (flightMode / GVAR_COLS) * GVAR_VAL_H);
-
         valueTexts[flightMode] = etx_create(&gv_value_class, lvobj);
-        lv_obj_set_pos(valueTexts[flightMode], (flightMode % GVAR_COLS) * GVAR_VAL_W + GVAR_NAME_SIZE + PAD_SMALL,
-                       (flightMode / GVAR_COLS) * GVAR_VAL_H + EdgeTxStyles::PAGE_LINE_HEIGHT - PAD_MEDIUM);
+        lv_obj_set_pos(valueTexts[flightMode], (flightMode % GVAR_COLS) * GVAR_VAL_W + GVAR_NAME_SIZE + 4,
+                       (flightMode / GVAR_COLS) * GVAR_VAL_H + GVAR_YO);
 
         if (flightMode == currentFlightMode) {
           lv_obj_add_state(valueTexts[flightMode], LV_STATE_CHECKED);
-          lv_obj_add_state(labelTexts[flightMode], LV_STATE_CHECKED);
         }
 
         updateValueText(flightMode);
@@ -186,9 +178,6 @@ class GVarButton : public ListLineButton
 
   bool isActive() const override { return false; }
   void refresh() override {}
-
-  static const lv_obj_class_t gv_label_class;
-  static const lv_obj_class_t gv_value_class;
 };
 
 static void gv_label_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
@@ -229,6 +218,74 @@ const lv_obj_class_t GVarButton::gv_value_class = {
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
+};
+
+class GVarHeader : public Window
+{
+ public:
+  GVarHeader(Window* parent) :
+      Window(parent, {0, 0, LCD_W, GVarButton::HDR_H})
+  {
+    padAll(PAD_ZERO);
+    etx_solid_bg(lvobj, COLOR_THEME_SECONDARY3_INDEX);
+
+    lv_obj_add_event_cb(lvobj, GVarHeader::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
+                        nullptr);
+  }
+
+  static void on_draw(lv_event_t* e)
+  {
+    lv_obj_t* target = lv_event_get_target(e);
+    auto line = (GVarHeader*)lv_obj_get_user_data(target);
+    if (line) line->build();
+  }
+
+ protected:
+  bool init = false;
+  uint8_t currentFlightMode = 0;  // used for checking updates
+  lv_obj_t* labelTexts[MAX_FLIGHT_MODES];
+
+  int numFlightModes() { return modelFMEnabled() ? MAX_FLIGHT_MODES : 1; }
+
+  void checkEvents() override
+  {
+    Window::checkEvents();
+    if (init) {
+      uint8_t newFM = getFlightMode();
+      if (currentFlightMode != newFM) {
+        lv_obj_add_state(labelTexts[newFM], LV_STATE_CHECKED);
+        lv_obj_clear_state(labelTexts[currentFlightMode], LV_STATE_CHECKED);
+
+        currentFlightMode = newFM;
+      }
+    }
+  }
+
+  void build()
+  {
+    if (init) return;
+
+    init =true;
+
+    currentFlightMode = getFlightMode();
+
+    char label[16] = {};
+
+    for (int flightMode = 0; flightMode < MAX_FLIGHT_MODES; flightMode++) {
+      getFlightModeString(label, flightMode + 1);
+
+      labelTexts[flightMode] = etx_create(&GVarButton::gv_value_class, lvobj);
+      lv_label_set_text(labelTexts[flightMode], label);
+      lv_obj_set_pos(labelTexts[flightMode], (flightMode % GVarButton::GVAR_COLS) * GVarButton::GVAR_VAL_W + GVarButton::GVAR_NAME_SIZE + 12,
+                      (flightMode / GVarButton::GVAR_COLS) * EdgeTxStyles::PAGE_LINE_HEIGHT + 1);
+
+      if (flightMode == currentFlightMode) {
+        lv_obj_add_state(labelTexts[flightMode], LV_STATE_CHECKED);
+      }
+    }
+
+    lv_obj_update_layout(lvobj);
+  }
 };
 
 class GVarEditWindow : public Page
@@ -470,20 +527,34 @@ ModelGVarsPage::ModelGVarsPage() :
 {
 }
 
+void ModelGVarsPage::cleanup()
+{
+  if (hdr)
+    hdr->deleteLater();
+  hdr = nullptr;
+}
+
 void ModelGVarsPage::rebuild(Window* window)
 {
   auto scroll_y = lv_obj_get_scroll_y(window->getLvObj());
   window->clear();
+  cleanup();
   build(window);
   lv_obj_scroll_to_y(window->getLvObj(), scroll_y, LV_ANIM_OFF);
 }
 
 void ModelGVarsPage::build(Window* window)
 {
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY_GAP);
+  coord_t yo = 0;
+  if (modelFMEnabled()) {
+    hdr = new GVarHeader(window->getParent());
+    lv_obj_set_pos(hdr->getLvObj(), 0, TabsGroup::MENU_TITLE_TOP + TabsGroup::MENU_TITLE_HEIGHT);
+    yo = GVarButton::HDR_H - 4;
+  }
 
   for (uint8_t index = 0; index < MAX_GVARS; index++) {
-    auto button = new GVarButton(window, rect_t{}, index);
+    auto button = new GVarButton(window, index);
+    lv_obj_set_pos(button->getLvObj(), 0, yo + index * (GVarButton::BTN_H + PAD_TINY));
     button->setPressHandler([=]() {
       Menu* menu = new Menu(window);
       menu->addLine(STR_EDIT, [=]() {

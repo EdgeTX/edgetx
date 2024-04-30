@@ -103,11 +103,6 @@ Window::Window(Window *parent, const rect_t &rect, LvglCreate objConstruct) :
   if (objConstruct == nullptr) objConstruct = window_create;
   lvobj = objConstruct(lv_parent);
 
-  Window::setupLVGL();
-}
-
-void Window::setupLVGL()
-{
   lv_obj_set_user_data(lvobj, this);
   lv_obj_add_event_cb(lvobj, Window::window_event_cb, LV_EVENT_ALL, nullptr);
 
@@ -115,7 +110,6 @@ void Window::setupLVGL()
   if (rect.w) lv_obj_set_width(lvobj, rect.w);
   if (rect.h) lv_obj_set_height(lvobj, rect.h);
 
-  // lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_ELASTIC);
 
   if (parent) {

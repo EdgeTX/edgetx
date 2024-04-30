@@ -61,12 +61,3 @@ template <class T>
 struct HWInputDialog : public BaseDialog {
   HWInputDialog(const char* title = nullptr);
 };
-
-template <class T>
-TextButton* makeHWInputButton(Window* parent, const char* title)
-{
-  return new TextButton(parent, rect_t{0, 0, 100, 0}, title, [=]() {
-    new HWInputDialog<T>(title);
-    return 0;
-  });
-}

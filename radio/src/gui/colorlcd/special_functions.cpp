@@ -294,10 +294,10 @@ void FunctionEditPage::on_draw(lv_event_t *e)
 {
   lv_obj_t *target = lv_event_get_target(e);
   auto page = (FunctionEditPage *)lv_obj_get_user_data(target);
-  if (page) page->delayed_init(e);
+  if (page) page->delayed_init();
 }
 
-void FunctionEditPage::delayed_init(lv_event_t *e)
+void FunctionEditPage::delayed_init()
 {
   if (!init) {
     init = true;

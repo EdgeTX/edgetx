@@ -54,6 +54,7 @@ class PageTab
   EdgeTxIcon getIcon() const { return icon; }
 
   virtual void update(uint8_t index) {}
+  virtual void cleanup() {}
 
  protected:
   std::string title;

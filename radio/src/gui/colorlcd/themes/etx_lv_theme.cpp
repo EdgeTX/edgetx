@@ -511,9 +511,21 @@ void etx_scrollbar(lv_obj_t* obj)
   lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_AUTO);
 }
 
-void etx_textarea_style(lv_obj_t* obj)
+// Object creators
+
+lv_obj_t* etx_create(const lv_obj_class_t* class_p, lv_obj_t* parent)
 {
-  etx_std_settings(obj, LV_PART_MAIN);
+  lv_obj_t* obj = lv_obj_class_create_obj(class_p, parent);
+  lv_obj_class_init_obj(obj);
+
+  return obj;
+}
+
+static void textarea_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
+{
+  etx_obj_add_style(obj, styles->border, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->border_color_normal, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
   etx_std_ctrl_colors(obj, LV_PART_MAIN);
   etx_obj_add_style(obj, styles->pad_textarea, LV_PART_MAIN);
 
@@ -532,12 +544,20 @@ void etx_textarea_style(lv_obj_t* obj)
   lv_obj_set_height(ta->label, 21);
 }
 
-// Object creators
+static const lv_obj_class_t textarea_class = {
+    .base_class = &lv_textarea_class,
+    .constructor_cb = textarea_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = 0,
+    .height_def = EdgeTxStyles::UI_ELEMENT_HEIGHT,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
+    .instance_size = sizeof(lv_textarea_t),
+};
 
-lv_obj_t* etx_create(const lv_obj_class_t* class_p, lv_obj_t* parent)
+lv_obj_t* etx_textarea_create(lv_obj_t* parent)
 {
-  lv_obj_t* obj = lv_obj_class_create_obj(class_p, parent);
-  lv_obj_class_init_obj(obj);
-
-  return obj;
+  return etx_create(&textarea_class, parent);
 }

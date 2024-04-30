@@ -86,20 +86,20 @@ class FileNameEditWindow : public Page
 
     auto newFileName = new TextEdit(
         window, rect_t{0, 0, LV_PCT(100), 0}, reusableBuffer.sdManager.originalName,
-        SD_SCREEN_FILE_LENGTH - extLength);
-    newFileName->setChangeHandler([=]() {
-      char *newValue = reusableBuffer.sdManager.originalName;
-      size_t totalSize = strlen(newValue);
-      char changedName[SD_SCREEN_FILE_LENGTH + 1];
-      memset(changedName, 0, sizeof(changedName));
-      strncpy(changedName, newValue, totalSize);
-      changedName[totalSize] = '\0';
-      if (extLength) {
-        strncpy(changedName + totalSize, extension, extLength);
-      }
-      changedName[totalSize + extLength] = '\0';
-      f_rename((const TCHAR *)name.c_str(), (const TCHAR *)changedName);
-    });
+        SD_SCREEN_FILE_LENGTH - extLength,
+        [=]() {
+          char *newValue = reusableBuffer.sdManager.originalName;
+          size_t totalSize = strlen(newValue);
+          char changedName[SD_SCREEN_FILE_LENGTH + 1];
+          memset(changedName, 0, sizeof(changedName));
+          strncpy(changedName, newValue, totalSize);
+          changedName[totalSize] = '\0';
+          if (extLength) {
+            strncpy(changedName + totalSize, extension, extLength);
+          }
+          changedName[totalSize + extLength] = '\0';
+          f_rename((const TCHAR *)name.c_str(), (const TCHAR *)changedName);
+        });
   };
 };
 

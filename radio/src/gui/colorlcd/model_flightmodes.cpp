@@ -209,8 +209,6 @@ class FlightModeBtn : public ListLineButton
     padColumn(PAD_ZERO);
     setHeight(BTN_H);
 
-    check(isActive());
-
     lv_obj_add_event_cb(lvobj, FlightModeBtn::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
                         nullptr);
   }
@@ -229,6 +227,8 @@ class FlightModeBtn : public ListLineButton
   void delayed_init()
   {
     init = true;
+
+    check(isActive());
 
     fmID = etx_create(&fm_id_class, lvobj);
     lv_obj_set_pos(fmID, FMID_X, FMID_Y);
@@ -257,23 +257,29 @@ class FlightModeBtn : public ListLineButton
 
   bool isActive() const override { return (getFlightMode() == index); }
 
+  void setTrimValue(uint8_t t)
+  {
+    lastTrim[t] = g_model.flightModeData[index].trim[t].value;
+
+    uint8_t mode = g_model.flightModeData[index].trim[t].mode;
+    bool checked = (mode != TRIM_MODE_NONE);
+    bool showValue = (index == 0) || ((mode & 1) || (mode >> 1 == index));
+
+    if (checked && showValue)
+      lv_label_set_text(fmTrimValue[t],
+                        formatNumberAsString(lastTrim[t]).c_str());
+    else
+      lv_label_set_text(fmTrimValue[t], "");
+  }
+
   void checkEvents() override
   {
     ListLineButton::checkEvents();
     if (!refreshing && init) {
       refreshing = true;
-      const auto& fm = g_model.flightModeData[index];
       for (int t = 0; t < keysGetMaxTrims(); t += 1) {
-        if (lastTrim[t] != fm.trim[t].value) {
-          lastTrim[t] = fm.trim[t].value;
-
-          uint8_t mode = fm.trim[t].mode;
-          bool checked = (mode != TRIM_MODE_NONE);
-          bool showValue = (index == 0) || ((mode & 1) || (mode >> 1 == index));
-
-          if (checked && showValue)
-            lv_label_set_text(fmTrimValue[t],
-                              formatNumberAsString(fm.trim[t].value).c_str());
+        if (lastTrim[t] != g_model.flightModeData[index].trim[t].value) {
+          setTrimValue(t);
         }
       }
       refreshing = false;
@@ -301,17 +307,8 @@ class FlightModeBtn : public ListLineButton
     }
 
     for (int i = 0; i < keysGetMaxTrims(); i += 1) {
-      uint8_t mode = fm.trim[i].mode;
-      bool checked = (mode != TRIM_MODE_NONE);
-      bool showValue = (index == 0) || ((mode & 1) || (mode >> 1 == index));
-
-      lv_label_set_text(fmTrimMode[i], getFMTrimStr(mode, false).c_str());
-
-      if (checked && showValue)
-        lv_label_set_text(fmTrimValue[i],
-                          formatNumberAsString(fm.trim[i].value).c_str());
-      else
-        lv_label_set_text(fmTrimValue[i], "");
+      setTrimValue(i);
+      lv_label_set_text(fmTrimMode[i], getFMTrimStr(fm.trim[i].mode, false).c_str());
     }
 
     lv_label_set_text(
@@ -353,7 +350,7 @@ class FlightModeBtn : public ListLineButton
   lv_obj_t* fmTrimValue[MAX_FMTRIMS] = {nullptr};
   lv_obj_t* fmFadeIn = nullptr;
   lv_obj_t* fmFadeOut = nullptr;
-  int lastTrim[MAX_FMTRIMS];
+  int lastTrim[MAX_FMTRIMS] = {0};
 
   static const lv_obj_class_t fm_id_class;
   static const lv_obj_class_t fm_name_class;

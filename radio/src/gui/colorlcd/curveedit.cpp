@@ -310,7 +310,7 @@ void CurveEditWindow::buildBody(Window* window)
 
   // Name
   new StaticText(iLine, rect_t{}, STR_NAME);
-  new ModelTextEdit(iLine, rect_t{0, 0, 100, 0}, curve.name,
+  new ModelTextEdit(iLine, rect_t{}, curve.name,
                     sizeof(curve.name));
 
   // Smooth

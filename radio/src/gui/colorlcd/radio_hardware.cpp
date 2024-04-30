@@ -87,9 +87,49 @@ class BatCalEdit : public NumberEdit
   }
 };
 
+class HWButtonGroup : public Window
+{
+ public:
+  typedef std::function<void()> PageFct;
+  typedef std::pair<const char*, PageFct> PageDef;
+  typedef std::list<PageDef> PageDefs;
+
+#if LCD_W > LCD_H
+  static constexpr coord_t COLS = 4;
+#else
+  static constexpr coord_t COLS = 3;
+#endif
+  static constexpr coord_t BTN_W = (LCD_W - PAD_MEDIUM * (COLS + 1) - PAD_TINY * 2) / COLS;
+
+  HWButtonGroup(Window* parent, const rect_t& rect, const char* title, PageDefs pages) :
+      Window(parent, rect), title(title)
+  {
+    padAll(PAD_ZERO);
+    int rows = (pages.size() + COLS - 1) / COLS;
+    setHeight(rows * EdgeTxStyles::UI_ELEMENT_HEIGHT + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2 + EdgeTxStyles::PAGE_LINE_HEIGHT);
+
+    new Subtitle(this, title);
+
+    int n = 0;
+    for (auto& entry : pages) {
+      coord_t x = (n % COLS) * (BTN_W + PAD_MEDIUM) + PAD_TINY;
+      coord_t y = (n / COLS) * (EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM) + EdgeTxStyles::PAGE_LINE_HEIGHT + 2;
+
+      new TextButton(this, rect_t{x, y, BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, entry.first, [&, entry]() {
+        entry.second();
+        return 0;
+      });
+      n += 1;
+    }
+  }
+
+ protected:
+  std::string title;
+};
+
 void RadioHardwarePage::build(Window* window)
 {
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 0);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
   FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
@@ -181,44 +221,16 @@ void RadioHardwarePage::build(Window* window)
   new SerialConfigWindow(window, grid);
 
   // Calibration
-  new Subtitle(window, STR_INPUTS);
-
-  box = new Window(window, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_MEDIUM);
-  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY,
-                                   0);
-  box->padAll(PAD_MEDIUM);
-
-  new TextButton(box, rect_t{0, 0, 100, 0}, STR_CALIBRATION, [=]() -> uint8_t {
-    new RadioCalibrationPage();
-    return 0;
+  new HWButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_INPUTS, {
+    {STR_CALIBRATION, []() { new RadioCalibrationPage(); }},
+    {STR_STICKS, []() { new HWInputDialog<HWSticks>(STR_STICKS); }},
+    {STR_POTS, []() { new HWInputDialog<HWPots>(STR_POTS); }},
+    {STR_SWITCHES, []() { new HWInputDialog<HWSwitches>(STR_SWITCHES); }},
   });
-
-  // Sticks
-  makeHWInputButton<HWSticks>(box, STR_STICKS);
-
-  // Pots & Sliders
-  makeHWInputButton<HWPots>(box, STR_POTS);
-
-  // Switches
-  makeHWInputButton<HWSwitches>(box, STR_SWITCHES);
 
   // Debugs
-  new Subtitle(window, STR_DEBUG);
-
-  box = new Window(window, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_MEDIUM);
-  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY,
-                                   0);
-  box->padAll(PAD_MEDIUM);
-
-  new TextButton(box, rect_t{0, 0, 100, 0}, STR_ANALOGS_BTN, [=]() -> uint8_t {
-    new RadioAnalogsDiagsViewPageGroup();
-    return 0;
-  });
-
-  new TextButton(box, rect_t{0, 0, 100, 0}, STR_KEYS_BTN, [=]() -> uint8_t {
-    new RadioKeyDiagsPage();
-    return 0;
+  new HWButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_DEBUG, {
+    {STR_ANALOGS_BTN, []() { new RadioAnalogsDiagsViewPageGroup(); }},
+    {STR_KEYS_BTN, []() { new RadioKeyDiagsPage(); }},
   });
 }

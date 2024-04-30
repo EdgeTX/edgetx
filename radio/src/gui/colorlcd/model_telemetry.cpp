@@ -263,6 +263,7 @@ class SensorButton : public ListLineButton
   lv_obj_t* valLabel = nullptr;
   lv_obj_t* fresh = nullptr;
   uint32_t lastRefresh = 0;
+  std::string valString;
 
   static void on_draw(lv_event_t* e)
   {
@@ -270,8 +271,7 @@ class SensorButton : public ListLineButton
     auto line = (SensorButton*)lv_obj_get_user_data(target);
     if (line) {
       if (!line->init)
-        line->delayed_init(e);
-      line->refresh();
+        line->delayed_init();
     }
   }
 
@@ -297,7 +297,7 @@ class SensorButton : public ListLineButton
     refresh();
   }
 
-  void delayed_init(lv_event_t* e)
+  void delayed_init()
   {
     char s[20];
 
@@ -365,7 +365,10 @@ class SensorButton : public ListLineButton
       else
         lv_obj_clear_state(valLabel, ETX_STATE_VALUE_STALE_WARN);
 
-      lv_label_set_text(valLabel, s.c_str());
+      if (valString != s) {
+        valString = s;
+        lv_label_set_text(valLabel, s.c_str());
+      }
     }
   }
 };

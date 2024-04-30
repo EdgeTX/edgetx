@@ -24,8 +24,12 @@
 #include "tabsgroup.h"
 
 class RadioSetupPage: public PageTab {
-  public:
-    RadioSetupPage();
+ public:
+  RadioSetupPage();
 
-    void build(Window * window) override;
+  void build(Window * window) override;
+
+  static LAYOUT_VAL(NUM_W, 80, 80)
+  static LAYOUT_VAL(EDT_X, 220, 144)
+  static constexpr coord_t LBL_W = EDT_X - PAD_TINY - PAD_SMALL;
 };

@@ -72,6 +72,7 @@ void usePreviewStyle();
 void useMainStyle();
 
 lv_obj_t* etx_create(const lv_obj_class_t* class_p, lv_obj_t* parent);
+lv_obj_t* etx_textarea_create(lv_obj_t* parent);
 lv_obj_t* window_create(lv_obj_t* parent);
 
 void etx_std_style(lv_obj_t* obj, lv_style_selector_t selector = LV_PART_MAIN,
@@ -102,8 +103,6 @@ void etx_txt_color(lv_obj_t* obj, LcdColorIndex colorIdx,
 
 void etx_img_color(lv_obj_t* obj, LcdColorIndex colorIdx,
                    lv_style_selector_t selector = LV_PART_MAIN);
-
-void etx_textarea_style(lv_obj_t* obj);
 
 // Create a style with a single property
 #define LV_STYLE_CONST_SINGLE_INIT(var_name, prop, value)               \

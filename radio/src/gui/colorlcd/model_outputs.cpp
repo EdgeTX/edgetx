@@ -43,20 +43,31 @@ class OutputLineButton : public ListLineButton
   lv_obj_t* offset = nullptr;
   lv_obj_t* center = nullptr;
   StaticIcon* curve = nullptr;
-  OutputChannelBar* bar = nullptr;
 
   static void on_draw(lv_event_t* e)
   {
     lv_obj_t* target = lv_event_get_target(e);
     auto line = (OutputLineButton*)lv_obj_get_user_data(target);
     if (line) {
-      if (!line->init) line->delayed_init();
+      if (!line->init)
+        line->delayed_init();
+      line->refresh();
     }
   }
 
   void delayed_init()
   {
     init = true;
+
+    source = lv_label_create(lvobj);
+    lv_obj_set_pos(source, SRC_X, SRC_Y);
+    lv_obj_set_size(source, SRC_W, SRC_H);
+
+#if LCD_W > LCD_H
+    etx_font(source, FONT_XS_INDEX, ETX_STATE_NAME_FONT_SMALL);
+    lv_obj_set_style_pad_top(source, -2, ETX_STATE_NAME_FONT_SMALL);
+    lv_obj_set_style_text_line_space(source, -3, ETX_STATE_NAME_FONT_SMALL);
+#endif
 
     min = lv_label_create(lvobj);
     etx_obj_add_style(min, styles->text_align_right, LV_PART_MAIN);
@@ -87,10 +98,9 @@ class OutputLineButton : public ListLineButton
     curve =
         new StaticIcon(this, CRV_X, CRV_Y, ICON_TEXTLINE_CURVE, COLOR_THEME_SECONDARY1);
 
-    bar = new OutputChannelBar(this, rect_t{BAR_X, PAD_MEDIUM, CH_BAR_WIDTH, CH_BAR_HEIGHT},
+    new OutputChannelBar(this, rect_t{BAR_X, PAD_MEDIUM, CH_BAR_WIDTH, CH_BAR_HEIGHT},
                                index, false, false);
 
-    refresh();
     checkEvents();
 
     lv_obj_update_layout(lvobj);
@@ -102,16 +112,6 @@ class OutputLineButton : public ListLineButton
   {
     setHeight(CH_LINE_H);
     padAll(PAD_ZERO);
-
-    source = lv_label_create(lvobj);
-    lv_obj_set_pos(source, SRC_X, SRC_Y);
-    lv_obj_set_size(source, SRC_W, SRC_H);
-
-#if !PORTRAIT_LCD
-    etx_font(source, FONT_XS_INDEX, ETX_STATE_NAME_FONT_SMALL);
-    lv_obj_set_style_pad_top(source, -2, ETX_STATE_NAME_FONT_SMALL);
-    lv_obj_set_style_text_line_space(source, -3, ETX_STATE_NAME_FONT_SMALL);
-#endif
 
     lv_obj_add_event_cb(lvobj, OutputLineButton::on_draw,
                         LV_EVENT_DRAW_MAIN_BEGIN, nullptr);

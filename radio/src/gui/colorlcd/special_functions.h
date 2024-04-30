@@ -94,7 +94,7 @@ class FunctionEditPage : public Page
 
   static void on_draw(lv_event_t *e);
 
-  void delayed_init(lv_event_t *e);
+  void delayed_init();
 
  protected:
   bool init = false;

@@ -48,8 +48,6 @@ class Window
   Window(const rect_t &rect);
   Window(Window *parent, const rect_t &rect, LvglCreate objConstruct = nullptr);
 
-  virtual void setupLVGL();
-
   virtual ~Window();
 
 #if defined(DEBUG_WINDOWS)

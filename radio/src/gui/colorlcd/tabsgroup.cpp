@@ -334,6 +334,8 @@ void TabsGroup::setVisibleTab(PageTab* tab)
     header->setTitle(tab->title.c_str());
 
     body->clear();
+    if (currentTab)
+      currentTab->cleanup();
     currentTab = tab;
 
 #if defined(DEBUG)

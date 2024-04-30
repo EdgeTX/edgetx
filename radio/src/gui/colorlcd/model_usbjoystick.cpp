@@ -400,14 +400,15 @@ class USBChannelLineButton : public ListLineButton
     auto line = (USBChannelLineButton*)lv_obj_get_user_data(target);
     if (line) {
       if (!line->init)
-        line->delayed_init(e);
-      else
-        line->refresh();
+        line->delayed_init();
+      line->refresh();
     }
   }
 
-  void delayed_init(lv_event_t* e)
+  void delayed_init()
   {
+    init = true;
+
     m_chn = lv_label_create(lvobj);
     lv_obj_set_grid_cell(m_chn, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER,
                          0, USBCH_CHN_ROWS);
@@ -442,15 +443,7 @@ class USBChannelLineButton : public ListLineButton
     lv_label_set_text(m_btn_mode, "");
     lv_label_set_text(m_btns, "");
 
-    init = true;
-    refresh();
-
     lv_obj_update_layout(lvobj);
-
-    if (e) {
-      auto param = lv_event_get_param(e);
-      lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
-    }
   }
 
   void refresh() override

@@ -119,14 +119,10 @@ class ThemedTextEdit : public TextEdit
  public:
   ThemedTextEdit(Window *parent, const rect_t &rect, const char *text,
                  bool edited) :
-      TextEdit(parent, rect, editText, strlen(text))
+      TextEdit(parent, rect, editText, 0)
   {
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
     strcpy(editText, text);
-    lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
-    if (edited) lv_obj_add_state(lvobj, LV_STATE_EDITED);
-    update();
+    preview(edited, editText, strlen(editText));
   }
 
 #if defined(HARDWARE_KEYS)

@@ -370,7 +370,6 @@ RegisterDialog::RegisterDialog(Window* parent, uint8_t moduleIdx) :
   start();  // clears registration data buffer
   rx_name = new ModelTextEdit(line, rect_t{}, modSetup->registerRxName,
                               PXX2_LEN_RX_NAME);
-  // lv_textarea_set_text(rx_name->getLvObj(), STR_WAITING_FOR_RX);
   rx_name->disable();
 
   // Status

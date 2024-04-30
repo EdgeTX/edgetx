@@ -452,7 +452,11 @@
 #define LV_FONT_FMT_TXT_LARGE 0
 
 /*Enables/disables support for compressed fonts.*/
+#if defined(BOOT)
 #define LV_USE_FONT_COMPRESSED 1
+#else
+#define LV_USE_FONT_COMPRESSED 0
+#endif
 
 /*Enable subpixel rendering*/
 #define LV_USE_FONT_SUBPX 0

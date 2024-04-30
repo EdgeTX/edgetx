@@ -461,7 +461,6 @@ class LabelDialog : public ModalWindow
 
     auto edit = new TextEdit(box, rect_t{0, 0, LV_PCT(100), 0}, this->label,
                              LABEL_LENGTH);
-    edit->padAll(PAD_MEDIUM);
 
     box = new Window(form, rect_t{});
     box->padAll(PAD_MEDIUM);
