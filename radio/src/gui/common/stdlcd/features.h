@@ -65,12 +65,6 @@
   #define CASE_AUDIO(x)
 #endif
 
-#if defined(PWM_BACKLIGHT)
-  #define CASE_PWM_BACKLIGHT(x) x,
-#else
-  #define CASE_PWM_BACKLIGHT(x)
-#endif
-
 #if defined(GPS)
   #define CASE_GPS(x) x,
 #else
