@@ -35,7 +35,9 @@
 #if defined(LED_STRIP_GPIO)
 #include "boards/generic_stm32/rgb_leds.h"
 #endif
-
+#if defined(ALTDATA)
+#include "altdata.h"
+#endif
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -2873,6 +2875,47 @@ static int luaApplyRGBLedColors(lua_State * L)
 
 #endif
 
+
+#if defined(ALTDATA) 
+
+static int luaSetAlternateData(lua_State * const L)
+{
+  const uint8_t id = luaL_checkunsigned(L, 1);
+  const uint8_t value = luaL_checkunsigned(L, 2);
+  
+  if (id < AlternateData::container.size()) {
+      AlternateData::container[id] = value;
+  }
+  return 0;
+}
+static int luaGetAlternateData(lua_State * const L)
+{
+  const uint8_t id = luaL_checkunsigned(L, 1);
+  
+  if (id < AlternateData::container.size()) {
+      lua_pushinteger(L, AlternateData::container[id]);
+      return 1;
+  }
+  return 0;
+}
+
+static int luaGetAlternateNextChunk(lua_State* const L) {
+    const uint8_t sizeOfChunk = luaL_checkunsigned(L, 1);
+    lua_newtable(L);
+    uint8_t i = 0;
+    const uint8_t startIndex = AlternateData::container.pushNextChunk(sizeOfChunk, 
+                                                                     [&](const uint8_t value){
+        ++i;
+        lua_pushinteger(L, i);
+        lua_pushinteger(L, value);
+        lua_settable(L, -3);
+    });
+    lua_pushinteger(L, startIndex);
+    return 2;
+}
+
+#endif // ALTDATA
+
 #define KEY_EVENTS(xxx, yyy)                                    \
   { "EVT_"#xxx"_FIRST", LRO_NUMVAL(EVT_KEY_FIRST(yyy)) },       \
   { "EVT_"#xxx"_BREAK", LRO_NUMVAL(EVT_KEY_BREAK(yyy)) },       \
@@ -2961,6 +3004,11 @@ LROT_BEGIN(etxlib, NULL, 0)
 #if defined(LED_STRIP_GPIO)
   LROT_FUNCENTRY(setRGBLedColor, luaSetRgbLedColor )
   LROT_FUNCENTRY(applyRGBLedColors, luaApplyRGBLedColors )
+#endif
+#if defined(ALTDATA)
+  LROT_FUNCENTRY(setAlternateData , luaSetAlternateData )
+  LROT_FUNCENTRY(getAlternateData , luaGetAlternateData )
+  LROT_FUNCENTRY(getAlternateNextChunk , luaGetAlternateNextChunk )
 #endif
 LROT_END(etxlib, NULL, 0)
 
