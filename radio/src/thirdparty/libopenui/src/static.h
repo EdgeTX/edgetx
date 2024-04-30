@@ -154,6 +154,7 @@ class StaticImage : public Window
   bool hasImage() const;
 
  protected:
+  bool dontEnlarge = false;
   lv_obj_t *image = nullptr;
 };
 
