@@ -216,7 +216,7 @@ char switchGetLetter(uint8_t idx)
     return -1;
 
   uint8_t c = 1;
-  if (idx >= switchGetMaxSwitches()) c = 2;
+  if (idx >= switchGetMaxSwitches() || switchIsFlex(idx)) c = 2;
   
   const char* name = switchGetName(idx);
   if (!name) return -1;
