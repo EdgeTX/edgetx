@@ -802,7 +802,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("flightModeData", 320, 9, struct_FlightModeData, fmd_is_active),
   YAML_UNSIGNED_CUST( "thrTraceSrc", 8, r_thrSrc, w_thrSrc ),
   YAML_CUSTOM("switchWarningState",r_swtchWarn,nullptr),
-  YAML_ARRAY("switchWarningState", 3, 21, struct_swtchWarn, nullptr),
+  YAML_ARRAY("switchWarning", 3, 21, struct_swtchWarn, nullptr),
   YAML_PADDING(1),
   YAML_ARRAY("gvars", 56, 9, struct_GVarData, NULL),
   YAML_STRUCT("varioData", 40, struct_VarioData, NULL),
