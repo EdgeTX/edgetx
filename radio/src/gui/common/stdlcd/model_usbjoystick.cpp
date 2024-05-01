@@ -105,25 +105,27 @@ void menuModelUSBJoystickOne(event_t event)
         break;
 
       case USBJ_FIELD_SUBMODE:
-        if(cch->mode == USBJOYS_CH_BUTTON) {
+        if (cch->mode == USBJOYS_CH_BUTTON) {
+          if (cch->param > USBJOYS_BTN_MODE_LAST) cch->param = 0;
           cch->param = editChoice(USBJ_ONE_2ND_COLUMN, y, STR_USBJOYSTICK_CH_BTNMODE, STR_VUSBJOYSTICK_CH_BTNMODE, cch->param, 0, USBJOYS_BTN_MODE_LAST, attr, event);
-          if(cch->param == USBJOYS_BTN_MODE_SW_EMU) cch->switch_npos = 0;
-          else if(cch->param == USBJOYS_BTN_MODE_DELTA) cch->switch_npos = 1;
+          if (cch->param == USBJOYS_BTN_MODE_SW_EMU) cch->switch_npos = 0;
+          else if (cch->param == USBJOYS_BTN_MODE_DELTA) cch->switch_npos = 1;
         }
-        else if(cch->mode == USBJOYS_CH_AXIS) {
+        else if (cch->mode == USBJOYS_CH_AXIS) {
           cch->param = editChoice(USBJ_ONE_2ND_COLUMN, y, STR_USBJOYSTICK_CH_AXIS, STR_VUSBJOYSTICK_CH_AXIS, cch->param, 0, USBJOYS_AXIS_LAST, attr, event);
         }
-        else if(cch->mode == USBJOYS_CH_SIM) {
+        else if (cch->mode == USBJOYS_CH_SIM) {
+          if (cch->param > USBJOYS_SIM_LAST) cch->param = 0;
           cch->param = editChoice(USBJ_ONE_2ND_COLUMN, y, STR_USBJOYSTICK_CH_SIM, STR_VUSBJOYSTICK_CH_SIM, cch->param, 0, USBJOYS_SIM_LAST, attr, event);
         }
         break;
 
       case USBJ_FIELD_BTNPOS:
-        if(cch->param == USBJOYS_BTN_MODE_SW_EMU) {
+        if (cch->param == USBJOYS_BTN_MODE_SW_EMU) {
           lcdDrawTextAlignedLeft(y, STR_USBJOYSTICK_CH_SWPOS);
           lcdDrawText(USBJ_ONE_2ND_COLUMN, y, STR_VUSBJOYSTICK_CH_SWPOS[0], attr);
         }
-        else if(cch->param == USBJOYS_BTN_MODE_DELTA) {
+        else if (cch->param == USBJOYS_BTN_MODE_DELTA) {
           lcdDrawTextAlignedLeft(y, STR_USBJOYSTICK_CH_SWPOS);
           lcdDrawText(USBJ_ONE_2ND_COLUMN, y, STR_VUSBJOYSTICK_CH_SWPOS[1], attr);
         }
