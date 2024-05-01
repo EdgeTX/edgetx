@@ -1198,6 +1198,20 @@ static bool w_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
   return true;
 }
 
+static const struct YamlIdStr enum_SwitchWarnPos[] = {
+  {  0, "none"  },
+  {  1, "up"  },
+  {  2, "mid" },
+  {  3, "down"  },
+  {  0, nullptr },
+};
+
+static const struct YamlNode struct_swtchWarn[] {
+  YAML_IDX_CUST( "sw", sw_read, sw_write ),
+  YAML_ENUM( "pos", 2, enum_SwitchWarnPos ),
+  YAML_END,
+};
+
 extern const struct YamlIdStr enum_BeeperMode[];
 
 static uint32_t r_beeperMode(const YamlNode* node, const char* val, uint8_t val_len)

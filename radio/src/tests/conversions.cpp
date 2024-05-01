@@ -74,7 +74,7 @@ TEST(Conversions, ConversionX9DPFrom23)
     (0x02 << (3 * 6));  // SG middle
 
   // check only the "allowed switches"
-  EXPECT_EQ(state, g_model.switchWarningState & 0xFFFFF);
+  EXPECT_EQ(state, g_model.switchWarning & 0xFFFFF);
   
   EXPECT_STRNEQ("Test", g_model.header.name); // ZSTREQ
   EXPECT_EQ(TMRMODE_ON, g_model.timers[0].mode); // new!
@@ -267,7 +267,7 @@ TEST(Conversions, ConversionX7From23)
   
   // check only configured switches (as the code does)
   swarnstate_t sw_mask = get_configured_switch_warn_mask();
-  EXPECT_EQ(state & sw_mask, g_model.switchWarningState & sw_mask);
+  EXPECT_EQ(state & sw_mask, g_model.switchWarning & sw_mask);
   
   EXPECT_STRNEQ("Test", g_model.header.name);
   EXPECT_EQ(MODULE_TYPE_R9M_PXX1, g_model.moduleData[EXTERNAL_MODULE].type);
@@ -502,7 +502,7 @@ TEST(Conversions, ConversionTX16SFrom25)
     (0x01) |// SA up
     (0x02 << (3 * 2)) | // SB middle
     (0x03 << (3 * 5));  // SF down
-  EXPECT_EQ(swWarnState, g_model.switchWarningState);
+  EXPECT_EQ(swWarnState, g_model.switchWarning);
 
   EXPECT_EQ(MIXSRC_FIRST_LOGICAL_SWITCH + 4, g_model.mixData[4].srcRaw);
   EXPECT_EQ(MIXSRC_SC, g_model.mixData[5].srcRaw);

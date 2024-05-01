@@ -188,7 +188,7 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
 
 static std::string switchWarninglabel(swsrc_t index)
 {
-  auto warn_pos = g_model.switchWarningState >> (3 * index) & 0x07;
+  auto warn_pos = g_model.switchWarning >> (3 * index) & 0x07;
   return std::string(switchGetName(index)) +
          std::string(getSwitchWarnSymbol(warn_pos));
 }
@@ -244,14 +244,14 @@ void SwitchWarnMatrix::onPress(uint8_t btn_id)
   if (btn_id >= MAX_SWITCHES) return;
   auto sw = sw_idx[btn_id];
 
-  swarnstate_t newstate = bfGet(g_model.switchWarningState, 3 * sw, 3);
+  swarnstate_t newstate = bfGet(g_model.switchWarning, 3 * sw, 3);
   if (newstate == 1 && SWITCH_CONFIG(sw) != SWITCH_3POS)
     newstate = 3;
   else
     newstate = (newstate + 1) % 4;
 
-  g_model.switchWarningState =
-      bfSet(g_model.switchWarningState, newstate, 3 * sw, 3);
+  g_model.switchWarning =
+      bfSet(g_model.switchWarning, newstate, 3 * sw, 3);
   SET_DIRTY();
 
   setTextAndState(btn_id);
@@ -260,7 +260,7 @@ void SwitchWarnMatrix::onPress(uint8_t btn_id)
 bool SwitchWarnMatrix::isActive(uint8_t btn_id)
 {
   if (btn_id >= MAX_SWITCHES) return false;
-  return bfGet(g_model.switchWarningState, 3 * sw_idx[btn_id], 3) != 0;
+  return bfGet(g_model.switchWarning, 3 * sw_idx[btn_id], 3) != 0;
 }
 
 PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :

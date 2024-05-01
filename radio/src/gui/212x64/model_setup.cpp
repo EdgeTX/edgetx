@@ -872,7 +872,7 @@ void menuModelSetup(event_t event)
         }
 #endif
         lcdDrawTextAlignedLeft(y, STR_SWITCHWARNING);
-        swarnstate_t states = g_model.switchWarningState;
+        swarnstate_t states = g_model.switchWarning;
 
         if (attr) {
           s_editMode = 0;
@@ -889,10 +889,10 @@ void menuModelSetup(event_t event)
                   swarnstate_t sw_mask = 0;
                   for(uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
                     if (SWITCH_WARNING_ALLOWED(i))
-                      if (g_model.switchWarningState & (0x07 << (3 * i)))
+                      if (g_model.switchWarning & (0x07 << (3 * i)))
                         sw_mask |= (0x07 << (3 * i));
                   }
-                  g_model.switchWarningState = switches_states & sw_mask;
+                  g_model.switchWarning = switches_states & sw_mask;
                   AUDIO_WARNING1();
                   storageDirty(EE_MODEL);
                 }
@@ -912,10 +912,10 @@ void menuModelSetup(event_t event)
                 l_posHorz == current) {
               uint8_t curr_state = (states & 0x07);
               // remove old setting
-              g_model.switchWarningState &= ~(0x07 << (3 * i));
+              g_model.switchWarning &= ~(0x07 << (3 * i));
               // add the new one (if switch UP and 2POS, jump directly to DOWN)
               curr_state += (curr_state != 1 || IS_CONFIG_3POS(i) ? 1 : 2);
-              g_model.switchWarningState |= (curr_state & 0x03) << (3 * i);
+              g_model.switchWarning |= (curr_state & 0x03) << (3 * i);
               storageDirty(EE_MODEL);
             }
             lcdDrawChar(

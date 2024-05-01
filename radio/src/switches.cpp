@@ -760,7 +760,7 @@ swsrc_t getMovedSwitch()
 
 bool isSwitchWarningRequired(uint16_t &bad_pots)
 {
-  swarnstate_t states = g_model.switchWarningState;
+  swarnstate_t states = g_model.switchWarning;
 
   if (!mixerTaskRunning()) getADC();
   getMovedSwitch();
@@ -809,7 +809,7 @@ void checkSwitches()
 void checkSwitches()
 {
   swarnstate_t last_bad_switches = 0xff;
-  swarnstate_t states = g_model.switchWarningState;
+  swarnstate_t states = g_model.switchWarning;
   uint16_t bad_pots = 0, last_bad_pots = 0xff;
 
 #if defined(PWR_BUTTON_PRESS)
