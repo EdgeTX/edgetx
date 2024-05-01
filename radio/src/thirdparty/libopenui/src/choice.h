@@ -45,6 +45,8 @@ class ChoiceBase : public FormField
   ChoiceBase(Window *parent, const rect_t &rect,
              ChoiceType type = CHOICE_TYPE_DROPOWN);
 
+  void setChoiceType(ChoiceType t) { type = t; }
+
  protected:
   ChoiceType type;
   lv_obj_t *label;
@@ -148,6 +150,8 @@ class Choice : public ChoiceBase
 
   int getMin() const { return vmin; }
   int getMax() const { return vmax; }
+
+  std::string getString(int val) { return values[val]; }
 
   void set_lv_LongPressHandler(lvHandler_t longPressHandler, void *data);
 

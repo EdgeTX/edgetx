@@ -111,7 +111,7 @@ class ScriptEditWindow : public Page
           LUA_LOAD_MODEL_SCRIPT(idx);  // async reload ...
           update = true;
         },
-        true);
+        true, STR_SCRIPT);
 
     // Custom name
     line = window->newLine(grid);
