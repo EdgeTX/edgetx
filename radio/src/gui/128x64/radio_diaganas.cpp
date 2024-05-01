@@ -95,15 +95,15 @@ void menuRadioDiagAnalogs(event_t event)
         if (entryCount == 0) {
           lastShownAnalogValue[i] = getAnalogValue(i); // Update value
         }
-        lcdDrawNumber(x+3*FW-1, y, lastShownAnalogValue[i],
+        lcdDrawNumber(x+3*FW+1, y, lastShownAnalogValue[i],
                       LEADING0|LEFT, 4);
         break;
       case (ANAVIEW_CALIB):
       default:
-        lcdDrawNumber(x+3*FW-1, y, anaIn(i), LEADING0|LEFT, 4);
+        lcdDrawNumber(x+3*FW+1, y, anaIn(i), LEADING0|LEFT, 4);
         break;
     }
-    lcdDrawNumber(x+10*FW-1, y,
+    lcdDrawNumber(x+(LCD_W / 2 - INDENT_WIDTH), y,
                   (int16_t)calibratedAnalogs[i]*25/256,
                   RIGHT);
   }
