@@ -82,20 +82,25 @@ void title(const char * s)
   lcdDrawText(0, 0, s, INVERS);
 }
 
-choice_t editChoice(coord_t x, coord_t y, const char * label, const char* const* values, choice_t value, choice_t min, choice_t max, LcdFlags attr, event_t event, IsValueAvailable isValueAvailable)
+choice_t editChoice(coord_t x, coord_t y, const char * label, const char* const* values, choice_t value, choice_t min, choice_t max, LcdFlags attr, event_t event, coord_t lblX, IsValueAvailable isValueAvailable)
 {
   if (label) {
-    drawFieldLabel(x, y, label);
+    lcdDrawText(lblX, y, label);
   }
   if (values) lcdDrawTextAtIndex(x, y, values, value-min, attr);
   if (attr & (~RIGHT)) value = checkIncDec(event, value, min, max, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL, isValueAvailable);
   return value;
 }
 
-uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label, LcdFlags attr, event_t event )
+choice_t editChoice(coord_t x, coord_t y, const char * label, const char* const* values, choice_t value, choice_t min, choice_t max, LcdFlags attr, event_t event, coord_t lblX)
+{
+  return editChoice(x, y, label, values, value, min, max, attr, event, lblX, nullptr);
+}
+
+uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label, LcdFlags attr, event_t event, coord_t lblX)
 {
   drawCheckBox(x, y, value, attr);
-  return editChoice(x, y, label, nullptr, value, 0, 1, attr, event);
+  return editChoice(x, y, label, nullptr, value, 0, 1, attr, event, lblX);
 }
 
 swsrc_t editSwitch(coord_t x, coord_t y, swsrc_t value, LcdFlags attr, event_t event)

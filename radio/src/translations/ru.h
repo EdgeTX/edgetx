@@ -304,7 +304,6 @@
 #define TR_ELEVATOR                    TR("Тангаж", "Тангаж")
 #define TR_SWASHRING                   "Поворот"
 #define TR_MODE                        "Режим"
-#define TR_MODE_INDENT                 INDENT "Режим"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Лев"
 #else
@@ -861,8 +860,8 @@
 #define TR_ANADIAGS_UNFILTRAW          "Неотфильтр необработ аналог сигн"
 #define TR_ANADIAGS_MINMAX             "Мин., Макс. и Диапазон"
 #define TR_ANADIAGS_MOVE               "Двигайте аналоговые датчики!"
-#define TR_SPEAKER                     INDENT "Динамик"
-#define TR_BUZZER                      INDENT "Звук сигнал"
+#define TR_SPEAKER                     "Динамик"
+#define TR_BUZZER                      "Звук сигнал"
 #define TR_BYTES                       "Байты"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_POWERMETER_ATTN_NEEDED      "Требуется аттенюатор"

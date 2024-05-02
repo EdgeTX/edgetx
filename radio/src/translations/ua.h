@@ -304,7 +304,6 @@
 #define TR_ELEVATOR                    TR("Тангаж", "Тангаж")
 #define TR_SWASHRING                   "Поворот"
 #define TR_MODE                        "Режим"
-#define TR_MODE_INDENT                 INDENT "Режим"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Ліво"
 #else
@@ -861,8 +860,8 @@
 #define TR_ANADIAGS_UNFILTRAW          "Неформатовані сирі аналоги"
 #define TR_ANADIAGS_MINMAX             "Min., max. і діапазон"
 #define TR_ANADIAGS_MOVE               "Перемістити аналоги до екстремумів!"
-#define TR_SPEAKER                     INDENT "Гучномовець"
-#define TR_BUZZER                      INDENT "Дзвоник"
+#define TR_SPEAKER                     "Гучномовець"
+#define TR_BUZZER                      "Дзвоник"
 #define TR_BYTES                       "байти"
 #define TR_MODULE_BIND                 BUTTON(TR("Прив.", "Прив'язати"))
 #define TR_POWERMETER_ATTN_NEEDED      "Потрібен атенюатор"

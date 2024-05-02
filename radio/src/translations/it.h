@@ -302,7 +302,6 @@
 #define TR_ELEVATOR                     TR("Cic. long.", "Sorg. cic. long.")
 #define TR_SWASHRING                    "Anello Ciclico"
 #define TR_MODE                         "Modo"
-#define TR_MODE_INDENT                  INDENT "Modo"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                 "Sinistro"
 #else
@@ -853,8 +852,8 @@
 #define TR_ANADIAGS_UNFILTRAW           "Analogici RAW non filtrati"
 #define TR_ANADIAGS_MINMAX              "Min., max. e range"
 #define TR_ANADIAGS_MOVE                "Muovi analogici ai loro estremi!"
-#define TR_SPEAKER                      INDENT "Speaker"
-#define TR_BUZZER                       INDENT "Buzzer"
+#define TR_SPEAKER                      "Speaker"
+#define TR_BUZZER                       "Buzzer"
 #define TR_BYTES                        "Bytes"
 #define TR_MODULE_BIND                  TR("[Bnd]","[Bind]")
 #define TR_POWERMETER_ATTN_NEEDED       "Attenuatore necessario"

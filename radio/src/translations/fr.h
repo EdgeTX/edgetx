@@ -309,7 +309,6 @@
 #define TR_ELEVATOR                    "Source cyc. lon."
 #define TR_SWASHRING                   TR("Limite Cycl.", "Limite du cyclique")
 #define TR_MODE                        "Mode"
-#define TR_MODE_INDENT                 INDENT "Mode"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Gauche"
 #else
@@ -857,8 +856,8 @@
 #define TR_ANADIAGS_UNFILTRAW          "Analog. bruts non filtrés"
 #define TR_ANADIAGS_MINMAX             "Min., max. et courses"
 #define TR_ANADIAGS_MOVE               "Déplacer les analogiques à leurs extrêmes!"
-#define TR_SPEAKER                     INDENT "HP."
-#define TR_BUZZER                      INDENT "Bipeur"
+#define TR_SPEAKER                     "HP."
+#define TR_BUZZER                      "Bipeur"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_POWERMETER_ATTN_NEEDED      "Atténuateur requis"

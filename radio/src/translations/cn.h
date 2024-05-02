@@ -297,7 +297,6 @@
 #define TR_ELEVATOR                    TR("俯仰源", "俯仰混控源")
 #define TR_SWASHRING                   "斜盘行程"
 #define TR_MODE                        "模式"
-#define TR_MODE_INDENT                 INDENT "模式"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "左摇杆"
 #else
@@ -854,8 +853,8 @@
 #define TR_ANADIAGS_UNFILTRAW          "未经过滤的原始模拟量"
 #define TR_ANADIAGS_MINMAX             "最低值、最高值、行程量"
 #define TR_ANADIAGS_MOVE               "移动模拟量全行程以查看结果!"
-#define TR_SPEAKER                     INDENT "扬声器"
-#define TR_BUZZER                      INDENT "蜂鸣器"
+#define TR_SPEAKER                     "扬声器"
+#define TR_BUZZER                      "蜂鸣器"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("对频", "对频"))
 #define TR_POWERMETER_ATTN_NEEDED      "需要串联衰减器"

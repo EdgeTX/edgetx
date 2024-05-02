@@ -306,7 +306,6 @@
 #define TR_ELEVATOR                    TR("Long. cyc.", "Long. cyc. source")
 #define TR_SWASHRING                   "Swash Ring"
 #define TR_MODE                        "Mode"
-#define TR_MODE_INDENT                 INDENT "Mode"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Left"
 #else
@@ -858,8 +857,8 @@
 #define TR_ANADIAGS_UNFILTRAW          "Unfiltered raw analogs"
 #define TR_ANADIAGS_MINMAX             "Min., max. and range"
 #define TR_ANADIAGS_MOVE               "Move analogs to their extremes!"
-#define TR_SPEAKER                     INDENT "רמקול"
-#define TR_BUZZER                      INDENT "זמזם"
+#define TR_SPEAKER                     "רמקול"
+#define TR_BUZZER                      "זמזם"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "צימוד"))
 #define TR_POWERMETER_ATTN_NEEDED      "Attenuator needed"

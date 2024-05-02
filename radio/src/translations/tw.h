@@ -302,7 +302,6 @@
 #define TR_ELEVATOR                    TR("俯仰源", "俯仰混控源")
 #define TR_SWASHRING                   "斜盤行程"
 #define TR_MODE                        "模式"
-#define TR_MODE_INDENT                 INDENT "模式"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "左搖桿"
 #else
@@ -859,8 +858,8 @@
 #define TR_ANADIAGS_UNFILTRAW          "未經過濾的原始類比量"
 #define TR_ANADIAGS_MINMAX             "最低值、最高值、行程量"
 #define TR_ANADIAGS_MOVE               "移動類比量全行程以查看結果"
-#define TR_SPEAKER INDENT              "揚聲器"
-#define TR_BUZZER INDENT               "蜂鳴器"
+#define TR_SPEAKER                     "揚聲器"
+#define TR_BUZZER                      "蜂鳴器"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("對頻", "對頻"))
 #define TR_POWERMETER_ATTN_NEEDED      "需要串聯衰減器"

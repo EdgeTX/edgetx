@@ -1,5 +1,3 @@
-add_definitions(-DGRAPHICS)
-
 set(GUI_SRC
   ${GUI_SRC}
   ../common/stdlcd/menus.cpp

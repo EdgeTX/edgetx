@@ -304,7 +304,7 @@ void menuRadioHardware(event_t event)
             editChoice(HW_SETTINGS_COLUMN2, y, STR_TYPE,
                        STR_MODULE_PROTOCOLS,
                        g_eeGeneral.internalModule, MODULE_TYPE_NONE,
-                       MODULE_TYPE_MAX, attr, event, isInternalModuleSupported);
+                       MODULE_TYPE_MAX, attr, event, 0, isInternalModuleSupported);
         if (g_model.moduleData[INTERNAL_MODULE].type !=
             g_eeGeneral.internalModule) {
           memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
@@ -582,7 +582,7 @@ void menuRadioHardware(event_t event)
             auto mode = serialGetMode(port_nr);
             mode = editChoice(HW_SETTINGS_COLUMN2, y, nullptr,
                               STR_AUX_SERIAL_MODES, mode, 0, UART_MODE_MAX, attr,
-                              event, _isSerialModeAvailable[port_nr]);
+                              event, 0, _isSerialModeAvailable[port_nr]);
 
             if (attr && checkIncDec_Ret) {
               serialSetMode(port_nr, mode);

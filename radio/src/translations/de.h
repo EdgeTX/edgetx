@@ -303,7 +303,6 @@
 #define TR_ELEVATOR                    "Nick Quelle"
 #define TR_SWASHRING                   TR("Ring   Begrenz", "Ring Begrenzung")
 #define TR_MODE                        "Modus"
-#define TR_MODE_INDENT                 INDENT "Modus"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Links"
 #else
@@ -858,8 +857,8 @@
 #define TR_ANADIAGS_UNFILTRAW          "analoge Geber ungefiltert und unbearbeitet"
 #define TR_ANADIAGS_MINMAX             "Min., Max. und Bereich"
 #define TR_ANADIAGS_MOVE               "Move analogs to their extremes!"
-#define TR_SPEAKER                     INDENT "Lautspr"
-#define TR_BUZZER                      INDENT "Summer"
+#define TR_SPEAKER                     "Lautspr"
+#define TR_BUZZER                      "Summer"
 #define TR_BYTES                       "Bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd","Binden"))   //9XR-Pro
 #define TR_POWERMETER_ATTN_NEEDED      "Dämpfungsgl. nötig"

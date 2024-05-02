@@ -305,7 +305,6 @@
 #define TR_ELEVATOR                    TR("Arfagem", "Org. cíclico Arfagem")
 #define TR_SWASHRING                   "Swash Ring"
 #define TR_MODE                        "Modo"
-#define TR_MODE_INDENT                 INDENT "Modo"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Esq"
 #else
@@ -862,8 +861,8 @@
 #define TR_ANADIAGS_UNFILTRAW          "Unfiltered raw analogs"
 #define TR_ANADIAGS_MINMAX             "Min., max. and range"
 #define TR_ANADIAGS_MOVE               "Move analogs to their extremes!"
-#define TR_SPEAKER                     INDENT "Speaker"
-#define TR_BUZZER                      INDENT "Buzzer"
+#define TR_SPEAKER                     "Speaker"
+#define TR_BUZZER                      "Buzzer"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_POWERMETER_ATTN_NEEDED      "Attenuator needed"

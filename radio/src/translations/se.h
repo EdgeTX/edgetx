@@ -315,7 +315,6 @@
 #define TR_ELEVATOR                     "Höjdroderkälla"
 #define TR_SWASHRING                    "Swashring"
 #define TR_MODE                         "Typ"
-#define TR_MODE_INDENT                  INDENT "Typ"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                 "Vänster"
 #else
@@ -873,8 +872,8 @@
 #define TR_ANADIAGS_UNFILTRAW           "Ofiltrerade råa analoga"
 #define TR_ANADIAGS_MINMAX              "Min., max. och omfång"
 #define TR_ANADIAGS_MOVE                "Rör analoga till sina ytterlägen!"
-#define TR_SPEAKER                      INDENT "Högtalare"
-#define TR_BUZZER                       INDENT "Summer"
+#define TR_SPEAKER                      "Högtalare"
+#define TR_BUZZER                       "Summer"
 #define TR_BYTES                        "byte"
 #define TR_MODULE_BIND                  BUTTON(TR("Bnd", "Bind"))
 #define TR_POWERMETER_ATTN_NEEDED       "Attenuator behövs"

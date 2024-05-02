@@ -299,7 +299,6 @@
 #define TR_ELEVATOR            TR("Long. cyc.", "Long. cyc. source")
 #define TR_SWASHRING           "Tarcza    "
 #define TR_MODE                "Tryb"
-#define TR_MODE_INDENT         INDENT "Tryb"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK        "Lewy"
 #else
@@ -851,8 +850,8 @@
 #define TR_ANADIAGS_UNFILTRAW  "Unfiltered raw analogs"
 #define TR_ANADIAGS_MINMAX     "Min., max. and range"
 #define TR_ANADIAGS_MOVE       "Move analogs to their extremes!"
-#define TR_SPEAKER             INDENT"Głośnik"
-#define TR_BUZZER              INDENT"Brzęczyk"
+#define TR_SPEAKER             "Głośnik"
+#define TR_BUZZER              "Brzęczyk"
 #define TR_BYTES               "bajty"
 #define TR_MODULE_BIND         TR("[BND]","[Bind]")
 #define TR_POWERMETER_ATTN_NEEDED      "Attenuator needed"

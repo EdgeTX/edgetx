@@ -315,17 +315,17 @@ void menuRadioSetup(event_t event)
 
 #if defined(AUDIO)
       case ITEM_RADIO_SETUP_BEEP_MODE:
-        g_eeGeneral.beepMode = editChoice(LCD_W-2, y, STR_SPEAKER, STR_VBEEPMODE, g_eeGeneral.beepMode, -2, 1, attr|RIGHT, event);
+        g_eeGeneral.beepMode = editChoice(LCD_W-2, y, STR_SPEAKER, STR_VBEEPMODE, g_eeGeneral.beepMode, -2, 1, attr|RIGHT, event, INDENT_WIDTH);
         break;
 
 #if defined(BUZZER) // AUDIO + BUZZER
       case ITEM_RADIO_SETUP_BUZZER_MODE:
-        g_eeGeneral.buzzerMode = editChoice(LCD_W-2, y, STR_BUZZER, STR_VBEEPMODE, g_eeGeneral.buzzerMode, -2, 1, attr|RIGHT, event);
+        g_eeGeneral.buzzerMode = editChoice(LCD_W-2, y, STR_BUZZER, STR_VBEEPMODE, g_eeGeneral.buzzerMode, -2, 1, attr|RIGHT, event, INDENT_WIDTH);
         break;
 #endif
 #elif defined(BUZZER) // BUZZER only
       case ITEM_RADIO_SETUP_BUZZER_MODE:
-        g_eeGeneral.beepMode = editChoice(LCD_W-2, y, STR_SPEAKER, STR_VBEEPMODE, g_eeGeneral.beepMode, -2, 1, attr|RIGHT, event);
+        g_eeGeneral.beepMode = editChoice(LCD_W-2, y, STR_SPEAKER, STR_VBEEPMODE, g_eeGeneral.beepMode, -2, 1, attr|RIGHT, event, INDENT_WIDTH);
         break;
 #endif
 
@@ -418,7 +418,7 @@ void menuRadioSetup(event_t event)
         break;
 
       case ITEM_RADIO_SETUP_HAPTIC_MODE:
-        g_eeGeneral.hapticMode = editChoice(LCD_W-2, y, STR_MODE_INDENT, STR_VBEEPMODE, g_eeGeneral.hapticMode, -2, 1, attr|RIGHT, event);
+        g_eeGeneral.hapticMode = editChoice(LCD_W-2, y, STR_MODE, STR_VBEEPMODE, g_eeGeneral.hapticMode, -2, 1, attr|RIGHT, event, INDENT_WIDTH);
         break;
 
       case ITEM_RADIO_SETUP_HAPTIC_LENGTH:

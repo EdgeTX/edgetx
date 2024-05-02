@@ -305,7 +305,6 @@
 #define TR_ELEVATOR                    TR("Long. cyc.", "Long. cyc. kilde")
 #define TR_SWASHRING                   "Swash ring"
 #define TR_MODE                        TR("Tils.","Tilstand")
-#define TR_MODE_INDENT                 TR(INDENT "Tils.",INDENT "Tilstand")
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Venstre"
 #else
@@ -859,8 +858,8 @@
 #define TR_ANADIAGS_UNFILTRAW          "Ufilteret rå analog"
 #define TR_ANADIAGS_MINMAX             "Min., max. og interval"
 #define TR_ANADIAGS_MOVE               "Flyt analoge til deres yderpunkter!"
-#define TR_SPEAKER                     INDENT "Højttaler"
-#define TR_BUZZER                      INDENT "Biper"
+#define TR_SPEAKER                     "Højttaler"
+#define TR_BUZZER                      "Biper"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Tils", "Tilslut"))
 #define TR_POWERMETER_ATTN_NEEDED      "Attestering nødvendig"

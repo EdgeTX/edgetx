@@ -660,9 +660,9 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_TIMER1_NAME:
-        editSingleName(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_NAME,
+        editSingleName(MODEL_SETUP_2ND_COLUMN, y, STR_NAME,
                        g_model.timers[0].name, LEN_TIMER_NAME, event, attr,
-                       old_editMode);
+                       old_editMode, INDENT_WIDTH);
         break;
 
       case ITEM_MODEL_SETUP_TIMER1_START:
@@ -672,7 +672,7 @@ void menuModelSetup(event_t event)
           case ITEM_MODEL_SETUP_TIMER1_MINUTE_BEEP:
             g_model.timers[0].minuteBeep = editCheckBox(
                 g_model.timers[0].minuteBeep, MODEL_SETUP_2ND_COLUMN, y,
-                INDENT TR_MINUTEBEEP, attr, event);
+                STR_MINUTEBEEP, attr, event, INDENT_WIDTH);
             break;
 
           case ITEM_MODEL_SETUP_TIMER1_COUNTDOWN_BEEP:
@@ -692,9 +692,9 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_TIMER2_NAME:
-        editSingleName(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_NAME,
+        editSingleName(MODEL_SETUP_2ND_COLUMN, y, STR_NAME,
                        g_model.timers[1].name, LEN_TIMER_NAME, event, attr,
-                       old_editMode);
+                       old_editMode, INDENT_WIDTH);
         break;
 
       case ITEM_MODEL_SETUP_TIMER2_START:
@@ -702,7 +702,7 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_TIMER2_MINUTE_BEEP:
-        g_model.timers[1].minuteBeep = editCheckBox(g_model.timers[1].minuteBeep, MODEL_SETUP_2ND_COLUMN, y, INDENT TR_MINUTEBEEP, attr, event);
+        g_model.timers[1].minuteBeep = editCheckBox(g_model.timers[1].minuteBeep, MODEL_SETUP_2ND_COLUMN, y, STR_MINUTEBEEP, attr, event, INDENT_WIDTH);
         break;
 
       case ITEM_MODEL_SETUP_TIMER2_COUNTDOWN_BEEP:
@@ -720,9 +720,9 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_TIMER3_NAME:
-        editSingleName(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_NAME,
+        editSingleName(MODEL_SETUP_2ND_COLUMN, y, STR_NAME,
                        g_model.timers[2].name, LEN_TIMER_NAME, event, attr,
-                       old_editMode);
+                       old_editMode, INDENT_WIDTH);
         break;
 
       case ITEM_MODEL_SETUP_TIMER3_START:
@@ -732,7 +732,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_TIMER3_MINUTE_BEEP:
         g_model.timers[2].minuteBeep =
             editCheckBox(g_model.timers[2].minuteBeep, MODEL_SETUP_2ND_COLUMN,
-                         y, INDENT TR_MINUTEBEEP, attr, event);
+                         y, STR_MINUTEBEEP, attr, event, INDENT_WIDTH);
         break;
 
       case ITEM_MODEL_SETUP_TIMER3_COUNTDOWN_BEEP:
@@ -1055,7 +1055,7 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_TYPE:
       {
-        lcdDrawTextAlignedLeft(y, STR_MODE_INDENT);
+        lcdDrawText(INDENT_WIDTH, y, STR_MODE);
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y,
                            STR_MODULE_PROTOCOLS,
                            g_model.moduleData[INTERNAL_MODULE].type,
@@ -1110,7 +1110,7 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_TYPE:
-        lcdDrawTextAlignedLeft(y, STR_MODE_INDENT);
+        lcdDrawText(INDENT_WIDTH, y, STR_MODE);
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_MODULE_PROTOCOLS, reusableBuffer.moduleSetup.newType, menuHorizontalPosition==0 ? attr : 0);
         if (isModuleXJT(EXTERNAL_MODULE))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS, g_model.moduleData[EXTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
@@ -1349,7 +1349,7 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_TRAINER_MODE:
-        lcdDrawTextAlignedLeft(y, STR_MODE_INDENT);
+        lcdDrawText(INDENT_WIDTH, y, STR_MODE);
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VTRAINERMODES, g_model.trainerData.mode, attr);
         if (attr) {
           g_model.trainerData.mode = checkIncDec(event, g_model.trainerData.mode, 0, TRAINER_MODE_MAX(), EE_MODEL, isTrainerModeAvailable);
@@ -1753,7 +1753,7 @@ void menuModelSetup(event_t event)
        }
        else if (isModuleGhost(moduleIdx)) {
          auto & module = g_model.moduleData[moduleIdx];
-         module.ghost.raw12bits = editCheckBox(module.ghost.raw12bits , MODEL_SETUP_2ND_COLUMN, y, INDENT "Raw 12 bits", attr, event);
+         module.ghost.raw12bits = editCheckBox(module.ghost.raw12bits , MODEL_SETUP_2ND_COLUMN, y, "Raw 12 bits", attr, event, INDENT_WIDTH);
        }
      }
      break;
@@ -1815,11 +1815,11 @@ void menuModelSetup(event_t event)
       break;
 #if defined(MANUFACTURER_FRSKY)
     case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DISABLE_TELEM:
-      g_model.moduleData[EXTERNAL_MODULE].multi.disableTelemetry = editCheckBox(g_model.moduleData[EXTERNAL_MODULE].multi.disableTelemetry, MODEL_SETUP_2ND_COLUMN, y, INDENT TR_DISABLE_TELEM, attr, event);
+      g_model.moduleData[EXTERNAL_MODULE].multi.disableTelemetry = editCheckBox(g_model.moduleData[EXTERNAL_MODULE].multi.disableTelemetry, MODEL_SETUP_2ND_COLUMN, y, STR_DISABLE_TELEM, attr, event, INDENT_WIDTH);
       break;
 #endif
     case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DISABLE_MAPPING:
-      g_model.moduleData[EXTERNAL_MODULE].multi.disableMapping = editCheckBox(g_model.moduleData[EXTERNAL_MODULE].multi.disableMapping, MODEL_SETUP_2ND_COLUMN, y, INDENT TR_DISABLE_CH_MAP, attr, event);
+      g_model.moduleData[EXTERNAL_MODULE].multi.disableMapping = editCheckBox(g_model.moduleData[EXTERNAL_MODULE].multi.disableMapping, MODEL_SETUP_2ND_COLUMN, y, STR_DISABLE_CH_MAP, attr, event, INDENT_WIDTH);
       break;
 #endif
 
@@ -1906,7 +1906,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_PXX2_REGISTER_RANGE:
       {
         uint8_t moduleIdx = CURRENT_MODULE_EDITED(k);
-        lcdDrawTextAlignedLeft(y, INDENT TR_MODULE);
+        lcdDrawText(INDENT_WIDTH, y, STR_MODULE);
         lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, BUTTON(TR_REGISTER), (menuHorizontalPosition == 0 ? attr : 0));
         lcdDrawText(lcdLastRightPos + 3, y, STR_MODULE_RANGE, (menuHorizontalPosition == 1 ? attr : 0));
         if (attr) {
@@ -2003,15 +2003,15 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_USBJOYSTICK_MODE:
-        g_model.usbJoystickExtMode = editChoice(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_USBJOYSTICK_EXTMODE, STR_VUSBJOYSTICK_EXTMODE, g_model.usbJoystickExtMode, 0, 1, attr, event);
+        g_model.usbJoystickExtMode = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_USBJOYSTICK_EXTMODE, STR_VUSBJOYSTICK_EXTMODE, g_model.usbJoystickExtMode, 0, 1, attr, event, INDENT_WIDTH);
         break;
 
       case ITEM_MODEL_SETUP_USBJOYSTICK_IF_MODE:
-        g_model.usbJoystickIfMode = editChoice(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_USBJOYSTICK_IF_MODE, STR_VUSBJOYSTICK_IF_MODE, g_model.usbJoystickIfMode, 0, USBJOYS_LAST, attr, event);
+        g_model.usbJoystickIfMode = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_USBJOYSTICK_IF_MODE, STR_VUSBJOYSTICK_IF_MODE, g_model.usbJoystickIfMode, 0, USBJOYS_LAST, attr, event, INDENT_WIDTH);
         break;
 
       case ITEM_MODEL_SETUP_USBJOYSTICK_CIRC_CUTOUT:
-        g_model.usbJoystickCircularCut = editChoice(MODEL_SETUP_2ND_COLUMN, y, INDENT TR_USBJOYSTICK_CIRC_COUTOUT, STR_VUSBJOYSTICK_CIRC_COUTOUT, g_model.usbJoystickCircularCut, 0, 2, attr, event);
+        g_model.usbJoystickCircularCut = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_USBJOYSTICK_CIRC_COUTOUT, STR_VUSBJOYSTICK_CIRC_COUTOUT, g_model.usbJoystickCircularCut, 0, 2, attr, event, INDENT_WIDTH);
         break;
 
       case ITEM_MODEL_SETUP_USBJOYSTICK_CH_BUTTON:

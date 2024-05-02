@@ -65,9 +65,9 @@ uint8_t s_copySrcCh;
 
 uint8_t editNameCursorPos = 0;
 
-void editSingleName(coord_t x, coord_t y, const char * label, char *name, uint8_t size, event_t event, uint8_t active, uint8_t old_editMode)
+void editSingleName(coord_t x, coord_t y, const char * label, char *name, uint8_t size, event_t event, uint8_t active, uint8_t old_editMode, coord_t lblX)
 {
-  lcdDrawTextAlignedLeft(y, label);
+  lcdDrawText(lblX, y, label);
   TRACE("EDIT SINGLE NAME %s", name);
   editName(x, y, name, size, event, active, 0, old_editMode);
 }

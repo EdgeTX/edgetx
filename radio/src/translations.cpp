@@ -200,7 +200,6 @@ const char STR_FADEOUT[] = TR_FADEOUT;
 const char STR_DEFAULT[] = TR_DEFAULT;
 const char STR_CHECKTRIMS[] = TR_CHECKTRIMS;
 const char STR_MODE[] = TR_MODE;
-const char STR_MODE_INDENT[] = TR_MODE_INDENT;
 const char STR_NOFREEEXPO[] = TR_NOFREEEXPO;
 const char STR_NOFREEMIXER[] = TR_NOFREEMIXER;
 const char STR_SOURCE[] = TR_SOURCE;

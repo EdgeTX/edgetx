@@ -312,7 +312,6 @@
 #define TR_ELEVATOR                    TR3("Podélná cykl.", "Podélná cykl.", "Podélná cyklika")
 #define TR_SWASHRING                   "Cyklika"
 #define TR_MODE                        "Mód"
-#define TR_MODE_INDENT                 INDENT "Mód"
 #if LCD_W > LCD_H
   #define TR_LEFT_STICK                "Vlevo"
 #else
@@ -865,8 +864,8 @@
 #define TR_ANADIAGS_UNFILTRAW          "Nefiltrované surové hodnoty analogů"
 #define TR_ANADIAGS_MINMAX             "Min., max. a rozsah"
 #define TR_ANADIAGS_MOVE               "Posuňte analogy do jejich maximálních poloh!"
-#define TR_SPEAKER                     INDENT"Repro"
-#define TR_BUZZER                      INDENT"Pípák"
+#define TR_SPEAKER                     "Repro"
+#define TR_BUZZER                      "Pípák"
 #define TR_BYTES                       "[B]"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_POWERMETER_ATTN_NEEDED      "Útlumový člen nutný!"
