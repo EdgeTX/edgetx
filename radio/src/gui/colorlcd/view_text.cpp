@@ -319,12 +319,12 @@ class ViewChecklistWindow : public ViewTextWindow
 
         size_t cur = 0;
 
-        for(size_t i=0; i<bufSize; ++i)
-        {
-          if (buffer[i] == '\n' || buffer[i] == '\r') {
+        for (size_t i = 0; i <= bufSize; ++i) {
+          if (buffer[i] == '\n' || buffer[i] == '\r' || buffer[i] == 0) {
+            // Check for end of line & end of file
+            if (buffer[i] == 0 && cur == i) break;
             buffer[i] = 0;
-            if (buffer[i] == '\r' && buffer[i+1] == '\n')
-              i += 1;
+            if (buffer[i] == '\r' && buffer[i + 1] == '\n') i += 1;
 
             lv_obj_t* row = lv_obj_create(obj);
             lv_obj_set_layout(row, LV_LAYOUT_FLEX);
