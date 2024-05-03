@@ -161,7 +161,7 @@ void boardInit()
   // detect NV14 vs EL18
   hardwareOptions.pcbrev = boardGetPcbRev();
 
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(AUX_SERIAL)
   serialSetMode(SP_AUX1, UART_MODE_DEBUG);                // indicate AUX1 is used
   serialInit(SP_AUX1, UART_MODE_DEBUG);                   // early AUX1 init
 #endif
