@@ -560,11 +560,16 @@ def max_bits(struct):
             bits = s.bits
     return bits
 
+def padding_bits(array):
+    array_bits = (array.bits // array.length) * array.length
+    return array.bits - array_bits
+
 template = jinja2.Template(open(sys.argv[2]).read(), lstrip_blocks=True, trim_blocks=True)
 
 template.globals['max_len'] = max_len
 template.globals['get_max_len'] = get_max_len
 template.globals['max_bits'] = max_bits
+template.globals['padding_bits'] = padding_bits
 
 ## fixme: root_node_name needs to be mangled (contains ',')
 print(template.render(root=RootAST,root_nodes=top_node_names,root_node_name=root_nodes_name))

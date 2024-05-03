@@ -123,14 +123,14 @@ void applyDefaultTemplate()
   // enable switch warnings
   for (int i = 0; i < MAX_SWITCHES; i++) {
     if (SWITCH_EXISTS(i)) {
-      g_model.switchWarningState |= (1 << (3 * i));
+      g_model.switchWarning |= (1 << (3 * i));
     }
   }
 #else
   // enable switch warnings
   for (int i = 0; i < MAX_SWITCHES; i++) {
     if (SWITCH_WARNING_ALLOWED(i))
-      g_model.switchWarningState |= (1 << (3 * i));
+      g_model.switchWarning |= (1 << (3 * i));
   }
 #endif
 

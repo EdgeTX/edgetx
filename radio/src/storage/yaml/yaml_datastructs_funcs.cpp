@@ -1147,56 +1147,19 @@ static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
 
 }
 
-static bool w_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
-                        yaml_writer_func wf, void* opaque)
-{
-  data += (bitoffs >> 3UL);
+static const struct YamlIdStr enum_SwitchWarnPos[] = {
+  {  0, "none"  },
+  {  1, "up"  },
+  {  2, "mid" },
+  {  3, "down"  },
+  {  0, nullptr },
+};
 
-  swarnstate_t states;
-  memcpy(&states, data, sizeof(states));
-
-  for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
-    // TODO: SWITCH_EXISTS() uses the g_eeGeneral stucture, which might not be
-    // avail
-    if (SWITCH_EXISTS(i)) {
-      // decode check state
-      // -> 3 bits per switch
-      auto state = (states >> (3 * i)) & 0x07;
-
-      // state == 0 -> no check
-      // state == 1 -> UP
-      // state == 2 -> MIDDLE
-      // state == 3 -> DOWN
-      char swtchWarn[2] = {switchGetLetter(i), 0};
-
-      switch (state) {
-        case 0:
-          break;
-        case 1:
-          swtchWarn[1] = 'u';
-          break;
-        case 2:
-          swtchWarn[1] = '-';
-          break;
-        case 3:
-          swtchWarn[1] = 'd';
-          break;
-        default:
-          // this should never happen
-          swtchWarn[1] = 'x';
-          break;
-      }
-
-      if (swtchWarn[0] >= 'A' && swtchWarn[1] != 0) {
-        if (!wf(opaque, swtchWarn, 2)) {
-          return false;
-        }
-      }
-    }
-  }
-
-  return true;
-}
+static const struct YamlNode struct_swtchWarn[] {
+  YAML_IDX_CUST( "sw", sw_read, sw_write ),
+  YAML_ENUM( "pos", 2, enum_SwitchWarnPos ),
+  YAML_END,
+};
 
 extern const struct YamlIdStr enum_BeeperMode[];
 
