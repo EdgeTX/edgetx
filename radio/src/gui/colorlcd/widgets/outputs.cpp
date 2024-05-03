@@ -35,7 +35,7 @@ class ChannelValue : public Window
   ChannelValue(Widget* parent, uint8_t col, uint8_t row, coord_t colWidth,
                uint8_t channel, LcdFlags txtColor, LcdFlags barColor) :
       Window(parent,
-             {col * colWidth, row * ROW_HEIGHT, colWidth - 1, (ROW_HEIGHT + 1)}),
+             {col * colWidth, row * ROW_HEIGHT, colWidth - 1 + (colWidth & 1), (ROW_HEIGHT + 1)}),
       channel(channel)
   {
     setWindowFlag(NO_FOCUS);
