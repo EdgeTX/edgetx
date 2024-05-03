@@ -83,17 +83,15 @@ AFHDS2ASettings::AFHDS2ASettings(Window* parent, const FlexGridLayout& g,
                                     [=](uint8_t v) { md->flysky.mode = v; });
 
 #if defined(PCBNV14)
-  if (getNV14RfFwVersion() >= 0x1000E) {
-    line = newLine(grid);
-    static const char* _rf_power[] = {"Default", "High"};
-    afhds2RFPowerText = new StaticText(line, rect_t{}, STR_MULTI_RFPOWER);
-    afhds2RFPowerChoice = new Choice(line, rect_t{}, _rf_power, 0, 1,
-                                     GET_DEFAULT(md->flysky.rfPower),
-                                     [=](int32_t newValue) -> void {
-                                       md->flysky.rfPower = newValue;
-                                       resetPulsesAFHDS2();
-                                     });
-  }                                     
+  line = newLine(grid);
+  static const char* _rf_power[] = {"Default", "High"};
+  afhds2RFPowerText = new StaticText(line, rect_t{}, STR_MULTI_RFPOWER);
+  afhds2RFPowerChoice = new Choice(line, rect_t{}, _rf_power, 0, 1,
+                                   GET_DEFAULT(md->flysky.rfPower),
+                                   [=](int32_t newValue) -> void {
+                                     md->flysky.rfPower = newValue;
+                                     resetPulsesAFHDS2();
+                                   });
 #endif
 
   hideAFHDS2Options();
@@ -104,10 +102,8 @@ void AFHDS2ASettings::hideAFHDS2Options()
   afhds2OptionsLabel->hide();
   afhds2ProtoOpts->hide();
 #if defined(PCBNV14)
-  if (afhds2RFPowerText != nullptr)
-    afhds2RFPowerText->hide();
-  if (afhds2RFPowerChoice != nullptr)
-    afhds2RFPowerChoice->hide();
+  afhds2RFPowerText->hide();
+  afhds2RFPowerChoice->hide();
 #endif
 }
 
@@ -116,23 +112,24 @@ void AFHDS2ASettings::showAFHDS2Options()
   afhds2OptionsLabel->show();
   afhds2ProtoOpts->show();
 #if defined(PCBNV14)
-  if (afhds2RFPowerText != nullptr)
-    afhds2RFPowerText->show();
-  if (afhds2RFPowerChoice != nullptr)
-  {
-    afhds2RFPowerChoice->show();
+  bool showRFPower = (getNV14RfFwVersion() >= 0x1000E);
+  afhds2RFPowerText->show(showRFPower);
+  afhds2RFPowerChoice->show(showRFPower);
+  if (showRFPower && (showRFPower != hasRFPower)) {
+    hasRFPower = showRFPower;
     lv_event_send(afhds2RFPowerChoice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   }
 #endif
 }
 
-void AFHDS2ASettings::checkEvents() {
+void AFHDS2ASettings::checkEvents()
+{
   Window::checkEvents();
+  update();
 }
 
 void AFHDS2ASettings::update()
 {
-  lastRefresh = get_tmr10ms();
   if (isModuleAFHDS2A(moduleIdx)) {
     showAFHDS2Options();
   } else {
