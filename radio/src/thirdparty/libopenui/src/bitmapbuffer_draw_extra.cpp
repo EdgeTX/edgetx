@@ -485,7 +485,35 @@ void BitmapBuffer::drawFilledTriangle(coord_t x0, coord_t y0, coord_t x1,
 void BitmapBuffer::drawFilledCircle(coord_t x, coord_t y, coord_t radius,
                                     LcdFlags flags)
 {
-  drawCircle(x, y, radius, flags, radius);
+  APPLY_OFFSET();
+
+  lv_draw_rect_dsc_t rect_dsc;
+  lv_draw_rect_dsc_init(&rect_dsc);
+  rect_dsc.bg_opa = LV_OPA_COVER;
+  rect_dsc.bg_color = makeLvColor(flags);
+  rect_dsc.radius = LV_RADIUS_CIRCLE;
+
+  if (draw_ctx) {
+    x += draw_ctx->buf_area->x1;
+    y += draw_ctx->buf_area->y1;
+  }
+
+  lv_area_t coords = {
+      (lv_coord_t)(x - radius),
+      (lv_coord_t)(y - radius),
+      (lv_coord_t)(x + radius),
+      (lv_coord_t)(y + radius),
+  };
+
+  if (draw_ctx) {
+    lv_draw_rect(draw_ctx, &rect_dsc, &coords);
+  }
+#if !defined(BOOT)
+  else if (canvas) {
+    lv_canvas_draw_rect(canvas, coords.x1, coords.y1, coords.x2 - coords.x1 + 1,
+                        coords.y2 - coords.y1 + 1, &rect_dsc);
+  }
+#endif
 }
 
 void BitmapBuffer::drawCircle(coord_t x, coord_t y, coord_t radius,
@@ -493,22 +521,33 @@ void BitmapBuffer::drawCircle(coord_t x, coord_t y, coord_t radius,
 {
   APPLY_OFFSET();
 
-  lv_draw_arc_dsc_t arc_dsc;
-  lv_draw_arc_dsc_init(&arc_dsc);
-
-  arc_dsc.width = thickness;
-  arc_dsc.opa = LV_OPA_COVER;
-  arc_dsc.color = makeLvColor(flags);
+  lv_draw_rect_dsc_t rect_dsc;
+  lv_draw_rect_dsc_init(&rect_dsc);
+  rect_dsc.bg_opa = LV_OPA_TRANSP;
+  rect_dsc.border_opa = LV_OPA_COVER;
+  rect_dsc.border_color = makeLvColor(flags);
+  rect_dsc.border_width = thickness;
+  rect_dsc.radius = LV_RADIUS_CIRCLE;
 
   if (draw_ctx) {
-    lv_point_t p;
-    p.x = x + draw_ctx->buf_area->x1;
-    p.y = y + draw_ctx->buf_area->y1;
-    lv_draw_arc(draw_ctx, &arc_dsc, &p, radius, 0, 360);
+    x += draw_ctx->buf_area->x1;
+    y += draw_ctx->buf_area->y1;
+  }
+
+  lv_area_t coords = {
+      (lv_coord_t)(x - radius),
+      (lv_coord_t)(y - radius),
+      (lv_coord_t)(x + radius),
+      (lv_coord_t)(y + radius),
+  };
+
+  if (draw_ctx) {
+    lv_draw_rect(draw_ctx, &rect_dsc, &coords);
   }
 #if !defined(BOOT)
   else if (canvas) {
-    lv_canvas_draw_arc(canvas, x, y, radius, 0, 360, &arc_dsc);
+    lv_canvas_draw_rect(canvas, coords.x1, coords.y1, coords.x2 - coords.x1 + 1,
+                        coords.y2 - coords.y1 + 1, &rect_dsc);
   }
 #endif
 }
