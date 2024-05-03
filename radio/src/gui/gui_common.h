@@ -101,6 +101,7 @@ uint8_t getTelemetrySensorsCount();
 bool isTelemetryFieldComparisonAvailable(int index);
 bool isSensorAvailable(int sensor);
 bool isRssiSensorAvailable(int sensor);
+bool isVarioSensorAvailable(int sensor);
 bool hasSportPower();
 
 bool modelHasNotes();

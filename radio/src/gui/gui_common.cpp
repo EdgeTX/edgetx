@@ -73,6 +73,15 @@ bool isRssiSensorAvailable(int sensor)
   }
 }
 
+bool isVarioSensorAvailable(int sensor)
+{
+  if (sensor == 0)
+    return true;
+  else {
+    return (isSensorAvailable(sensor) && (isSensorUnit(sensor, UNIT_METERS_PER_SECOND) || isSensorUnit(sensor, UNIT_FEET_PER_SECOND)));
+  }
+}
+
 bool isSensorAvailable(int sensor)
 {
   if (sensor == 0)

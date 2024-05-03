@@ -253,7 +253,7 @@ void menuModelTelemetry(event_t event)
         lcdDrawTextAlignedLeft(y, INDENT TR_SOURCE);
         drawSource(TELEM_COL2, y, g_model.varioData.source ? MIXSRC_FIRST_TELEM+3*(g_model.varioData.source-1) : 0, attr);
         if (attr) {
-          g_model.varioData.source = checkIncDec(event, g_model.varioData.source, 0, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isSensorAvailable);
+          g_model.varioData.source = checkIncDec(event, g_model.varioData.source, 0, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isVarioSensorAvailable);
         }
         break;
 

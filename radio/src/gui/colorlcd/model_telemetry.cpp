@@ -1015,7 +1015,7 @@ void ModelTelemetryPage::build(Window* window)
     if (value == MIXSRC_NONE) return true;
     if (value < MIXSRC_FIRST_TELEM) return false;
     auto qr = div(value - MIXSRC_FIRST_TELEM, 3);
-    return qr.rem == 0 && isSensorAvailable(qr.quot + 1);
+    return qr.rem == 0 && isVarioSensorAvailable(qr.quot + 1);
   });
 
   line = window->newLine(grid5);
