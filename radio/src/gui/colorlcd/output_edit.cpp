@@ -30,15 +30,10 @@
 
 #define ETX_STATE_MINMAX_HIGHLIGHT LV_STATE_USER_1
 
-#if (LCD_W > LCD_H)
-#define OUTPUT_EDIT_STATUS_BAR_WIDTH 250
-#define OUTPUT_EDIT_STATUS_BAR_MARGIN 3
-#define OUTPUT_EDIT_RIGHT_MARGIN 0
-#else
-#define OUTPUT_EDIT_STATUS_BAR_WIDTH 180
-#define OUTPUT_EDIT_STATUS_BAR_MARGIN 0
-#define OUTPUT_EDIT_RIGHT_MARGIN 3
-#endif
+// deadband in % for switching direction of Min/Max text and value field highlighting
+// 0 = no deadband
+// 1..100 = [-DEADBAND; DEADBAND]
+#define DEADBAND 0
 
 // deadband in % for switching direction of Min/Max text and value field highlighting
 // 0 = no deadband
@@ -57,6 +52,8 @@ class OutputEditStatusBar : public Window
          rect.w - (OUTPUT_EDIT_STATUS_BAR_MARGIN * 2), rect.h},
         channel, true);
   }
+
+  static LAYOUT_VAL(OUTPUT_EDIT_STATUS_BAR_MARGIN, 3, 0)
 
  protected:
   ComboChannelBar *channelBar;
@@ -108,11 +105,11 @@ void OutputEditWindow::buildHeader(Window *window)
       window,
       {window->getRect().w - OUTPUT_EDIT_STATUS_BAR_WIDTH -
            OUTPUT_EDIT_RIGHT_MARGIN,
-       0, OUTPUT_EDIT_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT},
+       0, OUTPUT_EDIT_STATUS_BAR_WIDTH, EdgeTxStyles::MENU_HEADER_HEIGHT},
       channel);
 }
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};

@@ -47,7 +47,9 @@ class ToggleSwitch : public FormField
   }
 
   void update() const;
-  
+
+  static LAYOUT_VAL(TOGGLE_W, 52, 52)
+
  protected:
   std::function<uint8_t()> _getValue;
   std::function<void(uint8_t)> _setValue;

@@ -303,7 +303,7 @@
 #define TR_ELEVATOR                    TR("Long. cyc.", "Long. cyc. source")
 #define TR_SWASHRING                   "Swash Ring"
 #define TR_MODE                        "Mode"
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_LEFT_STICK                "Left"
 #else
   #define TR_LEFT_STICK                "Left"
@@ -1159,7 +1159,7 @@
 #define TR_USE_THEME_COLOR              "Use theme color"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor"
 #else
   #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon."

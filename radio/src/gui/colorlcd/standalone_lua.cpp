@@ -45,7 +45,7 @@ void LuaPopup::paint(BitmapBuffer* dc, uint8_t type, const char* text,
   dc->drawSolidFilledRect(0, POPUP_HEADER_HEIGHT, rect.w,
                           rect.h - POPUP_HEADER_HEIGHT, COLOR_THEME_SECONDARY3);
 
-  dc->drawText(FIELD_PADDING_LEFT, POPUP_HEADER_HEIGHT + PAGE_LINE_HEIGHT, info,
+  dc->drawText(FIELD_PADDING_LEFT, POPUP_HEADER_HEIGHT + EdgeTxStyles::PAGE_LINE_HEIGHT, info,
                COLOR_THEME_SECONDARY1);
 }
 

@@ -97,7 +97,7 @@ class DynamicMessageDialog : public BaseDialog
   DynamicMessageDialog(Window* parent, const char* title,
                        std::function<std::string()> textHandler,
                        const char* message = "",
-                       const int lineHeight = PAGE_LINE_HEIGHT,
+                       const int lineHeight = EdgeTxStyles::PAGE_LINE_HEIGHT,
                        const LcdFlags textFlags = CENTERED);
   // Attn.: FONT(XXL) is not supported by DynamicMessageDialog
 

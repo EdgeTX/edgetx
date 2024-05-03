@@ -87,7 +87,10 @@ class TabsGroup : public NavWindow
   void onClicked() override;
   void onCancel() override;
 
-  Window* getHeaderWindow();
+  static LAYOUT_VAL(MENU_TITLE_TOP, 48, 48)
+  static LAYOUT_VAL(MENU_TITLE_HEIGHT, 21, 21)
+  static constexpr coord_t MENU_BODY_TOP = MENU_TITLE_TOP + MENU_TITLE_HEIGHT;
+  static constexpr coord_t MENU_BODY_HEIGHT = LCD_H - MENU_BODY_TOP;
 
  protected:
   TabsGroupHeader* header = nullptr;
@@ -99,5 +102,9 @@ class TabsGroup : public NavWindow
 #if defined(HARDWARE_KEYS)
   void onPressPGUP() override;
   void onPressPGDN() override;
+#endif
+
+#if defined(PCBNV14) || defined(PCBPL18)
+  void addGoToMonitorsButton(void);
 #endif
 };

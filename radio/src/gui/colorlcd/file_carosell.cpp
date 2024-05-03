@@ -35,7 +35,7 @@ FileCarosell::FileCarosell(Window *parent, const rect_t &rect,
 {
   setWindowFlag(NO_FOCUS);
 
-  message = new StaticText(this, {0, rect.h/2, rect.w, PAGE_LINE_HEIGHT}, "", CENTERED | FONT(L) | COLOR_THEME_PRIMARY1);
+  message = new StaticText(this, {0, rect.h/2, rect.w, EdgeTxStyles::PAGE_LINE_HEIGHT}, "", CENTERED | FONT(L) | COLOR_THEME_PRIMARY1);
 
   setFileNames(fileNames);
 }

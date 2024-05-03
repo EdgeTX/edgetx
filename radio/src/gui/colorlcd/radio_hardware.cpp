@@ -101,12 +101,12 @@ void RadioHardwarePage::build(Window* window)
 
   auto box = hbox(line);
   auto batMin = new NumberEdit(
-      box, rect_t{0, 0, 80, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
+      box, rect_t{0, 0, NUM_EDIT_W, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
       GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), PREC1);
   batMin->setSuffix("V");
   new StaticText(box, rect_t{}, "-");
   auto batMax = new NumberEdit(
-      box, rect_t{0, 0, 80, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
+      box, rect_t{0, 0, NUM_EDIT_W, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
       GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), PREC1);
   batMax->setSuffix("V");
 
@@ -126,7 +126,7 @@ void RadioHardwarePage::build(Window* window)
   line = window->newLine(grid);
   new StaticText(line, rect_t{}, STR_BATT_CALIB);
   box = hbox(line);
-  new BatCalEdit(box, rect_t{0, 0, 80, 0});
+  new BatCalEdit(box, rect_t{0, 0, NUM_EDIT_W, 0});
 
   // RTC Batt check enable
   line = window->newLine(grid);

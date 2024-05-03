@@ -26,20 +26,13 @@
 #include "bitmapbuffer.h"
 #include "libopenui_defines.h"
 #include "opentx_helpers.h"
+#include "themes/etx_lv_theme.h"
 
 typedef uint32_t WindowFlags;
 
 #if !defined(_GNUC_)
 #undef OPAQUE
 #endif
-
-enum PaddingSize {
-  PAD_ZERO = 0,
-  PAD_TINY = 2,
-  PAD_SMALL = 4,
-  PAD_MEDIUM = 6,
-  PAD_LARGE = 8
-};
 
 constexpr WindowFlags OPAQUE = 1u << 0u;
 constexpr WindowFlags NO_FOCUS = 1u << 1u;
@@ -181,7 +174,7 @@ class Window
   virtual bool isBubblePopup() { return false; }
 
   void setFlexLayout(lv_flex_flow_t flow = LV_FLEX_FLOW_COLUMN,
-                     lv_coord_t padding = 2, coord_t width = LV_PCT(100),
+                     lv_coord_t padding = PAD_TINY, coord_t width = LV_PCT(100),
                      coord_t height = LV_SIZE_CONTENT);
   FormLine *newLine(FlexGridLayout &layout);
 

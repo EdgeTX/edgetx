@@ -42,11 +42,13 @@ ChannelBar::ChannelBar(Window* parent, const rect_t& rect, uint8_t channel,
   lv_obj_set_pos(bar, width() / 2, 0);
   lv_obj_set_size(bar, 0, height());
 
+  coord_t yo = (height() < 10) ? -1 : VAL_YO;
+
   valText = lv_label_create(lvobj);
-  lv_obj_set_pos(valText, width() / 2 + 5, -2);
-  lv_obj_set_size(valText, 45, 12);
+  lv_obj_set_pos(valText, width() / 2 + VAL_XO, yo);
+  lv_obj_set_size(valText, VAL_W, VAL_H);
   etx_obj_add_style(valText, styles->text_align_left, LV_PART_MAIN);
-  lv_obj_set_style_translate_x(valText, -54, LV_STATE_USER_1);
+  lv_obj_set_style_translate_x(valText, VAL_XT, LV_STATE_USER_1);
   etx_obj_add_style(valText, styles->text_align_right, LV_STATE_USER_1);
   etx_font(valText, FONT_XS_INDEX);
   etx_txt_color(valText, txtColorIndex);
@@ -223,32 +225,32 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
       isInHeader ? COLOR_THEME_PRIMARY2 : COLOR_THEME_SECONDARY1;
 
   outputChannelBar = new OutputChannelBar(
-      this, {LMARGIN, BAR_HEIGHT + TMARGIN, width() - LMARGIN, BAR_HEIGHT},
+      this, {ChannelBar::LMARGIN, ChannelBar::BAR_HEIGHT + ChannelBar::TMARGIN, width() - ChannelBar::LMARGIN, ChannelBar::BAR_HEIGHT},
       channel, isInHeader);
 
   new MixerChannelBar(
       this,
-      {LMARGIN, (2 * BAR_HEIGHT) + TMARGIN + 1, width() - LMARGIN, BAR_HEIGHT},
+      {ChannelBar::LMARGIN, (2 * ChannelBar::BAR_HEIGHT) + ChannelBar::TMARGIN + 1, width() - ChannelBar::LMARGIN, ChannelBar::BAR_HEIGHT},
       channel);
 
   // Channel number
   char chanString[] = TR_CH "32 ";
   strAppendSigned(&chanString[2], channel + 1, 2);
-  new StaticText(this, {LMARGIN, 0, LV_SIZE_CONTENT, 12}, chanString, 
+  new StaticText(this, {ChannelBar::LMARGIN, 0, LV_SIZE_CONTENT, 12}, chanString, 
                  textColor | FONT(XS) | LEFT);
 
   // Channel name
   if (g_model.limitData[channel].name[0]) {
     char nm[LEN_CHANNEL_NAME + 1];
     strAppend(nm, g_model.limitData[channel].name, LEN_CHANNEL_NAME);
-    new StaticText(this, {LMARGIN + 45, 0, LV_SIZE_CONTENT, 12}, nm, 
+    new StaticText(this, {ChannelBar::LMARGIN + ChannelBar::VAL_W, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, nm, 
                    textColor | FONT(XS) | LEFT);
   }
 
   // Channel value in µS
   const char* suffix = (g_eeGeneral.ppmunit == PPM_US) ? "%" : STR_US;
   new DynamicNumber<int16_t>(
-      this, {width() - 45, 0, 45, 12},
+      this, {width() - ChannelBar::VAL_W, 0, ChannelBar::VAL_W, ChannelBar::VAL_H},
       [=] {
         if (g_eeGeneral.ppmunit == PPM_US)
           return calcRESXto100(channelOutputs[channel]);
@@ -266,7 +268,7 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
   // Channel reverted icon
   LimitData* ld = limitAddress(channel);
   if (ld && ld->revert) {
-    new StaticIcon(this, 0, 25, ICON_CHAN_MONITOR_INVERTED,
+    new StaticIcon(this, 0, ICON_SZ, ICON_CHAN_MONITOR_INVERTED,
                    textColor);
   }
 }

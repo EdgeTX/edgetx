@@ -55,7 +55,7 @@
 #define TR_TRNCHN                       "KA1","KA2","KA3","KA4"
 #define TR_AUX_SERIAL_MODES             "AV","Speglad telemetri","Telemetri in","SBUS Lärare","LUA","CLI","GPS","Debug","SpaceMouse","Extern modul"
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_SWTYPES                    "Ingen", "2 pos flipp","2 pos","3 pos"
 #else
   #define TR_SWTYPES                    "Ingen","Flipp","2 pos","3 pos"
@@ -316,7 +316,7 @@
 #define TR_ELEVATOR                     "Höjdroderkälla"
 #define TR_SWASHRING                    "Swashring"
 #define TR_MODE                         "Typ"
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_LEFT_STICK                 "Vänster"
 #else
   #define TR_LEFT_STICK                 "Vä"
@@ -1153,7 +1153,7 @@
 #define TR_WIDGET_FULLSCREEN            "Hel skärm"
 #define TR_REMOVE_SCREEN                "Ta bort huvudvy"
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_SETUP_WIDGETS              "Konfigurera widgets"
 #else
   #define TR_SETUP_WIDGETS              "Konfig. widgets"
@@ -1194,7 +1194,7 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Addera alla trimmar till subtrimmar"
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_OPEN_CHANNEL_MONITORS      "Öppna kanalmonitorn"
 #else
   #define TR_OPEN_CHANNEL_MONITORS      "Öppna kanalmon."

@@ -64,13 +64,13 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
       });
   gvar_field->setTextHandler(
       [=](int32_t value) { return getGVarString(value); });
-  gvar_field->setWidth(70);
+  gvar_field->setWidth(NUM_EDIT_W);
 
   num_field = new NumberEdit(
       this, rect_t{}, vmin, vmax, [=]() { return getValue() + voffset; },
       nullptr);
   num_field->setTextFlag(textFlags);
-  num_field->setWidth(70);
+  num_field->setWidth(NUM_EDIT_W);
   num_field->setDefault(vdefault);
 
 #if defined(GVARS)

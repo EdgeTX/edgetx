@@ -304,7 +304,7 @@
 #define TR_ELEVATOR                    "Nick Quelle"
 #define TR_SWASHRING                   TR("Ring   Begrenz", "Ring Begrenzung")
 #define TR_MODE                        "Modus"
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_LEFT_STICK                "Links"
 #else
   #define TR_LEFT_STICK                "Li"
@@ -1162,7 +1162,7 @@
 #define TR_USE_THEME_COLOR             "Farbe des Themes verwenden"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS   "Alle Trimmungen übernehmen"
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanalmonitor"
 #else
   #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanalmon."

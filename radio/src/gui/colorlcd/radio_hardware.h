@@ -27,6 +27,8 @@ class RadioHardwarePage : public PageTab
 {
   void checkEvents() override;
 
+  static LAYOUT_VAL(NUM_EDIT_W, 80, 80)
+
  public:
   RadioHardwarePage();
 

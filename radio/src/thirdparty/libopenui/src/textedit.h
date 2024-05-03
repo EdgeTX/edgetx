@@ -34,6 +34,8 @@ class TextEdit : public FormField
 
   void update();
 
+  static LAYOUT_VAL(DEF_W, 100, 100)
+
  protected:
   static void event_cb(lv_event_t* e);
 

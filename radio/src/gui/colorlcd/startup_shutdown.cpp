@@ -31,23 +31,25 @@ extern void checkSpeakerVolume();
 #if defined(VERSION_TAG)
 const std::string ver_str = "" VERSION_TAG;
 const std::string nam_str = "" CODENAME;
-#if LCD_W > LCD_H
-#define TXT_Y 204
-#else
+#if PORTRAIT_LCD
 #define TXT_Y 404
+#else
+#define TXT_Y (LCD_H * 3 / 4)
 #endif
 #else
 const std::string ver_str = "" VERSION;
 const std::string nam_str = "" VERSION_SUFFIX;
 const std::string git_str = "(" GIT_STR ")";
-#if LCD_W > LCD_H
-#define TXT_Y 180
-#else
+#if PORTRAIT_LCD
 #define TXT_Y 380
+#else
+#define TXT_Y (LCD_H * 2 / 3)
 #endif
 #endif
 
-#if LCD_W > LCD_H
+static LAYOUT_VAL(TXT_H, 24, 24)
+
+#if !PORTRAIT_LCD
 #define TXT_X (LCD_W * 4 / 5)
 #define IMG_X (LCD_W / 3)
 #define IMG_Y (LCD_H / 2)
@@ -102,12 +104,11 @@ void drawSplash()
     new StaticLZ4Image(splashScreen, IMG_X - logo->width / 2,
                        IMG_Y - logo->height / 2, logo);
 
-    new StaticText(splashScreen, {TXT_X - 100, TXT_Y, 200, 24}, ver_str.c_str(),
-                   COLOR_GREY | CENTERED);
-    new StaticText(splashScreen, {TXT_X - 100, TXT_Y + 24, 200, 24},
+    new StaticText(splashScreen, {TXT_X - 100, TXT_Y, 200, 24}, ver_str.c_str(), COLOR_GREY | CENTERED);
+    new StaticText(splashScreen, {TXT_X - 100, TXT_Y + TXT_H, 200, TXT_H},
                    nam_str.c_str(), COLOR_GREY | CENTERED);
 #if !defined(VERSION_TAG)
-    new StaticText(splashScreen, {TXT_X - 100, TXT_Y + 48, 200, 24},
+    new StaticText(splashScreen, {TXT_X - 100, TXT_Y + TXT_H * 2, 200, TXT_H},
                    git_str.c_str(), COLOR_GREY | CENTERED);
 #endif
   }
@@ -192,7 +193,8 @@ void drawSleepBitmap()
   if (shutdownWindow) {
     shutdownWindow->clear();
   } else {
-    shutdownWindow = new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
+    shutdownWindow =
+        new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
     shutdownWindow->setWindowFlag(OPAQUE);
     etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
   }
@@ -219,7 +221,8 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
   if (totalDuration == 0) return;
 
   if (shutdownWindow == nullptr) {
-    shutdownWindow = new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
+    shutdownWindow =
+        new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
     shutdownWindow->setWindowFlag(OPAQUE);
     etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
 
@@ -257,7 +260,8 @@ void drawFatalErrorScreen(const char* message)
   static Window* fatalErrorWindow = nullptr;
 
   if (!fatalErrorWindow) {
-    fatalErrorWindow = new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
+    fatalErrorWindow =
+        new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
     fatalErrorWindow->setWindowFlag(OPAQUE);
     etx_solid_bg(fatalErrorWindow->getLvObj(), COLOR_BLACK_INDEX);
 

@@ -305,7 +305,7 @@
 #define TR_ELEVATOR                    TR("Тангаж", "Тангаж")
 #define TR_SWASHRING                   "Поворот"
 #define TR_MODE                        "Режим"
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_LEFT_STICK                "Ліво"
 #else
   #define TR_LEFT_STICK                "Ліво"
@@ -1161,7 +1161,7 @@
 #define TR_USE_THEME_COLOR              "Використ. колір теми"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Додати всі трими до субтримів"
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_OPEN_CHANNEL_MONITORS        "Відкрити монітори каналів"
 #else
   #define TR_OPEN_CHANNEL_MONITORS        "Відкр. мон.кан."

@@ -33,6 +33,17 @@ class ModelLabelsWindow : public Page
  public:
   ModelLabelsWindow();
 
+  static LAYOUT_VAL(BUTTONS_HEIGHT, 36, 36)
+  static LAYOUT_VAL(LABELS_WIDTH, 132, 0)
+  static LAYOUT_VAL(LABELS_HEIGHT, 0, 152)
+  static LAYOUT_VAL(LABELS_ROW, 0, 1)
+  static LAYOUT_VAL(MODELS_COL, 1, 0)
+  static LAYOUT_VAL(MODELS_ROW_CNT, 2, 1)
+  static LAYOUT_VAL(BUTTONS_ROW, 1, 2)
+  static LAYOUT_VAL(NEW_BTN_W, 60, 60)
+  static LAYOUT_VAL(LAYOUT_BTN_XO, 105, 105)
+  static LAYOUT_VAL(LAYOUT_BTN_YO, 6, 6)
+
  protected:
   ModelsSortBy sort = DEFAULT_MODEL_SORT;
   char tmpLabel[LABEL_LENGTH + 1] = "\0";

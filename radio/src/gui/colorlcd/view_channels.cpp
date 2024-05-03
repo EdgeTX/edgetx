@@ -89,7 +89,7 @@ class ChannelsViewPage : public PageTab
 
     // Channels bars
     for (uint8_t chan = pageIndex * 8; chan < 8 + pageIndex * 8; chan++) {
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
       coord_t width = window->width() - (hmargin * 2);
       coord_t xPos = hmargin;
       coord_t yPos = (chan % 8) *
@@ -100,7 +100,7 @@ class ChannelsViewPage : public PageTab
       coord_t yPos = (chan % 4) *
                      ((window->height() - 23) / 4);
 #endif
-      new ComboChannelBar(window, {xPos, yPos, width, 3 * BAR_HEIGHT + 3},
+      new ComboChannelBar(window, {xPos, yPos, width, 3 * ChannelBar::BAR_HEIGHT + 3},
                           chan);
     }
 

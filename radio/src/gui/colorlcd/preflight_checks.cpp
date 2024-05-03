@@ -89,6 +89,10 @@ struct SwitchWarnMatrix : public ButtonMatrix {
   bool isActive(uint8_t btn_id);
   void setTextAndState(uint8_t btn_id);
 
+  static LAYOUT_VAL(SW_BTNS, 8, 4)
+  static LAYOUT_VAL(SW_BTN_W, 56, 72)
+  static LAYOUT_VAL(SW_BTN_H, 36, 36)
+
  private:
   uint8_t sw_idx[MAX_SWITCHES];
 };
@@ -107,6 +111,8 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
 {
   header->setTitle(STR_MENU_MODEL_SETUP);
   header->setTitle2(STR_PREFLIGHT);
+
+  body->padAll(PAD_TINY);
 
   body->setFlexLayout();
   FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
@@ -193,14 +199,6 @@ static std::string switchWarninglabel(swsrc_t index)
          std::string(getSwitchWarnSymbol(warn_pos));
 }
 
-#if LCD_W > LCD_H
-#define SW_BTNS 8
-#define SW_BTN_W 56
-#else
-#define SW_BTNS 4
-#define SW_BTN_W 72
-#endif
-
 SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
     ButtonMatrix(parent, r)
 {
@@ -225,10 +223,10 @@ SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
 
   update();
 
-  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
+  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + PAD_SMALL);
 
   uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
-  lv_obj_set_height(lvobj, (rows * 36) + 4);
+  lv_obj_set_height(lvobj, (rows * SW_BTN_H) + PAD_SMALL);
 
   padAll(PAD_SMALL);
 }
@@ -275,7 +273,7 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
     }
   }
 
-  initBtnMap(min((int)btn_cnt, SW_BTNS), btn_cnt);
+  initBtnMap(min((int)btn_cnt, SwitchWarnMatrix::SW_BTNS), btn_cnt);
 
   uint8_t btn_id = 0;
   for (uint16_t i = 0; i < MAX_POTS; i++) {
@@ -287,10 +285,10 @@ PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
 
   update();
 
-  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
+  lv_obj_set_width(lvobj, min((int)btn_cnt, SwitchWarnMatrix::SW_BTNS) * SwitchWarnMatrix::SW_BTN_W + PAD_SMALL);
 
-  uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
-  lv_obj_set_height(lvobj, (rows * 36) + 4);
+  uint8_t rows = ((btn_cnt - 1) / SwitchWarnMatrix::SW_BTNS) + 1;
+  lv_obj_set_height(lvobj, (rows * SwitchWarnMatrix::SW_BTN_H) + PAD_SMALL);
 
   padAll(PAD_SMALL);
 }

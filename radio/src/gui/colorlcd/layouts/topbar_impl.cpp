@@ -41,7 +41,7 @@ class TopBarEdgeTx : public HeaderIcon
 };
 
 TopBar::TopBar(Window * parent) :
-  TopBarBase(parent, {0, 0, LCD_W, MENU_HEADER_HEIGHT}, &g_model.topbarData)
+  TopBarBase(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT}, &g_model.topbarData)
 {
   etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
@@ -55,15 +55,15 @@ unsigned int TopBar::getZonesCount() const
 
 rect_t TopBar::getZone(unsigned int index) const
 {
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
   if (index == MAX_TOPBAR_ZONES - 1) {
-    coord_t size = LCD_W - 48 - (MAX_TOPBAR_ZONES - 1) * (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN);
+    coord_t size = LCD_W - HDR_DATE_XO - (MAX_TOPBAR_ZONES - 1) * (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN);
     return {LCD_W - size, TOPBAR_ZONE_VMARGIN, size, TOPBAR_ZONE_HEIGHT};
   }
 #endif
 
   return {
-    coord_t(48 + (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN) * index),
+    coord_t(MENU_HEADER_BUTTONS_LEFT + 1 + (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN) * index),
     TOPBAR_ZONE_VMARGIN,
     TOPBAR_ZONE_WIDTH,
     TOPBAR_ZONE_HEIGHT
@@ -73,13 +73,13 @@ rect_t TopBar::getZone(unsigned int index) const
 void TopBar::setVisible(float visible) // 0.0 -> 1.0
 {
   if (visible == 0.0) {
-    setTop(-(int)MENU_HEADER_HEIGHT);
+    setTop(-(int)EdgeTxStyles::MENU_HEADER_HEIGHT);
   }
   else if (visible == 1.0) {
     setTop(0);
   }
   else if (visible > 0.0 && visible < 1.0){
-    float top = - (float)MENU_HEADER_HEIGHT * (1.0 - visible);
+    float top = - (float)EdgeTxStyles::MENU_HEADER_HEIGHT * (1.0 - visible);
     setTop((coord_t)top);
   }
 }
@@ -90,10 +90,10 @@ coord_t TopBar::getVisibleHeight(float visible) const // 0.0 -> 1.0
     return 0;
   }
   else if (visible == 1.0) {
-    return MENU_HEADER_HEIGHT;
+    return EdgeTxStyles::MENU_HEADER_HEIGHT;
   }
 
-  float h = (float)MENU_HEADER_HEIGHT * visible;
+  float h = (float)EdgeTxStyles::MENU_HEADER_HEIGHT * visible;
   return (coord_t)h;
 }
 

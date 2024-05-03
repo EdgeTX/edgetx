@@ -38,18 +38,6 @@ static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(19), LV_GRID_FR(21),
                                          LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-// Absolute layout for date/time setion due to slow performance
-// of lv_textarea in a flex layout.
-#if LCD_W > LCD_H
-#define DT_EDT_W 80
-#define DT_EDT_X 220
-#define DT_LBL_W 200
-#else
-#define DT_EDT_W 52
-#define DT_EDT_X 144
-#define DT_LBL_W 140
-#endif
-
 class DateTimeWindow : public Window
 {
  public:
@@ -93,6 +81,12 @@ class DateTimeWindow : public Window
       }
     }
   }
+
+  // Absolute layout for date/time setion due to slow performance
+  // of lv_textarea in a flex layout.
+  static LAYOUT_VAL(DT_EDT_W, 80, 52)
+  static LAYOUT_VAL(DT_EDT_X, 220, 144)
+  static LAYOUT_VAL(DT_LBL_W, 200, 140)
 
  protected:
   struct gtm m_tm;
@@ -774,10 +768,7 @@ class ManageModelsSetupPage : public SubPage
   Window* favSelectMatch = nullptr;
 };
 
-RadioSetupPage::RadioSetupPage():
-  PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP)
-{
-}
+RadioSetupPage::RadioSetupPage() : PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP) {}
 
 void RadioSetupPage::build(Window* window)
 {
@@ -882,7 +873,7 @@ void RadioSetupPage::build(Window* window)
 
 #if defined(FAI_CHOICE)
 /*  case ITEM_SETUP_FAI:
-    lcdDrawText(MENUS_MARGIN_LEFT, y, "FAI Mode");
+    lcdDrawText(PAD_MEDIUM, y, "FAI Mode");
     if (g_eeGeneral.fai) {
       lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, "Locked in FAI Mode");
     }

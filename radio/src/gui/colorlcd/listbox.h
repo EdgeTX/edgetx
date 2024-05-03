@@ -31,7 +31,8 @@ class ListBox : public TableField
 {
   std::function<void()> longPressHandler = nullptr;
   std::function<void()> pressHandler = nullptr;
-  std::function<void(std::set<uint32_t>, std::set<uint32_t>)> _multiSelectHandler = nullptr;
+  std::function<void(std::set<uint32_t>, std::set<uint32_t>)>
+      _multiSelectHandler = nullptr;
   std::function<const char*(uint16_t row)> getSelectedSymbol = nullptr;
   bool autoEdit = false;
 
@@ -84,6 +85,8 @@ class ListBox : public TableField
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ListBox"; }
 #endif
+
+  static LAYOUT_VAL(MENUS_LINE_HEIGHT, 35, 35)
 
  protected:
   static void event_cb(lv_event_t* e);

@@ -71,9 +71,12 @@ LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::pad_left_2, LV_STYLE_PAD_LEFT, 2);
 // Scrollbar
 const lv_style_const_prop_t scrollbar_props[] = {
     LV_STYLE_CONST_BG_OPA(LV_OPA_50),
-    LV_STYLE_CONST_PAD_TOP(3),  LV_STYLE_CONST_PAD_BOTTOM(3),
-    LV_STYLE_CONST_PAD_LEFT(3), LV_STYLE_CONST_PAD_RIGHT(3),
-    LV_STYLE_CONST_WIDTH(4),    LV_STYLE_PROP_INV,
+    LV_STYLE_CONST_PAD_TOP(3),
+    LV_STYLE_CONST_PAD_BOTTOM(3),
+    LV_STYLE_CONST_PAD_LEFT(3),
+    LV_STYLE_CONST_PAD_RIGHT(3),
+    LV_STYLE_CONST_WIDTH(PAD_SMALL),
+    LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::scrollbar, scrollbar_props);
 
@@ -95,40 +98,54 @@ const lv_style_const_prop_t pad_tiny_props[] = {
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_tiny, pad_tiny_props);
 
 const lv_style_const_prop_t pad_small_props[] = {
-    LV_STYLE_CONST_PAD_TOP(4),  LV_STYLE_CONST_PAD_BOTTOM(4),
-    LV_STYLE_CONST_PAD_LEFT(4), LV_STYLE_CONST_PAD_RIGHT(4),
-    LV_STYLE_CONST_PAD_ROW(4),  LV_STYLE_CONST_PAD_COLUMN(4),
+    LV_STYLE_CONST_PAD_TOP(PAD_SMALL),
+    LV_STYLE_CONST_PAD_BOTTOM(PAD_SMALL),
+    LV_STYLE_CONST_PAD_LEFT(PAD_SMALL),
+    LV_STYLE_CONST_PAD_RIGHT(PAD_SMALL),
+    LV_STYLE_CONST_PAD_ROW(PAD_SMALL),
+    LV_STYLE_CONST_PAD_COLUMN(PAD_SMALL),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_small, pad_small_props);
 
 const lv_style_const_prop_t pad_medium_props[] = {
-    LV_STYLE_CONST_PAD_TOP(6),  LV_STYLE_CONST_PAD_BOTTOM(6),
-    LV_STYLE_CONST_PAD_LEFT(6), LV_STYLE_CONST_PAD_RIGHT(6),
-    LV_STYLE_CONST_PAD_ROW(4),  LV_STYLE_CONST_PAD_COLUMN(4),
+    LV_STYLE_CONST_PAD_TOP(PAD_MEDIUM),
+    LV_STYLE_CONST_PAD_BOTTOM(PAD_MEDIUM),
+    LV_STYLE_CONST_PAD_LEFT(PAD_MEDIUM),
+    LV_STYLE_CONST_PAD_RIGHT(PAD_MEDIUM),
+    LV_STYLE_CONST_PAD_ROW(PAD_SMALL),
+    LV_STYLE_CONST_PAD_COLUMN(PAD_SMALL),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_medium, pad_medium_props);
 
 const lv_style_const_prop_t pad_large_props[] = {
-    LV_STYLE_CONST_PAD_TOP(8),  LV_STYLE_CONST_PAD_BOTTOM(8),
-    LV_STYLE_CONST_PAD_LEFT(8), LV_STYLE_CONST_PAD_RIGHT(8),
-    LV_STYLE_CONST_PAD_ROW(4),  LV_STYLE_CONST_PAD_COLUMN(4),
+    LV_STYLE_CONST_PAD_TOP(PAD_LARGE),
+    LV_STYLE_CONST_PAD_BOTTOM(PAD_LARGE),
+    LV_STYLE_CONST_PAD_LEFT(PAD_LARGE),
+    LV_STYLE_CONST_PAD_RIGHT(PAD_LARGE),
+    LV_STYLE_CONST_PAD_ROW(PAD_SMALL),
+    LV_STYLE_CONST_PAD_COLUMN(PAD_SMALL),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_large, pad_large_props);
 
 const lv_style_const_prop_t pad_button_props[] = {
-    LV_STYLE_CONST_PAD_TOP(2),  LV_STYLE_CONST_PAD_BOTTOM(2),
-    LV_STYLE_CONST_PAD_LEFT(6), LV_STYLE_CONST_PAD_RIGHT(6),
-    LV_STYLE_CONST_PAD_ROW(2),  LV_STYLE_CONST_PAD_COLUMN(2),
+    LV_STYLE_CONST_PAD_TOP(2),
+    LV_STYLE_CONST_PAD_BOTTOM(2),
+    LV_STYLE_CONST_PAD_LEFT(PAD_MEDIUM),
+    LV_STYLE_CONST_PAD_RIGHT(PAD_MEDIUM),
+    LV_STYLE_CONST_PAD_ROW(2),
+    LV_STYLE_CONST_PAD_COLUMN(2),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_button, pad_button_props);
 
 const lv_style_const_prop_t pad_textarea_props[] = {
-    LV_STYLE_CONST_PAD_TOP(4),  LV_STYLE_CONST_PAD_BOTTOM(3),
-    LV_STYLE_CONST_PAD_LEFT(4), LV_STYLE_CONST_PAD_RIGHT(4),
+    LV_STYLE_CONST_PAD_TOP(PAD_SMALL),
+    LV_STYLE_CONST_PAD_BOTTOM(PAD_SMALL - 1),
+    LV_STYLE_CONST_PAD_LEFT(PAD_SMALL),
+    LV_STYLE_CONST_PAD_RIGHT(PAD_SMALL),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_textarea, pad_textarea_props);
@@ -304,8 +321,7 @@ void EdgeTxStyles::applyColors()
   }
 
   lv_style_set_line_color(&graph_border, makeLvColor(COLOR_THEME_SECONDARY2));
-  lv_style_set_line_color(&graph_dashed,
-                          makeLvColor(COLOR_THEME_SECONDARY2));
+  lv_style_set_line_color(&graph_dashed, makeLvColor(COLOR_THEME_SECONDARY2));
   lv_style_set_line_color(&graph_line, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_line_color(&graph_position_line,
                           makeLvColor(COLOR_THEME_ACTIVE));

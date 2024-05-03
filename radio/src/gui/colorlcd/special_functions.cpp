@@ -32,46 +32,6 @@
 
 #define SET_DIRTY() setDirty()
 
-#if LCD_W > LCD_H
-
-#define SF_BUTTON_H 32
-
-#define NM_X 2
-#define NM_Y 4
-#define NM_W 43
-#define SW_Y NM_Y
-#define SW_W 70
-#define FN_X (SW_X + SW_W + 2)
-#define FN_Y NM_Y
-#define FN_W 277
-#define RP_W 40
-
-#else
-
-#define SF_BUTTON_H 44
-
-#define NM_X 2
-#define NM_Y 10
-#define NM_W 40
-#define SW_Y 0
-#define SW_W 198
-#define FN_X (NM_X + NM_W + 2)
-#define FN_Y 20
-#define FN_W SW_W
-#define RP_W 34
-
-#endif
-
-#define NM_H 20
-#define SW_X (NM_X + NM_W + 2)
-#define SW_H NM_H
-#define FN_H NM_H
-#define RP_X (FN_X + FN_W + 2)
-#define RP_Y NM_Y
-#define RP_H NM_H
-#define EN_X (RP_X + RP_W + 5)
-#define EN_Y NM_Y + 2
-
 //-----------------------------------------------------------------------------
 
 static const char *_failsafe_module[] = {
@@ -104,8 +64,8 @@ static const lv_obj_class_t sf_enable_state = {
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
-    .width_def = 16,
-    .height_def = 16,
+    .width_def = FunctionLineButton::EN_SZ,
+    .height_def = FunctionLineButton::EN_SZ,
     .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_FALSE,
     .instance_size = sizeof(lv_obj_t),
@@ -121,7 +81,7 @@ FunctionLineButton::FunctionLineButton(Window *parent, const rect_t &rect,
                                        uint8_t index, const char *prefix) :
     ListLineButton(parent, index), cfn(cfn), prefix(prefix)
 {
-  setHeight(SF_BUTTON_H);
+  setHeight(FunctionsPage::SF_BUTTON_H);
   padAll(PAD_ZERO);
 
   lv_obj_add_event_cb(lvobj, FunctionLineButton::on_draw,
@@ -777,7 +737,7 @@ void FunctionsPage::plusPopup(Window *window)
 
 void FunctionsPage::build(Window *window)
 {
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 #define PER_ROW 6
   static const lv_coord_t l_col_dsc[] = {
       LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),        LV_GRID_FR(1),

@@ -146,6 +146,8 @@ class NumberEdit: public FormField
 
     virtual void update();
 
+    static LAYOUT_VAL(DEF_W, 100, 100)
+
   protected:
     int vdefault = 0;
     int vmin;

@@ -690,7 +690,9 @@ union ReusableBuffer
 
 #if defined(SDCARD)
   struct {
+#if defined(NUM_BODY_LINES)
     char lines[NUM_BODY_LINES][SD_SCREEN_FILE_LENGTH+1+1]; // the last char is used to store the flags (directory) of the line
+#endif
     uint32_t available;
     uint16_t offset;
     uint16_t count;

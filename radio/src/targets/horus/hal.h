@@ -902,6 +902,8 @@
 // SDRAM
 #define SDRAM_BANK2
 
+#define PORTRAIT_LCD false
+#define LANDSCAPE_LCD true
 #define LCD_W                          480
 #define LCD_H                          272
 #define LCD_PHYS_H                     LCD_H

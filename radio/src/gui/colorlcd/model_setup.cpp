@@ -111,7 +111,7 @@ class SubScreenButton : public TextButton
       m_isActive(std::move(checkActive))
   {
     // Room for two lines of text
-    setHeight(62);
+    setHeight(SUBSCR_BTN_H);
     setWidth((LCD_W - 30) / 3);
 
     lv_obj_set_width(label, lv_pct(100));
@@ -121,6 +121,8 @@ class SubScreenButton : public TextButton
     setCheckHandler([=]() { check(isActive()); });
     check(isActive());
   }
+
+  static LAYOUT_VAL(SUBSCR_BTN_H, 62, 62)
 
  protected:
   std::function<bool(void)> m_isActive = nullptr;
@@ -272,14 +274,6 @@ class ModelViewOptions : public Page
   }
 };
 
-#if LCD_W > LCD_H
-#define SW_BTNS 8
-#define SW_BTN_W 56
-#else
-#define SW_BTNS 4
-#define SW_BTN_W 72
-#endif
-
 struct CenterBeepsMatrix : public ButtonMatrix {
   CenterBeepsMatrix(Window* parent, const rect_t& rect) :
     ButtonMatrix(parent, rect)
@@ -351,6 +345,10 @@ struct CenterBeepsMatrix : public ButtonMatrix {
     setChecked(btn_id);
   }
 
+  static LAYOUT_VAL(SW_BTNS, 8, 4)
+  static LAYOUT_VAL(SW_BTN_W, 56, 72)
+  static LAYOUT_VAL(SW_BTN_H, 36, 36)
+
  private:
   uint8_t max_analogs;
   uint8_t ana_idx[MAX_ANALOG_INPUTS];
@@ -364,7 +362,7 @@ class ModelOtherOptions : public Page
       header->setTitle(STR_MENU_MODEL_SETUP);
       header->setTitle2(STR_MENU_OTHER);
 
-      body->padAll(PAD_SMALL);
+      body->padAll(PAD_TINY);
 
       body->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 

@@ -32,55 +32,6 @@
 #define ETX_STATE_MINMAX_BOLD LV_STATE_USER_1
 #define ETX_STATE_NAME_FONT_SMALL LV_STATE_USER_1
 
-#define CH_BAR_WIDTH 100
-#define CH_BAR_HEIGHT 16
-
-#if LCD_W > LCD_H  // Landscape
-
-#define CH_LINE_H 32
-
-#define MIN_Y 4
-#define MAX_W 52
-#define OFF_X (MAX_X + MAX_W + 2)
-#define OFF_Y 4
-#define OFF_W 44
-#define BAR_Y 6
-
-#else  // Portrait
-
-#define CH_LINE_H 50
-
-#define MIN_Y 2
-#define MAX_W 60
-#define OFF_X (SRC_X + SRC_W + 2)
-#define OFF_Y 24
-#define OFF_W 52
-#define BAR_Y 4
-
-#endif
-
-#define SRC_X 2
-#define SRC_Y 1
-#define SRC_W 80
-#define SRC_H (CH_LINE_H - 6)
-#define MIN_X (SRC_X + SRC_W + 2)
-#define MIN_W 52
-#define MIN_H 20
-#define MAX_X (MIN_X + MIN_W + 2)
-#define MAX_Y MIN_Y
-#define MAX_H 20
-#define OFF_H 20
-#define CTR_X (OFF_X + OFF_W + 2)
-#define CTR_Y OFF_Y
-#define CTR_W 60
-#define CTR_H 20
-#define REV_X (CTR_X + CTR_W + 2)
-#define REV_Y CTR_Y
-#define REV_W 16
-#define CRV_X (REV_X + REV_W + 2)
-#define CRV_Y (REV_Y + 1)
-#define BAR_X (LCD_W - CH_BAR_WIDTH - 17)
-
 class OutputLineButton : public ListLineButton
 {
   bool init = false;
@@ -136,7 +87,7 @@ class OutputLineButton : public ListLineButton
     curve =
         new StaticIcon(this, CRV_X, CRV_Y, ICON_TEXTLINE_CURVE, COLOR_THEME_SECONDARY1);
 
-    bar = new OutputChannelBar(this, rect_t{BAR_X, BAR_Y, CH_BAR_WIDTH, CH_BAR_HEIGHT},
+    bar = new OutputChannelBar(this, rect_t{BAR_X, PAD_MEDIUM, CH_BAR_WIDTH, CH_BAR_HEIGHT},
                                index, false, false);
 
     refresh();
@@ -156,7 +107,7 @@ class OutputLineButton : public ListLineButton
     lv_obj_set_pos(source, SRC_X, SRC_Y);
     lv_obj_set_size(source, SRC_W, SRC_H);
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
     etx_font(source, FONT_XS_INDEX, ETX_STATE_NAME_FONT_SMALL);
     lv_obj_set_style_pad_top(source, -2, ETX_STATE_NAME_FONT_SMALL);
     lv_obj_set_style_text_line_space(source, -3, ETX_STATE_NAME_FONT_SMALL);
@@ -205,6 +156,38 @@ class OutputLineButton : public ListLineButton
     curve->show(output->curve);
   }
 
+  static LAYOUT_VAL(CH_LINE_H, 32, 50)
+  static LAYOUT_VAL(CH_BAR_WIDTH, 100, 100)
+  static LAYOUT_VAL(CH_BAR_HEIGHT, 16, 16)
+  static LAYOUT_VAL(BAR_XO, 17, 17)
+  static constexpr coord_t BAR_X = LCD_W - CH_BAR_WIDTH - BAR_XO;
+
+  static constexpr coord_t SRC_X = PAD_TINY;
+  static constexpr coord_t SRC_Y = 1;
+  static LAYOUT_VAL(SRC_W, 80, 80)
+  static constexpr coord_t SRC_H = CH_LINE_H - PAD_MEDIUM;
+  static constexpr coord_t MIN_X = SRC_X + SRC_W + PAD_TINY;
+  static LAYOUT_VAL(MIN_Y, 4, 2)
+  static LAYOUT_VAL(MIN_W, 52, 52)
+  static LAYOUT_VAL(MIN_H, 20, 20)
+  static constexpr coord_t MAX_X = MIN_X + MIN_W + PAD_TINY;
+  static constexpr coord_t MAX_Y = MIN_Y;
+  static LAYOUT_VAL(MAX_W, 52, 60)
+  static constexpr coord_t MAX_H = MIN_H;
+  static LAYOUT_VAL(OFF_X, MAX_X + MAX_W + PAD_TINY, SRC_X + SRC_W + PAD_TINY)
+  static LAYOUT_VAL(OFF_Y, MIN_Y, 24)
+  static LAYOUT_VAL(OFF_W, 44, 52)
+  static constexpr coord_t OFF_H = MIN_H;
+  static constexpr coord_t CTR_X = OFF_X + OFF_W + PAD_TINY;
+  static constexpr coord_t CTR_Y = OFF_Y;
+  static LAYOUT_VAL(CTR_W, 60, 60)
+  static constexpr coord_t CTR_H = MIN_H;
+  static constexpr coord_t REV_X = CTR_X + CTR_W + PAD_TINY;
+  static constexpr coord_t REV_Y = CTR_Y;
+  static LAYOUT_VAL(REV_W, 16, 16)
+  static constexpr coord_t CRV_X = REV_X + REV_W + PAD_TINY;
+  static constexpr coord_t CRV_Y = REV_Y + 1;
+
  protected:
   int value = -10000;
 
@@ -242,34 +225,6 @@ ModelOutputsPage::ModelOutputsPage() :
 {
 }
 
-#if LCD_W > LCD_H
-
-#define ADD_TRIMS_W ((LCD_W / 2) - 10)
-#define EXLIM_X (ADD_TRIMS_X + ADD_TRIMS_W + 4)
-#define EXLIM_Y 10
-#define EXLIMCB_Y 4
-
-#else
-
-#define ADD_TRIMS_W (LCD_W - 12)
-#define EXLIM_X 6
-#define EXLIM_Y (ADD_TRIMS_X + ADD_TRIMS_H + 8)
-#define EXLIMCB_Y (ADD_TRIMS_X + ADD_TRIMS_H + 2)
-
-#endif
-
-#define ADD_TRIMS_X 6
-#define ADD_TRIMS_Y 4
-#define ADD_TRIMS_H 32
-#define EXLIM_W (EXLIMCB_X - EXLIM_X - 4)
-#define EXLIM_H 20
-#define EXLIMCB_X (LCD_W - 58)
-#define EXLIMCB_W 52
-#define EXLIMCB_H 32
-#define TRIMB_X 6
-#define TRIMB_Y (EXLIMCB_Y + EXLIMCB_H + 3)
-#define TRIMB_W (LCD_W - 12)
-
 void ModelOutputsPage::build(Window* window)
 {
   window->padAll(PAD_ZERO);
@@ -286,7 +241,7 @@ void ModelOutputsPage::build(Window* window)
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
     // Channel settings
     auto btn = new OutputLineButton(window, ch);
-    lv_obj_set_pos(btn->getLvObj(), TRIMB_X, TRIMB_Y + (ch * (CH_LINE_H + 2)));
+    lv_obj_set_pos(btn->getLvObj(), TRIMB_X, TRIMB_Y + (ch * (OutputLineButton::CH_LINE_H + 2)));
     btn->setWidth(TRIMB_W);
 
     LimitData* output = limitAddress(ch);

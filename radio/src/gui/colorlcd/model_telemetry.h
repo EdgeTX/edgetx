@@ -33,6 +33,8 @@ class ModelTelemetryPage : public PageTab
 
   void build(Window* window) override;
 
+  static LAYOUT_VAL(NUM_EDIT_W, 100, 65)
+
  protected:
   int lastKnownIndex = 0;
   Window* window = nullptr;

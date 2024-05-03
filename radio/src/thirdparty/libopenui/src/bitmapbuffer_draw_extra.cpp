@@ -154,7 +154,7 @@ void BitmapBuffer::drawGPSPosition(coord_t x, coord_t y, int32_t longitude,
 {
   if (flags & PREC1) {
     drawGPSCoord(x, y, latitude, "NS", flags, true);
-    drawGPSCoord(x, y + FH, longitude, "EW", flags, true);
+    drawGPSCoord(x, y + EdgeTxStyles::PAGE_LINE_HEIGHT, longitude, "EW", flags, true);
   } else {
     if (flags & RIGHT) {
       x = drawGPSCoord(x, y, longitude, "EW", flags, true);
@@ -181,7 +181,7 @@ void BitmapBuffer::drawDate(coord_t x, coord_t y, TelemetryItem &telemetryItem,
   x = drawText(x, y, s.c_str(), att);
 
   if (doTwoLines) {
-    y += FH;
+    y += EdgeTxStyles::PAGE_LINE_HEIGHT;
     x = ox;
   } else {
     x += 11;

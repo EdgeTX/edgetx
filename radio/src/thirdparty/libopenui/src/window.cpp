@@ -382,7 +382,7 @@ void Window::enable(bool enabled)
 void Window::addBackButton()
 {
   new ButtonBase(
-      this, {0, 0, MENU_HEADER_HEIGHT, MENU_HEADER_HEIGHT},
+      this, {0, 0, EdgeTxStyles::MENU_HEADER_HEIGHT, EdgeTxStyles::MENU_HEADER_HEIGHT},
       [=]() -> uint8_t {
         onCancel();
         return 0;

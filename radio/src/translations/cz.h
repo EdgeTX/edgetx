@@ -313,7 +313,7 @@
 #define TR_ELEVATOR                    TR3("Podélná cykl.", "Podélná cykl.", "Podélná cyklika")
 #define TR_SWASHRING                   "Cyklika"
 #define TR_MODE                        "Mód"
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_LEFT_STICK                "Vlevo"
 #else
   #define TR_LEFT_STICK                "Vlevo"
@@ -1171,7 +1171,7 @@
 #define TR_USE_THEME_COLOR              "Použít barevný motiv"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Trimy do subtrimů"
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_OPEN_CHANNEL_MONITORS        "Otevřít monitor kanálů"
 #else
   #define TR_OPEN_CHANNEL_MONITORS        "Otevřít mon. kanálů"

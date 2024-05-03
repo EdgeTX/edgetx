@@ -28,7 +28,30 @@
 
 #include "colors.h"
 #include "fonts.h"
-#include "window.h"
+
+/*********************
+ *      Layout
+ *********************/
+
+enum PaddingSize {
+  PAD_ZERO = 0,
+  PAD_TINY = 2,
+  PAD_TINY_GAP = 2,
+  PAD_SMALL = 4,
+  PAD_MEDIUM = 6,
+  PAD_LARGE = 8
+};
+
+// Macros for setting up layout values
+//  LAYOUT_VAL - 2 values - landscape, portrait
+
+#if LANDSCAPE_LCD
+#define LAYOUT_VAL(name, landscape, portrait) \
+  constexpr coord_t name = landscape;
+#else
+#define LAYOUT_VAL(name, landscape, portrait) \
+  constexpr coord_t name = portrait;
+#endif
 
 /**********************
  * GLOBAL PROTOTYPES
@@ -168,6 +191,10 @@ class EdgeTxStyles
 
   void init();
   void applyColors();
+
+  static LAYOUT_VAL(PAGE_LINE_HEIGHT, 20, 20)
+  static LAYOUT_VAL(UI_ELEMENT_HEIGHT, 32, 32)
+  static LAYOUT_VAL(MENU_HEADER_HEIGHT, 45, 45)
 
  protected:
   bool initDone = false;

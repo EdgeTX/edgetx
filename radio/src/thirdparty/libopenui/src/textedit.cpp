@@ -42,6 +42,7 @@ TextEdit::TextEdit(Window* parent, const rect_t& rect, char* value,
   update();
 
   etx_textarea_style(lvobj);
+  setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT);
 
   lv_textarea_set_max_length(lvobj, length);
   lv_textarea_set_placeholder_text(lvobj, "---");
@@ -49,7 +50,7 @@ TextEdit::TextEdit(Window* parent, const rect_t& rect, char* value,
   lv_obj_set_parent(lvobj, parent->getLvObj());
   setupLVGL();
 
-  if (rect.w == 0) setWidth(100);
+  if (rect.w == 0) setWidth(DEF_W);
 
   lv_obj_enable_style_refresh(true);
   lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);

@@ -70,19 +70,6 @@ void ModelMenu::build()
 #endif
 }
 
-#if defined(PCBNV14) || defined(PCBPL18)
-void ModelMenu::addGoToMonitorsButton()
-{
-  new TextButton(
-      getHeaderWindow(),
-      {LCD_W / 2 + 6, MENU_TITLE_TOP + 1, LCD_W / 2 - 8, MENU_TITLE_HEIGHT - 2},
-      STR_OPEN_CHANNEL_MONITORS, [=]() {
-        pushEvent(EVT_KEY_BREAK(KEY_MODEL));
-        return 0;
-      });
-}
-#endif
-
 #if defined(HARDWARE_KEYS)
 void ModelMenu::onPressSYS()
 {

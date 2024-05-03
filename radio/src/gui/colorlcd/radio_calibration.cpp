@@ -52,13 +52,15 @@ class StickCalibrationWindow : public Window
   {
     int32_t x = calibratedAnalogs[stickX];
     int32_t y = calibratedAnalogs[stickY];
-    coord_t dx = width() / 2 - 9 + (bitmapSize / 2 * x) / RESX;
-    coord_t dy = height() / 2 - 9 - (bitmapSize / 2 * y) / RESX;
+    coord_t dx = width() / 2 - CAL_CTR + (CAL_SIZ / 2 * x) / RESX;
+    coord_t dy = height() / 2 - CAL_CTR - (CAL_SIZ / 2 * y) / RESX;
     lv_obj_set_pos(calibStick->getLvObj(), dx, dy);
   }
 
+  static LAYOUT_VAL(CAL_CTR, 9, 9)
+  static LAYOUT_VAL(CAL_SIZ, 68, 68)
+
  protected:
-  static constexpr coord_t bitmapSize = 68;
   uint8_t stickX, stickY;
   StaticLZ4Image *calibStick = nullptr;
 };

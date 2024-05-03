@@ -65,7 +65,7 @@ MenuToolbarButton::MenuToolbarButton(Window* parent, const rect_t& rect,
 }
 
 MenuToolbar::MenuToolbar(Choice* choice, Menu* menu, const int columns) :
-    Window(menu, {0, 0, 76, MENUS_MAX_HEIGHT}),
+    Window(menu, {0, 0, 0, MENUS_MAX_HEIGHT}),
     choice(choice),
     menu(menu),
     filterColumns(columns),

@@ -37,6 +37,9 @@ class ListLineButton : public ButtonBase
 
   virtual void refresh() = 0;
 
+  static LAYOUT_VAL(BTN_H, 29, 29)
+  static constexpr coord_t GRP_W = LCD_W - PAD_MEDIUM * 2;
+
  protected:
   uint8_t index;
 
@@ -53,10 +56,30 @@ class InputMixButtonBase : public ListLineButton
   void setSource(mixsrc_t idx);
   void setFlightModes(uint16_t modes);
 
-  static constexpr coord_t BTN_H = 29;
-
   virtual void updatePos(coord_t x, coord_t y) = 0;
   virtual void swapLvglGroup(InputMixButtonBase* line2) = 0;
+
+  // total: 90 x 17
+  static LAYOUT_VAL(FM_CANVAS_HEIGHT, 17, 17)
+  static LAYOUT_VAL(FM_CANVAS_WIDTH, 90, 90)
+
+  static LAYOUT_VAL(BTN_W, 389, 229)
+  static constexpr coord_t WGT_X = PAD_TINY;
+  static constexpr coord_t WGT_Y = PAD_TINY;
+  static LAYOUT_VAL(WGT_W, 42, 42)
+  static LAYOUT_VAL(WGT_H, 21, 21)
+  static constexpr coord_t SRC_X = WGT_X + WGT_W + PAD_TINY;
+  static constexpr coord_t SRC_Y = WGT_Y;
+  static LAYOUT_VAL(SRC_W, 70, 69)
+  static constexpr coord_t SRC_H = WGT_H;
+  static constexpr coord_t OPT_X = SRC_X + SRC_W + PAD_TINY;
+  static constexpr coord_t OPT_Y = WGT_Y;
+  static LAYOUT_VAL(OPT_W, 171, 106)
+  static constexpr coord_t OPT_H = WGT_H;
+  static LAYOUT_VAL(LN_X, 73, 73)
+  static LAYOUT_VAL(FM_X, (OPT_X + OPT_W + PAD_TINY), 12)
+  static LAYOUT_VAL(FM_Y, (WGT_Y + PAD_TINY), (WGT_Y + WGT_H + PAD_TINY))
+  static LAYOUT_VAL(FM_W, 8, 8)
 
  protected:
 
@@ -84,8 +107,6 @@ class InputMixGroupBase : public Window
   void refresh();
 
  protected:
-  static constexpr coord_t LN_X = 73;
-
   mixsrc_t idx;
   lv_obj_t* label;
   std::list<InputMixButtonBase*> lines;

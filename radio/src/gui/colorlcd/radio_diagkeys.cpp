@@ -98,22 +98,22 @@ class RadioKeyDiagsWindow : public Window
 
       auto lbl = lv_label_create(obj);
       lv_label_set_text(lbl, keysGetLabel(k));
-      lv_obj_set_pos(lbl, 0, i * FH);
+      lv_obj_set_pos(lbl, 0, i * EdgeTxStyles::PAGE_LINE_HEIGHT);
 
       lbl = lv_label_create(obj);
       lv_label_set_text(lbl, "");
-      lv_obj_set_pos(lbl, 70, i * FH);
+      lv_obj_set_pos(lbl, 70, i * EdgeTxStyles::PAGE_LINE_HEIGHT);
       keyValues[i] = lbl;
     }
 
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
     auto lbl = lv_label_create(obj);
     lv_label_set_text(lbl, STR_ROTARY_ENCODER);
-    lv_obj_set_pos(lbl, 0, (i + 1) * FH);
+    lv_obj_set_pos(lbl, 0, (i + 1) * EdgeTxStyles::PAGE_LINE_HEIGHT);
 
     reValue = lv_label_create(obj);
     lv_label_set_text(reValue, "");
-    lv_obj_set_pos(reValue, 70, (i + 1) * FH);
+    lv_obj_set_pos(reValue, 70, (i + 1) * EdgeTxStyles::PAGE_LINE_HEIGHT);
 #endif
   }
 
@@ -129,7 +129,7 @@ class RadioKeyDiagsWindow : public Window
       if (SWITCH_EXISTS(i)) {
         auto lbl = lv_label_create(obj);
         lv_label_set_text(lbl, "");
-        lv_obj_set_pos(lbl, 0, row * FH);
+        lv_obj_set_pos(lbl, 0, row * EdgeTxStyles::PAGE_LINE_HEIGHT);
         switchValues[i] = lbl;
         row += 1;
       }
@@ -157,16 +157,16 @@ class RadioKeyDiagsWindow : public Window
       lbl = lv_label_create(obj);
       formatNumberAsString(s, 10, i + 1, 0, 10, "T");
       lv_label_set_text(lbl, s);
-      lv_obj_set_pos(lbl, 4, i * FH + FH);
+      lv_obj_set_pos(lbl, 4, i * EdgeTxStyles::PAGE_LINE_HEIGHT + EdgeTxStyles::PAGE_LINE_HEIGHT);
 
       lbl = lv_label_create(obj);
       lv_label_set_text(lbl, "");
-      lv_obj_set_pos(lbl, 60, i * FH + FH);
+      lv_obj_set_pos(lbl, 60, i * EdgeTxStyles::PAGE_LINE_HEIGHT + EdgeTxStyles::PAGE_LINE_HEIGHT);
       trimValues[i * 2] = lbl;
 
       lbl = lv_label_create(obj);
       lv_label_set_text(lbl, "");
-      lv_obj_set_pos(lbl, 75, i * FH + FH);
+      lv_obj_set_pos(lbl, 75, i * EdgeTxStyles::PAGE_LINE_HEIGHT + EdgeTxStyles::PAGE_LINE_HEIGHT);
       trimValues[i * 2 + 1] = lbl;
     }
   }

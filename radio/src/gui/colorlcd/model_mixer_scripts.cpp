@@ -39,7 +39,7 @@
 static const lv_coord_t col_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 // Edit grid
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 static const lv_coord_t e_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                        LV_GRID_TEMPLATE_LAST};
 #else
@@ -181,7 +181,7 @@ class ScriptLineButton : public ListLineButton
       scriptData(scriptData),
       runtimeData(runtimeData)
   {
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     padTop(5);
 #endif
     padLeft(3);

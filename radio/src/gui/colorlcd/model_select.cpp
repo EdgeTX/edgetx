@@ -33,8 +33,6 @@
 
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
-constexpr int BUTTONS_HEIGHT = 36;
-
 struct ModelButtonLayout {
   uint16_t width;
   uint16_t height;
@@ -43,33 +41,19 @@ struct ModelButtonLayout {
   uint16_t font;
 };
 
-ModelButtonLayout modelLayouts[] = {
-#if LCD_W > LCD_H  // Landscape
-    {165, 92, 6, true, FONT(STD)},
-    {108, 61, 6, true, FONT(XS)},
-    {165, 32, 4, false, FONT(STD)},
-    {336, 32, 4, false, FONT(STD)},
-#else  // Portrait
-    {147, 92, 6, true, FONT(STD)},
-    {96, 61, 6, true, FONT(XS)},
-    {147, 32, 4, false, FONT(STD)},
-    {300, 32, 4, false, FONT(STD)},
-#endif
-};
+static LAYOUT_VAL(L0_W, 165, 147)
+static LAYOUT_VAL(L0_H, 92, 92)
+static LAYOUT_VAL(L1_W, 108, 96)
+static LAYOUT_VAL(L1_H, 61, 61)
+static LAYOUT_VAL(L3_W, 336, 300)
+static LAYOUT_VAL(MODEL_CELL_PADDING, 4, 4)
 
-#if LCD_W > LCD_H  // Landscape
-constexpr int LABELS_ROW = 0;
-constexpr int MODELS_COL = 1;
-constexpr int MODELS_ROW = 0;
-constexpr int MODELS_ROW_CNT = 2;
-constexpr int BUTTONS_ROW = 1;
-#else  // Portrait
-constexpr int LABELS_ROW = 1;
-constexpr int MODELS_COL = 0;
-constexpr int MODELS_ROW = 0;
-constexpr int MODELS_ROW_CNT = 1;
-constexpr int BUTTONS_ROW = 2;
-#endif
+ModelButtonLayout modelLayouts[] = {
+    {L0_W, L0_H, MODEL_CELL_PADDING, true, FONT(STD)},
+    {L1_W, L1_H, MODEL_CELL_PADDING, true, FONT(XS)},
+    {L0_W, EdgeTxStyles::UI_ELEMENT_HEIGHT, MODEL_CELL_PADDING, false, FONT(STD)},
+    {L3_W, EdgeTxStyles::UI_ELEMENT_HEIGHT, MODEL_CELL_PADDING, false, FONT(STD)},
+};
 
 class ModelButton : public Button
 {
@@ -697,7 +681,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
   setTitle();
 
   // new model button
-  auto btn = new TextButton(hdr, rect_t{0, 0, 60, 32}, STR_NEW, [=]() {
+  auto btn = new TextButton(hdr, rect_t{0, 0, NEW_BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_NEW, [=]() {
     auto menu = new Menu(this);
     menu->setTitle(STR_CREATE_NEW);
     menu->addLine(STR_NEW_MODEL, [=]() { newModel(); });
@@ -720,20 +704,18 @@ void ModelLabelsWindow::buildHead(Window *hdr)
     mdlselector->update();
     return 0;
   });
-  lv_obj_set_pos(mdlLayout->getLvObj(), LCD_W - 105, 6);
+  lv_obj_set_pos(mdlLayout->getLvObj(), LCD_W - LAYOUT_BTN_XO, LAYOUT_BTN_YO);
 }
 
-#if LCD_W > LCD_H
-constexpr int LABELS_WIDTH = 132;
-static const lv_coord_t col_dsc[] = {LABELS_WIDTH, LV_GRID_FR(1),
+#if !PORTRAIT_LCD
+static const lv_coord_t col_dsc[] = {ModelLabelsWindow::LABELS_WIDTH, LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), BUTTONS_HEIGHT,
+static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), ModelLabelsWindow::BUTTONS_HEIGHT,
                                      LV_GRID_TEMPLATE_LAST};
 #else
-constexpr int LABELS_HEIGHT = 140;
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), LABELS_HEIGHT,
-                                     BUTTONS_HEIGHT, LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), ModelLabelsWindow::LABELS_HEIGHT,
+                                     ModelLabelsWindow::BUTTONS_HEIGHT, LV_GRID_TEMPLATE_LAST};
 #endif
 
 void ModelLabelsWindow::buildBody(Window *window)
@@ -748,7 +730,7 @@ void ModelLabelsWindow::buildBody(Window *window)
   mdlselector->setLblRefreshFunc([=]() { labelRefreshRequest(); });
   auto mdl_obj = mdlselector->getLvObj();
   lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, MODELS_COL, 1,
-                       LV_GRID_ALIGN_STRETCH, MODELS_ROW, MODELS_ROW_CNT);
+                       LV_GRID_ALIGN_STRETCH, 0, MODELS_ROW_CNT);
 
   if (mdlselector->getSortOrder() == NO_SORT)
     mdlselector->setSortOrder(NAME_ASC);
@@ -757,7 +739,7 @@ void ModelLabelsWindow::buildBody(Window *window)
   auto box = new Window(window, rect_t{});
   box->padAll(PAD_ZERO);
   box->padLeft(6);
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
   box->padRight(6);
   box->padTop(6);
   box->padBottom(6);

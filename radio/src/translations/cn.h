@@ -298,7 +298,7 @@
 #define TR_ELEVATOR                    TR("俯仰源", "俯仰混控源")
 #define TR_SWASHRING                   "斜盘行程"
 #define TR_MODE                        "模式"
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_LEFT_STICK                "左摇杆"
 #else
   #define TR_LEFT_STICK                "左摇杆"
@@ -1154,7 +1154,7 @@
 #define TR_USE_THEME_COLOR            "使用主题颜色"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS  "将所有微调导入中点偏移值"
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_OPEN_CHANNEL_MONITORS    "打开通道监视器"
 #else
   #define TR_OPEN_CHANNEL_MONITORS    "通道监视"

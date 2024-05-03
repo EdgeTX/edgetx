@@ -159,6 +159,9 @@ class ValueWidget : public Widget
   lv_obj_t* valueShadow;
   LcdFlags valueFlags = 0;
 
+  static LAYOUT_VAL(VAL_Y1, 14, 14)
+  static LAYOUT_VAL(VAL_Y2, 18, 18)
+
   void update() override
   {
     // get source from options[0]
@@ -179,7 +182,7 @@ class ValueWidget : public Widget
     lv_coord_t labelX = 0;
     lv_coord_t labelY = 0;
     lv_coord_t valueX = 0;
-    lv_coord_t valueY = 14;
+    lv_coord_t valueY = VAL_Y1;
 
     // Set font to L
     lv_obj_clear_state(value, ETX_STATE_LARGE_FONT);
@@ -204,7 +207,7 @@ class ValueWidget : public Widget
       valueX = (valAlign == ALIGN_LEFT)     ? 4
                : (valAlign == ALIGN_CENTER) ? 1
                                             : -4;
-      valueY = 18;
+      valueY = VAL_Y2;
       if (field >= MIXSRC_FIRST_TELEM) {
         if (!isGPSSensor(1 + (field - MIXSRC_FIRST_TELEM) / 3)) {
           // Set font to XL

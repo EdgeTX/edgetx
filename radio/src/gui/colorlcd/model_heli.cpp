@@ -26,7 +26,7 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-#if LCD_W > LCD_H // landscape
+#if !PORTRAIT_LCD // landscape
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1),
                                      LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
