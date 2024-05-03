@@ -2063,11 +2063,13 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     md->subType = yaml_parse_enum(enum_ISRM_Subtypes, val, val_len);
   } else if (isModuleTypeR9MNonAccess(md->type)) {
     md->subType = yaml_parse_enum(enum_R9M_Subtypes, val, val_len);
+#if defined(AFHDS3)
   } else if (md->type == MODULE_TYPE_FLYSKY_AFHDS2A) {
     // Flysky sub-types have been converted into separate module types
     auto sub_type = yaml_parse_enum(enum_FLYSKY_Subtypes, val, val_len);
     if (sub_type == FLYSKY_SUBTYPE_AFHDS3)
       md->type = MODULE_TYPE_FLYSKY_AFHDS3;
+#endif
   } else if (md->type == MODULE_TYPE_MULTIMODULE) {
 #if defined(MULTIMODULE)
     // Read type/subType by the book (see MPM documentation)
@@ -2128,6 +2130,10 @@ static bool w_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     str = yaml_output_enum(md->subType, enum_DSM2_Subtypes);
   } else if (md->type == MODULE_TYPE_PPM) {
     str = yaml_output_enum(md->subType, enum_PPM_Subtypes);
+  } else if (md->type == MODULE_TYPE_FLYSKY_AFHDS2A) {
+    str = yaml_output_enum(FLYSKY_SUBTYPE_AFHDS2A, enum_FLYSKY_Subtypes);
+  } else if (md->type == MODULE_TYPE_FLYSKY_AFHDS3) {
+    str = yaml_output_enum(FLYSKY_SUBTYPE_AFHDS3, enum_FLYSKY_Subtypes);
   } else {
     str = yaml_unsigned2str(val);
   }

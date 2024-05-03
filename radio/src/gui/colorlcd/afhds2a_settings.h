@@ -32,11 +32,11 @@ class AFHDS2ASettings : public FormWindow, public ModuleOptions
   uint8_t moduleIdx;
   ModuleData* md;
   FlexGridLayout grid;
-  tmr10ms_t lastRefresh = 0;
 
   Window* afhds2OptionsLabel = nullptr;
   Window* afhds2ProtoOpts = nullptr;
 #if defined(PCBNV14)
+  bool hasRFPower = false;
   Window* afhds2RFPowerText = nullptr;
   Window* afhds2RFPowerChoice = nullptr;
 #endif  

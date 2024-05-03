@@ -83,17 +83,15 @@ AFHDS2ASettings::AFHDS2ASettings(Window* parent, const FlexGridLayout& g,
                                     [=](uint8_t v) { md->flysky.mode = v; });
 
 #if defined(PCBNV14)
-  if (getNV14RfFwVersion() >= 0x1000E) {
-    line = newLine(&grid);
-    static const char* _rf_power[] = {"Default", "High"};
-    afhds2RFPowerText = new StaticText(line, rect_t{}, STR_MULTI_RFPOWER);
-    afhds2RFPowerChoice = new Choice(line, rect_t{}, _rf_power, 0, 1,
-                                     GET_DEFAULT(md->flysky.rfPower),
-                                     [=](int32_t newValue) -> void {
-                                       md->flysky.rfPower = newValue;
-                                       resetPulsesAFHDS2();
-                                     });
-  }                                     
+  line = newLine(&grid);
+  static const char* _rf_power[] = {"Default", "High"};
+  afhds2RFPowerText = new StaticText(line, rect_t{}, STR_MULTI_RFPOWER);
+  afhds2RFPowerChoice = new Choice(line, rect_t{}, _rf_power, 0, 1,
+                                   GET_DEFAULT(md->flysky.rfPower),
+                                   [=](int32_t newValue) -> void {
+                                     md->flysky.rfPower = newValue;
+                                     resetPulsesAFHDS2();
+                                   });
 #endif
 
   hideAFHDS2Options();
@@ -104,10 +102,8 @@ void AFHDS2ASettings::hideAFHDS2Options()
   lv_obj_add_flag(afhds2OptionsLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   lv_obj_add_flag(afhds2ProtoOpts->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 #if defined(PCBNV14)
-  if (afhds2RFPowerText != nullptr)
-    lv_obj_add_flag(afhds2RFPowerText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  if (afhds2RFPowerChoice != nullptr)
-    lv_obj_add_flag(afhds2RFPowerChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  lv_obj_add_flag(afhds2RFPowerText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  lv_obj_add_flag(afhds2RFPowerChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 #endif
 }
 
@@ -116,23 +112,26 @@ void AFHDS2ASettings::showAFHDS2Options()
   lv_obj_clear_flag(afhds2OptionsLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
   lv_obj_clear_flag(afhds2ProtoOpts->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 #if defined(PCBNV14)
-  if (afhds2RFPowerText != nullptr)
+  bool showRFPower = (getNV14RfFwVersion() >= 0x1000E);
+
+  if (showRFPower && (showRFPower != hasRFPower)) {
+    hasRFPower = showRFPower;
     lv_obj_clear_flag(afhds2RFPowerText->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  if (afhds2RFPowerChoice != nullptr)
-  {
     lv_obj_clear_flag(afhds2RFPowerChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    lv_event_send(afhds2RFPowerChoice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+    lv_event_send(afhds2RFPowerChoice->getLvObj(), LV_EVENT_VALUE_CHANGED,
+                  nullptr);
   }
 #endif
 }
 
-void AFHDS2ASettings::checkEvents() {
+void AFHDS2ASettings::checkEvents()
+{
   FormWindow::checkEvents();
+  update();
 }
 
 void AFHDS2ASettings::update()
 {
-  lastRefresh = get_tmr10ms();
   if (isModuleAFHDS2A(moduleIdx)) {
     showAFHDS2Options();
   } else {
