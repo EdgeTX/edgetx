@@ -701,8 +701,8 @@ PACK(struct ModelData {
   FlightModeData flightModeData[MAX_FLIGHT_MODES] FUNC(fmd_is_active);
 
   NOBACKUP(uint8_t thrTraceSrc CUST(r_thrSrc,w_thrSrc));
-  CUST_ATTR(switchWarningState, r_swtchWarn, w_swtchWarn);
-  NOBACKUP(swarnstate_t  switchWarningState SKIP);
+  CUST_ATTR(switchWarningState, r_swtchWarn, nullptr);
+  NOBACKUP(swarnstate_t switchWarning ARRAY(3, struct_swtchWarn, nullptr));
 
   GVarData gvars[MAX_GVARS];
 

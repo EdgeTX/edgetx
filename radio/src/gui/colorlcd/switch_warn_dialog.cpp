@@ -60,7 +60,7 @@ void SwitchWarnDialog::paint(BitmapBuffer * dc)
   FullScreenDialog::paint(dc);
 
   std::string warn_txt;
-  swarnstate_t states = g_model.switchWarningState;
+  swarnstate_t states = g_model.switchWarning;
   for (int i = 0; i < MAX_SWITCHES; ++i) {
     if (SWITCH_WARNING_ALLOWED(i)) {
       swarnstate_t mask = ((swarnstate_t)0x07 << (i*3));
