@@ -425,6 +425,23 @@ bool SensorData::isSourceAvailable(const ModelData * model, const int index)
   return false;
 }
 
+//  static
+bool SensorData::isSourceVario(const ModelData * model, const int index)
+{
+  const int i = abs(index);
+
+  if (i > 0) {
+    if (model->sensorData[i - 1].isAvailable()) {
+      if (model->sensorData[i - 1].unit == UNIT_FEET_PER_SECOND || model->sensorData[i - 1].unit == UNIT_METERS_PER_SECOND)
+        return true;
+    }
+  }
+  else
+    return true;
+
+  return false;
+}
+
 #define RSSI_ID                   0xF101
 
 //  static
