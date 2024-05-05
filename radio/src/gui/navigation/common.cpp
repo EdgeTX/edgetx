@@ -48,7 +48,7 @@ int checkIncDecSelection = 0;
 
 void repeatLastCursorMove(event_t event)
 {
-  if (IS_PREVIOUS_EVENT(event) || IS_NEXT_EVENT(event)) {
+  if (IS_PREVIOUS_MOVE_EVENT(event) || IS_NEXT_MOVE_EVENT(event)) {
     pushEvent(event);
   }
   else {

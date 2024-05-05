@@ -149,12 +149,26 @@ inline bool IS_KEY_EVT(event_t evt, uint8_t key)
 inline bool IS_NEXT_EVENT(event_t evt)
 {
   return evt == EVT_KEY_FIRST(KEY_DOWN) || evt == EVT_KEY_REPT(KEY_DOWN) ||
-         evt == EVT_KEY_FIRST(KEY_RIGHT) || evt == EVT_KEY_REPT(KEY_RIGHT) ||
          evt == EVT_KEY_FIRST(KEY_MINUS) || evt == EVT_KEY_REPT(KEY_MINUS) ||
          evt == EVT_ROTARY_RIGHT;
 }
 
 inline bool IS_PREVIOUS_EVENT(event_t evt)
+{
+  return evt == EVT_KEY_FIRST(KEY_UP) || evt == EVT_KEY_REPT(KEY_UP) ||
+         evt == EVT_KEY_FIRST(KEY_PLUS) || evt == EVT_KEY_REPT(KEY_PLUS) ||
+         evt == EVT_ROTARY_LEFT;
+}
+
+inline bool IS_NEXT_MOVE_EVENT(event_t evt)
+{
+  return evt == EVT_KEY_FIRST(KEY_DOWN) || evt == EVT_KEY_REPT(KEY_DOWN) ||
+         evt == EVT_KEY_FIRST(KEY_RIGHT) || evt == EVT_KEY_REPT(KEY_RIGHT) ||
+         evt == EVT_KEY_FIRST(KEY_MINUS) || evt == EVT_KEY_REPT(KEY_MINUS) ||
+         evt == EVT_ROTARY_RIGHT;
+}
+
+inline bool IS_PREVIOUS_MOVE_EVENT(event_t evt)
 {
   return evt == EVT_KEY_FIRST(KEY_UP) || evt == EVT_KEY_REPT(KEY_UP) ||
          evt == EVT_KEY_FIRST(KEY_LEFT) || evt == EVT_KEY_REPT(KEY_LEFT) ||
