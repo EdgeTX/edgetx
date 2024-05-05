@@ -33,6 +33,7 @@ constexpr char FIM_SENSORFORMULA[]   {"Sensor.Formula"};
 constexpr char FIM_SENSORCELLINDEX[] {"Sensor.CellIndex"};
 constexpr char FIM_SENSORUNIT[]      {"Sensor.Unit"};
 constexpr char FIM_SENSORPRECISION[] {"Sensor.Precision"};
+constexpr char FIM_TELEVARIOSRC[]    {"Tele Vario Source"};
 
 TelemetrySensorPanel::TelemetrySensorPanel(QWidget *parent, SensorData & sensor, int sensorIndex, int sensorCapability, ModelData & model,
                                            GeneralSettings & generalSettings, Firmware * firmware, const bool & parentLock,
@@ -235,6 +236,7 @@ void TelemetrySensorPanel::on_unitDataChanged()
 {
   sensor.unitChanged();
   update();
+  emit dataModified();
 }
 
 void TelemetrySensorPanel::on_precDataChanged()
@@ -403,8 +405,13 @@ TelemetryPanel::TelemetryPanel(QWidget *parent, ModelData & model, GeneralSettin
   connectItemModelEvents(id);
 
   id = panelFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_TeleSource),
-                                                                        FilteredItemModel::PositiveFilter),
+                                                                        SensorData::SensorTypeContextPos),
                                                   FIM_TELEPOSSRC);
+  connectItemModelEvents(id);
+
+  id = panelFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_TeleSource),
+                                                                        SensorData::SensorTypeContextVario),
+                                                  FIM_TELEVARIOSRC);
   connectItemModelEvents(id);
 
   id = panelItemModels->registerItemModel(SensorData::typeItemModel());
@@ -430,7 +437,7 @@ TelemetryPanel::TelemetryPanel(QWidget *parent, ModelData & model, GeneralSettin
     model.frsky.usrProto = 1;
   }
 
-  ui->varioSource->setModel(panelFilteredItemModels->getItemModel(FIM_TELEPOSSRC));
+  ui->varioSource->setModel(panelFilteredItemModels->getItemModel(FIM_TELEVARIOSRC));
   ui->varioSource->setField(model.frsky.varioSource, this);
   ui->varioCenterSilent->setField(model.frsky.varioCenterSilent, this);
   ui->A1GB->hide();

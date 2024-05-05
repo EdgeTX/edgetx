@@ -143,6 +143,17 @@ class SensorData {
       UNIT_DATETIME_SEC
     };
 
+    enum SensorTypeMasks {
+      SensorTypeFlagNone     = 1 << 1,  // AbstractItemModel::IMDG_None
+      SensorTypeFlagNeg      = 1 << 2,  // AbstractItemModel::IMDG_Negative
+      SensorTypeFlagPos      = 1 << 3,  // AbstractItemModel::IMDG_Positive
+      SensorTypeFlagVario    = 1 << 4,
+      SensorTypeContextNone  = SensorTypeFlagNone,
+      SensorTypeContextNeg   = SensorTypeFlagNeg   | SensorTypeFlagNone,
+      SensorTypeContextPos   = SensorTypeFlagPos   | SensorTypeFlagNone,
+      SensorTypeContextVario = SensorTypeFlagVario | SensorTypeFlagNone,
+    };
+
     SensorData() { clear(); }
     unsigned int type; // custom / formula
     unsigned int id;
@@ -200,6 +211,7 @@ class SensorData {
 
     static QString sourceToString(const ModelData * model, const int index, const bool positivesign = false);
     static bool isSourceAvailable(const ModelData * model, const int index);
+    static bool isSourceVario(const ModelData * model, const int index);
     static QString idToString(const int value);
     static QString typeToString(const int value);
     static QString formulaToString(const int value);

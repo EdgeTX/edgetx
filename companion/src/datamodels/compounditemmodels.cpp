@@ -486,7 +486,6 @@ TelemetrySourceItemModel::TelemetrySourceItemModel(const GeneralSettings * const
   for (int i = -count; i <= count; ++i) {
     QStandardItem * modelItem = new QStandardItem();
     modelItem->setData(i, IMDR_Id);
-    modelItem->setData(i < 0 ? IMDG_Negative : i > 0 ? IMDG_Positive : IMDG_None, IMDR_Flags);
     setDynamicItemData(modelItem, i);
     appendRow(modelItem);
   }
@@ -496,6 +495,10 @@ void TelemetrySourceItemModel::setDynamicItemData(QStandardItem * item, const in
 {
   item->setText(SensorData::sourceToString(modelData, value));
   item->setData(SensorData::isSourceAvailable(modelData, value), IMDR_Available);
+  int flags = value < 0 ? SensorData::SensorTypeFlagNeg : value > 0 ? SensorData::SensorTypeFlagPos : SensorData::SensorTypeFlagNone;
+  if (value > 0 && SensorData::isSourceVario(modelData, value))
+    flags |= SensorData::SensorTypeFlagVario;
+  item->setData(flags, IMDR_Flags);
 }
 
 void TelemetrySourceItemModel::update(const int event)
