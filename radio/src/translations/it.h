@@ -360,7 +360,7 @@
 #define TR_MEMORYWARNING                TR(INDENT "Avv. Mem.", INDENT "Avviso Memoria")
 #define TR_ALARMWARNING                 "Suono spento"
 #define TR_RSSI_SHUTDOWN_ALARM          TR("RSSI spento", "controlla RSSI spegnendo")
-#define TR_TRAINER_SHUTDOWN_ALARM          TR("Trainer alarm", "check trainer connection")
+#define TR_TRAINER_SHUTDOWN_ALARM       TR("Spegnimento Trainer", "Controllo trainer allo spegnimento")
 #define TR_MODEL_STILL_POWERED          "Radio ancora\nconnessa"
 #define TR_TRAINER_STILL_CONNECTED      "Trainer ancora\nconnesso"
 #define TR_USB_STILL_CONNECTED          "USB ancora\nconnesso"
