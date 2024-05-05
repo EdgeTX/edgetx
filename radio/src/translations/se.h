@@ -375,7 +375,7 @@
 #define TR_MEMORYWARNING                "Lite minne"
 #define TR_ALARMWARNING                 "Ljud av"
 #define TR_RSSI_SHUTDOWN_ALARM          TR("RSSI avstängn.", "Kolla RSSI vid avstängning")
-#define TR_TRAINER_SHUTDOWN_ALARM          TR("Trainer alarm", "check trainer connection")
+#define TR_TRAINER_SHUTDOWN_ALARM       TR("Lärare alarm", "Kolla läraranslutningen")
 #define TR_MODEL_STILL_POWERED          TR("Modell på","Modellen är på")
 #define TR_TRAINER_STILL_CONNECTED      "Lärare fortfarande ansluten"
 #define TR_USB_STILL_CONNECTED          "USB är ansluten"
