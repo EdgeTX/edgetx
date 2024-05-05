@@ -331,7 +331,6 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED_CUST( "varioPitch", 8, r_vPitch, w_vPitch ),
   YAML_SIGNED_CUST( "varioRange", 8, r_vPitch, w_vPitch ),
   YAML_SIGNED( "varioRepeat", 8 ),
-  YAML_UNSIGNED( "disableTrainerPoweroffAlarm", 1 ),
   YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
   YAML_CUSTOM("auxSerialMode",r_serialMode,nullptr),
   YAML_CUSTOM("aux2SerialMode",r_serialMode,nullptr),
@@ -357,6 +356,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "modelSFDisabled", 1 ),
   YAML_UNSIGNED( "modelCustomScriptsDisabled", 1 ),
   YAML_UNSIGNED( "modelTelemetryDisabled", 1 ),
+  YAML_UNSIGNED( "disableTrainerPoweroffAlarm", 1 ),
+  YAML_PADDING( 5 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {

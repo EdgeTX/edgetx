@@ -349,7 +349,6 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED_CUST( "varioPitch", 8, r_vPitch, w_vPitch ),
   YAML_SIGNED_CUST( "varioRange", 8, r_vPitch, w_vPitch ),
   YAML_SIGNED( "varioRepeat", 8 ),
-  YAML_UNSIGNED( "disableTrainerPoweroffAlarm", 1 ),
   YAML_ARRAY("customFn", 72, 64, struct_CustomFunctionData, cfn_is_active),
   YAML_CUSTOM("auxSerialMode",r_serialMode,nullptr),
   YAML_CUSTOM("aux2SerialMode",r_serialMode,nullptr),
@@ -368,6 +367,9 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_UNSIGNED( "stickDeadZone", 3 ),
   YAML_STRING("selectedTheme", 26),
+  YAML_UNSIGNED( "labelSingleSelect", 1 ),
+  YAML_UNSIGNED( "labelMultiMode", 1 ),
+  YAML_UNSIGNED( "favMultiMode", 1 ),
   YAML_UNSIGNED( "modelSelectLayout", 2 ),
   YAML_UNSIGNED( "radioThemesDisabled", 1 ),
   YAML_UNSIGNED( "radioGFDisabled", 1 ),
@@ -380,9 +382,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "modelSFDisabled", 1 ),
   YAML_UNSIGNED( "modelCustomScriptsDisabled", 1 ),
   YAML_UNSIGNED( "modelTelemetryDisabled", 1 ),
-  YAML_UNSIGNED( "labelSingleSelect", 1 ),
-  YAML_UNSIGNED( "labelMultiMode", 1 ),
-  YAML_UNSIGNED( "favMultiMode", 1 ),
+  YAML_UNSIGNED( "disableTrainerPoweroffAlarm", 1 ),
+  YAML_PADDING( 7 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
