@@ -1287,3 +1287,9 @@
 #define TR_MIX_SLOW_PREC          TR("Wolna prec.", "Wolna prec. góra/dół")
 
 #define TR_THEME_EXISTS           "Folder szablonów o takiej samej nazwie już istnieje."
+
+#define TR_DATE_TIME_WIDGET       "Data i czas"
+#define TR_RADIO_INFO_WIDGET      "Informacje o radiu"
+#define TR_LOW_BATT_COLOR         "Rozładowana bateria"
+#define TR_MID_BATT_COLOR         "Średni stan baterii"
+#define TR_HIGH_BATT_COLOR        "Naładowana bateria"

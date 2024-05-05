@@ -1296,3 +1296,9 @@
 #define TR_MIX_SLOW_PREC          TR("Langs. Vorlauf", "Langs. Vor-/Rücklauf")
 
 #define TR_THEME_EXISTS           "Ein Theme-Verzeichnis mit demselben Namen existiert bereits"
+
+#define TR_DATE_TIME_WIDGET       "Datum & Uhrzeit"
+#define TR_RADIO_INFO_WIDGET      "Fernst. Info"
+#define TR_LOW_BATT_COLOR         "Farbe Akku fast leer"
+#define TR_MID_BATT_COLOR         "Farbe Akku mittel"
+#define TR_HIGH_BATT_COLOR        "Farbe Akku voll"

@@ -1300,3 +1300,9 @@
 #define TR_MIX_SLOW_PREC          TR("Přesnost zpomal", "Přesnost zpomalení")
 
 #define TR_THEME_EXISTS           "Adresář vzhledu s tímto názvem již existuje."
+
+#define TR_DATE_TIME_WIDGET       "Datum a čas"
+#define TR_RADIO_INFO_WIDGET      "Informace o vysílačce"
+#define TR_LOW_BATT_COLOR         "Vybitá baterie"
+#define TR_MID_BATT_COLOR         "Středně nabitá baterie"
+#define TR_HIGH_BATT_COLOR        "Plně nabitá baterie"

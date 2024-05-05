@@ -1300,3 +1300,9 @@
 #define TR_MIX_SLOW_PREC          TR("Træg præc", "Træg op/ned præcision")
 
 #define TR_THEME_EXISTS           "Der findes allerede et katalog med samme navn."
+
+#define TR_DATE_TIME_WIDGET       "Dato & Klokke"
+#define TR_RADIO_INFO_WIDGET      "Radio info"
+#define TR_LOW_BATT_COLOR         "Batteri lavt"
+#define TR_MID_BATT_COLOR         "Batteri medio"
+#define TR_HIGH_BATT_COLOR        "Batteri højt"

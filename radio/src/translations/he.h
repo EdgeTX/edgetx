@@ -1291,3 +1291,9 @@
 #define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
 
 #define TR_THEME_EXISTS           "כבר קיימת ערכת נושא עם אותו שם"
+
+#define TR_DATE_TIME_WIDGET       "תאריך ושעה"
+#define TR_RADIO_INFO_WIDGET      "מידע השלט"
+#define TR_LOW_BATT_COLOR         "מתח סוללה נמוך"
+#define TR_MID_BATT_COLOR         "מתח סוללה בינוני"
+#define TR_HIGH_BATT_COLOR        "מתח סוללה גבוה"

@@ -1287,3 +1287,9 @@
 #define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
 
 #define TR_THEME_EXISTS           "同じ名前のテーマディレクトリが既に存在します。"
+
+#define TR_DATE_TIME_WIDGET       "日付と時刻"
+#define TR_RADIO_INFO_WIDGET      "送信機情報"
+#define TR_LOW_BATT_COLOR         "バッテリー低"
+#define TR_MID_BATT_COLOR         "バッテリー中"
+#define TR_HIGH_BATT_COLOR        "バッテリー高"
