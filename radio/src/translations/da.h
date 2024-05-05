@@ -856,7 +856,7 @@
 #define TR_BUZZER                      "Biper"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Tils", "Tilslut"))
-#define TR_MODULE_UNBIND               BUTTON("Unbind")
+#define TR_MODULE_UNBIND               BUTTON("Afkobl")
 #define TR_POWERMETER_ATTN_NEEDED     "Attestering nødvendig"
 #define TR_PXX2_SELECT_RX              "Vælg RX"
 #define TR_PXX2_DEFAULT                "<default>"
