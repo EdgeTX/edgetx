@@ -127,3 +127,18 @@ class ConfirmDialog : public BaseDialog
 
   void onCancel() override;
 };
+
+//-----------------------------------------------------------------------------
+
+class LabelDialog : public ModalWindow
+{
+ public:
+  LabelDialog(Window *parent, const char *label, int length, const char* title,
+              std::function<void(std::string)> _saveHandler = nullptr);
+
+  static constexpr int MAX_LABEL_LENGTH = 255;
+
+ protected:
+  std::function<void(std::string)> saveHandler;
+  char label[MAX_LABEL_LENGTH + 1];
+};

@@ -431,67 +431,6 @@ class ModelsPageBody : public Window
 
 //-----------------------------------------------------------------------------
 
-class LabelDialog : public ModalWindow
-{
- public:
-  LabelDialog(Window *parent, char *label,
-              std::function<void(std::string)> _saveHandler = nullptr) :
-      ModalWindow(parent, false), saveHandler(std::move(_saveHandler))
-  {
-    strncpy(this->label, label, LABEL_LENGTH);
-    this->label[LABEL_LENGTH] = '\0';
-
-    auto form = new Window(this, rect_t{});
-    form->padAll(PAD_ZERO);
-    form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, LCD_W * 0.8,
-                        LV_SIZE_CONTENT);
-    etx_solid_bg(form->getLvObj());
-    lv_obj_center(form->getLvObj());
-
-    auto hdr = new StaticText(form, {0, 0, LV_PCT(100), 0}, STR_ENTER_LABEL,
-                              COLOR_THEME_PRIMARY2);
-    etx_solid_bg(hdr->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
-    hdr->padAll(PAD_MEDIUM);
-
-    auto box = new Window(form, rect_t{});
-    box->padAll(PAD_MEDIUM);
-    box->setFlexLayout(LV_FLEX_FLOW_ROW, 40, LV_PCT(100), LV_SIZE_CONTENT);
-    lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_CENTER,
-                          LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
-
-    auto edit = new TextEdit(box, rect_t{0, 0, LV_PCT(100), 0}, this->label,
-                             LABEL_LENGTH);
-
-    box = new Window(form, rect_t{});
-    box->padAll(PAD_MEDIUM);
-    box->setFlexLayout(LV_FLEX_FLOW_ROW, 40, LV_PCT(100), LV_SIZE_CONTENT);
-    lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_CENTER,
-                          LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
-
-    new TextButton(box, rect_t{0, 0, 96, 0}, STR_CANCEL, [=]() {
-      deleteLater();
-      return 0;
-    });
-
-    new TextButton(box, rect_t{0, 0, 96, 0}, STR_SAVE, [=]() {
-      if (saveHandler != nullptr) saveHandler(this->label);
-      deleteLater();
-      return 0;
-    });
-  }
-
-  void onCancel() override
-  {
-    deleteLater();
-  }
-
- protected:
-  std::function<void(std::string)> saveHandler;
-  char label[LABEL_LENGTH + 1];
-};
-
-//-----------------------------------------------------------------------------
-
 class ModelLayoutButton : public IconButton
 {
  public:
@@ -659,7 +598,7 @@ void ModelLabelsWindow::newModel()
 void ModelLabelsWindow::newLabel()
 {
   tmpLabel[0] = '\0';
-  new LabelDialog(this, tmpLabel, [=](std::string label) {
+  new LabelDialog(parent, tmpLabel, LABEL_LENGTH, STR_ENTER_LABEL, [=](std::string label) {
     int newlabindex = modelslabels.addLabel(label);
     if (newlabindex >= 0) {
       std::set<uint32_t> newset;
@@ -849,7 +788,7 @@ void ModelLabelsWindow::buildBody(Window *window)
           auto oldLabel = labels[selected];
           strncpy(tmpLabel, oldLabel.c_str(), LABEL_LENGTH);
           tmpLabel[LABEL_LENGTH] = '\0';
-          new LabelDialog(this, tmpLabel, [=](std::string newLabel) {
+          new LabelDialog(this, tmpLabel, LABEL_LENGTH, STR_ENTER_LABEL, [=](std::string newLabel) {
             if (newLabel.size() > 0) {
               auto rndialog =
                   new ProgressDialog(this, STR_RENAME_LABEL, [=]() {});
