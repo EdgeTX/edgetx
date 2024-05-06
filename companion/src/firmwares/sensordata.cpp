@@ -357,6 +357,8 @@ QString SensorData::unitToString(const int value, bool hideRaw)
       return tr("kts");
     case UNIT_METERS_PER_SECOND:
       return tr("m/s");
+    case UNIT_FEET_PER_SECOND:
+      return tr("f/s");
     case UNIT_KMH:
       return tr("km/h");
     case UNIT_MPH:
@@ -387,14 +389,10 @@ QString SensorData::unitToString(const int value, bool hideRaw)
       return tr("°");
     case UNIT_RADIANS:
       return tr("Rad");
-    case UNIT_HOURS:
-      return tr("hours");
-    case UNIT_MINUTES:
-      return tr("minutes");
-    case UNIT_SECONDS:
-      return tr("seconds");
-    case UNIT_CELLS:
-      return tr("V");
+    case UNIT_MILLILITERS:
+      return tr("ml");
+    case UNIT_FLOZ:
+      return tr("fl.oz");
     case UNIT_MILLILITERS_PER_MINUTE:
       return tr("ml/minute");
     case UNIT_HERZ:
@@ -403,6 +401,14 @@ QString SensorData::unitToString(const int value, bool hideRaw)
       return tr("mS");
     case UNIT_US:
       return tr("uS");
+    case UNIT_HOURS:
+      return tr("hours");
+    case UNIT_MINUTES:
+      return tr("minutes");
+    case UNIT_SECONDS:
+      return tr("seconds");
+    case UNIT_CELLS:
+      return tr("V");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
