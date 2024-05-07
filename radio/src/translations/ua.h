@@ -676,7 +676,7 @@
 #define TR_COPROC                      "Сопроцессор"
 #define TR_COPROC_TEMP                 "MB темп."
 #define TR_TEMPWARNING                 INDENT "Перегрів"
-#define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
+#define TR_TTL_WARNING                 "Увага: Не перевищуйте 3.3V на пінах TX/RX!"
 #define TR_FUNC                        "Функція"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
