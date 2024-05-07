@@ -597,13 +597,14 @@ void menuMainView(event_t event)
                                 5 * FH + 1, 4, i);
               }
               else {
-                coord_t x = switch_display.col == 0 ? 2 * FW - 2 : 16 * FW + 7;
+                coord_t x = switch_display.col == 0 ? 3 * FW + 3 : 18 * FW + 1;
                 coord_t y = 33 + switch_display.row * FH;
                 getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
+                if (val == 0) x -= 1;
                 getvalue_t sw =
                     ((val < 0) ? 3 * i + 1
                                : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-                drawSwitch(x, y, sw, 0, false);
+                drawSwitch(x, y, sw, CENTERED, false);
               }
             }
           }
