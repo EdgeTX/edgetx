@@ -127,6 +127,7 @@ static inline void check_struct()
   CHKSIZE(ModelData, 6290);
 #elif defined(RADIO_POCKET)
   CHKSIZE(RadioData, 869);
+  CHKSIZE(ModelData, 6265);
 #elif defined(RADIO_TPROV2)
   CHKSIZE(RadioData, 869);
   CHKSIZE(ModelData, 6290);
