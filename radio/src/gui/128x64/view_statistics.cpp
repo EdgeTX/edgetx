@@ -197,8 +197,10 @@ void menuStatisticsDebug(event_t event)
   lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, menusStack.available(), LEFT);
   lcdDrawText(lcdLastRightPos, y, "/");
   lcdDrawNumber(lcdLastRightPos, y, mixerStack.available(), LEFT);
+#if defined(AUDIO)
   lcdDrawText(lcdLastRightPos, y, "/");
   lcdDrawNumber(lcdLastRightPos, y, audioStack.available(), LEFT);
+#endif
   y += FH;
 
 #if defined(DEBUG_LATENCY)

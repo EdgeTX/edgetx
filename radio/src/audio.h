@@ -566,15 +566,17 @@ void audioTask(void * pdata);
   #define AUDIO_BUZZER(a, b)  b
 #endif
 
-  #define AUDIO_ERROR_MESSAGE(e) audioEvent(e)
-  #define AUDIO_TIMER_MINUTE(t)  playDuration(t, 0, 0)
-
 void onKeyError();
 
 void audioKeyPress();
 void audioKeyError();
 void audioTrimPress(int value);
 void audioTimerCountdown(uint8_t timer, int value);
+
+#if defined(AUDIO)
+
+#define AUDIO_ERROR_MESSAGE(e)   audioEvent(e)
+#define AUDIO_TIMER_MINUTE(t)    playDuration(t, 0, 0)
 
 #define AUDIO_KEY_PRESS()        audioKeyPress()
 #define AUDIO_KEY_ERROR()        audioKeyError()
@@ -605,6 +607,28 @@ void audioTimerCountdown(uint8_t timer, int value);
 #define AUDIO_TRAINER_CONNECTED() audioEvent(AU_TRAINER_CONNECTED)
 #define AUDIO_TRAINER_LOST()     audioEvent(AU_TRAINER_LOST)
 #define AUDIO_TRAINER_BACK()     audioEvent(AU_TRAINER_BACK)
+
+#else // AUDIO
+
+#include "buzzer.h"
+
+#define AUDIO_TIMER_COUNTDOWN(idx, val) 
+#define AUDIO_TIMER_ELAPSED(idx) 
+#define AUDIO_TRIM_MIN()
+#define AUDIO_TRIM_MAX()
+#define AUDIO_TRIM_PRESS(val)
+#define AUDIO_VARIO(fq, t, p, f) 
+#define AUDIO_RSSI_ORANGE()
+#define AUDIO_RSSI_RED()
+#define AUDIO_RAS_RED()
+#define AUDIO_TELEMETRY_CONNECTED()
+#define AUDIO_TELEMETRY_LOST()
+#define AUDIO_TELEMETRY_BACK()
+#define AUDIO_TRAINER_CONNECTED()
+#define AUDIO_TRAINER_LOST()
+#define AUDIO_TRAINER_BACK()
+
+#endif
 
 enum AutomaticPromptsCategories {
   SYSTEM_AUDIO_CATEGORY,
@@ -639,10 +663,13 @@ void playModelName();
 #define PLAY_VALUE(v, id)        playValue((v), (id), USE_SETTINGS_VOLUME)
 #define PLAY_FILE(f, flags, id)  audioQueue.playFile((f), (flags), (id), USE_SETTINGS_VOLUME)
 #define STOP_PLAY(id)            audioQueue.stopPlay((id))
+
+#if defined(AUDIO)
 #define AUDIO_RESET()            audioQueue.stopAll()
 #define AUDIO_FLUSH()            audioQueue.flush()
+#endif
 
-#if defined(SDCARD)
+#if defined(SDCARD) & defined(AUDIO)
   extern tmr10ms_t timeAutomaticPromptsSilence;
   void playModelEvent(uint8_t category, uint8_t index, event_t event=0);
   #define PLAY_PHASE_OFF(phase)         playModelEvent(PHASE_AUDIO_CATEGORY, phase, AUDIO_EVENT_OFF)
@@ -661,6 +688,7 @@ void playModelName();
   #define PLAY_LOGICAL_SWITCH_ON(sw)
   #define PLAY_MODEL_NAME()
   #define START_SILENCE_PERIOD()
+  #define IS_SILENCE_PERIOD_ELAPSED()   true
 #endif
 
 char * getAudioPath(char * path);

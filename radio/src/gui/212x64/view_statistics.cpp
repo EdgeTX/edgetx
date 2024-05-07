@@ -191,8 +191,10 @@ void menuStatisticsDebug(event_t event)
   lcdDrawNumber(lcdLastRightPos, y, menusStack.available(), LEFT);
   lcdDrawText(lcdLastRightPos+2, y+1, "[X]", SMLSIZE);
   lcdDrawNumber(lcdLastRightPos, y, mixerStack.available(), LEFT);
+#if defined(AUDIO)
   lcdDrawText(lcdLastRightPos+2, y+1, "[A]", SMLSIZE);
   lcdDrawNumber(lcdLastRightPos, y, audioStack.available(), LEFT);
+#endif
   lcdDrawText(lcdLastRightPos+2, y+1, "[I]", SMLSIZE);
   lcdDrawNumber(lcdLastRightPos, y, mainStackAvailable(), LEFT);
   y += FH;
