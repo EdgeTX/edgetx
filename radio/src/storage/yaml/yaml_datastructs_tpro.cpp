@@ -459,7 +459,7 @@ static const struct YamlNode struct_LogicalSwitchData[] = {
   YAML_PADDING( 10 ),
   YAML_PADDING( 10 ),
   YAML_SIGNED_CUST( "andsw", 10, r_swtchSrc, w_swtchSrc ),
-  YAML_PADDING( 1 ),
+  YAML_UNSIGNED( "lsPersist", 1 ),
   YAML_UNSIGNED( "lsState", 1 ),
   YAML_PADDING( 16 ),
   YAML_UNSIGNED( "delay", 8 ),

@@ -457,11 +457,11 @@ PACK(typedef struct {
   uint16_t duration:15;
 }) ls_stay_struct;
 
-void logicalSwitchesInit()
+void logicalSwitchesInit(bool force)
 {
   for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
     LogicalSwitchData * ls = lswAddress(idx);
-    if (ls->func == LS_FUNC_STICKY) {
+    if (ls->func == LS_FUNC_STICKY && (force || ls->lsPersist)) {
       lswFm[mixerCurrentFlightMode].lsw[idx].lastValue = ls->lsState;
     }
   }

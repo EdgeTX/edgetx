@@ -23,6 +23,7 @@
 #include "timers_driver.h"
 #include "tasks/mixer_task.h"
 #include "mixes.h"
+#include "switches.h"
 
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
@@ -244,8 +245,7 @@ if(g_model.rssiSource) {
 
   customFunctionsReset();
 
-  extern void logicalSwitchesInit();
-  logicalSwitchesInit();
+  logicalSwitchesInit(false);
 
   restoreTimers();
 

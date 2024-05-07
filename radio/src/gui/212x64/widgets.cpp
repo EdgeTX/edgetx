@@ -35,7 +35,9 @@ void drawStick(coord_t centrex, int16_t xval, int16_t yval)
 
 void drawColumnHeader(const char * const *headers, uint8_t index)
 {
+  lcdDrawText(16*FW+3, 0, " ", 0);
   lcdDrawText(17*FW, 0, headers[index], 0);
+  lcdDrawText(lcdNextPos, 0, " ", 0);
 }
 
 void drawCheckBox(coord_t x, coord_t y, uint8_t value, LcdFlags attr)
