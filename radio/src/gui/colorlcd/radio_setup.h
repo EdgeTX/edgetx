@@ -32,4 +32,30 @@ class RadioSetupPage: public PageTab {
   static LAYOUT_VAL(NUM_W, 80, 80)
   static LAYOUT_VAL(EDT_X, 220, 144)
   static constexpr coord_t LBL_W = EDT_X - PAD_TINY - PAD_SMALL;
+  static LAYOUT_VAL(BTN_COLS, 3, 2)
+};
+
+class SetupButtonGroup : public Window
+{
+ public:
+  typedef std::function<void()> PageFct;
+  typedef std::pair<const char*, PageFct> PageDef;
+  typedef std::list<PageDef> PageDefs;
+
+  SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols, PaddingSize padding, PageDefs pages);
+
+ protected:
+};
+
+struct SetupLineDef {
+  const char* title;
+  std::function<void(Window*, coord_t, coord_t)> createEdit;
+};
+
+class SetupLine : public Window
+{
+ public:
+  SetupLine(Window* parent, const rect_t& rect, const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t col2);
+
+ protected:
 };

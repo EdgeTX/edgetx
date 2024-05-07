@@ -186,52 +186,50 @@ class DateTimeWindow : public Window
   }
 };
 
-class WindowButtonGroup : public Window
+SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols, PaddingSize padding, PageDefs pages) :
+    Window(parent, rect)
 {
- public:
-  typedef std::function<void()> PageFct;
-  typedef std::pair<const char*, PageFct> PageDef;
-  typedef std::list<PageDef> PageDefs;
+  padAll(padding);
 
-#if LCD_W > LCD_H
-  static constexpr coord_t COLS = 3;
-#else
-  static constexpr coord_t COLS = 2;
-#endif
-  static constexpr coord_t BTN_W = (LCD_W - PAD_MEDIUM * (COLS + 1) - PAD_TINY * 2) / COLS;
+  coord_t buttonWidth = (LCD_W - PAD_MEDIUM * (cols + 1) - PAD_TINY * 2) / cols;
 
-  WindowButtonGroup(Window* parent, const rect_t& rect, PageDefs pages) :
-      Window(parent, rect)
-  {
-    padAll(PAD_TINY);
-
-    int rows = (pages.size() + COLS - 1) / COLS;
-    setHeight(rows * EdgeTxStyles::UI_ELEMENT_HEIGHT + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2);
-
-    int n = 0;
-    int remaining = pages.size();
-    coord_t xo = 0;
-    for (auto& entry : pages) {
-      if (remaining < COLS && (n % COLS == 0))
-        xo = ((COLS - remaining) * (BTN_W + PAD_MEDIUM)) / 2;
-      coord_t x = xo + (n % COLS) * (BTN_W + PAD_MEDIUM);
-      coord_t y = (n / COLS) * (EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM);
-
-      // TODO: sort out all caps title strings VS quick menu strings
-      std::string title(entry.first);
-      std::replace(title.begin(), title.end(), '\n', ' ');
-
-      new TextButton(this, rect_t{x, y, BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, title, [&, entry]() {
-        entry.second();
-        return 0;
-      });
-      n += 1;
-      remaining -= 1;
-    }
+  int rows = (pages.size() + cols - 1) / cols;
+  int height = rows * EdgeTxStyles::UI_ELEMENT_HEIGHT + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2;
+  if (title) {
+    height += EdgeTxStyles::PAGE_LINE_HEIGHT + PAD_TINY;
   }
+  setHeight(height);
 
- protected:
-};
+  if (title)
+    new Subtitle(this, title);
+
+  int n = 0;
+  int remaining = pages.size();
+  coord_t xo = 0;
+  coord_t yo = title ? EdgeTxStyles::PAGE_LINE_HEIGHT + PAD_TINY : 0;
+  coord_t xw = buttonWidth + PAD_MEDIUM;
+  coord_t x, y;
+  for (auto& entry : pages) {
+    if (remaining < cols && (n % cols == 0)) {
+      coord_t space = ((cols - remaining) * xw) / (remaining + 1);
+      xw += space;
+      xo = space;
+    }
+    x = xo + (n % cols) * xw;
+    y = yo + (n / cols) * (EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM);
+
+    // TODO: sort out all caps title strings VS quick menu strings
+    std::string title(entry.first);
+    std::replace(title.begin(), title.end(), '\n', ' ');
+
+    new TextButton(this, rect_t{x, y, buttonWidth, EdgeTxStyles::UI_ELEMENT_HEIGHT}, title, [&, entry]() {
+      entry.second();
+      return 0;
+    });
+    n += 1;
+    remaining -= 1;
+  }
+}
 
 class SubPage : public Page
 {
@@ -776,32 +774,204 @@ class ManageModelsSetupPage : public SubPage
   Window* favSelectMatch = nullptr;
 };
 
-class SetupLine : public Window
+SetupLine::SetupLine(Window* parent, const rect_t& rect, const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t col2) :
+    Window(parent, rect)
 {
- public:
-  SetupLine(Window* parent, const rect_t& rect, const char* title,  std::function<void(Window*, coord_t, coord_t)> createEdit) :
-      Window(parent, rect)
-  {
-    padAll(PAD_ZERO);
-    coord_t titleY = PAD_MEDIUM + 1;
-    coord_t titleH = EdgeTxStyles::PAGE_LINE_HEIGHT;
+  padAll(PAD_ZERO);
+  coord_t titleY = PAD_MEDIUM + 1;
+  coord_t titleH = EdgeTxStyles::PAGE_LINE_HEIGHT;
+  if (createEdit) {
     coord_t editY = PAD_TINY;
-    if (getTextWidth(title) >= RadioSetupPage::LBL_W) {
-      setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2 + PAD_MEDIUM);
-      titleY = 0;
-      titleH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY;
-      editY = PAD_SMALL + 1;
-    } else {
-      setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2);
+    if (title) {
+      if (getTextWidth(title) >= RadioSetupPage::LBL_W) {
+        setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2 + PAD_MEDIUM);
+        titleY = 0;
+        titleH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY;
+        editY = PAD_SMALL + 1;
+      } else {
+        setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2);
+      }
+      new StaticText(this, {PAD_TINY, titleY, RadioSetupPage::LBL_W, titleH}, title);
     }
-    new StaticText(this, {PAD_TINY, titleY, RadioSetupPage::LBL_W, titleH}, title);
-    createEdit(this, RadioSetupPage::EDT_X, editY);
+    createEdit(this, col2, editY);
+  } else {
+    new StaticText(this, {0, titleY, 0, titleH}, title, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+    setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2);
   }
+}
 
- protected:
+static SetupLineDef setupLines[] = {
+  {
+    // Splash screen
+    STR_SPLASHSCREEN,
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(
+          parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_SPLASHSCREEN_DELAYS, 0, 7,
+          [=]() -> int32_t { return 3 - g_eeGeneral.splashMode; },
+          [=](int32_t newValue) {
+            g_eeGeneral.splashMode = 3 - newValue;
+            SET_DIRTY();
+          });
+    }
+  },
+  {
+    // PPM units
+    STR_UNITS_PPM,
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_PPMUNIT, PPM_PERCENT_PREC0, PPM_PERCENT_PREC1,
+                GET_SET_DEFAULT(g_eeGeneral.ppmunit));
+    }
+  },
+  {
+    // Play startup sound
+    STR_PLAY_HELLO,
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, GET_SET_INVERTED(g_eeGeneral.dontPlayHello));
+    }
+  },
+#if defined(PWR_BUTTON_PRESS)
+  {
+    // Pwr Off Delay
+    STR_PWR_OFF_DELAY,
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(
+          parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_PWR_OFF_DELAYS, 0, 3,
+          [=]() -> int32_t { return 2 - g_eeGeneral.pwrOffSpeed; },
+          [=](int32_t newValue) {
+            g_eeGeneral.pwrOffSpeed = 2 - newValue;
+            SET_DIRTY();
+          });
+    }
+  },
+#endif
+#if defined(PXX2)
+  {
+    // Owner ID
+    STR_OWNER_ID,
+    [](Window* parent, coord_t x, coord_t y) {
+      new RadioTextEdit(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, g_eeGeneral.ownerRegistrationID,
+                        PXX2_LEN_REGISTRATION_ID);
+    }
+  },
+#endif
+  {
+    // Country code
+    STR_COUNTRY_CODE,
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_COUNTRY_CODES, 0, 2,
+                GET_SET_DEFAULT(g_eeGeneral.countryCode));
+    }
+  },
+  {
+    // Audio language
+    STR_VOICE_LANGUAGE,
+    [](Window* parent, coord_t x, coord_t y) {
+      auto choice =
+          new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, DIM(languagePacks) - 2,
+                    GET_VALUE(currentLanguagePackIdx), [](uint8_t newValue) {
+                      currentLanguagePackIdx = newValue;
+                      currentLanguagePack = languagePacks[currentLanguagePackIdx];
+                      strncpy(g_eeGeneral.ttsLanguage, currentLanguagePack->id, 2);
+                      SET_DIRTY();
+                    });
+      choice->setTextHandler(
+          [](uint8_t value) { return languagePacks[value]->name; });
+    }
+  },
+  {
+    // Imperial units
+    STR_UNITS_SYSTEM,
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_VUNITSSYSTEM, 0, 1,
+                GET_SET_DEFAULT(g_eeGeneral.imperial));
+    }
+  },
+  {
+    // Switches delay
+    STR_SWITCHES_DELAY,
+    [](Window* parent, coord_t x, coord_t y) {
+      auto edit =
+          new NumberEdit(parent, {x, y, RadioSetupPage::NUM_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 100,
+                        GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
+      edit->setDisplayHandler([](int32_t value) {
+        return formatNumberAsString(value * 10, 0, 0, nullptr, STR_MS);
+      });
+    }
+  },
+  {
+    // USB mode
+    STR_USBMODE,
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE,
+                GET_SET_DEFAULT(g_eeGeneral.USBMode));
+    }
+  },
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
+  {
+    STR_ROTARY_ENC_MODE,
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_ROTARY_ENC_OPT, ROTARY_ENCODER_MODE_NORMAL,
+                ROTARY_ENCODER_MODE_INVERT_BOTH,
+                GET_SET_DEFAULT(g_eeGeneral.rotEncMode));
+    }
+  },
+#endif
+#if defined(USE_HATS_AS_KEYS)
+  {
+    STR_HATSMODE,
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 120, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_HATSOPT, HATSMODE_TRIMS_ONLY,
+                HATSMODE_SWITCHABLE, GET_SET_DEFAULT(g_eeGeneral.hatsMode));
+      new TextButton(parent, {x + 120 + PAD_MEDIUM, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, "?", [=]() {
+        new MessageDialog(parent, STR_HATSMODE_KEYS, STR_HATSMODE_KEYS_HELP, "",
+                          LEFT);
+        return 0;
+      });
+    }
+  },
+#endif
+  {
+    // RX channel order
+    STR_DEF_CHAN_ORD,
+    [](Window* parent, coord_t x, coord_t y) {
+      uint8_t mains = adcGetMaxInputs(ADC_INPUT_MAIN);
+      auto max_order = inputMappingGetMaxChannelOrder() - 1;
+      auto choice = new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, max_order,
+                          GET_SET_DEFAULT(g_eeGeneral.templateSetup));
+
+      choice->setTextHandler([=](uint8_t value) {
+        std::string s;
+        for (uint8_t i = 0; i < mains; i++) {
+          s += getAnalogShortLabel(inputMappingChannelOrder(value, i));
+        }
+        return s;
+      });
+    }
+  },
+  {
+    // Stick mode
+    STR_MODE,
+    [](Window* parent, coord_t x, coord_t y) {
+      auto choice = new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
+                          [=](uint8_t newValue) {
+                            mixerTaskStop();
+                            g_eeGeneral.stickMode = newValue;
+                            SET_DIRTY();
+                            checkThrottleStick();
+                            mixerTaskStart();
+                          });
+      choice->setTextHandler([](uint8_t value) {
+        auto stick0 = inputMappingConvertMode(value, 0);
+        auto stick1 = inputMappingConvertMode(value, 1);
+        return std::to_string(1 + value) + ": " + STR_LEFT_STICK + " = " +
+              std::string(getMainControlLabel(stick0)) + "+" +
+              std::string(getMainControlLabel(stick1));
+      });
+    }
+  },
 };
 
-RadioSetupPage::RadioSetupPage() : PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP) {}
+RadioSetupPage::RadioSetupPage() : PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP, PAD_TINY) {}
 
 void RadioSetupPage::build(Window* window)
 {
@@ -814,7 +984,7 @@ void RadioSetupPage::build(Window* window)
   y += w->height() + padding;
 
   // Sub-pages
-  w = new WindowButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, {
+  w = new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, {
     {STR_SOUND_LABEL, []() { new SoundPage(); }},
 #if defined(VARIO)
     {STR_VARIO, []() { new VarioPage(); }},
@@ -829,200 +999,8 @@ void RadioSetupPage::build(Window* window)
     {STR_MAIN_MENU_MANAGE_MODELS, []() { new ManageModelsSetupPage(); }},
   });
 
-  y += w->height() + padding;
-
-  // Splash screen
-  w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, STR_SPLASHSCREEN,
-      [=](Window* parent, coord_t x, coord_t y) {
-        new Choice(
-            parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_SPLASHSCREEN_DELAYS, 0, 7,
-            [=]() -> int32_t { return 3 - g_eeGeneral.splashMode; },
-            [=](int32_t newValue) {
-              g_eeGeneral.splashMode = 3 - newValue;
-              SET_DIRTY();
-            });
-      });
-
-  y += w->height() + padding;
-
-  // Play startup sound
-  w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, STR_PLAY_HELLO,
-      [=](Window* parent, coord_t x, coord_t y) {
-        new ToggleSwitch(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, GET_SET_INVERTED(g_eeGeneral.dontPlayHello));
-      });
-
-  y += w->height() + padding;
-
-#if defined(PWR_BUTTON_PRESS)
-  // Pwr Off Delay
-  w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, STR_PWR_OFF_DELAY,
-      [=](Window* parent, coord_t x, coord_t y) {
-        new Choice(
-            parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_PWR_OFF_DELAYS, 0, 3,
-            [=]() -> int32_t { return 2 - g_eeGeneral.pwrOffSpeed; },
-            [=](int32_t newValue) {
-              g_eeGeneral.pwrOffSpeed = 2 - newValue;
-              SET_DIRTY();
-            });
-      });
-
-  y += w->height() + padding;
-#endif
-
-#if defined(PXX2)
-  // Owner ID
-  w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, STR_OWNER_ID,
-      [=](Window* parent, coord_t x, coord_t y) {
-        new RadioTextEdit(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, g_eeGeneral.ownerRegistrationID,
-                          PXX2_LEN_REGISTRATION_ID);
-      });
-
-  y += w->height() + padding;
-#endif
-
-  // Country code
-  w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, STR_COUNTRY_CODE,
-      [=](Window* parent, coord_t x, coord_t y) {
-        new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_COUNTRY_CODES, 0, 2,
-                  GET_SET_DEFAULT(g_eeGeneral.countryCode));
-      });
-
-  y += w->height() + padding;
-
-  // Audio language
-  w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, STR_VOICE_LANGUAGE,
-      [=](Window* parent, coord_t x, coord_t y) {
-        auto choice =
-            new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, DIM(languagePacks) - 2,
-                      GET_VALUE(currentLanguagePackIdx), [](uint8_t newValue) {
-                        currentLanguagePackIdx = newValue;
-                        currentLanguagePack = languagePacks[currentLanguagePackIdx];
-                        strncpy(g_eeGeneral.ttsLanguage, currentLanguagePack->id, 2);
-                        SET_DIRTY();
-                      });
-        choice->setTextHandler(
-            [](uint8_t value) { return languagePacks[value]->name; });
-      });
-
-  y += w->height() + padding;
-
-  // Imperial units
-  w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, STR_UNITS_SYSTEM,
-      [=](Window* parent, coord_t x, coord_t y) {
-        new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_VUNITSSYSTEM, 0, 1,
-                  GET_SET_DEFAULT(g_eeGeneral.imperial));
-      });
-
-  y += w->height() + padding;
-    
-  // PPM units
-  w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, STR_UNITS_PPM,
-                    [=](Window* parent, coord_t x, coord_t y) {
-                        new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_PPMUNIT, PPM_PERCENT_PREC0, PPM_PERCENT_PREC1,
-                                   GET_SET_DEFAULT(g_eeGeneral.ppmunit));
-                    });
-   
-  y += w->height() + padding;
-
-#if defined(FAI_CHOICE)
-/*  case ITEM_SETUP_FAI:
-    lcdDrawText(PAD_MEDIUM, y, "FAI Mode");
-    if (g_eeGeneral.fai) {
-      lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, "Locked in FAI Mode");
-    }
-    else {
-      g_eeGeneral.fai = editCheckBox(g_eeGeneral.fai, RADIO_SETUP_2ND_COLUMN, y,
-  attr, event); if (attr && checkIncDec_Ret) { g_eeGeneral.fai = false;
-          POPUP_CONFIRMATION("FAI mode?");
-      }
-    }
-    break;*/
-#endif
-
-  // Switches delay
-  w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, STR_SWITCHES_DELAY,
-      [=](Window* parent, coord_t x, coord_t y) {
-        auto edit =
-            new NumberEdit(parent, {x, y, NUM_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 100,
-                          GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
-        edit->setDisplayHandler([](int32_t value) {
-          return formatNumberAsString(value * 10, 0, 0, nullptr, STR_MS);
-        });
-      });
-
-  y += w->height() + padding;
-
-  // USB mode
-  w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, STR_USBMODE,
-      [=](Window* parent, coord_t x, coord_t y) {
-        new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE,
-                  GET_SET_DEFAULT(g_eeGeneral.USBMode));
-      });
-
-  y += w->height() + padding;
-
-#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
-  w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, STR_ROTARY_ENC_MODE,
-      [=](Window* parent, coord_t x, coord_t y) {
-        new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_ROTARY_ENC_OPT, ROTARY_ENCODER_MODE_NORMAL,
-                  ROTARY_ENCODER_MODE_INVERT_BOTH,
-                  GET_SET_DEFAULT(g_eeGeneral.rotEncMode));
-      });
-
-  y += w->height() + padding;
-#endif
-
-#if defined(USE_HATS_AS_KEYS)
-  w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, STR_HATSMODE,
-      [=](Window* parent, coord_t x, coord_t y) {
-        new Choice(parent, {x, y, 120, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_HATSOPT, HATSMODE_TRIMS_ONLY,
-                  HATSMODE_SWITCHABLE, GET_SET_DEFAULT(g_eeGeneral.hatsMode));
-        new TextButton(parent, {x + 120 + PAD_MEDIUM, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, "?", [=]() {
-          new MessageDialog(parent, STR_HATSMODE_KEYS, STR_HATSMODE_KEYS_HELP, "",
-                            LEFT);
-          return 0;
-        });
-      });
-
-  y += w->height() + padding;
-#endif
-
-  // RX channel order
-  w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, STR_DEF_CHAN_ORD,
-      [=](Window* parent, coord_t x, coord_t y) {
-        uint8_t mains = adcGetMaxInputs(ADC_INPUT_MAIN);
-        auto max_order = inputMappingGetMaxChannelOrder() - 1;
-        auto choice = new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, max_order,
-                            GET_SET_DEFAULT(g_eeGeneral.templateSetup));
-
-        choice->setTextHandler([=](uint8_t value) {
-          std::string s;
-          for (uint8_t i = 0; i < mains; i++) {
-            s += getAnalogShortLabel(inputMappingChannelOrder(value, i));
-          }
-          return s;
-        });
-      });
-
-  y += w->height() + padding;
-
-  // Stick mode
-  new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, STR_MODE,
-      [=](Window* parent, coord_t x, coord_t y) {
-        auto choice = new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
-                            [=](uint8_t newValue) {
-                              mixerTaskStop();
-                              g_eeGeneral.stickMode = newValue;
-                              SET_DIRTY();
-                              checkThrottleStick();
-                              mixerTaskStart();
-                            });
-        choice->setTextHandler([](uint8_t value) {
-          auto stick0 = inputMappingConvertMode(value, 0);
-          auto stick1 = inputMappingConvertMode(value, 1);
-          return std::to_string(1 + value) + ": " + STR_LEFT_STICK + " = " +
-                std::string(getMainControlLabel(stick0)) + "+" +
-                std::string(getMainControlLabel(stick1));
-        });
-      });
+  for (size_t i = 0; i < DIM(setupLines); i += 1) {
+    y += w->height() + padding;
+    w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, setupLines[i].title, setupLines[i].createEdit, EDT_X);
+  }
 }

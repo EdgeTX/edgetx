@@ -31,6 +31,7 @@
 #include "radio_calibration.h"
 #include "radio_diaganas.h"
 #include "radio_diagkeys.h"
+#include "radio_setup.h"
 
 #if defined(BLUETOOTH)
 #include "hw_bluetooth.h"
@@ -43,24 +44,16 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 
-static Window* hbox(Window* parent)
-{
-  auto box = new Window(parent, rect_t{});
-  box->padAll(PAD_TINY);
-  box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
-  lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
-  lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_START,
-                        LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-
-  return box;
-}
-
 RadioHardwarePage::RadioHardwarePage() :
-    PageTab(STR_HARDWARE, ICON_RADIO_HARDWARE)
+    PageTab(STR_HARDWARE, ICON_RADIO_HARDWARE, PAD_TINY)
 {
+  enableVBatBridge();
 }
 
-void RadioHardwarePage::checkEvents() { enableVBatBridge(); }
+void RadioHardwarePage::cleanup()
+{
+  disableVBatBridge();
+}
 
 class BatCalEdit : public NumberEdit
 {
@@ -87,114 +80,87 @@ class BatCalEdit : public NumberEdit
   }
 };
 
-class HWButtonGroup : public Window
-{
- public:
-  typedef std::function<void()> PageFct;
-  typedef std::pair<const char*, PageFct> PageDef;
-  typedef std::list<PageDef> PageDefs;
-
-#if LCD_W > LCD_H
-  static constexpr coord_t COLS = 4;
-#else
-  static constexpr coord_t COLS = 3;
-#endif
-  static constexpr coord_t BTN_W = (LCD_W - PAD_MEDIUM * (COLS + 1) - PAD_TINY * 2) / COLS;
-
-  HWButtonGroup(Window* parent, const rect_t& rect, const char* title, PageDefs pages) :
-      Window(parent, rect), title(title)
+static SetupLineDef setupLines[] = {
   {
-    padAll(PAD_ZERO);
-    int rows = (pages.size() + COLS - 1) / COLS;
-    setHeight(rows * EdgeTxStyles::UI_ELEMENT_HEIGHT + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2 + EdgeTxStyles::PAGE_LINE_HEIGHT);
+    // Batt meter range - Range 3.0v to 16v
+    STR_BATTERY_RANGE,
+    [](Window* parent, coord_t x, coord_t y) {
+      auto batMin = new NumberEdit(
+          parent, {x, y, RadioHardwarePage::NUM_EDIT_W, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
+          GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), PREC1);
+      batMin->setSuffix("V");
+      new StaticText(parent, {x + RadioHardwarePage::NUM_EDIT_W + PAD_SMALL, y + PAD_SMALL + 1, PAD_LARGE, EdgeTxStyles::PAGE_LINE_HEIGHT}, "-");
+      auto batMax = new NumberEdit(
+          parent, {x + RadioHardwarePage::NUM_EDIT_W + PAD_LARGE + PAD_SMALL, y, RadioHardwarePage::NUM_EDIT_W, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
+          GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), PREC1);
+      batMax->setSuffix("V");
 
-    new Subtitle(this, title);
-
-    int n = 0;
-    for (auto& entry : pages) {
-      coord_t x = (n % COLS) * (BTN_W + PAD_MEDIUM) + PAD_TINY;
-      coord_t y = (n / COLS) * (EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM) + EdgeTxStyles::PAGE_LINE_HEIGHT + 2;
-
-      new TextButton(this, rect_t{x, y, BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, entry.first, [&, entry]() {
-        entry.second();
-        return 0;
+      batMin->setSetValueHandler([=](int32_t newValue) {
+        g_eeGeneral.vBatMin = newValue - 90;
+        SET_DIRTY();
+        batMax->setMin(g_eeGeneral.vBatMin - 29 + 120);
       });
-      n += 1;
-    }
-  }
 
- protected:
-  std::string title;
+      batMax->setSetValueHandler([=](int32_t newValue) {
+        g_eeGeneral.vBatMax = newValue - 120;
+        SET_DIRTY();
+        batMin->setMax(g_eeGeneral.vBatMax + 29 + 90);
+      });
+    }
+  },
+  {
+    // Bat calibration
+    STR_BATT_CALIB,
+    [](Window* parent, coord_t x, coord_t y) {
+      new BatCalEdit(parent, {x, y, RadioHardwarePage::NUM_EDIT_W, 0});
+    }
+  },
+  {
+    // RTC Batt check enable
+    STR_RTC_CHECK,
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0},
+                       GET_SET_INVERTED(g_eeGeneral.disableRtcWarning));
+
+      // RTC Batt display
+      std::string s(STR_VALUE);
+      s += " ";
+      new DynamicNumber<uint16_t>(
+          parent, {x + ToggleSwitch::TOGGLE_W + PAD_SMALL, y + PAD_SMALL + 1, 0, 0}, [] { return getRTCBatteryVoltage(); },
+          COLOR_THEME_PRIMARY1 | PREC2, s.c_str(), "V");
+    }
+  },
+  {
+    // ADC filter
+    STR_JITTER_FILTER,
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
+    }
+  },
+#if defined(AUDIO_MUTE_GPIO)
+  {
+    // Mute audio
+    STR_AUDIO_MUTE,
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_eeGeneral.audioMuteEnable));
+    }
+  },
+#endif
 };
 
 void RadioHardwarePage::build(Window* window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
-  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
-
   // TODO: sub-title?
 
-  // Batt meter range - Range 3.0v to 16v
-  auto line = window->newLine(grid);
-  new StaticText(line, rect_t{}, STR_BATTERY_RANGE);
+  for (size_t i = 0; i < DIM(setupLines); i += 1) {
+    new SetupLine(window, {0, 0, LCD_W - padding * 2, 0}, setupLines[i].title, setupLines[i].createEdit, EDT_X);
+  }
 
-  auto box = hbox(line);
-  auto batMin = new NumberEdit(
-      box, rect_t{0, 0, NUM_EDIT_W, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
-      GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), PREC1);
-  batMin->setSuffix("V");
-  new StaticText(box, rect_t{}, "-");
-  auto batMax = new NumberEdit(
-      box, rect_t{0, 0, NUM_EDIT_W, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
-      GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), PREC1);
-  batMax->setSuffix("V");
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
-  batMin->setSetValueHandler([=](int32_t newValue) {
-    g_eeGeneral.vBatMin = newValue - 90;
-    SET_DIRTY();
-    batMax->setMin(g_eeGeneral.vBatMin - 29 + 120);
-  });
-
-  batMax->setSetValueHandler([=](int32_t newValue) {
-    g_eeGeneral.vBatMax = newValue - 120;
-    SET_DIRTY();
-    batMin->setMax(g_eeGeneral.vBatMax + 29 + 90);
-  });
-
-  // Bat calibration
-  line = window->newLine(grid);
-  new StaticText(line, rect_t{}, STR_BATT_CALIB);
-  box = hbox(line);
-  new BatCalEdit(box, rect_t{0, 0, NUM_EDIT_W, 0});
-
-  // RTC Batt check enable
-  line = window->newLine(grid);
-  new StaticText(line, rect_t{}, STR_RTC_CHECK);
-
-  box = hbox(line);
-  new ToggleSwitch(box, rect_t{},
-                   GET_SET_INVERTED(g_eeGeneral.disableRtcWarning));
-
-  // RTC Batt display
-  new StaticText(box, rect_t{}, STR_VALUE);
-  new DynamicNumber<uint16_t>(
-      box, rect_t{}, [] { return getRTCBatteryVoltage(); },
-      COLOR_THEME_PRIMARY1 | PREC2, nullptr, "V");
-
-  // ADC filter
-  line = window->newLine(grid);
-  new StaticText(line, rect_t{}, STR_JITTER_FILTER);
-  box = hbox(line);
-  new ToggleSwitch(box, rect_t{}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
-
-#if defined(AUDIO_MUTE_GPIO)
-  // Mute audio
-  line = window->newLine(grid);
-  new StaticText(line, rect_t{}, STR_AUDIO_MUTE);
-  box = hbox(line);
-  new ToggleSwitch(box, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.audioMuteEnable));
-#endif
+  FormLine* line;
 
 #if defined(HARDWARE_INTERNAL_MODULE)
   new Subtitle(window, STR_INTERNALRF);
@@ -221,7 +187,7 @@ void RadioHardwarePage::build(Window* window)
   new SerialConfigWindow(window, grid);
 
   // Calibration
-  new HWButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_INPUTS, {
+  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_INPUTS, BTN_COLS, PAD_ZERO, {
     {STR_CALIBRATION, []() { new RadioCalibrationPage(); }},
     {STR_STICKS, []() { new HWInputDialog<HWSticks>(STR_STICKS); }},
     {STR_POTS, []() { new HWInputDialog<HWPots>(STR_POTS); }},
@@ -229,7 +195,7 @@ void RadioHardwarePage::build(Window* window)
   });
 
   // Debugs
-  new HWButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_DEBUG, {
+  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_DEBUG, BTN_COLS, PAD_ZERO, {
     {STR_ANALOGS_BTN, []() { new RadioAnalogsDiagsViewPageGroup(); }},
     {STR_KEYS_BTN, []() { new RadioKeyDiagsPage(); }},
   });

@@ -25,12 +25,15 @@
 
 class RadioHardwarePage : public PageTab
 {
-  void checkEvents() override;
-
-  static LAYOUT_VAL(NUM_EDIT_W, 80, 80)
-
  public:
   RadioHardwarePage();
 
   void build(Window* window) override;
+
+  static LAYOUT_VAL(NUM_EDIT_W, 80, 80)
+  static LAYOUT_VAL(BTN_COLS, 4, 3)
+  static LAYOUT_VAL(EDT_X, 160, 160)
+
+ protected:
+  void cleanup() override;
 };
