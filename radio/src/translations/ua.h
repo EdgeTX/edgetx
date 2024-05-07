@@ -676,7 +676,7 @@
 #define TR_COPROC                      "Сопроцессор"
 #define TR_COPROC_TEMP                 "MB темп."
 #define TR_TEMPWARNING                 INDENT "Перегрів"
-#define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
+#define TR_TTL_WARNING                 "Увага: Не перевищуйте 3.3V на пінах TX/RX!"
 #define TR_FUNC                        "Функція"
 #define TR_V1                          "V1"
 #define TR_V2                          "V2"
@@ -1281,8 +1281,8 @@
 
 #define TR_THEME_EXISTS           "A theme directory with the same name already exists."
 
-#define TR_DATE_TIME_WIDGET       "Date & Time"
-#define TR_RADIO_INFO_WIDGET      "Radio Info"
-#define TR_LOW_BATT_COLOR         "Low battery"
-#define TR_MID_BATT_COLOR         "Mid battery"
-#define TR_HIGH_BATT_COLOR        "High battery"
+#define TR_DATE_TIME_WIDGET       "Дата & Час"
+#define TR_RADIO_INFO_WIDGET      "Інформація про пульт"
+#define TR_LOW_BATT_COLOR         "Розряджена батарея"
+#define TR_MID_BATT_COLOR         "Середній заряд батареї"
+#define TR_HIGH_BATT_COLOR        "Заряджена батарея"
