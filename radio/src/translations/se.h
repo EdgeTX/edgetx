@@ -870,7 +870,7 @@
 #define TR_BUZZER                       "Summer"
 #define TR_BYTES                        "byte"
 #define TR_MODULE_BIND                  BUTTON(TR("Bnd", "Bind"))
-#define TR_MODULE_UNBIND               BUTTON("Unbind")
+#define TR_MODULE_UNBIND                BUTTON("Glöm")
 #define TR_POWERMETER_ATTN_NEEDED      "Attenuator behövs"
 #define TR_PXX2_SELECT_RX               "Välj Rx"
 #define TR_PXX2_DEFAULT                 "<default>"
