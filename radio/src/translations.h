@@ -377,9 +377,6 @@ extern const char STR_SOUND_LABEL[];
 extern const char STR_LENGTH[];
 extern const char STR_BEEP_LENGTH[];
 extern const char STR_BEEP_PITCH[];
-extern const char STR_IMU_LABEL[];
-extern const char STR_IMU_OFFSET[];
-extern const char STR_IMU_MAX[];
 extern const char STR_CONTRAST[];
 extern const char STR_ALARMS_LABEL[];
 extern const char STR_BATTERY_RANGE[];
@@ -425,6 +422,11 @@ extern const char* const STR_PWR_OFF_DELAYS[];
 extern const char STR_PWR_ON_OFF_HAPTIC[];
 extern const char STR_HAPTIC_LABEL[];
 extern const char STR_STRENGTH[];
+#endif
+#if defined(IMU)
+extern const char STR_IMU_LABEL[];
+extern const char STR_IMU_OFFSET[];
+extern const char STR_IMU_MAX[];
 #endif
 extern const char STR_THROTTLE_WARNING[];
 extern const char STR_CUSTOM_THROTTLE_WARNING[];
