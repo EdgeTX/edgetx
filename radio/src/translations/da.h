@@ -275,9 +275,9 @@
 #define TR_ETRIMS                      TR("Udv.Trim", "Udvidet trim")
 #define TR_TRIMINC                     "Trim øge"
 #define TR_DISPLAY_TRIMS               TR("Vis trim", "Vis trim")
-#define TR_TTRACE                      TR("T-kilde", INDENT "kilde")
-#define TR_TTRIM                       TR("T-trim-tomg", INDENT "Trim tomgang alene")
-#define TR_TTRIM_SW                    TR("T-trim-ko", INDENT "Trim kontakt")
+#define TR_TTRACE                      TR("T-kilde", "kilde")
+#define TR_TTRIM                       TR("T-trim-tomg", "Trim tomgang alene")
+#define TR_TTRIM_SW                    TR("T-trim-ko", "Trim kontakt")
 #define TR_BEEPCTR                     TR("Bip ctr pos", "Bip ved center position")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funk.", "Brug global funk.")
 #define TR_PROTOCOL                    TR("Proto", "Protokol")
@@ -373,7 +373,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "Tryk enter for bekræft"
 #define TR_THROTTLE_LABEL              "Gas"
 #define TR_THROTTLE_START              "Gas Start"
-#define TR_THROTTLEREVERSE             TR("T-omvendt", INDENT "Omvendt")
+#define TR_THROTTLEREVERSE             TR("T-omvendt", "Omvendt")
 #define TR_MINUTEBEEP                  TR("Minut", "Minut kald")
 #define TR_BEEPCOUNTDOWN               INDENT "Nedtælling"
 #define TR_PERSISTENT                  TR(INDENT "Varig", INDENT "Varig")

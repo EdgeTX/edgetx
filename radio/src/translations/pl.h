@@ -269,9 +269,9 @@
 #define TR_ETRIMS              TR("E.Trym ", "Poszer Trymery")
 #define TR_TRIMINC             "Krok Trym"
 #define TR_DISPLAY_TRIMS       TR("Pok.Trym.","Pokaż Trymery")
-#define TR_TTRACE              TR("Źród gaz", INDENT "Źródło gazu ")
-#define TR_TTRIM               TR("TryGaz", INDENT "TrymWolnObrotó")
-#define TR_TTRIM_SW            TR("T-Trim-Sw", INDENT "Trim switch")
+#define TR_TTRACE              TR("Źród gaz", "Źródło gazu ")
+#define TR_TTRIM               TR("TryGaz", "TrymWolnObrotó")
+#define TR_TTRIM_SW            TR("T-Trim-Sw", "Trim switch")
 #define TR_BEEPCTR             TR("Dźwięk środ.", "Dźwięk środ. położenia")
 #define TR_USE_GLOBAL_FUNCS    TR("Funk.Glb.","Użyj Funkcji Glb")
 #define TR_PROTOCOL            TR("Proto", "Protokół")
@@ -365,7 +365,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "Press enter to confirm"
 #define TR_THROTTLE_LABEL      "Gaz"
 #define TR_THROTTLE_START      "Gaz Start"
-#define TR_THROTTLEREVERSE     TR("OdwrGaz", INDENT "OdwrGaz")
+#define TR_THROTTLEREVERSE     TR("OdwrGaz", "OdwrGaz")
 #define TR_MINUTEBEEP          TR("Minuta", "PikCoMinutę")
 #define TR_BEEPCOUNTDOWN       INDENT "Odliczanie"
 #define TR_PERSISTENT          TR(INDENT "Dokł.", INDENT "Dokładny")

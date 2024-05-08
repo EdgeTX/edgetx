@@ -285,9 +285,9 @@
 #define TR_ETRIMS                       TR("Trimmar++","Utökade trimmar")
 #define TR_TRIMINC                      TR("Trimning","Trimmökning")
 #define TR_DISPLAY_TRIMS                TR("Visa trimm", "Visa trimmar")
-#define TR_TTRACE                       TR("Källa", INDENT "Källa")
-#define TR_TTRIM                        TR("Gastrimm", INDENT "Trimma endast tomgång")
-#define TR_TTRIM_SW                     TR("Trimmknp", INDENT "Trimmknapp")
+#define TR_TTRACE                       TR("Källa", "Källa")
+#define TR_TTRIM                        TR("Gastrimm", "Trimma endast tomgång")
+#define TR_TTRIM_SW                     TR("Trimmknp", "Trimmknapp")
 #define TR_BEEPCTR                      TR("Cntr. pip", "Pip när centrerad")
 #define TR_USE_GLOBAL_FUNCS             TR("Glob.funk.", "Anv. globala funk.")
 #define TR_PROTOCOL                     TR("Proto.", "Protokoll")
@@ -383,7 +383,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM       "Tryck [ENTER] för att bekräfta"
 #define TR_THROTTLE_LABEL               "Gas"
 #define TR_THROTTLE_START               "Gas Start"
-#define TR_THROTTLEREVERSE              TR("Omv. gas", INDENT "Omvänd gas")
+#define TR_THROTTLEREVERSE              TR("Omv. gas", "Omvänd gas")
 #define TR_MINUTEBEEP                   "Minutpip"
 #define TR_BEEPCOUNTDOWN                INDENT "Nedräkning"
 #define TR_PERSISTENT                   INDENT "Beständig"

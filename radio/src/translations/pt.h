@@ -275,9 +275,9 @@
 #define TR_ETRIMS                      TR("E.Trims", "Trims extend.")
 #define TR_TRIMINC                     "PassoTrim"
 #define TR_DISPLAY_TRIMS               TR("Exb Trims", "Exibir trims")
-#define TR_TTRACE                      TR("T-Source", INDENT "Source")
-#define TR_TTRIM                       TR("T-Trim-Idle", INDENT "Trim idle only")
-#define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
+#define TR_TTRACE                      TR("T-Source", "Source")
+#define TR_TTRIM                       TR("T-Trim-Idle", "Trim idle only")
+#define TR_TTRIM_SW                    TR("T-Trim-Sw", "Trim switch")
 #define TR_BEEPCTR                     TR("Bip Cntr", "Bipe quando centralizado")
 #define TR_USE_GLOBAL_FUNCS            TR("Funcs.Glob", "Usar func.global")
 #define TR_PROTOCOL                    TR("Proto", "Protocolo")
@@ -371,7 +371,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "Press enter p/ confirmar"
 #define TR_THROTTLE_LABEL              "Motor"
 #define TR_THROTTLE_START              "Iniciar Motor"
-#define TR_THROTTLEREVERSE             TR("T-Reverso", INDENT "Reverso")
+#define TR_THROTTLEREVERSE             TR("T-Reverso", "Reverso")
 #define TR_MINUTEBEEP                  TR("Minuto", "Cada Minuto")
 #define TR_BEEPCOUNTDOWN               INDENT "ContagemRegr"
 #define TR_PERSISTENT                  TR(INDENT "Persist.", INDENT "Persistente")

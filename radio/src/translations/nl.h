@@ -269,9 +269,9 @@
 #define TR_ETRIMS              TR("E.Trims", "Extended Trims")
 #define TR_TRIMINC             "Trim Step"
 #define TR_DISPLAY_TRIMS       "Toon Trims"
-#define TR_TTRACE              TR("T-Source", INDENT "Source")
-#define TR_TTRIM               TR("T-Trim", INDENT "Trim Idle Only")
-#define TR_TTRIM_SW            TR("T-Trim-Sw", INDENT "Trim switch")
+#define TR_TTRACE              TR("T-Source", "Source")
+#define TR_TTRIM               TR("T-Trim", "Trim Idle Only")
+#define TR_TTRIM_SW            TR("T-Trim-Sw", "Trim switch")
 #define TR_BEEPCTR             TR("Ctr Beep", "Center Beep")
 #define TR_USE_GLOBAL_FUNCS    TR("Glob.Funcs", "Globale Functies")
 #define TR_PROTOCOL            TR("Proto", "Protocol")
@@ -366,7 +366,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM "Press enter to confirm"
 #define TR_THROTTLE_LABEL      "Gas"
 #define TR_THROTTLE_START      "Gas Start"
-#define TR_THROTTLEREVERSE     TR("Reverse", INDENT "Omgekeerd")
+#define TR_THROTTLEREVERSE     TR("Reverse", "Omgekeerd")
 #define TR_MINUTEBEEP          TR("Min-Alarm", "Minuten-Alarm")
 #define TR_BEEPCOUNTDOWN       INDENT "Countdown"
 #define TR_PERSISTENT          TR(INDENT "Vasth.", INDENT "Vasthouden")

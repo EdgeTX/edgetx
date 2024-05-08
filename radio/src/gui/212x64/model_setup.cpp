@@ -789,12 +789,12 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_THROTTLE_REVERSED:
-        g_model.throttleReversed = editCheckBox(g_model.throttleReversed, MODEL_SETUP_2ND_COLUMN, y, STR_THROTTLEREVERSE, attr, event );
+        g_model.throttleReversed = editCheckBox(g_model.throttleReversed, MODEL_SETUP_2ND_COLUMN, y, STR_THROTTLEREVERSE, attr, event, INDENT_WIDTH);
         break;
 
       case ITEM_MODEL_SETUP_THROTTLE_TRACE:
       {
-        lcdDrawTextAlignedLeft(y, STR_TTRACE);
+        lcdDrawText(INDENT_WIDTH, y, STR_TTRACE);
         if (attr)
           CHECK_INCDEC_MODELVAR_ZERO_CHECK(
               event, g_model.thrTraceSrc,
@@ -807,11 +807,11 @@ void menuModelSetup(event_t event)
       }
 
       case ITEM_MODEL_SETUP_THROTTLE_TRIM:
-        g_model.thrTrim = editCheckBox(g_model.thrTrim, MODEL_SETUP_2ND_COLUMN, y, STR_TTRIM, attr, event);
+        g_model.thrTrim = editCheckBox(g_model.thrTrim, MODEL_SETUP_2ND_COLUMN, y, STR_TTRIM, attr, event, INDENT_WIDTH);
         break;
 
       case ITEM_MODEL_SETUP_THROTTLE_TRIM_SWITCH:
-        lcdDrawTextAlignedLeft(y, STR_TTRIM_SW);
+        lcdDrawText(INDENT_WIDTH, y, STR_TTRIM_SW);
         if (attr)
           CHECK_INCDEC_MODELVAR_ZERO(event, g_model.thrTrimSw, keysGetMaxTrims() - 1);
         drawSource(MODEL_SETUP_2ND_COLUMN, y, g_model.getThrottleStickTrimSource(), attr);

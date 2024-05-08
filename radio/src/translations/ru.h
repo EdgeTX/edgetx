@@ -274,9 +274,9 @@
 #define TR_ETRIMS                      TR("Расш трим", "Расш тримы")
 #define TR_TRIMINC                     "Шаг трима"
 #define TR_DISPLAY_TRIMS               TR("Пок. тримы", "Показ тримы")
-#define TR_TTRACE                      TR("Т-источник", INDENT "Источник")
-#define TR_TTRIM                       TR("Т-трим-ХХ", INDENT "Только трим хх")
-#define TR_TTRIM_SW                    TR("Т-трим-перек", INDENT "Трим перек")
+#define TR_TTRACE                      TR("Т-источник", "Источник")
+#define TR_TTRIM                       TR("Т-трим-ХХ", "Только трим хх")
+#define TR_TTRIM_SW                    TR("Т-трим-перек", "Трим перек")
 #define TR_BEEPCTR                     TR("Звук на цен", "Звук на центре")
 #define TR_USE_GLOBAL_FUNCS            TR("Глоб. функц", "Глоб функц")
 #define TR_PROTOCOL                    TR("Проток", "Протокол")
@@ -370,7 +370,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "Нажмите [Enter] для подтв"
 #define TR_THROTTLE_LABEL              "Газ"
 #define TR_THROTTLE_START              "Газ cтарт"
-#define TR_THROTTLEREVERSE             TR("Г-Реверс", INDENT "Реверс")
+#define TR_THROTTLEREVERSE             TR("Г-Реверс", "Реверс")
 #define TR_MINUTEBEEP                  TR("Минут", "Минут")
 #define TR_BEEPCOUNTDOWN               INDENT "Обр отс"
 #define TR_PERSISTENT                  TR(INDENT "Пост", INDENT "Пост")

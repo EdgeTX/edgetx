@@ -271,9 +271,9 @@
 #define TR_ETRIMS                      TR("E.Trims", "トリム拡張")
 #define TR_TRIMINC                     "トリムステップ"
 #define TR_DISPLAY_TRIMS               TR("Show Trims", "トリム表示")
-#define TR_TTRACE                      TR("T-Source", INDENT "ソース")
-#define TR_TTRIM                       TR("T-Trim-Idle", INDENT "アイドル時トリム")
-#define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "トリムスイッチ")
+#define TR_TTRACE                      TR("T-Source", "ソース")
+#define TR_TTRIM                       TR("T-Trim-Idle", "アイドル時トリム")
+#define TR_TTRIM_SW                    TR("T-Trim-Sw", "トリムスイッチ")
 #define TR_BEEPCTR                     TR("Ctr Beep", "中央値でビープ")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funcs", "グローバルFuncs利用")
 #define TR_PROTOCOL                    TR("Proto", "プロトコル")
@@ -367,7 +367,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "Enterを押して確認してください"
 #define TR_THROTTLE_LABEL              "Throttle"
 #define TR_THROTTLE_START              "Throttle アップ"
-#define TR_THROTTLEREVERSE             TR("T-Reverse", INDENT "リバース")
+#define TR_THROTTLEREVERSE             TR("T-Reverse", "リバース")
 #define TR_MINUTEBEEP                  TR("Minute", "分単位コール")
 #define TR_BEEPCOUNTDOWN               INDENT "カウントダウン"
 #define TR_PERSISTENT                  TR(INDENT "Persist.", INDENT "持続設定")

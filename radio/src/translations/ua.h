@@ -274,9 +274,9 @@
 #define TR_ETRIMS                      TR("Розш.Трим.", "Розширене Обрізання")  /* ned to be clarified by context */
 #define TR_TRIMINC                     "Крок Тримув."
 #define TR_DISPLAY_TRIMS               TR("Показ. трим.", "Показати трими")
-#define TR_TTRACE                      TR("T-Джерело", INDENT "Джерело")
-#define TR_TTRIM                       TR("T-Трим-Порожн.", INDENT "Тримувати тількти порожнє")
-#define TR_TTRIM_SW                    TR("T-Трим-Перем.", INDENT "Перемикач тримування")
+#define TR_TTRACE                      TR("T-Джерело", "Джерело")
+#define TR_TTRIM                       TR("T-Трим-Порожн.", "Тримувати тількти порожнє")
+#define TR_TTRIM_SW                    TR("T-Трим-Перем.", "Перемикач тримування")
 #define TR_BEEPCTR                     TR("Сигн. в центр", "Сигнал в центрі")
 #define TR_USE_GLOBAL_FUNCS            TR("Глоб.функц.", "Викор. глобальні функції")
 #define TR_PROTOCOL                    TR("Проток.", "Протокол")
@@ -370,7 +370,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "Тисни enter для підтвердження"
 #define TR_THROTTLE_LABEL              "Газ"
 #define TR_THROTTLE_START              "Газ на старт"
-#define TR_THROTTLEREVERSE             TR("Газ-реверс", INDENT "Реверс")
+#define TR_THROTTLEREVERSE             TR("Газ-реверс", "Реверс")
 #define TR_MINUTEBEEP                  TR("Хв.", "Хв. сигнал")
 #define TR_BEEPCOUNTDOWN               INDENT "Відлік"
 #define TR_PERSISTENT                  TR(INDENT "Присутн.", INDENT "Присутній")

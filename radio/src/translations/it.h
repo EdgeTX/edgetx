@@ -272,9 +272,9 @@
 #define TR_ETRIMS                       TR("Trim Est.", "Trim Estesi")
 #define TR_TRIMINC                      "Passo Trim"
 #define TR_DISPLAY_TRIMS                TR("Mos.Trims", "Mostra Trims")
-#define TR_TTRACE                       TR("Sor. Mot.", INDENT "Sorgente Motore")
-#define TR_TTRIM                        TR("Trim Mot.", INDENT "Trim Motore")
-#define TR_TTRIM_SW                     TR("T-Trim-Sw", INDENT "Trim switch")
+#define TR_TTRACE                       TR("Sor. Mot.", "Sorgente Motore")
+#define TR_TTRIM                        TR("Trim Mot.", "Trim Motore")
+#define TR_TTRIM_SW                     TR("T-Trim-Sw", "Trim switch")
 #define TR_BEEPCTR                      TR("Beep Ctr", "Beep quando centrato")
 #define TR_USE_GLOBAL_FUNCS             TR("Funz. Glob.", "Usa Funz. Globali")
 #define TR_PROTOCOL                     TR("Protoc.", "Protocollo")
@@ -368,7 +368,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM       "Premi [ENT] per confermare"
 #define TR_THROTTLE_LABEL               "Motore"
 #define TR_THROTTLE_START               "Partenza motore"
-#define TR_THROTTLEREVERSE              TR("T-Invertito", INDENT "Invertito")
+#define TR_THROTTLEREVERSE              TR("T-Invertito", "Invertito")
 #define TR_MINUTEBEEP                   TR("Minuto", "Minuto call")
 #define TR_BEEPCOUNTDOWN                TR(INDENT "Conto rov", INDENT "Conto rovescia")
 #define TR_PERSISTENT                   TR(INDENT "Persist.", INDENT "Persistente")
@@ -392,7 +392,7 @@
 #define TR_SLIDERWARNING                TR(INDENT "Pos. slid.", INDENT "Posizione slider")
 #define TR_POTWARNING                   TR(INDENT "Avv. Pot.", INDENT "Avviso Pot.")
 #define TR_TIMEZONE                     "Ora locale"
-#define TR_ADJUST_RTC                   TR(INDENT "Agg. RTC", "Aggiusta RTC")
+#define TR_ADJUST_RTC                   TR("Agg. RTC", "Aggiusta RTC")
 #define TR_GPS                          "GPS"
 #define TR_DEF_CHAN_ORD                 TR("Ord. can. pred.", "Ordine canali predefinito")
 #define TR_STICKS                       "Sticks"
@@ -766,12 +766,12 @@
 #define TR_FLASH_BOOTLOADER             TR("Prog. bootloader", "Programma bootloader")
 #define TR_FLASH_DEVICE                 TR("Flash device","Flash device")
 #define TR_FLASH_EXTERNAL_DEVICE        TR("Prog. disp. est.", "Programma dispositivo esterno")
-#define TR_FLASH_RECEIVER_OTA           TR("Prog. RX OTA", INDENT "Programma RX OTA")
-#define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA          TR("Flash RX da OTA est.", INDENT "Flash RX da OTA esterno")
-#define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA          TR("Flash RX da OTA int.", INDENT "Flash RX da OTA interno")
-#define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA TR("Flash FC da OTA est.", INDENT "Flash FC da OTA esterno")
-#define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA TR("Flash FC da OTA int.", INDENT "Flash FC da OTA interno")
-#define TR_FLASH_BLUETOOTH_MODULE       TR("Flash mod. BT", INDENT "Flash modulo Bluetooth")
+#define TR_FLASH_RECEIVER_OTA           TR("Prog. RX OTA", "Programma RX OTA")
+#define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA          TR("Flash RX da OTA est.", "Flash RX da OTA esterno")
+#define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA          TR("Flash RX da OTA int.", "Flash RX da OTA interno")
+#define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA TR("Flash FC da OTA est.", "Flash FC da OTA esterno")
+#define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA TR("Flash FC da OTA int.", "Flash FC da OTA interno")
+#define TR_FLASH_BLUETOOTH_MODULE       TR("Flash mod. BT", "Flash modulo Bluetooth")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT  TR("Flash PMU", "Programma PMU")
 #define TR_DEVICE_NO_RESPONSE           TR("Device non risponde", "Device non risponde")
 #define TR_DEVICE_FILE_ERROR            TR("Device file prob.", "Device file prob.")

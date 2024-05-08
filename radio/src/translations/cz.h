@@ -282,9 +282,9 @@
 #define TR_ETRIMS                      TR("širší Trim", "Široký trim")
 #define TR_TRIMINC                     TR("Krok Trimu", "Krok trimu")
 #define TR_DISPLAY_TRIMS               TR3("Číslo v Trm", "Zobr.hodnotu trimu", "Číslo v liště trimu")
-#define TR_TTRACE                      TR("StopaPlynu", INDENT "Stopa plynu")
-#define TR_TTRIM                       TR3("TrimVolnob.", INDENT "Trim jen volnoběh", "Trim jen pro volnoběh")
-#define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim spínač")
+#define TR_TTRACE                      TR("StopaPlynu", "Stopa plynu")
+#define TR_TTRIM                       TR3("TrimVolnob.", "Trim jen volnoběh", "Trim jen pro volnoběh")
+#define TR_TTRIM_SW                    TR("T-Trim-Sw", "Trim spínač")
 #define TR_BEEPCTR                     TR("Pípat střed", "Pípnutí při středové poloze")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funkce", "Použít globální funkce")
 #define TR_PROTOCOL                    "Protokol"
@@ -379,7 +379,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "Zmáčkni ENTER pro potvrzení"
 #define TR_THROTTLE_LABEL              "Plyn"
 #define TR_THROTTLE_START              "Plyn Start"
-#define TR_THROTTLEREVERSE             TR("ReverzPlyn", INDENT"Reverz plynu")
+#define TR_THROTTLEREVERSE             TR("ReverzPlyn", "Reverz plynu")
 #define TR_MINUTEBEEP                  TR("Minuta", "Oznamovat minuty")
 #define TR_BEEPCOUNTDOWN               INDENT"Odpočet"
 #define TR_PERSISTENT                  INDENT"Trvalé"
@@ -395,13 +395,13 @@
 #define TR_PLAY_HELLO                  "Zvuk při spuštění"
 #define TR_PWR_ON_DELAY                "Zpoždění zapnutí"
 #define TR_PWR_OFF_DELAY               "Zpoždění vypnutí"
-#define TR_THROTTLE_WARNING            TR("* Plyn", INDENT "Kontrola plynu")
+#define TR_THROTTLE_WARNING            TR(INDENT "* Plyn", INDENT "Kontrola plynu")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Vlas-Poz", INDENT INDENT INDENT INDENT "Vlastní pozice?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Poz. %", "Pozice %")
-#define TR_SWITCHWARNING               TR("* Spínače", INDENT "Polohy spínačů")
-#define TR_POTWARNINGSTATE             TR("* Pot&Slid.", INDENT "Kontrola Pot&Slid.")
-#define TR_SLIDERWARNING               TR("* Slidery", INDENT "Pozice sliderů")
-#define TR_POTWARNING                  TR("* Potenc.", INDENT "Potenciometry")
+#define TR_SWITCHWARNING               TR(INDENT "* Spínače", INDENT "Polohy spínačů")
+#define TR_POTWARNINGSTATE             TR(INDENT "* Pot&Slid.", INDENT "Kontrola Pot&Slid.")
+#define TR_SLIDERWARNING               TR(INDENT "* Slidery", INDENT "Pozice sliderů")
+#define TR_POTWARNING                  TR(INDENT "* Potenc.", INDENT "Potenciometry")
 #define TR_TIMEZONE                    "Časové pásmo"
 #define TR_ADJUST_RTC                  TR3("Čas z GPS", "Použít čas z GPS", "Použít čas z GPS")
 #define TR_GPS                         "GPS"

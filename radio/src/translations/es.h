@@ -270,9 +270,9 @@
 #define TR_ETRIMS              TR("E.Trims", "Ampliar trims")
 #define TR_TRIMINC             "Paso trim"
 #define TR_DISPLAY_TRIMS       "Ver trims"
-#define TR_TTRACE              TR("Fuente-A", INDENT "Fuente acelerador")
-#define TR_TTRIM               TR("Trim-A", INDENT "Trim acelerador")
-#define TR_TTRIM_SW            TR("T-Trim-Sw", INDENT "Trim switch")
+#define TR_TTRACE              TR("Fuente-A", "Fuente acelerador")
+#define TR_TTRIM               TR("Trim-A", "Trim acelerador")
+#define TR_TTRIM_SW            TR("T-Trim-Sw", "Trim switch")
 #define TR_BEEPCTR             TR("Beep ctr", "Beep centro")
 #define TR_USE_GLOBAL_FUNCS    TR("Funcs. glob.", "Usar func. globales")
 #define TR_PROTOCOL            TR("Proto", "Protocolo")
@@ -366,7 +366,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "Enter para confirmar"
 #define TR_THROTTLE_LABEL      "Potencia"
 #define TR_THROTTLE_START      "Potencia Start"
-#define TR_THROTTLEREVERSE     TR("Invert acel", INDENT "Invertir acel.")
+#define TR_THROTTLEREVERSE     TR("Invert acel", "Invertir acel.")
 #define TR_MINUTEBEEP          TR("Minuto", "Cada minuto")
 #define TR_BEEPCOUNTDOWN       TR(INDENT"Cta. atrás", INDENT"Cuenta atrás")
 #define TR_PERSISTENT          TR(INDENT"Persisten.", INDENT"Persistente")
@@ -382,14 +382,14 @@
 #define TR_PLAY_HELLO                  "Startup Sound"
 #define TR_PWR_ON_DELAY        TR("Atraso On", "Atraso encendido")
 #define TR_PWR_OFF_DELAY       TR("Atraso Off", "Atraso apagado")
-#define TR_THROTTLE_WARNING    TR("Aviso-A", INDENT "Aviso acelerador")
+#define TR_THROTTLE_WARNING    TR(INDENT "Aviso-A", INDENT "Aviso acelerador")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Cust-Pos", INDENT INDENT INDENT INDENT "Custom position?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
-#define TR_SWITCHWARNING       TR("Aviso-I", INDENT "Aviso interruptor")
+#define TR_SWITCHWARNING       TR(INDENT "Aviso-I", INDENT "Aviso interruptor")
 #define TR_POTWARNINGSTATE     TR(INDENT "Pot&Slid.", INDENT "Pots & sliders")
 #define TR_SLIDERWARNING       TR(INDENT "Pos. slid.", INDENT "Posiciones slider")
-#define TR_POTWARNING          TR("Aviso pot", INDENT "Aviso pot")
-#define TR_TIMEZONE            TR("Zona horaria", INDENT "Zona horaria")
+#define TR_POTWARNING          TR(INDENT "Aviso pot", INDENT "Aviso pot")
+#define TR_TIMEZONE            "Zona horaria"
 #define TR_ADJUST_RTC          TR("Ajustar RTC", "Ajustar RTC")
 #define TR_GPS                 "GPS"
 #define TR_DEF_CHAN_ORD        TR("Rx Orden canal", "Orden habitual canales")
@@ -555,7 +555,7 @@
 #define TR_MULTI_MAX_THROW             TR("Máx. Throw", "Activar máx. throw")
 #define TR_MULTI_RFCHAN                TR("Canal RF", "Selecciona canal RF")
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Use FlySky RSSI value without rescalling")
-#define TR_GPS_COORDS_FORMAT           TR("Coords GPS", INDENT "Formato coordenadas")
+#define TR_GPS_COORDS_FORMAT           TR("Coords GPS", "Formato coordenadas")
 #define TR_VARIO                       TR("Vario", "Variómetro")
 #define TR_PITCH_AT_ZERO               INDENT "Pitch en cero"
 #define TR_PITCH_AT_MAX                INDENT "Pitch en máx"

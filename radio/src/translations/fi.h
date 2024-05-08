@@ -284,13 +284,13 @@
 #define TR_ETRIMS                      TR("E.Trims", "Extended Trims")
 #define TR_TRIMINC                     "Trim Step"
 #define TR_DISPLAY_TRIMS               "Display Trims"
-#define TR_TTRACE                      TR("T-Source", INDENT "Throttle Source")
-#define TR_TTRIM                       TR("T-Trim", INDENT "Throttle Trim")
-#define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
+#define TR_TTRACE                      TR("T-Source", "Throttle Source")
+#define TR_TTRIM                       TR("T-Trim", "Throttle Trim")
+#define TR_TTRIM_SW                    TR("T-Trim-Sw", "Trim switch")
 #define TR_BEEPCTR                     TR("Ctr Beep", "Center Beep")
 #define TR_USE_GLOBAL_FUNCS            "Use Global Funcs"
 #define TR_PROTOCOL                    TR("Proto", "Protocol")
-#define TR_PPMFRAME                    TR("PPM frame", INDENT "PPM frame")
+#define TR_PPMFRAME                    INDENT "PPM frame"
 #define TR_REFRESHRATE                 TR(INDENT "Refresh", INDENT "Refresh rate")
 #define STR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "Warning: output level is VBAT: ")
 #define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
@@ -380,7 +380,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "Press enter to confirm"
 #define TR_THROTTLE_LABEL              "Throttle"
 #define TR_THROTTLE_START              "Throttle Start"
-#define TR_THROTTLEREVERSE             TR("T-Reverse", INDENT "Throttle reverse")
+#define TR_THROTTLEREVERSE             TR("T-Reverse", "Throttle reverse")
 #define TR_MINUTEBEEP                  TR("Minute", "Minute call")
 #define TR_BEEPCOUNTDOWN               INDENT"Countdown"
 #define TR_PERSISTENT                  TR(INDENT"Persist.", INDENT"Persistent")
@@ -396,13 +396,13 @@
 #define TR_PLAY_HELLO                  "Startup Sound"
 #define TR_PWR_ON_DELAY                "Pwr On delay"
 #define TR_PWR_OFF_DELAY               "Pwr Off delay"
-#define TR_THROTTLE_WARNING            TR("T-Warning", INDENT "Throttle Warning")
+#define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "Throttle Warning")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Cust-Pos", INDENT INDENT INDENT INDENT "Custom position?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
-#define TR_SWITCHWARNING               TR("S-Warning", INDENT "Switch Warning")
+#define TR_SWITCHWARNING               TR(INDENT "S-Warning", INDENT "Switch Warning")
 #define TR_POTWARNINGSTATE             TR(INDENT "Pot&Slid.", INDENT "Pots & sliders")
 #define TR_SLIDERWARNING               TR(INDENT "Slid. pos.", INDENT "Slider positions")
-#define TR_POTWARNING                  TR("Pot Warn.", INDENT "Pot Warning")
+#define TR_POTWARNING                  TR(INDENT "Pot Warn.", INDENT "Pot Warning")
 #define TR_TIMEZONE                    TR("Time Zone","GPS Time zone")
 #define TR_ADJUST_RTC                  TR("Adjust RTC", "Adjust RTC")
 #define TR_GPS                         "GPS"

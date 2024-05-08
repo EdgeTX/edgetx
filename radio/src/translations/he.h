@@ -276,9 +276,9 @@
 #define TR_ETRIMS                      TR("E.Trims", "הרחב תצוגות")
 #define TR_TRIMINC                     "רגישות קיזוז"
 #define TR_DISPLAY_TRIMS               TR("Show Trims", "הצג קיזוזים")
-#define TR_TTRACE                      TR("T-Source", INDENT "מקור")
-#define TR_TTRIM                       TR("T-Trim-Idle", INDENT "Trim idle only")
-#define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "מתג קיזוז")
+#define TR_TTRACE                      TR("T-Source", "מקור")
+#define TR_TTRIM                       TR("T-Trim-Idle", "Trim idle only")
+#define TR_TTRIM_SW                    TR("T-Trim-Sw", "מתג קיזוז")
 #define TR_BEEPCTR                     TR("Ctr Beep", "ציפצוף במרכז")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funcs", "שימוש בפונקציות גלובליות")
 #define TR_PROTOCOL                    TR("Proto", "Protocol")
@@ -372,7 +372,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "לחץ אנטר לאישור"
 #define TR_THROTTLE_LABEL              "מצערת"
 #define TR_THROTTLE_START              "מצערת מתחילה"
-#define TR_THROTTLEREVERSE             TR("T-Reverse", INDENT "היפוך")
+#define TR_THROTTLEREVERSE             TR("T-Reverse", "היפוך")
 #define TR_MINUTEBEEP                  TR("דקה", "הקראת דקות")
 #define TR_BEEPCOUNTDOWN               INDENT "ספירה לאחור"
 #define TR_PERSISTENT                  TR(INDENT "Persist.", INDENT "Persistent")

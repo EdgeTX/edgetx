@@ -352,17 +352,17 @@ void menuRadioSetup(event_t event)
       }
 
       case ITEM_RADIO_SETUP_BEEP_VOLUME:
-        lcdDrawTextAlignedLeft(y, STR_BEEP_VOLUME);
+        lcdDrawText(INDENT_WIDTH, y, STR_BEEP_VOLUME);
         SLIDER_5POS(y, g_eeGeneral.beepVolume, event, attr);
         break;
 
       case ITEM_RADIO_SETUP_WAV_VOLUME:
-        lcdDrawTextAlignedLeft(y, STR_WAV_VOLUME);
+        lcdDrawText(INDENT_WIDTH, y, STR_WAV_VOLUME);
         SLIDER_5POS(y, g_eeGeneral.wavVolume, event, attr);
         break;
 
       case ITEM_RADIO_SETUP_BACKGROUND_VOLUME:
-        lcdDrawTextAlignedLeft(y, STR_BG_VOLUME);
+        lcdDrawText(INDENT_WIDTH, y, STR_BG_VOLUME);
         SLIDER_5POS(y, g_eeGeneral.backgroundVolume, event, attr);
         break;
 

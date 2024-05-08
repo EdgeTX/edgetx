@@ -273,9 +273,9 @@
 #define TR_ETRIMS                      TR("擴展微調", "擴展微調量")
 #define TR_TRIMINC                     "微調步幅"
 #define TR_DISPLAY_TRIMS               TR("微調顯示", "微調顯示")
-#define TR_TTRACE                      TR("輸入源", INDENT "輸入源")
-#define TR_TTRIM                       TR("油門微調僅怠速", INDENT "油門微調只調整怠速")
-#define TR_TTRIM_SW                    TR("微調選擇", INDENT "微調選擇")
+#define TR_TTRACE                      TR("輸入源", "輸入源")
+#define TR_TTRIM                       TR("油門微調僅怠速", "油門微調只調整怠速")
+#define TR_TTRIM_SW                    TR("微調選擇", "微調選擇")
 #define TR_BEEPCTR                     TR("中點提示音", "中點蜂鳴提示音")
 #define TR_USE_GLOBAL_FUNCS            TR("全局功能", "全局功能可介入")
 #define TR_PPMFRAME INDENT             "PPM幀"
@@ -368,7 +368,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "按ENTER鍵確認"
 #define TR_THROTTLE_LABEL              "油門"
 #define TR_THROTTLE_START              "油門開始"
-#define TR_THROTTLEREVERSE             TR("油門反向", INDENT "油門反向")
+#define TR_THROTTLEREVERSE             TR("油門反向", "油門反向")
 #define TR_MINUTEBEEP                  TR("分", "分鐘播報")
 #define TR_BEEPCOUNTDOWN               INDENT "倒數"
 #define TR_PERSISTENT                  TR(INDENT "關機保持", INDENT "關機保持")

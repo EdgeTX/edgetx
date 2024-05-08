@@ -94,8 +94,9 @@ enum {
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_OFF_SPEED)
   CASE_PXX2(ITEM_RADIO_SETUP_OWNER_ID)
+  CASE_GPS(ITEM_RADIO_SETUP_LABEL_GPS)
   CASE_GPS(ITEM_RADIO_SETUP_TIMEZONE)
-  ITEM_RADIO_SETUP_ADJUST_RTC,
+  CASE_GPS(ITEM_RADIO_SETUP_ADJUST_RTC)
   CASE_GPS(ITEM_RADIO_SETUP_GPSFORMAT)
   CASE_PXX1(ITEM_RADIO_SETUP_COUNTRYCODE)
   ITEM_RADIO_SETUP_LANGUAGE,
@@ -194,7 +195,9 @@ void menuRadioSetup(event_t event)
     CASE_PXX2(0) /* owner registration ID */
 
     CASE_GPS(0)
-    0, CASE_GPS(0)
+    CASE_GPS(0)
+    CASE_GPS(0)
+    CASE_GPS(0)
     CASE_PXX1(0)
     0, 0, 0, IF_FAI_CHOICE(0)
     0,
@@ -346,17 +349,17 @@ void menuRadioSetup(event_t event)
 #endif
 
       case ITEM_RADIO_SETUP_BEEP_VOLUME:
-        lcdDrawTextAlignedLeft(y, STR_BEEP_VOLUME);
+        lcdDrawText(INDENT_WIDTH, y, STR_BEEP_VOLUME);
         SLIDER_5POS(y, g_eeGeneral.beepVolume, event, attr);
         break;
 
       case ITEM_RADIO_SETUP_WAV_VOLUME:
-        lcdDrawTextAlignedLeft(y, STR_WAV_VOLUME);
+        lcdDrawText(INDENT_WIDTH, y, STR_WAV_VOLUME);
         SLIDER_5POS(y, g_eeGeneral.wavVolume, event, attr);
         break;
 
       case ITEM_RADIO_SETUP_BACKGROUND_VOLUME:
-        lcdDrawTextAlignedLeft(y, STR_BG_VOLUME);
+        lcdDrawText(INDENT_WIDTH, y, STR_BG_VOLUME);
         SLIDER_5POS(y, g_eeGeneral.backgroundVolume, event, attr);
         break;
 
@@ -621,9 +624,13 @@ void menuRadioSetup(event_t event)
 #endif
 
 #if defined(GPS)
+      case ITEM_RADIO_SETUP_LABEL_GPS:
+        lcdDrawTextAlignedLeft(y, STR_GPS);
+        break;
+
       case ITEM_RADIO_SETUP_TIMEZONE:
         {
-          lcdDrawTextAlignedLeft(y, STR_TIMEZONE);
+          lcdDrawText(INDENT_WIDTH, y, STR_TIMEZONE);
           int tzIndex = timezoneIndex(g_eeGeneral.timezone, g_eeGeneral.timezoneMinutes);
           lcdDrawText(LCD_W-2, y, timezoneDisplay(tzIndex).c_str(), attr|RIGHT);
           if (attr) {
@@ -637,13 +644,11 @@ void menuRadioSetup(event_t event)
         break;
 
       case ITEM_RADIO_SETUP_ADJUST_RTC:
-        lcdDrawTextAlignedLeft(y, STR_ADJUST_RTC);
-        g_eeGeneral.adjustRTC = editCheckBox(g_eeGeneral.adjustRTC, LCD_W-9, y, nullptr, attr, event);
+        g_eeGeneral.adjustRTC = editCheckBox(g_eeGeneral.adjustRTC, LCD_W-9, y, STR_ADJUST_RTC, attr, event, INDENT_WIDTH);
         break;
 
       case ITEM_RADIO_SETUP_GPSFORMAT:
-        lcdDrawTextAlignedLeft(y, STR_GPS_COORDS_FORMAT);
-        g_eeGeneral.gpsFormat = editChoice(LCD_W-2, y, nullptr, STR_GPSFORMAT, g_eeGeneral.gpsFormat, 0, 1, attr|RIGHT, event);
+        g_eeGeneral.gpsFormat = editChoice(LCD_W-2, y, STR_GPS_COORDS_FORMAT, STR_GPSFORMAT, g_eeGeneral.gpsFormat, 0, 1, attr|RIGHT, event, INDENT_WIDTH);
         break;
 #endif
 

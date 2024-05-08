@@ -273,9 +273,9 @@
 #define TR_ETRIMS                      TR("Erw. Trims", "Erw. Trim  auf 100%")
 #define TR_TRIMINC                     TR("Trimschritt", "Trimmschritte")
 #define TR_DISPLAY_TRIMS               TR("Trimmanzeige", "Trimmwerte anzeigen")
-#define TR_TTRACE                      TR("Gasquelle", INDENT "Gas-Timerquelle")
-#define TR_TTRIM 	       	             TR("Gastrim", INDENT "Gas-Leerlauftrim")
-#define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
+#define TR_TTRACE                      TR("Gasquelle", "Gas-Timerquelle")
+#define TR_TTRIM 	       	             TR("Gastrim", "Gas-Leerlauftrim")
+#define TR_TTRIM_SW                    TR("T-Trim-Sw", "Trim switch")
 #define TR_BEEPCTR                     TR("MittePieps", "Pieps in Mittelstellung")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob. Funkt.", "Globale Funkt verw.")
 #define TR_PROTOCOL          		       TR("Protok.", "Protokoll")
@@ -370,7 +370,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "Drücke [ENTER] zum Bestätigen"
 #define TR_THROTTLE_LABEL              "Gas-Kontrolle"
 #define TR_THROTTLE_START              "Gas Start"
-#define TR_THROTTLEREVERSE             TR("Gas invers", INDENT "Vollgas hinten?") //Änderung wg TH9x, Taranis
+#define TR_THROTTLEREVERSE             TR("Gas invers", "Vollgas hinten?") //Änderung wg TH9x, Taranis
 #define TR_MINUTEBEEP                  TR("Min-Alarm", "Minuten-Alarm")
 #define TR_BEEPCOUNTDOWN               INDENT "Countdown"
 #define TR_PERSISTENT                  TR(INDENT "Permanent", INDENT "Permanent")
@@ -386,13 +386,13 @@
 #define TR_PLAY_HELLO                  "Startton abspielen"
 #define TR_PWR_ON_DELAY                "PWR EIN Verzög."
 #define TR_PWR_OFF_DELAY               "PWR AUS Verzög."
-#define TR_THROTTLE_WARNING            TR("Gasalarm", INDENT "Gas Alarm")
+#define TR_THROTTLE_WARNING            TR(INDENT "Gasalarm", INDENT "Gas Alarm")
 #define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Cust-Pos", INDENT INDENT INDENT INDENT "Custom position?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
-#define TR_SWITCHWARNING               TR("Sch. Alarm", INDENT "Schalter-Alarm")
+#define TR_SWITCHWARNING               TR(INDENT "Sch. Alarm", INDENT "Schalter-Alarm")
 #define TR_POTWARNINGSTATE             TR(INDENT "Pot&Slid.", INDENT "Pots & sliders")
 #define TR_SLIDERWARNING               TR(INDENT "Slid. pos.", INDENT "Slider positions")
-#define TR_POTWARNING                  TR("Potiwarnung", INDENT "Poti-Warnung")
+#define TR_POTWARNING                  TR(INDENT "Potiwarnung", INDENT "Poti-Warnung")
 #define TR_TIMEZONE                    TR("Zeitzone", "GPS-Zeitzone +/-Std")
 #define TR_ADJUST_RTC                  TR("GPSzeit setzen", "Uhrzeit per GPS setzen")
 #define TR_GPS                         "GPS"

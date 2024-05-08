@@ -279,9 +279,9 @@
 #define TR_ETRIMS                      TR("Trims ét.", "Trims étendus")
 #define TR_TRIMINC                     TR("Pas Trim", "Pas du trim")
 #define TR_DISPLAY_TRIMS               TR("Aff. trims", "Affichage trims")
-#define TR_TTRACE                      TR("Source gaz", INDENT "Source")
-#define TR_TTRIM                       TR("Trim gaz", INDENT "Trim ralenti uniq.")
-#define TR_TTRIM_SW                    TR("T-Trim-Sw", INDENT "Trim switch")
+#define TR_TTRACE                      TR("Source gaz", "Source")
+#define TR_TTRIM                       TR("Trim gaz", "Trim ralenti uniq.")
+#define TR_TTRIM_SW                    TR("T-Trim-Sw", "Trim switch")
 #define TR_BEEPCTR                     TR("Ctr Beep", "Bip quand centré")
 #define TR_USE_GLOBAL_FUNCS            TR("Fonc. glob.", "Fonct. Globales")
 #define TR_PROTOCOL                    TR("Proto.", "Protocole")
@@ -376,7 +376,7 @@
 #define TR_PRESS_ENTER_TO_CONFIRM      "Appui [Enter] pour confirmer"
 #define TR_THROTTLE_LABEL              "Gaz"
 #define TR_THROTTLE_START              "Gaz Start"
-#define TR_THROTTLEREVERSE             TR("Inv. gaz", INDENT "Inversion gaz")
+#define TR_THROTTLEREVERSE             TR("Inv. gaz", "Inversion gaz")
 #define TR_MINUTEBEEP                  TR("Bip min.", "Annonces minutes")
 #define TR_BEEPCOUNTDOWN               TR(INDENT "Bip fin", INDENT "Compte à rebours")
 #define TR_PERSISTENT                  TR(INDENT "Persist.", INDENT "Persistant")
