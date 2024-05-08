@@ -1671,7 +1671,7 @@ uint32_t pwrCheck()
         while (
             (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) ||
             (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm) ||
-            isTrainerConnected())
+            (isTrainerConnected() && !g_eeGeneral.disableTrainerPoweroffAlarm))
 #endif
         {
 
@@ -1688,7 +1688,7 @@ uint32_t pwrCheck()
             msg = STR_USB_STILL_CONNECTED;
             msg_len = sizeof(TR_USB_STILL_CONNECTED);
           }
-          else if (isTrainerConnected()) {
+          else if (isTrainerConnected() && !g_eeGeneral.disableTrainerPoweroffAlarm) {
             msg = STR_TRAINER_STILL_CONNECTED;
             msg_len = sizeof(TR_TRAINER_STILL_CONNECTED);
           }
@@ -1732,7 +1732,7 @@ uint32_t pwrCheck()
               return !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
             };
           }
-          else if (!trainerConfirmed) {
+          else if (!trainerConfirmed && !g_eeGeneral.disableTrainerPoweroffAlarm) {
             message = STR_TRAINER_STILL_CONNECTED;
             closeCondition = [](){
               return !isTrainerConnected();

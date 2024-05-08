@@ -441,6 +441,12 @@ class AlarmsPage : public SubPage
     new ToggleSwitch(line, rect_t{},
                      GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
     line = body->newLine(grid);
+
+    // Trainer shutdown alarm
+    new StaticText(line, rect_t{}, STR_TRAINER_SHUTDOWN_ALARM);
+    new ToggleSwitch(line, rect_t{},
+                     GET_SET_INVERTED(g_eeGeneral.disableTrainerPoweroffAlarm));
+    line = body->newLine(grid);
   }
 };
 

@@ -356,7 +356,8 @@
 #define TR_INACTIVITYALARM     "Alarm bezczynności"
 #define TR_MEMORYWARNING       "Pełna pamięć"
 #define TR_ALARMWARNING        "Wyłącz dźwięk"
-#define TR_RSSI_SHUTDOWN_ALARM   TR("Rssi Shutdown", "Check Rssi on Shutdown")
+#define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI wyłączanie", "Sprawdzaj RSSI przy wyłączaniu")
+#define TR_TRAINER_SHUTDOWN_ALARM      TR("Trener wyłączanie", "Sprawdzaj trener przy wyłączaniu")
 #define TR_MODEL_STILL_POWERED "Model jest włączony"
 #define TR_TRAINER_STILL_CONNECTED     "Uczeń ciągle podłączony"
 #define TR_USB_STILL_CONNECTED         "USB jest podłączone"

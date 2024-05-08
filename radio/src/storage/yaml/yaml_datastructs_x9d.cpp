@@ -356,6 +356,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "modelSFDisabled", 1 ),
   YAML_UNSIGNED( "modelCustomScriptsDisabled", 1 ),
   YAML_UNSIGNED( "modelTelemetryDisabled", 1 ),
+  YAML_UNSIGNED( "disableTrainerPoweroffAlarm", 1 ),
+  YAML_PADDING( 5 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {

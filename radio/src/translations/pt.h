@@ -362,7 +362,8 @@
 #define TR_INACTIVITYALARM             "Inatividade"
 #define TR_MEMORYWARNING               "Memory low"
 #define TR_ALARMWARNING                "Som desligado"
-#define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI Deslig.", "Checar RSSI qnd desligar")
+#define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI ao desl.", "Checar RSSI ao desligar")
+#define TR_TRAINER_SHUTDOWN_ALARM      TR("Trainer ao desl", "Checar trainer ao desligar")
 #define TR_MODEL_STILL_POWERED         "Modelo ainda ligado"
 #define TR_TRAINER_STILL_CONNECTED     "Trainer ainda conectado"
 #define TR_USB_STILL_CONNECTED         "USB ainda ligado"

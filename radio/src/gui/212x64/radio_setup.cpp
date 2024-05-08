@@ -71,6 +71,7 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_MEMORY_WARNING,
   ITEM_RADIO_SETUP_ALARM_WARNING,
   ITEM_RADIO_SETUP_RSSI_POWEROFF_ALARM,
+  ITEM_RADIO_SETUP_TRAINER_POWEROFF_ALARM,
   ITEM_RADIO_SETUP_BACKLIGHT_LABEL,
   ITEM_RADIO_SETUP_BACKLIGHT_MODE,
   ITEM_RADIO_SETUP_BACKLIGHT_DELAY,
@@ -182,6 +183,7 @@ void menuRadioSetup(event_t event)
       0, // memory warning
       0, // alarm warning
       0, // RSSI power off alarm
+      0, // Trainer power off alarm
     LABEL(BACKLIGHT),
       0, // backlight mode
       0, // backlight delay
@@ -472,6 +474,14 @@ void menuRadioSetup(event_t event)
         lcdDrawText(INDENT_WIDTH, y, STR_RSSI_SHUTDOWN_ALARM);
         uint8_t b = 1 - g_eeGeneral.disableRssiPoweroffAlarm;
         g_eeGeneral.disableRssiPoweroffAlarm = 1 - editCheckBox(b, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event);
+        break;
+      }
+
+      case ITEM_RADIO_SETUP_TRAINER_POWEROFF_ALARM:
+      {
+        lcdDrawText(INDENT_WIDTH, y, STR_TRAINER_SHUTDOWN_ALARM);
+        uint8_t b = 1 - g_eeGeneral.disableTrainerPoweroffAlarm;
+        g_eeGeneral.disableTrainerPoweroffAlarm = 1 - editCheckBox(b, RADIO_SETUP_2ND_COLUMN, y, nullptr, attr, event);
         break;
       }
 

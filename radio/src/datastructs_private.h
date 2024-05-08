@@ -955,8 +955,11 @@ PACK(struct RadioData {
   NOBACKUP(char selectedTheme[SELECTED_THEME_NAME_LEN]);
 #endif
 
-  // Radio level tabs control (global settings)
 #if defined(COLORLCD)
+  NOBACKUP(uint8_t labelSingleSelect:1);  // 0 = multi-select, 1 = single select labels
+  NOBACKUP(uint8_t labelMultiMode:1);     // 0 = match all labels (AND), 1 = match any labels (OR)
+  NOBACKUP(uint8_t favMultiMode:1);       // 0 = match all (AND), 1 = match any (OR)
+  // Radio level tabs control (global settings)
   NOBACKUP(uint8_t modelSelectLayout:2);
   NOBACKUP(uint8_t radioThemesDisabled:1);
 #endif
@@ -972,10 +975,12 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t modelCustomScriptsDisabled:1);
   NOBACKUP(uint8_t modelTelemetryDisabled:1);
 
+  NOBACKUP(uint8_t disableTrainerPoweroffAlarm:1);
+
 #if defined(COLORLCD)
-  uint8_t labelSingleSelect:1;  // 0 = multi-select, 1 = single select labels
-  uint8_t labelMultiMode:1;     // 0 = match all labels (AND), 1 = match any labels (OR)
-  uint8_t favMultiMode:1;       // 0 = match all (AND), 1 = match any (OR)
+  NOBACKUP(uint8_t space:7 SKIP);
+#else
+  NOBACKUP(uint8_t space:5 SKIP);
 #endif
 
   NOBACKUP(uint8_t getBrightness() const

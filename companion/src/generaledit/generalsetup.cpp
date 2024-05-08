@@ -271,6 +271,7 @@ ui(new Ui::GeneralSetup)
   ui->alarmwarnChkB->setChecked(!generalSettings.disableAlarmWarning); // Default is zero=checked
 
   ui->rssiPowerOffWarnChkB->setChecked(!generalSettings.disableRssiPoweroffAlarm); // Default is zero=checked
+  ui->trainerPowerOffWarnChkB->setChecked(!generalSettings.disableTrainerPoweroffAlarm); // Default is zero=checked
 
   ui->splashScreenDuration->setCurrentIndex(3-generalSettings.splashMode);
   if (IS_FAMILY_HORUS_OR_T16(firmware->getBoard())) {
@@ -817,6 +818,12 @@ void GeneralSetupPanel::on_alarmwarnChkB_stateChanged(int)
 void GeneralSetupPanel::on_rssiPowerOffWarnChkB_stateChanged(int)
 {
   generalSettings.disableRssiPoweroffAlarm = ui->rssiPowerOffWarnChkB->isChecked() ? 0 : 1;
+  emit modified();
+}
+
+void GeneralSetupPanel::on_trainerPowerOffWarnChkB_stateChanged(int)
+{
+  generalSettings.disableTrainerPoweroffAlarm = ui->trainerPowerOffWarnChkB->isChecked() ? 0 : 1;
   emit modified();
 }
 

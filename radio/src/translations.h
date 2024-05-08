@@ -403,6 +403,7 @@ extern const char STR_INACTIVITYALARM[];
 extern const char STR_MEMORYWARNING[];
 extern const char STR_ALARMWARNING[];
 extern const char STR_RSSI_SHUTDOWN_ALARM[];
+extern const char STR_TRAINER_SHUTDOWN_ALARM[];
 extern const char STR_MODEL_STILL_POWERED[];
 extern const char STR_USB_STILL_CONNECTED[];
 extern const char STR_TRAINER_STILL_CONNECTED[];

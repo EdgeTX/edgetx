@@ -364,7 +364,8 @@
 #define TR_INACTIVITYALARM             "Inaktiv"
 #define TR_MEMORYWARNING               "Lav hukommelse"
 #define TR_ALARMWARNING                "Lyd fra"
-#define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI nedluk", "Check RSSI ved nedluk")
+#define TR_RSSI_SHUTDOWN_ALARM         TR("RSSI alarm", "Kontroller RSSI forbindelse")
+#define TR_TRAINER_SHUTDOWN_ALARM      TR("Træner alarm", "Kontroller træner forbindelse")
 #define TR_MODEL_STILL_POWERED         "Model stadig med strøm"
 #define TR_TRAINER_STILL_CONNECTED     "Træner fortsat forbundet"
 #define TR_USB_STILL_CONNECTED         "USB stadig forbundet"
