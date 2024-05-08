@@ -93,7 +93,7 @@ class GeneralSetupPanel : public GeneralPanel
 
     void on_pwrOnDelay_valueChanged(int);
     void on_pwrOffDelay_valueChanged(int);
-    void on_disablePwrOnOffHapticChkB_stateChanged(int);
+    void on_pwrOnOffHaptic_CB_stateChanged(int);
 
     void on_modelQuickSelect_CB_stateChanged(int);
     void on_startSoundCB_stateChanged(int);

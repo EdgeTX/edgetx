@@ -279,7 +279,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["antennaMode"] = antennaModeLut << rhs.antennaMode;
   node["pwrOnSpeed"] = rhs.pwrOnSpeed;
   node["pwrOffSpeed"] = rhs.pwrOffSpeed;
-  node["disablePwrOnOffHaptic"] == (int)rhs.disablePwrOnOffHaptic;
+  node["disablePwrOnOffHaptic"] = (int)rhs.disablePwrOnOffHaptic;
 
   for (int i = 0; i < CPN_MAX_SPECIAL_FUNCTIONS; i++) {
     const CustomFunctionData& fn = rhs.customFn[i];
