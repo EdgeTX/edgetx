@@ -126,7 +126,7 @@ void menuModelDisplay(event_t event)
         break;
 
       case ITEM_DISPLAY_TOP_BAR_VOLTAGE:
-        lcdDrawTextAlignedLeft(y, STR_VOLTAGE);
+        lcdDrawTextIndented(y, STR_VOLTAGE);
         drawSource(DISPLAY_COL2, y, g_model.voltsSource ? MIXSRC_FIRST_TELEM+3*(g_model.voltsSource-1) : 0, attr);
         if (attr) {
           g_model.voltsSource = checkIncDec(event, g_model.voltsSource, 0, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isVoltsSensor);
@@ -134,7 +134,7 @@ void menuModelDisplay(event_t event)
         break;
 
       case ITEM_DISPLAY_TOP_BAR_ALTITUDE:
-        lcdDrawTextAlignedLeft(y, STR_ALTITUDE);
+        lcdDrawTextIndented(y, STR_ALTITUDE);
         drawSource(DISPLAY_COL2, y, g_model.altitudeSource ? MIXSRC_FIRST_TELEM+3*(g_model.altitudeSource-1) : 0, attr);
         if (attr) {
           g_model.altitudeSource = checkIncDec(event, g_model.altitudeSource, 0, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isAltSensor);

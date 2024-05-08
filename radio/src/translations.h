@@ -92,40 +92,28 @@
 
 #if LCD_W < LCD_H    // Portrait mode
   #define TR3(x, y, z) z
-  #define TR2(x, y) y
+  #define TR(x, y) y
 #elif LCD_W >= 480
   #define TR3(x, y, z) z
-  #define TR2(x, y) y
+  #define TR(x, y) y
 #elif LCD_W >= 212
   #define TR3(x, y, z) y
-  #define TR2(x, y) y
+  #define TR(x, y) y
 #else
   #define TR3(x, y, z) x
-  #define TR2(x, y) x
-#endif
-
-#define TR(x, y) TR2(x, y) // for compatibility
-
-#if LCD_W <= 212 && !defined(COLORLCD)
-  #define TR2_2(x, y) x
-#else
-  #define TR2_2(x, y) TR2(x, y)
+  #define TR(x, y) x
 #endif
 
 #if defined(COLORLCD)
   #define BUTTON(x) x
-  #define INDENT
 #else
   #define BUTTON(x)    "[" x "]"
-  #define INDENT       "\001"
-  #define LEN_INDENT   1
-  #define INDENT_WIDTH (FW/2)
 #endif
 
-#if (LCD_W == 212)
- #define LCDW_128_480_LINEBREAK        ""
+#if (LCD_W == 212) || defined(COLORLCD)
+ #define LCDW_128_LINEBREAK
 #else
- #define LCDW_128_480_LINEBREAK        "\036"
+ #define LCDW_128_LINEBREAK        "\036"
 #endif
 
 constexpr int g_max_plural2 = TR_MAX_PLURAL2;
@@ -258,8 +246,6 @@ extern const char STR_BLUETOOTH_PIN_CODE[];
 extern const char STR_BLUETOOTH_NODEVICES[];
 extern const char STR_BLUETOOTH_SCANNING[];
 extern const char* const STR_BLUETOOTH_MODES[];
-
-#define NO_INDENT(x) (x) + LEN_INDENT
 
 extern const char STR_STICK_NAMES0[];
 extern const char STR_STICK_NAMES1[];
@@ -416,7 +402,6 @@ extern const char STR_PERSISTENT[];
 extern const char STR_BACKLIGHT_LABEL[];
 extern const char STR_GHOST_MENU_LABEL[];
 extern const char STR_STATUS[];
-extern const char STR_BLDELAY[];
 
 #if defined(COLORLCD)
 extern const char STR_BLONBRIGHTNESS[];
@@ -440,7 +425,6 @@ extern const char STR_CUSTOM_THROTTLE_WARNING_VAL[];
 extern const char STR_SWITCHWARNING[];
 extern const char STR_POTWARNINGSTATE[];
 extern const char STR_POTWARNING[];
-extern const char STR_SLIDERWARNING[];
 extern const char STR_TIMEZONE[];
 extern const char STR_ADJUST_RTC[];
 extern const char STR_GPS[];
@@ -561,7 +545,6 @@ extern const char STR_MULTI_TELEMETRY[];
 extern const char STR_MULTI_AUTOBIND[];
 extern const char STR_DISABLE_CH_MAP[];
 extern const char STR_DISABLE_TELEM[];
-extern const char STR_MULTI_DSM_AUTODTECT[];
 extern const char STR_MULTI_LOWPOWER[];
 extern const char STR_MULTI_LNA_DISABLE[];
 extern const char STR_MODULE_NO_SERIAL_MODE[];
@@ -756,7 +739,6 @@ extern const char STR_BRIGHTNESS[];
 extern const char STR_CPU_TEMP[];
 extern const char STR_COPROC[];
 extern const char STR_COPROC_TEMP[];
-extern const char STR_TEMPWARNING[];
 extern const char STR_TTL_WARNING[];
 extern const char STR_FUNC[];
 extern const char STR_V1[];
@@ -839,7 +821,6 @@ extern const char STR_SAMPLE_MODE[];
 extern const char* const STR_SAMPLE_MODES[];
 extern const char STR_BLUETOOTH_BAUDRATE[];
 extern const char STR_SD_INFO_TITLE[];
-extern const char STR_SD_TYPE[];
 extern const char STR_SD_SPEED[];
 extern const char STR_SD_SECTORS[];
 extern const char STR_SD_SIZE[];
@@ -1066,7 +1047,6 @@ extern const char STR_AUTOOFFSET[];
 extern const char STR_ONLYPOSITIVE[];
 extern const char STR_FILTER[];
 extern const char STR_TELEMETRYFULL[];
-extern const char STR_INVERTED_SERIAL[];
 extern const char STR_IGNORE_INSTANCE[];
 extern const char STR_SHOW_INSTANCE_ID[];
 extern const char STR_DISCOVER_SENSORS[];
@@ -1084,12 +1064,7 @@ extern const char STR_THEME[];
 extern const char STR_SETUP[];
 extern const char STR_LAYOUT[];
 extern const char STR_ADD_MAIN_VIEW[];
-extern const char STR_BACKGROUND_COLOR[];
-extern const char STR_MAIN_COLOR[];
-extern const char STR_BAR2_COLOR[];
-extern const char STR_BAR1_COLOR[];
 extern const char STR_TEXT_COLOR[];
-extern const char STR_TEXT_VIEWER[];
 extern const char STR_RF_POWER[];
 
 extern const char STR_BYTES[];

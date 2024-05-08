@@ -63,7 +63,7 @@
 #define TR_MULTI_CUSTOM                "עיצוב מיוחד"
 #define TR_VTRIMINC                    TR("Expo","הולך ומתעצם"),TR("ExFine","זז ב-1"),"זז ב-2","זז ב-3","זז ב-6"
 #define TR_VDISPLAYTRIMS               "אל תציג","הצג שינוי בלבד","הצג"
-#define TR_VBEEPCOUNTDOWN              "שקט","ציפצופים","שמע","לחן",TR2_2("B & H","Beeps & Haptic"),TR2_2("V & H","Voice & Haptic")
+#define TR_VBEEPCOUNTDOWN              "שקט","ציפצופים","שמע","לחן",TR("B & H","Beeps & Haptic"),TR("V & H","Voice & Haptic")
 #define TR_COUNTDOWNVALUES             "5s","10s","20s","30s"
 #define TR_VVARIOCENTER                "Tone","Silent"
 #define TR_CURVE_TYPES                 "סטנדרטי","עיצוב מיוחד"
@@ -282,9 +282,9 @@
 #define TR_BEEPCTR                     TR("Ctr Beep", "ציפצוף במרכז")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funcs", "שימוש בפונקציות גלובליות")
 #define TR_PROTOCOL                    TR("Proto", "Protocol")
-#define TR_PPMFRAME                    INDENT "PPM frame"
-#define TR_REFRESHRATE                 TR(INDENT "Refresh", INDENT "Refresh rate")
-#define STR_WARN_BATTVOLTAGE           TR(INDENT "Output is VBAT: ", INDENT "Warning: output level is VBAT: ")
+#define TR_PPMFRAME                    "PPM frame"
+#define TR_REFRESHRATE                 TR("Refresh", "Refresh rate")
+#define STR_WARN_BATTVOLTAGE           TR("Output is VBAT: ", "Warning: output level is VBAT: ")
 #define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "מתג"
@@ -297,9 +297,8 @@
 #if defined(COLORLCD)
   #define TR_CHECKTRIMS                "Check FM Trims"
 #else
-  #define TR_CHECKTRIMS                CENTER "\006Check\012trims"
+  #define TR_CHECKTRIMS                "\006Check\012trims"
 #endif
-#define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
 #define TR_SWASHTYPE                   "Swash Type"
 #define TR_COLLECTIVE                  TR("Collective", "Coll. pitch source")
 #define TR_AILERON                     TR("Lateral cyc.", "Lateral cyc. source")
@@ -311,7 +310,7 @@
 #else
   #define TR_LEFT_STICK                "Left"
 #endif
-#define TR_SUBTYPE                     INDENT "Subtype"
+#define TR_SUBTYPE                     "Subtype"
 #define TR_NOFREEEXPO                  "No free expo!"
 #define TR_NOFREEMIXER                 "No free mixer!"
 #define TR_SOURCE                       "מקור"
@@ -339,8 +338,8 @@
 #else
 #define TR_GV                          TR("G", "GV")
 #endif
-#define TR_RANGE                       INDENT "טווח"
-#define TR_CENTER                      INDENT "מרכז"
+#define TR_RANGE                       "טווח"
+#define TR_CENTER                      "מרכז"
 #define TR_ALARM                       "התראה"
 #define TR_BLADES                      "Blades/Poles"
 #define TR_SCREEN                      "Screen\001"
@@ -374,27 +373,25 @@
 #define TR_THROTTLE_START              "מצערת מתחילה"
 #define TR_THROTTLEREVERSE             TR("T-Reverse", "היפוך")
 #define TR_MINUTEBEEP                  TR("דקה", "הקראת דקות")
-#define TR_BEEPCOUNTDOWN               INDENT "ספירה לאחור"
-#define TR_PERSISTENT                  TR(INDENT "Persist.", INDENT "Persistent")
+#define TR_BEEPCOUNTDOWN               "ספירה לאחור"
+#define TR_PERSISTENT                  TR("Persist.", "Persistent")
 #define TR_BACKLIGHT_LABEL             "תאורת רקע"
 #define TR_GHOST_MENU_LABEL            "GHOST MENU"
 #define TR_STATUS                      "סטטוס"
-#define TR_BLDELAY                     INDENT "Duration"
-#define TR_BLONBRIGHTNESS              INDENT "בהירות פעילה"
-#define TR_BLOFFBRIGHTNESS             INDENT "בהירות כבויה"
+#define TR_BLONBRIGHTNESS              "בהירות פעילה"
+#define TR_BLOFFBRIGHTNESS             "בהירות כבויה"
 #define TR_KEYS_BACKLIGHT              "Keys backlight"
 #define TR_BLCOLOR                     "צבע"
 #define TR_SPLASHSCREEN                "Splash screen"
 #define TR_PLAY_HELLO                  "צליל אתחול"
 #define TR_PWR_ON_DELAY                "השהיית הפעלה פעיל"
 #define TR_PWR_OFF_DELAY               "משך לחיצה לכיבוי השלט"
-#define TR_THROTTLE_WARNING            TR(INDENT "T-Warning", INDENT "התראת מצערת פתוחה")
-#define TR_CUSTOM_THROTTLE_WARNING     TR(INDENT INDENT INDENT INDENT "Cust-Pos", INDENT INDENT INDENT INDENT "עריכת מיקום ידנית")
+#define TR_THROTTLE_WARNING            TR("T-Warning", "התראת מצערת פתוחה")
+#define TR_CUSTOM_THROTTLE_WARNING     TR("Cust-Pos", "עריכת מיקום ידנית")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
-#define TR_SWITCHWARNING               TR(INDENT "S-Warning", INDENT "מיקום מתגים")
-#define TR_POTWARNINGSTATE             TR(INDENT "Pot&Slid.", INDENT "סליידרים וגלגלות")
-#define TR_SLIDERWARNING               TR(INDENT "Slid. pos.", INDENT "Slider positions")
-#define TR_POTWARNING                  TR(INDENT "Pot warn.", INDENT "Pot positions")
+#define TR_SWITCHWARNING               TR("S-Warning", "מיקום מתגים")
+#define TR_POTWARNINGSTATE             "סליידרים וגלגלות"
+#define TR_POTWARNING                  TR("Pot warn.", "Pot positions")
 #define TR_TIMEZONE                    "אזור זמן"
 #define TR_ADJUST_RTC                  "Adjust RTC"
 #define TR_GPS                         "GPS"
@@ -403,7 +400,7 @@
 #define TR_POTS                        "גלגלות"
 #define TR_SWITCHES                    "מתגים"
 #define TR_SWITCHES_DELAY              TR("Play delay", "השהיית השמעת מתג")
-#define TR_SLAVE                       CENTER "Slave"
+#define TR_SLAVE                       "Slave"
 #define TR_MODESRC                     "Mode\006% Source"
 #define TR_MULTIPLIER                  "Multiplier"
 #define TR_CAL                         "Cal"
@@ -419,14 +416,14 @@
   #define TR_SETMIDPOINT               "CENTER STICKS/SLIDERS"
   #define TR_MOVESTICKSPOTS            "MOVE STICKS/POTS"
 #else
-  #define TR_MENUTOSTART               CENTER "\010" TR_ENTER " TO START"
-  #define TR_SETMIDPOINT               TR(CENTER "\004SET STICKS MIDPOINT", CENTER "\004CENTER STICKS/SLIDERS")
-  #define TR_MOVESTICKSPOTS            CENTER "\006MOVE STICKS/POTS"
-  #define TR_MENUWHENDONE              CENTER "\006" TR_ENTER " WHEN DONE"
+  #define TR_MENUTOSTART               TR_ENTER " TO START"
+  #define TR_SETMIDPOINT               TR("SET STICKS MIDPOINT", "CENTER STICKS/SLIDERS")
+  #define TR_MOVESTICKSPOTS            "MOVE STICKS/POTS"
+  #define TR_MENUWHENDONE              TR_ENTER " WHEN DONE"
 #endif
 #define TR_TXnRX                       "Tx:\0Rx:"
 #define OFS_RX                         4
-#define TR_NODATA                      CENTER "NO DATA"
+#define TR_NODATA                      "NO DATA"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
 #define TR_TMIXMAXMS                   "Tmix max"
@@ -528,13 +525,12 @@
 #define TR_RF_POWER                    "RF Power"
 #define TR_MULTI_FIXEDID               TR("FixedID", "Fixed ID")
 #define TR_MULTI_OPTION                TR("Option", "Option value")
-#define TR_MULTI_AUTOBIND              TR(INDENT "Bind Ch.", INDENT "צימוד על ערוץ")
+#define TR_MULTI_AUTOBIND              TR("Bind Ch.", "צימוד על ערוץ")
 #define TR_DISABLE_CH_MAP              TR("No Ch. map", "השבתת מיפוי ערוצים")
 #define TR_DISABLE_TELEM               TR("No Telem", "השבתת טלמטריה")
-#define TR_MULTI_DSM_AUTODTECT         TR(INDENT "Autodetect", INDENT "Autodetect format")
-#define TR_MULTI_LOWPOWER              TR(INDENT "Low power", INDENT "מצב מתח נמוך")
-#define TR_MULTI_LNA_DISABLE           INDENT "LNA disable"
-#define TR_MODULE_TELEMETRY            TR(INDENT "S.Port", INDENT "S.Port link")
+#define TR_MULTI_LOWPOWER              TR("Low power", "מצב מתח נמוך")
+#define TR_MULTI_LNA_DISABLE           "LNA disable"
+#define TR_MODULE_TELEMETRY            TR("S.Port", "S.Port link")
 #define TR_MODULE_TELEM_ON             TR("ON", "Enabled")
 #define TR_DISABLE_INTERNAL            TR("Disable int.", "Disable internal RF")
 #define TR_MODULE_NO_SERIAL_MODE       TR("!serial mode", "Not in serial mode")
@@ -552,8 +548,8 @@
 #define TR_BINDING_CH9_16_TELEM_ON     "Ch9-16 Telem ON"
 #define TR_BINDING_CH9_16_TELEM_OFF    "Ch9-16 Telem OFF"
 #define TR_PROTOCOL_INVALID            TR("Prot. invalid", "Protocol invalid")
-#define TR_MODULE_STATUS               TR(INDENT "Status", INDENT "גרסאת מולטי פרוטוקול")
-#define TR_MODULE_SYNC                 TR(INDENT "Sync", INDENT "Proto Sync Status")
+#define TR_MODULE_STATUS               TR("Status", "גרסאת מולטי פרוטוקול")
+#define TR_MODULE_SYNC                 TR("Sync", "Proto Sync Status")
 #define TR_MULTI_SERVOFREQ             TR("Servo rate", "Servo update rate")
 #define TR_MULTI_MAX_THROW             TR("Max. Throw", "Enable max. throw")
 #define TR_MULTI_RFCHAN                TR("RF Channel", "Select RF channel")
@@ -570,7 +566,7 @@
 #define TR_REPEAT_AT_ZERO              "השהיית התראה"
 #define TR_BATT_CALIB                  TR("Batt. calib", "כיול מתח סוללה ידני")
 #define TR_CURRENT_CALIB               "Current calib"
-#define TR_VOLTAGE                     TR(INDENT "Voltage", INDENT "Voltage source")
+#define TR_VOLTAGE                     TR("Voltage", "Voltage source")
 #define TR_SELECT_MODEL                "בחירת מודל"
 #define TR_MANAGE_MODELS               "ניהול מודלים"
 #define TR_MODELS                      "מודלים"
@@ -641,7 +637,7 @@
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\לוגים ושמירת צילומי מסך מושבתים"
 #else
-#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\036לוגים" LCDW_128_480_LINEBREAK "ושמירת צילומי מסך מושבתים"
+#define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\036לוגים" LCDW_128_LINEBREAK "ושמירת צילומי מסך מושבתים"
 #endif
 #define TR_NEEDS_FILE                  "NEEDS FILE"
 #define TR_EXT_MULTI_SPEC              "opentx-inv"
@@ -673,7 +669,6 @@
 #define TR_CPU_TEMP                    "CPU temp."
 #define TR_COPROC                      "CoProc."
 #define TR_COPROC_TEMP                 "MB Temp."
-#define TR_TEMPWARNING                 INDENT "Overheat"
 #define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
 #define TR_FUNC                        "Function"
 #define TR_V1                          "V1"
@@ -750,11 +745,10 @@
 #endif
 
 #define TR_SD_INFO_TITLE               "מידע כרטיס"
-#define TR_SD_TYPE                     ":סוג"
 #define TR_SD_SPEED                    ":מהירות"
 #define TR_SD_SECTORS                  ":סקטורים"
 #define TR_SD_SIZE                     ":גודל"
-#define TR_TYPE                        INDENT "סוג"
+#define TR_TYPE                        "סוג"
 #define TR_GLOBAL_VARS                 "משתנים גלובלים"
 #define TR_GVARS                       "GVARS"
 #define TR_GLOBAL_VAR                  "משתנה גלובלי"
@@ -802,7 +796,7 @@
 #define TR_MORE_OPTIONS_AVAILABLE      "More options available"
 #define TR_NO_MODULE_INFORMATION       "No module information"
 #define TR_EXTERNALRF                  "מודול חיצוני"
-#define TR_FAILSAFE                    TR(INDENT "Failsafe", INDENT "הגדרת כשל קליטה")
+#define TR_FAILSAFE                    TR("Failsafe", "הגדרת כשל קליטה")
 #define TR_FAILSAFESET                 "הגדרת כשל קליטה"
 #define TR_REG_ID                      "Reg. ID"
 #define TR_OWNER_ID                    "Owner ID"
@@ -886,7 +880,7 @@
 #define TR_SET                         BUTTON("הגדר")
 #define TR_TRAINER                     "טריינר"
 #define TR_CHANS                       "Chans"
-#define TR_ANTENNAPROBLEM              CENTER "TX antenna problem!"
+#define TR_ANTENNAPROBLEM              "TX antenna problem!"
 #define TR_MODELIDUSED                 "מספר המקלט בשימוש במודל:"
 #define TR_MODELIDUNIQUE               "מספר המקלט פנוי לשימוש"
 #define TR_MODULE                      "מודל"
@@ -901,8 +895,8 @@
 #define TR_DISABLE                     "אל תאפשר"
 #define TR_TOPLCDTIMER                 "Top LCD Timer"
 #define TR_UNIT                        "יחידה"
-#define TR_TELEMETRY_NEWSENSOR         INDENT "הוסף חדש"
-#define TR_CHANNELRANGE                TR(INDENT "Ch. Range", INDENT "טווח ערוצים")
+#define TR_TELEMETRY_NEWSENSOR         "הוסף חדש"
+#define TR_CHANNELRANGE                TR("Ch. Range", "טווח ערוצים")
 #define TR_ANTENNACONFIRM1             "EXT. ANTENNA"
 #if defined(PCBX12S)
   #define TR_ANTENNA_MODES             "Internal","Ask","Per model","Internal + External"
@@ -916,9 +910,9 @@
 #define TR_MODULE_PROTOCOL_FCC_WARN_LINE1    "Requires FCC"
 #define TR_MODULE_PROTOCOL_EU_WARN_LINE1     "Requires EU"
 #define TR_MODULE_PROTOCOL_WARN_LINE2        "certified firmware"
-#define TR_LOWALARM                    INDENT "התראה נמוכה"
-#define TR_CRITICALALARM               INDENT "התראה קריטית"
-#define TR_DISABLE_ALARM               TR(INDENT "ביטול התראות", INDENT "ביטול התראות טלמטריה")
+#define TR_LOWALARM                    "התראה נמוכה"
+#define TR_CRITICALALARM               "התראה קריטית"
+#define TR_DISABLE_ALARM               TR("ביטול התראות", "ביטול התראות טלמטריה")
 #define TR_POPUP                       "התראות"
 #define TR_MIN                         "מינימום"
 #define TR_MAX                         "מקסימום"
@@ -941,8 +935,8 @@
 #define TR_CONSTANT                    "Constant"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "כבוי","פועל","אוטומטי"
 #define TR_PREFLIGHT                   "מצב הביקורת לשלט"
-#define TR_CHECKLIST                   TR(INDENT "Checklist", INDENT "הצג מצב מערכת")
-#define TR_CHECKLIST_INTERACTIVE       TR3(INDENT "C-Interact", INDENT "Interact. checklist", INDENT "Interactive checklist")
+#define TR_CHECKLIST                   TR("Checklist", "הצג מצב מערכת")
+#define TR_CHECKLIST_INTERACTIVE       TR3("C-Interact", "Interact. checklist", "Interactive checklist")
 #define TR_AUX_SERIAL_MODE             "חיבור פנימי נוסף"
 #define TR_AUX2_SERIAL_MODE            "חיבור פנימי נוסף 2"
 #define TR_AUX_SERIAL_PORT_POWER       "הפעלת מתח בחיבור"
@@ -1094,7 +1088,7 @@
 #define TR_UNSUPPORTED_RX              "Unsupported RX"
 #define TR_OTA_UPDATE_ERROR            "OTA update error"
 #define TR_DEVICE_RESET                "Device reset..."
-#define TR_ALTITUDE                    INDENT "Altitude"
+#define TR_ALTITUDE                    "Altitude"
 #define TR_SCALE                       "מד"
 #define TR_VIEW_CHANNELS               "הצג ערוצים"
 #define TR_VIEW_NOTES                  "הצג פתקים"
@@ -1116,13 +1110,12 @@
 #define TR_ONLYPOSITIVE                "Positive"
 #define TR_FILTER                      "Filter"
 #define TR_TELEMETRYFULL               TR("All slots full!", "All telemetry slots full!")
-#define TR_INVERTED_SERIAL             INDENT "היפוך"
-#define TR_IGNORE_INSTANCE             TR(INDENT "No inst.", INDENT "Ignore instances")
+#define TR_IGNORE_INSTANCE             TR("No inst.", "Ignore instances")
 #define TR_SHOW_INSTANCE_ID            "הצג מזהה"
 #define TR_DISCOVER_SENSORS            "גלה הכל"
 #define TR_STOP_DISCOVER_SENSORS       "עצור"
 #define TR_DELETE_ALL_SENSORS          "מחק הכל"
-#define TR_CONFIRMDELETE               "Really " LCDW_128_480_LINEBREAK "? למחוק הכל"
+#define TR_CONFIRMDELETE               "Really " LCDW_128_LINEBREAK "? למחוק הכל"
 #define TR_SELECT_WIDGET               "בחירת וידג'ט"
 #define TR_WIDGET_FULLSCREEN           "מסך מלא"
 #define TR_REMOVE_WIDGET               "הסרת וידג'ט"
@@ -1134,12 +1127,7 @@
 #define TR_SETUP                       "להגדיר"
 #define TR_LAYOUT                      "תצוגת מסך"
 #define TR_ADD_MAIN_VIEW               "הוסף מסך תצוגה נוסף"
-#define TR_BACKGROUND_COLOR            "צבע רקע"
-#define TR_MAIN_COLOR                  "צבע ראשי"
-#define TR_BAR2_COLOR                  "צבע בר משני"
-#define TR_BAR1_COLOR                  "צבע בר ראשי"
 #define TR_TEXT_COLOR                  "צבע טקסט"
-#define TR_TEXT_VIEWER                 "טקסט הצגה"
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "כניסות"
 #define TR_MENU_LUA                    STR_CHAR_LUA "Lua סקריפטים"
 #define TR_MENU_STICKS                 STR_CHAR_STICK "סטיקים"

@@ -124,15 +124,25 @@ choice_t editChoice(coord_t x, coord_t y, const char * label, const char *const 
   return editChoice(x, y, label, values, value, min, max, attr, event, lblX, nullptr);
 }
 
+choice_t editChoice(coord_t x, coord_t y, const char * label, const char *const *values, choice_t value, choice_t min, choice_t max, LcdFlags attr, event_t event)
+{
+  return editChoice(x, y, label, values, value, min, max, attr, event, 0, nullptr);
+}
+
 uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label, LcdFlags attr, event_t event, coord_t lblX)
 {
   drawCheckBox(x, y, value, attr);
   return editChoice(x, y, label, nullptr, value, 0, 1, attr, event, lblX);
 }
 
+uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label, LcdFlags attr, event_t event)
+{
+  return editCheckBox(value, x, y, label, attr, event, 0);
+}
+
 swsrc_t editSwitch(coord_t x, coord_t y, swsrc_t value, LcdFlags attr, event_t event)
 {
-  drawFieldLabel(x, y, STR_SWITCH);
+  lcdDrawTextAlignedLeft(y, STR_SWITCH);
   drawSwitch(x,  y, value, attr);
   if (attr & (~RIGHT)) CHECK_INCDEC_MODELSWITCH(event, value, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, isSwitchAvailableInMixes);
   return value;

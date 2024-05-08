@@ -191,7 +191,7 @@ void menuModelTelemetry(event_t event)
         break;
 
       case ITEM_TELEMETRY_NEW_SENSOR:
-        lcdDrawText(0, y, STR_TELEMETRY_NEWSENSOR, attr);
+        lcdDrawText(INDENT_WIDTH, y, STR_TELEMETRY_NEWSENSOR, attr);
         if (attr && event==EVT_KEY_BREAK(KEY_ENTER)) {
           s_editMode = 0;
           int res = availableTelemetryIndex();
@@ -218,7 +218,7 @@ void menuModelTelemetry(event_t event)
         break;
 
       case ITEM_TELEMETRY_IGNORE_SENSOR_INSTANCE:
-        g_model.ignoreSensorIds = editCheckBox(g_model.ignoreSensorIds, TELEM_COL2, y, STR_IGNORE_INSTANCE, attr, event);
+        g_model.ignoreSensorIds = editCheckBox(g_model.ignoreSensorIds, TELEM_COL2, y, STR_IGNORE_INSTANCE, attr, event, INDENT_WIDTH);
         break;
 
       case ITEM_TELEMETRY_RSSI_LABEL:
@@ -229,7 +229,7 @@ void menuModelTelemetry(event_t event)
       case ITEM_TELEMETRY_RSSI_ALARM2:
       {
         bool warning = (k==ITEM_TELEMETRY_RSSI_ALARM1);
-        lcdDrawTextAlignedLeft(y, (warning ? STR_LOWALARM : STR_CRITICALALARM));
+        lcdDrawTextIndented(y, (warning ? STR_LOWALARM : STR_CRITICALALARM));
         lcdDrawNumber(TELEM_COL2, y, warning? g_model.rfAlarms.warning : g_model.rfAlarms.critical, LEFT|attr, 3);
         if (attr && s_editMode>0) {
           if (warning)
@@ -241,7 +241,7 @@ void menuModelTelemetry(event_t event)
       }
 
       case ITEM_TELEMETRY_DISABLE_ALARMS:
-        g_model.disableTelemetryWarning = editCheckBox(g_model.disableTelemetryWarning, TELEM_COL3, y, STR_DISABLE_ALARM, attr, event);
+        g_model.disableTelemetryWarning = editCheckBox(g_model.disableTelemetryWarning, TELEM_COL3, y, STR_DISABLE_ALARM, attr, event, INDENT_WIDTH);
         break;
 
 #if defined(VARIO)
@@ -250,7 +250,7 @@ void menuModelTelemetry(event_t event)
         break;
 
       case ITEM_TELEMETRY_VARIO_SOURCE:
-        lcdDrawText(INDENT_WIDTH, y, STR_SOURCE);
+        lcdDrawTextIndented(y, STR_SOURCE);
         drawSource(TELEM_COL2, y, g_model.varioData.source ? MIXSRC_FIRST_TELEM+3*(g_model.varioData.source-1) : 0, attr);
         if (attr) {
           g_model.varioData.source = checkIncDec(event, g_model.varioData.source, 0, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isVarioSensorAvailable);
@@ -258,7 +258,7 @@ void menuModelTelemetry(event_t event)
         break;
 
       case ITEM_TELEMETRY_VARIO_RANGE:
-        lcdDrawTextAlignedLeft(y, STR_RANGE);
+        lcdDrawTextIndented(y, STR_RANGE);
         lcdDrawNumber(TELEM_COL2, y, -10+g_model.varioData.min, (menuHorizontalPosition==0 ? attr : 0)|LEFT);
         lcdDrawNumber(TELEM_COL2+7*FW, y, 10+g_model.varioData.max, (menuHorizontalPosition==1 ? attr : 0)|LEFT);
         if (attr && s_editMode>0) {
@@ -274,7 +274,7 @@ void menuModelTelemetry(event_t event)
         break;
 
       case ITEM_TELEMETRY_VARIO_CENTER:
-        lcdDrawTextAlignedLeft(y, STR_CENTER);
+        lcdDrawTextIndented(y, STR_CENTER);
         lcdDrawNumber(TELEM_COL2, y, -5+g_model.varioData.centerMin, (menuHorizontalPosition==0 ? attr : 0)|PREC1|LEFT);
         lcdDrawNumber(TELEM_COL2+7*FW, y, 5+g_model.varioData.centerMax, (menuHorizontalPosition==1 ? attr : 0)|PREC1|LEFT);
         lcdDrawTextAtIndex(TELEM_COL3, y, STR_VVARIOCENTER, g_model.varioData.centerSilent, (menuHorizontalPosition==2 ? attr : 0));

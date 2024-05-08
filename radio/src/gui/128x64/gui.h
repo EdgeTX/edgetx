@@ -39,8 +39,6 @@
   #define HEADER_LINE_COLUMNS          0,
 #endif
 
-#define drawFieldLabel(x, y, str)      lcdDrawTextAlignedLeft(y, str)
-
 #define NUM_BODY_LINES                 (LCD_LINES-1)
 #define TEXT_VIEWER_LINES              NUM_BODY_LINES
 #define MENU_HEADER_HEIGHT             FH
@@ -65,14 +63,19 @@ typedef int choice_t;
 
 choice_t editChoice(coord_t x, coord_t y, const char *label,
                     const char *const *values, choice_t value, choice_t min,
-                    choice_t max, LcdFlags attr, event_t event, coord_t lblX = 0);
+                    choice_t max, LcdFlags attr, event_t event);
+choice_t editChoice(coord_t x, coord_t y, const char *label,
+                    const char *const *values, choice_t value, choice_t min,
+                    choice_t max, LcdFlags attr, event_t event, coord_t lblX);
 choice_t editChoice(coord_t x, coord_t y, const char *label,
                     const char *const *values, choice_t value, choice_t min,
                     choice_t max, LcdFlags attr, event_t event, coord_t lblX,
                     IsValueAvailable isValueAvailable);
 
 uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label,
-                     LcdFlags attr, event_t event, coord_t lblX = 0);
+                     LcdFlags attr, event_t event);
+uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label,
+                     LcdFlags attr, event_t event, coord_t lblX);
 
 swsrc_t editSwitch(coord_t x, coord_t y, swsrc_t value, LcdFlags attr,
                    event_t event);

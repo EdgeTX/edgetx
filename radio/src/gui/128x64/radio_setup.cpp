@@ -33,10 +33,10 @@ const unsigned char sticks[]  = {
 
 #define RADIO_SETUP_2ND_COLUMN  79
 
-#define SLIDER_5POS(y, value, event, attr) { \
-  int8_t tmp = value; \
-  drawSlider(RADIO_SETUP_2ND_COLUMN, y, LCD_W - 2 - RADIO_SETUP_2ND_COLUMN, 2+tmp, 4, attr); \
-  value = editChoice(RADIO_SETUP_2ND_COLUMN, y, nullptr, nullptr, tmp, -2, +2, attr, event); \
+int8_t slider_5pos(coord_t y, int8_t value, event_t event, uint8_t attr, const char* title)
+{
+  drawSlider(RADIO_SETUP_2ND_COLUMN, y, LCD_W - 2 - RADIO_SETUP_2ND_COLUMN, 2+value, 4, attr);
+  return editChoice(RADIO_SETUP_2ND_COLUMN, y, title, nullptr, value, -2, +2, attr, event, INDENT_WIDTH);
 }
 
 #if defined(BATTGRAPH)
@@ -127,12 +127,11 @@ enum {
 
 uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event, uint8_t modelOption)
 {
-  lcdDrawText(INDENT_WIDTH, y, title);
   if (modelOption != OVERRIDE_GLOBAL) {
     std::string s(STR_ADCFILTERVALUES[modelOption]);
     lcdDrawText(LCD_W-3*FW, y, s.c_str());
   }
-  return !editCheckBox(!value, LCD_W-4*FW-3, y, nullptr, attr, event ) ;
+  return !editCheckBox(!value, LCD_W-4*FW-3, y, title, attr, event, INDENT_WIDTH) ;
 }
 
 void menuRadioSetup(event_t event)
@@ -335,7 +334,7 @@ void menuRadioSetup(event_t event)
 #if defined(VOICE)
       case ITEM_RADIO_SETUP_SPEAKER_VOLUME:
       {
-        lcdDrawText(INDENT_WIDTH, y, STR_VOLUME);
+        lcdDrawTextIndented(y, STR_VOLUME);
         uint8_t b = g_eeGeneral.speakerVolume+VOLUME_LEVEL_DEF;
         drawSlider(RADIO_SETUP_2ND_COLUMN, y, LCD_W - 2 - RADIO_SETUP_2ND_COLUMN, b, VOLUME_LEVEL_MAX, attr);
         if (attr) {
@@ -349,29 +348,25 @@ void menuRadioSetup(event_t event)
 #endif
 
       case ITEM_RADIO_SETUP_BEEP_VOLUME:
-        lcdDrawText(INDENT_WIDTH, y, STR_BEEP_VOLUME);
-        SLIDER_5POS(y, g_eeGeneral.beepVolume, event, attr);
+        g_eeGeneral.beepVolume = slider_5pos(y, g_eeGeneral.beepVolume, event, attr, STR_BEEP_VOLUME);
         break;
 
       case ITEM_RADIO_SETUP_WAV_VOLUME:
-        lcdDrawText(INDENT_WIDTH, y, STR_WAV_VOLUME);
-        SLIDER_5POS(y, g_eeGeneral.wavVolume, event, attr);
+        g_eeGeneral.wavVolume = slider_5pos(y, g_eeGeneral.wavVolume, event, attr, STR_WAV_VOLUME);
         break;
 
       case ITEM_RADIO_SETUP_BACKGROUND_VOLUME:
-        lcdDrawText(INDENT_WIDTH, y, STR_BG_VOLUME);
-        SLIDER_5POS(y, g_eeGeneral.backgroundVolume, event, attr);
+        g_eeGeneral.backgroundVolume = slider_5pos(y, g_eeGeneral.backgroundVolume, event, attr, STR_BG_VOLUME);
         break;
 
       case ITEM_RADIO_SETUP_BEEP_LENGTH:
-        lcdDrawText(INDENT_WIDTH, y, STR_BEEP_LENGTH);
-        SLIDER_5POS(y, g_eeGeneral.beepLength, event, attr);
+        g_eeGeneral.beepLength = slider_5pos(y, g_eeGeneral.beepLength, event, attr, STR_BEEP_LENGTH);
         break;
 
 #if defined(AUDIO)
       case ITEM_RADIO_SETUP_SPEAKER_PITCH:
         {
-          lcdDrawText(INDENT_WIDTH, y, STR_BEEP_PITCH);
+          lcdDrawTextIndented(y, STR_BEEP_PITCH);
           lcdDrawNumber(LCD_W-14, y, g_eeGeneral.speakerPitch*15, attr|RIGHT);
           coord_t lp = lcdLastLeftPos - FW;
           lcdDrawText(lcdLastRightPos, y, "Hz", attr);
@@ -389,26 +384,25 @@ void menuRadioSetup(event_t event)
         break;
 
       case ITEM_RADIO_SETUP_VARIO_VOLUME:
-        lcdDrawText(INDENT_WIDTH, y, STR_VOLUME);
-        SLIDER_5POS(y, g_eeGeneral.varioVolume, event, attr);
+        g_eeGeneral.varioVolume = slider_5pos(y, g_eeGeneral.varioVolume, event, attr, STR_VOLUME);
         break;
 
       case ITEM_RADIO_SETUP_VARIO_PITCH:
-        lcdDrawText(INDENT_WIDTH, y, STR_PITCH_AT_ZERO);
+        lcdDrawTextIndented(y, STR_PITCH_AT_ZERO);
         lcdDrawNumber(LCD_W-14, y, VARIO_FREQUENCY_ZERO+(g_eeGeneral.varioPitch*10), attr|RIGHT);
         lcdDrawText(lcdLastRightPos, y, "Hz", attr);
         if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.varioPitch, -40, 40);
         break;
 
       case ITEM_RADIO_SETUP_VARIO_RANGE:
-        lcdDrawText(INDENT_WIDTH, y, STR_PITCH_AT_MAX);
+        lcdDrawTextIndented(y, STR_PITCH_AT_MAX);
         lcdDrawNumber(LCD_W-14, y, VARIO_FREQUENCY_ZERO+(g_eeGeneral.varioPitch*10)+VARIO_FREQUENCY_RANGE+(g_eeGeneral.varioRange*10), attr|RIGHT);
         lcdDrawText(lcdLastRightPos, y, "Hz", attr);
         if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.varioRange, -80, 80);
         break;
 
       case ITEM_RADIO_SETUP_VARIO_REPEAT:
-        lcdDrawText(INDENT_WIDTH, y, STR_REPEAT_AT_ZERO);
+        lcdDrawTextIndented(y, STR_REPEAT_AT_ZERO);
         lcdDrawNumber(LCD_W-14, y, VARIO_REPEAT_ZERO+(g_eeGeneral.varioRepeat*10), attr|RIGHT);
         lcdDrawText(lcdLastRightPos, y, STR_MS, attr);
         if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.varioRepeat, -30, 50);
@@ -425,13 +419,11 @@ void menuRadioSetup(event_t event)
         break;
 
       case ITEM_RADIO_SETUP_HAPTIC_LENGTH:
-        lcdDrawText(INDENT_WIDTH, y, STR_LENGTH);
-        SLIDER_5POS(y, g_eeGeneral.hapticLength, event, attr);
+        g_eeGeneral.hapticLength = slider_5pos(y, g_eeGeneral.hapticLength, event, attr, STR_LENGTH);
         break;
 
       case ITEM_RADIO_SETUP_HAPTIC_STRENGTH:
-        lcdDrawText(INDENT_WIDTH, y, STR_STRENGTH);
-        SLIDER_5POS(y, g_eeGeneral.hapticStrength, event, attr);
+        g_eeGeneral.hapticStrength = slider_5pos(y, g_eeGeneral.hapticStrength, event, attr, STR_STRENGTH);
         break;
 #endif
 
@@ -442,7 +434,7 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_IMU_MAX:
         {
-          lcdDrawText(INDENT_WIDTH, y, STR_IMU_MAX);
+          lcdDrawTextIndented(y, STR_IMU_MAX);
           lcdDrawNumber(LCD_W-7, y, IMU_MAX_DEFAULT + g_eeGeneral.imuMax, attr|RIGHT);
           coord_t lp = lcdLastLeftPos - 2;
           lcdDrawChar(lcdLastRightPos, y, STR_CHAR_BW_DEGREE, attr);
@@ -457,7 +449,7 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_IMU_OFFSET:
         {
-          lcdDrawText(INDENT_WIDTH, y, STR_IMU_OFFSET);
+          lcdDrawTextIndented(y, STR_IMU_OFFSET);
           lcdDrawNumber(LCD_W-7, y, g_eeGeneral.imuOffset, attr|RIGHT);
           coord_t lp = lcdLastLeftPos - 2;
           lcdDrawChar(lcdLastRightPos, y, STR_CHAR_BW_DEGREE, attr);
@@ -473,7 +465,7 @@ void menuRadioSetup(event_t event)
 
 #if !defined(OLED_SCREEN)
       case ITEM_RADIO_SETUP_CONTRAST:
-        lcdDrawText(INDENT_WIDTH, y, STR_CONTRAST);
+        lcdDrawTextIndented(y, STR_CONTRAST);
         lcdDrawNumber(LCD_W-2, y, g_eeGeneral.contrast, attr|RIGHT);
         if (attr) {
           CHECK_INCDEC_GENVAR(event, g_eeGeneral.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
@@ -487,32 +479,29 @@ void menuRadioSetup(event_t event)
         break;
 
       case ITEM_RADIO_SETUP_BATTERY_WARNING:
-        lcdDrawText(INDENT_WIDTH, y, STR_BATTERYWARNING);
+        lcdDrawTextIndented(y, STR_BATTERYWARNING);
         putsVolts(LCD_W-7, y, g_eeGeneral.vBatWarn, attr|RIGHT);
         if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatWarn, 30, 120); //3-12V
         break;
 
       case ITEM_RADIO_SETUP_MEMORY_WARNING:
       {
-        lcdDrawText(INDENT_WIDTH, y, STR_MEMORYWARNING);
         uint8_t b = 1 - g_eeGeneral.disableMemoryWarning;
-        g_eeGeneral.disableMemoryWarning = 1 - editCheckBox(b, LCD_W-9, y, nullptr, attr, event);
+        g_eeGeneral.disableMemoryWarning = 1 - editCheckBox(b, LCD_W-9, y, STR_MEMORYWARNING, attr, event, INDENT_WIDTH);
         break;
       }
 
       case ITEM_RADIO_SETUP_ALARM_WARNING:
       {
-        lcdDrawText(INDENT_WIDTH, y, STR_ALARMWARNING);
         uint8_t b = 1 - g_eeGeneral.disableAlarmWarning;
-        g_eeGeneral.disableAlarmWarning = 1 - editCheckBox(b, LCD_W-9, y, nullptr, attr, event);
+        g_eeGeneral.disableAlarmWarning = 1 - editCheckBox(b, LCD_W-9, y, STR_ALARMWARNING, attr, event, INDENT_WIDTH);
         break;
       }
 
       case ITEM_RADIO_SETUP_RSSI_POWEROFF_ALARM:
       {
-        lcdDrawText(INDENT_WIDTH, y, STR_RSSI_SHUTDOWN_ALARM);
         uint8_t b = 1 - g_eeGeneral.disableRssiPoweroffAlarm;
-        g_eeGeneral.disableRssiPoweroffAlarm = 1 - editCheckBox(b, LCD_W-9, y, nullptr, attr, event);
+        g_eeGeneral.disableRssiPoweroffAlarm = 1 - editCheckBox(b, LCD_W-9, y, STR_RSSI_SHUTDOWN_ALARM, attr, event, INDENT_WIDTH);
         break;
       }
 
@@ -525,7 +514,7 @@ void menuRadioSetup(event_t event)
       }
 
       case ITEM_RADIO_SETUP_INACTIVITY_ALARM:
-        lcdDrawText(INDENT_WIDTH, y, STR_INACTIVITYALARM);
+        lcdDrawTextIndented(y, STR_INACTIVITYALARM);
         lcdDrawNumber(LCD_W-7, y, g_eeGeneral.inactivityTimer, attr|RIGHT);
         lcdDrawChar(lcdLastRightPos, y, 'm');
         if(attr) g_eeGeneral.inactivityTimer = checkIncDec(event, g_eeGeneral.inactivityTimer, 0, 250, EE_GENERAL); //0..250minutes
@@ -541,24 +530,22 @@ void menuRadioSetup(event_t event)
         break;
 
       case ITEM_RADIO_SETUP_BACKLIGHT_MODE:
-        lcdDrawText(INDENT_WIDTH, y, STR_MODE);
-        g_eeGeneral.backlightMode = editChoice(LCD_W-2, y, nullptr, STR_VBLMODE, g_eeGeneral.backlightMode, e_backlight_mode_off, e_backlight_mode_on, attr|RIGHT, event);
+        g_eeGeneral.backlightMode = editChoice(LCD_W-2, y, STR_MODE, STR_VBLMODE, g_eeGeneral.backlightMode, e_backlight_mode_off, e_backlight_mode_on, attr|RIGHT, event, INDENT_WIDTH);
         break;
 
       case ITEM_RADIO_SETUP_FLASH_BEEP:
-        lcdDrawText(INDENT_WIDTH, y, STR_ALARM);
-        g_eeGeneral.alarmsFlash = editCheckBox(g_eeGeneral.alarmsFlash, LCD_W-9, y, nullptr, attr, event ) ;
+        g_eeGeneral.alarmsFlash = editCheckBox(g_eeGeneral.alarmsFlash, LCD_W-9, y, STR_ALARM, attr, event, INDENT_WIDTH) ;
         break;
 
       case ITEM_RADIO_SETUP_BACKLIGHT_DELAY:
-        lcdDrawText(INDENT_WIDTH, y, STR_DURATION);
+        lcdDrawTextIndented(y, STR_DURATION);
         lcdDrawNumber(LCD_W-7, y, g_eeGeneral.lightAutoOff*5, attr|RIGHT);
         lcdDrawChar(lcdLastRightPos, y, 's');
         if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.lightAutoOff, 0, 600/5);
         break;
 
       case ITEM_RADIO_SETUP_BRIGHTNESS:
-        lcdDrawText(INDENT_WIDTH, y, STR_BRIGHTNESS);
+        lcdDrawTextIndented(y, STR_BRIGHTNESS);
 #if defined(OLED_SCREEN)
         lcdDrawNumber(LCD_W-2, y, g_eeGeneral.contrast, attr|RIGHT);
         if (attr) {
@@ -630,7 +617,7 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_TIMEZONE:
         {
-          lcdDrawText(INDENT_WIDTH, y, STR_TIMEZONE);
+          lcdDrawTextIndented(y, STR_TIMEZONE);
           int tzIndex = timezoneIndex(g_eeGeneral.timezone, g_eeGeneral.timezoneMinutes);
           lcdDrawText(LCD_W-2, y, timezoneDisplay(tzIndex).c_str(), attr|RIGHT);
           if (attr) {

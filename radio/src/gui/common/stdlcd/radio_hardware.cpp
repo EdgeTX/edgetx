@@ -304,7 +304,7 @@ void menuRadioHardware(event_t event)
             editChoice(HW_SETTINGS_COLUMN2, y, STR_TYPE,
                        STR_MODULE_PROTOCOLS,
                        g_eeGeneral.internalModule, MODULE_TYPE_NONE,
-                       MODULE_TYPE_MAX, attr, event, 0, isInternalModuleSupported);
+                       MODULE_TYPE_MAX, attr, event, INDENT_WIDTH, isInternalModuleSupported);
         if (g_model.moduleData[INTERNAL_MODULE].type !=
             g_eeGeneral.internalModule) {
           memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
@@ -325,7 +325,7 @@ void menuRadioHardware(event_t event)
 #endif
 
       case ITEM_RADIO_HARDWARE_INTERNAL_MODULE_BAUDRATE:
-        lcdDrawText(INDENT_WIDTH, y, STR_BAUDRATE);
+        lcdDrawTextIndented(y, STR_BAUDRATE);
         lcdDrawTextAtIndex(HW_SETTINGS_COLUMN2, y, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate),attr | LEFT);
         if (attr) {
           g_eeGeneral.internalModuleBaudrate = CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate), 0, CROSSFIRE_MAX_INTERNAL_BAUDRATE));
@@ -352,22 +352,22 @@ void menuRadioHardware(event_t event)
         break;
 
       case ITEM_RADIO_HARDWARE_BLUETOOTH_PAIRING_CODE:
-        lcdDrawText(INDENT_WIDTH, y, STR_BLUETOOTH_PIN_CODE);
+        lcdDrawTextIndented(y, STR_BLUETOOTH_PIN_CODE);
         lcdDrawText(HW_SETTINGS_COLUMN2, y, "000000");
         break;
 
       case ITEM_RADIO_HARDWARE_BLUETOOTH_LOCAL_ADDR:
-        lcdDrawText(INDENT_WIDTH, y, STR_BLUETOOTH_LOCAL_ADDR);
+        lcdDrawTextIndented(y, STR_BLUETOOTH_LOCAL_ADDR);
         lcdDrawText(HW_SETTINGS_COLUMN2, y, bluetooth.localAddr[0] == '\0' ? "---" : bluetooth.localAddr);
         break;
 
       case ITEM_RADIO_HARDWARE_BLUETOOTH_DISTANT_ADDR:
-        lcdDrawText(INDENT_WIDTH, y, STR_BLUETOOTH_DIST_ADDR);
+        lcdDrawTextIndented(y, STR_BLUETOOTH_DIST_ADDR);
         lcdDrawText(HW_SETTINGS_COLUMN2, y, bluetooth.distantAddr[0] == '\0' ? "---" : bluetooth.distantAddr);
         break;
 
       case ITEM_RADIO_HARDWARE_BLUETOOTH_NAME:
-        lcdDrawText(INDENT_WIDTH, y, STR_NAME);
+        lcdDrawTextIndented(y, STR_NAME);
         editName(HW_SETTINGS_COLUMN2, y, g_eeGeneral.bluetoothName,
                  LEN_BLUETOOTH_NAME, event, (attr != 0), attr, old_editMode);
         break;
@@ -577,7 +577,7 @@ void menuRadioHardware(event_t event)
           auto port_nr = k - ITEM_RADIO_HARDWARE_SERIAL_PORT;
           auto port = serialGetPort(port_nr);
           if (port && port->name) {
-            lcdDrawText(INDENT_WIDTH, y, port->name);
+            lcdDrawTextIndented(y, port->name);
 
             auto mode = serialGetMode(port_nr);
             mode = editChoice(HW_SETTINGS_COLUMN2, y, nullptr,

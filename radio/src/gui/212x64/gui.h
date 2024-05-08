@@ -51,11 +51,6 @@
 
 #define MENUS_SCROLLBAR_WIDTH          2
 
-inline void drawFieldLabel(coord_t x, coord_t y, const char * str)
-{
-  lcdDrawText(0, y, str);
-}
-
 extern uint8_t modelBitmap[MODEL_BITMAP_SIZE];
 bool loadModelBitmap(char * name, uint8_t * bitmap);
 

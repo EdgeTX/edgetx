@@ -72,7 +72,7 @@ void menuModelFlightModesAll(event_t event)
 
     if (k == MAX_FLIGHT_MODES) {
       // last line available - add the "check trims" line
-      lcdDrawTextAlignedLeft((LCD_LINES-1)*FH+1, STR_CHECKTRIMS);
+      lcdDrawText(CENTER_OFS, (LCD_LINES-1)*FH+1, STR_CHECKTRIMS);
       drawFlightMode(OFS_CHECKTRIMS, (LCD_LINES-1)*FH+1, mixerCurrentFlightMode+1);
       if (sub == MAX_FLIGHT_MODES) {
         if (!trimsCheckTimer) {
