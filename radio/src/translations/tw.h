@@ -360,7 +360,7 @@
 #define TR_MEMORYWARNING               "內存不足"
 #define TR_ALARMWARNING                "靜音"
 #define TR_RSSI_SHUTDOWN_ALARM         TR("關機檢查RSSI", "關機時檢查RSSI")
-#define TR_TRAINER_SHUTDOWN_ALARM          TR("Trainer alarm", "check trainer connection")
+#define TR_TRAINER_SHUTDOWN_ALARM      TR("關機檢查教練", "關機時檢查教練信號")
 #define TR_MODEL_STILL_POWERED         "模型未斷電"
 #define TR_TRAINER_STILL_CONNECTED     "教練信號未斷開"
 #define TR_USB_STILL_CONNECTED         "USB未斷開"
