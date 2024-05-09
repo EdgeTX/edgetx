@@ -851,7 +851,7 @@
 #define TR_BUZZER                      "蜂鸣器"
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("对频", "对频"))
-#define TR_MODULE_UNBIND               BUTTON("Unbind")
+#define TR_MODULE_UNBIND               BUTTON("解绑")
 #define TR_POWERMETER_ATTN_NEEDED     "需要串联衰减器"
 #define TR_PXX2_SELECT_RX              "Select RX"
 #define TR_PXX2_DEFAULT                "<default>"
