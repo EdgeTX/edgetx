@@ -90,6 +90,37 @@ LEGACY_NAMES = [
         }
     },
     {
+        "targets": {"t15"},
+        "inputs": {
+            "LH": {
+                "yaml": "Rud"
+            },
+            "LV": {
+                "yaml": "Ele"
+            },
+            "RV": {
+                "yaml": "Thr"
+            },
+            "RH": {
+                "yaml": "Ail"
+            },
+            "P1": {
+                "yaml": "S1",
+                "lua": "s1",
+                "label": "S1",
+                "short_label": "1",
+                "description": "Potentiometer S1"
+            },
+            "P2": {
+                "yaml": "S2",
+                "lua": "s2",
+                "label": "S2",
+                "short_label": "2",
+                "description": "Potentiometer S2"
+            }
+        }
+    },
+    {
         "targets": {"x12s"},
         "inputs": {
             "LH": {

@@ -78,6 +78,10 @@ POT_CONFIG = {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"}
     },
+    "t15": {
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"},
+    },
     "t16": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "MULTIPOS"},

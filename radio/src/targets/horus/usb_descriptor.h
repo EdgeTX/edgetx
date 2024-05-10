@@ -26,6 +26,10 @@
   #define USB_NAME                     "FrSky Horus"
   #define USB_MANUFACTURER             'F', 'r', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'H', 'o', 'r', 'u', 's', ' ', ' ', ' '  /* 8 Bytes */
+#elif defined(RADIO_T15)
+  #define USB_NAME                     "Jumper T15"
+  #define USB_MANUFACTURER             'J', 'u', 'm', 'p', 'e', 'r', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'T', '1', '5', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
 #elif defined(RADIO_T16)
   #define USB_NAME                     "Jumper T16"
   #define USB_MANUFACTURER             'J', 'u', 'm', 'p', 'e', 'r', ' ', ' '  /* 8 bytes */

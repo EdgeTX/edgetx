@@ -108,6 +108,9 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
     case Board::BOARD_JUMPER_T14:
       radioUiWidget = new SimulatedUIWidgetJumperT14(simulator, this);
       break;
+    case Board::BOARD_JUMPER_T15:
+      radioUiWidget = new SimulatedUIWidgetJumperT15(simulator, this);
+      break;
     case Board::BOARD_JUMPER_T16:
       radioUiWidget = new SimulatedUIWidgetJumperT16(simulator, this);
       break;

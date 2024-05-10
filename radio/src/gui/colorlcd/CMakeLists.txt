@@ -58,6 +58,7 @@ set(GUI_SRC
   trims_setup.cpp
   throttle_params.cpp
   preflight_checks.cpp
+  function_switches.cpp
   model_setup.cpp
   model_flightmodes.cpp
   model_inputs.cpp
@@ -82,6 +83,7 @@ set(GUI_SRC
   radio_hardware.cpp
   radio_diagkeys.cpp
   radio_diaganas.cpp
+  radio_diagcustscwitches.cpp
   radio_theme.cpp
   radio_calibration.cpp
   view_about.cpp
