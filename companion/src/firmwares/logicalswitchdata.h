@@ -76,8 +76,8 @@ class LogicalSwitchData {
     unsigned int delay;
     unsigned int duration;
     int andsw;
-    int lsState;
-    int lsPersist;
+    bool lsState;
+    bool lsPersist;
 
     void clear() { memset(this, 0, sizeof(LogicalSwitchData)); }
     bool isEmpty() const;
