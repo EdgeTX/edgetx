@@ -119,15 +119,15 @@ void boardInit()
                  // Also, MCU is running which create a drop vs off
        if (getBatteryVoltage() >= 660)
          LEDCHARGEON(0);
-       if (getBatteryVoltage() >= 700)
-         LEDCHARGEON(1);
        if (getBatteryVoltage() >= 740)
+         LEDCHARGEON(1);
+       if (getBatteryVoltage() >= 760)
          LEDCHARGEON(2);
        if (getBatteryVoltage() >= 780)
          LEDCHARGEON(3);
        if (getBatteryVoltage() >= 810)
          LEDCHARGEON(4);
-       if (getBatteryVoltage() >= 820)
+       if (getBatteryVoltage() >= 825)
          LEDCHARGEON(5);
        delay_ms(1000);
      }
