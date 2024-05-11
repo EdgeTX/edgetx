@@ -153,3 +153,8 @@ void GVarNumberEdit::update()
     lv_group_focus_obj(act_obj);
   }
 }
+
+void GVarNumberEdit::setDisplayHandler(std::function<std::string(int value)> function)
+{
+  num_field->setDisplayHandler(function);
+}
