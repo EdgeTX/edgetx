@@ -401,7 +401,7 @@ char *getGVarString(char *dest, int idx)
 #if defined(LIBOPENUI)
 char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
                            gvar_t vmax, LcdFlags flags, const char *suffix,
-                           gvar_t offset)
+                           gvar_t offset, bool usePPMUnit)
 {
   if (GV_IS_GV_VALUE(value, vmin, vmax)) {
     int index = GV_INDEX_CALC_DELTA(value, GV_GET_GV1_VALUE(vmin, vmax));
@@ -409,6 +409,8 @@ char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
   }
 
   value += offset;
+  if (usePPMUnit && g_eeGeneral.ppmunit == PPM_US)
+    value = value * 128 / 25;
   formatNumberAsString(dest, len, value, flags, 0, nullptr, suffix);
   return dest;
 }

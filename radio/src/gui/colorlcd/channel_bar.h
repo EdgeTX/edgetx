@@ -31,11 +31,12 @@ constexpr coord_t TMARGIN = 2;
 class ChannelBar : public Window
 {
  public:
-  ChannelBar(Window* parent, const rect_t& rect,
-             std::function<int16_t()> getValue, LcdFlags barColor,
-             LcdFlags textColor = COLOR_THEME_SECONDARY1);
+  ChannelBar(Window* parent, const rect_t& rect, uint8_t channel,
+             std::function<int16_t()> getValue, LcdColorIndex barColorIndex,
+             LcdColorIndex textColorIndex = COLOR_THEME_SECONDARY1_INDEX);
 
  protected:
+  uint8_t channel = 0;
   int16_t value = -10000;
   std::function<int16_t()> getValue;
   lv_obj_t* valText = nullptr;
@@ -58,7 +59,6 @@ class OutputChannelBar : public ChannelBar
                    bool editColor = false, bool drawLimits = true);
 
  protected:
-  uint8_t channel = 0;
   int limMax = 0;
   int limMin = 0;
   bool drawLimits = true;
