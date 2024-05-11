@@ -1573,7 +1573,9 @@ int main()
   modulePortInit();
   pulsesInit();
 
+#if !defined(DISABLE_MCUCHECK)
   checkValidMCU();
+#endif
 
 #if defined(PCBHORUS)
   if (!IS_FIRMWARE_COMPATIBLE_WITH_BOARD()) {
