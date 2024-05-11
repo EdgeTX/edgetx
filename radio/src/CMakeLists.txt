@@ -55,6 +55,7 @@ option(IMRC_RELEASE "Used to build IMRC released firmware" OFF)
 option(HARDWARE_TRAINER_MULTI "Allow multi trainer" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
 option(FWDRIVE "Attach also firmware drive with USB" OFF)
+option(DISABLE_MCUCHECK "Disable MCU check at start" OFF)
 
 if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
   option(USBJ_EX "Enable USB Joystick Extension" OFF)
@@ -372,6 +373,10 @@ add_definitions(-DDEFAULT_TEMPLATE_SETUP=${DEFAULT_TEMPLATE_SETUP})
 
 if(FWDRIVE)
   add_definitions(-DFWDRIVE)
+endif()
+
+if(DISABLE_MCUCHECK)
+  add_definitions(-DDISABLE_MCUCHECK)
 endif()
 
 set(SRC
