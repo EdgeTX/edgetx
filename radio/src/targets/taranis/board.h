@@ -43,6 +43,9 @@ void rotaryEncoderCheck();
 #endif
 #define BOOTLOADER_SIZE                 0x8000
 #define FIRMWARE_ADDRESS                0x08000000
+#define FIRMWARE_LEN(fsize)             (fsize - BOOTLOADER_SIZE)
+#define FIRMWARE_MAX_LEN                (FLASHSIZE - BOOTLOADER_SIZE)
+#define APP_START_ADDRESS               (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
 
 #define LUA_MEM_MAX                     (0)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 

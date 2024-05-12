@@ -46,8 +46,6 @@
   #include "thirdparty/Segger_RTT/RTT/SEGGER_RTT.h"
 #endif
 
-#define APP_START_ADDRESS (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
-
 #if defined(EEPROM) || defined(SPI_FLASH)
   #define MAIN_MENU_LEN 3
 #else
@@ -444,8 +442,8 @@ int  bootloaderMain()
           // confirmed
 
           if (memoryType == MEM_FLASH) {
-            firmwareSize = binFiles[vpos].size - BOOTLOADER_SIZE;
-            firmwareAddress = FIRMWARE_ADDRESS + BOOTLOADER_SIZE;
+            firmwareSize = FIRMWARE_LEN(binFiles[vpos].size);
+            firmwareAddress = APP_START_ADDRESS;
             firmwareWritten = 0;
           }
 #if defined(EEPROM)
@@ -484,7 +482,7 @@ int  bootloaderMain()
         if (BlockCount == 0) {
           state = ST_FLASH_DONE; // EOF
         }
-        else if (memoryType == MEM_FLASH && firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
+        else if (memoryType == MEM_FLASH && firmwareWritten >= FIRMWARE_MAX_LEN) {
           state = ST_FLASH_DONE; // Backstop
         }
 #if defined(EEPROM)
