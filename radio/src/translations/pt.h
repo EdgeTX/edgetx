@@ -288,6 +288,8 @@
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Chave"
 #define TR_FUNCTION_SWITCHES           "Chaves customizáveis"
+#define TR_GROUP                       "Group"
+#define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_SF_SWITCH                   "Disparo"
 #define TR_TRIMS                       "Trims"
 #define TR_FADEIN                      "Aparecer"

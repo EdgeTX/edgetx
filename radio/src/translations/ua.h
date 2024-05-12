@@ -287,6 +287,8 @@
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Перемикач"
 #define TR_FUNCTION_SWITCHES           "Користувацькі перемикачі"
+#define TR_GROUP                       "Group"
+#define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_SF_SWITCH                   "Тригери"
 #define TR_TRIMS                       "Трим."
 #define TR_FADEIN                      "Вх.Згасання"

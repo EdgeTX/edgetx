@@ -80,7 +80,15 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_SW4,
   ITEM_MODEL_SETUP_SW5,
   ITEM_MODEL_SETUP_SW6,
-  ITEM_MODEL_SETUP_FS_STARTUP,
+  ITEM_MODEL_SETUP_GROUP1_LABEL,
+  ITEM_MODEL_SETUP_GROUP1_ALWAYS_ON,
+  ITEM_MODEL_SETUP_GROUP1_START,
+  ITEM_MODEL_SETUP_GROUP2_LABEL,
+  ITEM_MODEL_SETUP_GROUP2_ALWAYS_ON,
+  ITEM_MODEL_SETUP_GROUP2_START,
+  ITEM_MODEL_SETUP_GROUP3_LABEL,
+  ITEM_MODEL_SETUP_GROUP3_ALWAYS_ON,
+  ITEM_MODEL_SETUP_GROUP3_START,
 #endif
   ITEM_MODEL_SETUP_EXTENDED_LIMITS,
   ITEM_MODEL_SETUP_EXTENDED_TRIMS,
@@ -356,7 +364,15 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
-                                        FS_ROW(NAVIGATION_LINE_BY_LINE|(NUM_FUNCTIONS_SWITCHES-1)),
+                                        FS_ROW(LABEL()), \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),  \
+                                        FS_ROW(LABEL()), \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),  \
+                                        FS_ROW(LABEL()), \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),
 #else
   #define FUNCTION_SWITCHES_ROWS
 #endif
@@ -552,6 +568,81 @@ uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr,
   lcdDrawText(INDENT_WIDTH-1, y, title);
   return editChoice(96, y, nullptr, STR_ADCFILTERVALUES, value, 0, 2, attr, event);
 }
+
+#if defined(FUNCTION_SWITCHES)
+int cfsIndex;
+uint8_t cfsGroup;
+
+bool checkCFSTypeAvailable(int val)
+{
+  int group = FSWITCH_GROUP(cfsIndex);
+  if (group > 0 && IS_FSWITCH_GROUP_ON(group) && val == SWITCH_TOGGLE)
+    return false;
+  return true;
+}
+
+bool checkCFSStartupAvailable(int val)
+{
+  if (FSWITCH_GROUP(cfsIndex) > 0 && val == 1)
+    return false;
+  return true;
+}
+
+bool checkCFSGroupAvailable(int group)
+{
+  if (FSWITCH_CONFIG(cfsIndex) == SWITCH_TOGGLE && group && IS_FSWITCH_GROUP_ON(group))
+    return false;
+  return true;
+}
+
+bool checkCFSSwitchAvailable(int sw)
+{
+  return (sw == 0) || (FSWITCH_GROUP(sw - 1) == cfsGroup);
+}
+
+bool groupHasSwitchOn(uint8_t group)
+{
+  for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
+    if (FSWITCH_GROUP(j) == group && getFSLogicalState(j))
+      return true;
+  return false;
+}
+
+int firstSwitchInGroup(uint8_t group)
+{
+  for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
+    if (FSWITCH_GROUP(j) == group)
+      return j;
+  return -1;
+}
+
+int groupDefaultSwitch(uint8_t group)
+{
+  for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
+    if (FSWITCH_GROUP(j) == group && FSWITCH_STARTUP(j) == 0)
+      return j;
+  return -1;
+}
+
+void setGroupSwitchState(uint8_t group, int defaultSwitch = -1)
+{
+  // Check rules for always on group
+  //  - Toggle switch type not valid, change all switches to 2POS
+  //  - One switch must be turned on, turn on first switch if needed
+  if (IS_FSWITCH_GROUP_ON(group)) {
+    for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1) {
+      if (FSWITCH_GROUP(j) == group) {
+        FSWITCH_SET_CONFIG(j, SWITCH_2POS); // Toggle not valid
+      }
+    }
+    if (!groupHasSwitchOn(group)) {
+      int sw = firstSwitchInGroup(group);
+      if (sw >= 0)
+        setFSLogicalState(sw, 1); // Make sure a switch is on
+    }
+  }
+}
+#endif
 
 void menuModelSetup(event_t event)
 {
@@ -781,8 +872,8 @@ void menuModelSetup(event_t event)
         timer->persistent = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_PERSISTENT, STR_VPERSISTENT, timer->persistent, 0, 2, attr, event, INDENT_WIDTH);
         break;
       }
-#if defined(FUNCTION_SWITCHES)
 
+#if defined(FUNCTION_SWITCHES)
       case ITEM_MODEL_SETUP_LABEL:
         expandState.functionSwitches = expandableSection(y, STR_FUNCTION_SWITCHES, expandState.functionSwitches, attr, event);
         break;
@@ -795,61 +886,114 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_SW6:
       {
         int index = k - ITEM_MODEL_SETUP_SW1;
-        int config = FSWITCH_CONFIG(index);
         lcdDrawSizedText(INDENT_WIDTH, y, STR_CHAR_SWITCH, 2, menuHorizontalPosition < 0 ? attr : 0);
         lcdDrawText(lcdNextPos, y, switchGetName(index+switchGetMaxSwitches()), menuHorizontalPosition < 0 ? attr : 0);
+
         if (ZEXIST(g_model.switchNames[index]) || (attr && s_editMode > 0 && menuHorizontalPosition == 0))
           editName(35, y, g_model.switchNames[index], LEN_SWITCH_NAME, event, menuHorizontalPosition == 0 ? attr : 0, 0, old_editMode);
         else
           lcdDrawMMM(35, y, menuHorizontalPosition == 0 ? attr : 0);
-        config = editChoice(30 + 5*FW, y, "", STR_SWTYPES, config, SWITCH_NONE, SWITCH_2POS, menuHorizontalPosition == 1 ? attr : 0, event);
-        if (attr && checkIncDec_Ret) {
-          swconfig_t mask = (swconfig_t)0x03 << (2*index);
-          g_model.functionSwitchConfig = (g_model.functionSwitchConfig & ~mask) | ((swconfig_t(config) & 0x03) << (2*index));
-        }
 
-        config = FSWITCH_GROUP(index);
-        config = editChoice(30 + 13 * FW, y, "", STR_FSGROUPS, config, 0, 3, menuHorizontalPosition == 2 ? attr : 0, event);
-        if (attr && checkIncDec_Ret && menuHorizontalPosition == 2) {
-          swconfig_t mask = (swconfig_t) 0x03 << (2 * index);
-          g_model.functionSwitchGroup = (g_model.functionSwitchGroup & ~mask) | ((swconfig_t(config) & 0x03) << (2 * index));
-        }
-
-        if (FSWITCH_GROUP(index)) {
-          uint8_t groupeAlwaysOn = IS_FSWITCH_GROUP_ON(config);
-          groupeAlwaysOn = editCheckBox(groupeAlwaysOn, 30 + 15 * FW, y, "", menuHorizontalPosition == 3 ? attr : 0, event);
-          if (attr && checkIncDec_Ret && menuHorizontalPosition == 3) {
-            swconfig_t mask = (swconfig_t) 0x01 << (2 * NUM_FUNCTIONS_SWITCHES + config);
-            g_model.functionSwitchGroup = (g_model.functionSwitchGroup & ~mask) | (groupeAlwaysOn << (2 * NUM_FUNCTIONS_SWITCHES + config));
+        cfsIndex = index;
+        int config = FSWITCH_CONFIG(index);
+        config = editChoice(30 + 5*FW, y, "", STR_SWTYPES, config, SWITCH_NONE, SWITCH_2POS, menuHorizontalPosition == 1 ? attr : 0, event, checkCFSTypeAvailable);
+        if (attr && checkIncDec_Ret && menuHorizontalPosition == 1) {
+          FSWITCH_SET_CONFIG(index, config);
+          if (config == SWITCH_TOGGLE) {
+            FSWITCH_SET_STARTUP(index, 2);  // Toggle switches do not have startup position
           }
         }
-        else if (attr && menuHorizontalPosition == 3) {  // Non visible checkbox
+
+        if (config != SWITCH_NONE) {
+          uint8_t group = FSWITCH_GROUP(index);
+          group = editChoice(30 + 13 * FW, y, "", STR_FSGROUPS, group, 0, 3, menuHorizontalPosition == 2 ? attr : 0, event, checkCFSGroupAvailable);
+          if (attr && checkIncDec_Ret && menuHorizontalPosition == 2) {
+            int oldGroup = FSWITCH_GROUP(index);
+            if (groupHasSwitchOn(group))
+              setFSLogicalState(index, 0);
+            FSWITCH_SET_GROUP(index, group);
+            if (group > 0) {
+              FSWITCH_SET_STARTUP(index, 2);
+              if (config == SWITCH_TOGGLE && IS_FSWITCH_GROUP_ON(group))
+                FSWITCH_SET_CONFIG(index, SWITCH_2POS);
+              setGroupSwitchState(group, index);
+            } else {
+              FSWITCH_SET_STARTUP(index, 2); // Last Value
+              setFSLogicalState(index, 0);
+            }
+            setGroupSwitchState(oldGroup);
+          }
+
+          if (config != SWITCH_TOGGLE && group == 0) {
+            int startPos = FSWITCH_STARTUP(index);
+            lcdDrawText(30 + 15 * FW, y, _fct_sw_start[startPos], attr && (menuHorizontalPosition == 3) ? (s_editMode ? INVERS + BLINK : INVERS) : 0);
+            if (attr && menuHorizontalPosition == 3) {
+              startPos = checkIncDec(event, startPos, 0, 2, EE_MODEL, checkCFSStartupAvailable);
+              FSWITCH_SET_STARTUP(index, startPos);
+              if (startPos == 0 && group > 0) {
+                // Start = UP
+                for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
+                  if (j != index && FSWITCH_GROUP(j) == group)
+                    FSWITCH_SET_STARTUP(j, 2);  // Start = Last Value
+              }
+            }
+          } else if (attr && menuHorizontalPosition == 3) {
+            repeatLastCursorMove(event);
+          }
+        } else if (attr && menuHorizontalPosition >= 2) {
           repeatLastCursorMove(event);
         }
         break;
       }
 
-      case ITEM_MODEL_SETUP_FS_STARTUP:
-      {
-        const char* s;
-        lcdDrawText(INDENT_WIDTH, y, STR_START, menuHorizontalPosition < 0 ? attr : 0);
-        for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
-          uint8_t startPos = (g_model.functionSwitchStartConfig >> 2 * i) & 0x03;
-          s = _fct_sw_start[(g_model.functionSwitchStartConfig >> 2 * i) & 0x03];
-          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN - (2 + FW) + i * 2 * FW, y, i + 1, 0);
-          lcdDrawText(lcdNextPos, y, s, attr && (menuHorizontalPosition == i) ? (s_editMode ? INVERS + BLINK : INVERS) : 0);
-          if (attr && menuHorizontalPosition == i) {
-            CHECK_INCDEC_MODELVAR(event, startPos, 0, 2);
-          }
-          if (attr && checkIncDec_Ret) {
-            swconfig_t mask = (swconfig_t)0x03 << (2*i);
-            g_model.functionSwitchStartConfig = (g_model.functionSwitchStartConfig & ~mask) | ((swconfig_t(startPos) & 0x03) << (2*i));
-            storageDirty(EE_MODEL);
+      case ITEM_MODEL_SETUP_GROUP1_LABEL:
+      case ITEM_MODEL_SETUP_GROUP2_LABEL:
+      case ITEM_MODEL_SETUP_GROUP3_LABEL:
+        {
+          int group = (k - ITEM_MODEL_SETUP_GROUP1_LABEL) / 3 + 1;
+          lcdDrawText(INDENT_WIDTH, y, STR_GROUP);
+          lcdDrawNumber(lcdNextPos, y, group, 0);
+        }
+        break;
+
+      case ITEM_MODEL_SETUP_GROUP1_ALWAYS_ON:
+      case ITEM_MODEL_SETUP_GROUP2_ALWAYS_ON:
+      case ITEM_MODEL_SETUP_GROUP3_ALWAYS_ON:
+        {
+          int group = (k - ITEM_MODEL_SETUP_GROUP1_ALWAYS_ON) / 3 + 1;
+          lcdDrawText(INDENT_WIDTH * 2, y, STR_GROUP_ALWAYS_ON);
+          int groupAlwaysOn = IS_FSWITCH_GROUP_ON(group);
+          groupAlwaysOn = editCheckBox(groupAlwaysOn, MODEL_SETUP_2ND_COLUMN, y, nullptr, attr, event);
+          if (attr) {
+            SET_FSWITCH_GROUP_ON(group, groupAlwaysOn);
+            setGroupSwitchState(group);
           }
         }
         break;
-      }
+
+      case ITEM_MODEL_SETUP_GROUP1_START:
+      case ITEM_MODEL_SETUP_GROUP2_START:
+      case ITEM_MODEL_SETUP_GROUP3_START:
+        {
+          uint8_t group = (k - ITEM_MODEL_SETUP_GROUP1_START) / 3 + 1;
+          lcdDrawText(INDENT_WIDTH * 2, y, STR_START);
+          int sw = groupDefaultSwitch(group) + 1;
+          cfsGroup = group;
+          sw = editChoice(MODEL_SETUP_2ND_COLUMN + 1, y, nullptr, STR_FSSWITCHES, sw, 0, 6, attr, event, checkCFSSwitchAvailable);
+          if (attr) {
+            for (int i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
+              if (FSWITCH_GROUP(i) == group) {
+                FSWITCH_SET_STARTUP(i, 2);  // Last value
+              }
+            }
+            if (sw) {
+              FSWITCH_SET_STARTUP(sw - 1, 0);  // UP
+            }
+          }
+        }
+        break;
 #endif
+
       case ITEM_MODEL_SETUP_EXTENDED_LIMITS:
         g_model.extendedLimits = editCheckBox(g_model.extendedLimits, MODEL_SETUP_2ND_COLUMN, y, STR_ELIMITS, attr, event);
         break;

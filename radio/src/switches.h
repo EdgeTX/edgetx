@@ -84,3 +84,8 @@ const char* switchGetCustomName(uint8_t idx);
 bool switchHasCustomName(uint8_t idx);
 
 SwitchConfig switchGetMaxType(uint8_t idx);
+
+#if defined(FUNCTION_SWITCHES)
+uint8_t getFSLogicalState(uint8_t index);
+void setFSLogicalState(uint8_t index, uint8_t value);
+#endif

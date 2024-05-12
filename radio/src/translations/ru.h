@@ -287,6 +287,8 @@
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Тумблер"
 #define TR_FUNCTION_SWITCHES           "Настр тумблеры"
+#define TR_GROUP                       "Group"
+#define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_SF_SWITCH                   "Триггер"
 #define TR_TRIMS                       "тримы"
 #define TR_FADEIN                      "Затух входа"

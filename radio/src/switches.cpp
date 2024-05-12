@@ -117,6 +117,14 @@ uint8_t getFSLogicalState(uint8_t index)
   return (uint8_t )(bfSingleBitGet(getFSLogicalState(), index) >> (index));
 }
 
+void setFSLogicalState(uint8_t index, uint8_t value)
+{
+  if (value)
+    g_model.functionSwitchLogicalState |= 1 << index;  // Set bit
+  else
+     g_model.functionSwitchLogicalState &= ~(1 << index);  // clear state
+}
+
 uint8_t getFSPhysicalState(uint8_t index)
 {
   index += switchGetMaxSwitches();

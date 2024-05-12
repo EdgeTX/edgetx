@@ -212,6 +212,7 @@ extern const char* const STR_MULTI_DSM_CLONE[];
 extern const char* const STR_MULTI_WBUS_MODE[];
 extern const char* const STR_SPORT_MODES[];
 extern const char* const STR_FSGROUPS[];
+extern const char* const STR_FSSWITCHES[];
 
 extern const char STR_AFHDS3_ONE_TO_ONE_TELEMETRY[];
 extern const char STR_AFHDS3_ONE_TO_MANY[];
@@ -293,6 +294,8 @@ extern const char STR_REFRESHRATE[];
 extern const char STR_MS[];
 extern const char STR_SWITCH[];
 extern const char STR_FUNCTION_SWITCHES[];
+extern const char STR_GROUP[];
+extern const char STR_GROUP_ALWAYS_ON[];
 extern const char STR_ADJUST_GVAR[];
 extern const char STR_PLAY_TRACK[];
 extern const char STR_PLAY_VALUE[];
