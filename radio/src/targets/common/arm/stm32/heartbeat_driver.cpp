@@ -19,8 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#include "stm32_hal_ll.h"
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
 #include "stm32_exti_driver.h"
+#include "stm32_hal_ll.h"
+
 #include "mixer_scheduler.h"
 #include "board.h"
 #include "debug.h"
@@ -47,21 +51,9 @@ void init_intmodule_heartbeat()
 {
   TRACE("init_intmodule_heartbeat");
 
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-  
-  pinInit.Pin = INTMODULE_HEARTBEAT_GPIO_PIN;
-  pinInit.Mode = LL_GPIO_MODE_INPUT;
-  pinInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  pinInit.Pull = LL_GPIO_PULL_UP;
-
-  LL_GPIO_Init(INTMODULE_HEARTBEAT_GPIO, &pinInit);
-  
-  LL_SYSCFG_SetEXTISource(INTMODULE_HEARTBEAT_EXTI_PORT, INTMODULE_HEARTBEAT_EXTI_SYS_LINE);
-  
-  stm32_exti_enable(INTMODULE_HEARTBEAT_EXTI_LINE, INTMODULE_HEARTBEAT_TRIGGER,
-                    trigger_intmodule_heartbeat);
+  gpio_init_int(INTMODULE_HEARTBEAT_GPIO, GPIO_IN_PU,
+		INTMODULE_HEARTBEAT_TRIGGER,
+		trigger_intmodule_heartbeat);
 
   heartbeatCapture.valid = true;
 }

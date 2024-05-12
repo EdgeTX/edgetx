@@ -28,6 +28,8 @@
 
 #include "stm32_ws2812.h"
 #include "stm32_dma.h"
+#include "stm32_gpio.h"
+#include "hal/gpio.h"
 
 #if !defined(SIMU)
 #include <FreeRTOS/include/FreeRTOS.h>
@@ -81,9 +83,8 @@ void rgbLedStop()
 }
 
 const stm32_pulse_timer_t _led_timer = {
-  .GPIOx = LED_STRIP_GPIO,
-  .GPIO_Pin = LED_STRIP_GPIO_PIN_DATA,
-  .GPIO_Alternate = LED_STRIP_GPIO_PIN_AF,
+  .GPIO = LED_STRIP_GPIO,
+  .GPIO_Alternate = LED_STRIP_GPIO_AF,
   .TIMx = LED_STRIP_TIMER,
   .TIM_Freq = LED_STRIP_TIMER_FREQ,
   .TIM_Channel = LED_STRIP_TIMER_CHANNEL,

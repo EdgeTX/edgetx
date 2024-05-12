@@ -29,6 +29,7 @@
 #include "hal/rotary_encoder.h"
 
 #include "board_common.h"
+#include "stm32_timer.h"
 
 #if !defined(BOOT)
   #include "opentx.h"
@@ -153,7 +154,8 @@ void rotaryEncoderInit()
 
   stm32_gpio_enable_clock(ROTARY_ENCODER_GPIO);
   LL_GPIO_Init(ROTARY_ENCODER_GPIO, &pinInit);
-  
+
+  stm32_timer_enable_clock(ROTARY_ENCODER_TIMER);
   ROTARY_ENCODER_TIMER->ARR = 99; // 100uS
   ROTARY_ENCODER_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1; // 1uS
   ROTARY_ENCODER_TIMER->CCER = 0;
