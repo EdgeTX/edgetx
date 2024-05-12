@@ -180,6 +180,30 @@ void evalFunctionSwitches()
     }
   }
 }
+
+bool groupHasSwitchOn(uint8_t group)
+{
+  for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
+    if (FSWITCH_GROUP(j) == group && getFSLogicalState(j))
+      return true;
+  return false;
+}
+
+int firstSwitchInGroup(uint8_t group)
+{
+  for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
+    if (FSWITCH_GROUP(j) == group)
+      return j;
+  return -1;
+}
+
+int groupDefaultSwitch(uint8_t group)
+{
+  for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
+    if (FSWITCH_GROUP(j) == group && FSWITCH_STARTUP(j) == 0)
+      return j;
+  return -1;
+}
 #else
 uint8_t getFSLogicalState(uint8_t) { return false; }
 #endif // FUNCTION_SWITCHES

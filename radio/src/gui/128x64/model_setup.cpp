@@ -256,12 +256,18 @@ uint8_t THROTTLE_ROW(uint8_t value)
   return HIDDEN_ROW;
 }
 
+#if defined(FUNCTION_SWITCHES)
 uint8_t FS_ROW(uint8_t value)
 {
   if (expandState.functionSwitches)
     return value;
   return HIDDEN_ROW;
 }
+
+uint8_t G1_ROW(int8_t value) { return (firstSwitchInGroup(1) >= 0) ? value : HIDDEN_ROW; }
+uint8_t G2_ROW(int8_t value) { return (firstSwitchInGroup(2) >= 0) ? value : HIDDEN_ROW; }
+uint8_t G3_ROW(int8_t value) { return (firstSwitchInGroup(3) >= 0) ? value : HIDDEN_ROW; }
+#endif
 
 uint8_t VIEWOPT_ROW(uint8_t value)
 {
@@ -364,15 +370,15 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
-                                        FS_ROW(LABEL()), \
-                                        FS_ROW(0),  \
-                                        FS_ROW(0),  \
-                                        FS_ROW(LABEL()), \
-                                        FS_ROW(0),  \
-                                        FS_ROW(0),  \
-                                        FS_ROW(LABEL()), \
-                                        FS_ROW(0),  \
-                                        FS_ROW(0),
+                                        FS_ROW(G1_ROW(LABEL())), \
+                                        FS_ROW(G1_ROW(0)),  \
+                                        FS_ROW(G1_ROW(0)),  \
+                                        FS_ROW(G2_ROW(LABEL())), \
+                                        FS_ROW(G2_ROW(0)),  \
+                                        FS_ROW(G2_ROW(0)),  \
+                                        FS_ROW(G3_ROW(LABEL())), \
+                                        FS_ROW(G3_ROW(0)),  \
+                                        FS_ROW(G3_ROW(0)),
 #else
   #define FUNCTION_SWITCHES_ROWS
 #endif
@@ -598,30 +604,6 @@ bool checkCFSGroupAvailable(int group)
 bool checkCFSSwitchAvailable(int sw)
 {
   return (sw == 0) || (FSWITCH_GROUP(sw - 1) == cfsGroup);
-}
-
-bool groupHasSwitchOn(uint8_t group)
-{
-  for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
-    if (FSWITCH_GROUP(j) == group && getFSLogicalState(j))
-      return true;
-  return false;
-}
-
-int firstSwitchInGroup(uint8_t group)
-{
-  for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
-    if (FSWITCH_GROUP(j) == group)
-      return j;
-  return -1;
-}
-
-int groupDefaultSwitch(uint8_t group)
-{
-  for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
-    if (FSWITCH_GROUP(j) == group && FSWITCH_STARTUP(j) == 0)
-      return j;
-  return -1;
 }
 
 void setGroupSwitchState(uint8_t group, int defaultSwitch = -1)
