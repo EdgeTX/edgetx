@@ -591,9 +591,17 @@ if(ACCESS_DENIED)
   target_link_libraries(firmware AccessDenied)
 endif()
 
+if(FIRMWARE_STRIP_BOOTLOADER)
+  # Strip bootloader from binary
+  message("-- Strip bootloader from firmware binary")
+  set(OBJCOPY_ARGS -R .bootloader)
+else()
+  message("-- Bootloader contained in firmware binary")
+endif()
+
 add_custom_command(
   TARGET firmware POST_BUILD
-  COMMAND ${CMAKE_OBJCOPY} -O binary firmware.elf firmware.bin
+  COMMAND ${CMAKE_OBJCOPY} -O binary ${OBJCOPY_ARGS} firmware.elf firmware.bin
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   )
 

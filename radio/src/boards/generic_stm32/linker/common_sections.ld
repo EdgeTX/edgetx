@@ -3,14 +3,14 @@
 .ARM.extab :
 {
   *(.ARM.extab* .gnu.linkonce.armextab.*)
-} > FLASH
+} > REGION_TEXT AT> REGION_TEXT_STORAGE
 
 .ARM :
 {
   PROVIDE(__exidx_start = .);
   *(.ARM.exidx* .gnu.linkonce.armexidx.*)
   PROVIDE(__exidx_end = .);
-} > FLASH
+} > REGION_TEXT AT> REGION_TEXT_STORAGE
 
 .reboot_buffer(NOLOAD) :
 {
@@ -26,7 +26,7 @@
   *(.data .data*)    /* .data sections */
   . = ALIGN(4);
   _edata = .;        /* define a global symbol at data end */
-} > REGION_DATA AT> FLASH
+} > REGION_DATA AT> REGION_TEXT_STORAGE
 
 /* used by the startup to initialize data */
 _sidata = LOADADDR(.data);

@@ -7,30 +7,46 @@ INCLUDE definitions.ld
 /* Define output sections */
 SECTIONS
 {
-  /* The startup code goes first into FLASH */
+  .bootloader :
+  {
+    KEEP(*(.bootloader))
+    . = BOOTLOADER_SIZE;
+  } > REGION_BOOTLOADER
 
-  /* The program code and other data goes into FLASH */
+  /* ISR vector to be loaded */
+  .isr_vector :
+  {
+    _sisr_vector = .;
+    KEEP(*(.isr_vector))
+
+    . = ALIGN(4);
+    _eisr_vector = .;
+  } > REGION_ISR_VECT AT> REGION_TEXT_STORAGE
+
+  _isr_load = LOADADDR(.isr_vector);
+
+  /* Main code section */
   .text :
   {
     FILL(0xFFFF)
-      
     CREATE_OBJECT_SYMBOLS
 
-    /* Bootloader code */
-    KEEP(*(.bootloader))
-      
-    . = BOOTLOADER_SIZE; /* Set the start of the main program */
-    _stext = .;          /* Provide the name for the start of this section */
-
-    . = ALIGN(4);
-    KEEP(*(.isr_vector)) /* Startup code */
+    _stext = .;
     KEEP(*(.fwversiondata))
 
     INCLUDE common_text.ld
 
     . = ALIGN(4);
-    _etext = .;   /* define a global symbols at end of code */
-  } > FLASH
+    _etext = .;
+  } > REGION_TEXT AT> REGION_TEXT_STORAGE
+
+  _text_load = LOADADDR(.text);
+
+  /* Firmware bootstrap code to load ISR vector and code sections */
+  .bootstrap :
+  {
+    *(.bootstrap)
+  } > REGION_TEXT_STORAGE
 
   INCLUDE common_sections.ld
 }

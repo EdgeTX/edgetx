@@ -53,6 +53,9 @@ extern HardwareOptions hardwareOptions;
 #define FLASHSIZE                      0x200000
 #define BOOTLOADER_SIZE                0x20000
 #define FIRMWARE_ADDRESS               0x08000000
+#define FIRMWARE_LEN(fsize)            (fsize - BOOTLOADER_SIZE)
+#define FIRMWARE_MAX_LEN               (FLASHSIZE - BOOTLOADER_SIZE)
+#define APP_START_ADDRESS              (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
 
 #define MB                             *1024*1024
 #define LUA_MEM_EXTRA_MAX              (2 MB)    // max allowed memory usage for Lua bitmaps (in bytes)
