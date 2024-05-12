@@ -41,7 +41,7 @@ void rotaryEncoderInit();
 void rotaryEncoderCheck();
 #endif
 
-#if defined(STM32F413xx)
+#if defined(STM32F413xx) || defined(STM32F407xG)
 #define FLASHSIZE                       0x100000 // 1M
 #else
 #define FLASHSIZE                       0x80000  // 512k
