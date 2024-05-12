@@ -91,11 +91,11 @@ void setFSStartupPosition()
   for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
     uint8_t startPos = (g_model.functionSwitchStartConfig >> 2 * i) & 0x03;
     switch(startPos) {
-      case FS_START_DOWN:
+      case FS_START_OFF:
         g_model.functionSwitchLogicalState &= ~(1 << i);   // clear state
         break;
 
-      case FS_START_UP:
+      case FS_START_ON:
         g_model.functionSwitchLogicalState |= 1 << i;
         break;
 
@@ -200,7 +200,7 @@ int firstSwitchInGroup(uint8_t group)
 int groupDefaultSwitch(uint8_t group)
 {
   for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
-    if (FSWITCH_GROUP(j) == group && FSWITCH_STARTUP(j) == 0)
+    if (FSWITCH_GROUP(j) == group && FSWITCH_STARTUP(j) == FS_START_ON)
       return j;
   return -1;
 }

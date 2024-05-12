@@ -566,7 +566,7 @@ inline uint8_t USB_JOYSTICK_APPLYROW()
 #endif
 
 #if defined(FUNCTION_SWITCHES)
-static const char* _fct_sw_start[] = { STR_CHAR_UP, STR_CHAR_DOWN, "=" };
+static const char* _fct_sw_start[] = { STR_CHAR_DOWN, STR_CHAR_UP, "=" };
 #endif
 
 uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
@@ -583,13 +583,6 @@ bool checkCFSTypeAvailable(int val)
 {
   int group = FSWITCH_GROUP(cfsIndex);
   if (group > 0 && IS_FSWITCH_GROUP_ON(group) && val == SWITCH_TOGGLE)
-    return false;
-  return true;
-}
-
-bool checkCFSStartupAvailable(int val)
-{
-  if (FSWITCH_GROUP(cfsIndex) > 0 && val == 1)
     return false;
   return true;
 }
@@ -882,7 +875,7 @@ void menuModelSetup(event_t event)
         if (attr && checkIncDec_Ret && menuHorizontalPosition == 1) {
           FSWITCH_SET_CONFIG(index, config);
           if (config == SWITCH_TOGGLE) {
-            FSWITCH_SET_STARTUP(index, 2);  // Toggle switches do not have startup position
+            FSWITCH_SET_STARTUP(index, FS_START_PREVIOUS);  // Toggle switches do not have startup position
           }
         }
 
@@ -895,13 +888,12 @@ void menuModelSetup(event_t event)
               setFSLogicalState(index, 0);
             FSWITCH_SET_GROUP(index, group);
             if (group > 0) {
-              FSWITCH_SET_STARTUP(index, 2);
+              FSWITCH_SET_STARTUP(index, groupDefaultSwitch(group) == -1 ? FS_START_PREVIOUS : FS_START_OFF);
               if (config == SWITCH_TOGGLE && IS_FSWITCH_GROUP_ON(group))
                 FSWITCH_SET_CONFIG(index, SWITCH_2POS);
               setGroupSwitchState(group, index);
             } else {
-              FSWITCH_SET_STARTUP(index, 2); // Last Value
-              setFSLogicalState(index, 0);
+              FSWITCH_SET_STARTUP(index, FS_START_PREVIOUS);
             }
             setGroupSwitchState(oldGroup);
           }
@@ -910,14 +902,8 @@ void menuModelSetup(event_t event)
             int startPos = FSWITCH_STARTUP(index);
             lcdDrawText(30 + 15 * FW, y, _fct_sw_start[startPos], attr && (menuHorizontalPosition == 3) ? (s_editMode ? INVERS + BLINK : INVERS) : 0);
             if (attr && menuHorizontalPosition == 3) {
-              startPos = checkIncDec(event, startPos, 0, 2, EE_MODEL, checkCFSStartupAvailable);
+              startPos = checkIncDec(event, startPos, FS_START_ON, FS_START_PREVIOUS, EE_MODEL);
               FSWITCH_SET_STARTUP(index, startPos);
-              if (startPos == 0 && group > 0) {
-                // Start = UP
-                for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
-                  if (j != index && FSWITCH_GROUP(j) == group)
-                    FSWITCH_SET_STARTUP(j, 2);  // Start = Last Value
-              }
             }
           } else if (attr && menuHorizontalPosition == 3) {
             repeatLastCursorMove(event);
@@ -946,7 +932,7 @@ void menuModelSetup(event_t event)
           lcdDrawText(INDENT_WIDTH * 2, y, STR_GROUP_ALWAYS_ON);
           int groupAlwaysOn = IS_FSWITCH_GROUP_ON(group);
           groupAlwaysOn = editCheckBox(groupAlwaysOn, MODEL_SETUP_2ND_COLUMN, y, nullptr, attr, event);
-          if (attr) {
+          if (attr && checkIncDec_Ret) {
             SET_FSWITCH_GROUP_ON(group, groupAlwaysOn);
             setGroupSwitchState(group);
           }
@@ -962,14 +948,14 @@ void menuModelSetup(event_t event)
           int sw = groupDefaultSwitch(group) + 1;
           cfsGroup = group;
           sw = editChoice(MODEL_SETUP_2ND_COLUMN + 1, y, nullptr, STR_FSSWITCHES, sw, 0, 6, attr, event, checkCFSSwitchAvailable);
-          if (attr) {
+          if (attr && checkIncDec_Ret) {
             for (int i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
               if (FSWITCH_GROUP(i) == group) {
-                FSWITCH_SET_STARTUP(i, 2);  // Last value
+                FSWITCH_SET_STARTUP(i, sw ? FS_START_OFF : FS_START_PREVIOUS);
               }
             }
             if (sw) {
-              FSWITCH_SET_STARTUP(sw - 1, 0);  // UP
+              FSWITCH_SET_STARTUP(sw - 1, FS_START_ON);
             }
           }
         }
