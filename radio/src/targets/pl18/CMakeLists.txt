@@ -74,7 +74,7 @@ add_definitions(
 
 set(SDRAM ON)
 
-add_definitions(-DEEPROM_VARIANT=0 -DAUDIO -DVOICE -DRTCLOCK)
+add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DCROSSFIRE_NATIVE)
@@ -98,64 +98,71 @@ set(AFHDS3 ON)
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
 set(CLI ON CACHE BOOL "Enable CLI")
 
-include_directories(${RADIO_SRC_DIR}/fonts/colorlcd gui/${GUI_DIR} gui/${GUI_DIR}/layouts)
+set(TARGET_SRC_DIR targets/${TARGET_DIR})
 
-file(GLOB THEMES_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gui/colorlcd/themes/*.cpp)
-file(GLOB LAYOUTS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gui/colorlcd/layouts/*.cpp)
-file(GLOB WIDGETS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gui/colorlcd/widgets/*.cpp)
+set(BOARD_COMMON_SRC
+  ${TARGET_SRC_DIR}/board.cpp
+  ${TARGET_SRC_DIR}/led_driver.cpp
+  ${TARGET_SRC_DIR}/haptic_driver.cpp
+  ${TARGET_SRC_DIR}/backlight_driver.cpp
+  ${TARGET_SRC_DIR}/${LCD_DRIVER}
+  targets/common/arm/stm32/abnormal_reboot.cpp
+  targets/common/arm/stm32/delays_driver.cpp
+  targets/common/arm/stm32/diskio_spi_flash.cpp
+  targets/common/arm/stm32/dma2d.cpp
+  targets/common/arm/stm32/flash_driver.cpp
+  targets/common/arm/stm32/pwr_driver.cpp
+  targets/common/arm/stm32/rtc_driver.cpp
+  targets/common/arm/stm32/sdram_driver.cpp
+  targets/common/arm/stm32/spi_flash.cpp
+  targets/common/arm/stm32/watchdog_driver.cpp
+  drivers/frftl.cpp
+)
 
-set(GVAR_SCREEN model_gvars.cpp)
+# Bootloader board library
+add_library(board_bl OBJECT EXCLUDE_FROM_ALL
+  ${BOARD_COMMON_SRC}
+  ${TARGET_SRC_DIR}/bootloader/boot_menu.cpp
+)
+add_dependencies(board_bl ${BITMAPS_TARGET})
+set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 
-set(FIRMWARE_TARGET_SRC
-  ${FIRMWARE_TARGET_SRC}
-  ${LCD_DRIVER}
-  ${TOUCH_DRIVER}
-  board.cpp
-  key_driver.cpp
-  battery_driver.cpp
-  backlight_driver.cpp
-  led_driver.cpp
-  haptic_driver.cpp
-  )
+# Firmware board library
+add_library(board OBJECT EXCLUDE_FROM_ALL
+  ${BOARD_COMMON_SRC}
+  ${TARGET_SRC_DIR}/${TOUCH_DRIVER}
+  ${TARGET_SRC_DIR}/battery_driver.cpp
+  targets/common/arm/stm32/audio_dac_driver.cpp
+  targets/common/arm/stm32/delays_driver.cpp
+  targets/common/arm/stm32/heartbeat_driver.cpp
+  targets/common/arm/stm32/mixer_scheduler_driver.cpp
+  targets/common/arm/stm32/module_timer_driver.cpp
+  targets/common/arm/stm32/stm32_pulse_driver.cpp
+  targets/common/arm/stm32/stm32_softserial_driver.cpp
+  targets/common/arm/stm32/stm32_switch_driver.cpp
+  targets/common/arm/stm32/stm32_ws2812.cpp
+  targets/common/arm/stm32/trainer_driver.cpp
+  targets/common/arm/stm32/spi_flash.cpp
+  targets/common/arm/stm32/diskio_spi_flash.cpp
+  boards/generic_stm32/rgb_leds.cpp
+  drivers/frftl.cpp
+)
+set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
-  targets/common/arm/stm32/sdram_driver.cpp
-  targets/common/arm/stm32/audio_dac_driver.cpp
-  targets/common/arm/stm32/dma2d.cpp
-  targets/common/arm/stm32/spi_flash.cpp
-  targets/common/arm/stm32/diskio_spi_flash.cpp
-  targets/common/arm/stm32/stm32_ws2812.cpp
-  boards/generic_stm32/rgb_leds.cpp
-  drivers/frftl.cpp
-  )
-
-if(BOOTLOADER)
-  set(FIRMWARE_SRC
-    ${FIRMWARE_SRC}
-    targets/common/arm/loadboot.cpp
-  )
-endif()
+  targets/common/arm/loadboot.cpp
+)
 
 set(SRC ${SRC}
   io/frsky_firmware_update.cpp
   io/multi_firmware_update.cpp
-  )
+  io/multi_protolist.cpp
+)
 
 if (MULTIMODULE)
   add_definitions(-DMULTI_PROTOLIST)
-  set(SRC ${SRC}
-    io/multi_protolist.cpp
-  )
 endif()
 
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)
-
-set(STM32LIB_SRC
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fmc.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_ltdc.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c
-  )
-

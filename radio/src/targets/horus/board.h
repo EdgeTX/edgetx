@@ -30,6 +30,8 @@
 // Defines used in board_common.h
 #define ROTARY_ENCODER_NAVIGATION
 
+#define BOOTLOADER_KEYS 0x42
+
 #include "board_common.h"
 #include "hal.h"
 
