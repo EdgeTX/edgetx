@@ -11,9 +11,6 @@ set(BOOTLOADER_SRC
   ../../../../../strhelpers.cpp
   ../../../../../stamp.cpp
   ../../../../../syscalls.c
-  ../../../../../targets/${TARGET_DIR}/${LCD_DRIVER}
-  ../../../../../targets/${TARGET_DIR}/backlight_driver.cpp
-  ../../../../../targets/${TARGET_DIR}/board.cpp
   ../../../../../targets/${TARGET_DIR}/bootloader/boot_menu.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/hal_keys.inc
   ../pwr_driver.cpp
@@ -26,13 +23,6 @@ set(BOOTLOADER_SRC
   bin_files.cpp
   )
 
-if(ROTARY_ENCODER)
-  set(BOOTLOADER_SRC
-    ${BOOTLOADER_SRC}
-    ../../../../../targets/common/arm/stm32/rotary_encoder_driver.cpp
-    )
-endif()
-
 if(BLUETOOTH)
   set(BOOTLOADER_SRC
     ${BOOTLOADER_SRC}
@@ -42,8 +32,8 @@ endif()
 
 if(DEBUG_SEGGER_RTT)
   set(BOOTLOADER_SRC
-  ${BOOTLOADER_SRC}
-  ../../../../../thirdparty/Segger_RTT/RTT/SEGGER_RTT.c
+    ${BOOTLOADER_SRC}
+    ../../../../../thirdparty/Segger_RTT/RTT/SEGGER_RTT.c
   )
 endif()
 
@@ -56,14 +46,11 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL
     ../../../../../fonts/lvgl/lv_font_roboto_bl_16.c
     ../../../../../thirdparty/libopenui/src/bitmapbuffer.cpp
     ../../../../../thirdparty/libopenui/thirdparty/lz4/lz4.c
-    ../../../../../targets/common/arm/stm32/dma2d.cpp
     ../../../../../targets/common/arm/stm32/rtc_driver.cpp
     ../../../../../targets/common/arm/stm32/diskio_spi_flash.cpp
     ../../../../../targets/common/arm/stm32/spi_flash.cpp
     ../../../../../drivers/frftl.cpp
     ../../../../../crc.cpp
-    ../../../../../targets/common/arm/stm32/sdram_driver.cpp
-    ../../../../../targets/${TARGET_DIR}/haptic_driver.cpp
     )
 
   if(PCB STREQUAL PL18)
@@ -116,8 +103,6 @@ remove_definitions(-DSEMIHOSTING)
 remove_definitions(-DUSB_SERIAL)
 remove_definitions(-DUSE_WATCHDOG)
 
-add_definitions(-DBOOT)
-
 if(NOT NO_LTO)
   message("-- Use LTO to compile bootloader")
   target_compile_options(stm32cube_ll PRIVATE -flto)
@@ -131,8 +116,13 @@ endif()
 add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})
 add_dependencies(bootloader ${BITMAPS_TARGET})
 
-target_link_options(bootloader PRIVATE
-  -lm -nostartfiles -T${LINKER_DIR}/bootloader.ld
+target_compile_definitions(bootloader PRIVATE BOOT)
+target_compile_definitions(board_bl PRIVATE BOOT)
+
+target_link_options(bootloader BEFORE PRIVATE
+  -lm -nostartfiles
+  -L${LINKER_DIR}/${TARGET_LINKER_DIR}/bootloader
+  -T${LINKER_DIR}/bootloader.ld
   -Wl,-Map=bootloader.map,--cref,--no-warn-mismatch,--gc-sections
   --specs=nano.specs
 )
