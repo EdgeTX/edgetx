@@ -113,13 +113,6 @@ set(GUI_SRC
   radio_version.cpp
   )
 
-if(FUNCTION_SWITCHES)
-  set(GUI_SRC ${GUI_SRC}
-  function_switches.cpp
-  radio_diagcustswitches.cpp
-  )
-endif()
-
 macro(add_gui_src src)
   set(GUI_SRC
     ${GUI_SRC}
@@ -139,6 +132,15 @@ endif()
 
 if(LUA_MIXER)
   add_gui_src(model_mixer_scripts.cpp)
+endif()
+
+if(FUNCTION_SWITCHES)
+  add_gui_src(function_switches.cpp)
+  add_gui_src(radio_diagcustswitches.cpp)
+endif()
+
+if(GVARS)
+  add_gui_src(model_gvars.cpp)
 endif()
 
 if(HELI)
@@ -187,6 +189,10 @@ if(BLUETOOTH)
   add_gui_src(hw_bluetooth.cpp)
 endif()
 
+if(USBJ_EX)
+  add_gui_src(model_usbjoystick.cpp)
+endif()
+
 set(SRC ${SRC} storage/modelslist.cpp)
 
 option(WINDOWS_INSPECT_BORDERS "Draw bounding boxes around windows" OFF)
@@ -206,10 +212,28 @@ set(LVGL_SRC_DIR ${LIBOPENUI_SRC_DIR}/thirdparty/lvgl/src)
 include(${LIBOPENUI_SRC_DIR}/src/CMakeLists.txt)
 include(${LIBOPENUI_SRC_DIR}/thirdparty/CMakeLists.txt)
 
-set(SRC ${SRC} ${LVGL_FONT_SOURCES})
+list(TRANSFORM LVGL_SOURCES_MINIMAL PREPEND ${RADIO_SRC_DIR}/)
+list(TRANSFORM LVGL_FONT_SOURCES_MINIMAL PREPEND ${RADIO_SRC_DIR}/)
+
+set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
+  ${LVGL_SOURCES_MINIMAL}
+  ${LVGL_FONT_SOURCES_MINIMAL}
+  ${RADIO_SRC_DIR}/gui/colorlcd/lcd.cpp
+  ${RADIO_SRC_DIR}/gui/colorlcd/fonts.cpp
+  ${RADIO_SRC_DIR}/gui/colorlcd/colors.cpp
+  ${RADIO_SRC_DIR}/gui/colorlcd/bitmaps.cpp
+  ${RADIO_SRC_DIR}/${LIBOPENUI_SRC_DIR}/thirdparty/lz4/lz4.c
+  ${RADIO_SRC_DIR}/${LIBOPENUI_SRC_DIR}/src/bitmapbuffer.cpp
+)
+
+set(SRC ${SRC}
+  ${LVGL_SOURCES}
+  ${LVGL_FONT_SOURCES}
+  ${LIBOPENUI_SOURCES}
+)
+
+foreach(LVGL_FILE ${LVGL_SOURCES})
+  SET_SOURCE_FILES_PROPERTIES(${LVGL_FILE} PROPERTIES COMPILE_FLAGS -O3)
+endforeach()
 
 add_definitions(-DLIBOPENUI)
-
-if(USBJ_EX)
-  add_gui_src(model_usbjoystick.cpp)
-endif()

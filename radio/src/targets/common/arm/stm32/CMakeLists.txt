@@ -117,26 +117,8 @@ if(NOT NATIVE_BUILD)
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_drivers_w_dbg_bl>)
 endif()
 
-set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC}
-  ../common/arm/stm32/rtc_driver.cpp
-  ../common/arm/stm32/delays_driver.cpp
-  ../common/arm/stm32/trainer_driver.cpp
-  ../common/arm/stm32/flash_driver.cpp
-  ../common/arm/stm32/stm32_softserial_driver.cpp
-  ../common/arm/stm32/stm32_pulse_driver.cpp
-  ../common/arm/stm32/module_timer_driver.cpp
-  ../common/arm/stm32/stm32_switch_driver.cpp
-  ../common/arm/stm32/mixer_scheduler_driver.cpp
-  ../common/arm/stm32/pwr_driver.cpp
-  ../common/arm/stm32/watchdog_driver.cpp
-  ../common/arm/stm32/abnormal_reboot.cpp
-  )
-
 if(IMU)
   add_definitions(-DIMU)
-  set(FIRMWARE_SRC ${FIRMWARE_SRC}
-    targets/common/arm/stm32/lsm6ds_driver.cpp
-    )
   set(SRC ${SRC} gyro.cpp)
 endif()
 
@@ -162,10 +144,6 @@ endif()
 if(DEBUG OR CLI OR USB_SERIAL)
   add_definitions(-DUSB_SERIAL)
   message("-- Adding support for USB serial")
-endif()
-
-if(GVARS)
-  set(GUI_SRC ${GUI_SRC} ${GVAR_SCREEN})
 endif()
 
 set(FIRMWARE_SRC ${FIRMWARE_SRC} syscalls.c)

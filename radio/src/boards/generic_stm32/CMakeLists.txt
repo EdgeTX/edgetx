@@ -12,6 +12,7 @@ set(MINIMAL_BOARD_LIB_SRC
   ${CMAKE_CURRENT_BINARY_DIR}/stm32_keys.inc
 
   boards/generic_stm32/inputs.cpp
+  boards/generic_stm32/bl_keys.cpp
 )
 
 # Dependencies only used in firmware

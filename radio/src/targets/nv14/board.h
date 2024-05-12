@@ -39,13 +39,11 @@
 #define LUA_MEM_EXTRA_MAX               (2 MB)    // max allowed memory usage for Lua bitmaps (in bytes)
 #define LUA_MEM_MAX                     (6 MB)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 
+#define BOOTLOADER_KEYS 0x42
+
 extern uint16_t sessionTimer;
 
 #define SLAVE_MODE()                    (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
-
-// initilizes the board for the bootloader
-#define HAVE_BOARD_BOOTLOADER_INIT 1
-void boardBootloaderInit();
 
 // Board driver
 void boardInit();

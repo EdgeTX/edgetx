@@ -19,6 +19,9 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_hal.h"
+#include "stm32_hal_ll.h"
+
 #include "lcd_st7796s_driver.h"
 
 #include "board.h"
@@ -28,8 +31,6 @@
 #include "hal.h"
 #include "lcd.h"
 #include "opentx_types.h"
-#include "stm32_hal.h"
-#include "stm32_hal_ll.h"
 
 static LTDC_HandleTypeDef hltdc;
 static void* initialFrameBuffer = nullptr;
