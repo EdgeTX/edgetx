@@ -196,6 +196,10 @@ POT_CONFIG = {
     "pocket": {
         "P1": {"default": "POT"}
     },
+    "h747": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"},
+    },
 }
 
 

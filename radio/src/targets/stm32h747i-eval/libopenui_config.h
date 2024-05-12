@@ -21,8 +21,9 @@
 
 #pragma once
 
-#include "hal/fatfs_diskio.h"
+constexpr coord_t INPUT_EDIT_CURVE_WIDTH = 132;
+constexpr coord_t INPUT_EDIT_CURVE_HEIGHT = INPUT_EDIT_CURVE_WIDTH;
+constexpr coord_t MENUS_MAX_HEIGHT = (MENUS_LINE_HEIGHT * 8) + 8;
 
-void sdio_diskio_set_1_8v_callback(void (*sel_1_8v)(bool));
-
-extern const diskio_driver_t sdio_diskio_driver;
+// Disable rotary encoder, as the PL18 does not have one
+#define ROTARY_ENCODER_SPEED() 0

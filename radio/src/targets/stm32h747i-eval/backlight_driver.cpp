@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTX
+ * Copyright (C) EdgeTx
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,10 +19,16 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "board.h"
+extern void LCD_SetBrightness(uint32_t);
 
-#include "hal/fatfs_diskio.h"
+bool boardBacklightOn = false;
+bool isBacklightEnabled() { return boardBacklightOn; }
+void backlightFullOn() { boardBacklightOn = true; }
 
-void sdio_diskio_set_1_8v_callback(void (*sel_1_8v)(bool));
+// void backlightInit() {}
+void backlightEnable(uint8_t dutyCycle) {
+ LCD_SetBrightness(dutyCycle);
+}
 
-extern const diskio_driver_t sdio_diskio_driver;
+void backlightDisable() {}

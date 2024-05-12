@@ -19,10 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#ifndef _USB_DESCRIPTOR_H_
+#define _USB_DESCRIPTOR_H_
 
-#include "hal/fatfs_diskio.h"
+#define USB_NAME                     "H7-test"
+#define USB_MANUFACTURER             'H', '7', '-', 't', 'e', 's', 't', ' '  /* 8 bytes */
+#define USB_PRODUCT                  'H', '7', '-', 't', 'e', 's', 't', ' '  /* 8 Bytes */
 
-void sdio_diskio_set_1_8v_callback(void (*sel_1_8v)(bool));
-
-extern const diskio_driver_t sdio_diskio_driver;
+#endif // _USB_DESCRIPTOR_H_

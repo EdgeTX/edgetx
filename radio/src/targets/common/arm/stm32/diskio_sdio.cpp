@@ -148,6 +148,15 @@ static SD_HandleTypeDef sdio;
 static DMA_HandleTypeDef sdioTxDma;
 #endif
 
+#if ( USE_SD_TRANSCEIVER > 0U )
+static void (*_sdio_sel_1_8v_cb)(bool) = nullptr;
+
+void sdio_diskio_set_1_8v_callback(void (*sel_1_8v)(bool)) {
+  _sdio_sel_1_8v_cb = sel_1_8v;  
+}
+
+#endif
+
 // Disk status
 static volatile uint32_t WriteStatus;
 static volatile uint32_t ReadStatus;
@@ -558,6 +567,14 @@ extern "C" void SD_SDIO_DMA_IRQHANDLER(void)
 {
   DEBUG_INTERRUPT(INT_SDIO_DMA);
   HAL_DMA_IRQHandler(&sdioTxDma);
+}
+#endif
+
+#if ( USE_SD_TRANSCEIVER > 0U )
+void HAL_SD_DriveTransceiver_1_8V_Callback(FlagStatus status)
+{
+  // bsp_sd_transceiver_sel_ldo(status == SET);
+  if (_sdio_sel_1_8v_cb) _sdio_sel_1_8v_cb(status == SET);
 }
 #endif
 

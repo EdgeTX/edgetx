@@ -19,10 +19,5 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+extern "C" void SystemClock_Config();
 
-#include "hal/fatfs_diskio.h"
-
-void sdio_diskio_set_1_8v_callback(void (*sel_1_8v)(bool));
-
-extern const diskio_driver_t sdio_diskio_driver;
