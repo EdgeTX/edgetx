@@ -37,7 +37,7 @@ if(DEBUG_SEGGER_RTT)
   )
 endif()
 
-if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL18)
+if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL18 OR PCB STREQUAL STM32H747_EVAL)
   set(BOOTLOADER_SRC
     ${BOOTLOADER_SRC}
     ../../../../../gui/colorlcd/fonts.cpp
@@ -47,37 +47,26 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL
     ../../../../../thirdparty/libopenui/src/bitmapbuffer.cpp
     ../../../../../thirdparty/libopenui/thirdparty/lz4/lz4.c
     ../../../../../targets/common/arm/stm32/rtc_driver.cpp
-    ../../../../../targets/common/arm/stm32/diskio_spi_flash.cpp
-    ../../../../../targets/common/arm/stm32/spi_flash.cpp
-    ../../../../../drivers/frftl.cpp
     ../../../../../crc.cpp
     )
-  if(PCB STREQUAL H7TEST)
-    set(BOOTLOADER_SRC
-      ${BOOTLOADER_SRC}
-      ../../../../../targets/common/arm/stm32/nca9555pw.cpp
-#      ../../../../../targets/common/arm/stm32/stm32_qspi.cpp
-      ../../../../../targets/h7test/key_driver.cpp
-    )
-  endif()
 
-  if(PCB STREQUAL PL18)
-    set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
-      ../../../../../targets/pl18/key_driver.cpp
-    )    
-  endif()
+  # if(PCB STREQUAL PL18)
+  #   set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
+  #     ../../../../../targets/pl18/key_driver.cpp
+  #   )    
+  # endif()
   
   # Add LVGL sources
   foreach(LVGL_FILE ${LVGL_SRC_FILES_MINIMAL})
     set(BOOTLOADER_SRC ${BOOTLOADER_SRC} ../../../../../${LVGL_FILE})
   endforeach()
 
-  if(NOT (PCB STREQUAL NV14 OR PCB STREQUAL PL18))
-    set(BOOTLOADER_SRC
-      ${BOOTLOADER_SRC}
-      ../../../../../targets/${TARGET_DIR}/led_driver.cpp
-    )
-  endif()
+  # if(NOT (PCB STREQUAL NV14 OR PCB STREQUAL PL18))
+  #   set(BOOTLOADER_SRC
+  #     ${BOOTLOADER_SRC}
+  #     ../../../../../targets/${TARGET_DIR}/led_driver.cpp
+  #   )
+  # endif()
 
   if(USB_CHARGER)
     set(BOOTLOADER_SRC

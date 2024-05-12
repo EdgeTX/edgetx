@@ -174,7 +174,8 @@ static void sdio_low_level_init(void)
 #if defined(SD_SDIO_HAS_TRANSCEIVER)
   gpio_init_af(SD_SDIO_PIN_CKIN, SD_SDIO_AF_CKIN, GPIO_PIN_SPEED_HIGH);
   gpio_init_af(SD_SDIO_PIN_CDIR, SD_SDIO_AF_CDIR, GPIO_PIN_SPEED_HIGH);
-  gpio_init_af(SD_SDIO_PIN_DDIR, SD_SDIO_AF_DDIR, GPIO_PIN_SPEED_HIGH);
+  gpio_init_af(SD_SDIO_PIN_D0DIR, SD_SDIO_AF_D0DIR, GPIO_PIN_SPEED_HIGH);
+  gpio_init_af(SD_SDIO_PIN_D123DIR, SD_SDIO_AF_D123DIR, GPIO_PIN_SPEED_HIGH);
 #endif
 
   // SDIO Interrupt ENABLE

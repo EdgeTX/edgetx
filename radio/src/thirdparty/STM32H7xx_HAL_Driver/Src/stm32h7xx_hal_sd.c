@@ -3140,7 +3140,7 @@ static uint32_t SD_PowerON(SD_HandleTypeDef *hsd)
   uint32_t response = 0U;
   uint32_t validvoltage = 0U;
   uint32_t errorstate;
-#if (USE_SD_TRANSCEIVER != 0U)
+#if (USE_SD_TRANSCEIVER != 0U) && 0
   uint32_t tickstart = HAL_GetTick();
 #endif /* USE_SD_TRANSCEIVER  */
 
@@ -3217,7 +3217,7 @@ static uint32_t SD_PowerON(SD_HandleTypeDef *hsd)
   if ((response & SDMMC_HIGH_CAPACITY) == SDMMC_HIGH_CAPACITY)
   {
     hsd->SdCard.CardType = CARD_SDHC_SDXC;
-#if (USE_SD_TRANSCEIVER != 0U)
+#if (USE_SD_TRANSCEIVER != 0U) && 0
     if (hsd->Init.TranceiverPresent == SDMMC_TRANSCEIVER_PRESENT)
     {
       if ((response & SD_SWITCH_1_8V_CAPACITY) == SD_SWITCH_1_8V_CAPACITY)
