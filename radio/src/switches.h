@@ -91,4 +91,5 @@ void setFSLogicalState(uint8_t index, uint8_t value);
 bool groupHasSwitchOn(uint8_t group);
 int firstSwitchInGroup(uint8_t group);
 int groupDefaultSwitch(uint8_t group);
+void setGroupSwitchState(uint8_t group, int defaultSwitch = -1);
 #endif

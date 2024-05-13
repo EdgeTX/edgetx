@@ -122,7 +122,7 @@ void setFSLogicalState(uint8_t index, uint8_t value)
   if (value)
     g_model.functionSwitchLogicalState |= 1 << index;  // Set bit
   else
-     g_model.functionSwitchLogicalState &= ~(1 << index);  // clear state
+    g_model.functionSwitchLogicalState &= ~(1 << index);  // clear state
 }
 
 uint8_t getFSPhysicalState(uint8_t index)
@@ -203,6 +203,25 @@ int groupDefaultSwitch(uint8_t group)
     if (FSWITCH_GROUP(j) == group && FSWITCH_STARTUP(j) == FS_START_ON)
       return j;
   return -1;
+}
+
+void setGroupSwitchState(uint8_t group, int defaultSwitch)
+{
+  // Check rules for always on group
+  //  - Toggle switch type not valid, change all switches to 2POS
+  //  - One switch must be turned on, turn on first switch if needed
+  if (IS_FSWITCH_GROUP_ON(group)) {
+    for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1) {
+      if (FSWITCH_GROUP(j) == group) {
+        FSWITCH_SET_CONFIG(j, SWITCH_2POS); // Toggle not valid
+      }
+    }
+    if (!groupHasSwitchOn(group)) {
+      int sw = firstSwitchInGroup(group);
+      if (sw >= 0)
+        setFSLogicalState(sw, 1); // Make sure a switch is on
+    }
+  }
 }
 #else
 uint8_t getFSLogicalState(uint8_t) { return false; }

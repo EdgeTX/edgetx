@@ -598,25 +598,6 @@ bool checkCFSSwitchAvailable(int sw)
 {
   return (sw == 0) || (FSWITCH_GROUP(sw - 1) == cfsGroup);
 }
-
-void setGroupSwitchState(uint8_t group, int defaultSwitch = -1)
-{
-  // Check rules for always on group
-  //  - Toggle switch type not valid, change all switches to 2POS
-  //  - One switch must be turned on, turn on first switch if needed
-  if (IS_FSWITCH_GROUP_ON(group)) {
-    for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1) {
-      if (FSWITCH_GROUP(j) == group) {
-        FSWITCH_SET_CONFIG(j, SWITCH_2POS); // Toggle not valid
-      }
-    }
-    if (!groupHasSwitchOn(group)) {
-      int sw = firstSwitchInGroup(group);
-      if (sw >= 0)
-        setFSLogicalState(sw, 1); // Make sure a switch is on
-    }
-  }
-}
 #endif
 
 void menuModelSetup(event_t event)
