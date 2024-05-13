@@ -425,6 +425,28 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
       return _switch_3pos_lookup[switchGetPosition(sw_idx)];
     }
   }
+#if defined(FUNCTION_SWITCHES)
+    else if (i <= MIXSRC_LAST_CUSTOMSWITCH_GROUP) {
+      uint8_t group_idx = (uint8_t)(i - MIXSRC_FIRST_CUSTOMSWITCH_GROUP + 1);
+      uint8_t stepcount = getSwitchCountInFSGroup(group_idx);
+      if (stepcount == 0)
+        return 0;
+
+      if (IS_FSWITCH_GROUP_ON(group_idx))
+        stepcount--;
+
+      int stepsize = (2 * RESX) / stepcount;
+      for (uint8_t i =  0; i < switchGetMaxFctSwitches(); i++) {
+        if(FSWITCH_GROUP(i) == group_idx && getFSLogicalState(i) == 1) {
+          int value = -RESX + stepsize * i + (IS_FSWITCH_GROUP_ON(group_idx) ? 0 : stepsize);
+          if (value > (RESX - 5)) // remove rounding errors
+            value = RESX;
+          return value;
+        }
+      }
+      return -RESX;
+  }
+#endif
 
   else if (i <= MIXSRC_LAST_LOGICAL_SWITCH) {
     return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + i - MIXSRC_FIRST_LOGICAL_SWITCH) ? 1024 : -1024;

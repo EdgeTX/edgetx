@@ -110,6 +110,7 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 #if defined(FUNCTION_SWITCHES)
 
 #define NUM_FUNCTIONS_SWITCHES 6
+#define NUM_FUNCTIONS_GROUPS   3
 
 #define DEFAULT_FS_CONFIG                                         \
   (SWITCH_2POS << 10) + (SWITCH_2POS << 8) + (SWITCH_2POS << 6) + \

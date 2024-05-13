@@ -79,6 +79,7 @@ char switchGetLetter(uint8_t idx);
 const char* switchGetCanonicalName(uint8_t idx);
 
 // customizable switches supported
+const char* fsSwitchGroupGetCanonicalName(uint8_t idx);
 void switchSetCustomName(uint8_t idx, const char* str, size_t len);
 const char* switchGetCustomName(uint8_t idx);
 bool switchHasCustomName(uint8_t idx);

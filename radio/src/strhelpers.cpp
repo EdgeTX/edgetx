@@ -450,6 +450,13 @@ char *getFlightModeString(char *dest, int8_t idx)
   return dest;
 }
 
+char *getCustomSwitchesGroupName(char *dest, uint8_t idx)
+{
+  dest = strAppendStringWithIndex(dest, "GR", idx + 1);
+
+  return dest;
+}
+
 char *getSwitchName(char *dest, uint8_t idx)
 {
   if (switchHasCustomName(idx)) {
@@ -738,6 +745,12 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
     idx -= MIXSRC_FIRST_SWITCH;
     char *pos = strAppend(dest, STR_CHAR_SWITCH, sizeof(STR_CHAR_SWITCH) - 1);
     getSwitchName(pos, idx);
+#if defined(FUNCTION_SWITCHES)
+  } else if (idx <= MIXSRC_LAST_CUSTOMSWITCH_GROUP) {
+    idx -= MIXSRC_FIRST_CUSTOMSWITCH_GROUP;
+    char *pos = strAppend(dest, STR_CHAR_SWITCH, sizeof(STR_CHAR_SWITCH) - 1);
+    getCustomSwitchesGroupName(pos, idx);
+#endif
   } else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH) {
     // TODO: unnecessary, use the direct way instead
     idx -= MIXSRC_FIRST_LOGICAL_SWITCH;

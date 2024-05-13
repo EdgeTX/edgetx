@@ -323,6 +323,11 @@ bool isSourceAvailableInInputs(int source)
   if (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH)
     return SWITCH_EXISTS(source - MIXSRC_FIRST_SWITCH);
 
+#if defined(FUNCTION_SWITCHES)
+  if (source >= MIXSRC_FIRST_CUSTOMSWITCH_GROUP && source <= MIXSRC_LAST_CUSTOMSWITCH_GROUP)
+    return true;
+#endif
+
   if (source >= MIXSRC_FIRST_CH && source <= MIXSRC_LAST_CH)
     return true;
 
