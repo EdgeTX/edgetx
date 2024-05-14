@@ -1019,53 +1019,53 @@
 #endif
 
 // Bootloader common - Ascii only
-#define TR_BL_USB_CONNECTED           "Подключение по USB"
-#define TR_BL_USB_PLUGIN              "Или подключите USB-кабель"
-#define TR_BL_USB_MASS_STORE          "Для масс хранения"
-#define TR_BL_USB_PLUGIN_MASS_STORE   "Подключ USB для сохр данных"
-#define TR_BL_WRITE_FW                "Запись ПО"
-#define TR_BL_FORK                    "Вилка:"
-#define TR_BL_VERSION                 "Версия:"
-#define TR_BL_RADIO                   "Пульт:"
-#define TR_BL_EXIT                    "Выход"
-#define TR_BL_DIR_MISSING             "Каталог отсут"
-#define TR_BL_DIR_EMPTY               "Каталог пуст"
-#define TR_BL_WRITING_FW              "Предупреждение..."
-#define TR_BL_WRITING_COMPL           "Запись завершена"
+#define TR_BL_USB_CONNECTED           "USB Connected"
+#define TR_BL_USB_PLUGIN              "Or plug in a USB cable"
+#define TR_BL_USB_MASS_STORE          "for mass storage"
+#define TR_BL_USB_PLUGIN_MASS_STORE   "Or plug in a USB cable for mass storage"
+#define TR_BL_WRITE_FW                "Write Firmware"
+#define TR_BL_FORK                    "Fork:"
+#define TR_BL_VERSION                 "Version:"
+#define TR_BL_RADIO                   "Radio:"
+#define TR_BL_EXIT                    "Exit"
+#define TR_BL_DIR_MISSING             " Directory is missing"
+#define TR_BL_DIR_EMPTY               " Directory is empty"
+#define TR_BL_WRITING_FW              "Writing..."
+#define TR_BL_WRITING_COMPL           "Writing complete"
 
 #if LCD_W >= 480
-  #define TR_BL_INVALID_FIRMWARE       "Недопустимый файл ПО"
+  #define TR_BL_INVALID_FIRMWARE       "Not a valid firmware file"
 #elif LCD_W >= 212
   #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN_MASS_STORE
-  #define TR_BL_HOLD_ENTER_TO_START    "\012Удерживайте [ENT], для записи"
-  #define TR_BL_INVALID_FIRMWARE       "\011Недопустимый файл ПО!        "
-  #define TR_BL_INVALID_EEPROM         "\011Недопустимый файл EEPROM!          "
+  #define TR_BL_HOLD_ENTER_TO_START    "\012Hold [ENT] to start writing"
+  #define TR_BL_INVALID_FIRMWARE       "\011Not a valid firmware file!        "
+  #define TR_BL_INVALID_EEPROM         "\011Not a valid EEPROM file!          "
 #else
   #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
-  #define TR_BL_HOLD_ENTER_TO_START    "\006Нажать [ENT] для начла"
-  #define TR_BL_INVALID_FIRMWARE       "\004Недопустимое ПО!        "
-  #define TR_BL_INVALID_EEPROM         "\004Недопустимый EEPROM!          "
+  #define TR_BL_HOLD_ENTER_TO_START    "\006Hold [ENT] to start"
+  #define TR_BL_INVALID_FIRMWARE       "\004Not a valid firmware!        "
+  #define TR_BL_INVALID_EEPROM         "\004Not a valid EEPROM!          "
 #endif
 
 #if defined(PCBTARANIS)
    // Bootloader Taranis specific - Ascii only
-  #define TR_BL_RESTORE_EEPROM        "Восстанавить EEPROM"
+  #define TR_BL_RESTORE_EEPROM        "Restore EEPROM"
   #if defined(RADIO_COMMANDO8)
-    #define TR_BL_POWER_KEY           "Нажмите кнопку включ."
-    #define TR_BL_FLASH_EXIT          "Выход из режима прошивки."
+    #define TR_BL_POWER_KEY           "Press the power button."
+    #define TR_BL_FLASH_EXIT          "Exit the flashing mode."
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific - Ascii only
-  #define TR_BL_SELECT_KEY            "[ENT] для выбора файла"
-  #define TR_BL_FLASH_KEY             "Удерживайте [ENT] для прошивки"
-  #define TR_BL_EXIT_KEY              "[RTN] для выхода"
+  #define TR_BL_SELECT_KEY            "[ENT] to select file"
+  #define TR_BL_FLASH_KEY             "Hold [ENT] long to flash"
+  #define TR_BL_EXIT_KEY              "[RTN] to exit"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific - Ascii only
-  #define TR_BL_RF_USB_ACCESS         "Доступ к RF USB"
-  #define TR_BL_CURRENT_FW            "Текущая прошивка:"
-  #define TR_BL_SELECT_KEY            "[П ТРИМ] для выбора файла"
-  #define TR_BL_FLASH_KEY             "Удерживайте [П ТРИМ] для прошивки"
-  #define TR_BL_EXIT_KEY              "[Л ТРИМ] для выхода"
+  #define TR_BL_RF_USB_ACCESS         "RF USB access"
+  #define TR_BL_CURRENT_FW            "Current Firmware:"
+  #define TR_BL_SELECT_KEY            "[R TRIM] to select file"
+  #define TR_BL_FLASH_KEY             "Hold [R TRIM] long to flash"
+  #define TR_BL_EXIT_KEY              " [L TRIM] to exit"
 #elif defined(PCBPL18)
    // Bootloader PL18 specific - Ascii only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"

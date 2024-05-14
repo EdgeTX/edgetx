@@ -1031,12 +1031,12 @@
 #define TR_BL_WRITING_COMPL           "Writing complete"
 
 #if LCD_W >= 480
-  #define TR_BL_INVALID_FIRMWARE       "有効なファームウェアではありません"
+  #define TR_BL_INVALID_FIRMWARE       "Not a valid firmware file"
 #elif LCD_W >= 212
   #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN_MASS_STORE
-  #define TR_BL_HOLD_ENTER_TO_START    "\012[ENT]を長押しし書き込み開始"
-  #define TR_BL_INVALID_FIRMWARE       "\011有効なファームウェアではありません"
-  #define TR_BL_INVALID_EEPROM         "\011有効なEEPROMファイルではありません"
+  #define TR_BL_HOLD_ENTER_TO_START    "\012Hold [ENT] to start writing"
+  #define TR_BL_INVALID_FIRMWARE       "\011Not a valid firmware file!        "
+  #define TR_BL_INVALID_EEPROM         "\011Not a valid EEPROM file!          "
 #else
   #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
   #define TR_BL_HOLD_ENTER_TO_START    "\006Hold [ENT] to start"
@@ -1053,26 +1053,26 @@
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific - Ascii only
-  #define TR_BL_SELECT_KEY            "[ENT]でファイルを選択"
-  #define TR_BL_FLASH_KEY             "[ENT]を長押しし書き込み"
-  #define TR_BL_EXIT_KEY              "[RTN]で終了"
+  #define TR_BL_SELECT_KEY            "[ENT] to select file"
+  #define TR_BL_FLASH_KEY             "Hold [ENT] long to flash"
+  #define TR_BL_EXIT_KEY              "[RTN] to exit"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific - Ascii only
-  #define TR_BL_RF_USB_ACCESS         "RF USB アクセス"
-  #define TR_BL_CURRENT_FW            "現ファームウェア:"
-  #define TR_BL_SELECT_KEY            "[R TRIM]でファイルを選択"
-  #define TR_BL_FLASH_KEY             "[R TRIM]を長押しし書き込み"
-  #define TR_BL_EXIT_KEY              " [L TRIM]で終了"
+  #define TR_BL_RF_USB_ACCESS         "RF USB access"
+  #define TR_BL_CURRENT_FW            "Current Firmware:"
+  #define TR_BL_SELECT_KEY            "[R TRIM] to select file"
+  #define TR_BL_FLASH_KEY             "Hold [R TRIM] long to flash"
+  #define TR_BL_EXIT_KEY              " [L TRIM] to exit"
 #elif defined(PCBPL18)
    // Bootloader PL18 specific - Ascii only
-  #define TR_BL_RF_USB_ACCESS         "RF USB アクセス"
-  #define TR_BL_ERASE_INT_FLASH       "内蔵フラッシュストレージの消去"
-  #define TR_BL_ERASE_FLASH           "フラッシュストレージの消去"
-  #define TR_BL_ERASE_FLASH_MSG       "最大200秒かかります"
-  #define TR_BL_SELECT_KEY            " [TR4 Dn]でファイルを選択"
-  #define TR_BL_FLASH_KEY             " [TR4 Dn]を長押しし書き込み"
-  #define TR_BL_ERASE_KEY             " [TR4 Dn]を長押しし消去"
-  #define TR_BL_EXIT_KEY              " [TR4 Up]で終了"
+  #define TR_BL_RF_USB_ACCESS         "RF USB access"
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
+  #define TR_BL_SELECT_KEY            " [TR4 Dn] to select file"
+  #define TR_BL_FLASH_KEY             " Hold [TR4 Dn] long to flash"
+  #define TR_BL_ERASE_KEY             " Hold [TR4 Dn] long to erase"
+  #define TR_BL_EXIT_KEY              " [TR4 Up] to exit"
 #endif
 
 // About screen
