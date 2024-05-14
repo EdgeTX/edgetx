@@ -68,9 +68,9 @@ public:
         coord_t y = 2*FH + i*FH;
         dc->drawText(10, y, STR_CHAR_SWITCH, COLOR_THEME_PRIMARY1);
         dc->drawText(25, y, switchGetName(i+switchGetMaxSwitches()), COLOR_THEME_PRIMARY1);
-        dc->drawNumber(FS_1ST_COLUMN + 10, y, getFSPhysicalState(i), COLOR_THEME_PRIMARY1);
-        dc->drawNumber(FS_2ND_COLUMN + 10, y, getFSLogicalState(i), COLOR_THEME_PRIMARY1);
-        dc->drawNumber(FS_3RD_COLUMN + 5, y, getFSLedState(i), COLOR_THEME_PRIMARY1);
+        dc->drawText(FS_1ST_COLUMN + 10, y, getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP, COLOR_THEME_PRIMARY1);
+        dc->drawText(FS_2ND_COLUMN + 8, y, getFSLogicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP, COLOR_THEME_PRIMARY1);
+        dc->drawText(FS_3RD_COLUMN, y, STR_OFFON[getFSLedState(i)], COLOR_THEME_PRIMARY1);
       }
     };
 
