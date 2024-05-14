@@ -929,14 +929,13 @@ void menuModelSetup(event_t event)
           int sw = groupDefaultSwitch(group) + 1;
           cfsGroup = group;
           sw = editChoice(MODEL_SETUP_2ND_COLUMN + 1, y, nullptr, STR_FSSWITCHES, sw, 0, IS_FSWITCH_GROUP_ON(group) ? NUM_FUNCTIONS_SWITCHES : NUM_FUNCTIONS_SWITCHES + 1, attr, event, checkCFSSwitchAvailable);
-          fprintf(stderr,">>>>>> %d %d\n",group,sw);
           if (attr && checkIncDec_Ret) {
             for (int i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
               if (FSWITCH_GROUP(i) == group) {
                 FSWITCH_SET_STARTUP(i, sw ? FS_START_OFF : FS_START_PREVIOUS);
               }
             }
-            if (sw > 0 && sw < NUM_FUNCTIONS_SWITCHES) {
+            if (sw > 0 && sw <= NUM_FUNCTIONS_SWITCHES) {
               FSWITCH_SET_STARTUP(sw - 1, FS_START_ON);
             }
           }

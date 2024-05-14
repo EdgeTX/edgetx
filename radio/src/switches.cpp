@@ -229,6 +229,12 @@ void setGroupSwitchState(uint8_t group, int defaultSwitch)
       if (sw >= 0)
         setFSLogicalState(sw, 1); // Make sure a switch is on
     }
+    if (groupDefaultSwitch(group) == NUM_FUNCTIONS_SWITCHES) {
+      // Start state for all switches is off - set all to 'last'
+      for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
+        if (FSWITCH_GROUP(j) == group)
+          FSWITCH_SET_STARTUP(j, FS_START_PREVIOUS);
+    }
   }
 }
 #else
