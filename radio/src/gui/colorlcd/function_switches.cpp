@@ -167,6 +167,7 @@ class SwitchGroup : public Window
       groupAlwaysOn ^= 1;
       SET_FSWITCH_GROUP_ON(groupIndex, groupAlwaysOn);
       setGroupSwitchState(groupIndex);
+      startChoice->setValue(startChoice->getIntValue());
       SET_DIRTY();
       return groupAlwaysOn;
     });
@@ -174,7 +175,7 @@ class SwitchGroup : public Window
 
     new StaticText(this, {SL_X, 6, SL_W, 32}, STR_SWITCH_STARTUP, 0, COLOR_THEME_PRIMARY1);
   
-    auto choice = new Choice(this, {ST_X, 0, ST_W, 32}, STR_FSSWITCHES, 0, 6,
+    startChoice = new Choice(this, {ST_X, 0, ST_W, 32}, STR_FSSWITCHES, 0, NUM_FUNCTIONS_SWITCHES + 1,
                 [=]() {
                   return groupDefaultSwitch(groupIndex) + 1;
                 },
@@ -184,13 +185,13 @@ class SwitchGroup : public Window
                       FSWITCH_SET_STARTUP(i, sw ? FS_START_OFF : FS_START_PREVIOUS);
                     }
                   }
-                  if (sw) {
+                  if (sw > 0 && sw <= NUM_FUNCTIONS_SWITCHES) {
                     FSWITCH_SET_STARTUP(sw - 1, FS_START_ON);
                   }
                   SET_DIRTY();
                 });
-    choice->setAvailableHandler([=](int sw) -> bool {
-      return sw == 0 || FSWITCH_GROUP(sw - 1) == groupIndex;
+    startChoice->setAvailableHandler([=](int sw) -> bool {
+      return (sw == 0) || (sw == NUM_FUNCTIONS_SWITCHES + 1 && !IS_FSWITCH_GROUP_ON(groupIndex)) || (FSWITCH_GROUP(sw - 1) == groupIndex);
     });
 }
 
@@ -204,6 +205,7 @@ class SwitchGroup : public Window
 
  protected:
   uint8_t groupIndex;
+  Choice* startChoice;
 };
 
 ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
