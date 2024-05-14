@@ -199,9 +199,17 @@ int firstSwitchInGroup(uint8_t group)
 
 int groupDefaultSwitch(uint8_t group)
 {
-  for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
-    if (FSWITCH_GROUP(j) == group && FSWITCH_STARTUP(j) == FS_START_ON)
-      return j;
+  bool allOff = true;
+  for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1) {
+    if (FSWITCH_GROUP(j) == group) {
+      if (FSWITCH_STARTUP(j) == FS_START_ON)
+        return j;
+      if (FSWITCH_STARTUP(j) != FS_START_OFF)
+        allOff = false;
+    }
+  }
+  if (allOff)
+    return NUM_FUNCTIONS_SWITCHES;
   return -1;
 }
 

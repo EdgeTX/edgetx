@@ -596,7 +596,7 @@ bool checkCFSGroupAvailable(int group)
 
 bool checkCFSSwitchAvailable(int sw)
 {
-  return (sw == 0) || (FSWITCH_GROUP(sw - 1) == cfsGroup);
+  return (sw == 0) || (sw == NUM_FUNCTIONS_SWITCHES + 1) || (FSWITCH_GROUP(sw - 1) == cfsGroup);
 }
 #endif
 
@@ -909,7 +909,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_GROUP2_ALWAYS_ON:
       case ITEM_MODEL_SETUP_GROUP3_ALWAYS_ON:
         {
-          int group = (k - ITEM_MODEL_SETUP_GROUP1_ALWAYS_ON) / 3 + 1;
+          uint8_t group = (k - ITEM_MODEL_SETUP_GROUP1_ALWAYS_ON) / 3 + 1;
           lcdDrawText(INDENT_WIDTH * 2, y, STR_GROUP_ALWAYS_ON);
           int groupAlwaysOn = IS_FSWITCH_GROUP_ON(group);
           groupAlwaysOn = editCheckBox(groupAlwaysOn, MODEL_SETUP_2ND_COLUMN, y, nullptr, attr, event);
@@ -928,14 +928,15 @@ void menuModelSetup(event_t event)
           lcdDrawText(INDENT_WIDTH * 2, y, STR_START);
           int sw = groupDefaultSwitch(group) + 1;
           cfsGroup = group;
-          sw = editChoice(MODEL_SETUP_2ND_COLUMN + 1, y, nullptr, STR_FSSWITCHES, sw, 0, 6, attr, event, checkCFSSwitchAvailable);
+          sw = editChoice(MODEL_SETUP_2ND_COLUMN + 1, y, nullptr, STR_FSSWITCHES, sw, 0, IS_FSWITCH_GROUP_ON(group) ? NUM_FUNCTIONS_SWITCHES : NUM_FUNCTIONS_SWITCHES + 1, attr, event, checkCFSSwitchAvailable);
+          fprintf(stderr,">>>>>> %d %d\n",group,sw);
           if (attr && checkIncDec_Ret) {
             for (int i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
               if (FSWITCH_GROUP(i) == group) {
                 FSWITCH_SET_STARTUP(i, sw ? FS_START_OFF : FS_START_PREVIOUS);
               }
             }
-            if (sw) {
+            if (sw > 0 && sw < NUM_FUNCTIONS_SWITCHES) {
               FSWITCH_SET_STARTUP(sw - 1, FS_START_ON);
             }
           }
