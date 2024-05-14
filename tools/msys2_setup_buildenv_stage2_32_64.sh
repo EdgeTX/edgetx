@@ -99,7 +99,7 @@ Execute with the following:
   Pause after each step:   $(bool_to_text ${STEP_PAUSE})
 "
 
-read -p "Press any key to continue or ctrl+C to abort"
+read -p "Press Enter Key to continue or Ctrl+C to abort"
 
 # == Execute ==
 
@@ -128,6 +128,8 @@ if [[ $INSTALL_PACKAGES -eq 1 ]]; then
   ${MINGW_PACKAGE_PREFIX}-clang \
   ${MINGW_PACKAGE_PREFIX}-nsis \
   ${MINGW_PACKAGE_PREFIX}-dfu-util
+
+#   Needs fix for 32bit for dfu-util
 
   end_step $? "pacman -S --noconfirm <packages>"
 
@@ -196,7 +198,7 @@ if [[ $DOWNLOAD_ARM -eq 1 ]]; then
   Next steps:
   1. Exit this terminal session
 
-  2. In Windows, install the downloaded ARM GNU 11.3.1 toolchain
+  2. In Windows, install the downloaded ARM GNU toolchain
 
     Launch the installer ${DOWNLOAD_FILE}
     - Accept the default installation folder and press Next

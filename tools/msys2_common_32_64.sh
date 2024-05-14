@@ -2,10 +2,11 @@
 
 ## Bash script to provide common code for MSYS2 setup EdgeTX development toolchain and compiling binaries
 
-# **** Note: these arrays must be kept in sync and the latest version first in sequence ****
-# ****       EdgeTX versions major.minor[.patch]                                        ****
-declare -a supported_edgetx_versions=("2.10" "2.9")
-declare -a supported_qt_versions=("5.15.2" "5.12.9")
+# **** Note: these arrays must be kept in sync and the latest version first in sequence      ****
+# ****       EdgeTX versions major.minor[.patch]                                             ****
+# ****       Qt versions major.minor.patch and can repeat to keep paired with EdgeTX version ****
+declare -a supported_edgetx_versions=("2.11" "2.10")
+declare -a supported_qt_versions=("5.15.2" "5.15.2")
 
 EDGETX_VERSION="${supported_edgetx_versions[0]}"
 QT_VERSION="${supported_qt_versions[0]}"
@@ -27,6 +28,10 @@ function warn() {
 }
 
 function check_command() {
+  #	Parameters:
+  #	1 - Result code
+  # 2 - Message
+
   local result=$1
   local cli_info=$2
 
@@ -34,9 +39,9 @@ function check_command() {
     fail "${cli_info} (exit-code=$result)"
   else
     log "Step $STEP: Finished - OK"
-  
+
     if [[ $STEP_PAUSE -eq 1 ]]; then
-      echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
+      echo "Step finished. Please check the output above and press Enter key to continue or Ctrl+C to stop."
       read
     fi
 
@@ -45,6 +50,8 @@ function check_command() {
 }
 
 function new_step() {
+	#	Parameters:
+	#	1 - Message
   log "Step $((++STEP)): ${1}"
 }
 
@@ -129,11 +136,11 @@ function split_version() {
 	#	Parameters:
 	#	1 - version variable in format major.minor[.patch]
 
-  # Output 3 variables based on version variable parameter 
+  # Output 3 variables based on version variable parameter
 
   local vers
   local arr
-  eval "vers=\${$1}"  
+  eval "vers=\${$1}"
   IFS='.' read -ra arr <<< "${vers}"
 
   if [[ ${#arr[@]} -gt 0 ]]; then eval "${1}_MAJOR=${arr[0]}"; fi
@@ -151,21 +158,21 @@ function validate_version() {
   local checkver="${2}"
   shift 2
   local arr=("$@")
-  
+
   for arrver in "${arr}"
   do
     if [[ "${checkver}" == "${arrver}" ]]; then
       return 0
     fi
   done
-  
+
   fail "Unsupported ${prod} version ${checkver}"
 }
 
 function validate_edgetx_version() {
-  validate_version "EdgeTX" "${EDGETX_VERSION}" "${supported_edgetx_versions[@]}" 
+  validate_version "EdgeTX" "${EDGETX_VERSION}" "${supported_edgetx_versions[@]}"
 }
 
 function validate_qt_version() {
-  validate_version "Qt" "${QT_VERSION}" "${supported_qt_versions[@]}" 
+  validate_version "Qt" "${QT_VERSION}" "${supported_qt_versions[@]}"
 }
