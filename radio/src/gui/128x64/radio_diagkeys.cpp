@@ -63,12 +63,12 @@ void menuRadioDiagFS(event_t event)
   lcdDrawText(FS_3RD_COLUMN, MENU_HEADER_HEIGHT + 1, "Led");
 
   for(uint8_t i=0; i < NUM_FUNCTIONS_SWITCHES; i++) {
-    coord_t y = 2*FH + i*FH;
+    coord_t y = 2*FH + i*FH + 1;
     lcdDrawTextIndented(y, STR_CHAR_SWITCH);
     lcdDrawText(lcdNextPos, y, switchGetName(i+switchGetMaxSwitches()), 0);
-    lcdDrawNumber(FS_1ST_COLUMN + 2, y, getFSPhysicalState(i));
-    lcdDrawNumber(FS_2ND_COLUMN + 5, y, getFSLogicalState(i));
-    lcdDrawNumber(FS_3RD_COLUMN + 5, y, getFSLedState(i));
+    lcdDrawText(FS_1ST_COLUMN + 7, y, getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP);
+    lcdDrawText(FS_2ND_COLUMN + 5, y, getFSLogicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP);
+    lcdDrawText(FS_3RD_COLUMN, y, STR_OFFON[getFSLedState(i)]);
   }
 }
 #endif
