@@ -194,20 +194,15 @@ fi
 echo "This stage of setting up EdgeTX build environment has finished"
 
 if [[ $DOWNLOAD_ARM -eq 1 ]]; then
-  echo "
+  cat << EOF
   Next steps:
+
   1. Exit this terminal session
 
   2. In Windows, install the downloaded ARM GNU toolchain
 
     Launch the installer ${DOWNLOAD_FILE}
     - Accept the default installation folder and press Next
-    - Select Add path to environment variable to the list of options and press Finish
-
-  3. Allow MSYS2 to inherit the Windows path to be able to access the arm-none-eabi toolchain
-
-    Edit the file <MSYS2 install directory>\mingw64.ini eg C:\msys64\mingw64.ini
-    - Uncomment the line #MSYS2_PATH_TYPE=inherit
-    - Save the file
-  "
+    - press Finish
+EOF
 fi
