@@ -588,24 +588,18 @@ void menuMainView(event_t event)
           }
         }
 
-        if (configured_switches < 9) {
+        if (configured_switches < 7) {
           for (int i = 0; i < switches; ++i) {
             if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
               auto switch_display = switchGetDisplayPosition(i);
-              if (switch_display.row >= 3) {
-                drawSmallSwitch(switch_display.col == 0 ? 28 : 16 * FW + 1,
-                                5 * FH + 1, 4, i);
-              }
-              else {
-                coord_t x = switch_display.col == 0 ? 3 * FW + 3 : 18 * FW + 1;
-                coord_t y = 33 + switch_display.row * FH;
-                getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-                if (val == 0) x -= 1;
-                getvalue_t sw =
-                    ((val < 0) ? 3 * i + 1
-                               : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-                drawSwitch(x, y, sw, CENTERED, false);
-              }
+              coord_t x = switch_display.col == 0 ? 3 * FW + 3 : 18 * FW + 1;
+              coord_t y = 33 + switch_display.row * FH;
+              getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
+              if (val == 0) x -= 1;
+              getvalue_t sw =
+                  ((val < 0) ? 3 * i + 1
+                              : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
+              drawSwitch(x, y, sw, CENTERED, false);
             }
           }
         }
@@ -614,6 +608,7 @@ void menuMainView(event_t event)
             if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
               auto switch_display = switchGetDisplayPosition(i);
               coord_t x = (switch_display.col == 0 ? 8 : 96) + switch_display.row * 5;
+              if (configured_switches < 9) x += 3;
               drawSmallSwitch(x, 5 * FH + 1, 4, i);
             }
           }
