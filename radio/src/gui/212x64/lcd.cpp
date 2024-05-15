@@ -656,64 +656,8 @@ void drawSource(coord_t x, coord_t y, uint32_t idx, LcdFlags att)
       lcdDrawChar(lcdLastRightPos, y, 'a'+qr.rem, att);
     }
   }
-
-  else if (idx <= MIXSRC_LAST_POT) {
-    lcdDrawText(x, y, getSourceString(idx), att);
-  }
-  else if (idx >= MIXSRC_FIRST_SWITCH && idx <= MIXSRC_LAST_SWITCH) {
-    lcdDrawText(x, y, getSourceString(idx), att);
-  }
-  else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH) {
-    idx -= MIXSRC_FIRST_LOGICAL_SWITCH;
-    drawSwitch(x, y, idx + SWSRC_FIRST_LOGICAL_SWITCH, att);
-  } else if (idx <= MIXSRC_LAST_TRAINER) {
-    idx -= MIXSRC_FIRST_TRAINER;
-    drawStringWithIndex(x, y, STR_PPM_TRAINER, idx + 1, att);
-  } else if (idx <= MIXSRC_LAST_CH) {
-    idx -= MIXSRC_FIRST_CH;
-    drawStringWithIndex(x, y, STR_CH, idx + 1, att);
-    if (ZEXIST(g_model.limitData[idx].name) && (att & STREXPANDED)) {
-      lcdDrawChar(lcdLastRightPos, y, ' ', att|SMLSIZE);
-      lcdDrawSizedText(lcdLastRightPos+3, y, g_model.limitData[idx].name, LEN_CHANNEL_NAME, att|SMLSIZE);
-    }
-  }
-  else if (idx <= MIXSRC_LAST_GVAR) {
-    idx -= MIXSRC_FIRST_GVAR - 1;
-    drawStringWithIndex(x, y, STR_GV, idx, att);
-  }
-  else if (idx < MIXSRC_FIRST_TIMER) {
-    // Built-in sources: TX Voltage, Time, GPS (+ reserved)
-    const char* src_str;
-    switch(idx) {
-    case MIXSRC_TX_VOLTAGE:
-      src_str = STR_SRC_BATT;
-      break;
-    case MIXSRC_TX_TIME:
-      src_str = STR_SRC_TIME;
-      break;
-    case MIXSRC_TX_GPS:
-      src_str = STR_SRC_BATT;
-      break;
-    default:
-      src_str = "";
-      break;
-    }
-    lcdDrawText(x, y, src_str, att);
-  }
-  else if (idx <= MIXSRC_LAST_TIMER) {
-    idx -= MIXSRC_FIRST_TIMER;
-    if(g_model.timers[idx].name[0]) {
-      lcdDrawSizedText(x, y, g_model.timers[idx].name, LEN_TIMER_NAME, att);
-    }
-    else {
-      drawStringWithIndex(x, y, STR_SRC_TIMER, idx + 1, att);
-    }
-  }
   else {
-    idx -= MIXSRC_FIRST_TELEM;
-    div_t qr = div(idx, 3);
-    lcdDrawSizedText(x, y, g_model.telemetrySensors[qr.quot].label, TELEM_LABEL_LEN, att);
-    if (qr.rem) lcdDrawChar(lcdLastRightPos, y, qr.rem==2 ? '+' : '-', att);
+    lcdDrawText(x, y, getSourceString(idx), att);
   }
 }
 
