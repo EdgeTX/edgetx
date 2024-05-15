@@ -272,7 +272,7 @@ Options:
   -c, --clean                          delete local repo and output directory
       --clone                          force clone the repo from github even if exists locally
       --companion                      compile Companion
-      --delete-output-dir              delete existing output directories before building
+      --delete-output                  delete existing output directories before building
   -e, --edgetx-version <version>       sets the version of Qt to compile against (default: ${EDGETX_VERSION})
       --fetch                          refresh local source directory from github
       --firmware                       compile firmware
@@ -284,7 +284,7 @@ Options:
                                              recommended to generate all at least once
       --installer                      build the installer
       --libsims                        compile radio simulator dlls
-  -m, --arm-toolchain-dir              fully qualified path to arm toolchain directory
+  -m, --arm-toolchain-dir              fully qualified path to arm toolchain directory (default: Windows installer default folder)
       --no-append-target               do not append target (radio type|companion) to build output directory name
                                        Note: overidden if source does not exist, --clone or --fetch
   -o, --output-dir <path>              relative path to root directory for build output files (default: $OUTPUT_DIR)
@@ -306,7 +306,7 @@ exit 1
 # == Parse the command line ==
 short_options=ab:ce:hm:o:pq:r:s:
 long_options="all-targets, branch:, clean, edgetx-version:, help, output-dir:, pause, arm-toolchain-dir:, qt-root-dir:, root-dir:, source-dir:, \
-build-options:, build-type:, clone, companion, delete-output-dir, fetch, firmware, installer, no-append-target, qt-version:, libsims, \
+build-options:, build-type:, clone, companion, delete-output, fetch, firmware, installer, no-append-target, qt-version:, libsims, \
 repo-name:, repo-owner:, simulator, hw-defs, hw-defs-radio-types"
 
 args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
@@ -346,7 +346,7 @@ do
 		-s | --source-dir)          SOURCE_DIR="${2}"
                                 OUTPUT_DIR="${2}"                               ; shift 2 ;;
 		-o | --output-dir)          OUTPUT_DIR="${2}"                               ; shift 2 ;;
-         --delete-output-dir)   OUTPUT_DELETE=1                                 ; shift   ;;
+         --delete-output)       OUTPUT_DELETE=1                                 ; shift   ;;
 		     --build-options)       BUILD_OPTIONS="${2}"                            ; shift 2 ;;
 		     --build-type)          BUILD_TYPE="${2}"                               ; shift 2 ;;
          --clone)               REPO_CLONE=1                                    ; shift   ;;
