@@ -186,23 +186,22 @@ if [[ $DOWNLOAD_ARM -eq 1 ]]; then
 
   DOWNLOAD_FILE="gcc-arm-none-eabi-10-2020-q4-major-win32.exe"
 
-  run_step "Downloading ARM installer" \
+  run_step "Downloading ARM toolchain installer" \
   "wget -c -O ${DOWNLOAD_DIR}/${DOWNLOAD_FILE} --progress=bar:force:noscroll --no-check-certificate \
   'https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/${DOWNLOAD_FILE}?revision=9a4bce5a-7577-4b4f-910d-4585f55d35e8&rev=9a4bce5a75774b4f910d4585f55d35e8&hash=9770A44FEA9E9CDAC0DD9A009190CC8B'"
-fi
 
-echo "This stage of setting up EdgeTX build environment has finished"
-
-if [[ $DOWNLOAD_ARM -eq 1 ]]; then
   cat << EOF
   Next steps:
 
   1. Exit this terminal session
 
-  2. In Windows, install the downloaded ARM GNU toolchain
+  2. In Windows, launch the installer ${DOWNLOAD_DIR}/${DOWNLOAD_FILE}
 
-    Launch the installer ${DOWNLOAD_FILE}
-    - Accept the default installation folder and press Next
-    - press Finish
+    Note: recommend accepting the default installation folder,
+          otherwise it will have to be provided via --arm-toolchain-dir <path> for each firmware build
 EOF
 fi
+
+echo ""
+echo "This stage of setting up EdgeTX build environment has finished"
+echo ""

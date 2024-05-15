@@ -64,6 +64,7 @@ BRANCH_NAME="main"
 BRANCH_EDGETX_VERSION=unknown
 BRANCH_QT_VERSION=unknown
 
+ARM_TOOLCHAIN_DIR="C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2020-q4-major\bin"
 QT_ROOT_DIR="${HOME}/qt"
 ROOT_DIR="${HOME}"
 SOURCE_DIR="${REPO_OWNER}/${REPO_NAME}"
@@ -84,9 +85,9 @@ BUILD_FIRMWARE=0
 BUILD_INSTALLER=0
 BUILD_LIBSIMS=0
 BUILD_SIMULATOR=0
-BUILD_HWDEFS=1
+BUILD_HWDEFS=0
 
-declare -a HWDEFS_RADIO_TYPES=("all")
+declare -a HWDEFS_RADIO_TYPES=()
 
 declare -a RADIO_TYPES=()
 
@@ -268,20 +269,22 @@ Options:
       --build-options <options>        eg -DTRANSLATIONS=DE
                                        Note: radio options will be appended
       --build-type <type>              cmake build type default: ${BUILD_TYPE}
-  -c, --clean                          perform all actions (includes --all-targets)
-      --clone                          clone the repo from github even if exists locally
+  -c, --clean                          delete local repo and output directory
+      --clone                          force clone the repo from github even if exists locally
       --companion                      compile Companion
       --del-output                     delete existing output directories before building
   -e, --edgetx-version <version>       sets the version of Qt to compile against (default: ${EDGETX_VERSION})
       --fetch                          refresh local source directory from github
       --firmware                       compile firmware
   -h, --help                           display help text and exit
-      --no-hw-defs                     do not generate hardware definition json files for Companion and Simulator
+      --hw-defs                        generate all hardware definition json files for Companion and Simulator
                                        Note: hardware definitions must be generated at least once
-      --hw-defs-radio-types-only       generate hardware definition json files for only radio-types specified in command line (default: all)
-                                       Note: recommended to generate all at least once
+      --hw-defs-radio-types            generate hardware definition json files for only radio-types specified in command line
+                                       Note: generating all supported radios takes a considerable amount of time
+                                             recommended to generate all at least once
       --installer                      build the installer
       --libsims                        compile radio simulator dlls
+  -m, --arm-toolchain-dir              fully qualified path to arm toolchain directory
       --no-append-target               do not append target (radio type|companion) to build output directory name
                                        Note: overidden if source does not exist, --clone or --fetch
   -o, --output-dir <path>              relative path to root directory for build output files (default: $OUTPUT_DIR)
@@ -301,10 +304,10 @@ exit 1
 # == End functions ==
 
 # == Parse the command line ==
-short_options=ab:ce:ho:pq:r:s:
-long_options="all-targets, branch:, clean, edgetx-version:, help, output-dir:, pause, qt-root-dir:, root_dir:, source-dir:, \
+short_options=ab:ce:hm:o:pq:r:s:
+long_options="all-targets, branch:, clean, edgetx-version:, help, output-dir:, pause, arm-toolchain-dir:, qt-root-dir:, root-dir:, source-dir:, \
 build-options:, build-type:, clone, companion, del-output, fetch, firmware, installer, no-append-target, qt-version:, libsims, \
-repo-name:, repo-owner:, simulator, no-hw-defs, hw-defs-radio-types-only"
+repo-name:, repo-owner:, simulator, hw-defs, hw-defs-radio-types"
 
 args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
 if [[ $? -gt 0 ]]; then
@@ -322,13 +325,7 @@ while true
 do
 	case $1 in
     -c | --clean)               OUTPUT_DELETE=1
-                                REPO_CLONE=1
-                                BUILD_FIRMWARE=1
-                                BUILD_COMPANION=1
-                                BUILD_SIMULATOR=1
-                                BUILD_LIBSIMS=1
-                                BUILD_INSTALLER=1
-                                BUILD_HWDEFS=1                                  ; shift   ;;
+                                REPO_CLONE=1                                    ; shift   ;;
     -a | --all-targets)         BUILD_FIRMWARE=1
                                 BUILD_COMPANION=1
                                 BUILD_SIMULATOR=1
@@ -343,6 +340,7 @@ do
     -h | --help)                usage                                           ; shift   ;;
 		     --repo-owner)	        REPO_OWNER="${2}"                               ; shift 2 ;;
 		     --repo-name)	          REPO_NAME="${2}"                                ; shift 2 ;;
+		-m | --arm-toolchain-dir)   ARM_TOOLCHAIN_DIR="${2}"                        ; shift 2 ;;
 		-q | --qt-root-dir)         QT_ROOT_DIR="${2}"                              ; shift 2 ;;
 		-r | --root-dir)            ROOT_DIR="${2}"                                 ; shift 2 ;;
 		-s | --source-dir)          SOURCE_DIR="${2}"
@@ -358,8 +356,8 @@ do
          --installer)           BUILD_INSTALLER=1                               ; shift   ;;
          --libsims)             BUILD_LIBSIMS=1                                 ; shift   ;;
          --simulator)           BUILD_SIMULATOR=1                               ; shift   ;;
-         --hw-defs-radio-types-only) BUILD_HWDEFS=2                             ; shift   ;;
-         --no-hw-defs)          BUILD_HWDEFS=0                                  ; shift   ;;
+         --hw-defs-radio-types) BUILD_HWDEFS=2                                  ; shift   ;;
+         --hw-defs)             BUILD_HWDEFS=1                                  ; shift   ;;
          --no-append-target)    OUTPUT_APPEND_TARGET=0                          ; shift   ;;
     # -- means the end of the arguments; drop this, and break out of the while loop
     --) shift; break ;;
@@ -377,21 +375,25 @@ fi
 
 # == Validation ==
 
-# Nov 2023 there is no arm package available for 32-bit
-if [[ "$MSYSTEM" == "MINGW32" ]] && [[ $BUILD_FIRMWARE -eq 1 ]]; then
-  log "Warning: There is no toolchain to compile firmware in $MSYSTEM. Option disabled."
-  BUILD_FIRMWARE=0
-fi
-
 if [[ ! -d "$ROOT_DIR" ]]; then
   fail "Unable to find root directory $ROOT_DIR"
+fi
+
+if [[ ${BUILD_FIRMWARE} -eq 1 ]] && [[ ! -d "${ARM_TOOLCHAIN_DIR}" ]]; then
+  fail "Unable to find ARM toolchain directory ${ARM_TOOLCHAIN_DIR}"
 fi
 
 RADIO_TYPES=($@)
 validate_radio_types
 
-if [[ ${BUILD_HWDEFS} -eq 2 ]]; then
-  HWDEFS_RADIO_TYPES=(${RADIO_TYPES[@]})
+# option --hw-defs
+if [[ ${BUILD_HWDEFS} -eq 1 ]]; then
+    HWDEFS_RADIO_TYPES=("all")
+else
+  # option --hw-defs-radio-types
+  if [[ ${BUILD_HWDEFS} -eq 2 ]]; then
+    HWDEFS_RADIO_TYPES=(${RADIO_TYPES[@]})
+  fi
 fi
 
 SOURCE_PATH="${ROOT_DIR}/${SOURCE_DIR}"
@@ -480,6 +482,7 @@ Repo owner:                 ${REPO_OWNER}
      clone:                 $(bool_to_text ${REPO_CLONE})
      fetch:                 $(bool_to_text ${REPO_FETCH})
 Paths:
+  ARM toolchain:            ${ARM_TOOLCHAIN_DIR}
   Root:                     ${ROOT_DIR}
   Source:                   ${SOURCE_PATH}
   Output:                   ${OUTPUT_PATH}
@@ -491,7 +494,7 @@ Options:
   Build installer:          $(bool_to_text ${BUILD_INSTALLER})
   Build libsims:            $(bool_to_text ${BUILD_LIBSIMS})
   Build Simulator:          $(bool_to_text ${BUILD_SIMULATOR})
-  Generate hardware defns:  $(bool_to_text ${BUILD_HWDEFS}) : ${HWDEFS_RADIO_TYPES}
+  Generate hardware defns:  $(bool_to_text ${BUILD_HWDEFS}) : ${HWDEFS_RADIO_TYPES[@]}
   Pause after each step:    $(bool_to_text ${STEP_PAUSE})
 EOF
 
@@ -562,6 +565,9 @@ fi
 
 # builds
 if [[ $BUILD_FIRMWARE -eq 1 ]]; then
+  # required for compile and elf-size-report.sh
+  PATH=${PATH}:${ARM_TOOLCHAIN_DIR}
+
   for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
     create_output_dir ${RADIO_TYPES[i]}
     BUILD_RADIO_OPTIONS=$(get_radio_build_options ${RADIO_TYPES[i]})
