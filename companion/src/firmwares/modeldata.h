@@ -46,6 +46,8 @@ class AbstractStaticItemModel;
 constexpr char AIM_MODELDATA_TRAINERMODE[]  {"modeldata.trainermode"};
 constexpr char AIM_MODELDATA_FUNCSWITCHCONFIG[]  {"modeldata.funcswitchconfig"};
 constexpr char AIM_MODELDATA_FUNCSWITCHSTART[]  {"modeldata.funcswitchstart"};
+constexpr char AIM_MODELDATA_FUNCSWITCHGROUPSTARTSWITCH[] = {"modeldata.funcswitchgroupstartswitch"};
+constexpr char AIM_MODELDATA_FUNCSWITCHGROUPS[] = {"modeldata.funcswitchgroups"};
 
 class RSSIAlarmData {
   public:
@@ -214,10 +216,9 @@ class ModelData {
     };
 
     enum FunctionSwitchStart {
-      FUNC_SWITCH_START_ACTIVE,
-      FUNC_SWITCH_START_FIRST = FUNC_SWITCH_START_ACTIVE,
-      FUNC_SWITCH_START_INACTIVE,
-      //FUNC_SWITCH_START_FIRST = FUNC_SWITCH_START_INACTIVE,
+      FUNC_SWITCH_START_ON,
+      FUNC_SWITCH_START_FIRST = FUNC_SWITCH_START_ON,
+      FUNC_SWITCH_START_OFF,
       FUNC_SWITCH_START_PREVIOUS,
       FUNC_SWITCH_START_LAST = FUNC_SWITCH_START_PREVIOUS
     };
@@ -331,15 +332,22 @@ class ModelData {
     void setFuncSwitchConfig(unsigned int index, unsigned int value);
     static QString funcSwitchConfigToString(unsigned int value);
     static AbstractStaticItemModel * funcSwitchConfigItemModel();
-
+    static AbstractStaticItemModel * funcSwitchGroupStartSwitchModel(int switchcnt);
+    static AbstractStaticItemModel * funcSwitchGroupsModel();
+ 
     unsigned int getFuncSwitchGroup(unsigned int index) const;
     void setFuncSwitchGroup(unsigned int index, unsigned int value);
 
-    unsigned int getFuncSwitchAlwaysOnGroup(unsigned int index) const;
-    void setFuncSwitchAlwaysOnGroup(unsigned int index, unsigned int value);
+    unsigned int getFuncSwitchAlwaysOnGroup(unsigned int group) const;
+    unsigned int getFuncSwitchAlwaysOnGroupForSwitch(unsigned int index) const;
+    void setFuncSwitchAlwaysOnGroup(unsigned int group, unsigned int value);
+    void setGroupSwitchState(uint8_t group, int switchcnt);
 
     unsigned int getFuncSwitchStart(unsigned int index) const;
     void setFuncSwitchStart(unsigned int index, unsigned int value);
+    int getFuncGroupSwitchCount(unsigned int group, int switchcnt) const;
+    unsigned int getFuncGroupSwitchStart(unsigned int group, int switchcnt) const;
+    void setFuncGroupSwitchStart(unsigned int group, unsigned int value, int switchcnt);
     static QString funcSwitchStartToString(unsigned int value);
     static AbstractStaticItemModel * funcSwitchStartItemModel();
 
