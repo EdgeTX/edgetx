@@ -272,7 +272,7 @@ Options:
   -c, --clean                          delete local repo and output directory
       --clone                          force clone the repo from github even if exists locally
       --companion                      compile Companion
-      --del-output                     delete existing output directories before building
+      --delete-output-dir              delete existing output directories before building
   -e, --edgetx-version <version>       sets the version of Qt to compile against (default: ${EDGETX_VERSION})
       --fetch                          refresh local source directory from github
       --firmware                       compile firmware
@@ -306,7 +306,7 @@ exit 1
 # == Parse the command line ==
 short_options=ab:ce:hm:o:pq:r:s:
 long_options="all-targets, branch:, clean, edgetx-version:, help, output-dir:, pause, arm-toolchain-dir:, qt-root-dir:, root-dir:, source-dir:, \
-build-options:, build-type:, clone, companion, del-output, fetch, firmware, installer, no-append-target, qt-version:, libsims, \
+build-options:, build-type:, clone, companion, delete-output-dir, fetch, firmware, installer, no-append-target, qt-version:, libsims, \
 repo-name:, repo-owner:, simulator, hw-defs, hw-defs-radio-types"
 
 args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
@@ -346,7 +346,7 @@ do
 		-s | --source-dir)          SOURCE_DIR="${2}"
                                 OUTPUT_DIR="${2}"                               ; shift 2 ;;
 		-o | --output-dir)          OUTPUT_DIR="${2}"                               ; shift 2 ;;
-         --del-output)          OUTPUT_DELETE=1                                 ; shift   ;;
+         --delete-output-dir)   OUTPUT_DELETE=1                                 ; shift   ;;
 		     --build-options)       BUILD_OPTIONS="${2}"                            ; shift 2 ;;
 		     --build-type)          BUILD_TYPE="${2}"                               ; shift 2 ;;
          --clone)               REPO_CLONE=1                                    ; shift   ;;
