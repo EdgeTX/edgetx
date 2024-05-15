@@ -286,7 +286,6 @@ Options:
       --libsims                        compile radio simulator dlls
   -m, --arm-toolchain-dir              fully qualified path to arm toolchain directory (default: Windows installer default folder)
       --no-append-target               do not append target (radio type|companion) to build output directory name
-                                       Note: overidden if source does not exist, --clone or --fetch
   -o, --output-dir <path>              relative path to root directory for build output files (default: $OUTPUT_DIR)
                                        Note: radio type will be appended unless --no-append-radio
   -p, --pause                          pause after each command (default: false)
