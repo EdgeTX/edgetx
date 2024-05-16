@@ -83,6 +83,7 @@ const char* fsSwitchGroupGetCanonicalName(uint8_t idx);
 void switchSetCustomName(uint8_t idx, const char* str, size_t len);
 const char* switchGetCustomName(uint8_t idx);
 bool switchHasCustomName(uint8_t idx);
+uint8_t getSwitchCountInFSGroup(uint8_t index);
 
 SwitchConfig switchGetMaxType(uint8_t idx);
 
