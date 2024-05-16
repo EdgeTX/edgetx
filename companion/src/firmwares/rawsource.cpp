@@ -255,6 +255,9 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
     case SOURCE_TYPE_SPACEMOUSE:
       return tr("sm%1").arg(QChar('A' + (index - 1)));
 
+    case SOURCE_TYPE_FUNCTIONSWITCH_GROUP:
+      return tr("GR%1").arg(index + 1);
+
     default:
       return QString(CPN_STR_UNKNOWN_ITEM);
   }
@@ -282,6 +285,9 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
   Boards b(board);
 
   if (type == SOURCE_TYPE_CH && abs(index) > CPN_MAX_CHNOUT)
+    return false;
+
+  if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP && index >= b.getCapability(Board::FunctionSwitches))
     return false;
 
   if (type == SOURCE_TYPE_CUSTOM_SWITCH && abs(index) > CPN_MAX_LOGICAL_SWITCHES)
