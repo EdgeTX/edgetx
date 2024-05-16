@@ -15,8 +15,9 @@ source msys2_common_32_64.sh
 # == Initialise variables ==
 INSTALL_PACKAGES=1
 INSTALL_QT=1
-DOWNLOAD_ARM=1
 DOWNLOAD_DIR="${HOME}"
+DOWNLOAD_ARM=1
+INSTALL_ARM=1
 
 # == Functions ==
 
@@ -33,6 +34,7 @@ Options:
   -e, --edgetx-version <version>   installs the dependent Qt version (default: ${EDGETX_VERSION})
   -h, --help                       display help text and exit
       --no-download-arm            do not download arm toolchain installer
+      --no-install-arm             do not install arm toolchain
       --no-install-packages        do not install packages
       --no-install-qt              do not install Qt
   -p, --pause                      pause after each command (default: false)
@@ -45,7 +47,7 @@ exit 1
 # == End functions ==
 
 short_options=d:,e:,h,p,q:
-long_options="download-dir:, edgetx-version:, help, no-download-arm, no-install-packages, no-install-qt, pause, qt-version:"
+long_options="download-dir:, edgetx-version:, help, no-download-arm, no-install-arm, no-install-packages, no-install-qt, pause, qt-version:"
 
 args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
 if [[ $? -gt 0 ]]; then
@@ -62,6 +64,7 @@ do
                                   QT_VERSION="$(get_qt_version ${2})" ; shift 2 ;;
     -h | --help)                  usage                               ; shift   ;;
          --no-download-arm)       DOWNLOAD_ARM=0                      ; shift   ;;
+         --no-install-arm)        INSTALL_ARM=0                       ; shift   ;;
          --no-install-packages)   INSTALL_PACKAGES=0                  ; shift   ;;
          --no-install-qt)         INSTALL_QT=0                        ; shift   ;;
     -p | --pause)                 STEP_PAUSE=1                        ; shift   ;;
@@ -79,6 +82,10 @@ if [[ $DOWNLOAD_ARM -eq 1 ]] && [[ ! -d ${DOWNLOAD_DIR} ]]; then
   fail "ARM installer download directory ${DOWNLOAD_DIR} does not exist"
 fi
 
+if [[ $DOWNLOAD_ARM -eq 0 ]]; then
+  INSTALL_ARM=0
+fi
+
 validate_edgetx_version
 split_version EDGETX_VERSION
 
@@ -88,16 +95,17 @@ check_qt_arch_support
 
 # == End validation ==
 
-echo "
+cat << EOF
 Execute with the following:
   EdgeTX version:          ${EDGETX_VERSION}
   Qt version:              ${QT_VERSION}
   Install packages:        $(bool_to_text ${INSTALL_PACKAGES})
   Install Qt:              $(bool_to_text ${INSTALL_QT})
+  ARM download directory:  ${DOWNLOAD_DIR}
   Download ARM installer   $(bool_to_text ${DOWNLOAD_ARM})
-  Download ARM directory:  ${DOWNLOAD_DIR}
+  Install ARM toolchain    $(bool_to_text ${INSTALL_ARM})
   Pause after each step:   $(bool_to_text ${STEP_PAUSE})
-"
+EOF
 
 read -p "Press Enter Key to continue or Ctrl+C to abort"
 
@@ -190,16 +198,10 @@ if [[ $DOWNLOAD_ARM -eq 1 ]]; then
   "wget -c -O ${DOWNLOAD_DIR}/${DOWNLOAD_FILE} --progress=bar:force:noscroll --no-check-certificate \
   'https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/${DOWNLOAD_FILE}?revision=9a4bce5a-7577-4b4f-910d-4585f55d35e8&rev=9a4bce5a75774b4f910d4585f55d35e8&hash=9770A44FEA9E9CDAC0DD9A009190CC8B'"
 
-  cat << EOF
-  Next steps:
-
-  1. Exit this terminal session
-
-  2. In Windows, launch the installer ${DOWNLOAD_DIR}/${DOWNLOAD_FILE}
-
-    Note: recommend accepting the default installation folder,
-          otherwise it will have to be provided via --arm-toolchain-dir <path> for each firmware build
-EOF
+  if [[ $INSTALL_ARM -eq 1 ]]; then
+    echo "Lauched ARM toolchain installer"
+	  cmd //c ${DOWNLOAD_DIR}/${DOWNLOAD_FILE}
+  fi
 fi
 
 echo ""
