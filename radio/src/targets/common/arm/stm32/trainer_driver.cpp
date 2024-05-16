@@ -174,7 +174,7 @@ static void trainer_send_next_frame(const stm32_pulse_timer_t* tim)
   
   // load the first period: next reload when CC compare event triggers
   trainerPulsesData.ppm.ptr = trainerPulsesData.ppm.pulses;
-  TRAINER_TIMER->ARR = *(trainerPulsesData.ppm.ptr++);
+  tim->TIMx->ARR = *(trainerPulsesData.ppm.ptr++);
 
   switch (tim->TIM_Channel) {
   case LL_TIM_CHANNEL_CH1:
