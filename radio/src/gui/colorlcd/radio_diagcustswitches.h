@@ -20,6 +20,7 @@
  */
 
 #include "page.h"
+#include "switches.h"
 
 class RadioCustSwitchesDiagsPage: public Page {
   public:

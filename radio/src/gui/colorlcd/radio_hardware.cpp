@@ -31,7 +31,10 @@
 #include "radio_calibration.h"
 #include "radio_diaganas.h"
 #include "radio_diagkeys.h"
+
+#if defined(FUNCTION_SWITCHES)
 #include "radio_diagcustswitches.h"
+#endif
 
 #if defined(BLUETOOTH)
 #include "hw_bluetooth.h"

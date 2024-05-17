@@ -84,3 +84,13 @@ const char* switchGetCustomName(uint8_t idx);
 bool switchHasCustomName(uint8_t idx);
 
 SwitchConfig switchGetMaxType(uint8_t idx);
+
+// Customizable switches
+extern uint8_t fsPreviousState;
+void evalFunctionSwitches();
+void setFSStartupPosition();
+void fsLedOff(uint8_t);
+void fsLedOn(uint8_t);
+uint8_t getFSLogicalState(uint8_t index);
+uint8_t getFSPhysicalState(uint8_t index);
+bool getFSLedState(uint8_t index);
