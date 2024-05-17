@@ -105,7 +105,7 @@ set(GUI_SRC
   preview_window.cpp
   radio_calibration.cpp
   radio_diaganas.cpp
-  radio_diagcustscwitches.cpp
+  radio_diagcustswitches.cpp
   radio_diagkeys.cpp
   radio_hardware.cpp
   radio_sdmanager.cpp
