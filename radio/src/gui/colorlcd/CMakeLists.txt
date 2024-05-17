@@ -87,6 +87,7 @@ set(GUI_SRC
   model_templates.cpp
   output_edit.cpp
   preflight_checks.cpp
+  function_switches.cpp
   throttle_params.cpp
   timeedit.cpp
   timer_setup.cpp
@@ -104,6 +105,7 @@ set(GUI_SRC
   preview_window.cpp
   radio_calibration.cpp
   radio_diaganas.cpp
+  radio_diagcustscwitches.cpp
   radio_diagkeys.cpp
   radio_hardware.cpp
   radio_sdmanager.cpp
