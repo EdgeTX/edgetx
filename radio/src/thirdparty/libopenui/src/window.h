@@ -229,3 +229,28 @@ class NavWindow : public Window
   virtual bool bubbleEvents() { return true; }
   void onEvent(event_t event) override;
 };
+
+class SetupButtonGroup : public Window
+{
+ public:
+  typedef std::function<void()> PageFct;
+  typedef std::pair<const char*, PageFct> PageDef;
+  typedef std::list<PageDef> PageDefs;
+
+  SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols, PaddingSize padding, PageDefs pages);
+
+ protected:
+};
+
+struct SetupLineDef {
+  const char* title;
+  std::function<void(Window*, coord_t, coord_t)> createEdit;
+};
+
+class SetupLine : public Window
+{
+ public:
+  SetupLine(Window* parent, const rect_t& rect, const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t col2);
+
+ protected:
+};

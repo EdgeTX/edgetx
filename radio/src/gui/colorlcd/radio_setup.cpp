@@ -186,51 +186,6 @@ class DateTimeWindow : public Window
   }
 };
 
-SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols, PaddingSize padding, PageDefs pages) :
-    Window(parent, rect)
-{
-  padAll(padding);
-
-  coord_t buttonWidth = (width() - PAD_SMALL * (cols + 1) - PAD_TINY * 2) / cols;
-
-  int rows = (pages.size() + cols - 1) / cols;
-  int height = rows * EdgeTxStyles::UI_ELEMENT_HEIGHT + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2;
-  if (title) {
-    height += EdgeTxStyles::PAGE_LINE_HEIGHT + PAD_TINY;
-  }
-  setHeight(height);
-
-  if (title)
-    new Subtitle(this, title);
-
-  int n = 0;
-  int remaining = pages.size();
-  coord_t yo = title ? EdgeTxStyles::PAGE_LINE_HEIGHT + PAD_TINY : 0;
-  coord_t xw = buttonWidth + PAD_SMALL;
-  coord_t xo = (width() - (cols * xw - PAD_SMALL)) / 2;
-  coord_t x, y;
-  for (auto& entry : pages) {
-    if (remaining < cols && (n % cols == 0)) {
-      coord_t space = ((cols - remaining) * xw) / (remaining + 1);
-      xw += space;
-      xo += space;
-    }
-    x = xo + (n % cols) * xw;
-    y = yo + (n / cols) * (EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM);
-
-    // TODO: sort out all caps title strings VS quick menu strings
-    std::string title(entry.first);
-    std::replace(title.begin(), title.end(), '\n', ' ');
-
-    new TextButton(this, rect_t{x, y, buttonWidth, EdgeTxStyles::UI_ELEMENT_HEIGHT}, title, [&, entry]() {
-      entry.second();
-      return 0;
-    });
-    n += 1;
-    remaining -= 1;
-  }
-}
-
 class SubPage : public Page
 {
  public:
@@ -773,33 +728,6 @@ class ManageModelsSetupPage : public SubPage
   Window* multiSelectMatch = nullptr;
   Window* favSelectMatch = nullptr;
 };
-
-SetupLine::SetupLine(Window* parent, const rect_t& rect, const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t col2) :
-    Window(parent, rect)
-{
-  padAll(PAD_ZERO);
-  coord_t titleY = PAD_MEDIUM + 1;
-  coord_t titleH = EdgeTxStyles::PAGE_LINE_HEIGHT;
-  if (createEdit) {
-    coord_t editY = PAD_TINY;
-    coord_t lblWidth = col2 - PAD_SMALL - PAD_TINY;
-    if (title) {
-      if (getTextWidth(title) >= lblWidth) {
-        setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2 + PAD_MEDIUM);
-        titleY = 0;
-        titleH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY + 1;
-        editY = PAD_SMALL + 1;
-      } else {
-        setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2);
-      }
-      new StaticText(this, {PAD_TINY, titleY, lblWidth, titleH}, title);
-    }
-    createEdit(this, col2, editY);
-  } else {
-    new StaticText(this, {0, titleY, 0, titleH}, title, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-    setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2);
-  }
-}
 
 static SetupLineDef setupLines[] = {
   {
