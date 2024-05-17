@@ -48,6 +48,7 @@ declare -a supported_radios=( \
   "x10          |-DPCB=X10" \
   "x10-access   |-DPCB=X10 -DPCBREV=EXPRESS -DPXX1=YES" \
   "x12s         |-DPCB=X12S" \
+  "t15          |-DPCB=X10 -DPCBREV=T15" \
   "t16          |-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON" \
   "t18          |-DPCB=X10 -DPCBREV=T18" \
   "tx16s        |-DPCB=X10 -DPCBREV=TX16S" \
