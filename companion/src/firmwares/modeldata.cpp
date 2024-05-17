@@ -1745,7 +1745,7 @@ AbstractStaticItemModel * ModelData::funcSwitchGroupStartSwitchModel(int switchc
 
   mdl->appendToItemList(tr("Restore"), 0);
   for (unsigned int i = 1; i <= switchcnt; i += 1) {
-    mdl->appendToItemList(tr("Switch") + QString::number(i), i);
+    mdl->appendToItemList(tr("SW") + QString::number(i), i);
   }
   mdl->appendToItemList(tr("Off"), switchcnt + 1);
 
@@ -1760,7 +1760,7 @@ AbstractStaticItemModel * ModelData::funcSwitchGroupsModel()
 
   mdl->appendToItemList(tr("---"), 0);
   for (unsigned int i = 1; i <= 3; i += 1) {
-    mdl->appendToItemList(tr("Group") + QString::number(i), i);
+    mdl->appendToItemList(tr("Group ") + QString::number(i), i);
   }
 
   mdl->loadItemList();

@@ -1339,7 +1339,7 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
 
   for (int i = 0; i < 3; i += 1) {
     QLabel * lblGroupId = new QLabel(this);
-    lblGroupId->setText(tr("Group%1").arg(i + 1));
+    lblGroupId->setText(tr("Group %1").arg(i + 1));
 
     QCheckBox * cbAlwaysOnGroup = new QCheckBox(this);
     cbAlwaysOnGroup->setProperty("index", i);

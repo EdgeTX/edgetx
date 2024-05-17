@@ -154,7 +154,7 @@
        <item row="2" column="0">
         <widget class="QLabel" name="lblStartSwitch">
          <property name="text">
-          <string>Start Switch</string>
+          <string>Start</string>
          </property>
         </widget>
        </item>
