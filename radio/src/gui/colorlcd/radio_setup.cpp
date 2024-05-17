@@ -191,7 +191,7 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
 {
   padAll(padding);
 
-  coord_t buttonWidth = (LCD_W - PAD_MEDIUM * (cols + 1) - PAD_TINY * 2) / cols;
+  coord_t buttonWidth = (width() - PAD_SMALL * (cols + 1) - PAD_TINY * 2) / cols;
 
   int rows = (pages.size() + cols - 1) / cols;
   int height = rows * EdgeTxStyles::UI_ELEMENT_HEIGHT + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2;
@@ -205,15 +205,15 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
 
   int n = 0;
   int remaining = pages.size();
-  coord_t xo = 0;
   coord_t yo = title ? EdgeTxStyles::PAGE_LINE_HEIGHT + PAD_TINY : 0;
-  coord_t xw = buttonWidth + PAD_MEDIUM;
+  coord_t xw = buttonWidth + PAD_SMALL;
+  coord_t xo = (width() - (cols * xw - PAD_SMALL)) / 2;
   coord_t x, y;
   for (auto& entry : pages) {
     if (remaining < cols && (n % cols == 0)) {
       coord_t space = ((cols - remaining) * xw) / (remaining + 1);
       xw += space;
-      xo = space;
+      xo += space;
     }
     x = xo + (n % cols) * xw;
     y = yo + (n / cols) * (EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM);
@@ -782,16 +782,17 @@ SetupLine::SetupLine(Window* parent, const rect_t& rect, const char* title, std:
   coord_t titleH = EdgeTxStyles::PAGE_LINE_HEIGHT;
   if (createEdit) {
     coord_t editY = PAD_TINY;
+    coord_t lblWidth = col2 - PAD_SMALL - PAD_TINY;
     if (title) {
-      if (getTextWidth(title) >= RadioSetupPage::LBL_W) {
+      if (getTextWidth(title) >= lblWidth) {
         setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2 + PAD_MEDIUM);
         titleY = 0;
-        titleH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY;
+        titleH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY + 1;
         editY = PAD_SMALL + 1;
       } else {
         setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2);
       }
-      new StaticText(this, {PAD_TINY, titleY, RadioSetupPage::LBL_W, titleH}, title);
+      new StaticText(this, {PAD_TINY, titleY, lblWidth, titleH}, title);
     }
     createEdit(this, col2, editY);
   } else {
