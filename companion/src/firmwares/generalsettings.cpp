@@ -156,6 +156,7 @@ bool GeneralSettings::unassignedInputFlexSwitches() const
 void GeneralSettings::clear()
 {
   memset(reinterpret_cast<void *>(this), 0, sizeof(GeneralSettings));
+  setDefaultControlTypes(getCurrentBoard());
   init();
 }
 
@@ -191,8 +192,6 @@ void GeneralSettings::init()
     vBatMax = -40; //8V
   }
 
-  setDefaultControlTypes(board);
-
   backlightMode = 3; // keys and sticks
   backlightDelay = 2; // 2 * 5 = 10 secs
   inactivityTimer = 10;
@@ -222,12 +221,6 @@ void GeneralSettings::init()
     strcpy(bluetoothName, "horus");
   else if (IS_TARANIS_X9E(board) || IS_TARANIS_SMALL(board))
     strcpy(bluetoothName, "taranis");
-
-  for (uint8_t i = 0; i < 4; i++) {
-    trainer.mix[i].mode = TrainerMix::TRN_MIX_MODE_SUBST;
-    trainer.mix[i].src = i;
-    trainer.mix[i].weight = 100;
-  }
 
   ttsLanguage[0] = 'e';
   ttsLanguage[1] = 'n';
@@ -368,6 +361,12 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
     switchConfig[i].type = info.dflt;
     switchConfig[i].inverted = info.inverted;
     switchConfig[i].inputIdx = SWITCH_INPUTINDEX_NONE;
+  }
+
+  for (uint8_t i = 0; i < 4; i++) {
+    trainer.mix[i].mode = TrainerMix::TRN_MIX_MODE_SUBST;
+    trainer.mix[i].src = i;
+    trainer.mix[i].weight = 100;
   }
 }
 

@@ -557,24 +557,47 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   node["customFn"] >> rhs.customFn;
 
-  YamlStickConfig stickConfig;
-  node["sticksConfig"] >> stickConfig;
-  stickConfig.copy(rhs.inputConfig);
+  // the GeneralSettings struct is initialised to hardware definition defaults which is fine for new settings
+  // however when parsing saved settings set all inputs to None and override with parsed values
+  // thus any inputs not parsed will be None rather than the default
+  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+    rhs.inputConfig[i].flexType = (Board::FlexType)Board::FLEX_NONE;
+  }
 
-  YamlPotConfig potsConfig;
-  node["potsConfig"] >> potsConfig;
-  potsConfig.copy(rhs.inputConfig);
+  if (node["sticksConfig"]) {
+    YamlStickConfig stickConfig;
+    node["sticksConfig"] >> stickConfig;
+    // merge
+    stickConfig.copy(rhs.inputConfig);
+  }
+
+  if (node["potsConfig"]) {
+    YamlPotConfig potsConfig;
+    node["potsConfig"] >> potsConfig;
+    // merge
+    potsConfig.copy(rhs.inputConfig);
+  }
 
   // for parsing pre v2.10 config - this is not encoded
   if (node["slidersConfig"]) {
     YamlSliderConfig slidersConfig;
     node["slidersConfig"] >> slidersConfig;
+    // merge
     slidersConfig.copy(rhs.inputConfig);
   }
 
-  YamlSwitchConfig switchConfig;
-  node["switchConfig"] >> switchConfig;
-  switchConfig.copy(rhs.switchConfig);
+  // the GeneralSettings struct is initialised to hardware definition defaults which is fine for new settings
+  // however when parsing saved settings set all switches to None and override with parsed values
+  // thus any switches not parsed will be None rather than the default
+  for (int i = 0; i < CPN_MAX_SWITCHES; i++) {
+    rhs.switchConfig[i].type = Board::SWITCH_NOT_AVAILABLE;
+  }
+
+  if (node["switchConfig"]) {
+    YamlSwitchConfig switchConfig;
+    node["switchConfig"] >> switchConfig;
+    switchConfig.copy(rhs.switchConfig);
+  }
 
   // MUST be parsed after switchConfig
   if (node["flexSwitches"]) {
@@ -596,11 +619,6 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   // OneBit sampling (X9D only?)
   node["uartSampleMode"] >> rhs.uartSampleMode;
 
-  //  override critical settings after import
-  //  TODO: for consistency move up call stack to use existing eeprom and profile conversions
-  if (needsConversion)
-    rhs.init();
-
   node["selectedTheme"] >> rhs.selectedTheme;
 
   // Radio level tabs control (global settings)
@@ -621,6 +639,11 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["labelSingleSelect"] >> rhs.labelSingleSelect;
   node["labelMultiMode"] >> rhs.labelMultiMode;
   node["favMultiMode"] >> rhs.favMultiMode;
+
+  //  override critical settings after import
+  //  TODO: for consistency move up call stack to use existing eeprom and profile conversions
+  if (needsConversion)
+    rhs.init();
 
   // perform integrity checks and fix-ups
   YamlValidateNames(rhs, fw->getBoard());
