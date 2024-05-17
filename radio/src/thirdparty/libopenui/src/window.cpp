@@ -469,7 +469,10 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
 
     // TODO: sort out all caps title strings VS quick menu strings
     std::string title(entry.first);
-    std::replace(title.begin(), title.end(), '\n', ' ');
+    for (std::string::iterator it = title.begin(); it != title.end(); ++it) {
+      if (*it == '\n')
+        *it = ' ';
+    }
 
     new TextButton(this, rect_t{x, y, buttonWidth, EdgeTxStyles::UI_ELEMENT_HEIGHT}, title, [&, entry]() {
       entry.second();
