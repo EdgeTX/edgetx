@@ -21,12 +21,6 @@
 
 #include "radio_hardware.h"
 
-#include "radio_calibration.h"
-#include "radio_diagkeys.h"
-#include "radio_diaganas.h"
-#include "radio_diagcustswitches.h"
-#include "opentx.h"
-#include "libopenui.h"
 #include "hal/adc_driver.h"
 #include "hw_extmodule.h"
 #include "hw_inputs.h"
@@ -37,6 +31,7 @@
 #include "radio_calibration.h"
 #include "radio_diaganas.h"
 #include "radio_diagkeys.h"
+#include "radio_diagcustswitches.h"
 
 #if defined(BLUETOOTH)
 #include "hw_bluetooth.h"
