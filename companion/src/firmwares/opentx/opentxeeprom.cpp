@@ -503,7 +503,7 @@ class SourcesConversionTable: public ConversionTable {
         //  end ADC refactor shuffles
 
         addConversion(RawSource(SOURCE_TYPE_STICK, i + offset), val++);
-        qDebug() << "i:" << i << "offset:" << offset << "index:" << i + offset << "desc:" << RawSource(SOURCE_TYPE_STICK, i + offset).toString() << "val:" << val;
+        //qDebug() << "i:" << i << "offset:" << offset << "index:" << i + offset << "desc:" << RawSource(SOURCE_TYPE_STICK, i + offset).toString() << "val:" << val;
       }
 
       for (int i=0; i<MAX_ROTARY_ENCODERS(board); i++) {
