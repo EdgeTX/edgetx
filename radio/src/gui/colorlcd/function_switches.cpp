@@ -26,7 +26,6 @@
 #include "switches.h"
 
 #if defined(FUNCTION_SWITCHES)
-
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
 static const lv_coord_t line_col_dsc1[] = {LV_GRID_CONTENT,
@@ -265,5 +264,4 @@ void ModelFunctionSwitches::checkEvents()
   setState();
   Page::checkEvents();
 }
-
 #endif

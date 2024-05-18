@@ -446,4 +446,3 @@ extern "C" void LTDC_IRQHandler(void)
   __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
   _frame_addr_reloaded = 1;
 }
-

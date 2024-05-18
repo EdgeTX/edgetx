@@ -30,7 +30,6 @@
 #define HFP  ( 140 - HBP )
 #define VFP  ( 22 - VBP )
 
-
 #define SET_IO_INPUT( PORT, PIN )            LL_GPIO_SetPinMode( PORT, PIN, LL_GPIO_MODE_INPUT )
 #define SET_IO_OUTPUT( PORT, PIN )           LL_GPIO_SetPinMode( PORT, PIN, LL_GPIO_MODE_OUTPUT )
 
@@ -51,14 +50,9 @@
 
 #define LCD_READ_DATA_PIN()           LL_GPIO_IsInputPinSet(LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN)
 
-
 #define HORIZONTAL_SYNC_WIDTH 			  ( 4 )
 #define HORIZONTAL_BACK_PORCH		      ( 24 )
 #define HORIZONTAL_FRONT_PORCH        ( 140 - HORIZONTAL_BACK_PORCH )
 #define VERTICAL_SYNC_HEIGHT   		    ( 2 )
 #define VERTICAL_BACK_PORCH  		      ( 10 )
 #define VERTICAL_FRONT_PORCH    	    ( 22 - VERTICAL_BACK_PORCH )
-
-
-
-
