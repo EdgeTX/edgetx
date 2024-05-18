@@ -45,15 +45,19 @@ void pwrInit()
 #endif
 
   // External module power
+#if defined(HARDWARE_EXTERNAL_MODULE)
   EXTERNAL_MODULE_PWR_OFF();
   GPIO_InitStructure.GPIO_Pin = EXTMODULE_PWR_GPIO_PIN;
   GPIO_Init(EXTMODULE_PWR_GPIO, &GPIO_InitStructure);
+#endif
 
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 
   // PWR switch
+#if defined(PWR_SWITCH_GPIO)
   GPIO_InitStructure.GPIO_Pin = PWR_SWITCH_GPIO_PIN;
   GPIO_Init(PWR_SWITCH_GPIO, &GPIO_InitStructure);
+#endif
 
 #if defined(PWR_EXTRA_SWITCH_GPIO)
   // PWR Extra switch
@@ -86,7 +90,7 @@ void pwrInit()
 void pwrOn()
 {
   // we keep the init of the PIN to have pwrOn as quick as possible
-
+#if defined(PWR_ON_GPIO)
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = PWR_ON_GPIO_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
@@ -96,11 +100,14 @@ void pwrOn()
   GPIO_Init(PWR_ON_GPIO, &GPIO_InitStructure);
 
   GPIO_SetBits(PWR_ON_GPIO, PWR_ON_GPIO_PIN);
+#endif
 }
 
 void pwrOff()
 {
+#if defined(PWR_ON_GPIO)
   GPIO_ResetBits(PWR_ON_GPIO, PWR_ON_GPIO_PIN);
+#endif
 }
 
 #if defined(PWR_EXTRA_SWITCH_GPIO)
@@ -117,9 +124,11 @@ bool pwrPressed()
               Bit_RESET ||
           GPIO_ReadInputDataBit(PWR_EXTRA_SWITCH_GPIO,
                                 PWR_EXTRA_SWITCH_GPIO_PIN) == Bit_RESET);
-#else
+#elif defined(PWR_SWITCH_GPIO)
   return GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) ==
          Bit_RESET;
+#else
+  return true;
 #endif
 }
 
@@ -127,8 +136,10 @@ bool pwrOffPressed()
 {
 #if defined(PWR_BUTTON_PRESS)
   return pwrPressed();
-#else
+#elif defined(PWR_SWITCH_GPIO)
   return !pwrPressed();
+#else
+  return false;
 #endif
 }
 
