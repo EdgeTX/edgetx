@@ -858,8 +858,12 @@ int cliStackInfo(const char ** argv)
   cliSerialPrint("[MAIN] %d available / %d bytes", mainStackAvailable()*4, stackSize()*4);
   cliSerialPrint("[MENUS] %d available / %d bytes", menusStack.available()*4, menusStack.size());
   cliSerialPrint("[MIXER] %d available / %d bytes", mixerStack.available()*4, mixerStack.size());
+#if defined(AUDIO)
   cliSerialPrint("[AUDIO] %d available / %d bytes", audioStack.available()*4, audioStack.size());
+#endif
+#if defined(CLI)
   cliSerialPrint("[CLI] %d available / %d bytes", cliStack.available()*4, cliStack.size());
+#endif
   return 0;
 }
 

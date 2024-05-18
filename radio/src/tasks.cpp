@@ -35,8 +35,10 @@
 RTOS_TASK_HANDLE menusTaskId;
 RTOS_DEFINE_STACK(menusTaskId, menusStack, MENUS_STACK_SIZE);
 
+#if defined(AUDIO)
 RTOS_TASK_HANDLE audioTaskId;
 RTOS_DEFINE_STACK(audioTaskId, audioStack, AUDIO_STACK_SIZE);
+#endif
 
 RTOS_MUTEX_HANDLE audioMutex;
 
@@ -112,7 +114,7 @@ void tasksStart()
   RTOS_CREATE_TASK(menusTaskId, menusTask, "menus", menusStack,
                    MENUS_STACK_SIZE, MENUS_TASK_PRIO);
 
-#if !defined(SIMU)
+#if !defined(SIMU) && defined(AUDIO)
   RTOS_CREATE_TASK(audioTaskId, audioTask, "audio", audioStack,
                    AUDIO_STACK_SIZE, AUDIO_TASK_PRIO);
 #endif

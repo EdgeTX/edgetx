@@ -273,6 +273,7 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             break;
 #endif
 
+#if defined(AUDIO)
           case FUNC_VOLUME: {
             getvalue_t raw = getValue(CFN_PARAM(cfn));
             // only set volume if input changed more than hysteresis
@@ -284,6 +285,7 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
                 2048;
             break;
           }
+#endif
 
 #if defined(SDCARD)
           case FUNC_PLAY_SOUND:

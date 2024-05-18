@@ -43,8 +43,11 @@
 #include "lua/lua_event.h"
 #endif
 
+#if defined(AUDIO)
 uint8_t currentSpeakerVolume = 255;
 uint8_t requiredSpeakerVolume = 255;
+#endif
+
 uint8_t currentBacklightBright = 0;
 uint8_t requiredBacklightBright = 0;
 uint8_t mainRequestFlags = 0;
@@ -265,12 +268,14 @@ void handleJackConnection()
 
 void checkSpeakerVolume()
 {
+#if defined(AUDIO)
   if (currentSpeakerVolume != requiredSpeakerVolume) {
     currentSpeakerVolume = requiredSpeakerVolume;
 #if !defined(SOFTWARE_VOLUME)
     setScaledVolume(currentSpeakerVolume);
 #endif
   }
+#endif
 }
 
 #if defined(USE_HATS_AS_KEYS)

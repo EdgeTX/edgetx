@@ -56,7 +56,10 @@
 
 extern TaskStack<MENUS_STACK_SIZE> menusStack;
 extern TaskStack<MIXER_STACK_SIZE> mixerStack;
+
+#if defined(AUDIO)
 extern TaskStack<AUDIO_STACK_SIZE> audioStack;
+#endif
 
 #if defined(CLI)
 extern TaskStack<CLI_STACK_SIZE> cliStack;

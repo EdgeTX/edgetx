@@ -1443,12 +1443,16 @@ void edgeTxInit()
 
   initSerialPorts();
 
-  currentSpeakerVolume = requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
-  currentBacklightBright = requiredBacklightBright = g_eeGeneral.getBrightness();
-
+#if defined(AUDIO)
+  currentSpeakerVolume = requiredSpeakerVolume =
+      g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
 #if !defined(SOFTWARE_VOLUME)
   setScaledVolume(currentSpeakerVolume);
 #endif
+#endif
+
+  currentBacklightBright = requiredBacklightBright = g_eeGeneral.getBrightness();
+
 
   referenceSystemAudioFiles();
   audioQueue.start();
