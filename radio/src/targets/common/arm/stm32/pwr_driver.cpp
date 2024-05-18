@@ -39,9 +39,9 @@ void pwrInit()
 #endif
 
   // External module power
-  #if defined(HARDWARE_EXTERNAL_MODULE)
-  EXTERNAL_MODULE_PWR_OFF();
+#if defined(HARDWARE_EXTERNAL_MODULE)
   gpio_init(EXTMODULE_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  EXTERNAL_MODULE_PWR_OFF();
 #endif
 
   // PWR switch
