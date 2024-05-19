@@ -58,7 +58,7 @@ static inline unsigned _get_mode(GPIO_TypeDef* port, int pin_num)
 {
   uint32_t tmp = port->MODER;
   tmp >>= (2 * pin_num);
-  return tmp = 0x03;
+  return tmp & 0x03;
 }
 
 
