@@ -2581,7 +2581,7 @@
   #define HAPTIC_PWM
   #define HAPTIC_GPIO                   GPIO_PIN(GPIOB, 3) // PB.03
   #define HAPTIC_GPIO_AF                GPIO_AF1
-  #define HAPTIC_TIMER                  TIM2
+  #define HAPTIC_TIMER                  TIM2 // Timer 2 Channel1
   #define HAPTIC_TIMER_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
   #define HAPTIC_COUNTER_REGISTER       HAPTIC_TIMER->CCR2
   #define HAPTIC_CCMR1                  TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2
@@ -2589,7 +2589,6 @@
   #define BACKLIGHT_BDTR                TIM_BDTR_MOE
 #elif defined(RADIO_X9DP2019) || defined(RADIO_X7ACCESS)
   #define HAPTIC_PWM
-  #define HAPTIC_GPIO_PinSource         GPIO_PinSource10
   #define HAPTIC_GPIO                   GPIO_PIN(GPIOA, 10) // PA.10
   #define HAPTIC_GPIO_AF                GPIO_AF1
   #define HAPTIC_TIMER                  TIM1 // Timer1 Channel3
@@ -2601,7 +2600,7 @@
   #define HAPTIC_PWM
   #define HAPTIC_GPIO                   GPIO_PIN(GPIOB, 8) // PB.08
   #define HAPTIC_GPIO_AF                GPIO_AF3
-  #define HAPTIC_TIMER                  TIM10
+  #define HAPTIC_TIMER                  TIM10  // Timer 10 Channel1
   #define HAPTIC_TIMER_FREQ             (PERI2_FREQUENCY * TIMER_MULT_APB2)
   #define HAPTIC_COUNTER_REGISTER       HAPTIC_TIMER->CCR1
   #define HAPTIC_CCMR1                  TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2
