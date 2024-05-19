@@ -837,6 +837,8 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
     else
       idx = Boards::getInputPotIndex(i + 1, board);
 
+    // qDebug() << "i:" << i << "idx:" << idx << "pot name:" << potName[i];
+
     if (idx >= 0) {
       inputConfig[idx].type = Board::AIT_FLEX;
       YamlValidateName(potName[i], board);
@@ -852,7 +854,7 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
 
   for (int i = 0; i < CPN_MAX_SLIDERS && i < Boards::getCapability(board, Board::Sliders); i++) {
     int offset = 0;
-    if (IS_TARANIS_X9E(board) || IS_HORUS_X12S(board)) {
+    if (IS_HORUS_X12S(board)) {
       // 0 - 1  extra sliders eg L1 - L2 or S1 - S2
       // 2 - 3  LS - RS
       // hw json flips the pairs
@@ -863,6 +865,9 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
     }
 
     int idx = Boards::getInputSliderIndex(i + offset + 1, board);
+
+    // qDebug() << "i:" << i << "idx:" << idx << "slider name:" << sliderName[i];
+
     if (idx >= 0) {
       inputConfig[idx].type = Board::AIT_FLEX;
       YamlValidateName(sliderName[i], board);
