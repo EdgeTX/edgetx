@@ -31,11 +31,11 @@ void GVarNumberEdit::value_changed(lv_event_t* e)
   edit->update();
 }
 
-GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
+GVarNumberEdit::GVarNumberEdit(Window* parent, int32_t vmin,
                                int32_t vmax, std::function<int32_t()> getValue,
                                std::function<void(int32_t)> setValue,
                                LcdFlags textFlags, int32_t voffset, int32_t vdefault) :
-    Window(parent, rect),
+    Window(parent, {0, 0, NUM_EDIT_W + GV_BTN_W + PAD_TINY * 3, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}),
     vmin(vmin),
     vmax(vmax),
     getValue(getValue),
@@ -44,9 +44,6 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
     voffset(voffset)
 {
   padAll(PAD_TINY);
-  lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW_WRAP);
-  lv_obj_set_style_flex_cross_place(lvobj, LV_FLEX_ALIGN_CENTER, 0);
-  lv_obj_set_size(lvobj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
   
   // GVAR field
   gvar_field = new Choice(
@@ -74,7 +71,7 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
 #if defined(GVARS)
   // The GVAR button
   if (modelGVEnabled()) {
-    m_gvBtn = new TextButton(this, rect_t{}, STR_GV, [=]() {
+    m_gvBtn = new TextButton(this, {NUM_EDIT_W + PAD_TINY, 0, GV_BTN_W, 0}, STR_GV, [=]() {
       switchGVarMode();
       return GV_IS_GV_VALUE(getValue(), vmin, vmax);
     });

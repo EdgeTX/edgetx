@@ -31,7 +31,7 @@ class TextButton;
 class GVarNumberEdit : public Window
 {
  public:
-  GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin, int32_t vmax,
+  GVarNumberEdit(Window* parent, int32_t vmin, int32_t vmax,
                  std::function<int32_t()> getValue,
                  std::function<void(int32_t)> setValue,
                  LcdFlags textFlags = 0, int32_t voffset = 0, int32_t vdefault = 0);
@@ -43,6 +43,7 @@ class GVarNumberEdit : public Window
   void setAccelFactor(int value) { num_field->setAccelFactor(value); }
 
   static LAYOUT_VAL(NUM_EDIT_W, 70, 70)
+  static LAYOUT_VAL(GV_BTN_W, 40, 40)
 
  protected:
   Choice* gvar_field = nullptr;

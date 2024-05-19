@@ -106,7 +106,7 @@ void InputEditWindow::buildBody(Window* form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_WEIGHT);
   auto gvar =
-      new GVarNumberEdit(line, rect_t{}, -100, 100, GET_DEFAULT(input->weight),
+      new GVarNumberEdit(line, -100, 100, GET_DEFAULT(input->weight),
                          [=](int32_t newValue) {
                            input->weight = newValue;
                            preview->update();
@@ -117,7 +117,7 @@ void InputEditWindow::buildBody(Window* form)
   // Offset
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_OFFSET);
-  gvar = new GVarNumberEdit(line, rect_t{}, -100, 100,
+  gvar = new GVarNumberEdit(line, -100, 100,
                             GET_DEFAULT(input->offset), [=](int32_t newValue) {
                               input->offset = newValue;
                               preview->update();

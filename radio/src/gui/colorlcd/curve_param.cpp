@@ -67,7 +67,7 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
 
   // CURVE_REF_DIFF
   // CURVE_REF_EXPO
-  value_edit = new GVarNumberEdit(this, rect_t{}, -100, 100, GET_DEFAULT(ref->value), setRefValue);
+  value_edit = new GVarNumberEdit(this, -100, 100, GET_DEFAULT(ref->value), setRefValue);
   value_edit->setSuffix("%");
 
   // CURVE_REF_FUNC

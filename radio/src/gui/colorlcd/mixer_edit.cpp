@@ -108,13 +108,13 @@ void MixEditWindow::buildBody(Window *form)
   // Weight
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_WEIGHT);
-  auto gvar = new GVarNumberEdit(line, rect_t{}, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX,
+  auto gvar = new GVarNumberEdit(line, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX,
                                  GET_SET_DEFAULT(mix->weight));
   gvar->setSuffix("%");
 
   // Offset
   new StaticText(line, rect_t{}, STR_OFFSET);
-  gvar = new GVarNumberEdit(line, rect_t{}, MIX_OFFSET_MIN, MIX_OFFSET_MAX,
+  gvar = new GVarNumberEdit(line, MIX_OFFSET_MIN, MIX_OFFSET_MAX,
                             GET_SET_DEFAULT(mix->offset));
   gvar->setSuffix("%");
 

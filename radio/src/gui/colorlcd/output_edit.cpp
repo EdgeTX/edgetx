@@ -136,7 +136,7 @@ void OutputEditWindow::buildBody(Window *form)
 
   // Offset
   new StaticText(line, rect_t{}, TR_LIMITS_HEADERS_SUBTRIM);
-  auto off = new GVarNumberEdit(line, rect_t{}, -LIMIT_STD_MAX, +LIMIT_STD_MAX,
+  auto off = new GVarNumberEdit(line, -LIMIT_STD_MAX, +LIMIT_STD_MAX,
                                 GET_SET_DEFAULT(output->offset), PREC1);
   off->setFastStep(20);
   off->setAccelFactor(8);
@@ -146,7 +146,7 @@ void OutputEditWindow::buildBody(Window *form)
   minText = new StaticText(line, rect_t{}, TR_MIN);
   etx_solid_bg(minText->getLvObj(), COLOR_THEME_ACTIVE_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   etx_font(minText->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
-  minEdit = new GVarNumberEdit(line, rect_t{}, -limit, 0,
+  minEdit = new GVarNumberEdit(line, -limit, 0,
                                GET_SET_DEFAULT(output->min), PREC1,
                                -LIMIT_STD_MAX, -limit);
   etx_font(minEdit->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
@@ -162,7 +162,7 @@ void OutputEditWindow::buildBody(Window *form)
   maxText = new StaticText(line, rect_t{}, TR_MAX);
   etx_solid_bg(maxText->getLvObj(), COLOR_THEME_ACTIVE_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   etx_font(maxText->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
-  maxEdit = new GVarNumberEdit(line, rect_t{}, 0, +limit,
+  maxEdit = new GVarNumberEdit(line, 0, +limit,
                                GET_SET_DEFAULT(output->max), PREC1,
                                +LIMIT_STD_MAX, limit);
   etx_font(maxEdit->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
