@@ -128,6 +128,8 @@ POT_CONFIG = {
     "x9e": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"},
+        "P3": {"default": "NONE"},
+        "P4": {"default": "NONE"},
         "SL1": {"default": "SLIDER"},
         "SL2": {"default": "SLIDER"},
         "SL3": {"default": "SLIDER"},

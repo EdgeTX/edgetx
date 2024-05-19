@@ -214,34 +214,48 @@ LEGACY_NAMES = [
                 "short_label": "F2",
                 "description": "Potentiometer 2"
             },
+            "P3": {
+                "yaml": "POT3",
+                "lua": "s3",
+                "label": "F3",
+                "short_label": "F3",
+                "description": "Potentiometer 3"
+            },
+            "P4": {
+                "yaml": "POT4",
+                "lua": "s4",
+                "label": "F4",
+                "short_label": "F4",
+                "description": "Potentiometer 4"
+            },
             "SL1": {
                 "yaml": "SLIDER1",
-                "lua": "ls",
-                "label": "LS",
-                "short_label": "L",
-                "description": "Left slider"
-            },
-            "SL2": {
-                "yaml": "SLIDER2",
-                "lua": "rs",
-                "label": "RS",
-                "short_label": "R",
-                "description": "Right slider"
-            },
-            "SL3": {
-                "yaml": "SLIDER3",
                 "lua": "lcs",
                 "label": "S1",
                 "short_label": "S1",
                 "description": "Left center slider"
             },
-            "SL4": {
-                "yaml": "SLIDER4",
+            "SL2": {
+                "yaml": "SLIDER2",
                 "lua": "rcs",
                 "label": "S2",
                 "short_label": "S2",
                 "description": "Right center slider"
-            }
+            },
+            "SL3": {
+                "yaml": "SLIDER3",
+                "lua": "ls",
+                "label": "LS",
+                "short_label": "L",
+                "description": "Left slider"
+            },
+            "SL4": {
+                "yaml": "SLIDER4",
+                "lua": "rs",
+                "label": "RS",
+                "short_label": "R",
+                "description": "Right slider"
+            },
         }
     },
     {
