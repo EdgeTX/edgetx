@@ -379,8 +379,11 @@ void audioMuteInit()
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
 
+  pinInit.Pin = AUDIO_MUTE_GPIO_PIN;
   pinInit.Mode = LL_GPIO_MODE_OUTPUT;
   pinInit.Pull = LL_GPIO_PULL_UP;
+  pinInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   LL_GPIO_Init(AUDIO_MUTE_GPIO, &pinInit);
 
   LL_GPIO_ResetOutputPin(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
