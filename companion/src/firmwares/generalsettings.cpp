@@ -837,7 +837,7 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
     else
       idx = Boards::getInputPotIndex(i + 1, board);
 
-    qDebug() << "i:" << i << "idx:" << idx << "pot name:" << potName[i];
+    // qDebug() << "i:" << i << "idx:" << idx << "pot name:" << potName[i];
 
     if (idx >= 0) {
       inputConfig[idx].type = Board::AIT_FLEX;
@@ -866,7 +866,7 @@ bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
 
     int idx = Boards::getInputSliderIndex(i + offset + 1, board);
 
-    qDebug() << "i:" << i << "idx:" << idx << "slider name:" << sliderName[i];
+    // qDebug() << "i:" << i << "idx:" << idx << "slider name:" << sliderName[i];
 
     if (idx >= 0) {
       inputConfig[idx].type = Board::AIT_FLEX;
