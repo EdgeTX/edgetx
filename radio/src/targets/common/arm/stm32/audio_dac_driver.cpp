@@ -77,7 +77,7 @@ void dacInit()
 
 #if defined(AUDIO_MUTE_GPIO)
   gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  setMutePin(true);
+  setMutePin(false);
 #endif
 
   gpio_init_analog(AUDIO_OUTPUT_GPIO);
