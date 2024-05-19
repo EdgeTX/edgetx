@@ -66,23 +66,15 @@ void choice_changed_cb(lv_event_t* e)
 ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type) :
     FormField(parent, rect, 0, choice_create), type(type)
 {
-  lv_obj_set_layout(lvobj, LV_LAYOUT_FLEX);
-  lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW);
-  lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER,
-                        LV_FLEX_ALIGN_SPACE_AROUND);
-
-  lv_obj_add_event_cb(lvobj, choice_changed_cb, LV_EVENT_VALUE_CHANGED, lvobj);
-  label = lv_label_create(lvobj);
-
-  lv_group_t* def_group = lv_group_get_default();
-  if (def_group) {
-    lv_group_add_obj(def_group, lvobj);
-  }
-
   // add the image
   lv_obj_t* img = lv_img_create(lvobj);
   lv_img_set_src(
       img, type == CHOICE_TYPE_DROPOWN ? LV_SYMBOL_DOWN : LV_SYMBOL_DIRECTORY);
+  lv_obj_set_pos(img, 0, PAD_TINY);
+
+  lv_obj_add_event_cb(lvobj, choice_changed_cb, LV_EVENT_VALUE_CHANGED, lvobj);
+  label = lv_label_create(lvobj);
+  lv_obj_set_pos(label, ICON_W, PAD_TINY);
 }
 
 std::string Choice::getLabelText()
