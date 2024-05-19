@@ -33,7 +33,7 @@
   #define MSVC_BUILD    0
 #endif
 
-// NOTE: the #include order is important here, sensitive on different platoforms.
+// NOTE: the #include order is important here, sensitive on different platforms.
 #include <errno.h>
 #include <fcntl.h>
 #include <stdarg.h>

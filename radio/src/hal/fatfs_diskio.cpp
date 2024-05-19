@@ -93,21 +93,19 @@ uint8_t fatfsGetLun(uint8_t pdrv)
 
 #if FF_FS_REENTRANT != 0
 
-int ff_cre_syncobj(BYTE vol, FF_SYNC_t* mutex)
+int ff_mutex_create(int vol)
 {
-  *mutex = _fatfs_drives[vol].mutex;
   return 1;
 }
 
-int ff_req_grant(FF_SYNC_t mutex)
+int ff_mutex_take(int vol)
 {
-  RTOS_LOCK_MUTEX(mutex);
-  return 1;
+  return RTOS_LOCK_MUTEX(_fatfs_drives[vol].mutex);
 }
 
-void ff_rel_grant(FF_SYNC_t mutex) { RTOS_UNLOCK_MUTEX(mutex); }
+void ff_mutex_give(int vol) { RTOS_UNLOCK_MUTEX(_fatfs_drives[vol].mutex); }
 
-int ff_del_syncobj(FF_SYNC_t mutex) { return 1; }
+void ff_mutex_delete(int vol) { }
 
 #endif
 
