@@ -141,6 +141,16 @@ const char * OpenTxEepromInterface::getName()
 
 bool OpenTxEepromInterface::loadRadioSettingsFromRLE(GeneralSettings & settings, RleFile * rleFile, uint8_t version)
 {
+  // Companion loads the current profile firmware and associated board hardware definition ONLY!!!!
+  // For each OpenTxEepromInterface create a firmware variant to force the associated base firmware board hardware definition to be loaded.
+  // Note: The base firmware instance does not do load its hardware definition to save unnecessary processing.
+  // To create the variant take the base id and append the language from the current radio profile.
+  Firmware *fw = Firmware::getFirmwareForId(firmware->getId().append("-%1").arg(g.currentProfile().fwType().split('-').last()));
+  if (!fw) {
+    qWarning() << " error unable to create firmware variant";
+    return false;
+  }
+
   QByteArray data(sizeof(settings), 0); // GeneralSettings should be always bigger than the EEPROM struct
   OpenTxGeneralData open9xSettings(settings, board, version);
   efile->openRd(FILE_GENERAL);
@@ -194,6 +204,16 @@ bool OpenTxEepromInterface::saveToByteArray(const T & src, QByteArray & data, ui
 template <class T, class M>
 bool OpenTxEepromInterface::loadFromByteArray(T & dest, const QByteArray & data, uint8_t version, uint32_t variant)
 {
+  // Companion loads the current profile firmware and associated board hardware definition ONLY!!!!
+  // For each OpenTxEepromInterface create a firmware variant to force the associated base firmware board hardware definition to be loaded.
+  // Note: The base firmware instance does not do load its hardware definition to save unnecessary processing.
+  // To create the variant take the base id and append the language from the current radio profile.
+  Firmware *fw = Firmware::getFirmwareForId(firmware->getId().append("-%1").arg(g.currentProfile().fwType().split('-').last()));
+  if (!fw) {
+    qWarning() << " error unable to create firmware variant";
+    return false;
+  }
+
   M manager(dest, board, version, variant);
   if (manager.Import(data) != 0) {
     return false;
@@ -216,8 +236,9 @@ bool OpenTxEepromInterface::loadFromByteArray(T & dest, const QByteArray & data)
     }
   }
 
-  if (board != getCurrentBoard()) {
-    qDebug() << QString("%1: not a match to profile %2").arg(getName()).arg(Boards::getBoardName(getCurrentBoard()));
+  if (Boards::getFourCC(board) == Boards::getFourCC(getCurrentBoard()) &&
+      board != getCurrentFirmware()->getBoard()) {
+    qDebug() << QString("%1: Fourcc not unique and does not match profile board: %2").arg(getName()).arg(Boards::getBoardName(getCurrentBoard()));
     return false;
   }
 
