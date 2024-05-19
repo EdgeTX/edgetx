@@ -50,7 +50,7 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
   
   // GVAR field
   gvar_field = new Choice(
-      this, rect_t{}, -MAX_GVARS, MAX_GVARS - 1,
+      this, {0, 0, NUM_EDIT_W, 0}, -MAX_GVARS, MAX_GVARS - 1,
       [=]() {
         uint16_t gvar1 = GV_GET_GV1_VALUE(vmin, vmax);
         return GV_INDEX_CALC_DELTA(getValue(), gvar1);
@@ -64,13 +64,11 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, const rect_t& rect, int32_t vmin,
       });
   gvar_field->setTextHandler(
       [=](int32_t value) { return getGVarString(value); });
-  gvar_field->setWidth(NUM_EDIT_W);
 
   num_field = new NumberEdit(
-      this, rect_t{}, vmin, vmax, [=]() { return getValue() + voffset; },
+      this, {0, 0, NUM_EDIT_W, 0}, vmin, vmax, [=]() { return getValue() + voffset; },
       nullptr);
   num_field->setTextFlag(textFlags);
-  num_field->setWidth(NUM_EDIT_W);
   num_field->setDefault(vdefault);
 
 #if defined(GVARS)
