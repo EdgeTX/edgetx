@@ -93,7 +93,7 @@ SWITCH_CONFIG = {
         # right side
         "SC": {"default": "3POS",   "display": [1, 0]},
         "SD": {"default": "3POS",   "display": [1, 1]},
-        "SH": {"default": "2POS",   "display": [1, 3]}
+        "SH": {"default": "2POS",   "display": [1, 2]}
     },
     "t14": {
         # left side
