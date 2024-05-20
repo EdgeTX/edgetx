@@ -532,6 +532,14 @@ set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
 if(DEBUG)
   target_compile_definitions(firmware PRIVATE -DDEBUG)
   target_compile_definitions(stm32_drivers_w_dbg_fw PRIVATE -DDEBUG)
+  if(DEBUG STREQUAL SEGGER)
+    add_definitions(-DDEBUG_SEGGER_RTT)
+  endif()
+  if(DEBUG STREQUAL SEGGER_NO_USB)
+    add_definitions(-DDEBUG_SEGGER_RTT)
+    add_definitions(-DDEBUG_DISABLE_USB)
+  endif()
+
 endif()
 
 target_link_options(firmware PRIVATE
