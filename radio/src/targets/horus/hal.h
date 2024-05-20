@@ -269,6 +269,14 @@
   #endif
 #endif
 
+// 6POS SW
+#if defined(RADIO_V16)
+  #define SIXPOS_SWITCH_INDEX             5
+  #define SIXPOS_LED_RED                255
+  #define SIXPOS_LED_GREEN              255
+  #define SIXPOS_LED_BLUE               255
+#endif
+
 // Trims
 #if defined(RADIO_T15)
   #define TRIMS_GPIO_REG_LHL            GPIOD
