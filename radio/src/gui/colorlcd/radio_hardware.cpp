@@ -162,7 +162,7 @@ void RadioHardwarePage::build(Window* window)
   // TODO: sub-title?
 
   for (size_t i = 0; i < DIM(setupLines); i += 1) {
-    new SetupLine(window, {0, 0, LCD_W - padding * 2, 0}, setupLines[i].title, setupLines[i].createEdit, EDT_X);
+    new SetupLine(window, 0, EDT_X, padding, setupLines[i].title, setupLines[i].createEdit);
   }
 
   FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);

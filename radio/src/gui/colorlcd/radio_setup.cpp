@@ -189,220 +189,240 @@ class DateTimeWindow : public Window
 class SubPage : public Page
 {
  public:
-  SubPage(EdgeTxIcon icon, const char* title) : Page(icon)
+  SubPage(EdgeTxIcon icon, const char* title) : Page(icon, PAD_SMALL)
+  {
+    header->setTitle(STR_RADIO_SETUP);
+    header->setTitle2(title);
+  }
+
+  SubPage(EdgeTxIcon icon, const char* title, SetupLineDef* setupLines, int lineCount) : Page(icon, PAD_SMALL)
   {
     header->setTitle(STR_RADIO_SETUP);
     header->setTitle2(title);
 
-    body->setFlexLayout();
+    coord_t y = 0;
+    Window* w;
+
+    for (size_t i = 0; i < lineCount; i += 1) {
+      w = new SetupLine(body, y, RadioSetupPage::EDT_X, PAD_SMALL, setupLines[i].title, setupLines[i].createEdit);
+      y += w->height() + PAD_TINY;
+    }
   }
 };
 
-class SoundPage : public SubPage
-{
- public:
-  SoundPage() : SubPage(ICON_RADIO_SETUP, STR_SOUND_LABEL)
+static SetupLineDef soundPageSetupLines[] = {
   {
-    FlexGridLayout grid(col_two_dsc, row_dsc, PAD_TINY);
-
-    auto line = body->newLine(grid);
-
     // Beeps mode
-    new StaticText(line, rect_t{}, STR_SPEAKER);
-    new Choice(line, rect_t{}, STR_VBEEPMODE, -2, 1,
-               GET_SET_DEFAULT(g_eeGeneral.beepMode));
-    line = body->newLine(grid);
-
+    STR_SPEAKER,
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, 0}, STR_VBEEPMODE, -2, 1,
+                 GET_SET_DEFAULT(g_eeGeneral.beepMode));
+    }
+  },
+  {
     // Main volume
-    new StaticText(line, rect_t{}, STR_VOLUME);
-    new Slider(line, lv_pct(50), -VOLUME_LEVEL_DEF,
-               VOLUME_LEVEL_MAX - VOLUME_LEVEL_DEF,
-               GET_SET_DEFAULT(g_eeGeneral.speakerVolume));
-    line = body->newLine(grid);
-
+    STR_VOLUME,
+    [](Window* parent, coord_t x, coord_t y) {
+      (new Slider(parent, lv_pct(50), -VOLUME_LEVEL_DEF,
+                  VOLUME_LEVEL_MAX - VOLUME_LEVEL_DEF,
+                  GET_SET_DEFAULT(g_eeGeneral.speakerVolume)))->setPos(x, y);
+    }
+  },
+  {
     // Beeps volume
-    new StaticText(line, rect_t{}, STR_BEEP_VOLUME);
-    new Slider(line, lv_pct(50), -2, +2,
-               GET_SET_DEFAULT(g_eeGeneral.beepVolume));
-    line = body->newLine(grid);
-
+    STR_BEEP_VOLUME,
+    [](Window* parent, coord_t x, coord_t y) {
+      (new Slider(parent, lv_pct(50), -2, +2,
+                  GET_SET_DEFAULT(g_eeGeneral.beepVolume)))->setPos(x, y);
+    }
+  },
+  {
     // Beeps length
-    new StaticText(line, rect_t{}, STR_BEEP_LENGTH);
-    new Slider(line, lv_pct(50), -2, +2,
-               GET_SET_DEFAULT(g_eeGeneral.beepLength));
-    line = body->newLine(grid);
-
+    STR_BEEP_LENGTH,
+    [](Window* parent, coord_t x, coord_t y) {
+      (new Slider(parent, lv_pct(50), -2, +2,
+                  GET_SET_DEFAULT(g_eeGeneral.beepLength)))->setPos(x, y);
+    }
+  },
+  {
     // Beeps pitch
-    new StaticText(line, rect_t{}, STR_BEEP_PITCH);
-    auto edit = new NumberEdit(line, rect_t{}, 0, 300,
-                               GET_DEFAULT(15 * g_eeGeneral.speakerPitch),
-                               [=](int32_t newValue) {
-                                 g_eeGeneral.speakerPitch = newValue / 15;
-                                 SET_DIRTY();
-                               });
-    edit->setStep(15);
-    edit->setPrefix("+");
-    edit->setSuffix("Hz");
-    line = body->newLine(grid);
-
+    STR_BEEP_PITCH,
+    [](Window* parent, coord_t x, coord_t y) {
+      auto edit = new NumberEdit(parent, rect_t{x, y, RadioSetupPage::NUM_W, 0}, 0, 300,
+                                GET_DEFAULT(15 * g_eeGeneral.speakerPitch),
+                                [=](int32_t newValue) {
+                                  g_eeGeneral.speakerPitch = newValue / 15;
+                                  SET_DIRTY();
+                                });
+      edit->setStep(15);
+      edit->setPrefix("+");
+      edit->setSuffix("Hz");
+    }
+  },
+  {
     // Wav volume
-    new StaticText(line, rect_t{}, STR_WAV_VOLUME);
-    new Slider(line, lv_pct(50), -2, +2,
-               GET_SET_DEFAULT(g_eeGeneral.wavVolume));
-    line = body->newLine(grid);
-
+    STR_WAV_VOLUME,
+    [](Window* parent, coord_t x, coord_t y) {
+      (new Slider(parent, lv_pct(50), -2, +2,
+                 GET_SET_DEFAULT(g_eeGeneral.wavVolume)))->setPos(x, y);
+    }
+  },
+  {
     // Background volume
-    new StaticText(line, rect_t{}, STR_BG_VOLUME);
-    new Slider(line, lv_pct(50), -2, +2,
-               GET_SET_DEFAULT(g_eeGeneral.backgroundVolume));
-  }
+    STR_BG_VOLUME,
+    [](Window* parent, coord_t x, coord_t y) {
+      (new Slider(parent, lv_pct(50), -2, +2,
+                  GET_SET_DEFAULT(g_eeGeneral.backgroundVolume)))->setPos(x, y);
+    }
+  },
 };
 
 #if defined(VARIO)
-class VarioPage : public SubPage
-{
- public:
-  VarioPage() : SubPage(ICON_RADIO_SETUP, STR_VARIO)
+static SetupLineDef varioPageSetupLines[] = {
   {
-    FlexGridLayout grid(col_two_dsc, row_dsc);
-
-    auto line = body->newLine(grid);
-
     // Vario volume
-    new StaticText(line, rect_t{}, STR_VOLUME);
-    new Slider(line, lv_pct(50), -2, +2,
-               GET_SET_DEFAULT(g_eeGeneral.varioVolume));
-    line = body->newLine(grid);
-
-    new StaticText(line, rect_t{}, STR_PITCH_AT_ZERO);
-    auto edit = new NumberEdit(
-        line, rect_t{}, VARIO_FREQUENCY_ZERO - 400, VARIO_FREQUENCY_ZERO + 400,
-        GET_DEFAULT(VARIO_FREQUENCY_ZERO + (g_eeGeneral.varioPitch * 10)),
-        SET_VALUE(g_eeGeneral.varioPitch,
-                  (newValue - VARIO_FREQUENCY_ZERO) / 10));
-    edit->setStep(10);
-    edit->setSuffix("Hz");
-    line = body->newLine(grid);
-
-    new StaticText(line, rect_t{}, STR_PITCH_AT_MAX);
-    edit = new NumberEdit(
-        line, rect_t{}, 900, 2500,
-        GET_DEFAULT(VARIO_FREQUENCY_ZERO + (g_eeGeneral.varioPitch * 10) +
-                    VARIO_FREQUENCY_RANGE + (g_eeGeneral.varioRange * 10)),
-        SET_VALUE(
-            g_eeGeneral.varioRange,
-            (newValue - VARIO_FREQUENCY_ZERO - VARIO_FREQUENCY_RANGE) / 10 -
-                g_eeGeneral.varioPitch));
-    edit->setStep(10);
-    edit->setSuffix("Hz");
-    line = body->newLine(grid);
-
-    new StaticText(line, rect_t{}, STR_REPEAT_AT_ZERO);
-    edit = new NumberEdit(
-        line, rect_t{}, 200, 1000,
-        GET_DEFAULT(VARIO_REPEAT_ZERO + (g_eeGeneral.varioRepeat * 10)),
-        SET_VALUE(g_eeGeneral.varioRepeat,
-                  (newValue - VARIO_REPEAT_ZERO) / 10));
-    edit->setStep(10);
-    edit->setSuffix("ms");
-    line = body->newLine(grid);
-  }
+    STR_VOLUME,
+    [](Window* parent, coord_t x, coord_t y) {
+      (new Slider(parent, lv_pct(50), -2, +2,
+                  GET_SET_DEFAULT(g_eeGeneral.varioVolume)))->setPos(x, y);
+    }
+  },
+  {
+    STR_PITCH_AT_ZERO,
+    [](Window* parent, coord_t x, coord_t y) {
+      auto edit = new NumberEdit(
+          parent, {x, y, RadioSetupPage::NUM_W, 0}, VARIO_FREQUENCY_ZERO - 400, VARIO_FREQUENCY_ZERO + 400,
+          GET_DEFAULT(VARIO_FREQUENCY_ZERO + (g_eeGeneral.varioPitch * 10)),
+          SET_VALUE(g_eeGeneral.varioPitch,
+                    (newValue - VARIO_FREQUENCY_ZERO) / 10));
+      edit->setStep(10);
+      edit->setSuffix("Hz");
+    }
+  },
+  {
+    STR_PITCH_AT_MAX,
+    [](Window* parent, coord_t x, coord_t y) {
+      auto edit = new NumberEdit(
+          parent, {x, y, RadioSetupPage::NUM_W, 0}, 900, 2500,
+          GET_DEFAULT(VARIO_FREQUENCY_ZERO + (g_eeGeneral.varioPitch * 10) +
+                      VARIO_FREQUENCY_RANGE + (g_eeGeneral.varioRange * 10)),
+          SET_VALUE(
+              g_eeGeneral.varioRange,
+              (newValue - VARIO_FREQUENCY_ZERO - VARIO_FREQUENCY_RANGE) / 10 -
+                  g_eeGeneral.varioPitch));
+      edit->setStep(10);
+      edit->setSuffix("Hz");
+    }
+  },
+  {
+    STR_REPEAT_AT_ZERO,
+    [](Window* parent, coord_t x, coord_t y) {
+      auto edit = new NumberEdit(
+          parent, {x, y, RadioSetupPage::NUM_W, 0}, 200, 1000,
+          GET_DEFAULT(VARIO_REPEAT_ZERO + (g_eeGeneral.varioRepeat * 10)),
+          SET_VALUE(g_eeGeneral.varioRepeat,
+                    (newValue - VARIO_REPEAT_ZERO) / 10));
+      edit->setStep(10);
+      edit->setSuffix("ms");
+    }
+  },
 };
 #endif
 
 #if defined(HAPTIC)
-class HapticPage : public SubPage
-{
- public:
-  HapticPage() : SubPage(ICON_RADIO_SETUP, STR_HAPTIC_LABEL)
+static SetupLineDef hapticPageSetupLines[] = {
   {
-    FlexGridLayout grid(col_two_dsc, row_dsc);
-
-    auto line = body->newLine(grid);
-
     // Haptic mode
-    new StaticText(line, rect_t{}, STR_MODE);
-    new Choice(line, rect_t{}, STR_VBEEPMODE, -2, 1,
-               GET_SET_DEFAULT(g_eeGeneral.hapticMode));
-    line = body->newLine(grid);
-
+    STR_MODE,
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, 0}, STR_VBEEPMODE, -2, 1,
+                 GET_SET_DEFAULT(g_eeGeneral.hapticMode));
+    }
+  },
+  {
     // Haptic duration
-    new StaticText(line, rect_t{}, STR_LENGTH);
-    new Slider(line, lv_pct(50), -2, +2,
-               GET_SET_DEFAULT(g_eeGeneral.hapticLength));
-    line = body->newLine(grid);
-
+    STR_LENGTH,
+    [](Window* parent, coord_t x, coord_t y) {
+      (new Slider(parent, lv_pct(50), -2, +2,
+                  GET_SET_DEFAULT(g_eeGeneral.hapticLength)))->setPos(x, y);
+    }
+  },
+  {
     // Haptic strength
-    new StaticText(line, rect_t{}, STR_STRENGTH);
-    new Slider(line, lv_pct(50), -2, +2,
-               GET_SET_DEFAULT(g_eeGeneral.hapticStrength));
-    line = body->newLine(grid);
-  }
+    STR_STRENGTH,
+    [](Window* parent, coord_t x, coord_t y) {
+      (new Slider(parent, lv_pct(50), -2, +2,
+                  GET_SET_DEFAULT(g_eeGeneral.hapticStrength)))->setPos(x, y);
+    }
+  },
 };
 #endif
 
-class AlarmsPage : public SubPage
-{
- public:
-  AlarmsPage() : SubPage(ICON_RADIO_SETUP, STR_ALARMS_LABEL)
+static SetupLineDef alarmsPageSetupLines[] = {
   {
-    FlexGridLayout grid(col_two_dsc, row_dsc);
-
-    auto line = body->newLine(grid);
     // Battery warning
-    new StaticText(line, rect_t{}, STR_BATTERYWARNING);
-    auto edit = new NumberEdit(line, rect_t{}, 30, 120,
-                               GET_SET_DEFAULT(g_eeGeneral.vBatWarn), PREC1);
-    edit->setSuffix("V");
-    line = body->newLine(grid);
-
+    STR_BATTERYWARNING,
+    [](Window* parent, coord_t x, coord_t y) {
+      auto edit = new NumberEdit(parent, {x, y, RadioSetupPage::NUM_W, 0}, 30, 120,
+                                GET_SET_DEFAULT(g_eeGeneral.vBatWarn), PREC1);
+      edit->setSuffix("V");
+    }
+  },
+  {
     // Inactivity alarm
-    new StaticText(line, rect_t{}, STR_INACTIVITYALARM);
-    edit = new NumberEdit(line, rect_t{}, 0, 250,
-                          GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
+    STR_INACTIVITYALARM,
+    [](Window* parent, coord_t x, coord_t y) {
+      auto edit = new NumberEdit(parent, {x, y, RadioSetupPage::NUM_W * 3 / 2, 0}, 0, 250,
+                                 GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
 
-    edit->setDisplayHandler([=](int value) -> std::string {
-      std::string suffix(STR_MINUTE_PLURAL2);
-      if (value == 1) {
-        suffix = std::string(STR_MINUTE_SINGULAR);
-      } else if (value < g_use_plural2) {
-        const int secondDecimal = (value / 10) % 10;
-        if (secondDecimal != 1) {
-          const int firstDecimal = value % 10;
-          if (firstDecimal) {
-            if (firstDecimal < g_min_plural2 &&
-                firstDecimal == g_use_singular_in_plural) {
-              suffix = std::string(STR_MINUTE_SINGULAR);
-            } else if (firstDecimal <= g_max_plural2 &&
-                       firstDecimal != g_use_plural2_special_case) {
-              suffix = std::string(STR_MINUTE_PLURAL1);
+      edit->setDisplayHandler([=](int value) -> std::string {
+        std::string suffix(STR_MINUTE_PLURAL2);
+        if (value == 1) {
+          suffix = std::string(STR_MINUTE_SINGULAR);
+        } else if (value < g_use_plural2) {
+          const int secondDecimal = (value / 10) % 10;
+          if (secondDecimal != 1) {
+            const int firstDecimal = value % 10;
+            if (firstDecimal) {
+              if (firstDecimal < g_min_plural2 &&
+                  firstDecimal == g_use_singular_in_plural) {
+                suffix = std::string(STR_MINUTE_SINGULAR);
+              } else if (firstDecimal <= g_max_plural2 &&
+                        firstDecimal != g_use_plural2_special_case) {
+                suffix = std::string(STR_MINUTE_PLURAL1);
+              }
             }
           }
         }
-      }
-      suffix = " " + suffix;
-      return formatNumberAsString(value, 0, 0, nullptr, suffix.c_str());
-    });
-    line = body->newLine(grid);
-
+        suffix = " " + suffix;
+        return formatNumberAsString(value, 0, 0, nullptr, suffix.c_str());
+      });
+    }
+  },
+  {
     // Alarms warning
-    new StaticText(line, rect_t{}, STR_ALARMWARNING);
-    new ToggleSwitch(line, rect_t{},
-                     GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
-    line = body->newLine(grid);
-
+    STR_ALARMWARNING,
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0},
+                       GET_SET_INVERTED(g_eeGeneral.disableAlarmWarning));
+    }
+  },
+  {
     // RSSI shutdown alarm
-    new StaticText(line, rect_t{}, STR_RSSI_SHUTDOWN_ALARM);
-    new ToggleSwitch(line, rect_t{},
-                     GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
-    line = body->newLine(grid);
-
+    STR_RSSI_SHUTDOWN_ALARM,
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0},
+                       GET_SET_INVERTED(g_eeGeneral.disableRssiPoweroffAlarm));
+    }
+  },
+  {
     // Trainer shutdown alarm
-    new StaticText(line, rect_t{}, STR_TRAINER_SHUTDOWN_ALARM);
-    new ToggleSwitch(line, rect_t{},
-                     GET_SET_INVERTED(g_eeGeneral.disableTrainerPoweroffAlarm));
-    line = body->newLine(grid);
-  }
+    STR_TRAINER_SHUTDOWN_ALARM,
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0},
+                       GET_SET_INVERTED(g_eeGeneral.disableTrainerPoweroffAlarm));
+    }
+  },
 };
 
 class BacklightPage : public SubPage
@@ -410,89 +430,84 @@ class BacklightPage : public SubPage
  public:
   BacklightPage() : SubPage(ICON_RADIO_SETUP, STR_BACKLIGHT_LABEL)
   {
-    FlexGridLayout grid(col_two_dsc, row_dsc, PAD_TINY);
-
-    auto line = body->newLine(grid);
+    body->setFlexLayout();
 
     // Backlight mode
-    new StaticText(line, rect_t{}, STR_MODE);
+    new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_MODE, [=](Window* parent, coord_t x, coord_t y) {
+          auto blMode = new Choice(
+              parent, {x, y, 0, 0}, STR_VBLMODE, e_backlight_mode_off, e_backlight_mode_on,
+              GET_DEFAULT(g_eeGeneral.backlightMode), [=](int32_t newValue) {
+                g_eeGeneral.backlightMode = newValue;
+                updateBacklightControls();
+                SET_DIRTY();
+              });
 
-    auto blMode = new Choice(
-        line, rect_t{}, STR_VBLMODE, e_backlight_mode_off, e_backlight_mode_on,
-        GET_DEFAULT(g_eeGeneral.backlightMode), [=](int32_t newValue) {
-          g_eeGeneral.backlightMode = newValue;
-          updateBacklightControls();
-          SET_DIRTY();
+          blMode->setAvailableHandler(
+              [=](int newValue) { return newValue != e_backlight_mode_off; });
         });
-
-    blMode->setAvailableHandler(
-        [=](int newValue) { return newValue != e_backlight_mode_off; });
-
-    backlightTimeout = body->newLine(grid);
 
     // Delay
-    new StaticText(backlightTimeout, rect_t{}, STR_BACKLIGHT_TIMER);
-    auto edit =
-        new NumberEdit(backlightTimeout, rect_t{}, 5, 600,
-                       GET_DEFAULT(g_eeGeneral.lightAutoOff * 5),
-                       SET_VALUE(g_eeGeneral.lightAutoOff, newValue / 5));
-    edit->setStep(5);
-    edit->setSuffix("s");
-
-    backlightOnBright = body->newLine(grid);
+    backlightTimeout = new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_BACKLIGHT_TIMER, [=](Window* parent, coord_t x, coord_t y) {
+          auto edit =
+              new NumberEdit(parent, {x, y, RadioSetupPage::NUM_W, 0}, 5, 600,
+                            GET_DEFAULT(g_eeGeneral.lightAutoOff * 5),
+                            SET_VALUE(g_eeGeneral.lightAutoOff, newValue / 5));
+          edit->setStep(5);
+          edit->setSuffix("s");
+        });
 
     // Backlight ON bright
-    new StaticText(backlightOnBright, rect_t{}, STR_BLONBRIGHTNESS);
-    backlightOnSlider = new Slider(
-        backlightOnBright, lv_pct(50), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
-        [=]() -> int32_t {
-          return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
-        },
-        [=](int32_t newValue) {
-          if (newValue >= g_eeGeneral.blOffBright ||
-              g_eeGeneral.backlightMode == e_backlight_mode_on) {
-            g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - newValue;
-          } else {
-            g_eeGeneral.backlightBright =
-                BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
-            backlightOnSlider->update();
-          }
-          SET_DIRTY();
+    backlightOnBright = new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_BLONBRIGHTNESS, [=](Window* parent, coord_t x, coord_t y) {
+          backlightOnSlider = new Slider(
+              parent, lv_pct(50), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
+              [=]() -> int32_t {
+                return BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
+              },
+              [=](int32_t newValue) {
+                if (newValue >= g_eeGeneral.blOffBright ||
+                    g_eeGeneral.backlightMode == e_backlight_mode_on) {
+                  g_eeGeneral.backlightBright = BACKLIGHT_LEVEL_MAX - newValue;
+                } else {
+                  g_eeGeneral.backlightBright =
+                      BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
+                  backlightOnSlider->update();
+                }
+                SET_DIRTY();
+              });
+          backlightOnSlider->setPos(x, y);
         });
-
-    backlightOffBright = body->newLine(grid);
 
     // Backlight OFF bright
-    new StaticText(backlightOffBright, rect_t{}, STR_BLOFFBRIGHTNESS);
-    backlightOffSlider = new Slider(
-        backlightOffBright, lv_pct(50), BACKLIGHT_LEVEL_MIN,
-        BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
-        [=](int32_t newValue) {
-          int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
-          if (newValue <= onBright ||
-              g_eeGeneral.backlightMode == e_backlight_mode_off) {
-            g_eeGeneral.blOffBright = newValue;
-          } else {
-            g_eeGeneral.blOffBright = onBright;
-            backlightOffSlider->update();
-          }
-          SET_DIRTY();
+    backlightOffBright = new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_BLOFFBRIGHTNESS, [=](Window* parent, coord_t x, coord_t y) {
+          backlightOffSlider = new Slider(
+              parent, lv_pct(50), BACKLIGHT_LEVEL_MIN,
+              BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
+              [=](int32_t newValue) {
+                int32_t onBright = BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright;
+                if (newValue <= onBright ||
+                    g_eeGeneral.backlightMode == e_backlight_mode_off) {
+                  g_eeGeneral.blOffBright = newValue;
+                } else {
+                  g_eeGeneral.blOffBright = onBright;
+                  backlightOffSlider->update();
+                }
+                SET_DIRTY();
+              });
+          backlightOffSlider->setPos(x, y);
         });
-
-    line = body->newLine(grid);
 
 #if defined(KEYS_BACKLIGHT_GPIO)
     // Keys backlight
-    new StaticText(line, rect_t{}, STR_KEYS_BACKLIGHT);
-    new ToggleSwitch(line, rect_t{},
-                     GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
-    line = body->newLine(grid);
+    new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_KEYS_BACKLIGHT, [=](Window* parent, coord_t x, coord_t y) {
+          new ToggleSwitch(parent, {x, y, 0, 0},
+                          GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
+        });
 #endif
 
     // Flash beep
-    new StaticText(line, rect_t{}, STR_ALARM);
-    new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.alarmsFlash));
-    line = body->newLine(grid);
+    new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_ALARM, [=](Window* parent, coord_t x, coord_t y) {
+          new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_eeGeneral.alarmsFlash));
+        });
 
     updateBacklightControls();
   }
@@ -535,140 +550,157 @@ class BacklightPage : public SubPage
   }
 };
 
-class GpsPage : public SubPage
-{
- public:
-  GpsPage() : SubPage(ICON_RADIO_SETUP, STR_GPS)
+static SetupLineDef gpsPageSetupLines[] = {
   {
-    FlexGridLayout grid(col_two_dsc, row_dsc);
-
-    tzIndex = timezoneIndex(g_eeGeneral.timezone, g_eeGeneral.timezoneMinutes);
-
-    auto line = body->newLine(grid);
     // Timezone
-    new StaticText(line, rect_t{}, STR_TIMEZONE);
-    auto tz = new NumberEdit(line, rect_t{}, minTimezone(), maxTimezone(),
-                             GET_DEFAULT(tzIndex), [=](int newTz) {
-                               tzIndex = newTz;
-                               g_eeGeneral.timezone = timezoneHour(newTz);
-                               g_eeGeneral.timezoneMinutes =
-                                   timezoneMinute(newTz);
-                               SET_DIRTY();
-                             });
-    tz->setDisplayHandler([](int32_t tz) { return timezoneDisplay(tz); });
-    line = body->newLine(grid);
-
+    STR_TIMEZONE,
+    [](Window* parent, coord_t x, coord_t y) {
+      auto tz = new NumberEdit(parent, {x, y, RadioSetupPage::NUM_W, 0}, minTimezone(), maxTimezone(),
+                              []() {
+                                return timezoneIndex(g_eeGeneral.timezone, g_eeGeneral.timezoneMinutes);
+                              },
+                              [](int newTz) {
+                                g_eeGeneral.timezone = timezoneHour(newTz);
+                                g_eeGeneral.timezoneMinutes =
+                                    timezoneMinute(newTz);
+                                SET_DIRTY();
+                              });
+      tz->setDisplayHandler([](int32_t tz) { return timezoneDisplay(tz); });
+    }
+  },
+  {
     // Adjust RTC (from telemetry)
-    new StaticText(line, rect_t{}, STR_ADJUST_RTC);
-    new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_eeGeneral.adjustRTC));
-    line = body->newLine(grid);
-
+    STR_ADJUST_RTC,
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_eeGeneral.adjustRTC));
+    }
+  },
+  {
     // GPS format
-    new StaticText(line, rect_t{}, STR_GPS_COORDS_FORMAT);
-    new Choice(line, rect_t{}, STR_GPSFORMAT, 0, 1,
-               GET_SET_DEFAULT(g_eeGeneral.gpsFormat));
-    line = body->newLine(grid);
-  }
-
- protected:
-  int tzIndex;
+    STR_GPS_COORDS_FORMAT,
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, 0}, STR_GPSFORMAT, 0, 1,
+                 GET_SET_DEFAULT(g_eeGeneral.gpsFormat));
+    }
+  },
 };
 
-class ViewOptionsPage : public SubPage
+static void viewOption(Window* parent, coord_t x, coord_t y,
+                std::function<uint8_t()> getValue,
+                std::function<void(uint8_t)> setValue, uint8_t modelOption)
 {
- private:
-  const lv_coord_t opt_col_dsc[4] = {LV_GRID_FR(5), LV_GRID_FR(2),
-                                     LV_GRID_FR(4), LV_GRID_TEMPLATE_LAST};
+  new ToggleSwitch(parent, {x, y, 0, 0}, getValue, setValue);
+  if (modelOption != OVERRIDE_GLOBAL) {
+    std::string s(STR_MODEL);
+    s += " - ";
+    s += STR_ADCFILTERVALUES[modelOption];
+    new StaticText(parent, {x + ToggleSwitch::TOGGLE_W + PAD_MEDIUM, y + PAD_SMALL, 0, 0}, s.c_str(), COLOR_THEME_SECONDARY1);
+  }
+}
 
-  void viewOption(FormLine* line, const char* name,
-                  std::function<uint8_t()> getValue,
-                  std::function<void(uint8_t)> setValue, uint8_t modelOption)
+static SetupLineDef viewOptionsPageSetupLines[] = {
   {
-    line->padLeft(10);
-    new StaticText(line, rect_t{}, name);
-    new ToggleSwitch(line, rect_t{}, getValue, setValue);
-    if (modelOption != OVERRIDE_GLOBAL) {
-      std::string s(STR_MODEL);
-      s += " - ";
-      s += STR_ADCFILTERVALUES[modelOption];
-      new StaticText(line, rect_t{}, s.c_str(), COLOR_THEME_SECONDARY1);
+    STR_RADIO_MENU_TABS, nullptr,
+  },
+  {
+    STR_THEME_EDITOR,
+    [](Window* parent, coord_t x, coord_t y) {
+      viewOption(parent, x, y,
+                GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled),
+                g_model.radioThemesDisabled);
     }
-  }
-
- public:
-  ViewOptionsPage() : SubPage(ICON_RADIO_SETUP, STR_ENABLED_FEATURES)
+  },
   {
-    FlexGridLayout grid(opt_col_dsc, row_dsc, PAD_TINY);
-
-    auto line = body->newLine(grid);
-    new StaticText(line, rect_t{}, STR_RADIO_MENU_TABS);
-
-    line = body->newLine(grid);
-    viewOption(line, STR_THEME_EDITOR,
-               GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled),
-               g_model.radioThemesDisabled);
-
-    line = body->newLine(grid);
-    viewOption(line, STR_MENUSPECIALFUNCS,
-               GET_SET_INVERTED(g_eeGeneral.radioGFDisabled),
-               g_model.radioGFDisabled);
-
-    line = body->newLine(grid);
-    viewOption(line, STR_MENUTRAINER,
-               GET_SET_INVERTED(g_eeGeneral.radioTrainerDisabled),
-               g_model.radioTrainerDisabled);
-
-    line = body->newLine(grid);
-    new StaticText(line, rect_t{}, STR_MODEL_MENU_TABS);
-
+    STR_MENUSPECIALFUNCS,
+    [](Window* parent, coord_t x, coord_t y) {
+      viewOption(parent, x, y,
+                GET_SET_INVERTED(g_eeGeneral.radioGFDisabled),
+                g_model.radioGFDisabled);
+    }
+  },
+  {
+    STR_MENUTRAINER,
+    [](Window* parent, coord_t x, coord_t y) {
+      viewOption(parent, x, y,
+                GET_SET_INVERTED(g_eeGeneral.radioTrainerDisabled),
+                g_model.radioTrainerDisabled);
+    }
+  },
+  {
+    STR_MODEL_MENU_TABS, nullptr,
+  },
+  {
 #if defined(HELI)
-    line = body->newLine(grid);
-    viewOption(line, STR_MENUHELISETUP,
-               GET_SET_INVERTED(g_eeGeneral.modelHeliDisabled),
-               g_model.modelHeliDisabled);
+    STR_MENUHELISETUP,
+    [](Window* parent, coord_t x, coord_t y) {
+      viewOption(parent, x, y,
+                GET_SET_INVERTED(g_eeGeneral.modelHeliDisabled),
+                g_model.modelHeliDisabled);
+    }
+  },
 #endif
-
 #if defined(FLIGHT_MODES)
-    line = body->newLine(grid);
-    viewOption(line, STR_MENUFLIGHTMODES,
-               GET_SET_INVERTED(g_eeGeneral.modelFMDisabled),
-               g_model.modelFMDisabled);
+  {
+    STR_MENUFLIGHTMODES,
+    [](Window* parent, coord_t x, coord_t y) {
+      viewOption(parent, x, y,
+                GET_SET_INVERTED(g_eeGeneral.modelFMDisabled),
+                g_model.modelFMDisabled);
+    }
+  },
 #endif
-
 #if defined(GVARS)
-    line = body->newLine(grid);
-    viewOption(line, STR_MENU_GLOBAL_VARS,
-               GET_SET_INVERTED(g_eeGeneral.modelGVDisabled),
-               g_model.modelGVDisabled);
+  {
+    STR_MENU_GLOBAL_VARS,
+    [](Window* parent, coord_t x, coord_t y) {
+      viewOption(parent, x, y,
+                GET_SET_INVERTED(g_eeGeneral.modelGVDisabled),
+                g_model.modelGVDisabled);
+    }
+  },
 #endif
-
-    line = body->newLine(grid);
-    viewOption(line, STR_MENUCURVES,
-               GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled),
-               g_model.modelCurvesDisabled);
-
-    line = body->newLine(grid);
-    viewOption(line, STR_MENULOGICALSWITCHES,
-               GET_SET_INVERTED(g_eeGeneral.modelLSDisabled),
-               g_model.modelLSDisabled);
-
-    line = body->newLine(grid);
-    viewOption(line, STR_MENUCUSTOMFUNC,
-               GET_SET_INVERTED(g_eeGeneral.modelSFDisabled),
-               g_model.modelSFDisabled);
-
+  {
+    STR_MENUCURVES,
+    [](Window* parent, coord_t x, coord_t y) {
+      viewOption(parent, x, y,
+                GET_SET_INVERTED(g_eeGeneral.modelCurvesDisabled),
+                g_model.modelCurvesDisabled);
+    }
+  },
+  {
+    STR_MENULOGICALSWITCHES,
+    [](Window* parent, coord_t x, coord_t y) {
+      viewOption(parent, x, y,
+                GET_SET_INVERTED(g_eeGeneral.modelLSDisabled),
+                g_model.modelLSDisabled);
+    }
+  },
+  {
+    STR_MENUCUSTOMFUNC,
+    [](Window* parent, coord_t x, coord_t y) {
+      viewOption(parent, x, y,
+                GET_SET_INVERTED(g_eeGeneral.modelSFDisabled),
+                g_model.modelSFDisabled);
+    }
+  },
 #if defined(LUA_MODEL_SCRIPTS)
-    line = body->newLine(grid);
-    viewOption(line, STR_MENUCUSTOMSCRIPTS,
-               GET_SET_INVERTED(g_eeGeneral.modelCustomScriptsDisabled),
-               g_model.modelCustomScriptsDisabled);
+  {
+    STR_MENUCUSTOMSCRIPTS,
+    [](Window* parent, coord_t x, coord_t y) {
+      viewOption(parent, x, y,
+                GET_SET_INVERTED(g_eeGeneral.modelCustomScriptsDisabled),
+                g_model.modelCustomScriptsDisabled);
+    }
+  },
 #endif
-
-    line = body->newLine(grid);
-    viewOption(line, STR_MENUTELEMETRY,
-               GET_SET_INVERTED(g_eeGeneral.modelTelemetryDisabled),
-               g_model.modelTelemetryDisabled);
-  }
+  {
+    STR_MENUTELEMETRY,
+    [](Window* parent, coord_t x, coord_t y) {
+      viewOption(parent, x, y,
+                GET_SET_INVERTED(g_eeGeneral.modelTelemetryDisabled),
+                g_model.modelTelemetryDisabled);
+    }
+  },
 };
 
 class ManageModelsSetupPage : public SubPage
@@ -676,52 +708,44 @@ class ManageModelsSetupPage : public SubPage
  public:
   ManageModelsSetupPage() : SubPage(ICON_MODEL, STR_MANAGE_MODELS)
   {
-    FlexGridLayout grid(col_two_dsc, row_dsc, PAD_TINY);
+    body->setFlexLayout();
 
     // Model quick select
-    auto line = body->newLine(grid);
-    new StaticText(line, rect_t{}, STR_MODEL_QUICK_SELECT);
-    new ToggleSwitch(line, rect_t{},
-                     GET_SET_DEFAULT(g_eeGeneral.modelQuickSelect));
+    new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_MODEL_QUICK_SELECT, [=](Window* parent, coord_t x, coord_t y) {
+          new ToggleSwitch(parent, {x, y, 0, 0},
+                          GET_SET_DEFAULT(g_eeGeneral.modelQuickSelect));
+        });
 
     // Label single/multi select
-    line = body->newLine(grid);
-    new StaticText(line, rect_t{}, STR_LABELS_SELECT);
-    new Choice(line, rect_t{}, STR_LABELS_SELECT_MODE, 0, 1,
-               GET_DEFAULT(g_eeGeneral.labelSingleSelect),
-               [=](int newValue) {
-                 g_eeGeneral.labelSingleSelect = newValue;
-                 modelslabels.clearFilter();
-                 SET_DIRTY();
-               });
+    new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_LABELS_SELECT, [=](Window* parent, coord_t x, coord_t y) {
+          new Choice(parent, {x, y, 0, 0}, STR_LABELS_SELECT_MODE, 0, 1,
+                    GET_DEFAULT(g_eeGeneral.labelSingleSelect),
+                    [=](int newValue) {
+                      g_eeGeneral.labelSingleSelect = newValue;
+                      modelslabels.clearFilter();
+                      SET_DIRTY();
+                    });
+        });
 
     // Label multi select matching mode
-    multiSelectMatch = body->newLine(grid);
-    new StaticText(multiSelectMatch, rect_t{}, STR_LABELS_MATCH);
-    new Choice(multiSelectMatch, rect_t{}, STR_LABELS_MATCH_MODE, 0, 1,
-               GET_SET_DEFAULT(g_eeGeneral.labelMultiMode));
+    multiSelectMatch = new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_LABELS_MATCH, [=](Window* parent, coord_t x, coord_t y) {
+          new Choice(parent, {x, y, 0, 0}, STR_LABELS_MATCH_MODE, 0, 1,
+                    GET_SET_DEFAULT(g_eeGeneral.labelMultiMode));
+        });
 
     // Favorites multi select matching mode
-    favSelectMatch = body->newLine(grid);
-    new StaticText(favSelectMatch, rect_t{}, STR_FAV_MATCH);
-    new Choice(favSelectMatch, rect_t{}, STR_FAV_MATCH_MODE, 0, 1,
-               GET_SET_DEFAULT(g_eeGeneral.favMultiMode));
+    favSelectMatch = new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_FAV_MATCH, [=](Window* parent, coord_t x, coord_t y) {
+          new Choice(parent, {x, y, 0, 0}, STR_FAV_MATCH_MODE, 0, 1,
+                    GET_SET_DEFAULT(g_eeGeneral.favMultiMode));
+        });
 
     checkEvents();
   }
 
   void checkEvents() override
   {
-    if (g_eeGeneral.labelSingleSelect) {
-      lv_obj_add_flag(multiSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-      lv_obj_add_flag(favSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    } else {
-      lv_obj_clear_flag(multiSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-      if (g_eeGeneral.labelMultiMode == 0)
-        lv_obj_add_flag(favSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-      else
-        lv_obj_clear_flag(favSelectMatch->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    }
+    multiSelectMatch->show(!g_eeGeneral.labelSingleSelect);
+    favSelectMatch->show(!g_eeGeneral.labelSingleSelect && (g_eeGeneral.labelMultiMode != 0));
   }
 
  protected:
@@ -914,22 +938,22 @@ void RadioSetupPage::build(Window* window)
 
   // Sub-pages
   w = new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, {
-    {STR_SOUND_LABEL, []() { new SoundPage(); }},
+    {STR_SOUND_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_SOUND_LABEL, soundPageSetupLines, DIM(soundPageSetupLines)); }},
 #if defined(VARIO)
-    {STR_VARIO, []() { new VarioPage(); }},
+    {STR_VARIO, []() { new SubPage(ICON_RADIO_SETUP, STR_VARIO, varioPageSetupLines, DIM(varioPageSetupLines)); }},
 #endif
 #if defined(HAPTIC)
-    {STR_HAPTIC_LABEL, []() { new HapticPage(); }},
+    {STR_HAPTIC_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_HAPTIC_LABEL, hapticPageSetupLines, DIM(hapticPageSetupLines)); }},
 #endif
-    {STR_ALARMS_LABEL, []() { new AlarmsPage(); }},
+    {STR_ALARMS_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_ALARMS_LABEL, alarmsPageSetupLines, DIM(alarmsPageSetupLines)); }},
     {STR_BACKLIGHT_LABEL, []() { new BacklightPage(); }},
-    {STR_GPS, []() { new GpsPage(); }},
-    {STR_ENABLED_FEATURES, []() { new ViewOptionsPage(); }},
+    {STR_GPS, []() { new SubPage(ICON_RADIO_SETUP, STR_GPS, gpsPageSetupLines, DIM(gpsPageSetupLines)); }},
+    {STR_ENABLED_FEATURES, []() { new SubPage(ICON_RADIO_SETUP, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
     {STR_MAIN_MENU_MANAGE_MODELS, []() { new ManageModelsSetupPage(); }},
   });
 
   for (size_t i = 0; i < DIM(setupLines); i += 1) {
     y += w->height() + padding;
-    w = new SetupLine(window, {0, y, LCD_W - padding * 2, 0}, setupLines[i].title, setupLines[i].createEdit, EDT_X);
+    w = new SetupLine(window, y, EDT_X, padding, setupLines[i].title, setupLines[i].createEdit);
   }
 }

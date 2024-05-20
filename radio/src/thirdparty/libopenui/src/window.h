@@ -250,7 +250,7 @@ struct SetupLineDef {
 class SetupLine : public Window
 {
  public:
-  SetupLine(Window* parent, const rect_t& rect, const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t col2);
+  SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit);
 
  protected:
 };
