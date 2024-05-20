@@ -406,8 +406,6 @@
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_3      // PA.03
   #define ADC_GPIO_PIN_POT1             LL_GPIO_PIN_2      // PC.02
   #define ADC_GPIO_PIN_POT2             LL_GPIO_PIN_0      // PC.00
-  #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_12  // ADC3_IN12
-  #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_10  // ADC3_IN10
 #else
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_0      // PA.00
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_1      // PA.01
@@ -415,11 +413,6 @@
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_2      // PA.02
   #define ADC_GPIO_PIN_POT1             LL_GPIO_PIN_0      // PC.00
   #define ADC_GPIO_PIN_POT2             LL_GPIO_PIN_1      // PC.01
-  #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_10  // ADC3_IN10
-  #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_11  // ADC3_IN11
-#endif
-  #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_7      // PF.07
-#if !defined(RADIO_T15)
   #define ADC_GPIO_PIN_POT3             LL_GPIO_PIN_2      // PC.02 //
   #define ADC_GPIO_PIN_SLIDER1          LL_GPIO_PIN_6      // PF.06
   #define ADC_GPIO_PIN_SLIDER2          LL_GPIO_PIN_3      // PC.03 //
@@ -428,6 +421,56 @@
   #define ADC_GPIO_PIN_EXT3             ADC_GPIO_PIN_STICK_RH
   #define ADC_GPIO_PIN_EXT4             ADC_GPIO_PIN_STICK_RV
 #endif
+  #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_7      // PF.07
+
+#if defined(RADIO_T15)
+  #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_1   // ADC3_IN1
+  #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_0   // ADC3_IN0
+  #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_3   // ADC3_IN3
+  #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_2   // ADC3_IN2
+  #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_12  // ADC3_IN12
+  #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_10  // ADC3_IN10
+  #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_5   // ADC3_IN5
+#else
+  #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_0   // ADC3_IN0
+  #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_1   // ADC3_IN1
+  #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_2   // ADC3_IN2
+  #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_3   // ADC3_IN3
+  #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_10  // ADC3_IN10
+  #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_11  // ADC3_IN11
+  #define ADC_CHANNEL_POT3              LL_ADC_CHANNEL_12  // ADC3_IN12
+  #define ADC_CHANNEL_SLIDER1           LL_ADC_CHANNEL_4   // ADC3_IN4
+  #define ADC_CHANNEL_SLIDER2           LL_ADC_CHANNEL_13  // ADC3_IN13
+  #define ADC_CHANNEL_EXT1              LL_ADC_CHANNEL_6   // ADC3_IN6
+  #define ADC_CHANNEL_EXT2              LL_ADC_CHANNEL_7   // ADC3_IN7
+  #define ADC_CHANNEL_EXT3              LL_ADC_CHANNEL_2   // ADC3_IN2: same as RH
+  #define ADC_CHANNEL_EXT4              LL_ADC_CHANNEL_3   // ADC3_IN3: same as RV
+  #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_5   // ADC3_IN5
+#endif
+
+  #define ADC_CHANNEL_RTC_BAT           LL_ADC_CHANNEL_VBAT // ADC1_IN18
+  #define ADC_MAIN                      ADC3
+  #define ADC_EXT                       ADC1
+  #define ADC_EXT_CHANNELS              { ADC_CHANNEL_RTC_BAT }
+  #define ADC_EXT_SAMPTIME              LL_ADC_SAMPLINGTIME_56CYCLES
+  #define ADC_SAMPTIME                  LL_ADC_SAMPLINGTIME_56CYCLES
+  #define ADC_DMA                       DMA2
+  #define ADC_DMA_CHANNEL               LL_DMA_CHANNEL_2
+  #define ADC_DMA_STREAM                LL_DMA_STREAM_0
+  #define ADC_DMA_STREAM_IRQ            DMA2_Stream0_IRQn
+  #define ADC_DMA_STREAM_IRQHandler     DMA2_Stream0_IRQHandler
+
+#if defined(RADIO_T15)
+  #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV)
+  #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2)
+  #define ADC_GPIOF_PINS                (ADC_GPIO_PIN_BATT)
+#else
+  #define ADC_GPIOA_PINS_FS             (LL_GPIO_PIN_2 | LL_GPIO_PIN_3)
+  #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV)
+  #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_POT3 | ADC_GPIO_PIN_SLIDER2)
+  #define ADC_GPIOF_PINS                (ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_BATT | ADC_GPIO_PIN_EXT1 | ADC_GPIO_PIN_EXT2)
+#endif
+
   #if !defined(RADIO_TX16S) && !defined(RADIO_T15)
     #define PWM_STICKS
     #define PWM_TIMER                   TIM5
@@ -441,49 +484,6 @@
     #define STICK_PWM_CHANNEL_RV          3
     #define STICK_PWM_CHANNEL_RH          2
   #endif
-#if defined(RADIO_T15)
-  #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_1   // ADC3_IN1
-  #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_0   // ADC3_IN0
-  #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_3   // ADC3_IN3
-  #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_2   // ADC3_IN2
-  #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_5   // ADC3_IN5
-#else
-  #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_0   // ADC3_IN0
-  #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_1   // ADC3_IN1
-  #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_2   // ADC3_IN2
-  #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_3   // ADC3_IN3
-  #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_5   // ADC3_IN5
-#endif
-#if !defined(RADIO_T15)
-  #define ADC_CHANNEL_POT3              LL_ADC_CHANNEL_12  // ADC3_IN12
-  #define ADC_CHANNEL_SLIDER1           LL_ADC_CHANNEL_4   // ADC3_IN4
-  #define ADC_CHANNEL_SLIDER2           LL_ADC_CHANNEL_13  // ADC3_IN13
-  #define ADC_CHANNEL_EXT1              LL_ADC_CHANNEL_6   // ADC3_IN6
-  #define ADC_CHANNEL_EXT2              LL_ADC_CHANNEL_7   // ADC3_IN7
-  #define ADC_CHANNEL_EXT3              LL_ADC_CHANNEL_2   // ADC3_IN2: same as RH
-  #define ADC_CHANNEL_EXT4              LL_ADC_CHANNEL_3   // ADC3_IN3: same as RV
-#endif
-#if defined(RADIO_T15)
-  #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV)
-  #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2)
-  #define ADC_GPIOF_PINS                (ADC_GPIO_PIN_BATT)
-#else
-  #define ADC_GPIOA_PINS_FS             (LL_GPIO_PIN_2 | LL_GPIO_PIN_3)
-  #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV)
-  #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_POT3 | ADC_GPIO_PIN_SLIDER2)
-  #define ADC_GPIOF_PINS                (ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_BATT | ADC_GPIO_PIN_EXT1 | ADC_GPIO_PIN_EXT2)
-#endif
-  #define ADC_CHANNEL_RTC_BAT           LL_ADC_CHANNEL_VBAT // ADC1_IN18
-  #define ADC_MAIN                      ADC3
-  #define ADC_EXT                       ADC1
-  #define ADC_EXT_CHANNELS              { ADC_CHANNEL_RTC_BAT }
-  #define ADC_EXT_SAMPTIME              LL_ADC_SAMPLINGTIME_56CYCLES
-  #define ADC_SAMPTIME                  LL_ADC_SAMPLINGTIME_56CYCLES
-  #define ADC_DMA                       DMA2
-  #define ADC_DMA_CHANNEL               LL_DMA_CHANNEL_2
-  #define ADC_DMA_STREAM                LL_DMA_STREAM_0
-  #define ADC_DMA_STREAM_IRQ            DMA2_Stream0_IRQn
-  #define ADC_DMA_STREAM_IRQHandler     DMA2_Stream0_IRQHandler
 
   // VBat divider is /4 on F42x and F43x devices
   #if defined(RADIO_TX16S) || defined(RADIO_T15)
