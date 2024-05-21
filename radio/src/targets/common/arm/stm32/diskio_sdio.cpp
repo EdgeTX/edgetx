@@ -156,7 +156,12 @@ static DSTATUS sdio_initialize(BYTE lun)
     return STA_NOINIT;
   }
 
-  HAL_SD_ConfigWideBusOperation(&sdio, SDIO_BUS_WIDE_4B);
+  halStatus = HAL_SD_ConfigWideBusOperation(&sdio, SDIO_BUS_WIDE_4B);
+  if (halStatus != HAL_OK) {
+    TRACE("HAL_SD_ConfigWideBusOperation() status=%d", halStatus);
+  } else {
+    TRACE("SD Bus width successfully set to 4 bits");
+  }
 
   TRACE("SD card info:");
   TRACE("type: %u", (uint32_t)(cardInfo.CardType));
