@@ -26,6 +26,7 @@
 
 #include "opentx_types.h"
 #include "dma2d.h"
+#include "board.h"
 #include "hal.h"
 #include "delays_driver.h"
 
@@ -56,12 +57,6 @@
 
 static LTDC_HandleTypeDef hltdc;
 static void* initialFrameBuffer = nullptr;
-
-typedef struct {
-  uint8_t pcbrev;
-} HardwareOptions;
-
-extern HardwareOptions hardwareOptions;
 
 #if defined(LCD_VERTICAL_INVERT)
 typedef uint16_t pixel_t;

@@ -19,32 +19,23 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+#include "videoswitch_driver.h"
 #include "hal.h"
-#include "stm32_gpio_driver.h"
 
 void videoSwitchInit()
 {
-  LL_GPIO_InitTypeDef gpioInit;
-  LL_GPIO_StructInit(&gpioInit);
-
-  stm32_gpio_enable_clock(VIDEO_SWITCH_GPIO);
-  
-  gpioInit.Mode = LL_GPIO_MODE_OUTPUT;
-  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  gpioInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  gpioInit.Pull = LL_GPIO_PULL_NO;
-
-  gpioInit.Pin = VIDEO_SWITCH_GPIO_PIN;
-  LL_GPIO_Init(VIDEO_SWITCH_GPIO, &gpioInit);
-  LL_GPIO_SetOutputPin(VIDEO_SWITCH_GPIO, VIDEO_SWITCH_GPIO_PIN);
+  gpio_init(VIDEO_SWITCH_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  switchToRadio();
 }
 
 void switchToVideo()
 {
-  LL_GPIO_ResetOutputPin(VIDEO_SWITCH_GPIO, VIDEO_SWITCH_GPIO_PIN);
+  gpio_clear(VIDEO_SWITCH_GPIO);
 }
 
 void switchToRadio()
 {
-  LL_GPIO_SetOutputPin(VIDEO_SWITCH_GPIO, VIDEO_SWITCH_GPIO_PIN);
+  gpio_set(VIDEO_SWITCH_GPIO);
 }

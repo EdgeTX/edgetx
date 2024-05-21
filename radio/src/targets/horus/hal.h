@@ -1080,8 +1080,7 @@
 
 // Video switch
 #if defined(RADIO_F16)
-#define VIDEO_SWITCH_GPIO               GPIOH
-#define VIDEO_SWITCH_GPIO_PIN           LL_GPIO_PIN_15 // PH.15
+  #define VIDEO_SWITCH_GPIO             GPIO_PIN(GPIOH, 15) // PH.15
 #endif
 
 // SDRAM
