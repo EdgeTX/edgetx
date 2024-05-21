@@ -146,13 +146,6 @@ PACK(struct LogicalSwitchData {
  * SpecialFunction structure
  */
 
-
-#if defined(PCBTARANIS)
-  #define CFN_SPARE_TYPE               int32_t
-#else
-  #define CFN_SPARE_TYPE               int16_t
-#endif
-
 PACK(struct CustomFunctionData {
   int16_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
   uint16_t func:6 ENUM(Functions); // TODO: 6 bits for Functions?
@@ -166,12 +159,12 @@ PACK(struct CustomFunctionData {
       int16_t val;
       uint8_t mode;
       uint8_t param;
-      NOBACKUP(CFN_SPARE_TYPE spare);
+      NOBACKUP(int32_t spare);
     }) all;
 
     NOBACKUP(PACK(struct {
       int32_t val1;
-      NOBACKUP(CFN_SPARE_TYPE val2);
+      NOBACKUP(int32_t val2);
     }) clear);
   }) NAME(fp) SKIP;
   uint8_t active : 1 SKIP;
