@@ -153,6 +153,7 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
   }
 #endif
 
+  bool videoEnabled = false;
   for (uint8_t i=0; i<MAX_SPECIAL_FUNCTIONS; i++) {
     const CustomFunctionData * cfn = &functions[i];
     swsrc_t swtch = CFN_SWITCH(cfn);
@@ -440,9 +441,7 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
 #if defined(VIDEO_SWITCH)
           case FUNC_LCD_TO_VIDEO:
             switchToVideo();
-            break;
-          case FUNC_LCD_TO_RADIO:
-            switchToRadio();
+            videoEnabled = true;
             break;
 #endif
 #if defined(DEBUG)
@@ -473,6 +472,11 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
       }
     }
   }
+
+#if defined(VIDEO_SWITCH)
+  if (!videoEnabled)
+    switchToRadio();
+#endif
 
   functionsContext.activeSwitches   = newActiveSwitches;
   functionsContext.activeFunctions  = newActiveFunctions;
@@ -555,8 +559,6 @@ const char* funcGetLabel(uint8_t func)
     return STR_SF_RGBLEDS;
   case FUNC_LCD_TO_VIDEO:
     return STR_SF_LCD_TO_VIDEO;
-  case FUNC_LCD_TO_RADIO:
-    return STR_SF_LCD_TO_RADIO;  
 #if defined(DEBUG)
   case FUNC_TEST:
     return STR_SF_TEST;
