@@ -435,7 +435,8 @@ NavWindow::NavWindow(Window *parent, const rect_t &rect,
   setWindowFlag(OPAQUE);
 }
 
-SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols, PaddingSize padding, PageDefs pages) :
+SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
+                                   PaddingSize padding, PageDefs pages, coord_t btnHeight) :
     Window(parent, rect)
 {
   padAll(padding);
@@ -443,7 +444,7 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
   coord_t buttonWidth = (width() - PAD_SMALL * (cols + 1) - PAD_TINY * 2) / cols;
 
   int rows = (pages.size() + cols - 1) / cols;
-  int height = rows * EdgeTxStyles::UI_ELEMENT_HEIGHT + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2;
+  int height = rows * btnHeight + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2;
   if (title) {
     height += EdgeTxStyles::PAGE_LINE_HEIGHT + PAD_TINY;
   }
@@ -465,19 +466,21 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
       xo += space;
     }
     x = xo + (n % cols) * xw;
-    y = yo + (n / cols) * (EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM);
+    y = yo + (n / cols) * (btnHeight + PAD_MEDIUM);
 
     // TODO: sort out all caps title strings VS quick menu strings
-    std::string title(entry.first);
+    std::string title(entry.title);
     for (std::string::iterator it = title.begin(); it != title.end(); ++it) {
       if (*it == '\n')
         *it = ' ';
     }
 
-    new TextButton(this, rect_t{x, y, buttonWidth, EdgeTxStyles::UI_ELEMENT_HEIGHT}, title, [&, entry]() {
-      entry.second();
+    auto btn = new TextButton(this, rect_t{x, y, buttonWidth, btnHeight}, title, [&, entry]() {
+      entry.createPage();
       return 0;
     });
+    btn->setWrap();
+    if (entry.isActive) btn->setCheckHandler([=]() { btn->check(entry.isActive()); });
     n += 1;
     remaining -= 1;
   }
@@ -508,4 +511,16 @@ SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize paddin
     new StaticText(this, {0, titleY, 0, titleH}, title, COLOR_THEME_PRIMARY1 | FONT(BOLD));
     setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2);
   }
+}
+
+coord_t SetupLine::showLines(Window* parent, coord_t y, coord_t col2, PaddingSize padding, SetupLineDef* setupLines, int lineCount)
+{
+  Window* w;
+
+  for (size_t i = 0; i < lineCount; i += 1) {
+    w = new SetupLine(parent, y, col2, padding, setupLines[i].title, setupLines[i].createEdit);
+    y += w->height() + padding;
+  }
+
+  return y;
 }

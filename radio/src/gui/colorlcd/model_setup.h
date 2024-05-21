@@ -24,10 +24,17 @@
 #include "tabsgroup.h"
 
 class ModelSetupPage: public PageTab {
-  public:
-    ModelSetupPage();
+ public:
+  ModelSetupPage();
 
-    void build(Window * window) override;
-  private:
-    TextButton *labelTextButton = nullptr;
+  void build(Window * window) override;
+
+  static LAYOUT_VAL(BTN_COLS, 3, 3)
+  static LAYOUT_VAL(BTN_H, 62, 62)
+  static LAYOUT_VAL(OPTS_W, 100, 100)
+  static LAYOUT_VAL(EDT_X, 220, 144)
+  static LAYOUT_VAL(NAM_W, 200, 140)
+
+ private:
+  TextButton *labelTextButton = nullptr;
 };

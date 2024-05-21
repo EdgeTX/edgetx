@@ -230,14 +230,23 @@ class NavWindow : public Window
   void onEvent(event_t event) override;
 };
 
+struct PageButtonDef {
+  const char* title;
+  std::function<void()> createPage;
+  std::function<bool()> isActive;
+
+  PageButtonDef(const char* title, std::function<void()> createPage, std::function<bool()> isActive = nullptr) :
+    title(title), createPage(std::move(createPage)), isActive(std::move(isActive))
+  {}
+};
+
 class SetupButtonGroup : public Window
 {
  public:
-  typedef std::function<void()> PageFct;
-  typedef std::pair<const char*, PageFct> PageDef;
-  typedef std::list<PageDef> PageDefs;
+  typedef std::list<PageButtonDef> PageDefs;
 
-  SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols, PaddingSize padding, PageDefs pages);
+  SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
+                   PaddingSize padding, PageDefs pages, coord_t btnHeight = EdgeTxStyles::UI_ELEMENT_HEIGHT);
 
  protected:
 };
@@ -251,6 +260,8 @@ class SetupLine : public Window
 {
  public:
   SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit);
+
+  static coord_t showLines(Window* parent, coord_t y, coord_t col2, PaddingSize padding, SetupLineDef* setupLines, int lineCount);
 
  protected:
 };

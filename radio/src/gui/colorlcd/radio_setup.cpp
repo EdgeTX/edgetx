@@ -186,30 +186,6 @@ class DateTimeWindow : public Window
   }
 };
 
-class SubPage : public Page
-{
- public:
-  SubPage(EdgeTxIcon icon, const char* title) : Page(icon, PAD_SMALL)
-  {
-    header->setTitle(STR_RADIO_SETUP);
-    header->setTitle2(title);
-  }
-
-  SubPage(EdgeTxIcon icon, const char* title, SetupLineDef* setupLines, int lineCount) : Page(icon, PAD_SMALL)
-  {
-    header->setTitle(STR_RADIO_SETUP);
-    header->setTitle2(title);
-
-    coord_t y = 0;
-    Window* w;
-
-    for (size_t i = 0; i < lineCount; i += 1) {
-      w = new SetupLine(body, y, RadioSetupPage::EDT_X, PAD_SMALL, setupLines[i].title, setupLines[i].createEdit);
-      y += w->height() + PAD_TINY;
-    }
-  }
-};
-
 static SetupLineDef soundPageSetupLines[] = {
   {
     // Beeps mode
@@ -428,7 +404,7 @@ static SetupLineDef alarmsPageSetupLines[] = {
 class BacklightPage : public SubPage
 {
  public:
-  BacklightPage() : SubPage(ICON_RADIO_SETUP, STR_BACKLIGHT_LABEL)
+  BacklightPage() : SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_BACKLIGHT_LABEL)
   {
     body->setFlexLayout();
 
@@ -594,7 +570,7 @@ static void viewOption(Window* parent, coord_t x, coord_t y,
     std::string s(STR_MODEL);
     s += " - ";
     s += STR_ADCFILTERVALUES[modelOption];
-    new StaticText(parent, {x + ToggleSwitch::TOGGLE_W + PAD_MEDIUM, y + PAD_SMALL, 0, 0}, s.c_str(), COLOR_THEME_SECONDARY1);
+    new StaticText(parent, {x + ToggleSwitch::TOGGLE_W + PAD_MEDIUM, y + PAD_SMALL + 1, 0, 0}, s.c_str(), COLOR_THEME_SECONDARY1);
   }
 }
 
@@ -706,7 +682,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
 class ManageModelsSetupPage : public SubPage
 {
  public:
-  ManageModelsSetupPage() : SubPage(ICON_MODEL, STR_MANAGE_MODELS)
+  ManageModelsSetupPage() : SubPage(ICON_MODEL, STR_RADIO_SETUP, STR_MANAGE_MODELS)
   {
     body->setFlexLayout();
 
@@ -933,27 +909,24 @@ void RadioSetupPage::build(Window* window)
 
   // Date & time picker including labels
   w = new DateTimeWindow(window, {0, y, LCD_W - padding * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_TINY * 2 + PAD_MEDIUM});
-
   y += w->height() + padding;
 
   // Sub-pages
   w = new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, {
-    {STR_SOUND_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_SOUND_LABEL, soundPageSetupLines, DIM(soundPageSetupLines)); }},
+    {STR_SOUND_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_SOUND_LABEL, soundPageSetupLines, DIM(soundPageSetupLines)); }},
 #if defined(VARIO)
-    {STR_VARIO, []() { new SubPage(ICON_RADIO_SETUP, STR_VARIO, varioPageSetupLines, DIM(varioPageSetupLines)); }},
+    {STR_VARIO, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_VARIO, varioPageSetupLines, DIM(varioPageSetupLines)); }},
 #endif
 #if defined(HAPTIC)
-    {STR_HAPTIC_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_HAPTIC_LABEL, hapticPageSetupLines, DIM(hapticPageSetupLines)); }},
+    {STR_HAPTIC_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_HAPTIC_LABEL, hapticPageSetupLines, DIM(hapticPageSetupLines)); }},
 #endif
-    {STR_ALARMS_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_ALARMS_LABEL, alarmsPageSetupLines, DIM(alarmsPageSetupLines)); }},
+    {STR_ALARMS_LABEL, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_ALARMS_LABEL, alarmsPageSetupLines, DIM(alarmsPageSetupLines)); }},
     {STR_BACKLIGHT_LABEL, []() { new BacklightPage(); }},
-    {STR_GPS, []() { new SubPage(ICON_RADIO_SETUP, STR_GPS, gpsPageSetupLines, DIM(gpsPageSetupLines)); }},
-    {STR_ENABLED_FEATURES, []() { new SubPage(ICON_RADIO_SETUP, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
+    {STR_GPS, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_GPS, gpsPageSetupLines, DIM(gpsPageSetupLines)); }},
+    {STR_ENABLED_FEATURES, []() { new SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
     {STR_MAIN_MENU_MANAGE_MODELS, []() { new ManageModelsSetupPage(); }},
-  });
+  }, BTN_H);
+  y += w->height() + padding;
 
-  for (size_t i = 0; i < DIM(setupLines); i += 1) {
-    y += w->height() + padding;
-    w = new SetupLine(window, y, EDT_X, padding, setupLines[i].title, setupLines[i].createEdit);
-  }
+  SetupLine::showLines(window, y, EDT_X, padding, setupLines, DIM(setupLines));
 }

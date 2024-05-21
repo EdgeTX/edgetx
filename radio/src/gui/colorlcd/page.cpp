@@ -93,3 +93,17 @@ void Page::checkEvents()
   ViewMain::instance()->runBackground();
   NavWindow::checkEvents();
 }
+
+SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle) : Page(icon, PAD_SMALL)
+{
+  header->setTitle(title);
+  header->setTitle2(subtitle);
+}
+
+SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, SetupLineDef* setupLines, int lineCount) : Page(icon, PAD_SMALL)
+{
+  header->setTitle(title);
+  header->setTitle2(subtitle);
+
+  SetupLine::showLines(body, 0, EDT_X, PAD_SMALL, setupLines, lineCount);
+}

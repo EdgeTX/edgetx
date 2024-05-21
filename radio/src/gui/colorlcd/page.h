@@ -65,3 +65,12 @@ class Page : public NavWindow
   void checkEvents() override;
   bool bubbleEvents() override { return false; }
 };
+
+class SubPage : public Page
+{
+ public:
+  SubPage(EdgeTxIcon icon, const char* title, const char* subtitle);
+  SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, SetupLineDef* setupLines, int lineCount);
+
+  static LAYOUT_VAL(EDT_X, 220, 144)
+};
