@@ -399,15 +399,12 @@
 
 // LCD
 #define LCD_RCC_AHB1Periph              LL_AHB1_GRP1_PERIPH_DMA2D
-#define LCD_RCC_APB1Periph              0
 #define LCD_RCC_APB2Periph              LL_APB2_GRP1_PERIPH_LTDC
-#define LCD_NRST_GPIO                   GPIOG
-#define LCD_NRST_GPIO_PIN               LL_GPIO_PIN_9  // PG.09
-#define LCD_SPI_GPIO                    GPIOE
-#define LCD_SPI_CS_GPIO_PIN             LL_GPIO_PIN_4  // PE.04
-#define LCD_SPI_SCK_GPIO_PIN            LL_GPIO_PIN_2  // PE.02
-#define LCD_SPI_MISO_GPIO_PIN           LL_GPIO_PIN_5  // PE.05
-#define LCD_SPI_MOSI_GPIO_PIN           LL_GPIO_PIN_6  // PE.06
+#define LCD_NRST_GPIO                   GPIO_PIN(GPIOG, 9) // PG.09
+#define LCD_SPI_CS_GPIO                 GPIO_PIN(GPIOE, 4)  // PE.04
+#define LCD_SPI_SCK_GPIO                GPIO_PIN(GPIOE, 2)  // PE.02
+#define LCD_SPI_MISO_GPIO               GPIO_PIN(GPIOE, 5)  // PE.05
+#define LCD_SPI_MOSI_GPIO               GPIO_PIN(GPIOE, 6)  // PE.06
 #define LTDC_IRQ_PRIO                   4
 #define DMA_SCREEN_IRQ_PRIO             6
 

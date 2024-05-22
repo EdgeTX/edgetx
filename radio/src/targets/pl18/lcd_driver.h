@@ -44,25 +44,20 @@ extern lcdSpiInitFucPtr lcdInitFunction;
 extern lcdSpiInitFucPtr lcdOffFunction;
 extern lcdSpiInitFucPtr lcdOnFunction;
 
-#define SET_IO_INPUT( PORT, PIN )            LL_GPIO_SetPinMode( PORT, PIN, LL_GPIO_MODE_INPUT )
-#define SET_IO_OUTPUT( PORT, PIN )           LL_GPIO_SetPinMode( PORT, PIN, LL_GPIO_MODE_OUTPUT )
+#define SET_LCD_NRST()                gpio_write(LCD_NRST_GPIO, 1)
+#define CLR_LCD_NRST()                gpio_write(LCD_NRST_GPIO, 0)
 
-#define LCD_NRST_HIGH()               LL_GPIO_SetOutputPin(LCD_NRST_GPIO, LCD_NRST_GPIO_PIN)
-#define LCD_NRST_LOW()                LL_GPIO_ResetOutputPin(LCD_NRST_GPIO, LCD_NRST_GPIO_PIN)
+#define SET_LCD_CS()                  gpio_write(LCD_SPI_CS_GPIO, 1)
+#define CLR_LCD_CS()                  gpio_write(LCD_SPI_CS_GPIO, 0)
 
-#define LCD_CS_HIGH()                 LL_GPIO_SetOutputPin(LCD_SPI_GPIO, LCD_SPI_CS_GPIO_PIN)
-#define LCD_CS_LOW()                  LL_GPIO_ResetOutputPin(LCD_SPI_GPIO, LCD_SPI_CS_GPIO_PIN)
+#define SET_LCD_CLK()                 gpio_write(LCD_SPI_SCK_GPIO, 1)
+#define CLR_LCD_CLK()                 gpio_write(LCD_SPI_SCK_GPIO, 0)
 
-#define LCD_SCK_HIGH()                LL_GPIO_SetOutputPin(LCD_SPI_GPIO, LCD_SPI_SCK_GPIO_PIN)
-#define LCD_SCK_LOW()                 LL_GPIO_ResetOutputPin(LCD_SPI_GPIO, LCD_SPI_SCK_GPIO_PIN)
-
-#define LCD_MOSI_HIGH()               LL_GPIO_SetOutputPin(LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN)
-#define LCD_MOSI_LOW()                LL_GPIO_ResetOutputPin(LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN)
-
-#define LCD_MOSI_AS_INPUT()           SET_IO_INPUT( LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN )
-#define LCD_MOSI_AS_OUTPUT()          SET_IO_OUTPUT( LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN )
-
-#define LCD_READ_DATA_PIN()           LL_GPIO_IsInputPinSet(LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN)
+#define SET_LCD_DATA()                gpio_write(LCD_SPI_MOSI_GPIO, 1)
+#define CLR_LCD_DATA()                gpio_write(LCD_SPI_MOSI_GPIO, 0)
+#define SET_LCD_DATA_INPUT()          gpio_init(LCD_SPI_MOSI_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW)
+#define SET_LCD_DATA_OUTPUT()         gpio_init(LCD_SPI_MOSI_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW)
+#define READ_LCD_DATA_PIN()           gpio_read(LCD_SPI_MOSI_GPIO)
 
 
 #if 1
