@@ -497,6 +497,11 @@ class LabelDialog : public ModalWindow
     });
   }
 
+  void onCancel() override
+  {
+    deleteLater();
+  }
+
  protected:
   std::function<void(std::string)> saveHandler;
   char label[LABEL_LENGTH + 1];
@@ -671,7 +676,7 @@ void ModelLabelsWindow::newModel()
 void ModelLabelsWindow::newLabel()
 {
   tmpLabel[0] = '\0';
-  new LabelDialog(parent, tmpLabel, [=](std::string label) {
+  new LabelDialog(this, tmpLabel, [=](std::string label) {
     int newlabindex = modelslabels.addLabel(label);
     if (newlabindex >= 0) {
       std::set<uint32_t> newset;
@@ -679,6 +684,8 @@ void ModelLabelsWindow::newLabel()
       auto labels = getLabels();
       lblselector->setNames(labels);
       lblselector->setSelected(newset);
+      if (g_eeGeneral.labelSingleSelect)
+        lblselector->setActiveItem(newlabindex);
       updateFilteredLabels(newset);
     }
   });
@@ -895,6 +902,8 @@ void ModelLabelsWindow::buildBody(Window *window)
                 std::set<uint32_t> newset;
                 lblselector->setNames(labels);
                 lblselector->setSelected(newset);
+                if (g_eeGeneral.labelSingleSelect && selected == lblselector->getActiveItem())
+                  lblselector->setActiveItem(-1);
                 updateFilteredLabels(newset);
               });
           return 0;
@@ -908,6 +917,8 @@ void ModelLabelsWindow::buildBody(Window *window)
               auto labels = getLabels();
               lblselector->setNames(labels);
               lblselector->setSelected(newset);
+              if (g_eeGeneral.labelSingleSelect)
+                lblselector->setActiveItem(selected - 1);
               updateFilteredLabels(newset);
               return 0;
             });
@@ -920,6 +931,8 @@ void ModelLabelsWindow::buildBody(Window *window)
               auto labels = getLabels();
               lblselector->setNames(labels);
               lblselector->setSelected(newset);
+              if (g_eeGeneral.labelSingleSelect)
+                lblselector->setActiveItem(selected + 1);
               updateFilteredLabels(newset);
               return 0;
             });
