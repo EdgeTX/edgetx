@@ -32,15 +32,8 @@
 
 void board_trainer_init()
 {
-#if defined(TRAINER_DETECT_GPIO_PIN)
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-
-  pinInit.Pin = TRAINER_DETECT_GPIO_PIN;
-  pinInit.Mode = LL_GPIO_MODE_INPUT;
-  pinInit.Pull = LL_GPIO_PULL_UP;
-  stm32_gpio_enable_clock(TRAINER_DETECT_GPIO);
-  LL_GPIO_Init(TRAINER_DETECT_GPIO, &pinInit);
+#if defined(TRAINER_DETECT_GPIO)
+  gpio_init(TRAINER_DETECT_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
 #endif  
 
   trainer_init();
@@ -105,14 +98,14 @@ void trainer_stop_dsc() {}
 
 bool is_trainer_dsc_connected()
 {
-#if defined(TRAINER_DETECT_GPIO_PIN)
-  bool set = LL_GPIO_IsInputPinSet(TRAINER_DETECT_GPIO, TRAINER_DETECT_GPIO_PIN);
+#if defined(TRAINER_DETECT_GPIO)
+  bool set = gpio_read(TRAINER_DETECT_GPIO);
 #if defined(TRAINER_DETECT_INVERTED)
   return !set;
 #else
   return set;
 #endif
-#else // TRAINER_DETECT_GPIO_PIN
+#else // TRAINER_DETECT_GPIO
   return true;
 #endif
 }

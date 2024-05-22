@@ -106,9 +106,9 @@ void toggleLatencySwitch()
 
 #if defined(PCBHORUS)
   if (latencyToggleSwitch)
-    GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+    gpio_clear(EXTMODULE_TX_GPIO);
   else
-    GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+    gpio_set(EXTMODULE_TX_GPIO);
 #else
   if (latencyToggleSwitch)
     sportUpdatePowerOn();
