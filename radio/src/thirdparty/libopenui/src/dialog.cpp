@@ -195,8 +195,7 @@ LabelDialog::LabelDialog(Window *parent, const char *label, int length, const ch
   lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_CENTER,
                         LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
 
-  auto edit = new TextEdit(box, rect_t{0, 0, LV_PCT(100), 0}, this->label,
-                           length);
+  new TextEdit(box, rect_t{0, 0, LV_PCT(100), 0}, this->label, length);
 
   box = new Window(form, rect_t{});
   box->padAll(PAD_MEDIUM);

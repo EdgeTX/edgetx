@@ -517,7 +517,7 @@ coord_t SetupLine::showLines(Window* parent, coord_t y, coord_t col2, PaddingSiz
 {
   Window* w;
 
-  for (size_t i = 0; i < lineCount; i += 1) {
+  for (int i = 0; i < lineCount; i += 1) {
     w = new SetupLine(parent, y, col2, padding, setupLines[i].title, setupLines[i].createEdit);
     y += w->height() + padding;
   }

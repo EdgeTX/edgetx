@@ -33,16 +33,17 @@ class ModelLabelsWindow : public Page
  public:
   ModelLabelsWindow();
 
-  static LAYOUT_VAL(BUTTONS_HEIGHT, 36, 36)
-  static LAYOUT_VAL(LABELS_WIDTH, 132, 0)
-  static LAYOUT_VAL(LABELS_HEIGHT, 0, 152)
-  static LAYOUT_VAL(LABELS_ROW, 0, 1)
-  static LAYOUT_VAL(MODELS_COL, 1, 0)
-  static LAYOUT_VAL(MODELS_ROW_CNT, 2, 1)
-  static LAYOUT_VAL(BUTTONS_ROW, 1, 2)
   static LAYOUT_VAL(NEW_BTN_W, 60, 60)
-  static LAYOUT_VAL(LAYOUT_BTN_XO, 105, 105)
+  static constexpr coord_t LAYOUT_BTN_XO = NEW_BTN_W + PAD_LARGE * 2 + EdgeTxStyles::UI_ELEMENT_HEIGHT;
   static LAYOUT_VAL(LAYOUT_BTN_YO, 6, 6)
+  static LAYOUT_VAL(MDLS_X, 137, 4)
+  static LAYOUT_VAL(MDLS_Y, 4, 4)
+  static LAYOUT_VAL(MDLS_W, 343, LCD_W - PAD_MEDIUM)
+  static LAYOUT_VAL(MDLS_H, 219, 219)
+  static LAYOUT_VAL(LABELS_Y, PAD_SMALL, MDLS_Y + MDLS_H + PAD_SMALL)
+  static LAYOUT_VAL(LABELS_WIDTH, 131, LCD_W - PAD_SMALL * 2)
+  static LAYOUT_VAL(LABELS_HEIGHT, 181, 166)
+  static LAYOUT_VAL(SORT_BUTTON_W, LABELS_WIDTH, 120)
 
  protected:
   ModelsSortBy sort = DEFAULT_MODEL_SORT;

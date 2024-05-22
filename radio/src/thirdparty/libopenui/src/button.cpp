@@ -115,9 +115,9 @@ TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,
   lv_obj_center(label);
 }
 
-IconButton::IconButton(Window* parent, EdgeTxIcon icon,
+IconButton::IconButton(Window* parent, EdgeTxIcon icon, coord_t x, coord_t y,
                        std::function<uint8_t(void)> pressHandler) :
-    ButtonBase(parent, {0, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT, EdgeTxStyles::UI_ELEMENT_HEIGHT}, pressHandler, button_create)
+    ButtonBase(parent, {x, y, EdgeTxStyles::UI_ELEMENT_HEIGHT, EdgeTxStyles::UI_ELEMENT_HEIGHT}, pressHandler, button_create)
 {
   padAll(PAD_ZERO);
   iconImage = new StaticIcon(this, 0, 0, icon, COLOR_THEME_SECONDARY1);

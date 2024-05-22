@@ -39,6 +39,7 @@ struct ModelButtonLayout {
   uint16_t padding;
   bool hasImage;
   uint16_t font;
+  uint16_t columns;
 };
 
 static LAYOUT_VAL(L0_W, 165, 147)
@@ -46,13 +47,12 @@ static LAYOUT_VAL(L0_H, 92, 92)
 static LAYOUT_VAL(L1_W, 108, 96)
 static LAYOUT_VAL(L1_H, 61, 61)
 static LAYOUT_VAL(L3_W, 336, 300)
-static LAYOUT_VAL(MODEL_CELL_PADDING, 4, 4)
 
 ModelButtonLayout modelLayouts[] = {
-    {L0_W, L0_H, MODEL_CELL_PADDING, true, FONT(STD)},
-    {L1_W, L1_H, MODEL_CELL_PADDING, true, FONT(XS)},
-    {L0_W, EdgeTxStyles::UI_ELEMENT_HEIGHT, MODEL_CELL_PADDING, false, FONT(STD)},
-    {L3_W, EdgeTxStyles::UI_ELEMENT_HEIGHT, MODEL_CELL_PADDING, false, FONT(STD)},
+    {L0_W, L0_H, PAD_SMALL, true, FONT(STD), 2},
+    {L1_W, L1_H, PAD_SMALL, true, FONT(XS), 3},
+    {L0_W, EdgeTxStyles::UI_ELEMENT_HEIGHT, PAD_SMALL, false, FONT(STD), 2},
+    {L3_W, EdgeTxStyles::UI_ELEMENT_HEIGHT, PAD_SMALL, false, FONT(STD), 1},
 };
 
 class ModelButton : public Button
@@ -68,8 +68,6 @@ class ModelButton : public Button
     padAll(PAD_ZERO);
 
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
-    setWidth(modelLayouts[layout].width);
-    setHeight(modelLayouts[layout].height);
 
     check(modelCell == modelslist.getCurrentModel());
 
@@ -169,16 +167,11 @@ class ModelsPageBody : public Window
   ModelsPageBody(Window *parent, const rect_t &rect) : Window(parent, rect)
   {
     padAll(PAD_TINY);
-    padLeft(PAD_MEDIUM);
   }
 
   void update()
   {
     clear();
-
-    setFlexLayout(LV_FLEX_FLOW_ROW_WRAP,
-                  modelLayouts[g_eeGeneral.modelSelectLayout].padding);
-    padRow(modelLayouts[g_eeGeneral.modelSelectLayout].padding);
 
     ModelsVector models;
     if (selectedLabels.size()) {
@@ -195,9 +188,18 @@ class ModelsPageBody : public Window
     ModelButton *firstButton = nullptr;
     ModelButton *focusedButton = nullptr;
 
+    int n = 0;
+    int cols = modelLayouts[g_eeGeneral.modelSelectLayout].columns;
+    coord_t w = modelLayouts[g_eeGeneral.modelSelectLayout].width;
+    coord_t h = modelLayouts[g_eeGeneral.modelSelectLayout].height;
+
     for (auto &model : models) {
+      coord_t x = (n % cols) * (w + PAD_TINY);
+      coord_t y = (n / cols) * (h + PAD_TINY);
+      n += 1;
+
       auto button = new ModelButton(
-          this, rect_t{}, model, [=]() { focusedModel = model; },
+          this, {x, y, w, h}, model, [=]() { focusedModel = model; },
           g_eeGeneral.modelSelectLayout);
 
       if (!firstButton) firstButton = button;
@@ -434,9 +436,9 @@ class ModelsPageBody : public Window
 class ModelLayoutButton : public IconButton
 {
  public:
-  ModelLayoutButton(Window *parent, uint8_t layout,
+  ModelLayoutButton(Window *parent, coord_t x, coord_t y, uint8_t layout,
                     std::function<uint8_t(void)> pressHandler) :
-      IconButton(parent, (EdgeTxIcon)(ICON_MODEL_GRID_LARGE + layout),
+      IconButton(parent, (EdgeTxIcon)(ICON_MODEL_GRID_LARGE + layout), x, y,
                  pressHandler),
       layout(layout)
   {
@@ -448,7 +450,6 @@ class ModelLayoutButton : public IconButton
   {
     layout = newLayout;
     setIcon((EdgeTxIcon)(ICON_MODEL_GRID_LARGE + layout));
-    // invalidate();
   }
 
  protected:
@@ -619,7 +620,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
   setTitle();
 
   // new model button
-  auto btn = new TextButton(hdr, rect_t{0, 0, NEW_BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_NEW, [=]() {
+  new TextButton(hdr, {LCD_W - NEW_BTN_W - PAD_LARGE, LAYOUT_BTN_YO, NEW_BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_NEW, [=]() {
     auto menu = new Menu(this);
     menu->setTitle(STR_CREATE_NEW);
     menu->addLine(STR_NEW_MODEL, [=]() { newModel(); });
@@ -627,13 +628,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
     return 0;
   });
 
-  btn->padAll(PAD_SMALL);
-
-  // button placement
-  hdr->padRight(lv_dpx(8));
-  lv_obj_align(btn->getLvObj(), LV_ALIGN_RIGHT_MID, 0, 0);
-
-  mdlLayout = new ModelLayoutButton(this, g_eeGeneral.modelSelectLayout, [=]() {
+  mdlLayout = new ModelLayoutButton(this, LCD_W - LAYOUT_BTN_XO, LAYOUT_BTN_YO, g_eeGeneral.modelSelectLayout, [=]() {
     uint8_t l = mdlLayout->getLayout();
     l = (l + 1) & 3;
     mdlLayout->setLayout(l);
@@ -642,71 +637,36 @@ void ModelLabelsWindow::buildHead(Window *hdr)
     mdlselector->update();
     return 0;
   });
-  lv_obj_set_pos(mdlLayout->getLvObj(), LCD_W - LAYOUT_BTN_XO, LAYOUT_BTN_YO);
 }
-
-#if !PORTRAIT_LCD
-static const lv_coord_t col_dsc[] = {ModelLabelsWindow::LABELS_WIDTH, LV_GRID_FR(1),
-                                     LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), ModelLabelsWindow::BUTTONS_HEIGHT,
-                                     LV_GRID_TEMPLATE_LAST};
-#else
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), ModelLabelsWindow::LABELS_HEIGHT,
-                                     ModelLabelsWindow::BUTTONS_HEIGHT, LV_GRID_TEMPLATE_LAST};
-#endif
 
 void ModelLabelsWindow::buildBody(Window *window)
 {
-  window->padTop(6);
-  window->padBottom(6);
-
-  lv_obj_set_grid_dsc_array(window->getLvObj(), col_dsc, row_dsc);
-
   // Models List
-  mdlselector = new ModelsPageBody(window, rect_t{});
+  mdlselector = new ModelsPageBody(window, {MDLS_X, MDLS_Y, MDLS_W, MDLS_H});
   mdlselector->setLblRefreshFunc([=]() { labelRefreshRequest(); });
   auto mdl_obj = mdlselector->getLvObj();
-  lv_obj_set_grid_cell(mdl_obj, LV_GRID_ALIGN_STRETCH, MODELS_COL, 1,
-                       LV_GRID_ALIGN_STRETCH, 0, MODELS_ROW_CNT);
+  lv_obj_set_style_max_width(mdl_obj, MDLS_W, LV_PART_MAIN);
+  lv_obj_set_style_max_height(mdl_obj, MDLS_H, LV_PART_MAIN);
+  etx_scrollbar(mdl_obj);
 
   if (mdlselector->getSortOrder() == NO_SORT)
     mdlselector->setSortOrder(NAME_ASC);
 
   // Labels
-  auto box = new Window(window, rect_t{});
-  box->padAll(PAD_ZERO);
-  box->padLeft(6);
-#if PORTRAIT_LCD
-  box->padRight(6);
-  box->padTop(6);
-  box->padBottom(6);
-#endif
-  lv_obj_set_grid_cell(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1,
-                       LV_GRID_ALIGN_STRETCH, LABELS_ROW, 1);
   lblselector =
-      new ListBox(box, rect_t{0, 0, LV_PCT(100), LV_PCT(100)}, getLabels());
+      new ListBox(window, rect_t{PAD_SMALL, LABELS_Y, LABELS_WIDTH, LABELS_HEIGHT}, getLabels());
   lblselector->setSmallSelectMarker();
   auto lbl_obj = lblselector->getLvObj();
+  etx_scrollbar(lbl_obj);
+
+  lblselector->setColumnWidth(0, LABELS_WIDTH);
 
   // Sort Button
-  box = new Window(window, rect_t{});
-  box->padAll(PAD_TINY);
-  box->padLeft(6);
-  box->padRight(6);
-  lv_obj_set_grid_cell(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 1,
-                       LV_GRID_ALIGN_STRETCH, BUTTONS_ROW, 1);
   new Choice(
-      box, {}, STR_SORT_ORDERS, NAME_ASC, DATE_DES,
+      window, {PAD_SMALL, LABELS_Y + LABELS_HEIGHT + PAD_SMALL, SORT_BUTTON_W, 0}, STR_SORT_ORDERS, NAME_ASC, DATE_DES,
       [=]() { return mdlselector->getSortOrder(); },
       [=](int newValue) { mdlselector->setSortOrder((ModelsSortBy)newValue); },
       STR_SORT_MODELS_BY);
-
-  lv_obj_update_layout(mdl_obj);
-  lblselector->setColumnWidth(0, lv_obj_get_content_width(lbl_obj));
-
-  etx_scrollbar(lbl_obj);
-  etx_scrollbar(mdl_obj);
 
   std::set<uint32_t> filteredLabels = modelslabels.filteredLabels();
 
