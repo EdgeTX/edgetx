@@ -72,7 +72,7 @@ void lcdOff() {
   backlightEnable(0);
 }
 
-void lcdOn(){
+void lcdOn() {
   if(lcdOnFunction) lcdOnFunction();
   else lcdInit();
   backlightEnable(BACKLIGHT_LEVEL_MAX);

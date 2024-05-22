@@ -88,7 +88,7 @@ void ledStripOff()
 void boardBootloaderInit()
 {
   // USB charger status pins
-  gpio_init(UCHARGER_GPIO, GPIO_IN, 0);
+  gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
 }
 
 void boardInit()

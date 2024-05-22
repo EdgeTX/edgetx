@@ -266,13 +266,11 @@ void battery_charge_init()
   gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
   gpio_init(UCHARGER_CHARGE_END_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
 
-
-
 #if defined(WIRELESS_CHARGER)
   // Wireless charger status pins
   gpio_init(WCHARGER_CHARGE_END_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
-
 #endif
+
 
   // Output pins
 
@@ -296,7 +294,6 @@ void battery_charge_init()
   wCharger.hasCharger = !IS_WCHARGER_ACTIVE();  // Init for sampling count works
   wCharger.isChargerDetectionReady = false;
   resetChargeEndDetection(&wCharger);
-
 #endif
 }
 
