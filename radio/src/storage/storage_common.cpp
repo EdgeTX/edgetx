@@ -201,30 +201,38 @@ if(g_model.rssiSource) {
 }
 
 #if defined(PXX2)
+  bool changed = false;
+
   if (is_memclear(g_model.modelRegistrationID, PXX2_LEN_REGISTRATION_ID)) {
-    memcpy(g_model.modelRegistrationID, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
+    if (!is_memclear(g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID)) {
+      memcpy(g_model.modelRegistrationID, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
+      changed = true;
+    }
   }
 
   // fix colorLCD radios not writing yaml tag receivers
   if(isModulePXX2(INTERNAL_MODULE)) {
     ModuleData *intModule = &g_model.moduleData[INTERNAL_MODULE];
-
+    unsigned int oldVal = intModule->pxx2.receivers;
     for(uint8_t receiverIdx = 0; receiverIdx < 3; receiverIdx++) {
       if(intModule->pxx2.receiverName[receiverIdx][0])
         intModule->pxx2.receivers |= (1 << receiverIdx);
     }
+    if (oldVal != intModule->pxx2.receivers) changed = true;
   }
 
   if(isModulePXX2(EXTERNAL_MODULE)) {
     ModuleData *extModule = &g_model.moduleData[EXTERNAL_MODULE];
-
+    unsigned int oldVal = extModule->pxx2.receivers;
     for(uint8_t receiverIdx = 0; receiverIdx < 3; receiverIdx++) {
       if(extModule->pxx2.receiverName[receiverIdx][0])
         extModule->pxx2.receivers |= (1 << receiverIdx);
     }
+    if (oldVal != extModule->pxx2.receivers) changed = true;
   }
 
-  storageDirty(EE_MODEL);
+  if (changed)
+    storageDirty(EE_MODEL);
 #endif
 
 #if defined(MULTIMODULE) && defined(MULTI_PROTOLIST)
