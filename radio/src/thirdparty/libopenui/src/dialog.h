@@ -138,6 +138,8 @@ class LabelDialog : public ModalWindow
 
   static constexpr int MAX_LABEL_LENGTH = 255;
 
+  void onCancel() override { deleteLater(); }
+
  protected:
   std::function<void(std::string)> saveHandler;
   char label[MAX_LABEL_LENGTH + 1];
