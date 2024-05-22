@@ -709,6 +709,8 @@ void ModelLabelsWindow::newLabel()
       auto labels = getLabels();
       lblselector->setNames(labels);
       lblselector->setSelected(newset);
+      if (g_eeGeneral.labelSingleSelect)
+        lblselector->setActiveItem(newlabindex);
       updateFilteredLabels(newset);
     }
   });
@@ -927,6 +929,8 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
                 std::set<uint32_t> newset;
                 lblselector->setNames(labels);
                 lblselector->setSelected(newset);
+                if (g_eeGeneral.labelSingleSelect && selected == lblselector->getActiveItem())
+                  lblselector->setActiveItem(-1);
                 updateFilteredLabels(newset);
               });
           return 0;
@@ -940,6 +944,8 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
               auto labels = getLabels();
               lblselector->setNames(labels);
               lblselector->setSelected(newset);
+              if (g_eeGeneral.labelSingleSelect)
+                lblselector->setActiveItem(selected - 1);
               updateFilteredLabels(newset);
               return 0;
             });
@@ -952,6 +958,8 @@ void ModelLabelsWindow::buildBody(FormWindow *window)
               auto labels = getLabels();
               lblselector->setNames(labels);
               lblselector->setSelected(newset);
+              if (g_eeGeneral.labelSingleSelect)
+                lblselector->setActiveItem(selected + 1);
               updateFilteredLabels(newset);
               return 0;
             });
