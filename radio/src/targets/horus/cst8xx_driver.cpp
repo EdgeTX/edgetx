@@ -38,25 +38,12 @@ volatile static bool touchEventOccured;
 
 #define TOUCH_CST836U_I2C_ADDRESS         (0x15)
 
-enum TouchControllers {TC_NONE, TC_CST836U};
-TouchControllers touchController = TC_NONE;
-
 static tc_handle_TypeDef tc_handle = {0, 0};
 
 tmr10ms_t downTime = 0;
 tmr10ms_t tapTime = 0;
 short tapCount = 0;
 #define TAP_TIME 250 //ms
-
-struct TouchControllerDescriptor
-{
-  void (*read)(uint16_t * X, uint16_t * Y, uint32_t * event);
-  uint8_t (*detectTouch)();
-  void (*printDebugInfo)();
-  uint32_t contactEvent;
-};
-
-static const TouchControllerDescriptor *tc = nullptr;
 
 static TouchState internalTouchState = {};
 
@@ -70,7 +57,7 @@ static void TOUCH_AF_ExtiStop(void)
   stm32_exti_disable(TOUCH_INT_EXTI_Line);
 }
 
-static void TOUCH_AF_ExtiConfig(void)
+static void TouchAFExtiConfig(void)
 {
   __HAL_RCC_SYSCFG_CLK_ENABLE();
   LL_SYSCFG_SetEXTISource(TOUCH_INT_EXTI_Port, TOUCH_INT_EXTI_SysCfgLine);
@@ -80,7 +67,7 @@ static void TOUCH_AF_ExtiConfig(void)
 		    _cst836u_exti_isr);
 }
 
-static void TOUCH_AF_GPIOConfig(void)
+static void TouchAFGPIOConfig(void)
 {
   LL_GPIO_InitTypeDef gpioInit;
   LL_GPIO_StructInit(&gpioInit);
@@ -105,7 +92,7 @@ static void TOUCH_AF_GPIOConfig(void)
   LL_GPIO_SetOutputPin(TOUCH_INT_GPIO, TOUCH_INT_GPIO_PIN);
 }
 
-void I2C_Init_Radio(void)
+void initTouchI2C(void)
 {
   TRACE("CST836U I2C Init");
 
@@ -115,42 +102,28 @@ void I2C_Init_Radio(void)
   }
 }
 
-// void Touch_DeInit()
-// {
-//   I2C_DeInit(I2C_B1);
-//   __HAL_RCC_I2C1_FORCE_RESET();
-//   delay_ms(150);
-//   __HAL_RCC_I2C1_RELEASE_RESET();
-// }
-
 #define I2C_TIMEOUT_MAX 5 // 5 ms
 
 bool touch_i2c_read(uint8_t addr, uint8_t reg, uint8_t * data, uint8_t len)
 {
-  if(touchController == TC_CST836U)
-  {
-    if(stm32_i2c_master_tx(TOUCH_I2C_BUS, addr, &reg, 1, 3) < 0)
-      return false;
-    delay_us(5);
-    if(stm32_i2c_master_rx(TOUCH_I2C_BUS, addr, data, len, I2C_TIMEOUT_MAX) < 0)
-      return false;
-  } else {
-    if (stm32_i2c_read(TOUCH_I2C_BUS, addr, reg, 1, data, len, I2C_TIMEOUT_MAX) < 0)
-      return false;
-  }
+  if(stm32_i2c_master_tx(TOUCH_I2C_BUS, addr, &reg, 1, 3) < 0)
+    return false;
+  delay_us(5);
+  if(stm32_i2c_master_rx(TOUCH_I2C_BUS, addr, data, len, I2C_TIMEOUT_MAX) < 0)
+    return false;
 
   return true;
 }
 
 static uint8_t TS_IO_Read(uint8_t addr, uint8_t reg)
 {
-  uint8_t retult;
+  uint8_t result;
   uint8_t tryCount = 3;
-  while (!touch_i2c_read(addr, reg, &retult, 1)) {
+  while (!touch_i2c_read(addr, reg, &result, 1)) {
     if (--tryCount == 0) break;
-    I2C_Init_Radio();
+    initTouchI2C();
   }
-  return retult;
+  return result;
 }
 
 static uint16_t TS_IO_ReadMultiple(uint8_t addr, uint8_t reg, uint8_t * buffer, uint16_t length)
@@ -158,7 +131,7 @@ static uint16_t TS_IO_ReadMultiple(uint8_t addr, uint8_t reg, uint8_t * buffer, 
   uint8_t tryCount = 3;
   while (!touch_i2c_read(addr, reg, buffer, length)) {
     if (--tryCount == 0) break;
-    I2C_Init_Radio();
+    initTouchI2C();
   }
   return 1;
 }
@@ -247,32 +220,13 @@ void TouchReset()
   delay_ms(300);
 }
 
-static const TouchControllerDescriptor CST836U =
-{
-    .read = cst836u_TS_GetXY,
-    .detectTouch = cst836u_TS_DetectTouch,
-    .printDebugInfo = touch_cst836u_debug_info,
-    .contactEvent = CST836U_TOUCH_EVT_FLAG_CONTACT
-};
-
-void detectTouchController()
-{
-  if( stm32_i2c_is_dev_ready(TOUCH_I2C_BUS, TOUCH_CST836U_I2C_ADDRESS, 3, 5) == 0)
-  {
-    touchController = TC_CST836U;
-    tc = &CST836U;
-  }
-}
-
 void touchPanelInit(void)
 {
-  TOUCH_AF_GPIOConfig();
-  I2C_Init_Radio();
+  TouchAFGPIOConfig();
+  initTouchI2C();
   TouchReset();
-  detectTouchController();
-  TOUCH_AF_ExtiConfig();
-
-  tc->printDebugInfo();
+  TouchAFExtiConfig();
+  touch_cst836u_debug_info();
 }
 
 void handleTouch()
@@ -280,9 +234,9 @@ void handleTouch()
   unsigned short touchX;
   unsigned short touchY;
   uint32_t tEvent = 0;
-  tc->read(&touchX, &touchY, &tEvent);
+  cst836u_TS_GetXY(&touchX, &touchY, &tEvent);
 
-  if (tEvent == tc->contactEvent) {
+  if (tEvent == CST836U_TOUCH_EVT_FLAG_CONTACT) {
     int dx = touchX - internalTouchState.x;
     int dy = touchY - internalTouchState.y;
 
@@ -328,7 +282,7 @@ TouchState touchPanelRead()
   tmr10ms_t now = RTOS_GET_MS();
   internalTouchState.tapCount = 0;
 
-  if (tc->detectTouch()) {
+  if (cst836u_TS_DetectTouch()) {
     handleTouch();
     if (internalTouchState.event == TE_DOWN && downTime == 0) {
       downTime = now;
