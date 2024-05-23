@@ -30,8 +30,6 @@ class RadioSetupPage: public PageTab {
   void build(Window * window) override;
 
   static LAYOUT_VAL(NUM_W, 80, 80)
-  static LAYOUT_VAL(EDT_X, 220, 144)
-  static constexpr coord_t LBL_W = EDT_X - PAD_TINY - PAD_SMALL;
   static LAYOUT_VAL(BTN_COLS, 3, 2)
   static LAYOUT_VAL(BTN_H, 62, 62)
 };

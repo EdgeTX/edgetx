@@ -32,7 +32,6 @@ class ModelSetupPage: public PageTab {
   static LAYOUT_VAL(BTN_COLS, 3, 3)
   static LAYOUT_VAL(BTN_H, 62, 62)
   static LAYOUT_VAL(OPTS_W, 100, 100)
-  static LAYOUT_VAL(EDT_X, 220, 144)
   static LAYOUT_VAL(NAM_W, 200, 140)
 
  private:

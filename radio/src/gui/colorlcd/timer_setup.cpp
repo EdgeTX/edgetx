@@ -27,128 +27,93 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                          LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
-                                          LV_GRID_TEMPLATE_LAST};
-
-static std::function<void(uint32_t)> timerValueUpdater(uint8_t timer)
+TimerWindow::TimerWindow(uint8_t timer) :
+  SubPage(ICON_STATS_TIMERS, STR_MENU_MODEL_SETUP, (std::string(STR_TIMER) + std::to_string(timer + 1)).c_str())
 {
-  return [=](uint32_t value) {
-    TimerData* p_timer = &g_model.timers[timer];
-    p_timer->start = value;
-    timerSet(timer, value);
-    SET_DIRTY();
-  };
-}
-
-static void timer_start_changed(lv_event_t* e)
-{
-  lv_obj_t* target = lv_event_get_target(e);
-  auto obj = (lv_obj_t*)lv_event_get_user_data(e);
-  auto val = (TimeEdit*)lv_obj_get_user_data(target);
-
-  if (!obj || !val) return;
-
-  if (val->getValue() > 0) {
-    lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN);
-  } else {
-    lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
-  }
-}
-
-TimerWindow::TimerWindow(uint8_t timer) : Page(ICON_STATS_TIMERS)
-{
-  std::string title2 = std::string(STR_TIMER) + std::to_string(timer + 1);
-  header->setTitle(STR_MENU_MODEL_SETUP);
-  header->setTitle2(title2);
-
   body->setFlexLayout();
-
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
 
   TimerData* p_timer = &g_model.timers[timer];
 
   // Timer name
-  auto line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_NAME);
-  new ModelTextEdit(line, rect_t{}, p_timer->name, LEN_TIMER_NAME);
+  setupLine(STR_NAME,
+    [=](Window* parent, coord_t x, coord_t y) {
+      new ModelTextEdit(parent, {x, y, 0, 0}, p_timer->name, LEN_TIMER_NAME);
+    });
 
   // Timer mode
-  line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_MODE);
-  new Choice(line, rect_t{}, STR_TIMER_MODES, 0, TMRMODE_MAX,
-             GET_SET_DEFAULT(p_timer->mode));
+  setupLine(STR_MODE,
+    [=](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, 0}, STR_TIMER_MODES, 0, TMRMODE_MAX,
+                GET_SET_DEFAULT(p_timer->mode));
+    });
 
   // Timer switch
-  line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_SWITCH);
-  new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
-                   GET_SET_DEFAULT(p_timer->swtch));
+  setupLine(STR_SWITCH,
+    [=](Window* parent, coord_t x, coord_t y) {
+      new SwitchChoice(parent, rect_t{x, y, 0, 0}, SWSRC_FIRST, SWSRC_LAST,
+                       GET_SET_DEFAULT(p_timer->swtch));
+    });
 
   // Timer start value
-  line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_START);
-  auto timerValue =
-      new TimeEdit(line, rect_t{}, 0, TIMER_MAX,
-                   GET_DEFAULT(p_timer->start), timerValueUpdater(timer));
-  timerValue->setAccelFactor(16);
+  setupLine(STR_START,
+    [=](Window* parent, coord_t x, coord_t y) {
+      auto timerValue = new TimeEdit(parent, {x, y, 0, 0}, 0, TIMER_MAX,
+                                GET_DEFAULT(p_timer->start), [=](int newValue) {
+                                  p_timer->start = newValue;
+                                  timerSet(timer, newValue);
+                                  timerDirLine->show(newValue > 0);
+                                  SET_DIRTY();
+                                });
+      timerValue->setAccelFactor(16);
+    });
 
   // Timer direction
-  auto timerDirLine = body->newLine(grid);
-  new StaticText(timerDirLine, rect_t{}, STR_LIMITS_HEADERS_DIRECTION);
-  new Choice(timerDirLine, rect_t{}, STR_TIMER_DIR, 0, 1,
-             GET_SET_DEFAULT(p_timer->showElapsed));
-
-  if (timerValue->getValue() == 0) {
-    timerDirLine->hide();
-  }
+  timerDirLine = setupLine(STR_LIMITS_HEADERS_DIRECTION,
+    [=](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, 0}, STR_TIMER_DIR, 0, 1,
+                 GET_SET_DEFAULT(p_timer->showElapsed));
+    });
+  timerDirLine->show(p_timer->start> 0);
 
   // Timer minute beep
-  line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_MINUTEBEEP);
-  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(p_timer->minuteBeep));
+  setupLine(STR_MINUTEBEEP,
+    [=](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(p_timer->minuteBeep));
+    });
 
   // Timer countdown
-  line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_BEEPCOUNTDOWN);
+  setupLine(STR_BEEPCOUNTDOWN,
+    [=](Window* parent, coord_t x, coord_t y) {
+      new Choice(
+          parent, rect_t{x, y, COUNTDOWN_W, 0}, STR_VBEEPCOUNTDOWN, COUNTDOWN_SILENT, COUNTDOWN_COUNT - 1,
+          [=]() -> int {
+            int value = p_timer->countdownBeep;
+            if (p_timer->extraHaptic) {
+              value += (COUNTDOWN_NON_HAPTIC_LAST + 1);
+            }
+            return (value);
+          },
+          [=](int value) {
+            if (value > COUNTDOWN_NON_HAPTIC_LAST + 1) {
+              p_timer->extraHaptic = 1;
+              p_timer->countdownBeep = value - (COUNTDOWN_NON_HAPTIC_LAST + 1);
+            } else {
+              p_timer->extraHaptic = 0;
+              p_timer->countdownBeep = value;
+            }
+            SET_DIRTY();
+            TRACE("value=%d\tcountdownBeep = %d\textraHaptic = %d", value,
+                  p_timer->countdownBeep, p_timer->extraHaptic);
+          });
 
-  auto box = new Window(line, rect_t{});
-  box->padAll(PAD_TINY);
-  box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY, LV_SIZE_CONTENT);
-
-  new Choice(
-      box, rect_t{}, STR_VBEEPCOUNTDOWN, COUNTDOWN_SILENT, COUNTDOWN_COUNT - 1,
-      [=]() -> int {
-        int value = p_timer->countdownBeep;
-        if (p_timer->extraHaptic) {
-          value += (COUNTDOWN_NON_HAPTIC_LAST + 1);
-        }
-        return (value);
-      },
-      [=](int value) {
-        if (value > COUNTDOWN_NON_HAPTIC_LAST + 1) {
-          p_timer->extraHaptic = 1;
-          p_timer->countdownBeep = value - (COUNTDOWN_NON_HAPTIC_LAST + 1);
-        } else {
-          p_timer->extraHaptic = 0;
-          p_timer->countdownBeep = value;
-        }
-        SET_DIRTY();
-        TRACE("value=%d\tcountdownBeep = %d\textraHaptic = %d", value,
-              p_timer->countdownBeep, p_timer->extraHaptic);
-      });
-
-  new Choice(box, rect_t{}, STR_COUNTDOWNVALUES, 0, 3,
-             GET_SET_WITH_OFFSET(p_timer->countdownStart, 2));
+      new Choice(parent, {x + COUNTDOWN_VAL_XO, y + COUNTDOWN_VAL_YO, 0, 0}, STR_COUNTDOWNVALUES, 0, 3,
+                GET_SET_WITH_OFFSET(p_timer->countdownStart, 2));
+    }, COUNTDOWN_LBL_YO);
 
   // Timer persistent
-  line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_PERSISTENT);
-
-  new Choice(line, rect_t{}, STR_VPERSISTENT, 0, 2,
-             GET_SET_DEFAULT(p_timer->persistent));
-
-  lv_obj_add_event_cb(timerValue->getLvObj(), timer_start_changed,
-                      LV_EVENT_VALUE_CHANGED, timerDirLine->getLvObj());
+  setupLine(STR_PERSISTENT,
+    [=](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, 0}, STR_VPERSISTENT, 0, 2,
+                GET_SET_DEFAULT(p_timer->persistent));
+    });
 }

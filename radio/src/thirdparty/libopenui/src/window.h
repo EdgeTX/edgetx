@@ -259,7 +259,8 @@ struct SetupLineDef {
 class SetupLine : public Window
 {
  public:
-  SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit);
+  SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const char* title,
+    std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset = 0);
 
   static coord_t showLines(Window* parent, coord_t y, coord_t col2, PaddingSize padding, SetupLineDef* setupLines, int lineCount);
 

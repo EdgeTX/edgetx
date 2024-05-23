@@ -121,9 +121,9 @@ class DateTimeWindow : public Window
     m_last_tm = m_tm;
 
     // Date
-    new StaticText(this, rect_t{PAD_TINY, DT_Y1 + PAD_MEDIUM, RadioSetupPage::LBL_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_DATE);
+    new StaticText(this, rect_t{PAD_TINY, DT_Y1 + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_DATE);
     year = new NumberEdit(
-        this, rect_t{RadioSetupPage::EDT_X, DT_Y1, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 2023, 2037,
+        this, rect_t{SubPage::EDT_X, DT_Y1, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 2023, 2037,
         [=]() -> int32_t { return TM_YEAR_BASE + m_tm.tm_year; },
         [=](int32_t newValue) {
           m_last_tm.tm_year = m_tm.tm_year = newValue - TM_YEAR_BASE;
@@ -132,7 +132,7 @@ class DateTimeWindow : public Window
         });
 
     month = new NumberEdit(
-        this, rect_t{RadioSetupPage::EDT_X + DT_EDT_W + PAD_TINY, DT_Y1, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 1, 12,
+        this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY, DT_Y1, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 1, 12,
         [=]() -> int32_t { return 1 + m_tm.tm_mon; },
         [=](int32_t newValue) {
           m_last_tm.tm_mon = m_tm.tm_mon = newValue - 1;
@@ -143,7 +143,7 @@ class DateTimeWindow : public Window
         [](int32_t value) { return formatNumberAsString(value, LEADING0); });
 
     day = new NumberEdit(
-        this, rect_t{RadioSetupPage::EDT_X + 2 * DT_EDT_W + PAD_SMALL, DT_Y1, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 1,
+        this, rect_t{SubPage::EDT_X + 2 * DT_EDT_W + PAD_SMALL, DT_Y1, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 1,
         daysInMonth(), [=]() -> int32_t { return m_tm.tm_mday; },
         [=](int32_t newValue) {
           m_last_tm.tm_mday = m_tm.tm_mday = newValue;
@@ -153,9 +153,9 @@ class DateTimeWindow : public Window
         [](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
 
     // Time
-    new StaticText(this, rect_t{PAD_TINY, DT_Y2 + PAD_MEDIUM, RadioSetupPage::LBL_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_TIME);
+    new StaticText(this, rect_t{PAD_TINY, DT_Y2 + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_TIME);
     hour = new NumberEdit(
-        this, rect_t{RadioSetupPage::EDT_X, DT_Y2, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 23,
+        this, rect_t{SubPage::EDT_X, DT_Y2, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 23,
         [=]() -> int32_t { return m_tm.tm_hour; },
         [=](int32_t newValue) {
           m_last_tm.tm_hour = m_tm.tm_hour = newValue;
@@ -165,7 +165,7 @@ class DateTimeWindow : public Window
         [](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
 
     minutes = new NumberEdit(
-        this, rect_t{RadioSetupPage::EDT_X + DT_EDT_W + PAD_TINY, DT_Y2, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 59,
+        this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY, DT_Y2, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 59,
         [=]() -> int32_t { return m_tm.tm_min; },
         [=](int32_t newValue) {
           m_last_tm.tm_min = m_tm.tm_min = newValue;
@@ -175,7 +175,7 @@ class DateTimeWindow : public Window
         [](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
 
     seconds = new NumberEdit(
-        this, rect_t{RadioSetupPage::EDT_X + DT_EDT_W * 2 + PAD_SMALL, DT_Y2, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 59,
+        this, rect_t{SubPage::EDT_X + DT_EDT_W * 2 + PAD_SMALL, DT_Y2, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 59,
         [=]() -> int32_t { return m_tm.tm_sec; },
         [=](int32_t newValue) {
           m_last_tm.tm_sec = m_tm.tm_sec = newValue;
@@ -409,7 +409,7 @@ class BacklightPage : public SubPage
     body->setFlexLayout();
 
     // Backlight mode
-    new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_MODE, [=](Window* parent, coord_t x, coord_t y) {
+    setupLine(STR_MODE, [=](Window* parent, coord_t x, coord_t y) {
           auto blMode = new Choice(
               parent, {x, y, 0, 0}, STR_VBLMODE, e_backlight_mode_off, e_backlight_mode_on,
               GET_DEFAULT(g_eeGeneral.backlightMode), [=](int32_t newValue) {
@@ -423,7 +423,7 @@ class BacklightPage : public SubPage
         });
 
     // Delay
-    backlightTimeout = new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_BACKLIGHT_TIMER, [=](Window* parent, coord_t x, coord_t y) {
+    backlightTimeout = setupLine(STR_BACKLIGHT_TIMER, [=](Window* parent, coord_t x, coord_t y) {
           auto edit =
               new NumberEdit(parent, {x, y, RadioSetupPage::NUM_W, 0}, 5, 600,
                             GET_DEFAULT(g_eeGeneral.lightAutoOff * 5),
@@ -433,7 +433,7 @@ class BacklightPage : public SubPage
         });
 
     // Backlight ON bright
-    backlightOnBright = new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_BLONBRIGHTNESS, [=](Window* parent, coord_t x, coord_t y) {
+    backlightOnBright = setupLine(STR_BLONBRIGHTNESS, [=](Window* parent, coord_t x, coord_t y) {
           backlightOnSlider = new Slider(
               parent, lv_pct(50), BACKLIGHT_LEVEL_MIN, BACKLIGHT_LEVEL_MAX,
               [=]() -> int32_t {
@@ -454,7 +454,7 @@ class BacklightPage : public SubPage
         });
 
     // Backlight OFF bright
-    backlightOffBright = new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_BLOFFBRIGHTNESS, [=](Window* parent, coord_t x, coord_t y) {
+    backlightOffBright = setupLine(STR_BLOFFBRIGHTNESS, [=](Window* parent, coord_t x, coord_t y) {
           backlightOffSlider = new Slider(
               parent, lv_pct(50), BACKLIGHT_LEVEL_MIN,
               BACKLIGHT_LEVEL_MAX, GET_DEFAULT(g_eeGeneral.blOffBright),
@@ -474,14 +474,14 @@ class BacklightPage : public SubPage
 
 #if defined(KEYS_BACKLIGHT_GPIO)
     // Keys backlight
-    new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_KEYS_BACKLIGHT, [=](Window* parent, coord_t x, coord_t y) {
+    setupLine(STR_KEYS_BACKLIGHT, [=](Window* parent, coord_t x, coord_t y) {
           new ToggleSwitch(parent, {x, y, 0, 0},
                           GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
         });
 #endif
 
     // Flash beep
-    new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_ALARM, [=](Window* parent, coord_t x, coord_t y) {
+    setupLine(STR_ALARM, [=](Window* parent, coord_t x, coord_t y) {
           new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_eeGeneral.alarmsFlash));
         });
 
@@ -687,13 +687,13 @@ class ManageModelsSetupPage : public SubPage
     body->setFlexLayout();
 
     // Model quick select
-    new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_MODEL_QUICK_SELECT, [=](Window* parent, coord_t x, coord_t y) {
+    setupLine(STR_MODEL_QUICK_SELECT, [=](Window* parent, coord_t x, coord_t y) {
           new ToggleSwitch(parent, {x, y, 0, 0},
                           GET_SET_DEFAULT(g_eeGeneral.modelQuickSelect));
         });
 
     // Label single/multi select
-    new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_LABELS_SELECT, [=](Window* parent, coord_t x, coord_t y) {
+    setupLine(STR_LABELS_SELECT, [=](Window* parent, coord_t x, coord_t y) {
           new Choice(parent, {x, y, 0, 0}, STR_LABELS_SELECT_MODE, 0, 1,
                     GET_DEFAULT(g_eeGeneral.labelSingleSelect),
                     [=](int newValue) {
@@ -704,13 +704,13 @@ class ManageModelsSetupPage : public SubPage
         });
 
     // Label multi select matching mode
-    multiSelectMatch = new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_LABELS_MATCH, [=](Window* parent, coord_t x, coord_t y) {
+    multiSelectMatch = setupLine(STR_LABELS_MATCH, [=](Window* parent, coord_t x, coord_t y) {
           new Choice(parent, {x, y, 0, 0}, STR_LABELS_MATCH_MODE, 0, 1,
                     GET_SET_DEFAULT(g_eeGeneral.labelMultiMode));
         });
 
     // Favorites multi select matching mode
-    favSelectMatch = new SetupLine(body, 0, RadioSetupPage::EDT_X, PAD_SMALL, STR_FAV_MATCH, [=](Window* parent, coord_t x, coord_t y) {
+    favSelectMatch = setupLine(STR_FAV_MATCH, [=](Window* parent, coord_t x, coord_t y) {
           new Choice(parent, {x, y, 0, 0}, STR_FAV_MATCH_MODE, 0, 1,
                     GET_SET_DEFAULT(g_eeGeneral.favMultiMode));
         });
@@ -928,5 +928,5 @@ void RadioSetupPage::build(Window* window)
   }, BTN_H);
   y += w->height() + padding;
 
-  SetupLine::showLines(window, y, EDT_X, padding, setupLines, DIM(setupLines));
+  SetupLine::showLines(window, y, SubPage::EDT_X, padding, setupLines, DIM(setupLines));
 }

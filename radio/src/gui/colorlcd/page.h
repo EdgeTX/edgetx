@@ -72,5 +72,10 @@ class SubPage : public Page
   SubPage(EdgeTxIcon icon, const char* title, const char* subtitle);
   SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, SetupLineDef* setupLines, int lineCount);
 
+  Window* setupLine(const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset = 0);
+
   static LAYOUT_VAL(EDT_X, 220, 144)
+
+ protected:
+  coord_t y = 0;
 };

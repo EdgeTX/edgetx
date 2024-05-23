@@ -160,7 +160,7 @@ void RadioHardwarePage::build(Window* window)
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
   // TODO: sub-title?
-  SetupLine::showLines(window, 0, EDT_X, padding, setupLines, DIM(setupLines));
+  SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines, DIM(setupLines));
 
   FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 

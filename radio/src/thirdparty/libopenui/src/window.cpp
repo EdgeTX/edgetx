@@ -486,30 +486,31 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
   }
 }
 
-SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit) :
+SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const char* title,
+                    std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset) :
     Window(parent, {0, y, LCD_W - padding * 2, 0})
 {
   padAll(PAD_ZERO);
-  coord_t titleY = PAD_MEDIUM + 1;
+  coord_t titleY = PAD_MEDIUM + 1 + lblYOffset;
   coord_t titleH = EdgeTxStyles::PAGE_LINE_HEIGHT;
+  coord_t h = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2 + lblYOffset * 2;
   if (createEdit) {
     coord_t editY = PAD_TINY;
     coord_t lblWidth = col2 - PAD_SMALL - PAD_TINY;
     if (title) {
       if (getTextWidth(title) >= lblWidth) {
-        setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2 + PAD_MEDIUM);
+        h += PAD_MEDIUM;
         titleY = 0;
         titleH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY + 1;
         editY = PAD_SMALL + 1;
-      } else {
-        setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2);
       }
       new StaticText(this, {PAD_TINY, titleY, lblWidth, titleH}, title);
     }
+    setHeight(h);
     createEdit(this, col2, editY);
   } else {
+    setHeight(h);
     new StaticText(this, {0, titleY, 0, titleH}, title, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-    setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2);
   }
 }
 

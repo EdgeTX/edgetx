@@ -32,7 +32,6 @@ class RadioHardwarePage : public PageTab
 
   static LAYOUT_VAL(NUM_EDIT_W, 80, 80)
   static LAYOUT_VAL(BTN_COLS, 4, 3)
-  static LAYOUT_VAL(EDT_X, 160, 131)
 
  protected:
   void cleanup() override;

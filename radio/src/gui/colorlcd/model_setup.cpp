@@ -368,7 +368,7 @@ static SetupLineDef setupLines[] = {
 
 void ModelSetupPage::build(Window * window)
 {
-  coord_t y = SetupLine::showLines(window, 0, EDT_X, padding, setupLines, DIM(setupLines));
+  coord_t y = SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines, DIM(setupLines));
 
   new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, {
     // Modules
@@ -387,7 +387,6 @@ void ModelSetupPage::build(Window * window)
 #if defined(USBJ_EX)
     {STR_USBJOYSTICK_LABEL, []() { new ModelUSBJoystickPage(); }},
 #endif
-    // {STR_MENU_OTHER, []() { new ModelOtherOptions(); }},
     {STR_MENU_OTHER, []() { new SubPage(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, STR_MENU_OTHER, otherPageSetupLines, DIM(otherPageSetupLines)); }},
   }, BTN_H);
 }

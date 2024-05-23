@@ -96,14 +96,25 @@ void Page::checkEvents()
 
 SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle) : Page(icon, PAD_SMALL)
 {
+  body->padBottom(PAD_LARGE * 2);
+
   header->setTitle(title);
   header->setTitle2(subtitle);
 }
 
 SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, SetupLineDef* setupLines, int lineCount) : Page(icon, PAD_SMALL)
 {
+  body->padBottom(PAD_LARGE * 2);
+
   header->setTitle(title);
   header->setTitle2(subtitle);
 
-  SetupLine::showLines(body, 0, EDT_X, PAD_SMALL, setupLines, lineCount);
+  SetupLine::showLines(body, y, EDT_X, PAD_SMALL, setupLines, lineCount);
+}
+
+Window* SubPage::setupLine(const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset)
+{
+  auto w = new SetupLine(body, y, EDT_X, PAD_SMALL, title, createEdit, lblYOffset);
+  y += w->height();
+  return w;
 }
