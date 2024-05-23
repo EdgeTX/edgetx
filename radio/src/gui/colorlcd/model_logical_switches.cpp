@@ -208,7 +208,7 @@ class LogicalSwitchEditPage : public Page
                                 GET_SET_DEFAULT(cs->v2));
 
         v2Edit->setDisplayHandler([=](int value) -> std::string {
-          if (cs->v1 <= MIXSRC_LAST_CH) value = calc100toRESX(value);
+          if (abs(cs->v1) <= MIXSRC_LAST_CH) value = calc100toRESX(value);
           std::string txt = getSourceCustomValueString(cs->v1, value, 0);
           return txt;
         });

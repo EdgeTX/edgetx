@@ -858,9 +858,10 @@ char *getSensorCustomValueString(char (&dest)[L], uint8_t sensor, int32_t val,
 }
 
 template <size_t L>
-char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
+char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
                                  LcdFlags flags)
 {
+  source = abs(source);
   size_t len = L - 1;
   if (source >= MIXSRC_FIRST_TELEM) {
     source = (source - MIXSRC_FIRST_TELEM) / 3;
@@ -975,7 +976,7 @@ std::string formatNumberAsString(int32_t val, LcdFlags flags, uint8_t len,
   return std::string(s);
 }
 
-char *getSourceCustomValueString(source_t source, int32_t val, LcdFlags flags)
+char *getSourceCustomValueString(mixsrc_t source, int32_t val, LcdFlags flags)
 {
   return getSourceCustomValueString(_static_str_buffer, source, val, flags);
 }

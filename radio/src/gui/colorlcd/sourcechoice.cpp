@@ -107,15 +107,10 @@ class SourceChoiceMenuToolbar : public MenuToolbar
 
 #if defined(HARDWARE_TOUCH)
     if (choice->canInvert) {
-      coord_t y =
-          height() - MENUS_TOOLBAR_BUTTON_WIDTH - PAD_SMALL;
-      coord_t w = width() - PAD_SMALL * 2;
-
-      invertBtn = new MenuToolbarButton(
-          this,
-          {PAD_SMALL, y, w, MENUS_TOOLBAR_BUTTON_WIDTH},
-          STR_SELECT_MENU_INV);
+      invertBtn = new MenuToolbarButton(this, {0, 0, LV_PCT(100), 0},
+                                        STR_SELECT_MENU_INV);
       invertBtn->check(choice->inverted);
+      lv_obj_align(invertBtn->getLvObj(), LV_ALIGN_BOTTOM_MID, 0, 0);
 
       invertBtn->setPressHandler([=]() {
         lv_obj_clear_state(invertBtn->getLvObj(), LV_STATE_FOCUSED);

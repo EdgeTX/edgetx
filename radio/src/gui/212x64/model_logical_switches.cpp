@@ -117,7 +117,7 @@ void menuModelLogicalSwitches(event_t event)
 
     // CSW params
     unsigned int cstate = lswFamily(cs->func);
-    int v1_val = cs->v1;
+    mixsrc_t v1_val = cs->v1;
     int16_t v1_min = 0, v1_max = MIXSRC_LAST_TELEM;
     int16_t v2_min = 0, v2_max = MIXSRC_LAST_TELEM;
     int16_t v3_min =-1, v3_max = 100;

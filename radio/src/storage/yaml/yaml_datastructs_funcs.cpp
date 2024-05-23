@@ -1586,7 +1586,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       CFN_PARAM(cfn) = yaml_str2int(val, l_sep);
       break;
     case FUNC_ADJUST_GVAR_SOURCE:
-      CFN_PARAM(cfn) = r_mixSrcRaw(nullptr, val, l_sep);
+      CFN_PARAM(cfn) = r_mixSrcRawEx(nullptr, val, l_sep);
       break;
     case FUNC_ADJUST_GVAR_GVAR: {
       uint32_t gvar = r_mixSrcRawEx(nullptr, val, l_sep);

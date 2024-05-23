@@ -112,7 +112,7 @@ template <size_t L>
 char *getSourceString(char (&dest)[L], mixsrc_t idx);
 
 template <size_t L>
-char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
+char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
                                  LcdFlags flags);
 
 #endif
@@ -120,7 +120,7 @@ char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
 char *getFlightModeString(char *dest, int8_t idx);
 
 char *getSourceString(mixsrc_t idx);
-char *getSourceCustomValueString(source_t source, int32_t val, LcdFlags flags);
+char *getSourceCustomValueString(mixsrc_t source, int32_t val, LcdFlags flags);
 char *getSwitchPositionName(swsrc_t idx);
 char *getCurveString(int idx);
 char *getTimerString(int32_t tme, TimerOptions timerOptions = {.options = 0});
