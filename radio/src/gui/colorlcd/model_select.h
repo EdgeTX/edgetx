@@ -58,6 +58,8 @@ class ModelLabelsWindow : public Page
   void labelRefreshRequest();
   void setTitle();
 
+  void moveLabel(int selected, int direction);
+
 #if defined(HARDWARE_KEYS)
   void onPressSYS() override;
   void onLongPressSYS() override;
