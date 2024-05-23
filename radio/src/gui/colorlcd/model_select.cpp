@@ -497,6 +497,11 @@ class LabelDialog : public ModalWindow
     });
   }
 
+  void onCancel() override
+  {
+    deleteLater();
+  }
+
  protected:
   std::function<void(std::string)> saveHandler;
   char label[LABEL_LENGTH + 1];
@@ -671,7 +676,7 @@ void ModelLabelsWindow::newModel()
 void ModelLabelsWindow::newLabel()
 {
   tmpLabel[0] = '\0';
-  new LabelDialog(parent, tmpLabel, [=](std::string label) {
+  new LabelDialog(this, tmpLabel, [=](std::string label) {
     int newlabindex = modelslabels.addLabel(label);
     if (newlabindex >= 0) {
       std::set<uint32_t> newset;
@@ -679,6 +684,8 @@ void ModelLabelsWindow::newLabel()
       auto labels = getLabels();
       lblselector->setNames(labels);
       lblselector->setSelected(newset);
+      if (g_eeGeneral.labelSingleSelect)
+        lblselector->setActiveItem(newlabindex);
       updateFilteredLabels(newset);
     }
   });
@@ -895,6 +902,8 @@ void ModelLabelsWindow::buildBody(Window *window)
                 std::set<uint32_t> newset;
                 lblselector->setNames(labels);
                 lblselector->setSelected(newset);
+                if (g_eeGeneral.labelSingleSelect && selected == lblselector->getActiveItem())
+                  lblselector->setActiveItem(-1);
                 updateFilteredLabels(newset);
               });
           return 0;
@@ -902,25 +911,13 @@ void ModelLabelsWindow::buildBody(Window *window)
         if (modelslabels.getLabels().size() > 1) {
           if (selected != 0) {
             menu->addLine(STR_MOVE_UP, [=]() {
-              modelslabels.moveLabelTo(selected, selected - 1);
-              std::set<uint32_t> newset;
-              newset.insert(selected - 1);
-              auto labels = getLabels();
-              lblselector->setNames(labels);
-              lblselector->setSelected(newset);
-              updateFilteredLabels(newset);
+              moveLabel(selected, -1);
               return 0;
             });
           }
           if (selected != (int)modelslabels.getLabels().size() - 1) {
             menu->addLine(STR_MOVE_DOWN, [=]() {
-              modelslabels.moveLabelTo(selected, selected + 1);
-              std::set<uint32_t> newset;
-              newset.insert(selected + 1);
-              auto labels = getLabels();
-              lblselector->setNames(labels);
-              lblselector->setSelected(newset);
-              updateFilteredLabels(newset);
+              moveLabel(selected, 1);
               return 0;
             });
           }
@@ -928,6 +925,42 @@ void ModelLabelsWindow::buildBody(Window *window)
       }
     }
   });
+}
+
+void ModelLabelsWindow::moveLabel(int selected, int direction)
+{
+  int swapSelected = selected + direction;
+
+  modelslabels.moveLabelTo(selected, swapSelected);
+
+  std::set<uint32_t> newset = lblselector->getSelection();
+  bool isSelected = newset.find(selected) != newset.end();
+  bool isSwapSelected = newset.find(swapSelected) != newset.end();
+  if (isSelected && !isSwapSelected) {
+    newset.erase(newset.find(selected));
+    newset.insert(swapSelected);
+  } else if (isSwapSelected && !isSelected) {
+    newset.erase(newset.find(swapSelected));
+    newset.insert(selected);
+  }
+
+  lblselector->setNames(getLabels());
+
+  if (g_eeGeneral.labelSingleSelect) {
+    int active = lblselector->getActiveItem();
+    if (active == selected) {
+      lblselector->setActiveItem(swapSelected);
+      newset.insert(swapSelected);
+    } else if (active == swapSelected) {
+      lblselector->setActiveItem(selected);
+      newset.insert(selected);
+    } else if (active >= 0) {
+      newset.insert(active);
+    }
+  }
+
+  lblselector->setSelected(newset);
+  updateFilteredLabels(newset);
 }
 
 void ModelLabelsWindow::updateFilteredLabels(std::set<uint32_t> selected,
