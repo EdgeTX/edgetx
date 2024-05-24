@@ -142,6 +142,9 @@ do
         x12s)
             BUILD_OPTIONS+="-DPCB=X12S"
             ;;
+        t15)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T15"
+            ;;
         t16)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON"
             ;;

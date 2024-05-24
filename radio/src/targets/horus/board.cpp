@@ -72,6 +72,7 @@ void boardInit()
                          AUDIO_RCC_APB1Periph |
                          TELEMETRY_RCC_APB1Periph |
                          AUDIO_RCC_APB1Periph |
+                         HAPTIC_RCC_APB1Periph |
                          BACKLIGHT_RCC_APB1Periph,
                          ENABLE);
 
@@ -89,6 +90,52 @@ void boardInit()
 #endif
 
   pwrInit();
+
+#if defined(FUNCTION_SWITCHES) && !defined(DEBUG_SEGGER_RTT)
+#if defined(RADIO_T15)
+#define LEDCHARGEON(x)   fsLedOff(x)
+#define LEDCHARGEOFF(x)  fsLedOn(x)
+#else
+#define LEDCHARGEON(x)   fsLedOn(x)
+#define LEDCHARGEOFF(x)  fsLedOff(x)
+#endif
+  // This is needed to prevent radio from starting when usb is plugged to charge
+  usbInit();
+  ledInit();
+  // prime debounce state...
+   usbPlugged();
+   if (usbPlugged()) {
+     delaysInit();
+     adcInit(&_adc_driver);
+     getADC();
+     pwrOn(); // required to get bat adc reads
+     INTERNAL_MODULE_OFF();
+     EXTERNAL_MODULE_OFF();
+     for (uint8_t i=0; i < NUM_FUNCTIONS_SWITCHES; i++)
+       LEDCHARGEOFF(i);
+     while (usbPlugged()) {
+       // Let it charge ...
+       getADC(); // Warning: the value read does not include VBAT calibration
+                 // Also, MCU is running which create a drop vs off
+       if (getBatteryVoltage() >= 660)
+         LEDCHARGEON(0);
+       if (getBatteryVoltage() >= 740)
+         LEDCHARGEON(1);
+       if (getBatteryVoltage() >= 760)
+         LEDCHARGEON(2);
+       if (getBatteryVoltage() >= 780)
+         LEDCHARGEON(3);
+       if (getBatteryVoltage() >= 810)
+         LEDCHARGEON(4);
+       if (getBatteryVoltage() >= 825)
+         LEDCHARGEON(5);
+       delay_ms(1000);
+     }
+     while(1) // Wait power to drain
+       pwrOff();
+   }
+#endif
+
   boardInitModulePorts();
 
 #if defined(INTMODULE_HEARTBEAT) &&                                     \

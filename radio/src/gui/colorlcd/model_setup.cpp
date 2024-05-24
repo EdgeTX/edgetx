@@ -32,6 +32,9 @@
 #include "trims_setup.h"
 #include "throttle_params.h"
 #include "preflight_checks.h"
+#if defined(FUNCTION_SWITCHES)
+#include "function_switches.h"
+#endif
 
 #if defined(USBJ_EX)
 #include "model_usbjoystick.h"
@@ -336,5 +339,9 @@ void ModelSetupPage::build(FormWindow * window)
 
 #if defined(USBJ_EX)
   new SubScreenButton(line, STR_USBJOYSTICK_LABEL, []() { new ModelUSBJoystickPage(); });
+#endif
+
+#if defined(FUNCTION_SWITCHES)
+  new SubScreenButton(line, STR_FUNCTION_SWITCHES, []() { new ModelFunctionSwitches(); });
 #endif
 }

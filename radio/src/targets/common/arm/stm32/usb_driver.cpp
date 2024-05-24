@@ -62,6 +62,9 @@ void setSelectedUsbMode(int mode)
 #if defined(USB_GPIO_PIN_VBUS)
 int usbPlugged()
 {
+#if defined(DEBUG_SEGGER_RTT)
+  return(false);
+#else
   static uint8_t debouncedState = 0;
   static uint8_t lastState = 0;
 
@@ -73,6 +76,7 @@ int usbPlugged()
     lastState = state;
   
   return debouncedState;
+#endif
 }
 #endif
 

@@ -23,6 +23,7 @@
 #include "radio_calibration.h"
 #include "radio_diagkeys.h"
 #include "radio_diaganas.h"
+#include "radio_diagcustswitches.h"
 #include "opentx.h"
 #include "libopenui.h"
 #include "hal/adc_driver.h"
@@ -203,4 +204,11 @@ void RadioHardwarePage::build(FormWindow * window)
     return 0;
   });
   lv_obj_set_style_min_width(btn->getLvObj(), LV_DPI_DEF, 0);
+
+#if defined(FUNCTION_SWITCHES)
+  new TextButton(box, rect_t{0, 0, 200, 0}, STR_FS_BTN, [=]() -> uint8_t {
+    new RadioCustSwitchesDiagsPage();
+    return 0;
+  });
+#endif
 }
