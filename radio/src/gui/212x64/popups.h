@@ -34,7 +34,7 @@
 #define WARNING_LINE_X                 16
 #define WARNING_LINE_Y                 MESSAGEBOX_Y + 2
 
-#define POPUP_MENU_MAX_LINES           12
+#define POPUP_MENU_MAX_LINES           13
 #define MENU_MAX_DISPLAY_LINES         6
 #define MENU_LINE_LENGTH               (LEN_MODEL_NAME+12)
 

@@ -175,7 +175,7 @@ void menuModelLogicalSwitchOne(event_t event)
             getMixSrcRange(v1_val, v2_min, v2_max, &lf);
             if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG) || (cs->func == LS_FUNC_ADIFFEGREATER))
               v2_min = 0;
-            drawSourceCustomValue(CSWONE_2ND_COLUMN, y, v1_val, (v1_val <= MIXSRC_LAST_CH ? calc100toRESX(cs->v2) : cs->v2), lf);
+            drawSourceCustomValue(CSWONE_2ND_COLUMN, y, v1_val, (abs(v1_val) <= MIXSRC_LAST_CH ? calc100toRESX(cs->v2) : cs->v2), lf);
           }
         }
 

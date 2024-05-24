@@ -460,8 +460,10 @@ void drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor, int32_t value, 
   }
 }
 
-void drawSourceCustomValue(coord_t x, coord_t y, source_t source, int32_t value, LcdFlags flags)
+void drawSourceCustomValue(coord_t x, coord_t y, mixsrc_t source, int32_t value, LcdFlags flags)
 {
+  source = abs(source);
+
   if (source >= MIXSRC_FIRST_TELEM) {
     source = (source-MIXSRC_FIRST_TELEM) / 3;
     drawSensorCustomValue(x, y, source, value, flags);

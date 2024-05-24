@@ -668,7 +668,7 @@ void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
     }
   }
   else {
-    lcdDrawText(x, y, getSourceString(aidx), att);
+    lcdDrawText(x, y, getSourceString(idx), att);
   }
 }
 
