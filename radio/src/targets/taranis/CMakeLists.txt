@@ -445,7 +445,6 @@ elseif(PCB STREQUAL XLITE)
   set(MODULE_SIZE_SML YES)
   set(PXX_FREQUENCY "HIGH" CACHE STRING "PXX frequency (LOW / HIGH)") # always use HIGH except on some prototype boards
   set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
-  set(CPU_TYPE STM32F2)
   set(CPU_TYPE_FULL STM32F205xE)
   set(HAPTIC YES)
   set(FLAVOUR xlite)
