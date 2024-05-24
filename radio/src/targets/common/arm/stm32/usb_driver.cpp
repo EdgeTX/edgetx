@@ -93,10 +93,10 @@ extern "C" void OTG_FS_IRQHandler()
 
 void usbInit()
 {
-  gpio_init_af(USB_GPIO_DM, USB_GPIO_AF, GPIO_PIN_SPEED_MEDIUM);
-  gpio_init_af(USB_GPIO_DP, USB_GPIO_AF, GPIO_PIN_SPEED_MEDIUM);
+  gpio_init_af(USB_GPIO_DM, USB_GPIO_AF, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_init_af(USB_GPIO_DP, USB_GPIO_AF, GPIO_PIN_SPEED_VERY_HIGH);
   
-#if defined(USB_GPIO_PIN_VBUS)
+#if defined(USB_GPIO_VBUS)
   gpio_init(USB_GPIO_VBUS, GPIO_IN, GPIO_PIN_SPEED_LOW);
 #endif
   
