@@ -498,15 +498,15 @@ class SourcesConversionTable: public ConversionTable {
             offset -= 2;
         }
         else if (IS_TARANIS_X9E(board)) {
-          if (i == 6)
-            offset -= 2;  // F3 -> F1 as F3 dropped at version 2.?? and F3 not on factory radio or included in radio hw json
-          else if (i >= 10 && i <= 11)  // this range could be affected if F3 dropped whilst still supporting binaries
-            offset -= 4;
+          if (i >= 8 && i <= 9)
+            offset += 2;
+          else if (i >= 10 && i <= 11)
+            offset -= 2;
         }
         //  end ADC refactor shuffles
 
         addConversion(RawSource(SOURCE_TYPE_INPUT, i + offset + 1), val++);
-//        qDebug() << "i:" << i << "offset:" << offset << "index:" << i + offset + 1 << "desc:" << RawSource(SOURCE_TYPE_STICK, i + offset).toString() << "val:" << val;
+        // qDebug() << "i:" << i << "offset:" << offset << "index:" << i + offset + 1 << "desc:" << RawSource(SOURCE_TYPE_STICK, i + offset).toString() << "val:" << val;
       }
 
       for (int i = 1; i <= MAX_ROTARY_ENCODERS(board); i++) {
