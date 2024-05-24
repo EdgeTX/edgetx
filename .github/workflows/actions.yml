@@ -131,7 +131,7 @@ jobs:
       - name: Upload ${{ matrix.target }}
         uses: actions/upload-artifact@v4
         with:
-          name: firmare-${{ matrix.target }}
+          name: firmware-${{ matrix.target }}
           path: |
             fw.json
             LICENSE
@@ -152,6 +152,6 @@ jobs:
         uses: actions/upload-artifact/merge@v4
         with:
           name: "${{ env.artifact_name }}"
-          pattern: firmare-*
+          pattern: firmware-*
           delete-merged: true
           retention-days: 15
