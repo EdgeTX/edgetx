@@ -25,12 +25,12 @@
 #include "board.h"
 
 #define SDRAM_MEMORY_WIDTH    FMC_SDRAM_MEM_BUS_WIDTH_16
-
 #define SDRAM_CAS_LATENCY     FMC_SDRAM_CAS_LATENCY_3
-    
-#define SDCLOCK_PERIOD    FMC_SDRAM_CLOCK_PERIOD_2
-
-#define SDRAM_TIMEOUT     ((uint32_t)0xFFFF)
+#define SDRAM_READBURST       FMC_SDRAM_RBURST_DISABLE
+#define SDRAM_READPIPEDELAY   FMC_SDRAM_RPIPE_DELAY_0
+#define SDBANK                FMC_SDRAM_BANK2  
+#define SDCLOCK_PERIOD        FMC_SDRAM_CLOCK_PERIOD_2
+#define SDRAM_TIMEOUT         ((uint32_t)0xFFFF)
 
 /**
   * @brief  FMC SDRAM Mode definition register defines
@@ -48,11 +48,6 @@
 #define SDRAM_MODEREG_WRITEBURST_MODE_SINGLE     ((uint16_t)0x0200)
 
 #define GPIO_AF_FMC GPIO_AF12
-
-/**
-  * @brief  FMC SDRAM Memory Read Burst feature
-  */
-#define SDRAM_READBURST    FMC_SDRAM_RBURST_DISABLE
 
 static void __Delay(__IO uint32_t nCount)
 {
@@ -161,12 +156,12 @@ extern "C" void SDRAM_InitSequence(void)
   FMC_SDRAMCommandStructure.AutoRefreshNumber = 1;
   FMC_SDRAMCommandStructure.ModeRegisterDefinition = 0;
   /* Wait until the SDRAM controller is ready */ 
-  while((__FMC_SDRAM_GET_FLAG(FMC_Bank5_6, FMC_SDRAM_FLAG_BUSY) != 0) && (timeout > 0))
+  while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0) && (timeout > 0))
   {
     timeout--;
   }
   /* Send the command */
-  FMC_SDRAM_SendCommand(FMC_Bank5_6, &FMC_SDRAMCommandStructure, 10);
+  FMC_SDRAM_SendCommand(FMC_SDRAM_DEVICE, &FMC_SDRAMCommandStructure, 10);
   
   /* Step 4 --------------------------------------------------------------------*/
   /* Insert 100 ms delay */
@@ -181,12 +176,12 @@ extern "C" void SDRAM_InitSequence(void)
   
   /* Wait until the SDRAM controller is ready */  
   timeout = SDRAM_TIMEOUT; 
-  while((__FMC_SDRAM_GET_FLAG(FMC_Bank5_6, FMC_SDRAM_FLAG_BUSY) != 0) && (timeout > 0))
+  while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0) && (timeout > 0))
   {
     timeout--;
   }
   /* Send the command */
-  FMC_SDRAM_SendCommand(FMC_Bank5_6, &FMC_SDRAMCommandStructure, 10);
+  FMC_SDRAM_SendCommand(FMC_SDRAM_DEVICE, &FMC_SDRAMCommandStructure, 10);
   
 /* Step 6 --------------------------------------------------------------------*/
   /* Configure a Auto-Refresh command */ 
@@ -197,12 +192,12 @@ extern "C" void SDRAM_InitSequence(void)
   
   /* Wait until the SDRAM controller is ready */ 
   timeout = SDRAM_TIMEOUT; 
-  while((__FMC_SDRAM_GET_FLAG(FMC_Bank5_6, FMC_SDRAM_FLAG_BUSY) != 0) && (timeout > 0))
+  while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0) && (timeout > 0))
   {
     timeout--;
   }
   /* Send the command */
-  FMC_SDRAM_SendCommand(FMC_Bank5_6, &FMC_SDRAMCommandStructure, 10);
+  FMC_SDRAM_SendCommand(FMC_SDRAM_DEVICE, &FMC_SDRAMCommandStructure, 10);
   
 /* Step 7 --------------------------------------------------------------------*/
   /* Program the external memory mode register */
@@ -220,23 +215,23 @@ extern "C" void SDRAM_InitSequence(void)
   
   /* Wait until the SDRAM controller is ready */ 
   timeout = SDRAM_TIMEOUT; 
-  while((__FMC_SDRAM_GET_FLAG(FMC_Bank5_6, FMC_SDRAM_FLAG_BUSY) != 0) && (timeout > 0))
+  while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0) && (timeout > 0))
   {
     timeout--;
   }
   /* Send the command */
-  FMC_SDRAM_SendCommand(FMC_Bank5_6, &FMC_SDRAMCommandStructure, 10);
+  FMC_SDRAM_SendCommand(FMC_SDRAM_DEVICE, &FMC_SDRAMCommandStructure, 10);
   
   /* Step 8 --------------------------------------------------------------------*/
 
   /* Set the refresh rate counter */
   /* (15.62 us x Freq) - 20 */
   /* Set the device refresh counter */
-  FMC_SDRAM_SetAutoRefreshNumber(FMC_Bank5_6, 1385);
+  FMC_SDRAM_SetAutoRefreshNumber(FMC_SDRAM_DEVICE, 1385);
   
   /* Wait until the SDRAM controller is ready */ 
   timeout = SDRAM_TIMEOUT; 
-  while((__FMC_SDRAM_GET_FLAG(FMC_Bank5_6, FMC_SDRAM_FLAG_BUSY) != 0) && (timeout > 0))
+  while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0) && (timeout > 0))
   {
     timeout--;
   }
@@ -259,11 +254,11 @@ extern "C" void SDRAMTest_InitSequence(void)
   FMC_SDRAMCommandStructure.AutoRefreshNumber = 1;
   FMC_SDRAMCommandStructure.ModeRegisterDefinition = 0;
   /* Wait until the SDRAM controller is ready */
-  while(__FMC_SDRAM_GET_FLAG(FMC_Bank5_6, FMC_SDRAM_FLAG_BUSY) != 0)
+  while(__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0)
   {
   }
   /* Send the command */
-  FMC_SDRAM_SendCommand(FMC_Bank5_6, &FMC_SDRAMCommandStructure, 10);
+  FMC_SDRAM_SendCommand(FMC_SDRAM_DEVICE, &FMC_SDRAMCommandStructure, 10);
 
 /* Step 4 --------------------------------------------------------------------*/
   /* Insert 100 ms delay */
@@ -276,11 +271,11 @@ extern "C" void SDRAMTest_InitSequence(void)
   FMC_SDRAMCommandStructure.AutoRefreshNumber = 1;
   FMC_SDRAMCommandStructure.ModeRegisterDefinition = 0;
   /* Wait until the SDRAM controller is ready */
-  while(__FMC_SDRAM_GET_FLAG(FMC_Bank5_6, FMC_SDRAM_FLAG_BUSY) != 0)
+  while(__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0)
   {
   }
   /* Send the command */
-  FMC_SDRAM_SendCommand(FMC_Bank5_6, &FMC_SDRAMCommandStructure, 10);
+  FMC_SDRAM_SendCommand(FMC_SDRAM_DEVICE, &FMC_SDRAMCommandStructure, 10);
 
 /* Step 6 --------------------------------------------------------------------*/
   /* Configure a Auto-Refresh command */
@@ -289,18 +284,18 @@ extern "C" void SDRAMTest_InitSequence(void)
   FMC_SDRAMCommandStructure.AutoRefreshNumber = 4;
   FMC_SDRAMCommandStructure.ModeRegisterDefinition = 0;
   /* Wait until the SDRAM controller is ready */
-  while(__FMC_SDRAM_GET_FLAG(FMC_Bank5_6, FMC_SDRAM_FLAG_BUSY) != 0)
+  while(__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0)
   {
   }
   /* Send the  first command */
-  FMC_SDRAM_SendCommand(FMC_Bank5_6, &FMC_SDRAMCommandStructure, 10);
+  FMC_SDRAM_SendCommand(FMC_SDRAM_DEVICE, &FMC_SDRAMCommandStructure, 10);
 
   /* Wait until the SDRAM controller is ready */
-  while(__FMC_SDRAM_GET_FLAG(FMC_Bank5_6, FMC_SDRAM_FLAG_BUSY) != 0)
+  while(__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0)
   {
   }
   /* Send the second command */
-  FMC_SDRAM_SendCommand(FMC_Bank5_6, &FMC_SDRAMCommandStructure, 10);
+  FMC_SDRAM_SendCommand(FMC_SDRAM_DEVICE, &FMC_SDRAMCommandStructure, 10);
 
 /* Step 7 --------------------------------------------------------------------*/
   /* Program the external memory mode register */
@@ -316,20 +311,20 @@ extern "C" void SDRAMTest_InitSequence(void)
   FMC_SDRAMCommandStructure.AutoRefreshNumber = 1;
   FMC_SDRAMCommandStructure.ModeRegisterDefinition = tmpr;
   /* Wait until the SDRAM controller is ready */
-  while(__FMC_SDRAM_GET_FLAG(FMC_Bank5_6, FMC_SDRAM_FLAG_BUSY) != 0)
+  while(__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0)
   {
   }
   /* Send the command */
-  FMC_SDRAM_SendCommand(FMC_Bank5_6, &FMC_SDRAMCommandStructure, 10);
+  FMC_SDRAM_SendCommand(FMC_SDRAM_DEVICE, &FMC_SDRAMCommandStructure, 10);
 
 /* Step 8 --------------------------------------------------------------------*/
 
   /* Set the refresh rate counter */
   /* (15.62 us x Freq) - 20 */
   /* Set the device refresh counter */
-  FMC_SDRAM_SetAutoRefreshNumber(FMC_Bank5_6, 1385);
+  FMC_SDRAM_SetAutoRefreshNumber(FMC_SDRAM_DEVICE, 1385);
   /* Wait until the SDRAM controller is ready */
-  while(__FMC_SDRAM_GET_FLAG(FMC_Bank5_6, FMC_SDRAM_FLAG_BUSY) != 0)
+  while(__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0)
   {
   }
 }
@@ -364,7 +359,7 @@ extern "C" void SDRAM_Init(void)
   FMC_SDRAMTimingInitStructure.RCDDelay             = 2;
 
   /* FMC SDRAM control configuration */
-  FMC_SDRAMInitStructure.SDBank = FMC_SDRAM_BANK2;
+  FMC_SDRAMInitStructure.SDBank = SDBANK;
   /* Row addressing: [7:0] */
   FMC_SDRAMInitStructure.ColumnBitsNumber = FMC_SDRAM_COLUMN_BITS_NUM_8;
   /* Column addressing: [11:0] */
@@ -375,12 +370,12 @@ extern "C" void SDRAM_Init(void)
   FMC_SDRAMInitStructure.WriteProtection = FMC_SDRAM_WRITE_PROTECTION_DISABLE;
   FMC_SDRAMInitStructure.SDClockPeriod = SDCLOCK_PERIOD;
   FMC_SDRAMInitStructure.ReadBurst = SDRAM_READBURST;
-  FMC_SDRAMInitStructure.ReadPipeDelay = FMC_SDRAM_RPIPE_DELAY_0;
+  FMC_SDRAMInitStructure.ReadPipeDelay = SDRAM_READPIPEDELAY;
 //  FMC_SDRAMInitStructure.SDRAMTimingStruct = &FMC_SDRAMTimingInitStructure;
   
   /* FMC SDRAM bank initialization */
-  FMC_SDRAM_Init(FMC_Bank5_6, &FMC_SDRAMInitStructure);
-  FMC_SDRAM_Timing_Init(FMC_Bank5_6, &FMC_SDRAMTimingInitStructure, FMC_SDRAM_BANK2);
+  FMC_SDRAM_Init(FMC_SDRAM_DEVICE, &FMC_SDRAMInitStructure);
+  FMC_SDRAM_Timing_Init(FMC_SDRAM_DEVICE, &FMC_SDRAMTimingInitStructure, SDBANK);
   
   /* FMC SDRAM device initialization sequence */
   SDRAMTest_InitSequence();
