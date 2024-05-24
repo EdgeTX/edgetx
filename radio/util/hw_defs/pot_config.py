@@ -50,6 +50,10 @@ POT_CONFIG = {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"}
     },
+    "bumblebee": {
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
+    },
     "t20": {
         "P1":  {"default": "POT_CENTER"},
         "P2":  {"default": "POT_CENTER"},
