@@ -72,7 +72,7 @@ declare -a simulator_plugins=(x9lite x9lites
                               xlite xlites
                               nv14 el18 pl18 pl18ev
                               x10 x10-access x12s
-                              t16 t18 t20 tx16s)
+                              t16 t18 t20 t20v2 tx16s)
 
 for plugin in "${simulator_plugins[@]}"
 do
