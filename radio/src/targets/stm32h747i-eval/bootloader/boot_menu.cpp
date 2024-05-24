@@ -35,15 +35,15 @@
 #define DOUBLE_PADDING  56
 #define MESSAGE_TOP     (LCD_H - (2*DOUBLE_PADDING))
 
-const uint8_t __bmp_plug_usb[] __ALIGNED(8) = {
-#include "bmp_plug_usb.lbm"
-};
-LZ4BitmapBuffer BMP_PLUG_USB(BMP_ARGB4444, (LZ4Bitmap*)__bmp_plug_usb);
+// const uint8_t __bmp_plug_usb[] __ALIGNED(8) = {
+// #include "bmp_plug_usb.lbm"
+// };
+// LZ4BitmapBuffer BMP_PLUG_USB(BMP_ARGB4444, (LZ4Bitmap*)__bmp_plug_usb);
 
-const uint8_t __bmp_usb_plugged[] __ALIGNED(8) =  {
-#include "bmp_usb_plugged.lbm"
-};
-LZ4BitmapBuffer BMP_USB_PLUGGED(BMP_ARGB4444, (LZ4Bitmap*)__bmp_usb_plugged);
+// const uint8_t __bmp_usb_plugged[] __ALIGNED(8) =  {
+// #include "bmp_usb_plugged.lbm"
+// };
+// LZ4BitmapBuffer BMP_USB_PLUGGED(BMP_ARGB4444, (LZ4Bitmap*)__bmp_usb_plugged);
 
 #define BL_GREEN      COLOR2FLAGS(RGB(73, 219, 62))
 #define BL_RED        COLOR2FLAGS(RGB(229, 32, 30))
@@ -103,7 +103,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         pos -= 92;
         lcd->drawSolidRect(92, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
         
-        lcd->drawBitmap(60, 214, (const BitmapBuffer*)&BMP_PLUG_USB);
+        // lcd->drawBitmap(60, 214, (const BitmapBuffer*)&BMP_PLUG_USB);
         lcd->drawText(195, 223, TR_BL_USB_PLUGIN, BL_FOREGROUND);
         lcd->drawText(195, 248, TR_BL_USB_MASS_STORE, BL_FOREGROUND);
 
@@ -140,7 +140,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 #endif
 
     else if (st == ST_USB) {
-      lcd->drawBitmap(center - 26, 98, (const BitmapBuffer*)&BMP_USB_PLUGGED);
+      // lcd->drawBitmap(center - 26, 98, (const BitmapBuffer*)&BMP_USB_PLUGGED);
       lcd->drawText(center, 168, TR_BL_USB_CONNECTED, CENTERED | BL_FOREGROUND);
     } else if (st == ST_FILE_LIST || st == ST_DIR_CHECK ||
                st == ST_FLASH_CHECK || st == ST_FLASHING ||
