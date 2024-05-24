@@ -87,7 +87,6 @@ set(GUI_SRC
   model_templates.cpp
   output_edit.cpp
   preflight_checks.cpp
-  function_switches.cpp
   throttle_params.cpp
   timeedit.cpp
   timer_setup.cpp
@@ -105,7 +104,6 @@ set(GUI_SRC
   preview_window.cpp
   radio_calibration.cpp
   radio_diaganas.cpp
-  radio_diagcustswitches.cpp
   radio_diagkeys.cpp
   radio_hardware.cpp
   radio_sdmanager.cpp
@@ -115,6 +113,13 @@ set(GUI_SRC
   radio_trainer.cpp
   radio_version.cpp
   )
+
+if(FUNCTION_SWITCHES)
+  set(GUI_SRC ${GUI_SRC}
+  function_switches.cpp
+  radio_diagcustswitches.cpp
+  )
+endif()
 
 macro(add_gui_src src)
   set(GUI_SRC
