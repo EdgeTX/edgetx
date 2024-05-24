@@ -260,19 +260,17 @@ bool isChargerActive()
 
 void battery_charge_init()
 {
-  // Input pins
-
   // USB charger status pins
   gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
   gpio_init(UCHARGER_CHARGE_END_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
 
 #if defined(WIRELESS_CHARGER)
   // Wireless charger status pins
+  gpio_init(WCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
   gpio_init(WCHARGER_CHARGE_END_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+
 #endif
 
-
-  // Output pins
 
   // USB charger control pins
   gpio_init(UCHARGER_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
