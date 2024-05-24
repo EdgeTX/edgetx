@@ -1334,6 +1334,9 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     node["switchWarningState"] >> switchWarningState.src_str;
     rhs.switchWarningStates = switchWarningState.toCpn();
     rhs.switchWarningEnable = ~switchWarningState.enabled;
+  } else {
+    rhs.switchWarningStates = 0;
+    rhs.switchWarningEnable = ~0;
   }
 
   node["thrTrimSw"] >> rhs.thrTrimSwitch;
