@@ -36,7 +36,6 @@ class AbstractStaticItemModel;
 enum AssignFunc {
   FuncOverrideCH1 = 0,
   FuncOverrideCHLast = FuncOverrideCH1 + CPN_MAX_CHNOUT - 1,
-  FuncOverrideCH32 = FuncOverrideCHLast,  //  TODO remove
   FuncTrainer,
   FuncTrainerRUD,
   FuncTrainerELE,
@@ -48,8 +47,6 @@ enum AssignFunc {
   FuncPlayHaptic,
   FuncReset,
   FuncSetTimer1,
-  FuncSetTimer2,  //  TODO remove
-  FuncSetTimer3,  //  TODO remove
   FuncSetTimerLast = FuncSetTimer1 + CPN_MAX_TIMERS - 1,
   FuncVario,
   FuncPlayPrompt,

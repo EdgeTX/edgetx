@@ -61,7 +61,7 @@ QString AdjustmentReference::toString(const ModelData * model, const bool sign) 
 
   switch(type) {
     case ADJUST_REF_GVAR:
-      ret = RawSource(SOURCE_TYPE_GVAR, abs(value) - 1).toString(model);
+      ret = RawSource(SOURCE_TYPE_GVAR, abs(value)).toString(model);
       if (value < 0)
         ret.prepend("-");
       else if (sign)

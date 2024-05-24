@@ -112,7 +112,7 @@ template <size_t L>
 char *getSourceString(char (&dest)[L], mixsrc_t idx);
 
 template <size_t L>
-char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
+char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
                                  LcdFlags flags);
 
 #endif
@@ -120,7 +120,7 @@ char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
 char *getFlightModeString(char *dest, int8_t idx);
 
 char *getSourceString(mixsrc_t idx);
-char *getSourceCustomValueString(source_t source, int32_t val, LcdFlags flags);
+char *getSourceCustomValueString(mixsrc_t source, int32_t val, LcdFlags flags);
 char *getSwitchPositionName(swsrc_t idx);
 char *getCurveString(int idx);
 char *getTimerString(int32_t tme, TimerOptions timerOptions = {.options = 0});
@@ -150,20 +150,6 @@ void clearStruct(S &s)
 
 template <size_t N>
 using offset_t = std::integral_constant<size_t, N>;
-
-template <size_t DL, size_t SL, size_t O = 0>
-void copyToTerminated(char (&dest)[DL], const char (&src)[SL],
-                      const offset_t<O> = offset_t<0>{})
-{
-  // unfortinately std::min() isn't constexpr in C++11
-  // static constexpr size_t len = std::min(DL - O - 1, SL);
-  static constexpr size_t dl{DL - O - 1};
-  static_assert(dl > 0, "wrong sizes or offset");
-  static constexpr size_t len = (dl < SL) ? dl : SL;
-  strncpy(&dest[O], &src[0], len);
-  static_assert((len + O) < DL, "wrong sizes of offset");
-  dest[len + O] = '\0';
-}
 
 template <size_t L1, size_t L2>
 int strncasecmp(char (&s1)[L1], const char (&s2)[L2])

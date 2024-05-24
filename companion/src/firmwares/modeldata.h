@@ -381,13 +381,13 @@ class ModelData {
     void updateTelemetryRef(int & idx);
     void updateTelemetryRef(unsigned int & idx);
     void updateModuleFailsafes(ModuleData * md);
-    inline void updateSourceRef(RawSource & src) { updateTypeIndexRef<RawSource, RawSourceType>(src, updRefInfo.srcType); }
+    inline void updateSourceRef(RawSource & src) { updateTypeIndexRef<RawSource, RawSourceType>(src, updRefInfo.srcType, 1); }
     inline void updateSwitchRef(RawSwitch & swtch) { updateTypeIndexRef<RawSwitch, RawSwitchType>(swtch, updRefInfo.swtchType, 1); }
     inline void updateTimerMode(RawSwitch & swtch) { updateTypeIndexRef<RawSwitch, RawSwitchType>(swtch, updRefInfo.swtchType, 1, false, (int)SWITCH_TYPE_TIMER_MODE, 0); }
     inline void updateSourceIntRef(int & value)
     {
       RawSource src = RawSource(value);
-      updateTypeIndexRef<RawSource, RawSourceType>(src, updRefInfo.srcType);
+      updateTypeIndexRef<RawSource, RawSourceType>(src, updRefInfo.srcType, 1);
       if (value != src.toValue())
         value = src.toValue();
     }

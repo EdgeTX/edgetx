@@ -167,7 +167,7 @@ struct YamlThrTrace {
   YamlThrTrace(unsigned int cpn_value)
   {
     if (cpn_value == 0) {
-      src = RawSource(SOURCE_TYPE_STICK, 2/* throttle */);
+      src = RawSource(SOURCE_TYPE_INPUT, 2/* throttle */);
       return;
     }
     cpn_value--;
@@ -175,7 +175,7 @@ struct YamlThrTrace {
     int pots = board.getCapability(Board::Pots);
     int sliders = board.getCapability(Board::Sliders);
     if (cpn_value < (unsigned int)(pots + sliders)) {
-      src = RawSource(SOURCE_TYPE_STICK, 4/* sticks */ + cpn_value);
+      src = RawSource(SOURCE_TYPE_INPUT, 4/* sticks */ + cpn_value);
     }
     else {
       cpn_value -= pots + sliders;
@@ -186,7 +186,7 @@ struct YamlThrTrace {
   unsigned int toCpn()
   {
     switch (src.type) {
-      case SOURCE_TYPE_STICK:
+      case SOURCE_TYPE_INPUT:
         if (src.index == 2 /* throttle */) {
           return 0;
         } else {

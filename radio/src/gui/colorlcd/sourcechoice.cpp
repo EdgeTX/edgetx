@@ -38,7 +38,7 @@
 class SourceChoiceMenuToolbar : public MenuToolbar
 {
  public:
-  SourceChoiceMenuToolbar(SourceChoice *choice, Menu *menu) :
+  SourceChoiceMenuToolbar(SourceChoice* choice, Menu* menu) :
       MenuToolbar(choice, menu, FILTER_COLUMNS)
   {
     addButton(STR_CHAR_INPUT, MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, nullptr,
@@ -104,8 +104,78 @@ class SourceChoiceMenuToolbar : public MenuToolbar
     if ((nxtBtnPos > filterColumns) && choice->isValueAvailable &&
         choice->isValueAvailable(0))
       addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
+
+#if defined(HARDWARE_TOUCH)
+    if (choice->canInvert) {
+      invertBtn = new MenuToolbarButton(this, {0, 0, LV_PCT(100), 0},
+                                        STR_SELECT_MENU_INV);
+      invertBtn->check(choice->inverted);
+      lv_obj_align(invertBtn->getLvObj(), LV_ALIGN_BOTTOM_MID, 0, 0);
+
+      invertBtn->setPressHandler([=]() {
+        lv_obj_clear_state(invertBtn->getLvObj(), LV_STATE_FOCUSED);
+        invertChoice();
+        return choice->inverted;
+      });
+    }
+#endif
   }
+
+  void invertChoice()
+  {
+    SourceChoice* sourceChoice = (SourceChoice*)choice;
+    if (sourceChoice->canInvert) {
+      sourceChoice->inverted = !sourceChoice->inverted;
+      auto idx = menu->selection();
+      sourceChoice->fillMenu(menu, filter);
+      menu->select(idx);
+#if defined(HARDWARE_TOUCH)
+      invertBtn->check(sourceChoice->inverted);
+#endif
+    }
+  }
+
+  void longPress()
+  {
+    lv_indev_t* indev = lv_indev_get_act();
+    if (indev->driver->type == LV_INDEV_TYPE_KEYPAD) {
+      invertChoice();
+    }
+  }
+
+ protected:
+#if defined(HARDWARE_TOUCH)
+  MenuToolbarButton* invertBtn = nullptr;
+#endif
 };
+
+void SourceChoice::LongPressHandler(void* data)
+{
+  SourceChoice* src = (SourceChoice*)data;
+  if (src && src->canInvert) {
+    int16_t val = src->_getValue();
+    if (src->isValueAvailable && src->isValueAvailable(-val)) {
+      src->setValue(-val);
+      src->invalidate();
+    }
+  }
+}
+
+void SourceChoice::setValue(int value)
+{
+  if (inMenu) {
+    if (inverted) value = -value;
+    inMenu = false;
+  }
+  Choice::setValue(value);
+}
+
+int SourceChoice::getIntValue() const
+{
+  int value = Choice::getIntValue();
+  if (inMenu) value = abs(value);
+  return value;
+}
 
 // defined in gui/gui_common.cpp
 uint8_t switchToMix(uint8_t source);
@@ -113,6 +183,9 @@ uint8_t switchToMix(uint8_t source);
 void SourceChoice::openMenu()
 {
   setEditMode(true);  // this needs to be done first before menu is created.
+
+  inverted = getIntValue() < 0;
+  inMenu = true;
 
   auto menu = new Menu(this);
   if (menuTitle) menu->setTitle(menuTitle);
@@ -149,15 +222,19 @@ void SourceChoice::openMenu()
 
 SourceChoice::SourceChoice(Window *parent, const rect_t &rect, int16_t vmin,
                            int16_t vmax, std::function<int16_t()> getValue,
-                           std::function<void(int16_t)> setValue) :
-    Choice(parent, rect, vmin, vmax, getValue, setValue, STR_SOURCE)
+                           std::function<void(int16_t)> setValue, bool allowInvert) :
+    Choice(parent, rect, vmin, vmax, getValue, setValue, STR_SOURCE), canInvert(allowInvert)
 {
   setTextHandler([=](int value) {
+    if (inMenu && inverted) value = -value;
+
     if (isValueAvailable && !isValueAvailable(value))
       return std::to_string(0);  // we will fix this later
 
     return std::string(getSourceString(value));
   });
+
+  set_lv_LongPressHandler(LongPressHandler, this);
 
   setAvailableHandler([](int v) { return isSourceAvailable(v); });
 }

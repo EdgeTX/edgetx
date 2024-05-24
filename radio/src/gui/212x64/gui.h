@@ -146,7 +146,7 @@ extern int8_t s_copySrcRow;
 extern int8_t s_copyTgtOfs;
 extern uint8_t s_currIdx;
 extern uint8_t s_currIdxSubMenu;
-extern uint16_t s_currSrcRaw;
+extern mixsrc_t s_currSrcRaw;
 extern uint16_t s_currScale;
 extern uint8_t s_copySrcIdx;
 extern uint8_t s_copySrcCh;

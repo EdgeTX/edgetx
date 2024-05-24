@@ -22,8 +22,6 @@
 #include "themes/etx_lv_theme.h"
 #include "translations.h"
 
-constexpr uint32_t MENUS_TOOLBAR_BUTTON_WIDTH =    32;
-
 static const lv_obj_class_t menu_button_class = {
     .base_class = &button_class,
     .constructor_cb = nullptr,

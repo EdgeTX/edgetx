@@ -33,10 +33,20 @@ class SourceChoice : public Choice
  public:
   SourceChoice(Window* parent, const rect_t& rect, int16_t vmin, int16_t vmax,
                std::function<int16_t()> getValue,
-               std::function<void(int16_t)> setValue);
+               std::function<void(int16_t)> setValue, bool allowInvert = false);
+
+  static void LongPressHandler(void* data);
 
  protected:
   friend SourceChoiceMenuToolbar;
+
+  bool inMenu = false;
+  bool canInvert = false;
+
+  void setValue(int value) override;
+  int getIntValue() const override;
+
+  void invertChoice();
 
   void openMenu() override;
 

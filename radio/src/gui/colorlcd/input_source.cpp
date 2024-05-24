@@ -95,14 +95,14 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_COLUMN);
   lv_obj_set_size(lvobj, lv_pct(100), LV_SIZE_CONTENT);
 
-  new SourceChoice(this, rect_t{}, INPUTSRC_FIRST, INPUTSRC_LAST,
-                   GET_DEFAULT(input->srcRaw), [=](int32_t newValue) {
-                     input->srcRaw = newValue;
-                     lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
-                     SET_DIRTY();
-                   });
-  lv_obj_add_event_cb(lvobj, InputSource::value_changed, LV_EVENT_VALUE_CHANGED,
-                      nullptr);
+  new SourceChoice(
+      this, rect_t{}, INPUTSRC_FIRST, INPUTSRC_LAST, GET_DEFAULT(input->srcRaw),
+      [=](int32_t newValue) {
+        input->srcRaw = newValue;
+        lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+        SET_DIRTY();
+      }, true);
+  lv_obj_add_event_cb(lvobj, InputSource::value_changed, LV_EVENT_VALUE_CHANGED, nullptr);
 
   sensor_form = new Window(this, rect_t{});
   sensor_form->padAll(PAD_TINY);

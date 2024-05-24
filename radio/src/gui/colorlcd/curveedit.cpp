@@ -193,7 +193,7 @@ void CurveDataEdit::update()
   }
 }
 
-void CurveEdit::SetCurrentSource(uint32_t source)
+void CurveEdit::SetCurrentSource(mixsrc_t source)
 {
   CurveEdit::currentSource = source;
   if (source)

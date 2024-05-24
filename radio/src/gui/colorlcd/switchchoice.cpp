@@ -98,7 +98,9 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
   }
 
  protected:
+#if defined(HARDWARE_TOUCH)
   MenuToolbarButton* invertBtn = nullptr;
+#endif
 };
 
 void SwitchChoice::LongPressHandler(void* data)

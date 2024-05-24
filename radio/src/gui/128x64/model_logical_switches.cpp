@@ -116,7 +116,7 @@ void menuModelLogicalSwitchOne(event_t event)
         else {
           v1_val = cs->v1;
           drawSource(CSWONE_2ND_COLUMN, y, v1_val, attr);
-          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE);
+          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
           INCDEC_ENABLE_CHECK(isSourceAvailable);
         }
         if (attr) {
@@ -152,7 +152,7 @@ void menuModelLogicalSwitchOne(event_t event)
         }
         else if (cstate == LS_FAMILY_COMP) {
           drawSource(CSWONE_2ND_COLUMN, y, cs->v2, attr);
-          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE);
+          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
           INCDEC_ENABLE_CHECK(isSourceAvailable);
         }
         else {
@@ -175,7 +175,7 @@ void menuModelLogicalSwitchOne(event_t event)
             getMixSrcRange(v1_val, v2_min, v2_max, &lf);
             if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG) || (cs->func == LS_FUNC_ADIFFEGREATER))
               v2_min = 0;
-            drawSourceCustomValue(CSWONE_2ND_COLUMN, y, v1_val, (v1_val <= MIXSRC_LAST_CH ? calc100toRESX(cs->v2) : cs->v2), lf);
+            drawSourceCustomValue(CSWONE_2ND_COLUMN, y, v1_val, (abs(v1_val) <= MIXSRC_LAST_CH ? calc100toRESX(cs->v2) : cs->v2), lf);
           }
         }
 
@@ -313,7 +313,7 @@ void menuModelLogicalSwitches(event_t event)
         lcdDrawNumber(CSW_3RD_COLUMN, y, lswTimerValue(cs->v2), LEFT|PREC1);
       }
       else {
-        source_t v1 = cs->v1;
+        mixsrc_t v1 = cs->v1;
         drawSource(CSW_2ND_COLUMN, y, v1, 0);
         if (v1 >= MIXSRC_FIRST_TELEM) {
           drawSourceCustomValue(CSW_3RD_COLUMN, y, v1, convertLswTelemValue(cs), LEFT);
