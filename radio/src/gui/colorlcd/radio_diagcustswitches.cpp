@@ -41,9 +41,11 @@ class RadioCustSwitchesDiagsWindow : public Window
           coord_t y = 2 * FH + i * FH;
           new StaticText(this, {10, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT}, STR_CHAR_SWITCH);
           new StaticText(this, {25, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT}, switchGetName(i+switchGetMaxSwitches()));
+#if defined(FUNCTION_SWITCHES)
           new DynamicText(this, {FS_1ST_COLUMN + 10, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT}, [=]() { return getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP; });
           new DynamicText(this, {FS_2ND_COLUMN + 10, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT}, [=]() { return getFSLogicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP; });
           new DynamicText(this, {FS_3RD_COLUMN + 5, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT}, [=]() { return STR_OFFON[getFSLedState(i)]; });
+#endif
       }
     }
 

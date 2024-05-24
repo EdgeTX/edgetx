@@ -85,12 +85,15 @@ bool switchHasCustomName(uint8_t idx);
 
 SwitchConfig switchGetMaxType(uint8_t idx);
 
+#if defined(FUNCTION_SWITCHES)
 // Customizable switches
-extern uint8_t fsPreviousState;
 void evalFunctionSwitches();
-void setFSStartupPosition();
-void fsLedOff(uint8_t);
-void fsLedOn(uint8_t);
 uint8_t getFSLogicalState(uint8_t index);
 uint8_t getFSPhysicalState(uint8_t index);
+void setFSStartupPosition();
+
+//led_driver.cpp
+void fsLedOff(uint8_t);
+void fsLedOn(uint8_t);
 bool getFSLedState(uint8_t index);
+#endif

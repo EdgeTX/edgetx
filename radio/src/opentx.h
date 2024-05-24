@@ -26,6 +26,7 @@
 #include "opentx_types.h"
 #include "opentx_helpers.h"
 #include "touch.h"
+#include "switches.h"
 
 #if defined(SIMU)
 #include "targets/simu/simpgmspace.h"
