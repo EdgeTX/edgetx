@@ -1064,7 +1064,11 @@
 #elif defined(PCBX10)
   #define INTMODULE_BOOTCMD_GPIO        GPIO_PIN(GPIOI, 9) // PI.09
 #endif
-#define INTMODULE_BOOTCMD_DEFAULT       0 // RESET
+#if defined(RADIO_V16)
+  #define INTMODULE_BOOTCMD_DEFAULT     1 // RESET
+#else
+  #define INTMODULE_BOOTCMD_DEFAULT     0 // RESET
+#endif
 
 // External Module
 #define EXTMODULE_PWR_GPIO                 GPIO_PIN(GPIOB, 3) // PB.03
