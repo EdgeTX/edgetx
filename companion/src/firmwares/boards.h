@@ -321,6 +321,7 @@ class Boards
     static QList<int> getSupportedInternalModules(Board::Type board);
     static int getDefaultInternalModules(Board::Type board);
     static int getDefaultExternalModuleSize(Board::Type board);
+    static void getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int& vwarn);
     static QString externalModuleSizeToString(int value);
     static AbstractStaticItemModel * externalModuleSizeItemModel();
 

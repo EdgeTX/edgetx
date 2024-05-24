@@ -166,31 +166,7 @@ void GeneralSettings::init()
   Board::Type board = firmware->getBoard();
 
   // vBatWarn is voltage in 100mV, vBatMin is in 100mV but with -9V offset, vBatMax has a -12V offset
-  vBatWarn  = 90;
-  if (IS_TARANIS_X9E(board) || IS_HORUS_X12S(board)) {
-    // NI-MH 9.6V
-    vBatWarn = 87;
-    vBatMin = -5;   //8,5V
-    vBatMax = -5;   //11,5V
-  }
-  else if (IS_TARANIS_XLITE(board) || IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
-    // Lipo 2S
-    vBatWarn = 66;
-    vBatMin = -23;  // 6.7V
-    vBatMax = -37;  // 8.3V
-  }
-  else if (IS_JUMPER_TLITE(board)) {
-    // 1S Li-Ion
-    vBatWarn = 32;
-    vBatMin = -60; //3V
-    vBatMax = -78; //4.2V
-  }
-  else if (IS_TARANIS(board)) {
-    // NI-MH 7.2V, X9D, X9D+ and X7
-    vBatWarn = 65;
-    vBatMin = -30; //6V
-    vBatMax = -40; //8V
-  }
+  Boards::getBattRange(board, vBatMin, vBatMax, vBatWarn);
 
   backlightMode = 3; // keys and sticks
   backlightDelay = 2; // 2 * 5 = 10 secs
