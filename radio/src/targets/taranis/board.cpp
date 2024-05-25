@@ -71,7 +71,9 @@ void boardInit()
 {
   LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
-  LL_APB1_GRP1_EnableClock(LCD_RCC_APB1Periph);
+#if defined(LCD_RCC_APB1Periph)
+  LL_APB1_GRP1_EnableClock(LCD_RCC_APB1Periph); //X9D uses soft SPI
+#endif
 
 #if defined(BLUETOOTH) && !defined(PCBX9E)
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
