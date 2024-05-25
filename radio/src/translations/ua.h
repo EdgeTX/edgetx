@@ -401,7 +401,7 @@
 #define TR_POTS                        "Потенціометри"
 #define TR_SWITCHES                    "Перемикачі"
 #define TR_SWITCHES_DELAY              TR("Затримка відтвор.", "Затримка відтворення (середнє полож. перем.)")
-#define TR_SLAVE                       CENTER "Slave"		/* use english */
+#define TR_SLAVE                       "Slave"		/* use english */
 #define TR_MODESRC                     "Mode\006% Source"		/* use english */
 #define TR_MULTIPLIER                  "Множник"	
 #define TR_CAL                         "Калібрув."
