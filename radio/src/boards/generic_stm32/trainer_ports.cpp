@@ -39,7 +39,7 @@ void board_trainer_init()
   trainer_init();
 }
 
-#if defined(TRAINER_GPIO)
+#if defined(TRAINER_IN_GPIO)
 
 bool trainer_dsc_available() { return true; }
 
