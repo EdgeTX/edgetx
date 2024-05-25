@@ -49,16 +49,16 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 void RadioTrainerPage::build(Window * form)
 {
-  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
-  form->setFlexLayout();
   form->padAll(PAD_SMALL);
 
-  bool slave = SLAVE_MODE();
-
-  if (slave) {
-    auto line = form->newLine(grid);
-    new StaticText(line, rect_t{}, STR_SLAVE);
+  if (SLAVE_MODE()) {
+    form->setHeight(MENU_BODY_HEIGHT);
+    auto txt = new StaticText(form, rect_t{}, STR_SLAVE, FONT(L));
+    lv_obj_align(txt->getLvObj(), LV_ALIGN_CENTER, 0, 0);
   } else {
+    FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
+    form->setFlexLayout();
+
     auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
     for (uint8_t i = 0; i < max_sticks; i++) {
       uint8_t chan = inputMappingChannelOrder(i);
@@ -73,11 +73,11 @@ void RadioTrainerPage::build(Window * form)
                                   GET_SET_DEFAULT(td->studWeight));
       weight->setSuffix("%");
 
-  #if LCD_H > LCD_W
+#if LCD_H > LCD_W
       line = form->newLine(grid);
       line->padLeft(30);
       line->padBottom(8);
-  #endif
+#endif
 
       LcdFlags flags = LEFT | COLOR_THEME_PRIMARY1;
       if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1)
@@ -89,11 +89,11 @@ void RadioTrainerPage::build(Window * form)
     }
 
     auto line = form->newLine(grid);
-  #if LCD_H > LCD_W
+#if LCD_H > LCD_W
     line->padTop(10);
-  #else
+#else
     line->padTop(6);
-  #endif
+#endif
 
     // Trainer multiplier
     auto lbl = new StaticText(line, rect_t{}, STR_MULTIPLIER);
@@ -106,10 +106,10 @@ void RadioTrainerPage::build(Window * form)
         [](int32_t value) { return formatNumberAsString(value + 10, PREC1); });
     lv_obj_set_grid_cell(multiplier->getLvObj(), LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-  #if LCD_H > LCD_W
+#if LCD_H > LCD_W
     line = form->newLine(grid);
     line->padTop(10);
-  #endif
+#endif
 
     // Trainer calibration
     auto btn = new TextButton(line, rect_t{}, std::string(STR_CALIBRATION), [=]() -> uint8_t {
@@ -118,10 +118,10 @@ void RadioTrainerPage::build(Window * form)
       SET_DIRTY();
       return 0;
     });
-  #if LCD_H > LCD_W
+#if LCD_H > LCD_W
     lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 2, LV_GRID_ALIGN_CENTER, 0, 1);
-  #else
+#else
     lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_START, 3, 2, LV_GRID_ALIGN_CENTER, 0, 1);
-  #endif
+#endif
   }
 }
