@@ -53,68 +53,75 @@ void RadioTrainerPage::build(Window * form)
   form->setFlexLayout();
   form->padAll(PAD_SMALL);
 
-  auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
-  for (uint8_t i = 0; i < max_sticks; i++) {
-    uint8_t chan = inputMappingChannelOrder(i);
-    TrainerMix* td = &g_eeGeneral.trainer.mix[chan];
+  bool slave = SLAVE_MODE();
+
+  if (slave) {
+    auto line = form->newLine(grid);
+    new StaticText(line, rect_t{}, STR_SLAVE);
+  } else {
+    auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
+    for (uint8_t i = 0; i < max_sticks; i++) {
+      uint8_t chan = inputMappingChannelOrder(i);
+      TrainerMix* td = &g_eeGeneral.trainer.mix[chan];
+
+      auto line = form->newLine(grid);
+      new StaticText(line, rect_t{}, getMainControlLabel(chan));
+
+      new Choice(line, rect_t{}, STR_TRNMODE, 0, 2, GET_SET_DEFAULT(td->mode));
+      new Choice(line, rect_t{}, STR_TRNCHN, 0, 3, GET_SET_DEFAULT(td->srcChn));
+      auto weight = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -125, 125,
+                                  GET_SET_DEFAULT(td->studWeight));
+      weight->setSuffix("%");
+
+  #if LCD_H > LCD_W
+      line = form->newLine(grid);
+      line->padLeft(30);
+      line->padBottom(8);
+  #endif
+
+      LcdFlags flags = LEFT | COLOR_THEME_PRIMARY1;
+      if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1)
+        flags |= PREC1;
+
+      new DynamicNumber<int16_t>(line, rect_t{},
+          [=]() { return (trainerInput[i] - g_eeGeneral.trainer.calib[i]) * 2; },
+          flags);
+    }
 
     auto line = form->newLine(grid);
-    new StaticText(line, rect_t{}, getMainControlLabel(chan));
+  #if LCD_H > LCD_W
+    line->padTop(10);
+  #else
+    line->padTop(6);
+  #endif
 
-    new Choice(line, rect_t{}, STR_TRNMODE, 0, 2, GET_SET_DEFAULT(td->mode));
-    new Choice(line, rect_t{}, STR_TRNCHN, 0, 3, GET_SET_DEFAULT(td->srcChn));
-    auto weight = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -125, 125,
-                                 GET_SET_DEFAULT(td->studWeight));
-    weight->setSuffix("%");
+    // Trainer multiplier
+    auto lbl = new StaticText(line, rect_t{}, STR_MULTIPLIER);
+    lbl->padRight(4);
+    lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_END, 0, 2, LV_GRID_ALIGN_CENTER, 0, 1);
 
-#if LCD_H > LCD_W
+    auto multiplier = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -10, 40,
+                                    GET_SET_DEFAULT(g_eeGeneral.PPM_Multiplier));
+    multiplier->setDisplayHandler(
+        [](int32_t value) { return formatNumberAsString(value + 10, PREC1); });
+    lv_obj_set_grid_cell(multiplier->getLvObj(), LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+  #if LCD_H > LCD_W
     line = form->newLine(grid);
-    line->padLeft(30);
-    line->padBottom(8);
-#endif
+    line->padTop(10);
+  #endif
 
-    LcdFlags flags = LEFT | COLOR_THEME_PRIMARY1;
-    if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1)
-      flags |= PREC1;
-
-    new DynamicNumber<int16_t>(line, rect_t{},
-        [=]() { return (trainerInput[i] - g_eeGeneral.trainer.calib[i]) * 2; },
-        flags);
+    // Trainer calibration
+    auto btn = new TextButton(line, rect_t{}, std::string(STR_CALIBRATION), [=]() -> uint8_t {
+      memcpy(g_eeGeneral.trainer.calib, trainerInput,
+            sizeof(g_eeGeneral.trainer.calib));
+      SET_DIRTY();
+      return 0;
+    });
+  #if LCD_H > LCD_W
+    lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 2, LV_GRID_ALIGN_CENTER, 0, 1);
+  #else
+    lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_START, 3, 2, LV_GRID_ALIGN_CENTER, 0, 1);
+  #endif
   }
-
-  auto line = form->newLine(grid);
-#if LCD_H > LCD_W
-  line->padTop(10);
-#else
-  line->padTop(6);
-#endif
-
-  // Trainer multiplier
-  auto lbl = new StaticText(line, rect_t{}, STR_MULTIPLIER);
-  lbl->padRight(4);
-  lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_END, 0, 2, LV_GRID_ALIGN_CENTER, 0, 1);
-
-  auto multiplier = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -10, 40,
-                                   GET_SET_DEFAULT(g_eeGeneral.PPM_Multiplier));
-  multiplier->setDisplayHandler(
-      [](int32_t value) { return formatNumberAsString(value + 10, PREC1); });
-  lv_obj_set_grid_cell(multiplier->getLvObj(), LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-
-#if LCD_H > LCD_W
-  line = form->newLine(grid);
-  line->padTop(10);
-#endif
-
-  // Trainer calibration
-  auto btn = new TextButton(line, rect_t{}, std::string(STR_CALIBRATION), [=]() -> uint8_t {
-    memcpy(g_eeGeneral.trainer.calib, trainerInput,
-           sizeof(g_eeGeneral.trainer.calib));
-    SET_DIRTY();
-    return 0;
-  });
-#if LCD_H > LCD_W
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 2, LV_GRID_ALIGN_CENTER, 0, 1);
-#else
-  lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_START, 3, 2, LV_GRID_ALIGN_CENTER, 0, 1);
-#endif
 }
