@@ -403,7 +403,7 @@
 #define TR_POTS                "Pots"
 #define TR_SWITCHES            TR("Switches","Schakelaars")
 #define TR_SWITCHES_DELAY      "Vertraging"
-#define TR_SLAVE               CENTER "Leerling"
+#define TR_SLAVE               "Leerling"
 #define TR_MODESRC             "Mode\006% Source"
 #define TR_MULTIPLIER          "Multiplier"
 #define TR_CAL                 "Cal"

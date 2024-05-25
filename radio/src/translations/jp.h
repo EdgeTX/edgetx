@@ -404,7 +404,7 @@
 #define TR_POTS                        "ダイヤル"
 #define TR_SWITCHES                    "スイッチ"
 #define TR_SWITCHES_DELAY              TR("Play delay", "遅延(スイッチ位置)")
-#define TR_SLAVE                       CENTER "スレーブ"
+#define TR_SLAVE                       "スレーブ"
 #define TR_MODESRC                     "モード\006% ソース"
 #define TR_MULTIPLIER                  "倍率"
 #define TR_CAL                         "設定"

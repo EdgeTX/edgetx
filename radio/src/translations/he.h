@@ -409,7 +409,7 @@
 #define TR_POTS                        "גלגלות"
 #define TR_SWITCHES                    "מתגים"
 #define TR_SWITCHES_DELAY              TR("Play delay", "השהיית השמעת מתג")
-#define TR_SLAVE                       CENTER "Slave"
+#define TR_SLAVE                       "Slave"
 #define TR_MODESRC                     "Mode\006% Source"
 #define TR_MULTIPLIER                  "Multiplier"
 #define TR_CAL                         "Cal"
