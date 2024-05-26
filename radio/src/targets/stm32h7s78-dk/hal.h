@@ -188,52 +188,23 @@
 
 // Backlight
 // TODO TIM3, TIM8, TIM14, review the channel in backlight_driver.cpp according to the chosen timer
-#define BACKLIGHT_RCC_APB2Periph        0
-#define BACKLIGHT_GPIO                  GPIO_PIN(GPIOA, 15)
-#define BACKLIGHT_TIMER                 TIM2
-#define BACKLIGHT_GPIO_AF               GPIO_AF1
-#define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
+// #define BACKLIGHT_RCC_APB2Periph        0
+// #define BACKLIGHT_GPIO                  GPIO_PIN(GPIOA, 15)
+// #define BACKLIGHT_TIMER                 TIM2
+// #define BACKLIGHT_GPIO_AF               GPIO_AF1
+// #define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
-//used in BOOTLOADER
-// #define SERIAL_RCC_AHB1Periph           0
-// #define SERIAL_RCC_APB1Periph           0
-// #define ROTARY_ENCODER_RCC_APB1Periph   0
-
-// TODO: config for voltage level translator (IP4856CX25)
+// Storage
 #define STORAGE_USE_SDIO
 
+/*
+ * SDIO pins:
+ *  - SDMMC1_D0-D3 (PC.08-11)
+ *  - SDMMC1_CK    (PC.12)
+ *  - SDMMC1_CMD   (PD.02)
+ */
 #define SD_SDIO SDMMC1
 #define SD_SDIO_TRANSFER_CLK_DIV SDMMC_NSPEED_CLK_DIV
-
-/*
- * Normal pins:
- *  - AF12: SDMMC1_D0-D3 (PC.08-11), SDMMC1_CK (PC.12)
- *  - AF12: SDMMC1_CMD (PD.02)
- *
- * STM32H747i-eval:
- *  - AF7: SDMMC1_CKIN (PB.08), SDMMC1_CDIR (PB.09)
- *  - AF8: SDMMC1_D0DIR (PC.06), SDMMC1_D123DIR (PC.07)
- */
-
-#define SD_SDIO_CKIN_GPIO GPIOB
-#define SD_SDIO_CKIN_GPIO_AF LL_GPIO_AF_7
-#define SD_SDIO_CKIN_GPIO_PIN \
-  (LL_GPIO_PIN_8)
-
-#define SD_SDIO_CDIR_GPIO GPIOB
-#define SD_SDIO_CDIR_GPIO_AF LL_GPIO_AF_7
-#define SD_SDIO_CDIR_GPIO_PIN \
-  (LL_GPIO_PIN_9)
-
-#define SD_SDIO_DDIR_GPIO GPIOC
-#define SD_SDIO_DDIR_GPIO_AF LL_GPIO_AF_8
-#define SD_SDIO_DDIR_GPIO_PINS \
-  (LL_GPIO_PIN_6 | LL_GPIO_PIN_7)
-
-
-// SDRAM
-// #define SDRAM_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH)
-// #define SDRAM_RCC_AHB3Periph            RCC_AHB3Periph_FMC
 
 // Audio
 // #define AUDIO_RCC_APB1Periph            (RCC_APB1Periph_TIM6 | RCC_APB1Periph_DAC)
@@ -250,14 +221,14 @@
 // I2C Bus
 #define I2C_B1                          I2C1
 #define I2C_B1_GPIO                     GPIOB
-#define I2C_B1_SDA_GPIO_PIN             LL_GPIO_PIN_7  // PB.07
+#define I2C_B1_SDA_GPIO_PIN             LL_GPIO_PIN_9  // PB.09
 #define I2C_B1_SCL_GPIO_PIN             LL_GPIO_PIN_6  // PB.06
 #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4
 
 // Touch
 #define TOUCH_I2C_BUS                   I2C_Bus_1
 #define TOUCH_I2C_CLK_RATE              400000
-#define TOUCH_INT_GPIO                  GPIO_PIN(GPIOI, 8) // PI.08
+#define TOUCH_INT_GPIO                  GPIO_PIN(GPIOE, 3) // PE.03
 
 // TOUCH_INT_EXTI IRQ
 // #if !defined(USE_EXTI9_5_IRQ)

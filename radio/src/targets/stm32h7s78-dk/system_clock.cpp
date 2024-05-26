@@ -93,6 +93,24 @@ void SystemClock_Config()
   while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL1) {
   }
 
+  /* PLL2 configuration and activation */
+  // LL_RCC_PLL2P_Enable();
+  // LL_RCC_PLL2Q_Enable();
+  // LL_RCC_PLL2R_Enable();
+  LL_RCC_PLL2S_Enable();
+  LL_RCC_PLL2FRACN_Disable();
+  LL_RCC_PLL2_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_2_4);
+  LL_RCC_PLL2_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
+  LL_RCC_PLL2_SetM(2);
+  LL_RCC_PLL2_SetN(50);
+  // LL_RCC_PLL2_SetP(1);
+  // LL_RCC_PLL2_SetQ(2);
+  // LL_RCC_PLL2_SetR(2);
+  LL_RCC_PLL2_SetS(3);
+  LL_RCC_PLL2_Enable();
+  while (LL_RCC_PLL2_IsReady() != 1) {
+  }
+
   /* Enable SRAM1, SRAM2 & SRAM3 */
   // LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_D2SRAM1 |
   //                          LL_AHB2_GRP1_PERIPH_D2SRAM2 |
@@ -102,7 +120,9 @@ void SystemClock_Config()
   // LL_RCC_SetFMCClockSource(LL_RCC_FMC_CLKSOURCE_HCLK);
   // LL_RCC_SetSPIClockSource(LL_RCC_SPI123_CLKSOURCE_PLL3P);
   // LL_RCC_SetUSBClockSource(LL_RCC_USB_CLKSOURCE_PLL3Q);
+
   LL_RCC_SetXSPIClockSource(LL_RCC_XSPI1_CLKSOURCE_PLL2S);
+  LL_RCC_SetXSPIClockSource(LL_RCC_XSPI2_CLKSOURCE_PLL2S);
 
   // Only required if using Async ADC clock ???
   LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSOURCE_CLKP);

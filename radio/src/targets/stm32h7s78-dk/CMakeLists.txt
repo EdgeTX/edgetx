@@ -37,11 +37,12 @@ set(HARDWARE_TOUCH ON)
 # set(FLYSKY_GIMBAL ON)
 set(IMU ON)
 
+set(FIRMWARE_QSPI ON)
+
 add_definitions(
-  -DSTM32H7S7xx -DCORE_CM7
+  -DSTM32H7S7xx -DCORE_CM7 -DFIRMWARE_QSPI
   -DSDRAM -DCCMRAM -DCOLORLCD -DLIBOPENUI -DPCBHORUS -DPCBX10 -DPCBFRSKY
   -DHARDWARE_TOUCH -DSOFTWARE_KEYBOARD
-  -DSD_SDIO_HAS_TRANSCEIVER
 )
 
 # Make malloc() thread-safe
@@ -70,13 +71,14 @@ if(NOT NATIVE_BUILD)
     ${BOARD_COMMON_SRC}
     ${TARGET_SRC_DIR}/system_clock.cpp
     ${TARGET_SRC_DIR}/extram_driver.cpp
-    ${TARGET_SRC_DIR}/aps256xx.cpp
+    ${TARGET_SRC_DIR}/extflash_driver.cpp
   )
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 
   # Firmware board library
   add_library(board OBJECT EXCLUDE_FROM_ALL
     ${BOARD_COMMON_SRC}
+    ${TARGET_SRC_DIR}/tp_gt911.cpp
   )
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 endif()

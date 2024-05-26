@@ -31,8 +31,8 @@
 #include "hal/watchdog_driver.h"
 
 #define FLASHSIZE                       0x200000
-#define BOOTLOADER_SIZE                 0x20000
-#define FIRMWARE_ADDRESS                0x08000000
+#define BOOTLOADER_SIZE                 0x10000
+#define FIRMWARE_ADDRESS                0x70000000
 
 #define MB                              *1024*1024
 #define LUA_MEM_EXTRA_MAX               (2 MB)    // max allowed memory usage for Lua bitmaps (in bytes)

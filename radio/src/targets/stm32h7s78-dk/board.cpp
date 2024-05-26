@@ -68,12 +68,24 @@ void delay_self(int count)
 }
 
 
-// Tamper button (B3)
-// #define BL_KEY GPIO_PIN(GPIOC, 13)
+// User button (B2)
+#define BL_KEY GPIO_PIN(GPIOC, 13)
 
-bool boardBLStartCondition() { return true; }
-// void boardBLInit() { gpio_init(BL_KEY, GPIO_IN, 0); }
-// bool boardBLStartCondition() { return !gpio_read(BL_KEY); }
+void boardBLInit() { gpio_init(BL_KEY, GPIO_IN, 0); }
+bool boardBLStartCondition() { return gpio_read(BL_KEY); }
+
+extern int32_t ExtFLASH_Init();
+extern "C" int32_t ExtRAM_Init();
+
+void boardBLPreJump()
+{
+  timersInit();
+  ExtFLASH_Init();
+  ExtRAM_Init();
+
+  // Stop 1ms timer
+  MS_TIMER->CR1 &= ~TIM_CR1_CEN;
+}
 
 void boardInit()
 {

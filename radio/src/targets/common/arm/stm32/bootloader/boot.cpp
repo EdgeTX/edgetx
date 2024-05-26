@@ -180,36 +180,36 @@ int menuFlashFile(uint32_t index, event_t event)
 void flashWriteBlock()
 {
   // TODO: use some board provided driver instead
-  uint32_t blockOffset = 0;
-#if !defined(SIMU)
-#ifdef FIRMWARE_QSPI
-  while(BlockCount)
-  {
-    qspiWriteBlock((intptr_t)firmwareAddress, &Block_buffer[blockOffset]);
-    blockOffset += 4096;
-    firmwareAddress += 4096;
-    if (BlockCount > 4096) {
-      BlockCount -= 4096;
-    }
-    else {
-      BlockCount = 0;
-    }
-  }
+//   uint32_t blockOffset = 0;
+// #if !defined(SIMU)
+// #ifdef FIRMWARE_QSPI
+//   while(BlockCount)
+//   {
+//     qspiWriteBlock((intptr_t)firmwareAddress, &Block_buffer[blockOffset]);
+//     blockOffset += 4096;
+//     firmwareAddress += 4096;
+//     if (BlockCount > 4096) {
+//       BlockCount -= 4096;
+//     }
+//     else {
+//       BlockCount = 0;
+//     }
+//   }
 
-#else
-  while (BlockCount) {
-    flashWrite((uint32_t *)firmwareAddress, (uint32_t *)&Block_buffer[blockOffset]);
-    blockOffset += FLASH_PAGESIZE;
-    firmwareAddress += FLASH_PAGESIZE;
-    if (BlockCount > FLASH_PAGESIZE) {
-      BlockCount -= FLASH_PAGESIZE;
-    }
-    else {
-      BlockCount = 0;
-    }
-  }
-#endif
-#endif // SIMU
+// #else
+//   while (BlockCount) {
+//     flashWrite((uint32_t *)firmwareAddress, (uint32_t *)&Block_buffer[blockOffset]);
+//     blockOffset += FLASH_PAGESIZE;
+//     firmwareAddress += FLASH_PAGESIZE;
+//     if (BlockCount > FLASH_PAGESIZE) {
+//       BlockCount -= FLASH_PAGESIZE;
+//     }
+//     else {
+//       BlockCount = 0;
+//     }
+//   }
+// #endif
+// #endif // SIMU
 }
 
 #if defined(EEPROM)

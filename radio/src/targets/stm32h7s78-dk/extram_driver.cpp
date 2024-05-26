@@ -1,166 +1,46 @@
 #include "stm32_hal_ll.h"
+#include "delays_driver.h"
+
+#include "bsp_errno.h"
 #include "stm32_hal.h"
 
-#include "aps256xx.h"
-#include "bsp_errno.h"
+  /* Aps256xx APMemory memory */
+  
+  /* Read Operations */
+#define READ_CMD                                0x00
+#define READ_LINEAR_BURST_CMD                   0x20
+#define READ_HYBRID_BURST_CMD                   0x3F
+  
+  /* Write Operations */
+#define WRITE_CMD                               0x80
+#define WRITE_LINEAR_BURST_CMD                  0xA0
+#define WRITE_HYBRID_BURST_CMD                  0xBF
+  
+  /* Reset Operations */
+#define RESET_CMD                               0xFF
 
-#define XSPI_RAM_FREQ             200000000U
-#define XSPI_RAM_VARIABLE_LATENCY 0U
-#define XSPI_RAM_READ_LATENCY     APS256XX_READ_LATENCY_7
-#define XSPI_RAM_WRITE_LATENCY    APS256XX_WRITE_LATENCY_7
-#define XSPI_RAM_IO_MODE          APS256XX_MR8_X8_X16
+/* Registers definition */
+#define MR0 0x00000000
+#define MR1 0x00000001
+#define MR2 0x00000002
+#define MR3 0x00000003
+#define MR4 0x00000004
+#define MR8 0x00000008
 
-#define DEFAULT_READ_LATENCY      APS256XX_READ_LATENCY_5
-#define DEFAULT_WRITE_LATENCY     APS256XX_WRITE_LATENCY_5
+/* Register Operations */
+#define READ_REG_CMD                            0x40
+#define WRITE_REG_CMD                           0xC0
+  
+/* Default dummy clocks cycles */
+#define DUMMY_CLOCK_CYCLES_READ                 6
+#define DUMMY_CLOCK_CYCLES_WRITE                6
+  
+/* Size of buffers */
+#define BUFFERSIZE                              10240
+#define KByte                                   1024
 
-#define CONF_HSPI_DS   APS256XX_MR0_DS_HALF
-#define CONF_HSPI_PASR APS256XX_MR4_PASR_FULL
-#define CONF_HSPI_RF   APS256XX_MR4_RF_4X
-
-/* Definition for XSPI RAM power resources */
-#define XSPI_RAM_PWR_ENABLE()                 HAL_PWREx_EnableXSPIM1()
-
-/* Definition for XSPI RAM clock resources */
-#define XSPI_RAM_CLK_ENABLE()                 __HAL_RCC_XSPI1_CLK_ENABLE()
-#define XSPI_RAM_CLK_DISABLE()                __HAL_RCC_XSPI1_CLK_DISABLE()
-
-#define XSPI_RAM_CLK_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOO_CLK_ENABLE()
-#define XSPI_RAM_DQS0_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOO_CLK_ENABLE()
-#define XSPI_RAM_DQS1_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOO_CLK_ENABLE()
-#define XSPI_RAM_CS_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOO_CLK_ENABLE()
-#define XSPI_RAM_D0_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D1_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D2_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D3_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D4_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D5_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D6_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D7_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D8_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D9_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D10_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D11_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D12_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D13_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D14_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOP_CLK_ENABLE()
-#define XSPI_RAM_D15_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOP_CLK_ENABLE()
-
-#define XSPI_RAM_FORCE_RESET()                __HAL_RCC_XSPI1_FORCE_RESET()
-#define XSPI_RAM_RELEASE_RESET()              __HAL_RCC_XSPI1_RELEASE_RESET()
-
-/* Definition for XSPI RAM Pins */
-/* XSPI_CLK */
-#define XSPI_RAM_CLK_PIN                      GPIO_PIN_4
-#define XSPI_RAM_CLK_GPIO_PORT                GPIOO
-#define XSPI_RAM_CLK_PIN_AF                   GPIO_AF9_XSPIM_P1
-/* XSPI_DQS0 */
-#define XSPI_RAM_DQS0_PIN                     GPIO_PIN_2
-#define XSPI_RAM_DQS0_GPIO_PORT               GPIOO
-#define XSPI_RAM_DQS0_PIN_AF                  GPIO_AF9_XSPIM_P1
-/* XSPI_DQS1 */
-#define XSPI_RAM_DQS1_PIN                     GPIO_PIN_3
-#define XSPI_RAM_DQS1_GPIO_PORT               GPIOO
-#define XSPI_RAM_DQS1_PIN_AF                  GPIO_AF9_XSPIM_P1
-/* XSPI_CS */
-#define XSPI_RAM_CS_PIN                       GPIO_PIN_0
-#define XSPI_RAM_CS_GPIO_PORT                 GPIOO
-#define XSPI_RAM_CS_PIN_AF                    GPIO_AF9_XSPIM_P1
-/* XSPI_D0 */
-#define XSPI_RAM_D0_PIN                       GPIO_PIN_0
-#define XSPI_RAM_D0_GPIO_PORT                 GPIOP
-#define XSPI_RAM_D0_PIN_AF                    GPIO_AF9_XSPIM_P1
-/* XSPI_D1 */
-#define XSPI_RAM_D1_PIN                       GPIO_PIN_1
-#define XSPI_RAM_D1_GPIO_PORT                 GPIOP
-#define XSPI_RAM_D1_PIN_AF                    GPIO_AF9_XSPIM_P1
-/* XSPI_D2 */
-#define XSPI_RAM_D2_PIN                       GPIO_PIN_2
-#define XSPI_RAM_D2_GPIO_PORT                 GPIOP
-#define XSPI_RAM_D2_PIN_AF                    GPIO_AF9_XSPIM_P1
-/* XSPI_D3 */
-#define XSPI_RAM_D3_PIN                       GPIO_PIN_3
-#define XSPI_RAM_D3_GPIO_PORT                 GPIOP
-#define XSPI_RAM_D3_PIN_AF                    GPIO_AF9_XSPIM_P1
-/* XSPI_D4 */
-#define XSPI_RAM_D4_PIN                       GPIO_PIN_4
-#define XSPI_RAM_D4_GPIO_PORT                 GPIOP
-#define XSPI_RAM_D4_PIN_AF                    GPIO_AF9_XSPIM_P1
-/* XSPI_D5 */
-#define XSPI_RAM_D5_PIN                       GPIO_PIN_5
-#define XSPI_RAM_D5_GPIO_PORT                 GPIOP
-#define XSPI_RAM_D5_PIN_AF                    GPIO_AF9_XSPIM_P1
-/* XSPI_D6 */
-#define XSPI_RAM_D6_PIN                       GPIO_PIN_6
-#define XSPI_RAM_D6_GPIO_PORT                 GPIOP
-#define XSPI_RAM_D6_PIN_AF                    GPIO_AF9_XSPIM_P1
-/* XSPI_D7 */
-#define XSPI_RAM_D7_PIN                       GPIO_PIN_7
-#define XSPI_RAM_D7_GPIO_PORT                 GPIOP
-#define XSPI_RAM_D7_PIN_AF                    GPIO_AF9_XSPIM_P1
-/* XSPI_D8 */
-#define XSPI_RAM_D8_PIN                       GPIO_PIN_8
-#define XSPI_RAM_D8_GPIO_PORT                 GPIOP
-#define XSPI_RAM_D8_PIN_AF                    GPIO_AF9_XSPIM_P1
-/* XSPI_D9 */
-#define XSPI_RAM_D9_PIN                       GPIO_PIN_9
-#define XSPI_RAM_D9_GPIO_PORT                 GPIOP
-#define XSPI_RAM_D9_PIN_AF                    GPIO_AF9_XSPIM_P1
-/* XSPI_D10 */
-#define XSPI_RAM_D10_PIN                      GPIO_PIN_10
-#define XSPI_RAM_D10_GPIO_PORT                GPIOP
-#define XSPI_RAM_D10_PIN_AF                   GPIO_AF9_XSPIM_P1
-/* XSPI_D11 */
-#define XSPI_RAM_D11_PIN                      GPIO_PIN_11
-#define XSPI_RAM_D11_GPIO_PORT                GPIOP
-#define XSPI_RAM_D11_PIN_AF                   GPIO_AF9_XSPIM_P1
-/* XSPI_D12 */
-#define XSPI_RAM_D12_PIN                      GPIO_PIN_12
-#define XSPI_RAM_D12_GPIO_PORT                GPIOP
-#define XSPI_RAM_D12_PIN_AF                   GPIO_AF9_XSPIM_P1
-/* XSPI_D13 */
-#define XSPI_RAM_D13_PIN                      GPIO_PIN_13
-#define XSPI_RAM_D13_GPIO_PORT                GPIOP
-#define XSPI_RAM_D13_PIN_AF                   GPIO_AF9_XSPIM_P1
-/* XSPI_D14 */
-#define XSPI_RAM_D14_PIN                      GPIO_PIN_14
-#define XSPI_RAM_D14_GPIO_PORT                GPIOP
-#define XSPI_RAM_D14_PIN_AF                   GPIO_AF9_XSPIM_P1
-/* XSPI_D15 */
-#define XSPI_RAM_D15_PIN                      GPIO_PIN_15
-#define XSPI_RAM_D15_GPIO_PORT                GPIOP
-#define XSPI_RAM_D15_PIN_AF                   GPIO_AF9_XSPIM_P1
 
 static XSPI_HandleTypeDef hxspi_ram;
-
-
-static uint32_t _get_max_xspi_freq(APS256XX_ReadLatencyCode_t ReadLatencyCode,
-                                   APS256XX_WriteLatencyCode_t WriteLatencyCode)
-{
-  uint32_t xspi_max_freq = 0U;
-
-  if ((ReadLatencyCode == APS256XX_READ_LATENCY_3) ||
-      (WriteLatencyCode == APS256XX_WRITE_LATENCY_3)) {
-    /* In case of latency 3, Fmax of memory is 66 MHz */
-    xspi_max_freq = 66000000U;
-  } else if ((ReadLatencyCode == APS256XX_READ_LATENCY_4) ||
-             (WriteLatencyCode == APS256XX_WRITE_LATENCY_4)) {
-    /* In case of latency 4, Fmax of memory is 109 MHz */
-    xspi_max_freq = 109000000U;
-  } else if ((ReadLatencyCode == APS256XX_READ_LATENCY_5) ||
-             (WriteLatencyCode == APS256XX_WRITE_LATENCY_5)) {
-    /* In case of latency 5, Fmax of memory is 133 MHz */
-    xspi_max_freq = 133000000U;
-  } else if ((ReadLatencyCode == APS256XX_READ_LATENCY_6) ||
-             (WriteLatencyCode == APS256XX_WRITE_LATENCY_6)) {
-    /* In case of latency 6, Fmax of memory is 166 MHz */
-    xspi_max_freq = 166000000U;
-  } else {
-    /* In case of latency 7, Fmax of memory is 200 MHz */
-    xspi_max_freq = 200000000U;
-  }
-
-  return xspi_max_freq;
-}
 
 /**
  * @brief  Initializes the XSPI MSP.
@@ -174,286 +54,415 @@ static void XSPI_RAM_MspInit()
   /* Enable the SBS Clock */
   __HAL_RCC_SBS_CLK_ENABLE();
 
-  /* Enable the power of XSPI */
-  XSPI_RAM_PWR_ENABLE() ;
-
-  /* Enable the XSPI memory interface clock */
-  XSPI_RAM_CLK_ENABLE();
-
-  /* Reset the XSPI memory interface */
-  XSPI_RAM_FORCE_RESET();
-  XSPI_RAM_RELEASE_RESET();
-
-  /* Enable GPIO clocks */
-  XSPI_RAM_CLK_GPIO_CLK_ENABLE();
-  XSPI_RAM_DQS0_GPIO_CLK_ENABLE();
-  XSPI_RAM_DQS1_GPIO_CLK_ENABLE();
-  XSPI_RAM_CS_GPIO_CLK_ENABLE();
-  XSPI_RAM_D0_GPIO_CLK_ENABLE();
-  XSPI_RAM_D1_GPIO_CLK_ENABLE();
-  XSPI_RAM_D2_GPIO_CLK_ENABLE();
-  XSPI_RAM_D3_GPIO_CLK_ENABLE();
-  XSPI_RAM_D4_GPIO_CLK_ENABLE();
-  XSPI_RAM_D5_GPIO_CLK_ENABLE();
-  XSPI_RAM_D6_GPIO_CLK_ENABLE();
-  XSPI_RAM_D7_GPIO_CLK_ENABLE();
-  XSPI_RAM_D8_GPIO_CLK_ENABLE();
-  XSPI_RAM_D9_GPIO_CLK_ENABLE();
-  XSPI_RAM_D10_GPIO_CLK_ENABLE();
-  XSPI_RAM_D11_GPIO_CLK_ENABLE();
-  XSPI_RAM_D12_GPIO_CLK_ENABLE();
-  XSPI_RAM_D13_GPIO_CLK_ENABLE();
-  XSPI_RAM_D14_GPIO_CLK_ENABLE();
-  XSPI_RAM_D15_GPIO_CLK_ENABLE();
+  /* Enable the XSPIM_P1 interface */  
+  HAL_PWREx_EnableXSPIM1();
 
   /* SBS: Enable HSLV on XSPI1 */
   HAL_SBS_EnableIOSpeedOptimize(SBS_IO_XSPI1_HSLV);
 
-  /* XSPI CS GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_CS_PIN;
-  GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull      = GPIO_PULLUP;
-  GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
-  GPIO_InitStruct.Alternate = XSPI_RAM_CS_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_CS_GPIO_PORT, &GPIO_InitStruct);
+  __HAL_RCC_XSPIM_CLK_ENABLE();
+  __HAL_RCC_XSPI1_CLK_ENABLE();
 
-  /* XSPI DQS0 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_DQS0_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_DQS0_PIN_AF;
-  GPIO_InitStruct.Pull      = GPIO_NOPULL;
-  HAL_GPIO_Init(XSPI_RAM_DQS0_GPIO_PORT, &GPIO_InitStruct);
+  __HAL_RCC_GPIOO_CLK_ENABLE();
+  __HAL_RCC_GPIOP_CLK_ENABLE();
 
-  /* XSPI DQS1 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_DQS1_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_DQS1_PIN_AF;
-  GPIO_InitStruct.Pull      = GPIO_NOPULL;
-  HAL_GPIO_Init(XSPI_RAM_DQS1_GPIO_PORT, &GPIO_InitStruct);
+  /**
+   * XSPI1 GPIO Configuration
+   * PO3     ------> XSPIM_P1_DQS1
+   * PP10    ------> XSPIM_P1_IO10
+   * PP12    ------> XSPIM_P1_IO12
+   * PP14    ------> XSPIM_P1_IO14
+   * PP2     ------> XSPIM_P1_IO2
+   * PP5     ------> XSPIM_P1_IO5
+   * PO2     ------> XSPIM_P1_DQS0
+   * PP1     ------> XSPIM_P1_IO1
+   * PP11    ------> XSPIM_P1_IO11
+   * PP15    ------> XSPIM_P1_IO15
+   * PP3     ------> XSPIM_P1_IO3
+   * PP0     ------> XSPIM_P1_IO0
+   * PP7     ------> XSPIM_P1_IO7
+   * PP8     ------> XSPIM_P1_IO8
+   * PP13    ------> XSPIM_P1_IO13
+   * PP4     ------> XSPIM_P1_IO4
+   * PO4     ------> XSPIM_P1_CLK
+   * PP6     ------> XSPIM_P1_IO6
+   * PO0     ------> XSPIM_P1_NCS1
+   * PP9     ------> XSPIM_P1_IO9
+   */
+  GPIO_InitStruct.Pin = GPIO_PIN_3 | GPIO_PIN_2 | GPIO_PIN_4 | GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF9_XSPIM_P1;
+  HAL_GPIO_Init(GPIOO, &GPIO_InitStruct);
 
-  /* XSPI CLK GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_CLK_PIN;
-  GPIO_InitStruct.Pull      = GPIO_NOPULL;
-  GPIO_InitStruct.Alternate = XSPI_RAM_CLK_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_CLK_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D0 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D0_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D0_PIN_AF;
-  GPIO_InitStruct.Pull      = GPIO_NOPULL;
-  HAL_GPIO_Init(XSPI_RAM_D0_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D1 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D1_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D1_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D1_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D2 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D2_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D2_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D2_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D3 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D3_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D3_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D3_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D4 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D4_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D4_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D4_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D5 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D5_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D5_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D5_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D6 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D6_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D6_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D6_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D7 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D7_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D7_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D7_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D8 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D8_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D8_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D8_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D9 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D9_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D9_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D9_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D10 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D10_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D10_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D10_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D11 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D11_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D11_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D11_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D12 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D12_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D12_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D12_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D13 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D13_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D13_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D13_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D14 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D14_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D14_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D14_GPIO_PORT, &GPIO_InitStruct);
-
-  /* XSPI D15 GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = XSPI_RAM_D15_PIN;
-  GPIO_InitStruct.Alternate = XSPI_RAM_D15_PIN_AF;
-  HAL_GPIO_Init(XSPI_RAM_D15_GPIO_PORT, &GPIO_InitStruct);
+  GPIO_InitStruct.Pin = GPIO_PIN_10 | GPIO_PIN_12 | GPIO_PIN_14 | GPIO_PIN_2 |
+                        GPIO_PIN_5 | GPIO_PIN_1 | GPIO_PIN_11 | GPIO_PIN_15 |
+                        GPIO_PIN_3 | GPIO_PIN_0 | GPIO_PIN_7 | GPIO_PIN_8 |
+                        GPIO_PIN_13 | GPIO_PIN_4 | GPIO_PIN_6 | GPIO_PIN_9;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF9_XSPIM_P1;
+  HAL_GPIO_Init(GPIOP, &GPIO_InitStruct);
 }
 
 /**
-  * @brief  Set 16-bits Octal RAM to desired configuration. And this instance becomes current instance.
-  *         If current instance running at MMP mode then this function doesn't work.
-  * @retval BSP status
-  */
-static int32_t XSPI_RAM_Config16BitsOctalRAM()
+* @brief  Write mode register
+* @param  Ctx Component object pointer
+* @param  Address Register address
+* @param  Value Register value pointer
+* @retval error status
+*/
+uint32_t APS256_WriteReg(XSPI_HandleTypeDef *Ctx, uint32_t Address, uint8_t *Value)
 {
-  int32_t ret = BSP_ERROR_NONE;
-  uint8_t reg[2] = {0};
-
-  /* Reading the configuration of Mode Register 0 ***********************/
-  if (APS256XX_ReadReg(&hxspi_ram, APS256XX_MR0_ADDRESS, reg,
-                       (uint32_t)APS256XX_READ_REG_LATENCY(
-                           (uint32_t)(DEFAULT_READ_LATENCY))) != APS256XX_OK) {
-    ret = BSP_ERROR_COMPONENT_FAILURE;
-  } else {
-    /* Configure the 16-bits Octal RAM memory ***************************/
-    MODIFY_REG(reg[0],
-               ((uint8_t)APS256XX_MR0_LATENCY_TYPE |
-                (uint8_t)APS256XX_MR0_READ_LATENCY_CODE |
-                (uint8_t)APS256XX_MR0_DRIVE_STRENGTH),
-               ((uint8_t)(XSPI_RAM_VARIABLE_LATENCY) | (uint8_t)(XSPI_RAM_READ_LATENCY) |
-                (uint8_t)CONF_HSPI_DS));
-
-    if (APS256XX_WriteReg(&hxspi_ram, APS256XX_MR0_ADDRESS, reg[0]) !=
-        APS256XX_OK) {
-      ret = BSP_ERROR_COMPONENT_FAILURE;
-    }
+  XSPI_RegularCmdTypeDef sCommand1={0};
+  
+  /* Initialize the write register command */
+  sCommand1.OperationType      = HAL_XSPI_OPTYPE_COMMON_CFG;
+  sCommand1.InstructionMode    = HAL_XSPI_INSTRUCTION_8_LINES;
+  sCommand1.InstructionWidth    = HAL_XSPI_INSTRUCTION_8_BITS;
+  sCommand1.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+  sCommand1.Instruction        = WRITE_REG_CMD;
+  sCommand1.AddressMode        = HAL_XSPI_ADDRESS_8_LINES;
+  sCommand1.AddressWidth        = HAL_XSPI_ADDRESS_32_BITS;
+  sCommand1.AddressDTRMode     = HAL_XSPI_ADDRESS_DTR_ENABLE;
+  sCommand1.Address            = Address;
+  sCommand1.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+  sCommand1.DataMode           = HAL_XSPI_DATA_8_LINES;
+  sCommand1.DataDTRMode        = HAL_XSPI_DATA_DTR_ENABLE;
+  sCommand1.DataLength         = 2;
+  sCommand1.DummyCycles        = 0;
+  sCommand1.DQSMode            = HAL_XSPI_DQS_DISABLE;
+  
+  /* Configure the command */
+  if (HAL_XSPI_Command(Ctx, &sCommand1, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK)
+  {
+    return HAL_ERROR;
   }
-
-  if (ret == BSP_ERROR_NONE) {
-    /* Reading the configuration of Mode Register 4 ***********************/
-    if (APS256XX_ReadReg(&hxspi_ram, APS256XX_MR4_ADDRESS, reg,
-                         (uint32_t)APS256XX_READ_REG_LATENCY((
-                             uint32_t)(DEFAULT_READ_LATENCY))) != APS256XX_OK) {
-      ret = BSP_ERROR_COMPONENT_FAILURE;
-    } else {
-      /* Configure the 16-bits Octal RAM memory ***************************/
-      WRITE_REG(reg[0], ((uint8_t)XSPI_RAM_WRITE_LATENCY |
-                         (uint8_t)CONF_HSPI_RF | (uint8_t)CONF_HSPI_PASR));
-
-      if (APS256XX_WriteReg(&hxspi_ram, APS256XX_MR4_ADDRESS, reg[0]) !=
-          APS256XX_OK) {
-        ret = BSP_ERROR_COMPONENT_FAILURE;
-      }
-    }
+  
+  /* Transmission of the data */
+  if (HAL_XSPI_Transmit(Ctx, (uint8_t *)(Value), HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK)
+  {
+    return HAL_ERROR;
   }
-
-  if (ret == BSP_ERROR_NONE) {
-    /* Reading the configuration of Mode Register 8 ***********************/
-    if (APS256XX_ReadReg(&hxspi_ram, APS256XX_MR8_ADDRESS, reg,
-                         (uint32_t)APS256XX_READ_REG_LATENCY((
-                             uint32_t)(DEFAULT_READ_LATENCY))) != APS256XX_OK) {
-      ret = BSP_ERROR_COMPONENT_FAILURE;
-    } else {
-      /* Configure the 16-bits Octal RAM memory ***************************/
-      MODIFY_REG(reg[0], (uint8_t)APS256XX_MR8_X8_X16,
-                 (uint8_t)(XSPI_RAM_IO_MODE));
-
-      if (APS256XX_WriteReg(&hxspi_ram, APS256XX_MR8_ADDRESS, reg[0]) !=
-          APS256XX_OK) {
-        ret = BSP_ERROR_COMPONENT_FAILURE;
-      }
-    }
-  }
-
-  /* Return BSP status */
-  return ret;
+  
+  return HAL_OK;
 }
 
 /**
-  * @brief  Initializes the XSPI interface.
-  * @param  Instance   XSPI Instance
-  * @param  Init       XSPI Init structure
-  * @retval BSP status
+  * @brief  Reset the memory
+  * @param  Ctx Component object pointer
+  * @retval error status
   */
+int32_t APS256XX_Reset(XSPI_HandleTypeDef *Ctx)
+{
+  XSPI_RegularCmdTypeDef sCommand = {0};
+
+  /* Initialize the command */
+  sCommand.OperationType      = HAL_XSPI_OPTYPE_COMMON_CFG;
+  sCommand.InstructionMode    = HAL_XSPI_INSTRUCTION_8_LINES;
+  sCommand.InstructionWidth   = HAL_XSPI_INSTRUCTION_8_BITS;
+  sCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+  sCommand.Instruction        = RESET_CMD;
+  sCommand.AddressMode        = HAL_XSPI_ADDRESS_8_LINES;
+  sCommand.AddressWidth       = HAL_XSPI_ADDRESS_24_BITS;
+  sCommand.AddressDTRMode     = HAL_XSPI_ADDRESS_DTR_DISABLE;
+  sCommand.Address            = 0;
+  sCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+  sCommand.DataMode           = HAL_XSPI_DATA_NONE;
+  sCommand.DataLength         = 0;
+  sCommand.DummyCycles        = 0;
+  sCommand.DQSMode            = HAL_XSPI_DQS_DISABLE;
+ #if defined (XSPI_CCR_SIOO)
+  sCommand.SIOOMode            = HAL_XSPI_SIOO_INST_EVERY_CMD;
+ #endif
+
+  /* Configure the command */
+  if (HAL_XSPI_Command(Ctx, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK)
+  {
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+
+  /* Need to wait tRST */
+  delay_ms(1);
+  return BSP_ERROR_NONE;
+}
+
+/**
+* @brief  Read mode register value
+* @param  Ctx Component object pointer
+* @param  Address Register address
+* @param  Value Register value pointer
+* @param  LatencyCode Latency used for the access
+* @retval error status
+*/
+uint32_t APS256_ReadReg(XSPI_HandleTypeDef *Ctx, uint32_t Address, uint8_t *Value, uint32_t LatencyCode)
+{
+  XSPI_RegularCmdTypeDef sCommand={0};
+  
+  /* Initialize the read register command */
+  sCommand.OperationType      = HAL_XSPI_OPTYPE_COMMON_CFG;
+  sCommand.InstructionMode    = HAL_XSPI_INSTRUCTION_8_LINES;
+  sCommand.InstructionWidth    = HAL_XSPI_INSTRUCTION_8_BITS;
+  sCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+  sCommand.Instruction        = READ_REG_CMD;
+  sCommand.AddressMode        = HAL_XSPI_ADDRESS_8_LINES;
+  sCommand.AddressWidth        = HAL_XSPI_ADDRESS_32_BITS;
+  sCommand.AddressDTRMode     = HAL_XSPI_ADDRESS_DTR_ENABLE;
+  sCommand.Address            = Address;
+  sCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+  sCommand.DataMode           = HAL_XSPI_DATA_8_LINES;
+  sCommand.DataDTRMode        = HAL_XSPI_DATA_DTR_ENABLE;
+  sCommand.DataLength            = 2;
+  sCommand.DummyCycles        = (LatencyCode - 1U);
+  sCommand.DQSMode            = HAL_XSPI_DQS_ENABLE;
+  
+  /* Configure the command */
+  if (HAL_XSPI_Command(Ctx, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK)
+  {
+    return HAL_ERROR;
+  }
+  
+  /* Reception of the data */
+  if (HAL_XSPI_Receive(Ctx, (uint8_t *)Value, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK)
+  {
+    return HAL_ERROR;
+  }
+  
+  return HAL_OK;
+}
+
+/**
+* @brief  Switch from Octal Mode to Hexa Mode on the memory
+* @param  None
+* @retval None
+*/
+static int32_t Configure_APMemory()
+{
+  // /* Reading the configuration of Mode Register 0 ***********************/
+  // if (APS256XX_ReadReg(&hxspi_ram, APS256XX_MR0_ADDRESS, reg,
+  //                      (uint32_t)APS256XX_READ_REG_LATENCY(
+  //                          (uint32_t)(DEFAULT_READ_LATENCY))) != APS256XX_OK) {
+  //   ret = BSP_ERROR_COMPONENT_FAILURE;
+  // } else {
+  //   /* Configure the 16-bits Octal RAM memory ***************************/
+  //   MODIFY_REG(reg[0],
+  //              ((uint8_t)APS256XX_MR0_LATENCY_TYPE |
+  //               (uint8_t)APS256XX_MR0_READ_LATENCY_CODE |
+  //               (uint8_t)APS256XX_MR0_DRIVE_STRENGTH),
+  //              ((uint8_t)(XSPI_RAM_VARIABLE_LATENCY) |
+  //               (uint8_t)(XSPI_RAM_READ_LATENCY) | (uint8_t)CONF_HSPI_DS));
+
+  //   if (APS256XX_WriteReg(&hxspi_ram, APS256XX_MR0_ADDRESS, reg[0]) !=
+  //       APS256XX_OK) {
+  //     ret = BSP_ERROR_COMPONENT_FAILURE;
+  //   }
+  // }
+
+  // if (ret == BSP_ERROR_NONE) {
+  //   /* Reading the configuration of Mode Register 4 ***********************/
+  //   if (APS256XX_ReadReg(&hxspi_ram, APS256XX_MR4_ADDRESS, reg,
+  //                        (uint32_t)APS256XX_READ_REG_LATENCY((
+  //                            uint32_t)(DEFAULT_READ_LATENCY))) != APS256XX_OK) {
+  //     ret = BSP_ERROR_COMPONENT_FAILURE;
+  //   } else {
+  //     /* Configure the 16-bits Octal RAM memory ***************************/
+  //     WRITE_REG(reg[0], ((uint8_t)XSPI_RAM_WRITE_LATENCY |
+  //                        (uint8_t)CONF_HSPI_RF | (uint8_t)CONF_HSPI_PASR));
+
+  //     if (APS256XX_WriteReg(&hxspi_ram, APS256XX_MR4_ADDRESS, reg[0]) !=
+  //         APS256XX_OK) {
+  //       ret = BSP_ERROR_COMPONENT_FAILURE;
+  //     }
+  //   }
+  // }
+
+  // if (ret == BSP_ERROR_NONE) {
+  //   /* Reading the configuration of Mode Register 8 ***********************/
+  //   if (APS256XX_ReadReg(&hxspi_ram, APS256XX_MR8_ADDRESS, reg,
+  //                        (uint32_t)APS256XX_READ_REG_LATENCY((
+  //                            uint32_t)(DEFAULT_READ_LATENCY))) != APS256XX_OK) {
+  //     ret = BSP_ERROR_COMPONENT_FAILURE;
+  //   } else {
+  //     /* Configure the 16-bits Octal RAM memory ***************************/
+  //     MODIFY_REG(reg[0], (uint8_t)APS256XX_MR8_X8_X16,
+  //                (uint8_t)(XSPI_RAM_IO_MODE));
+
+  //     if (APS256XX_WriteReg(&hxspi_ram, APS256XX_MR8_ADDRESS, reg[0]) !=
+  //         APS256XX_OK) {
+  //       ret = BSP_ERROR_COMPONENT_FAILURE;
+  //     }
+  //   }
+  // }
+
+  
+  /* MR0 register for read and write */
+  /* To configure AP memory Latency Type and drive Strength */
+  uint8_t regW_MR0[2]={0x11,0x8D};
+  uint8_t regR_MR0[2]={0};
+
+  /* MR4 register for read and write */
+  /* To configure AP memory write latency */
+  uint8_t regW_MR4[2]={0x20,0};
+  uint8_t regR_MR4[2]={0};
+  
+  /* MR8 register for read and write */
+  /* To configure AP memory Burst Type */
+  uint8_t regW_MR8[2]={0x45,0x08};
+  uint8_t regR_MR8[2]={0};
+  
+  /*Read Latency */
+  uint8_t latency=6;
+  
+  /* Configure Read Latency and drive Strength */
+  if (APS256_WriteReg(&hxspi_ram, MR0, regW_MR0) != HAL_OK) {
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+
+  /* Check MR0 configuration */
+  if (APS256_ReadReg(&hxspi_ram, MR0, regR_MR0, latency) != HAL_OK) {
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+
+  /* Check MR0 configuration */
+  if (regR_MR0[0] != regW_MR0[0]) {
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+  
+  /* Configure write latency */
+  if (APS256_WriteReg(&hxspi_ram, MR4, regW_MR4) != HAL_OK) {
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+
+  /* Check MR4 configuration */
+  if (APS256_ReadReg(&hxspi_ram, MR4, regR_MR4, latency) != HAL_OK) {
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+
+  /* Check MR4 configuration */
+  if (regR_MR4[0] != regW_MR4[0]) {
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+
+  /* Configure Burst Length */
+  if (APS256_WriteReg(&hxspi_ram, MR8, regW_MR8) != HAL_OK) {
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+
+  /* Check MR8 configuration */
+  if (APS256_ReadReg(&hxspi_ram, MR8, regR_MR8, 6) != HAL_OK) {
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+
+  if (regR_MR8[0] != regW_MR8[0]) {
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+
+  return BSP_ERROR_NONE;
+}
+
+static int32_t XSPI_RAM_ConfigureMemoryMappedMode()
+{
+  XSPI_RegularCmdTypeDef sCommand = {0};
+  XSPI_MemoryMappedTypeDef sMemMappedCfg = {0};
+
+  sCommand.OperationType      = HAL_XSPI_OPTYPE_WRITE_CFG;
+  sCommand.InstructionMode    = HAL_XSPI_INSTRUCTION_8_LINES;
+  sCommand.InstructionWidth   = HAL_XSPI_INSTRUCTION_8_BITS;
+  sCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
+  sCommand.Instruction        = WRITE_LINEAR_BURST_CMD; // WRITE_CMD;
+  sCommand.AddressMode        = HAL_XSPI_ADDRESS_8_LINES;
+  sCommand.AddressWidth       = HAL_XSPI_ADDRESS_32_BITS;
+  sCommand.AddressDTRMode     = HAL_XSPI_ADDRESS_DTR_ENABLE;
+  sCommand.Address            = 0x0;
+  sCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
+  sCommand.DataMode           = HAL_XSPI_DATA_16_LINES;
+  sCommand.DataDTRMode        = HAL_XSPI_DATA_DTR_ENABLE;
+  sCommand.DataLength         = BUFFERSIZE;
+  sCommand.DummyCycles        = DUMMY_CLOCK_CYCLES_WRITE;
+  sCommand.DQSMode            = HAL_XSPI_DQS_ENABLE;
+
+  if (HAL_XSPI_Command(&hxspi_ram, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
+      HAL_OK) {
+    return BSP_ERROR_COMPONENT_FAILURE;
+  }
+
+  sCommand.OperationType = HAL_XSPI_OPTYPE_READ_CFG;
+  sCommand.Instruction = READ_LINEAR_BURST_CMD; // READ_CMD;
+  sCommand.DummyCycles = DUMMY_CLOCK_CYCLES_READ;
+  sCommand.DQSMode = HAL_XSPI_DQS_ENABLE;
+
+  if (HAL_XSPI_Command(&hxspi_ram, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
+      HAL_OK) {
+    return BSP_ERROR_COMPONENT_FAILURE;
+  }
+
+  sMemMappedCfg.TimeOutActivation = HAL_XSPI_TIMEOUT_COUNTER_DISABLE;
+  sMemMappedCfg.TimeoutPeriodClock = 0x50;
+
+  if (HAL_XSPI_MemoryMapped(&hxspi_ram, &sMemMappedCfg) != HAL_OK) {
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+
+  return BSP_ERROR_NONE;
+}
+
+/**
+ * @brief  Initializes the XSPI interface.
+ * @param  Instance   XSPI Instance
+ * @param  Init       XSPI Init structure
+ * @retval BSP status
+ */
 extern "C" int32_t ExtRAM_Init()
 {
-  int32_t ret = BSP_ERROR_NONE;
-  uint32_t xspi_clk, xspi_max_freq, xspi_prescaler;
+  XSPIM_CfgTypeDef sXspiManagerCfg = {0};
 
   /* Msp XSPI initialization */
   XSPI_RAM_MspInit();
 
-  /* Compute prescaler */
-  xspi_max_freq =
-      _get_max_xspi_freq(XSPI_RAM_READ_LATENCY, XSPI_RAM_WRITE_LATENCY);
-
-  xspi_clk = LL_RCC_GetXSPIClockFreq(LL_RCC_XSPI1_CLKSOURCE);
-  xspi_prescaler = (xspi_clk / xspi_max_freq);
-
-  if ((xspi_clk % xspi_max_freq) == 0U) {
-    xspi_prescaler = xspi_prescaler - 1U;
-  }
-
-  /* STM32 XSPI interface initialization */
-  uint32_t hspi_clk = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_XSPI1);
-
-  /* XSPI initialization */
+  /* XSPI1 parameter configuration*/
   hxspi_ram.Instance = XSPI1;
-
-  hxspi_ram.Init.FifoThresholdByte       = 4U;
-  hxspi_ram.Init.MemoryType              = HAL_XSPI_MEMTYPE_APMEM_16BITS;
-  hxspi_ram.Init.MemoryMode              = HAL_XSPI_SINGLE_MEM;
-  hxspi_ram.Init.MemorySize              = HAL_XSPI_SIZE_256MB;
-  hxspi_ram.Init.MemorySelect            = HAL_XSPI_CSSEL_NCS1;
-  hxspi_ram.Init.ChipSelectHighTimeCycle = 5U; /* tCPH = 24 ns min */
-  hxspi_ram.Init.ClockMode               = HAL_XSPI_CLOCK_MODE_0;
-  hxspi_ram.Init.ClockPrescaler          = xspi_prescaler;
-  hxspi_ram.Init.SampleShifting          = HAL_XSPI_SAMPLE_SHIFT_NONE;
-  hxspi_ram.Init.DelayHoldQuarterCycle   = HAL_XSPI_DHQC_DISABLE;
-  hxspi_ram.Init.ChipSelectBoundary      = HAL_XSPI_BONDARYOF_16KB;
-  hxspi_ram.Init.FreeRunningClock        = HAL_XSPI_FREERUNCLK_DISABLE;
-  /* tCEM = 2 us max => REFRESH+4 clock cycles for read */
-  hxspi_ram.Init.Refresh =
-      ((2U * (hspi_clk / (xspi_prescaler + 1U)) / 1000000U) - 4U);
-  hxspi_ram.Init.WrapSize                = HAL_XSPI_WRAP_NOT_SUPPORTED;
-  hxspi_ram.Init.MaxTran                 = 0U;
+  hxspi_ram.Init.FifoThresholdByte = 4;
+  hxspi_ram.Init.MemoryMode = HAL_XSPI_SINGLE_MEM;
+  hxspi_ram.Init.MemoryType = HAL_XSPI_MEMTYPE_APMEM_16BITS;
+  hxspi_ram.Init.MemorySize = HAL_XSPI_SIZE_256MB;
+  hxspi_ram.Init.ChipSelectHighTimeCycle = 5;
+  hxspi_ram.Init.FreeRunningClock = HAL_XSPI_FREERUNCLK_DISABLE;
+  hxspi_ram.Init.ClockMode = HAL_XSPI_CLOCK_MODE_0;
+  hxspi_ram.Init.WrapSize = HAL_XSPI_WRAP_NOT_SUPPORTED;
+  hxspi_ram.Init.ClockPrescaler = 0;
+  hxspi_ram.Init.SampleShifting = HAL_XSPI_SAMPLE_SHIFT_NONE;
+  hxspi_ram.Init.DelayHoldQuarterCycle = HAL_XSPI_DHQC_DISABLE;
+  hxspi_ram.Init.ChipSelectBoundary = HAL_XSPI_BONDARYOF_16KB;
+  hxspi_ram.Init.MaxTran = 0;
+  hxspi_ram.Init.Refresh = 396;
+  hxspi_ram.Init.MemorySelect = HAL_XSPI_CSSEL_NCS1;
 
   if (HAL_XSPI_Init(&hxspi_ram) != HAL_OK) {
-    ret = BSP_ERROR_PERIPH_FAILURE;
-  } else if (APS256XX_Reset(&hxspi_ram) != APS256XX_OK) {
-    ret = BSP_ERROR_COMPONENT_FAILURE;
-  } else if (XSPI_RAM_Config16BitsOctalRAM() != BSP_ERROR_NONE) {
-    ret = BSP_ERROR_COMPONENT_FAILURE;
-  } else if (APS256XX_EnableMemoryMappedMode(
-                 &hxspi_ram,
-                 (uint32_t)APS256XX_READ_LATENCY(
-                     (uint32_t)(XSPI_RAM_READ_LATENCY),
-                     (uint32_t)(XSPI_RAM_VARIABLE_LATENCY)),
-                 (uint32_t)APS256XX_WRITE_LATENCY(
-                     (uint32_t)(XSPI_RAM_WRITE_LATENCY)),
-                 (uint32_t)(XSPI_RAM_IO_MODE), 0U) != APS256XX_OK) {
-    ret = BSP_ERROR_PERIPH_FAILURE;
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+
+  sXspiManagerCfg.nCSOverride = HAL_XSPI_CSSEL_OVR_NCS1;
+  sXspiManagerCfg.IOPort = HAL_XSPIM_IOPORT_1;
+
+  if (HAL_XSPIM_Config(&hxspi_ram, &sXspiManagerCfg,
+                       HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+
+  if (APS256XX_Reset(&hxspi_ram) != BSP_ERROR_NONE) {
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+
+  if (Configure_APMemory() != BSP_ERROR_NONE) {
+    return BSP_ERROR_PERIPH_FAILURE;
+  }
+
+  if (XSPI_RAM_ConfigureMemoryMappedMode() != BSP_ERROR_NONE) {
+    return BSP_ERROR_PERIPH_FAILURE;
   }
 
   /* Return BSP status */
-  return ret;
+  return BSP_ERROR_NONE;
 }
-
