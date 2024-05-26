@@ -208,7 +208,11 @@ void bootloaderInitApp()
 #if defined(LCD_RCC_APB2Periph)
   LL_APB2_GRP1_EnableClock(LCD_RCC_APB2Periph);
 #endif
+#if defined(LCD_RCC_APB1Periph)
+  LL_APB1_GRP1_EnableClock(LCD_RCC_APB1Periph);
+#endif
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+
 
 #if defined(HAVE_BOARD_BOOTLOADER_INIT)
   boardBootloaderInit();

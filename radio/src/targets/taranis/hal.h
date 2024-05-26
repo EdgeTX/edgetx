@@ -2443,6 +2443,7 @@
   #define LCD_GPIO_AF                   GPIO_AF6
 #else
   #define LCD_RCC_AHB1Periph            0
+  #define LCD_RCC_APB1Periph            0
   // Soft SPI: these pins are connected to SPI periph on STM32F205
   #define LCD_MOSI_GPIO                 GPIO_PIN(GPIOD, 10) // PD.10
   #define LCD_CLK_GPIO                  GPIO_PIN(GPIOD, 11) // PD.11
