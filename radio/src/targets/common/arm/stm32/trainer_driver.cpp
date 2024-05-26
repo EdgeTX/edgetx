@@ -135,7 +135,7 @@ static void trainer_in_isr()
 
 void trainer_stop()
 {
-  stm32_pulse_deinit(_trainer_timer);
+  // stm32_pulse_deinit(_trainer_timer);
   _trainer_timer_isr = nullptr;
   _trainer_timer = nullptr;
 }
@@ -146,8 +146,8 @@ void trainer_init_capture(const stm32_pulse_timer_t* tim)
   _trainer_timer = tim;
   _trainer_timer_isr = trainer_in_isr;
 
-  stm32_pulse_init(tim, 0);
-  stm32_pulse_config_input(tim);
+  // stm32_pulse_init(tim, 0);
+  // stm32_pulse_config_input(tim);
 
   switch (tim->TIM_Channel) {
   case LL_TIM_CHANNEL_CH1:
