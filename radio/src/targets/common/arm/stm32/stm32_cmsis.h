@@ -27,6 +27,8 @@ extern "C" {
 
 #if defined(STM32H7)
   #include "CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h"
+#elif defined(STM32H7RS)
+  #include "CMSIS/Device/ST/STM32H7RS/Include/stm32h7rsxx.h"
 #elif defined(STM32F4)
 
   // Workaround to prevent the other CMSIS header to be included
