@@ -102,6 +102,7 @@ void usbInit()
   gpio_init(USB_GPIO_VBUS, GPIO_IN, GPIO_PIN_SPEED_LOW);
 #endif
 
+#if !defined(STM32H7RS)
 #if defined(LL_APB2_GRP1_PERIPH_SYSCFG)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 #elif defined(LL_APB4_GRP1_PERIPH_SYSCFG)
@@ -109,11 +110,14 @@ void usbInit()
 #else
   #error "Unable to enable SYSCFG peripheral clock"
 #endif
+#endif
 
 #if defined(LL_AHB2_GRP1_PERIPH_OTGFS)
   LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_OTGFS);
 #elif defined(LL_AHB1_GRP1_PERIPH_USB2OTGHS)
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_USB2OTGHS);
+#elif defined(LL_AHB1_GRP1_PERIPH_USBOTGFS)
+  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_USBOTGFS);
 #else
   #error "Unable to enable USB peripheral clock"
 #endif

@@ -24,7 +24,7 @@
 #include "stm32_exti_driver.h"
 #include "hal.h"
 
-#if defined(EXTI_PR1_PR)
+#if defined(EXTI_PR1_PR) || defined(EXTI_PR1_PR0)
 # define _PR_Reg PR1
 #else
 # define _PR_Reg PR
