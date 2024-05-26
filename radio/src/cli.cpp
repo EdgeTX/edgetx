@@ -1006,14 +1006,14 @@ int cliSet(const char **argv)
       }
       const auto* mod = modulePortGetModuleDescription(INTERNAL_MODULE);
       if (!mod || !mod->set_bootcmd) {
-	cliSerialPrint("%s: invalid module or has no bootcmd pin", argv[0]);
-	return -1;
+        cliSerialPrint("%s: invalid module or has no bootcmd pin", argv[0]);
+        return -1;
       }
       mod->set_bootcmd(level);
       if (level) {
-	cliSerialPrint("%s: bootcmd set", argv[0]);
+        cliSerialPrint("%s: bootcmd set", argv[0]);
       } else {
-	cliSerialPrint("%s: bootcmd reset", argv[0]);
+        cliSerialPrint("%s: bootcmd reset", argv[0]);
       }
     }
     else {
