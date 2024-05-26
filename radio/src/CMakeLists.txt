@@ -96,7 +96,7 @@ include(hal/CMakeLists.txt)
 add_subdirectory(bitmaps)
 add_subdirectory(fonts)
 
-if(CPU_TYPE STREQUAL STM32H7)
+if(CPU_TYPE STREQUAL STM32H7 OR CPU_TYPE STREQUAL STM32H7RS)
   include(targets/common/arm/stm32/h7/CMakeLists.txt)
 endif()
 

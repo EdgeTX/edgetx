@@ -185,8 +185,10 @@
 #if LV_USE_GPU_STM32_DMA2D
     /*Must be defined to include path of CMSIS header of target processor
     e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
-#ifdef STM32H7
+#if defined(STM32H7)
     #define LV_GPU_DMA2D_CMSIS_INCLUDE "stm32h7xx.h"
+#elif defined(STM32H7RS)
+    #define LV_GPU_DMA2D_CMSIS_INCLUDE "stm32h7rsxx.h"
 #else
     #define LV_GPU_DMA2D_CMSIS_INCLUDE "stm32f4xx.h"
 #endif
