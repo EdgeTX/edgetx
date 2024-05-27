@@ -896,7 +896,6 @@ void menuModelSetup(event_t event)
                   AUDIO_WARNING1();
                   storageDirty(EE_MODEL);
                 }
-                killEvents(event);
                 break;
             }
           }
@@ -961,7 +960,6 @@ void menuModelSetup(event_t event)
           if (!READ_ONLY() && menuHorizontalPosition > 0) {
             switch (event) {
               case EVT_KEY_LONG(KEY_ENTER):
-                killEvents(event);
                 if (g_model.potsWarnMode == POTS_WARN_MANUAL) {
                   SAVE_POT_POSITION(menuHorizontalPosition-1);
                   AUDIO_WARNING1();
@@ -1292,7 +1290,6 @@ void menuModelSetup(event_t event)
         //     START_NO_HIGHLIGHT();
         //     telemetryErrors = 0;
         //     AUDIO_WARNING1();
-        //     killEvents(event);
         //   }
         // }
         break;
@@ -1552,7 +1549,6 @@ void menuModelSetup(event_t event)
                   modelHeaders[g_eeGeneral.currModel].modelId[moduleIdx] = g_model.header.modelId[moduleIdx];
                 }
                 else if (event == EVT_KEY_LONG(KEY_ENTER)) {
-                  killEvents(event);
                   uint8_t newVal = findNextUnusedModelId(g_eeGeneral.currModel, moduleIdx);
                   if (newVal != g_model.header.modelId[moduleIdx]) {
                     modelHeaders[g_eeGeneral.currModel].modelId[moduleIdx] = g_model.header.modelId[moduleIdx] = newVal;
@@ -1660,7 +1656,6 @@ void menuModelSetup(event_t event)
             s_editMode = 0;
             if (moduleData.failsafeMode == FAILSAFE_CUSTOM) {
               if (event == EVT_KEY_LONG(KEY_ENTER)) {
-                killEvents(event);
                 setCustomFailsafe(moduleIdx);
                 AUDIO_WARNING1();
                 SEND_FAILSAFE_NOW(moduleIdx);
@@ -2016,15 +2011,14 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_USBJOYSTICK_CH_BUTTON:
         lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_USBJOYSTICK_SETTINGS), attr);
-        if (attr && event == EVT_KEY_FIRST(KEY_ENTER)) {
+        if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
           pushMenu(menuModelUSBJoystick);
         }
         break;
 
       case ITEM_MODEL_SETUP_USBJOYSTICK_APPLY:
         lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_USBJOYSTICK_APPLY_CHANGES), attr);
-        if (attr && !READ_ONLY() && event == EVT_KEY_FIRST(KEY_ENTER)) {
-          killEvents(event);
+        if (attr && !READ_ONLY() && event == EVT_KEY_BREAK(KEY_ENTER)) {
           onUSBJoystickModelChanged();
         }
         break;

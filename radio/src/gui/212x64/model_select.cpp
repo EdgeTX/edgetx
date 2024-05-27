@@ -142,7 +142,6 @@ void menuModelSelect(event_t event)
           strcat_modelname (nametmp, sub, 0);
           POPUP_CONFIRMATION(STR_DELETEMODEL, nullptr);
           SET_WARNING_INFO(nametmp, sizeof(g_model.header.name), 0);
-          killEvents(event);
           break;
         }
         // no break
@@ -202,7 +201,6 @@ void menuModelSelect(event_t event)
         }
         else if (event == EVT_KEY_LONG(KEY_ENTER)) {
           s_copyMode = 0;
-          killEvents(event);
           if (g_eeGeneral.currModel != sub) {
             if (modelExists(sub)) {
               POPUP_MENU_ADD_ITEM(STR_SELECT_MODEL);
@@ -230,12 +228,11 @@ void menuModelSelect(event_t event)
         }
         break;
 
-      case EVT_KEY_BREAK(KEY_PAGE):
-      case EVT_KEY_LONG(KEY_PAGE):
-        chainMenu(event == EVT_KEY_BREAK(KEY_PAGE)
+      case EVT_KEY_BREAK(KEY_PAGEDN):
+      case EVT_KEY_BREAK(KEY_PAGEUP):
+        chainMenu(event == EVT_KEY_BREAK(KEY_PAGEDN)
                       ? menuModelSetup
                       : menuTabModel[DIM(menuTabModel) - 1].menuFunc);
-        killEvents(event);
         break;
   }
 

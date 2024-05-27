@@ -307,7 +307,6 @@ void menuRadioSdManager(event_t _event)
 #if defined(KEYS_GPIO_REG_MENU)
     case EVT_KEY_LONG(KEY_MENU):
       if (SD_CARD_PRESENT() && !READ_ONLY() && s_editMode == 0) {
-        killEvents(_event);
         POPUP_MENU_ADD_ITEM(STR_SD_INFO);
         POPUP_MENU_START(onSdManagerMenu);
       }
@@ -332,7 +331,6 @@ void menuRadioSdManager(event_t _event)
           menuVerticalOffset = 0;
           menuVerticalPosition = HEADER_LINE;
           REFRESH_FILES();
-          killEvents(_event);
           return;
         }
       }
@@ -341,7 +339,6 @@ void menuRadioSdManager(event_t _event)
     case EVT_KEY_LONG(KEY_ENTER):
 #if (HEADER_LINE > 0)
       if (menuVerticalPosition < HEADER_LINE) {
-        killEvents(_event);
         POPUP_MENU_ADD_ITEM(STR_SD_INFO);
         POPUP_MENU_START(onSdManagerMenu);
         break;
@@ -351,7 +348,6 @@ void menuRadioSdManager(event_t _event)
       getSelectionFullPath(lfn);
 
       if (SD_CARD_PRESENT() && s_editMode <= 0) {
-        killEvents(_event);
         int index = menuVerticalPosition - HEADER_LINE - menuVerticalOffset;
         char * line = reusableBuffer.sdManager.lines[index];
         if (!strcmp(line, "..")) {

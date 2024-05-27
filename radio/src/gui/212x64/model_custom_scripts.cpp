@@ -131,7 +131,7 @@ void menuModelCustomScripts(event_t event)
   coord_t y;
   int8_t  sub = menuVerticalPosition;
 
-  if (event == EVT_KEY_FIRST(KEY_ENTER)) {
+  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     s_currIdx = sub;
     pushMenu(menuModelCustomScriptOne);
   }

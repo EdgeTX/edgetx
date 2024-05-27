@@ -178,7 +178,6 @@ void menuModelMixAll(event_t event)
     case EVT_KEY_LONG(KEY_EXIT):
       if (s_copyMode && s_copyTgtOfs == 0) {
         deleteMix(s_currIdx);
-        killEvents(event);
         event = 0;
       }
       // no break
@@ -214,7 +213,6 @@ void menuModelMixAll(event_t event)
       // no break
 
     case EVT_KEY_LONG(KEY_ENTER):
-      killEvents(event);
       if (s_copyTgtOfs) {
         s_copyMode = 0;
         s_copyTgtOfs = 0;
@@ -252,7 +250,6 @@ void menuModelMixAll(event_t event)
     //     insertMix(s_currIdx, s_currCh - 1);
     //     pushMenu(menuModelMixOne);
     //     s_copyMode = 0;
-    //     killEvents(event);
     //   }
     //   break;
   }

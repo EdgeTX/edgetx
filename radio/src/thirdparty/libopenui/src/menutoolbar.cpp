@@ -98,12 +98,7 @@ void MenuToolbar::onEvent(event_t event)
   if (event == EVT_KEY_BREAK(KEY_PAGEDN)) {
     lv_group_focus_next(group);
   }
-#if defined(KEYS_GPIO_REG_PAGEUP)
   else if (event == EVT_KEY_BREAK(KEY_PAGEUP)) {
-#else
-  else if (event == EVT_KEY_LONG(KEY_PAGEDN)) {
-    killEvents(event);
-#endif
     lv_group_focus_prev(group);
   }
 

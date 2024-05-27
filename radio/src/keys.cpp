@@ -58,7 +58,9 @@
 #define KSTATE_RPTDELAY             95
 #define KSTATE_START                97
 #define KSTATE_PAUSE                98
-#define KSTATE_KILLED               99
+
+#define KFLAG_KILLED                1
+#define KFLAG_LONG_PRESS            2
 
 // global last event
 event_t s_evt;
@@ -72,6 +74,7 @@ class Key
   uint8_t m_vals = 0;
   uint8_t m_cnt = 0;
   uint8_t m_state = 0;
+  uint8_t m_flags = 0;
 
  public:
   event_t input(bool val);
@@ -92,15 +95,18 @@ event_t Key::input(bool val)
 
   m_cnt++;
 
-  if (m_state && m_vals == 0) {
+  if ((m_state || m_flags) && m_vals == 0) {
     // key is released
-    if (m_state != KSTATE_KILLED) {
+    if ((m_flags & (KFLAG_KILLED|KFLAG_LONG_PRESS)) == 0) {
       evt = _MSK_KEY_BREAK;
     }
     m_state = KSTATE_OFF;
     m_cnt = 0;
+    m_flags = 0;
     return evt;
   }
+
+  if (m_flags & KFLAG_KILLED) return evt;
 
   switch (m_state) {
     case KSTATE_OFF:
@@ -121,6 +127,7 @@ event_t Key::input(bool val)
       if (m_cnt == KEY_LONG_DELAY) {
         // generate long key press
         evt = _MSK_KEY_LONG;
+        m_flags |= KFLAG_LONG_PRESS;
       }
       if (m_cnt == KEY_REPEAT_DELAY) {
         m_state = 16;
@@ -150,9 +157,6 @@ event_t Key::input(bool val)
         m_cnt = 0;
       }
       break;
-
-    case KSTATE_KILLED: //killed
-      break;
   }
 
   return evt;
@@ -166,8 +170,8 @@ void Key::pauseEvents()
 
 void Key::killEvents()
 {
-  // TRACE("key %d killed", key());
-  m_state = KSTATE_KILLED;
+  if (m_state)
+    m_flags |= KFLAG_KILLED;
 }
 
 static Key keys[MAX_KEYS];
@@ -427,10 +431,22 @@ bool keysPollingCycle()
   for (int i = 0; i < MAX_KEYS; i++) {
     event_t evt = keys[i].input(keys_input & (1 << i));
     if (evt) {
-      // SHIFT key should not trigger REPT events
-      if (i != KEY_SHIFT || evt != _MSK_KEY_REPT) {
-        pushEvent(evt | i);
+      evt |= i;
+#if defined(KEYS_GPIO_REG_PAGEDN) && !defined(KEYS_GPIO_REG_PAGEUP)
+      // Radio with single PAGEDN key
+      if (evt == EVT_KEY_LONG(KEY_PAGEDN)) {
+        // Convert long press PAGEDN to short press PAGEUP
+        evt = EVT_KEY_BREAK(KEY_PAGEUP);
       }
+#endif
+#if defined(KEYS_GPIO_REG_SHIFT)
+      // SHIFT key should not trigger REPT events
+      if (evt != EVT_KEY_REPT(KEY_SHIFT)) {
+        pushEvent(evt);
+      }
+#else
+      pushEvent(evt);
+#endif
     }
   }
 

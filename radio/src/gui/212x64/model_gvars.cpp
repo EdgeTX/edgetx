@@ -197,7 +197,6 @@ void menuModelGVars(event_t event)
   }
 
   if ((menuHorizontalPosition<0 || !modelFMEnabled()) && event==EVT_KEY_LONG(KEY_ENTER)) {
-    killEvents(event);
     POPUP_MENU_START(onGVARSMenu, 2, STR_EDIT, STR_CLEAR);
   }
 }

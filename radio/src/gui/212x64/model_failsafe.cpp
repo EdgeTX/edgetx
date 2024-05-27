@@ -37,7 +37,6 @@ void menuModelFailsafe(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_ENTER):
-      killEvents(event);
       event = 0;
 
       if (menuVerticalPosition < sentModuleChannels(g_moduleIdx)) {

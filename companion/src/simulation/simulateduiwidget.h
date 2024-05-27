@@ -35,6 +35,34 @@ class LcdWidget;
 class RadioKeyWidget;
 class RadioUiAction;
 
+// Match with /radio/src/hal/key_driver.h
+enum EnumKeys {
+  KEY_MENU,
+  KEY_EXIT,
+  KEY_ENTER,
+
+  KEY_PAGEUP,
+  KEY_PAGEDN,
+
+  KEY_UP,
+  KEY_DOWN,
+
+  KEY_LEFT,
+  KEY_RIGHT,
+
+  KEY_PLUS,
+  KEY_MINUS,
+
+  KEY_MODEL,
+  KEY_TELE,
+  KEY_SYS,
+
+  KEY_SHIFT,
+  KEY_BIND,
+
+  MAX_KEYS
+};
+
 /*
  * This is a base class for the main hardware-specific radio user interface, including LCD screen and navigation buttons/widgets.
  * It is responsible for hanlding all interactions with this part of the simulation (vs. common radio widgets like sticks/switches/knobs).

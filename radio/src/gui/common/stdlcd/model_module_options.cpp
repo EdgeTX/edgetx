@@ -91,7 +91,7 @@ void menuModelModuleOptions(event_t event)
   }
 
   if (menuEvent) {
-    killEvents(KEY_EXIT);
+    killEvents(KEY_EXIT); // TODO: Check if needed
     moduleState[g_moduleIdx].mode = MODULE_MODE_NORMAL;
     if (reusableBuffer.hardwareAndSettings.moduleSettings.dirty) {
       abortPopMenu();
@@ -103,7 +103,6 @@ void menuModelModuleOptions(event_t event)
   }
 
   if (event == EVT_KEY_LONG(KEY_ENTER) && reusableBuffer.hardwareAndSettings.moduleSettings.dirty) {
-    killEvents(event);
     reusableBuffer.hardwareAndSettings.moduleSettings.dirty = MODULE_SETTINGS_OK;
     moduleState[g_moduleIdx].writeModuleSettings(&reusableBuffer.hardwareAndSettings.moduleSettings);
   }

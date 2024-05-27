@@ -50,8 +50,8 @@
   #define KEYS_GPIO_PIN_MENU            LL_GPIO_PIN_7  // PD.07
   #define KEYS_GPIO_REG_EXIT            GPIOD
   #define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_2  // PD.02
-  #define KEYS_GPIO_REG_PAGE            GPIOD
-  #define KEYS_GPIO_PIN_PAGE            LL_GPIO_PIN_3  // PD.03
+  #define KEYS_GPIO_REG_PAGEDN          GPIOD
+  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_3  // PD.03
   #define KEYS_GPIO_REG_ENTER           GPIOF
   #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_0  // PF.00
 #elif defined(PCBXLITE)
@@ -153,8 +153,8 @@
   #define KEYS_GPIO_REG_BIND            GPIOD
   #define KEYS_GPIO_PIN_BIND            LL_GPIO_PIN_9 // PD.09
 #elif defined(RADIO_FAMILY_T20)
-  #define KEYS_GPIO_REG_PAGE            GPIOD
-  #define KEYS_GPIO_PIN_PAGE            LL_GPIO_PIN_11  // PD.11
+  #define KEYS_GPIO_REG_PAGEDN          GPIOD
+  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_11  // PD.11
   #define KEYS_GPIO_REG_MENU            GPIOD
   #define KEYS_GPIO_PIN_MENU            LL_GPIO_PIN_10  // PD.10
   #define KEYS_GPIO_REG_EXIT            GPIOD
@@ -162,8 +162,8 @@
   #define KEYS_GPIO_REG_ENTER           GPIOE
   #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_7 // PE.7
 #elif defined(RADIO_T14)
-  #define KEYS_GPIO_REG_PAGE            GPIOD
-  #define KEYS_GPIO_PIN_PAGE            LL_GPIO_PIN_3  // PD.03
+  #define KEYS_GPIO_REG_PAGEDN          GPIOD
+  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_3  // PD.03
   #define KEYS_GPIO_REG_MENU            GPIOD
   #define KEYS_GPIO_PIN_MENU            LL_GPIO_PIN_7  // PD.07
   #define KEYS_GPIO_REG_EXIT            GPIOD
@@ -171,8 +171,8 @@
   #define KEYS_GPIO_REG_ENTER           GPIOA
   #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_13 // PA.13
 #elif defined(PCBX7)
-  #define KEYS_GPIO_REG_PAGE            GPIOD
-  #define KEYS_GPIO_PIN_PAGE            LL_GPIO_PIN_3  // PD.03
+  #define KEYS_GPIO_REG_PAGEDN          GPIOD
+  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_3  // PD.03
   #define KEYS_GPIO_REG_MENU            GPIOD
   #define KEYS_GPIO_PIN_MENU            LL_GPIO_PIN_7  // PD.07
   #define KEYS_GPIO_REG_EXIT            GPIOD
@@ -180,8 +180,8 @@
   #define KEYS_GPIO_REG_ENTER           GPIOE
   #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_10 // PE.10
 #elif defined(PCBX9LITE)
-  #define KEYS_GPIO_REG_PAGE            GPIOE
-  #define KEYS_GPIO_PIN_PAGE            LL_GPIO_PIN_8  // PE.08
+  #define KEYS_GPIO_REG_PAGEDN          GPIOE
+  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_8  // PE.08
   #define KEYS_GPIO_REG_MENU            GPIOE
   #define KEYS_GPIO_PIN_MENU            LL_GPIO_PIN_7  // PE.07
   #define KEYS_GPIO_REG_EXIT            GPIOE
@@ -193,8 +193,8 @@
   #define KEYS_GPIO_PIN_MENU            LL_GPIO_PIN_2  // PD.02
   #define KEYS_GPIO_REG_EXIT            GPIOD
   #define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_7  // PD.07
-  #define KEYS_GPIO_REG_PAGE            GPIOD
-  #define KEYS_GPIO_PIN_PAGE            LL_GPIO_PIN_3  // PD.03
+  #define KEYS_GPIO_REG_PAGEDN          GPIOD
+  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_3  // PD.03
   #define KEYS_GPIO_REG_ENTER           GPIOE
   #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_12 // PE.12
 #else
@@ -202,8 +202,8 @@
   #define KEYS_GPIO_PIN_MENU            LL_GPIO_PIN_7  // PD.07
   #define KEYS_GPIO_REG_EXIT            GPIOD
   #define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_2  // PD.02
-  #define KEYS_GPIO_REG_PAGE            GPIOD
-  #define KEYS_GPIO_PIN_PAGE            LL_GPIO_PIN_3  // PD.03
+  #define KEYS_GPIO_REG_PAGEDN          GPIOD
+  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_3  // PD.03
   #define KEYS_GPIO_REG_PLUS            GPIOE
   #define KEYS_GPIO_PIN_PLUS            LL_GPIO_PIN_10 // PE.10
   #define KEYS_GPIO_REG_MINUS           GPIOE

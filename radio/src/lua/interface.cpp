@@ -1191,7 +1191,6 @@ static bool resumeLua(bool init, bool allowLcdUsage)
          
           if (scriptResult != 0) {
             TRACE("Script finished with status %d", scriptResult);
-            killAllEvents();
             luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
           }
           else if (luaDisplayStatistics) {
@@ -1221,14 +1220,12 @@ static bool resumeLua(bool init, bool allowLcdUsage)
        
         if (evt.event == EVT_KEY_LONG(KEY_EXIT)) {
           TRACE("Script force exit");
-          // killEvents(evt);
           luaEmptyEventBuffer();
           luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
         }
 #if defined(KEYS_GPIO_REG_MENU)
       // TODO find another key and add a #define
         else if (evt.event == EVT_KEY_LONG(KEY_MENU)) {
-          killEvents(evt.event);
           luaEmptyEventBuffer();
           luaDisplayStatistics = !luaDisplayStatistics;
         }

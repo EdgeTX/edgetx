@@ -256,8 +256,7 @@ void menuModelLogicalSwitches(event_t event)
   uint8_t k = 0;
   int8_t sub = menuVerticalPosition - HEADER_LINE;
 
-  if (event == EVT_KEY_FIRST(KEY_ENTER)) {
-    killEvents(event);
+  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     LogicalSwitchData * cs = lswAddress(sub);
     if (cs->func)
       s_currIdx = sub;

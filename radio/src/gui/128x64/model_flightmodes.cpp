@@ -229,14 +229,14 @@ void menuModelFlightModesAll(event_t event)
   int8_t sub = menuVerticalPosition - HEADER_LINE;
 
   // "Check trims" button
-  if (sub == MAX_FLIGHT_MODES && event == EVT_KEY_FIRST(KEY_ENTER)) {
+  if (sub == MAX_FLIGHT_MODES && event == EVT_KEY_BREAK(KEY_ENTER)) {
     s_editMode = 0;
     trimsCheckTimer = 200;  // 2 seconds
   }
 
   // Flight mode lines
   if (sub >= 0 && sub < MAX_FLIGHT_MODES &&
-      (event == EVT_KEY_FIRST(KEY_ENTER) || event == EVT_KEY_FIRST(KEY_RIGHT))) {
+      (event == EVT_KEY_BREAK(KEY_ENTER) || event == EVT_KEY_FIRST(KEY_RIGHT))) {
     s_currIdx = sub;
     pushMenu(menuModelFlightModeOne);
   }

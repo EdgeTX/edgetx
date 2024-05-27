@@ -136,7 +136,7 @@ void menuRadioSetup(event_t event)
 
   if ((menuVerticalPosition==ITEM_RADIO_SETUP_DATE || menuVerticalPosition==ITEM_RADIO_SETUP_TIME) &&
       (s_editMode>0) &&
-      (event==EVT_KEY_FIRST(KEY_ENTER) || event==EVT_KEY_BREAK(KEY_ENTER) || event==EVT_KEY_LONG(KEY_ENTER) || event==EVT_KEY_FIRST(KEY_EXIT))) {
+      (event==EVT_KEY_BREAK(KEY_ENTER) || event==EVT_KEY_BREAK(KEY_ENTER) || event==EVT_KEY_LONG(KEY_ENTER) || event==EVT_KEY_BREAK(KEY_EXIT))) {
     // set the date and time into RTC chip
     rtcSetTime(&t);
   }

@@ -92,7 +92,6 @@ void menuModelMixOne(event_t event)
 {
   if (event == EVT_KEY_LONG(KEY_MENU)) {
     pushMenu(menuChannelsView);
-    killEvents(event);
   }
 
   MixData * md2 = mixAddress(s_currIdx) ;

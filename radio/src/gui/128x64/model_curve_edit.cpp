@@ -153,29 +153,21 @@ void menuModelCurveOne(event_t event)
 
     case EVT_KEY_LONG(KEY_ENTER):
       if (menuVerticalPosition > 1) {
-        killEvents(event);
         POPUP_MENU_START(onCurveOneMenu, 3, STR_CURVE_PRESET, STR_MIRROR, STR_CLEAR);
       }
       break;
 
-#if defined(KEYS_GPIO_REG_MDL)
-    case EVT_KEY_FIRST(KEY_MODEL):
-      pushMenu(menuChannelsView);
-      killEvents(event);
-      break;
-#elif defined(NAVIGATION_X7)
-    case EVT_KEY_FIRST(KEY_MENU):
-      pushMenu(menuChannelsView);
-      killEvents(event);
-      break;
-#elif defined(NAVIGATION_XLITE)
+#if defined(NAVIGATION_XLITE)
     case EVT_KEY_FIRST(KEY_ENTER):
-      if (keysGetState(KEY_SHIFT)) {
-        pushMenu(menuChannelsView);
-        killEvents(event);
-      }
-      break;
+      if (!keysGetState(KEY_SHIFT))
+        break;
+      killEvents(event);
+#else
+    case EVT_KEY_BREAK(KEY_MODEL):
+    case EVT_KEY_BREAK(KEY_MENU):
 #endif
+      pushMenu(menuChannelsView);
+      break;
   }
 
   drawCurve();
