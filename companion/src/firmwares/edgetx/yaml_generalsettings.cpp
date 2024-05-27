@@ -555,7 +555,11 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["pwrOnSpeed"] >> rhs.pwrOnSpeed;
   node["pwrOffSpeed"] >> rhs.pwrOffSpeed;
 
-  node["customFn"] >> rhs.customFn;
+  if (node["customFn"]) {
+    // decode common for radio GF and model SF and conversion test assumes decoding a model
+    modelSettingsVersion = radioSettingsVersion;
+    node["customFn"] >> rhs.customFn;
+  }
 
   // the GeneralSettings struct is initialised to hardware definition defaults which is fine for new settings
   // however when parsing saved settings set all inputs to None and override with parsed values
