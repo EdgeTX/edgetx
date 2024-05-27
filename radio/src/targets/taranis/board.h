@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _BOARD_H_
-#define _BOARD_H_
+#pragma once
 
 #include <inttypes.h>
 #include "hal.h"
@@ -30,10 +29,6 @@
 #include "definitions.h"
 #include "opentx_constants.h"
 #include "board_common.h"
-
-#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER)  || defined(RADIO_ZORRO)  || defined(RADIO_POCKET) || defined(RADIO_MT12)
-  #define  NAVIGATION_X7_TX12
-#endif
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
 // Rotary Encoder driver
@@ -430,4 +425,3 @@ void setTopBatteryValue(uint32_t volts);
 
 #define NUM_TRIMS_KEYS                          (NUM_TRIMS * 2)
 
-#endif // _BOARD_H_
