@@ -379,4 +379,5 @@ extern "C" void SDRAM_Init(void)
   
   /* FMC SDRAM device initialization sequence */
   SDRAMTest_InitSequence();
+  FMC_SDRAM_WriteProtection_Disable(FMC_SDRAM_DEVICE, SDBANK);
 }

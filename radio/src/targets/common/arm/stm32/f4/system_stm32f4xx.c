@@ -259,11 +259,8 @@ void SystemInit(void)
   
 #if defined(SDRAM)
   void SDRAM_Init();
-  void FMC_SDRAMWriteProtectionConfig(uint32_t SDRAM_Bank, FunctionalState NewState);
 
   SDRAM_Init(); // calls SDRAM_GPIOConfig()
-  FMC_SDRAM_WriteProtection_Disable(FMC_Bank5_6, FMC_SDRAM_BANK2);
-  //FMC_SDRAMWriteProtectionConfig(((uint32_t)0x00000001), DISABLE);
 #endif
   
 #ifdef DATA_IN_ExtSRAM
