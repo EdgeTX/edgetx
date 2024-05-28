@@ -48,7 +48,7 @@
   #include "flysky_gimbal_driver.h"
 #endif
 
-#if defined(RADIO_V16)
+#if defined(LED_STRIP_GPIO)
 // Common LED driver
 extern const stm32_pulse_timer_t _led_timer;
 
@@ -76,7 +76,7 @@ void boardBootloaderInit()
 #if !defined(BOOT)
 #include "opentx.h"
 
-#if defined(RADIO_V16)
+#if defined(SIXPOS_SWITCH_INDEX)
 uint8_t lastADCState = 0;
 uint8_t sixPosState = 0;
 bool dirty = true;
@@ -246,7 +246,7 @@ void boardInit()
   usbInit();
   hapticInit();
 
-#if defined(RADIO_V16)
+#if defined(LED_STRIP_GPIO)
   ws2812_init(&_led_timer, LED_STRIP_LENGTH);
   ledStripOff();
 #endif
