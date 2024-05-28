@@ -63,7 +63,7 @@ void eraseSector(uint32_t sector)
   waitFlashIdle();
 
   FLASH->CR &= ~FLASH_CR_PSIZE;
-  FLASH->CR |= FLASH_CR_PSIZE_0;
+  FLASH->CR |= FLASH_CR_PSIZE_1;
   FLASH->CR &= SECTOR_MASK;
   FLASH->CR |= FLASH_CR_SER | (sector << 3);
   FLASH->CR |= FLASH_CR_STRT;
@@ -134,7 +134,7 @@ void flashWrite(uint32_t * address, const uint32_t * buffer) // page size is 256
 
 #undef SECTOR_ADDRESS
 #undef FLASH_BANK
-    
+
   for (uint32_t i=0; i<FLASH_PAGESIZE/4; i++) {
     /* Device voltage range supposed to be [2.7V to 3.6V], the operation will
      be done by word */
@@ -143,7 +143,7 @@ void flashWrite(uint32_t * address, const uint32_t * buffer) // page size is 256
     waitFlashIdle();
 
     FLASH->CR &= ~FLASH_CR_PSIZE;
-    FLASH->CR |= FLASH_CR_PSIZE_0;
+    FLASH->CR |= FLASH_CR_PSIZE_1;
     FLASH->CR |= FLASH_CR_PG;
 
     *address = *buffer;
