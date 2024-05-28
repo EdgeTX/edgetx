@@ -27,6 +27,7 @@
 #include "debug.h"
 #include "opentx.h"
 #include "sdcard.h"
+#include "hal/abnormal_reboot.h"
 
 #define COLOR_COUNT 13
 
@@ -157,8 +158,8 @@ class ThemePersistance
 
     void refresh()
     {
-        scanForThemes();
-        insertDefaultTheme();
+      if (!UNEXPECTED_SHUTDOWN()) scanForThemes();
+      insertDefaultTheme();
     }
 
   protected:
