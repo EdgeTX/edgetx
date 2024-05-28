@@ -20,6 +20,7 @@
  */
 #include "theme_manager.h"
 
+#include "hal/abnormal_reboot.h"
 #include "../../storage/sdcard_common.h"
 #include "../../storage/yaml/yaml_bits.h"
 #include "../../storage/yaml/yaml_tree_walker.h"
@@ -327,7 +328,8 @@ void ThemePersistance::scanForThemes()
 
 void ThemePersistance::refresh()
 {
-  scanForThemes();
+  if (!UNEXPECTED_SHUTDOWN())
+    scanForThemes();
   insertDefaultTheme();
 }
 
