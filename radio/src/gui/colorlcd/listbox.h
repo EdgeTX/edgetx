@@ -79,6 +79,8 @@ class ListBox : public TableField
     pressHandler = std::move(handler);
   }
 
+  void setSmallSelectMarker() { smallSelectMarker = true; }
+
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ListBox"; }
 #endif
@@ -87,6 +89,7 @@ class ListBox : public TableField
   static void event_cb(lv_event_t* e);
   int activeItem = -1;
   bool multiSelect = false;
+  bool smallSelectMarker = false;
 
   void onPress(uint16_t row, uint16_t col) override;
   void onLongPressed();
