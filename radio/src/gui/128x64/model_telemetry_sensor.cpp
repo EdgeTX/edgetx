@@ -224,20 +224,41 @@ void menuModelSensor(event_t event)
               lcdDrawChar(SENSOR_2ND_COLUMN, y, '-', attr);
             } else {  // Ratio + Ratio Percent
               uint32_t ratio = (sensor->custom.ratio * 1000) / 255;
-              int ratio_len = countDigits(ratio);
-              int suffixOffset;
-              lcdDrawNumber(SENSOR_2ND_COLUMN, y, sensor->custom.ratio,
-                            LEFT | attr | PREC1);
-              if (ratio_len < 5) {
-                lcdDrawNumber(SENSOR_3RD_COLUMN, y, ratio, LEFT | PREC1);
-                suffixOffset = (FWNUM * ratio_len + 3);
-              } else if (ratio_len < 7) {
-                lcdDrawNumber(SENSOR_3RD_COLUMN, y, ratio / 10, LEFT);
-                suffixOffset = (FWNUM * (ratio_len - 1));
-              } else {
-                lcdDrawNumber(SENSOR_3RD_COLUMN, y, ratio / 100, LEFT);
-                suffixOffset = (FWNUM * (ratio_len - 3));
+              int ratio_len = countDigits(sensor->custom.ratio);
+              int ratio_perc_len = countDigits(ratio);
+
+              int suffixOffset = 0;
+              int ratio_column_adjust = 0;
+              int ratio_perc_column_adjust = 0;
+
+              if (ratio_len <= 3) {
+                ratio_column_adjust = 0;
+              } else if (ratio_len <= 4) {
+                ratio_column_adjust = (FWNUM * 1);
+              } else if (ratio_len >= 5) {
+                ratio_column_adjust = (FWNUM * 2);
               }
+
+              if (ratio_perc_len < 2) {
+                ratio_perc_column_adjust = 0;
+                suffixOffset = (FWNUM * (ratio_perc_len + 1)) + 2;
+              } else if (ratio_perc_len <= 4 ) {
+                ratio_perc_column_adjust = 0;
+                suffixOffset = (FWNUM * ratio_perc_len) + 2;
+              } else if (ratio_perc_len <= 5) {
+                ratio_column_adjust += (FWNUM * 1); // move first column to maintain separation
+                ratio_perc_column_adjust = (FWNUM * 1);
+                suffixOffset = (FWNUM * (ratio_perc_len - 1)) + 2;
+              } else if (ratio_perc_len >= 6) {
+                ratio_column_adjust += (FWNUM * 2); // move first column to maintain separation
+                ratio_perc_column_adjust = (FWNUM * 2);
+                suffixOffset = (FWNUM * (ratio_perc_len - 2)) + 2;
+              }
+
+              lcdDrawNumber(SENSOR_2ND_COLUMN - ratio_column_adjust, y,
+                            sensor->custom.ratio, LEFT | attr | PREC1);
+              lcdDrawNumber(SENSOR_3RD_COLUMN - ratio_perc_column_adjust, y,
+                            ratio, LEFT | PREC1);
               lcdDrawChar(SENSOR_3RD_COLUMN + suffixOffset, y, '%', 0);
             }
             break;
