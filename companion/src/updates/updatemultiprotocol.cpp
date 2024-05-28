@@ -22,10 +22,10 @@
 #include "updatemultiprotocol.h"
 
 UpdateMultiProtocol::UpdateMultiProtocol(QWidget * parent) :
-  UpdateInterface(parent, CID_MultiProtocol, tr("Multiprotocol"))
+  UpdateInterface(parent, CID_MultiProtocol, tr("Multiprotocol"), Repo::REPO_TYPE_GITHUB,
+                  QString(GH_API_REPOS).append("/pascallanger/DIY-Multiprotocol-TX-Module"), "", 100)
 {
-  // GitHub REST API default ResultsPerPage = 30
-  init(QString(GH_API_REPOS).append("/pascallanger/DIY-Multiprotocol-TX-Module"), "", 100);
+  init(); // call after UpdateInterface ctor due to virtual functions
 }
 
 void UpdateMultiProtocol::assetSettingsInit()

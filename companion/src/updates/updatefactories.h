@@ -64,6 +64,7 @@ class UpdateFactories : public QWidget
 
     UpdateInterface* const instance(const int id);
     const bool isUpdateAvailable(QMap<QString, int> & names);
+    void radioProfileChanged();
     void registerUpdateFactories();
     void registerUpdateFactory(UpdateFactoryInterface * factory);
     void resetAllEnvironments();

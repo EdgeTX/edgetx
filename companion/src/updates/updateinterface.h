@@ -48,6 +48,7 @@ class UpdateInterface : public QWidget
       CID_Themes          = 3,
       CID_MultiProtocol   = 4,
       CID_Companion       = 5,
+      CID_CloudBuild      = 6,
     };
     Q_ENUM(ComponentIdentity)
 
@@ -65,12 +66,23 @@ class UpdateInterface : public QWidget
       UPDFLG_AsyncInstall    = 1 << 10,
       UPDFLG_DelDownloads    = 1 << 11,
       UPDFLG_DelDecompress   = 1 << 12,
+      UPDFLG_Build           = 1 << 13,
       UPDFLG_Common_Asset    = UPDFLG_Download | UPDFLG_Decompress | UPDFLG_CopyDest,
       UPDFLG_Common          = UPDFLG_Common_Asset | UPDFLG_Preparation | UPDFLG_Housekeeping,
     };
     Q_ENUM(UpdateFlags)
 
-    explicit UpdateInterface(QWidget * parent, ComponentIdentity id, QString name);
+    enum ProcessResult {
+      PROC_RESULT_FAIL,
+      PROC_RESULT_SUCCESS,
+      PROC_RESULT_CANCELLED,
+    };
+    Q_ENUM(ProcessResult)
+
+    typedef bool (*processFunc)();
+
+    explicit UpdateInterface(QWidget * parent, ComponentIdentity id, QString name, Repo::RepoType repoType,
+                             const QString & path, const QString & nightly = QString(), const int resultsPerPage= -1);
     virtual ~UpdateInterface();
 
     virtual void assetSettingsSave();
@@ -80,31 +92,40 @@ class UpdateInterface : public QWidget
     virtual const QString releaseCurrent();
     virtual const QString releaseLatest();
     virtual const QString releaseUpdate();
-    virtual bool update(ProgressWidget * progress = nullptr);
     virtual const QString versionCurrent();
 
     const int id() const;
     const bool isUpdateable() const;
     const QString name() const;
     UpdateParameters* const params() const;
+    void radioProfileChanged();
     void releaseClear();
     const QStringList releaseList();
     void resetEnvironment();
     void setReleaseChannel(const int channel);
     void setRunUpdate();
+    bool update(ProgressWidget * progress = nullptr);
+
+  signals:
+    void stop();
+    void finished();
 
   protected:
     virtual void assetSettingsInit() = 0;
     virtual void assetSettingsLoad();
-    virtual bool asyncInstall();
+    virtual int asyncInstall();
+    virtual int build();
+    virtual bool buildFlaggedAsset(const int row);
     virtual bool copyAsset();
-    virtual bool copyToDestination();
-    virtual bool decompress();
-    virtual bool download();
+    virtual int copyToDestination();
+    virtual int decompress();
+    virtual int download();
+    virtual bool downloadFlaggedAsset(const int row);
     virtual bool flagAssets();
-    virtual bool housekeeping();
-    virtual bool preparation();
+    virtual int housekeeping();
+    virtual int preparation();
 
+    bool buildFlaggedAssets();
     bool copyFiles();
     bool copyFlaggedAssets();
     bool copyStructure();
@@ -114,7 +135,7 @@ class UpdateInterface : public QWidget
     const QString downloadDir() const;
     bool downloadFlaggedAssets();
     bool filterAssets(const UpdateParameters::AssetParams & ap);
-    void init(QString repo, QString nightly = "", int resultsPerPage = -1);
+    void init();
     const bool isSettingsIndexValid() const;
     UpdateNetwork* const network() const;
     Repo* const repo() const;
@@ -126,11 +147,15 @@ class UpdateInterface : public QWidget
     void setParamFolders();
     void setReleaseId(QString name);
     UpdateStatus* const status() const;
+    const bool isStopping() const { return m_stopping; }
     const QString updateDir() const;
 
     static QStringList versionToStringList(QString version);
     static const QString updateFlagsToString(const int flags);
     static const QString updateFlagToString(const int flag);
+
+  private slots:
+    void onStatusCancelled();
 
   private:
     const ComponentIdentity m_id;
@@ -142,10 +167,22 @@ class UpdateInterface : public QWidget
     QString m_downloadDir;
     QString m_decompressDir;
     QString m_updateDir;
+    bool m_stopping;
+    int m_result;
 
     void appSettingsInit();
     bool checkCreateDirectory(const QString & dirSetting, const UpdateFlags flag);
     bool decompressArchive(const QString & archivePath, const QString & destPath);
-    bool releaseSettingsSave();
+    int releaseSettingsSave();
     bool setRunFolders();
+
+    bool okToRun() { return m_result == PROC_RESULT_SUCCESS && m_stopping == false; }
+    void runAsyncInstall();
+    void runBuild();
+    void runCopyToDestination();
+    void runDecompress();
+    void runDownload();
+    void runHousekeeping();
+    void runPreparation();
+    void runReleaseSettingsSave();
 };

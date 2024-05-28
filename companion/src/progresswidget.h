@@ -51,11 +51,13 @@ class ProgressWidget : public QWidget
     void forceOpen();
     void stop();
     void clearDetails() const;
+    void forceKeepOpen(bool value);
 
   signals:
     void detailsToggled();
     void locked(bool);
     void stopped();
+    void keepOpen(bool);
 
   protected slots:
     void toggleDetails();

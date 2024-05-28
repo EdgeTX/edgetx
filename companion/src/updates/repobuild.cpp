@@ -19,25 +19,34 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "repobuild.h"
 
-#include "updateinterface.h"
-
-class UpdateCompanion : public UpdateInterface
+RepoBuild::RepoBuild(QObject * parent, UpdateStatus * status, UpdateNetwork * network,
+                     const QString & path, const QString & nightly, const int resultsPerPage) :
+  Repo(parent, status, network, path, nightly, resultsPerPage)
 {
-  Q_DECLARE_TR_FUNCTIONS(UpdateCompanion)
+}
 
-  public:
+RepoBuild::~RepoBuild()
+{
+}
 
-    explicit UpdateCompanion(QWidget * parent);
-    virtual ~UpdateCompanion() {}
+const QString RepoBuild::urlAsset(const int assetId) const
+{
+  return QString(assets()->downloadUrl());
+}
 
-    virtual const QString releaseCurrent() override;
-    virtual const QString versionCurrent() override;
-    virtual const bool isReleaseLatest() override;
-    virtual const bool isUpdateAvailable() override;
+const QString RepoBuild::urlJobs() const
+{
+  return QString("%1/jobs").arg(path());
+}
 
-  protected:
-    virtual int asyncInstall() override;
-    virtual void assetSettingsInit() override;
-};
+const QString RepoBuild::urlReleases() const
+{
+  return QString("%1/targets").arg(path());
+}
+
+const QString RepoBuild::urlStatus() const
+{
+  return QString("%1/status").arg(path());
+}

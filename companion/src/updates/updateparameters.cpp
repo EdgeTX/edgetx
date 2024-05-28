@@ -50,6 +50,9 @@ QString UpdateParameters::buildFilterPattern(const UpdateFilterType filterType, 
 
   pattern.replace("%FWFLAVOUR%", fwFlavour);
   pattern.replace("%LANGUAGE%", language);
+  QString rel = releaseUpdate;
+  rel.replace(".", "\\.");
+  pattern.replace("%RELEASE%", rel);
 
   switch ((int)filterType) {
     case UFT_Exact:

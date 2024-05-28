@@ -19,24 +19,63 @@
  * GNU General Public License for more details.
  */
 
-#include "repoassets.h"
+#include "repotypes.h"
 
 /*
     AssetsRawItemModel
 */
 
-AssetsRawItemModel::AssetsRawItemModel() :
-  RepoRawItemModel("Raw Assets")
+AssetsRawItemModel::AssetsRawItemModel(QObject * parentRepo) :
+  RepoRawItemModel("Raw Assets"),
+  m_parentRepo(parentRepo)
 {
 
 }
 
 void AssetsRawItemModel::parseJsonObject(const QJsonObject & obj)
 {
+  //qDebug() << obj;
+  RepoGitHub *rg = dynamic_cast<RepoGitHub*>(m_parentRepo);
+  if (rg) {
+    parseJsonObjectGitHub(obj);
+  }
+  else {
+    RepoBuild *rb = dynamic_cast<RepoBuild*>(m_parentRepo);
+    if (rb) {
+      parseJsonObjectBuild();
+    }
+  }
+}
+
+void AssetsRawItemModel::parseJsonObjectBuild()
+{
+  Repo *repo = static_cast<Repo*>(m_parentRepo);
+
+  if (repo->config()->value("targets").isObject()) {
+    const QJsonObject &targets = repo->config()->value("targets").toObject();
+    QStringList list = targets.keys();
+    int id = 0;
+
+    for (auto i = list.cbegin(), end = list.cend(); i != end; ++i) {
+      QStandardItem * item = new QStandardItem();
+
+      item->setText(*i);
+      item->setData(++id, RIMR_Id);
+      item->setData(true, RIMR_Available);
+      item->setData(0, RIMR_Flags);
+
+      appendRow(item);
+    }
+  }
+}
+
+void AssetsRawItemModel::parseJsonObjectGitHub(const QJsonObject & obj)
+{
   QStandardItem * item = new QStandardItem();
 
   if (!obj.value("name").isUndefined()) {
     item->setText(obj.value("name").toString());
+    item->setData(obj.value("name").toString(), RIMR_DownloadName);
   }
 
   if (!obj.value("id").isUndefined()) {
@@ -57,12 +96,23 @@ void AssetsRawItemModel::parseJsonObject(const QJsonObject & obj)
   appendRow(item);
 }
 
+bool AssetsRawItemModel::setDownloadUrl(const int id, const QString url)
+{
+  return setValue(id, RIMR_DownloadUrl, QVariant(url));
+}
+
+bool AssetsRawItemModel::setDownloadName(const int id, const QString name)
+{
+  return setValue(id, RIMR_DownloadName, QVariant(name));
+}
+
 /*
     AssetsFilteredItemModel
 */
 
-AssetsFilteredItemModel::AssetsFilteredItemModel(AssetsRawItemModel * assetsRawItemModel) :
-  RepoFilteredItemModel("Filtered Assets")
+AssetsFilteredItemModel::AssetsFilteredItemModel(QObject * parentRepo, AssetsRawItemModel * assetsRawItemModel) :
+  RepoFilteredItemModel("Filtered Assets"),
+  m_parentRepo(parentRepo)
 {
   setSourceModel(assetsRawItemModel);
 }
@@ -75,6 +125,16 @@ const QString AssetsFilteredItemModel::contentType(const int id) const
 const QString AssetsFilteredItemModel::copyFilter(const int id) const
 {
   return value(id, RIMR_CopyFilter).toString();
+}
+
+const QString AssetsFilteredItemModel::downloadUrl(const int id) const
+{
+  return value(id, RIMR_DownloadUrl).toString();
+}
+
+const QString AssetsFilteredItemModel::downloadName(const int id) const
+{
+  return value(id, RIMR_DownloadName).toString();
 }
 
 bool AssetsFilteredItemModel::setCopyFilter(const int id, const QString filter)
@@ -96,13 +156,21 @@ const QString AssetsFilteredItemModel::subDirectory(const int id) const
     RepoAssets
 */
 
-RepoAssets::RepoAssets(QObject * parent, UpdateStatus * status, UpdateNetwork * network) :
-  QObject(parent),
+RepoAssets::RepoAssets(QObject * parentRepo, UpdateStatus * status, UpdateNetwork * network) :
+  QObject(parentRepo),
   RepoMetaData(status, network),
-  m_rawItemModel(new AssetsRawItemModel()),
-  m_filteredItemModel(new AssetsFilteredItemModel(m_rawItemModel))
+  m_rawItemModel(new AssetsRawItemModel(parentRepo)),
+  m_filteredItemModel(new AssetsFilteredItemModel(parentRepo, m_rawItemModel)),
+  m_parentRepo(parentRepo)
+
 {
   setModels(m_rawItemModel, m_filteredItemModel);
+}
+
+bool RepoAssets::build(const int row)
+{
+  status()->reportProgress(tr("Generic asset build not implemented"), QtDebugMsg);
+  return true;
 }
 
 const QString RepoAssets::contentType() const
@@ -117,19 +185,44 @@ const QString RepoAssets::copyFilter() const
 
 bool RepoAssets::downloadToBuffer(const int id)
 {
-  //progressMessage(tr("Download asset %1").arg(id));
   if (id > 0)
     setId(id);
-  network()->downloadToBuffer(UpdateNetwork::DDT_Content, urlAsset(this->id()));
+
+  Repo *repo = static_cast<RepoGitHub*>(m_parentRepo);
+  network()->downloadToBuffer(repo->assetDownloadDataType(), repo->urlAsset(this->id()));
   return network()->isSuccess();
 }
 
 bool RepoAssets::downloadToFile(const int row, QString & downloadDir)
 {
+  Repo *repo = static_cast<Repo*>(m_parentRepo);
   getSetId(row);
-  QFileInfo f(QString("%1/A%2/%3").arg(downloadDir).arg(id()).arg(name()));
-  network()->downloadToFile(urlAsset(id()), f.absoluteFilePath());
+  QString fmt = QString("%1/A%2/%3").arg(downloadDir).arg(id()).arg(downloadName());
+  QFileInfo f(fmt);
+  network()->downloadToFile(repo->assetDownloadDataType(), repo->urlAsset(id()), f.absoluteFilePath());
   return network()->isSuccess();
+}
+
+const QString RepoAssets::downloadUrl() const
+{
+  return m_filteredItemModel->downloadUrl(id());
+}
+
+const QString RepoAssets::downloadUrl(const int row)
+{
+  getSetId(row);
+  return downloadUrl();
+}
+
+const QString RepoAssets::downloadName() const
+{
+  return m_filteredItemModel->downloadName(id());
+}
+
+const QString RepoAssets::downloadName(const int row)
+{
+  getSetId(row);
+  return downloadName();
 }
 
 void RepoAssets::dumpItemModel(const QString modelName, const QAbstractItemModel * itemModel) const
@@ -153,7 +246,8 @@ void RepoAssets::dumpItemModel(const QString modelName, const QAbstractItemModel
 
 bool RepoAssets::getJson(QJsonDocument * json)
 {
-  network()->downloadJsonAsset(urlAsset(id()), json);
+  Repo *repo = static_cast<Repo*>(m_parentRepo);
+  network()->downloadJsonAsset(repo->urlAsset(id()), json);
 
   if (!network()->isSuccess()) {
     status()->reportProgress("Unable to download json data", QtDebugMsg);
@@ -171,9 +265,15 @@ bool RepoAssets::getJson(const QString assetName, QJsonDocument * json)
   return getJson(json);
 }
 
-void RepoAssets::init(const QString & repoPath,const QString & nightly, const int resultsPerPage)
+const QString RepoAssets::name() const
 {
-  RepoMetaData::init(repoPath, resultsPerPage);
+  return m_filteredItemModel->name(id());
+}
+
+const QString RepoAssets::name(const int row)
+{
+  getSetId(row);
+  return name();
 }
 
 void RepoAssets::onReleaseIdChanged(const int id)
@@ -184,13 +284,16 @@ void RepoAssets::onReleaseIdChanged(const int id)
 
 bool RepoAssets::retrieveMetaDataAll()
 {
-  return retrieveMetaData(RepoRawItemModel::MDT_Assets, urlAssets(m_releaseId));
+  Repo *repo = static_cast<Repo*>(m_parentRepo);
+  return retrieveMetaData(repo->assetsMetaDataType(), repo->urlAssets(m_releaseId));
 }
 
 bool RepoAssets::retrieveMetaDataOne(const int id)
 {
   setId(id);
-  return retrieveMetaData(RepoRawItemModel::MDT_Asset, urlAsset(id));
+
+  Repo *repo = static_cast<Repo*>(m_parentRepo);
+  return retrieveMetaData(repo->assetMetaDataType(), repo->urlAsset(id));
 }
 
 bool RepoAssets::setCopyFilter(const QString filter)
@@ -206,4 +309,14 @@ bool RepoAssets::setSubDirectory(const QString path)
 const QString RepoAssets::subDirectory() const
 {
   return m_filteredItemModel->subDirectory(id());
+}
+
+bool RepoAssets::setDownloadUrl(const QString url)
+{
+  return m_rawItemModel->setDownloadUrl(id(), url);
+}
+
+bool RepoAssets::setDownloadName(const QString name)
+{
+  return m_rawItemModel->setDownloadName(id(), name);
 }

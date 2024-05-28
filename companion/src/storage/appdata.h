@@ -492,7 +492,6 @@ class Profile: public CompStoreObj
     PROPERTY4(int, defaultMode,  "default_mode",           1)
     PROPERTY (int, volumeGain,   10)
 
-    PROPERTY4(bool, renameFwFiles, "rename_firmware_files", false)
     PROPERTY (bool, burnFirmware,  false)
     PROPERTY (bool, penableBackup, false)
     PROPERTY (bool, runSDSync,  false)

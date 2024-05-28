@@ -40,12 +40,19 @@ class UpdateStatus : public QObject
     void setMaximum(int val) { if (m_progress) m_progress->setMaximum(val); }
     int maximum() { return m_progress ? m_progress->maximum() : 0; }
 
-    void setProgress(ProgressWidget * progress) { m_progress = progress; }
+    void setProgress(ProgressWidget * progress);
     ProgressWidget * progress() { return m_progress; }
 
+    void keepOpen(bool val) { if (m_progress) m_progress->forceKeepOpen(val); }
     void reportProgress(QString text, QtMsgType type = QtInfoMsg);
     void progressMessage(QString text);
-    void criticalMsg(QString msg);
+    void fatalMsg(QString msg);
+
+  public slots:
+    void onWidgetStopped();
+
+  signals:
+    void cancelled();
 
   private:
     ProgressWidget *m_progress;

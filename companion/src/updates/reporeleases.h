@@ -46,7 +46,7 @@ class ReleasesRawItemModel : public RepoRawItemModel, public ReleasesItemModels
   Q_OBJECT
 
   public:
-    explicit ReleasesRawItemModel();
+    explicit ReleasesRawItemModel(QObject * parentRepo);
     virtual ~ReleasesRawItemModel() {}
 
   protected:
@@ -54,10 +54,11 @@ class ReleasesRawItemModel : public RepoRawItemModel, public ReleasesItemModels
 
     virtual void parseJsonObject(const QJsonObject & obj);
 
-    void setNightlyName(const QString name);
-
   private:
-    QString m_nightlyName;
+    QObject *m_parentRepo;  // cannot use Repo class from repo.h as compile error due to cyclic headers
+
+    void parseJsonObjectGitHub(const QJsonObject & obj);
+    void parseJsonObjectBuild(const QJsonObject & obj);
 };
 
 class ReleasesFilteredItemModel: public RepoFilteredItemModel, public ReleasesItemModels
@@ -65,7 +66,7 @@ class ReleasesFilteredItemModel: public RepoFilteredItemModel, public ReleasesIt
     Q_OBJECT
 
   public:
-    explicit ReleasesFilteredItemModel(ReleasesRawItemModel * releasesRawItemModel);
+    explicit ReleasesFilteredItemModel(QObject * parentRepo, ReleasesRawItemModel * releasesRawItemModel);
     virtual ~ReleasesFilteredItemModel() {}
 
   protected:
@@ -74,6 +75,9 @@ class ReleasesFilteredItemModel: public RepoFilteredItemModel, public ReleasesIt
     const int channelLatestId() const;
     void setChannel(const int channel);
     const QString version(const int id) const;
+
+  private:
+    QObject *m_parentRepo;  // cannot use Repo class from repo.h as compile error due to cyclic headers
 };
 
 class RepoReleases : public QObject, public RepoMetaData
@@ -81,10 +85,9 @@ class RepoReleases : public QObject, public RepoMetaData
     Q_OBJECT
 
   public:
-    explicit RepoReleases(QObject * parent, UpdateStatus * status, UpdateNetwork * network);
+    explicit RepoReleases(QObject * parentRepo, UpdateStatus * status, UpdateNetwork * network);
     virtual ~RepoReleases() {}
 
-    void init(const QString & repoPath, const QString & nightly, const int resultsPerPage) override;
     int setId(const int id) override;
     bool retrieveMetaDataAll() override;
     bool retrieveMetaDataOne(const int id) override { return false; } // not implemented
@@ -99,6 +102,7 @@ class RepoReleases : public QObject, public RepoMetaData
   private:
     ReleasesRawItemModel* const m_rawItemModel;
     ReleasesFilteredItemModel* const m_filteredItemModel;
+    QObject *m_parentRepo;  // cannot use Repo class from repo.h as compile error due to cyclic headers
 
     void dumpItemModel(const QString modelName, const QAbstractItemModel * itemModel) const override;
 };

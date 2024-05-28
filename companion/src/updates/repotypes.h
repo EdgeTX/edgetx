@@ -19,25 +19,5 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
-
-#include "updateinterface.h"
-
-class UpdateCompanion : public UpdateInterface
-{
-  Q_DECLARE_TR_FUNCTIONS(UpdateCompanion)
-
-  public:
-
-    explicit UpdateCompanion(QWidget * parent);
-    virtual ~UpdateCompanion() {}
-
-    virtual const QString releaseCurrent() override;
-    virtual const QString versionCurrent() override;
-    virtual const bool isReleaseLatest() override;
-    virtual const bool isUpdateAvailable() override;
-
-  protected:
-    virtual int asyncInstall() override;
-    virtual void assetSettingsInit() override;
-};
+#include "repobuild.h"
+#include "repogithub.h"

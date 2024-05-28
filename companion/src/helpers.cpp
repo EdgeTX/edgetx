@@ -898,6 +898,20 @@ bool SemanticVersion::isEmpty()
     return false;
 }
 
+bool SemanticVersion::isPreRelease(const QString vers)
+{
+  fromString(vers);
+  return isPreRelease();
+}
+
+bool SemanticVersion::isPreRelease()
+{
+  if (version.preReleaseType != PR_NONE)
+    return true;
+  else
+    return false;
+}
+
 int SemanticVersion::compare(const SemanticVersion& other)
 {
   if (version.major != other.version.major) {

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "reporeleases.h"
+#include "repotypes.h"
 #include "appdata.h"
 #include "helpers.h"
 
@@ -55,15 +55,96 @@ const QString ReleasesItemModels::flagToString(const int val)
     ReleasesRawItemModel
 */
 
-ReleasesRawItemModel::ReleasesRawItemModel() :
+ReleasesRawItemModel::ReleasesRawItemModel(QObject * parentRepo) :
   RepoRawItemModel("Raw Releases"),
-  m_nightlyName("")
+  m_parentRepo(parentRepo)
 {
   setSortRole(RIMR_SortOrder);
 }
 
 void ReleasesRawItemModel::parseJsonObject(const QJsonObject & obj)
 {
+  //qDebug() << obj;
+  RepoGitHub *rg = dynamic_cast<RepoGitHub*>(m_parentRepo);
+  if (rg) {
+    parseJsonObjectGitHub(obj);
+  }
+  else {
+    RepoBuild *rb = dynamic_cast<RepoBuild*>(m_parentRepo);
+    if (rb) {
+      parseJsonObjectBuild(obj);
+    }
+  }
+}
+
+void ReleasesRawItemModel::parseJsonObjectBuild(const QJsonObject & obj)
+{
+  Repo *repo = static_cast<Repo*>(m_parentRepo);
+  const QString fwRadio = getCurrentFirmware()->getFlavour();
+
+  if (obj.value("releases").isObject()) {
+    repo->setConfig(obj);
+    const QJsonObject &releases = obj.value("releases").toObject();
+    QStringList list = releases.keys();
+
+    for (auto i = list.cbegin(), end = list.cend(); i != end; ++i) {
+      QStandardItem * item = new QStandardItem();
+
+      int flags = RELFLG_Stable;
+      bool available = true;
+
+      item->setText(*i);
+      item->setData(*i, RIMR_Tag);
+
+      if (item->data(RIMR_Tag).toString().toLower() == repo->nightly().toLower())
+        item->setData((int)QDate::currentDate().toJulianDay(), RIMR_Id);
+      else
+        item->setData(SemanticVersion(*i).toInt(), RIMR_Id);
+
+      item->setData(QDateTime::currentDateTimeUtc(), RIMR_Date);
+
+      SemanticVersion sv;
+
+      if (item->data(RIMR_Tag).toString().toLower() == repo->nightly().toLower()) {
+        flags = RELFLG_Nightly;
+        sv.fromString("255.255.255");
+      }
+      else
+        sv.fromString(item->data(RIMR_Tag).toString());
+
+      if (sv.isPreRelease())
+        flags = RELFLG_PreRelease;
+
+      if (sv.isValid())
+        item->setData(sv.toInt(), RIMR_SortOrder);
+      else
+        item->setData(item->data(RIMR_Id).toInt(), RIMR_SortOrder);
+
+      if (releases.value(*i).isObject()) {
+        const QJsonObject &release = releases.value(*i).toObject();
+        if (!release.value("exclude_targets").isUndefined()) {
+          if (release.value("exclude_targets").isArray()) {
+            const QJsonArray &excluded = release.value("exclude_targets").toArray();
+            foreach (const QJsonValue &v, excluded) {
+              if (v.isString() && v.toString() == fwRadio) {
+                available = false;
+              }
+            }
+          }
+        }
+      }
+
+      item->setData(available, RIMR_Available);
+      item->setData(flags, RIMR_Flags);
+
+      appendRow(item);
+    }
+  }
+}
+
+void ReleasesRawItemModel::parseJsonObjectGitHub(const QJsonObject & obj)
+{
+  Repo *repo = static_cast<Repo*>(m_parentRepo);
   QStandardItem * item = new QStandardItem();
 
   int flags = RELFLG_Stable;
@@ -88,7 +169,7 @@ void ReleasesRawItemModel::parseJsonObject(const QJsonObject & obj)
 
   if (!obj.value("tag_name").isUndefined()) {
     item->setData(obj.value("tag_name").toString(), RIMR_Tag);
-    if (item->data(RIMR_Tag).toString().toLower() == m_nightlyName)
+    if (item->data(RIMR_Tag).toString().toLower() == repo->nightly().toLower())
       flags = RELFLG_Nightly;
   }
 
@@ -102,7 +183,7 @@ void ReleasesRawItemModel::parseJsonObject(const QJsonObject & obj)
 
   SemanticVersion sv;
 
-  if (item->data(RIMR_Tag).toString().toLower() == m_nightlyName)
+  if (item->data(RIMR_Tag).toString().toLower() == repo->nightly().toLower())
     sv.fromString("255.255.255");
   else
     sv.fromString(item->data(RIMR_Tag).toString());
@@ -115,20 +196,16 @@ void ReleasesRawItemModel::parseJsonObject(const QJsonObject & obj)
   appendRow(item);
 }
 
-void ReleasesRawItemModel::setNightlyName(const QString name)
-{
-  m_nightlyName = name.toLower();
-}
-
 /*
     ReleasesFilteredItemModel
 */
 
-ReleasesFilteredItemModel::ReleasesFilteredItemModel(ReleasesRawItemModel * releasesRawItemModel) :
-  RepoFilteredItemModel("Filtered Releases")
+ReleasesFilteredItemModel::ReleasesFilteredItemModel(QObject * parentRepo, ReleasesRawItemModel * releasesRawItemModel) :
+  RepoFilteredItemModel("Filtered Releases"),
+  m_parentRepo(parentRepo)
 {
   setSourceModel(releasesRawItemModel);
-  setSortRole(RIMR_Date);
+  setSortRole(RIMR_SortOrder);
 }
 
 const int ReleasesFilteredItemModel::channelLatestId() const
@@ -155,11 +232,12 @@ const QString ReleasesFilteredItemModel::version(const int id) const
     RepoReleases
 */
 
-RepoReleases::RepoReleases(QObject * parent, UpdateStatus * status, UpdateNetwork * network) :
-  QObject(parent),
+RepoReleases::RepoReleases(QObject * parentRepo, UpdateStatus * status, UpdateNetwork * network) :
+  QObject(parentRepo),
   RepoMetaData(status, network),
-  m_rawItemModel(new ReleasesRawItemModel()),
-  m_filteredItemModel(new ReleasesFilteredItemModel(m_rawItemModel))
+  m_rawItemModel(new ReleasesRawItemModel(parentRepo)),
+  m_filteredItemModel(new ReleasesFilteredItemModel(parentRepo, m_rawItemModel)),
+  m_parentRepo(parentRepo)
 {
   setModels(m_rawItemModel, m_filteredItemModel);
 }
@@ -186,15 +264,16 @@ void RepoReleases::dumpItemModel(const QString modelName, const QAbstractItemMod
   }
 }
 
-void RepoReleases::init(const QString & repoPath,const QString & nightly, const int resultsPerPage)
-{
-  RepoMetaData::init(repoPath, resultsPerPage);
-  m_rawItemModel->setNightlyName(nightly);
-}
-
 bool RepoReleases::retrieveMetaDataAll()
 {
-  return retrieveMetaData(RepoRawItemModel::MDT_Releases, urlReleases());
+  bool res = false;
+  Repo *repo = dynamic_cast<Repo*>(m_parentRepo);
+  if (repo) {
+    res = retrieveMetaData(repo->releasesMetaDataType(), repo->urlReleases());
+    m_rawItemModel->sort(0, Qt::DescendingOrder);
+  }
+
+  return res;
 }
 
 int RepoReleases::setId(const int id)
