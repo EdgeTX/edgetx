@@ -231,10 +231,10 @@
 #define TOUCH_INT_GPIO                  GPIO_PIN(GPIOE, 3) // PE.03
 
 // TOUCH_INT_EXTI IRQ
-// #if !defined(USE_EXTI9_5_IRQ)
-//   #define USE_EXTI9_5_IRQ
-//   #define EXTI9_5_IRQ_Priority  9
-// #endif
+#if !defined(USE_EXTI3_IRQ)
+  #define USE_EXTI3_IRQ
+  #define EXTI3_IRQ_Priority  9
+#endif
 
 // Haptic: TIM1_CH1
 // #define HAPTIC_PWM

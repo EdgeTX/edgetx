@@ -45,7 +45,7 @@ struct TouchState getInternalTouchState();
 #define GT911_CFG_NUMBER        0x6D
 
 //I2C
-#define GT911_I2C_ADDR          0x14
+#define GT911_I2C_ADDR          0x5D
 
 //#define GT_CMD_WR             0x28
 //#define GT_CMD_RD             0x29
@@ -53,7 +53,7 @@ struct TouchState getInternalTouchState();
 
 #define GT911_COMMAND_REG               0x8040
 #define GT911_CONFIG_REG                0x8047
-#define GT911_COORDINATE_REG            0x804D
+#define GT911_MSW1_REG                  0x804D
 #define GT911_CONFIG_CHECKSUM_REG       0x80FF
 
 #define GT911_PRODUCT_ID_REG            0x8140

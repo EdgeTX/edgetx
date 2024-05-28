@@ -42,6 +42,7 @@
 #include "debug.h"
 
 #include "timers_driver.h"
+#include "tp_gt911.h"
 
 #include "bitmapbuffer.h"
 #include "colors.h"
@@ -111,8 +112,7 @@ void boardInit()
   // flysky_gimbal_init();
   timersInit();
   
-  // touchPanelInit();
-  // bsp_touch_enable_irq(touch_panel_isr);
+  touchPanelInit();
 
   usbInit();
 

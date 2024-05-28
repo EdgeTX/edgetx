@@ -61,7 +61,7 @@ static void _gt911_exti_isr(void)
   touchEventOccured = true;
 }
 
-void I2C_Init_Radio(void)
+static void I2C_Init_Radio(void)
 {
   TRACE("GT911 I2C Init");
 
@@ -71,7 +71,7 @@ void I2C_Init_Radio(void)
   }
 }
 
-bool I2C_GT911_WriteRegister(uint16_t reg, uint8_t *buf, uint8_t len)
+static bool I2C_GT911_WriteRegister(uint16_t reg, uint8_t *buf, uint8_t len)
 {
   uint8_t uAddrAndBuf[258];
   uAddrAndBuf[0] = (uint8_t)((reg & 0xFF00) >> 8);
@@ -91,7 +91,7 @@ bool I2C_GT911_WriteRegister(uint16_t reg, uint8_t *buf, uint8_t len)
   return true;
 }
 
-bool I2C_GT911_ReadRegister(uint16_t reg, uint8_t *buf, uint8_t len)
+static bool I2C_GT911_ReadRegister(uint16_t reg, uint8_t *buf, uint8_t len)
 {
   uint8_t uRegAddr[2];
   uRegAddr[0] = (uint8_t)((reg & 0xFF00) >> 8);
@@ -106,6 +106,21 @@ bool I2C_GT911_ReadRegister(uint16_t reg, uint8_t *buf, uint8_t len)
     TRACE("I2C B1 ERROR: ReadRegister read reg address failed");
     return false;
   }
+  return true;
+}
+
+static bool GT911_InitINTMode()
+{
+  uint8_t r_data;
+  if (!I2C_GT911_ReadRegister(GT911_MSW1_REG, &r_data, 1)) {
+    return false;
+  }
+
+  r_data &= 0xFCU;
+  if (!I2C_GT911_WriteRegister(GT911_MSW1_REG, &r_data, 1)) {
+    return false;
+  }
+
   return true;
 }
 
@@ -130,6 +145,7 @@ bool touchPanelInit(void)
   TRACE("Reading Touch registry");
   if (!I2C_GT911_ReadRegister(GT911_PRODUCT_ID_REG, tmp, 4)) {
     TRACE("GT911 ERROR: Product ID read failed");
+    return false;
   }
 
   if (strcmp((char *)tmp, TP_GT911_ID) == 0) {
@@ -155,8 +171,12 @@ bool touchPanelInit(void)
       TRACE("GT911 ERROR: write to command register failed");
     }
 
+    // Interrupt mode
+    if (GT911_InitINTMode()) {
+      gpio_init_int(TOUCH_INT_GPIO, GPIO_IN_PU, GPIO_RISING, _gt911_exti_isr);
+    }
+
     touchGT911Flag = true;
-    gpio_init_int(TOUCH_INT_GPIO, GPIO_IN_PU, GPIO_RISING, _gt911_exti_isr);
 
     return true;
   }
