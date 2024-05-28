@@ -42,7 +42,7 @@ enum SensorFields {
 };
 
 #define SENSOR_2ND_COLUMN      (12*FW)
-#define SENSOR_3RD_COLUMN      (17*FW-2)
+#define SENSOR_3RD_COLUMN      (18*FW)
 
 #define SENSOR_UNIT_ROWS       ((sensor->type == TELEM_TYPE_CALCULATED && (sensor->formula == TELEM_FORMULA_DIST)) || sensor->isConfigurable() ? (uint8_t)0 : HIDDEN_ROW)
 #define SENSOR_PREC_ROWS       (sensor->isPrecConfigurable() ? (uint8_t)0 : HIDDEN_ROW)
@@ -238,8 +238,10 @@ void menuModelSensor(event_t event)
               lcdDrawChar(SENSOR_2ND_COLUMN, y, '-', attr);
             } else {  // Ratio + Ratio Percent
               lcdDrawNumber(SENSOR_2ND_COLUMN, y, sensor->custom.ratio, LEFT|attr|PREC1);
-              lcdDrawNumber(SENSOR_3RD_COLUMN, y, (sensor->custom.ratio * 1000) / 255, LEFT|PREC1);
-              lcdDrawChar(SENSOR_3RD_COLUMN+(FWNUM*4)+3, y, '%', 0);
+              uint32_t ratio = (sensor->custom.ratio * 1000) / 255;
+              int ratio_len = countDigits(ratio);
+              lcdDrawNumber(SENSOR_3RD_COLUMN, y, ratio, LEFT|PREC1);
+              lcdDrawChar(SENSOR_3RD_COLUMN+(FWNUM*ratio_len)+3, y, '%', 0);
             }
             break;
           }

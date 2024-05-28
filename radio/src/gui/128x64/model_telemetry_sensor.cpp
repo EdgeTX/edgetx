@@ -41,7 +41,7 @@ enum SensorFields {
   SENSOR_FIELD_MAX
 };
 
-constexpr coord_t SENSOR_2ND_COLUMN  = 12 * FW;
+constexpr coord_t SENSOR_2ND_COLUMN = 12 * FW;
 constexpr coord_t SENSOR_3RD_COLUMN = 17 * FW - 2;
 
 void menuModelSensor(event_t event)
@@ -223,9 +223,22 @@ void menuModelSensor(event_t event)
             if (sensor->custom.ratio == 0) {
               lcdDrawChar(SENSOR_2ND_COLUMN, y, '-', attr);
             } else {  // Ratio + Ratio Percent
-              lcdDrawNumber(SENSOR_2ND_COLUMN, y, sensor->custom.ratio, LEFT|attr|PREC1);
-              lcdDrawNumber(SENSOR_3RD_COLUMN, y, (sensor->custom.ratio * 1000) / 255, LEFT|PREC1);
-              lcdDrawChar(SENSOR_3RD_COLUMN+(FWNUM*4)+3, y, '%', 0);
+              uint32_t ratio = (sensor->custom.ratio * 1000) / 255;
+              int ratio_len = countDigits(ratio);
+              int suffixOffset;
+              lcdDrawNumber(SENSOR_2ND_COLUMN, y, sensor->custom.ratio,
+                            LEFT | attr | PREC1);
+              if (ratio_len < 5) {
+                lcdDrawNumber(SENSOR_3RD_COLUMN, y, ratio, LEFT | PREC1);
+                suffixOffset = (FWNUM * ratio_len + 3);
+              } else if (ratio_len < 7) {
+                lcdDrawNumber(SENSOR_3RD_COLUMN, y, ratio / 10, LEFT);
+                suffixOffset = (FWNUM * (ratio_len - 1));
+              } else {
+                lcdDrawNumber(SENSOR_3RD_COLUMN, y, ratio / 100, LEFT);
+                suffixOffset = (FWNUM * (ratio_len - 3));
+              }
+              lcdDrawChar(SENSOR_3RD_COLUMN + suffixOffset, y, '%', 0);
             }
             break;
           }
