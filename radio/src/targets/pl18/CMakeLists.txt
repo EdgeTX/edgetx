@@ -115,11 +115,11 @@ set(FIRMWARE_TARGET_SRC
   battery_driver.cpp
   backlight_driver.cpp
   led_driver.cpp
-  sdram_driver.cpp
   )
 
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
+  targets/common/arm/stm32/sdram_driver.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/dma2d.cpp
   targets/common/arm/stm32/spi_flash.cpp

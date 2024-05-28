@@ -643,6 +643,9 @@
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
 
+// SDRAM
+#define SDRAM_BANK1
+
 #define LCD_W                           480
 #define LCD_H                           320
 

@@ -903,6 +903,9 @@
   #define BT_EN_GPIO                    GPIO_PIN(GPIOG, 10) // PG.10
 #endif
 
+// SDRAM
+#define SDRAM_BANK2
+
 #define LCD_W                          480
 #define LCD_H                          272
 #define LCD_PHYS_H                     LCD_H
