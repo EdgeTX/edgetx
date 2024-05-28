@@ -2391,7 +2391,6 @@
 #endif
 #if defined(PCBX9E)
   #define LCD_RCC_AHB1Periph            LL_AHB1_GRP1_PERIPH_DMA1
-  #define LCD_RCC_APB1Periph            LL_APB1_GRP1_PERIPH_SPI3
   #define LCD_MOSI_GPIO                 GPIO_PIN(GPIOC, 12) // PC.12
   #define LCD_CLK_GPIO                  GPIO_PIN(GPIOC, 10) // PC.10
   #define LCD_A0_GPIO                   GPIO_PIN(GPIOC, 11) // PC.11
@@ -2407,7 +2406,6 @@
   #define LCD_GPIO_AF                   GPIO_AF6
 #elif defined(PCBXLITE) || defined(PCBX9LITE)
   #define LCD_RCC_AHB1Periph            LL_AHB1_GRP1_PERIPH_DMA1
-  #define LCD_RCC_APB1Periph            LL_APB1_GRP1_PERIPH_SPI3
   #define LCD_MOSI_GPIO                 GPIO_PIN(GPIOC, 12) // PC.12
   #define LCD_CLK_GPIO                  GPIO_PIN(GPIOC, 10) // PC.10
   #define LCD_A0_GPIO                   GPIO_PIN(GPIOC, 11) // PC.11
@@ -2423,7 +2421,6 @@
   #define LCD_GPIO_AF                   GPIO_AF6
 #elif defined(PCBX9DP) || defined(PCBX7)
   #define LCD_RCC_AHB1Periph            LL_AHB1_GRP1_PERIPH_DMA1
-  #define LCD_RCC_APB1Periph            LL_APB1_GRP1_PERIPH_SPI3
   #define LCD_MOSI_GPIO                 GPIO_PIN(GPIOC, 12) // PC.12
   #define LCD_CLK_GPIO                  GPIO_PIN(GPIOC, 10) // PC.10
   #define LCD_A0_GPIO                   GPIO_PIN(GPIOC, 11) // PC.11
@@ -2443,8 +2440,7 @@
   #define LCD_GPIO_AF                   GPIO_AF6
 #else
   #define LCD_RCC_AHB1Periph            0
-  #define LCD_RCC_APB1Periph            0
-  // Soft SPI: these pins are connected to SPI periph on STM32F205
+  // Soft SPI: these pins are not connected to SPI periph on STM32F205
   #define LCD_MOSI_GPIO                 GPIO_PIN(GPIOD, 10) // PD.10
   #define LCD_CLK_GPIO                  GPIO_PIN(GPIOD, 11) // PD.11
   #define LCD_A0_GPIO                   GPIO_PIN(GPIOD, 13) // PD.13
