@@ -766,6 +766,7 @@ void ModelLabelsWindow::buildBody(Window *window)
                        LV_GRID_ALIGN_STRETCH, LABELS_ROW, 1);
   lblselector =
       new ListBox(box, rect_t{0, 0, LV_PCT(100), LV_PCT(100)}, getLabels());
+  lblselector->setSmallSelectMarker();
   auto lbl_obj = lblselector->getLvObj();
 
   // Sort Button
