@@ -21,6 +21,7 @@
 
 #include "hal/gpio.h"
 #include "stm32_gpio.h"
+#include "stm32_spi.h"
 
 #include "board.h"
 #include "debug.h"
@@ -71,6 +72,7 @@ void lcdWriteCommand(uint8_t byte)
 
 void lcdHardwareInit()
 {
+  stm32_spi_enable_clock(LCD_SPI);
   gpio_init_af(LCD_MOSI_GPIO, LCD_GPIO_AF, GPIO_PIN_SPEED_HIGH);
   gpio_init_af(LCD_CLK_GPIO, LCD_GPIO_AF, GPIO_PIN_SPEED_HIGH);
 

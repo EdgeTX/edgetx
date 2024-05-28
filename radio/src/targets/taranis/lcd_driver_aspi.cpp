@@ -21,6 +21,7 @@
 
 #include "hal/gpio.h"
 #include "stm32_gpio.h"
+#include "stm32_spi.h")
 
 #include "board.h"
 #include "lcd.h"
@@ -201,6 +202,7 @@ void lcdRefresh()
 
 void lcdHardwareInit()
 {
+  stm32_spi_enable_clock(LCD_SPI);
   gpio_init(LCD_MOSI_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   gpio_init(LCD_CLK_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   gpio_init(LCD_A0_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
