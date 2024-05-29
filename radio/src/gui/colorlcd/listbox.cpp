@@ -211,19 +211,38 @@ void ListBase::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc
    return;
 
   lv_area_t coords;
-  lv_coord_t area_h = lv_area_get_height(dsc->draw_area);
 
-  lv_coord_t cell_right = lv_obj_get_style_pad_right(lvobj, LV_PART_ITEMS);
-  lv_coord_t font_h = getFontHeight(FONT(STD));
-
-  coords.x1 = dsc->draw_area->x2 - cell_right - font_h;
-  coords.x2 = coords.x1 + 36;
-  coords.y1 = dsc->draw_area->y1 + (area_h - font_h) / 2;
-  coords.y2 = coords.y1 + font_h - 1;
+  lv_draw_label_dsc_t label_dsc;
+  lv_draw_label_dsc_init(&label_dsc);
+  label_dsc.font = dsc->label_dsc->font;
+  label_dsc.align = LV_TEXT_ALIGN_RIGHT;
 
   const char* sym = LV_SYMBOL_OK;
   if (getSelectedSymbol)
     sym = getSelectedSymbol(row);
 
-  lv_draw_label(dsc->draw_ctx, dsc->label_dsc, &coords, sym, nullptr);
+  lv_coord_t w = 30;
+  lv_coord_t h = 12;
+  lv_coord_t xo = 1;
+  lv_coord_t yo = 1;
+
+  if (smallSelectMarker) {
+    // Check for non-LVGL symbol
+    if (sym[0] != (char)0xEF) {
+      yo = -2;
+      xo = 0;
+    }
+    label_dsc.font = getFont(FONT(XS));
+  } else {
+    h = getFontHeight(FONT(STD));
+    xo = 2;
+    yo = (lv_area_get_height(dsc->draw_area) - h) / 2;
+  }
+
+  coords.x2 = dsc->draw_area->x2 - xo;
+  coords.x1 = coords.x2 - w + 1;
+  coords.y1 = dsc->draw_area->y1 + yo;
+  coords.y2 = coords.y1 + h - 1;
+
+  lv_draw_label(dsc->draw_ctx, &label_dsc, &coords, sym, nullptr);
 }

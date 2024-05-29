@@ -219,6 +219,8 @@ LV_STYLE_CONST_MULTI_INIT(cb_marker_checked, cb_marker_checked_props);
 const lv_style_const_prop_t table_cell_props[] = {
     LV_STYLE_CONST_BORDER_WIDTH(1),
     LV_STYLE_CONST_BORDER_SIDE(LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM),
+    LV_STYLE_CONST_PAD_TOP(7),  LV_STYLE_CONST_PAD_BOTTOM(7),
+    LV_STYLE_CONST_PAD_LEFT(4), LV_STYLE_CONST_PAD_RIGHT(4),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(table_cell, table_cell_props);
@@ -514,8 +516,6 @@ void table_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
                              COLOR_THEME_PRIMARY1_INDEX);
   lv_obj_add_style(obj, (lv_style_t*)&table_cell, LV_PART_ITEMS);
   lv_obj_add_style(obj, &styles->border_color_secondary2, LV_PART_ITEMS);
-  lv_obj_add_style(obj, (lv_style_t*)&pad_small, LV_PART_ITEMS);
-  lv_obj_set_style_pad_ver(obj, 7, LV_PART_ITEMS);
 
   lv_obj_add_style(obj, (lv_style_t*)&pressed,
                    LV_PART_ITEMS | LV_STATE_PRESSED);
