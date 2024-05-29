@@ -331,6 +331,8 @@ class LogicalSwitchButton : public ListLineButton
   {
     init = true;
 
+    lv_obj_enable_style_refresh(false);
+
     lsName = lv_label_create(lvobj);
     etx_obj_add_style(lsName, styles->text_align_left, LV_PART_MAIN);
     lv_obj_set_pos(lsName, NM_X, NM_Y);
@@ -368,6 +370,9 @@ class LogicalSwitchButton : public ListLineButton
     lv_obj_set_size(lsDelay, DEL_W, DEL_H);
 
     lv_obj_update_layout(lvobj);
+
+    lv_obj_enable_style_refresh(true);
+    lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
   }
 
   bool isActive() const override

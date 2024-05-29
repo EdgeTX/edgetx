@@ -333,6 +333,8 @@ void TabsGroup::setVisibleTab(PageTab* tab)
   if (tab != currentTab && !deleted()) {
     header->setTitle(tab->title.c_str());
 
+    lv_obj_enable_style_refresh(false);
+
     body->clear();
     if (currentTab)
       currentTab->cleanup();
@@ -352,7 +354,11 @@ void TabsGroup::setVisibleTab(PageTab* tab)
                                      LV_PART_MAIN);
 
     body->padAll(tab->padding);
+
     tab->build(body);
+
+    lv_obj_enable_style_refresh(true);
+    lv_obj_refresh_style(body->getLvObj(), LV_PART_ANY, LV_STYLE_PROP_ANY);
 
 #if defined(DEBUG)
     end_ms = RTOS_GET_MS();

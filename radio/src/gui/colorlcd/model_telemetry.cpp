@@ -303,6 +303,8 @@ class SensorButton : public ListLineButton
 
     init = true;
 
+    lv_obj_enable_style_refresh(false);
+
     numLabel = tsStyle.newNum(lvobj, index);
     lv_obj_set_pos(numLabel, PAD_TINY, PAD_MEDIUM/2);
 
@@ -327,6 +329,9 @@ class SensorButton : public ListLineButton
     lv_obj_set_pos(valLabel, TSStyle::NUM_W + TSStyle::NAME_W + PAD_LARGE * 2, PAD_MEDIUM/2);
 
     lv_obj_update_layout(lvobj);
+  
+    lv_obj_enable_style_refresh(true);
+    lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
   }
 
   void refresh() override

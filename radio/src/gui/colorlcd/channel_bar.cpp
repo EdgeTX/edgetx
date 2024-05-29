@@ -73,8 +73,6 @@ void ChannelBar::checkEvents()
   if (value != newValue) {
     value = newValue;
 
-    lv_obj_enable_style_refresh(false);
-
     std::string s;
     if (g_eeGeneral.ppmunit == PPM_US)
       s = formatNumberAsString(PPM_CH_CENTER(channel) + value / 2, 0, 0, "", STR_US);
@@ -99,9 +97,6 @@ void ChannelBar::checkEvents()
 
     lv_obj_set_pos(bar, x, 0);
     lv_obj_set_size(bar, size, height());
-
-    lv_obj_enable_style_refresh(true);
-    lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
   }
 }
 

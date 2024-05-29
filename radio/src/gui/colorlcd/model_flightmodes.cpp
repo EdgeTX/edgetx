@@ -228,6 +228,8 @@ class FlightModeBtn : public ListLineButton
   {
     init = true;
 
+    lv_obj_enable_style_refresh(false);
+
     check(isActive());
 
     fmID = etx_create(&fm_id_class, lvobj);
@@ -253,6 +255,9 @@ class FlightModeBtn : public ListLineButton
     fmFadeOut = etx_create(&fm_fade_class, lvobj);
     lv_obj_set_pos(fmFadeOut, FADE_X + FADE_W + 1, FADE_Y);
     lv_obj_update_layout(lvobj);
+  
+    lv_obj_enable_style_refresh(true);
+    lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
   }
 
   bool isActive() const override { return (getFlightMode() == index); }

@@ -331,13 +331,19 @@ static void init_lvgl_drivers()
 
 void initLvglTheme()
 {
+  static lv_theme_t theme;
+
   /* Initialize the ETX theme */
-  lv_theme_t* th = etx_lv_theme_init(
-      NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
-      LV_FONT_DEFAULT);
+  theme.disp = NULL;
+  theme.color_primary = lv_palette_main(LV_PALETTE_BLUE);
+  theme.color_secondary = lv_palette_main(LV_PALETTE_RED);
+  theme.font_small = LV_FONT_DEFAULT;
+  theme.font_normal = LV_FONT_DEFAULT;
+  theme.font_large = LV_FONT_DEFAULT;
+  theme.flags = 0;
 
   /* Assign the theme to the current display*/
-  lv_disp_set_theme(NULL, th);
+  lv_disp_set_theme(NULL, &theme);
 }
 
 LvglWrapper::LvglWrapper()

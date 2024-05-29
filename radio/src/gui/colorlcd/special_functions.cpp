@@ -103,6 +103,8 @@ void FunctionLineButton::delayed_init()
 {
   init = true;
 
+  lv_obj_enable_style_refresh(false);
+
   sfName = lv_label_create(lvobj);
   lv_obj_set_pos(sfName, NM_X, NM_Y);
   lv_obj_set_size(sfName, NM_W, NM_H);
@@ -125,6 +127,9 @@ void FunctionLineButton::delayed_init()
   lv_obj_set_pos(sfEnable, EN_X, EN_Y);
 
   lv_obj_update_layout(lvobj);
+
+  lv_obj_enable_style_refresh(true);
+  lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
 }
 
 void FunctionLineButton::refresh()

@@ -133,7 +133,6 @@ void cancelSplash()
     splashScreen->deleteLater();
     splashScreen = nullptr;
     MainWindow::instance()->setActiveScreen();
-    lv_refr_now(nullptr);
     splashStartTime = 0;
   }
 }
@@ -148,7 +147,7 @@ void waitSplash()
 #endif  // defined(SIMU)
 
     splashStartTime += SPLASH_TIMEOUT;
-    do {
+    while (splashStartTime >= get_tmr10ms()) {
       LvglWrapper::instance()->run();
       MainWindow::instance()->run();
       WDG_RESET();
@@ -167,7 +166,7 @@ void waitSplash()
         break;
       }
 #endif  // defined(SIMU)
-    } while (splashStartTime >= get_tmr10ms());
+    }
 
     // Reset timer so special/global functions set to !1x don't get triggered
     START_SILENCE_PERIOD();

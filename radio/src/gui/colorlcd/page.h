@@ -47,7 +47,7 @@ class PageHeader : public Window
 class Page : public NavWindow
 {
  public:
-  explicit Page(EdgeTxIcon icon, PaddingSize padding = PAD_MEDIUM);
+  explicit Page(EdgeTxIcon icon, PaddingSize padding = PAD_MEDIUM, bool pauseRefresh = false);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "Page"; }
@@ -57,6 +57,8 @@ class Page : public NavWindow
   void onClicked() override;
 
   void deleteLater(bool detach = true, bool trash = true) override;
+
+  void enableRefresh();
 
  protected:
   PageHeader* header = nullptr;
@@ -69,7 +71,7 @@ class Page : public NavWindow
 class SubPage : public Page
 {
  public:
-  SubPage(EdgeTxIcon icon, const char* title, const char* subtitle);
+  SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, bool pauseRefresh = false);
   SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, SetupLineDef* setupLines, int lineCount);
 
   Window* setupLine(const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset = 0);

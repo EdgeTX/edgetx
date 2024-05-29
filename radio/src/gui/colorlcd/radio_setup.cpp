@@ -404,7 +404,7 @@ static SetupLineDef alarmsPageSetupLines[] = {
 class BacklightPage : public SubPage
 {
  public:
-  BacklightPage() : SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_BACKLIGHT_LABEL)
+  BacklightPage() : SubPage(ICON_RADIO_SETUP, STR_RADIO_SETUP, STR_BACKLIGHT_LABEL, true)
   {
     body->setFlexLayout();
 
@@ -486,6 +486,8 @@ class BacklightPage : public SubPage
         });
 
     updateBacklightControls();
+
+    enableRefresh();
   }
 
  protected:
@@ -682,7 +684,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
 class ManageModelsSetupPage : public SubPage
 {
  public:
-  ManageModelsSetupPage() : SubPage(ICON_MODEL, STR_RADIO_SETUP, STR_MANAGE_MODELS)
+  ManageModelsSetupPage() : SubPage(ICON_MODEL, STR_RADIO_SETUP, STR_MANAGE_MODELS, true)
   {
     body->setFlexLayout();
 
@@ -716,6 +718,8 @@ class ManageModelsSetupPage : public SubPage
         });
 
     checkEvents();
+
+    enableRefresh();
   }
 
   void checkEvents() override
@@ -813,6 +817,14 @@ static SetupLineDef setupLines[] = {
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_VUNITSSYSTEM, 0, 1,
                 GET_SET_DEFAULT(g_eeGeneral.imperial));
+    }
+  },
+  {
+    // PPM units
+    STR_UNITS_PPM,
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_PPMUNIT, PPM_PERCENT_PREC0, PPM_PERCENT_PREC1,
+                GET_SET_DEFAULT(g_eeGeneral.ppmunit));
     }
   },
   {

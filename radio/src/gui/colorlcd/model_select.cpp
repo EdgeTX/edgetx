@@ -458,7 +458,7 @@ class ModelLayoutButton : public IconButton
 
 //-----------------------------------------------------------------------------
 
-ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL, PAD_ZERO)
+ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL, PAD_ZERO, true)
 {
   buildHead(header);
   buildBody(body);
@@ -479,6 +479,8 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL, PAD_ZERO)
       lblselector->setSelected(getLabels().size() - 1);
     }
   }
+
+  enableRefresh();
 }
 
 #if defined(HARDWARE_KEYS)
@@ -792,29 +794,13 @@ void ModelLabelsWindow::buildBody(Window *window)
         if (modelslabels.getLabels().size() > 1) {
           if (selected != 0) {
             menu->addLine(STR_MOVE_UP, [=]() {
-              modelslabels.moveLabelTo(selected, selected - 1);
-              std::set<uint32_t> newset;
-              newset.insert(selected - 1);
-              auto labels = getLabels();
-              lblselector->setNames(labels);
-              lblselector->setSelected(newset);
-              if (g_eeGeneral.labelSingleSelect)
-                lblselector->setActiveItem(selected - 1);
-              updateFilteredLabels(newset);
+              moveLabel(selected, -1);
               return 0;
             });
           }
           if (selected != (int)modelslabels.getLabels().size() - 1) {
             menu->addLine(STR_MOVE_DOWN, [=]() {
-              modelslabels.moveLabelTo(selected, selected + 1);
-              std::set<uint32_t> newset;
-              newset.insert(selected + 1);
-              auto labels = getLabels();
-              lblselector->setNames(labels);
-              lblselector->setSelected(newset);
-              if (g_eeGeneral.labelSingleSelect)
-                lblselector->setActiveItem(selected + 1);
-              updateFilteredLabels(newset);
+              moveLabel(selected, 1);
               return 0;
             });
           }

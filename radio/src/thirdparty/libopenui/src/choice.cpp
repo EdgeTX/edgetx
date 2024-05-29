@@ -184,7 +184,8 @@ void Choice::onClicked()
 
 void Choice::fillMenu(Menu* menu, const FilterFct& filter)
 {
-  menu->removeLines();
+  if (menu->count() > 0)
+    menu->removeLines();
   auto value = getIntValue();
 
   int count = 0;

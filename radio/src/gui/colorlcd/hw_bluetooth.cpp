@@ -78,7 +78,7 @@ BluetoothConfigWindow::BluetoothConfigWindow(Window* parent, FlexGridLayout& gri
   lv_obj_set_style_grid_cell_x_align(box->getLvObj(), LV_GRID_ALIGN_STRETCH, 0);
   lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
 
-  auto mode = new Choice(
+  new Choice(
       box, rect_t{}, STR_BLUETOOTH_MODES, BLUETOOTH_OFF, BLUETOOTH_TRAINER,
       GET_DEFAULT(g_eeGeneral.bluetoothMode), [=](int value) {
         g_eeGeneral.bluetoothMode = value;

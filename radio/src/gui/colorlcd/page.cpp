@@ -53,9 +53,12 @@ StaticText* PageHeader::setTitle2(std::string txt)
   return title2;
 }
 
-Page::Page(EdgeTxIcon icon, PaddingSize padding) :
+Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
     NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
 {
+  if (pauseRefresh)
+    lv_obj_enable_style_refresh(false);
+
   header = new PageHeader(this, icon);
   body = new Window(this,
                     {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});
@@ -94,7 +97,14 @@ void Page::checkEvents()
   NavWindow::checkEvents();
 }
 
-SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle) : Page(icon, PAD_SMALL)
+void Page::enableRefresh()
+{
+  lv_obj_enable_style_refresh(true);
+  lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
+}
+
+SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, bool pauseRefresh) :
+  Page(icon, PAD_SMALL, pauseRefresh)
 {
   body->padBottom(PAD_LARGE * 2);
 
@@ -102,7 +112,8 @@ SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle) : Pag
   header->setTitle2(subtitle);
 }
 
-SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, SetupLineDef* setupLines, int lineCount) : Page(icon, PAD_SMALL)
+SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, SetupLineDef* setupLines, int lineCount) :
+  Page(icon, PAD_SMALL, true)
 {
   body->padBottom(PAD_LARGE * 2);
 
@@ -110,6 +121,8 @@ SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, Setup
   header->setTitle2(subtitle);
 
   SetupLine::showLines(body, y, EDT_X, PAD_SMALL, setupLines, lineCount);
+
+  enableRefresh();
 }
 
 Window* SubPage::setupLine(const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset)

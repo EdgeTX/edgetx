@@ -29,8 +29,6 @@
 
 extern lv_color_t makeLvColor(uint32_t colorFlags);
 
-static lv_theme_t theme;
-
 /**********************
  *   Constant Styles
  **********************/
@@ -349,41 +347,33 @@ void EdgeTxStyles::applyColors()
   lv_style_set_arc_color(&arc_color, makeLvColor(COLOR_THEME_SECONDARY1));
 }
 
-static EdgeTxStyles mainStyles;
-static EdgeTxStyles* previewStyles;
-EdgeTxStyles* styles = &mainStyles;
+static EdgeTxStyles *mainStyles = nullptr;
+static EdgeTxStyles* previewStyles = nullptr;
+EdgeTxStyles* styles = nullptr;
 
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
 
-lv_theme_t* etx_lv_theme_init(lv_disp_t* disp, lv_color_t color_primary,
-                              lv_color_t color_secondary, const lv_font_t* font)
-{
-  theme.disp = disp;
-  theme.color_primary = color_primary;
-  theme.color_secondary = color_secondary;
-  theme.font_small = font;
-  theme.font_normal = font;
-  theme.font_large = font;
-  theme.flags = 0;
-
-  styles->init();
-
-  if (disp == NULL || lv_disp_get_theme(disp) == &theme)
-    lv_obj_report_style_change(NULL);
-
-  return (lv_theme_t*)&theme;
-}
-
 void usePreviewStyle()
 {
-  if (!previewStyles) previewStyles = new EdgeTxStyles();
+  if (!previewStyles) {
+    previewStyles = new EdgeTxStyles();
+    previewStyles->init();
+  }
   styles = previewStyles;
-  styles->init();
+  styles->applyColors();
 }
 
-void useMainStyle() { styles = &mainStyles; }
+void useMainStyle()
+{
+  if (!mainStyles) {
+    mainStyles = new EdgeTxStyles();
+    mainStyles->init();
+  }
+  styles = mainStyles;
+  styles->applyColors();
+}
 
 /**********************
  *   Custom object creation

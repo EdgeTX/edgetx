@@ -59,6 +59,8 @@ class OutputLineButton : public ListLineButton
   {
     init = true;
 
+    lv_obj_enable_style_refresh(false);
+
     source = lv_label_create(lvobj);
     lv_obj_set_pos(source, SRC_X, SRC_Y);
     lv_obj_set_size(source, SRC_W, SRC_H);
@@ -104,6 +106,9 @@ class OutputLineButton : public ListLineButton
     checkEvents();
 
     lv_obj_update_layout(lvobj);
+  
+    lv_obj_enable_style_refresh(true);
+    lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
   }
 
  public:
