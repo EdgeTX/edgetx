@@ -957,38 +957,26 @@ void UpdateInterface::setReleaseId(QString name)
 
 bool UpdateInterface::setRunFolders()
 {
-  QRegularExpression rx("[0-9a-zA-Z_\\-.]+");
-  // the validator treats the regexp as "^[0-9a-zA-Z_\-.]+$"
-  QRegularExpressionValidator v(rx);
-  int pos = 0;
+  // translated component names my not be valid folder names
+  QString compfldr(m_name);
 
-  QString fldr(m_repo->releases()->name().trimmed());
+  if (!validateFolder(compfldr))
+    compfldr = QString("C%1").arg(m_id);
 
-  if (v.validate(fldr, pos) != QValidator::Acceptable) {
-    fldr.replace("\"", "");
-    fldr.replace("'", "");
-    fldr.replace("(", "_");
-    fldr.replace(")", "_");
-    fldr.replace("[", "_");
-    fldr.replace("]", "_");
-    fldr.replace(" ", "_");
-    fldr.replace("__", "_");
+  // release names may my not be valid folder names
+  QString relfldr(m_repo->releases()->name());
 
-    if (v.validate(fldr, pos) != QValidator::Acceptable) {
-      //m_status->reportProgress(tr("Unable to use release name %1 for directory name using default %2")
-      //               .arg(m_repo->releases()->name().trimmed()).arg(QString("R%1").arg(m_repo->releases()->id())), QtDebugMsg);
-      fldr = QString("R%1").arg(m_repo->releases()->id());
-    }
-  }
+  if (!validateFolder(relfldr))
+    relfldr = QString("R%1").arg(m_repo->releases()->id());
 
-  m_downloadDir = QString("%1/%2/%3").arg(m_params->downloadDir).arg(m_name).arg(fldr);
+  m_downloadDir = QString("%1/%2/%3").arg(m_params->downloadDir).arg(compfldr).arg(relfldr);
 
   if (!checkCreateDirectory(m_downloadDir, UPDFLG_Download))
     return false;
 
   //m_status->reportProgress(tr("Download directory: %1").arg(m_downloadDir), QtDebugMsg);
 
-  m_decompressDir = QString("%1/%2/%3").arg(m_params->decompressDir).arg(m_name).arg(fldr);
+  m_decompressDir = QString("%1/%2/%3").arg(m_params->decompressDir).arg(compfldr).arg(relfldr);
 
   if (!checkCreateDirectory(m_decompressDir, UPDFLG_Decompress))
     return false;
@@ -1158,6 +1146,36 @@ const QString UpdateInterface::updateFlagToString(const int flag)
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
+}
+
+bool UpdateInterface::validateFolder(QString & fldr)
+{
+  QRegularExpression rx("[0-9a-zA-Z_\\-.]+");
+  // the validator treats the regexp as "^[0-9a-zA-Z_\-.]+$"
+  QRegularExpressionValidator v(rx);
+  int pos = 0;
+
+  fldr = fldr.trimmed();
+
+  if (v.validate(fldr, pos) != QValidator::Acceptable) {
+    fldr.replace("\"", "");
+    fldr.replace("'", "");
+    fldr.replace("(", "_");
+    fldr.replace(")", "_");
+    fldr.replace("[", "_");
+    fldr.replace("]", "_");
+    fldr.replace(" ", "_");
+    fldr.replace("__", "_");
+
+    if (v.validate(fldr, pos) != QValidator::Acceptable) {
+      return false;
+    }
+  }
+
+  if (fldr.isEmpty())
+    return false;
+
+  return true;
 }
 
 const QString UpdateInterface::versionCurrent()

@@ -175,6 +175,7 @@ class UpdateInterface : public QWidget
     bool decompressArchive(const QString & archivePath, const QString & destPath);
     int releaseSettingsSave();
     bool setRunFolders();
+    bool validateFolder(QString & fldr);
 
     bool okToRun() { return m_result == PROC_RESULT_SUCCESS && m_stopping == false; }
     void runAsyncInstall();
