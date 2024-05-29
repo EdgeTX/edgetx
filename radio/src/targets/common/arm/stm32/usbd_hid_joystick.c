@@ -125,7 +125,7 @@ __ALIGN_BEGIN static const uint8_t HID_JOYSTICK_ReportDesc[] __ALIGN_END =
     0x09, 0x36,                    //         USAGE (Slider)
     0x09, 0x37,                    //         USAGE (Dial)
     0x16, 0x00, 0x00,              //         LOGICAL_MINIMUM (0)
-    0x26, 0xFF, 0x07,              //         LOGICAL_MAXIMUM (2047)
+    0x26, 0x00, 0x08,              //         LOGICAL_MAXIMUM (2048)
     0x75, 0x10,                    //         REPORT_SIZE (16)
     0x95, 0x08,                    //         REPORT_COUNT (8)
     0x81, 0x02,                    //         INPUT (Data,Var,Abs)

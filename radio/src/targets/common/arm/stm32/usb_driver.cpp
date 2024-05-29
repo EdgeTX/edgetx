@@ -21,6 +21,8 @@
 
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
+#else
+#include "opentx_helpers.h"
 #endif
 
 extern "C" {
@@ -75,7 +77,7 @@ int usbPlugged()
     debouncedState = state;
   else
     lastState = state;
-  
+
   return debouncedState;
 }
 #endif
@@ -226,11 +228,10 @@ void usbJoystickUpdate()
    //uint8_t * p = HID_Buffer + 1;
    for (int i = 0; i < 8; ++i) {
 
-     int16_t value = channelOutputs[i] + 1024;
-     if ( value > 2047 ) value = 2047;
-     else if ( value < 0 ) value = 0;
+     int16_t value = limit<int16_t>(0, channelOutputs[i] + 1024, 2048);;
+
      HID_Buffer[i*2 +3] = static_cast<uint8_t>(value & 0xFF);
-     HID_Buffer[i*2 +4] = static_cast<uint8_t>((value >> 8) & 0x07);
+     HID_Buffer[i*2 +4] = static_cast<uint8_t>(value >> 8);
 
    }
    USBD_HID_SendReport(&hUsbDeviceFS, HID_Buffer, HID_IN_PACKET);
