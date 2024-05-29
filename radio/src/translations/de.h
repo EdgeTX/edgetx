@@ -1253,7 +1253,7 @@
 #define TR_USBJOYSTICK_CH_AXIS         "Achse"
 #define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","rotX","rotY","rotZ","Schieber","Dial","Rad"
 #define TR_USBJOYSTICK_CH_SIM          "Sim Achse"
-#define TR_VUSBJOYSTICK_CH_SIM         "Que","Höh","Sei","Gas","Acc","Brk","Steer","Dpad"
+#define TR_VUSBJOYSTICK_CH_SIM         "Quer","Höhe","Seite","Gas","Beschl.","Bremsen","Lenkung","Dpad"
 #define TR_USBJOYSTICK_CH_INVERSION    "Invers"
 #define TR_USBJOYSTICK_CH_BTNNUM       "Tastennr."
 #define TR_USBJOYSTICK_BTN_COLLISION   "!Tastennr. Kollision!"
