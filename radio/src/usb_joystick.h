@@ -19,22 +19,20 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _USB_JOYSTICK_H_
-#define _USB_JOYSTICK_H_
+#pragma once
 
-#include "storage/yaml/yaml_defs.h"
 #include <stdint.h>
 
-enum USBJoystickIfMode
-{
+#include "storage/yaml/yaml_defs.h"
+
+enum USBJoystickIfMode {
   USBJOYS_JOYSTICK,
   USBJOYS_GAMEPAD,
   USBJOYS_MULTIAXIS,
   USBJOYS_LAST SKIP = USBJOYS_MULTIAXIS
 };
 
-enum USBJoystickCh
-{
+enum USBJoystickCh {
   USBJOYS_CH_NONE,
   USBJOYS_CH_BUTTON,
   USBJOYS_CH_AXIS,
@@ -42,8 +40,7 @@ enum USBJoystickCh
   USBJOYS_CH_LAST SKIP = USBJOYS_CH_SIM
 };
 
-enum USBJoystickBtnMode
-{
+enum USBJoystickBtnMode {
   USBJOYS_BTN_MODE_NORMAL,
   USBJOYS_BTN_MODE_ON_PULSE,
   USBJOYS_BTN_MODE_SW_EMU,
@@ -52,8 +49,7 @@ enum USBJoystickBtnMode
   USBJOYS_BTN_MODE_LAST SKIP = USBJOYS_BTN_MODE_COMPANION
 };
 
-enum USBJoystickAxis
-{
+enum USBJoystickAxis {
   USBJOYS_AXIS_X,
   USBJOYS_AXIS_Y,
   USBJOYS_AXIS_Z,
@@ -66,8 +62,7 @@ enum USBJoystickAxis
   USBJOYS_AXIS_LAST SKIP = USBJOYS_AXIS_WHEEL
 };
 
-enum USBJoystickSim
-{
+enum USBJoystickSim {
   USBJOYS_SIM_AILERON,
   USBJOYS_SIM_ELEVATOR,
   USBJOYS_SIM_RUDDER,
@@ -79,8 +74,7 @@ enum USBJoystickSim
   USBJOYS_SIM_LAST SKIP = USBJOYS_SIM_HAT
 };
 
-enum USBJoystickCC
-{
+enum USBJoystickCC {
   USBJOYS_CC_NONE,
   USBJOYS_CC_XYZrX,
   USBJOYS_CC_XYrXrY,
@@ -88,17 +82,16 @@ enum USBJoystickCC
   USBJOYS_CC_LAST SKIP = USBJOYS_CC_XYZrZ
 };
 
-
 #define USBJ_BUTTON_SIZE 32
 #define USBJ_MAX_JOYSTICK_CHANNELS 26
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-  struct usbReport_t {
-    uint8_t * ptr;
-    uint8_t size;
-  };
+struct usbReport_t {
+  uint8_t* ptr;
+  uint8_t size;
+};
 #ifdef __cplusplus
 }
 #endif
@@ -116,8 +109,8 @@ void onUSBJoystickModelChanged();
 #ifdef __cplusplus
 extern "C" {
 #endif
-  struct usbReport_t usbReportDesc();
-  uint8_t usbReportSize();
+struct usbReport_t usbReportDesc();
+uint8_t usbReportSize();
 #ifdef __cplusplus
 }
 #endif
@@ -127,5 +120,3 @@ struct usbReport_t usbReport();
 int isUSBAxisCollision(uint8_t chIdx);
 int isUSBSimCollision(uint8_t chIdx);
 int isUSBBtnNumCollision(uint8_t chIdx);
-
-#endif // _USB_JOYSTICK_H_
