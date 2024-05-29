@@ -41,8 +41,8 @@ enum SensorFields {
   SENSOR_FIELD_MAX
 };
 
-constexpr coord_t SENSOR_2ND_COLUMN  = 12 * FW;
-constexpr coord_t SENSOR_3RD_COLUMN = 18 * FW;
+constexpr coord_t SENSOR_2ND_COLUMN = 12 * FW;
+constexpr coord_t SENSOR_3RD_COLUMN = 17 * FW - 2;
 
 void menuModelSensor(event_t event)
 {
@@ -220,10 +220,47 @@ void menuModelSensor(event_t event)
           else {
             lcdDrawTextAlignedLeft(y, STR_RATIO);
             if (attr) CHECK_INCDEC_MODELVAR(event, sensor->custom.ratio, 0, 30000);
-            if (sensor->custom.ratio == 0)
+            if (sensor->custom.ratio == 0) {
               lcdDrawChar(SENSOR_2ND_COLUMN, y, '-', attr);
-            else
-              lcdDrawNumber(SENSOR_2ND_COLUMN, y, sensor->custom.ratio, LEFT|attr|PREC1);
+            } else {  // Ratio + Ratio Percent
+              uint32_t ratio = (sensor->custom.ratio * 1000) / 255;
+              int ratioLen = countDigits(sensor->custom.ratio);
+              int ratioPercLen = countDigits(ratio);
+
+              int suffixOffset = 0;
+              int ratioColAdj = 0;
+              int ratioPercColAdj = 0;
+
+              if (ratioLen <= 3) {
+                ratioColAdj = 0;
+              } else if (ratioLen <= 4) {
+                ratioColAdj = (FWNUM * 1);
+              } else if (ratioLen >= 5) {
+                ratioColAdj = (FWNUM * 2);
+              }
+
+              if (ratioPercLen < 2) {
+                ratioPercColAdj = 0;
+                suffixOffset = (FWNUM * (ratioPercLen + 1)) + 2;
+              } else if (ratioPercLen <= 4 ) {
+                ratioPercColAdj = 0;
+                suffixOffset = (FWNUM * ratioPercLen) + 2;
+              } else if (ratioPercLen <= 5) {
+                ratioColAdj += (FWNUM * 1); // move first column to maintain separation
+                ratioPercColAdj = (FWNUM * 1);
+                suffixOffset = (FWNUM * (ratioPercLen - 1)) + 2;
+              } else if (ratioPercLen >= 6) {
+                ratioColAdj += (FWNUM * 2); // move first column to maintain separation
+                ratioPercColAdj = (FWNUM * 2);
+                suffixOffset = (FWNUM * (ratioPercLen - 2)) + 2;
+              }
+
+              lcdDrawNumber(SENSOR_2ND_COLUMN - ratioColAdj, y,
+                            sensor->custom.ratio, LEFT | attr | PREC1);
+              lcdDrawNumber(SENSOR_3RD_COLUMN - ratioPercColAdj, y,
+                            ratio, LEFT | PREC1);
+              lcdDrawChar(SENSOR_3RD_COLUMN + suffixOffset, y, '%', 0);
+            }
             break;
           }
         }

@@ -1183,6 +1183,24 @@ char *strAppendDate(char *str, bool time)
 #if !defined(BOOT)
 #endif
 
+/** 
+ * @brief Count the number of digits in a string.
+ * Works with negative numbers, and zero is considered to have 1 digit.
+ * @param number Integer whose digits are to be counted.
+ * @return The number of digits in the integer.
+ */
+int countDigits(int number)
+{
+  number = std::abs(number);  // Handle negative numbers if any
+  if (number == 0) return 1;  // Special case for 0
+  int count = 0;
+  while (number > 0) {
+    number /= 10;
+    count++;
+  }
+  return count;
+}
+
 // Manage timezones
 // For backward compatibility timezone is stored as two separate values:
 //   timezone = hour value

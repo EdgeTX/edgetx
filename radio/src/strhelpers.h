@@ -174,6 +174,8 @@ std::string getGPSSensorValue(TelemetryItem &telemetryItem, LcdFlags flags);
 std::string getTelemDate(TelemetryItem &telemetryItem);
 std::string getTelemTime(TelemetryItem &telemetryItem);
 
+int countDigits(int number);
+
 // Timezone handling
 extern int8_t minTimezone();
 extern int8_t maxTimezone();
