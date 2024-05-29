@@ -173,7 +173,7 @@ void menuModelUSBJoystickOne(event_t event)
 
 void onUSBJoystickMenu(const char *result)
 {
-  int8_t sub = menuVerticalPosition - HEADER_LINE;
+  int8_t sub = menuVerticalPosition;
   USBJoystickChData * cs = usbJChAddress(sub);
 
   if (result == STR_EDIT) {
@@ -188,12 +188,12 @@ void onUSBJoystickMenu(const char *result)
 
 void menuModelUSBJoystick(event_t event)
 {
-  check_submenu_simple(event, USBJ_MAX_JOYSTICK_CHANNELS - HEADER_LINE);
+  check_submenu_simple(event, USBJ_MAX_JOYSTICK_CHANNELS);
   title(STR_USBJOYSTICK_LABEL);
 
   if (s_editMode > 0) s_editMode = 0;
 
-  int8_t sub = menuVerticalPosition - HEADER_LINE;
+  int8_t sub = menuVerticalPosition;
 
   coord_t y = 0;
   uint8_t k = 0;
