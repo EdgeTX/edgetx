@@ -1265,7 +1265,7 @@
 #define TR_USBJOYSTICK_CH_AXIS         "Axes"
 #define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","rotX","rotY","rotZ","Curseur","Cadran","Volant"
 #define TR_USBJOYSTICK_CH_SIM          "Voies Simu"
-#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Prof","Dir","Gaz","Acc","Brk","Steer","Dpad"
+#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Prof","Dir","Gaz","Acc","Frein","Gouv","Dpad"
 #define TR_USBJOYSTICK_CH_INVERSION    "Inversion"
 #define TR_USBJOYSTICK_CH_BTNNUM       "Bouton no."
 #define TR_USBJOYSTICK_BTN_COLLISION   "!Bouton anti collision!"
