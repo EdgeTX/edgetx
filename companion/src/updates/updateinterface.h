@@ -148,4 +148,5 @@ class UpdateInterface : public QWidget
     bool decompressArchive(const QString & archivePath, const QString & destPath);
     bool releaseSettingsSave();
     bool setRunFolders();
+    bool validateFolder(QString & fldr);
 };
