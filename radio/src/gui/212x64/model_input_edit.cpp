@@ -135,7 +135,7 @@ void menuModelExpoOne(event_t event)
 
 #if defined(FLIGHT_MODES)
       case EXPO_FIELD_FLIGHT_MODES:
-        drawFieldLabel(EXPO_ONE_2ND_COLUMN, y, STR_FLMODE);
+        lcdDrawTextAlignedLeft(y, STR_FLMODE);
         ed->flightModes = editFlightModes(EXPO_ONE_2ND_COLUMN, y, event, ed->flightModes, attr);
         break;
 #endif

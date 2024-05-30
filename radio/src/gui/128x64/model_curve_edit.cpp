@@ -99,7 +99,7 @@ void menuModelCurveOne(event_t event)
            menuVerticalPosition == 0, 0, old_editMode);
 
   // Curve type
-  lcdDrawTextAlignedLeft(3 * FH + 1, NO_INDENT(STR_TYPE));
+  lcdDrawTextAlignedLeft(3 * FH + 1, STR_TYPE);
   LcdFlags attr = (menuVerticalPosition == 1 ? (s_editMode > 0 ? INVERS | BLINK : INVERS) : 0);
   lcdDrawTextAtIndex(INDENT_WIDTH, 4 * FH + 1, STR_CURVE_TYPES, crv.type, attr);
   if (attr) {

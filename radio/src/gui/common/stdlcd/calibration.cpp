@@ -44,21 +44,21 @@ void menuCommonCalib(event_t event)
     case CALIB_START:
       // START CALIBRATION
       if (!READ_ONLY()) {
-        lcdDrawTextAlignedLeft(MENU_HEADER_HEIGHT+2*FH, STR_MENUTOSTART);
+        lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT+2*FH, STR_MENUTOSTART, CENTERED);
       }
       break;
 
     case CALIB_SET_MIDPOINT:
       // SET MIDPOINT
-      lcdDrawText(0*FW, MENU_HEADER_HEIGHT+FH, STR_SETMIDPOINT, INVERS);
-      lcdDrawTextAlignedLeft(MENU_HEADER_HEIGHT+2*FH, STR_MENUWHENDONE);
+      lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT+FH, STR_SETMIDPOINT, INVERS|CENTERED);
+      lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT+2*FH, STR_MENUWHENDONE, CENTERED);
       adcCalibSetMidPoint();
       break;
 
     case CALIB_MOVE_STICKS:
       // MOVE STICKS/POTS
-      lcdDrawText(0*FW, MENU_HEADER_HEIGHT+FH, STR_MOVESTICKSPOTS, INVERS);
-      lcdDrawTextAlignedLeft(MENU_HEADER_HEIGHT+2*FH, STR_MENUWHENDONE);
+      lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT+FH, STR_MOVESTICKSPOTS, INVERS|CENTERED);
+      lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT+2*FH, STR_MENUWHENDONE, CENTERED);
       adcCalibSetMinMax();
       break;
 

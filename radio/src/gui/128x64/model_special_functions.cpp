@@ -24,15 +24,9 @@
 #define MODEL_SPECIAL_FUNC_1ST_COLUMN           (0)
 #define MODEL_SPECIAL_FUNC_2ND_COLUMN           (4*FW-1)
 #define MODEL_SPECIAL_FUNC_3RD_COLUMN           (15*FW-3)
-#if defined(GRAPHICS)
-  #define MODEL_SPECIAL_FUNC_4TH_COLUMN         (19 * FW - 3)
-  #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF   (19 * FW - 3)
-  #define MODEL_SPECIAL_FUNC_5TH_COLUMN_ONOFF   (20 * FW + 1)
-#else
-  #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF   (17 * FW)
-  #define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF   (17 * FW)
-  #define MODEL_SPECIAL_FUNC_5TH_COLUMN_ONOFF   (18 * FW + 3)
-#endif
+#define MODEL_SPECIAL_FUNC_4TH_COLUMN           (19 * FW - 3)
+#define MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF     (19 * FW - 3)
+#define MODEL_SPECIAL_FUNC_5TH_COLUMN_ONOFF     (20 * FW + 1)
 
 #if defined(SDCARD)
 #define SD_LOGS_PERIOD_MIN      1     // 0.1s  fastest period 

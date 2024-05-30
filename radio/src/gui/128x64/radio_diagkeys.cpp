@@ -64,7 +64,7 @@ void menuRadioDiagFS(event_t event)
 
   for(uint8_t i=0; i < NUM_FUNCTIONS_SWITCHES; i++) {
     coord_t y = 2*FH + i*FH;
-    lcdDrawText(INDENT_WIDTH, y, STR_CHAR_SWITCH, 0);
+    lcdDrawTextIndented(y, STR_CHAR_SWITCH);
     lcdDrawText(lcdNextPos, y, switchGetName(i+switchGetMaxSwitches()), 0);
     lcdDrawNumber(FS_1ST_COLUMN + 2, y, getFSPhysicalState(i));
     lcdDrawNumber(FS_2ND_COLUMN + 5, y, getFSLogicalState(i));

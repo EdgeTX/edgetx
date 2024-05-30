@@ -135,7 +135,7 @@ void menuRadioModulesVersion(event_t event)
 
     // Module model
     if (y >= MENU_BODY_TOP && y < MENU_BODY_BOTTOM) {
-      lcdDrawText(INDENT_WIDTH, y, STR_MODULE);
+      lcdDrawTextIndented(y, STR_MODULE);
       bool module_off = true;
 #if defined(HARDWARE_INTERNAL_MODULE)
       if (module == INTERNAL_MODULE && modulePortPowered(INTERNAL_MODULE))
@@ -197,7 +197,7 @@ void menuRadioModulesVersion(event_t event)
       if (reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.modelID && reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].timestamp < get_tmr10ms() + 2000) {
         // Receiver model
         if (y >= MENU_BODY_TOP && y < MENU_BODY_BOTTOM) {
-          lcdDrawText(INDENT_WIDTH, y, STR_RECEIVER);
+          lcdDrawTextIndented(y, STR_RECEIVER);
           lcdDrawNumber(lcdLastRightPos + 2, y, receiver + 1);
           uint8_t modelId = reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.modelID;
           lcdDrawText(COLUMN2_X, y, getPXX2ReceiverName(modelId));

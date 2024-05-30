@@ -22,46 +22,6 @@ tts_languages = {
     "pt"
 }
 
-
-options_sky9x = {
-    "heli": ("HELI", "YES", "NO"),
-    "gvars": ("GVARS", "YES", "NO"),
-    "potscroll": ("NAVIGATION", "POTS", "NO"),
-    "autosource": ("AUTOSOURCE", "YES", "NO"),
-    "autoswitch": ("AUTOSWITCH", "YES", "NO"),
-    "dblkeys": ("DBLKEYS", "YES", "NO"),
-    "nographics": ("GRAPHICS", "NO", "YES"),
-    "battgraph": ("BATTGRAPH", "YES", "NO"),
-    "nobold": ("BOLD", "NO", "YES"),
-    "sqt5font": ("FONT", "SQT5", None),
-    "imperial": ("UNITS", "IMPERIAL", "METRIC"),
-    "bluetooth": ("BLUETOOTH", "YES", "NO"),
-    "faimode": ("FAI", "YES", None),
-    "faichoice": ("FAI", "CHOICE", None),
-    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
-    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None)
-}
-
-options_ar9x = {
-    "heli": ("HELI", "YES", "NO"),
-    "gvars": ("GVARS", "YES", "NO"),
-    "potscroll": ("NAVIGATION", "POTS", "NO"),
-    "autosource": ("AUTOSOURCE", "YES", "NO"),
-    "autoswitch": ("AUTOSWITCH", "YES", "NO"),
-    "dblkeys": ("DBLKEYS", "YES", "NO"),
-    "nographics": ("GRAPHICS", "NO", "YES"),
-    "battgraph": ("BATTGRAPH", "YES", "NO"),
-    "nobold": ("BOLD", "NO", "YES"),
-    "sqt5font": ("FONT", "SQT5", None),
-    "imperial": ("UNITS", "IMPERIAL", "METRIC"),
-    "bluetooth": ("BLUETOOTH", "YES", "NO"),
-    "faimode": ("FAI", "YES", None),
-    "faichoice": ("FAI", "CHOICE", None),
-    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
-    # "rtc": ("RTCLOCK", "YES", "NO"),
-    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None)
-}
-
 options_taranis_x9d = {
     "noheli": ("HELI", "NO", "YES"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
@@ -214,7 +174,6 @@ options_jumper_tlite = {
     "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
     "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
 }
-
 
 options_jumper_t12 = {
     "noheli": ("HELI", "NO", "YES"),

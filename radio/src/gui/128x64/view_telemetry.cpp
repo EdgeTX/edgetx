@@ -41,7 +41,7 @@ void displayRssiLine()
     lcdDrawFilledRect(66+36-v, 58, v, 5, (rssi < g_model.rfAlarms.warning) ? DOTTED : SOLID);
   }
   else {
-    lcdDrawText(7*FW, STATUS_BAR_Y, STR_NODATA, BLINK);
+    lcdDrawText(LCD_W/2, STATUS_BAR_Y, STR_NODATA, BLINK|CENTERED);
     lcdInvertLastLine();
   }
 }

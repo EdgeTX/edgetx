@@ -439,11 +439,12 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
         case ITEM_CUSTOM_FUNCTIONS_ENABLE:
           drawCheckBox(MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF, y, CFN_ACTIVE(cfn),
                        attr);
-          if (active)
+          if (active) {
             CFN_ACTIVE(cfn) = checkIncDec(event, CFN_ACTIVE(cfn), 0, 1, eeFlags);
             if (checkIncDec_Ret && (func == FUNC_PLAY_SCRIPT)) {
               LUA_LOAD_MODEL_SCRIPTS();
             }
+          }
           break;
       }
     }

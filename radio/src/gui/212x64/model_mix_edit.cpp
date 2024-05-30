@@ -162,7 +162,7 @@ void menuModelMixOne(event_t event)
 
 #if defined(FLIGHT_MODES)
       case MIX_FIELD_FLIGHT_MODE:
-        drawFieldLabel(MIXES_2ND_COLUMN, y, STR_FLMODE);
+        lcdDrawTextAlignedLeft(y, STR_FLMODE);
         md2->flightModes = editFlightModes(MIXES_2ND_COLUMN, y, event, md2->flightModes, attr);
         break;
 #endif
@@ -172,7 +172,7 @@ void menuModelMixOne(event_t event)
         break;
 
       case MIX_FIELD_WARNING:
-        drawFieldLabel(MIXES_2ND_COLUMN, y, STR_MIXWARNING);
+        lcdDrawTextAlignedLeft(y, STR_MIXWARNING);
         if (md2->mixWarn)
           lcdDrawNumber(MIXES_2ND_COLUMN, y, md2->mixWarn, attr|LEFT);
         else
