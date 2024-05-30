@@ -211,7 +211,7 @@ void SDRAM_InitSequence(void)
   /* Set the device refresh rate
    * COUNT = [(SDRAM self refresh time / number of row) x  SDRAM CLK] – 20
            = [(64ms/4096) * 84MHz] - 20 = 1312 - 20 ~ 1292 */
-  FMC_SDRAM_SetAutoRefreshNumber(FMC_SDRAM_DEVICE, 1292);//904
+  FMC_SDRAM_ProgramRefreshRate(FMC_SDRAM_DEVICE, 1292);
   /* Wait until the SDRAM controller is ready */
   while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0));
 }
