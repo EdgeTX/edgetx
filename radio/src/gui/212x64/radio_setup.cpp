@@ -644,7 +644,7 @@ void menuRadioSetup(event_t event)
         lcdDrawTextAlignedLeft(y, STR_DEF_CHAN_ORD); // RAET->AETR
         {
           for (uint8_t i = 0; i < adcGetMaxInputs(ADC_INPUT_MAIN); i++) {
-            putsChnLetter(RADIO_SETUP_2ND_COLUMN - FW + i*FW, y, inputMappingChannelOrder(i), attr);
+            putsChnLetter(RADIO_SETUP_2ND_COLUMN + i*FW, y, inputMappingChannelOrder(i), attr);
           }
           if (attr) {
             auto max_order = inputMappingGetMaxChannelOrder() - 1;
