@@ -748,14 +748,6 @@ static SetupLineDef setupLines[] = {
     }
   },
   {
-    // PPM units
-    STR_UNITS_PPM,
-    [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_PPMUNIT, PPM_PERCENT_PREC0, PPM_PERCENT_PREC1,
-                GET_SET_DEFAULT(g_eeGeneral.ppmunit));
-    }
-  },
-  {
     // Play startup sound
     STR_PLAY_HELLO,
     [](Window* parent, coord_t x, coord_t y) {
