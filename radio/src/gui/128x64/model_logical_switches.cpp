@@ -274,6 +274,7 @@ void menuModelLogicalSwitches(event_t event)
       pushMenu(menuModelLogicalSwitchOne);
     }
     else {
+      s_editMode = 0; // Was set in 'check' function.
       POPUP_MENU_START(onLogicalSwitchesMenu);
     }
   }
