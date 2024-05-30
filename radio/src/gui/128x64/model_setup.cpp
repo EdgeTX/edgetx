@@ -852,7 +852,7 @@ void menuModelSetup(event_t event)
 
         cfsIndex = index;
         int config = FSWITCH_CONFIG(index);
-        config = editChoice(30 + 5*FW, y, "", STR_SWTYPES, config, SWITCH_NONE, SWITCH_2POS, menuHorizontalPosition == 1 ? attr : 0, event, checkCFSTypeAvailable);
+        config = editChoice(30 + 5*FW, y, "", STR_SWTYPES, config, SWITCH_NONE, SWITCH_2POS, menuHorizontalPosition == 1 ? attr : 0, event, 0, checkCFSTypeAvailable);
         if (attr && checkIncDec_Ret && menuHorizontalPosition == 1) {
           FSWITCH_SET_CONFIG(index, config);
           if (config == SWITCH_TOGGLE) {
@@ -862,7 +862,7 @@ void menuModelSetup(event_t event)
 
         if (config != SWITCH_NONE) {
           uint8_t group = FSWITCH_GROUP(index);
-          group = editChoice(30 + 13 * FW, y, "", STR_FSGROUPS, group, 0, 3, menuHorizontalPosition == 2 ? attr : 0, event, checkCFSGroupAvailable);
+          group = editChoice(30 + 13 * FW, y, "", STR_FSGROUPS, group, 0, 3, menuHorizontalPosition == 2 ? attr : 0, event, 0, checkCFSGroupAvailable);
           if (attr && checkIncDec_Ret && menuHorizontalPosition == 2) {
             int oldGroup = FSWITCH_GROUP(index);
             if (groupHasSwitchOn(group))
@@ -928,7 +928,7 @@ void menuModelSetup(event_t event)
           lcdDrawText(INDENT_WIDTH * 2, y, STR_START);
           int sw = groupDefaultSwitch(group) + 1;
           cfsGroup = group;
-          sw = editChoice(MODEL_SETUP_2ND_COLUMN + 1, y, nullptr, STR_FSSWITCHES, sw, 0, IS_FSWITCH_GROUP_ON(group) ? NUM_FUNCTIONS_SWITCHES : NUM_FUNCTIONS_SWITCHES + 1, attr, event, checkCFSSwitchAvailable);
+          sw = editChoice(MODEL_SETUP_2ND_COLUMN + 1, y, nullptr, STR_FSSWITCHES, sw, 0, IS_FSWITCH_GROUP_ON(group) ? NUM_FUNCTIONS_SWITCHES : NUM_FUNCTIONS_SWITCHES + 1, attr, event, 0, checkCFSSwitchAvailable);
           if (attr && checkIncDec_Ret) {
             for (int i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
               if (FSWITCH_GROUP(i) == group) {
