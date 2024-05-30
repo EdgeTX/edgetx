@@ -107,10 +107,10 @@ void HeaderDateTime::setColor(uint32_t color)
   lv_obj_set_style_text_color(time, makeLvColor(color), LV_PART_MAIN);
 }
 
-HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon)
+HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon) :
+  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS)
 {
-  auto bg = new StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS);
-  (new StaticIcon(parent, 0, 0, icon, COLOR_THEME_PRIMARY2))->center(bg->width(), bg->height());
+  (new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2))->center(width(), height());
 }
 
 UsbSDConnected::UsbSDConnected() :

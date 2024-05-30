@@ -23,6 +23,7 @@
 
 #include "opentx.h"
 #include "bitmaps.h"
+#include "static.h"
 
 class BitmapBuffer;
 
@@ -59,7 +60,7 @@ class HeaderDateTime
   int8_t lastMinute = -1;
 };
 
-class HeaderIcon
+class HeaderIcon : public StaticIcon
 {
  public:
   HeaderIcon(Window *parent, EdgeTxIcon icon);
