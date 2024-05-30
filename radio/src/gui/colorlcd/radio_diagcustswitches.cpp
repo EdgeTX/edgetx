@@ -19,26 +19,14 @@
  * GNU General Public License for more details.
  */
 
+#if defined(FUNCTION_SWITCHES)
+
 #include "opentx.h"
 #include "radio_diagcustswitches.h"
 #include "libopenui.h"
 #include "board.h"
 
 #include "hal/rotary_encoder.h"
-
-static EnumKeys get_ith_key(uint8_t i)
-{
-  auto supported_keys = keysGetSupported();
-  for (uint8_t k = 0; k < MAX_KEYS; k++) {
-    if (supported_keys & (1 << k)) {
-      if (i-- == 0) return (EnumKeys)k;
-    }
-  }
-
-  // should not get here,
-  // we assume: i < keysGetMaxKeys()
-  return (EnumKeys)0;
-}
 
 class RadioCustSwitchesDiagsWindow : public Window
 {
@@ -95,3 +83,5 @@ RadioCustSwitchesDiagsPage::RadioCustSwitchesDiagsPage() :
   buildBody(&body);
   // setFocus(SET_FOCUS_DEFAULT);
 }
+
+#endif
