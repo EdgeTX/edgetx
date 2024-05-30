@@ -402,7 +402,7 @@
 #define TR_POTS                        "Pots"
 #define TR_SWITCHES                    "Chaves"
 #define TR_SWITCHES_DELAY              TR("Play delay", "Play delay (sw. mid pos)")
-#define TR_SLAVE                       CENTER "Escravo"
+#define TR_SLAVE                       "Escravo"
 #define TR_MODESRC                     "Mode\006% Source"
 #define TR_MULTIPLIER                  "Multiplier"
 #define TR_CAL                         "Cal"

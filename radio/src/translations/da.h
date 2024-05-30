@@ -404,7 +404,7 @@
 #define TR_POTS                        "Drejekontakt"
 #define TR_SWITCHES                    "Kontakter"
 #define TR_SWITCHES_DELAY              TR("Cen forsink", "Center forsinkelse")
-#define TR_SLAVE                       CENTER "Slave"
+#define TR_SLAVE                       "Slave"
 #define TR_MODESRC                     "Mode\006% Kilde"
 #define TR_MULTIPLIER                  "Multiplier"
 #define TR_CAL                         "Kal"

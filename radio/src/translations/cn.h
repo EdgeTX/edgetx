@@ -394,7 +394,7 @@
 #define TR_POTS                        "电位器"
 #define TR_SWITCHES                    "开关"
 #define TR_SWITCHES_DELAY              TR("开关经过延时", "延时播放(开关经过)")
-#define TR_SLAVE                       CENTER "从机"
+#define TR_SLAVE                       "从机"
 #define TR_MODESRC                     "Mode\006% Source"
 #define TR_MULTIPLIER                  "倍率"
 #define TR_CAL                         "校准"

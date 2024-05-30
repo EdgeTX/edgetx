@@ -401,7 +401,7 @@
 #define TR_POTS                        "Потенциом"
 #define TR_SWITCHES                    "Тумблеры"
 #define TR_SWITCHES_DELAY              TR("Зад воспр", "Задерж воспр (средн. полож. тумбл.)")
-#define TR_SLAVE                       CENTER "Рабочий"
+#define TR_SLAVE                       "Рабочий"
 #define TR_MODESRC                     "Mode\006% Source"
 #define TR_MULTIPLIER                  "Множитель"
 #define TR_CAL                         "Звонок"
