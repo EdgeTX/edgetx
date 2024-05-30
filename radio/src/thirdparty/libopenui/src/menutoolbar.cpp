@@ -22,6 +22,9 @@
 #include "themes/etx_lv_theme.h"
 #include "translations.h"
 
+constexpr uint32_t MENUS_TOOLBAR_BUTTON_WIDTH = 36;
+constexpr uint32_t MENUS_TOOLBAR_BUTTON_HEIGHT = 32;
+
 static const lv_obj_class_t menu_button_class = {
     .base_class = &button_class,
     .constructor_cb = nullptr,
@@ -113,13 +116,13 @@ rect_t MenuToolbar::getButtonRect(bool wideButton)
   coord_t x =
       (nxtBtnPos % filterColumns) * (MENUS_TOOLBAR_BUTTON_WIDTH + PAD_SMALL);
   coord_t y =
-      (nxtBtnPos / filterColumns) * (MENUS_TOOLBAR_BUTTON_WIDTH + PAD_SMALL);
+      (nxtBtnPos / filterColumns) * (MENUS_TOOLBAR_BUTTON_HEIGHT + PAD_SMALL);
   coord_t w = wideButton ? (MENUS_TOOLBAR_BUTTON_WIDTH + PAD_SMALL) *
                                    (filterColumns - 1) +
                                MENUS_TOOLBAR_BUTTON_WIDTH
                          : MENUS_TOOLBAR_BUTTON_WIDTH;
   nxtBtnPos += wideButton ? filterColumns : 1;
-  return {x, y, w, MENUS_TOOLBAR_BUTTON_WIDTH};
+  return {x, y, w, MENUS_TOOLBAR_BUTTON_HEIGHT};
 }
 
 bool MenuToolbar::filterMenu(MenuToolbarButton* btn, int16_t filtermin,

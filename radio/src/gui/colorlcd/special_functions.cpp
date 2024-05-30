@@ -482,7 +482,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
             if (func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED)
               LUA_LOAD_MODEL_SCRIPTS();
           },
-          true);  // strip extension
+          true, funcGetLabel(func));
       break;
 
     case FUNC_SET_TIMER: {

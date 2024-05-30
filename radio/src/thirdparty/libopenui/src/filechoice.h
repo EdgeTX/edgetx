@@ -21,22 +21,25 @@
 #include "choice.h"
 #include <string>
 
-class FileChoice : public ChoiceBase
+class FileChoice : public Choice
 {
 public:
   FileChoice(Window* parent, const rect_t& rect, std::string folder,
              const char* extension, int maxlen,
              std::function<std::string()> getValue,
              std::function<void(std::string)> setValue,
-             bool stripExtension=false);
+             bool stripExtension = false,
+             const char* title = nullptr);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "FileChoice"; }
 #endif
 
-  void onClicked() override;
-
 protected:
+  bool loaded = false;
+  int fileCount = 0;
+  int selectedIdx = -1;
+  Menu* menu = nullptr;
   std::string getLabelText() override;
   std::string folder;
   const char* extension;
@@ -45,5 +48,7 @@ protected:
   std::function<void(std::string)> setValue;
   bool stripExtension;
 
-  bool openMenu();
+  void loadFiles();
+
+  void openMenu() override;
 };

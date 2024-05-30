@@ -92,7 +92,7 @@ static void setModelBitmap(std::string newValue)
 struct ModelBitmapEdit : public FileChoice {
   ModelBitmapEdit(Window *parent, const rect_t &rect) :
       FileChoice(parent, rect, BITMAPS_PATH, BITMAPS_EXT, LEN_BITMAP_NAME,
-                 getModelBitmap, setModelBitmap)
+                 getModelBitmap, setModelBitmap, false, STR_BITMAP)
   {
   }
 };
