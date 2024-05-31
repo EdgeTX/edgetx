@@ -32,7 +32,7 @@ static inline GPIO_TypeDef* _port(gpio_t pin)
 
 static inline int _port_num(gpio_t pin)
 {
-  return (((pin - GPIOA_BASE) >> 12) & 0x0f);
+  return (((pin - GPIOA_BASE) >> 10) & 0x0f);
 }
 
 static inline void _enable_clock(GPIO_TypeDef* port)
