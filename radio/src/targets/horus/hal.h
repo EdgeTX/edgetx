@@ -764,7 +764,7 @@
 #if defined(PCBX12S)
   #define INTMODULE_BOOTCMD_GPIO        GPIO_PIN(GPIOC, 2) // PC.02
 #elif defined(PCBX10)
-  #define INTMODULE_BOOTCMD_GPIO_PIN    GPIO_PIN(GPIOI, 9) // PI.09
+  #define INTMODULE_BOOTCMD_GPIO        GPIO_PIN(GPIOI, 9) // PI.09
 #endif
 #define INTMODULE_BOOTCMD_DEFAULT       0 // RESET
 
