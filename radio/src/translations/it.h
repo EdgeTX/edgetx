@@ -393,7 +393,7 @@
 #define TR_PLAY_HELLO                   "Suono all'accensione"
 #define TR_PWR_ON_DELAY                 "Rit. accens."
 #define TR_PWR_OFF_DELAY                "Rit. spegni."
-#define TR_PWR_ON_OFF_HAPTIC            TR("Pwr ON/OFF Haptic","Power ON/OFF Haptic")
+#define TR_PWR_ON_OFF_HAPTIC            TR("Vibraz. Pwr ON/OFF","Vibrazione Pwr ON/OFF")
 #define TR_THROTTLE_WARNING             TR("All. Mot.", "Allarme Motore")
 #define TR_CUSTOM_THROTTLE_WARNING      TR("Cust-Pos", "Custom position?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL  TR("Pos. %", "Position %")

@@ -398,7 +398,7 @@
 #define TR_PLAY_HELLO                  "Startop lyd"
 #define TR_PWR_ON_DELAY                "Forsinkelse ved tænd"
 #define TR_PWR_OFF_DELAY               "Forsinkelse ved sluk"
-#define TR_PWR_ON_OFF_HAPTIC           TR("Pwr ON/OFF Haptic","Power ON/OFF Haptic")
+#define TR_PWR_ON_OFF_HAPTIC           TR("Vib. strøm til/fra","Vibrator strøm til/fra")
 #define TR_THROTTLE_WARNING            TR("Gas adv", "Gas advarsel")
 #define TR_CUSTOM_THROTTLE_WARNING     TR("Tilp-Pos", "Tilpasset position?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
