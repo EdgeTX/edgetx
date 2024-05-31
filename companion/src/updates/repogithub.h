@@ -32,12 +32,12 @@ class RepoGitHub : public Repo
                         const QString & path, const QString & nightly, const int resultsPerPage);
     virtual ~RepoGitHub();
 
-    const QString urlAsset(const int assetId) const;
-    const QString urlAssets(const int releaseId) const;
-    const QString urlContent(const QString & filename) const;
-    const QString urlJobs() const { return ""; }
-    const QString urlReleases() const;
-    const QString urlStatus() const { return ""; }
+    const QString urlAsset(const int assetId) const override;
+    const QString urlAssets(const int releaseId) const override;
+    const QString urlContent(const QString & filename) const override;
+    const QString urlJobs() const override { return ""; }
+    const QString urlReleases() const override;
+    const QString urlStatus() const override { return ""; }
 
     const UpdateNetwork::DownloadDataType assetDownloadDataType() const override { return UpdateNetwork::DDT_GitHub_SaveToFile; }
     const UpdateNetwork::DownloadDataType assetContentDataType() const override { return UpdateNetwork::DDT_GitHub_Content; }

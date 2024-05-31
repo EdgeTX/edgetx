@@ -29,7 +29,7 @@ constexpr char STATUS_UNKNOWN[]            {"STATUS_UNKNOWN"};
 constexpr char STATUS_WAITING_FOR_BUILD[]  {"WAITING_FOR_BUILD"};
 constexpr char STATUS_BUILD_IN_PROGRESS[]  {"BUILD_IN_PROGRESS"};
 constexpr char STATUS_BUILD_SUCCESS[]      {"BUILD_SUCCESS"};
-constexpr char STATUS_BUILD_ERROR[]        {"BUILD_ERROR"};
+// constexpr char STATUS_BUILD_ERROR[]        {"BUILD_ERROR"};
 
 UpdateCloudBuild::UpdateCloudBuild(QWidget * parent) :
   UpdateInterface(parent, CID_CloudBuild, tr("CloudBuild"), Repo::REPO_TYPE_BUILD,

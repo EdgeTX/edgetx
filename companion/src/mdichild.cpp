@@ -915,7 +915,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
 
   bool modified = false;
   int modelIdx = modelsListModel->getModelIndex(row);
-  unsigned inserts = 0;
+  // unsigned inserts = 0;
   QVector<int> deletesList;
 
   // Force DnD moves from other file windows to be copy actions because we don't want to delete our models.
@@ -942,7 +942,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
       ok = insertModelRows(modelIdx, 1);
       if (ok) {
         radioData.models[modelIdx] = modelsList[i];
-        ++inserts;
+        // ++inserts;
       }
     }
     else if (!deletesList.contains(modelIdx)) {
@@ -970,7 +970,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
           ok = insertModelRows(modelIdx, 1);
           if (ok) {
             radioData.models[modelIdx] = modelsList[i];
-            ++inserts;
+            // ++inserts;
           }
         }
         else if (msgBox.clickedButton() == cancelButton) {
