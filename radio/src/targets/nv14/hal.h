@@ -320,8 +320,7 @@
 #define AUDIO_SPI_MISO_GPIO_PIN       LL_GPIO_PIN_4  // PB.04
 #define AUDIO_SPI_MOSI_GPIO           GPIOB
 #define AUDIO_SPI_MOSI_GPIO_PIN       LL_GPIO_PIN_5  // PB.05
-#define AUDIO_MUTE_GPIO               GPIOH
-#define AUDIO_MUTE_GPIO_PIN           LL_GPIO_PIN_8  // PH.08 audio amp control pin
+#define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOH, 8) // PH.08 audio amp control pin
 #define AUDIO_UNMUTE_DELAY            120  // ms
 #define AUDIO_MUTE_DELAY              500  // ms
 #define INVERTED_MUTE_PIN

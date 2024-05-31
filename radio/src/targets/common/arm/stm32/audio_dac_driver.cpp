@@ -72,13 +72,14 @@ static inline bool getMutePin(void)
 // Not sure why PB14 has not be allocated to the DAC, although it is an EXTRA function
 // So maybe it is automatically done
 void dacInit()
-{
-  dacTimerInit();
-
+{  
 #if defined(AUDIO_MUTE_GPIO)
+  // Mute before init anything
   gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  setMutePin(false);
+  setMutePin(true);
 #endif
+
+  dacTimerInit();
 
   gpio_init_analog(AUDIO_OUTPUT_GPIO);
   stm32_dma_enable_clock(AUDIO_DMA);
@@ -103,7 +104,7 @@ void dacInit()
   NVIC_SetPriority(AUDIO_DMA_Stream_IRQn, 7);
 }
 
-#if defined(AUDIO_MUTE_GPIO_PIN)
+#if defined(AUDIO_MUTE_GPIO)
 void audioMute()
 {
   if (!g_eeGeneral.audioMuteEnable) return;
@@ -150,7 +151,7 @@ void audioConsumeCurrentBuffer()
   if (!nextBuffer) {
     nextBuffer = audioQueue.buffersFifo.getNextFilledBuffer();
     if (nextBuffer) {
-#if defined(AUDIO_MUTE_GPIO_PIN)
+#if defined(AUDIO_MUTE_GPIO)
       audioUnmute();
 #endif
       AUDIO_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA channel
@@ -161,7 +162,7 @@ void audioConsumeCurrentBuffer()
       DAC->SR = DAC_SR_DMAUDR1; // Write 1 to clear flag
       DAC->CR |= DAC_CR_EN1 | DAC_CR_DMAEN1; // Enable DAC
     }
-#if defined(AUDIO_MUTE_GPIO_PIN)
+#if defined(AUDIO_MUTE_GPIO)
     else {
       audioMute();
     }
