@@ -133,7 +133,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
     }
   }
 
-  if (!READ_ONLY() && i_min == 0 && i_max == 1 &&
+  if (i_min == 0 && i_max == 1 &&
       event == EVT_KEY_BREAK(KEY_ENTER)) {
     s_editMode = 0;
     newval = !val;
@@ -383,11 +383,11 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
     case EVT_KEY_BREAK(KEY_ENTER):
       if (s_editMode > 1)
         break;
-      if (menuHorizontalPosition < 0 && maxcol > 0 && READ_ONLY_UNLOCKED()) {
+      if (menuHorizontalPosition < 0 && maxcol > 0) {
         l_posHorz = 0;
         AUDIO_KEY_PRESS();
       }
-      else if (READ_ONLY_UNLOCKED()) {
+      else {
         s_editMode = (s_editMode<=0);
         AUDIO_KEY_PRESS();
       }

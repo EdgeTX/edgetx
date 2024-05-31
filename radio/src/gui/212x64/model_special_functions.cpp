@@ -154,7 +154,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 {
   int sub = menuVerticalPosition;
   uint8_t eeFlags = (functions == g_model.customFn) ? EE_MODEL : EE_GENERAL;
-  if (menuHorizontalPosition<0 && event==EVT_KEY_LONG(KEY_ENTER) && !READ_ONLY()) {
+  if (menuHorizontalPosition<0 && event==EVT_KEY_LONG(KEY_ENTER)) {
     CustomFunctionData *cfn = &functions[sub];
     if (!CFN_EMPTY(cfn))
       POPUP_MENU_ADD_ITEM(STR_COPY);

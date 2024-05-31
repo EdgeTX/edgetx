@@ -87,7 +87,7 @@ void menuModelLogicalSwitches(event_t event)
   horzpos_t horz = menuHorizontalPosition;
   bool showHeader = true;
 
-  if (horz<0 && event==EVT_KEY_LONG(KEY_ENTER) && !READ_ONLY()) {
+  if (horz<0 && event==EVT_KEY_LONG(KEY_ENTER)) {
     LogicalSwitchData * cs = lswAddress(sub);
     if (cs->func)
       POPUP_MENU_ADD_ITEM(STR_COPY);

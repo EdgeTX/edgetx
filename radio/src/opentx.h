@@ -351,10 +351,6 @@ void flightReset(uint8_t check=true);
   #define RESET_THR_TRACE() s_timeCum16ThrP = s_timeCumThr = 0
 #endif
 
-// disabled function (not used anywhere)
-#define READ_ONLY() false
-#define READ_ONLY_UNLOCKED() true
-
 void checkLowEEPROM();
 void checkThrottleStick();
 void checkSwitches();

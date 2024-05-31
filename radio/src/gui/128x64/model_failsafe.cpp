@@ -64,7 +64,7 @@ void menuModelFailsafe(event_t event)
     if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1)
       wbar -= 6;
 
-    if (sub == k && !READ_ONLY() && event == EVT_KEY_LONG(KEY_ENTER)) {
+    if (sub == k && event == EVT_KEY_LONG(KEY_ENTER)) {
       POPUP_MENU_START(onFailsafeMenu, 4, STR_NONE, STR_HOLD, STR_CHANNEL2FAILSAFE, STR_CHANNELS2FAILSAFE);
     }
 

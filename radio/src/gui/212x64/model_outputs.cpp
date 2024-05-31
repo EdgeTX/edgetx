@@ -145,7 +145,7 @@ void menuModelLimits(event_t event)
     int limit = (g_model.extendedLimits ? LIMIT_EXT_MAX : 1000);
 
     putsChn(0, y, k+1, (sub==k && menuHorizontalPosition < 0) ? INVERS : 0);
-    if (sub==k && menuHorizontalPosition < 0 && event==EVT_KEY_LONG(KEY_ENTER) && !READ_ONLY()) {
+    if (sub==k && menuHorizontalPosition < 0 && event==EVT_KEY_LONG(KEY_ENTER)) {
       POPUP_MENU_START(onLimitsMenu, 4, STR_RESET, STR_COPY_TRIMS_TO_OFS, STR_COPY_STICKS_TO_OFS, STR_COPY_MIN_MAX_TO_OUTPUTS);
     }
 

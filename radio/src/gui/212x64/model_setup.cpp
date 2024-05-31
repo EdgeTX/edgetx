@@ -644,7 +644,7 @@ void menuModelSetup(event_t event)
           lcdDrawSizedText(MODEL_SETUP_2ND_COLUMN, y, g_model.header.bitmap, LEN_BITMAP_NAME, attr);
         else
           lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_VCSWFUNC, 0, attr);
-        if (attr && event==EVT_KEY_BREAK(KEY_ENTER) && READ_ONLY_UNLOCKED()) {
+        if (attr && event==EVT_KEY_BREAK(KEY_ENTER)) {
           s_editMode = 0;
           if (sdListFiles(BITMAPS_PATH, BITMAPS_EXT, LEN_BITMAP_NAME, g_model.header.bitmap, LIST_NONE_SD_FILE)) {
             POPUP_MENU_START(onModelSetupBitmapMenu);
@@ -876,28 +876,26 @@ void menuModelSetup(event_t event)
 
         if (attr) {
           s_editMode = 0;
-          if (!READ_ONLY()) {
-            switch (event) {
-              case EVT_KEY_BREAK(KEY_ENTER):
-                break;
+          switch (event) {
+            case EVT_KEY_BREAK(KEY_ENTER):
+              break;
 
-              case EVT_KEY_LONG(KEY_ENTER):
-                if (menuHorizontalPosition < 0) {
-                  START_NO_HIGHLIGHT();
-                  getMovedSwitch();
-                  // Mask switches enabled for warnings
-                  swarnstate_t sw_mask = 0;
-                  for(uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
-                    if (SWITCH_WARNING_ALLOWED(i))
-                      if (g_model.switchWarning & (0x07 << (3 * i)))
-                        sw_mask |= (0x07 << (3 * i));
-                  }
-                  g_model.switchWarning = switches_states & sw_mask;
-                  AUDIO_WARNING1();
-                  storageDirty(EE_MODEL);
+            case EVT_KEY_LONG(KEY_ENTER):
+              if (menuHorizontalPosition < 0) {
+                START_NO_HIGHLIGHT();
+                getMovedSwitch();
+                // Mask switches enabled for warnings
+                swarnstate_t sw_mask = 0;
+                for(uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
+                  if (SWITCH_WARNING_ALLOWED(i))
+                    if (g_model.switchWarning & (0x07 << (3 * i)))
+                      sw_mask |= (0x07 << (3 * i));
                 }
-                break;
-            }
+                g_model.switchWarning = switches_states & sw_mask;
+                AUDIO_WARNING1();
+                storageDirty(EE_MODEL);
+              }
+              break;
           }
         }
 
@@ -907,7 +905,7 @@ void menuModelSetup(event_t event)
         for (int i = 0; i < switchGetMaxSwitches(); i++) {
           if (SWITCH_WARNING_ALLOWED(i)) {
             div_t qr = div(current, 8);
-            if (!READ_ONLY() && event == EVT_KEY_BREAK(KEY_ENTER) && line &&
+            if (event == EVT_KEY_BREAK(KEY_ENTER) && line &&
                 l_posHorz == current) {
               uint8_t curr_state = (states & 0x07);
               // remove old setting
@@ -957,7 +955,7 @@ void menuModelSetup(event_t event)
 
         if (attr) {
           if (menuHorizontalPosition > 0) s_editMode = 0;
-          if (!READ_ONLY() && menuHorizontalPosition > 0) {
+          if (menuHorizontalPosition > 0) {
             switch (event) {
               case EVT_KEY_LONG(KEY_ENTER):
                 if (g_model.potsWarnMode == POTS_WARN_MANUAL) {
@@ -1033,11 +1031,9 @@ void menuModelSetup(event_t event)
         }
         if (attr && CURSOR_ON_CELL) {
           if (event==EVT_KEY_BREAK(KEY_ENTER)) {
-            if (READ_ONLY_UNLOCKED()) {
-              s_editMode = 0;
-              g_model.beepANACenter ^= ((BeepANACenter)1<<menuHorizontalPosition);
-              storageDirty(EE_MODEL);
-            }
+            s_editMode = 0;
+            g_model.beepANACenter ^= ((BeepANACenter)1<<menuHorizontalPosition);
+            storageDirty(EE_MODEL);
           }
         }
         break;
@@ -2024,7 +2020,7 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_USBJOYSTICK_APPLY:
         lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_USBJOYSTICK_APPLY_CHANGES), attr);
-        if (attr && !READ_ONLY() && event == EVT_KEY_BREAK(KEY_ENTER)) {
+        if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
           onUSBJoystickModelChanged();
         }
         break;

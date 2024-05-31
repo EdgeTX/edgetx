@@ -53,7 +53,7 @@ void menuModelCurvesAll(event_t event)
   int8_t sub = menuVerticalPosition - HEADER_LINE;
 
   if (event == EVT_KEY_BREAK(KEY_ENTER) &&
-      CURVE_SELECTED() && !READ_ONLY()) {
+      CURVE_SELECTED()) {
 
     s_currIdxSubMenu = sub;
     s_currSrcRaw = MIXSRC_NONE;
