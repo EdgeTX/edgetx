@@ -325,7 +325,7 @@ bool isSourceAvailableInInputs(int source)
 
 #if defined(FUNCTION_SWITCHES)
   if (source >= MIXSRC_FIRST_CUSTOMSWITCH_GROUP && source <= MIXSRC_LAST_CUSTOMSWITCH_GROUP)
-    return true;
+    return getSwitchCountInFSGroup(source - MIXSRC_FIRST_CUSTOMSWITCH_GROUP + 1) > 0;
 #endif
 
   if (source >= MIXSRC_FIRST_CH && source <= MIXSRC_LAST_CH)
