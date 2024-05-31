@@ -461,10 +461,8 @@
 // Touch
 #define TOUCH_I2C_BUS                   I2C_Bus_1
 #define TOUCH_I2C_CLK_RATE              400000
-#define TOUCH_INT_GPIO                  GPIOB
-#define TOUCH_INT_GPIO_PIN              LL_GPIO_PIN_9    // PB.09
-#define TOUCH_RST_GPIO                  GPIOB
-#define TOUCH_RST_GPIO_PIN              LL_GPIO_PIN_12   // PB.12
+#define TOUCH_INT_GPIO                  GPIO_PIN(GPIOB, 9)  // PB.09
+#define TOUCH_RST_GPIO                  GPIO_PIN(GPIOB, 12)  // PB.12
 #define TOUCH_INT_EXTI_Line             LL_EXTI_LINE_9
 #define TOUCH_INT_EXTI_Port             LL_SYSCFG_EXTI_PORTB
 #define TOUCH_INT_EXTI_SysCfgLine       LL_SYSCFG_EXTI_LINE9

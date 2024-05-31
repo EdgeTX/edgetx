@@ -654,15 +654,11 @@
 #if defined(HARDWARE_TOUCH)
   #define TOUCH_I2C_BUS                   I2C_Bus_1
   #define TOUCH_I2C_CLK_RATE              400000
-
-  #define TOUCH_INT_GPIO                  GPIOH
-  #define TOUCH_INT_GPIO_PIN              LL_GPIO_PIN_2    // PH.02
-
-  #define TOUCH_RST_GPIO                  GPIOF
+  #define TOUCH_INT_GPIO                  GPIO_PIN(GPIOH, 2)  // PH.02
 #if defined(PCBX12S)
-  #define TOUCH_RST_GPIO_PIN              LL_GPIO_PIN_7   // PF.7
+  #define TOUCH_RST_GPIO                  GPIO_PIN(GPIOF, 7)  // PF.7
 #else
-  #define TOUCH_RST_GPIO_PIN              LL_GPIO_PIN_10  // PF.10
+  #define TOUCH_RST_GPIO                  GPIO_PIN(GPIOF, 10)  // PF.10
 #endif
   #define TOUCH_INT_EXTI_Line             LL_EXTI_LINE_2
   #define TOUCH_INT_EXTI_Port             LL_SYSCFG_EXTI_PORTH

@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
 #include "stm32_i2c_driver.h"
@@ -64,46 +66,6 @@ static TouchState internalTouchState = {};
 static void _cst836u_exti_isr(void)
 {
   touchEventOccured = true;
-}
-
-static void TOUCH_AF_ExtiStop(void)
-{
-  stm32_exti_disable(TOUCH_INT_EXTI_Line);
-}
-
-static void TOUCH_AF_ExtiConfig(void)
-{
-  __HAL_RCC_SYSCFG_CLK_ENABLE();
-  LL_SYSCFG_SetEXTISource(TOUCH_INT_EXTI_Port, TOUCH_INT_EXTI_SysCfgLine);
-
-  stm32_exti_enable(TOUCH_INT_EXTI_Line,
-		    LL_EXTI_TRIGGER_FALLING,
-		    _cst836u_exti_isr);
-}
-
-static void TOUCH_AF_GPIOConfig(void)
-{
-  LL_GPIO_InitTypeDef gpioInit;
-  LL_GPIO_StructInit(&gpioInit);
-
-  stm32_gpio_enable_clock(TOUCH_RST_GPIO);
-  stm32_gpio_enable_clock(TOUCH_INT_GPIO);
-  
-  gpioInit.Mode = LL_GPIO_MODE_OUTPUT;
-  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  gpioInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  gpioInit.Pull = LL_GPIO_PULL_NO;
-
-  gpioInit.Pin = TOUCH_RST_GPIO_PIN;
-  LL_GPIO_Init(TOUCH_RST_GPIO, &gpioInit);
-  LL_GPIO_SetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
-
-  gpioInit.Pin = TOUCH_INT_GPIO_PIN;
-  gpioInit.Mode = LL_GPIO_MODE_INPUT;
-  gpioInit.Pull = LL_GPIO_PULL_UP;
-  gpioInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
-  LL_GPIO_Init(TOUCH_INT_GPIO, &gpioInit);
-  LL_GPIO_SetOutputPin(TOUCH_INT_GPIO, TOUCH_INT_GPIO_PIN);
 }
 
 void I2C_Init_Radio(void)
@@ -397,9 +359,9 @@ static uint8_t cst836u_TS_DetectTouch()
 
 void TouchReset()
 {
-  LL_GPIO_ResetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
+  gpio_clear(TOUCH_RST_GPIO);
   delay_ms(10);
-  LL_GPIO_SetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
+  gpio_set(TOUCH_RST_GPIO);
   delay_ms(300);
 }
 
@@ -433,12 +395,11 @@ void detectTouchController()
 
 void TouchInit(void)
 {
-  TOUCH_AF_GPIOConfig();
+  gpio_init(TOUCH_RST_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   I2C_Init_Radio();
   TouchReset();
   detectTouchController();
-  TOUCH_AF_ExtiConfig();
-
+  gpio_init_int(TOUCH_INT_GPIO, GPIO_IN_PU, GPIO_FALLING, _cst836u_exti_isr);
   tc->printDebugInfo();
 }
 
