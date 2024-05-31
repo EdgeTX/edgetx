@@ -256,7 +256,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return tr("sm%1").arg(QChar('A' + (index - 1)));
 
     case SOURCE_TYPE_FUNCTIONSWITCH_GROUP:
-      return tr("GR%1").arg(index + 1);
+      return tr("GR%1").arg(index);
 
     default:
       return QString(CPN_STR_UNKNOWN_ITEM);
