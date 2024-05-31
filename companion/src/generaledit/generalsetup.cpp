@@ -533,6 +533,13 @@ void GeneralSetupPanel::setValues()
     ui->label_favMultiMode->hide();
     ui->favMultiMode_CB->hide();
   }
+
+  if (firmware->getCapability(LcdWidth) == 128) {
+    ui->invertLCD_CB->setChecked(generalSettings.invertLCD);
+  } else {
+    ui->invertLCD_label->hide();
+    ui->invertLCD_CB->hide();
+  }
 }
 
 void GeneralSetupPanel::showLabelSelectOptions()
@@ -926,5 +933,11 @@ void GeneralSetupPanel::on_favMultiMode_CB_currentIndexChanged(int index)
 void GeneralSetupPanel::on_startSoundCB_stateChanged(int)
 {
   generalSettings.dontPlayHello = !ui->startSoundCB->isChecked();
+  emit modified();
+}
+
+void GeneralSetupPanel::on_invertLCD_CB_stateChanged(int)
+{
+  generalSettings.invertLCD = !ui->invertLCD_CB->isChecked();
   emit modified();
 }

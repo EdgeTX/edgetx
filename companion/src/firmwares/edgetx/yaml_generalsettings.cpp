@@ -261,6 +261,8 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
     node["labelSingleSelect"] = rhs.labelSingleSelect;
     node["labelMultiMode"] = rhs.labelMultiMode;
     node["favMultiMode"] = rhs.favMultiMode;
+  } else if (fw->getCapability(LcdWidth) == 128) {
+    node["invertLCD"] = (int)rhs.invertLCD;
   }
 
   Node serialPort;
@@ -513,6 +515,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["backgroundVolume"] >> ioffset_int(rhs.backgroundVolume, 2);
   node["modelQuickSelect"] >> rhs.modelQuickSelect;
   node["dontPlayHello"] >> rhs.dontPlayHello;
+  node["invertLCD"] >> rhs.invertLCD;
 
   //  depreciated v2.7 replaced by serialPort
   if (node["auxSerialMode"]) {

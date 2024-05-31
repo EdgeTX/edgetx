@@ -318,6 +318,8 @@ class GeneralSettings {
     int labelMultiMode;
     int favMultiMode;
 
+    bool invertLCD;
+
     // v 2.10 ADC refactor
     // earlier version data is read into legacy structs to maintain older version compatibility
     // post reading the legacy structs are manipulated into the new structs
