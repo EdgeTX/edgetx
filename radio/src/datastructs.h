@@ -153,7 +153,10 @@ static inline void check_struct()
   CHKSIZE(RadioData, 869);
   CHKSIZE(ModelData, 6706);
 #elif defined(PCBHORUS)
-  #if defined(PCBX10)
+  #if defined(RADIO_T15)
+    CHKSIZE(RadioData, 965);
+    CHKSIZE(ModelData, 15760);
+  #elif defined(PCBX10)
     CHKSIZE(RadioData, 965);
     CHKSIZE(ModelData, 15735);
   #else

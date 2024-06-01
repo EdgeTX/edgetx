@@ -114,6 +114,13 @@ set(GUI_SRC
   radio_version.cpp
   )
 
+if(FUNCTION_SWITCHES)
+  set(GUI_SRC ${GUI_SRC}
+  function_switches.cpp
+  radio_diagcustswitches.cpp
+  )
+endif()
+
 macro(add_gui_src src)
   set(GUI_SRC
     ${GUI_SRC}

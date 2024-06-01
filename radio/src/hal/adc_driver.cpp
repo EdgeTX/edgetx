@@ -310,6 +310,13 @@ uint16_t getBatteryVoltage()
   // removal will break existing calibrations!
   instant_vbat += VOLTAGE_DROP;
   return (uint16_t)instant_vbat;
+#elif defined(VOLTAGE_DROP)
+  instant_vbat = ((instant_vbat * (1000 + g_eeGeneral.txVoltageCalibration)) /
+                    BATTERY_DIVIDER);
+  // add voltage drop because of the diode
+  // removal will break existing calibrations!
+  instant_vbat += VOLTAGE_DROP;
+  return (uint16_t)instant_vbat;
 #else
   return (uint16_t)((instant_vbat * (1000 + g_eeGeneral.txVoltageCalibration)) /
                     BATTERY_DIVIDER);

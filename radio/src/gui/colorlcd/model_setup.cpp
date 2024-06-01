@@ -33,6 +33,9 @@
 #include "trims_setup.h"
 #include "throttle_params.h"
 #include "preflight_checks.h"
+#if defined(FUNCTION_SWITCHES)
+#include "function_switches.h"
+#endif
 #include "throttle_params.h"
 #include "timer_setup.h"
 #include "trainer_setup.h"
@@ -387,6 +390,9 @@ void ModelSetupPage::build(Window * window)
     {STR_ENABLED_FEATURES, []() { new SubPage(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
 #if defined(USBJ_EX)
     {STR_USBJOYSTICK_LABEL, []() { new ModelUSBJoystickPage(); }},
+#endif
+#if defined(FUNCTION_SWITCHES)
+    {STR_FUNCTION_SWITCHES, []() { new ModelFunctionSwitches(); }},
 #endif
     {STR_MENU_OTHER, []() { new SubPage(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, STR_MENU_OTHER, otherPageSetupLines, DIM(otherPageSetupLines)); }},
   }, BTN_H);

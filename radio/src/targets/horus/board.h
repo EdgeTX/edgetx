@@ -145,10 +145,6 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
   #define IS_PXX1_INTERNAL_ENABLED()            (true)
 #endif
 
-#if !defined(NUM_FUNCTIONS_SWITCHES)
-#define NUM_FUNCTIONS_SWITCHES        0
-#endif
-
 // POTS and SLIDERS default configuration
 #if defined(RADIO_TX16S)
 #define XPOS_CALIB_DEFAULT  {0x3, 0xc, 0x15, 0x1e, 0x26}
@@ -159,6 +155,10 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 #define NUM_TRIMS_KEYS                          (NUM_TRIMS * 2)
 
 // Battery driver
+#if defined(RADIO_T15)
+#define VOLTAGE_DROP 65
+#endif
+
 #if defined(PCBX10)
   // Lipo 2S
   #define BATTERY_WARN      66 // 6.6V
@@ -320,6 +320,26 @@ void bluetoothDisable();
   #define BATTERY_DIVIDER 1495
 #else
   #define BATTERY_DIVIDER 1629
-#endif 
+#endif
+
+#if defined(FUNCTION_SWITCHES)
+#define NUM_FUNCTIONS_SWITCHES 6
+#define DEFAULT_FS_CONFIG                                         \
+  (SWITCH_2POS << 10) + (SWITCH_2POS << 8) + (SWITCH_2POS << 6) + \
+      (SWITCH_2POS << 4) + (SWITCH_2POS << 2) + (SWITCH_2POS << 0)
+
+#define DEFAULT_FS_GROUPS                                 \
+  (1 << 10) + (1 << 8) + (1 << 6) + (1 << 4) + (1 << 2) + \
+      (1 << 0)  // Set all FS to group 1 to act like a 6pos
+
+#define DEFAULT_FS_STARTUP_CONFIG                         \
+  ((FS_START_PREVIOUS << 10) + (FS_START_PREVIOUS << 8) + \
+   (FS_START_PREVIOUS << 6) + (FS_START_PREVIOUS << 4) +  \
+   (FS_START_PREVIOUS << 2) +                             \
+   (FS_START_PREVIOUS << 0))  // keep last state by default
+
+#else
+#define NUM_FUNCTIONS_SWITCHES 0
+#endif
 
 #endif // _BOARD_H_

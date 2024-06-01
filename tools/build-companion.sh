@@ -72,7 +72,7 @@ declare -a simulator_plugins=(x9lite x9lites
                               xlite xlites
                               nv14 el18 pl18 pl18ev
                               x10 x10-access x12s
-                              t16 t18 t20 t20v2 tx16s)
+                              t15 t16 t18 t20 t20v2 tx16s)
 
 for plugin in "${simulator_plugins[@]}"
 do
@@ -163,6 +163,9 @@ do
             ;;
         x12s)
             BUILD_OPTIONS+="-DPCB=X12S"
+            ;;
+        t15)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T15 -DINTERNAL_MODULE_CRSF=ON"
             ;;
         t16)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON"

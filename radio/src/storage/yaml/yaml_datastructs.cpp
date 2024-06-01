@@ -31,7 +31,11 @@
 #if defined(PCBX12S)
  #include "yaml_datastructs_x12s.cpp"
 #elif defined(PCBX10)
- #include "yaml_datastructs_x10.cpp"
+#if defined(RADIO_T15)
+    #include "yaml_datastructs_t15.cpp"
+  #else
+    #include "yaml_datastructs_x10.cpp"
+  #endif
 #elif defined(PCBNV14)
  #include "yaml_datastructs_nv14.cpp"
 #elif defined(PCBPL18)
