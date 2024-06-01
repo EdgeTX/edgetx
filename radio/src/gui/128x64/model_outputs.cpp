@@ -231,7 +231,7 @@ void menuModelLimits(event_t event)
     uint8_t k = i+menuVerticalOffset;
     LcdFlags attr = (sub==MAX_OUTPUT_CHANNELS) ? INVERS : 0;
 
-    if (sub==k && event==EVT_KEY_BREAK(KEY_ENTER) && !READ_ONLY() && (k != MAX_OUTPUT_CHANNELS) ) {
+    if (sub==k && ((event == EVT_KEY_BREAK(KEY_ENTER)) || (event == EVT_KEY_LONG(KEY_ENTER))) && !READ_ONLY() && (k != MAX_OUTPUT_CHANNELS) ) {
       s_editMode = 0;
       POPUP_MENU_START(onLimitsMenu, 5, STR_EDIT, STR_RESET, STR_COPY_TRIMS_TO_OFS, STR_COPY_STICKS_TO_OFS, STR_COPY_MIN_MAX_TO_OUTPUTS);
     }
