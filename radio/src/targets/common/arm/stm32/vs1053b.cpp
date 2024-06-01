@@ -21,7 +21,10 @@
 
 #include "stm32_hal_ll.h"
 #include "stm32_gpio_driver.h"
+#include "stm32_gpio.h"
 #include "stm32_spi.h"
+
+#include "hal/gpio.h"
 
 #include "opentx.h"
 
@@ -310,31 +313,22 @@ void audioSendRiffHeader()
   audioSpiWriteBuffer(RiffHeader, sizeof(RiffHeader));
 }
 
-#if defined(AUDIO_MUTE_GPIO_PIN)
+#if defined(AUDIO_MUTE_GPIO)
 static inline void setMutePin(bool enabled)
 {
-  if (enabled) {
 #if defined(INVERTED_MUTE_PIN)
-    GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-#else
-    GPIO_SetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+  enabled = !enabled;
 #endif
-  } else {
-#if defined(INVERTED_MUTE_PIN)
-    GPIO_SetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-#else
-    GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-#endif
-  }
+  gpio_write(AUDIO_MUTE_GPIO, enabled);
 }
 
 static inline bool getMutePin(void)
 {
+  bool muted = gpio_read(AUDIO_MUTE_GPIO) ? 1 : 0;
 #if defined(INVERTED_MUTE_PIN)
-  return !GPIO_ReadOutputDataBit(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-#else
-  return GPIO_ReadOutputDataBit(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+  muted = !muted;
 #endif
+  return muted;
 }
 
 void audioMute()
@@ -374,42 +368,27 @@ void audioUnmute()
   setMutePin(false);
 #endif
 }
-
-void audioMuteInit()
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = AUDIO_MUTE_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(AUDIO_MUTE_GPIO, &GPIO_InitStructure);
-  GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-}
 #endif
 
 #if defined(PCBX12S)
 void audioShutdownInit()
 {
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-
-  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-  pinInit.Pin = AUDIO_SHUTDOWN_GPIO_PIN;
-  LL_GPIO_Init(AUDIO_SHUTDOWN_GPIO, &pinInit);
+  gpio_init(AUDIO_SHUTDOWN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 
   // we never RESET it, there is a 2s delay on STARTUP
-  LL_GPIO_SetOutputPin(AUDIO_SHUTDOWN_GPIO, AUDIO_SHUTDOWN_GPIO_PIN);
+  gpio_set(AUDIO_SHUTDOWN_GPIO);
 }
 #endif
 
 void audioInit()
 {
-#if defined(AUDIO_MUTE_GPIO_PIN)
-  audioMuteInit();
+#if defined(AUDIO_MUTE_GPIO)
+  // Mute before init anything
+  gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  setMutePin(true);
 #endif
 
-  #if defined(PCBX12S)
+#if defined(PCBX12S)
   audioShutdownInit();
 #endif
 
@@ -451,7 +430,7 @@ void audioConsumeCurrentBuffer()
   }
 
   if (currentBuffer) {
-#if defined(AUDIO_MUTE_GPIO_PIN)
+#if defined(AUDIO_MUTE_GPIO)
     audioUnmute();
 #endif
     uint32_t written = audioSpiWriteData(currentBuffer, currentSize);
@@ -463,7 +442,7 @@ void audioConsumeCurrentBuffer()
       currentSize = 0;
     }
   }
-#if defined(AUDIO_MUTE_GPIO_PIN)
+#if defined(AUDIO_MUTE_GPIO)
   else {
     audioMute();
   }

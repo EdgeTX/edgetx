@@ -22,6 +22,8 @@
 #if !defined(SIMU)
 #include "stm32_ws2812.h"
 #include "boards/generic_stm32/rgb_leds.h"
+#include "stm32_hal.h"
+#include "stm32_hal_ll.h"
 #endif
 
 #include "opentx.h"
@@ -104,9 +106,9 @@ void toggleLatencySwitch()
 
 #if defined(PCBHORUS)
   if (latencyToggleSwitch)
-    GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+    gpio_clear(EXTMODULE_TX_GPIO);
   else
-    GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+    gpio_set(EXTMODULE_TX_GPIO);
 #else
   if (latencyToggleSwitch)
     sportUpdatePowerOn();
@@ -1561,7 +1563,7 @@ int main()
 
 #if !defined(SIMU)
   /* Ensure all priority bits are assigned as preemption priority bits. */
-  NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
+  NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4 );
 #endif
 
   // G: The WDT remains active after a WDT reset -- at maximum clock speed. So it's

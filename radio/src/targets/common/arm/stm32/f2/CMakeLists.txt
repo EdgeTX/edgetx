@@ -45,22 +45,15 @@ if(NOT NATIVE_BUILD)
 endif()
 
 # StdPeriph library
-set(STM32LIB_DIR ${THIRDPARTY_DIR}/STM32F2xx_StdPeriph_Lib_V1.1.0/Libraries)
-include_directories(${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver/inc)
+set(STM32LIB_DIR ${THIRDPARTY_DIR})
 include_directories(${STM32LIB_DIR}/CMSIS/Device/ST/STM32F2xx/Include)
 include_directories(${STM32LIB_DIR}/CMSIS/Include)
 
 add_definitions(-DSTM32F2)
 
-set(STM32_STDPERIPH_DIR ${STM32LIB_DIR}/STM32F2xx_StdPeriph_Driver)
-
 add_library(stm32_stdperiph OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/f2/system_stm32f2xx.c
   boards/generic_stm32/startup/startup_stm32f205xx.s
-  ${STM32_STDPERIPH_DIR}/src/misc.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_gpio.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_dbgmcu.c
-  ${STM32_STDPERIPH_DIR}/src/stm32f2xx_rcc.c
   )
 
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_stdperiph>)

@@ -260,34 +260,20 @@ bool isChargerActive()
 
 void battery_charge_init()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-  // Input pins
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-
   // USB charger status pins
-  GPIO_InitStructure.GPIO_Pin = UCHARGER_GPIO_PIN;
-  GPIO_Init(UCHARGER_GPIO, &GPIO_InitStructure);
-  GPIO_InitStructure.GPIO_Pin = UCHARGER_CHARGE_END_GPIO_PIN;
-  GPIO_Init(UCHARGER_CHARGE_END_GPIO, &GPIO_InitStructure);
+  gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+  gpio_init(UCHARGER_CHARGE_END_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
 
 #if defined(WIRELESS_CHARGER)
   // Wireless charger status pins
-  GPIO_InitStructure.GPIO_Pin = WCHARGER_GPIO_PIN;
-  GPIO_Init(WCHARGER_GPIO, &GPIO_InitStructure);
-  GPIO_InitStructure.GPIO_Pin = WCHARGER_CHARGE_END_GPIO_PIN;
-  GPIO_Init(WCHARGER_CHARGE_END_GPIO, &GPIO_InitStructure);
+  gpio_init(WCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+  gpio_init(WCHARGER_CHARGE_END_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+
 #endif
 
-  // Output pins
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 
   // USB charger control pins
-  GPIO_InitStructure.GPIO_Pin = UCHARGER_EN_GPIO_PIN;
-  GPIO_Init(UCHARGER_EN_GPIO, &GPIO_InitStructure);
+  gpio_init(UCHARGER_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 
   // USB charger state init
   ENABLE_UCHARGER();
@@ -297,10 +283,8 @@ void battery_charge_init()
 
 #if defined(WIRELESS_CHARGER)
   // Wireless charger control pins
-  GPIO_InitStructure.GPIO_Pin = WCHARGER_EN_GPIO_PIN;
-  GPIO_Init(WCHARGER_EN_GPIO, &GPIO_InitStructure);
-  GPIO_InitStructure.GPIO_Pin = WCHARGER_I_CONTROL_GPIO_PIN;
-  GPIO_Init(WCHARGER_I_CONTROL_GPIO, &GPIO_InitStructure);
+  gpio_init(WCHARGER_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(WCHARGER_I_CONTROL_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 
   // Wireless charger state init
   ENABLE_WCHARGER();
@@ -308,7 +292,6 @@ void battery_charge_init()
   wCharger.hasCharger = !IS_WCHARGER_ACTIVE();  // Init for sampling count works
   wCharger.isChargerDetectionReady = false;
   resetChargeEndDetection(&wCharger);
-
 #endif
 }
 

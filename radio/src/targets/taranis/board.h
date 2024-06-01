@@ -68,8 +68,8 @@ uint32_t isFirmwareStart(const uint8_t * buffer);
 uint32_t isBootloaderStart(const uint8_t * buffer);
 
 // Pulses driver
-#define INTERNAL_MODULE_ON()   GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
-#define INTERNAL_MODULE_OFF()  GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
+#define INTERNAL_MODULE_ON()   gpio_set(INTMODULE_PWR_GPIO)
+#define INTERNAL_MODULE_OFF()  gpio_clear(INTMODULE_PWR_GPIO)
 
 #if (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)) && (!defined(PCBX9LITE) || defined(PCBX9LITES))
   #define HARDWARE_INTERNAL_RAS
@@ -83,7 +83,7 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 
 #if defined(TRAINER_DETECT_GPIO)
   // Trainer detect is a switch on the jack
-  #define TRAINER_CONNECTED()           (GPIO_ReadInputDataBit(TRAINER_DETECT_GPIO, TRAINER_DETECT_GPIO_PIN) == TRAINER_DETECT_GPIO_PIN_VALUE)
+  #define TRAINER_CONNECTED()           (gpio_read(TRAINER_DETECT_GPIO) == TRAINER_DETECT_GPIO_PIN_VALUE)
 #elif defined(PCBXLITES)
   // Trainer is on the same connector than Headphones
   enum JackState

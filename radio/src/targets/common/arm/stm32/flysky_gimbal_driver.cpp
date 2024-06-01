@@ -21,10 +21,12 @@
 
 #include "flysky_gimbal_driver.h"
 #include "stm32_serial_driver.h"
+#include "stm32_gpio.h"
 #include "stm32_adc.h"
 
 #include "delays_driver.h"
 #include "hal/adc_driver.h"
+#include "hal/gpio.h"
 
 #include "hal.h"
 #include "crc.h"
@@ -33,8 +35,8 @@
 
 static const stm32_usart_t fsUSART = {
   .USARTx = FLYSKY_HALL_SERIAL_USART,
-  .GPIOx = FLYSKY_HALL_SERIAL_GPIO,
-  .GPIO_Pin = FLYSKY_HALL_SERIAL_RX_GPIO_PIN,
+  .txGPIO = GPIO_UNDEF,
+  .rxGPIO = FLYSKY_HALL_SERIAL_RX_GPIO,
   .IRQn = FLYSKY_HALL_SERIAL_USART_IRQn,
   .IRQ_Prio = 6,
   .txDMA = nullptr,

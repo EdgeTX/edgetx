@@ -601,7 +601,7 @@ if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES OR PCBREV STREQUAL COMMANDO8)
     targets/common/arm/stm32/sticks_pwm_driver.cpp)
 endif()
 
-if(PCBREV STREQUAL MT12)
+if(PCBREV STREQUAL MT12 OR PCBREV STREQUAL T14)
   set(FIRMWARE_SRC
           ${FIRMWARE_SRC}
           targets/common/arm/stm32/stm32_ws2812.cpp

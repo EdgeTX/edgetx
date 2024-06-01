@@ -20,6 +20,7 @@
  */
 
 #include "stm32_gpio_driver.h"
+#include "stm32_hal_ll.h"
 
 void stm32_gpio_enable_clock(GPIO_TypeDef *GPIOx)
 {

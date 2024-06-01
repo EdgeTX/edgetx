@@ -20,6 +20,7 @@
  */
 
 #include "stm32_hal_ll.h"
+#include "stm32_timer.h"
 #include "hal/usb_driver.h"
 
 #if defined(BLUETOOTH)
@@ -100,6 +101,7 @@ MemoryType memoryType;
 uint32_t unlocked = 0;
 
 void per5ms() {} // make linker happy
+
 void per10ms()
 {
   tenms |= 1u; // 10 mS has passed
@@ -202,18 +204,12 @@ void writeEepromBlock()
 #if !defined(SIMU)
 void bootloaderInitApp()
 {
-  RCC_AHB1PeriphClockCmd(PWR_RCC_AHB1Periph | LCD_RCC_AHB1Periph |
-                             BACKLIGHT_RCC_AHB1Periph |
-                             KEYS_BACKLIGHT_RCC_AHB1Periph,
-                         ENABLE);
+  LL_AHB1_GRP1_EnableClock(LCD_RCC_AHB1Periph);
+#if defined(LCD_RCC_APB2Periph)
+  LL_APB2_GRP1_EnableClock(LCD_RCC_APB2Periph);
+#endif
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 
-  RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph | LCD_RCC_APB1Periph |
-                             BACKLIGHT_RCC_APB1Periph,
-                         ENABLE);
-
-  RCC_APB2PeriphClockCmd(
-      LCD_RCC_APB2Periph | BACKLIGHT_RCC_APB2Periph | RCC_APB2Periph_SYSCFG,
-      ENABLE);
 
 #if defined(HAVE_BOARD_BOOTLOADER_INIT)
   boardBootloaderInit();

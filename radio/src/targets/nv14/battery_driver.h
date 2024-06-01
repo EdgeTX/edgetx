@@ -39,16 +39,11 @@ enum ChargeState
 };
 
 
-#define PWR_CHARGE_FINISHED_GPIO                 GPIOB
-#define PWR_CHARGE_FINISHED_GPIO_REG             PWR_CHARGE_FINISHED_GPIO->IDR
-#define PWR_CHARGE_FINISHED_GPIO_PIN             GPIO_Pin_13 // PB.13
+#define PWR_CHARGE_FINISHED_GPIO                 GPIO_PIN(GPIOB, 13) // PB.13
+#define PWR_CHARGING_GPIO                        GPIO_PIN(GPIOB, 14) // PB.14
 
-#define PWR_CHARGING_GPIO                        GPIOB
-#define PWR_CHARGING_GPIO_REG                    PWR_CHARGING_GPIO->IDR
-#define PWR_CHARGING_GPIO_PIN                    GPIO_Pin_14 // PB.14
-
-#define READ_CHARGE_FINISHED_STATE()             GPIO_ReadInputDataBit( PWR_CHARGE_FINISHED_GPIO, PWR_CHARGE_FINISHED_GPIO_PIN )
-#define READ_CHARGING_STATE()                    GPIO_ReadInputDataBit( PWR_CHARGING_GPIO, PWR_CHARGING_GPIO_PIN )
+#define READ_CHARGE_FINISHED_STATE()             gpio_read(PWR_CHARGE_FINISHED_GPIO) ? 1 : 0
+#define READ_CHARGING_STATE()                    gpio_read(PWR_CHARGING_GPIO) ? 1 : 0
 
 extern void battery_charge_init();
 extern void handle_battery_charge(uint32_t last_press_time);

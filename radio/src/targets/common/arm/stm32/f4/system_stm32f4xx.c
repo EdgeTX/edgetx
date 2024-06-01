@@ -120,7 +120,9 @@
   * @{
   */
 
-#include "stm32f4xx.h"
+#include "thirdparty/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+#include "stm32_hal.h"
+#include "stm32_hal_ll.h"
 
 /**
   * @}
@@ -195,8 +197,8 @@
   uint32_t SystemCoreClock = 168000000;
 #endif
 
-  __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
-  __I uint8_t APBPrescTable[8] = {0, 0, 0, 0, 1, 2, 3, 4};
+  const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+  const uint8_t APBPrescTable[8] = {0, 0, 0, 0, 1, 2, 3, 4};
 
 /**
   * @}
@@ -257,10 +259,8 @@ void SystemInit(void)
   
 #if defined(SDRAM)
   void SDRAM_Init();
-  void FMC_SDRAMWriteProtectionConfig(uint32_t SDRAM_Bank, FunctionalState NewState);
 
   SDRAM_Init(); // calls SDRAM_GPIOConfig()
-  FMC_SDRAMWriteProtectionConfig(((uint32_t)0x00000001), DISABLE);
 #endif
   
 #ifdef DATA_IN_ExtSRAM
