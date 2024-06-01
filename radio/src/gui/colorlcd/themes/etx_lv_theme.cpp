@@ -372,7 +372,6 @@ void useMainStyle()
     mainStyles->init();
   }
   styles = mainStyles;
-  styles->applyColors();
 }
 
 /**********************

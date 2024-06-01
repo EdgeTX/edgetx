@@ -546,7 +546,6 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
         if (!tp->createNewTheme(name, theme))
           return false;
 
-        tp->refresh();
         listBox->setNames(tp->getNames());
         listBox->setSelected(currentTheme);
       }

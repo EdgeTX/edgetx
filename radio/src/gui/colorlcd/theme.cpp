@@ -35,11 +35,15 @@ EdgeTxTheme* EdgeTxTheme::instance()
 
 EdgeTxTheme::EdgeTxTheme() {}
 
-void EdgeTxTheme::load() { ThemePersistance::instance()->loadDefaultTheme(); }
+void EdgeTxTheme::load()
+{
+  initLvglTheme();
+  ThemePersistance::instance()->loadDefaultTheme();
+}
 
 void EdgeTxTheme::update()
 {
-  initLvglTheme();
+  styles->applyColors();
   if (!backgroundBitmap) {
     backgroundBitmap = BitmapBuffer::loadBitmap(
         THEMES_PATH "/EdgeTX/background.png", BMP_RGB565);

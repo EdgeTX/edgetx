@@ -162,16 +162,18 @@ class StaticBitmap : public Window
 {
  public:
   StaticBitmap(Window *parent, const rect_t &rect,
-               const char *filename, LcdFlags bgColor);
+               LcdFlags bgColor, const char *filename = nullptr);
   ~StaticBitmap();
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "StaticBitmap"; }
 #endif
 
+  void setSource(const char *filename);
   bool hasImage() const;
 
  protected:
+  LcdFlags bgColor;
   lv_obj_t *canvas = nullptr;
   BitmapBuffer *img = nullptr;
 };

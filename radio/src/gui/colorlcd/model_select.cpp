@@ -90,7 +90,7 @@ class ModelButton : public Button
 
     if (modelLayouts[layout].hasImage) {
       GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
-      auto bitmap = new StaticBitmap(this, {2, 2, w, h}, filename, COLOR(bg_col_idx));
+      auto bitmap = new StaticBitmap(this, {2, 2, w, h}, COLOR(bg_col_idx), filename);
       bitmap->show(bitmap->hasImage());
 
       if (!bitmap->hasImage()) {
