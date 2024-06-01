@@ -74,6 +74,10 @@ enum {
   // X10
   PCBREV_X10_STD = 0,
   PCBREV_X10_EXPRESS = 3,
+
+  //T15
+  PCBREV_T15_STD = 0,
+  PCBREV_T15_IPS = 1,
 };
 
 #if defined(SIMU)

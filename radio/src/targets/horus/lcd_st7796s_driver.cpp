@@ -28,6 +28,7 @@
 #include "debug.h"
 #include "lcd.h"
 #include "lcd_st7796s_driver.h"
+#include "board.h"
 
 static LTDC_HandleTypeDef hltdc;
 static void* initialFrameBuffer = nullptr;
@@ -302,6 +303,11 @@ void LCD_ST7796S_Init(void) {
 
   delay_ms(120);
 
+#if defined(RADIO_T15)
+  if (hardwareOptions.pcbrev == PCBREV_T15_IPS)
+    lcdWriteCommand( 0x21 );
+#endif
+
   LCD_ST7796S_On();
 }
 
@@ -446,4 +452,3 @@ extern "C" void LTDC_IRQHandler(void)
   __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
   _frame_addr_reloaded = 1;
 }
-
