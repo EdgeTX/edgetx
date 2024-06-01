@@ -1263,9 +1263,7 @@ bool FilteredGroupSwitchesModel::filterAcceptsRow(int sourceRow, const QModelInd
 bool FilteredSwitchGroupsModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const
 {
   if (sourceRow == 0) return true;
-  auto config = m_model->getFuncSwitchConfig(m_switch);
-  if (config == ModelData::FUNC_SWITCH_CONFIG_NONE) return false;
-  if ((config == ModelData::FUNC_SWITCH_CONFIG_TOGGLE) && (m_model->getFuncSwitchAlwaysOnGroup(sourceRow))) return false;
+  if (m_model->getFuncSwitchConfig(m_switch) == ModelData::FUNC_SWITCH_CONFIG_NONE) return false;
   return true;
 }
 
@@ -1492,6 +1490,10 @@ void FunctionSwitchesPanel::on_groupChanged(int value)
     unsigned int grp = filterSwitchGroups[sw]->mapToSource(filterSwitchGroups[sw]->index(value, 0)).row();
     if (ok && model->getFuncSwitchGroup(sw) != grp) {
       unsigned oldGrp = model->getFuncSwitchGroup(sw);
+      if (model->getFuncSwitchAlwaysOnGroup(grp)) {
+        if (model->getFuncSwitchConfig(sw) == ModelData::FUNC_SWITCH_CONFIG_TOGGLE)
+          model->setFuncSwitchConfig(sw, ModelData::FUNC_SWITCH_CONFIG_2POS);
+      }
       if ((grp == 0) || (model->getFuncGroupSwitchStart(grp, switchcnt) == 0))
         model->setFuncSwitchStart(sw, ModelData::FUNC_SWITCH_START_PREVIOUS);
       else
@@ -1520,9 +1522,16 @@ void FunctionSwitchesPanel::on_alwaysOnGroupChanged(int value)
 
     if (ok) {
       model->setFuncSwitchAlwaysOnGroup(grp, (unsigned int)value);
-      if (value && (model->getFuncGroupSwitchStart(grp, switchcnt) == switchcnt + 1)) {
-        for (int i = 0; i < switchcnt; i += 1){
-          model->setFuncSwitchStart(i, ModelData::FUNC_SWITCH_START_PREVIOUS);
+      if (value) {
+        for (int i = 0; i < switchcnt; i += 1) {
+          if ((model->getFuncSwitchGroup(i) == grp) && (model->getFuncSwitchConfig(i) == ModelData::FUNC_SWITCH_CONFIG_TOGGLE))
+            model->setFuncSwitchConfig(i, ModelData::FUNC_SWITCH_CONFIG_2POS);
+        }
+        if (model->getFuncGroupSwitchStart(grp, switchcnt) == switchcnt + 1) {
+          for (int i = 0; i < switchcnt; i += 1) {
+            if (model->getFuncSwitchGroup(i) == grp)
+              model->setFuncSwitchStart(i, ModelData::FUNC_SWITCH_START_PREVIOUS);
+          }
         }
       }
       update();
