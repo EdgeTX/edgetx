@@ -280,6 +280,8 @@
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "开关"
 #define TR_FUNCTION_SWITCHES           "可自定义开关"
+#define TR_GROUP                       "Group"
+#define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "微调"
 #define TR_FADEIN                      "渐入"

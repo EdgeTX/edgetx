@@ -298,6 +298,8 @@
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Brytare"
 #define TR_FUNCTION_SWITCHES            "Anpassningsbara brytare"
+#define TR_GROUP                       "Group"
+#define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_SF_SWITCH                    "Trigger"
 #define TR_TRIMS                        "Trimmar"
 #define TR_FADEIN                       "Tona in"

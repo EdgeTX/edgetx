@@ -285,6 +285,8 @@
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Inter."
 #define TR_FUNCTION_SWITCHES            "Interruttori personalizzabili"
+#define TR_GROUP                       "Group"
+#define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_SF_SWITCH                    "Trigger"
 #define TR_TRIMS                        "Trims"
 #define TR_FADEIN                       "Diss.In"

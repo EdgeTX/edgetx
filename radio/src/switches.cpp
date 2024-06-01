@@ -91,11 +91,11 @@ void setFSStartupPosition()
   for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
     uint8_t startPos = (g_model.functionSwitchStartConfig >> 2 * i) & 0x03;
     switch(startPos) {
-      case FS_START_DOWN:
+      case FS_START_OFF:
         g_model.functionSwitchLogicalState &= ~(1 << i);   // clear state
         break;
 
-      case FS_START_UP:
+      case FS_START_ON:
         g_model.functionSwitchLogicalState |= 1 << i;
         break;
 
@@ -115,6 +115,14 @@ uint8_t getFSLogicalState()
 uint8_t getFSLogicalState(uint8_t index)
 {
   return (uint8_t )(bfSingleBitGet(getFSLogicalState(), index) >> (index));
+}
+
+void setFSLogicalState(uint8_t index, uint8_t value)
+{
+  if (value)
+    g_model.functionSwitchLogicalState |= 1 << index;  // Set bit
+  else
+    g_model.functionSwitchLogicalState &= ~(1 << index);  // clear state
 }
 
 uint8_t getFSPhysicalState(uint8_t index)
@@ -169,6 +177,63 @@ void evalFunctionSwitches()
         fsLedOn(i);
       else
         fsLedOff(i);
+    }
+  }
+}
+
+bool groupHasSwitchOn(uint8_t group)
+{
+  for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
+    if (FSWITCH_GROUP(j) == group && getFSLogicalState(j))
+      return true;
+  return false;
+}
+
+int firstSwitchInGroup(uint8_t group)
+{
+  for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
+    if (FSWITCH_GROUP(j) == group)
+      return j;
+  return -1;
+}
+
+int groupDefaultSwitch(uint8_t group)
+{
+  bool allOff = true;
+  for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1) {
+    if (FSWITCH_GROUP(j) == group) {
+      if (FSWITCH_STARTUP(j) == FS_START_ON)
+        return j;
+      if (FSWITCH_STARTUP(j) != FS_START_OFF)
+        allOff = false;
+    }
+  }
+  if (allOff)
+    return NUM_FUNCTIONS_SWITCHES;
+  return -1;
+}
+
+void setGroupSwitchState(uint8_t group, int defaultSwitch)
+{
+  // Check rules for always on group
+  //  - Toggle switch type not valid, change all switches to 2POS
+  //  - One switch must be turned on, turn on first switch if needed
+  if (IS_FSWITCH_GROUP_ON(group)) {
+    for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1) {
+      if (FSWITCH_GROUP(j) == group) {
+        FSWITCH_SET_CONFIG(j, SWITCH_2POS); // Toggle not valid
+      }
+    }
+    if (!groupHasSwitchOn(group)) {
+      int sw = firstSwitchInGroup(group);
+      if (sw >= 0)
+        setFSLogicalState(sw, 1); // Make sure a switch is on
+    }
+    if (groupDefaultSwitch(group) == NUM_FUNCTIONS_SWITCHES) {
+      // Start state for all switches is off - set all to 'last'
+      for (int j = 0; j < NUM_FUNCTIONS_SWITCHES; j += 1)
+        if (FSWITCH_GROUP(j) == group)
+          FSWITCH_SET_STARTUP(j, FS_START_PREVIOUS);
     }
   }
 }

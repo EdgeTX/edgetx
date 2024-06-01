@@ -1697,106 +1697,195 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
   return mdl;
 }
 
+unsigned int ModelData::getFuncSwitchConfig(unsigned int index) const
+{
+  if (index < CPN_MAX_SWITCHES_FUNCTION)
+    return Helpers::getBitmappedValue(functionSwitchConfig, index, 2);
+  else
+    return FUNC_SWITCH_CONFIG_NONE;
+}
 
- unsigned int ModelData::getFuncSwitchConfig(unsigned int index) const
- {
-   if (index < CPN_MAX_SWITCHES_FUNCTION)
-     return Helpers::getBitmappedValue(functionSwitchConfig, index, 2);
-   else
-     return FUNC_SWITCH_CONFIG_NONE;
- }
+void ModelData::setFuncSwitchConfig(unsigned int index, unsigned int value)
+{
+  if (index < CPN_MAX_SWITCHES_FUNCTION)
+    Helpers::setBitmappedValue(functionSwitchConfig, value, index, 2);
+}
 
- void ModelData::setFuncSwitchConfig(unsigned int index, unsigned int value)
- {
-   if (index < CPN_MAX_SWITCHES_FUNCTION)
-     Helpers::setBitmappedValue(functionSwitchConfig, value, index, 2);
- }
+//  static
+QString ModelData::funcSwitchConfigToString(unsigned int value)
+{
+  switch (value) {
+    case FUNC_SWITCH_CONFIG_NONE:
+      return tr("NONE");
+    case FUNC_SWITCH_CONFIG_TOGGLE:
+      return tr("TOGGLE");
+    case FUNC_SWITCH_CONFIG_2POS:
+      return tr("2POS");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
 
- //  static
- QString ModelData::funcSwitchConfigToString(unsigned int value)
- {
-   switch (value) {
-     case FUNC_SWITCH_CONFIG_NONE:
-       return tr("NONE");
-     case FUNC_SWITCH_CONFIG_TOGGLE:
-       return tr("TOGGLE");
-     case FUNC_SWITCH_CONFIG_2POS:
-       return tr("2POS");
-     default:
-       return CPN_STR_UNKNOWN_ITEM;
-   }
- }
+//  static
+AbstractStaticItemModel * ModelData::funcSwitchConfigItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_MODELDATA_FUNCSWITCHCONFIG);
+    for (unsigned int i = FUNC_SWITCH_CONFIG_FIRST; i <= FUNC_SWITCH_CONFIG_LAST; i++) {
+      mdl->appendToItemList(funcSwitchConfigToString(i), i);
+  }
+  mdl->loadItemList();
+  return mdl;
+}
 
- //  static
- AbstractStaticItemModel * ModelData::funcSwitchConfigItemModel()
- {
-   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-   mdl->setName(AIM_MODELDATA_FUNCSWITCHCONFIG);
+AbstractStaticItemModel * ModelData::funcSwitchGroupStartSwitchModel(int switchcnt)
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_MODELDATA_FUNCSWITCHGROUPSTARTSWITCH);
 
-   for (unsigned int i = FUNC_SWITCH_CONFIG_FIRST; i <= FUNC_SWITCH_CONFIG_LAST; i++) {
-     mdl->appendToItemList(funcSwitchConfigToString(i), i);
-   }
+  mdl->appendToItemList(tr("Restore"), 0);
+  for (unsigned int i = 1; i <= switchcnt; i += 1) {
+    mdl->appendToItemList(tr("SW") + QString::number(i), i);
+  }
+  mdl->appendToItemList(tr("Off"), switchcnt + 1);
 
-   mdl->loadItemList();
-   return mdl;
- }
+  mdl->loadItemList();
+  return mdl;
+}
 
- unsigned int ModelData::getFuncSwitchGroup(unsigned int index) const
- {
-   if (index < CPN_MAX_SWITCHES_FUNCTION)
-     return Helpers::getBitmappedValue(functionSwitchGroup, index, 2);
-   else
-     return 0;
- }
+AbstractStaticItemModel * ModelData::funcSwitchGroupsModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_MODELDATA_FUNCSWITCHGROUPS);
 
- void ModelData::setFuncSwitchGroup(unsigned int index, unsigned int value)
- {
-   if (index < CPN_MAX_SWITCHES_FUNCTION)
-     Helpers::setBitmappedValue(functionSwitchGroup, value, index, 2);
- }
+  mdl->appendToItemList(tr("---"), 0);
+  for (unsigned int i = 1; i <= 3; i += 1) {
+    mdl->appendToItemList(tr("Group ") + QString::number(i), i);
+  }
 
- unsigned int ModelData::getFuncSwitchAlwaysOnGroup(unsigned int index) const
- {
-   if (index < CPN_MAX_SWITCHES_FUNCTION) {
-     unsigned int grp = getFuncSwitchGroup(index);
-     unsigned int switchcnt = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches);
-     return Helpers::getBitmappedValue(functionSwitchGroup, grp, 1, 2 * switchcnt);
-   }
-   else
-     return 0;
- }
+  mdl->loadItemList();
+  return mdl;
+}
 
- void ModelData::setFuncSwitchAlwaysOnGroup(unsigned int index, unsigned int value)
- {
-   if (index < CPN_MAX_SWITCHES_FUNCTION) {
-     unsigned int grp = getFuncSwitchGroup(index);
-     unsigned int switchcnt = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches);
-     Helpers::setBitmappedValue(functionSwitchGroup, value, grp, 1, 2 * switchcnt);
-   }
- }
+unsigned int ModelData::getFuncSwitchGroup(unsigned int index) const
+{
+  if (index < CPN_MAX_SWITCHES_FUNCTION)
+    return Helpers::getBitmappedValue(functionSwitchGroup, index, 2);
+  else
+    return 0;
+}
 
- unsigned int ModelData::getFuncSwitchStart(unsigned int index) const
- {
-   if (index < CPN_MAX_SWITCHES_FUNCTION)
-     return Helpers::getBitmappedValue(functionSwitchStartConfig, index, 2);
-   else
-     return FUNC_SWITCH_START_INACTIVE;
- }
+void ModelData::setFuncSwitchGroup(unsigned int index, unsigned int value)
+{
+  if (index < CPN_MAX_SWITCHES_FUNCTION)
+    Helpers::setBitmappedValue(functionSwitchGroup, value, index, 2);
+}
 
- void ModelData::setFuncSwitchStart(unsigned int index, unsigned int value)
- {
-   if (index < CPN_MAX_SWITCHES_FUNCTION)
-     Helpers::setBitmappedValue(functionSwitchStartConfig, value, index, 2);
- }
+unsigned int ModelData::getFuncSwitchAlwaysOnGroup(unsigned int group) const
+{
+  if (group > 0 && group < 4) {
+    unsigned int switchcnt = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches);
+    return Helpers::getBitmappedValue(functionSwitchGroup, group, 1, 2 * switchcnt);
+  }
+  else
+    return 0;
+}
+
+unsigned int ModelData::getFuncSwitchAlwaysOnGroupForSwitch(unsigned int index) const
+{
+  if (index < CPN_MAX_SWITCHES_FUNCTION)
+    return getFuncSwitchAlwaysOnGroup(getFuncSwitchGroup(index));
+  else
+    return 0;
+}
+
+void ModelData::setFuncSwitchAlwaysOnGroup(unsigned int group, unsigned int value)
+{
+  if (group > 0 && group < 4) {
+    unsigned int switchcnt = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches);
+    Helpers::setBitmappedValue(functionSwitchGroup, value, group, 1, 2 * switchcnt);
+  }
+}
+
+unsigned int ModelData::getFuncSwitchStart(unsigned int index) const
+{
+  if (index < CPN_MAX_SWITCHES_FUNCTION)
+    return Helpers::getBitmappedValue(functionSwitchStartConfig, index, 2);
+  else
+    return FUNC_SWITCH_START_OFF;
+}
+
+void ModelData::setFuncSwitchStart(unsigned int index, unsigned int value)
+{
+  if (index < CPN_MAX_SWITCHES_FUNCTION)
+    Helpers::setBitmappedValue(functionSwitchStartConfig, value, index, 2);
+}
+
+int ModelData::getFuncGroupSwitchCount(unsigned int group, int switchcnt) const
+{
+  int grpSwitchCount = 0;
+  for (int i = 0; i < switchcnt; i += 1) {
+    if (getFuncSwitchGroup(i) == group) {
+      grpSwitchCount += 1;
+    }
+  }
+  return grpSwitchCount;
+}
+
+unsigned int ModelData::getFuncGroupSwitchStart(unsigned int group, int switchcnt) const
+{
+  bool allDown = true;
+  for (int i = 0; i < switchcnt; i += 1) {
+    if (getFuncSwitchGroup(i) == group) {
+      if (getFuncSwitchStart(i) == FUNC_SWITCH_START_ON)
+        return i + 1;
+      if (getFuncSwitchStart(i) != FUNC_SWITCH_START_OFF)
+        allDown = false;
+    }
+  }
+  if (allDown && getFuncGroupSwitchCount(group, switchcnt) > 0) return switchcnt + 1;
+  return 0;
+}
+
+void ModelData::setFuncGroupSwitchStart(unsigned int group, unsigned int value, int switchcnt)
+{
+  for (int i = 0; i < switchcnt; i += 1) {
+    if (getFuncSwitchGroup(i) == group)
+      setFuncSwitchStart(i, value ? ModelData::FUNC_SWITCH_START_OFF : ModelData::FUNC_SWITCH_START_PREVIOUS);
+  }
+  if (value > 0 && value <= switchcnt) {
+    setFuncSwitchStart(value - 1, ModelData::FUNC_SWITCH_START_ON);
+  }
+}
+
+void ModelData::setGroupSwitchState(uint8_t group, int switchcnt)
+{
+  // Check rules for always on group
+  //  - Toggle switch type not valid, change all switches to 2POS
+  //  - One switch must be turned on, turn on first switch if needed
+  if (getFuncSwitchAlwaysOnGroup(group)) {
+    for (int j = 0; j < switchcnt; j += 1) {
+      if (getFuncSwitchGroup(j) == group) {
+        setFuncSwitchConfig(j, FUNC_SWITCH_CONFIG_2POS); // Toggle not valid
+      }
+    }
+    if (getFuncGroupSwitchStart(group, switchcnt) == switchcnt + 1) {
+      // Start state for all switches is off - set all to 'last'
+      for (int j = 0; j < switchcnt; j += 1)
+        if (getFuncSwitchGroup(j) == group)
+          setFuncSwitchStart(j, FUNC_SWITCH_START_PREVIOUS);
+    }
+  }
+}
 
  //  static
  QString ModelData::funcSwitchStartToString(unsigned int value)
  {
    switch (value) {
-     case FUNC_SWITCH_START_INACTIVE:
-       return tr("Inactive");
-     case FUNC_SWITCH_START_ACTIVE:
-       return tr("Active");
+     case FUNC_SWITCH_START_OFF:
+       return tr("Off");
+     case FUNC_SWITCH_START_ON:
+       return tr("On");
      case FUNC_SWITCH_START_PREVIOUS:
        return tr("Restore");
      default:

@@ -1002,7 +1002,7 @@ QString MultiModelPrinter::printFunctionSwitches()
    columns.appendRowStart(tr("Always On"), 20);
 
    for (int i = 0; i < numFS; i++) {
-     COMPARECELLWIDTH((model->getFuncSwitchAlwaysOnGroup((unsigned int)i) == 0 ? "No" : "Yes"), colwidth);
+     COMPARECELLWIDTH((model->getFuncSwitchAlwaysOnGroupForSwitch((unsigned int)i) == 0 ? "No" : "Yes"), colwidth);
    }
 
    columns.appendRowEnd();

@@ -282,6 +282,8 @@
 #define TR_MS                  "ms"
 #define TR_SWITCH              "Przełą"
 #define TR_FUNCTION_SWITCHES   "Ustawiane przełączniki"
+#define TR_GROUP                       "Group"
+#define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_SF_SWITCH           "Trigger"
 #define TR_TRIMS               "Trymy"
 #define TR_FADEIN              "Pojawia"

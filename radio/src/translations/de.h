@@ -286,6 +286,8 @@
 #define TR_MS                 		     "ms"
 #define TR_SWITCH                      TR("Schalt.", "Schalter")
 #define TR_FUNCTION_SWITCHES           "Anpassbare Schalter"
+#define TR_GROUP                       "Group"
+#define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_SF_SWITCH                   "Trigger"
 #define TR_TRIMS                       "Trimmer"
 #define TR_FADEIN                      "Langs. Ein"

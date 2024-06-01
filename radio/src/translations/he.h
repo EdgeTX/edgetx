@@ -289,6 +289,8 @@
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "מתג"
 #define TR_FUNCTION_SWITCHES           "מפסקים בהתאמה אישית"
+#define TR_GROUP                       "Group"
+#define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_SF_SWITCH                   "הדק"
 #define TR_TRIMS                       "קיזוזים"
 #define TR_FADEIN                      "Fade in"

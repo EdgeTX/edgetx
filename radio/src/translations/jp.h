@@ -284,6 +284,8 @@
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "スイッチ"
 #define TR_FUNCTION_SWITCHES           "カスタマイズ スイッチ"
+#define TR_GROUP                       "Group"
+#define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_SF_SWITCH                   "トリガー"
 #define TR_TRIMS                       "トリム"
 #define TR_FADEIN                      "フェードイン"

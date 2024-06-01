@@ -35,7 +35,7 @@
 
 constexpr char FIM_TIMERSWITCH[] {"Timer Switch"};
 constexpr char FIM_THRSOURCE[]   {"Throttle Source"};
-constexpr char FIM_TRAINERMODE[] {"Trainer Mode"};
+// constexpr char FIM_TRAINERMODE[] {"Trainer Mode"};
 constexpr char FIM_ANTENNAMODE[] {"Antenna Mode"};
 constexpr char FIM_HATSMODE[]    {"Hats Mode"};
 
@@ -1246,20 +1246,50 @@ void ModulePanel::updateTrainerModeItemModel()
 }
 
 /******************************************************************************/
+
+bool FilteredGroupSwitchesModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const
+{
+  if (sourceRow == 0) return true;
+  if (sourceRow == m_switchcnt + 1) {
+    if (m_model->getFuncSwitchAlwaysOnGroup(m_group) || m_model->getFuncGroupSwitchCount(m_group, m_switchcnt) == 0)
+      return false;
+    return true;
+  }
+  if (m_model->getFuncSwitchGroup(sourceRow - 1) == m_group)
+    return true;
+  return false;
+}
+
+bool FilteredSwitchGroupsModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const
+{
+  if (sourceRow == 0) return true;
+  if (m_model->getFuncSwitchConfig(m_switch) == ModelData::FUNC_SWITCH_CONFIG_NONE) return false;
+  return true;
+}
+
+bool FilteredSwitchConfigsModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const
+{
+  if (sourceRow == ModelData::FUNC_SWITCH_CONFIG_NONE || sourceRow == ModelData::FUNC_SWITCH_CONFIG_2POS) return true;
+  return !m_model->getFuncSwitchAlwaysOnGroupForSwitch(m_switch);
+}
+
 FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model, GeneralSettings & generalSettings, Firmware * firmware):
   ModelPanel(parent, model, generalSettings, firmware),
   ui(new Ui::FunctionSwitches)
 {
   ui->setupUi(this);
 
-  AbstractStaticItemModel *fsConfig = ModelData::funcSwitchConfigItemModel();
+  fsConfig = ModelData::funcSwitchConfigItemModel();
   AbstractStaticItemModel *fsStart = ModelData::funcSwitchStartItemModel();
+  AbstractStaticItemModel *fsGroups = ModelData::funcSwitchGroupsModel();
 
   Board::Type board = firmware->getBoard();
 
   lock = true;
 
   switchcnt = Boards::getCapability(board, Board::FunctionSwitches);
+
+  fsGroupStart = ModelData::funcSwitchGroupStartSwitchModel(switchcnt);
 
   for (int i = 0; i < switchcnt; i++) {
     QLabel * lblSwitchId = new QLabel(this);
@@ -1272,19 +1302,19 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
 
     QComboBox * cboConfig = new QComboBox(this);
     cboConfig->setProperty("index", i);
-    cboConfig->setModel(fsConfig);
+    auto configFilter = new FilteredSwitchConfigsModel(fsConfig, i, &model);
+    cboConfig->setModel(configFilter);
+    filterSwitchConfigs << configFilter;
 
     QComboBox * cboStartPosn = new QComboBox(this);
     cboStartPosn->setProperty("index", i);
     cboStartPosn->setModel(fsStart);
 
-    QSpinBox * sbGroup = new QSpinBox(this);
-    sbGroup->setProperty("index", i);
-    sbGroup->setMaximum(3);
-    sbGroup->setSpecialValueText("-");
-
-    QCheckBox * cbAlwaysOnGroup = new QCheckBox(this);
-    cbAlwaysOnGroup->setProperty("index", i);
+    QComboBox * cboGroup = new QComboBox(this);
+    cboGroup->setProperty("index", i);
+    auto groupFilter = new FilteredSwitchGroupsModel(fsGroups, i, &model);
+    cboGroup->setModel(groupFilter);
+    filterSwitchGroups << groupFilter;
 
     int row = 0;
     int coloffset = 1;
@@ -1292,20 +1322,43 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
     ui->gridSwitches->addWidget(aleName, row++, i + coloffset);
     ui->gridSwitches->addWidget(cboConfig, row++, i + coloffset);
     ui->gridSwitches->addWidget(cboStartPosn, row++, i + coloffset);
-    ui->gridSwitches->addWidget(sbGroup, row++, i + coloffset);
-    ui->gridSwitches->addWidget(cbAlwaysOnGroup, row++, i + coloffset);
+    ui->gridSwitches->addWidget(cboGroup, row++, i + coloffset);
 
     connect(aleName, &AutoLineEdit::currentDataChanged, this, &FunctionSwitchesPanel::on_nameEditingFinished);
     connect(cboConfig, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_configCurrentIndexChanged);
     connect(cboStartPosn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_startPosnCurrentIndexChanged);
-    connect(sbGroup, QOverload<int>::of(&QSpinBox::valueChanged), this, &FunctionSwitchesPanel::on_groupChanged);
-    connect(cbAlwaysOnGroup, &QCheckBox::toggled, this, &FunctionSwitchesPanel::on_alwaysOnGroupChanged);
+    connect(cboGroup, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_groupChanged);
 
     aleNames << aleName;
     cboConfigs << cboConfig;
     cboStartupPosns << cboStartPosn;
-    sbGroups << sbGroup;
+    cboGroups << cboGroup;
+  }
+
+  for (int i = 0; i < 3; i += 1) {
+    QLabel * lblGroupId = new QLabel(this);
+    lblGroupId->setText(tr("Group %1").arg(i + 1));
+
+    QCheckBox * cbAlwaysOnGroup = new QCheckBox(this);
+    cbAlwaysOnGroup->setProperty("index", i);
+
+    QComboBox * cboStartPosn = new QComboBox(this);
+    cboStartPosn->setProperty("index", i);
+    auto filter = new FilteredGroupSwitchesModel(fsGroupStart, i + 1, &model, switchcnt);
+    cboStartPosn->setModel(filter);
+    filterGroupSwitches << filter;
+
+    int row = 0;
+    int coloffset = 1;
+    ui->gridGroups->addWidget(lblGroupId, row++, i + coloffset);
+    ui->gridGroups->addWidget(cbAlwaysOnGroup, row++, i + coloffset);
+    ui->gridGroups->addWidget(cboStartPosn, row++, i + coloffset);
+
+    connect(cbAlwaysOnGroup, &QCheckBox::toggled, this, &FunctionSwitchesPanel::on_alwaysOnGroupChanged);
+    connect(cboStartPosn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_groupStartPosnCurrentIndexChanged);
+
     cbAlwaysOnGroups << cbAlwaysOnGroup;
+    cboGroupStartupPosns << cboStartPosn;
   }
 
   update();
@@ -1320,37 +1373,30 @@ FunctionSwitchesPanel::~FunctionSwitchesPanel()
 
 void FunctionSwitchesPanel::update()
 {
-  for (int i = 0; i < switchcnt; i++) {
-    update(i);
-  }
-}
-
-void FunctionSwitchesPanel::update(int index)
-{
   lock = true;
 
   for (int i = 0; i < switchcnt; i++) {
+    filterSwitchConfigs[i]->invalidate();
+    filterSwitchGroups[i]->invalidate();
+
     aleNames[i]->update();
-    cboConfigs[i]->setCurrentIndex(model->getFuncSwitchConfig(i));
+    cboConfigs[i]->setCurrentIndex(filterSwitchConfigs[i]->mapFromSource(fsConfig->index(model->getFuncSwitchConfig(i), 0)).row());
     cboStartupPosns[i]->setCurrentIndex(model->getFuncSwitchStart(i));
     unsigned int grp = model->getFuncSwitchGroup(i);
-    sbGroups[i]->setValue(grp);
-    cbAlwaysOnGroups[i]->setChecked(model->getFuncSwitchAlwaysOnGroup(i));
+    cboGroups[i]->setCurrentIndex(grp);
 
-    if (cboConfigs[i]->currentIndex() < 2)
-      cboStartupPosns[i]->setEnabled(false);
-    else
-      cboStartupPosns[i]->setEnabled(true);
+    cboStartupPosns[i]->setEnabled(cboConfigs[i]->currentIndex() >= ModelData::FUNC_SWITCH_CONFIG_2POS && (grp == 0));
 
-    if (cboConfigs[i]->currentIndex() < 1)
-      sbGroups[i]->setEnabled(false);
-    else
-      sbGroups[i]->setEnabled(true);
+    cboGroups[i]->setEnabled(cboConfigs[i]->currentIndex() >= ModelData::FUNC_SWITCH_CONFIG_TOGGLE);
+  }
 
-    if (!(sbGroups[i]->isEnabled()) || grp < 1)
-      cbAlwaysOnGroups[i]->setEnabled(false);
-    else
-      cbAlwaysOnGroups[i]->setEnabled(true);
+  for (int i = 0; i < 3; i += 1) {
+    filterGroupSwitches[i]->invalidate();
+
+    model->setGroupSwitchState(i + 1, switchcnt);
+
+    cbAlwaysOnGroups[i]->setChecked(model->getFuncSwitchAlwaysOnGroup(i + 1));
+    cboGroupStartupPosns[i]->setCurrentIndex(filterGroupSwitches[i]->mapFromSource(fsGroupStart->index(model->getFuncGroupSwitchStart(i + 1, switchcnt), 0)).row());
   }
 
   lock = false;
@@ -1372,14 +1418,16 @@ void FunctionSwitchesPanel::on_configCurrentIndexChanged(int index)
   if (cb && !lock) {
     lock = true;
     bool ok = false;
-    unsigned int i = sender()->property("index").toInt(&ok);
-      if (ok && model->getFuncSwitchConfig(i) != (unsigned int)index) {
-        model->setFuncSwitchConfig(i, index);
-      if (index < 2)
-          model->setFuncSwitchStart(i, ModelData::FUNC_SWITCH_START_INACTIVE);
-      if (index < 1)
-          model->setFuncSwitchGroup(i, 0);
-      update(i);
+    unsigned int sw = sender()->property("index").toInt(&ok);
+    unsigned int config = filterSwitchConfigs[sw]->mapToSource(filterSwitchConfigs[sw]->index(index, 0)).row();
+    if (ok && model->getFuncSwitchConfig(sw) != config) {
+      model->setFuncSwitchConfig(sw, config);
+      if (config != ModelData::FUNC_SWITCH_CONFIG_2POS) {
+        model->setFuncSwitchStart(sw, ModelData::FUNC_SWITCH_START_PREVIOUS);
+        if ((config == ModelData::FUNC_SWITCH_CONFIG_NONE) || model->getFuncSwitchAlwaysOnGroupForSwitch(sw))
+          model->setFuncSwitchGroup(sw, 0);
+      }
+      update();
       emit modified();
       emit updateDataModels();
      }
@@ -1397,9 +1445,31 @@ void FunctionSwitchesPanel::on_startPosnCurrentIndexChanged(int index)
   if (cb && !lock) {
     lock = true;
     bool ok = false;
-    unsigned int i = sender()->property("index").toInt(&ok);
-    if (ok && model->getFuncSwitchStart(i) != (unsigned int)index) {
-      model->setFuncSwitchStart(i, index);
+    unsigned int sw = sender()->property("index").toInt(&ok);
+    if (ok && model->getFuncSwitchStart(sw) != (unsigned int)index) {
+      model->setFuncSwitchStart(sw, index);
+      update();
+      emit modified();
+    }
+    lock = false;
+  }
+}
+
+void FunctionSwitchesPanel::on_groupStartPosnCurrentIndexChanged(int index)
+{
+  if (!sender())
+    return;
+
+  QComboBox * cb = qobject_cast<QComboBox *>(sender());
+
+  if (cb && !lock) {
+    lock = true;
+    bool ok = false;
+    unsigned int grp = sender()->property("index").toInt(&ok);
+    unsigned int sw = filterGroupSwitches[grp]->mapToSource(filterGroupSwitches[grp]->index(index, 0)).row();
+    if (ok && model->getFuncGroupSwitchStart(grp + 1, switchcnt) != sw) {
+      model->setFuncGroupSwitchStart(grp + 1, sw, switchcnt);
+      update();
       emit modified();
     }
     lock = false;
@@ -1411,15 +1481,27 @@ void FunctionSwitchesPanel::on_groupChanged(int value)
   if (!sender())
     return;
 
-  QSpinBox * sb = qobject_cast<QSpinBox *>(sender());
+  QComboBox * cb = qobject_cast<QComboBox *>(sender());
 
-  if (sb && !lock) {
+  if (cb && !lock) {
     lock = true;
     bool ok = false;
-    int i = sender()->property("index").toInt(&ok);
-    if (ok && model->getFuncSwitchGroup(i) != (unsigned int)value) {
-      model->setFuncSwitchGroup(i, (unsigned int)value);
-      update(i);
+    int sw = sender()->property("index").toInt(&ok);
+    unsigned int grp = filterSwitchGroups[sw]->mapToSource(filterSwitchGroups[sw]->index(value, 0)).row();
+    if (ok && model->getFuncSwitchGroup(sw) != grp) {
+      unsigned oldGrp = model->getFuncSwitchGroup(sw);
+      if (model->getFuncSwitchAlwaysOnGroup(grp)) {
+        if (model->getFuncSwitchConfig(sw) == ModelData::FUNC_SWITCH_CONFIG_TOGGLE)
+          model->setFuncSwitchConfig(sw, ModelData::FUNC_SWITCH_CONFIG_2POS);
+      }
+      if ((grp == 0) || (model->getFuncGroupSwitchStart(grp, switchcnt) == 0))
+        model->setFuncSwitchStart(sw, ModelData::FUNC_SWITCH_START_PREVIOUS);
+      else
+        model->setFuncSwitchStart(sw, ModelData::FUNC_SWITCH_START_OFF);
+      model->setFuncSwitchGroup(sw, grp);
+      if (oldGrp > 0)
+        model->setFuncGroupSwitchStart(oldGrp, model->getFuncGroupSwitchStart(oldGrp, switchcnt), switchcnt);
+      update();
       emit modified();
     }
     lock = false;
@@ -1436,10 +1518,22 @@ void FunctionSwitchesPanel::on_alwaysOnGroupChanged(int value)
   if (cb && !lock) {
     lock = true;
     bool ok = false;
-    int i = sender()->property("index").toInt(&ok);
+    int grp = sender()->property("index").toInt(&ok) + 1;
 
     if (ok) {
-      model->setFuncSwitchAlwaysOnGroup(i, (unsigned int)value);
+      model->setFuncSwitchAlwaysOnGroup(grp, (unsigned int)value);
+      if (value) {
+        for (int i = 0; i < switchcnt; i += 1) {
+          if ((model->getFuncSwitchGroup(i) == grp) && (model->getFuncSwitchConfig(i) == ModelData::FUNC_SWITCH_CONFIG_TOGGLE))
+            model->setFuncSwitchConfig(i, ModelData::FUNC_SWITCH_CONFIG_2POS);
+        }
+        if (model->getFuncGroupSwitchStart(grp, switchcnt) == switchcnt + 1) {
+          for (int i = 0; i < switchcnt; i += 1) {
+            if (model->getFuncSwitchGroup(i) == grp)
+              model->setFuncSwitchStart(i, ModelData::FUNC_SWITCH_START_PREVIOUS);
+          }
+        }
+      }
       update();
       emit modified();
     }
