@@ -2201,7 +2201,7 @@
 #define EXTI4_IRQ_Priority 5
 
 // PCBREV
-#if defined(RADIO_X7)
+#if defined(RADIO_X7) && !defined(DEBUG_SEGGER_RTT)
   #define PCBREV_GPIO_PIN               GPIO_PIN(GPIOA, 14) // PA.14
   #define PCBREV_GPIO_PULL_DOWN
   #define PCBREV_VALUE()                (gpio_read(PCBREV_GPIO) >> 14)
