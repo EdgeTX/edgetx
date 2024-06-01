@@ -556,7 +556,11 @@
 
 // PCBREV
 #if defined(MANUFACTURER_FRSKY)
-#if defined(PCBX10)
+#if defined(RADIO_T15)
+  #define PCBREV_GPIO_1                 GPIO_PIN(GPIOH, 7) // PH.07
+  #define PCBREV_GPIO_2                 GPIO_PIN(GPIOH, 8) // PH.08
+  #define PCBREV_VALUE()                ((gpio_read(PCBREV_GPIO_1) | gpio_read(PCBREV_GPIO_2)) >> 7)
+#elif defined(PCBX10)
   #define PCBREV_RCC_AHB1Periph         RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOA
   #define PCBREV_GPIO                   GPIOH
   #define PCBREV_GPIO_PIN               (GPIO_Pin_7 | GPIO_Pin_8)  // PH.07 | PH.08

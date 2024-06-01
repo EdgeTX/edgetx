@@ -360,6 +360,12 @@ void RadioVersionPage::build(FormWindow * window)
     version += options[i];
   }
 
+#if defined(RADIO_T15)
+  version += nl;
+  version += "PCBREV: ";
+  version += '0' + hardwareOptions.pcbrev;
+#endif
+
 #if (defined(PCBNV14) || defined(PCBPL18)) && !defined(SIMU)
   version += nl;
   version += "LCD: ";
