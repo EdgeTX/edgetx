@@ -1255,7 +1255,7 @@ bool FilteredGroupSwitchesModel::filterAcceptsRow(int sourceRow, const QModelInd
       return false;
     return true;
   }
-  if (m_model->getFuncSwitchGroup(sourceRow - 1) == m_group)
+  if ((int)m_model->getFuncSwitchGroup(sourceRow - 1) == m_group)
     return true;
   return false;
 }
@@ -1525,12 +1525,12 @@ void FunctionSwitchesPanel::on_alwaysOnGroupChanged(int value)
       model->setFuncSwitchAlwaysOnGroup(grp, (unsigned int)value);
       if (value) {
         for (int i = 0; i < switchcnt; i += 1) {
-          if ((model->getFuncSwitchGroup(i) == grp) && (model->getFuncSwitchConfig(i) == ModelData::FUNC_SWITCH_CONFIG_TOGGLE))
+          if (((int)model->getFuncSwitchGroup(i) == grp) && (model->getFuncSwitchConfig(i) == ModelData::FUNC_SWITCH_CONFIG_TOGGLE))
             model->setFuncSwitchConfig(i, ModelData::FUNC_SWITCH_CONFIG_2POS);
         }
-        if (model->getFuncGroupSwitchStart(grp, switchcnt) == switchcnt + 1) {
+        if ((int)model->getFuncGroupSwitchStart(grp, switchcnt) == switchcnt + 1) {
           for (int i = 0; i < switchcnt; i += 1) {
-            if (model->getFuncSwitchGroup(i) == grp)
+            if ((int)model->getFuncSwitchGroup(i) == grp)
               model->setFuncSwitchStart(i, ModelData::FUNC_SWITCH_START_PREVIOUS);
           }
         }
