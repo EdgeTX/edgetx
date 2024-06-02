@@ -864,7 +864,8 @@
 #define TR_BUZZER                      "Pípák"
 #define TR_BYTES                       "[B]"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
-#define TR_POWERMETER_ATTN_NEEDED      "Útlumový člen nutný!"
+#define TR_MODULE_UNBIND               BUTTON("Odpárovat")
+#define TR_POWERMETER_ATTN_NEEDED     "Útlumový člen nutný!"
 #define TR_PXX2_SELECT_RX              "Vyber RX..."
 #define TR_PXX2_DEFAULT                "<výchozí>"
 #define TR_BT_SELECT_DEVICE            "Vyberte zařízení"

@@ -28,6 +28,7 @@
 #include "globals.h"
 #include "MultiProtoDefs.h"
 #include "hal/module_port.h"
+#include "telemetry/crossfire.h"
 
 #if defined(MULTIMODULE)
 #include "telemetry/multi.h"
@@ -227,12 +228,22 @@ inline bool isModuleCrossfire(uint8_t idx)
   return g_model.moduleData[idx].type == MODULE_TYPE_CROSSFIRE;
 }
 
+inline bool isModuleELRS(uint8_t idx)
+{
+  return crossfireModuleStatus[idx].isELRS;
+}
+
 inline bool isInternalModuleCrossfire()
 {
   return g_eeGeneral.internalModule == MODULE_TYPE_CROSSFIRE;
 }
 #else
 inline bool isModuleCrossfire(uint8_t idx)
+{
+  return false;
+}
+
+inline bool isModuleELRS(uint8_t idx)
 {
   return false;
 }
@@ -607,7 +618,8 @@ inline bool isModuleBindRangeAvailable(uint8_t moduleIdx)
 {
   return isModulePXX2(moduleIdx) || isModulePXX1(moduleIdx) ||
          isModuleDSM2(moduleIdx) || isModuleMultimodule(moduleIdx) ||
-         isModuleFlySky(moduleIdx) || isModuleDSMP(moduleIdx);
+         isModuleFlySky(moduleIdx) || isModuleDSMP(moduleIdx) ||
+         (isModuleELRS(moduleIdx) && (crossfireModuleStatus[moduleIdx].major >= 4 || (crossfireModuleStatus[moduleIdx].major == 3 && crossfireModuleStatus[moduleIdx].minor >= 4)));
 }
 
 inline uint32_t getNV14RfFwVersion()
@@ -621,7 +633,7 @@ inline uint32_t getNV14RfFwVersion()
 
 inline bool isModuleRangeAvailable(uint8_t moduleIdx)
 {
-  bool ret = isModuleBindRangeAvailable(moduleIdx) && !IS_RX_MULTI(moduleIdx);
+  bool ret = isModuleBindRangeAvailable(moduleIdx) && !IS_RX_MULTI(moduleIdx) && !isModuleCrossfire(moduleIdx);
 #if defined(PCBNV14) && defined(AFHDS2)
   ret = ret &&
         (!isModuleAFHDS2A(moduleIdx) || NV14internalModuleFwVersion >= 0x1000E);

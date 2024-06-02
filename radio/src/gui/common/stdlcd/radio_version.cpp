@@ -32,7 +32,7 @@
 #define MENU_BODY_TOP    (FH + 1)
 #define MENU_BODY_BOTTOM (LCD_H)
 
-#if defined(PXX2)
+#if defined(PXX2) || defined(CROSSFIRE)
 constexpr uint8_t COLUMN2_X = 10 * FW;
 #endif
 
@@ -84,7 +84,8 @@ void drawPXX2FullVersion(coord_t x, coord_t y, PXX2Version hwVersion, PXX2Versio
   lcdDrawText(lcdNextPos, y, "/");
   drawPXX2Version(lcdNextPos, y, swVersion);
 }
-
+#endif
+#if defined(PXX2) || defined(CROSSFIRE)
 void menuRadioModulesVersion(event_t event)
 {
   if (menuEvent) {
@@ -95,8 +96,8 @@ void menuRadioModulesVersion(event_t event)
   }
 
   title(STR_MENU_MODULES_RX_VERSION);
-
-  if (event == EVT_ENTRY) {
+#if defined(PXX2)
+if (event == EVT_ENTRY) {
     memclear(&reusableBuffer.hardwareAndSettings.modules, sizeof(reusableBuffer.hardwareAndSettings.modules));
   }
 
@@ -116,6 +117,7 @@ void menuRadioModulesVersion(event_t event)
 
     reusableBuffer.hardwareAndSettings.updateTime = get_tmr10ms() + 1000 /* 10s*/;
   }
+#endif
 
   coord_t y = (FH + 1) - menuVerticalOffset * FH;
 
@@ -166,6 +168,14 @@ void menuRadioModulesVersion(event_t event)
                 1000000 / getMixerSchedulerPeriod()/*, UINT32_C(telemetryErrors)*/);
         lcdDrawText(COLUMN2_X, y, statusText);
         y += FH;
+        lcdDrawText(INDENT_WIDTH, y, crossfireModuleStatus[module].name);
+        lcdDrawChar(lcdNextPos + 5, y, 'V');
+        lcdDrawNumber(lcdNextPos, y, crossfireModuleStatus[module].major);
+        lcdDrawChar(lcdNextPos, y, '.');
+        lcdDrawNumber(lcdNextPos, y, crossfireModuleStatus[module].minor);
+        lcdDrawChar(lcdNextPos, y, '.');
+        lcdDrawNumber(lcdNextPos, y, crossfireModuleStatus[module].revision);
+        y += FH;
         continue;
       }
 #endif
@@ -174,12 +184,14 @@ void menuRadioModulesVersion(event_t event)
         y += FH;
         continue;
       }
+#if defined(PXX2)
       uint8_t modelId = reusableBuffer.hardwareAndSettings.modules[module]
                             .information.modelID;
       lcdDrawText(COLUMN2_X, y, getPXX2ModuleName(modelId));
+#endif
     }
     y += FH;
-
+#if defined(PXX2)
     // Module version
     if (y >= MENU_BODY_TOP && y < MENU_BODY_BOTTOM) {
       if (reusableBuffer.hardwareAndSettings.modules[module].information.modelID) {
@@ -211,6 +223,7 @@ void menuRadioModulesVersion(event_t event)
         y += FH;
       }
     }
+#endif
   }
 
   uint8_t lines = (y - (FH + 1)) / FH + menuVerticalOffset;
@@ -243,7 +256,7 @@ enum MenuRadioVersionItems
 #if defined(PCBTARANIS)
   ITEM_RADIO_FIRMWARE_OPTIONS,
 #endif
-#if defined(PXX2)
+#if defined(PXX2) || defined(CROSSFIRE)
   ITEM_RADIO_MODULES_VERSION,
 #endif
   ITEM_RADIO_VERSION_COUNT
@@ -266,7 +279,7 @@ void menuRadioVersion(event_t event)
   }
 #endif
 
-#if defined(PXX2)
+#if defined(PXX2) || defined(CROSSFIRE)
   lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_MODULES_RX_VERSION), menuVerticalPosition == ITEM_RADIO_MODULES_VERSION ? INVERS : 0);
   y += FH;
   if (menuVerticalPosition == ITEM_RADIO_MODULES_VERSION && event == EVT_KEY_BREAK(KEY_ENTER)) {

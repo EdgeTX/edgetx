@@ -852,6 +852,7 @@
 #define TR_BUZZER                       "Buzzer"
 #define TR_BYTES                        "Bytes"
 #define TR_MODULE_BIND                  TR("[Bnd]","[Bind]")
+#define TR_MODULE_UNBIND                BUTTON("Unbind")
 #define TR_POWERMETER_ATTN_NEEDED       "Attenuatore necessario"
 #define TR_PXX2_SELECT_RX               "Seleziona RX..."
 #define TR_PXX2_DEFAULT                 "<default>"

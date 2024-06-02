@@ -102,6 +102,8 @@ class ModuleWindow : public Window
   void startRSSIDialog(std::function<void()> closeHandler = nullptr);
 
   void updateIDStaticText(int mdIdx);
+
+  void checkEvents() override;
 };
 
 struct FailsafeChoice : public Window {
@@ -154,6 +156,19 @@ ModuleWindow::ModuleWindow(Window* parent, uint8_t moduleIdx) :
   setFlexLayout();
   updateModule();
   lv_obj_add_event_cb(lvobj, mw_refresh_cb, LV_EVENT_REFRESH, this);
+}
+
+void ModuleWindow::checkEvents()
+{
+  if (bindButton != nullptr) {
+    if (TELEMETRY_STREAMING() && isModuleELRS(moduleIdx))
+      bindButton->setText(STR_MODULE_UNBIND);
+    else if (isModuleELRS(moduleIdx))
+      bindButton->setText(STR_MODULE_BIND);
+
+    bindButton->show(isModuleBindRangeAvailable(moduleIdx));
+  }
+  Window::checkEvents();
 }
 
 void ModuleWindow::updateIDStaticText(int mdIdx)
@@ -280,7 +295,7 @@ void ModuleWindow::updateModule()
                             }
                           });
 
-    if (isModuleBindRangeAvailable(moduleIdx)) {
+    if (isModuleBindRangeAvailable(moduleIdx) || isModuleCrossfire(moduleIdx)) {
       bindButton = new TextButton(box, rect_t{}, STR_MODULE_BIND);
       bindButton->setPressHandler([=]() -> uint8_t {
         if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
@@ -312,6 +327,8 @@ void ModuleWindow::updateModule()
           }
 #endif
           moduleState[moduleIdx].mode = MODULE_MODE_BIND;
+          if (isModuleELRS(moduleIdx))
+            AUDIO_PLAY(AU_SPECIAL_SOUND_CHEEP); // Since ELRS bind is just one frame, we need to play the sound manually
 #if defined(AFHDS2)
           if (isModuleAFHDS2A(moduleIdx)) {
             resetPulsesAFHDS2();

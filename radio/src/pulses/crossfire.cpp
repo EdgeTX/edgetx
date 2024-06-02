@@ -42,6 +42,36 @@
 
 #define MIN_FRAME_LEN 3
 
+uint8_t createCrossfireBindFrame(uint8_t moduleIdx, uint8_t * frame)
+{
+  uint8_t * buf = frame;
+  *buf++ = UART_SYNC;                                 /* device address */
+  *buf++ = 7;                                         /* frame length */
+  *buf++ = COMMAND_ID;                                /* cmd type */
+  if (TELEMETRY_STREAMING())
+    *buf++ = RECEIVER_ADDRESS;                        /* Destination is receiver (unbind) */
+  else
+    *buf++ = MODULE_ADDRESS;                          /* Destination is module */
+  *buf++ = RADIO_ADDRESS;                             /* Origin Address */
+  *buf++ = SUBCOMMAND_CRSF;                           /* sub command */
+  *buf++ = SUBCOMMAND_CRSF_BIND;                      /* initiate bind */
+  *buf++ = crc8_BA(frame + 2, 5);
+  *buf++ = crc8(frame + 2, 6);
+  return buf - frame;
+}
+
+uint8_t createCrossfirePingFrame(uint8_t moduleIdx, uint8_t * frame)
+{
+  uint8_t * buf = frame;
+  *buf++ = UART_SYNC;                                 /* device address */
+  *buf++ = 4;                                         /* frame length */
+  *buf++ = PING_DEVICES_ID;                           /* cmd type */
+  *buf++ = BROADCAST_ADDRESS;                         /* Destination Address */
+  *buf++ = RADIO_ADDRESS;                             /* Origin Address */
+  *buf++ = crc8(frame + 2, 3);
+  return buf - frame;
+}
+
 uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
 {
   uint8_t * buf = frame;
@@ -98,6 +128,11 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
     if (moduleState[module].counter == CRSF_FRAME_MODELID) {
       p_buf += createCrossfireModelIDFrame(module, p_buf);
       moduleState[module].counter = CRSF_FRAME_MODELID_SENT;
+    } else if (moduleState[module].counter == CRSF_FRAME_MODELID_SENT && crossfireModuleStatus[module].queryCompleted == false) {
+      p_buf += createCrossfirePingFrame(module, p_buf);
+    } else if (moduleState[module].mode == MODULE_MODE_BIND) {
+      p_buf += createCrossfireBindFrame(module, p_buf);
+      moduleState[module].mode = MODULE_MODE_NORMAL;
     } else {
       /* TODO: nChannels */
       p_buf += createCrossfireChannelsFrame(p_buf, channels);
@@ -307,6 +342,8 @@ static void* crossfireInit(uint8_t module)
       }
 #endif
     }
+
+    memset(&crossfireModuleStatus[module], 0, sizeof(crossfireModuleStatus[module]));
   }
 #endif
 
@@ -320,6 +357,8 @@ static void* crossfireInit(uint8_t module)
 static void crossfireDeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
+
+  memset(&crossfireModuleStatus[modulePortGetModule(mod_st)], 0, sizeof(crossfireModuleStatus[modulePortGetModule(mod_st)]));
 
 #if !defined(SIMU)
   if (mod_st && (modulePortGetModule(mod_st) == EXTERNAL_MODULE)) {

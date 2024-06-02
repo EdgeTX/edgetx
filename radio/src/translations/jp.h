@@ -857,7 +857,8 @@
 #define TR_BUZZER                      "ブザー"
 #define TR_BYTES                       "バイト"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
-#define TR_POWERMETER_ATTN_NEEDED      "減衰器が必要です"
+#define TR_MODULE_UNBIND               BUTTON("バインド解除")
+#define TR_POWERMETER_ATTN_NEEDED     "減衰器が必要です"
 #define TR_PXX2_SELECT_RX              "受信機選択"
 #define TR_PXX2_DEFAULT                "<default>"
 #define TR_BT_SELECT_DEVICE            "デバイス選択"
