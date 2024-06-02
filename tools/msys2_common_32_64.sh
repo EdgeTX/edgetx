@@ -77,10 +77,10 @@ function bool_to_text() {
 	#	Parameters:
 	#	1 - boolean
 
-  if [[ $1 -eq 1 ]]; then
-    echo "Yes"
-  else
+  if [[ $1 -eq 0 ]]; then
     echo "No"
+  else
+    echo "Yes"
   fi
 }
 

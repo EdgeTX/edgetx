@@ -65,7 +65,7 @@ BRANCH_NAME="main"
 BRANCH_EDGETX_VERSION=unknown
 BRANCH_QT_VERSION=unknown
 
-ARM_TOOLCHAIN_DIR="C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2020-q4-major\bin"
+ARM_TOOLCHAIN_DIR="/c/Program Files (x86)/GNU Arm Embedded Toolchain/10 2020-q4-major/bin"
 QT_ROOT_DIR="${HOME}/qt"
 ROOT_DIR="${HOME}"
 SOURCE_DIR="${REPO_OWNER}/${REPO_NAME}"
@@ -566,7 +566,7 @@ fi
 # builds
 if [[ $BUILD_FIRMWARE -eq 1 ]]; then
   # required for compile and elf-size-report.sh
-  PATH=${PATH}:${ARM_TOOLCHAIN_DIR}
+  PATH=${ARM_TOOLCHAIN_DIR}:${PATH}
 
   for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
     create_output_dir ${RADIO_TYPES[i]}
