@@ -25,10 +25,17 @@
 
 #include "page.h"
 
-struct ModelFunctionSwitches : public Page {
- ModelFunctionSwitches();
+class ModelFunctionSwitches : public Page
+{
+ public:
+  ModelFunctionSwitches();
 
- BitmapBuffer* qrcode = nullptr;
+ protected:
+  Window* groupLines[3] = {nullptr};
+  BitmapBuffer* qrcode = nullptr;
+
+  void setState();
+  void checkEvents() override;
 };
 
 #endif

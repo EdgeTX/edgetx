@@ -19,12 +19,13 @@
  * GNU General Public License for more details.
  */
 
+#if defined(FUNCTION_SWITCHES)
+
 #include "function_switches.h"
 #include "opentx.h"
 
 #include "strhelpers.h"
-
-#if defined(FUNCTION_SWITCHES)
+#include "switches.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
@@ -33,112 +34,231 @@ static const lv_coord_t line_col_dsc1[] = {LV_GRID_CONTENT,
 
 static const lv_coord_t line_col_dsc2[] = {LV_GRID_FR(10), LV_GRID_FR(10), LV_GRID_FR(10), LV_GRID_FR(12), LV_GRID_FR(8),
                                           LV_GRID_TEMPLATE_LAST};
-
-static const lv_coord_t line_col_dsc3[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
-                                          LV_GRID_TEMPLATE_LAST};
                                           
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
-static const char* _fct_sw_start[] = { STR_CHAR_UP, STR_CHAR_DOWN, STR_LAST };
+static const char* _fct_sw_start[] = { STR_CHAR_DOWN, STR_CHAR_UP, STR_LAST };
 
 const std::string edgetx_fs_manual_url = "https://edgetx.gitbook.io/edgetx-user-manual/b-and-w-radios/model-select/setup#function-switches";
+
+class FunctionSwitch : public Window
+{
+ public:
+  FunctionSwitch(Window* parent, uint8_t sw) :
+    Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, 36}),
+    switchIndex(sw)
+  {
+    padAll(PAD_TINY);
+
+    std::string s(STR_CHAR_SWITCH);
+    s += switchGetName(switchIndex + switchGetMaxSwitches());
+
+    new StaticText(this, {8, 6, SW_W, PAGE_LINE_HEIGHT}, s, COLOR_THEME_PRIMARY1);
+
+    new ModelTextEdit(this, {NM_X, 0, NM_W, 32}, g_model.switchNames[switchIndex], LEN_SWITCH_NAME);
+
+    auto choice = new Choice(this, {TP_X, 0, TP_W, 32}, STR_SWTYPES, SWITCH_NONE, SWITCH_2POS,
+                [=]() {
+                  return FSWITCH_CONFIG(switchIndex);
+                },
+                [=](int val) {
+                  FSWITCH_SET_CONFIG(switchIndex, val);
+                  if (val == SWITCH_TOGGLE) {
+                    FSWITCH_SET_STARTUP(switchIndex, FS_START_PREVIOUS);
+                    startChoice->setValue(startChoice->getIntValue());
+                  }
+                  SET_DIRTY();
+                });
+    choice->setAvailableHandler([=](int typ) -> bool {
+      int group = FSWITCH_GROUP(switchIndex);
+      if (group > 0 && IS_FSWITCH_GROUP_ON(group) && typ == SWITCH_TOGGLE)
+        return false;
+      return true;
+    });
+
+    groupChoice = new Choice(this, {GR_X, 0, GR_W, 32}, STR_FUNCTION_SWITCH_GROUPS, 0, 3,
+                [=]() {
+                  return FSWITCH_GROUP(switchIndex);
+                },
+                [=](int group) {
+                  int oldGroup = FSWITCH_GROUP(switchIndex);
+                  if (groupHasSwitchOn(group))
+                    setFSLogicalState(switchIndex, 0);
+                  FSWITCH_SET_GROUP(switchIndex, group);
+                  if (group > 0) {
+                    FSWITCH_SET_STARTUP(switchIndex, groupDefaultSwitch(group) == -1 ? FS_START_PREVIOUS : FS_START_OFF);
+                    if (FSWITCH_CONFIG(switchIndex) == SWITCH_TOGGLE && IS_FSWITCH_GROUP_ON(group))
+                      FSWITCH_SET_CONFIG(switchIndex, SWITCH_2POS);
+                    setGroupSwitchState(group, switchIndex);
+                  } else {
+                    FSWITCH_SET_STARTUP(switchIndex, FS_START_PREVIOUS);
+                  }
+                  setGroupSwitchState(oldGroup);
+                  SET_DIRTY();
+                });
+    groupChoice->setAvailableHandler([=](int group) -> bool {
+      if (FSWITCH_CONFIG(switchIndex) == SWITCH_TOGGLE && group && IS_FSWITCH_GROUP_ON(group))
+        return false;
+      return true;
+    });
+
+    startChoice = new Choice(this, {ST_X, 0, ST_W, 32}, _fct_sw_start, 0, 2,
+                [=]() {
+                  return FSWITCH_STARTUP(switchIndex);
+                },
+                [=](int val) {
+                  FSWITCH_SET_STARTUP(switchIndex, val);
+                  SET_DIRTY();
+                });
+
+    setState();
+  }
+
+  static constexpr coord_t SW_W = (LCD_W - 4 * 2 - 2 * 4) / 5;
+  static constexpr coord_t NM_X = SW_W + 2;
+  static constexpr coord_t NM_W = 80;
+  static constexpr coord_t TP_X = NM_X + SW_W + 2;
+  static constexpr coord_t TP_W = 86;
+  static constexpr coord_t GR_X = TP_X + SW_W + 2;
+  static constexpr coord_t GR_W = 94;
+  static constexpr coord_t ST_X = GR_X + SW_W + 20;
+  static constexpr coord_t ST_W = 70;
+
+ protected:
+  uint8_t switchIndex;
+  Choice* groupChoice = nullptr;
+  Choice* startChoice = nullptr;
+
+  void setState()
+  {
+    if (FSWITCH_CONFIG(switchIndex) != SWITCH_2POS || FSWITCH_GROUP(switchIndex) > 0) {
+      lv_obj_add_flag(startChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    } else {
+      lv_obj_clear_flag(startChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    }
+    if (FSWITCH_CONFIG(switchIndex) == SWITCH_NONE) {
+      lv_obj_add_flag(groupChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    } else {
+      lv_obj_clear_flag(groupChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    }
+  }
+
+  void checkEvents() override
+  {
+    setState();
+    Window::checkEvents();
+  }
+};
+
+class SwitchGroup : public Window
+{
+ public:
+  SwitchGroup(Window* parent, uint8_t group) :
+    Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, 36}),
+    groupIndex(group)
+  {
+    padAll(PAD_TINY);
+
+    new StaticText(this, {0, 6, NM_W, PAGE_LINE_HEIGHT}, STR_FUNCTION_SWITCH_GROUPS[groupIndex], COLOR_THEME_PRIMARY1);
+
+    auto btn = new TextButton(this, {AO_X, 0, AO_W, 32}, STR_GROUP_ALWAYS_ON, [=]() -> int8_t {
+      int groupAlwaysOn = IS_FSWITCH_GROUP_ON(groupIndex);
+      groupAlwaysOn ^= 1;
+      SET_FSWITCH_GROUP_ON(groupIndex, groupAlwaysOn);
+      setGroupSwitchState(groupIndex);
+      startChoice->setValue(startChoice->getIntValue());
+      SET_DIRTY();
+      return groupAlwaysOn;
+    });
+    btn->check(IS_FSWITCH_GROUP_ON(groupIndex));
+
+    new StaticText(this, {SL_X, 6, SL_W, PAGE_LINE_HEIGHT}, STR_SWITCH_STARTUP, COLOR_THEME_PRIMARY1);
+  
+    startChoice = new Choice(this, {ST_X, 0, ST_W, 32}, STR_FSSWITCHES, 0, NUM_FUNCTIONS_SWITCHES + 1,
+                [=]() {
+                  return groupDefaultSwitch(groupIndex) + 1;
+                },
+                [=](int sw) {
+                  for (int i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
+                    if (FSWITCH_GROUP(i) == groupIndex) {
+                      FSWITCH_SET_STARTUP(i, sw ? FS_START_OFF : FS_START_PREVIOUS);
+                    }
+                  }
+                  if (sw > 0 && sw <= NUM_FUNCTIONS_SWITCHES) {
+                    FSWITCH_SET_STARTUP(sw - 1, FS_START_ON);
+                  }
+                  SET_DIRTY();
+                });
+    startChoice->setAvailableHandler([=](int sw) -> bool {
+      return (sw == 0) || (sw == NUM_FUNCTIONS_SWITCHES + 1 && !IS_FSWITCH_GROUP_ON(groupIndex)) || (FSWITCH_GROUP(sw - 1) == groupIndex);
+    });
+}
+
+  static constexpr coord_t NM_W = 100;
+  static constexpr coord_t AO_X = NM_W + 2;
+  static constexpr coord_t AO_W = 100;
+  static constexpr coord_t SL_X = AO_X + AO_W + 30;
+  static constexpr coord_t SL_W = 100;
+  static constexpr coord_t ST_X = SL_X + SL_W + 2;
+  static constexpr coord_t ST_W = 80;
+
+ protected:
+  uint8_t groupIndex;
+  Choice* startChoice;
+};
 
 ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
 {
   header->setTitle(STR_MENU_MODEL_SETUP);
   header->setTitle2(STR_MENU_FSWITCH);
 
-  body->padAll(PAD_SMALL);
-  lv_obj_set_scrollbar_mode(body->getLvObj(), LV_SCROLLBAR_MODE_AUTO);
-
-  auto form = new Window(body, rect_t{});
-  form->setFlexLayout();
-  form->padAll(PAD_ZERO);
+  body->padAll(PAD_TINY);
+  body->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
   FlexGridLayout grid1(line_col_dsc1, line_row_dsc, PAD_TINY);
   FlexGridLayout grid2(line_col_dsc2, line_row_dsc, PAD_TINY);
-  FlexGridLayout grid3(line_col_dsc3, line_row_dsc, PAD_TINY);
 
-  auto line = form->newLine(grid2);
-  new StaticText(line, rect_t{}, STR_SWITCHES);
-  new StaticText(line, rect_t{}, STR_NAME, FONT(XS));
-  new StaticText(line, rect_t{}, STR_SWITCH_TYPE, FONT(XS));
-  new StaticText(line, rect_t{}, STR_SWITCH_GROUP, FONT(XS));
-  new StaticText(line, rect_t{}, STR_SWITCH_STARTUP, FONT(XS));
+  auto line = body->newLine(grid2);
+  new StaticText(line, rect_t{}, STR_SWITCHES, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_NAME, COLOR_THEME_PRIMARY1|FONT(XS));
+  new StaticText(line, rect_t{}, STR_SWITCH_TYPE, COLOR_THEME_PRIMARY1|FONT(XS));
+  new StaticText(line, rect_t{}, STR_GROUP, COLOR_THEME_PRIMARY1|FONT(XS));
+  new StaticText(line, rect_t{}, STR_SWITCH_STARTUP, COLOR_THEME_PRIMARY1|FONT(XS));
 
   for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
-    line = form->newLine(grid2);
-
-    std::string s(STR_CHAR_SWITCH);
-    s += switchGetName(i+switchGetMaxSwitches());
-
-    (new StaticText(line, rect_t{}, s))->padLeft(8);
-
-    auto nameEdit = new ModelTextEdit(line, rect_t(), g_model.switchNames[i], LEN_SWITCH_NAME);
-    nameEdit->setWidth(80);
-
-    new Choice(line, rect_t{}, STR_SWTYPES, SWITCH_NONE, SWITCH_2POS,
-               [=]() {
-                 return FSWITCH_CONFIG(i);
-               },
-               [=](int val) {
-                 swconfig_t mask = (swconfig_t)0x03 << (2 * i);
-                 g_model.functionSwitchConfig = (g_model.functionSwitchConfig & ~mask) | ((swconfig_t(val) & 0x03) << (2 * i));
-                 SET_DIRTY();
-               });
-
-    new Choice(line, rect_t{}, STR_FUNCTION_SWITCH_GROUPS, 0, 3,
-               [=]() {
-                 return FSWITCH_GROUP(i);
-               },
-               [=](int val) {
-                 swconfig_t mask = (swconfig_t)0x03 << (2 * i);
-                 g_model.functionSwitchGroup = (g_model.functionSwitchGroup & ~mask) | ((swconfig_t(val) & 0x03) << (2 * i));
-                 SET_DIRTY();
-               });
-
-    new Choice(line, rect_t{}, _fct_sw_start, 0, 2,
-               [=]() {
-                 return (g_model.functionSwitchStartConfig >> (2 * i)) & 0x03;
-               },
-               [=](int val) {
-                 swconfig_t mask = (swconfig_t)0x03 << (2 * i);
-                 g_model.functionSwitchStartConfig = (g_model.functionSwitchStartConfig & ~mask) | ((swconfig_t(val) & 0x03) << (2 * i));
-                 SET_DIRTY();
-               });
+    new FunctionSwitch(body, i);
   }
-
-  line = form->newLine(grid1);
-  line->padTop(10);
-
-  new StaticText(line, rect_t{}, STR_GROUPS);
-
-  line = form->newLine(grid3);
-  line->padLeft(50);
-  line->padBottom(10);
 
   for (uint8_t i = 1; i <= 3; i += 1) {
-    auto btn = new TextButton(line, rect_t{}, STR_FUNCTION_SWITCH_GROUPS[i], [=]() -> int8_t {
-      swconfig_t mask = (swconfig_t) 0x01 << (2 * NUM_FUNCTIONS_SWITCHES + i);
-      g_model.functionSwitchGroup ^= mask;
-      SET_DIRTY();
-      return IS_FSWITCH_GROUP_ON(i);
-    });
-    btn->check(IS_FSWITCH_GROUP_ON(i));
+    groupLines[i-1] = new SwitchGroup(body, i);
   }
 
-  line = form->newLine(grid1);
-  line->padBottom(10);
+  line = body->newLine(grid1);
 
-  new StaticText(line, rect_t{}, STR_MORE_INFO);
+  new StaticText(line, rect_t{}, STR_MORE_INFO, COLOR_THEME_PRIMARY1);
 
-  line = form->newLine(grid1);
+  line = body->newLine(grid1);
   line->padBottom(10);
   line->padLeft((width() - 150) / 2);
 
   auto qr = lv_qrcode_create(line->getLvObj(), 150, makeLvColor(COLOR_THEME_SECONDARY1), makeLvColor(COLOR_THEME_SECONDARY3));
   lv_qrcode_update(qr, edgetx_fs_manual_url.c_str(), edgetx_fs_manual_url.length());
+}
+
+void ModelFunctionSwitches::setState()
+{
+  for (int i = 0; i < 3; i += 1)
+    if (firstSwitchInGroup(i+1) < 0)
+      lv_obj_add_flag(groupLines[i]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    else
+      lv_obj_clear_flag(groupLines[i]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+}
+
+void ModelFunctionSwitches::checkEvents()
+{
+  setState();
+  Page::checkEvents();
 }
 
 #endif

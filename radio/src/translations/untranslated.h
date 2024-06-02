@@ -314,7 +314,11 @@
 #define STR_CHAR_BW_DEGREE       '@'
 
 #define TR_FSGROUPS                     "-","1","2","3"
+#if defined(COLORLCD)
+#define TR_FSSWITCHES                   TR_LAST, "SW1", "SW2", "SW3", "SW4", "SW5", "SW6", TR_OFF
+#else
 #define TR_FSSWITCHES                   "=", "SW1", "SW2", "SW3", "SW4", "SW5", "SW6", TR_OFF
+#endif
 
 //
 // HoTT Telemetry sensor names by Hott device

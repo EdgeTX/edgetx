@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#if defined(FUNCTION_SWITCHES)
+
 #include "opentx.h"
 #include "radio_diagcustswitches.h"
 #include "libopenui.h"
@@ -68,3 +70,5 @@ RadioCustSwitchesDiagsPage::RadioCustSwitchesDiagsPage() :
   buildHeader(header);
   buildBody(body);
 }
+
+#endif
