@@ -545,6 +545,10 @@ link_libraries(firmware -lstdc++)
 add_dependencies(firmware ${RADIO_DEPENDENCIES})
 set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
+include_directories("${THIRDPARTY_DIR}/NemaGFX_NemaP_m7_r01/include")
+target_link_libraries(firmware "${CMAKE_SOURCE_DIR}/radio/src/${THIRDPARTY_DIR}/NemaGFX_NemaP_m7_r01/lib/core/cortex_m7/gcc/libnemagfx-float-abi-hard.a")
+link_directories(firmware "${CMAKE_SOURCE_DIR}/radio/src/${THIRDPARTY_DIR}/NemaGFX_NemaP_m7_r01/lib/core/cortex_m7/gcc/")
+
 if(DEBUG)
   target_compile_definitions(firmware PRIVATE -DDEBUG)
   target_compile_definitions(stm32_drivers_w_dbg_fw PRIVATE -DDEBUG)

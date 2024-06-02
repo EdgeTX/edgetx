@@ -1375,7 +1375,7 @@ int cliDisplay(const char ** argv)
 #if defined(DMA1_Stream7)
   else if (!strcmp(argv[1], "dma")) {
     cliSerialPrint("DMA1_Stream7");
-    cliSerialPrint(" CR    0x%x", DMA1_Stream7->CR);
+//    cliSerialPrint(" CR    0x%x", DMA1_Stream7->CR);
   }
 #endif
 #if defined(DEBUG_INTERRUPTS)

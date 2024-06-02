@@ -173,7 +173,13 @@
 #if defined(SIMU)
   #define LV_USE_GPU_STM32_DMA2D 0
 #else //SIMU
-  #define LV_USE_GPU_STM32_DMA2D 1
+#if defined(BOOT)
+  #define LV_USE_GPU_STM32_DMA2D 1 
+#elif defined(STM32H7RS)
+  #define LV_USE_NEMA_GFX 1
+#else
+  #define LV_USE_GPU_STM32_DMA2D 1 
+#endif
 #endif
 
 #if LV_USE_GPU_STM32_DMA2D

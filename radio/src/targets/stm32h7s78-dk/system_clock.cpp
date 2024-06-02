@@ -87,6 +87,7 @@ void SystemClock_Config()
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_2);
   LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_2);
   LL_RCC_SetAPB4Prescaler(LL_RCC_APB4_DIV_2);
+  LL_RCC_SetAPB5Prescaler(LL_RCC_APB5_DIV_2);
 
   /* Set PLL1 as System Clock Source */
   LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL1);
@@ -126,4 +127,5 @@ void SystemClock_Config()
 
   // Only required if using Async ADC clock ???
   LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSOURCE_CLKP);
+
 }

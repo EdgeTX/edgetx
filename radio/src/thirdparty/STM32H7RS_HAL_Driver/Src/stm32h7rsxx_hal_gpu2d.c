@@ -202,7 +202,7 @@ HAL_StatusTypeDef HAL_GPU2D_Init(GPU2D_HandleTypeDef *hgpu2d)
   {
 #if (USE_HAL_GPU2D_REGISTER_CALLBACKS == 1)
     /* Reset Callback pointers in HAL_GPU2D_STATE_RESET only */
-    hgpu2d->CommandListCpltCallback = HAL_GPU2D_CommandListCpltCallback;
+    hgpu2d->CommandListCpltCallback = NULL; //HAL_GPU2D_CommandListCpltCallback;
     if (hgpu2d->MspInitCallback == NULL)
     {
       hgpu2d->MspInitCallback = HAL_GPU2D_MspInit;
@@ -612,6 +612,7 @@ HAL_StatusTypeDef HAL_GPU2D_WriteRegister(GPU2D_HandleTypeDef *hgpu2d, uint32_t 
   *                the configuration information for the GPU2D.
   * @retval None
   */
+volatile uint32_t number;
 void HAL_GPU2D_IRQHandler(GPU2D_HandleTypeDef *hgpu2d)
 {
   uint32_t isr_flags = GPU2D_ReadReg(hgpu2d->Instance, GPU2D_ITCTRL);
@@ -631,6 +632,7 @@ void HAL_GPU2D_IRQHandler(GPU2D_HandleTypeDef *hgpu2d)
     if (hgpu2d->CommandListCpltCallback != NULL)
     {
       hgpu2d->CommandListCpltCallback(hgpu2d, last_cl_id);
+number=last_cl_id;
     }
 #else /* USE_HAL_GPU2D_REGISTER_CALLBACKS = 0 */
     HAL_GPU2D_CommandListCpltCallback(hgpu2d, last_cl_id);
@@ -656,6 +658,7 @@ void HAL_GPU2D_ER_IRQHandler(GPU2D_HandleTypeDef *hgpu2d)
   * @param  CmdListID Command list ID that got completed.
   * @retval None
   */
+#if 0
 __weak void HAL_GPU2D_CommandListCpltCallback(GPU2D_HandleTypeDef *hgpu2d, uint32_t CmdListID)
 {
   /* Prevent unused argument(s) compilation warning */
@@ -666,7 +669,7 @@ __weak void HAL_GPU2D_CommandListCpltCallback(GPU2D_HandleTypeDef *hgpu2d, uint3
             the HAL_GPU2D_CommandListCpltCallback can be implemented in the user file.
    */
 }
-
+#endif
 /**
   * @brief  Error handler callback.
   * @param  hgpu2d pointer to a GPU2D_HandleTypeDef structure that contains

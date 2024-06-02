@@ -93,6 +93,11 @@ set(LVGL_SOURCES
 
   hal/lv_hal_indev.c
 
+  draw/nema_gfx/lv_draw_nema_gfx.c
+  draw/nema_gfx/lv_draw_nema_gfx_img.c
+  draw/nema_gfx/lv_draw_nema_gfx_letter.c
+  nema_hal.c
+
   # font/lv_font_unscii_8.c
   # font/lv_font_unscii_16.c
   # font/lv_font_simsun_16_cjk.c

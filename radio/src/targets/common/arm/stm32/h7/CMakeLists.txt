@@ -41,6 +41,7 @@ if(NOT NATIVE_BUILD)
       # HAL drivers
       ${STM32CUBE_SRC_PREFIX}_hal.c
       ${STM32CUBE_SRC_PREFIX}_hal_pwr.c
+      ${STM32CUBE_SRC_PREFIX}_hal_gpu2d.c
       ${STM32CUBE_SRC_PREFIX}_hal_pwr_ex.c
       ${STM32CUBE_SRC_PREFIX}_hal_rcc.c
       ${STM32CUBE_SRC_PREFIX}_hal_rcc_ex.c
