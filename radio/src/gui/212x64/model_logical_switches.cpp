@@ -30,6 +30,7 @@ enum LogicalSwitchFields {
   LS_FIELD_ANDSW,
   LS_FIELD_DURATION,
   LS_FIELD_DELAY,
+  LS_FIELD_PERSIST,
   LS_FIELD_COUNT,
   LS_FIELD_LAST = LS_FIELD_COUNT-1
 };
@@ -37,9 +38,10 @@ enum LogicalSwitchFields {
 #define CSW_1ST_COLUMN  (4*FW-3)
 #define CSW_2ND_COLUMN  (8*FW+2+FW/2)
 #define CSW_3RD_COLUMN  (14*FW+1+FW/2)
-#define CSW_4TH_COLUMN  (22*FW)
-#define CSW_5TH_COLUMN  (26*FW+3)
-#define CSW_6TH_COLUMN  (31*FW+1)
+#define CSW_4TH_COLUMN  (21*FW)
+#define CSW_5TH_COLUMN  (25*FW+3)
+#define CSW_6TH_COLUMN  (29*FW+3)
+#define CSW_7TH_COLUMN  (33*FW+3)
 
 void putsEdgeDelayParam(coord_t x, coord_t y, LogicalSwitchData * cs, uint8_t lattr, uint8_t rattr)
 {
@@ -83,10 +85,7 @@ void menuModelLogicalSwitches(event_t event)
   int k = 0;
   int sub = menuVerticalPosition;
   horzpos_t horz = menuHorizontalPosition;
-
-  if (horz>=0) {
-    drawColumnHeader(STR_LSW_HEADERS, horz);
-  }
+  bool showHeader = true;
 
   if (horz<0 && event==EVT_KEY_LONG(KEY_ENTER) && !READ_ONLY()) {
     LogicalSwitchData * cs = lswAddress(sub);
@@ -202,6 +201,15 @@ void menuModelLogicalSwitches(event_t event)
 
     if (attr && horz == LS_FIELD_V3 && cstate != LS_FAMILY_EDGE) {
       repeatLastCursorMove(event);
+      showHeader = false;
+    }
+
+    // Persistent
+    if (cstate == LS_FAMILY_STICKY) {
+      drawCheckBox(CSW_7TH_COLUMN, y, cs->lsPersist, horz == LS_FIELD_PERSIST ? attr : 0);
+    } else if (attr && horz == LS_FIELD_PERSIST) {
+      repeatLastCursorMove(event);
+      showHeader = false;
     }
 
     if (s_editMode>0 && attr) {
@@ -253,7 +261,14 @@ void menuModelLogicalSwitches(event_t event)
         case LS_FIELD_DELAY:
           CHECK_INCDEC_MODELVAR_ZERO(event, cs->delay, MAX_LS_DELAY);
           break;
+        case LS_FIELD_PERSIST:
+          cs->lsPersist = checkIncDecModel(event, cs->lsPersist, 0, 1);
+          break;
       }
     }
+  }
+
+  if (showHeader && menuHorizontalPosition>=0) {
+    drawColumnHeader(STR_LSW_HEADERS, menuHorizontalPosition);
   }
 }

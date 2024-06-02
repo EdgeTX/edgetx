@@ -29,6 +29,7 @@ enum LogicalSwitchFields {
   LS_FIELD_ANDSW,
   LS_FIELD_DURATION,
   LS_FIELD_DELAY,
+  LS_FIELD_PERSIST,
   LS_FIELD_COUNT,
   LS_FIELD_LAST = LS_FIELD_COUNT-1
 };
@@ -217,6 +218,14 @@ void menuModelLogicalSwitchOne(event_t event)
           lcdDrawMMM(CSWONE_2ND_COLUMN, y, attr);
         if (attr) {
           CHECK_INCDEC_MODELVAR_ZERO(event, cs->delay, MAX_LS_DELAY);
+        }
+        break;
+
+      case LS_FIELD_PERSIST:
+        if (cstate == LS_FAMILY_STICKY) {
+          lcdDrawTextAlignedLeft(y, STR_PERSISTENT);
+          drawCheckBox(CSWONE_2ND_COLUMN, y, cs->lsPersist, attr);
+          if (attr) cs->lsPersist = checkIncDecModel(event, cs->lsPersist, 0, 1);
         }
         break;
     }

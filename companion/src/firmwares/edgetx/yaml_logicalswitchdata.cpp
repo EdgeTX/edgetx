@@ -116,6 +116,8 @@ Node convert<LogicalSwitchData>::encode(const LogicalSwitchData& rhs)
   node["delay"] = rhs.delay;
   node["duration"] = rhs.duration;
   node["andsw"] = YamlRawSwitchEncode(RawSwitch(rhs.andsw));
+  node["lsPersist"] = (int)rhs.lsPersist;
+  node["lsState"] = (int)rhs.lsState;
 
   return node;
 }
@@ -199,6 +201,9 @@ bool convert<LogicalSwitchData>::decode(const Node& node,
   RawSwitch andsw;
   node["andsw"] >> andsw;
   rhs.andsw = andsw.toValue();
+
+  node["lsPersist"] >> rhs.lsPersist;
+  node["lsState"] >> rhs.lsState;
 
   return true;
 }

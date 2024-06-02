@@ -245,6 +245,13 @@ class LogicalSwitchEditPage : public Page
         return formatNumberAsString(value, PREC1, 0, nullptr, "s");
       });
     }
+
+    // Sticky persist
+    if (cstate == LS_FAMILY_STICKY) {
+      line = logicalSwitchOneWindow->newLine(grid);
+      new StaticText(line, rect_t{}, STR_PERSISTENT);
+      new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(cs->lsPersist));
+    }
   }
 
   void buildBody(Window* window)

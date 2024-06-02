@@ -134,9 +134,9 @@ PACK(struct LogicalSwitchData {
   CUST_ATTR(def,r_logicSw,w_logicSw);
   int32_t  v1:10 SKIP;
   int32_t  v3:10 SKIP;
-  int32_t  andsw:10 CUST(r_swtchSrc,w_swtchSrc); // TODO rename to xswtch
-  uint32_t andswtype:1 SKIP;  // TODO rename to xswtchType (AND / OR)
-  uint32_t spare:1 SKIP; // anything else needed?
+  int32_t  andsw:10 CUST(r_swtchSrc,w_swtchSrc);
+  uint32_t lsPersist:1;
+  uint32_t lsState:1;
   int16_t  v2 SKIP;
   uint8_t  delay;
   uint8_t  duration;

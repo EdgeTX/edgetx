@@ -85,6 +85,9 @@ bool switchHasCustomName(uint8_t idx);
 
 SwitchConfig switchGetMaxType(uint8_t idx);
 
+// Restore switch state
+void logicalSwitchesInit(bool force);
+
 #if defined(FUNCTION_SWITCHES)
 uint8_t getFSLogicalState(uint8_t index);
 void setFSLogicalState(uint8_t index, uint8_t value);

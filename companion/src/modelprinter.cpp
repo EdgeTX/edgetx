@@ -531,6 +531,8 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
       sw1Name = RawSwitch(ls.val1).toString(getCurrentBoard(), &generalSettings);
       sw2Name = RawSwitch(ls.val2).toString(getCurrentBoard(), &generalSettings);
       result += tr("Sticky") + QString("(%1, %2)").arg(sw1Name).arg(sw2Name);
+      if (ls.lsPersist)
+        result += tr(" Persistent");
       break;
     case LS_FAMILY_TIMER:
       result += tr("Timer") + QString("(%1, %2)").arg(ValToTim(ls.val1)).arg(ValToTim(ls.val2));
