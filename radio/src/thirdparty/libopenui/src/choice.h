@@ -22,14 +22,6 @@
 
 #include "form.h"
 
-typedef void (*lvHandler_t)(void *);
-
-typedef struct {
-  void *userData;
-  bool isLongPressed;
-  lvHandler_t lv_LongPressHandler;
-} lv_eventData_t;
-
 class Menu;
 
 enum ChoiceType {
@@ -153,8 +145,6 @@ class Choice : public ChoiceBase
 
   std::string getString(int val) { return values[val]; }
 
-  void set_lv_LongPressHandler(lvHandler_t longPressHandler, void *data);
-
   int selectedIx0 = 0;
 
  protected:
@@ -177,13 +167,4 @@ class Choice : public ChoiceBase
   void fillMenu(Menu *menu, const FilterFct &filter = nullptr);
 
   virtual void openMenu();
-
-  lv_eventData_t longPressData;
-  std::function<void(event_t)> longPressHandler = nullptr;
-
-  static void ClickHandler(lv_event_t *e)
-  {
-    auto ch = (Choice *)lv_event_get_user_data(e);
-    if (ch) ch->longPressData.isLongPressed = false;
-  }
 };

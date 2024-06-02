@@ -83,8 +83,6 @@ class Menu : public ModalWindow
     }
   }
 
-  void longPress();
-
  protected:
   bool multiple;
   MenuWindowContent *content;

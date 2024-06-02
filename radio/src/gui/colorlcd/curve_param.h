@@ -25,20 +25,15 @@
 
 struct CurveRef;
 
-class GVarNumberEdit;
-class Choice;
-
 class CurveParam : public Window
 {
   // Curve
   CurveRef* ref;
-  std::function<void(int32_t)> setRefValue;
 
   // Controls
-  GVarNumberEdit* value_edit;
-  Choice* func_choice;
-  Choice* cust_choice;
-
+  Window* value_edit;
+  Window* func_choice;
+  Window* cust_choice;
   Window* act_field = nullptr;
 
   void update();
@@ -47,5 +42,6 @@ class CurveParam : public Window
 
  public:
   CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-             std::function<void(int32_t)> setRefValue);
+             std::function<void(int32_t)> setRefValue,
+             std::function<void(void)> refreshView = nullptr);
 };

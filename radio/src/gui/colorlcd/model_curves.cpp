@@ -122,7 +122,7 @@ ModelCurvesPage::ModelCurvesPage() : PageTab(STR_MENUCURVES, ICON_MODEL_CURVES)
 
 // can be called from any other screen to edit a curve.
 // currently called from model_mixes.cpp on longpress.
-void ModelCurvesPage::pushEditCurve(int index)
+void ModelCurvesPage::pushEditCurve(int index, std::function<void(void)> refreshView)
 {
   if (!isCurveUsed(index)) {
     CurveHeader &curve = g_model.curves[index];
@@ -130,7 +130,7 @@ void ModelCurvesPage::pushEditCurve(int index)
     initPoints(curve, points);
   }
 
-  new CurveEditWindow(index);
+  new CurveEditWindow(index, refreshView);
 }
 
 void ModelCurvesPage::rebuild(Window *window)

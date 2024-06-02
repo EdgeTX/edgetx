@@ -95,7 +95,7 @@ class ListBox : public TableField
   bool smallSelectMarker = false;
 
   void onPress(uint16_t row, uint16_t col) override;
-  void onLongPressed();
+  bool onLongPress() override;
 
   void onClicked() override;
   void onCancel() override;

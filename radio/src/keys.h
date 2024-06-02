@@ -38,6 +38,7 @@ constexpr event_t _MSK_KEY_BREAK =     0x0200;
 constexpr event_t _MSK_KEY_REPT =      0x0400;
 constexpr event_t _MSK_KEY_FIRST =     0x0600;
 constexpr event_t _MSK_KEY_LONG =      0x0800;
+constexpr event_t _MSK_KEY_LONG_BRK =  0x0A00;
 constexpr event_t _MSK_KEY_FLAGS =     0x0E00;
 #else
 constexpr event_t _MSK_KEY_BREAK =     0x0020;

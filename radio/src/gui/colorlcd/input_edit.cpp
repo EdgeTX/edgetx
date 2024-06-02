@@ -135,11 +135,15 @@ void InputEditWindow::buildBody(Window* form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_CURVE);
   auto param =
-      new CurveParam(line, rect_t{}, &input->curve, [=](int32_t newValue) {
-        input->curve.value = newValue;
-        preview->update();
-        SET_DIRTY();
-      });
+      new CurveParam(line, rect_t{}, &input->curve,
+        [=](int32_t newValue) {
+          input->curve.value = newValue;
+          preview->update();
+          SET_DIRTY();
+        },
+        [=]() {
+          preview->update();
+        });
   lv_obj_set_style_grid_cell_x_align(param->getLvObj(), LV_GRID_ALIGN_STRETCH,
                                      0);
 

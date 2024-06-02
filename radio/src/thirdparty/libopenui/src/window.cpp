@@ -24,6 +24,7 @@
 #include "themes/etx_lv_theme.h"
 
 std::list<Window *> Window::trash;
+bool Window::_longPressed = false;
 
 const lv_obj_class_t window_base_class = {
     .base_class = &lv_obj_class,
@@ -44,48 +45,59 @@ lv_obj_t *window_create(lv_obj_t *parent)
 
 void Window::window_event_cb(lv_event_t *e)
 {
+  Window *window = (Window *)lv_obj_get_user_data(lv_event_get_target(e));
+  if (window) 
+    window->eventHandler(e);
+}
+
+void Window::eventHandler(lv_event_t *e)
+{
   lv_obj_t *target = lv_event_get_target(e);
   lv_event_code_t code = lv_event_get_code(e);
 
-  Window *window = (Window *)lv_obj_get_user_data(target);
-  if (window) {
-    if (code == LV_EVENT_DELETE || window->deleted()) return;
+  if (code == LV_EVENT_DELETE || deleted()) return;
 
-    switch (code) {
-      case LV_EVENT_SCROLL: {
-        // exclude pointer based scrolling (only focus scrolling)
-        if (!lv_obj_is_scrolling(target)) {
-          lv_point_t *p = (lv_point_t *)lv_event_get_param(e);
-          lv_coord_t scroll_bottom = lv_obj_get_scroll_bottom(target);
+  switch (code) {
+    case LV_EVENT_SCROLL: {
+      // exclude pointer based scrolling (only focus scrolling)
+      if (!lv_obj_is_scrolling(target)) {
+        lv_point_t *p = (lv_point_t *)lv_event_get_param(e);
+        lv_coord_t scroll_bottom = lv_obj_get_scroll_bottom(target);
 
-          lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
-          TRACE("SCROLL[x=%d;y=%d;top=%d;bottom=%d]", p->x, p->y, scroll_y,
-                scroll_bottom);
+        lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
+        TRACE("SCROLL[x=%d;y=%d;top=%d;bottom=%d]", p->x, p->y, scroll_y,
+              scroll_bottom);
 
-          if (scroll_y <= 45 && p->y > 0) {
-            lv_obj_scroll_by(target, 0, scroll_y, LV_ANIM_OFF);
-          } else if (scroll_bottom <= 16 && p->y < 0) {
-            lv_obj_scroll_by(target, 0, -scroll_bottom, LV_ANIM_OFF);
-          }
+        if (scroll_y <= 45 && p->y > 0) {
+          lv_obj_scroll_by(target, 0, scroll_y, LV_ANIM_OFF);
+        } else if (scroll_bottom <= 16 && p->y < 0) {
+          lv_obj_scroll_by(target, 0, -scroll_bottom, LV_ANIM_OFF);
         }
-      } break;
-      case LV_EVENT_CLICKED:
-        TRACE("CLICKED[%p]", window);
-        window->onClicked();
-        break;
-      case LV_EVENT_CANCEL:
-        TRACE("CANCEL[%p]", window);
-        window->onCancel();
-        break;
-      case LV_EVENT_FOCUSED:
-        if (window->focusHandler) window->focusHandler(true);
-        break;
-      case LV_EVENT_DEFOCUSED:
-        if (window->focusHandler) window->focusHandler(false);
-        break;
-      default:
-        break;
-    }
+      }
+    } break;
+    case LV_EVENT_CLICKED:
+      if (!_longPressed) {
+        TRACE("CLICKED[%p]", this);
+        onClicked();
+      }
+      _longPressed = false;
+      break;
+    case LV_EVENT_CANCEL:
+      TRACE("CANCEL[%p]", this);
+      onCancel();
+      break;
+    case LV_EVENT_FOCUSED:
+      if (focusHandler) focusHandler(true);
+      break;
+    case LV_EVENT_DEFOCUSED:
+      if (focusHandler) focusHandler(false);
+      break;
+    case LV_EVENT_LONG_PRESSED:
+      TRACE("LONG PRESS[%p]", this);
+      _longPressed = onLongPress();
+      break;
+    default:
+      break;
   }
 }
 
@@ -295,23 +307,25 @@ void Window::onEvent(event_t event)
 {
   TRACE_WINDOWS("%s received event 0x%X",
                 Window::getWindowDebugString("Window").c_str(), event);
-  if (parent) {
+  if (parent)
     parent->onEvent(event);
-  }
 }
 
 void Window::onClicked()
 {
-  if (parent && !(windowFlags & OPAQUE)) {
+  if (parent && !(windowFlags & OPAQUE))
     parent->onClicked();
-  }
 }
 
 void Window::onCancel()
 {
-  if (parent) {
+  if (parent)
     parent->onCancel();
-  }
+}
+
+bool Window::onLongPress()
+{
+  return true;
 }
 
 void Window::addChild(Window *window)

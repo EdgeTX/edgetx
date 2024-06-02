@@ -144,9 +144,10 @@ void Widget::setFullscreen(bool enable)
   update();
 }
 
-void Widget::onLongPress()
+bool Widget::onLongPress()
 {
   if (!fullscreen) ButtonBase::onLongPress();
+  return true;
 }
 
 const ZoneOption* Widget::getOptions() const

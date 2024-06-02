@@ -33,8 +33,6 @@ class SwitchChoice : public Choice
                std::function<int16_t()> getValue,
                std::function<void(int16_t)> setValue);
 
-  static void LongPressHandler(void* data);
-
  protected:
   friend SwitchChoiceMenuToolbar;
 
@@ -42,6 +40,7 @@ class SwitchChoice : public Choice
 
   void setValue(int value) override;
   int getIntValue() const override;
+  bool onLongPress() override;
 
   void invertChoice();
 

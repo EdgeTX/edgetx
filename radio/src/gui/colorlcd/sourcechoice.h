@@ -35,8 +35,6 @@ class SourceChoice : public Choice
                std::function<int16_t()> getValue,
                std::function<void(int16_t)> setValue, bool allowInvert = false);
 
-  static void LongPressHandler(void* data);
-
  protected:
   friend SourceChoiceMenuToolbar;
 
@@ -45,6 +43,7 @@ class SourceChoice : public Choice
 
   void setValue(int value) override;
   int getIntValue() const override;
+  bool onLongPress() override;
 
   void invertChoice();
 

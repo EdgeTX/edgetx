@@ -66,11 +66,10 @@ static void copy_kb_data_backup(lv_indev_data_t* data)
   memcpy(data, &kb_data_backup, sizeof(lv_indev_data_t));
 }
 
-constexpr event_t _KEY_PRESSED = _MSK_KEY_FLAGS & ~_MSK_KEY_BREAK;
-
 static bool evt_to_indev_data(event_t evt, lv_indev_data_t *data)
 {
   event_t key = EVT_KEY_MASK(evt);
+
   switch(key) {
 
   case KEY_ENTER:
@@ -90,7 +89,8 @@ static bool evt_to_indev_data(event_t evt, lv_indev_data_t *data)
     return false;
   }
 
-  if (evt & _KEY_PRESSED) {
+  event_t flgs = evt & _MSK_KEY_FLAGS;
+  if (flgs != _MSK_KEY_BREAK && flgs != _MSK_KEY_LONG_BRK) {
     data->state = LV_INDEV_STATE_PRESSED;
   } else {
     data->state = LV_INDEV_STATE_RELEASED;
@@ -121,6 +121,12 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 
   if (isEvent()) { // event waiting
     event_t evt = getEvent();
+
+    if ((evt & _MSK_KEY_FLAGS) == _MSK_KEY_LONG_BRK) {
+      data->state = LV_INDEV_STATE_RELEASED;
+      backup_kb_data(data);
+      return;
+    }
 
     if(evt == EVT_KEY_FIRST(KEY_PAGEUP) ||
        evt == EVT_KEY_FIRST(KEY_PAGEDN) ||

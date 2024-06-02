@@ -46,9 +46,34 @@ void CurveParam::value_changed(lv_event_t* e)
   param->update();
 }
 
+class CurveChoice : public Choice
+{
+ public:
+  CurveChoice(Window* parent, CurveRef* ref, std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView) :
+    Choice(parent, rect_t{}, -MAX_CURVES, MAX_CURVES, GET_DEFAULT(ref->value), setRefValue),
+    ref(ref), refreshView(refreshView)
+    {
+      setTextHandler([](int value) { return getCurveString(value); });
+    }
+
+  bool onLongPress() override
+  {
+    if (modelCurvesEnabled()) {
+      if (ref->value) {
+        ModelCurvesPage::pushEditCurve(abs(ref->value) - 1, refreshView);
+      }
+    }
+    return true;
+  }
+
+ protected:
+  CurveRef* ref;
+  std::function<void(void)> refreshView;
+};
+
 CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-                       std::function<void(int32_t)> setRefValue) :
-    Window(parent, rect), ref(ref), setRefValue(setRefValue)
+                       std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView) :
+    Window(parent, rect), ref(ref)
 {
   padAll(PAD_TINY);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW_WRAP);
@@ -67,18 +92,16 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
 
   // CURVE_REF_DIFF
   // CURVE_REF_EXPO
-  value_edit = new GVarNumberEdit(this, -100, 100, GET_DEFAULT(ref->value), setRefValue);
-  value_edit->setSuffix("%");
+  auto gv = new GVarNumberEdit(this, -100, 100, GET_DEFAULT(ref->value), setRefValue);
+  gv->setSuffix("%");
+  value_edit = gv;
 
   // CURVE_REF_FUNC
   func_choice = new Choice(this, rect_t{}, STR_VCURVEFUNC, 0, CURVE_BASE - 1,
                            GET_DEFAULT(ref->value), setRefValue);
 
   // CURVE_REF_CUSTOM
-  cust_choice = new Choice(this, rect_t{}, -MAX_CURVES, MAX_CURVES,
-                             GET_DEFAULT(ref->value), setRefValue);
-  cust_choice->setTextHandler([](int value) { return getCurveString(value); });
-  cust_choice->set_lv_LongPressHandler(LongPressHandler, &(ref->value));
+  cust_choice = new CurveChoice(this, ref, setRefValue, refreshView);
 
   update();
 }

@@ -36,7 +36,7 @@ class ButtonBase : public FormField
 #endif
 
   virtual void onPress();
-  virtual void onLongPress();
+  bool onLongPress() override;
 
   void onClicked() override;
   void checkEvents() override;
@@ -63,8 +63,6 @@ class ButtonBase : public FormField
   std::function<uint8_t(void)> pressHandler;
   std::function<uint8_t(void)> longPressHandler;
   std::function<void(void)> checkHandler;
-
-  static void long_pressed(lv_event_t* e);
 };
 
 class Button : public ButtonBase

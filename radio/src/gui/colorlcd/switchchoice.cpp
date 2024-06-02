@@ -103,14 +103,12 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
 #endif
 };
 
-void SwitchChoice::LongPressHandler(void* data)
+bool SwitchChoice::onLongPress()
 {
-  SwitchChoice* swch = (SwitchChoice*)data;
-  if (!swch) return;
-  int16_t val = swch->_getValue();
-  if (swch->isValueAvailable && swch->isValueAvailable(-val)) {
-    swch->setValue(-val);
-  }
+  int16_t val = _getValue();
+  if (isValueAvailable && isValueAvailable(-val))
+    setValue(-val);
+  return true;
 }
 
 void SwitchChoice::setValue(int value)
@@ -181,8 +179,6 @@ SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,
 
     return std::string(getSwitchPositionName(value));
   });
-
-  set_lv_LongPressHandler(LongPressHandler, this);
 
   setAvailableHandler(isSwitchAvailableInMixes);
 }
