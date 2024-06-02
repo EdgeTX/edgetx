@@ -1503,6 +1503,7 @@ void FunctionSwitchesPanel::on_groupChanged(int value)
         model->setFuncGroupSwitchStart(oldGrp, model->getFuncGroupSwitchStart(oldGrp, switchcnt), switchcnt);
       update();
       emit modified();
+      emit updateDataModels();
     }
     lock = false;
   }
