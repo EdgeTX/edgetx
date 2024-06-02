@@ -200,6 +200,8 @@ static void simuLcdExitHandler(lv_disp_drv_t* disp_drv)
   }
 }
 
+void lcdSetInitalFrameBuffer(void*) {}
+
 void lcdInit()
 {
 #if defined(LCD_VERTICAL_INVERT)

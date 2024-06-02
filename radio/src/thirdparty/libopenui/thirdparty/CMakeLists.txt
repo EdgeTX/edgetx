@@ -1,19 +1,5 @@
 set(LVGL_SOURCES_MINIMAL
-  core/lv_group.c
-  core/lv_obj.c
-  core/lv_event.c
-  core/lv_indev.c
-  core/lv_obj_scroll.c
-  core/lv_obj_draw.c
-  core/lv_disp.c
-  core/lv_obj_style.c
-  core/lv_theme.c
-  core/lv_obj_style_gen.c
   core/lv_refr.c
-  core/lv_indev_scroll.c
-  core/lv_obj_class.c
-  core/lv_obj_tree.c
-  core/lv_obj_pos.c
 
   draw/lv_draw_mask.c
   draw/lv_img_cache.c
@@ -55,7 +41,6 @@ set(LVGL_SOURCES_MINIMAL
   draw/sdl/lv_draw_sdl_line.c
   draw/sdl/lv_draw_sdl_composite.c
   
-  hal/lv_hal_indev.c
   hal/lv_hal_disp.c
   hal/lv_hal_tick.c
 
@@ -91,6 +76,23 @@ set(LVGL_SOURCES_MINIMAL
 
 set(LVGL_SOURCES
   ${LVGL_SOURCES_MINIMAL}
+  core/lv_group.c
+  core/lv_obj.c
+  core/lv_event.c
+  core/lv_indev.c
+  core/lv_obj_scroll.c
+  core/lv_obj_draw.c
+  core/lv_disp.c
+  core/lv_obj_style.c
+  core/lv_theme.c
+  core/lv_obj_style_gen.c
+  core/lv_indev_scroll.c
+  core/lv_obj_class.c
+  core/lv_obj_tree.c
+  core/lv_obj_pos.c
+
+  hal/lv_hal_indev.c
+
   # font/lv_font_unscii_8.c
   # font/lv_font_unscii_16.c
   # font/lv_font_simsun_16_cjk.c

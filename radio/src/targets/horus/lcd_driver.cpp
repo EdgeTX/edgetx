@@ -177,7 +177,6 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                     area_w, area_h);
     }
   }
-  lv_disp_flush_ready(disp_drv);
 #else
   // Direct mode
   _update_frame_buffer_addr(buffer);
