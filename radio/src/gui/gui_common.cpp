@@ -241,6 +241,11 @@ bool isSourceAvailable(int source)
   if (source >= MIXSRC_FIRST_TRAINER && source <= MIXSRC_LAST_TRAINER)
     return g_model.trainerData.mode > 0;
 
+#if defined(FUNCTION_SWITCHES)
+  if (source >= MIXSRC_FIRST_CUSTOMSWITCH_GROUP && source <= MIXSRC_LAST_CUSTOMSWITCH_GROUP)
+    return getSwitchCountInFSGroup(source - MIXSRC_FIRST_CUSTOMSWITCH_GROUP + 1) > 0;
+#endif
+
   if (source >= MIXSRC_FIRST_CH && source <= MIXSRC_LAST_CH) {
     return isChannelUsed(source - MIXSRC_FIRST_CH);
   }
