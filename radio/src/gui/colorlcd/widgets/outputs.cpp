@@ -101,17 +101,25 @@ class ChannelValue : public Window
 
   void checkEvents() override
   {
-    int16_t value = calcRESXto100(channelOutputs[channel]);
+    int16_t value = channelOutputs[channel];
     if (value != lastValue) {
       lastValue = value;
 
-      lv_label_set_text(valueLabel,
-                        formatNumberAsString(lastValue, 0, 0, 0, "%").c_str());
+      std::string s;
+      if (g_eeGeneral.ppmunit == PPM_US)
+        s = formatNumberAsString(PPM_CH_CENTER(channel) + value / 2, 0, 0, "", STR_US);
+      else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1)
+        s = formatNumberAsString(calcRESXto1000(value), PREC1, 0, "", "%");
+      else
+        s = formatNumberAsString(calcRESXto100(value), 0, 0, "", "%");
 
+      lv_label_set_text(valueLabel, s.c_str());
+
+      const int lim = (g_model.extendedLimits ? (1024 * LIMIT_EXT_PERCENT / 100) : 1024);
       uint16_t w = width() - 2;
       uint16_t fillW = divRoundClosest(
-          w * limit<int16_t>(0, abs(lastValue), VIEW_CHANNELS_LIMIT_PCT),
-          VIEW_CHANNELS_LIMIT_PCT * 2);
+          w * limit<int16_t>(0, abs(lastValue), lim),
+          lim * 2);
       uint16_t x = lastValue > 0 ? w / 2 : w / 2 - fillW + 1;
 
       lv_obj_set_pos(bar, x, 0);

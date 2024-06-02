@@ -43,7 +43,8 @@ class GVarNumberEdit : public Window
 
   void setFastStep(int value) { num_field->setFastStep(value); }
   void setAccelFactor(int value) { num_field->setAccelFactor(value); }
-  
+  void setDisplayHandler(std::function<std::string(int value)> function);
+
  protected:
   Choice* gvar_field = nullptr;
   NumberEdit* num_field = nullptr;

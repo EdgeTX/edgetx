@@ -877,7 +877,7 @@ void RadioSetupPage::build(Window* window)
   // PPM units
   line = window->newLine(grid);
   new StaticText(line, rect_t{}, STR_UNITS_PPM);
-  new Choice(line, rect_t{}, STR_PPMUNIT, PPM_PERCENT_PREC0, PPM_PERCENT_PREC1,
+  new Choice(line, rect_t{}, STR_PPMUNIT, PPM_PERCENT_PREC0, PPM_US,
              GET_SET_DEFAULT(g_eeGeneral.ppmunit));
 
 #if defined(FAI_CHOICE)

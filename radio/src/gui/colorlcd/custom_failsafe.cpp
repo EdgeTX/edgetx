@@ -41,9 +41,9 @@ class ChannelFailsafeBargraph : public Window
     outputsBar->hide();
 
     failsafeBar = new ChannelBar(
-        this, {0, BAR_HEIGHT + 3, width() - 2, BAR_HEIGHT},
-        [=] { return calcRESXto100(g_model.failsafeChannels[channel]); },
-        COLOR_THEME_WARNING, COLOR_THEME_WARNING);
+        this, {0, BAR_HEIGHT + 3, width() - 2, BAR_HEIGHT}, channel,
+        [=] { return g_model.failsafeChannels[channel]; },
+        COLOR_THEME_WARNING_INDEX, COLOR_THEME_WARNING_INDEX);
     failsafeBar->hide();
   }
 
@@ -79,8 +79,16 @@ class ChannelFailsafeEdit : public NumberEdit
     } else if (value == FAILSAFE_CHANNEL_NOPULSE) {
       return STR_NONE;
     } else {
-      value = calcRESXto1000(value);
-      return formatNumberAsString(value, PREC1, 0, "", "%");
+      if (g_eeGeneral.ppmunit == PPM_US) {
+        value = PPM_CH_CENTER(channel) + value / 2;
+        return formatNumberAsString(value, 0, 0, "", "");
+      } else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+        value = calcRESXto1000(value);
+        return formatNumberAsString(value, PREC1, 0, "", "%");
+      } else {
+        value = calcRESXto100(value);
+        return formatNumberAsString(value, 0, 0, "", "%");
+      }
     }
   }
 
@@ -152,9 +160,11 @@ class ChannelFSCombo : public Window
   ChannelFSCombo(Window* parent, uint8_t ch, int vmin, int vmax) :
       Window(parent, rect_t{})
   {
+    padAll(PAD_TINY);
+
     setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY, LV_SIZE_CONTENT);
 
-    lv_obj_set_style_pad_column(lvobj, lv_dpx(4), 0);
+    lv_obj_set_style_pad_column(lvobj, PAD_SMALL, 0);
     lv_obj_set_style_flex_cross_place(lvobj, LV_FLEX_ALIGN_CENTER, 0);
 
     edit = new ChannelFailsafeEdit(this, ch, vmin, vmax);
@@ -162,15 +172,11 @@ class ChannelFSCombo : public Window
       edit->toggle();
       return 0;
     });
-    btn->padTop(lv_dpx(4));
-    btn->padBottom(lv_dpx(4));
 
     btn = new TextButton(this, rect_t{}, LV_SYMBOL_COPY, [=]() {
       edit->copyChannel();
       return 0;
     });
-    btn->padTop(lv_dpx(4));
-    btn->padBottom(lv_dpx(4));
   }
 
   void update() { edit->update(); }
@@ -197,12 +203,11 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) : Page(ICON_STATS_ANALOGS)
 {
   header->setTitle(STR_FAILSAFESET);
 
-  body->setFlexLayout();
+  body->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_ZERO);
 
-  auto btn = new TextButton(body, rect_t{}, STR_CHANNELS2FAILSAFE);
-  lv_obj_set_width(btn->getLvObj(), lv_pct(100));
+  auto btn = new TextButton(body, rect_t{0, 0, LV_PCT(100), 0}, STR_CHANNELS2FAILSAFE);
 
   btn->setPressHandler([=]() {
     setCustomFailsafe(moduleIdx);
@@ -221,6 +226,7 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) : Page(ICON_STATS_ANALOGS)
   for (int ch = start_ch; ch < end_ch; ch++) {
     // Channel name
     auto line = body->newLine(grid);
+    if (ch == start_ch) line->padTop(PAD_TINY);
     const char* ch_label = getSourceString(MIXSRC_FIRST_CH + ch);
     new StaticText(line, rect_t{}, ch_label);
 

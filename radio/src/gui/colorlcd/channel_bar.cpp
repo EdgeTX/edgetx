@@ -29,15 +29,16 @@
 
 #define CHANNELS_LIMIT (g_model.extendedLimits ? LIMIT_EXT_MAX : LIMIT_STD_MAX)
 
-ChannelBar::ChannelBar(Window* parent, const rect_t& rect,
-                       std::function<int16_t()> getValueFunc, LcdFlags barColor,
-                       LcdFlags txtColor) :
-    Window(parent, rect), getValue(std::move(getValueFunc))
+ChannelBar::ChannelBar(Window* parent, const rect_t& rect, uint8_t channel,
+                       std::function<int16_t()> getValueFunc, LcdColorIndex barColorIndex,
+                       LcdColorIndex txtColorIndex) :
+    Window(parent, rect), getValue(std::move(getValueFunc)),
+    channel(channel)
 {
   etx_solid_bg(lvobj, COLOR_THEME_PRIMARY2_INDEX);
 
   bar = lv_obj_create(lvobj);
-  etx_solid_bg(bar, indexFromColor(barColor));
+  etx_solid_bg(bar, barColorIndex);
   lv_obj_set_pos(bar, width() / 2, 0);
   lv_obj_set_size(bar, 0, height());
 
@@ -48,7 +49,7 @@ ChannelBar::ChannelBar(Window* parent, const rect_t& rect,
   lv_obj_set_style_translate_x(valText, -54, LV_STATE_USER_1);
   etx_obj_add_style(valText, styles->text_align_right, LV_STATE_USER_1);
   etx_font(valText, FONT_XS_INDEX);
-  etx_txt_color(valText, indexFromColor(txtColor));
+  etx_txt_color(valText, txtColorIndex);
   lv_label_set_text(valText, "");
 
   divPoints[0] = {(lv_coord_t)(width() / 2), 0};
@@ -72,18 +73,25 @@ void ChannelBar::checkEvents()
 
     lv_obj_enable_style_refresh(false);
 
-    lv_label_set_text_fmt(valText, "%d%%", value);
+    std::string s;
+    if (g_eeGeneral.ppmunit == PPM_US)
+      s = formatNumberAsString(PPM_CH_CENTER(channel) + value / 2, 0, 0, "", STR_US);
+    else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1)
+      s = formatNumberAsString(calcRESXto1000(value), PREC1, 0, "", "%");
+    else
+      s = formatNumberAsString(calcRESXto100(value), 0, 0, "", "%");
+
+    lv_label_set_text(valText, s.c_str());
 
     if (newValue < 0)
       lv_obj_clear_state(valText, LV_STATE_USER_1);
     else
       lv_obj_add_state(valText, LV_STATE_USER_1);
 
-    int chanVal =
-        limit<int>(-VIEW_CHANNELS_LIMIT_PCT, value, VIEW_CHANNELS_LIMIT_PCT);
+    const int lim = (g_model.extendedLimits ? (1024 * LIMIT_EXT_PERCENT / 100) : 1024);
+    int chanVal = limit<int>(-lim, value, lim);
 
-    uint16_t size =
-        divRoundClosest(abs(chanVal) * width(), VIEW_CHANNELS_LIMIT_PCT * 2);
+    uint16_t size = divRoundClosest(abs(chanVal) * width(), lim * 2);
 
     int16_t x = width() / 2 - ((chanVal > 0) ? 0 : size);
 
@@ -100,8 +108,8 @@ void ChannelBar::checkEvents()
 MixerChannelBar::MixerChannelBar(Window* parent, const rect_t& rect,
                                  uint8_t channel) :
     ChannelBar(
-        parent, rect, [=] { return calcRESXto100(ex_chans[channel]); },
-        COLOR_THEME_FOCUS)
+        parent, rect, channel, [=] { return ex_chans[channel]; },
+        COLOR_THEME_FOCUS_INDEX)
 {
 }
 
@@ -111,10 +119,9 @@ OutputChannelBar::OutputChannelBar(Window* parent, const rect_t& rect,
                                    uint8_t channel, bool editColor,
                                    bool drawLimits) :
     ChannelBar(
-        parent, rect,
-        [=] { return calcRESXto100(channelOutputs[channel]); },
-        COLOR_THEME_ACTIVE),
-    channel(channel),
+        parent, rect, channel,
+        [=] { return channelOutputs[channel]; },
+        COLOR_THEME_ACTIVE_INDEX),
     drawLimits(drawLimits)
 {
   if (drawLimits) {
@@ -239,10 +246,15 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
   }
 
   // Channel value in µS
+  const char* suffix = (g_eeGeneral.ppmunit == PPM_US) ? "%" : STR_US;
   new DynamicNumber<int16_t>(
       this, {width() - 45, 0, 45, 12},
-      [=] { return PPM_CH_CENTER(channel) + channelOutputs[channel] / 2; },
-      textColor | FONT(XS) | RIGHT, "", STR_US);
+      [=] {
+        if (g_eeGeneral.ppmunit == PPM_US)
+          return calcRESXto100(channelOutputs[channel]);
+        return PPM_CH_CENTER(channel) + channelOutputs[channel] / 2;
+      },
+      textColor | FONT(XS) | RIGHT, "", suffix);
 
   // Override icon
 #if defined(OVERRIDE_CHANNEL_FUNCTION)

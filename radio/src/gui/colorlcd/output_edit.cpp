@@ -155,6 +155,11 @@ void OutputEditWindow::buildBody(Window *form)
   etx_font(minEdit->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   minEdit->setFastStep(20);
   minEdit->setAccelFactor(16);
+  minEdit->setDisplayHandler([=](int value) {
+    if (g_eeGeneral.ppmunit == PPM_US)
+      value = value * 128 / 25;
+    return formatNumberAsString(value, PREC1);
+  });
 
   // Max
   maxText = new StaticText(line, rect_t{}, TR_MAX);
@@ -166,6 +171,11 @@ void OutputEditWindow::buildBody(Window *form)
   etx_font(maxEdit->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   maxEdit->setFastStep(20);
   maxEdit->setAccelFactor(16);
+  maxEdit->setDisplayHandler([=](int value) {
+    if (g_eeGeneral.ppmunit == PPM_US)
+      value = value * 128 / 25;
+    return formatNumberAsString(value, PREC1);
+  });
 
   // Direction
   line = form->newLine(grid);

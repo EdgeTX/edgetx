@@ -188,11 +188,11 @@ class OutputLineButton : public ListLineButton
 
     char s[32];
     getValueOrGVarString(s, sizeof(s), output->min, -GV_RANGELARGE, 0, PREC1,
-                         nullptr, -LIMITS_MIN_MAX_OFFSET);
+                         nullptr, -LIMITS_MIN_MAX_OFFSET, true);
     lv_label_set_text(min, s);
 
     getValueOrGVarString(s, sizeof(s), output->max, 0, GV_RANGELARGE, PREC1,
-                         nullptr, +LIMITS_MIN_MAX_OFFSET);
+                         nullptr, +LIMITS_MIN_MAX_OFFSET, true);
     lv_label_set_text(max, s);
 
     getValueOrGVarString(s, sizeof(s), output->offset, -LIMIT_STD_MAX,
