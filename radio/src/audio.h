@@ -669,7 +669,7 @@ void playModelName();
 #define AUDIO_FLUSH()            audioQueue.flush()
 #endif
 
-#if defined(SDCARD) & defined(AUDIO)
+#if defined(SDCARD) && defined(AUDIO)
   extern tmr10ms_t timeAutomaticPromptsSilence;
   void playModelEvent(uint8_t category, uint8_t index, event_t event=0);
   #define PLAY_PHASE_OFF(phase)         playModelEvent(PHASE_AUDIO_CATEGORY, phase, AUDIO_EVENT_OFF)
