@@ -109,8 +109,10 @@ void MixEditAdvanced::buildBody(Window* form)
              GET_DEFAULT(mix->speedPrec),
              [=](int newValue) {
               mix->speedPrec = newValue;
+              slowUp->clearTextFlag(PREC2);
               slowUp->setTextFlag(mix->speedPrec ? PREC2 : PREC1);
               slowUp->update();
+              slowDn->clearTextFlag(PREC2);
               slowDn->setTextFlag(mix->speedPrec ? PREC2 : PREC1);
               slowDn->update();
               SET_DIRTY();
