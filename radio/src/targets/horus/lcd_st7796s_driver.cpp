@@ -304,7 +304,7 @@ void LCD_ST7796S_Init(void) {
   delay_ms(120);
 
 #if defined(RADIO_T15)
-  if (!LL_GPIO_IsInputPinSet(GPIOH, LL_GPIO_PIN_7) && LL_GPIO_IsInputPinSet(GPIOH, LL_GPIO_PIN_8))
+  if (LL_PCBREV_VALUE() == 1)  // 0: TFT, 1: IPS
     lcdWriteCommand( 0x21 );
 #endif
 
