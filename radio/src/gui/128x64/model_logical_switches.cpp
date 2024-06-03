@@ -34,10 +34,10 @@ enum LogicalSwitchFields {
   LS_FIELD_LAST = LS_FIELD_COUNT-1
 };
 
-#define CSW_1ST_COLUMN  (3*FW-1)
-#define CSW_2ND_COLUMN  (7*FW-1)
-#define CSW_3RD_COLUMN  (13*FW-6)
-#define CSW_4TH_COLUMN  (17*FW)
+#define CSW_1ST_COLUMN  ((3*FW)-1)
+#define CSW_2ND_COLUMN  ((7*FW)-1)
+#define CSW_3RD_COLUMN  ((12*FW))
+#define CSW_4TH_COLUMN  ((21*FW)+3)
 
 void putsEdgeDelayParam(coord_t x, coord_t y, LogicalSwitchData *cs, uint8_t lattr, uint8_t rattr)
 {
@@ -334,7 +334,7 @@ void menuModelLogicalSwitches(event_t event)
       }
 
       // CSW and switch
-      drawSwitch(CSW_4TH_COLUMN, y, cs->andsw, 0);
+      drawSwitch(CSW_4TH_COLUMN, y, cs->andsw, RIGHT);
     }
   }
 }
