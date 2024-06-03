@@ -704,7 +704,10 @@ void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
   }
 #endif
   else {
-    lcdDrawText(x, y, getSourceString(idx), att);
+    const char* s = getSourceString(idx);
+    if (idx >= MIXSRC_FIRST_TELEM && idx <= MIXSRC_LAST_TELEM)
+      s += strlen(STR_CHAR_TELEMETRY);
+    lcdDrawText(x, y, s, att);
   }
 }
 
