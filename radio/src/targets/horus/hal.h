@@ -555,12 +555,12 @@
 #endif
 
 // PCBREV
-#if defined(MANUFACTURER_FRSKY)
 #if defined(RADIO_T15)
-  #define PCBREV_GPIO_1                 GPIO_PIN(GPIOH, 7) // PH.07
-  #define PCBREV_GPIO_2                 GPIO_PIN(GPIOH, 8) // PH.08
-  #define PCBREV_VALUE()                ((gpio_read(PCBREV_GPIO_1) | gpio_read(PCBREV_GPIO_2)) >> 7)
-#elif defined(PCBX10)
+  #define PCBREV_RCC_AHB1Periph         RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOA
+  #define PCBREV_GPIO                   GPIOH
+  #define PCBREV_GPIO_PIN               (GPIO_Pin_7 | GPIO_Pin_8)  // PH.07 | PH.08
+  #define PCBREV_VALUE()                (GPIO_ReadInputDataBit(PCBREV_GPIO, GPIO_Pin_7) + (GPIO_ReadInputDataBit(PCBREV_GPIO, GPIO_Pin_8) << 1))
+#elif defined(PCBX10) && defined(MANUFACTURER_FRSKY)
   #define PCBREV_RCC_AHB1Periph         RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOA
   #define PCBREV_GPIO                   GPIOH
   #define PCBREV_GPIO_PIN               (GPIO_Pin_7 | GPIO_Pin_8)  // PH.07 | PH.08
@@ -568,12 +568,11 @@
   #define PCBREV_TOUCH_GPIO_PIN         GPIO_Pin_6  // PA.06
   #define PCBREV_TOUCH_GPIO_PULL_UP
   #define PCBREV_VALUE()                ((GPIO_ReadInputDataBit(PCBREV_GPIO, GPIO_Pin_7) + (GPIO_ReadInputDataBit(PCBREV_GPIO, GPIO_Pin_8) << 1)) * GPIO_ReadInputDataBit(PCBREV_TOUCH_GPIO, GPIO_Pin_6))
-#else
+#elif defined(MANUFACTURER_FRSKY)
   #define PCBREV_RCC_AHB1Periph         RCC_AHB1Periph_GPIOI
   #define PCBREV_GPIO                   GPIOI
   #define PCBREV_GPIO_PIN               GPIO_Pin_11  // PI.11
   #define PCBREV_VALUE()                GPIO_ReadInputDataBit(PCBREV_GPIO, PCBREV_GPIO_PIN)
-#endif
 #else
   #define PCBREV_RCC_AHB1Periph         0
 #endif

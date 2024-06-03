@@ -25,6 +25,7 @@
 #include "libopenui.h"
 #include "fw_version.h"
 #include "hal/module_port.h"
+#include "hal.h"
 
 #if defined(CROSSFIRE)
   #include "mixer_scheduler.h"
@@ -363,7 +364,7 @@ void RadioVersionPage::build(FormWindow * window)
 #if defined(RADIO_T15)
   version += nl;
   version += "PCBREV: ";
-  version += '0' + hardwareOptions.pcbrev;
+  version += '0' + PCBREV_VALUE();
 #endif
 
 #if (defined(PCBNV14) || defined(PCBPL18)) && !defined(SIMU)

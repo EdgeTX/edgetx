@@ -28,7 +28,7 @@
 #include "debug.h"
 #include "lcd.h"
 #include "lcd_st7796s_driver.h"
-#include "board.h"
+#include "hal.h"
 
 static LTDC_HandleTypeDef hltdc;
 static void* initialFrameBuffer = nullptr;
@@ -304,7 +304,7 @@ void LCD_ST7796S_Init(void) {
   delay_ms(120);
 
 #if defined(RADIO_T15)
-  if (hardwareOptions.pcbrev == PCBREV_T15_IPS)
+  if (!LL_GPIO_IsInputPinSet(GPIOH, LL_GPIO_PIN_7) && LL_GPIO_IsInputPinSet(GPIOH, LL_GPIO_PIN_8))
     lcdWriteCommand( 0x21 );
 #endif
 
