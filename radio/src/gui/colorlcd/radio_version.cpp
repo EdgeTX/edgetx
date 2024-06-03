@@ -361,7 +361,7 @@ void RadioVersionPage::build(FormWindow * window)
     version += options[i];
   }
 
-#if defined(RADIO_T15)
+#if defined(RADIO_T15) && !defined(SIMU)
   version += nl;
   version += "PCBREV: ";
   version += '0' + PCBREV_VALUE();
