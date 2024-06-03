@@ -19,7 +19,7 @@ jobs:
           - nv14;el18
           - pl18;pl18ev
           - t12
-          - t15,t16;t18
+          - t15;t16;t18
           - t8;zorro;pocket;mt12;commando8
           - tlite;tpro;tprov2;lr3pro
           - t20;t20v2;t14
