@@ -41,9 +41,9 @@ class ChannelFailsafeBargraph : public Window
     outputsBar->hide();
 
     failsafeBar = new ChannelBar(
-        this, {0, ChannelBar::BAR_HEIGHT + 3, width() - 2, ChannelBar::BAR_HEIGHT},
+        this, {0, ChannelBar::BAR_HEIGHT + 3, width() - 2, ChannelBar::BAR_HEIGHT}, channel,
         [=] { return g_model.failsafeChannels[channel]; },
-        COLOR_THEME_WARNING, COLOR_THEME_WARNING);
+        COLOR_THEME_WARNING_INDEX);
     failsafeBar->hide();
   }
 

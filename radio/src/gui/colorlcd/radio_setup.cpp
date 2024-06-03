@@ -815,7 +815,7 @@ static SetupLineDef setupLines[] = {
     // PPM units
     STR_UNITS_PPM,
     [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_PPMUNIT, PPM_PERCENT_PREC0, PPM_PERCENT_PREC1,
+      new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_PPMUNIT, PPM_PERCENT_PREC0, PPM_US,
                 GET_SET_DEFAULT(g_eeGeneral.ppmunit));
     }
   },

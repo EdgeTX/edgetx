@@ -35,7 +35,7 @@ class ChannelBar : public Window
   static LAYOUT_VAL(TMARGIN, 2, 2)
 
   static LAYOUT_VAL(VAL_W, 45, 45)
-  static LAYOUT_VAL(VAL_H, 12, 12)
+  static LAYOUT_VAL(VAL_H, 14, 14)
   static LAYOUT_VAL(VAL_XO, 5, 5)
   static LAYOUT_VAL(VAL_YO, -2, -2)
   static LAYOUT_VAL(VAL_XT, -54, -54)

@@ -231,7 +231,7 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
   // Channel number
   char chanString[] = TR_CH "32 ";
   strAppendSigned(&chanString[2], channel + 1, 2);
-  new StaticText(this, {ChannelBar::LMARGIN, 0, LV_SIZE_CONTENT, 12}, chanString, 
+  new StaticText(this, {ChannelBar::LMARGIN, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, chanString, 
                  textColor | FONT(XS) | LEFT);
 
   // Channel name

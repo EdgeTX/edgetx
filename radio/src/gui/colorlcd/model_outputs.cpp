@@ -65,7 +65,7 @@ class OutputLineButton : public ListLineButton
     lv_obj_set_pos(source, SRC_X, SRC_Y);
     lv_obj_set_size(source, SRC_W, SRC_H);
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
     etx_font(source, FONT_XS_INDEX, ETX_STATE_NAME_FONT_SMALL);
     lv_obj_set_style_pad_top(source, -2, ETX_STATE_NAME_FONT_SMALL);
     lv_obj_set_style_text_line_space(source, -3, ETX_STATE_NAME_FONT_SMALL);
@@ -128,12 +128,16 @@ class OutputLineButton : public ListLineButton
 
     const LimitData* output = limitAddress(index);
     if (g_model.limitData[index].name[0] != '\0') {
+#if !PORTRAIT_LCD
       lv_obj_add_state(source, ETX_STATE_NAME_FONT_SMALL);
+#endif
       lv_label_set_text_fmt(source, "%s\n" TR_CH "%u",
                             getSourceString(MIXSRC_FIRST_CH + index),
                             index + 1);
     } else {
+#if !PORTRAIT_LCD
       lv_obj_clear_state(source, ETX_STATE_NAME_FONT_SMALL);
+#endif
       lv_label_set_text(source, getSourceString(MIXSRC_FIRST_CH + index));
     }
     if (output->revert) {
