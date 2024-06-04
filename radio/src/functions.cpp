@@ -27,8 +27,12 @@
 void setRequestedMainView(uint8_t view);
 #endif
 
-#if defined(RADIO_F16)
+#if defined(VIDEO_SWITCH)
 #include "videoswitch_driver.h"
+#if defined(SIMU)
+void switchToRadio() {};
+void switchToVideo() {};
+#endif
 #endif
 CustomFunctionsContext modelFunctionsContext = { 0 };
 
