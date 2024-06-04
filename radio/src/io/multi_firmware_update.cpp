@@ -181,7 +181,7 @@ bool MultiFirmwareUpdateDriver::checkRxByte(uint8_t byte) const
 const char * MultiFirmwareUpdateDriver::waitForInitialSync()
 {
   uint8_t byte;
-  int retries = 200;
+  tmr10ms_t timeout = get_tmr10ms() + 500;
 
 #if defined(DEBUG_EXT_MODULE_FLASH)
   TRACE("[Wait for Sync]");
@@ -197,9 +197,9 @@ const char * MultiFirmwareUpdateDriver::waitForInitialSync()
     getRxByte(byte);
     WDG_RESET();
 
-  } while ((byte != STK_INSYNC) && --retries);
+  } while ((byte != STK_INSYNC) && get_tmr10ms() < timeout);
 
-  if (!retries) {
+  if (get_tmr10ms() > timeout) {
     return STR_DEVICE_NO_RESPONSE;
   }
 
