@@ -558,7 +558,6 @@ enum BacklightMode {
 };
 
 enum Functions {
-  // first the functions which need a checkbox
   FUNC_OVERRIDE_CHANNEL,
   FUNC_TRAINER,
   FUNC_INSTANT_TRIM,
@@ -569,9 +568,7 @@ enum Functions {
   FUNC_SET_FAILSAFE,
   FUNC_RANGECHECK,
   FUNC_BIND,
-  // then the other functions
-  FUNC_FIRST_WITHOUT_ENABLE SKIP,
-  FUNC_PLAY_SOUND = FUNC_FIRST_WITHOUT_ENABLE,
+  FUNC_PLAY_SOUND,
   FUNC_PLAY_TRACK,
   FUNC_PLAY_VALUE,
   FUNC_PLAY_SCRIPT,
