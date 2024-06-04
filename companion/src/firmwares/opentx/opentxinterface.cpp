@@ -136,6 +136,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTx for BETAFPV LR3PRO";
     case BOARD_IFLIGHT_COMMANDO8:
       return "EdgeTX for iFlight Commando 8";
+    case BOARD_FATFISH_F16:
+      return "EdgeTX for Fatfish F16";
     default:
       return "Board is unknown to EdgeTX";
   }
@@ -1254,6 +1256,9 @@ void registerOpenTxFirmwares()
 {
   OpenTxFirmware * firmware;
 
+  static const Firmware::Option opt_bt("bluetooth", Firmware::tr("Support for bluetooth module"));
+  static const Firmware::Option opt_internal_gps("internalgps", Firmware::tr("Support internal GPS"));
+
   /* BETAFPV LR3PRO board */
   firmware = new OpenTxFirmware(FIRMWAREID("lr3pro"), QCoreApplication::translate("Firmware", "BETAFPV LiteRadio3 Pro"), BOARD_BETAFPV_LR3PRO);
   addOpenTxCommonOptions(firmware);
@@ -1264,24 +1269,32 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
 
+  /* Fatfish F16 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("f16"), Firmware::tr("Fatfish F16"), BOARD_FATFISH_F16);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+  firmware->addOptionsGroup({opt_bt, opt_internal_gps});
+  firmware->addOption("flyskygimbals", Firmware::tr("Support hardware mod: FlySky Paladin EV Gimbals"));
+  registerOpenTxFirmware(firmware);
+
   /* FlySky NV14 board */
   firmware = new OpenTxFirmware(FIRMWAREID("nv14"), QCoreApplication::translate("Firmware", "FlySky NV14"), BOARD_FLYSKY_NV14);
   addOpenTxFrskyOptions(firmware);
-  firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
+  firmware->addOption(opt_bt);
   addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
   registerOpenTxFirmware(firmware);
 
   /* FlySky EL18 board */
   firmware = new OpenTxFirmware(FIRMWAREID("el18"), QCoreApplication::translate("Firmware", "FlySky EL18"), BOARD_FLYSKY_EL18);
   addOpenTxFrskyOptions(firmware);
-  firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
+  firmware->addOption(opt_bt);
   addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
   registerOpenTxFirmware(firmware);
 
   /* FlySky PL18 board */
   firmware = new OpenTxFirmware(FIRMWAREID("pl18"), Firmware::tr("FlySky PL18"), BOARD_FLYSKY_PL18);
   addOpenTxFrskyOptions(firmware);
-  firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
+  firmware->addOption(opt_bt);
   addOpenTxRfOptions(firmware, FLEX + AFHDS3);
   registerOpenTxFirmware(firmware);
 
@@ -1452,14 +1465,14 @@ void registerOpenTxFirmwares()
   firmware = new OpenTxFirmware(FIRMWAREID("t16"), Firmware::tr("Jumper T16 / T16+ / T16 Pro"), BOARD_JUMPER_T16);
   addOpenTxFrskyOptions(firmware);
   firmware->addOption("internalmulti", Firmware::tr("Support for MULTI internal module"));
-  firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
+  firmware->addOption(opt_bt);
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
 
   /* Jumper T18 board */
   firmware = new OpenTxFirmware(FIRMWAREID("t18"), Firmware::tr("Jumper T18"), BOARD_JUMPER_T18);
   addOpenTxFrskyOptions(firmware);
-  firmware->addOption("bluetooth", Firmware::tr("Support for bluetooth module"));
+  firmware->addOption(opt_bt);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
 
@@ -1532,8 +1545,6 @@ void registerOpenTxFirmwares()
   firmware = new OpenTxFirmware(FIRMWAREID("tx16s"), Firmware::tr("Radiomaster TX16S / SE / Hall / Masterfire"), BOARD_RADIOMASTER_TX16S);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
-  static const Firmware::Option opt_bt("bluetooth", Firmware::tr("Support for bluetooth module"));
-  static const Firmware::Option opt_internal_gps("internalgps", Firmware::tr("Support internal GPS"));
   firmware->addOptionsGroup({opt_bt, opt_internal_gps});
   firmware->addOption("flyskygimbals", Firmware::tr("Support hardware mod: FlySky Paladin EV Gimbals"));
   registerOpenTxFirmware(firmware);
