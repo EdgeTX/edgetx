@@ -210,6 +210,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_FLYSKY_NV14:
     case BOARD_FLYSKY_EL18:
     case BOARD_FLYSKY_PL18:
+    case BOARD_FATFISH_F16:
       return 0;
     default:
       return 0;
@@ -261,6 +262,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_NV14:
     case BOARD_FLYSKY_EL18:
     case BOARD_FLYSKY_PL18:
+    case BOARD_FATFISH_F16:
       return FSIZE_HORUS;
     case BOARD_UNKNOWN:
       return FSIZE_MAX;
@@ -569,6 +571,8 @@ QString Boards::getBoardName(Board::Type board)
       return "BETAFPV LR3PRO";
     case BOARD_IFLIGHT_COMMANDO8:
       return "iFlight Commando 8";
+    case BOARD_FATFISH_F16:
+      return "Fatfish F16";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -676,6 +680,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_T20:
   case BOARD_JUMPER_T20V2:
   case BOARD_JUMPER_T15:
+  case BOARD_FATFISH_F16:
     return (int)MODULE_TYPE_CROSSFIRE;
 
   case BOARD_FLYSKY_NV14:
