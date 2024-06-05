@@ -364,7 +364,7 @@ void RadioVersionPage::build(FormWindow * window)
 #if defined(RADIO_T15) && !defined(SIMU)
   version += nl;
   version += "PCBREV: ";
-  version += '0' + PCBREV_VALUE();
+  version += version += '0' + static_cast<char>(hardwareOptions.pcbrev);
 #endif
 
 #if (defined(PCBNV14) || defined(PCBPL18)) && !defined(SIMU)
