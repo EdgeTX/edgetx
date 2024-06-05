@@ -938,6 +938,6 @@ void GeneralSetupPanel::on_startSoundCB_stateChanged(int)
 
 void GeneralSetupPanel::on_invertLCD_CB_stateChanged(int)
 {
-  generalSettings.invertLCD = !ui->invertLCD_CB->isChecked();
+  generalSettings.invertLCD = ui->invertLCD_CB->isChecked();
   emit modified();
 }
