@@ -45,12 +45,12 @@ extern "C" {
 
 /* Set Multi-touch as non supported */
 #ifndef TS_MULTI_TOUCH_SUPPORTED
-  #define TS_MULTI_TOUCH_SUPPORTED 0
+#define TS_MULTI_TOUCH_SUPPORTED 0
 #endif
 
 /* Set Auto-calibration as non supported */
 #ifndef TS_AUTO_CALIBRATION_SUPPORTED
-  #define TS_AUTO_CALIBRATION_SUPPORTED 0
+#define TS_AUTO_CALIBRATION_SUPPORTED 0
 #endif
 
 /* Macros --------------------------------------------------------------------*/
@@ -58,8 +58,7 @@ extern "C" {
 /** @typedef ft6x06_handle_TypeDef
  *  ft6x06 Handle definition.
  */
-typedef struct
-{
+typedef struct {
   /* field holding the current number of simultaneous active touches */
   uint8_t currActiveTouchNb;
 
@@ -67,7 +66,7 @@ typedef struct
   uint8_t currActiveTouchIdx;
 
 } tc_handle_TypeDef;
-
+/* clang-format off */
 #define CST836U_WORK_MODE_REG           0x00
 #define CST836U_PROXIMITY_ID_REG        0x01
 #define CST836U_TOUCH_NUM_REG           0x02
@@ -98,13 +97,13 @@ typedef struct
 
 #define CST836U_MSB_MASK                0x0F
 
-#define CST836U_TOUCH_EVT_FLAG_SHIFT     6
-#define CST836U_TOUCH_EVT_FLAG_MASK      (3 << CST836U_TOUCH_EVT_FLAG_SHIFT)
-#define CST836U_TOUCH_EVT_FLAG_CONTACT   0x02
+#define CST836U_TOUCH_EVT_FLAG_SHIFT    6
+#define CST836U_TOUCH_EVT_FLAG_MASK     (3 << CST836U_TOUCH_EVT_FLAG_SHIFT)
+#define CST836U_TOUCH_EVT_FLAG_CONTACT  0x02
+/* clang-format on */
 
-extern void TouchInit( void );
-extern void TouchDriver( void );
-
+extern void TouchInit(void);
+extern void TouchDriver(void);
 
 #ifdef __cplusplus
 }

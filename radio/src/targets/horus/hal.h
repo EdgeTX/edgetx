@@ -568,7 +568,6 @@
   #define LED_BLUE_GPIO                 GPIO_PIN(GPIOE, 5) // PE.05
 #endif
 
-
 // Customisable switches leds
 #if defined(RADIO_T15)
 #define FSLED_GPIO_1                  GPIO_PIN(GPIOA, 15)  //PA.15

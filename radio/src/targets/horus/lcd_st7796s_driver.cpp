@@ -19,24 +19,25 @@
  * GNU General Public License for more details.
  */
 
-#include "stm32_hal_ll.h"
-#include "stm32_hal.h"
-#include "opentx_types.h"
+#include "lcd_st7796s_driver.h"
+
+#include "board.h"
+#include "debug.h"
+#include "delays_driver.h"
 #include "dma2d.h"
 #include "hal.h"
-#include "delays_driver.h"
-#include "debug.h"
 #include "lcd.h"
-#include "lcd_st7796s_driver.h"
-#include "board.h"
+#include "opentx_types.h"
+#include "stm32_hal.h"
+#include "stm32_hal_ll.h"
 
 static LTDC_HandleTypeDef hltdc;
 static void* initialFrameBuffer = nullptr;
 
 static volatile uint8_t _frame_addr_reloaded = 0;
 
-static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
-                            const rect_t &copy_area)
+static void startLcdRefresh(lv_disp_drv_t* disp_drv, uint16_t* buffer,
+                            const rect_t& copy_area)
 {
   (void)disp_drv;
   (void)copy_area;
@@ -50,12 +51,13 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
 
   // wait for reload
   // TODO: replace through some smarter mechanism without busy wait
-  while(_frame_addr_reloaded == 0);
+  while (_frame_addr_reloaded == 0);
 }
 
 uint32_t lcdPixelClock;
 
-static void LCD_AF_GPIOConfig(void) {
+static void LCD_AF_GPIOConfig(void)
+{
   /*
    -----------------------------------------------------------------------------
    LCD_CLK <-> PG.07 | LCD_HSYNC <-> PI.12 | LCD_R3 <-> PJ.02 | LCD_G5 <-> PK.00
@@ -73,66 +75,70 @@ static void LCD_AF_GPIOConfig(void) {
   LL_GPIO_StructInit(&GPIO_InitStructure);
 
   // GPIOG configuration
-  GPIO_InitStructure.Pin        = LL_GPIO_PIN_7;
-  GPIO_InitStructure.Speed      = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStructure.Mode       = LL_GPIO_MODE_ALTERNATE;
+  GPIO_InitStructure.Pin = LL_GPIO_PIN_7;
+  GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStructure.Mode = LL_GPIO_MODE_ALTERNATE;
   GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStructure.Pull       = LL_GPIO_PULL_NO;
-  GPIO_InitStructure.Alternate  = LL_GPIO_AF_14; // AF LTDC
+  GPIO_InitStructure.Pull = LL_GPIO_PULL_NO;
+  GPIO_InitStructure.Alternate = LL_GPIO_AF_14;  // AF LTDC
   LL_GPIO_Init(GPIOG, &GPIO_InitStructure);
-  
+
   // GPIOI configuration
-  GPIO_InitStructure.Pin        = LL_GPIO_PIN_12 | LL_GPIO_PIN_13;
+  GPIO_InitStructure.Pin = LL_GPIO_PIN_12 | LL_GPIO_PIN_13;
   LL_GPIO_Init(GPIOI, &GPIO_InitStructure);
 
   // GPIOJ configuration
-  GPIO_InitStructure.Pin = LL_GPIO_PIN_2 | LL_GPIO_PIN_3 | LL_GPIO_PIN_4 | LL_GPIO_PIN_5 | LL_GPIO_PIN_6 | LL_GPIO_PIN_9 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_15;
+  GPIO_InitStructure.Pin = LL_GPIO_PIN_2 | LL_GPIO_PIN_3 | LL_GPIO_PIN_4 |
+                           LL_GPIO_PIN_5 | LL_GPIO_PIN_6 | LL_GPIO_PIN_9 |
+                           LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_15;
   LL_GPIO_Init(GPIOJ, &GPIO_InitStructure);
 
   // GPIOK configuration
-  GPIO_InitStructure.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3 | LL_GPIO_PIN_4 | LL_GPIO_PIN_5 | LL_GPIO_PIN_6 | LL_GPIO_PIN_7;
+  GPIO_InitStructure.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 |
+                           LL_GPIO_PIN_3 | LL_GPIO_PIN_4 | LL_GPIO_PIN_5 |
+                           LL_GPIO_PIN_6 | LL_GPIO_PIN_7;
   LL_GPIO_Init(GPIOK, &GPIO_InitStructure);
 }
 
-static void lcdSpiConfig(void) {
+static void lcdSpiConfig(void)
+{
   LL_GPIO_InitTypeDef GPIO_InitStructure;
   LL_GPIO_StructInit(&GPIO_InitStructure);
 
-  GPIO_InitStructure.Pin        = LCD_SPI_SCK_GPIO_PIN | LCD_SPI_MOSI_GPIO_PIN;
-  GPIO_InitStructure.Speed      = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStructure.Mode       = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStructure.Pin = LCD_SPI_SCK_GPIO_PIN | LCD_SPI_MOSI_GPIO_PIN;
+  GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStructure.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStructure.Pull       = LL_GPIO_PULL_NO;
+  GPIO_InitStructure.Pull = LL_GPIO_PULL_NO;
   LL_GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
 
-  GPIO_InitStructure.Pin        = LCD_SPI_CS_GPIO_PIN;
-  GPIO_InitStructure.Pull       = LL_GPIO_PULL_UP;
+  GPIO_InitStructure.Pin = LCD_SPI_CS_GPIO_PIN;
+  GPIO_InitStructure.Pull = LL_GPIO_PULL_UP;
   LL_GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
 
-  GPIO_InitStructure.Pin        = LCD_NRST_GPIO_PIN;
+  GPIO_InitStructure.Pin = LCD_NRST_GPIO_PIN;
   LL_GPIO_Init(LCD_NRST_GPIO, &GPIO_InitStructure);
 
   /* Set the chip select pin always low */
   LCD_CS_LOW();
 }
 
-void lcdDelay() {
-  delay_01us(1);
-}
+void lcdDelay() { delay_01us(1); }
 
-static void lcdReset() {
+static void lcdReset()
+{
   LCD_NRST_HIGH();
   delay_ms(1);
 
-  LCD_NRST_LOW(); // RESET();
+  LCD_NRST_LOW();  // RESET();
   delay_ms(100);
 
   LCD_NRST_HIGH();
   delay_ms(100);
 }
 
-static void lcdWriteByte(uint8_t data_enable, uint8_t byte) {
-
+static void lcdWriteByte(uint8_t data_enable, uint8_t byte)
+{
   LCD_SCK_LOW();
 
   if (data_enable) {
@@ -163,167 +169,166 @@ static void lcdWriteByte(uint8_t data_enable, uint8_t byte) {
   LCD_SCK_LOW();
 }
 
-
-void lcdWriteCommand(uint8_t command) {
+void lcdWriteCommand(uint8_t command)
+{
   LCD_CS_LOW();
   lcdWriteByte(0, command);
   LCD_CS_HIGH();
   lcdDelay();
 }
 
-void lcdWriteData(uint8_t data) {
+void lcdWriteData(uint8_t data)
+{
   LCD_CS_LOW();
   lcdWriteByte(1, data);
   LCD_CS_HIGH();
   lcdDelay();
 }
 
-void LCD_ST7796S_On(void) {
-  lcdWriteCommand(0x29);
-}
+void LCD_ST7796S_On(void) { lcdWriteCommand(0x29); }
 
-void LCD_ST7796S_Init(void) {
+void LCD_ST7796S_Init(void)
+{
   delay_ms(120);
 
-  lcdWriteCommand( 0x11 );
+  lcdWriteCommand(0x11);
   delay_ms(120);
 
-  lcdWriteCommand( 0xF0 );
-  lcdWriteData( 0xC3 );
+  lcdWriteCommand(0xF0);
+  lcdWriteData(0xC3);
 
-  lcdWriteCommand( 0xF0 );
-  lcdWriteData( 0x96 );
+  lcdWriteCommand(0xF0);
+  lcdWriteData(0x96);
 
-  lcdWriteCommand( 0x36 );
-  lcdWriteData( 0x28 );
+  lcdWriteCommand(0x36);
+  lcdWriteData(0x28);
 
-  lcdWriteCommand( 0x2A );
-  lcdWriteData( 0x00 );
-  lcdWriteData( 0x00 );
-  lcdWriteData( 0x01 );
-  lcdWriteData( 0xDF );
-  lcdWriteCommand( 0x2B );
-  lcdWriteData( 0x00 );
-  lcdWriteData( 0x00 );
-  lcdWriteData( 0x01 );
-  lcdWriteData( 0x3F );
+  lcdWriteCommand(0x2A);
+  lcdWriteData(0x00);
+  lcdWriteData(0x00);
+  lcdWriteData(0x01);
+  lcdWriteData(0xDF);
+  lcdWriteCommand(0x2B);
+  lcdWriteData(0x00);
+  lcdWriteData(0x00);
+  lcdWriteData(0x01);
+  lcdWriteData(0x3F);
 
-  lcdWriteCommand( 0x3A );
+  lcdWriteCommand(0x3A);
 #if defined(RADIO_T15)
-  lcdWriteData( 0x55 );
+  lcdWriteData(0x55);
 #else
-  lcdWriteData( 0x66 );
+  lcdWriteData(0x66);
 #endif
 
-  lcdWriteCommand( 0x34 );
+  lcdWriteCommand(0x34);
 
-  //SET RGB STRAT
-  lcdWriteCommand (0xB0 );   //SET HS VS DE CLK 上升还是下降有效
-  lcdWriteData( 0x80 );
+  // SET RGB STRAT
+  lcdWriteCommand(0xB0);  // SET HS VS DE CLK 上升还是下降有效
+  lcdWriteData(0x80);
 
-  lcdWriteCommand( 0xB4 );
-  lcdWriteData( 0x01 );
+  lcdWriteCommand(0xB4);
+  lcdWriteData(0x01);
 
-  lcdWriteCommand( 0xB6 );
+  lcdWriteCommand(0xB6);
   //  lcdWriteData( 0x20 );
   //  lcdWriteData( 0x02 );
   //  lcdWriteData( 0x3B );
-    lcdWriteData( 0x20 );
-    lcdWriteData( 0x02 );
-    lcdWriteData( 0x3B );
-  //SET RGB END
+  lcdWriteData(0x20);
+  lcdWriteData(0x02);
+  lcdWriteData(0x3B);
+  // SET RGB END
 
-  lcdWriteCommand( 0xB7);
-  lcdWriteData( 0xC6);
+  lcdWriteCommand(0xB7);
+  lcdWriteData(0xC6);
 
-  lcdWriteCommand( 0xB9 );
-  lcdWriteData( 0x02 );
-  lcdWriteData( 0xE0 );
+  lcdWriteCommand(0xB9);
+  lcdWriteData(0x02);
+  lcdWriteData(0xE0);
 
-  lcdWriteCommand( 0xC0 );
-  lcdWriteData( 0x80 );
-  lcdWriteData( 0x65 );
+  lcdWriteCommand(0xC0);
+  lcdWriteData(0x80);
+  lcdWriteData(0x65);
 
-  lcdWriteCommand( 0xC1 );
-  lcdWriteData( 0x0D );
+  lcdWriteCommand(0xC1);
+  lcdWriteData(0x0D);
 
-  lcdWriteCommand( 0xC2 );
-  lcdWriteData( 0xA7 );
+  lcdWriteCommand(0xC2);
+  lcdWriteData(0xA7);
 
-  lcdWriteCommand( 0xC5 );
-  lcdWriteData( 0x14 );
+  lcdWriteCommand(0xC5);
+  lcdWriteData(0x14);
 
-  lcdWriteCommand( 0xE8 );
-  lcdWriteData( 0x40 );
-  lcdWriteData( 0x8A );
-  lcdWriteData( 0x00 );
-  lcdWriteData( 0x00 );
-  lcdWriteData( 0x29 );
-  lcdWriteData( 0x19 );
-  lcdWriteData( 0xA5 );
-  lcdWriteData( 0x33 );
+  lcdWriteCommand(0xE8);
+  lcdWriteData(0x40);
+  lcdWriteData(0x8A);
+  lcdWriteData(0x00);
+  lcdWriteData(0x00);
+  lcdWriteData(0x29);
+  lcdWriteData(0x19);
+  lcdWriteData(0xA5);
+  lcdWriteData(0x33);
 
-  lcdWriteCommand( 0xE0 );
-  lcdWriteData( 0xD0 );
-  lcdWriteData( 0x00 );
-  lcdWriteData( 0x04 );
-  lcdWriteData( 0x05 );
-  lcdWriteData( 0x04 );
-  lcdWriteData( 0x21 );
-  lcdWriteData( 0x25 );
-  lcdWriteData( 0x43 );
-  lcdWriteData( 0x3F );
-  lcdWriteData( 0x37 );
-  lcdWriteData( 0x13 );
-  lcdWriteData( 0x13 );
-  lcdWriteData( 0x29 );
-  lcdWriteData( 0x32 );
+  lcdWriteCommand(0xE0);
+  lcdWriteData(0xD0);
+  lcdWriteData(0x00);
+  lcdWriteData(0x04);
+  lcdWriteData(0x05);
+  lcdWriteData(0x04);
+  lcdWriteData(0x21);
+  lcdWriteData(0x25);
+  lcdWriteData(0x43);
+  lcdWriteData(0x3F);
+  lcdWriteData(0x37);
+  lcdWriteData(0x13);
+  lcdWriteData(0x13);
+  lcdWriteData(0x29);
+  lcdWriteData(0x32);
 
-  lcdWriteCommand( 0xE1 );
-  lcdWriteData( 0xD0 );
-  lcdWriteData( 0x04 );
-  lcdWriteData( 0x06 );
-  lcdWriteData( 0x09 );
-  lcdWriteData( 0x06 );
-  lcdWriteData( 0x03 );
-  lcdWriteData( 0x25 );
-  lcdWriteData( 0x32 );
-  lcdWriteData( 0x3E );
-  lcdWriteData( 0x18 );
-  lcdWriteData( 0x15 );
-  lcdWriteData( 0x15 );
-  lcdWriteData( 0x2B );
-  lcdWriteData( 0x30 );
+  lcdWriteCommand(0xE1);
+  lcdWriteData(0xD0);
+  lcdWriteData(0x04);
+  lcdWriteData(0x06);
+  lcdWriteData(0x09);
+  lcdWriteData(0x06);
+  lcdWriteData(0x03);
+  lcdWriteData(0x25);
+  lcdWriteData(0x32);
+  lcdWriteData(0x3E);
+  lcdWriteData(0x18);
+  lcdWriteData(0x15);
+  lcdWriteData(0x15);
+  lcdWriteData(0x2B);
+  lcdWriteData(0x30);
 
-  lcdWriteCommand( 0xF0 );
-  lcdWriteData( 0x3C );
+  lcdWriteCommand(0xF0);
+  lcdWriteData(0x3C);
 
-  lcdWriteCommand( 0xF0 );
-  lcdWriteData( 0x69 );
+  lcdWriteCommand(0xF0);
+  lcdWriteData(0x69);
 
   delay_ms(120);
 
 #if defined(RADIO_T15)
-  if (hardwareOptions.pcbrev == PCBREV_T15_IPS)
-    lcdWriteCommand( 0x21 );
+  if (hardwareOptions.pcbrev == PCBREV_T15_IPS) lcdWriteCommand(0x21);
 #endif
 
   LCD_ST7796S_On();
 }
 
-void LCD_ST7796S_Off(void) {
-  lcdWriteCommand(0x28);
-}
+void LCD_ST7796S_Off(void) { lcdWriteCommand(0x28); }
 
-void LCD_Init_LTDC() {
+void LCD_Init_LTDC()
+{
   hltdc.Instance = LTDC;
 
   /* Configure PLLSAI prescalers for LCD */
   /* PLLSAI_VCO Input = HSE_VALUE/PLL_M = 1 Mhz */
   /* PLLSAI_VCO Output = PLLSAI_VCO Input * lcdPixelclock * 16 = XX Mhz */
   /* PLLLCDCLK = PLLSAI_VCO Output/PLL_LTDC = PLLSAI_VCO/4 = YY Mhz */
-  /* LTDC clock frequency = PLLLCDCLK / RCC_PLLSAIDivR = YY/4 = lcdPixelClock Mhz */
-  uint32_t clock = (lcdPixelClock*16) / 1000000; // clock*16 in MHz
+  /* LTDC clock frequency = PLLLCDCLK / RCC_PLLSAIDivR = YY/4 = lcdPixelClock
+   * Mhz */
+  uint32_t clock = (lcdPixelClock * 16) / 1000000;  // clock*16 in MHz
   RCC_PeriphCLKInitTypeDef clkConfig;
   clkConfig.PeriphClockSelection = RCC_PERIPHCLK_LTDC;
   clkConfig.PLLSAI.PLLSAIN = clock;
@@ -332,7 +337,8 @@ void LCD_Init_LTDC() {
   clkConfig.PLLSAIDivR = RCC_PLLSAIDIVR_4;
   HAL_RCCEx_PeriphCLKConfig(&clkConfig);
 
-  /* LTDC Configuration *********************************************************/
+  /* LTDC Configuration
+   * *********************************************************/
   /* Polarity configuration */
   /* Initialize the horizontal synchronization polarity as active low */
   hltdc.Init.HSPolarity = LTDC_HSPOLARITY_AL;
@@ -370,13 +376,14 @@ void LCD_Init_LTDC() {
   // Configure IRQ (line)
   NVIC_SetPriority(LTDC_IRQn, LTDC_IRQ_PRIO);
   NVIC_EnableIRQ(LTDC_IRQn);
-  
+
   // Trigger on last line
   HAL_LTDC_ProgramLineEvent(&hltdc, LCD_W);
   __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 }
 
-void LCD_LayerInit() {
+void LCD_LayerInit()
+{
   auto& layer = hltdc.LayerCfg[0];
 
   /* Windowing configuration */
@@ -387,7 +394,7 @@ void LCD_LayerInit() {
 
   /* Pixel Format configuration*/
   layer.PixelFormat = LTDC_PIXEL_FORMAT_RGB565;
-  
+
   /* Alpha constant (255 totally opaque) */
   layer.Alpha = 255;
 
@@ -404,7 +411,8 @@ void LCD_LayerInit() {
   layer.ImageWidth = LCD_H;
   layer.ImageHeight = LCD_W;
 
-  /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
+  /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/
+   * Offset */
   layer.FBStartAdress = (intptr_t)initialFrameBuffer;
 
   /* Initialize LTDC layer 1 */
@@ -414,14 +422,12 @@ void LCD_LayerInit() {
   HAL_LTDC_EnableDither(&hltdc);
 }
 
-extern "C"
-void lcdSetInitalFrameBuffer(void* fbAddress)
+extern "C" void lcdSetInitalFrameBuffer(void* fbAddress)
 {
   initialFrameBuffer = fbAddress;
 }
 
-extern "C"
-void lcdInit(void)
+extern "C" void lcdInit(void)
 {
   /* Configure the LCD SPI+RESET pins */
   lcdSpiConfig();

@@ -19,51 +19,44 @@
  * GNU General Public License for more details.
  */
 
-#include "hal/gpio.h"
-#include "stm32_gpio.h"
-#include "stm32_hal_ll.h"
-#include "stm32_hal.h"
-#include "stm32_i2c_driver.h"
-#include "stm32_gpio_driver.h"
-#include "stm32_exti_driver.h"
-
-#include "rtos.h"
-
-#include "hal.h"
-#include "timers_driver.h"
-#include "delays_driver.h"
 #include "cst8xx_driver.h"
 
 #include "debug.h"
+#include "delays_driver.h"
+#include "hal.h"
+#include "hal/gpio.h"
+#include "rtos.h"
+#include "stm32_exti_driver.h"
+#include "stm32_gpio.h"
+#include "stm32_gpio_driver.h"
+#include "stm32_hal.h"
+#include "stm32_hal_ll.h"
+#include "stm32_i2c_driver.h"
+#include "timers_driver.h"
 
 volatile static bool touchEventOccured;
 
-#define TOUCH_CST836U_I2C_ADDRESS         (0x15)
+#define TOUCH_CST836U_I2C_ADDRESS (0x15)
 
 static tc_handle_TypeDef tc_handle = {0, 0};
 
 tmr10ms_t downTime = 0;
 tmr10ms_t tapTime = 0;
 short tapCount = 0;
-#define TAP_TIME 250 //ms
+#define TAP_TIME 250  // ms
 
 static TouchState internalTouchState = {};
 
-static void _cst836u_exti_isr(void)
-{
-  touchEventOccured = true;
-}
+static void _cst836u_exti_isr(void) { touchEventOccured = true; }
 
 static void TouchAFExtiConfig(void)
 {
   __HAL_RCC_SYSCFG_CLK_ENABLE();
   LL_SYSCFG_SetEXTISource(TOUCH_INT_EXTI_Port, TOUCH_INT_EXTI_SysCfgLine);
 
-  stm32_exti_enable(TOUCH_INT_EXTI_Line,
-		    LL_EXTI_TRIGGER_FALLING,
-		    _cst836u_exti_isr);
+  stm32_exti_enable(TOUCH_INT_EXTI_Line, LL_EXTI_TRIGGER_FALLING,
+                    _cst836u_exti_isr);
 }
-
 
 void initTouchI2C(void)
 {
@@ -75,14 +68,13 @@ void initTouchI2C(void)
   }
 }
 
-#define I2C_TIMEOUT_MAX 5 // 5 ms
+#define I2C_TIMEOUT_MAX 5  // 5 ms
 
-bool touch_i2c_read(uint8_t addr, uint8_t reg, uint8_t * data, uint8_t len)
+bool touch_i2c_read(uint8_t addr, uint8_t reg, uint8_t* data, uint8_t len)
 {
-  if(stm32_i2c_master_tx(TOUCH_I2C_BUS, addr, &reg, 1, 3) < 0)
-    return false;
+  if (stm32_i2c_master_tx(TOUCH_I2C_BUS, addr, &reg, 1, 3) < 0) return false;
   delay_us(5);
-  if(stm32_i2c_master_rx(TOUCH_I2C_BUS, addr, data, len, I2C_TIMEOUT_MAX) < 0)
+  if (stm32_i2c_master_rx(TOUCH_I2C_BUS, addr, data, len, I2C_TIMEOUT_MAX) < 0)
     return false;
 
   return true;
@@ -99,7 +91,8 @@ static uint8_t TS_IO_Read(uint8_t addr, uint8_t reg)
   return result;
 }
 
-static uint16_t TS_IO_ReadMultiple(uint8_t addr, uint8_t reg, uint8_t * buffer, uint16_t length)
+static uint16_t TS_IO_ReadMultiple(uint8_t addr, uint8_t reg, uint8_t* buffer,
+                                   uint16_t length)
 {
   uint8_t tryCount = 3;
   while (!touch_i2c_read(addr, reg, buffer, length)) {
@@ -109,14 +102,19 @@ static uint16_t TS_IO_ReadMultiple(uint8_t addr, uint8_t reg, uint8_t * buffer, 
   return 1;
 }
 
-
 static void touch_cst836u_debug_info(void)
 {
 #if defined(DEBUG)
-  TRACE("cst836u: fw ver 0x%02X %02X", TS_IO_Read(TOUCH_CST836U_I2C_ADDRESS, CST836U_FW_VERSION_H_REG), TS_IO_Read(TOUCH_CST836U_I2C_ADDRESS, CST836U_FW_VERSION_L_REG));
-  TRACE("cst836u: module version 0x%02X", TS_IO_Read(TOUCH_CST836U_I2C_ADDRESS, CST836U_MODULE_VERSION_REG));
-  TRACE("cst836u: project name 0x%02X", TS_IO_Read(TOUCH_CST836U_I2C_ADDRESS, CST836U_PROJECT_NAME_REG));
-  TRACE("cst836u: chip type 0x%02X 0x%02X", TS_IO_Read(TOUCH_CST836U_I2C_ADDRESS, CST836U_CHIP_TYPE_H_REG), TS_IO_Read(TOUCH_CST836U_I2C_ADDRESS, CST836U_CHIP_TYPE_L_REG));
+  TRACE("cst836u: fw ver 0x%02X %02X",
+        TS_IO_Read(TOUCH_CST836U_I2C_ADDRESS, CST836U_FW_VERSION_H_REG),
+        TS_IO_Read(TOUCH_CST836U_I2C_ADDRESS, CST836U_FW_VERSION_L_REG));
+  TRACE("cst836u: module version 0x%02X",
+        TS_IO_Read(TOUCH_CST836U_I2C_ADDRESS, CST836U_MODULE_VERSION_REG));
+  TRACE("cst836u: project name 0x%02X",
+        TS_IO_Read(TOUCH_CST836U_I2C_ADDRESS, CST836U_PROJECT_NAME_REG));
+  TRACE("cst836u: chip type 0x%02X 0x%02X",
+        TS_IO_Read(TOUCH_CST836U_I2C_ADDRESS, CST836U_CHIP_TYPE_H_REG),
+        TS_IO_Read(TOUCH_CST836U_I2C_ADDRESS, CST836U_CHIP_TYPE_L_REG));
 #endif
 }
 
@@ -129,31 +127,33 @@ static void touch_cst836u_debug_info(void)
  * @param  Y: Pointer to Y position value
  * @retval None.
  */
-static void cst836u_TS_GetXY(uint16_t * X, uint16_t * Y, uint32_t * event)
+static void cst836u_TS_GetXY(uint16_t* X, uint16_t* Y, uint32_t* event)
 {
   uint8_t regAddress = 0;
   uint8_t dataxy[4];
 
   if (tc_handle.currActiveTouchIdx < tc_handle.currActiveTouchNb) {
     switch (tc_handle.currActiveTouchIdx) {
-      case 0 :
+      case 0:
         regAddress = CST836U_TOUCH1_XH_REG;
         break;
-      case 1 :
+      case 1:
         regAddress = CST836U_TOUCH2_XH_REG;
         break;
-      default :
+      default:
         break;
     }
 
     /* Read X and Y positions */
-    TS_IO_ReadMultiple(TOUCH_CST836U_I2C_ADDRESS, regAddress, dataxy, sizeof(dataxy));
+    TS_IO_ReadMultiple(TOUCH_CST836U_I2C_ADDRESS, regAddress, dataxy,
+                       sizeof(dataxy));
     /* Send back ready X position to caller */
     *X = ((dataxy[0] & CST836U_MSB_MASK) << 8) | dataxy[1];
     /* Send back ready Y position to caller */
     *Y = ((dataxy[2] & CST836U_MSB_MASK) << 8) | dataxy[3];
 
-    *event = (dataxy[0] & CST836U_TOUCH_EVT_FLAG_MASK) >> CST836U_TOUCH_EVT_FLAG_SHIFT;
+    *event = (dataxy[0] & CST836U_TOUCH_EVT_FLAG_MASK) >>
+             CST836U_TOUCH_EVT_FLAG_SHIFT;
     /*
     uint32_t weight;
     uint32_t area;
@@ -164,8 +164,8 @@ static void cst836u_TS_GetXY(uint16_t * X, uint16_t * Y, uint32_t * event)
 
 /**
  * @brief  Return if there is touches detected or not.
- *         Try to detect new touches and forget the old ones (reset internal global
- *         variables).
+ *         Try to detect new touches and forget the old ones (reset internal
+ * global variables).
  * @param  DeviceAddr: Device address on communication Bus.
  * @retval : Number of active touches detected (can be 0, 1 or 2).
  */
@@ -216,35 +216,32 @@ void handleTouch()
     internalTouchState.x = touchX;
     internalTouchState.y = touchY;
 
-    if (internalTouchState.event == TE_NONE || internalTouchState.event == TE_UP || internalTouchState.event == TE_SLIDE_END) {
+    if (internalTouchState.event == TE_NONE ||
+        internalTouchState.event == TE_UP ||
+        internalTouchState.event == TE_SLIDE_END) {
       internalTouchState.startX = internalTouchState.x;
       internalTouchState.startY = internalTouchState.y;
       internalTouchState.event = TE_DOWN;
-    }
-    else if (internalTouchState.event == TE_DOWN) {
-      if (dx >= SLIDE_RANGE || dx <= -SLIDE_RANGE || dy >= SLIDE_RANGE || dy <= -SLIDE_RANGE) {
+    } else if (internalTouchState.event == TE_DOWN) {
+      if (dx >= SLIDE_RANGE || dx <= -SLIDE_RANGE || dy >= SLIDE_RANGE ||
+          dy <= -SLIDE_RANGE) {
         internalTouchState.event = TE_SLIDE;
-        internalTouchState.deltaX = (short) dx;
-        internalTouchState.deltaY = (short) dy;
-      }
-      else {
+        internalTouchState.deltaX = (short)dx;
+        internalTouchState.deltaY = (short)dy;
+      } else {
         internalTouchState.event = TE_DOWN;
         internalTouchState.deltaX = 0;
         internalTouchState.deltaY = 0;
       }
-    }
-    else if (internalTouchState.event == TE_SLIDE) {
-      internalTouchState.event = TE_SLIDE; //no change
-      internalTouchState.deltaX = (short) dx;
-      internalTouchState.deltaY = (short) dy;
+    } else if (internalTouchState.event == TE_SLIDE) {
+      internalTouchState.event = TE_SLIDE;  // no change
+      internalTouchState.deltaX = (short)dx;
+      internalTouchState.deltaY = (short)dy;
     }
   }
 }
 
-bool touchPanelEventOccured()
-{
-  return touchEventOccured;
-}
+bool touchPanelEventOccured() { return touchEventOccured; }
 
 TouchState touchPanelRead()
 {
@@ -284,12 +281,10 @@ TouchState touchPanelRead()
   TouchState ret = internalTouchState;
   internalTouchState.deltaX = 0;
   internalTouchState.deltaY = 0;
-  if(internalTouchState.event == TE_UP || internalTouchState.event == TE_SLIDE_END)
+  if (internalTouchState.event == TE_UP ||
+      internalTouchState.event == TE_SLIDE_END)
     internalTouchState.event = TE_NONE;
   return ret;
 }
 
-TouchState getInternalTouchState()
-{
-  return internalTouchState;
-}
+TouchState getInternalTouchState() { return internalTouchState; }

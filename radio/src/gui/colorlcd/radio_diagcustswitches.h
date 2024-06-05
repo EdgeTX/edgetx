@@ -21,12 +21,12 @@
 
 #include "page.h"
 
-class RadioCustSwitchesDiagsPage: public Page {
-  public:
-    explicit RadioCustSwitchesDiagsPage();
+class RadioCustSwitchesDiagsPage : public Page
+{
+ public:
+  explicit RadioCustSwitchesDiagsPage();
 
-  protected:
-    void buildHeader(Window * window);
-    void buildBody(Window * window);
+ protected:
+  void buildHeader(Window* window);
+  void buildBody(Window* window);
 };
-
