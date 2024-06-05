@@ -611,5 +611,9 @@ const char * restoreModel(uint8_t idx, char *model_name)
 bool storageReadRadioSettings(bool checks)
 {
   if (!sdMounted()) sdInit();
-  return loadRadioSettingsYaml(checks) == nullptr;
+  bool rv = loadRadioSettingsYaml(checks) == nullptr;
+#if LCD_W == 128
+  lcdSetInvert(g_eeGeneral.invertLCD);
+#endif
+  return rv;
 }

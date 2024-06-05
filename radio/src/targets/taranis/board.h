@@ -371,6 +371,9 @@ void lcdRefresh();
 void lcdRefresh(bool wait=true); // TODO uint8_t wait to simplify this
 #endif
 void lcdSetRefVolt(unsigned char val);
+#if LCD_W == 128
+void lcdSetInvert(bool invert);
+#endif
 #ifdef __cplusplus
 void lcdSetContrast(bool useDefault = false);
 #endif

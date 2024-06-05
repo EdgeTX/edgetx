@@ -80,6 +80,10 @@ enum {
   ITEM_RADIO_HARDWARE_JITTER_FILTER,
   ITEM_RADIO_HARDWARE_RAS,
   ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER,
+#if (defined(BACKLIGHT_GPIO) || defined(OLED_SCREEN)) && (LCD_W == 128)
+  ITEM_RADIO_HARDWARE_SCREEN_LABEL,
+  ITEM_RADIO_HARDWARE_SCREEN_INVERT,
+#endif
   ITEM_RADIO_HARDWARE_DEBUG,
 #if defined(FUNCTION_SWITCHES)
   ITEM_RADIO_HARDWARE_DEBUG_FS,
@@ -210,6 +214,11 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   } else {
     tab[ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER] = HIDDEN_ROW;
   }
+
+#if (defined(BACKLIGHT_GPIO) || defined(OLED_SCREEN)) && (LCD_W == 128)
+  tab[ITEM_RADIO_HARDWARE_SCREEN_LABEL] = READONLY_ROW;
+  tab[ITEM_RADIO_HARDWARE_SCREEN_INVERT] = 0;
+#endif
 
   tab[ITEM_RADIO_HARDWARE_DEBUG] = 1;
 #if defined(FUNCTION_SWITCHES)
@@ -424,6 +433,21 @@ void menuRadioHardware(event_t event)
           modulePortSetPower(SPORT_MODULE, g_eeGeneral.sportUpdatePower);
         }
         break;
+
+#if (defined(BACKLIGHT_GPIO) || defined(OLED_SCREEN)) && (LCD_W == 128)
+      case ITEM_RADIO_HARDWARE_SCREEN_LABEL:
+        lcdDrawTextAlignedLeft(y, STR_SCREEN);
+        break;
+      case ITEM_RADIO_HARDWARE_SCREEN_INVERT:
+        {
+          lcdDrawText(INDENT_WIDTH, y, STR_MENU_INVERT);
+          bool inv = g_eeGeneral.invertLCD;
+          g_eeGeneral.invertLCD = editCheckBox(g_eeGeneral.invertLCD, HW_SETTINGS_COLUMN2, y, nullptr, attr, event);
+          if (inv != g_eeGeneral.invertLCD)
+            lcdSetInvert(g_eeGeneral.invertLCD);
+        }
+        break;
+#endif
 
       case ITEM_RADIO_HARDWARE_DEBUG:
         lcdDrawTextAlignedLeft(y, STR_DEBUG);
