@@ -21,6 +21,13 @@ static const LuaSingleField _lua_inputs[] = {
   // flex inputs
   {% set inputs = adc_inputs.inputs | selectattr('type', '==', 'FLEX') | list %}
 {{ lua_inputs('MIXSRC_FIRST_POT', inputs) }}
+  // switches
+  {% set inputs = switches | selectattr('type','!=','FSWITCH') | list %}
+  {% set sw_count =  inputs | count %}
+  {% for n in range(sw_count) %}
+    {% set sw = switches[loop.index0] %}
+  { MIXSRC_FIRST_SWITCH + {{ loop.index0 }}, "{{ sw.name }}", "{{ sw.name }}" },
+  {% endfor %}
   // trims
   {% set trims_count =  trims | count %}
   {% for n in range(trims_count) %}

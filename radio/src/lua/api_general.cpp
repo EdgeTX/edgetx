@@ -413,7 +413,7 @@ const LuaMultipleField luaMultipleFields[] = {
     {MIXSRC_FIRST_HELI, "cyc", "Cyclic %d", 3},
 };
 
-static bool _searchSingleFields(const char* name, LuaField& field,
+static bool _searchSingleFieldsByName(const char* name, LuaField& field,
                                 unsigned int flags,
                                 const LuaSingleField* fields, size_t n_fields)
 {
@@ -443,11 +443,11 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
   field.name[sizeof(field.name) - 1] = '\0';
 
   // hardware specific inputs
-  if (_searchSingleFields(name, field, flags, _lua_inputs, DIM(_lua_inputs)))
+  if (_searchSingleFieldsByName(name, field, flags, _lua_inputs, DIM(_lua_inputs)))
     return true;
   
   // well known single fields
-  if (_searchSingleFields(name, field, flags, luaSingleFields, DIM(luaSingleFields)))
+  if (_searchSingleFieldsByName(name, field, flags, luaSingleFields, DIM(luaSingleFields)))
     return true;
 
   // check switches from 'sa' to 'sz'
@@ -531,6 +531,24 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
   return false;  // not found
 }
 
+static bool _searchSingleFieldsById(int id, LuaField& field,
+                                unsigned int flags,
+                                const LuaSingleField* fields, size_t n_fields)
+{
+  for (unsigned int n = 0; n < n_fields; ++n) {
+    if (id == fields[n].id) {
+      strncpy(field.name, fields[n].name, sizeof(field.name) - 1);
+      if (flags & FIND_FIELD_DESC) {
+        strncpy(field.desc, fields[n].desc, sizeof(field.desc) - 1);
+        field.desc[sizeof(field.desc) - 1] = '\0';
+      }
+      return true;
+    }
+  }
+
+  return false;
+}
+
 // Return field data for a given field id
 bool luaFindFieldById(int id, LuaField & field, unsigned int flags)
 {
@@ -538,17 +556,13 @@ bool luaFindFieldById(int id, LuaField & field, unsigned int flags)
   field.name[sizeof(field.name) - 1] = '\0';
   field.desc[0] = '\0';
 
-  // TODO better search method (binary lookup)
-  for (unsigned int n = 0; n < DIM(luaSingleFields); ++n) {
-    if (id == luaSingleFields[n].id) {
-      strncpy(field.name, luaSingleFields[n].name, sizeof(field.name) - 1);
-      if (flags & FIND_FIELD_DESC) {
-        strncpy(field.desc, luaSingleFields[n].desc, sizeof(field.desc) - 1);
-        field.desc[sizeof(field.desc) - 1] = '\0';
-      }
-      return true;
-    }
-  }
+  // hardware specific inputs
+  if (_searchSingleFieldsById(id, field, flags, _lua_inputs, DIM(_lua_inputs)))
+    return true;
+  
+  // well known single fields
+  if (_searchSingleFieldsById(id, field, flags, luaSingleFields, DIM(luaSingleFields)))
+    return true;
 
   // search in multiples
   for (unsigned int n = 0; n < DIM(luaMultipleFields); ++n) {
