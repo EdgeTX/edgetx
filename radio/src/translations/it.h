@@ -1244,13 +1244,13 @@
 #define TR_USBJOYSTICK_CH_AXIS         "Assi"
 #define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","rotX","rotY","rotZ","Slider","Dial","Wheel"
 #define TR_USBJOYSTICK_CH_SIM          "Sim assi"
-#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr"
+#define TR_VUSBJOYSTICK_CH_SIM         "Ale","Ele","Dir","Mot","Acc","Fre","Sterz","Dpad"
 #define TR_USBJOYSTICK_CH_INVERSION    "Inversione"
 #define TR_USBJOYSTICK_CH_BTNNUM       "Pulsante no."
 #define TR_USBJOYSTICK_BTN_COLLISION   "!Collisione pulsante no.!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!Collisione assi!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Rit. Cir.", "Ritaglio circolare")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "Nessuno","X-Y, Z-rX","X-Y, rX-rY"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "Nessuno","X-Y, Z-rX","X-Y, rX-rY","X-Y, Z-rZ"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "Applica modifiche"
 
 #define TR_DIGITAL_SERVO               "Servo 333HZ"

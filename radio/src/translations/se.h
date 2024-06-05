@@ -1286,13 +1286,13 @@
 #define TR_USBJOYSTICK_CH_AXIS          "Axis"
 #define TR_VUSBJOYSTICK_CH_AXIS         "X","Y","Z","rotX","rotY","rotZ","Reglage","Vred","Hjul"
 #define TR_USBJOYSTICK_CH_SIM           "Sim.axlar"
-#define TR_VUSBJOYSTICK_CH_SIM          "Ske","Hjd","Rod","Gas","Acc","Brms","dpad"
+#define TR_VUSBJOYSTICK_CH_SIM          "Ske","Hjd","Rod","Gas","Acc","Brms","Styr","dpad"
 #define TR_USBJOYSTICK_CH_INVERSION     "Invertering"
 #define TR_USBJOYSTICK_CH_BTNNUM        "Knapp nr."
 #define TR_USBJOYSTICK_BTN_COLLISION    "!Knappnr. krockar!"
 #define TR_USBJOYSTICK_AXIS_COLLISION   "!Axlar krockar!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT     TR("Cirk. klipp", "Cirkulärt klipp")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT    "Ingen","X-Y, Z-rX","X-Y, rX-rY"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT    "Ingen","X-Y, Z-rX","X-Y, rX-rY","X-Y, Z-rZ"
 #define TR_USBJOYSTICK_APPLY_CHANGES    "Tillämpa ändringar"
 
 #define TR_DIGITAL_SERVO                "Servo333Hz"

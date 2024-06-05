@@ -1252,13 +1252,13 @@
 #define TR_USBJOYSTICK_CH_AXIS         "Вісь"
 #define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","rotX","rotY","rotZ","Повзунок","Dial","Колесо"
 #define TR_USBJOYSTICK_CH_SIM          "Сим. вісі"
-#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr"
+#define TR_VUSBJOYSTICK_CH_SIM         "Ail","Ele","Rud","Thr","Acc","Brk","Steer","Dpad"
 #define TR_USBJOYSTICK_CH_INVERSION    "Інверсія"
 #define TR_USBJOYSTICK_CH_BTNNUM       "Номер Кнопки"
 #define TR_USBJOYSTICK_BTN_COLLISION   "!Конфлікт номерів кнопок!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!Конфлікт осей!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Круговий виріз", "Круговий виріз")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "Немає","X-Y, Z-rX","X-Y, rX-rY"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "Немає","X-Y, Z-rX","X-Y, rX-rY","X-Y, Z-rZ"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "Застосувати зміни"
 
 #define TR_DIGITAL_SERVO          "Серво 333HZ"

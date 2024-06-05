@@ -1247,13 +1247,13 @@
 #define TR_USBJOYSTICK_CH_AXIS         "轴"
 #define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","旋转X","旋转Y","旋转Z","推杆","拨轮","方向盘"
 #define TR_USBJOYSTICK_CH_SIM          "模拟轴"
-#define TR_VUSBJOYSTICK_CH_SIM         "横滚Ail","俯仰Ele","方向Rud","油门Thr"
+#define TR_VUSBJOYSTICK_CH_SIM         "横滚","俯仰","航向","油门","加速","刹车","转盘","方向"
 #define TR_USBJOYSTICK_CH_INVERSION    "反转"
 #define TR_USBJOYSTICK_CH_BTNNUM       "按钮编号."
 #define TR_USBJOYSTICK_BTN_COLLISION   "!按钮编号冲突!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!轴冲突!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("圆口行程", "圆口行程")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "禁用","X-Y, Z-旋转X","X-Y, 旋转X-旋转Y"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "无","X-Y, Z-rX","X-Y, rX-rY","X-Y, Z-rZ"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "应用更改"
 
 #define TR_DIGITAL_SERVO          "数字舵机333HZ"

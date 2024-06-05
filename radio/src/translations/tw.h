@@ -1252,13 +1252,13 @@
 #define TR_USBJOYSTICK_CH_AXIS         "轴"
 #define TR_VUSBJOYSTICK_CH_AXIS        "X","Y","Z","旋轉X","旋轉Y","旋轉Z","推桿","撥輪","方向盤"
 #define TR_USBJOYSTICK_CH_SIM          "模擬軸"
-#define TR_VUSBJOYSTICK_CH_SIM         "橫滾Ail","俯仰Ele","方向Rud","油門Thr"
+#define TR_VUSBJOYSTICK_CH_SIM         "橫滾","俯仰","航向","油門","加速","剎車","轉盤","方向"
 #define TR_USBJOYSTICK_CH_INVERSION    "反轉"
 #define TR_USBJOYSTICK_CH_BTNNUM       "按鈕編號."
 #define TR_USBJOYSTICK_BTN_COLLISION   "!按鈕編號衝突!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!軸衝突!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("圓口行程", "圓口行程")
-#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "禁用","X-Y, Z-旋轉X","X-Y, 旋轉X-旋轉Y"
+#define TR_VUSBJOYSTICK_CIRC_COUTOUT   "無","X-Y, Z-rX","X-Y, rX-rY","X-Y, Z-rZ"
 #define TR_USBJOYSTICK_APPLY_CHANGES   "應用更改"
 
 #define TR_DIGITAL_SERVO          "數字舵機333HZ"
