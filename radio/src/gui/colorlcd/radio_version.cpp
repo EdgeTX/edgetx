@@ -24,8 +24,6 @@
 #include "options.h"
 #include "libopenui.h"
 #include "fw_version.h"
-#include "hal/module_port.h"
-#include "hal.h"
 
 #if defined(CROSSFIRE)
   #include "mixer_scheduler.h"
