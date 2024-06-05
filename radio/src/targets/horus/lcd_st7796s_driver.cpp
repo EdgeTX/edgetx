@@ -28,6 +28,7 @@
 #include "debug.h"
 #include "lcd.h"
 #include "lcd_st7796s_driver.h"
+#include "hal.h"
 
 static LTDC_HandleTypeDef hltdc;
 static void* initialFrameBuffer = nullptr;
@@ -301,6 +302,11 @@ void LCD_ST7796S_Init(void) {
   lcdWriteData( 0x69 );
 
   delay_ms(120);
+
+#if defined(RADIO_T15)
+  if (LL_PCBREV_VALUE() == 1)  // 0: TFT, 1: IPS
+    lcdWriteCommand( 0x21 );
+#endif
 
   LCD_ST7796S_On();
 }
