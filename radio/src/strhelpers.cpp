@@ -33,6 +33,21 @@
 static char _static_str_buffer[32];
 static const char s_charTab[] = "_-.,";
 
+const char* sanitizeForFilename(const char* name, int len)
+{
+  strAppend(_static_str_buffer, name, len);
+
+  char *s = _static_str_buffer;
+  // Remove invalid characters in filename
+  for (int i = 0; s[i]; i += 1)
+    if (s[i] == '"' || s[i] == ':' || s[i] == '\\' ||
+        s[i] == '/' || s[i] == '<' || s[i] == '>' ||
+        s[i] == '?' || s[i] == '*')
+      s[i] = '_';
+  
+  return _static_str_buffer;
+}
+
 char hex2zchar(uint8_t hex) { return (hex >= 10 ? hex - 9 : 27 + hex); }
 
 char hex2char(uint8_t hex) { return (hex >= 10 ? hex - 10 + 'A' : hex + '0'); }

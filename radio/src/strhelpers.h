@@ -56,6 +56,8 @@ typedef union {
   TimerDisplayOptions displayOptions;
 } TimerOptions;
 
+const char* sanitizeForFilename(const char* name, int len);
+
 char hex2zchar(uint8_t hex);
 char hex2char(uint8_t hex);
 char zchar2char(int8_t idx);
