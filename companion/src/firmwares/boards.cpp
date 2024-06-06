@@ -683,6 +683,65 @@ int Boards::getDefaultInternalModules(Board::Type board)
   }
 }
 
+#define BR(min, max, warn) vmin = min - 90; vmax = max - 120; vwarn = warn;
+
+void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int& vwarn)
+{
+  switch (board) {
+    case BOARD_TARANIS_X7:
+    case BOARD_TARANIS_X7_ACCESS:
+    case BOARD_TARANIS_X9D:
+    case BOARD_TARANIS_X9DP:
+    case BOARD_TARANIS_X9DP_2019:
+    case BOARD_TARANIS_X9LITE:
+    case BOARD_TARANIS_X9LITES:
+    case BOARD_RADIOMASTER_TX12:
+    case BOARD_RADIOMASTER_TX12_MK2:
+    case BOARD_RADIOMASTER_BOXER:
+    case BOARD_RADIOMASTER_POCKET:
+    case BOARD_RADIOMASTER_ZORRO:
+    // case BOARD_RADIOMASTER_MT12:   // TODO
+    case BOARD_JUMPER_T12:
+    case BOARD_JUMPER_T14:
+    case BOARD_JUMPER_TPRO:
+    case BOARD_JUMPER_TPROV2:
+    default:
+      BR(60, 80, 65)
+      break;
+    case BOARD_TARANIS_X9E:
+    case BOARD_HORUS_X12S:
+      BR(85, 115, 87)
+      break;
+    case BOARD_TARANIS_XLITE:
+    case BOARD_TARANIS_XLITES:
+    case BOARD_X10:
+    case BOARD_X10_EXPRESS:
+    case BOARD_RADIOMASTER_TX16S:
+    case BOARD_JUMPER_T16:
+    case BOARD_JUMPER_T18:
+    case BOARD_JUMPER_T20:
+    case BOARD_JUMPER_T20V2:
+      BR(67, 83, 66)
+      break;
+    case BOARD_JUMPER_TLITE:
+    case BOARD_JUMPER_TLITE_F4:
+    case BOARD_RADIOMASTER_T8:
+    case BOARD_BETAFPV_LR3PRO:
+      BR(34, 42, 36)
+      break;
+    case BOARD_FLYSKY_NV14:
+    case BOARD_FLYSKY_EL18:
+      BR(35, 42, 37)
+      break;
+    case BOARD_FLYSKY_PL18:
+      BR(35, 43, 37)
+      break;
+    case BOARD_IFLIGHT_COMMANDO8:
+      BR(30, 42, 32)
+      break;
+  }
+}
+
 // static
 int Boards::getDefaultExternalModuleSize(Board::Type board)
 {
