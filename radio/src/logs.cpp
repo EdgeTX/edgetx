@@ -168,6 +168,13 @@ const char * logsOpen()
 
   strcpy(tmp, STR_LOGS_EXT);
 
+  // Remove invalid characters in filename
+  for (i = 0; filename[i]; i += 1)
+    if (filename[i] == '"' || filename[i] == ':' || filename[i] == '\\' ||
+        filename[i] == '/' || filename[i] == '<' || filename[i] == '>' ||
+        filename[i] == '?' || filename[i] == '*')
+      filename[i] = '_';
+
   result = f_open(&g_oLogFile, filename, FA_OPEN_ALWAYS | FA_WRITE | FA_OPEN_APPEND);
   if (result != FR_OK) {
     return SDCARD_ERROR(result);
