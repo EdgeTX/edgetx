@@ -32,8 +32,6 @@ typedef struct {
 
 class Menu;
 
-constexpr int CHOICE_LABEL_MARGIN_RIGHT = 10;
-
 enum ChoiceType {
   CHOICE_TYPE_DROPOWN,
   CHOICE_TYPE_FOLDER,
@@ -46,6 +44,8 @@ class ChoiceBase : public FormField
              ChoiceType type = CHOICE_TYPE_DROPOWN);
 
   void setChoiceType(ChoiceType t) { type = t; }
+
+  static LAYOUT_VAL(ICON_W, 18, 18)
 
  protected:
   ChoiceType type;

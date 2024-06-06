@@ -165,3 +165,52 @@ void ConfirmDialog::onCancel()
   deleteLater();
   if (cancelHandler) cancelHandler();
 }
+
+//-----------------------------------------------------------------------------
+
+LabelDialog::LabelDialog(Window *parent, const char *label, int length, const char* title,
+            std::function<void(std::string)> _saveHandler) :
+    ModalWindow(parent, false), saveHandler(std::move(_saveHandler))
+{
+  assert(length <= MAX_LABEL_LENGTH);
+
+  strncpy(this->label, label, length);
+  this->label[length] = '\0';
+
+  auto form = new Window(this, rect_t{});
+  form->padAll(PAD_ZERO);
+  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, LCD_W * 0.8,
+                      LV_SIZE_CONTENT);
+  etx_solid_bg(form->getLvObj());
+  lv_obj_center(form->getLvObj());
+
+  auto hdr = new StaticText(form, {0, 0, LV_PCT(100), 0}, title,
+                            COLOR_THEME_PRIMARY2);
+  etx_solid_bg(hdr->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
+  hdr->padAll(PAD_MEDIUM);
+
+  auto box = new Window(form, rect_t{});
+  box->padAll(PAD_MEDIUM);
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, 40, LV_PCT(100), LV_SIZE_CONTENT);
+  lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_CENTER,
+                        LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
+
+  new TextEdit(box, rect_t{0, 0, LV_PCT(100), 0}, this->label, length);
+
+  box = new Window(form, rect_t{});
+  box->padAll(PAD_MEDIUM);
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, 40, LV_PCT(100), LV_SIZE_CONTENT);
+  lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_CENTER,
+                        LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
+
+  new TextButton(box, rect_t{0, 0, 96, 0}, STR_CANCEL, [=]() {
+    deleteLater();
+    return 0;
+  });
+
+  new TextButton(box, rect_t{0, 0, 96, 0}, STR_SAVE, [=]() {
+    if (saveHandler != nullptr) saveHandler(this->label);
+    deleteLater();
+    return 0;
+  });
+}

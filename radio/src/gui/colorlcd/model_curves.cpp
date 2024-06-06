@@ -27,16 +27,10 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-#define PREVIEW_PAD 6
-#define TITLE_H 20
-#define INFO_H 27
-#define CURVE_BTN_W 142
-#define CURVE_BTH_H CURVE_BTN_W + TITLE_H + INFO_H - PREVIEW_PAD
-
-#if LCD_W > LCD_H
-#define PER_ROW 3
-#else
+#if PORTRAIT_LCD
 #define PER_ROW 2
+#else
+#define PER_ROW 3
 #endif
 
 class CurveButton : public Button
@@ -54,7 +48,7 @@ class CurveButton : public Button
       s = strAppend(s, ":");
       strAppend(s, g_model.curves[index].name, LEN_CURVE_NAME);
     }
-    title = new StaticText(this, {4, -1, width() - 12, 21}, buf, 
+    title = new StaticText(this, {4, -1, width() - 12, TITLE_H + 1}, buf, 
                            COLOR_THEME_SECONDARY1 | CENTERED | FONT(BOLD));
     etx_txt_color(title->getLvObj(), COLOR_THEME_PRIMARY2_INDEX,
                   LV_PART_MAIN | LV_STATE_USER_1);
@@ -71,8 +65,8 @@ class CurveButton : public Button
     // Preview
     preview = new CurveRenderer(
         this,
-        {PREVIEW_PAD, PREVIEW_PAD + TITLE_H, width() - PREVIEW_PAD * 2 - 4,
-         width() - PREVIEW_PAD * 2 - 4},
+        {PAD_MEDIUM, PAD_MEDIUM + TITLE_H, width() - PAD_MEDIUM * 2 - 4,
+         width() - PAD_MEDIUM * 2 - 4},
         [=](int x) -> int { return applyCustomCurve(x, index); });
 
     // Curve characteristics
@@ -84,6 +78,11 @@ class CurveButton : public Button
   }
 
   void update() { preview->update(); }
+
+  static LAYOUT_VAL(TITLE_H, 20, 20)
+  static LAYOUT_VAL(INFO_H, 27, 27)
+  static LAYOUT_VAL(CURVE_BTN_W, 142, 142)
+  static constexpr coord_t CURVE_BTH_H = CURVE_BTN_W + TITLE_H + INFO_H - PAD_MEDIUM;
 
  protected:
   uint8_t index;
@@ -209,7 +208,7 @@ void ModelCurvesPage::plusPopup(Window *window)
 
 void ModelCurvesPage::build(Window *window)
 {
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                        LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 #else
@@ -239,7 +238,7 @@ void ModelCurvesPage::build(Window *window)
 
       // Curve drawing
       auto button =
-          new CurveButton(line, rect_t{0, 0, CURVE_BTN_W, CURVE_BTH_H}, index);
+          new CurveButton(line, rect_t{0, 0, CurveButton::CURVE_BTN_W, CurveButton::CURVE_BTH_H}, index);
       button->setPressHandler([=]() -> uint8_t {
         Menu *menu = new Menu(window);
         menu->setTitle(STR_CURVE);
@@ -296,7 +295,7 @@ void ModelCurvesPage::build(Window *window)
                             LV_GRID_ALIGN_SPACE_BETWEEN);
     }
 
-    addButton = new TextButton(line, rect_t{0, 0, CURVE_BTN_W, CURVE_BTH_H},
+    addButton = new TextButton(line, rect_t{0, 0, CurveButton::CURVE_BTN_W, CurveButton::CURVE_BTH_H},
                                LV_SYMBOL_PLUS, [=]() {
                                  plusPopup(window);
                                  return 0;

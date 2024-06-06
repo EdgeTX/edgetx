@@ -23,7 +23,7 @@
 
 #include "libopenui.h"
 
-class FilePreview : public StaticImage
+class FilePreview : public StaticBitmap
 {
  public:
   FilePreview(Window *parent, const rect_t &rect);

@@ -23,17 +23,22 @@
 
 #include "opentx.h"
 
-constexpr coord_t ROW_HEIGHT = 42;
-constexpr coord_t BAR_HEIGHT = 13;
-constexpr coord_t LMARGIN = 15;
-constexpr coord_t TMARGIN = 2;
-
 class ChannelBar : public Window
 {
  public:
   ChannelBar(Window* parent, const rect_t& rect, uint8_t channel,
              std::function<int16_t()> getValue, LcdColorIndex barColorIndex,
              LcdColorIndex textColorIndex = COLOR_THEME_SECONDARY1_INDEX);
+
+  static LAYOUT_VAL(BAR_HEIGHT, 13, 13)
+  static LAYOUT_VAL(LMARGIN, 15, 15)
+  static LAYOUT_VAL(TMARGIN, 2, 2)
+
+  static LAYOUT_VAL(VAL_W, 45, 45)
+  static LAYOUT_VAL(VAL_H, 14, 14)
+  static LAYOUT_VAL(VAL_XO, 5, 5)
+  static LAYOUT_VAL(VAL_YO, -2, -2)
+  static LAYOUT_VAL(VAL_XT, -54, -54)
 
  protected:
   uint8_t channel = 0;
@@ -77,6 +82,8 @@ class ComboChannelBar : public Window
   // using ChannelBar::ChannelBar;
   ComboChannelBar(Window* parent, const rect_t& rect, uint8_t channel,
                   bool isInHeader = false);
+
+  static LAYOUT_VAL(ICON_SZ, 25, 25)
 
  protected:
   uint8_t channel;

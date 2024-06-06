@@ -87,27 +87,27 @@ MainViewTrim::MainViewTrim(Window* parent, const rect_t& rect, uint8_t idx,
   etx_solid_bg(trimBar, COLOR_THEME_SECONDARY1_INDEX);
   etx_obj_add_style(trimBar, styles->rounded, LV_PART_MAIN);
   if (isVertical) {
-    lv_obj_set_pos(trimBar, (TRIM_SQUARE_SIZE - TRIM_LINE_WIDTH) / 2,
-                   TRIM_SQUARE_SIZE / 2);
-    lv_obj_set_size(trimBar, TRIM_LINE_WIDTH,
-                    VERTICAL_SLIDERS_HEIGHT - TRIM_SQUARE_SIZE + 1);
+    lv_obj_set_pos(trimBar, (LayoutFactory::TRIM_SQUARE_SIZE - LayoutFactory::TRIM_LINE_WIDTH) / 2,
+                   LayoutFactory::TRIM_SQUARE_SIZE / 2);
+    lv_obj_set_size(trimBar, LayoutFactory::TRIM_LINE_WIDTH,
+                    MainViewSlider::VERTICAL_SLIDERS_HEIGHT - LayoutFactory::TRIM_SQUARE_SIZE + 1);
   } else {
-    lv_obj_set_pos(trimBar, TRIM_SQUARE_SIZE / 2,
-                   (TRIM_SQUARE_SIZE - TRIM_LINE_WIDTH - 1) / 2);
-    lv_obj_set_size(trimBar, HORIZONTAL_SLIDERS_WIDTH - TRIM_SQUARE_SIZE + 1,
-                    TRIM_LINE_WIDTH);
+    lv_obj_set_pos(trimBar, LayoutFactory::TRIM_SQUARE_SIZE / 2,
+                   (LayoutFactory::TRIM_SQUARE_SIZE - LayoutFactory::TRIM_LINE_WIDTH - 1) / 2);
+    lv_obj_set_size(trimBar, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH - LayoutFactory::TRIM_SQUARE_SIZE + 1,
+                    LayoutFactory::TRIM_LINE_WIDTH);
   }
 
   trimIcon = new TrimIcon(this, isVertical);
   coord_t x = 0, y = 0;
   if (isVertical)
-    y = (height() - TRIM_SQUARE_SIZE) / 2;
+    y = (height() - LayoutFactory::TRIM_SQUARE_SIZE) / 2;
   else
-    y = (width() - TRIM_SQUARE_SIZE) / 2;
+    y = (width() - LayoutFactory::TRIM_SQUARE_SIZE) / 2;
   lv_obj_set_pos(trimIcon->getLvObj(), x, y);
 
   trimValue = new DynamicNumber<int16_t>(
-      this, {0, 0, TRIM_SQUARE_SIZE, 12},
+      this, {0, 0, LayoutFactory::TRIM_SQUARE_SIZE, 12},
       [=]() { return divRoundClosest(abs(value) * 100, trimMax); },
       COLOR_THEME_PRIMARY2 | FONT(XXS) | CENTERED);
   etx_solid_bg(trimValue->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
@@ -141,13 +141,13 @@ void MainViewTrim::setPos()
     if (value) {
       if (isVertical) {
         x = 0;
-        y = (value > 0) ? VERTICAL_SLIDERS_HEIGHT * 4 / 5
-                        : VERTICAL_SLIDERS_HEIGHT / 5 - 11;
+        y = (value > 0) ? MainViewSlider::VERTICAL_SLIDERS_HEIGHT * 4 / 5
+                        : MainViewSlider::VERTICAL_SLIDERS_HEIGHT / 5 - 11;
       } else {
-        x = ((value < 0) ? HORIZONTAL_SLIDERS_WIDTH * 4 / 5
-                         : HORIZONTAL_SLIDERS_WIDTH / 5) -
-            TRIM_SQUARE_SIZE / 2;
-        y = (TRIM_SQUARE_SIZE - 12) / 2;
+        x = ((value < 0) ? MainViewSlider::HORIZONTAL_SLIDERS_WIDTH * 4 / 5
+                         : MainViewSlider::HORIZONTAL_SLIDERS_WIDTH / 5) -
+            LayoutFactory::TRIM_SQUARE_SIZE / 2;
+        y = (LayoutFactory::TRIM_SQUARE_SIZE - 12) / 2;
       }
       lv_obj_set_pos(trimValue->getLvObj(), x, y);
       trimValue->show();
@@ -208,7 +208,7 @@ coord_t MainViewTrim::sx()
   if (isVertical) return 0;
 
   return divRoundClosest(
-      (HORIZONTAL_SLIDERS_WIDTH - TRIM_SQUARE_SIZE) * (value - trimMin),
+      (MainViewSlider::HORIZONTAL_SLIDERS_WIDTH - LayoutFactory::TRIM_SQUARE_SIZE) * (value - trimMin),
       trimMax - trimMin);
 }
 
@@ -217,20 +217,20 @@ coord_t MainViewTrim::sy()
   if (!isVertical) return 0;
 
   return divRoundClosest(
-             (VERTICAL_SLIDERS_HEIGHT - TRIM_SQUARE_SIZE) * (trimMax - value),
+             (MainViewSlider::VERTICAL_SLIDERS_HEIGHT - LayoutFactory::TRIM_SQUARE_SIZE) * (trimMax - value),
              trimMax - trimMin);
 }
 
 MainViewHorizontalTrim::MainViewHorizontalTrim(Window* parent, uint8_t idx) :
     MainViewTrim(parent,
-                 rect_t{0, 0, HORIZONTAL_SLIDERS_WIDTH, TRIM_SQUARE_SIZE}, idx,
+                 rect_t{0, 0, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, LayoutFactory::TRIM_SQUARE_SIZE}, idx,
                  false)
 {
 }
 
 MainViewVerticalTrim::MainViewVerticalTrim(Window* parent, uint8_t idx) :
     MainViewTrim(parent,
-                 rect_t{0, 0, TRIM_SQUARE_SIZE, VERTICAL_SLIDERS_HEIGHT}, idx,
+                 rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, MainViewSlider::VERTICAL_SLIDERS_HEIGHT}, idx,
                  true)
 {
 }

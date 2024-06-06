@@ -301,54 +301,6 @@ void getsEdgeDelayParam(char* s, LogicalSwitchData* ls)
                                 .c_str());
 }
 
-#if LCD_W > LCD_H  // Landscape
-
-#define LS_BUTTON_H 32
-
-#define NM_Y 4
-#define NM_W 30
-#define FN_W 50
-#define V1_Y NM_Y
-#define AND_X (V2_X + V2_W + 2)
-#define AND_Y NM_Y
-#define DUR_W 40
-
-#else  // Portrait
-
-#define LS_BUTTON_H 44
-
-#define NM_Y 10
-#define NM_W 36
-#define FN_W 58
-#define V1_Y 0
-#define AND_X (FN_X + FN_W + 2)
-#define AND_Y 20
-#define DUR_W 54
-
-#endif
-
-#define NM_X 2
-#define NM_H 20
-#define FN_X (NM_X + NM_W + 2)
-#define FN_Y NM_Y
-#define FN_H NM_H
-#define V1_X (FN_X + FN_W + 2)
-#define V1_W 88
-#define V1_H NM_H
-#define V2_X (V1_X + V1_W + 2)
-#define V2_Y V1_Y
-#define V2_W 110
-#define V2_H NM_H
-#define AND_W 88
-#define AND_H NM_H
-#define DUR_X (AND_X + AND_W + 2)
-#define DUR_Y AND_Y
-#define DUR_H NM_H
-#define DEL_X (DUR_X + DUR_W + 2)
-#define DEL_Y AND_Y
-#define DEL_H NM_H
-#define DEL_W DUR_W
-
 class LogicalSwitchButton : public ListLineButton
 {
  public:
@@ -378,6 +330,8 @@ class LogicalSwitchButton : public ListLineButton
   void delayed_init()
   {
     init = true;
+
+    lv_obj_enable_style_refresh(false);
 
     lsName = lv_label_create(lvobj);
     etx_obj_add_style(lsName, styles->text_align_left, LV_PART_MAIN);
@@ -416,6 +370,9 @@ class LogicalSwitchButton : public ListLineButton
     lv_obj_set_size(lsDelay, DEL_W, DEL_H);
 
     lv_obj_update_layout(lvobj);
+
+    lv_obj_enable_style_refresh(true);
+    lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
   }
 
   bool isActive() const override
@@ -508,6 +465,37 @@ class LogicalSwitchButton : public ListLineButton
       lv_label_set_text(lsDelay, "");
     }
   }
+
+  static LAYOUT_VAL(LS_BUTTON_H, 32, 44)
+
+  static constexpr coord_t NM_X = PAD_TINY;
+  static LAYOUT_VAL(NM_Y, 4, 10)
+  static LAYOUT_VAL(NM_W, 30, 36)
+  static LAYOUT_VAL(NM_H, 20, 20)
+  static constexpr coord_t FN_X = NM_X + NM_W + PAD_TINY;
+  static constexpr coord_t FN_Y = NM_Y;
+  static LAYOUT_VAL(FN_W, 50, 58)
+  static constexpr coord_t FN_H = NM_H;
+  static constexpr coord_t V1_X = FN_X + FN_W + PAD_TINY;
+  static LAYOUT_VAL(V1_Y, NM_Y, 0)
+  static LAYOUT_VAL(V1_W, 88, 88)
+  static constexpr coord_t V1_H = NM_H;
+  static constexpr coord_t V2_X = V1_X + V1_W + PAD_TINY;
+  static constexpr coord_t V2_Y = V1_Y;
+  static LAYOUT_VAL(V2_W, 110, 110)
+  static constexpr coord_t V2_H = NM_H;
+  static LAYOUT_VAL(AND_X, V2_X + V2_W + PAD_TINY, FN_X + FN_W + PAD_TINY)
+  static LAYOUT_VAL(AND_Y, NM_Y, 20)
+  static constexpr coord_t AND_W = V1_W;
+  static constexpr coord_t AND_H = NM_H;
+  static constexpr coord_t DUR_X = AND_X + AND_W + PAD_TINY;
+  static constexpr coord_t DUR_Y = AND_Y;
+  static LAYOUT_VAL(DUR_W, 40, 54)
+  static constexpr coord_t DUR_H = NM_H;
+  static constexpr coord_t DEL_X = DUR_X + DUR_W + PAD_TINY;
+  static constexpr coord_t DEL_Y = AND_Y;
+  static constexpr coord_t DEL_H = NM_H;
+  static constexpr coord_t DEL_W = DUR_W;
 
  protected:
   bool init = false;
@@ -603,7 +591,7 @@ void ModelLogicalSwitchesPage::build(Window* window)
       line = window->newLine(grid);
 
       auto button = new LogicalSwitchButton(
-          line, rect_t{0, 0, window->width() - 12, LS_BUTTON_H}, i);
+          line, rect_t{0, 0, window->width() - 12, LogicalSwitchButton::LS_BUTTON_H}, i);
 
       button->setPressHandler([=]() {
         Menu* menu = new Menu(window);
@@ -666,7 +654,7 @@ void ModelLogicalSwitchesPage::build(Window* window)
   if (hasEmptySwitch) {
     line = window->newLine(grid);
     addButton =
-        new TextButton(line, rect_t{0, 0, window->width() - 12, LS_BUTTON_H},
+        new TextButton(line, rect_t{0, 0, window->width() - 12, LogicalSwitchButton::LS_BUTTON_H},
                        LV_SYMBOL_PLUS, [=]() {
                          plusPopup(window);
                          return 0;

@@ -39,7 +39,7 @@
 static const lv_coord_t col_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 // Edit grid
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 static const lv_coord_t e_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                        LV_GRID_TEMPLATE_LAST};
 #else
@@ -181,7 +181,7 @@ class ScriptLineButton : public ListLineButton
       scriptData(scriptData),
       runtimeData(runtimeData)
   {
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     padTop(5);
 #endif
     padLeft(3);
@@ -192,7 +192,7 @@ class ScriptLineButton : public ListLineButton
     lv_obj_set_style_pad_column(lvobj, 4, 0);
 
     lv_obj_update_layout(parent->getLvObj());
-    if (lv_obj_is_visible(lvobj)) delayed_init(nullptr);
+    if (lv_obj_is_visible(lvobj)) delayed_init();
 
     lv_obj_add_event_cb(lvobj, ScriptLineButton::on_draw,
                         LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
@@ -204,14 +204,15 @@ class ScriptLineButton : public ListLineButton
     auto line = (ScriptLineButton*)lv_obj_get_user_data(target);
     if (line) {
       if (!line->init)
-        line->delayed_init(e);
-      else
-        line->refresh();
+        line->delayed_init();
+      line->refresh();
     }
   }
 
-  void delayed_init(lv_event_t* e)
+  void delayed_init()
   {
+    init = true;
+
     auto lbl = lv_label_create(lvobj);
     etx_obj_add_style(lbl, styles->text_align_left, LV_PART_MAIN);
     lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER,
@@ -261,15 +262,7 @@ class ScriptLineButton : public ListLineButton
       }
     }
 
-    init = true;
-    refresh();
-
     lv_obj_update_layout(lvobj);
-
-    if (e) {
-      auto param = lv_event_get_param(e);
-      lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
-    }
   }
 
   bool isActive() const override { return false; }

@@ -25,7 +25,7 @@
 #include "menu_screen.h"
 #include "theme_manager.h"
 
-#if LCD_W > LCD_H  // landscape
+#if !PORTRAIT_LCD  // landscape
 
 // form grid
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
@@ -93,7 +93,7 @@ class ThemeView : public Window
 
         lv_obj_set_width(description->getLvObj(), lv_pct(100));
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
         preview = new FilePreview(line, rect_t{0, 0, LCD_W / 2, LCD_H / 2});
 #else
         preview = new FilePreview(line, rect_t{0, 0, LCD_W - 12, LCD_H / 2});

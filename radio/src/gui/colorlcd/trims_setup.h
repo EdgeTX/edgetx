@@ -23,6 +23,10 @@
 
 #include "page.h"
 
-struct TrimsSetup : public Page {
+class TrimsSetup : public SubPage
+{
+ public:
   TrimsSetup();
+
+  static LAYOUT_VAL(HATSMODE_W, 120, 120)
 };

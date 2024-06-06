@@ -57,7 +57,7 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 static const lv_coord_t dbg_4col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                           LV_GRID_FR(3), LV_GRID_FR(3),
                                           LV_GRID_TEMPLATE_LAST};
@@ -72,7 +72,7 @@ static const lv_coord_t dbg_3col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 #define CV_SCALE 3
 #define DBG_B_WIDTH (LCD_W - 20) / 4
 #else
@@ -252,7 +252,7 @@ void DebugViewPage::build(Window* window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   FlexGridLayout grid(dbg_4col_dsc, row_dsc, PAD_ZERO);
   FlexGridLayout grid2(dbg_4col_dsc, row_dsc, PAD_ZERO);
 #else
@@ -291,7 +291,7 @@ void DebugViewPage::build(Window* window)
 
   // LUA timing data
   new StaticText(line, rect_t{}, STR_LUA_SCRIPTS_LABEL);
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
   line->padLeft(10);
@@ -305,7 +305,7 @@ void DebugViewPage::build(Window* window)
 
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
   line->padLeft(10);
 #else
   grid.nextCell();
@@ -319,7 +319,7 @@ void DebugViewPage::build(Window* window)
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return luaGetMemUsed(lsWidgets); }, STR_MEM_USED_WIDGET);
 
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
   line->padLeft(10);
@@ -335,7 +335,7 @@ void DebugViewPage::build(Window* window)
 
   // Stacks data
   new StaticText(line, rect_t{}, STR_FREE_STACK);
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
   line = window->newLine(grid2);
   line->padAll(PAD_ZERO);
   line->padLeft(10);
@@ -371,7 +371,7 @@ void DebugViewPage::build(Window* window)
     line->padAll(PAD_TINY);
 
     new StaticText(line, rect_t{}, STR_INT_GPS_LABEL);
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     line = window->newLine(grid2);
     line->padAll(PAD_ZERO);
     line->padLeft(10);

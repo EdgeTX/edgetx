@@ -70,13 +70,13 @@ class TimerWidget : public Widget
 
     // Timer value - on large widgets
     unit0 = createUnitLabel();
-    lv_obj_set_pos(unit0, 111, 33);
+    lv_obj_set_pos(unit0, U0_X, U0_Y);
     unit1 = createUnitLabel();
-    lv_obj_set_pos(unit1, 161, 33);
+    lv_obj_set_pos(unit1, U1_X, U1_Y);
     digits0 = createDigitsLabel();
-    lv_obj_set_pos(digits0, 76, 31);
+    lv_obj_set_pos(digits0, D0_X, D0_Y);
     digits1 = createDigitsLabel();
-    lv_obj_set_pos(digits1, 126, 31);
+    lv_obj_set_pos(digits1, D1_X, D1_Y);
 
     timerArc = lv_arc_create(lvobj);
     lv_arc_set_rotation(timerArc, 270);
@@ -87,11 +87,11 @@ class TimerWidget : public Widget
     lv_obj_remove_style(timerArc, NULL, LV_PART_KNOB);
     lv_obj_clear_flag(timerArc, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_set_pos(timerArc, 2, 3);
-    lv_obj_set_size(timerArc, 64, 64);
+    lv_obj_set_size(timerArc, TMR_ARC_SZ, TMR_ARC_SZ);
     lv_obj_set_style_arc_opa(timerArc, LV_OPA_TRANSP, LV_PART_MAIN);
-    lv_obj_set_style_arc_width(timerArc, 10, LV_PART_MAIN);
+    lv_obj_set_style_arc_width(timerArc, TMR_ARC_W, LV_PART_MAIN);
     lv_obj_set_style_arc_opa(timerArc, LV_OPA_COVER, LV_PART_INDICATOR);
-    lv_obj_set_style_arc_width(timerArc, 10, LV_PART_INDICATOR);
+    lv_obj_set_style_arc_width(timerArc, TMR_ARC_W, LV_PART_INDICATOR);
     etx_obj_add_style(timerArc, styles->arc_color, LV_PART_INDICATOR);
     lv_obj_add_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
 
@@ -192,6 +192,21 @@ class TimerWidget : public Widget
 
   static const ZoneOption options[];
 
+  static LAYOUT_VAL(TMR_LRG_W, 180, 180)
+  static LAYOUT_VAL(TMR_ARC_SZ, 64, 64)
+  static LAYOUT_VAL(TMR_ARC_W, 10, 10)
+  static LAYOUT_VAL(NM_LRG_X, 78, 78)
+  static LAYOUT_VAL(NM_LRG_Y, 19, 19)
+  static LAYOUT_VAL(NM_LRG_W, 93, 93)
+  static LAYOUT_VAL(U0_X, 111, 111)
+  static LAYOUT_VAL(U0_Y, 33, 33)
+  static LAYOUT_VAL(U1_X, 161, 161)
+  static LAYOUT_VAL(U1_Y, 33, 33)
+  static LAYOUT_VAL(D0_X, 76, 76)
+  static LAYOUT_VAL(D0_Y, 31, 31)
+  static LAYOUT_VAL(D1_X, 126, 126)
+  static LAYOUT_VAL(D1_Y, 31, 31)
+
  protected:
   tmrval_t lastValue = 0;
   uint32_t lastStartValue = 0;
@@ -217,14 +232,14 @@ class TimerWidget : public Widget
 
     bool hasName = ZLEN(timerData.name) > 0;
 
-    if (width() >= 180 && height() >= 70) {
+    if (width() >= TMR_LRG_W && height() >= 70) {
       isLarge = true;
       if (hasName)
         lv_obj_clear_state(nameLabel, EXT_NAME_ALIGN_RIGHT);
       else
         lv_obj_add_state(nameLabel, EXT_NAME_ALIGN_RIGHT);
-      lv_obj_set_pos(nameLabel, 78, 19);
-      lv_obj_set_width(nameLabel, 93);
+      lv_obj_set_pos(nameLabel, NM_LRG_X, NM_LRG_Y);
+      lv_obj_set_width(nameLabel, NM_LRG_W);
       lv_obj_clear_state(nameLabel, ETX_NAME_COLOR_WHITE);
 
       lv_obj_add_flag(valLabel, LV_OBJ_FLAG_HIDDEN);

@@ -30,137 +30,206 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                          LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
-                                          LV_GRID_TEMPLATE_LAST};
-
-static void cb_changed(lv_event_t* e)
+class SwitchWarnMatrix : public ButtonMatrix
 {
-  auto target = lv_event_get_target(e);
-  auto obj = (lv_obj_t*)lv_event_get_user_data(e);
+ public:
+  SwitchWarnMatrix(Window* parent, const rect_t& rect) :
+      ButtonMatrix(parent, rect)
+  {
+    // Setup button layout & texts
+    uint8_t btn_cnt = 0;
+    for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
+      if (SWITCH_WARNING_ALLOWED(i)) {
+        sw_idx[btn_cnt] = i;
+        btn_cnt++;
+      }
+    }
 
-  if (lv_obj_has_state(target, LV_STATE_CHECKED)) {
-    lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN);
-  } else {
-    lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
-  }
-}
+    initBtnMap(min((int)btn_cnt, SW_BTNS), btn_cnt);
 
-static void make_conditional(Window* w, ToggleSwitch* cb)
-{
-  lv_obj_t* w_obj = w->getLvObj();
-  if (!cb->getValue()) {
-    lv_obj_add_flag(w_obj, LV_OBJ_FLAG_HIDDEN);
-  }
+    uint8_t btn_id = 0;
+    for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
+      if (SWITCH_WARNING_ALLOWED(i)) {
+        setTextAndState(btn_id);
+        btn_id++;
+      }
+    }
 
-  lv_obj_t* cb_obj = cb->getLvObj();
-  lv_obj_add_event_cb(cb_obj, cb_changed, LV_EVENT_VALUE_CHANGED, w_obj);
-}
+    update();
 
-static void choice_changed(lv_event_t* e)
-{
-  auto target = lv_event_get_target(e);
-  auto choice = (Choice*)lv_obj_get_user_data(target);
-  auto obj = (lv_obj_t*)lv_event_get_user_data(e);
+    lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + PAD_SMALL);
 
-  if (choice->getIntValue() != 0) {
-    lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN);
-  } else {
-    lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
-  }
-}
+    uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
+    setHeight((rows * SW_BTN_H) + PAD_SMALL);
 
-static void make_conditional(Window* w, Choice* choice)
-{
-  lv_obj_t* w_obj = w->getLvObj();
-  if (choice->getIntValue() == 0) {
-    lv_obj_add_flag(w_obj, LV_OBJ_FLAG_HIDDEN);
+    padAll(PAD_SMALL);
   }
 
-  lv_obj_t* choice_obj = choice->getLvObj();
-  lv_obj_add_event_cb(choice_obj, choice_changed, LV_EVENT_VALUE_CHANGED,
-                      w_obj);
-}
+  void onPress(uint8_t btn_id)
+  {
+    if (btn_id >= MAX_SWITCHES) return;
+    auto sw = sw_idx[btn_id];
 
-struct SwitchWarnMatrix : public ButtonMatrix {
-  SwitchWarnMatrix(Window* parent, const rect_t& rect);
-  void onPress(uint8_t btn_id);
-  bool isActive(uint8_t btn_id);
-  void setTextAndState(uint8_t btn_id);
+    swarnstate_t newstate = bfGet(g_model.switchWarning, 3 * sw, 3);
+    if (newstate == 1 && SWITCH_CONFIG(sw) != SWITCH_3POS)
+      newstate = 3;
+    else
+      newstate = (newstate + 1) % 4;
+
+    g_model.switchWarning =
+        bfSet(g_model.switchWarning, newstate, 3 * sw, 3);
+    SET_DIRTY();
+
+    setTextAndState(btn_id);
+  }
+
+  bool isActive(uint8_t btn_id)
+  {
+    if (btn_id >= MAX_SWITCHES) return false;
+    return bfGet(g_model.switchWarning, 3 * sw_idx[btn_id], 3) != 0;
+  }
+
+  void setTextAndState(uint8_t btn_id)
+  {
+    swsrc_t index = sw_idx[btn_id];
+    auto warn_pos = g_model.switchWarning >> (3 * index) & 0x07;
+    std::string s = std::string(switchGetName(index)) +
+                    std::string(getSwitchWarnSymbol(warn_pos));
+    setText(btn_id, s.c_str());
+    setChecked(btn_id);
+  }
+
+  static LAYOUT_VAL(SW_BTNS, 8, 4)
+  static LAYOUT_VAL(SW_BTN_W, 56, 72)
+  static LAYOUT_VAL(SW_BTN_H, 36, 36)
 
  private:
   uint8_t sw_idx[MAX_SWITCHES];
 };
 
-struct PotWarnMatrix : public ButtonMatrix {
-  PotWarnMatrix(Window* parent, const rect_t& rect);
-  void onPress(uint8_t btn_id);
-  bool isActive(uint8_t btn_id);
-  void setTextAndState(uint8_t btn_id);
+class PotWarnMatrix : public ButtonMatrix
+{
+ public:
+  PotWarnMatrix(Window* parent, const rect_t& rect) :
+    ButtonMatrix(parent, rect)
+  {
+    // Setup button layout & texts
+    uint8_t btn_cnt = 0;
+    for (uint8_t i = 0; i < MAX_POTS; i++) {
+      if (IS_POT_AVAILABLE(i)) {
+        pot_idx[btn_cnt] = i;
+        btn_cnt++;
+      }
+    }
+
+    initBtnMap(min((int)btn_cnt, SwitchWarnMatrix::SW_BTNS), btn_cnt);
+
+    uint8_t btn_id = 0;
+    for (uint16_t i = 0; i < MAX_POTS; i++) {
+      if (IS_POT_AVAILABLE(i)) {
+        setTextAndState(btn_id);
+        btn_id++;
+      }
+    }
+
+    update();
+
+    lv_obj_set_width(lvobj, min((int)btn_cnt, SwitchWarnMatrix::SW_BTNS) * SwitchWarnMatrix::SW_BTN_W + PAD_SMALL);
+
+    uint8_t rows = ((btn_cnt - 1) / SwitchWarnMatrix::SW_BTNS) + 1;
+    setHeight((rows * SwitchWarnMatrix::SW_BTN_H) + PAD_SMALL);
+
+    padAll(PAD_SMALL);
+  }
+
+  void onPress(uint8_t btn_id)
+  {
+    if (btn_id >= MAX_POTS) return;
+    auto pot = pot_idx[btn_id];
+
+    g_model.potsWarnEnabled ^= (1 << pot);
+    if ((g_model.potsWarnMode == POTS_WARN_MANUAL) &&
+        (g_model.potsWarnEnabled & (1 << pot))) {
+      SAVE_POT_POSITION(pot);
+    }
+    setTextAndState(btn_id);
+    SET_DIRTY();
+  }
+
+  bool isActive(uint8_t btn_id)
+  {
+    if (btn_id >= MAX_POTS) return false;
+    return (g_model.potsWarnEnabled & (1 << pot_idx[btn_id])) != 0;
+  }
+
+  void setTextAndState(uint8_t btn_id)
+  {
+    setText(btn_id, getPotLabel(pot_idx[btn_id]));
+    setChecked(btn_id);
+  }
 
  private:
   uint8_t pot_idx[MAX_POTS];
 };
 
-PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
+PreflightChecks::PreflightChecks() : SubPage(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, STR_PREFLIGHT)
 {
-  header->setTitle(STR_MENU_MODEL_SETUP);
-  header->setTitle2(STR_PREFLIGHT);
-
   body->setFlexLayout();
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
 
   // Display checklist
-  auto line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_CHECKLIST);
-  auto chkList = new ToggleSwitch(line, rect_t{},
-                                  GET_SET_DEFAULT(g_model.displayChecklist));
+  setupLine(STR_CHECKLIST,
+    [=](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0},
+                        GET_DEFAULT(g_model.displayChecklist),
+                        [=](uint8_t newValue) {
+                          g_model.displayChecklist = newValue;
+                          SET_DIRTY();
+                          interactive->enable(g_model.displayChecklist);
+                        });
+    });
 
   // Interactive checklist
-  line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_CHECKLIST_INTERACTIVE);
-  auto interactiveChkList = new ToggleSwitch(
-      line, rect_t{}, GET_SET_DEFAULT(g_model.checklistInteractive));
-  if (!chkList->getValue()) interactiveChkList->disable();
-  chkList->setSetValueHandler([=](int32_t newValue) {
-    g_model.displayChecklist = newValue;
-    SET_DIRTY();
-    (g_model.displayChecklist) ? interactiveChkList->enable()
-                               : interactiveChkList->disable();
-  });
+  setupLine(STR_CHECKLIST_INTERACTIVE,
+    [=](Window* parent, coord_t x, coord_t y) {
+      interactive = new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_model.checklistInteractive));
+      interactive->enable(g_model.displayChecklist);
+    });
 
   // Throttle warning
-  line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_THROTTLE_WARNING);
-  auto tw = new ToggleSwitch(line, rect_t{},
-                             GET_SET_INVERTED(g_model.disableThrottleWarning));
+  setupLine(STR_THROTTLE_WARNING,
+    [=](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0},
+                      GET_INVERTED(g_model.disableThrottleWarning),
+                      [=](uint8_t newValue) {
+                        g_model.disableThrottleWarning = !newValue;
+                        SET_DIRTY();
+                        customThrottle->show(!g_model.disableThrottleWarning);
+                      });
+    });
 
   // Custom Throttle warning (conditional on previous field)
-  line = body->newLine(grid);
-  make_conditional(line, tw);
+  customThrottle = setupLine(STR_CUSTOM_THROTTLE_WARNING,
+    [=](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0}, GET_DEFAULT(g_model.enableCustomThrottleWarning),
+                      [=](uint8_t newValue) {
+                        g_model.enableCustomThrottleWarning = newValue;
+                        SET_DIRTY();
+                        customThrottleValue->show(g_model.enableCustomThrottleWarning);
+                      });
 
-  new StaticText(line, rect_t{}, STR_CUSTOM_THROTTLE_WARNING);
-  auto box = new Window(line, rect_t{});
-  box->padAll(PAD_TINY);
-  box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY, LV_SIZE_CONTENT);
-
-  auto cst_tw = new ToggleSwitch(
-      box, rect_t{}, GET_SET_DEFAULT(g_model.enableCustomThrottleWarning));
-
-  // Custom Throttle warning value
-  auto cst_val =
-      new NumberEdit(box, rect_t{}, -100, 100,
-                     GET_SET_DEFAULT(g_model.customThrottleWarningPosition));
-  make_conditional(cst_val, cst_tw);
+      // Custom Throttle warning value
+      customThrottleValue = new NumberEdit(parent, {x + ToggleSwitch::TOGGLE_W + PAD_SMALL, 0, 0}, -100, 100,
+                                          GET_SET_DEFAULT(g_model.customThrottleWarningPosition));
+      customThrottleValue->show(g_model.enableCustomThrottleWarning);
+    });
 
   // Switch warnings (TODO: add display switch?)
-  line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_SWITCHES);
-  line = body->newLine(grid);
-  line->padTop(0);
-  line->padLeft(4);
-  new SwitchWarnMatrix(line, rect_t{});
+  setupLine(STR_SWITCHES, [](Window*, coord_t, coord_t){});
+  setupLine(nullptr,
+    [=](Window* parent, coord_t x, coord_t y) {
+      auto w = new SwitchWarnMatrix(parent, rect_t{PAD_SMALL, y, 0, 0});
+      parent->setHeight(w->height() + PAD_TINY * 2);
+    });
 
   // Pots and sliders warning
   if (adcGetMaxInputs(ADC_INPUT_FLEX) > 0) {
@@ -171,152 +240,24 @@ PreflightChecks::PreflightChecks() : Page(ICON_MODEL_SETUP)
       }
     }
     if (pot_cnt > 0) {
-      line = body->newLine(grid);
-      new StaticText(line, rect_t{}, STR_POTWARNINGSTATE);
-      auto pots_wm = new Choice(line, rect_t{}, STR_PREFLIGHT_POTSLIDER_CHECK,
-                                0, 2, GET_SET_DEFAULT(g_model.potsWarnMode));
+      setupLine(STR_POTWARNINGSTATE,
+        [=](Window* parent, coord_t x, coord_t y) {
+          new Choice(parent, {x, y, 0, 0}, STR_PREFLIGHT_POTSLIDER_CHECK,
+                      0, 2, GET_DEFAULT(g_model.potsWarnMode),
+                      [=](int newValue) {
+                        g_model.potsWarnMode = newValue;
+                        SET_DIRTY();
+                        potsWarnMatrix->show(g_model.potsWarnMode > 0);
+                      });
+        });
 
       // Pot warnings
-      line = body->newLine(grid);
-      line->padTop(0);
-      line->padLeft(4);
-      auto pwm = new PotWarnMatrix(line, rect_t{});
-      make_conditional(pwm, pots_wm);
+      potsWarnMatrix = setupLine(nullptr,
+        [=](Window* parent, coord_t x, coord_t y) {
+          auto w = new PotWarnMatrix(parent, {PAD_SMALL, y, 0, 0});
+          parent->setHeight(w->height() + PAD_TINY * 2);
+        });
+      potsWarnMatrix->show(g_model.potsWarnMode > 0);
     }
   }
-}
-
-static std::string switchWarninglabel(swsrc_t index)
-{
-  auto warn_pos = g_model.switchWarning >> (3 * index) & 0x07;
-  return std::string(switchGetName(index)) +
-         std::string(getSwitchWarnSymbol(warn_pos));
-}
-
-#if LCD_W > LCD_H
-#define SW_BTNS 8
-#define SW_BTN_W 56
-#else
-#define SW_BTNS 4
-#define SW_BTN_W 72
-#endif
-
-SwitchWarnMatrix::SwitchWarnMatrix(Window* parent, const rect_t& r) :
-    ButtonMatrix(parent, r)
-{
-  // Setup button layout & texts
-  uint8_t btn_cnt = 0;
-  for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
-    if (SWITCH_WARNING_ALLOWED(i)) {
-      sw_idx[btn_cnt] = i;
-      btn_cnt++;
-    }
-  }
-
-  initBtnMap(min((int)btn_cnt, SW_BTNS), btn_cnt);
-
-  uint8_t btn_id = 0;
-  for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
-    if (SWITCH_WARNING_ALLOWED(i)) {
-      setTextAndState(btn_id);
-      btn_id++;
-    }
-  }
-
-  update();
-
-  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
-
-  uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
-  lv_obj_set_height(lvobj, (rows * 36) + 4);
-
-  padAll(PAD_SMALL);
-}
-
-void SwitchWarnMatrix::setTextAndState(uint8_t btn_id)
-{
-  setText(btn_id, switchWarninglabel(sw_idx[btn_id]).c_str());
-  setChecked(btn_id);
-}
-
-void SwitchWarnMatrix::onPress(uint8_t btn_id)
-{
-  if (btn_id >= MAX_SWITCHES) return;
-  auto sw = sw_idx[btn_id];
-
-  swarnstate_t newstate = bfGet(g_model.switchWarning, 3 * sw, 3);
-  if (newstate == 1 && SWITCH_CONFIG(sw) != SWITCH_3POS)
-    newstate = 3;
-  else
-    newstate = (newstate + 1) % 4;
-
-  g_model.switchWarning =
-      bfSet(g_model.switchWarning, newstate, 3 * sw, 3);
-  SET_DIRTY();
-
-  setTextAndState(btn_id);
-}
-
-bool SwitchWarnMatrix::isActive(uint8_t btn_id)
-{
-  if (btn_id >= MAX_SWITCHES) return false;
-  return bfGet(g_model.switchWarning, 3 * sw_idx[btn_id], 3) != 0;
-}
-
-PotWarnMatrix::PotWarnMatrix(Window* parent, const rect_t& r) :
-    ButtonMatrix(parent, r)
-{
-  // Setup button layout & texts
-  uint8_t btn_cnt = 0;
-  for (uint8_t i = 0; i < MAX_POTS; i++) {
-    if (IS_POT_AVAILABLE(i)) {
-      pot_idx[btn_cnt] = i;
-      btn_cnt++;
-    }
-  }
-
-  initBtnMap(min((int)btn_cnt, SW_BTNS), btn_cnt);
-
-  uint8_t btn_id = 0;
-  for (uint16_t i = 0; i < MAX_POTS; i++) {
-    if (IS_POT_AVAILABLE(i)) {
-      setTextAndState(btn_id);
-      btn_id++;
-    }
-  }
-
-  update();
-
-  lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
-
-  uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
-  lv_obj_set_height(lvobj, (rows * 36) + 4);
-
-  padAll(PAD_SMALL);
-}
-
-void PotWarnMatrix::setTextAndState(uint8_t btn_id)
-{
-  setText(btn_id, getPotLabel(pot_idx[btn_id]));
-  setChecked(btn_id);
-}
-
-void PotWarnMatrix::onPress(uint8_t btn_id)
-{
-  if (btn_id >= MAX_POTS) return;
-  auto pot = pot_idx[btn_id];
-
-  g_model.potsWarnEnabled ^= (1 << pot);
-  if ((g_model.potsWarnMode == POTS_WARN_MANUAL) &&
-      (g_model.potsWarnEnabled & (1 << pot))) {
-    SAVE_POT_POSITION(pot);
-  }
-  setTextAndState(btn_id);
-  SET_DIRTY();
-}
-
-bool PotWarnMatrix::isActive(uint8_t btn_id)
-{
-  if (btn_id >= MAX_POTS) return false;
-  return (g_model.potsWarnEnabled & (1 << pot_idx[btn_id])) != 0;
 }

@@ -30,6 +30,9 @@ class MixEditWindow : public Page
  public:
   MixEditWindow(int8_t channel, uint8_t index);
 
+  static LAYOUT_VAL(MIX_STATUS_BAR_WIDTH, 250, 180)
+  static LAYOUT_VAL(MIX_RIGHT_MARGIN, 0, 3)
+
  protected:
   uint8_t channel;
   uint8_t index;

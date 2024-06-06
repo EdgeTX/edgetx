@@ -27,80 +27,169 @@
 #include "menu.h"
 #endif
 
-TextEdit::TextEdit(Window* parent, const rect_t& rect, char* value,
-                   uint8_t length) :
-    FormField(rect, 0), value(value), length(length)
+class TextArea : public FormField
 {
-  lv_obj_enable_style_refresh(false);
+ public:
+  TextArea(Window* parent, const rect_t& rect, char* value, uint8_t length) :
+      FormField(parent, rect, 0, etx_textarea_create), value(value), length(length)
+  {
+    lv_textarea_set_max_length(lvobj, length);
+    lv_textarea_set_placeholder_text(lvobj, "---");
 
-  // Workaround for performance issues with lv_textarea - create on top layer
-  // not this window then reparent to this window after setup finished
-  this->parent = parent;
-  lvobj = lv_textarea_create(lv_layer_top());
+    if (rect.w == 0) setWidth(DEF_W);
 
-  // Do this first - before any styles are applied, otherwise it is very slow
+    update();
+  }
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "TextArea"; }
+#endif
+
+  void update()
+  {
+    // value may not be null-terminated
+    std::string txt(value, length);
+    lv_textarea_set_text(lvobj, txt.c_str());
+  }
+
+  void onClicked() override {
+    setEditMode(true);
+  }
+
+  void openKeyboard() {
+    TextKeyboard::show(this);
+  }
+
+  void setCancelHandler(std::function<void(void)> handler)
+  {
+    cancelHandler = std::move(handler);
+  }
+
+  static LAYOUT_VAL(DEF_W, 100, 100)
+
+ protected:
+  char* value;
+  uint8_t length;
+  std::function<void(void)> cancelHandler = nullptr;
+
+  void trim()
+  {
+    for (int i = length - 1; i >= 0; i--) {
+      if (value[i] == ' ' || value[i] == '\0')
+        value[i] = '\0';
+      else
+        break;
+    }
+  }
+
+  void changeEnd(bool forceChanged = false) override
+  {
+    if (lvobj == nullptr) return;
+
+    bool changed = false;
+    auto text = lv_textarea_get_text(lvobj);
+    if (strncmp(value, text, length) != 0) {
+      changed = true;
+    }
+
+    if (changed || forceChanged) {
+      strncpy(value, text, length);
+      trim();
+      FormField::changeEnd();
+    } else if (cancelHandler) {
+      cancelHandler();
+    }
+  }
+
+  void onCancel() override
+  {
+    if (cancelHandler)
+      cancelHandler();
+    else
+      FormField::onCancel();
+  }
+};
+
+/*
+  The lv_textarea object is slow. To avoid too much overhead on views with multiple
+  edit fields, the text area is initially displayed as a button. When the button
+  is pressed, a text area object is created over the top of the button in order
+  to edit the value.
+*/
+TextEdit::TextEdit(Window* parent, const rect_t& rect, char* text,
+                               uint8_t length,
+                               std::function<void(void)> updateHandler) :
+    TextButton(parent, rect, "", [=]() {
+      openEdit();
+      return 0;
+    }),
+    updateHandler(updateHandler), text(text), length(length)
+{
+  if (rect.w == 0) setWidth(TextArea::DEF_W);
+
   update();
-
-  etx_textarea_style(lvobj);
-
-  lv_textarea_set_max_length(lvobj, length);
-  lv_textarea_set_placeholder_text(lvobj, "---");
-
-  lv_obj_set_parent(lvobj, parent->getLvObj());
-  setupLVGL();
-
-  if (rect.w == 0) setWidth(100);
-
-  lv_obj_enable_style_refresh(true);
-  lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
+  lv_obj_align(label, LV_ALIGN_OUT_LEFT_MID, 0, PAD_TINY);
 }
 
 void TextEdit::update()
 {
-  // value may not be null-terminated
-  std::string txt(value, length);
-  lv_textarea_set_text(lvobj, txt.c_str());
+  if (text[0]) {
+    std::string s(text, length);
+    setText(s);
+  } else {
+    setText("---");
+  }
 }
 
-void TextEdit::trim()
+void TextEdit::openEdit()
 {
-  for (int i = length - 1; i >= 0; i--) {
-    if (value[i] == ' ' || value[i] == '\0')
-      value[i] = '\0';
-    else
-      break;
+  if (edit == nullptr) {
+    edit = new TextArea(this,
+                        {-(PAD_MEDIUM + 2), -(PAD_TINY + 2),
+                          lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)},
+                        text, length);
+    edit->setChangeHandler([=]() {
+      std::string s(text, length);
+      setText(s);
+      if (updateHandler) updateHandler();
+      lv_group_focus_obj(lvobj);
+      edit->hide();
+    });
+    edit->setCancelHandler([=]() {
+      lv_group_focus_obj(lvobj);
+      edit->hide();
+    });
   }
+  edit->show();
+  lv_group_focus_obj(edit->getLvObj());
+  edit->openKeyboard();
+  lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
 }
 
-void TextEdit::changeEnd(bool forceChanged)
+void TextEdit::preview(bool edited, char* text, uint8_t length)
 {
-  if (lvobj == nullptr) return;
-
-  bool changed = false;
-  auto text = lv_textarea_get_text(lvobj);
-  if (strncmp(value, text, length) != 0) {
-    changed = true;
-  }
-
-  if (changed || forceChanged) {
-    strncpy(value, text, length);
-    trim();
-    FormField::changeEnd();
-  }
+  edit = new TextArea(this,
+                      {-(PAD_MEDIUM + 2), -(PAD_TINY + 2), width(), height()},
+                      text, length);
+  lv_group_focus_obj(edit->getLvObj());
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+  lv_obj_clear_flag(edit->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+  lv_obj_clear_flag(edit->getLvObj(), LV_OBJ_FLAG_CLICK_FOCUSABLE);
+  lv_obj_add_state(edit->getLvObj(), LV_STATE_FOCUSED);
+  if (edited) lv_obj_add_state(edit->getLvObj(), LV_STATE_EDITED);
 }
-
-void TextEdit::onClicked() { TextKeyboard::show(this); }
 
 ModelTextEdit::ModelTextEdit(Window* parent, const rect_t& rect, char* value,
                              uint8_t length) :
-    TextEdit(parent, rect, value, length)
+    TextEdit(parent, rect, value, length,
+                   []() { storageDirty(EE_MODEL); })
 {
-  setChangeHandler([]() { storageDirty(EE_MODEL); });
 }
 
 RadioTextEdit::RadioTextEdit(Window* parent, const rect_t& rect, char* value,
                              uint8_t length) :
-    TextEdit(parent, rect, value, length)
+    TextEdit(parent, rect, value, length,
+                   []() { storageDirty(EE_GENERAL); })
 {
-  setChangeHandler([]() { storageDirty(EE_GENERAL); });
 }

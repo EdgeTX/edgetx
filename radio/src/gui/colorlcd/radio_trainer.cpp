@@ -34,17 +34,14 @@ RadioTrainerPage::RadioTrainerPage() :
 {
 }
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(7),  LV_GRID_FR(13),
                                      LV_GRID_FR(10), LV_GRID_FR(10),
                                      LV_GRID_FR(10), LV_GRID_TEMPLATE_LAST};
-
-#define NUM_EDIT_W 80
 #else
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(7), LV_GRID_FR(15),
                                      LV_GRID_FR(9), LV_GRID_FR(9),
                                      LV_GRID_TEMPLATE_LAST};
-#define NUM_EDIT_W 65
 #endif
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
@@ -54,7 +51,7 @@ void RadioTrainerPage::build(Window* form)
   form->padAll(PAD_SMALL);
 
   if (SLAVE_MODE()) {
-    form->setHeight(MENU_BODY_HEIGHT);
+    form->setHeight(TabsGroup::MENU_BODY_HEIGHT);
     auto txt = new StaticText(form, rect_t{}, STR_SLAVE, FONT(L));
     lv_obj_align(txt->getLvObj(), LV_ALIGN_CENTER, 0, 0);
   } else {
@@ -75,7 +72,7 @@ void RadioTrainerPage::build(Window* form)
                                    GET_SET_DEFAULT(td->studWeight));
       weight->setSuffix("%");
 
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
       line = form->newLine(grid);
       line->padLeft(30);
       line->padBottom(8);
@@ -93,7 +90,7 @@ void RadioTrainerPage::build(Window* form)
     }
 
     auto line = form->newLine(grid);
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     line->padTop(10);
 #else
     line->padTop(6);
@@ -113,7 +110,7 @@ void RadioTrainerPage::build(Window* form)
     lv_obj_set_grid_cell(multiplier->getLvObj(), LV_GRID_ALIGN_START, 2, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     line = form->newLine(grid);
     line->padTop(10);
 #endif
@@ -126,7 +123,7 @@ void RadioTrainerPage::build(Window* form)
                                 SET_DIRTY();
                                 return 0;
                               });
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 2,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 #else

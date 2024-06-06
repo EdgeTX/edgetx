@@ -109,10 +109,10 @@ void ListBox::setSelected(int selected, bool force)
 
 void ListBox::setSelected(std::set<uint32_t> selected)
 {
-  if(!multiSelect) return;
+  if (!multiSelect) return;
 
-  for(int i = 0; i < getRowCount(); i++) {
-    if(selected.find(i) != selected.end())
+  for (int i = 0; i < getRowCount(); i++) {
+    if (selected.find(i) != selected.end())
       lv_table_add_cell_ctrl(lvobj, i, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
     else
       lv_table_clear_cell_ctrl(lvobj, i, 0, LV_TABLE_CELL_CTRL_CUSTOM_1);
@@ -224,8 +224,7 @@ void ListBox::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
   label_dsc.align = LV_TEXT_ALIGN_RIGHT;
 
   const char* sym = LV_SYMBOL_OK;
-  if (getSelectedSymbol)
-    sym = getSelectedSymbol(row);
+  if (getSelectedSymbol) sym = getSelectedSymbol(row);
 
   lv_coord_t w = 30;
   lv_coord_t h = 12;

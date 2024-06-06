@@ -9,7 +9,7 @@ MAIN_STACK_SIZE = 8192;
 BOOTLOADER_SIZE = 0x20000;
 
 /* Minimum Heap Size (indicative) */
-MIN_HEAP_SIZE = 4096K;
+MIN_HEAP_SIZE = 0;
 
 /* SDRAM definitions */
 SDRAM_START = DEFINED(__sdram_start) ? __sdram_start : 0xD0000000;

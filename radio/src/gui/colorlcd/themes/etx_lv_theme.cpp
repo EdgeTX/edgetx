@@ -29,8 +29,6 @@
 
 extern lv_color_t makeLvColor(uint32_t colorFlags);
 
-static lv_theme_t theme;
-
 /**********************
  *   Constant Styles
  **********************/
@@ -71,9 +69,12 @@ LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::pad_left_2, LV_STYLE_PAD_LEFT, 2);
 // Scrollbar
 const lv_style_const_prop_t scrollbar_props[] = {
     LV_STYLE_CONST_BG_OPA(LV_OPA_50),
-    LV_STYLE_CONST_PAD_TOP(3),  LV_STYLE_CONST_PAD_BOTTOM(3),
-    LV_STYLE_CONST_PAD_LEFT(3), LV_STYLE_CONST_PAD_RIGHT(3),
-    LV_STYLE_CONST_WIDTH(4),    LV_STYLE_PROP_INV,
+    LV_STYLE_CONST_PAD_TOP(3),
+    LV_STYLE_CONST_PAD_BOTTOM(3),
+    LV_STYLE_CONST_PAD_LEFT(3),
+    LV_STYLE_CONST_PAD_RIGHT(3),
+    LV_STYLE_CONST_WIDTH(PAD_SMALL),
+    LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::scrollbar, scrollbar_props);
 
@@ -95,40 +96,54 @@ const lv_style_const_prop_t pad_tiny_props[] = {
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_tiny, pad_tiny_props);
 
 const lv_style_const_prop_t pad_small_props[] = {
-    LV_STYLE_CONST_PAD_TOP(4),  LV_STYLE_CONST_PAD_BOTTOM(4),
-    LV_STYLE_CONST_PAD_LEFT(4), LV_STYLE_CONST_PAD_RIGHT(4),
-    LV_STYLE_CONST_PAD_ROW(4),  LV_STYLE_CONST_PAD_COLUMN(4),
+    LV_STYLE_CONST_PAD_TOP(PAD_SMALL),
+    LV_STYLE_CONST_PAD_BOTTOM(PAD_SMALL),
+    LV_STYLE_CONST_PAD_LEFT(PAD_SMALL),
+    LV_STYLE_CONST_PAD_RIGHT(PAD_SMALL),
+    LV_STYLE_CONST_PAD_ROW(PAD_SMALL),
+    LV_STYLE_CONST_PAD_COLUMN(PAD_SMALL),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_small, pad_small_props);
 
 const lv_style_const_prop_t pad_medium_props[] = {
-    LV_STYLE_CONST_PAD_TOP(6),  LV_STYLE_CONST_PAD_BOTTOM(6),
-    LV_STYLE_CONST_PAD_LEFT(6), LV_STYLE_CONST_PAD_RIGHT(6),
-    LV_STYLE_CONST_PAD_ROW(4),  LV_STYLE_CONST_PAD_COLUMN(4),
+    LV_STYLE_CONST_PAD_TOP(PAD_MEDIUM),
+    LV_STYLE_CONST_PAD_BOTTOM(PAD_MEDIUM),
+    LV_STYLE_CONST_PAD_LEFT(PAD_MEDIUM),
+    LV_STYLE_CONST_PAD_RIGHT(PAD_MEDIUM),
+    LV_STYLE_CONST_PAD_ROW(PAD_SMALL),
+    LV_STYLE_CONST_PAD_COLUMN(PAD_SMALL),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_medium, pad_medium_props);
 
 const lv_style_const_prop_t pad_large_props[] = {
-    LV_STYLE_CONST_PAD_TOP(8),  LV_STYLE_CONST_PAD_BOTTOM(8),
-    LV_STYLE_CONST_PAD_LEFT(8), LV_STYLE_CONST_PAD_RIGHT(8),
-    LV_STYLE_CONST_PAD_ROW(4),  LV_STYLE_CONST_PAD_COLUMN(4),
+    LV_STYLE_CONST_PAD_TOP(PAD_LARGE),
+    LV_STYLE_CONST_PAD_BOTTOM(PAD_LARGE),
+    LV_STYLE_CONST_PAD_LEFT(PAD_LARGE),
+    LV_STYLE_CONST_PAD_RIGHT(PAD_LARGE),
+    LV_STYLE_CONST_PAD_ROW(PAD_SMALL),
+    LV_STYLE_CONST_PAD_COLUMN(PAD_SMALL),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_large, pad_large_props);
 
 const lv_style_const_prop_t pad_button_props[] = {
-    LV_STYLE_CONST_PAD_TOP(2),  LV_STYLE_CONST_PAD_BOTTOM(2),
-    LV_STYLE_CONST_PAD_LEFT(6), LV_STYLE_CONST_PAD_RIGHT(6),
-    LV_STYLE_CONST_PAD_ROW(2),  LV_STYLE_CONST_PAD_COLUMN(2),
+    LV_STYLE_CONST_PAD_TOP(2),
+    LV_STYLE_CONST_PAD_BOTTOM(2),
+    LV_STYLE_CONST_PAD_LEFT(PAD_MEDIUM),
+    LV_STYLE_CONST_PAD_RIGHT(PAD_MEDIUM),
+    LV_STYLE_CONST_PAD_ROW(2),
+    LV_STYLE_CONST_PAD_COLUMN(2),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_button, pad_button_props);
 
 const lv_style_const_prop_t pad_textarea_props[] = {
-    LV_STYLE_CONST_PAD_TOP(4),  LV_STYLE_CONST_PAD_BOTTOM(3),
-    LV_STYLE_CONST_PAD_LEFT(4), LV_STYLE_CONST_PAD_RIGHT(4),
+    LV_STYLE_CONST_PAD_TOP(PAD_SMALL),
+    LV_STYLE_CONST_PAD_BOTTOM(PAD_SMALL - 1),
+    LV_STYLE_CONST_PAD_LEFT(PAD_SMALL),
+    LV_STYLE_CONST_PAD_RIGHT(PAD_SMALL),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_textarea, pad_textarea_props);
@@ -304,8 +319,7 @@ void EdgeTxStyles::applyColors()
   }
 
   lv_style_set_line_color(&graph_border, makeLvColor(COLOR_THEME_SECONDARY2));
-  lv_style_set_line_color(&graph_dashed,
-                          makeLvColor(COLOR_THEME_SECONDARY2));
+  lv_style_set_line_color(&graph_dashed, makeLvColor(COLOR_THEME_SECONDARY2));
   lv_style_set_line_color(&graph_line, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_line_color(&graph_position_line,
                           makeLvColor(COLOR_THEME_ACTIVE));
@@ -333,41 +347,32 @@ void EdgeTxStyles::applyColors()
   lv_style_set_arc_color(&arc_color, makeLvColor(COLOR_THEME_SECONDARY1));
 }
 
-static EdgeTxStyles mainStyles;
-static EdgeTxStyles* previewStyles;
-EdgeTxStyles* styles = &mainStyles;
+static EdgeTxStyles *mainStyles = nullptr;
+static EdgeTxStyles* previewStyles = nullptr;
+EdgeTxStyles* styles = nullptr;
 
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
 
-lv_theme_t* etx_lv_theme_init(lv_disp_t* disp, lv_color_t color_primary,
-                              lv_color_t color_secondary, const lv_font_t* font)
-{
-  theme.disp = disp;
-  theme.color_primary = color_primary;
-  theme.color_secondary = color_secondary;
-  theme.font_small = font;
-  theme.font_normal = font;
-  theme.font_large = font;
-  theme.flags = 0;
-
-  styles->init();
-
-  if (disp == NULL || lv_disp_get_theme(disp) == &theme)
-    lv_obj_report_style_change(NULL);
-
-  return (lv_theme_t*)&theme;
-}
-
 void usePreviewStyle()
 {
-  if (!previewStyles) previewStyles = new EdgeTxStyles();
+  if (!previewStyles) {
+    previewStyles = new EdgeTxStyles();
+    previewStyles->init();
+  }
   styles = previewStyles;
-  styles->init();
+  styles->applyColors();
 }
 
-void useMainStyle() { styles = &mainStyles; }
+void useMainStyle()
+{
+  if (!mainStyles) {
+    mainStyles = new EdgeTxStyles();
+    mainStyles->init();
+  }
+  styles = mainStyles;
+}
 
 /**********************
  *   Custom object creation
@@ -495,9 +500,21 @@ void etx_scrollbar(lv_obj_t* obj)
   lv_obj_set_scrollbar_mode(obj, LV_SCROLLBAR_MODE_AUTO);
 }
 
-void etx_textarea_style(lv_obj_t* obj)
+// Object creators
+
+lv_obj_t* etx_create(const lv_obj_class_t* class_p, lv_obj_t* parent)
 {
-  etx_std_settings(obj, LV_PART_MAIN);
+  lv_obj_t* obj = lv_obj_class_create_obj(class_p, parent);
+  lv_obj_class_init_obj(obj);
+
+  return obj;
+}
+
+static void textarea_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
+{
+  etx_obj_add_style(obj, styles->border, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->border_color_normal, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
   etx_std_ctrl_colors(obj, LV_PART_MAIN);
   etx_obj_add_style(obj, styles->pad_textarea, LV_PART_MAIN);
 
@@ -516,12 +533,20 @@ void etx_textarea_style(lv_obj_t* obj)
   lv_obj_set_height(ta->label, 21);
 }
 
-// Object creators
+static const lv_obj_class_t textarea_class = {
+    .base_class = &lv_textarea_class,
+    .constructor_cb = textarea_constructor,
+    .destructor_cb = nullptr,
+    .user_data = nullptr,
+    .event_cb = nullptr,
+    .width_def = 0,
+    .height_def = EdgeTxStyles::UI_ELEMENT_HEIGHT,
+    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
+    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
+    .instance_size = sizeof(lv_textarea_t),
+};
 
-lv_obj_t* etx_create(const lv_obj_class_t* class_p, lv_obj_t* parent)
+lv_obj_t* etx_textarea_create(lv_obj_t* parent)
 {
-  lv_obj_t* obj = lv_obj_class_create_obj(class_p, parent);
-  lv_obj_class_init_obj(obj);
-
-  return obj;
+  return etx_create(&textarea_class, parent);
 }

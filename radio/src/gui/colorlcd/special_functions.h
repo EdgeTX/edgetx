@@ -50,6 +50,26 @@ class FunctionLineButton : public ListLineButton
 
   void refresh() override;
 
+  static constexpr coord_t NM_X = PAD_TINY;
+  static LAYOUT_VAL(NM_Y, 4, 10)
+  static LAYOUT_VAL(NM_W, 43, 40)
+  static LAYOUT_VAL(NM_H, 20, 20)
+  static constexpr coord_t SW_X = NM_X + NM_W + PAD_TINY;
+  static LAYOUT_VAL(SW_Y, NM_Y, 0)
+  static LAYOUT_VAL(SW_W, 70, 198)
+  static constexpr coord_t SW_H = NM_H;
+  static LAYOUT_VAL(FN_X, SW_X + SW_W + PAD_TINY, NM_X + NM_W + PAD_TINY)
+  static LAYOUT_VAL(FN_Y, NM_Y, 20)
+  static LAYOUT_VAL(FN_W, 278, SW_W)
+  static LAYOUT_VAL(RP_W, 40, 34)
+  static constexpr coord_t FN_H = NM_H;
+  static constexpr coord_t RP_X = FN_X + FN_W + PAD_TINY;
+  static constexpr coord_t RP_Y = NM_Y;
+  static constexpr coord_t RP_H = NM_H;
+  static constexpr coord_t EN_X = RP_X + RP_W + PAD_TINY;
+  static constexpr coord_t EN_Y = NM_Y + PAD_TINY_GAP;
+  static LAYOUT_VAL(EN_SZ, 16, 16)
+
  protected:
   bool init = false;
   const CustomFunctionData *cfn;
@@ -74,7 +94,7 @@ class FunctionEditPage : public Page
 
   static void on_draw(lv_event_t *e);
 
-  void delayed_init(lv_event_t *e);
+  void delayed_init();
 
  protected:
   bool init = false;
@@ -113,6 +133,8 @@ class FunctionsPage : public PageTab
                 const char* prefix, EdgeTxIcon icon);
 
   void build(Window* window) override;
+
+  static LAYOUT_VAL(SF_BUTTON_H, 32, 44)
 
  protected:
   int8_t focusIndex = -1;

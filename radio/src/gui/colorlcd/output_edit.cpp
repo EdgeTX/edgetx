@@ -30,15 +30,10 @@
 
 #define ETX_STATE_MINMAX_HIGHLIGHT LV_STATE_USER_1
 
-#if (LCD_W > LCD_H)
-#define OUTPUT_EDIT_STATUS_BAR_WIDTH 250
-#define OUTPUT_EDIT_STATUS_BAR_MARGIN 3
-#define OUTPUT_EDIT_RIGHT_MARGIN 0
-#else
-#define OUTPUT_EDIT_STATUS_BAR_WIDTH 180
-#define OUTPUT_EDIT_STATUS_BAR_MARGIN 0
-#define OUTPUT_EDIT_RIGHT_MARGIN 3
-#endif
+// deadband in % for switching direction of Min/Max text and value field highlighting
+// 0 = no deadband
+// 1..100 = [-DEADBAND; DEADBAND]
+#define DEADBAND 0
 
 // deadband in % for switching direction of Min/Max text and value field highlighting
 // 0 = no deadband
@@ -57,6 +52,8 @@ class OutputEditStatusBar : public Window
          rect.w - (OUTPUT_EDIT_STATUS_BAR_MARGIN * 2), rect.h},
         channel, true);
   }
+
+  static LAYOUT_VAL(OUTPUT_EDIT_STATUS_BAR_MARGIN, 3, 0)
 
  protected:
   ComboChannelBar *channelBar;
@@ -108,11 +105,11 @@ void OutputEditWindow::buildHeader(Window *window)
       window,
       {window->getRect().w - OUTPUT_EDIT_STATUS_BAR_WIDTH -
            OUTPUT_EDIT_RIGHT_MARGIN,
-       0, OUTPUT_EDIT_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT},
+       0, OUTPUT_EDIT_STATUS_BAR_WIDTH, EdgeTxStyles::MENU_HEADER_HEIGHT},
       channel);
 }
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
@@ -139,7 +136,7 @@ void OutputEditWindow::buildBody(Window *form)
 
   // Offset
   new StaticText(line, rect_t{}, TR_LIMITS_HEADERS_SUBTRIM);
-  auto off = new GVarNumberEdit(line, rect_t{}, -LIMIT_STD_MAX, +LIMIT_STD_MAX,
+  auto off = new GVarNumberEdit(line, -LIMIT_STD_MAX, +LIMIT_STD_MAX,
                                 GET_SET_DEFAULT(output->offset), PREC1);
   off->setFastStep(20);
   off->setAccelFactor(8);
@@ -149,7 +146,7 @@ void OutputEditWindow::buildBody(Window *form)
   minText = new StaticText(line, rect_t{}, TR_MIN);
   etx_solid_bg(minText->getLvObj(), COLOR_THEME_ACTIVE_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   etx_font(minText->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
-  minEdit = new GVarNumberEdit(line, rect_t{}, -limit, 0,
+  minEdit = new GVarNumberEdit(line, -limit, 0,
                                GET_SET_DEFAULT(output->min), PREC1,
                                -LIMIT_STD_MAX, -limit);
   etx_font(minEdit->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
@@ -165,7 +162,7 @@ void OutputEditWindow::buildBody(Window *form)
   maxText = new StaticText(line, rect_t{}, TR_MAX);
   etx_solid_bg(maxText->getLvObj(), COLOR_THEME_ACTIVE_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   etx_font(maxText->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
-  maxEdit = new GVarNumberEdit(line, rect_t{}, 0, +limit,
+  maxEdit = new GVarNumberEdit(line, 0, +limit,
                                GET_SET_DEFAULT(output->max), PREC1,
                                +LIMIT_STD_MAX, limit);
   etx_font(maxEdit->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);

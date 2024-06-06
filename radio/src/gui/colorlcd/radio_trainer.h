@@ -32,4 +32,6 @@ class RadioTrainerPage : public PageTab
   bool isVisible() const override { return radioTrainerEnabled(); }
 
   void build(Window* window) override;
+
+  static LAYOUT_VAL(NUM_EDIT_W, 80, 65)
 };

@@ -34,16 +34,6 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-#if (LCD_W > LCD_H)
-#define MIX_STATUS_BAR_WIDTH 250
-#define MIX_STATUS_BAR_MARGIN 3
-#define MIX_RIGHT_MARGIN 0
-#else
-#define MIX_STATUS_BAR_WIDTH 180
-#define MIX_STATUS_BAR_MARGIN 0
-#define MIX_RIGHT_MARGIN 3
-#endif
-
 class MixerEditStatusBar : public Window
 {
  public:
@@ -56,6 +46,8 @@ class MixerEditStatusBar : public Window
                              rect.w - (MIX_STATUS_BAR_MARGIN * 2), rect.h},
                             channel, true);
   }
+
+  static LAYOUT_VAL(MIX_STATUS_BAR_MARGIN, 3, 0)
 
  protected:
   ComboChannelBar *channelBar;
@@ -78,11 +70,11 @@ void MixEditWindow::buildHeader(Window *window)
   new MixerEditStatusBar(
       window,
       {window->getRect().w - MIX_STATUS_BAR_WIDTH - MIX_RIGHT_MARGIN, 0,
-       MIX_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT},
+       MIX_STATUS_BAR_WIDTH, EdgeTxStyles::MENU_HEADER_HEIGHT},
       channel);
 }
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_FR(1), LV_GRID_FR(3),
                                      LV_GRID_TEMPLATE_LAST};
@@ -116,13 +108,13 @@ void MixEditWindow::buildBody(Window *form)
   // Weight
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_WEIGHT);
-  auto gvar = new GVarNumberEdit(line, rect_t{}, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX,
+  auto gvar = new GVarNumberEdit(line, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX,
                                  GET_SET_DEFAULT(mix->weight));
   gvar->setSuffix("%");
 
   // Offset
   new StaticText(line, rect_t{}, STR_OFFSET);
-  gvar = new GVarNumberEdit(line, rect_t{}, MIX_OFFSET_MIN, MIX_OFFSET_MAX,
+  gvar = new GVarNumberEdit(line, MIX_OFFSET_MIN, MIX_OFFSET_MAX,
                             GET_SET_DEFAULT(mix->offset));
   gvar->setSuffix("%");
 

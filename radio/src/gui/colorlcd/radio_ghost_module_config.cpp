@@ -32,7 +32,7 @@ class GhostModuleConfigWindow : public Window
   GhostModuleConfigWindow(Window* parent, const rect_t& rect) :
       Window(parent, rect)
   {
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     constexpr coord_t xOffset = 20;
     constexpr coord_t xOffset2 = 140;
 #else
@@ -162,7 +162,7 @@ void RadioGhostModuleConfig::buildBody(Window* window)
 {
   window->padAll(PAD_ZERO);
   new GhostModuleConfigWindow(window,
-                              {0, 0, LCD_W, LCD_H - MENU_HEADER_HEIGHT - 5});
+                              {0, 0, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT - 5});
 }
 
 #if defined(HARDWARE_KEYS) && !defined(PCBPL18)

@@ -20,8 +20,6 @@
 
 #include "keyboard_base.h"
 
-class NumberEdit;
-
 class NumberKeyboard : public Keyboard
 {
  public:
@@ -32,7 +30,7 @@ class NumberKeyboard : public Keyboard
   std::string getName() const override { return "NumberKeyboard"; }
 #endif
 
-  static void show(NumberEdit* field);
+  static void show(FormField* field);
 
   void handleEvent(const char* btn);
 

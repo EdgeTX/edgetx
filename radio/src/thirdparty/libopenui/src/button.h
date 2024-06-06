@@ -96,6 +96,13 @@ class TextButton : public ButtonBase
     }
   }
 
+  void setWrap()
+  {
+    lv_obj_set_width(label, lv_pct(100));
+    etx_obj_add_style(label, styles->text_align_center, LV_PART_MAIN);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
+  }
+
  protected:
   lv_obj_t* label = nullptr;
 
@@ -105,7 +112,7 @@ class TextButton : public ButtonBase
 class IconButton : public ButtonBase
 {
  public:
-  IconButton(Window* parent, EdgeTxIcon icon,
+  IconButton(Window* parent, EdgeTxIcon icon, coord_t x, coord_t y,
              std::function<uint8_t(void)> pressHandler = nullptr);
   
   void setIcon(EdgeTxIcon icon);

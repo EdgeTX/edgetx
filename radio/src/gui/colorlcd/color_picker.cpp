@@ -25,25 +25,17 @@
 #include "color_list.h"
 #include "themes/etx_lv_theme.h"
 
-// based on LVGL default switch size
-constexpr lv_coord_t COLOR_PAD_WIDTH = (4 * LV_DPI_DEF) / 10;
-constexpr lv_coord_t COLOR_PAD_HEIGHT = 32;
-
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
 // Landscape
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-
-#define COLOR_EDIT_WIDTH LCD_W * 0.8
 
 #else
 // Portrait
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
-
-#define COLOR_EDIT_WIDTH LCD_W * 0.7
 
 #endif
 
@@ -74,7 +66,7 @@ class ColorEditorPopup : public BaseDialog
     FlexGridLayout grid(col_dsc, row_dsc);
     auto line = form->newLine(grid);
 
-    rect_t r{0, 0, 7 * LV_DPI_DEF / 5, 7 * LV_DPI_DEF / 5};
+    rect_t r{0, 0, CE_SZ, CE_SZ};
     auto cedit =
         new ColorEditor(line, r, color, [=](uint32_t c) { updateColor(c); });
     lv_obj_set_style_grid_cell_x_align(cedit->getLvObj(), LV_GRID_ALIGN_CENTER,
@@ -94,7 +86,7 @@ class ColorEditorPopup : public BaseDialog
     colorPad = new ColorSwatch(hbox, {0, 0, COLOR_PAD_WIDTH, COLOR_PAD_HEIGHT},
                                COLOR_THEME_PRIMARY1);
 
-    hexStr = new StaticText(hbox, {0, 0, 100, 0}, "", COLOR_THEME_PRIMARY1 | FONT(L));
+    hexStr = new StaticText(hbox, {0, 0, CVAL_W, 0}, "", COLOR_THEME_PRIMARY1 | FONT(L));
 
     updateColor(color);
 
@@ -135,29 +127,38 @@ class ColorEditorPopup : public BaseDialog
     hsvBtn->check(true);
 
     hbox = new Window(vbox, rect_t{});
-    hbox->padTop(60);
-    hbox->setFlexLayout(LV_FLEX_FLOW_ROW, 20);
+    hbox->padTop(BTN_PAD_TOP);
+    hbox->setFlexLayout(LV_FLEX_FLOW_ROW, BTN_PAD_ROW);
     lv_obj_set_flex_align(hbox->getLvObj(), LV_FLEX_ALIGN_CENTER,
                           LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_SPACE_BETWEEN);
     lv_obj_set_flex_grow(hbox->getLvObj(), 1);
 
-    new TextButton(hbox, rect_t{0, 0, 80, 0}, STR_CANCEL, [=]() -> int8_t {
+    new TextButton(hbox, rect_t{0, 0, BTN_W, 0}, STR_CANCEL, [=]() -> int8_t {
       this->deleteLater();
       return 0;
     });
 
-    new TextButton(hbox, rect_t{0, 0, 80, 0}, STR_SAVE, [=]() -> int8_t {
+    new TextButton(hbox, rect_t{0, 0, BTN_W, 0}, STR_SAVE, [=]() -> int8_t {
       if (_setValue) _setValue(m_color);
       this->deleteLater();
       return 0;
     });
   }
+
+  static LAYOUT_VAL(CE_SZ, 182, 182)
+  static LAYOUT_VAL(COLOR_EDIT_WIDTH, LCD_W * 0.8, LCD_W * 0.7)
+  static LAYOUT_VAL(COLOR_PAD_WIDTH, 52, 52)
+  static LAYOUT_VAL(COLOR_PAD_HEIGHT, 32, 32)
+  static LAYOUT_VAL(CVAL_W, 100, 100)
+  static LAYOUT_VAL(BTN_W, 80, 80)
+  static LAYOUT_VAL(BTN_PAD_TOP, 60, 60)
+  static LAYOUT_VAL(BTN_PAD_ROW, 20, 20)
 };
 
 ColorPicker::ColorPicker(Window* parent, const rect_t& rect,
                          std::function<uint16_t()> getValue,
                          std::function<void(uint16_t)> setValue) :
-    Button(parent, {0, 0, COLOR_PAD_WIDTH, COLOR_PAD_HEIGHT}),
+    Button(parent, {0, 0, ColorEditorPopup::COLOR_PAD_WIDTH, ColorEditorPopup::COLOR_PAD_HEIGHT}),
     setValue(std::move(setValue))
 {
   updateColor(getValue());

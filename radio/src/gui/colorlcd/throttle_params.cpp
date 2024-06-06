@@ -26,64 +26,52 @@
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 
-static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                          LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
-                                          LV_GRID_TEMPLATE_LAST};
+static SetupLineDef setupLines[] = {
+  {
+    // Throttle reversed
+    STR_THROTTLEREVERSE,
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_model.throttleReversed));
+    }
+  },
+  {
+    // Throttle source
+    STR_TTRACE,
+    [](Window* parent, coord_t x, coord_t y) {
+      auto sc = new SourceChoice(parent, {x, y, 0, 0}, 0, MIXSRC_LAST_CH,
+                                []() {return throttleSource2Source(g_model.thrTraceSrc); },
+                                [](int16_t src) {
+                                  int16_t val = source2ThrottleSource(src);
+                                  if (val >= 0) {
+                                    g_model.thrTraceSrc = val;
+                                    SET_DIRTY();
+                                  }
+                                });
+      sc->setAvailableHandler(isThrottleSourceAvailable);
+    }
+  },
+  {
+    // Throttle trim
+    STR_TTRIM,
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_model.thrTrim));
+    }
+  },
+  {
+    // Throttle trim source
+    STR_TTRIM_SW,
+    [](Window* parent, coord_t x, coord_t y) {
+      new SourceChoice(
+          parent, {x, y, 0, 0}, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM,
+          []() { return g_model.getThrottleStickTrimSource(); },
+          [](int16_t src) {
+            g_model.setThrottleStickTrimSource(src);
+            SET_DIRTY();
+          });
+    }
+  },
+};
 
-static int16_t getThrottleSource()
+ThrottleParams::ThrottleParams() : SubPage(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, STR_THROTTLE_LABEL, setupLines, DIM(setupLines))
 {
-  return throttleSource2Source(g_model.thrTraceSrc);
-}
-
-static void setThrottleSource(int16_t src)
-{
-  int16_t val = source2ThrottleSource(src);
-  if (val >= 0) {
-    g_model.thrTraceSrc = val;
-    SET_DIRTY();
-  }
-}
-
-static int16_t getThrottleTrimSource()
-{
-  return g_model.getThrottleStickTrimSource();
-}
-
-static void setThrottleTrimSource(int16_t src)
-{
-  g_model.setThrottleStickTrimSource(src);
-}
-
-ThrottleParams::ThrottleParams() : Page(ICON_MODEL_SETUP)
-{
-  header->setTitle(STR_MENU_MODEL_SETUP);
-  header->setTitle2(STR_THROTTLE_LABEL);
-
-  body->setFlexLayout();
-  FlexGridLayout grid(line_col_dsc, line_row_dsc);
-
-  // Throttle reversed
-  auto line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_THROTTLEREVERSE);
-  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.throttleReversed));
-
-  // Throttle source
-  line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_TTRACE);
-  auto sc = new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST_CH,
-                             getThrottleSource, setThrottleSource);
-  sc->setAvailableHandler(isThrottleSourceAvailable);
-
-  // Throttle trim
-  line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_TTRIM);
-  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.thrTrim));
-
-  // Throttle trim source
-  line = body->newLine(grid);
-  new StaticText(line, rect_t{}, STR_TTRIM_SW);
-  new SourceChoice(
-      line, rect_t{}, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM,
-      getThrottleTrimSource, setThrottleTrimSource);
 }

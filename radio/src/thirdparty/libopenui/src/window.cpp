@@ -20,6 +20,7 @@
 
 #include "button.h"
 #include "form.h"
+#include "static.h"
 #include "themes/etx_lv_theme.h"
 
 std::list<Window *> Window::trash;
@@ -103,11 +104,6 @@ Window::Window(Window *parent, const rect_t &rect, LvglCreate objConstruct) :
   if (objConstruct == nullptr) objConstruct = window_create;
   lvobj = objConstruct(lv_parent);
 
-  Window::setupLVGL();
-}
-
-void Window::setupLVGL()
-{
   lv_obj_set_user_data(lvobj, this);
   lv_obj_add_event_cb(lvobj, Window::window_event_cb, LV_EVENT_ALL, nullptr);
 
@@ -115,7 +111,6 @@ void Window::setupLVGL()
   if (rect.w) lv_obj_set_width(lvobj, rect.w);
   if (rect.h) lv_obj_set_height(lvobj, rect.h);
 
-  // lv_obj_set_scrollbar_mode(lvobj, LV_SCROLLBAR_MODE_OFF);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_ELASTIC);
 
   if (parent) {
@@ -382,7 +377,7 @@ void Window::enable(bool enabled)
 void Window::addBackButton()
 {
   new ButtonBase(
-      this, {0, 0, MENU_HEADER_HEIGHT, MENU_HEADER_HEIGHT},
+      this, {0, 0, EdgeTxStyles::MENU_HEADER_HEIGHT, EdgeTxStyles::MENU_HEADER_HEIGHT},
       [=]() -> uint8_t {
         onCancel();
         return 0;
@@ -438,4 +433,95 @@ NavWindow::NavWindow(Window *parent, const rect_t &rect,
     Window(parent, rect, objConstruct)
 {
   setWindowFlag(OPAQUE);
+}
+
+SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
+                                   PaddingSize padding, PageDefs pages, coord_t btnHeight) :
+    Window(parent, rect)
+{
+  padAll(padding);
+
+  coord_t buttonWidth = (width() - PAD_SMALL * (cols + 1) - PAD_TINY * 2) / cols;
+
+  int rows = (pages.size() + cols - 1) / cols;
+  int height = rows * btnHeight + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2;
+  if (title) {
+    height += EdgeTxStyles::PAGE_LINE_HEIGHT + PAD_TINY;
+  }
+  setHeight(height);
+
+  if (title)
+    new Subtitle(this, title);
+
+  int n = 0;
+  int remaining = pages.size();
+  coord_t yo = title ? EdgeTxStyles::PAGE_LINE_HEIGHT + PAD_TINY : 0;
+  coord_t xw = buttonWidth + PAD_SMALL;
+  coord_t xo = (width() - (cols * xw - PAD_SMALL)) / 2;
+  coord_t x, y;
+  for (auto& entry : pages) {
+    if (remaining < cols && (n % cols == 0)) {
+      coord_t space = ((cols - remaining) * xw) / (remaining + 1);
+      xw += space;
+      xo += space;
+    }
+    x = xo + (n % cols) * xw;
+    y = yo + (n / cols) * (btnHeight + PAD_MEDIUM);
+
+    // TODO: sort out all caps title strings VS quick menu strings
+    std::string title(entry.title);
+    for (std::string::iterator it = title.begin(); it != title.end(); ++it) {
+      if (*it == '\n')
+        *it = ' ';
+    }
+
+    auto btn = new TextButton(this, rect_t{x, y, buttonWidth, btnHeight}, title, [&, entry]() {
+      entry.createPage();
+      return 0;
+    });
+    btn->setWrap();
+    if (entry.isActive) btn->setCheckHandler([=]() { btn->check(entry.isActive()); });
+    n += 1;
+    remaining -= 1;
+  }
+}
+
+SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const char* title,
+                    std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset) :
+    Window(parent, {0, y, LCD_W - padding * 2, 0})
+{
+  padAll(PAD_ZERO);
+  coord_t titleY = PAD_MEDIUM + 1 + lblYOffset;
+  coord_t titleH = EdgeTxStyles::PAGE_LINE_HEIGHT;
+  coord_t h = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2 + lblYOffset * 2;
+  if (createEdit) {
+    coord_t editY = PAD_TINY;
+    coord_t lblWidth = col2 - PAD_SMALL - PAD_TINY;
+    if (title) {
+      if (getTextWidth(title) >= lblWidth) {
+        h += PAD_MEDIUM;
+        titleY = 0;
+        titleH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY + 1;
+        editY = PAD_SMALL + 1;
+      }
+      new StaticText(this, {PAD_TINY, titleY, lblWidth, titleH}, title);
+    }
+    setHeight(h);
+    createEdit(this, col2, editY);
+  } else {
+    setHeight(h);
+    new StaticText(this, {0, titleY, 0, titleH}, title, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+  }
+}
+
+coord_t SetupLine::showLines(Window* parent, coord_t y, coord_t col2, PaddingSize padding, SetupLineDef* setupLines, int lineCount)
+{
+  Window* w;
+
+  for (int i = 0; i < lineCount; i += 1) {
+    w = new SetupLine(parent, y, col2, padding, setupLines[i].title, setupLines[i].createEdit);
+    y += w->height() + padding;
+  }
+
+  return y;
 }

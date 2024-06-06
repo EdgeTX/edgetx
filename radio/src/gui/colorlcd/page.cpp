@@ -26,7 +26,7 @@
 #include "view_main.h"
 
 PageHeader::PageHeader(Page* parent, EdgeTxIcon icon) :
-    Window(parent, {0, 0, LCD_W, MENU_HEADER_HEIGHT}),
+    Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT}),
     icon(icon)
 {
   setWindowFlag(NO_FOCUS | OPAQUE);
@@ -37,7 +37,7 @@ PageHeader::PageHeader(Page* parent, EdgeTxIcon icon) :
 
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
-                          LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                          LCD_W - PAGE_TITLE_LEFT, EdgeTxStyles::PAGE_LINE_HEIGHT},
                          "", COLOR_THEME_PRIMARY2);
 }
 
@@ -45,24 +45,27 @@ StaticText* PageHeader::setTitle2(std::string txt)
 {
   if (title2 == nullptr) {
     title2 = new StaticText(this,
-                            {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAGE_LINE_HEIGHT,
-                             LCD_W - PAGE_TITLE_LEFT, PAGE_LINE_HEIGHT},
+                            {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + EdgeTxStyles::PAGE_LINE_HEIGHT,
+                             LCD_W - PAGE_TITLE_LEFT, EdgeTxStyles::PAGE_LINE_HEIGHT},
                             "", COLOR_THEME_PRIMARY2);
   }
   title2->setText(std::move(txt));
   return title2;
 }
 
-Page::Page(EdgeTxIcon icon, PaddingSize padding) :
+Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
     NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
 {
+  if (pauseRefresh)
+    lv_obj_enable_style_refresh(false);
+
   header = new PageHeader(this, icon);
   body = new Window(this,
-                    {0, MENU_HEADER_HEIGHT, LCD_W, LCD_H - MENU_HEADER_HEIGHT});
+                    {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});
   body->setWindowFlag(NO_FOCUS);
 
   etx_solid_bg(lvobj);
-  lv_obj_set_style_max_height(body->getLvObj(), LCD_H - MENU_HEADER_HEIGHT,
+  lv_obj_set_style_max_height(body->getLvObj(), LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT,
                               LV_PART_MAIN);
   etx_scrollbar(body->getLvObj());
 
@@ -92,4 +95,39 @@ void Page::checkEvents()
 {
   ViewMain::instance()->runBackground();
   NavWindow::checkEvents();
+}
+
+void Page::enableRefresh()
+{
+  lv_obj_enable_style_refresh(true);
+  lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
+}
+
+SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, bool pauseRefresh) :
+  Page(icon, PAD_SMALL, pauseRefresh)
+{
+  body->padBottom(PAD_LARGE * 2);
+
+  header->setTitle(title);
+  header->setTitle2(subtitle);
+}
+
+SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, SetupLineDef* setupLines, int lineCount) :
+  Page(icon, PAD_SMALL, true)
+{
+  body->padBottom(PAD_LARGE * 2);
+
+  header->setTitle(title);
+  header->setTitle2(subtitle);
+
+  SetupLine::showLines(body, y, EDT_X, PAD_SMALL, setupLines, lineCount);
+
+  enableRefresh();
+}
+
+Window* SubPage::setupLine(const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset)
+{
+  auto w = new SetupLine(body, y, EDT_X, PAD_SMALL, title, createEdit, lblYOffset);
+  y += w->height();
+  return w;
 }

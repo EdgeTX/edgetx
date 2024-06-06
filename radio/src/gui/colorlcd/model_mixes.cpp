@@ -33,7 +33,7 @@ class MPlexIcon : public Window
 {
  public:
   MPlexIcon(Window* parent, uint8_t index) :
-    Window(parent, {0, 0, 25, 29}),
+    Window(parent, {0, 0, MPLEX_ICON_W, MPLEX_ICON_H}),
     index(index)
     {
       MixData* mix = mixAddress(index);
@@ -66,6 +66,9 @@ class MPlexIcon : public Window
   {
     index = i;
   }
+
+  static LAYOUT_VAL(MPLEX_ICON_W, 25, 25)
+  static LAYOUT_VAL(MPLEX_ICON_H, 29, 29)
 
  protected:
   uint8_t index;
@@ -136,8 +139,8 @@ class MixLineButton : public InputMixButtonBase
   void updatePos(coord_t x, coord_t y) override
   {
     setPos(x, y);
-    mplex->setPos(x - 28, y);
-    mplex->show(y > BTN_H);
+    mplex->setPos(x - MPLEX_XO, y);
+    mplex->show(y > ListLineButton::BTN_H);
   }
 
   lv_obj_t* mplexLvObj() const { return mplex->getLvObj(); }
@@ -160,6 +163,8 @@ class MixLineButton : public InputMixButtonBase
     }
   }
 
+  static LAYOUT_VAL(MPLEX_XO, 28, 28)
+
  protected:
   MPlexIcon* mplex = nullptr;
 
@@ -174,7 +179,7 @@ class MixGroup : public InputMixGroupBase
   {
     adjustHeight();
 
-    lv_obj_set_pos(label, 2, -1);
+    lv_obj_set_pos(label, PAD_TINY, -1);
 
     lv_obj_t* chText = nullptr;
     if (idx >= MIXSRC_FIRST_CH && idx <= MIXSRC_LAST_CH &&
@@ -183,7 +188,7 @@ class MixGroup : public InputMixGroupBase
       etx_font(chText, FONT_XS_INDEX);
       lv_label_set_text_fmt(chText, TR_CH "%" PRIu32,
                             UINT32_C(idx - MIXSRC_FIRST_CH + 1));
-      lv_obj_set_pos(chText, 2, 17);
+      lv_obj_set_pos(chText, PAD_TINY, CHNUM_Y);
     }
 
     refresh();
@@ -192,7 +197,7 @@ class MixGroup : public InputMixGroupBase
   void enableMixerMonitor()
   {
     if (!monitor)
-      monitor = new MixerChannelBar(this, {LCD_W - 118, 1, 100, 14}, idx - MIXSRC_FIRST_CH);
+      monitor = new MixerChannelBar(this, {LCD_W - CHBAR_XO, 1, CHBAR_W, CHBAR_H}, idx - MIXSRC_FIRST_CH);
     monitorVisible = true;
     monitor->show();
     adjustHeight();
@@ -207,14 +212,19 @@ class MixGroup : public InputMixGroupBase
 
   void adjustHeight() override
   {
-    coord_t y = monitorVisible ? 17 : 2;
+    coord_t y = monitorVisible ? CHNUM_Y : PAD_TINY;
     for (auto it = lines.cbegin(); it != lines.cend(); ++it) {
       auto line = *it;
-      line->updatePos(LN_X, y);
+      line->updatePos(InputMixButtonBase::LN_X, y);
       y += line->height() + 2;
     }
     setHeight(y + 4);
   }
+
+  static LAYOUT_VAL(CHNUM_Y, 17, 17)
+  static LAYOUT_VAL(CHBAR_XO, 118, 118)
+  static LAYOUT_VAL(CHBAR_W, 100, 100)
+  static LAYOUT_VAL(CHBAR_H, 14, 14)
 
  protected:
   MixerChannelBar* monitor = nullptr;

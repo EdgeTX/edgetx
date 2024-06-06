@@ -254,6 +254,14 @@ void ThemeFile::applyBackground()
       instance->setBackgroundImageFileName((char*)rootDir.c_str());
       return;
     }
+
+    rootDir = backgroundImageFileName.substr(0, pos + 1);
+    rootDir = rootDir + "background.png";
+
+    if (isFileAvailable(rootDir.c_str())) {
+      instance->setBackgroundImageFileName((char*)rootDir.c_str());
+      return;
+    }
   }
 
   // Use EdgeTxTheme default background
@@ -277,12 +285,15 @@ void ThemePersistance::clearThemes()
   themes.clear();
 }
 
-void ThemePersistance::scanThemeFolder(char* fullPath)
+void ThemePersistance::scanThemeFolder(char* themeFolder)
 {
-  strncat(fullPath, "/theme.yml", FF_MAX_LFN);
-  if (isFileAvailable(fullPath, true)) {
-    TRACE("scanForThemes: found file %s", fullPath);
-    themes.emplace_back(new ThemeFile(fullPath));
+  char themePath[FF_MAX_LFN + 1];
+  char* s = strAppend(themePath, THEMES_PATH "/", FF_MAX_LFN);
+  s = strAppend(s, themeFolder, FF_MAX_LFN - (s - themePath));
+  strAppend(s, "/theme.yml", FF_MAX_LFN - (s - themePath));
+  if (isFileAvailable(themePath, true)) {
+    TRACE("scanForThemes: found file %s", themePath);
+    themes.emplace_back(new ThemeFile(themePath));
   }
 }
 
@@ -310,13 +321,8 @@ void ThemePersistance::scanForThemes()
         break;  // Break on error or end of dir
 
       if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH) continue;
-      if (fno.fattrib & AM_DIR) {
-        char themePath[FF_MAX_LFN + 1];
-        char* s = strAppend(themePath, fullPath, FF_MAX_LFN);
-        s = strAppend(s, "/", FF_MAX_LFN - (s - themePath));
-        strAppend(s, fno.fname, FF_MAX_LFN - (s - themePath));
-        scanThemeFolder(themePath);
-      }
+      if (fno.fattrib & AM_DIR)
+        scanThemeFolder(fno.fname);
     }
 
     f_closedir(&dir);
@@ -451,6 +457,7 @@ bool ThemePersistance::createNewTheme(std::string name, ThemeFile& theme)
   } else if (result != FR_OK) return false;
   theme.setPath(fullPath);
   theme.serialize();
+  refresh();
   return true;
 }
 

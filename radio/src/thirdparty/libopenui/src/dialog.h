@@ -97,7 +97,7 @@ class DynamicMessageDialog : public BaseDialog
   DynamicMessageDialog(Window* parent, const char* title,
                        std::function<std::string()> textHandler,
                        const char* message = "",
-                       const int lineHeight = PAGE_LINE_HEIGHT,
+                       const int lineHeight = EdgeTxStyles::PAGE_LINE_HEIGHT,
                        const LcdFlags textFlags = CENTERED);
   // Attn.: FONT(XXL) is not supported by DynamicMessageDialog
 
@@ -126,4 +126,21 @@ class ConfirmDialog : public BaseDialog
   std::function<void(void)> cancelHandler;
 
   void onCancel() override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LabelDialog : public ModalWindow
+{
+ public:
+  LabelDialog(Window *parent, const char *label, int length, const char* title,
+              std::function<void(std::string)> _saveHandler = nullptr);
+
+  static constexpr int MAX_LABEL_LENGTH = 255;
+
+  void onCancel() override { deleteLater(); }
+
+ protected:
+  std::function<void(std::string)> saveHandler;
+  char label[MAX_LABEL_LENGTH + 1];
 };

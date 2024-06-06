@@ -19,148 +19,95 @@
 #pragma once
 
 #include "form.h"
+#include "button.h"
 
-class NumberEdit: public FormField
+class NumberArea;
+
+class NumberEdit : public TextButton
 {
-  public:
-    NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
-               std::function<int()> getValue,
-               std::function<void(int)> setValue = nullptr,
-               LcdFlags textFlags = 0);
+ public:
+  NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
+                   std::function<int()> getValue,
+                   std::function<void(int)> setValue = nullptr,
+                   LcdFlags textFlags = 0);
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "NumberEdit(" + std::to_string(getValue()) + ")";
-    }
+  std::string getName() const override
+  {
+    return "NumberEdit";
+  }
 #endif
 
-    void setAvailableHandler(std::function<bool(int)> handler)
-    {
-      isValueAvailable = std::move(handler);
-    }
+  virtual void update();
 
-    void onEvent(event_t event) override;
-    void onClicked() override;
+  int32_t getMax() const { return vmax; }
 
-    void setMin(int value)
-    {
-      vmin = value;
-    }
+  void setMin(int value) { vmin = value; }
+  void setMax(int value) { vmax = value; }
+  void setDefault(int value) { vdefault = value; }
+  void setStep(int value) { step = value; }
+  void setFastStep(int value) { fastStep = value; }
+  void setAccelFactor(int value) { accelFactor = value; }
+  void setValue(int value);
 
-    void setMax(int value)
-    {
-      vmax = value;
-    }
+  void setPrefix(std::string value)
+  {
+    prefix = std::move(value);
+    update();
+  }
 
-    void setDefault(int value)
-    {
-      vdefault = value;
-    }
+  void setSuffix(std::string value)
+  {
+    suffix = std::move(value);
+    update();
+  }
 
-    int32_t getMin() const
-    {
-      return vmin;
-    }
+  void setZeroText(std::string value)
+  {
+    zeroText = std::move(value);
+    update();
+  }
 
-    int32_t getMax() const
-    {
-      return vmax;
-    }
+  void setAvailableHandler(std::function<bool(int)> handler)
+  {
+    isValueAvailable = std::move(handler);
+  }
 
-    int32_t getDefault() const
-    {
-      return vdefault;
-    }
+  void setDisplayHandler(std::function<std::string(int value)> function)
+  {
+    displayFunction = std::move(function);
+    update();
+  }
 
-    void setStep(int value)
-    {
-      step = value;
-    }
+  void setSetValueHandler(std::function<void(int)> handler)
+  {
+    _setValue = std::move(handler);
+  }
 
-    int32_t getStep() const
-    {
-      return step;
-    }
+  void setGetValueHandler(std::function<int()> handler)
+  {
+    _getValue = std::move(handler);
+  }
 
-    void setFastStep(int value)
-    {
-      fastStep = value;
-    }
+  int32_t getValue() const { return _getValue != nullptr ? _getValue() : 0; }
 
-    int32_t getFastStep() const
-    {
-      return fastStep;
-    }
+ protected:
+  NumberArea* edit = nullptr;
+  std::function<int()> _getValue;
+  std::function<void(int)> _setValue;
+  int vdefault = 0;
+  int vmin;
+  int vmax;
+  int step = 1;
+  int fastStep = 10;
+  int accelFactor = 4;
+  int currentValue;
+  std::string prefix;
+  std::string suffix;
+  std::string zeroText;
+  std::function<std::string(int)> displayFunction;
+  std::function<bool(int)> isValueAvailable;
 
-    void setAccelFactor(int value)
-    {
-      accelFactor = value;
-    }
-
-    int32_t getAccelFactor() const
-    {
-      return accelFactor;
-    }
-
-    void setValue(int value);
-
-    void setPrefix(std::string value)
-    {
-      prefix = std::move(value);
-      update();
-    }
-
-    void setSuffix(std::string value)
-    {
-      suffix = std::move(value);
-      update();
-    }
-
-    void setZeroText(std::string value)
-    {
-      zeroText = std::move(value);
-      update();
-    }
-
-    void setSetValueHandler(std::function<void(int)> handler)
-    {
-      _setValue = std::move(handler);
-    }
-
-    void setGetValueHandler(std::function<int()> handler)
-    {
-      _getValue = std::move(handler);
-    }
-
-    int32_t getValue() const
-    {
-      return _getValue != nullptr ? _getValue() : 0;
-    }
-
-    void setDisplayHandler(std::function<std::string(int value)> function)
-    {
-      displayFunction = std::move(function);
-      update();
-    }
-
-    virtual void update();
-
-  protected:
-    int vdefault = 0;
-    int vmin;
-    int vmax;
-    int step = 1;
-    int fastStep = 10;
-    int accelFactor = 4;
-    int currentValue;
-    std::string prefix;
-    std::string suffix;
-    std::string zeroText;
-    std::function<int()> _getValue;
-    std::function<void(int)> _setValue;
-    std::function<std::string(int)> displayFunction;
-    std::function<bool(int)> isValueAvailable;
-
-    void updateDisplay();
+  void updateDisplay();
+  void openEdit();
 };

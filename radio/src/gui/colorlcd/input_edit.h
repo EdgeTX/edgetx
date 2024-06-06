@@ -32,6 +32,9 @@ class InputEditWindow : public Page
  public:
   InputEditWindow(int8_t input, uint8_t index);
 
+  static LAYOUT_VAL(INPUT_EDIT_CURVE_WIDTH, 140, 176)
+  static LAYOUT_VAL(INPUT_EDIT_CURVE_HEIGHT, INPUT_EDIT_CURVE_WIDTH, 132)
+
  protected:
   uint8_t input;
   uint8_t index;

@@ -27,4 +27,7 @@ class SerialConfigWindow
 {
  public:
   SerialConfigWindow(Window *parent, FlexGridLayout& grid);
+
+  static LAYOUT_VAL(WARN_PADL, 20, 20);
+  static LAYOUT_VAL(WARN_PADB, 6, 6);
 };

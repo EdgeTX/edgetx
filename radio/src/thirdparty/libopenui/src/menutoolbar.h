@@ -20,6 +20,7 @@
 
 #include "button.h"
 #include "choice.h"
+#include "listbox.h"
 
 class Menu;
 
@@ -43,6 +44,14 @@ class MenuToolbar : public Window
   void onEvent(event_t event) override;
 
   virtual void longPress() {}
+
+  static LAYOUT_VAL(MENUS_TOOLBAR_BUTTON_WIDTH, 32, 32)
+
+#if PORTRAIT_LCD
+  static constexpr coord_t MENUS_MAX_HEIGHT = (ListBox::MENUS_LINE_HEIGHT * 10);
+#else
+  static constexpr coord_t MENUS_MAX_HEIGHT = (ListBox::MENUS_LINE_HEIGHT * 7) + 8;
+#endif
 
  protected:
   Choice* choice;

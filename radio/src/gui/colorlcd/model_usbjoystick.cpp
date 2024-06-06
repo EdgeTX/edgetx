@@ -32,7 +32,7 @@
 
 #define ETX_STATE_COLLISION_WARN LV_STATE_USER_1
 
-#if LCD_W > LCD_H  // Landscape
+#if !PORTRAIT_LCD  // Landscape
 
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                           LV_GRID_FR(1), LV_GRID_FR(1),
@@ -289,7 +289,7 @@ class USBChannelEditWindow : public Page
         window,
         {window->getRect().w - USBCH_EDIT_STATUS_BAR_WIDTH -
              USBCH_EDIT_RIGHT_MARGIN,
-         0, USBCH_EDIT_STATUS_BAR_WIDTH, MENU_HEADER_HEIGHT},
+         0, USBCH_EDIT_STATUS_BAR_WIDTH, EdgeTxStyles::MENU_HEADER_HEIGHT},
         channel);
   }
 
@@ -306,7 +306,7 @@ class USBChannelEditWindow : public Page
     new Choice(line, rect_t{}, STR_VUSBJOYSTICK_CH_MODE, 0, USBJOYS_CH_LAST,
                GET_DEFAULT(cch->mode), SET_VALUE_WUPDATE(cch->mode));
 
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     line = form->newLine(grid);
 #endif
 
@@ -331,7 +331,7 @@ class USBChannelEditWindow : public Page
                  this->update();
                });
 
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     line = m_btnModeFrame->newLine(grid);
 #endif
 
@@ -342,7 +342,7 @@ class USBChannelEditWindow : public Page
 
     line = m_btnModeFrame->newLine(grid);
     new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_BTNNUM);
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
     line = m_btnModeFrame->newLine(grid);
 #endif
     _BtnNumSel = new USBChannelButtonSel(line, rect_t{}, channel,
@@ -381,7 +381,7 @@ class USBChannelLineButton : public ListLineButton
       ListLineButton(parent, index)
   {
     setHeight(USBCH_LINE_HEIGHT);
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
     padTop(4);
 #endif
 
@@ -400,14 +400,15 @@ class USBChannelLineButton : public ListLineButton
     auto line = (USBChannelLineButton*)lv_obj_get_user_data(target);
     if (line) {
       if (!line->init)
-        line->delayed_init(e);
-      else
-        line->refresh();
+        line->delayed_init();
+      line->refresh();
     }
   }
 
-  void delayed_init(lv_event_t* e)
+  void delayed_init()
   {
+    init = true;
+
     m_chn = lv_label_create(lvobj);
     lv_obj_set_grid_cell(m_chn, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER,
                          0, USBCH_CHN_ROWS);
@@ -442,15 +443,7 @@ class USBChannelLineButton : public ListLineButton
     lv_label_set_text(m_btn_mode, "");
     lv_label_set_text(m_btns, "");
 
-    init = true;
-    refresh();
-
     lv_obj_update_layout(lvobj);
-
-    if (e) {
-      auto param = lv_event_get_param(e);
-      lv_event_send(lvobj, LV_EVENT_DRAW_MAIN, param);
-    }
   }
 
   void refresh() override
@@ -536,7 +529,7 @@ ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB)
              GET_DEFAULT(g_model.usbJoystickExtMode),
              SET_VALUE_WUPDATE(g_model.usbJoystickExtMode));
 
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
   line = body->newLine(grid);
 #endif
 
@@ -554,7 +547,7 @@ ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB)
                  GET_DEFAULT(g_model.usbJoystickCircularCut),
                  SET_VALUE_WUPDATE(g_model.usbJoystickCircularCut));
 
-#if LCD_H > LCD_W
+#if PORTRAIT_LCD
   line = body->newLine(grid);
 #endif
 

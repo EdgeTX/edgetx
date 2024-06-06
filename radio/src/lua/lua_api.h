@@ -79,7 +79,6 @@ void luaInitThemesAndWidgets();
 void luaInit();
 void luaEmptyEventBuffer();
 
-#define LUA_INIT_THEMES_AND_WIDGETS()  luaInitThemesAndWidgets()
 #define lua_registernumber(L, n, i)    (lua_pushnumber(L, (i)), lua_setglobal(L, (n)))
 #define lua_registerint(L, n, i)       (lua_pushinteger(L, (i)), lua_setglobal(L, (n)))
 #define lua_pushtableboolean(L, k, v)  (lua_pushstring(L, (k)), lua_pushboolean(L, (v)), lua_settable(L, -3))
@@ -250,7 +249,6 @@ void * tracer_alloc(void * ud, void * ptr, size_t osize, size_t nsize);
 #else  // defined(LUA)
 
 #define luaInit()
-#define LUA_INIT_THEMES_AND_WIDGETS()
 #define LUA_LOAD_MODEL_SCRIPTS()
 
 #endif // defined(LUA)

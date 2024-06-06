@@ -25,11 +25,6 @@
 #include "widget.h"
 #include "widgets_container_impl.h"
 
-#define W_AUDIO_X 0
-#define W_USB_X 32
-#define W_LOG_X 32
-#define W_RSSI_X 40
-
 class TopBarWidget : public Widget
 {
  public:
@@ -48,45 +43,50 @@ class RadioInfoWidget : public TopBarWidget
       TopBarWidget(factory, parent, rect, persistentData)
   {
     // Logs
-    logsIcon = new StaticIcon(this, W_LOG_X, 3, ICON_DOT, COLOR_THEME_PRIMARY2);
+    logsIcon = new StaticIcon(this, W_LOG_X, W_LOG_Y, ICON_DOT,
+                              COLOR_THEME_PRIMARY2);
     logsIcon->hide();
 
-    usbIcon = new StaticIcon(this, W_USB_X, 5, ICON_TOPMENU_USB,
-                             COLOR_THEME_PRIMARY2);
+    usbIcon =
+        new StaticIcon(this, W_USB_X, W_USB_Y, ICON_TOPMENU_USB,
+                       COLOR_THEME_PRIMARY2);
     usbIcon->hide();
 
 #if defined(AUDIO)
-    audioScale =
-        new StaticIcon(this, W_AUDIO_X + 15, 2, ICON_TOPMENU_VOLUME_SCALE,
-                       COLOR_THEME_PRIMARY3);
+    audioScale = new StaticIcon(this, W_AUDIO_SCALE_X, 2,
+                                ICON_TOPMENU_VOLUME_SCALE,
+                                COLOR_THEME_PRIMARY3);
 
     for (int i = 0; i < 5; i += 1) {
-      audioVol[i] = new StaticIcon(this, W_AUDIO_X, 2,
-                                   (EdgeTxIcon)(ICON_TOPMENU_VOLUME_0 + i),
-                                   COLOR_THEME_PRIMARY2);
+      audioVol[i] = new StaticIcon(
+          this, W_AUDIO_X, 2,
+         (EdgeTxIcon)(ICON_TOPMENU_VOLUME_0 + i),
+          COLOR_THEME_PRIMARY2);
       audioVol[i]->hide();
     }
     audioVol[0]->show();
 #endif
 
-    batteryIcon = new StaticIcon(this, W_AUDIO_X, 25, ICON_TOPMENU_TXBATT,
+    batteryIcon = new StaticIcon(this, W_AUDIO_X, W_BATT_Y,
+                                 ICON_TOPMENU_TXBATT,
                                  COLOR_THEME_PRIMARY2);
 #if defined(USB_CHARGER)
-    batteryChargeIcon =
-        new StaticIcon(this, W_AUDIO_X + 25, 23, ICON_TOPMENU_TXBATT_CHARGE,
-                       COLOR_THEME_PRIMARY2);
+    batteryChargeIcon = new StaticIcon(
+        this, W_BATT_CHG_X, W_BATT_CHG_Y,
+        ICON_TOPMENU_TXBATT_CHARGE, COLOR_THEME_PRIMARY2);
     batteryChargeIcon->hide();
 #endif
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-    extAntenna = new StaticIcon(this, W_RSSI_X - 4, 1, ICON_TOPMENU_ANTENNA,
+    extAntenna = new StaticIcon(this, W_RSSI_X - 4, 1,
+                                ICON_TOPMENU_ANTENNA,
                                 COLOR_THEME_PRIMARY2);
     extAntenna->hide();
 #endif
 
     batteryFill = lv_obj_create(lvobj);
     lv_obj_set_pos(batteryFill, W_AUDIO_X + 1, 26);
-    lv_obj_set_size(batteryFill, 20, 9);
+    lv_obj_set_size(batteryFill, W_BATT_FILL_W, W_BATT_FILL_H);
     lv_obj_set_style_bg_opa(batteryFill, LV_OPA_COVER, LV_PART_MAIN);
     update();
 
@@ -95,8 +95,9 @@ class RadioInfoWidget : public TopBarWidget
     for (unsigned int i = 0; i < DIM(rssiBarsHeight); i++) {
       uint8_t height = rssiBarsHeight[i];
       rssiBars[i] = lv_obj_create(lvobj);
-      lv_obj_set_pos(rssiBars[i], W_RSSI_X + i * 6, 35 - height);
-      lv_obj_set_size(rssiBars[i], 4, height);
+      lv_obj_set_pos(rssiBars[i], W_RSSI_X + i * W_RSSI_BAR_SZ,
+                     W_RSSI_BAR_H - height);
+      lv_obj_set_size(rssiBars[i], W_RSSI_BAR_W, height);
       etx_solid_bg(rssiBars[i], COLOR_THEME_PRIMARY3_INDEX);
       etx_bg_color(rssiBars[i], COLOR_THEME_PRIMARY2_INDEX, LV_STATE_USER_1);
     }
@@ -160,10 +161,10 @@ class RadioInfoWidget : public TopBarWidget
 #endif
 
     // Battery level
-    uint8_t bars = GET_TXBATT_BARS(20);
+    uint8_t bars = GET_TXBATT_BARS(W_BATT_FILL_W);
     if (bars != lastBatt) {
       lastBatt = bars;
-      lv_obj_set_size(batteryFill, bars, 9);
+      lv_obj_set_size(batteryFill, bars, W_BATT_FILL_H);
       if (bars >= 12) {
         lv_obj_clear_state(batteryFill, LV_STATE_USER_1 | LV_STATE_USER_2);
       } else if (bars >= 5) {
@@ -190,6 +191,22 @@ class RadioInfoWidget : public TopBarWidget
   }
 
   static const ZoneOption options[];
+
+  static constexpr coord_t W_AUDIO_X = 0;
+  static LAYOUT_VAL(W_AUDIO_SCALE_X, 15, 15)
+  static LAYOUT_VAL(W_USB_X, 32, 32)
+  static LAYOUT_VAL(W_USB_Y, 5, 5)
+  static LAYOUT_VAL(W_LOG_X, 32, 32)
+  static LAYOUT_VAL(W_LOG_Y, 3, 3)
+  static LAYOUT_VAL(W_RSSI_X, 40, 40)
+  static LAYOUT_VAL(W_RSSI_BAR_W, 4, 4)
+  static LAYOUT_VAL(W_RSSI_BAR_H, 35, 35)
+  static LAYOUT_VAL(W_RSSI_BAR_SZ, 6, 6)
+  static LAYOUT_VAL(W_BATT_Y, 25, 25)
+  static LAYOUT_VAL(W_BATT_FILL_W, 20, 20)
+  static LAYOUT_VAL(W_BATT_FILL_H, 9, 9)
+  static LAYOUT_VAL(W_BATT_CHG_X, 25, 25)
+  static LAYOUT_VAL(W_BATT_CHG_Y, 23, 23)
 
  protected:
   uint8_t lastVol = 0;
@@ -221,13 +238,6 @@ const ZoneOption RadioInfoWidget::options[] = {
 BaseWidgetFactory<RadioInfoWidget> RadioInfoWidget("Radio Info", RadioInfoWidget::options,
                                                    STR_RADIO_INFO_WIDGET);
 
-// Adjustment to make main view date/time align with model/radio settings views
-#if LCD_W > LCD_H
-#define DT_OFFSET 24
-#else
-#define DT_OFFSET 8
-#endif
-
 class DateTimeWidget : public TopBarWidget
 {
  public:
@@ -235,7 +245,7 @@ class DateTimeWidget : public TopBarWidget
                  const rect_t& rect, Widget::PersistentData* persistentData) :
       TopBarWidget(factory, parent, rect, persistentData)
   {
-    dateTime = new HeaderDateTime(lvobj, DT_OFFSET, 3);
+    dateTime = new HeaderDateTime(lvobj, DT_X, DT_Y);
     update();
   }
 
@@ -264,6 +274,10 @@ class DateTimeWidget : public TopBarWidget
   int8_t lastMinute = -1;
 
   static const ZoneOption options[];
+
+  // Adjustment to make main view date/time align with model/radio settings views
+  static LAYOUT_VAL(DT_X, 24, 8)
+  static LAYOUT_VAL(DT_Y, 3, 3)
 };
 
 const ZoneOption DateTimeWidget::options[] = {
@@ -285,8 +299,9 @@ class InternalGPSWidget : public TopBarWidget
                     Widget::PersistentData* persistentData) :
       TopBarWidget(factory, parent, rect, persistentData)
   {
-    icon = new StaticIcon(this, width() / 2 - 10, 19, ICON_TOPMENU_GPS,
-                          COLOR_THEME_PRIMARY3);
+    icon =
+        new StaticIcon(this, width() / 2 - 10, 19,
+                       ICON_TOPMENU_GPS, COLOR_THEME_PRIMARY3);
 
     numSats = new DynamicNumber<uint16_t>(
         this, {0, 1, width(), 12}, [=] { return gpsData.numSat; },

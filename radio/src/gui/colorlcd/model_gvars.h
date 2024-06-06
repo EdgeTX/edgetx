@@ -31,7 +31,11 @@ class ModelGVarsPage : public PageTab
 
   bool isVisible() const override { return modelGVEnabled(); }
 
+  void cleanup() override;
+
  protected:
+  Window* hdr = nullptr;
+
   void build(Window* window) override;
   void rebuild(Window* window);
 };

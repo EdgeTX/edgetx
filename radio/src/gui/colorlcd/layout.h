@@ -28,9 +28,7 @@
 
 #define MAX_LAYOUT_ZONES 10
 #define MAX_LAYOUT_OPTIONS 10
-constexpr coord_t TRIM_LINE_WIDTH = 8;
-constexpr coord_t TRIM_SQUARE_SIZE = 17;
-constexpr coord_t MAIN_ZONE_BORDER = 10;
+
 constexpr uint32_t LAYOUT_REFRESH = 1000 / 2;  // 2 Hz
 
 #if !defined(YAML_GENERATOR)
@@ -80,6 +78,12 @@ class LayoutFactory
   static std::list<const LayoutFactory*>& getRegisteredLayouts();
 
   WidgetsContainer* createCustomScreen(unsigned customScreenIndex) const;
+
+  static LAYOUT_VAL(TRIM_LINE_WIDTH, 8, 8)
+  static LAYOUT_VAL(TRIM_SQUARE_SIZE, 17, 17)
+
+  static LAYOUT_VAL(BM_W, 51, 22)
+  static LAYOUT_VAL(BM_H, 25, 34)
 
  protected:
   const char* id;

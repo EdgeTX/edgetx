@@ -39,12 +39,6 @@ CurveDataEdit::CurveDataEdit(Window* parent, const rect_t& rect,
   etx_scrollbar(lvobj);
 }
 
-#if LCD_W > LCD_H
-#define NUM_BTN_WIDTH 44
-#else
-#define NUM_BTN_WIDTH 48
-#endif
-
 void CurveDataEdit::curvePointsRow(FormLine* parent, int start, int count,
                                    int curvePointsCount, bool isCustom)
 {
@@ -57,17 +51,17 @@ void CurveDataEdit::curvePointsRow(FormLine* parent, int start, int count,
                                               LV_GRID_TEMPLATE_LAST};
 
   auto form = new Window(parent, rect_t{});
-  form->padAll(PAD_ZERO);
-  form->setFlexLayout();
+  form->padAll(PAD_TINY);
+  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
-  FlexGridLayout grid(points_col_dsc, default_row_dsc);
+  FlexGridLayout grid(points_col_dsc, default_row_dsc, PAD_ZERO);
 
   auto line = form->newLine(grid);
-  line->padTop(-4);
-  line->padBottom(0);
-  line->padLeft(4);
-  line->padRight(4);
-  line->setHeight(12);
+  line->padTop(-PAD_SMALL);
+  line->padBottom(PAD_ZERO);
+  line->padLeft(PAD_SMALL);
+  line->padRight(PAD_SMALL);
+  line->setHeight(NUM_HDR_HEIGHT);
   lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN,
                         LV_GRID_ALIGN_SPACE_BETWEEN);
 
@@ -80,8 +74,8 @@ void CurveDataEdit::curvePointsRow(FormLine* parent, int start, int count,
   }
 
   line = form->newLine(grid);
-  line->padAll(PAD_TINY);
-  line->setHeight(36);
+  line->padAll(PAD_ZERO);
+  line->setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2);
   lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN,
                         LV_GRID_ALIGN_SPACE_BETWEEN);
 
@@ -121,10 +115,9 @@ void CurveDataEdit::curvePointsRow(FormLine* parent, int start, int count,
             }
             SET_DIRTY();
             curveEdit->updatePreview();
-          });
+          }, CENTERED);
       lv_obj_set_grid_cell(numEditX[px]->getLvObj(), LV_GRID_ALIGN_CENTER,
                            i + 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-      lv_textarea_set_align(numEditX[px]->getLvObj(), LV_TEXT_ALIGN_CENTER);
     }
     if ((start + count) == curvePointsCount) {
       (new StaticText(line, rect_t{}, "100", 
@@ -142,8 +135,8 @@ void CurveDataEdit::curvePointsRow(FormLine* parent, int start, int count,
   }
 
   line = form->newLine(grid);
-  line->padAll(PAD_TINY);
-  line->setHeight(36);
+  line->padAll(PAD_ZERO);
+  line->setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2);
   lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN,
                         LV_GRID_ALIGN_SPACE_BETWEEN);
 
@@ -158,10 +151,9 @@ void CurveDataEdit::curvePointsRow(FormLine* parent, int start, int count,
           points[i + start] = newValue;
           SET_DIRTY();
           curveEdit->updatePreview();
-        });
+        }, CENTERED);
     lv_obj_set_grid_cell(numedit->getLvObj(), LV_GRID_ALIGN_CENTER, i + 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
-    lv_textarea_set_align(numedit->getLvObj(), LV_TEXT_ALIGN_CENTER);
   }
 }
 
@@ -277,7 +269,7 @@ void CurveEditWindow::buildBody(Window* window)
   lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN,
                         LV_GRID_ALIGN_SPACE_BETWEEN);
 
-#if LCD_H > LCD_W  // portrait
+#if PORTRAIT_LCD
   lv_obj_set_flex_flow(line->getLvObj(), LV_FLEX_FLOW_COLUMN);
   coord_t curveWidth = window->width() - 88;
   coord_t boxWidth = window->width();
@@ -310,7 +302,7 @@ void CurveEditWindow::buildBody(Window* window)
 
   // Name
   new StaticText(iLine, rect_t{}, STR_NAME);
-  new ModelTextEdit(iLine, rect_t{0, 0, 100, 0}, curve.name,
+  new ModelTextEdit(iLine, rect_t{}, curve.name,
                     sizeof(curve.name));
 
   // Smooth

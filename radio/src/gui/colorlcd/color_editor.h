@@ -45,6 +45,15 @@ class ColorEditor : public Window
 
   void setColorEditorType(COLOR_EDITOR_TYPE colorType);
 
+  static LAYOUT_VAL(BAR_MARGIN, 5, 5)
+  static LAYOUT_VAL(BAR_TOP_MARGIN, 5, 5)
+  static LAYOUT_VAL(BAR_HEIGHT_OFFSET, 25, 25)
+  static LAYOUT_VAL(LBL_YO, 9, 9)
+  static LAYOUT_VAL(VAL_XO, 10, 10)
+  static LAYOUT_VAL(VAL_YO, 3, 3)
+  static LAYOUT_VAL(CRSR_SZ, 10, 10)
+  static LAYOUT_VAL(CRSR_YO, 3, 3)
+
  protected:
   ColorType* _colorType = nullptr;
   std::function<void(uint32_t)> _setValue;

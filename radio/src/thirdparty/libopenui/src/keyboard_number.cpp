@@ -155,7 +155,7 @@ NumberKeyboard::NumberKeyboard() : Keyboard(KEYBOARD_HEIGHT)
 
 NumberKeyboard::~NumberKeyboard() { _instance = nullptr; }
 
-void NumberKeyboard::show(NumberEdit* field)
+void NumberKeyboard::show(FormField* field)
 {
   if (!_instance) _instance = new NumberKeyboard();
 

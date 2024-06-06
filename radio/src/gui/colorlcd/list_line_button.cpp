@@ -61,46 +61,11 @@ void ListLineButton::checkEvents()
   ButtonBase::checkEvents();
 }
 
-// total: 92 x 17
-#define FM_CANVAS_HEIGHT 17
-#define FM_CANVAS_WIDTH 92
-
-#if LCD_W > LCD_H  // Landscape
-
-#define BTN_W 389
-
-#define SRC_W 70
-#define OPT_W 171
-#define FM_X (OPT_X + OPT_W + 2)
-#define FM_Y (WGT_Y + 2)
-
-#else  // Portrait
-
-#define BTN_W 229
-
-#define SRC_W 69
-#define OPT_W 106
-#define FM_X 12
-#define FM_Y (WGT_Y + WGT_H + 2)
-
-#endif
-
-#define WGT_X 2
-#define WGT_Y 2
-#define WGT_W 42
-#define WGT_H 21
-#define SRC_X (WGT_X + WGT_W + 2)
-#define SRC_Y WGT_Y
-#define SRC_H WGT_H
-#define OPT_X (SRC_X + SRC_W + 2)
-#define OPT_Y WGT_Y
-#define OPT_H WGT_H
-
 InputMixButtonBase::InputMixButtonBase(Window* parent, uint8_t index) :
     ListLineButton(parent, index)
 {
   setWidth(BTN_W);
-  setHeight(BTN_H);
+  setHeight(ListLineButton::BTN_H);
   padAll(PAD_ZERO);
 
   weight = lv_label_create(lvobj);
@@ -146,8 +111,8 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
     free(fm_buffer);
     fm_canvas = nullptr;
     fm_buffer = nullptr;
-#if LCD_H > LCD_W
-    setHeight(BTN_H);
+#if PORTRAIT_LCD
+    setHeight(ListLineButton::BTN_H);
 #endif
     return;
   }
@@ -158,8 +123,8 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
     lv_canvas_set_buffer(fm_canvas, fm_buffer, FM_CANVAS_WIDTH,
                          FM_CANVAS_HEIGHT, LV_IMG_CF_ALPHA_8BIT);
     lv_obj_set_pos(fm_canvas, FM_X, FM_Y);
-#if LCD_H > LCD_W
-    setHeight(BTN_H + FM_CANVAS_HEIGHT + 2);
+#if PORTRAIT_LCD
+    setHeight(ListLineButton::BTN_H + FM_CANVAS_HEIGHT + 2);
 #endif
 
     lv_obj_set_style_img_recolor(fm_canvas, makeLvColor(COLOR_THEME_SECONDARY1),
@@ -175,7 +140,7 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
 
   coord_t x = 0;
   lv_canvas_copy_buf(fm_canvas, mask->data, x, 0, w, h);
-  x += 20;
+  x += (w + PAD_TINY);
 
   lv_draw_label_dsc_t label_dsc;
   lv_draw_label_dsc_init(&label_dsc);
@@ -193,11 +158,11 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
     if (fm_modes & (1 << i)) {
       label_dsc.color = lv_color_make(0x7f, 0x7f, 0x7f);
     } else {
-      lv_canvas_draw_rect(fm_canvas, x, 0, 8, 3, &rect_dsc);
+      lv_canvas_draw_rect(fm_canvas, x, 0, FM_W, 3, &rect_dsc);
       label_dsc.color = lv_color_white();
     }
-    lv_canvas_draw_text(fm_canvas, x, 0, 8, &label_dsc, s);
-    x += 8;
+    lv_canvas_draw_text(fm_canvas, x, 0, FM_W, &label_dsc, s);
+    x += FM_W;
   }
 }
 
@@ -212,7 +177,7 @@ static const lv_obj_class_t group_class = {
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
-    .width_def = LCD_W - 12,
+    .width_def = ListLineButton::GRP_W,
     .height_def = LV_SIZE_CONTENT,
     .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_FALSE,
@@ -238,12 +203,12 @@ InputMixGroupBase::InputMixGroupBase(Window* parent, mixsrc_t idx) :
 
 void InputMixGroupBase::adjustHeight()
 {
-  if (getLineCount() == 0) setHeight(InputMixButtonBase::BTN_H + 8);
+  if (getLineCount() == 0) setHeight(ListLineButton::BTN_H + 8);
 
   coord_t y = 2;
   for (auto it = lines.cbegin(); it != lines.cend(); ++it) {
     auto line = *it;
-    line->updatePos(LN_X, y);
+    line->updatePos(InputMixButtonBase::LN_X, y);
     y += line->height() + 2;
   }
   setHeight(y + 4);

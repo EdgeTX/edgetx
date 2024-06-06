@@ -28,27 +28,40 @@
 
 #include "colors.h"
 #include "fonts.h"
-#include "window.h"
+
+/*********************
+ *      Layout
+ *********************/
+
+enum PaddingSize {
+  PAD_ZERO = 0,
+  PAD_TINY = 2,
+  PAD_TINY_GAP = 2,
+  PAD_SMALL = 4,
+  PAD_MEDIUM = 6,
+  PAD_LARGE = 8
+};
+
+// Macros for setting up layout values
+//  LAYOUT_VAL - 2 values - landscape, portrait
+
+#if LANDSCAPE_LCD
+#define LAYOUT_VAL(name, landscape, portrait) \
+  constexpr coord_t name = landscape;
+#else
+#define LAYOUT_VAL(name, landscape, portrait) \
+  constexpr coord_t name = portrait;
+#endif
 
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
 
-/**
- * Initialize the theme
- * @param color_primary the primary color of the theme
- * @param color_secondary the secondary color for the theme
- * @param font pointer to a font to use.
- * @return a pointer to reference this theme later
- */
-lv_theme_t* etx_lv_theme_init(lv_disp_t* disp, lv_color_t color_primary,
-                              lv_color_t color_secondary,
-                              const lv_font_t* font);
-
 void usePreviewStyle();
 void useMainStyle();
 
 lv_obj_t* etx_create(const lv_obj_class_t* class_p, lv_obj_t* parent);
+lv_obj_t* etx_textarea_create(lv_obj_t* parent);
 lv_obj_t* window_create(lv_obj_t* parent);
 
 void etx_std_style(lv_obj_t* obj, lv_style_selector_t selector = LV_PART_MAIN,
@@ -79,8 +92,6 @@ void etx_txt_color(lv_obj_t* obj, LcdColorIndex colorIdx,
 
 void etx_img_color(lv_obj_t* obj, LcdColorIndex colorIdx,
                    lv_style_selector_t selector = LV_PART_MAIN);
-
-void etx_textarea_style(lv_obj_t* obj);
 
 // Create a style with a single property
 #define LV_STYLE_CONST_SINGLE_INIT(var_name, prop, value)               \
@@ -168,6 +179,10 @@ class EdgeTxStyles
 
   void init();
   void applyColors();
+
+  static LAYOUT_VAL(PAGE_LINE_HEIGHT, 20, 20)
+  static LAYOUT_VAL(UI_ELEMENT_HEIGHT, 32, 32)
+  static LAYOUT_VAL(MENU_HEADER_HEIGHT, 45, 45)
 
  protected:
   bool initDone = false;

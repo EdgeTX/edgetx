@@ -39,23 +39,11 @@ void FlexGridLayout::add(Window* w)
   }
 }
 
-FormField::FormField(const rect_t& rect, LcdFlags textFlags) :
-    Window(rect)
-{
-  setTextFlag(textFlags);
-}
-
 FormField::FormField(Window* parent, const rect_t& rect, LcdFlags textFlags,
                      LvglCreate objConstruct) :
     Window(parent, rect, objConstruct)
 {
   setTextFlag(textFlags);
-  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
-}
-
-void FormField::setupLVGL()
-{
-  Window::setupLVGL();
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 }
 

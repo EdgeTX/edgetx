@@ -27,6 +27,7 @@
 #include "theme.h"
 #include "themes/etx_lv_theme.h"
 #include "trims.h"
+#include "topbar_impl.h"
 
 extern inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
@@ -118,14 +119,10 @@ class ThemedTextEdit : public TextEdit
  public:
   ThemedTextEdit(Window *parent, const rect_t &rect, const char *text,
                  bool edited) :
-      TextEdit(parent, rect, editText, strlen(text))
+      TextEdit(parent, rect, editText, 0)
   {
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
     strcpy(editText, text);
-    lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
-    if (edited) lv_obj_add_state(lvobj, LV_STATE_EDITED);
-    update();
+    preview(edited, editText, strlen(editText));
   }
 
 #if defined(HARDWARE_KEYS)
@@ -151,34 +148,34 @@ PreviewWindow::PreviewWindow(Window *window, rect_t rect,
 
   etx_solid_bg(lvobj, COLOR_THEME_SECONDARY3_INDEX);
 
-  auto topbar = new Window(this, {0, 0, LV_PCT(100), TOPBAR_ZONE_HEIGHT});
+  auto topbar = new Window(this, {0, 0, LV_PCT(100), TopBar::TOPBAR_ZONE_HEIGHT});
   etx_solid_bg(topbar->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
 
-  new StaticIcon(topbar, 5, 5, ICON_RADIO,
+  new StaticIcon(topbar, ICON_X1, ICON_Y, ICON_RADIO,
                  COLOR_THEME_PRIMARY2);
-  new StaticIcon(topbar, 38, 5, ICON_RADIO_TOOLS,
+  new StaticIcon(topbar, ICON_X2, ICON_Y, ICON_RADIO_TOOLS,
                  COLOR_THEME_PRIMARY2);
-  new StaticIcon(topbar, 71, 5, ICON_RADIO_SETUP,
+  new StaticIcon(topbar, ICON_X3, ICON_Y, ICON_RADIO_SETUP,
                  COLOR_THEME_PRIMARY2);
 
-  new StaticText(this, {5, 44, 100, PAGE_LINE_HEIGHT}, STR_THEME_CHECKBOX);
-  new ThemedCheckBox(this, {100, 40, 40, 28}, true);
-  new ThemedCheckBox(this, {150, 40, 40, 28}, false);
-  (new ThemedButton(this, {210, 40, 100, 32}, STR_THEME_ACTIVE, true))
+  new StaticText(this, {ICON_X1, CBT_Y, CBT_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_THEME_CHECKBOX);
+  new ThemedCheckBox(this, {CB1_X, CB_Y, CB_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, true);
+  new ThemedCheckBox(this, {CB2_X, CB_Y, CB_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, false);
+  (new ThemedButton(this, {BTN_X, BTN1_Y, BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_THEME_ACTIVE, true))
       ->check(true);
-  new ThemedButton(this, {210, 75, 100, 32}, STR_THEME_REGULAR, false);
-  new MainViewTrim(this, {5, 75, HORIZONTAL_SLIDERS_WIDTH, 20}, 0, false);
-  new MainViewSlider(this, {5, 97, HORIZONTAL_SLIDERS_WIDTH, 20}, 0, false);
-  new StaticText(this, {5, 122, 100, PAGE_LINE_HEIGHT}, STR_THEME_WARNING, 
+  new ThemedButton(this, {BTN_X, BTN2_Y, BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_THEME_REGULAR, false);
+  new MainViewTrim(this, {ICON_X1, TRIM_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, TRIM_H}, 0, false);
+  new MainViewSlider(this, {ICON_X1, SLIDER_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, TRIM_H}, 0, false);
+  new StaticText(this, {ICON_X1, TXT1_Y, TXT_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_THEME_WARNING, 
                  COLOR_THEME_WARNING);
-  new StaticText(this, {5, 144, 100, PAGE_LINE_HEIGHT}, STR_THEME_DISABLED, 
+  new StaticText(this, {ICON_X1, TXT2_Y, TXT_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_THEME_DISABLED, 
                  COLOR_THEME_DISABLED);
 
-  new ThemedTextEdit(this, {5, 170, 100, 0}, STR_THEME_EDIT, true);
-  new ThemedTextEdit(this, {110, 170, 100, 0}, STR_THEME_FOCUS, false);
+  new ThemedTextEdit(this, {ICON_X1, EDT_Y, TXT_W, 0}, STR_THEME_EDIT, true);
+  new ThemedTextEdit(this, {EDT2_X, EDT_Y, TXT_W, 0}, STR_THEME_FOCUS, false);
   ticks = 0;
 
-  dateTime = new HeaderDateTime(this->getLvObj(), width() - 42, 4);
+  dateTime = new HeaderDateTime(this->getLvObj(), width() - DATE_XO, PAD_SMALL);
 
   lv_group_set_default(def_group);
 

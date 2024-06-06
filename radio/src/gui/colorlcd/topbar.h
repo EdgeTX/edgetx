@@ -23,11 +23,6 @@
 
 #include "layout.h"
 
-constexpr coord_t TOPBAR_ZONE_WIDTH  = 70;
-constexpr coord_t TOPBAR_ZONE_VMARGIN = 3;
-constexpr coord_t TOPBAR_ZONE_HMARGIN = 2;
-constexpr coord_t TOPBAR_ZONE_HEIGHT = MENU_HEADER_HEIGHT - 2 * TOPBAR_ZONE_VMARGIN;
-
 class ScreenMenu;
 class TopBar;
 

@@ -60,6 +60,14 @@ class TopBar: public TopBarBase
 
     void removeWidget(unsigned int index) override;
 
+    static LAYOUT_VAL(TOPBAR_ZONE_WIDTH, 70, 70)
+    static LAYOUT_VAL(TOPBAR_ZONE_VMARGIN, 3, 3)
+    static LAYOUT_VAL(TOPBAR_ZONE_HMARGIN, 2, 2)
+    static constexpr coord_t TOPBAR_ZONE_HEIGHT = EdgeTxStyles::MENU_HEADER_HEIGHT - 2 * TOPBAR_ZONE_VMARGIN;
+
+    static LAYOUT_VAL(HDR_DATE_XO, 48, 48)
+    static LAYOUT_VAL(MENU_HEADER_BUTTONS_LEFT, 47, 47)
+
   protected:
     uint32_t lastRefresh = 0;
     HeaderIcon* headerIcon = nullptr;

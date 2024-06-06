@@ -111,6 +111,8 @@ class Layout: public LayoutBase
 
     bool isAppMode() { return decorationSettings == DECORATION_NONE && zoneCount == 1; }
   
+    static LAYOUT_VAL(MAIN_ZONE_BORDER, 10, 10)
+
   protected:
     const LayoutFactory * factory  = nullptr;
     std::unique_ptr<ViewMainDecoration> decoration;
@@ -139,14 +141,6 @@ class Layout: public LayoutBase
     unsigned int getZonesCount() const override { return zoneCount; }
     rect_t getZone(unsigned int index) const override;
 };
-
-#if LCD_W > LCD_H
-#define BM_W    51
-#define BM_H    25
-#else
-#define BM_W    22
-#define BM_H    34
-#endif
 
 template<class T>
 class BaseLayoutFactory: public LayoutFactory

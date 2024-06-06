@@ -308,7 +308,7 @@
 #define TR_ELEVATOR                    "Source cyc. lon."
 #define TR_SWASHRING                   TR("Limite Cycl.", "Limite du cyclique")
 #define TR_MODE                        "Mode"
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_LEFT_STICK                "Gauche"
 #else
   #define TR_LEFT_STICK                "Gauche"
@@ -1174,7 +1174,7 @@
 #define TR_USE_THEME_COLOR              "Utiliser couleur du thème"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Ajouter tous trims aux sub-trims"
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   #define TR_OPEN_CHANNEL_MONITORS        "Ouvrir Monit. de Canal"
 #else
   #define TR_OPEN_CHANNEL_MONITORS        "Ouvrir Mon. de Canal"

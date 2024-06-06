@@ -23,6 +23,8 @@
 
 #include "page.h"
 
-struct ThrottleParams : public Page {
+class ThrottleParams : public SubPage
+{
+ public:
   ThrottleParams();
 };

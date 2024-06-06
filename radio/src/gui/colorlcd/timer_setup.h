@@ -23,6 +23,16 @@
 
 #include "page.h"
 
-struct TimerWindow : public Page {
+class TimerWindow : public SubPage
+{
+ public:
   TimerWindow(uint8_t timer);
+
+  static LAYOUT_VAL(COUNTDOWN_W, 144, 144)
+  static LAYOUT_VAL(COUNTDOWN_LBL_YO, 0, (EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY) / 2)
+  static LAYOUT_VAL(COUNTDOWN_VAL_XO, COUNTDOWN_W + PAD_SMALL, 0)
+  static LAYOUT_VAL(COUNTDOWN_VAL_YO, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY)
+
+ protected:
+  Window* timerDirLine = nullptr;
 };

@@ -54,6 +54,10 @@ class HeaderDateTime
   void update();
   void setColor(uint32_t color);
 
+  static LAYOUT_VAL(HDR_DATE_WIDTH, 45, 45)
+  static LAYOUT_VAL(HDR_DATE_HEIGHT, 12, 12)
+  static LAYOUT_VAL(HDR_DATE_LINE2, 15, 15)
+
  protected:
   lv_obj_t *date = nullptr;
   lv_obj_t *time = nullptr;
@@ -72,6 +76,8 @@ class UsbSDConnected : public Window
   UsbSDConnected();
 
   void checkEvents() override;
+
+  static LAYOUT_VAL(HDR_DATE_Y, 6, 6)
 
  protected:
   HeaderDateTime* dateTime = nullptr;

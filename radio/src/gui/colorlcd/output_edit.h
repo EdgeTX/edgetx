@@ -31,6 +31,9 @@ class OutputEditWindow : public Page
  public:
   explicit OutputEditWindow(uint8_t channel);
 
+  static LAYOUT_VAL(OUTPUT_EDIT_STATUS_BAR_WIDTH, 250, 180)
+  static LAYOUT_VAL(OUTPUT_EDIT_RIGHT_MARGIN, 0, 3)
+
  protected:
   uint8_t channel;
   int value = 0;

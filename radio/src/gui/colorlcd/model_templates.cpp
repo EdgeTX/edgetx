@@ -135,7 +135,7 @@ class SelectTemplate : public TemplatePage
 
       for (auto name : files) {
         auto tb = new TextButton(
-            listWindow, rect_t{0, 0, lv_pct(100), PAGE_LINE_HEIGHT * 2}, name,
+            listWindow, rect_t{0, 0, lv_pct(100), EdgeTxStyles::PAGE_LINE_HEIGHT * 2}, name,
             [=]() -> uint8_t {
               deleteLater();
               templateFolderPage->doUpdate(folder, name);
@@ -176,7 +176,7 @@ SelectTemplateFolder::SelectTemplateFolder(
   header->setTitle2(STR_NEW_MODEL);
 
   auto tfb = new TextButton(listWindow,
-                            rect_t{0, 0, lv_pct(100), PAGE_LINE_HEIGHT * 2},
+                            rect_t{0, 0, lv_pct(100), EdgeTxStyles::PAGE_LINE_HEIGHT * 2},
                             STR_BLANK_MODEL, [=]() -> uint8_t {
                               doUpdate("", "");
                               return 0;
@@ -215,7 +215,7 @@ SelectTemplateFolder::SelectTemplateFolder(
       if (!strcasecmp(name.c_str(), "WIZARD") == 0) {
 #endif
         auto tfb = new TextButton(
-            listWindow, rect_t{0, 0, lv_pct(100), PAGE_LINE_HEIGHT * 2}, name,
+            listWindow, rect_t{0, 0, lv_pct(100), EdgeTxStyles::PAGE_LINE_HEIGHT * 2}, name,
             [=]() -> uint8_t {
               new SelectTemplate(this, name);
               return 0;

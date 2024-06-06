@@ -40,69 +40,6 @@ constexpr int WARN_FILE_LENGTH = 40 * 1024;
 #define CELL_CTRL_DIR  LV_TABLE_CELL_CTRL_CUSTOM_1
 #define CELL_CTRL_FILE LV_TABLE_CELL_CTRL_CUSTOM_2
 
-class FileNameEditWindow : public Page
-{
-  public:
-  FileNameEditWindow(const std::string iName) :
-      Page(ICON_RADIO_SD_MANAGER), name(std::move(iName))
-  {
-    buildHeader(header);
-    buildBody(body);
-  };
-
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "FileNameEditWindow"; }
-#endif
-  protected:
-  const std::string name;
-
-  void buildHeader(Window *window)
-  {
-    header->setTitle(STR_RENAME_FILE);
-  }
-
-  void buildBody(Window *window)
-  {
-    window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_SMALL);
-    window->padTop(12);
-
-    uint8_t nameLength;
-    uint8_t extLength;
-    char extension[LEN_FILE_EXTENSION_MAX + 1];
-    memset(extension, 0, sizeof(extension));
-    const char *ext =
-        getFileExtension(name.c_str(), 0, 0, &nameLength, &extLength);
-
-    if (extLength > LEN_FILE_EXTENSION_MAX) extLength = LEN_FILE_EXTENSION_MAX;
-    if (ext) strncpy(extension, ext, extLength);
-
-    const uint8_t maxNameLength = SD_SCREEN_FILE_LENGTH - extLength;
-    nameLength -= extLength;
-    if (nameLength > maxNameLength) nameLength = maxNameLength;
-    memset(reusableBuffer.sdManager.originalName, 0, SD_SCREEN_FILE_LENGTH);
-
-    strncpy(reusableBuffer.sdManager.originalName, name.c_str(), nameLength);
-    reusableBuffer.sdManager.originalName[nameLength] = '\0';
-
-    auto newFileName = new TextEdit(
-        window, rect_t{0, 0, LV_PCT(100), 0}, reusableBuffer.sdManager.originalName,
-        SD_SCREEN_FILE_LENGTH - extLength);
-    newFileName->setChangeHandler([=]() {
-      char *newValue = reusableBuffer.sdManager.originalName;
-      size_t totalSize = strlen(newValue);
-      char changedName[SD_SCREEN_FILE_LENGTH + 1];
-      memset(changedName, 0, sizeof(changedName));
-      strncpy(changedName, newValue, totalSize);
-      changedName[totalSize] = '\0';
-      if (extLength) {
-        strncpy(changedName + totalSize, extension, extLength);
-      }
-      changedName[totalSize + extLength] = '\0';
-      f_rename((const TCHAR *)name.c_str(), (const TCHAR *)changedName);
-    });
-  };
-};
-
 RadioSdManagerPage::RadioSdManagerPage() :
   PageTab(STR_SD_CARD, ICON_RADIO_SD_MANAGER)
 {
@@ -273,7 +210,7 @@ ModuleCallback onUpdateStateChangedCallbackFor(FrskyOtaFlashDialog* dialog) {
 
 #endif  // PXX2
 
-#if LCD_W > LCD_H // landscape
+#if !PORTRAIT_LCD // landscape
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(3), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 #else // portrait
@@ -302,7 +239,7 @@ void RadioSdManagerPage::build(Window * window)
   // Adjust file browser width
   browser->adjustWidth();
 
-#if LCD_W > LCD_H
+#if !PORTRAIT_LCD
   preview = new FilePreview(form, rect_t{0, 0, LCD_W * 2 / 5 - 8, LCD_H - 68});
 #else
   preview = new FilePreview(form, rect_t{0, 0, LCD_W - 12, (LCD_H - 68) / 3 });
@@ -513,8 +450,23 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
       });
     }
     menu->addLine(STR_RENAME_FILE, [=]() {
-      auto few = new FileNameEditWindow(name);
-      few->setCloseHandler([=]() { browser->refresh(); });
+      uint8_t nameLength;
+      uint8_t extLength;
+
+      const char *ext = getFileExtension(name, 0, 0, &nameLength, &extLength);
+
+      const uint8_t maxNameLength = SD_SCREEN_FILE_LENGTH - extLength;
+      nameLength = min((uint8_t)(nameLength - extLength), maxNameLength);
+
+      std::string fname(name, nameLength);
+      std::string extension("");
+      if (ext) extension = ext;
+
+      new LabelDialog(Layer::back(), fname.c_str(), maxNameLength, STR_RENAME_FILE, [=](std::string label) {
+        label += extension;
+        f_rename((const TCHAR *)name, (const TCHAR *)label.c_str());
+        browser->refresh();
+      });
     });
     menu->addLine(STR_DELETE_FILE, [=]() {
       f_unlink(fullpath);

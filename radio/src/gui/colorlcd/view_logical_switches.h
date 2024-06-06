@@ -30,6 +30,11 @@ class LogicalSwitchesViewPage : public PageTab
  public:
   LogicalSwitchesViewPage();
 
+  static LAYOUT_VAL(FOOTER_HEIGHT, 20, 40)
+  static LAYOUT_VAL(BTN_HEIGHT, 20, 21)
+  static LAYOUT_VAL(BTN_PAD, 1, 2)
+  static LAYOUT_VAL(BTN_MATRIX_COL, 8, 4)
+
  protected:
   void build(Window* window) override;
   LogicalSwitchDisplayFooter* footer = nullptr;

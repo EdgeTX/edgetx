@@ -148,34 +148,34 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
     // create containers for the sliders, so that they are at the borders of the display
     // on top of each other, when there are two sliders to display per side
     auto leftPots = create_layout_box(ml, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_COLUMN);
-    leftPots->setHeight(VERTICAL_SLIDERS_HEIGHT);
+    leftPots->setHeight(MainViewSlider::HORIZONTAL_SLIDERS_WIDTH);
 
     auto rightPots = create_layout_box(mr, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_COLUMN);
-    rightPots->setHeight(VERTICAL_SLIDERS_HEIGHT);
+    rightPots->setHeight(MainViewSlider::VERTICAL_SLIDERS_HEIGHT);
 
-    coord_t lsh = (IS_POT_AVAILABLE(pot + 2)) ? VERTICAL_SLIDERS_HEIGHT / 2 : VERTICAL_SLIDERS_HEIGHT;
-    coord_t rsh = (IS_POT_AVAILABLE(pot + 3)) ? VERTICAL_SLIDERS_HEIGHT / 2 : VERTICAL_SLIDERS_HEIGHT;
+    coord_t lsh = (IS_POT_AVAILABLE(pot + 2)) ? MainViewSlider::HORIZONTAL_SLIDERS_WIDTH / 2 : MainViewSlider::HORIZONTAL_SLIDERS_WIDTH;
+    coord_t rsh = (IS_POT_AVAILABLE(pot + 3)) ? MainViewSlider::HORIZONTAL_SLIDERS_WIDTH / 2 : MainViewSlider::HORIZONTAL_SLIDERS_WIDTH;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[sl] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, TRIM_SQUARE_SIZE, lsh}, pot);
+      sliders[sl] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, lsh}, pot);
       sl += 1;
     }
     pot += 1;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[sl] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, TRIM_SQUARE_SIZE, rsh}, pot);
+      sliders[sl] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, rsh}, pot);
       sl += 1;
     }
     pot += 1;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[sl] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, TRIM_SQUARE_SIZE, lsh}, pot);
+      sliders[sl] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, lsh}, pot);
       sl += 1;
     }
     pot += 1;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[sl] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, TRIM_SQUARE_SIZE, rsh}, pot);
+      sliders[sl] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, rsh}, pot);
     }
   }
 }

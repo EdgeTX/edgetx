@@ -22,10 +22,9 @@
 #include "file_preview.h"
 
 FilePreview::FilePreview(Window *parent, const rect_t &rect) :
-    StaticImage(parent, rect)
+    StaticBitmap(parent, rect, COLOR_THEME_SECONDARY3)
 {
   hide();
-  dontEnlarge = true;
 }
 
 void FilePreview::setFile(const char *filename)

@@ -33,10 +33,6 @@ class ModelMenu : public TabsGroup
 #endif
 
  protected:
-#if defined(PCBNV14) || defined(PCBPL18)
-  void addGoToMonitorsButton(void);
-#endif
-
   void build();
 
 #if defined(HARDWARE_KEYS)

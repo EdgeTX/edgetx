@@ -30,6 +30,7 @@
 #include "bitmapbuffer.h"
 #include "board.h"
 #include "dma2d.h"
+#include "themes/etx_lv_theme.h"
 
 pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
 pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
@@ -157,6 +158,8 @@ void lcdInitDisplayDriver()
 #if !defined(BOOT)
   // Full LVGL init in firmware mode
   lv_init();
+  // Initialise styles
+  useMainStyle();
 #elif LV_USE_GPU_STM32_DMA2D
   // Otherwise init only DMA2D
   lv_draw_stm32_dma2d_init();

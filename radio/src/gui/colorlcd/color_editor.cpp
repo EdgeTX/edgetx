@@ -23,11 +23,6 @@
 #include "button.h"
 #include "themes/etx_lv_theme.h"
 
-constexpr int BAR_MARGIN = 5;
-
-constexpr int BAR_TOP_MARGIN = 5;
-constexpr int BAR_HEIGHT_OFFSET = BAR_TOP_MARGIN + 25;
-
 static const char* const RGBChars[MAX_BARS] = {"R", "G", "B"};
 static const char* const HSVChars[MAX_BARS] = {"H", "S", "V"};
 
@@ -170,12 +165,12 @@ class ColorBar : public Window
 
     // draw cursor
     lv_area_t cursor_area;
-    cursor_area.x1 = area->x1 + (lv_area_get_width(area) / 2) - 5;
-    cursor_area.x2 = cursor_area.x1 + 10 - 1;
+    cursor_area.x1 = area->x1 + (lv_area_get_width(area) / 2) - ColorEditor::CRSR_SZ / 2;
+    cursor_area.x2 = cursor_area.x1 + ColorEditor::CRSR_SZ - 1;
 
     auto pos = bar->valueToScreen(bar->value);
-    cursor_area.y1 = area->y1 + pos - 3;
-    cursor_area.y2 = cursor_area.y1 + 10 - 1;
+    cursor_area.y1 = area->y1 + pos - ColorEditor::CRSR_YO;
+    cursor_area.y2 = cursor_area.y1 + ColorEditor::CRSR_SZ - 1;
 
     lv_draw_rect_dsc_t cursor_dsc;
     lv_draw_rect_dsc_init(&cursor_dsc);
@@ -274,12 +269,12 @@ BarColorType::BarColorType(Window* parent)
 
   int leftPos = 0;
   rect_t r;
-  r.y = BAR_TOP_MARGIN;
-  r.w = spacePerBar - BAR_MARGIN - 5;
-  r.h = parent->height() - BAR_HEIGHT_OFFSET;
+  r.y = ColorEditor::BAR_TOP_MARGIN;
+  r.w = spacePerBar - ColorEditor::BAR_MARGIN - 5;
+  r.h = parent->height() - (ColorEditor::BAR_TOP_MARGIN + ColorEditor::BAR_HEIGHT_OFFSET);
 
   for (int i = 0; i < MAX_BARS; i++) {
-    r.x = leftPos + BAR_MARGIN;
+    r.x = leftPos + ColorEditor::BAR_MARGIN;
 
     bars[i] = new ColorBar(parent, r);
     leftPos += spacePerBar;
@@ -289,8 +284,8 @@ BarColorType::BarColorType(Window* parent)
     auto x = bar->left();
     auto y = bar->bottom();
 
-    barLabels[i] = create_bar_label(parent->getLvObj(), x, y + 9);
-    barValLabels[i] = create_bar_value_label(parent->getLvObj(), x + 10, y + 3);
+    barLabels[i] = create_bar_label(parent->getLvObj(), x, y + ColorEditor::LBL_YO);
+    barValLabels[i] = create_bar_value_label(parent->getLvObj(), x + ColorEditor::VAL_XO, y + ColorEditor::VAL_YO);
   }
 }
 
