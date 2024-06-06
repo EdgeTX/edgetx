@@ -79,7 +79,7 @@ static inline void check_struct()
   CHKSIZE(MixData, 20);
   CHKSIZE(ExpoData, 17);
   CHKSIZE(LimitData, 13);
-  CHKSIZE(CustomFunctionData, 9);
+  CHKSIZE(CustomFunctionData, 11);
   CHKSIZE(FlightModeData, 44);
   CHKSIZE(TimerData, 17);
   CHKSIZE(SwashRingData, 8);
@@ -154,15 +154,15 @@ static inline void check_struct()
   CHKSIZE(ModelData, 6706);
 #elif defined(PCBHORUS)
   #if defined(PCBX10)
-    CHKSIZE(RadioData, 837);
-    CHKSIZE(ModelData, 15607);
+    CHKSIZE(RadioData, 965);
+    CHKSIZE(ModelData, 15735);
   #else
-    CHKSIZE(RadioData, 837);
-    CHKSIZE(ModelData, 15607);
+    CHKSIZE(RadioData, 965);
+    CHKSIZE(ModelData, 15735);
   #endif
 #elif defined(PCBNV14)
-  CHKSIZE(RadioData, 837);
-  CHKSIZE(ModelData, 15463);
+  CHKSIZE(RadioData, 965);
+  CHKSIZE(ModelData, 15591);
 #endif
 
 #undef CHKSIZE

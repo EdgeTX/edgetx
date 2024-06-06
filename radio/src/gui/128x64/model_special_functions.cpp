@@ -313,6 +313,8 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             if (func == FUNC_PLAY_SCRIPT)
               x = x - 5 * FW;
             else if (func == FUNC_PLAY_TRACK)
+              x = x - 3 * FW;
+            else if (func == FUNC_BACKGND_MUSIC)
               x = x - 2 * FW;
             if (ZEXIST(cfn->play.name))
               lcdDrawSizedText(x, y, cfn->play.name, sizeof(cfn->play.name), attr);

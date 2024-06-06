@@ -106,7 +106,7 @@ enum CurveType {
   #define LEN_CHANNEL_NAME             6
   #define LEN_INPUT_NAME               4
   #define LEN_CURVE_NAME               3
-  #define LEN_FUNCTION_NAME            6
+  #define LEN_FUNCTION_NAME            8
   #define MAX_CURVES                   32
   #define MAX_CURVE_POINTS             512
 #elif LCD_W == 212
@@ -130,7 +130,7 @@ enum CurveType {
   #define LEN_CHANNEL_NAME             4
   #define LEN_INPUT_NAME               3
   #define LEN_CURVE_NAME               3
-  #define LEN_FUNCTION_NAME            6
+  #define LEN_FUNCTION_NAME            8
   #define MAX_CURVES                   32
   #define MAX_CURVE_POINTS             512
 #endif

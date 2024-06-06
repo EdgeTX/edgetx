@@ -232,7 +232,7 @@ static const struct YamlNode struct_TrainerData[] = {
   YAML_END
 };
 static const struct YamlNode struct_anonymous_1[] = {
-  YAML_STRING("name", 6),
+  YAML_STRING("name", 8),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_2[] = {
@@ -248,7 +248,7 @@ static const struct YamlNode struct_anonymous_3[] = {
   YAML_END
 };
 static const struct YamlNode union_anonymous_0_elmts[] = {
-  YAML_STRUCT("play", 48, struct_anonymous_1, NULL),
+  YAML_STRUCT("play", 64, struct_anonymous_1, NULL),
   YAML_STRUCT("all", 64, struct_anonymous_2, NULL),
   YAML_STRUCT("clear", 64, struct_anonymous_3, NULL),
   YAML_END

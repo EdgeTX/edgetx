@@ -589,7 +589,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case VoicesAsNumbers:
       return 0;
     case VoicesMaxLength:
-      return (IS_TARANIS_X9(board) ? 8 : 6);
+      return 8;
     case MultiLangVoice:
       return 1;
     case SoundPitch:
