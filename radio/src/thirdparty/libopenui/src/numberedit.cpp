@@ -298,7 +298,10 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
   setTextFlag(textFlags);
 
   lv_obj_set_width(label, width() - PAD_MEDIUM * 2 - 2);
-  etx_obj_add_style(label, styles->text_align_right, LV_PART_MAIN);
+  if (textFlags & CENTERED)
+    etx_obj_add_style(label, styles->text_align_center, LV_PART_MAIN);
+  else
+    etx_obj_add_style(label, styles->text_align_right, LV_PART_MAIN);
 
   update();
 }

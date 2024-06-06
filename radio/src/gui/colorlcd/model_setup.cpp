@@ -249,10 +249,10 @@ struct CenterBeepsMatrix : public ButtonMatrix {
 
     update();
 
-    lv_obj_set_width(lvobj, min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
+    setWidth(min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
 
     uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
-    lv_obj_set_height(lvobj, (rows * 36) + 4);
+    setHeight((rows * 36) + 4);
 
     lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
 
@@ -310,7 +310,8 @@ static SetupLineDef otherPageSetupLines[] = {
   {
     nullptr,
     [](Window* parent, coord_t x, coord_t y) {
-      new CenterBeepsMatrix(parent, {PAD_MEDIUM, y, 0, 0});
+      auto bm = new CenterBeepsMatrix(parent, {PAD_MEDIUM, y, 0, 0});
+      parent->setHeight(bm->height() + PAD_SMALL);
     }
   },
 };
