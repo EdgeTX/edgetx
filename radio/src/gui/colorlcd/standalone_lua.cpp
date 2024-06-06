@@ -104,7 +104,7 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl) :
     etx_solid_bg(lbl, COLOR_THEME_PRIMARY1_INDEX);
     etx_txt_color(lbl, COLOR_THEME_PRIMARY2_INDEX);
     lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(lbl, (LCD_H - PAGE_LINE_HEIGHT) / 2, LV_PART_MAIN);
+    lv_obj_set_style_pad_top(lbl, (LCD_H - EdgeTxStyles::PAGE_LINE_HEIGHT) / 2, LV_PART_MAIN);
     lv_label_set_text(lbl, STR_LOADING);
 
     luaLvglManager = this;
