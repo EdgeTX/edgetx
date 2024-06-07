@@ -203,7 +203,7 @@ void RadioHardwarePage::build(Window* window)
   });
 
   // Debugs
-  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_DEBUG, BTN_COLS, PAD_ZERO, {
+  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_DEBUG, FS_BTN_COLS, PAD_ZERO, {
     {STR_ANALOGS_BTN, []() { new RadioAnalogsDiagsViewPageGroup(); }},
     {STR_KEYS_BTN, []() { new RadioKeyDiagsPage(); }},
 #if defined(FUNCTION_SWITCHES)
