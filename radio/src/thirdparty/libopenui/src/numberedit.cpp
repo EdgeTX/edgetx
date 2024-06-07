@@ -45,6 +45,14 @@ class NumberArea : public FormField
 
     lv_obj_add_event_cb(lvobj, NumberArea::numberedit_cb, LV_EVENT_KEY, this);
 
+    setFocusHandler([=](bool focus) {
+      if (!focus && editMode) {
+        setEditMode(false);
+        hide();
+        lv_obj_clear_state(parent->getLvObj(), LV_STATE_FOCUSED);
+      }
+    });
+
     update();
   }
 
@@ -317,7 +325,8 @@ void NumberEdit::openEdit()
         this->vmin, this->vmax, _getValue, _setValue, textFlags);
     edit->setChangeHandler([=]() {
       update();
-      lv_group_focus_obj(lvobj);
+      if (edit->hasFocus())
+        lv_group_focus_obj(lvobj);
       edit->hide();
     });
     edit->setCancelHandler([=]() {

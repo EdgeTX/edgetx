@@ -369,21 +369,25 @@ FormLine *Window::newLine(FlexGridLayout &layout)
 
 void Window::show(bool visible)
 {
-  if (lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN) == visible) {
-    if (visible)
-      lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
-    else
-      lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+  if (!_deleted && lvobj) {
+    if (lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN) == visible) {
+      if (visible)
+        lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+      else
+        lv_obj_add_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+    }
   }
 }
 
 void Window::enable(bool enabled)
 {
-  if (lv_obj_has_state(lvobj, LV_STATE_DISABLED) == enabled) {
-    if (enabled)
-      lv_obj_clear_state(lvobj, LV_STATE_DISABLED);
-    else
-      lv_obj_add_state(lvobj, LV_STATE_DISABLED);
+  if (!_deleted && lvobj) {
+    if (lv_obj_has_state(lvobj, LV_STATE_DISABLED) == enabled) {
+      if (enabled)
+        lv_obj_clear_state(lvobj, LV_STATE_DISABLED);
+      else
+        lv_obj_add_state(lvobj, LV_STATE_DISABLED);
+    }
   }
 }
 
