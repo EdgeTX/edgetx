@@ -215,7 +215,15 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       val += 3; val_len -= 3;
       // parse int and ignore closing ')'
       return yaml_str2uint(val, val_len) + MIXSRC_FIRST_GVAR;
+#if defined(FUNCTION_SWITCHES)
+    } else if (val_len > 2 &&
+               val[0] == 'G' &&
+               val[1] == 'R' &&
+               val[2] >= '1' &&
+               val[2] <= '3') {
 
+      return MIXSRC_FIRST_CUSTOMSWITCH_GROUP + (val[2] - '1');
+#endif
     } else if (val_len > 5 &&
                val[0] == 't' &&
                val[1] == 'e' &&
@@ -353,6 +361,12 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
              && val <= MIXSRC_LAST_SWITCH) {
         str = switchGetCanonicalName(val - MIXSRC_FIRST_SWITCH);
     }
+#if defined(FUNCTION_SWITCHES)
+    else if (val >= MIXSRC_FIRST_CUSTOMSWITCH_GROUP
+             && val <= MIXSRC_LAST_CUSTOMSWITCH_GROUP) {
+        str = fsSwitchGroupGetCanonicalName(val - MIXSRC_FIRST_CUSTOMSWITCH_GROUP);
+    }
+#endif
     else if (val >= MIXSRC_FIRST_LOGICAL_SWITCH
              && val <= MIXSRC_LAST_LOGICAL_SWITCH) {
 

@@ -51,6 +51,9 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
     case SOURCE_TYPE_VIRTUAL_INPUT:
       src_str += "I" + std::to_string(sval - 1);
       break;
+    case SOURCE_TYPE_FUNCTIONSWITCH_GROUP:
+      src_str += "GR" + std::to_string(sval);
+      break;
     case SOURCE_TYPE_LUA_OUTPUT:
       qr = div(sval - 1, 16);
       src_str += "lua(";
@@ -168,7 +171,15 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     if (idx >= 0) {
       rhs = RawSource(SOURCE_TYPE_SWITCH, idx + 1);
     }
+  } else if ((val_len == 3 &&
+              val[0] == 'G' &&
+              val[1] >= 'R' &&
+              val[2] >= '1' && val[2] <= '3')) {
 
+    int idx = std::stoi(src_str_tmp.substr(2));
+    if (idx >= 0) {
+      rhs = RawSource(SOURCE_TYPE_FUNCTIONSWITCH_GROUP, idx);
+    }
   } else if (val_len > 4 &&
              val[0] == 'l' &&
              val[1] == 'u' &&

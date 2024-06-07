@@ -136,6 +136,23 @@ uint8_t getFSPreviousPhysicalState(uint8_t index)
   return (uint8_t )(bfSingleBitGet(fsPreviousState, index) >> (index));
 }
 
+uint8_t getSwitchCountInFSGroup(uint8_t index)
+{
+  uint8_t count = 0;
+
+  for (uint8_t i = 0; i < switchGetMaxFctSwitches(); i++) {
+    if (FSWITCH_GROUP(i) == index)
+      count++;
+  }
+
+  return count;
+}
+
+bool isFSGroupUsed(uint8_t index)
+{
+  return getSwitchCountInFSGroup(index) != 0;
+}
+
 void evalFunctionSwitches()
 {
   uint8_t fct_switches = switchGetMaxFctSwitches();
@@ -310,6 +327,13 @@ bool switchHasCustomName(uint8_t idx)
 const char* switchGetCanonicalName(uint8_t idx)
 {
   return switchGetName(idx);
+}
+
+const char* fsSwitchGroupGetCanonicalName(uint8_t idx)
+{
+  static const char fsgroupname[3][4] = {"GR1", "GR2", "GR3"};
+
+  return &fsgroupname[idx][0];
 }
 
 SwitchConfig switchGetMaxType(uint8_t idx)

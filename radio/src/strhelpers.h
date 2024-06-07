@@ -109,6 +109,7 @@ const char *getMainControlLabel(uint8_t idx);
 const char *getTrimLabel(uint8_t idx);
 const char *getTrimSourceLabel(uint16_t src_raw, int8_t trim_src);
 const char *getPotLabel(uint8_t idx);
+char *getCustomSwitchesGroupName(char *dest, uint8_t idx);
 
 template <size_t L>
 char *getSourceString(char (&dest)[L], mixsrc_t idx);
