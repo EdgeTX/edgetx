@@ -436,12 +436,14 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
         stepcount--;
 
       int stepsize = (2 * RESX) / stepcount;
+      int value = -RESX;
+
       for (uint8_t i =  0; i < switchGetMaxFctSwitches(); i++) {
-        if(FSWITCH_GROUP(i) == group_idx && getFSLogicalState(i) == 1) {
-          int value = -RESX + stepsize * i + (IS_FSWITCH_GROUP_ON(group_idx) ? 0 : stepsize);
-          if (value > (RESX - 5)) // remove rounding errors
-            value = RESX;
-          return value;
+        if(FSWITCH_GROUP(i) == group_idx) {
+          if (getFSLogicalState(i) == 1)
+            return value + (IS_FSWITCH_GROUP_ON(group_idx) ? 0 : stepsize);
+          else
+            value += stepsize;
         }
       }
       return -RESX;
