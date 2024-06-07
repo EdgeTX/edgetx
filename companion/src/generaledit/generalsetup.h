@@ -91,8 +91,8 @@ class GeneralSetupPanel : public GeneralPanel
     void on_contrastSB_editingFinished();
     void on_registrationId_editingFinished();
 
-    void on_pwrOnDelay_valueChanged(int);
-    void on_pwrOffDelay_valueChanged(int);
+    void on_pwrOnDelay_currentIndexChanged(int);
+    void on_pwrOffDelay_currentIndexChanged(int);
     void on_pwrOnOffHaptic_CB_stateChanged(int);
 
     void on_modelQuickSelect_CB_stateChanged(int);

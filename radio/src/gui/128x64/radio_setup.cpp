@@ -585,17 +585,11 @@ void menuRadioSetup(event_t event)
 
 #if defined(PWR_BUTTON_PRESS)
       case ITEM_RADIO_SETUP_PWR_ON_SPEED:
-        lcdDrawTextAlignedLeft(y, STR_PWR_ON_DELAY);
-        lcdDrawNumber(LCD_W-7, y, 2 - g_eeGeneral.pwrOnSpeed, attr|RIGHT);
-        lcdDrawChar(lcdLastRightPos, y, 's');
-        if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.pwrOnSpeed, -1, 2);
+        g_eeGeneral.pwrOnSpeed = pwrDelayToYaml(editChoice(LCD_W-2, y, STR_PWR_ON_DELAY, STR_PWR_OFF_DELAYS, pwrDelayFromYaml(g_eeGeneral.pwrOnSpeed), 0, 4, attr|RIGHT, event));
         break;
 
       case ITEM_RADIO_SETUP_PWR_OFF_SPEED:
-        lcdDrawTextAlignedLeft(y, STR_PWR_OFF_DELAY);
-        lcdDrawNumber(LCD_W-7, y, 2 - g_eeGeneral.pwrOffSpeed, attr|RIGHT);
-        lcdDrawChar(lcdLastRightPos, y, 's');
-        if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.pwrOffSpeed, -1, 2);
+        g_eeGeneral.pwrOffSpeed = pwrDelayToYaml(editChoice(LCD_W-2, y, STR_PWR_OFF_DELAY, STR_PWR_OFF_DELAYS, pwrDelayFromYaml(g_eeGeneral.pwrOffSpeed), 0, 4, attr|RIGHT, event));
         break;
 #endif
 

@@ -1231,11 +1231,19 @@ void copyMinMaxToOutputs(uint8_t ch)
   storageDirty(EE_MODEL);
 }
 
+#if defined(PWR_BUTTON_PRESS) || defined(STARTUP_ANIMATION)
+uint32_t pwrDelayTime(int delay)
+{
+  static uint8_t vals[] = { 0, 5, 10, 20, 30 };
+  return vals[pwrDelayFromYaml(delay)] * 10;
+}
+#endif
+
 #if defined(STARTUP_ANIMATION)
 
 inline uint32_t PWR_PRESS_DURATION_MIN()
 {
-  return (2 - g_eeGeneral.pwrOnSpeed) * 100;
+  return pwrDelayTime(g_eeGeneral.pwrOnSpeed);
 }
 
 constexpr uint32_t PWR_PRESS_DURATION_MAX = 500; // 5s
@@ -1608,6 +1616,20 @@ int main()
   tasksStart();
 }
 
+#if defined(PWR_BUTTON_PRESS)
+int pwrDelayFromYaml(int delay)
+{
+  static int8_t vals[] = { 1, 4, 3, 2, 0 };
+  return vals[delay + 2];
+}
+
+int pwrDelayToYaml(int delay)
+{
+  static int8_t vals[] = { 2, -2, 1, 0, -1 };
+  return vals[delay];
+}
+#endif
+
 #if !defined(SIMU)
 #if defined(PWR_BUTTON_PRESS)
 
@@ -1617,19 +1639,17 @@ inline uint32_t PWR_PRESS_SHUTDOWN_DELAY()
   if (pwrForcePressed())
     return 0;
 
-  return (2 - g_eeGeneral.pwrOffSpeed) * 100;
+  return pwrDelayTime(g_eeGeneral.pwrOffSpeed);
 }
 
 uint32_t pwr_press_time = 0;
 
 uint32_t pwrPressedDuration()
 {
-  if (pwr_press_time == 0) {
+  if (pwr_press_time == 0)
     return 0;
-  }
-  else {
-    return get_tmr10ms() - pwr_press_time;
-  }
+
+  return get_tmr10ms() - pwr_press_time;
 }
 
 #if defined(COLORLCD)

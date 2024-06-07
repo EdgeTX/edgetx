@@ -1368,13 +1368,32 @@ p, li { white-space: pre-wrap; }
       </widget>
      </item>
      <item row="12" column="1">
-      <widget class="QSpinBox" name="pwrOnDelay">
-       <property name="suffix">
-        <string> sec</string>
-       </property>
-       <property name="maximum">
-        <number>3</number>
-       </property>
+      <widget class="QComboBox" name="pwrOnDelay">
+       <item>
+        <property name="text">
+         <string>0s</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0.5s</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1s</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2s</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3s</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item row="2" column="0">
@@ -1548,13 +1567,32 @@ Acceptable values are 3v..12v</string>
       </widget>
      </item>
      <item row="13" column="1">
-      <widget class="QSpinBox" name="pwrOffDelay">
-       <property name="suffix">
-        <string> sec</string>
-       </property>
-       <property name="maximum">
-        <number>3</number>
-       </property>
+      <widget class="QComboBox" name="pwrOffDelay">
+       <item>
+        <property name="text">
+         <string>0s</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0.5s</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1s</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2s</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3s</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item row="3" column="1" colspan="2">
