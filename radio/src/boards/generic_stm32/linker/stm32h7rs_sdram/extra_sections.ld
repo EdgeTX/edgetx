@@ -41,6 +41,10 @@ _stext_iram = LOADADDR(.iram);
   *(.sdram_rodata)
   *(.sdram_rodata*)
 
+  . = ALIGN(8M);
+  _nemaBufferStart = .;
+  KEEP(*(.nemaBuffer))
+/*  . = + 512k;*/
   . = ALIGN(4);
   _esdram = .;
 

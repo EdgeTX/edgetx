@@ -1,3 +1,10 @@
+.nemaPool (NOLOAD) :
+{
+  . = ALIGN(4);
+  _nemaPoolStart = .;
+  KEEP(*(.nemaPool))
+   . = + 16k;
+} > RAM
 
 /* C/C++ Exception handling (not used) */
 .ARM.extab :
@@ -53,7 +60,11 @@ _sidata = LOADADDR(.data);
   _eram = .;
 } > REGION_RAM
 
+/*.nemaBuffer (NOLOAD) :
+{
+} > PSRAM*/
 INCLUDE extra_sections.ld
+
 
 /* Remove information from the standard libraries */
 /DISCARD/ :
