@@ -150,6 +150,7 @@ class NumberArea : public FormField
       setEditMode(true);
     } else {
       FormField::onClicked();
+      if (!editMode) changeEnd();
     }
   }
 
@@ -320,8 +321,7 @@ void NumberEdit::openEdit()
       edit->hide();
     });
     edit->setCancelHandler([=]() {
-      lv_group_focus_obj(lvobj);
-      edit->hide();
+      edit->onClicked();
     });
   }
   edit->setTextFlag(textFlags);
