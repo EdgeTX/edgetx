@@ -61,7 +61,7 @@ static void bootloaderDrawTitle(unsigned int x, const char* text)
 
 static void bootloaderDrawFooter()
 {
-  lcd->drawSolidFilledRect(28, 234, 422, 2, BL_FOREGROUND);
+  lcd->drawSolidFilledRect(28, LCD_H - 38, 422, 2, BL_FOREGROUND);
 }
 
 static void bootloaderDrawBackground()
@@ -94,17 +94,17 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       pos -= 92;
       lcd->drawSolidRect(92, (opt == 0) ? 72 : 107, pos, 26, 2, BL_SELECTED);
 
-      lcd->drawBitmap(60, 166, (const BitmapBuffer*)&BMP_PLUG_USB);
-      lcd->drawText(195, 175, TR_BL_USB_PLUGIN, BL_FOREGROUND);
-      lcd->drawText(195, 200, TR_BL_USB_MASS_STORE, BL_FOREGROUND);
+      lcd->drawBitmap(60, LCD_H - 106, (const BitmapBuffer*)&BMP_PLUG_USB);
+      lcd->drawText(195, LCD_H - 97, TR_BL_USB_PLUGIN, BL_FOREGROUND);
+      lcd->drawText(195, LCD_H - 72, TR_BL_USB_MASS_STORE, BL_FOREGROUND);
 
       bootloaderDrawFooter();
-      lcd->drawText(LCD_W / 2, 242, getFirmwareVersion(), CENTERED | BL_FOREGROUND);
+      lcd->drawText(LCD_W / 2, LCD_H - 30, getFirmwareVersion(), CENTERED | BL_FOREGROUND);
     }
     else if (st == ST_USB) {
-
-        lcd->drawBitmap(136, 98, (const BitmapBuffer*)&BMP_USB_PLUGGED);
-        lcd->drawText(195, 128, TR_BL_USB_CONNECTED, BL_FOREGROUND);
+        coord_t y = (LCD_H - BMP_USB_PLUGGED.height()) / 2;
+        lcd->drawBitmap(136, y, (const BitmapBuffer*)&BMP_USB_PLUGGED);
+        lcd->drawText(195, y + 30, TR_BL_USB_CONNECTED, BL_FOREGROUND);
     }
     else if (st == ST_FILE_LIST || st == ST_DIR_CHECK || st == ST_FLASH_CHECK ||
              st == ST_FLASHING || st == ST_FLASH_DONE) {
@@ -119,8 +119,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
             opt = 100;  // Completed > 100%
           }
 
-          lcd->drawRect(70, 120, 340, 31, 2, SOLID, BL_SELECTED);
-          lcd->drawSolidFilledRect(74, 124, (332 * opt) / 100, 23, color);
+          lcd->drawRect(70, (LCD_H - 31) / 2, 340, 31, 2, SOLID, BL_SELECTED);
+          lcd->drawSolidFilledRect(74, (LCD_H - 31) / 2 + 4, (332 * opt) / 100, 23, color);
         } else if (st == ST_DIR_CHECK) {
           if (opt == FR_NO_PATH) {
             lcd->drawText(90, 168, LV_SYMBOL_CLOSE TR_BL_DIR_MISSING,
@@ -162,25 +162,25 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
         if ( st != ST_DIR_CHECK && (st != ST_FLASH_CHECK || opt == FC_OK)) {
 
-            lcd->drawText(28, 242, LV_SYMBOL_CHARGE, BL_FOREGROUND);
+            lcd->drawText(28, LCD_H - 30, LV_SYMBOL_CHARGE, BL_FOREGROUND);
 
             if (st == ST_FILE_LIST) {
-                lcd->drawText(56, 244, TR_BL_SELECT_KEY, BL_FOREGROUND);
+                lcd->drawText(56, LCD_H - 28, TR_BL_SELECT_KEY, BL_FOREGROUND);
             }
             else if (st == ST_FLASH_CHECK && opt == FC_OK) {
-                lcd->drawText(56, 244, TR_BL_FLASH_KEY, BL_FOREGROUND);
+                lcd->drawText(56, LCD_H - 28, TR_BL_FLASH_KEY, BL_FOREGROUND);
             }
             else if (st == ST_FLASHING) {
-                lcd->drawText(56, 244, TR_BL_WRITING_FW, BL_FOREGROUND);
+                lcd->drawText(56, LCD_H - 28, TR_BL_WRITING_FW, BL_FOREGROUND);
             }
             else if (st == ST_FLASH_DONE) {
-                lcd->drawText(56, 244, TR_BL_WRITING_COMPL, BL_FOREGROUND);
+                lcd->drawText(56, LCD_H - 28, TR_BL_WRITING_COMPL, BL_FOREGROUND);
             }
         }
 
         if (st != ST_FLASHING) {
-            lcd->drawText(305, 244, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
-            lcd->drawText(335, 244, TR_BL_EXIT_KEY, BL_FOREGROUND);
+            lcd->drawText(305, LCD_H - 28, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+            lcd->drawText(335, LCD_H - 28, TR_BL_EXIT_KEY, BL_FOREGROUND);
         }        
     }
 

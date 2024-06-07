@@ -70,6 +70,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for Jumper T-Pro V2";
     case BOARD_JUMPER_T14:
       return "EdgeTX for Jumper T14";
+    case BOARD_JUMPER_T15:
+      return "EdgeTX for Jumper T15";
     case BOARD_JUMPER_T16:
       return "EdgeTX for Jumper T16";
     case BOARD_JUMPER_T18:
@@ -710,7 +712,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case LcdHeight:
       if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return 480;
-      else if (IS_FLYSKY_PL18(board))
+      else if (IS_FLYSKY_PL18(board) || IS_JUMPER_T15(board))
         return 320;
       else if (IS_FAMILY_HORUS_OR_T16(board))
         return 272;
@@ -1438,6 +1440,12 @@ void registerOpenTxFirmwares()
   addOpenTxFrskyOptions(firmware);
   firmware->addOption("internalelrs", Firmware::tr("Select if internal ELRS module is installed"));
   addOpenTxRfOptions(firmware, NONE);
+  registerOpenTxFirmware(firmware);
+
+  /* Jumper T15 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("t15"), Firmware::tr("Jumper T15"), BOARD_JUMPER_T15);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
 
   /* Jumper T16 board */

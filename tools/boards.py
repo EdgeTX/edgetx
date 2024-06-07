@@ -43,6 +43,11 @@ boards = {
     "X12S": {
         "PCB": "X12S",
     },
+    "T15": {
+        "PCB": "X10",
+        "PCBREV": "T15",
+        "INTERNAL_MODULE_CRSF": "YES"
+    },
     "T16": {
         "PCB": "X10",
         "PCBREV": "T16",

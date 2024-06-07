@@ -1583,8 +1583,7 @@ int cliCrypt(const char ** argv)
 }
 #endif
 
-#if defined(HARDWARE_TOUCH) && !defined(PCBNV14) && !defined(PCBPL18)
-
+#if defined(TP_GT911)
 // from tp_gt911.cpp
 extern uint8_t tp_gt911_cfgVer;
 
@@ -1655,7 +1654,7 @@ const CliCommand cliCommands[] = {
 #if defined(ACCESS_DENIED) && defined(DEBUG_CRYPT)
   { "crypt", cliCrypt, "<string to be encrypted>" },
 #endif
-#if defined(HARDWARE_TOUCH) && !defined(PCBNV14) && !defined(PCBPL18)
+#if defined(TP_GT911)
   { "reset_gt911", cliResetGT911, ""},
 #endif
   { nullptr, nullptr, nullptr }  /* sentinel */

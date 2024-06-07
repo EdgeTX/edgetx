@@ -131,17 +131,6 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 
 #endif
 
-#if defined(FUNCTION_SWITCHES)
-extern uint8_t fsPreviousState;
-void evalFunctionSwitches();
-void setFSStartupPosition();
-void fsLedOff(uint8_t);
-void fsLedOn(uint8_t);
-uint8_t getFSLogicalState(uint8_t index);
-uint8_t getFSPhysicalState(uint8_t index);
-bool getFSLedState(uint8_t index);
-#endif
-
 #if defined(ADC_GPIO_PIN_STICK_TH)
   #define SURFACE_RADIO  true
 #endif

@@ -38,7 +38,38 @@ void ledInit()
 #if defined(LED_BLUE_GPIO)
   gpio_init(LED_BLUE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
+
+#if defined(FUNCTION_SWITCHES)
+  gpio_init(FSLED_GPIO_1, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(FSLED_GPIO_2, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(FSLED_GPIO_3, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(FSLED_GPIO_4, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(FSLED_GPIO_5, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(FSLED_GPIO_6, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
+
 }
+
+#if defined(FUNCTION_SWITCHES)
+gpio_t fsLeds[] = {FSLED_GPIO_1, FSLED_GPIO_2,
+                   FSLED_GPIO_3, FSLED_GPIO_4,
+                   FSLED_GPIO_5, FSLED_GPIO_6};
+
+void fsLedOff(uint8_t index)
+{
+   gpio_clear(fsLeds[index]);
+}
+
+void fsLedOn(uint8_t index)
+{
+  gpio_set(fsLeds[index]);
+}
+
+bool getFSLedState(uint8_t index)
+{
+  return (gpio_read(fsLeds[index]));
+}
+#endif
 
 #if defined(LED_GPIO)
 

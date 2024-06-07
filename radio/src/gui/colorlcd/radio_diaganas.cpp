@@ -193,7 +193,7 @@ class AnaCalibratedViewWindow : public AnaViewWindow
     lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 5,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-#if !defined(SIMU) && !defined(PCBNV14) && !defined(PCBPL18)
+#if !defined(SIMU) && defined(TP_GT911)
     line = newLine(grid);
     auto lbl2 = new StaticText(
         line, rect_t{},
