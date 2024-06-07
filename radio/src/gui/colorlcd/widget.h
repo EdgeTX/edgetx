@@ -97,7 +97,7 @@ class Widget : public ButtonBase
   lv_point_t borderPts[5];
 
   void onCancel() override;
-  void onLongPress() override;
+  bool onLongPress() override;
 
   virtual void onFullscreen(bool enable) {}
   void openMenu();

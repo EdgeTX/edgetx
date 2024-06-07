@@ -149,16 +149,14 @@ class SourceChoiceMenuToolbar : public MenuToolbar
 #endif
 };
 
-void SourceChoice::LongPressHandler(void* data)
+bool SourceChoice::onLongPress()
 {
-  SourceChoice* src = (SourceChoice*)data;
-  if (src && src->canInvert) {
-    int16_t val = src->_getValue();
-    if (src->isValueAvailable && src->isValueAvailable(-val)) {
-      src->setValue(-val);
-      src->invalidate();
-    }
+  if (canInvert) {
+    int16_t val = _getValue();
+    if (isValueAvailable && isValueAvailable(-val))
+      setValue(-val);
   }
+  return true;
 }
 
 void SourceChoice::setValue(int value)
@@ -233,8 +231,6 @@ SourceChoice::SourceChoice(Window *parent, const rect_t &rect, int16_t vmin,
 
     return std::string(getSourceString(value));
   });
-
-  set_lv_LongPressHandler(LongPressHandler, this);
 
   setAvailableHandler([](int v) { return isSourceAvailable(v); });
 }

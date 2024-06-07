@@ -28,7 +28,7 @@ class ModelCurvesPage : public PageTab
 {
  public:
   ModelCurvesPage();
-  static void pushEditCurve(int index);
+  static void pushEditCurve(int index, std::function<void(void)> refreshView = nullptr);
 
   bool isVisible() const override { return modelCurvesEnabled(); }
 

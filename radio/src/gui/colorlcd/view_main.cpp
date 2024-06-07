@@ -85,8 +85,6 @@ ViewMain::ViewMain() :
   lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL, nullptr);
   lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL_END,
                       nullptr);
-  lv_obj_add_event_cb(lvobj, ViewMain::long_pressed, LV_EVENT_LONG_PRESSED,
-                      nullptr);
 
   // create last to be on top
   topbar = TopbarFactory::create(this);
@@ -342,7 +340,7 @@ void ViewMain::ws_timer(lv_timer_t* t)
   view->enableWidgetSelect(false);
 }
 
-void ViewMain::longPress()
+bool ViewMain::onLongPress()
 {
   if (isAppMode()) {
     int view = getCurrentMainView();
@@ -350,17 +348,8 @@ void ViewMain::longPress()
   } else {
     enableWidgetSelect(true);
   }
-}
-
-void ViewMain::long_pressed(lv_event_t* e)
-{
-  auto obj = lv_event_get_target(e);
-  // kill subsequent CLICKED event
-  lv_obj_clear_state(obj, LV_STATE_PRESSED);
   lv_indev_wait_release(lv_indev_get_act());
-
-  auto view = (ViewMain*)lv_obj_get_user_data(obj);
-  if (view) view->longPress();
+  return false;
 }
 
 void ViewMain::show(bool visible)

@@ -74,8 +74,6 @@ FullScreenDialog::FullScreenDialog(
 
   build();
 
-  lv_obj_add_event_cb(lvobj, FullScreenDialog::long_pressed,
-                      LV_EVENT_LONG_PRESSED, nullptr);
   lv_obj_add_event_cb(lvobj, FullScreenDialog::on_draw,
                       LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
 }
@@ -164,15 +162,11 @@ void FullScreenDialog::closeDialog()
   deleteLater();
 }
 
-void FullScreenDialog::long_pressed(lv_event_t* e)
+bool FullScreenDialog::onLongPress()
 {
-  auto obj = lv_event_get_target(e);
-  auto fs = (FullScreenDialog*)lv_obj_get_user_data(obj);
-
-  if (fs) {
-    fs->closeDialog();
-    lv_indev_wait_release(lv_indev_get_act());
-  }
+  closeDialog();
+  lv_indev_wait_release(lv_indev_get_act());
+  return false;
 }
 
 void FullScreenDialog::onEvent(event_t event)

@@ -43,6 +43,7 @@ class FullScreenDialog : public Window
 
     void onEvent(event_t event) override;
     void onCancel() override;
+    bool onLongPress() override;
 
     void deleteLater(bool detach = true, bool trash = true) override;
 
@@ -71,6 +72,5 @@ class FullScreenDialog : public Window
     virtual void delayedInit() {}
     void build();
 
-    static void long_pressed(lv_event_t* e);
     static void on_draw(lv_event_t* e);
 };

@@ -82,13 +82,16 @@ class CurveDataEdit : public Window
 class CurveEditWindow : public Page
 {
   public:
-    CurveEditWindow(uint8_t index);
+    CurveEditWindow(uint8_t index, std::function<void(void)> refreshView = nullptr);
 
   protected:
     uint8_t index;
     CurveEdit * curveEdit = nullptr;
     CurveDataEdit * curveDataEdit = nullptr;
+    std::function<void(void)> refreshView = nullptr;
 
     void buildHeader(Window * window);
     void buildBody(Window * window);
+
+    void onCancel() override;
 };

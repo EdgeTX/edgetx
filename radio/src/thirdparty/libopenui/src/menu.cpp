@@ -91,9 +91,6 @@ class MenuBody : public TableField
       });
       lv_group_set_editing(g, true);
     }
-
-    lv_obj_add_event_cb(lvobj, MenuBody::localLongPressHandler,
-                        LV_EVENT_LONG_PRESSED, this);
   }
 
 #if defined(DEBUG_WINDOWS)
@@ -219,13 +216,6 @@ class MenuBody : public TableField
     isLongPressed = false;
   }
 
-  void longPress()
-  {
-    isLongPressed = true;
-    Menu* menu = getParentMenu();
-    if (menu) menu->longPress();
-  }
-
   void onDrawBegin(uint16_t row, uint16_t col,
                    lv_obj_draw_part_dsc_t* dsc) override
   {
@@ -284,12 +274,6 @@ class MenuBody : public TableField
   int selectedIndex = 0;
 
   Menu* getParentMenu() { return static_cast<Menu*>(getParent()->getParent()); }
-
-  static void localLongPressHandler(lv_event_t* e)
-  {
-    MenuBody* menuBody = (MenuBody*)lv_event_get_user_data(e);
-    if (menuBody) menuBody->longPress();
-  }
 };
 
 //-----------------------------------------------------------------------------
@@ -449,11 +433,6 @@ void Menu::onCancel()
 {
   if (cancelHandler) cancelHandler();
   deleteLater();
-}
-
-void Menu::longPress()
-{
-  if (toolbar) toolbar->longPress();
 }
 
 void Menu::setCancelHandler(std::function<void()> handler)

@@ -58,8 +58,6 @@ ButtonBase::ButtonBase(Window* parent, const rect_t& rect,
               objConstruct ? objConstruct : lv_btn_create),
     pressHandler(std::move(pressHandler))
 {
-  lv_obj_add_event_cb(lvobj, ButtonBase::long_pressed, LV_EVENT_LONG_PRESSED,
-                      nullptr);
 }
 
 void ButtonBase::check(bool checked)
@@ -81,13 +79,15 @@ bool ButtonBase::checked() const
 
 void ButtonBase::onPress() { check(pressHandler && pressHandler()); }
 
-void ButtonBase::onLongPress()
+bool ButtonBase::onLongPress()
 {
   if (longPressHandler) {
     check(longPressHandler());
     lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
     lv_indev_wait_release(lv_indev_get_act());
+    return false;
   }
+  return true;
 }
 
 void ButtonBase::onClicked() { onPress(); }
@@ -96,13 +96,6 @@ void ButtonBase::checkEvents()
 {
   Window::checkEvents();
   if (checkHandler) checkHandler();
-}
-
-void ButtonBase::long_pressed(lv_event_t* e)
-{
-  auto obj = lv_event_get_target(e);
-  auto btn = (ButtonBase*)lv_obj_get_user_data(obj);
-  if (obj) btn->onLongPress();
 }
 
 TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,

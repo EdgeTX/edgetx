@@ -23,14 +23,6 @@
 
 #include "libopenui.h"
 
-// TODO:
-// - split this into 2 handlers:
-//   - key_cb: PRESSED / LONG_PRESSED (always on)
-//   - focus_cb: for FOCUSED / DEFOCUSED (only w/ 'auto-edit' mode)
-// - add 'auto-edit' mode (add / remove 'focus_cb')
-//   - when turned on, ESC gets out of the edit-mode
-//     and ENTER gets into edit-mode
-//
 void ListBox::event_cb(lv_event_t* e)
 {
   static bool _nested = false;
@@ -51,10 +43,6 @@ void ListBox::event_cb(lv_event_t* e)
     _nested = true;
     lv_group_set_editing((lv_group_t*)lv_obj_get_group(obj), false);
     _nested = false;
-  } else if (code == LV_EVENT_LONG_PRESSED) {
-    lb->onLongPressed();
-    lv_obj_clear_state(obj, LV_STATE_PRESSED);
-    lv_indev_wait_release(lv_indev_get_act());
   }
 }
 
@@ -180,12 +168,15 @@ void ListBox::onPress(uint16_t row, uint16_t col)
   }
 }
 
-void ListBox::onLongPressed()
+bool ListBox::onLongPress()
 {
   TRACE("LONG_PRESS");
   if (longPressHandler) {
     longPressHandler();
+    lv_indev_wait_release(lv_indev_get_act());
+    return false;
   }
+  return true;
 }
 
 // TODO: !auto-edit

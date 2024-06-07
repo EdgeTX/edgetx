@@ -97,9 +97,15 @@ event_t Key::input(bool val)
 
   if ((m_state || m_flags) && m_vals == 0) {
     // key is released
+#if defined(COLORLCD)
+    if ((m_flags & (KFLAG_KILLED)) == 0) {
+      evt = (m_flags & KFLAG_LONG_PRESS) ? _MSK_KEY_LONG_BRK : _MSK_KEY_BREAK;
+    }
+#else
     if ((m_flags & (KFLAG_KILLED|KFLAG_LONG_PRESS)) == 0) {
       evt = _MSK_KEY_BREAK;
     }
+#endif
     m_state = KSTATE_OFF;
     m_cnt = 0;
     m_flags = 0;
