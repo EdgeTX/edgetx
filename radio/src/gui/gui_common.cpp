@@ -1058,7 +1058,7 @@ bool isTrainerModeAvailable(int mode)
     if (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
       const etx_module_port_t *port = nullptr;
 
-#if defined(TRAINER_MODULE_SBUS_USART)
+#if defined(TRAINER_MODULE_SBUS)
       // check if UART with inverter on heartbeat pin is required and available for SBUS (some Taranis radios)
       port = modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
                             ETX_MOD_PORT_UART, ETX_Pol_Normal,

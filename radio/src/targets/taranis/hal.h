@@ -2299,6 +2299,7 @@
 #if defined(PCBX9LITE) ||  defined(PCBXLITE)
   #define TRAINER_MODULE_CPPM_TIMER_IRQHandler TIM3_IRQHandler
 #endif
+  #define TRAINER_MODULE_SBUS
 #elif defined(INTMODULE_HEARTBEAT_GPIO) && defined(HARDWARE_EXTERNAL_MODULE)
   // Trainer CPPM input on heartbeat pin
   #define TRAINER_MODULE_CPPM_TIMER               TRAINER_TIMER
@@ -2314,6 +2315,7 @@
   #define TRAINER_MODULE_SBUS_DMA_STREAM          DMA2_Stream1
   #define TRAINER_MODULE_SBUS_DMA_STREAM_LL       LL_DMA_STREAM_1
   #define TRAINER_MODULE_SBUS_DMA_CHANNEL         LL_DMA_CHANNEL_5
+  #define TRAINER_MODULE_SBUS
 #else
   // TODO: replace SBUS trainer with S.PORT pin
 #endif
