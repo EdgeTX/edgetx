@@ -32,8 +32,8 @@
 ChannelBar::ChannelBar(Window* parent, const rect_t& rect, uint8_t channel,
                        std::function<int16_t()> getValueFunc, LcdColorIndex barColorIndex,
                        LcdColorIndex txtColorIndex) :
-    Window(parent, rect), getValue(std::move(getValueFunc)),
-    channel(channel)
+    Window(parent, rect), channel(channel),
+    getValue(std::move(getValueFunc))
 {
   etx_solid_bg(lvobj, COLOR_THEME_PRIMARY2_INDEX);
 
@@ -81,22 +81,25 @@ void ChannelBar::checkEvents()
     else
       s = formatNumberAsString(calcRESXto100(value), 0, 0, "", "%");
 
-    lv_label_set_text(valText, s.c_str());
+    if (s != valStr) {
+      valStr = s;
+      lv_label_set_text(valText, s.c_str());
 
-    if (newValue < 0)
-      lv_obj_clear_state(valText, LV_STATE_USER_1);
-    else
-      lv_obj_add_state(valText, LV_STATE_USER_1);
+      if (s[0] == '-')
+        lv_obj_clear_state(valText, LV_STATE_USER_1);
+      else
+        lv_obj_add_state(valText, LV_STATE_USER_1);
 
-    const int lim = (g_model.extendedLimits ? (1024 * LIMIT_EXT_PERCENT / 100) : 1024);
-    int chanVal = limit<int>(-lim, value, lim);
+      const int lim = (g_model.extendedLimits ? (1024 * LIMIT_EXT_PERCENT / 100) : 1024);
+      int chanVal = limit<int>(-lim, value, lim);
 
-    uint16_t size = divRoundClosest(abs(chanVal) * width(), lim * 2);
+      uint16_t size = divRoundClosest(abs(chanVal) * width(), lim * 2);
 
-    int16_t x = width() / 2 - ((chanVal > 0) ? 0 : size);
+      int16_t x = width() / 2 - ((chanVal > 0) ? 0 : size);
 
-    lv_obj_set_pos(bar, x, 0);
-    lv_obj_set_size(bar, size, height());
+      lv_obj_set_pos(bar, x, 0);
+      lv_obj_set_size(bar, size, height());
+    }
   }
 }
 
