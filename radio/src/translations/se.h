@@ -407,7 +407,7 @@
 #define TR_PLAY_HELLO                   "Startljud"
 #define TR_PWR_ON_DELAY                 "Fördröj start"
 #define TR_PWR_OFF_DELAY                "Fördröj avslut"
-#define TR_PWR_ON_OFF_HAPTIC           TR("Pwr ON/OFF Haptic","Power ON/OFF Haptic")
+#define TR_PWR_ON_OFF_HAPTIC            TR("Tx AV/PÅ vibr.","Radio AV/PÅ vibration")
 #define TR_BLCOLOR                      "Färg"
 #define TR_THROTTLE_WARNING             TR("Gasvarn.", "Gasvarning")
 #define TR_CUSTOM_THROTTLE_WARNING      TR("Egen pos", "Egen position?")
