@@ -390,7 +390,7 @@
 #define TR_PLAY_HELLO                  "Dźwięk uruchomienia"
 #define TR_PWR_ON_DELAY                "Pwr On delay"
 #define TR_PWR_OFF_DELAY               "Pwr Off delay"
-#define TR_PWR_ON_OFF_HAPTIC           TR("Pwr ON/OFF Haptic","Power ON/OFF Haptic")
+#define TR_PWR_ON_OFF_HAPTIC    TR("Wibracja włączania","Wibracja włączania")
 #define TR_THROTTLE_WARNING     TR("OstrzGaz", "OstrzeżenieGaz")
 #define TR_CUSTOM_THROTTLE_WARNING     TR("InnePoł", "Inne położenie?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Poł. %", "Położenie %")
