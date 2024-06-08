@@ -184,7 +184,7 @@ void boardInit()
 #if defined(LED_STRIP_GPIO)
   extern const stm32_pulse_timer_t _led_timer;
 
-  ws2812_init(&_led_timer, LED_STRIP_LENGTH);
+  ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
     ws2812_set_color(i, 0, 0, 50);
   }

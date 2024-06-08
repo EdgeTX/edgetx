@@ -23,14 +23,24 @@
 
 #include "stm32_pulse_driver.h"
 
+// Offset:           R          G          B
+#define WS2812_RGB ((0 << 4) | (1 << 2) | (2))
+#define WS2812_GRB ((1 << 4) | (0 << 2) | (2))
+
 // RGB
 #define WS2812_BYTES_PER_LED 3
-#define WS2812_MAX_LEDS 8
+
+// Maximum number of supported LEDs
+#if !defined(WS2812_MAX_LEDS)
+#  define WS2812_MAX_LEDS 8
+#endif
 
 // Number of LED periods used for trailing reset
-#define WS2812_TRAILING_RESET  10
+#if !defined(WS2812_TRAILING_RESET)
+#  define WS2812_TRAILING_RESET 10
+#endif
 
-void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t strip_len);
+void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t strip_len, uint8_t type);
 void ws2812_update(const stm32_pulse_timer_t* timer);
 void ws2812_dma_isr(const stm32_pulse_timer_t* timer);
 
