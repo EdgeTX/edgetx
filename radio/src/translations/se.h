@@ -438,15 +438,15 @@
   #define TR_SETMIDPOINT                "CENTRERA AXLAR/REGLAGE"
   #define TR_MOVESTICKSPOTS             "RÖR AXLAR/VRED"
 #else
-  #define TR_MENUTOSTART                "\010" TR_ENTER " FÖR ATT STARTA"
+  #define TR_MENUTOSTART                TR_ENTER " FÖR ATT STARTA"
 #if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT                "\006CENTRERA VRED"
-  #define TR_MOVESTICKSPOTS             "\002RÖR ST/GA/VRED/AXLAR"
+  #define TR_SETMIDPOINT                "CENTRERA VRED"
+  #define TR_MOVESTICKSPOTS             "RÖR ST/GA/VRED/AXLAR"
 #else
-  #define TR_SETMIDPOINT                TR("\006CENTRERA AXLAR", "\004CENTRERA AXLAR/REGLAGE")
-  #define TR_MOVESTICKSPOTS             "\007RÖR AXLAR/VRED"
+  #define TR_SETMIDPOINT                TR("CENTRERA AXLAR", "CENTRERA AXLAR/REGLAGE")
+  #define TR_MOVESTICKSPOTS             "RÖR AXLAR/VRED"
 #endif
-  #define TR_MENUWHENDONE               "\006" TR_ENTER " AVSLUTAR"
+  #define TR_MENUWHENDONE               TR_ENTER " AVSLUTAR"
 #endif
 
 #define TR_TXnRX                        "Tx:\0Rx:"
