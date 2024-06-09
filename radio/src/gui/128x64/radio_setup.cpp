@@ -93,6 +93,7 @@ enum {
   ITEM_RADIO_SETUP_START_SOUND,
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_OFF_SPEED)
+  CASE_HAPTIC(ITEM_RADIO_SETUP_PWR_ON_OFF_HAPTIC)
   CASE_PXX2(ITEM_RADIO_SETUP_OWNER_ID)
   CASE_GPS(ITEM_RADIO_SETUP_LABEL_GPS)
   CASE_GPS(ITEM_RADIO_SETUP_TIMEZONE)
@@ -191,6 +192,7 @@ void menuRadioSetup(event_t event)
     0,
     CASE_PWR_BUTTON_PRESS(0)
     CASE_PWR_BUTTON_PRESS(0)
+    CASE_HAPTIC(0) // power on/off haptic
     CASE_PXX2(0) /* owner registration ID */
 
     CASE_GPS(0)
@@ -595,6 +597,16 @@ void menuRadioSetup(event_t event)
         lcdDrawChar(lcdLastRightPos, y, 's');
         if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.pwrOffSpeed, -1, 2);
         break;
+#endif
+
+#if defined(HAPTIC)
+      case ITEM_RADIO_SETUP_PWR_ON_OFF_HAPTIC: {
+        lcdDrawTextAlignedLeft(y, STR_PWR_ON_OFF_HAPTIC);
+        g_eeGeneral.disablePwrOnOffHaptic =
+            !editCheckBox(!g_eeGeneral.disablePwrOnOffHaptic, LCD_W - 9, y,
+                          nullptr, attr, event);
+        break;
+      }
 #endif
 
 #if defined(PXX2)

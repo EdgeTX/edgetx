@@ -395,6 +395,7 @@
 #define TR_PLAY_HELLO                  "Звук запуску"
 #define TR_PWR_ON_DELAY                "Pwr On затримка"
 #define TR_PWR_OFF_DELAY               "Pwr Off затримка"
+#define TR_PWR_ON_OFF_HAPTIC           TR("Pwr ON/OFF Haptic","Power ON/OFF Haptic")
 #define TR_THROTTLE_WARNING            TR("Г-попер.", "Стан Газу")
 #define TR_CUSTOM_THROTTLE_WARNING     TR("Користув. полож.", "Користувацьке положення?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Полож. %", "Положення %")

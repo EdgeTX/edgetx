@@ -404,6 +404,7 @@
 #define TR_PLAY_HELLO                  "Zvuk při spuštění"
 #define TR_PWR_ON_DELAY                "Zpoždění zapnutí"
 #define TR_PWR_OFF_DELAY               "Zpoždění vypnutí"
+#define TR_PWR_ON_OFF_HAPTIC           TR("Zap ON/OFF vibrace","Zapnutí ON/OFF vibrace")
 #define TR_THROTTLE_WARNING            TR("* Plyn", "Kontrola plynu")
 #define TR_CUSTOM_THROTTLE_WARNING     TR("Vlas-Poz", "Vlastní pozice?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Poz. %", "Pozice %")

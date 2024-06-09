@@ -296,6 +296,7 @@ class GeneralSettings {
 
     int pwrOnSpeed;
     int pwrOffSpeed;
+    bool disablePwrOnOffHaptic;
 
     char selectedTheme[SELECTED_THEME_NAME_LEN + 1];
 
