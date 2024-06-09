@@ -392,6 +392,7 @@
 #define TR_PLAY_HELLO                  "起動時サウンド"
 #define TR_PWR_ON_DELAY                "電源ON遅延"
 #define TR_PWR_OFF_DELAY               "電源OFF遅延"
+#define TR_PWR_ON_OFF_HAPTIC           TR("Pwr ON/OFF Haptic","電源 ON/OFF 時のバイブ")
 #define TR_THROTTLE_WARNING            TR("T-Warning", "Throttle状態")
 #define TR_CUSTOM_THROTTLE_WARNING     TR("Cust-Pos", "カスタム位置？")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "位置 %")

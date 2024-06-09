@@ -1259,7 +1259,8 @@ void runStartupAnimation()
       isPowerOn = true;
       pwrOn();
 #if defined(HAPTIC)
-      if (g_eeGeneral.hapticMode != e_mode_quiet)
+      if (!g_eeGeneral.disablePwrOnOffHaptic &&
+          (g_eeGeneral.hapticMode != e_mode_quiet))
         haptic.play(15, 3, PLAY_NOW);
 #endif
     }
@@ -1373,7 +1374,8 @@ void edgeTxInit()
 #else // defined(STARTUP_ANIMATION)
   pwrOn();
 #if defined(HAPTIC)
-  if (g_eeGeneral.hapticMode != e_mode_quiet)
+  if (!g_eeGeneral.disablePwrOnOffHaptic &&
+      (g_eeGeneral.hapticMode != e_mode_quiet))
     haptic.play(15, 3, PLAY_NOW);
 #endif
 #endif
@@ -1771,7 +1773,8 @@ uint32_t pwrCheck()
         }
 
 #if defined(HAPTIC)
-        if (g_eeGeneral.hapticMode != e_mode_quiet)
+        if (!g_eeGeneral.disablePwrOnOffHaptic &&
+            (g_eeGeneral.hapticMode != e_mode_quiet))
           haptic.play(15, 3, PLAY_NOW);
 #endif
         pwr_check_state = PWR_CHECK_OFF;

@@ -399,7 +399,8 @@
 #define TR_PLAY_HELLO                  "Son de démarrage"
 #define TR_PWR_ON_DELAY                "Délai btn ON"
 #define TR_PWR_OFF_DELAY               "Délai btn OFF"
-#define TR_THROTTLE_WARNING             TR("Alerte gaz", "Alerte gaz")
+#define TR_PWR_ON_OFF_HAPTIC           TR("Pwr ON/OFF Vibreur","Power ON/OFF Vibreur")
+#define TR_THROTTLE_WARNING            TR("Alerte gaz", "Alerte gaz")
 #define TR_CUSTOM_THROTTLE_WARNING     TR("Pos. Perso", "Position perso ?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL TR("Pos. %", "Position %")
 #define TR_SWITCHWARNING               TR("Alerte int", "Pos. Interrupteurs")
