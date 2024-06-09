@@ -398,7 +398,6 @@
 #define TR_BACKLIGHT_LABEL              "Belysning"
 #define TR_GHOST_MENU_LABEL             "GHOST MENY"
 #define TR_STATUS                       "Status"
-#define TR_BLDELAY                      "Av efter"
 #define TR_BLONBRIGHTNESS               "Ljusstyrka på"
 #define TR_BLOFFBRIGHTNESS              "Ljusstyrka av"
 #define TR_KEYS_BACKLIGHT               "Tangentbelysning"
@@ -413,7 +412,6 @@
 #define TR_CUSTOM_THROTTLE_WARNING_VAL  TR("Pos. %", "Position %")
 #define TR_SWITCHWARNING                TR("Bryt.varn.", "Brytarvarning")
 #define TR_POTWARNINGSTATE              TR("Vred&Regl.", "Vred & reglage")
-#define TR_SLIDERWARNING                TR("Regl. pos.", "Reglagepositioner")
 #define TR_POTWARNING                   TR("Vredläge", "Vredlägen")
 #define TR_TIMEZONE                     "Tidszon"
 #define TR_ADJUST_RTC                   "Justera RTC"
@@ -559,7 +557,6 @@
 #define TR_MULTI_AUTOBIND               TR("Bind ka.","Parkoppla via kanal")
 #define TR_DISABLE_CH_MAP               TR("Mappa ej KA", "Inaktivera kanalmappning")
 #define TR_DISABLE_TELEM                TR("Ej telem.", "Inaktivera telemetri")
-#define TR_MULTI_DSM_AUTODTECT          TR("Auto", "Autodetektera format")
 #define TR_MULTI_LOWPOWER               TR("Låg effekt", "Lågeffektläge")
 #define TR_MULTI_LNA_DISABLE            "LNA disable"
 #define TR_MODULE_TELEMETRY             TR("S.Port", "S.Port link")
@@ -696,7 +693,6 @@
 #define TR_CPU_TEMP                     "CPU temp.\016>"
 #define TR_COPROC                       "CoProc."
 #define TR_COPROC_TEMP                  "MB temp. \016>"
-#define TR_TEMPWARNING                  TR("Hög temp", "Hög temperatur")
 #define TR_TTL_WARNING                  "Varning: Överskrid inte 3.3V på TX/RX-pinnarna!"
 #define TR_FUNC                         "Funktion"
 #define TR_V1                           "Värde 1"
@@ -772,7 +768,6 @@
   #define TR_BLUETOOTH_MODES            "---","Telemetri","Lärare"
 #endif
 #define TR_SD_INFO_TITLE                "SD INFO"
-#define TR_SD_TYPE                      "Typ: "
 #define TR_SD_SPEED                     "Hastighet:"
 #define TR_SD_SECTORS                   "Sektorer:"
 #define TR_SD_SIZE                      "Strl:"
@@ -1154,7 +1149,6 @@
 #define TR_FILTER                       "Filter"
 #define TR_TELEMETRYFULL                "Alla telemetriplatser upptagna!"
 
-#define TR_INVERTED_SERIAL              "Inverterad"
 #define TR_IGNORE_INSTANCE              TR("Ej inst.", "Ignorera instansfel")
 #define TR_SHOW_INSTANCE_ID             "Visa instans-ID"
 #define TR_DISCOVER_SENSORS             "Sök nya"
@@ -1178,12 +1172,7 @@
 #define TR_SETUP                        "Konfigurera"
 #define TR_LAYOUT                       "Layout"
 #define TR_ADD_MAIN_VIEW                "Lägg till huvudvy"
-#define TR_BACKGROUND_COLOR             "Bakgrundsfärg"
-#define TR_MAIN_COLOR                   "Huvudfärg"
-#define TR_BAR2_COLOR                   "Sekundär stapelfärg"
-#define TR_BAR1_COLOR                   "Primär stapelfärg"
 #define TR_TEXT_COLOR                   "Textfärg"
-#define TR_TEXT_VIEWER                  "Textgranskare"
 
 #define TR_MENU_INPUTS                  STR_CHAR_INPUT "Input"
 #define TR_MENU_LUA                     STR_CHAR_LUA "Lua-skript"
