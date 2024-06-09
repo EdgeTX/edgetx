@@ -1324,10 +1324,6 @@ void edgeTxInit()
   // Show splash screen (color LCD)
   startSplash();
 
-#if defined(HARDWARE_TOUCH) && !defined(PCBFLYSKY) && !defined(SIMU)
-  touchPanelInit();
-#endif
-
 #if defined(LIBOPENUI)
   // create ViewMain
   ViewMain::instance();
