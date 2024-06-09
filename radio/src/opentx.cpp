@@ -1341,10 +1341,6 @@ void edgeTxInit()
   if (!(startOptions & OPENTX_START_NO_SPLASH))
     startSplash();
 
-#if defined(HARDWARE_TOUCH) && !defined(PCBFLYSKY) && !defined(SIMU)
-  touchPanelInit();
-#endif
-
 #if defined(LIBOPENUI)
   initLvglTheme();
   // create ViewMain
