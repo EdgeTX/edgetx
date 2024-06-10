@@ -270,15 +270,12 @@ static DRESULT sdio_read(BYTE lun, BYTE * buff, DWORD sector, UINT count)
   res = _read_dma(buff, sector, count);
   if (res != RES_OK) return res;
 
-  uint32_t timeout = HAL_GetTick();
-  while((HAL_GetTick() - timeout) < SD_TIMEOUT) {
-    if (sdio_check_card_state() == SD_TRANSFER_OK) {
-      return RES_OK;
-    }
+  if (sdio_check_card_state_with_timeout(SD_TIMEOUT) < 0) {
+    TRACE("SD getstatus timeout, s:%u c:%u", sector, (uint32_t)count);
+    return RES_ERROR;
   }
 
-  TRACE("SD getstatus timeout, s:%u c:%u", sector, (uint32_t)count);
-  return RES_ERROR;
+  return RES_OK;
 }
 
 static DRESULT _write_dma(const BYTE *buff, DWORD sector, UINT count)
@@ -329,16 +326,13 @@ static DRESULT sdio_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 
   res = _write_dma(buff, sector, count);
   if (res != RES_OK) return res;
-  
-  uint32_t timeout = HAL_GetTick();
-  while((HAL_GetTick() - timeout) < SD_TIMEOUT) {
-    if (sdio_check_card_state() == SD_TRANSFER_OK) {
-      return RES_OK;
-    }
+
+  if (sdio_check_card_state_with_timeout(SD_TIMEOUT) < 0) {
+    TRACE("SD getstatus timeout, s:%u c: %u", sector, (uint32_t)count);
+    return RES_ERROR;
   }
 
-  TRACE("SD getstatus timeout, s:%u c: %u", sector, (uint32_t)count);
-  return RES_ERROR;
+  return RES_OK;
 }
 
 static DRESULT sdio_get_sector_count(DWORD* sectors)
