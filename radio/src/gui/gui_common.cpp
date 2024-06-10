@@ -1058,17 +1058,16 @@ bool isTrainerModeAvailable(int mode)
     if (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
       const etx_module_port_t *port = nullptr;
 
-#if defined(TRAINER_MODULE_SBUS_USART)
-      // check if UART with inverter on heartbeat pin is required and available for SBUS (some Taranis radios)
+      // check if UART with inverter on heartbeat pin is available
       port = modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
                             ETX_MOD_PORT_UART, ETX_Pol_Normal,
                             ETX_MOD_DIR_RX);
-#else
-      //check if UART with inverter on S.Port pin is available for SBUS (e.g. TX16s, NV14)
-      port = modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
-                            ETX_MOD_PORT_SPORT, ETX_Pol_Normal,
-                            ETX_MOD_DIR_RX);
-#endif
+      if (!port) {
+        // otherwise fall back to S.Port pin
+        port =
+            modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
+                           ETX_MOD_PORT_SPORT, ETX_Pol_Normal, ETX_MOD_DIR_RX);
+      }
 
       return port != nullptr;
     }
