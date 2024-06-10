@@ -33,13 +33,12 @@ CalibrationPanel::CalibrationPanel(QWidget * parent, GeneralSettings & generalSe
 
   TableLayout * tableLayout = new TableLayout(this, maxrows, headerLabels);
 
-  for (int i = 0, row = 0; i < maxinputs; i++) {
+  for (int i = 0; i < maxinputs; i++) {
     if (!Boards::isInputCalibrated(i))
       continue;
 
     GeneralSettings::InputCalib &calib = generalSettings.inputConfig[i].calib;
     int col = 0;
-    row++;
     QLabel * label = new QLabel(this);
     label->setText(Boards::getInputName(i));
     tableLayout->addWidget(i, col++, label);
