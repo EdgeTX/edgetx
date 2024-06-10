@@ -1331,7 +1331,8 @@ void edgeTxInit()
   TRACE("edgeTxInit");
 
   // Show splash screen (color LCD)
-  startSplash();
+  if (!(startOptions & OPENTX_START_NO_SPLASH))
+    startSplash();
 
 #if defined(HARDWARE_TOUCH) && !defined(PCBFLYSKY) && !defined(SIMU)
   touchPanelInit();
