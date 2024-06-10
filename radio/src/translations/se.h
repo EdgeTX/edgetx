@@ -70,7 +70,7 @@
 #define TR_MULTI_CUSTOM                 "Anpassad"
 #define TR_VTRIMINC                     TR("Expo","Exponentiell"),TR("xFin","Extra fin"),"Fin","Medium","Grov"
 #define TR_VDISPLAYTRIMS                "Nej","Ändring","Ja"
-#define TR_VBEEPCOUNTDOWN               "Tyst", "Pip", "Röst", "Vibrera", TR("P & Vib","Pip & Vibrera"),TR("R & Vib","Röst & Vibrera")
+#define TR_VBEEPCOUNTDOWN               "Tyst", "Pip", "Röst", "Vibrera", TR("P & Vib","Pip & Vibrera"), TR("R & Vib","Röst & Vibrera")
 #define TR_VVARIOCENTER                 "Pip","Tyst"
 #define TR_CURVE_TYPES                  "Normal","Anpassad"
 
@@ -103,7 +103,7 @@
 #define TR_SF_VOLUME                   "Volym"
 #define TR_SF_FAILSAFE                 "Sätt failsafe"
 #define TR_SF_RANGE_CHECK              "Range check"
-#define TR_SF_MOD_BIND                 "Bind modul"
+#define TR_SF_MOD_BIND                 "Parkoppla modul"
 #define TR_SF_RGBLEDS                  "RGB ledljus"
  
 #define TR_SOUND                       "Spela ljud"
@@ -298,17 +298,15 @@
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Brytare"
 #define TR_FUNCTION_SWITCHES            "Anpassningsbara brytare"
-#define TR_GROUP                       "Group"
-#define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_GROUP                       "Group"
-#define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_GROUPS                      "Always on groups"
-#define TR_LAST                        "Last"
-#define TR_MORE_INFO                   "More info"
-#define TR_SWITCH_TYPE                 "Type"
-#define TR_SWITCH_STARTUP              "Startup"
-#define TR_SWITCH_GROUP                "Group"
-#define TR_FUNCTION_SWITCH_GROUPS      "---", TR_SWITCH_GROUP" 1", TR_SWITCH_GROUP" 2", TR_SWITCH_GROUP" 3"
+#define TR_GROUP                        "Grupp"
+#define TR_GROUP_ALWAYS_ON              "Alltid på"
+#define TR_GROUPS                       "Always on groups"
+#define TR_LAST                         "Last"
+#define TR_MORE_INFO                    "More info"
+#define TR_SWITCH_TYPE                  "Type"
+#define TR_SWITCH_STARTUP               "Startup"
+#define TR_SWITCH_GROUP                 "Group"
+#define TR_FUNCTION_SWITCH_GROUPS       "---", TR_SWITCH_GROUP" 1", TR_SWITCH_GROUP" 2", TR_SWITCH_GROUP" 3"
 #define TR_SF_SWITCH                    "Trigger"
 #define TR_TRIMS                        "Trimmar"
 #define TR_FADEIN                       "Tona in"
@@ -413,7 +411,7 @@
 #define TR_CUSTOM_THROTTLE_WARNING      TR("Egen pos", "Egen position?")
 #define TR_CUSTOM_THROTTLE_WARNING_VAL  TR("Pos. %", "Position %")
 #define TR_SWITCHWARNING                TR("Bryt.varn.", "Brytarvarning")
-#define TR_POTWARNINGSTATE              "Vred & reglage"
+#define TR_POTWARNINGSTATE              TR("Vred&Regl.", "Vred & reglage")
 #define TR_POTWARNING                   TR("Vredläge", "Vredlägen")
 #define TR_TIMEZONE                     "Tidszon"
 #define TR_ADJUST_RTC                   "Justera RTC"
@@ -556,7 +554,7 @@
 #define TR_RF_POWER                     "RF styrka"
 #define TR_MULTI_FIXEDID                TR("FastID", "Fast ID")
 #define TR_MULTI_OPTION                 TR("Alternativ", "Alternativets värde")
-#define TR_MULTI_AUTOBIND               TR("Bind ka.","Bind via kanal")
+#define TR_MULTI_AUTOBIND               TR("Bind ka.","Parkoppla via kanal")
 #define TR_DISABLE_CH_MAP               TR("Mappa ej KA", "Inaktivera kanalmappning")
 #define TR_DISABLE_TELEM                TR("Ej telem.", "Inaktivera telemetri")
 #define TR_MULTI_LOWPOWER               TR("Låg effekt", "Lågeffektläge")
@@ -567,21 +565,21 @@
 #define TR_MODULE_NO_SERIAL_MODE        TR("!seriellt läge", "Ej i seriellt läge")
 #define TR_MODULE_NO_INPUT              TR("Ingen input", "Ingen seriell input")
 #define TR_MODULE_NO_TELEMETRY          TR3("Ingen telem.", "Ingen MULTI_TELEMETRY", "Ingen MULTI_TELEMETRY detekterad")
-#define TR_MODULE_WAITFORBIND           "Bind för att ladda protokoll"
-#define TR_MODULE_BINDING               "Binder"
+#define TR_MODULE_WAITFORBIND           "Parkoppla för att ladda protokoll"
+#define TR_MODULE_BINDING               "Parkopplar"
 #define TR_MODULE_UPGRADE_ALERT         TR3("Uppdat.krävs", "Modulen måste uppdateras", "Modulen\nbehöver uppdateras")
 #define TR_MODULE_UPGRADE               TR("Uppdat. rekomm", "Moduluppdatering rekommenderas")
-#define TR_REBIND                       "Ny bindning krävs"
+#define TR_REBIND                       "Ny parkoppling krävs"
 #define TR_REG_OK                       "Registrering ok"
-#define TR_BIND_OK                      "Bindning klar"
-#define TR_BINDING_CH1_8_TELEM_ON       "Ka1-8 Telem på"
-#define TR_BINDING_CH1_8_TELEM_OFF      "Ka1-8 Telem av"
-#define TR_BINDING_CH9_16_TELEM_ON      "Ka9-16 Telem på"
-#define TR_BINDING_CH9_16_TELEM_OFF     "Ka9-16 Telem av"
+#define TR_BIND_OK                      "Parkoppling klar"
+#define TR_BINDING_CH1_8_TELEM_ON       "Ka 1-8 Telem på"
+#define TR_BINDING_CH1_8_TELEM_OFF      "Ka 1-8 Telem av"
+#define TR_BINDING_CH9_16_TELEM_ON      "Ka 9-16 Telem på"
+#define TR_BINDING_CH9_16_TELEM_OFF     "Ka 9-16 Telem av"
 #define TR_PROTOCOL_INVALID             TR("Prot ogiltigt", "Ogiltigt protokoll")
 #define TR_MODULE_STATUS                TR("Status", "Modulstatus")
 #define TR_MODULE_SYNC                  TR("Synk", "Proto synk.status")
-#define TR_MULTI_SERVOFREQ              TR("Servofrekv.", "Servouppdateringsfrekvens")
+#define TR_MULTI_SERVOFREQ              TR("Servofrekv", "Servouppdateringsfrekvens")
 #define TR_MULTI_MAX_THROW              TR("Max. utslag", "Aktivera max. utslag")
 #define TR_MULTI_RFCHAN                 TR("RF kanal", "Välj RF kanal")
 #define TR_FLYSKY_TELEMETRY             TR("FlySky RSSI #", "Använd FlySky RSSI-värde utan skalning")
@@ -654,7 +652,7 @@
 #define TR_MODULE_OPTIONS               "Modulalternativ"
 #define TR_POWER                        "Power"
 #define TR_NO_TX_OPTIONS                "Inga TX-alternativ"
-#define TR_RTC_BATT                     "RTC Batteri"
+#define TR_RTC_BATT                     "RTC batteri"
 #define TR_POWER_METER_EXT              "Power Meter (EXT)"
 #define TR_POWER_METER_INT              "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT        "Spektrum (EXT)"
@@ -695,7 +693,7 @@
 #define TR_CPU_TEMP                     "CPU temp.\016>"
 #define TR_COPROC                       "CoProc."
 #define TR_COPROC_TEMP                  "MB temp. \016>"
-#define TR_TTL_WARNING                  "Varning: Överskrid inte 3.3V på TX/RX pinnarna!"
+#define TR_TTL_WARNING                  "Varning: Överskrid inte 3.3V på TX/RX-pinnarna!"
 #define TR_FUNC                         "Funktion"
 #define TR_V1                           "Värde 1"
 #define TR_V2                           "Värde 2"
@@ -881,9 +879,9 @@
 #define TR_SPEAKER                      "Högtalare"
 #define TR_BUZZER                       "Summer"
 #define TR_BYTES                        "byte"
-#define TR_MODULE_BIND                  BUTTON(TR("Bnd", "Bind"))
+#define TR_MODULE_BIND                  BUTTON(TR("Bnd", "Parkoppla"))
 #define TR_MODULE_UNBIND                BUTTON("Glöm")
-#define TR_POWERMETER_ATTN_NEEDED      "Attenuator behövs"
+#define TR_POWERMETER_ATTN_NEEDED       "Attenuator behövs"
 #define TR_PXX2_SELECT_RX               "Välj Rx"
 #define TR_PXX2_DEFAULT                 "<default>"
 #define TR_BT_SELECT_DEVICE             "Välj enhet"
@@ -893,7 +891,7 @@
 #define TR_RECEIVER_DELETE              "Radera mottagare?"
 #define TR_RECEIVER_RESET               "Återställ mottagare?"
 #define TR_SHARE                        "Dela"
-#define TR_BIND                         "Binder"
+#define TR_BIND                         "Parkopplar"
 #define TR_REGISTER                     TR("Reg", "Registrera")
 #define TR_MODULE_RANGE                 BUTTON(TR("Tst", "Testa"))
 #define TR_RANGE_TEST                   "Test av radiolänkkvalitet (begränsad signalstyrka)"
@@ -1202,7 +1200,7 @@
 
 #define TR_USE_THEME_COLOR              "Använd temafärg"
 
-#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Addera alla trimmar till subtrimmar"
+#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Addera all trimm till subtrimm"
 
 #if !PORTRAIT_LCD
   #define TR_OPEN_CHANNEL_MONITORS      "Öppna kanalmonitorn"
@@ -1319,7 +1317,7 @@
 #define TR_SELECT_MENU_CLR              "Rensa"
 #define TR_SELECT_MENU_INV              "Invertera"
 
-#define TR_SORT_ORDERS                  "Namn A-Z","Namn Z-A","Minst använda","Mest använda"
+#define TR_SORT_ORDERS                  "Namn A-Z","Namn Z-A","Minst använd","Mest använd"
 #define TR_SORT_MODELS_BY               "Sortera modeller"
 #define TR_CREATE_NEW                   "Skapa"
 
