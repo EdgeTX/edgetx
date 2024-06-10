@@ -183,8 +183,8 @@ void StaticIcon::center(coord_t w, coord_t h)
 // Display image from file system using LVGL with LVGL scaling
 //  - LVGL scaling is slow so don't use this if there are many images
 StaticImage::StaticImage(Window* parent, const rect_t& rect,
-                         const char* filename) :
-    Window(parent, rect)
+                         const char* filename, bool dontEnlarge) :
+    Window(parent, rect), dontEnlarge(dontEnlarge)
 {
   setWindowFlag(NO_FOCUS);
 

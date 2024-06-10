@@ -36,7 +36,6 @@ inline tmr10ms_t getTicks() { return g_tmr10ms; }
 struct ModelButtonLayout {
   uint16_t width;
   uint16_t height;
-  uint16_t padding;
   bool hasImage;
   uint16_t font;
   uint16_t columns;
@@ -49,10 +48,10 @@ static LAYOUT_VAL(L1_H, 61, 61)
 static LAYOUT_VAL(L3_W, 336, 300)
 
 ModelButtonLayout modelLayouts[] = {
-    {L0_W, L0_H, PAD_SMALL, true, FONT(STD), 2},
-    {L1_W, L1_H, PAD_SMALL, true, FONT(XS), 3},
-    {L0_W, EdgeTxStyles::UI_ELEMENT_HEIGHT, PAD_SMALL, false, FONT(STD), 2},
-    {L3_W, EdgeTxStyles::UI_ELEMENT_HEIGHT, PAD_SMALL, false, FONT(STD), 1},
+    {L0_W, L0_H, true, FONT(STD), 2},
+    {L1_W, L1_H, true, FONT(XS), 3},
+    {L0_W, EdgeTxStyles::UI_ELEMENT_HEIGHT, false, FONT(STD), 2},
+    {L3_W, EdgeTxStyles::UI_ELEMENT_HEIGHT, false, FONT(STD), 1},
 };
 
 class ModelButton : public Button
@@ -81,42 +80,29 @@ class ModelButton : public Button
                          ? COLOR_THEME_ACTIVE_INDEX
                          : COLOR_THEME_PRIMARY2_INDEX;
 
-    coord_t w = width() - 8;
-    coord_t h = height() - 8;
+    coord_t w = width() - PAD_SMALL * 2;
 
     LcdFlags font = modelLayouts[layout].font;
     if ((getTextWidth(modelCell->modelName, 0, font) > w))
       font = (font == FONT(STD)) ? FONT(XS) : FONT(XXS);
 
     if (modelLayouts[layout].hasImage) {
-      GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
-      auto bitmap = new StaticBitmap(this, {2, 2, w, h}, COLOR(bg_col_idx), filename);
-      bitmap->show(bitmap->hasImage());
+      if (modelCell->modelBitmap[0] == 0)
+        showNoImgMsg();
 
-      if (!bitmap->hasImage()) {
-        std::string errorMsg = "(";
-        errorMsg += STR_NO_PICTURE;
-        errorMsg += ")";
-        new StaticText(this, {2, h / 2, w, 17}, errorMsg,
-                       CENTERED | COLOR_THEME_SECONDARY1 | FONT(XS));
-      }
-
-      coord_t fh = (font == FONT(STD)) ? 17 : (font == FONT(XS)) ? 14 : 11;
+      coord_t fh = getFontHeight(font) - ((font == FONT(STD)) ? 4 : (font == FONT(XS)) ? 3 : 1);
       coord_t fo = (font == FONT(STD)) ? -3 : (font == FONT(XS)) ? -3 : -1;
 
-      auto name = new StaticText(this, {2, 2, w, fh}, modelCell->modelName,
+      auto name = new StaticText(this, {PAD_TINY, PAD_TINY, w, fh}, modelCell->modelName,
                                  CENTERED | COLOR_THEME_SECONDARY1 | font);
       lv_label_set_long_mode(name->getLvObj(), LV_LABEL_LONG_DOT);
-      name->setWidth(w);
-      name->setHeight(fh);
       etx_bg_color(name->getLvObj(), (LcdColorIndex)bg_col_idx);
       etx_obj_add_style(name->getLvObj(), styles->bg_opacity_75, LV_PART_MAIN);
       name->padTop(fo);
     } else {
-      auto name = new StaticText(this, {2, 4, w, 24}, modelCell->modelName,
+      auto name = new StaticText(this, {PAD_TINY, PAD_SMALL, w, EdgeTxStyles::PAGE_LINE_HEIGHT}, modelCell->modelName,
                                  COLOR_THEME_SECONDARY1 | font);
       lv_label_set_long_mode(name->getLvObj(), LV_LABEL_LONG_DOT);
-      name->setWidth(w);
     }
 
     lv_obj_update_layout(lvobj);
@@ -145,11 +131,51 @@ class ModelButton : public Button
     }
   }
 
+  bool loadImage()
+  {
+    if (loaded && !imgLoaded) {
+      imgLoaded = true;
+
+      coord_t w = width() - PAD_SMALL * 2;
+      coord_t h = height() - PAD_SMALL * 2;
+
+      if (modelLayouts[layout].hasImage) {
+        if (modelCell->modelBitmap[0]) {
+          GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
+          auto bitmap = new StaticImage(this, {PAD_TINY, PAD_TINY, w, h}, filename, true);
+          lv_obj_move_background(bitmap->getLvObj());
+          bitmap->show(bitmap->hasImage());
+          if (bitmap->hasImage()) {
+            return true;
+          }
+        }
+        showNoImgMsg();
+      }
+
+      return false;
+    }
+
+    return false;
+  }
+
  protected:
   bool loaded = false;
+  bool imgLoaded = false;
   uint8_t layout;
   ModelCell *modelCell;
   std::function<void()> m_setSelected = nullptr;
+
+  void showNoImgMsg()
+  {
+    coord_t w = width() - PAD_SMALL * 2;
+    coord_t h = height() - PAD_SMALL * 2;
+    std::string errorMsg = "(";
+    errorMsg += STR_NO_PICTURE;
+    errorMsg += ")";
+    LcdFlags font = (modelLayouts[layout].font == FONT(STD)) ? FONT(XS) : FONT(XXS);
+    new StaticText(this, {PAD_TINY, h / 2, w, getFontHeight(font)}, errorMsg,
+                  CENTERED | COLOR_THEME_SECONDARY1 | font);
+  }
 
   void onClicked() override
   {
@@ -263,6 +289,15 @@ class ModelsPageBody : public Window
   LabelsVector selectedLabels;
   ModelCell *focusedModel = nullptr;
   std::function<void()> refreshLabels = nullptr;
+
+  void checkEvents() override
+  {
+    for (auto c : children) {
+      if (((ModelButton*)c)->loadImage()) {
+        return;
+      }
+    }
+  }
 
   void openMenu()
   {
