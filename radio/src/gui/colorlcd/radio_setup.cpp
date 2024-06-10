@@ -760,10 +760,10 @@ static SetupLineDef setupLines[] = {
     STR_PWR_OFF_DELAY,
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(
-          parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_PWR_OFF_DELAYS, 0, 3,
-          [=]() -> int32_t { return 2 - g_eeGeneral.pwrOffSpeed; },
+          parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_PWR_OFF_DELAYS, 0, 4,
+          [=]() -> int32_t { return pwrDelayFromYaml(g_eeGeneral.pwrOffSpeed); },
           [=](int32_t newValue) {
-            g_eeGeneral.pwrOffSpeed = 2 - newValue;
+            g_eeGeneral.pwrOffSpeed = pwrDelayToYaml(newValue);
             SET_DIRTY();
           });
     }

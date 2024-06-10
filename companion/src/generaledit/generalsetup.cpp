@@ -478,6 +478,18 @@ void GeneralSetupPanel::populateRotEncCB(int reCount)
   b->setCurrentIndex(generalSettings.reNavigation);
 }
 
+int pwrDelayFromYaml(int delay)
+{
+  static int8_t vals[] = { 1, 4, 3, 2, 0 };
+  return vals[delay + 2];
+}
+
+int pwrDelayToYaml(int delay)
+{
+  static int8_t vals[] = { 2, -2, 1, 0, -1 };
+  return vals[delay];
+}
+
 void GeneralSetupPanel::setValues()
 {
   ui->beeperCB->setCurrentIndex(generalSettings.beeperMode+2);
@@ -509,8 +521,8 @@ void GeneralSetupPanel::setValues()
     ui->vBatMaxDSB->setValue((double)(generalSettings.vBatMax + 120) / 10);
   }
 
-  ui->pwrOnDelay->setValue(2 - generalSettings.pwrOnSpeed);
-  ui->pwrOffDelay->setValue(2 - generalSettings.pwrOffSpeed);
+  ui->pwrOnDelay->setCurrentIndex(pwrDelayFromYaml(generalSettings.pwrOnSpeed));
+  ui->pwrOffDelay->setCurrentIndex(pwrDelayFromYaml(generalSettings.pwrOffSpeed));
 
   ui->registrationId->setText(generalSettings.registrationId);
 
@@ -632,15 +644,15 @@ void GeneralSetupPanel::on_splashScreenDuration_currentIndexChanged(int index)
   emit modified();
 }
 
-void GeneralSetupPanel::on_pwrOnDelay_valueChanged(int)
+void GeneralSetupPanel::on_pwrOnDelay_currentIndexChanged(int index)
 {
-  generalSettings.pwrOnSpeed = 2 - ui->pwrOnDelay->value();
+  generalSettings.pwrOnSpeed = pwrDelayToYaml(index);
   emit modified();
 }
 
-void GeneralSetupPanel::on_pwrOffDelay_valueChanged(int)
+void GeneralSetupPanel::on_pwrOffDelay_currentIndexChanged(int index)
 {
-  generalSettings.pwrOffSpeed = 2 - ui->pwrOffDelay->value();
+  generalSettings.pwrOffSpeed = pwrDelayToYaml(index);
   emit modified();
 }
 

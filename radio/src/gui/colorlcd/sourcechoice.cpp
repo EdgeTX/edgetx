@@ -83,8 +83,13 @@ class SourceChoiceMenuToolbar : public MenuToolbar
 #endif
     addButton(STR_CHAR_TRIM, MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, nullptr,
               STR_MENU_TRIMS);
+#if defined(FUNCTION_SWITCHES)
+    addButton(STR_CHAR_SWITCH, MIXSRC_FIRST_SWITCH, MIXSRC_LAST_CUSTOMSWITCH_GROUP, nullptr,
+              STR_MENU_SWITCHES);
+#else
     addButton(STR_CHAR_SWITCH, MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, nullptr,
               STR_MENU_SWITCHES);
+#endif
     if (modelLSEnabled())
       addButton("LS", MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH,
                 nullptr, STR_MENU_LOGICAL_SWITCHES);

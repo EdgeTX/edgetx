@@ -294,7 +294,7 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
   if (type == SOURCE_TYPE_CUSTOM_SWITCH && abs(index) > CPN_MAX_LOGICAL_SWITCHES)
     return false;
 
-  if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP && model->getFuncGroupSwitchCount(abs(index), CPN_MAX_SWITCHES_FUNCTION) == 0)
+  if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP && b.getCapability(Board::FunctionSwitches) && model->getFuncGroupSwitchCount(abs(index), CPN_MAX_SWITCHES_FUNCTION) == 0)
     return false;
 
   if (type == SOURCE_TYPE_LUA_OUTPUT && div(abs(index - 1), 16).quot >= CPN_MAX_SCRIPTS)
