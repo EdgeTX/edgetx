@@ -126,6 +126,12 @@ void RadioDataConversionState::setMoved(const LogField & from, const LogField & 
   addLogEntry(EVT_INF, tr("verify is"));
 }
 
+void RadioDataConversionState::setUnsupported(const LogField & item)
+{
+  setLogField(FLD_ITM_BEFORE, item);
+  addLogEntry(EVT_UNSUP, tr("unsupported"));
+}
+
 const ModelData * RadioDataConversionState::toModel() const
 {
   if (rd && modelIdx > -1 && modelIdx < (int)rd->models.size())
@@ -161,15 +167,15 @@ bool RadioDataConversionState::hasLogEntries(EventType logLevel) const
 
 QString RadioDataConversionState::eventTypeToString(int type) const
 {
-  // enum EventType                             { EVT_NONE,   EVT_DBG,       EVT_INF,       EVT_WRN,       EVT_CVRT,      EVT_ERR,       EVT_INV
-  static const QStringList evtTypes =  QStringList() << "" << tr("[DBG]") << tr("[NFO]") << tr("[WRN]") << tr("[CVT]") << tr("[ERR]") << tr("[INV]");
+  // enum EventType                             { EVT_NONE,   EVT_DBG,       EVT_INF,       EVT_WRN,       EVT_CVRT,      EVT_ERR,       EVT_INV,       EVT_UNSUP
+  static const QStringList evtTypes =  QStringList() << "" << tr("[DBG]") << tr("[NFO]") << tr("[WRN]") << tr("[CVT]") << tr("[ERR]") << tr("[INV]") << tr("[XSP]");
   return (type < evtTypes.size() ? evtTypes.at(type) : "");
 }
 
 QString RadioDataConversionState::eventTypeToColor(int type) const
 {
-  // enum EventType                                   { EVT_NONE,  EVT_DBG,     EVT_INF,   EVT_WRN,     EVT_CVRT,    EVT_ERR,  EVT_INV
-  static const QStringList evtColors = QStringList() << "black" << "dimgrey" << "black" << "#ea7104" << "#ea7104" << "red"  << "red";
+  // enum EventType                                   { EVT_NONE,  EVT_DBG,     EVT_INF,   EVT_WRN,     EVT_CVRT,    EVT_ERR,  EVT_INV, EVT_UNSUP
+  static const QStringList evtColors = QStringList() << "black" << "dimgrey" << "black" << "orange" << "magenta" << "red"  << "red"  << "blue";
   return (type < evtColors.size() ? evtColors.at(type) : "black");
 }
 

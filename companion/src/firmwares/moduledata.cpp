@@ -48,15 +48,19 @@ void ModuleData::convert(RadioDataConversionState & cstate)
     //else if (!isProtocolAvailable(cstate.subCompIdx, (PulsesProtocol) protocol, cstate.toGS)) {
       evt = RadioDataConversionState::EVT_INV;
     }
+
+    if (evt == RadioDataConversionState::EVT_INV) {
+      cstate.setInvalid(oldData);
+    }
   }
   else {
-    evt = RadioDataConversionState::EVT_INV;
-    qDebug() << "Error - current firmware board does not match conversion to board!";
+    evt = RadioDataConversionState::EVT_ERR;
+    cstate.setErr(tr("Current firmware board does not match conversion to board"));
   }
 
-  if (evt == RadioDataConversionState::EVT_INV) {
-    cstate.setInvalid(oldData);
+  if (evt != RadioDataConversionState::EVT_NONE) {
     clear();
+    cstate.setConverted(oldData, RadioDataConversionState::LogField(protocol, protocolToString(protocol)));
   }
 }
 
