@@ -247,7 +247,7 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
     }
   }
 
-  int quarter = 3 - duration / (totalDuration / 5);
+  int quarter = 4 - (duration * 5) / totalDuration;
   if (quarter < 0) quarter = 0;
   for (int i = 3; i >= quarter; i -= 1) shutdownAnim[i]->hide();
 

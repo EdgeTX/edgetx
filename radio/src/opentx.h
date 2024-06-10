@@ -950,3 +950,6 @@ extern bool modelLSEnabled();
 extern bool modelSFEnabled();
 extern bool modelCustomScriptsEnabled();
 extern bool modelTelemetryEnabled();
+
+int pwrDelayFromYaml(int delay);
+int pwrDelayToYaml(int delay);
