@@ -163,9 +163,9 @@ void RadioOutputsWidget::setupChannelsDisplay(bool mixes)
 
   // populate outputs
   int column = 0;
-  for (int i=0; i < outputs; i++) {
+  for (int i = 0; i < outputs; i++) {
     QLabel * label = new QLabel(channelsWidget);
-    label->setText(" " + RawSource(SOURCE_TYPE_CH, i).toString() + " ");
+    label->setText(" " + RawSource(SOURCE_TYPE_CH, i + 1).toString() + " ");
     label->setAlignment(Qt::AlignCenter);
     label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     channelsLayout->addWidget(label, 0, column, 1, 1);
