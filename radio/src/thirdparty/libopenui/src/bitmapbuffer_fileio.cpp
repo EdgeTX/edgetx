@@ -16,6 +16,8 @@
  * GNU General Public License for more details.
  */
 
+#pragma GCC optimize("O3")
+
 #include "bitmapbuffer.h"
 #include "libopenui_file.h"
 #include "opentx_helpers.h"
