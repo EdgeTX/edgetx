@@ -24,6 +24,7 @@
 #include "button.h"
 #include "dialog.h"
 #include "form.h"
+#include <vector>
 
 class ToggleSwitch;
 
