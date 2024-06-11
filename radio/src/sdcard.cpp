@@ -39,7 +39,11 @@
 
 #define BLOCK_SIZE FF_MAX_SS
 
+#if defined(SPI_FLASH)
+#define SDCARD_MIN_FREE_SPACE_MB 2 // Maintain 2MB free space buffer to prevent crashes
+#else
 #define SDCARD_MIN_FREE_SPACE_MB 50 // Maintain a 50MB free space buffer to prevent crashes
+#endif
 
 const char * sdCheckAndCreateDirectory(const char * path)
 {
