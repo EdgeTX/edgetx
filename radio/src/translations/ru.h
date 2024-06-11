@@ -1066,10 +1066,10 @@
   #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
   #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
   #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
-  #define TR_BL_SELECT_KEY            "[ENT] для выбора файла"
-  #define TR_BL_FLASH_KEY             "Удерживайте [ENT] для прошивки"
+  #define TR_BL_SELECT_KEY            "[ENT] to select file"
+  #define TR_BL_FLASH_KEY             "Hold [ENT] long to flash"
   #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
-  #define TR_BL_EXIT_KEY              "[RTN] для выхода"
+  #define TR_BL_EXIT_KEY              "[RTN] to exit"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific - Ascii only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
