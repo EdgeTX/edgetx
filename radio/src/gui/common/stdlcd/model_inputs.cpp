@@ -287,7 +287,7 @@ void menuModelExposAll(event_t event)
       }
       break;
     case EVT_KEY_BREAK(KEY_ENTER):
-      if ((!s_currCh || (s_copyMode && !s_copyTgtOfs)) && !READ_ONLY()) {
+      if ((!s_currCh || (s_copyMode && !s_copyTgtOfs))) {
         s_copyMode = (s_copyMode == COPY_MODE ? MOVE_MODE : COPY_MODE);
         s_copySrcIdx = s_currIdx;
         s_copySrcCh = chn;
@@ -301,24 +301,17 @@ void menuModelExposAll(event_t event)
         s_copyTgtOfs = 0;
       }
       else {
-        if (READ_ONLY()) {
-          if (!s_currCh) {
-            pushMenu(menuModelExpoOne);
-          }
+        if (s_copyMode) s_currCh = 0;
+        if (s_currCh) {
+          if (reachExposLimit()) break;
+          insertExpo(s_currIdx);
+          pushMenu(menuModelExpoOne);
+          s_copyMode = 0;
         }
         else {
-          if (s_copyMode) s_currCh = 0;
-          if (s_currCh) {
-            if (reachExposLimit()) break;
-            insertExpo(s_currIdx);
-            pushMenu(menuModelExpoOne);
-            s_copyMode = 0;
-          }
-          else {
-            event = 0;
-            s_copyMode = 0;
-            POPUP_MENU_START(onExposMenu, 6, STR_EDIT, STR_INSERT_BEFORE, STR_INSERT_AFTER, STR_COPY, STR_MOVE, STR_DELETE);
-          }
+          event = 0;
+          s_copyMode = 0;
+          POPUP_MENU_START(onExposMenu, 6, STR_EDIT, STR_INSERT_BEFORE, STR_INSERT_AFTER, STR_COPY, STR_MOVE, STR_DELETE);
         }
       }
       break;

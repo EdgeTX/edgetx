@@ -163,12 +163,7 @@ void menuModelSelect(event_t event)
       case EVT_KEY_LONG(KEY_ENTER):
       case EVT_KEY_BREAK(KEY_ENTER):
         s_editMode = 0;
-        if (READ_ONLY()) {
-          if (g_eeGeneral.currModel != sub && modelExists(sub)) {
-            selectModel(sub);
-          }
-        }
-        else if (s_copyMode && (s_copyTgtOfs || s_copySrcRow>=0)) {
+        if (s_copyMode && (s_copyTgtOfs || s_copySrcRow>=0)) {
           showMessageBox(s_copyMode==COPY_MODE ? STR_COPYINGMODEL : STR_MOVINGMODEL);
           storageCheck(true); // force writing of current model data before this is changed
 

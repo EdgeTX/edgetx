@@ -79,7 +79,7 @@ void menuModelCustomScriptOne(event_t event)
         lcdDrawSizedText(SCRIPT_ONE_2ND_COLUMN_POS, y, sd.file, sizeof(sd.file), attr);
       else
         lcdDrawTextAtIndex(SCRIPT_ONE_2ND_COLUMN_POS, y, STR_VCSWFUNC, 0, attr);
-      if (attr && event==EVT_KEY_BREAK(KEY_ENTER) && !READ_ONLY()) {
+      if (attr && event==EVT_KEY_BREAK(KEY_ENTER)) {
         s_editMode = 0;
         if (sdListFiles(SCRIPTS_MIXES_PATH, SCRIPTS_EXT, sizeof(sd.file), sd.file, LIST_NONE_SD_FILE)) {
           POPUP_MENU_START(onModelCustomScriptMenu);

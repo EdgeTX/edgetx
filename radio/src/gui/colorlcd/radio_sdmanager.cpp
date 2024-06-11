@@ -271,7 +271,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
       });
     }
 #if defined(MULTIMODULE) && !defined(DISABLE_MULTI_UPDATE)
-    if (!READ_ONLY() && !strcasecmp(ext, MULTI_FIRMWARE_EXT)) {
+    if (!strcasecmp(ext, MULTI_FIRMWARE_EXT)) {
       MultiFirmwareInformation information;
       if (information.readMultiFirmwareInformation(fullpath) == nullptr) {
 #if defined(INTERNAL_MODULE_MULTI)
@@ -287,7 +287,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
       }
     }
 #endif
-    else if (!READ_ONLY() && !strcasecmp(ext, ELRS_FIRMWARE_EXT)) {
+    else if (!strcasecmp(ext, ELRS_FIRMWARE_EXT)) {
       menu->addLine(STR_FLASH_EXTERNAL_ELRS, [=]() {
         MultiFirmwareUpdate(fullpath, EXTERNAL_MODULE, MULTI_TYPE_ELRS);
       });
@@ -318,12 +318,12 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
         }
       });
     }
-    if (!READ_ONLY() && !strcasecmp(ext, FIRMWARE_EXT)) {
+    if (!strcasecmp(ext, FIRMWARE_EXT)) {
       if (isBootloader(fullpath)) {
         menu->addLine(STR_FLASH_BOOTLOADER,
                       [=]() { BootloaderUpdate(fullpath); });
       }
-    } else if (!READ_ONLY() && !strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
+    } else if (!strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
 
       auto mod_desc = modulePortGetModuleDescription(SPORT_MODULE);
       if (mod_desc && mod_desc->set_pwr) {
@@ -334,7 +334,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
                     [=]() { FrSkyFirmwareUpdate(fullpath, INTERNAL_MODULE); });
       menu->addLine(STR_FLASH_EXTERNAL_MODULE,
                     [=]() { FrSkyFirmwareUpdate(fullpath, EXTERNAL_MODULE); });
-    } else if (!READ_ONLY() && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
+    } else if (!strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
       FrSkyFirmwareInformation information;
       if (readFrSkyFirmwareInformation(fullpath, information) ==
           nullptr) {
@@ -422,57 +422,55 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
     }
 #endif
   }
-  if (!READ_ONLY()) {
-    menu->addLine(STR_COPY_FILE, [=]() {
-      clipboard.type = CLIPBOARD_TYPE_SD_FILE;
-      f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
-      strncpy(clipboard.data.sd.filename, name, CLIPBOARD_PATH_LEN - 1);
-    });
-    if (clipboard.type == CLIPBOARD_TYPE_SD_FILE) {
-      menu->addLine(STR_PASTE, [=]() {
-        static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
-        char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
-        f_getcwd((TCHAR*)lfn, FF_MAX_LFN);
-        // prevent copying to the same directory with the same name
-        char* destNamePtr = clipboard.data.sd.filename;
-        if (!strcmp(clipboard.data.sd.directory, lfn)) {
-          destNamePtr =
-              strAppend(destFileName, FILE_COPY_PREFIX, CLIPBOARD_PATH_LEN);
-          destNamePtr = strAppend(destNamePtr, clipboard.data.sd.filename,
-                                  CLIPBOARD_PATH_LEN);
-          destNamePtr = destFileName;
-        }
-        sdCopyFile(clipboard.data.sd.filename, clipboard.data.sd.directory,
-                   destNamePtr, lfn);
-        clipboard.type = CLIPBOARD_TYPE_NONE;
+  menu->addLine(STR_COPY_FILE, [=]() {
+    clipboard.type = CLIPBOARD_TYPE_SD_FILE;
+    f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
+    strncpy(clipboard.data.sd.filename, name, CLIPBOARD_PATH_LEN - 1);
+  });
+  if (clipboard.type == CLIPBOARD_TYPE_SD_FILE) {
+    menu->addLine(STR_PASTE, [=]() {
+      static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
+      char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
+      f_getcwd((TCHAR*)lfn, FF_MAX_LFN);
+      // prevent copying to the same directory with the same name
+      char* destNamePtr = clipboard.data.sd.filename;
+      if (!strcmp(clipboard.data.sd.directory, lfn)) {
+        destNamePtr =
+            strAppend(destFileName, FILE_COPY_PREFIX, CLIPBOARD_PATH_LEN);
+        destNamePtr = strAppend(destNamePtr, clipboard.data.sd.filename,
+                                CLIPBOARD_PATH_LEN);
+        destNamePtr = destFileName;
+      }
+      sdCopyFile(clipboard.data.sd.filename, clipboard.data.sd.directory,
+                  destNamePtr, lfn);
+      clipboard.type = CLIPBOARD_TYPE_NONE;
 
         browser->refresh();
       });
-    }
-    menu->addLine(STR_RENAME_FILE, [=]() {
-      uint8_t nameLength;
-      uint8_t extLength;
+  }
+  menu->addLine(STR_RENAME_FILE, [=]() {
+    uint8_t nameLength;
+    uint8_t extLength;
 
-      const char *ext = getFileExtension(name, 0, 0, &nameLength, &extLength);
+    const char *ext = getFileExtension(name, 0, 0, &nameLength, &extLength);
 
-      const uint8_t maxNameLength = SD_SCREEN_FILE_LENGTH - extLength;
-      nameLength = min((uint8_t)(nameLength - extLength), maxNameLength);
+    const uint8_t maxNameLength = SD_SCREEN_FILE_LENGTH - extLength;
+    nameLength = min((uint8_t)(nameLength - extLength), maxNameLength);
 
-      std::string fname(name, nameLength);
-      std::string extension("");
-      if (ext) extension = ext;
+    std::string fname(name, nameLength);
+    std::string extension("");
+    if (ext) extension = ext;
 
-      new LabelDialog(Layer::back(), fname.c_str(), maxNameLength, STR_RENAME_FILE, [=](std::string label) {
-        label += extension;
-        f_rename((const TCHAR *)name, (const TCHAR *)label.c_str());
-        browser->refresh();
-      });
-    });
-    menu->addLine(STR_DELETE_FILE, [=]() {
-      f_unlink(fullpath);
+    new LabelDialog(Layer::back(), fname.c_str(), maxNameLength, STR_RENAME_FILE, [=](std::string label) {
+      label += extension;
+      f_rename((const TCHAR *)name, (const TCHAR *)label.c_str());
       browser->refresh();
     });
-  }
+  });
+  menu->addLine(STR_DELETE_FILE, [=]() {
+    f_unlink(fullpath);
+    browser->refresh();
+  });
 }
 
 void RadioSdManagerPage::BootloaderUpdate(const char* fn)

@@ -1073,29 +1073,27 @@ void menuModelSetup(event_t event)
           if (attr) {
 #endif
             s_editMode = 0;
-            if (!READ_ONLY()) {
-              switch (event) {
-                case EVT_KEY_BREAK(KEY_ENTER):
-                  break;
+            switch (event) {
+              case EVT_KEY_BREAK(KEY_ENTER):
+                break;
 
-                case EVT_KEY_LONG(KEY_ENTER):
-                  if (menuHorizontalPosition < 0 ||
-                      menuHorizontalPosition >= switchWarningsCount) {
-                    START_NO_HIGHLIGHT();
-                    getMovedSwitch();
-                    // Mask switches enabled for warnings
-                    swarnstate_t sw_mask = 0;
-                    for(uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
-                      if (SWITCH_WARNING_ALLOWED(i))
-                        if (g_model.switchWarning & (0x07 << (3 * i)))
-                          sw_mask |= (0x07 << (3 * i));
-                    }
-                    g_model.switchWarning = switches_states & sw_mask;
-                    AUDIO_WARNING1();
-                    storageDirty(EE_MODEL);
+              case EVT_KEY_LONG(KEY_ENTER):
+                if (menuHorizontalPosition < 0 ||
+                    menuHorizontalPosition >= switchWarningsCount) {
+                  START_NO_HIGHLIGHT();
+                  getMovedSwitch();
+                  // Mask switches enabled for warnings
+                  swarnstate_t sw_mask = 0;
+                  for(uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
+                    if (SWITCH_WARNING_ALLOWED(i))
+                      if (g_model.switchWarning & (0x07 << (3 * i)))
+                        sw_mask |= (0x07 << (3 * i));
                   }
-                  break;
-              }
+                  g_model.switchWarning = switches_states & sw_mask;
+                  AUDIO_WARNING1();
+                  storageDirty(EE_MODEL);
+                }
+                break;
             }
           }
 
@@ -1103,7 +1101,7 @@ void menuModelSetup(event_t event)
           for (int i = 0; i < switchGetMaxSwitches(); i++) {
             if (SWITCH_WARNING_ALLOWED(i)) {
               div_t qr = div(current, MAX_SWITCH_PER_LINE);
-              if (!READ_ONLY() && event == EVT_KEY_BREAK(KEY_ENTER) && attr &&
+              if (event == EVT_KEY_BREAK(KEY_ENTER) && attr &&
                   l_posHorz == current && old_posHorz >= 0) {
                 uint8_t curr_state = (states & 0x07);
                 // remove old setting
@@ -1145,7 +1143,7 @@ void menuModelSetup(event_t event)
 
         if (attr) {
           if (menuHorizontalPosition > 0) s_editMode = 0;
-          if (!READ_ONLY() && menuHorizontalPosition > 0) {
+          if (menuHorizontalPosition > 0) {
             switch (event) {
               case EVT_KEY_LONG(KEY_ENTER):
                 if (g_model.potsWarnMode == POTS_WARN_MANUAL) {
@@ -1203,11 +1201,9 @@ void menuModelSetup(event_t event)
         }
         if (attr) {
           if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-            if (READ_ONLY_UNLOCKED()) {
-              s_editMode = 0;
-              g_model.beepANACenter ^= ((BeepANACenter)1<<menuHorizontalPosition);
-              storageDirty(EE_MODEL);
-            }
+            s_editMode = 0;
+            g_model.beepANACenter ^= ((BeepANACenter)1<<menuHorizontalPosition);
+            storageDirty(EE_MODEL);
           }
         }
       } break;
@@ -2379,7 +2375,7 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_USBJOYSTICK_APPLY:
         lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_USBJOYSTICK_APPLY_CHANGES), attr);
-        if (attr && !READ_ONLY() && event == EVT_KEY_BREAK(KEY_ENTER)) {
+        if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
           onUSBJoystickModelChanged();
         }
         break;

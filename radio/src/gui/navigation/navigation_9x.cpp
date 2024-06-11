@@ -111,7 +111,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
 #endif
   }
 
-  if (!READ_ONLY() && i_min == 0 && i_max == 1 &&
+  if (i_min == 0 && i_max == 1 &&
       (event == EVT_KEY_BREAK(KEY_ENTER))) {
     s_editMode = 0;
     newval = !val;
@@ -230,9 +230,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
 
     case EVT_KEY_BREAK(KEY_ENTER):
       if (!menuTab || l_posVert>0) {
-        if (READ_ONLY_UNLOCKED()) {
-          s_editMode = (s_editMode <= 0);
-        }
+        s_editMode = (s_editMode <= 0);
       }
       break;
 
