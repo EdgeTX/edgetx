@@ -429,7 +429,7 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
   if (mix.carryTrim > 0)
     str += " " + tr("NoTrim");
   else if (mix.carryTrim < 0)
-    str += " " + RawSource(SOURCE_TYPE_TRIM, (-(mix.carryTrim)-1)).toString(&model, &generalSettings);
+    str += " " + RawSource(SOURCE_TYPE_TRIM, (-(mix.carryTrim)-1) + 1).toString(&model, &generalSettings);
 
   if (firmware->getCapability(HasNoExpo) && mix.noExpo)
     str += " " + tr("No DR/Expo").toHtmlEscaped();
@@ -696,7 +696,7 @@ QString ModelPrinter::printOutputValueGVar(int val)
   if (abs(val) > 10000) {
     if (val < 0)
       result = "-";
-    result.append(RawSource(SOURCE_TYPE_GVAR, abs(val)-10001).toString(&model));
+    result.append(RawSource(SOURCE_TYPE_GVAR, (abs(val)-10001) + 1).toString(&model));
   }
   else {
     if (val >= 0)
@@ -932,6 +932,10 @@ QString ModelPrinter::printThrottle()
   result << printLabelValue(tr("Trim idle only"), printBoolean(model.thrTrim, BOOLEAN_YESNO));
   result << printLabelValue(tr("Warning"), printBoolean(!model.disableThrottleWarning, BOOLEAN_YESNO));
   result << printLabelValue(tr("Reversed"), printBoolean(model.throttleReversed, BOOLEAN_YESNO));
+  int thrTrim = model.thrTrimSwitch;
+  if (thrTrim == 0) thrTrim = 2;
+  else if (thrTrim == 2) thrTrim = 0;
+  result << printLabelValue(tr("Trim source"), RawSource(SOURCE_TYPE_TRIM, thrTrim + 1).toString(&model, &generalSettings));
   return result.join(" ");
 }
 
