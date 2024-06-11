@@ -214,7 +214,7 @@ void drawSliders()
     if (!IS_SLIDER(i)) continue;
 #else
     // Skip POT3
-    if (i == 2) continue;
+    if (i == 2 && !IS_SLIDER(i)) continue;
 #endif
     
     coord_t x = _pot_slots[slot_idx++];
