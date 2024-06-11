@@ -92,6 +92,12 @@ HWPots::HWPots(Window* parent) :
     }
   });
 
+  new StaticText(this, {P_NM_X, -2, 0, 0}, STR_NAME, FONT(XS));
+  new StaticText(this, {P_TYP_X, -2, 0, 0}, STR_TYPE, FONT(XS));
+  new StaticText(this, {P_INV_X, -2, 0, 0}, STR_MENU_INVERT, FONT(XS));
+
+  coord_t yo = EdgeTxStyles::PAGE_LINE_HEIGHT - 2;
+
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   for (int i = 0; i < max_pots; i++) {
     // TODO: check initialised ADC inputs instead!
@@ -102,31 +108,42 @@ HWPots::HWPots(Window* parent) :
     //     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
     // #endif
     new StaticText(this,
-                   rect_t{P_LBL_X, P_Y(i) + 6, P_LBL_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+                   rect_t{P_LBL_X, P_Y(i) + yo + PAD_MEDIUM, P_LBL_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
                    adcGetInputLabel(ADC_INPUT_FLEX, i));
 
     new HWInputEdit(this, (char*)analogGetCustomLabel(ADC_INPUT_FLEX, i),
-                    LEN_ANA_NAME, P_NM_X, P_Y(i));
+                    LEN_ANA_NAME, P_NM_X, P_Y(i) + yo);
 
     auto pot = new Choice(
-        this, rect_t{P_TYP_X, P_Y(i) + P_OFST_Y, P_TYP_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+        this, rect_t{P_TYP_X, P_Y(i) + P_OFST_Y + yo, P_TYP_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
         STR_POTTYPES, FLEX_NONE, FLEX_SWITCH,
         [=]() -> int { return getPotType(i); },
         [=](int newValue) {
           setPotType(i, newValue);
           switchFixFlexConfig();
           potsChanged = true;
+          invertToggles[i]->show(newValue != FLEX_MULTIPOS);
+          if (newValue == FLEX_MULTIPOS) {
+            setPotInversion(i, 0);
+            invertToggles[i]->update();
+          }
           SET_DIRTY();
         });
     pot->setAvailableHandler([=](int val) { return isPotTypeAvailable(val); });
 
-    new ToggleSwitch(
-        this, rect_t{P_INV_X, P_Y(i) + P_OFST_Y, P_INV_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
-        [=]() -> uint8_t { return (uint8_t)getPotInversion(i); },
-        [=](int8_t newValue) {
-          setPotInversion(i, newValue);
-          SET_DIRTY();
-        });
+    auto tgl = new ToggleSwitch(
+          this, rect_t{P_INV_X, P_Y(i) + P_OFST_Y + yo, P_INV_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+          [=]() -> uint8_t { return (uint8_t)getPotInversion(i); },
+          [=](int8_t newValue) {
+            setPotInversion(i, newValue);
+            SET_DIRTY();
+          });
+    tgl->show(!IS_POT_MULTIPOS(i));
+    if (IS_POT_MULTIPOS(i) && getPotInversion(i)) {
+      setPotInversion(i, 0);
+      SET_DIRTY();
+    }
+    invertToggles.push_back(tgl);
   }
 }
 
@@ -192,15 +209,15 @@ HWSwitches::HWSwitches(Window* parent) :
 {
   auto max_switches = switchGetMaxSwitches();
   for (int i = 0; i < max_switches; i++) {
-    new SwitchDynamicLabel(this, i, 2, i * SW_CTRL_H + 2);
+    new SwitchDynamicLabel(this, i, PAD_TINY, i * SW_CTRL_H + PAD_TINY);
     new HWInputEdit(this, (char*)switchGetCustomName(i), LEN_SWITCH_NAME,
-                    SW_CTRL_W + 8, i * SW_CTRL_H + 2);
+                    SW_CTRL_W + 8, i * SW_CTRL_H + PAD_TINY);
 
-    coord_t x = SW_CTRL_W * 2 + 14;
+    coord_t x = SW_CTRL_W * PAD_TINY + 14;
     Choice* channel = nullptr;
     if (switchIsFlex(i)) {
       channel = new Choice(
-          this, rect_t{x, i * SW_CTRL_H + 2, SW_CTRL_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, -1,
+          this, rect_t{x, i * SW_CTRL_H + PAD_TINY, SW_CTRL_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, -1,
           adcGetMaxInputs(ADC_INPUT_FLEX) - 1,
           [=]() -> int { return switchGetFlexConfig(i); },
           [=](int newValue) { switchConfigFlex(i, newValue); });
@@ -215,7 +232,7 @@ HWSwitches::HWSwitches(Window* parent) :
     }
 
     auto sw_cfg = new Choice(
-        this, rect_t{x, i * SW_CTRL_H + 2, SW_CTRL_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+        this, rect_t{x, i * SW_CTRL_H + PAD_TINY, SW_CTRL_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
         STR_SWTYPES, SWITCH_NONE, switchGetMaxType(i),
         [=]() -> int { return SWITCH_CONFIG(i); },
         [=](int newValue) {
