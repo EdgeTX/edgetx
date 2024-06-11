@@ -551,6 +551,7 @@ int WavContext::mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade)
   }
 
   if (result != FR_OK) {
+    f_close(&state.file);
     clear();
   }
   return 0;
