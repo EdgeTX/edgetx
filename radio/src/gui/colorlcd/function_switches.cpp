@@ -236,7 +236,7 @@ ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
   new StaticText(line, rect_t{}, STR_SWITCH_TYPE,
                  COLOR_THEME_PRIMARY1 | FONT(XS));
   new StaticText(line, rect_t{}, STR_GROUP, COLOR_THEME_PRIMARY1 | FONT(XS));
-  new StaticText(line, rect_t{}, STR_SWITCH_STARTUP,
+  startupHeader = new StaticText(line, rect_t{}, STR_SWITCH_STARTUP,
                  COLOR_THEME_PRIMARY1 | FONT(XS));
 
   for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
@@ -269,6 +269,14 @@ void ModelFunctionSwitches::setState()
       lv_obj_add_flag(groupLines[i]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     else
       lv_obj_clear_flag(groupLines[i]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+
+  lv_obj_add_flag(startupHeader->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  for (int i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
+    if (FSWITCH_CONFIG(i) == SWITCH_2POS && FSWITCH_GROUP(i) == 0) {
+      lv_obj_clear_flag(startupHeader->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      break;
+    }
+  }
 }
 
 void ModelFunctionSwitches::checkEvents()

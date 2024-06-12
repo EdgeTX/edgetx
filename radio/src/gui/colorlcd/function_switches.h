@@ -33,6 +33,7 @@ class ModelFunctionSwitches : public Page
  protected:
   Window* groupLines[3] = {nullptr};
   BitmapBuffer* qrcode = nullptr;
+  StaticText* startupHeader = nullptr;
 
   void setState();
   void checkEvents() override;
