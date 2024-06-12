@@ -121,16 +121,16 @@ void applyDefaultTemplate()
   LayoutFactory::loadDefaultLayout();
 
   // enable switch warnings
-  for (int i = 0; i < MAX_SWITCHES; i++) {
+  for (uint64_t i = 0; i < MAX_SWITCHES; i++) {
     if (SWITCH_EXISTS(i)) {
-      g_model.switchWarning |= (1 << (3 * i));
+      g_model.switchWarning |= (1ull << (3ull * i));
     }
   }
 #else
   // enable switch warnings
-  for (int i = 0; i < MAX_SWITCHES; i++) {
+  for (uint64_t i = 0; i < MAX_SWITCHES; i++) {
     if (SWITCH_WARNING_ALLOWED(i))
-      g_model.switchWarning |= (1 << (3 * i));
+      g_model.switchWarning |= (1ull << (3ull * i));
   }
 #endif
 
