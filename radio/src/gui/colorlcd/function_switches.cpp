@@ -236,8 +236,6 @@ ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
   new StaticText(line, rect_t{}, STR_SWITCH_TYPE,
                  COLOR_THEME_PRIMARY1 | FONT(XS));
   new StaticText(line, rect_t{}, STR_GROUP, COLOR_THEME_PRIMARY1 | FONT(XS));
-  new StaticText(line, rect_t{}, STR_SWITCH_STARTUP,
-                 COLOR_THEME_PRIMARY1 | FONT(XS));
 
   for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
     new FunctionSwitch(body, i);
