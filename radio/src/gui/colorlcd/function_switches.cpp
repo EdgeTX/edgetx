@@ -59,9 +59,11 @@ class FunctionSwitch : public Window
     new StaticText(this, {8, 6, SW_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, s,
                    COLOR_THEME_PRIMARY1);
 
+    // Name
     new ModelTextEdit(this, {NM_X, 0, NM_W, 32},
                       g_model.switchNames[switchIndex], LEN_SWITCH_NAME);
 
+    // Type
     auto choice = new Choice(
         this, {TP_X, 0, TP_W, 32}, STR_SWTYPES, SWITCH_NONE, SWITCH_2POS,
         [=]() { return FSWITCH_CONFIG(switchIndex); },
@@ -80,6 +82,7 @@ class FunctionSwitch : public Window
       return true;
     });
 
+    // Group
     groupChoice = new Choice(
         this, {GR_X, 0, GR_W, 32}, STR_FUNCTION_SWITCH_GROUPS, 0, 3,
         [=]() { return FSWITCH_GROUP(switchIndex); },
@@ -108,14 +111,6 @@ class FunctionSwitch : public Window
       return true;
     });
 
-    startChoice = new Choice(
-        this, {ST_X, 0, ST_W, 32}, _fct_sw_start, 0, 2,
-        [=]() { return FSWITCH_STARTUP(switchIndex); },
-        [=](int val) {
-          FSWITCH_SET_STARTUP(switchIndex, val);
-          SET_DIRTY();
-        });
-
     setState();
   }
 
@@ -136,12 +131,6 @@ class FunctionSwitch : public Window
 
   void setState()
   {
-    if (FSWITCH_CONFIG(switchIndex) != SWITCH_2POS ||
-        FSWITCH_GROUP(switchIndex) > 0) {
-      lv_obj_add_flag(startChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    } else {
-      lv_obj_clear_flag(startChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    }
     if (FSWITCH_CONFIG(switchIndex) == SWITCH_NONE) {
       lv_obj_add_flag(groupChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
     } else {
