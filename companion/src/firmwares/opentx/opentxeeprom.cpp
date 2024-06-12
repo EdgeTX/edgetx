@@ -349,9 +349,10 @@ class SwitchesConversionTable: public ConversionTable {
       }
 
       if (IS_HORUS_OR_TARANIS(board)) {
+        const int adc_offset = 4 * 6; // num sticks * multi pot posns as adc assumes ALL inputs can be multi pos
         for (int i=1; i<=MAX_XPOTS(board, version)*6; i++) {
-          addConversion(RawSwitch(SWITCH_TYPE_MULTIPOS_POT, -i), -val+offset);
-          addConversion(RawSwitch(SWITCH_TYPE_MULTIPOS_POT, i), val++);
+          addConversion(RawSwitch(SWITCH_TYPE_MULTIPOS_POT, -i - adc_offset), -val+offset);
+          addConversion(RawSwitch(SWITCH_TYPE_MULTIPOS_POT, i + adc_offset), val++);
         }
       }
 
