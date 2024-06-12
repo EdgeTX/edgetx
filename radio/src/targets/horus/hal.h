@@ -241,7 +241,7 @@
     #define SWITCHES_E_INVERTED
   #endif
 
-  #if defined(PCBX10) && !defined(RADIO_FAMILY_T16)
+  #if defined(PCBX10) && !defined(RADIO_F16)
     // Gimbal switch left
     #define STORAGE_SWITCH_I
     #define HARDWARE_SWITCH_I
