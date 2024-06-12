@@ -38,19 +38,9 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                           LV_GRID_FR(1), LV_GRID_FR(1),
                                           LV_GRID_TEMPLATE_LAST};
 
-#define USBCH_EDIT_STATUS_BAR_WIDTH 250
-#define USBCH_EDIT_STATUS_BAR_MARGIN 3
-#define USBCH_EDIT_RIGHT_MARGIN 0
-#define USBCH_COLS 4
-
 static const lv_coord_t ch_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                         LV_GRID_FR(1), LV_GRID_FR(2),
                                         LV_GRID_TEMPLATE_LAST};
-
-#define USBCH_CHN_ROWS 1
-#define USBCH_BTN_MODE_COL 4
-#define USBCH_BTN_MODE_ROW 0
-#define USBCH_LINE_HEIGHT 32
 
 static const lv_coord_t b_col_dsc[] = {LV_GRID_FR(10),       20,
                                        LV_GRID_FR(10),       LV_GRID_FR(12),
@@ -64,18 +54,8 @@ static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                           LV_GRID_TEMPLATE_LAST};
 
-#define USBCH_EDIT_STATUS_BAR_WIDTH 160
-#define USBCH_EDIT_STATUS_BAR_MARGIN 0
-#define USBCH_EDIT_RIGHT_MARGIN 3
-#define USBCH_COLS 2
-
 static const lv_coord_t ch_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                         LV_GRID_TEMPLATE_LAST};
-
-#define USBCH_CHN_ROWS 2
-#define USBCH_BTN_MODE_COL 2
-#define USBCH_BTN_MODE_ROW 1
-#define USBCH_LINE_HEIGHT 48
 
 static const lv_coord_t b_col_dsc[] = {LV_GRID_FR(1), 20, LV_GRID_FR(1),
                                        LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
@@ -101,6 +81,8 @@ class USBChannelEditStatusBar : public Window
          rect.w - (USBCH_EDIT_STATUS_BAR_MARGIN * 2), rect.h},
         channel, true);
   }
+
+  static LAYOUT_VAL(USBCH_EDIT_STATUS_BAR_MARGIN, 3, 0)
 
  protected:
   ComboChannelBar* channelBar;
@@ -233,6 +215,10 @@ class USBChannelEditWindow : public Page
     buildBody(body);
   }
 
+  static LAYOUT_VAL(USBCH_EDIT_STATUS_BAR_WIDTH, 250, 160)
+  static LAYOUT_VAL(USBCH_EDIT_RIGHT_MARGIN, 0, 3)
+  static LAYOUT_VAL(USBCH_COLS, 4, 2)
+
  protected:
   uint8_t channel;
   USBChannelEditStatusBar* statusBar = nullptr;
@@ -243,7 +229,6 @@ class USBChannelEditWindow : public Page
   StaticText* collisionText = nullptr;
   Choice* m_btnPosChoice = nullptr;
 
- protected:
   void update()
   {
     USBJoystickChData* cch = usbJChAddress(channel);
@@ -382,7 +367,7 @@ class USBChannelLineButton : public ListLineButton
   {
     setHeight(USBCH_LINE_HEIGHT);
 #if !PORTRAIT_LCD
-    padTop(4);
+    padTop(PAD_SMALL);
 #endif
 
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
@@ -502,6 +487,11 @@ class USBChannelLineButton : public ListLineButton
   }
 
   bool isActive() const override { return false; }
+
+  static LAYOUT_VAL(USBCH_LINE_HEIGHT, 32, 48)
+  static LAYOUT_VAL(USBCH_CHN_ROWS, 1, 2)
+  static LAYOUT_VAL(USBCH_BTN_MODE_COL, 4, 2)
+  static LAYOUT_VAL(USBCH_BTN_MODE_ROW, 0, 1)
 
  protected:
   bool init = false;

@@ -182,10 +182,10 @@ class ScriptLineButton : public ListLineButton
       runtimeData(runtimeData)
   {
 #if PORTRAIT_LCD
-    padTop(5);
+    padTop(PAD_SMALL);
 #endif
-    padLeft(3);
-    padRight(3);
+    padLeft(PAD_TINY);
+    padRight(PAD_TINY);
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
     lv_obj_set_grid_dsc_array(lvobj, b_col_dsc, row_dsc);
     lv_obj_set_style_pad_row(lvobj, 0, 0);

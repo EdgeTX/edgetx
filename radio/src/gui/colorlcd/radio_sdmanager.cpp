@@ -239,11 +239,7 @@ void RadioSdManagerPage::build(Window * window)
   // Adjust file browser width
   browser->adjustWidth();
 
-#if !PORTRAIT_LCD
-  preview = new FilePreview(form, rect_t{0, 0, LCD_W * 2 / 5 - 8, LCD_H - 68});
-#else
-  preview = new FilePreview(form, rect_t{0, 0, LCD_W - 12, (LCD_H - 68) / 3 });
-#endif
+  preview = new FilePreview(form, rect_t{0, 0, PREVIEW_W, PREVIEW_H});
   preview->padAll(PAD_SMALL);
   grid.add(preview);
   grid.nextCell();

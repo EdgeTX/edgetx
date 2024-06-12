@@ -27,12 +27,6 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-#if PORTRAIT_LCD
-#define PER_ROW 2
-#else
-#define PER_ROW 3
-#endif
-
 class CurveButton : public Button
 {
  public:

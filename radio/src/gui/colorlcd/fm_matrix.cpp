@@ -24,14 +24,6 @@
 #include "opentx.h"
 #include "themes/etx_lv_theme.h"
 
-#if PORTRAIT_LCD
-#define FM_COLS 3
-#define FM_ROWS 3
-#else
-#define FM_COLS 5
-#define FM_ROWS 2
-#endif
-
 template <class T>
 FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
     ButtonMatrix(parent, r), input(input)

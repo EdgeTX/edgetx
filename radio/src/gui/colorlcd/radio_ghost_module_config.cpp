@@ -32,13 +32,6 @@ class GhostModuleConfigWindow : public Window
   GhostModuleConfigWindow(Window* parent, const rect_t& rect) :
       Window(parent, rect)
   {
-#if PORTRAIT_LCD
-    constexpr coord_t xOffset = 20;
-    constexpr coord_t xOffset2 = 140;
-#else
-    constexpr coord_t xOffset = 140;
-    constexpr coord_t xOffset2 = 260;
-#endif
     constexpr coord_t yOffset = 20;
     constexpr coord_t lineSpacing = 25;
     coord_t h = getFontHeight(FONT(L));
@@ -65,6 +58,9 @@ class GhostModuleConfigWindow : public Window
                     LV_STATE_USER_1);
     }
   }
+
+  static LAYOUT_VAL(xOffset, 140, 20)
+  static LAYOUT_VAL(xOffset2, 260, 140)
 
  protected:
   StaticText* menuLines[GHST_MENU_LINES][2];

@@ -50,11 +50,9 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
 #if !PORTRAIT_LCD
-#define TRIMS_PER_LINE 2
 static const lv_coord_t trims_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                            LV_GRID_TEMPLATE_LAST};
 #else
-#define TRIMS_PER_LINE 1
 static const lv_coord_t trims_col_dsc[] = {LV_GRID_FR(1),
                                            LV_GRID_TEMPLATE_LAST};
 #endif
@@ -195,6 +193,8 @@ class FlightModeEdit : public Page
       new TrimEdit(line, t, index);
     }
   }
+
+  static LAYOUT_VAL(TRIMS_PER_LINE, 2, 1)
 
  protected:
   uint8_t index;
