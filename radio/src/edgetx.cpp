@@ -1656,16 +1656,14 @@ bool pwrOffDueToInactivity()
 
   tmr10ms_t currentTime = get_tmr10ms();
 
-  if (
-    TELEMETRY_STREAMING() ||
-    (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) ||
-    trainerInputValidityTimer != 0 // previously IS_TRAINER_INPUT_VALID()
-  )
+  if (TELEMETRY_STREAMING() ||
+      (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) ||
+      isTrainerValid())
     lastConnectedTime = currentTime;
 
-  bool inactivityShutdown = inactivityLimit &&
-    inactivity.counter > 60u*inactivityLimit &&
-    (currentTime-lastConnectedTime)/100u > 60u*inactivityLimit;
+  bool inactivityShutdown =
+      inactivityLimit && inactivity.counter > 60u * inactivityLimit &&
+      (currentTime - lastConnectedTime) / 100u > 60u * inactivityLimit;
 
   return inactivityShutdown;
 }
