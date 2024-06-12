@@ -33,6 +33,8 @@ class TextArea : public FormField
   TextArea(Window* parent, const rect_t& rect, char* value, uint8_t length) :
       FormField(parent, rect, 0, etx_textarea_create), value(value), length(length)
   {
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+
     lv_textarea_set_max_length(lvobj, length);
     lv_textarea_set_placeholder_text(lvobj, "---");
 
@@ -175,7 +177,6 @@ void TextEdit::preview(bool edited, char* text, uint8_t length)
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
   lv_obj_clear_flag(edit->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
-  lv_obj_clear_flag(edit->getLvObj(), LV_OBJ_FLAG_CLICK_FOCUSABLE);
   lv_obj_add_state(edit->getLvObj(), LV_STATE_FOCUSED);
   if (edited) lv_obj_add_state(edit->getLvObj(), LV_STATE_EDITED);
 }

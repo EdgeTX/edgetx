@@ -38,6 +38,8 @@ class NumberArea : public FormField
   {
     if (rect.w == 0) setWidth(DEF_W);
 
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+
     etx_obj_add_style(lvobj, styles->text_align_right, LV_PART_MAIN);
 
     // Allow encoder acceleration
