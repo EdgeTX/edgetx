@@ -62,7 +62,7 @@ class FunctionSwitch : public Window
     new ModelTextEdit(this, {NM_X, 0, NM_W, 32},
                       g_model.switchNames[switchIndex], LEN_SWITCH_NAME);
 
-    auto choice = new Choice(
+    typeChoice = new Choice(
         this, {TP_X, 0, TP_W, 32}, STR_SWTYPES, SWITCH_NONE, SWITCH_2POS,
         [=]() { return FSWITCH_CONFIG(switchIndex); },
         [=](int val) {
@@ -73,7 +73,7 @@ class FunctionSwitch : public Window
           }
           SET_DIRTY();
         });
-    choice->setAvailableHandler([=](int typ) -> bool {
+    typeChoice->setAvailableHandler([=](int typ) -> bool {
       int group = FSWITCH_GROUP(switchIndex);
       if (group > 0 && IS_FSWITCH_GROUP_ON(group) && typ == SWITCH_TOGGLE)
         return false;
@@ -131,27 +131,24 @@ class FunctionSwitch : public Window
 
  protected:
   uint8_t switchIndex;
+  Choice* typeChoice = nullptr;
   Choice* groupChoice = nullptr;
   Choice* startChoice = nullptr;
+  int lastType = -1;
 
   void setState()
   {
-    if (FSWITCH_CONFIG(switchIndex) != SWITCH_2POS ||
-        FSWITCH_GROUP(switchIndex) > 0) {
-      lv_obj_add_flag(startChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    } else {
-      lv_obj_clear_flag(startChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    }
-    if (FSWITCH_CONFIG(switchIndex) == SWITCH_NONE) {
-      lv_obj_add_flag(groupChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    } else {
-      lv_obj_clear_flag(groupChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    }
+    startChoice->show(FSWITCH_CONFIG(switchIndex) == SWITCH_2POS && FSWITCH_GROUP(switchIndex) == 0);
+    groupChoice->show(FSWITCH_CONFIG(switchIndex) != SWITCH_NONE);
   }
 
   void checkEvents() override
   {
     setState();
+    if (lastType != FSWITCH_CONFIG(switchIndex)) {
+      lastType = FSWITCH_CONFIG(switchIndex);
+      typeChoice->setValue(lastType);
+    }
     Window::checkEvents();
   }
 };
