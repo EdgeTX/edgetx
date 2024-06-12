@@ -137,6 +137,12 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
     case Board::BOARD_RADIOMASTER_TX16S:
       radioUiWidget = new SimulatedUIWidgetTX16S(simulator, this);
       break;
+    case Board::BOARD_RADIOMASTER_POCKET:
+      radioUiWidget = new SimulatedUIWidgetPocket(simulator, this);
+      break;
+    case Board::BOARD_FATFISH_F16:
+      radioUiWidget = new SimulatedUIWidgetFatfishF16(simulator, this);
+      break;
     case Board::BOARD_FLYSKY_NV14:
       radioUiWidget = new SimulatedUIWidgetNV14(simulator, this);
       break;
@@ -145,9 +151,6 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
       break;
     case Board::BOARD_FLYSKY_PL18:
       radioUiWidget = new SimulatedUIWidgetPL18(simulator, this);
-      break;
-    case Board::BOARD_RADIOMASTER_POCKET:
-      radioUiWidget = new SimulatedUIWidgetPocket(simulator, this);
       break;
     default:
       radioUiWidget = new SimulatedUIWidget9X(simulator, this);
