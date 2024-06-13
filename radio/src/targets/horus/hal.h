@@ -540,9 +540,8 @@
 
 // PCBREV
 #if defined(RADIO_T15)
-  #define PCBREV_GPIO_1                 GPIO_PIN(GPIOH, 7) // PH.07
-  #define PCBREV_GPIO_2                 GPIO_PIN(GPIOH, 8) // PH.08
-  #define PCBREV_VALUE()                ((gpio_read(PCBREV_GPIO_1) | gpio_read(PCBREV_GPIO_2)) >> 7)
+  #define PCBREV_GPIO                   GPIO_PIN(GPIOH, 8) // PH.08
+  #define PCBREV_VALUE()                (gpio_read(PCBREV_GPIO) >> 8)
 #elif defined(PCBX10)
   #define PCBREV_GPIO_1                 GPIO_PIN(GPIOH, 7) // PH.07
   #define PCBREV_GPIO_2                 GPIO_PIN(GPIOH, 8) // PH.08
