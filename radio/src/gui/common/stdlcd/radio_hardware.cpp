@@ -150,7 +150,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   for (int i = ITEM_RADIO_HARDWARE_POT; i <= ITEM_RADIO_HARDWARE_POT_END; i++) {
     uint8_t idx = i - ITEM_RADIO_HARDWARE_POT;
-    tab[i] = idx < max_pots ? 2 : HIDDEN_ROW;
+    tab[i] = idx < max_pots ? (IS_POT_MULTIPOS(idx) ? 1 : 2) : HIDDEN_ROW;
   }
 
   auto max_switches = switchGetMaxSwitches();
@@ -527,12 +527,17 @@ void menuRadioHardware(event_t event)
           if (checkIncDec_Ret) switchFixFlexConfig();
           setPotType(idx, potType);
 
-          // ADC inversion
-          flags = menuHorizontalPosition == 2 ? attr : 0;
-          bool potinversion = getPotInversion(idx);
-          lcdDrawChar(LCD_W - 8, y, potinversion ? 127 : 126, flags);
-          if (flags & (~RIGHT)) potinversion = checkIncDec(event, potinversion, 0, 1, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL);
-          setPotInversion(idx, potinversion);
+          if (!IS_POT_MULTIPOS(idx)) {
+            // ADC inversion
+            flags = menuHorizontalPosition == 2 ? attr : 0;
+            bool potinversion = getPotInversion(idx);
+            lcdDrawChar(LCD_W - 8, y, potinversion ? 127 : 126, flags);
+            if (flags & (~RIGHT)) potinversion = checkIncDec(event, potinversion, 0, 1, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL);
+            setPotInversion(idx, potinversion);
+          } else if (getPotInversion(idx)) {
+            setPotInversion(idx, 0);
+            storageDirty(EE_GENERAL);
+          }
         }
         else if (k <= ITEM_RADIO_HARDWARE_SWITCH_END) {
           // Switches

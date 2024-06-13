@@ -28,6 +28,8 @@ class QGridLayout;
 class AutoComboBox;
 class ExclusiveComboGroup;
 
+class AutoCheckBox;
+
 class HardwarePanel : public GeneralPanel
 {
     Q_OBJECT
@@ -58,6 +60,7 @@ class HardwarePanel : public GeneralPanel
     QList<QWidget *> *params;
     int row;
     ExclusiveComboGroup *exclFlexSwitchesGroup;
+    std::vector<AutoCheckBox*> invertToggles;
 
     void addStick(int index);
     void addFlex(int index);

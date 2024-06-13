@@ -24,14 +24,20 @@
 #include "button.h"
 #include "dialog.h"
 #include "form.h"
+#include <vector>
 
-struct HWSticks : public Window {
+class ToggleSwitch;
+
+class HWSticks : public Window
+{
+ public:
   HWSticks(Window* parent);
 };
 
-struct HWPots : public Window {
+struct HWPots : public Window
+{
+ public:
   HWPots(Window* parent);
-  bool potsChanged;
 
   // Absolute layout for Pots popup - due to performance issues with lv_textarea
   // in a flex layout
@@ -46,9 +52,15 @@ struct HWPots : public Window {
   static LAYOUT_VAL(P_ROW_H, 36, 72)
   static LAYOUT_VAL(P_OFST_Y, 0, 36)
   #define P_Y(i) (i * P_ROW_H + 2)
+
+ protected:
+  bool potsChanged;
+  std::vector<ToggleSwitch*> invertToggles;
 };
 
-struct HWSwitches : public Window {
+class HWSwitches : public Window
+{
+ public:
   HWSwitches(Window* parent);
 
   // Absolute layout for Switches popup - due to performance issues with
