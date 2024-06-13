@@ -159,11 +159,11 @@ PreviewWindow::PreviewWindow(Window *window, rect_t rect,
                  COLOR_THEME_PRIMARY2);
 
   new StaticText(this, {ICON_X1, CBT_Y, CBT_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_THEME_CHECKBOX);
-  new ThemedCheckBox(this, {CB1_X, CB_Y, CB_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, true);
-  new ThemedCheckBox(this, {CB2_X, CB_Y, CB_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, false);
-  (new ThemedButton(this, {BTN_X, BTN1_Y, BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_THEME_ACTIVE, true))
+  new ThemedCheckBox(this, {CB1_X, CB_Y, CB_W, 0}, true);
+  new ThemedCheckBox(this, {CB2_X, CB_Y, CB_W, 0}, false);
+  (new ThemedButton(this, {BTN_X, BTN1_Y, BTN_W, 0}, STR_THEME_ACTIVE, true))
       ->check(true);
-  new ThemedButton(this, {BTN_X, BTN2_Y, BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_THEME_REGULAR, false);
+  new ThemedButton(this, {BTN_X, BTN2_Y, BTN_W, 0}, STR_THEME_REGULAR, false);
   new MainViewTrim(this, {ICON_X1, TRIM_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, TRIM_H}, 0, false);
   new MainViewSlider(this, {ICON_X1, SLIDER_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, TRIM_H}, 0, false);
   new StaticText(this, {ICON_X1, TXT1_Y, TXT_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_THEME_WARNING, 

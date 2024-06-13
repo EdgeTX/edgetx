@@ -49,21 +49,21 @@ class FunctionSwitch : public Window
 {
  public:
   FunctionSwitch(Window* parent, uint8_t sw) :
-      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, 36}), switchIndex(sw)
+      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY_GAP * 2}), switchIndex(sw)
   {
-    padAll(PAD_TINY);
+    padAll(PAD_TINY_GAP);
 
     std::string s(STR_CHAR_SWITCH);
     s += switchGetName(switchIndex + switchGetMaxSwitches());
 
-    new StaticText(this, {8, 6, SW_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, s,
+    new StaticText(this, {PAD_LARGE, PAD_MEDIUM, SW_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, s,
                    COLOR_THEME_PRIMARY1);
 
-    new ModelTextEdit(this, {NM_X, 0, NM_W, 32},
+    new ModelTextEdit(this, {NM_X, 0, NM_W, 0},
                       g_model.switchNames[switchIndex], LEN_SWITCH_NAME);
 
     typeChoice = new Choice(
-        this, {TP_X, 0, TP_W, 32}, STR_SWTYPES, SWITCH_NONE, SWITCH_2POS,
+        this, {TP_X, 0, TP_W, 0}, STR_SWTYPES, SWITCH_NONE, SWITCH_2POS,
         [=]() { return FSWITCH_CONFIG(switchIndex); },
         [=](int val) {
           FSWITCH_SET_CONFIG(switchIndex, val);
@@ -81,7 +81,7 @@ class FunctionSwitch : public Window
     });
 
     groupChoice = new Choice(
-        this, {GR_X, 0, GR_W, 32}, STR_FUNCTION_SWITCH_GROUPS, 0, 3,
+        this, {GR_X, 0, GR_W, 0}, STR_FUNCTION_SWITCH_GROUPS, 0, 3,
         [=]() { return FSWITCH_GROUP(switchIndex); },
         [=](int group) {
           int oldGroup = FSWITCH_GROUP(switchIndex);
@@ -109,7 +109,7 @@ class FunctionSwitch : public Window
     });
 
     startChoice = new Choice(
-        this, {ST_X, 0, ST_W, 32}, _fct_sw_start, 0, 2,
+        this, {ST_X, 0, ST_W, 0}, _fct_sw_start, 0, 2,
         [=]() { return FSWITCH_STARTUP(switchIndex); },
         [=](int val) {
           FSWITCH_SET_STARTUP(switchIndex, val);
@@ -157,16 +157,16 @@ class SwitchGroup : public Window
 {
  public:
   SwitchGroup(Window* parent, uint8_t group) :
-      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, 36}), groupIndex(group)
+      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY_GAP * 2}), groupIndex(group)
   {
-    padAll(PAD_TINY);
+    padAll(PAD_TINY_GAP);
 
-    new StaticText(this, {0, 6, NM_W, EdgeTxStyles::PAGE_LINE_HEIGHT},
+    new StaticText(this, {0, PAD_MEDIUM, NM_W, EdgeTxStyles::PAGE_LINE_HEIGHT},
                    STR_FUNCTION_SWITCH_GROUPS[groupIndex],
                    COLOR_THEME_PRIMARY1);
 
     auto btn = new TextButton(
-        this, {AO_X, 0, AO_W, 32}, STR_GROUP_ALWAYS_ON, [=]() -> int8_t {
+        this, {AO_X, 0, AO_W, 0}, STR_GROUP_ALWAYS_ON, [=]() -> int8_t {
           int groupAlwaysOn = IS_FSWITCH_GROUP_ON(groupIndex);
           groupAlwaysOn ^= 1;
           SET_FSWITCH_GROUP_ON(groupIndex, groupAlwaysOn);
@@ -177,11 +177,11 @@ class SwitchGroup : public Window
         });
     btn->check(IS_FSWITCH_GROUP_ON(groupIndex));
 
-    new StaticText(this, {SL_X, 6, SL_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_SWITCH_STARTUP,
+    new StaticText(this, {SL_X, PAD_MEDIUM, SL_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_SWITCH_STARTUP,
                    COLOR_THEME_PRIMARY1);
 
     startChoice = new Choice(
-        this, {ST_X, 0, ST_W, 32}, STR_FSSWITCHES, 0,
+        this, {ST_X, 0, ST_W, 0}, STR_FSSWITCHES, 0,
         NUM_FUNCTIONS_SWITCHES + 1,
         [=]() { return groupDefaultSwitch(groupIndex) + 1; },
         [=](int sw) {

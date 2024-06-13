@@ -158,7 +158,7 @@ class ColorEditorPopup : public BaseDialog
 ColorPicker::ColorPicker(Window* parent, const rect_t& rect,
                          std::function<uint16_t()> getValue,
                          std::function<void(uint16_t)> setValue) :
-    Button(parent, {0, 0, ColorEditorPopup::COLOR_PAD_WIDTH, ColorEditorPopup::COLOR_PAD_HEIGHT}),
+    Button(parent, {rect.x, rect.y, ColorEditorPopup::COLOR_PAD_WIDTH, ColorEditorPopup::COLOR_PAD_HEIGHT}),
     setValue(std::move(setValue))
 {
   updateColor(getValue());
