@@ -31,7 +31,7 @@ class ChannelBar : public Window
              LcdColorIndex textColorIndex = COLOR_THEME_SECONDARY1_INDEX);
 
   static LAYOUT_VAL(BAR_HEIGHT, 13, 13)
-  static LAYOUT_VAL(LMARGIN, 15, 15)
+  static LAYOUT_VAL(LMARGIN, 2, 2)
   static LAYOUT_VAL(TMARGIN, 2, 2)
 
   static LAYOUT_VAL(VAL_W, 45, 45)

@@ -395,7 +395,7 @@ void TabsGroup::addGoToMonitorsButton()
       header,
       {LCD_W / 2 + 6, MENU_TITLE_TOP + 1, LCD_W / 2 - 8, MENU_TITLE_HEIGHT - 2},
       STR_OPEN_CHANNEL_MONITORS, [=]() {
-        pushEvent(EVT_KEY_FIRST(KEY_MODEL));
+        pushEvent(EVT_KEY_BREAK(KEY_MODEL));
         return 0;
       });
 }

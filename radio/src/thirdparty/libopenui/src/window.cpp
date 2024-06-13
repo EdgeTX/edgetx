@@ -509,7 +509,7 @@ SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize paddin
     Window(parent, {0, y, LCD_W - padding * 2, 0})
 {
   padAll(PAD_ZERO);
-  coord_t titleY = PAD_MEDIUM + 1 + lblYOffset;
+  coord_t titleY = PAD_LARGE + lblYOffset;
   coord_t titleH = EdgeTxStyles::PAGE_LINE_HEIGHT;
   coord_t h = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2 + lblYOffset * 2;
   if (createEdit) {
@@ -519,7 +519,7 @@ SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize paddin
       if (getTextWidth(title) >= lblWidth) {
         h += PAD_MEDIUM;
         titleY = 0;
-        titleH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY + 1;
+        titleH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY + PAD_LARGE;
         editY = PAD_SMALL + 1;
       }
       new StaticText(this, {PAD_TINY, titleY, lblWidth, titleH}, title);
