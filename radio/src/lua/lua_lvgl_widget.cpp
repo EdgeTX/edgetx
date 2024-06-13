@@ -1045,28 +1045,28 @@ void LvglWidgetTextEdit::clearRefs(lua_State *L)
 void LvglWidgetTextEdit::build(lua_State *L)
 {
   strcpy(value, txt);
+  if (h == LV_SIZE_CONTENT) h = 0;
   window = new TextEdit(lvglManager->getCurrentParent(), {x, y, w, h}, value,
-                        maxLen);
-  if (setFunction) {
-    ((TextEdit *)window)->setChangeHandler([=]() {
-      int t = lua_gettop(L);
-      PROTECT_LUA()
-      {
-        lua_rawgeti(L, LUA_REGISTRYINDEX, setFunction);
-        lua_pushstring(L, value);
-        bool rv = lua_pcall(L, 1, 0, 0) == 0;
-        if (!rv) {
-          lvglManager->luaShowError();
-        }
-      }
-      else
-      {
-        lvglManager->luaShowError();
-      }
-      UNPROTECT_LUA();
-      lua_settop(L, t);
-    });
-  }
+                        maxLen, [=]() {
+                          if (setFunction) {
+                            int t = lua_gettop(L);
+                            PROTECT_LUA()
+                            {
+                              lua_rawgeti(L, LUA_REGISTRYINDEX, setFunction);
+                              lua_pushstring(L, value);
+                              bool rv = lua_pcall(L, 1, 0, 0) == 0;
+                              if (!rv) {
+                                lvglManager->luaShowError();
+                              }
+                            }
+                            else
+                            {
+                              lvglManager->luaShowError();
+                            }
+                            UNPROTECT_LUA();
+                            lua_settop(L, t);
+                          }
+                        });
 }
 
 //-----------------------------------------------------------------------------
@@ -1098,6 +1098,7 @@ void LvglWidgetNumberEdit::clearRefs(lua_State *L)
 
 void LvglWidgetNumberEdit::build(lua_State *L)
 {
+  if (h == LV_SIZE_CONTENT) h = 0;
   window = new NumberEdit(
       lvglManager->getCurrentParent(), {x, y, w, h}, min, max,
       [=]() { return pcallGetIntVal(L, getFunction); },
