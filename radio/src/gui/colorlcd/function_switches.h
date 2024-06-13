@@ -25,14 +25,17 @@
 
 #include "page.h"
 
+class SwitchGroup;
+
 class ModelFunctionSwitches : public Page
 {
  public:
   ModelFunctionSwitches();
 
  protected:
-  Window* groupLines[3] = {nullptr};
+  SwitchGroup* groupLines[3] = {nullptr};
   BitmapBuffer* qrcode = nullptr;
+  StaticText* startupHeader = nullptr;
 
   void setState();
   void checkEvents() override;

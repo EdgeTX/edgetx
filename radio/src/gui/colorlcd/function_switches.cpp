@@ -62,7 +62,7 @@ class FunctionSwitch : public Window
     new ModelTextEdit(this, {NM_X, 0, NM_W, 32},
                       g_model.switchNames[switchIndex], LEN_SWITCH_NAME);
 
-    auto choice = new Choice(
+    typeChoice = new Choice(
         this, {TP_X, 0, TP_W, 32}, STR_SWTYPES, SWITCH_NONE, SWITCH_2POS,
         [=]() { return FSWITCH_CONFIG(switchIndex); },
         [=](int val) {
@@ -73,7 +73,7 @@ class FunctionSwitch : public Window
           }
           SET_DIRTY();
         });
-    choice->setAvailableHandler([=](int typ) -> bool {
+    typeChoice->setAvailableHandler([=](int typ) -> bool {
       int group = FSWITCH_GROUP(switchIndex);
       if (group > 0 && IS_FSWITCH_GROUP_ON(group) && typ == SWITCH_TOGGLE)
         return false;
@@ -131,27 +131,24 @@ class FunctionSwitch : public Window
 
  protected:
   uint8_t switchIndex;
+  Choice* typeChoice = nullptr;
   Choice* groupChoice = nullptr;
   Choice* startChoice = nullptr;
+  int lastType = -1;
 
   void setState()
   {
-    if (FSWITCH_CONFIG(switchIndex) != SWITCH_2POS ||
-        FSWITCH_GROUP(switchIndex) > 0) {
-      lv_obj_add_flag(startChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    } else {
-      lv_obj_clear_flag(startChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    }
-    if (FSWITCH_CONFIG(switchIndex) == SWITCH_NONE) {
-      lv_obj_add_flag(groupChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    } else {
-      lv_obj_clear_flag(groupChoice->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    }
+    startChoice->show(FSWITCH_CONFIG(switchIndex) == SWITCH_2POS && FSWITCH_GROUP(switchIndex) == 0);
+    groupChoice->show(FSWITCH_CONFIG(switchIndex) != SWITCH_NONE);
   }
 
   void checkEvents() override
   {
     setState();
+    if (lastType != FSWITCH_CONFIG(switchIndex)) {
+      lastType = FSWITCH_CONFIG(switchIndex);
+      typeChoice->setValue(lastType);
+    }
     Window::checkEvents();
   }
 };
@@ -206,6 +203,11 @@ class SwitchGroup : public Window
     });
   }
 
+  void refresh()
+  {
+    startChoice->setValue(groupDefaultSwitch(groupIndex) + 1);
+  }
+
   static constexpr coord_t NM_W = 100;
   static constexpr coord_t AO_X = NM_W + 2;
   static constexpr coord_t AO_W = 100;
@@ -236,7 +238,7 @@ ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
   new StaticText(line, rect_t{}, STR_SWITCH_TYPE,
                  COLOR_THEME_PRIMARY1 | FONT(XS));
   new StaticText(line, rect_t{}, STR_GROUP, COLOR_THEME_PRIMARY1 | FONT(XS));
-  new StaticText(line, rect_t{}, STR_SWITCH_STARTUP,
+  startupHeader = new StaticText(line, rect_t{}, STR_SWITCH_STARTUP,
                  COLOR_THEME_PRIMARY1 | FONT(XS));
 
   for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
@@ -246,6 +248,8 @@ ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
   for (uint8_t i = 1; i <= 3; i += 1) {
     groupLines[i - 1] = new SwitchGroup(body, i);
   }
+
+  setState();
 
   line = body->newLine(grid1);
 
@@ -264,11 +268,13 @@ ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
 
 void ModelFunctionSwitches::setState()
 {
-  for (int i = 0; i < 3; i += 1)
-    if (firstSwitchInGroup(i + 1) < 0)
-      lv_obj_add_flag(groupLines[i]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-    else
-      lv_obj_clear_flag(groupLines[i]->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  int cnt = 0;
+  for (int i = 0; i < 3; i += 1) {
+    cnt += getSwitchCountInFSGroup(i + 1);
+    groupLines[i]->show(firstSwitchInGroup(i + 1) >= 0);
+    groupLines[i]->refresh();
+  }
+  startupHeader->show(cnt != NUM_FUNCTIONS_SWITCHES);
 }
 
 void ModelFunctionSwitches::checkEvents()
