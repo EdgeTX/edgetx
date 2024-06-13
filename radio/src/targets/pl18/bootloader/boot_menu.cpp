@@ -19,6 +19,9 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
 #include "board.h"
 #include "fw_version.h"
 #include "lcd.h"
@@ -29,6 +32,8 @@
 #include "targets/common/arm/stm32/bootloader/bin_files.h"
 
 #include <lvgl/lvgl.h>
+
+#define RADIO_MENU_LEN 2
 
 #define SELECTED_COLOR (INVERS | COLOR_THEME_SECONDARY1)
 #define DEFAULT_PADDING 28
@@ -52,6 +57,12 @@ LZ4BitmapBuffer BMP_USB_PLUGGED(BMP_ARGB4444, (LZ4Bitmap*)__bmp_usb_plugged);
 #define BL_SELECTED   COLOR2FLAGS(RGB(11, 65, 244)) // deep blue
 
 extern BitmapBuffer * lcd;
+
+#if defined(USB_SW_GPIO)
+  #define USB_SW_TO_INTERNAL_MODULE() gpio_set(USB_SW_GPIO);
+  #define USB_SW_TO_MCU()             gpio_clear(USB_SW_GPIO);
+  static bool rfUsbAccess = false;
+#endif
 
 void bootloaderInitScreen()
 {
@@ -94,24 +105,34 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
     int center = LCD_W/2;
     int menuItemX = center - 120;
     if (st == ST_START) {
+        int y = 75;
 
         bootloaderDrawTitle(BOOTLOADER_TITLE);
         
-        lcd->drawText(menuItemX + 2, 75, LV_SYMBOL_CHARGE, BL_FOREGROUND);
-        coord_t pos = lcd->drawText(menuItemX + 24, 75, TR_BL_WRITE_FW, BL_FOREGROUND);
+        lcd->drawText(menuItemX + 2, y, LV_SYMBOL_CHARGE, BL_FOREGROUND);
+        coord_t pos = lcd->drawText(menuItemX + 24, y, TR_BL_WRITE_FW, BL_FOREGROUND);
         pos += 8;
+        coord_t npos;
+        y += 35;
 
 #if defined(SPI_FLASH)
-        lcd->drawText(menuItemX + 2, 110, LV_SYMBOL_SD_CARD, BL_FOREGROUND);
-        pos = lcd->drawText(menuItemX + 24, 110, TR_BL_ERASE_FLASH, BL_FOREGROUND);
-        pos += 8;
-
-        lcd->drawText(menuItemX, 145, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
-        lcd->drawText(menuItemX + 24, 145, TR_BL_EXIT, BL_FOREGROUND);
-#else
-        lcd->drawText(menuItemX, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
-        lcd->drawText(menuItemX + 24, 110, TR_BL_EXIT, BL_FOREGROUND);
+        lcd->drawText(menuItemX + 2, y, LV_SYMBOL_SD_CARD, BL_FOREGROUND);
+        npos = lcd->drawText(menuItemX + 24, y, TR_BL_ERASE_FLASH, BL_FOREGROUND);
+        npos += 8;
+        if (npos > pos)
+          pos = npos;
+        y += 35;
 #endif
+#if defined(USB_SW_GPIO)
+        lcd->drawText(menuItemX, y, LV_SYMBOL_WIFI, BL_FOREGROUND);
+        npos = lcd->drawText(menuItemX + 24, y, TR_BL_RF_USB_ACCESS, BL_FOREGROUND);        
+        npos += 8;
+        if (npos > pos)
+          pos = npos;
+        y += 35;
+#endif
+        lcd->drawText(menuItemX, y, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+        lcd->drawText(menuItemX + 24, y, TR_BL_EXIT, BL_FOREGROUND);
 
         pos -= menuItemX - 8;
         lcd->drawSolidRect(menuItemX - 8, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
@@ -166,7 +187,21 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         bootloaderDrawFooter();
     }
 #endif
+#if defined(USB_SW_GPIO)
+    else if (st == ST_RADIO_MENU) {
+      bootloaderDrawTitle(TR_BL_RF_USB_ACCESS);
 
+      lcd->drawText(menuItemX + 2, 75, LV_SYMBOL_USB, BL_FOREGROUND);
+      coord_t pos = lcd->drawText(menuItemX + 24, 75, rfUsbAccess ? TR_DISABLE : TR_ENABLE, BL_FOREGROUND);
+      pos += 8;
+
+      lcd->drawText(menuItemX + 2, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+      lcd->drawText(menuItemX + 24, 110, TR_BL_EXIT, BL_FOREGROUND);
+
+      pos -= menuItemX - 8;
+      lcd->drawSolidRect(menuItemX - 8, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
+    }
+#endif
     else if (st == ST_USB) {
       lcd->drawBitmap(center - 26, 98, (const BitmapBuffer*)&BMP_USB_PLUGGED);
       lcd->drawText(center, 168, TR_BL_USB_CONNECTED, CENTERED | BL_FOREGROUND);
@@ -283,12 +318,50 @@ void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
 }
 uint32_t bootloaderGetMenuItemCount(int baseCount)
 {
+#if defined(USB_SW_GPIO)
+    return baseCount+1;
+#else
     return baseCount;
+#endif
 }
 
 bool bootloaderRadioMenu(uint32_t menuItem, event_t event)
 {
+#if defined(USB_SW_GPIO)
+    static int pos = 0;
+
+    if (event == EVT_KEY_FIRST(KEY_DOWN)) {
+        if (pos < RADIO_MENU_LEN-1)
+            pos++;
+    } else if (event == EVT_KEY_FIRST(KEY_UP)) {
+        if (pos > 0)
+            pos--;
+    } else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+        switch (pos) {
+        case 0:
+            if (rfUsbAccess)
+            {
+                rfUsbAccess = false;
+                INTERNAL_MODULE_OFF();
+                USB_SW_TO_MCU();
+            } else {
+                rfUsbAccess = true;
+                INTERNAL_MODULE_ON();
+                USB_SW_TO_INTERNAL_MODULE();
+            }
+            break;
+        case 1: // fall through
+        default:
+            USB_SW_TO_MCU();
+            pos = 0;
+            return true;
+        }
+    }
+    bootloaderDrawScreen(ST_RADIO_MENU, pos, nullptr);
+    return false;
+#else
     return true;
+#endif
 }
 
 void blExit(void)
