@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTx
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,15 +19,10 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
 #include <stdint.h>
 
-bool usbChargerLed() { return true; }
-void ledRed() {}
-void ledGreen() {}
-void ledBlue() {}
-void ledOff() {}
-void fsLedOn(uint8_t) {}
-void fsLedOff(uint8_t) {}
-bool fsLedState(uint8_t) { return false;}
-void rgbSetLedColor(unsigned char, unsigned char, unsigned char, unsigned char) {}
-void rgbLedColorApply() {}
+void setFSLedOFF(uint8_t index);
+void setFSLedON(uint8_t index);
+bool getFSLedState(uint8_t index);

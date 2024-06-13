@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTx
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,15 +19,34 @@
  * GNU General Public License for more details.
  */
 
-#include <stdint.h>
+#include "opentx.h"
+#include "rgbleds.h"
+#include "definitions.h"
+#include "dataconstants.h"
 
-bool usbChargerLed() { return true; }
-void ledRed() {}
-void ledGreen() {}
-void ledBlue() {}
-void ledOff() {}
-void fsLedOn(uint8_t) {}
-void fsLedOff(uint8_t) {}
-bool fsLedState(uint8_t) { return false;}
-void rgbSetLedColor(unsigned char, unsigned char, unsigned char, unsigned char) {}
-void rgbLedColorApply() {}
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+void setFSLedOFF(uint8_t index) {
+  fsLedOff(index,g_model.functionSwitchLedOFFColor[index]);
+}
+
+void setFSLedON(uint8_t index) {
+  fsLedOn(index,g_model.functionSwitchLedONColor[index]);
+}
+
+extern uint8_t getFSLogicalState(uint8_t index);
+bool getFSLedState(uint8_t index) {
+  return getFSLogicalState(index); // TODO: read and compare colors
+}
+#else
+void setFSLedOFF(uint8_t index) {
+  fsLedOff(index);
+}
+
+void setFSLedON(uint8_t index) {
+  fsLedOn(index);
+}
+
+bool getFSLedState(uint8_t index) {
+  return fsLedState(index);
+}
+#endif

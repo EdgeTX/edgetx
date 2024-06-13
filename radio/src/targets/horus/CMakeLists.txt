@@ -269,6 +269,8 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/dma2d.cpp
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/diskio_spi_flash.cpp
+  targets/common/arm/stm32/stm32_ws2812.cpp
+  boards/generic_stm32/rgb_leds.cpp
   drivers/frftl.cpp
   )
 

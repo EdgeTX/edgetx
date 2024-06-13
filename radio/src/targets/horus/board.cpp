@@ -29,6 +29,7 @@
 #include "hal/rotary_encoder.h"
 #include "hal/usb_driver.h"
 #include "hal/gpio.h"
+#include "hal/rgbleds.h"
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
@@ -68,11 +69,11 @@ void boardInit()
 
 #if defined(FUNCTION_SWITCHES) && !defined(DEBUG_SEGGER_RTT)
 #if defined(RADIO_T15)
-#define LEDCHARGEON(x)   fsLedOff(x)
-#define LEDCHARGEOFF(x)  fsLedOn(x)
+#define LEDCHARGEON(x)   setFSLedOFF(x)
+#define LEDCHARGEOFF(x)  setFSLedON(x)
 #else
-#define LEDCHARGEON(x)   fsLedOn(x)
-#define LEDCHARGEOFF(x)  fsLedOff(x)
+#define LEDCHARGEON(x)   setFSLedON(x)
+#define LEDCHARGEOFF(x)  setFSLedOFF(x)
 #endif
   // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();

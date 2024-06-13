@@ -62,7 +62,7 @@ void fsLedOn(uint8_t index)
   gpio_set(fsLeds[index]);
 }
 
-bool getFSLedState(uint8_t index)
+bool fsLedState(uint8_t index)
 {
   return gpio_read(fsLeds[index]) ? true : false;
 }
