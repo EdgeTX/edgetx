@@ -208,8 +208,8 @@ class USBChannelEditWindow : public Page
  public:
   USBChannelEditWindow(uint8_t channel) : Page(ICON_MODEL_USB, PAD_TINY), channel(channel)
   {
-    body->padLeft(8);
-    body->padRight(8);
+    body->padLeft(PAD_LARGE);
+    body->padRight(PAD_LARGE);
 
     buildHeader(header);
     buildBody(body);
@@ -346,8 +346,8 @@ class USBChannelEditWindow : public Page
                SET_VALUE_WUPDATE(cch->param));
 
     line = form->newLine(grid);
-    line->padTop(0);
-    line->padBottom(0);
+    line->padTop(PAD_ZERO);
+    line->padBottom(PAD_ZERO);
     collisionText =
         new StaticText(line, rect_t{}, "",
                        FONT(BOLD) | COLOR_THEME_PRIMARY2 | CENTERED);

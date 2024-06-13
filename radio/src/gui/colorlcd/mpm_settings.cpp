@@ -54,7 +54,7 @@ class MPMProtoOption : public FormLine {
     rssi = new DynamicNumber<uint16_t>(
         box, rect_t{}, [] { return (uint16_t)TELEMETRY_RSSI(); }, 0,
         getRxStatLabels()->label, getRxStatLabels()->unit);
-    rssi->padTop(5);
+    rssi->padTop(PAD_SMALL);
   }
 
   void update(const MultiRfProtocols::RfProto* rfProto, ModuleData* md,

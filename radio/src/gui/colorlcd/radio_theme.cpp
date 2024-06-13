@@ -119,7 +119,6 @@ class ThemeDetailsDialog : public BaseDialog
 
     line = form->newLine(grid);
     line->padAll(PAD_TINY);
-    line->padTop(2);
 
     new StaticText(line, rect_t{}, STR_AUTHOR);
     te = new TextEdit(line, rect_t{}, this->theme.getAuthor(), AUTHOR_LENGTH);

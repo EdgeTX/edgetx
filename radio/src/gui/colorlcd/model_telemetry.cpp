@@ -964,13 +964,13 @@ void ModelTelemetryPage::build(Window* window)
 
   // Show instance IDs button
   line = window->newLine(grid);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_SHOW_INSTANCE_ID);
   new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.showInstanceIds));
 
   // Ignore instance button
   line = window->newLine(grid);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_IGNORE_INSTANCE);
   new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.ignoreSensorIds));
 
@@ -978,19 +978,19 @@ void ModelTelemetryPage::build(Window* window)
   new Subtitle(window, getRxStatLabels()->label);
 
   line = window->newLine(grid);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_LOWALARM);
   new NumberEdit(line, {0, 0, NUM_EDIT_W, 0}, 0, 100,
                  GET_SET_DEFAULT(g_model.rfAlarms.warning));
 
   line = window->newLine(grid);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_CRITICALALARM);
   new NumberEdit(line, {0, 0, NUM_EDIT_W, 0}, 0, 100,
                  GET_SET_DEFAULT(g_model.rfAlarms.critical));
 
   line = window->newLine(grid);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_DISABLE_ALARM);
   new ToggleSwitch(line, rect_t{},
                    GET_SET_DEFAULT(g_model.disableTelemetryWarning));
@@ -1001,7 +1001,7 @@ void ModelTelemetryPage::build(Window* window)
   FlexGridLayout grid5(col_dsc5, row_dsc);
 
   line = window->newLine(grid5);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_SOURCE);
   auto choice = new SourceChoice(
       line, rect_t{}, MIXSRC_NONE, MIXSRC_LAST_TELEM,
@@ -1020,7 +1020,7 @@ void ModelTelemetryPage::build(Window* window)
   });
 
   line = window->newLine(grid5);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_RANGE);
 
   auto vMin = new NumberEdit(line, {0, 0, NUM_EDIT_W, 0}, -17, 17,
@@ -1034,7 +1034,7 @@ void ModelTelemetryPage::build(Window* window)
       [](int val) { return g_model.varioData.min - 10 < val; });
 
   line = window->newLine(grid5);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_CENTER);
 
   auto cMin = new NumberEdit(

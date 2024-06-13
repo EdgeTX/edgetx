@@ -58,8 +58,8 @@ class AnaViewWindow : public Window
   {
     parent->padAll(PAD_ZERO);
     padAll(PAD_SMALL);
-    padLeft(10);
-    padRight(10);
+    padLeft(PAD_LARGE);
+    padRight(PAD_LARGE);
     setFlexLayout();
 
     line = newLine(grid);

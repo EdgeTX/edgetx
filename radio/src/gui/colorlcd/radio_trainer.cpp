@@ -98,7 +98,7 @@ void RadioTrainerPage::build(Window* form)
 
     // Trainer multiplier
     auto lbl = new StaticText(line, rect_t{}, STR_MULTIPLIER);
-    lbl->padRight(4);
+    lbl->padRight(PAD_SMALL);
     lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_END, 0, 2,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 

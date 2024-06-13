@@ -51,8 +51,8 @@ class SpectrumFooterWindow : public Window
   {
     setFlexLayout();
     padAll(PAD_ZERO);
-    padLeft(4);
-    padRight(4);
+    padLeft(PAD_SMALL);
+    padRight(PAD_SMALL);
 
     FlexGridLayout grid(col_dsc, row_dsc);
 

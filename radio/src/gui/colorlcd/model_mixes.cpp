@@ -444,7 +444,7 @@ void ModelMixesPage::build(Window * window)
   auto box = new Window(window, rect_t{});
   box->padAll(PAD_TINY);
   box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
-  box->padLeft(lv_dpx(8));
+  box->padLeft(PAD_MEDIUM);
 
   auto box_obj = box->getLvObj();
   lv_obj_set_style_flex_cross_place(box_obj, LV_FLEX_ALIGN_CENTER, 0);

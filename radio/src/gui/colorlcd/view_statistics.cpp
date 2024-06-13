@@ -168,8 +168,8 @@ class ThrottleCurveWindow : public Window
 void StatisticsViewPage::build(Window* window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
-  window->padLeft(4);
-  window->padRight(4);
+  window->padLeft(PAD_SMALL);
+  window->padRight(PAD_SMALL);
 
   FlexGridLayout grid(col_dsc, row_dsc, PAD_ZERO);
 

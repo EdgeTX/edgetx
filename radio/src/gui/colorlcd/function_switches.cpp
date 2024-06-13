@@ -256,7 +256,7 @@ ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
   new StaticText(line, rect_t{}, STR_MORE_INFO, COLOR_THEME_PRIMARY1);
 
   line = body->newLine(grid1);
-  line->padBottom(10);
+  line->padBottom(PAD_LARGE);
   line->padLeft((width() - 150) / 2);
 
   auto qr = lv_qrcode_create(line->getLvObj(), 150,
