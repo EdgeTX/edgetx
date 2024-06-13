@@ -75,6 +75,7 @@ class ViewMain : public NavWindow
   bool onLongPress() override;
 
   void show(bool visible = true) override;
+  bool viewIsVisible() const { return isVisible; }
   void showTopBarEdgeTxButton();
   void hideTopBarEdgeTxButton();
 

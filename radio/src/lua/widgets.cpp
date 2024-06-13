@@ -235,6 +235,7 @@ void luaLoadWidgetCallback()
 
   int widgetOptions = 0, createFunction = 0, updateFunction = 0,
       refreshFunction = 0, backgroundFunction = 0, translateFunction = 0;
+  bool lvglLayout = false;
 
   luaL_checktype(lsWidgets, -1, LUA_TTABLE);
 
@@ -267,6 +268,9 @@ void luaLoadWidgetCallback()
       translateFunction = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
       lua_pushnil(lsWidgets);
     }
+    else if (!strcasecmp(key, "uselvgl")) {
+      lvglLayout = lua_toboolean(lsWidgets, -1);
+    }
   }
 
   if (name && createFunction) {
@@ -276,6 +280,7 @@ void luaLoadWidgetCallback()
       factory->updateFunction = updateFunction;
       factory->refreshFunction = refreshFunction;
       factory->backgroundFunction = backgroundFunction;   // NOSONAR
+      factory->lvglLayout = lvglLayout;
       factory->translateFunction = translateFunction;
       factory->translateOptions(options);
       TRACE("Loaded Lua widget %s", name);

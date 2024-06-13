@@ -115,16 +115,17 @@ void Widget::setFullscreen(bool enable)
   }
   // Enter Fullscreen Mode
   else {
+    ViewMain::instance()->enableWidgetSelect(false);
+
     // ViewMain hidden - re-show this widget
     show();
 
     // Set window opaque (inhibits redraw from windows below)
     setWindowFlag(OPAQUE);
 
-    updateZoneRect(parent->getRect());
+    updateZoneRect(parent->getRect(), false);
     setRect(parent->getRect());
 
-    ViewMain::instance()->enableWidgetSelect(false);
     bringToTop();
 
     if (!lv_obj_get_group(lvobj)) {

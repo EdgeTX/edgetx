@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LUA_API_H_
-#define _LUA_API_H_
+#pragma once
 
 #if defined(LUA)
 
@@ -66,8 +65,11 @@ extern bool luaLcdAllowed;
 class BitmapBuffer;
 extern BitmapBuffer* luaLcdBuffer;
 
-class Widget;
-extern Widget* runningFS;
+class LuaWidget;
+extern LuaWidget* runningFS;
+
+class LuaLvglManager;
+extern LuaLvglManager* luaLvglManager;
 
 LcdFlags flagsRGB(LcdFlags flags);
 
@@ -149,6 +151,9 @@ struct ScriptInternalData {
   int run;
   int background;
   uint8_t instructions;
+#if defined(COLORLCD)  
+  bool useLvgl;
+#endif
 };
 
 struct ScriptInputsOutputs {
@@ -252,5 +257,3 @@ void * tracer_alloc(void * ud, void * ptr, size_t osize, size_t nsize);
 #define LUA_LOAD_MODEL_SCRIPTS()
 
 #endif // defined(LUA)
-
-#endif // _LUA_API_H_

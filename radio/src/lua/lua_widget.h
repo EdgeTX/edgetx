@@ -21,13 +21,46 @@
 
 #pragma once
 
+#include <vector>
+
 #include "window.h"
 #include "widget.h"
 #include "lua_api.h"
+#include "lua_lvgl_widget.h"
 
 #include "opentx_types.h"
 
 #define LUA_TAP_TIME 250 // 250 ms
+
+class LuaWidgetFactory;
+
+class LuaLvglManager
+{
+ public:
+  LuaLvglManager() = default;
+
+  std::vector<int> getLvglObjectRefs() const { return lvglObjectRefs; }
+  void saveLvglObjectRef(int ref) { lvglObjectRefs.push_back(ref); }
+  void clearRefs(lua_State *L);
+  bool callRefs(lua_State *L);
+
+  void setTempParent(Window *p) { tempParent = p; }
+  Window* getTempParent() const { return tempParent; }
+
+  virtual Window* getCurrentParent() const = 0;
+  virtual void clear() = 0;
+  virtual bool useLvglLayout() const = 0;
+
+  virtual void luaShowError() = 0;
+
+  virtual bool isWidget() = 0;
+
+  uint8_t refreshInstructionsPercent;
+
+ protected:
+  std::vector<int> lvglObjectRefs;
+  Window* tempParent = nullptr;
+};
 
 class LuaEventHandler
 {
@@ -55,11 +88,10 @@ public:
   void removeHandler(Window* w);
 };
 
-class LuaWidget : public Widget, public LuaEventHandler
+class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
 {
   friend class LuaWidgetFactory;
 
-  int luaWidgetDataRef;
   int zoneRectDataRef;
   char* errorMessage;
   bool refreshed = false;
@@ -75,7 +107,7 @@ class LuaWidget : public Widget, public LuaEventHandler
   void setErrorMessage(const char* funcName);
 
   // Update 'zone' data
-  void updateZoneRect(rect_t rect) override;
+  void updateZoneRect(rect_t rect, bool updateUI = true) override;
   bool updateTable(const char* idx, int val);
 
  public:
@@ -92,9 +124,26 @@ class LuaWidget : public Widget, public LuaEventHandler
   void update() override;
   void background() override;
 
+  void clear() override;
+
+  LuaWidgetFactory* luaFactory() const { return (LuaWidgetFactory*)factory; }
+  bool isCreated() const { return created; }
+  void setCreated() { created = true; }
+
+  Window* getCurrentParent() const override { return tempParent ? tempParent : (Window*)this; }
+
+  bool useLvglLayout() const override;
+
+  void luaShowError() override {}
+
+  bool isWidget() override { return true; }
+
  protected:
+  bool created = false;
+  lv_obj_t* errorLabel = nullptr;
   // Calls LUA widget 'refresh' method
   void refresh(BitmapBuffer* dc);
+  int luaWidgetDataRef = 0;
 
   // Window interface
   void onEvent(event_t event) override;

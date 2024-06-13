@@ -85,8 +85,9 @@ void StandaloneLuaWindow::redraw_cb(lv_event_t* e)
 // singleton instance
 StandaloneLuaWindow* StandaloneLuaWindow::_instance;
 
-StandaloneLuaWindow::StandaloneLuaWindow() :
-    Window(nullptr, {0, 0, LCD_W, LCD_H}),
+StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl) :
+    Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H}),
+    useLvgl(useLvgl),
     lcdBuffer(BMP_RGB565, LCD_W, LCD_H),
     popup({50, 73, LCD_W - 100, LCD_H - 146})
 {
@@ -94,24 +95,42 @@ StandaloneLuaWindow::StandaloneLuaWindow() :
 
   etx_solid_bg(lvobj);
 
-  lcdBuffer.clear();
-  lcdBuffer.drawText(LCD_W / 2, LCD_H / 2 - 20, STR_LOADING,
-                     FONT(L) | COLOR_THEME_PRIMARY2 | CENTERED);
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+  if (useLvglLayout()) {
+    padAll(PAD_ZERO);
+    etx_scrollbar(lvobj);
+    lv_obj_t* lbl = lv_label_create(lvobj);
+    lv_obj_set_pos(lbl, 0, 0);
+    lv_obj_set_size(lbl, LCD_W, LCD_H);
+    etx_solid_bg(lbl, COLOR_THEME_PRIMARY1_INDEX);
+    etx_txt_color(lbl, COLOR_THEME_PRIMARY2_INDEX);
+    lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
+    lv_obj_set_style_pad_top(lbl, (LCD_H - EdgeTxStyles::PAGE_LINE_HEIGHT) / 2, LV_PART_MAIN);
+    lv_label_set_text(lbl, STR_LOADING);
+
+    luaLvglManager = this;
+  } else {
+    lcdBuffer.clear();
+    lcdBuffer.drawText(LCD_W / 2, LCD_H / 2 - 20, STR_LOADING,
+                      FONT(L) | COLOR_THEME_PRIMARY2 | CENTERED);
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+
+    lv_obj_add_event_cb(lvobj, StandaloneLuaWindow::redraw_cb, LV_EVENT_DRAW_MAIN, nullptr);
+  }
 
   // setup LUA event handler
   setupHandler(this);
 
-  lv_obj_add_event_cb(lvobj, StandaloneLuaWindow::redraw_cb, LV_EVENT_DRAW_MAIN, nullptr);
+  attach();
+}
+
+void StandaloneLuaWindow::setup(bool useLvgl)
+{
+  _instance = new StandaloneLuaWindow(useLvgl);
 }
 
 StandaloneLuaWindow* StandaloneLuaWindow::instance()
 {
-  if (!_instance) {
-    _instance = new StandaloneLuaWindow();
-  }
-
   return _instance;
 }
 
@@ -121,13 +140,13 @@ void StandaloneLuaWindow::attach()
     // backup previous screen
     prevScreen = lv_scr_act();
 
-    // and load new one
-    lv_scr_load(lvobj);
-
+    Layer::back()->hide();
     Layer::push(this);
 
-    lv_group_add_obj(lv_group_get_default(), lvobj);
-    lv_group_set_editing(lv_group_get_default(), true);
+    if (!useLvglLayout()) {
+      lv_group_add_obj(lv_group_get_default(), lvobj);
+      lv_group_set_editing(lv_group_get_default(), true);
+    }
   }
 }
 
@@ -135,10 +154,12 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
 {
   if (_deleted) return;
 
+  luaLvglManager = nullptr;
+
   Layer::pop(this);
+  Layer::back()->show();
 
   if (prevScreen) {
-    lv_scr_load(prevScreen);
     prevScreen = nullptr;
   }
 
@@ -159,8 +180,20 @@ void StandaloneLuaWindow::checkEvents()
   if (luaState != INTERPRETER_RELOAD_PERMANENT_SCRIPTS) {
     // if LUA finished a full cycle,
     // invalidate to display the screen buffer
+    bool useLvgl = useLvglLayout();
     if (luaTask(true)) {
-      invalidate();
+      if (useLvgl && !hasError) {
+        PROTECT_LUA() {
+          if (!callRefs(lsScripts)) {
+            luaShowError();
+          }
+        } else {
+          luaShowError();
+        }
+        UNPROTECT_LUA();
+      } else {
+        invalidate();
+      }
     }
   }
 
@@ -174,7 +207,7 @@ void StandaloneLuaWindow::checkEvents()
   luaLcdBuffer = nullptr;
 }
 
-void StandaloneLuaWindow::onClicked() { LuaEventHandler::onClicked(); }
+void StandaloneLuaWindow::onClicked() { Keyboard::hide(false); LuaEventHandler::onClicked(); }
 
 void StandaloneLuaWindow::onCancel() { LuaEventHandler::onCancel(); }
 
@@ -209,4 +242,48 @@ bool StandaloneLuaWindow::displayPopup(event_t event, uint8_t type,
   }
 
   return false;
+}
+
+void StandaloneLuaWindow::clear()
+{
+  clearRefs(lsScripts);
+  Window::clear();
+}
+
+void StandaloneLuaWindow::luaShowError()
+{
+  hasError = true;
+  extern void luaError(lua_State *L, uint8_t error);
+  luaError(lsScripts, SCRIPT_SYNTAX_ERROR);
+}
+
+void StandaloneLuaWindow::showError(bool firstCall, const char* title, const char* msg)
+{
+  hasError = true;
+  if (!errorModal) {
+    lv_obj_set_scroll_dir(lvobj, LV_DIR_NONE);
+    errorModal = lv_obj_create(lvobj);
+    lv_obj_set_pos(errorModal, lv_obj_get_scroll_x(lvobj), lv_obj_get_scroll_y(lvobj));
+    lv_obj_set_size(errorModal, LCD_W, LCD_H);
+    etx_bg_color(errorModal, COLOR_BLACK_INDEX);
+    etx_obj_add_style(errorModal, styles->bg_opacity_75, LV_PART_MAIN);
+    errorTitle = lv_label_create(errorModal);
+    lv_obj_set_pos(errorTitle, 50, 30);
+    lv_obj_set_size(errorTitle, LCD_W - 100, 32);
+    etx_txt_color(errorTitle, COLOR_THEME_PRIMARY2_INDEX);
+    etx_solid_bg(errorTitle, COLOR_THEME_SECONDARY1_INDEX);
+    etx_font(errorTitle, FONT_L_INDEX);
+    etx_obj_add_style(errorTitle, styles->text_align_center, LV_PART_MAIN);
+    errorMsg = lv_label_create(errorModal);
+    lv_obj_set_pos(errorMsg, 50, 62);
+    lv_obj_set_size(errorMsg, LCD_W - 100, LCD_H - 92);
+    lv_obj_set_style_pad_all(errorMsg, 4, LV_PART_MAIN);
+    etx_txt_color(errorMsg, COLOR_THEME_PRIMARY1_INDEX);
+    etx_solid_bg(errorMsg, COLOR_THEME_SECONDARY3_INDEX);
+    etx_font(errorMsg, FONT_STD_INDEX);
+    etx_obj_add_style(errorMsg, styles->text_align_center, LV_PART_MAIN);
+  }
+
+  lv_label_set_text(errorTitle, title);
+  lv_label_set_text(errorMsg, msg);
 }

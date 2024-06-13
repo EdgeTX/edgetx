@@ -68,9 +68,6 @@ void Layout::adjustLayout()
 
   // Save settings
   decorationSettings = checkSettings;
-
-  // Set visible decoration
-  show();
 }
 
 void Layout::show(bool visible)

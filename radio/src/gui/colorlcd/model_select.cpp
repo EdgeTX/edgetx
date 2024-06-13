@@ -142,7 +142,7 @@ class ModelButton : public Button
       if (modelLayouts[layout].hasImage) {
         if (modelCell->modelBitmap[0]) {
           GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
-          auto bitmap = new StaticImage(this, {PAD_TINY, PAD_TINY, w, h}, filename, true);
+          auto bitmap = new StaticImage(this, {PAD_TINY, PAD_TINY, w, h}, filename, false, true);
           lv_obj_move_background(bitmap->getLvObj());
           bitmap->show(bitmap->hasImage());
           if (bitmap->hasImage()) {
@@ -626,7 +626,6 @@ void ModelLabelsWindow::newModel()
       snprintf(path + len, LEN_BUFFER - len, "/%s%s", name.c_str(), SCRIPT_EXT);
       if (f_stat(path, 0) == FR_OK) {
         luaExec(path);
-        StandaloneLuaWindow::instance()->attach();
       }
 #endif
     }

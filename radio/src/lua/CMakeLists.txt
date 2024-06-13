@@ -43,7 +43,7 @@ add_custom_target(lua_mixsrc DEPENDS ${HW_DESC_JSON} lua_mixsrc.inc)
 add_custom_target(lua_keys DEPENDS ${HW_DESC_JSON} lua_keys.inc)
 
 if(GUI_DIR STREQUAL colorlcd)
-  set(SRC ${SRC} lua/api_colorlcd.cpp lua/widgets.cpp)
+  set(SRC ${SRC} lua/api_colorlcd.cpp lua/api_colorlcd_lvgl.cpp lua/widgets.cpp)
 else()
   set(SRC ${SRC} lua/api_stdlcd.cpp)
 endif()
