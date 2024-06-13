@@ -142,7 +142,7 @@ class StaticImage : public Window
 {
  public:
   StaticImage(Window *parent, const rect_t &rect,
-              const char *filename = nullptr);
+              const char *filename = nullptr, bool dontEnlarge = false);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "StaticImage"; }
