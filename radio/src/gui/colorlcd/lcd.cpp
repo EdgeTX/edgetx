@@ -46,9 +46,10 @@ BitmapBuffer* lcd = &lcdBuffer2;
 static lv_disp_draw_buf_t disp_buf;
 static lv_disp_drv_t disp_drv;
 
-#if defined(BOOT)
+// Fix EL18 charging TODO: need restore after battery recharging rework
+//#if defined(BOOT)
 static lv_disp_t disp;
-#endif
+//#endif
 
 static lv_area_t screen_area = {0, 0, LCD_W - 1, LCD_H - 1};
 
@@ -198,7 +199,10 @@ void lcdInitDisplayDriver()
   //  - this prevents LVGL overwritting things drawn directly into the bitmap
   //  buffer
   lv_disp_set_bg_opa(d, LV_OPA_TRANSP);
-#else
+
+// Fix EL18 charging TODO: need restore after battery recharging rework
+#endif
+//#else
   // allow drawing at any moment
   lv_memset_00(&disp, sizeof(lv_disp_t));
   disp.driver = &disp_drv;
@@ -212,7 +216,7 @@ void lcdInitDisplayDriver()
     disp_drv.draw_ctx_init(&disp_drv, draw_ctx);
     disp_drv.draw_ctx = draw_ctx;
   }
-#endif
+//#endif
 
   lv_draw_ctx_t* draw_ctx = disp_drv.draw_ctx;
   lcd->setDrawCtx(draw_ctx);
