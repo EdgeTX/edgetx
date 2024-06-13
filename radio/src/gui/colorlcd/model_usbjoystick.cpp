@@ -208,8 +208,8 @@ class USBChannelEditWindow : public Page
  public:
   USBChannelEditWindow(uint8_t channel) : Page(ICON_MODEL_USB, PAD_TINY), channel(channel)
   {
-    body->padLeft(PAD_LARGE);
-    body->padRight(PAD_LARGE);
+    body->padLeft(PAD_MEDIUM);
+    body->padRight(PAD_MEDIUM);
 
     buildHeader(header);
     buildBody(body);
