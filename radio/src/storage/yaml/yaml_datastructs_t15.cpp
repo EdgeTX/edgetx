@@ -813,6 +813,11 @@ static const struct YamlNode struct_string_24[] = {
   YAML_STRING("val", 3),
   YAML_END
 };
+static const struct YamlNode struct_unsigned_32[] = {
+  YAML_IDX,
+  YAML_UNSIGNED( "val", 32 ),
+  YAML_END
+};
 static const struct YamlNode struct_USBJoystickChData[] = {
   YAML_IDX,
   YAML_ENUM("mode", 3, enum_USBJoystickCh),
@@ -884,6 +889,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "functionSwitchStartConfig", 16 ),
   YAML_UNSIGNED( "functionSwitchLogicalState", 8 ),
   YAML_ARRAY("switchNames", 24, 6, struct_string_24, NULL),
+  YAML_ARRAY("functionSwitchLedONColor", 32, 6, struct_unsigned_32, NULL),
+  YAML_ARRAY("functionSwitchLedOFFColor", 32, 6, struct_unsigned_32, NULL),
   YAML_UNSIGNED( "usbJoystickExtMode", 1 ),
   YAML_ENUM("usbJoystickIfMode", 3, enum_USBJoystickIfMode),
   YAML_UNSIGNED( "usbJoystickCircularCut", 4 ),

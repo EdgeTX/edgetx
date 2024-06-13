@@ -106,5 +106,7 @@ extern uint8_t functionSwitchFunctionState;
 //led_driver.cpp
 void fsLedOff(uint8_t);
 void fsLedOn(uint8_t);
-bool getFSLedState(uint8_t index);
+bool fsLedState(uint8_t index);
+void fsLedOff(uint8_t, uint32_t color);
+void fsLedOn(uint8_t, uint32_t color);
 #endif

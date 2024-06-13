@@ -626,13 +626,21 @@ PACK(struct CustomScreenData {
   #define SCRIPT_DATA
 #endif
 
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  #define FUNCTION_SWITCHS_RGB_LEDS_FIELDS \
+    uint32_t functionSwitchLedONColor[NUM_FUNCTIONS_SWITCHES]; \
+    uint32_t functionSwitchLedOFFColor[NUM_FUNCTIONS_SWITCHES];
+#else
+  #define FUNCTION_SWITCHS_RGB_LEDS_FIELDS
+#endif
 #if defined(FUNCTION_SWITCHES)
   #define FUNCTION_SWITCHS_FIELDS \
     uint16_t functionSwitchConfig;  \
     uint16_t functionSwitchGroup; \
     uint16_t functionSwitchStartConfig; \
-    uint8_t functionSwitchLogicalState;  \
-    char switchNames[NUM_FUNCTIONS_SWITCHES][LEN_SWITCH_NAME];
+    uint8_t functionSwitchLogicalState; \
+    char switchNames[NUM_FUNCTIONS_SWITCHES][LEN_SWITCH_NAME]; \
+    FUNCTION_SWITCHS_RGB_LEDS_FIELDS
 #else
   #define FUNCTION_SWITCHS_FIELDS
 #endif

@@ -13,6 +13,12 @@ set(SRC ${SRC}
   hal/switch_driver.cpp
 )
 
+if(FUNCTION_SWITCHES)
+  set(SRC ${SRC}
+    hal/rgbleds.cpp
+  )
+endif()
+
 if (FLEXSW)
   # define the number of allowed flexible adc entries used as switch
   add_definitions(-DMAX_FLEX_SWITCHES=${FLEXSW})
