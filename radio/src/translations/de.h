@@ -1058,6 +1058,8 @@
   #define TR_BL_SELECT_KEY            "[R TRIM] um Datei auszuwählen"
   #define TR_BL_FLASH_KEY             "Halte [R TRIM] gedrückt, zum schreiben"
   #define TR_BL_EXIT_KEY              " [L TRIM] zum beenden"
+  #define TR_BL_ENABLE                "Aktivieren"
+  #define TR_BL_DISABLE               "Deaktivieren"
 #elif defined(PCBPL18)
    // Bootloader PL18 specific - Ascii only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
