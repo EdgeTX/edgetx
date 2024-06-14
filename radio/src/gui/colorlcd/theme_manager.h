@@ -181,6 +181,7 @@ class HeaderIcon : public StaticIcon
 {
  public:
   HeaderIcon(Window *parent, EdgeTxIcon icon);
+  HeaderIcon(Window *parent, const char* iconFile);
 };
 
 class UsbSDConnected : public Window
@@ -189,7 +190,4 @@ class UsbSDConnected : public Window
   UsbSDConnected();
 
   static LAYOUT_VAL(HDR_DATE_Y, 6, 6)
-
- protected:
-  HeaderDateTime* dateTime = nullptr;
 };

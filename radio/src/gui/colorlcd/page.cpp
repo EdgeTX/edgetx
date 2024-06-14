@@ -25,15 +25,29 @@
 #include "themes/etx_lv_theme.h"
 #include "view_main.h"
 
-PageHeader::PageHeader(Page* parent, EdgeTxIcon icon) :
-    Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT}),
-    icon(icon)
+PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
+    Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT})
 {
   setWindowFlag(NO_FOCUS | OPAQUE);
 
   etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
   new HeaderIcon(this, icon);
+
+  title = new StaticText(this,
+                         {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
+                          LCD_W - PAGE_TITLE_LEFT, EdgeTxStyles::PAGE_LINE_HEIGHT},
+                         "", COLOR_THEME_PRIMARY2);
+}
+
+PageHeader::PageHeader(Window* parent, const char* iconFile) :
+    Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT})
+{
+  setWindowFlag(NO_FOCUS | OPAQUE);
+
+  etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
+
+  new HeaderIcon(this, iconFile);
 
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,

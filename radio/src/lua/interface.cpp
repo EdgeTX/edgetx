@@ -897,7 +897,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
           StandaloneLuaWindow::setup(true);
 #endif
           luaError(lsScripts, sid.state);
-          continue;
+          break;
         }
       }
       // Skip the rest of the loop if we did not get a new script

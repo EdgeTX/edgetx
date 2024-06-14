@@ -232,6 +232,8 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         lvobj = new LvglWidgetChoice();
       else if (strcasecmp(p.type, "slider") == 0)
         lvobj = new LvglWidgetSlider();
+      else if (strcasecmp(p.type, "page") == 0)
+        lvobj = new LvglWidgetPage();
     }
     if (lvobj) {
       lvobj->getParams(L, -1);

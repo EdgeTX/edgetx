@@ -21,8 +21,10 @@
 
 #include "lua_widget.h"
 #include "opentx.h"
+#include "page.h"
 #include "slider.h"
 #include "toggleswitch.h"
+#include "lua_event.h"
 
 //-----------------------------------------------------------------------------
 
@@ -952,6 +954,7 @@ void LvglWidgetTextButton::setText(const char *s)
 
 void LvglWidgetTextButton::build(lua_State *L)
 {
+  if (h == LV_SIZE_CONTENT) h = 0;
   window =
       new TextButton(lvglManager->getCurrentParent(), {x, y, w, h}, txt, [=]() {
         pcallSimpleFunc(L, pressFunction);
@@ -1158,6 +1161,7 @@ void LvglWidgetChoice::clearRefs(lua_State *L)
 
 void LvglWidgetChoice::build(lua_State *L)
 {
+  if (h == LV_SIZE_CONTENT) h = 0;
   window = new Choice(
       lvglManager->getCurrentParent(), {x, y, w, h}, values, 0,
       values.size() - 1, [=]() { return pcallGetIntVal(L, getFunction) - 1; },
@@ -1195,6 +1199,89 @@ void LvglWidgetSlider::build(lua_State *L)
       [=]() { return pcallGetIntVal(L, getValueFunction); },
       [=](uint8_t val) { pcallSetIntVal(L, setValueFunction, val); });
   window->setPos(x, y);
+}
+
+//-----------------------------------------------------------------------------
+
+class WidgetPage : public NavWindow, public LuaEventHandler
+{
+ public:
+  WidgetPage(Window *parent, std::function<void()> backAction,
+             std::string title, std::string subtitle, std::string iconFile) :
+      NavWindow(parent, {0, 0, LCD_W, LCD_H}), backAction(std::move(backAction))
+  {
+    if (iconFile.empty())
+      header = new PageHeader(this, ICON_EDGETX);
+    else
+      header = new PageHeader(this, iconFile.c_str());
+
+    body = new Window(
+        this, {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});
+    body->setWindowFlag(NO_FOCUS);
+
+    header->setTitle(title);
+    header->setTitle2(subtitle);
+
+    etx_solid_bg(lvobj);
+    lv_obj_set_style_max_height(body->getLvObj(), LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT,
+                                LV_PART_MAIN);
+    etx_scrollbar(body->getLvObj());
+
+    body->padAll(PAD_ZERO);
+
+#if defined(HARDWARE_TOUCH)
+    addBackButton();
+#endif
+  }
+
+  Window *getBody() { return body; }
+
+ protected:
+  std::function<void()> backAction;
+  PageHeader *header = nullptr;
+  Window *body = nullptr;
+
+  bool bubbleEvents() override { return true; }
+
+  void onClicked() override { Keyboard::hide(false); LuaEventHandler::onClicked(); }
+
+  void onCancel() override { backAction(); }
+
+  void onEvent(event_t evt) override
+  {
+    LuaEventHandler::onEvent(evt);
+  }
+
+ protected:
+};
+
+void LvglWidgetPage::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "back")) {
+    backActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "title")) {
+    title = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "subtitle")) {
+    subtitle = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "icon")) {
+    iconFile = luaL_checkstring(L, -1);
+  } else {
+    LvglWidgetObject::parseParam(L, key);
+  }
+}
+
+void LvglWidgetPage::clearRefs(lua_State *L)
+{
+  clearRef(L, backActionFunction);
+  LvglWidgetObject::clearRefs(L);
+}
+
+void LvglWidgetPage::build(lua_State *L)
+{
+  auto page = new WidgetPage(
+      lvglManager->getCurrentParent(),
+      [=]() { pcallSimpleFunc(L, backActionFunction); }, title, subtitle, iconFile);
+  window = page->getBody();
 }
 
 //-----------------------------------------------------------------------------

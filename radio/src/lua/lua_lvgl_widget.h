@@ -403,3 +403,22 @@ class LvglWidgetSlider : public LvglWidgetObject
 };
 
 //-----------------------------------------------------------------------------
+
+class LvglWidgetPage : public LvglWidgetObject
+{
+ public:
+  LvglWidgetPage() : LvglWidgetObject() {}
+
+  void build(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
+
+ protected:
+  int backActionFunction = 0;
+  std::string title;
+  std::string subtitle;
+  std::string iconFile;
+
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------

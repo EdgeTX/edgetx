@@ -546,13 +546,19 @@ HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon) :
   (new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2))->center(width(), height());
 }
 
+HeaderIcon::HeaderIcon(Window* parent, const char* iconFile) :
+  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS)
+{
+  (new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2))->center(width(), height());
+}
+
 UsbSDConnected::UsbSDConnected() :
     Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
 {
   setWindowFlag(OPAQUE);
 
   etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
-  dateTime = new HeaderDateTime(this, LCD_W - TopBar::HDR_DATE_XO, HDR_DATE_Y);
+  new HeaderDateTime(this, LCD_W - TopBar::HDR_DATE_XO, HDR_DATE_Y);
 
   auto icon = new StaticIcon(this, 0, 0, ICON_USB_PLUGGED, COLOR_THEME_PRIMARY2);
   lv_obj_center(icon->getLvObj());

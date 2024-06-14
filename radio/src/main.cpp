@@ -191,8 +191,9 @@ void handleUsbConnection()
 #if defined(COLORLCD)
       usbConnectedWindow->deleteLater();
       usbConnectedWindow = nullptr;
-#endif
+#else
       pushEvent(EVT_ENTRY);
+#endif
     } else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
       serialStop(SP_VCP);
     }

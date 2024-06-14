@@ -99,12 +99,9 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl) :
     padAll(PAD_ZERO);
     etx_scrollbar(lvobj);
     lv_obj_t* lbl = lv_label_create(lvobj);
-    lv_obj_set_pos(lbl, 0, 0);
-    lv_obj_set_size(lbl, LCD_W, LCD_H);
-    etx_solid_bg(lbl, COLOR_THEME_PRIMARY1_INDEX);
-    etx_txt_color(lbl, COLOR_THEME_PRIMARY2_INDEX);
-    lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(lbl, (LCD_H - EdgeTxStyles::PAGE_LINE_HEIGHT) / 2, LV_PART_MAIN);
+    lv_obj_center(lbl);
+    etx_txt_color(lbl, COLOR_THEME_PRIMARY1_INDEX);
+    etx_font(lbl, FONT_XL_INDEX);
     lv_label_set_text(lbl, STR_LOADING);
 
     luaLvglManager = this;

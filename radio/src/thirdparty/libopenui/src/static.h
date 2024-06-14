@@ -123,6 +123,10 @@ class StaticIcon : public Window
  public:
   StaticIcon(Window *parent, coord_t x, coord_t y, EdgeTxIcon icon,
              LcdFlags color);
+  StaticIcon(Window *parent, coord_t x, coord_t y, const char* filename,
+             LcdFlags color);
+
+  void deleteLater(bool detach = true, bool trash = true) override;
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "StaticIcon"; }
@@ -134,6 +138,7 @@ class StaticIcon : public Window
 
  protected:
   LcdColorIndex currentColor;
+  MaskBitmap* mask = nullptr;
 };
 
 //-----------------------------------------------------------------------------
