@@ -104,8 +104,4 @@ class TabsGroup : public NavWindow
   void onPressPGUP() override;
   void onPressPGDN() override;
 #endif
-
-#if defined(PCBNV14) || defined(PCBPL18)
-  void addGoToMonitorsButton(void);
-#endif
 };
