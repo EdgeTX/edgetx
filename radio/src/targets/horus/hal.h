@@ -558,9 +558,9 @@
 #if defined(RADIO_T15)
   #define PCBREV_RCC_AHB1Periph         RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOA
   #define PCBREV_GPIO                   GPIOH
-  #define PCBREV_GPIO_PIN               (GPIO_Pin_7 | GPIO_Pin_8)  // PH.07 | PH.08
-  #define PCBREV_VALUE()                (GPIO_ReadInputDataBit(PCBREV_GPIO, GPIO_Pin_7) + (GPIO_ReadInputDataBit(PCBREV_GPIO, GPIO_Pin_8) << 1))
-  #define LL_PCBREV_VALUE()             (LL_GPIO_IsInputPinSet(PCBREV_GPIO, GPIO_PIN_7) + (LL_GPIO_IsInputPinSet(PCBREV_GPIO, GPIO_PIN_8) << 1))
+  #define PCBREV_GPIO_PIN               (GPIO_Pin_8)  // PH.08
+  #define PCBREV_VALUE()                (GPIO_ReadInputDataBit(PCBREV_GPIO, PCBREV_GPIO_PIN))
+  #define LL_PCBREV_VALUE()             (LL_GPIO_IsInputPinSet(PCBREV_GPIO, GPIO_PIN_8))
 #elif defined(PCBX10) && defined(MANUFACTURER_FRSKY)
   #define PCBREV_RCC_AHB1Periph         RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOA
   #define PCBREV_GPIO                   GPIOH
