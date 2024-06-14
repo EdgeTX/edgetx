@@ -80,6 +80,8 @@ class ModelButton : public Button
                          ? COLOR_THEME_ACTIVE_INDEX
                          : COLOR_THEME_PRIMARY2_INDEX;
 
+    etx_bg_color(lvobj, (LcdColorIndex)bg_col_idx);
+
     coord_t w = width() - PAD_SMALL * 2;
 
     LcdFlags font = modelLayouts[layout].font;
@@ -141,8 +143,11 @@ class ModelButton : public Button
 
       if (modelLayouts[layout].hasImage) {
         if (modelCell->modelBitmap[0]) {
+          int bg_col = modelCell == modelslist.getCurrentModel()
+                              ? COLOR_THEME_ACTIVE
+                              : COLOR_THEME_PRIMARY2;
           GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
-          auto bitmap = new StaticImage(this, {PAD_TINY, PAD_TINY, w, h}, filename, false, true);
+          auto bitmap = new StaticBitmap(this, {PAD_TINY, PAD_TINY, w, h}, bg_col, filename);
           lv_obj_move_background(bitmap->getLvObj());
           bitmap->show(bitmap->hasImage());
           if (bitmap->hasImage()) {
