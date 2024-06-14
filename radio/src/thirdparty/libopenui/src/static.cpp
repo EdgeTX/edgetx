@@ -245,8 +245,8 @@ void StaticImage::setZoom()
 // Display image from file system with software scaling
 //  - uglier but much faster than LVGL scaling
 StaticBitmap::StaticBitmap(Window* parent, const rect_t& rect,
-                           LcdFlags bgColor, const char* filename) :
-    Window(parent, rect), bgColor(bgColor)
+                           const char* filename) :
+    Window(parent, rect)
 {
   setWindowFlag(NO_FOCUS);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
@@ -260,12 +260,12 @@ void StaticBitmap::setSource(const char *filename)
     if (img) delete img;
     img = BitmapBuffer::loadBitmap(filename, BMP_ARGB4444);
     if (img) {
-      img->resizeToLVGL(width(), height(), bgColor);
+      img->resizeToLVGL(width(), height());
       if (canvas) lv_obj_del(canvas);
       canvas = lv_canvas_create(lvobj);
       lv_obj_center(canvas);
       lv_canvas_set_buffer(canvas, img->getData(), img->width(), img->height(),
-                          LV_IMG_CF_TRUE_COLOR);
+                          LV_IMG_CF_TRUE_COLOR_ALPHA);
     }
   }
 }

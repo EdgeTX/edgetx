@@ -498,13 +498,15 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
 
 // Resize and convert to LVGL image data format with alpha blending to
 // background color
-void BitmapBuffer::resizeToLVGL(coord_t w, coord_t h, LcdFlags bgColor)
+void BitmapBuffer::resizeToLVGL(coord_t w, coord_t h)
 {
-  // Scale values from ARGB4444 to RGB565
+  // Scale values from ARGB4444 to RGB565 with alpha
   static uint8_t rbcnv[16] = {0,  2,  4,  6,  8,  10, 12, 14,
                               17, 19, 21, 23, 25, 27, 29, 31};
   static uint8_t gcnv[16] = {0,  4,  8,  13, 17, 21, 25, 29,
                              34, 38, 42, 46, 50, 55, 59, 63};
+  static uint8_t alpha[16] = {0, 17, 34, 51, 68, 85, 102, 119,
+                              136, 153, 170, 187, 204, 221, 238, 255};
 
   float vscale = float(h) / (float)height();
   float hscale = float(w) / (float)width();
@@ -520,33 +522,26 @@ void BitmapBuffer::resizeToLVGL(coord_t w, coord_t h, LcdFlags bgColor)
     scaledh = height() * scale;
   }
 
-  pixel_t *ndata =
-      (pixel_t *)malloc(align32(scaledw * scaledh * sizeof(pixel_t)));
+  uint8_t *ndata =
+      (uint8_t *)malloc(align32(scaledw * scaledh * 3));
 
   if (ndata) {
-    RGB_SPLIT(COLOR_VAL(bgColor), bgRed, bgGreen, bgBlue);
+    uint8_t *dst = ndata;
     for (int i = 0; i < scaledh; i += 1) {
-      pixel_t *dst = &ndata[i * scaledw];
       pixel_t *src = &data[(coord_t)(i / scale) * width()];
       for (int j = 0; j < scaledw; j += 1) {
         ARGB_SPLIT(src[(coord_t)(j / scale)], a, r, g, b);
-        r = rbcnv[r];
-        g = gcnv[g];
-        b = rbcnv[b];
-        if (a != OPACITY_MAX) {
-          uint8_t bgWeight = OPACITY_MAX - a;
-          r = (bgRed * bgWeight + r * a) / OPACITY_MAX;
-          g = (bgGreen * bgWeight + g * a) / OPACITY_MAX;
-          b = (bgBlue * bgWeight + b * a) / OPACITY_MAX;
-        }
-        *dst++ = RGB_JOIN(r, g, b);
+        auto c = RGB_JOIN(rbcnv[r], gcnv[g], rbcnv[b]);
+        *dst++ = c & 0xFF;
+        *dst++ = c >> 8;
+        *dst++ = alpha[a];
       }
     }
 
     delete data;
-    data = ndata;
+    data = (pixel_t*)ndata;
     _width = scaledw;
     _height = scaledh;
-    data_end = data + (scaledw * scaledh);
+    data_end = data + ((scaledw * scaledh * 3 + 1) / 2);
   }
 }

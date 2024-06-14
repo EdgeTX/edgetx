@@ -163,7 +163,7 @@ class StaticBitmap : public Window
 {
  public:
   StaticBitmap(Window *parent, const rect_t &rect,
-               LcdFlags bgColor, const char *filename = nullptr);
+               const char *filename = nullptr);
   ~StaticBitmap();
 
 #if defined(DEBUG_WINDOWS)
@@ -174,7 +174,6 @@ class StaticBitmap : public Window
   bool hasImage() const;
 
  protected:
-  LcdFlags bgColor;
   lv_obj_t *canvas = nullptr;
   BitmapBuffer *img = nullptr;
 };
