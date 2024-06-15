@@ -884,7 +884,13 @@ void menuModelSetup(event_t event)
       {
         int index = (k - ITEM_MODEL_SETUP_SW1) / 2;
         lcdDrawSizedText(INDENT_WIDTH, y, STR_CHAR_SWITCH, 2, menuHorizontalPosition < 0 ? attr : 0);
-        lcdDrawText(lcdNextPos, y, switchGetName(index+switchGetMaxSwitches()), menuHorizontalPosition < 0 ? attr : 0);
+
+        // TODO: restore following line when switchGetName(index+switchGetMaxSwitches()) doesn't crash anymore
+        //lcdDrawText(lcdNextPos, y, switchGetName(index+switchGetMaxSwitches()), menuHorizontalPosition < 0 ? attr : 0);
+
+        // TODO : delete next 2 lines when switchGetName(index+switchGetMaxSwitches()) doesn't crash anymore
+        lcdDrawText(lcdNextPos, y, "SW", menuHorizontalPosition < 0 ? attr : 0);
+        lcdDrawChar(lcdNextPos, y, '1' + index, menuHorizontalPosition < 0 ? attr : 0);
 
         if (ZEXIST(g_model.switchNames[index]) || (attr && s_editMode > 0 && menuHorizontalPosition == 0))
           editName(35, y, g_model.switchNames[index], LEN_SWITCH_NAME, event, menuHorizontalPosition == 0 ? attr : 0, 0, old_editMode);
@@ -948,19 +954,21 @@ void menuModelSetup(event_t event)
         int index = (k - ITEM_MODEL_SETUP_SW1_COLOR) / 2;
         uint8_t selectedColor = 0;
 
-        selectedColor = getRGBColorIndex(g_model.functionSwitchLedONColor[k]);
+        selectedColor = getRGBColorIndex(g_model.functionSwitchLedONColor[index]);
         selectedColor = editChoice(INDENT_WIDTH + getTextWidth(STR_FS_ON_COLOR) + 2, y, STR_FS_ON_COLOR, \
           STR_FS_COLOR_LIST, selectedColor, 0, 4, menuHorizontalPosition == 0 ? attr : 0, event, INDENT_WIDTH);
         if (attr && menuHorizontalPosition == 0 && checkIncDec_Ret) {
-          g_model.functionSwitchLedONColor[k] = colorTable[selectedColor];
+          g_model.functionSwitchLedONColor[index] = colorTable[selectedColor];
+          TRACE("LED %d %u %u", index, g_model.functionSwitchLedONColor[index] , colorTable[selectedColor]);
           storageDirty(EE_MODEL);
         }
 
-        selectedColor = getRGBColorIndex(g_model.functionSwitchLedOFFColor[k]);
+        selectedColor = getRGBColorIndex(g_model.functionSwitchLedOFFColor[index]);
         selectedColor = editChoice((30 + 5*FW) + getTextWidth(STR_FS_OFF_COLOR) + 2, y, STR_FS_OFF_COLOR, \
           STR_FS_COLOR_LIST, selectedColor, 0, 4, menuHorizontalPosition == 1 ? attr : 0, event, 30 + 5*FW);
         if (attr && menuHorizontalPosition == 1 && checkIncDec_Ret) {
-          g_model.functionSwitchLedOFFColor[k] = colorTable[selectedColor];
+          g_model.functionSwitchLedOFFColor[index] = colorTable[selectedColor];
+          TRACE("LED %d %u %u", index, g_model.functionSwitchLedOFFColor[index] , colorTable[selectedColor]);
           storageDirty(EE_MODEL);
         }
 

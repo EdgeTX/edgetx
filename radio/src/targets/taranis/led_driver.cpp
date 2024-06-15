@@ -100,7 +100,6 @@ bool fsLedState(uint8_t index)
   return gpio_read(fsLeds[index]) ? true : false;
 }
 #endif
-#endif
 
 void ledOff()
 {

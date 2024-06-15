@@ -230,7 +230,7 @@ static const struct YamlNode struct_TrainerData[] = {
   YAML_END
 };
 static const struct YamlNode struct_anonymous_1[] = {
-  YAML_STRING("name", 6),
+  YAML_STRING("name", 8),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_2[] = {
@@ -246,7 +246,7 @@ static const struct YamlNode struct_anonymous_3[] = {
   YAML_END
 };
 static const struct YamlNode union_anonymous_0_elmts[] = {
-  YAML_STRUCT("play", 48, struct_anonymous_1, NULL),
+  YAML_STRUCT("play", 64, struct_anonymous_1, NULL),
   YAML_STRUCT("all", 64, struct_anonymous_2, NULL),
   YAML_STRUCT("clear", 64, struct_anonymous_3, NULL),
   YAML_END
@@ -357,6 +357,10 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "modelSFDisabled", 1 ),
   YAML_UNSIGNED( "modelCustomScriptsDisabled", 1 ),
   YAML_UNSIGNED( "modelTelemetryDisabled", 1 ),
+  YAML_UNSIGNED( "disableTrainerPoweroffAlarm", 1 ),
+  YAML_UNSIGNED( "disablePwrOnOffHaptic", 1 ),
+  YAML_UNSIGNED( "invertLCD", 1 ),
+  YAML_PADDING( 3 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
@@ -393,7 +397,7 @@ static const struct YamlNode struct_CurveRef[] = {
 static const struct YamlNode struct_MixData[] = {
   YAML_SIGNED_CUST( "weight", 11, in_read_weight, in_write_weight ),
   YAML_UNSIGNED( "destCh", 5 ),
-  YAML_UNSIGNED_CUST( "srcRaw", 10, r_mixSrcRaw, w_mixSrcRaw ),
+  YAML_SIGNED_CUST( "srcRaw", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
   YAML_UNSIGNED( "carryTrim", 1 ),
   YAML_UNSIGNED( "mixWarn", 2 ),
   YAML_ENUM("mltpx", 2, enum_MixerMultiplex),
@@ -427,7 +431,7 @@ static const struct YamlNode struct_ExpoData[] = {
   YAML_UNSIGNED( "scale", 14 ),
   YAML_CUSTOM("carryTrim",r_carryTrim,nullptr),
   YAML_SIGNED( "trimSource", 6 ),
-  YAML_UNSIGNED_CUST( "srcRaw", 10, r_mixSrcRaw, w_mixSrcRaw ),
+  YAML_SIGNED_CUST( "srcRaw", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
   YAML_UNSIGNED( "chn", 5 ),
   YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
@@ -457,8 +461,8 @@ static const struct YamlNode struct_LogicalSwitchData[] = {
   YAML_PADDING( 10 ),
   YAML_PADDING( 10 ),
   YAML_SIGNED_CUST( "andsw", 10, r_swtchSrc, w_swtchSrc ),
-  YAML_PADDING( 1 ),
-  YAML_PADDING( 1 ),
+  YAML_UNSIGNED( "lsPersist", 1 ),
+  YAML_UNSIGNED( "lsState", 1 ),
   YAML_PADDING( 16 ),
   YAML_UNSIGNED( "delay", 8 ),
   YAML_UNSIGNED( "duration", 8 ),
@@ -760,6 +764,11 @@ static const struct YamlNode struct_TelemetryScreenData[] = {
   YAML_UNION("u", 192, union_TelemetryScreenData_u_elmts, select_tele_screen_data),
   YAML_END
 };
+static const struct YamlNode struct_unsigned_32[] = {
+  YAML_IDX,
+  YAML_UNSIGNED( "val", 32 ),
+  YAML_END
+};
 static const struct YamlNode struct_USBJoystickChData[] = {
   YAML_IDX,
   YAML_ENUM("mode", 3, enum_USBJoystickCh),
@@ -801,8 +810,9 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_STRUCT("swashR", 64, struct_SwashRingData, swash_is_active),
   YAML_ARRAY("flightModeData", 320, 9, struct_FlightModeData, fmd_is_active),
   YAML_UNSIGNED_CUST( "thrTraceSrc", 8, r_thrSrc, w_thrSrc ),
-  YAML_CUSTOM("switchWarningState",r_swtchWarn,w_swtchWarn),
-  YAML_PADDING( 64 ),
+  YAML_CUSTOM("switchWarningState",r_swtchWarn,nullptr),
+  YAML_ARRAY("switchWarning", 3, 21, struct_swtchWarn, nullptr),
+  YAML_PADDING(1),
   YAML_ARRAY("gvars", 56, 9, struct_GVarData, NULL),
   YAML_STRUCT("varioData", 40, struct_VarioData, NULL),
   YAML_UNSIGNED_CUST( "rssiSource", 8, r_tele_sensor, w_tele_sensor ),
@@ -829,6 +839,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "functionSwitchStartConfig", 16 ),
   YAML_UNSIGNED( "functionSwitchLogicalState", 8 ),
   YAML_ARRAY("switchNames", 24, 6, struct_string_24, NULL),
+  YAML_ARRAY("functionSwitchLedONColor", 32, 6, struct_unsigned_32, NULL),
+  YAML_ARRAY("functionSwitchLedOFFColor", 32, 6, struct_unsigned_32, NULL),
   YAML_UNSIGNED( "usbJoystickExtMode", 1 ),
   YAML_ENUM("usbJoystickIfMode", 3, enum_USBJoystickIfMode),
   YAML_UNSIGNED( "usbJoystickCircularCut", 4 ),

@@ -2516,9 +2516,7 @@
   #elif defined(PCBX9LITE)
     #define EXTMODULE_PWR_GPIO          GPIO_PIN(GPIOA, 8) // PA.08
   #elif defined(RADIO_GX12)
-    #define EXTMODULE_RCC_AHB1Periph    (RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_DMA2)
-    #define EXTMODULE_PWR_GPIO          GPIOE
-    #define EXTMODULE_PWR_GPIO_PIN      GPIO_Pin_0  // PE.00
+    #define EXTMODULE_PWR_GPIO          GPIO_PIN(GPIOE, 0) // PE.00
   #else
     #define EXTMODULE_PWR_GPIO          GPIO_PIN(GPIOD, 11) // PD.11
   #endif
@@ -2943,7 +2941,7 @@
 #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4
 
 #if defined(PCBXLITE) || defined(PCBX9LITE) || defined(PCBX7ACCESS) || \
-    defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_X9DP2019)
+    defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_X9DP2019) || defined(RADIO_GX12)
   #define I2C_B1_SCL_GPIO               GPIO_PIN(GPIOB, 8)  // PB.08
   #define I2C_B1_SDA_GPIO               GPIO_PIN(GPIOB, 9)  // PB.09
 #else

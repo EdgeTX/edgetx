@@ -117,7 +117,7 @@ void applyDefaultTemplate()
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
     g_model.functionSwitchLedOFFColor[i] = 0;
-    g_model.functionSwitchLedONColor[i] = 0xFFFF;
+    g_model.functionSwitchLedONColor[i] = 0xFFFFFF;
   }
 #endif
 #endif
