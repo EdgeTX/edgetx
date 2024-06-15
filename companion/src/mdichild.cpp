@@ -1251,6 +1251,7 @@ void MdiChild::newFile(bool createDefaults)
   isUntitled = true;
   curFile = QString("document%1.etx").arg(sequenceNumber++);
   updateTitle();
+  modelsListModel->setFilename(curFile);
   radioData.addLabel(tr("Favorites"));
   labelsListModel->buildLabelsList();
 }
@@ -1395,6 +1396,7 @@ void MdiChild::setCurrentFile(const QString & fileName)
   isUntitled = false;
   setWindowModified(false);
   updateTitle();
+  modelsListModel->setFilename(curFile);
 
   QStringList files = g.recentFiles();
   files.removeAll(curFile);
