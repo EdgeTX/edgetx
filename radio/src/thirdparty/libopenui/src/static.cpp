@@ -167,10 +167,6 @@ void StaticIcon::setColor(LcdColorIndex color)
 
 void StaticIcon::setIcon(EdgeTxIcon icon)
 {
-  // If prev icon loaded from file, free memory.
-  if (mask) free(mask);
-  mask = nullptr;
-
   auto newMask = getBuiltinIcon(icon);
   setSize(newMask->width, newMask->height);
   lv_canvas_set_buffer(lvobj, (void*)newMask->data, newMask->width, newMask->height,
