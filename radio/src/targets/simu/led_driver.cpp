@@ -28,6 +28,19 @@ void ledBlue() {}
 void ledOff() {}
 void fsLedOn(uint8_t) {}
 void fsLedOff(uint8_t) {}
+void fsLedOn(uint8_t, uint32_t) {}
+void fsLedOff(uint8_t, uint32_t) {}
 bool fsLedState(uint8_t) { return false;}
 void rgbSetLedColor(unsigned char, unsigned char, unsigned char, unsigned char) {}
 void rgbLedColorApply() {}
+
+uint8_t getRGBColorIndex(uint32_t color)
+{
+  static const uint32_t colorTable[] = {0xFFFFFF, 0xF80000, 0x00FC00, 0x0000F8, 0x000000}; // White, red, green, blue, off
+
+  for (uint8_t i = 0; i < (sizeof(colorTable) / sizeof(colorTable[0])); i++) {
+    if (color == colorTable[i])
+      return(i);
+  }
+  return 5; // Custom value set with Companion
+}
