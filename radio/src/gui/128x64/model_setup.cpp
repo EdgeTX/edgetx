@@ -70,7 +70,30 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_TIMER3_PERSISTENT,
   ITEM_MODEL_SETUP_TIMER3_MINUTE_BEEP,
   ITEM_MODEL_SETUP_TIMER3_COUNTDOWN_BEEP,
-#if defined(FUNCTION_SWITCHES)
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  ITEM_MODEL_SETUP_LABEL,
+  ITEM_MODEL_SETUP_SW1,
+  ITEM_MODEL_SETUP_SW1_COLOR,
+  ITEM_MODEL_SETUP_SW2,
+  ITEM_MODEL_SETUP_SW2_COLOR,
+  ITEM_MODEL_SETUP_SW3,
+  ITEM_MODEL_SETUP_SW3_COLOR,
+  ITEM_MODEL_SETUP_SW4,
+  ITEM_MODEL_SETUP_SW4_COLOR,
+  ITEM_MODEL_SETUP_SW5,
+  ITEM_MODEL_SETUP_SW5_COLOR,
+  ITEM_MODEL_SETUP_SW6,
+  ITEM_MODEL_SETUP_SW6_COLOR,
+  ITEM_MODEL_SETUP_GROUP1_LABEL,
+  ITEM_MODEL_SETUP_GROUP1_ALWAYS_ON,
+  ITEM_MODEL_SETUP_GROUP1_START,
+  ITEM_MODEL_SETUP_GROUP2_LABEL,
+  ITEM_MODEL_SETUP_GROUP2_ALWAYS_ON,
+  ITEM_MODEL_SETUP_GROUP2_START,
+  ITEM_MODEL_SETUP_GROUP3_LABEL,
+  ITEM_MODEL_SETUP_GROUP3_ALWAYS_ON,
+  ITEM_MODEL_SETUP_GROUP3_START,
+#elif defined(FUNCTION_SWITCHES)
   ITEM_MODEL_SETUP_LABEL,
   ITEM_MODEL_SETUP_SW1,
   ITEM_MODEL_SETUP_SW2,
@@ -352,7 +375,30 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
 
 #define EXTRA_MODULE_ROWS
 
-#if defined(FUNCTION_SWITCHES)
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+#define FUNCTION_SWITCHES_ROWS        1,                       \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
+                                        FS_ROW(1), \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
+                                        FS_ROW(1), \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
+                                        FS_ROW(1), \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
+                                        FS_ROW(1), \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
+                                        FS_ROW(1), \
+                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
+                                        FS_ROW(1), \
+                                        FS_ROW(G1_ROW(LABEL())), \
+                                        FS_ROW(G1_ROW(0)),  \
+                                        FS_ROW(G1_ROW(0)),  \
+                                        FS_ROW(G2_ROW(LABEL())), \
+                                        FS_ROW(G2_ROW(0)),  \
+                                        FS_ROW(G2_ROW(0)),  \
+                                        FS_ROW(G3_ROW(LABEL())), \
+                                        FS_ROW(G3_ROW(0)),  \
+                                        FS_ROW(G3_ROW(0)),
+#elif defined(FUNCTION_SWITCHES)
   #define FUNCTION_SWITCHES_ROWS        1,                       \
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
@@ -836,7 +882,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_SW5:
       case ITEM_MODEL_SETUP_SW6:
       {
-        int index = k - ITEM_MODEL_SETUP_SW1;
+        int index = (k - ITEM_MODEL_SETUP_SW1) / 2;
         lcdDrawSizedText(INDENT_WIDTH, y, STR_CHAR_SWITCH, 2, menuHorizontalPosition < 0 ? attr : 0);
         lcdDrawText(lcdNextPos, y, switchGetName(index+switchGetMaxSwitches()), menuHorizontalPosition < 0 ? attr : 0);
 
@@ -889,6 +935,38 @@ void menuModelSetup(event_t event)
         }
         break;
       }
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+      case ITEM_MODEL_SETUP_SW1_COLOR:
+      case ITEM_MODEL_SETUP_SW2_COLOR:
+      case ITEM_MODEL_SETUP_SW3_COLOR:
+      case ITEM_MODEL_SETUP_SW4_COLOR:
+      case ITEM_MODEL_SETUP_SW5_COLOR:
+      case ITEM_MODEL_SETUP_SW6_COLOR:
+      {
+        static const uint32_t colorTable[] = {0xFFFFFF, 0xF80000, 0x00FC00, 0x0000F8, 0x000000}; // White, red, green, blue, off
+        int index = (k - ITEM_MODEL_SETUP_SW1_COLOR) / 2;
+        uint8_t selectedColor = 0;
+
+        selectedColor = getRGBColorIndex(g_model.functionSwitchLedONColor[k]);
+        selectedColor = editChoice(INDENT_WIDTH + getTextWidth(STR_FS_ON_COLOR) + 2, y, STR_FS_ON_COLOR, \
+          STR_FS_COLOR_LIST, selectedColor, 0, 4, menuHorizontalPosition == 0 ? attr : 0, event, INDENT_WIDTH);
+        if (attr && menuHorizontalPosition == 0 && checkIncDec_Ret) {
+          g_model.functionSwitchLedONColor[k] = colorTable[selectedColor];
+          storageDirty(EE_MODEL);
+        }
+
+        selectedColor = getRGBColorIndex(g_model.functionSwitchLedOFFColor[k]);
+        selectedColor = editChoice((30 + 5*FW) + getTextWidth(STR_FS_OFF_COLOR) + 2, y, STR_FS_OFF_COLOR, \
+          STR_FS_COLOR_LIST, selectedColor, 0, 4, menuHorizontalPosition == 1 ? attr : 0, event, 30 + 5*FW);
+        if (attr && menuHorizontalPosition == 1 && checkIncDec_Ret) {
+          g_model.functionSwitchLedOFFColor[k] = colorTable[selectedColor];
+          storageDirty(EE_MODEL);
+        }
+
+        break;
+      }
+#endif
 
       case ITEM_MODEL_SETUP_GROUP1_LABEL:
       case ITEM_MODEL_SETUP_GROUP2_LABEL:

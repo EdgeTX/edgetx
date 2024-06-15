@@ -289,25 +289,30 @@
 #define TR_MS                 		     "ms"
 #define TR_SWITCH                      TR("Schalt.", "Schalter")
 #define TR_FUNCTION_SWITCHES           "Anpassbare Schalter"
-#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off"
-#define TR_FS_ON_COLOR                 "ON Color"
-#define TR_FS_OFF_COLOR                "OFF Color"
+#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off","Custom"
+#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
+#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off","Custom"
 #define TR_GROUP                        "Group"
-#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off"
-#define TR_FS_ON_COLOR                 "ON Color"
-#define TR_FS_OFF_COLOR                "OFF Color"
+#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off","Custom"
+#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
+#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off","Custom"
 #define TR_GROUP _ALWAYS_ON             "Always on"
-#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off"
-#define TR_FS_ON_COLOR                 "ON Color"
-#define TR_FS_OFF_COLOR                "OFF Color"
+#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off","Custom"
+#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
+#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off","Custom"
 #define TR_GROUP                        "Group"
-#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off"
-#define TR_FS_ON_COLOR                 "ON Color"
-#define TR_FS_OFF_COLOR                "OFF Color"
+#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off","Custom"
+#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
+#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off","Custom"
 #define TR_GROUP _ALWAYS_ON             "Always on"
-#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off"
-#define TR_FS_ON_COLOR                 "ON Color"
-#define TR_FS_OFF_COLOR                "OFF Color"
+#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off","Custom"
+#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
+#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off","Custom"
 #define TR_GROUP S                      "Always on groups"
 #define TR_LAST                        "Last"
 #define TR_MORE_INFO                   "More info"
