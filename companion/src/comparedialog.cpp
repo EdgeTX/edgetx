@@ -75,14 +75,23 @@ bool CompareDialog::handleMimeData(const QMimeData * mimeData)
 {
   QVector<ModelData> mList;
   GeneralSettings gs;
+  QString fdata;
+
   if (!ModelsListModel::decodeMimeData(mimeData, &mList, &gs) || mList.isEmpty())
     return false;
+
+  if (!ModelsListModel::decodeFileData(mimeData, &fdata))
+    return false;
+
   for (int i=0; i < mList.size(); ++i) {
     GMData data;
     data.model = mList[i];
     data.gs = gs;
+    data.fname = fdata;
+    qDebug() << "filename" << data.fname;
     modelsList.append(data);
   }
+
   return true;
 }
 
@@ -117,6 +126,7 @@ void CompareDialog::compare()
     if (name.isEmpty())
       name = tr("Unnamed Model %1").arg(i+1);
 
+    name.append(QString(" (%1)").arg(modelsList[i].fname));
     QWidget * hdr = new QWidget(this);
     hdr->setLayout(new QHBoxLayout());
     hdr->layout()->setContentsMargins(0, 0, 0, 0);

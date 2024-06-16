@@ -40,6 +40,7 @@ class CompareDialog : public QDialog
     struct GMData {
         ModelData model;
         GeneralSettings gs;
+        QString fname;
     };
 
     MultiModelPrinter * multimodelprinter;
