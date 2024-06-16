@@ -352,6 +352,7 @@ void LogicalSwitchesPanel::updateLine(int i)
 
   cbFunction[i]->setCurrentIndex(cbFunction[i]->findData(model->logicalSw[i].func));
   cbAndSwitch[i]->setCurrentIndex(cbAndSwitch[i]->findData(RawSwitch(model->logicalSw[i].andsw).toValue()));
+  dsbOffset[i]->setSuffix("");
 
   if (!model->logicalSw[i].isEmpty()) {
     mask = LINE_ENABLED | DELAY_ENABLED | DURATION_ENABLED;
@@ -376,9 +377,7 @@ void LogicalSwitchesPanel::updateLine(int i)
         }
         else {
           mask |= VALUE2_VISIBLE;
-          if (range.unit.isEmpty())
-            dsbOffset[i]->setSuffix("");
-          else
+          if (!range.unit.isEmpty())
             dsbOffset[i]->setSuffix(" " + range.unit);
           dsbOffset[i]->setDecimals(range.decimals);
           dsbOffset[i]->setMinimum(range.min);
