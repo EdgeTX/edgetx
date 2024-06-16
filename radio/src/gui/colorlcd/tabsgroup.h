@@ -40,9 +40,9 @@ class PageTab
   {
   }
 
-  virtual bool isVisible() const { return true; }
-
   virtual ~PageTab() = default;
+
+  virtual bool isVisible() const { return true; }
 
   virtual void build(Window* window) = 0;
 

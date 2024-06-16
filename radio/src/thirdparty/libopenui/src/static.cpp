@@ -167,9 +167,9 @@ void StaticIcon::setColor(LcdColorIndex color)
 
 void StaticIcon::setIcon(EdgeTxIcon icon)
 {
-  auto mask = getBuiltinIcon(icon);
-  setSize(mask->width, mask->height);
-  lv_canvas_set_buffer(lvobj, (void*)mask->data, mask->width, mask->height,
+  auto newMask = getBuiltinIcon(icon);
+  setSize(newMask->width, newMask->height);
+  lv_canvas_set_buffer(lvobj, (void*)newMask->data, newMask->width, newMask->height,
                        LV_IMG_CF_ALPHA_8BIT);
 }
 

@@ -63,6 +63,11 @@ class TabCarouselButton : public ButtonBase
     show(isVisible());
   }
 
+  ~TabCarouselButton()
+  {
+    delete pageTab;
+  }
+
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override
   {
@@ -89,8 +94,7 @@ class TabCarouselButton : public ButtonBase
     show(isVisible());
     if (lastIcon != getIcon()) {
       lastIcon = getIcon();
-      icon->deleteLater();
-      icon = new StaticIcon(this, 2, ICON_Y, lastIcon, COLOR_THEME_PRIMARY2);
+      icon->setIcon(lastIcon);
     }
     ButtonBase::checkEvents();
   }
