@@ -75,6 +75,14 @@ void pwrInit()
 
   hardwareOptions.pcbrev = PCBREV_VALUE();
 #endif
+
+  // Aux serial port power
+#if defined(AUX_SERIAL_PWR_GPIO)
+  gpio_init(AUX_SERIAL_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
+#if defined(AUX2_SERIAL_PWR_GPIO)
+  gpio_init(AUX2_SERIAL_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
 }
 
 void pwrOn()
