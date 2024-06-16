@@ -19,94 +19,33 @@
  * GNU General Public License for more details.
  */
 
+#include "stm32_i2c_driver.h"
+#include "stm32_gpio.h"
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
-#include "stm32_i2c_driver.h"
-#include "hal.h"
 
 #include "timers_driver.h"
 #include "debug.h"
 
-struct _i2c_defs {
-  GPIO_TypeDef*      SCL_GPIOx;
-  uint32_t           SCL_Pin;
-  GPIO_TypeDef*      SDA_GPIOx;
-  uint32_t           SDA_Pin;
-  uint32_t           Alternate;
-  void (*set_pwr)(bool enable);
+#define MAX_I2C_DEVICES 2
+
+struct stm32_i2c_device {
+  I2C_HandleTypeDef handle;
+  const stm32_i2c_hw_def_t* hw_def;
 };
 
-#if defined(I2C_B1)
-static I2C_HandleTypeDef hi2c1 = {
-  .Instance = I2C_B1,
-  .Init = { 0, 0, 0, 0, 0, 0, 0, 0 },
-};
-static const _i2c_defs pins_hi2c1 = {
-  .SCL_GPIOx = I2C_B1_GPIO,
-  .SCL_Pin = I2C_B1_SCL_GPIO_PIN,
-  .SDA_GPIOx = I2C_B1_GPIO,
-  .SDA_Pin = I2C_B1_SDA_GPIO_PIN,
-  .Alternate = I2C_B1_GPIO_AF,
-  .set_pwr = nullptr,
-};
-#endif
+static stm32_i2c_device _i2c_devs[MAX_I2C_DEVICES] = {};
 
-#if defined(I2C_B2)
-static I2C_HandleTypeDef hi2c2 = {
-  .Instance = I2C_B2,
-  .Init = { 0, 0, 0, 0, 0, 0, 0, 0 },
-};
-
-#if defined(I2C_B2_PWR_GPIO)
-void _i2c_b2_pwr(bool enable)
+static stm32_i2c_device* i2c_get_device(uint8_t bus)
 {
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-  
-  pinInit.Pin = I2C_B2_PWR_GPIO_PIN;
-  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-  pinInit.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(I2C_B2_PWR_GPIO, &pinInit);
-
-  if (enable) {
-    LL_GPIO_SetOutputPin(I2C_B2_PWR_GPIO, I2C_B2_PWR_GPIO_PIN);
-  } else {
-    LL_GPIO_ResetOutputPin(I2C_B2_PWR_GPIO, I2C_B2_PWR_GPIO_PIN);
-  }
+  if (bus >= MAX_I2C_DEVICES) return nullptr;
+  return &_i2c_devs[bus];
 }
-#endif
 
-static const _i2c_defs pins_hi2c2 = {
-#if defined(I2C_B2_GPIO)
-  .SCL_GPIOx = I2C_B2_GPIO,
-#else
-  .SCL_GPIOx = I2C_B2_SCL_GPIO,
-#endif
-  .SCL_Pin = I2C_B2_SCL_GPIO_PIN,
-#if defined(I2C_B2_GPIO)
-  .SDA_GPIOx = I2C_B2_GPIO,
-#else
-  .SDA_GPIOx = I2C_B2_SDA_GPIO,
-#endif
-  .SDA_Pin = I2C_B2_SDA_GPIO_PIN,
-  .Alternate = I2C_B2_GPIO_AF,
-#if defined(I2C_B2_PWR_GPIO)
-  .set_pwr = _i2c_b2_pwr,
-#else
-  .set_pwr = nullptr,
-#endif
-};
-#endif
-
-static I2C_HandleTypeDef* get_i2c_handle(uint8_t bus)
+static I2C_HandleTypeDef* i2c_get_handle(uint8_t bus)
 {
-#if defined(I2C_B1)
-  if (bus == I2C_Bus_1) { return &hi2c1; }
-#endif
-#if defined(I2C_B2)
-  if (bus == I2C_Bus_2) { return &hi2c2; }
-#endif
-  return nullptr;
+  if (bus >= MAX_I2C_DEVICES) return nullptr;
+  return &_i2c_devs[bus].handle;
 }
 
 #if defined(STM32H7) || defined(STM32H7RS)
@@ -428,154 +367,6 @@ static int i2c_init_clock_source(I2C_TypeDef* instance)
 
 #endif
 
-int stm32_i2c_init(uint8_t bus, uint32_t clock_rate)
-{
-  I2C_HandleTypeDef* h = get_i2c_handle(bus);
-  if (!h) return -1;
-
-  I2C_InitTypeDef& init = h->Init;
-
-#if defined(STM32H7) || defined(STM32H7RS)
-  i2c_init_clock_source(h->Instance);
-# if defined(LL_RCC_I2C123_CLKSOURCE_PCLK1)
-  uint32_t pclk_freq = LL_RCC_GetI2CClockFreq(LL_RCC_I2C123_CLKSOURCE_PCLK1);
-# elif defined(LL_RCC_I2C1_CLKSOURCE_PCLK1)
-  uint32_t pclk_freq = LL_RCC_GetI2CClockFreq(LL_RCC_I2C1_CLKSOURCE_PCLK1);
-# endif
-  init.Timing = I2C_GetTiming(pclk_freq, clock_rate);
-#else
-  if (init.ClockSpeed > 0) {
-    if (init.ClockSpeed != clock_rate) return -1;
-    return 0;
-  }
-  init.ClockSpeed = clock_rate;
-  init.DutyCycle = I2C_DUTYCYCLE_16_9;
-#endif
-
-  init.OwnAddress1 = 0;
-  init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  init.OwnAddress2 = 0;
-  init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-
-  if (HAL_I2C_Init(h) != HAL_OK) {
-    TRACE("I2C ERROR: HAL_I2C_Init() failed");
-    return -1;
-  }
-
-#if defined(I2C_FLTR_ANOFF) && defined(I2C_FLTR_DNF) || defined(STM32H7) || \
-    defined(STM32H7RS)
-  // Configure Analogue filter
-  if (HAL_I2CEx_ConfigAnalogFilter(h, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
-    TRACE("I2C ERROR: HAL_I2CEx_ConfigAnalogFilter() failed");
-    return -1;
-  }
-
-  // Configure Digital filter
-  if (HAL_I2CEx_ConfigDigitalFilter(h, 0) != HAL_OK) {
-    TRACE("I2C ERROR: HAL_I2CEx_ConfigDigitalFilter() failed");
-    return -1;
-  }
-#endif
-
-  return 1;
-}
-
-int stm32_i2c_deinit(uint8_t bus)
-{
-  I2C_HandleTypeDef* h = get_i2c_handle(bus);
-  if (!h) return -1;  
-
-  if (HAL_I2C_DeInit(h) != HAL_OK) return -1;
-  //h->Init.ClockSpeed = 0;
-  
-  return 0;
-}
-
-int stm32_i2c_master_tx(uint8_t bus, uint16_t addr, uint8_t *data, uint16_t len,
-                        uint32_t timeout)
-{
-  I2C_HandleTypeDef* h = get_i2c_handle(bus);
-  if (!h) return -1;  
-  
-  if (HAL_I2C_Master_Transmit(h, addr << 1, data, len, timeout) != HAL_OK) {
-    return -1;
-  }
-
-  return 0;
-}
-
-int stm32_i2c_master_rx(uint8_t bus, uint16_t addr, uint8_t *data, uint16_t len,
-                        uint32_t timeout)
-{
-  I2C_HandleTypeDef* h = get_i2c_handle(bus);
-  if (!h) return -1;  
-  
-  if (HAL_I2C_Master_Receive(h, addr << 1, data, len, timeout) != HAL_OK) {
-    return -1;
-  }
-
-  return 0;
-}
-
-int stm32_i2c_read(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
-                   uint8_t* data, uint16_t len, uint32_t timeout)
-{
-  I2C_HandleTypeDef* h = get_i2c_handle(bus);
-  if (!h) return -1;  
-
-  if (HAL_I2C_Mem_Read(h, addr << 1, reg, reg_size, data, len, timeout) != HAL_OK) {
-    return -1;
-  }
-
-  return 0;
-}
-
-int stm32_i2c_write(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
-                    uint8_t* data, uint16_t len, uint32_t timeout)
-{
-  I2C_HandleTypeDef* h = get_i2c_handle(bus);
-  if (!h) return -1;  
-  
-  if (HAL_I2C_Mem_Write(h, addr << 1, reg, reg_size, data, len, timeout) != HAL_OK) {
-    return -1;
-  }
-
-  return 0;
-}
-
-int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t retries, uint32_t timeout)
-{
-  I2C_HandleTypeDef* h = get_i2c_handle(bus);
-  if (!h) return -1;
-
-  HAL_StatusTypeDef err = HAL_I2C_IsDeviceReady(h, addr << 1, retries, timeout);
-  if (err != HAL_OK) return -1;
-
-  return 0;
-}
-
-int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t timeout)
-{
-  return stm32_i2c_is_dev_ready(bus, addr, 1, timeout);
-}
-
-static int i2c_enable_gpio_clock(GPIO_TypeDef *GPIOx)
-{
-  if (GPIOx == GPIOA)
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-  else if (GPIOx == GPIOB)
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-  else if (GPIOx == GPIOC)
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-  else if (GPIOx == GPIOH)
-    __HAL_RCC_GPIOH_CLK_ENABLE();
-  else
-    return -1;
-  return 0;
-}
-
 static int i2c_enable_clock(I2C_TypeDef* instance)
 {
   /* Peripheral clock enable */
@@ -607,28 +398,16 @@ static int i2c_disable_clock(I2C_TypeDef* instance)
   return 0;
 }
 
-static int i2c_pins_init(const _i2c_defs* def)
+static int i2c_gpio_init(const stm32_i2c_hw_def_t* hw_def)
 {
-  if (i2c_enable_gpio_clock(def->SCL_GPIOx) < 0) return -1;
-  if (i2c_enable_gpio_clock(def->SDA_GPIOx) < 0) return -1;
+  gpio_init(hw_def->SCL_GPIO, GPIO_OD_PU, GPIO_PIN_SPEED_MEDIUM);
+  gpio_init_af(hw_def->SCL_GPIO, hw_def->GPIO_AF, GPIO_PIN_SPEED_MEDIUM);
 
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-  
-  pinInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
-  pinInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
-  pinInit.Pull = LL_GPIO_PULL_NO;
-  pinInit.Alternate = def->Alternate;
+  gpio_init(hw_def->SDA_GPIO, GPIO_OD_PU, GPIO_PIN_SPEED_MEDIUM);
+  gpio_init_af(hw_def->SDA_GPIO, hw_def->GPIO_AF, GPIO_PIN_SPEED_MEDIUM);
 
-  pinInit.Pin = def->SCL_Pin;
-  LL_GPIO_Init(def->SCL_GPIOx, &pinInit);
-
-  pinInit.Pin = def->SDA_Pin;
-  LL_GPIO_Init(def->SDA_GPIOx, &pinInit);
-
-  if (def->set_pwr) {
-    def->set_pwr(true);
+  if (hw_def->set_pwr) {
+    hw_def->set_pwr(true);
     // Add some delay to leave enought time
     // for devices to boot before querying them
     HAL_Delay(20);
@@ -637,80 +416,174 @@ static int i2c_pins_init(const _i2c_defs* def)
   return 0;
 }
 
-static int i2c_pins_deinit(const _i2c_defs* def)
+static int i2c_gpio_deinit(const stm32_i2c_hw_def_t* hw_def)
 {
   // reconfigure pins as open-drain input
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-  
-  pinInit.Speed = LL_GPIO_SPEED_FREQ_MEDIUM;
-  pinInit.Mode = LL_GPIO_MODE_INPUT;
-  pinInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
-  pinInit.Pull = LL_GPIO_PULL_NO;
-  pinInit.Alternate = 0;
+  gpio_init(hw_def->SCL_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+  gpio_init(hw_def->SDA_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
 
-  pinInit.Pin = def->SCL_Pin;
-  LL_GPIO_Init(def->SCL_GPIOx, &pinInit);
-
-  pinInit.Pin = def->SDA_Pin;
-  LL_GPIO_Init(def->SDA_GPIOx, &pinInit);
-
-  if (def->set_pwr) {
-    def->set_pwr(false);
+  if (hw_def->set_pwr) {
+    hw_def->set_pwr(false);
   }
 
   return 0;
 }
 
-/**
-  * @brief  Initialize the I2C MSP.
-  * @param  h Pointer to a I2C_HandleTypeDef structure that contains
-  *         the configuration information for the specified I2C.
-  * @retval None
-  */
-void HAL_I2C_MspInit(I2C_HandleTypeDef *h)
+
+int stm32_i2c_init(uint8_t bus, uint32_t clock_rate, const stm32_i2c_hw_def_t* hw_def)
 {
-  const _i2c_defs* defs = nullptr;
-#if defined(I2C_B1)
-  if (h == &hi2c1) { defs = &pins_hi2c1; }
-#endif
-#if defined(I2C_B2)
-  if (h == &hi2c2) { defs = &pins_hi2c2; }
-#endif
-  if (!defs) return;
-  
-  if (i2c_pins_init(defs) < 0) {
-    TRACE("I2C ERROR: HAL_I2C_MspInit() I2C_GPIO misconfiguration");
-    return;
+  auto dev = i2c_get_device(bus);
+  if (!dev) return -1;
+
+  if (!dev->hw_def) {
+    dev->hw_def = hw_def;
+    dev->handle.Instance = hw_def->I2Cx;
   }
 
-  if (i2c_enable_clock(h->Instance) < 0) {
-    TRACE("I2C ERROR: HAL_I2C_MspInit() I2C misconfiguration");
-    return;
+  auto h = &dev->handle;
+  I2C_InitTypeDef& init = h->Init;
+
+#if defined(STM32H7) || defined(STM32H7RS)
+  i2c_init_clock_source(h->Instance);
+# if defined(LL_RCC_I2C123_CLKSOURCE_PCLK1)
+  uint32_t pclk_freq = LL_RCC_GetI2CClockFreq(LL_RCC_I2C123_CLKSOURCE_PCLK1);
+# elif defined(LL_RCC_I2C1_CLKSOURCE_PCLK1)
+  uint32_t pclk_freq = LL_RCC_GetI2CClockFreq(LL_RCC_I2C1_CLKSOURCE_PCLK1);
+# endif
+  init.Timing = I2C_GetTiming(pclk_freq, clock_rate);
+#else
+  if (init.ClockSpeed > 0) {
+    if (init.ClockSpeed != clock_rate) return -1;
+    return 0;
   }
+  init.ClockSpeed = clock_rate;
+  init.DutyCycle = I2C_DUTYCYCLE_16_9;
+#endif
+
+  init.OwnAddress1 = 0;
+  init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  init.OwnAddress2 = 0;
+  init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+
+  if (i2c_gpio_init(hw_def) < 0) {
+    TRACE("I2C ERROR: HAL_I2C_MspInit() I2C_GPIO misconfiguration");
+    return -1;
+  }
+
+  if (i2c_enable_clock(hw_def->I2Cx) < 0) {
+    TRACE("I2C ERROR: HAL_I2C_MspInit() I2C misconfiguration");
+    return -1;
+  }
+
+  if (HAL_I2C_Init(h) != HAL_OK) {
+    TRACE("I2C ERROR: HAL_I2C_Init() failed");
+    return -1;
+  }
+
+#if defined(I2C_FLTR_ANOFF) && defined(I2C_FLTR_DNF) || defined(STM32H7) || \
+    defined(STM32H7RS)
+  // Configure Analogue filter
+  if (HAL_I2CEx_ConfigAnalogFilter(h, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
+    TRACE("I2C ERROR: HAL_I2CEx_ConfigAnalogFilter() failed");
+    return -1;
+  }
+
+  // Configure Digital filter
+  if (HAL_I2CEx_ConfigDigitalFilter(h, 0) != HAL_OK) {
+    TRACE("I2C ERROR: HAL_I2CEx_ConfigDigitalFilter() failed");
+    return -1;
+  }
+#endif
+
+  return 1;
 }
 
-/**
-  * @brief  DeInitialize the I2C MSP.
-  * @param  h Pointer to a I2C_HandleTypeDef structure that contains
-  *         the configuration information for the specified I2C.
-  * @retval None
-  */
-void HAL_I2C_MspDeInit(I2C_HandleTypeDef *h)
+int stm32_i2c_deinit(uint8_t bus)
 {
-  const _i2c_defs* defs = nullptr;
-#if defined(I2C_B1)
-  if (h == &hi2c1) { defs = &pins_hi2c1; }
-#endif
-#if defined(I2C_B2)
-  if (h == &hi2c2) { defs = &pins_hi2c2; }
-#endif
-  if (!defs) return;
+  I2C_HandleTypeDef* h = i2c_get_handle(bus);
+  if (!h) return -1;  
 
+  if (HAL_I2C_DeInit(h) != HAL_OK) return -1;
+  
   if (i2c_disable_clock(h->Instance) < 0) {
     TRACE("I2C ERROR: HAL_I2C_MspDeInit() I2C misconfiguration");
-    return;
+    return -1;
   }
 
-  i2c_pins_deinit(defs);
+  auto dev = i2c_get_device(bus);
+  if (!dev) return -1;
+
+  i2c_gpio_deinit(dev->hw_def);
+
+  return 0;
+}
+
+int stm32_i2c_master_tx(uint8_t bus, uint16_t addr, uint8_t *data, uint16_t len,
+                        uint32_t timeout)
+{
+  I2C_HandleTypeDef* h = i2c_get_handle(bus);
+  if (!h) return -1;  
+  
+  if (HAL_I2C_Master_Transmit(h, addr << 1, data, len, timeout) != HAL_OK) {
+    return -1;
+  }
+
+  return 0;
+}
+
+int stm32_i2c_master_rx(uint8_t bus, uint16_t addr, uint8_t *data, uint16_t len,
+                        uint32_t timeout)
+{
+  I2C_HandleTypeDef* h = i2c_get_handle(bus);
+  if (!h) return -1;  
+  
+  if (HAL_I2C_Master_Receive(h, addr << 1, data, len, timeout) != HAL_OK) {
+    return -1;
+  }
+
+  return 0;
+}
+
+int stm32_i2c_read(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
+                   uint8_t* data, uint16_t len, uint32_t timeout)
+{
+  I2C_HandleTypeDef* h = i2c_get_handle(bus);
+  if (!h) return -1;  
+
+  if (HAL_I2C_Mem_Read(h, addr << 1, reg, reg_size, data, len, timeout) != HAL_OK) {
+    return -1;
+  }
+
+  return 0;
+}
+
+int stm32_i2c_write(uint8_t bus, uint16_t addr, uint16_t reg, uint16_t reg_size,
+                    uint8_t* data, uint16_t len, uint32_t timeout)
+{
+  I2C_HandleTypeDef* h = i2c_get_handle(bus);
+  if (!h) return -1;  
+  
+  if (HAL_I2C_Mem_Write(h, addr << 1, reg, reg_size, data, len, timeout) != HAL_OK) {
+    return -1;
+  }
+
+  return 0;
+}
+
+int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t retries, uint32_t timeout)
+{
+  I2C_HandleTypeDef* h = i2c_get_handle(bus);
+  if (!h) return -1;
+
+  HAL_StatusTypeDef err = HAL_I2C_IsDeviceReady(h, addr << 1, retries, timeout);
+  if (err != HAL_OK) return -1;
+
+  return 0;
+}
+
+int stm32_i2c_is_dev_ready(uint8_t bus, uint16_t addr, uint32_t timeout)
+{
+  return stm32_i2c_is_dev_ready(bus, addr, 1, timeout);
 }

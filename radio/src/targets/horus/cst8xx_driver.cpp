@@ -25,6 +25,7 @@
 #include "delays_driver.h"
 #include "hal.h"
 #include "hal/gpio.h"
+#include "hal/i2c_driver.h"
 #include "rtos.h"
 #include "stm32_exti_driver.h"
 #include "stm32_gpio.h"
@@ -62,8 +63,8 @@ void initTouchI2C(void)
 {
   TRACE("CST836U I2C Init");
 
-  if (stm32_i2c_init(TOUCH_I2C_BUS, TOUCH_I2C_CLK_RATE) < 0) {
-    TRACE("CST836U ERROR: stm32_i2c_init failed");
+  if (i2c_init(TOUCH_I2C_BUS) < 0) {
+    TRACE("CST836U ERROR: i2c_init failed");
     return;
   }
 }
