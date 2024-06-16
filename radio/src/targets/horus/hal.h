@@ -828,7 +828,6 @@
 // Touch
 #if defined(HARDWARE_TOUCH)
   #define TOUCH_I2C_BUS                   I2C_Bus_1
-  #define TOUCH_I2C_CLK_RATE              400000
   #define TOUCH_INT_GPIO                  GPIO_PIN(GPIOH, 2)  // PH.02
 #if defined(PCBX12S)
   #define TOUCH_RST_GPIO                  GPIO_PIN(GPIOF, 7)  // PF.7
@@ -851,30 +850,29 @@
 
 // First I2C Bus
 #if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(PCBX12S) || defined(RADIO_T15)
-  #define I2C_B1                          I2C1
-  #define I2C_B1_GPIO                     GPIOB
-  #define I2C_B1_SCL_GPIO_PIN             LL_GPIO_PIN_8  // PB.08
-  #define I2C_B1_SDA_GPIO_PIN             LL_GPIO_PIN_9  // PB.09
-  #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4   // I2C1
+  #define I2C_B1                      I2C1
+  #define I2C_B1_SCL_GPIO             GPIO_PIN(GPIOB, 8)  // PB.08
+  #define I2C_B1_SDA_GPIO             GPIO_PIN(GPIOB, 9)  // PB.09
+  #define I2C_B1_GPIO_AF              LL_GPIO_AF_4   // I2C1
+  #define I2C_B1_CLK_RATE             400000
 #else
-  #define I2C_B1                          I2C3
-  #define I2C_B1_GPIO                     GPIOH
-  #define I2C_B1_SCL_GPIO_PIN             LL_GPIO_PIN_7  // PH.07
-  #define I2C_B1_SDA_GPIO_PIN             LL_GPIO_PIN_8  // PH.08
-  #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4   // I2C3
+  #define I2C_B1                      I2C3
+  #define I2C_B1_SCL_GPIO             GPIO_PIN(GPIOH, 7)  // PH.07
+  #define I2C_B1_SDA_GPIO             GPIO_PIN(GPIOH, 8)  // PH.08
+  #define I2C_B1_GPIO_AF              LL_GPIO_AF_4   // I2C3
+  #define I2C_B1_CLK_RATE             400000
 #endif
 
 // Second I2C Bus
 #if !defined(AUX_SERIAL) && defined(IMU_LSM6DS33)
-  #define I2C_B2                          I2C2
-  #define I2C_B2_GPIO                     GPIOB
-  #define I2C_B2_SCL_GPIO_PIN             LL_GPIO_PIN_10  // PB.10
-  #define I2C_B2_SDA_GPIO_PIN             LL_GPIO_PIN_11  // PB.11
-  #define I2C_B2_GPIO_AF                  LL_GPIO_AF_4    // I2C2
- #if defined(RADIO_TX16S) || defined(RADIO_F16)
-   #define I2C_B2_PWR_GPIO                GPIOA
-   #define I2C_B2_PWR_GPIO_PIN            LL_GPIO_PIN_15  // PA.15
- #endif
+  #define I2C_B2                      I2C2
+  #define I2C_B2_SCL_GPIO_PIN         GPIO_PIN(GPIOB, 10)  // PB.10
+  #define I2C_B2_SDA_GPIO_PIN         GPIO_PIN(GPIOB, 11)  // PB.11
+  #define I2C_B2_GPIO_AF              LL_GPIO_AF_4    // I2C2
+  #define I2C_B2_CLK_RATE             400000
+  #if defined(RADIO_TX16S) || defined(RADIO_F16)
+    #define I2C_B2_PWR_GPIO           GPIO_PIN(GPIOA, 15)  // PA.15
+  #endif
 #endif
 
 #if defined(IMU)
@@ -885,7 +883,6 @@
    #define IMU_I2C_BUS                   I2C_Bus_2
    #define IMU_I2C_ADDRESS               0x6A
  #endif
- #define IMU_I2C_CLK_RATE                400000
 #endif
 
 // Haptic

@@ -2456,13 +2456,11 @@
 
 #if defined(PCBXLITE) || defined(PCBX9LITE) || defined(PCBX7ACCESS) || \
     defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_X9DP2019)
-  #define I2C_B1_GPIO                   GPIOB
-  #define I2C_B1_SDA_GPIO_PIN           LL_GPIO_PIN_9  // PB.09
-  #define I2C_B1_SCL_GPIO_PIN           LL_GPIO_PIN_8  // PB.08
+  #define I2C_B1_SCL_GPIO               GPIO_PIN(GPIOB, 8)  // PB.08
+  #define I2C_B1_SDA_GPIO               GPIO_PIN(GPIOB, 9)  // PB.09
 #else
-  #define I2C_B1_GPIO                   GPIOB
-  #define I2C_B1_SCL_GPIO_PIN           LL_GPIO_PIN_6  // PB.06
-  #define I2C_B1_SDA_GPIO_PIN           LL_GPIO_PIN_7  // PB.07
+  #define I2C_B1_SCL_GPIO               GPIO_PIN(GPIOB, 6)  // PB.06
+  #define I2C_B1_SDA_GPIO               GPIO_PIN(GPIOB, 7)  // PB.07
 #endif
 
 // EEPROM
@@ -2500,16 +2498,13 @@
 // Second I2C Bus: IMU
 #if defined(PCBXLITES)
   #define I2C_B2                        I2C3
-  #define I2C_B2_SCL_GPIO               GPIOA
-  #define I2C_B2_SCL_GPIO_PIN           LL_GPIO_PIN_8  // PA.08
-  #define I2C_B2_SDA_GPIO               GPIOC
-  #define I2C_B2_SDA_GPIO_PIN           LL_GPIO_PIN_9  // PC.09
+  #define I2C_B2_SCL_GPIO               GPIO_PIN(GPIOA, 8) // PA.08
+  #define I2C_B2_SDA_GPIO               GPIO_PIN(GPIOC, 9) // PC.09
   #define I2C_B2_GPIO_AF                LL_GPIO_AF_4
-  #define I2C_B2_SPEED                  400000
+  #define I2C_B2_CLK_RATE               400000
 
   #define IMU_I2C_BUS                   I2C_Bus_2
   #define IMU_I2C_ADDRESS               0x6B
-  #define IMU_I2C_CLK_RATE              I2C_B2_SPEED
 #endif
 
 // SD - SPI2
