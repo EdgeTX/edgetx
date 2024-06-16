@@ -1039,6 +1039,8 @@
   #define TR_BL_HOLD_ENTER_TO_START    "\012Hold [ENT] to start writing"
   #define TR_BL_INVALID_FIRMWARE       "\011Not a valid firmware file!        "
   #define TR_BL_INVALID_EEPROM         "\011Not a valid EEPROM file!          "
+  #define TR_BL_ENABLE                 "Enable"
+  #define TR_BL_DISABLE                "Disable"
 #else
   #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
   #define TR_BL_HOLD_ENTER_TO_START    "\006Hold [ENT] to start"

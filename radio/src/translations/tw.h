@@ -1022,7 +1022,7 @@
   #define TR_WIDGET_VALUE              "數值"
 #endif
 
-// Bootloader common
+// Bootloader common - Ascii only
 #define TR_BL_USB_CONNECTED           "USB Connected"
 #define TR_BL_USB_PLUGIN              "Or plug in a USB cable"
 #define TR_BL_USB_MASS_STORE          "for mass storage"
@@ -1052,24 +1052,26 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific
+   // Bootloader Taranis specific - Ascii only
   #define TR_BL_RESTORE_EEPROM        "Restore EEPROM"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Press the power button."
     #define TR_BL_FLASH_EXIT          "Exit the flashing mode."
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific
+   // Bootloader Horus specific - Ascii only
   #define TR_BL_SELECT_KEY            "[ENT] to select file"
   #define TR_BL_FLASH_KEY             "Hold [ENT] long to flash"
   #define TR_BL_EXIT_KEY              "[RTN] to exit"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific
+   // Bootloader NV14 specific - Ascii only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_CURRENT_FW            "Current Firmware:"
   #define TR_BL_SELECT_KEY            "[R TRIM] to select file"
   #define TR_BL_FLASH_KEY             "Hold [R TRIM] long to flash"
   #define TR_BL_EXIT_KEY              " [L TRIM] to exit"
+  #define TR_BL_ENABLE                "Enable"
+  #define TR_BL_DISABLE               "Disable"
 #elif defined(PCBPL18)
    // Bootloader PL18 specific - Ascii only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
