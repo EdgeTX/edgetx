@@ -21,7 +21,7 @@
 
 #include "hal/usb_driver.h"
 #include "opentx.h"
-#include "theme.h"
+#include "theme_manager.h"
 #include "widget.h"
 #include "widgets_container_impl.h"
 

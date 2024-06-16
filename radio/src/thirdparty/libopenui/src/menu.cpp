@@ -21,8 +21,8 @@
 #include <lvgl/lvgl.h>
 
 #include "menutoolbar.h"
+#include "opentx.h"
 #include "table.h"
-#include "theme.h"
 #include "themes/etx_lv_theme.h"
 
 #include <memory>

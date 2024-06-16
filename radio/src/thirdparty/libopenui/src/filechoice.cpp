@@ -20,10 +20,10 @@
 
 #include <algorithm>
 
+#include "opentx.h"
 #include "libopenui_file.h"
 #include "menu.h"
 #include "menutoolbar.h"
-#include "theme.h"
 
 class FileChoiceMenuToolbar : public MenuToolbar
 {

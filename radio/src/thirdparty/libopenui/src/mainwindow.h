@@ -23,40 +23,42 @@
 
 class MainWindow: public Window
 {
-  protected:
-    // singleton
-    MainWindow();
+ protected:
+  // singleton
+  MainWindow();
 
-  public:
-    static MainWindow * instance();
+ public:
+  static MainWindow * instance();
 
 #if defined(TESTS)
-    static void create()
-    {
-      _instance = new MainWindow();
-    }
+  static void create()
+  {
+    _instance = new MainWindow();
+  }
 #endif
 
 #if defined(DEBUG_WINDOWS)
-    std::string getName() const override
-    {
-      return "MainWindow";
-    }
+  std::string getName() const override
+  {
+    return "MainWindow";
+  }
 #endif
 
-    void setActiveScreen() {
-      lv_scr_load(lvobj);
-    }
+  void setActiveScreen() {
+    lv_scr_load(lvobj);
+  }
 
-    void run(bool trash=true);
+  void run(bool trash=true);
 
-    void setBackground(const BitmapBuffer* bitmap);
+  void setBackgroundImage(const char* fileName);
 
-    void shutdown();
+  void shutdown();
 
-  protected:
-    lv_obj_t* background = nullptr;
+ protected:
+  lv_obj_t* background = nullptr;
+  std::string backgroundImageFileName;
+  const BitmapBuffer *backgroundBitmap = nullptr;
 
-    static MainWindow * _instance;
-    static void emptyTrash();
+  static MainWindow * _instance;
+  static void emptyTrash();
 };

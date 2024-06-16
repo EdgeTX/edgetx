@@ -21,7 +21,7 @@
 
 #include "tabsgroup.h"
 
-#include "theme.h"
+#include "theme_manager.h"
 #include "themes/etx_lv_theme.h"
 #include "view_main.h"
 #include "topbar_impl.h"
@@ -179,7 +179,7 @@ class TabsGroupHeader : public Window
     do {
       idx += dir;
       if (idx < 0) idx = buttons.size() - 1;
-      if (idx >= buttons.size()) idx = 0;
+      if (idx >= (int)buttons.size()) idx = 0;
     } while (!buttons[idx]->isVisible());
     menu->setCurrentTab(idx);
   }

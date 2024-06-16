@@ -18,7 +18,7 @@
 
 #include "slider.h"
 
-#include "theme.h"
+#include "form.h"
 #include "themes/etx_lv_theme.h"
 
 // Slider

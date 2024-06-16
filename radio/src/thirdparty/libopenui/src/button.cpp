@@ -18,7 +18,7 @@
 
 #include "button.h"
 
-#include "theme.h"
+#include "static.h"
 #include "themes/etx_lv_theme.h"
 
 static void button_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)

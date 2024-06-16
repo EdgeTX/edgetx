@@ -23,7 +23,6 @@
 #include "inactivity_timer.h"
 #include "opentx.h"
 #include "stamp.h"
-#include "theme.h"
 #include "theme_manager.h"
 
 extern void checkSpeakerVolume();

@@ -108,12 +108,15 @@ class ThemeDetailsDialog : public BaseDialog
   {
     FlexGridLayout grid(d_col_dsc, row_dsc, PAD_TINY);
 
+    strAppend(name, this->theme.getName().c_str(), SELECTED_THEME_NAME_LEN);
+    strAppend(author, this->theme.getAuthor().c_str(), ThemeFile::AUTHOR_LENGTH);
+    strAppend(info, this->theme.getInfo().c_str(), ThemeFile::INFO_LENGTH);
+
     auto line = form->newLine(grid);
     line->padAll(PAD_TINY);
 
     new StaticText(line, rect_t{}, STR_NAME);
-    auto te = new TextEdit(line, rect_t{}, this->theme.getName(),
-                           SELECTED_THEME_NAME_LEN);
+    auto te = new TextEdit(line, rect_t{}, name, SELECTED_THEME_NAME_LEN);
     lv_obj_set_grid_cell(te->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
@@ -121,7 +124,7 @@ class ThemeDetailsDialog : public BaseDialog
     line->padAll(PAD_TINY);
 
     new StaticText(line, rect_t{}, STR_AUTHOR);
-    te = new TextEdit(line, rect_t{}, this->theme.getAuthor(), AUTHOR_LENGTH);
+    te = new TextEdit(line, rect_t{}, author, ThemeFile::AUTHOR_LENGTH);
     lv_obj_set_grid_cell(te->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
@@ -133,7 +136,7 @@ class ThemeDetailsDialog : public BaseDialog
     new StaticText(line, rect_t{}, STR_DESCRIPTION);
     line = form->newLine(grid2);
     line->padAll(PAD_TINY);
-    te = new TextEdit(line, rect_t{}, this->theme.getInfo(), INFO_LENGTH);
+    te = new TextEdit(line, rect_t{}, info, ThemeFile::INFO_LENGTH);
     lv_obj_set_grid_cell(te->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 2,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
@@ -151,9 +154,13 @@ class ThemeDetailsDialog : public BaseDialog
 
     button =
         new TextButton(line, rect_t{0, 0, lv_pct(30), 0}, STR_SAVE, [=]() {
-          if (saveHandler != nullptr)
+          if (saveHandler != nullptr) {
+            this->theme.setName(name);
+            this->theme.setAuthor(author);
+            this->theme.setInfo(info);
             if (!saveHandler(this->theme))
               return 0;
+          }
           deleteLater();
           return 0;
         });
@@ -163,6 +170,9 @@ class ThemeDetailsDialog : public BaseDialog
 
  protected:
   ThemeFile theme;
+  char name[SELECTED_THEME_NAME_LEN + 1];
+  char author[ThemeFile::AUTHOR_LENGTH + 1];
+  char info[ThemeFile::INFO_LENGTH + 1];
   std::function<bool(ThemeFile theme)> saveHandler = nullptr;
 };
 
@@ -334,7 +344,7 @@ class ThemeEditPage : public Page
   {
     if (_dirty) {
       new ConfirmDialog(
-          this, STR_SAVE_THEME, _theme.getName(),
+          this, STR_SAVE_THEME, _theme.getName().c_str(),
           [=]() {
             if (saveHandler != nullptr) {
               saveHandler(_theme);
@@ -434,7 +444,7 @@ ThemeSetupPage::ThemeSetupPage(TabsGroup *tabsGroup) :
 void ThemeSetupPage::setAuthor(ThemeFile *theme)
 {
   std::string s("");
-  if (theme && (strlen(theme->getAuthor()) > 0)) {
+  if (theme && !theme->getAuthor().empty()) {
     s = s + "By: " + theme->getAuthor();
   }
   authorText->setText(s);
@@ -442,7 +452,7 @@ void ThemeSetupPage::setAuthor(ThemeFile *theme)
 
 void ThemeSetupPage::setName(ThemeFile *theme)
 {
-  if (theme && (strlen(theme->getName()) > 0)) {
+  if (theme && !theme->getName().empty()) {
     nameText->setText(theme->getName());
   } else {
     nameText->setText("");
@@ -463,16 +473,6 @@ void ThemeSetupPage::checkEvents()
   PageTab::checkEvents();
 
   if (fileCarosell) fileCarosell->pause(!isTopWindow(pageWindow));
-}
-
-static void removeAllWhiteSpace(char *str)
-{
-  int len = strlen(str);
-  int origLen = len;
-  while (len) {
-    if (isspace(str[len])) memmove(str + len, str + len + 1, origLen - len);
-    len--;
-  }
 }
 
 void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
@@ -527,10 +527,16 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
     ThemeFile newTheme;
 
     new ThemeDetailsDialog(window, newTheme, [=](ThemeFile theme) {
-      if (strlen(theme.getName()) != 0) {
-        char name[SELECTED_THEME_NAME_LEN + 20];
-        strncpy(name, theme.getName(), SELECTED_THEME_NAME_LEN + 19);
-        removeAllWhiteSpace(name);
+      if (!theme.getName().empty()) {
+        char name[SELECTED_THEME_NAME_LEN + 1];
+        int n = 0;
+        for (size_t i = 0; i < theme.getName().size(); i += 1) {
+          if (!isspace(theme.getName()[i])) {
+            name[n] = theme.getName()[i];
+            n += 1;
+          }
+        }
+        name[n] = 0;
 
         // use the selected themes color list to make the new theme
         auto themeIdx = listBox->getSelected();
@@ -558,7 +564,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
     menu->addLine(STR_DELETE, [=]() {
       new ConfirmDialog(
           window, STR_DELETE_THEME,
-          tp->getThemeByIndex(listBox->getSelected())->getName(), [=] {
+          tp->getThemeByIndex(listBox->getSelected())->getName().c_str(), [=] {
             tp->deleteThemeByIndex(listBox->getSelected());
             listBox->setNames(tp->getNames());
             currentTheme = min<int>(currentTheme, tp->getNames().size() - 1);

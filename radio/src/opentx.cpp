@@ -53,7 +53,7 @@
   #include "radio_calibration.h"
   #include "view_main.h"
   #include "view_text.h"
-  #include "theme.h"
+  #include "theme_manager.h"
   #include "switch_warn_dialog.h"
   #include "startup_shutdown.h"
 
@@ -1114,7 +1114,7 @@ void edgeTxResume()
 #if defined(COLORLCD)
   //TODO: needs to go into storageReadAll()
   TRACE("reloading theme");
-  EdgeTxTheme::instance()->load();
+  ThemePersistance::instance()->loadDefaultTheme();
 #endif
 
   referenceSystemAudioFiles();
@@ -1339,6 +1339,7 @@ void edgeTxInit()
 #endif
 
 #if defined(LIBOPENUI)
+  initLvglTheme();
   // create ViewMain
   ViewMain::instance();
 #elif defined(GUI)
@@ -1473,7 +1474,7 @@ void edgeTxInit()
   BACKLIGHT_ENABLE();
 
 #if defined(COLORLCD)
-  EdgeTxTheme::instance()->load();
+  ThemePersistance::instance()->loadDefaultTheme();
   if (g_eeGeneral.backlightMode == e_backlight_mode_off) {
     // no backlight mode off on color lcd radios
     g_eeGeneral.backlightMode = e_backlight_mode_keys;
