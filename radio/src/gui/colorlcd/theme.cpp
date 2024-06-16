@@ -65,26 +65,27 @@ void EdgeTxTheme::setBackgroundImageFileName(const char* fileName)
       BitmapBuffer::loadBitmap(backgroundImageFileName, BMP_RGB565);
 }
 
-HeaderDateTime::HeaderDateTime(lv_obj_t* parent, coord_t x, coord_t y)
+HeaderDateTime::HeaderDateTime(Window* parent, coord_t x, coord_t y) :
+  Window(parent, {x, y, HDR_DATE_WIDTH, HDR_DATE_LINE2 + HDR_DATE_HEIGHT + 2})
 {
-  date = lv_label_create(parent);
-  lv_obj_set_pos(date, x, y);
+  date = lv_label_create(lvobj);
+  lv_obj_set_pos(date, 0, 0);
   lv_obj_set_size(date, HDR_DATE_WIDTH, HDR_DATE_HEIGHT);
   lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
   etx_txt_color(date, COLOR_THEME_PRIMARY2_INDEX);
   etx_font(date, FONT_XS_INDEX);
 
-  time = lv_label_create(parent);
-  lv_obj_set_pos(time, x, y + HDR_DATE_LINE2);
+  time = lv_label_create(lvobj);
+  lv_obj_set_pos(time, 0, HDR_DATE_LINE2);
   lv_obj_set_size(time, HDR_DATE_WIDTH, HDR_DATE_HEIGHT);
   lv_obj_set_style_text_align(time, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
   etx_txt_color(time, COLOR_THEME_PRIMARY2_INDEX);
   etx_font(time, FONT_XS_INDEX);
 
-  update();
+  checkEvents();
 }
 
-void HeaderDateTime::update()
+void HeaderDateTime::checkEvents()
 {
   const TimerOptions timerOptions = {.options = SHOW_TIME};
   struct gtm t;
@@ -124,13 +125,8 @@ UsbSDConnected::UsbSDConnected() :
   setWindowFlag(OPAQUE);
 
   etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
-  dateTime = new HeaderDateTime(lvobj, LCD_W - TopBar::HDR_DATE_XO, HDR_DATE_Y);
+  dateTime = new HeaderDateTime(this, LCD_W - TopBar::HDR_DATE_XO, HDR_DATE_Y);
 
   auto icon = new StaticIcon(this, 0, 0, ICON_USB_PLUGGED, COLOR_THEME_PRIMARY2);
   lv_obj_center(icon->getLvObj());
-}
-
-void UsbSDConnected::checkEvents()
-{
-  dateTime->update();
 }

@@ -47,11 +47,11 @@ class EdgeTxTheme
   const BitmapBuffer *backgroundBitmap = nullptr;
 };
 
-class HeaderDateTime
+class HeaderDateTime : public Window
 {
  public:
-  HeaderDateTime(lv_obj_t *parent, int x, int y);
-  void update();
+  HeaderDateTime(Window* parent, int x, int y);
+
   void setColor(uint32_t color);
 
   static LAYOUT_VAL(HDR_DATE_WIDTH, 45, 45)
@@ -62,6 +62,8 @@ class HeaderDateTime
   lv_obj_t *date = nullptr;
   lv_obj_t *time = nullptr;
   int8_t lastMinute = -1;
+
+  void checkEvents() override;
 };
 
 class HeaderIcon : public StaticIcon
@@ -74,8 +76,6 @@ class UsbSDConnected : public Window
 {
  public:
   UsbSDConnected();
-
-  void checkEvents() override;
 
   static LAYOUT_VAL(HDR_DATE_Y, 6, 6)
 

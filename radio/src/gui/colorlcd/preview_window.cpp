@@ -175,7 +175,7 @@ PreviewWindow::PreviewWindow(Window *window, rect_t rect,
   new ThemedTextEdit(this, {EDT2_X, EDT_Y, TXT_W, 0}, STR_THEME_FOCUS, false);
   ticks = 0;
 
-  dateTime = new HeaderDateTime(this->getLvObj(), width() - DATE_XO, PAD_SMALL);
+  new HeaderDateTime(this, width() - DATE_XO, PAD_SMALL);
 
   lv_group_set_default(def_group);
 
@@ -191,5 +191,3 @@ void PreviewWindow::setColorList(std::vector<ColorEntry> colorList)
   // Update preview colors
   invalidate();
 }
-
-void PreviewWindow::checkEvents() { dateTime->update(); }
