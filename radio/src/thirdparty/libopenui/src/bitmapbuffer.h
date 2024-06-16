@@ -140,7 +140,7 @@ class BitmapBuffer
   static BitmapBuffer* loadBitmap(const char* filename,
                                   BitmapFormats fmt = BMP_INVALID);
 
-  void resizeToLVGL(coord_t w, coord_t h, LcdFlags bgColor);
+  void resizeToLVGL(coord_t w, coord_t h);
 
   uint8_t* to8bitMask(size_t* size) const;
 

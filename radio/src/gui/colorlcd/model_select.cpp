@@ -68,18 +68,12 @@ class ModelButton : public Button
 
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
-    check(modelCell == modelslist.getCurrentModel());
-
     lv_obj_add_event_cb(lvobj, ModelButton::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
                         nullptr);
   }
 
   void addDetails()
   {
-    int bg_col_idx = modelCell == modelslist.getCurrentModel()
-                         ? COLOR_THEME_ACTIVE_INDEX
-                         : COLOR_THEME_PRIMARY2_INDEX;
-
     coord_t w = width() - PAD_SMALL * 2;
 
     LcdFlags font = modelLayouts[layout].font;
@@ -93,17 +87,18 @@ class ModelButton : public Button
       coord_t fh = getFontHeight(font) - ((font == FONT(STD)) ? 4 : (font == FONT(XS)) ? 3 : 1);
       coord_t fo = (font == FONT(STD)) ? -3 : (font == FONT(XS)) ? -3 : -1;
 
-      auto name = new StaticText(this, {PAD_TINY, PAD_TINY, w, fh}, modelCell->modelName,
+      modelName = new StaticText(this, {PAD_TINY, PAD_TINY, w, fh}, modelCell->modelName,
                                  CENTERED | COLOR_THEME_SECONDARY1 | font);
-      lv_label_set_long_mode(name->getLvObj(), LV_LABEL_LONG_DOT);
-      etx_bg_color(name->getLvObj(), (LcdColorIndex)bg_col_idx);
-      etx_obj_add_style(name->getLvObj(), styles->bg_opacity_75, LV_PART_MAIN);
-      name->padTop(fo);
+      etx_bg_color(modelName->getLvObj(), COLOR_THEME_ACTIVE_INDEX, LV_STATE_USER_1);
+      etx_obj_add_style(modelName->getLvObj(), styles->bg_opacity_75, LV_STATE_USER_1);
+      modelName->padTop(fo);
     } else {
-      auto name = new StaticText(this, {PAD_TINY, PAD_SMALL, w, EdgeTxStyles::PAGE_LINE_HEIGHT}, modelCell->modelName,
+      modelName = new StaticText(this, {PAD_TINY, PAD_SMALL, w, EdgeTxStyles::PAGE_LINE_HEIGHT}, modelCell->modelName,
                                  COLOR_THEME_SECONDARY1 | font);
-      lv_label_set_long_mode(name->getLvObj(), LV_LABEL_LONG_DOT);
     }
+    lv_label_set_long_mode(modelName->getLvObj(), LV_LABEL_LONG_DOT);
+
+    checkEvents();
 
     lv_obj_update_layout(lvobj);
   }
@@ -142,7 +137,7 @@ class ModelButton : public Button
       if (modelLayouts[layout].hasImage) {
         if (modelCell->modelBitmap[0]) {
           GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
-          auto bitmap = new StaticImage(this, {PAD_TINY, PAD_TINY, w, h}, filename, false, true);
+          auto bitmap = new StaticBitmap(this, {PAD_TINY, PAD_TINY, w, h}, filename);
           lv_obj_move_background(bitmap->getLvObj());
           bitmap->show(bitmap->hasImage());
           if (bitmap->hasImage()) {
@@ -158,11 +153,15 @@ class ModelButton : public Button
     return false;
   }
 
+  bool isModel(ModelCell* cell) { return cell == modelCell; }
+
  protected:
   bool loaded = false;
   bool imgLoaded = false;
   uint8_t layout;
   ModelCell *modelCell;
+  StaticText* modelName = nullptr;
+
   std::function<void()> m_setSelected = nullptr;
 
   void showNoImgMsg()
@@ -175,6 +174,18 @@ class ModelButton : public Button
     LcdFlags font = (modelLayouts[layout].font == FONT(STD)) ? FONT(XS) : FONT(XXS);
     new StaticText(this, {PAD_TINY, h / 2, w, getFontHeight(font)}, errorMsg,
                   CENTERED | COLOR_THEME_SECONDARY1 | font);
+  }
+
+  void checkEvents() override
+  {
+    bool chk = (modelCell == modelslist.getCurrentModel());
+    if (chk != checked()) {
+      check(chk);
+      if (chk)
+        lv_obj_add_state(modelName->getLvObj(), LV_STATE_USER_1);
+      else
+        lv_obj_clear_state(modelName->getLvObj(), LV_STATE_USER_1);
+    }
   }
 
   void onClicked() override
@@ -197,7 +208,8 @@ class ModelsPageBody : public Window
 
   void update()
   {
-    clear();
+    for (auto b : modelButtons)
+      b->hide();
 
     ModelsVector models;
     if (selectedLabels.size()) {
@@ -224,9 +236,22 @@ class ModelsPageBody : public Window
       coord_t y = (n / cols) * (h + PAD_TINY);
       n += 1;
 
-      auto button = new ModelButton(
-          this, {x, y, w, h}, model, [=]() { focusedModel = model; },
-          g_eeGeneral.modelSelectLayout);
+      ModelButton* button = nullptr;
+      for (auto b : modelButtons)
+        if (b->isModel(model)) {
+          button = b;
+          break;
+        }
+      if (button) {
+        button->setPos(x, y);
+        button->show();
+        lv_obj_move_foreground(button->getLvObj());
+      } else {
+        button = new ModelButton(
+            this, {x, y, w, h}, model, [=]() { focusedModel = model; },
+            g_eeGeneral.modelSelectLayout);
+        modelButtons.push_back(button);
+      }
 
       if (!firstButton) firstButton = button;
       if (model == modelslist.getCurrentModel()) focusedButton = button;
@@ -242,7 +267,7 @@ class ModelsPageBody : public Window
         } else {
           focusedModel = model;
         }
-        return 0;
+        return model == modelslist.getCurrentModel();
       });
 
       // Long Press Handler for Models
@@ -260,6 +285,13 @@ class ModelsPageBody : public Window
       focusedButton->setFocused();
       focusedModel = focusedButton->getModelCell();
     }
+  }
+
+  void reload()
+  {
+    modelButtons.clear();
+    clear();
+    update();
   }
 
   void setLabels(LabelsVector labels)
@@ -288,6 +320,7 @@ class ModelsPageBody : public Window
   std::string selectedLabel;
   LabelsVector selectedLabels;
   ModelCell *focusedModel = nullptr;
+  std::vector<ModelButton*> modelButtons;
   std::function<void()> refreshLabels = nullptr;
 
   void checkEvents() override
@@ -670,7 +703,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
     mdlLayout->setLayout(l);
     g_eeGeneral.modelSelectLayout = l;
     storageDirty(EE_GENERAL);
-    mdlselector->update();
+    mdlselector->reload();
     return 0;
   });
 }

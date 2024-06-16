@@ -95,8 +95,6 @@ const stbi_io_callbacks stbCallbacks = {stbc_read, stbc_skip, stbc_eof};
 
 BitmapBuffer *BitmapBuffer::loadBitmap(const char *filename, BitmapFormats fmt)
 {
-  // TRACE("  BitmapBuffer::load_stb(%s)", filename);
-
   FRESULT result = f_open(&imgFile, filename, FA_OPEN_EXISTING | FA_READ);
   if (result != FR_OK) {
     return nullptr;
@@ -104,14 +102,7 @@ BitmapBuffer *BitmapBuffer::loadBitmap(const char *filename, BitmapFormats fmt)
 
   int x, y, nn;
   stbi_info_from_callbacks(&stbCallbacks, &imgFile, &x, &y, &nn);
-  f_close(&imgFile);
-  // TRACE("  BitmapBuffer::load_stb()----Info File %s, %d, %d, %d", filename,
-  // x, y, nn);
-
-  result = f_open(&imgFile, filename, FA_OPEN_EXISTING | FA_READ);
-  if (result != FR_OK) {
-    return nullptr;
-  }
+  f_lseek(&imgFile, 0);
 
   int w, h, n;
   unsigned char *img =

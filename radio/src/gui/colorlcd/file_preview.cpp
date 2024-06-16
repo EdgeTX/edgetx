@@ -22,7 +22,7 @@
 #include "file_preview.h"
 
 FilePreview::FilePreview(Window *parent, const rect_t &rect) :
-    StaticBitmap(parent, rect, COLOR_THEME_SECONDARY3)
+    StaticBitmap(parent, rect)
 {
   hide();
 }
