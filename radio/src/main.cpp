@@ -30,7 +30,7 @@
 #include "gui/colorlcd/LvglWrapper.h"
 #include "gui/colorlcd/view_main.h"
 #include "startup_shutdown.h"
-#include "theme.h"
+#include "theme_manager.h"
 #include "themes/etx_lv_theme.h"
 #endif
 

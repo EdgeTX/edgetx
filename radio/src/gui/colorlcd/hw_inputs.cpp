@@ -108,14 +108,14 @@ HWPots::HWPots(Window* parent) :
     //     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
     // #endif
     new StaticText(this,
-                   rect_t{P_LBL_X, P_Y(i) + yo + PAD_MEDIUM, P_LBL_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+                   rect_t{P_LBL_X, P_Y(i) + yo + PAD_MEDIUM, P_LBL_W, 0},
                    adcGetInputLabel(ADC_INPUT_FLEX, i));
 
     new HWInputEdit(this, (char*)analogGetCustomLabel(ADC_INPUT_FLEX, i),
                     LEN_ANA_NAME, P_NM_X, P_Y(i) + yo);
 
     auto pot = new Choice(
-        this, rect_t{P_TYP_X, P_Y(i) + P_OFST_Y + yo, P_TYP_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+        this, rect_t{P_TYP_X, P_Y(i) + P_OFST_Y + yo, P_TYP_W, 0},
         STR_POTTYPES, FLEX_NONE, FLEX_SWITCH,
         [=]() -> int { return getPotType(i); },
         [=](int newValue) {
@@ -132,7 +132,7 @@ HWPots::HWPots(Window* parent) :
     pot->setAvailableHandler([=](int val) { return isPotTypeAvailable(val); });
 
     auto tgl = new ToggleSwitch(
-          this, rect_t{P_INV_X, P_Y(i) + P_OFST_Y + yo, P_INV_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+          this, rect_t{P_INV_X, P_Y(i) + P_OFST_Y + yo, P_INV_W, 0},
           [=]() -> uint8_t { return (uint8_t)getPotInversion(i); },
           [=](int8_t newValue) {
             setPotInversion(i, newValue);
@@ -151,7 +151,7 @@ class SwitchDynamicLabel : public StaticText
 {
  public:
   SwitchDynamicLabel(Window* parent, uint8_t index, coord_t x, coord_t y) :
-      StaticText(parent, rect_t{x, y, HWSwitches::SW_CTRL_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, ""),
+      StaticText(parent, rect_t{x, y, HWSwitches::SW_CTRL_W, 0}, ""),
       index(index)
   {
     checkEvents();
@@ -217,7 +217,7 @@ HWSwitches::HWSwitches(Window* parent) :
     Choice* channel = nullptr;
     if (switchIsFlex(i)) {
       channel = new Choice(
-          this, rect_t{x, i * SW_CTRL_H + PAD_TINY, SW_CTRL_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, -1,
+          this, rect_t{x, i * SW_CTRL_H + PAD_TINY, SW_CTRL_W, 0}, -1,
           adcGetMaxInputs(ADC_INPUT_FLEX) - 1,
           [=]() -> int { return switchGetFlexConfig(i); },
           [=](int newValue) { switchConfigFlex(i, newValue); });
@@ -232,7 +232,7 @@ HWSwitches::HWSwitches(Window* parent) :
     }
 
     auto sw_cfg = new Choice(
-        this, rect_t{x, i * SW_CTRL_H + PAD_TINY, SW_CTRL_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+        this, rect_t{x, i * SW_CTRL_H + PAD_TINY, SW_CTRL_W, 0},
         STR_SWTYPES, SWITCH_NONE, switchGetMaxType(i),
         [=]() -> int { return SWITCH_CONFIG(i); },
         [=](int newValue) {

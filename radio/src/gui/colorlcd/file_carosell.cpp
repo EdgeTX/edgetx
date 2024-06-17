@@ -59,12 +59,9 @@ void FileCarosell::setSelected(int n)
       fp->setFile("");
   }
   
-  if (selected == -1) {
-    lv_obj_clear_flag(message->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+  message->show(selected == -1);
+  if (selected == -1)
     message->setText(_fileNames.size() > 0 ? STR_LOADING : STR_NO_THEME_IMAGE);
-  } else {
-    lv_obj_add_flag(message->getLvObj(), LV_OBJ_FLAG_HIDDEN);
-  }
 }
 
 void FileCarosell::checkEvents()

@@ -66,7 +66,13 @@ void ModelMenu::build()
   addTab(new ModelTelemetryPage());
 
 #if defined(PCBNV14) || defined(PCBPL18)
-  addGoToMonitorsButton();
+  new TextButton(
+      this,
+      {LCD_W / 2 + 6, MENU_TITLE_TOP, LCD_W / 2 - 8, MENU_TITLE_HEIGHT},
+      STR_OPEN_CHANNEL_MONITORS, [=]() {
+        new ChannelsViewMenu(this);
+        return 0;
+      });
 #endif
 }
 

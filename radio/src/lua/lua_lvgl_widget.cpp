@@ -570,7 +570,7 @@ class LvglWidgetScaleIndicator : public LvglWidgetObjectBase
  public:
   LvglWidgetScaleIndicator() {}
 
-  virtual void build(lv_obj_t *parent, lv_meter_scale_t *scale) = 0;
+  virtual void buildIndicator(lv_obj_t *parent, lv_meter_scale_t *scale) = 0;
 
  protected:
   lv_obj_t *meter = nullptr;
@@ -601,7 +601,7 @@ class LvglWidgetScaleArc : public LvglWidgetScaleIndicator
     clearRef(L, getEndPosFunction);
   }
 
-  void build(lv_obj_t *parent, lv_meter_scale_t *scale) override
+  void buildIndicator(lv_obj_t *parent, lv_meter_scale_t *scale) override
   {
     meter = parent;
 
@@ -671,7 +671,7 @@ class LvglWidgetScaleLines : public LvglWidgetScaleIndicator
     clearRef(L, getEndPosFunction);
   }
 
-  void build(lv_obj_t *parent, lv_meter_scale_t *scale) override
+  void buildIndicator(lv_obj_t *parent, lv_meter_scale_t *scale) override
   {
     meter = parent;
 
@@ -736,7 +736,7 @@ class LvglWidgetScaleNeedle : public LvglWidgetScaleIndicator
 
   void clearRefs(lua_State *L) override { clearRef(L, getPosFunction); }
 
-  void build(lv_obj_t *parent, lv_meter_scale_t *scale) override
+  void buildIndicator(lv_obj_t *parent, lv_meter_scale_t *scale) override
   {
     meter = parent;
 
@@ -811,7 +811,7 @@ class LvglWidgetMeterScale : public LvglWidgetObjectBase
     }
 
     for (auto it = indicators.cbegin(); it != indicators.cend(); ++it) {
-      (*it)->build(meter, scale);
+      (*it)->buildIndicator(meter, scale);
     }
   }
 

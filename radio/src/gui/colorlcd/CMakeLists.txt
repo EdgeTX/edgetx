@@ -52,7 +52,6 @@ set(GUI_SRC
   switchchoice.cpp
   tabsgroup.cpp
   theme_manager.cpp
-  theme.cpp
   topbar.cpp
   view_about.cpp
   view_channels.cpp

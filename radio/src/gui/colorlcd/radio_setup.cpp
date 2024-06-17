@@ -123,7 +123,7 @@ class DateTimeWindow : public Window
     // Date
     new StaticText(this, rect_t{PAD_TINY, DT_Y1 + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_DATE);
     year = new NumberEdit(
-        this, rect_t{SubPage::EDT_X, DT_Y1, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 2023, 2037,
+        this, rect_t{SubPage::EDT_X, DT_Y1, DT_EDT_W, 0}, 2023, 2037,
         [=]() -> int32_t { return TM_YEAR_BASE + m_tm.tm_year; },
         [=](int32_t newValue) {
           m_last_tm.tm_year = m_tm.tm_year = newValue - TM_YEAR_BASE;
@@ -132,7 +132,7 @@ class DateTimeWindow : public Window
         });
 
     month = new NumberEdit(
-        this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY, DT_Y1, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 1, 12,
+        this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY, DT_Y1, DT_EDT_W, 0}, 1, 12,
         [=]() -> int32_t { return 1 + m_tm.tm_mon; },
         [=](int32_t newValue) {
           m_last_tm.tm_mon = m_tm.tm_mon = newValue - 1;
@@ -143,7 +143,7 @@ class DateTimeWindow : public Window
         [](int32_t value) { return formatNumberAsString(value, LEADING0); });
 
     day = new NumberEdit(
-        this, rect_t{SubPage::EDT_X + 2 * DT_EDT_W + PAD_SMALL, DT_Y1, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 1,
+        this, rect_t{SubPage::EDT_X + 2 * DT_EDT_W + PAD_SMALL, DT_Y1, DT_EDT_W, 0}, 1,
         daysInMonth(), [=]() -> int32_t { return m_tm.tm_mday; },
         [=](int32_t newValue) {
           m_last_tm.tm_mday = m_tm.tm_mday = newValue;
@@ -155,7 +155,7 @@ class DateTimeWindow : public Window
     // Time
     new StaticText(this, rect_t{PAD_TINY, DT_Y2 + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_TIME);
     hour = new NumberEdit(
-        this, rect_t{SubPage::EDT_X, DT_Y2, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 23,
+        this, rect_t{SubPage::EDT_X, DT_Y2, DT_EDT_W, 0}, 0, 23,
         [=]() -> int32_t { return m_tm.tm_hour; },
         [=](int32_t newValue) {
           m_last_tm.tm_hour = m_tm.tm_hour = newValue;
@@ -165,7 +165,7 @@ class DateTimeWindow : public Window
         [](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
 
     minutes = new NumberEdit(
-        this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY, DT_Y2, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 59,
+        this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY, DT_Y2, DT_EDT_W, 0}, 0, 59,
         [=]() -> int32_t { return m_tm.tm_min; },
         [=](int32_t newValue) {
           m_last_tm.tm_min = m_tm.tm_min = newValue;
@@ -175,7 +175,7 @@ class DateTimeWindow : public Window
         [](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
 
     seconds = new NumberEdit(
-        this, rect_t{SubPage::EDT_X + DT_EDT_W * 2 + PAD_SMALL, DT_Y2, DT_EDT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 59,
+        this, rect_t{SubPage::EDT_X + DT_EDT_W * 2 + PAD_SMALL, DT_Y2, DT_EDT_W, 0}, 0, 59,
         [=]() -> int32_t { return m_tm.tm_sec; },
         [=](int32_t newValue) {
           m_last_tm.tm_sec = m_tm.tm_sec = newValue;
@@ -739,7 +739,7 @@ static SetupLineDef setupLines[] = {
     STR_SPLASHSCREEN,
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(
-          parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_SPLASHSCREEN_DELAYS, 0, 7,
+          parent, {x, y, 0, 0}, STR_SPLASHSCREEN_DELAYS, 0, 7,
           [=]() -> int32_t { return 3 - g_eeGeneral.splashMode; },
           [=](int32_t newValue) {
             g_eeGeneral.splashMode = 3 - newValue;
@@ -751,7 +751,7 @@ static SetupLineDef setupLines[] = {
     // Play startup sound
     STR_PLAY_HELLO,
     [](Window* parent, coord_t x, coord_t y) {
-      new ToggleSwitch(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, GET_SET_INVERTED(g_eeGeneral.dontPlayHello));
+      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_INVERTED(g_eeGeneral.dontPlayHello));
     }
   },
 #if defined(PWR_BUTTON_PRESS)
@@ -760,7 +760,7 @@ static SetupLineDef setupLines[] = {
     STR_PWR_OFF_DELAY,
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(
-          parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_PWR_OFF_DELAYS, 0, 4,
+          parent, {x, y, 0, 0}, STR_PWR_OFF_DELAYS, 0, 4,
           [=]() -> int32_t { return pwrDelayFromYaml(g_eeGeneral.pwrOffSpeed); },
           [=](int32_t newValue) {
             g_eeGeneral.pwrOffSpeed = pwrDelayToYaml(newValue);
@@ -774,7 +774,7 @@ static SetupLineDef setupLines[] = {
     // Power on/off haptic alarm
       STR_PWR_ON_OFF_HAPTIC,
       [](Window* parent, coord_t x, coord_t y) {
-        new ToggleSwitch(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, GET_SET_INVERTED(g_eeGeneral.disablePwrOnOffHaptic));
+        new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_INVERTED(g_eeGeneral.disablePwrOnOffHaptic));
       }
   },
 #endif
@@ -783,7 +783,7 @@ static SetupLineDef setupLines[] = {
     // Owner ID
     STR_OWNER_ID,
     [](Window* parent, coord_t x, coord_t y) {
-      new RadioTextEdit(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, g_eeGeneral.ownerRegistrationID,
+      new RadioTextEdit(parent, {x, y, 0, 0}, g_eeGeneral.ownerRegistrationID,
                         PXX2_LEN_REGISTRATION_ID);
     }
   },
@@ -792,7 +792,7 @@ static SetupLineDef setupLines[] = {
     // Country code
     STR_COUNTRY_CODE,
     [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_COUNTRY_CODES, 0, 2,
+      new Choice(parent, {x, y, 0, 0}, STR_COUNTRY_CODES, 0, 2,
                 GET_SET_DEFAULT(g_eeGeneral.countryCode));
     }
   },
@@ -801,7 +801,7 @@ static SetupLineDef setupLines[] = {
     STR_VOICE_LANGUAGE,
     [](Window* parent, coord_t x, coord_t y) {
       auto choice =
-          new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, DIM(languagePacks) - 2,
+          new Choice(parent, {x, y, 0, 0}, 0, DIM(languagePacks) - 2,
                     GET_VALUE(currentLanguagePackIdx), [](uint8_t newValue) {
                       currentLanguagePackIdx = newValue;
                       currentLanguagePack = languagePacks[currentLanguagePackIdx];
@@ -816,7 +816,7 @@ static SetupLineDef setupLines[] = {
     // Imperial units
     STR_UNITS_SYSTEM,
     [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_VUNITSSYSTEM, 0, 1,
+      new Choice(parent, {x, y, 0, 0}, STR_VUNITSSYSTEM, 0, 1,
                 GET_SET_DEFAULT(g_eeGeneral.imperial));
     }
   },
@@ -824,7 +824,7 @@ static SetupLineDef setupLines[] = {
     // PPM units
     STR_UNITS_PPM,
     [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_PPMUNIT, PPM_PERCENT_PREC0, PPM_US,
+      new Choice(parent, {x, y, 0, 0}, STR_PPMUNIT, PPM_PERCENT_PREC0, PPM_US,
                 GET_SET_DEFAULT(g_eeGeneral.ppmunit));
     }
   },
@@ -833,7 +833,7 @@ static SetupLineDef setupLines[] = {
     STR_SWITCHES_DELAY,
     [](Window* parent, coord_t x, coord_t y) {
       auto edit =
-          new NumberEdit(parent, {x, y, RadioSetupPage::NUM_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 100,
+          new NumberEdit(parent, {x, y, RadioSetupPage::NUM_W, 0}, 0, 100,
                         GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
       edit->setDisplayHandler([](int32_t value) {
         return formatNumberAsString(value * 10, 0, 0, nullptr, STR_MS);
@@ -844,7 +844,7 @@ static SetupLineDef setupLines[] = {
     // USB mode
     STR_USBMODE,
     [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE,
+      new Choice(parent, {x, y, 0, 0}, STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE,
                 GET_SET_DEFAULT(g_eeGeneral.USBMode));
     }
   },
@@ -852,7 +852,7 @@ static SetupLineDef setupLines[] = {
   {
     STR_ROTARY_ENC_MODE,
     [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_ROTARY_ENC_OPT, ROTARY_ENCODER_MODE_NORMAL,
+      new Choice(parent, {x, y, 0, 0}, STR_ROTARY_ENC_OPT, ROTARY_ENCODER_MODE_NORMAL,
                 ROTARY_ENCODER_MODE_INVERT_BOTH,
                 GET_SET_DEFAULT(g_eeGeneral.rotEncMode));
     }
@@ -862,9 +862,9 @@ static SetupLineDef setupLines[] = {
   {
     STR_HATSMODE,
     [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 120, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_HATSOPT, HATSMODE_TRIMS_ONLY,
+      new Choice(parent, {x, y, 120, 0}, STR_HATSOPT, HATSMODE_TRIMS_ONLY,
                 HATSMODE_SWITCHABLE, GET_SET_DEFAULT(g_eeGeneral.hatsMode));
-      new TextButton(parent, {x + 120 + PAD_MEDIUM, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, "?", [=]() {
+      new TextButton(parent, {x + 120 + PAD_MEDIUM, y, 0, 0}, "?", [=]() {
         new MessageDialog(parent, STR_HATSMODE_KEYS, STR_HATSMODE_KEYS_HELP, "",
                           LEFT);
         return 0;
@@ -878,7 +878,7 @@ static SetupLineDef setupLines[] = {
     [](Window* parent, coord_t x, coord_t y) {
       uint8_t mains = adcGetMaxInputs(ADC_INPUT_MAIN);
       auto max_order = inputMappingGetMaxChannelOrder() - 1;
-      auto choice = new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, max_order,
+      auto choice = new Choice(parent, {x, y, 0, 0}, 0, max_order,
                           GET_SET_DEFAULT(g_eeGeneral.templateSetup));
 
       choice->setTextHandler([=](uint8_t value) {
@@ -894,7 +894,7 @@ static SetupLineDef setupLines[] = {
     // Stick mode
     STR_MODE,
     [](Window* parent, coord_t x, coord_t y) {
-      auto choice = new Choice(parent, {x, y, 0, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
+      auto choice = new Choice(parent, {x, y, 0, 0}, 0, 3, GET_DEFAULT(g_eeGeneral.stickMode),
                           [=](uint8_t newValue) {
                             mixerTaskStop();
                             g_eeGeneral.stickMode = newValue;

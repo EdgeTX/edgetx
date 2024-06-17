@@ -34,6 +34,8 @@ class ModelCurvesPage : public PageTab
 
   virtual void build(Window* window) override;
 
+  static LAYOUT_VAL(PER_ROW, 3, 2)
+
  protected:
   uint8_t focusIndex = -1;
   ButtonBase* addButton = nullptr;

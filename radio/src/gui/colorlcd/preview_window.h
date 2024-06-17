@@ -60,7 +60,4 @@ class PreviewWindow : public Window
 
  protected:
   tmr10ms_t ticks;
-  HeaderDateTime *dateTime;
-
-  void checkEvents() override;
 };

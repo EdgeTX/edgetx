@@ -21,7 +21,7 @@
 
 #include "hal/usb_driver.h"
 #include "opentx.h"
-#include "theme.h"
+#include "theme_manager.h"
 #include "widget.h"
 #include "widgets_container_impl.h"
 
@@ -245,21 +245,8 @@ class DateTimeWidget : public TopBarWidget
                  const rect_t& rect, Widget::PersistentData* persistentData) :
       TopBarWidget(factory, parent, rect, persistentData)
   {
-    dateTime = new HeaderDateTime(lvobj, DT_X, DT_Y);
+    dateTime = new HeaderDateTime(this, DT_X, DT_Y);
     update();
-  }
-
-  void checkEvents() override
-  {
-    TopBarWidget::checkEvents();
-
-    // Only update if minute value has changed
-    struct gtm t;
-    gettime(&t);
-    if (t.tm_min != lastMinute) {
-      lastMinute = t.tm_min;
-      dateTime->update();
-    }
   }
 
   void update() override

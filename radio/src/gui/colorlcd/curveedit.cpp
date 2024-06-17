@@ -165,7 +165,7 @@ void CurveDataEdit::update()
 
   auto form = new Window(this, rect_t{});
   form->padAll(PAD_ZERO);
-  form->padBottom(4);
+  form->padBottom(PAD_SMALL);
   form->setFlexLayout();
 
   FlexGridLayout grid(default_col_dsc, default_row_dsc);

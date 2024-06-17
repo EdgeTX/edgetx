@@ -28,7 +28,7 @@
 #include "hal/abnormal_reboot.h"
 
 #if defined(COLORLCD)
-  #include "theme.h"
+  #include "theme_manager.h"
 #endif
 
 void getModelPath(char * path, const char * filename, const char* pathName)
@@ -45,7 +45,7 @@ void storageEraseAll(bool warn)
 
 #if defined(COLORLCD)
   // the theme has not been loaded before
-  EdgeTxTheme::instance()->load();
+  ThemePersistance::instance()->loadDefaultTheme();
 #endif
 
   // Init backlight mode before entering alert screens

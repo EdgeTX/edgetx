@@ -34,18 +34,12 @@
 
 #if !PORTRAIT_LCD
 
-#define GRIDCOLS 10
-#define TSI2CEventsCol 5
-
 static const lv_coord_t col_dsc[] = {
     LV_GRID_FR(30), LV_GRID_FR(30), LV_GRID_FR(40),       LV_GRID_FR(40),
     LV_GRID_FR(40), LV_GRID_FR(30), LV_GRID_FR(30),       LV_GRID_FR(40),
     LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_TEMPLATE_LAST};
 
 #else
-
-#define GRIDCOLS 5
-#define TSI2CEventsCol 0
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(30), LV_GRID_FR(30),
                                      LV_GRID_FR(40), LV_GRID_FR(40),
@@ -64,8 +58,8 @@ class AnaViewWindow : public Window
   {
     parent->padAll(PAD_ZERO);
     padAll(PAD_SMALL);
-    padLeft(10);
-    padRight(10);
+    padLeft(PAD_LARGE);
+    padRight(PAD_LARGE);
     setFlexLayout();
 
     line = newLine(grid);
@@ -175,7 +169,7 @@ class AnaCalibratedViewWindow : public AnaViewWindow
 #if PORTRAIT_LCD
     line->padTop(20);
 #else
-    line->padTop(2);
+    line->padTop(PAD_TINY);
 #endif
 
     auto lbl = new DynamicText(
@@ -247,6 +241,8 @@ class AnaCalibratedViewWindow : public AnaViewWindow
     }
   }
 #endif
+
+  static LAYOUT_VAL(TSI2CEventsCol, 5, 0)
 
  protected:
 #if defined(HARDWARE_TOUCH)
@@ -451,6 +447,8 @@ class AnaMinMaxViewWindow : public AnaViewWindow
     }
     AnaViewWindow::checkEvents();
   }
+
+  static LAYOUT_VAL(GRIDCOLS, 10, 5)
 };
 
 class AnaCalibratedViewPage : public PageTab

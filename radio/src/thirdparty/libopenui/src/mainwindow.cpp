@@ -22,6 +22,7 @@
 #include "keyboard_base.h"
 #include "layout.h"
 #include "themes/etx_lv_theme.h"
+#include "sdcard.h"
 
 // timers_driver.h
 uint32_t timersGetMsTick();
@@ -76,12 +77,6 @@ void MainWindow::run(bool trash)
   }
 }
 
-void MainWindow::setBackground(const BitmapBuffer* bitmap)
-{
-  lv_canvas_set_buffer(background, bitmap->getData(), bitmap->width(),
-                       bitmap->height(), LV_IMG_CF_TRUE_COLOR);
-}
-
 void MainWindow::shutdown()
 {
   // Called when USB is connected in SD card mode
@@ -99,4 +94,29 @@ void MainWindow::shutdown()
   // Re-add background canvas
   background = lv_canvas_create(lvobj);
   lv_obj_center(background);
+}
+
+void MainWindow::setBackgroundImage(const char* fileName)
+{
+  // ensure you delete old bitmap
+  if (backgroundBitmap != nullptr) delete backgroundBitmap;
+
+  if (fileName == nullptr) fileName = "";
+
+  backgroundImageFileName = fileName;
+
+  // Try to load bitmap. If this fails backgroundBitmap will be NULL and default
+  // will be loaded in update() method
+  backgroundBitmap =
+      BitmapBuffer::loadBitmap(backgroundImageFileName.c_str(), BMP_RGB565);
+
+  if (!backgroundBitmap) {
+    backgroundBitmap = BitmapBuffer::loadBitmap(
+        THEMES_PATH "/EdgeTX/background.png", BMP_RGB565);
+  }
+
+  if (backgroundBitmap) {
+    lv_canvas_set_buffer(background, backgroundBitmap->getData(), backgroundBitmap->width(),
+                         backgroundBitmap->height(), LV_IMG_CF_TRUE_COLOR);
+  }
 }

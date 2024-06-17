@@ -27,22 +27,12 @@
 
 #if PORTRAIT_LCD
 
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                     LV_GRID_FR(1), LV_GRID_FR(1),
-                                     LV_GRID_TEMPLATE_LAST};
-
 // Footer grid
 static const lv_coord_t f_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                        LV_GRID_FR(1), LV_GRID_FR(1),
                                        LV_GRID_TEMPLATE_LAST};
 
 #else  // Landscape
-
-// Switch grid
-static const lv_coord_t col_dsc[] = {
-    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
-    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
-    LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 
 // Footer grid
 static const lv_coord_t f_col_dsc[] = {
@@ -248,13 +238,8 @@ void LogicalSwitchesViewPage::build(Window* window)
 {
   window->padAll(PAD_ZERO);
 
-  auto form = new Window(window, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
-  form->padAll(PAD_ZERO);
-  form->padTop(3);
-
-  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
-  FormLine* line = nullptr;
+  coord_t xo = (LCD_W - (BTN_MATRIX_COL * (BTN_WIDTH + PAD_TINY) - PAD_TINY)) / 2;
+  coord_t yo = PAD_TINY;
 
   // Footer
   footer = new LogicalSwitchDisplayFooter(
@@ -264,12 +249,8 @@ void LogicalSwitchesViewPage::build(Window* window)
   // LSW table
   std::string lsString("L64");
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
-    if ((i % BTN_MATRIX_COL) == 0) {
-      line = form->newLine(grid);
-      lv_obj_set_style_pad_all(line->getLvObj(), BTN_PAD, LV_PART_MAIN);
-      line->padLeft(PAD_SMALL);
-      line->padRight(PAD_SMALL);
-    }
+    coord_t x = (i % BTN_MATRIX_COL) * (BTN_WIDTH + PAD_TINY) + xo;
+    coord_t y = (i / BTN_MATRIX_COL) * (BTN_HEIGHT + PAD_TINY) + yo;
 
     LogicalSwitchData* ls = lswAddress(i);
     bool isActive = (ls->func != LS_FUNC_NONE);
@@ -278,9 +259,7 @@ void LogicalSwitchesViewPage::build(Window* window)
 
     if (isActive) {
       auto button = new LogicalSwitchDisplayButton(
-          line, rect_t{0, 0, 0, BTN_HEIGHT}, lsString, i);
-      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_STRETCH,
-                           i % BTN_MATRIX_COL, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+          window, {x, y, BTN_WIDTH, BTN_HEIGHT}, lsString, i);
 
       button->setFocusHandler([=](bool focus) {
         if (focus) {
@@ -289,12 +268,11 @@ void LogicalSwitchesViewPage::build(Window* window)
         return 0;
       });
     } else {
-      auto lbl = lv_label_create(line->getLvObj());
-      lv_obj_set_height(lbl, BTN_HEIGHT);
+      auto lbl = lv_label_create(window->getLvObj());
+      lv_obj_set_size(lbl, BTN_WIDTH, BTN_HEIGHT);
+      lv_obj_set_pos(lbl, x, y);
       etx_obj_add_style(lbl, styles->text_align_center, LV_PART_MAIN);
       etx_txt_color(lbl, COLOR_THEME_DISABLED_INDEX);
-      lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_STRETCH, i % BTN_MATRIX_COL, 1,
-                           LV_GRID_ALIGN_CENTER, 0, 1);
       lv_label_set_text(lbl, lsString.c_str());
     }
   }

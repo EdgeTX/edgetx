@@ -30,41 +30,42 @@
 #include "opentx.h"
 #include "view_logical_switches.h"
 
-constexpr coord_t LEG_COLORBOX = 14;
-
 //-----------------------------------------------------------------------------
 
 class ChannelsViewFooter : public Window
 {
  public:
   explicit ChannelsViewFooter(Window* parent) :
-      Window(parent, {0, parent->height() - LEG_COLORBOX - 10, LCD_W,
-                      LEG_COLORBOX + 10})
+      Window(parent, {0, parent->height() - LEG_COLORBOX - PAD_SMALL * 2 - 2, LCD_W,
+                      LEG_COLORBOX + PAD_SMALL * 2 + 2})
   {
     etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
     auto w =
-        new Window(this, {6, 4, LEG_COLORBOX + 2, LEG_COLORBOX + 2});
+        new Window(this, {PAD_MEDIUM, PAD_SMALL, LEG_COLORBOX + PAD_TINY, LEG_COLORBOX + PAD_TINY});
     w->setWindowFlag(NO_FOCUS);
     etx_solid_bg(w->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
     w = new Window(w, {1, 1, LEG_COLORBOX, LEG_COLORBOX});
     w->setWindowFlag(NO_FOCUS);
     etx_solid_bg(w->getLvObj(), COLOR_THEME_ACTIVE_INDEX);
 
-    new StaticText(this, {24, 2, LV_SIZE_CONTENT, 16}, STR_MONITOR_OUTPUT_DESC, COLOR_THEME_PRIMARY2 | LEFT);
+    new StaticText(this, {LEG_COLORBOX + PAD_MEDIUM + PAD_SMALL, PAD_TINY, LV_SIZE_CONTENT, TXT_H}, STR_MONITOR_OUTPUT_DESC, COLOR_THEME_PRIMARY2 | LEFT);
 
-    int x = getTextWidth(STR_MONITOR_OUTPUT_DESC) + 32;
+    int x = getTextWidth(STR_MONITOR_OUTPUT_DESC) + LEG_COLORBOX + PAD_MEDIUM * 2;
 
-    w = new Window(this, {x + 6, 4, LEG_COLORBOX + 2, LEG_COLORBOX + 2});
+    w = new Window(this, {x + PAD_MEDIUM, PAD_SMALL, LEG_COLORBOX + PAD_TINY, LEG_COLORBOX + PAD_TINY});
     w->setWindowFlag(NO_FOCUS);
     etx_solid_bg(w->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
     w = new Window(w, {1, 1, LEG_COLORBOX, LEG_COLORBOX});
     w->setWindowFlag(NO_FOCUS);
     etx_solid_bg(w->getLvObj(), COLOR_THEME_FOCUS_INDEX);
 
-    new StaticText(this, {x + 24, 2, LV_SIZE_CONTENT, 16},
+    new StaticText(this, {x + LEG_COLORBOX + PAD_MEDIUM + PAD_SMALL, PAD_TINY, LV_SIZE_CONTENT, TXT_H},
                    STR_MONITOR_MIXER_DESC, COLOR_THEME_PRIMARY2);
   }
+
+  static LAYOUT_VAL(LEG_COLORBOX, 14, 14)
+  static LAYOUT_VAL(TXT_H, 18, 18)
 };
 
 //-----------------------------------------------------------------------------
@@ -84,7 +85,7 @@ class ChannelsViewPage : public PageTab
 
   void build(Window* window) override
   {
-    constexpr coord_t hmargin = 5;
+    constexpr coord_t hmargin = PAD_SMALL;
     window->padAll(PAD_ZERO);
 
     // Channels bars

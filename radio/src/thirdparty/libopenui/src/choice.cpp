@@ -19,7 +19,6 @@
 #include "choice.h"
 
 #include "menu.h"
-#include "theme.h"
 #include "themes/etx_lv_theme.h"
 
 // Choice

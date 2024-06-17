@@ -66,9 +66,8 @@ void ModelHeliPage::build(Window* form)
                    GET_SET_DEFAULT(g_model.swashR.elevatorSource));
 
   // Elevator weight
-  auto w = new StaticText(line, rect_t{}, STR_WEIGHT);
-  lv_obj_set_style_grid_cell_x_align(w->getLvObj(), LV_GRID_ALIGN_END, 0);
-  lv_obj_set_style_pad_right(w->getLvObj(), lv_dpx(8), 0);
+  auto w = new StaticText(line, rect_t{}, STR_WEIGHT, COLOR_THEME_PRIMARY1 | RIGHT);
+  w->padRight(PAD_LARGE);
   new NumberEdit(line, rect_t{}, -100, 100,
                  GET_SET_DEFAULT(g_model.swashR.elevatorWeight));
 
@@ -79,9 +78,8 @@ void ModelHeliPage::build(Window* form)
                    GET_SET_DEFAULT(g_model.swashR.aileronSource));
 
   // Aileron weight
-  w = new StaticText(line, rect_t{}, STR_WEIGHT);
-  lv_obj_set_style_grid_cell_x_align(w->getLvObj(), LV_GRID_ALIGN_END, 0);
-  lv_obj_set_style_pad_right(w->getLvObj(), lv_dpx(8), 0);
+  w = new StaticText(line, rect_t{}, STR_WEIGHT, COLOR_THEME_PRIMARY1 | RIGHT);
+  w->padRight(PAD_LARGE);
   new NumberEdit(line, rect_t{}, -100, 100,
                  GET_SET_DEFAULT(g_model.swashR.aileronWeight));
 
@@ -92,9 +90,8 @@ void ModelHeliPage::build(Window* form)
                    GET_SET_DEFAULT(g_model.swashR.collectiveSource));
 
   // Collective weight
-  w = new StaticText(line, rect_t{}, STR_WEIGHT);
-  lv_obj_set_style_grid_cell_x_align(w->getLvObj(), LV_GRID_ALIGN_END, 0);
-  lv_obj_set_style_pad_right(w->getLvObj(), lv_dpx(8), 0);
+  w = new StaticText(line, rect_t{}, STR_WEIGHT, COLOR_THEME_PRIMARY1 | RIGHT);
+  w->padRight(PAD_LARGE);
   new NumberEdit(line, rect_t{}, -100, 100,
                  GET_SET_DEFAULT(g_model.swashR.collectiveWeight));
 

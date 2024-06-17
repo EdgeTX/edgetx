@@ -56,12 +56,6 @@ static const lv_coord_t col_dsc5[] = {LV_GRID_FR(5), LV_GRID_FR(4),
                                       LV_GRID_FR(4), LV_GRID_FR(4),
                                       LV_GRID_TEMPLATE_LAST};
 
-// Edit grid variants
-static const lv_coord_t e_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
-                                       LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t e_col_dsc2[] = {LV_GRID_FR(4), LV_GRID_FR(3),
-                                        LV_GRID_FR(3), LV_GRID_TEMPLATE_LAST};
-
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 class TSStyle
@@ -401,59 +395,11 @@ class SensorSourceChoice : public SourceChoice
   }
 };
 
-class SensorRatioEdit : Window
-{
- public:
-  SensorRatioEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
-                  std::function<int()> _getValue,
-                  std::function<void(int)> _setValue) :
-      Window(parent, rect),
-      m_getValue(std::move(_getValue)),
-      m_setValue(std::move(_setValue))
-  {
-    setFlexLayout(LV_FLEX_FLOW_ROW, 75);
-    lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER,
-                          LV_FLEX_ALIGN_SPACE_AROUND);
-
-    editRatio = new NumberEdit(
-        this, rect_t{}, vmin, vmax, m_getValue,
-        [=](int32_t newValue) {
-          m_setValue(newValue);
-          setPercent();
-        },
-        PREC1);
-    editRatio->setZeroText("-");
-
-    percentText = new StaticText(this, rect_t{}, "");
-    setPercent();
-  }
-
- protected:
-  int32_t ratioPercent;
-  NumberEdit* editRatio;
-  StaticText* percentText;
-  std::function<int()> m_getValue;
-  std::function<void(int)> m_setValue;
-
- private:
-  void setPercent()
-  {
-    int32_t value = m_getValue();
-    if (value == 0) {
-      percentText->setText("");
-    } else {
-      std::string str =
-          formatNumberAsString((value * 1000) / 255, PREC1, 0, "", "%");
-      percentText->setText(str);
-    }
-  }
-};
-
-class SensorEditWindow : public Page
+class SensorEditWindow : public SubPage
 {
  public:
   explicit SensorEditWindow(uint8_t index) :
-      Page(ICON_MODEL_TELEMETRY, PAD_SMALL), index(index)
+      SubPage(ICON_MODEL_TELEMETRY, STR_MENUTELEMETRY, "", true), index(index)
   {
     buildHeader(header);
     buildBody(body);
@@ -490,13 +436,12 @@ class SensorEditWindow : public Page
     P_COUNT,
   };
 
-  FormLine* paramLines[P_COUNT] = {};
+  Window* paramLines[P_COUNT] = {};
 
   void buildHeader(Window* window)
   {
     std::string title2 =
         STR_SENSOR + std::to_string(index + 1) + " = " + STR_NA;
-    header->setTitle(STR_MENUTELEMETRY);
 
     headerValue = header->setTitle2(title2);
 
@@ -627,218 +572,222 @@ class SensorEditWindow : public Page
   {
     window->setFlexLayout();
 
-    FlexGridLayout grid(e_col_dsc, row_dsc, PAD_TINY);
-    FlexGridLayout grid2(e_col_dsc2, row_dsc, PAD_TINY);
-
     TelemetrySensor* sensor = &g_model.telemetrySensors[index];
 
     // Sensor name
-    auto line = window->newLine(grid);
-    new StaticText(line, rect_t{}, STR_NAME);
-    new ModelTextEdit(line, rect_t{}, sensor->label, sizeof(sensor->label));
+    setupLine(STR_NAME, [=](Window* parent, coord_t x, coord_t y) {
+          new ModelTextEdit(parent, {x, y, 0, 0}, sensor->label, sizeof(sensor->label));
+        });
 
     // Type
-    line = window->newLine(grid);
-    new StaticText(line, rect_t{}, STR_TYPE);
-    new Choice(line, rect_t{}, STR_VSENSORTYPES, 0, 1,
-               GET_DEFAULT(sensor->type), [=](uint8_t newValue) {
-                 sensor->type = newValue;
-                 sensor->instance = 0;
-                 if (sensor->type == TELEM_TYPE_CALCULATED) {
-                   sensor->param = 0;
-                   sensor->filter = 0;
-                   sensor->autoOffset = 0;
-                 }
-                 SET_DIRTY();
-                 updateSensorParameters();
-               });
+    setupLine(STR_TYPE, [=](Window* parent, coord_t x, coord_t y) {
+          new Choice(parent, {x, y, 0, 0}, STR_VSENSORTYPES, 0, 1,
+                    GET_DEFAULT(sensor->type), [=](uint8_t newValue) {
+                      sensor->type = newValue;
+                      sensor->instance = 0;
+                      if (sensor->type == TELEM_TYPE_CALCULATED) {
+                        sensor->param = 0;
+                        sensor->filter = 0;
+                        sensor->autoOffset = 0;
+                      }
+                      SET_DIRTY();
+                      updateSensorParameters();
+                    });
+        });
 
     // Parameters
-    paramLines[P_FORMULA] = window->newLine(grid);
-    new StaticText(paramLines[P_FORMULA], rect_t{}, STR_FORMULA);
-    new Choice(paramLines[P_FORMULA], rect_t{}, STR_VFORMULAS, 0,
-               TELEM_FORMULA_LAST, GET_DEFAULT(sensor->formula),
-               [=](uint8_t newValue) {
-                 sensor->formula = newValue;
-                 sensor->param = 0;
-                 if (sensor->formula == TELEM_FORMULA_CELL) {
-                   sensor->unit = UNIT_VOLTS;
-                   sensor->prec = 2;
-                 } else if (sensor->formula == TELEM_FORMULA_DIST) {
-                   sensor->unit = UNIT_DIST;
-                   sensor->prec = 0;
-                 } else if (sensor->formula == TELEM_FORMULA_CONSUMPTION) {
-                   sensor->unit = UNIT_MAH;
-                   sensor->prec = 0;
-                 }
-                 SET_DIRTY();
-                 telemetryItems[index].clear();
-                 updateSensorParameters();
-               });
+    paramLines[P_FORMULA] = setupLine(STR_FORMULA, [=](Window* parent, coord_t x, coord_t y) {
+          new Choice(parent, {x, y, 0, 0}, STR_VFORMULAS, 0,
+                    TELEM_FORMULA_LAST, GET_DEFAULT(sensor->formula),
+                    [=](uint8_t newValue) {
+                      sensor->formula = newValue;
+                      sensor->param = 0;
+                      if (sensor->formula == TELEM_FORMULA_CELL) {
+                        sensor->unit = UNIT_VOLTS;
+                        sensor->prec = 2;
+                      } else if (sensor->formula == TELEM_FORMULA_DIST) {
+                        sensor->unit = UNIT_DIST;
+                        sensor->prec = 0;
+                      } else if (sensor->formula == TELEM_FORMULA_CONSUMPTION) {
+                        sensor->unit = UNIT_MAH;
+                        sensor->prec = 0;
+                      }
+                      SET_DIRTY();
+                      telemetryItems[index].clear();
+                      updateSensorParameters();
+                    });
+        });
 
-    paramLines[P_ID] = window->newLine(grid2);
-    new StaticText(paramLines[P_ID], rect_t{}, STR_ID);
-    auto num = new NumberEdit(paramLines[P_ID], rect_t{}, 0, 0xFFFF,
-                              GET_SET_DEFAULT(sensor->id));
-#if PORTRAIT_LCD
-    // Portrait layout - need to limit width of edit box
-    num->setWidth((lv_pct(28)));
-#endif
-    num->setDisplayHandler([](int32_t value) {
-      char buf[4];
-      buf[0] = hex2char((value & 0xf000) >> 12);
-      buf[1] = hex2char((value & 0x0f00) >> 8);
-      buf[2] = hex2char((value & 0x00f0) >> 4);
-      buf[3] = hex2char((value & 0x000f) >> 0);
-      return std::string(buf, sizeof(buf));
-    });
-    num = new NumberEdit(paramLines[P_ID], rect_t{}, 0, 0xff,
-                         GET_SET_DEFAULT(sensor->instance));
-#if PORTRAIT_LCD
-    // Portrait layout - need to limit width of edit box
-    num->setWidth(lv_pct(28));
-#endif
+    paramLines[P_ID] = setupLine(STR_ID, [=](Window* parent, coord_t x, coord_t y) {
+          auto num = new NumberEdit(parent, {x, y, NUM_EDIT_W, 0}, 0, 0xFFFF,
+                                    GET_SET_DEFAULT(sensor->id));
+          num->setDisplayHandler([](int32_t value) {
+            char buf[4];
+            buf[0] = hex2char((value & 0xf000) >> 12);
+            buf[1] = hex2char((value & 0x0f00) >> 8);
+            buf[2] = hex2char((value & 0x00f0) >> 4);
+            buf[3] = hex2char((value & 0x000f) >> 0);
+            return std::string(buf, sizeof(buf));
+          });
+          num = new NumberEdit(paramLines[P_ID], {x, y, NUM_EDIT_W, 0}, 0, 0xff,
+                              GET_SET_DEFAULT(sensor->instance));
+        });
 
-    paramLines[P_UNIT] = window->newLine(grid);
-    new StaticText(paramLines[P_UNIT], rect_t{}, STR_UNIT);
-    new Choice(paramLines[P_UNIT], rect_t{}, STR_VTELEMUNIT, 0, UNIT_MAX,
-               GET_DEFAULT(sensor->unit), [=](uint8_t newValue) {
-                 sensor->unit = newValue;
-                 if (sensor->unit == UNIT_FAHRENHEIT) {
-                   sensor->prec = 0;
-                 }
-                 SET_DIRTY();
-                 telemetryItems[index].clear();
-                 updateSensorParameters();
-               });
+    paramLines[P_UNIT] = setupLine(STR_UNIT, [=](Window* parent, coord_t x, coord_t y) {
+          new Choice(parent, {x, y, 0, 0}, STR_VTELEMUNIT, 0, UNIT_MAX,
+                    GET_DEFAULT(sensor->unit), [=](uint8_t newValue) {
+                      sensor->unit = newValue;
+                      if (sensor->unit == UNIT_FAHRENHEIT) {
+                        sensor->prec = 0;
+                      }
+                      SET_DIRTY();
+                      telemetryItems[index].clear();
+                      updateSensorParameters();
+                    });
+        });
 
-    paramLines[P_PREC] = window->newLine(grid);
-    new StaticText(paramLines[P_PREC], rect_t{}, STR_PRECISION);
-    new Choice(paramLines[P_PREC], rect_t{}, STR_VPREC, 0, 2,
-               GET_DEFAULT(sensor->prec), [=](uint8_t newValue) {
-                 sensor->prec = newValue;
-                 SET_DIRTY();
-                 telemetryItems[index].clear();
-                 updateSensorParameters();
-               });
+    paramLines[P_PREC] = setupLine(STR_PRECISION, [=](Window* parent, coord_t x, coord_t y) {
+          new Choice(parent, {x, y, 0, 0}, STR_VPREC, 0, 2,
+                    GET_DEFAULT(sensor->prec), [=](uint8_t newValue) {
+                      sensor->prec = newValue;
+                      SET_DIRTY();
+                      telemetryItems[index].clear();
+                      updateSensorParameters();
+                    });
+        });
 
-    paramLines[P_CELLSENSOR] = window->newLine(grid);
-    new StaticText(paramLines[P_CELLSENSOR], rect_t{}, STR_CELLSENSOR);
-    new SensorSourceChoice(paramLines[P_CELLSENSOR], rect_t{},
-                           &sensor->cell.source, isCellsSensor);
+    paramLines[P_CELLSENSOR] = setupLine(STR_CELLSENSOR, [=](Window* parent, coord_t x, coord_t y) {
+          new SensorSourceChoice(parent, {x, y, 0, 0},
+                                &sensor->cell.source, isCellsSensor);
+        });
 
-    paramLines[P_GPSSENSOR] = window->newLine(grid);
-    new StaticText(paramLines[P_GPSSENSOR], rect_t{}, STR_GPSSENSOR);
-    new SensorSourceChoice(paramLines[P_GPSSENSOR], rect_t{}, &sensor->dist.gps,
-                           isGPSSensor);
+    paramLines[P_GPSSENSOR] = setupLine(STR_GPSSENSOR, [=](Window* parent, coord_t x, coord_t y) {
+          new SensorSourceChoice(parent, {x, y, 0, 0}, &sensor->dist.gps,
+                                isGPSSensor);
+        });
 
-    paramLines[P_CURRENTSENSOR] = window->newLine(grid);
-    new StaticText(paramLines[P_CURRENTSENSOR], rect_t{}, STR_CURRENTSENSOR);
-    new SensorSourceChoice(paramLines[P_CURRENTSENSOR], rect_t{},
-                           &sensor->consumption.source, isSensorAvailable);
+    paramLines[P_CURRENTSENSOR] = setupLine(STR_CURRENTSENSOR, [=](Window* parent, coord_t x, coord_t y) {
+          new SensorSourceChoice(parent, {x, y, 0, 0},
+                                &sensor->consumption.source, isSensorAvailable);
+        });
 
-    paramLines[P_CONSUMPTIONSOURCE] = window->newLine(grid);
-    new StaticText(paramLines[P_CONSUMPTIONSOURCE], rect_t{}, STR_SOURCE);
-    new SensorSourceChoice(paramLines[P_CONSUMPTIONSOURCE], rect_t{},
-                           &sensor->consumption.source, isSensorAvailable);
+    paramLines[P_CONSUMPTIONSOURCE] = setupLine(STR_SOURCE, [=](Window* parent, coord_t x, coord_t y) {
+          new SensorSourceChoice(parent, {x, y, 0, 0},
+                                &sensor->consumption.source, isSensorAvailable);
+        });
 
-    paramLines[P_CALC0] = window->newLine(grid);
-    new StaticText(paramLines[P_CALC0], rect_t{},
-                   STR_SOURCE + std::to_string(1));
-    new SensorSourceChoice(paramLines[P_CALC0], rect_t{},
-                           (uint8_t*)&sensor->calc.sources[0],
-                           isSensorAvailable);
+    std::string s(STR_SOURCE);
 
-    paramLines[P_BLADES] = window->newLine(grid);
-    new StaticText(paramLines[P_BLADES], rect_t{}, STR_BLADES);
-    new NumberEdit(paramLines[P_BLADES], rect_t{}, 1, 30000,
-                   GET_SET_DEFAULT(sensor->custom.ratio));
+    paramLines[P_CALC0] = setupLine((s + std::to_string(1)).c_str(), [=](Window* parent, coord_t x, coord_t y) {
+          new SensorSourceChoice(parent, {x, y, 0, 0},
+                                (uint8_t*)&sensor->calc.sources[0],
+                                isSensorAvailable);
+        });
 
-    paramLines[P_RATIO] = window->newLine(grid);
-    new StaticText(paramLines[P_RATIO], rect_t{}, STR_RATIO);
-    new SensorRatioEdit(paramLines[P_RATIO], rect_t{}, 0, 30000,
+    paramLines[P_BLADES] = setupLine(STR_BLADES, [=](Window* parent, coord_t x, coord_t y) {
+          new NumberEdit(parent, {x, y, NUM_EDIT_W, 0}, 1, 30000,
                         GET_SET_DEFAULT(sensor->custom.ratio));
+        });
 
-    paramLines[P_CELLINDEX] = window->newLine(grid);
-    new StaticText(paramLines[P_CELLINDEX], rect_t{}, STR_CELLINDEX);
-    new Choice(paramLines[P_CELLINDEX], rect_t{}, STR_VCELLINDEX,
-               TELEM_CELL_INDEX_LOWEST, TELEM_CELL_INDEX_LAST,
-               GET_SET_DEFAULT(sensor->cell.index));
+    paramLines[P_RATIO] = setupLine(STR_RATIO, [=](Window* parent, coord_t x, coord_t y) {
+          auto pct = new StaticText(parent, {x + NUM_EDIT_W + PAD_MEDIUM, y + PAD_MEDIUM, 0, 0}, "");
+          auto num = new NumberEdit(
+              parent, {x, y, NUM_EDIT_W, 0}, 0, 30000,
+              GET_DEFAULT(sensor->custom.ratio),
+              [=](int32_t value) {
+                sensor->custom.ratio = value;
+                std::string s("");
+                if (sensor->custom.ratio != 0)
+                  s = formatNumberAsString((sensor->custom.ratio * 1000) / 255, PREC1, 0, "", "%");
+                pct->setText(s);
+              },
+              PREC1);
+          num->setZeroText("-");
+          std::string s("");
+          if (sensor->custom.ratio != 0)
+            s = formatNumberAsString((sensor->custom.ratio * 1000) / 255, PREC1, 0, "", "%");
+          pct->setText(s);
+        });
 
-    paramLines[P_ALTSENSOR] = window->newLine(grid);
-    new StaticText(paramLines[P_ALTSENSOR], rect_t{}, STR_ALTSENSOR);
-    new SensorSourceChoice(paramLines[P_ALTSENSOR], rect_t{}, &sensor->dist.alt,
-                           isAltSensor);
+    paramLines[P_CELLINDEX] = setupLine(STR_CELLINDEX, [=](Window* parent, coord_t x, coord_t y) {
+          new Choice(parent, {x, y, 0, 0}, STR_VCELLINDEX,
+                    TELEM_CELL_INDEX_LOWEST, TELEM_CELL_INDEX_LAST,
+                    GET_SET_DEFAULT(sensor->cell.index));
+        });
 
-    paramLines[P_CALC1] = window->newLine(grid);
-    new StaticText(paramLines[P_CALC1], rect_t{},
-                   STR_SOURCE + std::to_string(2));
-    new SensorSourceChoice(paramLines[P_CALC1], rect_t{},
-                           (uint8_t*)&sensor->calc.sources[1],
-                           isSensorAvailable);
+    paramLines[P_ALTSENSOR] = setupLine(STR_ALTSENSOR, [=](Window* parent, coord_t x, coord_t y) {
+          new SensorSourceChoice(parent, {x, y, 0, 0}, &sensor->dist.alt,
+                                isAltSensor);
+        });
 
-    paramLines[P_MULT] = window->newLine(grid);
-    new StaticText(paramLines[P_MULT], rect_t{}, STR_MULTIPLIER);
-    new NumberEdit(paramLines[P_MULT], rect_t{}, 1, 30000,
-                   GET_SET_DEFAULT(sensor->custom.offset));
+    paramLines[P_CALC1] = setupLine((s + std::to_string(2)).c_str(), [=](Window* parent, coord_t x, coord_t y) {
+          new SensorSourceChoice(parent, {x, y, 0, 0},
+                                (uint8_t*)&sensor->calc.sources[1],
+                                isSensorAvailable);
+        });
 
-    paramLines[P_OFFSET] = window->newLine(grid);
-    new StaticText(paramLines[P_OFFSET], rect_t{}, STR_OFFSET);
-    new NumberEdit(
-        paramLines[P_OFFSET], rect_t{}, -30000, 30000,
-        GET_SET_DEFAULT(sensor->custom.offset),
-        (sensor->prec > 0) ? (sensor->prec == 2 ? PREC2 : PREC1) : 0);
+    paramLines[P_MULT] = setupLine(STR_MULTIPLIER, [=](Window* parent, coord_t x, coord_t y) {
+          new NumberEdit(parent, {x, y, NUM_EDIT_W, 0}, 1, 30000,
+                        GET_SET_DEFAULT(sensor->custom.offset));
+        });
 
-    paramLines[P_CALC2] = window->newLine(grid);
-    new StaticText(paramLines[P_CALC2], rect_t{},
-                   STR_SOURCE + std::to_string(3));
-    new SensorSourceChoice(paramLines[P_CALC2], rect_t{},
-                           (uint8_t*)&sensor->calc.sources[2],
-                           isSensorAvailable);
+    paramLines[P_OFFSET] = setupLine(STR_OFFSET, [=](Window* parent, coord_t x, coord_t y) {
+          new NumberEdit(
+              parent, {x, y, NUM_EDIT_W, 0}, -30000, 30000,
+              GET_SET_DEFAULT(sensor->custom.offset),
+              (sensor->prec > 0) ? (sensor->prec == 2 ? PREC2 : PREC1) : 0);
+        });
 
-    paramLines[P_CALC3] = window->newLine(grid);
-    new StaticText(paramLines[P_CALC3], rect_t{},
-                   STR_SOURCE + std::to_string(4));
-    new SensorSourceChoice(paramLines[P_CALC3], rect_t{},
-                           (uint8_t*)&sensor->calc.sources[3],
-                           isSensorAvailable);
+    paramLines[P_CALC2] = setupLine((s + std::to_string(3)).c_str(), [=](Window* parent, coord_t x, coord_t y) {
+          new SensorSourceChoice(parent, {x, y, 0, 0},
+                                (uint8_t*)&sensor->calc.sources[2],
+                                isSensorAvailable);
+        });
 
-    paramLines[P_AUTOOFFSET] = window->newLine(grid);
-    new StaticText(paramLines[P_AUTOOFFSET], rect_t{}, STR_AUTOOFFSET);
-    new ToggleSwitch(paramLines[P_AUTOOFFSET], rect_t{},
-                     GET_SET_DEFAULT(sensor->autoOffset));
+    paramLines[P_CALC3] = setupLine((s + std::to_string(4)).c_str(), [=](Window* parent, coord_t x, coord_t y) {
+          new SensorSourceChoice(parent, {x, y, 0, 0},
+                                (uint8_t*)&sensor->calc.sources[3],
+                                isSensorAvailable);
+        });
 
-    paramLines[P_ONLYPOS] = window->newLine(grid);
-    new StaticText(paramLines[P_ONLYPOS], rect_t{}, STR_ONLYPOSITIVE);
-    new ToggleSwitch(paramLines[P_ONLYPOS], rect_t{},
-                     GET_SET_DEFAULT(sensor->onlyPositive));
+    paramLines[P_AUTOOFFSET] = setupLine(STR_AUTOOFFSET, [=](Window* parent, coord_t x, coord_t y) {
+          new ToggleSwitch(parent, {x, y, 0, 0},
+                          GET_SET_DEFAULT(sensor->autoOffset));
+        });
 
-    paramLines[P_FILTER] = window->newLine(grid);
-    new StaticText(paramLines[P_FILTER], rect_t{}, STR_FILTER);
-    new ToggleSwitch(paramLines[P_FILTER], rect_t{},
-                     GET_SET_DEFAULT(sensor->filter));
+    paramLines[P_ONLYPOS] = setupLine(STR_ONLYPOSITIVE, [=](Window* parent, coord_t x, coord_t y) {
+          new ToggleSwitch(parent, {x, y, 0, 0},
+                          GET_SET_DEFAULT(sensor->onlyPositive));
+        });
 
-    paramLines[P_PERSISTENT] = window->newLine(grid);
-    new StaticText(paramLines[P_PERSISTENT], rect_t{}, STR_PERSISTENT);
-    new ToggleSwitch(paramLines[P_PERSISTENT], rect_t{},
-                     GET_DEFAULT(sensor->persistent), [=](int32_t newValue) {
-                       sensor->persistent = newValue;
-                       if (!sensor->persistent) sensor->persistentValue = 0;
-                       SET_DIRTY();
-                     });
+    paramLines[P_FILTER] = setupLine(STR_FILTER, [=](Window* parent, coord_t x, coord_t y) {
+          new ToggleSwitch(parent, {x, y, 0, 0},
+                          GET_SET_DEFAULT(sensor->filter));
+        });
+
+    paramLines[P_PERSISTENT] = setupLine(STR_PERSISTENT, [=](Window* parent, coord_t x, coord_t y) {
+          new ToggleSwitch(parent, {x, y, 0, 0},
+                          GET_DEFAULT(sensor->persistent), [=](int32_t newValue) {
+                            sensor->persistent = newValue;
+                            if (!sensor->persistent) sensor->persistentValue = 0;
+                            SET_DIRTY();
+                          });
+        });
 
     // Logs
-    line = window->newLine(grid);
-    new StaticText(line, rect_t{}, STR_LOGS);
-    new ToggleSwitch(line, rect_t{}, GET_DEFAULT(sensor->logs),
-                     [=](int32_t newValue) {
-                       sensor->logs = newValue;
-                       logsClose();
-                       SET_DIRTY();
-                     });
+    setupLine(STR_LOGS, [=](Window* parent, coord_t x, coord_t y) {
+          new ToggleSwitch(parent, {x, y, 0, 0}, GET_DEFAULT(sensor->logs),
+                          [=](int32_t newValue) {
+                            sensor->logs = newValue;
+                            logsClose();
+                            SET_DIRTY();
+                          });
+        });
 
     updateSensorParameters();
   }
+
+  static LAYOUT_VAL(NUM_EDIT_W, 100, 80)
 };
 
 ModelTelemetryPage::ModelTelemetryPage() :
@@ -942,7 +891,7 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
 void ModelTelemetryPage::build(Window* window)
 {
   window->padAll(PAD_TINY);
-  window->padBottom(16);
+  window->padBottom(PAD_LARGE);
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
   this->window = window;
@@ -1015,13 +964,13 @@ void ModelTelemetryPage::build(Window* window)
 
   // Show instance IDs button
   line = window->newLine(grid);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_SHOW_INSTANCE_ID);
   new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.showInstanceIds));
 
   // Ignore instance button
   line = window->newLine(grid);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_IGNORE_INSTANCE);
   new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(g_model.ignoreSensorIds));
 
@@ -1029,19 +978,19 @@ void ModelTelemetryPage::build(Window* window)
   new Subtitle(window, getRxStatLabels()->label);
 
   line = window->newLine(grid);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_LOWALARM);
-  new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, 100,
+  new NumberEdit(line, {0, 0, NUM_EDIT_W, 0}, 0, 100,
                  GET_SET_DEFAULT(g_model.rfAlarms.warning));
 
   line = window->newLine(grid);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_CRITICALALARM);
-  new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, 100,
+  new NumberEdit(line, {0, 0, NUM_EDIT_W, 0}, 0, 100,
                  GET_SET_DEFAULT(g_model.rfAlarms.critical));
 
   line = window->newLine(grid);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_DISABLE_ALARM);
   new ToggleSwitch(line, rect_t{},
                    GET_SET_DEFAULT(g_model.disableTelemetryWarning));
@@ -1052,7 +1001,7 @@ void ModelTelemetryPage::build(Window* window)
   FlexGridLayout grid5(col_dsc5, row_dsc);
 
   line = window->newLine(grid5);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_SOURCE);
   auto choice = new SourceChoice(
       line, rect_t{}, MIXSRC_NONE, MIXSRC_LAST_TELEM,
@@ -1071,21 +1020,21 @@ void ModelTelemetryPage::build(Window* window)
   });
 
   line = window->newLine(grid5);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_RANGE);
 
-  auto vMin = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -17, 17,
+  auto vMin = new NumberEdit(line, {0, 0, NUM_EDIT_W, 0}, -17, 17,
                              GET_SET_WITH_OFFSET(g_model.varioData.min, -10));
   vMin->setAvailableHandler(
       [](int val) { return val < g_model.varioData.max + 10; });
 
-  auto vMax = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -17, 17,
+  auto vMax = new NumberEdit(line, {0, 0, NUM_EDIT_W, 0}, -17, 17,
                              GET_SET_WITH_OFFSET(g_model.varioData.max, 10));
   vMax->setAvailableHandler(
       [](int val) { return g_model.varioData.min - 10 < val; });
 
   line = window->newLine(grid5);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
   new StaticText(line, rect_t{}, STR_CENTER);
 
   auto cMin = new NumberEdit(

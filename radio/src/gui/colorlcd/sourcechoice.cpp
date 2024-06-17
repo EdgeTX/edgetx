@@ -29,12 +29,6 @@
 #include "strhelpers.h"
 #include "switches.h"
 
-#if !PORTRAIT_LCD
-#define FILTER_COLUMNS 3
-#else
-#define FILTER_COLUMNS 2
-#endif
-
 class SourceChoiceMenuToolbar : public MenuToolbar
 {
  public:
@@ -147,6 +141,8 @@ class SourceChoiceMenuToolbar : public MenuToolbar
       invertChoice();
     }
   }
+
+  static LAYOUT_VAL(FILTER_COLUMNS, 3, 2)
 
  protected:
 #if defined(HARDWARE_TOUCH)

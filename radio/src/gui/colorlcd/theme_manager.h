@@ -28,12 +28,6 @@
 #include "opentx.h"
 #include "sdcard.h"
 
-#define AUTHOR_LENGTH 50
-#define INFO_LENGTH 255
-
-class ThemePersistance;
-extern ThemePersistance themePersistance;
-
 struct ColorEntry
 {
     LcdColorIndex colorNumber;
@@ -45,12 +39,7 @@ struct ColorEntry
 class ThemeFile
 {
  public:
-    ThemeFile() { 
-      name[0] = '\0';
-      author[0] = '\0';
-      info[0] = '\0';
-    }
-    
+    ThemeFile() {}
     ThemeFile(std::string themePath, bool loadYAML = true);
 
     virtual ~ThemeFile() {}
@@ -60,9 +49,9 @@ class ThemeFile
     void serialize();
 
     std::string getPath() { return path; }
-    char *getName() { return name; }
-    char *getAuthor() { return author; }
-    char *getInfo() { return info; }
+    std::string getName() { return name; }
+    std::string getAuthor() { return author; }
+    std::string getInfo() { return info; }
 
     ColorEntry *getColorEntryByIndex(LcdColorIndex colorNumber) {
         int n = 0;
@@ -75,9 +64,9 @@ class ThemeFile
         return nullptr;
     }
     
-    void setName(std::string name) { strAppend(this->name, name.c_str(), SELECTED_THEME_NAME_LEN); }
-    void setAuthor(std::string author) { strAppend(this->author, author.c_str(), AUTHOR_LENGTH); }
-    void setInfo(std::string info) { strAppend(this->info, info.c_str(), INFO_LENGTH); }
+    void setName(std::string name) { this->name = name; }
+    void setAuthor(std::string author) { this->author = author; }
+    void setInfo(std::string info) { this->info = info; }
     void setPath(std::string path) { this->path = path; }
 
     std::vector<ColorEntry>& getColorList() { return colorList; }
@@ -86,19 +75,22 @@ class ThemeFile
     virtual std::vector<std::string> getThemeImageFileNames();
     void applyTheme();
 
+    static constexpr int AUTHOR_LENGTH = 50;
+    static constexpr int INFO_LENGTH = 255;
+
   protected:
     std::string path;
-    char name[SELECTED_THEME_NAME_LEN + 1];
-    char author[AUTHOR_LENGTH + 1];
-    char info[INFO_LENGTH + 1];
+    std::string name;
+    std::string author;
+    std::string info;
     std::vector<ColorEntry> colorList;
     std::vector<std::string> _imageFileNames;
+
     void applyColors();
-    virtual void applyBackground();
+    void applyBackground();
 
     void deSerialize();
 };
-
 
 class ThemePersistance
 {
@@ -108,7 +100,7 @@ class ThemePersistance
     }
 
     static ThemePersistance *instance() {
-        return &themePersistance;
+      return &themePersistance;
     }
 
     void loadDefaultTheme();
@@ -162,4 +154,42 @@ class ThemePersistance
     void insertDefaultTheme();
     void clearThemes();
     void scanThemeFolder(char *fullPath);
+
+    static ThemePersistance themePersistance;
+};
+
+class HeaderDateTime : public Window
+{
+ public:
+  HeaderDateTime(Window* parent, int x, int y);
+
+  void setColor(uint32_t color);
+
+  static LAYOUT_VAL(HDR_DATE_WIDTH, 45, 45)
+  static LAYOUT_VAL(HDR_DATE_HEIGHT, 12, 12)
+  static LAYOUT_VAL(HDR_DATE_LINE2, 15, 15)
+
+ protected:
+  lv_obj_t *date = nullptr;
+  lv_obj_t *time = nullptr;
+  int8_t lastMinute = -1;
+
+  void checkEvents() override;
+};
+
+class HeaderIcon : public StaticIcon
+{
+ public:
+  HeaderIcon(Window *parent, EdgeTxIcon icon);
+};
+
+class UsbSDConnected : public Window
+{
+ public:
+  UsbSDConnected();
+
+  static LAYOUT_VAL(HDR_DATE_Y, 6, 6)
+
+ protected:
+  HeaderDateTime* dateTime = nullptr;
 };

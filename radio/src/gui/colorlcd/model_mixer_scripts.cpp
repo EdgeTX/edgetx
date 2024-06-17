@@ -127,7 +127,7 @@ class ScriptEditWindow : public Page
         ScriptInput& si = sio->inputs[i];
         auto lbl =
             new StaticText(line, rect_t{}, si.name);
-        lbl->padLeft(10);
+        lbl->padLeft(PAD_LARGE);
         if (si.type == INPUT_TYPE_VALUE) {
           (new NumberEdit(line, rect_t{}, si.min, si.max,
                           GET_SET_WITH_OFFSET(sd->inputs[i].value, si.def)))
@@ -155,7 +155,7 @@ class ScriptEditWindow : public Page
               return std::string(s, sizeof(s) - 1);
             },
             COLOR_THEME_PRIMARY1);
-        lbl->padLeft(10);
+        lbl->padLeft(PAD_LARGE);
         new DynamicNumber<int16_t>(
             line, rect_t{}, [=]() { return calcRESXto1000(so->value); });
       }
@@ -182,10 +182,10 @@ class ScriptLineButton : public ListLineButton
       runtimeData(runtimeData)
   {
 #if PORTRAIT_LCD
-    padTop(5);
+    padTop(PAD_SMALL);
 #endif
-    padLeft(3);
-    padRight(3);
+    padLeft(PAD_TINY);
+    padRight(PAD_TINY);
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
     lv_obj_set_grid_dsc_array(lvobj, b_col_dsc, row_dsc);
     lv_obj_set_style_pad_row(lvobj, 0, 0);

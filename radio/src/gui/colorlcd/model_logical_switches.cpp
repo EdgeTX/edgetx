@@ -257,8 +257,8 @@ class LogicalSwitchEditPage : public Page
   void buildBody(Window* window)
   {
     window->setFlexLayout();
-    window->padLeft(4);
-    window->padRight(4);
+    window->padLeft(PAD_SMALL);
+    window->padRight(PAD_SMALL);
 
     FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 

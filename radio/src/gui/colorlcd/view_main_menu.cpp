@@ -58,14 +58,6 @@ static lv_obj_t* etx_modal_dialog_create(lv_obj_t* parent)
   return etx_create(&etx_modal_dialog_class, parent);
 }
 
-#if !PORTRAIT_LCD
-#define VM_W (SelectFabCarousel::FAB_BUTTON_WIDTH * 4 + PAD_LARGE * 2)
-#define VM_H (SelectFabCarousel::FAB_BUTTON_HEIGHT * 2 + PAD_LARGE * 2)
-#else
-#define VM_W (SelectFabCarousel::FAB_BUTTON_WIDTH * 3 + PAD_LARGE * 2)
-#define VM_H (SelectFabCarousel::FAB_BUTTON_HEIGHT * 3 + PAD_LARGE * 2)
-#endif
-
 ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
     Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}),
     closeHandler(std::move(closeHandler))
@@ -73,16 +65,18 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
   // Save focus
   Layer::push(this);
 
-  coord_t width = VM_W;
+  coord_t w = SelectFabCarousel::FAB_BUTTON_WIDTH * QM_COLS + PAD_LARGE * 2;
+  coord_t h = SelectFabCarousel::FAB_BUTTON_HEIGHT * QM_ROWS + PAD_LARGE * 2;
+
   bool hasNotes = modelHasNotes();
 
 #if !PORTRAIT_LCD
   if (hasNotes)
-    width += SelectFabCarousel::FAB_BUTTON_WIDTH;
+    w += SelectFabCarousel::FAB_BUTTON_WIDTH;
 #endif
 
   auto box =
-      new Window(this, {(LCD_W - width) / 2, (LCD_H - VM_H) / 2, width, VM_H},
+      new Window(this, {(LCD_W - w) / 2, (LCD_H - h) / 2, w, h},
                  etx_modal_dialog_create);
   box->padAll(PAD_LARGE);
 

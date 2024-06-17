@@ -742,17 +742,7 @@ void FunctionsPage::plusPopup(Window *window)
 
 void FunctionsPage::build(Window *window)
 {
-#if !PORTRAIT_LCD
-#define PER_ROW 6
-  static const lv_coord_t l_col_dsc[] = {
-      LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),        LV_GRID_FR(1),
-      LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-#else
-#define PER_ROW 4
-  static const lv_coord_t l_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                         LV_GRID_FR(1), LV_GRID_FR(1),
-                                         LV_GRID_TEMPLATE_LAST};
-#endif
+  static const lv_coord_t l_col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 
   window->padAll(PAD_SMALL);
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
@@ -776,7 +766,7 @@ void FunctionsPage::build(Window *window)
       auto button = functionButton(
           line, rect_t{0, 0, window->width() - 12, SF_BUTTON_H}, i);
 
-      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, PER_ROW,
+      lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 1,
                            LV_GRID_ALIGN_CENTER, 0, 1);
 
       if (focusIndex == i) {

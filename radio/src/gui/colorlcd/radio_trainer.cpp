@@ -75,7 +75,7 @@ void RadioTrainerPage::build(Window* form)
 #if PORTRAIT_LCD
       line = form->newLine(grid);
       line->padLeft(30);
-      line->padBottom(8);
+      line->padBottom(PAD_LARGE);
 #endif
 
       LcdFlags flags = LEFT | COLOR_THEME_PRIMARY1;
@@ -93,12 +93,12 @@ void RadioTrainerPage::build(Window* form)
 #if PORTRAIT_LCD
     line->padTop(10);
 #else
-    line->padTop(6);
+    line->padTop(PAD_MEDIUM);
 #endif
 
     // Trainer multiplier
     auto lbl = new StaticText(line, rect_t{}, STR_MULTIPLIER);
-    lbl->padRight(4);
+    lbl->padRight(PAD_SMALL);
     lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_END, 0, 2,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 

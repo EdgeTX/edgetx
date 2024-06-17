@@ -24,8 +24,8 @@
 #include "../../storage/sdcard_common.h"
 #include "../../storage/yaml/yaml_bits.h"
 #include "../../storage/yaml/yaml_tree_walker.h"
-#include "theme.h"
 #include "themes/etx_lv_theme.h"
+#include "topbar_impl.h"
 #include "view_main.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
@@ -34,7 +34,7 @@
 
 constexpr const char* RGBSTRING = "RGB(";
 
-ThemePersistance themePersistance;
+ThemePersistance ThemePersistance::themePersistance;
 
 // prototype for SD card function to read a YAML file
 // TODO: should this be in sdcard header file?
@@ -76,8 +76,8 @@ static bool w_color(const YamlNode* node, uint32_t val, yaml_writer_func wf,
 
 PACK(struct YAMLThemeSummary {
   char name[SELECTED_THEME_NAME_LEN + 1];
-  char author[AUTHOR_LENGTH + 1];
-  char info[INFO_LENGTH + 1];
+  char author[ThemeFile::AUTHOR_LENGTH + 1];
+  char info[ThemeFile::INFO_LENGTH + 1];
 });
 
 PACK(struct YAMLThemeColors {
@@ -93,8 +93,8 @@ PACK(struct YAMLTheme {
 
 static const struct YamlNode struct_YAMLThemeSummary[] = {
     YAML_STRING("name", (SELECTED_THEME_NAME_LEN + 1)),
-    YAML_STRING("author", (AUTHOR_LENGTH + 1)),
-    YAML_STRING("info", (INFO_LENGTH + 1)), YAML_END};
+    YAML_STRING("author", (ThemeFile::AUTHOR_LENGTH + 1)),
+    YAML_STRING("info", (ThemeFile::INFO_LENGTH + 1)), YAML_END};
 
 static const struct YamlNode struct_YAMLThemeColors[] = {
     YAML_UNSIGNED_CUST("PRIMARY1", 32, r_color, w_color),
@@ -116,14 +116,14 @@ static const struct YamlNode struct_YAMLThemeColors[] = {
 // TODO: Remove this sometime in the future
 static const struct YamlNode w_struct_YAMLTheme[] = {
     YAML_STRUCT("---\r\nsummary",
-                (SELECTED_THEME_NAME_LEN + AUTHOR_LENGTH + INFO_LENGTH + 3) * 8,
+                (SELECTED_THEME_NAME_LEN + ThemeFile::AUTHOR_LENGTH + ThemeFile::INFO_LENGTH + 3) * 8,
                 struct_YAMLThemeSummary, NULL),
     YAML_STRUCT("colors", (LCD_COLOR_COUNT - 1) * 32, struct_YAMLThemeColors,
                 NULL),
     YAML_END};
 static const struct YamlNode r_struct_YAMLTheme[] = {
     YAML_STRUCT("summary",
-                (SELECTED_THEME_NAME_LEN + AUTHOR_LENGTH + INFO_LENGTH + 3) * 8,
+                (SELECTED_THEME_NAME_LEN + ThemeFile::AUTHOR_LENGTH + ThemeFile::INFO_LENGTH + 3) * 8,
                 struct_YAMLThemeSummary, NULL),
     YAML_STRUCT("colors", (LCD_COLOR_COUNT - 1) * 32, struct_YAMLThemeColors,
                 NULL),
@@ -167,9 +167,9 @@ ThemeFile& ThemeFile::operator=(const ThemeFile& theme)
   if (this == &theme) return *this;
 
   path = theme.path;
-  strAppend(name, theme.name, SELECTED_THEME_NAME_LEN);
-  strAppend(author, theme.author, AUTHOR_LENGTH);
-  strAppend(info, theme.info, INFO_LENGTH);
+  name = theme.name;
+  author = theme.author;
+  info = theme.info;
   colorList.assign(theme.colorList.begin(), theme.colorList.end());
   _imageFileNames.assign(theme._imageFileNames.begin(),
                          theme._imageFileNames.end());
@@ -187,9 +187,9 @@ void ThemeFile::serialize()
   struct YAMLTheme yt;
   struct YamlNode themeRootNode = YAML_ROOT(w_struct_YAMLTheme);
 
-  strAppend(yt.summary.name, name, SELECTED_THEME_NAME_LEN);
-  strAppend(yt.summary.author, author, AUTHOR_LENGTH);
-  strAppend(yt.summary.info, info, INFO_LENGTH);
+  strAppend(yt.summary.name, name.c_str(), SELECTED_THEME_NAME_LEN);
+  strAppend(yt.summary.author, author.c_str(), ThemeFile::AUTHOR_LENGTH);
+  strAppend(yt.summary.info, info.c_str(), ThemeFile::INFO_LENGTH);
   for (auto colorEntry : colorList) {
     yt.colors.colors[colorEntry.colorNumber] = colorEntry.colorValue;
   }
@@ -211,9 +211,9 @@ void ThemeFile::deSerialize()
                           &tree, nullptr);
 
   if (err == nullptr) {
-    strAppend(name, yt.summary.name, SELECTED_THEME_NAME_LEN);
-    strAppend(author, yt.summary.author, AUTHOR_LENGTH);
-    strAppend(info, yt.summary.info, INFO_LENGTH);
+    name = yt.summary.name;
+    author = yt.summary.author;
+    info = yt.summary.info;
     for (int i = 0; i < LCD_COLOR_COUNT - 1; i += 1) {
       colorList.emplace_back(
           ColorEntry{(LcdColorIndex)(i), yt.colors.colors[i]});
@@ -242,7 +242,7 @@ void ThemeFile::applyColors()
 
 void ThemeFile::applyBackground()
 {
-  auto instance = EdgeTxTheme::instance();
+  auto instance = MainWindow::instance();
   std::string backgroundImageFileName(getPath());
   auto pos = backgroundImageFileName.rfind('/');
   if (pos != std::string::npos) {
@@ -251,7 +251,7 @@ void ThemeFile::applyBackground()
               std::to_string(LCD_H) + ".png";
 
     if (isFileAvailable(rootDir.c_str())) {
-      instance->setBackgroundImageFileName((char*)rootDir.c_str());
+      instance->setBackgroundImage((char*)rootDir.c_str());
       return;
     }
 
@@ -259,21 +259,21 @@ void ThemeFile::applyBackground()
     rootDir = rootDir + "background.png";
 
     if (isFileAvailable(rootDir.c_str())) {
-      instance->setBackgroundImageFileName((char*)rootDir.c_str());
+      instance->setBackgroundImage((char*)rootDir.c_str());
       return;
     }
   }
 
   // Use EdgeTxTheme default background
   // TODO: This needs to be made user configurable
-  instance->setBackgroundImageFileName("");
+  instance->setBackgroundImage("");
 }
 
 void ThemeFile::applyTheme()
 {
   applyColors();
   applyBackground();
-  EdgeTxTheme::instance()->update();
+  styles->applyColors();
 }
 
 // avoid leaking memory
@@ -327,7 +327,7 @@ void ThemePersistance::scanForThemes()
 
     f_closedir(&dir);
     std::sort(themes.begin(), themes.end(), [](ThemeFile* a, ThemeFile* b) {
-      return strcmp(a->getName(), b->getName()) < 0;
+      return a->getName().compare(b->getName()) < 0;
     });
   }
 }
@@ -390,8 +390,7 @@ void ThemePersistance::loadDefaultTheme()
   }
 
   for (auto theme : themes) {
-    if (strncmp(theme->getName(), g_eeGeneral.selectedTheme,
-                SELECTED_THEME_NAME_LEN) == 0) {
+    if (theme->getName().compare(0, SELECTED_THEME_NAME_LEN, g_eeGeneral.selectedTheme) == 0) {
       found = true;
       break;
     }
@@ -464,7 +463,7 @@ bool ThemePersistance::createNewTheme(std::string name, ThemeFile& theme)
 void ThemePersistance::setDefaultTheme(int index)
 {
   if (index >= 0 && index < (int)themes.size()) {
-    strAppend(g_eeGeneral.selectedTheme, themes[index]->getName(),
+    strAppend(g_eeGeneral.selectedTheme, themes[index]->getName().c_str(),
               SELECTED_THEME_NAME_LEN);
     SET_DIRTY();
     currentTheme = index;
@@ -491,4 +490,70 @@ void ThemePersistance::insertDefaultTheme()
 {
   auto themeFile = new DefaultEdgeTxTheme();
   themes.insert(themes.begin(), themeFile);
+}
+
+HeaderDateTime::HeaderDateTime(Window* parent, coord_t x, coord_t y) :
+  Window(parent, {x, y, HDR_DATE_WIDTH, HDR_DATE_LINE2 + HDR_DATE_HEIGHT + 2})
+{
+  date = lv_label_create(lvobj);
+  lv_obj_set_pos(date, 0, 0);
+  lv_obj_set_size(date, HDR_DATE_WIDTH, HDR_DATE_HEIGHT);
+  lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
+  etx_txt_color(date, COLOR_THEME_PRIMARY2_INDEX);
+  etx_font(date, FONT_XS_INDEX);
+
+  time = lv_label_create(lvobj);
+  lv_obj_set_pos(time, 0, HDR_DATE_LINE2);
+  lv_obj_set_size(time, HDR_DATE_WIDTH, HDR_DATE_HEIGHT);
+  lv_obj_set_style_text_align(time, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
+  etx_txt_color(time, COLOR_THEME_PRIMARY2_INDEX);
+  etx_font(time, FONT_XS_INDEX);
+
+  checkEvents();
+}
+
+void HeaderDateTime::checkEvents()
+{
+  const TimerOptions timerOptions = {.options = SHOW_TIME};
+  struct gtm t;
+  gettime(&t);
+
+  if (t.tm_min != lastMinute) {
+    char str[10];
+#if defined(TRANSLATIONS_CN) || defined(TRANSLATIONS_TW)
+    sprintf(str, "%02d-%02d", t.tm_mon + 1, t.tm_mday);
+#else
+    sprintf(str, "%d %s", t.tm_mday, STR_MONTHS[t.tm_mon]);
+#endif
+    lv_label_set_text(date, str);
+
+    getTimerString(str, getValue(MIXSRC_TX_TIME), timerOptions);
+    lv_label_set_text(time, str);
+
+    lastMinute = t.tm_min;
+  }
+}
+
+void HeaderDateTime::setColor(uint32_t color)
+{
+  lv_obj_set_style_text_color(date, makeLvColor(color), LV_PART_MAIN);
+  lv_obj_set_style_text_color(time, makeLvColor(color), LV_PART_MAIN);
+}
+
+HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon) :
+  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS)
+{
+  (new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2))->center(width(), height());
+}
+
+UsbSDConnected::UsbSDConnected() :
+    Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
+{
+  setWindowFlag(OPAQUE);
+
+  etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
+  dateTime = new HeaderDateTime(this, LCD_W - TopBar::HDR_DATE_XO, HDR_DATE_Y);
+
+  auto icon = new StaticIcon(this, 0, 0, ICON_USB_PLUGGED, COLOR_THEME_PRIMARY2);
+  lv_obj_center(icon->getLvObj());
 }

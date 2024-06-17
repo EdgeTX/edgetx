@@ -178,11 +178,7 @@ struct ToolButton : public TextButton {
         return 0;
       })
   {
-#if !PORTRAIT_LCD
-    setWidth((LCD_W - 24) / 3);  // 3 columns on landscape
-#else
-    setWidth((LCD_W - 18) / 2);  // 2 columns on portrait
-#endif      
+    setWidth(TOOLS_BTN_W);
     setHeight(TOOLS_BTN_H);
 
     lv_obj_set_width(label, lv_pct(100));
@@ -190,6 +186,7 @@ struct ToolButton : public TextButton {
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
   }
 
+  static LAYOUT_VAL(TOOLS_BTN_W, (LCD_W - 24) / 3, (LCD_W - 18) / 2)
   static LAYOUT_VAL(TOOLS_BTN_H, 48, 48)
 };
 

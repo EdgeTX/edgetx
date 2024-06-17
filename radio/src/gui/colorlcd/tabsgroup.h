@@ -24,13 +24,9 @@
 
 class TabsGroup;
 class TabsGroupHeader;
-class TabsCarousel;
 
 class PageTab
 {
-  friend class TabsCarousel;
-  friend class TabsGroup;
-
  public:
   PageTab(PaddingSize padding = PAD_MEDIUM) : padding(padding) {}
 
@@ -49,9 +45,12 @@ class PageTab
   virtual void checkEvents() {}
 
   void setTitle(std::string value) { title = std::move(value); }
+  std::string getTitle() const { return title; }
 
   void setIcon(EdgeTxIcon icon) { this->icon = icon; }
   EdgeTxIcon getIcon() const { return icon; }
+
+  PaddingSize getPadding() const { return padding; }
 
   virtual void update(uint8_t index) {}
   virtual void cleanup() {}
@@ -64,8 +63,6 @@ class PageTab
 
 class TabsGroup : public NavWindow
 {
-  friend class TabsCarousel;
-
  public:
   explicit TabsGroup(EdgeTxIcon icon);
 
@@ -98,14 +95,8 @@ class TabsGroup : public NavWindow
   Window* body = nullptr;
   PageTab* currentTab = nullptr;
 
-  void setVisibleTab(PageTab* tab);
-
 #if defined(HARDWARE_KEYS)
   void onPressPGUP() override;
   void onPressPGDN() override;
-#endif
-
-#if defined(PCBNV14) || defined(PCBPL18)
-  void addGoToMonitorsButton(void);
 #endif
 };
