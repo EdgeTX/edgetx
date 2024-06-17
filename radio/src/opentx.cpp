@@ -157,7 +157,7 @@ void checkValidMCU(void)
 #endif
 }
 
-void per10ms()
+void timer_10ms()
 {
   DEBUG_TIMER_START(debugTimerPer10ms);
   DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);
@@ -225,6 +225,32 @@ void per10ms()
 
   DEBUG_TIMER_STOP(debugTimerPer10ms);
 }
+
+#if !defined(SIMU)
+// Handle 10ms timer asynchronously
+#include <FreeRTOS/include/FreeRTOS.h>
+#include <FreeRTOS/include/timers.h>
+
+static void _timer_10ms_cb(void *pvParameter1, uint32_t ulParameter2)
+{
+  (void)pvParameter1;
+  (void)ulParameter2;
+  timer_10ms();
+}
+
+void per10ms()
+{
+  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    xTimerPendFunctionCallFromISR(_timer_10ms_cb, nullptr, 0, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+  }
+}
+
+#else // !defined(SIMU)
+void per10ms() { timer_10ms(); }
+#endif
+
 
 FlightModeData *flightModeAddress(uint8_t idx)
 {
