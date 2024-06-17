@@ -111,10 +111,6 @@
     #define ROTARY_ENCODER_INVERTED
 #endif
 
-#if defined(RADIO_FAMILY_T16) && !defined(RADIO_T18) && !defined(RADIO_T15)
-  #define ROTARY_ENCODER_SUPPORT_BUGGY_WIRING
-#endif
-
 // Switches
 #if defined(RADIO_T15)
   #define STORAGE_SWITCH_A

@@ -63,8 +63,6 @@ rotenc_t rotaryEncoderGetValue()
   return rotencValue / ROTARY_ENCODER_GRANULARITY;
 }
 
-rotenc_t rotaryEncoderGetRawValue() { return rotencValue; }
-
 // TODO: remove all STM32 defs
 
 extern const etx_hal_adc_driver_t simu_adc_driver;

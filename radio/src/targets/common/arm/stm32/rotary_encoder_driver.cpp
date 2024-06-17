@@ -38,88 +38,76 @@
 volatile rotenc_t rotencValue = 0;
 volatile uint32_t rotencDt = 0;
 
-#if defined(BOOT)
-#define INC_ROT        1
-#define INC_ROT_2      2
-#else
-#define INC_ROT \
-  (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_BOTH ? -1 : 1);
-#define INC_ROT_2 \
-  (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_BOTH ? -2 : 2);
-#endif
-
 rotenc_t rotaryEncoderGetValue()
 {
   return rotencValue / ROTARY_ENCODER_GRANULARITY;
 }
 
-rotenc_t rotaryEncoderGetRawValue()
-{
-  return rotencValue;
-}
+// Last encoder pins state
+static uint8_t lastPins = 0;
 
 void rotaryEncoderCheck()
 {
-  static uint8_t state = 0;
-  static uint8_t re_count = 0;
+  // Value increment for each state transition of the RE pins
+#if defined(ROTARY_ENCODER_INVERTED)
+  static int8_t reInc[4][4] = {
+    // Prev = 0
+    {  0, -1,  1, -2 },
+    // Prev = 1
+    {  1,  0,  0, -1 },
+    // Prev = 2
+    { -1,  0,  0,  1 },
+    // Prev = 3
+    {  2,  1, -1,  0 },
+  };
+#else
+  static int8_t reInc[4][4] = {
+    // Prev = 0
+    {  0,  1, -1,  2 },
+    // Prev = 1
+    { -1,  0,  0,  1 },
+    // Prev = 2
+    {  1,  0,  0, -1 },
+    // Prev = 3
+    { -2, -1,  1,  0 },
+  };
+#endif
+
+  // Record half position change
+  static int8_t reHalfInc = 0;
+
   uint8_t pins = ROTARY_ENCODER_POSITION();
 
-#if defined(ROTARY_ENCODER_SUPPORT_BUGGY_WIRING)
-  if (pins != (state & 0x03) && !(readKeys() & (1 << KEY_ENTER))) {
-    if (re_count == 0) {
-      // Need at least 2 values to correctly determine initial direction
-      re_count = 1;
-    } else {
-      if ((pins ^ (state & 0x03)) == 0x03) {
-        if (pins == 3) {
-          rotencValue += INC_ROT_2;
-        } else {
-          rotencValue -= INC_ROT_2;
-        }
-      } else {
-        if ((state & 0x01) ^ ((pins & 0x02) >> 1)) {
-          rotencValue -= INC_ROT;
-        } else {
-          rotencValue += INC_ROT;
-        }
-      }
-
-      if (re_count == 1)
-      {
-        re_count = 2;
-        // Assume 1st value is same direction as 2nd value
-        rotencValue = rotencValue * 2;
-      }
-    }
-    state &= ~0x03;
-    state |= pins;
+  // No chnage - do nothing
+  if (pins == lastPins) {
+    return;
   }
-#else
-  if (pins != state && !(readKeys() & (1 << KEY_ENTER))) {
-    if (re_count == 0) {
-      // Need at least 2 values to correctly determine initial direction
-      re_count = 1;
-    } else {
-#if defined(ROTARY_ENCODER_INVERTED)
-      if (!(state & 0x01) ^ ((pins & 0x02) >> 1)) {
-#else
-      if ((state & 0x01) ^ ((pins & 0x02) >> 1)) {
-#endif
-        rotencValue -= INC_ROT;
-      } else {
-        rotencValue += INC_ROT;
-      }
 
-      if (re_count == 1)
-      {
-        re_count = 2;
-        // Assume 1st value is same direction as 2nd value
-        rotencValue = rotencValue * 2;
-      }
-    }
-    state = pins;
+  // ENTER pressed - ignore scrolling
+  if (readKeys() & (1 << KEY_ENTER)) {
+    // Save state to reduce jumps when ENTER released
+    lastPins = pins;
+    return;
   }
+
+  // Get increment value for pin state transition
+  int inc = reInc[lastPins][pins];
+
+#if !defined(BOOT)
+  if (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_BOTH)
+    inc = -inc;
 #endif
+
+  // Update half position change
+  reHalfInc += inc;
+
+  // Update reported value on full position change
+  if (reHalfInc == 2 || reHalfInc == -2) {
+    rotencValue += reHalfInc;
+    reHalfInc = 0;
+  }
+
+  lastPins = pins;
 
 #if !defined(BOOT) && defined(COLORLCD)
   static uint32_t last_tick = 0;
@@ -181,6 +169,8 @@ void rotaryEncoderInit()
     
   NVIC_EnableIRQ(ROTARY_ENCODER_TIMER_IRQn);
   NVIC_SetPriority(ROTARY_ENCODER_TIMER_IRQn, 7);
+
+  lastPins = ROTARY_ENCODER_POSITION();
 }
 
 extern "C" void ROTARY_ENCODER_TIMER_IRQHandler(void)
