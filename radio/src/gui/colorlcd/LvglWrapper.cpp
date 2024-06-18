@@ -274,12 +274,12 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 
   rotenc_t newPos = rotaryEncoderGetValue();
   rotenc_t diff = newPos - prevPos;
-  prevPos = newPos;
 
   data->enc_diff = (int16_t)diff;
   data->state = LV_INDEV_STATE_RELEASED;
 
   if (diff != 0) {
+    prevPos = newPos;
     reset_inactivity();
 
     int8_t dir = 0;

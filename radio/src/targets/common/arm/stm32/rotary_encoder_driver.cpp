@@ -35,16 +35,28 @@
   #include "opentx.h"
 #endif
 
+#if ROTARY_ENCODER_GRANULARITY == 2
+  #define ON_DETENT(p) ((p == 3) || (p == 0))
+#elif ROTARY_ENCODER_GRANULARITY == 4
+  #define ON_DETENT(p) (p == 3)
+#elif
+#error "Unknown ROTARY_ENCODER_GRANULARITY"
+#endif
+
 volatile rotenc_t rotencValue = 0;
 volatile uint32_t rotencDt = 0;
 
-rotenc_t rotaryEncoderGetValue()
-{
-  return rotencValue / ROTARY_ENCODER_GRANULARITY;
-}
-
 // Last encoder pins state
 static uint8_t lastPins = 0;
+// Record encoder position change between detents
+int8_t reChgPos = 0;
+// Used on start to ignore movement until encoder position on detent
+bool skipUntilDetent = false;
+
+rotenc_t rotaryEncoderGetValue()
+{
+  return rotencValue;
+}
 
 void rotaryEncoderCheck()
 {
@@ -73,20 +85,19 @@ void rotaryEncoderCheck()
   };
 #endif
 
-  // Record half position change
-  static int8_t reHalfInc = 0;
-
   uint8_t pins = ROTARY_ENCODER_POSITION();
 
-  // No chnage - do nothing
+  // No change - do nothing
   if (pins == lastPins) {
     return;
   }
 
-  // ENTER pressed - ignore scrolling
-  if (readKeys() & (1 << KEY_ENTER)) {
-    // Save state to reduce jumps when ENTER released
-    lastPins = pins;
+  // Handle case where radio started with encoder not on detent position
+  if (skipUntilDetent) {
+    if (ON_DETENT(pins)) {
+      lastPins = pins;
+      skipUntilDetent = false;
+    }
     return;
   }
 
@@ -98,13 +109,22 @@ void rotaryEncoderCheck()
     inc = -inc;
 #endif
 
-  // Update half position change
-  reHalfInc += inc;
+  // Update position change between detents
+  reChgPos += inc;
 
-  // Update reported value on full position change
-  if (reHalfInc == 2 || reHalfInc == -2) {
-    rotencValue += reHalfInc;
-    reHalfInc = 0;
+  // Update reported value on full detent change
+  if (reChgPos >= ROTARY_ENCODER_GRANULARITY) {
+    // If ENTER pressed - ignore scrolling
+    if ((readKeys() & (1 << KEY_ENTER)) == 0) {
+      rotencValue += 1;
+    }
+    reChgPos -= ROTARY_ENCODER_GRANULARITY;
+  } else if (reChgPos <= -ROTARY_ENCODER_GRANULARITY) {
+    // If ENTER pressed - ignore scrolling
+    if ((readKeys() & (1 << KEY_ENTER)) == 0) {
+      rotencValue -= 1;
+    }
+    reChgPos += ROTARY_ENCODER_GRANULARITY;
   }
 
   lastPins = pins;
@@ -114,7 +134,7 @@ void rotaryEncoderCheck()
   static rotenc_t last_value = 0;
 
   rotenc_t value = rotencValue;
-  rotenc_t diff = (value - last_value) / ROTARY_ENCODER_GRANULARITY;
+  rotenc_t diff = (value - last_value);
 
   if (diff != 0) {
     uint32_t now = RTOS_GET_MS();
@@ -122,7 +142,7 @@ void rotaryEncoderCheck()
     // pre-compute accumulated dt (dx/dt is done later in LVGL driver)
     rotencDt += dt;
     last_tick = now;
-    last_value += diff * ROTARY_ENCODER_GRANULARITY;
+    last_value = value;
   }
 #endif
 }
@@ -170,7 +190,9 @@ void rotaryEncoderInit()
   NVIC_EnableIRQ(ROTARY_ENCODER_TIMER_IRQn);
   NVIC_SetPriority(ROTARY_ENCODER_TIMER_IRQn, 7);
 
+  // Get initial position
   lastPins = ROTARY_ENCODER_POSITION();
+  skipUntilDetent = !ON_DETENT(lastPins);
 }
 
 extern "C" void ROTARY_ENCODER_TIMER_IRQHandler(void)
