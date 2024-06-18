@@ -299,7 +299,12 @@ void switchSetCustomName(uint8_t idx, const char* str, size_t len)
 
 const char* switchGetCustomName(uint8_t idx)
 {
-  return _switchNames[idx];
+#if defined(FUNCTION_SWITCHES)
+  if (idx >= switchGetMaxSwitches()) // Switch is a customisable switch
+    return g_model.switchNames[idx - switchGetMaxSwitches()];
+  else
+#endif
+    return _switchNames[idx];
 }
 
 bool switchHasCustomName(uint8_t idx)
