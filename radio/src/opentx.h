@@ -116,7 +116,7 @@ void memswap(void * a, void * b, uint8_t size);
 #define IS_SLIDER(x) (POT_CONFIG(x) == FLEX_SLIDER)
 
 #define IS_POT_AVAILABLE(x)						\
-  (POT_CONFIG(x) != FLEX_NONE && POT_CONFIG(x) <= FLEX_MULTIPOS)
+  (POT_CONFIG(x) != FLEX_NONE && POT_CONFIG(x) < FLEX_SWITCH)
 
 #define IS_POT_SLIDER_AVAILABLE(x) (IS_POT_AVAILABLE(x))
 
