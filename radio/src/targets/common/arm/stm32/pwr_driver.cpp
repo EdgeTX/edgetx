@@ -61,6 +61,18 @@ void pwrInit()
   GPIO_Init(PWR_EXTRA_SWITCH_GPIO, &GPIO_InitStructure);
 #endif
 
+  // Aux serial port power
+#if defined(AUX_SERIAL_PWR_GPIO)
+  GPIO_InitStructure.GPIO_Pin = AUX_SERIAL_PWR_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_Init(AUX_SERIAL_PWR_GPIO, &GPIO_InitStructure);
+#endif
+#if defined(AUX2_SERIAL_PWR_GPIO)
+  GPIO_InitStructure.GPIO_Pin = AUX2_SERIAL_PWR_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_Init(AUX2_SERIAL_PWR_GPIO, &GPIO_InitStructure);
+#endif
+
 #if defined(PCBREV_HARDCODED)
   hardwareOptions.pcbrev = PCBREV_HARDCODED;
 #elif defined(PCBREV_GPIO_PIN)
@@ -80,14 +92,6 @@ void pwrInit()
   #endif
 
   hardwareOptions.pcbrev = PCBREV_VALUE();
-#endif
-
-  // Aux serial port power
-#if defined(AUX_SERIAL_PWR_GPIO)
-  gpio_init(AUX_SERIAL_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-#endif
-#if defined(AUX2_SERIAL_PWR_GPIO)
-  gpio_init(AUX2_SERIAL_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 }
 
