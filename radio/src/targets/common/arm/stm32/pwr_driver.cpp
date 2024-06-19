@@ -31,6 +31,16 @@ void pwrInit()
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 
+  // Aux serial port power
+#if defined(AUX_SERIAL_PWR_GPIO)
+  GPIO_InitStructure.GPIO_Pin = AUX_SERIAL_PWR_GPIO_PIN;
+  GPIO_Init(AUX_SERIAL_PWR_GPIO, &GPIO_InitStructure);
+#endif
+#if defined(AUX2_SERIAL_PWR_GPIO)
+  GPIO_InitStructure.GPIO_Pin = AUX2_SERIAL_PWR_GPIO_PIN;
+  GPIO_Init(AUX2_SERIAL_PWR_GPIO, &GPIO_InitStructure);
+#endif
+
 #if defined(INTMODULE_BOOTCMD_GPIO)
   INIT_INTMODULE_BOOTCMD_PIN();
   GPIO_InitStructure.GPIO_Pin = INTMODULE_BOOTCMD_GPIO_PIN;
@@ -80,14 +90,6 @@ void pwrInit()
   #endif
 
   hardwareOptions.pcbrev = PCBREV_VALUE();
-#endif
-
-  // Aux serial port power
-#if defined(AUX_SERIAL_PWR_GPIO)
-  gpio_init(AUX_SERIAL_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-#endif
-#if defined(AUX2_SERIAL_PWR_GPIO)
-  gpio_init(AUX2_SERIAL_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 }
 
