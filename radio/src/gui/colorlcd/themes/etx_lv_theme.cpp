@@ -239,9 +239,11 @@ EdgeTxStyles::EdgeTxStyles()
   lv_style_init(&border_color_normal);
   lv_style_init(&border_color_focus);
   lv_style_init(&border_color_active);
+  lv_style_init(&border_color_edit);
   lv_style_init(&outline_color_light);
   lv_style_init(&outline_color_normal);
   lv_style_init(&outline_color_focus);
+  lv_style_init(&outline_color_edit);
   lv_style_init(&arc_color);
   lv_style_init(&graph_border);
   lv_style_init(&graph_dashed);
@@ -336,6 +338,8 @@ void EdgeTxStyles::applyColors()
                             makeLvColor(COLOR_THEME_FOCUS));
   lv_style_set_border_color(&border_color_active,
                             makeLvColor(COLOR_THEME_ACTIVE));
+  lv_style_set_border_color(&border_color_edit,
+                            makeLvColor(COLOR_THEME_EDIT));
 
   lv_style_set_outline_color(&outline_color_light,
                              makeLvColor(COLOR_THEME_SECONDARY3));
@@ -343,6 +347,8 @@ void EdgeTxStyles::applyColors()
                              makeLvColor(COLOR_THEME_SECONDARY2));
   lv_style_set_outline_color(&outline_color_focus,
                              makeLvColor(COLOR_THEME_FOCUS));
+  lv_style_set_outline_color(&outline_color_edit,
+                             makeLvColor(COLOR_THEME_EDIT));
 
   lv_style_set_arc_color(&arc_color, makeLvColor(COLOR_THEME_SECONDARY1));
 }
