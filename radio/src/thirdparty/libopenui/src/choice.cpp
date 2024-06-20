@@ -65,10 +65,6 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect,
   // Add label
   label = lv_label_create(lvobj);
   lv_obj_set_pos(label, ICON_W, PAD_TINY);
-
-  lv_group_t* def_group = lv_group_get_default();
-  if (def_group)
-    lv_group_add_obj(def_group, lvobj);
 }
 
 std::string Choice::getLabelText()
