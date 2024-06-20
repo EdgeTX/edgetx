@@ -126,7 +126,8 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl) :
 
 void StandaloneLuaWindow::setup(bool useLvgl)
 {
-  _instance = new StandaloneLuaWindow(useLvgl);
+  if (_instance == nullptr)
+    _instance = new StandaloneLuaWindow(useLvgl);
 }
 
 StandaloneLuaWindow* StandaloneLuaWindow::instance()
