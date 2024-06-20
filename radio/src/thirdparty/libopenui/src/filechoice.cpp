@@ -29,7 +29,7 @@ class FileChoiceMenuToolbar : public MenuToolbar
 {
  public:
   FileChoiceMenuToolbar(FileChoice *choice, Menu *menu) :
-      MenuToolbar(choice, menu, 3)
+      MenuToolbar(choice, menu, FC_COLS)
   {
     filterButton(choice, 'a', 'd', "aA-dD");
     filterButton(choice, 'e', 'h', "eE-hH");
@@ -40,7 +40,7 @@ class FileChoiceMenuToolbar : public MenuToolbar
     filterButton(choice, '0', '9', "0-9");
 
     bool found = false;
-    for (int i = 0; i < choice->getMax(); i += 1) {
+    for (int i = 0; i <= choice->getMax(); i += 1) {
       char c = choice->getString(i)[0];
       if (c && !isdigit(c) && !isalpha(c)) {
         found = true;
@@ -64,7 +64,7 @@ class FileChoiceMenuToolbar : public MenuToolbar
   void filterButton(FileChoice *choice, char from, char to, const char* title)
   {
     bool found = false;
-    for (int i = 0; i < choice->getMax(); i += 1) {
+    for (int i = 0; i <= choice->getMax(); i += 1) {
       char c = choice->getString(i)[0];
       if (isupper(c)) c += 0x20;
       if (c >= from && c <= to) {
@@ -86,6 +86,8 @@ class FileChoiceMenuToolbar : public MenuToolbar
           title);
     }
   }
+
+  static LAYOUT_VAL(FC_COLS, 3, 2)
 
  protected:
 };
