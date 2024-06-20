@@ -154,7 +154,7 @@ class TabsGroupHeader : public Window
 
     selectedIcon = new SelectedTabIcon(carousel);
 
-    new HeaderDateTime(this, LCD_W - DATE_XO, DATE_Y);
+    new HeaderDateTime(this, LCD_W - DATE_XO, PAD_MEDIUM);
   }
 
   void setTitle(const char* title) { lv_label_set_text(titleLabel, title); }
@@ -221,7 +221,6 @@ class TabsGroupHeader : public Window
   uint8_t tabCount() const { return buttons.size(); }
 
   static LAYOUT_VAL(DATE_XO, 48, 48)
-  static LAYOUT_VAL(DATE_Y, 6, 6)
   static LAYOUT_VAL(MENU_HEADER_BUTTON_WIDTH, 33, 33)
   static LAYOUT_VAL(HDR_DATE_FULL_WIDTH, 51, 51)
 

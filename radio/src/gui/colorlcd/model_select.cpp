@@ -689,7 +689,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
   setTitle();
 
   // new model button
-  new TextButton(hdr, {LCD_W - NEW_BTN_W - PAD_LARGE, LAYOUT_BTN_YO, NEW_BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_NEW, [=]() {
+  new TextButton(hdr, {LCD_W - NEW_BTN_W - PAD_LARGE, PAD_MEDIUM, NEW_BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_NEW, [=]() {
     auto menu = new Menu(this);
     menu->setTitle(STR_CREATE_NEW);
     menu->addLine(STR_NEW_MODEL, [=]() { newModel(); });
@@ -697,7 +697,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
     return 0;
   });
 
-  mdlLayout = new ModelLayoutButton(this, LCD_W - LAYOUT_BTN_XO, LAYOUT_BTN_YO, g_eeGeneral.modelSelectLayout, [=]() {
+  mdlLayout = new ModelLayoutButton(this, LCD_W - LAYOUT_BTN_XO, PAD_MEDIUM, g_eeGeneral.modelSelectLayout, [=]() {
     uint8_t l = mdlLayout->getLayout();
     l = (l + 1) & 3;
     mdlLayout->setLayout(l);
@@ -711,7 +711,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
 void ModelLabelsWindow::buildBody(Window *window)
 {
   // Models List
-  mdlselector = new ModelsPageBody(window, {MDLS_X, MDLS_Y, MDLS_W, MDLS_H});
+  mdlselector = new ModelsPageBody(window, {MDLS_X, PAD_SMALL, MDLS_W, MDLS_H});
   mdlselector->setLblRefreshFunc([=]() { labelRefreshRequest(); });
   auto mdl_obj = mdlselector->getLvObj();
   lv_obj_set_style_max_width(mdl_obj, MDLS_W, LV_PART_MAIN);

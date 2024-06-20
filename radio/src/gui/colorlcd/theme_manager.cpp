@@ -561,7 +561,7 @@ UsbSDConnected::UsbSDConnected() :
   setWindowFlag(OPAQUE);
 
   etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
-  new HeaderDateTime(this, LCD_W - TopBar::HDR_DATE_XO, HDR_DATE_Y);
+  dateTime = new HeaderDateTime(this, LCD_W - TopBar::HDR_DATE_XO, PAD_MEDIUM);
 
   auto icon = new StaticIcon(this, 0, 0, ICON_USB_PLUGGED, COLOR_THEME_PRIMARY2);
   lv_obj_center(icon->getLvObj());

@@ -76,10 +76,10 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
     lv_coord_t y = LayoutFactory::TRIM_SQUARE_SIZE / 2;
     for (uint8_t i = 0; i <= sliderTicksCount; i++) {
       if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount) {
-        tickPoints[i * 2] = {SL_TK, y};
+        tickPoints[i * 2] = {PAD_TINY, y};
         tickPoints[i * 2 + 1] = {SL_SZ, y};
       } else {
-        tickPoints[i * 2] = {SL_TK + 2, y};
+        tickPoints[i * 2] = {PAD_TINY + 2, y};
         tickPoints[i * 2 + 1] = {SL_SZ - 2, y};
       }
       auto line = lv_line_create(lvobj);
@@ -94,10 +94,10 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
     lv_coord_t x = LayoutFactory::TRIM_SQUARE_SIZE / 2;
     for (uint8_t i = 0; i <= sliderTicksCount; i++) {
       if (i == 0 || i == sliderTicksCount / 2 || i == SLIDER_TICKS_COUNT) {
-        tickPoints[i * 2] = {x, SL_TK};
+        tickPoints[i * 2] = {x, PAD_TINY};
         tickPoints[i * 2 + 1] = {x, SL_SZ};
       } else {
-        tickPoints[i * 2] = {x, SL_TK + 2};
+        tickPoints[i * 2] = {x, PAD_TINY + 2};
         tickPoints[i * 2 + 1] = {x, SL_SZ - 2};
       }
       auto line = lv_line_create(lvobj);

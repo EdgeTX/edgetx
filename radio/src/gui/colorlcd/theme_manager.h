@@ -189,5 +189,6 @@ class UsbSDConnected : public Window
  public:
   UsbSDConnected();
 
-  static LAYOUT_VAL(HDR_DATE_Y, 6, 6)
+ protected:
+  HeaderDateTime* dateTime = nullptr;
 };

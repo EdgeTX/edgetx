@@ -42,6 +42,5 @@ class SelectFabCarousel : public Window
 
   static LAYOUT_VAL(FAB_ICON_SIZE, 52, 52)
   static LAYOUT_VAL(FAB_TXT_YO, 48, 48)
-  static LAYOUT_VAL(FAB_PAD, 4, 4)
   static constexpr coord_t FAB_BUTTON_INNER_WIDTH = FAB_BUTTON_WIDTH - PAD_MEDIUM;
 };

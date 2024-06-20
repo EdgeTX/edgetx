@@ -47,7 +47,6 @@ class MainViewSlider : public Window
       SLIDER_TICKS_COUNT * SLIDER_TICK_SPACING + LayoutFactory::TRIM_SQUARE_SIZE;
 
   static LAYOUT_VAL(SL_SZ, 15, 15)
-  static LAYOUT_VAL(SL_TK, 2, 2)
 
  protected:
   uint8_t idx;
