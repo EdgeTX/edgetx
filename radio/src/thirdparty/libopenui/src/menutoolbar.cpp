@@ -89,7 +89,7 @@ void MenuToolbar::resetFilter()
   if (lv_group_get_focused(group) != lvobj) {
     lv_group_focus_obj(lvobj);
     choice->fillMenu(menu);
-    menu->setTitle(choice->menuTitle);
+    menu->setTitle(choice->getTitle());
   }
 }
 
@@ -134,7 +134,7 @@ bool MenuToolbar::filterMenu(MenuToolbarButton* btn, int16_t filtermin,
     if (title)
       menu->setTitle(title);
     else
-      menu->setTitle(choice->menuTitle);
+      menu->setTitle(choice->getTitle());
     filter = [=](int16_t index) {
       if (filterFunc) return filterFunc(index);
       return index == 0 || (abs(index) >= filtermin && abs(index) <= filtermax);

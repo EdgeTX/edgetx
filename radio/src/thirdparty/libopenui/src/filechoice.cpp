@@ -97,7 +97,7 @@ FileChoice::FileChoice(Window *parent, const rect_t &rect, std::string folder,
                        bool stripExtension, const char *title) :
     Choice(
         parent, rect, 0, 0, [=]() { return selectedIdx; },
-        [=](int val) { setValue(getString(val)); }, title),
+        [=](int val) { setValue(getString(val)); }, title, CHOICE_TYPE_FOLDER),
     folder(std::move(folder)),
     extension(extension),
     maxlen(maxlen),
@@ -105,8 +105,7 @@ FileChoice::FileChoice(Window *parent, const rect_t &rect, std::string folder,
     setValue(std::move(setValue)),
     stripExtension(stripExtension)
 {
-  setChoiceType(CHOICE_TYPE_FOLDER);
-  lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+  update();
 }
 
 std::string FileChoice::getLabelText() { return getValue(); }

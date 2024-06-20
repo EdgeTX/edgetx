@@ -58,45 +58,18 @@ ModelSetupPage::ModelSetupPage() :
 {
 }
 
-static void onModelNameChanged()
-{
-  auto model = modelslist.getCurrentModel();
-  if (model) {
-    model->setModelName(g_model.header.name);
-  }
-  SET_DIRTY();
-}
-
 struct ModelNameEdit : public ModelTextEdit {
   ModelNameEdit(Window *parent, const rect_t &rect) :
       ModelTextEdit(parent, rect, g_model.header.name,
                     sizeof(g_model.header.name))
   {
-    setChangeHandler(onModelNameChanged);
-  }
-};
-
-static std::string getModelBitmap()
-{
-  return std::string(g_model.header.bitmap, LEN_BITMAP_NAME);
-}
-
-static void setModelBitmap(std::string newValue)
-{
-  strncpy(g_model.header.bitmap, newValue.c_str(), LEN_BITMAP_NAME);
-  auto model = modelslist.getCurrentModel();
-  if (model) {
-    strncpy(model->modelBitmap, newValue.c_str(), LEN_BITMAP_NAME);
-    model->modelBitmap[LEN_BITMAP_NAME] = '\0';
-  }
-  SET_DIRTY();
-}
-
-struct ModelBitmapEdit : public FileChoice {
-  ModelBitmapEdit(Window *parent, const rect_t &rect) :
-      FileChoice(parent, rect, BITMAPS_PATH, BITMAPS_EXT, LEN_BITMAP_NAME,
-                 getModelBitmap, setModelBitmap, false, STR_BITMAP)
-  {
+    setChangeHandler([=]() {
+                      auto model = modelslist.getCurrentModel();
+                      if (model) {
+                        model->setModelName(g_model.header.name);
+                      }
+                      SET_DIRTY();
+                    });
   }
 };
 
@@ -364,8 +337,19 @@ static SetupLineDef setupLines[] = {
     // Model bitmap
     STR_BITMAP,
     [](Window* parent, coord_t x, coord_t y) {
-      // TODO: show bitmap thumbnail instead?
-      new ModelBitmapEdit(parent, {x, y, 0, 0});
+      new FileChoice(parent, {x, y, 0, 0}, BITMAPS_PATH, BITMAPS_EXT, LEN_BITMAP_NAME,
+                     [=]() {
+                       return std::string(g_model.header.bitmap, LEN_BITMAP_NAME);
+                     },
+                     [=](std::string newValue) {
+                       strncpy(g_model.header.bitmap, newValue.c_str(), LEN_BITMAP_NAME);
+                       auto model = modelslist.getCurrentModel();
+                       if (model) {
+                         strncpy(model->modelBitmap, newValue.c_str(), LEN_BITMAP_NAME);
+                         model->modelBitmap[LEN_BITMAP_NAME] = '\0';
+                       }
+                       SET_DIRTY();
+                     }, false, STR_BITMAP);
     }
   },
 };
