@@ -46,38 +46,25 @@ static lv_obj_t* choice_create(lv_obj_t* parent)
   return etx_create(&choice_class, parent);
 }
 
-void choice_changed_cb(lv_event_t* e)
+ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect,
+                       int vmin, int vmax, const char* title,
+                       std::function<int()> _getValue,
+                       std::function<void(int)> _setValue,
+                       ChoiceType type) :
+    FormField(parent, rect, 0, choice_create),
+    vmin(vmin), vmax(vmax), menuTitle(title),
+    _getValue(std::move(_getValue)),
+    _setValue(std::move(_setValue))
 {
-  auto code = lv_event_get_code(e);
-
-  if (code == LV_EVENT_VALUE_CHANGED) {
-    lv_obj_t* target = lv_event_get_target(e);
-    if (target != nullptr) {
-      ChoiceBase* cb = (ChoiceBase*)lv_obj_get_user_data(target);
-      if (cb) {
-        std::string text = cb->getLabelText();
-        lv_label_set_text(cb->label, text.c_str());
-      }
-    }
-  }
-}
-
-ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect, ChoiceType type) :
-    FormField(parent, rect, 0, choice_create), type(type)
-{
-  // add the image
+  // Add image
   lv_obj_t* img = lv_img_create(lvobj);
   lv_img_set_src(
       img, type == CHOICE_TYPE_DROPOWN ? LV_SYMBOL_DOWN : LV_SYMBOL_DIRECTORY);
   lv_obj_set_pos(img, 0, PAD_TINY);
 
-  lv_obj_add_event_cb(lvobj, choice_changed_cb, LV_EVENT_VALUE_CHANGED, lvobj);
+  // Add label
   label = lv_label_create(lvobj);
   lv_obj_set_pos(label, ICON_W, PAD_TINY);
-
-  lv_group_t* def_group = lv_group_get_default();
-  if (def_group)
-    lv_group_add_obj(def_group, lvobj);
 }
 
 std::string Choice::getLabelText()
@@ -101,46 +88,36 @@ std::string Choice::getLabelText()
   return text;
 }
 
-Choice::Choice(Window* parent, const rect_t& rect, int vmin, int vmax,
-               std::function<int()> _getValue,
-               std::function<void(int)> _setValue, const char* title) :
-    ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN),
-    vmin(vmin),
-    vmax(vmax),
-    menuTitle(title),
-    _getValue(std::move(_getValue)),
-    _setValue(std::move(_setValue))
+void ChoiceBase::update()
 {
-  lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+  lv_label_set_text(label, getLabelText().c_str());
+}
+
+Choice::Choice(Window* parent, const rect_t& rect, int vmin, int vmax,
+               std::function<int()> getValue,
+               std::function<void(int)> setValue, const char* title, ChoiceType type) :
+    ChoiceBase(parent, rect, vmin, vmax, title, getValue, setValue, type)
+{
+  update();
 }
 
 Choice::Choice(Window* parent, const rect_t& rect, const char* const values[],
-               int vmin, int vmax, std::function<int()> _getValue,
-               std::function<void(int)> _setValue, const char* title) :
-    ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN),
-    vmin(vmin),
-    vmax(vmax),
-    menuTitle(title),
-    _getValue(std::move(_getValue)),
-    _setValue(std::move(_setValue))
+               int vmin, int vmax, std::function<int()> getValue,
+               std::function<void(int)> setValue, const char* title) :
+    ChoiceBase(parent, rect, vmin, vmax, title, getValue, setValue, CHOICE_TYPE_DROPOWN)
 {
   setValues(values);
-  lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+  update();
 }
 
 Choice::Choice(Window* parent, const rect_t& rect,
                std::vector<std::string> values, int vmin, int vmax,
-               std::function<int()> _getValue,
-               std::function<void(int)> _setValue, const char* title) :
-    ChoiceBase(parent, rect, CHOICE_TYPE_DROPOWN),
-    values(std::move(values)),
-    vmin(vmin),
-    vmax(vmax),
-    menuTitle(title),
-    _getValue(std::move(_getValue)),
-    _setValue(std::move(_setValue))
+               std::function<int()> getValue,
+               std::function<void(int)> setValue, const char* title) :
+    ChoiceBase(parent, rect, vmin, vmax, title, getValue, setValue, CHOICE_TYPE_DROPOWN),
+    values(std::move(values))
 {
-  lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+  update();
 }
 
 void Choice::addValue(const char* value)
@@ -169,7 +146,7 @@ void Choice::setValue(int val)
 {
   if (_setValue) {
     _setValue(val);
-    lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+    update();
   }
 }
 

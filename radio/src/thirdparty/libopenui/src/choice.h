@@ -32,19 +32,39 @@ enum ChoiceType {
 class ChoiceBase : public FormField
 {
  public:
-  ChoiceBase(Window *parent, const rect_t &rect,
+  ChoiceBase(Window *parent, const rect_t &rect, int vmin, int vmax, const char* title,
+             std::function<int()> _getValue, std::function<void(int)> _setValue,
              ChoiceType type = CHOICE_TYPE_DROPOWN);
 
-  void setChoiceType(ChoiceType t) { type = t; }
+  void update();
+
+  void setTextHandler(std::function<std::string(int)> handler)
+  {
+    textHandler = std::move(handler);
+    update();
+  }
+
+  int getMin() const { return vmin; }
+  void setMin(int value) { vmin = value; }
+
+  int getMax() const { return vmax; }
+  void setMax(int value) { vmax = value; }
+
+  const char* getTitle() const { return menuTitle; }
 
   static LAYOUT_VAL(ICON_W, 18, 18)
 
  protected:
-  ChoiceType type;
   lv_obj_t *label;
+  int vmin = 0;
+  int vmax = 0;
+  const char *menuTitle = nullptr;
 
-  friend void choice_changed_cb(lv_event_t *e);
-  virtual std::string getLabelText() { return ""; };
+  std::function<int()> _getValue;
+  std::function<void(int)> _setValue;
+  std::function<std::string(int)> textHandler;
+
+  virtual std::string getLabelText() = 0;
 };
 
 class Choice : public ChoiceBase
@@ -53,7 +73,7 @@ class Choice : public ChoiceBase
   Choice(Window *parent, const rect_t &rect, int vmin, int vmax,
          std::function<int()> _getValue,
          std::function<void(int)> _setValue = nullptr,
-         const char *title = nullptr);
+         const char *title = nullptr, ChoiceType type = CHOICE_TYPE_DROPOWN);
   Choice(Window *parent, const rect_t &rect, std::vector<std::string> values,
          int vmin, int vmax, std::function<int()> _getValue,
          std::function<void(int)> _setValue = nullptr,
@@ -63,15 +83,14 @@ class Choice : public ChoiceBase
          std::function<void(int)> _setValue = nullptr,
          const char *title = nullptr);
 
-  void addValue(const char *value);
-
-  void setValues(std::vector<std::string> values);
-
-  void setValues(const char *const values[]);
-
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "Choice"; }
 #endif
+
+  void addValue(const char *value);
+
+  void setValues(std::vector<std::string> values);
+  void setValues(const char *const values[]);
 
   void onClicked() override;
 
@@ -130,41 +149,23 @@ class Choice : public ChoiceBase
   virtual void setValue(int val);
   virtual int getIntValue() const { return _getValue(); }
 
-  void setTextHandler(std::function<std::string(int)> handler)
-  {
-    textHandler = std::move(handler);
-    lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
-  }
-
-  void setMin(int value) { vmin = value; }
-
-  void setMax(int value) { vmax = value; }
-
-  int getMin() const { return vmin; }
-  int getMax() const { return vmax; }
-
   std::string getString(int val) { return values[val]; }
 
-  int selectedIx0 = 0;
+  typedef std::function<bool(int16_t)> FilterFct;
+
+  void fillMenu(Menu *menu, const FilterFct &filter = nullptr);
 
  protected:
   friend class MenuToolbar;
 
   bool inverted = false;
+  int selectedIx0 = 0;
 
-  std::string getLabelText() override;
   std::vector<std::string> values;
-  int vmin = 0;
-  int vmax = 0;
-  const char *menuTitle = nullptr;
-  std::function<int()> _getValue;
-  std::function<void(int)> _setValue;
   std::function<bool(int)> isValueAvailable;
-  std::function<std::string(int)> textHandler;
   std::function<void(Menu *, int, int &)> fillMenuHandler;
 
-  typedef std::function<bool(int16_t)> FilterFct;
-  void fillMenu(Menu *menu, const FilterFct &filter = nullptr);
+  std::string getLabelText() override;
 
   virtual void openMenu();
 };
