@@ -28,22 +28,25 @@ static const char* const HSVChars[MAX_BARS] = {"H", "S", "V"};
 
 typedef std::function<uint32_t(int pos)> getRGBFromPos;
 
-class ColorBar : public Window
+class ColorBar : public FormField
 {
  public:
   ColorBar(Window* parent, const rect_t& r, uint32_t value = 0,
            uint32_t maxValue = 0, bool invert = false) :
-      Window(parent, r)
+      FormField(parent, r)
   {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
 
     lv_group_add_obj((lv_group_t*)lv_group_get_default(), lvobj);
+
     lv_obj_add_event_cb(lvobj, ColorBar::pressing, LV_EVENT_PRESSING, nullptr);
     lv_obj_add_event_cb(lvobj, ColorBar::on_key, LV_EVENT_KEY, nullptr);
     lv_obj_add_event_cb(lvobj, ColorBar::draw_end, LV_EVENT_DRAW_PART_END,
                         nullptr);
 
     etx_std_style(lvobj, LV_PART_MAIN, PAD_ZERO);
+    etx_obj_add_style(lvobj, styles->border_color_edit, LV_PART_MAIN | LV_STATE_EDITED);
+    etx_obj_add_style(lvobj, styles->outline_color_edit, LV_PART_MAIN | LV_STATE_EDITED);
   }
 
   int valueToScreen(int val)
@@ -200,7 +203,7 @@ class ColorType
   ColorType() {}
   virtual ~ColorType() {}
 
-  virtual void setText(){};
+  virtual void setText() {};
   virtual uint32_t getRGB() { return 0; };
 
  protected:
@@ -211,10 +214,48 @@ class ColorType
 class BarColorType : public ColorType
 {
  public:
-  BarColorType(Window* parent);
-  ~BarColorType() override;
+  BarColorType(Window* parent)
+  {
+    auto spacePerBar = (parent->width() / MAX_BARS);
 
-  void setText() override;
+    int leftPos = 0;
+    rect_t r;
+    r.y = ColorEditor::BAR_TOP_MARGIN;
+    r.w = spacePerBar - ColorEditor::BAR_MARGIN - 5;
+    r.h = parent->height() - (ColorEditor::BAR_TOP_MARGIN + ColorEditor::BAR_HEIGHT_OFFSET);
+
+    for (int i = 0; i < MAX_BARS; i++) {
+      r.x = leftPos + ColorEditor::BAR_MARGIN;
+
+      bars[i] = new ColorBar(parent, r);
+      leftPos += spacePerBar;
+
+      // bar labels
+      auto bar = bars[i];
+      auto x = bar->left();
+      auto y = bar->bottom();
+
+      barLabels[i] = create_bar_label(parent->getLvObj(), x, y + ColorEditor::LBL_YO);
+      barValLabels[i] = create_bar_value_label(parent->getLvObj(), x + ColorEditor::VAL_XO, y + ColorEditor::VAL_YO);
+    }
+  }
+
+  ~BarColorType() override
+  {
+    for (int i = 0; i < MAX_BARS; i++) {
+      bars[i]->deleteLater();
+    }
+  };
+
+  void setText() override
+  {
+    for (int i = 0; i < MAX_BARS; i++) {
+      auto bar = bars[i];
+      lv_label_set_text_static(barLabels[i], getLabelChars()[i]);
+      lv_label_set_text_fmt(barValLabels[i], "%" PRIu32, bar->value);
+      bar->invalidate();
+    }
+  }
 
  protected:
   ColorBar* bars[MAX_BARS];
@@ -223,220 +264,155 @@ class BarColorType : public ColorType
 
   virtual const char* const* getLabelChars() { return nullptr; };
 
-  lv_obj_t* create_bar_label(lv_obj_t* parent, lv_coord_t x, lv_coord_t y);
+  lv_obj_t* create_bar_label(lv_obj_t* parent, lv_coord_t x, lv_coord_t y)
+  {
+    lv_obj_t* obj = lv_label_create(parent);
+    lv_obj_set_pos(obj, x, y);
+    etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX);
+    etx_font(obj, FONT_XXS_INDEX);
+    return obj;
+  }
+
   lv_obj_t* create_bar_value_label(lv_obj_t* parent, lv_coord_t x,
-                                   lv_coord_t y);
+                                   lv_coord_t y)
+  {
+    lv_obj_t* obj = lv_label_create(parent);
+    lv_obj_set_pos(obj, x, y);
+    etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX);
+    return obj;
+  }
 };
 
 // Color editor for HSV color input
 class HSVColorType : public BarColorType
 {
  public:
-  HSVColorType(Window* parent, uint32_t color);
-  uint32_t getRGB() override;
+  HSVColorType(Window* parent, uint32_t color) : BarColorType(parent)
+  {
+    auto r = GET_RED(color), g = GET_GREEN(color), b = GET_BLUE(color);
+    float values[MAX_BARS];
+    RGBtoHSV(r, g, b, values[0], values[1], values[2]);
+    values[1] *= MAX_SATURATION;  // convert the proper base
+    values[2] *= MAX_BRIGHTNESS;
+
+    for (auto i = 0; i < MAX_BARS; i++) {
+      bars[i]->maxValue = i == 0 ? MAX_HUE : MAX_BRIGHTNESS;
+      bars[i]->invert = i != 0;
+      bars[i]->value = values[i];
+    }
+
+    // hue
+    bars[0]->getRGB = [=](int pos) {
+      auto rgb = HSVtoRGB(pos, bars[1]->value, bars[2]->value);
+      return rgb;
+    };
+
+    // saturation
+    bars[1]->getRGB = [=](int pos) {
+      auto rgb = HSVtoRGB(bars[0]->value, pos, bars[2]->value);
+      return rgb;
+    };
+
+    // brightness
+    bars[2]->getRGB = [=](int pos) {
+      auto rgb = HSVtoRGB(bars[0]->value, bars[1]->value, pos);
+      return rgb;
+    };
+  }
+
+  uint32_t getRGB() override
+  {
+    return HSVtoRGB(bars[0]->value, bars[1]->value, bars[2]->value);
+  }
 
  protected:
-  const char* const* getLabelChars() override;
+  const char* const* getLabelChars() override { return HSVChars; }
 };
 
 // Color editor for RGB color input
 class RGBColorType : public BarColorType
 {
  public:
-  RGBColorType(Window* parent, uint32_t color);
-  uint32_t getRGB() override;
+  RGBColorType(Window* parent, uint32_t color) : BarColorType(parent)
+  {
+    auto r = GET_RED(color), g = GET_GREEN(color), b = GET_BLUE(color);
+    float values[MAX_BARS];
+    values[0] = r;
+    values[1] = g;
+    values[2] = b;
+
+    for (auto i = 0; i < MAX_BARS; i++) {
+      bars[i]->maxValue = 255;
+      bars[i]->value = values[i];
+      bars[i]->invert = true;
+    }
+
+    bars[0]->getRGB = [=](int pos) { return RGB(pos, 0, 0); };
+    bars[1]->getRGB = [=](int pos) { return RGB(0, pos, 0); };
+    bars[2]->getRGB = [=](int pos) { return RGB(0, 0, pos); };
+  }
+
+  uint32_t getRGB() override
+  {
+    return RGB(bars[0]->value, bars[1]->value, bars[2]->value);
+  }
 
  protected:
-  const char* const* getLabelChars() override;
+  const char* const* getLabelChars() override { return RGBChars; }
 };
 
 // Color editor that shows the system theme colors as buttons
 class ThemeColorType : public ColorType
 {
  public:
-  ThemeColorType(Window* parent, uint32_t color);
-  uint32_t getRGB() override;
+  ThemeColorType(Window* parent, uint32_t color)
+  {
+    m_color = color;
+
+    auto vbox = new Window(parent, rect_t{});
+    vbox->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_MEDIUM);
+
+    makeButtonsRow(vbox, COLOR_THEME_PRIMARY1_INDEX, COLOR_THEME_PRIMARY2_INDEX,
+                  COLOR_THEME_PRIMARY3_INDEX);
+    makeButtonsRow(vbox, COLOR_THEME_SECONDARY1_INDEX,
+                  COLOR_THEME_SECONDARY2_INDEX, COLOR_THEME_SECONDARY3_INDEX);
+    makeButtonsRow(vbox, COLOR_THEME_FOCUS_INDEX, COLOR_THEME_EDIT_INDEX,
+                  COLOR_THEME_ACTIVE_INDEX);
+    makeButtonsRow(vbox, COLOR_THEME_WARNING_INDEX, COLOR_THEME_DISABLED_INDEX,
+                  COLOR_THEME_DISABLED_INDEX);
+  }
+
+  uint32_t getRGB() { return m_color; }
 
  protected:
   uint32_t m_color;
-  void makeButton(Window* parent, uint16_t color);
-  void makeButtonsRow(Window* parent, uint16_t c1, uint16_t c2, uint16_t c3);
-};
 
-BarColorType::BarColorType(Window* parent)
-{
-  auto spacePerBar = (parent->width() / MAX_BARS);
-
-  int leftPos = 0;
-  rect_t r;
-  r.y = ColorEditor::BAR_TOP_MARGIN;
-  r.w = spacePerBar - ColorEditor::BAR_MARGIN - 5;
-  r.h = parent->height() - (ColorEditor::BAR_TOP_MARGIN + ColorEditor::BAR_HEIGHT_OFFSET);
-
-  for (int i = 0; i < MAX_BARS; i++) {
-    r.x = leftPos + ColorEditor::BAR_MARGIN;
-
-    bars[i] = new ColorBar(parent, r);
-    leftPos += spacePerBar;
-
-    // bar labels
-    auto bar = bars[i];
-    auto x = bar->left();
-    auto y = bar->bottom();
-
-    barLabels[i] = create_bar_label(parent->getLvObj(), x, y + ColorEditor::LBL_YO);
-    barValLabels[i] = create_bar_value_label(parent->getLvObj(), x + ColorEditor::VAL_XO, y + ColorEditor::VAL_YO);
+  void makeButton(Window* parent, uint16_t color)
+  {
+    auto btn = new TextButton(parent, rect_t{}, "       ");
+    etx_bg_color(btn->getLvObj(), (LcdColorIndex)color);
+    btn->setPressHandler([=]() {
+      auto cv = lcdColorTable[color];
+      m_color = RGB(GET_RED(cv), GET_GREEN(cv), GET_BLUE(cv));
+      lv_event_send(parent->getParent()->getParent()->getLvObj(),
+                    LV_EVENT_VALUE_CHANGED, nullptr);
+      return 0;
+    });
   }
-}
 
-BarColorType::~BarColorType()
-{
-  for (int i = 0; i < MAX_BARS; i++) {
-    bars[i]->deleteLater();
+  void makeButtonsRow(Window* parent, uint16_t c1, uint16_t c2, uint16_t c3)
+  {
+    auto hbox = new Window(parent, rect_t{});
+    hbox->padAll(PAD_TINY);
+    hbox->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_MEDIUM);
+    lv_obj_set_flex_align(hbox->getLvObj(), LV_FLEX_ALIGN_CENTER,
+                          LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
+    makeButton(hbox, c1);
+    makeButton(hbox, c2);
+    if (c3 != c2) makeButton(hbox, c3);
   }
 };
-
-lv_obj_t* BarColorType::create_bar_label(lv_obj_t* parent, lv_coord_t x,
-                                         lv_coord_t y)
-{
-  lv_obj_t* obj = lv_label_create(parent);
-  lv_obj_set_pos(obj, x, y);
-  etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX);
-  etx_font(obj, FONT_XXS_INDEX);
-  return obj;
-}
-
-lv_obj_t* BarColorType::create_bar_value_label(lv_obj_t* parent, lv_coord_t x,
-                                               lv_coord_t y)
-{
-  lv_obj_t* obj = lv_label_create(parent);
-  lv_obj_set_pos(obj, x, y);
-  etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX);
-  return obj;
-}
-
-void BarColorType::setText()
-{
-  for (int i = 0; i < MAX_BARS; i++) {
-    auto bar = bars[i];
-    lv_label_set_text_static(barLabels[i], getLabelChars()[i]);
-    lv_label_set_text_fmt(barValLabels[i], "%" PRIu32, bar->value);
-    bar->invalidate();
-  }
-}
-
-HSVColorType::HSVColorType(Window* parent, uint32_t color) :
-    BarColorType(parent)
-{
-  auto r = GET_RED(color), g = GET_GREEN(color), b = GET_BLUE(color);
-  float values[MAX_BARS];
-  RGBtoHSV(r, g, b, values[0], values[1], values[2]);
-  values[1] *= MAX_SATURATION;  // convert the proper base
-  values[2] *= MAX_BRIGHTNESS;
-
-  for (auto i = 0; i < MAX_BARS; i++) {
-    bars[i]->maxValue = i == 0 ? MAX_HUE : MAX_BRIGHTNESS;
-    bars[i]->invert = i != 0;
-    bars[i]->value = values[i];
-  }
-
-  // hue
-  bars[0]->getRGB = [=](int pos) {
-    auto rgb = HSVtoRGB(pos, bars[1]->value, bars[2]->value);
-    return rgb;
-  };
-
-  // saturation
-  bars[1]->getRGB = [=](int pos) {
-    auto rgb = HSVtoRGB(bars[0]->value, pos, bars[2]->value);
-    return rgb;
-  };
-
-  // brightness
-  bars[2]->getRGB = [=](int pos) {
-    auto rgb = HSVtoRGB(bars[0]->value, bars[1]->value, pos);
-    return rgb;
-  };
-}
-
-uint32_t HSVColorType::getRGB()
-{
-  return HSVtoRGB(bars[0]->value, bars[1]->value, bars[2]->value);
-}
-
-const char* const* HSVColorType::getLabelChars() { return HSVChars; }
-
-RGBColorType::RGBColorType(Window* parent, uint32_t color) :
-    BarColorType(parent)
-{
-  auto r = GET_RED(color), g = GET_GREEN(color), b = GET_BLUE(color);
-  float values[MAX_BARS];
-  values[0] = r;
-  values[1] = g;
-  values[2] = b;
-
-  for (auto i = 0; i < MAX_BARS; i++) {
-    bars[i]->maxValue = 255;
-    bars[i]->value = values[i];
-    bars[i]->invert = true;
-  }
-
-  bars[0]->getRGB = [=](int pos) { return RGB(pos, 0, 0); };
-  bars[1]->getRGB = [=](int pos) { return RGB(0, pos, 0); };
-  bars[2]->getRGB = [=](int pos) { return RGB(0, 0, pos); };
-}
-
-uint32_t RGBColorType::getRGB()
-{
-  return RGB(bars[0]->value, bars[1]->value, bars[2]->value);
-}
-
-const char* const* RGBColorType::getLabelChars() { return RGBChars; }
-
-void ThemeColorType::makeButton(Window* parent, uint16_t color)
-{
-  auto btn = new TextButton(parent, rect_t{}, "       ");
-  etx_bg_color(btn->getLvObj(), (LcdColorIndex)color);
-  btn->setPressHandler([=]() {
-    auto cv = lcdColorTable[color];
-    m_color = RGB(GET_RED(cv), GET_GREEN(cv), GET_BLUE(cv));
-    lv_event_send(parent->getParent()->getParent()->getLvObj(),
-                  LV_EVENT_VALUE_CHANGED, nullptr);
-    return 0;
-  });
-}
-
-void ThemeColorType::makeButtonsRow(Window* parent, uint16_t c1, uint16_t c2,
-                                    uint16_t c3)
-{
-  auto hbox = new Window(parent, rect_t{});
-  hbox->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_MEDIUM);
-  lv_obj_set_flex_align(hbox->getLvObj(), LV_FLEX_ALIGN_CENTER,
-                        LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-
-  makeButton(hbox, c1);
-  makeButton(hbox, c2);
-  if (c3 != c2) makeButton(hbox, c3);
-}
-
-ThemeColorType::ThemeColorType(Window* parent, uint32_t color) : ColorType()
-{
-  m_color = color;
-
-  auto vbox = new Window(parent, rect_t{});
-  vbox->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_MEDIUM);
-
-  makeButtonsRow(vbox, COLOR_THEME_PRIMARY1_INDEX, COLOR_THEME_PRIMARY2_INDEX,
-                 COLOR_THEME_PRIMARY3_INDEX);
-  makeButtonsRow(vbox, COLOR_THEME_SECONDARY1_INDEX,
-                 COLOR_THEME_SECONDARY2_INDEX, COLOR_THEME_SECONDARY3_INDEX);
-  makeButtonsRow(vbox, COLOR_THEME_FOCUS_INDEX, COLOR_THEME_EDIT_INDEX,
-                 COLOR_THEME_ACTIVE_INDEX);
-  makeButtonsRow(vbox, COLOR_THEME_WARNING_INDEX, COLOR_THEME_DISABLED_INDEX,
-                 COLOR_THEME_DISABLED_INDEX);
-}
-
-uint32_t ThemeColorType::getRGB() { return m_color; }
 
 /////////////////////////////////////////////////////////////////////////
 ////// ColorEditor Base class

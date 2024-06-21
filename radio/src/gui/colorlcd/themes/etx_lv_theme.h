@@ -128,9 +128,11 @@ class EdgeTxStyles
   lv_style_t border_color_white;
   lv_style_t border_color_focus;
   lv_style_t border_color_active;
+  lv_style_t border_color_edit;
   lv_style_t outline_color_light;
   lv_style_t outline_color_normal;
   lv_style_t outline_color_focus;
+  lv_style_t outline_color_edit;
   lv_style_t bg_color_grey;
   lv_style_t arc_color;
   lv_style_t graph_border;

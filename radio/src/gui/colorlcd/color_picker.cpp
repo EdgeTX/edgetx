@@ -91,6 +91,7 @@ class ColorEditorPopup : public BaseDialog
     updateColor(color);
 
     hbox = new Window(vbox, rect_t{});
+    hbox->padAll(PAD_TINY);
     hbox->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_MEDIUM);
     lv_obj_set_flex_align(hbox->getLvObj(), LV_FLEX_ALIGN_CENTER,
                           LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
