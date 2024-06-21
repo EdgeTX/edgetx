@@ -25,14 +25,7 @@
 #include "table.h"
 #include "themes/etx_lv_theme.h"
 
-#include <memory>
-
 constexpr coord_t MENUS_WIDTH = 200;
-
-struct lvobj_delete {
-  constexpr lvobj_delete() = default;
-  void operator()(lv_obj_t* obj) const { lv_obj_del(obj); }
-};
 
 static void _force_editing(lv_group_t* g) { lv_group_set_editing(g, true); }
 
@@ -57,16 +50,19 @@ class MenuBody : public TableField
     {
     }
 
-    MenuLine(MenuLine&) = delete;
-    MenuLine(MenuLine&&) = default;
+    ~MenuLine()
+    {
+      if (icon)
+        lv_obj_del(icon);
+    }
 
-    lv_obj_t* getIcon() { return icon.get(); }
+    lv_obj_t* getIcon() const { return icon; }
 
    protected:
     std::string text;
     std::function<void()> onPress;
     std::function<bool()> isChecked;
-    std::unique_ptr<lv_obj_t, lvobj_delete> icon;
+    lv_obj_t* icon;
   };
 
  public:
@@ -91,6 +87,11 @@ class MenuBody : public TableField
       });
       lv_group_set_editing(g, true);
     }
+  }
+
+  ~MenuBody()
+  {
+    clearLines();
   }
 
 #if defined(DEBUG_WINDOWS)
@@ -166,7 +167,8 @@ class MenuBody : public TableField
       lv_canvas_set_buffer(canvas, buf, w, h, LV_IMG_CF_ALPHA_8BIT);
     }
 
-    lines.emplace_back(text, std::move(onPress), std::move(isChecked), canvas);
+    auto l = new MenuLine(text, onPress, isChecked, canvas);
+    lines.push_back(l);
 
     if (update) {
       auto idx = lines.size() - 1;
@@ -178,13 +180,23 @@ class MenuBody : public TableField
   {
     setRowCount(lines.size());
     for (unsigned int idx = 0; idx < lines.size(); idx++) {
-      lv_table_set_cell_value(lvobj, idx, 0, lines[idx].text.c_str());
+      lv_table_set_cell_value(lvobj, idx, 0, lines[idx]->text.c_str());
     }
+  }
+
+  void clearLines()
+  {
+    for (auto itr = lines.begin(); itr != lines.end();) {
+      auto l = *itr;
+      itr = lines.erase(itr);
+      delete l;
+    }
+    lines.clear();
   }
 
   void removeLines()
   {
-    lines.clear();
+    clearLines();
     setRowCount(0);
     selectedIndex = 0;
 
@@ -199,16 +211,16 @@ class MenuBody : public TableField
       if (row < lines.size()) {
         if (menu->multiple) {
           if (selectedIndex == (int)row)
-            lines[row].onPress();
+            lines[row]->onPress();
           else {
             setIndex(row);
-            lines[row].onPress();
+            lines[row]->onPress();
           }
         } else {
           // delete menu first to avoid
           // focus issues with onPress()
           menu->deleteLater();
-          lines[row].onPress();
+          lines[row]->onPress();
         }
       }
     }
@@ -219,7 +231,7 @@ class MenuBody : public TableField
   void onDrawBegin(uint16_t row, uint16_t col,
                    lv_obj_draw_part_dsc_t* dsc) override
   {
-    lv_canvas_t* icon = (lv_canvas_t*)lines[row].getIcon();
+    lv_canvas_t* icon = (lv_canvas_t*)lines[row]->getIcon();
     if (!icon) return;
 
     lv_img_t* img = &icon->img;
@@ -232,7 +244,7 @@ class MenuBody : public TableField
   {
     if (row >= lines.size()) return;
 
-    lv_obj_t* icon = lines[row].getIcon();
+    lv_obj_t* icon = lines[row]->getIcon();
     if (icon) {
       lv_draw_img_dsc_t img_dsc;
       lv_draw_img_dsc_init(&img_dsc);
@@ -251,7 +263,7 @@ class MenuBody : public TableField
       lv_draw_img(dsc->draw_ctx, &img_dsc, &coords, img);
     }
 
-    if (lines[row].isChecked != nullptr && lines[row].isChecked()) {
+    if (lines[row]->isChecked != nullptr && lines[row]->isChecked()) {
       lv_area_t coords;
       lv_coord_t area_h = lv_area_get_height(dsc->draw_area);
       lv_coord_t cell_right = lv_obj_get_style_pad_right(lvobj, LV_PART_ITEMS);
@@ -270,7 +282,7 @@ class MenuBody : public TableField
  protected:
   bool isLongPressed = false;
 
-  std::vector<MenuLine> lines;
+  std::vector<MenuLine*> lines;
   int selectedIndex = 0;
 
   Menu* getParentMenu() { return static_cast<Menu*>(getParent()->getParent()); }
