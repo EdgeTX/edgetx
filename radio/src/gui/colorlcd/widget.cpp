@@ -47,11 +47,6 @@ Widget::Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
     if (!fullscreen && lv_obj_get_group(lvobj)) openMenu();
     return 0;
   });
-
-  setLongPressHandler([&]() -> uint8_t {
-    if (!fullscreen) openMenu();
-    return 0;
-  });
 }
 
 void Widget::openMenu()
@@ -147,7 +142,10 @@ void Widget::setFullscreen(bool enable)
 
 bool Widget::onLongPress()
 {
-  if (!fullscreen) ButtonBase::onLongPress();
+  if (!fullscreen) {
+    openMenu();
+    return false;
+  }
   return true;
 }
 
