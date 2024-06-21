@@ -303,9 +303,6 @@
     #define USE_EXTI15_10_IRQ
     #define EXTI15_10_IRQ_Priority 5
   #endif
-  #if defined(RADIO_TX12)
-    #define ROTARY_ENCODER_SUPPORT_BUGGY_WIRING
-  #endif
   #if defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_MT12) || defined(RADIO_POCKET) || defined(RADIO_T14)
     #define ROTARY_ENCODER_INVERTED
   #endif
