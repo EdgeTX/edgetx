@@ -35,98 +35,106 @@
   #include "opentx.h"
 #endif
 
+#if ROTARY_ENCODER_GRANULARITY == 2
+  #define ON_DETENT(p) ((p == 3) || (p == 0))
+#elif ROTARY_ENCODER_GRANULARITY == 4
+  #define ON_DETENT(p) (p == 3)
+#elif
+#error "Unknown ROTARY_ENCODER_GRANULARITY"
+#endif
+
 volatile rotenc_t rotencValue = 0;
 volatile uint32_t rotencDt = 0;
 
-#if defined(BOOT)
-#define INC_ROT        1
-#define INC_ROT_2      2
-#else
-#define INC_ROT \
-  (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_BOTH ? -1 : 1);
-#define INC_ROT_2 \
-  (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_BOTH ? -2 : 2);
-#endif
+// Last encoder pins state
+static uint8_t lastPins = 0;
+// Record encoder position change between detents
+int8_t reChgPos = 0;
+// Used on start to ignore movement until encoder position on detent
+bool skipUntilDetent = false;
 
 rotenc_t rotaryEncoderGetValue()
-{
-  return rotencValue / ROTARY_ENCODER_GRANULARITY;
-}
-
-rotenc_t rotaryEncoderGetRawValue()
 {
   return rotencValue;
 }
 
 void rotaryEncoderCheck()
 {
-  static uint8_t state = 0;
-  static uint8_t re_count = 0;
+  // Value increment for each state transition of the RE pins
+#if defined(ROTARY_ENCODER_INVERTED)
+  static int8_t reInc[4][4] = {
+    // Prev = 0
+    {  0, -1,  1, -2 },
+    // Prev = 1
+    {  1,  0,  0, -1 },
+    // Prev = 2
+    { -1,  0,  0,  1 },
+    // Prev = 3
+    {  2,  1, -1,  0 },
+  };
+#else
+  static int8_t reInc[4][4] = {
+    // Prev = 0
+    {  0,  1, -1,  2 },
+    // Prev = 1
+    { -1,  0,  0,  1 },
+    // Prev = 2
+    {  1,  0,  0, -1 },
+    // Prev = 3
+    { -2, -1,  1,  0 },
+  };
+#endif
+
   uint8_t pins = ROTARY_ENCODER_POSITION();
 
-#if defined(ROTARY_ENCODER_SUPPORT_BUGGY_WIRING)
-  if (pins != (state & 0x03) && !(readKeys() & (1 << KEY_ENTER))) {
-    if (re_count == 0) {
-      // Need at least 2 values to correctly determine initial direction
-      re_count = 1;
-    } else {
-      if ((pins ^ (state & 0x03)) == 0x03) {
-        if (pins == 3) {
-          rotencValue += INC_ROT_2;
-        } else {
-          rotencValue -= INC_ROT_2;
-        }
-      } else {
-        if ((state & 0x01) ^ ((pins & 0x02) >> 1)) {
-          rotencValue -= INC_ROT;
-        } else {
-          rotencValue += INC_ROT;
-        }
-      }
-
-      if (re_count == 1)
-      {
-        re_count = 2;
-        // Assume 1st value is same direction as 2nd value
-        rotencValue = rotencValue * 2;
-      }
-    }
-    state &= ~0x03;
-    state |= pins;
+  // No change - do nothing
+  if (pins == lastPins) {
+    return;
   }
-#else
-  if (pins != state && !(readKeys() & (1 << KEY_ENTER))) {
-    if (re_count == 0) {
-      // Need at least 2 values to correctly determine initial direction
-      re_count = 1;
-    } else {
-#if defined(ROTARY_ENCODER_INVERTED)
-      if (!(state & 0x01) ^ ((pins & 0x02) >> 1)) {
-#else
-      if ((state & 0x01) ^ ((pins & 0x02) >> 1)) {
-#endif
-        rotencValue -= INC_ROT;
-      } else {
-        rotencValue += INC_ROT;
-      }
 
-      if (re_count == 1)
-      {
-        re_count = 2;
-        // Assume 1st value is same direction as 2nd value
-        rotencValue = rotencValue * 2;
-      }
+  // Handle case where radio started with encoder not on detent position
+  if (skipUntilDetent) {
+    if (ON_DETENT(pins)) {
+      lastPins = pins;
+      skipUntilDetent = false;
     }
-    state = pins;
+    return;
   }
+
+  // Get increment value for pin state transition
+  int inc = reInc[lastPins][pins];
+
+#if !defined(BOOT)
+  if (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_BOTH)
+    inc = -inc;
 #endif
+
+  // Update position change between detents
+  reChgPos += inc;
+
+  // Update reported value on full detent change
+  if (reChgPos >= ROTARY_ENCODER_GRANULARITY) {
+    // If ENTER pressed - ignore scrolling
+    if ((readKeys() & (1 << KEY_ENTER)) == 0) {
+      rotencValue += 1;
+    }
+    reChgPos -= ROTARY_ENCODER_GRANULARITY;
+  } else if (reChgPos <= -ROTARY_ENCODER_GRANULARITY) {
+    // If ENTER pressed - ignore scrolling
+    if ((readKeys() & (1 << KEY_ENTER)) == 0) {
+      rotencValue -= 1;
+    }
+    reChgPos += ROTARY_ENCODER_GRANULARITY;
+  }
+
+  lastPins = pins;
 
 #if !defined(BOOT) && defined(COLORLCD)
   static uint32_t last_tick = 0;
   static rotenc_t last_value = 0;
 
   rotenc_t value = rotencValue;
-  rotenc_t diff = (value - last_value) / ROTARY_ENCODER_GRANULARITY;
+  rotenc_t diff = (value - last_value);
 
   if (diff != 0) {
     uint32_t now = RTOS_GET_MS();
@@ -134,7 +142,7 @@ void rotaryEncoderCheck()
     // pre-compute accumulated dt (dx/dt is done later in LVGL driver)
     rotencDt += dt;
     last_tick = now;
-    last_value += diff * ROTARY_ENCODER_GRANULARITY;
+    last_value = value;
   }
 #endif
 }
@@ -181,6 +189,10 @@ void rotaryEncoderInit()
     
   NVIC_EnableIRQ(ROTARY_ENCODER_TIMER_IRQn);
   NVIC_SetPriority(ROTARY_ENCODER_TIMER_IRQn, 7);
+
+  // Get initial position
+  lastPins = ROTARY_ENCODER_POSITION();
+  skipUntilDetent = !ON_DETENT(lastPins);
 }
 
 extern "C" void ROTARY_ENCODER_TIMER_IRQHandler(void)

@@ -40,9 +40,5 @@ void rotaryEncoderInit();
 // return impulses / granularity
 rotenc_t rotaryEncoderGetValue();
 
-// returns raw # impulses
-rotenc_t rotaryEncoderGetRawValue();
-
-
 int8_t rotaryEncoderGetAccel();
 void rotaryEncoderResetAccel();
