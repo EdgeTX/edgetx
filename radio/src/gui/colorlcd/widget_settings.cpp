@@ -62,7 +62,7 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* widget) :
     switch (option.type) {
       case ZoneOption::Integer:
         (new NumberEdit(
-            line, rect_t{}, option.min.signedValue,
+            line, {0, 0, 100, 0}, option.min.signedValue,
             option.max.signedValue,
             [=]() -> int {
               return widget->getOptionValue(optIdx)->signedValue;
