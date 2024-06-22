@@ -244,7 +244,7 @@ void ModelOutputsPage::build(Window* window)
     return 0;
   });
 
-  new StaticText(window, {EXLIM_X, EXLIM_Y, EXLIM_W, EXLIM_H}, STR_ELIMITS, RIGHT);
+  new StaticText(window, {EXLIM_X, EXLIM_Y, EXLIM_W, EXLIM_H}, STR_ELIMITS, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
   new ToggleSwitch(window, {EXLIMCB_X, EXLIMCB_Y, EXLIMCB_W, EXLIMCB_H}, GET_SET_DEFAULT(g_model.extendedLimits));
 
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {

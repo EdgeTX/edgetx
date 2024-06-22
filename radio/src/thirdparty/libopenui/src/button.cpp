@@ -54,8 +54,7 @@ Button::Button(Window* parent, const rect_t& rect,
 ButtonBase::ButtonBase(Window* parent, const rect_t& rect,
                        std::function<uint8_t(void)> pressHandler,
                        LvglCreate objConstruct) :
-    FormField(parent, rect, 0,
-              objConstruct ? objConstruct : lv_btn_create),
+    FormField(parent, rect, objConstruct ? objConstruct : lv_btn_create),
     pressHandler(std::move(pressHandler))
 {
 }

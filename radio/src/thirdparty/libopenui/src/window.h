@@ -67,6 +67,7 @@ class Window
 
   void setTextFlag(LcdFlags flag);
   void clearTextFlag(LcdFlags flag);
+  LcdFlags getTextFlags() const { return textFlags; }
 
   typedef std::function<void()> CloseHandler;
   void setCloseHandler(CloseHandler h) { closeHandler = std::move(h); }

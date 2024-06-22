@@ -195,5 +195,5 @@ void ViewMainDecoration::createFlightMode(Window* bc)
       return stringFromNtString(g_model.flightModeData[mixerCurrentFlightMode].name);
   };
 
-  flightMode = new DynamicText(bc, rect_t{}, getFM, COLOR_THEME_SECONDARY1);
+  flightMode = new DynamicText(bc, rect_t{}, getFM, COLOR_THEME_SECONDARY1_INDEX);
 }

@@ -65,7 +65,7 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect,
                        std::function<int()> _getValue,
                        std::function<void(int)> _setValue,
                        ChoiceType type) :
-    FormField(parent, rect, 0, choice_create),
+    FormField(parent, rect, choice_create),
     vmin(vmin), vmax(vmax), menuTitle(title),
     _getValue(std::move(_getValue)),
     _setValue(std::move(_setValue))

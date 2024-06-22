@@ -89,7 +89,7 @@ class ColorEditorPopup : public BaseDialog
     colorPad = new ColorSwatch(hbox, {0, 0, COLOR_PAD_WIDTH, COLOR_PAD_HEIGHT},
                                COLOR_THEME_PRIMARY1);
 
-    hexStr = new StaticText(hbox, {0, 0, CVAL_W, 0}, "", COLOR_THEME_PRIMARY1 | FONT(L));
+    hexStr = new StaticText(hbox, {0, 0, CVAL_W, 0}, "", COLOR_THEME_PRIMARY1_INDEX, FONT(L));
 
     updateColor(color);
 

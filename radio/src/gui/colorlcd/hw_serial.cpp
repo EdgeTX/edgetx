@@ -65,7 +65,7 @@ SerialConfigWindow::SerialConfigWindow(Window *parent, FlexGridLayout& grid)
         auto line = parent->newLine(grid);
         line->padLeft(WARN_PADL);
         line->padBottom(PAD_MEDIUM);
-        new StaticText(line, rect_t{}, STR_TTL_WARNING, COLOR_THEME_WARNING);
+        new StaticText(line, rect_t{}, STR_TTL_WARNING, COLOR_THEME_WARNING_INDEX);
         grid.setColSpan(1);
     }
   }

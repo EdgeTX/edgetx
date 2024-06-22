@@ -43,7 +43,7 @@ class CurveButton : public Button
       strAppend(s, g_model.curves[index].name, LEN_CURVE_NAME);
     }
     title = new StaticText(this, {4, -1, width() - 12, TITLE_H + 1}, buf, 
-                           COLOR_THEME_SECONDARY1 | CENTERED | FONT(BOLD));
+                           COLOR_THEME_SECONDARY1_INDEX, CENTERED | FONT(BOLD));
     etx_txt_color(title->getLvObj(), COLOR_THEME_PRIMARY2_INDEX,
                   LV_PART_MAIN | LV_STATE_USER_1);
     etx_solid_bg(title->getLvObj(), COLOR_THEME_SECONDARY2_INDEX);
@@ -68,7 +68,7 @@ class CurveButton : public Button
     snprintf(buf, 32, "%s %d %s", STR_CURVE_TYPES[curve.type], 5 + curve.points,
              STR_PTS);
     new StaticText(this, {0, height() - INFO_H + 1, LV_PCT(100), 16}, buf, 
-                   COLOR_THEME_SECONDARY1 | CENTERED | FONT(BOLD));
+                   COLOR_THEME_SECONDARY1_INDEX, CENTERED | FONT(BOLD));
   }
 
   void update() { preview->update(); }

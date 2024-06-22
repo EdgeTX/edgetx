@@ -91,7 +91,11 @@ class NumberEdit : public TextButton
 
   int32_t getValue() const { return _getValue != nullptr ? _getValue() : 0; }
 
+  static LAYOUT_VAL(DEF_W, 100, 100)
+
  protected:
+  friend class NumberArea;
+
   NumberArea* edit = nullptr;
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
@@ -107,6 +111,8 @@ class NumberEdit : public TextButton
   std::string zeroText;
   std::function<std::string(int)> displayFunction;
   std::function<bool(int)> isValueAvailable;
+
+  std::string getDisplayVal();
 
   void updateDisplay();
   void openEdit();

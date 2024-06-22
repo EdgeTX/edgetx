@@ -49,7 +49,7 @@ class ChannelsViewFooter : public Window
     w->setWindowFlag(NO_FOCUS);
     etx_solid_bg(w->getLvObj(), COLOR_THEME_ACTIVE_INDEX);
 
-    new StaticText(this, {LEG_COLORBOX + PAD_MEDIUM + PAD_SMALL, PAD_TINY, LV_SIZE_CONTENT, TXT_H}, STR_MONITOR_OUTPUT_DESC, COLOR_THEME_PRIMARY2 | LEFT);
+    new StaticText(this, {LEG_COLORBOX + PAD_MEDIUM + PAD_SMALL, PAD_TINY, LV_SIZE_CONTENT, TXT_H}, STR_MONITOR_OUTPUT_DESC, COLOR_THEME_PRIMARY2_INDEX);
 
     int x = getTextWidth(STR_MONITOR_OUTPUT_DESC) + LEG_COLORBOX + PAD_MEDIUM * 2;
 
@@ -61,7 +61,7 @@ class ChannelsViewFooter : public Window
     etx_solid_bg(w->getLvObj(), COLOR_THEME_FOCUS_INDEX);
 
     new StaticText(this, {x + LEG_COLORBOX + PAD_MEDIUM + PAD_SMALL, PAD_TINY, LV_SIZE_CONTENT, TXT_H},
-                   STR_MONITOR_MIXER_DESC, COLOR_THEME_PRIMARY2);
+                   STR_MONITOR_MIXER_DESC, COLOR_THEME_PRIMARY2_INDEX);
   }
 
   static LAYOUT_VAL(LEG_COLORBOX, 14, 14)

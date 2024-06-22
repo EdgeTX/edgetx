@@ -284,7 +284,7 @@ class InternalGPSWidget : public TopBarWidget
 
     numSats = new DynamicNumber<uint16_t>(
         this, {0, 1, width(), 12}, [=] { return gpsData.numSat; },
-        COLOR_THEME_PRIMARY2 | CENTERED | FONT(XS));
+        COLOR_THEME_PRIMARY2_INDEX, CENTERED | FONT(XS));
   }
 
   void checkEvents() override

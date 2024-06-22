@@ -64,8 +64,7 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, int32_t vmin,
 
   num_field = new NumberEdit(
       this, {0, 0, NUM_EDIT_W, 0}, vmin, vmax, [=]() { return getValue() + voffset; },
-      nullptr);
-  num_field->setTextFlag(textFlags);
+      nullptr, textFlags);
   num_field->setDefault(vdefault);
 
 #if defined(GVARS)

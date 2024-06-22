@@ -92,7 +92,7 @@ Slider::Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
   padLeft(8);
   padRight(8);
 
-  slider = (new FormField(this, rect_t{}, 0, slider_create))->getLvObj();
+  slider = (new FormField(this, rect_t{}, slider_create))->getLvObj();
   lv_obj_set_width(slider, lv_pct(100));
 
   lv_obj_add_event_cb(slider, slider_changed_cb, LV_EVENT_VALUE_CHANGED, this);

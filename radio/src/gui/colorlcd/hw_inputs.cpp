@@ -92,9 +92,9 @@ HWPots::HWPots(Window* parent) :
     }
   });
 
-  new StaticText(this, {P_NM_X, -2, 0, 0}, STR_NAME, FONT(XS));
-  new StaticText(this, {P_TYP_X, -2, 0, 0}, STR_TYPE, FONT(XS));
-  new StaticText(this, {P_INV_X, -2, 0, 0}, STR_MENU_INVERT, FONT(XS));
+  new StaticText(this, {P_NM_X, -2, 0, 0}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(this, {P_TYP_X, -2, 0, 0}, STR_TYPE, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(this, {P_INV_X, -2, 0, 0}, STR_MENU_INVERT, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
 
   coord_t yo = EdgeTxStyles::PAGE_LINE_HEIGHT - 2;
 

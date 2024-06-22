@@ -109,7 +109,7 @@ MainViewTrim::MainViewTrim(Window* parent, const rect_t& rect, uint8_t idx,
   trimValue = new DynamicNumber<int16_t>(
       this, {0, 0, LayoutFactory::TRIM_SQUARE_SIZE, 12},
       [=]() { return divRoundClosest(abs(value) * 100, trimMax); },
-      COLOR_THEME_PRIMARY2 | FONT(XXS) | CENTERED);
+      COLOR_THEME_PRIMARY2_INDEX, FONT(XXS) | CENTERED);
   etx_solid_bg(trimValue->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
   trimValue->hide();
 

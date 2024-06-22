@@ -138,8 +138,8 @@ static SetupLineDef setupLines[] = {
       // RTC Batt display
       new DynamicNumber<uint16_t>(
           parent,
-          {x + ToggleSwitch::TOGGLE_W + PAD_LARGE, y + PAD_SMALL + 1, 0, 0},
-          [] { return getRTCBatteryVoltage(); }, COLOR_THEME_PRIMARY1 | PREC2,
+          {x + ToggleSwitch::TOGGLE_W + PAD_SMALL, y + PAD_SMALL + 1, 0, 0},
+          [] { return getRTCBatteryVoltage(); }, COLOR_THEME_PRIMARY1, PREC2,
           "", "V");
     }
   },

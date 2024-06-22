@@ -165,7 +165,7 @@ Curve::Curve(Window* parent, const rect_t& rect,
     posHLine = lv_line_create(lvobj);
     etx_obj_add_style(posHLine, styles->graph_position_line, LV_PART_MAIN);
 
-    positionValue = new StaticText(this, {10, 10, LV_SIZE_CONTENT, 17}, "", COLOR_THEME_PRIMARY1 | FONT(XS));
+    positionValue = new StaticText(this, {10, 10, LV_SIZE_CONTENT, 17}, "", COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
     positionValue->padLeft(PAD_TINY);
     positionValue->padRight(PAD_TINY);
     etx_solid_bg(positionValue->getLvObj(), COLOR_THEME_ACTIVE_INDEX);

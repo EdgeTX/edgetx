@@ -82,14 +82,14 @@ class ThemeView : public Window
         lv_obj_set_style_grid_cell_x_align(details->getLvObj(),
                                            LV_GRID_ALIGN_STRETCH, 0);
 
-        new StaticText(details, rect_t{}, STR_AUTHOR, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+        new StaticText(details, rect_t{}, STR_AUTHOR, COLOR_THEME_PRIMARY1_INDEX, FONT(BOLD));
         author = new StaticText(details, rect_t{}, "");
 
         // labels default to LV_SIZE_CONTENT,
         // which could overflow the width avail
         lv_obj_set_width(author->getLvObj(), lv_pct(100));
 
-        new StaticText(details, rect_t{}, STR_DESCRIPTION, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+        new StaticText(details, rect_t{}, STR_DESCRIPTION, COLOR_THEME_PRIMARY1_INDEX, FONT(BOLD));
         description =
             new StaticText(details, rect_t{}, "");
 

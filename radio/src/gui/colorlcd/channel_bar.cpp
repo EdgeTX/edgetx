@@ -220,7 +220,6 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
     Window(parent, rect), channel(_channel)
 {
   LcdColorIndex txtColIdx = isInHeader ? COLOR_THEME_PRIMARY2_INDEX : COLOR_THEME_SECONDARY1_INDEX;
-  LcdFlags textColor = COLOR(txtColIdx);
 
   outputChannelBar = new OutputChannelBar(
       this, {PAD_TINY, ChannelBar::BAR_HEIGHT + PAD_TINY, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
@@ -235,14 +234,14 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
   char chanString[] = TR_CH "32 ";
   strAppendSigned(&chanString[2], channel + 1, 2);
   new StaticText(this, {PAD_TINY, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, chanString, 
-                 textColor | FONT(XS) | LEFT);
+                 txtColIdx, FONT(XS) | LEFT);
 
   // Channel name
   if (g_model.limitData[channel].name[0]) {
     char nm[LEN_CHANNEL_NAME + 1];
     strAppend(nm, g_model.limitData[channel].name, LEN_CHANNEL_NAME);
     new StaticText(this, {PAD_TINY + ChannelBar::VAL_W, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, nm, 
-                   textColor | FONT(XS) | LEFT);
+                   txtColIdx, FONT(XS) | LEFT);
   }
 
   // Channel value in µS
@@ -254,7 +253,7 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
           return calcRESXto100(channelOutputs[channel]);
         return PPM_CH_CENTER(channel) + channelOutputs[channel] / 2;
       },
-      textColor | FONT(XS) | RIGHT, "", suffix);
+      txtColIdx, FONT(XS) | RIGHT, "", suffix);
 
   // Override icon
 #if defined(OVERRIDE_CHANNEL_FUNCTION)

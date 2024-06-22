@@ -103,12 +103,12 @@ void drawSplash()
     new StaticLZ4Image(splashScreen, IMG_X - logo->width / 2,
                        IMG_Y - logo->height / 2, logo);
 
-    new StaticText(splashScreen, {TXT_X - 100, TXT_Y, 200, 24}, ver_str.c_str(), COLOR_GREY | CENTERED);
+    new StaticText(splashScreen, {TXT_X - 100, TXT_Y, 200, 24}, ver_str.c_str(), COLOR_GREY_INDEX, CENTERED);
     new StaticText(splashScreen, {TXT_X - 100, TXT_Y + TXT_H, 200, TXT_H},
-                   nam_str.c_str(), COLOR_GREY | CENTERED);
+                   nam_str.c_str(), COLOR_GREY_INDEX, CENTERED);
 #if !defined(VERSION_TAG)
     new StaticText(splashScreen, {TXT_X - 100, TXT_Y + TXT_H * 2, 200, TXT_H},
-                   git_str.c_str(), COLOR_GREY | CENTERED);
+                   git_str.c_str(), COLOR_GREY_INDEX, CENTERED);
 #endif
   }
 
@@ -264,7 +264,7 @@ void drawFatalErrorScreen(const char* message)
     etx_solid_bg(fatalErrorWindow->getLvObj(), COLOR_BLACK_INDEX);
 
     new StaticText(fatalErrorWindow, rect_t{0, LCD_H / 2 - 20, LCD_W, 40},
-                   message, FONT(XL) | CENTERED | COLOR_WHITE);
+                   message, COLOR_WHITE_INDEX, FONT(XL) | CENTERED);
   }
 
   backlightEnable(100);

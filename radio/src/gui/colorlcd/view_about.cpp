@@ -43,7 +43,7 @@ AboutUs::AboutUs() :
 {
   new StaticText(form, {0, 0, LV_PCT(100), LV_SIZE_CONTENT},
                  about_str + "\n" + copyright_str,
-                 COLOR_THEME_SECONDARY1 | CENTERED);
+                 COLOR_THEME_SECONDARY1_INDEX, CENTERED);
 
   auto qrBox = new Window(form, {0, 0, LV_PCT(100), QR_SZ});
   auto qr = new QRCode(qrBox, 0, 0, QR_SZ, edgetx_url);

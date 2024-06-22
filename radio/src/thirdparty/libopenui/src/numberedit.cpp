@@ -26,21 +26,16 @@
 class NumberArea : public FormField
 {
  public:
-  NumberArea(Window* parent, const rect_t& rect, int vmin, int vmax,
-             std::function<int()> getValue,
-             std::function<void(int)> setValue = nullptr,
-             LcdFlags textFlags = 0) :
-      FormField(parent, rect, textFlags, etx_textarea_create),
-      vmin(vmin),
-      vmax(vmax),
-      _getValue(std::move(getValue)),
-      _setValue(std::move(setValue))
+  NumberArea(NumberEdit* parent, const rect_t& rect) :
+      FormField(parent, rect, etx_textarea_create),
+      numEdit(parent)
   {
-    if (rect.w == 0) setWidth(DEF_W);
-
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
-    etx_obj_add_style(lvobj, styles->text_align_right, LV_PART_MAIN);
+    if (parent->getTextFlags() & CENTERED)
+      etx_obj_add_style(lvobj, styles->text_align_center, LV_PART_MAIN);
+    else
+      etx_obj_add_style(lvobj, styles->text_align_right, LV_PART_MAIN);
 
     // Allow encoder acceleration
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
@@ -71,45 +66,44 @@ class NumberArea : public FormField
                   event);
 
     if (editMode) {
+      int value = numEdit->getValue();
       switch (event) {
 #if defined(HARDWARE_KEYS)
         case EVT_ROTARY_RIGHT: {
-          int value = getValue();
-          auto step = vstep;
-          step += (rotaryEncoderGetAccel() * accelFactor) / 8;
+          auto step = numEdit->step;
+          step += (rotaryEncoderGetAccel() * numEdit->accelFactor) / 8;
           do {
 #if defined(USE_HATS_AS_KEYS)
             value -= step;
 #else
             value += step;
 #endif
-          } while (isValueAvailable && !isValueAvailable(value) &&
-                   value <= vmax);
-          if (value <= vmax) {
-            setValue(value);
+          } while (numEdit->isValueAvailable && !numEdit->isValueAvailable(value) &&
+                   value <= numEdit->vmax);
+          if (value <= numEdit->vmax) {
+            numEdit->setValue(value);
           } else {
-            setValue(vmax);
+            numEdit->setValue(numEdit->vmax);
             onKeyError();
           }
           return;
         }
 
         case EVT_ROTARY_LEFT: {
-          int value = getValue();
-          auto step = vstep;
-          step += (rotaryEncoderGetAccel() * accelFactor) / 8;
+          auto step = numEdit->step;
+          step += (rotaryEncoderGetAccel() * numEdit->accelFactor) / 8;
           do {
 #if defined(USE_HATS_AS_KEYS)
             value += step;
 #else
             value -= step;
 #endif
-          } while (isValueAvailable && !isValueAvailable(value) &&
-                   value >= vmin);
-          if (value >= vmin) {
-            setValue(value);
+          } while (numEdit->isValueAvailable && !numEdit->isValueAvailable(value) &&
+                   value >= numEdit->vmin);
+          if (value >= numEdit->vmin) {
+            numEdit->setValue(value);
           } else {
-            setValue(vmin);
+            numEdit->setValue(numEdit->vmin);
             onKeyError();
           }
           return;
@@ -117,35 +111,35 @@ class NumberArea : public FormField
 #endif
 
         case EVT_VIRTUAL_KEY_PLUS:
-          setValue(getValue() + vstep);
+          numEdit->setValue(value + numEdit->step);
           break;
 
         case EVT_VIRTUAL_KEY_MINUS:
-          setValue(getValue() - vstep);
+          numEdit->setValue(value - numEdit->step);
           break;
 
         case EVT_VIRTUAL_KEY_FORWARD:
-          setValue(getValue() + fastStep * vstep);
+          numEdit->setValue(value + numEdit->fastStep * numEdit->step);
           break;
 
         case EVT_VIRTUAL_KEY_BACKWARD:
-          setValue(getValue() - fastStep * vstep);
+          numEdit->setValue(value - numEdit->fastStep * numEdit->step);
           break;
 
         case EVT_VIRTUAL_KEY_DEFAULT:
-          setValue(vdefault);
+          numEdit->setValue(numEdit->vdefault);
           break;
 
         case EVT_VIRTUAL_KEY_MAX:
-          setValue(vmax);
+          numEdit->setValue(numEdit->vmax);
           break;
 
         case EVT_VIRTUAL_KEY_MIN:
-          setValue(vmin);
+          numEdit->setValue(numEdit->vmin);
           break;
 
         case EVT_VIRTUAL_KEY_SIGN:
-          setValue(-getValue());
+          numEdit->setValue(-value);
           break;
       }
     }
@@ -164,108 +158,21 @@ class NumberArea : public FormField
     }
   }
 
-  void setMin(int value) { vmin = value; }
-  void setMax(int value) { vmax = value; }
-  void setDefault(int value) { vdefault = value; }
-  void setStep(int value) { vstep = value; }
-  void setFastStep(int value) { fastStep = value; }
-  void setAccelFactor(int value) { accelFactor = value; }
-  void setValue(int value)
-  {
-    auto newValue = limit(vmin, value, vmax);
-    if (newValue != currentValue) {
-      currentValue = newValue;
-      if (_setValue != nullptr) {
-        _setValue(currentValue);
-      }
-    }
-    updateDisplay();
-  }
-
-  int32_t getValue() const { return _getValue != nullptr ? _getValue() : 0; }
-
-  void setPrefix(std::string value) { prefix = std::move(value); }
-
-  void setSuffix(std::string value) { suffix = std::move(value); }
-
-  void setZeroText(std::string value) { zeroText = std::move(value); }
-
-  void setAvailableHandler(std::function<bool(int)> handler)
-  {
-    isValueAvailable = std::move(handler);
-  }
-
-  void setSetValueHandler(std::function<void(int)> handler)
-  {
-    _setValue = std::move(handler);
-  }
-
-  void setGetValueHandler(std::function<int()> handler)
-  {
-    _getValue = std::move(handler);
-  }
-
-  void setDisplayHandler(std::function<std::string(int value)> function)
-  {
-    displayFunction = std::move(function);
-  }
-
-  void setCancelHandler(std::function<void(void)> handler)
-  {
-    cancelHandler = std::move(handler);
-  }
-
   void openKeyboard() { NumberKeyboard::show(this); }
   void directEdit() { FormField::onClicked(); }
 
   void update()
   {
-    if (_getValue == nullptr) return;
-    currentValue = _getValue();
-    updateDisplay();
+    if (lvobj != nullptr)
+      lv_textarea_set_text(lvobj, numEdit->getDisplayVal().c_str());
   }
-
-  static LAYOUT_VAL(DEF_W, 100, 100)
 
  protected:
-  int vdefault = 0;
-  int vmin;
-  int vmax;
-  int vstep = 1;
-  int fastStep = 10;
-  int accelFactor = 4;
-  int currentValue;
-  std::string prefix;
-  std::string suffix;
-  std::string zeroText;
-  std::function<int()> _getValue;
-  std::function<void(int)> _setValue;
-  std::function<std::string(int)> displayFunction;
-  std::function<bool(int)> isValueAvailable;
-  std::function<void(void)> cancelHandler = nullptr;
-
-  void updateDisplay()
-  {
-    if (lvobj != nullptr) {
-      std::string str;
-      if (displayFunction != nullptr) {
-        str = displayFunction(currentValue);
-      } else if (!zeroText.empty() && currentValue == 0) {
-        str = zeroText;
-      } else {
-        str = formatNumberAsString(currentValue, textFlags, 0, prefix.c_str(),
-                                  suffix.c_str());
-      }
-      lv_textarea_set_text(lvobj, str.c_str());
-    }
-  }
+  NumberEdit* numEdit = nullptr;
 
   void onCancel() override
   {
-    if (cancelHandler)
-      cancelHandler();
-    else
-      FormField::onCancel();
+    onClicked();
   }
 
   static void numberedit_cb(lv_event_t* e)
@@ -304,7 +211,7 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
     vmin(vmin),
     vmax(vmax)
 {
-  if (rect.w == 0) setWidth(NumberArea::DEF_W);
+  if (rect.w == 0) setWidth(DEF_W);
 
   setTextFlag(textFlags);
 
@@ -323,32 +230,14 @@ void NumberEdit::openEdit()
     edit = new NumberArea(
         this,
         {-(PAD_MEDIUM + 2), -(PAD_TINY + 2),
-        lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)},
-        this->vmin, this->vmax, _getValue, _setValue, textFlags);
+        lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)});
     edit->setChangeHandler([=]() {
       update();
       if (edit->hasFocus())
         lv_group_focus_obj(lvobj);
       edit->hide();
     });
-    edit->setCancelHandler([=]() {
-      edit->onClicked();
-    });
   }
-  edit->setTextFlag(textFlags);
-  edit->setSetValueHandler(_setValue);
-  edit->setGetValueHandler(_getValue);
-  edit->setAvailableHandler(isValueAvailable);
-  edit->setDisplayHandler(displayFunction);
-  edit->setDefault(vdefault);
-  edit->setMin(vmin);
-  edit->setMax(vmax);
-  edit->setStep(step);
-  edit->setFastStep(fastStep);
-  edit->setAccelFactor(accelFactor);
-  edit->setPrefix(prefix);
-  edit->setSuffix(suffix);
-  edit->setZeroText(zeroText);
   edit->update();
   edit->show();
   lv_group_focus_obj(edit->getLvObj());
@@ -369,7 +258,7 @@ void NumberEdit::update()
   updateDisplay();
 }
 
-void NumberEdit::updateDisplay()
+std::string NumberEdit::getDisplayVal()
 {
   std::string str;
   if (displayFunction != nullptr) {
@@ -380,7 +269,12 @@ void NumberEdit::updateDisplay()
     str = formatNumberAsString(currentValue, textFlags, 0, prefix.c_str(),
                                suffix.c_str());
   }
-  setText(str);
+  return str;
+}
+
+void NumberEdit::updateDisplay()
+{
+  setText(getDisplayVal());
 }
 
 void NumberEdit::setValue(int value)
@@ -393,5 +287,5 @@ void NumberEdit::setValue(int value)
     }
   }
   updateDisplay();
-  if (edit) edit->setValue(value);
+  if (edit) edit->update();
 }

@@ -52,7 +52,7 @@ class MPMProtoOption : public FormLine {
     edit = new NumberEdit(box, rect_t{}, 0, 0, nullptr);
     cb = new ToggleSwitch(box, rect_t{}, nullptr, nullptr);
     rssi = new DynamicNumber<uint16_t>(
-        box, rect_t{}, [] { return (uint16_t)TELEMETRY_RSSI(); }, 0,
+        box, rect_t{}, [] { return (uint16_t)TELEMETRY_RSSI(); }, COLOR_THEME_PRIMARY1_INDEX, 0,
         getRxStatLabels()->label, getRxStatLabels()->unit);
     rssi->padTop(PAD_SMALL);
   }

@@ -133,7 +133,7 @@ class SpectrumScaleWindow : public Window
       if (x >= LCD_W - 1) break;
       formatNumberAsString(s, 16, frequency / 1000000, 16);
       new StaticText(this, {x - 16, 0, 32, 15}, s, 
-                     FONT(XS) | CENTERED | COLOR_THEME_PRIMARY1);
+                     COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | CENTERED);
     }
   }
 
@@ -193,7 +193,7 @@ class SpectrumWindow : public Window
 
     warning = new StaticText(
         this, {0, height() / 2 - 20, lv_pct(100), LV_SIZE_CONTENT},
-        STR_TURN_OFF_RECEIVER, COLOR_THEME_PRIMARY1 | CENTERED | FONT(XL));
+        STR_TURN_OFF_RECEIVER, COLOR_THEME_PRIMARY1_INDEX, CENTERED | FONT(XL));
     warning->show(TELEMETRY_STREAMING());
   }
 

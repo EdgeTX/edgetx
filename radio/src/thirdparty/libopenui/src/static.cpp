@@ -26,7 +26,7 @@
 //-----------------------------------------------------------------------------
 
 StaticText::StaticText(Window* parent, const rect_t& rect, std::string txt,
-                       LcdFlags textFlags) :
+                       LcdColorIndex color, LcdFlags textFlags) :
     Window(parent, rect, lv_label_create), text(std::move(txt))
 {
   setTextFlag(textFlags);
@@ -34,7 +34,7 @@ StaticText::StaticText(Window* parent, const rect_t& rect, std::string txt,
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
   etx_font(lvobj, FONT_INDEX(textFlags));
-  etx_txt_color(lvobj, indexFromColor(textFlags));
+  etx_txt_color(lvobj, color);
 
   if (textFlags & CENTERED)
     etx_obj_add_style(lvobj, styles->text_align_center, LV_PART_MAIN);

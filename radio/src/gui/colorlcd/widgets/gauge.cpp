@@ -31,11 +31,11 @@ class GaugeWidget : public Widget
   {
     // Gauge label
     sourceText = new StaticText(this, {0, 0, LV_SIZE_CONTENT, 16}, "", 
-                                FONT(XS) | COLOR_THEME_PRIMARY2);
+                                COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
 
     valueText = new DynamicNumber<int16_t>(
         this, {0, 0, lv_pct(100), 16}, [=]() { return getGuageValue(); },
-        FONT(XS) | CENTERED | COLOR_THEME_PRIMARY2, "", "%");
+        COLOR_THEME_PRIMARY2_INDEX, FONT(XS) | CENTERED, "", "%");
     etx_obj_add_style(valueText->getLvObj(), styles->text_align_right,
                       LV_STATE_USER_1);
 

@@ -515,7 +515,8 @@ void HeaderDateTime::checkEvents()
   struct gtm t;
   gettime(&t);
 
-  if (t.tm_min != lastMinute) {
+  if (t.tm_min != lastTime.tm_min || t.tm_hour != lastTime.tm_hour ||
+      t.tm_mday != lastTime.tm_mday || t.tm_mon != lastTime.tm_mon) {
     char str[10];
 #if defined(TRANSLATIONS_CN) || defined(TRANSLATIONS_TW)
     sprintf(str, "%02d-%02d", t.tm_mon + 1, t.tm_mday);
@@ -527,7 +528,7 @@ void HeaderDateTime::checkEvents()
     getTimerString(str, getValue(MIXSRC_TX_TIME), timerOptions);
     lv_label_set_text(time, str);
 
-    lastMinute = t.tm_min;
+    lastTime = t;
   }
 }
 

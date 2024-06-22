@@ -88,13 +88,13 @@ class ModelButton : public Button
       coord_t fo = (font == FONT(STD)) ? -3 : (font == FONT(XS)) ? -3 : -1;
 
       modelName = new StaticText(this, {PAD_TINY, PAD_TINY, w, fh}, modelCell->modelName,
-                                 CENTERED | COLOR_THEME_SECONDARY1 | font);
+                                 COLOR_THEME_SECONDARY1_INDEX, CENTERED | font);
       etx_bg_color(modelName->getLvObj(), COLOR_THEME_ACTIVE_INDEX, LV_STATE_USER_1);
       etx_obj_add_style(modelName->getLvObj(), styles->bg_opacity_75, LV_STATE_USER_1);
       modelName->padTop(fo);
     } else {
       modelName = new StaticText(this, {PAD_TINY, PAD_SMALL, w, EdgeTxStyles::PAGE_LINE_HEIGHT}, modelCell->modelName,
-                                 COLOR_THEME_SECONDARY1 | font);
+                                 COLOR_THEME_SECONDARY1_INDEX, font);
     }
     lv_label_set_long_mode(modelName->getLvObj(), LV_LABEL_LONG_DOT);
 
@@ -173,7 +173,7 @@ class ModelButton : public Button
     errorMsg += ")";
     LcdFlags font = (modelLayouts[layout].font == FONT(STD)) ? FONT(XS) : FONT(XXS);
     new StaticText(this, {PAD_TINY, h / 2, w, getFontHeight(font)}, errorMsg,
-                  CENTERED | COLOR_THEME_SECONDARY1 | font);
+                  COLOR_THEME_SECONDARY1_INDEX, CENTERED | font);
   }
 
   void checkEvents() override

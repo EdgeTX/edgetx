@@ -554,7 +554,7 @@ void ModuleWindow::startRSSIDialog(std::function<void()> closeHandler)
         return std::to_string((int)TELEMETRY_RSSI()) + getRxStatLabels()->unit;
       },
       getRxStatLabels()->label, 50,
-      COLOR_THEME_SECONDARY1 | CENTERED | FONT(XL));
+      COLOR_THEME_SECONDARY1_INDEX, CENTERED | FONT(XL));
 
   rssiDialog->setCloseHandler([this, closeHandler]() {
     rangeButton->check(false);

@@ -77,7 +77,7 @@ static void toggleswitch_event_handler(lv_event_t* e)
 ToggleSwitch::ToggleSwitch(Window* parent, const rect_t& rect,
                            std::function<uint8_t()> getValue,
                            std::function<void(uint8_t)> setValue) :
-    FormField(parent, rect, 0, switch_create),
+    FormField(parent, rect, switch_create),
     _getValue(std::move(getValue)),
     _setValue(std::move(setValue))
 {

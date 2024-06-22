@@ -168,12 +168,12 @@ class ChannelFSCombo : public Window
     lv_obj_set_style_flex_cross_place(lvobj, LV_FLEX_ALIGN_CENTER, 0);
 
     edit = new ChannelFailsafeEdit(this, ch, vmin, vmax);
-    auto btn = new TextButton(this, rect_t{}, LV_SYMBOL_SETTINGS, [=]() {
+    new TextButton(this, rect_t{}, LV_SYMBOL_SETTINGS, [=]() {
       edit->toggle();
       return 0;
     });
 
-    btn = new TextButton(this, rect_t{}, LV_SYMBOL_COPY, [=]() {
+    new TextButton(this, rect_t{}, LV_SYMBOL_COPY, [=]() {
       edit->copyChannel();
       return 0;
     });

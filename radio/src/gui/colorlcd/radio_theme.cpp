@@ -294,7 +294,7 @@ class ColorEditPage : public Page
 
     // hexBox
     r.w = HEX_STR_W;
-    _hexBox = new StaticText(colBoxForm, r, "", COLOR_THEME_PRIMARY1 | FONT(L) | RIGHT);
+    _hexBox = new StaticText(colBoxForm, r, "", COLOR_THEME_PRIMARY1_INDEX, FONT(L) | RIGHT);
     setHexStr(_theme->getColorEntryByIndex(_indexOfColor)->colorValue);
   }
 

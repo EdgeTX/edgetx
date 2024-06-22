@@ -187,7 +187,7 @@ class AnaCalibratedViewWindow : public AnaViewWindow
     auto lbl2 = new StaticText(
         line, rect_t{},
         std::string("Touch GT911 FW ver: ") + std::to_string(touchGT911fwver),
-        COLOR_THEME_PRIMARY1);
+        COLOR_THEME_PRIMARY1_INDEX);
     lv_obj_set_grid_cell(lbl2->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 5,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
