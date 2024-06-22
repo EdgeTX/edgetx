@@ -61,6 +61,8 @@ RadioHardwarePage::RadioHardwarePage() :
   enableVBatBridge();
 }
 
+void RadioHardwarePage::checkEvents() { enableVBatBridge(); }
+
 void RadioHardwarePage::cleanup()
 {
   disableVBatBridge();
@@ -134,11 +136,11 @@ static SetupLineDef setupLines[] = {
                        GET_SET_INVERTED(g_eeGeneral.disableRtcWarning));
 
       // RTC Batt display
-      std::string s(STR_VALUE);
-      s += " ";
       new DynamicNumber<uint16_t>(
-          parent, {x + ToggleSwitch::TOGGLE_W + PAD_SMALL, y + PAD_SMALL + 1, 0, 0}, [] { return getRTCBatteryVoltage(); },
-          COLOR_THEME_PRIMARY1 | PREC2, s.c_str(), "V");
+          parent,
+          {x + ToggleSwitch::TOGGLE_W + PAD_LARGE, y + PAD_SMALL + 1, 0, 0},
+          [] { return getRTCBatteryVoltage(); }, COLOR_THEME_PRIMARY1 | PREC2,
+          "", "V");
     }
   },
   {
