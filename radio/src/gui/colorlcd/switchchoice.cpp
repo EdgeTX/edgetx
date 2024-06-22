@@ -161,7 +161,7 @@ void SwitchChoice::openMenu()
   });
 #endif
 
-  fillMenu(menu);
+  // fillMenu(menu); - called by MenuToolbar
 
   menu->setCloseHandler([=]() { setEditMode(false); });
 }

@@ -69,7 +69,8 @@ class LayoutChoice : public Button
         std::distance(LayoutFactory::getRegisteredLayouts().begin(), it));
 
     menu->setCloseHandler([=]() {
-      update();
+      if (!menu->deleted())
+        update();
     });
   }
 
