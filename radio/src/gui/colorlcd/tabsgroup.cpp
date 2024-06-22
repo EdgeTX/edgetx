@@ -53,10 +53,10 @@ class SelectedTabIcon : public StaticIcon
 {
  public:
   SelectedTabIcon(Window* parent) :
-      StaticIcon(parent, 0, 0, ICON_CURRENTMENU_SHADOW, COLOR_THEME_PRIMARY1)
+      StaticIcon(parent, 0, 0, ICON_CURRENTMENU_SHADOW, COLOR_THEME_PRIMARY1_INDEX)
   {
-    new StaticIcon(this, 0, 0, ICON_CURRENTMENU_BG, COLOR_THEME_FOCUS);
-    new StaticIcon(this, SEL_DOT_X, SEL_DOT_Y, ICON_CURRENTMENU_DOT, COLOR_THEME_PRIMARY2);
+    new StaticIcon(this, 0, 0, ICON_CURRENTMENU_BG, COLOR_THEME_FOCUS_INDEX);
+    new StaticIcon(this, SEL_DOT_X, SEL_DOT_Y, ICON_CURRENTMENU_DOT, COLOR_THEME_PRIMARY2_INDEX);
   }
 
 #if defined(DEBUG_WINDOWS)
@@ -74,7 +74,7 @@ class TabsGroupButton : public ButtonBase
       ButtonBase(parent, rect, nullptr, window_create), pageTab(page), index(idx)
   {
     lastIcon = pageTab->getIcon();
-    icon = new StaticIcon(this, 2, ICON_Y, lastIcon, COLOR_THEME_PRIMARY2);
+    icon = new StaticIcon(this, 2, ICON_Y, lastIcon, COLOR_THEME_PRIMARY2_INDEX);
 
     show(isVisible());
   }

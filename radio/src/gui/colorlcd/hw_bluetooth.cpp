@@ -51,8 +51,7 @@ class BTDetailsDialog : public BaseDialog
         [=]() {
           return std::string(bluetooth.localAddr[0] ? bluetooth.localAddr
                                                     : "---");
-        },
-        COLOR_THEME_PRIMARY1);
+        });
 
     // Remote MAC
     line = form->newLine(grid);
@@ -62,8 +61,7 @@ class BTDetailsDialog : public BaseDialog
         [=]() {
           return std::string(bluetooth.distantAddr[0] ? bluetooth.distantAddr
                                                       : "---");
-        },
-        COLOR_THEME_PRIMARY1);
+        });
   }
 };
 

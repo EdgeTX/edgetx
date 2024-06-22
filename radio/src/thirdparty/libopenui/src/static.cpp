@@ -144,9 +144,9 @@ void DynamicNumber<int16_t>::updateText()
 //-----------------------------------------------------------------------------
 
 StaticIcon::StaticIcon(Window* parent, coord_t x, coord_t y, EdgeTxIcon icon,
-                       LcdFlags color) :
+                       LcdColorIndex color) :
     Window(parent, rect_t{x, y, 0, 0}, lv_canvas_create),
-    currentColor(indexFromColor(color))
+    currentColor(color)
 {
   setWindowFlag(NO_FOCUS);
 

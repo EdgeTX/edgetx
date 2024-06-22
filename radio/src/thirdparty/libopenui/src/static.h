@@ -122,9 +122,9 @@ class StaticIcon : public Window
 {
  public:
   StaticIcon(Window *parent, coord_t x, coord_t y, EdgeTxIcon icon,
-             LcdFlags color);
+             LcdColorIndex color);
   StaticIcon(Window *parent, coord_t x, coord_t y, const char* filename,
-             LcdFlags color);
+             LcdColorIndex color);
 
   void deleteLater(bool detach = true, bool trash = true) override;
 

@@ -400,7 +400,7 @@ class USBChannelLineButton : public ListLineButton
 
     m_inverse =
         new StaticIcon(this, 0, 0, ICON_CHAN_MONITOR_INVERTED,
-                         COLOR_THEME_SECONDARY1);
+                         COLOR_THEME_SECONDARY1_INDEX);
     lv_obj_set_grid_cell(m_inverse->getLvObj(), LV_GRID_ALIGN_START, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 

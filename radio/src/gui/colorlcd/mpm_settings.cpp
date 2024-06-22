@@ -345,8 +345,7 @@ MultimoduleSettings::MultimoduleSettings(Window* parent,
         char msg[64] = "";
         getModuleStatusString(moduleIdx, msg);
         return std::string(msg);
-      },
-      COLOR_THEME_PRIMARY1);
+      });
 
   st_line = new MPMSubtype(this, grid, moduleIdx);
 

@@ -78,7 +78,7 @@ void FullScreenDialog::build()
   new StaticIcon(
       this, ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
       (type == WARNING_TYPE_INFO) ? ICON_BUSY : ICON_ERROR,
-      COLOR_THEME_WARNING);
+      COLOR_THEME_WARNING_INDEX);
 
   std::string t;
   if (type == WARNING_TYPE_ALERT) {

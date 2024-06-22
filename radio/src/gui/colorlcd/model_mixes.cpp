@@ -43,7 +43,7 @@ class MPlexIcon : public Window
       } else if (mix->mltpx == MLTPX_REPL) {
         n = ICON_MPLEX_REPLACE;
       }
-      icon = new StaticIcon(this, 0, 0, n, COLOR_THEME_SECONDARY1);
+      icon = new StaticIcon(this, 0, 0, n, COLOR_THEME_SECONDARY1_INDEX);
       icon->center(width(), height());
     }
 

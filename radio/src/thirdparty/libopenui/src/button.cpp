@@ -113,7 +113,7 @@ IconButton::IconButton(Window* parent, EdgeTxIcon icon, coord_t x, coord_t y,
     ButtonBase(parent, {x, y, EdgeTxStyles::UI_ELEMENT_HEIGHT, EdgeTxStyles::UI_ELEMENT_HEIGHT}, pressHandler, button_create)
 {
   padAll(PAD_ZERO);
-  iconImage = new StaticIcon(this, 0, 0, icon, COLOR_THEME_SECONDARY1);
+  iconImage = new StaticIcon(this, 0, 0, icon, COLOR_THEME_SECONDARY1_INDEX);
   iconImage->center(EdgeTxStyles::UI_ELEMENT_HEIGHT - 4, EdgeTxStyles::UI_ELEMENT_HEIGHT - 4);
 }
 

@@ -27,6 +27,7 @@
 #include "themes/etx_lv_theme.h"
 #include "topbar_impl.h"
 #include "view_main.h"
+#include "storage/sdcard_yaml.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -35,13 +36,6 @@
 constexpr const char* RGBSTRING = "RGB(";
 
 ThemePersistance ThemePersistance::themePersistance;
-
-// prototype for SD card function to read a YAML file
-// TODO: should this be in sdcard header file?
-enum class ChecksumResult;
-extern const char* readYamlFile(const char* fullpath,
-                                const YamlParserCalls* calls, void* parser_ctx,
-                                ChecksumResult* checksum_result);
 
 static uint32_t r_color(const YamlNode* node, const char* val, uint8_t val_len)
 {
@@ -544,9 +538,9 @@ void HeaderDateTime::setColor(LcdFlags color)
 }
 
 HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon) :
-  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS)
+  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX)
 {
-  (new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2))->center(width(), height());
+  (new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2_INDEX))->center(width(), height());
 }
 
 HeaderIcon::HeaderIcon(Window* parent, const char* iconFile) :
@@ -563,6 +557,6 @@ UsbSDConnected::UsbSDConnected() :
   etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
   dateTime = new HeaderDateTime(this, LCD_W - TopBar::HDR_DATE_XO, PAD_MEDIUM);
 
-  auto icon = new StaticIcon(this, 0, 0, ICON_USB_PLUGGED, COLOR_THEME_PRIMARY2);
+  auto icon = new StaticIcon(this, 0, 0, ICON_USB_PLUGGED, COLOR_THEME_PRIMARY2_INDEX);
   lv_obj_center(icon->getLvObj());
 }

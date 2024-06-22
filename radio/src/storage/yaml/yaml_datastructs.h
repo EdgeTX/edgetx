@@ -19,13 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _YAML_DATASTRUCTS_H_
-#define _YAML_DATASTRUCTS_H_
+#pragma once
 
 struct YamlNode;
 
 const YamlNode* get_radiodata_nodes();
 const YamlNode* get_modeldata_nodes();
 const YamlNode* get_partialmodel_nodes();
-
-#endif

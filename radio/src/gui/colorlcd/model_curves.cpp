@@ -51,10 +51,10 @@ class CurveButton : public Button
                  LV_PART_MAIN | LV_STATE_USER_1);
 
     hdrLeft = new StaticIcon(this, 0, 0, ICON_ROUND_TITLE_LEFT,
-                             COLOR_THEME_SECONDARY2);
+                             COLOR_THEME_SECONDARY2_INDEX);
     hdrRight = new StaticIcon(this, width() - 8, 0,
                               ICON_ROUND_TITLE_RIGHT,
-                              COLOR_THEME_SECONDARY2);
+                              COLOR_THEME_SECONDARY2_INDEX);
 
     // Preview
     preview = new CurveRenderer(

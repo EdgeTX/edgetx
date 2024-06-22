@@ -98,7 +98,7 @@ class OutputLineButton : public ListLineButton
     lv_obj_set_pos(revert, REV_X, REV_Y);
 
     curve =
-        new StaticIcon(this, CRV_X, CRV_Y, ICON_TEXTLINE_CURVE, COLOR_THEME_SECONDARY1);
+        new StaticIcon(this, CRV_X, CRV_Y, ICON_TEXTLINE_CURVE, COLOR_THEME_SECONDARY1_INDEX);
 
     new OutputChannelBar(this, rect_t{BAR_X, PAD_MEDIUM, CH_BAR_WIDTH, CH_BAR_HEIGHT},
                                index, false, false);

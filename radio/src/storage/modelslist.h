@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODELSLIST_H_
-#define _MODELSLIST_H_
+#pragma once
 
 #include <stdint.h>
 
@@ -281,5 +280,3 @@ ModelLabelsVector getUniqueLabels();
 
 extern ModelsList modelslist;
 extern ModelMap modelslabels;
-
-#endif  // _MODELSLIST_H_

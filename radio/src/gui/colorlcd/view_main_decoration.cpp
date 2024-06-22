@@ -197,4 +197,3 @@ void ViewMainDecoration::createFlightMode(Window* bc)
 
   flightMode = new DynamicText(bc, rect_t{}, getFM, COLOR_THEME_SECONDARY1);
 }
-

@@ -197,7 +197,7 @@ void drawSleepBitmap()
     etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
   }
 
-  (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2))
+  (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
       ->center(LCD_W, LCD_H);
 
   LvglWrapper::instance()->run();
@@ -235,14 +235,14 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
                            shutdownSplashImg->width(),
                            shutdownSplashImg->height(), LV_IMG_CF_TRUE_COLOR);
     }
-    (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2))
+    (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
         ->center(LCD_W, LCD_H);
 
     for (int i = 0; i < 4; i += 1) {
       shutdownAnim[i] = new StaticIcon(
           shutdownWindow, LCD_W / 2 + bmp_shutdown_xo[i],
           LCD_H / 2 + bmp_shutdown_yo[i],
-          (EdgeTxIcon)(ICON_SHUTDOWN_CIRCLE0 + i), COLOR_THEME_PRIMARY2);
+          (EdgeTxIcon)(ICON_SHUTDOWN_CIRCLE0 + i), COLOR_THEME_PRIMARY2_INDEX);
     }
   }
 

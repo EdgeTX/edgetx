@@ -92,13 +92,11 @@ class AnaViewWindow : public Window
           line, rect_t{},
           [=]() {
             return std::to_string((int16_t)calibratedAnalogs[i] * 25 / 256);
-          },
-          COLOR_THEME_PRIMARY1);
+          });
       etx_obj_add_style(lbl->getLvObj(), styles->text_align_right, LV_PART_MAIN);
 
       lbl = new DynamicText(
-          line, rect_t{}, [=]() { return std::to_string((int16_t)column3(i)); },
-          COLOR_THEME_PRIMARY1);
+          line, rect_t{}, [=]() { return std::to_string((int16_t)column3(i)); });
       etx_obj_add_style(lbl->getLvObj(), styles->text_align_right, LV_PART_MAIN);
 
       if (column4size() > 0) {
@@ -107,8 +105,7 @@ class AnaViewWindow : public Window
             [=]() {
               return std::string(column4prefix()) +
                      std::to_string((int16_t)column4(i));
-            },
-            COLOR_THEME_PRIMARY1);
+            });
         etx_obj_add_style(lbl->getLvObj(), (column4size() == 2) ? styles->text_align_left : styles->text_align_right, LV_PART_MAIN);
 #if !PORTRAIT_LCD
         lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_STRETCH,
@@ -125,8 +122,7 @@ class AnaViewWindow : public Window
       if (column5size() > 0) {
         lbl = new DynamicText(
             line, rect_t{},
-            [=]() { return std::to_string((int16_t)column5(i)); },
-            COLOR_THEME_PRIMARY1);
+            [=]() { return std::to_string((int16_t)column5(i)); });
         etx_obj_add_style(lbl->getLvObj(), styles->text_align_left, LV_PART_MAIN);
       } else {
         grid.nextCell();
@@ -182,8 +178,7 @@ class AnaCalibratedViewWindow : public AnaViewWindow
                    std::to_string(rawTouchState.x) + " : " +
                    std::to_string(rawTouchState.y);
           return std::string("");
-        },
-        COLOR_THEME_PRIMARY1);
+        });
     lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 5,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 

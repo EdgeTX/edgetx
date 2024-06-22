@@ -179,15 +179,13 @@ void StatisticsViewPage::build(Window* window)
   // Session data
   new StaticText(line, rect_t{}, STR_SESSION);
   new DynamicText(
-      line, rect_t{}, [] { return getTimerString(sessionTimer); },
-      COLOR_THEME_PRIMARY1);
+      line, rect_t{}, [] { return getTimerString(sessionTimer); });
 
   // Battery data
   new StaticText(line, rect_t{}, STR_BATT_LABEL);
   new DynamicText(
       line, rect_t{},
-      [] { return getTimerString(g_eeGeneral.globalTimer + sessionTimer); },
-      COLOR_THEME_PRIMARY1);
+      [] { return getTimerString(g_eeGeneral.globalTimer + sessionTimer); });
 
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
@@ -195,14 +193,12 @@ void StatisticsViewPage::build(Window* window)
   // Throttle
   new StaticText(line, rect_t{}, STR_THROTTLE_LABEL);
   new DynamicText(
-      line, rect_t{}, [] { return getTimerString(s_timeCumThr); },
-      COLOR_THEME_PRIMARY1);
+      line, rect_t{}, [] { return getTimerString(s_timeCumThr); });
 
   // Throttle %  data
   new StaticText(line, rect_t{}, STR_THROTTLE_PERCENT_LABEL);
   new DynamicText(
-      line, rect_t{}, [] { return getTimerString(s_timeCum16ThrP / 16); },
-      COLOR_THEME_PRIMARY1);
+      line, rect_t{}, [] { return getTimerString(s_timeCum16ThrP / 16); });
 
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
@@ -210,14 +206,11 @@ void StatisticsViewPage::build(Window* window)
   // Timers
   new StaticText(line, rect_t{}, STR_TIMER_LABEL);
   new DynamicText(
-      line, rect_t{}, [] { return getTimerString(timersStates[0].val); },
-      COLOR_THEME_PRIMARY1);
+      line, rect_t{}, [] { return getTimerString(timersStates[0].val); });
   new DynamicText(
-      line, rect_t{}, [] { return getTimerString(timersStates[1].val); },
-      COLOR_THEME_PRIMARY1);
+      line, rect_t{}, [] { return getTimerString(timersStates[1].val); });
   new DynamicText(
-      line, rect_t{}, [] { return getTimerString(timersStates[2].val); },
-      COLOR_THEME_PRIMARY1);
+      line, rect_t{}, [] { return getTimerString(timersStates[2].val); });
 
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
@@ -380,8 +373,7 @@ void DebugViewPage::build(Window* window)
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
         [] {
           return std::string(gpsData.fix ? STR_GPS_FIX_YES : STR_GPS_FIX_NO);
-        },
-        COLOR_THEME_PRIMARY1);
+        });
     new DebugInfoNumber<uint8_t>(
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
         [] { return gpsData.numSat; }, STR_GPS_SATS);

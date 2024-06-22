@@ -118,7 +118,6 @@ class ModelBitmapWidget : public Widget
 
  protected:
   bool isLarge = false;
-  // std::unique_ptr<BitmapBuffer> buffer;
   uint32_t deps_hash = 0;
   StaticText* label = nullptr;
   StaticImage* image = nullptr;

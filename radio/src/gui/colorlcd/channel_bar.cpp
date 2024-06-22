@@ -219,8 +219,8 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
                                  uint8_t _channel, bool isInHeader) :
     Window(parent, rect), channel(_channel)
 {
-  LcdFlags textColor =
-      isInHeader ? COLOR_THEME_PRIMARY2 : COLOR_THEME_SECONDARY1;
+  LcdColorIndex txtColIdx = isInHeader ? COLOR_THEME_PRIMARY2_INDEX : COLOR_THEME_SECONDARY1_INDEX;
+  LcdFlags textColor = COLOR(txtColIdx);
 
   outputChannelBar = new OutputChannelBar(
       this, {PAD_TINY, ChannelBar::BAR_HEIGHT + PAD_TINY, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
@@ -259,7 +259,7 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
   // Override icon
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
   overrideIcon = new StaticIcon(
-      this, 0, 5, ICON_CHAN_MONITOR_LOCKED, textColor);
+      this, 0, 5, ICON_CHAN_MONITOR_LOCKED, txtColIdx);
   overrideIcon->show(safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED);
 #endif
 
@@ -267,7 +267,7 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
   LimitData* ld = limitAddress(channel);
   if (ld && ld->revert) {
     new StaticIcon(this, 0, ICON_SZ, ICON_CHAN_MONITOR_INVERTED,
-                   textColor);
+                   txtColIdx);
   }
 }
 

@@ -103,7 +103,7 @@ class SelectFabButton : public ButtonBase
                    etx_quick_icon_create);
     iconLayout->setWindowFlag(NO_FOCUS);
 
-    (new StaticIcon(iconLayout, 0, 0, icon, COLOR_WHITE))
+    (new StaticIcon(iconLayout, 0, 0, icon, COLOR_WHITE_INDEX))
         ->center(SelectFabCarousel::FAB_ICON_SIZE - 4, SelectFabCarousel::FAB_ICON_SIZE - 4);
 
     new StaticText(this, {0, SelectFabCarousel::FAB_BUTTON_HEIGHT - SelectFabCarousel::FAB_TXT_YO, SelectFabCarousel::FAB_BUTTON_INNER_WIDTH, 0},
