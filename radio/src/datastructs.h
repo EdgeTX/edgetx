@@ -86,7 +86,7 @@ static inline void check_struct()
   CHKSIZE(ModelHeader, 131);
   CHKSIZE(CurveHeader, 4);
   CHKSIZE(CustomScreenData, 852);
-  CHKTYPE(TopBarPersistentData, 444);
+  CHKTYPE(TopBarPersistentData, 300);
 #elif defined(PCBNV14) || defined(PCBPL18)
   // TODO
 #else
@@ -155,7 +155,7 @@ static inline void check_struct()
 #elif defined(PCBHORUS)
   #if defined(PCBX10)
     CHKSIZE(RadioData, 965);
-    CHKSIZE(ModelData, 15735);
+    CHKSIZE(ModelData, 15591);
   #else
     CHKSIZE(RadioData, 965);
     CHKSIZE(ModelData, 15735);
