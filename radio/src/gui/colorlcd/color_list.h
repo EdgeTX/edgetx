@@ -30,8 +30,7 @@
 class ColorList : public ListBox
 {
  public:
-  ColorList(Window* parent, const rect_t& rect, std::vector<ColorEntry> colors,
-            LcdFlags lcdFlags = 0);
+  ColorList(Window* parent, const rect_t& rect, std::vector<ColorEntry> colors);
 
   inline ColorEntry getSelectedColor()
   {
