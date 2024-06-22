@@ -629,7 +629,7 @@ static void checkFailsafe()
 #endif
 
 #if defined(GUI)
-void checkAll()
+void checkAll(bool isBootCheck)
 {
 #if defined(EEPROM_RLC) && !defined(SDCARD_RAW) && !defined(SDCARD_YAML)
   checkLowEEPROM();
@@ -645,9 +645,9 @@ void checkAll()
   checkSwitches();
   checkFailsafe();
 
-
-  if (isVBatBridgeEnabled() && !g_eeGeneral.disableRtcWarning) {
+  if (isBootCheck && !g_eeGeneral.disableRtcWarning) {
     // only done once at board start
+    enableVBatBridge();
     checkRTCBattery();
   }
   disableVBatBridge();
@@ -1532,7 +1532,7 @@ void edgeTxInit()
     }
     else if (!(startOptions & OPENTX_START_NO_CHECKS)) {
       checkAlarm();
-      checkAll();
+      checkAll(true);
       PLAY_MODEL_NAME();
     }
 #endif // defined(GUI)

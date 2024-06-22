@@ -336,7 +336,7 @@ void checkLowEEPROM();
 void checkThrottleStick();
 void checkSwitches();
 void checkAlarm();
-void checkAll();
+void checkAll(bool isBootCheck = false);
 
 void getADC();
 
