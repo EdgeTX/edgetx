@@ -29,9 +29,9 @@
 #include "color_picker.h"
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-   static constexpr coord_t LH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY_GAP * 4};
+   static constexpr coord_t LH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY_GAP * 4;
 #else
-   static constexpr coord_t LH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY_GAP * 2};
+   static constexpr coord_t LH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY_GAP * 2;
 #endif
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
