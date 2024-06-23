@@ -25,6 +25,8 @@
 
 class RadioHardwarePage : public PageTab
 {
+  void checkEvents() override;
+
  public:
   RadioHardwarePage();
 
