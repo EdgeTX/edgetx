@@ -289,6 +289,8 @@
 #define TR_SWITCH                      "Kontakt"
 #define TR_FUNCTION_SWITCHES           "Kontakter der kan tilpasses"
 #define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off","Custom"
+#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
+#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
 #define TR_GROUP                       "Gruppe"
 #define TR_GROUP_ALWAYS_ON             "Altid til"
 #define TR_GROUPS                      "Altid til gruppe"
