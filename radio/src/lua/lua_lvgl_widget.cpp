@@ -585,6 +585,8 @@ void LvglWidgetQRCode::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "data")) {
     data = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "bgColor")) {
+    bgColor = luaL_checkunsigned(L, -1);
   } else {
     LvglWidgetObject::parseParam(L, key);
   }
@@ -592,7 +594,7 @@ void LvglWidgetQRCode::parseParam(lua_State *L, const char *key)
 
 void LvglWidgetQRCode::build(lua_State *L)
 {
-  window = new QRCode(lvglManager->getCurrentParent(), x, y, w, data);
+  window = new QRCode(lvglManager->getCurrentParent(), x, y, w, data, colorToRGB(color), colorToRGB(bgColor));
 }
 
 //-----------------------------------------------------------------------------

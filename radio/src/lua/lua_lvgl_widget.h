@@ -257,6 +257,7 @@ class LvglWidgetQRCode : public LvglWidgetObject
 
  protected:
   std::string data;
+  LcdFlags bgColor = COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX);
 
   void parseParam(lua_State *L, const char *key) override;
 };

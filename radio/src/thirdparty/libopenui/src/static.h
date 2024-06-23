@@ -208,7 +208,8 @@ class StaticLZ4Image : public Window
 class QRCode : public Window
 {
  public:
-  QRCode(Window *parent, coord_t x, coord_t y, coord_t sz, std::string data);
+  QRCode(Window *parent, coord_t x, coord_t y, coord_t sz, std::string data,
+         LcdFlags color = COLOR_THEME_SECONDARY1, LcdFlags bgColor = COLOR_THEME_SECONDARY3);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "QRCode"; }
