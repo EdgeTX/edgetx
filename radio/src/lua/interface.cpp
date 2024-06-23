@@ -893,7 +893,9 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
         ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
         sid.reference = SCRIPT_STANDALONE;
         if (luaLoad(filename, sid)) {
+#if defined(COLORLCD)
           StandaloneLuaWindow::setup(true);
+#endif
           luaError(lsScripts, sid.state);
           continue;
         }
@@ -960,8 +962,10 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
           else {
             snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%.*s): The script did not return a table\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
             sid.state = SCRIPT_SYNTAX_ERROR;
+#if defined(COLORLCD)
             if (sid.reference == SCRIPT_STANDALONE)
               StandaloneLuaWindow::setup(true);
+#endif
             initFunction = LUA_NOREF;
           }
          
