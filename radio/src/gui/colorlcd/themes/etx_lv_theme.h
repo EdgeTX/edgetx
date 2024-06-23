@@ -84,11 +84,25 @@ void etx_solid_bg(lv_obj_t* obj,
 void etx_font(lv_obj_t* obj, FontIndex fontIdx,
               lv_style_selector_t selector = LV_PART_MAIN);
 
+void etx_remove_bg_color(lv_obj_t* obj, lv_style_selector_t selector = LV_PART_MAIN);
 void etx_bg_color(lv_obj_t* obj, LcdColorIndex colorIdx,
                   lv_style_selector_t selector = LV_PART_MAIN);
+void etx_bg_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
+                             lv_style_selector_t selector = LV_PART_MAIN);
 
+void etx_remove_txt_color(lv_obj_t* obj, lv_style_selector_t selector = LV_PART_MAIN);
 void etx_txt_color(lv_obj_t* obj, LcdColorIndex colorIdx,
                    lv_style_selector_t selector = LV_PART_MAIN);
+void etx_txt_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
+                              lv_style_selector_t selector = LV_PART_MAIN);
+
+void etx_remove_border_color(lv_obj_t* obj, lv_style_selector_t selector = LV_PART_MAIN);
+void etx_border_color(lv_obj_t* obj, LcdColorIndex colorIdx,
+                   lv_style_selector_t selector = LV_PART_MAIN);
+
+void etx_remove_arc_color(lv_obj_t* obj, lv_style_selector_t selector = LV_PART_MAIN);
+void etx_arc_color(lv_obj_t* obj, LcdColorIndex colorIdx,
+                  lv_style_selector_t selector = LV_PART_MAIN);
 
 void etx_img_color(lv_obj_t* obj, LcdColorIndex colorIdx,
                    lv_style_selector_t selector = LV_PART_MAIN);
@@ -122,19 +136,12 @@ class EdgeTxStyles
   lv_style_t bg_color[TOTAL_COLOR_COUNT];
   lv_style_t txt_color[TOTAL_COLOR_COUNT];
   lv_style_t img_color[TOTAL_COLOR_COUNT];
-  lv_style_t border_color_dark;
-  lv_style_t border_color_normal;
-  lv_style_t border_color_black;
-  lv_style_t border_color_white;
-  lv_style_t border_color_focus;
-  lv_style_t border_color_active;
-  lv_style_t border_color_edit;
+  lv_style_t border_color[TOTAL_COLOR_COUNT];
+  lv_style_t arc_color[TOTAL_COLOR_COUNT];
   lv_style_t outline_color_light;
   lv_style_t outline_color_normal;
   lv_style_t outline_color_focus;
   lv_style_t outline_color_edit;
-  lv_style_t bg_color_grey;
-  lv_style_t arc_color;
   lv_style_t graph_border;
   lv_style_t graph_dashed;
   lv_style_t graph_line;

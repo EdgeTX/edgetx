@@ -34,7 +34,7 @@ static void etx_quick_button_constructor(const lv_obj_class_t* class_p,
   etx_obj_add_style(obj, styles->pad_medium, LV_PART_MAIN);
 
   etx_obj_add_style(obj, styles->border, LV_PART_MAIN | LV_STATE_FOCUSED);
-  etx_obj_add_style(obj, styles->border_color_white,
+  etx_obj_add_style(obj, styles->border_color[COLOR_WHITE_INDEX],
                     LV_PART_MAIN | LV_STATE_FOCUSED);
 }
 
@@ -60,7 +60,7 @@ static void etx_quick_icon_constructor(const lv_obj_class_t* class_p,
                                        lv_obj_t* obj)
 {
   etx_obj_add_style(obj, styles->border, LV_PART_MAIN);
-  etx_obj_add_style(obj, styles->border_color_white, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->border_color[COLOR_WHITE_INDEX], LV_PART_MAIN);
   etx_obj_add_style(obj, styles->outline, LV_PART_MAIN);
   lv_obj_set_style_outline_color(obj, lv_color_black(), LV_PART_MAIN);
   etx_obj_add_style(obj, styles->circle, LV_PART_MAIN);

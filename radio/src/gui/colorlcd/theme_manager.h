@@ -163,7 +163,7 @@ class HeaderDateTime : public Window
  public:
   HeaderDateTime(Window* parent, int x, int y);
 
-  void setColor(uint32_t color);
+  void setColor(LcdFlags color);
 
   static LAYOUT_VAL(HDR_DATE_WIDTH, 45, 45)
   static LAYOUT_VAL(HDR_DATE_HEIGHT, 12, 12)

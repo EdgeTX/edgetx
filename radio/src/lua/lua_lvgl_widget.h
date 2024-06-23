@@ -87,7 +87,7 @@ class LvglWidgetObject : public LvglWidgetObjectBase
   LcdFlags currentColor = -1;
 
   coord_t x = 0, y = 0, w = LV_SIZE_CONTENT, h = LV_SIZE_CONTENT;
-  LcdFlags color = COLOR_THEME_SECONDARY1;
+  LcdFlags color = COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX);
   int getColorFunction = 0;
   int getVisibleFunction = 0;
   int getSizeFunction = 0;

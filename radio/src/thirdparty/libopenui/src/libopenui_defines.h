@@ -20,9 +20,9 @@
 
 #include "debug.h"
 #include "hal.h"
+#include "opentx_types.h"
 #include "colors.h"
 #include "keys.h"
-#include "opentx_types.h"
 
 // Used by Lua API
 #define INVERS                         0x01u

@@ -139,4 +139,6 @@ extern uint32_t HSVtoRGB(float H, float S, float V);
 extern void RGBtoHSV(uint8_t R, uint8_t G, uint8_t B, float& fH, float& fS,
                      float& fV);
 
+LcdFlags colorToRGB(LcdFlags colorFlags);
+
 lv_color_t makeLvColor(uint32_t colorFlags);

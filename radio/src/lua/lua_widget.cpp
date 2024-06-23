@@ -330,8 +330,8 @@ void LuaWidget::update()
       lua_pushstring(lsWidgets, &str[0]);
       lua_settable(lsWidgets, -3);
     } else if (option->type == ZoneOption::Color) {
-      int32_t value = persistentData->options[i].value.signedValue;
-      l_pushtableint(option->name, COLOR2FLAGS(value) | RGB_FLAG);
+      int32_t value = persistentData->options[i].value.unsignedValue;
+      l_pushtableint(option->name, value);
     } else {
       int32_t value = persistentData->options[i].value.signedValue;
       l_pushtableint(option->name, value);

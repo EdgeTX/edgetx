@@ -168,10 +168,8 @@ class ValueWidget : public Widget
     mixsrc_t field = persistentData->options[0].value.unsignedValue;
 
     // get color from options[1]
-    lv_color_t color;
-    color.full = persistentData->options[1].value.unsignedValue;
-    lv_style_set_text_color(&labelStyle, color);
-    lv_style_set_text_color(&valueStyle, color);
+    etx_txt_color_from_flags(label, persistentData->options[1].value.unsignedValue);
+    etx_txt_color_from_flags(value, persistentData->options[1].value.unsignedValue);
 
     // get label alignment from options[3]
     LcdFlags lblAlign = persistentData->options[3].value.unsignedValue;
@@ -260,8 +258,7 @@ class ValueWidget : public Widget
 
 const ZoneOption ValueWidget::options[] = {
     {STR_SOURCE, ZoneOption::Source, OPTION_VALUE_UNSIGNED(MIXSRC_FIRST_STICK)},
-    {STR_COLOR, ZoneOption::Color,
-     OPTION_VALUE_UNSIGNED(COLOR_THEME_PRIMARY2 >> 16)},
+    {STR_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
     {STR_SHADOW, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
     {STR_ALIGN_LABEL, ZoneOption::Align, OPTION_VALUE_UNSIGNED(ALIGN_LEFT)},
     {STR_ALIGN_VALUE, ZoneOption::Align, OPTION_VALUE_UNSIGNED(ALIGN_LEFT)},

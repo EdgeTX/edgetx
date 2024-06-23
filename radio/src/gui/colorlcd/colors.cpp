@@ -142,6 +142,16 @@ LcdColorIndex indexFromColor(uint32_t lcdFlags)
   return CUSTOM_COLOR_INDEX;
 }
 
+// Return flags with RGB color value instead of indexed theme color
+LcdFlags colorToRGB(LcdFlags colorFlags)
+{
+  // RGB or indexed color?
+  if (colorFlags & RGB_FLAG)
+    return colorFlags;
+
+  return (colorFlags & 0xFFFF) | COLOR(COLOR_VAL(colorFlags)) | RGB_FLAG;
+}
+
 /**
  * Helper function to translate a colorFlags value to a lv_color_t suitable
  * for passing to an lv_obj function

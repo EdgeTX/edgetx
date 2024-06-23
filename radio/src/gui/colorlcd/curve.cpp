@@ -153,7 +153,7 @@ Curve::Curve(Window* parent, const rect_t& rect,
     etx_solid_bg(p, COLOR_THEME_PRIMARY2_INDEX);
     etx_obj_add_style(p, styles->circle, LV_PART_MAIN);
     etx_obj_add_style(p, styles->border, LV_PART_MAIN);
-    etx_obj_add_style(p, styles->border_color_dark, LV_PART_MAIN);
+    etx_obj_add_style(p, styles->border_color[COLOR_THEME_SECONDARY1_INDEX], LV_PART_MAIN);
     lv_obj_set_size(p, 9, 9);
     lv_obj_add_flag(p, LV_OBJ_FLAG_HIDDEN);
     pointDots[i] = p;
@@ -174,7 +174,7 @@ Curve::Curve(Window* parent, const rect_t& rect,
     etx_solid_bg(posPoint, COLOR_THEME_PRIMARY2_INDEX);
     etx_obj_add_style(posPoint, styles->circle, LV_PART_MAIN);
     etx_obj_add_style(posPoint, styles->border, LV_PART_MAIN);
-    etx_obj_add_style(posPoint, styles->border_color_active, LV_PART_MAIN);
+    etx_obj_add_style(posPoint, styles->border_color[COLOR_THEME_ACTIVE_INDEX], LV_PART_MAIN);
     lv_obj_set_size(posPoint, 9, 9);
 
     updatePosition();

@@ -509,6 +509,9 @@ HeaderDateTime::HeaderDateTime(Window* parent, coord_t x, coord_t y) :
   etx_txt_color(time, COLOR_THEME_PRIMARY2_INDEX);
   etx_font(time, FONT_XS_INDEX);
 
+  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_EVENT_BUBBLE);
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+
   checkEvents();
 }
 
@@ -534,10 +537,10 @@ void HeaderDateTime::checkEvents()
   }
 }
 
-void HeaderDateTime::setColor(uint32_t color)
+void HeaderDateTime::setColor(LcdFlags color)
 {
-  lv_obj_set_style_text_color(date, makeLvColor(color), LV_PART_MAIN);
-  lv_obj_set_style_text_color(time, makeLvColor(color), LV_PART_MAIN);
+  etx_txt_color_from_flags(date, color);
+  etx_txt_color_from_flags(time, color);
 }
 
 HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon) :

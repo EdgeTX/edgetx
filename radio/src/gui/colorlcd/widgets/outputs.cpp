@@ -43,7 +43,7 @@ class ChannelValue : public Window
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
 
     etx_obj_add_style(lvobj, styles->border_thin, LV_PART_MAIN);
-    etx_obj_add_style(lvobj, styles->border_color_black, LV_PART_MAIN);
+    etx_obj_add_style(lvobj, styles->border_color[COLOR_BLACK_INDEX], LV_PART_MAIN);
 
     padAll(PAD_ZERO);
 
@@ -51,28 +51,30 @@ class ChannelValue : public Window
     lv_style_set_width(&style, lv_pct(100));
     lv_style_set_height(&style, lv_pct(100));
 
-    lv_color_t color;
-    color.full = txtColor >> 16u;
-    lv_style_set_text_color(&style, color);
-    color.full = barColor >> 16u;
-    lv_style_set_bg_color(&style, color);
+    // lv_color_t color;
+    // color.full = txtColor >> 16u;
+    // lv_style_set_text_color(&style, color);
+    // color.full = barColor >> 16u;
+    // lv_style_set_bg_color(&style, color);
 
     bar = lv_obj_create(lvobj);
     lv_obj_set_style_bg_opa(bar, LV_OPA_COVER, LV_PART_MAIN);
-    lv_obj_add_style(bar, &style, LV_PART_MAIN);
     lv_obj_clear_flag(bar, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_set_size(bar, 0, ROW_HEIGHT - 1);
+    etx_bg_color_from_flags(bar, barColor);
 
     valueLabel = lv_label_create(lvobj);
     etx_font(valueLabel, FONT_XS_INDEX);
     etx_obj_add_style(valueLabel, styles->text_align_right, LV_PART_MAIN);
+    etx_txt_color_from_flags(valueLabel, txtColor);
     lv_obj_add_style(valueLabel, &style, LV_PART_MAIN);
     lv_label_set_text(valueLabel, "");
 
     chanLabel = lv_label_create(lvobj);
     etx_font(chanLabel, FONT_XS_INDEX);
     etx_obj_add_style(chanLabel, styles->text_align_left, LV_PART_MAIN);
-    lv_obj_add_style(chanLabel, &style, LV_PART_MAIN);
+    etx_txt_color_from_flags(chanLabel, txtColor);
+    lv_label_set_text(chanLabel, "");
 
     chanHasName = g_model.limitData[channel].name[0] != 0;
     setChannel();
@@ -168,9 +170,7 @@ class OutputsWidget : public Widget
   void update() override
   {
     // get background color from options[2]
-    lv_color_t color;
-    color.full = persistentData->options[2].value.unsignedValue;
-    lv_style_set_bg_color(&style, color);
+    etx_bg_color_from_flags(lvobj, persistentData->options[2].value.unsignedValue);
 
     // Set background opacity from options[1]
     if (persistentData->options[1].value.boolValue)
@@ -179,8 +179,8 @@ class OutputsWidget : public Widget
       lv_obj_clear_state(lvobj, ETX_STATE_BG_FILL);
 
     // Colors
-    txtColor = COLOR2FLAGS(persistentData->options[3].value.unsignedValue);
-    barColor = COLOR2FLAGS(persistentData->options[4].value.unsignedValue);
+    txtColor = persistentData->options[3].value.unsignedValue;
+    barColor = persistentData->options[4].value.unsignedValue;
 
     // Setup channels
     firstChan = persistentData->options[0].value.unsignedValue;
@@ -221,12 +221,9 @@ const ZoneOption OutputsWidget::options[] = {
     {STR_FIRST_CHANNEL, ZoneOption::Integer, OPTION_VALUE_UNSIGNED(1),
      OPTION_VALUE_UNSIGNED(1), OPTION_VALUE_UNSIGNED(32)},
     {STR_FILL_BACKGROUND, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
-    {STR_BG_COLOR, ZoneOption::Color,
-     OPTION_VALUE_UNSIGNED(COLOR_THEME_SECONDARY3 >> 16)},
-    {STR_TEXT_COLOR, ZoneOption::Color,
-     OPTION_VALUE_UNSIGNED(COLOR_THEME_PRIMARY1 >> 16)},
-    {STR_COLOR, ZoneOption::Color,
-     OPTION_VALUE_UNSIGNED(COLOR_THEME_SECONDARY1 >> 16)},
+    {STR_BG_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX)},
+    {STR_TEXT_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
+    {STR_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)},
     {nullptr, ZoneOption::Bool}};
 
 BaseWidgetFactory<OutputsWidget> outputsWidget("Outputs",

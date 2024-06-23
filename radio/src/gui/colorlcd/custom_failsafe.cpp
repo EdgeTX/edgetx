@@ -34,7 +34,7 @@ class ChannelFailsafeBargraph : public Window
       Window(parent, rect), channel(channel)
   {
     etx_obj_add_style(lvobj, styles->border_thin, LV_PART_MAIN);
-    etx_obj_add_style(lvobj, styles->border_color_black, LV_PART_MAIN);
+    etx_obj_add_style(lvobj, styles->border_color[COLOR_BLACK_INDEX], LV_PART_MAIN);
 
     outputsBar = new OutputChannelBar(this, {0, 1, width() - 2, ChannelBar::BAR_HEIGHT},
                                       channel, false, false);

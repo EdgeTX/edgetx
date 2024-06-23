@@ -126,7 +126,7 @@ static void bubble_popup_constructor(const lv_obj_class_t* class_p, lv_obj_t* ob
   etx_obj_add_style(obj, bubble_popup, LV_PART_MAIN);
   etx_bg_color(obj, COLOR_WHITE_INDEX, LV_PART_MAIN);
   etx_txt_color(obj, COLOR_BLACK_INDEX, LV_PART_MAIN);
-  etx_obj_add_style(obj, styles->border_color_black, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->border_color[COLOR_BLACK_INDEX], LV_PART_MAIN);
 }
 
 static const lv_obj_class_t bubble_popup_class = {

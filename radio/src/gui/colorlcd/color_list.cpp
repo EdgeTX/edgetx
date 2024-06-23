@@ -78,7 +78,7 @@ static void color_swatch_constructor(const lv_obj_class_t *class_p,
 {
   etx_obj_add_style(obj, styles->bg_opacity_cover, LV_PART_MAIN);
   etx_obj_add_style(obj, styles->border_thin, LV_PART_MAIN);
-  etx_obj_add_style(obj, styles->border_color_black, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->border_color[COLOR_BLACK_INDEX], LV_PART_MAIN);
 }
 
 static const lv_obj_class_t color_swatch_class = {

@@ -262,24 +262,12 @@ void WidgetFactory::initPersistentData(Widget::PersistentData* persistentData,
     for (const ZoneOption* option = options; option->name; option++, i++) {
       TRACE("WidgetFactory::initPersistentData() setting option '%s'",
             option->name);
-      // TODO compiler bug? The CPU freezes ... persistentData->options[i++] =
-      // option->deflt;
       auto optVal = &persistentData->options[i];
       auto optType = zoneValueEnumFromType(option->type);
       if (setDefault || optVal->type != optType) {
         // reset to default value
         memcpy(&optVal->value, &option->deflt, sizeof(ZoneOptionValue));
         optVal->type = optType;
-        if (option->type == ZoneOption::Color) {
-          // If color value is in defaultColors - change it to current theme
-          // color
-          for (int i = 1; i < LCD_COLOR_COUNT - 1; i += 1) {
-            if (optVal->value.unsignedValue == defaultColors[i]) {
-              optVal->value.unsignedValue = lcdColorTable[i];
-              break;
-            }
-          }
-        }
       }
     }
   }

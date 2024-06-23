@@ -71,8 +71,6 @@ extern LuaWidget* runningFS;
 class LuaLvglManager;
 extern LuaLvglManager* luaLvglManager;
 
-LcdFlags flagsRGB(LcdFlags flags);
-
 extern lua_State* lsWidgets;
 extern uint32_t luaExtraMemoryUsage;
 void luaInitThemesAndWidgets();

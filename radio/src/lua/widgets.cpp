@@ -185,8 +185,7 @@ ZoneOption *createOptionsArray(int reference, uint8_t maxOptions)
               // TRACE("default unsigned = %u", option->deflt.unsignedValue);
             } else if (option->type == ZoneOption::Color) {
               luaL_checktype(lsWidgets, -1, LUA_TNUMBER);  // value is number
-              option->deflt.unsignedValue =
-                  COLOR_VAL(flagsRGB(lua_tounsigned(lsWidgets, -1)));
+              option->deflt.unsignedValue = lua_tounsigned(lsWidgets, -1);
               // TRACE("default unsigned = %u", option->deflt.unsignedValue);
             } else if (option->type == ZoneOption::Bool) {
               luaL_checktype(lsWidgets, -1, LUA_TNUMBER);  // value is number
