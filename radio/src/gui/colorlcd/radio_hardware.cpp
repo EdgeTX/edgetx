@@ -139,7 +139,7 @@ static SetupLineDef setupLines[] = {
       new DynamicNumber<uint16_t>(
           parent,
           {x + ToggleSwitch::TOGGLE_W + PAD_SMALL, y + PAD_SMALL + 1, 0, 0},
-          [] { return getRTCBatteryVoltage(); }, COLOR_THEME_PRIMARY1, PREC2,
+          [] { return getRTCBatteryVoltage(); }, COLOR_THEME_PRIMARY1_INDEX, PREC2,
           "", "V");
     }
   },
